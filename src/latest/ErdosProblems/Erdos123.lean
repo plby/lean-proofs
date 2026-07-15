@@ -2738,9 +2738,275 @@ theorem seedLevelSet_disjoint_high_shell
   · rcases hface with rfl | rfl | rfl <;> omega
   · omega
 
-set_option maxHeartbeats 5000000 in
--- This construction combines several large finite gadgets, and the final
--- arithmetic assembly needs more elaboration budget than the default.
+private abbrev orderedSeedDegree (c n u v M : ℕ) : ℕ :=
+  edgeDigitDepth c + n - 1 + (u + v) * M + 3
+
+private abbrev orderedSeedA (a u v : ℕ) : ℕ :=
+  a ^ (u + v)
+
+private abbrev orderedSeedB (b c u v : ℕ) : ℕ :=
+  b ^ u * c ^ v
+
+private abbrev orderedSeedStep (a b c d : ℕ) : ℕ :=
+  (a * b * c) * d
+
+private abbrev orderedSeedOffset (a b c B₀ u v M : ℕ) : ℕ :=
+  (a * b * c) *
+    (B₀ * homogeneousWeightMass (orderedSeedA a u v) (orderedSeedB b c u v) M)
+
+private abbrev orderedSeedLo (a b c n B₀ d u v M Ccorr U : ℕ) : ℕ :=
+  orderedSeedOffset a b c B₀ u v M +
+    orderedSeedStep a b c d * U +
+      Ccorr * c ^ orderedSeedDegree c n u v M
+
+private abbrev orderedSeedHi (a b c B₀ d u v M V : ℕ) : ℕ :=
+  orderedSeedOffset a b c B₀ u v M + orderedSeedStep a b c d * V
+
+/-- The base represented interval inside the ordered seed construction. -/
+private theorem ordered_seed_base_interval
+    {a b c n L B₀ d u v M Ccorr D₀ U V : ℕ}
+    {words : Fin L → (Fin n → Fin c)} {p : Finset ℕ}
+    (ha : 1 < a) (hb : 1 < b) (hc : 1 < c) (hacLt : a < c)
+    (hab : Nat.Coprime a b) (hac : Nat.Coprime a c) (hbc : Nat.Coprime b c)
+    (huBand : edgeDigitDepth c + 1 < u)
+    (hqd : 0 < orderedSeedStep a b c d)
+    (hMDegree : D₀ ≤ orderedSeedDegree c n u v M)
+    (hwords : ∀ r : Fin L, edgeCodeEval a b c n (words r) = B₀ + (r : ℕ) * d)
+    (hcorr : ∀ D : ℕ, D₀ ≤ D → ∀ r : ℕ,
+      ∃ s : Finset ℕ,
+        (∀ z ∈ s, z ∈ Smooth3 a b c) ∧
+        (∀ z ∈ s, ∃ i j k : ℕ,
+          i + j + k = D ∧ z = eval3 a b c i j k ∧
+          (i = 0 ∨ j = 0 ∨ k = 0)) ∧
+        IsPrimitive s ∧
+          s.sum id ≡ r [MOD orderedSeedStep a b c d] ∧
+          s.sum id ≤ Ccorr * c ^ D)
+    (hradix : ∀ value : ℕ, U ≤ value → value ≤ V →
+      HomogeneousRadixRep (orderedSeedA a u v) (orderedSeedB b c u v) L M value)
+    (hpHigh : ∀ x ∈ p, ∃ i j k : ℕ,
+      0 < i ∧ 0 < j ∧ 0 < k ∧
+        i + j + k = orderedSeedDegree c n u v M ∧
+        u * M + edgeDigitDepth c + 1 < j ∧ x = eval3 a b c i j k) :
+    ∀ target : ℕ,
+      orderedSeedLo a b c n B₀ d u v M Ccorr U ≤ target →
+      target ≤ orderedSeedHi a b c B₀ d u v M V →
+        ∃ s : Finset ℕ,
+          (∀ x ∈ s, x ∈ Smooth3 a b c) ∧
+          (∀ x ∈ s, ∃ i j k : ℕ,
+            i + j + k = orderedSeedDegree c n u v M ∧
+              x = eval3 a b c i j k) ∧
+          Disjoint s p ∧ s.sum id = target := by
+  intro target htLo htHi
+  let G := u + v
+  let A := a ^ G
+  let B := b ^ u * c ^ v
+  let q := a * b * c
+  let Step := q * d
+  let Mass := homogeneousWeightMass A B M
+  let Offset := q * (B₀ * Mass)
+  let D := orderedSeedDegree c n u v M
+  let Z := Ccorr * c ^ D
+  let Lo := Offset + Step * U + Z
+  let Hi := Offset + Step * V
+  have htLo' : Lo ≤ target := by
+    simpa [Lo, Offset, Step, q, Mass, A, B, G, Z, D,
+      orderedSeedLo, orderedSeedOffset, orderedSeedStep, orderedSeedA,
+      orderedSeedB] using htLo
+  have htHi' : target ≤ Hi := by
+    simpa [Hi, Offset, Step, q, Mass, A, B, G, orderedSeedHi,
+      orderedSeedOffset, orderedSeedStep, orderedSeedA, orderedSeedB] using htHi
+  have hOffT : Offset ≤ target := by dsimp [Lo] at htLo'; omega
+  let Y := target - Offset
+  have hYeq : Offset + Y = target := Nat.add_sub_of_le hOffT
+  let r := Y % Step
+  have hMDegree' : D₀ ≤ D := by simpa [D] using hMDegree
+  rcases hcorr D hMDegree' r with
+    ⟨corr, hcorrSmooth, hcorrShape, _hcorrPrim, hcorrMod, hcorrBound⟩
+  have hcorrZ : corr.sum id ≤ Z := by simpa [Z] using hcorrBound
+  have hZY : Z ≤ Y := by
+    dsimp [Lo] at htLo'
+    dsimp [Y]
+    omega
+  have hcorrY : corr.sum id ≤ Y := hcorrZ.trans hZY
+  have hYmod : Y ≡ r [MOD Step] := (Nat.mod_modEq Y Step).symm
+  have hmodEq : Y ≡ corr.sum id [MOD Step] := hYmod.trans hcorrMod.symm
+  have hsubMod := hmodEq.sub hcorrY (le_refl (corr.sum id))
+    (Nat.ModEq.refl (n := Step) (corr.sum id))
+  have hdvd : Step ∣ Y - corr.sum id := by
+    apply Nat.dvd_of_mod_eq_zero
+    simpa [Nat.ModEq] using hsubMod
+  let coeff := (Y - corr.sum id) / Step
+  have hStepCoeff : Step * coeff = Y - corr.sum id :=
+    Nat.mul_div_cancel' hdvd
+  have hcoeffU : U ≤ coeff := by
+    apply (Nat.le_div_iff_mul_le hqd).2
+    dsimp [Lo] at htLo'
+    have : Step * U + corr.sum id ≤ Y := by omega
+    have hmul : Step * U ≤ Y - corr.sum id := Nat.le_sub_of_add_le this
+    change U * Step ≤ Y - corr.sum id
+    simpa [Nat.mul_comm] using hmul
+  have hcoeffV : coeff ≤ V := by
+    apply Nat.le_of_mul_le_mul_left (c := Step) _ hqd
+    rw [hStepCoeff]
+    dsimp [Hi] at htHi'
+    have hYV : Y ≤ Step * V := by
+      dsimp [Y]
+      omega
+    exact (Nat.sub_le _ _).trans hYV
+  have hcoeffRep := hradix coeff hcoeffU hcoeffV
+  rcases homogeneousRadixRep_realized_by_edge_AP ha hb hc hacLt hab hac hbc
+      huBand words hwords hcoeffRep with ⟨ap, hapBand, hapSum⟩
+  have hapSeed : IsSeedLevelSet a b c D (u * M + edgeDigitDepth c + 1) ap := by
+    intro x hx
+    rcases hapBand x hx with ⟨i, j, k, hi, hj, hk, hdeg, hjBound, hval⟩
+    exact ⟨i, j, k, by simpa [D] using hdeg, hval,
+      Or.inr ⟨hi, hj, hk, hjBound⟩⟩
+  have hcorrSeed : IsSeedLevelSet a b c D (u * M + edgeDigitDepth c + 1) corr := by
+    intro x hx
+    rcases hcorrShape x hx with ⟨i, j, k, hdeg, hval, hface⟩
+    exact ⟨i, j, k, hdeg, hval, Or.inl hface⟩
+  have hdisAPCorr : Disjoint ap corr := by
+    rw [Finset.disjoint_left]
+    intro x hxap hxcorr
+    rcases hapBand x hxap with ⟨i, j, k, _hi, _hj, _hk, _hdeg, _hjB, hval⟩
+    rcases hcorrShape x hxcorr with ⟨i', j', k', _hdeg', hval', hface⟩
+    have heq : eval3 a b c i j k = eval3 a b c i' j' k' := by
+      rw [← hval, ← hval']
+    have hd1 : eval3 a b c i j k ∣ eval3 a b c i' j' k' := by rw [heq]
+    have hd2 : eval3 a b c i' j' k' ∣ eval3 a b c i j k := by rw [heq]
+    have hc1 := (eval3_dvd_iff ha hb hc hab hac hbc).mp hd1
+    have hc2 := (eval3_dvd_iff ha hb hc hab hac hbc).mp hd2
+    rcases hface with rfl | rfl | rfl <;> omega
+  let s := ap ∪ corr
+  have hsSeed : IsSeedLevelSet a b c D (u * M + edgeDigitDepth c + 1) s := by
+    intro x hx
+    rcases Finset.mem_union.mp hx with hxa | hxc
+    · exact hapSeed x hxa
+    · exact hcorrSeed x hxc
+  refine ⟨s, seedLevelSet_subset_smooth3 hsSeed, ?_,
+    seedLevelSet_disjoint_high_shell ha hb hc hab hac hbc hsSeed hpHigh, ?_⟩
+  · intro x hx
+    rcases hsSeed x hx with ⟨i, j, k, hdeg, hval, _hshape⟩
+    exact ⟨i, j, k, hdeg, hval⟩
+  · dsimp [s]
+    rw [Finset.sum_union hdisAPCorr]
+    have hsumEq : Step * coeff + corr.sum id = Y := by
+      rw [hStepCoeff]
+      exact Nat.sub_add_cancel hcorrY
+    calc
+      ap.sum id + corr.sum id =
+          q * (B₀ * homogeneousWeightMass A B M + d * coeff) + corr.sum id :=
+        by rw [hapSum]
+      _ = Offset + (Step * coeff + corr.sum id) := by
+        dsimp [Offset, Step, Mass]
+        ring
+      _ = Offset + Y := by rw [hsumEq]
+      _ = target := hYeq
+
+/-- The optional interior shell is large enough to extend the base interval up to
+the requested multiplicative width. -/
+private theorem ordered_seed_room
+    {q A B Step U V Z M : ℕ}
+    (hZ : Z ≤ B ^ M)
+    (hcoef : q + 1 ≤ Step * (2 * A * B))
+    (hStepWidth : Step * (2 * A * B ^ (M + 1)) ≤ Step * (V - U)) :
+    Z + q * B ^ M ≤ Step * (V - U) := by
+  calc
+    Z + q * B ^ M ≤ B ^ M + q * B ^ M :=
+      Nat.add_le_add_right hZ (q * B ^ M)
+    _ = (q + 1) * B ^ M := by ring
+    _ ≤ (Step * (2 * A * B)) * B ^ M :=
+      Nat.mul_le_mul_right _ hcoef
+    _ = Step * (2 * A * B ^ (M + 1)) := by rw [pow_succ]; ring
+    _ ≤ Step * (V - U) := hStepWidth
+
+private theorem ordered_seed_lo_le_hi
+    {Offset Step U V Z q B M : ℕ}
+    (hUV : U ≤ V)
+    (hroom : Z + q * B ^ M ≤ Step * (V - U)) :
+    Offset + Step * U + Z ≤ Offset + Step * V := by
+  have hUVadd : U + (V - U) = V := Nat.add_sub_of_le hUV
+  have hZroom : Z ≤ Step * (V - U) :=
+    (Nat.le_add_right Z (q * B ^ M)).trans hroom
+  calc
+    Offset + Step * U + Z = Offset + (Step * U + Z) := by omega
+    _ ≤ Offset + (Step * U + Step * (V - U)) :=
+      Nat.add_le_add_left (Nat.add_le_add_left hZroom _) _
+    _ = Offset + Step * V := by rw [← Nat.mul_add, hUVadd]
+
+private theorem ordered_seed_width
+    {Offset Step U V Z q B M : ℕ}
+    (hUV : U ≤ V)
+    (hroom : Z + q * B ^ M ≤ Step * (V - U)) :
+    q * B ^ M ≤ (Offset + Step * V) - (Offset + Step * U + Z) := by
+  apply Nat.le_sub_of_add_le
+  have hUVadd : U + (V - U) = V := Nat.add_sub_of_le hUV
+  calc
+    q * B ^ M + (Offset + Step * U + Z) =
+        Offset + (Step * U + (Z + q * B ^ M)) := by omega
+    _ ≤ Offset + (Step * U + Step * (V - U)) :=
+      Nat.add_le_add_left (Nat.add_le_add_left hroom _) _
+    _ = Offset + Step * V := by rw [← Nat.mul_add, hUVadd]
+
+private theorem ordered_seed_lo_bound
+    {q B₀ Step L Mass B M U Z : ℕ}
+    (hMass : Mass ≤ B ^ (M + 1))
+    (hUbound : U ≤ L * Mass)
+    (hZbound : Z ≤ B ^ (M + 1)) :
+    q * (B₀ * Mass) + Step * U + Z ≤
+      (q * B₀ + Step * L + 1) * B ^ (M + 1) := by
+  have hOff : q * (B₀ * Mass) ≤ (q * B₀) * B ^ (M + 1) := by
+    convert Nat.mul_le_mul_left (q * B₀) hMass using 1
+    ring
+  have hSU : Step * U ≤ (Step * L) * B ^ (M + 1) := by
+    calc
+      Step * U ≤ Step * (L * Mass) := Nat.mul_le_mul_left Step hUbound
+      _ ≤ Step * (L * B ^ (M + 1)) :=
+        Nat.mul_le_mul_left Step (Nat.mul_le_mul_left L hMass)
+      _ = (Step * L) * B ^ (M + 1) := by ring
+  calc
+    q * (B₀ * Mass) + Step * U + Z ≤
+        (q * B₀) * B ^ (M + 1) + (Step * L) * B ^ (M + 1) +
+          B ^ (M + 1) :=
+      Nat.add_le_add (Nat.add_le_add hOff hSU) hZbound
+    _ = (q * B₀ + Step * L + 1) * B ^ (M + 1) := by ring
+
+private theorem ordered_seed_optional_sum_enough
+    {a c q B K M R T Lo : ℕ} {p : Finset ℕ}
+    (hc : 1 < c) (hR : 1 < R)
+    (hLoBound : Lo ≤ K * B ^ (M + 1))
+    (hsumLower : p.card * (a * (q * B ^ M)) ≤ c * p.sum id)
+    (haq : 1 ≤ a * q)
+    (hpCardT : T ≤ p.card)
+    (hTdef : T = c * R * K * B) :
+    (R - 1) * Lo ≤ p.sum id := by
+  have hscaledLo : c * ((R - 1) * Lo) ≤ c * p.sum id := by
+    calc
+      c * ((R - 1) * Lo) ≤
+          c * ((R - 1) * (K * B ^ (M + 1))) :=
+        Nat.mul_le_mul_left c (Nat.mul_le_mul_left (R - 1) hLoBound)
+      _ ≤ p.card * (a * (q * B ^ M)) := by
+        have hpow : B ^ (M + 1) = B * B ^ M := by rw [pow_succ]; ring
+        rw [hpow]
+        have hcoefT : c * (R - 1) * K * B ≤ p.card := by
+          calc
+            c * (R - 1) * K * B ≤ c * R * K * B := by
+              gcongr
+              omega
+            _ = T := hTdef.symm
+            _ ≤ p.card := hpCardT
+        calc
+          c * ((R - 1) * (K * (B * B ^ M))) =
+              (c * (R - 1) * K * B) * B ^ M := by ring
+          _ ≤ p.card * B ^ M := Nat.mul_le_mul_right _ hcoefT
+          _ ≤ p.card * (a * q * B ^ M) := by
+            have hh : B ^ M ≤ a * q * B ^ M := by
+              simpa only [one_mul] using Nat.mul_le_mul_right (B ^ M) haq
+            exact Nat.mul_le_mul_left p.card hh
+          _ = p.card * (a * (q * B ^ M)) := by ring
+      _ ≤ c * p.sum id := hsumLower
+  exact Nat.le_of_mul_le_mul_left hscaledLo (by omega : 0 < c)
+
 /-- Ordered bases `a<c<b` have primitive represented intervals of arbitrarily
 large multiplicative width.  The construction combines a homogeneous AP-radix
 interval, exact-degree face corrections, and a long optional interior shell. -/
@@ -2854,49 +3120,21 @@ theorem ordered_arbitrarily_wide_primitive_seed
       q + 1 ≤ 2 * q := by omega
       _ ≤ (2 * q) * (d * A * B) := Nat.le_mul_of_pos_right _ hfactor
       _ = Step * (2 * A * B) := by dsimp [Step]; ring
-  have hroom : Z + q * B ^ M ≤ Step * (V - U) := by
-    calc
-      Z + q * B ^ M ≤ (q + 1) * B ^ M := by
-        have := hZ
-        nlinarith
-      _ ≤ (Step * (2 * A * B)) * B ^ M :=
-        Nat.mul_le_mul_right _ hcoef
-      _ = Step * (2 * A * B ^ (M + 1)) := by rw [pow_succ]; ring
-      _ ≤ Step * (V - U) := hStepWidth
+  have hroom : Z + q * B ^ M ≤ Step * (V - U) :=
+    ordered_seed_room hZ hcoef hStepWidth
   have hLoHi : Lo ≤ Hi := by
-    have hUVadd : U + (V - U) = V := Nat.add_sub_of_le hUV
-    have hZroom : Z ≤ Step * (V - U) :=
-      (Nat.le_add_right Z (q * B ^ M)).trans hroom
-    dsimp [Lo, Hi]
-    calc
-      Offset + Step * U + Z = Offset + (Step * U + Z) := by omega
-      _ ≤ Offset + (Step * U + Step * (V - U)) :=
-        Nat.add_le_add_left (Nat.add_le_add_left hZroom _) _
-      _ = Offset + Step * V := by rw [← Nat.mul_add, hUVadd]
+    simpa [Lo, Hi] using
+      ordered_seed_lo_le_hi (Offset := Offset) (Step := Step) (U := U) (V := V)
+        (Z := Z) (q := q) (B := B) (M := M) hUV hroom
   have hWidthX : q * B ^ M ≤ Hi - Lo := by
-    apply Nat.le_sub_of_add_le
-    have hUVadd : U + (V - U) = V := Nat.add_sub_of_le hUV
-    dsimp [Lo, Hi]
-    calc
-      q * B ^ M + (Offset + Step * U + Z) =
-          Offset + (Step * U + (Z + q * B ^ M)) := by omega
-      _ ≤ Offset + (Step * U + Step * (V - U)) :=
-        Nat.add_le_add_left (Nat.add_le_add_left hroom _) _
-      _ = Offset + Step * V := by rw [← Nat.mul_add, hUVadd]
+    simpa [Lo, Hi] using
+      ordered_seed_width (Offset := Offset) (Step := Step) (U := U) (V := V)
+        (Z := Z) (q := q) (B := B) (M := M) hUV hroom
   have hLoBound : Lo ≤ K * B ^ (M + 1) := by
-    have hOff : Offset ≤ (q * B₀) * B ^ (M + 1) := by
-      dsimp [Offset]
-      convert Nat.mul_le_mul_left (q * B₀) hMass using 1
-      ring
-    have hSU : Step * U ≤ (Step * L) * B ^ (M + 1) := by
-      calc
-        Step * U ≤ Step * (L * Mass) := Nat.mul_le_mul_left Step hUbound
-        _ ≤ Step * (L * B ^ (M + 1)) :=
-          Nat.mul_le_mul_left Step (Nat.mul_le_mul_left L hMass)
-        _ = (Step * L) * B ^ (M + 1) := by ring
-    have hZ' : Z ≤ B ^ (M + 1) := hZ.trans hBpowStep
-    dsimp [Lo, K]
-    nlinarith
+    simpa [Lo, K, Offset] using
+      ordered_seed_lo_bound (q := q) (B₀ := B₀) (Step := Step) (L := L)
+        (Mass := Mass) (B := B) (M := M) (U := U) (Z := Z)
+        hMass hUbound (hZ.trans hBpowStep)
   have hLoPos : 0 < Lo := by
     have hZpos : 0 < Z := by dsimp [Z]; positivity
     dsimp [Lo]
@@ -2950,93 +3188,29 @@ theorem ordered_arbitrarily_wide_primitive_seed
         (∀ x ∈ s, ∃ i j k : ℕ,
           i + j + k = D ∧ x = eval3 a b c i j k) ∧
         Disjoint s p ∧ s.sum id = target := by
-    intro target htLo htHi
-    have hOffT : Offset ≤ target := by dsimp [Lo] at htLo; omega
-    let Y := target - Offset
-    have hYeq : Offset + Y = target := Nat.add_sub_of_le hOffT
-    let r := Y % Step
-    rcases hcorr D hMDegree r with
-      ⟨corr, hcorrSmooth, hcorrShape, hcorrPrim, hcorrMod, hcorrBound⟩
-    have hcorrZ : corr.sum id ≤ Z := by simpa [Z] using hcorrBound
-    have hZY : Z ≤ Y := by
-      dsimp [Lo] at htLo
-      dsimp [Y]
-      omega
-    have hcorrY : corr.sum id ≤ Y := hcorrZ.trans hZY
-    have hYmod : Y ≡ r [MOD Step] := (Nat.mod_modEq Y Step).symm
-    have hmodEq : Y ≡ corr.sum id [MOD Step] := hYmod.trans hcorrMod.symm
-    have hsubMod := hmodEq.sub hcorrY (le_refl (corr.sum id))
-      (Nat.ModEq.refl (n := Step) (corr.sum id))
-    have hdvd : Step ∣ Y - corr.sum id := by
-      apply Nat.dvd_of_mod_eq_zero
-      simpa [Nat.ModEq] using hsubMod
-    let coeff := (Y - corr.sum id) / Step
-    have hStepCoeff : Step * coeff = Y - corr.sum id :=
-      Nat.mul_div_cancel' hdvd
-    have hcoeffU : U ≤ coeff := by
-      apply (Nat.le_div_iff_mul_le hqd).2
-      dsimp [Lo] at htLo
-      have : Step * U + corr.sum id ≤ Y := by omega
-      have hmul : Step * U ≤ Y - corr.sum id := Nat.le_sub_of_add_le this
-      change U * Step ≤ Y - corr.sum id
-      simpa [Nat.mul_comm] using hmul
-    have hcoeffV : coeff ≤ V := by
-      apply Nat.le_of_mul_le_mul_left (c := Step) _ hqd
-      rw [hStepCoeff]
-      dsimp [Hi] at htHi
-      have hYV : Y ≤ Step * V := by
-        dsimp [Y]
-        omega
-      exact (Nat.sub_le _ _).trans hYV
-    have hcoeffRep := hradix coeff hcoeffU hcoeffV
-    rcases homogeneousRadixRep_realized_by_edge_AP ha hb hc hacLt hab hac hbc
-        huBand words hwords hcoeffRep with ⟨ap, hapBand, hapSum⟩
-    have hapSeed : IsSeedLevelSet a b c D (u * M + H + 1) ap := by
-      intro x hx
-      rcases hapBand x hx with ⟨i, j, k, hi, hj, hk, hdeg, hjBound, hval⟩
-      exact ⟨i, j, k, by simpa [D] using hdeg, hval,
-        Or.inr ⟨hi, hj, hk, hjBound⟩⟩
-    have hcorrSeed : IsSeedLevelSet a b c D (u * M + H + 1) corr := by
-      intro x hx
-      rcases hcorrShape x hx with ⟨i, j, k, hdeg, hval, hface⟩
-      exact ⟨i, j, k, hdeg, hval, Or.inl hface⟩
-    have hdisAPCorr : Disjoint ap corr := by
-      rw [Finset.disjoint_left]
-      intro x hxap hxcorr
-      rcases hapBand x hxap with ⟨i, j, k, hi, hj, hk, _hdeg, _hjB, hval⟩
-      rcases hcorrShape x hxcorr with ⟨i', j', k', _hdeg', hval', hface⟩
-      have heq : eval3 a b c i j k = eval3 a b c i' j' k' := by
-        rw [← hval, ← hval']
-      have hd1 : eval3 a b c i j k ∣ eval3 a b c i' j' k' := by rw [heq]
-      have hd2 : eval3 a b c i' j' k' ∣ eval3 a b c i j k := by rw [heq]
-      have hc1 := (eval3_dvd_iff ha hb hc hab hac hbc).mp hd1
-      have hc2 := (eval3_dvd_iff ha hb hc hab hac hbc).mp hd2
-      rcases hface with rfl | rfl | rfl <;> omega
-    let s := ap ∪ corr
-    have hsSeed : IsSeedLevelSet a b c D (u * M + H + 1) s := by
-      intro x hx
-      rcases Finset.mem_union.mp hx with hxa | hxc
-      · exact hapSeed x hxa
-      · exact hcorrSeed x hxc
-    refine ⟨s, seedLevelSet_subset_smooth3 hsSeed, ?_,
-      seedLevelSet_disjoint_high_shell ha hb hc hab hac hbc hsSeed hpHigh, ?_⟩
-    · intro x hx
-      rcases hsSeed x hx with ⟨i, j, k, hdeg, hval, _hshape⟩
-      exact ⟨i, j, k, hdeg, hval⟩
-    · dsimp [s]
-      rw [Finset.sum_union hdisAPCorr]
-      have hsumEq : Step * coeff + corr.sum id = Y := by
-        rw [hStepCoeff]
-        exact Nat.sub_add_cancel hcorrY
-      calc
-        ap.sum id + corr.sum id =
-            q * (B₀ * homogeneousWeightMass A B M + d * coeff) + corr.sum id :=
-          by rw [hapSum]
-        _ = Offset + (Step * coeff + corr.sum id) := by
-          dsimp [Offset, Step, Mass]
-          ring
-        _ = Offset + Y := by rw [hsumEq]
-        _ = target := hYeq
+    have hbase' := ordered_seed_base_interval
+      (a := a) (b := b) (c := c) (n := n₀) (L := L) (B₀ := B₀) (d := d)
+      (u := u) (v := v) (M := M) (Ccorr := Ccorr) (D₀ := D₀)
+      (U := U) (V := V) (words := words) (p := p)
+      ha hb hc hacLt hab hac hbc huBand
+      (by simpa [orderedSeedStep, q] using hqd)
+      (by simpa [orderedSeedDegree, D, δ, G, H] using hMDegree)
+      hwords
+      (by
+        intro D' hD' r
+        simpa [orderedSeedStep, q] using hcorr D' hD' r)
+      (by
+        intro value hU hV
+        simpa [orderedSeedA, orderedSeedB, A, B, G] using hradix value hU hV)
+      (by
+        intro x hx
+        rcases hpHigh x hx with ⟨i, j, k, hi, hj, hk, hdeg, hjHigh, hval⟩
+        exact ⟨i, j, k, hi, hj, hk,
+          by simpa [orderedSeedDegree, D, δ, G, H] using hdeg,
+          by simpa [H] using hjHigh, hval⟩)
+    simpa [orderedSeedLo, orderedSeedHi, orderedSeedOffset, orderedSeedStep,
+      orderedSeedA, orderedSeedB, orderedSeedDegree, Lo, Hi, Offset, Step, q,
+      Mass, A, B, G, D, δ, H] using hbase'
   have hsumLower : p.card * (a * (q * B ^ M)) ≤ c * p.sum id := by
     have hsum := Finset.sum_le_sum (s := p) (fun x hx => (hpBounds x hx).2)
     calc
@@ -3049,37 +3223,12 @@ theorem ordered_arbitrarily_wide_primitive_seed
         rw [Finset.mul_sum]
         simp only [id_eq]
   have hpCardT : T ≤ p.card := hcardTarget.trans hpCard
-  have hoptionalEnough : (R - 1) * Lo ≤ p.sum id := by
-    have hscaledLo : c * ((R - 1) * Lo) ≤ c * p.sum id := by
-      calc
-        c * ((R - 1) * Lo) ≤
-            c * ((R - 1) * (K * B ^ (M + 1))) :=
-          Nat.mul_le_mul_left c (Nat.mul_le_mul_left (R - 1) hLoBound)
-        _ ≤ p.card * (a * (q * B ^ M)) := by
-          have hpow : B ^ (M + 1) = B * B ^ M := by rw [pow_succ]; ring
-          rw [hpow]
-          have hTdef : T = c * R * K * B := rfl
-          have hcoefT : c * (R - 1) * K * B ≤ p.card := by
-            calc
-              c * (R - 1) * K * B ≤ c * R * K * B := by
-                gcongr
-                omega
-              _ = T := hTdef.symm
-              _ ≤ p.card := hpCardT
-          have haq : 1 ≤ a * q := by
-            have hq : 0 < q := by dsimp [q]; positivity
-            nlinarith
-          calc
-            c * ((R - 1) * (K * (B * B ^ M))) =
-                (c * (R - 1) * K * B) * B ^ M := by ring
-            _ ≤ p.card * B ^ M := Nat.mul_le_mul_right _ hcoefT
-            _ ≤ p.card * (a * q * B ^ M) := by
-              have hh : B ^ M ≤ a * q * B ^ M := by
-                simpa only [one_mul] using Nat.mul_le_mul_right (B ^ M) haq
-              exact Nat.mul_le_mul_left p.card hh
-            _ = p.card * (a * (q * B ^ M)) := by ring
-        _ ≤ c * p.sum id := hsumLower
-    exact Nat.le_of_mul_le_mul_left hscaledLo (by omega : 0 < c)
+  have hoptionalEnough : (R - 1) * Lo ≤ p.sum id :=
+    ordered_seed_optional_sum_enough hc hR hLoBound hsumLower
+      (by
+        have hqpos : 0 < q := by dsimp [q]; positivity
+        have hapq : 0 < a * q := Nat.mul_pos (by omega : 0 < a) hqpos
+        omega) hpCardT rfl
   have hRLo : R * Lo ≤ Hi + p.sum id := by
     have hbaseWidth : Lo ≤ Hi := hLoHi
     have hRdecomp : R - 1 + 1 = R := Nat.sub_add_cancel (by omega : 1 ≤ R)
