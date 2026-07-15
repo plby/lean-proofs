@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
+/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 866.
 https://www.erdosproblems.com/forum/thread/866
@@ -58,8 +58,6 @@ are included in the formalization as well.
 O'Bryant, K. On the Size of Finite Sidon Sets. Ukr. Math. J. 76, 1352–1368 (2025).
 I.Z. Ruzsa, Solving a linear equation in a set of integers I. Acta. Arith. 65, 259-283 (1993).
 
-Lean version: leanprover/lean4:v4.30.0
-Mathlib version: v4.30.0
 -/
 
 import Mathlib

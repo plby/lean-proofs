@@ -10,8 +10,6 @@ https://github.com/yuta0x89/ErdosProblems/blob/9eebc7a51466e6ad1b57318302cdc821d
 
 The formalization of Mertens third theorem was obtained by Aristotle from Harmonic (aristotle-harmonic@harmonic.fun).
 
-Lean version: leanprover/lean4:v4.32.0
-Mathlib version: v4.32.0
 -/
 
 import Mathlib

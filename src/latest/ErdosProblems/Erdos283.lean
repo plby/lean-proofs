@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
+/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
 import Util.PolynomialEgyptianSums
 
 /-! =============================================================

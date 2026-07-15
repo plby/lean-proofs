@@ -22,8 +22,6 @@ URLs:
 /-
 This file was edited by Aristotle.
 
-Lean version: leanprover/lean4:v4.32.0
-Mathlib version: v4.32.0
 This project request had uuid: ae58cefd-5214-47b0-9caf-ce96b083801e
 
 The following was proved by Aristotle:

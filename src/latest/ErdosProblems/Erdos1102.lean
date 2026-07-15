@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
+/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 1102.
 https://www.erdosproblems.com/forum/thread/1102
@@ -1164,8 +1164,6 @@ which we also prove.
 
 https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1102.lean
 
-Lean version: leanprover/lean4:v4.28.0
-Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 -/
 
 
@@ -4570,8 +4568,6 @@ Thanks to Aristotle from Harmonic (aristotle-harmonic@harmonic.fun), the proof o
 
 Any sequence with property $\overline{P}$ or $\overline{P}_infty$ has density strictly smaller than $6/\pi^2$. On the other hand, for every $\epsilon > 0$ there exists a sequence with property $\overline{P}$ (which therefore has property $\overline{P}_infty$ as well) with lower density larger than $6/\pi^2 - \epsilon$.
 
-Lean version: leanprover/lean4:v4.28.0
-Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 -/
 
 
@@ -7498,8 +7494,6 @@ Define a sequence to be admissible if if avoids at least one residue class modul
 
 There exists an absolute constant $C$ such that any admissible sequence $A = \{a_1 < a_2 < \cdots \}$ for which $a_j \ge \exp(C j/\log j)$ holds for infinitely many $j$, has property $Q$. In particular, the specific sequences $2^n \pm 1$ and $n! \pm 1$ all have property $Q$.
 
-Lean version: leanprover/lean4:v4.28.0
-Mathlib version: 8f9d9cff6bd728b17a24e163c9402775d9e6a365
 -/
 
 

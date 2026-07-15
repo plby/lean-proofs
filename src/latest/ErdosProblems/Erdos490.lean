@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
+/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 490.
 https://www.erdosproblems.com/forum/thread/490
@@ -37,7 +37,6 @@ written down by ChatGPT 5.5 Pro.
 
 Aristotle from Harmonic (aristotle-harmonic@harmonic.fun) did the formalization.
 
-Lean version: leanprover/lean4:v4.30.0
 -/
 
 import Mathlib

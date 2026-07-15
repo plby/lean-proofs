@@ -1,4 +1,4 @@
-/- leanprover/lean4:v4.30.0  mathlib v4.30.0 -/
+/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 206.
