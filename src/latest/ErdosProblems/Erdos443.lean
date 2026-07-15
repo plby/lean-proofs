@@ -1,31 +1,25 @@
+/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
 /-
-leanprover/lean4:v4.32.0  mathlib v4.32.0
--/
-
-/-
-
 This is a Lean formalization of a solution to Erdős Problem 443.
 https://www.erdosproblems.com/forum/thread/443
 
+Informal authors:
+- N. Hegyvári
+- Stijn Cambie
+
+Formal authors:
+- Aristotle
+- Boris Alexeev
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos443.md
+-/
+/-
 The original proof was found by: Hegyvári and Cambie
 
 [He25] N. Hegyvári, An elementary question of Erdős and
 Graham. arXiv:2503.24201 (2025).
-
-
-The paper by Hegyvári was auto-formalized by Aristotle (from
-Harmonic).
-
-
-The proof is verified by Lean.  The following version numbers were
-used:
-
-Lean Toolchain version: leanprover/lean4:v4.24.0
-Mathlib version: f897ebcf72cd16f89ab4577d0c826cd14afaafc7 (v4.24.0)
-
 -/
-
-
 /-
 We have formalized and proved the results from the paper
 "An elementary question of Erdős and Graham" by Norbert Hegyvári.
