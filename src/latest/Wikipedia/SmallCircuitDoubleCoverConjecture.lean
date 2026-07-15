@@ -10480,4 +10480,342 @@ theorem CubicGraph.exists_circuitDoubleCover_length_le_vertex_card_sub_one_of_co
   haveI : Nonempty V := hconn.nonempty
   exact K.exists_circuitDoubleCover_length_le_vertex_card_sub_one hconn hb hlarge
 
+lemma simpleGraph_not_isBridge_of_mem_isCircuit
+    {V : Type*} {G : SimpleGraph V}
+    {e : Sym2 V} {v : V} {p : G.Walk v v}
+    (hp : p.IsCircuit) (he : e ∈ p.edges) :
+    ¬ G.IsBridge e := by
+  revert he
+  refine Sym2.inductionOn e ?_
+  intro x y he hbridge
+  have hAdj : G.Adj x y := by
+    simpa [SimpleGraph.mem_edgeSet] using p.edges_subset_edgeSet he
+  have htwo : G.IsEdgeReachable 2 x y :=
+    hp.1.isEdgeReachable_two
+      (p.fst_mem_support_of_mem_edges he)
+      (p.snd_mem_support_of_mem_edges he)
+  exact (SimpleGraph.isBridge_iff_not_isEdgeReachable_two hAdj).mp hbridge htwo
+
+def connectedComponentSigmaEquiv
+    {V : Type*} (G : SimpleGraph V) :
+    (Sigma fun C : G.ConnectedComponent => C) ≃ V where
+  toFun x := x.2.1
+  invFun v := ⟨G.connectedComponentMk v, ⟨v, rfl⟩⟩
+  left_inv := by
+    rintro ⟨C, v, hv⟩
+    change G.connectedComponentMk v = C at hv
+    subst C
+    rfl
+  right_inv := by
+    intro v
+    rfl
+
+def connectedComponentLiftCircuit
+    {V : Type*} {G : SimpleGraph V} (C : G.ConnectedComponent) :
+    (Σ v, C.toSimpleGraph.Walk v v) → (Σ v, G.Walk v v) :=
+  fun p ↦
+    ⟨p.1.1,
+      (p.2.map C.toSimpleGraph_hom).copy
+        (by simp [SimpleGraph.ConnectedComponent.toSimpleGraph_hom_apply])
+        (by simp [SimpleGraph.ConnectedComponent.toSimpleGraph_hom_apply])⟩
+
+lemma connectedComponentLiftCircuit_isCircuit
+    {V : Type*} {G : SimpleGraph V} (C : G.ConnectedComponent)
+    {p : Σ v, C.toSimpleGraph.Walk v v} (hp : p.2.IsCircuit) :
+    (connectedComponentLiftCircuit C p).2.IsCircuit := by
+  have hinj : Function.Injective C.toSimpleGraph_hom := by
+    intro x y h
+    exact Subtype.ext h
+  simpa [connectedComponentLiftCircuit, SimpleGraph.Walk.isCircuit_copy] using hp.map hinj
+
+lemma connectedComponentLiftCircuit_mem_edges_iff
+    {V : Type*} {G : SimpleGraph V} (C : G.ConnectedComponent)
+    {e : Sym2 C} (p : Σ v, C.toSimpleGraph.Walk v v) :
+    Sym2.map (fun x : C => (x : V)) e ∈
+        (connectedComponentLiftCircuit C p).2.edges ↔
+      e ∈ p.2.edges := by
+  rw [connectedComponentLiftCircuit, SimpleGraph.Walk.edges_copy, SimpleGraph.Walk.edges_map]
+  constructor
+  · intro h
+    rcases List.mem_map.mp h with ⟨e', he', hmap⟩
+    have hinj : Function.Injective (fun x : C => (x : V)) := by
+      intro x y hxy
+      exact Subtype.ext hxy
+    have heq : e' = e := Sym2.map.injective hinj hmap
+    simpa [heq] using he'
+  · intro h
+    exact List.mem_map.mpr ⟨e, h, rfl⟩
+
+lemma connectedComponent_mem_of_mem_liftCircuit_edge_left
+    {V : Type*} {G : SimpleGraph V} (C : G.ConnectedComponent)
+    {x y : V} {p : Σ v, C.toSimpleGraph.Walk v v}
+    (h : s(x, y) ∈ (connectedComponentLiftCircuit C p).2.edges) :
+    x ∈ C := by
+  rw [connectedComponentLiftCircuit, SimpleGraph.Walk.edges_copy, SimpleGraph.Walk.edges_map] at h
+  rcases List.mem_map.mp h with ⟨e, _he, hmap⟩
+  have hmap' : Sym2.map (fun z : C => (z : V)) e = s(x, y) := by
+    simpa [SimpleGraph.ConnectedComponent.toSimpleGraph_hom_apply] using hmap
+  have hx : x ∈ Sym2.map (fun z : C => (z : V)) e := by
+    rw [hmap']
+    exact Sym2.mem_mk_left x y
+  rcases Sym2.mem_map.mp hx with ⟨z, _hz, hz⟩
+  exact hz ▸ z.2
+
+lemma connectedComponent_isBridge_map
+    {V : Type*} {G : SimpleGraph V} (C : G.ConnectedComponent)
+    {e : Sym2 C} (hbridge : C.toSimpleGraph.IsBridge e) :
+    G.IsBridge (Sym2.map (fun x : C => (x : V)) e) := by
+  revert hbridge
+  refine Sym2.inductionOn e ?_
+  intro x y hbridge
+  rw [Sym2.map_mk]
+  rw [SimpleGraph.isBridge_iff] at hbridge ⊢
+  intro hreach
+  rcases hreach with ⟨p⟩
+  have step {a b : V} (ha : a ∈ C)
+      (hab : (G.deleteEdges ({s((x : V), (y : V))} : Set (Sym2 V))).Adj a b) :
+      PSigma fun hb : b ∈ C =>
+        (C.toSimpleGraph.deleteEdges ({s(x, y)} : Set (Sym2 C))).Adj
+          ⟨a, ha⟩ ⟨b, hb⟩ := by
+    rcases SimpleGraph.deleteEdges_adj.mp hab with ⟨hGAdj, hnot⟩
+    have hb : b ∈ C := (SimpleGraph.ConnectedComponent.mem_supp_congr_adj C hGAdj).mp ha
+    have hCompAdj : C.toSimpleGraph.Adj ⟨a, ha⟩ ⟨b, hb⟩ := by
+      simpa [SimpleGraph.ConnectedComponent.toSimpleGraph] using hGAdj
+    have hnotComp :
+        s(⟨a, ha⟩, ⟨b, hb⟩) ∉ ({s(x, y)} : Set (Sym2 C)) := by
+      intro hmem
+      have heqComp : s(⟨a, ha⟩, ⟨b, hb⟩) = s(x, y) := by
+        simpa using hmem
+      have heqGlobal : s(a, b) = s((x : V), (y : V)) := by
+        simpa [Sym2.map_mk] using
+          congrArg (Sym2.map (fun z : C => (z : V))) heqComp
+      exact hnot (by simp [heqGlobal])
+    exact ⟨hb, SimpleGraph.deleteEdges_adj.mpr ⟨hCompAdj, hnotComp⟩⟩
+  have walkToComp :
+      ∀ {a b : V}
+        (p : (G.deleteEdges ({s((x : V), (y : V))} : Set (Sym2 V))).Walk a b)
+        (ha : a ∈ C),
+        PSigma fun hb : b ∈ C =>
+          (C.toSimpleGraph.deleteEdges ({s(x, y)} : Set (Sym2 C))).Walk
+            ⟨a, ha⟩ ⟨b, hb⟩ := by
+    intro a b p
+    induction p with
+    | nil =>
+        intro ha
+        exact ⟨ha, SimpleGraph.Walk.nil⟩
+    | cons hab p ih =>
+        intro ha
+        obtain ⟨hb, hAdjComp⟩ := step ha hab
+        obtain ⟨hc, pComp⟩ := ih hb
+        exact ⟨hc, SimpleGraph.Walk.cons hAdjComp pComp⟩
+  obtain ⟨hy, pComp⟩ := walkToComp p x.2
+  have hreachComp :
+      (C.toSimpleGraph.deleteEdges ({s(x, y)} : Set (Sym2 C))).Reachable x y := by
+    refine ⟨?_⟩
+    exact pComp.copy rfl (Subtype.ext rfl)
+  exact hbridge hreachComp
+
+lemma connectedComponent_not_isBridge_of_every_edge_mem_closedTrail
+    {V : Type*} {G : SimpleGraph V}
+    (h :
+      ∀ e ∈ G.edgeSet, ∃ v : V, ∃ p : G.Walk v v,
+        p.IsCircuit ∧ e ∈ p.edges)
+    (C : G.ConnectedComponent) :
+    ∀ e ∈ C.toSimpleGraph.edgeSet, ¬ C.toSimpleGraph.IsBridge e := by
+  intro e he hbridge
+  have hGlobalBridge :
+      G.IsBridge (Sym2.map (fun x : C => (x : V)) e) :=
+    connectedComponent_isBridge_map C hbridge
+  have heGlobal :
+      Sym2.map (fun x : C => (x : V)) e ∈ G.edgeSet :=
+    C.toSimpleGraph_hom.map_mem_edgeSet he
+  obtain ⟨v, p, hp, hep⟩ := h _ heGlobal
+  exact simpleGraph_not_isBridge_of_mem_isCircuit hp hep hGlobalBridge
+
+theorem simpleGraph_smallCircuitDoubleCover_iff_every_edge_mem_closedTrail
+    {V : Type*} [Fintype V] [DecidableEq V] [Nonempty V] (G : SimpleGraph V) :
+    (∀ e ∈ G.edgeSet, ∃ v : V, ∃ p : G.Walk v v,
+      p.IsCircuit ∧ e ∈ p.edges) ↔
+      ∃ s : Multiset (Σ v, G.Walk v v),
+        (∀ p ∈ s, p.2.IsCircuit) ∧
+        (∀ e ∈ G.edgeSet, (s.filter fun p ↦ e ∈ p.2.edges).card = 2) ∧
+        s.card < Fintype.card V := by
+  classical
+  letI : Fintype G.ConnectedComponent := Fintype.ofFinite G.ConnectedComponent
+  constructor
+  · intro h
+    let D : (C : G.ConnectedComponent) → SimpleGraphCircuitDoubleCover C.toSimpleGraph :=
+      fun C ↦
+        Classical.choose
+          (simpleGraph_smallCircuitDoubleCoverConjecture C.toSimpleGraph
+            (SimpleGraph.ConnectedComponent.connected_toSimpleGraph C)
+            (connectedComponent_not_isBridge_of_every_edge_mem_closedTrail h C))
+    have hDsmall : ∀ C : G.ConnectedComponent, (D C).IsSmall := by
+      intro C
+      exact
+        Classical.choose_spec
+          (simpleGraph_smallCircuitDoubleCoverConjecture C.toSimpleGraph
+            (SimpleGraph.ConnectedComponent.connected_toSimpleGraph C)
+            (connectedComponent_not_isBridge_of_every_edge_mem_closedTrail h C))
+    let S : Multiset (Σ v, G.Walk v v) :=
+      (Finset.univ : Finset G.ConnectedComponent).val.bind fun C ↦
+        ((D C).circuits : Multiset (Σ v, C.toSimpleGraph.Walk v v)).map
+          (connectedComponentLiftCircuit C)
+    refine ⟨S, ?_, ?_, ?_⟩
+    · intro p hp
+      rw [show S =
+          (Finset.univ : Finset G.ConnectedComponent).val.bind fun C ↦
+            ((D C).circuits : Multiset (Σ v, C.toSimpleGraph.Walk v v)).map
+              (connectedComponentLiftCircuit C) from rfl,
+        Multiset.mem_bind] at hp
+      rcases hp with ⟨C, _hC, hpC⟩
+      have hpList :
+          p ∈ ((D C).circuits : Multiset (Σ v, C.toSimpleGraph.Walk v v)).map
+            (connectedComponentLiftCircuit C) := by
+        simpa using hpC
+      rcases Multiset.mem_map.mp hpList with ⟨q, hq, rfl⟩
+      exact connectedComponentLiftCircuit_isCircuit C ((D C).isCircuit q hq)
+    · intro e he
+      revert he
+      refine Sym2.inductionOn e ?_
+      intro x y he
+      have hAdj : G.Adj x y := by
+        simpa [SimpleGraph.mem_edgeSet] using he
+      let Cx : G.ConnectedComponent := G.connectedComponentMk x
+      have hx : x ∈ Cx := rfl
+      have hy : y ∈ Cx :=
+        (SimpleGraph.ConnectedComponent.mem_supp_congr_adj Cx hAdj).mp hx
+      let exy : Sym2 Cx := s(⟨x, hx⟩, ⟨y, hy⟩)
+      have hExyEdge : exy ∈ Cx.toSimpleGraph.edgeSet := by
+        change Cx.toSimpleGraph.Adj ⟨x, hx⟩ ⟨y, hy⟩
+        exact (SimpleGraph.ConnectedComponent.toSimpleGraph_adj Cx hx hy).mpr hAdj
+      have hcountComponent :
+          ((((D Cx).circuits : Multiset (Σ v, Cx.toSimpleGraph.Walk v v)).map
+              (connectedComponentLiftCircuit Cx)).filter
+              fun p ↦ s(x, y) ∈ p.2.edges).card = 2 := by
+        rw [Multiset.filter_map, Multiset.card_map]
+        have hfilter :
+            (((D Cx).circuits : Multiset (Σ v, Cx.toSimpleGraph.Walk v v)).filter
+                ((fun p ↦ s(x, y) ∈ p.2.edges) ∘ connectedComponentLiftCircuit Cx)) =
+              (((D Cx).circuits : Multiset (Σ v, Cx.toSimpleGraph.Walk v v)).filter
+                fun q ↦ exy ∈ q.2.edges) := by
+          apply Multiset.filter_congr
+          intro q _hq
+          dsimp [Function.comp]
+          simpa [exy, Sym2.map_mk] using
+            (connectedComponentLiftCircuit_mem_edges_iff Cx (e := exy) q)
+        rw [hfilter]
+        simpa using (D Cx).coveredTwice exy hExyEdge
+      have hcountOther (C : G.ConnectedComponent) (hC : C ≠ Cx) :
+          ((((D C).circuits : Multiset (Σ v, C.toSimpleGraph.Walk v v)).map
+              (connectedComponentLiftCircuit C)).filter
+              fun p ↦ s(x, y) ∈ p.2.edges).card = 0 := by
+        rw [Multiset.card_eq_zero, Multiset.filter_eq_nil]
+        intro p hp hpEdge
+        have hpList :
+            p ∈ ((D C).circuits : Multiset (Σ v, C.toSimpleGraph.Walk v v)).map
+              (connectedComponentLiftCircuit C) := by
+          simpa using hp
+        rcases Multiset.mem_map.mp hpList with ⟨q, _hq, rfl⟩
+        have hxC : x ∈ C :=
+          connectedComponent_mem_of_mem_liftCircuit_edge_left C hpEdge
+        exact hC (SimpleGraph.ConnectedComponent.eq_of_common_vertex hxC hx)
+      calc
+        (S.filter fun p ↦ s(x, y) ∈ p.2.edges).card
+            = (((Finset.univ : Finset G.ConnectedComponent).val.bind fun C ↦
+                ((D C).circuits : Multiset (Σ v, C.toSimpleGraph.Walk v v)).map
+                  (connectedComponentLiftCircuit C)).filter
+                fun p ↦ s(x, y) ∈ p.2.edges).card := rfl
+        _ = (((Finset.univ : Finset G.ConnectedComponent).val.bind fun C ↦
+              ((((D C).circuits : Multiset (Σ v, C.toSimpleGraph.Walk v v)).map
+                (connectedComponentLiftCircuit C)).filter
+                fun p ↦ s(x, y) ∈ p.2.edges))).card := by
+              rw [Multiset.filter_bind]
+        _ = (((Finset.univ : Finset G.ConnectedComponent).val.map fun C ↦
+              ((((D C).circuits : Multiset (Σ v, C.toSimpleGraph.Walk v v)).map
+                (connectedComponentLiftCircuit C)).filter
+                fun p ↦ s(x, y) ∈ p.2.edges).card).sum) := by
+              rw [Multiset.card_bind]
+              simp only [Function.comp_apply]
+        _ = 2 := by
+              change (∑ C ∈ (Finset.univ : Finset G.ConnectedComponent),
+                (((((D C).circuits : Multiset (Σ v, C.toSimpleGraph.Walk v v)).map
+                  (connectedComponentLiftCircuit C)).filter
+                  fun p ↦ s(x, y) ∈ p.2.edges).card)) = 2
+              calc
+                (∑ C ∈ (Finset.univ : Finset G.ConnectedComponent),
+                  (((((D C).circuits : Multiset (Σ v, C.toSimpleGraph.Walk v v)).map
+                    (connectedComponentLiftCircuit C)).filter
+                    fun p ↦ s(x, y) ∈ p.2.edges).card))
+                    =
+                  (((((D Cx).circuits :
+                    Multiset (Σ v, Cx.toSimpleGraph.Walk v v)).map
+                    (connectedComponentLiftCircuit Cx)).filter
+                    fun p ↦ s(x, y) ∈ p.2.edges).card) := by
+                      refine Finset.sum_eq_single_of_mem
+                        (s := (Finset.univ : Finset G.ConnectedComponent))
+                        (f := fun C ↦
+                          (((((D C).circuits :
+                            Multiset (Σ v, C.toSimpleGraph.Walk v v)).map
+                            (connectedComponentLiftCircuit C)).filter
+                            fun p ↦ s(x, y) ∈ p.2.edges).card))
+                        Cx (Finset.mem_univ Cx) ?_
+                      intro C _hmem hC
+                      exact hcountOther C hC
+                _ = 2 := hcountComponent
+    · have hcardS :
+          S.card = ∑ C : G.ConnectedComponent, (D C).circuits.length := by
+        dsimp [S]
+        rw [Multiset.card_bind]
+        change (Multiset.map
+            (fun C : G.ConnectedComponent ↦
+              ((((D C).circuits : Multiset (Σ v, C.toSimpleGraph.Walk v v)).map
+                (connectedComponentLiftCircuit C)).card))
+            (Finset.univ : Finset G.ConnectedComponent).val).sum =
+          ∑ C : G.ConnectedComponent, (D C).circuits.length
+        simp [connectedComponentLiftCircuit]
+      have hlenle :
+          (∑ C : G.ConnectedComponent, (D C).circuits.length) ≤
+            ∑ C : G.ConnectedComponent, (Fintype.card C - 1) := by
+        simpa using
+          (Finset.sum_le_sum
+            (s := (Finset.univ : Finset G.ConnectedComponent))
+            (fun C _ ↦ by
+              simpa [SimpleGraphCircuitDoubleCover.IsSmall] using hDsmall C))
+      have hsublt :
+          (∑ C : G.ConnectedComponent, (Fintype.card C - 1)) <
+            ∑ C : G.ConnectedComponent, Fintype.card C := by
+        simpa using
+          (Finset.sum_lt_sum_of_nonempty
+            (s := (Finset.univ : Finset G.ConnectedComponent))
+            Finset.univ_nonempty
+            (fun C _hC ↦
+              Nat.sub_one_lt
+                (Nat.ne_of_gt
+                  (Fintype.card_pos_iff.mpr
+                    (SimpleGraph.ConnectedComponent.connected_toSimpleGraph C).nonempty))))
+      have hcardComponents :
+          (∑ C : G.ConnectedComponent, Fintype.card C) = Fintype.card V := by
+        rw [← Fintype.card_sigma]
+        exact Fintype.card_congr (connectedComponentSigmaEquiv G)
+      calc
+        S.card = ∑ C : G.ConnectedComponent, (D C).circuits.length := hcardS
+        _ ≤ ∑ C : G.ConnectedComponent, (Fintype.card C - 1) := hlenle
+        _ < ∑ C : G.ConnectedComponent, Fintype.card C := hsublt
+        _ = Fintype.card V := hcardComponents
+  · rintro ⟨s, hsCircuit, hsCover, _hsmall⟩ e he
+    have hcard : 0 < (s.filter fun p ↦ e ∈ p.2.edges).card := by
+      rw [hsCover e he]
+      norm_num
+    obtain ⟨p, hpfilter⟩ := Multiset.card_pos_iff_exists_mem.mp hcard
+    have hp : p ∈ s := Multiset.mem_of_mem_filter hpfilter
+    have hep : e ∈ p.2.edges :=
+      (Multiset.mem_filter.mp hpfilter).2
+    exact ⟨p.1, p.2, hsCircuit p hp, hep⟩
+
+#print axioms simpleGraph_smallCircuitDoubleCover_iff_every_edge_mem_closedTrail
+-- 'CycleDoubleCoverConjecture.simpleGraph_smallCircuitDoubleCover_iff_every_edge_mem_closedTrail'
+-- depends on axioms:
+-- [propext, Classical.choice, Quot.sound]
+
 end CycleDoubleCoverConjecture
