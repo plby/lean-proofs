@@ -1,3 +1,20 @@
+/- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 123.
+https://www.erdosproblems.com/forum/thread/123
+
+Authors:
+- Star Fleet Math
+- Claude Fable 5
+- Colin Snyder
+- Formal Conjectures authors
+
+URLs:
+- https://www.starfleetmath.com/
+- https://www.erdosproblems.com/forum/thread/123/proof-claims
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/123.lean
+- https://www.starfleetmath.com/downloads/verify/erdos-123/erdos-123-solution.zip
+-/
 import Mathlib
 
 open Combinatorics
