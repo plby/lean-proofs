@@ -40,7 +40,7 @@ nonnegative additive semigroup: every sufficiently large `x` has a semigroup
 point in `(x-ε,x]`. -/
 theorem additiveSemigroup_eventually_leftDense
     {α β d ε : ℝ} {p q : ℕ}
-    (hα : 0 < α) (hβ : 0 < β) (hp : 0 < p) (hq : 0 < q)
+    (_hα : 0 < α) (hβ : 0 < β) (_hp : 0 < p) (hq : 0 < q)
     (hd : d = (p : ℝ) * α - (q : ℝ) * β)
     (hdPos : 0 < d) (hdε : d < ε) :
     ∃ X : ℝ, ∀ x : ℝ, X ≤ x →
@@ -195,14 +195,14 @@ private theorem encode_line_affine {ι : Type*} [Fintype ι] {L : ℕ}
         opts.map (fun o : Option (Fin L) => (o.getD r : ℕ)) := by
     rw [List.map_ofFn, List.ofFn_inj]
     funext j
-    simp only [opts, Function.comp_apply, Line.coe_apply]
+    simp only [Function.comp_apply, Line.coe_apply]
   have hzList :
       List.ofFn (fun j : Fin (Fintype.card ι) =>
         ((l zero) ((Fintype.equivFin ι).symm j) : ℕ)) =
         opts.map optionBase := by
     rw [List.map_ofFn, List.ofFn_inj]
     funext j
-    simp only [opts, Function.comp_apply, Line.coe_apply]
+    simp only [Function.comp_apply, Line.coe_apply]
     cases l.idxFun ((Fintype.equivFin ι).symm j) <;>
       simp [optionBase, zero]
   unfold encodeWord lineOptions
@@ -266,7 +266,7 @@ theorem eval3_dvd_iff {a b c i j k i' j' k' : ℕ}
       apply haiCoprime.dvd_of_dvd_mul_right
       simpa only [eval3, mul_assoc] using haiDivRhs
     have hbjDivLhs : b ^ j ∣ eval3 a b c i j k := by
-      exact ⟨a ^ i * c ^ k, by simp [eval3, mul_assoc, mul_comm, mul_left_comm]⟩
+      exact ⟨a ^ i * c ^ k, by simp [eval3, mul_assoc, mul_left_comm]⟩
     have hbjDivRhs : b ^ j ∣ eval3 a b c i' j' k' := hbjDivLhs.trans hdiv
     have hbjCoprime : Nat.Coprime (b ^ j) (a ^ i' * c ^ k') :=
       ((hab.symm.pow_left j).pow_right i').mul_right ((hbc.pow_left j).pow_right k')
@@ -274,7 +274,7 @@ theorem eval3_dvd_iff {a b c i j k i' j' k' : ℕ}
       apply hbjCoprime.dvd_of_dvd_mul_right
       simpa only [eval3, mul_assoc, mul_comm, mul_left_comm] using hbjDivRhs
     have hckDivLhs : c ^ k ∣ eval3 a b c i j k := by
-      exact ⟨a ^ i * b ^ j, by simp [eval3, mul_assoc, mul_comm, mul_left_comm]⟩
+      exact ⟨a ^ i * b ^ j, by simp [eval3, mul_assoc, mul_comm]⟩
     have hckDivRhs : c ^ k ∣ eval3 a b c i' j' k' := hckDivLhs.trans hdiv
     have hckCoprime : Nat.Coprime (c ^ k) (a ^ i' * b ^ j') :=
       ((hac.symm.pow_left k).pow_right i').mul_right ((hbc.symm.pow_left k).pow_right j')
@@ -497,7 +497,7 @@ theorem homogeneousRadixRep_interval_step
   have hmod : (n - z) % A = 0 := by
     have hnmod : n ≡ n % A [MOD A] := by simp [Nat.ModEq]
     have hzmod : z ≡ n % A [MOD A] := by
-      show z % A = (n % A) % A
+      change z % A = (n % A) % A
       simp [z, P, hrmod, Nat.mod_eq_of_lt (Nat.mod_lt n hA)]
     have hh := Nat.ModEq.sub hzn (le_refl (n % A)) hnmod hzmod
     simpa [Nat.ModEq] using hh
@@ -631,7 +631,7 @@ private theorem exists_eventual_pow_period (x d : ℕ) (hd : 0 < d) :
   have hv : (v : ℕ) = P + T := by dsimp [P, T]; omega
   simpa [P, hv, pow_add, Nat.mul_comm, Nat.mul_left_comm, Nat.mul_assoc] using hmul.symm
 
-private theorem pow_period_multiple {x d P T : ℕ} (hT : 0 < T)
+private theorem pow_period_multiple {x d P T : ℕ} (_hT : 0 < T)
     (h : ∀ k : ℕ, x ^ (P + k + T) ≡ x ^ (P + k) [MOD d])
     (m k : ℕ) : x ^ (P + k + m * T) ≡ x ^ (P + k) [MOD d] := by
   induction m with
@@ -694,7 +694,6 @@ theorem bounded_residue_combo_of_int_bezout {g₁ g₂ g₃ d : ℕ} (hd : 0 < d
   rw [ZMod.natCast_zmod_val, ZMod.natCast_zmod_val, ZMod.natCast_zmod_val]
   change I * g₁ + J * g₂ + K * g₃ = R
   dsimp [I, J, K, R]
-  push_cast at ⊢
   have hbezZ : (u : ZMod d) * g₁ + (v : ZMod d) * g₂ +
       (w : ZMod d) * g₃ = 1 := by
     have hz := congrArg (Int.castRingHom (ZMod d)) hbez
@@ -718,7 +717,7 @@ private theorem period_multiple_from {x d P T : ℕ}
       exact hs'.trans ih
 
 private theorem periodic_split_modEq {x y d P T R D t count : ℕ}
-    (hT : 0 < T) (hPR : P ≤ R)
+    (_hT : 0 < T) (hPR : P ≤ R)
     (hmargin : P + count * T ≤ D - R)
     (hx : ∀ k, x ^ (P + k + T) ≡ x ^ (P + k) [MOD d])
     (hy : ∀ k, y ^ (P + k + T) ≡ y ^ (P + k) [MOD d])
@@ -948,16 +947,16 @@ theorem exact_degree_bounded_face_corrections {a b c d : ℕ}
       cases idx with
       | inl t =>
         dsimp [term, expo, tagBase, S, eval3]
-        simp only [pow_zero, one_mul]
+        simp only [one_mul]
         exact periodic_split_modEq hT (by dsimp [R]; omega) hmargin hpb hpc hi
       | inr idx => cases idx with
         | inl t =>
           dsimp [term, expo, tagBase, S, eval3]
-          simp only [pow_zero, mul_one]
+          simp only [mul_one]
           exact periodic_split_modEq hT (by dsimp [R]; omega) hmargin hpa hpc hi
         | inr t =>
           dsimp [term, expo, tagBase, S, eval3]
-          simp only [pow_zero, mul_one]
+          simp only [mul_one]
           simpa [Nat.mul_comm] using
             (periodic_split_modEq hT (by dsimp [R]; omega) hmargin hpb hpa hi)
     have hsumImage : s.sum id = ∑ idx : I, term idx := by
@@ -1000,7 +999,7 @@ theorem exact_degree_bounded_face_corrections {a b c d : ℕ}
           have hm := Nat.mul_le_mul_right T (Nat.le_of_lt hi)
           omega
         dsimp [term, expo, eval3]
-        simp only [pow_zero, one_mul]
+        simp only [one_mul]
         have hbpow := Nat.pow_le_pow_right (by omega : 0 < b) hhigh
         have hcpow : c ^ (D - R - (t : ℕ) * T) ≤ c ^ D :=
           Nat.pow_le_pow_right (by omega) (by omega)
@@ -1012,7 +1011,7 @@ theorem exact_degree_bounded_face_corrections {a b c d : ℕ}
             have hm := Nat.mul_le_mul_right T (Nat.le_of_lt hi)
             omega
           dsimp [term, expo, eval3]
-          simp only [pow_zero, mul_one]
+          simp only [mul_one]
           have hapow : a ^ (R + (t : ℕ) * T) ≤ c ^ (R + (t : ℕ) * T) :=
             Nat.pow_le_pow_left hacOrder _
           have hprod : a ^ (R + (t : ℕ) * T) *
@@ -1029,7 +1028,7 @@ theorem exact_degree_bounded_face_corrections {a b c d : ℕ}
             have hm := Nat.mul_le_mul_right T (Nat.le_of_lt hi)
             omega
           dsimp [term, expo, eval3]
-          simp only [pow_zero, mul_one]
+          simp only [mul_one]
           have hapow : a ^ (D - R - (t : ℕ) * T) ≤
               c ^ (D - R - (t : ℕ) * T) := Nat.pow_le_pow_left hacOrder _
           have hbpow := Nat.pow_le_pow_right (by omega : 0 < b) hhigh
@@ -1112,7 +1111,7 @@ theorem sum_scaleFinset_union {a : ℕ} {s t : Finset ℕ}
 below any target in that interval.  The second inequality is the useful
 multiplicative lower bound on that point. -/
 theorem exists_geometric_grid_point {a c q R T : ℕ}
-    (ha : 0 < a) (hac : a < c) (hq : 0 < q)
+    (_ha : 0 < a) (hac : a < c) (_hq : 0 < q)
     (hlo : q * a ^ R ≤ T) (hhi : T ≤ q * c ^ R) :
     ∃ k : ℕ, k ≤ R ∧
       q * a ^ (R - k) * c ^ k ≤ T ∧
@@ -1161,7 +1160,7 @@ theorem exists_long_interior_shell {a b c u v δ M H : ℕ}
     (ha : 1 < a) (hb : 1 < b) (hc : 1 < c)
     (hacLt : a < c) (hcb : c < b)
     (hab : Nat.Coprime a b) (hac : Nat.Coprime a c) (hbc : Nat.Coprime b c)
-    (hu : 0 < u) (hv : 0 < v)
+    (_hu : 0 < u) (hv : 0 < v)
     (hHM : H + 2 ≤ M)
     (hdom : a ^ δ * (b * a ^ v) ^ M ≤ (c ^ v) ^ M) :
     let G := u + v
@@ -1305,7 +1304,7 @@ theorem exists_long_interior_shell {a b c u v δ M H : ℕ}
 
 /-- Positive powers of coprime nontrivial natural numbers cannot coincide. -/
 theorem coprime_pow_ne_pow {b c p q : ℕ}
-    (hb : 1 < b) (hbc : Nat.Coprime b c) (hp : 0 < p) (hq : 0 < q) :
+    (hb : 1 < b) (hbc : Nat.Coprime b c) (hp : 0 < p) (_hq : 0 < q) :
     b ^ p ≠ c ^ q := by
   intro heq
   have hbDiv : b ∣ c ^ q := by
@@ -1646,7 +1645,7 @@ theorem edgeDigit_modEq {a b c E r : ℕ}
 
 /-- The `c` nested edge digits have pairwise distinct residues modulo `c`.
 Thus they can serve as one position of the radix code in F-018. -/
-theorem edgeDigit_residue_injective {a b c E : ℕ} (hc : 1 < c)
+theorem edgeDigit_residue_injective {a b c E : ℕ} (_hc : 1 < c)
     (hca : Nat.Coprime c a) (hcb : Nat.Coprime c b) :
     Function.Injective (fun r : Fin c => edgeDigit a b c E r % c) := by
   intro r s hrs
@@ -1902,8 +1901,8 @@ theorem edgeCodeFinset_sum {a b c n : ℕ}
 prescribed finite length.  The progression occurs among actual evaluations,
 not merely among their residues. -/
 theorem edgeCodeEval_arbitrarily_long_progressions {a b c : ℕ}
-    (ha : 1 < a) (hb : 1 < b) (hc : 1 < c) (hacLt : a < c)
-    (hab : Nat.Coprime a b) (hac : Nat.Coprime a c) (hbc : Nat.Coprime b c)
+    (_ha : 1 < a) (_hb : 1 < b) (hc : 1 < c) (hacLt : a < c)
+    (_hab : Nat.Coprime a b) (hac : Nat.Coprime a c) (hbc : Nat.Coprime b c)
     (L : ℕ) (hL : 1 < L) :
     ∃ n B d : ℕ, 0 < d ∧
       ∃ words : Fin L → (Fin n → Fin c),
@@ -2021,7 +2020,7 @@ theorem shiftedCorrectionSet_isPrimitive {a b c r u v : ℕ}
 
 /-- Exact shifted-gadget sum. -/
 theorem shiftedCorrectionSet_sum {a b c r u v : ℕ}
-    (ha : 1 < a) (hb : 1 < b) (hc : 1 < c) :
+    (_ha : 1 < a) (hb : 1 < b) (hc : 1 < c) :
     (shiftedCorrectionSet a b c r u v).sum id =
       correctionMultiplier a b c u v * (correctionSet a b c r).sum id := by
   unfold shiftedCorrectionSet scaleFinset
@@ -2070,13 +2069,14 @@ private theorem smooth3_pos {a b c x : ℕ}
   positivity
 
 private theorem correctionSet_sum_pos {a b c r : ℕ}
-    (hb : 1 < b) (hc : 1 < c) (hr : 0 < r) :
+    (_hb : 1 < b) (hc : 1 < c) (hr : 0 < r) :
     0 < (correctionSet a b c r).sum id := by
   have hmem : correctionTerm a b c r 0 ∈ correctionSet a b c r := by
     apply Finset.mem_image.mpr
     exact ⟨0, Finset.mem_range.mpr hr, rfl⟩
   have hterm : 0 < correctionTerm a b c r 0 := by
-    simp [correctionTerm, pow_pos (by omega : 0 < b), pow_pos (by omega : 0 < c)]
+    unfold correctionTerm
+    positivity
   exact hterm.trans_le (by
     simpa only [id_eq] using Finset.single_le_sum (fun z _hz => Nat.zero_le z) hmem)
 
@@ -2124,7 +2124,6 @@ theorem eventually_reduce_nonzero_residue
   have hfrac : ((n : ℝ) / (S + 1 : ℕ)) / ρ = (n : ℝ) / (S + a : ℕ) := by
     dsimp [ρ]
     field_simp
-    <;> ring
   rw [← hwCast, hfrac] at hwLower
   rw [← hwCast] at hwUpper
   have hCritReal : (n : ℝ) < (w : ℝ) * (S + a : ℕ) :=
@@ -2206,7 +2205,7 @@ theorem eventually_reduce_nonzero_residue
     · rcases Finset.mem_image.mp hyOld with ⟨x, hx, rfl⟩
       rcases hsA x hx with ⟨i, j, k, rfl⟩
       refine ⟨i + 1, j, k, ?_⟩
-      simp [pow_succ, mul_assoc, mul_comm, mul_left_comm]
+      simp [pow_succ, mul_assoc, mul_comm]
     · exact shiftedCorrectionSet_subset_smooth3 hyCorr
   · rw [sum_scaleFinset_union ha htCoprime, hsSum]
     change a * m + B = n
@@ -2229,7 +2228,7 @@ private theorem representable_scale_base {a b c m : ℕ}
     rcases Finset.mem_image.mp hy with ⟨x, hx, rfl⟩
     rcases hsA x hx with ⟨i, j, k, rfl⟩
     refine ⟨i + 1, j, k, ?_⟩
-    simp [pow_succ, mul_assoc, mul_comm, mul_left_comm]
+    simp [pow_succ, mul_assoc, mul_comm]
   · simpa using isPrimitive_scaleFinset_union ha hsPos hsPrimitive
       htPrimitive htCoprime hsep
   · have hsum := sum_scaleFinset_union (s := s) (t := ∅) ha htCoprime
@@ -2438,7 +2437,7 @@ theorem HomogeneousRadixRep.le_mass {A B L M n : ℕ}
 /-- Scaling an interior band in the `a` direction preserves its interior
 geometry and raises its exact degree. -/
 theorem scaleInteriorBandA {a b c D J G : ℕ} {s : Finset ℕ}
-    (ha : 0 < a) (hs : IsInteriorLevelBand a b c D J s) :
+    (_ha : 0 < a) (hs : IsInteriorLevelBand a b c D J s) :
     IsInteriorLevelBand a b c (D + G) J (scaleFinset (a ^ G) s) := by
   intro x hx
   rcases Finset.mem_image.mp hx with ⟨y, hy, rfl⟩
@@ -2470,7 +2469,7 @@ theorem translatedEdgeCode_interiorBand {a b c n u v e : ℕ}
   · rw [Nat.add_mul]
     omega
   · dsimp [q, eval3]
-    simp only [mul_pow, pow_mul]
+    simp only [mul_pow]
     rw [pow_add, pow_add, pow_add]
     ring
 
@@ -2480,7 +2479,7 @@ strict-interior monomials on one exact degree, and the digit copies occupy
 separated `b`-exponent bands. -/
 theorem homogeneousRadixRep_realized_by_edge_AP
     {a b c n L B₀ d u v M value : ℕ}
-    (ha : 1 < a) (hb : 1 < b) (hc : 1 < c) (hacLt : a < c)
+    (ha : 1 < a) (hb : 1 < b) (hc : 1 < c) (_hacLt : a < c)
     (hab : Nat.Coprime a b) (hac : Nat.Coprime a c) (hbc : Nat.Coprime b c)
     (huBand : edgeDigitDepth c + 1 < u)
     (words : Fin L → (Fin n → Fin c))
@@ -2559,7 +2558,7 @@ theorem homogeneousRadixRep_realized_by_edge_AP
                 (kk + v * (M + 1) + 1) := by
             rw [hyval]
             dsimp [q, B, eval3]
-            simp only [mul_pow, pow_mul]
+            simp only [mul_pow]
             rw [pow_add, pow_add, pow_add]
             ring
           have heqNew : eval3 a b c inw jnw knw =
@@ -2690,7 +2689,7 @@ theorem representable_interval_extend_by_level_finset
     rcases Finset.mem_union.mp hx with hxs | hxq
     · exact hsSmooth x hxs
     · exact hpSmooth x (hqp hxq)
-  · apply isPrimitive_of_exact_level ha hb hc hab hac hbc
+  · refine isPrimitive_of_exact_level (D := D) ha hb hc hab hac hbc ?_
     intro x hx
     rcases Finset.mem_union.mp hx with hxs | hxq
     · exact hsDegree x hxs
@@ -2740,6 +2739,8 @@ theorem seedLevelSet_disjoint_high_shell
   · omega
 
 set_option maxHeartbeats 5000000 in
+-- This construction combines several large finite gadgets, and the final
+-- arithmetic assembly needs more elaboration budget than the default.
 /-- Ordered bases `a<c<b` have primitive represented intervals of arbitrarily
 large multiplicative width.  The construction combines a homogeneous AP-radix
 interval, exact-degree face corrections, and a long optional interior shell. -/
@@ -2885,7 +2886,8 @@ theorem ordered_arbitrarily_wide_primitive_seed
   have hLoBound : Lo ≤ K * B ^ (M + 1) := by
     have hOff : Offset ≤ (q * B₀) * B ^ (M + 1) := by
       dsimp [Offset]
-      convert Nat.mul_le_mul_left (q * B₀) hMass using 1 <;> ring
+      convert Nat.mul_le_mul_left (q * B₀) hMass using 1
+      ring
     have hSU : Step * U ≤ (Step * L) * B ^ (M + 1) := by
       calc
         Step * U ≤ Step * (L * Mass) := Nat.mul_le_mul_left Step hUbound
