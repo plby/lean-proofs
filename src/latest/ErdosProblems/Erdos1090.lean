@@ -233,18 +233,27 @@ lemma affine_span_image_line_eq_span_pair {ι : Type*} [Fintype ι] (k : ℕ) (h
   affineSpan ℝ (Set.range (fun t => Proj k v (l t))) = affineSpan ℝ {Proj k v (l ⟨0, by linarith⟩), Proj k v (l ⟨1, by linarith⟩)} := by
     classical
     refine le_antisymm ?_ ?_ <;> simp_all +decide [ affineSpan_le ];
-    · rintro _ ⟨ t, rfl ⟩ ; simp +decide [ spanPoints ] ; (
+    · rintro _ ⟨ t, rfl ⟩
       -- By definition of $Proj$, we know that $Proj k v (l t) = Proj k v (l ⟨0, by linarith⟩) + t \cdot (Proj k v (l ⟨1, by linarith⟩) - Proj k v (l ⟨0, by linarith⟩))$.
-      have h_proj : ∀ t : Fin k, Proj k v (l t) = Proj k v (l ⟨0, by linarith⟩) + t.val • (Proj k v (l ⟨1, by linarith⟩) - Proj k v (l ⟨0, by linarith⟩)) := by
+      have h_proj : ∀ t : Fin k, Proj k v (l t) = Proj k v (l ⟨0, by linarith⟩) + (t : ℝ) • (Proj k v (l ⟨1, by linarith⟩) - Proj k v (l ⟨0, by linarith⟩)) := by
         intro t; exact (by
         obtain ⟨l_val, hl⟩ := l
         generalize_proofs at *;
         simp +decide [ Proj, smul_sub ];
-        rw [ Finset.mul_sum _ _ _, Finset.mul_sum _ _ _ ] ; rw [ ← Finset.sum_sub_distrib ] ; rw [ ← Finset.sum_add_distrib ] ; congr ; ext x ; cases h : l_val x <;> aesop;);
-      refine Or.inl ⟨ ?_, ?_, ?_ ⟩ <;> norm_num [ h_proj t ]
-      · exact ( t : ℝ ) • ( Proj k v ( l ⟨ 1, by linarith ⟩ ) - Proj k v ( l ⟨ 0, by linarith ⟩ ) )
-      · exact Submodule.smul_mem _ _ ( Submodule.subset_span ( Set.mem_vsub.mpr ⟨ _, Set.mem_insert_of_mem _ ( Set.mem_singleton _ ), _, Set.mem_insert _ _, rfl ⟩ ) );
-      · exact add_comm _ _);
+        rw [ Finset.smul_sum, Finset.smul_sum ] ; rw [ ← Finset.sum_sub_distrib ] ; rw [ ← Finset.sum_add_distrib ] ; congr ; ext x ; cases h : l_val x <;> aesop;);
+      let p0 := Proj k v (l ⟨0, by linarith⟩)
+      let p1 := Proj k v (l ⟨1, by linarith⟩)
+      have hmem :
+          (t : ℝ) • (p1 -ᵥ p0 : Fin 2 → ℝ) +ᵥ p0 ∈ line[ℝ, p0, p1] :=
+        smul_vsub_vadd_mem_affineSpan_pair (t : ℝ) p0 p1
+      change Proj k v (l t) ∈ line[ℝ, p0, p1]
+      rw [h_proj t]
+      convert hmem using 1
+      ext i
+      change (p0 + (t : ℝ) • (p1 - p0)) i =
+        (((t : ℝ) • (p1 -ᵥ p0 : Fin 2 → ℝ)) +ᵥ p0) i
+      simp only [Pi.add_apply, Pi.sub_apply, Pi.smul_apply, vsub_eq_sub, vadd_eq_add, smul_eq_mul]
+      ring
     · rintro x ( rfl | rfl ) <;> [ exact subset_affineSpan ℝ _ ⟨ _, rfl ⟩ ; exact subset_affineSpan ℝ _ ⟨ _, rfl ⟩ ]
 
 

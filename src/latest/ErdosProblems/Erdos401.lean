@@ -1583,7 +1583,9 @@ lemma k_le_M_for_large_M (r : ℕ) :
         suffices h_log_recip : Filter.Tendsto (fun y : ℝ => y * Real.log (1 / y)) (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) by
           exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
         norm_num;
-        exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+        exact tendsto_nhdsWithin_of_tendsto_nhds ( by
+          have h := Real.continuous_mul_log.tendsto 0
+          simpa using h.neg );
       simpa [ mul_div_assoc ] using h_log_div_M.const_mul _;
     have := h_log_growth.eventually ( gt_mem_nhds zero_lt_one );
     rw [ Filter.eventually_atTop ] at this; rcases this with ⟨ M0, hM0 ⟩ ; exact ⟨ ⌈M0⌉₊ + 1, fun M hM => by have := hM0 M ( Nat.le_of_ceil_le ( by linarith ) ) ; rw [ div_lt_iff₀ ( by norm_cast; linarith ) ] at this; linarith ⟩ ;

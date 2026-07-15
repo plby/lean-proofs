@@ -1050,7 +1050,9 @@ lemma exists_good_m_for_large_M (C η : ℝ) (K : ℕ) (hC : C > 0) (h_eta : 0 <
                     suffices h_log_recip : Filter.Tendsto (fun y => y * Real.log (1 / y)) (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) by
                       exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] )
                     norm_num +zetaDelta at *
-                    exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 )
+                    exact tendsto_nhdsWithin_of_tendsto_nhds ( by
+                      have h := Real.continuous_mul_log.tendsto 0
+                      simpa using h.neg )
                   exact h_log_log_M_div_log_M.comp ( Real.tendsto_log_atTop )
                 simpa [ add_div ] using Filter.Tendsto.add ( Filter.Tendsto.add ( tendsto_const_nhds.div_atTop ( Real.tendsto_log_atTop ) ) ( tendsto_const_nhds.div_atTop ( Real.tendsto_log_atTop ) ) ) h_log_log_M
               filter_upwards [ h_log_p_le_log_M.eventually ( gt_mem_nhds <| show 0 < ( 1 - η ) / 7 by linarith ), Filter.eventually_gt_atTop 1 ] with M hM₁ hM₂ using by rw [ div_lt_iff₀ <| Real.log_pos hM₂ ] at hM₁; linarith

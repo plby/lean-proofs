@@ -2720,7 +2720,9 @@ theorem Params.initial.bound_score_5 (ε : ℝ) (hε : ε > 0) (M L : ℕ) :
         (.map (1 / ·) .atTop) (nhds 0) by
       exact (h.comp (Filter.map_mono tendsto_natCast_atTop_atTop)).congr fun _ ↦ by grind
     norm_num at *
-    exact tendsto_nhdsWithin_of_tendsto_nhds (by simpa using Real.continuous_mul_log.neg.tendsto 0)
+    exact tendsto_nhdsWithin_of_tendsto_nhds (by
+      have h := Real.continuous_mul_log.tendsto 0
+      simpa using h.neg)
   have h_pi_div_n_zero : Filter.Tendsto (fun n : ℕ ↦ (Nat.primeCounting n : ℝ) / n)
       .atTop (nhds 0) := tendsto_primeCounting_div_id_zero
   have h_sum_bound : Filter.Tendsto (fun n : ℕ ↦

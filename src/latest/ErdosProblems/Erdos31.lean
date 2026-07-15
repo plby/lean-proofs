@@ -1385,7 +1385,8 @@ theorem Erdos_Straus_conjecture (A : Set ℕ) (hA : A.Infinite) :
             (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) := by
         norm_num +zetaDelta at *
         exact tendsto_nhdsWithin_of_tendsto_nhds <| by
-          simpa using Real.continuous_mul_log.neg.tendsto 0
+          have h := Real.continuous_mul_log.tendsto 0
+          simpa using h.neg
       exact h_subst.comp (Filter.map_mono h_A_inf) |> fun h =>
         h.congr (by intros; simp +decide ; ring)
     -- If the average of the first n terms of a sequence tends to 0, then the

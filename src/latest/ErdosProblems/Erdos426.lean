@@ -3374,11 +3374,18 @@ lemma supergraph_UE_count {n : ℕ} (G₀ H : SimpleGraph (Fin n))
   -- The set of valid G' corresponds to choosing k edges from a set of e(H) - m₀ available edges, which has C(e(H) - m₀, k) elements.
   have h_card : Finset.card (Finset.filter (fun G' : SimpleGraph (Fin n) => G₀ ≤ G' ∧ G' ≤ σ⁻¹ • H ∧ G'.edgeFinset.card = G₀.edgeFinset.card + k) Finset.univ) = Finset.card (Finset.powersetCard k (Finset.filter (fun e => e ∈ (σ⁻¹ • H).edgeFinset ∧ e ∉ G₀.edgeFinset) (Finset.univ : Finset (Sym2 (Fin n)))) ) := by
     refine Finset.card_bij ( fun G' _ => G'.edgeFinset \ G₀.edgeFinset ) ?_ ?_ ?_;
-    · simp +contextual [ Finset.mem_powersetCard, Finset.card_sdiff ];
-      intro G' hG'₁ hG'₂ hG'₃; rw [ Finset.inter_comm ] ; simp_all +decide [ Finset.subset_iff ] ;
-      refine ⟨ fun x hx₁ hx₂ => ?_, ?_ ⟩;
-      · cases x ; aesop;
-      · rw [ Finset.inter_eq_right.mpr ] <;> aesop;
+    · intro G' hG'
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hG'
+      rcases hG' with ⟨hG'₁, hG'₂, hG'₃⟩
+      rw [Finset.mem_powersetCard]
+      refine ⟨?_, ?_⟩
+      · intro e he
+        rw [Finset.mem_sdiff] at he
+        rw [Finset.mem_filter]
+        exact ⟨Finset.mem_univ e,
+          SimpleGraph.edgeFinset_mono hG'₂ he.1, he.2⟩
+      · rw [Finset.card_sdiff_of_subset (SimpleGraph.edgeFinset_mono hG'₁), hG'₃]
+        omega
     · simp +contextual [ Finset.ext_iff ];
       intro a₁ ha₁ ha₂ ha₃ a₂ ha₄ ha₅ ha₆ h; ext u v; specialize h ( Sym2.mk u v ) ; by_cases hu : G₀.Adj u v <;> aesop;
     · intro b hb; use SimpleGraph.fromEdgeSet ( G₀.edgeFinset ∪ b ) ; simp_all +decide [ Finset.subset_iff ] ;

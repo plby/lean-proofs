@@ -1773,22 +1773,23 @@ lemma ncard_solutions_double_eq_of_mod_two_eq_one
   -- convert both `Set.ncard`s to `Nat.card` on the corresponding subtypes
   have hS :
       ({x : ZMod v | ∃ b ∈ Bc, x + x = b}.ncard)
-        = Nat.card {x : ZMod v // ∃ b ∈ Bc, x + x = b} := by
-    simpa using (Nat.card_coe_set_eq (s := {x : ZMod v | ∃ b ∈ Bc, x + x = b})).symm
+        = Fintype.card {x : ZMod v // ∃ b ∈ Bc, x + x = b} := by
+    rw [← Nat.card_coe_set_eq]
+    exact Nat.card_eq_fintype_card
   have hB :
-      Bc.ncard = Nat.card {b : ZMod v // b ∈ Bc} := by
-    simpa using (Nat.card_coe_set_eq (s := Bc)).symm
+      Bc.ncard = Fintype.card {b : ZMod v // b ∈ Bc} := by
+    rw [← Nat.card_coe_set_eq]
+    exact Nat.card_eq_fintype_card
   -- the subtypes are finite (since `ZMod v` is finite), and we have an `Equiv` between them
   have hc :
-      Nat.card {x : ZMod v // ∃ b ∈ Bc, x + x = b}
-        = Nat.card {b : ZMod v // b ∈ Bc} := by
+      Fintype.card {x : ZMod v // ∃ b ∈ Bc, x + x = b}
+        = Fintype.card {b : ZMod v // b ∈ Bc} := by
     -- `Finite.card_eq` ↔ `Nonempty (α ≃ β)`
     -- we need a witness that the *type* `{x // …} ≃ {b // …}` is inhabited
     have h :
       Nonempty ({x : ZMod v // ∃ b ∈ Bc, x + x = b} ≃ {b : ZMod v // b ∈ Bc}) :=
       ⟨(equiv_Bc_solutions_double_eq_of_mod_two_eq_one (v:=v) hv Bc).symm⟩
-    simpa using (Finite.card_eq.mpr
-      ⟨(equiv_Bc_solutions_double_eq_of_mod_two_eq_one (v:=v) hv Bc).symm⟩)
+    exact Fintype.card_congr h.some
   -- finish
   exact (hS.trans hc).trans hB.symm
 

@@ -1550,7 +1550,9 @@ lemma log_log_M_asymp (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
                 suffices h_log_recip : Filter.Tendsto (fun y => y * Real.log (1 / y)) (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) by
                   exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
                 norm_num +zetaDelta at *;
-                exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+                exact tendsto_nhdsWithin_of_tendsto_nhds ( by
+                  have h := Real.continuous_mul_log.tendsto 0
+                  simpa using h.neg );
               exact h_log_log_M.comp ( Real.tendsto_log_atTop.comp ( Real.tendsto_log_atTop ) );
             simpa [ mul_div_assoc ] using Filter.Tendsto.add ( h_log_log_M.const_mul c ) tendsto_const_nhds;
           refine h_log_log_M.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with n hn hn'; rw [ add_div, div_self <| ne_of_gt <| Real.log_pos <| show 1 < Real.log n from by rw [ Real.lt_log_iff_exp_lt <| by linarith ] ; linarith ] );

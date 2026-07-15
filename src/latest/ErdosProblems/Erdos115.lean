@@ -1298,10 +1298,10 @@ theorem valid_polynomials_compact (n : ℕ) : IsCompact (ValidPolys n) := by
       by_contra h_not_mem
       rw [Finset.mem_range, not_lt] at h_not_mem
       exact hi (h_eventually_zero i (Nat.lt_of_succ_le h_not_mem)))
-    let p : Polynomial ℂ := Polynomial.ofFinsupp p_finsupp
+    let p : Polynomial ℂ := Polynomial.ofFinsupp (AddMonoidAlgebra.ofCoeff p_finsupp)
     have h_p_coeff : ∀ i, p.coeff i = c i := by
       intro i
-      rw [Polynomial.coeff_ofFinsupp]
+      rw [Polynomial.coeff_ofFinsupp, AddMonoidAlgebra.coeff_ofCoeff]
       dsimp [p_finsupp]
     use p; constructor
     · -- show p ∈ ValidPolys n

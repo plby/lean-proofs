@@ -183,9 +183,51 @@ theorem lemma_smallbigf (A B : Set ℕ)
       ext n;
       rw [Finset.mem_Ico, Finset.mem_Ioc];
       omega;
-    have := h_sum_le_x x ( by positivity ) ; norm_num at *;
-    norm_num [ ← @Int.cast_le ℝ ] at *;
-    linarith [ Int.floor_le x, Int.lt_floor_add_one x, show ( ∑ l ∈ Finset.range ( ⌊2 * x⌋.toNat + 1 ), ( representation_count A B x l : ℝ ) ) = ( Nat.card { n : ℕ // n ∈ A ∧ ( n : ℝ ) ≤ x } * Nat.card { n : ℕ // n ∈ B ∧ ( n : ℝ ) ≤ x } : ℝ ) by exact_mod_cast h_prod_eq_sum x ( by positivity ) |> Eq.symm ];
+    have h_small_lower :
+        x - (missing_sum_count A B x : ℝ) - 1 ≤
+          (∑ l ∈ Finset.range (⌊x⌋.toNat + 1),
+            representation_count A B x l : ℕ) := by
+      have hsum_nat := h_sum_le_x x (by positivity)
+      have h_floor_le_sum_add :
+          ⌊x⌋.toNat ≤
+            (∑ l ∈ Finset.range (⌊x⌋.toNat + 1), representation_count A B x l) +
+              missing_sum_count A B x := by
+        omega
+      have h_floor_le_sum_add_real :
+          (⌊x⌋.toNat : ℝ) ≤
+            ((∑ l ∈ Finset.range (⌊x⌋.toNat + 1),
+              representation_count A B x l : ℕ) : ℝ) +
+              (missing_sum_count A B x : ℝ) := by
+        exact_mod_cast h_floor_le_sum_add
+      have h_floor_nonneg : (0 : ℤ) ≤ ⌊x⌋ := by
+        exact Int.floor_nonneg.mpr (by linarith)
+      have h_floor_toNat : ((⌊x⌋.toNat : ℕ) : ℝ) = (⌊x⌋ : ℤ) := by
+        exact_mod_cast Int.toNat_of_nonneg h_floor_nonneg
+      have hx_lt_floor_toNat_add_one :
+          x < (⌊x⌋.toNat : ℝ) + 1 := by
+        rw [h_floor_toNat]
+        exact Int.lt_floor_add_one x
+      linarith
+    have h_total_eq :
+        ((∑ l ∈ Finset.range (⌊2 * x⌋.toNat + 1),
+          representation_count A B x l : ℕ) : ℝ) =
+          (Nat.card { n : ℕ // n ∈ A ∧ ( n : ℝ ) ≤ x } *
+            Nat.card { n : ℕ // n ∈ B ∧ ( n : ℝ ) ≤ x } : ℝ) := by
+      exact_mod_cast (h_prod_eq_sum x (by positivity)).symm
+    calc
+      (large_sum_count A B x : ℝ)
+          = ((∑ l ∈ Finset.range (⌊2 * x⌋.toNat + 1),
+              representation_count A B x l : ℕ) : ℝ) -
+            ((∑ l ∈ Finset.range (⌊x⌋.toNat + 1),
+              representation_count A B x l : ℕ) : ℝ) := h_F_le_step
+      _ = (Nat.card { n : ℕ // n ∈ A ∧ ( n : ℝ ) ≤ x } *
+            Nat.card { n : ℕ // n ∈ B ∧ ( n : ℝ ) ≤ x } : ℝ) -
+            ((∑ l ∈ Finset.range (⌊x⌋.toNat + 1),
+              representation_count A B x l : ℕ) : ℝ) := by rw [h_total_eq]
+      _ ≤ (Nat.card { n : ℕ // n ∈ A ∧ ( n : ℝ ) ≤ x } *
+            Nat.card { n : ℕ // n ∈ B ∧ ( n : ℝ ) ≤ x } : ℝ) -
+            (x - (missing_sum_count A B x : ℝ) - 1) := by
+        linarith
   -- Using the fact that $A(x)B(x) = x + o(x)$, we get $F(x) \leq x + o(x) - (x - r(x)) = o(x)$.
   have h_F_le_o_x : Filter.Tendsto (fun x : ℝ => ((Nat.card {n ∈ A | n ≤ x}) * (Nat.card {n ∈ B | n ≤ x}) - x) / x) Filter.atTop (nhds 0) := by
     have := h_hyp.2;
@@ -1676,9 +1718,14 @@ theorem lemma_sum_elements_a_star (A : Set ℕ) (h_inf_A : A.Infinite)
                     exact ⟨ m, hm₁, hm₂ ⟩ )
                   ( fun m hm => Nat.le_floor <| hm.2 ) )
                 ( Nat.floor_lt ( by positivity ) |>.2 <| by linarith );
-          · rw [ Nat.card_eq_zero.mpr, Nat.card_eq_zero.mpr ];
-            · exact Or.inl ⟨ fun ⟨ n, hn₁, hn₂ ⟩ => by have := ‹∀ x_1 ∈ A, x < ( x_1 : ℝ ) › n hn₁; norm_num [ hn₂ ] at this; linarith ⟩;
-            · exact Or.inl ⟨ fun n => by linarith [ n.2.2, ‹∀ x_1 ∈ A, x < ( x_1 : ℝ ) › n.1 n.2.1 ] ⟩;
+          · apply Eq.symm
+            rw [← Nat.card_coe_set_eq]
+            apply Nat.card_eq_zero.mpr
+            exact Or.inl
+              ⟨fun ⟨ n, hn₁, hn₂ ⟩ => by
+                have := ‹∀ x_1 ∈ A, x < ( x_1 : ℝ )› n hn₁
+                norm_num [hn₂] at this
+                linarith⟩
       -- Using the fact that $t(x) \to \infty$ as $x \to \infty$, we can rewrite the limit expression.
       have h_tendsto : Filter.Tendsto (fun x => sum_elements A (t x) / ((t x : ℝ) * counting_function A (t x))) Filter.atTop (nhds 0) := by
         have h_tendsto : Filter.Tendsto (fun x => sum_elements A x / ((x : ℝ) * counting_function A x)) Filter.atTop (nhds 0) := by
@@ -1731,18 +1778,40 @@ theorem lemma_sum_B_bound (A B : Set ℕ) (h_inf_A : A.Infinite) (h_hyp : exact_
             simpa [sum_elements] using lemma_sum_elements_a_star A h_inf_A h_smallbig_A;
           filter_upwards [ h_sum_bound.eventually ( gt_mem_nhds <| show 0 < ε' / 3 by linarith ), Filter.eventually_gt_atTop 0 ] with x hx₁ hx₂;
           by_cases h : a_star A x = 0 <;> by_cases h' : counting_function A x = 0 <;> simp_all +decide [mul_assoc];
-          · contrapose! h';
-            simp_all +decide [ counting_function ];
-            rw [ Nat.card_eq_zero ];
-            simp +zetaDelta at *;
-            exact ⟨ by obtain ⟨ n, hn ⟩ := Finset.nonempty_of_sum_ne_zero ( ne_of_gt h' ) ; exact ⟨ n, by aesop, by exact le_trans ( mod_cast Finset.mem_range_succ_iff.mp ( Finset.mem_filter.mp hn |>.1 ) ) ( Nat.floor_le hx₂.le ) ⟩, Set.Finite.to_subtype <| Set.finite_iff_bddAbove.mpr ⟨ ⌊x⌋.toNat, fun n hn => Nat.le_floor <| mod_cast hn.2 ⟩ ⟩;
+          · contrapose! h'
+            simp_all +decide [counting_function]
+            rw [Set.ncard_eq_zero
+              (Set.finite_iff_bddAbove.mpr
+                ⟨⌊x⌋.toNat, fun n hn => Nat.le_floor <| mod_cast hn.2⟩)]
+            exact Set.nonempty_iff_ne_empty.mp
+              (by
+                obtain ⟨n, hn⟩ := Finset.nonempty_of_sum_ne_zero (ne_of_gt h')
+                exact
+                  ⟨n, by aesop,
+                    by
+                      exact le_trans
+                        (mod_cast Finset.mem_range_succ_iff.mp (Finset.mem_filter.mp hn).1)
+                        (Nat.floor_le hx₂.le)⟩)
           · contrapose! h;
             intro H; simp_all +decide [ a_star ] ;
             obtain ⟨ a, ha ⟩ := Finset.exists_ne_zero_of_sum_ne_zero h.ne' ; simp_all +decide [ Finset.mem_filter ];
             exact absurd ( H ⟨ a, ha.1.2, by exact_mod_cast Nat.floor_le hx₂.le |> le_trans ( Nat.cast_le.mpr ha.1.1 ) ⟩ ) ( ne_of_gt <| lt_of_lt_of_le ( Nat.cast_pos.mpr <| Nat.pos_of_ne_zero ha.2 ) <| le_csSup ( show BddAbove ( A ∩ { n : ℕ | ( n : ℝ ) ≤ x } ) from ⟨ ⌊x⌋.toNat, fun n hn => Nat.le_of_lt_succ <| by { exact_mod_cast hn.2.out.trans_lt <| Nat.lt_floor_add_one x } ⟩ ) ⟨ ha.1.2, by exact_mod_cast Nat.floor_le hx₂.le |> le_trans ( Nat.cast_le.mpr ha.1.1 ) ⟩ );
-          · intro hx₃; contrapose! h'; simp_all +decide [ counting_function ] ;
-            rw [ Nat.card_eq_zero ] ; norm_num;
-            exact ⟨ by obtain ⟨ n, hn ⟩ := Finset.nonempty_of_sum_ne_zero ( ne_of_gt h' ) ; exact ⟨ n, by aesop, by exact le_trans ( Nat.cast_le.mpr <| Finset.mem_range_succ_iff.mp <| Finset.mem_filter.mp hn |>.1 ) <| Nat.floor_le hx₂.le ⟩, Set.Finite.to_subtype <| Set.finite_iff_bddAbove.mpr ⟨ ⌊x⌋₊, fun n hn => Nat.le_floor <| hn.2 ⟩ ⟩;
+          · intro hx₃
+            contrapose! h'
+            simp_all +decide [counting_function]
+            rw [Set.ncard_eq_zero
+              (Set.finite_iff_bddAbove.mpr
+                ⟨⌊x⌋₊, fun n hn => Nat.le_floor <| hn.2⟩)]
+            exact Set.nonempty_iff_ne_empty.mp
+              (by
+                obtain ⟨n, hn⟩ := Finset.nonempty_of_sum_ne_zero (ne_of_gt h')
+                exact
+                  ⟨n, by aesop,
+                    by
+                      exact le_trans
+                        (Nat.cast_le.mpr <| Finset.mem_range_succ_iff.mp <|
+                          (Finset.mem_filter.mp hn).1)
+                        (Nat.floor_le hx₂.le)⟩)
           · exact fun h'' => by rw [ div_lt_iff₀ ( by positivity ) ] at hx₁; linarith;
         filter_upwards [ h_bound, h_sum_bound, Filter.eventually_gt_atTop 0 ] with x hx₁ hx₂ hx₃ hx₄;
         intro hx₅
@@ -1752,14 +1821,19 @@ theorem lemma_sum_B_bound (A B : Set ℕ) (h_inf_A : A.Infinite) (h_hyp : exact_
           apply le_of_eq
           ring
         have h_card_bound : (Finset.card (Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))) : ℝ) = counting_function A x := by
-          rw [ show counting_function A x = Finset.card ( Finset.filter ( fun n => n ∈ A ) ( Finset.range ( ⌊x⌋.toNat + 1 ) ) ) from ?_ ];
-          convert Nat.card_eq_finsetCard ( Finset.filter ( fun n => n ∈ A ) ( Finset.range ( ⌊x⌋.toNat + 1 ) ) ) using 1;
-          rw [ ← Nat.card_congr ]
-          focus
-            aesop
-          refine Equiv.subtypeEquivRight ?_;
-          simp [Finset.mem_filter, Finset.mem_range];
-          exact fun n => ⟨ fun hn => ⟨ Nat.le_floor hn.2, hn.1 ⟩, fun hn => ⟨ hn.2, Nat.floor_le hx₃.le |> le_trans ( mod_cast hn.1 ) ⟩ ⟩;
+          have hcf : counting_function A x =
+              (Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).card := by
+            unfold counting_function
+            rw [Nat.card_coe_set_eq]
+            rw [show {n : ℕ | n ∈ A ∧ (n : ℝ) ≤ x} =
+                (Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1)) : Set ℕ) by
+              ext n
+              simp [Finset.mem_range]
+              exact
+                ⟨fun hn => ⟨Nat.le_floor hn.2, hn.1⟩,
+                  fun hn => ⟨hn.2, Nat.floor_le hx₃.le |> le_trans (mod_cast hn.1)⟩⟩]
+            exact Set.ncard_coe_finset _
+          exact_mod_cast hcf.symm
         by_cases h : counting_function A x = 0 <;> simp_all +decide;
         · exact h_sum_bound.trans ( by positivity );
         · refine le_trans h_sum_bound ?_;
@@ -1936,21 +2010,39 @@ theorem lemma_sum_delta_minus_one_bound (A B : Set ℕ) (x : ℝ) (t : ℕ) (ε 
         ring_nf!
       · rw [ ← Nat.card_eq_finsetCard, ← Nat.card_eq_finsetCard ] ; norm_num;
         have hAcard :
-            Nat.card { x_1 : ℕ // x_1 ≤ ⌊x⌋.toNat ∧ x_1 ∈ A } =
+            { x_1 : ℕ | x_1 ≤ ⌊x⌋.toNat ∧ x_1 ∈ A }.ncard =
               Nat.card { x_1 : ℕ // x_1 < 1 + ⌊x⌋.toNat ∧ x_1 ∈ A } := by
+          rw [← Nat.card_coe_set_eq]
           refine Nat.card_congr ?_
           exact
-            { toFun := fun n => ⟨ n.1, ⟨ by omega, n.2.2 ⟩ ⟩
-              invFun := fun n => ⟨ n.1, ⟨ by omega, n.2.2 ⟩ ⟩
+            { toFun := fun n =>
+                ⟨ n.1,
+                  ⟨ by
+                      simpa [Nat.add_comm] using Nat.lt_succ_iff.mpr n.2.1,
+                    n.2.2 ⟩ ⟩
+              invFun := fun n =>
+                ⟨ n.1,
+                  ⟨ by
+                      exact Nat.lt_succ_iff.mp (by simpa [Nat.add_comm] using n.2.1),
+                    n.2.2 ⟩ ⟩
               left_inv := fun n => rfl
               right_inv := fun n => rfl }
         have hBcard :
-            Nat.card { x_1 : ℕ // x_1 ≤ ⌊x⌋.toNat - t ∧ x_1 ∈ B } =
+            { x_1 : ℕ | x_1 ≤ ⌊x⌋.toNat - t ∧ x_1 ∈ B }.ncard =
               Nat.card { x_1 : ℕ // x_1 < 1 + (⌊x⌋.toNat - t) ∧ x_1 ∈ B } := by
+          rw [← Nat.card_coe_set_eq]
           refine Nat.card_congr ?_
           exact
-            { toFun := fun n => ⟨ n.1, ⟨ by omega, n.2.2 ⟩ ⟩
-              invFun := fun n => ⟨ n.1, ⟨ by omega, n.2.2 ⟩ ⟩
+            { toFun := fun n =>
+                ⟨ n.1,
+                  ⟨ by
+                      simpa [Nat.add_comm] using Nat.lt_succ_iff.mpr n.2.1,
+                    n.2.2 ⟩ ⟩
+              invFun := fun n =>
+                ⟨ n.1,
+                  ⟨ by
+                      exact Nat.lt_succ_iff.mp (by simpa [Nat.add_comm] using n.2.1),
+                    n.2.2 ⟩ ⟩
               left_inv := fun n => rfl
               right_inv := fun n => rfl }
         rw [hAcard, hBcard]
@@ -2020,14 +2112,14 @@ theorem lemma_y_lower_bound (A B : Set ℕ) (x : ℝ) (t : ℕ) (ε : ℝ)
               have hnat : counting_function A x =
                   (Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1))).card := by
                 unfold counting_function
-                rw [← Nat.card_eq_finsetCard]
+                rw [Nat.card_coe_set_eq]
                 rw [show {n : ℕ | n ∈ A ∧ (n : ℝ) ≤ x} =
                     (Finset.filter (fun n => n ∈ A) (Finset.range (⌊x⌋.toNat + 1)) : Set ℕ) by
                   ext n
                   simp +decide
                   exact ⟨ fun h => ⟨ Nat.le_floor <| mod_cast h.2, h.1 ⟩,
                     fun h => ⟨ h.2, Nat.floor_le hx |> le_trans ( mod_cast h.1 ) ⟩ ⟩]
-                simp
+                exact Set.ncard_coe_finset _
               exact_mod_cast hnat.symm
             have hmain := h_sum_delta_minus_one_bound U0 V0
             dsimp [U0, V0] at hmain hU0_card ⊢
@@ -2156,9 +2248,12 @@ theorem lemma_uniform_convergence_B (B : Set ℕ)
                 exact h_finite.bddAbove
               use M
               intro x hx
-              simp [counting_function];
-              rw [ show { n : ℕ // n ∈ B ∧ ( n : ℝ ) ≤ x } = { n : ℕ // n ∈ B ∧ n ≤ M } from ?_ ];
-              exact congr_arg _ ( by ext; exact ⟨ fun h => ⟨ h.1, hM _ h.1 ⟩, fun h => ⟨ h.1, le_trans ( mod_cast h.2 ) hx ⟩ ⟩ );
+              unfold counting_function
+              rw [Nat.card_coe_set_eq, Nat.card_coe_set_eq]
+              congr 1
+              ext n
+              exact ⟨ fun h => ⟨ h.1, by exact_mod_cast hM _ h.1 ⟩,
+                fun h => ⟨ h.1, le_trans ( mod_cast h.2 ) hx ⟩ ⟩
             refine ⟨ 2, by norm_num, ?_ ⟩ ; rw [ Filter.tendsto_congr' ( by filter_upwards [ Filter.eventually_ge_atTop M, Filter.eventually_ge_atTop ( M / 2 ) ] with x hx₁ hx₂ using by rw [ hM ( 2 * x ) ( by linarith ), hM x hx₁ ] ) ] ; norm_num [ hM ];
             by_cases h : counting_function B M = 0 <;> norm_num [ h ]);
           exact tendsto_const_nhds.div_atTop ( tendsto_natCast_atTop_atTop.comp h_counting_B_inf );
@@ -2219,7 +2314,8 @@ theorem lemma_z_lower_bound_large_t (A B : Set ℕ) (_h_inf_B : B.Infinite)
             · have h_empty : IsEmpty { n : ℕ // n ∈ B ∧ ( n : ℝ ) ≤ x } := by
                 have h_zero_or : IsEmpty { n : ℕ // n ∈ B ∧ ( n : ℝ ) ≤ x } ∨
                     Infinite { n : ℕ // n ∈ B ∧ ( n : ℝ ) ≤ x } := by
-                  simpa [counting_function] using (Nat.card_eq_zero.mp h)
+                  rw [counting_function] at h
+                  exact Nat.card_eq_zero.mp h
                 rcases h_zero_or with h_empty | h_inf
                 · exact h_empty
                 · exact False.elim <| h_inf.not_finite <|
@@ -2474,16 +2570,18 @@ theorem lemma_estimate_lower_bound_small_t (A B : Set ℕ) (h_inf_A : A.Infinite
         have h_excess : (excess_count A B x : ℝ) ≥ counting_function B (x - t) - (x - (1 - ε) * t) / counting_function A x := by
           convert lemma_y_lower_bound A B x t ε ( by linarith ) ht_lt_x_div_2 ( Nat.cast_pos.mpr <| Nat.pos_of_ne_zero <| ?_ ) h_pos_A h_pos_B ( hx₁ ht_lt_x_div_2 ) ( Nat.cast_pos.mpr <| Nat.zero_lt_of_lt hx₂ ) using 1 ; norm_num [ Nat.cast_add, Nat.cast_one ] ; ring_nf!;
           cases Classical.propDecidable ( A ∩ { n : ℕ | ( n : ℝ ) ≤ x } ).Nonempty <;> simp_all +decide;
-          · exact ‹¬ ( A ∩ { n : ℕ | ( n : ℝ ) ≤ x } ).Nonempty› ⟨ Classical.choose ( show ∃ a ∈ A, a ≤ x from by
-                                                                                        contrapose! hx₂; simp_all +decide [ counting_function ] ;
-                                                                                        rw [ Nat.card_eq_zero.mpr ] <;> norm_num;
-                                                                                        exact Or.inl ⟨ fun ⟨ n, hn₁, hn₂ ⟩ => by linarith [ hx₂ n hn₁ ] ⟩ ), Classical.choose_spec ( show ∃ a ∈ A, a ≤ x from by
-                                                                                                                                                    contrapose! hx₂; simp_all +decide [ counting_function ] ;
-                                                                                                                                                    rw [ Nat.card_eq_zero.mpr ] <;> norm_num;
-                                                                                                                                                    exact Or.inl ⟨ fun ⟨ n, hn₁, hn₂ ⟩ => by linarith [ hx₂ n hn₁ ] ⟩ ) |>.1, by exact_mod_cast Classical.choose_spec ( show ∃ a ∈ A, a ≤ x from by
-                                                                                                                                                                                                                                        contrapose! hx₂; simp_all +decide [ counting_function ] ;
-                                                                                                                                                                                                                                        rw [ Nat.card_eq_zero.mpr ] <;> norm_num;
-                                                                                                                                                                                                                                        exact Or.inl ⟨ fun ⟨ n, hn₁, hn₂ ⟩ => by linarith [ hx₂ n hn₁ ] ⟩ ) |>.2 ⟩;
+          · have h_exists_A_le_x : ∃ a ∈ A, (a : ℝ) ≤ x := by
+              by_contra hnone
+              have hzero : counting_function A x = 0 := by
+                rw [counting_function]
+                apply Nat.card_eq_zero.mpr
+                exact Or.inl
+                  ⟨fun ⟨n, hn₁, hn₂⟩ => hnone ⟨n, hn₁, hn₂⟩⟩
+              omega
+            exact ‹¬ ( A ∩ { n : ℕ | ( n : ℝ ) ≤ x } ).Nonempty›
+              ⟨Classical.choose h_exists_A_le_x,
+                (Classical.choose_spec h_exists_A_le_x).1,
+                by exact_mod_cast (Classical.choose_spec h_exists_A_le_x).2⟩
           · exact ne_of_gt <| lt_of_lt_of_le ( Nat.cast_pos.mpr <| Nat.pos_of_ne_zero <| h_pos_A _ <| Classical.choose_spec ‹ ( A ∩ { n : ℕ | ( n : ℝ ) ≤ x } ).Nonempty › |>.1 ) <| le_csSup ( show BddAbove ( A ∩ { n : ℕ | ( n : ℝ ) ≤ x } ) from ⟨ ⌊x⌋₊, fun n hn => Nat.le_floor <| hn.2 ⟩ ) <| Classical.choose_spec ‹ ( A ∩ { n : ℕ | ( n : ℝ ) ≤ x } ).Nonempty ›;
         have h_large : large_element_count A B x ≥ counting_function B x - counting_function B (x - t) := by
           convert lemma_large_element_lower_bound A B x using 1
@@ -2526,10 +2624,15 @@ theorem lemma_estimate_case_small_t (A B : Set ℕ) (h_inf_A : A.Infinite)
           filter_upwards [ h_eventually_final, h_eventually_small, h_A_div_A_minus_one.eventually ( lt_mem_nhds one_pos ) ] with x hx₁ hx₂ hx₃;
           by_cases h : a_star A x = 0 <;> simp_all +decide [ sub_mul, mul_div_assoc ];
           · intro hx_pos
-            have h_contra : ∃ a ∈ A, a ≤ x := by
-              contrapose! hx₃; simp_all +decide [ counting_function ] ;
-              rw [ Nat.card_eq_zero.mpr ] <;> norm_num;
-              exact Or.inl ⟨ fun ⟨ n, hn₁, hn₂ ⟩ => by linarith [ hx₃ n hn₁ ] ⟩;
+            have h_contra : ∃ a ∈ A, (a : ℝ) ≤ x := by
+              by_contra hnone
+              have hzero : counting_function A x = 0 := by
+                rw [counting_function]
+                apply Nat.card_eq_zero.mpr
+                exact Or.inl
+                  ⟨fun ⟨n, hn₁, hn₂⟩ => hnone ⟨n, hn₁, hn₂⟩⟩
+              rw [hzero] at hx₃
+              norm_num at hx₃
             obtain ⟨ a, ha₁, ha₂ ⟩ := h_contra; unfold a_star at h; simp_all +decide [ Set.Nonempty ] ;
             exact absurd ( h a ha₁ ha₂ ) ( ne_of_gt <| lt_of_lt_of_le ( Nat.cast_pos.mpr <| Nat.pos_of_ne_zero <| h_pos_A a ha₁ ) <| le_csSup ( show BddAbove ( A ∩ { n : ℕ | ( n : ℝ ) ≤ x } ) from ⟨ ⌊x⌋₊, fun n hn => Nat.le_floor <| hn.2 ⟩ ) <| Set.mem_inter ha₁ ha₂ );
           · intro hx₄; specialize hx₁ hx₄; specialize hx₂ hx₄; rw [ div_lt_iff₀ ] at *;

@@ -389,15 +389,11 @@ lemma F_poly_coeff {p : ℕ} (C : Finset (ZMod p)) (n : ℕ) (hC : C.card = 2 * 
             · simp +decide [ MvPolynomial.totalDegree ];
               intro b hb; refine le_trans ?_ ( Finset.le_sup <| show ( Finsupp.mapDomain ( fun i => if i = 0 then 0 else 1 ) b ) ∈ ( MvPolynomial.rename ( fun i => if i = 0 then 0 else 1 ) p |> MvPolynomial.support ) from ?_ )
               · simp +decide [ Finsupp.sum_mapDomain_index ]
-              · simp +decide [ MvPolynomial.rename, Finsupp.mapDomain ];
-                erw [ MvPolynomial.aeval_def ];
-                erw [ MvPolynomial.eval₂_eq' ];
-                simp +decide [ MvPolynomial.coeff_sum, MvPolynomial.coeff_C_mul, Finsupp.sum_fintype ];
-                rw [ Finset.sum_eq_single b ] <;> simp +contextual [ MvPolynomial.coeff_mul, MvPolynomial.coeff_X_pow ];
-                · rw [ Finset.sum_eq_single ( ( Finsupp.single 0 ( b 0 ), Finsupp.single 1 ( b 1 ) ) ) ] <;> aesop;
-                · intro c hc hbc; rw [ Finset.sum_eq_zero ] <;> simp
-                  intro a b_1 h₁ h₂ h₃; subst_vars; simp_all +decide [ Finsupp.ext_iff, Fin.forall_fin_two ] ;
-                  have := h₁ 0; have := h₁ 1; simp_all +decide [ Finsupp.single_apply ] ;
+              · rw [ MvPolynomial.mem_support_iff ];
+                rw [ MvPolynomial.coeff_rename_mapDomain (fun i : Fin 2 => if i = 0 then (0 : ℕ) else 1) (by
+                  intro i j hij
+                  fin_cases i <;> fin_cases j <;> simp at hij ⊢) ];
+                exact hb
             · exact totalDegree_rename_le (fun i => if i = 0 then 0 else 1) p);
           convert h_total_degree_invariant _ |> Eq.symm using 2;
           simp +decide [ MvPolynomial.rename_X ];

@@ -3736,7 +3736,9 @@ theorem inequality_eventually_holds :
                   suffices h_log_z : Filter.Tendsto (fun z : ℝ => -z * Real.log z) (Filter.map (fun y => 1 / y) Filter.atTop) (nhds 0) by
                     exact h_log_z.congr ( by simp +contextual [ div_eq_inv_mul ] );
                   norm_num;
-                  exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+                  exact tendsto_nhdsWithin_of_tendsto_nhds ( by
+                    have h := Real.continuous_mul_log.tendsto 0
+                    simpa [neg_mul] using h.neg );
                 ring_nf;
                 simpa [ div_eq_mul_inv ] using Filter.Tendsto.add ( tendsto_const_nhds.add ( Filter.Tendsto.mul ( tendsto_const_nhds.mul ( tendsto_inv_atTop_zero.comp Real.tendsto_log_atTop ) ) tendsto_const_nhds ) ) ( h_log_log.mul_const 3 )
               have h_log_growth : ∀ᶠ m in Filter.atTop, (0.7 * Real.log m * Real.log 2 + 3 * Real.log (0.7 * Real.log m)) / Real.log m < 0.49 := by
@@ -3806,7 +3808,9 @@ theorem inequality_eventually_holds_uniform :
                     suffices h_log_recip : Filter.Tendsto (fun z : ℝ => z * Real.log (1 / z)) (Filter.map (fun y => 1 / y) Filter.atTop) (nhds 0) by
                       exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
                     norm_num +zetaDelta at *;
-                    exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+                    exact tendsto_nhdsWithin_of_tendsto_nhds ( by
+                      have h := Real.continuous_mul_log.tendsto 0
+                      simpa using h.neg );
                   have h_log_log_x : Filter.Tendsto (fun x : ℝ => 0.7 * Real.log 2 + 3 * (Real.log 0.7 + Real.log (Real.log x)) / Real.log x) Filter.atTop (nhds (0.7 * Real.log 2 + 3 * 0)) := by
                     ring_nf;
                     simpa [div_eq_mul_inv] using Filter.Tendsto.add ( tendsto_const_nhds.add ( Filter.Tendsto.mul ( tendsto_const_nhds.mul ( tendsto_inv_atTop_zero.comp ( Real.tendsto_log_atTop ) ) ) tendsto_const_nhds ) ) ( h_log_log_x.mul_const 3 );
@@ -4103,7 +4107,9 @@ theorem K_lower_asymptotics :
         suffices h_log_recip : Filter.Tendsto (fun z => z * Real.log (1 / z)) (Filter.map (fun y => 1 / y) Filter.atTop) (nhds 0) by
           exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
         norm_num +zetaDelta at *;
-        exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 )
+        exact tendsto_nhdsWithin_of_tendsto_nhds ( by
+          have h := Real.continuous_mul_log.tendsto 0
+          simpa using h.neg )
       have h_one_log : Filter.Tendsto (fun x => 1 / (0.7 * Real.log x)) Filter.atTop (nhds 0) := by
         exact tendsto_const_nhds.div_atTop ( Filter.Tendsto.const_mul_atTop ( by norm_num ) ( Real.tendsto_log_atTop ) );
       rw [ Asymptotics.IsEquivalent ];

@@ -745,7 +745,6 @@ lemma exists_good_D {G : Type*} [DecidableEq G] [AddCommGroup G] [Fintype G]
       · rw [Finset.card_image_of_injective _
           fun x y hxy => by simpa using hxy]
       · apply Finset.card_mono
-        simp only [le_eq_subset]
         grind
     have h_pigeonhole_combined :
         Finset.card (Finset.filter (fun j =>

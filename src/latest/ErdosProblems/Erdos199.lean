@@ -187,7 +187,8 @@ lemma find_map_sorted {α β : Type*} [LinearOrder α]
           rw [List.find?_cons_of_neg (p := P ∘ f) (a := a) ha_false]
           exact ih (List.Pairwise.tail h_sorted) hmem_tail fun j hj hj_lt =>
             h_first j (by simp [hj]) hj_lt
-  simp [hfind]
+  rw [hfind]
+  rfl
 
 /-
 The index of the first coefficient of v (in the sorted basis order) that is greater than 3T in absolute value.

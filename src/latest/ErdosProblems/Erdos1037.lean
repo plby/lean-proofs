@@ -1916,7 +1916,9 @@ theorem distinct_degrees_bound_aux (ε : ℝ) (hε : ε < 1 / 4) :
           suffices h_change_var : Filter.Tendsto (fun y : ℝ => y * Real.log (1 / y)) (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) by
             exact h_change_var.comp ( Filter.map_mono tendsto_natCast_atTop_atTop ) |> fun h => h.congr ( by intros; simp +decide ; ring );
           norm_num +zetaDelta at *;
-          exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+          exact tendsto_nhdsWithin_of_tendsto_nhds ( by
+            have h := Real.continuous_mul_log.tendsto 0
+            simpa using h.neg );
         simpa using h_log_div_m_zero.sqrt;
       exact h_sqrt_zero.const_mul 4 |> fun h => h.const_sub 3 |> fun h => h.eventually ( lt_mem_nhds <| by linarith )
 
@@ -2198,7 +2200,9 @@ theorem Theorem_Main :
               suffices h_change_var : Filter.Tendsto (fun y : ℝ => y * Real.log (1 / y)) (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) by
                 exact h_change_var.comp ( Filter.map_mono tendsto_natCast_atTop_atTop ) |> fun h => h.congr ( by intros; simp +decide ; ring );
               norm_num +zetaDelta at *;
-              exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+              exact tendsto_nhdsWithin_of_tendsto_nhds ( by
+                have h := Real.continuous_mul_log.tendsto 0
+                simpa using h.neg );
             simpa using h_log_div_m.sqrt;
           have := h_sqrt_log.eventually ( gt_mem_nhds <| show 0 < ( 1 - 4 * ε ) / 8 by linarith );
           rw [ Filter.eventually_atTop ] at this; rcases this with ⟨ m₁, hm₁ ⟩ ; exact ⟨ m₁ + 1, fun m hm => by have := hm₁ m ( by linarith ) ; rw [ div_lt_iff₀ ( by norm_cast; linarith ) ] at this; linarith ⟩ ;

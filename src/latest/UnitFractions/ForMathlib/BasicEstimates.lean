@@ -3069,9 +3069,6 @@ lemma squarefree_prime_prod {ι : Type*} {s : Finset ι} (f : ι → ℕ)
   · intro i hi
     exact (hs i hi).squarefree
 
-lemma squarefree_primorial (n : ℕ) : Squarefree (primorial n) := by
-  exact squarefree_prime_prod id (by simp) (fun _ _ _ _ h => h)
-
 lemma divisor_lower_bound_aux (c : ℝ) {ε : ℝ} (hε : 0 < ε) :
   ∀ᶠ n : ℕ in atTop,
       1 / log (log (n : ℝ)) * (1 - ε) ≤ 1 / (log (log (n : ℝ)) - c) := by

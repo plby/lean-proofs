@@ -1897,7 +1897,9 @@ lemma a_seq_mul_exp_neg_S_sum_tendsto_zero (n_0 : ℕ) :
                     suffices h_log_recip : Filter.Tendsto (fun z => z * Real.log (1 / z)) (Filter.map (fun y => 1 / y) Filter.atTop) (nhds 0) by
                       exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
                     norm_num +zetaDelta at *;
-                    exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+                    exact tendsto_nhdsWithin_of_tendsto_nhds ( by
+                      have h := Real.continuous_mul_log.tendsto 0
+                      simpa using h.neg );
                   have h_log32 :
                       Filter.Tendsto
                         (fun N => Real.log 32 / Real.log (N + 16))

@@ -9515,7 +9515,8 @@ theorem continuousCliqueDensity_pos_of_pos_at_zero
   have hVmem' : V ∈ 𝓝 (((0 : G), (0 : G)).1 - ((0 : G), (0 : G)).2) := by
     simpa using hVmem
   have hpre : (fun z : G × G => z.1 - z.2) ⁻¹' V ∈ 𝓝 ((0 : G), (0 : G)) := by
-    simpa using (continuous_fst.sub continuous_snd).continuousAt hVmem'
+    convert (continuous_fst.sub continuous_snd).continuousAt hVmem' using 1
+    rfl
   rcases mem_nhds_prod_iff'.mp hpre with
     ⟨U₁, U₂, hU₁open, hU₁zero, hU₂open, hU₂zero, hUsub⟩
   let U : Set G := U₁ ∩ U₂

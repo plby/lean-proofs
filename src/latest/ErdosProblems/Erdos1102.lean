@@ -8370,7 +8370,9 @@ lemma sum_W_div_x_bound :
             suffices h_log_z : Filter.Tendsto (fun z : ℝ => -z * Real.log z) (Filter.map (fun y => 1 / y) Filter.atTop) (nhds 0) by
               exact h_log_z.congr ( by simp +contextual [ div_eq_inv_mul ] )
             norm_num
-            exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 )
+            exact tendsto_nhdsWithin_of_tendsto_nhds ( by
+              have h := Real.continuous_mul_log.tendsto 0
+              simpa [neg_mul] using h.neg )
           convert h_factor.const_mul ( Real.sqrt 2 ) |> Filter.Tendsto.mul <| h_log using 2 <;> ring_nf
           by_cases h : ‹ℝ› = 0 <;> simp +decide [ sq, mul_assoc, mul_comm, mul_left_comm, h ]
         -- Let $z = 0.1y$, therefore the expression becomes $\exp(-z) \cdot (10z)^2$.

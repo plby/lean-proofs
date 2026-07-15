@@ -696,7 +696,10 @@ lemma xn_div_log_xn_isBigO :
               exact h_log_z.congr ( by simp +contextual [ div_eq_inv_mul ] );
             norm_num;
             exact tendsto_nhdsWithin_of_tendsto_nhds ( by
-              simpa using Real.continuous_mul_log.neg.tendsto 0 );
+              convert Real.continuous_mul_log.neg.tendsto (0 : ℝ) using 1
+              · ext z
+                rfl
+              · simp [Pi.neg_apply] );
           ring_nf;
           exact le_trans
             ( Filter.Tendsto.add
@@ -1352,7 +1355,7 @@ lemma integral_t_div_log_t_asymp :
             ∫ t in (Real.sqrt x : ℝ)..x,
               t / (2 * (Real.log (Real.sqrt x))^2) := by
         refine intervalIntegral.integral_mono_on ?_ ?_ ?_ ?_ <;> norm_num;
-        · rw [ Real.sqrt_le_left ] <;> nlinarith;
+        · right; linarith;
         · apply_rules [ ContinuousOn.intervalIntegrable ];
           exact continuousOn_of_forall_continuousAt fun t ht =>
             ContinuousAt.div continuousAt_id
@@ -1418,7 +1421,11 @@ lemma integral_t_div_log_t_asymp :
             exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
           norm_num;
           exact tendsto_nhdsWithin_of_tendsto_nhds
-            ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+            ( by
+              convert Real.continuous_mul_log.neg.tendsto (0 : ℝ) using 1
+              · ext y
+                rfl
+              · simp [Pi.neg_apply] );
         simpa [ div_mul_eq_div_div ] using h_log_x_over_x.div_const ( Real.log 2 ^ 2 );
       · exact tendsto_const_nhds.div_atTop ( Real.tendsto_log_atTop );
     refine squeeze_zero_norm' ?_ ( by simpa using h_tendsto_zero.1.add h_tendsto_zero.2 );
@@ -1957,7 +1964,11 @@ lemma pi_B_asymp :
             exact h_log_z.congr ( by simp +contextual [ div_eq_inv_mul ] );
           norm_num +zetaDelta at *;
           exact tendsto_nhdsWithin_of_tendsto_nhds
-            ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+            ( by
+              convert Real.continuous_mul_log.neg.tendsto (0 : ℝ) using 1
+              · ext z
+                rfl
+              · simp [Pi.neg_apply] );
         ring_nf;
         have h_log_div :
             Filter.Tendsto (fun n : ℕ => Real.log n * (Real.log n)⁻¹)

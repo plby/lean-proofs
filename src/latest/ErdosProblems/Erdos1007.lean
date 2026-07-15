@@ -863,7 +863,9 @@ lemma exists_embedding_with_regular_neighbors {V : Type*} [Fintype V] (G : Simpl
                set H : SimpleGraph {u // u ≠ v} := (deleteVertex G v) ⊔ (SimpleGraph.fromEdgeSet {s(u, w) | (u : {u // u ≠ v}) (w : {u // u ≠ v}) (hu : u.val ∈ N) (hw : w.val ∈ N) (huw : u.val ≠ w.val)});
                have h_H_embedding : HasUnitDistanceEmbedding H 3 := by
                  have h_H_embedding : Fintype.card {u : V | u ≠ v} ≤ 4 := by
-                   simp +decide [ hV ];
+                   have hlt : Fintype.card {u : V | u ≠ v} < Fintype.card V := by
+                     exact Fintype.card_subtype_lt (p := fun u : V => u ≠ v) (x := v) (by simp)
+                   omega
                  convert dim_le_3_of_card_le_4 H h_H_embedding |> fun h => _;
                  have h_embedding : ∃ d, HasUnitDistanceEmbedding H d ∧ d ≤ 3 := by
                    exact ⟨ _, Nat.sInf_mem ( show ∃ d, HasUnitDistanceEmbedding H d from exists_embedding H ), h ⟩;

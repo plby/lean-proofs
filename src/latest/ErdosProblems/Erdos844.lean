@@ -365,10 +365,14 @@ private lemma nonsc_link_int (N : ℕ)
   obtain ⟨k, hk⟩ : ∃ k, k ∈ Finset.Icc 1 N ∧ k ∉ Y ∧ k ∉ Z := by
     by_cases h_union : Y ∪ Z = Finset.Icc 1 N;
     · have h_compl : Finset.Icc 1 N \ Y ⊆ Z := by
-        grind;
+        intro y hy
+        have hyI : y ∈ Finset.Icc 1 N := (Finset.mem_sdiff.mp hy).1
+        have hyY : y ∉ Y := (Finset.mem_sdiff.mp hy).2
+        have hyYZ : y ∈ Y ∪ Z := by simpa [h_union] using hyI
+        exact (Finset.mem_union.mp hyYZ).resolve_left hyY
       have h_compl : Dominated (Finset.Icc 1 N \ Y) Z := by
         use fun x => x;
-        aesop;
+        exact ⟨fun _ _ _ _ h => h, h_compl, fun y _ => le_rfl⟩
       exact False.elim <| hYsc <| hF_hered _ ( hG_sub hZ ) _ ( by aesop ) h_compl;
     · grind +qlia;
   refine ⟨ Y, hY, hYN, k, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.ext_iff ];

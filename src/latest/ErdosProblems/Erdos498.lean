@@ -395,65 +395,83 @@ noncomputable def chain_extension {α : Type*} [DecidableEq α]
 lemma chain_extension_is_chain {α : Type*} [DecidableEq α] {C : Finset (Finset α)}
     (hC : IsChain (· ⊆ ·) (C : Set (Finset α))) :
     ∀ C' ∈ chain_extension C, IsChain (· ⊆ ·) (C' : Set (Finset (Option α))) := by
-  unfold chain_extension;
-  split_ifs <;> simp_all +decide [ IsChain ];
-  split_ifs <;> simp_all +decide [ Set.Pairwise ];
-  · refine ⟨ ⟨ ?_, ?_ ⟩, ?_ ⟩;
-    · intro a ha hne
-      have h_subset :
-          a ⊆ Classical.choose (Finset.exists_max_image C Finset.card ‹_›) ∨
-            Classical.choose (Finset.exists_max_image C Finset.card ‹_›) ⊆ a := by
-        have := Classical.choose_spec ( Finset.exists_max_image C Finset.card ‹_› );
-        cases eq_or_ne a
-            ( Classical.choose ( Finset.exists_max_image C Finset.card ‹_› ) ) <;>
-          aesop;
-      rcases h_subset with h_subset | h_subset <;> simp_all +decide [ Finset.subset_iff ];
-      · simp_all +decide [ Finset.mapEmbedding ];
-        simp_all +decide [ OrderEmbedding.ofMapLEIff ];
-      · simp_all +decide [ Finset.mapEmbedding ];
-        simp_all +decide [ OrderEmbedding.ofMapLEIff ];
-        have := Classical.choose_spec ( Finset.exists_max_image C Finset.card ‹_› );
-        exact fun x hx => by
-          have hcard := this.2 a ha
-          exact Classical.not_not.1 fun hx' =>
-            (not_lt_of_ge hcard) <|
-              Finset.card_lt_card <|
-                Finset.ssubset_iff_subset_ne.2 ⟨h_subset, by aesop⟩
-    · intro x hx; refine ⟨ ?_, ?_ ⟩;
-      · intro hx';
-        by_cases h : x ⊆ Classical.choose ( Finset.exists_max_image C Finset.card ‹_› ) <;>
-          simp_all +decide [ Finset.subset_iff ];
-        · exact Or.inl fun y hy => by
-            rcases Finset.mem_map.mp hy with ⟨ z, hz, rfl ⟩
-            exact Or.inr ( Finset.mem_map.mpr ⟨ z, h hz, rfl ⟩ )
-        · have := Classical.choose_spec ( Finset.exists_max_image C Finset.card ‹_› );
-          contrapose! this;
-          exact fun _ => ⟨ x, hx, Finset.card_lt_card <| Finset.ssubset_iff_subset_ne.mpr ⟨ by
-            grind, by
-            grind ⟩ ⟩;
-      · intro y hy hxy; specialize hC hx hy; simp_all +decide [ Finset.subset_iff ] ;
-        cases hC <;> simp_all +decide [ Function.Embedding.some ];
-        · exact Or.inl fun z hz => by
-            rcases Finset.mem_map.mp hz with ⟨ w, hw, rfl ⟩
-            exact Finset.mem_map.mpr ⟨ w, by aesop ⟩
-        · exact Or.inr fun z hz => by
-            rcases Finset.mem_map.mp hz with ⟨ w, hw, rfl ⟩
-            exact Finset.mem_map.mpr ⟨ w, by aesop ⟩
-    · -- Since C is a chain, any two elements in C are comparable.
-      -- Therefore, their images under the embedding should also be comparable.
-      intros x y hx hy hxy;
-      rintro _ z hz hz' rfl hne; subst_vars; simp_all +decide [ Finset.subset_iff ] ;
-      cases hC hy hz' ( by aesop ) <;> simp_all +decide [ Finset.mapEmbedding ];
-      · simp_all +decide [ Finset.ext_iff, OrderEmbedding.ofMapLEIff ];
-      · simp_all +decide [ Finset.ext_iff, OrderEmbedding.ofMapLEIff ];
-  · -- Since the rest of the chain is empty, there are no elements in it to check.
-    -- The subset relationship is therefore trivially satisfied.
-    have h_empty :
-        C.erase (Classical.choose (Finset.exists_max_image C Finset.card ‹_›)) = ∅ →
-          ∀ a ∈ C, a = Classical.choose (Finset.exists_max_image C Finset.card ‹_›) := by
-      simp +contextual [ Finset.ext_iff ];
-      intro h a ha x; specialize h a x; contrapose! h; aesop;
-    grind
+  intro C' hC'
+  by_cases hne : C.Nonempty
+  · let top := Classical.choose (Finset.exists_max_image C Finset.card hne)
+    let emb : Finset α ↪ Finset (Option α) :=
+      (Finset.mapEmbedding (Function.Embedding.some : α ↪ Option α)).toEmbedding
+    let rest := C.erase top
+    let C1 : Finset (Finset (Option α)) := insert (insert none (emb top)) (C.map emb)
+    let C2 : Finset (Finset (Option α)) := rest.image (fun A => insert none (emb A))
+    have htop_spec := Classical.choose_spec (Finset.exists_max_image C Finset.card hne)
+    have htop_mem : top ∈ C := by simpa [top] using htop_spec.1
+    have htop_max : ∀ A ∈ C, A ⊆ top := by
+      intro A hA
+      by_cases hA_top : A = top
+      · subst A
+        intro x hx
+        exact hx
+      · rcases hC hA htop_mem hA_top with hsub | hsub
+        · exact hsub
+        · have hcard : A.card ≤ top.card := by simpa [top] using htop_spec.2 A hA
+          have htop_eq : top = A := Finset.eq_of_subset_of_card_le hsub hcard
+          exact htop_eq.symm.subset
+    have map_subset_of_subset :
+        ∀ {A B : Finset α}, A ⊆ B → emb A ⊆ emb B := by
+      intro A B hAB
+      simpa [emb] using
+        (Finset.map_subset_map (f := (Function.Embedding.some : α ↪ Option α))).2 hAB
+    have map_subset_insert_none_of_subset :
+        ∀ {A B : Finset α}, A ⊆ B → emb A ⊆ insert none (emb B) := by
+      intro A B hAB z hz
+      exact Finset.mem_insert.mpr (Or.inr (map_subset_of_subset hAB hz))
+    have insert_subset_insert_of_subset :
+        ∀ {A B : Finset α}, A ⊆ B → insert none (emb A) ⊆ insert none (emb B) := by
+      intro A B hAB z hz
+      rcases Finset.mem_insert.mp hz with rfl | hz
+      · exact Finset.mem_insert_self none (emb B)
+      · exact Finset.mem_insert.mpr (Or.inr (map_subset_of_subset hAB hz))
+    have hC1 : IsChain (· ⊆ ·) (C1 : Set (Finset (Option α))) := by
+      intro x hx y hy hxy
+      simp [C1] at hx hy
+      rcases hx with rfl | ⟨A, hA, rfl⟩
+      · rcases hy with rfl | ⟨B, hB, rfl⟩
+        · exact (hxy rfl).elim
+        · exact Or.inr (map_subset_insert_none_of_subset (htop_max B hB))
+      · rcases hy with rfl | ⟨B, hB, rfl⟩
+        · exact Or.inl (map_subset_insert_none_of_subset (htop_max A hA))
+        · have hAB_ne : A ≠ B := by
+            intro hAB
+            exact hxy (by subst B; rfl)
+          rcases hC hA hB hAB_ne with hAB | hBA
+          · exact Or.inl (map_subset_of_subset hAB)
+          · exact Or.inr (map_subset_of_subset hBA)
+    have hC2 : IsChain (· ⊆ ·) (C2 : Set (Finset (Option α))) := by
+      intro x hx y hy hxy
+      simp [C2, rest] at hx hy
+      rcases hx with ⟨A, hA, rfl⟩
+      rcases hy with ⟨B, hB, rfl⟩
+      have hA_mem : A ∈ C := hA.1
+      have hB_mem : B ∈ C := hB.1
+      have hAB_ne : A ≠ B := by
+        intro hAB
+        exact hxy (by subst B; rfl)
+      rcases hC hA_mem hB_mem hAB_ne with hAB | hBA
+      · exact Or.inl (insert_subset_insert_of_subset hAB)
+      · exact Or.inr (insert_subset_insert_of_subset hBA)
+    by_cases hrest_nonempty : rest.Nonempty
+    · have hmem : C' = C1 ∨ C' = C2 := by
+        simpa [chain_extension, hne, top, emb, rest, C1, C2, hrest_nonempty] using hC'
+      rcases hmem with rfl | rfl
+      · exact hC1
+      · exact hC2
+    · have hmem : C' = C1 := by
+        simpa [chain_extension, hne, top, emb, rest, C1, C2, hrest_nonempty] using hC'
+      rw [hmem]
+      exact hC1
+  · have hfalse : False := by
+      simp [chain_extension, hne] at hC'
+    exact hfalse.elim
 
 noncomputable section AristotleLemmas
 
@@ -549,38 +567,70 @@ lemma symmetric_chain_extension_C1 {α : Type*} [Fintype α] [DecidableEq α]
         (C.map (Finset.mapEmbedding Function.Embedding.some).toEmbedding)) := by
       cases' hS with start k hS;
       rcases k with ⟨ k, hk₁, hk₂, hk₃, hk₄, hk₅, hk₆ ⟩;
-      refine ⟨ start.map Function.Embedding.some, k + 1, ?_, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide;
-      · intro x hx y hy hxy; simp_all +decide [ Finset.subset_iff ] ;
-        rcases hx with ( rfl | ⟨ x, hx, rfl ⟩ ) <;>
-          rcases hy with ( rfl | ⟨ y, hy, rfl ⟩ ) <;>
-          simp_all +decide;
-        · simp_all +decide [ Finset.mapEmbedding ];
-          simp_all +decide [ Finset.ext_iff, OrderEmbedding.ofMapLEIff ];
-          exact fun x hx => hmax _ hy hx;
-        · exact Or.inl fun y hy => by
-            rcases Finset.mem_map.mp hy with ⟨ z, hz, rfl ⟩
-            exact Or.inr ⟨ z, hmax _ hx hz, rfl ⟩
-        · cases hk₁ hx hy hxy <;> simp_all +decide [ Function.Embedding.some ];
-          · simp_all +decide [ Finset.mapEmbedding ];
-            simp_all +decide [ OrderEmbedding.ofMapLEIff ];
-          · simp_all +decide [ Finset.mapEmbedding ];
-            simp_all +decide [ OrderEmbedding.ofMapLEIff ];
-      · rw [ Finset.card_insert_of_notMem ] <;> simp_all +decide ;
-        intro X hX h; replace h := Finset.ext_iff.mp h Option.none; simp_all +decide ;
-        simpa using Finset.mem_map.mp h |> fun ⟨ x, hx, hx' ⟩ => by cases hx' ;
-      · exact Or.inr ⟨ start, hk₃, rfl ⟩;
-      · simp_all +decide [ Finset.subset_iff, Finset.mapEmbedding ];
-        exact fun X hX x hx => Finset.mem_map_of_mem _ ( hk₄ X hX hx );
-      · refine ⟨ by linarith, Or.inl ⟨ ?_, ?_ ⟩ ⟩;
-        · simp_all +decide [ Finset.subset_iff ];
-          rintro X hX x hx
-          rcases Finset.mem_map.mp hx with ⟨ y, hy, rfl ⟩
-          exact Or.inr ⟨ y, hmax X hX hy, rfl ⟩
-        · obtain ⟨ last, hlast₁, hlast₂, hlast₃ ⟩ := hk₆
-          have := hmax _ hlast₁
-          simp_all +decide [ Finset.subset_iff ] ;
-          linarith [ show top.card = last.card from by
-            rw [ show top = last from Finset.Subset.antisymm ( by aesop ) ( by aesop ) ] ]
+      have map_subset_of_subset :
+          ∀ {A B : Finset α}, A ⊆ B →
+            A.map Function.Embedding.some ⊆ B.map Function.Embedding.some := by
+        intro A B hAB x hx
+        rcases Finset.mem_map.mp hx with ⟨a, ha, rfl⟩
+        exact Finset.mem_map.mpr ⟨a, hAB ha, rfl⟩
+      have map_subset_insert_none_of_subset :
+          ∀ {A B : Finset α}, A ⊆ B →
+            A.map Function.Embedding.some ⊆ insert none (B.map Function.Embedding.some) := by
+        intro A B hAB x hx
+        exact Finset.mem_insert.mpr (Or.inr (map_subset_of_subset hAB hx))
+      refine ⟨ start.map Function.Embedding.some, k + 1, ?_, ?_, ?_, ?_, ?_ ⟩;
+      · intro X hX Y hY hXY
+        simp at hX hY
+        rcases hX with rfl | ⟨A, hA, rfl⟩
+        · rcases hY with rfl | ⟨B, hB, rfl⟩
+          · exact (hXY rfl).elim
+          · exact Or.inr (map_subset_insert_none_of_subset (hmax B hB))
+        · rcases hY with rfl | ⟨B, hB, rfl⟩
+          · exact Or.inl (map_subset_insert_none_of_subset (hmax A hA))
+          · have hAB_ne : A ≠ B := by
+              intro hAB
+              exact hXY (by subst B; rfl)
+            rcases hk₁ hA hB hAB_ne with hAB | hBA
+            · exact Or.inl (map_subset_of_subset hAB)
+            · exact Or.inr (map_subset_of_subset hBA)
+      · rw [Finset.card_insert_of_notMem]
+        · simp [hk₂]
+        · intro hmem
+          rcases Finset.mem_map.mp hmem with ⟨A, hA, hEq⟩
+          have hnone := congrArg (fun S : Finset (Option α) => none ∈ S) hEq
+          simp at hnone
+      · exact Finset.mem_insert.mpr
+          (Or.inr (Finset.mem_map.mpr ⟨start, hk₃, rfl⟩));
+      · intro X hX x hx
+        simp at hX
+        rcases hX with rfl | ⟨A, hA, rfl⟩
+        · rcases Finset.mem_map.mp hx with ⟨a, ha, rfl⟩
+          exact Finset.mem_insert.mpr
+            (Or.inr (Finset.mem_map.mpr ⟨a, hk₄ top htop ha, rfl⟩))
+        · exact map_subset_of_subset (hk₄ A hA) hx
+      · constructor
+        · rw [Erdos498.card_map_some]
+          simp
+          omega
+        · refine ⟨insert none (top.map Function.Embedding.some), ?_, ?_, ?_⟩
+          · exact Finset.mem_insert_self _ _
+          · intro X hX
+            simp +decide at hX
+            rcases hX with rfl | ⟨X, hX, rfl⟩
+            · intro x hx
+              exact hx
+            · intro x hx
+              rcases Finset.mem_map.mp hx with ⟨y, hy, rfl⟩
+              exact Finset.mem_insert.mpr
+                (Or.inr (Finset.mem_map.mpr ⟨y, hmax X hX hy, rfl⟩))
+          · obtain ⟨last, hlast₁, hlast₂, hlast₃⟩ := hk₆
+            have htop_eq_last : top = last :=
+              Finset.Subset.antisymm (hlast₂ top htop) (hmax last hlast₁)
+            rw [Finset.card_insert_of_notMem]
+            · rw [Erdos498.card_map_some top, Erdos498.card_map_some start, htop_eq_last,
+                hlast₃]
+              omega
+            · simp
 
 /-
 The cardinality function is injective on a chain of finite sets.
@@ -880,10 +930,8 @@ lemma chain_extension_disjoint {α : Type*} [DecidableEq α] {C : Finset (Finset
           fun a ha x hx hx' => h_second_part x hx' hx a ha ⟩;
     · intro x y hy₁ hy₂ hx; subst hx; simp_all +decide [ Finset.ext_iff ] ;
       obtain ⟨ x, hx ⟩ := hy₁;
-      refine ⟨ ⟨ Option.some x, ?_ ⟩, ?_ ⟩ <;> simp_all +decide [ Finset.mapEmbedding ];
-      · simp_all +decide [ OrderEmbedding.ofMapLEIff ];
-      · intro z hz; use Option.none; simp +decide ;
-        exact fun h => by have := Finset.mem_map.mp h; aesop;
+      refine ⟨ ⟨ Option.some x, by simp_all +decide ⟩, ?_ ⟩
+      intro z hz; use Option.none; simp +decide
   exact Set.disjoint_left.mpr h_distinct
 
 lemma chain_extension_covers_base {α : Type*} [DecidableEq α] {C : Finset (Finset α)}
@@ -964,13 +1012,12 @@ lemma chain_extension_partition {α : Type*} [Fintype α] (D : Finset (Finset (F
         apply hC.2 x hx;
         have := chain_extension_covers_base.mp ⟨ y, hy, hyA ⟩;
         simp +zetaDelta at *;
-        rcases this with ( ⟨ B, hB, rfl ⟩ | ⟨ B, hB, rfl ⟩ ) <;>
-          simp_all +decide [ Finset.mapEmbedding ];
-        · simp_all +decide [ Finset.ext_iff, OrderEmbedding.ofMapLEIff ];
+        rcases this with ( ⟨ B, hB, rfl ⟩ | ⟨ B, hB, rfl ⟩ );
+        · simp_all +decide [ Finset.ext_iff ];
           rcases hA' with hA' | hA' <;> have := hA' ( Option.none ) <;> simp_all +decide;
           convert hB using 1;
           ext a; specialize hA' ( Option.some a ) ; aesop;
-        · simp_all +decide [ Finset.ext_iff, OrderEmbedding.ofMapLEIff ];
+        · simp_all +decide [ Finset.ext_iff ];
           rcases hA' with hA' | hA' <;> have := hA' Option.none <;> simp_all +decide;
           have hA'_eq_B : A' = B := by
             ext a; specialize hA' ( Option.some a ) ; aesop;

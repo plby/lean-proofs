@@ -504,7 +504,8 @@ theorem thm_main :
                     ring)
               norm_num
               exact tendsto_nhdsWithin_of_tendsto_nhds <| by
-                simpa using Real.continuous_mul_log.neg.tendsto 0
+                have h := Real.continuous_mul_log.tendsto 0
+                simpa using h.neg
             simpa [add_div, div_eq_mul_inv, add_mul] using
               h_log_m.add
                 (Filter.Tendsto.mul

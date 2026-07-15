@@ -1137,7 +1137,9 @@ lemma log_r_lower_bound_asymptotic (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2)
                 suffices h_log_recip : Filter.Tendsto (fun z => z * Real.log (1 / z)) (Filter.map (fun x => 1 / x) Filter.atTop) (nhds 0) by
                   exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
                 norm_num;
-                exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+                exact tendsto_nhdsWithin_of_tendsto_nhds ( by
+                  have h := Real.continuous_mul_log.tendsto 0
+                  simpa using h.neg );
               exact h_log_y_val.comp ( Real.tendsto_log_atTop.comp ( Real.tendsto_log_atTop ) );
             simpa only [ sub_zero ] using tendsto_const_nhds.sub h_log_y_val;
           refine h_log_y_val.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with x hx₁ hx₂ using by rw [ sub_div, div_self <| ne_of_gt <| Real.log_pos <| show 1 < Real.log x from by rw [ Real.lt_log_iff_exp_lt ] <;> linarith ] );
@@ -1155,7 +1157,9 @@ lemma log_r_lower_bound_asymptotic (ε : ℝ) (hε : ε > 0) (hε2 : ε < 1 / 2)
               suffices h_log_w : Filter.Tendsto (fun w => -w * Real.log w) (Filter.map (fun z => 1 / z) Filter.atTop) (nhds 0) by
                 exact h_log_w.congr ( by simp +contextual [ div_eq_inv_mul ] );
               norm_num +zetaDelta at *;
-              exact tendsto_nhdsWithin_of_tendsto_nhds ( by simpa using Real.continuous_mul_log.neg.tendsto 0 );
+              exact tendsto_nhdsWithin_of_tendsto_nhds ( by
+                have h := Real.continuous_mul_log.tendsto 0
+                simpa [neg_mul] using h.neg );
             simpa using Filter.Tendsto.add ( h_log_y_val.mul h_log_log_x ) h_log_log_x;
           refine h_log_sum_simplified.congr' ( by filter_upwards [ Filter.eventually_gt_atTop 1, Filter.eventually_gt_atTop ( Real.exp 1 ) ] with x hx₁ hx₂ using by rw [ div_mul_div_cancel₀ ( ne_of_gt <| Real.log_pos <| show 1 < Real.log x from by rw [ Real.lt_log_iff_exp_lt ] <;> linarith ) ] ; ring );
         simpa [ add_div, add_assoc ] using Filter.Tendsto.add ( tendsto_const_nhds.div_atTop ( Real.tendsto_log_atTop ) ) h_log_sum_simplified;

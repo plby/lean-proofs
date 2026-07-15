@@ -472,7 +472,7 @@ lemma psum_odd_eq_zero {m : ℕ} (hm : Odd m ∧ m < n) :
   · grind -- m cannot exist in this case
   have key := PD.p_add_two_eq_n_add_two_mul_c hn
   simp_rw [MvPolynomial.psum, map_sum, map_pow, MvPolynomial.eval_X]
-  apply_fun conj
+  apply_fun conj using (starRingEnd ℂ).injective
   simp_rw [map_sum, map_pow, map_zero]
   have mltp : m < PD.p := by grind [PD.n_le_p]
   obtain ⟨k, hk⟩ : Even (PD.p - m) := (Nat.even_sub' mltp.le).mpr (by simp_all [← odd_iff_odd])
@@ -494,13 +494,19 @@ lemma esymm_odd_eq_zero {m : ℕ} (hm : Odd m ∧ m < n) :
       (-1) ^ x.1 * (MvPolynomial.esymm _ _ x.1).eval (PD.v oddn) *
       (MvPolynomial.psum _ _ x.2).eval (PD.v oddn) = 0 := by
     obtain ⟨i, j⟩ := x
-    simp only [mem_filter, mem_antidiagonal, mul_eq_zero, pow_eq_zero_iff', neg_eq_zero,
-      one_ne_zero, ne_eq, false_and, false_or] at hx ⊢
+    simp only [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal, mul_eq_zero,
+      pow_eq_zero_iff', neg_eq_zero, one_ne_zero, ne_eq, false_and, false_or] at hx ⊢
     obtain ⟨hm₁, hm₂⟩ := hx
-    have odd_or_odd : Odd i ∨ Odd j := by grind
+    have odd_or_odd : Odd i ∨ Odd j := by
+      by_contra h
+      push Not at h
+      obtain ⟨a, ha⟩ := Nat.not_odd_iff_even.mp h.1
+      obtain ⟨b, hb⟩ := Nat.not_odd_iff_even.mp h.2
+      obtain ⟨c, hc⟩ := hm.1
+      omega
     refine odd_or_odd.imp (fun oi ↦ ?_) fun oj ↦ ?_
-    · exact esymm_odd_eq_zero ⟨oi, by lia⟩
-    · exact PD.psum_odd_eq_zero oddn ⟨oj, by lia⟩
+    · exact esymm_odd_eq_zero ⟨oi, by omega⟩
+    · exact PD.psum_odd_eq_zero oddn ⟨oj, by omega⟩
   rw [sum_eq_zero key, mul_zero, mul_eq_zero, Nat.cast_eq_zero] at newton
   exact newton.resolve_left hm.1.pos.ne'
 
@@ -508,17 +514,36 @@ lemma norm_sum_v_pow_n : ‖∑ i, PD.v oddn i ^ n‖ = n := by
   have newton := MvPolynomial.sum_antidiagonal_card_esymm_psum_eq_zero (Fin n) ℂ
   replace newton := congrArg (MvPolynomial.eval (PD.v oddn)) newton
   have endsubset : {(0, n), (n, 0)} ⊆ antidiagonal n := fun p hp ↦ by
-    rw [mem_antidiagonal]
-    rw [mem_insert, mem_singleton] at hp
-    cases hp <;> lia
+    simp only [mem_insert, mem_singleton] at hp
+    rcases hp with rfl | rfl <;> simp [Finset.HasAntidiagonal.mem_antidiagonal]
   simp only [Fintype.card_fin, ← sum_sdiff endsubset, map_add, map_sum, map_mul, map_pow,
     map_neg, map_one, map_zero] at newton
   have key (x) (hx : x ∈ antidiagonal n \ {(0, n), (n, 0)}) :
       (-1) ^ x.1 * (MvPolynomial.esymm _ _ x.1).eval (PD.v oddn) *
       (MvPolynomial.psum _ _ x.2).eval (PD.v oddn) = 0 := by
     obtain ⟨i, j⟩ := x
-    simp only [mem_sdiff, mem_antidiagonal, mem_insert, Prod.mk.injEq, mem_singleton] at hx ⊢
-    obtain hi | hj : Odd i ∧ i < n ∨ Odd j ∧ j < n := by grind
+    simp only [mem_sdiff, Finset.HasAntidiagonal.mem_antidiagonal, mem_insert,
+      Prod.mk.injEq, mem_singleton] at hx ⊢
+    obtain ⟨hsum, hnot⟩ := hx
+    obtain hi | hj : Odd i ∧ i < n ∨ Odd j ∧ j < n := by
+      have odd_or_odd : Odd i ∨ Odd j := by
+        by_contra h
+        push Not at h
+        obtain ⟨a, ha⟩ := Nat.not_odd_iff_even.mp h.1
+        obtain ⟨b, hb⟩ := Nat.not_odd_iff_even.mp h.2
+        obtain ⟨c, hc⟩ := oddn
+        omega
+      refine odd_or_odd.imp (fun oi ↦ ⟨oi, ?_⟩) fun oj ↦ ⟨oj, ?_⟩
+      · have hne : i ≠ n := by
+          intro hi
+          have hj : j = 0 := by omega
+          exact hnot (Or.inr ⟨hi, hj⟩)
+        omega
+      · have hne : j ≠ n := by
+          intro hj
+          have hi : i = 0 := by omega
+          exact hnot (Or.inl ⟨hi, hj⟩)
+        omega
     · simp [PD.esymm_odd_eq_zero _ hi]
     · simp [PD.psum_odd_eq_zero _ hj]
   rw [sum_eq_zero key, zero_add, sum_pair (by simp [oddn.pos.ne])] at newton
@@ -633,9 +658,9 @@ lemma esymm_ze_eq_esymm_zo {m : ℕ} (hm : m < n) :
       (-1) ^ x.1 * (MvPolynomial.esymm _ _ x.1).eval PD.zo *
       (MvPolynomial.psum _ _ x.2).eval PD.zo := by
     obtain ⟨i, j⟩ := x
-    simp only [mem_filter, mem_antidiagonal] at hx ⊢
+    simp only [mem_filter, Finset.HasAntidiagonal.mem_antidiagonal] at hx ⊢
     obtain ⟨hm₁, hm₂⟩ := hx
-    rw [PD.psum_ze_eq_psum_zo (by lia), esymm_ze_eq_esymm_zo (hm₂.trans hm)]
+    rw [PD.psum_ze_eq_psum_zo (by omega), esymm_ze_eq_esymm_zo (hm₂.trans hm)]
   rwa [sum_congr rfl key, ← zon, mul_right_inj' (by simpa using posm.ne')] at zen
 
 lemma esymm_ze_ne_esymm_zo :

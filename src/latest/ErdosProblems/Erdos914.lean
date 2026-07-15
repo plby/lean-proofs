@@ -262,7 +262,7 @@ theorem exists_terminal_vertex
       · refine hD_not_reach_C ?_;
         have h_chain_to_restricted_reflTransGen : Relation.ReflTransGen (fun a b => R a b ∧
           a ≠ W_star ∧ a ≠ C) D r := by
-          have h_chain_to_restricted_reflTransGen : ∀ {l : List α}, l.Nodup →
+          have h_chain_to_restricted_aux : ∀ {l : List α}, l.Nodup →
             l.IsChain (fun a b => R a b ∧ a ≠ W_star) → l.head? = some D → l.getLast? =
               some r → C ∉ l → Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W_star ∧
                 a ≠ C) D r := by
@@ -273,8 +273,9 @@ theorem exists_terminal_vertex
               exact C
             · exact Or.inl hC_in_l;
             · simp +decide only [and_assoc];
-          exact h_chain_to_restricted_reflTransGen hl_nodup hl_chain hl_head hl_last hC_in_l;
-        exact h_chain_to_restricted_reflTransGen.mono fun a b hab => ⟨ hab.1, hab.2.2 ⟩;
+          exact h_chain_to_restricted_aux hl_nodup hl_chain hl_head hl_last hC_in_l;
+        exact Relation.ReflTransGen.mono
+          (fun a b hab => And.intro hab.1 hab.2.2) D r h_chain_to_restricted_reflTransGen;
   have h_block_card_lt : Nat.card {D : α | Relation.ReflTransGen R D r ∧ D ≠ C ∧
     ¬Relation.ReflTransGen (fun a b => R a b ∧
       a ≠ C) D r} < Nat.card {D : α | Relation.ReflTransGen R D r ∧ D ≠ W_star ∧

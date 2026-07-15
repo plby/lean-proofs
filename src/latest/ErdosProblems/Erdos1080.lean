@@ -904,11 +904,19 @@ theorem B_G_edge_count
         rcases va with p | l <;> rcases vb with p' | l' <;> simp [B_G, B, V_G] at hAdj ⊢
         · tauto
         · rcases hAdj with hadj | hfalse
-          · exact ⟨hva, hvb, hadj⟩
-          · tauto
+          · exact ⟨l', p,
+              ⟨by simpa [V_G] using hva, by simpa [V_G] using hvb, hadj⟩,
+              Or.inr ⟨rfl, rfl⟩⟩
+          · exact ⟨l', p,
+              ⟨by simpa [V_G] using hva, by simpa [V_G] using hvb, hfalse⟩,
+              Or.inr ⟨rfl, rfl⟩⟩
         · rcases hAdj with hfalse | hadj
-          · tauto
-          · exact ⟨hvb, hva, hadj⟩
+          · exact ⟨l, p',
+              ⟨by simpa [V_G] using hvb, by simpa [V_G] using hva, hfalse⟩,
+              Or.inl ⟨rfl, rfl⟩⟩
+          · exact ⟨l, p',
+              ⟨by simpa [V_G] using hvb, by simpa [V_G] using hva, hadj⟩,
+              Or.inl ⟨rfl, rfl⟩⟩
         · tauto
     rw [h_edge_model, h_card_edges]
     rw [Fintype.card_subtype]
@@ -1240,7 +1248,10 @@ lemma B_G_card_V (q k y : ℕ)
     have h_card_lines : Fintype.card (Line F q) = q^5 := by
       convert card_Line h_card_F h_card_fixed using 1;
     simp +decide [ *, Set.diff ];
-    rw [ Nat.sub_sub_self hy_le_lines ]
+    have hcompl : ({x | x ∉ D} : Finset (Line F q)) = Dᶜ := by
+      ext x
+      simp
+    rw [hcompl, Finset.card_compl, h_card_lines, h_card_D, Nat.sub_sub_self hy_le_lines]
 
 /-
 If $F$ is a field of size $q^2$ and characteristic $q$, then the number of elements $x \in F$ such that $x^q = x$ is $q$.

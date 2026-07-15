@@ -1882,7 +1882,9 @@ lemma inflow_modifiedFlow_le_erdosWeight_of_isPrimePow {N : ℕ} (hN : 1 < N)
           (continuous_const.add continuous_id)
       exact (continuous_const.div hpow_cont
         (fun t => (Real.rpow_pos_of_pos (by exact_mod_cast hp.pos) _).ne')).aemeasurable
-    simpa [fSum] using hfactor_meas.mul (hanalytic_meas.add hcorr_meas)
+    refine (hfactor_meas.mul (hanalytic_meas.add hcorr_meas)).congr ?_
+    exact Filter.Eventually.of_forall fun t => by
+      simp [fSum]
   have hsimple_int :
       MeasureTheory.Integrable (fun t : ℝ => (1 / (N : ℝ)) * Real.exp (-L * t)) μ := by
     simpa [μ, MeasureTheory.IntegrableOn, mul_assoc, mul_left_comm, mul_comm] using
@@ -2286,7 +2288,9 @@ lemma inflow_modifiedFlow_le_erdosWeight_of_not_isPrimePow {N : ℕ} (hN : 1 < N
   have hfSum_meas : AEMeasurable fSum μ := by
     have hfactor_meas : AEMeasurable (fun t : ℝ => (1 / (N : ℝ)) * (t * Real.exp (-L * t))) μ := by
       fun_prop
-    simpa [fSum] using hfactor_meas.mul hanalytic_meas
+    refine (hfactor_meas.mul hanalytic_meas).congr ?_
+    exact Filter.Eventually.of_forall fun t => by
+      simp [fSum]
   have hsimple_int :
       MeasureTheory.Integrable (fun t : ℝ => (1 / (N : ℝ)) * Real.exp (-L * t)) μ := by
     simpa [μ, MeasureTheory.IntegrableOn, mul_assoc, mul_left_comm, mul_comm] using
@@ -3480,7 +3484,8 @@ lemma boundaryOutflow_le_primeWeightSum_of_downwardClosed {Ω : Set ℕ}
     · have hm2 : 2 ≤ m.1 := hΩ_ge_two m.2
       simp [hm, hcomposite_to_one m.1 hm2 hm]
   let SΩ : Set {p : ℕ // p.Prime} := { p | p.1 ∈ Ω }
-  let ePrimeΩFun : {m : Ω // m.1.Prime} → SΩ := fun m => ⟨⟨m.1.1, m.2⟩, m.1.2⟩
+  let primeΩ : Set Ω := {m | m.1.Prime}
+  let ePrimeΩFun : primeΩ → SΩ := fun m => ⟨⟨m.1.1, m.2⟩, m.1.2⟩
   have hePrimeΩ_bij : Function.Bijective ePrimeΩFun := by
     constructor
     · intro a b h
@@ -3488,9 +3493,11 @@ lemma boundaryOutflow_le_primeWeightSum_of_downwardClosed {Ω : Set ℕ}
       apply Subtype.ext
       simpa [ePrimeΩFun] using congrArg (fun q : SΩ => q.1.1) h
     · intro p
-      refine ⟨⟨⟨p.1.1, p.2⟩, p.1.2⟩, ?_⟩
+      refine ⟨⟨⟨p.1.1, p.2⟩, ?_⟩, ?_⟩
+      · change p.1.1.Prime
+        exact p.1.2
       rfl
-  let ePrimeΩ : {m : Ω // m.1.Prime} ≃ SΩ := Equiv.ofBijective ePrimeΩFun hePrimeΩ_bij
+  let ePrimeΩ : primeΩ ≃ SΩ := Equiv.ofBijective ePrimeΩFun hePrimeΩ_bij
   have hboundary_eq :
       boundaryOutflow modifiedFlow Ω = ∑' q : SΩ, erdosWeight q.1.1 := by
     unfold boundaryOutflow
@@ -3506,10 +3513,10 @@ lemma boundaryOutflow_le_primeWeightSum_of_downwardClosed {Ω : Set ℕ}
             apply tsum_congr
             intro m
             exact hpointwise m
-      _ = ∑' p : {m : Ω // m.1.Prime}, erdosWeight p.1.1 := by
+      _ = ∑' p : primeΩ, erdosWeight p.1.1 := by
             symm
-            simpa [Set.indicator, Set.mem_setOf_eq] using
-              (tsum_subtype {m : Ω | m.1.Prime} (fun m : Ω => erdosWeight m.1))
+            simpa [primeΩ, Set.indicator, Set.mem_setOf_eq] using
+              (tsum_subtype primeΩ (fun m : Ω => erdosWeight m.1))
       _ = ∑' q : SΩ, erdosWeight q.1.1 := by
             simpa [ePrimeΩ] using (Equiv.tsum_eq ePrimeΩ (fun q : SΩ => erdosWeight q.1.1))
   have hnonneg_prime : ∀ p : {p : ℕ // p.Prime}, 0 ≤ erdosWeight p.1 := by
@@ -4028,7 +4035,9 @@ lemma summable_modifiedFlow_col_of_isPrimePow {N : ℕ} (hN : 1 < N)
           (continuous_const.add continuous_id)
       exact (continuous_const.div hpow_cont
         (fun t => (Real.rpow_pos_of_pos (by exact_mod_cast hp.pos) _).ne')).aemeasurable
-    simpa [fSum] using hfactor_meas.mul (hanalytic_meas.add hcorr_meas)
+    refine (hfactor_meas.mul (hanalytic_meas.add hcorr_meas)).congr ?_
+    exact Filter.Eventually.of_forall fun t => by
+      simp [fSum]
   have hsimple_int :
       MeasureTheory.Integrable (fun t : ℝ => (1 / (N : ℝ)) * Real.exp (-L * t)) μ := by
     simpa [μ, MeasureTheory.IntegrableOn, mul_assoc, mul_left_comm, mul_comm] using
@@ -4398,7 +4407,9 @@ lemma summable_modifiedFlow_col_of_not_isPrimePow {N : ℕ} (hN : 1 < N)
   have hfSum_meas : AEMeasurable fSum μ := by
     have hfactor_meas : AEMeasurable (fun t : ℝ => (1 / (N : ℝ)) * (t * Real.exp (-L * t))) μ := by
       fun_prop
-    simpa [fSum] using hfactor_meas.mul hanalytic_meas
+    refine (hfactor_meas.mul hanalytic_meas).congr ?_
+    exact Filter.Eventually.of_forall fun t => by
+      simp [fSum]
   have hsimple_int :
       MeasureTheory.Integrable (fun t : ℝ => (1 / (N : ℝ)) * Real.exp (-L * t)) μ := by
     simpa [μ, MeasureTheory.IntegrableOn, mul_assoc, mul_left_comm, mul_comm] using
@@ -4520,18 +4531,19 @@ lemma primitiveWeightSum_le_primeWeightSum_of_finite {A : Set ℕ}
     have hfiber :
         ∀ a : A, inflow modifiedFlow (a : ℕ) = ∑' mn : T a, G mn := by
       intro a
-      let S : Set {m : ℕ // m ∉ Ω} := { m | (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1 }
+      let outsideΩ : Set ℕ := {m | m ∉ Ω}
+      let S : Set outsideΩ := { m | (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1 }
       have hOutside :
           inflow modifiedFlow (a : ℕ) =
-            ∑' m : {m : ℕ // m ∉ Ω}, modifiedFlow m.1 (a : ℕ) := by
+            ∑' m : outsideΩ, modifiedFlow m.1 (a : ℕ) := by
         have hsupport :
-            Function.support (fun m : ℕ => modifiedFlow m (a : ℕ)) ⊆ { m | m ∉ Ω } := by
+            Function.support (fun m : ℕ => modifiedFlow m (a : ℕ)) ⊆ outsideΩ := by
           intro m hm
           exact hIn a.2 hm
         symm
-        simpa [inflow, Ω] using (tsum_subtype_eq_of_support_subset hsupport)
+        simpa [inflow, Ω, outsideΩ] using (tsum_subtype_eq_of_support_subset hsupport)
       have hSupportS :
-          Function.support (fun m : {m : ℕ // m ∉ Ω} => modifiedFlow m.1 (a : ℕ)) ⊆ S := by
+          Function.support (fun m : outsideΩ => modifiedFlow m.1 (a : ℕ)) ⊆ S := by
         intro m hm
         change (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1
         by_contra hnot
@@ -4539,7 +4551,7 @@ lemma primitiveWeightSum_le_primeWeightSum_of_finite {A : Set ℕ}
           apply modifiedFlow_eq_zero_of_not_dvd_lt
           exact hnot)
       have hS :
-          (∑' m : {m : ℕ // m ∉ Ω}, modifiedFlow m.1 (a : ℕ)) =
+          (∑' m : outsideΩ, modifiedFlow m.1 (a : ℕ)) =
             ∑' m : S, modifiedFlow m.1.1 (a : ℕ) := by
         symm
         simpa [S] using (tsum_subtype_eq_of_support_subset hSupportS)
@@ -6905,18 +6917,19 @@ lemma twoWeightSum_le_series_one_of_finite {A : Set ℕ}
     have hfiber :
         ∀ a : A, inflow twoFlow (a : ℕ) = ∑' mn : T a, G mn := by
       intro a
-      let S : Set {m : ℕ // m ∉ Ω} := { m | (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1 }
+      let outsideΩ : Set ℕ := {m | m ∉ Ω}
+      let S : Set outsideΩ := { m | (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1 }
       have hOutside :
           inflow twoFlow (a : ℕ) =
-            ∑' m : {m : ℕ // m ∉ Ω}, twoFlow m.1 (a : ℕ) := by
+            ∑' m : outsideΩ, twoFlow m.1 (a : ℕ) := by
         have hsupport :
-            Function.support (fun m : ℕ => twoFlow m (a : ℕ)) ⊆ { m | m ∉ Ω } := by
+            Function.support (fun m : ℕ => twoFlow m (a : ℕ)) ⊆ outsideΩ := by
           intro m hm
           exact hIn a.2 hm
         symm
-        simpa [inflow, Ω] using (tsum_subtype_eq_of_support_subset hsupport)
+        simpa [inflow, Ω, outsideΩ] using (tsum_subtype_eq_of_support_subset hsupport)
       have hSupportS :
-          Function.support (fun m : {m : ℕ // m ∉ Ω} => twoFlow m.1 (a : ℕ)) ⊆ S := by
+          Function.support (fun m : outsideΩ => twoFlow m.1 (a : ℕ)) ⊆ S := by
         intro m hm
         change (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1
         by_contra hnot
@@ -6924,7 +6937,7 @@ lemma twoWeightSum_le_series_one_of_finite {A : Set ℕ}
           apply twoFlow_eq_zero_of_not_dvd_lt
           exact hnot)
       have hS :
-          (∑' m : {m : ℕ // m ∉ Ω}, twoFlow m.1 (a : ℕ)) =
+          (∑' m : outsideΩ, twoFlow m.1 (a : ℕ)) =
             ∑' m : S, twoFlow m.1.1 (a : ℕ) := by
         symm
         simpa [S] using (tsum_subtype_eq_of_support_subset hSupportS)
@@ -9282,11 +9295,25 @@ lemma primeTailSeries_le_roughLogBound {p : ℕ} (hp : p.Prime) (hodd : p ≠ 2)
   have hprime_nat :
       (∑' r : Nat.Primes, Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1)) =
         ∑' r : ℕ, h r := by
-    change (∑' r : { r : ℕ // r.Prime }, Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1)) =
-      ∑' r : ℕ, h r
-    simpa [h, Set.indicator, Set.mem_setOf_eq] using
-      (tsum_subtype { r : ℕ | r.Prime }
-        (fun r : ℕ => Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1)))
+    let primes : Set ℕ := {r | r.Prime}
+    let ePrimes : primes ≃ Nat.Primes :=
+      { toFun := fun r => ⟨r.1, by
+          exact r.2⟩
+        invFun := fun r => ⟨r.1, by
+          exact r.2⟩
+        left_inv := by intro r; cases r; rfl
+        right_inv := by intro r; cases r; rfl }
+    calc
+      (∑' r : Nat.Primes, Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1))
+          = ∑' r : primes, Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1) := by
+              simpa [ePrimes] using
+                (Equiv.tsum_eq ePrimes
+                  (fun r : Nat.Primes =>
+                    Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1))).symm
+      _ = ∑' r : ℕ, h r := by
+            simpa [primes, h, Set.indicator, Set.mem_setOf_eq] using
+              (tsum_subtype primes
+                (fun r : ℕ => Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1)))
   have hanalytic_prime :
       analyticSeries s =
         ∑' r : ℕ, h r := by
@@ -10845,18 +10872,19 @@ lemma roughWeightSum_le_one_div_log_of_finite {p : ℕ} (hp : p.Prime)
     have hfiber :
         ∀ a : A, inflow (roughFlow p) (a : ℕ) = ∑' mn : T a, G mn := by
       intro a
-      let S : Set {m : ℕ // m ∉ Ω} := { m | (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1 }
+      let outsideΩ : Set ℕ := {m | m ∉ Ω}
+      let S : Set outsideΩ := { m | (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1 }
       have hOutside :
           inflow (roughFlow p) (a : ℕ) =
-            ∑' m : {m : ℕ // m ∉ Ω}, roughFlow p m.1 (a : ℕ) := by
+            ∑' m : outsideΩ, roughFlow p m.1 (a : ℕ) := by
         have hsupport :
-            Function.support (fun m : ℕ => roughFlow p m (a : ℕ)) ⊆ { m | m ∉ Ω } := by
+            Function.support (fun m : ℕ => roughFlow p m (a : ℕ)) ⊆ outsideΩ := by
           intro m hm
           exact hIn a.2 hm
         symm
-        simpa [inflow, Ω] using (tsum_subtype_eq_of_support_subset hsupport)
+        simpa [inflow, Ω, outsideΩ] using (tsum_subtype_eq_of_support_subset hsupport)
       have hSupportS :
-          Function.support (fun m : {m : ℕ // m ∉ Ω} => roughFlow p m.1 (a : ℕ)) ⊆ S := by
+          Function.support (fun m : outsideΩ => roughFlow p m.1 (a : ℕ)) ⊆ S := by
         intro m hm
         change (a : ℕ) ∣ m.1 ∧ (a : ℕ) < m.1
         by_contra hnot
@@ -10864,7 +10892,7 @@ lemma roughWeightSum_le_one_div_log_of_finite {p : ℕ} (hp : p.Prime)
           apply roughFlow_eq_zero_of_not_dvd_lt
           exact hnot)
       have hS :
-          (∑' m : {m : ℕ // m ∉ Ω}, roughFlow p m.1 (a : ℕ)) =
+          (∑' m : outsideΩ, roughFlow p m.1 (a : ℕ)) =
             ∑' m : S, roughFlow p m.1.1 (a : ℕ) := by
         symm
         simpa [S] using (tsum_subtype_eq_of_support_subset hSupportS)

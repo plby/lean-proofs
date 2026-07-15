@@ -357,7 +357,9 @@ lemma log_div_tends_zero :
             ring )
       norm_num
       exact tendsto_nhdsWithin_of_tendsto_nhds
-        ( by simpa using Real.continuous_mul_log.neg.tendsto 0 )
+        ( by
+          have h := Real.continuous_mul_log.tendsto 0
+          simpa using h.neg )
     convert h_log.div_const ( Real.log 2 ) |> Filter.Tendsto.add <|
       tendsto_inv_atTop_nhds_zero_nat using 2 <;> ring
 

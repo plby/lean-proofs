@@ -525,7 +525,10 @@ lemma A_card_bound (k : ℕ) : ((A ∩ {x | x < 3 ^ k}).ncard : ℝ) = (2^k : �
   refine
     ((congr_arg _)
       ((congr_arg _)
-        ((congr_arg Nat.card (by simp_all![Set.inter_def, and_comm])).trans
+        ((congr_arg Nat.card (by
+          apply congr_arg Subtype
+          funext a
+          exact propext (by simp [Set.inter_def, and_comm]))).trans
           (Nat.card_eq_finsetCard
             { a ∈ .range (3 ^ k) | (((3:).digits a)).toFinset ⊆ {0,1}})))).trans
       (mod_cast ? _)
@@ -549,7 +552,10 @@ lemma B_card_bound (m : ℕ) : ((B ∩ {x | x < 4 ^ m}).ncard : ℝ) = (2^m : �
   delta and B
   refine
     ((congr_arg _).comp (congr_arg _)
-      ((congr_arg ↑Nat.card (by simp_all![Set.inter_def, and_comm])).trans
+      ((congr_arg ↑Nat.card (by
+        apply congr_arg Subtype
+        funext a
+        exact propext (by simp [Set.inter_def, and_comm]))).trans
         (Nat.card_eq_finsetCard
           { a ∈ .range (4 ^ m) | (Nat.digits (↑4) a).toFinset ⊆ {0,1}}))).trans
       (mod_cast(?_))

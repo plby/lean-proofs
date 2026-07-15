@@ -910,7 +910,7 @@ theorem colorable_of_cochrom_degen {V : Type*} [Finite V] (G H : SimpleGraph V)
           fun x y hxy => g.injective <| Fin.castLE_injective _ hxy⟩
       use fun u => if hu : f u = i then g ⟨u, hu⟩ else ⟨0, hd⟩
       simp +contextual [hg.eq_iff]
-      exact fun u hu v hv huv => by rintro rfl; exact huv.ne rfl
+      exact fun u hu v hv huv hEq => huv.ne (congrArg Subtype.val hEq)
     · have := colorable_on_subset_of_degenerate G d hd (Finset.univ.filter fun v => f v = i) ?_
       · aesop
       · intro T hT hT'

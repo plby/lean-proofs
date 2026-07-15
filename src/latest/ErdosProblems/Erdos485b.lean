@@ -362,7 +362,11 @@ Support containment for the construction step.
 -/
 lemma support_mul_subset_add (f g : ℤ[X]) :
     (f * g).support ⊆ f.support + g.support :=
-  AddMonoidAlgebra.support_mul f.toFinsupp g.toFinsupp
+  by
+    intro n hn
+    rw [← Polynomial.support_toFinsupp f, ← Polynomial.support_toFinsupp g]
+    rw [← Polynomial.support_toFinsupp (f * g), Polynomial.toFinsupp_mul] at hn
+    exact AddMonoidAlgebra.support_coeff_mul_subset f.toFinsupp g.toFinsupp hn
 
 lemma step_support_containment (f : ℤ[X]) (R : Finset ℕ) (d : ℕ) (lam : ℤ)
     (hlam : lam ≠ 0)
@@ -1317,7 +1321,11 @@ lemma comp_coeff_zero_of_not_dvd_real (p : ℝ[X]) (a : ℝ) (d k : ℕ)
 
 lemma support_mul_subset_add_real (f g : ℝ[X]) :
     (f * g).support ⊆ f.support + g.support :=
-  AddMonoidAlgebra.support_mul f.toFinsupp g.toFinsupp
+  by
+    intro n hn
+    rw [← Polynomial.support_toFinsupp f, ← Polynomial.support_toFinsupp g]
+    rw [← Polynomial.support_toFinsupp (f * g), Polynomial.toFinsupp_mul] at hn
+    exact AddMonoidAlgebra.support_coeff_mul_subset f.toFinsupp g.toFinsupp hn
 
 /-
 ============================================================
@@ -1979,7 +1987,7 @@ lemma exists_complete_with_bound_small_improved (n : ℕ) (hn : 0 < n) (hn_small
         contrapose! hi;
         refine Finset.sum_eq_zero fun j hj => ?_ ; simp_all +decide [ Polynomial.coeff_mul ];
         exact Finset.sum_eq_zero fun x hx => by
-          rw [Finset.mem_antidiagonal] at hx
+          rw [HasAntidiagonal.mem_antidiagonal] at hx
           split_ifs <;> linarith
       · interval_cases n <;> decide
 

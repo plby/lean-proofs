@@ -413,7 +413,9 @@ theorem erdos_1095_weaker_upper_bound :
               exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] )
             norm_num
             exact tendsto_nhdsWithin_of_tendsto_nhds
-              (by simpa using Real.continuous_mul_log.neg.tendsto 0)
+              (by
+                have h := Real.continuous_mul_log.tendsto 0
+                simpa using h.neg)
           exact h_log_log_ratio.comp
             (Real.tendsto_log_atTop.comp <|
               Filter.tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop)

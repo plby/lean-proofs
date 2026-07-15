@@ -382,7 +382,9 @@ lemma cauchyDiff_continuousAt_everywhere (f : ℝ → ℝ)
     · have h_cont_at : ContinuousAt (fun x => f x - f (x + (p.1 + p.2 - u - v))) (u + v) := by
         have h_cont_at : ContinuousAt (fun x => f (x + (p.1 + p.2 - u - v)) - f x) (u + v) := by
           exact hf _ |> Continuous.continuousAt
-        simpa using h_cont_at.neg
+        convert h_cont_at.neg using 1
+        ext x
+        simp [Pi.neg_apply, sub_eq_add_neg, add_assoc]
       convert h_cont_at.tendsto.comp
         (show Filter.Tendsto (fun x : ℝ × ℝ => x.1 + x.2)
           (nhds (u, v)) (nhds (u + v)) from

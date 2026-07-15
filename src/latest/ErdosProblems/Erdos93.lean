@@ -2403,48 +2403,20 @@ lemma triangle_inequality_via_intersection_strict {A : ℕ → V} {n : ℕ} (h_c
       contradiction;
     · intro hK_wbtw
       have h_collinear : Collinear ℝ {A p, A y, A q} := by
-        have h_collinear : affineSpan ℝ {A p, A q} = affineSpan ℝ {A y, A q} := by
-          have h_collinear : affineSpan ℝ {A p, A q} = affineSpan ℝ {K, A q} ∧ affineSpan ℝ {A y, A q} = affineSpan ℝ {K, A q} := by
-            constructor <;> refine le_antisymm ?_ ?_ <;> simp_all +decide [ affineSpan_le ];
-            · simp_all +decide [ Set.insert_subset_iff, spanPoints ];
-              obtain ⟨ t, ht ⟩ := hK_wbtw;
-              simp_all +decide [ AffineMap.lineMap_apply ];
-              refine Or.inl ⟨ -t • ( A q - A p ), ?_, ?_ ⟩ <;> simp_all +decide [ vectorSpan_pair ];
-              · rw [ Submodule.mem_span_singleton ];
-                use -t / (1 - t);
-                rw [ ← ht.2 ] ; simp +decide [ div_eq_inv_mul ] ; ring_nf;
-                rw [ show t • ( A q - A p ) + A p - A q = ( t - 1 ) • ( A q - A p ) by rw [ sub_smul, one_smul ] ; abel1 ] ; simp +decide [ smul_smul, mul_sub, sub_mul, mul_comm, mul_left_comm,  ] ; ring_nf;
-                rw [ show - ( t * ( 1 - t ) ⁻¹ ) + t ^ 2 * ( 1 - t ) ⁻¹ = -t by nlinarith [ mul_inv_cancel₀ ( show ( 1 - t ) ≠ 0 by exact sub_ne_zero_of_ne <| Ne.symm <| by aesop ) ] ] ; simp +decide [ neg_smul ];
-              · grind;
-            · simp_all +decide [ Set.insert_subset_iff, spanPoints ];
-              rcases hK_wbtw with ⟨ a, b, ha, hb, hab, rfl ⟩;
-              simp_all +decide [ AffineMap.lineMap_apply, vectorSpan_pair ];
-              exact Or.inl ( Submodule.mem_span_singleton.mpr ⟨ -a, by simp +decide [ smul_sub ] ; abel1 ⟩ );
-            · simp_all +decide [ spanPoints ];
-              simp +decide [ Set.insert_subset_iff, vectorSpan_pair ];
-              obtain ⟨ t, ht ⟩ := hK_YQ;
-              rcases ht with ⟨ u, ht, hu, htu, rfl ⟩;
-              refine Or.inr ⟨ ( 1 / t ) • ( t • A y + u • A q - A q ), ?_, ?_ ⟩ <;> simp_all +decide [ Submodule.mem_span_singleton ];
-              rw [ show u = 1 - t by linarith ] ; simp +decide [ smul_add, smul_sub, sub_smul ] ;
-              by_cases ht : t = 0 <;> simp_all +decide [ smul_smul ];
-              abel1;
-            · simp_all +decide [ Set.insert_subset_iff, spanPoints ];
-              obtain ⟨ t, ht ⟩ := hK_YQ;
-              obtain ⟨ u, ht₀, hu₀, htu, rfl ⟩ := ht;
-              refine Or.inl ⟨ t • A y + u • A q - A y, ?_, ?_ ⟩ <;> simp +decide [ vectorSpan_pair ];
-              rw [ Submodule.mem_span_singleton ];
-              exact ⟨ t - 1, by rw [ show u = 1 - t by linarith ] ; simp +decide [ sub_smul, smul_sub ] ; abel1 ⟩;
-          rw [ h_collinear.1, h_collinear.2 ];
-        have h_collinear : A p ∈ affineSpan ℝ {A y, A q} := by
-          exact h_collinear ▸ mem_affineSpan ℝ ( Set.mem_insert _ _ );
-        rw [ collinear_iff_exists_forall_eq_smul_vadd ];
-        use A q, A y - A q;
-        simp_all +decide [ affineSpan ];
-        simp_all +decide [ spanPoints ];
-        simp_all +decide [ vectorSpan_pair ];
-        rcases h_collinear with ( ⟨ v, hv, hv' ⟩ | ⟨ v, hv, hv' ⟩ ) <;> simp_all +decide [ Submodule.mem_span_singleton ];
-        · rcases hv with ⟨ r, rfl ⟩ ; exact ⟨ ⟨ r + 1, by simp +decide [ add_smul, add_assoc ] ⟩, ⟨ 1, by simp +decide ⟩ ⟩ ;
-        · exact ⟨ ⟨ hv.choose, hv.choose_spec.symm ⟩, ⟨ 1, by norm_num ⟩ ⟩;
+        have hK_YQ_wbtw : Wbtw ℝ (A y) K (A q) := by
+          exact mem_segment_iff_wbtw.mp hK_YQ
+        have hAq_ne_K : A q ≠ K := by
+          intro h
+          exact hK_eq_Aq h.symm
+        have hp_line : A p ∈ line[ℝ, A q, K] := by
+          exact hK_wbtw.left_mem_affineSpan_of_right_ne hAq_ne_K
+        have hy_line : A y ∈ line[ℝ, A q, K] := by
+          exact hK_YQ_wbtw.left_mem_affineSpan_of_right_ne hAq_ne_K
+        have h4 : Collinear ℝ ({A p, A y, A q, K} : Set V) := by
+          exact collinear_insert_insert_of_mem_affineSpan_pair hp_line hy_line
+        exact h4.subset (by
+          intro z hz
+          aesop)
       have := convexIndependent_no_three_collinear h_convex.2.2.1 ( show ( ⟨ p, by linarith ⟩ : Fin n ) ≠ ⟨ y, by linarith ⟩ from by simpa [ Fin.ext_iff ] using h_distinct.1 ) ( show ( ⟨ y, by linarith ⟩ : Fin n ) ≠ ⟨ q, by linarith ⟩ from by simpa [ Fin.ext_iff ] using by aesop ) ( show ( ⟨ p, by linarith ⟩ : Fin n ) ≠ ⟨ q, by linarith ⟩ from by simpa [ Fin.ext_iff ] using h_distinct.2.1 ) ; simp_all +decide [ collinear_iff_exists_forall_eq_smul_vadd ] ;
   have hK_strict : dist (A p) (A q) < dist (A p) K + dist K (A q) := by
      exact dist_lt_dist_add_dist_iff.mpr hK_strict

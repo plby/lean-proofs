@@ -188,29 +188,25 @@ instance : AddCommGroup ZHat :=
     add_comm := by
       exact fun a b => Subtype.ext <| funext fun k => add_comm _ _
     nsmul_zero := by
-      aesop
+      intro a
+      ext k
+      exact AddMonoid.nsmul_zero (a.1 k)
     nsmul_succ := by
       intros n a
       ext k
-      simp [add_mul]
-      rfl
+      exact AddMonoid.nsmul_succ n (a.1 k)
     zsmul_zero' := by
       intros a
       ext k
-      simp
-      rfl
+      exact zero_zsmul (a.1 k)
     zsmul_succ' := by
       intros n a
       ext k
-      simp [Nat.succ_eq_add_one, add_smul]
-      rfl
+      exact SubNegMonoid.zsmul_succ' n (a.1 k)
     zsmul_neg' := by
-      simp +decide only [zsmul_eq_mul, Int.cast_negSucc, Nat.cast_add, Nat.cast_one, neg_add_rev,
-        Nat.succ_eq_add_one, Int.cast_add, Int.cast_natCast, Int.cast_one, Subtype.forall]
-      intro n a ha
-      congr
+      intro n a
       ext k
-      simp +decide [add_mul, add_comm]
+      exact SubNegMonoid.zsmul_neg' n (a.1 k)
     sub_eq_add_neg := by
       intro x y
       apply Subtype.ext
@@ -1054,7 +1050,7 @@ lemma pointwise_convergence (n : ℕ → ℕ) (hmono : StrictMono n) (hnpos : �
       -- Prove Ck is antitone (decreasing)
       have h_decreasing : Antitone (fun k => Ck n hnpos a k) := by
         intro k l hkl
-        simp only [Ck, Set.le_eq_subset]
+        simp only [Ck]
         exact Set.biInter_subset_biInter_left (fun i hi => (Nat.lt_of_lt_of_le hi hkl))
       -- Apply the theorem and provide arguments in the correct order
       apply MeasureTheory.tendsto_measure_iInter_atTop

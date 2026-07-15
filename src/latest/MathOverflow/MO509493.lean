@@ -181,7 +181,7 @@ theorem orthProj_equiv_iff_rank {n : Type*} [Fintype n] [DecidableEq n]
             · exact congr_arg Subtype.val ( τ.injective ( Subtype.ext hij ) );
             · grind;
             · grind +ring;
-            · simpa [ Subtype.ext_iff ] using σ.injective ( Subtype.ext hij );
+            · exact congr_arg Subtype.val ( σ.injective ( Subtype.ext hij ) );
           · intro i
             by_cases hi : d₂ i = 1
             all_goals generalize_proofs at *;

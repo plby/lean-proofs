@@ -1295,7 +1295,28 @@ lemma GraphH_ramsey_2
           fun ⟨ U, hU₁, hU₂ ⟩ => ⟨ k, U, hU₁, hU₂ ⟩;
     · -- Since there are only 2 colors, this means $f(v, S'', T) = 1-k$ for all $v \in V$.
       have h_case2 : ∀ v : V, f (Sum.inl (v, S'', T)) = 1 - k := by
-        grind;
+        intro v
+        have hne : f (Sum.inl (v, S'', T)) ≠ k := by
+          intro hv
+          exact h_case1 ⟨v, hv⟩
+        let col : Fin 2 := f (Sum.inl (v, S'', T))
+        change col ≠ k at hne
+        change col = 1 - k
+        fin_cases k
+        · apply Fin.ext
+          have hneval : col.val ≠ 0 := by
+            intro hval
+            exact hne (Fin.ext hval)
+          have hlt : col.val < 2 := col.isLt
+          simp
+          omega
+        · apply Fin.ext
+          have hneval : col.val ≠ 1 := by
+            intro hval
+            exact hne (Fin.ext hval)
+          have hlt : col.val < 2 := col.isLt
+          simp
+          omega
       exact ⟨ 1 - k, U_case_2 G v0 H' S'' T, fun x hx => by
         obtain ⟨ v, rfl ⟩ := hx
         exact h_case2 v, psi_map_case_2_is_iso G v0 H' S'' T ⟩

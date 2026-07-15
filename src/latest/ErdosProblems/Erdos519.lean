@@ -1089,9 +1089,9 @@ lemma circleIntegral_G_minus_P_eq_zero {n : ℕ} (z : Fin n → ℂ)
         focus
           use fun x => ‖deriv (circleMap 0 1) x‖ * (∑' k : ℕ, ‖y‖ ^ k) * ‖G_gen z (circleMap 0 1 x) - P_poly z (circleMap 0 1 x)‖
         · refine Filter.Eventually.of_forall fun N => Continuous.aestronglyMeasurable ?_
-          refine Continuous.smul ?_ ?_
+          refine Continuous.smul (M := ℂ) (X := ℂ) ?_ ?_
           · unfold deriv; norm_num [ fderiv_apply_one_eq_deriv ]; continuity
-          · refine Continuous.smul ?_ ?_
+          · refine Continuous.smul (M := ℂ) (X := ℂ) ?_ ?_
             · exact continuous_finsetSum _ fun _ _ => Continuous.mul (Continuous.inv₀ (by continuity) fun x => by norm_num [ Complex.exp_ne_zero ]) (continuous_const.pow _)
             · refine Continuous.sub ?_ ?_
               · exact Complex.continuous_exp.comp <| Continuous.neg <| continuous_finsetSum _ fun _ _ => Continuous.mul (continuous_const) <| Continuous.pow (continuous_circleMap _ _) _
@@ -1320,9 +1320,9 @@ lemma G_taylor_tail_eq {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
         focus
           use fun x => ‖deriv (circleMap 0 1) x‖ * (∑' m : ℕ, r ^ m) * ‖G_gen z (circleMap 0 1 x)‖
         · refine Filter.Eventually.of_forall fun N => Continuous.aestronglyMeasurable ?_
-          refine Continuous.smul ?_ ?_
+          refine Continuous.smul (M := ℂ) (X := ℂ) ?_ ?_
           · exact by rw [ show deriv (circleMap 0 1) = fun x => I * circleMap 0 1 x from funext fun x => by simp +decide [ circleMap, mul_comm ] ]; continuity
-          · refine Continuous.smul ?_ ?_
+          · refine Continuous.smul (M := ℂ) (X := ℂ) ?_ ?_
             · exact continuous_finsetSum _ fun _ _ => Continuous.mul (continuous_const) (Continuous.inv₀ (by continuity) fun x => by norm_num [ Complex.exp_ne_zero ])
             · exact Complex.continuous_exp.comp <| Continuous.neg <| continuous_finsetSum _ fun _ _ => Continuous.mul (continuous_const) <| Continuous.pow (by continuity) _
         · simp +decide [ mul_assoc ]
@@ -2853,7 +2853,11 @@ lemma h_pointwise_far_bound (n : ℕ) (hn : 0 < n) {θ : ℝ}
                 · exact Continuous.continuousAt (by continuity)
                 · norm_num [ Complex.slitPlane, Complex.exp_re, Complex.exp_im ]
               · exact tendsto_finsetSum _ fun _ _ => Continuous.continuousAt (by continuity)
-            · simpa using ((continuous_const.sub continuous_id).tendsto (0 : ℝ))
+            · convert (((continuous_const : Continuous fun _ : ℝ => Real.pi).sub continuous_id).tendsto
+                (0 : ℝ)) using 1
+              · ext ε
+                rfl
+              · norm_num
           · exact tendsto_nhdsWithin_of_tendsto_nhds (Continuous.tendsto' (by continuity) _ _ <| by norm_num)
         have h_bound : ∀ᶠ ε in nhdsWithin 0 (Set.Ioi 0), ‖h_fun n (Real.pi - ε) * (1 - Complex.exp (-(Real.pi - ε) * Complex.I))‖ ≤ 2 / (n + 1) := by
           filter_upwards [ Ioo_mem_nhdsGT_of_mem ⟨le_rfl, Real.pi_pos⟩ ] with ε hε

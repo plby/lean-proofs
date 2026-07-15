@@ -693,7 +693,7 @@ rule $\mathrm{ml}\!\left(\prod_{i=2}^n z_i^{e_i}\right) \coloneqq
 -/
 noncomputable def ml {σ : Type*} {R : Type*} [CommRing R]
     (P : MvPolynomial σ R) : MvPolynomial σ R :=
-  Finsupp.mapDomain (fun e => Finsupp.mapRange (fun n => n % 2) (by simp) e) P
+  AddMonoidAlgebra.mapDomain (fun e => Finsupp.mapRange (fun n => n % 2) (by simp) e) P
 
 /-
 Let $b=(b_2,\dots,b_n)\in \{\pm 1\}^{n-1}\subset \FF_p^{n-1}$. Then for
@@ -705,15 +705,15 @@ theorem ml_eval_eq {σ : Type*} {R : Type*} [CommRing R]
       let f : (σ →₀ ℕ) → (σ →₀ ℕ) :=
         fun e => Finsupp.mapRange (fun n => n % 2) (by simp) e
       change (MvPolynomial.eval₂Hom (RingHom.id R) b) P =
-        (MvPolynomial.eval₂Hom (RingHom.id R) b) (Finsupp.mapDomain f P)
-      rw [← Finsupp.sum_single P]
-      rw [Finsupp.mapDomain_sum]
-      simp only [Finsupp.mapDomain_single]
+        (MvPolynomial.eval₂Hom (RingHom.id R) b) (AddMonoidAlgebra.mapDomain f P)
+      rw [← AddMonoidAlgebra.sum_coeff_single P]
+      rw [AddMonoidAlgebra.mapDomain_sum]
+      simp only [AddMonoidAlgebra.mapDomain_single]
       simp only [Finsupp.sum]
       change (MvPolynomial.eval₂Hom (RingHom.id R) b)
-          (∑ a ∈ P.support, MvPolynomial.monomial a (P a)) =
+          (∑ a ∈ P.support, MvPolynomial.monomial a (P.coeff a)) =
         (MvPolynomial.eval₂Hom (RingHom.id R) b)
-          (∑ a ∈ P.support, MvPolynomial.monomial (f a) (P a))
+          (∑ a ∈ P.support, MvPolynomial.monomial (f a) (P.coeff a))
       rw [map_sum, map_sum]
       simp only [MvPolynomial.eval₂Hom_monomial]
       apply Finset.sum_congr rfl
@@ -952,7 +952,7 @@ theorem ml_is_multilinear {σ : Type*} {R : Type*} [CommRing R] (P : MvPolynomia
                 m = Finsupp.mapRange (fun n => n % 2) (by simp) m' := by
             intro m hm
             simp [ml] at hm;
-            rw [ Finsupp.mapDomain ] at hm;
+            rw [AddMonoidAlgebra.mapDomain, Finsupp.mapDomain] at hm;
             simp_all +decide [ MvPolynomial.coeff ];
             contrapose! hm;
             exact Finset.sum_eq_zero fun x hx => by specialize hm x; aesop;
@@ -1183,7 +1183,7 @@ theorem totalDegree_ml_le {σ : Type*} {R : Type*} [CommRing R] (P : MvPolynomia
               m = Finsupp.mapRange (fun n => n % 2) (by simp) m' := by
           intro m hm
           simp [ml] at hm
-          rw [Finsupp.mapDomain] at hm
+          rw [AddMonoidAlgebra.mapDomain, Finsupp.mapDomain] at hm
           simp_all +decide [MvPolynomial.coeff]
           contrapose! hm
           exact Finset.sum_eq_zero fun x hx => by specialize hm x; aesop

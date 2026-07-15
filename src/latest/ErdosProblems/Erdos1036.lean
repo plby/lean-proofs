@@ -2452,7 +2452,8 @@ lemma existence_of_k (c : ℝ) :
         exact h_log_recip.congr ( by simp +contextual [ div_eq_inv_mul ] );
       norm_num;
       exact tendsto_nhdsWithin_of_tendsto_nhds (by
-        simpa using Real.continuous_mul_log.neg.tendsto 0);
+        have h := Real.continuous_mul_log.tendsto 0
+        simpa using h.neg);
     have h_log_div_x_zero :
         Filter.Tendsto
           (fun k : ℕ => (Real.log (Real.exp 1 * (k + 1))) / (k : ℝ))

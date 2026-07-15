@@ -289,7 +289,7 @@ theorem disjoint_I_word (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (u v : Li
               · unfold f; norm_num at *; intros; nlinarith;
             refine h_disjoint.mono ?_ ?_;
             · subst hi hj
-              simp_all only [one_div, ne_eq, List.cons.injEq, not_and, List.head!_cons, Set.le_eq_subset,
+              simp_all only [one_div, ne_eq, List.cons.injEq, not_and, List.head!_cons,
                 Set.image_subset_iff, IsEmpty.forall_iff]
               obtain ⟨left, right⟩ := hr
               intro x hx;
@@ -311,7 +311,7 @@ theorem disjoint_I_word (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) (u v : Li
                 }
                 · simp_all only [and_self]
             · subst hi hj
-              simp_all only [one_div, ne_eq, List.cons.injEq, not_and, List.head!_cons, Set.le_eq_subset,
+              simp_all only [one_div, ne_eq, List.cons.injEq, not_and, List.head!_cons,
                 Set.image_subset_iff, IsEmpty.forall_iff]
               obtain ⟨left, right⟩ := hr
               intro x hx; obtain ⟨ y, hy, rfl ⟩ := hx; exact (by
@@ -2161,8 +2161,7 @@ lemma mem_C_plus_of_not_eventually_zero (rho : ℝ) (hrho : 0 < rho ∧ rho < 1 
         simp +zetaDelta at *;
         refine ⟨ r, ⟨ by linarith, by linarith ⟩, ?_ ⟩;
         rw [ ← hr₂ ];
-        apply range_pi_subset_C' r ⟨ by linarith, by linarith ⟩ |> Set.mem_of_mem_of_subset <| Set.Subset.refl _;
-        exact Set.mem_range_self _
+        exact range_pi_subset_C' r ⟨by linarith, by linarith⟩ (Set.mem_range_self _)
 
 /-
 Definition of the exceptional set E_minus.

@@ -1501,7 +1501,8 @@ lemma lemma_k_val_upper_bound_eventually (c ε : ℝ) (hε : ε < 1 / 2) :
                 intros; simp +decide ; ring );
         norm_num;
         exact tendsto_nhdsWithin_of_tendsto_nhds (by
-            simpa using Real.continuous_mul_log.neg.tendsto 0 );
+            have h := Real.continuous_mul_log.tendsto 0
+            simpa using h.neg );
       field_simp;
       by_cases hc : c > 0;
       · -- Since $c > 0$, we can choose $M_0$ such that for all $M \geq M_0$, $c * \frac{\log M}{M}

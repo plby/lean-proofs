@@ -3145,8 +3145,11 @@ private lemma tsum_transitionKernel_eq {x Y m : ℕ} (hm : x ≤ m) :
     subst hx0
     simp [transitionKernel, transitionWeight]
   · have hmpos : 0 < m := Nat.pos_of_ne_zero hm0
-    let e : ℕ ≃ {n : ℕ // m ∣ n} :=
-      { toFun := fun q => ⟨m * q, dvd_mul_right m q⟩
+    let multiples : Set ℕ := {n | m ∣ n}
+    let e : ℕ ≃ multiples :=
+      { toFun := fun q => ⟨m * q, by
+          change m ∣ m * q
+          exact dvd_mul_right m q⟩
         invFun := fun n => n.1 / m
         left_inv := by
           intro q
@@ -3154,22 +3157,28 @@ private lemma tsum_transitionKernel_eq {x Y m : ℕ} (hm : x ≤ m) :
         right_inv := by
           intro n
           apply Subtype.ext
-          simpa [Nat.mul_comm] using Nat.div_mul_cancel n.2 }
+          have hdiv : m ∣ n.1 := by
+            change n.1 ∈ multiples
+            exact n.2
+          simpa [Nat.mul_comm] using Nat.div_mul_cancel hdiv }
     calc
       (∑' n : ℕ, transitionKernel x Y m n)
-        = ∑' n : {n : ℕ // m ∣ n}, ENNReal.ofReal (transitionWeight Y m (n.1 / m)) := by
+        = ∑' n : multiples, ENNReal.ofReal (transitionWeight Y m (n.1 / m)) := by
             rw [show (fun n => transitionKernel x Y m n) =
               Set.indicator {n : ℕ | m ∣ n}
                 (fun n => ENNReal.ofReal (transitionWeight Y m (n / m))) by
                   funext n
                   exact transitionKernel_eq_indicator (x := x) (Y := Y) (m := m) hm]
-            simpa using (tsum_subtype {n : ℕ | m ∣ n}
+            simpa [multiples] using (tsum_subtype multiples
               (fun n => ENNReal.ofReal (transitionWeight Y m (n / m)))).symm
       _ = ∑' q : ℕ, ENNReal.ofReal (transitionWeight Y m ((e q).1 / m)) := by
             simpa [e] using (Equiv.tsum_eq e
-              (fun n : {n : ℕ // m ∣ n} => ENNReal.ofReal (transitionWeight Y m (n.1 / m)))).symm
+              (fun n : multiples => ENNReal.ofReal (transitionWeight Y m (n.1 / m)))).symm
       _ = ∑' q : ℕ, ENNReal.ofReal (transitionWeight Y m q) := by
-            grind only [= Equiv.coe_fn_mk]
+            refine tsum_congr fun q => ?_
+            have hq : (e q).1 / m = q := by
+              simpa [e, Nat.mul_comm] using Nat.mul_div_left q hmpos
+            rw [hq]
 
 /--
 The tail summand underlying `transitionWeight` is summable for every `m ≥ 1`. The proof uses
