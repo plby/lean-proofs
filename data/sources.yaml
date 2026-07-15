@@ -253,6 +253,20 @@
   url_ref: JoshuaB_115
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos123
+  epc: https://www.erdosproblems.com/123
+  author:
+    - Star Fleet Math
+    - AI: Claude Fable 5
+    - human: Colin Snyder
+    - statement: Formal Conjectures authors
+  url:
+    - https://www.starfleetmath.com/
+    - https://www.erdosproblems.com/forum/thread/123/proof-claims
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/123.lean
+    - https://www.starfleetmath.com/downloads/verify/erdos-123/erdos-123-solution.zip
+  version: "4.31.0"
+
 - key: ErdosProblems.Erdos124b
   partial: yes
   epc: https://www.erdosproblems.com/124
