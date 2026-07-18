@@ -1,0 +1,45 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{fullpage}
+\usepackage{setspace}
+
+\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\onehalfspacing
+
+\textbf{Summary:}
+I plan to post an expanded and polished version to arXiv later. The claim is
+that, for every sequence $(z_j)_{j\geq 1}$ on the unit circle,
+\[
+  \sum_{k\leq N} M_k
+  \gg
+  \frac{N^{5/4}}{\sqrt{\log N}},
+  \qquad
+  M_k
+  =
+  \max_{|z|=1}\prod_{j\leq k}|z-z_j|.
+\]
+
+Writing the logarithm of the product as a sum of the kernel
+\[
+  B(x)=\log|2\sin \pi x|,
+\]
+one first shows that a small terminal maximum $L_t=\log M_t$ forces all
+low-frequency exponential sums of $x_1,\dots,x_t$ to be small. Fej\'er
+smoothing with kernel $K_H$ and parameter $H$ then bounds each prefix maximum
+by the interaction of the next point with the previous ones. Summing over the
+prefixes converts this into a pair-energy estimate. Expanding that energy in a
+Fourier series gives a lower bound for $\sum_{k<t}L_k$, up to an error
+controlled by $L_t$. If $L_N$ is large, $M_N$ alone gives the result;
+otherwise, choosing
+\[
+  H\asymp \frac{\sqrt{N}}{\log N}
+\]
+and applying AM--GM yields the stated bound.
+
+\end{document}

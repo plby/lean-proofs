@@ -226,6 +226,312 @@ lemma iteratedDeriv_div_factorial_logPotential (z : ℕ → ℂ) (n m : ℕ) :
     norm_num
   simp [hneg, Finset.mul_sum]
 
+noncomputable def rotationAverage (f : ℂ → ℂ) (m : ℕ) (w : ℂ) : ℂ :=
+  (m : ℂ)⁻¹ * ∑ j ∈ range m,
+    f ((Complex.exp (2 * Real.pi * Complex.I / m)) ^ j * w)
+
+lemma sum_root_powers {m k : ℕ} (hm : 0 < m) :
+    ∑ j ∈ range m,
+        ((Complex.exp (2 * Real.pi * Complex.I / m)) ^ j) ^ k =
+      if m ∣ k then (m : ℂ) else 0 := by
+  let ζ : ℂ := Complex.exp (2 * Real.pi * Complex.I / m)
+  have hζ : IsPrimitiveRoot ζ m :=
+    Complex.isPrimitiveRoot_exp m hm.ne'
+  change ∑ j ∈ range m, (ζ ^ j) ^ k = _
+  split_ifs with hmk
+  · have hpow : ζ ^ k = 1 := (hζ.pow_eq_one_iff_dvd k).mpr hmk
+    calc
+      ∑ j ∈ range m, (ζ ^ j) ^ k =
+          ∑ j ∈ range m, (ζ ^ k) ^ j := by
+            apply Finset.sum_congr rfl
+            intro j hj
+            rw [← pow_mul, ← pow_mul, mul_comm j k]
+      _ = m := by simp [hpow]
+  · have hpow : ζ ^ k ≠ 1 := by
+      simpa [hζ.pow_eq_one_iff_dvd k]
+    have hgeom := geom_sum_mul (ζ ^ k) m
+    have hmkpow : (ζ ^ k) ^ m = 1 := by
+      rw [← pow_mul, mul_comm, pow_mul, hζ.pow_eq_one]
+      simp
+    have hzero :
+        ∑ j ∈ range m, (ζ ^ k) ^ j = 0 := by
+      apply (mul_eq_zero.mp ?_).resolve_right (sub_ne_zero.mpr hpow)
+      rw [hgeom, hmkpow, sub_self]
+    calc
+      ∑ j ∈ range m, (ζ ^ j) ^ k =
+          ∑ j ∈ range m, (ζ ^ k) ^ j := by
+            apply Finset.sum_congr rfl
+            intro j hj
+            rw [← pow_mul, ← pow_mul, mul_comm j k]
+      _ = 0 := hzero
+
+lemma iteratedDeriv_rotationAverage
+    {f : ℂ → ℂ} (hf : DifferentiableOn ℂ f (ball 0 1))
+    {m k : ℕ} (hm : 0 < m) :
+    iteratedDeriv k (rotationAverage f m) 0 =
+      (if m ∣ k then 1 else 0) * iteratedDeriv k f 0 := by
+  let ζ : ℂ := Complex.exp (2 * Real.pi * Complex.I / m)
+  have hζnorm : ‖ζ‖ = 1 := by
+    dsimp [ζ]
+    rw [Complex.norm_exp]
+    simp
+  have hfcont : ContDiffOn ℂ k f (ball 0 1) :=
+    hf.contDiffOn isOpen_ball
+  have hzero : (0 : ℂ) ∈ ball 0 1 := mem_ball_self zero_lt_one
+  rw [← iteratedDerivWithin_of_isOpen isOpen_ball hzero]
+  unfold rotationAverage
+  rw [iteratedDerivWithin_const_mul_field]
+  rw [iteratedDerivWithin_fun_sum hzero isOpen_ball.uniqueDiffOn]
+  · have hterm (j : ℕ) :
+        iteratedDerivWithin k (fun w ↦ f (ζ ^ j * w)) (ball 0 1) 0 =
+          (ζ ^ j) ^ k * iteratedDeriv k f 0 := by
+      rw [iteratedDerivWithin_comp_const_smul hzero
+        isOpen_ball.uniqueDiffOn hfcont (ζ ^ j)]
+      · have heq :=
+          iteratedDerivWithin_of_isOpen (f := f) (n := k) isOpen_ball hzero
+        simpa only [mul_zero, smul_eq_mul] using
+          congrArg (fun x : ℂ ↦ (ζ ^ j) ^ k * x) heq
+      · intro w hw
+        simpa [mem_ball, norm_mul, hζnorm] using hw
+    simp_rw [show Complex.exp (2 * Real.pi * Complex.I / ↑m) = ζ by rfl,
+      hterm]
+    rw [← Finset.sum_mul, sum_root_powers hm]
+    split_ifs with hmk
+    · field_simp [hm.ne']
+    · simp
+  · intro j hj
+    have hcomp :
+        ContDiffWithinAt ℂ k (fun w ↦ f (ζ ^ j * w)) (ball 0 1) 0 :=
+      (hfcont (ζ ^ j * 0) (by simpa using hzero)).comp (0 : ℂ) (by fun_prop) (by
+        intro w hw
+        simpa [mem_ball, norm_mul, hζnorm] using hw)
+    simpa [ζ] using hcomp
+
+lemma caratheodory_iteratedDeriv_bound
+    {f : ℂ → ℂ} (hf : DifferentiableOn ℂ f (ball 0 1))
+    (hf0 : f 0 = 0) {A : ℝ} (hA : 0 < A)
+    (hfre : ∀ w ∈ ball (0 : ℂ) 1, (f w).re ≤ A - 1)
+    {m : ℕ} (hm : 0 < m) :
+    ‖iteratedDeriv m f 0‖ / (m.factorial : ℝ) ≤ 2 * A := by
+  let q : ℂ → ℂ := rotationAverage f m
+  let d : ℂ → ℂ := fun w ↦ (2 * A : ℂ) - q w
+  let h : ℂ → ℂ := fun w ↦ q w / d w
+  have hζnorm :
+      ‖Complex.exp (2 * Real.pi * Complex.I / m)‖ = 1 := by
+    rw [Complex.norm_exp]
+    simp
+  have hrot (j : ℕ) :
+      MapsTo
+        (fun w : ℂ ↦
+          Complex.exp (2 * Real.pi * Complex.I / m) ^ j * w)
+        (ball 0 1) (ball 0 1) := by
+    intro w hw
+    simpa [mem_ball, norm_mul, hζnorm] using hw
+  have hqdiff : DifferentiableOn ℂ q (ball 0 1) := by
+    dsimp [q, rotationAverage]
+    apply DifferentiableOn.const_mul
+    rw [show
+      (fun y ↦ ∑ j ∈ range m,
+        f (Complex.exp (2 * Real.pi * Complex.I / ↑m) ^ j * y)) =
+        ∑ j ∈ range m, fun y ↦
+          f (Complex.exp (2 * Real.pi * Complex.I / ↑m) ^ j * y) by
+            ext y
+            simp]
+    apply DifferentiableOn.sum
+    intro j hj
+    exact hf.comp (by fun_prop) (hrot j)
+  have hq0 : q 0 = 0 := by
+    simp [q, rotationAverage, hf0]
+  have hqre (w : ℂ) (hw : w ∈ ball (0 : ℂ) 1) :
+      (q w).re ≤ A - 1 := by
+    have hsum :
+        (∑ j ∈ range m,
+            f (Complex.exp (2 * Real.pi * Complex.I / m) ^ j * w)).re
+          ≤ (m : ℝ) * (A - 1) := by
+      rw [Complex.re_sum]
+      calc
+        ∑ j ∈ range m,
+              (f (Complex.exp (2 * Real.pi * Complex.I / m) ^ j * w)).re
+            ≤ ∑ _j ∈ range m, (A - 1) :=
+          Finset.sum_le_sum fun j hj ↦ hfre _ (hrot j hw)
+        _ = (m : ℝ) * (A - 1) := by
+          simp
+          ring
+    have hmR : (0 : ℝ) < m := by exact_mod_cast hm
+    let S : ℂ :=
+      ∑ j ∈ range m,
+        f (Complex.exp (2 * Real.pi * Complex.I / m) ^ j * w)
+    have hsumS : S.re ≤ (m : ℝ) * (A - 1) := by
+      simpa [S] using hsum
+    dsimp [q, rotationAverage]
+    rw [mul_comm (m : ℂ)⁻¹, ← div_eq_mul_inv]
+    rw [Complex.div_re]
+    simp only [Complex.natCast_re, Complex.natCast_im, mul_zero,
+      zero_div, add_zero]
+    have hmnorm : Complex.normSq (m : ℂ) = (m : ℝ) ^ 2 := by
+      simp [Complex.normSq_apply]
+      ring
+    rw [hmnorm]
+    change S.re * (m : ℝ) / (m : ℝ) ^ 2 ≤ A - 1
+    calc
+      S.re * (m : ℝ) / (m : ℝ) ^ 2 = S.re / (m : ℝ) := by
+        field_simp
+      _ ≤ ((m : ℝ) * (A - 1)) / (m : ℝ) :=
+        (div_le_div_iff_of_pos_right hmR).mpr hsumS
+      _ = A - 1 := by field_simp
+  have hdne (w : ℂ) (hw : w ∈ ball (0 : ℂ) 1) : d w ≠ 0 := by
+    intro hd
+    have heq : q w = (2 * A : ℂ) := by
+      dsimp [d] at hd
+      exact (sub_eq_zero.mp hd).symm
+    have hre := hqre w hw
+    rw [heq] at hre
+    simp at hre
+    linarith
+  have hhdiff : DifferentiableOn ℂ h (ball 0 1) := by
+    dsimp [h, d]
+    exact hqdiff.div (hqdiff.const_sub _) hdne
+  have hh0 : h 0 = 0 := by simp [h, hq0]
+  have hhnorm (w : ℂ) (hw : w ∈ ball (0 : ℂ) 1) :
+      ‖h w‖ ≤ 1 := by
+    have hre : (q w).re ≤ A := (hqre w hw).trans (by linarith)
+    have hsq : ‖q w‖ ^ 2 ≤ ‖d w‖ ^ 2 := by
+      rw [← Complex.normSq_eq_norm_sq, ← Complex.normSq_eq_norm_sq]
+      simp [d, Complex.normSq_apply]
+      nlinarith
+    have hnorm : ‖q w‖ ≤ ‖d w‖ :=
+      (sq_le_sq₀ (norm_nonneg _) (norm_nonneg _)).mp hsq
+    change ‖q w / d w‖ ≤ 1
+    rw [norm_div, div_le_one (norm_pos_iff.mpr (hdne w hw))]
+    exact hnorm
+  have hhan : AnalyticAt ℂ h 0 :=
+    hhdiff.analyticAt (isOpen_ball.mem_nhds (mem_ball_self zero_lt_one))
+  have hqan : AnalyticAt ℂ q 0 :=
+    hqdiff.analyticAt (isOpen_ball.mem_nhds (mem_ball_self zero_lt_one))
+  have hqzero : ∀ k < m, iteratedDeriv k q 0 = 0 := by
+    intro k hk
+    rw [show q = rotationAverage f m by rfl,
+      iteratedDeriv_rotationAverage hf hm]
+    rcases k.eq_zero_or_pos with rfl | hk0
+    · simpa using hf0
+    · have hndvd : ¬m ∣ k :=
+        fun hmk ↦ (not_le_of_gt hk) (Nat.le_of_dvd hk0 hmk)
+      simp [hndvd]
+  obtain ⟨g, hgan, hqfactor⟩ :=
+    (natCast_le_analyticOrderAt hqan).mp
+      ((natCast_le_analyticOrderAt_iff_iteratedDeriv_eq_zero hqan).mpr hqzero)
+  have hdfan : AnalyticAt ℂ d 0 := by
+    dsimp [d]
+    fun_prop
+  have hd0 : d 0 = (2 * A : ℂ) := by simp [d, hq0]
+  have hdf0 : d 0 ≠ 0 := by
+    rw [hd0]
+    exact_mod_cast (mul_pos (by norm_num : (0 : ℝ) < 2) hA).ne'
+  have hhorder : m ≤ analyticOrderAt h 0 := by
+    rw [natCast_le_analyticOrderAt hhan]
+    refine ⟨fun w ↦ g w / d w, hgan.div hdfan hdf0, ?_⟩
+    filter_upwards [hqfactor] with w hw
+    dsimp [h]
+    rw [hw]
+    ring
+  have hhzero : ∀ k < m, iteratedDeriv k h 0 = 0 :=
+    (natCast_le_analyticOrderAt_iff_iteratedDeriv_eq_zero hhan).mp hhorder
+  have hproduct : (h * d) =ᶠ[nhds 0] q := by
+    filter_upwards [isOpen_ball.mem_nhds (mem_ball_self zero_lt_one)] with w hw
+    dsimp [h]
+    exact div_mul_cancel₀ _ (hdne w hw)
+  have hderiv_product := hproduct.iteratedDeriv_eq m
+  rw [iteratedDeriv_mul hhan.contDiffAt hdfan.contDiffAt] at hderiv_product
+  have hsum :
+      ∑ i ∈ range (m + 1),
+          (m.choose i : ℂ) * iteratedDeriv i h 0 *
+            iteratedDeriv (m - i) d 0 =
+        iteratedDeriv m h 0 * (2 * A : ℂ) := by
+    rw [Finset.sum_eq_single m]
+    · simp [hd0]
+    · intro i hi him
+      have hil : i < m := by
+        have := Finset.mem_range.mp hi
+        omega
+      simp [hhzero i hil]
+    · simp
+  rw [hsum] at hderiv_product
+  have hhcoeff :
+      ‖iteratedDeriv m h 0‖ / (m.factorial : ℝ) ≤ 1 := by
+    have hderiv :
+        ‖iteratedDeriv m h 0‖ ≤ (m.factorial : ℝ) := by
+      suffices ∀ᶠ r : ℝ in nhdsWithin 1 (Iio 1),
+          ‖iteratedDeriv m h 0‖ ≤
+            (m.factorial : ℝ) / r ^ m by
+        refine ge_of_tendsto ?_ this
+        have hc : ContinuousWithinAt
+            (fun r : ℝ ↦ (m.factorial : ℝ) / r ^ m) (Iio 1) 1 :=
+          (show ContinuousAt
+              (fun r : ℝ ↦ (m.factorial : ℝ) / r ^ m) 1 by
+            fun_prop (disch := norm_num)).continuousWithinAt
+        simpa only [ContinuousWithinAt, one_pow, div_one] using hc
+      filter_upwards [Ioo_mem_nhdsLT (by norm_num : (0 : ℝ) < 1)] with r hr
+      have hdiffcl : DiffContOnCl ℂ h (ball (0 : ℂ) r) := by
+        apply hhdiff.diffContOnCl_ball
+        intro w hw
+        have hwnorm : ‖w‖ ≤ r := by
+          simpa [mem_closedBall] using hw
+        simpa [mem_ball] using hwnorm.trans_lt hr.2
+      have hsphere :
+          ∀ w ∈ sphere (0 : ℂ) r, ‖h w‖ ≤ 1 := by
+        intro w hw
+        apply hhnorm w
+        have hwnorm : ‖w‖ = r := by
+          simpa [mem_sphere_iff_norm] using hw
+        simpa [mem_ball, hwnorm] using hr.2
+      simpa using
+        Complex.norm_iteratedDeriv_le_of_forall_mem_sphere_norm_le
+          m hr.1 hdiffcl hsphere
+    exact (div_le_one (by positivity : (0 : ℝ) < m.factorial)).mpr hderiv
+  have hqderiv :
+      iteratedDeriv m q 0 = iteratedDeriv m f 0 := by
+    rw [show q = rotationAverage f m by rfl,
+      iteratedDeriv_rotationAverage hf hm]
+    simp
+  have hfacpos : (0 : ℝ) < m.factorial := by positivity
+  have hnorm2A : ‖(2 * A : ℂ)‖ = 2 * A := by
+    simp [Real.norm_of_nonneg hA.le]
+  rw [← hqderiv, ← hderiv_product, norm_mul, hnorm2A]
+  calc
+    ‖iteratedDeriv m h 0‖ * (2 * A) / (m.factorial : ℝ)
+        = (‖iteratedDeriv m h 0‖ / (m.factorial : ℝ)) * (2 * A) := by
+          ring
+    _ ≤ 1 * (2 * A) :=
+      mul_le_mul_of_nonneg_right hhcoeff (by positivity)
+    _ = 2 * A := one_mul _
+
+lemma norm_powerSum_le_linear (z : ℕ → ℂ) (hz : ∀ i, ‖z i‖ = 1)
+    (n m : ℕ) (hm : 1 ≤ m) :
+    ‖powerSum z n m‖ ≤
+      2 * (m : ℝ) * (Real.log (M z n) + 1) := by
+  have hA0 : 0 < Real.log (M z n) + 1 := by
+    have := Real.log_nonneg (one_le_M z hz n)
+    linarith
+  have hcar :=
+    caratheodory_iteratedDeriv_bound
+      (logPotential_differentiableOn z hz n)
+      (logPotential_zero z n) hA0
+      (fun w hw ↦ by
+        simpa using logPotential_re_le_log_M z hz n hw)
+      (Nat.zero_lt_of_lt hm)
+  have hcoeff := iteratedDeriv_div_factorial_logPotential z n m
+  have hfac0 : (0 : ℝ) < m.factorial := by positivity
+  have hm0 : (0 : ℝ) < m := by exact_mod_cast (Nat.zero_lt_of_lt hm)
+  have hnormcoeff :
+      ‖iteratedDeriv m (logPotential z n) 0‖ / (m.factorial : ℝ) =
+        ‖powerSum z n m‖ / (m : ℝ) := by
+    have := congrArg norm hcoeff
+    simpa [norm_div, Nat.cast_ofNat, hm0.ne', hfac0.ne',
+      Real.norm_of_nonneg hfac0.le, Real.norm_of_nonneg hm0.le] using this
+  rw [hnormcoeff] at hcar
+  simpa [mul_assoc, mul_left_comm, mul_comm] using
+    (div_le_iff₀ hm0).mp hcar
+
 lemma norm_powerSum_le (z : ℕ → ℂ) (hz : ∀ i, ‖z i‖ = 1)
     (n m : ℕ) (hm : 1 ≤ m) :
     ‖powerSum z n m‖ ≤ 6 * (m : ℝ) ^ 2 * (Real.log (M z n) + 1) := by
@@ -603,6 +909,111 @@ lemma pairEnergy_lower_bound_explicit (z : ℕ → ℂ)
       sub_le_sub_left (mul_le_mul_of_nonneg_left hcube hA) _
     _ ≤ pairEnergy z n r := hbase
 
+set_option maxHeartbeats 800000 in
+-- Comparing the two infinite series requires substantial typeclass normalization.
+lemma pairEnergy_lower_bound_sharp (z : ℕ → ℂ)
+    (hz : ∀ i, ‖z i‖ = 1) (n : ℕ) {r : ℝ}
+    (hr0 : 0 ≤ r) (hr1 : r < 1) :
+    (n : ℝ) / 2 * (-Real.log (1 - r)) -
+        2 * (Real.log (M z n) + 1) ^ 2 *
+          (∑' m : ℕ, (m : ℝ) * r ^ m)
+      ≤ pairEnergy z n r := by
+  let A : ℝ := Real.log (M z n) + 1
+  have hA0 : 0 ≤ A := by
+    dsimp [A]
+    have := Real.log_nonneg (one_le_M z hz n)
+    linarith
+  have hgeom : Summable (fun m : ℕ ↦ (m : ℝ) * r ^ m) := by
+    simpa using
+      (hasSum_coe_mul_geometric_of_norm_lt_one
+        (by simpa [Real.norm_of_nonneg hr0] using hr1)).summable
+  have hpos : Summable (fun m : ℕ ↦
+      (n : ℝ) / 2 * (r ^ m / m)) :=
+    (hasSum_pow_div r hr0 hr1).summable.mul_left _
+  have herr : Summable (fun m : ℕ ↦
+      2 * A ^ 2 * ((m : ℝ) * r ^ m)) :=
+    hgeom.mul_left _
+  have hrhs : Summable (fun m : ℕ ↦
+      (n : ℝ) / 2 * (r ^ m / m) -
+        2 * A ^ 2 * ((m : ℝ) * r ^ m)) :=
+    hpos.sub herr
+  have henergy := hasSum_pairEnergy z hz n hr0 hr1
+  have hpoint (m : ℕ) :
+      (n : ℝ) / 2 * (r ^ m / m) -
+          2 * A ^ 2 * ((m : ℝ) * r ^ m)
+        ≤ r ^ m / (2 * m) * ((n : ℝ) - ‖powerSum z n m‖ ^ 2) := by
+    rcases m.eq_zero_or_pos with rfl | hm
+    · simp
+    have hm1 : 1 ≤ m := hm
+    have hS := norm_powerSum_le_linear z hz n m hm1
+    change ‖powerSum z n m‖ ≤ 2 * (m : ℝ) * A at hS
+    have hB0 : 0 ≤ 2 * (m : ℝ) * A := by positivity
+    have hSsq :
+        ‖powerSum z n m‖ ^ 2 ≤ 4 * (m : ℝ) ^ 2 * A ^ 2 := by
+      calc
+        ‖powerSum z n m‖ ^ 2
+            ≤ (2 * (m : ℝ) * A) ^ 2 :=
+          (sq_le_sq₀ (norm_nonneg _) hB0).mpr hS
+        _ = 4 * (m : ℝ) ^ 2 * A ^ 2 := by ring
+    have hmul :
+        r ^ m / (2 * (m : ℝ)) * ‖powerSum z n m‖ ^ 2 ≤
+          r ^ m / (2 * (m : ℝ)) *
+            (4 * (m : ℝ) ^ 2 * A ^ 2) :=
+      mul_le_mul_of_nonneg_left hSsq (by positivity)
+    calc
+      (n : ℝ) / 2 * (r ^ m / m) -
+            2 * A ^ 2 * ((m : ℝ) * r ^ m)
+          = (n : ℝ) / 2 * (r ^ m / m) -
+              r ^ m / (2 * (m : ℝ)) *
+                (4 * (m : ℝ) ^ 2 * A ^ 2) := by
+            field_simp
+            ring
+      _ ≤ (n : ℝ) / 2 * (r ^ m / m) -
+            r ^ m / (2 * (m : ℝ)) * ‖powerSum z n m‖ ^ 2 :=
+          sub_le_sub_left hmul _
+      _ = r ^ m / (2 * m) *
+            ((n : ℝ) - ‖powerSum z n m‖ ^ 2) := by
+          field_simp
+  have htsum :
+      ∑' m : ℕ, ((n : ℝ) / 2 * (r ^ m / m) -
+          2 * A ^ 2 * ((m : ℝ) * r ^ m))
+        ≤ ∑' m : ℕ,
+          r ^ m / (2 * m) * ((n : ℝ) - ‖powerSum z n m‖ ^ 2) :=
+    Summable.tsum_le_tsum hpoint hrhs henergy.summable
+  rw [henergy.tsum_eq] at htsum
+  rw [hpos.tsum_sub herr, tsum_mul_left,
+    (hasSum_pow_div r hr0 hr1).tsum_eq, tsum_mul_left] at htsum
+  simpa [A] using htsum
+
+lemma pairEnergy_lower_bound_sharp_explicit (z : ℕ → ℂ)
+    (hz : ∀ i, ‖z i‖ = 1) (n : ℕ) {r : ℝ}
+    (hr0 : 0 ≤ r) (hr1 : r < 1) :
+    (n : ℝ) / 2 * (-Real.log (1 - r)) -
+        2 * (Real.log (M z n) + 1) ^ 2 / (1 - r) ^ 2
+      ≤ pairEnergy z n r := by
+  have hbase := pairEnergy_lower_bound_sharp z hz n hr0 hr1
+  have hnorm : ‖r‖ < 1 := by
+    simpa [Real.norm_of_nonneg hr0] using hr1
+  have htsum :
+      ∑' m : ℕ, (m : ℝ) * r ^ m = r / (1 - r) ^ 2 :=
+    tsum_coe_mul_geometric_of_norm_lt_one hnorm
+  rw [htsum] at hbase
+  have hden : 0 < (1 - r) ^ 2 := sq_pos_of_pos (sub_pos.mpr hr1)
+  have hgeom : r / (1 - r) ^ 2 ≤ 1 / (1 - r) ^ 2 :=
+    (div_le_div_iff_of_pos_right hden).mpr hr1.le
+  have hA : 0 ≤ 2 * (Real.log (M z n) + 1) ^ 2 := by positivity
+  calc
+    (n : ℝ) / 2 * (-Real.log (1 - r)) -
+          2 * (Real.log (M z n) + 1) ^ 2 / (1 - r) ^ 2
+        = (n : ℝ) / 2 * (-Real.log (1 - r)) -
+          2 * (Real.log (M z n) + 1) ^ 2 *
+            (1 / (1 - r) ^ 2) := by ring
+    _ ≤ (n : ℝ) / 2 * (-Real.log (1 - r)) -
+          2 * (Real.log (M z n) + 1) ^ 2 *
+            (r / (1 - r) ^ 2) :=
+      sub_le_sub_left (mul_le_mul_of_nonneg_left hgeom hA) _
+    _ ≤ pairEnergy z n r := hbase
+
 lemma card_mul_exp_average_log_le_sum_M (z : ℕ → ℂ)
     (hz : ∀ i, ‖z i‖ = 1) (n : ℕ) (hn : 0 < n) :
     (n : ℝ) * Real.exp
@@ -712,6 +1123,331 @@ lemma logarithmic_error_small_eventually :
       apply (div_le_div_iff_of_pos_right (by norm_num : (0 : ℝ) < 64)).mpr
       nlinarith)
   simpa [x] using hresult
+
+lemma eventually_log_le_sqrt_nat :
+    ∀ᶠ n : ℕ in atTop,
+      Real.log (n : ℝ) ≤ Real.sqrt (n : ℝ) := by
+  have hsmall :=
+    (isLittleO_log_rpow_atTop
+      (by norm_num : (0 : ℝ) < 1 / 2)).bound zero_lt_one
+  have hsmall_nat :=
+    (tendsto_natCast_atTop_atTop.eventually hsmall)
+  filter_upwards [hsmall_nat, Filter.eventually_ge_atTop 1] with n hn hn1
+  have hnR : (1 : ℝ) ≤ n := by exact_mod_cast hn1
+  have hlog0 : 0 ≤ Real.log (n : ℝ) := Real.log_nonneg hnR
+  have hpow0 : 0 ≤ (n : ℝ) ^ (1 / 2 : ℝ) :=
+    Real.rpow_nonneg (by positivity) _
+  have hn' :
+      Real.log (n : ℝ) ≤ |(n : ℝ) ^ (1 / 2 : ℝ)| := by
+    simpa [Real.norm_eq_abs, abs_of_nonneg hlog0] using hn
+  rw [abs_of_nonneg hpow0] at hn'
+  simpa [Real.sqrt_eq_rpow] using hn'
+
+lemma sum_log_M_lower_of_terminal_small_sharp (z : ℕ → ℂ)
+    (hz : ∀ i, ‖z i‖ = 1) (n : ℕ) (hn : 0 < n)
+    (hlog_one : 1 ≤ Real.log (n : ℝ))
+    (hlog_sqrt : Real.log (n : ℝ) ≤ Real.sqrt (n : ℝ))
+    (hterminal : Real.log (M z n) ≤ 2 * Real.log (n : ℝ)) :
+    (n : ℝ) / 4 * Real.log (n : ℝ) -
+        (n : ℝ) / 2 * Real.log (Real.log (n : ℝ)) -
+        18 * (n : ℝ)
+      ≤ ∑ k ∈ range n, Real.log (M z k) := by
+  let x : ℝ := n
+  let ell : ℝ := Real.log x
+  let q : ℝ := Real.sqrt x / ell
+  let r : ℝ := 1 - q⁻¹
+  have hxpos : 0 < x := by
+    dsimp [x]
+    exact_mod_cast hn
+  have hx0 : 0 ≤ x := hxpos.le
+  have hell1 : 1 ≤ ell := by simpa [ell, x] using hlog_one
+  have hellpos : 0 < ell := zero_lt_one.trans_le hell1
+  have hsqrtpos : 0 < Real.sqrt x := Real.sqrt_pos.mpr hxpos
+  have hqpos : 0 < q := div_pos hsqrtpos hellpos
+  have hq1 : 1 ≤ q := by
+    dsimp [q, ell, x]
+    exact (le_div_iff₀ (by simpa [x] using hellpos)).mpr
+      (by simpa [x] using hlog_sqrt)
+  have hr0 : 0 ≤ r := by
+    dsimp [r]
+    exact sub_nonneg.mpr ((inv_le_one₀ hqpos).mpr hq1)
+  have hr1 : r < 1 := by
+    dsimp [r]
+    linarith [inv_pos.mpr hqpos]
+  have hone_sub : 1 - r = q⁻¹ := by
+    dsimp [r]
+    ring
+  have hlogq :
+      -Real.log (1 - r) =
+        Real.log x / 2 - Real.log ell := by
+    rw [hone_sub, Real.log_inv, Real.log_div hsqrtpos.ne' hellpos.ne',
+      Real.log_sqrt hx0]
+    dsimp [q, ell]
+    ring
+  have hq_sq : q ^ 2 = x / ell ^ 2 := by
+    dsimp [q]
+    rw [div_pow, Real.sq_sqrt hx0]
+  have herror_kernel :
+      2 * (Real.log (M z n) + 1) ^ 2 / (1 - r) ^ 2 =
+        2 * (Real.log (M z n) + 1) ^ 2 * q ^ 2 := by
+    rw [hone_sub, inv_pow]
+    field_simp [hqpos.ne']
+  have henergy :=
+    pairEnergy_lower_bound_sharp_explicit z hz n hr0 hr1
+  rw [hlogq, herror_kernel] at henergy
+  have hA0 : 0 ≤ Real.log (M z n) + 1 := by
+    have := Real.log_nonneg (one_le_M z hz n)
+    linarith
+  have hA :
+      Real.log (M z n) + 1 ≤ 3 * ell := by
+    dsimp [ell, x] at hlog_one ⊢
+    linarith
+  have hAsq :
+      (Real.log (M z n) + 1) ^ 2 ≤ (3 * ell) ^ 2 :=
+    (sq_le_sq₀ hA0 (by positivity)).mpr hA
+  have herror :
+      2 * (Real.log (M z n) + 1) ^ 2 * q ^ 2 ≤ 18 * x := by
+    calc
+      2 * (Real.log (M z n) + 1) ^ 2 * q ^ 2
+          ≤ 2 * (3 * ell) ^ 2 * q ^ 2 := by gcongr
+      _ = 18 * x := by
+        rw [hq_sq]
+        field_simp [hellpos.ne']
+        ring
+  have hlower :
+      x / 4 * Real.log x - x / 2 * Real.log ell - 18 * x
+        ≤ pairEnergy z n r := by
+    calc
+      x / 4 * Real.log x - x / 2 * Real.log ell - 18 * x
+          ≤ (n : ℝ) / 2 *
+              (Real.log x / 2 - Real.log ell) -
+              2 * (Real.log (M z n) + 1) ^ 2 * q ^ 2 := by
+            dsimp [x]
+            linarith
+      _ ≤ pairEnergy z n r := henergy
+  have hpair := pairEnergy_le_sum_log_M z hz n hr0 hr1
+  simpa [x, ell] using hlower.trans hpair
+
+lemma exp_quarter_log_bound_identity {x : ℝ} (hx : 0 < x)
+    (hlog : 0 < Real.log x) :
+    x * Real.exp
+        (Real.log x / 4 - Real.log (Real.log x) / 2 - 18) =
+      Real.exp (-18) * x ^ (5 / 4 : ℝ) /
+        Real.sqrt (Real.log x) := by
+  have hquarter :
+      Real.exp (Real.log x / 4) = x ^ (1 / 4 : ℝ) := by
+    rw [Real.rpow_def_of_pos hx]
+    congr 1
+    ring
+  have hsqrt :
+      Real.exp (Real.log (Real.log x) / 2) =
+        Real.sqrt (Real.log x) := by
+    rw [Real.sqrt_eq_rpow, Real.rpow_def_of_pos hlog]
+    congr 1
+    ring
+  have hsqrtpos : 0 < Real.sqrt (Real.log x) :=
+    Real.sqrt_pos.mpr hlog
+  rw [show Real.log x / 4 - Real.log (Real.log x) / 2 - 18 =
+      -18 + Real.log x / 4 - Real.log (Real.log x) / 2 by ring,
+    Real.exp_sub, Real.exp_add, hquarter, hsqrt]
+  field_simp [hsqrtpos.ne']
+  calc
+    x * x ^ (1 / 4 : ℝ) =
+        x ^ (1 : ℝ) * x ^ (1 / 4 : ℝ) := by rw [Real.rpow_one]
+    _ = x ^ ((1 : ℝ) + 1 / 4) :=
+      (Real.rpow_add hx (1 : ℝ) (1 / 4 : ℝ)).symm
+    _ = x ^ (5 / 4 : ℝ) := by norm_num
+
+lemma eventually_sum_M_succ_quantitative (z : ℕ → ℂ)
+    (hz : ∀ i, ‖z i‖ = 1) :
+    ∀ᶠ n : ℕ in atTop,
+      Real.exp (-19) * (n : ℝ) ^ (5 / 4 : ℝ) /
+          Real.sqrt (Real.log (n : ℝ)) <
+        ∑ k ∈ range (n + 1), M z k := by
+  have hlog :
+      ∀ᶠ n : ℕ in atTop, (1 : ℝ) ≤ Real.log (n : ℝ) := by
+    have ht := Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop
+    exact ht.eventually_ge_atTop 1
+  filter_upwards [hlog, eventually_log_le_sqrt_nat,
+    Filter.eventually_gt_atTop 0] with n hnlog hnlogsqrt hnpos
+  have hnR : (0 : ℝ) < n := by exact_mod_cast hnpos
+  have hlogpos : 0 < Real.log (n : ℝ) := zero_lt_one.trans_le hnlog
+  have hsqrtlogpos : 0 < Real.sqrt (Real.log (n : ℝ)) :=
+    Real.sqrt_pos.mpr hlogpos
+  by_cases hterminal :
+      Real.log (M z n) ≤ 2 * Real.log (n : ℝ)
+  · have hsumlog :=
+      sum_log_M_lower_of_terminal_small_sharp
+        z hz n hnpos hnlog hnlogsqrt hterminal
+    have havg :
+        Real.log (n : ℝ) / 4 -
+            Real.log (Real.log (n : ℝ)) / 2 - 18
+          ≤ (∑ k ∈ range n, Real.log (M z k)) / n := by
+      rw [le_div_iff₀ hnR]
+      calc
+        (Real.log (n : ℝ) / 4 -
+              Real.log (Real.log (n : ℝ)) / 2 - 18) * (n : ℝ)
+            = (n : ℝ) / 4 * Real.log (n : ℝ) -
+                (n : ℝ) / 2 * Real.log (Real.log (n : ℝ)) -
+                18 * (n : ℝ) := by ring
+        _ ≤ ∑ k ∈ range n, Real.log (M z k) := hsumlog
+    have hexp :
+        Real.exp
+            (Real.log (n : ℝ) / 4 -
+              Real.log (Real.log (n : ℝ)) / 2 - 18)
+          ≤ Real.exp
+              ((∑ k ∈ range n, Real.log (M z k)) / n) :=
+      Real.exp_le_exp.mpr havg
+    have hjensen := card_mul_exp_average_log_le_sum_M z hz n hnpos
+    have hmain :
+        Real.exp (-18) * (n : ℝ) ^ (5 / 4 : ℝ) /
+              Real.sqrt (Real.log (n : ℝ))
+          ≤ ∑ k ∈ range n, M z k := by
+      rw [← exp_quarter_log_bound_identity hnR hlogpos]
+      exact (mul_le_mul_of_nonneg_left hexp hnR.le).trans hjensen
+    have hconst :
+        Real.exp (-19) * (n : ℝ) ^ (5 / 4 : ℝ) /
+              Real.sqrt (Real.log (n : ℝ))
+          < Real.exp (-18) * (n : ℝ) ^ (5 / 4 : ℝ) /
+              Real.sqrt (Real.log (n : ℝ)) := by
+      apply div_lt_div_of_pos_right _ hsqrtlogpos
+      apply mul_lt_mul_of_pos_right
+      · exact Real.exp_lt_exp.mpr (by norm_num)
+      · exact Real.rpow_pos_of_pos hnR _
+    rw [sum_range_succ]
+    exact hconst.trans_le (hmain.trans
+      (le_add_of_nonneg_right (one_le_M z hz n |>.trans' zero_le_one)))
+  · have hterminal' :
+        2 * Real.log (n : ℝ) < Real.log (M z n) := lt_of_not_ge hterminal
+    have hMlarge : (n : ℝ) ^ (2 : ℝ) < M z n := by
+      have he := Real.exp_lt_exp.mpr hterminal'
+      have ht2 :
+          Real.exp (2 * Real.log (n : ℝ)) = (n : ℝ) ^ 2 := by
+        rw [show 2 * Real.log (n : ℝ) =
+            Real.log ((n : ℝ) ^ 2) by
+              rw [Real.log_pow]
+              norm_num]
+        rw [Real.exp_log (pow_pos hnR 2)]
+      rw [ht2, Real.exp_log
+        (lt_of_lt_of_le zero_lt_one (one_le_M z hz n))] at he
+      simpa [Real.rpow_natCast] using he
+    have htarget_le :
+        Real.exp (-19) * (n : ℝ) ^ (5 / 4 : ℝ) /
+            Real.sqrt (Real.log (n : ℝ))
+          ≤ (n : ℝ) ^ (2 : ℝ) := by
+      have hexp_le : Real.exp (-19) ≤ 1 :=
+        (Real.exp_le_one_iff.mpr (by norm_num))
+      have hsqrt1 : 1 ≤ Real.sqrt (Real.log (n : ℝ)) :=
+        (Real.le_sqrt (by norm_num) hlogpos.le).mpr (by nlinarith)
+      have hpow :
+          (n : ℝ) ^ (5 / 4 : ℝ) ≤ (n : ℝ) ^ (2 : ℝ) :=
+        Real.rpow_le_rpow_of_exponent_le
+          (by exact_mod_cast (Nat.succ_le_iff.mpr hnpos)) (by norm_num)
+      calc
+        Real.exp (-19) * (n : ℝ) ^ (5 / 4 : ℝ) /
+              Real.sqrt (Real.log (n : ℝ))
+            ≤ 1 * (n : ℝ) ^ (5 / 4 : ℝ) / 1 := by gcongr
+        _ ≤ (n : ℝ) ^ (2 : ℝ) := by simpa using hpow
+    rw [sum_range_succ]
+    have hsum0 : 0 ≤ ∑ k ∈ range n, M z k :=
+      Finset.sum_nonneg fun k hk => (one_le_M z hz k).trans' zero_le_one
+    exact htarget_le.trans_lt
+      (hMlarge.trans_le (le_add_of_nonneg_left hsum0))
+
+lemma eventually_quantitative_succ_compare :
+    ∀ᶠ n : ℕ in atTop,
+      (Real.exp (-19) / 5) *
+            (((n + 1 : ℕ) : ℝ) ^ (5 / 4 : ℝ) /
+              Real.sqrt (Real.log ((n + 1 : ℕ) : ℝ)))
+        < Real.exp (-19) *
+            ((n : ℝ) ^ (5 / 4 : ℝ) /
+              Real.sqrt (Real.log (n : ℝ))) := by
+  filter_upwards [Filter.eventually_ge_atTop 3] with n hn
+  have hnR : (0 : ℝ) < n := by positivity
+  have hn1R : (1 : ℝ) < n := by exact_mod_cast (lt_of_lt_of_le (by norm_num) hn)
+  have hsuccR : (0 : ℝ) < (n + 1 : ℕ) := by positivity
+  have hsucc_le : ((n + 1 : ℕ) : ℝ) ≤ 2 * (n : ℝ) := by
+    push_cast
+    nlinarith
+  have hpow2 :
+      (2 : ℝ) ^ (5 / 4 : ℝ) ≤ 4 := by
+    calc
+      (2 : ℝ) ^ (5 / 4 : ℝ) ≤ (2 : ℝ) ^ (2 : ℝ) :=
+        Real.rpow_le_rpow_of_exponent_le (by norm_num) (by norm_num)
+      _ = 4 := by norm_num
+  have hpowsucc :
+      (((n + 1 : ℕ) : ℝ) ^ (5 / 4 : ℝ))
+        ≤ 4 * (n : ℝ) ^ (5 / 4 : ℝ) := by
+    calc
+      (((n + 1 : ℕ) : ℝ) ^ (5 / 4 : ℝ))
+          ≤ (2 * (n : ℝ)) ^ (5 / 4 : ℝ) :=
+        Real.rpow_le_rpow (by positivity) hsucc_le (by norm_num)
+      _ = (2 : ℝ) ^ (5 / 4 : ℝ) *
+            (n : ℝ) ^ (5 / 4 : ℝ) :=
+        Real.mul_rpow (by norm_num) hnR.le
+      _ ≤ 4 * (n : ℝ) ^ (5 / 4 : ℝ) :=
+        mul_le_mul_of_nonneg_right hpow2 (Real.rpow_nonneg hnR.le _)
+  have hlogn : 0 < Real.log (n : ℝ) := Real.log_pos hn1R
+  have hlogmono :
+      Real.log (n : ℝ) ≤ Real.log ((n + 1 : ℕ) : ℝ) := by
+    apply Real.log_le_log hnR
+    exact_mod_cast Nat.le_succ n
+  have hsqrtmono :
+      Real.sqrt (Real.log (n : ℝ)) ≤
+        Real.sqrt (Real.log ((n + 1 : ℕ) : ℝ)) :=
+    Real.sqrt_le_sqrt hlogmono
+  have hsqrtn : 0 < Real.sqrt (Real.log (n : ℝ)) :=
+    Real.sqrt_pos.mpr hlogn
+  have hfrac :
+      (((n + 1 : ℕ) : ℝ) ^ (5 / 4 : ℝ) /
+          Real.sqrt (Real.log ((n + 1 : ℕ) : ℝ)))
+        ≤ 4 * (n : ℝ) ^ (5 / 4 : ℝ) /
+          Real.sqrt (Real.log (n : ℝ)) := by
+    calc
+      (((n + 1 : ℕ) : ℝ) ^ (5 / 4 : ℝ) /
+            Real.sqrt (Real.log ((n + 1 : ℕ) : ℝ)))
+          ≤ (4 * (n : ℝ) ^ (5 / 4 : ℝ)) /
+              Real.sqrt (Real.log ((n + 1 : ℕ) : ℝ)) := by
+            exact div_le_div_of_nonneg_right hpowsucc (Real.sqrt_nonneg _)
+      _ ≤ 4 * (n : ℝ) ^ (5 / 4 : ℝ) /
+            Real.sqrt (Real.log (n : ℝ)) :=
+        div_le_div_of_nonneg_left (by positivity) hsqrtn hsqrtmono
+  have htpos :
+      0 < (n : ℝ) ^ (5 / 4 : ℝ) /
+          Real.sqrt (Real.log (n : ℝ)) := by positivity
+  calc
+    (Real.exp (-19) / 5) *
+          (((n + 1 : ℕ) : ℝ) ^ (5 / 4 : ℝ) /
+            Real.sqrt (Real.log ((n + 1 : ℕ) : ℝ)))
+        ≤ (Real.exp (-19) / 5) *
+            (4 * (n : ℝ) ^ (5 / 4 : ℝ) /
+              Real.sqrt (Real.log (n : ℝ))) :=
+          mul_le_mul_of_nonneg_left hfrac (by positivity)
+    _ < Real.exp (-19) *
+          ((n : ℝ) ^ (5 / 4 : ℝ) /
+            Real.sqrt (Real.log (n : ℝ))) := by
+      have hexp := Real.exp_pos (-19)
+      rw [show
+        4 * (n : ℝ) ^ (5 / 4 : ℝ) /
+              Real.sqrt (Real.log (n : ℝ)) =
+            4 * ((n : ℝ) ^ (5 / 4 : ℝ) /
+              Real.sqrt (Real.log (n : ℝ))) by ring]
+      have hprod :
+          0 < Real.exp (-19) *
+            ((n : ℝ) ^ (5 / 4 : ℝ) /
+              Real.sqrt (Real.log (n : ℝ))) :=
+        mul_pos hexp htpos
+      calc
+        Real.exp (-19) / 5 *
+              (4 * ((n : ℝ) ^ (5 / 4 : ℝ) /
+                Real.sqrt (Real.log (n : ℝ))))
+            = (4 / 5 : ℝ) *
+                (Real.exp (-19) *
+                  ((n : ℝ) ^ (5 / 4 : ℝ) /
+                    Real.sqrt (Real.log (n : ℝ)))) := by ring
+        _ < Real.exp (-19) *
+              ((n : ℝ) ^ (5 / 4 : ℝ) /
+                Real.sqrt (Real.log (n : ℝ))) := by nlinarith
 
 lemma sum_log_M_lower_of_terminal_small (z : ℕ → ℂ)
     (hz : ∀ i, ‖z i‖ = 1) (n : ℕ) (hn : 0 < n)
@@ -901,6 +1637,37 @@ lemma eventually_sum_M_succ_gt (z : ℕ → ℂ)
     have hsum0 : 0 ≤ ∑ k ∈ range n, M z k :=
       Finset.sum_nonneg fun k hk => (one_le_M z hz k).trans' zero_le_one
     exact hnlarge.trans (lt_of_lt_of_le hMlarge (le_add_of_nonneg_left hsum0))
+
+/-- The quantitative form proved in the writeup:
+for some absolute positive constant, the partial sums are eventually bounded below by
+$n^{5/4}/\sqrt{\log n}$. -/
+theorem erdos_119.parts.iii_quantitative :
+    ∀ (z : ℕ → ℂ) (hz : ∀ i : ℕ, ‖z i‖ = 1),
+      ∃ C > 0, ∀ᶠ n : ℕ in atTop,
+        C * ((n : ℝ) ^ (5 / 4 : ℝ) /
+          Real.sqrt (Real.log (n : ℝ))) <
+            ∑ k ∈ range n, M z k := by
+  intro z hz
+  refine ⟨Real.exp (-19) / 5, by positivity, ?_⟩
+  have hs := eventually_sum_M_succ_quantitative z hz
+  have hcompare := eventually_quantitative_succ_compare
+  have hsucc :
+      ∀ᶠ n : ℕ in atTop,
+        (Real.exp (-19) / 5) *
+              (((n + 1 : ℕ) : ℝ) ^ (5 / 4 : ℝ) /
+                Real.sqrt (Real.log ((n + 1 : ℕ) : ℝ))) <
+          ∑ k ∈ range (n + 1), M z k := by
+    filter_upwards [hs, hcompare] with n hn hnc
+    exact hnc.trans (by simpa [div_eq_mul_inv, mul_assoc] using hn)
+  have hshift :
+      ∀ᶠ n : ℕ in atTop,
+        (Real.exp (-19) / 5) *
+              (((n - 1 + 1 : ℕ) : ℝ) ^ (5 / 4 : ℝ) /
+                Real.sqrt (Real.log ((n - 1 + 1 : ℕ) : ℝ))) <
+          ∑ k ∈ range (n - 1 + 1), M z k :=
+    (tendsto_sub_atTop_nat 1).eventually hsucc
+  filter_upwards [hshift, Filter.eventually_gt_atTop 0] with n hn hnpos
+  simpa [Nat.sub_add_cancel hnpos] using hn
 
 /-- Question 3:
 

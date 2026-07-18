@@ -1,0 +1,139 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+
+\setlength{\parindent}{0pt}
+
+\title{A Proposed Lower Bound for Erd\H{o}s Problem 119}
+\author{Samuel Korsky}
+\date{July 14, 2026}
+
+\begin{document}
+
+\onehalfspacing
+\maketitle
+\singlespacing
+\setlength{\parskip}{7pt}
+\vspace{-7pt}
+
+Let $(z_j)_{j\geq 1}$ be a sequence on the unit circle, and define
+\[
+  p_k(z) := \prod_{j=1}^k (z-z_j),
+  \qquad
+  M_k := \max_{|z|=1} |p_k(z)|.
+\]
+
+After some discussion with GPT 5.6-Pro about Leja sequences inspired by
+\href{https://arxiv.org/abs/2006.10708}{arXiv:2006.10708}, and the guiding
+idea that if $M_t$ is small, then the points $z_1,\ldots,z_t$ must be
+quantitatively close to equidistributed at low frequencies, GPT 5.6-Pro
+claims the lower bound (which I plan to review extremely carefully,
+especially given that the problem has a monetary value)
+\[
+  \sum_{k\leq N} M_k \gg \frac{N^{5/4}}{\sqrt{\log N}}.
+\]
+
+Write $z_j=e^{2\pi i x_j}$ and define
+\[
+  B(x) := \log |2\sin \pi x|,
+  \qquad
+  F_k(x) := \sum_{j\leq k} B(x-x_j),
+  \qquad
+  L_k := \log M_k = \max_x F_k(x).
+\]
+Here $x_j\in\mathbb{R}/\mathbb{Z}$, integrals are taken over
+$\mathbb{R}/\mathbb{Z}$ with normalized Lebesgue measure, and logarithms
+are natural.
+
+I found no critical error after a brief review, so wanted to post the ideas
+here. The proof has the following steps.
+
+\vspace{8pt}
+\begingroup
+\setlength{\parskip}{0pt}
+\begin{enumerate}
+\item For
+  \[
+    S_m(t) := \sum_{j\leq t} e^{-2\pi i m x_j},
+  \]
+  the function $L_t-F_t$ is nonnegative, has integral $L_t$, and has
+  $m$th Fourier coefficient $S_m(t)/(2m)$ for $m\geq 1$. Hence
+  \[
+    |S_m(t)|\leq 2mL_t.
+  \]
+
+\item Let $K_H$ be the Fej\'er kernel and let $B_H:=K_H*B$. Since
+  $K_H\geq 0$ and has integral $1$,
+  \[
+    L_k\geq (K_H*F_k)(x_{k+1})
+    =\sum_{i\leq k} B_H(x_{k+1}-x_i).
+  \]
+
+\item Summing over $k<t$ counts every unordered pair exactly once:
+  \[
+    \sum_{k<t} L_k
+    \geq
+    \sum_{1\leq i<j\leq t} B_H(x_j-x_i).
+  \]
+
+\item Let
+  \[
+    \mathcal{H}_H := \sum_{i\leq H}\frac{1}{i}.
+  \]
+  The Fourier expansion
+  \[
+    B_H(x)
+    =
+    -\sum_{m=1}^H
+    \left(1-\frac{m}{H+1}\right)
+    \frac{\cos(2\pi m x)}{m}
+  \]
+  and the identity
+  \[
+    |S_m(t)|^2
+    =
+    t+2\sum_{i<j}\cos\bigl(2\pi m(x_j-x_i)\bigr)
+  \]
+  give, using Step 1,
+  \[
+    \sum_{k<t}L_k
+    +\frac{H(H+2)}{3}\cdot L_t^2
+    \geq
+    \frac{t}{2}
+    \left(\mathcal{H}_H-\frac{H}{H+1}\right).
+  \]
+
+\item Take $t=N$. If $L_N>2\log N$, then $M_N>N^2$, so the result is
+  immediate. Otherwise choose
+  \[
+    H=\left\lfloor\frac{\sqrt{N}}{\log N}\right\rfloor.
+  \]
+  Then Step 4 gives
+  \[
+    \sum_{k<N}L_k
+    \geq
+    \frac{N}{4}\cdot\log N
+    -\frac{N}{2}\cdot\log\log N
+    -O(N).
+  \]
+  By AM-GM,
+  \[
+    \sum_{k<N}M_k
+    =
+    \sum_{k<N}e^{L_k}
+    \geq
+    (N-1)\exp\left(
+      \frac{1}{N-1}\sum_{k<N}L_k
+    \right)
+    \gg
+    \frac{N^{5/4}}{\sqrt{\log N}}.
+  \]
+\end{enumerate}
+\endgroup
+
+\end{document}

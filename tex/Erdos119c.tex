@@ -1,0 +1,174 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{fullpage}
+\usepackage{setspace}
+
+\setlength{\parindent}{0pt}
+
+\newcommand{\T}{\mathbb{T}}
+
+\begin{document}
+
+\onehalfspacing
+
+This is very surprising. At first, I assumed that there must be a mistake
+somewhere: this resolves the strongest form of the question with an argument
+only a page long, using completely standard harmonic analysis. The second,
+weaker question was resolved by Beck in a 44-page \emph{Annals} paper with a
+much more analytically involved proof.
+
+I now believe, however, that the proof is correct, though I encourage others
+to read it with a sceptical eye as well. This seems to be a question for which
+attacking the more difficult version somehow makes the problem easier---but
+going from a 44-page \emph{Annals} paper to a single page of elementary
+harmonic analysis is a dramatic jump!
+
+The proof is short enough to give in its entirety below.
+
+For convenience, fix $n$ and the finite truncation $z_1,\ldots,z_n$. Write
+\[
+  \T:=\mathbb{R}/\mathbb{Z},
+  \qquad
+  e(x):=e^{2\pi i x},
+  \qquad
+  z_j=e(x_j),
+\]
+and let
+\[
+  f_k:=\sum_{j\leq k}\delta_{x_j},
+  \qquad
+  f:=f_n.
+\]
+Define
+\[
+  M_k:=\max_{x\in\T}\prod_{j\leq k}|e(x)-e(x_j)|.
+\]
+
+As usual, we first take logarithms. Let
+\[
+  B(x):=\log|2\sin(\pi x)|,
+  \qquad
+  F_k:=B*f_k,
+  \qquad
+  L_k:=\sup_{x\in\T}F_k(x)=\log M_k.
+\]
+With the usual Fourier-series normalization,
+\[
+  \widehat{B}(0)=0,
+  \qquad
+  \widehat{B}(m)=-\frac{1}{2|m|}
+  \quad (m\neq 0).
+\]
+
+Let $H$ be chosen later, and let $K_H$ be the Fej\'er kernel, normalized so
+that $K_H\geq 0$ and $\int_{\T}K_H=1$. For every $y\in\T$,
+\[
+  (K_H*F_k)(y)\leq L_k.
+\]
+Taking $y=x_{k+1}$ and summing over $1\leq k<n$ gives
+\[
+  \sum_{k<n}L_k
+  \geq
+  \sum_{1\leq i<j\leq n}(B*K_H)(x_j-x_i).
+\]
+Since $L_n\geq 0$, the same lower bound holds with
+$\sum_{k\leq n}L_k$ on the left.
+
+Expanding the right-hand side in a Fourier series gives
+\[
+  \sum_{1\leq i<j\leq n}(B*K_H)(x_j-x_i)
+  =
+  \frac{n}{2}\sum_{m\leq H}\frac{\widehat{K_H}(m)}{m}
+  -
+  \frac{1}{2}\sum_{m\leq H}
+  \frac{\widehat{K_H}(m)}{m}|\widehat{f}(m)|^2.
+\]
+Now
+\[
+  \widehat{K_H}(m)=1+O\left(\frac{m}{H}\right)
+  \qquad (1\leq m\leq H),
+\]
+and therefore
+\[
+  \sum_{k\leq n}\log M_k
+  \geq
+  \frac{n}{2}\log H
+  -
+  O\left(
+    n+\sum_{m\leq H}\frac{|\widehat{f}(m)|^2}{m}
+  \right).
+\]
+
+We use the following elementary observation. If $F$ is real-valued,
+$\int_{\T}F=0$, and $C:=\sup_{\T}F$, then
+\[
+  |\widehat{F}(m)|\leq C
+  \qquad (m\neq 0).
+\]
+Indeed, $G:=C-F\geq 0$, so for $m\neq 0$,
+\[
+  |\widehat{F}(m)|
+  =
+  |\widehat{G}(m)|
+  \leq
+  \|G\|_1
+  =
+  \int_{\T}G
+  =
+  C.
+\]
+
+Apply this observation to $F_n=B*f$. If $L_n>2\log n$, then
+$M_n>n^2$, which is already stronger than the bound we seek. We may
+therefore assume that $L_n\leq 2\log n$. Since
+\[
+  \widehat{F_n}(m)
+  =
+  -\frac{\widehat{f}(m)}{2|m|}
+  \qquad (m\neq 0),
+\]
+we obtain
+\[
+  |\widehat{f}(m)|\ll m\log n.
+\]
+Consequently,
+\[
+  \sum_{k\leq n}\log M_k
+  \geq
+  \frac{n}{2}\log H
+  -
+  O\bigl(n+(H\log n)^2\bigr).
+\]
+
+Choosing
+\[
+  H\asymp \frac{\sqrt{n}}{\log n}
+\]
+and applying AM--GM, we conclude that
+\[
+  \frac{1}{n}\sum_{k\leq n}M_k
+  \geq
+  \exp\left(\frac{1}{n}\sum_{k\leq n}\log M_k\right)
+  \gg
+  \frac{n^{1/4}}{\sqrt{\log n}}.
+\]
+
+The new ``magic'' step, I think, is the bound
+\[
+  L_k\geq (K_H*F_k)(x_{k+1}).
+\]
+The same inequality holds with any evaluation point, but the choice
+$x_{k+1}$ means that averaging over $k$ produces the particularly
+well-behaved pair energy
+\[
+  \sum_{1\leq i<j\leq n}(B*K_H)(x_j-x_i).
+\]
+Thus we pass from a sum of upper extrema, which is awkward to handle, to a
+quadratic energy that is transparent on the Fourier side. This trick seems so
+natural and powerful that surely it has appeared in other arguments in
+harmonic analysis and must have other applications.
+
+\end{document}
