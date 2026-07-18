@@ -1,12 +1,23 @@
 /- leanprover/lean4:v4.32.0  mathlib v4.32.0 -/
 /-
-This file contains statements related to Erdős Problem 119.
-https://www.erdosproblems.com/119
+This is a Lean formalization of a solution to Erdős Problem 119.
+https://www.erdosproblems.com/forum/thread/119
 
-The statements are adapted from the Formal Conjectures project:
-https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/119.lean
+Informal authors:
+- ChatGPT 5.6 Pro
+- Samuel Korsky
+
+Statement authors:
+- Formal Conjectures authors
+
+Formal authors:
+- Codex
+- Boris Alexeev
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/119/proof-claims#proof-claim-7
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/119.lean
 -/
-
 import Mathlib
 
 open Filter Finset Set
@@ -1771,3 +1782,7 @@ theorem erdos_119.parts.i :
     (fun n hn => EReal.coe_le_coe_iff.mpr (hn.2.le.trans hn.1.le))
 
 end Erdos119
+
+#print axioms Erdos119.erdos_119.parts.iii_quantitative
+-- 'Erdos119.erdos_119.parts.iii_quantitative' depends on axioms: [propext, Classical.choice,
+-- Quot.sound]

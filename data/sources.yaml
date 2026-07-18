@@ -253,6 +253,21 @@
   url_ref: JoshuaB_115
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos119
+  epc: https://www.erdosproblems.com/119
+  author:
+    informal:
+      AI: ChatGPT 5.6 Pro
+      human: Samuel Korsky
+    statement: Formal Conjectures authors
+    formal:
+      AI: Codex
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/119/proof-claims#proof-claim-7
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/119.lean
+  version: "4.32.0"
+
 - key: ErdosProblems.Erdos123
   epc: https://www.erdosproblems.com/123
   author:
