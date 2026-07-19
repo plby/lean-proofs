@@ -96,3 +96,12 @@
     - https://mathoverflow.net/questions/509493/question-on-power-nonnegative-matrix/509513#509513
     - https://github.com/plby/lean-proofs/blob/main/MathOverflow/MO509493.md
   version: "4.28.0"
+
+- key: Wikipedia.CycleDoubleCoverConjecture
+  author: OpenAI
+  url:
+    - https://x.com/__eknight__/status/2075643450196971805
+    - https://cdn.openai.com/pdf/04d1d1e4-bc75-476a-97cf-49055cd98d31/cdc_proof.pdf
+    - https://cdn.openai.com/pdf/04d1d1e4-bc75-476a-97cf-49055cd98d31/cdc_prompt.pdf
+    - https://github.com/openai/cdc-lean
+  version: "4.31.0"
