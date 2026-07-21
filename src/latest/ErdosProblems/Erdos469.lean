@@ -19634,8 +19634,6 @@ theorem erdos469 :
     erdos469CanonicalBoundaryCertificate
     erdos469CanonicalRootBudgetInputs
 
-#print axioms erdos469
-
 end
 
 /-- The proposition that `n` is a sum of distinct proper divisors. -/
