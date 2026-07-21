@@ -19638,4 +19638,51 @@ theorem erdos469 :
 
 end
 
+/-- The proposition that `n` is a sum of distinct proper divisors. -/
+def Nat.IsSumDivisors (n : ℕ) : Prop :=
+  ∃ S ⊆ n.properDivisors, ∑ d ∈ S, d = n
+
+open Erdos469
+
+/-- The Formal Conjectures subset-sum predicate agrees with `Finset.subsetSum`. -/
+theorem Nat.isSumDivisors_iff_mem_subsetSum (n : ℕ) :
+    n.IsSumDivisors ↔ n ∈ n.properDivisors.subsetSum := by
+  rw [Nat.IsSumDivisors, Finset.mem_subsetSum_iff]
+
+/-- The Formal Conjectures minimality condition describes exactly the primitive
+semiperfect positive integers used above. -/
+theorem formalConjecturesPredicate_iff_primitiveSemiperfect (n : ℕ) :
+    (0 < n ∧ n.IsSumDivisors ∧
+      ∀ m < n, m ∣ n → ¬m.IsSumDivisors) ↔
+      PrimitiveSemiperfect n := by
+  rw [PrimitiveSemiperfect, Semiperfect]
+  constructor
+  · rintro ⟨hn, hsum, hminimal⟩
+    rw [Nat.isSumDivisors_iff_mem_subsetSum] at hsum
+    refine ⟨⟨hn, hsum⟩, ?_⟩
+    intro d hd hsemi
+    have hdivlt := Nat.mem_properDivisors.mp hd
+    exact hminimal d hdivlt.2 hdivlt.1
+      ((Nat.isSumDivisors_iff_mem_subsetSum d).mpr hsemi.2)
+  · rintro ⟨⟨hn, hsum⟩, hminimal⟩
+    rw [← Nat.isSumDivisors_iff_mem_subsetSum] at hsum
+    refine ⟨hn, hsum, ?_⟩
+    intro m hmn hdiv hsum_m
+    apply hminimal m (Nat.mem_properDivisors.mpr ⟨hdiv, hmn⟩)
+    exact ⟨Nat.pos_of_dvd_of_pos hdiv hn,
+      (Nat.isSumDivisors_iff_mem_subsetSum m).mp hsum_m⟩
+
+/-- Erdős Problem 469 in the formulation used by Formal Conjectures. -/
+theorem erdos_469 :
+    letI A := {n : ℕ | 0 < n ∧ n.IsSumDivisors ∧
+      ∀ m < n, m ∣ n → ¬m.IsSumDivisors}
+    Summable fun n : A ↦ 1 / (n : ℝ) := by
+  let e :
+      (↥({n : ℕ | 0 < n ∧ n.IsSumDivisors ∧
+        ∀ m < n, m ∣ n → ¬m.IsSumDivisors} : Set ℕ)) ≃
+        {n : ℕ // PrimitiveSemiperfect n} :=
+    Equiv.subtypeEquivRight formalConjecturesPredicate_iff_primitiveSemiperfect
+  have h := e.summable_iff.mpr erdos469
+  simpa [e, Function.comp_def] using h
+
 end Erdos469

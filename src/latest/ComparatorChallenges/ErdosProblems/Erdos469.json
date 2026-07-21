@@ -1,7 +1,7 @@
 {
   "challenge_module": "Erdos469",
   "solution_module": "ErdosProblems.Erdos469",
-  "theorem_names": ["Erdos469.erdos469"],
+  "theorem_names": ["Erdos469.erdos_469"],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
   "enable_nanoda": false
 }
