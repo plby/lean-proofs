@@ -1455,6 +1455,22 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem459.lean
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos469
+  epc: https://www.erdosproblems.com/469
+  author:
+    informal:
+      AI:
+        - GPT-5.6 Sol Ultra (OpenAI Codex)
+        - Anthropic Claude Fable 5
+      human: Zachary J. Lewis
+    formal:
+      AI: GPT-5.6 Sol Ultra (OpenAI Codex)
+      human: Zachary J. Lewis
+  url:
+    - https://www.erdosproblems.com/forum/thread/469/proof-claims#proof-claim-2
+    - https://github.com/Woett/Lean-files/blob/main/ErdosProblem469.lean
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos476
   epc: https://www.erdosproblems.com/476
   author:
