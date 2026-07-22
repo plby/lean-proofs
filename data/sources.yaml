@@ -1280,6 +1280,21 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos419.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos424
+  epc: https://www.erdosproblems.com/424
+  author:
+    informal:
+      AI: ChatGPT 5.6 Pro
+      human: Samuel Korsky
+    formal:
+      AI: Codex
+      human: Boris Alexeev
+  url:
+    - https://www.erdosproblems.com/forum/thread/424/proof-claims#proof-claim-91
+    - https://drive.google.com/file/d/1SGSUQhNB8KL75VPqdfAq9yzFNEYL6Mwn/view
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/424.lean
+  version: "4.32.0"
+
 - key: ErdosProblems.Erdos426
   epc: https://www.erdosproblems.com/426
   author:
