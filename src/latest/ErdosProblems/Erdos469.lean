@@ -2402,16 +2402,16 @@ theorem forcedZ_child_le_two {sigma frontier p : ℝ}
   have hlogSigma : 0 ≤ Real.log sigma := Real.log_nonneg hsigma
   have hlogDenom : Real.log (2 * frontier) ≤ Real.log (2 * p) := by
     exact Real.strictMonoOn_log.monotoneOn
-      (by show 0 < 2 * frontier; nlinarith)
-      (by show 0 < 2 * p; nlinarith) (by nlinarith)
+      (by change 0 < 2 * frontier; nlinarith)
+      (by change 0 < 2 * p; nlinarith) (by nlinarith)
   have hsigmaRatio :
       Real.log sigma / Real.log (2 * p) ≤
         Real.log sigma / Real.log (2 * frontier) :=
     div_le_div_of_nonneg_left hlogSigma hlogFrontier hlogDenom
   have hlogStep : Real.log (p + 1) ≤ Real.log (2 * p) := by
     exact Real.strictMonoOn_log.monotoneOn
-      (by show 0 < p + 1; nlinarith)
-      (by show 0 < 2 * p; nlinarith) (by nlinarith)
+      (by change 0 < p + 1; nlinarith)
+      (by change 0 < 2 * p; nlinarith) (by nlinarith)
   have hstepRatio : Real.log (p + 1) / Real.log (2 * p) ≤ 1 := by
     rw [div_le_iff₀ hlogP]
     simpa using hlogStep
@@ -2754,7 +2754,7 @@ theorem BootstrapCertificate.head_eval_le
 
 /-- A bootstrap row upper bound discharges a concrete local child budget. -/
 theorem bootstrapLocalChildBound_of_row
-    {α : Type*} [DecidableEq α]
+    {α : Type*}
     {row : BootstrapRow} {rows : List BootstrapRow}
     {a y : ℝ} {later : List ℝ}
     (hcert : BootstrapCertificate (row :: rows) (a :: later))
@@ -2767,6 +2767,7 @@ theorem bootstrapLocalChildBound_of_row
           (row later).eval y)
     (hbudget : a * (1 + y) <= budget stem) :
     PrefixTree.LocalChildBound edgeWeight budget stem children := by
+  classical
   unfold PrefixTree.LocalChildBound
   calc
     (∑ child ∈ children,
@@ -4326,7 +4327,7 @@ theorem powerfulPart_mul_squarefreePart {n : ℕ} (hn : n ≠ 0) :
   rw [powerfulPart, squarefreePart, repeatedFactorization,
     singleFactorization,
     Finsupp.prod_filter_mul_prod_filter_not,
-    Nat.factorization_prod_pow_eq_self hn]
+    Nat.prod_factorization_pow_eq_self hn]
 
 /-- The repeated-exponent part is powerful. -/
 theorem powerfulPart_powerful (n : ℕ) : Powerful (powerfulPart n) := by
@@ -5134,20 +5135,20 @@ theorem summable_of_block_bounds {f majorant : Nat → Real}
       (∀ n ∈ s, blockIndex n = k) → s.sum f ≤ majorant k) :
     Summable f := by
   apply summable_of_sum_le hf
-  intro s
-  calc
-    s.sum f =
-        ∑ k ∈ s.image blockIndex,
-          ∑ n ∈ s with blockIndex n = k, f n := by
-            symm
-            exact Finset.sum_fiberwise_of_maps_to
-              (fun n hn => Finset.mem_image_of_mem blockIndex hn) f
-    _ ≤ ∑ k ∈ s.image blockIndex, majorant k := by
-      exact Finset.sum_le_sum fun k _ =>
-        hblock k (s.filter fun n => blockIndex n = k) (by simp)
-    _ ≤ ∑' k, majorant k := by
-      exact hmajorantSum.sum_le_tsum (s.image blockIndex)
-        (fun k _ => hmajorant k)
+  · intro s
+    calc
+      s.sum f =
+          ∑ k ∈ s.image blockIndex,
+            ∑ n ∈ s with blockIndex n = k, f n := by
+              symm
+              exact Finset.sum_fiberwise_of_maps_to
+                (fun n hn => Finset.mem_image_of_mem blockIndex hn) f
+      _ ≤ ∑ k ∈ s.image blockIndex, majorant k := by
+        exact Finset.sum_le_sum fun k _ =>
+          hblock k (s.filter fun n => blockIndex n = k) (by simp)
+      _ ≤ ∑' k, majorant k := by
+        exact hmajorantSum.sum_le_tsum (s.image blockIndex)
+          (fun k _ => hmajorant k)
 
 /-- The PND weight appearing in. -/
 def weightedPND (n : Nat) : Real :=
@@ -5377,7 +5378,7 @@ theorem pndPrimitiveReciprocal_le_reciprocalPND (n : ℕ) :
     · simp [pndPrimitiveReciprocal, reciprocalPND, hprimitive, hpnd]
 
 /-- Weighted PND summability discharges the direct contribution package. -/
-def PNDContributionPackage.ofWeightedPND
+theorem PNDContributionPackage.ofWeightedPND
     (hweighted : Summable weightedPND) : PNDContributionPackage where
   summable :=
     (reciprocalPND_summable_of_weighted hweighted).of_nonneg_of_le
@@ -5444,7 +5445,7 @@ theorem powerful_square_mul_cube {n : Nat} (hpowerful : Powerful n)
       rw [← pow_mul, ← pow_mul, ← pow_add]
       congr 1
       exact powerful_exponent_split (hpowerful p hp)
-    _ = n := Nat.factorization_prod_pow_eq_self hn
+    _ = n := Nat.prod_factorization_pow_eq_self hn
 
 /-- The set of nonzero powerful natural numbers. -/
 def nonzeroPowerfulSet : Set Nat := {n | Powerful n ∧ n ≠ 0}
@@ -5801,7 +5802,8 @@ theorem rootBudget_nonneg (tree : DecoratedTreeChargePackage)
 
 /-- The exact `(w,a,c)` fiber has a prefix-closure model with no larger
 fixed-`v` terminal family in the certificate interface. The empty decoration
-word is unique when it occurs and is charged directly by `1 / key.value`;
+word is unique when it occurs and is charged directly by
+`1 / key.value`;
 only nonempty words use the uniform candidate-terminal potential. -/
 theorem exactFiber_bound (tree : DecoratedTreeChargePackage)
     (key : DecoratedRootKey) :
@@ -5827,7 +5829,7 @@ theorem exactFiber_bound (tree : DecoratedTreeChargePackage)
       rw [hword.symm, hempty]
     have hsummable : Summable (fun fiber : CanonicalRootFiber key =>
         nonPNDEndpointReciprocal fiber.1) := by
-      apply summable_of_finite_support
+      apply summable_of_hasFiniteSupport
       exact (Set.finite_singleton emptyTerminal).subset (by
         intro terminal _
         simp [hallEq terminal])
@@ -5968,7 +5970,7 @@ theorem decoratedPrimitiveReciprocal_summable_of_endpoints
 
 /-- Assemble the local fixed-root proof and a summable root majorant into the
 decorated contribution required by `main_of_contribution_packages`. -/
-def DecoratedContributionPackage.ofTreeAndMajorant
+theorem DecoratedContributionPackage.ofTreeAndMajorant
     (tree : DecoratedTreeChargePackage)
     (roots : DecoratedRootMajorantPackage tree) :
     DecoratedContributionPackage where
@@ -6433,7 +6435,7 @@ theorem expandedRootCharge_nonneg (parameter : (ℕ × ℕ) × Finset ℕ) :
 theorem expandedRootCharge_fiber_summable (parameter : ℕ × ℕ) :
     Summable fun choice : Finset ℕ =>
       expandedRootCharge (parameter, choice) := by
-  apply summable_of_finite_support
+  apply summable_of_hasFiniteSupport
   exact parameter.1.primeFactors.powerset.finite_toSet.subset (by
     intro choice hsupport
     by_contra hchoice
@@ -6634,7 +6636,7 @@ end DecoratedRootBudgetPackage
 
 /-- A weighted PND estimate and-shaped root budget discharge
 the decorated contribution. -/
-def DecoratedContributionPackage.ofRootBudget
+theorem DecoratedContributionPackage.ofRootBudget
     (tree : DecoratedTreeChargePackage)
     (budget : DecoratedRootBudgetPackage tree)
     (hweighted : Summable weightedPND) :
@@ -6765,7 +6767,7 @@ end DecoratedBellmanRootBudgetInputs
 
 /-- Assemble the decorated contribution directly from Bellman and root-budget
 evidence once weighted PND summability is available. -/
-def DecoratedContributionPackage.ofBellmanAssembly
+theorem DecoratedContributionPackage.ofBellmanAssembly
     (certificate : DecoratedRootBellmanCertificate)
     (inputs : DecoratedBellmanRootBudgetInputs certificate)
     (hweighted : Summable weightedPND) :
@@ -7895,7 +7897,7 @@ noncomputable section
 /-- A local child bound for a finite superset restricts to any subset when
 all omitted child costs are nonnegative. -/
 theorem PrefixTree.LocalChildBound.of_subset
-    {α : Type*} [DecidableEq α]
+    {α : Type*}
     {edgeWeight : List α -> α -> Real} {budget : List α -> Real}
     {stem : List α} {children allChildren : Finset α}
     (hall : PrefixTree.LocalChildBound edgeWeight budget stem allChildren)
@@ -7903,6 +7905,7 @@ theorem PrefixTree.LocalChildBound.of_subset
     (hnonneg : forall child, child ∈ allChildren ->
       0 <= edgeWeight stem child * budget (stem ++ [child])) :
     PrefixTree.LocalChildBound edgeWeight budget stem children := by
+  classical
   unfold PrefixTree.LocalChildBound at hall ⊢
   exact (Finset.sum_le_sum_of_subset_of_nonneg hsubset
     (fun child hmem _ => hnonneg child hmem)).trans hall
@@ -9146,7 +9149,7 @@ theorem isCandidatePrime
     (active.state hexists) (next.candidateHit hexists active terminal)
 
 /-- A nonterminal enlarged prefix is another active canonical node. -/
-def childPrefix
+theorem childPrefix
     (next : CanonicalNextLabelWitness key stem label)
     (proper : stem ++ [label] ≠ next.terminal.word) :
     CanonicalProperPrefix key (stem ++ [label]) :=
@@ -9387,13 +9390,13 @@ variable {key : DecoratedRootKey}
   {stem : List Nat} {words : Finset (List Nat)}
 
 /-- The active proper prefix witnessed by a nonempty residual family. -/
-def active (representation : TailRepresentation terminals stem words)
+theorem active (representation : TailRepresentation terminals stem words)
     (h1 : words.Nonempty) (h2 : [] ∉ words) :
     CanonicalProperPrefix key stem :=
   representation.active_of_nonempty_of_nil_not_mem h1 h2
 
 /-- The exact fiber of an active prefix contains a nonempty word. -/
-def fiberExists (representation : TailRepresentation terminals stem words)
+theorem fiberExists (representation : TailRepresentation terminals stem words)
     (h1 : words.Nonempty) (h2 : [] ∉ words) :
     ∃ terminal : CanonicalRootFiber key, terminal.word ≠ [] :=
   (representation.active h1 h2).fiber_nonempty
@@ -9425,11 +9428,11 @@ variable {key : DecoratedRootKey}
   {terminals : Finset (CanonicalRootFiber key)}
   {stem : List Nat} {words : Finset (List Nat)}
 
-def active (node : CanonicalForcedNode terminals stem words) :
+theorem active (node : CanonicalForcedNode terminals stem words) :
     CanonicalProperPrefix key stem :=
   node.representation.active node.wordsNonempty node.nilNotMem
 
-def fiberExists
+theorem fiberExists
     (node : CanonicalForcedNode terminals stem words) :
     ∃ terminal : CanonicalRootFiber key, terminal.word ≠ [] :=
   node.representation.fiberExists node.wordsNonempty node.nilNotMem
@@ -9508,7 +9511,7 @@ theorem forcedNextLabel_isProper
   have htauLtP := (node.state.isForcedPrime_iff_tau_lt p).mp (node.isForcedPrime hp)
   exact (not_lt_of_ge hpLeTau) htauLtP
 
-def childActive
+theorem childActive
     (node : CanonicalForcedNode terminals stem words)
     {p : Nat} (hp : p ∈ node.children) :
     CanonicalProperPrefix key (stem ++ [p]) :=
@@ -9539,8 +9542,11 @@ theorem realTau_forcedChild
     ((tau (node.state.forcedChild p (node.eligibleChildPrime hp)
         (node.isForcedPrime hp)).current : Rat) : Real) =
       forcedChildTau node.realTau (p : Real) := by
-  convert congr_arg ( ( ↑ ) : ℚ → ℝ ) ( node.state.tau_forcedChild ( node.eligibleChildPrime hp ) ( node.isForcedPrime hp ) ) using 1;
-  unfold forcedChildTau; norm_num;
+  convert congr_arg ((↑) : ℚ → ℝ)
+      (node.state.tau_forcedChild (node.eligibleChildPrime hp)
+        (node.isForcedPrime hp)) using 1
+  unfold forcedChildTau
+  norm_num
   rfl
 
 theorem childState_inCandidateMode_iff
@@ -9548,32 +9554,50 @@ theorem childState_inCandidateMode_iff
     {p : Nat} (hp : p ∈ node.children) :
     (node.childState hp).InCandidateMode ↔
       rhoNext node.realTau (p : Real) < 1 := by
-  constructor;
+  constructor
   · intro hcandidate
     have hcandidateRat : (p : Rat) < tau (node.childState hp).current := by
-      convert hcandidate using 1;
-      rw [ ← node.forcedChild_eq_childState hp ];
-      simp +decide [ ArithmeticTreeState.InCandidateMode, ArithmeticTreeState.forcedChild_frontier ]
+      convert hcandidate using 1
+      rw [← node.forcedChild_eq_childState hp]
+      simp +decide [ArithmeticTreeState.InCandidateMode,
+        ArithmeticTreeState.forcedChild_frontier]
     have hcandidateReal : (p : Real) < forcedChildTau node.realTau (p : Real) := by
-      convert hcandidateRat using 1;
-      rw [ ← node.realTau_forcedChild hp ] ; norm_cast;
-      rw [ node.forcedChild_eq_childState hp ]
-    have hrho := frontier_div_forcedChildTau (by
-    exact lt_of_lt_of_le zero_lt_one ( node.one_le_realTau ) : 0 < node.realTau) (by
-    convert (node.state.isForcedPrime_iff_tau_lt p).mp (node.isForcedPrime hp) using 1;
-    norm_num [ Erdos469.CanonicalForcedNode.realTau ] : node.realTau < (p : Real))
-    rw [← hrho] at *;
-    rwa [ div_lt_one ( by exact lt_of_le_of_lt ( by exact_mod_cast Nat.cast_nonneg _ ) hcandidateReal ) ];
-  · intro h;
+      convert hcandidateRat using 1
+      rw [← node.realTau_forcedChild hp]
+      norm_cast
+      rw [node.forcedChild_eq_childState hp]
+    have hrho := frontier_div_forcedChildTau
+      (show 0 < node.realTau from
+        lt_of_lt_of_le zero_lt_one node.one_le_realTau)
+      (show node.realTau < (p : Real) from by
+        convert
+          (node.state.isForcedPrime_iff_tau_lt p).mp (node.isForcedPrime hp)
+          using 1
+        norm_num [Erdos469.CanonicalForcedNode.realTau])
+    rw [← hrho] at *
+    rwa [div_lt_one (lt_of_le_of_lt
+      (by exact_mod_cast Nat.cast_nonneg _) hcandidateReal)]
+  · intro h
     have h_div : (p : ℝ) / forcedChildTau node.realTau (p : ℝ) < 1 := by
       convert h using 1
       unfold rhoNext forcedChildTau
       grind
-    convert ( div_lt_one ?_ ).mp h_div using 1;
-    · rw [ ← node.realTau_forcedChild hp, ← node.forcedChild_eq_childState hp ];
-      simp +decide [ ArithmeticTreeState.InCandidateMode, node.state.forcedChild_frontier p ( node.eligibleChildPrime hp ) ( node.isForcedPrime hp ) ];
-    · convert ( show ( 0 : Rat ) < tau ( node.state.forcedChild p ( node.eligibleChildPrime hp ) ( node.isForcedPrime hp ) ).current from ( by norm_num : ( 0 : Rat ) < 2 ).trans ( node.state.forcedChild p ( node.eligibleChildPrime hp ) ( node.isForcedPrime hp ) ).weird.tau_gt_two ) using 1;
-      rw [ ← node.realTau_forcedChild hp ];
+    convert (div_lt_one ?_).mp h_div using 1
+    · rw [← node.realTau_forcedChild hp, ← node.forcedChild_eq_childState hp]
+      simp +decide [ArithmeticTreeState.InCandidateMode,
+        node.state.forcedChild_frontier p (node.eligibleChildPrime hp)
+          (node.isForcedPrime hp)]
+    · convert
+        (show
+          (0 : Rat) <
+            tau (node.state.forcedChild p (node.eligibleChildPrime hp)
+              (node.isForcedPrime hp)).current
+          from
+            (by norm_num : (0 : Rat) < 2).trans
+              (node.state.forcedChild p (node.eligibleChildPrime hp)
+                (node.isForcedPrime hp)).weird.tau_gt_two)
+        using 1
+      rw [← node.realTau_forcedChild hp]
       norm_cast
 
 def exits
@@ -10267,11 +10291,11 @@ variable {matched : MatchedPrimeEstimatePackage}
   {terminals : Finset (CanonicalRootFiber key)}
   {stem : List Nat} {words : Finset (List Nat)}
 
-def active (node : CanonicalBootstrapNode selection terminals stem words) :
+theorem active (node : CanonicalBootstrapNode selection terminals stem words) :
     CanonicalProperPrefix key stem :=
   node.representation.active node.wordsNonempty node.nilNotMem
 
-def fiberExists
+theorem fiberExists
     (node : CanonicalBootstrapNode selection terminals stem words) :
     ∃ terminal : CanonicalRootFiber key, terminal.word ≠ [] :=
   node.representation.fiberExists node.wordsNonempty node.nilNotMem
@@ -10320,7 +10344,7 @@ theorem childTerminalPrefix
     (node.representation.tails p).terminal_of_nil_mem hterminal
   exact ⟨terminal, hword⟩
 
-def childActive
+theorem childActive
     (node : CanonicalBootstrapNode selection terminals stem words)
     {p : Nat} (hp : p ∈ node.children)
     (hnonterminal : ¬node.childIsTerminal p) :
@@ -11524,7 +11548,7 @@ structure CanonicalBootstrapRemainingInputs
 
 /-- Every represented canonical low node supplies its remaining bootstrap
 data without additional hypotheses. -/
-def canonicalBootstrapRemainingInputs
+theorem canonicalBootstrapRemainingInputs
     {matched : MatchedPrimeEstimatePackage}
     {selection : ConstantSelection matched}
     {key : DecoratedRootKey}
@@ -11627,11 +11651,11 @@ variable {matched : MatchedPrimeEstimatePackage}
   {terminals : Finset (CanonicalRootFiber key)}
   {stem : List Nat} {words : Finset (List Nat)}
 
-def active (node : CanonicalCandidateNode selection terminals stem words) :
+theorem active (node : CanonicalCandidateNode selection terminals stem words) :
     CanonicalProperPrefix key stem :=
   node.representation.active node.wordsNonempty node.nilNotMem
 
-def fiberExists
+theorem fiberExists
     (node : CanonicalCandidateNode selection terminals stem words) :
     ∃ terminal : CanonicalRootFiber key, terminal.word ≠ [] :=
   node.representation.fiberExists node.wordsNonempty node.nilNotMem
@@ -11854,7 +11878,7 @@ theorem tau_threshold
 
 /-- The same partition in the exact union-indexed form consumed by
 `SelectedCandidateBoundaryWitness`. -/
-def selectedForcedStartPartition
+theorem selectedForcedStartPartition
     (node : CanonicalCandidateNode selection terminals stem words) :
     ForcedStartPartition node.realTau
       (node.immediateExits ∪ node.continuingStarts)
@@ -11895,7 +11919,7 @@ theorem forcedNextLabel_isProper
   have htauLtP := (node.state.isForcedPrime_iff_tau_lt p).mp hforced
   exact (not_lt_of_ge hpLeTau) htauLtP
 
-def forcedChildActive
+theorem forcedChildActive
     (node : CanonicalCandidateNode selection terminals stem words)
     {p : Nat} (hp : p ∈ node.children)
     (hforced : node.state.IsForcedPrime p) :
@@ -12307,7 +12331,7 @@ variable {matched : MatchedPrimeEstimatePackage}
   {selection : ConstantSelection matched}
   {key : DecoratedRootKey} {stem : List Nat} {p : Nat}
 
-def fiberExists (step : CanonicalForcedStep (key := key) selection stem p) :
+theorem fiberExists (step : CanonicalForcedStep (key := key) selection stem p) :
     ∃ terminal : CanonicalRootFiber key, terminal.word ≠ [] :=
   step.parent.fiber_nonempty
 
@@ -12523,13 +12547,13 @@ variable {matched : MatchedPrimeEstimatePackage}
   {selection : ConstantSelection matched}
   {key : DecoratedRootKey} {stem : List Nat} {children : Finset Nat}
 
-def parent
+theorem parent
     (branch : CanonicalForcedBranch (key := key) selection stem children) :
     CanonicalProperPrefix key stem :=
   ((CanonicalSelectedMode.eq_forced_iff selection).mp
     branch.parentForced).1
 
-def fiberExists
+theorem fiberExists
     (branch : CanonicalForcedBranch (key := key) selection stem children) :
     ∃ terminal : CanonicalRootFiber key, terminal.word ≠ [] :=
   branch.parent.fiber_nonempty
@@ -12540,7 +12564,7 @@ def state
       (CanonicalRootFiber.keyArithmeticContext branch.fiberExists) :=
   branch.parent.state branch.fiberExists
 
-def child
+theorem child
     (branch : CanonicalForcedBranch (key := key) selection stem children)
     {p : Nat} (hp : p ∈ children) :
     CanonicalProperPrefix key (stem ++ [p]) :=
@@ -12550,7 +12574,7 @@ def child
     (fun hforced =>
       ((CanonicalSelectedMode.eq_forced_iff selection).mp hforced).1)
 
-def step
+theorem step
     (branch : CanonicalForcedBranch (key := key) selection stem children)
     {p : Nat} (hp : p ∈ children) :
     CanonicalForcedStep (key := key) selection stem p where
@@ -13213,7 +13237,7 @@ variable {matched : MatchedPrimeEstimatePackage}
 
 /-- Candidate-mode branch data form the concrete candidate node consumed by
 the scan-aware witness. -/
-def toCandidateNode
+theorem toCandidateNode
     (data : CanonicalTrieBranchData key stem children)
     (hmode : canonicalSelectedMode selection key stem = .candidate) :
     CanonicalCandidateNode selection data.terminals stem data.words where
@@ -13230,7 +13254,7 @@ def toCandidateNode
     exact CanonicalSelectedMode.tau_threshold_of_eq_candidate selection hmode
 
 /-- Forced-mode branch data form the represented forced node. -/
-def toForcedNode
+theorem toForcedNode
     (data : CanonicalTrieBranchData key stem children)
     (hmode : canonicalSelectedMode selection key stem = .forced) :
     CanonicalForcedNode data.terminals stem data.words where
@@ -13244,7 +13268,7 @@ def toForcedNode
     exact hforced
 
 /-- Bootstrap-mode branch data form the represented low node. -/
-def toBootstrapNode
+theorem toBootstrapNode
     (data : CanonicalTrieBranchData key stem children)
     (hmode : canonicalSelectedMode selection key stem = .bootstrap) :
     CanonicalBootstrapNode selection data.terminals stem data.words where
@@ -13431,7 +13455,7 @@ end CanonicalBootstrapNode
 
 /-- Every represented canonical low node supplies its scan transport
 automatically. -/
-def canonicalBootstrapScanBridge
+theorem canonicalBootstrapScanBridge
     {matched : MatchedPrimeEstimatePackage}
     {selection : ConstantSelection matched}
     {key : DecoratedRootKey}
@@ -14110,7 +14134,7 @@ theorem canonicalBoundaryBudget_terminal_eq
 /-- The canonical boundary budget discharges every remaining constructor
 input without additional hypotheses. Bootstrap witnesses and their scan
 transport are constructed automatically by `CanonicalConstructorAssembly`. -/
-def toReducedCanonicalConstructorInputs
+theorem toReducedCanonicalConstructorInputs
     {matched : MatchedPrimeEstimatePackage}
     (selection : ConstantSelection matched) :
     CanonicalConstructorRemainingInputs selection where
@@ -16769,11 +16793,11 @@ theorem squarefree_abundancyIndex_injective :
     apply mul_left_cancel₀ hcommonNonzero
     calc
       (A ∩ B).prod primeEulerFactor * s.prod primeEulerFactor =
-          A.prod primeEulerFactor := Finset.prod_inter_mul_prod_diff A B _
+          A.prod primeEulerFactor := Finset.prod_inter_mul_prod_sdiff A B _
       _ = B.prod primeEulerFactor := hABprod
       _ = (A ∩ B).prod primeEulerFactor * t.prod primeEulerFactor := by
         simpa [Finset.inter_comm] using
-          (Finset.prod_inter_mul_prod_diff B A primeEulerFactor).symm
+          (Finset.prod_inter_mul_prod_sdiff B A primeEulerFactor).symm
   rcases Finset.mem_union.mp hpUnion with hps | hpt
   · exact (primeEulerProduct_ne_of_max_mem_left hdisj hsprime htprime hps hmax) hstProd
   · exact (primeEulerProduct_ne_of_max_mem_left hdisj.symm htprime hsprime hpt
@@ -17141,7 +17165,8 @@ open scoped BigOperators
 local instance powerfulCountingDecidablePowerful : DecidablePred Powerful :=
   Classical.decPred Powerful
 
-/-- The fixed-powerful-part fiber has the sharp floor bound `floor(x / q)`;
+/-- The fixed-powerful-part fiber has the sharp floor bound
+`floor(x / q)`;
 the extra `+1` in the earlier coarse bound is unnecessary because the
 squarefree part is positive. -/
 theorem card_pndPowerfulFiber_le_div (x q : Nat) (hq : 0 < q) :
@@ -18666,18 +18691,40 @@ theorem pi_le_log4_mul_div {x : Real} (hx : 1 < x) :
     (Nat.primeCounting ⌊x⌋₊ : Real) <=
       Real.log 4 * x / Real.log (Real.sqrt x) + Real.sqrt x := by
   -- Split into small and large primes to get the bound.
-  have h_split : (Nat.primeCounting ⌊x⌋₊ : ℝ) ≤ ⌊Real.sqrt x⌋₊ + (∑ p ∈ ((Finset.Icc 1 ⌊x⌋₊).filter Nat.Prime) \ ((Finset.Icc 1 ⌊Real.sqrt x⌋₊).filter Nat.Prime), 1) := by
-    rw [ Nat.primeCounting ];
-    rw [ Nat.primeCounting', Nat.count_eq_card_filter_range ];
-    rw [ show ( Finset.filter Nat.Prime ( Finset.range ( ⌊x⌋₊ + 1 ) ) ) = Finset.filter Nat.Prime ( Finset.Icc 1 ⌊x⌋₊ ) from ?_ ];
-    · rw [ Finset.card_eq_sum_ones ];
-      rw [ ← Finset.sum_sdiff <| show Finset.filter Nat.Prime ( Finset.Icc 1 ⌊Real.sqrt x⌋₊ ) ⊆ Finset.filter Nat.Prime ( Finset.Icc 1 ⌊x⌋₊ ) from Finset.filter_subset_filter _ <| Finset.Icc_subset_Icc_right <| Nat.floor_mono <| Real.sqrt_le_iff.mpr ⟨ by positivity, by nlinarith ⟩ ];
-      norm_num [ add_comm ];
-      exact le_trans ( Finset.card_filter_le _ _ ) ( by simp );
-    · ext ( _ | p ) <;> simp +arith +decide;
-  -- The sum of the reciprocals of the primes in the interval $(\sqrt{x}, x]$ is bounded by $\frac{\log 4 \cdot x}{\log \sqrt{x}}$.
-  have h_sum_bound : (∑ p ∈ ((Finset.Icc 1 ⌊x⌋₊).filter Nat.Prime) \ ((Finset.Icc 1 ⌊Real.sqrt x⌋₊).filter Nat.Prime), Real.log p) ≤ Real.log 4 * x := by
-    have h_sum_bound : (∑ p ∈ ((Finset.Icc 1 ⌊x⌋₊).filter Nat.Prime), Real.log p) ≤ Real.log 4 * x := by
+  have h_split :
+      (Nat.primeCounting ⌊x⌋₊ : ℝ) ≤
+        ⌊Real.sqrt x⌋₊ +
+          (∑ p ∈
+            ((Finset.Icc 1 ⌊x⌋₊).filter Nat.Prime) \
+              ((Finset.Icc 1 ⌊Real.sqrt x⌋₊).filter Nat.Prime),
+            1) := by
+    rw [Nat.primeCounting]
+    rw [Nat.primeCounting', Nat.count_eq_card_filter_range]
+    rw [show
+      Finset.filter Nat.Prime (Finset.range (⌊x⌋₊ + 1)) =
+        Finset.filter Nat.Prime (Finset.Icc 1 ⌊x⌋₊) from ?_]
+    · rw [Finset.card_eq_sum_ones]
+      have hsubset :
+          Finset.filter Nat.Prime (Finset.Icc 1 ⌊Real.sqrt x⌋₊) ⊆
+            Finset.filter Nat.Prime (Finset.Icc 1 ⌊x⌋₊) :=
+        Finset.filter_subset_filter _ <|
+          Finset.Icc_subset_Icc_right <|
+            Nat.floor_mono <|
+              Real.sqrt_le_iff.mpr ⟨by positivity, by nlinarith⟩
+      rw [← Finset.sum_sdiff hsubset]
+      norm_num [add_comm]
+      exact le_trans (Finset.card_filter_le _ _) (by simp)
+    · ext (_ | p) <;> simp +arith +decide
+  -- Bound the logarithmic prime sum on the interval (sqrt x, x].
+  have h_sum_bound :
+      (∑ p ∈
+          ((Finset.Icc 1 ⌊x⌋₊).filter Nat.Prime) \
+            ((Finset.Icc 1 ⌊Real.sqrt x⌋₊).filter Nat.Prime),
+        Real.log p) ≤
+        Real.log 4 * x := by
+    have h_sum_bound :
+        (∑ p ∈ (Finset.Icc 1 ⌊x⌋₊).filter Nat.Prime, Real.log p) ≤
+          Real.log 4 * x := by
       have h_primes :
           (Finset.Icc 1 ⌊x⌋₊).filter Nat.Prime =
             (Finset.Icc 0 ⌊x⌋₊).filter Nat.Prime := by
@@ -18691,13 +18738,41 @@ theorem pi_le_log4_mul_div {x : Real} (hx : 1 < x) :
       rw [h_primes]
       rw [← Chebyshev.theta_eq_sum_Icc]
       exact Chebyshev.theta_le_log4_mul_x (show 0 ≤ x by positivity)
-    exact le_trans ( Finset.sum_le_sum_of_subset_of_nonneg ( fun p hp => by aesop ) fun _ _ _ => Real.log_nonneg <| Nat.one_le_cast.2 <| Nat.Prime.pos <| by aesop ) h_sum_bound;
-  -- Since $\log p \geq \log \sqrt{x}$ for all primes $p$ in the interval $(\sqrt{x}, x]$, we can bound the sum.
-  have h_log_bound : (∑ p ∈ ((Finset.Icc 1 ⌊x⌋₊).filter Nat.Prime) \ ((Finset.Icc 1 ⌊Real.sqrt x⌋₊).filter Nat.Prime), Real.log p) ≥ (∑ p ∈ ((Finset.Icc 1 ⌊x⌋₊).filter Nat.Prime) \ ((Finset.Icc 1 ⌊Real.sqrt x⌋₊).filter Nat.Prime), Real.log (Real.sqrt x)) := by
-    gcongr;
-    exact le_of_not_gt fun h => Finset.mem_sdiff.mp ‹_› |>.2 <| Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ Nat.Prime.pos <| Finset.mem_filter.mp ( Finset.mem_sdiff.mp ‹_› |>.1 ) |>.2, Nat.le_floor <| by linarith ⟩, Finset.mem_filter.mp ( Finset.mem_sdiff.mp ‹_› |>.1 ) |>.2 ⟩;
-  norm_num at *;
-  rw [ div_add', le_div_iff₀ ] <;> nlinarith [ show 0 < Real.log ( Real.sqrt x ) from Real.log_pos <| Real.lt_sqrt_of_sq_lt <| by linarith, Nat.floor_le <| Real.sqrt_nonneg x, Real.mul_self_sqrt <| show 0 ≤ x by positivity ]
+    exact le_trans
+      (Finset.sum_le_sum_of_subset_of_nonneg
+        (fun p hp => by aesop)
+        (fun _ _ _ =>
+          Real.log_nonneg <|
+            Nat.one_le_cast.2 <|
+              Nat.Prime.pos <| by aesop))
+      h_sum_bound
+  -- Each logarithm on (sqrt x, x] is at least log (sqrt x).
+  have h_log_bound :
+      (∑ p ∈
+          ((Finset.Icc 1 ⌊x⌋₊).filter Nat.Prime) \
+            ((Finset.Icc 1 ⌊Real.sqrt x⌋₊).filter Nat.Prime),
+        Real.log p) ≥
+        (∑ p ∈
+          ((Finset.Icc 1 ⌊x⌋₊).filter Nat.Prime) \
+            ((Finset.Icc 1 ⌊Real.sqrt x⌋₊).filter Nat.Prime),
+          Real.log (Real.sqrt x)) := by
+    gcongr
+    exact le_of_not_gt fun h =>
+      (Finset.mem_sdiff.mp ‹_›).2 <|
+        Finset.mem_filter.mpr
+          ⟨Finset.mem_Icc.mpr
+              ⟨Nat.Prime.pos <|
+                  (Finset.mem_filter.mp (Finset.mem_sdiff.mp ‹_›).1).2,
+                Nat.le_floor <| by linarith⟩,
+            (Finset.mem_filter.mp (Finset.mem_sdiff.mp ‹_›).1).2⟩
+  norm_num at *
+  rw [div_add', le_div_iff₀]
+  all_goals
+    nlinarith [
+      show 0 < Real.log (Real.sqrt x) from
+        Real.log_pos <| Real.lt_sqrt_of_sq_lt <| by linarith,
+      Nat.floor_le <| Real.sqrt_nonneg x,
+      Real.mul_self_sqrt <| show 0 ≤ x by positivity]
 
 /-- A universal constant for the prime reciprocal mass on `(x, 3x]`. -/
 def shortPrimeMassConstant : Real := 24
@@ -19117,7 +19192,7 @@ theorem ternaryPrimeTailMajorant_nonneg (a x : Real) (N : Nat) :
 /-- Every fixed shell fiber of the product majorant has finite support. -/
 theorem ternaryPrimeTailMajorant_fiber_summable (a x : Real) (N k : Nat) :
     Summable (fun p : Nat => ternaryPrimeTailMajorant a x N (k, p)) := by
-  apply summable_of_finite_support
+  apply summable_of_hasFiniteSupport
   apply (ternaryPrimeShell N k).finite_toSet.subset
   intro p hp
   by_contra hmem
@@ -19271,7 +19346,7 @@ theorem strictPrimeTailTerm_summable {a x : Real} (ha : 0 < a) (hx : 0 < x)
       have hexponent : -a * (p : Real) / x = (p : Real) * (-a / x) := by ring
       rw [hexponent]
       exact div_le_self (Real.exp_nonneg _) hpone
-    · simp [strictPrimeTailTerm, hp]
+    · rw [strictPrimeTailTerm, if_neg hp]
       positivity
 
 /-- Each strict tail term is bounded by its selected product-shell term. -/
@@ -19347,13 +19422,13 @@ theorem explicitPrimeTailTerm_summable {a x u : Real}
       have hexponent : -a * (p : Real) / x = (p : Real) * (-a / x) := by ring
       rw [hexponent]
       exact div_le_self (Real.exp_nonneg _) hpone
-    · simp [explicitPrimeTailTerm, hp]
+    · rw [explicitPrimeTailTerm, if_neg hp]
       positivity
 
 /-- The endpoint majorant has finite support. -/
 theorem primeTailEndpointTerm_summable (a x : Real) (N : Nat) :
     Summable (primeTailEndpointTerm a x N) := by
-  apply summable_of_finite_support
+  apply summable_of_hasFiniteSupport
   apply (Set.finite_singleton N).subset
   intro p hp
   by_contra hpN
@@ -19601,7 +19676,7 @@ def erdos469ConstantSelection :
     (constantSelection_exists erdos469MatchedPrimeEstimatePackage)
 
 /-- All canonical constructor inputs are now theorems. -/
-def erdos469CanonicalConstructorInputs :
+theorem erdos469CanonicalConstructorInputs :
     CanonicalConstructorRemainingInputs erdos469ConstantSelection :=
   toReducedCanonicalConstructorInputs erdos469ConstantSelection
 
@@ -19613,7 +19688,7 @@ def erdos469CanonicalBoundaryCertificate :
 
 /-- The concrete certificate uses the scan-aware canonical budget at its
 root by definition. -/
-def erdos469ConcreteRootBudgetIdentity :
+theorem erdos469ConcreteRootBudgetIdentity :
     CanonicalConcreteRootBudgetIdentity
       erdos469CanonicalBoundaryCertificate where
   root_budget_eq := by
