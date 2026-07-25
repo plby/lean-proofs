@@ -746,7 +746,7 @@ theorem minDriftDot_neg {v : Fin 3 → ℝ} (hv : v ≠ 0) : minDriftDot v < 0 :
 
 theorem continuous_driftDot (α : Assignment) :
     Continuous (fun v : Fin 3 → ℝ ↦ driftDot v α) := by
-  apply continuous_finset_sum
+  apply continuous_finsetSum
   intro k _
   exact (continuous_apply k).mul continuous_const
 
@@ -1398,8 +1398,9 @@ theorem expectedSquareIncrement_le (α : Assignment) (n : ℕ)
           ring
       _ ≤ n * driftDot (imbalanceReal h) α +
           ∑ _k : Fin 3, 80 * ‖imbalanceReal h‖ := by
-          apply add_le_add_left
-          exact Finset.sum_le_sum fun k _ ↦ hterm k
+          exact add_le_add_right
+            (Finset.sum_le_sum fun k _ ↦ hterm k)
+            (n * driftDot (imbalanceReal h) α)
       _ = n * driftDot (imbalanceReal h) α + 240 * ‖imbalanceReal h‖ := by
           norm_num [Fin.sum_univ_succ]
           ring
@@ -1456,7 +1457,7 @@ theorem controlBlockLength_drift :
     241 < (controlBlockLength : ℝ) * driftDelta := by
   have h := Classical.choose_spec (exists_nat_gt (241 / driftDelta))
   apply (div_lt_iff₀ driftDelta_pos).mp
-  simpa [mul_comm] using h
+  simpa only [controlBlockLength] using h
 
 theorem controlBlockLength_pos : 0 < controlBlockLength := by
   by_contra h
@@ -1659,14 +1660,14 @@ theorem truncatedHit_le_of_drift (V : S → ℝ) (hV : ∀ x, 0 ≤ V x)
       (∑ ω, K.probability x ω * (V (K.next x ω) - V x)) ≤ -1)
     (n : ℕ) (x : S) : K.truncatedHit C n x ≤ V x := by
   induction n generalizing x with
-  | zero => simpa using hV x
+  | zero => simpa [truncatedHit] using hV x
   | succ n ih =>
       by_cases hx : x ∈ C
       · simp [truncatedHit, hx, hV x]
       · rw [truncatedHit_succ_of_not_mem K C n hx]
         calc
           _ ≤ 1 + ∑ ω, K.probability x ω * V (K.next x ω) := by
-            apply add_le_add_left
+            apply add_le_add_right
             apply Finset.sum_le_sum
             intro ω _
             exact mul_le_mul_of_nonneg_left (ih (K.next x ω))
@@ -1763,7 +1764,7 @@ theorem returnTruncated_le (V : S → ℝ) (hV : ∀ x, 0 ≤ V x)
         mul_nonneg (K.probability_nonneg x ω) (hV (K.next x ω)))
   | succ n =>
       simp only [returnTruncated]
-      apply add_le_add_left
+      apply add_le_add_right
       apply Finset.sum_le_sum
       intro ω _
       exact mul_le_mul_of_nonneg_left
@@ -1823,7 +1824,8 @@ theorem returnSurvival_tendsto_zero (V : S → ℝ) (hV : ∀ x, 0 ≤ V x)
   have hupper : Filter.Tendsto (fun n : ℕ ↦ B / (n + 1 : ℝ))
       Filter.atTop (nhds 0) := by
     simpa [div_eq_mul_inv] using
-      tendsto_const_nhds.mul tendsto_one_div_add_atTop_nhds_zero_nat
+      tendsto_const_nhds.mul
+        (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ))
   have hshift : Filter.Tendsto (fun n ↦ K.returnSurvival C (n + 1) x)
       Filter.atTop (nhds 0) := by
     apply squeeze_zero'
@@ -2070,7 +2072,7 @@ theorem controlled_returnAt_summable {y : AugmentedState} (hy : y ∈ controlSet
 /-- Cauchy convolution, written using the finite antidiagonal of a natural
 number. -/
 def convolution (f g : ℕ → ℝ) (n : ℕ) : ℝ :=
-  ∑ p ∈ Finset.antidiagonal n, f p.1 * g p.2
+  ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, f p.1 * g p.2
 
 theorem summable_prod_of_nonnegative {f g : ℕ → ℝ}
     (hf0 : ∀ n, 0 ≤ f n) (hg0 : ∀ n, 0 ≤ g n)
@@ -2108,7 +2110,7 @@ theorem weighted_convolution_eq (f g : ℕ → ℝ) (n : ℕ) :
   rw [← Finset.sum_add_distrib]
   apply Finset.sum_congr rfl
   intro p hp
-  have hpn : p.1 + p.2 = n := Finset.mem_antidiagonal.mp hp
+  have hpn : p.1 + p.2 = n := Finset.HasAntidiagonal.mem_antidiagonal.mp hp
   rw [← hpn, Nat.cast_add]
   ring
 
@@ -2157,7 +2159,7 @@ theorem summable_finset_sum {A : Type*} (s : Finset A) (f : A → ℕ → ℝ)
     Summable fun n ↦ ∑ a ∈ s, f a n := by
   classical
   induction s using Finset.induction_on with
-  | empty => simpa using (summable_zero : Summable (fun _ : ℕ ↦ (0 : ℝ)))
+  | empty => simp
   | @insert a s ha ih =>
       simp only [Finset.mem_insert] at hf
       simpa [ha] using (hf a (Or.inl rfl)).add
@@ -2651,7 +2653,7 @@ theorem routeMinorization_pos (P : FiniteKernel F) (s : F)
   intro x _
   exact pathProbability_pos (P.route_spec s hreach x)
 
-omit [Nonempty F] in
+omit [DecidableEq F] [Nonempty F] in
 theorem routeMinorization_le_route (P : FiniteKernel F) (s : F)
     (hreach : ∀ x, s ∈ P.reachable x) (x : F) :
     P.routeMinorization s hreach ≤
@@ -3012,7 +3014,7 @@ theorem holdingHit_summable_and_mass (k : ℕ) (x : EmbeddedState) :
           simp [FiniteChoiceChain.hitAt]
       · have hs : HasSum (fun _ : ℕ ↦ (0 : ℝ)) 0 := hasSum_zero
         constructor
-        · simpa [holdingHit, hx] using hs.summable
+        · simp [holdingHit, hx]
         · rw [show (fun n ↦ holdingHit 0 n x) = fun _ ↦ (0 : ℝ) by
             funext n
             simp [holdingHit, hx]]
@@ -3060,7 +3062,7 @@ theorem holdingReturn_summable_and_mass (k : ℕ) :
   cases k with
   | zero =>
       constructor
-      · simpa [holdingReturn] using (summable_zero : Summable (fun _ : ℕ ↦ (0 : ℝ)))
+      · simp [holdingReturn]
       · simp [holdingReturn, FiniteChoiceChain.returnAt]
   | succ k =>
       have hconv (y : EmbeddedState) : Summable
@@ -3123,7 +3125,7 @@ theorem holdingReturn_weighted_summable (k : ℕ) :
     Summable fun n : ℕ ↦ (n : ℝ) * holdingReturn k n := by
   cases k with
   | zero =>
-      simpa [holdingReturn] using (summable_zero : Summable (fun _ : ℕ ↦ (0 : ℝ)))
+      simp [holdingReturn]
   | succ k =>
       have hconv (y : EmbeddedState) : Summable fun n : ℕ ↦ (n : ℝ) *
           convolution (holdingMass recurrentControlState y)
@@ -3290,7 +3292,7 @@ theorem holdingHitMean_partial_le (N : ℕ) (x : EmbeddedState) :
           _ ≤ excursionMeanBound + excursionMeanBound *
                 (∑ y : EmbeddedState, EmbeddedKernel.probability x y *
                   EmbeddedChain.truncatedHit {recurrentControlState} N y) := by
-              exact add_le_add_right (sum_holdingMean_le x) _
+              exact add_le_add_left (sum_holdingMean_le x) _
           _ = excursionMeanBound *
               EmbeddedChain.truncatedHit {recurrentControlState} (N + 1) x := by
               rw [EmbeddedChain.truncatedHit_succ_of_not_mem
@@ -3356,7 +3358,7 @@ theorem holdingReturnMean_partial_le (N : ℕ) :
               (∑ y : EmbeddedState,
                 EmbeddedKernel.probability recurrentControlState y *
                   EmbeddedChain.truncatedHit {recurrentControlState} N y) := by
-            exact add_le_add_right (sum_holdingMean_le recurrentControlState) _
+            exact add_le_add_left (sum_holdingMean_le recurrentControlState) _
         _ = excursionMeanBound * EmbeddedChain.returnTruncated
               {recurrentControlState} (N + 1) recurrentControlState := by
             simp only [FiniteChoiceChain.returnTruncated, EmbeddedChain,
@@ -3514,7 +3516,7 @@ def append {i j k : Fin 19} : IntervalPath i j → IntervalPath j k →
 theorem inverseWord_mem_source {i j : Fin 19} (p : IntervalPath i j)
     {x : ℚ} (hx : x ∈ K j) : inverseWord p.word x ∈ K i := by
   induction p with
-  | nil => simpa [inverseWord] using hx
+  | nil => simpa [word, inverseWord] using hx
   | @cons i j k α h tail ih =>
       simp only [word_cons, inverseWord]
       exact inverseT_mem_of_allowed h (ih hx)
@@ -3557,7 +3559,7 @@ end IntervalPath
 /-! ### Controlled blocks as typed interval paths -/
 
 theorem FiniteChoiceChain.pathWeight_nonneg {S Ω : Type*} [Fintype Ω]
-    [DecidableEq S] (K : FiniteChoiceChain S Ω) (n : ℕ) (x : S)
+    (K : FiniteChoiceChain S Ω) (n : ℕ) (x : S)
     (w : Fin n → Ω) : 0 ≤ K.pathWeight n x w := by
   induction n generalizing x with
   | zero => simp [FiniteChoiceChain.pathWeight]
@@ -3589,8 +3591,9 @@ noncomputable def blockIntervalPath (α : Assignment) :
   induction n generalizing i with
   | zero => rfl
   | succ n ih =>
-      simp [blockIntervalPath, ih]
-      rfl
+      simp only [blockIntervalPath, IntervalPath.word, blockWord]
+      congr 1
+      exact ih (w 0) (Fin.tail w) _
 
 @[simp] theorem blockIntervalPath_destinations (α : Assignment) (n : ℕ)
     (i : Fin 19) (w : Fin n → Fin 19) (hpos : 0 < blockWeight α n i w) :
@@ -3598,8 +3601,9 @@ noncomputable def blockIntervalPath (α : Assignment) :
   induction n generalizing i with
   | zero => rfl
   | succ n ih =>
-      simp [blockIntervalPath, IntervalPath.destinations, ih]
-      rfl
+      simp only [blockIntervalPath, IntervalPath.destinations, List.ofFn_succ]
+      congr 1
+      exact ih (w 0) (Fin.tail w) _
 
 theorem inverseT_injective {a : ℕ} (ha : 0 < a) :
     Function.Injective (inverseT a) := by
@@ -3717,7 +3721,11 @@ noncomputable def controlledIntervalPath :
   induction n generalizing x with
   | zero => rfl
   | succ n ih =>
-      simp [controlledIntervalPath, controlledPathWord, ih]
+      simp only [controlledIntervalPath, controlledPathWord,
+        IntervalPath.word_append, blockIntervalPath_word]
+      exact congrArg
+        (fun z ↦ blockWord (feedback x.2) controlBlockLength x.1 (w 0) ++ z)
+        (ih (controlledNext x (w 0)) (Fin.tail w) _)
 
 @[simp] theorem controlledIntervalPath_destinations (n : ℕ)
     (x : AugmentedState) (w : Fin n → BlockChoice)
@@ -3726,7 +3734,11 @@ noncomputable def controlledIntervalPath :
   induction n generalizing x with
   | zero => rfl
   | succ n ih =>
-      simp [controlledIntervalPath, flattenBlockChoices, ih]
+      simp only [controlledIntervalPath, flattenBlockChoices,
+        IntervalPath.destinations_append, blockIntervalPath_destinations]
+      exact congrArg
+        (fun z ↦ List.ofFn (w 0) ++ z)
+        (ih (controlledNext x (w 0)) (Fin.tail w) _)
 
 /-- Positive controlled paths with the same initial and final augmented state
 are uniquely determined by their multiplier word. -/
@@ -3831,8 +3843,10 @@ theorem controlledPathWord_imbalance (n : ℕ) (x : AugmentedState)
   induction n generalizing i with
   | zero => rfl
   | succ n ih =>
-      simp [blockIntervalPath, ih]
-      rfl
+      simp only [blockIntervalPath, IntervalPath.mass_cons, blockWeight]
+      exact congrArg
+        (fun z ↦ probability α i (w 0) * z)
+        (ih (w 0) (Fin.tail w) _)
 
 @[simp] theorem controlledIntervalPath_mass_real (n : ℕ) (x : AugmentedState)
     (w : Fin n → BlockChoice) (hpos : 0 < controlledChain.pathWeight n x w) :
@@ -3843,9 +3857,13 @@ theorem controlledPathWord_imbalance (n : ℕ) (x : AugmentedState)
       norm_num [controlledIntervalPath, IntervalPath.mass,
         FiniteChoiceChain.pathWeight]
   | succ n ih =>
-      simp [controlledIntervalPath, IntervalPath.mass_append,
-        blockIntervalPath_mass, ih, controlledChain, controlledProbability,
-        FiniteChoiceChain.pathWeight]
+      simp only [controlledIntervalPath, IntervalPath.mass_append,
+        blockIntervalPath_mass, Rat.cast_mul, controlledChain,
+        controlledProbability, FiniteChoiceChain.pathWeight]
+      exact congrArg
+        (fun z ↦
+          (blockWeight (feedback x.2) controlBlockLength x.1 (w 0) : ℝ) * z)
+        (ih (controlledNext x (w 0)) (Fin.tail w) _)
 
 theorem controlledPathWeight_eq_reciprocal (n : ℕ) (x : AugmentedState)
     (w : Fin n → BlockChoice) (hpos : 0 < controlledChain.pathWeight n x w)
@@ -3891,7 +3909,7 @@ def HoldingHitRecord : ℕ → ℕ → EmbeddedState → Type
   | 0, n, x => ULift {_unit : Unit // n = 0 ∧ x = recurrentControlState}
   | k + 1, n, x =>
       {_guard : Unit // x ≠ recurrentControlState} ×
-        Σ p : {p : ℕ × ℕ // p ∈ Finset.antidiagonal n},
+        Σ p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n},
           Σ y : EmbeddedState,
             ControlReturnSegment p.1.1 x.1.1 y.1.1 ×
               HoldingHitRecord k p.1.2 y
@@ -3900,7 +3918,7 @@ def HoldingHitRecord : ℕ → ℕ → EmbeddedState → Type
 def RecurrentLoopRecord : ℕ → ℕ → Type
   | 0, _ => Empty
   | k + 1, n =>
-      Σ p : {p : ℕ × ℕ // p ∈ Finset.antidiagonal n},
+      Σ p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n},
         Σ y : EmbeddedState,
           ControlReturnSegment p.1.1 recurrentAugmentedState y.1.1 ×
             HoldingHitRecord k p.1.2 y
@@ -3918,10 +3936,10 @@ noncomputable instance holdingHitRecordFintype (k n : ℕ) (x : EmbeddedState) :
       simp only [HoldingHitRecord]
       letI : Fintype {_guard : Unit // x ≠ recurrentControlState} :=
         Fintype.ofInjective Subtype.val Subtype.val_injective
-      letI (p : {p : ℕ × ℕ // p ∈ Finset.antidiagonal n})
+      letI (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
           (y : EmbeddedState) : Fintype (HoldingHitRecord k p.1.2 y) :=
         ih p.1.2 y
-      letI (p : {p : ℕ × ℕ // p ∈ Finset.antidiagonal n})
+      letI (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
           (y : EmbeddedState) :
           Fintype (ControlReturnSegment p.1.1 x.1.1 y.1.1) :=
         Fintype.ofInjective Subtype.val Subtype.val_injective
@@ -3936,10 +3954,10 @@ noncomputable instance recurrentLoopRecordFintype (k n : ℕ) :
       exact Fintype.ofFinite Empty
   | succ k =>
       simp only [RecurrentLoopRecord]
-      letI (p : {p : ℕ × ℕ // p ∈ Finset.antidiagonal n})
+      letI (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
           (y : EmbeddedState) : Fintype (HoldingHitRecord k p.1.2 y) :=
         holdingHitRecordFintype k p.1.2 y
-      letI (p : {p : ℕ × ℕ // p ∈ Finset.antidiagonal n})
+      letI (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
           (y : EmbeddedState) :
           Fintype (ControlReturnSegment p.1.1 recurrentAugmentedState y.1.1) :=
         Fintype.ofInjective Subtype.val Subtype.val_injective
@@ -3983,7 +4001,7 @@ noncomputable def recurrentLoopRecordChoices :
       obtain ⟨guard, p, y, w, tail⟩ := r
       simp only [holdingHitRecordChoices, List.length_append, List.length_ofFn,
         ih tail]
-      exact Finset.mem_antidiagonal.mp p.2
+      exact Finset.HasAntidiagonal.mem_antidiagonal.mp p.2
 
 @[simp] theorem recurrentLoopRecordChoices_length {k n : ℕ}
     (r : RecurrentLoopRecord k n) :
@@ -3994,7 +4012,7 @@ noncomputable def recurrentLoopRecordChoices :
       obtain ⟨p, y, w, tail⟩ := r
       simp only [recurrentLoopRecordChoices, List.length_append, List.length_ofFn,
         holdingHitRecordChoices_length]
-      exact Finset.mem_antidiagonal.mp p.2
+      exact Finset.HasAntidiagonal.mem_antidiagonal.mp p.2
 
 theorem sum_controlReturnSegment_weight (n : ℕ) (x y : AugmentedState) :
     (∑ w : ControlReturnSegment n x y,
@@ -4031,25 +4049,57 @@ theorem sum_holdingHitRecordWeight (k n : ℕ) (x : EmbeddedState) :
         exact isEmptyElim r
       · letI : Fintype {_guard : Unit // x ≠ recurrentControlState} :=
           Fintype.ofInjective Subtype.val Subtype.val_injective
-        letI (p : {p : ℕ × ℕ // p ∈ Finset.antidiagonal n})
+        letI (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
             (y : EmbeddedState) : Fintype (HoldingHitRecord k p.1.2 y) :=
           holdingHitRecordFintype k p.1.2 y
-        letI (p : {p : ℕ × ℕ // p ∈ Finset.antidiagonal n})
+        letI (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
             (y : EmbeddedState) :
             Fintype (ControlReturnSegment p.1.1 x.1.1 y.1.1) :=
           Fintype.ofInjective Subtype.val Subtype.val_injective
-        simp only [HoldingHitRecord]
+        let expandedFintype :
+            Fintype (
+              {_guard : Unit // x ≠ recurrentControlState} ×
+                Σ p : {p : ℕ × ℕ //
+                    p ∈ Finset.HasAntidiagonal.antidiagonal n},
+                  Σ y : EmbeddedState,
+                    ControlReturnSegment p.1.1 x.1.1 y.1.1 ×
+                      HoldingHitRecord k p.1.2 y) :=
+          inferInstance
+        let recordEquiv :
+            HoldingHitRecord (k + 1) n x ≃
+              ({_guard : Unit // x ≠ recurrentControlState} ×
+                Σ p : {p : ℕ × ℕ //
+                    p ∈ Finset.HasAntidiagonal.antidiagonal n},
+                  Σ y : EmbeddedState,
+                    ControlReturnSegment p.1.1 x.1.1 y.1.1 ×
+                      HoldingHitRecord k p.1.2 y) :=
+          Equiv.refl _
+        have hsum := @Fintype.sum_equiv
+          (HoldingHitRecord (k + 1) n x)
+          ({_guard : Unit // x ≠ recurrentControlState} ×
+            Σ p : {p : ℕ × ℕ //
+                p ∈ Finset.HasAntidiagonal.antidiagonal n},
+              Σ y : EmbeddedState,
+                ControlReturnSegment p.1.1 x.1.1 y.1.1 ×
+                  HoldingHitRecord k p.1.2 y) ℝ
+          (holdingHitRecordFintype (k + 1) n x) expandedFintype
+          inferInstance recordEquiv
+          (fun r ↦ holdingHitRecordWeight r)
+          (fun r ↦
+            controlledChain.pathWeight r.2.1.1.1 x.1.1 r.2.2.2.1.1 *
+              holdingHitRecordWeight r.2.2.2.2)
+          (fun _ ↦ rfl)
+        rw [hsum]
         rw [Fintype.sum_prod_type]
-        simp only [holdingHitRecordWeight]
         simp_rw [Fintype.sum_sigma, Fintype.sum_prod_type]
         simp_rw [← Finset.mul_sum, ih]
         simp_rw [← Finset.sum_mul, sum_controlReturnSegment_weight]
         rw [show (∑ _guard : {_guard : Unit // x ≠ recurrentControlState},
-            ∑ p : {p : ℕ × ℕ // p ∈ Finset.antidiagonal n},
+            ∑ p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n},
               ∑ y : EmbeddedState,
                 controlledChain.returnAt controlSet y.1.1 p.1.1 x.1.1 *
                   holdingHit k p.1.2 y) =
-            ∑ p : {p : ℕ × ℕ // p ∈ Finset.antidiagonal n},
+            ∑ p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n},
               ∑ y : EmbeddedState,
                 controlledChain.returnAt controlSet y.1.1 p.1.1 x.1.1 *
                   holdingHit k p.1.2 y by simp [hx]]
@@ -4058,9 +4108,10 @@ theorem sum_holdingHitRecordWeight (k n : ℕ) (x : EmbeddedState) :
         simp only [holdingHit, hx, if_false, convolution]
         apply Finset.sum_congr rfl
         intro y _
-        simpa using Finset.sum_attach (Finset.antidiagonal n)
-          (fun p ↦ controlledChain.returnAt controlSet y.1.1 p.1 x.1.1 *
-            holdingHit k p.2 y)
+        simpa only [holdingMass] using
+          Finset.sum_attach (Finset.HasAntidiagonal.antidiagonal n)
+            (fun p ↦ controlledChain.returnAt controlSet y.1.1 p.1 x.1.1 *
+              holdingHit k p.2 y)
 
 theorem sum_recurrentLoopRecordWeight (k n : ℕ) :
     (∑ r : RecurrentLoopRecord k n, recurrentLoopRecordWeight r) =
@@ -4070,26 +4121,57 @@ theorem sum_recurrentLoopRecordWeight (k n : ℕ) :
   | zero =>
       simp [RecurrentLoopRecord, recurrentLoopRecordWeight, holdingReturn]
   | succ k =>
-      letI (p : {p : ℕ × ℕ // p ∈ Finset.antidiagonal n})
+      letI (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
           (y : EmbeddedState) : Fintype (HoldingHitRecord k p.1.2 y) :=
         holdingHitRecordFintype k p.1.2 y
-      letI (p : {p : ℕ × ℕ // p ∈ Finset.antidiagonal n})
+      letI (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
           (y : EmbeddedState) :
           Fintype (ControlReturnSegment p.1.1 recurrentAugmentedState y.1.1) :=
         Fintype.ofInjective Subtype.val Subtype.val_injective
-      simp only [RecurrentLoopRecord]
+      let expandedFintype :
+          Fintype (
+            Σ p : {p : ℕ × ℕ //
+                p ∈ Finset.HasAntidiagonal.antidiagonal n},
+              Σ y : EmbeddedState,
+                ControlReturnSegment p.1.1 recurrentAugmentedState y.1.1 ×
+                  HoldingHitRecord k p.1.2 y) :=
+        inferInstance
+      let recordEquiv :
+          RecurrentLoopRecord (k + 1) n ≃
+            (Σ p : {p : ℕ × ℕ //
+                p ∈ Finset.HasAntidiagonal.antidiagonal n},
+              Σ y : EmbeddedState,
+                ControlReturnSegment p.1.1 recurrentAugmentedState y.1.1 ×
+                  HoldingHitRecord k p.1.2 y) :=
+        Equiv.refl _
+      have hsum := @Fintype.sum_equiv
+        (RecurrentLoopRecord (k + 1) n)
+        (Σ p : {p : ℕ × ℕ //
+            p ∈ Finset.HasAntidiagonal.antidiagonal n},
+          Σ y : EmbeddedState,
+            ControlReturnSegment p.1.1 recurrentAugmentedState y.1.1 ×
+              HoldingHitRecord k p.1.2 y) ℝ
+        (recurrentLoopRecordFintype (k + 1) n) expandedFintype
+        inferInstance recordEquiv
+        (fun r ↦ recurrentLoopRecordWeight r)
+        (fun r ↦
+          controlledChain.pathWeight r.1.1.1 recurrentAugmentedState
+              r.2.2.1.1 *
+            holdingHitRecordWeight r.2.2.2)
+        (fun _ ↦ rfl)
+      rw [hsum]
       rw [Fintype.sum_sigma]
       simp_rw [Fintype.sum_sigma, Fintype.sum_prod_type]
-      simp only [recurrentLoopRecordWeight]
       simp_rw [← Finset.mul_sum, sum_holdingHitRecordWeight]
       simp_rw [← Finset.sum_mul, sum_controlReturnSegment_weight]
       rw [sum_subtype_eq_sum_attach, Finset.sum_comm]
       simp only [holdingReturn, convolution]
       apply Finset.sum_congr rfl
       intro y _
-      simpa using Finset.sum_attach (Finset.antidiagonal n)
-        (fun p ↦ controlledChain.returnAt controlSet y.1.1 p.1
-          recurrentAugmentedState * holdingHit k p.2 y)
+      simpa only [holdingMass, recurrentAugmentedState] using
+        Finset.sum_attach (Finset.HasAntidiagonal.antidiagonal n)
+          (fun p ↦ controlledChain.returnAt controlSet y.1.1 p.1
+            recurrentAugmentedState * holdingHit k p.2 y)
 
 /-! ### Flat finite-choice lists -/
 
@@ -4140,25 +4222,31 @@ def IsReturnList {S Ω : Type*} [Fintype Ω] [DecidableEq S]
   | _, [] => False
   | x, a :: w => K.IsHitList C y (K.next x a) w
 
-theorem listEndpoint_ofFn {S Ω : Type*} [Fintype Ω] [DecidableEq S]
+theorem listEndpoint_ofFn {S Ω : Type*} [Fintype Ω]
     (K : FiniteChoiceChain S Ω) (n : ℕ) (x : S) (w : Fin n → Ω) :
     K.listEndpoint x (List.ofFn w) = K.pathEndpoint n x w := by
   induction n generalizing x with
   | zero => rfl
   | succ n ih =>
       rw [List.ofFn_succ, listEndpoint, ih]
-      simpa only [Fin.cons_self_tail] using
-        (K.pathEndpoint_cons n x (w 0) (Fin.tail w)).symm
+      have htail : Fin.tail w = fun i ↦ w i.succ := by
+        funext i
+        rfl
+      rw [← htail]
+      exact (K.pathEndpoint_cons n x (w 0) (Fin.tail w)).symm
 
-theorem listWeight_ofFn {S Ω : Type*} [Fintype Ω] [DecidableEq S]
+theorem listWeight_ofFn {S Ω : Type*} [Fintype Ω]
     (K : FiniteChoiceChain S Ω) (n : ℕ) (x : S) (w : Fin n → Ω) :
     K.listWeight x (List.ofFn w) = K.pathWeight n x w := by
   induction n generalizing x with
   | zero => rfl
   | succ n ih =>
       rw [List.ofFn_succ, listWeight, ih]
-      simpa only [Fin.cons_self_tail] using
-        (K.pathWeight_cons n x (w 0) (Fin.tail w)).symm
+      have htail : Fin.tail w = fun i ↦ w i.succ := by
+        funext i
+        rfl
+      rw [← htail]
+      exact (K.pathWeight_cons n x (w 0) (Fin.tail w)).symm
 
 theorem isHitList_of_isHitPath {S Ω : Type*} [Fintype Ω] [DecidableEq S]
     (K : FiniteChoiceChain S Ω) (C : Finset S) (y : S) (n : ℕ)
@@ -4188,9 +4276,10 @@ theorem isReturnList_of_isReturnPath {S Ω : Type*} [Fintype Ω]
         (List.ofFn (Fin.tail w))
       exact K.isHitList_of_isHitPath C y n _ _ h
 
-theorem isReturnPath_length_pos {S Ω : Type*} [Fintype Ω] [DecidableEq S]
+theorem isReturnPath_length_pos {S Ω : Type*} [Fintype Ω]
     (K : FiniteChoiceChain S Ω) (C : Finset S) (y : S) (n : ℕ)
     (x : S) (w : Fin n → Ω) (h : K.IsReturnPath C y n x w) : 0 < n := by
+  classical
   cases n with
   | zero => exact (K.isReturnPath_zero C x y w h).elim
   | succ n => omega
@@ -4362,8 +4451,8 @@ theorem holdingHitRecordChoices_injective (k n : ℕ) (x : EmbeddedState) :
         hwret hvret hrs
       have hlen : p.1.1 = q.1.1 := by
         simpa using congrArg List.length hsplit.1
-      have hpSum := Finset.mem_antidiagonal.mp p.2
-      have hqSum := Finset.mem_antidiagonal.mp q.2
+      have hpSum := Finset.HasAntidiagonal.mem_antidiagonal.mp p.2
+      have hqSum := Finset.HasAntidiagonal.mem_antidiagonal.mp q.2
       have hrest : p.1.2 = q.1.2 := by omega
       have hpval : p.1 = q.1 := Prod.ext hlen hrest
       have hp : p = q := Subtype.ext hpval
@@ -4409,8 +4498,8 @@ theorem recurrentLoopRecordChoices_injective (k n : ℕ) :
         hwret hvret hrs
       have hlen : p.1.1 = q.1.1 := by
         simpa using congrArg List.length hsplit.1
-      have hpSum := Finset.mem_antidiagonal.mp p.2
-      have hqSum := Finset.mem_antidiagonal.mp q.2
+      have hpSum := Finset.HasAntidiagonal.mem_antidiagonal.mp p.2
+      have hqSum := Finset.HasAntidiagonal.mem_antidiagonal.mp q.2
       have hrest : p.1.2 = q.1.2 := by omega
       have hpval : p.1 = q.1 := Prod.ext hlen hrest
       have hp : p = q := Subtype.ext hpval
@@ -4517,7 +4606,7 @@ theorem recurrentLoopRecord_blockLength_pos {k n : ℕ}
       have hp : 0 < p.1.1 :=
         controlledChain.isReturnPath_length_pos controlSet y.1.1 p.1.1
           recurrentAugmentedState w.1 w.2
-      have hsum := Finset.mem_antidiagonal.mp p.2
+      have hsum := Finset.HasAntidiagonal.mem_antidiagonal.mp p.2
       omega
 
 theorem recurrentLoopRecordWord_ne_nil {k n : ℕ}
@@ -5000,7 +5089,10 @@ theorem loopRewardMass_summable : Summable loopRewardMass := by
         exact (Equiv.prodComm ℕ FirstReturnLoop).injective)
   rw [summable_prod_of_nonneg fun p ↦
     selectedWeight_nonneg (firstReturnLoopWeight_nonneg p.2)] at hswap
-  simpa only [loopRewardMass] using hswap.2
+  change Summable fun m ↦
+    ∑' r : FirstReturnLoop,
+      selectedWeight (firstReturnLoopReward r = m) (firstReturnLoopWeight r)
+  exact hswap.2
 
 theorem tsum_loopRewardMass : (∑' m, loopRewardMass m) = 1 := by
   have hpair : Summable fun p : FirstReturnLoop × ℕ ↦
@@ -5583,7 +5675,10 @@ theorem weightedDistributionTail_tendsto_zero :
   let f : ℕ → ℝ := fun j ↦ (j : ℝ) * p j
   have hbase := tendsto_sum_nat_add f
   have hshift := (Filter.tendsto_add_atTop_iff_nat 1).mpr hbase
-  simpa only [weightedDistributionTail, f, Nat.add_assoc] using hshift
+  change Filter.Tendsto
+    (fun n ↦ ∑' k : ℕ, ((k + (n + 1) : ℕ) : ℝ) * p (k + (n + 1)))
+    Filter.atTop (nhds 0)
+  exact hshift
 
 include hp0 hp hpMass hpZero in
 theorem exists_uniform_renewal_window
@@ -6063,7 +6158,7 @@ theorem exists_loopSequence_count_at_scale :
   intro M hM
   have hwindow := hK M hM
   by_contra hnone
-  push_neg at hnone
+  push Not at hnone
   have hterm (j : ℕ) (hj : j ∈ Finset.range (K + 1)) :
       renewalMass loopRewardMass (M + j) ≤
         (1 : ℝ) / (2 * (K + 1)) := by
