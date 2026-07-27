@@ -3,13 +3,12 @@
   "solution_module": "ErdosProblems.Erdos469",
   "theorem_names": [
     "Erdos469.erdos_469",
-    "Erdos469.semiperfect_density_exists_between_zero_and_one"
+    "Erdos469.pseudoperfect_density_exists_between_zero_and_one"
   ],
   "definition_names": [
     "Set.partialDensity",
     "Set.HasDensity",
-    "Erdos469.Semiperfect",
-    "Erdos469.semiperfectNumbers"
+    "Erdos469.pseudoperfectNumbers"
   ],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
   "enable_nanoda": false

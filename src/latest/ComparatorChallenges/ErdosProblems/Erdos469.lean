@@ -4,12 +4,10 @@ import Mathlib.NumberTheory.Divisors
 import Mathlib.Topology.Algebra.InfiniteSum.Defs
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
 
-namespace Erdos469
-
 def Nat.IsSumDivisors (n : ℕ) : Prop :=
   ∃ S ⊆ n.properDivisors, ∑ d ∈ S, d = n
 
-open Erdos469
+namespace Erdos469
 
 theorem erdos_469 :
     letI A := {n : ℕ | 0 < n ∧ n.IsSumDivisors ∧
@@ -38,13 +36,10 @@ end Set
 
 namespace Erdos469
 
-def Semiperfect (n : ℕ) : Prop :=
-  0 < n ∧ n ∈ n.properDivisors.subsetSum
+def pseudoperfectNumbers : Set ℕ := {n | 0 < n ∧ n.IsSumDivisors}
 
-def semiperfectNumbers : Set ℕ := {n | Semiperfect n}
-
-theorem semiperfect_density_exists_between_zero_and_one :
-    ∃ d : ℝ, semiperfectNumbers.HasDensity d ∧ 0 < d ∧ d < 1 := by
+theorem pseudoperfect_density_exists_between_zero_and_one :
+    ∃ d : ℝ, pseudoperfectNumbers.HasDensity d ∧ 0 < d ∧ d < 1 := by
   sorry
 
 end Erdos469

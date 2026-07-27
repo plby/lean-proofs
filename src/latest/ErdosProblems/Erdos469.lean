@@ -31,17 +31,24 @@ thought would be nice to have in one single file. The result can be found below
 and was obtained by Aristotle from Harmonic (aristotle-harmonic@harmonic.fun).
 -/
 
+/-- The proposition that `n` is a sum of distinct proper divisors. -/
+def Nat.IsSumDivisors (n : ℕ) : Prop :=
+  ∃ S ⊆ n.properDivisors, ∑ d ∈ S, d = n
+
+/-- Being a sum of distinct proper divisors is membership in the corresponding
+subset-sum finset. -/
+theorem Nat.isSumDivisors_iff_mem_subsetSum (n : ℕ) :
+    n.IsSumDivisors ↔ n ∈ n.properDivisors.subsetSum := by
+  rw [Nat.IsSumDivisors, Finset.mem_subsetSum_iff]
+
 namespace Erdos469
 
 open scoped ArithmeticFunction.sigma
 
-/-- A positive integer is semiperfect if it is a sum of distinct proper divisors. -/
-def Semiperfect (n : ℕ) : Prop :=
-  0 < n ∧ n ∈ n.properDivisors.subsetSum
-
-/-- A semiperfect integer with no semiperfect proper divisor. -/
-def PrimitiveSemiperfect (n : ℕ) : Prop :=
-  Semiperfect n ∧ ∀ d ∈ n.properDivisors, ¬Semiperfect d
+/-- A pseudoperfect integer with no pseudoperfect proper divisor. -/
+def PrimitivePseudoperfect (n : ℕ) : Prop :=
+  (0 < n ∧ n.IsSumDivisors) ∧
+    ∀ d ∈ n.properDivisors, ¬d.IsSumDivisors
 
 /-- The sum of the positive divisors of `n`. -/
 def sigma (n : ℕ) : ℕ := (ArithmeticFunction.sigma 1) n
@@ -55,8 +62,8 @@ def Nondeficient (n : ℕ) : Prop := 0 < n ∧ 2 * n ≤ sigma n
 /-- A positive integer whose divisor sum is strictly less than twice itself. -/
 def Deficient (n : ℕ) : Prop := 0 < n ∧ sigma n < 2 * n
 
-/-- An abundant integer that is not semiperfect. -/
-def Weird (n : ℕ) : Prop := Abundant n ∧ ¬Semiperfect n
+/-- An abundant integer that is not pseudoperfect. -/
+def Weird (n : ℕ) : Prop := Abundant n ∧ ¬n.IsSumDivisors
 
 /-- A nondeficient integer all of whose proper divisors are deficient. -/
 def PND (n : ℕ) : Prop :=
@@ -133,28 +140,32 @@ theorem nondeficient_complement_characterization {n : ℕ}
   rw [hoffset] at hcomplement
   exact hcomplement.symm
 
-/-- A positive nondeficient integer is semiperfect exactly when its abundance
+/-- A positive nondeficient integer is pseudoperfect exactly when its abundance
 offset is a subset sum of its proper divisors. -/
-theorem semiperfect_iff_abundance_offset_mem {n : ℕ} (hpos : 0 < n)
+theorem pseudoperfect_iff_abundance_offset_mem {n : ℕ}
     (hn : 2 * n ≤ sigma n) :
-    Semiperfect n ↔ sigma n - 2 * n ∈ n.properDivisors.subsetSum := by
-  simp only [Semiperfect, hpos, true_and]
+    Nat.IsSumDivisors n ↔ sigma n - 2 * n ∈ n.properDivisors.subsetSum := by
+  rw [Nat.isSumDivisors_iff_mem_subsetSum]
   exact (nondeficient_complement_characterization hn).symm
 
-/-- Every semiperfect integer is nondeficient. -/
-theorem Semiperfect.nondeficient {n : ℕ} (h : Semiperfect n) :
+/-- Every pseudoperfect integer is nondeficient. -/
+theorem isSumDivisors_nondeficient {n : ℕ} (h : Nat.IsSumDivisors n)
+    (hpos : 0 < n) :
     Nondeficient n := by
-  refine ⟨h.1, ?_⟩
-  have hle := subsetSum_mem_le_sum h.2
+  refine ⟨hpos, ?_⟩
+  have hle := subsetSum_mem_le_sum
+    ((Nat.isSumDivisors_iff_mem_subsetSum n).mp h)
   rw [sum_properDivisors_eq_sigma_sub] at hle
   have hn_sigma : n ≤ sigma n := hle.trans (Nat.sub_le _ _)
   simpa [two_mul] using Nat.add_le_of_le_sub hn_sigma hle
 
-/-- The abundance offset of a semiperfect integer is a subset sum of its
+/-- The abundance offset of a pseudoperfect integer is a subset sum of its
 proper divisors. -/
-theorem Semiperfect.abundance_offset_mem {n : ℕ} (h : Semiperfect n) :
+theorem isSumDivisors_abundance_offset_mem {n : ℕ}
+    (h : Nat.IsSumDivisors n) (hpos : 0 < n) :
     sigma n - 2 * n ∈ n.properDivisors.subsetSum :=
-  (semiperfect_iff_abundance_offset_mem h.1 h.nondeficient.2).mp h
+  (pseudoperfect_iff_abundance_offset_mem
+    (isSumDivisors_nondeficient h hpos).2).mp h
 
 noncomputable section
 
@@ -225,16 +236,16 @@ theorem leastGap_le_self {n : ℕ} (hnd : Nondeficient n) :
   leastGap_minimal (candidateGaps_nonempty_of_nondeficient hnd)
     (self_mem_candidateGaps hnd)
 
-/-- A positive nondeficient non-semiperfect integer is abundant. -/
-theorem abundant_of_nondeficient_not_semiperfect {n : ℕ}
-    (hnd : Nondeficient n) (hnot : ¬Semiperfect n) :
+/-- A positive nondeficient non-pseudoperfect integer is abundant. -/
+theorem abundant_of_nondeficient_not_pseudoperfect {n : ℕ}
+    (hnd : Nondeficient n) (hnot : ¬Nat.IsSumDivisors n) :
     Abundant n := by
   refine ⟨hnd.1, ?_⟩
   by_contra hlt
   have heq : sigma n = 2 * n :=
     Nat.le_antisymm (Nat.le_of_not_gt hlt) hnd.2
   apply hnot
-  refine ⟨hnd.1, ?_⟩
+  apply (Nat.isSumDivisors_iff_mem_subsetSum n).mpr
   apply Finset.mem_subsetSum_iff.mpr
   refine ⟨n.properDivisors, Finset.Subset.rfl, ?_⟩
   rw [sum_properDivisors_eq_sigma_sub, heq]
@@ -244,14 +255,14 @@ theorem abundant_of_nondeficient_not_semiperfect {n : ℕ}
 def tau (n : ℕ) : ℚ := (sigma n : ℚ) / (leastGap n : ℚ)
 
 /-- the rational threshold of a nondeficient
-non-semiperfect integer is strictly greater than two. -/
+non-pseudoperfect integer is strictly greater than two. -/
 theorem tau_gt_two {n : ℕ} (hnd : Nondeficient n)
-    (hnot : ¬Semiperfect n) :
+    (hnot : ¬Nat.IsSumDivisors n) :
     2 < tau n := by
   have hnonempty := candidateGaps_nonempty_of_nondeficient hnd
   have hgpos := leastGap_pos hnonempty
   have hgle := leastGap_le_self hnd
-  have habundant := (abundant_of_nondeficient_not_semiperfect hnd hnot).2
+  have habundant := (abundant_of_nondeficient_not_pseudoperfect hnd hnot).2
   have hgap : 2 * leastGap n < sigma n :=
     lt_of_le_of_lt (Nat.mul_le_mul_left 2 hgle) habundant
   have hgposQ : (0 : ℚ) < (leastGap n : ℚ) := by
@@ -463,11 +474,11 @@ theorem abundant_mul_prime {n p : ℕ} (hn : Abundant n) (hp : p.Prime)
     _ < sigma n * p := (Nat.mul_lt_mul_right hp.pos).mpr hn.2
     _ ≤ sigma n * (p + 1) := Nat.mul_le_mul_left (sigma n) (Nat.le_succ p)
 
-/-- a coprime prime extension is semiperfect exactly when a
+/-- a coprime prime extension is pseudoperfect exactly when a
 positive old gap has its prime multiple among the old divisor subset sums. -/
-theorem semiperfect_mul_prime_iff_exists_candidate_hit {n p : ℕ}
+theorem pseudoperfect_mul_prime_iff_exists_candidate_hit {n p : ℕ}
     (hn : Weird n) (hp : p.Prime) (hcop : n.Coprime p) :
-    Semiperfect (n * p) ↔
+    Nat.IsSumDivisors (n * p) ↔
       ∃ t : ℕ, 0 < t ∧
         abundanceExcess n + t ∈ n.properDivisors.subsetSum ∧
         p * t ∈ n.divisors.subsetSum := by
@@ -475,10 +486,11 @@ theorem semiperfect_mul_prime_iff_exists_candidate_hit {n p : ℕ}
   have hchildAbundant := abundant_mul_prime hn.1 hp hcop
   have hA_not : abundanceExcess n ∉ n.properDivisors.subsetSum := by
     intro hA
-    exact hn.2 ((semiperfect_iff_abundance_offset_mem hn.1.1 hnnd).mpr hA)
+    exact hn.2 ((pseudoperfect_iff_abundance_offset_mem hnnd).mpr hA)
   constructor
   · intro hsemi
-    have hmem := hsemi.abundance_offset_mem
+    have hmem :=
+      isSumDivisors_abundance_offset_mem hsemi hchildAbundant.1
     change abundanceExcess (n * p) ∈ (n * p).properDivisors.subsetSum at hmem
     rw [abundanceExcess_mul_prime hp hcop hnnd,
       properDivisorSubsetSums_mul_prime hn.1.1 hp hcop] at hmem
@@ -516,7 +528,7 @@ theorem semiperfect_mul_prime_iff_exists_candidate_hit {n p : ℕ}
       simpa [sigma_eq_sum_divisors] using subsetSum_mem_le_sum hpt
     have hx : sigma n - p * t ∈ n.divisors.subsetSum :=
       (mem_divisorSubsetSum_complement_iff hptle).mp hpt
-    apply (semiperfect_iff_abundance_offset_mem hchildAbundant.1
+    apply (pseudoperfect_iff_abundance_offset_mem
       (Nat.le_of_lt hchildAbundant.2)).mpr
     change abundanceExcess (n * p) ∈ (n * p).properDivisors.subsetSum
     rw [abundanceExcess_mul_prime hp hcop hnnd,
@@ -528,11 +540,11 @@ theorem semiperfect_mul_prime_iff_exists_candidate_hit {n p : ℕ}
       omega
 
 /-- Set-theoretic form of. -/
-theorem semiperfect_mul_prime_iff_candidate_hit {n p : ℕ}
+theorem pseudoperfect_mul_prime_iff_candidate_hit {n p : ℕ}
     (hn : Weird n) (hp : p.Prime) (hcop : n.Coprime p) :
-    Semiperfect (n * p) ↔
+    Nat.IsSumDivisors (n * p) ↔
       ∃ t ∈ candidateGaps n, p * t ∈ n.divisors.subsetSum := by
-  rw [semiperfect_mul_prime_iff_exists_candidate_hit hn hp hcop]
+  rw [pseudoperfect_mul_prime_iff_exists_candidate_hit hn hp hcop]
   constructor
   · rintro ⟨t, htpos, ht, hpt⟩
     exact ⟨t, ⟨htpos, by simpa [abundanceOffset, abundanceExcess] using ht⟩, hpt⟩
@@ -549,7 +561,7 @@ theorem isCandidateGap_mul_prime_iff_exists_difference {n p s : ℕ}
   have hnnd : 2 * n ≤ sigma n := Nat.le_of_lt hn.1.2
   have hA_not : abundanceExcess n ∉ n.properDivisors.subsetSum := by
     intro hA
-    exact hn.2 ((semiperfect_iff_abundance_offset_mem hn.1.1 hnnd).mpr hA)
+    exact hn.2 ((pseudoperfect_iff_abundance_offset_mem hnnd).mpr hA)
   constructor
   · rintro ⟨hspos, hs⟩
     change abundanceExcess (n * p) + s ∈
@@ -654,7 +666,7 @@ theorem weird_mul_prime_of_sigma_lt_mul_leastGap {n p : ℕ} (hn : Weird n)
   refine ⟨abundant_mul_prime hn.1 hp hcop, ?_⟩
   intro hsemi
   obtain ⟨t, ht, hpt⟩ :=
-    (semiperfect_mul_prime_iff_candidate_hit hn hp hcop).mp hsemi
+    (pseudoperfect_mul_prime_iff_candidate_hit hn hp hcop).mp hsemi
   have hgle : leastGap n ≤ t :=
     leastGap_minimal hn.candidateGaps_nonempty ht
   have hmulle : p * leastGap n ≤ p * t := Nat.mul_le_mul_left p hgle
@@ -1083,11 +1095,11 @@ def CandidateHit (state : ArithmeticTreeState ctx) (p : Nat) : Prop :=
 def CandidateMiss (state : ArithmeticTreeState ctx) (p : Nat) : Prop :=
   ¬state.CandidateHit p
 
-/-- An eligible prime extension is semiperfect exactly at a candidate hit. -/
-theorem semiperfect_mul_iff_candidateHit (state : ArithmeticTreeState ctx)
+/-- An eligible prime extension is pseudoperfect exactly at a candidate hit. -/
+theorem pseudoperfect_mul_iff_candidateHit (state : ArithmeticTreeState ctx)
     {p : Nat} (hp : state.EligibleChildPrime p) :
-    Semiperfect (state.current * p) ↔ state.CandidateHit p := by
-  exact semiperfect_mul_prime_iff_candidate_hit state.weird hp.prime
+    Nat.IsSumDivisors (state.current * p) ↔ state.CandidateHit p := by
+  exact pseudoperfect_mul_prime_iff_candidate_hit state.weird hp.prime
     hp.coprime_current
 
 /-- Because every eligible child is abundant, it is weird exactly at a
@@ -1097,11 +1109,11 @@ theorem weird_mul_iff_candidateMiss (state : ArithmeticTreeState ctx)
     Weird (state.current * p) ↔ state.CandidateMiss p := by
   constructor
   · intro hweird hhit
-    exact hweird.2 ((state.semiperfect_mul_iff_candidateHit hp).mpr hhit)
+    exact hweird.2 ((state.pseudoperfect_mul_iff_candidateHit hp).mpr hhit)
   · intro hmiss
     refine ⟨abundant_mul_prime state.weird.1 hp.prime hp.coprime_current, ?_⟩
     intro hsemi
-    exact hmiss ((state.semiperfect_mul_iff_candidateHit hp).mp hsemi)
+    exact hmiss ((state.pseudoperfect_mul_iff_candidateHit hp).mp hsemi)
 
 /-- A candidate miss produces another arithmetic tree state. -/
 def candidateMissChild (state : ArithmeticTreeState ctx) (p : Nat)
@@ -4139,11 +4151,12 @@ theorem nondeficient_of_pos_not_deficient {n : ℕ} (hpos : 0 < n)
   intro hlt
   exact hnot ⟨hpos, hlt⟩
 
-/-- A non-PND primitive semiperfect number has a root candidate. -/
+/-- A non-PND primitive pseudoperfect number has a root candidate. -/
 theorem nondeficientProperDivisors_nonempty {N : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N) :
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N) :
     (nondeficientProperDivisors N).Nonempty := by
-  have hNnd : Nondeficient N := hN.1.nondeficient
+  have hNnd : Nondeficient N :=
+    isSumDivisors_nondeficient hN.1.2 hN.1.1
   have hnotall : ¬∀ d ∈ N.properDivisors, Deficient d := by
     intro hall
     exact hnotPND ⟨hNnd, hall⟩
@@ -4154,10 +4167,10 @@ theorem nondeficientProperDivisors_nonempty {N : ℕ}
   exact ⟨d, mem_nondeficientProperDivisors.mpr
     ⟨hdN, nondeficient_of_pos_not_deficient hdpos hdnot⟩⟩
 
-/-- The canonical root is a proper divisor of its primitive semiperfect
+/-- The canonical root is a proper divisor of its primitive pseudoperfect
 endpoint. -/
 theorem canonicalPNDRoot_mem_properDivisors {N : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N) :
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N) :
     canonicalPNDRoot N ∈ N.properDivisors := by
   exact (mem_nondeficientProperDivisors.mp
     (canonicalPNDRoot_mem
@@ -4165,7 +4178,7 @@ theorem canonicalPNDRoot_mem_properDivisors {N : ℕ}
 
 /-- The canonical root is nondeficient. -/
 theorem canonicalPNDRoot_nondeficient {N : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N) :
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N) :
     Nondeficient (canonicalPNDRoot N) := by
   exact (mem_nondeficientProperDivisors.mp
     (canonicalPNDRoot_mem
@@ -4173,7 +4186,7 @@ theorem canonicalPNDRoot_nondeficient {N : ℕ}
 
 /-- Every proper divisor of the canonical root is deficient, so the root is
 primitive nondeficient. -/
-theorem canonicalPNDRoot_pnd {N : ℕ} (hN : PrimitiveSemiperfect N)
+theorem canonicalPNDRoot_pnd {N : ℕ} (hN : PrimitivePseudoperfect N)
     (hnotPND : ¬PND N) :
     PND (canonicalPNDRoot N) := by
   let w := canonicalPNDRoot N
@@ -4197,19 +4210,19 @@ theorem canonicalPNDRoot_pnd {N : ℕ} (hN : PrimitiveSemiperfect N)
     (mem_nondeficientProperDivisors.mpr ⟨hdN, hdnd⟩)
   exact (Nat.not_lt_of_ge hminimal) (Nat.mem_properDivisors.mp hdw).2
 
-/-- The canonical root is not semiperfect by primitivity of the endpoint. -/
-theorem canonicalPNDRoot_not_semiperfect {N : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N) :
-    ¬Semiperfect (canonicalPNDRoot N) :=
+/-- The canonical root is not pseudoperfect by primitivity of the endpoint. -/
+theorem canonicalPNDRoot_not_pseudoperfect {N : ℕ}
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N) :
+    ¬Nat.IsSumDivisors (canonicalPNDRoot N) :=
   hN.2 _ (canonicalPNDRoot_mem_properDivisors hN hnotPND)
 
 /-- The canonical root is abundant. -/
 theorem canonicalPNDRoot_abundant {N : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N) :
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N) :
     Abundant (canonicalPNDRoot N) :=
-  abundant_of_nondeficient_not_semiperfect
+  abundant_of_nondeficient_not_pseudoperfect
     (canonicalPNDRoot_nondeficient hN hnotPND)
-    (canonicalPNDRoot_not_semiperfect hN hnotPND)
+    (canonicalPNDRoot_not_pseudoperfect hN hnotPND)
 
 /-- The project definition of abundance agrees with mathlib's proper-divisor
 definition. -/
@@ -4235,17 +4248,17 @@ theorem Abundant.of_dvd {m n : ℕ} (hm : Abundant m) (hmn : m ∣ n)
   exact abundant_iff_natAbundant.mpr
     ((abundant_iff_natAbundant.mp hm).of_dvd hmn hn.ne')
 
-/-- A non-semiperfect positive multiple of an abundant number is weird. -/
+/-- A non-pseudoperfect positive multiple of an abundant number is weird. -/
 theorem weird_of_abundant_dvd {w m : ℕ} (hw : Abundant w) (hwm : w ∣ m)
-    (hmpos : 0 < m) (hmnot : ¬Semiperfect m) :
+    (hmpos : 0 < m) (hmnot : ¬Nat.IsSumDivisors m) :
     Weird m :=
   ⟨hw.of_dvd hwm hmpos, hmnot⟩
 
-/-- Every proper divisor of a primitive semiperfect endpoint that contains an
+/-- Every proper divisor of a primitive pseudoperfect endpoint that contains an
 abundant root is weird. This is the arithmetic prefix invariant used by the
 decoration tree. -/
-theorem PrimitiveSemiperfect.weird_of_abundant_root {N w m : ℕ}
-    (hN : PrimitiveSemiperfect N) (hw : Abundant w) (hwm : w ∣ m)
+theorem PrimitivePseudoperfect.weird_of_abundant_root {N w m : ℕ}
+    (hN : PrimitivePseudoperfect N) (hw : Abundant w) (hwm : w ∣ m)
     (hmN : m ∈ N.properDivisors) :
     Weird m := by
   have hmpos : 0 < m :=
@@ -4254,7 +4267,7 @@ theorem PrimitiveSemiperfect.weird_of_abundant_root {N w m : ℕ}
 
 /-- Every proper prefix containing the canonical root is weird. -/
 theorem canonicalPNDRoot_prefix_weird {N m : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N)
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N)
     (hroot : canonicalPNDRoot N ∣ m) (hmN : m ∈ N.properDivisors) :
     Weird m :=
   hN.weird_of_abundant_root (canonicalPNDRoot_abundant hN hnotPND)
@@ -4510,7 +4523,7 @@ structure DecorationData where
   d : ℕ
 
 /-- The canonical decoration data attached to an endpoint. Its theorems are
-used only when the endpoint is non-PND primitive semiperfect. -/
+used only when the endpoint is non-PND primitive pseudoperfect. -/
 def canonicalDecoration (N : ℕ) : DecorationData :=
   let w := canonicalPNDRoot N
   let q := N / w
@@ -4532,7 +4545,7 @@ theorem canonicalDecoration_a_powerful (N : ℕ) :
 
 /-- The canonical `b` factor is squarefree. -/
 theorem canonicalDecoration_b_squarefree {N : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N) :
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N) :
     Squarefree (canonicalDecoration N).b := by
   have hq := quotient_ne_zero_of_dvd hN.1.1.ne'
     (Nat.mem_properDivisors.mp
@@ -4560,7 +4573,7 @@ theorem canonicalDecoration_d_eq (N : ℕ) :
 
 /-- The canonical decoration `d` is squarefree. -/
 theorem canonicalDecoration_d_squarefree {N : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N) :
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N) :
     Squarefree (canonicalDecoration N).d := by
   exact Squarefree.squarefree_of_dvd
     (by
@@ -4572,7 +4585,7 @@ theorem canonicalDecoration_d_squarefree {N : ℕ}
 
 /-- The canonical decoration is coprime to the canonical decorated root. -/
 theorem canonicalDecoration_d_coprime_v {N : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N) :
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N) :
     (canonicalDecoration N).d.Coprime (canonicalDecoration N).v := by
   have hw0 : canonicalPNDRoot N ≠ 0 :=
     (canonicalPNDRoot_nondeficient hN hnotPND).1.ne'
@@ -4585,7 +4598,7 @@ theorem canonicalDecoration_d_coprime_v {N : ℕ}
 
 /-- The canonical decorated root and decoration reconstruct the endpoint. -/
 theorem canonicalDecoration_v_mul_d {N : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N) :
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N) :
     (canonicalDecoration N).v * (canonicalDecoration N).d = N := by
   have hwN := (Nat.mem_properDivisors.mp
     (canonicalPNDRoot_mem_properDivisors hN hnotPND)).1
@@ -4613,14 +4626,14 @@ theorem canonicalDecoration_w_dvd_v (N : ℕ) :
 
 /-- The decorated root divides its endpoint. -/
 theorem canonicalDecoration_v_dvd_endpoint {N : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N) :
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N) :
     (canonicalDecoration N).v ∣ N := by
   refine ⟨(canonicalDecoration N).d, ?_⟩
   exact (canonicalDecoration_v_mul_d hN hnotPND).symm
 
 /-- The decorated root is positive. -/
 theorem canonicalDecoration_v_pos {N : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N) :
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N) :
     0 < (canonicalDecoration N).v :=
   Nat.pos_of_dvd_of_pos
     (canonicalDecoration_v_dvd_endpoint hN hnotPND) hN.1.1
@@ -4628,7 +4641,7 @@ theorem canonicalDecoration_v_pos {N : ℕ}
 /-- Every proper factor prefix `v * k`, with `k` a proper divisor of `d`, is
 weird. This statement contains the ordered-prime prefix case used in the. -/
 theorem canonicalDecoration_prefix_weird {N k : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N)
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N)
     (hkd : k ∣ (canonicalDecoration N).d)
     (hklt : k < (canonicalDecoration N).d) :
     Weird ((canonicalDecoration N).v * k) := by
@@ -4657,7 +4670,7 @@ theorem canonicalDecoration_prefix_weird {N k : ℕ}
 /-- If the remaining decoration is nontrivial, the decorated root is the
 first weird state in its factor-prefix chain. -/
 theorem canonicalDecoration_v_weird_of_one_lt_d {N : ℕ}
-    (hN : PrimitiveSemiperfect N) (hnotPND : ¬PND N)
+    (hN : PrimitivePseudoperfect N) (hnotPND : ¬PND N)
     (hd : 1 < (canonicalDecoration N).d) :
     Weird (canonicalDecoration N).v := by
   simpa using canonicalDecoration_prefix_weird hN hnotPND
@@ -4667,11 +4680,11 @@ end
 
 noncomputable section
 
-/-- Primitive semiperfect endpoints over a fixed positive root form an
+/-- Primitive pseudoperfect endpoints over a fixed positive root form an
 antichain under divisibility of their decoration factors. -/
 theorem fixedRoot_primitive_antichain {v d₁ d₂ : ℕ} (hv : 0 < v)
-    (h₁ : PrimitiveSemiperfect (v * d₁))
-    (h₂ : PrimitiveSemiperfect (v * d₂)) (hdiv : d₁ ∣ d₂) :
+    (h₁ : PrimitivePseudoperfect (v * d₁))
+    (h₂ : PrimitivePseudoperfect (v * d₂)) (hdiv : d₁ ∣ d₂) :
     d₁ = d₂ := by
   have hd₂pos : 0 < d₂ := Nat.pos_of_mul_pos_left h₂.1.1
   have hle : d₁ ≤ d₂ := Nat.le_of_dvd hd₂pos hdiv
@@ -4680,7 +4693,7 @@ theorem fixedRoot_primitive_antichain {v d₁ d₂ : ℕ} (hv : 0 < v)
   have hproper : v * d₁ ∈ (v * d₂).properDivisors := by
     apply Nat.mem_properDivisors.mpr
     exact ⟨Nat.mul_dvd_mul_left v hdiv, (Nat.mul_lt_mul_left hv).mpr hlt⟩
-  exact (h₂.2 (v * d₁) hproper) h₁.1
+  exact (h₂.2 (v * d₁) hproper) h₁.1.2
 
 /-- A prime-factor-list prefix gives divisibility of the represented positive
 integers. -/
@@ -4708,11 +4721,11 @@ theorem primeFactorsList_prod {d : ℕ} (hdpos : 0 < d) :
     d.primeFactorsList.prod = d :=
   Nat.prod_primeFactorsList hdpos.ne'
 
-/-- A canonical non-PND primitive semiperfect endpoint whose decorated root
+/-- A canonical non-PND primitive pseudoperfect endpoint whose decorated root
 is a prescribed value `v`. -/
 structure CanonicalDecorationTerminal (v : ℕ) where
   N : ℕ
-  primitive : PrimitiveSemiperfect N
+  primitive : PrimitivePseudoperfect N
   nonPND : ¬PND N
   root_eq : (canonicalDecoration N).v = v
 
@@ -4747,11 +4760,11 @@ theorem decoration_squarefree {v : ℕ}
     Squarefree terminal.decoration :=
   canonicalDecoration_d_squarefree terminal.primitive terminal.nonPND
 
-/-- The canonical endpoint is primitive semiperfect in fixed-root product
+/-- The canonical endpoint is primitive pseudoperfect in fixed-root product
 form. -/
 theorem primitive_product {v : ℕ}
     (terminal : CanonicalDecorationTerminal v) :
-    PrimitiveSemiperfect (v * terminal.decoration) := by
+    PrimitivePseudoperfect (v * terminal.decoration) := by
   rw [terminal.root_mul_decoration]
   exact terminal.primitive
 
@@ -5317,36 +5330,35 @@ end
 
 noncomputable section
 
-/-- The set of primitive semiperfect positive integers. Positivity is already
-part of `Semiperfect`. -/
-def primitiveSemiperfectSet : Set ℕ := {n | PrimitiveSemiperfect n}
+/-- The set of primitive pseudoperfect positive integers. -/
+def primitivePseudoperfectSet : Set ℕ := {n | PrimitivePseudoperfect n}
 
 /-- The reciprocal sequence from the main theorem, extended by zero away from
-primitive semiperfect integers. -/
-def primitiveSemiperfectReciprocal : ℕ → ℝ :=
-  primitiveSemiperfectSet.indicator fun n => (n : ℝ)⁻¹
+primitive pseudoperfect integers. -/
+def primitivePseudoperfectReciprocal : ℕ → ℝ :=
+  primitivePseudoperfectSet.indicator fun n => (n : ℝ)⁻¹
 
 /-- The direct PND part of the reciprocal sequence. -/
 def pndPrimitiveReciprocal : ℕ → ℝ := by
   classical
-  exact fun n => if PrimitiveSemiperfect n ∧ PND n then (n : ℝ)⁻¹ else 0
+  exact fun n => if PrimitivePseudoperfect n ∧ PND n then (n : ℝ)⁻¹ else 0
 
 /-- The non-PND part assigned to decorated roots. -/
 def decoratedPrimitiveReciprocal : ℕ → ℝ := by
   classical
-  exact fun n => if PrimitiveSemiperfect n ∧ ¬PND n then (n : ℝ)⁻¹ else 0
+  exact fun n => if PrimitivePseudoperfect n ∧ ¬PND n then (n : ℝ)⁻¹ else 0
 
 /-- The two arithmetic branches partition the target sequence exactly. -/
-theorem primitiveSemiperfectReciprocal_eq_parts (n : ℕ) :
-    primitiveSemiperfectReciprocal n =
+theorem primitivePseudoperfectReciprocal_eq_parts (n : ℕ) :
+    primitivePseudoperfectReciprocal n =
       pndPrimitiveReciprocal n + decoratedPrimitiveReciprocal n := by
-  by_cases hprimitive : PrimitiveSemiperfect n
+  by_cases hprimitive : PrimitivePseudoperfect n
   · by_cases hpnd : PND n
-    · simp [primitiveSemiperfectReciprocal, primitiveSemiperfectSet,
+    · simp [primitivePseudoperfectReciprocal, primitivePseudoperfectSet,
         pndPrimitiveReciprocal, decoratedPrimitiveReciprocal, hprimitive, hpnd]
-    · simp [primitiveSemiperfectReciprocal, primitiveSemiperfectSet,
+    · simp [primitivePseudoperfectReciprocal, primitivePseudoperfectSet,
         pndPrimitiveReciprocal, decoratedPrimitiveReciprocal, hprimitive, hpnd]
-  · simp [primitiveSemiperfectReciprocal, primitiveSemiperfectSet,
+  · simp [primitivePseudoperfectReciprocal, primitivePseudoperfectSet,
       pndPrimitiveReciprocal, decoratedPrimitiveReciprocal, hprimitive]
 
 /-- Explicit hypothesis package for the direct PND contribution. -/
@@ -5369,7 +5381,7 @@ reciprocal sequence. -/
 theorem pndPrimitiveReciprocal_le_reciprocalPND (n : ℕ) :
     pndPrimitiveReciprocal n ≤ reciprocalPND n := by
   classical
-  by_cases hprimitive : PrimitiveSemiperfect n
+  by_cases hprimitive : PrimitivePseudoperfect n
   · by_cases hpnd : PND n
     · simp [pndPrimitiveReciprocal, reciprocalPND, hprimitive, hpnd]
     · simp [pndPrimitiveReciprocal, reciprocalPND, hprimitive, hpnd]
@@ -5386,23 +5398,23 @@ theorem PNDContributionPackage.ofWeightedPND
 
 /-- Summability of the two exhaustive contributions proves summability of the
 target sequence on natural numbers. -/
-theorem primitiveSemiperfectReciprocal_summable
+theorem primitivePseudoperfectReciprocal_summable
     (hPND : PNDContributionPackage)
     (hDecorated : DecoratedContributionPackage) :
-    Summable primitiveSemiperfectReciprocal := by
+    Summable primitivePseudoperfectReciprocal := by
   apply (hPND.summable.add hDecorated.summable).congr
   intro n
-  exact (primitiveSemiperfectReciprocal_eq_parts n).symm
+  exact (primitivePseudoperfectReciprocal_eq_parts n).symm
 
 /-- The indicator formulation is equivalent to summability on the subtype in
 the theorem statement. -/
-theorem primitiveSemiperfectSubtype_summable_iff :
-    Summable (fun n : {n : ℕ // PrimitiveSemiperfect n} => ((n.1 : ℝ)⁻¹)) ↔
-      Summable primitiveSemiperfectReciprocal := by
+theorem primitivePseudoperfectSubtype_summable_iff :
+    Summable (fun n : {n : ℕ // PrimitivePseudoperfect n} => ((n.1 : ℝ)⁻¹)) ↔
+      Summable primitivePseudoperfectReciprocal := by
   change
     Summable ((fun n : ℕ => (n : ℝ)⁻¹) ∘
-      (Subtype.val : primitiveSemiperfectSet → ℕ)) ↔
-      Summable (primitiveSemiperfectSet.indicator fun n : ℕ => (n : ℝ)⁻¹)
+      (Subtype.val : primitivePseudoperfectSet → ℕ)) ↔
+      Summable (primitivePseudoperfectSet.indicator fun n : ℕ => (n : ℝ)⁻¹)
   exact summable_subtype_iff_indicator
 
 /-- Conditional form of the main theorem with every remaining global input
@@ -5410,9 +5422,9 @@ visible in the theorem signature. -/
 theorem main_of_contribution_packages
     (hPND : PNDContributionPackage)
     (hDecorated : DecoratedContributionPackage) :
-    Summable (fun n : {n : ℕ // PrimitiveSemiperfect n} => ((n.1 : ℝ)⁻¹)) :=
-  primitiveSemiperfectSubtype_summable_iff.mpr
-    (primitiveSemiperfectReciprocal_summable hPND hDecorated)
+    Summable (fun n : {n : ℕ // PrimitivePseudoperfect n} => ((n.1 : ℝ)⁻¹)) :=
+  primitivePseudoperfectSubtype_summable_iff.mpr
+    (primitivePseudoperfectReciprocal_summable hPND hDecorated)
 
 end
 
@@ -5618,9 +5630,9 @@ theorem summable_fiber_partition_of_nonneg
       rfl
     _ ≤ ∑' b, majorant b := hmass.tsum_le_tsum hbound hmajorant
 
-/-- Non-PND primitive semiperfect endpoints as a subtype. -/
+/-- Non-PND primitive pseudoperfect endpoints as a subtype. -/
 def NonPNDPrimitiveEndpoint : Type :=
-  {N : ℕ // PrimitiveSemiperfect N ∧ ¬PND N}
+  {N : ℕ // PrimitivePseudoperfect N ∧ ¬PND N}
 
 /-- A validated decorated root parameter. The proof fields ensure that every
 key has a positive value and that its overlap factor is one of the finitely
@@ -5929,7 +5941,7 @@ namespace DecoratedRootMajorantPackage
 end DecoratedRootMajorantPackage
 
 /-- Exact fiber reindexing plus the local tree and root majorant prove
-summability on the subtype of non-PND primitive semiperfect endpoints. -/
+summability on the subtype of non-PND primitive pseudoperfect endpoints. -/
 theorem nonPNDEndpointReciprocal_summable
     (tree : DecoratedTreeChargePackage)
     (roots : DecoratedRootMajorantPackage tree) :
@@ -5947,7 +5959,7 @@ theorem nonPNDEndpointReciprocal_summable
 
 /-- The natural-number set underlying `NonPNDPrimitiveEndpoint`. -/
 def nonPNDPrimitiveSet : Set ℕ :=
-  {N | PrimitiveSemiperfect N ∧ ¬PND N}
+  {N | PrimitivePseudoperfect N ∧ ¬PND N}
 
 /-- Subtype summability is exactly summability of the decorated indicator
 sequence used by the conditional main theorem. -/
@@ -5958,13 +5970,13 @@ theorem decoratedPrimitiveReciprocal_summable_of_endpoints
       (nonPNDPrimitiveSet.indicator fun N : ℕ => (N : ℝ)⁻¹) := by
     rw [← summable_subtype_iff_indicator]
     change Summable (fun endpoint : {N : ℕ //
-      PrimitiveSemiperfect N ∧ ¬PND N} => (endpoint.1 : ℝ)⁻¹)
+      PrimitivePseudoperfect N ∧ ¬PND N} => (endpoint.1 : ℝ)⁻¹)
     change Summable (fun endpoint : NonPNDPrimitiveEndpoint =>
       (endpoint.1 : ℝ)⁻¹)
     exact hendpoints
   apply hindicator.congr
   intro N
-  by_cases hN : PrimitiveSemiperfect N ∧ ¬PND N
+  by_cases hN : PrimitivePseudoperfect N ∧ ¬PND N
   · simp [nonPNDPrimitiveSet, decoratedPrimitiveReciprocal, hN]
   · simp [nonPNDPrimitiveSet, decoratedPrimitiveReciprocal, hN]
 
@@ -6782,7 +6794,7 @@ theorem main_of_bellmanAssembly_of_weighted
     (certificate : DecoratedRootBellmanCertificate)
     (inputs : DecoratedBellmanRootBudgetInputs certificate)
     (hweighted : Summable weightedPND) :
-    Summable (fun N : {N : Nat // PrimitiveSemiperfect N} =>
+    Summable (fun N : {N : Nat // PrimitivePseudoperfect N} =>
       (N.1 : Real)⁻¹) :=
   main_of_contribution_packages
     (PNDContributionPackage.ofWeightedPND hweighted)
@@ -8581,7 +8593,7 @@ def arithmeticContext {key : DecoratedRootKey}
 
 /-- The numerical current at the full terminal word is its endpoint. The full
 word is not made into an arithmetic state because the endpoint is
-semiperfect, while an arithmetic state requires weirdness. -/
+pseudoperfect, while an arithmetic state requires weirdness. -/
 theorem terminalCurrent_eq_endpoint {key : DecoratedRootKey}
     (terminal : CanonicalRootFiber key) :
     key.value * terminal.word.prod = terminal.1.1 := by
@@ -8727,7 +8739,7 @@ theorem eligibleChildPrime_nextLabel {key : DecoratedRootKey}
     exact ⟨hrootCoprime, hprefixCoprime⟩
 
 /-- When the next label completes the terminal word, the exact transition is
-a semiperfect candidate hit. -/
+a pseudoperfect candidate hit. -/
 theorem candidateHit_nextLabel_of_eq_word {key : DecoratedRootKey}
     (hexists : ∃ terminal : CanonicalRootFiber key,
       terminal.word ≠ [])
@@ -8739,7 +8751,7 @@ theorem candidateHit_nextLabel_of_eq_word {key : DecoratedRootKey}
   let state := stateBeforeNextLabel hexists terminal hword pre p hnext
   have hp : state.EligibleChildPrime p :=
     eligibleChildPrime_nextLabel hexists terminal hword pre p hnext
-  apply (state.semiperfect_mul_iff_candidateHit hp).mp
+  apply (state.pseudoperfect_mul_iff_candidateHit hp).mp
   have hcurrent : state.current * p = terminal.1.1 := by
     calc
       state.current * p = (key.value * pre.prod) * p := by
@@ -8749,7 +8761,7 @@ theorem candidateHit_nextLabel_of_eq_word {key : DecoratedRootKey}
       _ = key.value * terminal.word.prod := by rw [hterminal]
       _ = terminal.1.1 := terminal.terminalCurrent_eq_endpoint
   rw [hcurrent]
-  exact terminal.toTerminal.primitive.1
+  exact terminal.toTerminal.primitive.1.2
 
 /-- The terminal-completing label lies in the candidate threshold range. -/
 theorem isCandidatePrime_nextLabel_of_eq_word {key : DecoratedRootKey}
@@ -9012,7 +9024,7 @@ theorem main_of_canonical_boundary_assembly_unconditional_counting
       CanonicalExactFiberBoundaryCertificate matched selection)
     (inputs : CanonicalBellmanRootBudgetInputs certificate)
     (hweighted : Summable weightedPND) :
-    Summable (fun N : {N : Nat // PrimitiveSemiperfect N} =>
+    Summable (fun N : {N : Nat // PrimitivePseudoperfect N} =>
       (N.1 : Real)⁻¹) :=
   main_of_bellmanAssembly_of_weighted certificate.toBellmanCertificate
     inputs.toDecoratedBellmanRootBudgetInputs hweighted
@@ -18672,7 +18684,7 @@ theorem main_of_unconditional_analytic_inputs
     {selection : ConstantSelection matched}
     (certificate : CanonicalExactFiberBoundaryCertificate matched selection)
     (inputs : CanonicalBellmanRootBudgetInputs certificate) :
-    Summable (fun N : {N : Nat // PrimitiveSemiperfect N} =>
+    Summable (fun N : {N : Nat // PrimitivePseudoperfect N} =>
       (N.1 : Real)⁻¹) :=
   main_of_canonical_boundary_assembly_unconditional_counting certificate inputs
     unconditionalWeightedPNDSummable
@@ -19702,9 +19714,9 @@ def erdos469CanonicalRootBudgetInputs :
   erdos469ConcreteRootBudgetIdentity.toCanonicalBellmanRootBudgetInputs
 
 /-- Erdos Problem 469: the reciprocal function is summable on primitive
-semiperfect positive integers. -/
+pseudoperfect positive integers. -/
 theorem erdos469 :
-    Summable (fun N : {N : Nat // PrimitiveSemiperfect N} =>
+    Summable (fun N : {N : Nat // PrimitivePseudoperfect N} =>
       (N.1 : Real)⁻¹) :=
   main_of_unconditional_analytic_inputs
     erdos469CanonicalBoundaryCertificate
@@ -19712,39 +19724,25 @@ theorem erdos469 :
 
 end
 
-/-- The proposition that `n` is a sum of distinct proper divisors. -/
-def Nat.IsSumDivisors (n : ℕ) : Prop :=
-  ∃ S ⊆ n.properDivisors, ∑ d ∈ S, d = n
-
 open Erdos469
 
-/-- The Formal Conjectures subset-sum predicate agrees with `Finset.subsetSum`. -/
-theorem Nat.isSumDivisors_iff_mem_subsetSum (n : ℕ) :
-    n.IsSumDivisors ↔ n ∈ n.properDivisors.subsetSum := by
-  rw [Nat.IsSumDivisors, Finset.mem_subsetSum_iff]
-
 /-- The Formal Conjectures minimality condition describes exactly the primitive
-semiperfect positive integers used above. -/
-theorem formalConjecturesPredicate_iff_primitiveSemiperfect (n : ℕ) :
+pseudoperfect positive integers used above. -/
+theorem formalConjecturesPredicate_iff_primitivePseudoperfect (n : ℕ) :
     (0 < n ∧ n.IsSumDivisors ∧
       ∀ m < n, m ∣ n → ¬m.IsSumDivisors) ↔
-      PrimitiveSemiperfect n := by
-  rw [PrimitiveSemiperfect, Semiperfect]
+      PrimitivePseudoperfect n := by
+  rw [PrimitivePseudoperfect]
   constructor
   · rintro ⟨hn, hsum, hminimal⟩
-    rw [Nat.isSumDivisors_iff_mem_subsetSum] at hsum
     refine ⟨⟨hn, hsum⟩, ?_⟩
-    intro d hd hsemi
+    intro d hd hpseudo
     have hdivlt := Nat.mem_properDivisors.mp hd
-    exact hminimal d hdivlt.2 hdivlt.1
-      ((Nat.isSumDivisors_iff_mem_subsetSum d).mpr hsemi.2)
+    exact hminimal d hdivlt.2 hdivlt.1 hpseudo
   · rintro ⟨⟨hn, hsum⟩, hminimal⟩
-    rw [← Nat.isSumDivisors_iff_mem_subsetSum] at hsum
     refine ⟨hn, hsum, ?_⟩
     intro m hmn hdiv hsum_m
-    apply hminimal m (Nat.mem_properDivisors.mpr ⟨hdiv, hmn⟩)
-    exact ⟨Nat.pos_of_dvd_of_pos hdiv hn,
-      (Nat.isSumDivisors_iff_mem_subsetSum m).mp hsum_m⟩
+    exact hminimal m (Nat.mem_properDivisors.mpr ⟨hdiv, hmn⟩) hsum_m
 
 /-- Erdős Problem 469 in the formulation used by Formal Conjectures. -/
 theorem erdos_469 :
@@ -19754,15 +19752,15 @@ theorem erdos_469 :
   let e :
       (↥({n : ℕ | 0 < n ∧ n.IsSumDivisors ∧
         ∀ m < n, m ∣ n → ¬m.IsSumDivisors} : Set ℕ)) ≃
-        {n : ℕ // PrimitiveSemiperfect n} :=
-    Equiv.subtypeEquivRight formalConjecturesPredicate_iff_primitiveSemiperfect
+        {n : ℕ // PrimitivePseudoperfect n} :=
+    Equiv.subtypeEquivRight formalConjecturesPredicate_iff_primitivePseudoperfect
   have h := e.summable_iff.mpr erdos469
   simpa [e, Function.comp_def] using h
 
 /-!
-## Natural density of semiperfect numbers
+## Natural density of pseudoperfect numbers
 
-The convergence theorem above implies that the semiperfect numbers have a
+The convergence theorem above implies that the pseudoperfect numbers have a
 natural density. The following argument also proves that this density lies
 strictly between zero and one.
 -/
@@ -20052,18 +20050,17 @@ theorem card_indexedMultiples_inter_Ioo_le {ι : Type*}
       apply mul_le_mul_of_nonneg_left _ (Nat.cast_nonneg N)
       exact h.sum_le_tsum exceptional (fun _ _ => by positivity)
 
-/-- Semiperfectness is inherited by positive multiples. -/
-theorem Semiperfect.of_dvd {m n : ℕ} (hm : Semiperfect m)
-    (hmn : m ∣ n) (hn : 0 < n) : Semiperfect n := by
+/-- Pseudoperfectness is inherited by positive multiples. -/
+theorem Nat.IsSumDivisors.of_dvd {m n : ℕ} (hm : Nat.IsSumDivisors m)
+    (hmn : m ∣ n) (hn : 0 < n) : Nat.IsSumDivisors n := by
   obtain ⟨k, rfl⟩ := hmn
   have hk : 0 < k := by
     by_contra hk
     simp only [Nat.not_lt, Nat.le_zero] at hk
     subst k
     simp at hn
-  obtain ⟨D, hD, hsum⟩ := Finset.mem_subsetSum_iff.mp hm.2
-  refine ⟨hn, Finset.mem_subsetSum_iff.mpr
-    ⟨D.image (fun d => k * d), ?_, ?_⟩⟩
+  obtain ⟨D, hD, hsum⟩ := hm
+  refine ⟨D.image (fun d => k * d), ?_, ?_⟩
   · intro x hx
     obtain ⟨d, hdD, rfl⟩ := Finset.mem_image.mp hx
     obtain ⟨hdvd, hdlt⟩ := Nat.mem_properDivisors.mp (hD hdD)
@@ -20076,61 +20073,64 @@ theorem Semiperfect.of_dvd {m n : ℕ} (hm : Semiperfect m)
     · intro a ha b hb hab
       exact Nat.eq_of_mul_eq_mul_left hk hab
 
-/-- Every semiperfect number has a primitive semiperfect divisor. -/
-theorem Semiperfect.exists_primitive_divisor {n : ℕ}
-    (hn : Semiperfect n) :
-    ∃ a, PrimitiveSemiperfect a ∧ a ∣ n := by
+/-- Every pseudoperfect number has a primitive pseudoperfect divisor. -/
+theorem Nat.IsSumDivisors.exists_primitive_divisor {n : ℕ}
+    (hnpos : 0 < n) (hn : Nat.IsSumDivisors n) :
+    ∃ a, PrimitivePseudoperfect a ∧ a ∣ n := by
   classical
-  let candidates := n.divisors.filter Semiperfect
+  let candidates := n.divisors.filter Nat.IsSumDivisors
   have hcandidates : candidates.Nonempty := by
     refine ⟨n, Finset.mem_filter.mpr ⟨?_, hn⟩⟩
-    exact Nat.mem_divisors.mpr ⟨Nat.dvd_refl n, hn.1.ne'⟩
+    exact Nat.mem_divisors.mpr ⟨Nat.dvd_refl n, hnpos.ne'⟩
   let a := candidates.min' hcandidates
   have haCandidates : a ∈ candidates := Finset.min'_mem _ _
   have haData := Finset.mem_filter.mp haCandidates
-  refine ⟨a, ⟨haData.2, ?_⟩, Nat.dvd_of_mem_divisors haData.1⟩
+  have hapos : 0 < a :=
+    Nat.pos_of_dvd_of_pos (Nat.dvd_of_mem_divisors haData.1) hnpos
+  refine ⟨a, ⟨⟨hapos, haData.2⟩, ?_⟩,
+    Nat.dvd_of_mem_divisors haData.1⟩
   intro d hdProper hdSemi
   have hdn : d ∣ n :=
     (Nat.mem_properDivisors.mp hdProper).1.trans
       (Nat.dvd_of_mem_divisors haData.1)
   have hdCandidates : d ∈ candidates := by
     apply Finset.mem_filter.mpr
-    exact ⟨Nat.mem_divisors.mpr ⟨hdn, hn.1.ne'⟩, hdSemi⟩
+    exact ⟨Nat.mem_divisors.mpr ⟨hdn, hnpos.ne'⟩, hdSemi⟩
   have had : a ≤ d := Finset.min'_le candidates d hdCandidates
   exact (Nat.not_lt_of_ge had) (Nat.mem_properDivisors.mp hdProper).2
 
-/-- Semiperfect numbers are exactly the positive multiples of primitive
-semiperfect numbers. -/
-theorem semiperfect_iff_exists_primitive_divisor (n : ℕ) :
-    Semiperfect n ↔
-      0 < n ∧ ∃ a, PrimitiveSemiperfect a ∧ a ∣ n := by
+/-- Pseudoperfect numbers are exactly the positive multiples of primitive
+pseudoperfect numbers. -/
+theorem pseudoperfect_iff_exists_primitive_divisor (n : ℕ) :
+    (0 < n ∧ n.IsSumDivisors) ↔
+      0 < n ∧ ∃ a, PrimitivePseudoperfect a ∧ a ∣ n := by
   constructor
-  · intro hn
+  · rintro ⟨hnpos, hn⟩
     obtain ⟨a, ha, han⟩ :=
-      Semiperfect.exists_primitive_divisor hn
-    exact ⟨hn.1, a, ha, han⟩
+      Nat.IsSumDivisors.exists_primitive_divisor hnpos hn
+    exact ⟨hnpos, a, ha, han⟩
   · rintro ⟨hn, a, ha, han⟩
-    exact Semiperfect.of_dvd ha.1 han hn
+    exact ⟨hn, Nat.IsSumDivisors.of_dvd ha.1.2 han hn⟩
 
 /-- The set whose density is studied below. -/
-def semiperfectNumbers : Set ℕ := {n | Semiperfect n}
+def pseudoperfectNumbers : Set ℕ := {n | 0 < n ∧ n.IsSumDivisors}
 
-/-- The subtype of primitive semiperfect numbers. -/
-abbrev PrimitiveIndex := {a : ℕ // PrimitiveSemiperfect a}
+/-- The subtype of primitive pseudoperfect numbers. -/
+abbrev PrimitiveIndex := {a : ℕ // PrimitivePseudoperfect a}
 
-/-- The natural-number value of a primitive semiperfect index. -/
+/-- The natural-number value of a primitive pseudoperfect index. -/
 def primitiveValue (a : PrimitiveIndex) : ℕ := a.1
 
 theorem primitiveValue_pos (a : PrimitiveIndex) : 0 < primitiveValue a := a.2.1.1
 
 /-- Set-theoretic form of the primitive-divisor characterization. -/
-theorem semiperfectNumbers_eq_indexedMultiples :
-    semiperfectNumbers =
+theorem pseudoperfectNumbers_eq_indexedMultiples :
+    pseudoperfectNumbers =
       indexedMultiples primitiveValue ∩ Set.Ioi 0 := by
   ext n
   rw [Set.mem_inter_iff]
-  simp only [semiperfectNumbers, Set.mem_setOf_eq, Set.mem_Ioi,
-    semiperfect_iff_exists_primitive_divisor, indexedMultiples,
+  simp only [pseudoperfectNumbers, Set.mem_setOf_eq, Set.mem_Ioi,
+    pseudoperfect_iff_exists_primitive_divisor, indexedMultiples,
     Set.mem_range]
   constructor
   · rintro ⟨hn, a, ha, han⟩
@@ -20141,14 +20141,14 @@ theorem semiperfectNumbers_eq_indexedMultiples :
     rw [← hka]
     exact dvd_mul_left _ _
 
-/-- Reciprocal summability of primitive semiperfect numbers, in the notation
+/-- Reciprocal summability of primitive pseudoperfect numbers, in the notation
 of this file. This is the deep input from `erdos469`. -/
 theorem primitiveReciprocal_summable :
     Summable fun a : PrimitiveIndex => 1 / (primitiveValue a : ℝ) := by
   simpa [primitiveValue, one_div] using erdos469
 
 /-- The finite approximation generated by a finite family of primitive
-semiperfect numbers. -/
+pseudoperfect numbers. -/
 def finitePrimitiveMultiples (F : Finset PrimitiveIndex) : Set ℕ :=
   finiteMultiples (F.image primitiveValue)
 
@@ -20164,25 +20164,25 @@ theorem finitePrimitiveMultiples_hasDensity (F : Finset PrimitiveIndex) :
   exact primitiveValue_pos b
 
 theorem finitePrimitiveMultiples_subset (F : Finset PrimitiveIndex) :
-    finitePrimitiveMultiples F ⊆ semiperfectNumbers := by
+    finitePrimitiveMultiples F ⊆ pseudoperfectNumbers := by
   intro n hn
   obtain ⟨hnpos, a, ha, han⟩ := hn
   obtain ⟨b, hb, hba⟩ := Finset.mem_image.mp ha
   rw [← hba] at han
-  rw [semiperfectNumbers, Set.mem_setOf_eq]
-  exact Semiperfect.of_dvd b.2.1 han hnpos
+  rw [pseudoperfectNumbers, Set.mem_setOf_eq]
+  exact ⟨hnpos, Nat.IsSumDivisors.of_dvd b.2.1.2 han hnpos⟩
 
 /-- Anything missed by a finite primitive approximation is a positive
 multiple of one of the remaining primitive indices. -/
-theorem semiperfectNumbers_sdiff_finite_subset_tail
+theorem pseudoperfectNumbers_sdiff_finite_subset_tail
     (F : Finset PrimitiveIndex) :
-    semiperfectNumbers \ finitePrimitiveMultiples F ⊆
+    pseudoperfectNumbers \ finitePrimitiveMultiples F ⊆
       indexedMultiples (fun a : PrimitiveTail F => primitiveValue a.1) ∩
         Set.Ioi 0 := by
   intro n hn
-  have hnSemi : Semiperfect n := hn.1
+  have hnPseudo : 0 < n ∧ n.IsSumDivisors := hn.1
   obtain ⟨hnpos, a, ha, han⟩ :=
-    (semiperfect_iff_exists_primitive_divisor n).mp hnSemi
+    (pseudoperfect_iff_exists_primitive_divisor n).mp hnPseudo
   let ai : PrimitiveIndex := ⟨a, ha⟩
   have hai : ai ∉ F := by
     intro haiF
@@ -20210,7 +20210,7 @@ theorem densitySequence_mono_of_subset {S T : Set ℕ} (hST : S ⊆ T) (n : ℕ)
 approximation. -/
 theorem densitySequence_le_finite_add_tail
     (F : Finset PrimitiveIndex) (n : ℕ) :
-    densitySequence semiperfectNumbers n ≤
+    densitySequence pseudoperfectNumbers n ≤
       densitySequence (finitePrimitiveMultiples F) n +
         ∑' a : PrimitiveTail F, 1 / (primitiveValue a.1 : ℝ) := by
   rcases n.eq_zero_or_pos with rfl | hn
@@ -20221,16 +20221,16 @@ theorem densitySequence_le_finite_add_tail
     exact tsum_nonneg fun _ => by positivity
   let tailSet :=
     indexedMultiples (fun a : PrimitiveTail F => primitiveValue a.1)
-  have hcover : semiperfectNumbers ∩ Set.Iio n ⊆
+  have hcover : pseudoperfectNumbers ∩ Set.Iio n ⊆
       (finitePrimitiveMultiples F ∩ Set.Iio n) ∪
         (tailSet ∩ Set.Ioo 0 n) := by
     intro x hx
     by_cases hxF : x ∈ finitePrimitiveMultiples F
     · exact Or.inl ⟨hxF, hx.2⟩
     · right
-      have htail := semiperfectNumbers_sdiff_finite_subset_tail F ⟨hx.1, hxF⟩
+      have htail := pseudoperfectNumbers_sdiff_finite_subset_tail F ⟨hx.1, hxF⟩
       exact ⟨htail.1, htail.2, hx.2⟩
-  have hcard : (semiperfectNumbers ∩ Set.Iio n).ncard ≤
+  have hcard : (pseudoperfectNumbers ∩ Set.Iio n).ncard ≤
       (finitePrimitiveMultiples F ∩ Set.Iio n).ncard +
         (tailSet ∩ Set.Ioo 0 n).ncard :=
     (Set.ncard_le_ncard hcover).trans (Set.ncard_union_le _ _)
@@ -20242,11 +20242,11 @@ theorem densitySequence_le_finite_add_tail
     (fun a : PrimitiveTail F => primitiveValue a.1) htailSummable n
   change ((tailSet ∩ Set.Ioo 0 n).ncard : ℝ) ≤
     n * ∑' a : PrimitiveTail F, 1 / (primitiveValue a.1 : ℝ) at htailCard
-  have hreal : ((semiperfectNumbers ∩ Set.Iio n).ncard : ℝ) ≤
+  have hreal : ((pseudoperfectNumbers ∩ Set.Iio n).ncard : ℝ) ≤
       ((finitePrimitiveMultiples F ∩ Set.Iio n).ncard : ℝ) +
         n * ∑' a : PrimitiveTail F, 1 / (primitiveValue a.1 : ℝ) := by
     calc
-      ((semiperfectNumbers ∩ Set.Iio n).ncard : ℝ)
+      ((pseudoperfectNumbers ∩ Set.Iio n).ncard : ℝ)
           ≤ ((finitePrimitiveMultiples F ∩ Set.Iio n).ncard : ℝ) +
               ((tailSet ∩ Set.Ioo 0 n).ncard : ℝ) := by exact_mod_cast hcard
       _ ≤ ((finitePrimitiveMultiples F ∩ Set.Iio n).ncard : ℝ) +
@@ -20265,7 +20265,7 @@ theorem densitySequence_le_finite_add_tail
 
 theorem densitySequence_dist_finite_le_tail
     (F : Finset PrimitiveIndex) (n : ℕ) :
-    dist (densitySequence semiperfectNumbers n)
+    dist (densitySequence pseudoperfectNumbers n)
         (densitySequence (finitePrimitiveMultiples F) n) ≤
       ∑' a : PrimitiveTail F, 1 / (primitiveValue a.1 : ℝ) := by
   have hlower := densitySequence_mono_of_subset
@@ -20274,10 +20274,10 @@ theorem densitySequence_dist_finite_le_tail
   rw [Real.dist_eq, abs_of_nonneg (sub_nonneg.mpr hlower)]
   linarith
 
-/-- The natural density of semiperfect numbers exists. -/
-theorem semiperfectNumbers_hasDensity :
-    ∃ d : ℝ, semiperfectNumbers.HasDensity d := by
-  let u := densitySequence semiperfectNumbers
+/-- The natural density of pseudoperfect numbers exists. -/
+theorem pseudoperfectNumbers_hasDensity :
+    ∃ d : ℝ, pseudoperfectNumbers.HasDensity d := by
+  let u := densitySequence pseudoperfectNumbers
   have huCauchy : CauchySeq u := by
     apply Metric.cauchySeq_iff'.mpr
     intro ε hε
@@ -20297,7 +20297,7 @@ theorem semiperfectNumbers_hasDensity :
     have hNTail := densitySequence_dist_finite_le_tail F N
     have hNTail' :
         dist (densitySequence (finitePrimitiveMultiples F) N)
-            (densitySequence semiperfectNumbers N) ≤
+            (densitySequence pseudoperfectNumbers N) ≤
           ∑' a : PrimitiveTail F, 1 / (primitiveValue a.1 : ℝ) := by
       simpa [dist_comm] using hNTail
     have hmiddle := hN n hn
@@ -20328,18 +20328,18 @@ theorem hasDensity_mono {S T : Set ℕ} {dS dT : ℝ} (hST : S ⊆ T)
   exact Filter.Eventually.of_forall fun n =>
     densitySequence_mono_of_subset hST n
 
-theorem semiperfect_six : Semiperfect 6 := by
-  norm_num [Semiperfect, Finset.mem_subsetSum_iff]
+theorem pseudoperfect_six : 0 < 6 ∧ Nat.IsSumDivisors 6 := by
+  refine ⟨by norm_num, ?_⟩
   exact ⟨{1, 2, 3}, by norm_num [Finset.subset_iff], by norm_num⟩
 
 theorem positiveMultiples_six_subset :
-    positiveMultiples 6 ⊆ semiperfectNumbers := by
+    positiveMultiples 6 ⊆ pseudoperfectNumbers := by
   intro n hn
-  exact Semiperfect.of_dvd semiperfect_six hn.2 hn.1
+  exact ⟨hn.1, Nat.IsSumDivisors.of_dvd pseudoperfect_six.2 hn.2 hn.1⟩
 
-/-- Any natural density of the semiperfect numbers is at least `1 / 6`. -/
-theorem semiperfect_density_lower {d : ℝ}
-    (hd : semiperfectNumbers.HasDensity d) :
+/-- Any natural density of the pseudoperfect numbers is at least `1 / 6`. -/
+theorem pseudoperfect_density_lower {d : ℝ}
+    (hd : pseudoperfectNumbers.HasDensity d) :
     (1 : ℝ) / 6 ≤ d := by
   exact hasDensity_mono positiveMultiples_six_subset
     (positiveMultiples_hasDensity (by norm_num : 0 < 6)) hd
@@ -20376,15 +20376,16 @@ theorem reciprocalDivisorWeight_nonneg (n : ℕ) :
   intro d hd
   positivity
 
-/-- Semiperfectness forces at least one unit of nontrivial reciprocal-divisor
+/-- Pseudoperfectness forces at least one unit of nontrivial reciprocal-divisor
 weight. -/
-theorem one_le_reciprocalDivisorWeight {n : ℕ} (hn : Semiperfect n) :
+theorem one_le_reciprocalDivisorWeight {n : ℕ} (hpos : 0 < n)
+    (hn : Nat.IsSumDivisors n) :
     1 ≤ reciprocalDivisorWeight n := by
   have hratio : (2 : ℝ) ≤ (sigma n : ℝ) / n := by
-    apply (le_div_iff₀ (by exact_mod_cast hn.1 : (0 : ℝ) < n)).2
-    exact_mod_cast hn.nondeficient.2
-  rw [sigma_div_eq_sum_divisors_inv hn.1] at hratio
-  have hone : 1 ∈ n.divisors := Nat.one_mem_divisors.mpr hn.1.ne'
+    apply (le_div_iff₀ (by exact_mod_cast hpos : (0 : ℝ) < n)).2
+    exact_mod_cast (isSumDivisors_nondeficient hn hpos).2
+  rw [sigma_div_eq_sum_divisors_inv hpos] at hratio
+  have hone : 1 ∈ n.divisors := Nat.one_mem_divisors.mpr hpos.ne'
   have hsplit : reciprocalDivisorWeight n + 1 =
       ∑ d ∈ n.divisors, 1 / (d : ℝ) := by
     simpa [reciprocalDivisorWeight] using
@@ -20410,14 +20411,15 @@ theorem reciprocalDivisorWeight_le_bounded {N n : ℕ} (hn : n < N) :
   · intro d hdTarget hdSource
     positivity
 
-theorem card_semiperfect_Ioo_le_weight_sum (N : ℕ) :
-    ((semiperfectNumbers ∩ Set.Iio N).ncard : ℝ) ≤
+theorem card_pseudoperfect_Ioo_le_weight_sum (N : ℕ) :
+    ((pseudoperfectNumbers ∩ Set.Iio N).ncard : ℝ) ≤
       ∑ n ∈ Finset.Ioo 0 N, boundedDivisorWeight N n := by
   classical
-  have hset : semiperfectNumbers ∩ Set.Iio N =
-      ↑(Finset.filter Semiperfect (Finset.Ioo 0 N)) := by
+  have hset : pseudoperfectNumbers ∩ Set.Iio N =
+      ↑(Finset.filter (fun n => 0 < n ∧ n.IsSumDivisors)
+        (Finset.Ioo 0 N)) := by
     ext n
-    simp only [semiperfectNumbers, Set.mem_inter_iff, Set.mem_setOf_eq,
+    simp only [pseudoperfectNumbers, Set.mem_inter_iff, Set.mem_setOf_eq,
       Set.mem_Iio, Finset.mem_coe, Finset.mem_filter, Finset.mem_Ioo]
     constructor
     · intro hn
@@ -20425,16 +20427,17 @@ theorem card_semiperfect_Ioo_le_weight_sum (N : ℕ) :
     · intro hn
       exact ⟨hn.2, hn.1.2⟩
   calc
-    ((semiperfectNumbers ∩ Set.Iio N).ncard : ℝ) =
-        ∑ n ∈ Finset.Ioo 0 N, if Semiperfect n then (1 : ℝ) else 0 := by
+    ((pseudoperfectNumbers ∩ Set.Iio N).ncard : ℝ) =
+        ∑ n ∈ Finset.Ioo 0 N,
+          if 0 < n ∧ n.IsSumDivisors then (1 : ℝ) else 0 := by
       rw [hset, Set.ncard_coe_finset]
       simp
     _ ≤ ∑ n ∈ Finset.Ioo 0 N, boundedDivisorWeight N n := by
       apply Finset.sum_le_sum
       intro n hn
       have hnN := (Finset.mem_Ioo.mp hn).2
-      split_ifs with hnSemi
-      · exact (one_le_reciprocalDivisorWeight hnSemi).trans
+      split_ifs with hnPseudo
+      · exact (one_le_reciprocalDivisorWeight hnPseudo.1 hnPseudo.2).trans
           (reciprocalDivisorWeight_le_bounded hnN)
       · exact reciprocalDivisorWeight_nonneg n |>.trans
           (reciprocalDivisorWeight_le_bounded hnN)
@@ -20502,8 +20505,8 @@ theorem sum_Ico_reciprocal_sq_le (N : ℕ) :
   simpa [one_div, add_comm] using hsum
 
 /-- A uniform upper bound for every partial density. -/
-theorem densitySequence_semiperfect_le (N : ℕ) :
-    densitySequence semiperfectNumbers N ≤ Real.pi ^ 2 / 6 - 1 := by
+theorem densitySequence_pseudoperfect_le (N : ℕ) :
+    densitySequence pseudoperfectNumbers N ≤ Real.pi ^ 2 / 6 - 1 := by
   rcases N.eq_zero_or_pos with rfl | hN
   · have hzero := sum_Ico_reciprocal_sq_le 0
     simp only [densitySequence, Set.partialDensity]
@@ -20516,23 +20519,23 @@ theorem densitySequence_semiperfect_le (N : ℕ) :
     have hNR : (0 : ℝ) < N := by exact_mod_cast hN
     apply (div_le_iff₀ hNR).2
     calc
-      ((semiperfectNumbers ∩ Set.Iio N).ncard : ℝ) ≤
+      ((pseudoperfectNumbers ∩ Set.Iio N).ncard : ℝ) ≤
           ∑ n ∈ Finset.Ioo 0 N, boundedDivisorWeight N n :=
-        card_semiperfect_Ioo_le_weight_sum N
+        card_pseudoperfect_Ioo_le_weight_sum N
       _ ≤ (N : ℝ) * ∑ d ∈ Finset.Ico 2 N, 1 / (d : ℝ) ^ 2 :=
         sum_boundedDivisorWeight_le N
       _ ≤ (N : ℝ) * (Real.pi ^ 2 / 6 - 1) := by
         exact mul_le_mul_of_nonneg_left (sum_Ico_reciprocal_sq_le N) hNR.le
       _ = (Real.pi ^ 2 / 6 - 1) * (N : ℝ) := by ring
 
-/-- Any natural density of the semiperfect numbers is bounded strictly below
+/-- Any natural density of the pseudoperfect numbers is bounded strictly below
 one. -/
-theorem semiperfect_density_upper {d : ℝ}
-    (hd : semiperfectNumbers.HasDensity d) :
+theorem pseudoperfect_density_upper {d : ℝ}
+    (hd : pseudoperfectNumbers.HasDensity d) :
     d ≤ Real.pi ^ 2 / 6 - 1 := by
   rw [Set.HasDensity] at hd
   exact le_of_tendsto hd (Filter.Eventually.of_forall
-    densitySequence_semiperfect_le)
+    densitySequence_pseudoperfect_le)
 
 theorem pi_sq_div_six_sub_one_lt_one :
     Real.pi ^ 2 / 6 - 1 < 1 := by
@@ -20540,20 +20543,20 @@ theorem pi_sq_div_six_sub_one_lt_one :
   have hpiBound := Real.pi_lt_d20
   nlinarith
 
-/-- The semiperfect numbers have a natural density, quantitatively trapped
+/-- The pseudoperfect numbers have a natural density, quantitatively trapped
 between `1 / 6` and `π² / 6 - 1`. -/
-theorem semiperfect_density_exists_with_bounds :
-    ∃ d : ℝ, semiperfectNumbers.HasDensity d ∧
+theorem pseudoperfect_density_exists_with_bounds :
+    ∃ d : ℝ, pseudoperfectNumbers.HasDensity d ∧
       (1 : ℝ) / 6 ≤ d ∧ d ≤ Real.pi ^ 2 / 6 - 1 := by
-  obtain ⟨d, hd⟩ := semiperfectNumbers_hasDensity
-  exact ⟨d, hd, semiperfect_density_lower hd, semiperfect_density_upper hd⟩
+  obtain ⟨d, hd⟩ := pseudoperfectNumbers_hasDensity
+  exact ⟨d, hd, pseudoperfect_density_lower hd, pseudoperfect_density_upper hd⟩
 
 /-- The density of the integers that are sums of distinct proper divisors
 exists and lies strictly between zero and one. -/
-theorem semiperfect_density_exists_between_zero_and_one :
-    ∃ d : ℝ, semiperfectNumbers.HasDensity d ∧ 0 < d ∧ d < 1 := by
+theorem pseudoperfect_density_exists_between_zero_and_one :
+    ∃ d : ℝ, pseudoperfectNumbers.HasDensity d ∧ 0 < d ∧ d < 1 := by
   obtain ⟨d, hd, hdLower, hdUpper⟩ :=
-    semiperfect_density_exists_with_bounds
+    pseudoperfect_density_exists_with_bounds
   refine ⟨d, hd, ?_, hdUpper.trans_lt pi_sq_div_six_sub_one_lt_one⟩
   linarith
 
