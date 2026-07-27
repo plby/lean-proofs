@@ -22,6 +22,9 @@ path = "ComparatorChallenges"
 name = "All"
 
 [[lean_lib]]
+name = "BorisBukh"
+
+[[lean_lib]]
 name = "ErdosProblems"
 
 [[lean_lib]]
