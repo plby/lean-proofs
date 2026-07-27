@@ -1,3 +1,17 @@
+- key: BorisBukh.BasisSubset
+  author:
+    informal:
+      AI: ChatGPT Pro
+    formal:
+      AI: Codex
+      human: Boris Alexeev
+  url:
+    - https://borisbukh.org/problems.html
+    - https://chatgpt.com/share/69d6c179-d228-8329-af98-379460ba9844
+    - https://arxiv.org/abs/2605.10771
+    - https://github.com/plby/lean-proofs/blob/main/src/v4.29.0/BorisBukh/BasisSubset.lean
+  version: "4.29.0"
+
 - key: HundredTheorems.Theorem8
   author:
     informal:
