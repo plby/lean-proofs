@@ -1,4 +1,5 @@
-This formalizes the cycle double cover conjecture for finite graphs.
+This formalizes OpenAI's [proof](https://cdn.openai.com/pdf/04d1d1e4-bc75-476a-97cf-49055cd98d31/cdc_proof.pdf)
+of the [cycle double cover conjecture](https://en.wikipedia.org/wiki/Cycle_double_cover).
 
 It is available for these Mathlib (and Lean) versions:
 
