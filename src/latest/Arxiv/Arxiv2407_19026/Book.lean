@@ -624,7 +624,7 @@ theorem redClique_or_large_blueBook {V : Type*}
       nlinarith [sq_nonneg ((b : ℝ) - 1)]
     exact_mod_cast this
   rcases red_or_blue_of_ramseyProperty W
-      (Erdos1014.ramseyProperty_of_ramseyNumber_le hW) with
+      (Ramsey.ramseyProperty_of_ramseyNumber_le hW) with
     ⟨K, hKW, hK⟩ | ⟨U, hUW, hU⟩
   · exact Or.inl ⟨K, hKW.trans hWX, hK⟩
   · have hUX : U ⊆ X := hUW.trans hWX
@@ -719,7 +719,7 @@ theorem redClique_or_blueBook_of_choose_bound {V : Type*} [DecidableEq V]
         IsBlueBook G S T ∧ S.card = b ∧ q ≤ T.card := by
   classical
   rcases red_or_blue_of_ramseyProperty W
-      (Erdos1014.ramseyProperty_of_ramseyNumber_le hW) with
+      (Ramsey.ramseyProperty_of_ramseyNumber_le hW) with
     ⟨K, hKW, hK⟩ | ⟨U, hUW, hU⟩
   · exact Or.inl ⟨K, hKW.trans hWX, hK⟩
   · have hsum := hchoose U hUW hU.card_eq hU.isIndepSet

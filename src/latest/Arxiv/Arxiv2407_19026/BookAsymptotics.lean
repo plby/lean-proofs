@@ -32,7 +32,7 @@ lemma eventuallyRamseyBound_of_lt_mem_ramseyRegion
 second parameter appears in the exponent. -/
 lemma ramseyNumber_le_add_pow {k m : ℕ} (hk : 1 ≤ k) (hm : 1 ≤ m) :
     ramseyNumber k m ≤ (k + m) ^ m := by
-  have hR := Erdos1014.ramseyNumber_le_choose (k - 1) m
+  have hR := Ramsey.ramseyNumber_le_choose (k - 1) m
   have hk' : k - 1 + 1 = k := by omega
   rw [hk'] at hR
   have htop :
@@ -601,7 +601,7 @@ lemma eventually_exceptional_envelope {μ ε : ℝ} {r : ℕ}
 
 lemma ramseyNumber_zero_left (m : ℕ) : ramseyNumber 0 m = 0 := by
   apply le_antisymm
-  · apply Erdos1014.ramseyNumber_le_of_property
+  · apply Ramsey.ramseyNumber_le_of_property
     intro G hbad
     have hnil : G.IsNClique 0 (∅ : Finset (Fin 0)) := by
       simp [SimpleGraph.isNClique_iff]

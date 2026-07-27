@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos1014
+import Util.Ramsey
 
 /-!
 # Optimizing the CGMS upper bound on Ramsey numbers
@@ -17,10 +17,10 @@ noncomputable section
 namespace Arxiv2407_19026
 
 /-- The two-color Ramsey property used in arXiv:2407.19026. -/
-abbrev RamseyProperty := Erdos1014.RamseyProperty
+abbrev RamseyProperty := Ramsey.RamseyProperty
 
 /-- The off-diagonal Ramsey number `R(k, l)`. -/
-abbrev ramseyNumber := Erdos1014.ramseyNumber
+abbrev ramseyNumber := Ramsey.ramseyNumber
 
 /-- The indicator of a red edge. A simple graph represents the red edges;
 its complement represents the blue edges. -/
@@ -271,7 +271,7 @@ lemma red_or_blue_of_ramseyProperty {V : Type*} {G : SimpleGraph V}
   have hprop' : RamseyProperty k l (Fintype.card {v // v ∈ S}) := by
     simpa using hprop
   have hram : ¬(H.CliqueFree k ∧ H.IndepSetFree l) :=
-    Erdos1014.ramseyProperty_of_card rfl hprop' H
+    Ramsey.ramseyProperty_of_card rfl hprop' H
   by_cases hcf : H.CliqueFree k
   · have hnif : ¬H.IndepSetFree l := fun hif ↦ hram ⟨hcf, hif⟩
     rw [SimpleGraph.IndepSetFree] at hnif
@@ -466,7 +466,7 @@ lemma good_of_ramsey_right (C : Candidate G) {k l t : ℕ}
     (hcard : ramseyNumber k l ≤ C.Y.card) : C.Good k l t := by
   classical
   rcases red_or_blue_of_ramseyProperty C.Y
-      (Erdos1014.ramseyProperty_of_ramseyNumber_le hcard) with hred | hblue
+      (Ramsey.ramseyProperty_of_ramseyNumber_le hcard) with hred | hblue
   · exact Or.inl (containsRedClique_mono (subset_union_right) hred)
   · exact Or.inr (Or.inr hblue)
 

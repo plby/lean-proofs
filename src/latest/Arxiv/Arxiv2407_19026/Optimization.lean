@@ -175,7 +175,7 @@ theorem ramseyProperty_exponentThreshold_of_certificate
                 (exponentThreshold F ε k (l - 1)) :=
             ih (l - 1) (by omega) hk (by omega) (by omega)
           have hpropB : RamseyProperty k (l - 1) B.card :=
-            Erdos1014.ramseyProperty_mono_vertices hBcard hprev
+            Ramsey.ramseyProperty_mono_vertices hBcard hprev
           rcases red_or_blue_of_ramseyProperty B hpropB with
             ⟨K, hKB, hK⟩ | ⟨K, hKB, hK⟩
           · exact hbad.1 K hK
@@ -208,7 +208,7 @@ theorem hasRamseyExponent_of_certificates
     ramseyProperty_exponentThreshold_of_certificate C k l hk hl hlk
   have hR :
       ramseyNumber k l ≤ exponentThreshold F ε k l :=
-    Erdos1014.ramseyNumber_le_of_property hprop
+    Ramsey.ramseyNumber_le_of_property hprop
   have hR' :
       (ramseyNumber k l : ℝ) ≤ exponentThreshold F ε k l := by
     exact_mod_cast hR

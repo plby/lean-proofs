@@ -282,13 +282,13 @@ theorem ramseyProperty_of_easyBoundSq {x p : ℝ} (hx : 0 < x)
       have hnone : 1 ≤ n := hnpos
       by_cases hkone : k = 1
       · subst k
-        exact Erdos1014.ramseyProperty_mono_vertices hnone
-          (Erdos1014.ramseyProperty_one_left (l + 1))
+        exact Ramsey.ramseyProperty_mono_vertices hnone
+          (Ramsey.ramseyProperty_one_left (l + 1))
       · have hktwo : 2 ≤ k := by omega
         by_cases hlzero : l = 0
         · subst l
-          exact Erdos1014.ramseyProperty_mono_vertices hnone
-            (Erdos1014.ramseyProperty_one_right k)
+          exact Ramsey.ramseyProperty_mono_vertices hnone
+            (Ramsey.ramseyProperty_one_right k)
         · have hlone : 1 ≤ l := Nat.one_le_iff_ne_zero.mpr hlzero
           have hltwo : 2 ≤ l + 1 := by omega
           intro G hbad
@@ -433,7 +433,7 @@ theorem ramseyNumber_le_ceil_sqrt_easyBoundSq {x p : ℝ} (hx : 0 < x)
       easyBoundSq x p k l ≤ ((⌈B⌉₊ : ℕ) : ℝ) ^ 2 := by
     rw [← hBsq]
     nlinarith [sq_nonneg ((⌈B⌉₊ : ℝ) - B)]
-  exact Erdos1014.ramseyNumber_le_of_property
+  exact Ramsey.ramseyNumber_le_of_property
     (ramseyProperty_of_easyBoundSq hx hxp hp hgold hk hl hthreshold)
 
 /-- Theorem `t:easy`, with the paper's golden-ratio parameter substituted

@@ -254,8 +254,8 @@ theorem ramseyNumber_mul_weights_le_one (x : ℝ) (hx0 : 0 < x) (hx1 : x < 1)
           · subst u
             have hR :
                 (ramseyNumber 1 (m + 1) : ℝ) ≤ 1 := by
-              exact_mod_cast Erdos1014.ramseyNumber_le_of_property
-                (Erdos1014.ramseyProperty_one_left (m + 1))
+              exact_mod_cast Ramsey.ramseyNumber_le_of_property
+                (Ramsey.ramseyProperty_one_left (m + 1))
             have hpow : (1 - x) ^ m ≤ 1 :=
               pow_le_one₀ (le_of_lt hy0) hyle
             simpa using
@@ -264,8 +264,8 @@ theorem ramseyNumber_mul_weights_le_one (x : ℝ) (hx0 : 0 < x) (hx1 : x < 1)
             · subst m
               have hR :
                   (ramseyNumber (u + 1) 1 : ℝ) ≤ 1 := by
-                exact_mod_cast Erdos1014.ramseyNumber_le_of_property
-                  (Erdos1014.ramseyProperty_one_right (u + 1))
+                exact_mod_cast Ramsey.ramseyNumber_le_of_property
+                  (Ramsey.ramseyProperty_one_right (u + 1))
               have hpow : x ^ u ≤ 1 := pow_le_one₀ (le_of_lt hx0) hxle
               simpa [Nat.succ_sub_one] using
                 (mul_le_mul hR hpow (pow_nonneg (le_of_lt hx0) u) zero_le_one)
@@ -274,7 +274,7 @@ theorem ramseyNumber_mul_weights_le_one (x : ℝ) (hx0 : 0 < x) (hx1 : x < 1)
               have hrec :
                   (ramseyNumber (u + 1) (m + 1) : ℝ) ≤
                     ramseyNumber u (m + 1) + ramseyNumber (u + 1) m := by
-                exact_mod_cast Erdos1014.ramseyNumber_recurrence u m hu1
+                exact_mod_cast Ramsey.ramseyNumber_recurrence u m hu1
               have hleft := ihu (m + 1) hu1 (by omega)
               have hright := ihm (by omega)
               have hxpow : x ^ u = x ^ (u - 1) * x := by

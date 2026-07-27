@@ -39,10 +39,10 @@ lemma ramseyProperty_swap {k l n : ℕ} :
 lemma ramseyNumber_swap (k l : ℕ) :
     ramseyNumber k l = ramseyNumber l k := by
   apply le_antisymm
-  · exact Erdos1014.ramseyNumber_le_of_property
-      (ramseyProperty_swap (Erdos1014.ramseyNumber_spec l k))
-  · exact Erdos1014.ramseyNumber_le_of_property
-      (ramseyProperty_swap (Erdos1014.ramseyNumber_spec k l))
+  · exact Ramsey.ramseyNumber_le_of_property
+      (ramseyProperty_swap (Ramsey.ramseyNumber_spec l k))
+  · exact Ramsey.ramseyNumber_le_of_property
+      (ramseyProperty_swap (Ramsey.ramseyNumber_spec k l))
 
 /-- The log-sum inequality in the two-variable form used by the paper. -/
 lemma two_mass_entropy_le_cross_entropy
