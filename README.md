@@ -1,6 +1,6 @@
 This repository collects Lean formalizations of
 
-* solutions to [Erdős problems](ErdosProblems/README.md).
+* [solutions to Erdős problems](ErdosProblems/README.md).
 
 Information about the sources used for those is available in
 [sources.yaml](data/sources.yaml).
