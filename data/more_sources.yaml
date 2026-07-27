@@ -1,3 +1,19 @@
+- key: Arxiv.Arxiv2407_19026
+  author:
+    informal:
+      human:
+        - Parth Gupta
+        - Ndiame Ndiaye
+        - Sergey Norin
+        - Louis Wei
+    formal:
+      AI: Codex
+      human: Boris Alexeev
+  url:
+    - https://arxiv.org/abs/2407.19026
+    - https://github.com/plby/lean-proofs/blob/main/src/latest/Arxiv/Arxiv2407_19026.lean
+  version: "4.32.0"
+
 - key: BorisBukh.BasisSubset
   author:
     informal:
