@@ -1,0 +1,12 @@
+{
+  "challenge_module": "Erdos424",
+  "solution_module": "ErdosProblems.Erdos424",
+  "theorem_names": ["Erdos424.erdos_424_lower_density"],
+  "definition_names": [
+    "Erdos424.nextGeneration",
+    "Erdos424.sequenceSet",
+    "Erdos424.generatedSet"
+  ],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": false
+}

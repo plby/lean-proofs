@@ -15,7 +15,7 @@ rev = "v4.32.0"
 [[lean_lib]]
 name = "ComparatorChallenges"
 srcDir = "ErdosProblems"
-roots = ["Erdos469"]
+roots = ["Erdos424", "Erdos469"]
 
 [[lean_lib]]
 name = "BorisBukhChallenges"
