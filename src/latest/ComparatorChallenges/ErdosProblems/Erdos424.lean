@@ -1,4 +1,6 @@
-import Mathlib
+import Mathlib.Data.Real.Basic
+import Mathlib.Order.Filter.AtTopBot.Defs
+import Mathlib.Order.Interval.Finset.Nat
 
 namespace Erdos424
 
