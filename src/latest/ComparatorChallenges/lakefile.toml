@@ -1,6 +1,6 @@
 name = "ComparatorChallenges"
 version = "0.1.0"
-defaultTargets = ["ComparatorChallenges"]
+defaultTargets = ["ComparatorChallenges", "BorisBukhChallenges"]
 
 [[require]]
 name = "mathlib"
@@ -16,3 +16,8 @@ rev = "v4.32.0"
 name = "ComparatorChallenges"
 srcDir = "ErdosProblems"
 roots = ["Erdos469"]
+
+[[lean_lib]]
+name = "BorisBukhChallenges"
+srcDir = "BorisBukh"
+roots = ["BasisSubset"]

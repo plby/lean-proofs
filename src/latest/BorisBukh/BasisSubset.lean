@@ -639,7 +639,3 @@ theorem basis_sumset_cardinality_bound
     (LinearEquiv.injective e).encard_image B] using hstd
 
 end BasisSubset
-
-#print axioms BasisSubset.basis_sumset_cardinality_bound
--- 'BasisSubset.basis_sumset_cardinality_bound' depends on axioms:
--- [propext, Classical.choice, Quot.sound]
