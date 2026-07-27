@@ -35,7 +35,8 @@ decreasing_by
     omega
   · have hall : ∀ j, 1 < l j := by
       push Not at *
-      aesop
+      intro j
+      simp_all only
     have hi2 : 2 ≤ l i := by
       have := hall i
       omega
@@ -156,7 +157,6 @@ theorem multiRamseyRecBound_le_weight {c : ℕ}
         intro j
         by_cases hji : j = i
         · subst j
-          change 1 ≤ lowerVector l i i
           rw [lowerVector, Function.update_self]
           have := hl2 i
           omega
@@ -246,7 +246,7 @@ private lemma mem_colorCell {V : Type*} [Fintype V]
   classical
   simp [colorCell]
 
-private lemma colorCells_card {V : Type*} [Fintype V] [DecidableEq V]
+private lemma colorCells_card {V : Type*} [Fintype V]
     {c : ℕ} (C : MultiColoring V c) (v : V) :
     ∑ i : Fin (c + 1), (colorCell C v i).card =
       Fintype.card V - 1 := by
@@ -386,7 +386,8 @@ theorem multiRamseyProperty_recBound {c : ℕ} (hc : 1 ≤ c) :
             exact (mem_colorCell C v w.1 0).1 w.2
           have hins := hK'.insert hadj
           exact Or.inl ⟨insert v K', by
-            convert hins using 1 <;> omega⟩
+            convert hins using 1
+            all_goals omega⟩
         · rcases hblue with ⟨j, hclique⟩
           exact Or.inr ⟨j,
             multiColorClique_comap_lift C f j.succ (l j) hclique⟩

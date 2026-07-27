@@ -1924,7 +1924,8 @@ theorem candidate_good_of_bookMoment {V : Type*} {G : SimpleGraph V}
                 (k - 1) t rfl (by omega) ht R hRdensity hmomentR
               have hgoodLift :=
                 D.good_of_redStep_good hvX hXR hY' hgoodR
-              convert hgoodLift using 1 <;> omega
+              convert hgoodLift using 1
+              all_goals omega
             · by_cases hblue :
                 0 ≤ αB ∧
                   μ * α ^ r / (p - ε) ≤ αB ^ r * ρB
@@ -2011,7 +2012,8 @@ theorem candidate_good_of_bookMoment {V : Type*} {G : SimpleGraph V}
                   k (t - 1) rfl hk (by omega) Q hQdensity hmomentQ
                 have hgoodLift :=
                   D.good_of_blueStep_good hvX hXB hY' hgoodQ
-                convert hgoodLift using 1 <;> omega
+                convert hgoodLift using 1
+                all_goals omega
               · have hmoment3 := moment3_of_not_branches
                     hx hμ hq hα hr hρR0 hρB0 hρsum
                     hpartition' hred hblue
@@ -2080,14 +2082,15 @@ theorem candidate_good_of_bookMoment {V : Type*} {G : SimpleGraph V}
                         0 < (p - ε) ^ ((r : ℝ)⁻¹) :=
                       Real.rpow_pos_of_pos hq _
                     have hmul := mul_lt_mul_of_pos_left hden hroot
-                    convert hmul using 1 <;> ring
+                    convert hmul using 1
+                    all_goals ring
                   exact hdivide.le.trans
                     (B.terminal_error n l (by dsimp [n]; omega) hl₀)
                 exact False.elim (bookMoment_terminal_contradiction
                   hx hμ hε hr B.mu_eps_lt_one B.critical
                   hρB0 hρBbound herr B.terminal_base
                   B.terminal_parameter hmoment3')
-        exact Candidate.good_of_mono hDX (by simpa [hDY]) hgoodD
+        exact Candidate.good_of_mono hDX (by simp [hDY]) hgoodD
   exact hP (k + t) k t rfl hk ht C hdensity hmoment
 
 /-- `e:moment0`: the original size hypothesis implies the invariant, and

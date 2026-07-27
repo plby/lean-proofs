@@ -211,7 +211,7 @@ lemma multiEasyBoundSq_blue_step {c : ℕ}
     _ ≤ (m : ℝ) ^ 2 := hmSq
 
 lemma card_blueNeighbors_eq_sum_colorCells {V : Type*} [Fintype V]
-    [DecidableEq V] {c : ℕ} (C : MultiColoring V c) (v : V) :
+    {c : ℕ} (C : MultiColoring V c) (v : V) :
     (blueNeighborsIn (C.graph 0) v univ).card =
       ∑ i : Fin c, (multiNeighborsIn C v i.succ univ).card := by
   classical
@@ -236,7 +236,7 @@ the two-color max-cut argument supplies a multicolor candidate. -/
 lemma exists_multiCandidate_of_color_degree_lt
     {V : Type*} [Fintype V] [Nonempty V] [DecidableEq V]
     {c : ℕ} (hc : 1 ≤ c) (C : MultiColoring V c)
-    {theta : Fin c → ℝ} (htheta : ∀ i, 0 < theta i)
+    {theta : Fin c → ℝ}
     (hthetaSum : ∑ i, theta i = 1)
     (p : ℝ) (hp0 : 0 < p) (hp1 : p < 1)
     (s : ℕ) (hs : 1 ≤ s)
@@ -549,7 +549,7 @@ theorem multiRamseyProperty_of_multiEasyBoundSq {c : ℕ}
       intro v i
       simpa [q] using hlarge v i
     obtain ⟨D, _hDuniv, hDexcess⟩ :=
-      exists_multiCandidate_of_color_degree_lt hc C htheta hthetaSum
+      exists_multiCandidate_of_color_degree_lt hc C hthetaSum
         p hp0 hp s hs hcolor habsorb
     have hscale0 :
         0 ≤ (1 - p) ^ 2 / (4 * (k + T : ℝ)) := by
@@ -636,8 +636,7 @@ theorem multiRamseyNumber_le_golden_multiEasyBound {c : ℕ}
 def normalizedTheta {c : ℕ} (l : Fin c → ℕ) (i : Fin c) : ℝ :=
   (l i : ℝ) / (∑ j, l j : ℕ)
 
-lemma normalizedTheta_pos {c : ℕ} (hc : 1 ≤ c)
-    (l : Fin c → ℕ) (hl : ∀ i, 1 ≤ l i) :
+lemma normalizedTheta_pos {c : ℕ} (l : Fin c → ℕ) (hl : ∀ i, 1 ≤ l i) :
     ∀ i, 0 < normalizedTheta l i := by
   intro i
   have hliNat : 0 < l i := Nat.zero_lt_of_lt (hl i)
@@ -713,7 +712,7 @@ lemma multiEasyBoundSq_optimizedP {c : ℕ} (hc : 1 ≤ c)
     (fun j _ => Nat.zero_le (l j)) (Finset.mem_univ i0)
   have hsum : 1 ≤ ∑ j, l j := (hl i0).trans hile
   rw [multiEasyBoundSq_eq_easyBoundSq_div_prod
-    (normalizedTheta_pos hc l hl) k l]
+    (normalizedTheta_pos l hl) k l]
   rw [easyBoundSq_optimizedP hk hsum]
   rfl
 
@@ -733,7 +732,7 @@ theorem multiRamseyNumber_le_multiEasyCorollaryBound {c : ℕ}
       hc
       (goldenCut_lt_optimizedP hk hsum)
       (optimizedP_lt_one hk hsum)
-      (normalizedTheta_pos hc l hl)
+      (normalizedTheta_pos l hl)
       (normalizedTheta_sum hc l hl)
       hk l hl
   rw [multiEasyBoundSq_optimizedP hc hk l hl] at hmain

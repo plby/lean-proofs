@@ -682,7 +682,7 @@ lemma exists_exceptional_size_bound {μ p ε : ℝ} {r : ℕ}
 book induction can be satisfied simultaneously. -/
 theorem exists_bookInductionBounds
     {x y μ p ε : ℝ} {r : ℕ}
-    (hx : 0 < x) (hy : 0 < y) (hμ : 0 < μ) (hε : 0 < ε)
+    (hμ : 0 < μ) (hε : 0 < ε)
     (hε1 : ε ≤ 1) (hεp : ε < p) (h2εp : 2 * ε ≤ p)
     (hx1 : x ≤ 1) (hy1 : y ≤ 1)
     (hμscale : (1 + ε) * μ ≤ 1)
@@ -999,25 +999,28 @@ theorem candidate_good_bookMain
   have hterminalBase :
       0 < (p - P.ε) ^ ((P.r : ℝ)⁻¹) - μ - 2 * P.ε := by
     dsimp [μ]
-    convert P.terminal_base using 1 <;> ring
+    convert P.terminal_base using 1
+    all_goals ring
   have hterminal :
       x ≤
         ((p - P.ε) ^ ((P.r : ℝ)⁻¹) - μ - 2 * P.ε) ^
             (P.r : ℝ) *
           (1 - μ) ^ (1 - (P.r : ℝ)) := by
     dsimp [x, μ]
-    convert P.terminal_parameter using 1 <;> ring
+    convert P.terminal_parameter using 1
+    all_goals ring_nf
   have hRamsey :
       EventuallyRamseyBound (x + P.ε) (y + P.ε) := by
     dsimp [x, y]
     convert P.ramsey using 1 <;> ring
   obtain ⟨L₀, B⟩ := exists_bookInductionBounds
-    hx hy hμ P.eps_pos P.eps_le_one P.eps_lt_p
+    hμ P.eps_pos P.eps_le_one P.eps_lt_p
     P.two_eps_le_p P.x_le_one P.y_le_one
     (by simpa [μ] using P.mu_scale)
     (by
       dsimp [μ]
-      convert P.mu_eps_lt_one using 1 <;> ring)
+      convert P.mu_eps_lt_one using 1
+      all_goals ring)
     hcritical hterminalBase hterminal hRamsey
   refine ⟨L₀, ?_⟩
   intro V G k l t C hk hl ht hl₀ hdensity hsize

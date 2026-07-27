@@ -224,13 +224,9 @@ theorem twoSidedEntropyCertificate_mem_ramseyRegion
   exact eventuallyRamseyBound_of_twoSidedEntropyCertificate
     hx hy C hExp
 
-/-- The first, genuinely one-sided estimate in the proof of `l:y`.  The
-additional hypothesis `eᵅ(1-x)<1` is forced by the definition of the Ramsey
-region and is absent from the printed statement. -/
+/-- The first, genuinely one-sided estimate in the proof of `l:y`. -/
 theorem eventuallyOrderedRamseyBound_leftBoost
     {α x : ℝ} (hx : 0 < x) (hx1 : x < 1)
-    (hα : 0 ≤ α)
-    (hy1 : Real.exp α * (1 - x) < 1)
     (hExp : HasRamseyExponent (entropyImprovement α)) :
     ∀ x₀ y₀ : ℝ, 0 < x₀ → x₀ < x →
       0 < y₀ → y₀ < Real.exp α * (1 - x) →

@@ -21,7 +21,7 @@ def globalRedDensity {V : Type*} [Fintype V] (G : SimpleGraph V) : ℝ :=
 /-- A strict limiting inequality remains true after decreasing the
 density parameter slightly. -/
 lemma exists_density_slack {x μ p : ℝ}
-    (hμ1 : μ < 1) (hp : 0 < p)
+    (hp : 0 < p)
     (h :
       x < p ^ ((1 : ℝ) / (1 - μ)) * (1 - μ)) :
     ∃ q : ℝ, 0 < q ∧ q < p ∧
@@ -53,7 +53,7 @@ lemma exists_density_slack {x μ p : ℝ}
 /-- An interior Ramsey-region point can be moved slightly upward in its
 second coordinate while remaining in the interior. -/
 lemma exists_right_slack_interior {x y : ℝ}
-    (hy : 0 < y) (hy1 : y < 1)
+    (hy1 : y < 1)
     (hxy : (x, y) ∈ ramseyRegionInterior) :
     ∃ y₀ : ℝ, y < y₀ ∧ y₀ < 1 ∧
       (x, y₀) ∈ ramseyRegionInterior := by
@@ -111,9 +111,9 @@ theorem graph_good_of_bookMain
         (∃ K : Finset V, G.IsNClique k K) ∨
           ∃ K : Finset V, G.IsNIndepSet l K := by
   obtain ⟨q, hq, hqp, hlimitq⟩ :=
-    exists_density_slack hμ1 hp hlimit
+    exists_density_slack hp hlimit
   obtain ⟨y₀, hyy₀, hy₀1, hregion₀⟩ :=
-    exists_right_slack_interior hy hy1 hregion
+    exists_right_slack_interior hy1 hregion
   have hy₀ : 0 < y₀ := hy.trans hyy₀
   obtain ⟨Lb, hbook⟩ := candidate_good_bookMain
     hx hx1 hy₀ hy₀1 hμ hμ1 hq (hqp.trans hp1)
@@ -240,7 +240,7 @@ theorem graph_good_of_bookMain
             ((y₀⁻¹ * y₀) ^ l * y⁻¹ ^ l) := by
         rw [mul_pow, inv_pow]
         field_simp [ne_of_gt hy]
-        simp [← mul_pow, hy.ne', hy₀.ne']
+        simp [hy.ne']
       _ = x⁻¹ ^ k * μ⁻¹ ^ l * y⁻¹ ^ l := by
         rw [inv_mul_cancel₀ (ne_of_gt hy₀), one_pow, one_mul]
       _ = x⁻¹ ^ k * y⁻¹ ^ l * μ⁻¹ ^ l := by ring

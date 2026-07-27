@@ -896,8 +896,7 @@ theorem multiCandidate_good_of_excess {V : Type} {c : ℕ}
       exact D.good_of_multiRamsey_right hc hRecCard
 termination_by k + ∑ i, t i
 decreasing_by
-  · have hsum0 : 0 ≤ ∑ i, t i := Nat.zero_le _
-    omega
+  · omega
   · have hsum := sum_lowerVector i (ht i)
     have hile : t i ≤ ∑ j, t j := Finset.single_le_sum
       (fun j _ => Nat.zero_le (t j)) (Finset.mem_univ i)

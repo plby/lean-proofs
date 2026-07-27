@@ -33,10 +33,11 @@ lemma exponentThreshold_le_exp (F : ℝ → ℝ) (ε : ℝ) (k l : ℕ) :
   exact Nat.floor_le (Real.exp_nonneg _)
 
 lemma sum_blueDegrees_add_redEdges {V : Type*}
-    [Fintype V] [DecidableEq V] (G : SimpleGraph V) :
+    [Fintype V] (G : SimpleGraph V) :
     (∑ v : V, (blueNeighborsIn G v Finset.univ).card) +
         redEdgesBetween G Finset.univ Finset.univ =
       Fintype.card V * (Fintype.card V - 1) := by
+  classical
   have hpoint :
       ∀ v : V,
         (blueNeighborsIn G v Finset.univ).card +
@@ -57,19 +58,19 @@ lemma sum_blueDegrees_add_redEdges {V : Type*}
       apply Finset.sum_congr rfl
       intro v _
       exact hpoint v
-    _ = Fintype.card V * (Fintype.card V - 1) := by
-      simp [mul_comm]
+    _ = Fintype.card V * (Fintype.card V - 1) := by simp
 
 /-- If the red density is below `p`, some vertex has more than the
 complementary average blue degree. -/
 lemma exists_large_blueDegree_of_globalRedDensity_lt
-    {V : Type*} [Fintype V] [DecidableEq V]
+    {V : Type*} [Fintype V]
     (G : SimpleGraph V) {p : ℝ}
     (hn : 2 ≤ Fintype.card V)
     (hp : globalRedDensity G < p) :
     ∃ v : V,
       (1 - p) * (Fintype.card V - 1) <
         (blueNeighborsIn G v Finset.univ).card := by
+  classical
   let n := Fintype.card V
   have hnR : (2 : ℝ) ≤ n := by exact_mod_cast hn
   have hden : 0 < (n : ℝ) * (n - 1) := by
@@ -143,8 +144,7 @@ theorem ramseyProperty_exponentThreshold_of_certificate
     (C : DescentCertificate F ε) :
     ∀ k l : ℕ, C.cutoff ≤ k → 1 ≤ l → l ≤ k →
       RamseyProperty k l (exponentThreshold F ε k l) := by
-  intro k
-  intro l
+  intro k l
   induction l using Nat.strong_induction_on with
   | h l ih =>
       intro hk hl hlk

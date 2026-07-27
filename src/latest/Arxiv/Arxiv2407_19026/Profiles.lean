@@ -103,7 +103,7 @@ lemma hasDerivAt_optimizedRamseyExponent (β : ℝ)
 lemma ramseyEntropy_one :
     ramseyEntropy 1 = 2 * Real.log 2 := by
   simp [ramseyEntropy]
-  ring
+  ring_nf
 
 lemma ramseyCorrection_one (β : ℝ) :
     ramseyCorrection β 1 =
