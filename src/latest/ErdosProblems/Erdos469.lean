@@ -20559,6 +20559,4 @@ theorem semiperfect_density_exists_between_zero_and_one :
 
 end
 
-#print axioms semiperfect_density_exists_between_zero_and_one
-
 end Erdos469
