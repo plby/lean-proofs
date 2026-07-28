@@ -100,6 +100,86 @@ lemma hasDerivAt_optimizedRamseyExponent (β : ℝ)
       (hasDerivAt_ramseyCorrection β) using 1
   all_goals rfl
 
+/-- A lower bound for the slope on the one-step interval gives the exact
+exponential loss needed by the blue-neighborhood recurrence. -/
+lemma optimizedRamseyExponent_blue_step
+    {β s q p : ℝ} {k l : ℕ}
+    (hk : 1 ≤ k) (hl : 2 ≤ l)
+    (hslope :
+      ∀ z ∈ Set.Icc
+          (((l - 1 : ℕ) : ℝ) / k) ((l : ℝ) / k),
+        s ≤ optimizedRamseySlope β z)
+    (hqp : Real.exp (-s) ≤ q * (1 - p)) :
+    Real.exp
+        (optimizedRamseyExponent β
+          (((l - 1 : ℕ) : ℝ) / k) * k) ≤
+      q * (1 - p) *
+        Real.exp
+          (optimizedRamseyExponent β ((l : ℝ) / k) * k) := by
+  let a : ℝ := ((l - 1 : ℕ) : ℝ) / k
+  let b : ℝ := (l : ℝ) / k
+  have hkR : (0 : ℝ) < k := by exact_mod_cast hk
+  have hla : 1 ≤ l - 1 := by omega
+  have ha : 0 < a := by
+    dsimp [a]
+    positivity
+  have hab : a < b := by
+    dsimp [a, b]
+    rw [div_lt_div_iff_of_pos_right hkR]
+    exact_mod_cast (by omega : l - 1 < l)
+  have hcont :
+      ContinuousOn (optimizedRamseyExponent β) (Set.Icc a b) := by
+    intro z hz
+    exact (hasDerivAt_optimizedRamseyExponent β
+      (ha.trans_le hz.1)).continuousAt.continuousWithinAt
+  have hderiv :
+      ∀ z ∈ Set.Ioo a b,
+        HasDerivAt (optimizedRamseyExponent β)
+          (optimizedRamseySlope β z) z := by
+    intro z hz
+    exact hasDerivAt_optimizedRamseyExponent β (ha.trans hz.1)
+  obtain ⟨c, hc, hmean⟩ :=
+    exists_hasDerivAt_eq_slope
+      (optimizedRamseyExponent β) (optimizedRamseySlope β)
+      hab hcont hderiv
+  have hsc : s ≤ optimizedRamseySlope β c :=
+    hslope c ⟨hc.1.le, hc.2.le⟩
+  have hba : b - a = 1 / (k : ℝ) := by
+    dsimp [a, b]
+    rw [div_sub_div_same]
+    congr 1
+    norm_num [Nat.cast_sub (by omega : 1 ≤ l)]
+  have hdiff :
+      s ≤
+        (optimizedRamseyExponent β b -
+          optimizedRamseyExponent β a) * k := by
+    rw [hmean, hba] at hsc
+    field_simp [hkR.ne'] at hsc
+    nlinarith
+  have hexponent :
+      (optimizedRamseyExponent β a -
+          optimizedRamseyExponent β b) * k ≤ -s := by
+    nlinarith
+  calc
+    Real.exp (optimizedRamseyExponent β a * k) =
+        Real.exp
+            ((optimizedRamseyExponent β a -
+              optimizedRamseyExponent β b) * k) *
+          Real.exp (optimizedRamseyExponent β b * k) := by
+      rw [← Real.exp_add]
+      congr 1
+      ring
+    _ ≤ Real.exp (-s) *
+          Real.exp (optimizedRamseyExponent β b * k) := by
+      gcongr
+    _ ≤ (q * (1 - p)) *
+          Real.exp (optimizedRamseyExponent β b * k) := by
+      gcongr
+    _ = q * (1 - p) *
+          Real.exp
+            (optimizedRamseyExponent β ((l : ℝ) / k) * k) := by
+      rfl
+
 lemma ramseyEntropy_one :
     ramseyEntropy 1 = 2 * Real.log 2 := by
   simp [ramseyEntropy]
@@ -158,5 +238,49 @@ lemma exp_mainRamseyExponent_one_lt_three_point_eight :
     (inv_lt_inv₀ (Real.exp_pos a) (by norm_num)).2 hexp
   norm_num at hinv ⊢
   linarith
+
+/-- Any proof of the paper's main exponent statement gives the advertised
+eventual diagonal bound.  This lemma makes the final logical dependency
+explicit: the numerical estimate alone is not a Ramsey-number theorem. -/
+theorem eventually_diagonal_lt_of_mainRamseyExponent
+    (hmain : HasRamseyExponent mainRamseyExponent) :
+    ∃ K : ℕ, ∀ k : ℕ, K ≤ k →
+      (ramseyNumber k k : ℝ) < (19 / 5 : ℝ) ^ k := by
+  have hc : (0 : ℝ) < 19 / 5 := by norm_num
+  have hlog :
+      mainRamseyExponent 1 < Real.log (19 / 5 : ℝ) := by
+    rw [← Real.exp_lt_exp]
+    simpa [Real.exp_log hc] using
+      exp_mainRamseyExponent_one_lt_three_point_eight
+  let ε : ℝ :=
+    (Real.log (19 / 5 : ℝ) - mainRamseyExponent 1) / 2
+  have hε : 0 < ε := by
+    dsimp [ε]
+    linarith
+  obtain ⟨K, hK⟩ := hmain ε hε
+  refine ⟨max K 1, ?_⟩
+  intro k hk
+  have hKk : K ≤ k := (le_max_left K 1).trans hk
+  have hk1 : 1 ≤ k := (le_max_right K 1).trans hk
+  have hkpos : (0 : ℝ) < k := by exact_mod_cast hk1
+  have hbound := hK k k hKk hk1 (le_refl k)
+  have hratio : (k : ℝ) / k = 1 := div_self (by positivity)
+  have hcoeff :
+      mainRamseyExponent 1 + ε <
+        Real.log (19 / 5 : ℝ) := by
+    dsimp [ε]
+    linarith
+  calc
+    (ramseyNumber k k : ℝ) ≤
+        Real.exp ((mainRamseyExponent 1 + ε) * k) := by
+      simpa [hratio] using hbound
+    _ < Real.exp (Real.log (19 / 5 : ℝ) * k) := by
+      exact Real.exp_lt_exp.mpr
+        (mul_lt_mul_of_pos_right hcoeff hkpos)
+    _ = (19 / 5 : ℝ) ^ k := by
+      rw [show Real.log (19 / 5 : ℝ) * (k : ℝ) =
+          (k : ℕ) * Real.log (19 / 5 : ℝ) by
+        norm_num [mul_comm],
+        Real.exp_nat_mul, Real.exp_log hc]
 
 end Arxiv2407_19026

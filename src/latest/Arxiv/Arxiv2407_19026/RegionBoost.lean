@@ -44,6 +44,27 @@ lemma ramseyNumber_swap (k l : ℕ) :
   · exact Ramsey.ramseyNumber_le_of_property
       (ramseyProperty_swap (Ramsey.ramseyNumber_spec k l))
 
+/-- The comparison of the two weights used in the printed proof of Lemma
+`l:y` has its direction reversed.  When `x ≤ y` and `l ≤ k`, swapping the
+exponents makes the weight smaller, not larger. -/
+lemma swapped_inverse_weight_le
+    {x y : ℝ} (hx : 0 < x) (hy : 0 < y) (hxy : x ≤ y)
+    {k l : ℕ} (hlk : l ≤ k) :
+    x⁻¹ ^ l * y⁻¹ ^ k ≤ x⁻¹ ^ k * y⁻¹ ^ l := by
+  obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_le hlk
+  have hinv : y⁻¹ ≤ x⁻¹ :=
+    (inv_le_inv₀ hy hx).2 hxy
+  have hpow : y⁻¹ ^ d ≤ x⁻¹ ^ d :=
+    pow_le_pow_left₀ (inv_nonneg.mpr hy.le) hinv d
+  rw [pow_add, pow_add]
+  have hbase : 0 ≤ x⁻¹ ^ l * y⁻¹ ^ l := by positivity
+  calc
+    x⁻¹ ^ l * (y⁻¹ ^ l * y⁻¹ ^ d) =
+        (x⁻¹ ^ l * y⁻¹ ^ l) * y⁻¹ ^ d := by ring
+    _ ≤ (x⁻¹ ^ l * y⁻¹ ^ l) * x⁻¹ ^ d :=
+      mul_le_mul_of_nonneg_left hpow hbase
+    _ = (x⁻¹ ^ l * x⁻¹ ^ d) * y⁻¹ ^ l := by ring
+
 /-- The log-sum inequality in the two-variable form used by the paper. -/
 lemma two_mass_entropy_le_cross_entropy
     {a b x : ℝ} (ha : 0 < a) (hb : 0 < b)
@@ -105,6 +126,69 @@ structure TwoSidedEntropyCertificate (α x y : ℝ) : Prop where
     ∀ a b : ℝ, 0 < a → 0 < b → a ≤ b →
       ramseyEntropy (a / b) * b - α * a ≤
         -a * Real.log x - b * Real.log y
+
+/-- The corrected two-sided form of the entropy calculation in Lemma
+`l:y`.  The forward estimate permits
+`y ≤ exp α * (1 - x)`, while the estimate obtained after swapping the two
+Ramsey parameters permits `y ≤ 1 - x * exp (-α)`.  Thus a point in the
+symmetric Ramsey region has to lie below *both* curves. -/
+theorem twoSidedEntropyCertificate_of_le
+    {α x y : ℝ}
+    (hx : 0 < x) (hx1 : x < 1) (hy : 0 < y)
+    (hyForward : y ≤ Real.exp α * (1 - x))
+    (hyBackward : y ≤ 1 - x * Real.exp (-α)) :
+    TwoSidedEntropyCertificate α x y := by
+  have hy1 : y < 1 := by
+    have hxe : 0 < x * Real.exp (-α) :=
+      mul_pos hx (Real.exp_pos _)
+    exact hyBackward.trans_lt (by linarith)
+  constructor
+  · intro a b ha hb _hba
+    have hmass := two_mass_entropy_le_cross_entropy
+      ha hb hx hx1
+    have hentropy := ramseyEntropy_mul_eq_two_mass_entropy
+      ha hb
+    have hproduct : 0 < Real.exp α * (1 - x) :=
+      mul_pos (Real.exp_pos _) (sub_pos.mpr hx1)
+    have hlogY :
+        Real.log y ≤ Real.log (Real.exp α * (1 - x)) :=
+      Real.log_le_log hy hyForward
+    have hlogProduct :
+        Real.log (Real.exp α * (1 - x)) =
+          α + Real.log (1 - x) := by
+      rw [Real.log_mul (Real.exp_ne_zero α)
+        (sub_pos.mpr hx1).ne', Real.log_exp]
+    rw [hlogProduct] at hlogY
+    rw [hentropy]
+    nlinarith
+  · intro a b ha hb _hab
+    have hmass := two_mass_entropy_le_cross_entropy
+      hb ha hy hy1
+    have hentropy := ramseyEntropy_mul_eq_two_mass_entropy
+      hb ha
+    have hq : 0 < x * Real.exp (-α) :=
+      mul_pos hx (Real.exp_pos _)
+    have hqle : x * Real.exp (-α) ≤ 1 - y := by
+      linarith
+    have hlogQ :
+        Real.log (x * Real.exp (-α)) ≤ Real.log (1 - y) :=
+      Real.log_le_log hq hqle
+    have hlogProduct :
+        Real.log (x * Real.exp (-α)) =
+          Real.log x - α := by
+      rw [Real.log_mul hx.ne' (Real.exp_ne_zero _),
+        Real.log_exp]
+      ring
+    rw [hlogProduct] at hlogQ
+    rw [hentropy]
+    nlinarith
+
+/-- The largest ordinate certified simultaneously by the two entropy
+calculations.  This is the minimum of the printed forward curve and its
+image under swapping the Ramsey parameters. -/
+def correctedBoostY (α x : ℝ) : ℝ :=
+  min (Real.exp α * (1 - x))
+    (1 - x * Real.exp (-α))
 
 /-- A one-sided exponent estimate plus a two-sided entropy certificate gives
 the strict-coordinate estimates required by the definition of `𝓡`. -/
@@ -223,6 +307,38 @@ theorem twoSidedEntropyCertificate_mem_ramseyRegion
     hx hx1 hy hy1
   exact eventuallyRamseyBound_of_twoSidedEntropyCertificate
     hx hy C hExp
+
+/-- Corrected symmetric Ramsey-region conclusion corresponding to Lemma
+`l:y`.  Unlike the printed statement, the ordinate is bounded by both
+one-sided entropy curves. -/
+theorem correctedBoostPoint_mem_ramseyRegion
+    {α x : ℝ}
+    (hx : 0 < x) (hx1 : x < 1) (hα : 0 ≤ α)
+    (hExp : HasRamseyExponent (entropyImprovement α)) :
+    (x, correctedBoostY α x) ∈ ramseyRegion := by
+  have hexpLe : Real.exp (-α) ≤ 1 :=
+    Real.exp_le_one_iff.mpr (by linarith)
+  have hxeLt : x * Real.exp (-α) < 1 := by
+    calc
+      x * Real.exp (-α) ≤ x * 1 :=
+        mul_le_mul_of_nonneg_left hexpLe hx.le
+      _ < 1 := by simpa using hx1
+  have hyForward : 0 < Real.exp α * (1 - x) :=
+    mul_pos (Real.exp_pos _) (sub_pos.mpr hx1)
+  have hyBackward : 0 < 1 - x * Real.exp (-α) :=
+    sub_pos.mpr hxeLt
+  have hy : 0 < correctedBoostY α x := by
+    exact lt_min hyForward hyBackward
+  have hy1 : correctedBoostY α x < 1 := by
+    exact (min_le_right _ _).trans_lt (by
+      have : 0 < x * Real.exp (-α) :=
+        mul_pos hx (Real.exp_pos _)
+      linarith)
+  apply twoSidedEntropyCertificate_mem_ramseyRegion
+    hx hx1 hy hy1
+  · exact twoSidedEntropyCertificate_of_le
+      hx hx1 hy (min_le_left _ _) (min_le_right _ _)
+  · exact hExp
 
 /-- The first, genuinely one-sided estimate in the proof of `l:y`. -/
 theorem eventuallyOrderedRamseyBound_leftBoost
