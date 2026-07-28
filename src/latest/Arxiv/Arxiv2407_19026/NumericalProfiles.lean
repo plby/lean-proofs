@@ -558,63 +558,154 @@ def cfg : LeanCert.Engine.AffineConfig where
 def coarseBreakpoints : List ℚ :=
   (List.range 1000).map (fun n => (n + 1 : ℚ) / 1000)
 
-lemma coarseBreakpoints_ne : coarseBreakpoints ≠ [] := by native_decide
+private lemma coeRange_ne (count : ℕ) (hc : count ≠ 0) :
+    ((List.range count : List ℕ) : List ℚ) ≠ [] := by
+  change (List.range count).flatMap (fun n : ℕ => [(n : ℚ)]) ≠ []
+  cases count with
+  | zero => exact (hc rfl).elim
+  | succ n => simp [List.range_succ]
+
+private lemma coeRange_getLast (count : ℕ) (hc : count ≠ 0)
+    (h : ((List.range count : List ℕ) : List ℚ) ≠ []) :
+    (((List.range count : List ℕ) : List ℚ)).getLast h =
+      ((count - 1 : ℕ) : ℚ) := by
+  change
+    ((List.range count).flatMap (fun n : ℕ => [(n : ℚ)])).getLast h = _
+  cases count with
+  | zero => exact (hc rfl).elim
+  | succ n => simp [List.range_succ]
+
+private lemma mappedCoeRange_ne (f : ℚ → ℚ) (count : ℕ)
+    (hc : count ≠ 0) :
+    (((List.range count : List ℕ) : List ℚ).map f) ≠ [] := by
+  rw [ne_eq, List.map_eq_nil_iff]
+  exact coeRange_ne count hc
+
+private lemma mappedCoeRange_getLast (f : ℚ → ℚ) (count : ℕ)
+    (hc : count ≠ 0)
+    (h : (((List.range count : List ℕ) : List ℚ).map f) ≠ []) :
+    ((((List.range count : List ℕ) : List ℚ).map f)).getLast h =
+      f ((count - 1 : ℕ) : ℚ) := by
+  rw [List.getLast_map, coeRange_getLast count hc]
+
+private lemma mappedCoeRange_getLast?_eq (f : ℚ → ℚ) (count : ℕ)
+    (hc : count ≠ 0) :
+    ((((List.range count : List ℕ) : List ℚ).map f)).getLast? =
+      some (f ((count - 1 : ℕ) : ℚ)) := by
+  rw [List.getLast?_eq_some_getLast (mappedCoeRange_ne f count hc)]
+  congr 1
+  exact mappedCoeRange_getLast f count hc _
+
+lemma coarseBreakpoints_ne : coarseBreakpoints ≠ [] := by
+  unfold coarseBreakpoints
+  exact mappedCoeRange_ne _ 1000 (by norm_num)
 
 lemma coarseBreakpoints_last :
-    coarseBreakpoints.getLast coarseBreakpoints_ne = 1 := by native_decide
+    coarseBreakpoints.getLast coarseBreakpoints_ne = 1 := by
+  rw [List.getLast_eq_iff_getLast?_eq_some]
+  unfold coarseBreakpoints
+  rw [mappedCoeRange_getLast?_eq _ 1000 (by norm_num)]
+  norm_num
 
-lemma positiveBreakpoints_ne : positiveBreakpoints ≠ [] := by native_decide
+lemma positiveBreakpoints_ne : positiveBreakpoints ≠ [] := by
+  unfold positiveBreakpoints
+  apply List.append_ne_nil_of_right_ne_nil
+  exact mappedCoeRange_ne _ 9850 (by norm_num)
 
 lemma positiveBreakpoints_last :
-    positiveBreakpoints.getLast positiveBreakpoints_ne = 1 := by native_decide
+    positiveBreakpoints.getLast positiveBreakpoints_ne = 1 := by
+  unfold positiveBreakpoints
+  have hr :=
+    mappedCoeRange_ne (fun n : ℚ => (n + 151) / 10000)
+      9850 (by norm_num)
+  rw [List.getLast_append_of_right_ne_nil _ _ hr]
+  rw [mappedCoeRange_getLast _ 9850 (by norm_num) hr]
+  norm_num
 
-lemma bookBreakpoints₀_ne : bookBreakpoints₀ ≠ [] := by native_decide
+lemma bookBreakpoints₀_ne : bookBreakpoints₀ ≠ [] := by
+  unfold bookBreakpoints₀
+  exact mappedCoeRange_ne _ 300 (by norm_num)
+
 lemma bookBreakpoints₀_last :
-    bookBreakpoints₀.getLast bookBreakpoints₀_ne = 3 / 1000 := by native_decide
+    bookBreakpoints₀.getLast bookBreakpoints₀_ne = 3 / 1000 := by
+  unfold bookBreakpoints₀
+  rw [mappedCoeRange_getLast _ 300 (by norm_num) bookBreakpoints₀_ne]
+  norm_num
 
-lemma bookBreakpoints₁_ne : bookBreakpoints₁ ≠ [] := by native_decide
+lemma bookBreakpoints₁_ne : bookBreakpoints₁ ≠ [] := by
+  unfold bookBreakpoints₁
+  apply List.append_ne_nil_of_right_ne_nil
+  exact mappedCoeRange_ne _ 850 (by norm_num)
+
 lemma bookBreakpoints₁_last :
-    bookBreakpoints₁.getLast bookBreakpoints₁_ne = 1 / 10 := by native_decide
+    bookBreakpoints₁.getLast bookBreakpoints₁_ne = 1 / 10 := by
+  unfold bookBreakpoints₁
+  have hr :=
+    mappedCoeRange_ne (fun n : ℚ => (n + 151) / 10000)
+      850 (by norm_num)
+  rw [List.getLast_append_of_right_ne_nil _ _ hr]
+  rw [mappedCoeRange_getLast _ 850 (by norm_num) hr]
+  norm_num
 
-lemma bookBreakpoints₂_ne : bookBreakpoints₂ ≠ [] := by native_decide
+lemma bookBreakpoints₂_ne : bookBreakpoints₂ ≠ [] := by
+  unfold bookBreakpoints₂
+  exact mappedCoeRange_ne _ 4000 (by norm_num)
+
 lemma bookBreakpoints₂_last :
-    bookBreakpoints₂.getLast bookBreakpoints₂_ne = 1 / 2 := by native_decide
+    bookBreakpoints₂.getLast bookBreakpoints₂_ne = 1 / 2 := by
+  rw [List.getLast_eq_iff_getLast?_eq_some]
+  unfold bookBreakpoints₂
+  rw [mappedCoeRange_getLast?_eq _ 4000 (by norm_num)]
+  norm_num
 
-lemma bookBreakpoints₃_ne : bookBreakpoints₃ ≠ [] := by native_decide
+lemma bookBreakpoints₃_ne : bookBreakpoints₃ ≠ [] := by
+  unfold bookBreakpoints₃
+  exact mappedCoeRange_ne _ 5000 (by norm_num)
+
 lemma bookBreakpoints₃_last :
-    bookBreakpoints₃.getLast bookBreakpoints₃_ne = 1 := by native_decide
+    bookBreakpoints₃.getLast bookBreakpoints₃_ne = 1 := by
+  rw [List.getLast_eq_iff_getLast?_eq_some]
+  unfold bookBreakpoints₃
+  rw [mappedCoeRange_getLast?_eq _ 5000 (by norm_num)]
+  norm_num
 
-lemma zeroBreakpoints_ne : zeroBreakpoints ≠ [] := by native_decide
+lemma zeroBreakpoints_ne : zeroBreakpoints ≠ [] := by
+  unfold zeroBreakpoints
+  exact mappedCoeRange_ne _ 10000 (by norm_num)
 
 lemma zeroBreakpoints_last :
-    zeroBreakpoints.getLast zeroBreakpoints_ne = 1 := by native_decide
+    zeroBreakpoints.getLast zeroBreakpoints_ne = 1 := by
+  rw [List.getLast_eq_iff_getLast?_eq_some]
+  unfold zeroBreakpoints
+  rw [mappedCoeRange_getLast?_eq _ 10000 (by norm_num)]
+  norm_num
 
 lemma book_supported : ExprSupportedCore book :=
-  Expr.checkSupportedCore_correct (by native_decide)
+  Expr.checkSupportedCore_correct (by decide)
 
 lemma bookSmall_supported : ExprSupportedCore bookSmall :=
-  Expr.checkSupportedCore_correct (by native_decide)
+  Expr.checkSupportedCore_correct (by decide)
 
 lemma blue_supported : ExprSupportedCore blue :=
-  Expr.checkSupportedCore_correct (by native_decide)
+  Expr.checkSupportedCore_correct (by decide)
 
 lemma limit_supported : ExprSupportedCore limit :=
-  Expr.checkSupportedCore_correct (by native_decide)
+  Expr.checkSupportedCore_correct (by decide)
 
 lemma limitSmall_supported : ExprSupportedCore limitSmall :=
-  Expr.checkSupportedCore_correct (by native_decide)
+  Expr.checkSupportedCore_correct (by decide)
 
 lemma u_supported : ExprSupportedCore u :=
-  Expr.checkSupportedCore_correct (by native_decide)
+  Expr.checkSupportedCore_correct (by decide)
 
 lemma v_supported : ExprSupportedCore v :=
-  Expr.checkSupportedCore_correct (by native_decide)
+  Expr.checkSupportedCore_correct (by decide)
 
 lemma p_supported : ExprSupportedCore p :=
-  Expr.checkSupportedCore_correct (by native_decide)
+  Expr.checkSupportedCore_correct (by decide)
 
 lemma x_supported : ExprSupportedCore x :=
-  Expr.checkSupportedCore_correct (by native_decide)
+  Expr.checkSupportedCore_correct (by decide)
 
 lemma eval_u (t : ℝ) :
     Expr.eval (fun _ ↦ t) u = beta0U t := by

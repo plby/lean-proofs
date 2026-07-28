@@ -7,6 +7,155 @@ open LeanCert.Core LeanCert.Engine LeanCert.Validity
 
 namespace Arxiv2407_19026
 
+private lemma bpsSlope_ne : TangentAffine.bpsSlope ≠ [] := by
+  unfold TangentAffine.bpsSlope
+  exact TangentAffine.mappedCoeRange_ne _ 10 (by norm_num)
+
+private lemma bpsSlope_last :
+    TangentAffine.bpsSlope.getLast bpsSlope_ne = 1 / 10 := by
+  unfold TangentAffine.bpsSlope
+  convert TangentAffine.mappedCoeRange_getLast
+    _ 10 (by norm_num) bpsSlope_ne using 1
+  all_goals norm_num
+
+private lemma bpsBookSlope_ne : TangentAffine.bpsBookSlope ≠ [] := by
+  unfold TangentAffine.bpsBookSlope
+  exact TangentAffine.mappedCoeRange_ne _ 20 (by norm_num)
+
+private lemma bpsBookSlope_last :
+    TangentAffine.bpsBookSlope.getLast bpsBookSlope_ne = 1 / 50 := by
+  unfold TangentAffine.bpsBookSlope
+  convert TangentAffine.mappedCoeRange_getLast
+    _ 20 (by norm_num) bpsBookSlope_ne using 1
+  all_goals norm_num
+
+private lemma bpsBook_ne : TangentAffine.bpsBook ≠ [] := by
+  unfold TangentAffine.bpsBook
+  exact TangentAffine.mappedCoeRange_ne _ 80 (by norm_num)
+
+private lemma bpsBook_last :
+    TangentAffine.bpsBook.getLast bpsBook_ne = 1 / 10 := by
+  unfold TangentAffine.bpsBook
+  convert TangentAffine.mappedCoeRange_getLast
+    _ 80 (by norm_num) bpsBook_ne using 1
+  all_goals norm_num
+
+private lemma r2ForwardCoordRefined_ne :
+    TangentRound2Native.forwardCoordRefined ≠ [] := by
+  unfold TangentRound2Native.forwardCoordRefined
+  apply TangentAffine.flatMapRange_ne _ 1680 (by norm_num)
+  simp
+
+private lemma r2ForwardCoordRefined_last :
+    TangentRound2Native.forwardCoordRefined.getLast
+      r2ForwardCoordRefined_ne = 67 / 250 := by
+  unfold TangentRound2Native.forwardCoordRefined
+  have hlast :
+      (fun n => [((2 * n + 2001 : Nat) : ℚ) / 20000,
+        ((n + 1001 : Nat) : ℚ) / 10000]) (1680 - 1) ≠ [] := by
+    simp
+  rw [TangentAffine.flatMapRange_getLast
+    _ 1680 (by norm_num) hlast r2ForwardCoordRefined_ne]
+  norm_num
+
+private lemma r2ForwardMedium_ne :
+    TangentRound2Native.forwardMedium ≠ [] := by
+  exact TangentAffine.mediumBreakpoints_ne 100 168 (by norm_num)
+
+private lemma r2ForwardMedium_last :
+    TangentRound2Native.forwardMedium.getLast r2ForwardMedium_ne =
+      67 / 250 := by
+  unfold TangentRound2Native.forwardMedium
+  convert TangentAffine.mediumBreakpoints_getLast
+    100 168 (by norm_num) r2ForwardMedium_ne using 1
+  all_goals norm_num
+
+private lemma r2PlateauMedium_ne :
+    TangentRound2Native.plateauMedium ≠ [] := by
+  exact TangentAffine.mediumBreakpoints_ne 268 110 (by norm_num)
+
+private lemma r2PlateauMedium_last :
+    TangentRound2Native.plateauMedium.getLast r2PlateauMedium_ne =
+      189 / 500 := by
+  unfold TangentRound2Native.plateauMedium
+  convert TangentAffine.mediumBreakpoints_getLast
+    268 110 (by norm_num) r2PlateauMedium_ne using 1
+  all_goals norm_num
+
+private lemma r2PlateauBookRefined_ne :
+    TangentRound2Native.plateauBookRefined ≠ [] := by
+  unfold TangentRound2Native.plateauBookRefined
+  apply List.append_ne_nil_of_right_ne_nil
+  exact TangentAffine.mediumBreakpoints_ne 367 11 (by norm_num)
+
+private lemma r2PlateauBookRefined_last :
+    TangentRound2Native.plateauBookRefined.getLast
+      r2PlateauBookRefined_ne = 189 / 500 := by
+  unfold TangentRound2Native.plateauBookRefined
+  have hr := TangentAffine.mediumBreakpoints_ne 367 11 (by norm_num)
+  rw [List.getLast_append_of_right_ne_nil _ _ hr]
+  convert TangentAffine.mediumBreakpoints_getLast
+    367 11 (by norm_num) hr using 1
+  all_goals norm_num
+
+private lemma r2Back1Fine_ne : TangentRound2Native.back1Fine ≠ [] := by
+  exact TangentAffine.fineBreakpoints_ne 3780 2220 (by norm_num)
+
+private lemma r2Back1Fine_last :
+    TangentRound2Native.back1Fine.getLast r2Back1Fine_ne = 3 / 5 := by
+  unfold TangentRound2Native.back1Fine
+  convert TangentAffine.fineBreakpoints_getLast
+    3780 2220 (by norm_num) r2Back1Fine_ne using 1
+  all_goals norm_num
+
+private lemma r2Back1Medium_ne :
+    TangentRound2Native.back1Medium ≠ [] := by
+  exact TangentAffine.mediumBreakpoints_ne 378 222 (by norm_num)
+
+private lemma r2Back1Medium_last :
+    TangentRound2Native.back1Medium.getLast r2Back1Medium_ne = 3 / 5 := by
+  unfold TangentRound2Native.back1Medium
+  convert TangentAffine.mediumBreakpoints_getLast
+    378 222 (by norm_num) r2Back1Medium_ne using 1
+  all_goals norm_num
+
+private lemma r2Back2Fine_ne : TangentRound2Native.back2Fine ≠ [] := by
+  exact TangentAffine.fineBreakpoints_ne 6000 4000 (by norm_num)
+
+private lemma r2Back2Fine_last :
+    TangentRound2Native.back2Fine.getLast r2Back2Fine_ne = 1 := by
+  unfold TangentRound2Native.back2Fine
+  convert TangentAffine.fineBreakpoints_getLast
+    6000 4000 (by norm_num) r2Back2Fine_ne using 1
+  all_goals norm_num
+
+private lemma r2Back2BookRefined_ne :
+    TangentRound2Native.back2BookRefined ≠ [] := by
+  unfold TangentRound2Native.back2BookRefined
+  apply List.append_ne_nil_of_right_ne_nil
+  apply TangentAffine.flatMapRange_ne _ 16 (by norm_num)
+  exact TangentAffine.mappedRange_ne _ 10 (by norm_num)
+
+private lemma r2Back2BookRefined_last :
+    TangentRound2Native.back2BookRefined.getLast
+      r2Back2BookRefined_ne = 1 := by
+  unfold TangentRound2Native.back2BookRefined
+  have hblock :
+      (fun n => (List.range 10).map
+        (fun j => ((10 * (n + 984) + j + 1 : Nat) : ℚ) / 10000))
+        (16 - 1) ≠ [] :=
+    TangentAffine.mappedRange_ne _ 10 (by norm_num)
+  have hr :
+      (List.range 16).flatMap (fun n =>
+        (List.range 10).map
+          (fun j => ((10 * (n + 984) + j + 1 : Nat) : ℚ) / 10000)) ≠ [] :=
+    TangentAffine.flatMapRange_ne _ 16 (by norm_num) hblock
+  rw [List.getLast_append_of_right_ne_nil _ _ hr]
+  rw [TangentAffine.flatMapRange_getLast
+    _ 16 (by norm_num) hblock hr]
+  rw [TangentAffine.mappedRange_getLast _ 10 hblock]
+  norm_num
+
 private lemma r2_smallCoordPrime_lower :
     ∀ z ∈ Set.Icc (0 : ℝ) (1 / 10),
       (1 / 20 : ℝ) ≤
@@ -15,8 +164,8 @@ private lemma r2_smallCoordPrime_lower :
     (TangentAffine.smallCoordSlope
       TangentRound2Native.β1 TangentRound2Native.β2)
     (1 / 20) 0 (1 / 10) TangentAffine.bpsSlope
-    (Expr.checkSupportedCore_correct (by native_decide))
-    (by native_decide) (by native_decide)
+    (Expr.checkSupportedCore_correct (by decide))
+    bpsSlope_ne bpsSlope_last
     TangentRound2Native.small_checks.1
   intro z hz
   have hd := tangentSmall_domain
@@ -36,8 +185,8 @@ private lemma r2_smallBookPrime_lower :
     (TangentAffine.smallBookSlope
       TangentRound2Native.β1 TangentRound2Native.β2)
     (1 / 1000) 0 (1 / 50) TangentAffine.bpsBookSlope
-    (Expr.checkSupportedCore_correct (by native_decide))
-    (by native_decide) (by native_decide)
+    (Expr.checkSupportedCore_correct (by decide))
+    bpsBookSlope_ne bpsBookSlope_last
     TangentRound2Native.small_checks.2.1
   intro z hz
   have hz' : z ∈ Set.Icc (0 : ℝ) (1 / 10) := by
@@ -61,8 +210,8 @@ private lemma r2_smallBook_lower :
     (TangentAffine.smallBook
       TangentRound2Native.β1 TangentRound2Native.β2)
     (1 / 10000) (1 / 50) (1 / 10) TangentAffine.bpsBook
-    (Expr.checkSupportedCore_correct (by native_decide))
-    (by native_decide) (by native_decide)
+    (Expr.checkSupportedCore_correct (by decide))
+    bpsBook_ne bpsBook_last
     TangentRound2Native.small_checks.2.2
   intro z hz
   have hh := h z (by norm_num at hz ⊢; exact hz)
@@ -80,8 +229,8 @@ private lemma r2_forwardCoord :
       TangentAffine.r2ForwardT)
     0 (1 / 10) (67 / 250)
     TangentRound2Native.forwardCoordRefined
-    (Expr.checkSupportedCore_correct (by native_decide))
-    (by native_decide) (by native_decide)
+    (Expr.checkSupportedCore_correct (by decide))
+    r2ForwardCoordRefined_ne r2ForwardCoordRefined_last
     TangentRound2Native.forward_checks.1
   intro z hz
   have hh := h z (by norm_num at hz ⊢; exact hz)
@@ -99,8 +248,8 @@ private lemma r2_forwardBook :
       TangentAffine.r2ForwardT)
     (1 / 1000000) (1 / 10) (67 / 250)
     TangentRound2Native.forwardMedium
-    (Expr.checkSupportedCore_correct (by native_decide))
-    (by native_decide) (by native_decide)
+    (Expr.checkSupportedCore_correct (by decide))
+    r2ForwardMedium_ne r2ForwardMedium_last
     TangentRound2Native.forward_checks.2
   intro z hz
   have hh := h z (by norm_num at hz ⊢; exact hz)
@@ -117,8 +266,8 @@ private lemma r2_plateauLow :
       TangentRound2Native.plateauT)
     0 (67 / 250) (189 / 500)
     TangentRound2Native.plateauMedium
-    (Expr.checkSupportedCore_correct (by native_decide))
-    (by native_decide) (by native_decide)
+    (Expr.checkSupportedCore_correct (by decide))
+    r2PlateauMedium_ne r2PlateauMedium_last
     TangentRound2Native.plateau_checks.1
   intro z hz
   have hh := h z (by norm_num at hz ⊢; exact hz)
@@ -136,8 +285,8 @@ private lemma r2_plateauHigh :
       TangentRound2Native.plateauT)
     0 (67 / 250) (189 / 500)
     TangentRound2Native.plateauMedium
-    (Expr.checkSupportedCore_correct (by native_decide))
-    (by native_decide) (by native_decide)
+    (Expr.checkSupportedCore_correct (by decide))
+    r2PlateauMedium_ne r2PlateauMedium_last
     TangentRound2Native.plateau_checks.2.1
   intro z hz
   have hh := h z (by norm_num at hz ⊢; exact hz)
@@ -158,8 +307,8 @@ private lemma r2_plateauBook :
       TangentRound2Native.plateauT)
     (1 / 1000000) (67 / 250) (189 / 500)
     TangentRound2Native.plateauBookRefined
-    (Expr.checkSupportedCore_correct (by native_decide))
-    (by native_decide) (by native_decide)
+    (Expr.checkSupportedCore_correct (by decide))
+    r2PlateauBookRefined_ne r2PlateauBookRefined_last
     TangentRound2Native.plateau_checks.2.2
   intro z hz
   have hh := h z (by norm_num at hz ⊢; exact hz)
@@ -177,8 +326,8 @@ private lemma r2_back1Coord :
       TangentRound2Native.β1 TangentRound2Native.β2
       TangentAffine.r2Back1T)
     0 (189 / 500) (3 / 5) TangentRound2Native.back1Fine
-    (Expr.checkSupportedCore_correct (by native_decide))
-    (by native_decide) (by native_decide)
+    (Expr.checkSupportedCore_correct (by decide))
+    r2Back1Fine_ne r2Back1Fine_last
     TangentRound2Native.back1_checks.1
   intro z hz
   have hh := h z (by norm_num at hz ⊢; exact hz)
@@ -196,8 +345,8 @@ private lemma r2_back1Book :
       TangentAffine.r2Back1T)
     (1 / 1000000) (189 / 500) (3 / 5)
     TangentRound2Native.back1Medium
-    (Expr.checkSupportedCore_correct (by native_decide))
-    (by native_decide) (by native_decide)
+    (Expr.checkSupportedCore_correct (by decide))
+    r2Back1Medium_ne r2Back1Medium_last
     TangentRound2Native.back1_checks.2
   intro z hz
   have hh := h z (by norm_num at hz ⊢; exact hz)
@@ -214,8 +363,8 @@ private lemma r2_back2Coord :
       TangentRound2Native.β1 TangentRound2Native.β2
       TangentAffine.r2Back2T)
     0 (3 / 5) 1 TangentRound2Native.back2Fine
-    (Expr.checkSupportedCore_correct (by native_decide))
-    (by native_decide) (by native_decide)
+    (Expr.checkSupportedCore_correct (by decide))
+    r2Back2Fine_ne r2Back2Fine_last
     TangentRound2Native.back2_checks.1
   intro z hz
   have hh := h z (by norm_num at hz ⊢; exact hz)
@@ -233,8 +382,8 @@ private lemma r2_back2Book :
       TangentAffine.r2Back2T)
     (1 / 1000000) (3 / 5) 1
     TangentRound2Native.back2BookRefined
-    (Expr.checkSupportedCore_correct (by native_decide))
-    (by native_decide) (by native_decide)
+    (Expr.checkSupportedCore_correct (by decide))
+    r2Back2BookRefined_ne r2Back2BookRefined_last
     TangentRound2Native.back2_checks.2
   intro z hz
   have hh := h z (by norm_num at hz ⊢; exact hz)
