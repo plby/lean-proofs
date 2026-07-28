@@ -8,7 +8,12 @@ raw_configs=("$@")
 if [[ ${#raw_configs[@]} -eq 0 ]]; then
   while IFS= read -r -d '' config; do
     raw_configs+=("$config")
-  done < <(find "$comparator_dir" -type f -name '*.json' -print0 | sort -z)
+  done < <(
+    find "$comparator_dir" \
+      -path "$comparator_dir/.lake" -prune -o \
+      -type f -name '*.json' ! -name 'lake-manifest.json' -print0 |
+      sort -z
+  )
 fi
 
 if [[ ${#raw_configs[@]} -eq 0 ]]; then
@@ -43,7 +48,21 @@ if [[ -z "$landrun_bin" || ! -x "$landrun_bin" ]]; then
   exit 1
 fi
 
+if ! command -v jq >/dev/null; then
+  echo "ComparatorChallenges/run.sh requires jq to read its configurations." >&2
+  exit 1
+fi
+
 for config in "${configs[@]}"; do
+  if ! challenge_module="$(jq -er \
+      '.challenge_module | strings | select(length > 0)' "$config")"; then
+    echo "Comparator configuration has no valid challenge_module: $config" >&2
+    exit 1
+  fi
+
+  echo "Prebuilding Comparator challenge: $challenge_module"
+  lake build "$challenge_module"
+
   echo "Running Comparator configuration: ${config#"$src_root/"}"
   systemd-run \
     --property=RestrictAddressFamilies=~AF_UNIX \
