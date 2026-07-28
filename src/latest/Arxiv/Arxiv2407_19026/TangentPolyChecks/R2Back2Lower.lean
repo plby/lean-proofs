@@ -9,11 +9,26 @@ open TangentAffine
 
 
 set_option maxHeartbeats 0 in
+set_option maxRecDepth 1000000 in
 -- The finite rational-grid certificate requires an unbounded heartbeat budget.
 lemma r2Back2_lower_check :
     checkLowerAffineCover r2Back2T (1 / 100000)
       cfg (3 / 5) back2Bps = true := by
-  native_decide
+  norm_num (config := { maxSteps := 10000000 })
+    [back2Bps, mediumBreakpoints,
+    List.range_eq_range', List.range',
+    checkLowerAffineCover, checkLowerBoundAffine1Strict,
+    toAffineEnvConst, checkDomainValidAffine,
+    evalAffineToInterval?, evalIntervalAffine?,
+    LeanCert.Internal.Affine.evalUnchecked,
+    r2Back2T, localPoly, horner, r2Back2Cs,
+    cfg, z, c, add, mul, neg, sub,
+    Expr.sub, Affine.AffineForm.const,
+    Affine.AffineForm.add, Affine.AffineForm.mul,
+    Affine.AffineForm.neg, Affine.AffineForm.ofInterval,
+    Affine.AffineForm.toInterval,
+    Affine.AffineForm.deviationBound,
+    Affine.AffineForm.sumAbs, Affine.AffineForm.zipWithPad]
 
 end TangentPolyNative
 end Arxiv2407_19026
