@@ -1,7 +1,6 @@
 import Mathlib.AlgebraicTopology.SimplexCategory.Basic
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
 namespace Theorem28
 

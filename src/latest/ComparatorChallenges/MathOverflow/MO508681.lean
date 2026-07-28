@@ -1,5 +1,4 @@
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
 namespace MO508681
 

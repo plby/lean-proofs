@@ -1,5 +1,4 @@
 import Mathlib.Combinatorics.SimpleGraph.Paths
-import Mathlib.Data.List.Cycle
 
 universe u
 

@@ -1,6 +1,4 @@
-import Mathlib.AlgebraicTopology.SimplexCategory.Basic
 import Mathlib.Topology.MetricSpace.HausdorffDimension
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
 namespace MO509164
 

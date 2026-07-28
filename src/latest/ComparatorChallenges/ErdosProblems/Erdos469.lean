@@ -1,4 +1,3 @@
-import Mathlib.Combinatorics.Additive.SubsetSum
 import Mathlib.Data.Set.Card
 import Mathlib.NumberTheory.Divisors
 import Mathlib.Topology.Algebra.InfiniteSum.Defs

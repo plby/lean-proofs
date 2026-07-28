@@ -2,7 +2,6 @@ import Mathlib.AlgebraicTopology.SimplexCategory.Basic
 import Mathlib.Analysis.Convex.Between
 import Mathlib.Analysis.InnerProductSpace.Defs
 import Mathlib.Analysis.Normed.Group.AddTorsor
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
 namespace Theorem61
 

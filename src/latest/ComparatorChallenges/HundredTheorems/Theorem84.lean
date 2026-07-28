@@ -1,5 +1,4 @@
 import Mathlib.Geometry.Euclidean.Angle.Oriented.Affine
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
 namespace Theorem84
 
