@@ -1,0 +1,7 @@
+{
+  "challenge_module": "Theorem28",
+  "solution_module": "HundredTheorems.Theorem28",
+  "theorem_names": ["Theorem28.pascal_hexagon"],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": false
+}

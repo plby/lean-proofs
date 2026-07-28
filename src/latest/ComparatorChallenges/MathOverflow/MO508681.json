@@ -1,0 +1,13 @@
+{
+  "challenge_module": "MO508681",
+  "solution_module": "MathOverflow.MO508681",
+  "theorem_names": ["MO508681.game_value_eq"],
+  "definition_names": [
+    "MO508681.r",
+    "MO508681.c",
+    "MO508681.w",
+    "MO508681.game_value"
+  ],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": false
+}

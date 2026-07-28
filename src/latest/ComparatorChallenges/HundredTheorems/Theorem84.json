@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Theorem84",
+  "solution_module": "HundredTheorems.Theorem84",
+  "theorem_names": ["Theorem84.morley_theorem"],
+  "definition_names": [
+    "Theorem84.lineIntersection",
+    "Theorem84.trisectorVector",
+    "Theorem84.morleyTriangle",
+    "Theorem84.isEquilateral",
+    "Theorem84.NondegenerateTriangle"
+  ],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": false
+}

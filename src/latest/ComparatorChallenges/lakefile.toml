@@ -1,6 +1,12 @@
 name = "ComparatorChallenges"
 version = "0.1.0"
-defaultTargets = ["ComparatorChallenges", "BorisBukhChallenges"]
+defaultTargets = [
+  "ComparatorChallenges",
+  "BorisBukhChallenges",
+  "HundredTheoremsChallenges",
+  "MathOverflowChallenges",
+  "WikipediaChallenges"
+]
 
 [[require]]
 name = "mathlib"
@@ -21,3 +27,18 @@ roots = ["Erdos424", "Erdos469"]
 name = "BorisBukhChallenges"
 srcDir = "BorisBukh"
 roots = ["BasisSubset"]
+
+[[lean_lib]]
+name = "HundredTheoremsChallenges"
+srcDir = "HundredTheorems"
+roots = ["Theorem8", "Theorem28", "Theorem61", "Theorem84", "Theorem87"]
+
+[[lean_lib]]
+name = "MathOverflowChallenges"
+srcDir = "MathOverflow"
+roots = ["MO420333", "MO508681", "MO509164", "MO509493"]
+
+[[lean_lib]]
+name = "WikipediaChallenges"
+srcDir = "Wikipedia"
+roots = ["CycleDoubleCoverConjecture"]

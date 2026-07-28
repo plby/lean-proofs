@@ -1,0 +1,20 @@
+{
+  "challenge_module": "MO509493",
+  "solution_module": "MathOverflow.MO509493",
+  "theorem_names": [
+    "MO509493.A_example_isCounterexample",
+    "MO509493.min_counterexample_dim_CE",
+    "MO509493.min_counterexample_exp_CE"
+  ],
+  "definition_names": [
+    "MO509493.IsOrthProj",
+    "MO509493.IsUnitEquiv",
+    "MO509493.IsPowerNonneg",
+    "MO509493.hadamardSquare",
+    "MO509493.IsCounterexample",
+    "MO509493.P₁_example",
+    "MO509493.P₂_example"
+  ],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": false
+}
