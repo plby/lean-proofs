@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos314",
+  "solution_module": "ErdosProblems.Erdos314",
+  "theorem_names": [
+    "Erdos314.main_theorem"
+  ],
+  "definition_names": [
+    "Erdos314.harmonicPartialSum"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

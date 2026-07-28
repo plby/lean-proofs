@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos426",
+  "solution_module": "ErdosProblems.Erdos426",
+  "theorem_names": [
+    "Erdos426.UniqueSubgraphs.f_tendsto_zero"
+  ],
+  "definition_names": [
+    "Erdos426.UniqueSubgraphs.fSeq"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

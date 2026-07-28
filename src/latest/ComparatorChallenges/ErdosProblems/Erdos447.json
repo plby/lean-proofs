@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos447",
+  "solution_module": "ErdosProblems.Erdos447",
+  "theorem_names": [
+    "Erdos447.erdos_447"
+  ],
+  "definition_names": [
+    "Erdos447.MaxUnionFree"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

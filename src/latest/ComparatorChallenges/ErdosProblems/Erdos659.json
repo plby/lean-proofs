@@ -1,0 +1,21 @@
+{
+  "challenge_module": "Erdos659",
+  "solution_module": "ErdosProblems.Erdos659",
+  "theorem_names": [
+    "Erdos659.erdos_659"
+  ],
+  "definition_names": [
+    "BinQuadForm.B",
+    "BinQuadForm.PosDef",
+    "BinQuadForm.Primitive",
+    "BinQuadForm.discr",
+    "Erdos659.distinctDistances"
+  ],
+  "permitted_axioms": [
+    "bernays",
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

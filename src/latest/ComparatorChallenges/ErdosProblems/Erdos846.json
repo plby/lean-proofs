@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos846",
+  "solution_module": "ErdosProblems.Erdos846",
+  "theorem_names": [
+    "Erdos846.erdos_846"
+  ],
+  "definition_names": [
+    "Erdos846.NonTrilinearFor",
+    "Erdos846.WeaklyNonTrilinear"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

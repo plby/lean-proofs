@@ -1,0 +1,27 @@
+{
+  "challenge_module": "Erdos42",
+  "solution_module": "ErdosProblems.Erdos42",
+  "theorem_names": [
+    "Erdos42.CompactCayley.compact_cayley_clique",
+    "Erdos42.CompactCayley.theorem_1_1_from_compact_cayley",
+    "Erdos42.FormalConjecturesShape.erdos_42_via_cayley",
+    "Erdos42.erdos_42_via_cayley",
+    "Erdos42.theorem_1_1_via_cayley"
+  ],
+  "definition_names": [
+    "Erdos42.AvoidsNonzeroDiff",
+    "Erdos42.CliqueInCayley",
+    "Erdos42.FormalConjecturesShape.erdos42RHS",
+    "Erdos42.FourierUpperIndicator",
+    "Erdos42.IsMaximalSidonSetIn",
+    "Erdos42.IsSidon",
+    "Erdos42.IsSidonInt",
+    "Erdos42.SymmetricFinset"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

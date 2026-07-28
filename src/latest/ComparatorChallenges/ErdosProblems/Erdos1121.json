@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos1121",
+  "solution_module": "ErdosProblems.Erdos1121",
+  "theorem_names": [
+    "Erdos1121.erdos_1121"
+  ],
+  "definition_names": [
+    "Erdos1121.CirclesNonseparable"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

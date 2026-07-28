@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos1043",
+  "solution_module": "ErdosProblems.Erdos1043",
+  "theorem_names": [
+    "Erdos1043.erdos_1043"
+  ],
+  "definition_names": [
+    "Erdos1043.instMeasureSpaceRealSpan",
+    "Erdos1043.levelSet"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

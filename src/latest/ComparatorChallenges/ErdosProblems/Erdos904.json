@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos904",
+  "solution_module": "ErdosProblems.Erdos904",
+  "theorem_names": [
+    "Erdos904.SimpleGraph.erdos904"
+  ],
+  "definition_names": [
+    "Erdos904.SimpleGraph.n",
+    "Erdos904.SimpleGraph.turanNumber"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos93",
+  "solution_module": "ErdosProblems.Erdos93",
+  "theorem_names": [
+    "Erdos93.altman_erdos"
+  ],
+  "definition_names": [
+    "Erdos93.distinctDistances"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos751",
+  "solution_module": "ErdosProblems.Erdos751",
+  "theorem_names": [
+    "Erdos751.Main.erdos_751_strong"
+  ],
+  "definition_names": [
+    "Erdos751.BV.Cycle.length"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

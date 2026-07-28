@@ -1,0 +1,21 @@
+{
+  "challenge_module": "Erdos24",
+  "solution_module": "ErdosProblems.Erdos24",
+  "theorem_names": [
+    "Erdos24.erdos_pentagon_conjecture"
+  ],
+  "definition_names": [
+    "Erdos24.mkAdj5",
+    "Erdos24.totalFlagContrib",
+    "SimpleGraph.numC5",
+    "_private.ErdosProblems.Erdos24.0.Erdos24.edgeBits",
+    "_private.ErdosProblems.Erdos24.0.Erdos24.totalFlagContribPermSum"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound",
+    "_private.ErdosProblems.Erdos24.0.Erdos24.totalFlagContrib_mkAdj5_edgeBits_eq_permSum._native.native_decide.ax_1_1"
+  ],
+  "enable_nanoda": false
+}

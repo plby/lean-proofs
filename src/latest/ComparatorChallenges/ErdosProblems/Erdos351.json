@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos351",
+  "solution_module": "ErdosProblems.Erdos351",
+  "theorem_names": [
+    "Erdos351.erdos_351"
+  ],
+  "definition_names": [
+    "Erdos351.HasCompleteImage"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

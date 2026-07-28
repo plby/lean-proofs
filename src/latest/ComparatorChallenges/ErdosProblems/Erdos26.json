@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos26",
+  "solution_module": "ErdosProblems.Erdos26",
+  "theorem_names": [
+    "Erdos26.erdos_26.variants.rusza"
+  ],
+  "definition_names": [
+    "Erdos26.IsBehrend",
+    "Erdos26.IsThick"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

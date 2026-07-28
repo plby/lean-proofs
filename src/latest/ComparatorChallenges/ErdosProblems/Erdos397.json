@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos397",
+  "solution_module": "ErdosProblems.Erdos397",
+  "theorem_names": [
+    "Erdos397.infinite_solutions"
+  ],
+  "definition_names": [
+    "Erdos397.is_solution"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

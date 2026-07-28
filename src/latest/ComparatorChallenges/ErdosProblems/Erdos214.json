@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos214",
+  "solution_module": "ErdosProblems.Erdos214",
+  "theorem_names": [
+    "Erdos214.theorem_1",
+    "Erdos214.theorem_2"
+  ],
+  "definition_names": [
+    "Erdos214.Point"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos505",
+  "solution_module": "ErdosProblems.Erdos505",
+  "theorem_names": [
+    "Erdos505.not_erdos_505"
+  ],
+  "definition_names": [
+    "Erdos505.BorsukConjecture"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

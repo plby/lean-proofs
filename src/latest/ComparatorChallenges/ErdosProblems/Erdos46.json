@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos46",
+  "solution_module": "ErdosProblems.Erdos46",
+  "theorem_names": [
+    "Erdos46.erdos46"
+  ],
+  "definition_names": [
+    "UnitFractions.rec_sum"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

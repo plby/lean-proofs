@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos1037",
+  "solution_module": "ErdosProblems.Erdos1037",
+  "theorem_names": [
+    "Erdos1037.not_erdos_1037"
+  ],
+  "definition_names": [
+    "Erdos1037.NumDistinctDegrees"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

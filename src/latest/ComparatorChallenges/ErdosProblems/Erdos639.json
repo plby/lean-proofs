@@ -1,0 +1,18 @@
+{
+  "challenge_module": "Erdos639",
+  "solution_module": "ErdosProblems.Erdos639",
+  "theorem_names": [
+    "Erdos639.SimpleGraph.erdos639"
+  ],
+  "definition_names": [
+    "Erdos639.SimpleGraph.instDecidableRelAdjNimt",
+    "Erdos639.SimpleGraph.n",
+    "Erdos639.SimpleGraph.nimt"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

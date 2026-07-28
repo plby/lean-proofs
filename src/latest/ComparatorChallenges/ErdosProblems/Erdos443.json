@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos443",
+  "solution_module": "ErdosProblems.Erdos443",
+  "theorem_names": [
+    "Erdos443.erdos_443_part_one",
+    "Erdos443.erdos_443_part_two"
+  ],
+  "definition_names": [
+    "Erdos443.A"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

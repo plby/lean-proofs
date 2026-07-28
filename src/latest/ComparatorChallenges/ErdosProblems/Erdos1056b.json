@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos1056b",
+  "solution_module": "ErdosProblems.Erdos1056b",
+  "theorem_names": [
+    "Erdos1056b.noll_simmons"
+  ],
+  "definition_names": [
+    "Erdos1056b.erdos_1056"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos435",
+  "solution_module": "ErdosProblems.Erdos435",
+  "theorem_names": [
+    "Erdos435.erdos_435"
+  ],
+  "definition_names": [
+    "Erdos435.Representable",
+    "Erdos435.target"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

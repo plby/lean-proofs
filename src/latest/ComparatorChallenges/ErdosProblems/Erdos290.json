@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos290",
+  "solution_module": "ErdosProblems.Erdos290",
+  "theorem_names": [
+    "Erdos290.main"
+  ],
+  "definition_names": [
+    "Erdos290.v"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

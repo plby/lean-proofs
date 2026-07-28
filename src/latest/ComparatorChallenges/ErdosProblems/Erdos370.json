@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos370",
+  "solution_module": "ErdosProblems.Erdos370",
+  "theorem_names": [
+    "Erdos370.erdos_370"
+  ],
+  "definition_names": [
+    "Erdos370.maxPrimeFac"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

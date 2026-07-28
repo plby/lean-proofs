@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos427",
+  "solution_module": "ErdosProblems.Erdos427",
+  "theorem_names": [
+    "Erdos427.erdos427"
+  ],
+  "definition_names": [
+    "_private.ErdosProblems.Erdos427.0.Erdos427.nthPrime"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "shiu_consecutive_primes",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

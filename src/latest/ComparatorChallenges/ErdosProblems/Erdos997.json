@@ -1,0 +1,18 @@
+{
+  "challenge_module": "Erdos997",
+  "solution_module": "ErdosProblems.Erdos997",
+  "theorem_names": [
+    "Erdos997.erdos997"
+  ],
+  "definition_names": [
+    "Erdos997.IsWellDistributed",
+    "Erdos997.fracSeq"
+  ],
+  "permitted_axioms": [
+    "maynardTaoBFT",
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

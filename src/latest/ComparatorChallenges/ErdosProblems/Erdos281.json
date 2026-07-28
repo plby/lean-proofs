@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos281",
+  "solution_module": "ErdosProblems.Erdos281",
+  "theorem_names": [
+    "Erdos281.Erdos_281"
+  ],
+  "definition_names": [
+    "Erdos281.Erdos281Concl",
+    "Erdos281.Erdos281Hyp"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

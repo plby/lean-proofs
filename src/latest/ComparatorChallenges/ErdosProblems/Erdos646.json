@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos646",
+  "solution_module": "ErdosProblems.Erdos646",
+  "theorem_names": [
+    "Erdos646.infinitely_many_even_factorial_exponents"
+  ],
+  "definition_names": [
+    "Erdos646.partial_sum"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos674",
+  "solution_module": "ErdosProblems.Erdos674",
+  "theorem_names": [
+    "Erdos674.erdos_674_infinite"
+  ],
+  "definition_names": [
+    "Erdos674.solutionSet"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

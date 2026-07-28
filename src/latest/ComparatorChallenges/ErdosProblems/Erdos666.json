@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos666",
+  "solution_module": "ErdosProblems.Erdos666",
+  "theorem_names": [
+    "Erdos666.not_erdos_666"
+  ],
+  "definition_names": [
+    "Erdos666.HasCycleOfLength",
+    "Erdos666.hypercubeGraph"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

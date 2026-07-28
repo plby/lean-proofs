@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos418",
+  "solution_module": "ErdosProblems.Erdos418",
+  "theorem_names": [
+    "Erdos418.erdos_418"
+  ],
+  "definition_names": [
+    "Erdos418.m_BS"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound",
+    "_private.ErdosProblems.Erdos418.0.Erdos418.computation_lemma_check._native.native_decide.ax_1_1"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos401",
+  "solution_module": "ErdosProblems.Erdos401",
+  "theorem_names": [
+    "Erdos401.theorem_1"
+  ],
+  "definition_names": [
+    "Erdos401.P",
+    "Erdos401.ω"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

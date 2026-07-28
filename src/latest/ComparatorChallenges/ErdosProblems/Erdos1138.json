@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos1138",
+  "solution_module": "ErdosProblems.Erdos1138",
+  "theorem_names": [
+    "Erdos1138.erdos1138_corollary"
+  ],
+  "definition_names": [
+    "Erdos1138.AsymptoticA"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

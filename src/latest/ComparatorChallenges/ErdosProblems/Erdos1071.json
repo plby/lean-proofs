@@ -1,0 +1,22 @@
+{
+  "challenge_module": "Erdos1071",
+  "solution_module": "ErdosProblems.Erdos1071",
+  "theorem_names": [
+    "Erdos1071.Corollary_3",
+    "Erdos1071b.erdos_1071b"
+  ],
+  "definition_names": [
+    "Erdos1071.IsMaximalDisjointCollection",
+    "Erdos1071.Point",
+    "Erdos1071.UnitSquare",
+    "Erdos1071b.IsMaximalDisjointCollection",
+    "Erdos1071b.Point",
+    "Erdos1071b.UnitSquare"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

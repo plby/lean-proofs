@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos1048b",
+  "solution_module": "ErdosProblems.Erdos1048b",
+  "theorem_names": [
+    "Erdos1048b.components_small_final"
+  ],
+  "definition_names": [
+    "Erdos1048b.my_S",
+    "Erdos1048b.my_r"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos1148",
+  "solution_module": "ErdosProblems.Erdos1148",
+  "theorem_names": [
+    "Erdos1148.erdos_problem_1148"
+  ],
+  "definition_names": [
+    "Erdos1148.DukeTheoremStatement"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos907",
+  "solution_module": "ErdosProblems.Erdos907",
+  "theorem_names": [
+    "Erdos907.erdos907"
+  ],
+  "definition_names": [
+    "Erdos907.IsAdditiveFn"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

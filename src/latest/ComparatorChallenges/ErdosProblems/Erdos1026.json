@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos1026",
+  "solution_module": "ErdosProblems.Erdos1026",
+  "theorem_names": [
+    "Erdos1026.c_opt_eq_k_div_sq_add_a"
+  ],
+  "definition_names": [
+    "Erdos1026.c_opt"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos481",
+  "solution_module": "ErdosProblems.Erdos481",
+  "theorem_names": [
+    "Erdos481.erdos_481"
+  ],
+  "definition_names": [
+    "Erdos481.A",
+    "Erdos481.C"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

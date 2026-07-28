@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos650",
+  "solution_module": "ErdosProblems.Erdos650",
+  "theorem_names": [
+    "Erdos650.erdos_f_eq"
+  ],
+  "definition_names": [
+    "Erdos650.erdos_f"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos119",
+  "solution_module": "ErdosProblems.Erdos119",
+  "theorem_names": [
+    "Erdos119.erdos_119.parts.iii_quantitative"
+  ],
+  "definition_names": [
+    "Erdos119.M"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

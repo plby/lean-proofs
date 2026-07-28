@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos621",
+  "solution_module": "ErdosProblems.Erdos621",
+  "theorem_names": [
+    "Erdos621.TriangleIndep.erdos_conjecture"
+  ],
+  "definition_names": [
+    "Erdos621.TriangleIndep.alpha1",
+    "Erdos621.TriangleIndep.tau1"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

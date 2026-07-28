@@ -1,0 +1,18 @@
+{
+  "challenge_module": "Erdos1196",
+  "solution_module": "ErdosProblems.Erdos1196",
+  "theorem_names": [
+    "Erdos1196.PrimitiveSetsAboveX.mainTheorem",
+    "Erdos1196.erdos_1196"
+  ],
+  "definition_names": [
+    "Erdos1196.IsPrimitive",
+    "Erdos1196.PrimitiveSetsAboveX.PrimitiveSet"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

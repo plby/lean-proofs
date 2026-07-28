@@ -1,0 +1,38 @@
+{
+  "challenge_module": "Erdos202",
+  "solution_module": "ErdosProblems.Erdos202",
+  "theorem_names": [
+    "Erdos202.ParkPham.park_pham_threshold_not_small_lt_exists",
+    "Erdos202.ParkPham.spread_disjointness_theorem",
+    "Erdos202.bfv_lower_bound_theorem",
+    "Erdos202.bfv_omega_count_theorem",
+    "Erdos202.bfv_pruning_theorem",
+    "Erdos202.erdos202_main"
+  ],
+  "definition_names": [
+    "Erdos202.Admissible",
+    "Erdos202.Erdos202Statement",
+    "Erdos202.Lscale",
+    "Erdos202.Mscale",
+    "Erdos202.PairwiseDisjointMembers",
+    "Erdos202.PairwiseDisjointResidues",
+    "Erdos202.ParkPham.IncreasingIn",
+    "Erdos202.ParkPham.ell",
+    "Erdos202.ParkPham.muP",
+    "Erdos202.ParkPham.pSmall",
+    "Erdos202.ResidueAssignment",
+    "Erdos202.SpreadFamily",
+    "Erdos202.UniformFamily",
+    "Erdos202.Zscale",
+    "Erdos202.f",
+    "Erdos202.hExp",
+    "Erdos202.omega",
+    "Erdos202.rad"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

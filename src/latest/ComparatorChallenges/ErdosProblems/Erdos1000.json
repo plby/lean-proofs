@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos1000",
+  "solution_module": "ErdosProblems.Erdos1000",
+  "theorem_names": [
+    "Erdos1000.erdos_1000_true"
+  ],
+  "definition_names": [
+    "Erdos1000.cesaroPhi"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

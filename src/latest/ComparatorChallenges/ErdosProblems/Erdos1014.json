@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos1014",
+  "solution_module": "ErdosProblems.Erdos1014",
+  "theorem_names": [
+    "Erdos1014.erdos1014"
+  ],
+  "definition_names": [
+    "Ramsey.ramseyNumber"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

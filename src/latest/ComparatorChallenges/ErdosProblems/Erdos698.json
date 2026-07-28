@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos698",
+  "solution_module": "ErdosProblems.Erdos698",
+  "theorem_names": [
+    "Erdos698.binomial_gcd_lower_bound"
+  ],
+  "definition_names": [],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

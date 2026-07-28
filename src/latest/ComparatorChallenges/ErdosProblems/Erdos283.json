@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos283",
+  "solution_module": "ErdosProblems.Erdos283",
+  "theorem_names": [
+    "Erdos283.erdos_283"
+  ],
+  "definition_names": [
+    "Erdos283.Condition"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

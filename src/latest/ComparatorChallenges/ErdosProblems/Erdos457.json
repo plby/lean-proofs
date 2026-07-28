@@ -1,0 +1,18 @@
+{
+  "challenge_module": "Erdos457",
+  "solution_module": "ErdosProblems.Erdos457",
+  "theorem_names": [
+    "Erdos457.erdos_457",
+    "Erdos457.thm_main"
+  ],
+  "definition_names": [
+    "Erdos457.F",
+    "Erdos457.erdos_457.match_1"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

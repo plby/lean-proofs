@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos1022",
+  "solution_module": "ErdosProblems.Erdos1022",
+  "theorem_names": [
+    "Erdos1022.not_erdos_1022"
+  ],
+  "definition_names": [
+    "Erdos1022.erdos_1022"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

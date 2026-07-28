@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos315",
+  "solution_module": "ErdosProblems.Erdos315",
+  "theorem_names": [
+    "Erdos315.erdos_315"
+  ],
+  "definition_names": [
+    "Erdos315.sylvester",
+    "Erdos315.vardi_constant"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

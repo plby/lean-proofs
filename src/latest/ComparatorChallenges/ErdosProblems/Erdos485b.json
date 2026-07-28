@@ -1,0 +1,15 @@
+{
+  "challenge_module": "Erdos485b",
+  "solution_module": "ErdosProblems.Erdos485b",
+  "theorem_names": [
+    "Erdos485b.exists_complete_poly_with_sparse_square",
+    "Erdos485b.exists_complete_poly_with_sparse_square_improved"
+  ],
+  "definition_names": [],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

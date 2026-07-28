@@ -1,0 +1,23 @@
+{
+  "challenge_module": "Erdos678",
+  "solution_module": "ErdosProblems.Erdos678",
+  "theorem_names": [
+    "Erdos678.erdos_678",
+    "Erdos678.erdos_678_kmn_infinite",
+    "Erdos678.main_theorem_expanded",
+    "Erdos678.not_erdos_678_fc",
+    "Erdos678.not_erdos_678_other"
+  ],
+  "definition_names": [
+    "Erdos678.erdos_678_kmn_infinite.match_1",
+    "Erdos678.lcmInterval",
+    "Erdos678.lcm_real",
+    "Erdos678.not_erdos_678_other.match_1"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

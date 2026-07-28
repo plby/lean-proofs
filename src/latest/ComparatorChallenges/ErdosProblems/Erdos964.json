@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos964",
+  "solution_module": "ErdosProblems.Erdos964",
+  "theorem_names": [
+    "Erdos964.ErdosProblem964"
+  ],
+  "definition_names": [
+    "Erdos964.GoldstonGrahamPintzYildirimStatement",
+    "Erdos964.divisor_ratios"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

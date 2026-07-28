@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos1193",
+  "solution_module": "ErdosProblems.Erdos1193",
+  "theorem_names": [
+    "Erdos1193.erdos_convolution_counterexample"
+  ],
+  "definition_names": [
+    "Erdos1193.conv_ind"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

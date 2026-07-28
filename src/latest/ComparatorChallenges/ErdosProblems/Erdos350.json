@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos350",
+  "solution_module": "ErdosProblems.Erdos350",
+  "theorem_names": [
+    "Erdos350.erdos_350"
+  ],
+  "definition_names": [
+    "Erdos350.DecidableDistinctSubsetSums"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

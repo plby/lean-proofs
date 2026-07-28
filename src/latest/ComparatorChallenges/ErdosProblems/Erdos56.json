@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos56",
+  "solution_module": "ErdosProblems.Erdos56",
+  "theorem_names": [
+    "Erdos56.erdos_56"
+  ],
+  "definition_names": [
+    "Erdos56.FirstPrimesMultiples",
+    "Erdos56.MaxWeaklyDivisible"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

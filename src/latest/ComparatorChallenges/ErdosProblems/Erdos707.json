@@ -1,0 +1,21 @@
+{
+  "challenge_module": "Erdos707",
+  "solution_module": "ErdosProblems.Erdos707",
+  "theorem_names": [
+    "Erdos707.not_erdos_707AM",
+    "Erdos707.not_erdos_707H",
+    "Erdos707.not_erdos_707H2",
+    "Erdos707.not_erdos_707P"
+  ],
+  "definition_names": [
+    "Erdos707.erdos_707",
+    "Erdos707.erdos_707_integer",
+    "Erdos707.erdos_707_prime"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

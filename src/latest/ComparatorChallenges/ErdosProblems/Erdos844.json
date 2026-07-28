@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos844",
+  "solution_module": "ErdosProblems.Erdos844",
+  "theorem_names": [
+    "Erdos844.erdos_sarkozy"
+  ],
+  "definition_names": [
+    "Erdos844.erdosSarkozySet"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

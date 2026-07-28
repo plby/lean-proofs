@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos618",
+  "solution_module": "ErdosProblems.Erdos618",
+  "theorem_names": [
+    "Erdos618.erdos_618"
+  ],
+  "definition_names": [
+    "Erdos618.h2",
+    "Erdos618.maxDegreeFin"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

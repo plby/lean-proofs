@@ -1,0 +1,20 @@
+{
+  "challenge_module": "Erdos1141",
+  "solution_module": "ErdosProblems.Erdos1141",
+  "theorem_names": [
+    "Erdos1141.erdos_1141",
+    "Erdos1141.erdos_1141_variant"
+  ],
+  "definition_names": [
+    "Erdos1141.Erdos1141Prop",
+    "Erdos1141.Pa",
+    "Pollack17.residuePrimesUpTo"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Pollack17.theorem_1_3",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

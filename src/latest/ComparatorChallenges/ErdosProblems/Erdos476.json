@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos476",
+  "solution_module": "ErdosProblems.Erdos476",
+  "theorem_names": [
+    "Erdos476.erdos_476"
+  ],
+  "definition_names": [
+    "Erdos476.restrictedSumset"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

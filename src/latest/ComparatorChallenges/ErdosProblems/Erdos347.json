@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos347",
+  "solution_module": "ErdosProblems.Erdos347",
+  "theorem_names": [
+    "Erdos347.answer_is_yes"
+  ],
+  "definition_names": [
+    "Erdos347.has_asymptotic_density_one",
+    "Erdos347.subset_sums_of_set"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

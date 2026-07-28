@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos333",
+  "solution_module": "ErdosProblems.Erdos333",
+  "theorem_names": [
+    "Erdos333.main_obstruction"
+  ],
+  "definition_names": [
+    "Erdos333.A",
+    "Erdos333.countingFn"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

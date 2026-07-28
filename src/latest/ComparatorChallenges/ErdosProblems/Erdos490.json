@@ -1,0 +1,18 @@
+{
+  "challenge_module": "Erdos490",
+  "solution_module": "ErdosProblems.Erdos490",
+  "theorem_names": [
+    "Erdos490.main_theorem"
+  ],
+  "definition_names": [],
+  "permitted_axioms": [
+    "dusart_chebyshev",
+    "dusart_mertens_product",
+    "dusart_pi_lower",
+    "dusart_pi_upper",
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}
