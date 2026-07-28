@@ -1,12 +1,21 @@
 {
   "challenge_module": "MO508681",
   "solution_module": "MathOverflow.MO508681",
-  "theorem_names": ["MO508681.game_value_eq"],
+  "theorem_names": [
+    "MO508681.game_value_eq",
+    "MO508681.unique_solution"
+  ],
   "definition_names": [
     "MO508681.r",
     "MO508681.c",
     "MO508681.w",
-    "MO508681.game_value"
+    "MO508681.D",
+    "MO508681.g",
+    "MO508681.C_r",
+    "MO508681.game_value",
+    "MO508681.is_solution",
+    "MO508681.is_uniformly_bounded",
+    "MO508681.W_star"
   ],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
   "enable_nanoda": false
