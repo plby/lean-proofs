@@ -10,8 +10,9 @@ open TangentAffine
 private lemma rat_neg_eq_neg (q : ℚ) : q.neg = -q := rfl
 
 set_option maxHeartbeats 0 in
+-- Proof-producing normalization over the full rational grid needs an unbounded heartbeat budget.
 set_option maxRecDepth 1000000 in
--- The finite rational-grid certificate requires an unbounded heartbeat budget.
+-- Expanding the recursive affine cover exceeds Lean's default recursion-depth limit.
 lemma r2Back1_upper_check :
     checkLowerAffineCover (belowOne r2Back1T) (1 / 100000)
       cfg (189 / 500) r2Back1Bps = true := by
