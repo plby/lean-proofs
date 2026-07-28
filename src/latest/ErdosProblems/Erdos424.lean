@@ -6392,6 +6392,3 @@ theorem erdos_424_lower_density :
   generatedSet_has_positive_lower_density
 
 end Erdos424
-
-#print axioms Erdos424.erdos_424_lower_density
--- 'Erdos424.erdos_424_lower_density' depends on axioms: [propext, Classical.choice, Quot.sound]
