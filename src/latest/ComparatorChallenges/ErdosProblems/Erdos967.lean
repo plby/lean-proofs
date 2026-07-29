@@ -1,5 +1,23 @@
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Analysis.SpecialFunctions.Pow.Complex
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+set_option linter.style.longLine false
+set_option aesop.warn.nonterminal false
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+namespace Erdos967
+
+open Classical in
+def question_1_1_statement : Prop :=
+  ∀ (S : Set ℕ), (∀ n ∈ S, 1 < n) →
+  Summable (fun n => if n ∈ S then (n : ℝ)⁻¹ else 0) →
+  ∀ (t : ℝ), 1 + (∑' n, if n ∈ S then (n : ℂ) ^ (-(1 + Complex.I * t)) else 0) ≠ 0
+end Erdos967
 
 attribute [local instance] Classical.propDecidable
 
@@ -55,12 +73,6 @@ theorem Erdos967.main_theorem :
                   lambda_val))
   := by
   sorry
-
-noncomputable def Erdos967.question_1_1_statement :
-    Prop
-  := by
-  sorry
-
 theorem Erdos967.disproof_of_question_1_1 :
     Not Erdos967.question_1_1_statement
   := by

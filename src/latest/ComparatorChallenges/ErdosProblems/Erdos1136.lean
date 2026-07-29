@@ -1,18 +1,20 @@
 import Mathlib.Order.LiminfLimsup
 import Mathlib.Order.Interval.Finset.Nat
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+open Finset Nat
+
+namespace Erdos1136
+
+noncomputable def countIn (S : Set ℕ) (n : ℕ) : ℕ :=
+  @Finset.card ℕ ((Finset.Icc 1 n).filter (fun x => @decide (x ∈ S) (Classical.dec _)))
+
+def pow2SumFree (S : Set ℕ) : Prop :=
+  ∀ a ∈ S, ∀ b ∈ S, ∀ k : ℕ, a + b ≠ 2 ^ k
+end Erdos1136
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos1136.countIn :
-    Set.{0} Nat → Nat → Nat
-  := by
-  sorry
-
-noncomputable def Erdos1136.pow2SumFree :
-    Set.{0} Nat → Prop
-  := by
-  sorry
 
 theorem Erdos1136.main_result :
     And
@@ -60,7 +62,6 @@ theorem Erdos1136.main_result :
                       (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))))))))
   := by
   sorry
-
 theorem Erdos1136.general_upper_bound :
     ∀ (s : Nat → Nat),
       (∀ (k : Nat),
@@ -110,7 +111,6 @@ theorem Erdos1136.general_upper_bound :
                                   (s i)))
   := by
   sorry
-
 theorem Erdos1136.general_upper_bound_infinite :
     ∀ (s : Nat → Nat),
       (∀ (k : Nat),

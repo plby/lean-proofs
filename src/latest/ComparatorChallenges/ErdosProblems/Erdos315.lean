@@ -1,16 +1,23 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos315
+
+def generalized_sylvester (n : ℕ) : ℕ → ℕ
+| 0 => n + 1
+| (i + 1) => (generalized_sylvester n i)^2 - (generalized_sylvester n i) + 1
+noncomputable def sylvester_seq_pow (n : ℕ) (i : ℕ) : ℝ :=
+  (generalized_sylvester n i : ℝ) ^ ((1 / 2 : ℝ) ^ (i + 1))
+def sylvester : ℕ → ℕ
+| 0 => 2
+| (i + 1) => (sylvester i)^2 - (sylvester i) + 1
+noncomputable def usual_sylvester_seq_pow (i : ℕ) : ℝ :=
+  (sylvester i : ℝ) ^ ((1 / 2 : ℝ) ^ (i + 1))
+noncomputable def vardi_constant : ℝ :=
+  Filter.atTop.limUnder usual_sylvester_seq_pow
+end Erdos315
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos315.sylvester :
-    Nat → Nat
-  := by
-  sorry
-
-noncomputable def Erdos315.vardi_constant :
-    Real
-  := by
-  sorry
 
 theorem Erdos315.erdos_315 :
     ∀ (a : Nat → Nat),

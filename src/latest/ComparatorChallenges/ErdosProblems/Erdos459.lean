@@ -1,12 +1,29 @@
-import Mathlib.Data.Finset.Card
+import Mathlib.Data.Int.ConditionallyCompleteOrder
+import Mathlib.Data.Int.Star
+import Mathlib.Data.Nat.PrimeFin
+import Mathlib.Data.Nat.SuccPred
+import Mathlib.Algebra.Order.Ring.Star
 import Mathlib.Algebra.Order.Archimedean.Real.Basic
 
+namespace Erdos459
+
+def f (u : ℕ) : ℕ :=
+  if h : u < 2 then 0
+  else Nat.find (show ∃ v, u < v ∧ v.primeFactors ⊆ u.primeFactors by
+
+    obtain ⟨p, hp⟩ : ∃ p, Nat.Prime p ∧ p ∣ u := by
+      exact Nat.exists_prime_and_dvd ( by linarith )
+
+    use u * p
+    exact ⟨
+      lt_mul_of_one_lt_right ( by linarith ) hp.1.one_lt,
+      fun x hx => by
+        rw [ Nat.primeFactors_mul ] at * <;> aesop⟩)
 attribute [local instance] Classical.propDecidable
 
-noncomputable def Erdos459.f :
-    Nat → Nat
-  := by
-  sorry
+end Erdos459
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos459.main_theorem :
     ∀ (ε δ : Real),

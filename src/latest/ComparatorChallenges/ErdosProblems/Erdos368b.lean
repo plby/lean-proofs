@@ -1,11 +1,16 @@
+import Mathlib.Data.List.MinMax
+import Mathlib.Data.Nat.Factors
 import Mathlib.Order.Filter.AtTopBot.Defs
 
-attribute [local instance] Classical.propDecidable
+namespace Erdos368b
 
-noncomputable def Erdos368b.P_plus :
-    Nat → Nat
-  := by
-  sorry
+def P_plus (m : ℕ) : ℕ :=
+  match (Nat.primeFactorsList m).maximum with
+  | some p => p
+  | none => 1
+end Erdos368b
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos368b.n_n_plus_one_inf :
     @Filter.Tendsto.{0, 0} Nat Nat

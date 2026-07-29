@@ -1,14 +1,17 @@
 import Mathlib.Analysis.Real.Sqrt
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos540
+
+open Finset BigOperators
+
+def hasZeroSum {G : Type*} [DecidableEq G] [AddCommMonoid G] (A : Finset G) : Prop :=
+  ∃ S : Finset G, S ⊆ A ∧ S.Nonempty ∧ S.sum id = 0
+end Erdos540
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Erdos540.hasZeroSum :
-    {G : Type u_1} → [DecidableEq.{u_1 + 1} G] → [AddCommMonoid.{u_1} G] → Finset.{u_1} G → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos540.erdos_540 :
     @Exists.{1} Real fun (C : Real) ↦

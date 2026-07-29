@@ -1,22 +1,26 @@
-import Mathlib.Combinatorics.SimpleGraph.Finite
-import Mathlib.Data.Real.Basic
+import Mathlib.InformationTheory.Hamming
+import Mathlib.Combinatorics.SimpleGraph.Paths
 import Mathlib.Data.ZMod.Defs
+
+namespace Erdos666
+
+open SimpleGraph
+
+abbrev hypercubeGraph (n : ℕ) : SimpleGraph (Fin n → ZMod 2) where
+  Adj x y := hammingDist x y = 1
+  symm := ⟨fun x y h => by
+
+    simpa [hammingDist_comm] using h⟩
+  loopless := ⟨fun x h => by
+
+    simp [hammingDist] at h⟩
+def HasCycleOfLength {V : Type*} (G : SimpleGraph V) (k : ℕ) : Prop :=
+  ∃ (u : V) (p : G.Walk u u), p.IsCycle ∧ p.length = k
+end Erdos666
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable abbrev Erdos666.hypercubeGraph :
-    (n : Nat) →
-      SimpleGraph.{0} (Fin n → ZMod (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
-  := by
-  sorry
-
-noncomputable def Erdos666.HasCycleOfLength :
-    {V : Type u_1} → SimpleGraph.{u_1} V → Nat → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos666.not_erdos_666 :
     Not

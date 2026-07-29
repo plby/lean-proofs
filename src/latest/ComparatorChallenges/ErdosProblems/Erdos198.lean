@@ -1,21 +1,25 @@
-import Mathlib.Data.ENat.Defs
-import Mathlib.Data.Set.Operations
-import Mathlib.Algebra.Group.Nat.Defs
+import Mathlib.Data.Real.Basic
+import Mathlib.SetTheory.Cardinal.Finite
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos198
+
+open scoped Real
+open scoped Nat
+
+def IsSidon (A : Set ℕ) : Prop :=
+  ∀ a ∈ A, ∀ b ∈ A, ∀ c ∈ A, ∀ d ∈ A, a ≤ b → c ≤ d → a + b = c + d → a = c ∧ b = d
+variable {α : Type*} [AddCommMonoid α]
+
+def IsAPOfLengthWith (s : Set α) (l : ℕ∞) (a d : α) : Prop :=
+  ENat.card s = l ∧ s = {a + n • d | (n : ℕ) (_ : n < l)}
+def IsAPOfLength (s : Set α) (l : ℕ∞) : Prop :=
+  ∃ a d : α, IsAPOfLengthWith s l a d
+end Erdos198
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Erdos198.IsSidon :
-    Set.{0} Nat → Prop
-  := by
-  sorry
-
-noncomputable def Erdos198.IsAPOfLength :
-    {α : Type u_1} → [AddCommMonoid.{u_1} α] → Set.{u_1} α → ENat → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos198.erdos_198 :
     Iff

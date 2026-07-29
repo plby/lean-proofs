@@ -1,12 +1,21 @@
 import Mathlib.Analysis.Asymptotics.Defs
 import Mathlib.Analysis.Real.Sqrt
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos1023
+
+open scoped Nat
+open Asymptotics Filter
+
+def UnionFreeMany {α : Type*} [DecidableEq α] (F : Finset (Finset α)) : Prop :=
+  ∀ C ∈ F, ∀ G ⊆ F.erase C, G.Nonempty → G.sup id ≠ C
+noncomputable def MaxUnionFreeMany (n : ℕ) : ℕ := by
+  classical
+  exact
+    ((Finset.univ : Finset (Finset (Finset (Fin n)))).filter UnionFreeMany).sup Finset.card
+end Erdos1023
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos1023.MaxUnionFreeMany :
-    Nat → Nat
-  := by
-  sorry
 
 theorem Erdos1023.erdos_1023 :
     @Exists.{1} Real fun (c : Real) ↦

@@ -1,88 +1,27 @@
 import Mathlib.Analysis.CStarAlgebra.Classes
-import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
-import Mathlib.Analysis.InnerProductSpace.Projection.Basic
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Complex
+import Mathlib.MeasureTheory.Measure.Haar.OfBasis
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos1043
+
+open MeasureTheory
+open Polynomial
+
+def levelSet (f : Polynomial ℂ) : Set ℂ :=
+  {z : ℂ | ‖f.eval z‖ ≤ 1}
+variable (u : ℂ)
+
+noncomputable local instance instMeasureSpaceRealSpan (u : ℂ) : MeasureSpace ↥(ℝ ∙ u) :=
+  @measureSpaceOfInnerProductSpace (↥(ℝ ∙ u))
+    (inferInstanceAs (NormedAddCommGroup ↥(ℝ ∙ u)))
+    (inferInstanceAs (InnerProductSpace ℝ ↥(ℝ ∙ u)))
+    (inferInstanceAs (FiniteDimensional ℝ ↥(ℝ ∙ u)))
+    (inferInstanceAs (MeasurableSpace ↥(ℝ ∙ u)))
+    (inferInstanceAs (BorelSpace ↥(ℝ ∙ u)))
+end Erdos1043
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos1043.levelSet :
-    @Polynomial.{0} Complex Complex.instSemiring → Set.{0} Complex
-  := by
-  sorry
-
-noncomputable def Erdos1043.instMeasureSpaceRealSpan :
-    (u : Complex) →
-      MeasureTheory.MeasureSpace.{0}
-        (@Subtype.{1} Complex fun (x : Complex) ↦
-          @Membership.mem.{0, 0} Complex
-            (@Submodule.{0, 0} Real Complex Real.semiring Complex.instAddCommMonoid
-              (@NormedSpace.toModule.{0, 0} Real Complex Real.normedField
-                (@NonUnitalSeminormedRing.toSeminormedAddCommGroup.{0} Complex
-                  (@NonUnitalSeminormedCommRing.toNonUnitalSeminormedRing.{0} Complex
-                    (@SeminormedCommRing.toNonUnitalSeminormedCommRing.{0} Complex
-                      (@NormedCommRing.toSeminormedCommRing.{0} Complex
-                        (@CommCStarAlgebra.toNormedCommRing.{0} Complex instCommCStarAlgebraComplex)))))
-                (@InnerProductSpace.toNormedSpace.{0, 0} Real Complex Real.instRCLike
-                  (@NonUnitalSeminormedRing.toSeminormedAddCommGroup.{0} Complex
-                    (@NonUnitalSeminormedCommRing.toNonUnitalSeminormedRing.{0} Complex
-                      (@SeminormedCommRing.toNonUnitalSeminormedCommRing.{0} Complex
-                        (@NormedCommRing.toSeminormedCommRing.{0} Complex
-                          (@CommCStarAlgebra.toNormedCommRing.{0} Complex
-                            instCommCStarAlgebraComplex)))))
-                  instInnerProductSpaceRealComplex)))
-            (@SetLike.instMembership.{0, 0}
-              (@Submodule.{0, 0} Real Complex Real.semiring Complex.instAddCommMonoid
-                (@NormedSpace.toModule.{0, 0} Real Complex Real.normedField
-                  (@NonUnitalSeminormedRing.toSeminormedAddCommGroup.{0} Complex
-                    (@NonUnitalSeminormedCommRing.toNonUnitalSeminormedRing.{0} Complex
-                      (@SeminormedCommRing.toNonUnitalSeminormedCommRing.{0} Complex
-                        (@NormedCommRing.toSeminormedCommRing.{0} Complex
-                          (@CommCStarAlgebra.toNormedCommRing.{0} Complex
-                            instCommCStarAlgebraComplex)))))
-                  (@InnerProductSpace.toNormedSpace.{0, 0} Real Complex Real.instRCLike
-                    (@NonUnitalSeminormedRing.toSeminormedAddCommGroup.{0} Complex
-                      (@NonUnitalSeminormedCommRing.toNonUnitalSeminormedRing.{0} Complex
-                        (@SeminormedCommRing.toNonUnitalSeminormedCommRing.{0} Complex
-                          (@NormedCommRing.toSeminormedCommRing.{0} Complex
-                            (@CommCStarAlgebra.toNormedCommRing.{0} Complex
-                              instCommCStarAlgebraComplex)))))
-                    instInnerProductSpaceRealComplex)))
-              Complex
-              (@Submodule.setLike.{0, 0} Real Complex Real.semiring Complex.instAddCommMonoid
-                (@NormedSpace.toModule.{0, 0} Real Complex Real.normedField
-                  (@NonUnitalSeminormedRing.toSeminormedAddCommGroup.{0} Complex
-                    (@NonUnitalSeminormedCommRing.toNonUnitalSeminormedRing.{0} Complex
-                      (@SeminormedCommRing.toNonUnitalSeminormedCommRing.{0} Complex
-                        (@NormedCommRing.toSeminormedCommRing.{0} Complex
-                          (@CommCStarAlgebra.toNormedCommRing.{0} Complex
-                            instCommCStarAlgebraComplex)))))
-                  (@InnerProductSpace.toNormedSpace.{0, 0} Real Complex Real.instRCLike
-                    (@NonUnitalSeminormedRing.toSeminormedAddCommGroup.{0} Complex
-                      (@NonUnitalSeminormedCommRing.toNonUnitalSeminormedRing.{0} Complex
-                        (@SeminormedCommRing.toNonUnitalSeminormedCommRing.{0} Complex
-                          (@NormedCommRing.toSeminormedCommRing.{0} Complex
-                            (@CommCStarAlgebra.toNormedCommRing.{0} Complex
-                              instCommCStarAlgebraComplex)))))
-                    instInnerProductSpaceRealComplex))))
-            (@Submodule.span.{0, 0} Real Complex Real.semiring Complex.instAddCommMonoid
-              (@NormedSpace.toModule.{0, 0} Real Complex Real.normedField
-                (@NonUnitalSeminormedRing.toSeminormedAddCommGroup.{0} Complex
-                  (@NonUnitalSeminormedCommRing.toNonUnitalSeminormedRing.{0} Complex
-                    (@SeminormedCommRing.toNonUnitalSeminormedCommRing.{0} Complex
-                      (@NormedCommRing.toSeminormedCommRing.{0} Complex
-                        (@CommCStarAlgebra.toNormedCommRing.{0} Complex instCommCStarAlgebraComplex)))))
-                (@InnerProductSpace.toNormedSpace.{0, 0} Real Complex Real.instRCLike
-                  (@NonUnitalSeminormedRing.toSeminormedAddCommGroup.{0} Complex
-                    (@NonUnitalSeminormedCommRing.toNonUnitalSeminormedRing.{0} Complex
-                      (@SeminormedCommRing.toNonUnitalSeminormedCommRing.{0} Complex
-                        (@NormedCommRing.toSeminormedCommRing.{0} Complex
-                          (@CommCStarAlgebra.toNormedCommRing.{0} Complex
-                            instCommCStarAlgebraComplex)))))
-                  instInnerProductSpaceRealComplex))
-              (@Singleton.singleton.{0, 0} Complex (Set.{0} Complex) (@Set.instSingletonSet.{0} Complex)
-                u))
-            x)
-  := by
-  sorry
 
 theorem Erdos1043.erdos_1043 :
     Not

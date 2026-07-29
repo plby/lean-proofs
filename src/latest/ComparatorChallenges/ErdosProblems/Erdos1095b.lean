@@ -1,11 +1,20 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos1095b
+
+open Filter Real
+
+open scoped Asymptotics Topology
+
+def Good (k n : ℕ) : Prop :=
+  k + 1 < n ∧ k < Nat.minFac (Nat.choose n k)
+open Classical in
+noncomputable def g (k : ℕ) : ℕ :=
+  if h : ∃ n : ℕ, Good k n then Nat.find h else 0
+end Erdos1095b
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos1095b.g :
-    Nat → Nat
-  := by
-  sorry
 
 theorem Erdos1095b.erdos_1095_weaker_upper_bound :
     @Exists.{1} (Nat → Real) fun (f : Nat → Real) ↦

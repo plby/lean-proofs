@@ -1,9 +1,32 @@
-attribute [local instance] Classical.propDecidable
+import Mathlib.Data.Int.ModEq
+import Mathlib.Data.Real.Basic
+import Mathlib.RingTheory.PowerSeries.Basic
 
-noncomputable def Erdos947.IsExactCoveringSystem :
-    List.{0} (Prod.{0, 0} Int Nat) → Prop
-  := by
-  sorry
+namespace Erdos947
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+def IsExactCoveringSystem (l : List (ℤ × ℕ)) : Prop :=
+  (∀ p ∈ l, 0 ≤ p.1 ∧ p.1 < p.2) ∧
+  (∀ m : ℤ, ∃! i : Fin l.length, let (a, n) := l.get i; m ≡ a [ZMOD n])
+open PowerSeries
+
+open PowerSeries
+
+open PowerSeries
+
+open PowerSeries
+
+open Polynomial
+
+open Polynomial
+
+end Erdos947
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos947.exact_covering_system_distinct_moduli_impossible :
     ∀ (l : List.{0} (Prod.{0, 0} Int Nat)),

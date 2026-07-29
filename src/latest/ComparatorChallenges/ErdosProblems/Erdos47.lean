@@ -1,11 +1,33 @@
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
+namespace UnitFractions
+
+open scoped BigOperators
+open Filter Real Finset Nat
+open _root_.Finset
+
+noncomputable section
 attribute [local instance] Classical.propDecidable
 
-noncomputable def UnitFractions.rec_sum :
-    Finset.{0} Nat → Rat
-  := by
-  sorry
+section
+
+variable (A : Set ℕ)
+
+variable {A}
+
+end
+
+def rec_sum (A : Finset ℕ) : ℚ := A.sum fun n ↦ (1 : ℚ) / n
+namespace Nat
+
+end Nat
+
+end
+
+end UnitFractions
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos47.erdos47_bloom :
     @Exists.{1} Real fun (C : Real) ↦
@@ -43,7 +65,6 @@ theorem Erdos47.erdos47_bloom :
                           (@OfNat.ofNat.{0} Rat (nat_lit 1) (@Rat.instOfNat (nat_lit 1)))))
   := by
   sorry
-
 theorem Erdos47.erdos47 :
     ∀ (δ : Real),
       @GT.gt.{0} Real Real.instLT δ

@@ -1,12 +1,35 @@
 import Mathlib.Order.LiminfLimsup
 import Mathlib.Data.ENat.Lattice
+import Mathlib.Data.Nat.Prime.Defs
+
+namespace Erdos379
+
+open Filter
+
+noncomputable def S (n : ℕ) : ℕ :=
+  sSup {s | ∀ k ∈ Finset.Ico 1 n, ∃ p, p.Prime ∧ p ^ s ∣ n.choose k}
+namespace depth_0_lemma_1
+
+end depth_0_lemma_1
+
+namespace depth_0_lemma_2
+
+end depth_0_lemma_2
+
+namespace depth_0_lemma_3
+
+end depth_0_lemma_3
+
+namespace depth_0_lemma_4
+end depth_0_lemma_4
+
+namespace depth_0_lemma_5
+
+end depth_0_lemma_5
+
+end Erdos379
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos379.S :
-    Nat → Nat
-  := by
-  sorry
 
 theorem Erdos379.erdos_379 :
     @Eq.{1} ENat

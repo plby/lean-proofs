@@ -1,16 +1,24 @@
+import Mathlib.Data.Nat.Nth
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos401
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
 
 attribute [local instance] Classical.propDecidable
 
-noncomputable def Erdos401.P :
-    Nat → Nat
-  := by
-  sorry
+noncomputable def p (j : ℕ) : ℕ := Nat.nth Nat.Prime (j - 1)
+noncomputable def P (r : ℕ) : ℕ := ∏ j ∈ Finset.range r, p (j + 1)
+noncomputable def γ : ℝ := 9 / 70
+noncomputable def ω (r : ℕ) : ℝ :=
+  let q := (p (r + 1) : ℝ)
+  (γ / 16) * (q - 1) / Real.log q
+end Erdos401
 
-noncomputable def Erdos401.ω :
-    Nat → Real
-  := by
-  sorry
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos401.theorem_1 :
     ∀ (r : Nat),

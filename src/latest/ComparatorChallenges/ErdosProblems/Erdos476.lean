@@ -1,14 +1,24 @@
 import Mathlib.Algebra.Field.ZMod
+import Mathlib.Algebra.Polynomial.Basic
+
+namespace Erdos476
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+
+attribute [local instance] Classical.propDecidable
+
+open Polynomial Finset
+
+def restrictedSumset {R : Type*} [Add R] [DecidableEq R] (A : Finset R) : Finset R :=
+  (A.product A).filter (fun x => x.1 ≠ x.2) |>.image (fun x => x.1 + x.2)
+
+end Erdos476
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Erdos476.restrictedSumset :
-    {R : Type u_1} → [Add.{u_1} R] → [DecidableEq.{u_1 + 1} R] → Finset.{u_1} R → Finset.{u_1} R
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos476.erdos_476 :
     ∀ (p : Nat) [inst : Fact (Nat.Prime p)] (A : Finset.{0} (ZMod p)),

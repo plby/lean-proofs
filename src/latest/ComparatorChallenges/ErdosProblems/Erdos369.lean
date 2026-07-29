@@ -1,11 +1,15 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+open Finset Nat BigOperators
+
+namespace Erdos369
+
+def Nat.largestPrimeFactor (n : ℕ) : ℕ :=
+  if n ≤ 1 then 0 else n.primeFactors.sup id
+end Erdos369
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos369.Nat.largestPrimeFactor :
-    Nat → Nat
-  := by
-  sorry
 
 theorem Erdos369.erdos_problem_369 :
     ∀ (ε : Real),

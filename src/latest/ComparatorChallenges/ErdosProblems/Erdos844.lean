@@ -1,11 +1,17 @@
-import Mathlib.Algebra.Squarefree.Basic
+import Mathlib.Data.Nat.Squarefree
+
+namespace Erdos844
+
+set_option linter.style.setOption false
+set_option linter.flexible false
+
+open Finset Nat
+
+noncomputable def erdosSarkozySet (N : ℕ) : Finset ℕ :=
+  (Finset.Icc 1 N).filter (fun k => 2 ∣ k ∨ ¬ Squarefree k)
+end Erdos844
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos844.erdosSarkozySet :
-    Nat → Finset.{0} Nat
-  := by
-  sorry
 
 theorem Erdos844.erdos_sarkozy :
     ∀ (N : Nat) (A : Finset.{0} Nat),

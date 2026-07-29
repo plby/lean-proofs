@@ -1,16 +1,75 @@
 import Mathlib.Combinatorics.Schnirelmann
+import Mathlib.Algebra.Group.Pointwise.Set.Basic
+import Mathlib.Order.Filter.AtTopBot.Defs
+
+namespace Erdos38
+
+open scoped Pointwise
+open Finset Real Filter
 
 attribute [local instance] Classical.propDecidable
 
-noncomputable def Erdos38.IsAdditiveBasis :
-    Set.{0} Nat → Prop
-  := by
-  sorry
+noncomputable section
 
-noncomputable def Erdos38.unionTranslateCount :
-    Set.{0} Nat → Nat → Nat → Nat
-  := by
-  sorry
+def countIn (A : Set ℕ) (N : ℕ) : ℕ :=
+  #{a ∈ Ioc 0 N | a ∈ A}
+
+def hSumset : ℕ → Set ℕ → Set ℕ
+  | 0, _ => {0}
+  | h + 1, B => hSumset h B + B
+
+def IsAdditiveBasis (B : Set ℕ) : Prop :=
+  ∃ h : ℕ, ∀ᶠ n in Filter.atTop, n ∈ hSumset h B
+
+def translateSet (A : Set ℕ) (b : ℕ) : Set ℕ := (· + b) '' A
+
+def unionTranslateCount (A : Set ℕ) (b : ℕ) (N : ℕ) : ℕ :=
+  countIn (A ∪ translateSet A b) N
+end
+
+section CountIn
+
+end CountIn
+
+section SchnirelmannProps
+
+end SchnirelmannProps
+
+section ErdosF
+
+end ErdosF
+
+noncomputable section
+
+end
+
+noncomputable section
+
+end
+
+noncomputable section
+
+end
+
+noncomputable section
+
+end
+
+noncomputable section
+
+end
+
+noncomputable section
+
+end
+
+noncomputable section
+
+end
+
+end Erdos38
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos38.erdos_problem_38 :
     @Exists.{1} (Set.{0} Nat) fun (B : Set.{0} Nat) ↦

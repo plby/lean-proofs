@@ -1,12 +1,16 @@
-import Mathlib.Combinatorics.SimpleGraph.Finite
+import Mathlib.Combinatorics.SimpleGraph.CycleGraph
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos1008
+
+def is_C4 {V : Type} [DecidableEq V] (s : Finset (Sym2 V)) : Prop :=
+  s.card = 4 ∧ ¬ (SimpleGraph.cycleGraph 4).Free (SimpleGraph.fromEdgeSet (s : Set (Sym2 V)))
+open SimpleGraph Finset
+
+end Erdos1008
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos1008.is_C4 :
-    {V : Type} → [DecidableEq.{1} V] → Finset.{0} (Sym2.{0} V) → Prop
-  := by
-  sorry
 
 theorem Erdos1008.exists_C4_free_subgraph_with_many_edges :
     ∀ {V : Type} [inst : Fintype.{0} V] [inst_1 : DecidableEq.{1} V] (G : SimpleGraph.{0} V)

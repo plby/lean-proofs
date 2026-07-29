@@ -1,11 +1,24 @@
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos296
+
+open Finset Filter
+
+noncomputable section
+
+def recipSum (A : Finset ℕ) : ℚ :=
+  ∑ n ∈ A, (1 : ℚ) / n
+
+def HasDisjointUnitDecomps (N k : ℕ) : Prop :=
+  ∃ f : Fin k → Finset ℕ,
+    (∀ i, f i ⊆ Icc 1 N) ∧
+    (∀ i, recipSum (f i) = 1) ∧
+    (∀ i j : Fin k, i ≠ j → Disjoint (f i) (f j))
+end
+end Erdos296
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos296.HasDisjointUnitDecomps :
-    Nat → Nat → Prop
-  := by
-  sorry
 
 theorem Erdos296.erdos296 :
     @Exists.{1} Real fun (c : Real) ↦

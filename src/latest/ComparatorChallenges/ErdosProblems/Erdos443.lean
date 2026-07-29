@@ -1,11 +1,29 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos443
+
+set_option linter.style.openClassical false
+set_option linter.style.setOption false
+set_option linter.style.whitespace false
+set_option linter.flexible false
+set_option linter.unusedVariables false
+
+open scoped Classical
+
+open scoped Pointwise
+
+set_option maxHeartbeats 0
+set_option linter.style.cases false
+set_option linter.style.longLine false
+set_option linter.style.multiGoal false
+set_option linter.style.refine false
+
+def A (k : ℕ) : Finset ℕ :=
+  (Finset.Ioo 0 k).image (fun r => r * (k - r))
+end Erdos443
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos443.A :
-    Nat → Finset.{0} Nat
-  := by
-  sorry
 
 theorem Erdos443.erdos_443_part_one :
     ∀ (s : Nat),
@@ -19,7 +37,6 @@ theorem Erdos443.erdos_443_part_one :
                     (Erdos443.A n) (Erdos443.A m)))))
   := by
   sorry
-
 theorem Erdos443.erdos_443_part_two :
     ∀ (ε : Real),
       @LT.lt.{0} Real Real.instLT

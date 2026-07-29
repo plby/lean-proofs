@@ -1,15 +1,21 @@
 import Mathlib.Data.Real.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 
+namespace Erdos350
+
+open scoped Real
+open scoped Nat
+
+open Finset
+
+def DecidableDistinctSubsetSums {M : Type*} [AddCommMonoid M] [DecidableEq M]
+    (A : Finset M) : Prop :=
+  ∀ X ⊆ A, ∀ Y ⊆ A, X ≠ Y → X.sum id ≠ Y.sum id
+end Erdos350
+
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Erdos350.DecidableDistinctSubsetSums :
-    {M : Type u_1} → [AddCommMonoid.{u_1} M] → [DecidableEq.{u_1 + 1} M] → Finset.{u_1} M → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos350.erdos_350 :
     ∀ (A : Finset.{0} Nat),

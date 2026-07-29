@@ -1,20 +1,25 @@
 import Mathlib.Algebra.Ring.Periodic
 import Mathlib.Analysis.Complex.Exponential
-
-attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos291b.L :
-    Nat → Nat
-  := by
-  sorry
-
-noncomputable def Erdos291b.z :
-    Nat → Nat
-  := by
-  sorry
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
 namespace Erdos291b
 
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
+
+set_option maxHeartbeats 300000
+
+def L (n : ℕ) : ℕ := (Finset.Icc 1 n).lcm id
+def X (r : ℕ → ℤ) (n : ℕ) : ℚ := (L n : ℚ) * ∑ i ∈ Finset.Icc 1 n, (r i : ℚ) / i
+def z (m : ℕ) : ℕ := ((Finset.range m).filter Nat.Prime).card
 structure ProblemParameters where
   r : ℕ → ℤ
   m : ℕ
@@ -23,26 +28,24 @@ structure ProblemParameters where
   hm4 : 4 ≤ m
   h_r_nz : ∀ i, r i ≠ 0
   h_r_bdd : ∀ i, |r i| < m
-  htilde_m : 20 * m ^ (2 * z m) < tilde_m
+  htilde_m : 20 * m^(2 * z m) < tilde_m
   hq0_prime : q0.Prime
   hq0_dvd : q0 ∣ tilde_m
-  hq0_large : m ^ (2 * z m - 1) < q0
-  h_priemteller : (m : ℝ) ^ (2 * z m) < Real.exp (2.52 * m)
-  h_bla0 :
-    ∀ w ∈ Finset.Ico (tilde_m - m ^ (2 * z m - 1)) tilde_m,
-      ∀ k, L (w + k) > 2 ^ (w + k)
-
+  hq0_large : m^(2 * z m - 1) < q0
+  h_priemteller : (m : ℝ)^(2 * z m) < Real.exp (2.52 * m)
+  h_bla0 : ∀ w ∈ Finset.Ico (tilde_m - m^(2 * z m - 1)) tilde_m, ∀ k, L (w + k) > 2^(w + k)
+def J1' (p : ProblemParameters) : Finset ℕ := Finset.Ico (p.tilde_m - p.m^(2 * z p.m - 1)) p.tilde_m
+def J2' (p : ProblemParameters) : Finset ℕ := Finset.Ico p.tilde_m (p.tilde_m + p.m^(2 * z p.m - 1))
+def X_int (r : ℕ → ℤ) (n : ℕ) : ℤ := ∑ i ∈ Finset.Icc 1 n, r i * ((L n) / i : ℕ)
+noncomputable def I0 (p : ProblemParameters) : Finset ℕ :=
+  if ∀ n ∈ J1' p, |X p.r n| > (n : ℚ)^(z p.m) then J1' p else J2' p
 end Erdos291b
 
-noncomputable def Erdos291b.X_int :
-    (Nat → Int) → Nat → Int
-  := by
-  sorry
+attribute [local instance] Classical.propDecidable
 
-noncomputable def Erdos291b.I0 :
-    Erdos291b.ProblemParameters → Finset.{0} Nat
-  := by
-  sorry
+namespace Erdos291b
+
+end Erdos291b
 
 theorem Erdos291b.ohyeah1 :
     ∀ (p : Erdos291b.ProblemParameters),
@@ -57,7 +60,6 @@ theorem Erdos291b.ohyeah1 :
                 (@Dvd.dvd.{0} Nat Nat.instDvd q (Erdos291b.X_int p.r n).natAbs)))
   := by
   sorry
-
 theorem Erdos291b.generalErdos291 :
     ∀ (r : Nat → Int) (t : Nat),
       @GT.gt.{0} Nat instLTNat t (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))) →

@@ -1,16 +1,23 @@
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos280
+
+section Erdos280
+
+open Nat
+
+def isCoveredBy (n a : ℕ → ℕ) (m k : ℕ) : Prop :=
+  ∃ i, 1 ≤ i ∧ i ≤ k ∧ m % n i = a i
+
+noncomputable instance isCoveredBy_decidable (n a : ℕ → ℕ) (m k : ℕ) :
+    Decidable (isCoveredBy n a m k) :=
+  Classical.dec _
+end Erdos280
+
+end Erdos280
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos280.isCoveredBy :
-    (Nat → Nat) → (Nat → Nat) → Nat → Nat → Prop
-  := by
-  sorry
-
-noncomputable instance Erdos280.isCoveredBy_decidable :
-    (n a : Nat → Nat) → (m k : Nat) → Decidable (Erdos280.isCoveredBy n a m k)
-  := by
-  sorry
 
 theorem Erdos280.erdos_280_counterexample :
     @Exists.{1} (Nat → Nat) fun (n : Nat → Nat) ↦

@@ -1,19 +1,26 @@
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos457
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+set_option relaxedAutoImplicit false
+set_option autoImplicit false
+
+noncomputable def A_func (n k : ℕ) : ℕ := ∏ i ∈ Finset.Icc 1 k, (n + i)
+noncomputable def F (n : ℕ) : ℕ := A_func n ⌊Real.log n⌋₊
+@[implicit_reducible] def erdos_457.match_1.{u} :
+    (motive : ℕ → Sort u) → (x : ℕ) → ((n : ℕ) → motive n) → motive x :=
+  fun motive x h ↦ h x
+end Erdos457
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable abbrev Erdos457.erdos_457.match_1 :
-    (motive : Nat → Sort u_1) → (x : Nat) → ((n : Nat) → motive n) → motive x
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable def Erdos457.F :
-    Nat → Nat
-  := by
-  sorry
 
 theorem Erdos457.thm_main :
     @Set.Infinite.{0} Nat
@@ -29,7 +36,6 @@ theorem Erdos457.thm_main :
               @Dvd.dvd.{0} Nat Nat.instDvd p (Erdos457.F n))
   := by
   sorry
-
 theorem Erdos457.erdos_457 :
     @Exists.{1} Real fun (ε : Real) ↦
       And

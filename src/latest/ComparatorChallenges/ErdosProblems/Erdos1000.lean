@@ -1,11 +1,32 @@
+import Mathlib.Order.Interval.Finset.Nat
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
+import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos1000
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
 
 attribute [local instance] Classical.propDecidable
 
-noncomputable def Erdos1000.cesaroPhi :
-    (Nat → Nat) → Nat → Real
-  := by
-  sorry
+open scoped BigOperators
+
+open Filter
+
+open Topology
+
+def phiA (n : ℕ → ℕ) (k : ℕ) : ℕ :=
+  ((Finset.Icc 1 (n k)).filter (fun m =>
+      ∀ j ∈ Finset.range k, n k / Nat.gcd m (n k) ≠ n j)).card
+
+noncomputable def cesaroPhi (n : ℕ → ℕ) (N : ℕ) : ℝ :=
+  ((N : ℝ)⁻¹) *
+    ∑ k ∈ Finset.range N, (phiA n k : ℝ) / (n k : ℝ)
+end Erdos1000
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos1000.erdos_1000_true :
     @Exists.{1} (Nat → Nat) fun (n : Nat → Nat) ↦

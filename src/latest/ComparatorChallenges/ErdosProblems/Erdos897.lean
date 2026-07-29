@@ -1,15 +1,24 @@
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+set_option linter.style.setOption false
+
+namespace Erdos897
+
+set_option linter.style.longLine false
+set_option linter.flexible false
+
+attribute [local instance] Classical.propDecidable
+
+@[implicit_reducible] def f_hypothesis.match_1.{u} :
+    (motive : ℕ × ℕ → Sort u) →
+      (x : ℕ × ℕ) → ((p _k : ℕ) → motive (p, _k)) → motive x :=
+  fun motive x h ↦ Prod.casesOn x fun p k ↦ h p k
+end Erdos897
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable abbrev Erdos897.f_hypothesis.match_1 :
-    (motive : Prod.{0, 0} Nat Nat → Sort u_1) →
-      (x : Prod.{0, 0} Nat Nat) → ((p _k : Nat) → motive (@Prod.mk.{0, 0} Nat Nat p _k)) → motive x
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos897.erdos_897.parts.i :
     Iff
@@ -77,7 +86,6 @@ theorem Erdos897.erdos_897.parts.i :
       (@Eq.{1} Bool Bool.false Bool.true)
   := by
   sorry
-
 theorem Erdos897.erdos_897.parts.ii :
     Iff
       (∀ (f : Nat → Real),

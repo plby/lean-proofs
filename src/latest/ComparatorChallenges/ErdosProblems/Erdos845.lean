@@ -1,26 +1,51 @@
-import Mathlib.Data.Real.Basic
+import Mathlib.Data.Set.Card
 import Mathlib.Order.Lattice.Nat
-import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+import Mathlib.Topology.MetricSpace.Pseudo.Defs
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos845
+
+set_option linter.unusedVariables false
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
+
+variable {β : Type*} [Preorder β]
+
+variable (S : Set β) (a b : β)
+
+abbrev Set.interIio (S : Set β) (b : β) : Set β :=
+  S ∩ Set.Iio b
+noncomputable abbrev partialDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
+    (S : Set β) (A : Set β := Set.univ) (b : β) : ℝ :=
+  (Set.interIio (S ∩ A) b).ncard / (Set.interIio A b).ncard
+open scoped Topology
+
+def HasDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
+    (S : Set β) (α : ℝ) (A : Set β := Set.univ) : Prop :=
+  Filter.Tendsto (fun (b : β) => partialDensity S A b) Filter.atTop (𝓝 α)
+open scoped BigOperators
+
+open Filter
+
+open Filter
+
+@[implicit_reducible] def main_theorem_consequence.match_1.{u} :
+    (motive : ℕ × ℕ → Sort u) →
+      (x : ℕ × ℕ) → ((k l : ℕ) → motive (k, l)) → motive x :=
+  fun motive x h ↦ Prod.casesOn x fun k l ↦ h k l
+end Erdos845
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1 u_2
-
-noncomputable abbrev Erdos845.main_theorem_consequence.match_1 :
-    (motive : Prod.{0, 0} Nat Nat → Sort u_1) →
-      (x : Prod.{0, 0} Nat Nat) → ((k l : Nat) → motive (@Prod.mk.{0, 0} Nat Nat k l)) → motive x
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable def Erdos845.HasDensity :
-    {β : Type u_2} →
-      [inst : Preorder.{u_2} β] →
-        [@LocallyFiniteOrderBot.{u_2} β inst] →
-          Set.{u_2} β → Real → optParam.{u_2 + 1} (Set.{u_2} β) (@Set.univ.{u_2} β) → Prop
-  := by
-  let _ := ULift.{u_2, 0} PUnit
-  sorry
 
 theorem Erdos845.erdos_845 :
     Iff (@Eq.{1} Bool Bool.false Bool.true)
@@ -74,7 +99,6 @@ theorem Erdos845.erdos_845 :
             (@Set.univ.{0} Nat))
   := by
   sorry
-
 theorem Erdos845.van_doorn_everts_asymptotic_inexact :
     have f := fun (x : Prod.{0, 0} Nat Nat) ↦
       Erdos845.main_theorem_consequence.match_1.{1} (fun (x : Prod.{0, 0} Nat Nat) ↦ Nat) x

@@ -1,44 +1,58 @@
 import Mathlib.Analysis.Real.Sqrt
 import Mathlib.Combinatorics.SimpleGraph.Clique
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos1034
+
+noncomputable section
+
+def Y_set {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj] (T :
+  Finset V) : Finset V :=
+  Finset.univ.filter (fun v => 2 ≤ (G.neighborFinset v ∩ T).card)
+def MaTangGraph (n : ℕ) (α : ℝ) (s : ℕ) : SimpleGraph (Fin n) where
+  Adj u v :=
+    let b := ⌊α * n⌋₊
+    let uB := (u : ℕ) < b
+    let vB := (v : ℕ) < b
+    (uB ≠ vB) ∨ (uB ∧ vB ∧ (u : ℕ) / s = (v : ℕ) / s ∧ u ≠ v)
+  symm := by
+    constructor
+    intro u v h
+    dsimp at h ⊢
+    rcases h with h | ⟨huB, hvB, hdiv, huv⟩
+    · exact Or.inl (Ne.symm h)
+    · exact Or.inr ⟨hvB, huB, hdiv.symm, Ne.symm huv⟩
+  loopless := by
+    constructor
+    intro u
+    simp
+instance instDecidableRel_MaTangGraphAdj (n : ℕ) (α : ℝ) (s : ℕ) :
+    DecidableRel (MaTangGraph n α s).Adj := by
+  intro u v
+  dsimp [MaTangGraph]
+  exact instDecidableOr
+noncomputable def alpha_star : ℝ := 1 - 1 / Real.sqrt 10
+noncomputable def c1 (α : ℝ) : ℝ := 2 * α - Real.sqrt (2 - 4 * (α - 1)^2)
+section AristotleLemmas
+
+noncomputable def s_func_robust (n : ℕ) (α : ℝ) : ℕ := Nat.ceil (c1 α * n) + 100
+end AristotleLemmas
+
+def erdos_1034 : Prop :=
+  ∀ ε : ℝ, 0 < ε →
+    ∃ n0 : ℕ,
+      ∀ n ≥ n0,
+        ∀ (G : SimpleGraph (Fin n)) [DecidableRel G.Adj],
+          (G.edgeFinset.card : ℝ) > ((n : ℝ)^2 / 4) →
+          ∃ T ∈ G.cliqueFinset 3,
+            ((Y_set G T).card : ℝ) > (((1 : ℝ) / 2) - ε) * (n : ℝ)
+end
+
+end Erdos1034
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Erdos1034.Y_set :
-    {V : Type u_1} →
-      [Fintype.{u_1} V] →
-        [DecidableEq.{u_1 + 1} V] →
-          (G : SimpleGraph.{u_1} V) →
-            [@DecidableRel.{u_1 + 1, u_1 + 1} V V (@SimpleGraph.Adj.{u_1} V G)] →
-              Finset.{u_1} V → Finset.{u_1} V
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable def Erdos1034.MaTangGraph :
-    (n : Nat) → Real → Nat → SimpleGraph.{0} (Fin n)
-  := by
-  sorry
-
-noncomputable instance Erdos1034.instDecidableRel_MaTangGraphAdj :
-    (n : Nat) →
-      (α : Real) →
-        (s : Nat) →
-          @DecidableRel.{1, 1} (Fin n) (Fin n)
-            (@SimpleGraph.Adj.{0} (Fin n) (Erdos1034.MaTangGraph n α s))
-  := by
-  sorry
-
-noncomputable def Erdos1034.alpha_star :
-    Real
-  := by
-  sorry
-
-noncomputable def Erdos1034.s_func_robust :
-    Nat → Real → Nat
-  := by
-  sorry
 
 theorem Erdos1034.MaTang_main :
     ∀ (ε : Real),
@@ -118,12 +132,6 @@ theorem Erdos1034.MaTang_main :
                         (@Nat.cast.{0} Real Real.instNatCast n)))
   := by
   sorry
-
-noncomputable def Erdos1034.erdos_1034 :
-    Prop
-  := by
-  sorry
-
 theorem Erdos1034.not_erdos_1034 :
     Not Erdos1034.erdos_1034
   := by

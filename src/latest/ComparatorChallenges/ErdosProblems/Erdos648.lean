@@ -1,11 +1,21 @@
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+set_option linter.style.setOption false
+set_option linter.flexible false
+
+namespace Erdos648
+
+open Asymptotics Filter Nat Real
+
+def P (n : ℕ) : ℕ := (n.primeFactors.max).getD 1
+def is_valid_seq (n : ℕ) (l : List ℕ) : Prop :=
+  l.IsChain (· < ·) ∧ (∀ m ∈ l, m ∈ Set.Ioc 0 n) ∧ (l.map P).IsChain (· > ·)
+noncomputable def g (n : ℕ) : ℕ :=
+  sSup { k | ∃ l, is_valid_seq n l ∧ l.length = k }
+end Erdos648
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos648.g :
-    Nat → Nat
-  := by
-  sorry
 
 theorem Erdos648.erdos_648 :
     @Asymptotics.IsTheta.{0, 0, 0} Nat Real Real Real.norm Real.norm

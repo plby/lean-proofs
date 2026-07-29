@@ -1,57 +1,59 @@
 import Mathlib.NumberTheory.Harmonic.EulerMascheroni
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
-attribute [local instance] Classical.propDecidable
+open Nat Finset Real Filter Asymptotics Topology
+open scoped Pointwise
+
+namespace BinQuadForm
+
+end BinQuadForm
 
 axiom mertens_product :
-    @Filter.Tendsto.{0, 0} Real Real
-      (fun (y : Real) ↦
-        @HDiv.hDiv.{0, 0, 0} Real Real Real
-          (@instHDiv.{0} Real (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
-          (@Finset.prod.{0, 0} Nat Real Real.instCommMonoid
-            (@Finset.filter.{0} Nat Nat.Prime Nat.decidablePrime
-              (@Finset.Icc.{0} Nat Nat.instPreorder Nat.instLocallyFiniteOrder
-                (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
-                (@Nat.floor.{0} Real Real.semiring Real.partialOrder
-                  (@FloorRing.toFloorSemiring.{0} Real Real.instRing Real.linearOrder
-                    Real.instFloorRing)
-                  y)))
-            fun (p : Nat) ↦
-            @HDiv.hDiv.{0, 0, 0} Real Real Real
-              (@instHDiv.{0} Real (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
-              (@Nat.cast.{0} Real Real.instNatCast p)
-              (@HSub.hSub.{0, 0, 0} Real Real Real (@instHSub.{0} Real Real.instSub)
-                (@Nat.cast.{0} Real Real.instNatCast p)
-                (@OfNat.ofNat.{0} Real (nat_lit 1) (@One.toOfNat1.{0} Real Real.instOne))))
-          (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul)
-            (Real.exp Real.eulerMascheroniConstant) (Real.log y)))
-      (@Filter.atTop.{0} Real Real.instPreorder)
-      (@nhds.{0} Real
-        (@UniformSpace.toTopologicalSpace.{0} Real
-          (@PseudoMetricSpace.toUniformSpace.{0} Real Real.pseudoMetricSpace))
-        (@OfNat.ofNat.{0} Real (nat_lit 1) (@One.toOfNat1.{0} Real Real.instOne)))
+    Tendsto
+      (fun y : ℝ =>
+        (∏ p ∈ Finset.filter Nat.Prime (Finset.Icc 1 ⌊y⌋₊), ((p : ℝ) / (p - 1))) /
+          (Real.exp Real.eulerMascheroniConstant * Real.log y))
+      atTop (𝓝 1)
 
 axiom linnik_dvd :
-    @Exists.{1} Real fun (C : Real) ↦
-      @Exists.{1} Nat fun (L : Nat) ↦
-        And
-          (@LE.le.{0} Real Real.instLE
-            (@OfNat.ofNat.{0} Real (nat_lit 1) (@One.toOfNat1.{0} Real Real.instOne)) C)
-          (And
-            (@LE.le.{0} Nat instLENat (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) L)
-            (∀ (M : Nat),
-              @LE.le.{0} Nat instLENat (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) M →
-                @Exists.{1} Nat fun (ℓ : Nat) ↦
-                  And (Nat.Prime ℓ)
-                    (And
-                      (@Dvd.dvd.{0} Nat Nat.instDvd M
-                        (@HSub.hSub.{0, 0, 0} Nat Nat Nat (@instHSub.{0} Nat instSubNat) ℓ
-                          (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
-                      (@LE.le.{0} Real Real.instLE (@Nat.cast.{0} Real Real.instNatCast ℓ)
-                        (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul) C
-                          (@HPow.hPow.{0, 0, 0} Real Nat Real
-                            (@instHPow.{0, 0} Real Nat
-                              (@NPow.toPow.{0} Real (@Monoid.toNPow.{0} Real Real.instMonoid)))
-                            (@Nat.cast.{0} Real Real.instNatCast M) L))))))
+  ∃ C : ℝ, ∃ L : ℕ, 1 ≤ C ∧ 1 ≤ L ∧
+    ∀ M : ℕ, 1 ≤ M →
+      ∃ ℓ : ℕ, Nat.Prime ℓ ∧ M ∣ ℓ - 1 ∧ (ℓ : ℝ) ≤ C * (M : ℝ) ^ L
+
+namespace Erdos694
+
+open Filter Asymptotics Topology
+open scoped BigOperators Nat
+
+noncomputable def R (x : ℕ) : ℝ :=
+  ⨆ n ∈ {n | n ∈ Set.Icc 1 x ∧ ∃ m, Nat.totient m = n},
+    let mmax := sSup {m | Nat.totient m = n}
+    let mmin := sInf {m | Nat.totient m = n}
+    (mmax : ℝ) / mmin
+namespace LowerConstruction
+
+open Filter
+open scoped BigOperators Nat
+
+noncomputable def smallPrimes (Y : ℕ) : Finset ℕ :=
+  (Finset.Icc 1 Y).filter Nat.Prime
+
+noncomputable def P (Y : ℕ) : ℕ :=
+  ∏ p ∈ smallPrimes Y, p
+
+noncomputable def A (Y : ℕ) : ℕ :=
+  ∏ p ∈ smallPrimes Y, (p - 1)
+
+noncomputable def largeFactors (Y U : ℕ) : Finset ℕ :=
+  U.primeFactors.filter fun q => Y < q
+
+noncomputable def Q (Y U : ℕ) : ℕ :=
+  ∏ q ∈ largeFactors Y U, q
+end LowerConstruction
+
+end Erdos694
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos694.totient_sq_ge_half :
     ∀ (m : Nat),
@@ -64,7 +66,6 @@ theorem Erdos694.totient_sq_ge_half :
               m.totient (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))))
   := by
   sorry
-
 theorem Erdos694.landau_max_ratio :
     @Filter.Tendsto.{0, 0} Real Real
       (fun (T : Real) ↦
@@ -103,12 +104,6 @@ theorem Erdos694.landau_max_ratio :
         (@OfNat.ofNat.{0} Real (nat_lit 1) (@One.toOfNat1.{0} Real Real.instOne)))
   := by
   sorry
-
-noncomputable def Erdos694.R :
-    Nat → Real
-  := by
-  sorry
-
 theorem Erdos694.R_upper_bound :
     ∀ (ε : Real),
       @GT.gt.{0} Real Real.instLT ε
@@ -123,22 +118,6 @@ theorem Erdos694.R_upper_bound :
           (@Filter.atTop.{0} Nat Nat.instPreorder)
   := by
   sorry
-
-noncomputable def Erdos694.LowerConstruction.P :
-    Nat → Nat
-  := by
-  sorry
-
-noncomputable def Erdos694.LowerConstruction.A :
-    Nat → Nat
-  := by
-  sorry
-
-noncomputable def Erdos694.LowerConstruction.Q :
-    Nat → Nat → Nat
-  := by
-  sorry
-
 theorem Erdos694.LowerConstruction.totient_a_eq_totient_b :
     ∀ (Y U ℓ : Nat),
       Nat.Prime ℓ →
@@ -158,7 +137,6 @@ theorem Erdos694.LowerConstruction.totient_a_eq_totient_b :
                     (Erdos694.LowerConstruction.Q Y U)).totient
   := by
   sorry
-
 theorem Erdos694.collision_at_height :
     ∀ (C : Real) (L : Nat),
       @LE.le.{0} Real Real.instLE
@@ -223,7 +201,6 @@ theorem Erdos694.collision_at_height :
                       (@Filter.atTop.{0} Nat Nat.instPreorder))
   := by
   sorry
-
 theorem Erdos694.totient_collision_construction :
     ∀ (ε : Real),
       @GT.gt.{0} Real Real.instLT ε
@@ -258,7 +235,6 @@ theorem Erdos694.totient_collision_construction :
           (@Filter.atTop.{0} Nat Nat.instPreorder)
   := by
   sorry
-
 theorem Erdos694.R_lower_bound :
     ∀ (ε : Real),
       @GT.gt.{0} Real Real.instLT ε
@@ -273,7 +249,6 @@ theorem Erdos694.R_lower_bound :
           (@Filter.atTop.{0} Nat Nat.instPreorder)
   := by
   sorry
-
 theorem Erdos694.totient_fibre_extremes :
     @Filter.Tendsto.{0, 0} Nat Real
       (fun (x : Nat) ↦
@@ -289,7 +264,6 @@ theorem Erdos694.totient_fibre_extremes :
         (@OfNat.ofNat.{0} Real (nat_lit 1) (@One.toOfNat1.{0} Real Real.instOne)))
   := by
   sorry
-
 theorem Erdos694.permanence_step :
     ∀ (a b r : Nat),
       @Eq.{1} Nat a.totient b.totient →
@@ -300,7 +274,6 @@ theorem Erdos694.permanence_step :
                 (@HMul.hMul.{0, 0, 0} Nat Nat Nat (@instHMul.{0} Nat instMulNat) r b).totient
   := by
   sorry
-
 theorem Erdos694.infinitely_many_collisions :
     ∀ (a b : Nat),
       @LE.le.{0} Nat instLENat (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) b →
@@ -318,7 +291,6 @@ theorem Erdos694.infinitely_many_collisions :
                             (@HMul.hMul.{0, 0, 0} Nat Nat Nat (@instHMul.{0} Nat instMulNat) a y)))))
   := by
   sorry
-
 theorem Erdos694.erdos_694_asymptotic :
     @Filter.Tendsto.{0, 0} Nat Real
       (fun (x : Nat) ↦

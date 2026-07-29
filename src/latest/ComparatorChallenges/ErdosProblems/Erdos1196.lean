@@ -1,13 +1,95 @@
+import Mathlib.NumberTheory.ArithmeticFunction.Defs
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos1196
+
+open scoped ArithmeticFunction BigOperators
+
+namespace PrimitiveSetsAboveX
+
+def PrimitiveSet (A : Set ℕ) : Prop :=
+  ∀ ⦃m n : ℕ⦄, m ∈ A → n ∈ A → m ∣ n → m = n
+end PrimitiveSetsAboveX
+
+open scoped ArithmeticFunction BigOperators
+
+namespace PrimitiveSetsAboveX
+
+end PrimitiveSetsAboveX
+
+open scoped ArithmeticFunction BigOperators Topology
+open Filter
+
+namespace PrimitiveSetsAboveX
+
+end PrimitiveSetsAboveX
+
+open scoped ArithmeticFunction BigOperators Topology
+open Filter
+
+namespace PrimitiveSetsAboveX
+
+end PrimitiveSetsAboveX
+
+open scoped ArithmeticFunction BigOperators
+
+namespace PrimitiveSetsAboveX
+
+end PrimitiveSetsAboveX
+
+open scoped ArithmeticFunction BigOperators Topology
+
+namespace PrimitiveSetsAboveX
+
+end PrimitiveSetsAboveX
+
+open scoped ArithmeticFunction BigOperators Topology
+
+namespace PrimitiveSetsAboveX
+
+end PrimitiveSetsAboveX
+
+open scoped ArithmeticFunction BigOperators Topology
+
+namespace PrimitiveSetsAboveX
+
+end PrimitiveSetsAboveX
+
+open scoped ArithmeticFunction BigOperators
+
+namespace PrimitiveSetsAboveX
+
+end PrimitiveSetsAboveX
+
+open scoped BigOperators
+
+namespace PrimitiveSetsAboveX
+
+end PrimitiveSetsAboveX
+
+open scoped ArithmeticFunction BigOperators
+
+namespace PrimitiveSetsAboveX
+
+end PrimitiveSetsAboveX
+
+open scoped ArithmeticFunction BigOperators
+
+namespace PrimitiveSetsAboveX
+
+end PrimitiveSetsAboveX
+
+open Filter
+open scoped Asymptotics BigOperators
+
+def IsPrimitive {M : Type*} [CommMonoid M] (A : Set M) : Prop :=
+  ∀ᵉ (x ∈ A) (y ∈ A), x ∣ y → Associated x y
+end Erdos1196
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Erdos1196.PrimitiveSetsAboveX.PrimitiveSet :
-    Set.{0} Nat → Prop
-  := by
-  sorry
 
 theorem Erdos1196.PrimitiveSetsAboveX.mainTheorem :
     @Exists.{1} Real fun (C : Real) ↦
@@ -53,13 +135,6 @@ theorem Erdos1196.PrimitiveSetsAboveX.mainTheorem :
                           (Real.log (@Nat.cast.{0} Real Real.instNatCast x)))))
   := by
   sorry
-
-noncomputable def Erdos1196.IsPrimitive :
-    {M : Type u_1} → [CommMonoid.{u_1} M] → Set.{u_1} M → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
 theorem Erdos1196.erdos_1196 :
     @Exists.{1} (Nat → Real) fun (o : Nat → Real) ↦
       And

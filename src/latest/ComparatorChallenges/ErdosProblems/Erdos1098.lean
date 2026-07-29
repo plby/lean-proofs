@@ -1,15 +1,17 @@
 import Mathlib.Algebra.Group.Defs
 import Mathlib.Data.Finset.Card
 
+namespace Erdos1098
+
+variable {G : Type*} [Group G]
+
+def _root_.Set.PairwiseNonCommuting (S : Set G) : Prop :=
+  S.Pairwise fun x y => x * y ≠ y * x
+end Erdos1098
+
 attribute [local instance] Classical.propDecidable
 
 universe u_1 u_2
-
-noncomputable def Set.PairwiseNonCommuting :
-    {G : Type u_1} → [Group.{u_1} G] → Set.{u_1} G → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos1098.erdos1098 :
     ∀ (G : Type u_2) [inst : Group.{u_2} G],

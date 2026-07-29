@@ -1,19 +1,24 @@
 import Mathlib.Combinatorics.SimpleGraph.Clique
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos1037
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+
+attribute [local instance] Classical.propDecidable
+
+def NumDistinctDegrees {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj] : ℕ :=
+  (Finset.univ.image (fun v => G.degree v)).card
+end Erdos1037
+
+open Erdos1037
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Erdos1037.NumDistinctDegrees :
-    {V : Type u_1} →
-      [Fintype.{u_1} V] →
-        [DecidableEq.{u_1 + 1} V] →
-          (G : SimpleGraph.{u_1} V) →
-            [@DecidableRel.{u_1 + 1, u_1 + 1} V V (@SimpleGraph.Adj.{u_1} V G)] → Nat
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos1037.not_erdos_1037 :
     Not

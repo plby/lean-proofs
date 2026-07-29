@@ -1,18 +1,29 @@
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+
+namespace Erdos729
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+@[implicit_reducible] def main_theorem.match_1.{u} :
+    (motive : ℕ × ℕ × ℕ → Sort u) →
+      (T : ℕ × ℕ × ℕ) →
+        ((a b n : ℕ) → motive (a, b, n)) → motive T :=
+  fun motive T h ↦
+    Prod.casesOn T fun a t ↦ Prod.casesOn t fun b n ↦ h a b n
+
+end Erdos729
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable abbrev Erdos729.main_theorem.match_1 :
-    (motive : Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat) → Sort u_1) →
-      (T : Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat)) →
-        ((a b n : Nat) →
-            motive (@Prod.mk.{0, 0} Nat (Prod.{0, 0} Nat Nat) a (@Prod.mk.{0, 0} Nat Nat b n))) →
-          motive T
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos729.main_theorem :
     ∀ (C : Real),

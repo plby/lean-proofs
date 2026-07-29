@@ -1,5 +1,23 @@
-import Mathlib.Topology.Algebra.InfiniteSum.Defs
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
+import Mathlib.NumberTheory.Real.Irrational
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos264b
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+
+open scoped BigOperators
+
+open scoped Real
+
+open scoped Nat
+
+open scoped Pointwise
+
+def IsIrrationalitySequence (a : ℕ → ℕ) : Prop := ∀ b : ℕ → ℕ, BddAbove (Set.range b) →
+  0 ∉ Set.range (a + b) → 0 ∉ Set.range b → Irrational (∑' n, (1 : ℝ) / (a n + b n))
+end Erdos264b
 
 attribute [local instance] Classical.propDecidable
 
@@ -48,12 +66,6 @@ theorem Erdos264b.main_theorem :
             (@Rat.cast.{0} Real Real.instRatCast q))
   := by
   sorry
-
-noncomputable def Erdos264b.IsIrrationalitySequence :
-    (Nat → Nat) → Prop
-  := by
-  sorry
-
 theorem Erdos264b.erdos_264.parts.i :
     Not
       (Erdos264b.IsIrrationalitySequence fun (x : Nat) ↦

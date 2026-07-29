@@ -1,47 +1,44 @@
 import Mathlib.NumberTheory.DirichletCharacter.Basic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Pollack17
+
+noncomputable def residuePrimeUpperBound (m : ℕ) (ε : ℝ) : ℝ :=
+  Real.rpow (m : ℝ) ((1 / 4 : ℝ) + ε)
+
+noncomputable def residuePrimesUpTo (m : ℕ) (χ : DirichletCharacter ℂ m) (ε : ℝ) : Finset ℕ := by
+  classical
+  exact
+    ((Finset.range (Nat.ceil (residuePrimeUpperBound m ε) + 1)).filter fun ℓ =>
+      Nat.Prime ℓ ∧
+      (ℓ : ℝ) ≤ residuePrimeUpperBound m ε ∧
+      χ (ℓ : ZMod m) = (1 : ℂ))
+
+axiom theorem_1_3
+    (ε A : ℝ) (hε : 0 < ε) (hA : 0 < A) :
+    ∃ m0 : ℕ, ∀ m : ℕ,
+      m > m0 →
+      ∀ χ : DirichletCharacter ℂ m,
+        MulChar.IsQuadratic χ →
+          Real.rpow (Real.log (m : ℝ)) A ≤
+            ((residuePrimesUpTo m χ ε).card : ℝ)
+end Pollack17
+
+namespace Erdos1141
+
+open scoped BigOperators
+open Finset Real
+
+def Pa (a n : ℕ) : Prop :=
+  ∀ k : ℕ, 1 ≤ k → Nat.Coprime k n → a * k ^ 2 < n → Nat.Prime (n - a * k ^ 2)
+open Nat Set
+
+def Erdos1141Prop (n : ℕ) : Prop :=
+  ∀ k, k ^ 2 < n → Coprime n k → (n - k ^ 2).Prime
+end Erdos1141
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Pollack17.residuePrimesUpTo :
-    (m : Nat) →
-      @DirichletCharacter.{0} Complex
-          (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
-            (@Semifield.toCommGroupWithZero.{0} Complex
-              (@Field.toSemifield.{0} Complex Complex.instField)))
-          m →
-        Real → Finset.{0} Nat
-  := by
-  sorry
-
-axiom Pollack17.theorem_1_3 :
-    ∀ (ε A : Real),
-      @LT.lt.{0} Real Real.instLT
-          (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) ε →
-        @LT.lt.{0} Real Real.instLT
-            (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) A →
-          @Exists.{1} Nat fun (m0 : Nat) ↦
-            ∀ (m : Nat),
-              @GT.gt.{0} Nat instLTNat m m0 →
-                ∀
-                  (χ :
-                    @DirichletCharacter.{0} Complex
-                      (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
-                        (@Semifield.toCommGroupWithZero.{0} Complex
-                          (@Field.toSemifield.{0} Complex Complex.instField)))
-                      m),
-                  @MulChar.IsQuadratic.{0, 0} (ZMod m)
-                      (@CommRing.toCommMonoid.{0} (ZMod m) (ZMod.commRing m)) Complex Complex.commRing
-                      χ →
-                    @LE.le.{0} Real Real.instLE
-                      ((Real.log (@Nat.cast.{0} Real Real.instNatCast m)).rpow A)
-                      (@Nat.cast.{0} Real Real.instNatCast
-                        (@Finset.card.{0} Nat (Pollack17.residuePrimesUpTo m χ ε)))
-
-noncomputable def Erdos1141.Pa :
-    Nat → Nat → Prop
-  := by
-  sorry
 
 theorem Erdos1141.erdos_1141_variant :
     @Set.Finite.{0} Nat
@@ -49,12 +46,6 @@ theorem Erdos1141.erdos_1141_variant :
         Erdos1141.Pa (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) n)
   := by
   sorry
-
-noncomputable def Erdos1141.Erdos1141Prop :
-    Nat → Prop
-  := by
-  sorry
-
 theorem Erdos1141.erdos_1141 :
     Not (Infinite.{1} (@Set.Elem.{0} Nat (@setOf.{0} Nat fun (n : Nat) ↦ Erdos1141.Erdos1141Prop n)))
   := by

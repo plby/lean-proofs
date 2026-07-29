@@ -1,16 +1,30 @@
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
+import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos347
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
 
 attribute [local instance] Classical.propDecidable
 
-noncomputable def Erdos347.has_asymptotic_density_one :
-    Set.{0} Nat → Prop
-  := by
-  sorry
+set_option relaxedAutoImplicit false
+set_option autoImplicit false
 
-noncomputable def Erdos347.subset_sums_of_set :
-    Set.{0} Nat → Set.{0} Nat
-  := by
-  sorry
+def has_asymptotic_density_one (S : Set ℕ) : Prop :=
+  Filter.Tendsto (fun n => ((Finset.range n).filter (· ∈ S)).card / (n : ℝ)) Filter.atTop (nhds 1)
+def subset_sums_of_set (S : Set ℕ) : Set ℕ :=
+  {s | ∃ (B : Finset ℕ), (∀ x ∈ B, x ∈ S) ∧ s = B.sum id}
+end Erdos347
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos347.answer_is_yes :
     @Exists.{1} (Nat → Nat) fun (A : Nat → Nat) ↦

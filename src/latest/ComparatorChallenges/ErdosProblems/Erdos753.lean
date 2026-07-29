@@ -1,15 +1,22 @@
-import Mathlib.Combinatorics.SimpleGraph.Basic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Combinatorics.SimpleGraph.Coloring.Vertex
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos753
+
+open Real Finset
+
+def IsKChoosable {V : Type*} (G : SimpleGraph V) (k : ℕ) : Prop :=
+  ∀ (L : V → Finset ℕ), (∀ v, (L v).card = k) →
+    ∃ f : G.Coloring ℕ, ∀ v, f v ∈ L v
+
+noncomputable def listChromaticNumber {V : Type*} (G : SimpleGraph V) : ℕ :=
+  sInf {k : ℕ | IsKChoosable G k}
+end Erdos753
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Erdos753.listChromaticNumber :
-    {V : Type u_1} → SimpleGraph.{u_1} V → Nat
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos753.erdos_753_negation :
     Not

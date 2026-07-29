@@ -1,12 +1,18 @@
-import Mathlib.Data.Finite.Defs
-import Mathlib.Data.Real.Basic
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos205
+
+open Real Filter Asymptotics
+
+def Omega (n : ℕ) : ℕ := n.primeFactorsList.length
+noncomputable def pntRate (n : ℕ) : ℝ :=
+  Real.sqrt (Real.log (n : ℝ) / Real.log (Real.log (n : ℝ)))
+def is_counterexample (c : ℝ) (n : ℕ) : Prop :=
+  ∀ k, 2^k ≤ n → (Omega (n - 2^k) : ℝ) ≥ c * pntRate n
+end Erdos205
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos205.is_counterexample :
-    Real → Nat → Prop
-  := by
-  sorry
 
 theorem Erdos205.infinitely_many_counterexamples :
     @Exists.{1} Real fun (c : Real) ↦

@@ -1,11 +1,15 @@
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos907
+
+open Filter Topology Set Metric
+
+def IsAdditiveFn (H : ℝ → ℝ) : Prop :=
+  ∀ x y : ℝ, H (x + y) = H x + H y
+end Erdos907
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos907.IsAdditiveFn :
-    (Real → Real) → Prop
-  := by
-  sorry
 
 theorem Erdos907.erdos907 :
     ∀ (f : Real → Real),

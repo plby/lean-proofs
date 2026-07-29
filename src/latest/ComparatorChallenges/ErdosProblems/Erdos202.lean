@@ -1,106 +1,429 @@
+import Mathlib.Order.CompletePartialOrder
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+set_option autoImplicit false
+
+namespace Erdos202
+
+open Filter
+open Asymptotics
+open scoped BigOperators
+
+def residueClass (q : ℕ) (a : ℤ) : Set ℤ :=
+  {n : ℤ | n ≡ a [ZMOD (q : ℤ)]}
+
+abbrev ResidueAssignment (Q : Finset ℕ) : Type :=
+  {q : ℕ // q ∈ Q} → ℤ
+
+def PairwiseDisjointResidues
+    (Q : Finset ℕ) (a : ResidueAssignment Q) : Prop :=
+  ∀ i j : {q : ℕ // q ∈ Q}, i ≠ j →
+    Disjoint (residueClass i.1 (a i)) (residueClass j.1 (a j))
+
+def Admissible (N : ℕ) (Q : Finset ℕ) : Prop :=
+  (∀ q ∈ Q, 1 ≤ q ∧ q ≤ N) ∧
+  ∃ a : ResidueAssignment Q, PairwiseDisjointResidues Q a
+
+def PossibleCard (N r : ℕ) : Prop :=
+  ∃ Q : Finset ℕ, Admissible N Q ∧ Q.card = r
+
+noncomputable def f (N : ℕ) : ℕ := by
+  classical
+  exact Nat.findGreatest (PossibleCard N) N
+
+noncomputable def Zscale (N : ℕ) : ℝ :=
+  Real.sqrt (Real.log (N : ℝ) * Real.log (Real.log (N : ℝ)))
+
+noncomputable def Lscale (α : ℝ) (N : ℕ) : ℝ :=
+  Real.exp (α * Zscale N)
+
+noncomputable def Mscale (N : ℕ) : ℝ :=
+  Real.sqrt (Real.log (N : ℝ) / Real.log (Real.log (N : ℝ)))
+
+def HasErdos202Asymptotic (F : ℕ → ℕ) : Prop :=
+  ∀ ε : ℝ, 0 < ε → ∀ᶠ N : ℕ in atTop,
+    (N : ℝ) * Lscale (-(1 + ε)) N ≤ (F N : ℝ) ∧
+    (F N : ℝ) ≤ (N : ℝ) * Lscale (-(1 - ε)) N
+
+def Erdos202Statement : Prop :=
+  HasErdos202Asymptotic f
+end Erdos202
+
+namespace Erdos202
+
+open Finset
+open scoped BigOperators
+
+def primeSupport (n : ℕ) : Finset ℕ :=
+  n.factorization.support
+
+def omega (n : ℕ) : ℕ :=
+  (primeSupport n).card
+
+def rad (n : ℕ) : ℕ :=
+  ∏ p ∈ primeSupport n, p
+
+def hExp (n : ℕ) : ℕ :=
+  ∏ p ∈ primeSupport n, n.factorization p
+end Erdos202
+
+namespace Erdos202
+
+open Finset
+open scoped BigOperators
+
+def UniformFamily {α : Type*} [DecidableEq α]
+    (A : Finset (Finset α)) (k : ℕ) : Prop :=
+  ∀ S ∈ A, S.card = k
+
+def SpreadFamily {α : Type*} [DecidableEq α]
+    (A : Finset (Finset α)) (κ : ℝ) : Prop :=
+  ∀ T : Finset α, T.Nonempty →
+    ((A.filter fun S => T ⊆ S).card : ℝ) ≤
+      (A.card : ℝ) / κ ^ T.card
+
+def PairwiseDisjointMembers {α : Type*} [DecidableEq α]
+    (B : Finset (Finset α)) : Prop :=
+  ∀ S ∈ B, ∀ T ∈ B, S ≠ T → Disjoint S T
+end Erdos202
+
+namespace Erdos202
+namespace ParkPham
+
+open Finset
+open scoped BigOperators
+
+variable {α : Type*}
+
+section
+
+variable [DecidableEq α]
+
+def IncreasingIn (X : Finset α) (U : Finset (Finset α)) : Prop :=
+  ∀ S ∈ U, ∀ T : Finset α, T ⊆ X → S ⊆ T → T ∈ U
+
+def minimalMembersIn (_X : Finset α) (U : Finset (Finset α)) : Finset (Finset α) :=
+  U.filter fun S => ∀ T ∈ U, ¬ T ⊂ S
+
+noncomputable def ell (X : Finset α) (U : Finset (Finset α)) : ℕ :=
+  max 2 ((minimalMembersIn X U).sup Finset.card)
+end
+
+end ParkPham
+end Erdos202
+
+namespace Erdos202
+namespace ParkPham
+
+open Finset
+open scoped BigOperators
+
+variable {α : Type*}
+
+section
+
+variable [DecidableEq α]
+
+noncomputable def bernoulliMass (X S : Finset α) (p : ℝ) : ℝ :=
+  p ^ S.card * (1 - p) ^ (X.card - S.card)
+
+noncomputable def muP (X : Finset α) (U : Finset (Finset α)) (p : ℝ) : ℝ :=
+  ∑ S ∈ X.powerset.filter (· ∈ U), bernoulliMass X S p
+end
+
+end ParkPham
+end Erdos202
+
+namespace Erdos202
+namespace ParkPham
+
+open Finset
+open scoped BigOperators
+
+variable {α : Type*}
+
+section
+
+variable [DecidableEq α]
+
+def CoversIn (_X : Finset α) (G U : Finset (Finset α)) : Prop :=
+  ∀ S ∈ U, ∃ T ∈ G, T ⊆ S
+
+def pSmall (X : Finset α) (U : Finset (Finset α)) (p : ℝ) : Prop :=
+  ∃ G : Finset (Finset α),
+    CoversIn X G U ∧ (∑ T ∈ G, p ^ T.card) ≤ (1 / 2 : ℝ)
+end
+
+end ParkPham
+end Erdos202
+
+namespace Erdos202
+namespace ParkPham
+
+open Finset
+open scoped BigOperators
+
+variable {α : Type*}
+
+section
+
+variable [DecidableEq α]
+
+end
+
+end ParkPham
+end Erdos202
+
+namespace Erdos202
+namespace ParkPham
+
+open Finset
+open scoped BigOperators
+
+variable {α : Type*}
+
+section
+
+variable [DecidableEq α]
+
+end
+
+end ParkPham
+end Erdos202
+
+namespace Erdos202
+namespace ParkPham
+
+open Finset
+open scoped BigOperators
+
+variable {α : Type*}
+
+section
+
+variable [DecidableEq α]
+
+end
+
+end ParkPham
+end Erdos202
+
+namespace Erdos202
+namespace ParkPham
+
+open Finset
+open scoped BigOperators
+
+variable {α : Type*}
+
+section
+
+variable [DecidableEq α]
+
+end
+
+end ParkPham
+end Erdos202
+
+namespace Erdos202
+namespace ParkPham
+
+open Finset
+open scoped BigOperators
+
+universe u
+
+section ThresholdDefinitions
+
+variable {α : Type*} [DecidableEq α]
+
+end ThresholdDefinitions
+
+end ParkPham
+end Erdos202
+
+namespace Erdos202
+namespace ParkPham
+
+open Finset
+open scoped BigOperators
+
+variable {α : Type*}
+
+section
+
+variable [DecidableEq α]
+
+end
+
+end ParkPham
+end Erdos202
+
+namespace Erdos202
+namespace ParkPham
+
+open Finset
+open scoped BigOperators
+
+section
+
+variable {α : Type*} [DecidableEq α]
+
+end
+
+section
+
+variable {α : Type*} [DecidableEq α]
+
+end
+
+end ParkPham
+end Erdos202
+
+namespace Erdos202
+
+open Finset
+open scoped BigOperators
+
+universe u
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter Finset
+open scoped BigOperators
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter Finset
+open scoped BigOperators
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter Finset
+open scoped BigOperators
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter Finset
+open scoped BigOperators
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter Finset
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter Finset
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter Finset
+open Asymptotics
+open scoped BigOperators
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter Finset
+open scoped BigOperators
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter Finset
+open scoped BigOperators
+
+structure PrunedData (N : ℕ) where
+  Q : Finset ℕ
+  Q_nonempty : Q.Nonempty
+  a : ResidueAssignment Q
+  admissible : Admissible N Q
+  pairwise_disjoint : PairwiseDisjointResidues Q a
+  K : ℕ
+  K_pos : 1 ≤ K
+  modulus_lower : ∀ q ∈ Q, (N : ℝ) * Lscale (-2) N ≤ (q : ℝ)
+  modulus_upper : ∀ q ∈ Q, q ≤ N
+  hExp_bound : ∀ q ∈ Q, (hExp q : ℝ) ≤ Real.exp (Real.sqrt (Real.log (N : ℝ)))
+  omega_eq : ∀ q ∈ Q, omega q = K
+  K_bound : (K : ℝ) ≤ 3 * Mscale N
+  rad_injective : ∀ q ∈ Q, ∀ r ∈ Q, rad q = rad r → q = r
+end Erdos202
+
+namespace Erdos202
+
+open Filter Finset
+open scoped BigOperators
+
+end Erdos202
+
+namespace Erdos202
+
+open Finset
+open scoped BigOperators
+
+end Erdos202
+
+namespace Erdos202
+
+open Finset
+open scoped BigOperators
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter Finset
+open scoped BigOperators
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter Finset
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter
+open Asymptotics
+open scoped BigOperators
+
+end Erdos202
+
+namespace Erdos202
+
+open Filter
+open scoped BigOperators
+
+end Erdos202
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1 u_2
-
-noncomputable abbrev Erdos202.ResidueAssignment :
-    Finset.{0} Nat → Type
-  := by
-  sorry
-
-noncomputable def Erdos202.PairwiseDisjointResidues :
-    (Q : Finset.{0} Nat) → Erdos202.ResidueAssignment Q → Prop
-  := by
-  sorry
-
-noncomputable def Erdos202.Admissible :
-    Nat → Finset.{0} Nat → Prop
-  := by
-  sorry
-
-noncomputable def Erdos202.f :
-    Nat → Nat
-  := by
-  sorry
-
-noncomputable def Erdos202.Zscale :
-    Nat → Real
-  := by
-  sorry
-
-noncomputable def Erdos202.Lscale :
-    Real → Nat → Real
-  := by
-  sorry
-
-noncomputable def Erdos202.Mscale :
-    Nat → Real
-  := by
-  sorry
-
-noncomputable def Erdos202.Erdos202Statement :
-    Prop
-  := by
-  sorry
-
-noncomputable def Erdos202.omega :
-    Nat → Nat
-  := by
-  sorry
-
-noncomputable def Erdos202.rad :
-    Nat → Nat
-  := by
-  sorry
-
-noncomputable def Erdos202.hExp :
-    Nat → Nat
-  := by
-  sorry
-
-noncomputable def Erdos202.UniformFamily :
-    {α : Type u_1} → [DecidableEq.{u_1 + 1} α] → Finset.{u_1} (Finset.{u_1} α) → Nat → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable def Erdos202.SpreadFamily :
-    {α : Type u_1} → [DecidableEq.{u_1 + 1} α] → Finset.{u_1} (Finset.{u_1} α) → Real → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable def Erdos202.PairwiseDisjointMembers :
-    {α : Type u_1} → [DecidableEq.{u_1 + 1} α] → Finset.{u_1} (Finset.{u_1} α) → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable def Erdos202.ParkPham.IncreasingIn :
-    {α : Type u_1} → Finset.{u_1} α → Finset.{u_1} (Finset.{u_1} α) → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable def Erdos202.ParkPham.ell :
-    {α : Type u_1} → [DecidableEq.{u_1 + 1} α] → Finset.{u_1} α → Finset.{u_1} (Finset.{u_1} α) → Nat
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable def Erdos202.ParkPham.muP :
-    {α : Type u_1} →
-      [DecidableEq.{u_1 + 1} α] → Finset.{u_1} α → Finset.{u_1} (Finset.{u_1} α) → Real → Real
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable def Erdos202.ParkPham.pSmall :
-    {α : Type u_1} → Finset.{u_1} α → Finset.{u_1} (Finset.{u_1} α) → Real → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos202.ParkPham.park_pham_threshold_not_small_lt_exists :
     @Exists.{1} Real fun (CKK : Real) ↦
@@ -151,7 +474,6 @@ theorem Erdos202.ParkPham.park_pham_threshold_not_small_lt_exists :
   := by
   let _ := ULift.{u_1, 0} PUnit
   sorry
-
 theorem Erdos202.ParkPham.spread_disjointness_theorem :
     @Exists.{1} Real fun (Csp : Real) ↦
       And
@@ -188,7 +510,6 @@ theorem Erdos202.ParkPham.spread_disjointness_theorem :
   := by
   let _ := ULift.{u_2, 0} PUnit
   sorry
-
 theorem Erdos202.bfv_omega_count_theorem :
     ∀ (ε : Real),
       @LT.lt.{0} Real Real.instLT
@@ -261,7 +582,6 @@ theorem Erdos202.bfv_omega_count_theorem :
           (@Filter.atTop.{0} Nat Nat.instPreorder)
   := by
   sorry
-
 theorem Erdos202.bfv_lower_bound_theorem :
     ∀ (ε : Real),
       @LT.lt.{0} Real Real.instLT
@@ -280,23 +600,7 @@ theorem Erdos202.bfv_lower_bound_theorem :
           (@Filter.atTop.{0} Nat Nat.instPreorder)
   := by
   sorry
-
 namespace Erdos202
-
-structure PrunedData (N : ℕ) where
-  Q : Finset ℕ
-  Q_nonempty : Q.Nonempty
-  a : ResidueAssignment Q
-  admissible : Admissible N Q
-  pairwise_disjoint : PairwiseDisjointResidues Q a
-  K : ℕ
-  K_pos : 1 ≤ K
-  modulus_lower : ∀ q ∈ Q, (N : ℝ) * Lscale (-2) N ≤ (q : ℝ)
-  modulus_upper : ∀ q ∈ Q, q ≤ N
-  hExp_bound : ∀ q ∈ Q, (hExp q : ℝ) ≤ Real.exp (Real.sqrt (Real.log (N : ℝ)))
-  omega_eq : ∀ q ∈ Q, omega q = K
-  K_bound : (K : ℝ) ≤ 3 * Mscale N
-  rad_injective : ∀ q ∈ Q, ∀ r ∈ Q, rad q = rad r → q = r
 
 end Erdos202
 
@@ -332,7 +636,6 @@ theorem Erdos202.bfv_pruning_theorem :
           (@Filter.atTop.{0} Nat Nat.instPreorder)
   := by
   sorry
-
 theorem Erdos202.erdos202_main :
     Erdos202.Erdos202Statement
   := by

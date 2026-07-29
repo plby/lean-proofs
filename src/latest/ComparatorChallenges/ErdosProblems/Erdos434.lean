@@ -1,17 +1,23 @@
 import Mathlib.Algebra.GCDMonoid.Finset
-import Mathlib.Data.Finset.Card
+import Mathlib.Data.Real.Basic
+import Mathlib.Data.Set.Card
+import Mathlib.Algebra.Group.Subsemigroup.Basic
+import Mathlib.Order.Interval.Finset.Nat
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+
+namespace Erdos434
+
+def S (E : Set ℕ) : AddSubsemigroup ℕ := AddSubsemigroup.closure E
+noncomputable def non_representable_count (A : Set ℕ) : ℕ :=
+  (Set.univ \ (S A : Set ℕ)).ncard
+def A_opt (n k : ℕ) : Finset ℕ := Finset.Icc (n - k + 1) n
+end Erdos434
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos434.non_representable_count :
-    Set.{0} Nat → Nat
-  := by
-  sorry
-
-noncomputable def Erdos434.A_opt :
-    Nat → Nat → Finset.{0} Nat
-  := by
-  sorry
 
 theorem Erdos434.main_theorem_final :
     ∀ (n k : Nat),

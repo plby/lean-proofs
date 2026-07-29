@@ -1,64 +1,66 @@
+import Mathlib.AlgebraicTopology.SimplexCategory.Basic
 import Mathlib.Analysis.InnerProductSpace.PiL2
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
-attribute [local instance] Classical.propDecidable
+open Nat Finset Real Filter Asymptotics Topology
+open scoped Pointwise
 
 structure BinQuadForm where
   a : ℤ
   b : ℤ
   c : ℤ
+namespace BinQuadForm
 
-noncomputable def BinQuadForm.discr :
-    BinQuadForm → Int
-  := by
-  sorry
+def eval (f : BinQuadForm) (x y : ℤ) : ℤ :=
+  f.a * x * x + f.b * x * y + f.c * y * y
 
-noncomputable def BinQuadForm.Primitive :
-    BinQuadForm → Prop
-  := by
-  sorry
+def discr (f : BinQuadForm) : ℤ :=
+  f.b * f.b - 4 * f.a * f.c
 
-noncomputable def BinQuadForm.PosDef :
-    BinQuadForm → Prop
-  := by
-  sorry
+def Primitive (f : BinQuadForm) : Prop :=
+  Int.gcd f.a (Int.gcd f.b f.c) = 1
 
-noncomputable def BinQuadForm.B :
-    BinQuadForm → Real → Nat
-  := by
-  sorry
+def PosDef (f : BinQuadForm) : Prop :=
+  0 < f.a ∧ f.discr < 0
 
-axiom bernays :
-    ∀ (Δ : Int),
-      Not
-          (@Exists.{1} Int fun (z : Int) ↦
-            @Eq.{1} Int (@HMul.hMul.{0, 0, 0} Int Int Int (@instHMul.{0} Int Int.instMul) z z) Δ) →
-        @Exists.{1} Real fun (CΔ : Real) ↦
-          And
-            (@LT.lt.{0} Real Real.instLT
-              (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) CΔ)
-            (∀ (f : BinQuadForm),
-              f.Primitive →
-                f.PosDef →
-                  @Eq.{1} Int f.discr Δ →
-                    @Asymptotics.IsEquivalent.{0, 0} Real Real
-                      (@NonUnitalSeminormedRing.toSeminormedAddCommGroup.{0} Real
-                        (@NonUnitalSeminormedCommRing.toNonUnitalSeminormedRing.{0} Real
-                          (@SeminormedCommRing.toNonUnitalSeminormedCommRing.{0} Real
-                            (@NormedCommRing.toSeminormedCommRing.{0} Real Real.normedCommRing))))
-                      (@Filter.atTop.{0} Real Real.instPreorder)
-                      (fun (x : Real) ↦ @Nat.cast.{0} Real Real.instNatCast (f.B x)) fun (x : Real) ↦
-                      @HDiv.hDiv.{0, 0, 0} Real Real Real
-                        (@instHDiv.{0} Real (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
-                        (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul) CΔ x)
-                        (Real.log x).sqrt)
+noncomputable def B (f : BinQuadForm) (x : ℝ) : ℕ :=
+  Nat.card {n : ℕ | (n : ℝ) ≤ x ∧ ∃ u v : ℤ, f.eval u v = (n : ℤ)}
+end BinQuadForm
 
-noncomputable def Erdos659.distinctDistances :
-    Finset.{0}
-        (EuclideanSpace.{0, 0} Real
-          (Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))) →
-      Nat
-  := by
-  sorry
+axiom bernays
+    (Δ : ℤ) (hΔnonsq : ¬ ∃ z : ℤ, z * z = Δ) :
+    ∃ CΔ : ℝ, 0 < CΔ ∧
+      ∀ f : BinQuadForm,
+        f.Primitive →
+        f.PosDef →
+        f.discr = Δ →
+        (fun x : ℝ => (f.B x : ℝ))
+          ~[Filter.atTop]
+          (fun x : ℝ => CΔ * x / Real.sqrt (Real.log x))
+
+namespace Erdos659
+
+set_option linter.style.setOption false
+set_option linter.flexible false
+set_option maxHeartbeats 50000000
+
+open scoped Real
+
+open Filter
+
+open Asymptotics
+
+open Finset Real
+
+notation "ℝ²" => EuclideanSpace ℝ (Fin 2)
+
+notation g " ≪ " f => Asymptotics.IsBigO Filter.atTop (g : ℕ → ℝ) (f : ℕ → ℝ)
+
+noncomputable def distinctDistances (points : Finset ℝ²) : ℕ :=
+  (points.offDiag.image fun (pair : ℝ² × ℝ²) => dist pair.1 pair.2).card
+end Erdos659
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos659.erdos_659 :
     @Exists.{1}

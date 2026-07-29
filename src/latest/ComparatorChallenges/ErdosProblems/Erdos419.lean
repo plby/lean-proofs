@@ -1,16 +1,15 @@
+import Mathlib.NumberTheory.Divisors
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos419
+
+noncomputable def tau (n : ℕ) : ℕ := (Nat.divisors n).card
+noncomputable def u (n : ℕ) : ℝ := (tau (n + 1).factorial : ℝ) / (tau n.factorial : ℝ)
+def S : Set ℝ := {1} ∪ {x | ∃ k : ℕ, k ≥ 1 ∧ x = 1 + 1 / (k : ℝ)}
+end Erdos419
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos419.u :
-    Nat → Real
-  := by
-  sorry
-
-noncomputable def Erdos419.S :
-    Set.{0} Real
-  := by
-  sorry
 
 theorem Erdos419.erdos_419 :
     @Eq.{1} (Set.{0} Real)

@@ -1,17 +1,26 @@
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Analysis.Calculus.FDeriv.Defs
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace List
+
+end List
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+
+namespace Erdos226
 
 attribute [local instance] Classical.propDecidable
 
-noncomputable def Erdos226.IsAffine :
-    (Real → Real) → Prop
-  := by
-  sorry
+def IsAffine (f : ℝ → ℝ) : Prop :=
+  ∃ a b : ℝ, ∀ x, f x = a * x + b
+def PreservesRationality (f : ℝ → ℝ) : Prop :=
+  ∀ x : ℝ, x ∈ (Set.range ((↑) : ℚ → ℝ)) ↔ f x ∈ (Set.range ((↑) : ℚ → ℝ))
+end Erdos226
 
-noncomputable def Erdos226.PreservesRationality :
-    (Real → Real) → Prop
-  := by
-  sorry
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos226.erdos_226 :
     @Exists.{1} (Complex → Complex) fun (F : Complex → Complex) ↦

@@ -1,19 +1,27 @@
-import Mathlib.Combinatorics.SimpleGraph.Clique
+import Mathlib.Combinatorics.SimpleGraph.Extremal.Turan
+
+namespace Erdos904
+
+open List Finset
+
+namespace SimpleGraph
+
+variable {V : Type*} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj] (l : List V)
+
+abbrev n : ℕ := Fintype.card V
+
+section TuranNumber
+
+abbrev turanNumber (n r : ℕ) : ℕ := #(_root_.SimpleGraph.turanGraph n r).edgeFinset
+end TuranNumber
+
+end SimpleGraph
+
+end Erdos904
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable abbrev Erdos904.SimpleGraph.n :
-    (V : Type u_1) → [Fintype.{u_1} V] → Nat
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable abbrev Erdos904.SimpleGraph.turanNumber :
-    Nat → Nat → Nat
-  := by
-  sorry
 
 theorem Erdos904.SimpleGraph.erdos904 :
     ∀ {V : Type u_1} [inst : Fintype.{u_1} V] {G : SimpleGraph.{u_1} V}

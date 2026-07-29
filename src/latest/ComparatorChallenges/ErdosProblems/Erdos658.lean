@@ -1,35 +1,52 @@
-import Mathlib.Data.Finset.Card
+import Mathlib.Data.Finset.Prod
 import Mathlib.Data.Real.Basic
+import Mathlib.Order.Filter.Defs
+
+open Nat Finset Real Filter
+
+namespace BinQuadForm
+
+end BinQuadForm
+
+def Theorem_2_2 : Prop :=
+  ∀ ε : ℝ, ε > 0 → ∃ n₀ : ℕ,
+    ∀ (V : Finset ℕ) (E : Finset (Finset ℕ)),
+    V.card ≥ n₀ →
+    (∀ e ∈ E, e.card = 3 ∧ e ⊆ V) →
+    (∀ e ∈ E, ∃! K, K ⊆ V ∧ K.card ≥ 4 ∧
+      (∀ t ⊆ K, t.card = 3 → t ∈ E) ∧ e ⊆ K) →
+    (E.card : ℝ) < ε * (V.card : ℝ) ^ 3
+
+axiom frankl_roedl_theorem : Theorem_2_2
+
+namespace Erdos658
+
+section
+open Finset
+
+def gridRange (N : ℕ) : Finset ℤ :=
+  (Finset.range N).image (↑· : ℕ → ℤ)
+
+def grid2 (N : ℕ) : Finset (ℤ × ℤ) :=
+  gridRange N ×ˢ gridRange N
+
+def grid3 (N : ℕ) : Finset (ℤ × ℤ × ℤ) :=
+  gridRange N ×ˢ (gridRange N ×ˢ gridRange N)
+
+def ContainsSquare (S : Finset (ℤ × ℤ)) : Prop :=
+  ∃ a b d : ℤ, d ≠ 0 ∧
+    (a, b) ∈ S ∧ (a + d, b) ∈ S ∧
+    (a, b + d) ∈ S ∧ (a + d, b + d) ∈ S
+
+def ContainsQuadruple (S : Finset (ℤ × ℤ × ℤ)) : Prop :=
+  ∃ a b c d : ℤ, d ≠ 0 ∧
+    (a, b, c) ∈ S ∧ (a + d, b, c) ∈ S ∧
+    (a, b + d, c) ∈ S ∧ (a + d, b + d, c + d) ∈ S
+end
+
+end Erdos658
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos658.grid2 :
-    Nat → Finset.{0} (Prod.{0, 0} Int Int)
-  := by
-  sorry
-
-noncomputable def Erdos658.grid3 :
-    Nat → Finset.{0} (Prod.{0, 0} Int (Prod.{0, 0} Int Int))
-  := by
-  sorry
-
-noncomputable def Erdos658.ContainsSquare :
-    Finset.{0} (Prod.{0, 0} Int Int) → Prop
-  := by
-  sorry
-
-noncomputable def Erdos658.ContainsQuadruple :
-    Finset.{0} (Prod.{0, 0} Int (Prod.{0, 0} Int Int)) → Prop
-  := by
-  sorry
-
-noncomputable def Theorem_2_2 :
-    Prop
-  := by
-  sorry
-
-axiom frankl_roedl_theorem :
-    Theorem_2_2
 
 theorem Erdos658.Theorem_1_2 :
     Theorem_2_2 →
@@ -58,7 +75,6 @@ theorem Erdos658.Theorem_1_2 :
                       Erdos658.ContainsQuadruple S
   := by
   sorry
-
 theorem Erdos658.Theorem_1_1 :
     Theorem_2_2 →
       ∀ (δ : Real),
@@ -85,7 +101,6 @@ theorem Erdos658.Theorem_1_1 :
                       Erdos658.ContainsSquare S
   := by
   sorry
-
 theorem Erdos658.erdos658 :
     ∀ (δ : Real),
       @GT.gt.{0} Real Real.instLT δ

@@ -1,11 +1,22 @@
+import Mathlib.Algebra.GroupWithZero.Nat
+import Mathlib.Data.Finset.Sort
 import Mathlib.Order.Interval.Finset.Nat
 
-attribute [local instance] Classical.propDecidable
+namespace Erdos867
 
-noncomputable def Erdos867.ConsecutiveSumFree :
-    Finset.{0} Nat → Prop
-  := by
-  sorry
+open Finset
+
+set_option linter.style.setOption false
+set_option linter.flexible false
+
+def ConsecutiveSumFree (S : Finset ℕ) : Prop :=
+  ∀ (start len : ℕ), 2 ≤ len → start + len ≤ S.card →
+    (((S.sort (· ≤ ·)).drop start).take len).sum ∉ S
+end Erdos867
+
+open Erdos867
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos867.construction_19_36 :
     @Exists.{1} Nat fun (C : Nat) ↦
@@ -30,7 +41,6 @@ theorem Erdos867.construction_19_36 :
                     (@OfNat.ofNat.{0} Nat (nat_lit 19) (instOfNatNat (nat_lit 19))) n)))
   := by
   sorry
-
 theorem Erdos867.csf_exceeds_half_plus_constant :
     Not
       (@Exists.{1} Nat fun (C : Nat) ↦

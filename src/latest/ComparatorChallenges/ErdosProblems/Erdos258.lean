@@ -1,43 +1,38 @@
+import Mathlib.NumberTheory.Divisors
 import Mathlib.NumberTheory.Real.Irrational
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+open Nat Finset Real Filter Topology
+
+axiom tao_teravainen : ∃ C : ℝ, 0 < C ∧
+    (∃ᶠ N in atTop, ∀ k : ℕ, 0 < k →
+      (N + k).factorization.support.card ≤
+          (N + k).factorization.sum (fun _ k => k) ∧
+        (N + k).factorization.sum (fun _ k => k) ≤ C * k)
+namespace BinQuadForm
+
+end BinQuadForm
+
+namespace Erdos258
+
+open Nat Finset Filter
+open scoped BigOperators Topology
+
+noncomputable section
+
+def Q (a : ℕ → ℕ) : ℕ → ℕ
+  | 0 => 1
+  | n + 1 => Q a n * a (n + 1)
+
+def erdosTerm (a : ℕ → ℕ) (n : ℕ) : ℝ :=
+  ((n + 1).divisors.card : ℝ) / (Q a (n + 1) : ℝ)
+
+def erdosSeries (a : ℕ → ℕ) : ℝ := ∑' n, erdosTerm a n
+end
+
+end Erdos258
 
 attribute [local instance] Classical.propDecidable
-
-axiom tao_teravainen :
-    @Exists.{1} Real fun (C : Real) ↦
-      And
-        (@LT.lt.{0} Real Real.instLT
-          (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) C)
-        (@Filter.Frequently.{0} Nat
-          (fun (N : Nat) ↦
-            ∀ (k : Nat),
-              @LT.lt.{0} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))) k →
-                And
-                  (@LE.le.{0} Nat instLENat
-                    (@Finset.card.{0} Nat
-                      (@Finsupp.support.{0, 0} Nat Nat
-                        (@MulZeroClass.toZero.{0} Nat Nat.instMulZeroClass)
-                        (@HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) N
-                            k).factorization))
-                    (@Finsupp.sum.{0, 0, 0} Nat Nat Nat
-                      (@MulZeroClass.toZero.{0} Nat Nat.instMulZeroClass) Nat.instAddCommMonoid
-                      (@HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) N
-                          k).factorization
-                      fun (x k : Nat) ↦ k))
-                  (@LE.le.{0} Real Real.instLE
-                    (@Nat.cast.{0} Real Real.instNatCast
-                      (@Finsupp.sum.{0, 0, 0} Nat Nat Nat
-                        (@MulZeroClass.toZero.{0} Nat Nat.instMulZeroClass) Nat.instAddCommMonoid
-                        (@HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) N
-                            k).factorization
-                        fun (x k : Nat) ↦ k))
-                    (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul) C
-                      (@Nat.cast.{0} Real Real.instNatCast k))))
-          (@Filter.atTop.{0} Nat Nat.instPreorder))
-
-noncomputable def Erdos258.erdosSeries :
-    (Nat → Nat) → Real
-  := by
-  sorry
 
 theorem Erdos258.erdos_258 :
     ∀ (a : Nat → Nat),

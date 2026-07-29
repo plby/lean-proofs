@@ -1,16 +1,22 @@
-import Mathlib.Data.Set.Defs
+import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+
+namespace Erdos246
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+
+open BigOperators
+
+def FS (A : Set ℕ) : Set ℕ :=
+  {s | ∃ F : Finset ℕ, (↑F : Set ℕ) ⊆ A ∧ s = ∑ x ∈ F, x}
+def IsCompleteSeq (A : Set ℕ) : Prop :=
+  Set.Finite {n | n ∉ FS A}
+def Gamma (a b : ℕ) : Set ℕ :=
+  {x | ∃ k l : ℕ, x = a^k * b^l}
+end Erdos246
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos246.IsCompleteSeq :
-    Set.{0} Nat → Prop
-  := by
-  sorry
-
-noncomputable def Erdos246.Gamma :
-    Nat → Nat → Set.{0} Nat
-  := by
-  sorry
 
 theorem Erdos246.erdos_246 :
     ∀ (a b : Nat),

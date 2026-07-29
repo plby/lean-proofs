@@ -1,33 +1,51 @@
 import Mathlib.Combinatorics.SimpleGraph.Finite
 
+namespace Erdos639
+
+variable {V : Type*} {C : Sym2 V → Fin 2} {u v w x y z : V}
+
+variable (C) in
+def NIMT (x y : V) : Prop :=
+  x ≠ y ∧ ¬∃ z, x ≠ z ∧ y ≠ z ∧ C s(x, y) = C s(x, z) ∧ C s(x, y) = C s(y, z)
+namespace NIMT
+
+lemma symm (hxy : NIMT C x y) : NIMT C y x := by
+  grind [NIMT]
+
+lemma irrefl : ¬NIMT C x x := by
+  simp [NIMT]
+
+end NIMT
+
+open Finset
+
+namespace SimpleGraph
+
+open _root_.SimpleGraph
+
+variable (C) in
+def nimt : SimpleGraph V where
+  Adj := NIMT C
+  symm.symm _ _ e := NIMT.symm (C := C) e
+  loopless := ⟨fun _ ↦ NIMT.irrefl⟩
+variable [Fintype V] {G : SimpleGraph V} [DecidableRel G.Adj]
+
+variable (V) in
+abbrev n : ℕ := Fintype.card V
+variable [DecidableEq V]
+
+instance : DecidableRel (NIMT C) := by
+  unfold NIMT
+  infer_instance
+instance : DecidableRel (nimt C).Adj :=
+  inferInstanceAs <| DecidableRel (NIMT C)
+end SimpleGraph
+
+end Erdos639
+
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Erdos639.SimpleGraph.nimt :
-    {V : Type u_1} →
-      (Sym2.{u_1} V → Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))) →
-        SimpleGraph.{u_1} V
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable abbrev Erdos639.SimpleGraph.n :
-    (V : Type u_1) → [Fintype.{u_1} V] → Nat
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable instance Erdos639.SimpleGraph.instDecidableRelAdjNimt :
-    {V : Type u_1} →
-      {C : Sym2.{u_1} V → Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))} →
-        [Fintype.{u_1} V] →
-          [DecidableEq.{u_1 + 1} V] →
-            @DecidableRel.{u_1 + 1, u_1 + 1} V V
-              (@SimpleGraph.Adj.{u_1} V (@Erdos639.SimpleGraph.nimt.{u_1} V C))
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos639.SimpleGraph.erdos639 :
     ∀ {V : Type u_1}

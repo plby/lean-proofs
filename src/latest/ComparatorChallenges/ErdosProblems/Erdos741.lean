@@ -1,22 +1,31 @@
 import Mathlib.Order.CompletePartialOrder
-import Mathlib.Data.Real.Basic
+import Mathlib.Order.LiminfLimsup
+import Mathlib.Data.Set.Card
 import Mathlib.Order.Interval.Finset.Nat
-import Mathlib.Algebra.Group.Pointwise.Set.Basic
+import Mathlib.Algebra.Order.Archimedean.Real.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
-open scoped Pointwise
+open Filter
+
+namespace Set
+
+@[inline]
+noncomputable abbrev partialDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
+    (S : Set β) (A : Set β := Set.univ) (b : β) : ℝ :=
+  ((S ∩ A) ∩ Iio b).ncard / (A ∩ Iio b).ncard
+
+noncomputable def upperDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
+    (S : Set β) (A : Set β := Set.univ) : ℝ :=
+  atTop.limsup fun (b : β) ↦ S.partialDensity A b
+namespace HasDensity
+
+end HasDensity
+
+end Set
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Set.upperDensity :
-    {β : Type u_1} →
-      [inst : Preorder.{u_1} β] →
-        [@LocallyFiniteOrderBot.{u_1} β inst] →
-          Set.{u_1} β → optParam.{u_1 + 1} (Set.{u_1} β) (@Set.univ.{u_1} β) → Real
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos741.erdos_741.variants.upper :
     Iff True

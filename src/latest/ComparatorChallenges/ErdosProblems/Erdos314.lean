@@ -1,11 +1,20 @@
-import Mathlib.Data.Real.Basic
+import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
+
+namespace Erdos314
+
+open Finset Real MeasureTheory intervalIntegral
+
+noncomputable section
+
+set_option linter.style.setOption false
+set_option linter.flexible false
+
+def harmonicPartialSum (n m : ℕ) : ℝ :=
+  ∑ ℓ ∈ Finset.Icc n m, (↑ℓ : ℝ)⁻¹
+end
+end Erdos314
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos314.harmonicPartialSum :
-    Nat → Nat → Real
-  := by
-  sorry
 
 theorem Erdos314.main_theorem :
     ∀ (c : Real),

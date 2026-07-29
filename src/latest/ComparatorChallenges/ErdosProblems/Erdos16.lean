@@ -1,16 +1,18 @@
-import Mathlib.Data.Set.Defs
+import Mathlib.Algebra.Ring.Parity
+import Mathlib.Data.Nat.Prime.Defs
+
+namespace Erdos16
+
+open scoped Nat
+
+def U : Set ℕ :=
+  { n | Odd n ∧ ¬ ∃ p k : ℕ, p.Prime ∧ 0 < k ∧ n = p + 2^k }
+
+def density_zero (S : Set ℕ) : Prop :=
+  ∀ m a : ℕ, m > 0 → ¬ {x | ∃ k, x = m * k + a} ⊆ S
+end Erdos16
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos16.U :
-    Set.{0} Nat
-  := by
-  sorry
-
-noncomputable def Erdos16.density_zero :
-    Set.{0} Nat → Prop
-  := by
-  sorry
 
 theorem Erdos16.ErdosProblem16 :
     Not

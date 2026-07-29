@@ -1,11 +1,22 @@
 import Mathlib.Analysis.Real.Sqrt
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+namespace Erdos154
+
+def IsSidonSetNat (A : Set ℕ) : Prop :=
+  ∀ a ∈ A, ∀ b ∈ A, ∀ c ∈ A, ∀ d ∈ A, a ≤ b → c ≤ d → a + b = c + d → a = c ∧ b = d
+end Erdos154
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos154.IsSidonSetNat :
-    Set.{0} Nat → Prop
-  := by
-  sorry
 
 theorem Erdos154.sidon_density_limit :
     ∀ (m : Nat),

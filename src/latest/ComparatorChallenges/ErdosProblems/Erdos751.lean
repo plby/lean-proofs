@@ -1,5 +1,84 @@
+import Mathlib.Data.List.Cycle
 import Mathlib.Data.Nat.Dist
 import Mathlib.Combinatorics.SimpleGraph.Coloring.Vertex
+
+namespace Erdos751
+
+universe u
+variable {V : Type u} [Fintype V] [DecidableEq V]
+variable (G : SimpleGraph V) [DecidableRel G.Adj]
+
+namespace BV
+
+structure Cycle where
+  base : V
+  walk : G.Walk base base
+  isCycle : walk.IsCycle
+  len_ge_three : 3 ≤ walk.length
+namespace Cycle
+
+def length (C : Cycle (G := G)) : Nat := C.walk.length
+end Cycle
+
+end BV
+end Erdos751
+
+namespace Erdos751
+
+universe u
+variable {V : Type u} [Fintype V] [DecidableEq V]
+variable (G : SimpleGraph V) [DecidableRel G.Adj]
+
+namespace BV
+
+end BV
+end Erdos751
+
+namespace Erdos751
+
+universe u
+variable {V : Type u} [Fintype V] [DecidableEq V]
+variable (G : SimpleGraph V) [DecidableRel G.Adj]
+
+namespace BV
+
+end BV
+end Erdos751
+
+namespace Erdos751
+
+open SimpleGraph
+
+universe u
+variable {V : Type u} [Fintype V] [DecidableEq V]
+variable (G : SimpleGraph V) [DecidableRel G.Adj]
+
+namespace BV
+
+end BV
+end Erdos751
+
+namespace Erdos751
+
+universe u
+variable {V : Type u} [Fintype V] [DecidableEq V]
+variable (G : SimpleGraph V) [DecidableRel G.Adj]
+
+namespace Critical
+
+end Critical
+end Erdos751
+
+namespace Erdos751
+
+universe u
+variable {V : Type u} [Fintype V] [DecidableEq V]
+variable (G : SimpleGraph V) [DecidableRel G.Adj]
+
+namespace Main
+
+end Main
+end Erdos751
 
 attribute [local instance] Classical.propDecidable
 
@@ -12,21 +91,9 @@ variable (G : SimpleGraph V) [DecidableRel G.Adj]
 
 namespace BV
 
-structure Cycle where
-  base : V
-  walk : G.Walk base base
-  isCycle : walk.IsCycle
-  len_ge_three : 3 ≤ walk.length
-
 end BV
 
 end Erdos751
-
-noncomputable def Erdos751.BV.Cycle.length :
-    {V : Type u} → (G : SimpleGraph.{u} V) → @Erdos751.BV.Cycle.{u} V G → Nat
-  := by
-  let _ := ULift.{u, 0} PUnit
-  sorry
 
 theorem Erdos751.Main.erdos_751_strong :
     ∀ {V : Type u} (G : SimpleGraph.{u} V) [Finite.{u + 1} V],

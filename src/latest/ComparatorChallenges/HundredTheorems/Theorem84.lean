@@ -39,16 +39,21 @@ def isEquilateral (A B C : P) : Prop :=
 def NondegenerateTriangle (A B C : P) : Prop :=
   ¬Collinear ℝ {A, B, C}
 
-theorem morley_triangle_similarity_invariance (f : Similarity P) (A B C : P)
-    (h_nd : NondegenerateTriangle A B C) :
-    let (P, Q, R) := morleyTriangle A B C
-    let (P', Q', R') := morleyTriangle (f A) (f B) (f C)
-    P' = f P ∧ Q' = f Q ∧ R' = f R := by
-  sorry
+abbrev morley_triangle_similarity_invariance.match_1 :
+    {P : Type u_1} →
+      (motive : P × P × P → Sort u_2) →
+        (x : P × P × P) →
+          ((P' Q' R' : P) → motive (P', Q', R')) →
+            motive x :=
+  fun {P} motive x h_1 =>
+    @Prod.casesOn P (P × P) (fun x => motive x) x fun fst snd =>
+      @Prod.casesOn P P (fun x => motive (fst, x)) snd fun fst_1 snd =>
+        h_1 fst fst_1 snd
 
 theorem morley_theorem (A B C : P) (h_nd : NondegenerateTriangle A B C) :
-    let (P_tri, Q_tri, R_tri) := morleyTriangle A B C
-    isEquilateral P_tri Q_tri R_tri := by
+    morley_triangle_similarity_invariance.match_1
+      (fun _ => Prop) (morleyTriangle A B C)
+      (fun P_tri Q_tri R_tri => isEquilateral P_tri Q_tri R_tri) := by
   sorry
 
 end Theorem84

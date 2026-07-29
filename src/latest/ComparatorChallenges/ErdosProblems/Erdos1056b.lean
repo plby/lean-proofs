@@ -1,15 +1,24 @@
+import Mathlib.AlgebraicTopology.SimplexCategory.Basic
 import Mathlib.Data.Nat.ModEq
-import Mathlib.Order.Fin.Basic
-import Mathlib.Data.Nat.Factorial.Basic
 import Mathlib.Data.Nat.Prime.Defs
 import Mathlib.Order.Filter.AtTopBot.Defs
+import Mathlib.Order.Interval.Finset.Nat
+import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+
+open Nat
+
+namespace Erdos1056b
+
+def AllModProdEqualsOne (p : ℕ) {k : ℕ} (boundaries : Fin (k + 1) → ℕ) : Prop :=
+  ∀ i : Fin k,
+    (∏ n ∈ Finset.Ico (boundaries i.castSucc) (boundaries (i.castSucc + 1)), n) ≡ 1 [MOD p]
+
+def erdos_1056 : Prop :=
+    (∀ k ≥ 2, ∃ (p : ℕ) (_ : p.Prime) (boundaries : Fin (k + 1) → ℕ) (_ : StrictMono boundaries),
+    AllModProdEqualsOne p boundaries)
+end Erdos1056b
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos1056b.erdos_1056 :
-    Prop
-  := by
-  sorry
 
 theorem Erdos1056b.noll_simmons :
     Erdos1056b.erdos_1056 →

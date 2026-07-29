@@ -1,9 +1,14 @@
-attribute [local instance] Classical.propDecidable
+import Mathlib.Data.Rat.Defs
+import Mathlib.Order.Interval.Finset.Nat
+import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 
-noncomputable def Erdos290.v :
-    Nat → Nat → Nat
-  := by
-  sorry
+namespace Erdos290
+
+def harmonicSum (a b : ℕ) : ℚ := ∑ i ∈ Finset.Icc a b, (1 : ℚ) / i
+def v (a b : ℕ) : ℕ := (harmonicSum a b).den
+end Erdos290
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos290.main :
     ∀ (a : Nat),

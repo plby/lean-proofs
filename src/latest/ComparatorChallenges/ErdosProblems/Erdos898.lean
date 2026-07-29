@@ -1,20 +1,29 @@
-import Mathlib.Analysis.InnerProductSpace.Defs
-import Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional
-import Mathlib.Analysis.Normed.Group.AddTorsor
+import Mathlib.Geometry.Euclidean.Projection
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos898
+
+open EuclideanGeometry Metric RealInnerProductSpace
+
+variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V] [FiniteDimensional ℝ V]
+
+variable [hV : Fact (Module.finrank ℝ V = 2)]
+
+noncomputable def dist_to_line (P A B : V) : ℝ :=
+  dist P (orthogonalProjection (affineSpan ℝ ({A, B} : Set V)) P)
+section AristotleLemmas
+
+end AristotleLemmas
+
+section AristotleLemmas
+
+end AristotleLemmas
+
+end Erdos898
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Erdos898.dist_to_line :
-    {V : Type u_1} →
-      [inst : NormedAddCommGroup.{u_1} V] →
-        [@InnerProductSpace.{0, u_1} Real V Real.instRCLike
-              (@NormedAddCommGroup.toSeminormedAddCommGroup.{u_1} V inst)] →
-          V → V → V → Real
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos898.erdos_mordell :
     ∀ {V : Type u_1} [inst : NormedAddCommGroup.{u_1} V]

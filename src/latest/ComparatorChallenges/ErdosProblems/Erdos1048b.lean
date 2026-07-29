@@ -1,16 +1,20 @@
 import Mathlib.Analysis.CStarAlgebra.Classes
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos1048b
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+noncomputable def my_r : ℝ := 2 ^ (1/10 : ℝ)
+noncomputable def my_f : Polynomial ℂ := Polynomial.X ^ 10 - Polynomial.C 2
+noncomputable def my_S : Set ℂ := {z | ‖my_f.eval z‖ < 1}
+end Erdos1048b
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos1048b.my_r :
-    Real
-  := by
-  sorry
-
-noncomputable def Erdos1048b.my_S :
-    Set.{0} Complex
-  := by
-  sorry
 
 theorem Erdos1048b.components_small_final :
     ∀ (z : Complex),

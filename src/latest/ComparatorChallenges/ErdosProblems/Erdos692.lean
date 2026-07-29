@@ -1,9 +1,22 @@
-attribute [local instance] Classical.propDecidable
+import Mathlib.Algebra.GCDMonoid.Finset
+import Mathlib.Data.Rat.Init
+import Mathlib.Order.Interval.Finset.Nat
 
-noncomputable def Erdos692.delta1 :
-    Nat → Nat → Rat
-  := by
-  sorry
+namespace Erdos692
+
+open Finset
+
+def numDivisorsIn (x n m : ℕ) : ℕ :=
+  ((Ioo n m).filter (· ∣ x)).card
+
+def countWithOneDivisor (n m L : ℕ) : ℕ :=
+  ((Icc 1 L).filter (numDivisorsIn · n m = 1)).card
+
+noncomputable def delta1 (n m : ℕ) : ℚ :=
+  countWithOneDivisor n m ((Ioo n m).lcm id) / ((Ioo n m).lcm id)
+end Erdos692
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos692.delta1_not_unimodal :
     And

@@ -1,20 +1,35 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos331
+
+set_option linter.style.longLine false
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+open Nat Filter
+open scoped Asymptotics
+
+set_option relaxedAutoImplicit false
+set_option autoImplicit false
+
+@[implicit_reducible] def erdos_331.match_1.{u} :
+    (motive : ℕ × ℕ × ℕ × ℕ → Sort u) →
+      (s : ℕ × ℕ × ℕ × ℕ) →
+        ((a₁ a₂ b₁ b₂ : ℕ) → motive (a₁, a₂, b₁, b₂)) → motive s :=
+  fun motive s h ↦
+    Prod.casesOn s fun a₁ t ↦
+      Prod.casesOn t fun a₂ t ↦
+        Prod.casesOn t fun b₁ b₂ ↦ h a₁ a₂ b₁ b₂
+end Erdos331
+
+open Erdos331
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable abbrev Erdos331.erdos_331.match_1 :
-    (motive : Prod.{0, 0} Nat (Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat)) → Sort u_1) →
-      (s : Prod.{0, 0} Nat (Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat))) →
-        ((a₁ a₂ b₁ b₂ : Nat) →
-            motive
-              (@Prod.mk.{0, 0} Nat (Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat)) a₁
-                (@Prod.mk.{0, 0} Nat (Prod.{0, 0} Nat Nat) a₂ (@Prod.mk.{0, 0} Nat Nat b₁ b₂)))) →
-          motive s
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos331.main_theorem :
     @Exists.{1} (Set.{0} Nat) fun (A' : Set.{0} Nat) ↦
@@ -100,7 +115,6 @@ theorem Erdos331.main_theorem :
                                     (@Nat.cast.{0} Int instNatCastInt b₂)))))
   := by
   sorry
-
 theorem Erdos331.erdos_331 :
     Not
       (∀ (A B : Set.{0} Nat),

@@ -1,11 +1,18 @@
 import Mathlib.Analysis.Real.Sqrt
+import Mathlib.Data.Nat.Prime.Defs
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos370
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+noncomputable def maxPrimeFac (n : ℕ) : ℕ := sSup {p : ℕ | p.Prime ∧ p ∣ n}
+end Erdos370
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos370.maxPrimeFac :
-    Nat → Nat
-  := by
-  sorry
 
 theorem Erdos370.erdos_370 :
     Iff

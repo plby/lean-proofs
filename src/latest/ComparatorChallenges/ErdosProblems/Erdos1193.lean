@@ -1,11 +1,15 @@
-import Mathlib.Data.Set.Defs
+import Mathlib.Data.Finset.Card
+
+open Finset Nat
+
+namespace Erdos1193
+
+open scoped Classical in
+noncomputable def conv_ind (A : Set ℕ) (n : ℕ) : ℕ :=
+  ((range (n + 1)).filter (fun k => k ∈ A ∧ (n - k) ∈ A)).card
+end Erdos1193
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos1193.conv_ind :
-    Set.{0} Nat → Nat → Nat
-  := by
-  sorry
 
 theorem Erdos1193.erdos_convolution_counterexample :
     ∀ (n : Nat),

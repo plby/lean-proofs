@@ -1,17 +1,25 @@
 import Mathlib.Combinatorics.SimpleGraph.Clique
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos618
+
+noncomputable def maxDegreeFin {n : ℕ} (G : SimpleGraph (Fin n)) : ℕ := by
+  classical
+  exact Finset.univ.sup (fun v : Fin n =>
+    @SimpleGraph.degree (Fin n) G v inferInstance)
+
+open scoped Classical in
+noncomputable def h2 {n : ℕ} (G : SimpleGraph (Fin n)) : ℕ := by
+  exact sInf {k : ℕ |
+    ∃ H : SimpleGraph (Fin n),
+      G ≤ H ∧
+      H.CliqueFree 3 ∧
+      (∀ x y : Fin n, x ≠ y → H.Adj x y ∨ ∃ z, H.Adj x z ∧ H.Adj z y) ∧
+      ((H.edgeFinset \ G.edgeFinset).card = k)}
+end Erdos618
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos618.maxDegreeFin :
-    {n : Nat} → SimpleGraph.{0} (Fin n) → Nat
-  := by
-  sorry
-
-noncomputable def Erdos618.h2 :
-    {n : Nat} → SimpleGraph.{0} (Fin n) → Nat
-  := by
-  sorry
 
 theorem Erdos618.erdos_618 :
     ∀ (G : (n : Nat) → SimpleGraph.{0} (Fin n)),

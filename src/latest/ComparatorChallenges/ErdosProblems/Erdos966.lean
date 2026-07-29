@@ -1,16 +1,22 @@
-import Mathlib.Data.Set.Defs
+import Mathlib.Data.Real.Basic
+
+namespace Erdos966
+
+open scoped Real
+open scoped Nat
+
+set_option relaxedAutoImplicit false
+set_option autoImplicit false
+
+def HasAP (A : Set ℕ) (k : ℕ) : Prop :=
+  ∃ a d : ℕ, d ≠ 0 ∧ ∀ i : Fin k, a + i * d ∈ A
+def HasMonochromaticAP (A : Set ℕ) (k : ℕ) {r : ℕ} (c : ℕ → Fin r) : Prop :=
+  ∃ a d : ℕ,
+    d ≠ 0 ∧ (∀ i : Fin k, a + i * d ∈ A) ∧
+      ∃ y : Fin r, ∀ i : Fin k, c (a + i * d) = y
+end Erdos966
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos966.HasAP :
-    Set.{0} Nat → Nat → Prop
-  := by
-  sorry
-
-noncomputable def Erdos966.HasMonochromaticAP :
-    Set.{0} Nat → Nat → {r : Nat} → (Nat → Fin r) → Prop
-  := by
-  sorry
 
 theorem Erdos966.existence_of_AP_free_Ramsey_set :
     ∀ (k r : Nat),

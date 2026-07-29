@@ -1,24 +1,39 @@
-import Mathlib.Data.Finset.Card
-import Mathlib.Data.Fintype.Sets
+import Mathlib.Computability.Reduce
+import Mathlib.Data.Real.Basic
+import Mathlib.Data.ZMod.Defs
 import Mathlib.Data.Nat.Prime.Defs
 import Mathlib.Order.Filter.AtTopBot.Defs
+import Mathlib.Order.Interval.Finset.Nat
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+set_option linter.unusedVariables false
+
+open scoped Real
+open scoped Nat
+
+set_option maxHeartbeats 50000000
+set_option maxRecDepth 4000
+set_option synthInstance.maxHeartbeats 20000
+set_option synthInstance.maxSize 128
+
+set_option relaxedAutoImplicit false
+set_option autoImplicit false
+
+namespace Erdos429
+
+noncomputable instance instFintypeSetInterIccNat (B : Set ℕ) (a b : ℕ) :
+    Fintype ↑(B ∩ Set.Icc a b) :=
+  ((Set.finite_Icc a b).subset (by
+    intro x hx
+    exact hx.2)).fintype
+def Admissible (B : Set ℕ) : Prop :=
+  ∀ p, p.Prime → ∃ (a : ZMod p), ∀ b ∈ B, (b : ZMod p) ≠ a
+end Erdos429
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable instance Erdos429.instFintypeSetInterIccNat :
-    (B : Set.{0} Nat) →
-      (a b : Nat) →
-        Fintype.{0}
-          (@Set.Elem.{0} Nat
-            (@Inter.inter.{0} (Set.{0} Nat) (@Set.instInter.{0} Nat) B
-              (@Set.Icc.{0} Nat Nat.instPreorder a b)))
-  := by
-  sorry
-
-noncomputable def Erdos429.Admissible :
-    Set.{0} Nat → Prop
-  := by
-  sorry
 
 theorem Erdos429.main_theorem :
     ∀ (f : Nat → Nat),

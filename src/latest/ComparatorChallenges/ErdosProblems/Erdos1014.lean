@@ -1,11 +1,6 @@
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
+import Util.Ramsey
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Ramsey.ramseyNumber :
-    Nat → Nat → Nat
-  := by
-  sorry
 
 theorem Erdos1014.erdos1014 :
     ∀ (k : Nat),

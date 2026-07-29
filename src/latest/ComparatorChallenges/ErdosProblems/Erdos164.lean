@@ -1,27 +1,35 @@
-import Mathlib.Data.Real.Basic
-import Mathlib.Data.Nat.Prime.Defs
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+open scoped Topology
+
+noncomputable section
+
+namespace Erdos164
+
+noncomputable def erdosWeight (n : ℕ) : ℝ :=
+  1 / ((n : ℝ) * Real.log n)
+def primeSet : Set ℕ :=
+  { p | p.Prime }
+def PrimitiveSet (A : Set ℕ) : Prop :=
+  (∀ ⦃a : ℕ⦄, a ∈ A → 2 ≤ a) ∧
+    ∀ ⦃a b : ℕ⦄, a ∈ A → b ∈ A → a ∣ b → a = b
+noncomputable def primitiveWeightSum (A : Set ℕ) : ℝ :=
+  ∑' a : A, erdosWeight (a : ℕ)
+noncomputable def primeWeightSum : ℝ :=
+  primitiveWeightSum primeSet
+open Filter Asymptotics
+open scoped Nat.Prime
+
+def IsPRough (p m : ℕ) : Prop :=
+  ∀ q : ℕ, q.Prime → q ∣ m → p ≤ q
+def erdos_strong (n : ℕ) : Prop :=
+  ∀ ⦃A : Set ℕ⦄, PrimitiveSet A →
+    A ⊆ {m : ℕ | n ∣ m ∧ IsPRough n (m / n)} →
+    primitiveWeightSum A ≤ erdosWeight n
+end Erdos164
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos164.primeSet :
-    Set.{0} Nat
-  := by
-  sorry
-
-noncomputable def Erdos164.PrimitiveSet :
-    Set.{0} Nat → Prop
-  := by
-  sorry
-
-noncomputable def Erdos164.primitiveWeightSum :
-    Set.{0} Nat → Real
-  := by
-  sorry
-
-noncomputable def Erdos164.primeWeightSum :
-    Real
-  := by
-  sorry
 
 theorem Erdos164.erdos164 :
     And (Erdos164.PrimitiveSet Erdos164.primeSet)
@@ -32,22 +40,14 @@ theorem Erdos164.erdos164 :
               (Erdos164.primitiveWeightSum Erdos164.primeSet)))
   := by
   sorry
-
-noncomputable def Erdos164.erdos_strong :
-    Nat → Prop
-  := by
-  sorry
-
 theorem Erdos164.erdos_strong_of_two :
     Erdos164.erdos_strong (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
   := by
   sorry
-
 theorem Erdos164.erdos_strong_of_prime :
     ∀ {p : Nat}, Nat.Prime p → Erdos164.erdos_strong p
   := by
   sorry
-
 theorem Erdos164.erdos164_alt :
     And (Erdos164.PrimitiveSet Erdos164.primeSet)
       (And (@Eq.{1} Real (Erdos164.primitiveWeightSum Erdos164.primeSet) Erdos164.primeWeightSum)

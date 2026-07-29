@@ -1,11 +1,30 @@
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos728
+
+set_option linter.style.setOption false
+set_option linter.flexible false
+set_option linter.style.whitespace false
+set_option linter.unusedSimpArgs false
+
+namespace Erdos728b
+
+open Real
+
+open scoped Nat Topology
 
 attribute [local instance] Classical.propDecidable
 
-noncomputable def Erdos728.Erdos728b.good_triples :
-    Real → Real → Set.{0} (Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat))
-  := by
-  sorry
+def good_triples (C ε : ℝ) : Set (ℕ × ℕ × ℕ) :=
+  { t | let (a, b, n) := t; ε * n ≤ a ∧ a ≤ (1 - ε) * n ∧ ε * n ≤ b ∧ b ≤ (1 - ε) * n ∧
+        Nat.factorial a * Nat.factorial b ∣ Nat.factorial n * Nat.factorial (a + b - n) ∧
+        (a + b : ℝ) > n + C * Real.log n }
+end Erdos728b
+
+end Erdos728
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos728.Erdos728b.erdos_728 :
     ∀ (C ε : Real),
@@ -27,7 +46,6 @@ theorem Erdos728.Erdos728b.erdos_728 :
               (Erdos728.Erdos728b.good_triples C ε)
   := by
   sorry
-
 theorem Erdos728.Erdos728b.erdos_728_fc :
     @Filter.Eventually.{0} Real
       (fun (ε : Real) ↦

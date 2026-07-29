@@ -1,16 +1,27 @@
+import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Real.Basic
+import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+
+open Finset BigOperators
+
+namespace Erdos481
+
+variable {r : ℕ}
+variable (a b : Fin r → ℕ+)
+
+noncomputable def C : ℝ := ∑ i : Fin r, (1 : ℝ) / (a i : ℝ)
+
+def T (L : List ℕ+) : List ℕ+ :=
+  L.flatMap fun x : ℕ+ => (List.finRange r).map fun i =>
+    ⟨a i * x + b i, Nat.add_pos_right _ (b i).2⟩
+
+def A : ℕ → List ℕ+
+  | 0 => []
+  | 1 => [1]
+  | n + 2 => T a b (A (n + 1))
+end Erdos481
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos481.C :
-    {r : Nat} → (Fin r → PNat) → Real
-  := by
-  sorry
-
-noncomputable def Erdos481.A :
-    {r : Nat} → (Fin r → PNat) → (Fin r → PNat) → Nat → List.{0} PNat
-  := by
-  sorry
 
 theorem Erdos481.erdos_481 :
     ∀ {r : Nat} (a b : Fin r → PNat),

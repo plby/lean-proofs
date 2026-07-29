@@ -1,13 +1,31 @@
-import Mathlib.Algebra.Polynomial.Derivative
 import Mathlib.Analysis.CStarAlgebra.Classes
+import Mathlib.RingTheory.Polynomial.Chebyshev
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.style.show false
+set_option linter.flexible false
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
 attribute [local instance] Classical.propDecidable
 
-noncomputable def Erdos115.extremal_polynomial :
-    Nat → @Polynomial.{0} Complex Complex.instSemiring
-  := by
-  sorry
+set_option maxHeartbeats 1000000
+set_option relaxedAutoImplicit false
+set_option autoImplicit false
+
+namespace Erdos115
+
+noncomputable def eremenko_bound (n : ℕ) : ℝ := (2 : ℝ) ^ ((1 : ℝ) / n - 1) * (n : ℝ) ^ 2
+noncomputable def extremal_polynomial (n : ℕ) : Polynomial ℂ :=
+  (Polynomial.Chebyshev.T ℂ n).comp (Polynomial.C ((2 : ℂ) ^ ((1 : ℂ) / n - 1)) * Polynomial.X + 1)
+end Erdos115
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos115.eremenko_lempert_1999 :
     ∀ (n : Nat),

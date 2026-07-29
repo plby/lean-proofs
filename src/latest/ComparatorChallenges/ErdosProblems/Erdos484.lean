@@ -1,12 +1,19 @@
-import Mathlib.Data.Finset.Card
+import Mathlib.Order.Interval.Finset.Nat
 import Mathlib.Algebra.Order.Archimedean.Real.Basic
 
-attribute [local instance] Classical.propDecidable
+namespace Erdos484
 
-noncomputable def Erdos484.monochromaticSumSet :
-    Nat → (k : Nat) → (Nat → Fin k) → Finset.{0} Nat
-  := by
-  sorry
+open Finset
+
+open Finset
+
+noncomputable def monochromaticSumSet (N : ℕ) (k : ℕ) (f : ℕ → Fin k) : Finset ℕ := by
+  classical
+  exact (Finset.Icc 1 N).filter (fun n =>
+    ∃ a ∈ Finset.Icc 1 N, ∃ b ∈ Finset.Icc 1 N, a ≠ b ∧ f a = f b ∧ a + b = n)
+end Erdos484
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos484.monochromatic_sums_linear :
     @Exists.{1} Real fun (c : Real) ↦

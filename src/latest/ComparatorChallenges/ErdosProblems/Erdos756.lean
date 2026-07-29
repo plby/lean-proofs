@@ -1,21 +1,23 @@
 import Mathlib.Analysis.CStarAlgebra.Classes
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos756
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+set_option relaxedAutoImplicit false
+set_option autoImplicit false
+
+noncomputable def distance_count (P : Finset ℂ) (d : ℝ) : ℕ :=
+  (P.offDiag.filter (fun (x, y) => dist x y = d)).card / 2
+end Erdos756
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable abbrev Erdos756.distance_count.match_1 :
-    (motive : Prod.{0, 0} Complex Complex → Sort u_1) →
-      (x : Prod.{0, 0} Complex Complex) →
-        ((x y : Complex) → motive (@Prod.mk.{0, 0} Complex Complex x y)) → motive x
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable def Erdos756.distance_count :
-    Finset.{0} Complex → Real → Nat
-  := by
-  sorry
 
 theorem Erdos756.erdos756 :
     ∀ (n : Nat),

@@ -1,31 +1,43 @@
-import Mathlib.Data.Real.Basic
+import Mathlib.Order.LiminfLimsup
+import Mathlib.Data.Set.Card
 import Mathlib.Data.Nat.Digits.Defs
 import Mathlib.Order.Interval.Finset.Nat
-import Mathlib.Algebra.Group.Pointwise.Set.Basic
+import Mathlib.Topology.MetricSpace.Pseudo.Defs
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+open Filter
+
+open scoped Topology
+
+namespace Set
+
+@[inline]
+noncomputable abbrev partialDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
+    (S : Set β) (A : Set β := Set.univ) (b : β) : ℝ :=
+  ((S ∩ A) ∩ Iio b).ncard / (A ∩ Iio b).ncard
+
+noncomputable def lowerDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
+    (S : Set β) (A : Set β := Set.univ) : ℝ :=
+  atTop.liminf fun (b : β) ↦ S.partialDensity A b
+
+def HasDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
+    (S : Set β) (α : ℝ) (A : Set β := Set.univ) : Prop :=
+  Tendsto (fun (b : β) => S.partialDensity A b) atTop (𝓝 α)
+
+def HasPosDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
+    (S : Set β) (A : Set β := Set.univ) : Prop :=
+  ∃ α > 0, S.HasDensity α A
+namespace HasDensity
+
+end HasDensity
+
+end Set
 
 open scoped Pointwise
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Set.lowerDensity :
-    {β : Type u_1} →
-      [inst : Preorder.{u_1} β] →
-        [@LocallyFiniteOrderBot.{u_1} β inst] →
-          Set.{u_1} β → optParam.{u_1 + 1} (Set.{u_1} β) (@Set.univ.{u_1} β) → Real
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable def Set.HasPosDensity :
-    {β : Type u_1} →
-      [inst : Preorder.{u_1} β] →
-        [@LocallyFiniteOrderBot.{u_1} β inst] →
-          Set.{u_1} β → optParam.{u_1 + 1} (Set.{u_1} β) (@Set.univ.{u_1} β) → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos125.erdos_125 :
     Iff False
@@ -59,7 +71,6 @@ theorem Erdos125.erdos_125 :
         (@Set.univ.{0} Nat))
   := by
   sorry
-
 theorem Erdos125.erdos_125.variants.positive_lower_density :
     Iff False
       (@LT.lt.{0} Real Real.instLT

@@ -1,11 +1,30 @@
 import Mathlib.Algebra.Polynomial.Degree.Defs
+import Mathlib.Algebra.Polynomial.Eval.Defs
+import Mathlib.Order.Filter.AtTopBot.Defs
+
+namespace PolynomialEgyptianSums
+open Polynomial Filter
+
+def imageSet (p : ℚ[X]) : Set ℚ :=
+  Set.range (fun (n : ℕ) ↦ p.eval (n : ℚ) + 1 / (n : ℚ))
+
+def IsStronglyComplete (A : Set ℚ) : Prop :=
+  ∀ B : Finset ℚ,
+    ∀ᶠ (m : ℕ) in Filter.atTop,
+      ((m : ℕ) : ℚ) ∈ { ∑ x ∈ X, x | (X : Finset ℚ) (_ : (↑X : Set ℚ) ⊆ A \ ↑B) }
+end PolynomialEgyptianSums
+
+namespace Erdos351
+
+open Polynomial
+
+def imageSet (P : ℚ[X]) : Set ℚ := PolynomialEgyptianSums.imageSet P
+
+def HasCompleteImage (P : ℚ[X]) : Prop :=
+  PolynomialEgyptianSums.IsStronglyComplete (imageSet P)
+end Erdos351
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos351.HasCompleteImage :
-    @Polynomial.{0} Rat Rat.semiring → Prop
-  := by
-  sorry
 
 theorem Erdos351.erdos_351 :
     Iff True

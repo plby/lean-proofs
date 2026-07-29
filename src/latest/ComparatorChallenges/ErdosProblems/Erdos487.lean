@@ -1,11 +1,22 @@
-import Mathlib.Data.Real.Basic
+import Mathlib.Order.LiminfLimsup
+import Mathlib.Order.Interval.Finset.Nat
+import Mathlib.Algebra.Order.Archimedean.Real.Basic
+
+set_option linter.style.setOption false
+set_option linter.flexible false
+
+namespace Erdos487
+
+open scoped Nat
+open Filter
 
 attribute [local instance] Classical.propDecidable
 
-noncomputable def Erdos487.lowerDensity :
-    Set.{0} Nat → Real
-  := by
-  sorry
+noncomputable def lowerDensity (A : Set ℕ) : ℝ :=
+  Filter.liminf (fun N => ((Finset.Icc 1 N).filter (· ∈ A)).card / (N : ℝ)) Filter.atTop
+end Erdos487
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos487.erdos_487 :
     ∀ (A : Set.{0} Nat),

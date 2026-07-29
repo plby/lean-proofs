@@ -1,22 +1,37 @@
-import Mathlib.Data.Finset.Defs
-import Mathlib.Data.Real.Basic
+import Mathlib.Order.LiminfLimsup
+import Mathlib.Algebra.Order.Archimedean.Real.Basic
 
+namespace UnitFractions
+
+open scoped BigOperators
+open Filter Real Finset Nat
+open _root_.Finset
+
+noncomputable section
 attribute [local instance] Classical.propDecidable
 
-noncomputable def UnitFractions.upper_density :
-    Set.{0} Nat → Real
-  := by
-  sorry
+section
 
-noncomputable def UnitFractions.has_density :
-    Set.{0} Nat → Real → Prop
-  := by
-  sorry
+variable (A : Set ℕ)
 
-noncomputable def UnitFractions.rec_sum :
-    Finset.{0} Nat → Rat
-  := by
-  sorry
+def partial_density (N : ℕ) : ℝ := ((range N).filter fun n ↦ n ∈ A).card / N
+def upper_density : ℝ := limsup (partial_density A) atTop
+def lower_density : ℝ := liminf (partial_density A) atTop
+def has_density (d : ℝ) : Prop := upper_density A = d ∧ lower_density A = d
+variable {A}
+
+end
+
+def rec_sum (A : Finset ℕ) : ℚ := A.sum fun n ↦ (1 : ℚ) / n
+namespace Nat
+
+end Nat
+
+end
+
+end UnitFractions
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos298.erdos298 :
     ∀ (A : Set.{0} Nat),
@@ -31,7 +46,6 @@ theorem Erdos298.erdos298 :
               (@OfNat.ofNat.{0} Rat (nat_lit 1) (@Rat.instOfNat (nat_lit 1))))
   := by
   sorry
-
 theorem Erdos298.erdos298_density :
     ∀ (A : Set.{0} Nat) (d : Real),
       UnitFractions.has_density A d →

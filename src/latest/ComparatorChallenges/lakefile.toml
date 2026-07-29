@@ -22,6 +22,7 @@ rev = "v4.32.0"
 name = "ComparatorChallenges"
 srcDir = "ErdosProblems"
 roots = [
+  "PrivateName",
   "Erdos16",
   "Erdos24",
   "Erdos26",

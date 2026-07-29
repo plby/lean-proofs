@@ -1,17 +1,34 @@
-import Mathlib.Data.Finset.Card
-import Mathlib.Algebra.Group.Nat.Defs
+import Mathlib.Analysis.InnerProductSpace.PiL2
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+open scoped BigOperators
+open scoped Real
+open scoped RealInnerProductSpace
+open scoped Pointwise
+open MeasureTheory
+open Filter
+
+namespace Erdos224
+
+noncomputable section
+
+variable {d : ℕ}
+
+abbrev E (d : ℕ) := EuclideanSpace ℝ (Fin d)
+local instance (d : ℕ) : MeasurableSpace (E d) := borel (E d)
+local instance (d : ℕ) : BorelSpace (E d) := ⟨rfl⟩
+local instance (S : AffineSubspace ℝ (E d)) :
+    NormedAddTorsor S.direction S.direction :=
+  SeminormedAddCommGroup.toNormedAddTorsor
+
+def ObtuseAt {d : ℕ} (x y z : E d) : Prop :=
+  ⟪y - x, z - x⟫ < 0
+end
+
+end Erdos224
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable abbrev Erdos224.E :
-    Nat → Type
-  := by
-  sorry
-
-noncomputable def Erdos224.ObtuseAt :
-    {d : Nat} → Erdos224.E d → Erdos224.E d → Erdos224.E d → Prop
-  := by
-  sorry
 
 theorem Erdos224.exists_obtuse_of_card_succ_pow_two :
     ∀ {d : Nat} (A : Finset.{0} (Erdos224.E d)),

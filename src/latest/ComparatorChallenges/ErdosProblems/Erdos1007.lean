@@ -1,14 +1,28 @@
+import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Combinatorics.SimpleGraph.Finite
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos1007
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+
+attribute [local instance] Classical.propDecidable
+
+open SimpleGraph
+
+def IsUnitDistanceEmbedding {V : Type*} (G : SimpleGraph V) (d : ℕ) (f : V → EuclideanSpace ℝ (Fin d)) : Prop :=
+  Function.Injective f ∧ ∀ {u v}, G.Adj u v → dist (f u) (f v) = 1
+def HasUnitDistanceEmbedding {V : Type*} (G : SimpleGraph V) (d : ℕ) : Prop :=
+  ∃ f : V → EuclideanSpace ℝ (Fin d), IsUnitDistanceEmbedding G d f
+noncomputable def GraphDimension {V : Type*} (G : SimpleGraph V) : ℕ :=
+  sInf { d | HasUnitDistanceEmbedding G d }
+end Erdos1007
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Erdos1007.GraphDimension :
-    {V : Type u_1} → SimpleGraph.{u_1} V → Nat
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos1007.erdos_1007 :
     @IsLeast.{0} Nat instLENat

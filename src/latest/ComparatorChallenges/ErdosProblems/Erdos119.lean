@@ -1,11 +1,19 @@
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+open Filter Finset Set
+open Metric
+
+namespace Erdos119
+
+noncomputable def p (z : ℕ → ℂ) (n : ℕ) : ℂ → ℂ :=
+  fun w => ∏ i ∈ range n, (w - z i)
+
+noncomputable def M (z : ℕ → ℂ) (n : ℕ) : ℝ :=
+  sSup {‖p z n w‖ | (w : ℂ) (_ : ‖w‖ = 1)}
+end Erdos119
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos119.M :
-    (Nat → Complex) → Nat → Real
-  := by
-  sorry
 
 theorem Erdos119.erdos_119.parts.iii_quantitative :
     ∀ (z : Nat → Complex),

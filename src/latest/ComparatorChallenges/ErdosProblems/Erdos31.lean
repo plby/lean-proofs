@@ -1,21 +1,52 @@
-import Mathlib.Data.Real.Basic
+import Mathlib.Data.Set.Card
 import Mathlib.Order.Interval.Finset.Nat
-import Mathlib.Algebra.Group.Pointwise.Set.Basic
+import Mathlib.Topology.MetricSpace.Pseudo.Defs
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+set_option linter.style.setOption false
+set_option aesop.warn.nonterminal false
+
+namespace Erdos31
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+attribute [local instance] Classical.propDecidable
+
+set_option maxHeartbeats 50000000
+set_option maxRecDepth 4000
+set_option synthInstance.maxHeartbeats 20000
+set_option synthInstance.maxSize 128
+set_option relaxedAutoImplicit false
+set_option autoImplicit false
+
+section
+
+variable {β : Type*} [Preorder β]
+
+variable (S : Set β) (a b : β)
+
+abbrev Set.interIio (S : Set β) (b : β) : Set β :=
+  S ∩ Set.Iio b
+noncomputable abbrev partialDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
+    (S : Set β) (A : Set β := Set.univ) (b : β) : ℝ :=
+  (Set.interIio (S ∩ A) b).ncard / (Set.interIio A b).ncard
+open scoped Topology
+
+def HasDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
+    (S : Set β) (α : ℝ) (A : Set β := Set.univ) : Prop :=
+  Filter.Tendsto (fun (b : β) => partialDensity S A b) Filter.atTop (𝓝 α)
+end
+
+end Erdos31
 
 open scoped Pointwise
 
 attribute [local instance] Classical.propDecidable
 
 universe u_2
-
-noncomputable def Erdos31.HasDensity :
-    {β : Type u_2} →
-      [inst : Preorder.{u_2} β] →
-        [@LocallyFiniteOrderBot.{u_2} β inst] →
-          Set.{u_2} β → Real → optParam.{u_2 + 1} (Set.{u_2} β) (@Set.univ.{u_2} β) → Prop
-  := by
-  let _ := ULift.{u_2, 0} PUnit
-  sorry
 
 theorem Erdos31.erdos_31 :
     ∀ (A : Set.{0} Nat),

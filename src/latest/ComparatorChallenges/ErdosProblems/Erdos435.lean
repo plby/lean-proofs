@@ -1,18 +1,25 @@
-import Mathlib.Algebra.Group.Int.Defs
-import Mathlib.Algebra.Group.Submonoid.Defs
-import Mathlib.Data.Nat.Prime.Defs
+import Mathlib.Data.Nat.Factorization.Defs
+import Mathlib.Order.Interval.Finset.Nat
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+
+namespace Erdos435
+
+def generators (n : ℕ) : Set ℕ :=
+  { m | ∃ i, 1 ≤ i ∧ i < n ∧ m = Nat.choose n i }
+noncomputable def target (n : ℕ) : ℤ :=
+  (Finset.sum n.factorization.support fun p =>
+    (Finset.sum (Finset.Icc 1 (n.factorization p)) fun d =>
+      (Nat.choose n (p ^ d) : ℤ)) * (p - 1)) - n
+def generators_int (n : ℕ) : Set ℤ :=
+  Int.ofNat '' (generators n)
+def Representable (n : ℕ) : AddSubmonoid ℤ :=
+  AddSubmonoid.closure (generators_int n)
+end Erdos435
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos435.target :
-    Nat → Int
-  := by
-  sorry
-
-noncomputable def Erdos435.Representable :
-    Nat → @AddSubmonoid.{0} Int (@AddMonoid.toAddZeroClass.{0} Int Int.instAddMonoid)
-  := by
-  sorry
 
 theorem Erdos435.erdos_435 :
     ∀ (n : Nat),

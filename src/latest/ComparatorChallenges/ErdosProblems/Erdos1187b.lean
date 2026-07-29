@@ -1,9 +1,17 @@
-attribute [local instance] Classical.propDecidable
+import Mathlib.Algebra.Prime.Defs
 
-noncomputable def Erdos1187b.SecondQuestionStatement :
-    Prop
-  := by
-  sorry
+namespace Erdos1187b
+
+def Prime (p : Nat) : Prop :=
+  2 ≤ p ∧ ∀ d : Nat, d ∣ p → d = 1 ∨ d = p
+def MonochromaticAP {c : Nat} (color : Nat → Fin c) (a d k : Nat) : Prop :=
+  ∀ i : Nat, i < k → color (a + i * d) = color a
+def SecondQuestionStatement : Prop :=
+  ∀ (c k : Nat), 0 < c → 3 ≤ k → ∀ color : Nat → Fin c,
+    ∃ a p : Nat, Prime p ∧ MonochromaticAP color a p k
+end Erdos1187b
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos1187b.second_question_general_statement_is_false :
     Not Erdos1187b.SecondQuestionStatement

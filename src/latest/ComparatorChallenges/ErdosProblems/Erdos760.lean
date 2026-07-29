@@ -1,15 +1,29 @@
 import Mathlib.Data.Nat.Log
 import Mathlib.Combinatorics.SimpleGraph.Coloring.Vertex
 
+namespace Erdos760
+
+set_option linter.style.setOption false
+set_option linter.flexible false
+
+open scoped ENat
+
+namespace SimpleGraph
+
+open _root_.SimpleGraph
+
+def CochromPartable {V : Type*} (G : SimpleGraph V) (n : ℕ) : Prop :=
+  ∃ f : V → Fin n, ∀ i : Fin n, G.IsClique (f ⁻¹' {i}) ∨ G.IsIndepSet (f ⁻¹' {i})
+
+noncomputable def cochromaticNumber {V : Type*} (G : SimpleGraph V) : ℕ∞ :=
+  ⨅ n ∈ {n : ℕ | CochromPartable G n}, (n : ℕ∞)
+end SimpleGraph
+
+end Erdos760
+
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Erdos760.SimpleGraph.cochromaticNumber :
-    {V : Type u_1} → SimpleGraph.{u_1} V → ENat
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
 
 theorem Erdos760.SimpleGraph.erdos_760 :
     @Exists.{1} Nat fun (C : Nat) ↦

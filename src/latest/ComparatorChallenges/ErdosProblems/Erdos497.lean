@@ -1,11 +1,33 @@
 import Mathlib.Analysis.SpecialFunctions.Log.Base
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos497
+
+set_option linter.style.setOption false
+set_option linter.flexible false
 
 attribute [local instance] Classical.propDecidable
 
-noncomputable def Erdos497.A :
-    Nat → Nat
-  := by
-  sorry
+open Equiv
+open Filter
+open Finset
+open Nat
+open Real
+
+set_option maxHeartbeats 50000000
+set_option linter.style.cases false
+
+def PP (n : ℕ) : Finset (Finset (Fin n)) :=
+  univ.powerset
+
+noncomputable def antichains (n : ℕ) : Finset (Finset (Finset (Fin n))) :=
+  (PP n).powerset.filter (fun ℱ => IsAntichain (· ⊆ ·) (ℱ : Set (Finset (Fin n))))
+
+noncomputable def A (n : ℕ) : ℕ :=
+  (antichains n).card
+end Erdos497
+
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos497.erdos_497 :
     @Asymptotics.IsEquivalent.{0, 0} Nat Real

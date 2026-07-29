@@ -1,11 +1,20 @@
 import Mathlib.Analysis.Complex.Norm
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+namespace Erdos519
+
+open Finset Complex
+
+set_option linter.style.setOption false
+set_option linter.flexible false
+set_option linter.style.longLine false
+set_option maxHeartbeats 10000000
+
+noncomputable def powerSum {n : ℕ} (z : Fin n → ℂ) (k : ℕ) : ℂ :=
+  ∑ m : Fin n, z m ^ k
+end Erdos519
 
 attribute [local instance] Classical.propDecidable
-
-noncomputable def Erdos519.powerSum :
-    {n : Nat} → (Fin n → Complex) → Nat → Complex
-  := by
-  sorry
 
 theorem Erdos519.erdos519 :
     ∀ {n : Nat}

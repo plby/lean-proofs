@@ -1,43 +1,57 @@
 import Mathlib.Data.Nat.Nth
 import Mathlib.Topology.Algebra.InfiniteSum.Defs
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+set_option linter.style.setOption false
+set_option linter.style.longLine false
+set_option linter.flexible false
+set_option linter.style.multiGoal false
+set_option linter.style.cases false
+set_option linter.style.whitespace false
+
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
 
 attribute [local instance] Classical.propDecidable
 
-noncomputable def Erdos355.IsLambdaLacunary :
-    Real → (Nat → Real) → Prop
-  := by
-  sorry
+set_option maxHeartbeats 50000000
+set_option maxRecDepth 4000
+set_option synthInstance.maxHeartbeats 20000
+set_option synthInstance.maxSize 128
 
-noncomputable def Erdos355.IsLacunary :
-    (Nat → Nat) → Prop
-  := by
-  sorry
+noncomputable section
 
-noncomputable def Erdos355.SubsetSums :
-    (Nat → Real) → Set.{0} Real
-  := by
-  sorry
+namespace Erdos355
 
-noncomputable def Erdos355.R_lambda :
-    Real → Real
-  := by
-  sorry
+open Set Filter Topology
+open scoped BigOperators
 
-noncomputable def Erdos355.S_cond :
-    Set.{0} Nat → Prop
-  := by
-  sorry
+def IsLambdaLacunary (lambda : ℝ) (seq : ℕ → ℝ) : Prop :=
+  ∀ i, seq (i + 1) / seq i ≥ lambda
+def IsLacunary (a : ℕ → ℕ) : Prop :=
+  ∃ lambda_val > 1, ∀ i ≥ 1, (a (i + 1) : ℝ) / a i ≥ lambda_val
+def SubsetSums (seq : ℕ → ℝ) : Set ℝ :=
+  { s | ∃ t : Finset ℕ, s = ∑ i ∈ t, seq i }
+def FillsInterval (lambda : ℝ) (alpha beta : ℝ) : Prop :=
+  ∃ n : ℕ → ℕ,
+    (∀ i, 0 < n i) ∧
+    IsLambdaLacunary lambda (fun i => n i) ∧
+    Set.Ioo alpha beta ∩ {x | ∃ q : ℚ, x = q} ⊆ SubsetSums (fun i => (1 : ℝ) / n i)
+noncomputable def R_lambda (lambda : ℝ) : ℝ :=
+  sSup {len | ∃ alpha beta, beta - alpha = len ∧ FillsInterval lambda alpha beta}
+def S_cond (S : Set ℕ) : Prop :=
+  (∀ s ∈ S, s > 0) ∧ (∀ s ∈ S, 2 * s ∈ S) ∧ (∀ k, Odd k → ∃ s ∈ S, k ∣ s)
+noncomputable def TargetInterval (f : ℕ → ℝ) : Set ℝ :=
+  if Summable f then Set.Ico 0 (∑' i, f i) else Set.Ici 0
+noncomputable def a_seq (lambda : ℝ) : ℕ → ℕ
+| 0 => 1
+| (n + 1) => Nat.ceil (lambda * (a_seq lambda n))
+end Erdos355
 
-noncomputable def Erdos355.TargetInterval :
-    (Nat → Real) → Set.{0} Real
-  := by
-  sorry
-
-noncomputable def Erdos355.a_seq :
-    Real → Nat → Nat
-  := by
-  sorry
+attribute [local instance] Classical.propDecidable
 
 theorem Erdos355.Theorem_1 :
     ∀ (lambda : Real),
@@ -99,7 +113,6 @@ theorem Erdos355.Theorem_1 :
                       (@Nat.cast.{0} Real Real.instNatCast (n i))))))
   := by
   sorry
-
 theorem Erdos355.Theorem_2 :
     ∀ (lambda : Real),
       And
@@ -124,7 +137,6 @@ theorem Erdos355.Theorem_2 :
             (SummationFilter.unconditional.{0} Nat))
   := by
   sorry
-
 theorem Erdos355.Theorem_3 :
     ∀ (Lambda lambda : Real),
       @GE.ge.{0} Real Real.instLE Lambda
@@ -176,7 +188,6 @@ theorem Erdos355.Theorem_3 :
                           @Eq.{1} Real x (@Rat.cast.{0} Real Real.instRatCast q))))))
   := by
   sorry
-
 theorem Erdos355.Theorem_4 :
     ∀ (S : Set.{0} Nat),
       Erdos355.S_cond S →
@@ -204,7 +215,6 @@ theorem Erdos355.Theorem_4 :
               @Exists.{1} Rat fun (q : Rat) ↦ @Eq.{1} Real x (@Rat.cast.{0} Real Real.instRatCast q)))
   := by
   sorry
-
 theorem Erdos355.erdos_355 :
     @Exists.{1} (Nat → Nat) fun (A : Nat → Nat) ↦
       And (Erdos355.IsLacunary A)

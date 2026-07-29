@@ -1,41 +1,93 @@
-import Mathlib.Algebra.Field.ZMod
-import Mathlib.Data.Real.Basic
-import Mathlib.Order.Filter.AtTopBot.Defs
+import Mathlib.Analysis.Fourier.ZMod
+import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+attribute [local instance] Classical.propDecidable
+
+namespace Erdos42
+
+open Finset
+
+def DiffFinset {α : Type*} [DecidableEq α] [Sub α] (A B : Finset α) : Finset α :=
+  (A ×ˢ B).image (fun ab => ab.1 - ab.2)
+
+def SymmetricFinset {α : Type*} [Neg α] (S : Finset α) : Prop :=
+  ∀ x, x ∈ S ↔ -x ∈ S
+
+def CliqueInCayley {p : ℕ} (T C : Finset (ZMod p)) : Prop :=
+  ∀ x ∈ C, ∀ y ∈ C, x ≠ y → x - y ∈ T
+
+def AvoidsNonzeroDiff {α : Type*} [DecidableEq α] [Zero α] [Sub α]
+    (A B : Finset α) : Prop :=
+  ∀ d ∈ DiffFinset A A, d ∈ DiffFinset B B → d = 0
+end Erdos42
+
+namespace Erdos42
+
+open Finset
+
+def IsSidonInt (A : Finset ℤ) : Prop :=
+  ∀ ⦃a₁⦄, a₁ ∈ A → ∀ ⦃a₂⦄, a₂ ∈ A → ∀ ⦃a₃⦄, a₃ ∈ A → ∀ ⦃a₄⦄, a₄ ∈ A →
+    a₁ + a₂ = a₃ + a₄ → (a₁ = a₃ ∧ a₂ = a₄) ∨ (a₁ = a₄ ∧ a₂ = a₃)
+end Erdos42
+
+namespace Erdos42
+
+open scoped BigOperators ZMod
+
+noncomputable def indicatorC {p : ℕ} (T : Finset (ZMod p)) : ZMod p → ℂ :=
+  fun x => if x ∈ T then 1 else 0
+
+noncomputable def normalizedDftFunction {p : ℕ} [NeZero p]
+    (f : ZMod p → ℂ) (r : ZMod p) : ℂ :=
+  ((p : ℂ)⁻¹) * (ZMod.dft f r)
+
+noncomputable def normalizedDftCoeff {p : ℕ} [NeZero p]
+    (T : Finset (ZMod p)) (r : ZMod p) : ℂ :=
+  normalizedDftFunction (indicatorC T) r
+
+def FourierUpperIndicator {p : ℕ} [NeZero p] (T : Finset (ZMod p)) (ε : ℝ) : Prop :=
+  ∀ r : ZMod p, r ≠ 0 → (normalizedDftCoeff T r).re ≤ ε
+end Erdos42
+
+
+namespace Erdos42
+
+open Filter Set
+open scoped Pointwise
+
+def IsSidon (A : Set ℕ) : Prop :=
+  ∀ ⦃a₁⦄, a₁ ∈ A → ∀ ⦃a₂⦄, a₂ ∈ A → ∀ ⦃a₃⦄, a₃ ∈ A → ∀ ⦃a₄⦄, a₄ ∈ A →
+    a₁ + a₂ = a₃ + a₄ → (a₁ = a₃ ∧ a₂ = a₄) ∨ (a₁ = a₄ ∧ a₂ = a₃)
+
+def IsMaximalSidonSetIn (A : Set ℕ) (N : ℕ) : Prop :=
+  A ⊆ Set.Icc 1 N ∧ IsSidon A ∧
+    ∀ x ∈ Set.Icc 1 N, x ∉ A → ¬ IsSidon (insert x A)
+namespace FormalConjecturesShape
+
+universe u
+
+def ExplicitExists {α : Sort u} (P : α → Prop) : Prop :=
+  ∃ x, P x
+
+def IsSidon (A : Set ℕ) : Prop :=
+  ∀ ⦃a₁⦄, a₁ ∈ A → ∀ ⦃a₂⦄, a₂ ∈ A → ∀ ⦃a₃⦄, a₃ ∈ A → ∀ ⦃a₄⦄, a₄ ∈ A →
+    a₁ + a₂ = a₃ + a₄ → (a₁ = a₃ ∧ a₂ = a₄) ∨ (a₁ = a₄ ∧ a₂ = a₃)
+
+def IsMaximalSidonSetIn (A : Set ℕ) (N : ℕ) : Prop :=
+  A ⊆ Set.Icc 1 N ∧ IsSidon A ∧
+    ∀ x ∈ Set.Icc 1 N, x ∉ A → ¬ IsSidon (insert x A)
+
+def erdos42RHS : Prop :=
+  ∀ M ≥ 1, ∀ᶠ N in atTop, ∀ (A : Set ℕ) (_ : IsMaximalSidonSetIn A N),
+    ExplicitExists fun (B : Set ℕ) => B ⊆ Set.Icc 1 N ∧ IsSidon B ∧ B.ncard = M ∧
+      ((A - A) ∩ (B - B) : Set ℕ) = {0}
+end FormalConjecturesShape
+
+end Erdos42
 
 attribute [local instance] Classical.propDecidable
 
 universe u_1
-
-noncomputable def Erdos42.SymmetricFinset :
-    {α : Type u_1} → [Neg.{u_1} α] → Finset.{u_1} α → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable def Erdos42.CliqueInCayley :
-    {p : Nat} → Finset.{0} (ZMod p) → Finset.{0} (ZMod p) → Prop
-  := by
-  sorry
-
-noncomputable def Erdos42.AvoidsNonzeroDiff :
-    {α : Type u_1} →
-      [DecidableEq.{u_1 + 1} α] →
-        [Zero.{u_1} α] → [Sub.{u_1} α] → Finset.{u_1} α → Finset.{u_1} α → Prop
-  := by
-  let _ := ULift.{u_1, 0} PUnit
-  sorry
-
-noncomputable def Erdos42.IsSidonInt :
-    Finset.{0} Int → Prop
-  := by
-  sorry
-
-noncomputable def Erdos42.FourierUpperIndicator :
-    {p : Nat} →
-      [@NeZero.{0} Nat (@MulZeroClass.toZero.{0} Nat Nat.instMulZeroClass) p] →
-        Finset.{0} (ZMod p) → Real → Prop
-  := by
-  sorry
 
 theorem Erdos42.CompactCayley.compact_cayley_clique :
     ∀ (ℓ : Nat) (η : Real),
@@ -90,12 +142,6 @@ theorem Erdos42.CompactCayley.compact_cayley_clique :
                                   (@Erdos42.CliqueInCayley p T C))
   := by
   sorry
-
-noncomputable def Erdos42.IsSidon :
-    Set.{0} Nat → Prop
-  := by
-  sorry
-
 theorem Erdos42.CompactCayley.theorem_1_1_from_compact_cayley :
     ∀ (M : Nat),
       @LE.le.{0} Nat instLENat (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) M →
@@ -133,12 +179,6 @@ theorem Erdos42.CompactCayley.theorem_1_1_from_compact_cayley :
                                 Int.instSub A B)))
   := by
   sorry
-
-noncomputable def Erdos42.IsMaximalSidonSetIn :
-    Set.{0} Nat → Nat → Prop
-  := by
-  sorry
-
 theorem Erdos42.theorem_1_1_via_cayley :
     ∀ (M : Nat),
       @LE.le.{0} Nat instLENat (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) M →
@@ -169,7 +209,6 @@ theorem Erdos42.theorem_1_1_via_cayley :
                                   (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))))))
   := by
   sorry
-
 theorem Erdos42.erdos_42_via_cayley :
     Iff True
       (∀ (M : Nat),
@@ -197,12 +236,6 @@ theorem Erdos42.erdos_42_via_cayley :
             (@Filter.atTop.{0} Nat Nat.instPreorder))
   := by
   sorry
-
-noncomputable def Erdos42.FormalConjecturesShape.erdos42RHS :
-    Prop
-  := by
-  sorry
-
 theorem Erdos42.FormalConjecturesShape.erdos_42_via_cayley :
     Iff True Erdos42.FormalConjecturesShape.erdos42RHS
   := by
