@@ -601,7 +601,7 @@ theorem four_lt_f_seventeen : 4 < f 17 := by
 
 /-- In the notation of the problem, `17 = 4² + 1`, so the proposed universal
 identity `f(k²+1)=k` is false. -/
-theorem not_forall_f_sq_add_one_eq :
+theorem not_erdos_106 :
     ¬ ∀ k : ℕ, f (k ^ 2 + 1) = k := by
   intro hall
   have hfour := hall 4
