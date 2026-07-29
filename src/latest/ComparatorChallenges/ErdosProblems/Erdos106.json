@@ -5,6 +5,15 @@
     "Erdos106.not_erdos_106"
   ],
   "definition_names": [
+    "Erdos106.Point",
+    "Erdos106.Square.point",
+    "Erdos106.Square.carrier",
+    "Erdos106.Square.openCarrier",
+    "Erdos106.Square.IsGenuine",
+    "Erdos106.box",
+    "Erdos106.IsPackingIn",
+    "Erdos106.totalSideLength",
+    "Erdos106.attainableSideSums",
     "Erdos106.f"
   ],
   "permitted_axioms": [
