@@ -481,7 +481,7 @@ private def totalFlagTupleContrib (adj : Fin 5 → Fin 5 → Bool) : List (Fin 5
   | [a, b, c, d, e] => quintContribOf adj a b c d e
   | _ => 0
 
-private def totalFlagContribPermSum (adj : Fin 5 → Fin 5 → Bool) : ℚ :=
+def totalFlagContribPermSum (adj : Fin 5 → Fin 5 → Bool) : ℚ :=
   (totalFlagPermTuples.map (totalFlagTupleContrib adj)).sum
 
 private lemma totalFlagContribPermSum_eq_sum_univ (adj : Fin 5 → Fin 5 → Bool) :
@@ -1732,7 +1732,7 @@ private lemma c5_no_chords {V : Type*} {G : SimpleGraph V}
   · exact tri 4 1 0 (by decide) (by decide) (by decide) hadj h40 h01.symm
   · exact tri 4 2 3 (by decide) (by decide) (by decide) hadj h34.symm h23
 
-private def edgeBits
+def edgeBits
     (b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 : Bool) : Fin 10 → Bool := fun i =>
   match i.val with
   | 0 => b0 | 1 => b1 | 2 => b2 | 3 => b3 | 4 => b4
@@ -2469,7 +2469,7 @@ lemma psd_lower_bound_injective {V : Type*} [Fintype V] (G : SimpleGraph V) :
 -/
 
 set_option linter.style.nativeDecide false in
-private lemma totalFlagContrib_mkAdj5_edgeBits_eq_permSum :
+lemma totalFlagContrib_mkAdj5_edgeBits_eq_permSum :
     ∀ b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 : Bool,
       totalFlagContrib (mkAdj5 (edgeBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34)) =
         totalFlagContribPermSum (mkAdj5 (edgeBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34)) := by

@@ -4,9 +4,7 @@
   "theorem_names": [
     "Erdos427.erdos427"
   ],
-  "definition_names": [
-    "_private.ErdosProblems.Erdos427.0.Erdos427.nthPrime"
-  ],
+  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "shiu_consecutive_primes",

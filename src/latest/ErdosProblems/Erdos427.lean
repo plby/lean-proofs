@@ -48,8 +48,6 @@ import ErdosProblems.Axioms
 
 namespace Erdos427
 
-private noncomputable abbrev nthPrime (n : ℕ) : ℕ := Nat.nth Nat.Prime n
-
 /-! ## Shiu's Theorem (2000)
 
 For any `l ≥ 1` and `(a, q) = 1` with `q ≥ 1`, there are infinitely many
@@ -80,28 +78,31 @@ lemma sum_range_split (f : ℕ → ℕ) (a b : ℕ) :
 /-
 **Erdős Problem 427.** For every `n` and every `d ≥ 1`, there exists a
 positive `k` such that `d` divides the sum of `k` consecutive primes starting
-from the `(n+1)`-th prime (0-indexed via `nthPrime`).
+from the `(n+1)`-th prime (0-indexed via `Nat.nth Nat.Prime`).
 -/
 theorem erdos427 (n d : ℕ) (hd : 1 ≤ d) :
-    ∃ k, 1 ≤ k ∧ d ∣ (Finset.range k).sum (fun i => nthPrime (n + i)) := by
+    ∃ k, 1 ≤ k ∧ d ∣ (Finset.range k).sum (fun i => Nat.nth Nat.Prime (n + i)) := by
   obtain ⟨m, hm⟩ := shiu_consecutive_primes d hd 1 d hd (Nat.coprime_one_left d) (n + 1)
-  -- Let `len := m - n`, `S := (Finset.range len).sum (fun i => nthPrime (n + i))`,
+  -- Let `len := m - n`,
+  -- `S := (Finset.range len).sum (fun i => Nat.nth Nat.Prime (n + i))`,
   -- and `r := S % d`.
   set len := m - n
-  set S := (Finset.range len).sum (fun i => nthPrime (n + i))
+  set S := (Finset.range len).sum (fun i => Nat.nth Nat.Prime (n + i))
   set r := S % d
   -- If `r ≠ 0`, take `k = len + (d - r)`. Note `d - r < d` so `d - r ≤ d - 1 < d`.
   use len + (d - r)
   -- Use `sum_range_split` to write the sum over `range k` as `S + T` where
-  -- `T = (Finset.range (d-r)).sum (fun j => nthPrime (n + len + j))`.
-  have h_split : (Finset.range (len + (d - r))).sum (fun i => nthPrime (n + i)) =
-      S + (Finset.range (d - r)).sum (fun j => nthPrime (m + j)) := by
+  -- `T = (Finset.range (d-r)).sum (fun j => Nat.nth Nat.Prime (n + len + j))`.
+  have h_split :
+      (Finset.range (len + (d - r))).sum (fun i => Nat.nth Nat.Prime (n + i)) =
+        S + (Finset.range (d - r)).sum (fun j => Nat.nth Nat.Prime (m + j)) := by
     convert sum_range_split _ _ _ using 2
     exact Finset.sum_congr rfl fun _ _ => by
       rw [← add_assoc, Nat.add_sub_of_le (by linarith)]
-  -- Each `nthPrime(m+j) ≡ 1 [MOD d]` for `j < d-r < d` by Shiu's result.
+  -- Each `Nat.nth Nat.Prime (m+j) ≡ 1 [MOD d]` for `j < d-r < d` by Shiu's result.
   have h_cong :
-      (Finset.range (d - r)).sum (fun j => nthPrime (m + j)) ≡ (d - r) * 1 [MOD d] := by
+      (Finset.range (d - r)).sum (fun j => Nat.nth Nat.Prime (m + j)) ≡
+        (d - r) * 1 [MOD d] := by
     exact Nat.ModEq.trans (Nat.ModEq.sum <| fun i hi => hm.2 i
       <| Nat.lt_of_lt_of_le (Finset.mem_range.mp hi)
       <| Nat.sub_le _ _) <| by
