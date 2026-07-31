@@ -3,5 +3,5 @@
   "solution_module": "HundredTheorems.Theorem87",
   "theorem_names": ["Theorem87.desargues_plane"],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
-  "enable_nanoda": false
+  "enable_nanoda": true
 }
