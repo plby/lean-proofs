@@ -6,5 +6,5 @@
     "MO508681.unique_solution"
   ],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
-  "enable_nanoda": false
+  "enable_nanoda": true
 }
