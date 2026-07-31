@@ -4,7 +4,6 @@
   "theorem_names": [
     "Erdos818.erdos_problem_818_general"
   ],
-  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

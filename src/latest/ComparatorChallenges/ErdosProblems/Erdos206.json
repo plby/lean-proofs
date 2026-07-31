@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos206.EgyptianFractions.erdos_206"
   ],
-  "definition_names": [
-    "Erdos206.EgyptianFractions.EventuallyGreedy"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

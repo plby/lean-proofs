@@ -4,7 +4,6 @@
   "theorem_names": [
     "Erdos498.littlewood_offord_complex_bound"
   ],
-  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -5,10 +5,6 @@
     "Erdos728p.theorem_1_1",
     "Erdos728p.theorem_1_2"
   ],
-  "definition_names": [
-    "Erdos728p.bad_set_intrinsic_1_2",
-    "Erdos728p.bad_set_thm_1_1"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

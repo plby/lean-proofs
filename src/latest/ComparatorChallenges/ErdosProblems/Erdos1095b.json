@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos1095b.erdos_1095_weaker_upper_bound"
   ],
-  "definition_names": [
-    "Erdos1095b.g"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

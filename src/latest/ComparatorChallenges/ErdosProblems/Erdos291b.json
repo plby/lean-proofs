@@ -5,12 +5,6 @@
     "Erdos291b.generalErdos291",
     "Erdos291b.ohyeah1"
   ],
-  "definition_names": [
-    "Erdos291b.I0",
-    "Erdos291b.L",
-    "Erdos291b.X_int",
-    "Erdos291b.z"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

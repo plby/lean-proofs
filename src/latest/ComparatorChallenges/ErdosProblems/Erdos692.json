@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos692.delta1_not_unimodal"
   ],
-  "definition_names": [
-    "Erdos692.delta1"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

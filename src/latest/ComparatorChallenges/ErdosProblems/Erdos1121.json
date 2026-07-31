@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos1121.erdos_1121"
   ],
-  "definition_names": [
-    "Erdos1121.CirclesNonseparable"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

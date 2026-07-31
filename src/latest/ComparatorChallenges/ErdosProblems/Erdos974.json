@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos974.ProblemData.erdos974_even"
   ],
-  "definition_names": [
-    "Erdos974.ProblemData.oddIndices"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

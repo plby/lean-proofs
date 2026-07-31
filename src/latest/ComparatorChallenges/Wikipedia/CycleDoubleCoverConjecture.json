@@ -4,9 +4,6 @@
   "theorem_names": [
     "CycleDoubleCoverConjecture.simpleGraph_cycleDoubleCover_iff_every_edge_mem_cycle"
   ],
-  "definition_names": [
-    "SimpleGraph.Cycle.edges"
-  ],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
   "enable_nanoda": false
 }

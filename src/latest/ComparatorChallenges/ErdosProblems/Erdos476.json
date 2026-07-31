@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos476.erdos_476"
   ],
-  "definition_names": [
-    "Erdos476.restrictedSumset"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

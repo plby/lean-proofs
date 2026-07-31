@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos649.infinite_strange_pairs"
   ],
-  "definition_names": [
-    "Erdos649.StrangePair"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

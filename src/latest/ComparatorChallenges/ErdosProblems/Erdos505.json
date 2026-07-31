@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos505.not_erdos_505"
   ],
-  "definition_names": [
-    "Erdos505.BorsukConjecture"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

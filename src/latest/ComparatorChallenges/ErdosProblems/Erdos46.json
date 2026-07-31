@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos46.erdos46"
   ],
-  "definition_names": [
-    "UnitFractions.rec_sum"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

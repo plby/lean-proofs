@@ -4,12 +4,6 @@
   "theorem_names": [
     "Erdos94.erdos94_convex_no3collinear"
   ],
-  "definition_names": [
-    "Erdos94.ConvexPosition",
-    "Erdos94.NoThreeCollinear",
-    "Erdos94.Point",
-    "Erdos94.S"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

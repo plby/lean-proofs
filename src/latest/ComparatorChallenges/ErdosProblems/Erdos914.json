@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos914.HajnalSzemeredi.hajnal_szemeredi_clique_cover"
   ],
-  "definition_names": [
-    "Erdos914.HajnalSzemeredi.HasDisjointCliques"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

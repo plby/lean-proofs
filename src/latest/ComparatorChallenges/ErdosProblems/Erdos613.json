@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos613.PikhurkoN5.main"
   ],
-  "definition_names": [
-    "Erdos613.Pikhurko_n5_statement"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -5,7 +5,6 @@
     "Erdos124b.erdos_124",
     "Erdos124b.formal_conjectures_erdos_124_corrected"
   ],
-  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

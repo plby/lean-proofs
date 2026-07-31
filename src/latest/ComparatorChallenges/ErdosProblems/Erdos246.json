@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos246.erdos_246"
   ],
-  "definition_names": [
-    "Erdos246.Gamma",
-    "Erdos246.IsCompleteSeq"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

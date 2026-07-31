@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos429.main_theorem"
   ],
-  "definition_names": [
-    "Erdos429.Admissible",
-    "Erdos429.instFintypeSetInterIccNat"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

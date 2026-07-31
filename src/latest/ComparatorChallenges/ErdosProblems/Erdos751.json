@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos751.Main.erdos_751_strong"
   ],
-  "definition_names": [
-    "Erdos751.BV.Cycle.length"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

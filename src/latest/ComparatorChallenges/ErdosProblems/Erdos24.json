@@ -4,13 +4,6 @@
   "theorem_names": [
     "Erdos24.erdos_pentagon_conjecture"
   ],
-  "definition_names": [
-    "Erdos24.mkAdj5",
-    "Erdos24.totalFlagContrib",
-    "SimpleGraph.numC5",
-    "Erdos24.edgeBits",
-    "Erdos24.totalFlagContribPermSum"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

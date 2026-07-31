@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos1044.erdos_problem_1044"
   ],
-  "definition_names": [
-    "Erdos1044.lambdaInf"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

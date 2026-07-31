@@ -5,9 +5,6 @@
     "Erdos897.erdos_897.parts.i",
     "Erdos897.erdos_897.parts.ii"
   ],
-  "definition_names": [
-    "Erdos897.f_hypothesis.match_1"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

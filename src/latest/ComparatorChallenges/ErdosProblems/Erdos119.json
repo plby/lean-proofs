@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos119.erdos_119.parts.iii_quantitative"
   ],
-  "definition_names": [
-    "Erdos119.M"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -5,7 +5,6 @@
     "Erdos485b.exists_complete_poly_with_sparse_square",
     "Erdos485b.exists_complete_poly_with_sparse_square_improved"
   ],
-  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

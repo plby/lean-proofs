@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos997.erdos997"
   ],
-  "definition_names": [
-    "Erdos997.IsWellDistributed",
-    "Erdos997.fracSeq"
-  ],
   "permitted_axioms": [
     "maynardTaoBFT",
     "propext",

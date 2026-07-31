@@ -4,7 +4,6 @@
   "theorem_names": [
     "Erdos493.erdos_493_aristotle"
   ],
-  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

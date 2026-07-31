@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos351.erdos_351"
   ],
-  "definition_names": [
-    "Erdos351.HasCompleteImage"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

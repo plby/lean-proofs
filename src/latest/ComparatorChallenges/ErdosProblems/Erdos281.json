@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos281.Erdos_281"
   ],
-  "definition_names": [
-    "Erdos281.Erdos281Concl",
-    "Erdos281.Erdos281Hyp"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -6,13 +6,6 @@
     "Erdos658.Theorem_1_2",
     "Erdos658.erdos658"
   ],
-  "definition_names": [
-    "Erdos658.ContainsQuadruple",
-    "Erdos658.ContainsSquare",
-    "Erdos658.grid2",
-    "Erdos658.grid3",
-    "Theorem_2_2"
-  ],
   "permitted_axioms": [
     "frankl_roedl_theorem",
     "propext",

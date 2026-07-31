@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos618.erdos_618"
   ],
-  "definition_names": [
-    "Erdos618.h2",
-    "Erdos618.maxDegreeFin"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

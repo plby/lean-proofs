@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos484.monochromatic_sums_linear"
   ],
-  "definition_names": [
-    "Erdos484.monochromaticSumSet"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

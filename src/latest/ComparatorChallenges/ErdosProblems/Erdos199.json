@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos199.disproof_of_conjecture"
   ],
-  "definition_names": [
-    "Erdos199.Conjecture"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

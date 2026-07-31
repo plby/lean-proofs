@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos862.erdos_862"
   ],
-  "definition_names": [
-    "Erdos862.A1",
-    "Erdos862.eta"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos674.erdos_674_infinite"
   ],
-  "definition_names": [
-    "Erdos674.solutionSet"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

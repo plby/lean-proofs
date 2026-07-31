@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos268.harmonicSubseriesSet_interior_nonempty"
   ],
-  "definition_names": [
-    "Erdos268.harmonicSubseriesSet"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

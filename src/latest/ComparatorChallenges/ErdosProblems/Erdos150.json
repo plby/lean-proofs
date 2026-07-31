@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos150.limit_alpha_exists_and_lt_two"
   ],
-  "definition_names": [
-    "Erdos150.c"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

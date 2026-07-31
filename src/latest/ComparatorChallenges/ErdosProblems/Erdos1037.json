@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos1037.not_erdos_1037"
   ],
-  "definition_names": [
-    "Erdos1037.NumDistinctDegrees"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

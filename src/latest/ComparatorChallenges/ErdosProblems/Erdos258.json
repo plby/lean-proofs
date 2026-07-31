@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos258.erdos_258"
   ],
-  "definition_names": [
-    "Erdos258.erdosSeries"
-  ],
   "permitted_axioms": [
     "propext",
     "tao_teravainen",

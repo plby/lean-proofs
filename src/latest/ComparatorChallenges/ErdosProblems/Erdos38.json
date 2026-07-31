@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos38.erdos_problem_38"
   ],
-  "definition_names": [
-    "Erdos38.IsAdditiveBasis",
-    "Erdos38.unionTranslateCount"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

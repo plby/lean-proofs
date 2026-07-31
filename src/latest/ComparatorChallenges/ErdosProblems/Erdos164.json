@@ -7,13 +7,6 @@
     "Erdos164.erdos_strong_of_prime",
     "Erdos164.erdos_strong_of_two"
   ],
-  "definition_names": [
-    "Erdos164.PrimitiveSet",
-    "Erdos164.erdos_strong",
-    "Erdos164.primeSet",
-    "Erdos164.primeWeightSum",
-    "Erdos164.primitiveWeightSum"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

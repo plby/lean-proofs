@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos1023.erdos_1023"
   ],
-  "definition_names": [
-    "Erdos1023.MaxUnionFreeMany"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

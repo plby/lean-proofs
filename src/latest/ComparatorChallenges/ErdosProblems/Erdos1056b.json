@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos1056b.noll_simmons"
   ],
-  "definition_names": [
-    "Erdos1056b.erdos_1056"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

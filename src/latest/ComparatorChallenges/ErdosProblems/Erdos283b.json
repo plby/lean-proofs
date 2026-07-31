@@ -5,13 +5,6 @@
     "Erdos283b.general_theorem",
     "Erdos283b.meta_theorem"
   ],
-  "definition_names": [
-    "Erdos283b.mFinset",
-    "Erdos283b.n₀",
-    "Erdos283b.sumF",
-    "Erdos283b.sumPow",
-    "Erdos283b.sumRecip"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

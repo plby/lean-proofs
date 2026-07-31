@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos756.erdos756"
   ],
-  "definition_names": [
-    "Erdos756.distance_count",
-    "Erdos756.distance_count.match_1"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

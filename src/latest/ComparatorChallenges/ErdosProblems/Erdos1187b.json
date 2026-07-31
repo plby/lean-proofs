@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos1187b.second_question_general_statement_is_false"
   ],
-  "definition_names": [
-    "Erdos1187b.SecondQuestionStatement"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -4,7 +4,6 @@
   "theorem_names": [
     "Erdos490.main_theorem"
   ],
-  "definition_names": [],
   "permitted_axioms": [
     "dusart_chebyshev",
     "dusart_mertens_product",

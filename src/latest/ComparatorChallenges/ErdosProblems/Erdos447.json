@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos447.erdos_447"
   ],
-  "definition_names": [
-    "Erdos447.MaxUnionFree"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

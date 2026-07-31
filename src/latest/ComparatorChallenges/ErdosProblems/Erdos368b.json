@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos368b.n_n_plus_one_inf"
   ],
-  "definition_names": [
-    "Erdos368b.P_plus"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos426.UniqueSubgraphs.f_tendsto_zero"
   ],
-  "definition_names": [
-    "Erdos426.UniqueSubgraphs.fSeq"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

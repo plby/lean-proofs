@@ -5,9 +5,6 @@
     "Erdos264b.erdos_264.parts.i",
     "Erdos264b.main_theorem"
   ],
-  "definition_names": [
-    "Erdos264b.IsIrrationalitySequence"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

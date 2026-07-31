@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos226.erdos_226"
   ],
-  "definition_names": [
-    "Erdos226.IsAffine",
-    "Erdos226.PreservesRationality"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos502.bannai_bannai_stanton"
   ],
-  "definition_names": [
-    "Erdos502.is_s_distance_set"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

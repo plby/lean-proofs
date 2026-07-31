@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos898.erdos_mordell"
   ],
-  "definition_names": [
-    "Erdos898.dist_to_line"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos363.erdos_363"
   ],
-  "definition_names": [
-    "Erdos363.is_valid_collection"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -5,10 +5,6 @@
     "Erdos741b.erdos741_strict_density_counterexample",
     "Erdos741b.erdos741_upper_density"
   ],
-  "definition_names": [
-    "Erdos741b.HasNatDensity",
-    "Erdos741b.upperDensity"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

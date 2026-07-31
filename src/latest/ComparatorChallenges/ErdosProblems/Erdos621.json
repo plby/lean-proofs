@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos621.TriangleIndep.erdos_conjecture"
   ],
-  "definition_names": [
-    "Erdos621.TriangleIndep.alpha1",
-    "Erdos621.TriangleIndep.tau1"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

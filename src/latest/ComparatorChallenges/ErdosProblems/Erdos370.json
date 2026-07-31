@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos370.erdos_370"
   ],
-  "definition_names": [
-    "Erdos370.maxPrimeFac"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos367b.disproof_367"
   ],
-  "definition_names": [
-    "Erdos367b.erdos_367"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

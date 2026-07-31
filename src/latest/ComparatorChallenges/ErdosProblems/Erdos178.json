@@ -4,7 +4,6 @@
   "theorem_names": [
     "Erdos178.erdos_178"
   ],
-  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

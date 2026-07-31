@@ -5,9 +5,6 @@
     "Erdos331.erdos_331",
     "Erdos331.main_theorem"
   ],
-  "definition_names": [
-    "Erdos331.erdos_331.match_1"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

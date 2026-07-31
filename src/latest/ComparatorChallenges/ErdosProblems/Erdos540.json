@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos540.erdos_540"
   ],
-  "definition_names": [
-    "Erdos540.hasZeroSum"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

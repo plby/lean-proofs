@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos760.SimpleGraph.erdos_760"
   ],
-  "definition_names": [
-    "Erdos760.SimpleGraph.cochromaticNumber"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos280.erdos_280_counterexample"
   ],
-  "definition_names": [
-    "Erdos280.isCoveredBy",
-    "Erdos280.isCoveredBy_decidable"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

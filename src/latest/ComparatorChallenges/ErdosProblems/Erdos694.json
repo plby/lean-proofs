@@ -14,12 +14,6 @@
     "Erdos694.totient_fibre_extremes",
     "Erdos694.totient_sq_ge_half"
   ],
-  "definition_names": [
-    "Erdos694.LowerConstruction.A",
-    "Erdos694.LowerConstruction.P",
-    "Erdos694.LowerConstruction.Q",
-    "Erdos694.R"
-  ],
   "permitted_axioms": [
     "linnik_dvd",
     "mertens_product",

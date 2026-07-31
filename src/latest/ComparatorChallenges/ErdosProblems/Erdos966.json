@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos966.existence_of_AP_free_Ramsey_set"
   ],
-  "definition_names": [
-    "Erdos966.HasAP",
-    "Erdos966.HasMonochromaticAP"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

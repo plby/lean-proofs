@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos369.erdos_problem_369"
   ],
-  "definition_names": [
-    "Erdos369.Nat.largestPrimeFactor"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

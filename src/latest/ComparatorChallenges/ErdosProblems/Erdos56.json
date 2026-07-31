@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos56.erdos_56"
   ],
-  "definition_names": [
-    "Erdos56.FirstPrimesMultiples",
-    "Erdos56.MaxWeaklyDivisible"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -4,7 +4,6 @@
   "theorem_names": [
     "Erdos1090.exists_set_with_strict_monochromatic_line_property"
   ],
-  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -5,9 +5,6 @@
     "Erdos967.disproof_of_question_1_1",
     "Erdos967.main_theorem"
   ],
-  "definition_names": [
-    "Erdos967.question_1_1_statement"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

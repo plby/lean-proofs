@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos237.erdos_237"
   ],
-  "definition_names": [
-    "Admissible",
-    "Erdos237.repCount"
-  ],
   "permitted_axioms": [
     "maynard_tao",
     "propext",

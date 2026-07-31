@@ -5,9 +5,6 @@
     "Erdos214.theorem_1",
     "Erdos214.theorem_2"
   ],
-  "definition_names": [
-    "Erdos214.Point"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

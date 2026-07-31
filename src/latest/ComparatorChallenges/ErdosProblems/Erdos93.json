@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos93.altman_erdos"
   ],
-  "definition_names": [
-    "Erdos93.distinctDistances"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

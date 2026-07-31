@@ -9,10 +9,6 @@
     "Erdos866b.h3",
     "Erdos866b.h4upper"
   ],
-  "definition_names": [
-    "Erdos866b.gFun",
-    "Erdos866b.hFun"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

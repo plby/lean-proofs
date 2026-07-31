@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos194.erdos_194"
   ],
-  "definition_names": [
-    "Erdos194.ArithProgression",
-    "Erdos194.LinearOrdering.toPreorder"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

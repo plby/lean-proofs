@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos401.theorem_1"
   ],
-  "definition_names": [
-    "Erdos401.P",
-    "Erdos401.ω"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

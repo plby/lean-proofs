@@ -4,7 +4,6 @@
   "theorem_names": [
     "Erdos698.binomial_gcd_lower_bound"
   ],
-  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

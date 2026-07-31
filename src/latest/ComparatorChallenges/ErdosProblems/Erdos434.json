@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos434.main_theorem_final"
   ],
-  "definition_names": [
-    "Erdos434.A_opt",
-    "Erdos434.non_representable_count"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

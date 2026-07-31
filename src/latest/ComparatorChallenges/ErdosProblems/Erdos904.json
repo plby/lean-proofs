@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos904.SimpleGraph.erdos904"
   ],
-  "definition_names": [
-    "Erdos904.SimpleGraph.n",
-    "Erdos904.SimpleGraph.turanNumber"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

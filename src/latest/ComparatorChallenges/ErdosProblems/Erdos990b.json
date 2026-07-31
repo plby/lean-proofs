@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos990b.erdos990_no_absolute_constant_sparseErdosTuran"
   ],
-  "definition_names": [
-    "Erdos990b.SparseErdosTuranBound"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

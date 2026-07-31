@@ -6,24 +6,6 @@
     "MO509164.theorem_minus",
     "MO509164.corollary_dimensions_limsup"
   ],
-  "definition_names": [
-    "MO509164.f",
-    "MO509164.f_word",
-    "MO509164.I_word",
-    "MO509164.Sigma_n",
-    "MO509164.C_n",
-    "MO509164.C",
-    "MO509164.pi",
-    "MO509164.C_plus",
-    "MO509164.C_minus",
-    "MO509164.append_zeros",
-    "MO509164.append_ones",
-    "MO509164.E_plus",
-    "MO509164.N_delta",
-    "MO509164.lower_box_dim",
-    "MO509164.upper_box_dim",
-    "MO509164.E_minus"
-  ],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
   "enable_nanoda": false
 }

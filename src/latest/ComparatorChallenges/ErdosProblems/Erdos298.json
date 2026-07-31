@@ -5,11 +5,6 @@
     "Erdos298.erdos298",
     "Erdos298.erdos298_density"
   ],
-  "definition_names": [
-    "UnitFractions.has_density",
-    "UnitFractions.rec_sum",
-    "UnitFractions.upper_density"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

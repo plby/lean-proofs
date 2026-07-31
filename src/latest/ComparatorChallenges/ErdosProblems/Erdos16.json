@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos16.ErdosProblem16"
   ],
-  "definition_names": [
-    "Erdos16.U",
-    "Erdos16.density_zero"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

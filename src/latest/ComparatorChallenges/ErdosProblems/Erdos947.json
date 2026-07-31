@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos947.exact_covering_system_distinct_moduli_impossible"
   ],
-  "definition_names": [
-    "Erdos947.IsExactCoveringSystem"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

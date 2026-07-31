@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos741.erdos_741.variants.upper"
   ],
-  "definition_names": [
-    "Set.upperDensity"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

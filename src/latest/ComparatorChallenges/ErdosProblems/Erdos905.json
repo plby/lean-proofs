@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos905.ErdosProblems.P905.erdos_905"
   ],
-  "definition_names": [
-    "Erdos905.ErdosProblems.P905.triangleDegree"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

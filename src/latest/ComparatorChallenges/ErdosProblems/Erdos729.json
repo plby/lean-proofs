@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos729.main_theorem"
   ],
-  "definition_names": [
-    "Erdos729.main_theorem.match_1"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

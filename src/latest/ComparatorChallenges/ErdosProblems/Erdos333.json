@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos333.main_obstruction"
   ],
-  "definition_names": [
-    "Erdos333.A",
-    "Erdos333.countingFn"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

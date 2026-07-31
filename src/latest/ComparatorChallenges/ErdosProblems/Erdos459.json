@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos459.main_theorem"
   ],
-  "definition_names": [
-    "Erdos459.f"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

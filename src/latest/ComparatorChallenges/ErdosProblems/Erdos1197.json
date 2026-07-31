@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos1197.negative_answer"
   ],
-  "definition_names": [
-    "Erdos1197.I_inf"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

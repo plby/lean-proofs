@@ -4,7 +4,6 @@
   "theorem_names": [
     "Erdos427.erdos427"
   ],
-  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "shiu_consecutive_primes",

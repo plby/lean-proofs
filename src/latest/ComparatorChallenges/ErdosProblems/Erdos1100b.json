@@ -4,11 +4,6 @@
   "theorem_names": [
     "Erdos1100b.main_theorem"
   ],
-  "definition_names": [
-    "Erdos1100b.PNT_statement",
-    "Erdos1100b.bound",
-    "Erdos1100b.tau_perp"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

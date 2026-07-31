@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos846.erdos_846"
   ],
-  "definition_names": [
-    "Erdos846.NonTrilinearFor",
-    "Erdos846.WeaklyNonTrilinear"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

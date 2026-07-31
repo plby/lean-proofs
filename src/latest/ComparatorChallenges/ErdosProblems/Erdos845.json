@@ -5,10 +5,6 @@
     "Erdos845.erdos_845",
     "Erdos845.van_doorn_everts_asymptotic_inexact"
   ],
-  "definition_names": [
-    "Erdos845.HasDensity",
-    "Erdos845.main_theorem_consequence.match_1"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

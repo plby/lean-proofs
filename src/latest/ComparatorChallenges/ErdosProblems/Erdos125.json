@@ -5,10 +5,6 @@
     "Erdos125.erdos_125",
     "Erdos125.erdos_125.variants.positive_lower_density"
   ],
-  "definition_names": [
-    "Set.HasPosDensity",
-    "Set.lowerDensity"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

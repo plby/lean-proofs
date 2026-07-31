@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos224.exists_obtuse_of_card_succ_pow_two"
   ],
-  "definition_names": [
-    "Erdos224.E",
-    "Erdos224.ObtuseAt"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

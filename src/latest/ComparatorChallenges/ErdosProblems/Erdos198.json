@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos198.erdos_198"
   ],
-  "definition_names": [
-    "Erdos198.IsAPOfLength",
-    "Erdos198.IsSidon"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

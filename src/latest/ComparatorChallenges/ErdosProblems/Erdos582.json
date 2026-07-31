@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos582.erdos_582"
   ],
-  "definition_names": [
-    "Erdos582.EdgeRamseyTriangle"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

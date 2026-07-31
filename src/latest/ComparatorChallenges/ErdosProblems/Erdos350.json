@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos350.erdos_350"
   ],
-  "definition_names": [
-    "Erdos350.DecidableDistinctSubsetSums"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

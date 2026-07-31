@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos481.erdos_481"
   ],
-  "definition_names": [
-    "Erdos481.A",
-    "Erdos481.C"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

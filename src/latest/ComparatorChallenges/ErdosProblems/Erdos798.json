@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos798.erdos798"
   ],
-  "definition_names": [
-    "Erdos798.minCoverSize"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

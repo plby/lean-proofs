@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos1043.erdos_1043"
   ],
-  "definition_names": [
-    "Erdos1043.instMeasureSpaceRealSpan",
-    "Erdos1043.levelSet"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

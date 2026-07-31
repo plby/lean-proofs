@@ -5,9 +5,6 @@
     "Erdos728.Erdos728b.erdos_728",
     "Erdos728.Erdos728b.erdos_728_fc"
   ],
-  "definition_names": [
-    "Erdos728.Erdos728b.good_triples"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

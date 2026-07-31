@@ -5,9 +5,6 @@
     "Erdos443.erdos_443_part_one",
     "Erdos443.erdos_443_part_two"
   ],
-  "definition_names": [
-    "Erdos443.A"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

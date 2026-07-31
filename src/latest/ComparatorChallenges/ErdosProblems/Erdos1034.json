@@ -5,14 +5,6 @@
     "Erdos1034.MaTang_main",
     "Erdos1034.not_erdos_1034"
   ],
-  "definition_names": [
-    "Erdos1034.MaTangGraph",
-    "Erdos1034.Y_set",
-    "Erdos1034.alpha_star",
-    "Erdos1034.erdos_1034",
-    "Erdos1034.instDecidableRel_MaTangGraphAdj",
-    "Erdos1034.s_func_robust"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

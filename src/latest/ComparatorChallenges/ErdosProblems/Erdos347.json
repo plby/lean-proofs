@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos347.answer_is_yes"
   ],
-  "definition_names": [
-    "Erdos347.has_asymptotic_density_one",
-    "Erdos347.subset_sums_of_set"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

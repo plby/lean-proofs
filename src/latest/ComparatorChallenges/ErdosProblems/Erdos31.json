@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos31.erdos_31"
   ],
-  "definition_names": [
-    "Erdos31.HasDensity"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos648.erdos_648"
   ],
-  "definition_names": [
-    "Erdos648.g"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos1098.erdos1098"
   ],
-  "definition_names": [
-    "Set.PairwiseNonCommuting"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

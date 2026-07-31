@@ -5,10 +5,6 @@
     "Erdos1196.PrimitiveSetsAboveX.mainTheorem",
     "Erdos1196.erdos_1196"
   ],
-  "definition_names": [
-    "Erdos1196.IsPrimitive",
-    "Erdos1196.PrimitiveSetsAboveX.PrimitiveSet"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

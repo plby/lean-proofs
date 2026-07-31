@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos990.erdos990"
   ],
-  "definition_names": [
-    "Erdos990.SparseErdosTuranEstimate"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

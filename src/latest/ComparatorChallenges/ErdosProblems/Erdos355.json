@@ -8,15 +8,6 @@
     "Erdos355.Theorem_4",
     "Erdos355.erdos_355"
   ],
-  "definition_names": [
-    "Erdos355.IsLacunary",
-    "Erdos355.IsLambdaLacunary",
-    "Erdos355.R_lambda",
-    "Erdos355.S_cond",
-    "Erdos355.SubsetSums",
-    "Erdos355.TargetInterval",
-    "Erdos355.a_seq"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

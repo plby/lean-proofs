@@ -5,7 +5,6 @@
     "Erdos1047.erdos_1047",
     "Erdos1047.main_result"
   ],
-  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

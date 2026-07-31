@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos435.erdos_435"
   ],
-  "definition_names": [
-    "Erdos435.Representable",
-    "Erdos435.target"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

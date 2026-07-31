@@ -5,11 +5,6 @@
     "Erdos1141.erdos_1141",
     "Erdos1141.erdos_1141_variant"
   ],
-  "definition_names": [
-    "Erdos1141.Erdos1141Prop",
-    "Erdos1141.Pa",
-    "Pollack17.residuePrimesUpTo"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

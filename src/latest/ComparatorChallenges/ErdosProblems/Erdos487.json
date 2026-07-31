@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos487.erdos_487"
   ],
-  "definition_names": [
-    "Erdos487.lowerDensity"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

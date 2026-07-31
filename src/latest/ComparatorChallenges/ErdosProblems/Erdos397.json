@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos397.infinite_solutions"
   ],
-  "definition_names": [
-    "Erdos397.is_solution"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

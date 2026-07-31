@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos296.erdos296"
   ],
-  "definition_names": [
-    "Erdos296.HasDisjointUnitDecomps"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

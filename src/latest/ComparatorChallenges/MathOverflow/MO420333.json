@@ -2,13 +2,6 @@
   "challenge_module": "MO420333",
   "solution_module": "MathOverflow.MO420333",
   "theorem_names": ["MO420333.unbounded_value_eq_four"],
-  "definition_names": [
-    "MO420333.hitIndex",
-    "MO420333.partialSum",
-    "MO420333.score",
-    "MO420333.worstCaseScore",
-    "MO420333.gameValue"
-  ],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
   "enable_nanoda": false
 }

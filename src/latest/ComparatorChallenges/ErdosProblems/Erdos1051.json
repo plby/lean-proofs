@@ -4,7 +4,6 @@
   "theorem_names": [
     "Erdos1051.erdos_1051_irrational"
   ],
-  "definition_names": [],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

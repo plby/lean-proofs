@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos1007.erdos_1007"
   ],
-  "definition_names": [
-    "Erdos1007.GraphDimension"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

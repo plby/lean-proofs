@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos283.erdos_283"
   ],
-  "definition_names": [
-    "Erdos283.Condition"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

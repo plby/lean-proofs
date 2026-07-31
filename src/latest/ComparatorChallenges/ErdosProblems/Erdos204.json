@@ -5,9 +5,6 @@
     "Erdos204.T1",
     "Erdos204.erdos_204"
   ],
-  "definition_names": [
-    "Erdos204.IsCDCovering"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

@@ -4,11 +4,6 @@
   "theorem_names": [
     "Erdos639.SimpleGraph.erdos639"
   ],
-  "definition_names": [
-    "Erdos639.SimpleGraph.instDecidableRelAdjNimt",
-    "Erdos639.SimpleGraph.n",
-    "Erdos639.SimpleGraph.nimt"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

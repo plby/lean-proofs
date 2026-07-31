@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos1000.erdos_1000_true"
   ],
-  "definition_names": [
-    "Erdos1000.cesaroPhi"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

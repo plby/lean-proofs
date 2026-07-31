@@ -4,9 +4,6 @@
   "theorem_names": [
     "Erdos844.erdos_sarkozy"
   ],
-  "definition_names": [
-    "Erdos844.erdosSarkozySet"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

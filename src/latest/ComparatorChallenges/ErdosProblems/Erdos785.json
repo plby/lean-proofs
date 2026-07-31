@@ -4,10 +4,6 @@
   "theorem_names": [
     "Erdos785.corollary_erdos_785"
   ],
-  "definition_names": [
-    "Erdos785.counting_function",
-    "Erdos785.exact_complements"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",

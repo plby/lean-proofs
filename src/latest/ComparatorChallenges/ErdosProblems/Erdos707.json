@@ -7,11 +7,6 @@
     "Erdos707.not_erdos_707H2",
     "Erdos707.not_erdos_707P"
   ],
-  "definition_names": [
-    "Erdos707.erdos_707",
-    "Erdos707.erdos_707_integer",
-    "Erdos707.erdos_707_prime"
-  ],
   "permitted_axioms": [
     "propext",
     "Classical.choice",
