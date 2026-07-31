@@ -15,14 +15,6 @@ open scoped Asymptotics
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
 
-@[implicit_reducible] def erdos_331.match_1.{u} :
-    (motive : ℕ × ℕ × ℕ × ℕ → Sort u) →
-      (s : ℕ × ℕ × ℕ × ℕ) →
-        ((a₁ a₂ b₁ b₂ : ℕ) → motive (a₁, a₂, b₁, b₂)) → motive s :=
-  fun motive s h ↦
-    Prod.casesOn s fun a₁ t ↦
-      Prod.casesOn t fun a₂ t ↦
-        Prod.casesOn t fun b₁ b₂ ↦ h a₁ a₂ b₁ b₂
 end Erdos331
 
 open Erdos331
@@ -155,18 +147,19 @@ theorem Erdos331.erdos_331 :
             @Set.Infinite.{0} (Prod.{0, 0} Nat (Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat)))
               (@setOf.{0} (Prod.{0, 0} Nat (Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat)))
                 fun (s : Prod.{0, 0} Nat (Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat))) ↦
-                Erdos331.erdos_331.match_1.{1}
-                  (fun (s : Prod.{0, 0} Nat (Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat))) ↦ Prop) s
-                  fun (a₁ a₂ b₁ b₂ : Nat) ↦
-                  And (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) A a₁)
-                    (And (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) A a₂)
-                      (And (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) B b₁)
-                        (And
-                          (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) B b₂)
-                          (And (@Ne.{1} Nat a₁ a₂)
-                            (@Eq.{1} Nat
-                              (@HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) a₁ b₂)
-                              (@HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) a₂
-                                b₁))))))))
+                let a₁ := s.1
+                let a₂ := s.2.1
+                let b₁ := s.2.2.1
+                let b₂ := s.2.2.2
+                And (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) A a₁)
+                  (And (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) A a₂)
+                    (And (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) B b₁)
+                      (And
+                        (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) B b₂)
+                        (And (@Ne.{1} Nat a₁ a₂)
+                          (@Eq.{1} Nat
+                            (@HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) a₁ b₂)
+                            (@HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) a₂
+                              b₁))))))))
   := by
   sorry
