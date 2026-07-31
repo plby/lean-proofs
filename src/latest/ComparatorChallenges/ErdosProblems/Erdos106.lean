@@ -1,6 +1,7 @@
 import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 import Mathlib.Algebra.Order.Archimedean.Real.Basic
 import Mathlib.Data.Fintype.Basic
+import Mathlib.Order.CompletePartialOrder
 
 open scoped BigOperators
 
