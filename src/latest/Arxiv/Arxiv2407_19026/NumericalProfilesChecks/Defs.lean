@@ -189,7 +189,74 @@ lemma beta0SmallBookSlope_cleared_pos :
           (1 - z * (461 / 200)) -
         (461 / 200) * (1 / 2) := by
   unfold beta0CorrectionSlope
-  interval_bound_subdiv 20 12
+  rintro z ⟨hz0, hz1⟩
+  have hlog :
+      (83 / 100 : ℝ) ≤ Real.log ((461 / 200 : ℝ) - 1 / 100000) := by
+    have hlogAdd := Real.le_log_one_add_of_nonneg
+      (show (0 : ℝ) ≤ 30499 / 200000 by norm_num)
+    rw [show (461 / 200 : ℝ) - 1 / 100000 =
+      2 * (1 + 30499 / 200000) by norm_num,
+      Real.log_mul (by norm_num) (by norm_num)]
+    norm_num at hlogAdd ⊢
+    nlinarith [Real.log_two_gt_d9]
+  have hlogz : 0 ≤ Real.log (1 + z) :=
+    Real.log_nonneg (by linarith)
+  have hqLower :
+      (-1 / 4 : ℝ) ≤
+        -(1 / 4 : ℝ) + 2 * (2 / 25 : ℝ) * z +
+            (6 / 25 : ℝ) * z ^ 2 -
+          (-(1 / 4 : ℝ) * z + (2 / 25 : ℝ) * z ^ 2 +
+            (2 / 25 : ℝ) * z ^ 3) := by
+    have haux : 0 ≤ z ^ 2 * (2 - z) :=
+      mul_nonneg (sq_nonneg z) (by linarith)
+    nlinarith
+  have hqUpper :
+      -(1 / 4 : ℝ) + 2 * (2 / 25 : ℝ) * z +
+            (6 / 25 : ℝ) * z ^ 2 -
+          (-(1 / 4 : ℝ) * z + (2 / 25 : ℝ) * z ^ 2 +
+            (2 / 25 : ℝ) * z ^ 3) ≤ 0 := by
+    have hzsq : 0 ≤ z * (3 / 1000 - z) :=
+      mul_nonneg hz0 (by linarith)
+    have hzcube : 0 ≤ z ^ 3 := pow_nonneg hz0 3
+    nlinarith
+  have hexp : Real.exp (-z) ≤ 1 :=
+    Real.exp_le_one_iff.mpr (by linarith)
+  have hcorr :
+      (-1 / 4 : ℝ) ≤
+        (-(1 / 4 : ℝ) + 2 * (2 / 25 : ℝ) * z +
+            (6 / 25 : ℝ) * z ^ 2 -
+          (-(1 / 4 : ℝ) * z + (2 / 25 : ℝ) * z ^ 2 +
+            (2 / 25 : ℝ) * z ^ 3)) * Real.exp (-z) := by
+    have hmul := mul_le_mul_of_nonpos_left hexp hqUpper
+    nlinarith
+  have hinner :
+      (116189 / 100000 : ℝ) ≤
+        Real.log (1 + z) + 1 +
+            (-(1 / 4 : ℝ) + 2 * (2 / 25 : ℝ) * z +
+                (6 / 25 : ℝ) * z ^ 2 -
+              (-(1 / 4 : ℝ) * z + (2 / 25 : ℝ) * z ^ 2 +
+                (2 / 25 : ℝ) * z ^ 3)) * Real.exp (-z) +
+            (-2 * z + Real.log ((461 / 200 : ℝ) - 1 / 100000)) *
+              (1 / 2) -
+            1 / 10000 - 1 / 100000 := by
+    nlinarith
+  have hfactor :
+      (198617 / 200000 : ℝ) ≤ 1 - z * (461 / 200) := by
+    nlinarith
+  have hinner0 :
+      0 ≤
+        Real.log (1 + z) + 1 +
+            (-(1 / 4 : ℝ) + 2 * (2 / 25 : ℝ) * z +
+                (6 / 25 : ℝ) * z ^ 2 -
+              (-(1 / 4 : ℝ) * z + (2 / 25 : ℝ) * z ^ 2 +
+                (2 / 25 : ℝ) * z ^ 3)) * Real.exp (-z) +
+            (-2 * z + Real.log ((461 / 200 : ℝ) - 1 / 100000)) *
+              (1 / 2) -
+            1 / 10000 - 1 / 100000 := by
+    nlinarith
+  have hprod := mul_le_mul hinner hfactor
+    (by norm_num : (0 : ℝ) ≤ 198617 / 200000) hinner0
+  nlinarith
 
 lemma beta0SmallBookSlope_pos :
     ∀ z ∈ Set.Icc (0 : ℝ) (3 / 1000),
@@ -282,8 +349,37 @@ set_option maxRecDepth 10000 in
 lemma beta0U_mul_margin_small :
     ∀ z ∈ Set.Icc (0 : ℝ) (3 / 1000),
       0 ≤ (129 / 100 : ℝ) * beta0PolynomialP z - beta0U z := by
-  unfold beta0PolynomialP beta0U
-  interval_bound_subdiv 20 12
+  intro z hz
+  rcases hz with ⟨hz0, hz3⟩
+  have hz1 : z ≤ 1 := by
+    norm_num at hz3 ⊢
+    linarith
+  have hzpow (n : ℕ) (hn : 1 ≤ n) : z ^ n ≤ z := by
+    simpa using (pow_le_pow_of_le_one hz0 hz1 hn)
+  have hU : beta0U z ≤ (1.284524751404 : ℝ) := by
+    rw [beta0U]
+    have h2 := hzpow 2 (by omega)
+    have h3 := hzpow 3 (by omega)
+    have h4 := hzpow 4 (by omega)
+    have h5 := hzpow 5 (by omega)
+    have h6 := hzpow 6 (by omega)
+    have h7 := hzpow 7 (by omega)
+    have h8 := hzpow 8 (by omega)
+    have h9 := hzpow 9 (by omega)
+    ring_nf at ⊢
+    nlinarith
+  unfold beta0PolynomialP
+  have hfactor : 1 + (129 / 100 : ℝ) * z ≤ 1.00387 := by
+    norm_num at hz3 ⊢
+    linarith
+  have hfactor_nonneg : 0 ≤ 1 + (129 / 100 : ℝ) * z := by positivity
+  have hmul := mul_le_mul_of_nonneg_left hU hfactor_nonneg
+  have hconst :
+      (1.284524751404 : ℝ) * (1 + (129 / 100 : ℝ) * z) ≤
+        (1.284524751404 : ℝ) * 1.00387 := by
+    exact mul_le_mul_of_nonneg_left hfactor (by norm_num)
+  ring_nf at hmul hconst ⊢
+  nlinarith
 
 lemma beta0U_le_mul_beta0PolynomialP_small :
     ∀ z ∈ Set.Icc (0 : ℝ) (3 / 1000),
@@ -296,8 +392,76 @@ set_option maxRecDepth 10000 in
 lemma beta0PolynomialP_small_lower :
     ∀ z ∈ Set.Icc (0 : ℝ) (3 / 1000),
       (99 / 100 : ℝ) ≤ beta0PolynomialP z := by
-  unfold beta0PolynomialP beta0U
-  interval_bound_subdiv 20 8
+  intro z hz
+  rcases hz with ⟨hz0, hz3⟩
+  have h9 : (-0.070285151867 : ℝ) ≤ 0 := by norm_num
+  have h8 :
+      (0.429628799767 : ℝ) + z * (-0.070285151867) ≤ 1 := by
+    nlinarith [mul_nonpos_of_nonneg_of_nonpos hz0 h9]
+  have h7 :
+      (-1.218022340257 : ℝ) +
+          z * (0.429628799767 + z * (-0.070285151867)) ≤ 0 := by
+    have := mul_le_mul_of_nonneg_left h8 hz0
+    norm_num at hz3 ⊢
+    nlinarith
+  have h6 :
+      (2.192513219941 : ℝ) +
+          z * (-1.218022340257 +
+            z * (0.429628799767 + z * (-0.070285151867))) ≤ 3 := by
+    nlinarith [mul_nonpos_of_nonneg_of_nonpos hz0 h7]
+  have h5 :
+      (-2.940312871156 : ℝ) +
+          z * (2.192513219941 +
+            z * (-1.218022340257 +
+              z * (0.429628799767 + z * (-0.070285151867)))) ≤ 0 := by
+    have := mul_le_mul_of_nonneg_left h6 hz0
+    norm_num at hz3 ⊢
+    nlinarith
+  have h4 :
+      (3.285022020636 : ℝ) +
+          z * (-2.940312871156 +
+            z * (2.192513219941 +
+              z * (-1.218022340257 +
+                z * (0.429628799767 + z * (-0.070285151867))))) ≤ 4 := by
+    nlinarith [mul_nonpos_of_nonneg_of_nonpos hz0 h5]
+  have h3 :
+      (-3.264680122333 : ℝ) +
+          z * (3.285022020636 +
+            z * (-2.940312871156 +
+              z * (2.192513219941 +
+                z * (-1.218022340257 +
+                  z * (0.429628799767 + z * (-0.070285151867)))))) ≤ 0 := by
+    have := mul_le_mul_of_nonneg_left h4 hz0
+    norm_num at hz3 ⊢
+    nlinarith
+  have h2 :
+      (2.891286818537 : ℝ) +
+          z * (-3.264680122333 +
+            z * (3.285022020636 +
+              z * (-2.940312871156 +
+                z * (2.192513219941 +
+                  z * (-1.218022340257 +
+                    z * (0.429628799767 + z * (-0.070285151867))))))) ≤ 3 := by
+    nlinarith [mul_nonpos_of_nonneg_of_nonpos hz0 h3]
+  have h1 :
+      (-2.131427997038 : ℝ) +
+          z * (2.891286818537 +
+            z * (-3.264680122333 +
+              z * (3.285022020636 +
+                z * (-2.940312871156 +
+                  z * (2.192513219941 +
+                    z * (-1.218022340257 +
+                      z * (0.429628799767 + z * (-0.070285151867)))))))) ≤ 0 := by
+    have := mul_le_mul_of_nonneg_left h2 hz0
+    norm_num at hz3 ⊢
+    nlinarith
+  have hU : beta0U z ≤ 2 := by
+    unfold beta0U
+    nlinarith [mul_nonpos_of_nonneg_of_nonpos hz0 h1]
+  unfold beta0PolynomialP
+  have hmul := mul_le_mul_of_nonneg_left hU hz0
+  norm_num at hz3 ⊢
+  nlinarith
 
 lemma beta0PolynomialLimitLogMargin_small_pos {z : ℝ}
     (hz : z ∈ Set.Ioc (0 : ℝ) (3 / 1000)) :

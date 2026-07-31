@@ -1,19 +1,15 @@
-import Arxiv.Arxiv2407_19026.TangentChecks3.Defs
-
-open LeanCert.Core LeanCert.Engine LeanCert.Validity
+import Arxiv.Arxiv2407_19026.TangentKernelBounds
 
 namespace Arxiv2407_19026
 namespace TangentRound3Native
 
-open TangentAffine
-
-
-set_option maxHeartbeats 0 in
--- The finite rational-grid certificate requires an unbounded heartbeat budget.
-lemma small_book_check :
-    checkLowerAffineCover (smallBook β2 β3) (1 / 10000)
-      cfg (1 / 50) bpsBook = true := by
-  native_decide
+/-- The direct small-book bound in the third tangent round. -/
+lemma small_book_lower :
+    ∀ z ∈ Set.Icc (1 / 50 : ℝ) (1 / 10),
+      (1 / 10000 : ℝ) ≤
+        tangentSmallBookMargin (33 / 1000) (3 / 100) z := by
+  intro z hz
+  exact tangent_small_book_lower (by norm_num) (by norm_num) hz
 
 end TangentRound3Native
 end Arxiv2407_19026

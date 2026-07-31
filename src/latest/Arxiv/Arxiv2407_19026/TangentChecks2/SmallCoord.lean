@@ -1,19 +1,15 @@
-import Arxiv.Arxiv2407_19026.TangentChecks2.Defs
-
-open LeanCert.Core LeanCert.Engine LeanCert.Validity
+import Arxiv.Arxiv2407_19026.TangentKernelBounds
 
 namespace Arxiv2407_19026
 namespace TangentRound2Native
 
-open TangentAffine
-
-
-set_option maxHeartbeats 0 in
--- The finite rational-grid certificate requires an unbounded heartbeat budget.
-lemma small_coord_check :
-    checkLowerAffineCover (smallCoordSlope β1 β2) (1 / 20)
-      cfg 0 bpsSlope = true := by
-  native_decide
+/-- The small-coordinate derivative bound in the second tangent round. -/
+lemma small_coord_lower :
+    ∀ z ∈ Set.Icc (0 : ℝ) (1 / 10),
+      (1 / 20 : ℝ) ≤
+        tangentSmallCoordLogPrime (9 / 200) (33 / 1000) z := by
+  intro z hz
+  exact tangent_small_coord_prime_lower (by norm_num) (by norm_num) hz
 
 end TangentRound2Native
 end Arxiv2407_19026

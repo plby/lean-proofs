@@ -1,19 +1,13 @@
-import Arxiv.Arxiv2407_19026.TangentChecks1Front.Defs
-
-open LeanCert.Core LeanCert.Engine LeanCert.Validity
+import Arxiv.Arxiv2407_19026.TangentKernelBounds
 
 namespace Arxiv2407_19026
 namespace TangentRound1Native
 
-open TangentAffine
-
-
-set_option maxHeartbeats 0 in
--- The finite rational-grid certificate requires an unbounded heartbeat budget.
-lemma plateau_high_check :
-    checkLowerAffineCover (plateauLogHigh β0 β1 plateauT) 0
-      cfg (269 / 1000) plateauMedium = true := by
-  native_decide
+lemma plateau_high_lower :
+    ∀ z ∈ Set.Icc (269 / 1000 : ℝ) (387 / 1000),
+      tangentXLog (9 / 200) z ≤
+        tangentALog (2 / 25) (99 / 100) :=
+  tangent_plateau_high_round1
 
 end TangentRound1Native
 end Arxiv2407_19026
