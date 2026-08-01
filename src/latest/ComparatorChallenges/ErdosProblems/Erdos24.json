@@ -7,8 +7,7 @@
   "permitted_axioms": [
     "propext",
     "Classical.choice",
-    "Quot.sound",
-    "Erdos24.totalFlagContrib_mkAdj5_edgeBits_eq_permSum._native.native_decide.ax_1_1"
+    "Quot.sound"
   ],
-  "enable_nanoda": false
+  "enable_nanoda": true
 }
