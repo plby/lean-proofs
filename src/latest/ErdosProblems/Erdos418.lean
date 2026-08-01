@@ -733,11 +733,853 @@ lemma phi_k_mod_3_contra
     have := totient_mod_3_of_squarefree_not_dvd_3 k h_sq h_nd
     aesop )
 
-set_option linter.style.nativeDecide false in
+private lemma computation_lemma_check_prime (p : ℕ) (hp : p.Prime) :
+    2 * p - p * (∏ q ∈ Nat.primeFactors p, (1 - 1 / q : ℚ)) ≠ 2 * m_BS := by
+  intro h
+  simp [hp.primeFactors, m_BS] at h
+  have hp0 : (p : ℚ) ≠ 0 := by exact_mod_cast hp.ne_zero
+  have hprod : (p : ℚ) * (1 - (p : ℚ)⁻¹) = p - 1 := by
+    field_simp [hp0]
+  rw [hprod] at h
+  have hp_cast : (p : ℚ) = 1018405 := by
+    norm_num [m_BS] at h ⊢
+    linarith
+  have hp_eq : p = 1018405 := by exact_mod_cast hp_cast
+  subst p
+  norm_num at hp
+
+private lemma computation_lemma_check_two_primes
+    (p q : ℕ) (hp : p.Prime) (hq : q.Prime) (hpq : p ≠ q)
+    (hp2 : p ≠ 2) (hq2 : q ≠ 2) (hp3 : p ≠ 3) (hq3 : q ≠ 3) :
+    2 * (p * q) - (p * q) *
+        (∏ r ∈ Nat.primeFactors (p * q), (1 - 1 / r : ℚ)) ≠ 2 * m_BS := by
+  intro h
+  rw [Nat.primeFactors_mul hp.ne_zero hq.ne_zero, hp.primeFactors, hq.primeFactors] at h
+  simp [hpq] at h
+  have hp0 : (p : ℚ) ≠ 0 := by exact_mod_cast hp.ne_zero
+  have hq0 : (q : ℚ) ≠ 0 := by exact_mod_cast hq.ne_zero
+  have hprod :
+      (p : ℚ) * q * ((1 - (p : ℚ)⁻¹) * (1 - (q : ℚ)⁻¹)) = (p - 1) * (q - 1) := by
+    field_simp [hp0, hq0]
+  rw [hprod] at h
+  have hfactor_cast : ((p + 1 : ℕ) : ℚ) * (q + 1) = 1018408 := by
+    norm_num [m_BS] at h ⊢
+    nlinarith
+  have hfactor : (p + 1) * (q + 1) = 1018408 := by exact_mod_cast hfactor_cast
+  have hp_odd : p % 2 = 1 := hp.eq_two_or_odd.resolve_left hp2
+  have hq_odd : q % 2 = 1 := hq.eq_two_or_odd.resolve_left hq2
+  have hp5 : 5 ≤ p := hp.five_le_of_ne_two_of_ne_three hp2 hp3
+  have hq5 : 5 ≤ q := hq.five_le_of_ne_two_of_ne_three hq2 hq3
+  have hp_bound : p + 1 < 2 * 127301 := by
+    have hmul := Nat.mul_le_mul_left (p + 1) (show 6 ≤ q + 1 by omega)
+    rw [hfactor] at hmul
+    omega
+  have hq_bound : q + 1 < 2 * 127301 := by
+    have hmul := Nat.mul_le_mul_right (q + 1) (show 6 ≤ p + 1 by omega)
+    rw [hfactor] at hmul
+    omega
+  have hr_dvd : 127301 ∣ (p + 1) * (q + 1) := by
+    rw [hfactor]
+    norm_num
+  rcases prime_127301.dvd_mul.mp hr_dvd with hp_dvd | hq_dvd
+  · have hp_eq : p + 1 = 127301 :=
+      Nat.eq_of_dvd_of_lt_two_mul (Nat.succ_ne_zero p) hp_dvd hp_bound
+    have hp_parity := congrArg (fun n : ℕ ↦ n % 2) hp_eq
+    norm_num [Nat.add_mod, hp_odd] at hp_parity
+  · have hq_eq : q + 1 = 127301 :=
+      Nat.eq_of_dvd_of_lt_two_mul (Nat.succ_ne_zero q) hq_dvd hq_bound
+    have hq_parity := congrArg (fun n : ℕ ↦ n % 2) hq_eq
+    norm_num [Nat.add_mod, hq_odd] at hq_parity
+
+private def primes5to100 : List ℕ :=
+  [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67,
+    71, 73, 79, 83, 89, 97]
+
+private def primes5to451 : List ℕ :=
+  [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67,
+    71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149,
+    151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229,
+    233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313,
+    317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409,
+    419, 421, 431, 433, 439, 443, 449]
+
+private lemma prime_five_le_le_100_mem (p : ℕ) (hp : p.Prime) (hp5 : 5 ≤ p)
+    (hp100 : p ≤ 100) : p ∈ primes5to100 := by
+  interval_cases p <;> norm_num at hp <;> simp [primes5to100]
+
+private lemma prime_five_le_le_451_mem (p : ℕ) (hp : p.Prime) (hp5 : 5 ≤ p)
+    (hp451 : p ≤ 451) : p ∈ primes5to451 := by
+  interval_cases p <;> norm_num at hp <;> simp [primes5to451]
+
+set_option maxRecDepth 100000 in
+private lemma three_prime_arithmetic_check :
+    ∀ p ∈ primes5to100, ∀ q ∈ primes5to451, p < q →
+      let c := (p - 1) * (q - 1)
+      let d := p * q + p + q - 1
+      c ≤ 1018406 → (1018406 - c) % d = 0 → q < (1018406 - c) / d →
+        ¬Nat.Prime ((1018406 - c) / d) := by
+  decide
+
+private def primes5to31 : List ℕ :=
+  [5, 7, 11, 13, 17, 19, 23, 29, 31]
+
+private def primes5to58 : List ℕ :=
+  [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53]
+
+private def primes5to170 : List ℕ :=
+  [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67,
+    71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149,
+    151, 157, 163, 167]
+
+private def primes5to15 : List ℕ := [5, 7, 11, 13]
+
+private def primes5to21 : List ℕ := [5, 7, 11, 13, 17, 19]
+
+private def primes5to30 : List ℕ := [5, 7, 11, 13, 17, 19, 23, 29]
+
+private def primes5to51 : List ℕ :=
+  [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]
+
+private lemma prime_five_le_le_31_mem (p : ℕ) (hp : p.Prime) (hp5 : 5 ≤ p)
+    (hp31 : p ≤ 31) : p ∈ primes5to31 := by
+  interval_cases p <;> norm_num at hp <;> simp [primes5to31]
+
+private lemma prime_five_le_le_58_mem (p : ℕ) (hp : p.Prime) (hp5 : 5 ≤ p)
+    (hp58 : p ≤ 58) : p ∈ primes5to58 := by
+  interval_cases p <;> norm_num at hp <;> simp [primes5to58]
+
+private lemma prime_five_le_le_170_mem (p : ℕ) (hp : p.Prime) (hp5 : 5 ≤ p)
+    (hp170 : p ≤ 170) : p ∈ primes5to170 := by
+  interval_cases p <;> norm_num at hp <;> simp [primes5to170]
+
+private lemma prime_five_le_le_15_mem (p : ℕ) (hp : p.Prime) (hp5 : 5 ≤ p)
+    (hp15 : p ≤ 15) : p ∈ primes5to15 := by
+  interval_cases p <;> norm_num at hp <;> simp [primes5to15]
+
+private lemma prime_five_le_le_21_mem (p : ℕ) (hp : p.Prime) (hp5 : 5 ≤ p)
+    (hp21 : p ≤ 21) : p ∈ primes5to21 := by
+  interval_cases p <;> norm_num at hp <;> simp [primes5to21]
+
+private lemma prime_five_le_le_30_mem (p : ℕ) (hp : p.Prime) (hp5 : 5 ≤ p)
+    (hp30 : p ≤ 30) : p ∈ primes5to30 := by
+  interval_cases p <;> norm_num at hp <;> simp [primes5to30]
+
+private lemma prime_five_le_le_51_mem (p : ℕ) (hp : p.Prime) (hp5 : 5 ≤ p)
+    (hp51 : p ≤ 51) : p ∈ primes5to51 := by
+  interval_cases p <;> norm_num at hp <;> simp [primes5to51]
+
+set_option maxRecDepth 100000 in
+private lemma four_prime_arithmetic_check :
+    ∀ p ∈ primes5to31, ∀ q ∈ primes5to58, ∀ r ∈ primes5to170,
+      p < q → q < r →
+      let c := (p - 1) * (q - 1) * (r - 1)
+      let d := 2 * (p * q * r) - c
+      c ≤ 1018406 → (1018406 - c) % d = 0 → r < (1018406 - c) / d →
+        ¬Nat.Prime ((1018406 - c) / d) := by
+  decide
+
+private def FivePrimeArithmeticForPair (p q : ℕ) : Prop :=
+  ∀ r ∈ primes5to30, ∀ s ∈ primes5to51, q < r → r < s →
+    let c := (p - 1) * (q - 1) * (r - 1) * (s - 1)
+    let d := 2 * (p * q * r * s) - c
+    c ≤ 1018406 → (1018406 - c) % d = 0 → s < (1018406 - c) / d →
+      ¬Nat.Prime ((1018406 - c) / d)
+
+private lemma five_prime_arithmetic_check_5_7 : FivePrimeArithmeticForPair 5 7 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private lemma five_prime_arithmetic_check_5_11 : FivePrimeArithmeticForPair 5 11 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private lemma five_prime_arithmetic_check_5_13 : FivePrimeArithmeticForPair 5 13 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private lemma five_prime_arithmetic_check_5_17 : FivePrimeArithmeticForPair 5 17 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private lemma five_prime_arithmetic_check_5_19 : FivePrimeArithmeticForPair 5 19 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private lemma five_prime_arithmetic_check_7_11 : FivePrimeArithmeticForPair 7 11 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private lemma five_prime_arithmetic_check_7_13 : FivePrimeArithmeticForPair 7 13 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private lemma five_prime_arithmetic_check_7_17 : FivePrimeArithmeticForPair 7 17 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private lemma five_prime_arithmetic_check_7_19 : FivePrimeArithmeticForPair 7 19 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private lemma five_prime_arithmetic_check_11_13 : FivePrimeArithmeticForPair 11 13 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private lemma five_prime_arithmetic_check_11_17 : FivePrimeArithmeticForPair 11 17 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private lemma five_prime_arithmetic_check_11_19 : FivePrimeArithmeticForPair 11 19 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private lemma five_prime_arithmetic_check_13_17 : FivePrimeArithmeticForPair 13 17 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private lemma five_prime_arithmetic_check_13_19 : FivePrimeArithmeticForPair 13 19 := by
+  norm_num [FivePrimeArithmeticForPair, primes5to30, primes5to51]
+
+private def FivePrimeArithmeticFor (p : ℕ) : Prop :=
+  ∀ q ∈ primes5to21, p < q → FivePrimeArithmeticForPair p q
+
+private lemma five_prime_arithmetic_check (p : ℕ) (hp : p ∈ primes5to15) :
+    FivePrimeArithmeticFor p := by
+  simp only [primes5to15, List.mem_cons, List.not_mem_nil, or_false] at hp
+  rcases hp with (rfl | rfl | rfl | rfl)
+  all_goals
+    intro q hq hpq
+    simp only [primes5to21, List.mem_cons, List.not_mem_nil, or_false] at hq
+    rcases hq with (rfl | rfl | rfl | rfl | rfl | rfl)
+  all_goals first
+    | omega
+    | exact five_prime_arithmetic_check_5_7
+    | exact five_prime_arithmetic_check_5_11
+    | exact five_prime_arithmetic_check_5_13
+    | exact five_prime_arithmetic_check_5_17
+    | exact five_prime_arithmetic_check_5_19
+    | exact five_prime_arithmetic_check_7_11
+    | exact five_prime_arithmetic_check_7_13
+    | exact five_prime_arithmetic_check_7_17
+    | exact five_prime_arithmetic_check_7_19
+    | exact five_prime_arithmetic_check_11_13
+    | exact five_prime_arithmetic_check_11_17
+    | exact five_prime_arithmetic_check_11_19
+    | exact five_prime_arithmetic_check_13_17
+    | exact five_prime_arithmetic_check_13_19
+
+set_option maxHeartbeats 1000000 in
+private lemma computation_lemma_check_three_primes (p q r : ℕ) (hp : p.Prime) (hq : q.Prime) (hr : r.Prime)
+    (hpq : p < q) (hqr : q < r) (hp5 : 5 ≤ p)
+    (hm_lt : p * q * r < 2 * m_BS) :
+    2 * (p * q * r) - (p * q * r) *
+        (∏ x ∈ Nat.primeFactors (p * q * r), (1 - 1 / x : ℚ)) ≠ 2 * m_BS := by
+  intro h
+  rw [Nat.primeFactors_mul (mul_ne_zero hp.ne_zero hq.ne_zero) hr.ne_zero,
+    Nat.primeFactors_mul hp.ne_zero hq.ne_zero, hp.primeFactors, hq.primeFactors,
+    hr.primeFactors] at h
+  simp [hpq.ne, (hpq.trans hqr).ne, hqr.ne] at h
+  have hp0 : (p : ℚ) ≠ 0 := by exact_mod_cast hp.ne_zero
+  have hq0 : (q : ℚ) ≠ 0 := by exact_mod_cast hq.ne_zero
+  have hr0 : (r : ℚ) ≠ 0 := by exact_mod_cast hr.ne_zero
+  have hprod :
+      (p : ℚ) * q * r * ((1 - (p : ℚ)⁻¹) * ((1 - (q : ℚ)⁻¹) *
+        (1 - (r : ℚ)⁻¹))) = (p - 1) * (q - 1) * (r - 1) := by
+    field_simp [hp0, hq0, hr0]
+  rw [hprod] at h
+  norm_num [m_BS] at h hm_lt
+  have hp_cube : p ^ 3 < p * q * r := by
+    calc
+      p ^ 3 = p * p * p := by ring
+      _ < p * q * r := by
+        simpa only [mul_assoc] using Nat.mul_lt_mul_of_pos_left
+          (mul_lt_mul hpq (show p ≤ r by omega) hp.pos (Nat.zero_le q)) hp.pos
+  have hp100 : p ≤ 100 := by
+    by_contra hp_bound
+    have hp_ge : 101 ≤ p := by omega
+    have hp_pow := Nat.pow_le_pow_left hp_ge 3
+    norm_num at hp_pow
+    omega
+  have hq_square : 5 * q ^ 2 < p * q * r := by
+    calc
+      5 * q ^ 2 = 5 * q * q := by ring
+      _ ≤ p * q * q := by gcongr
+      _ < p * q * r := Nat.mul_lt_mul_of_pos_left hqr (mul_pos hp.pos hq.pos)
+  have hq451 : q ≤ 451 := by
+    by_contra hq_bound
+    have hq_ge : 452 ≤ q := by omega
+    have hq_pow := Nat.pow_le_pow_left hq_ge 2
+    have hq_mul := Nat.mul_le_mul_left 5 hq_pow
+    norm_num at hq_mul
+    omega
+  have hlinear :
+      (p * q + p + q - 1) * r + (p - 1) * (q - 1) = 1018406 := by
+    have hcoef : 1 ≤ p * q + p + q := by omega
+    apply Nat.cast_injective (R := ℚ)
+    push_cast [Nat.cast_sub hcoef, Nat.cast_sub hp.one_le, Nat.cast_sub hq.one_le]
+    nlinarith [h]
+  have hp_mem := prime_five_le_le_100_mem p hp hp5 hp100
+  have hq5 : 5 ≤ q := by omega
+  have hq_mem := prime_five_le_le_451_mem q hq hq5 hq451
+  let c := (p - 1) * (q - 1)
+  let d := p * q + p + q - 1
+  have hd_pos : 0 < d := by dsimp [d]; omega
+  have hc_le : c ≤ 1018406 := by dsimp [c, d] at *; omega
+  have hnum : 1018406 - c = d * r := by dsimp [c, d] at *; omega
+  have hmod : (1018406 - c) % d = 0 := by
+    rw [hnum]
+    exact Nat.mul_mod_right d r
+  have hquot : (1018406 - c) / d = r := by
+    rw [hnum]
+    exact Nat.mul_div_cancel_left r hd_pos
+  have hnot_prime := three_prime_arithmetic_check p hp_mem q hq_mem hpq hc_le hmod
+    (by rw [hquot]; exact hqr)
+  exact hnot_prime (hquot.symm ▸ hr)
+
+private lemma computation_lemma_check_four_primes (p q r s : ℕ) (hp : p.Prime) (hq : q.Prime) (hr : r.Prime) (hs : s.Prime)
+    (hpq : p < q) (hqr : q < r) (hrs : r < s) (hp5 : 5 ≤ p)
+    (hm_lt : p * q * r * s < 2 * m_BS) :
+    2 * (p * q * r * s) - (p * q * r * s) *
+        (∏ x ∈ Nat.primeFactors (p * q * r * s), (1 - 1 / x : ℚ)) ≠ 2 * m_BS := by
+  intro h
+  rw [Nat.primeFactors_mul (mul_ne_zero (mul_ne_zero hp.ne_zero hq.ne_zero) hr.ne_zero)
+      hs.ne_zero,
+    Nat.primeFactors_mul (mul_ne_zero hp.ne_zero hq.ne_zero) hr.ne_zero,
+    Nat.primeFactors_mul hp.ne_zero hq.ne_zero, hp.primeFactors, hq.primeFactors,
+    hr.primeFactors, hs.primeFactors] at h
+  simp [hpq.ne, (hpq.trans hqr).ne, (hpq.trans (hqr.trans hrs)).ne, hqr.ne,
+    (hqr.trans hrs).ne, hrs.ne] at h
+  have hp0 : (p : ℚ) ≠ 0 := by exact_mod_cast hp.ne_zero
+  have hq0 : (q : ℚ) ≠ 0 := by exact_mod_cast hq.ne_zero
+  have hr0 : (r : ℚ) ≠ 0 := by exact_mod_cast hr.ne_zero
+  have hs0 : (s : ℚ) ≠ 0 := by exact_mod_cast hs.ne_zero
+  have hprod :
+      (p : ℚ) * q * r * s * ((1 - (p : ℚ)⁻¹) * ((1 - (q : ℚ)⁻¹) *
+        ((1 - (r : ℚ)⁻¹) * (1 - (s : ℚ)⁻¹)))) =
+        (p - 1) * (q - 1) * (r - 1) * (s - 1) := by
+    field_simp [hp0, hq0, hr0, hs0]
+  rw [hprod] at h
+  norm_num [m_BS] at h hm_lt
+  have hp_pow : p ^ 4 < p * q * r * s := by
+    calc
+      p ^ 4 = p * p * p * p := by ring
+      _ < p * q * r * s := by gcongr <;> omega
+  have hp31 : p ≤ 31 := by
+    by_contra hp_bound
+    have hp_ge : 32 ≤ p := by omega
+    have hp_power := Nat.pow_le_pow_left hp_ge 4
+    norm_num at hp_power
+    omega
+  have hq_pow : 5 * q ^ 3 < p * q * r * s := by
+    have hqq : q * q < r * s :=
+      mul_lt_mul hqr (by omega) hq.pos (Nat.zero_le r)
+    calc
+      5 * q ^ 3 = (5 * q) * (q * q) := by ring
+      _ ≤ (p * q) * (q * q) := Nat.mul_le_mul_right (q * q) (by gcongr)
+      _ < (p * q) * (r * s) :=
+        Nat.mul_lt_mul_of_pos_left hqq (mul_pos hp.pos hq.pos)
+      _ = p * q * r * s := by ring
+  have hq58 : q ≤ 58 := by
+    by_contra hq_bound
+    have hq_ge : 59 ≤ q := by omega
+    have hq_power := Nat.pow_le_pow_left hq_ge 3
+    have hq_mul := Nat.mul_le_mul_left 5 hq_power
+    norm_num at hq_mul
+    omega
+  have hr_pow : 5 * 7 * r ^ 2 < p * q * r * s := by
+    have hq7 : 7 ≤ q := by
+      by_contra hq_bound
+      have hq6 : q ≤ 6 := by omega
+      interval_cases q <;> norm_num at hq <;> omega
+    have hcoef : 5 * 7 ≤ p * q := mul_le_mul hp5 hq7 (by omega) (by omega)
+    calc
+      5 * 7 * r ^ 2 = (5 * 7) * (r * r) := by ring
+      _ ≤ (p * q) * (r * r) := Nat.mul_le_mul_right (r * r) hcoef
+      _ < (p * q) * (r * s) :=
+        Nat.mul_lt_mul_of_pos_left
+          (Nat.mul_lt_mul_of_pos_left hrs hr.pos) (mul_pos hp.pos hq.pos)
+      _ = p * q * r * s := by ring
+  have hr170 : r ≤ 170 := by
+    by_contra hr_bound
+    have hr_ge : 171 ≤ r := by omega
+    have hr_power := Nat.pow_le_pow_left hr_ge 2
+    have hr_mul := Nat.mul_le_mul_left 35 hr_power
+    norm_num at hr_mul
+    omega
+  let c := (p - 1) * (q - 1) * (r - 1)
+  let d := 2 * (p * q * r) - c
+  have hc_base : c ≤ p * q * r := by dsimp [c]; gcongr <;> omega
+  have hc_double : c ≤ 2 * (p * q * r) := hc_base.trans (by omega)
+  have hn_pos : 0 < p * q * r := mul_pos (mul_pos hp.pos hq.pos) hr.pos
+  have hd_pos : 0 < d := by dsimp [d]; omega
+  have hlinear : d * s + c = 1018406 := by
+    have hc_cast : (c : ℚ) = (p - 1) * (q - 1) * (r - 1) := by
+      dsimp [c]
+      push_cast [Nat.cast_sub hp.one_le, Nat.cast_sub hq.one_le, Nat.cast_sub hr.one_le]
+      rfl
+    apply Nat.cast_injective (R := ℚ)
+    dsimp [d]
+    rw [Nat.cast_add, Nat.cast_mul, Nat.cast_sub hc_double]
+    rw [hc_cast]
+    push_cast [Nat.cast_sub hp.one_le, Nat.cast_sub hq.one_le, Nat.cast_sub hr.one_le]
+    nlinarith [h]
+  have hc_le : c ≤ 1018406 := by omega
+  have hnum : 1018406 - c = d * s := by omega
+  have hmod : (1018406 - c) % d = 0 := by
+    rw [hnum]
+    exact Nat.mul_mod_right d s
+  have hquot : (1018406 - c) / d = s := by
+    rw [hnum]
+    exact Nat.mul_div_cancel_left s hd_pos
+  have hp_mem := prime_five_le_le_31_mem p hp hp5 hp31
+  have hq_mem := prime_five_le_le_58_mem q hq (by omega) hq58
+  have hr_mem := prime_five_le_le_170_mem r hr (by omega) hr170
+  have hnot_prime :=
+    four_prime_arithmetic_check p hp_mem q hq_mem r hr_mem hpq hqr hc_le hmod
+      (by rw [hquot]; exact hrs)
+  exact hnot_prime (hquot.symm ▸ hs)
+
+private lemma computation_lemma_check_five_primes (p q r s t : ℕ) (hp : p.Prime) (hq : q.Prime) (hr : r.Prime)
+    (hs : s.Prime) (ht : t.Prime) (hpq : p < q) (hqr : q < r) (hrs : r < s)
+    (hst : s < t) (hp5 : 5 ≤ p) (hm_lt : p * q * r * s * t < 2 * m_BS) :
+    2 * (p * q * r * s * t) - (p * q * r * s * t) *
+        (∏ x ∈ Nat.primeFactors (p * q * r * s * t), (1 - 1 / x : ℚ)) ≠
+      2 * m_BS := by
+  intro h
+  rw [Nat.primeFactors_mul
+      (mul_ne_zero (mul_ne_zero (mul_ne_zero hp.ne_zero hq.ne_zero) hr.ne_zero) hs.ne_zero)
+      ht.ne_zero,
+    Nat.primeFactors_mul (mul_ne_zero (mul_ne_zero hp.ne_zero hq.ne_zero) hr.ne_zero)
+      hs.ne_zero,
+    Nat.primeFactors_mul (mul_ne_zero hp.ne_zero hq.ne_zero) hr.ne_zero,
+    Nat.primeFactors_mul hp.ne_zero hq.ne_zero, hp.primeFactors, hq.primeFactors,
+    hr.primeFactors, hs.primeFactors, ht.primeFactors] at h
+  simp [hpq.ne, (hpq.trans hqr).ne, (hpq.trans (hqr.trans hrs)).ne,
+    (hpq.trans (hqr.trans (hrs.trans hst))).ne, hqr.ne, (hqr.trans hrs).ne,
+    (hqr.trans (hrs.trans hst)).ne, hrs.ne, (hrs.trans hst).ne, hst.ne] at h
+  have hp0 : (p : ℚ) ≠ 0 := by exact_mod_cast hp.ne_zero
+  have hq0 : (q : ℚ) ≠ 0 := by exact_mod_cast hq.ne_zero
+  have hr0 : (r : ℚ) ≠ 0 := by exact_mod_cast hr.ne_zero
+  have hs0 : (s : ℚ) ≠ 0 := by exact_mod_cast hs.ne_zero
+  have ht0 : (t : ℚ) ≠ 0 := by exact_mod_cast ht.ne_zero
+  have hprod :
+      (p : ℚ) * q * r * s * t * ((1 - (p : ℚ)⁻¹) * ((1 - (q : ℚ)⁻¹) *
+        ((1 - (r : ℚ)⁻¹) * ((1 - (s : ℚ)⁻¹) * (1 - (t : ℚ)⁻¹))))) =
+        (p - 1) * (q - 1) * (r - 1) * (s - 1) * (t - 1) := by
+    field_simp [hp0, hq0, hr0, hs0, ht0]
+  rw [hprod] at h
+  norm_num [m_BS] at h hm_lt
+  have hp_pow : p ^ 5 < p * q * r * s * t := by
+    calc
+      p ^ 5 = p * p * p * p * p := by ring
+      _ < p * q * r * s * t := by gcongr <;> omega
+  have hp15 : p ≤ 15 := by
+    by_contra hp_bound
+    have hp_ge : 16 ≤ p := by omega
+    have hp_power := Nat.pow_le_pow_left hp_ge 5
+    norm_num at hp_power
+    omega
+  have hq_pow : 5 * q ^ 4 < p * q * r * s * t := by
+    have hqq : q * q < r * s :=
+      mul_lt_mul hqr (by omega) hq.pos (Nat.zero_le r)
+    have hq3 : q ^ 3 < r * s * t := by
+      rw [show q ^ 3 = (q * q) * q by ring]
+      exact mul_lt_mul hqq (by omega) hq.pos (Nat.zero_le (r * s))
+    calc
+      5 * q ^ 4 = (5 * q) * q ^ 3 := by ring
+      _ ≤ (p * q) * q ^ 3 := Nat.mul_le_mul_right (q ^ 3) (by gcongr)
+      _ < (p * q) * (r * s * t) :=
+        Nat.mul_lt_mul_of_pos_left hq3 (mul_pos hp.pos hq.pos)
+      _ = p * q * r * s * t := by ring
+  have hq21 : q ≤ 21 := by
+    by_contra hq_bound
+    have hq_ge : 22 ≤ q := by omega
+    have hq_power := Nat.pow_le_pow_left hq_ge 4
+    have hq_mul := Nat.mul_le_mul_left 5 hq_power
+    norm_num at hq_mul
+    omega
+  have hq7 : 7 ≤ q := by
+    by_contra hq_bound
+    have hq6 : q ≤ 6 := by omega
+    interval_cases q <;> norm_num at hq <;> omega
+  have hr_pow : 5 * 7 * r ^ 3 < p * q * r * s * t := by
+    have hrr : r * r < s * t :=
+      mul_lt_mul hrs (by omega) hr.pos (Nat.zero_le s)
+    have hcoef : 5 * 7 ≤ p * q := mul_le_mul hp5 hq7 (by omega) (by omega)
+    calc
+      5 * 7 * r ^ 3 = (5 * 7) * r * (r * r) := by ring
+      _ ≤ (p * q) * r * (r * r) := by
+        simpa only [mul_assoc] using Nat.mul_le_mul_right (r * (r * r)) hcoef
+      _ < (p * q) * r * (s * t) :=
+        Nat.mul_lt_mul_of_pos_left hrr (mul_pos (mul_pos hp.pos hq.pos) hr.pos)
+      _ = p * q * r * s * t := by ring
+  have hr30 : r ≤ 30 := by
+    by_contra hr_bound
+    have hr_ge : 31 ≤ r := by omega
+    have hr_power := Nat.pow_le_pow_left hr_ge 3
+    have hr_mul := Nat.mul_le_mul_left 35 hr_power
+    norm_num at hr_mul
+    omega
+  have hr11 : 11 ≤ r := by
+    by_contra hr_bound
+    have hr10 : r ≤ 10 := by omega
+    interval_cases r <;> norm_num at hr <;> omega
+  have hs_pow : 5 * 7 * 11 * s ^ 2 < p * q * r * s * t := by
+    have hpq_lower : 5 * 7 ≤ p * q := mul_le_mul hp5 hq7 (by omega) (by omega)
+    have hcoef : 5 * 7 * 11 ≤ p * q * r :=
+      mul_le_mul hpq_lower hr11 (by omega) (by omega)
+    calc
+      5 * 7 * 11 * s ^ 2 = (5 * 7 * 11) * (s * s) := by ring
+      _ ≤ (p * q * r) * (s * s) := Nat.mul_le_mul_right (s * s) hcoef
+      _ < (p * q * r) * (s * t) :=
+        Nat.mul_lt_mul_of_pos_left
+          (Nat.mul_lt_mul_of_pos_left hst hs.pos)
+          (mul_pos (mul_pos hp.pos hq.pos) hr.pos)
+      _ = p * q * r * s * t := by ring
+  have hs51 : s ≤ 51 := by
+    by_contra hs_bound
+    have hs_ge : 52 ≤ s := by omega
+    have hs_power := Nat.pow_le_pow_left hs_ge 2
+    have hs_mul := Nat.mul_le_mul_left 385 hs_power
+    norm_num at hs_mul
+    omega
+  let c := (p - 1) * (q - 1) * (r - 1) * (s - 1)
+  let d := 2 * (p * q * r * s) - c
+  have hc_base : c ≤ p * q * r * s := by dsimp [c]; gcongr <;> omega
+  have hc_double : c ≤ 2 * (p * q * r * s) := hc_base.trans (by omega)
+  have hn_pos : 0 < p * q * r * s :=
+    mul_pos (mul_pos (mul_pos hp.pos hq.pos) hr.pos) hs.pos
+  have hd_pos : 0 < d := by dsimp [d]; omega
+  have hlinear : d * t + c = 1018406 := by
+    have hc_cast : (c : ℚ) = (p - 1) * (q - 1) * (r - 1) * (s - 1) := by
+      dsimp [c]
+      push_cast [Nat.cast_sub hp.one_le, Nat.cast_sub hq.one_le, Nat.cast_sub hr.one_le,
+        Nat.cast_sub hs.one_le]
+      rfl
+    apply Nat.cast_injective (R := ℚ)
+    dsimp [d]
+    rw [Nat.cast_add, Nat.cast_mul, Nat.cast_sub hc_double]
+    rw [hc_cast]
+    push_cast [Nat.cast_sub hp.one_le, Nat.cast_sub hq.one_le, Nat.cast_sub hr.one_le,
+      Nat.cast_sub hs.one_le]
+    nlinarith [h]
+  have hc_le : c ≤ 1018406 := by omega
+  have hnum : 1018406 - c = d * t := by omega
+  have hmod : (1018406 - c) % d = 0 := by
+    rw [hnum]
+    exact Nat.mul_mod_right d t
+  have hquot : (1018406 - c) / d = t := by
+    rw [hnum]
+    exact Nat.mul_div_cancel_left t hd_pos
+  have hp_mem := prime_five_le_le_15_mem p hp hp5 hp15
+  have hq_mem := prime_five_le_le_21_mem q hq (by omega) hq21
+  have hr_mem := prime_five_le_le_30_mem r hr (by omega) hr30
+  have hs_mem := prime_five_le_le_51_mem s hs (by omega) hs51
+  have hnot_prime := five_prime_arithmetic_check p hp_mem q hq_mem hpq r hr_mem s hs_mem
+    hqr hrs hc_le hmod (by rw [hquot]; exact hst)
+  exact hnot_prime (hquot.symm ▸ ht)
+
+
+
+private lemma six_large_primes_le_list_prod
+    (l : List ℕ) (hprime : ∀ p ∈ l, p.Prime) (hlower : ∀ p ∈ l, 5 ≤ p)
+    (hchain : l.IsChain (· ≤ ·)) (hnodup : l.Nodup) (hlen : 6 ≤ l.length) :
+    1616615 ≤ l.prod := by
+  match l with
+  | a :: b :: c :: d :: e :: f :: rest =>
+      have ha : a.Prime := hprime a (by simp)
+      have hb : b.Prime := hprime b (by simp)
+      have hc : c.Prime := hprime c (by simp)
+      have hd : d.Prime := hprime d (by simp)
+      have he : e.Prime := hprime e (by simp)
+      have hf : f.Prime := hprime f (by simp)
+      have hab_le : a ≤ b := (List.isChain_cons_cons.mp hchain).1
+      have hchain_b := (List.isChain_cons_cons.mp hchain).2
+      have hbc_le : b ≤ c := (List.isChain_cons_cons.mp hchain_b).1
+      have hchain_c := (List.isChain_cons_cons.mp hchain_b).2
+      have hcd_le : c ≤ d := (List.isChain_cons_cons.mp hchain_c).1
+      have hchain_d := (List.isChain_cons_cons.mp hchain_c).2
+      have hde_le : d ≤ e := (List.isChain_cons_cons.mp hchain_d).1
+      have hchain_e := (List.isChain_cons_cons.mp hchain_d).2
+      have hef_le : e ≤ f := (List.isChain_cons_cons.mp hchain_e).1
+      have hab_ne : a ≠ b := by
+        intro h
+        subst b
+        exact (List.nodup_cons.mp hnodup).1 (by simp)
+      have hnodup_b := (List.nodup_cons.mp hnodup).2
+      have hbc_ne : b ≠ c := by
+        intro h
+        subst c
+        exact (List.nodup_cons.mp hnodup_b).1 (by simp)
+      have hnodup_c := (List.nodup_cons.mp hnodup_b).2
+      have hcd_ne : c ≠ d := by
+        intro h
+        subst d
+        exact (List.nodup_cons.mp hnodup_c).1 (by simp)
+      have hnodup_d := (List.nodup_cons.mp hnodup_c).2
+      have hde_ne : d ≠ e := by
+        intro h
+        subst e
+        exact (List.nodup_cons.mp hnodup_d).1 (by simp)
+      have hnodup_e := (List.nodup_cons.mp hnodup_d).2
+      have hef_ne : e ≠ f := by
+        intro h
+        subst f
+        exact (List.nodup_cons.mp hnodup_e).1 (by simp)
+      have hab : a < b := by omega
+      have hbc : b < c := by omega
+      have hcd : c < d := by omega
+      have hde : d < e := by omega
+      have hef : e < f := by omega
+      have ha5 : 5 ≤ a := hlower a (by simp)
+      have hb7 : 7 ≤ b := by
+        by_contra h
+        have hb_le : b ≤ 6 := by omega
+        interval_cases b <;> norm_num at hb <;> omega
+      have hc11 : 11 ≤ c := by
+        by_contra h
+        have hc_le : c ≤ 10 := by omega
+        interval_cases c <;> norm_num at hc <;> omega
+      have hd13 : 13 ≤ d := by
+        by_contra h
+        have hd_le : d ≤ 12 := by omega
+        interval_cases d <;> norm_num at hd <;> omega
+      have he17 : 17 ≤ e := by
+        by_contra h
+        have he_le : e ≤ 16 := by omega
+        interval_cases e <;> norm_num at he <;> omega
+      have hf19 : 19 ≤ f := by
+        by_contra h
+        have hf_le : f ≤ 18 := by omega
+        interval_cases f <;> norm_num at hf <;> omega
+      have hfirst : 1616615 ≤ a * b * c * d * e * f := by
+        calc
+          1616615 = 5 * 7 * 11 * 13 * 17 * 19 := by norm_num
+          _ ≤ a * b * c * d * e * f := by gcongr
+      have hrest : 0 < rest.prod := List.prod_pos fun p hp ↦ (hprime p (by simp [hp])).pos
+      simpa only [List.prod_cons, mul_assoc] using
+        hfirst.trans (Nat.le_mul_of_pos_right _ hrest)
+  | [] => simp at hlen
+  | [_] => simp at hlen
+  | [_, _] => simp at hlen
+  | [_, _, _] => simp at hlen
+  | [_, _, _, _] => simp at hlen
+  | [_, _, _, _, _] => simp at hlen
+
+private lemma primeFactors_card_le_five
+    (m : ℕ) (hm_lt : m < 2 * m_BS) (hm_odd : Odd m) (hm_sq : Squarefree m)
+    (hm_not_div3 : ¬3 ∣ m) :
+    m.primeFactors.card ≤ 5 := by
+  have hm0 : m ≠ 0 := by
+    rintro rfl
+    norm_num at hm_odd
+  have hnodup := hm_sq.nodup_primeFactorsList
+  have hcard_eq : m.primeFactors.card = m.primeFactorsList.length := by
+    change m.primeFactorsList.toFinset.card = m.primeFactorsList.length
+    exact List.toFinset_card_of_nodup hnodup
+  by_contra hcard
+  have hlen : 6 ≤ m.primeFactorsList.length := by omega
+  have hprime : ∀ p ∈ m.primeFactorsList, p.Prime := by
+    exact fun p hp ↦ Nat.prime_of_mem_primeFactorsList hp
+  have hlower : ∀ p ∈ m.primeFactorsList, 5 ≤ p := by
+    intro p hp
+    have hp_prime := Nat.prime_of_mem_primeFactorsList hp
+    have hp_dvd : p ∣ m := (Nat.mem_primeFactorsList hm0).mp hp |>.2
+    have hp2 : p ≠ 2 := by
+      rintro rfl
+      exact absurd (hm_odd.of_dvd_nat hp_dvd) (by norm_num)
+    have hp3 : p ≠ 3 := by
+      rintro rfl
+      exact hm_not_div3 hp_dvd
+    exact hp_prime.five_le_of_ne_two_of_ne_three hp2 hp3
+  have hlarge := six_large_primes_le_list_prod m.primeFactorsList hprime hlower
+    (Nat.isChain_primeFactorsList m) hnodup hlen
+  rw [Nat.prod_primeFactorsList hm0] at hlarge
+  norm_num [m_BS] at hm_lt
+  omega
+
+private lemma squarefree_three_primeFactors
+    (m : ℕ) (hm_sq : Squarefree m) (hcard : m.primeFactors.card = 3) :
+    ∃ p q r, p.Prime ∧ q.Prime ∧ r.Prime ∧ p < q ∧ q < r ∧ m = p * q * r := by
+  have hm0 : m ≠ 0 := by
+    rintro rfl
+    simp at hcard
+  have hnodup := hm_sq.nodup_primeFactorsList
+  have hcard_eq : m.primeFactors.card = m.primeFactorsList.length := by
+    change m.primeFactorsList.toFinset.card = m.primeFactorsList.length
+    exact List.toFinset_card_of_nodup hnodup
+  have hlen : m.primeFactorsList.length = 3 := by omega
+  obtain ⟨p, q, r, hlist⟩ := List.length_eq_three.mp hlen
+  have hp_mem : p ∈ m.primeFactorsList := by rw [hlist]; simp
+  have hq_mem : q ∈ m.primeFactorsList := by rw [hlist]; simp
+  have hr_mem : r ∈ m.primeFactorsList := by rw [hlist]; simp
+  have hp := Nat.prime_of_mem_primeFactorsList hp_mem
+  have hq := Nat.prime_of_mem_primeFactorsList hq_mem
+  have hr := Nat.prime_of_mem_primeFactorsList hr_mem
+  have hchain := Nat.isChain_primeFactorsList m
+  rw [hlist] at hchain
+  simp only [List.isChain_cons_cons, List.isChain_singleton] at hchain
+  have hpq_ne : p ≠ q := by
+    intro hpq
+    subst q
+    rw [hlist] at hnodup
+    simp at hnodup
+  have hqr_ne : q ≠ r := by
+    intro hqr
+    subst r
+    rw [hlist] at hnodup
+    simp at hnodup
+  have hpq : p < q := by omega
+  have hqr : q < r := by omega
+  have hm_eq : m = p * q * r := by
+    rw [← Nat.prod_primeFactorsList hm0, hlist]
+    simp [mul_assoc]
+  exact ⟨p, q, r, hp, hq, hr, hpq, hqr, hm_eq⟩
+
+private lemma squarefree_four_primeFactors
+    (m : ℕ) (hm_sq : Squarefree m) (hcard : m.primeFactors.card = 4) :
+    ∃ p q r s, p.Prime ∧ q.Prime ∧ r.Prime ∧ s.Prime ∧
+      p < q ∧ q < r ∧ r < s ∧ m = p * q * r * s := by
+  have hm0 : m ≠ 0 := by
+    rintro rfl
+    simp at hcard
+  have hnodup := hm_sq.nodup_primeFactorsList
+  have hcard_eq : m.primeFactors.card = m.primeFactorsList.length := by
+    change m.primeFactorsList.toFinset.card = m.primeFactorsList.length
+    exact List.toFinset_card_of_nodup hnodup
+  have hlen : m.primeFactorsList.length = 4 := by omega
+  obtain ⟨p, q, r, s, hlist⟩ := List.length_eq_four.mp hlen
+  have hp := Nat.prime_of_mem_primeFactorsList
+    (show p ∈ m.primeFactorsList by rw [hlist]; simp)
+  have hq := Nat.prime_of_mem_primeFactorsList
+    (show q ∈ m.primeFactorsList by rw [hlist]; simp)
+  have hr := Nat.prime_of_mem_primeFactorsList
+    (show r ∈ m.primeFactorsList by rw [hlist]; simp)
+  have hs := Nat.prime_of_mem_primeFactorsList
+    (show s ∈ m.primeFactorsList by rw [hlist]; simp)
+  have hchain := Nat.isChain_primeFactorsList m
+  rw [hlist] at hchain
+  simp only [List.isChain_cons_cons, List.isChain_singleton] at hchain
+  rw [hlist] at hnodup
+  simp only [List.nodup_cons, List.mem_cons, List.not_mem_nil, or_false] at hnodup
+  have hpq : p < q := by omega
+  have hqr : q < r := by omega
+  have hrs : r < s := by omega
+  have hm_eq : m = p * q * r * s := by
+    rw [← Nat.prod_primeFactorsList hm0, hlist]
+    simp [mul_assoc]
+  exact ⟨p, q, r, s, hp, hq, hr, hs, hpq, hqr, hrs, hm_eq⟩
+
+private lemma list_length_eq_five {α : Type*} {l : List α} :
+    l.length = 5 ↔ ∃ a b c d e, l = [a, b, c, d, e] :=
+  ⟨fun _ => let [a, b, c, d, e] := l; ⟨a, b, c, d, e, rfl⟩,
+    fun ⟨_, _, _, _, _, h⟩ => h ▸ rfl⟩
+
+private lemma squarefree_five_primeFactors
+    (m : ℕ) (hm_sq : Squarefree m) (hcard : m.primeFactors.card = 5) :
+    ∃ p q r s t, p.Prime ∧ q.Prime ∧ r.Prime ∧ s.Prime ∧ t.Prime ∧
+      p < q ∧ q < r ∧ r < s ∧ s < t ∧ m = p * q * r * s * t := by
+  have hm0 : m ≠ 0 := by
+    rintro rfl
+    simp at hcard
+  have hnodup := hm_sq.nodup_primeFactorsList
+  have hcard_eq : m.primeFactors.card = m.primeFactorsList.length := by
+    change m.primeFactorsList.toFinset.card = m.primeFactorsList.length
+    exact List.toFinset_card_of_nodup hnodup
+  have hlen : m.primeFactorsList.length = 5 := by omega
+  obtain ⟨p, q, r, s, t, hlist⟩ := list_length_eq_five.mp hlen
+  have hp := Nat.prime_of_mem_primeFactorsList
+    (show p ∈ m.primeFactorsList by rw [hlist]; simp)
+  have hq := Nat.prime_of_mem_primeFactorsList
+    (show q ∈ m.primeFactorsList by rw [hlist]; simp)
+  have hr := Nat.prime_of_mem_primeFactorsList
+    (show r ∈ m.primeFactorsList by rw [hlist]; simp)
+  have hs := Nat.prime_of_mem_primeFactorsList
+    (show s ∈ m.primeFactorsList by rw [hlist]; simp)
+  have ht := Nat.prime_of_mem_primeFactorsList
+    (show t ∈ m.primeFactorsList by rw [hlist]; simp)
+  have hchain := Nat.isChain_primeFactorsList m
+  rw [hlist] at hchain
+  simp only [List.isChain_cons_cons, List.isChain_singleton] at hchain
+  rw [hlist] at hnodup
+  simp only [List.nodup_cons, List.mem_cons, List.not_mem_nil, or_false] at hnodup
+  have hpq : p < q := by omega
+  have hqr : q < r := by omega
+  have hrs : r < s := by omega
+  have hst : s < t := by omega
+  have hm_eq : m = p * q * r * s * t := by
+    rw [← Nat.prod_primeFactorsList hm0, hlist]
+    simp [mul_assoc]
+  exact ⟨p, q, r, s, t, hp, hq, hr, hs, ht, hpq, hqr, hrs, hst, hm_eq⟩
+
 private lemma computation_lemma_check :
     ∀ m ∈ Finset.Ico (m_BS + 1) (2 * m_BS), Odd m → Squarefree m → ¬(3 ∣ m) →
       2 * m - m * (∏ p ∈ Nat.primeFactors m, (1 - 1 / p : ℚ)) ≠ 2 * m_BS := by
-  native_decide +revert
+  intro m hm hm_odd hm_sq hm_not_div3
+  by_cases hcard_zero : m.primeFactors.card = 0
+  · rw [Finset.card_eq_zero, Nat.primeFactors_eq_empty] at hcard_zero
+    have hm_bounds := Finset.mem_Ico.mp hm
+    omega
+  by_cases hcard_one : m.primeFactors.card = 1
+  · have hm_prime : m.Prime := by
+      rw [← Nat.squarefree_and_prime_pow_iff_prime]
+      exact ⟨hm_sq, isPrimePow_iff_card_primeFactors_eq_one.mpr hcard_one⟩
+    exact computation_lemma_check_prime m hm_prime
+  by_cases hcard_two : m.primeFactors.card = 2
+  · obtain ⟨p, q, hpq, hset⟩ := Finset.card_eq_two.mp hcard_two
+    have hp_mem : p ∈ m.primeFactors := by simp [hset]
+    have hq_mem : q ∈ m.primeFactors := by simp [hset]
+    have hp : p.Prime := Nat.prime_of_mem_primeFactors hp_mem
+    have hq : q.Prime := Nat.prime_of_mem_primeFactors hq_mem
+    have hm_eq : m = p * q := by
+      rw [← Nat.prod_primeFactors_of_squarefree hm_sq, hset]
+      simp [hpq]
+    subst m
+    have hp2 : p ≠ 2 := by
+      rintro rfl
+      exact absurd (hm_odd.of_dvd_nat (dvd_mul_right 2 q)) (by norm_num)
+    have hq2 : q ≠ 2 := by
+      rintro rfl
+      exact absurd (hm_odd.of_dvd_nat (dvd_mul_left 2 p)) (by norm_num)
+    have hp3 : p ≠ 3 := by
+      rintro rfl
+      exact hm_not_div3 (dvd_mul_right 3 q)
+    have hq3 : q ≠ 3 := by
+      rintro rfl
+      exact hm_not_div3 (dvd_mul_left 3 p)
+    simpa only [Nat.cast_mul] using
+      computation_lemma_check_two_primes p q hp hq hpq hp2 hq2 hp3 hq3
+  have hcard_le :=
+    primeFactors_card_le_five m (Finset.mem_Ico.mp hm).2 hm_odd hm_sq hm_not_div3
+  have hcard_cases : m.primeFactors.card = 3 ∨ m.primeFactors.card = 4 ∨
+      m.primeFactors.card = 5 := by omega
+  rcases hcard_cases with hcard_three | hcard_four | hcard_five
+  · obtain ⟨p, q, r, hp, hq, hr, hpq, hqr, hm_eq⟩ :=
+      squarefree_three_primeFactors m hm_sq hcard_three
+    have hp_dvd : p ∣ m := by rw [hm_eq]; simp [mul_assoc]
+    have hp2 : p ≠ 2 := by
+      rintro rfl
+      exact absurd (hm_odd.of_dvd_nat hp_dvd) (by norm_num)
+    have hp3 : p ≠ 3 := by
+      rintro rfl
+      exact hm_not_div3 hp_dvd
+    have hp5 := hp.five_le_of_ne_two_of_ne_three hp2 hp3
+    subst m
+    simpa only [Nat.cast_mul] using computation_lemma_check_three_primes p q r hp hq hr
+      hpq hqr hp5 (Finset.mem_Ico.mp hm).2
+  · obtain ⟨p, q, r, s, hp, hq, hr, hs, hpq, hqr, hrs, hm_eq⟩ :=
+      squarefree_four_primeFactors m hm_sq hcard_four
+    have hp_dvd : p ∣ m := by rw [hm_eq]; simp [mul_assoc]
+    have hp2 : p ≠ 2 := by
+      rintro rfl
+      exact absurd (hm_odd.of_dvd_nat hp_dvd) (by norm_num)
+    have hp3 : p ≠ 3 := by
+      rintro rfl
+      exact hm_not_div3 hp_dvd
+    have hp5 := hp.five_le_of_ne_two_of_ne_three hp2 hp3
+    subst m
+    simpa only [Nat.cast_mul] using computation_lemma_check_four_primes p q r s hp hq hr hs
+      hpq hqr hrs hp5 (Finset.mem_Ico.mp hm).2
+  · obtain ⟨p, q, r, s, t, hp, hq, hr, hs, ht, hpq, hqr, hrs, hst, hm_eq⟩ :=
+      squarefree_five_primeFactors m hm_sq hcard_five
+    have hp_dvd : p ∣ m := by rw [hm_eq]; simp [mul_assoc]
+    have hp2 : p ≠ 2 := by
+      rintro rfl
+      exact absurd (hm_odd.of_dvd_nat hp_dvd) (by norm_num)
+    have hp3 : p ≠ 3 := by
+      rintro rfl
+      exact hm_not_div3 hp_dvd
+    have hp5 := hp.five_le_of_ne_two_of_ne_three hp2 hp3
+    subst m
+    simpa only [Nat.cast_mul] using computation_lemma_check_five_primes p q r s t hp hq hr
+      hs ht hpq hqr hrs hst hp5 (Finset.mem_Ico.mp hm).2
 
 
 lemma computation_lemma : ¬ ∃ m, IsSolution m := by
@@ -835,9 +1677,6 @@ theorem erdos_418 : { (n - n.totient : ℕ) | n }ᶜ.Infinite := by
       exact ⟨ n, hn.symm ⟩ ;
 
 #print axioms erdos_418
--- 'Erdos418.erdos_418' depends on axioms: [propext,
--- Classical.choice,
--- Quot.sound,
--- computation_lemma_check._native.native_decide.ax_1_1]
+-- 'Erdos418.erdos_418' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos418
