@@ -7,8 +7,7 @@
   "permitted_axioms": [
     "propext",
     "Classical.choice",
-    "Quot.sound",
-    "_private.ErdosProblems.Erdos418.0.Erdos418.computation_lemma_check._native.native_decide.ax_1_1"
+    "Quot.sound"
   ],
-  "enable_nanoda": false
+  "enable_nanoda": true
 }
