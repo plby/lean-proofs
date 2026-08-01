@@ -222,38 +222,26 @@ private def D_R_vec : Fin 5 → ℚ := fun i =>
   | 4 => 0
   | _ => 0
 
+set_option maxHeartbeats 5000000 in
 private lemma P_ldlt : P_cert = L_P * Matrix.diagonal D_P_vec * L_P.transpose := by
-  ext i j
-  rw [Matrix.mul_apply]
-  simp only [Matrix.mul_diagonal, Matrix.transpose_apply]
-  fin_cases i <;> fin_cases j <;>
-    norm_num [P_cert, L_P, D_P_vec, Fin.sum_univ_eight]
+  decide +kernel
 
+set_option maxHeartbeats 5000000 in
 private lemma Q_ldlt : Q_cert = L_Q * Matrix.diagonal D_Q_vec * L_Q.transpose := by
-  ext i j
-  rw [Matrix.mul_apply]
-  simp only [Matrix.mul_diagonal, Matrix.transpose_apply]
-  fin_cases i <;> fin_cases j <;>
-    norm_num [Q_cert, L_Q, D_Q_vec, Fin.sum_univ_six]
+  decide +kernel
 
+set_option maxHeartbeats 5000000 in
 private lemma R_ldlt : R_cert = L_R * Matrix.diagonal D_R_vec * L_R.transpose := by
-  ext i j
-  rw [Matrix.mul_apply]
-  simp only [Matrix.mul_diagonal, Matrix.transpose_apply]
-  fin_cases i <;> fin_cases j <;>
-    norm_num [R_cert, L_R, D_R_vec, Fin.sum_univ_five]
+  decide +kernel
 
 private lemma D_P_nonneg : ∀ i : Fin 8, 0 ≤ D_P_vec i := by
-  intro i
-  fin_cases i <;> norm_num [D_P_vec]
+  decide +kernel
 
 private lemma D_Q_nonneg : ∀ i : Fin 6, 0 ≤ D_Q_vec i := by
-  intro i
-  fin_cases i <;> norm_num [D_Q_vec]
+  decide +kernel
 
 private lemma D_R_nonneg : ∀ i : Fin 5, 0 ≤ D_R_vec i := by
-  intro i
-  fin_cases i <;> norm_num [D_R_vec]
+  decide +kernel
 
 /-- If `M = L * diag(d) * Lᵀ` with `d ≥ 0`, then `M` is positive semidefinite. -/
 lemma psd_of_ldlt {n : ℕ} (M L : Matrix (Fin n) (Fin n) ℚ) (d : Fin n → ℚ)
@@ -2477,42 +2465,1179 @@ lemma psd_lower_bound_injective {V : Type*} [Fintype V] (G : SimpleGraph V) :
 ## § 10. Counting Identity
 -/
 
-attribute [-instance] Classical.propDecidable in
-set_option maxRecDepth 100000 in
-lemma totalFlagContrib_mkAdj5_edgeBits_eq_permSum :
+private def triangleFreeRepresentativeMask (k : Fin 14) : Nat :=
+  match k.val with
+  | 0 => 0 | 1 => 1 | 2 => 3 | 3 => 7 | 4 => 15 | 5 => 20 | 6 => 21
+  | 7 => 28 | 8 => 29 | 9 => 54 | 10 => 58 | 11 => 62 | 12 => 126 | 13 => 220
+  | _ => 0
+
+private def triangleFreeRepresentativeEdges (k : Fin 14) : Fin 10 → Bool := fun i =>
+  (triangleFreeRepresentativeMask k).testBit i.val
+
+/-- Decode the factoradic code of a permutation of `Fin 5`. -/
+private def triangleFreePermOfCode (code : Fin 120) : Equiv.Perm (Fin 5) :=
+  let a : Fin 5 := ⟨code.val % 5, Nat.mod_lt _ (by decide)⟩
+  let q1 := code.val / 5
+  let b : Fin 4 := ⟨q1 % 4, Nat.mod_lt _ (by decide)⟩
+  let q2 := q1 / 4
+  let c : Fin 3 := ⟨q2 % 3, Nat.mod_lt _ (by decide)⟩
+  let q3 := q2 / 3
+  let d : Fin 2 := ⟨q3 % 2, Nat.mod_lt _ (by decide)⟩
+  Equiv.Perm.decomposeFin.symm
+    (a, Equiv.Perm.decomposeFin.symm
+      (b, Equiv.Perm.decomposeFin.symm
+        (c, Equiv.Perm.decomposeFin.symm (d, 1))))
+
+/-- Generated classification certificate. The quotient by 120 selects one of the
+14 triangle-free graph representatives; the remainder is a permutation code. -/
+private def triangleFreeClassData
+    (b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 : Bool) : Nat :=
+  match b0, b1, b2, b3, b4, b5, b6, b7, b8, b9 with
+  | false, false, false, false, false, false, false, false, false, false => 0
+  | true, false, false, false, false, false, false, false, false, false => 120
+  | false, true, false, false, false, false, false, false, false, false => 125
+  | true, true, false, false, false, false, false, false, false, false => 240
+  | false, false, true, false, false, false, false, false, false, false => 130
+  | true, false, true, false, false, false, false, false, false, false => 260
+  | false, true, true, false, false, false, false, false, false, false => 250
+  | true, true, true, false, false, false, false, false, false, false => 360
+  | false, false, false, true, false, false, false, false, false, false => 135
+  | true, false, false, true, false, false, false, false, false, false => 280
+  | false, true, false, true, false, false, false, false, false, false => 255
+  | true, true, false, true, false, false, false, false, false, false => 420
+  | false, false, true, true, false, false, false, false, false, false => 275
+  | true, false, true, true, false, false, false, false, false, false => 400
+  | false, true, true, true, false, false, false, false, false, false => 375
+  | true, true, true, true, false, false, false, false, false, false => 480
+  | false, false, false, false, true, false, false, false, false, false => 122
+  | true, false, false, false, true, false, false, false, false, false => 241
+  | false, true, false, false, true, false, false, false, false, false => 242
+  | true, true, false, false, true, false, false, false, false, false => 0
+  | false, false, true, false, true, false, false, false, false, false => 600
+  | true, false, true, false, true, false, false, false, false, false => 720
+  | false, true, true, false, true, false, false, false, false, false => 725
+  | true, true, true, false, true, false, false, false, false, false => 0
+  | false, false, false, true, true, false, false, false, false, false => 660
+  | true, false, false, true, true, false, false, false, false, false => 780
+  | false, true, false, true, true, false, false, false, false, false => 785
+  | true, true, false, true, true, false, false, false, false, false => 0
+  | false, false, true, true, true, false, false, false, false, false => 840
+  | true, false, true, true, true, false, false, false, false, false => 960
+  | false, true, true, true, true, false, false, false, false, false => 965
+  | true, true, true, true, true, false, false, false, false, false => 0
+  | false, false, false, false, false, true, false, false, false, false => 123
+  | true, false, false, false, false, true, false, false, false, false => 261
+  | false, true, false, false, false, true, false, false, false, false => 601
+  | true, true, false, false, false, true, false, false, false, false => 721
+  | false, false, true, false, false, true, false, false, false, false => 263
+  | true, false, true, false, false, true, false, false, false, false => 0
+  | false, true, true, false, false, true, false, false, false, false => 733
+  | true, true, true, false, false, true, false, false, false, false => 0
+  | false, false, false, true, false, true, false, false, false, false => 641
+  | true, false, false, true, false, true, false, false, false, false => 761
+  | false, true, false, true, false, true, false, false, false, false => 860
+  | true, true, false, true, false, true, false, false, false, false => 980
+  | false, false, true, true, false, true, false, false, false, false => 773
+  | true, false, true, true, false, true, false, false, false, false => 0
+  | false, true, true, true, false, true, false, false, false, false => 990
+  | true, true, true, true, false, true, false, false, false, false => 0
+  | false, false, false, false, true, true, false, false, false, false => 251
+  | true, false, false, false, true, true, false, false, false, false => 361
+  | false, true, false, false, true, true, false, false, false, false => 726
+  | true, true, false, false, true, true, false, false, false, false => 0
+  | false, false, true, false, true, true, false, false, false, false => 723
+  | true, false, true, false, true, true, false, false, false, false => 0
+  | false, true, true, false, true, true, false, false, false, false => 1080
+  | true, true, true, false, true, true, false, false, false, false => 0
+  | false, false, false, true, true, true, false, false, false, false => 881
+  | true, false, false, true, true, true, false, false, false, false => 1001
+  | false, true, false, true, true, true, false, false, false, false => 1200
+  | true, true, false, true, true, true, false, false, false, false => 0
+  | false, false, true, true, true, true, false, false, false, false => 1220
+  | true, false, true, true, true, true, false, false, false, false => 0
+  | false, true, true, true, true, true, false, false, false, false => 1320
+  | true, true, true, true, true, true, false, false, false, false => 0
+  | false, false, false, false, false, false, true, false, false, false => 124
+  | true, false, false, false, false, false, true, false, false, false => 281
+  | false, true, false, false, false, false, true, false, false, false => 661
+  | true, true, false, false, false, false, true, false, false, false => 781
+  | false, false, true, false, false, false, true, false, false, false => 640
+  | true, false, true, false, false, false, true, false, false, false => 760
+  | false, true, true, false, false, false, true, false, false, false => 880
+  | true, true, true, false, false, false, true, false, false, false => 1000
+  | false, false, false, true, false, false, true, false, false, false => 284
+  | true, false, false, true, false, false, true, false, false, false => 0
+  | false, true, false, true, false, false, true, false, false, false => 799
+  | true, true, false, true, false, false, true, false, false, false => 0
+  | false, false, true, true, false, false, true, false, false, false => 775
+  | true, false, true, true, false, false, true, false, false, false => 0
+  | false, true, true, true, false, false, true, false, false, false => 1015
+  | true, true, true, true, false, false, true, false, false, false => 0
+  | false, false, false, false, true, false, true, false, false, false => 256
+  | true, false, false, false, true, false, true, false, false, false => 421
+  | false, true, false, false, true, false, true, false, false, false => 786
+  | true, true, false, false, true, false, true, false, false, false => 0
+  | false, false, true, false, true, false, true, false, false, false => 861
+  | true, false, true, false, true, false, true, false, false, false => 981
+  | false, true, true, false, true, false, true, false, false, false => 1201
+  | true, true, true, false, true, false, true, false, false, false => 0
+  | false, false, false, true, true, false, true, false, false, false => 784
+  | true, false, false, true, true, false, true, false, false, false => 0
+  | false, true, false, true, true, false, true, false, false, false => 1140
+  | true, true, false, true, true, false, true, false, false, false => 0
+  | false, false, true, true, true, false, true, false, false, false => 1241
+  | true, false, true, true, true, false, true, false, false, false => 0
+  | false, true, true, true, true, false, true, false, false, false => 1380
+  | true, true, true, true, true, false, true, false, false, false => 0
+  | false, false, false, false, false, true, true, false, false, false => 276
+  | true, false, false, false, false, true, true, false, false, false => 401
+  | false, true, false, false, false, true, true, false, false, false => 841
+  | true, true, false, false, false, true, true, false, false, false => 961
+  | false, false, true, false, false, true, true, false, false, false => 763
+  | true, false, true, false, false, true, true, false, false, false => 0
+  | false, true, true, false, false, true, true, false, false, false => 1221
+  | true, true, true, false, false, true, true, false, false, false => 0
+  | false, false, false, true, false, true, true, false, false, false => 776
+  | true, false, false, true, false, true, true, false, false, false => 0
+  | false, true, false, true, false, true, true, false, false, false => 1240
+  | true, true, false, true, false, true, true, false, false, false => 0
+  | false, false, true, true, false, true, true, false, false, false => 1120
+  | true, false, true, true, false, true, true, false, false, false => 0
+  | false, true, true, true, false, true, true, false, false, false => 1360
+  | true, true, true, true, false, true, true, false, false, false => 0
+  | false, false, false, false, true, true, true, false, false, false => 376
+  | true, false, false, false, true, true, true, false, false, false => 481
+  | false, true, false, false, true, true, true, false, false, false => 966
+  | true, true, false, false, true, true, true, false, false, false => 0
+  | false, false, true, false, true, true, true, false, false, false => 991
+  | true, false, true, false, true, true, true, false, false, false => 0
+  | false, true, true, false, true, true, true, false, false, false => 1321
+  | true, true, true, false, true, true, true, false, false, false => 0
+  | false, false, false, true, true, true, true, false, false, false => 1016
+  | true, false, false, true, true, true, true, false, false, false => 0
+  | false, true, false, true, true, true, true, false, false, false => 1381
+  | true, true, false, true, true, true, true, false, false, false => 0
+  | false, false, true, true, true, true, true, false, false, false => 1361
+  | true, false, true, true, true, true, true, false, false, false => 0
+  | false, true, true, true, true, true, true, false, false, false => 1440
+  | true, true, true, true, true, true, true, false, false, false => 0
+  | false, false, false, false, false, false, false, true, false, false => 128
+  | true, false, false, false, false, false, false, true, false, false => 602
+  | false, true, false, false, false, false, false, true, false, false => 252
+  | true, true, false, false, false, false, false, true, false, false => 727
+  | false, false, true, false, false, false, false, true, false, false => 253
+  | true, false, true, false, false, false, false, true, false, false => 730
+  | false, true, true, false, false, false, false, true, false, false => 0
+  | true, true, true, false, false, false, false, true, false, false => 0
+  | false, false, false, true, false, false, false, true, false, false => 617
+  | true, false, false, true, false, false, false, true, false, false => 850
+  | false, true, false, true, false, false, false, true, false, false => 767
+  | true, true, false, true, false, false, false, true, false, false => 985
+  | false, false, true, true, false, false, false, true, false, false => 790
+  | true, false, true, true, false, false, false, true, false, false => 970
+  | false, true, true, true, false, false, false, true, false, false => 0
+  | true, true, true, true, false, false, false, true, false, false => 0
+  | false, false, false, false, true, false, false, true, false, false => 262
+  | true, false, false, false, true, false, false, true, false, false => 722
+  | false, true, false, false, true, false, false, true, false, false => 362
+  | true, true, false, false, true, false, false, true, false, false => 0
+  | false, false, true, false, true, false, false, true, false, false => 728
+  | true, false, true, false, true, false, false, true, false, false => 1083
+  | false, true, true, false, true, false, false, true, false, false => 0
+  | true, true, true, false, true, false, false, true, false, false => 0
+  | false, false, false, true, true, false, false, true, false, false => 857
+  | true, false, false, true, true, false, false, true, false, false => 1205
+  | false, true, false, true, true, false, false, true, false, false => 1007
+  | true, true, false, true, true, false, false, true, false, false => 0
+  | false, false, true, true, true, false, false, true, false, false => 1225
+  | true, false, true, true, true, false, false, true, false, false => 1325
+  | false, true, true, true, true, false, false, true, false, false => 0
+  | true, true, true, true, true, false, false, true, false, false => 0
+  | false, false, false, false, false, true, false, true, false, false => 243
+  | true, false, false, false, false, true, false, true, false, false => 731
+  | false, true, false, false, false, true, false, true, false, false => 748
+  | true, true, false, false, false, true, false, true, false, false => 1082
+  | false, false, true, false, false, true, false, true, false, false => 363
+  | true, false, true, false, false, true, false, true, false, false => 0
+  | false, true, true, false, false, true, false, true, false, false => 0
+  | true, true, true, false, false, true, false, true, false, false => 0
+  | false, false, false, true, false, true, false, true, false, false => 878
+  | true, false, false, true, false, true, false, true, false, false => 1230
+  | false, true, false, true, false, true, false, true, false, false => 1210
+  | true, true, false, true, false, true, false, true, false, false => 1330
+  | false, false, true, true, false, true, false, true, false, false => 1013
+  | true, false, true, true, false, true, false, true, false, false => 0
+  | false, true, true, true, false, true, false, true, false, false => 0
+  | true, true, true, true, false, true, false, true, false, false => 0
+  | false, false, false, false, true, true, false, true, false, false => 0
+  | true, false, false, false, true, true, false, true, false, false => 0
+  | false, true, false, false, true, true, false, true, false, false => 0
+  | true, true, false, false, true, true, false, true, false, false => 0
+  | false, false, true, false, true, true, false, true, false, false => 0
+  | true, false, true, false, true, true, false, true, false, false => 0
+  | false, true, true, false, true, true, false, true, false, false => 0
+  | true, true, true, false, true, true, false, true, false, false => 0
+  | false, false, false, true, true, true, false, true, false, false => 0
+  | true, false, false, true, true, true, false, true, false, false => 0
+  | false, true, false, true, true, true, false, true, false, false => 0
+  | true, true, false, true, true, true, false, true, false, false => 0
+  | false, false, true, true, true, true, false, true, false, false => 0
+  | true, false, true, true, true, true, false, true, false, false => 0
+  | false, true, true, true, true, true, false, true, false, false => 0
+  | true, true, true, true, true, true, false, true, false, false => 0
+  | false, false, false, false, false, false, true, true, false, false => 614
+  | true, false, false, false, false, false, true, true, false, false => 851
+  | false, true, false, false, false, false, true, true, false, false => 882
+  | true, true, false, false, false, false, true, true, false, false => 1206
+  | false, false, true, false, false, false, true, true, false, false => 883
+  | true, false, true, false, false, false, true, true, false, false => 1231
+  | false, true, true, false, false, false, true, true, false, false => 0
+  | true, true, true, false, false, false, true, true, false, false => 0
+  | false, false, false, true, false, false, true, true, false, false => 854
+  | true, false, false, true, false, false, true, true, false, false => 0
+  | false, true, false, true, false, false, true, true, false, false => 1249
+  | true, true, false, true, false, false, true, true, false, false => 0
+  | false, false, true, true, false, false, true, true, false, false => 1298
+  | true, false, true, true, false, false, true, true, false, false => 0
+  | false, true, true, true, false, false, true, true, false, false => 0
+  | true, true, true, true, false, false, true, true, false, false => 0
+  | false, false, false, false, true, false, true, true, false, false => 762
+  | true, false, false, false, true, false, true, true, false, false => 986
+  | false, true, false, false, true, false, true, true, false, false => 1002
+  | true, true, false, false, true, false, true, true, false, false => 0
+  | false, false, true, false, true, false, true, true, false, false => 1211
+  | true, false, true, false, true, false, true, true, false, false => 1331
+  | false, true, true, false, true, false, true, true, false, false => 0
+  | true, true, true, false, true, false, true, true, false, false => 0
+  | false, false, false, true, true, false, true, true, false, false => 1209
+  | true, false, false, true, true, false, true, true, false, false => 0
+  | false, true, false, true, true, false, true, true, false, false => 1397
+  | true, true, false, true, true, false, true, true, false, false => 0
+  | false, false, true, true, true, false, true, true, false, false => 1560
+  | true, false, true, true, true, false, true, true, false, false => 0
+  | false, true, true, true, true, false, true, true, false, false => 0
+  | true, true, true, true, true, false, true, true, false, false => 0
+  | false, false, false, false, false, true, true, true, false, false => 791
+  | true, false, false, false, false, true, true, true, false, false => 971
+  | false, true, false, false, false, true, true, true, false, false => 1226
+  | true, true, false, false, false, true, true, true, false, false => 1326
+  | false, false, true, false, false, true, true, true, false, false => 1003
+  | true, false, true, false, false, true, true, true, false, false => 0
+  | false, true, true, false, false, true, true, true, false, false => 0
+  | true, true, true, false, false, true, true, true, false, false => 0
+  | false, false, false, true, false, true, true, true, false, false => 1234
+  | true, false, false, true, false, true, true, true, false, false => 0
+  | false, true, false, true, false, true, true, true, false, false => 1561
+  | true, true, false, true, false, true, true, true, false, false => 0
+  | false, false, true, true, false, true, true, true, false, false => 1378
+  | true, false, true, true, false, true, true, true, false, false => 0
+  | false, true, true, true, false, true, true, true, false, false => 0
+  | true, true, true, true, false, true, true, true, false, false => 0
+  | false, false, false, false, true, true, true, true, false, false => 0
+  | true, false, false, false, true, true, true, true, false, false => 0
+  | false, true, false, false, true, true, true, true, false, false => 0
+  | true, true, false, false, true, true, true, true, false, false => 0
+  | false, false, true, false, true, true, true, true, false, false => 0
+  | true, false, true, false, true, true, true, true, false, false => 0
+  | false, true, true, false, true, true, true, true, false, false => 0
+  | true, true, true, false, true, true, true, true, false, false => 0
+  | false, false, false, true, true, true, true, true, false, false => 0
+  | true, false, false, true, true, true, true, true, false, false => 0
+  | false, true, false, true, true, true, true, true, false, false => 0
+  | true, true, false, true, true, true, true, true, false, false => 0
+  | false, false, true, true, true, true, true, true, false, false => 0
+  | true, false, true, true, true, true, true, true, false, false => 0
+  | false, true, true, true, true, true, true, true, false, false => 0
+  | true, true, true, true, true, true, true, true, false, false => 0
+  | false, false, false, false, false, false, false, false, true, false => 129
+  | true, false, false, false, false, false, false, false, true, false => 662
+  | false, true, false, false, false, false, false, false, true, false => 257
+  | true, true, false, false, false, false, false, false, true, false => 787
+  | false, false, true, false, false, false, false, false, true, false => 615
+  | true, false, true, false, false, false, false, false, true, false => 855
+  | false, true, true, false, false, false, false, false, true, false => 765
+  | true, true, true, false, false, false, false, false, true, false => 1005
+  | false, false, false, true, false, false, false, false, true, false => 259
+  | true, false, false, true, false, false, false, false, true, false => 795
+  | false, true, false, true, false, false, false, false, true, false => 0
+  | true, true, false, true, false, false, false, false, true, false => 0
+  | false, false, true, true, false, false, false, false, true, false => 735
+  | true, false, true, true, false, false, false, false, true, false => 975
+  | false, true, true, true, false, false, false, false, true, false => 0
+  | true, true, true, true, false, false, false, false, true, false => 0
+  | false, false, false, false, true, false, false, false, true, false => 282
+  | true, false, false, false, true, false, false, false, true, false => 782
+  | false, true, false, false, true, false, false, false, true, false => 422
+  | true, true, false, false, true, false, false, false, true, false => 0
+  | false, false, true, false, true, false, false, false, true, false => 852
+  | true, false, true, false, true, false, false, false, true, false => 1207
+  | false, true, true, false, true, false, false, false, true, false => 987
+  | true, true, true, false, true, false, false, false, true, false => 0
+  | false, false, false, true, true, false, false, false, true, false => 789
+  | true, false, false, true, true, false, false, false, true, false => 1144
+  | false, true, false, true, true, false, false, false, true, false => 0
+  | true, true, false, true, true, false, false, false, true, false => 0
+  | false, false, true, true, true, false, false, false, true, false => 1247
+  | true, false, true, true, true, false, false, false, true, false => 1385
+  | false, true, true, true, true, false, false, false, true, false => 0
+  | true, true, true, true, true, false, false, false, true, false => 0
+  | false, false, false, false, false, true, false, false, true, false => 616
+  | true, false, false, false, false, true, false, false, true, false => 856
+  | false, true, false, false, false, true, false, false, true, false => 862
+  | true, true, false, false, false, true, false, false, true, false => 1202
+  | false, false, true, false, false, true, false, false, true, false => 858
+  | true, false, true, false, false, true, false, false, true, false => 0
+  | false, true, true, false, false, true, false, false, true, false => 1212
+  | true, true, true, false, false, true, false, false, true, false => 0
+  | false, false, false, true, false, true, false, false, true, false => 864
+  | true, false, false, true, false, true, false, false, true, false => 1244
+  | false, true, false, true, false, true, false, false, true, false => 0
+  | true, true, false, true, false, true, false, false, true, false => 0
+  | false, false, true, true, false, true, false, false, true, false => 1238
+  | true, false, true, true, false, true, false, false, true, false => 0
+  | false, true, true, true, false, true, false, false, true, false => 0
+  | true, true, true, true, false, true, false, false, true, false => 0
+  | false, false, false, false, true, true, false, false, true, false => 766
+  | true, false, false, false, true, true, false, false, true, false => 1006
+  | false, true, false, false, true, true, false, false, true, false => 982
+  | true, true, false, false, true, true, false, false, true, false => 0
+  | false, false, true, false, true, true, false, false, true, false => 1232
+  | true, false, true, false, true, true, false, false, true, false => 0
+  | false, true, true, false, true, true, false, false, true, false => 1332
+  | true, true, true, false, true, true, false, false, true, false => 0
+  | false, false, false, true, true, true, false, false, true, false => 1204
+  | true, false, false, true, true, true, false, false, true, false => 1396
+  | false, true, false, true, true, true, false, false, true, false => 0
+  | true, true, false, true, true, true, false, false, true, false => 0
+  | false, false, true, true, true, true, false, false, true, false => 1565
+  | true, false, true, true, true, true, false, false, true, false => 0
+  | false, true, true, true, true, true, false, false, true, false => 0
+  | true, true, true, true, true, true, false, false, true, false => 0
+  | false, false, false, false, false, false, true, false, true, false => 244
+  | true, false, false, false, false, false, true, false, true, false => 796
+  | false, true, false, false, false, false, true, false, true, false => 829
+  | true, true, false, false, false, false, true, false, true, false => 1142
+  | false, false, true, false, false, false, true, false, true, false => 879
+  | true, false, true, false, false, false, true, false, true, false => 1259
+  | false, true, true, false, false, false, true, false, true, false => 1219
+  | true, true, true, false, false, false, true, false, true, false => 1395
+  | false, false, false, true, false, false, true, false, true, false => 424
+  | true, false, false, true, false, false, true, false, true, false => 0
+  | false, true, false, true, false, false, true, false, true, false => 0
+  | true, true, false, true, false, false, true, false, true, false => 0
+  | false, false, true, true, false, false, true, false, true, false => 999
+  | true, false, true, true, false, false, true, false, true, false => 0
+  | false, true, true, true, false, false, true, false, true, false => 0
+  | true, true, true, true, false, false, true, false, true, false => 0
+  | false, false, false, false, true, false, true, false, true, false => 0
+  | true, false, false, false, true, false, true, false, true, false => 0
+  | false, true, false, false, true, false, true, false, true, false => 0
+  | true, true, false, false, true, false, true, false, true, false => 0
+  | false, false, true, false, true, false, true, false, true, false => 0
+  | true, false, true, false, true, false, true, false, true, false => 0
+  | false, true, true, false, true, false, true, false, true, false => 0
+  | true, true, true, false, true, false, true, false, true, false => 0
+  | false, false, false, true, true, false, true, false, true, false => 0
+  | true, false, false, true, true, false, true, false, true, false => 0
+  | false, true, false, true, true, false, true, false, true, false => 0
+  | true, true, false, true, true, false, true, false, true, false => 0
+  | false, false, true, true, true, false, true, false, true, false => 0
+  | true, false, true, true, true, false, true, false, true, false => 0
+  | false, true, true, true, true, false, true, false, true, false => 0
+  | true, true, true, true, true, false, true, false, true, false => 0
+  | false, false, false, false, false, true, true, false, true, false => 736
+  | true, false, false, false, false, true, true, false, true, false => 976
+  | false, true, false, false, false, true, true, false, true, false => 1242
+  | true, true, false, false, false, true, true, false, true, false => 1386
+  | false, false, true, false, false, true, true, false, true, false => 1294
+  | true, false, true, false, false, true, true, false, true, false => 0
+  | false, true, true, false, false, true, true, false, true, false => 1566
+  | true, true, true, false, false, true, true, false, true, false => 0
+  | false, false, false, true, false, true, true, false, true, false => 984
+  | true, false, false, true, false, true, true, false, true, false => 0
+  | false, true, false, true, false, true, true, false, true, false => 0
+  | true, true, false, true, false, true, true, false, true, false => 0
+  | false, false, true, true, false, true, true, false, true, false => 1374
+  | true, false, true, true, false, true, true, false, true, false => 0
+  | false, true, true, true, false, true, true, false, true, false => 0
+  | true, true, true, true, false, true, true, false, true, false => 0
+  | false, false, false, false, true, true, true, false, true, false => 0
+  | true, false, false, false, true, true, true, false, true, false => 0
+  | false, true, false, false, true, true, true, false, true, false => 0
+  | true, true, false, false, true, true, true, false, true, false => 0
+  | false, false, true, false, true, true, true, false, true, false => 0
+  | true, false, true, false, true, true, true, false, true, false => 0
+  | false, true, true, false, true, true, true, false, true, false => 0
+  | true, true, true, false, true, true, true, false, true, false => 0
+  | false, false, false, true, true, true, true, false, true, false => 0
+  | true, false, false, true, true, true, true, false, true, false => 0
+  | false, true, false, true, true, true, true, false, true, false => 0
+  | true, true, false, true, true, true, true, false, true, false => 0
+  | false, false, true, true, true, true, true, false, true, false => 0
+  | true, false, true, true, true, true, true, false, true, false => 0
+  | false, true, true, true, true, true, true, false, true, false => 0
+  | true, true, true, true, true, true, true, false, true, false => 0
+  | false, false, false, false, false, false, false, true, true, false => 277
+  | true, false, false, false, false, false, false, true, true, false => 842
+  | false, true, false, false, false, false, false, true, true, false => 377
+  | true, true, false, false, false, false, false, true, true, false => 967
+  | false, false, true, false, false, false, false, true, true, false => 768
+  | true, false, true, false, false, false, false, true, true, false => 1227
+  | false, true, true, false, false, false, false, true, true, false => 0
+  | true, true, true, false, false, false, false, true, true, false => 0
+  | false, false, false, true, false, false, false, true, true, false => 737
+  | true, false, false, true, false, false, false, true, true, false => 1245
+  | false, true, false, true, false, false, false, true, true, false => 0
+  | true, true, false, true, false, false, false, true, true, false => 0
+  | false, false, true, true, false, false, false, true, true, false => 1098
+  | true, false, true, true, false, false, false, true, true, false => 1365
+  | false, true, true, true, false, false, false, true, true, false => 0
+  | true, true, true, true, false, false, false, true, true, false => 0
+  | false, false, false, false, true, false, false, true, true, false => 402
+  | true, false, false, false, true, false, false, true, true, false => 962
+  | false, true, false, false, true, false, false, true, true, false => 482
+  | true, true, false, false, true, false, false, true, true, false => 0
+  | false, false, true, false, true, false, false, true, true, false => 972
+  | true, false, true, false, true, false, false, true, true, false => 1327
+  | false, true, true, false, true, false, false, true, true, false => 0
+  | true, true, true, false, true, false, false, true, true, false => 0
+  | false, false, false, true, true, false, false, true, true, false => 977
+  | true, false, false, true, true, false, false, true, true, false => 1387
+  | false, true, false, true, true, false, false, true, true, false => 0
+  | true, true, false, true, true, false, false, true, true, false => 0
+  | false, false, true, true, true, false, false, true, true, false => 1367
+  | true, false, true, true, true, false, false, true, true, false => 1445
+  | false, true, true, true, true, false, false, true, true, false => 0
+  | true, true, true, true, true, false, false, true, true, false => 0
+  | false, false, false, false, false, true, false, true, true, false => 812
+  | true, false, false, false, false, true, false, true, true, false => 1222
+  | false, true, false, false, false, true, false, true, true, false => 992
+  | true, true, false, false, false, true, false, true, true, false => 1322
+  | false, false, true, false, false, true, false, true, true, false => 1008
+  | true, false, true, false, false, true, false, true, true, false => 0
+  | false, true, true, false, false, true, false, true, true, false => 0
+  | true, true, true, false, false, true, false, true, true, false => 0
+  | false, false, false, true, false, true, false, true, true, false => 1214
+  | true, false, false, true, false, true, false, true, true, false => 1567
+  | false, true, false, true, false, true, false, true, true, false => 0
+  | true, true, false, true, false, true, false, true, true, false => 0
+  | false, false, true, true, false, true, false, true, true, false => 1338
+  | true, false, true, true, false, true, false, true, true, false => 0
+  | false, true, true, true, false, true, false, true, true, false => 0
+  | true, true, true, true, false, true, false, true, true, false => 0
+  | false, false, false, false, true, true, false, true, true, false => 0
+  | true, false, false, false, true, true, false, true, true, false => 0
+  | false, true, false, false, true, true, false, true, true, false => 0
+  | true, true, false, false, true, true, false, true, true, false => 0
+  | false, false, true, false, true, true, false, true, true, false => 0
+  | true, false, true, false, true, true, false, true, true, false => 0
+  | false, true, true, false, true, true, false, true, true, false => 0
+  | true, true, true, false, true, true, false, true, true, false => 0
+  | false, false, false, true, true, true, false, true, true, false => 0
+  | true, false, false, true, true, true, false, true, true, false => 0
+  | false, true, false, true, true, true, false, true, true, false => 0
+  | true, true, false, true, true, true, false, true, true, false => 0
+  | false, false, true, true, true, true, false, true, true, false => 0
+  | true, false, true, true, true, true, false, true, true, false => 0
+  | false, true, true, true, true, true, false, true, true, false => 0
+  | true, true, true, true, true, true, false, true, true, false => 0
+  | false, false, false, false, false, false, true, true, true, false => 749
+  | true, false, false, false, false, false, true, true, true, false => 1246
+  | false, true, false, false, false, false, true, true, true, false => 1017
+  | true, true, false, false, false, false, true, true, true, false => 1382
+  | false, false, true, false, false, false, true, true, true, false => 1274
+  | true, false, true, false, false, false, true, true, true, false => 1562
+  | false, true, true, false, false, false, true, true, true, false => 0
+  | true, true, true, false, false, false, true, true, true, false => 0
+  | false, false, false, true, false, false, true, true, true, false => 989
+  | true, false, false, true, false, false, true, true, true, false => 0
+  | false, true, false, true, false, false, true, true, true, false => 0
+  | true, true, false, true, false, false, true, true, true, false => 0
+  | false, false, true, true, false, false, true, true, true, false => 1394
+  | true, false, true, true, false, false, true, true, true, false => 0
+  | false, true, true, true, false, false, true, true, true, false => 0
+  | true, true, true, true, false, false, true, true, true, false => 0
+  | false, false, false, false, true, false, true, true, true, false => 0
+  | true, false, false, false, true, false, true, true, true, false => 0
+  | false, true, false, false, true, false, true, true, true, false => 0
+  | true, true, false, false, true, false, true, true, true, false => 0
+  | false, false, true, false, true, false, true, true, true, false => 0
+  | true, false, true, false, true, false, true, true, true, false => 0
+  | false, true, true, false, true, false, true, true, true, false => 0
+  | true, true, true, false, true, false, true, true, true, false => 0
+  | false, false, false, true, true, false, true, true, true, false => 0
+  | true, false, false, true, true, false, true, true, true, false => 0
+  | false, true, false, true, true, false, true, true, true, false => 0
+  | true, true, false, true, true, false, true, true, true, false => 0
+  | false, false, true, true, true, false, true, true, true, false => 0
+  | true, false, true, true, true, false, true, true, true, false => 0
+  | false, true, true, true, true, false, true, true, true, false => 0
+  | true, true, true, true, true, false, true, true, true, false => 0
+  | false, false, false, false, false, true, true, true, true, false => 1094
+  | true, false, false, false, false, true, true, true, true, false => 1366
+  | false, true, false, false, false, true, true, true, true, false => 1362
+  | true, true, false, false, false, true, true, true, true, false => 1442
+  | false, false, true, false, false, true, true, true, true, false => 1398
+  | true, false, true, false, false, true, true, true, true, false => 0
+  | false, true, true, false, false, true, true, true, true, false => 0
+  | true, true, true, false, false, true, true, true, true, false => 0
+  | false, false, false, true, false, true, true, true, true, false => 1334
+  | true, false, false, true, false, true, true, true, true, false => 0
+  | false, true, false, true, false, true, true, true, true, false => 0
+  | true, true, false, true, false, true, true, true, true, false => 0
+  | false, false, true, true, false, true, true, true, true, false => 1454
+  | true, false, true, true, false, true, true, true, true, false => 0
+  | false, true, true, true, false, true, true, true, true, false => 0
+  | true, true, true, true, false, true, true, true, true, false => 0
+  | false, false, false, false, true, true, true, true, true, false => 0
+  | true, false, false, false, true, true, true, true, true, false => 0
+  | false, true, false, false, true, true, true, true, true, false => 0
+  | true, true, false, false, true, true, true, true, true, false => 0
+  | false, false, true, false, true, true, true, true, true, false => 0
+  | true, false, true, false, true, true, true, true, true, false => 0
+  | false, true, true, false, true, true, true, true, true, false => 0
+  | true, true, true, false, true, true, true, true, true, false => 0
+  | false, false, false, true, true, true, true, true, true, false => 0
+  | true, false, false, true, true, true, true, true, true, false => 0
+  | false, true, false, true, true, true, true, true, true, false => 0
+  | true, true, false, true, true, true, true, true, true, false => 0
+  | false, false, true, true, true, true, true, true, true, false => 0
+  | true, false, true, true, true, true, true, true, true, false => 0
+  | false, true, true, true, true, true, true, true, true, false => 0
+  | true, true, true, true, true, true, true, true, true, false => 0
+  | false, false, false, false, false, false, false, false, false, true => 134
+  | true, false, false, false, false, false, false, false, false, true => 644
+  | false, true, false, false, false, false, false, false, false, true => 619
+  | true, true, false, false, false, false, false, false, false, true => 875
+  | false, false, true, false, false, false, false, false, false, true => 278
+  | true, false, true, false, false, false, false, false, false, true => 770
+  | false, true, true, false, false, false, false, false, false, true => 793
+  | true, true, true, false, false, false, false, false, false, true => 1010
+  | false, false, false, true, false, false, false, false, false, true => 279
+  | true, false, false, true, false, false, false, false, false, true => 779
+  | false, true, false, true, false, false, false, false, false, true => 739
+  | true, true, false, true, false, false, false, false, false, true => 995
+  | false, false, true, true, false, false, false, false, false, true => 0
+  | true, false, true, true, false, false, false, false, false, true => 0
+  | false, true, true, true, false, false, false, false, false, true => 0
+  | true, true, true, true, false, false, false, false, false, true => 0
+  | false, false, false, false, true, false, false, false, false, true => 604
+  | true, false, false, false, true, false, false, false, false, true => 876
+  | false, true, false, false, true, false, false, false, false, true => 877
+  | true, true, false, false, true, false, false, false, false, true => 0
+  | false, false, true, false, true, false, false, false, false, true => 843
+  | true, false, true, false, true, false, false, false, false, true => 1223
+  | false, true, true, false, true, false, false, false, false, true => 1228
+  | true, true, true, false, true, false, false, false, false, true => 0
+  | false, false, false, true, true, false, false, false, false, true => 844
+  | true, false, false, true, true, false, false, false, false, true => 1256
+  | false, true, false, true, true, false, false, false, false, true => 1217
+  | true, true, false, true, true, false, false, false, false, true => 0
+  | false, false, true, true, true, false, false, false, false, true => 0
+  | true, false, true, true, true, false, false, false, false, true => 0
+  | false, true, true, true, true, false, false, false, false, true => 0
+  | true, true, true, true, true, false, false, false, false, true => 0
+  | false, false, false, false, false, true, false, false, false, true => 283
+  | true, false, false, false, false, true, false, false, false, true => 771
+  | false, true, false, false, false, true, false, false, false, true => 853
+  | true, true, false, false, false, true, false, false, false, true => 1233
+  | false, false, true, false, false, true, false, false, false, true => 403
+  | true, false, true, false, false, true, false, false, false, true => 0
+  | false, true, true, false, false, true, false, false, false, true => 973
+  | true, true, true, false, false, true, false, false, false, true => 0
+  | false, false, false, true, false, true, false, false, false, true => 814
+  | true, false, false, true, false, true, false, false, false, true => 1124
+  | false, true, false, true, false, true, false, false, false, true => 1250
+  | true, true, false, true, false, true, false, false, false, true => 1370
+  | false, false, true, true, false, true, false, false, false, true => 0
+  | true, false, true, true, false, true, false, false, false, true => 0
+  | false, true, true, true, false, true, false, false, false, true => 0
+  | true, true, true, true, false, true, false, false, false, true => 0
+  | false, false, false, false, true, true, false, false, false, true => 783
+  | true, false, false, false, true, true, false, false, false, true => 1011
+  | false, true, false, false, true, true, false, false, false, true => 1208
+  | true, true, false, false, true, true, false, false, false, true => 0
+  | false, false, true, false, true, true, false, false, false, true => 963
+  | true, false, true, false, true, true, false, false, false, true => 0
+  | false, true, true, false, true, true, false, false, false, true => 1328
+  | true, true, true, false, true, true, false, false, false, true => 0
+  | false, false, false, true, true, true, false, false, false, true => 1224
+  | true, false, false, true, true, true, false, false, false, true => 1376
+  | false, true, false, true, true, true, false, false, false, true => 1569
+  | true, true, false, true, true, true, false, false, false, true => 0
+  | false, false, true, true, true, true, false, false, false, true => 0
+  | true, false, true, true, true, true, false, false, false, true => 0
+  | false, true, true, true, true, true, false, false, false, true => 0
+  | true, true, true, true, true, true, false, false, false, true => 0
+  | false, false, false, false, false, false, true, false, false, true => 264
+  | true, false, false, false, false, false, true, false, false, true => 764
+  | false, true, false, false, false, false, true, false, false, true => 859
+  | true, true, false, false, false, false, true, false, false, true => 1255
+  | false, false, true, false, false, false, true, false, false, true => 774
+  | true, false, true, false, false, false, true, false, false, true => 1123
+  | false, true, true, false, false, false, true, false, false, true => 1239
+  | true, true, true, false, false, false, true, false, false, true => 1375
+  | false, false, false, true, false, false, true, false, false, true => 404
+  | true, false, false, true, false, false, true, false, false, true => 0
+  | false, true, false, true, false, false, true, false, false, true => 979
+  | true, true, false, true, false, false, true, false, false, true => 0
+  | false, false, true, true, false, false, true, false, false, true => 0
+  | true, false, true, true, false, false, true, false, false, true => 0
+  | false, true, true, true, false, false, true, false, false, true => 0
+  | true, true, true, true, false, false, true, false, false, true => 0
+  | false, false, false, false, true, false, true, false, false, true => 724
+  | true, false, false, false, true, false, true, false, false, true => 996
+  | false, true, false, false, true, false, true, false, false, true => 1257
+  | true, true, false, false, true, false, true, false, false, true => 0
+  | false, false, true, false, true, false, true, false, false, true => 1251
+  | true, false, true, false, true, false, true, false, false, true => 1371
+  | false, true, true, false, true, false, true, false, false, true => 1563
+  | true, true, true, false, true, false, true, false, false, true => 0
+  | false, false, false, true, true, false, true, false, false, true => 964
+  | true, false, false, true, true, false, true, false, false, true => 0
+  | false, true, false, true, true, false, true, false, false, true => 1389
+  | true, true, false, true, true, false, true, false, false, true => 0
+  | false, false, true, true, true, false, true, false, false, true => 0
+  | true, false, true, true, true, false, true, false, false, true => 0
+  | false, true, true, true, true, false, true, false, false, true => 0
+  | true, true, true, true, true, false, true, false, false, true => 0
+  | false, false, false, false, false, true, true, false, false, true => 0
+  | true, false, false, false, false, true, true, false, false, true => 0
+  | false, true, false, false, false, true, true, false, false, true => 0
+  | true, true, false, false, false, true, true, false, false, true => 0
+  | false, false, true, false, false, true, true, false, false, true => 0
+  | true, false, true, false, false, true, true, false, false, true => 0
+  | false, true, true, false, false, true, true, false, false, true => 0
+  | true, true, true, false, false, true, true, false, false, true => 0
+  | false, false, false, true, false, true, true, false, false, true => 0
+  | true, false, false, true, false, true, true, false, false, true => 0
+  | false, true, false, true, false, true, true, false, false, true => 0
+  | true, true, false, true, false, true, true, false, false, true => 0
+  | false, false, true, true, false, true, true, false, false, true => 0
+  | true, false, true, true, false, true, true, false, false, true => 0
+  | false, true, true, true, false, true, true, false, false, true => 0
+  | true, true, true, true, false, true, true, false, false, true => 0
+  | false, false, false, false, true, true, true, false, false, true => 0
+  | true, false, false, false, true, true, true, false, false, true => 0
+  | false, true, false, false, true, true, true, false, false, true => 0
+  | true, true, false, false, true, true, true, false, false, true => 0
+  | false, false, true, false, true, true, true, false, false, true => 0
+  | true, false, true, false, true, true, true, false, false, true => 0
+  | false, true, true, false, true, true, true, false, false, true => 0
+  | true, true, true, false, true, true, true, false, false, true => 0
+  | false, false, false, true, true, true, true, false, false, true => 0
+  | true, false, false, true, true, true, true, false, false, true => 0
+  | false, true, false, true, true, true, true, false, false, true => 0
+  | true, true, false, true, true, true, true, false, false, true => 0
+  | false, false, true, true, true, true, true, false, false, true => 0
+  | true, false, true, true, true, true, true, false, false, true => 0
+  | false, true, true, true, true, true, true, false, false, true => 0
+  | true, true, true, true, true, true, true, false, false, true => 0
+  | false, false, false, false, false, false, false, true, false, true => 258
+  | true, false, false, false, false, false, false, true, false, true => 863
+  | false, true, false, false, false, false, false, true, false, true => 808
+  | true, true, false, false, false, false, false, true, false, true => 1213
+  | false, false, true, false, false, false, false, true, false, true => 378
+  | true, false, true, false, false, false, false, true, false, true => 993
+  | false, true, true, false, false, false, false, true, false, true => 0
+  | true, true, true, false, false, false, false, true, false, true => 0
+  | false, false, false, true, false, false, false, true, false, true => 758
+  | true, false, false, true, false, false, false, true, false, true => 1253
+  | false, true, false, true, false, false, false, true, false, true => 1097
+  | true, true, false, true, false, false, false, true, false, true => 1390
+  | false, false, true, true, false, false, false, true, false, true => 0
+  | true, false, true, true, false, false, false, true, false, true => 0
+  | false, true, true, true, false, false, false, true, false, true => 0
+  | true, true, true, true, false, false, false, true, false, true => 0
+  | false, false, false, false, true, false, false, true, false, true => 772
+  | true, false, false, false, true, false, false, true, false, true => 1203
+  | false, true, false, false, true, false, false, true, false, true => 1012
+  | true, true, false, false, true, false, false, true, false, true => 0
+  | false, false, true, false, true, false, false, true, false, true => 968
+  | true, false, true, false, true, false, false, true, false, true => 1323
+  | false, true, true, false, true, false, false, true, false, true => 0
+  | true, true, true, false, true, false, false, true, false, true => 0
+  | false, false, false, true, true, false, false, true, false, true => 1229
+  | true, false, false, true, true, false, false, true, false, true => 1564
+  | false, true, false, true, true, false, false, true, false, true => 1337
+  | true, true, false, true, true, false, false, true, false, true => 0
+  | false, false, true, true, true, false, false, true, false, true => 0
+  | true, false, true, true, true, false, false, true, false, true => 0
+  | false, true, true, true, true, false, false, true, false, true => 0
+  | true, true, true, true, true, false, false, true, false, true => 0
+  | false, false, false, false, false, true, false, true, false, true => 423
+  | true, false, false, false, false, true, false, true, false, true => 983
+  | false, true, false, false, false, true, false, true, false, true => 988
+  | true, true, false, false, false, true, false, true, false, true => 1333
+  | false, false, true, false, false, true, false, true, false, true => 483
+  | true, false, true, false, false, true, false, true, false, true => 0
+  | false, true, true, false, false, true, false, true, false, true => 0
+  | true, true, true, false, false, true, false, true, false, true => 0
+  | false, false, false, true, false, true, false, true, false, true => 998
+  | true, false, false, true, false, true, false, true, false, true => 1373
+  | false, true, false, true, false, true, false, true, false, true => 1393
+  | true, true, false, true, false, true, false, true, false, true => 1450
+  | false, false, true, true, false, true, false, true, false, true => 0
+  | true, false, true, true, false, true, false, true, false, true => 0
+  | false, true, true, true, false, true, false, true, false, true => 0
+  | true, true, true, true, false, true, false, true, false, true => 0
+  | false, false, false, false, true, true, false, true, false, true => 0
+  | true, false, false, false, true, true, false, true, false, true => 0
+  | false, true, false, false, true, true, false, true, false, true => 0
+  | true, true, false, false, true, true, false, true, false, true => 0
+  | false, false, true, false, true, true, false, true, false, true => 0
+  | true, false, true, false, true, true, false, true, false, true => 0
+  | false, true, true, false, true, true, false, true, false, true => 0
+  | true, true, true, false, true, true, false, true, false, true => 0
+  | false, false, false, true, true, true, false, true, false, true => 0
+  | true, false, false, true, true, true, false, true, false, true => 0
+  | false, true, false, true, true, true, false, true, false, true => 0
+  | true, true, false, true, true, true, false, true, false, true => 0
+  | false, false, true, true, true, true, false, true, false, true => 0
+  | true, false, true, true, true, true, false, true, false, true => 0
+  | false, true, true, true, true, true, false, true, false, true => 0
+  | true, true, true, true, true, true, false, true, false, true => 0
+  | false, false, false, false, false, false, true, true, false, true => 734
+  | true, false, false, false, false, false, true, true, false, true => 1243
+  | false, true, false, false, false, false, true, true, false, true => 1289
+  | true, true, false, false, false, false, true, true, false, true => 1571
+  | false, false, true, false, false, false, true, true, false, true => 1018
+  | true, false, true, false, false, false, true, true, false, true => 1363
+  | false, true, true, false, false, false, true, true, false, true => 0
+  | true, true, true, false, false, false, true, true, false, true => 0
+  | false, false, false, true, false, false, true, true, false, true => 974
+  | true, false, false, true, false, false, true, true, false, true => 0
+  | false, true, false, true, false, false, true, true, false, true => 1369
+  | true, true, false, true, false, false, true, true, false, true => 0
+  | false, false, true, true, false, false, true, true, false, true => 0
+  | true, false, true, true, false, false, true, true, false, true => 0
+  | false, true, true, true, false, false, true, true, false, true => 0
+  | true, true, true, true, false, false, true, true, false, true => 0
+  | false, false, false, false, true, false, true, true, false, true => 1089
+  | true, false, false, false, true, false, true, true, false, true => 1391
+  | false, true, false, false, true, false, true, true, false, true => 1377
+  | true, true, false, false, true, false, true, true, false, true => 0
+  | false, false, true, false, true, false, true, true, false, true => 1383
+  | true, false, true, false, true, false, true, true, false, true => 1443
+  | false, true, true, false, true, false, true, true, false, true => 0
+  | true, true, true, false, true, false, true, true, false, true => 0
+  | false, false, false, true, true, false, true, true, false, true => 1329
+  | true, false, false, true, true, false, true, true, false, true => 0
+  | false, true, false, true, true, false, true, true, false, true => 1449
+  | true, true, false, true, true, false, true, true, false, true => 0
+  | false, false, true, true, true, false, true, true, false, true => 0
+  | true, false, true, true, true, false, true, true, false, true => 0
+  | false, true, true, true, true, false, true, true, false, true => 0
+  | true, true, true, true, true, false, true, true, false, true => 0
+  | false, false, false, false, false, true, true, true, false, true => 0
+  | true, false, false, false, false, true, true, true, false, true => 0
+  | false, true, false, false, false, true, true, true, false, true => 0
+  | true, true, false, false, false, true, true, true, false, true => 0
+  | false, false, true, false, false, true, true, true, false, true => 0
+  | true, false, true, false, false, true, true, true, false, true => 0
+  | false, true, true, false, false, true, true, true, false, true => 0
+  | true, true, true, false, false, true, true, true, false, true => 0
+  | false, false, false, true, false, true, true, true, false, true => 0
+  | true, false, false, true, false, true, true, true, false, true => 0
+  | false, true, false, true, false, true, true, true, false, true => 0
+  | true, true, false, true, false, true, true, true, false, true => 0
+  | false, false, true, true, false, true, true, true, false, true => 0
+  | true, false, true, true, false, true, true, true, false, true => 0
+  | false, true, true, true, false, true, true, true, false, true => 0
+  | true, true, true, true, false, true, true, true, false, true => 0
+  | false, false, false, false, true, true, true, true, false, true => 0
+  | true, false, false, false, true, true, true, true, false, true => 0
+  | false, true, false, false, true, true, true, true, false, true => 0
+  | true, true, false, false, true, true, true, true, false, true => 0
+  | false, false, true, false, true, true, true, true, false, true => 0
+  | true, false, true, false, true, true, true, true, false, true => 0
+  | false, true, true, false, true, true, true, true, false, true => 0
+  | true, true, true, false, true, true, true, true, false, true => 0
+  | false, false, false, true, true, true, true, true, false, true => 0
+  | true, false, false, true, true, true, true, true, false, true => 0
+  | false, true, false, true, true, true, true, true, false, true => 0
+  | true, true, false, true, true, true, true, true, false, true => 0
+  | false, false, true, true, true, true, true, true, false, true => 0
+  | true, false, true, true, true, true, true, true, false, true => 0
+  | false, true, true, true, true, true, true, true, false, true => 0
+  | true, true, true, true, true, true, true, true, false, true => 0
+  | false, false, false, false, false, false, false, false, true, true => 254
+  | true, false, false, false, false, false, false, false, true, true => 884
+  | false, true, false, false, false, false, false, false, true, true => 757
+  | true, true, false, false, false, false, false, false, true, true => 1215
+  | false, false, true, false, false, false, false, false, true, true => 738
+  | true, false, true, false, false, false, false, false, true, true => 1235
+  | false, true, true, false, false, false, false, false, true, true => 1095
+  | true, true, true, false, false, false, false, false, true, true => 1335
+  | false, false, false, true, false, false, false, false, true, true => 379
+  | true, false, false, true, false, false, false, false, true, true => 1019
+  | false, true, false, true, false, false, false, false, true, true => 0
+  | true, true, false, true, false, false, false, false, true, true => 0
+  | false, false, true, true, false, false, false, false, true, true => 0
+  | true, false, true, true, false, false, false, false, true, true => 0
+  | false, true, true, true, false, false, false, false, true, true => 0
+  | true, true, true, true, false, false, false, false, true, true => 0
+  | false, false, false, false, true, false, false, false, true, true => 729
+  | true, false, false, false, true, false, false, false, true, true => 1216
+  | false, true, false, false, true, false, false, false, true, true => 997
+  | true, true, false, false, true, false, false, false, true, true => 0
+  | false, false, true, false, true, false, false, false, true, true => 1308
+  | true, false, true, false, true, false, false, false, true, true => 1568
+  | false, true, true, false, true, false, false, false, true, true => 1392
+  | true, true, true, false, true, false, false, false, true, true => 0
+  | false, false, false, true, true, false, false, false, true, true => 969
+  | true, false, false, true, true, false, false, false, true, true => 1384
+  | false, true, false, true, true, false, false, false, true, true => 0
+  | true, true, false, true, true, false, false, false, true, true => 0
+  | false, false, true, true, true, false, false, false, true, true => 0
+  | true, false, true, true, true, false, false, false, true, true => 0
+  | false, true, true, true, true, false, false, false, true, true => 0
+  | true, true, true, true, true, false, false, false, true, true => 0
+  | false, false, false, false, false, true, false, false, true, true => 754
+  | true, false, false, false, false, true, false, false, true, true => 1236
+  | false, true, false, false, false, true, false, false, true, true => 1248
+  | true, true, false, false, false, true, false, false, true, true => 1588
+  | false, false, true, false, false, true, false, false, true, true => 978
+  | true, false, true, false, false, true, false, false, true, true => 0
+  | false, true, true, false, false, true, false, false, true, true => 1368
+  | true, true, true, false, false, true, false, false, true, true => 0
+  | false, false, false, true, false, true, false, false, true, true => 994
+  | true, false, false, true, false, true, false, false, true, true => 1364
+  | false, true, false, true, false, true, false, false, true, true => 0
+  | true, true, false, true, false, true, false, false, true, true => 0
+  | false, false, true, true, false, true, false, false, true, true => 0
+  | true, false, true, true, false, true, false, false, true, true => 0
+  | false, true, true, true, false, true, false, false, true, true => 0
+  | true, true, true, true, false, true, false, false, true, true => 0
+  | false, false, false, false, true, true, false, false, true, true => 1084
+  | true, false, false, false, true, true, false, false, true, true => 1336
+  | false, true, false, false, true, true, false, false, true, true => 1372
+  | true, true, false, false, true, true, false, false, true, true => 0
+  | false, false, true, false, true, true, false, false, true, true => 1388
+  | true, false, true, false, true, true, false, false, true, true => 0
+  | false, true, true, false, true, true, false, false, true, true => 1448
+  | true, true, true, false, true, true, false, false, true, true => 0
+  | false, false, false, true, true, true, false, false, true, true => 1324
+  | true, false, false, true, true, true, false, false, true, true => 1444
+  | false, true, false, true, true, true, false, false, true, true => 0
+  | true, true, false, true, true, true, false, false, true, true => 0
+  | false, false, true, true, true, true, false, false, true, true => 0
+  | true, false, true, true, true, true, false, false, true, true => 0
+  | false, true, true, true, true, true, false, false, true, true => 0
+  | true, true, true, true, true, true, false, false, true, true => 0
+  | false, false, false, false, false, false, true, false, true, true => 364
+  | true, false, false, false, false, false, true, false, true, true => 1004
+  | false, true, false, false, false, false, true, false, true, true => 1009
+  | true, true, false, false, false, false, true, false, true, true => 1399
+  | false, false, true, false, false, false, true, false, true, true => 1014
+  | true, false, true, false, false, false, true, false, true, true => 1379
+  | false, true, true, false, false, false, true, false, true, true => 1339
+  | true, true, true, false, false, false, true, false, true, true => 1455
+  | false, false, false, true, false, false, true, false, true, true => 484
+  | true, false, false, true, false, false, true, false, true, true => 0
+  | false, true, false, true, false, false, true, false, true, true => 0
+  | true, true, false, true, false, false, true, false, true, true => 0
+  | false, false, true, true, false, false, true, false, true, true => 0
+  | true, false, true, true, false, false, true, false, true, true => 0
+  | false, true, true, true, false, false, true, false, true, true => 0
+  | true, true, true, true, false, false, true, false, true, true => 0
+  | false, false, false, false, true, false, true, false, true, true => 0
+  | true, false, false, false, true, false, true, false, true, true => 0
+  | false, true, false, false, true, false, true, false, true, true => 0
+  | true, true, false, false, true, false, true, false, true, true => 0
+  | false, false, true, false, true, false, true, false, true, true => 0
+  | true, false, true, false, true, false, true, false, true, true => 0
+  | false, true, true, false, true, false, true, false, true, true => 0
+  | true, true, true, false, true, false, true, false, true, true => 0
+  | false, false, false, true, true, false, true, false, true, true => 0
+  | true, false, false, true, true, false, true, false, true, true => 0
+  | false, true, false, true, true, false, true, false, true, true => 0
+  | true, true, false, true, true, false, true, false, true, true => 0
+  | false, false, true, true, true, false, true, false, true, true => 0
+  | true, false, true, true, true, false, true, false, true, true => 0
+  | false, true, true, true, true, false, true, false, true, true => 0
+  | true, true, true, true, true, false, true, false, true, true => 0
+  | false, false, false, false, false, true, true, false, true, true => 0
+  | true, false, false, false, false, true, true, false, true, true => 0
+  | false, true, false, false, false, true, true, false, true, true => 0
+  | true, true, false, false, false, true, true, false, true, true => 0
+  | false, false, true, false, false, true, true, false, true, true => 0
+  | true, false, true, false, false, true, true, false, true, true => 0
+  | false, true, true, false, false, true, true, false, true, true => 0
+  | true, true, true, false, false, true, true, false, true, true => 0
+  | false, false, false, true, false, true, true, false, true, true => 0
+  | true, false, false, true, false, true, true, false, true, true => 0
+  | false, true, false, true, false, true, true, false, true, true => 0
+  | true, true, false, true, false, true, true, false, true, true => 0
+  | false, false, true, true, false, true, true, false, true, true => 0
+  | true, false, true, true, false, true, true, false, true, true => 0
+  | false, true, true, true, false, true, true, false, true, true => 0
+  | true, true, true, true, false, true, true, false, true, true => 0
+  | false, false, false, false, true, true, true, false, true, true => 0
+  | true, false, false, false, true, true, true, false, true, true => 0
+  | false, true, false, false, true, true, true, false, true, true => 0
+  | true, true, false, false, true, true, true, false, true, true => 0
+  | false, false, true, false, true, true, true, false, true, true => 0
+  | true, false, true, false, true, true, true, false, true, true => 0
+  | false, true, true, false, true, true, true, false, true, true => 0
+  | true, true, true, false, true, true, true, false, true, true => 0
+  | false, false, false, true, true, true, true, false, true, true => 0
+  | true, false, false, true, true, true, true, false, true, true => 0
+  | false, true, false, true, true, true, true, false, true, true => 0
+  | true, true, false, true, true, true, true, false, true, true => 0
+  | false, false, true, true, true, true, true, false, true, true => 0
+  | true, false, true, true, true, true, true, false, true, true => 0
+  | false, true, true, true, true, true, true, false, true, true => 0
+  | true, true, true, true, true, true, true, false, true, true => 0
+  | false, false, false, false, false, false, false, true, true, true => 0
+  | true, false, false, false, false, false, false, true, true, true => 0
+  | false, true, false, false, false, false, false, true, true, true => 0
+  | true, true, false, false, false, false, false, true, true, true => 0
+  | false, false, true, false, false, false, false, true, true, true => 0
+  | true, false, true, false, false, false, false, true, true, true => 0
+  | false, true, true, false, false, false, false, true, true, true => 0
+  | true, true, true, false, false, false, false, true, true, true => 0
+  | false, false, false, true, false, false, false, true, true, true => 0
+  | true, false, false, true, false, false, false, true, true, true => 0
+  | false, true, false, true, false, false, false, true, true, true => 0
+  | true, true, false, true, false, false, false, true, true, true => 0
+  | false, false, true, true, false, false, false, true, true, true => 0
+  | true, false, true, true, false, false, false, true, true, true => 0
+  | false, true, true, true, false, false, false, true, true, true => 0
+  | true, true, true, true, false, false, false, true, true, true => 0
+  | false, false, false, false, true, false, false, true, true, true => 0
+  | true, false, false, false, true, false, false, true, true, true => 0
+  | false, true, false, false, true, false, false, true, true, true => 0
+  | true, true, false, false, true, false, false, true, true, true => 0
+  | false, false, true, false, true, false, false, true, true, true => 0
+  | true, false, true, false, true, false, false, true, true, true => 0
+  | false, true, true, false, true, false, false, true, true, true => 0
+  | true, true, true, false, true, false, false, true, true, true => 0
+  | false, false, false, true, true, false, false, true, true, true => 0
+  | true, false, false, true, true, false, false, true, true, true => 0
+  | false, true, false, true, true, false, false, true, true, true => 0
+  | true, true, false, true, true, false, false, true, true, true => 0
+  | false, false, true, true, true, false, false, true, true, true => 0
+  | true, false, true, true, true, false, false, true, true, true => 0
+  | false, true, true, true, true, false, false, true, true, true => 0
+  | true, true, true, true, true, false, false, true, true, true => 0
+  | false, false, false, false, false, true, false, true, true, true => 0
+  | true, false, false, false, false, true, false, true, true, true => 0
+  | false, true, false, false, false, true, false, true, true, true => 0
+  | true, true, false, false, false, true, false, true, true, true => 0
+  | false, false, true, false, false, true, false, true, true, true => 0
+  | true, false, true, false, false, true, false, true, true, true => 0
+  | false, true, true, false, false, true, false, true, true, true => 0
+  | true, true, true, false, false, true, false, true, true, true => 0
+  | false, false, false, true, false, true, false, true, true, true => 0
+  | true, false, false, true, false, true, false, true, true, true => 0
+  | false, true, false, true, false, true, false, true, true, true => 0
+  | true, true, false, true, false, true, false, true, true, true => 0
+  | false, false, true, true, false, true, false, true, true, true => 0
+  | true, false, true, true, false, true, false, true, true, true => 0
+  | false, true, true, true, false, true, false, true, true, true => 0
+  | true, true, true, true, false, true, false, true, true, true => 0
+  | false, false, false, false, true, true, false, true, true, true => 0
+  | true, false, false, false, true, true, false, true, true, true => 0
+  | false, true, false, false, true, true, false, true, true, true => 0
+  | true, true, false, false, true, true, false, true, true, true => 0
+  | false, false, true, false, true, true, false, true, true, true => 0
+  | true, false, true, false, true, true, false, true, true, true => 0
+  | false, true, true, false, true, true, false, true, true, true => 0
+  | true, true, true, false, true, true, false, true, true, true => 0
+  | false, false, false, true, true, true, false, true, true, true => 0
+  | true, false, false, true, true, true, false, true, true, true => 0
+  | false, true, false, true, true, true, false, true, true, true => 0
+  | true, true, false, true, true, true, false, true, true, true => 0
+  | false, false, true, true, true, true, false, true, true, true => 0
+  | true, false, true, true, true, true, false, true, true, true => 0
+  | false, true, true, true, true, true, false, true, true, true => 0
+  | true, true, true, true, true, true, false, true, true, true => 0
+  | false, false, false, false, false, false, true, true, true, true => 0
+  | true, false, false, false, false, false, true, true, true, true => 0
+  | false, true, false, false, false, false, true, true, true, true => 0
+  | true, true, false, false, false, false, true, true, true, true => 0
+  | false, false, true, false, false, false, true, true, true, true => 0
+  | true, false, true, false, false, false, true, true, true, true => 0
+  | false, true, true, false, false, false, true, true, true, true => 0
+  | true, true, true, false, false, false, true, true, true, true => 0
+  | false, false, false, true, false, false, true, true, true, true => 0
+  | true, false, false, true, false, false, true, true, true, true => 0
+  | false, true, false, true, false, false, true, true, true, true => 0
+  | true, true, false, true, false, false, true, true, true, true => 0
+  | false, false, true, true, false, false, true, true, true, true => 0
+  | true, false, true, true, false, false, true, true, true, true => 0
+  | false, true, true, true, false, false, true, true, true, true => 0
+  | true, true, true, true, false, false, true, true, true, true => 0
+  | false, false, false, false, true, false, true, true, true, true => 0
+  | true, false, false, false, true, false, true, true, true, true => 0
+  | false, true, false, false, true, false, true, true, true, true => 0
+  | true, true, false, false, true, false, true, true, true, true => 0
+  | false, false, true, false, true, false, true, true, true, true => 0
+  | true, false, true, false, true, false, true, true, true, true => 0
+  | false, true, true, false, true, false, true, true, true, true => 0
+  | true, true, true, false, true, false, true, true, true, true => 0
+  | false, false, false, true, true, false, true, true, true, true => 0
+  | true, false, false, true, true, false, true, true, true, true => 0
+  | false, true, false, true, true, false, true, true, true, true => 0
+  | true, true, false, true, true, false, true, true, true, true => 0
+  | false, false, true, true, true, false, true, true, true, true => 0
+  | true, false, true, true, true, false, true, true, true, true => 0
+  | false, true, true, true, true, false, true, true, true, true => 0
+  | true, true, true, true, true, false, true, true, true, true => 0
+  | false, false, false, false, false, true, true, true, true, true => 0
+  | true, false, false, false, false, true, true, true, true, true => 0
+  | false, true, false, false, false, true, true, true, true, true => 0
+  | true, true, false, false, false, true, true, true, true, true => 0
+  | false, false, true, false, false, true, true, true, true, true => 0
+  | true, false, true, false, false, true, true, true, true, true => 0
+  | false, true, true, false, false, true, true, true, true, true => 0
+  | true, true, true, false, false, true, true, true, true, true => 0
+  | false, false, false, true, false, true, true, true, true, true => 0
+  | true, false, false, true, false, true, true, true, true, true => 0
+  | false, true, false, true, false, true, true, true, true, true => 0
+  | true, true, false, true, false, true, true, true, true, true => 0
+  | false, false, true, true, false, true, true, true, true, true => 0
+  | true, false, true, true, false, true, true, true, true, true => 0
+  | false, true, true, true, false, true, true, true, true, true => 0
+  | true, true, true, true, false, true, true, true, true, true => 0
+  | false, false, false, false, true, true, true, true, true, true => 0
+  | true, false, false, false, true, true, true, true, true, true => 0
+  | false, true, false, false, true, true, true, true, true, true => 0
+  | true, true, false, false, true, true, true, true, true, true => 0
+  | false, false, true, false, true, true, true, true, true, true => 0
+  | true, false, true, false, true, true, true, true, true, true => 0
+  | false, true, true, false, true, true, true, true, true, true => 0
+  | true, true, true, false, true, true, true, true, true, true => 0
+  | false, false, false, true, true, true, true, true, true, true => 0
+  | true, false, false, true, true, true, true, true, true, true => 0
+  | false, true, false, true, true, true, true, true, true, true => 0
+  | true, true, false, true, true, true, true, true, true, true => 0
+  | false, false, true, true, true, true, true, true, true, true => 0
+  | true, false, true, true, true, true, true, true, true, true => 0
+  | false, true, true, true, true, true, true, true, true, true => 0
+  | true, true, true, true, true, true, true, true, true, true => 0
+
+
+private def triangleFreeClassRepresentative (data : Nat) : Fin 14 :=
+  ⟨(data / 120) % 14, Nat.mod_lt _ (by decide)⟩
+
+private def triangleFreeClassPermutation (data : Nat) : Equiv.Perm (Fin 5) :=
+  triangleFreePermOfCode ⟨data % 120, Nat.mod_lt _ (by decide)⟩
+
+set_option maxHeartbeats 5000000 in
+/-- Every triangle-free graph on `Fin 5` is explicitly relabeled to one of 14 representatives.
+The generated table supplies the relabeling, so kernel reduction verifies rather than searches. -/
+private lemma triangleFreeClassified :
     ∀ b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 : Bool,
-      totalFlagContrib (mkAdj5 (edgeBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34)) =
-        totalFlagContribPermSum (mkAdj5 (edgeBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34)) := by
+      noTriangleBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 →
+        let data :=
+          triangleFreeClassData b01 b02 b03 b04 b12 b13 b14 b23 b24 b34
+        let τ := triangleFreeClassPermutation data
+        ∀ i j : Fin 5,
+          mkAdj5 (edgeBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34) (τ i) (τ j) =
+            mkAdj5
+              (triangleFreeRepresentativeEdges
+                (triangleFreeClassRepresentative data)) i j := by
   intro b01 b02 b03 b04 b12
   cases b01 <;> cases b02 <;> cases b03 <;> cases b04 <;> cases b12 <;>
-    decide +kernel
+    decide +kernel +revert
 
-private lemma totalFlagContrib_mkAdj5_eq_permSum (e : Fin 10 → Bool) :
-    totalFlagContrib (mkAdj5 e) = totalFlagContribPermSum (mkAdj5 e) := by
+set_option maxHeartbeats 5000000 in
+/-- The flag-contribution identity checked only on the 14 unlabeled triangle-free graphs. -/
+private lemma triangleFreeRepresentative_contrib_eq :
+    ∀ k : Fin 14,
+      totalFlagContrib (mkAdj5 (triangleFreeRepresentativeEdges k)) =
+        totalFlagContribPermSum (mkAdj5 (triangleFreeRepresentativeEdges k)) := by
+  decide +kernel +revert
+
+private lemma quintContrib_sum_perm_inv
+    (adj : Fin 5 → Fin 5 → Bool) (τ : Equiv.Perm (Fin 5)) :
+    (∑ p : Equiv.Perm (Fin 5),
+        quintContrib (fun i j => adj (τ i) (τ j)) p) =
+      ∑ p : Equiv.Perm (Fin 5), quintContrib adj p := by
+  conv_rhs => rw [← Equiv.sum_comp (Equiv.mulLeft τ)]
+  rfl
+
+lemma totalFlagContrib_mkAdj5_edgeBits_eq_sum_univ :
+    ∀ b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 : Bool,
+      noTriangleBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 →
+        totalFlagContrib
+            (mkAdj5 (edgeBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34)) =
+          (Finset.univ : Finset (Equiv.Perm (Fin 5))).sum
+            (quintContrib
+              (mkAdj5 (edgeBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34))) := by
+  intro b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 htf
+  let e := edgeBits b01 b02 b03 b04 b12 b13 b14 b23 b24 b34
+  let data := triangleFreeClassData b01 b02 b03 b04 b12 b13 b14 b23 b24 b34
+  let τ := triangleFreeClassPermutation data
+  let representative :=
+    mkAdj5 (triangleFreeRepresentativeEdges (triangleFreeClassRepresentative data))
+  have hclass : (fun i j => mkAdj5 e (τ i) (τ j)) = representative := by
+    funext i j
+    simpa [e, data, τ, representative] using
+      triangleFreeClassified b01 b02 b03 b04 b12 b13 b14 b23 b24 b34 htf i j
+  have hadj_symm : ∀ i j, mkAdj5 e i j = mkAdj5 e j i := by
+    intro i j
+    fin_cases i <;> fin_cases j <;> simp [mkAdj5]
+  have hrep :
+      totalFlagContrib representative =
+        ∑ p : Equiv.Perm (Fin 5), quintContrib representative p := by
+    rw [← totalFlagContribPermSum_eq_sum_univ]
+    simpa [representative, data] using
+      triangleFreeRepresentative_contrib_eq (triangleFreeClassRepresentative data)
+  calc
+    totalFlagContrib (mkAdj5 e) =
+        totalFlagContrib (fun i j => mkAdj5 e (τ i) (τ j)) :=
+      (totalFlagContrib_perm_inv (mkAdj5 e) hadj_symm τ).symm
+    _ = totalFlagContrib representative := congrArg totalFlagContrib hclass
+    _ = ∑ p : Equiv.Perm (Fin 5), quintContrib representative p := hrep
+    _ = ∑ p : Equiv.Perm (Fin 5),
+          quintContrib (fun i j => mkAdj5 e (τ i) (τ j)) p :=
+      (congrArg (fun adj => ∑ p : Equiv.Perm (Fin 5), quintContrib adj p) hclass).symm
+    _ = ∑ p : Equiv.Perm (Fin 5), quintContrib (mkAdj5 e) p :=
+      quintContrib_sum_perm_inv (mkAdj5 e) τ
+
+private lemma totalFlagContrib_mkAdj5_eq_sum_univ (e : Fin 10 → Bool)
+    (htf : ∀ a b c : Fin 5,
+      ¬(mkAdj5 e a b = true ∧ mkAdj5 e b c = true ∧ mkAdj5 e a c = true)) :
+    totalFlagContrib (mkAdj5 e) =
+      (Finset.univ : Finset (Equiv.Perm (Fin 5))).sum (quintContrib (mkAdj5 e)) := by
+  have hbits : noTriangleBits
+      (e 0) (e 1) (e 2) (e 3) (e 4) (e 5) (e 6) (e 7) (e 8) (e 9) := by
+    exact ⟨by simpa [mkAdj5] using htf 0 1 2,
+      by simpa [mkAdj5] using htf 0 1 3,
+      by simpa [mkAdj5] using htf 0 1 4,
+      by simpa [mkAdj5] using htf 0 2 3,
+      by simpa [mkAdj5] using htf 0 2 4,
+      by simpa [mkAdj5] using htf 0 3 4,
+      by simpa [mkAdj5] using htf 1 2 3,
+      by simpa [mkAdj5] using htf 1 2 4,
+      by simpa [mkAdj5] using htf 1 3 4,
+      by simpa [mkAdj5] using htf 2 3 4⟩
   rw [edgeBits_ext e rfl rfl rfl rfl rfl rfl rfl rfl rfl rfl]
-  exact totalFlagContrib_mkAdj5_edgeBits_eq_permSum
-    (e 0) (e 1) (e 2) (e 3) (e 4) (e 5) (e 6) (e 7) (e 8) (e 9)
-
-private lemma totalFlagContrib_eq_permSum (adj : Fin 5 → Fin 5 → Bool)
-    (hsym : ∀ i j, adj i j = adj j i)
-    (hirr : ∀ i, adj i i = false) :
-    totalFlagContrib adj = totalFlagContribPermSum adj := by
-  rw [← mkAdj5_toEdges5 adj hsym hirr]
-  exact totalFlagContrib_mkAdj5_eq_permSum (toEdges5 adj)
+  exact totalFlagContrib_mkAdj5_edgeBits_eq_sum_univ
+    (e 0) (e 1) (e 2) (e 3) (e 4) (e 5) (e 6) (e 7) (e 8) (e 9) hbits
 
 private lemma totalFlagContrib_eq_sum_univ (adj : Fin 5 → Fin 5 → Bool)
     (hsym : ∀ i j, adj i j = adj j i)
-    (hirr : ∀ i, adj i i = false) :
+    (hirr : ∀ i, adj i i = false)
+    (htf : ∀ a b c : Fin 5,
+      ¬(adj a b = true ∧ adj b c = true ∧ adj a c = true)) :
     totalFlagContrib adj =
       (Finset.univ : Finset (Equiv.Perm (Fin 5))).sum (quintContrib adj) := by
-  rw [totalFlagContrib_eq_permSum adj hsym hirr]
-  exact totalFlagContribPermSum_eq_sum_univ adj
+  rw [show adj = mkAdj5 (toEdges5 adj) from (mkAdj5_toEdges5 adj hsym hirr).symm]
+  exact totalFlagContrib_mkAdj5_eq_sum_univ (toEdges5 adj) (by
+    intro a b c
+    rw [mkAdj5_toEdges5 adj hsym hirr]
+    exact htf a b c)
+
 
 set_option maxHeartbeats 1600000 in
 /-- The sum of `quintContrib` over injective functions equals the sum of
 `totalFlagContrib` over 5-element subsets. -/
 lemma counting_identity {V : Type*} [Fintype V] [DecidableEq V]
-    (G : SimpleGraph V)
+    (G : SimpleGraph V) (hG : G.CliqueFree 3)
     (enum : ∀ (S : Finset V), S.card = 5 → (Fin 5 → V))
     (henum : ∀ S hS, Function.Injective (enum S hS) ∧
       Finset.image (enum S hS) Finset.univ = S) :
@@ -2579,7 +3704,8 @@ lemma counting_identity {V : Type*} [Fintype V] [DecidableEq V]
     (fun σ _ τ _ h => Equiv.Perm.ext fun i =>
       (henum S hScard).1 (by simpa using congr_fun h i))]
   rw [totalFlagContrib_eq_sum_univ (graphAdj5 G (enum S hScard))
-    (graphAdj5_symm G (enum S hScard)) (graphAdj5_irrefl G (enum S hScard))]
+    (graphAdj5_symm G (enum S hScard)) (graphAdj5_irrefl G (enum S hScard))
+    (graphAdj5_triangleFree G hG (enum S hScard) (henum S hScard).1)]
   refine Finset.sum_congr rfl ?_
   intro σ _
   rfl
@@ -2815,7 +3941,7 @@ theorem numC5Copies_le_turan_plus_error {V : Type*} [Fintype V]
       F.sum fun S => if h : S.card = 5
         then totalFlagContrib (graphAdj5 G (chooseEnum5 S h)) else 0 := by
     calc -(70 : ℚ) * _ ≤ _ := psd_lower_bound_injective G
-      _ = _ := by convert counting_identity G chooseEnum5
+      _ = _ := by convert counting_identity G hG chooseEnum5
                     fun S hS => chooseEnum5_spec S hS
   have h_step1 : F.sum (fun S => if h : S.card = 5
         then totalFlagContrib (graphAdj5 G (chooseEnum5 S h)) else 0) ≤
