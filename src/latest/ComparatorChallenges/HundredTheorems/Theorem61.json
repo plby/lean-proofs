@@ -3,5 +3,5 @@
   "solution_module": "HundredTheorems.Theorem61",
   "theorem_names": ["Theorem61.ceva_theorem"],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
-  "enable_nanoda": false
+  "enable_nanoda": true
 }

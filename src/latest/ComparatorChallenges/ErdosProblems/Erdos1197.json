@@ -10,5 +10,5 @@
     "Erdos1197.bm_approx_data",
     "Quot.sound"
   ],
-  "enable_nanoda": false
+  "enable_nanoda": true
 }
