@@ -593,13 +593,13 @@ variable (PD : ProblemData (2 * n))
 lemma z_pow_half_p (i : Fin (2 * n)) : PD.z i ^ (PD.p / 2) = 1 ∨ PD.z i ^ (PD.p / 2) = -1 := by
   rw [← sq_eq_one_iff, ← pow_mul, Nat.div_mul_cancel (by grind [PD.odd_iff_odd]), PD.z_pow_p]
 
-/-- The indices `i` such that `z_i^(p/2) = 1`. -/
-noncomputable def evenIndices : Finset (Fin (2 * n)) :=
-  {i | PD.z i ^ (PD.p / 2) = 1}
-
 /-- The indices `i` such that `z_i^(p/2) = -1`. -/
 noncomputable def oddIndices : Finset (Fin (2 * n)) :=
   {i | PD.z i ^ (PD.p / 2) = -1}
+
+/-- The indices `i` such that `z_i^(p/2) = 1`. -/
+noncomputable def evenIndices : Finset (Fin (2 * n)) :=
+  {i | PD.z i ^ (PD.p / 2) = 1}
 
 lemma disjoint_evenIndices_oddIndices : Disjoint PD.evenIndices PD.oddIndices := by
   refine disjoint_left.mpr fun i mi ↦ ?_

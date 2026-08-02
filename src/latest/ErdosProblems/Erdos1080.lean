@@ -53,6 +53,8 @@ attribute [local instance] Classical.propDecidable
 
 open SimpleGraph Sum
 
+universe u
+
 /-
 Definition of the Lazebnik-Ustimenko-Woldar bipartite graph B(q).
 Vertices are Points P and Lines L.
@@ -1495,7 +1497,7 @@ theorem thm_counterexamples_nonempty :
 open SimpleGraph
 
 /-- `IsBipartition G X Y` means that `X` and `Y` form a bipartition of the vertices of `G`. -/
-def IsBipartition {V : Type*} (G : SimpleGraph V) (X Y : Set V) : Prop :=
+def IsBipartition {V : Type u} (G : SimpleGraph V) (X Y : Set V) : Prop :=
   Disjoint X Y ∧ X ∪ Y = Set.univ ∧ ∀ ⦃u v⦄, G.Adj u v → (u ∈ X ↔ v ∈ Y)
 
 /--
@@ -1504,8 +1506,10 @@ vertices. Is there a constant $c>0$ such that if $G$ has at least $cn$ edges the
 contain a $C_6$?
 -/
 def erdos_1080 : Prop :=
-    ∃ c > (0 : ℝ), ∀ (V : Type) [Fintype V] [Nonempty V] (G : SimpleGraph V) (X Y : Set V),
-      IsBipartition G X Y → X.ncard = ⌊(Fintype.card V : ℝ) ^ (2/3 : ℝ)⌋₊ →
+    ∃ c > (0 : ℝ), ∀ (V : Type) [_finV : Fintype V] [_nonemptyV : Nonempty V]
+      (G : SimpleGraph V) (X Y : Set V),
+      IsBipartition G X Y →
+      X.ncard = ⌊(Fintype.card V : ℝ) ^ (((2 : ℕ) : ℝ) / ((3 : ℕ) : ℝ))⌋₊ →
       G.edgeSet.ncard ≥ c * Fintype.card V →
         ∃ (v : V) (walk : G.Walk v v), walk.IsCycle ∧ walk.length = 6
 

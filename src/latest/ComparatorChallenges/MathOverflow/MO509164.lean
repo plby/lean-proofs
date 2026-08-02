@@ -1,4 +1,4 @@
-import Mathlib.Topology.MetricSpace.HausdorffDimension
+import Mathlib
 
 namespace MO509164
 

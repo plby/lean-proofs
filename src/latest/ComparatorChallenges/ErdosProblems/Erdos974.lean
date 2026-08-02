@@ -16,17 +16,7 @@ URLs:
 - https://www.erdosproblems.com/forum/thread/974#post-640
 - https://gist.githubusercontent.com/Parcly-Taxel/a44cbf9a214a5358bf584d05265aec4c/raw/40bea6d343e4563e8f1c3d17b423deb72b3f8265/Erdos974.lean
 -/
-import Mathlib.Computability.Reduce
-import Mathlib.LinearAlgebra.Vandermonde
-import Mathlib.Algebra.Polynomial.Roots
-import Mathlib.Algebra.Ring.Periodic
-import Mathlib.AlgebraicTopology.SimplexCategory.Basic
-import Mathlib.Analysis.Complex.Norm
-import Mathlib.Analysis.Complex.Arg
-import Mathlib.Data.Finset.Slice
-import Mathlib.RingTheory.MvPolynomial.Symmetric.Defs
-import Mathlib.RingTheory.SimpleRing.Principal
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos974
 

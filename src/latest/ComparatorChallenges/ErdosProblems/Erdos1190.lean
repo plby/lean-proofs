@@ -1,6 +1,4 @@
-import Mathlib.Order.CompletePartialOrder
-import Mathlib.Analysis.SpecialFunctions.Log.Basic
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 set_option autoImplicit false
 

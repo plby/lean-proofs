@@ -2966,7 +2966,7 @@ open Filter
 
 theorem main_theorem_consequence :
   ∃ C : ℝ, C > 0 ∧
-  let f : ℕ × ℕ → ℕ := fun (k, l) ↦ 2 ^ k * 3 ^ l
+  let f : ℕ × ℕ → ℕ := fun x ↦ 2 ^ x.1 * 3 ^ x.2
   {n : ℕ | n > 0} ⊆ { ∑ x ∈ B, f x | (B : Finset (ℕ × ℕ)) (h : B.Nonempty) (hB : ((B.sup f : ℕ) : ℝ) ≤ C * ((B.inf' h f : ℕ) : ℝ)) } := by
     -- Apply `main_theorem` with `p=3`.
     obtain ⟨C_nat, hC_nat⟩ := main_theorem 3 ⟨by decide, by decide⟩;
@@ -3008,7 +3008,7 @@ with $b_1 < \cdots < b_t$, where $b_i = 2^{k_i}3^{l_i}$ for $1 \leq i\leq t$ and
 $b_t \leq Cb_1$ has density $0$?
 -/
 theorem erdos_845 : (false) ↔ ∀ᵉ (C : ℝ) (hC : 0 < C),
-    let f : ℕ × ℕ → ℕ := fun (k, l) ↦ 2 ^ k * 3 ^ l
+    let f : ℕ × ℕ → ℕ := fun x ↦ 2 ^ x.1 * 3 ^ x.2
     HasDensity { ∑ x ∈ B, f x | (B : Finset (ℕ × ℕ)) (h : B.Nonempty)
       (hB : B.sup f ≤ C * B.inf' h f) } 0 := by
   norm_num;
@@ -3032,7 +3032,7 @@ theorem erdos_845 : (false) ↔ ∀ᵉ (C : ℝ) (hC : 0 < C),
   have := h_density_one.sub h; aesop;
 
 theorem van_doorn_everts_asymptotic_inexact :
-    let f : ℕ × ℕ → ℕ := fun (k, l) ↦ 2 ^ k * 3 ^ l
+    let f : ℕ × ℕ → ℕ := fun x ↦ 2 ^ x.1 * 3 ^ x.2
     ∃ C, ∀ n, ∃ (B : Finset (ℕ × ℕ)), ¬ (∃ b ∈ B, ∃ b' ∈ B,
       f b' > C * f b) ∧ n = (∑ x ∈ B, f x) := by
   -- Apply the main theorem to obtain the constant C.

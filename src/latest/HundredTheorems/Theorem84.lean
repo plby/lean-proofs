@@ -62,7 +62,7 @@ noncomputable def lineIntersection (p1 : P) (v1 : V) (p2 : P) (v2 : V) : P :=
 
 /-- The direction vector of the trisector of angle `∠ B A C` adjacent to `AB`. -/
 noncomputable def trisectorVector (A B C : P) : V :=
-  let angle_val : ℝ := (oangle B A C).toReal / 3
+  let angle_val : ℝ := (oangle B A C).toReal / ((3 : ℕ) : ℝ)
   Orientation.rotation (Module.Oriented.positiveOrientation) (angle_val : Real.Angle) (B -ᵥ A)
 
 /-- The Morley triangle of a triangle ABC, defined by the vertices P, Q, R. -/
@@ -2869,7 +2869,10 @@ lemma conway_triangle_properties (P_pt Q R : P) (a b c : ℝ)
 Morley's Trisector Theorem: In any nondegenerate triangle, the Morley triangle is equilateral.
 -/
 theorem morley_theorem (A B C : P) (h_nd : NondegenerateTriangle A B C) :
-  let (P_tri, Q_tri, R_tri) := morleyTriangle A B C
+  let T := morleyTriangle A B C
+  let P_tri := T.1
+  let Q_tri := T.2.1
+  let R_tri := T.2.2
   isEquilateral P_tri Q_tri R_tri := by
   -- Obtain the angles a, b, c from the nondegenerate triangle A B C.
   obtain ⟨a, b, c, h_angles⟩ : ∃ a b c : ℝ, 0 < a ∧ 0 < b ∧ 0 < c ∧ a < Real.pi / 3 ∧ b < Real.pi / 3 ∧ c < Real.pi / 3 ∧ a + b + c = Real.pi / 3 ∧ angle C A B = 3 * a ∧ angle A B C = 3 * b ∧ angle B C A = 3 * c := by

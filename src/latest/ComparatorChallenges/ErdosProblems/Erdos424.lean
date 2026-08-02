@@ -1,6 +1,4 @@
-import Mathlib.Data.Real.Basic
-import Mathlib.Order.Filter.AtTopBot.Defs
-import Mathlib.Order.Interval.Finset.Nat
+import Mathlib
 
 namespace Erdos424
 
@@ -9,9 +7,8 @@ open Set
 def nextGeneration (A : Set ℕ) : Set ℕ :=
   {z : ℕ | ∃ x y, x ∈ A ∧ y ∈ A ∧ x ≠ y ∧ z = x * y - 1}
 
-def sequenceSet : ℕ → Set ℕ
-  | 0 => {2, 3}
-  | n + 1 => sequenceSet n ∪ nextGeneration (sequenceSet n)
+def sequenceSet (n : ℕ) : Set ℕ :=
+  Nat.rec {2, 3} (fun _ previous => previous ∪ nextGeneration previous) n
 
 def generatedSet : Set ℕ := ⋃ n : ℕ, sequenceSet n
 

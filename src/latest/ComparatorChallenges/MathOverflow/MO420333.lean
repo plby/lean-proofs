@@ -1,5 +1,4 @@
-import Mathlib.Algebra.BigOperators.Group.Finset.Defs
-import Mathlib.Data.ENNReal.Basic
+import Util.ListSorted
 
 namespace MO420333
 

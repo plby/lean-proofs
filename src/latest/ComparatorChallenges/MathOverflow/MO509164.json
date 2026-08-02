@@ -7,5 +7,5 @@
     "MO509164.corollary_dimensions_limsup"
   ],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
-  "enable_nanoda": false
+  "enable_nanoda": true
 }

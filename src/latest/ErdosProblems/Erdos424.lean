@@ -6323,9 +6323,8 @@ def nextGeneration (A : Set ℕ) : Set ℕ :=
   {z : ℕ | ∃ x y, x ∈ A ∧ y ∈ A ∧ x ≠ y ∧ z = x * y - 1}
 
 /-- The finite-stage closure used by `formal-conjectures`. -/
-def sequenceSet : ℕ → Set ℕ
-  | 0 => {2, 3}
-  | n + 1 => sequenceSet n ∪ nextGeneration (sequenceSet n)
+def sequenceSet (n : ℕ) : Set ℕ :=
+  Nat.rec {2, 3} (fun _ previous => previous ∪ nextGeneration previous) n
 
 /-- The union of all finite stages, as in `formal-conjectures`. -/
 def generatedSet : Set ℕ := ⋃ n : ℕ, sequenceSet n
@@ -6342,7 +6341,7 @@ theorem mem_sequenceSet_generated {n x : ℕ} (hx : x ∈ sequenceSet n) :
     Generated x := by
   induction n generalizing x with
   | zero =>
-      simp only [sequenceSet, Set.mem_insert_iff, Set.mem_singleton_iff] at hx
+      simp only [sequenceSet] at hx
       rcases hx with rfl | rfl
       · exact Generated.two
       · exact Generated.three

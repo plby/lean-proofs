@@ -1,8 +1,4 @@
-import Mathlib.Order.CompletePartialOrder
-import Mathlib.Analysis.CStarAlgebra.Classes
-import Mathlib.MeasureTheory.Measure.Hausdorff
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Complex
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.flexible false

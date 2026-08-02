@@ -1,4 +1,4 @@
-import Mathlib.Geometry.Euclidean.Angle.Oriented.Affine
+import Mathlib
 
 namespace Theorem84
 
@@ -23,7 +23,7 @@ noncomputable def lineIntersection (p1 : P) (v1 : V) (p2 : P) (v2 : V) : P :=
     p ∈ AffineSubspace.mk' p2 (Submodule.span ℝ {v2}))
 
 noncomputable def trisectorVector (A B C : P) : V :=
-  let angle_val : ℝ := (oangle B A C).toReal / 3
+  let angle_val : ℝ := (oangle B A C).toReal / ((3 : ℕ) : ℝ)
   Orientation.rotation (Module.Oriented.positiveOrientation)
     (angle_val : Real.Angle) (B -ᵥ A)
 
@@ -39,21 +39,12 @@ def isEquilateral (A B C : P) : Prop :=
 def NondegenerateTriangle (A B C : P) : Prop :=
   ¬Collinear ℝ {A, B, C}
 
-abbrev morley_triangle_similarity_invariance.match_1 :
-    {P : Type u_1} →
-      (motive : P × P × P → Sort u_2) →
-        (x : P × P × P) →
-          ((P' Q' R' : P) → motive (P', Q', R')) →
-            motive x :=
-  fun {P} motive x h_1 =>
-    @Prod.casesOn P (P × P) (fun x => motive x) x fun fst snd =>
-      @Prod.casesOn P P (fun x => motive (fst, x)) snd fun fst_1 snd =>
-        h_1 fst fst_1 snd
-
 theorem morley_theorem (A B C : P) (h_nd : NondegenerateTriangle A B C) :
-    morley_triangle_similarity_invariance.match_1
-      (fun _ => Prop) (morleyTriangle A B C)
-      (fun P_tri Q_tri R_tri => isEquilateral P_tri Q_tri R_tri) := by
+    let T := morleyTriangle A B C
+    let P_tri := T.1
+    let Q_tri := T.2.1
+    let R_tri := T.2.2
+    isEquilateral P_tri Q_tri R_tri := by
   sorry
 
 end Theorem84

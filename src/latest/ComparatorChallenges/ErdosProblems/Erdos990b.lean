@@ -1,8 +1,6 @@
-import Mathlib.Algebra.Polynomial.Roots
-import Mathlib.RingTheory.SimpleRing.Principal
-import Mathlib.Analysis.SpecialFunctions.Complex.Arg
-import Mathlib.Analysis.SpecialFunctions.Log.Basic
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib.Analysis.Analytic.Polynomial
+import Mathlib.Analysis.SpecialFunctions.Complex.Analytic
+import Mathlib.LinearAlgebra.Lagrange
 
 open scoped BigOperators Topology
 open Polynomial

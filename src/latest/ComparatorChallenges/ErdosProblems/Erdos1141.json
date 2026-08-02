@@ -11,5 +11,5 @@
     "Pollack17.theorem_1_3",
     "Quot.sound"
   ],
-  "enable_nanoda": false
+  "enable_nanoda": true
 }

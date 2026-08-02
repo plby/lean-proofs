@@ -6,5 +6,5 @@
     "Theorem8.RulerCompass.freek_08_plane"
   ],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
-  "enable_nanoda": false
+  "enable_nanoda": true
 }

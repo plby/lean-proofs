@@ -3,5 +3,5 @@
   "solution_module": "HundredTheorems.Theorem84",
   "theorem_names": ["Theorem84.morley_theorem"],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
-  "enable_nanoda": false
+  "enable_nanoda": true
 }
