@@ -1,0 +1,11 @@
+{
+  "challenge_module": "MO509493",
+  "solution_module": "MathOverflow.MO509493",
+  "theorem_names": [
+    "MO509493.A_example_isCounterexample",
+    "MO509493.min_counterexample_dim_CE",
+    "MO509493.min_counterexample_exp_CE"
+  ],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": false
+}

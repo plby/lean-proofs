@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos150",
+  "solution_module": "ErdosProblems.Erdos150",
+  "theorem_names": [
+    "Erdos150.limit_alpha_exists_and_lt_two"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

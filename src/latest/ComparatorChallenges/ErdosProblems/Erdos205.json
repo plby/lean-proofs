@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos205",
+  "solution_module": "ErdosProblems.Erdos205",
+  "theorem_names": [
+    "Erdos205.infinitely_many_counterexamples"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

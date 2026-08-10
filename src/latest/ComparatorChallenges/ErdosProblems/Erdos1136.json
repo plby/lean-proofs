@@ -1,0 +1,15 @@
+{
+  "challenge_module": "Erdos1136",
+  "solution_module": "ErdosProblems.Erdos1136",
+  "theorem_names": [
+    "Erdos1136.general_upper_bound",
+    "Erdos1136.general_upper_bound_infinite",
+    "Erdos1136.main_result"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

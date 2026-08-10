@@ -1,0 +1,9 @@
+import Arxiv.Arxiv2407_19026.TangentChecks3.SmallBookSlope
+import Arxiv.Arxiv2407_19026.TangentChecks3.SmallBook
+import Arxiv.Arxiv2407_19026.TangentChecks3.ForwardBook
+import Arxiv.Arxiv2407_19026.TangentChecks3.PlateauLow
+import Arxiv.Arxiv2407_19026.TangentChecks3.PlateauHigh
+import Arxiv.Arxiv2407_19026.TangentChecks3.PlateauBook
+import Arxiv.Arxiv2407_19026.TangentChecks3.Back1Coord
+import Arxiv.Arxiv2407_19026.TangentChecks3.Back1Book
+import Arxiv.Arxiv2407_19026.TangentChecks3.Back2Coord

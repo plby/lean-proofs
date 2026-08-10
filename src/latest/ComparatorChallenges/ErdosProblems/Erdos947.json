@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos947",
+  "solution_module": "ErdosProblems.Erdos947",
+  "theorem_names": [
+    "Erdos947.exact_covering_system_distinct_moduli_impossible"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

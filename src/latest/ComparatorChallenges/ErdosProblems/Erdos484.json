@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos484",
+  "solution_module": "ErdosProblems.Erdos484",
+  "theorem_names": [
+    "Erdos484.monochromatic_sums_linear"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

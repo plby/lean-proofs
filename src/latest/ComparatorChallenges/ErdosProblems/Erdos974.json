@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos974",
+  "solution_module": "ErdosProblems.Erdos974",
+  "theorem_names": [
+    "Erdos974.ProblemData.erdos974_even"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

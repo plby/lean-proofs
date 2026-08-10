@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos264",
+  "solution_module": "ErdosProblems.Erdos264",
+  "theorem_names": [
+    "Erdos264.erdos_264.parts.i",
+    "Erdos264.erdos_264.variants.example"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

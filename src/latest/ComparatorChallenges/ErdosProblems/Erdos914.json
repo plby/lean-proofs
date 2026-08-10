@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos914",
+  "solution_module": "ErdosProblems.Erdos914",
+  "theorem_names": [
+    "Erdos914.HajnalSzemeredi.hajnal_szemeredi_clique_cover"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

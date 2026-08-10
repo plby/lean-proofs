@@ -1,0 +1,25 @@
+{
+  "challenge_module": "Erdos694",
+  "solution_module": "ErdosProblems.Erdos694",
+  "theorem_names": [
+    "Erdos694.LowerConstruction.totient_a_eq_totient_b",
+    "Erdos694.R_lower_bound",
+    "Erdos694.R_upper_bound",
+    "Erdos694.collision_at_height",
+    "Erdos694.erdos_694_asymptotic",
+    "Erdos694.infinitely_many_collisions",
+    "Erdos694.landau_max_ratio",
+    "Erdos694.permanence_step",
+    "Erdos694.totient_collision_construction",
+    "Erdos694.totient_fibre_extremes",
+    "Erdos694.totient_sq_ge_half"
+  ],
+  "permitted_axioms": [
+    "linnik_dvd",
+    "mertens_product",
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

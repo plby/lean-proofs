@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos613",
+  "solution_module": "ErdosProblems.Erdos613",
+  "theorem_names": [
+    "Erdos613.PikhurkoN5.main"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

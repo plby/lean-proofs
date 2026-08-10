@@ -1,0 +1,7 @@
+{
+  "challenge_module": "BasisSubset",
+  "solution_module": "BorisBukh.BasisSubset",
+  "theorem_names": ["BasisSubset.basis_sumset_cardinality_bound"],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": true
+}

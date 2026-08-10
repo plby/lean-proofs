@@ -1,0 +1,21 @@
+{
+  "challenge_module": "Erdos1102",
+  "solution_module": "ErdosProblems.Erdos1102",
+  "theorem_names": [
+    "Erdos1102.erdos_1102.exists_sequence_with_P",
+    "Erdos1102b.TheoremQ_lower",
+    "Erdos1102b.TheoremQ_upper",
+    "Erdos1102b.erdos_1102.lower_density_Q_exists",
+    "Erdos1102b.erdos_1102.upper_density_Q",
+    "Erdos1102c.theorem_overp_i",
+    "Erdos1102c.theorem_overp_ii",
+    "Erdos1102d.All_Sequences_PropertyQ",
+    "Erdos1102d.Theorem_suff"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

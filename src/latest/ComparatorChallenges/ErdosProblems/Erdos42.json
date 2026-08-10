@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos42",
+  "solution_module": "ErdosProblems.Erdos42",
+  "theorem_names": [
+    "Erdos42.CompactCayley.compact_cayley_clique",
+    "Erdos42.CompactCayley.theorem_1_1_from_compact_cayley",
+    "Erdos42.FormalConjecturesShape.erdos_42_via_cayley",
+    "Erdos42.erdos_42_via_cayley",
+    "Erdos42.theorem_1_1_via_cayley"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

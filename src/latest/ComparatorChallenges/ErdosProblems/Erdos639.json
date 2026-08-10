@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos639",
+  "solution_module": "ErdosProblems.Erdos639",
+  "theorem_names": [
+    "Erdos639.SimpleGraph.erdos639"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

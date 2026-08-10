@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos24",
+  "solution_module": "ErdosProblems.Erdos24",
+  "theorem_names": [
+    "Erdos24.erdos_pentagon_conjecture"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound",
+    "Erdos24.totalFlagContrib_mkAdj5_edgeBits_eq_permSum._native.native_decide.ax_1_1"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos427",
+  "solution_module": "ErdosProblems.Erdos427",
+  "theorem_names": [
+    "Erdos427.erdos427"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "shiu_consecutive_primes",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

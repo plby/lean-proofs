@@ -1,0 +1,9 @@
+{
+  "challenge_module": "CycleDoubleCoverConjecture",
+  "solution_module": "Wikipedia.CycleDoubleCoverConjecture",
+  "theorem_names": [
+    "CycleDoubleCoverConjecture.simpleGraph_cycleDoubleCover_iff_every_edge_mem_cycle"
+  ],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": false
+}

@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos728p",
+  "solution_module": "ErdosProblems.Erdos728p",
+  "theorem_names": [
+    "Erdos728p.theorem_1_1",
+    "Erdos728p.theorem_1_2"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

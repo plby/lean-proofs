@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos692",
+  "solution_module": "ErdosProblems.Erdos692",
+  "theorem_names": [
+    "Erdos692.delta1_not_unimodal"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

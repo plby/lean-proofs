@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos1008",
+  "solution_module": "ErdosProblems.Erdos1008",
+  "theorem_names": [
+    "Erdos1008.exists_C4_free_subgraph_with_many_edges"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

@@ -1,0 +1,7 @@
+import Arxiv.Arxiv2407_19026.TangentChecks1.SmallCoord
+import Arxiv.Arxiv2407_19026.TangentChecks1.SmallBookSlope
+import Arxiv.Arxiv2407_19026.TangentChecks1.SmallBook
+import Arxiv.Arxiv2407_19026.TangentChecks1.Back1Coord
+import Arxiv.Arxiv2407_19026.TangentChecks1.Back1Book
+import Arxiv.Arxiv2407_19026.TangentChecks1.Back2Coord
+import Arxiv.Arxiv2407_19026.TangentChecks1.Back2Book

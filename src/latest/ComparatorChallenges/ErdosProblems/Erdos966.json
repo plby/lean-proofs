@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos966",
+  "solution_module": "ErdosProblems.Erdos966",
+  "theorem_names": [
+    "Erdos966.existence_of_AP_free_Ramsey_set"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

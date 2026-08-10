@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos125",
+  "solution_module": "ErdosProblems.Erdos125",
+  "theorem_names": [
+    "Erdos125.erdos_125",
+    "Erdos125.erdos_125.variants.positive_lower_density"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

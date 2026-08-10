@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos367b",
+  "solution_module": "ErdosProblems.Erdos367b",
+  "theorem_names": [
+    "Erdos367b.disproof_367"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

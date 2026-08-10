@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos258",
+  "solution_module": "ErdosProblems.Erdos258",
+  "theorem_names": [
+    "Erdos258.erdos_258"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "tao_teravainen",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos760",
+  "solution_module": "ErdosProblems.Erdos760",
+  "theorem_names": [
+    "Erdos760.SimpleGraph.erdos_760"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

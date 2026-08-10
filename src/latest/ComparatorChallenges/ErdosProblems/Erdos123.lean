@@ -1,0 +1,35 @@
+import Mathlib.Order.Filter.Defs
+import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+
+open Filter
+
+namespace Erdos123
+
+def Smooth3 (a b c : ℕ) : Set ℕ :=
+  {x | ∃ k l m : ℕ, x = a ^ k * b ^ l * c ^ m}
+
+def IsPrimitive (s : Finset ℕ) : Prop :=
+  ∀ ⦃x⦄, x ∈ s → ∀ ⦃y⦄, y ∈ s → x ≠ y → ¬x ∣ y
+
+def IsDComplete (A : Set ℕ) : Prop :=
+  ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
+    ∃ s : Finset ℕ,
+      (∀ x ∈ s, x ∈ A) ∧ IsPrimitive s ∧ s.sum id = n
+
+def PairwiseCoprime3 (a b c : ℕ) : Prop :=
+  Nat.Coprime a b ∧ Nat.Coprime a c ∧ Nat.Coprime b c
+
+def IntendedStatement : Prop :=
+  ∀ a b c : ℕ, 1 < a → 1 < b → 1 < c → PairwiseCoprime3 a b c →
+    IsDComplete (Smooth3 a b c)
+noncomputable section
+
+end
+end Erdos123
+
+attribute [local instance] Classical.propDecidable
+
+theorem Erdos123.erdos_123 :
+    Erdos123.IntendedStatement
+  := by
+  sorry

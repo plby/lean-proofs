@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos498",
+  "solution_module": "ErdosProblems.Erdos498",
+  "theorem_names": [
+    "Erdos498.littlewood_offord_complex_bound"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

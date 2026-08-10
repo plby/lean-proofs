@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos355",
+  "solution_module": "ErdosProblems.Erdos355",
+  "theorem_names": [
+    "Erdos355.Theorem_1",
+    "Erdos355.Theorem_2",
+    "Erdos355.Theorem_3",
+    "Erdos355.Theorem_4",
+    "Erdos355.erdos_355"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

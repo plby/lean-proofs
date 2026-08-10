@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos124b",
+  "solution_module": "ErdosProblems.Erdos124b",
+  "theorem_names": [
+    "Erdos124b.erdos_124",
+    "Erdos124b.formal_conjectures_erdos_124_corrected"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

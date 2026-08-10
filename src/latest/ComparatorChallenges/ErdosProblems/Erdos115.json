@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos115",
+  "solution_module": "ErdosProblems.Erdos115",
+  "theorem_names": [
+    "Erdos115.eremenko_lempert_1999"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

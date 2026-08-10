@@ -1,0 +1,17 @@
+{
+  "challenge_module": "Erdos678",
+  "solution_module": "ErdosProblems.Erdos678",
+  "theorem_names": [
+    "Erdos678.erdos_678",
+    "Erdos678.erdos_678_kmn_infinite",
+    "Erdos678.main_theorem_expanded",
+    "Erdos678.not_erdos_678_fc",
+    "Erdos678.not_erdos_678_other"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,11 @@
+{
+  "challenge_module": "MO509164",
+  "solution_module": "MathOverflow.MO509164",
+  "theorem_names": [
+    "MO509164.theorem_plus",
+    "MO509164.theorem_minus",
+    "MO509164.corollary_dimensions_limsup"
+  ],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": false
+}

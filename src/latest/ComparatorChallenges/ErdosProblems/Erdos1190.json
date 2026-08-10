@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos1190",
+  "solution_module": "ErdosProblems.Erdos1190",
+  "theorem_names": [
+    "Erdos1190.erdos1190_bridge_ready",
+    "Erdos1190.erdos1190_main"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

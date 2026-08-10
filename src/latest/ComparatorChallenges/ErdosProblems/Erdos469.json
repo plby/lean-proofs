@@ -1,0 +1,10 @@
+{
+  "challenge_module": "Erdos469",
+  "solution_module": "ErdosProblems.Erdos469",
+  "theorem_names": [
+    "Erdos469.erdos_469",
+    "Erdos469.pseudoperfect_density_exists_between_zero_and_one"
+  ],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": false
+}

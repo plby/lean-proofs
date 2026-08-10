@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos224",
+  "solution_module": "ErdosProblems.Erdos224",
+  "theorem_names": [
+    "Erdos224.exists_obtuse_of_card_succ_pow_two"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

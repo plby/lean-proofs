@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos897",
+  "solution_module": "ErdosProblems.Erdos897",
+  "theorem_names": [
+    "Erdos897.erdos_897.parts.i",
+    "Erdos897.erdos_897.parts.ii"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

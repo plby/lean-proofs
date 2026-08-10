@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos94",
+  "solution_module": "ErdosProblems.Erdos94",
+  "theorem_names": [
+    "Erdos94.erdos94_convex_no3collinear"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

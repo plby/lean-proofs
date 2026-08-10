@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos502",
+  "solution_module": "ErdosProblems.Erdos502",
+  "theorem_names": [
+    "Erdos502.bannai_bannai_stanton"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos845",
+  "solution_module": "ErdosProblems.Erdos845",
+  "theorem_names": [
+    "Erdos845.erdos_845",
+    "Erdos845.van_doorn_everts_asymptotic_inexact"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos867",
+  "solution_module": "ErdosProblems.Erdos867",
+  "theorem_names": [
+    "Erdos867.construction_19_36",
+    "Erdos867.csf_exceeds_half_plus_constant"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos47",
+  "solution_module": "ErdosProblems.Erdos47",
+  "theorem_names": [
+    "Erdos47.erdos47",
+    "Erdos47.erdos47_bloom"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

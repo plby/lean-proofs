@@ -1,0 +1,18 @@
+{
+  "challenge_module": "Erdos202",
+  "solution_module": "ErdosProblems.Erdos202",
+  "theorem_names": [
+    "Erdos202.ParkPham.park_pham_threshold_not_small_lt_exists",
+    "Erdos202.ParkPham.spread_disjointness_theorem",
+    "Erdos202.bfv_lower_bound_theorem",
+    "Erdos202.bfv_omega_count_theorem",
+    "Erdos202.bfv_pruning_theorem",
+    "Erdos202.erdos202_main"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

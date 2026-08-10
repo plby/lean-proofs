@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos206",
+  "solution_module": "ErdosProblems.Erdos206",
+  "theorem_names": [
+    "Erdos206.EgyptianFractions.erdos_206"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,18 @@
+{
+  "challenge_module": "Erdos866b",
+  "solution_module": "ErdosProblems.Erdos866b",
+  "theorem_names": [
+    "Erdos866b.g3",
+    "Erdos866b.g4",
+    "Erdos866b.g5upper",
+    "Erdos866b.generalupper",
+    "Erdos866b.h3",
+    "Erdos866b.h4upper"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

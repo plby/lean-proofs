@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos368b",
+  "solution_module": "ErdosProblems.Erdos368b",
+  "theorem_names": [
+    "Erdos368b.n_n_plus_one_inf"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

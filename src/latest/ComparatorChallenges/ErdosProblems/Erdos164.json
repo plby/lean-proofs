@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos164",
+  "solution_module": "ErdosProblems.Erdos164",
+  "theorem_names": [
+    "Erdos164.erdos164",
+    "Erdos164.erdos164_alt",
+    "Erdos164.erdos_strong_of_prime",
+    "Erdos164.erdos_strong_of_two"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}

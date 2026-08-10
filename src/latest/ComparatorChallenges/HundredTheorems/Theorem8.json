@@ -1,0 +1,10 @@
+{
+  "challenge_module": "Theorem8",
+  "solution_module": "HundredTheorems.Theorem8",
+  "theorem_names": [
+    "Theorem8.freek_08",
+    "Theorem8.RulerCompass.freek_08_plane"
+  ],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": false
+}

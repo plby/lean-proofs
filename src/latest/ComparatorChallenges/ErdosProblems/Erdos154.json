@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos154",
+  "solution_module": "ErdosProblems.Erdos154",
+  "theorem_names": [
+    "Erdos154.sidon_density_limit"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": false
+}
