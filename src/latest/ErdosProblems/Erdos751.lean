@@ -2290,7 +2290,8 @@ theorem exists_two_cycles_length_dist_1_or_2
       simpa [hcons] using hEdges''
     have hmem' : s(x, u) = s(x, P.snd) ∨ s(x, u) ∈ P.tail.edges := by
       have : s(x, u) ∈ s(x, P.snd) :: P.tail.edges := by
-        simpa [hEdges'] using hmem
+        rw [hEdges'] at hmem
+        exact hmem
       simpa using (List.mem_cons.1 this)
     rcases hmem' with hmem' | hmem'
     · exact hmem'

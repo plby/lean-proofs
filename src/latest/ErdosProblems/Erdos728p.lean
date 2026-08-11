@@ -6676,7 +6676,14 @@ theorem bound_part_1_is_little_o :
           · exact ⟨ 1, by intros; linarith ⟩;
         refine h_x_pow.const_mul_left (4 * Real.exp 0.02 * p) |> Asymptotics.IsLittleO.trans_isBigO <| ?_;
         exact Asymptotics.isBigO_refl _ _;
-      refine Asymptotics.IsLittleO.sum ?_ ; aesop
+      change
+        (fun x : ℝ => ∑ p ∈ Finset.filter Nat.Prime (Finset.range 101),
+          term_bound_lemma_3_1 x p) =o[Filter.atTop] (fun x : ℝ => x)
+      set_option maxRecDepth 10000 in
+        exact Asymptotics.IsLittleO.sum
+          (A := fun p : ℕ => fun x : ℝ => term_bound_lemma_3_1 x p)
+          (g' := fun x : ℝ => x) (l := Filter.atTop)
+          (s := Finset.filter Nat.Prime (Finset.range 101)) h_term_o
 
 /-
 The second part of the bound is bounded by an explicit function.

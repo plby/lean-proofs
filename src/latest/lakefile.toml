@@ -12,7 +12,7 @@ maxSynthPendingDepth = 3
 [[require]]
 name = "leancert"
 git = "https://github.com/alerad/leancert.git"
-rev = "121ecfdf8ad1be18e9f4a4cda8496d99613dc373"
+rev = "v4.33.0"
 
 [[require]]
 name = "ComparatorChallenges"
@@ -21,7 +21,7 @@ path = "ComparatorChallenges"
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
-rev = "v4.33.0-rc2"
+rev = "v4.33.0"
 
 [[lean_lib]]
 name = "All"
