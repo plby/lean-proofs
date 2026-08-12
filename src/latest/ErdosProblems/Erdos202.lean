@@ -424,7 +424,7 @@ lemma residueClass_inter_nonempty_iff
       a ≡ b [ZMOD (Nat.gcd q r : ℤ)] := by
   constructor
   · rintro ⟨n, hnq, hnr⟩
-    rw [residueClass, Set.mem_setOf_eq, Int.modEq_iff_dvd] at hnq hnr
+    rw [residueClass, Set.mem_ofPred_eq, Int.modEq_iff_dvd] at hnq hnr
     rw [Int.modEq_iff_dvd]
     have hdq : (Nat.gcd q r : ℤ) ∣ (q : ℤ) := by
       exact_mod_cast Nat.gcd_dvd_left q r
@@ -440,11 +440,11 @@ lemma residueClass_inter_nonempty_iff
     rcases hab with ⟨k, hk⟩
     let n : ℤ := a + (q : ℤ) * Nat.gcdA q r * k
     refine ⟨n, ?_, ?_⟩
-    · rw [residueClass, Set.mem_setOf_eq, Int.modEq_iff_dvd]
+    · rw [residueClass, Set.mem_ofPred_eq, Int.modEq_iff_dvd]
       refine ⟨-(Nat.gcdA q r * k), ?_⟩
       simp [n]
       ring
-    · rw [residueClass, Set.mem_setOf_eq, Int.modEq_iff_dvd]
+    · rw [residueClass, Set.mem_ofPred_eq, Int.modEq_iff_dvd]
       refine ⟨Nat.gcdB q r * k, ?_⟩
       have hbez := Nat.gcd_eq_gcd_ab q r
       calc
@@ -15272,7 +15272,7 @@ lemma exists_fiber_card_div_le {α β : Type*} [Fintype β]
       (S.card : ℝ) / (Fintype.card β : ℝ) ≤
         ((S.filter fun a => r a = b).card : ℝ) := by
   classical
-  haveI : Nonempty β := by
+  have : Nonempty β := by
     rcases hS with ⟨a, _ha⟩
     exact ⟨r a⟩
   have hUniv : (Finset.univ : Finset β).Nonempty := Finset.univ_nonempty
@@ -16199,7 +16199,7 @@ lemma ChainState.exists_residue_subfamily {N : ℕ} {D : PrunedData N}
   let residue : ℕ → ZMod P :=
     fun q => if hq : q ∈ D.Q then (D.a ⟨q, hq⟩ : ZMod P) else 0
   have hPpos : 0 < P := S.coreBlock_pos hP
-  haveI : NeZero P := ⟨hPpos.ne'⟩
+  have : NeZero P := ⟨hPpos.ne'⟩
   have hTnonempty : T.Nonempty := by
     dsimp [T]
     rw [ChainState.coreBlocks] at hP

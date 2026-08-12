@@ -161,13 +161,13 @@ lemma valuation_prod_div_lcm (S : Finset ℕ) (p : ℕ) (e : ℕ)
         | insert i T hiT ih =>
           -- By definition of lcm, we have $\text{lcm}(i, \text{lcm}(T)) = \frac{i \cdot \text{lcm}(T)}{\gcd(i, \text{lcm}(T))}$.
           have h_lcm_def : padicValNat p (Nat.lcm i (Finset.lcm T id)) = max (padicValNat p i) (padicValNat p (Finset.lcm T id)) := by
-            haveI := Fact.mk hp; rw [ ← Nat.factorization_def, ← Nat.factorization_def, Nat.factorization_lcm ] <;> simp_all +decide [ Nat.factorization_eq_zero_iff ] ;
+            have := Fact.mk hp; rw [ ← Nat.factorization_def, ← Nat.factorization_def, Nat.factorization_lcm ] <;> simp_all +decide [ Nat.factorization_eq_zero_iff ] ;
             simp_all +decide [ Nat.factorization ];
           aesop;
       apply h_val_lcm; assumption;
     -- By the properties of p-adic valuations, we have $v_p(\prod_{i \in S} i / \text{lcm} S) = v_p(\prod_{i \in S} i) - v_p(\text{lcm} S)$.
     have h_val_ratio : padicValNat p ((∏ i ∈ S, i) / (Finset.lcm S id)) = (∑ i ∈ S, padicValNat p i) - (Finset.sup S (padicValNat p)) := by
-      haveI := Fact.mk hp; rw [ ← h_val_prod, ← h_val_lcm, padicValNat.div_of_dvd ] ; focus aesop;
+      have := Fact.mk hp; rw [ ← h_val_prod, ← h_val_lcm, padicValNat.div_of_dvd ] ; focus aesop;
       exact Finset.lcm_dvd fun x hx => Finset.dvd_prod_of_mem _ hx;
     rw [ h_val_ratio, sum_sub_max_eq_sum_min_sub_e ] <;> aesop
 
@@ -222,7 +222,7 @@ lemma truncated_valuation_periodic (p e n k : ℕ) (hp : p.Prime) (h_mod : n ≡
   min (padicValNat p n) e = min (padicValNat p k) e := by
     by_cases h : padicValNat p n ≥ e <;> by_cases h' : padicValNat p k ≥ e <;> simp_all +decide;
     · -- Since $n \equiv k \pmod{p^e}$, we have that $p^e \mid n$ if and only if $p^e \mid k$.
-      haveI := Fact.mk hp
+      have := Fact.mk hp
       have h_div_n : p ^ e ∣ n := by
         rw [ padicValNat_dvd_iff_le hn ]
         omega
@@ -241,9 +241,9 @@ lemma truncated_valuation_periodic (p e n k : ℕ) (hp : p.Prime) (h_mod : n ≡
       have h_div : p ^ e ∣ n := by
         exact Nat.dvd_of_mod_eq_zero ( h_mod.symm ▸ hk_mod );
       obtain ⟨ q, hq ⟩ := h_div;
-      haveI := Fact.mk hp; rw [ hq, padicValNat.mul ] <;> aesop;
+      have := Fact.mk hp; rw [ hq, padicValNat.mul ] <;> aesop;
     · have h_div : p ^ (padicValNat p n) ∣ n ∧ ¬p ^ (padicValNat p n + 1) ∣ n := by
-        haveI := Fact.mk hp; simp +decide [ Nat.ordProj_dvd, padicValNat_dvd_iff ] ;
+        have := Fact.mk hp; simp +decide [ Nat.ordProj_dvd, padicValNat_dvd_iff ] ;
         assumption;
       have h_div_k : p ^ (padicValNat p n) ∣ k ∧ ¬p ^ (padicValNat p n + 1) ∣ k := by
         have h_div_k : n ≡ k [MOD p ^ (padicValNat p n + 1)] := by
@@ -290,7 +290,7 @@ lemma padicValNat_lcm_range (k p : ℕ) (hp : p.Prime) (hk : k ≥ 1) :
       | insert i S hiS ih =>
         -- By definition of lcm, we know that $v_p(\text{lcm}(i, S)) = \max(v_p(i), v_p(\text{lcm}(S)))$.
         have h_lcm_def : padicValNat p (Nat.lcm i (Finset.lcm S id)) = max (padicValNat p i) (padicValNat p (Finset.lcm S id)) := by
-          haveI := Fact.mk hp;
+          have := Fact.mk hp;
           rw [ ← Nat.factorization_def, ← Nat.factorization_def, ← Nat.factorization_def ];
           · rw [ Nat.factorization_lcm ] <;> simp +decide [ hS_nonzero ];
             exact fun h => hS_nonzero 0 ( Finset.mem_insert_of_mem h ) rfl;
@@ -306,7 +306,7 @@ lemma padicValNat_lcm_range (k p : ℕ) (hp : p.Prime) (hk : k ≥ 1) :
         · exact Nat.le_log_of_pow_le hp.one_lt ( Nat.le_trans ( Nat.le_of_dvd hb₁ ( Nat.ordProj_dvd _ _ ) ) hb₂ );
         · assumption;
       · refine le_trans ?_ ( Finset.le_sup <| Finset.mem_Icc.mpr ⟨ Nat.one_le_pow _ _ hp.pos, Nat.pow_log_le_self _ <| by linarith ⟩ );
-        haveI := Fact.mk hp; rw [ padicValNat.pow ] ; focus aesop;
+        have := Fact.mk hp; rw [ padicValNat.pow ] ; focus aesop;
     exact h_max_val ▸ h_lcm_val fun i hi => by linarith [ Finset.mem_Icc.mp hi ] ;
 /-
 Any interval of length at least m contains a multiple of m.
@@ -352,7 +352,7 @@ lemma valuation_small_p (k x y p : ℕ) (hp : p.Prime) (hk : k ≥ 2)
         have h_vp_y : padicValNat p y ≥ e := by
           have := Nat.dvd_of_mod_eq_zero hy_mod;
           obtain ⟨ c, rfl ⟩ := this;
-          haveI := Fact.mk hp; rw [ padicValNat.mul ] <;> aesop;
+          have := Fact.mk hp; rw [ padicValNat.mul ] <;> aesop;
         exact le_trans h_vp_y ( Finset.le_sup ( f := padicValNat p ) ( Finset.mem_Icc.mpr ⟨ le_rfl, by linarith ⟩ ) );
       · -- Since $p^{e+1} > k$, there can be at most one multiple of $p^{e+1}$ in the interval $[y, y+k]$.
         have h_unique_multiples : ∀ m1 m2 : ℕ, y ≤ m1 → m1 ≤ y + k → y ≤ m2 → m2 ≤ y + k → p ^ (e + 1) ∣ m1 → p ^ (e + 1) ∣ m2 → m1 = m2 := by
@@ -379,7 +379,7 @@ lemma valuation_small_p (k x y p : ℕ) (hp : p.Prime) (hk : k ≥ 2)
         -- Since $p^e \mid z$, we have $v_p(z) \geq e$.
         have hz_val : padicValNat p z ≥ e := by
           obtain ⟨ c, rfl ⟩ := hz.2;
-          haveI := Fact.mk hp; rw [ padicValNat.mul ] <;> aesop;
+          have := Fact.mk hp; rw [ padicValNat.mul ] <;> aesop;
         exact le_trans hz_val ( Finset.le_sup ( f := padicValNat p ) hz.1 );
       · have h_unique : ∀ i ∈ Finset.Icc x (x + k - 1), padicValNat p i > e → i % p ^ (e + 1) = 0 := by
           intros i hi hpi
@@ -430,7 +430,7 @@ lemma valuation_small_p (k x y p : ℕ) (hp : p.Prime) (hk : k ≥ 2)
         exact Nat.pow_log_le_self p ( by linarith ) |> le_trans ( pow_le_pow_right₀ hp.one_lt.le ( by linarith ) );
       exact ⟨ p ^ e * ( ( x + p ^ e - 1 ) / p ^ e ), Finset.mem_Icc.mpr ⟨ by linarith [ Nat.div_add_mod ( x + p ^ e - 1 ) ( p ^ e ), Nat.mod_lt ( x + p ^ e - 1 ) ( pow_pos hp.pos e ), Nat.sub_add_cancel ( by linarith [ pow_pos hp.pos e ] : 1 ≤ x + p ^ e ) ], Nat.le_sub_one_of_lt ( by linarith [ Nat.div_mul_le_self ( x + p ^ e - 1 ) ( p ^ e ), Nat.sub_add_cancel ( by linarith [ pow_pos hp.pos e ] : 1 ≤ x + p ^ e ) ] ) ⟩, by norm_num ⟩;
     refine le_trans ?_ ( Finset.single_le_sum ( fun a _ => Nat.zero_le ( min ( padicValNat p a ) ( padicValNat p ( M k ) ) ) ) hi.1 );
-    haveI := Fact.mk hp; rw [ padicValNat_dvd_iff ] at hi; aesop;
+    have := Fact.mk hp; rw [ padicValNat_dvd_iff ] at hi; aesop;
 /-
 The number of multiples of p in the interval [a, b] (with a > 0) is floor(b/p) - floor((a-1)/p).
 -/
@@ -693,7 +693,7 @@ theorem ratio_equality_final (k : ℕ) (x y : ℕ) (hk : k ≥ 2)
         · exact ⟨ hy0.ne', Nat.le_of_dvd ( Finset.prod_pos fun i hi => by linarith [ Finset.mem_Icc.mp hi ] ) ( Finset.lcm_dvd fun i hi => Finset.dvd_prod_of_mem _ hi ) ⟩;
         · exact ⟨ Nat.ne_of_gt <| Nat.pos_of_ne_zero <| mt Finset.lcm_eq_zero_iff.mp <| by aesop, hx0.ne', Nat.le_of_dvd ( Finset.prod_pos fun i hi => by linarith [ Finset.mem_Icc.mp hi ] ) <| Finset.lcm_dvd fun i hi => Finset.dvd_prod_of_mem _ hi ⟩;
         · ext p; by_cases hp : Nat.Prime p <;> simp_all +decide [ Nat.factorization ] ;
-          haveI := Fact.mk hp; rw [ padicValNat.mul ] <;> simp_all +decide [ Nat.factorization ] ;
+          have := Fact.mk hp; rw [ padicValNat.mul ] <;> simp_all +decide [ Nat.factorization ] ;
           · exact Nat.ne_of_gt <| Nat.pos_of_ne_zero <| mt Finset.lcm_eq_zero_iff.mp <| by aesop;
           · exact ⟨ hx0.ne', Nat.le_of_dvd ( Finset.prod_pos fun i hi => by linarith [ Finset.mem_Icc.mp hi ] ) ( Finset.lcm_dvd fun i hi => Finset.dvd_prod_of_mem _ hi ) ⟩;
       rw [ Nat.div_eq_iff_eq_mul_left ] at h_eq_rat;
@@ -989,7 +989,7 @@ lemma B_set_star_ncard (k p M_val : ℕ) (hp : p.Prime) (h_coprime : Nat.Coprime
     apply le_antisymm;
     · -- Since $M_val$ is coprime to $p$, multiplication by $M_val$ is a bijection on $\mathbb{Z}_p$.
       have h_bijection : ∀ c1 c2 : ℤ, c1 ∈ Set.Icc 1 (p : ℤ) → c2 ∈ Set.Icc 1 (p : ℤ) → c1 * M_val ≡ c2 * M_val [ZMOD p] → c1 ≡ c2 [ZMOD p] := by
-        intro c1 c2 hc1 hc2 h; haveI := Fact.mk hp; simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ] ;
+        intro c1 c2 hc1 hc2 h; have := Fact.mk hp; simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ] ;
         exact h.resolve_right ( by rw [ ZMod.natCast_eq_zero_iff ] ; exact fun h => by have := Nat.gcd_eq_right h; aesop );
       have h_bijection : ∀ c : ℤ, c ∈ B_set_star k p M_val → ∃ b ∈ B_set k p, c * M_val ≡ b [ZMOD p] := by
         exact fun c hc => by rcases hc with ⟨ hc1, b, hb1, hb2 ⟩ ; exact ⟨ b, hb1, hb2 ⟩ ;
@@ -1371,7 +1371,7 @@ lemma B_set_x_transformed_ncard (k p M_val : ℕ) (hp : p.Prime) (h_coprime : Na
   (B_set_x_transformed k p M_val).ncard = (B_set_x k p).ncard := by
     -- Since $M\_val$ is coprime to $p$, the map $u \mapsto u \cdot M\_val + 1$ is a bijection on the set $\{1, \dots, p\}$ modulo $p$.
     have h_bijection : ∀ (u₁ u₂ : ℤ), 1 ≤ u₁ → u₁ ≤ p → 1 ≤ u₂ → u₂ ≤ p → (u₁ * (M_val : ℤ) + 1) % p = (u₂ * (M_val : ℤ) + 1) % p → u₁ % p = u₂ % p := by
-      intro u₁ u₂ hu₁ hu₁' hu₂ hu₂' h; haveI := Fact.mk hp; simp_all +decide [ ← ZMod.intCast_eq_intCast_iff' ] ;
+      intro u₁ u₂ hu₁ hu₁' hu₂ hu₂' h; have := Fact.mk hp; simp_all +decide [ ← ZMod.intCast_eq_intCast_iff' ] ;
       rw [ ZMod.natCast_eq_zero_iff ] at h ; exact h.resolve_right ( by exact fun h' => by have := Nat.gcd_eq_right h'; aesop );
     -- Therefore, the number of solutions to $u \cdot M_val + 1 \equiv c \pmod p$ with $u \in \{1, \dots, p\}$ is 1 for each $c$.
     have h_solutions : ∀ (c : ℤ), c ∈ B_set_x k p → ∃! (u : ℤ), 1 ≤ u ∧ u ≤ p ∧ (u * (M_val : ℤ) + 1) % p = c % p := by
@@ -2172,7 +2172,7 @@ lemma valuation_choose_le_valuation_lcm (n k : ℕ) (p : ℕ) (hp : p.Prime) :
   padicValNat p (Nat.choose n k) ≤ padicValNat p ((Finset.Icc (n - k + 1) n).lcm id) := by
     by_cases hk : k ≤ n;
     · have h_val : padicValNat p (Nat.choose n k) = ∑ i ∈ Finset.Icc 1 (Nat.log p n), (Nat.floor ((n : ℝ) / (p ^ i)) - Nat.floor ((k : ℝ) / (p ^ i)) - Nat.floor (((n - k) : ℝ) / (p ^ i))) := by
-        haveI := Fact.mk hp;
+        have := Fact.mk hp;
         rw [ padicValNat_choose ];
         any_goals exact Nat.lt_succ_self _;
         · have h_sum_eq : ∀ i ∈ Finset.Icc 1 (Nat.log p n), ⌊(n : ℝ) / p ^ i⌋₊ - ⌊(k : ℝ) / p ^ i⌋₊ - ⌊((n - k) : ℝ) / p ^ i⌋₊ = if p ^ i ≤ k % p ^ i + (n - k) % p ^ i then 1 else 0 := by

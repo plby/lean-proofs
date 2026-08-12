@@ -225,7 +225,7 @@ have h_compact : IsCompact (Set.pi Set.univ fun k : ℕ+ => Set.univ : Set (∀ 
 refine isCompact_iff_compactSpace.mp ?_
 convert h_compact.of_isClosed_subset _ _
 · simp +decide only [ZHat, ZMod.castHom_apply]
-  simp +decide only [Set.setOf_forall]
+  simp +decide only [Set.ofPred_forall]
   refine isClosed_iInter fun i => isClosed_iInter fun j =>
     isClosed_iInter fun hij => ?_
   apply isClosed_eq
@@ -334,8 +334,8 @@ lemma Ck_eq_preimage (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i) (a : Choice n) (
       @proj (period n k) ⟨ne_of_gt (period_pos n hnpos k)⟩ x ∈
         avoidPrefixMod n hnpos a k} := by
     ext x
-    simp only [Ck, cylinder, Set.mem_iInter, Set.mem_compl_iff, Set.mem_setOf_eq]
-    letI : NeZero (period n k) := ⟨ne_of_gt (period_pos n hnpos k)⟩
+    simp only [Ck, cylinder, Set.mem_iInter, Set.mem_compl_iff, Set.mem_ofPred_eq]
+    let : NeZero (period n k) := ⟨ne_of_gt (period_pos n hnpos k)⟩
     unfold avoidPrefixMod proj
     constructor
     · intro hx
@@ -680,10 +680,10 @@ lemma card_avoidPrefix_inter_range_eq_card_avoidPrefixMod (n : ℕ → ℕ)
     classical
     let L := period n k
     have hLpos : 0 < L := period_pos n hnpos k
-    haveI : NeZero L := ⟨ne_of_gt hLpos⟩
+    have : NeZero L := ⟨ne_of_gt hLpos⟩
     have hmem_iff (m : ℕ) (hm : m < L) :
         (m : ℤ) ∈ avoidPrefix n a k ↔ (m : ZMod L) ∈ avoidPrefixMod n hnpos a k := by
-      simp only [avoidPrefix, avoidPrefixMod, Set.mem_setOf_eq, Finset.mem_filter, Finset.mem_univ,
+      simp only [avoidPrefix, avoidPrefixMod, Set.mem_ofPred_eq, Finset.mem_filter, Finset.mem_univ,
         true_and]
       constructor
       · intro hm_avoid i hi
@@ -750,7 +750,7 @@ lemma map_proj_haar_is_add_haar (m : ℕ) [NeZero m] :
           MeasureTheory.Measure.IsAddHaarMeasure μ →
             MeasureTheory.Measure.IsAddHaarMeasure (MeasureTheory.Measure.map (proj m) μ) := by
       intro μ hμ
-      haveI : MeasureTheory.Measure.IsAddHaarMeasure μ := hμ
+      have : MeasureTheory.Measure.IsAddHaarMeasure μ := hμ
       refine
         { map_add_left_eq_self := ?_
           open_pos := ?_ }
@@ -803,17 +803,17 @@ lemma map_proj_haar_eq_normalized_count (m : ℕ) [NeZero m] :
         isCompact' := isCompact_univ
         interior_nonempty' := by
           simp [Set.Nonempty] }
-    haveI : MeasureTheory.Measure.IsAddHaarMeasure μp := by
+    have : MeasureTheory.Measure.IsAddHaarMeasure μp := by
       dsimp [μp]
       exact map_proj_haar_is_add_haar m
-    haveI : MeasureTheory.Measure.IsAddLeftInvariant ν := by
+    have : MeasureTheory.Measure.IsAddLeftInvariant ν := by
       dsimp [ν]
       infer_instance
-    haveI : MeasureTheory.IsFiniteMeasure ν := by
+    have : MeasureTheory.IsFiniteMeasure ν := by
       dsimp [ν]
       exact MeasureTheory.Measure.smul_finite MeasureTheory.Measure.count
         (ENNReal.inv_ne_top.mpr (by exact_mod_cast NeZero.ne m))
-    haveI : MeasureTheory.SigmaFinite ν := inferInstance
+    have : MeasureTheory.SigmaFinite ν := inferInstance
     have h_proj_cont : Continuous (proj m) := by
       exact continuous_apply _ |> Continuous.comp <| continuous_subtype_val
     have h_haar_univ : haar (Set.univ : Set ZHat) = 1 := by
@@ -878,7 +878,7 @@ theorem finite_density_haarmeasure (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i)
         (haar (Ck n hnpos a k)).toReal =
           (avoidPrefixMod n hnpos a k).card / (period n k : ℝ) := by
       rw [ Ck_eq_preimage n hnpos a k ]
-      haveI : NeZero (period n k) := ⟨ne_of_gt (period_pos n hnpos k)⟩
+      have : NeZero (period n k) := ⟨ne_of_gt (period_pos n hnpos k)⟩
       erw [ haar_preimage_proj_eq_card_div (period n k) (avoidPrefixMod n hnpos a k : Set _) ]
       rw [ ENNReal.toReal_div ]
       norm_cast; congr!; ext; simp
@@ -915,7 +915,7 @@ lemma mem_avoidAll_shift_iff (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i)
   m ∈ avoidAll n (shiftChoice n hnpos a x) ↔ x + (m : ZHat) ∈ C n hnpos a := by
     unfold C
     unfold Ck avoidAll
-    simp +decide only [shiftChoice, cylinder, ne_eq, Set.mem_setOf_eq, Set.mem_iInter,
+    simp +decide only [shiftChoice, cylinder, ne_eq, Set.mem_ofPred_eq, Set.mem_iInter,
       Set.mem_compl_iff]
     constructor
     · intro h i j hj
@@ -939,7 +939,7 @@ lemma integral_densSeq_eq_haar (S : Set ZHat) (hS : MeasurableSet S) (N : ℕ) :
     classical
     unfold densSeqZ
     rw [MeasureTheory.integral_div]
-    simp_rw [Finset.card_filter, Set.mem_setOf_eq]
+    simp_rw [Finset.card_filter, Set.mem_ofPred_eq]
     push_cast
     rw [MeasureTheory.integral_finsetSum]
     · have h_inv (m : ℤ) :
@@ -1106,7 +1106,7 @@ lemma continuous_fk (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i) (k : ℕ) :
     ext
     simp only [fk, Ck, ne_eq, Function.comp_apply]
     congr with x
-    simp +decide only [Set.mem_iInter, Set.mem_compl_iff, Set.mem_setOf_eq]
+    simp +decide only [Set.mem_iInter, Set.mem_compl_iff, Set.mem_ofPred_eq]
     exact ⟨fun h i => h i i.2, fun h i hi => h ⟨i, hi⟩⟩
 
 /-
@@ -1125,9 +1125,9 @@ lemma antitone_fk (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i) :
 The space of choices is compact.
 -/
 theorem Choice.compactSpace (n : ℕ → ℕ) (hnpos : ∀ i, 0 < n i) : CompactSpace (Choice n) := by
-  haveI : ∀ i, NeZero (n i) := fun i => ⟨ne_of_gt (hnpos i)⟩
-  haveI : ∀ i, Finite (ZMod (n i)) := fun i => inferInstance
-  haveI : ∀ i, CompactSpace (ZMod (n i)) := fun i => Finite.compactSpace
+  have : ∀ i, NeZero (n i) := fun i => ⟨ne_of_gt (hnpos i)⟩
+  have : ∀ i, Finite (ZMod (n i)) := fun i => inferInstance
+  have : ∀ i, CompactSpace (ZMod (n i)) := fun i => Finite.compactSpace
   exact Pi.compactSpace
 
 /-
@@ -1142,7 +1142,7 @@ lemma fk_uniform_convergence (n : ℕ → ℕ) (hmono : StrictMono n) (hnpos : �
         have h_haar := pointwise_convergence n hmono hnpos h a
         exact ENNReal.tendsto_toReal ENNReal.zero_ne_top |>.comp h_haar
       have h_monotone : Antitone (fk n hnpos) := antitone_fk n hnpos
-      haveI : CompactSpace (Choice n) := Choice.compactSpace n hnpos
+      have : CompactSpace (Choice n) := Choice.compactSpace n hnpos
       have h_continuous : ∀ k, Continuous (fk n hnpos k) := fun k => continuous_fk n hnpos k
       rw [ Metric.tendstoUniformly_iff ]
       intro ε hε_pos

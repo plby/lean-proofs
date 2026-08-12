@@ -207,7 +207,7 @@ lemma small_prime_contribution_tendsto_one :
               ∑ k ∈ Finset.Ico 1 (Nat.log p n + 1), (n / p ^ k : ℕ) := by
         intros n hn p hp
         rw [Nat.factorization_def];
-        · haveI := Fact.mk
+        · have := Fact.mk
             (show Nat.Prime p from by
               exact (show Nat.Prime p from by
                 exact (by
@@ -516,7 +516,7 @@ lemma large_prime_properties :
       (Nat.factorization (b.factorial) p) =
         ∑ k ∈ Finset.Ico 1 (Nat.log p b + 1), (b / p ^ k) := by
     rw [ Nat.factorization_def ];
-    · haveI := Fact.mk hp; rw [ padicValNat_factorial ] ; aesop;
+    · have := Fact.mk hp; rw [ padicValNat_factorial ] ; aesop;
     · assumption;
   -- Since $p > b^{2/3}$, we have $p^2 > b$, thus $\log_p(b) < 2$.
   have h_log : Nat.log p b < 2 := by

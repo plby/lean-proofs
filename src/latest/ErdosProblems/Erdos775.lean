@@ -831,15 +831,15 @@ lemma contractionTree_degree_nonroot (k C : ℕ) (hT : IsKCLayeredTree (k + 1) C
             (keptVertices T).orderIsoOfFin ‹_› j)
           (Finset.Iic i)) >>= fun a => pure (a : Fin (t + 1))).card ≤ i.val + 1)
         simp only [Finset.bind_def, Finset.pure_def, Finset.sup_singleton_apply]
-        letI : DecidableEq (Fin (t + 1)) := Classical.decEq _
+        let : DecidableEq (Fin (t + 1)) := Classical.decEq _
         refine Finset.card_image_le.trans ?_
-        letI : DecidableEq (Fin (t + 1)) := instDecidableEqFin (t + 1)
+        let : DecidableEq (Fin (t + 1)) := instDecidableEqFin (t + 1)
         refine Finset.card_image_le.trans ?_
         rw [Fin.card_Iic]
       · ext x
         simp
         let φ := (keptVertices T).orderIsoOfFin ‹_›
-        letI : LocallyFiniteOrderBot
+        let : LocallyFiniteOrderBot
             (Fin (t - T.numChildren ⟨0, Nat.zero_lt_succ t⟩ + 1)) :=
           Fin.instLocallyFiniteOrderBot _
         constructor

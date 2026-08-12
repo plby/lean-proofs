@@ -956,7 +956,9 @@ private lemma five_prime_arithmetic_check (p : ℕ) (hp : p ∈ primes5to15) :
     | exact five_prime_arithmetic_check_13_19
 
 set_option maxHeartbeats 1000000 in
-private lemma computation_lemma_check_three_primes (p q r : ℕ) (hp : p.Prime) (hq : q.Prime) (hr : r.Prime)
+-- The finite prime-factor case split below exceeds the default heartbeat budget.
+private lemma computation_lemma_check_three_primes
+    (p q r : ℕ) (hp : p.Prime) (hq : q.Prime) (hr : r.Prime)
     (hpq : p < q) (hqr : q < r) (hp5 : 5 ≤ p)
     (hm_lt : p * q * r < 2 * m_BS) :
     2 * (p * q * r) - (p * q * r) *
@@ -1023,7 +1025,8 @@ private lemma computation_lemma_check_three_primes (p q r : ℕ) (hp : p.Prime) 
     (by rw [hquot]; exact hqr)
   exact hnot_prime (hquot.symm ▸ hr)
 
-private lemma computation_lemma_check_four_primes (p q r s : ℕ) (hp : p.Prime) (hq : q.Prime) (hr : r.Prime) (hs : s.Prime)
+private lemma computation_lemma_check_four_primes
+    (p q r s : ℕ) (hp : p.Prime) (hq : q.Prime) (hr : r.Prime) (hs : s.Prime)
     (hpq : p < q) (hqr : q < r) (hrs : r < s) (hp5 : 5 ≤ p)
     (hm_lt : p * q * r * s < 2 * m_BS) :
     2 * (p * q * r * s) - (p * q * r * s) *
@@ -1126,7 +1129,8 @@ private lemma computation_lemma_check_four_primes (p q r s : ℕ) (hp : p.Prime)
       (by rw [hquot]; exact hrs)
   exact hnot_prime (hquot.symm ▸ hs)
 
-private lemma computation_lemma_check_five_primes (p q r s t : ℕ) (hp : p.Prime) (hq : q.Prime) (hr : r.Prime)
+private lemma computation_lemma_check_five_primes
+    (p q r s t : ℕ) (hp : p.Prime) (hq : q.Prime) (hr : r.Prime)
     (hs : s.Prime) (ht : t.Prime) (hpq : p < q) (hqr : q < r) (hrs : r < s)
     (hst : s < t) (hp5 : 5 ≤ p) (hm_lt : p * q * r * s * t < 2 * m_BS) :
     2 * (p * q * r * s * t) - (p * q * r * s * t) *

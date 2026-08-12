@@ -1075,7 +1075,7 @@ lemma q_dvd_super_Q (q : ℕ) (hq : q > 0) :
       use ( Finset.sup ( Nat.primeFactors q ) ( fun p => Nat.count ( Nat.Prime ) p ) ) + 1;
       norm_num +zetaDelta at *;
       intro p pp dp _; refine le_trans ?_ ( Nat.nth_monotone ?_ <| Finset.le_sup <| Nat.mem_primeFactors.mpr ⟨ pp, dp, by aesop ⟩ ) ; aesop;
-      exact Nat.infinite_setOf_prime;
+      exact Nat.infinite_setOfPred_prime;
     -- Choose $k$ large enough such that $k > \max_{i=1}^k a_i$.
     obtain ⟨k', hk'⟩ : ∃ k' : ℕ, ∀ p ∈ Nat.primeFactors q, Nat.factorization q p ≤ k' - Nat.count (Nat.Prime) p := by
       use ∑ p ∈ q.primeFactors, q.factorization p + ∑ p ∈ q.primeFactors, Nat.count Nat.Prime p + 1;
@@ -3800,7 +3800,7 @@ lemma thm04_forward (S : Set ℕ) (hS : S_cond S) :
       have h_rational : ∃ q : ℚ, x = q := by
         exact ⟨ ∑ i ∈ t, 1 / ( Nat.nth ( fun x => x ∈ S ) i : ℚ ), by push_cast; exact h_sum ⟩
       have h_interval : x ∈ TargetInterval (fun i => (1 : ℝ) / Nat.nth (· ∈ S) i) := by
-        apply Set.mem_setOf_eq.mpr
+        apply Set.mem_ofPred_eq.mpr
         generalize_proofs at *; (
         split_ifs <;> simp_all +decide [ Summable ];
         · refine ⟨ ?_, ?_ ⟩ <;> try positivity;

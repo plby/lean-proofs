@@ -154,11 +154,11 @@ lemma cliqueFree_addIsolated {α : Type*} (G : SimpleGraph α) {k : ℕ} (hk : 2
     (hG : G.CliqueFree k) : (addIsolated G).CliqueFree k := by
   classical
   by_cases hα : Nonempty α
-  · letI := hα
+  · let := hα
     simpa [addIsolated] using
       (SimpleGraph.cliqueFree_map_iff (G := G) (f := Function.Embedding.some) (n := k)).2 hG
-  · haveI : IsEmpty α := not_nonempty_iff.mp hα
-    letI : Fintype α := Fintype.ofIsEmpty
+  · have : IsEmpty α := not_nonempty_iff.mp hα
+    let : Fintype α := Fintype.ofIsEmpty
     have hcard : Fintype.card (Option α) < k := by
       rw [Fintype.card_option, Fintype.card_ofIsEmpty]
       omega
@@ -542,7 +542,7 @@ lemma setBernoulli_superset_finset {ι : Type*} [Finite ι]
     (u : Set ι) (p : I) (t : Finset ι) (ht : (↑t : Set ι) ⊆ u) :
     setBer(u, p) {s : Set ι | (↑t : Set ι) ⊆ s} = toNNReal p ^ t.card := by
   classical
-  letI := Fintype.ofFinite ι
+  let := Fintype.ofFinite ι
   rw [setBernoulli_apply', Measure.infinitePi_eq_pi]
   have hpre :
       ((fun q : ι → Prop => {i | q i}) ⁻¹' {s : Set ι | (↑t : Set ι) ⊆ s}) =
@@ -563,7 +563,7 @@ lemma setBernoulli_disjoint_finset {ι : Type*} [Finite ι]
     setBer(u, p) {s : Set ι | Disjoint (↑t : Set ι) s} =
       toNNReal (σ p) ^ t.card := by
   classical
-  letI := Fintype.ofFinite ι
+  let := Fintype.ofFinite ι
   rw [setBernoulli_apply', Measure.infinitePi_eq_pi]
   have hpre :
       ((fun q : ι → Prop => {i | q i}) ⁻¹' {s : Set ι |
@@ -601,7 +601,7 @@ lemma mem_pairEdgeFinset_iff {α : Type*} [Finite α] [DecidableEq α]
     (s : Finset α) {e : Sym2 α} :
     e ∈ pairEdgeFinset s ↔ e ∈ s.sym2 ∧ ¬ e.IsDiag := by
   classical
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   have hmap := SimpleGraph.map_edgeFinset_induce
     (G := (⊤ : SimpleGraph α)) (s := (↑s : Set α))
   have hind : SimpleGraph.induce (↑s : Set α) (⊤ : SimpleGraph α) =
@@ -616,15 +616,15 @@ lemma pairEdgeFinset_subset_diagCompl {α : Type*} [Finite α] [DecidableEq α]
     (s : Finset α) :
     (↑(pairEdgeFinset s) : Set (Sym2 α)) ⊆ Sym2.diagSetᶜ := by
   classical
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   intro e he
-  simpa [Set.compl_setOf] using (mem_pairEdgeFinset_iff s).1 he |>.2
+  simpa [Set.compl_ofPred] using (mem_pairEdgeFinset_iff s).1 he |>.2
 
 lemma isClique_iff_pairEdgeFinset_subset {α : Type*} [Finite α] [DecidableEq α]
     (G : SimpleGraph α) (s : Finset α) :
     G.IsClique (↑s : Set α) ↔ (↑(pairEdgeFinset s) : Set (Sym2 α)) ⊆ G.edgeSet := by
   classical
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   rw [SimpleGraph.isClique_iff]
   constructor
   · intro h e he
@@ -648,7 +648,7 @@ lemma isIndepSet_iff_pairEdgeFinset_disjoint {α : Type*} [Finite α] [Decidable
     (G : SimpleGraph α) (s : Finset α) :
     G.IsIndepSet (↑s : Set α) ↔ Disjoint (↑(pairEdgeFinset s) : Set (Sym2 α)) G.edgeSet := by
   classical
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   rw [SimpleGraph.isIndepSet_iff]
   constructor
   · intro h
@@ -812,7 +812,7 @@ lemma step1_clique_event_measure (N u : ℕ) (p : I) (s : Finset (Fin N)) (hs : 
       {ω : Set (Sym2 (Fin N)) | (SimpleGraph.fromEdgeSet ω).IsNClique u s} =
         {ω : Set (Sym2 (Fin N)) | (↑(pairEdgeFinset s) : Set (Sym2 (Fin N))) ⊆ ω} := by
     ext ω
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     constructor
     · intro h
       have hclique : (SimpleGraph.fromEdgeSet ω).IsClique (↑s : Set (Fin N)) :=
@@ -837,7 +837,7 @@ lemma step1_indep_event_measure (N m : ℕ) (p : I) (s : Finset (Fin N)) (hs : s
       {ω : Set (Sym2 (Fin N)) | (SimpleGraph.fromEdgeSet ω).IsNIndepSet m s} =
         {ω : Set (Sym2 (Fin N)) | Disjoint (↑(pairEdgeFinset s) : Set (Sym2 (Fin N))) ω} := by
     ext ω
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     constructor
     · intro h
       have hind : (SimpleGraph.fromEdgeSet ω).IsIndepSet (↑s : Set (Fin N)) :=
@@ -1033,7 +1033,7 @@ lemma ramseyGap_step1_eq4 {Ω : Type*} [MeasurableSpace Ω] (μ : Measure Ω)
         meas_ge_le_lintegral_div hX hhalf_ne_zero hhalf_ne_top
       have hsubset : {ω | N / 2 < X ω} ⊆ {ω | N / 2 ≤ X ω} := by
         intro ω hω
-        simpa only [Set.mem_setOf_eq] using hω.le
+        simpa only [Set.mem_ofPred_eq] using hω.le
       refine (measure_mono hsubset).trans ?_
       refine hmarkov.trans ?_
       calc
@@ -1848,7 +1848,7 @@ lemma ramseyGap_step2_minDegree_bound (k l : ℕ) (hk : 3 ≤ k) :
       ∀ v : α, ramseyGap k l - 1 ≤ G.degree v := by
   intro α _ G _ hcard hcf hif v
   classical
-  letI : Fintype (Gᶜ.neighborSet v) := Fintype.ofFinite (Gᶜ.neighborSet v)
+  let : Fintype (Gᶜ.neighborSet v) := Fintype.ofFinite (Gᶜ.neighborSet v)
   let H : SimpleGraph (Gᶜ.neighborSet v) := G.induce (Gᶜ.neighborSet v)
   have hHcf : H.CliqueFree k := by
     exact hcf.comap

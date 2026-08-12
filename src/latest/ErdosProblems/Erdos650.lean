@@ -328,7 +328,7 @@ lemma gcd_claim (s t : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
             exact h_prime_factors p hp hp_div_g) (Int.natAbs q) (by
             exact Int.natAbs_pos.mpr hq_zero) (by
             exact h_q_sq_le_st);
-          haveI : Fact (Nat.Prime p) := ⟨hp⟩
+          have : Fact (Nat.Prime p) := ⟨hp⟩
           have hD_ne : D ≠ 0 := by
             rw [hD]
             exact Nat.ne_of_gt <|
@@ -339,7 +339,7 @@ lemma gcd_claim (s t : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
             rw [padicValNat_eq_emultiplicity (p := p) hD_ne,
               padicValNat_eq_emultiplicity (p := p) hq_ne, hD]
             exact h_valuation_step
-          exact ENat.coe_lt_coe.mp h_enat
+          exact ENat.natCast_lt_natCast.mp h_enat
         exact h_valuation_step;
       -- Since $v_p(D) > v_p(|q|)$ for any prime $p$ dividing $g$, we have $v_p(q + rD) = v_p(q)$.
       have h_valuation_eq : ∀ p : ℕ, Nat.Prime p → p ∣ g → padicValNat p (Int.natAbs (q + r * D))
@@ -349,7 +349,7 @@ lemma gcd_claim (s t : ℕ) (hs : 2 ≤ s) (hst : s ≤ t)
               = padicValNat p (Int.natAbs q) := by
           have h_div : p ^ (padicValNat p (Int.natAbs q))
                 ∣ Int.natAbs q ∧ ¬p ^ (padicValNat p (Int.natAbs q) + 1) ∣ Int.natAbs q := by
-            haveI := Fact.mk hp; simp +decide [ padicValNat_dvd_iff ] ;
+            have := Fact.mk hp; simp +decide [ padicValNat_dvd_iff ] ;
             exact hq_zero
           have h_div_rD : p ^ (padicValNat p (Int.natAbs q) + 1) ∣ Int.natAbs (r * D) := by
             -- Since $p$ divides $D$, we have $p^{padicValNat p D} \mid D$.

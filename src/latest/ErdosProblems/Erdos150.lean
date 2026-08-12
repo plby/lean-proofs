@@ -515,7 +515,7 @@ lemma maxPairSeps_set_nonempty {n : ℕ} (hn : 2 ≤ n) :
     {k : ℕ | ∃ (G : SimpleGraph (Fin n)) (_ : DecidableRel G.Adj) (u v : Fin n),
       u ≠ v ∧ numMinSeps G u v = k}.Nonempty := by
   by_contra h_empty
-  simp_all only [Set.Nonempty, ne_eq, exists_const, Set.mem_setOf_eq, ↓existsAndEq, not_exists]
+  simp_all only [Set.Nonempty, ne_eq, exists_const, Set.mem_ofPred_eq, ↓existsAndEq, not_exists]
   exact absurd (h_empty ⟨0, by linarith⟩ ⟨1, by linarith⟩) (by norm_num)
 
 /-- The set defining `maxPairSeps` is bounded above. -/
@@ -932,7 +932,7 @@ lemma merged_walk_avoids_sub₂ (n m : ℕ) (G₁ : SimpleGraph (Fin (n + 2)))
   rw [Walk.support_copy] at hx
   obtain ⟨y, hy, rfl⟩ := hw' x hx
   by_cases hyb : y = b <;>
-    simp_all [IsSeparator]
+    simp_all only [IsSeparator, Fin.zero_eta, mem_erase, ne_eq, not_and]
   have hxT'_union := hT' hxT'
   simp only [mem_union, mem_image] at hxT'_union
   rcases hxT'_union with ⟨a, ha, ha'⟩ | ⟨a, ha, ha'⟩
@@ -1129,7 +1129,7 @@ lemma numMinSeps_comap_eq {V : Type*} (G : SimpleGraph V) (σ : V ≃ V) (u v : 
   rw [numMinSeps, numMinSeps, eq_comm]
   have h_bij : minSepSet G u v =
       (minSepSet (G.comap σ.symm) (σ u) (σ v)).image (fun T ↦ T.image σ.symm) := by
-    ext T; simp only [minSepSet, Set.mem_setOf_eq, Set.mem_image]
+    ext T; simp only [minSepSet, Set.mem_ofPred_eq, Set.mem_image]
     constructor
     · intro hT
       use T.image σ

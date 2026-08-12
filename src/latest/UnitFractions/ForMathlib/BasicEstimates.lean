@@ -2548,7 +2548,7 @@ lemma sum_thing''_indicator_has_sum {k : ℕ} (hk : 1 ≤ k) :
     simp [Set.indicator_of_notMem, hn]
 
 lemma prime_sum_thing_summable' (s : Set ℕ) :
-  Summable (s.indicator ((setOf Nat.Prime).indicator (fun n ↦ ((n - 1) * n : ℝ)⁻¹))) := by
+  Summable (s.indicator ((Set.ofPred Nat.Prime).indicator (fun n ↦ ((n - 1) * n : ℝ)⁻¹))) := by
   exact (sum_thing'_has_sum.summable.indicator _).indicator _
 
 lemma indicator_mono {α β : Type*} [Zero β] [Preorder β] {s t : Set α} {f : α → β}
@@ -2563,13 +2563,13 @@ lemma indicator_mono {α β : Type*} [Zero β] [Preorder β] {s t : Set α} {f :
 
 lemma prime_sum_thing {k : ℕ} (hk : 1 ≤ k) :
   tsum
-      ({n | k < n}.indicator ((setOf Nat.Prime).indicator (fun n ↦ ((n - 1) * n : ℝ)⁻¹))) ≤
+      ({n | k < n}.indicator ((Set.ofPred Nat.Prime).indicator (fun n ↦ ((n - 1) * n : ℝ)⁻¹))) ≤
     ((k : ℝ)⁻¹) := by
   refine hasSum_le ?_ (prime_sum_thing_summable' _).hasSum (sum_thing''_indicator_has_sum hk)
   intro n
   by_cases hkn : k < n
   · by_cases hpn : Nat.Prime n
-    · have hpn' : n ∈ setOf Nat.Prime := hpn
+    · have hpn' : n ∈ Set.ofPred Nat.Prime := hpn
       simp [Set.indicator_of_mem, hkn, hpn']
     · have hn1 : (1 : ℝ) < n := by
         exact_mod_cast (lt_of_le_of_lt hk hkn)
@@ -2577,7 +2577,7 @@ lemma prime_sum_thing {k : ℕ} (hk : 1 ≤ k) :
         apply mul_nonneg
         · positivity
         · exact inv_nonneg.2 (sub_nonneg.mpr hn1.le)
-      have hpn' : n ∉ setOf Nat.Prime := hpn
+      have hpn' : n ∉ Set.ofPred Nat.Prime := hpn
       simp [Set.indicator_of_mem, Set.indicator_of_notMem, hkn, hpn', hnonneg]
   · simp [Set.indicator_of_notMem, hkn]
 
@@ -2827,8 +2827,8 @@ lemma is_prime_pow_and_not_prime_iff {α : Type*} [CommMonoidWithZero α] [IsCan
       rw [show k = (k - 1) + 1 by omega, pow_add]
       simp [pow_one, mul_comm]
     have hu : IsUnit (p ^ (k - 1)) :=
-      (hx.irreducible.isUnit_or_isUnit hpow).resolve_left hp.not_unit
-    exact hp.not_unit <| (is_unit_of_is_unit_pow (a := p) (k - 1) (by omega)).mp hu
+      (hx.irreducible.isUnit_or_isUnit hpow).resolve_left hp.not_isUnit
+    exact hp.not_isUnit <| (is_unit_of_is_unit_pow (a := p) (k - 1) (by omega)).mp hu
 
 lemma log_one_sub_recip {p : ℕ} (hp : 1 < p) :
   |(p : ℝ)⁻¹ + log (1 - (p : ℝ)⁻¹)| ≤ (((p - 1) * p : ℝ)⁻¹) := by

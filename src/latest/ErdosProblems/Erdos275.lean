@@ -418,7 +418,7 @@ lemma exists_uncovered_of_not_covering_system (A : List ArithmeticProgression)
     exact fun x _ => by
       obtain ⟨ap, hap, ⟨n, hn⟩⟩ := h_not_cover x
       exact Set.mem_iUnion₂.mpr
-        ⟨ap, hap, hn ▸ Set.mem_setOf.mpr ⟨n, rfl⟩⟩
+        ⟨ap, hap, hn ▸ Set.mem_ofPred.mpr ⟨n, rfl⟩⟩
   -- By `covers_periodic`, for any $k \in \mathbb{Z}$, $x + k q$ is also not
   -- covered by $A$. Choose $k$ such that $c = x + k q$ satisfies $1 \le c \le q$.
   obtain ⟨k, hk⟩ :

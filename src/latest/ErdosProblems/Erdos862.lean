@@ -546,7 +546,7 @@ theorem bose_chowla_exponents {h : ℕ} [Finite Fqh] (hh : 2 ≤ h)
     (htheta : IsPrimitiveRoot theta (boseChowlaMod (Fq := Fq) h)) :
     ∀ x : Fq, ∃! k : ℕ, 0 < k ∧ k < boseChowlaMod (Fq := Fq) h ∧
       theta ^ k = theta - algebraMap Fq Fqh x := by
-  letI := Fintype.ofFinite Fqh
+  let := Fintype.ofFinite Fqh
   intro x
   have h_neq : theta ≠ algebraMap Fq Fqh x :=
     theta_not_in_Fq hh hdeg theta htheta x
@@ -612,7 +612,7 @@ theorem minpoly_degree_eq_h {h : ℕ} [Finite Fqh] (hh : 2 ≤ h)
     (hdeg : Module.finrank Fq Fqh = h) (theta : Fqh)
     (htheta : IsPrimitiveRoot theta (boseChowlaMod (Fq := Fq) h)) :
     (minpoly Fq theta).natDegree = h := by
-  letI := Fintype.ofFinite Fqh
+  let := Fintype.ofFinite Fqh
   have h_subfield : (IntermediateField.adjoin Fq {theta}) = ⊤ := by
     have h_pow : ∀ x : Fqh, x ≠ 0 → ∃ k : ℕ, x = theta ^ k := by
       intro x hx_ne_zero
@@ -683,7 +683,7 @@ theorem bose_chowla_poly_identity {h : ℕ} [Finite Fqh] (hh : 2 ≤ h)
     (heq : (s.map (fun x => theta - algebraMap Fq Fqh x)).prod =
            (t.map (fun x => theta - algebraMap Fq Fqh x)).prod) :
     s = t := by
-  letI := Fintype.ofFinite Fqh
+  let := Fintype.ofFinite Fqh
   set Ps : Polynomial Fq :=
     Multiset.prod (Multiset.map (fun x => Polynomial.X - Polynomial.C x) s)
   set Pt : Polynomial Fq :=
@@ -695,7 +695,7 @@ theorem bose_chowla_poly_identity {h : ℕ} [Finite Fqh] (hh : 2 ≤ h)
   have hQ_zero : Q = 0 := by
     have hQ_div_minpoly : minpoly Fq theta ∣ Q := minpoly.dvd Fq theta hQ
     have hQ_deg : Q.degree < h := by
-      refine lt_of_lt_of_le (Polynomial.degree_sub_lt ?_ ?_ ?_) ?_
+      refine lt_of_lt_of_le (Polynomial.degree_sub_lt_left ?_ ?_ ?_) ?_
       · rw [Polynomial.degree_multiset_prod, Polynomial.degree_multiset_prod]
         aesop
       · simp +zetaDelta at *
@@ -726,7 +726,7 @@ theorem bose_chowla {h : ℕ} [Finite Fqh] (hh : 2 ≤ h)
        SidonModOfOrder h (boseChowlaMod (Fq := Fq) h) (A : Set ℕ) ∧
           A.card = Fintype.card Fq) := by
   classical
-  letI := Fintype.ofFinite Fqh
+  let := Fintype.ofFinite Fqh
   -- Abbreviation for the repeated exponents call
   let BC := bose_chowla_exponents hh hdeg theta htheta
   let k := fun x : Fq => (BC x).exists.choose
@@ -805,7 +805,7 @@ lemma SidonOfOrder_two_iff_Sidon {α : Type} [AddCommMonoid α] (S : Set α) :
 /-- There exists an irreducible polynomial of degree 2 over any finite field. -/
 lemma exists_irreducible_poly_of_degree_two {F : Type*} [Field F] [Finite F] :
     ∃ f : Polynomial F, Polynomial.natDegree f = 2 ∧ Irreducible f := by
-  letI := Fintype.ofFinite F
+  let := Fintype.ofFinite F
   set q := Fintype.card F with hq_def
   have h_card : 2 ≤ q := Fintype.one_lt_card
   have h_exists_a : ∃ a : F, ¬∃ x : F, x ^ 2 - x = a := by
@@ -858,7 +858,7 @@ lemma exists_field_extension_of_degree_two (q : ℕ) (hq : IsPrimePow q) :
   -- By definition of prime powers, there exists a finite field Fq with cardinality q.
   obtain ⟨Fq, hFq⟩ : ∃ Fq : Type, ∃ (x : Field Fq) (x_1 : Fintype Fq), Fintype.card Fq = q := by
     obtain ⟨ p, k, hp, hk, rfl ⟩ := hq;
-    haveI := Fact.mk hp.nat_prime;
+    have := Fact.mk hp.nat_prime;
     -- By definition of finite fields, there exists a finite field Fq with cardinality p^k.
     use (GaloisField p k);
     refine ⟨ ?_, ?_, ?_ ⟩
@@ -878,7 +878,7 @@ lemma exists_field_extension_of_degree_two (q : ℕ) (hq : IsPrimePow q) :
     -- Let $Fqh$ be the extension field of $Fq$ obtained by adjoining a root of
     -- $f$. We can construct $Fqh$ as the quotient ring $Fq[x]/(f(x))$.
     use AdjoinRoot f;
-    haveI := Fact.mk hf.2;
+    have := Fact.mk hf.2;
     refine ⟨ ?_, ?_, ?_, ?_, ?_ ⟩;
     all_goals try infer_instance;
     · convert Fintype.ofFinite ( AdjoinRoot f );
@@ -974,7 +974,7 @@ lemma shift_sidon_mod (M : ℕ) (hM : 1 < M) (S : Finset (ZMod M))
     ∃ S' : Finset (ZMod M), Sidon (S' : Set (ZMod M)) ∧
       S'.card = S.card ∧ (0 : ZMod M) ∉ S' := by
   classical
-  haveI : Fact (1 < M) := ⟨hM⟩
+  have : Fact (1 < M) := ⟨hM⟩
   have ⟨x, hx⟩ : ∃ x : ZMod M, x ∉ S := by
     by_contra h; push Not at h
     simp [Finset.eq_univ_iff_forall.mpr h, ZMod.card M] at hcard
@@ -1000,7 +1000,7 @@ lemma lift_sidon_mod (M : ℕ) (hM : 1 < M) (S : Finset (ZMod M))
     ∃ S_nat : Finset ℕ, SidonMod M (S_nat : Set ℕ) ∧ S_nat.card = S.card ∧
       (S_nat : Set ℕ) ⊆ Finset.Icc 1 (M - 1) ∧ S_nat = S.image ZMod.val := by
   classical
-  haveI : NeZero M := ⟨by linarith⟩
+  have : NeZero M := ⟨by linarith⟩
   have hinj : Function.Injective (ZMod.val : ZMod M → ℕ) := ZMod.val_injective M
   refine ⟨S.image ZMod.val, ?_, Finset.card_image_of_injective S hinj, ?_, rfl⟩
   · intro a b c d ha hb hc hd habcd
@@ -1159,12 +1159,12 @@ lemma lem_ruzsa_group (p : ℕ) (hp : p.Prime) (g : ZMod p) (hg : IsPrimitiveRoo
     Sidon (ruzsa_set p g : Set (ZMod (p - 1) × ZMod p)) := by
       intro a b c d;
       simp [ruzsa_set];
-      rintro x hx rfl y hy rfl z hz rfl w hw rfl h; haveI := Fact.mk hp; simp_all +decide
+      rintro x hx rfl y hy rfl z hz rfl w hw rfl h; have := Fact.mk hp; simp_all +decide
       -- Since $g$ is a generator of the multiplicative group modulo $p$, we have
       -- $g^{i_1}g^{i_2} \equiv g^{i_3}g^{i_4} \pmod{p}$.
       have h_prod : g ^ x * g ^ y = g ^ z * g ^ w := by
         have h_exp : (x + y : ℕ) ≡ (z + w : ℕ) [MOD (p - 1)] := by
-          haveI := Fact.mk hp; rw [ ← ZMod.natCast_eq_natCast_iff ] ; aesop;
+          have := Fact.mk hp; rw [ ← ZMod.natCast_eq_natCast_iff ] ; aesop;
         rw [
           ← pow_add, ← pow_add,
           ← Nat.mod_add_div (x + y) (p - 1),
@@ -1177,7 +1177,7 @@ lemma lem_ruzsa_group (p : ℕ) (hp : p.Prime) (g : ZMod p) (hg : IsPrimitiveRoo
       have h_cases : g ^ x = g ^ z ∧ g ^ y = g ^ w ∨ g ^ x = g ^ w ∧ g ^ y = g ^ z := by
         have h_cases : (g ^ x - g ^ z) * (g ^ y - g ^ z) = 0 := by
           grind +ring;
-        haveI := Fact.mk hp; simp_all +decide [ sub_eq_iff_eq_add ] ;
+        have := Fact.mk hp; simp_all +decide [ sub_eq_iff_eq_add ] ;
         grind;
       cases h_cases <;> simp_all +decide [ Set.Subset.antisymm_iff, Set.subset_def ];
       · have := hg.pow_inj (by linarith : x < p - 1) (by linarith : z < p - 1)
@@ -1195,7 +1195,7 @@ lemma lem_modular (p : ℕ) (hp : p.Prime) :
     ∃ T : Finset (ZMod (p * (p - 1))), T.card = p - 1 ∧ Sidon (T : Set (ZMod (p * (p - 1)))) := by
       -- Let $g$ be a generator of the multiplicative group of integers modulo $p$.
       obtain ⟨g, hg⟩ : ∃ g : ZMod p, IsPrimitiveRoot g (p - 1) := by
-        haveI := Fact.mk hp;
+        have := Fact.mk hp;
         exact HasEnoughRootsOfUnity.prim;
       -- By Lemma 4.1, the set $S = \{(i, g^i) : i \in \mathbb{Z}_{p-1}\}$
       -- is Sidon in the group $G = \mathbb{Z}_{p-1} \times \mathbb{Z}_p$.

@@ -1248,7 +1248,6 @@ lemma R'_set13_card (R : Finset ℕ) (d : ℕ) (hd : 0 < d) (hR : ∀ r ∈ R, r
         Finset.card_union_of_disjoint, Finset.card_union_of_disjoint,
         Finset.card_union_of_disjoint] <;>
       norm_num [Finset.disjoint_right]
-    all_goals norm_num [Finset.card_image_of_injective, Function.Injective, hd.ne']
     focus
       simp only [hcard_left] at *
       omega

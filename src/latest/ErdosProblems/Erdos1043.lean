@@ -44,7 +44,7 @@ lemma levelSet_symmetric :
   unfold levelSet at *
   unfold counterexample_poly at *
   simp only [Polynomial.eval_sub, Polynomial.eval_pow, Polynomial.eval_X, Polynomial.eval_one,
-    Set.mem_setOf_eq] at *
+    Set.mem_ofPred_eq] at *
   rw [neg_pow]
   norm_num
   exact hz
@@ -157,7 +157,7 @@ lemma exists_large_proj_aux (u : ℂ) (hu : ‖u‖ = 1) :
 lemma levelSet_starConvex : StarConvex ℝ 0 (levelSet counterexample_poly) := by
   unfold counterexample_poly
   norm_num [ StarConvex ]
-  simp_all +decide only [levelSet, eval_sub, eval_pow, eval_X, eval_one, Set.mem_setOf_eq]
+  simp_all +decide only [levelSet, eval_sub, eval_pow, eval_X, eval_one, Set.mem_ofPred_eq]
   -- Use convexity of `fun z => ‖z - 1‖`.
   intros y hy a b ha hb hab
   have h_convex :
@@ -261,7 +261,7 @@ lemma measure_proj_ge (u : ℂ) (hu : ‖u‖ = 1) (S : Set ℂ)
     simp [h] at hu
   have hfin : Module.finrank ℝ P = 1 := by
     simpa [P] using (finrank_span_singleton (K := ℝ) hu0)
-  haveI hB : BorelSpace P := by
+  have hB : BorelSpace P := by
     dsimp [P]
     infer_instance
   have hvol :

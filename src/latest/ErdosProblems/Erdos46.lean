@@ -24,9 +24,9 @@ theorem erdos46 :
       ∃ S : Finset ℕ, (∀ n ∈ S, 2 ≤ n) ∧ rec_sum S = 1 ∧ ∃ a : α, ∀ n ∈ S, c (n : ℤ) = a := by
   intro α _ c
   classical
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   have hcard : 0 < Fintype.card α := Fintype.card_pos_iff.mpr ⟨c 0⟩
-  letI : Nonempty α := ⟨c 0⟩
+  let : Nonempty α := ⟨c 0⟩
   let m : ℕ := Fintype.card α
   have hmpos : 0 < (m : ℝ) := by
     exact_mod_cast (by simpa [m] using hcard : 0 < m)

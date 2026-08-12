@@ -106,7 +106,7 @@ theorem exists_monochromatic_subsequence (c : ℕ → Bool) :
 theorem ramsey_infinite_pairs (r : ℕ → ℕ → Prop) (hr : Std.Symm r) :
     ∃ f : ℕ → ℕ, StrictMono f ∧
       ((∀ i j, i ≠ j → r (f i) (f j)) ∨ (∀ i j, i ≠ j → ¬r (f i) (f j))) := by
-  letI : Std.Symm r := hr
+  let : Std.Symm r := hr
   obtain ⟨x, S, c, hx_mono, hS_inf, hS_sub, hx_mem, hx_lt, hc⟩ := ramsey_sequence r
   obtain ⟨f, hf_mono, b, hb⟩ := exists_monochromatic_subsequence c
   refine ⟨fun n => x (f n), hx_mono.comp hf_mono, ?_⟩
@@ -177,7 +177,7 @@ def IsFIZGroup (G : Type*) [Group G] : Prop :=
 
 theorem IsFIZGroup.isFCGroup (h : IsFIZGroup G) : IsFCGroup G := by
   intro g
-  haveI : (Subgroup.center G).FiniteIndex := h
+  have : (Subgroup.center G).FiniteIndex := h
   exact Subgroup.finiteIndex_of_le (Subgroup.center_le_centralizer _)
 
 /-! ## Lemma 1: PE implies FC -/

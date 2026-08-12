@@ -173,7 +173,7 @@ def PerpBisectorAtMostTwo (P : Finset Point) : Prop :=
 lemma perpBisector_collinear (x y : Point) (hxy : x ≠ y) :
     Collinear ℝ ((AffineSubspace.perpBisector x y : AffineSubspace ℝ Point) : Set Point) := by
   classical
-  haveI : Fact (Module.finrank ℝ Point = 2) := ⟨by
+  have : Fact (Module.finrank ℝ Point = 2) := ⟨by
     simp⟩
   have hv : (y -ᵥ x : Point) ≠ 0 := by
     intro h

@@ -499,7 +499,7 @@ lemma exists_cycle_edges_eq_of_minimal_even {α : Type*}
     rw [← edgeSet_subset_edgeSet, hHedge]
     intro e he
     exact hFedge e he
-  haveI : Nonempty α := by
+  have : Nonempty α := by
     obtain ⟨e, heF⟩ := hFne
     revert heF
     refine Sym2.inductionOn e ?_
@@ -578,7 +578,7 @@ lemma exists_cycle_edges_eq_of_minimal_even {α : Type*}
       { vertex := u
         walk := q.mapLe hHG
         isCycle := hqCycle.mapLe hHG }
-  · simp [Cycle.edges, D, q, hDmin, Walk.edges_mapLe_eq_edges]
+  · simp [Cycle.edges, D, q, hDmin]
 
 end SimpleGraph
 
@@ -984,9 +984,9 @@ lemma compatibility_solvable {V E : Type*} [Fintype V] [Fintype E] [DecidableEq 
       gammaPairing q a =
         (if p = 0 then 0 else 1) + (if q = 0 then 0 else 1) +
           (if r = 0 then 0 else 1)) ∧ (∀ x : F₂, 2 * x = 0) := by
-    letI (P : Gamma → Prop) [DecidablePred P] : Decidable (∀ x, P x) :=
+    let (P : Gamma → Prop) [DecidablePred P] : Decidable (∀ x, P x) :=
       Fintype.decidableForallFintype
-    letI (P : F₂ → Prop) [DecidablePred P] : Decidable (∀ x, P x) :=
+    let (P : F₂ → Prop) [DecidablePred P] : Decidable (∀ x, P x) :=
       Fintype.decidableForallFintype
     decide
   have hflow (v : V) :
@@ -1019,7 +1019,6 @@ lemma compatibility_solvable {V E : Type*} [Fintype V] [Fintype E] [DecidableEq 
     rw [functional_apply_eq_pairing]
     convert halg using 1
     all_goals simp [functionalNonzero, Fin.sum_univ_succ, p0, p1, p2, add_assoc]
-    all_goals rfl
   rw [dual_apply_eq_sum_coordinates]
   calc
     ∑ e : E, η e (compatibilityRhs G f e) =
@@ -1446,7 +1445,7 @@ noncomputable def rotationSystemOfDegreeNeOne {V E : Type*} [Fintype V] [Fintype
     exact (fiberCycle G ((vertex G) h) ⟨h, rfl⟩).property
   have next_ne (h : HalfEdge E) : rotationPerm G h ≠ h := by
     have hrotate {n : ℕ} (hn : n ≠ 1) (a : Fin n) : finRotate n a ≠ a := by
-      haveI : NeZero n := a.neZero
+      have : NeZero n := a.neZero
       intro h
       rw [finRotate_apply] at h
       have hn2 : 2 ≤ n := by omega
@@ -1481,7 +1480,7 @@ noncomputable def rotationSystemOfDegreeNeOne {V E : Type*} [Fintype V] [Fintype
         (finRotate (Fintype.card ((halfEdgesAt G) v)) :
           Fin (Fintype.card ((halfEdgesAt G) v)) →
             Fin (Fintype.card ((halfEdgesAt G) v)))^[n] (ef eh) = ef ek := by
-      haveI : NeZero (Fintype.card ((halfEdgesAt G) v)) := (ef eh).neZero
+      have : NeZero (Fintype.card ((halfEdgesAt G) v)) := (ef eh).neZero
       refine ⟨(ef ek - ef eh).val, ?_⟩
       rw [← finCycle_eq_finRotate_iterate]
       simp only [finCycle_apply]
@@ -2852,8 +2851,8 @@ lemma connectedComponent_card_union_singleton_lt :
       rw [(supportGraph_adj_iff H)]
       exact ⟨H.loopless f, f, by simp, .inl ⟨rfl, rfl⟩⟩
     exact hf (Quotient.eq'.mp e)
-  letI := Fintype.ofFinite G.ConnectedComponent
-  letI := Fintype.ofFinite K.ConnectedComponent
+  let := Fintype.ofFinite G.ConnectedComponent
+  let := Fintype.ofFinite K.ConnectedComponent
   simpa [G, K] using Fintype.card_lt_of_surjective_not_injective q hq hn
 
 lemma exists_kaiserImprovement_of_hasSuperfluousEdge : ∀ {W F : Type u} [Fintype W] [Fintype F]
@@ -3059,8 +3058,8 @@ lemma exists_kaiserImprovement_of_hasSuperfluousEdge : ∀ {W F : Type u} [Finty
   · exact ⟨χ', hprefix', Or.inl hcomponents⟩
   have hcomponents_eq : (residualComponents H) χ' = (residualComponents H) χ :=
     Nat.le_antisymm hcomponents_le (Nat.le_of_not_gt hcomponents)
-  letI : Fintype oldC := Fintype.ofFinite oldC
-  letI : Fintype newC := Fintype.ofFinite newC
+  let : Fintype oldC := Fintype.ofFinite oldC
+  let : Fintype newC := Fintype.ofFinite newC
   have hcard_components : Fintype.card oldC = Fintype.card newC := by
     simpa [residualComponents, oldC, newC] using hcomponents_eq.symm
   have hqinj : Function.Injective qmap := by
@@ -3391,7 +3390,7 @@ lemma hasTreePacking_of_satisfiesTreePackingCondition :
       classical
       obtain ⟨n, hn⟩ := (exists_kaiserPartition_firstDisconnectedColor_eq_none H) (k + 1) χ
       let P := (kaiserPartition H) χ n
-      letI : Nonempty (Quotient P) := Nonempty.map (Quotient.mk P) inferInstance
+      let : Nonempty (Quotient P) := Nonempty.map (Quotient.mk P) inferInstance
       have hint (d : Fin (k + 1)) : (InternallyConnected H) (colorClass χ d) P := by
         have hnone := ((firstDisconnectedColor_eq_none_iff H) χ P).mp hn
         by_contra hd
@@ -3608,7 +3607,7 @@ lemma hasTreePacking_of_satisfiesTreePackingCondition :
         have hf : Function.Injective f := by
           intro i j hij
           fin_cases i <;> fin_cases j <;>
-            simp_all only [Nat.reduceAdd, Fin.zero_eta, Fin.isValue, Fin.mk_one, zero_ne_one,
+            simp_all only [Fin.zero_eta, Fin.isValue, Fin.mk_one, zero_ne_one,
               one_ne_zero]
           · apply (hab ?_).elim
             exact Quotient.eq'.mp hij
@@ -3665,7 +3664,7 @@ lemma nowhereZeroFlow_of_doubleGraph_treePacking_three :
       (e, 0) ∉ T (missing e) ∧ (e, 1) ∉ T (missing e) :=
     Classical.choose_spec (missing_exists e)
   let M (i : Fin 3) := {e : F // missing e = i}
-  letI (i : Fin 3) : Fintype (M i) := Fintype.ofFinite _
+  let (i : Fin 3) : Fintype (M i) := Fintype.ofFinite _
   have correction (i : Fin 3) (e : M i) :
       (HasCycleCorrection D) (Finset.univ \ T i) (e.1, 0) := by
     apply (hasCycleCorrection_compl_of_isSpanningTree D) (T i) (hT i)
@@ -3927,7 +3926,7 @@ lemma connected_bridgeless_flow_of_threeEdgeConnected_case
           omega
         obtain ⟨a,b,hab,hcut⟩ := Finset.card_eq_two.mp hcard
         apply (nowhereZeroFlow_of_contractEdge_of_twoCut H) S a b hab hcut
-        letI := Nonempty.map (Quotient.mk ((contractEdgeSetoid H) a))
+        let := Nonempty.map (Quotient.mk ((contractEdgeSetoid H) a))
           (inferInstance : Nonempty W)
         apply ih (Fintype.card (Quotient ((contractEdgeSetoid H) a)))
         · simpa [hn] using Fintype.card_lt_of_surjective_not_injective
@@ -4031,7 +4030,7 @@ lemma bridgeless_flow_of_threeEdgeConnected_case
   induction n using Nat.strong_induction_on generalizing W F with
   | h n ih =>
     by_cases hc : (Connects H) Finset.univ
-    · letI : Nonempty W := hc.nonempty
+    · let : Nonempty W := hc.nonempty
       exact connected_bridgeless_flow_of_threeEdgeConnected_case base H hc hb
     · apply (nowhereZeroFlow_of_componentGraph_flows H)
       intro q
@@ -4570,7 +4569,7 @@ lemma simpleGraphAsGraph_connected {α : Type*} (G : SimpleGraph α)
     (hG : G.Connected) :
     (simpleGraphAsGraph G).Connected := by
   refine ⟨?_, ?_⟩
-  · letI := hG.nonempty
+  · let := hG.nonempty
     exact ⟨Classical.choice inferInstance, Set.mem_univ _⟩
   · intro u v _ _
     exact (simpleGraphAsGraph_reachable G u v).mpr (hG u v)
@@ -4579,7 +4578,7 @@ lemma simpleGraphAsGraph_deleteEdges_connected {α : Type*} (G : SimpleGraph α)
     (F : Set (Sym2 α)) (hG : (G.deleteEdges F).Connected) :
     ((simpleGraphAsGraph G).deleteEdges F).Connected := by
   refine ⟨?_, ?_⟩
-  · letI := hG.nonempty
+  · let := hG.nonempty
     exact ⟨Classical.choice inferInstance, Set.mem_univ _⟩
   · intro u v _ _
     exact (simpleGraphAsGraph_deleteEdges_reachable G F u v).mpr (hG u v)
@@ -4596,7 +4595,7 @@ theorem simpleGraph_cycleDoubleCoverConjecture
     {α : Type u} [Finite α] [DecidableEq α] (G : SimpleGraph α)
     (hb : ∀ e ∈ G.edgeSet, ¬ G.IsBridge e) :
     Nonempty (SimpleGraph.CycleDoubleCover G) := by
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   obtain ⟨C⟩ := graph_cycleDoubleCover_of_bridgeless (simpleGraphAsGraph G)
     (simpleGraphAsGraph_bridgeless G hb)
   exact ⟨simpleGraphCycleDoubleCoverOfGraph G C⟩

@@ -507,7 +507,7 @@ theorem kummer_application_lemma :
     have h12 : j ≤ R := by linarith
     nlinarith
   have h_main4 : (Nat.choose (R * D) (j * D)).factorization q ≥ M := by
-    haveI : Fact (Nat.Prime q) := ⟨hq⟩
+    have : Fact (Nat.Prime q) := ⟨hq⟩
     have h_eq :
         (Nat.choose (R * D) (j * D)).factorization q =
           (Finset.filter
@@ -800,7 +800,7 @@ lemma round1_h5 (f : ℕ → ℕ)
   have h10 : ∀ i : ℕ, i ≥ n₀ → (f i : ℕ∞) ≤ (b : ℕ∞) := by
     intro i hi
     have h111 : i ∈ { i : ℕ | i ≥ n₀ } := by
-      exact Set.mem_setOf.mpr hi
+      exact Set.mem_ofPred.mpr hi
     have h11 : (f i : ℕ∞) ∈ (Set.image (fun i => (f i : ℕ∞)) { i : ℕ | i ≥ n₀ }) := by
       exact Set.mem_image_of_mem (fun i : ℕ => (f i : ℕ∞)) h111
     exact h9 (f i : ℕ∞) h11

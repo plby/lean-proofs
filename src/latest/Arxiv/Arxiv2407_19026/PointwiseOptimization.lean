@@ -488,7 +488,7 @@ theorem hasRamseyExponent_of_pointwiseBookProfile
     lebesgue_number_lemma_of_metric hKcompact
       (fun i : ↥t ↦ hUopen i.1) hcoverT
   obtain ⟨i₀, hi₀⟩ := hLeb δ hδmem
-  letI : Nonempty ↥t := ⟨i₀⟩
+  let : Nonempty ↥t := ⟨i₀⟩
   have hpickExists :
       ∀ w : ℝ, ∃ i : ↥t,
         w ∈ Kset → Metric.ball w ρ ⊆ U i.1 := by

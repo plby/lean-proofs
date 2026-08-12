@@ -479,8 +479,8 @@ theorem finrank_Omega (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
       Module.finrank ℝ (Omega d s A) = Module.finrank ℝ U.dualAnnihilator :=
     (LinearEquiv.ofSubmodules (dotProductDualEquiv A) (Omega d s A)
       U.dualAnnihilator hmap).finrank_eq
-  letI : FiniteDimensional ℝ U := FiniteDimensional.finiteDimensional_submodule U
-  letI : Module.Free ℝ U := Module.Free.of_divisionRing ℝ U
+  let : FiniteDimensional ℝ U := FiniteDimensional.finiteDimensional_submodule U
+  let : Module.Free ℝ U := Module.Free.of_divisionRing ℝ U
   have hsum := Subspace.finrank_add_finrank_dualAnnihilator_eq U
   rw [hOmega, dim_s]
   exact Nat.eq_sub_of_add_eq <| by

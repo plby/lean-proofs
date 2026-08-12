@@ -9,7 +9,7 @@ import UnitFractions.ForMathlib.Misc
 namespace UnitFractions
 
 open scoped ArithmeticFunction.omega BigOperators
-open Filter Finset Real
+open Filter Real
 open _root_.Finset
 
 attribute [local instance] Classical.propDecidable

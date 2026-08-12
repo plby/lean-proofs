@@ -304,8 +304,8 @@ lemma card_mulStab_dvd_card_mulStab (hs : s.Nonempty) (h : s.mulStab ⊆ t.mulSt
   obtain rfl | ht := t.eq_empty_or_nonempty
   · simp
   rw [← coe_subset, coe_mulStab hs, coe_mulStab ht, SetLike.coe_subset_coe] at h
-  letI : Fintype (stabilizer α s) := fintypeStabilizerOfMulStab hs
-  letI : Fintype (stabilizer α t) := fintypeStabilizerOfMulStab ht
+  let : Fintype (stabilizer α s) := fintypeStabilizerOfMulStab hs
+  let : Fintype (stabilizer α t) := fintypeStabilizerOfMulStab ht
   convert Subgroup.card_dvd_of_le h using 1
   · simp only [stabilizer_coe_finset, Nat.card_eq_fintype_card]
     change _ = #(s.mulStab.attach.map
@@ -875,7 +875,7 @@ theorem mul_kneser :
     rw [hstab]
     refine (hC.mulStab_nontrivial.mp hCstab).symm.ssubset_of_subset ?_
     simp only [one_subset, one_mem_mulStab, hC]
-  simp only [Set.mem_setOf_eq, Subset.rfl, true_and, not_le, hstab, mul_one, card_one,
+  simp only [Set.mem_ofPred_eq, Subset.rfl, true_and, not_le, hstab, mul_one, card_one,
     convergent] at hstconv
   zify at hstconv
   have hSTcard : (#S : ℤ) + #T + #(s ∪ t) ≤ #((s ∪ t) * H) := by
@@ -1236,7 +1236,7 @@ lemma lemma_2_1_cyclic_final (n : ℕ) (hn : n > 0) (B : Set (ZMod n)) (h1 : 1 �
     exact Set.eq_singleton_iff_unique_mem.mpr
       ⟨h1, fun x _hx => Subsingleton.elim x 1⟩
   · have hn_two : 2 ≤ n := by omega
-    haveI : NeZero n := ⟨Nat.ne_of_gt hn⟩
+    have : NeZero n := ⟨Nat.ne_of_gt hn⟩
     -- Let's consider the two cases: some element between 2 and n - 1 lies in B, or none does.
     by_cases hk : ∃ k : ℕ, 2 ≤ k ∧ k < n ∧ (k : ZMod n) ∈ B
     · let P : ℕ → Prop := fun k => 2 ≤ k ∧ k < n ∧ (k : ZMod n) ∈ B
@@ -1871,7 +1871,7 @@ lemma lemma_2_6 (a : ℕ) (ha : a > 0) (A B : Finset (ZMod a)) :
   let G := AddSubgroup.closure {(p : ZMod a)}
   ((A : Set (ZMod a)) + (B : Set (ZMod a)) + (G : Set (ZMod a)) = (A : Set (ZMod a)) + (B : Set (ZMod a))) ∧
   ((A : Set (ZMod a)) + B).ncard ≥ min a (((A : Set (ZMod a)) + G).ncard + ((B : Set (ZMod a)) + G).ncard - q) := by
-  letI : NeZero a := ⟨ha.ne'⟩
+  let : NeZero a := ⟨ha.ne'⟩
   let H := AddAction.stabilizer (ZMod a) (A + B : Set (ZMod a))
   obtain ⟨p, q, hp, hq, hpq, hH_card, hH_closure⟩ := lemma_subgroup_structure a ha H
   use p, q
@@ -1888,7 +1888,7 @@ lemma lemma_2_6 (a : ℕ) (ha : a > 0) (A B : Finset (ZMod a)) :
     · -- Case 1: A + B is nonempty
       have hH_fin_coe : (H_fin : Set (ZMod a)) = (H : Set (ZMod a)) := by
         ext x
-        simp only [H_fin, Finset.addStab, Finset.coe_filter, Set.mem_setOf_eq, H]
+        simp only [H_fin, Finset.addStab, Finset.coe_filter, Set.mem_ofPred_eq, H]
         constructor
         · rintro ⟨_hmem, hact⟩
           -- hact : x +ᵥ A + B = A + B (Finset equality)
@@ -2193,7 +2193,7 @@ lemma lemma_3_1_kneser_step (a b : ℕ) (ha : a > 0) (E : Finset ℕ) (k : ℕ)
     rw [hSk_eq]; exact Set.InjOn.ncard_image (h_Sk_inj_m k hk)
   have h_Sk_card_ge : (S_k a S_set (k + 1)).ncard ≥ ((F : Set (ZMod a)) + Sk_bar).ncard := by
     rw [h_Sk_plus_1_bar]; apply Set.ncard_le_ncard h_Sk_F_sub h_Sk_plus_1_fin
-  haveI : NeZero a := ⟨ha.ne'⟩
+  have : NeZero a := ⟨ha.ne'⟩
   have hS_ka : ∀ n ≥ 1, n * a ∈ S_set := by
     intro n hn; induction n, hn using Nat.le_induction with
     | base =>
@@ -2877,8 +2877,8 @@ lemma lemma_2_2_same_sum (p q : ℕ) (a : ℕ) (ha : a = p * q) (hp : p > 1) (hq
             exact Finset.mem_image.mpr ⟨r, Finset.mem_inter.mpr ⟨hr_E', hr_range⟩, ZMod.natCast_eq_natCast_iff .. |>.mpr hr_mod⟩
           have h_almost : IsAlmostSubgroup (F_fin : Set (ZMod p)) (x : ZMod p) := by
             apply lemma_2_2_h_almost p q a ha hp hq E E' hE_sub hE_card hE_add hE'_periodic e x hx h_neq_e hx_E' hx_ge_1 u hu_mem hu_min v h_uv_le yx rfl h2u hxp reps rfl hx_lt_p F_fin rfl h_E'_to_F_local
-          haveI : NeZero p := ⟨by omega⟩
-          haveI : Finite (ZMod p) := inferInstance
+          have : NeZero p := ⟨by omega⟩
+          have : Finite (ZMod p) := inferInstance
           have h_gen := lemma_2_1_general (F_fin : Set (ZMod p)) (x : ZMod p) h_almost.1 h_almost.2
           rcases h_gen with h_cases_B | h_cases_C | ⟨S_sub, h_cases_A⟩
           · -- Case B: F = {x}. Then e = x, contradiction.
@@ -3101,7 +3101,7 @@ lemma lemma_2_2_case_a (p q a e : ℕ) (ha : a = p * q) (hp : p > 1) (hq : q > 1
   have he_le : e ≤ p := (Finset.mem_Icc.mp he_le_p).2
   have hp_pos : 0 < p := by omega
   have hq_pos : 0 < q := by omega
-  haveI : NeZero p := ⟨by omega⟩
+  have : NeZero p := ⟨by omega⟩
   have he_H : (e : ZMod p) ∈ H := by
     change (e : ZMod p) ∈ (H : Set (ZMod p))
     rw [← h_F_to_H]
@@ -3335,7 +3335,7 @@ lemma lemma_2_2_case_1 (p q a e : ℕ) (ha : a = p * q) (hp : p > 1) (_hq : q > 
     (h_E'_to_F : ∀ w ∈ E', (w : ZMod p) ∈ ({0, (e : ZMod p)} : Set (ZMod p)))
     (h_e0 : (e : ZMod p) ≠ 0) :
     E' = (Finset.image (fun i => i * e) (Finset.Icc (1 : ℕ) (a / e))).filter (· ∈ Finset.Icc (1 : ℕ) a) := by
-  haveI : NeZero p := ⟨by omega⟩
+  have : NeZero p := ⟨by omega⟩
   obtain ⟨y, hy_mem, hy_le⟩ := h_small
   have hy_mod_e : (y : ZMod p) = (e : ZMod p) := by
     obtain ⟨j, _, hj⟩ := Finset.mem_image.mp (Finset.mem_inter.mp hy_mem).2
@@ -3454,7 +3454,7 @@ lemma lemma_2_2_full (p q : ℕ) (a : ℕ) (ha : a = p * q) (hp : p > 1) (hq : q
     E' = (Finset.image (fun i => i * p) (Finset.Icc 1 q)) ∪ (Finset.image (fun i => x + i * p) (Finset.range q)) ∧
     (E ∩ Finset.image (fun i => x + i * p) (Finset.range q)).Nonempty ∧
     ∀ y ∈ E ∩ Finset.image (fun i => x + i * p) (Finset.range q), y > a / 2) := by
-  haveI hp_ne : NeZero p := ⟨by omega⟩
+  have hp_ne : NeZero p := ⟨by omega⟩
   -- Step 1: Establish e is in [1, p] and identify representatives.
   have he_le_p : e ∈ Finset.Icc 1 p :=
     lemma_2_2_full_e_le_p p q hp hq E E' hE_sub hE_nonempty (ha ▸ hE'_periodic) e he_min
@@ -3858,7 +3858,7 @@ lemma lemma_3_1_case_3_n_large_shift_in_Sk (a k z : ℕ) (ha : a > 0) (hk : k �
   letI : NeZero a := ⟨ha.ne'⟩
   let Sk_bar := (fun n : ℕ => (n : ZMod a)) '' (S_k a (S (E : Set ℕ)) k)
   ((z : ℕ) : ZMod a) ∈ Sk_bar := by
-  letI : NeZero a := ⟨ha.ne'⟩
+  let : NeZero a := ⟨ha.ne'⟩
   have ha_in_S : a ∈ S (E : Set ℕ) := AddSubsemigroup.subset_closure hmax
   -- We want to find t such that z + t * a lies in [(k-1)*a + 1, k*a].
   set diff := (k - 1) * a - z with h_diff
@@ -3900,7 +3900,7 @@ lemma lemma_3_1_case_3_n_large_mod_p_in_G (a p q x s₁ m : ℕ) (ha : a > 0) (_
   (G : AddSubgroup (ZMod a)) (hG : G = AddSubgroup.closure {((p : ℕ) : ZMod a)}) :
   letI : NeZero a := ⟨ha.ne'⟩
   ((m * (x + s₁ * p) : ℕ) : ZMod a) - ((m * x : ℕ) : ZMod a) ∈ G := by
-  letI : NeZero a := ⟨ha.ne'⟩
+  let : NeZero a := ⟨ha.ne'⟩
   -- Simplify: m*(x + s₁*p) - m*x = m*s₁*p
   have eq : (m * (x + s₁ * p) : ℕ) = m * x + m * s₁ * p := by ring
   have calc_eq : ((m * (x + s₁ * p) : ℕ) : ZMod a) - ((m * x : ℕ) : ZMod a) = (m * s₁) • ((p : ℕ) : ZMod a) := by
@@ -3966,13 +3966,13 @@ lemma lemma_3_1_case_3_n_large_cosets_eq_univ (a p x : ℕ) (ha : a > 0) (hp : p
   (hx_gcd : Nat.gcd x p = 1) (Sk_bar : Set (ZMod a))
   (h_contains : ∀ m : ℕ, m < p → ((m * x : ℕ) : ZMod a) ∈ Sk_bar + (G : Set (ZMod a))) :
   Sk_bar + (G : Set (ZMod a)) = Set.univ := by
-  haveI : NeZero a := ⟨ha.ne'⟩
+  have : NeZero a := ⟨ha.ne'⟩
   ext z
   simp only [Set.mem_univ, iff_true, Set.mem_add]
   -- Use that z has some representation, and use coprimality
   have hcoprime : Nat.Coprime x p := hx_gcd
   -- Since gcd(x,p) = 1, x is a unit in ZMod p
-  haveI : NeZero p := ⟨hp.ne'⟩
+  have : NeZero p := ⟨hp.ne'⟩
   have hx_unit : IsUnit ((x : ℕ) : ZMod p) := (ZMod.isUnit_iff_coprime x p).mpr hcoprime
   -- For z : ZMod a, cast it to ZMod p to find the residue class
   let z_mod_p : ZMod p := (z.val : ZMod p)
@@ -4591,15 +4591,15 @@ lemma lemma_3_1_case_3_gap_calc (a p q k x s₁ n : ℕ) (ha : a > 0) (E : Finse
     have h_ncard_union : (Sk_bar ∪ (H : Set (ZMod a))).ncard = Sk_bar.ncard + (H : Set (ZMod a)).ncard := by
       refine Set.ncard_union_eq ?_ ?_ ?_
       · exact H_disj.symm
-      · letI : NeZero a := ⟨ha.ne'⟩
+      · let : NeZero a := ⟨ha.ne'⟩
         exact Set.toFinite _
       · exact Set.toFinite _
     have h_H_ncard : (H : Set (ZMod a)).ncard = q - s₁ - 1 := by
       rw [Set.ncard_coe_finset]
       exact H_card
     rw [← h_H_ncard, ← h_ncard_union]
-    letI : NeZero a := ⟨ha.ne'⟩
-    haveI : Finite (ZMod a) := inferInstance
+    let : NeZero a := ⟨ha.ne'⟩
+    have : Finite (ZMod a) := inferInstance
     exact Set.ncard_le_ncard h_union
   have h_ncard_add' : Sk_bar.ncard + q - s₁ - 1 ≤ (Sk_bar + (G : Set (ZMod a))).ncard := by
     calc Sk_bar.ncard + q - s₁ - 1
@@ -4686,7 +4686,7 @@ lemma lemma_3_1_step_b_h_FG_lower (a p q x s1 : ℕ) (ha_pos : a > 0) (ha_eq_pq 
   min a ((S1_finset.image (fun n => (n : ZMod a)) : Set (ZMod a)).ncard + s1) := by
   let F : Set (ZMod a) := (S1_finset.image (fun n => (n : ZMod a)) : Set (ZMod a))
   let G := AddSubgroup.closure {(p : ZMod a)}
-  letI : NeZero a := ⟨ha_pos.ne'⟩
+  let : NeZero a := ⟨ha_pos.ne'⟩
   have h_G_card : (G : Set (ZMod a)).ncard = q := by
     have h_card : Nat.card G = q := by
       have hG_def : G = AddSubgroup.closure {(p : ZMod a)} := rfl
@@ -4723,7 +4723,7 @@ lemma lemma_3_1_step_b_h_FG_lower (a p q x s1 : ℕ) (ha_pos : a > 0) (ha_eq_pq 
       rw [h_p_mod_p]
       simp
     · intro hz
-      simp only [Set.mem_setOf_eq] at hz
+      simp only [Set.mem_ofPred_eq] at hz
       rw [h_f_z] at hz
       have h_val_zero : (z.val : ZMod p) = 0 := hz
       rw [ZMod.natCast_eq_zero_iff] at h_val_zero
@@ -4739,7 +4739,7 @@ lemma lemma_3_1_step_b_h_FG_lower (a p q x s1 : ℕ) (ha_pos : a > 0) (ha_eq_pq 
     · rintro ⟨x, hx, g, hg, rfl⟩
       use x, hx
       rw [h_f_mod_p_hom]
-      have : f_mod_p g = 0 := by rw [← Set.mem_setOf_eq (p := fun z ↦ f_mod_p z = 0), ← h_G_is_ker]; exact hg
+      have : f_mod_p g = 0 := by rw [← Set.mem_ofPred_eq (p := fun z ↦ f_mod_p z = 0), ← h_G_is_ker]; exact hg
       rw [this, add_zero]
     · rintro ⟨x, hx, hyx⟩
       use x, hx, y - x
@@ -4762,14 +4762,14 @@ lemma lemma_3_1_step_b_h_FG_lower (a p q x s1 : ℕ) (ha_pos : a > 0) (ha_eq_pq 
       · intro hy; use y - x'
         constructor
         · rw [h_G_is_ker]
-          simp only [Set.mem_setOf_eq]
+          simp only [Set.mem_ofPred_eq]
           rw [show f_mod_p (y - x') = f_mod_p y - f_mod_p x' by simp [f_mod_p, f_mod_p_hom, map_sub]]
           rw [hy, hx', sub_self]
         · rw [add_sub_cancel]
       · rintro ⟨g, hg, rfl⟩
         rw [h_f_mod_p_hom]
         have : f_mod_p g = 0 := by
-          rw [← Set.mem_setOf_eq (p := fun z ↦ f_mod_p z = 0), ← h_G_is_ker]
+          rw [← Set.mem_ofPred_eq (p := fun z ↦ f_mod_p z = 0), ← h_G_is_ker]
           exact hg
         rw [this, hx', add_zero]
     rw [h_eq, Set.ncard_image_of_injective]
@@ -5066,7 +5066,7 @@ lemma lemma_3_1_step_b_h_FG_lower (a p q x s1 : ℕ) (ha_pos : a > 0) (ha_eq_pq 
     rw [h_F_plus_G_card]
     rw [min_eq_right]
     · exact h_le_res
-    · letI : NeZero p := ⟨hp.ne'⟩
+    · let : NeZero p := ⟨hp.ne'⟩
       have h_img_le_p : (f_mod_p '' F).ncard ≤ p := by
         have h_sub : (f_mod_p '' F) ⊆ Set.univ := Set.subset_univ _
         have h1 : (f_mod_p '' F).ncard ≤ Set.univ.ncard := Set.ncard_le_ncard h_sub (Set.toFinite _)
@@ -5190,12 +5190,12 @@ lemma lemma_3_1 (a b : ℕ) (E : Finset ℕ) (hE_sub : (E : Set ℕ) ⊆ Set.Icc
     have : a ∈ Set.Icc 1 a := hE_sub (Finset.mem_coe.mpr hE_max)
     simp only [Set.mem_Icc] at this
     exact this.1
-  letI : NeZero a := ⟨ha_pos_S1.ne'⟩
+  let : NeZero a := ⟨ha_pos_S1.ne'⟩
   have h_S1_fin_inst : (S_k a S_set 1).Finite := Set.Finite.inter_of_right (Set.finite_Icc _ _) _
-  haveI : Fintype (S_k a S_set 1) := h_S1_fin_inst.fintype
+  have : Fintype (S_k a S_set 1) := h_S1_fin_inst.fintype
   let F := (fun n : ℕ => (n : ZMod a)) '' (S_k a S_set 1)
   have h_Sk_fin_inst : (S_k a S_set k).Finite := Set.Finite.inter_of_right (Set.finite_Icc _ _) _
-  haveI : Fintype (S_k a S_set k) := h_Sk_fin_inst.fintype
+  have : Fintype (S_k a S_set k) := h_Sk_fin_inst.fintype
   let Sk_bar := (fun n : ℕ => (n : ZMod a)) '' (S_k a S_set k)
   -- Step 1.4: Sk+1 image inclusion.
   have h_image_inc_S1 : (F : Set (ZMod a)) + Sk_bar ⊆ (fun n : ℕ => (n : ZMod a)) '' (S_k a S_set (k + 1)) := by
@@ -5221,7 +5221,6 @@ lemma lemma_3_1 (a b : ℕ) (E : Finset ℕ) (hE_sub : (E : Set ℕ) ⊆ Set.Icc
     intro n hn
     change n ∈ (S_k a S_set 1).toFinset at hn
     rw [Set.mem_toFinset] at hn
-    change n ∈ Finset.Icc 1 a
     rw [Finset.mem_Icc]
     change n ∈ S_set ∩ Set.Icc ((1 - 1) * a + 1) (1 * a) at hn
     simpa using hn.2
@@ -5257,7 +5256,7 @@ lemma lemma_3_1 (a b : ℕ) (E : Finset ℕ) (hE_sub : (E : Set ℕ) ⊆ Set.Icc
   let G := AddSubgroup.closure {(p : ZMod a)}
   let E'_set := {x | x ∈ Set.Icc 1 a ∧ (x : ZMod a) ∈ F + (G : Set (ZMod a))}
   have h_E'_fin_inst : E'_set.Finite := Set.Finite.inter_of_left (Set.finite_Icc 1 a) _
-  haveI : Fintype E'_set := h_E'_fin_inst.fintype
+  have : Fintype E'_set := h_E'_fin_inst.fintype
   let E'_finset := E'_set.toFinset
   -- Step 3.2: Lemma 2.2 characterization. (proven with Gemini and Project Numina)
   -- Now use E directly instead of S1_finset
@@ -5268,7 +5267,7 @@ lemma lemma_3_1 (a b : ℕ) (E : Finset ℕ) (hE_sub : (E : Set ℕ) ⊆ Set.Icc
   have hE_sub_E'_val : S1_finset ⊆ E'_finset := by
     intro x hx
     rw [Set.mem_toFinset] at hx ⊢
-    simp only [E'_set, Set.mem_setOf_eq]
+    simp only [E'_set, Set.mem_ofPred_eq]
     constructor
     · obtain ⟨_, h_range⟩ := hx
       simp at h_range
@@ -5334,13 +5333,13 @@ lemma lemma_3_1 (a b : ℕ) (E : Finset ℕ) (hE_sub : (E : Set ℕ) ⊆ Set.Icc
     intro x
     constructor
     · intro hx
-      rw [Set.mem_toFinset, Set.mem_setOf_eq] at hx
+      rw [Set.mem_toFinset, Set.mem_ofPred_eq] at hx
       constructor
       · exact Finset.mem_Icc.mpr (Set.mem_Icc.mp hx.1)
       · use x; rw [Set.mem_toFinset]; exact ⟨hx, rfl⟩
     · rintro ⟨hx_mem, y, hy, h_mod⟩
       rw [Set.mem_toFinset] at hy ⊢
-      simp only [E'_set, Set.mem_setOf_eq] at hy ⊢
+      simp only [E'_set, Set.mem_ofPred_eq] at hy ⊢
       constructor
       · exact Set.mem_Icc.mpr (Finset.mem_Icc.mp hx_mem)
       · obtain ⟨-, h_y_in_FG⟩ := hy
@@ -5775,7 +5774,7 @@ lemma lemma_3_1 (a b : ℕ) (E : Finset ℕ) (hE_sub : (E : Set ℕ) ⊆ Set.Icc
           use z, hz, 0, AddSubgroup.zero_mem G
           simp only [add_zero]
         have h_finite : (F + (G : Set (ZMod a))).Finite := by
-          haveI : Finite (ZMod a) := inferInstance
+          have : Finite (ZMod a) := inferInstance
           exact Set.toFinite _
         apply Set.ncard_le_ncard this h_finite
       -- Step 7.1: Final chain.
@@ -6089,7 +6088,7 @@ lemma G_le_n_minus_1 (E : Set ℕ) (n : ℕ) (hn : n ≥ 1) (h_subset : Set.Ici 
   · push Not at h
     have : {m | m ∉ S E} = ∅ := by
       ext m
-      simp only [Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false]
+      simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false]
       intro hm
       exact hm (h m)
     rw [this]

@@ -354,7 +354,7 @@ lemma not_parallel_of_unique_intersection {A B A' B' P : Plane}
         A' + t • (B' - A') ∈ {x : Plane | Collinear ℝ ({A, B, x} : Set Plane)} := by
     intro t
     obtain ⟨s, hs⟩ := h_parallel_lines t
-    simp +decide only [Set.mem_setOf_eq]
+    simp +decide only [Set.mem_ofPred_eq]
     rw [collinear_iff_exists_forall_eq_smul_vadd]
     refine ⟨A, B - A, ?_⟩
     rintro x (rfl | rfl | rfl)
@@ -365,7 +365,7 @@ lemma not_parallel_of_unique_intersection {A B A' B' P : Plane}
       ∀ t : ℝ,
         A' + t • (B' - A') ∈ {x : Plane | Collinear ℝ ({A', B', x} : Set Plane)} := by
     intro t
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     rw [collinear_iff_exists_forall_eq_smul_vadd]
     refine ⟨A', B' - A', ?_⟩
     rintro x (rfl | rfl | rfl)

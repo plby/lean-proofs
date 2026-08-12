@@ -110,7 +110,7 @@ lemma sparse_extension_fixing (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.at
   intro q hq; specialize hx₀ q hq; simp_all +decide [Finset.prod_eq_prod_sdiff_singleton_mul hq]
   simp +zetaDelta at *
   simp +decide [hq]
-  haveI := Fact.mk ( h_primes q hq ) ; simp +decide
+  have := Fact.mk ( h_primes q hq ) ; simp +decide
 
 /-
 If a finite set $B$ has fewer elements than the modulus $q$, then $B$ does not cover all residue classes modulo $q$.
@@ -150,7 +150,7 @@ lemma min_unconstrained_prime_spec (constraints : Finset (ℕ × ℕ)) :
       rw [ Nat.nth_zero ]
       -- The set of primes not in the constraints is infinite, so it has a smallest element.
       have h_inf : Set.Infinite {p : ℕ | Nat.Prime p ∧ ∀ x ∈ constraints, x.1 ≠ p} := by
-        exact Set.Infinite.sdiff ( Nat.infinite_setOf_prime ) ( constraints.image Prod.fst |> Finset.finite_toSet ) |> Set.Infinite.mono fun p hp => by aesop
+        exact Set.Infinite.sdiff ( Nat.infinite_setOfPred_prime ) ( constraints.image Prod.fst |> Finset.finite_toSet ) |> Set.Infinite.mono fun p hp => by aesop
       exact ⟨ Nat.sInf_mem h_inf.nonempty |>.1, fun x hx => Nat.sInf_mem h_inf.nonempty |>.2 x hx, fun q hq hq' => Nat.sInf_le ⟨ hq, hq' ⟩ ⟩
 
 /-
@@ -169,7 +169,7 @@ lemma exists_suitable_prime_for_blocking (B : Finset ℕ) (constraints : Finset 
       have h_inf_primes : Set.Infinite {q : ℕ | Nat.Prime q ∧ q > B.card + 1 ∧ (∀ b ∈ B, b < q) ∧ (∀ x ∈ constraints, x.1 ≠ q) ∧ q > 2 ∧ q > Int.natAbs n} := by
         have h_inf_primes : Set.Infinite {q : ℕ | Nat.Prime q ∧ q > B.card + 1 ∧ (∀ b ∈ B, b < q) ∧ (∀ x ∈ constraints, x.1 ≠ q)} := by
           have h_inf_primes : Set.Infinite {q : ℕ | Nat.Prime q ∧ q > B.card + 1 ∧ (∀ x ∈ constraints, x.1 ≠ q)} := by
-            exact Set.Infinite.mono ( by aesop_cat ) ( Nat.infinite_setOf_prime.sdiff ( Set.toFinite ( Finset.image Prod.fst constraints ∪ { 2 } ∪ Finset.range ( B.card + 2 ) ) ) )
+            exact Set.Infinite.mono ( by aesop_cat ) ( Nat.infinite_setOfPred_prime.sdiff ( Set.toFinite ( Finset.image Prod.fst constraints ∪ { 2 } ∪ Finset.range ( B.card + 2 ) ) ) )
           exact h_inf_primes.sdiff ( Finset.finite_toSet ( B.biUnion fun b => Finset.Iic b ) ) |> Set.Infinite.mono fun q hq => by aesop
         exact Set.Infinite.mono ( by aesop_cat ) ( h_inf_primes.sdiff ( Set.finite_le_nat ( Max.max 2 n.natAbs ) ) )
       exact h_inf_primes.nonempty
@@ -203,7 +203,7 @@ lemma sparse_extension_mixed_odd (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter
           · intro a b hab; specialize hx; have := hx.2.1.2.2 a b hab; split_ifs at this <;> simp_all +decide [ ← ZMod.val_natCast ]
             · exact False.elim <| hq_not_in _ _ hab rfl
             · specialize h_respects_2 2 b hab rfl ; aesop
-            · haveI := Fact.mk ( h_prime _ _ ‹_› ) ; simp_all +decide
+            · have := Fact.mk ( h_prime _ _ ‹_› ) ; simp_all +decide
               specialize h_coprime _ _ ‹_› _ _ hab ; aesop
             · grind +ring
         exact ⟨ x, hx.1, hx.2.2.2.1, hx.2.1, hx.2.2.1, hx.2.2.2.2 ⟩
@@ -217,7 +217,7 @@ lemma exists_admissible_residue_respecting_2 (B : Finset ℕ) (h_odd : ∀ b ∈
       cases eq_or_ne p 2 <;> simp_all +decide
       · intro b hb; specialize h_odd b hb; erw [ ZMod.natCast_eq_zero_iff ]
         exact fun h => by have := Nat.mod_eq_zero_of_dvd h; aesop
-      · haveI := Fact.mk hp
+      · have := Fact.mk hp
         exact exists_omitted_residue B p h_card
 
 /-
@@ -235,8 +235,8 @@ lemma add_admissibility_constraint (state : ConstructionStateV2)
         -- Let `r` be the residue modulo `target_p` that is not in `B` and satisfies `target_p = 2 → r = 0`.
         obtain ⟨r, hr⟩ : ∃ r : ℕ, r < target_p ∧ (∀ b ∈ state.B, b % target_p ≠ r) ∧ (target_p = 2 → r = 0) := by
           have := exists_admissible_residue_respecting_2 state.B state.h_odd target_p h_target_p h_card
-          obtain ⟨ r, hr₁, hr₂ ⟩ := this; use r.val; haveI := Fact.mk h_target_p; simp_all +decide
-          haveI := Fact.mk h_target_p; exact ⟨ ZMod.val_lt r, fun b hb => fun h => hr₁ b hb <| by simpa [ ← ZMod.natCast_eq_natCast_iff' ] using congr_arg ( fun x : ℕ => x : ℕ → ZMod target_p ) h ⟩
+          obtain ⟨ r, hr₁, hr₂ ⟩ := this; use r.val; have := Fact.mk h_target_p; simp_all +decide
+          have := Fact.mk h_target_p; exact ⟨ ZMod.val_lt r, fun b hb => fun h => hr₁ b hb <| by simpa [ ← ZMod.natCast_eq_natCast_iff' ] using congr_arg ( fun x : ℕ => x : ℕ → ZMod target_p ) h ⟩
         refine ⟨ ⟨ state.B, state.constraints ∪ { ( target_p, r ) }, ?_, ?_, ?_, ?_ ⟩,
           rfl, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ Finset.subset_iff ]
         · exact fun b hb => state.h_odd b hb
@@ -382,7 +382,7 @@ lemma min_unconstrained_eq_nth (constraints : Finset (ℕ × ℕ)) (k : ℕ)
       refine le_antisymm ( Nat.sInf_le ?_ ) ( le_csInf ?_ ?_ )
       · simp +zetaDelta at *
         intro a b hab H; replace h := Finset.ext_iff.mp h a; simp_all +decide [ first_k_primes ]
-        exact absurd ( h.mp ⟨ b, hab ⟩ ) ( by rintro ⟨ a, ha, ha' ⟩ ; exact absurd ha' ( ne_of_lt ( Nat.nth_strictMono ( Nat.infinite_setOf_prime ) ha ) ) )
+        exact absurd ( h.mp ⟨ b, hab ⟩ ) ( by rintro ⟨ a, ha, ha' ⟩ ; exact absurd ha' ( ne_of_lt ( Nat.nth_strictMono ( Nat.infinite_setOfPred_prime ) ha ) ) )
       · -- Since there are infinitely many primes, we can choose a prime $p$ such that $p > \max(\text{constraints.image Prod.fst})$.
         obtain ⟨p, hp⟩ : ∃ p, Nat.Prime p ∧ p > Finset.sup constraints (Prod.fst) := by
           exact Exists.imp ( by tauto ) ( Nat.exists_infinite_primes ( Finset.sup constraints Prod.fst + 1 ) )
@@ -412,7 +412,7 @@ def primes_in_constraints (state : ConstructionStateV2) : Finset ℕ :=
 The n-th prime is at least n+2.
 -/
 lemma nth_prime_ge_add_two (n : ℕ) : Nat.nth Nat.Prime n ≥ n + 2 := by
-  exact Nat.recOn n ( Nat.Prime.two_le <| Nat.prime_nth_prime 0 ) fun n ihn => Nat.succ_le_of_lt <| Nat.lt_of_le_of_lt ihn <| Nat.nth_strictMono ( Nat.infinite_setOf_prime ) <| Nat.lt_succ_self n
+  exact Nat.recOn n ( Nat.Prime.two_le <| Nat.prime_nth_prime 0 ) fun n ihn => Nat.succ_le_of_lt <| Nat.lt_of_le_of_lt ihn <| Nat.nth_strictMono ( Nat.infinite_setOfPred_prime ) <| Nat.lt_succ_self n
 
 /-
 Recursive definition of first_k_primes.
@@ -495,7 +495,7 @@ noncomputable def step_strict_minimal_state (f : ℕ → ℕ) (hf : Filter.Tends
           contrapose! this
           convert congr_arg ( fun x : ℕ => x : ℕ → ZMod p ) this using 1
           · simp +decide
-          · haveI := Fact.mk h_p_prime; simp +decide
+          · have := Fact.mk h_p_prime; simp +decide
             rfl
         · by_cases hb : b ∈ gs.state.B
           · exact gs.state.h_respects x hx b hb
@@ -536,7 +536,7 @@ lemma step_condition_relaxed (f : ℕ → ℕ) (gs : GoodState f) (k : ℕ)
         have h_p_index : ∃ i < k + 1, min_unconstrained_prime gs.state.constraints = Nat.nth Nat.Prime i := by
           have h_p_index : ∃ i, min_unconstrained_prime gs.state.constraints = Nat.nth Nat.Prime i := by
             exact ⟨ Nat.count ( Nat.Prime ) ( min_unconstrained_prime gs.state.constraints ), by rw [ Nat.nth_count ( min_unconstrained_prime_spec gs.state.constraints |>.1 ) ] ⟩
-          obtain ⟨ i, hi ⟩ := h_p_index; exact ⟨ i, Nat.lt_of_not_ge fun hi' => h_contra <| hi.symm ▸ Nat.nth_monotone ( Nat.infinite_setOf_prime ) hi', hi ⟩
+          obtain ⟨ i, hi ⟩ := h_p_index; exact ⟨ i, Nat.lt_of_not_ge fun hi' => h_contra <| hi.symm ▸ Nat.nth_monotone ( Nat.infinite_setOfPred_prime ) hi', hi ⟩
         obtain ⟨ i, hi, hi' ⟩ := h_p_index
         have := h_primes ( Finset.mem_image.mpr ⟨ i, Finset.mem_range.mpr hi, rfl ⟩ ) ; simp_all +decide [ primes_in_constraints ]
         exact absurd ( min_unconstrained_prime_spec gs.state.constraints |>.2.1 _ this.choose_spec ) ( by aesop )
@@ -636,7 +636,7 @@ lemma step_strict_minimal_state_properties (f : ℕ → ℕ) (hf : Filter.Tendst
       (not_mem_of_gt_sup gs.state.B (Classical.choose block_spec)
         (Classical.choose_spec (Classical.choose_spec block_spec)).2.2.1)
   · refine ⟨(Classical.choose residue_spec).val, rfl, ?_⟩
-    haveI : NeZero (min_unconstrained_prime gs.state.constraints) :=
+    have : NeZero (min_unconstrained_prime gs.state.constraints) :=
       ⟨Nat.Prime.ne_zero (min_unconstrained_prime_spec gs.state.constraints).1⟩
     exact ZMod.val_lt (Classical.choose residue_spec)
 
@@ -768,7 +768,7 @@ theorem B_final_v4_admissible (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.at
       -- By `B_final_v4_respects`, for all `b ∈ B_final_v4`, `b % p ≠ r`.
       have h_respects : b % p ≠ r := by
         exact B_final_v4_respects f hf p r k hr.1 b hb
-      contrapose! h_respects; haveI := Fact.mk hp; simp_all +decide
+      contrapose! h_respects; have := Fact.mk hp; simp_all +decide
       exact Nat.mod_eq_of_lt hr.2 ▸ by simpa [ ← ZMod.natCast_eq_natCast_iff' ] using h_respects
 
 /-

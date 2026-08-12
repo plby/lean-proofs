@@ -176,7 +176,7 @@ lemma nat_card_edgeSet_stdDecompGraph
       · refine ⟨t, Subtype.ext ?_⟩
         change s(stdDecompLeft a b t, stdDecompRight a b t) = s(v, w)
         rw [h.1, h.2, Sym2.eq_swap]
-  letI := Fintype.ofBijective edgeOf hedgeOf_bij
+  let := Fintype.ofBijective edgeOf hedgeOf_bij
   rw [Nat.card_eq_fintype_card]
   exact (Fintype.card_congr (Equiv.ofBijective edgeOf hedgeOf_bij)).symm
 
@@ -505,8 +505,8 @@ lemma card_edgeSet_add_one_le_nat_card_of_isAcyclic
     (hG : G.IsAcyclic) (hG_nonempty : Nonempty V) :
     Nat.card G.edgeSet + 1 ≤ Nat.card V := by
   classical
-  haveI : Fintype V := Fintype.ofFinite V
-  letI : Nonempty V := hG_nonempty
+  have : Fintype V := Fintype.ofFinite V
+  let : Nonempty V := hG_nonempty
   obtain ⟨T, hGT, _hTtop, hT⟩ :=
     (SimpleGraph.connected_top (V := V)).exists_isTree_le_of_le_of_isAcyclic
       (G := ⊤) (H := G) le_top hG

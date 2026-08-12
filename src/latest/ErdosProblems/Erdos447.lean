@@ -407,7 +407,7 @@ lemma embeddings_with_range_card {n : ℕ} (A : Finset (Fin n)) (j : ℕ) (hA : 
           · intro x hx
             obtain ⟨i, _, rfl⟩ := Finset.mem_map.mp hx
             exact (e i).property
-          · simpa [Finset.card_map, hA]
+          · simp [Finset.card_map, hA]
 
 /-
 Combining two embeddings with disjoint ranges yields an injective function.
@@ -574,7 +574,8 @@ noncomputable def perm_to_embeddings_inv {n : ℕ} (A : Finset (Fin n)) (j : ℕ
 /-
 The set of permutations with prefix A is equivalent to the product of embeddings with range A and embeddings with range A^c.
 -/
-noncomputable def permutations_equiv_embeddings {n : ℕ} (A : Finset (Fin n)) (j : ℕ) (hj : j ≤ n) (hA : A.card = j) :
+noncomputable def permutations_equiv_embeddings {n : ℕ} (A : Finset (Fin n)) (j : ℕ)
+    (hj : j ≤ n) (_hA : A.card = j) :
     permutations_with_prefix A j ≃ embeddings_with_range A j × embeddings_with_range (Finset.univ \ A) (n - j) :=
   Equiv.mk (perm_to_embeddings_fwd A j hj) (perm_to_embeddings_inv A j hj) (by
     intro p

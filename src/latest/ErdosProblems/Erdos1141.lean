@@ -479,7 +479,7 @@ private lemma attachedQuadraticCharacter_spec
   have hJacobi : jacobiSym (d : ℤ) p = 1 := by
     rw [attachedQuadraticCharacter_apply_coprime hdvd hcop] at hχ
     exact hχ
-  haveI : Fact p.Prime := ⟨hp⟩
+  have : Fact p.Prime := ⟨hp⟩
   have hsqInt : IsSquare ((d : ℤ) : ZMod p) :=
     ZMod.isSquare_of_jacobiSym_eq_one (a := (d : ℤ)) (p := p) hJacobi
   have hsq : IsSquare (d : ZMod p) := by
@@ -508,7 +508,7 @@ lemma exists_small_prime_from_pollack :
   intro m d hm hdvd
   have hm2 : 2 ≤ m := le_trans (le_max_right _ _) hm
   have hmpos : 0 < m := lt_of_lt_of_le (by decide : 0 < 2) hm2
-  haveI : NeZero m := ⟨Nat.ne_of_gt hmpos⟩
+  have : NeZero m := ⟨Nat.ne_of_gt hmpos⟩
   set χ : QuadraticCharacterMod m := attachedQuadraticCharacter d m hdvd
   set P : Finset ℕ :=
     Pollack17.residuePrimesUpTo m χ.toDirichletCharacterComplex ((1 : ℝ) / 8)
@@ -549,7 +549,8 @@ lemma exists_small_prime_from_pollack :
   rcases hspec with ⟨hp2, hpndvd, hres⟩
   refine ⟨p, hpp, hp2, hpndvd, ?_, hres⟩
   rw [Pollack17.residuePrimeUpperBound] at hpbound
-  convert hpbound using 1 <;> norm_num
+  convert hpbound using 1
+  norm_num
 
 /-! ## Turning quadratic residuosity into solvability of `a*x^2 ≡ n [MOD p]` -/
 

@@ -1596,7 +1596,7 @@ lemma isPolynomial_of_isAlgebraic (f : ℂ → ℂ) (h_entire : AnalyticOn ℂ f
     letI := Polynomial.algebraPi ℂ ℂ ℂ
     IsAlgebraic (Polynomial ℂ) f → IsPolynomial f := by
       intro h;
-      letI := Polynomial.algebraPi ℂ ℂ ℂ
+      let := Polynomial.algebraPi ℂ ℂ ℂ
       obtain ⟨ P, hP, hP' ⟩ := h;
       -- Let $a_n$ be the leading coefficient of $P$. $a_n$ is a non-zero polynomial.
       set a_n := Polynomial.leadingCoeff P with ha_n_def;

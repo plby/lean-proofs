@@ -115,12 +115,12 @@ lemma prime_dvd_P_iff (r : ℕ) (hr : r ≥ 1) (pp : ℕ) (hpp : pp.Prime) :
     -- Since $pp$ divides $P_r$, it must divide at least one of the primes in the product $\prod_{j=1}^r p_j$.
     obtain ⟨j, hj⟩ : ∃ j ∈ Finset.range r, pp ∣ p (j + 1) := by
       unfold P at h;
-      haveI := Fact.mk hpp; simp_all +decide [ ← ZMod.natCast_eq_zero_iff, Finset.prod_eq_zero_iff ] ;
+      have := Fact.mk hpp; simp_all +decide [ ← ZMod.natCast_eq_zero_iff, Finset.prod_eq_zero_iff ] ;
     have h_le : pp ≤ p (j + 1) := by
       exact Nat.le_of_dvd ( Nat.Prime.pos ( by exact Nat.prime_nth_prime _ ) ) hj.2;
     refine le_trans h_le ?_;
     refine Nat.nth_monotone ?_ ?_;
-    · exact Nat.infinite_setOf_prime;
+    · exact Nat.infinite_setOfPred_prime;
     · exact Nat.le_pred_of_lt ( Finset.mem_range.mp hj.1 );
   · intro hpp_le_pr
     have h_prime_divisors : ∀ {q : ℕ}, Nat.Prime q → q ≤ p r → q ∈ Finset.image (fun j => p (j + 1)) (Finset.range r) := by
@@ -151,7 +151,7 @@ lemma P_squarefree (r : ℕ) : Squarefree (P r) := by
     norm_num
   | succ r ih =>
     simp_all +decide [ Finset.prod_range_succ, Nat.squarefree_mul_iff ]
-    exact ⟨ Nat.Coprime.prod_left fun i hi => Nat.coprime_comm.mp <| Nat.Prime.coprime_iff_not_dvd ( Nat.prime_nth_prime _ ) |>.2 <| Nat.not_dvd_of_pos_of_lt ( Nat.Prime.pos <| Nat.prime_nth_prime _ ) <| Nat.nth_strictMono ( Nat.infinite_setOf_prime ) <| Finset.mem_range.mp hi, ih rfl, Nat.prime_nth_prime _ |> fun h => h.squarefree ⟩
+    exact ⟨ Nat.Coprime.prod_left fun i hi => Nat.coprime_comm.mp <| Nat.Prime.coprime_iff_not_dvd ( Nat.prime_nth_prime _ ) |>.2 <| Nat.not_dvd_of_pos_of_lt ( Nat.Prime.pos <| Nat.prime_nth_prime _ ) <| Nat.nth_strictMono ( Nat.infinite_setOfPred_prime ) <| Finset.mem_range.mp hi, ih rfl, Nat.prime_nth_prime _ |> fun h => h.squarefree ⟩
 
 /-
 The p-adic valuation of P_r is 1 if p <= p_r, and 0 otherwise.
@@ -204,11 +204,11 @@ lemma primewise_target (r m k : ℕ) (hr : r ≥ 1) :
     have h_val_rewrite : padicValNat pp ((m + k).factorial) = padicValNat pp (∏ i ∈ Finset.range k, (m + 1 + i)) + padicValNat pp (Nat.factorial m) := by
       have h_val_rewrite : (m + k).factorial = (∏ i ∈ Finset.range k, (m + 1 + i)) * m.factorial := by
         exact Nat.recOn k ( by norm_num ) fun n ih => by rw [ Nat.add_succ, Nat.factorial_succ, Finset.prod_range_succ ] ; nlinarith;
-      haveI := Fact.mk hpp; rw [ h_val_rewrite, padicValNat.mul ( Finset.prod_ne_zero_iff.mpr fun _ _ => by positivity ) ( Nat.factorial_ne_zero _ ) ] ;
-    haveI := Fact.mk hpp; rw [ padicValNat.mul ( by positivity ) ( by positivity ) ] ; linarith;
+      have := Fact.mk hpp; rw [ h_val_rewrite, padicValNat.mul ( Finset.prod_ne_zero_iff.mpr fun _ _ => by positivity ) ( Nat.factorial_ne_zero _ ) ] ;
+    have := Fact.mk hpp; rw [ padicValNat.mul ( by positivity ) ( by positivity ) ] ; linarith;
   have h_val_rewrite : ∀ pp : ℕ, Nat.Prime pp → padicValNat pp ((2 * m).factorial) = padicValNat pp ((2 * m).choose m) + 2 * padicValNat pp (Nat.factorial m) := by
     intro pp pp_prime; rw [ Nat.choose_eq_factorial_div_factorial ( by linarith ) ] ;
-    haveI := Fact.mk pp_prime; rw [ ← padicValNat.pow, ← padicValNat.mul ] <;> norm_num [ two_mul, Nat.factorial_ne_zero ] ;
+    have := Fact.mk pp_prime; rw [ ← padicValNat.pow, ← padicValNat.mul ] <;> norm_num [ two_mul, Nat.factorial_ne_zero ] ;
     · rw [ sq, Nat.div_mul_cancel ( Nat.factorial_mul_factorial_dvd_factorial_add _ _ ) ];
     · exact Nat.le_of_dvd ( Nat.factorial_pos _ ) ( Nat.factorial_mul_factorial_dvd_factorial_add _ _ );
   have h_val_rewrite : ∀ pp : ℕ, Nat.Prime pp → padicValNat pp (P r) = if pp ≤ p r then 1 else 0 := by
@@ -221,7 +221,7 @@ The p-adic valuation of n! is at most n.
 -/
 lemma padicValNat_factorial_le (n p : ℕ) (hp : p.Prime) :
     padicValNat p (Nat.factorial n) ≤ n := by
-  haveI := Fact.mk hp;
+  have := Fact.mk hp;
   -- The $p$-adic valuation of $n!$ is given by the sum of the floor of $n/p^k$ for $k$ from $1$ to infinity.
   have h_padic_val : padicValNat p (Nat.factorial n) = ∑ k ∈ Finset.Ico 1 (Nat.log p n + 1), (n / p ^ k) := by
     rw [ padicValNat_factorial ];
@@ -257,7 +257,7 @@ lemma kappa_ge_j (p m i j : ℕ) (hp : p.Prime) (hi_pos : 0 < i) (h_div : p ^ j 
   -- By definition of κ, we know that κ_p(m) is the number of t such that p^t ≤ m % p^t + m % p^t = 2 * (m % p^t).
   have h_kappa_def : κ p m = ((Finset.Ico 1 (Nat.log p (2 * m) + 1)).filter (fun t => p ^ t ≤ 2 * (m % p ^ t))).card := by
     unfold κ;
-    haveI := Fact.mk hp;
+    have := Fact.mk hp;
     rw [ padicValNat_choose (p := p) (n := 2 * m) (k := m) (b := Nat.log p (2 * m) + 1) (by omega) (Nat.lt_succ_self _) ];
     congr 1;
     ext t;
@@ -358,7 +358,7 @@ lemma N_eq_zero_of_gt_V (p m k j : ℕ) (hp : p.Prime) (hj : j > V p m k) : (m +
     use p ^ j * ((m + k) / p ^ j);
     exact ⟨ Finset.mem_Icc.mpr ⟨ by nlinarith [ Nat.div_add_mod ( m + k ) ( p ^ j ), Nat.mod_lt ( m + k ) ( pow_pos hp.pos j ), Nat.div_mul_le_self m ( p ^ j ), Nat.div_add_mod m ( p ^ j ), Nat.mod_lt m ( pow_pos hp.pos j ) ], by nlinarith [ Nat.div_mul_le_self ( m + k ) ( p ^ j ) ] ⟩, dvd_mul_right _ _ ⟩;
   refine le_trans ?_ ( Finset.le_sup <| Finset.mem_range.mpr <| show x - ( m + 1 ) < k from ?_ );
-  · haveI := Fact.mk hp; rw [ padicValNat_dvd_iff ] at hx; aesop;
+  · have := Fact.mk hp; rw [ padicValNat_dvd_iff ] at hx; aesop;
   · rw [ tsub_lt_iff_left ] <;> linarith [ Finset.mem_Icc.mp hx.1 ]
 
 lemma W_le_V (p m k : ℕ) (hp : p.Prime) : W p m k ≤ k / (p - 1) + V p m k := by
@@ -369,7 +369,7 @@ lemma W_le_V (p m k : ℕ) (hp : p.Prime) : W p m k ≤ k / (p - 1) + V p m k :=
       apply W_eq_val_factorial;
       assumption;
     have hW_sum : padicValNat p (Nat.factorial (m + k)) = ∑ i ∈ Finset.Ico 1 b, (m + k) / p ^ i ∧ padicValNat p (Nat.factorial m) = ∑ i ∈ Finset.Ico 1 b, m / p ^ i := by
-      haveI := Fact.mk hp
+      have := Fact.mk hp
       rw [
         padicValNat_factorial (p := p) (n := m + k) (b := b) (by
           rw [hb]
@@ -879,7 +879,7 @@ For m uniform on [M, 2M], P(X_p(m) <= 1/2 mu_p) <= exp(-1/8 mu_p) + 2/M^eta.
 lemma chernoff_bound_X (p M : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) (hM : M ≠ 0)
     (h_bound : (Q_val p M : ℝ) ≤ (M : ℝ) ^ (1 - η)) :
     prob_event M (fun m => (X p m M : ℝ) ≤ 1 / 2 * mu p M) ≤ Real.exp (-1 / 8 * mu p M) + 2 / (M : ℝ) ^ η := by
-      haveI : Fact (Nat.Prime p) := ⟨ hp ⟩
+      have : Fact (Nat.Prime p) := ⟨ hp ⟩
       convert le_trans
         (prob_event_le_prob_ZMod' M (Q_val p M)
           (fun x : ZMod (Q_val p M) => (X_ZMod p M x : ℝ) ≤ 1 / 2 * mu p M)
@@ -1065,7 +1065,7 @@ lemma V_p_tail (p t M k : ℕ) (hp : p.Prime) (ht : t ≥ 1) (hM : M ≠ 0)
             refine lt_of_le_of_lt ( b := t - 1 ) ( Finset.sup_le ?_ ) ?_;
             · intro i hi
               specialize h i hi
-              haveI := Fact.mk hp
+              have := Fact.mk hp
               have hnot : ¬ t ≤ padicValNat p (m + 1 + i) := by
                 intro htval
                 exact h ((padicValNat_dvd_iff t (m + 1 + i)).mpr (Or.inr htval))
@@ -1075,7 +1075,7 @@ lemma V_p_tail (p t M k : ℕ) (hp : p.Prime) (ht : t ≥ 1) (hM : M ≠ 0)
         · simp +zetaDelta at *;
           intro x hx hx'; have := Nat.dvd_of_mod_eq_zero hx'; obtain ⟨ c, hc ⟩ := this; simp_all +decide
           refine le_trans ?_ ( Finset.le_sup <| Finset.mem_range.mpr hx );
-          haveI := Fact.mk hp; rw [ hc, padicValNat.mul ] <;> aesop;
+          have := Fact.mk hp; rw [ hc, padicValNat.mul ] <;> aesop;
       -- Let Q = p^t. The set of bad residues is A = {-1, ..., -k} mod Q.
       set Q := p^t
       set A : Finset (ZMod Q) := Finset.image (fun i : ℕ => -(i + 1 : ZMod Q)) (Finset.range k);
@@ -1134,7 +1134,7 @@ lemma k_div_p_minus_one_le (r M p : ℕ) (hr : r ≥ 1) (hp : p.Prime) (hp_ge_q 
       have h_subst_q : ((q r : ℝ) - 1) / Real.log (q r) ≤ ((p : ℝ) - 1) / Real.log p := by
         apply_rules [ monotone_f ];
         · norm_cast;
-          exact Nat.succ_le_of_lt ( Nat.lt_of_le_of_lt ( Nat.Prime.two_le ( Nat.prime_nth_prime 0 ) ) ( Nat.nth_strictMono ( Nat.infinite_setOf_prime ) ( Nat.sub_pos_of_lt ( by linarith ) ) ) );
+          exact Nat.succ_le_of_lt ( Nat.lt_of_le_of_lt ( Nat.Prime.two_le ( Nat.prime_nth_prime 0 ) ) ( Nat.nth_strictMono ( Nat.infinite_setOfPred_prime ) ( Nat.sub_pos_of_lt ( by linarith ) ) ) );
         · exact_mod_cast hp_ge_q;
       rw [ div_le_iff₀ ];
       · convert h_subst_c.trans _ using 1;
@@ -1534,7 +1534,7 @@ lemma divisibility_for_Pi (r M m : ℕ) (hr : r ≥ 1) (hM : M > 1) (pp : ℕ) (
       refine Nat.lt_succ_of_le ( Nat.le_of_not_lt fun h => ?_ );
       rw [ Nat.nth_eq_sInf ] at h;
       refine h.not_ge ( Nat.sInf_le ⟨ hpp.2.1, ?_ ⟩ );
-      intro k hk; exact lt_of_le_of_lt ( Nat.nth_monotone ( Nat.infinite_setOf_prime ) ( Nat.le_sub_one_of_lt hk ) ) hpp.2.2;
+      intro k hk; exact lt_of_le_of_lt ( Nat.nth_monotone ( Nat.infinite_setOfPred_prime ) ( Nat.le_sub_one_of_lt hk ) ) hpp.2.2;
     exact hpp_ge_q) hM;
   -- Since $V pp m (k_param r M) < t pp M$, we have $V pp m (k_param r M) \le t pp M - 1$.
   have h_V_le_t_minus_1 : (V pp m (k_param r M) : ℝ) ≤ (t pp M : ℝ) - 1 := by

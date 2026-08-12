@@ -1996,7 +1996,7 @@ There exists an equilateral triangle with side length 1 and positive orientation
 lemma exists_equilateral_triangle_with_orientation :
   ∃ (P_pt Q R : P), isEquilateral P_pt Q R ∧ dist P_pt Q = 1 ∧
   Orientation.oangle Module.Oriented.positiveOrientation (Q -ᵥ P_pt) (R -ᵥ P_pt) = (↑(Real.pi / 3) : Real.Angle) := by
-    letI : FiniteDimensional ℝ V :=
+    let : FiniteDimensional ℝ V :=
       FiniteDimensional.of_finrank_pos (by rw [Fact.out (p := Module.finrank ℝ V = 2)]; norm_num)
     let b := Module.finBasis ℝ V
     let i : Fin (Module.finrank ℝ V) :=
@@ -2481,7 +2481,7 @@ lemma exists_linear_isometry_of_gram_eq {ι : Type*} [Finite ι] (v : ι → V) 
   (h : ∀ i j, inner ℝ (v i) (v j) = inner ℝ (v' i) (v' j)) :
   ∃ f : (Submodule.span ℝ (Set.range v)) →ₗᵢ[ℝ] V, ∀ i, f ⟨v i, Submodule.subset_span (Set.mem_range_self i)⟩ = v' i := by
     classical
-    letI : Fintype ι := Fintype.ofFinite ι
+    let : Fintype ι := Fintype.ofFinite ι
     have h_gram : ∀ (l : ι → ℝ), ‖∑ i, l i • v i‖ = ‖∑ i, l i • v' i‖ := by
       intro l
       have h_norm_sq : ‖∑ i, l i • v i‖ ^ 2 = ‖∑ i, l i • v' i‖ ^ 2 := by

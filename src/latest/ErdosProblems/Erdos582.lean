@@ -188,7 +188,7 @@ theorem exists_H_n_of_exists_H_2
         | base =>
           -- For the base case $n = 1$, we can take $H = G$.
           intros V _ G
-          letI := Fintype.ofFinite V
+          let := Fintype.ofFinite V
           refine ⟨ V, inferInstance, inferInstance, G, rfl, ?_ ⟩
           intro f
           refine ⟨ 0, Set.univ, ?_, ⟨ (SimpleGraph.induceUnivIso G).symm ⟩ ⟩
@@ -489,7 +489,7 @@ omit [Fintype V] [DecidableEq V] in
 lemma cliqueNum_G_double_prime_le [Finite V] :
   (G_double_prime G v0).cliqueNum + 1 ≤ G.cliqueNum := by
     classical
-    letI := Fintype.ofFinite V
+    let := Fintype.ofFinite V
     simp +decide [ SimpleGraph.cliqueNum ];
     refine (le_csSup (α := ℕ) ?_ ?_);
     · exact ⟨ Fintype.card V, fun n hn => by
@@ -676,8 +676,8 @@ lemma clique_subset_le_cliqueNum_induce
   (C : Finset V) (hC : G.IsClique C) (hCS : ∀ v ∈ C, v ∈ S) :
   C.card ≤ (G.induce S).cliqueNum := by
     classical
-    letI := Fintype.ofFinite V
-    letI := Fintype.ofFinite S
+    let := Fintype.ofFinite V
+    let := Fintype.ofFinite S
     refine le_csSup ?_ ?_;
     · exact ⟨ _, fun n hn => by
         rcases hn with ⟨ s, hs ⟩
@@ -1031,7 +1031,7 @@ lemma psi_map_injective
           (if h : y = v0 then
               (Sum.inl (v1, S'', T) : VertexH G v0 H')
             else Sum.inr (phi ⟨y, h⟩, i_star)) at hxy
-        simp only [dif_pos rfl, dif_neg hy] at hxy
+        simp only [dif_neg hy] at hxy
         exact (Sum.inl_ne_inr hxy).elim
     · by_cases hy : y = v0
       · subst y
@@ -1042,7 +1042,7 @@ lemma psi_map_injective
           (if h : v0 = v0 then
               (Sum.inl (v1, S'', T) : VertexH G v0 H')
             else Sum.inr (phi ⟨v0, h⟩, i_star)) at hxy
-        simp only [dif_neg hx, dif_pos rfl] at hxy
+        simp only [dif_neg hx] at hxy
         exact (Sum.inr_ne_inl hxy).elim
       · change
           (if h : x = v0 then
@@ -1469,14 +1469,21 @@ lemma PropH2_step (n : ℕ) (hn : n > 1) (IH : PropH2 (n - 1)) : PropH2 n := by
                 (Classical.choose (Finset.card_pos.mp
                   (by linarith : 0 < Fintype.card V)))) =
             Fintype.card V - 1 := by
-          change
-            Fintype.card
-              {x : V // x ∈ V_prime
-                (Classical.choose (Finset.card_pos.mp
-                  (by linarith : 0 < Fintype.card V)))} =
-              Fintype.card V - 1
-          simp only [V_prime, Set.mem_setOf_eq]
-          simp [ne_eq]
+          let v₀ : V := Classical.choose
+            (Finset.card_pos.mp (by linarith : 0 < Fintype.card V))
+          let T := {x : V // x ∈ (Finset.univ.erase v₀ : Finset V)}
+          let e : V_prime v₀ ≃ T :=
+            { toFun := fun x => ⟨x, Finset.mem_erase.mpr
+                ⟨by simpa [V_prime] using x.property, Finset.mem_univ _⟩⟩
+              invFun := fun x => ⟨x, by
+                change (x : V) ≠ v₀
+                exact (Finset.mem_erase.mp x.property).1⟩
+              left_inv := fun _ => rfl
+              right_inv := fun _ => rfl }
+          calc
+            Fintype.card (V_prime v₀) = Fintype.card T := Fintype.card_congr e
+            _ = ((Finset.univ : Finset V).erase v₀).card := by simp [T]
+            _ = Fintype.card V - 1 := by simp
         exact hv0.trans (by rw [hG])
       specialize IH
         (V_prime
@@ -1496,7 +1503,7 @@ Base case $n=0$ for the existence of $H(2,G)$.
 lemma PropH2_0 : PropH2 0 := by
   intro V _ _ G hG
   have h_emptyV : IsEmpty V := Fintype.card_eq_zero_iff.mp hG
-  letI := h_emptyV
+  let := h_emptyV
   refine ⟨ PEmpty, inferInstance, inferInstance, ⊥, ?_, ?_ ⟩
   · -- Since $V$ is empty, both clique numbers are zero.
     have h_empty : G.cliqueNum = 0 := by
@@ -1545,7 +1552,7 @@ theorem exists_H_2 :
                 (Nat.succ_lt_succ (Nat.succ_pos _)) (ih _ (Nat.le_refl _));
         exact fun V [Finite V] G => by
           classical
-          letI := Fintype.ofFinite V
+          let := Fintype.ofFinite V
           exact h_ind (Fintype.card V) V G rfl
 
 /-

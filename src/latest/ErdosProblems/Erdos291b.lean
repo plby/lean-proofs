@@ -894,7 +894,7 @@ theorem valuation_lcm_le (n : ℕ) (hn : n ≥ 1) (p : ℕ) (hp : p.Prime) :
             generalize_proofs at *; (
             have h_lcm_val : padicValNat p (Nat.lcm x (Finset.lcm S id)) = max (padicValNat p x) (padicValNat p (Finset.lcm S id)) := by
               have h_lcm_val : ∀ {a b : ℕ}, a ≠ 0 → b ≠ 0 → padicValNat p (Nat.lcm a b) = max (padicValNat p a) (padicValNat p b) := by
-                intros a b ha hb; haveI := Fact.mk hp; rw [ ← Nat.factorization_def, ← Nat.factorization_def, ← Nat.factorization_def ] ;
+                intros a b ha hb; have := Fact.mk hp; rw [ ← Nat.factorization_def, ← Nat.factorization_def, ← Nat.factorization_def ] ;
                 · rw [ Nat.factorization_lcm ] <;> aesop;
                 · exact hp;
                 · exact hp;
@@ -1089,7 +1089,7 @@ theorem part1_valuation_eq (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.
       have hs : s ∈ Finset.Icc 1 (z p.m) := by
         dsimp [s]
         exact sigma_in_Icc p (n_seq p j)
-      haveI : Fact (p_i p s).Prime := ⟨p_i_prime p s hs⟩
+      have : Fact (p_i p s).Prime := ⟨p_i_prime p s hs⟩
       have hLnj_pos : 0 < L (n_seq p j) := L_pos (n_seq p j)
       have hA_pos : 0 < A := by
         dsimp [A]
@@ -1157,7 +1157,7 @@ theorem exists_valid_x_v2 (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.I
         · grind ) ) ) _ );
       -- Since $p_i p (sigma p n)^{k + \log_p(m-1)} \mid x$, we have $e p (sigma p n) x \ge k + \log_p(m-1)$.
       have h_val_x : e p (sigma p n) x ≥ k_exp p (sigma p n) j + Nat.log (p_i p (sigma p n)) (p.m - 1) := by
-        haveI := Fact.mk ( p_i_prime p ( sigma p n ) ( by
+        have := Fact.mk ( p_i_prime p ( sigma p n ) ( by
           by_cases h : ∃ i ∈ Finset.Icc 1 ( z p.m ), ( p_i p i ) ^ ( e p i ( X_int p.r n ) ) > n <;> simp_all +decide [ sigma ];
           · exact ⟨ _, h.choose_spec.1.2, h.choose_spec.1, h.choose_spec.2 ⟩;
           · grind ) ) ; rw [ padicValNat_dvd_iff ] at hx₂ ; aesop;
@@ -1667,7 +1667,7 @@ theorem valuation_d_eq_valuation_X_int (p : ProblemParameters) (n : ℕ) (q : �
         unfold d; rw [ Finset.prod_eq_mul_prod_sdiff_singleton k (fun j => (p_i p j) ^ (e p j (X_int p.r n))) (by intro h; exact False.elim (h hk.1)) ] ; aesop;
       by_cases h : X_int p.r n = 0 <;> simp_all +decide [Finset.prod_eq_zero_iff];
       · unfold e at *; aesop;
-      · haveI := Fact.mk hq_prime; rw [ padicValNat.mul ] <;> simp_all +decide [ Finset.prod_eq_zero_iff, Nat.Prime.ne_zero ] ;
+      · have := Fact.mk hq_prime; rw [ padicValNat.mul ] <;> simp_all +decide [ Finset.prod_eq_zero_iff, Nat.Prime.ne_zero ] ;
         · -- Since $p_i j$ are distinct primes for $j \ne k$, their product is coprime with $q$.
           have h_coprime : ∀ j ∈ Finset.Icc 1 (z p.m) \ {k}, Nat.Coprime q (p_i p j) := by
             intros j hj
@@ -1676,7 +1676,7 @@ theorem valuation_d_eq_valuation_X_int (p : ProblemParameters) (n : ℕ) (q : �
             exact hq_prime.coprime_iff_not_dvd.mpr fun h => h_distinct <| by have := Nat.prime_dvd_prime_iff_eq hq_prime ( p_i_prime p j <| Finset.mem_sdiff.mp hj |>.1 ) ; aesop;
           have h_coprime_prod : Nat.Coprime q (∏ j ∈ Finset.Icc 1 (z p.m) \ {k}, (p_i p j) ^ (e p j (X_int p.r n))) := by
             exact Nat.Coprime.prod_right fun j hj => Nat.Coprime.pow_right _ <| h_coprime j hj;
-          haveI := Fact.mk hq_prime; rw [ padicValNat.eq_zero_of_not_dvd ] <;> simp_all +decide [ Nat.Prime.dvd_iff_not_coprime ] ;
+          have := Fact.mk hq_prime; rw [ padicValNat.eq_zero_of_not_dvd ] <;> simp_all +decide [ Nat.Prime.dvd_iff_not_coprime ] ;
           unfold e; aesop;
         · unfold e; aesop;
 
@@ -1779,7 +1779,7 @@ theorem e_L_n_ge_k (p : ProblemParameters) (j : ℕ) (hj : j ∈ Finset.Icc 1 (z
         convert n_seq_v4_prop p j hj using 1;
       have h_e_L_n : e p (sigma p (n_seq_v4 p j)) (L n) ≥ e p (sigma p (n_seq_v4 p j)) (n_seq_v4 p (j + 1)) := by
         have h_e_L_n : padicValNat (p_i p (sigma p (n_seq_v4 p j))) (L n) ≥ padicValNat (p_i p (sigma p (n_seq_v4 p j))) (n_seq_v4 p (j + 1)) := by
-          haveI := Fact.mk ( p_i_prime p ( sigma p ( n_seq_v4 p j ) ) ( by
+          have := Fact.mk ( p_i_prime p ( sigma p ( n_seq_v4 p j ) ) ( by
             by_cases h : ∃ i ∈ Finset.Icc 1 ( z p.m ), ( p_i p i ) ^ ( e p i ( X_int p.r ( n_seq_v4 p j ) ) ) > n_seq_v4 p j <;> simp_all +decide [ sigma ];
             · exact ⟨ h.choose, h.choose_spec.1.2, h.choose_spec.1, h.choose_spec.2 ⟩;
             · grind ) ) ; rw [ ← Nat.factorization_def, ← Nat.factorization_def ]
@@ -2183,7 +2183,7 @@ theorem exists_large_prime_of_d_lt_X (p : ProblemParameters) (n : ℕ) (h : d p 
       generalize_proofs at *; (
       -- Since $q < m$, we have $v_q(X) = v_q(d(n)) + v_q(k)$.
       have hq_val : padicValNat q (Int.natAbs (X_int p.r n)) = padicValNat q (d p n) + padicValNat q k := by
-        haveI := Fact.mk hq_prime; rw [ hk.2, padicValNat.mul ] <;> aesop;
+        have := Fact.mk hq_prime; rw [ hk.2, padicValNat.mul ] <;> aesop;
       generalize_proofs at *; (
       -- Since $q < m$, we have $v_q(d(n)) = v_q(X)$ by definition of $d$.
       have hq_val_d : padicValNat q (d p n) = padicValNat q (Int.natAbs (X_int p.r n)) := by

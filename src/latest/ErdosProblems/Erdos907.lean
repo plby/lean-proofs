@@ -99,7 +99,7 @@ lemma equicont_set_isClosed (φ : ℝ → ℝ → ℝ)
     (hx : ∀ h : ℝ, Continuous fun x => φ x h) (m : ℕ) :
     IsClosed {x : ℝ | ∀ (q q' : ℚ), (↑q : ℝ) ∈ Icc (-1) 1 → (↑q' : ℝ) ∈ Icc (-1) 1 →
       |(q : ℝ) - q'| ≤ 1 / (m + 1 : ℝ) → |φ x q - φ x q'| ≤ 1} := by
-  simp +decide only [setOf_forall]
+  simp +decide only [ofPred_forall]
   refine isClosed_iInter fun i => isClosed_iInter fun j => isClosed_iInter fun hi =>
     isClosed_iInter fun hj => isClosed_iInter fun h => isClosed_le ?_ ?_ <;> continuity
 
@@ -111,7 +111,7 @@ lemma equicont_sets_cover (φ : ℝ → ℝ → ℝ)
       (↑q' : ℝ) ∈ Icc (-1) 1 →
       |(q : ℝ) - q'| ≤ 1 / (m + 1 : ℝ) → |φ x q - φ x q'| ≤ 1} = univ := by
   ext x
-  simp only [mem_Icc, one_div, and_imp, mem_iUnion, mem_setOf_eq, mem_univ, iff_true]
+  simp only [mem_Icc, one_div, and_imp, mem_iUnion, mem_ofPred_eq, mem_univ, iff_true]
   obtain ⟨ δ, hδ_pos, hδ ⟩ :
       ∃ δ > 0, ∀ h h' : ℝ, -1 ≤ h → h ≤ 1 → -1 ≤ h' → h' ≤ 1 →
         |h - h'| < δ → |φ x h - φ x h'| < 1 := by
@@ -177,7 +177,7 @@ lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
             |φ x q - φ x q'| ≤ 1 / (k + 1)} = Set.univ := by
         ext x
         simp only [mem_Icc, Rat.cast_le_natCast, one_div, and_imp, mem_iUnion,
-          mem_setOf_eq, mem_univ, iff_true]
+          mem_ofPred_eq, mem_univ, iff_true]
         have h_eq_cont_at_x :
             ∀ ε > 0, ∃ δ > 0, ∀ h h' : ℝ,
               -k ≤ h → h ≤ k → -k ≤ h' → h' ≤ k →
@@ -207,7 +207,7 @@ lemma joint_continuity_from_equicont (φ : ℝ → ℝ → ℝ)
             |(q : ℝ) - q'| ≤ 1 / (m + 1) →
             |φ x q - φ x q'| ≤ 1 / (k + 1)} := by
         intro m
-        simp [Set.setOf_forall]
+        simp [Set.ofPred_forall]
         refine isClosed_iInter fun q => isClosed_iInter fun q' => isClosed_iInter fun hq =>
           isClosed_iInter fun hq' => isClosed_iInter fun hq'' => isClosed_iInter fun hq''' =>
           isClosed_iInter fun hq'''' => isClosed_le ?_ ?_ <;> continuity

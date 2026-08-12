@@ -311,7 +311,7 @@ theorem multiRamseyProperty_recBound {c : ℕ} (hc : 1 ≤ c) :
       intro V instF instD hcard C
       have hVcard : 1 ≤ Fintype.card V := by
         simpa [multiRamseyRecBound.eq_def, hbase] using hcard
-      letI : Nonempty V := Fintype.card_pos_iff.mp (by omega)
+      let : Nonempty V := Fintype.card_pos_iff.mp (by omega)
       rcases hbase with hk | ⟨i, hi⟩
       · exact Or.inl (exists_isNClique_of_le_one (C.graph 0) hk)
       · exact Or.inr ⟨i,
@@ -333,7 +333,7 @@ theorem multiRamseyProperty_recBound {c : ℕ} (hc : 1 ≤ c) :
         rw [multiRamseyRecBound.eq_def, if_neg hactive]
       have hVpos : 0 < Fintype.card V :=
         (multiRamseyRecBound_pos k l).trans_le hcard
-      letI : Nonempty V := Fintype.card_pos_iff.mp hVpos
+      let : Nonempty V := Fintype.card_pos_iff.mp hVpos
       let v : V := Classical.choice (inferInstance : Nonempty V)
       let pred : Fin (c + 1) → ℕ :=
         Fin.cases (multiRamseyRecBound (k - 1) l)

@@ -57,9 +57,9 @@ lemma IsSidon.isSidonSubtractive'
   rcases q with ⟨b₁, b₂⟩
   -- Decode membership in `offDiag`.
   have hpa : a₁ ∈ A ∧ a₂ ∈ A ∧ a₁ ≠ a₂ := by
-    simpa [Set.offDiag, Set.mem_setOf] using hp
+    simpa [Set.offDiag, Set.mem_ofPred] using hp
   have hqb : b₁ ∈ A ∧ b₂ ∈ A ∧ b₁ ≠ b₂ := by
-    simpa [Set.offDiag, Set.mem_setOf] using hq
+    simpa [Set.offDiag, Set.mem_ofPred] using hq
   -- From `a₁ - a₂ = b₁ - b₂`, derive `a₁ + b₂ = b₁ + a₂`.
   have hsum : a₁ + b₂ = b₁ + a₂ := by
     have := congrArg (fun t => t + a₂ + b₂) hdiff
@@ -102,11 +102,11 @@ lemma IsSidonSubtractive'.isSidon
   -- offDiag memberships
   have hi_off : (i₁, j₁) ∈ A.offDiag := by
     -- ⟨i₁∈A, j₁∈A, i₁ ≠ j₁⟩
-    simpa [Set.offDiag, Set.mem_setOf] using And.intro hi₁ (And.intro hj₁ h₁)
+    simpa [Set.offDiag, Set.mem_ofPred] using And.intro hi₁ (And.intro hj₁ h₁)
   have h₂' : j₂ ≠ i₂ := fun h => h₂ h.symm
   have hj_off : (j₂, i₂) ∈ A.offDiag := by
     -- ⟨j₂∈A, i₂∈A, j₂ ≠ i₂⟩
-    simpa [Set.offDiag, Set.mem_setOf] using And.intro hj₂ (And.intro hi₂ h₂')
+    simpa [Set.offDiag, Set.mem_ofPred] using And.intro hj₂ (And.intro hi₂ h₂')
   -- Injectivity of differences on offDiag
   have := hA hi_off hj_off hdiff
   rcases Prod.ext_iff.mp this with ⟨hij, hji⟩
@@ -540,7 +540,7 @@ lemma exists_point_not_on_pdsLine
   ∀ x : ZMod v, ∃ y : ZMod v, y ∉ pdsLine B v x := by
   classical
   -- nontriviality of `ZMod v` (needed to use `zero_ne_one`)
-  haveI : Fact (1 < v) := ⟨lt_of_lt_of_le (by decide : 1 < 3) hv⟩
+  have : Fact (1 < v) := ⟨lt_of_lt_of_le (by decide : 1 < 3) hv⟩
   intro x
   -- assume all points are on the line (contradiction)
   by_contra hAll
@@ -622,7 +622,7 @@ lemma exists_line_not_through_point
   ∀ p : ZMod v, ∃ ℓ : ZMod v, p ∉ pdsLine B v ℓ := by
   classical
   -- ensure `1 ≠ 0` in `ZMod v`
-  haveI : Fact (1 < v) := ⟨lt_of_lt_of_le (by decide : 1 < 3) hv⟩
+  have : Fact (1 < v) := ⟨lt_of_lt_of_le (by decide : 1 < 3) hv⟩
   intro p
   -- Suppose, towards a contradiction, that `p` lies on every line.
   by_contra hAll
@@ -967,7 +967,7 @@ lemma not012_on_same_pdsLine
      (2 : ZMod v) ∈ pdsLine B v ℓ) := by
   classical
   -- ensure `1 ≠ 0` in `ZMod v`
-  haveI : Fact (1 < v) := ⟨lt_of_lt_of_le (by decide : 1 < 3) hv⟩
+  have : Fact (1 < v) := ⟨lt_of_lt_of_le (by decide : 1 < 3) hv⟩
   rcases h with ⟨_maps, hinj, _surj⟩
   intro h012
   rcases h012 with ⟨h0, h1, h2⟩
@@ -1220,7 +1220,7 @@ lemma zmod_coe_ne_of_lt_chain {a b v : ℕ} [NeZero v]
 lemma zero_ne_one_zmod_of_three_le {v : ℕ} (hv : 3 ≤ v) :
     (0 : ZMod v) ≠ (1 : ZMod v) := by
   -- `1 < v` follows from `3 ≤ v`
-  haveI : Fact (1 < v) := ⟨lt_of_lt_of_le (by decide : 1 < 3) hv⟩
+  have : Fact (1 < v) := ⟨lt_of_lt_of_le (by decide : 1 < 3) hv⟩
   -- In a nontrivial type like `ZMod v` (when `1 < v`), we have `1 ≠ 0`
   -- and hence `0 ≠ 1`.
   simp
@@ -1229,7 +1229,7 @@ lemma zero_ne_one_zmod_of_three_le {v : ℕ} (hv : 3 ≤ v) :
 lemma one_ne_two_zmod_of_three_le {v : ℕ} (hv : 3 ≤ v) :
     (1 : ZMod v) ≠ (2 : ZMod v) := by
   -- make `ZMod v` nontrivial
-  haveI : Fact (1 < v) := ⟨lt_of_lt_of_le (by decide : 1 < 3) hv⟩
+  have : Fact (1 < v) := ⟨lt_of_lt_of_le (by decide : 1 < 3) hv⟩
   -- we’ll contradict `0 ≠ 1`
   have h01 : (0 : ZMod v) ≠ (1 : ZMod v) := by simp
   -- assume `1 = 2`, subtract `1` on both sides to get `0 = 1`
@@ -1840,8 +1840,8 @@ lemma ncard_pdsResidues_eq_ncard
   have hfinRes : (pdsResidues B v).Finite := by
     simpa [pdsResidues] using hfin.image (fun b : ℤ => (b : ZMod v))
   -- Fintype instances for the two subtypes `↥B` and `↥(pdsResidues B v)`
-  letI := hfin.fintype
-  letI := hfinRes.fintype
+  let := hfin.fintype
+  let := hfinRes.fintype
   -- Equivalence coming from the bijection `b ↦ (b : ZMod v)`
   let e :
       {b : ℤ // b ∈ B} ≃ {c : ZMod v // c ∈ pdsResidues B v} :=
@@ -2198,7 +2198,7 @@ lemma c2_card_modEq_card_fixedPoints_withAction
   [Fintype ↑(MulAction.fixedPoints C2 S)] :
   Fintype.card S ≡ Fintype.card ↑(MulAction.fixedPoints C2 S) [MOD 2] := by
   -- deduce from the generic `IsPGroup` theorem for `G=C2, p=2`
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   simpa using
     (IsPGroup.card_modEq_card_fixedPoints
       (p := 2) (G := C2) (α := S) isPGroup_C2)
@@ -2213,7 +2213,7 @@ lemma c2_card_modEq_card_fixedPoints
     Fintype.card
       (↥(@MulAction.fixedPoints (M := C2) (α := S) _ (c2MulAction (S := S) f hff))) [MOD 2] := by
   -- Install the specific action `c2MulAction f hff` for this proof.
-  letI : MulAction C2 S := c2MulAction (S := S) f hff
+  let : MulAction C2 S := c2MulAction (S := S) f hff
   -- Now `MulAction.fixedPoints C2 S` is definitionally the same as the explicit one above.
   simpa using (c2_card_modEq_card_fixedPoints_withAction (S := S))
 
@@ -2227,7 +2227,7 @@ lemma c2_action_fixed_implies_f_fixed
   f x = x := by
   classical
   -- Ensure `•` uses the action induced by `f`.
-  letI : MulAction C2 S := c2MulAction (S := S) f hff
+  let : MulAction C2 S := c2MulAction (S := S) f hff
   -- Unpack the fixed-point predicate.
   have hx' : ∀ g : C2, g • x = x := hx
   -- Pick the nontrivial element of `C2`.
@@ -2263,7 +2263,7 @@ lemma c2_f_fixed_implies_action_fixed
   {x : S} (hfix : f x = x) :
   x ∈ @MulAction.fixedPoints (M := C2) (α := S) _ (c2MulAction (S := S) f hff) := by
   -- ensure the `•` here is the action coming from `f`
-  letI : MulAction C2 S := c2MulAction (S := S) f hff
+  let : MulAction C2 S := c2MulAction (S := S) f hff
   -- Unfold membership in the fixed-points set to the pointwise condition
   change ∀ g : C2, g • x = x
   -- Apply the helper lemma and identify `•` with `c2Action_smul f`
@@ -2314,7 +2314,7 @@ lemma c2_card_modEq_zero_of_no_pointwise_fixes
     c2_fixedPoints_empty_of_no_pointwise_fixes (S := S) f hff hno
   -- Provide a `Fintype` instance for that (empty) fixed-points subtype.
   -- We rewrite to `↥(∅ : Set S)`, which is finitely enumerable.
-  haveI :
+  have :
       Fintype
         (↥(@MulAction.fixedPoints (M := C2) (α := S) _
               (c2MulAction (S := S) f hff))) := by
@@ -2345,7 +2345,7 @@ lemma ncard_points_on_line_eq_order_add_one
     [Finite P] [Finite L] (ℓ : L) :
     ({p : P | p ∈ ℓ}).ncard = Configuration.ProjectivePlane.order P L + 1 := by
   classical
-  letI := Fintype.ofFinite P
+  let := Fintype.ofFinite P
   have hcard :
       Nat.card {p : P // p ∈ ℓ} =
         Configuration.ProjectivePlane.order P L + 1 := by
@@ -2525,8 +2525,8 @@ lemma even_ncard_nonAbsOn_of_order
     Even ((nonAbsOn C ℓ).ncard) := by
   classical
   -- Materialize Fintype instances from `Finite`
-  letI instP : Fintype P := Fintype.ofFinite P
-  letI instS : Fintype {p : P // p ∈ nonAbsOn C ℓ} := Fintype.ofFinite _
+  let instP : Fintype P := Fintype.ofFinite P
+  let instS : Fintype {p : P // p ∈ nonAbsOn C ℓ} := Fintype.ofFinite _
   let S := {p : P // p ∈ nonAbsOn C ℓ}
   -- mate gives a fixed-point-free involution on S
   obtain ⟨f, hinv, hfix⟩ :=
@@ -2571,10 +2571,10 @@ lemma ncard_nonAbsOn_mod2_zero_of_order
     (hℓ_nonabs : ℓ ∉ polarity_absoluteLines C) :
     (nonAbsOn C ℓ).ncard % 2 = 0 := by
   classical
-  letI instP : Fintype P := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let instP : Fintype P := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- subtype of non-absolute points on ℓ
-  letI instS : Fintype {p : P // p ∈ nonAbsOn C ℓ} := Fintype.ofFinite _
+  let instS : Fintype {p : P // p ∈ nonAbsOn C ℓ} := Fintype.ofFinite _
   let S := {p : P // p ∈ nonAbsOn C ℓ}
   -- fixed-point-free involution on S from `mate`
   obtain ⟨f, hinv, hfix⟩ :=
@@ -2617,8 +2617,8 @@ lemma absOnLine_ncard_mod2_eq_one_of_order_even
     (ℓ : L) :
     (absOnLine C ℓ).ncard % 2 = 1 := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   set q := Configuration.ProjectivePlane.order P L with hqdef
   have h_total :
       ({p : P | p ∈ ℓ}).ncard = q + 1 := by
@@ -2725,8 +2725,8 @@ lemma absLine_iff_one_absPoint_of_order_odd
     (ℓ : L) :
     ℓ ∈ polarity_absoluteLines C ↔ (absOnLine C ℓ).ncard = 1 := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   set q := Configuration.ProjectivePlane.order P L with hqdef
   -- Total points on a line: q + 1
   have h_total :
@@ -2823,8 +2823,8 @@ lemma nonAbs_of_absPoint_other_line
     {ℓ m : L} (hℓ : ℓ = C.φ p) (hp_mem_m : p ∈ m) (hm_ne : m ≠ ℓ) :
     m ∉ polarity_absoluteLines C := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- Suppose, for contradiction, that `m` is absolute.
   intro h_abs_m
   -- Let p' be the point `C.φ.symm m`. Since `m` is absolute, p' ∈ m.
@@ -2881,8 +2881,8 @@ lemma exists_other_absPoint_on_line_through_absPoint_of_order_odd
     {ℓ m : L} (hℓ : ℓ = C.φ p) (hp_mem_m : p ∈ m) (hm_ne : m ≠ ℓ) :
     ∃ p' : P, p' ≠ p ∧ p' ∈ m ∧ p' ∈ polarity_absolutePoints C := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- First, `m` is not absolute (your previous lemma).
   have h_nonabs_m : m ∉ polarity_absoluteLines C :=
     nonAbs_of_absPoint_other_line C hp hℓ hp_mem_m hm_ne
@@ -2958,8 +2958,8 @@ lemma exists_injective_map_linesThrough_to_absPoints_of_order_odd
       Function.Injective f
       ∧ ∀ (m : {m : L // p ∈ m}), (f m : P) ∈ (m : L) := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- absolute line of `p`
   let ℓ : L := C.φ p
   have hp_mem_ℓ : p ∈ ℓ := by simpa [polarity_absolutePoints] using hp
@@ -3107,8 +3107,8 @@ lemma nat_card_linesThrough_eq_order_add_one
     {P L : Type*} [Membership P L] [Configuration.ProjectivePlane P L] [Finite P] [Finite L]
     (p : P) :
   Nat.card {m : L // p ∈ m} = Configuration.ProjectivePlane.order P L + 1 := by
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- `lineCount L p` *is* this `Nat.card`, and `lineCount_eq` says it's `order+1`.
   simpa [Configuration.lineCount, Configuration.ProjectivePlane.order]
     using Configuration.ProjectivePlane.lineCount_eq (P := P) (L := L) (p := p)
@@ -3120,7 +3120,7 @@ lemma card_linesThrough_eq_q_add_one
     [DecidablePred (fun m : L => p ∈ m)]
     (horder : Configuration.ProjectivePlane.order P L = q) :
   Fintype.card {m : L // p ∈ m} = q + 1 := by
-  letI := Fintype.ofFinite P
+  let := Fintype.ofFinite P
   -- First get the `Nat.card` statement, then switch to `Fintype.card` and rewrite `order`.
   have h₁ : Nat.card {m : L // p ∈ m} = Configuration.ProjectivePlane.order P L + 1 :=
     nat_card_linesThrough_eq_order_add_one (P := P) (L := L) p
@@ -3150,10 +3150,10 @@ lemma bijective_linesThrough_to_absPoints
   (hAbsPts : (polarity_absolutePoints C).ncard = q + 1) :
   Function.Bijective f := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- Give `Fintype` instance for absolute points (no decidability required).
-  letI : Fintype ↥(polarity_absolutePoints C) := Fintype.ofFinite _
+  let : Fintype ↥(polarity_absolutePoints C) := Fintype.ofFinite _
   -- |lines through p| = q + 1
   have hLines :
       Fintype.card {m : L // p ∈ m} = q + 1 :=
@@ -3187,10 +3187,10 @@ lemma exists_bijective_map_linesThrough_to_absPoints_of_order_odd
       Function.Bijective f
       ∧ ∀ (m : {m : L // p ∈ m}), (f m : P) ∈ (m : L) := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- decidability so `{m : L // p ∈ m}` has the canonical `Subtype.fintype`
-  haveI : DecidablePred (fun m : L => p ∈ m) := Classical.decPred _
+  have : DecidablePred (fun m : L => p ∈ m) := Classical.decPred _
   -- 1) get an injective map with the on-line property
   obtain ⟨f, hf_inj, hf_on⟩ :=
     exists_injective_map_linesThrough_to_absPoints_of_order_odd
@@ -3219,9 +3219,9 @@ lemma exists_bijective_map_absPoints_to_linesThrough_of_order_odd
       Function.Bijective f
       ∧ ∀ (x : {x : P // x ∈ polarity_absolutePoints C}), (x : P) ∈ (f x : L) := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
-  letI : Fintype ↥(polarity_absolutePoints C) := Fintype.ofFinite _
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
+  let : Fintype ↥(polarity_absolutePoints C) := Fintype.ofFinite _
   obtain ⟨f, hf_bij, hf_on⟩ :=
     exists_bijective_map_linesThrough_to_absPoints_of_order_odd
       (C := C) (q := q) (horder := horder) (hq_odd := hq_odd) (hp := hp)
@@ -3277,10 +3277,10 @@ lemma unique_other_absPoint_on_line_through_absPoint_of_order_odd
     (hp₂_abs : p₂ ∈ polarity_absolutePoints C) (hp₂ℓ : p₂ ∈ ℓ) (hp₂_ne : p₂ ≠ p) :
   p₁ = p₂ := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- We will use the bijection `abs points ↔ lines through p` with the on-line property.
-  haveI : DecidablePred (fun m : L => p ∈ m) := Classical.decPred _
+  have : DecidablePred (fun m : L => p ∈ m) := Classical.decPred _
   obtain ⟨g, hbij, h_on⟩ :=
     exists_bijective_map_absPoints_to_linesThrough_of_order_odd
       (C := C) (q := q) (horder := horder) (hq_odd := hq_odd)
@@ -3342,8 +3342,8 @@ lemma no_three_distinct_absPoints_on_a_line_of_order_odd
     c ∈ polarity_absolutePoints C → a ∈ ℓ → b ∈ ℓ → c ∈ ℓ →
     a = b ∨ a = c ∨ b = c := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   intro ℓ a b c ha hb hc haℓ hbℓ hcℓ
   -- If `a=b` or `a=c`, done.
   by_cases h_ab : a = b
@@ -3388,7 +3388,7 @@ lemma mem_polarity_absolutePoints_pdsNegPolarity_of_exists_coe_eq_double
   -- identify absolute points with `{x | x ∈ pdsLine B v (-x)}`
   simpa [polarity_absolutePoints_pdsNegPolarity_eq_negLine
            (B := B) (v := v) (q := q) hv3 hPDS hfin hcard hq3,
-         Set.mem_setOf_eq]
+         Set.mem_ofPred_eq]
     using hxline
 
 /-- If `1, 2, 4, 8 ∈ B`, then:
@@ -3476,8 +3476,8 @@ lemma pdsProjectivePlane_order_eq
     = q := by
   classical
   -- put instances in scope
-  letI : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
-  letI : Configuration.ProjectivePlane (ZMod v) (ZMod v) :=
+  let : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
+  let : Configuration.ProjectivePlane (ZMod v) (ZMod v) :=
     pdsProjectivePlane (B := B) (v := v) (q := q) hv3 hPDS hfin hcard hq3
   -- (1) Your concrete point count on ℓ = 0
   have h_pc0 :
@@ -3517,8 +3517,8 @@ lemma two_of_one_two_four_equal_mod_v_of_mem_1_2_4_8
     (1 : ZMod v) = 2 ∨ (1 : ZMod v) = 4 ∨ (2 : ZMod v) = 4 := by
   classical
   -- Put the PDS incidence and plane instances in scope.
-  letI : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
-  letI : Configuration.ProjectivePlane (ZMod v) (ZMod v) :=
+  let : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
+  let : Configuration.ProjectivePlane (ZMod v) (ZMod v) :=
     pdsProjectivePlane (B := B) (v := v) (q := q) hv3 hPDS hfin hcard hq3
   -- `v` is odd from the PDS size relation.
   have hodd : v % 2 = 1 :=
@@ -3822,7 +3822,7 @@ lemma no_pds_with_1_2_4_8_members
     False := by
   -- Name the modulus and note it's nonzero: `v = (_)+1`.
   let v : ℕ := p * p + p + 1
-  haveI : NeZero v := ⟨by
+  have : NeZero v := ⟨by
     simp [v, Nat.add_left_comm, Nat.add_assoc]
   ⟩
   -- Finite `B`.
@@ -3871,8 +3871,8 @@ lemma exists_absPoint_on_line_of_order_even
     (ℓ : L) :
     (absOnLine C ℓ).Nonempty := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- From your lemma: the parity of the count is `1`.
   have hmod :
       (absOnLine C ℓ).ncard % 2 = 1 :=
@@ -3895,8 +3895,8 @@ lemma exists_mem_absOnLine_of_order_even
     (hq_even : Configuration.ProjectivePlane.order P L % 2 = 0)
     (ℓ : L) :
     ∃ p : P, p ∈ absOnLine C ℓ := by
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   have h := exists_absPoint_on_line_of_order_even (C := C) (hq_even := hq_even) (ℓ := ℓ)
   rcases h with ⟨p, hp⟩
   exact ⟨p, hp⟩
@@ -3915,8 +3915,8 @@ lemma exists_injective_map_linesThrough_to_absPoints_of_order_even
       Function.Injective f
       ∧ ∀ (m : {m : L // p ∈ m}), (f m : P) ∈ (m : L) := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   ----------------------------------------------------------------------
   -- Step 1: Every line has at least one absolute point.
   -- Option A (Nonempty version):
@@ -4002,10 +4002,10 @@ lemma exists_bijective_map_linesThrough_to_absPoints_of_order_even
       Function.Bijective f
       ∧ ∀ (m : {m : L // p ∈ m}), (f m : P) ∈ (m : L) := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- Ensure canonical fintype instance on the subtype `{m : L // p ∈ m}`.
-  haveI : DecidablePred (fun m : L => p ∈ m) := Classical.decPred _
+  have : DecidablePred (fun m : L => p ∈ m) := Classical.decPred _
   -- 1) obtain an injective selector with the "lies on the line" property (even-order,
   -- p not absolute)
   obtain ⟨f, hf_inj, hf_on⟩ :=
@@ -4036,10 +4036,10 @@ lemma exists_bijective_map_absPoints_to_linesThrough_of_order_even
       Function.Bijective f
       ∧ ∀ (x : {x : P // x ∈ polarity_absolutePoints C}), (x : P) ∈ (f x : L) := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- Give the absolute-points subtype a `Fintype` instance.
-  letI : Fintype ↥(polarity_absolutePoints C) := Fintype.ofFinite _
+  let : Fintype ↥(polarity_absolutePoints C) := Fintype.ofFinite _
   -- Obtain the bijection `linesThrough p → absPoints` with the on-line property.
   obtain ⟨f, hf_bij, hf_on⟩ :=
     exists_bijective_map_linesThrough_to_absPoints_of_order_even
@@ -4081,10 +4081,10 @@ lemma abs_of_third_point_on_line_with_two_absPoints_of_order_even
     (hpℓ : p ∈ ℓ) (hp_ne₁ : p ≠ p₁) (hp_ne₂ : p ≠ p₂) :
     p ∈ polarity_absolutePoints C := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- Give the absolute-points subtype a `Fintype` instance.
-  letI : Fintype ↥(polarity_absolutePoints C) := Fintype.ofFinite _
+  let : Fintype ↥(polarity_absolutePoints C) := Fintype.ofFinite _
   -- Suppose `p` is not absolute; we derive a contradiction.
   by_contra hp_notabs
   have hp_notabs' : p ∉ polarity_absolutePoints C := hp_notabs
@@ -4154,8 +4154,8 @@ lemma all_points_on_line_abs_of_two_absPoints_of_order_even
     (hp₁_ne_hp₂ : p₁ ≠ p₂) :
     ∀ p : P, p ∈ ℓ → p ∈ polarity_absolutePoints C := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   intro p hpℓ
   -- If `p` is one of the given absolute points, we are done.
   by_cases h1 : p = p₁
@@ -4164,7 +4164,7 @@ lemma all_points_on_line_abs_of_two_absPoints_of_order_even
   · simpa [h2] using hp₂_abs
   -- Otherwise, apply the 3-point lemma to `p, p₁, p₂` on the same line `ℓ`.
   -- Provide a local decidable instance for `{m : L // p ∈ m}`.
-  letI : DecidablePred (fun m : L => p ∈ m) := Classical.decPred _
+  let : DecidablePred (fun m : L => p ∈ m) := Classical.decPred _
   exact
     abs_of_third_point_on_line_with_two_absPoints_of_order_even
       (C := C) (q := q) (horder := horder) (hq_even := hq_even) (hAbsPts := hAbsPts)
@@ -4233,8 +4233,8 @@ lemma abs_collinear_and_q_mod2_zero_of_mem_1_2_4_8
     ∧
     q % 2 = 0 := by
   -- put instances in scope if needed
-  letI : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
-  letI : Configuration.ProjectivePlane (ZMod v) (ZMod v) :=
+  let : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
+  let : Configuration.ProjectivePlane (ZMod v) (ZMod v) :=
     pdsProjectivePlane (B := B) (v := v) (q := q) hv3 hPDS hfin hcard hq3
   -- absoluteness + collinearity
   obtain ⟨h1abs, h2abs, h4abs, h1on0, h2on0, h4on0⟩ :=
@@ -4319,8 +4319,8 @@ lemma eight_abs_of_pds_mem_1_2_4_8
   -- Freeze the instances behind names and use them consistently
   let PP :=
     pdsProjectivePlane (B := B) (v := v) (q := q) hv3 hPDS hfin hcard hq3
-  letI : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
-  letI : Configuration.ProjectivePlane (ZMod v) (ZMod v) := PP
+  let : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
+  let : Configuration.ProjectivePlane (ZMod v) (ZMod v) := PP
   let C :=
     pdsNegPolarity (B := B) (v := v) (q := q) hv3 hPDS hfin hcard hq3
   -- Use your packed lemma: 1,2,4 absolute; 1,2,4 on the zero-translate line; and q % 2 = 0.
@@ -4387,8 +4387,8 @@ lemma residue16_in_B_of_pds_mem_1_2_4_8
   -- Fix instances/structures to avoid definally-unequal instance issues
   let PP :=
     pdsProjectivePlane (B := B) (v := v) (q := q) hv3 hPDS hfin hcard hq3
-  letI : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
-  letI : Configuration.ProjectivePlane (ZMod v) (ZMod v) := PP
+  let : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
+  let : Configuration.ProjectivePlane (ZMod v) (ZMod v) := PP
   let C :=
     pdsNegPolarity (B := B) (v := v) (q := q) hv3 hPDS hfin hcard hq3
   -- `v` is odd from the PDS size/finition hypotheses
@@ -4510,9 +4510,9 @@ lemma not_pds_of_mem_1_4_13_16
   -- Both pairs `(1,4)` and `(13,16)` lie in `B.offDiag`
   have h14_off : (1, 4) ∈ B.offDiag := by
     -- `Set.offDiag` = `{(a,b) | a ∈ B ∧ b ∈ B ∧ a ≠ b}`
-    simp [Set.offDiag, Set.mem_setOf_eq, h1, h4]
+    simp [Set.offDiag, h1, h4]
   have h1316_off : (13, 16) ∈ B.offDiag := by
-    simp [Set.offDiag, Set.mem_setOf_eq, h13, h16]
+    simp [Set.offDiag, h13, h16]
   -- Their images under `f (a,b) = a - b` are equal, by your lemma:
   have h_sub :
       ((1 : ZMod v) - (4 : ZMod v)) = (13 : ZMod v) - (16 : ZMod v) :=
@@ -4536,7 +4536,7 @@ lemma ne_thirteen_of_rep16_of_twentyone_le {v : ℕ} {b : ℤ}
   subst hb
   -- we need `v ≠ 0` and the chain `13 < 16 < v`
   have hv_pos : 0 < v := Nat.lt_of_lt_of_le (by decide : 0 < 21) hv21
-  haveI : NeZero v := ⟨ne_of_gt hv_pos⟩
+  have : NeZero v := ⟨ne_of_gt hv_pos⟩
   have h16v : 16 < v := Nat.lt_of_lt_of_le (by decide : 16 < 21) hv21
   have h13lt16 : 13 < 16 := by decide
   -- `(13 : ZMod v) ≠ (16 : ZMod v)` since `0 ≤ 13 < 16 < v`
@@ -4579,9 +4579,9 @@ lemma not_pds_of_mem_1_4_13_and_rep16
   have h13_ne_b : 13 ≠ b := by simpa [ne_comm] using hb_ne_13
   -- Both pairs `(1,4)` and `(13,b)` lie in `B.offDiag`
   have h14_off : (1, 4) ∈ B.offDiag := by
-    simp [Set.offDiag, Set.mem_setOf_eq, h1, h4]
+    simp [Set.offDiag, h1, h4]
   have h13b_off : (13, b) ∈ B.offDiag := by
-    simp [Set.offDiag, Set.mem_setOf_eq, h13, hbB, h13_ne_b]
+    simp [Set.offDiag, h13, hbB, h13_ne_b]
   -- Their images under `f(a,b) = a - b` are equal:
   -- Use `(1 - 4) = (13 - 16)` and rewrite `16` to `b` via `hb16`.
   have h_sub :
@@ -4848,8 +4848,8 @@ lemma two_of_neg4_neg3_0_equal_mod_v_of_mem_neg8_neg6_0_1_4
     ∨ (-3 : ZMod v) = (0 : ZMod v) := by
   classical
   -- Put the PDS incidence and projective plane instances in scope.
-  letI : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
-  letI : Configuration.ProjectivePlane (ZMod v) (ZMod v) :=
+  let : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
+  let : Configuration.ProjectivePlane (ZMod v) (ZMod v) :=
     pdsProjectivePlane (B := B) (v := v) (q := q) hv3 hPDS hfin hcard hq3
   -- `v` is odd from the PDS size relation.
   have hodd : v % 2 = 1 :=
@@ -5182,8 +5182,8 @@ lemma exists_line_all_absPoints_of_order_even
     (hq_ge2 : 2 ≤ q) :
   ∃ ℓ : L, ∀ p : P, p ∈ ℓ → p ∈ polarity_absolutePoints C := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- A finite witness for the absolute-points set (subset of a finite type)
   have hFin : (polarity_absolutePoints C).Finite :=
     (Set.finite_univ : (Set.univ : Set P).Finite).subset (by
@@ -5256,8 +5256,8 @@ lemma exists_line_containing_all_absPoints_of_order_even
     (hq_ge2 : 2 ≤ q) :
   ∃ ℓ : L, polarity_absolutePoints C ⊆ {p : P | p ∈ ℓ} := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- 1) pick a line all of whose points are absolute
   obtain ⟨ℓ, hall⟩ :=
     exists_line_all_absPoints_of_order_even
@@ -5348,8 +5348,8 @@ lemma absPoint_mem_line_of_two_absPoints_of_order_even
     (hp_abs : p ∈ polarity_absolutePoints C) :
     p ∈ ℓ := by
   classical
-  letI := Fintype.ofFinite P
-  letI := Fintype.ofFinite L
+  let := Fintype.ofFinite P
+  let := Fintype.ofFinite L
   -- 1) A line containing *all* absolute points
   obtain ⟨ℓ₀, hAbs_sub_ℓ₀⟩ :=
     exists_line_containing_all_absPoints_of_order_even
@@ -5429,8 +5429,8 @@ lemma six_on_line_zero_of_two_abs_on_line_neg4_even
     (6 : ZMod v) ∈ pdsLine B v 0 := by
   classical
   -- Put the PDS plane structure in scope
-  letI : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
-  letI : Configuration.ProjectivePlane (ZMod v) (ZMod v) :=
+  let : Membership (ZMod v) (ZMod v) := pdsMembershipFlipped B v
+  let : Configuration.ProjectivePlane (ZMod v) (ZMod v) :=
     pdsProjectivePlane (B := B) (v := v) (q := q) hv3 hPDS hfin hcard hq3
   ------------------------------------------------------------------------------
   -- (1) Absolute points: from `-8,-6,0,4 ∈ B` we get `-4,-3,0,2` are absolute
@@ -5625,7 +5625,7 @@ lemma IsPerfectDifferenceSetModulo.translate_right
   · intro p hp
     -- A' membership, but you've (likely) simplified image-membership to preimage form
     obtain ⟨hp1, hp2, hpne⟩ :=
-      (by simpa [A', Set.offDiag, Set.mem_setOf] using hp)
+      (by simpa [A', Set.offDiag, Set.mem_ofPred] using hp)
       -- here `hp1 : p.1 - c ∈ B` and `hp2 : p.2 - c ∈ B`
     -- name the canonical preimages
     set a : ℤ := p.1 - c with ha_def
@@ -5648,7 +5648,7 @@ lemma IsPerfectDifferenceSetModulo.translate_right
       exact hpne h12
     -- back in the original offDiag
     have hA : (a, b) ∈ A := by
-      simpa [A, Set.offDiag, Set.mem_setOf] using And.intro haB (And.intro hbB hne_ab)
+      simpa [A, Set.offDiag, Set.mem_ofPred] using And.intro haB (And.intro hbB hne_ab)
     -- relate `f p` to `f (a,b)` and use the original MapsTo
     have hfp_eq : f p = f (a + c, b + c) := by
       rcases p with ⟨p1, p2⟩
@@ -5678,9 +5678,9 @@ lemma IsPerfectDifferenceSetModulo.translate_right
   · intro p₁ hp₁ p₂ hp₂ hfeq
     -- unpack membership in the translated offDiag into preimage form
     obtain ⟨hp₁₁, hp₁₂, hp₁ne⟩ :=
-      (by simpa [A', Set.offDiag, Set.mem_setOf] using hp₁)
+      (by simpa [A', Set.offDiag, Set.mem_ofPred] using hp₁)
     obtain ⟨hp₂₁, hp₂₂, hp₂ne⟩ :=
-      (by simpa [A', Set.offDiag, Set.mem_setOf] using hp₂)
+      (by simpa [A', Set.offDiag, Set.mem_ofPred] using hp₂)
     -- where:
     -- hp₁₁ : p₁.1 - c ∈ B,  hp₁₂ : p₁.2 - c ∈ B
     -- hp₂₁ : p₂.1 - c ∈ B,  hp₂₂ : p₂.2 - c ∈ B
@@ -5712,9 +5712,9 @@ lemma IsPerfectDifferenceSetModulo.translate_right
         simpa [ha₂c, hb₂c] using congrArg (fun t : ℤ => t + c) h)
     -- membership in the original offDiag
     have hA₁ : (a₁, b₁) ∈ A := by
-      simpa [A, Set.offDiag, Set.mem_setOf] using And.intro ha₁B (And.intro hb₁B hne₁)
+      simpa [A, Set.offDiag, Set.mem_ofPred] using And.intro ha₁B (And.intro hb₁B hne₁)
     have hA₂ : (a₂, b₂) ∈ A := by
-      simpa [A, Set.offDiag, Set.mem_setOf] using And.intro ha₂B (And.intro hb₂B hne₂)
+      simpa [A, Set.offDiag, Set.mem_ofPred] using And.intro ha₂B (And.intro hb₂B hne₂)
     -- rewrite the given equality f p₁ = f p₂ into (a₁ - b₁) = (a₂ - b₂)
     have hfeq' : (a₁ - b₁ : ZMod v) = (a₂ - b₂ : ZMod v) := by
       -- first rewrite both sides to `(ai+ c) - (bi + c)`
@@ -5777,7 +5777,7 @@ lemma IsPerfectDifferenceSetModulo.translate_right
     rcases q with ⟨a, b⟩
     have hab :
         a ∈ B ∧ b ∈ B ∧ a ≠ b := by
-      simpa [A, Set.offDiag, Set.mem_setOf] using hqA
+      simpa [A, Set.offDiag, Set.mem_ofPred] using hqA
     -- Build each conjunct explicitly, then package and `simpa`.
     have ha_img : (a + c) ∈ (fun x : ℤ => x + c) '' B :=
       ⟨a, hab.1, by simp⟩
@@ -5794,7 +5794,7 @@ lemma IsPerfectDifferenceSetModulo.translate_right
     -- The translated pair lies in `A'`
     -- Now the membership in A' = (image B).offDiag
     have hA' : (a + c, b + c) ∈ A' := by
-      simpa [A', Set.offDiag, Set.mem_setOf] using hTriple
+      simpa [A', Set.offDiag, Set.mem_ofPred] using hTriple
     -- And its image under `f` is still `y`
     have hval : f (a + c, b + c) = y := by
       -- cancel translation inside ZMod
@@ -5993,7 +5993,7 @@ lemma counterexampleAM_noExt :
   intro B v h
   rcases h with ⟨hvnz, hsub, hPDS⟩
   -- turn `v ≠ 0` into a typeclass
-  haveI : NeZero v := ⟨hvnz⟩
+  have : NeZero v := ⟨hvnz⟩
   -- pull the five elements into `B` via the subset hypothesis
   have h1  : 1  ∈ B := hsub (by simp [counterexampleAM])
   have h2  : 2  ∈ B := hsub (by simp [counterexampleAM])
@@ -6014,7 +6014,7 @@ lemma counterexampleH_noExt :
   intro B v h
   rcases h with ⟨hv, hsub, hPDS⟩
   -- Use `v ≠ 0` to get the typeclass instance needed by the lemma.
-  haveI : NeZero v := ⟨hv⟩
+  have : NeZero v := ⟨hv⟩
   -- Pull the five memberships into `B` via the subset hypothesis.
   have hneg8 : (-8 : ℤ) ∈ B := hsub (by simp [counterexampleH])
   have hneg6 : (-6 : ℤ) ∈ B := hsub (by simp [counterexampleH])
@@ -6038,7 +6038,7 @@ lemma counterexampleH2_noExt :
   intro B v h
   rcases h with ⟨hv, hsub, hPDS⟩
   -- Use `v ≠ 0` to get the typeclass instance needed by the lemma.
-  haveI : NeZero v := ⟨hv⟩
+  have : NeZero v := ⟨hv⟩
   -- Pull the five memberships into `B` via the subset hypothesis.
   have h1  : 1  ∈ B := hsub (by simp [counterexampleH2])
   have h3  : 3  ∈ B := hsub (by simp [counterexampleH2])

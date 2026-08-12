@@ -7418,7 +7418,7 @@ lemma O_not_in_unit_segment_FirstQuadrant (L : Set Point) (hL : IsUnitSegment L)
       have h1 : IsClosed ((fun p : Point => p 1) ⁻¹' Set.Ici (0 : ℝ)) := by
         simpa using isClosed_Ici.preimage
           ((EuclideanSpace.proj (𝕜 := ℝ) (ι := Fin 2) 1).continuous)
-      simpa [FirstQuadrant, Set.preimage, Set.mem_setOf_eq, Set.inter_def] using h0.inter h1
+      simpa [FirstQuadrant, Set.preimage, Set.mem_ofPred_eq, Set.inter_def] using h0.inter h1
     exact closure_minimal hL_sub hFirstQuadrant_closed
   simp_all +decide [ Set.subset_def ];
   exact ⟨ h_closure a ( left_mem_segment _ _ _ ), h_closure b ( right_mem_segment _ _ _ ), by rintro rfl rfl; norm_num [ dist_eq_norm ] at hab ⟩
@@ -7609,7 +7609,7 @@ If L2 is non-positive on a set s, it is non-positive on the convex hull of s.
 lemma L2_convex_hull_le_0 (s : Set Point) (hs : ∀ p ∈ s, L2 p ≤ 0) : ∀ p ∈ convexHull ℝ s, L2 p ≤ 0 := by
   have h_convex : Convex ℝ {p : Point | L2 p ≤ 0} := by
     intro p hp q hq a b ha hb hab
-    rw [Set.mem_setOf_eq] at hp hq ⊢
+    rw [Set.mem_ofPred_eq] at hp hq ⊢
     rw [L2_affine p q a b hab]
     nlinarith
   exact fun p hp => h_convex.convexHull_subset_iff.mpr hs hp
@@ -7832,7 +7832,7 @@ If L3 is non-positive on a set s, it is non-positive on the convex hull of s.
 -/
 lemma L3_convex_hull_le_0 (s : Set Point) (hs : ∀ p ∈ s, L3 p ≤ 0) : ∀ p ∈ convexHull ℝ s, L3 p ≤ 0 := by
   rw [ convexHull_eq ];
-  simp +contextual [ L3, Set.mem_setOf_eq ];
+  simp +contextual [ L3, Set.mem_ofPred_eq ];
   intro p x s w hw hs' f hf hp; rw [ ← hp ] ; simp +decide [ *, Finset.centerMass ] ;
   have := Finset.sum_le_sum fun i ( hi : i ∈ s ) => mul_le_mul_of_nonneg_left ( hs ( f i ) ( hf i hi ) ) ( hw i hi ) ; simp_all +decide [ mul_sub, sub_mul, mul_comm, Finset.mul_sum _ _ _, Finset.sum_mul ] ;
   simp_all +decide [ L3, Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_mul _ _ _, sub_mul, mul_sub, mul_assoc, mul_comm, mul_left_comm ];
@@ -8030,7 +8030,7 @@ If L1 is non-negative on a set s, it is non-negative on the convex hull of s.
 lemma L1_convex_hull_ge_0 (s : Set Point) (hs : ∀ p ∈ s, L1 p ≥ 0) : ∀ p ∈ convexHull ℝ s, L1 p ≥ 0 := by
   -- Since L1 is affine, the set {p | L1 p ≥ 0} is convex.
   have h_convex : Convex ℝ {p | L1 p ≥ 0} := by
-    intro x hx y hy a b ha hb hab; rw [ Set.mem_setOf_eq ] at *; rw [ show L1 ( a • x + b • y ) = a * L1 x + b * L1 y by exact L1_convex_comb x y a b hab ] ; nlinarith;
+    intro x hx y hy a b ha hb hab; rw [ Set.mem_ofPred_eq ] at *; rw [ show L1 ( a • x + b • y ) = a * L1 x + b * L1 y by exact L1_convex_comb x y a b hab ] ; nlinarith;
   exact fun p hp => h_convex.convexHull_subset_iff.mpr hs hp
 
 /-
@@ -8689,7 +8689,7 @@ The unit square is a closed set.
 -/
 lemma UnitSquare_isClosed : IsClosed UnitSquare := by
   unfold UnitSquare
-  simp +decide only [setOf_forall]
+  simp +decide only [ofPred_forall]
   refine isClosed_iInter fun i => ?_
   change IsClosed {p : Point | p i ∈ Set.Icc (0 : ℝ) 1}
   exact (isClosed_Icc : IsClosed (Set.Icc (0 : ℝ) 1)).preimage

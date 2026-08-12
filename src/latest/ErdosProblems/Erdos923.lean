@@ -357,7 +357,7 @@ theorem rodl : ∀ (m n : ℕ), 2 ≤ m →
     by_cases hcf : G.CliqueFree (m + 3)
     · right
       classical
-      letI : LinearOrder V := linearOrderOfSTO WellOrderingRel
+      let : LinearOrder V := linearOrderOfSTO WellOrderingRel
       by_cases! hcase : ∃ v, ↑(phi (m + 2) n) ≤ (leftNbhd G v).chromaticNumber
       · -- Case 1: some left neighborhood has large χ
         obtain ⟨v, hv⟩ := hcase
@@ -602,8 +602,8 @@ theorem erdos923 {V : Type*} (n : ℕ) :
   -- Obtain a triangle-free graph on a finite type that is not n-colorable.
   obtain ⟨W, hfin, hdeq, T, hT_cf, hT_nc⟩ :=
     TriangleFreeChromatic.exists_triangle_free_large_chromatic_fintype n
-  haveI := hfin
-  haveI := hdeq
+  have := hfin
+  have := hdeq
   -- Set m = Fintype.card W + 2 (ensuring m ≥ 2).
   set m := Fintype.card W + 2
   -- The witness: k = φ(m, n).

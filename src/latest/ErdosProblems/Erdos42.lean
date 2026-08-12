@@ -1569,7 +1569,7 @@ theorem explicit_of_compactCayleyCliqueStatement
   rcases h with ⟨ε, hε, p₀, hp₀⟩
   refine ⟨ε, hε, p₀, ?_⟩
   intro p hp hpgt T hsym hzero hdens hfourier
-  haveI : Fact p.Prime := ⟨hp⟩
+  have : Fact p.Prime := ⟨hp⟩
   exact hp₀ p hpgt T hsym hzero hdens (by simpa using hfourier)
 
 /-- A sequence of finite Cayley-graph counterexamples with Fourier upper bias
@@ -3441,7 +3441,7 @@ lemma CayleyCounterSeq.finiteCliqueKernelDensity_indicatorC_eq_zero
     {ℓ : ℕ} {η : ℝ} (S : CayleyCounterSeq ℓ η) (n : ℕ) :
     (letI : NeZero (S.p n) := ⟨(S.prime n).ne_zero⟩;
       finiteCliqueKernelDensity (ℓ := ℓ) (indicatorC (S.T n))) = 0 := by
-  letI : NeZero (S.p n) := ⟨(S.prime n).ne_zero⟩
+  let : NeZero (S.p n) := ⟨(S.prime n).ne_zero⟩
   exact finiteCliqueKernelDensity_indicatorC_eq_zero_of_no_clique
     (S.T_sym n) (S.T_zero n) (S.no_clique n)
 
@@ -3692,7 +3692,7 @@ lemma FourierSeq.sum_sq_norm_coeff_le_one
     (F : FourierSeq) (n : ℕ) :
     letI : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
     (∑ r : ZMod (F.p n), ‖F.coeff n r‖ ^ 2) ≤ 1 := by
-  letI : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
+  let : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
   simpa [FourierSeq.coeff] using
     (sum_sq_norm_normalizedDftFunction_le_one_of_norm_le_one
       (p := F.p n) (f := F.h n) (F.h_bound n))
@@ -3702,7 +3702,7 @@ bounded by `1`. -/
 lemma FourierSeq.norm_coeff_le_one
     (F : FourierSeq) (n : ℕ) (r : ZMod (F.p n)) :
     ‖F.coeff n r‖ ≤ 1 := by
-  letI : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
+  let : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
   have hsum := F.sum_sq_norm_coeff_le_one n
   have hterm :
       ‖F.coeff n r‖ ^ 2 ≤
@@ -3727,14 +3727,14 @@ noncomputable def FourierSeq.largeSpectrum
 lemma FourierSeq.mem_largeSpectrum
     {F : FourierSeq} {q : ℕ+} {n : ℕ} {r : ZMod (F.p n)} :
     r ∈ F.largeSpectrum q n ↔ ((q : ℝ)⁻¹) < ‖F.coeff n r‖ := by
-  letI : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
+  let : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
   simp [FourierSeq.largeSpectrum]
 
 lemma FourierSeq.largeSpectrum_subset_univ
     (F : FourierSeq) (q : ℕ+) (n : ℕ) :
     letI : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
     F.largeSpectrum q n ⊆ (Finset.univ : Finset (ZMod (F.p n))) := by
-  letI : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
+  let : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
   intro r _hr
   simp
 
@@ -3743,7 +3743,7 @@ lemma FourierSeq.largeSpectrum_card_mul_sq_le_sum_sq
     letI : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
     ((F.largeSpectrum q n).card : ℝ) * ((q : ℝ)⁻¹) ^ 2 ≤
       ∑ r : ZMod (F.p n), ‖F.coeff n r‖ ^ 2 := by
-  letI : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
+  let : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
   calc
     ((F.largeSpectrum q n).card : ℝ) * ((q : ℝ)⁻¹) ^ 2 =
         ∑ r ∈ F.largeSpectrum q n, ((q : ℝ)⁻¹) ^ 2 := by
@@ -3768,7 +3768,7 @@ lemma FourierSeq.largeSpectrum_card_mul_sq_le_sum_sq
 lemma FourierSeq.largeSpectrum_card_le
     (F : FourierSeq) (q : ℕ+) (n : ℕ) :
     (F.largeSpectrum q n).card ≤ (q : ℕ) ^ 2 := by
-  letI : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
+  let : NeZero (F.p n) := ⟨(F.prime n).ne_zero⟩
   have hmass :=
     (F.largeSpectrum_card_mul_sq_le_sum_sq q n).trans
       (F.sum_sq_norm_coeff_le_one n)
@@ -4062,7 +4062,7 @@ lemma exists_strictMono_subseq_tendsto_countable_family_of_norm_le_one
     ⟨a i n, by
       rw [Metric.mem_closedBall, dist_zero_right]
       exact ha i n⟩
-  letI : CompactSpace ClosedUnitDisk := compactSpace_closedUnitDisk
+  let : CompactSpace ClosedUnitDisk := compactSpace_closedUnitDisk
   rcases CompactSpace.tendsto_subseq x with ⟨y, φ, hφ, hlim⟩
   refine ⟨φ, hφ, ?_⟩
   intro i
@@ -4514,7 +4514,7 @@ lemma finiteLiftHom_eventually_eq_zero_of_eventually_nsmul_eq_zero
     (h : ∀ᶠ n in atTop, q • data.finiteLiftHom n w = 0) :
     ∀ᶠ n in atTop, data.finiteLiftHom n w = 0 := by
   filter_upwards [h, data.eventually_prime_gt q] with n hn hgt
-  haveI : Fact (F.p (data.φ n)).Prime := ⟨F.prime (data.φ n)⟩
+  have : Fact (F.p (data.φ n)).Prime := ⟨F.prime (data.φ n)⟩
   have hnot : ¬ F.p (data.φ n) ∣ q :=
     Nat.not_dvd_of_pos_of_lt (Nat.pos_of_ne_zero hq) hgt
   exact (zmod_nsmul_eq_zero_iff_of_prime_not_dvd hnot
@@ -4866,7 +4866,7 @@ lemma coeff_im_eq_zero (E : CayleyExtraction S) (γ : E.Group) :
         (letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩;
           (normalizedDftCoeff (S.T (E.φ n)) (E.lift n γ)).im) = 0 :=
     Filter.Eventually.of_forall (fun n => by
-      letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+      let : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
       exact normalizedDftCoeff_im_eq_zero_of_symmetric
         (S.T_sym (E.φ n)) (E.lift n γ))
   have hzero :
@@ -4886,7 +4886,7 @@ lemma coeff_neg_eq (E : CayleyExtraction S) (γ : E.Group) :
         letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩;
         normalizedDftCoeff (S.T (E.φ n)) (E.lift n γ)) := by
     filter_upwards [E.data.finiteLift_neg_eventually_eq γ] with n hneg
-    haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+    have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
     rw [lift, lift, hneg]
     exact normalizedDftCoeff_neg_eq_of_symmetric (S.T_sym (E.φ n)) (E.lift n γ)
   exact tendsto_nhds_unique (hneg_tendsto.congr' heq) hpos_tendsto
@@ -4905,7 +4905,7 @@ lemma coeff_nonpos_of_ne_zero
           (normalizedDftCoeff (S.T (E.φ n)) (E.lift n γ)).re) ≤
           S.eps (E.φ n) := by
     filter_upwards [E.data.finiteLift_eventually_ne_zero hγ] with n hn
-    letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+    let : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
     exact S.T_fourier_upper (E.φ n) (E.lift n γ) hn
   exact le_of_tendsto_of_tendsto hlim heps hupper
 
@@ -4920,7 +4920,7 @@ lemma coeff_zero_ge_eta (E : CayleyExtraction S) :
           (letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩;
             (normalizedDftCoeff (S.T (E.φ n)) (E.lift n 0)).re) := by
     filter_upwards [E.data.finiteLift_zero_eventually_eq_zero] with n hn
-    letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+    let : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
     have hp_pos : 0 < (S.p (E.φ n) : ℝ) := by
       exact_mod_cast Nat.pos_of_ne_zero (S.prime (E.φ n)).ne_zero
     have hη_div :
@@ -5022,8 +5022,8 @@ instance dualDomainDiscreteTopology (E : CayleyExtraction S) :
 
 instance dualDomainSecondCountableTopology (E : CayleyExtraction S) :
     SecondCountableTopology E.DualDomain := by
-  letI : Countable E.DualDomain := dualDomainCountable E
-  letI : DiscreteTopology E.DualDomain := dualDomainDiscreteTopology E
+  let : Countable E.DualDomain := dualDomainCountable E
+  let : DiscreteTopology E.DualDomain := dualDomainDiscreteTopology E
   infer_instance
 
 instance compactDualSecondCountableTopology (E : CayleyExtraction S) :
@@ -5750,7 +5750,7 @@ lemma TrigPoly.integral_evalAdd_eq_compactAverage_of_separating
 lemma TrigPoly.evalFinite_zero
     {E : CayleyExtraction S} (n : ℕ) (x : ZMod (S.p (E.φ n))) :
     TrigPoly.evalFinite (0 : E.TrigPoly) n x = 0 := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   simp [TrigPoly.evalFinite]
 
 @[simp]
@@ -5767,7 +5767,7 @@ lemma TrigPoly.evalFinite_add
     (n : ℕ) (x : ZMod (S.p (E.φ n))) :
     TrigPoly.evalFinite (P + Q) n x =
       TrigPoly.evalFinite P n x + TrigPoly.evalFinite Q n x := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   classical
   unfold TrigPoly.evalFinite
   let h : E.Group → ℂ →+ ℂ := fun γ =>
@@ -5783,7 +5783,7 @@ lemma TrigPoly.finiteAverage_add
     {E : CayleyExtraction S} (P Q : E.TrigPoly) (n : ℕ) :
     TrigPoly.finiteAverage (P + Q) n =
       TrigPoly.finiteAverage P n + TrigPoly.finiteAverage Q n := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold TrigPoly.finiteAverage
   rw [show
       (fun x : ZMod (S.p (E.φ n)) =>
@@ -5800,7 +5800,7 @@ lemma TrigPoly.indicatorWeightedFiniteAverage_add
     TrigPoly.indicatorWeightedFiniteAverage (P + Q) n =
       TrigPoly.indicatorWeightedFiniteAverage P n +
         TrigPoly.indicatorWeightedFiniteAverage Q n := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold TrigPoly.indicatorWeightedFiniteAverage
   rw [show
       (fun x : ZMod (S.p (E.φ n)) =>
@@ -5854,7 +5854,7 @@ lemma TrigPoly.finiteAverage_single_eq_coeff_of_lift_eq_zero
     {E : CayleyExtraction S} (γ : E.Group) (c : ℂ) (n : ℕ)
     (hγ : E.lift n γ = 0) :
     TrigPoly.finiteAverage (Finsupp.single γ c : E.TrigPoly) n = c := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   rw [TrigPoly.finiteAverage]
   simp [TrigPoly.evalFinite_single, hγ, avgZMod_const]
 
@@ -5862,8 +5862,8 @@ lemma TrigPoly.finiteAverage_single_eq_zero_of_lift_ne_zero
     {E : CayleyExtraction S} (γ : E.Group) (c : ℂ) (n : ℕ)
     (hγ : E.lift n γ ≠ 0) :
     TrigPoly.finiteAverage (Finsupp.single γ c : E.TrigPoly) n = 0 := by
-  haveI : Fact (S.p (E.φ n)).Prime := ⟨S.prime (E.φ n)⟩
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : Fact (S.p (E.φ n)).Prime := ⟨S.prime (E.φ n)⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   rw [TrigPoly.finiteAverage]
   simp [TrigPoly.evalFinite_single, avgZMod_const_mul,
     avgZMod_stdAddChar_neg_mul_eq_zero_of_ne_zero hγ]
@@ -5917,7 +5917,7 @@ lemma TrigPoly.indicatorWeightedFiniteAverage_single
         (Finsupp.single γ c : E.TrigPoly) n =
       (letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩;
         c * normalizedDftCoeff (S.T (E.φ n)) (E.lift n γ)) := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold TrigPoly.indicatorWeightedFiniteAverage
   change avgZMod
       (fun x : ZMod (S.p (E.φ n)) =>
@@ -6725,7 +6725,7 @@ lemma fejerTrigPoly_evalFinite_eventually_eq
     intro pair _hpair
     exact E.data.finiteLift_sub_eventually_eq pair.1 pair.2
   filter_upwards [hpairs] with n hn x
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold fejerTrigPoly
   let ev : E.TrigPoly →+ ℂ :=
     { toFun := fun P => TrigPoly.evalFinite P n x
@@ -6775,7 +6775,7 @@ lemma shiftedFejerTrigPoly_evalFinite_eventually_eq
     intro pair _hpair
     exact E.data.finiteLift_sub_eventually_eq pair.1 pair.2
   filter_upwards [hpairs] with n hn x
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold shiftedFejerTrigPoly
   let ev : E.TrigPoly →+ ℂ :=
     { toFun := fun P => TrigPoly.evalFinite P n x
@@ -6821,7 +6821,7 @@ lemma finiteFejerKernelAverage_eventually_eq
       E.finiteFejerKernelAverage Q n =
         TrigPoly.finiteAverage (E.fejerTrigPoly Q) n := by
   filter_upwards [E.fejerTrigPoly_evalFinite_eventually_eq Q] with n hn
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold finiteFejerKernelAverage TrigPoly.finiteAverage
   apply congrArg (fun f : ZMod (S.p (E.φ n)) → ℂ => avgZMod f)
   funext x
@@ -6854,8 +6854,8 @@ lemma normalizedDftFunction_finiteFejerKernel_eventually_eq
           (E.fejerTrigPoly Q).sum fun γ c =>
             if r + E.lift n γ = 0 then c else 0 := by
   filter_upwards [E.fejerTrigPoly_evalFinite_eventually_eq Q] with n hn r
-  haveI : Fact (S.p (E.φ n)).Prime := ⟨S.prime (E.φ n)⟩
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : Fact (S.p (E.φ n)).Prime := ⟨S.prime (E.φ n)⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   have hfun :
       E.finiteFejerKernel Q n =
         fun x : ZMod (S.p (E.φ n)) =>
@@ -6876,7 +6876,7 @@ lemma normalizedDftFunction_finiteFejerKernel_at_neg_lift_eventually_eq_coeff
   filter_upwards
     [E.normalizedDftFunction_finiteFejerKernel_eventually_eq Q,
       E.data.finiteLift_eventually_injOn_finset (insert γ P.support)] with n hfourier hinj
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   rw [hfourier (-E.lift n γ)]
   exact TrigPoly.sum_if_neg_lift_add_eq_zero_eq_apply_of_injOn
     (E := E) P n γ hinj
@@ -6891,7 +6891,7 @@ lemma normalizedDftFunction_finiteFejerKernel_at_lift_eventually_eq_coeff
     [E.normalizedDftFunction_finiteFejerKernel_at_neg_lift_eventually_eq_coeff
         Q (-γ),
       E.data.finiteLift_neg_eventually_eq γ] with n hcoeff hneg
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   have hfreq : -E.lift n (-γ) = E.lift n γ := by
     rw [lift, hneg]
     change - -E.data.finiteLift n γ = E.data.finiteLift n γ
@@ -6962,7 +6962,7 @@ lemma finiteFejerKernel_re_nonneg
     (E : CayleyExtraction S) (Q : Finset E.Group) (n : ℕ)
     (x : ZMod (S.p (E.φ n))) :
     0 ≤ (E.finiteFejerKernel Q n x).re := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold finiteFejerKernel
   set w : ℂ := ∑ γ ∈ Q, ZMod.stdAddChar (-(E.lift n γ * x))
   change 0 ≤ (((Q.card : ℂ)⁻¹) * (w * star w)).re
@@ -6979,7 +6979,7 @@ lemma finiteFejerKernel_im_eq_zero
     (E : CayleyExtraction S) (Q : Finset E.Group) (n : ℕ)
     (x : ZMod (S.p (E.φ n))) :
     (E.finiteFejerKernel Q n x).im = 0 := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold finiteFejerKernel
   set w : ℂ := ∑ γ ∈ Q, ZMod.stdAddChar (-(E.lift n γ * x))
   change (((Q.card : ℂ)⁻¹) * (w * star w)).im = 0
@@ -6991,7 +6991,7 @@ lemma shiftedFiniteFejerKernel_re_nonneg
     (E : CayleyExtraction S) (Q : Finset E.Group) (z : E.CompactAddDual)
     (n : ℕ) (x : ZMod (S.p (E.φ n))) :
     0 ≤ (E.shiftedFiniteFejerKernel Q z n x).re := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold shiftedFiniteFejerKernel
   set w : ℂ := ∑ γ ∈ Q,
     E.addCharacterValue z γ * ZMod.stdAddChar (-(E.lift n γ * x))
@@ -7009,7 +7009,7 @@ lemma shiftedFiniteFejerKernel_im_eq_zero
     (E : CayleyExtraction S) (Q : Finset E.Group) (z : E.CompactAddDual)
     (n : ℕ) (x : ZMod (S.p (E.φ n))) :
     (E.shiftedFiniteFejerKernel Q z n x).im = 0 := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold shiftedFiniteFejerKernel
   set w : ℂ := ∑ γ ∈ Q,
     E.addCharacterValue z γ * ZMod.stdAddChar (-(E.lift n γ * x))
@@ -7317,7 +7317,7 @@ lemma finiteComplementWeightedAverage_eventually_eq
         TrigPoly.finiteAverage P n -
           TrigPoly.indicatorWeightedFiniteAverage P n := by
   filter_upwards with n
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold finiteComplementWeightedAverage TrigPoly.finiteAverage
     TrigPoly.indicatorWeightedFiniteAverage
   calc
@@ -7359,7 +7359,7 @@ lemma finiteComplementWeightedAverage_re_nonneg
     (hP : ∀ x : ZMod (S.p (E.φ n)),
       0 ≤ (TrigPoly.evalFinite P n x).re) :
     0 ≤ (E.finiteComplementWeightedAverage P n).re := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   rw [finiteComplementWeightedAverage, avgZMod_re]
   refine mul_nonneg (inv_nonneg.mpr (Nat.cast_nonneg _)) ?_
   refine Finset.sum_nonneg ?_
@@ -7395,7 +7395,7 @@ lemma finiteComplementFejerAverage_eventually_eq
         TrigPoly.finiteAverage (E.fejerTrigPoly Q) n -
           TrigPoly.indicatorWeightedFiniteAverage (E.fejerTrigPoly Q) n := by
   filter_upwards [E.fejerTrigPoly_evalFinite_eventually_eq Q] with n hn
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold finiteComplementFejerAverage TrigPoly.finiteAverage
     TrigPoly.indicatorWeightedFiniteAverage
   calc
@@ -7451,7 +7451,7 @@ lemma finiteComplementFejerAverage_re_le_fejerAverage_re
     (E : CayleyExtraction S) (Q : Finset E.Group) (n : ℕ) :
     (E.finiteComplementFejerAverage Q n).re ≤
       (E.finiteFejerKernelAverage Q n).re := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold finiteComplementFejerAverage finiteFejerKernelAverage
   refine avgZMod_re_le ?_
   intro x
@@ -7472,7 +7472,7 @@ lemma finiteSmooth_norm_le_one_eventually
     ∀ᶠ n in atTop,
       ∀ z : ZMod (S.p (E.φ n)), ‖E.finiteSmooth Q n z‖ ≤ 1 := by
   filter_upwards [E.finiteFejerKernelAverage_eventually_eq_one Q hQ] with n havg z
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   refine norm_avgConvolution_indicator_le_of_kernel_real_nonneg_avg_one
     (S.T (E.φ n)) (E.finiteFejerKernel Q n)
     (E.finiteFejerKernel_re_nonneg Q n)
@@ -7506,7 +7506,7 @@ lemma finiteDftWeightedTrigPoly_add
       E.finiteDftWeightedTrigPoly P n +
         E.finiteDftWeightedTrigPoly R n := by
   classical
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold finiteDftWeightedTrigPoly
   let h : E.Group → ℂ →+ E.TrigPoly := fun γ =>
     { toFun := fun c =>
@@ -7528,7 +7528,7 @@ lemma finiteDftWeightedTrigPoly_single
         Finsupp.single γ
           (normalizedDftCoeff (S.T (E.φ n)) (-E.lift n γ) * c)) := by
   classical
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold finiteDftWeightedTrigPoly
   rw [Finsupp.sum_single_index]
   simp
@@ -7539,7 +7539,7 @@ lemma finiteDftWeightedTrigPoly_apply
       (letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩;
         normalizedDftCoeff (S.T (E.φ n)) (-E.lift n γ) * P γ) := by
   classical
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   refine Finsupp.induction_linear P ?zero ?add ?single
   · simp [finiteDftWeightedTrigPoly]
   · intro P R hP hR
@@ -7630,8 +7630,8 @@ lemma finiteSmooth_eq_evalFinite_finiteSmoothModelTrigPoly_eventually
           TrigPoly.evalFinite (E.finiteSmoothModelTrigPoly Q n) n x := by
   filter_upwards
     [E.normalizedDftFunction_finiteFejerKernel_eventually_eq Q] with n hK x
-  haveI : Fact (S.p (E.φ n)).Prime := ⟨S.prime (E.φ n)⟩
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : Fact (S.p (E.φ n)).Prime := ⟨S.prime (E.φ n)⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   rw [function_eq_sum_normalizedDftFunction (p := S.p (E.φ n))
       (E.finiteSmooth Q n) x]
   rw [function_eq_sum_normalizedDftFunction (p := S.p (E.φ n))
@@ -7676,7 +7676,7 @@ lemma normalizedDftFunction_finiteSmooth_at_lift_tendsto
   filter_upwards
     [E.normalizedDftFunction_finiteFejerKernel_at_lift_eventually_eq_coeff
       Q γ] with n hKcoeff
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   rw [E.normalizedDftFunction_finiteSmooth Q n (E.lift n γ)]
   rw [hKcoeff]
 
@@ -7727,7 +7727,7 @@ lemma finiteSmoothModelTrigPoly_apply_tendsto_compactSmoothTrigPoly
         atTop (𝓝 (E.coeff (-γ))) := by
     refine hcoeff.congr' ?_
     filter_upwards [E.data.finiteLift_neg_eventually_eq γ] with n hneg
-    haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+    have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
     simp [lift, hneg]
     rfl
   have hconst :
@@ -7961,7 +7961,7 @@ lemma normalizedDftFunction_finiteSmooth_at_neg_lift_tendsto_compactCoeff
           letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩;
           normalizedDftFunction (E.finiteSmooth Q n) (-E.lift n γ)) := by
       filter_upwards [E.data.finiteLift_neg_eventually_eq γ] with n hneg
-      haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+      have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
       simp [lift, hneg]
       rfl
     have ht_simplified :
@@ -7996,7 +7996,7 @@ lemma finiteSmoothWeightedAverage_add
     E.finiteSmoothWeightedAverage Q (P + R) n =
       E.finiteSmoothWeightedAverage Q P n +
         E.finiteSmoothWeightedAverage Q R n := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold finiteSmoothWeightedAverage
   rw [show
       (fun x : ZMod (S.p (E.φ n)) =>
@@ -8017,7 +8017,7 @@ lemma finiteSmoothWeightedAverage_single
         (Finsupp.single γ c : E.TrigPoly) n =
       (letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩;
         c * normalizedDftFunction (E.finiteSmooth Q n) (E.lift n γ)) := by
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   unfold finiteSmoothWeightedAverage
   change avgZMod
       (fun x : ZMod (S.p (E.φ n)) =>
@@ -8138,7 +8138,7 @@ lemma finiteSmoothWeightedAverage_tendsto_coeffFunctional
         (fun n => E.finiteSmoothWeightedAverage Q (0 : E.TrigPoly) n) =
           fun _n => (0 : ℂ) := by
       funext n
-      haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+      have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
       simp [finiteSmoothWeightedAverage, avgZMod]
     rw [hzero]
     exact tendsto_const_nhds
@@ -8197,7 +8197,7 @@ lemma spectralBound_indicator_sub_finiteSmooth_eventually
           (letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩;
             ‖normalizedDftFunction (E.finiteFejerKernel Q n) r‖) ≤ 1 := by
     filter_upwards [E.finiteFejerKernelAverage_eventually_eq_one Q hQ] with n havg r
-    haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+    have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
     refine norm_normalizedDftFunction_le_one_of_kernel_real_nonneg_avg_one
       (E.finiteFejerKernel Q n)
       (E.finiteFejerKernel_re_nonneg Q n)
@@ -8205,7 +8205,7 @@ lemma spectralBound_indicator_sub_finiteSmooth_eventually
     simpa [finiteFejerKernelAverage] using havg
   filter_upwards [hcovered, hfejerLarge, hfejerNorm] with n hncover hnlarge hnnorm
   intro r
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   rw [E.normalizedDftFunction_indicator_sub_finiteSmooth Q n r]
   by_cases hsmall :
       ‖normalizedDftCoeff (S.T (E.φ n)) r‖ ≤ ((q : ℝ)⁻¹ : ℝ)
@@ -8840,7 +8840,7 @@ lemma exists_intPi_pairCoeffLowerBound_of_bound
     (hB : ∀ γ ∈ B, ∀ i : ι, (γ i).natAbs ≤ K) :
     ∃ Q : Finset (ι → ℤ), Q.Nonempty ∧ PairCoeffLowerBound Q B M := by
   classical
-  letI := Fintype.ofFinite ι
+  let := Fintype.ofFinite ι
   obtain ⟨N, hN⟩ :=
     exists_nat_gt ((((Fintype.card ι : ℝ) * (2 * K : ℝ)) / M) + (K : ℝ))
   have hN_gt_K : (K : ℝ) < (N : ℝ) := by
@@ -8875,7 +8875,7 @@ lemma exists_intPi_pairCoeffLowerBound
     (B : Finset (ι → ℤ)) {M : ℝ} (hM : 0 < M) :
     ∃ Q : Finset (ι → ℤ), Q.Nonempty ∧ PairCoeffLowerBound Q B M := by
   classical
-  letI := Fintype.ofFinite ι
+  let := Fintype.ofFinite ι
   let C : Finset ℕ :=
     B.biUnion fun γ => (Finset.univ : Finset ι).image fun i => (γ i).natAbs
   by_cases hC : C.Nonempty
@@ -8908,7 +8908,7 @@ lemma exists_finsupp_pairCoeffLowerBound
     (B : Finset (ι →₀ ℤ)) {M : ℝ} (hM : 0 < M) :
     ∃ Q : Finset (ι →₀ ℤ), Q.Nonempty ∧ PairCoeffLowerBound Q B M := by
   classical
-  letI := Fintype.ofFinite ι
+  let := Fintype.ofFinite ι
   let e : (ι →₀ ℤ) ≃+ (ι → ℤ) :=
     (Finsupp.linearEquivFunOnFinite ℤ ℤ ι).toAddEquiv
   exact PairCoeffLowerBound.exists_of_addEquiv e
@@ -8928,9 +8928,9 @@ lemma exists_free_finite_pairCoeffLowerBound
   classical
   let ι := Module.Free.ChooseBasisIndex ℤ G
   let b := Module.Free.chooseBasis ℤ G
-  haveI : Finite ι := Module.Finite.finite_basis b
-  letI : Fintype ι := Fintype.ofFinite ι
-  letI : DecidableEq ι := Classical.decEq ι
+  have : Finite ι := Module.Finite.finite_basis b
+  let : Fintype ι := Fintype.ofFinite ι
+  let : DecidableEq ι := Classical.decEq ι
   let e : G ≃+ (ι →₀ ℤ) := b.repr.toAddEquiv
   exact PairCoeffLowerBound.exists_of_addEquiv e
     (exists_finsupp_pairCoeffLowerBound
@@ -8941,9 +8941,9 @@ lemma exists_fg_torsionFree_pairCoeffLowerBound
     (B : Finset G) {M : ℝ} (hM : 0 < M) :
     ∃ Q : Finset G, Q.Nonempty ∧ PairCoeffLowerBound Q B M := by
   classical
-  haveI : Module.Finite ℤ G :=
+  have : Module.Finite ℤ G :=
     Module.Finite.iff_addGroup_fg.mpr (inferInstance : AddGroup.FG G)
-  haveI : Module.Free ℤ G := Module.free_of_finite_type_torsion_free'
+  have : Module.Free ℤ G := Module.free_of_finite_type_torsion_free'
   exact exists_free_finite_pairCoeffLowerBound B hM
 
 lemma exists_torsionFree_pairCoeffLowerBound
@@ -8953,14 +8953,14 @@ lemma exists_torsionFree_pairCoeffLowerBound
   classical
   let H : AddSubgroup G := AddSubgroup.closure (B : Set G)
   let BH : Finset H := B.subtype fun x => x ∈ H
-  haveI : IsAddTorsionFree H := by
+  have : IsAddTorsionFree H := by
     constructor
     intro n hn x y hxy
     ext
     exact IsAddTorsionFree.nsmul_right_injective hn (by
       simpa using congrArg Subtype.val hxy)
-  haveI : Finite (B : Set G) := Set.finite_coe_iff.mpr B.finite_toSet
-  haveI : AddGroup.FG H := AddGroup.closure_finite_fg (B : Set G)
+  have : Finite (B : Set G) := Set.finite_coe_iff.mpr B.finite_toSet
+  have : AddGroup.FG H := AddGroup.closure_finite_fg (B : Set G)
   obtain ⟨QH, hQH, hboundH⟩ :=
     exists_fg_torsionFree_pairCoeffLowerBound (G := H) BH hM
   let emb := PairCoeffLowerBound.addMonoidHomEmbedding
@@ -9328,7 +9328,7 @@ lemma continuousCliqueDensity_lipschitz_sup
         abs_continuousCliqueKernel_sub_le_card_mul M
           hf_nonneg hf_le hg_nonneg hg_le hclose x
   have hμM_real : μM.real Set.univ = 1 := by
-    haveI : IsProbabilityMeasure μM := inferInstance
+    have : IsProbabilityMeasure μM := inferInstance
     simp [Measure.real, IsProbabilityMeasure.measure_univ]
   unfold continuousCliqueDensity
   change |∫ x, Kf x ∂μM - ∫ x, Kg x ∂μM| ≤ C
@@ -9407,7 +9407,7 @@ lemma continuousCliqueDensity_lipschitz_sup_two_pow
         abs_continuousCliqueKernel_sub_le_card_mul_two_pow M
           hf_abs hg_abs hclose x
   have hμM_real : μM.real Set.univ = 1 := by
-    haveI : IsProbabilityMeasure μM := inferInstance
+    have : IsProbabilityMeasure μM := inferInstance
     simp [Measure.real, IsProbabilityMeasure.measure_univ]
   unfold continuousCliqueDensity
   change |∫ x, Kf x ∂μM - ∫ x, Kg x ∂μM| ≤ C
@@ -10651,7 +10651,7 @@ lemma coeff_norm_le_one (E : CayleyExtraction S) (γ : E.Group) :
         ‖(letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩;
           normalizedDftCoeff (S.T (E.φ n)) (E.lift n γ))‖ ≤ 1 :=
     Filter.Eventually.of_forall (fun n => by
-      letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+      let : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
       simpa [CayleyCounterSeq.toFourierSeq, FourierSeq.coeff,
         normalizedDftCoeff] using
         (S.toFourierSeq).norm_coeff_le_one (E.φ n) (E.lift n γ))
@@ -10673,7 +10673,7 @@ lemma coeff_zero_re_nonneg (E : CayleyExtraction S) :
           (letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩;
             (normalizedDftCoeff (S.T (E.φ n)) (E.lift n 0)).re) := by
     filter_upwards [E.data.finiteLift_zero_eventually_eq_zero] with n hn
-    letI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+    let : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
     have hp_pos : 0 < (S.p (E.φ n) : ℝ) := by
       exact_mod_cast Nat.pos_of_ne_zero (S.prime (E.φ n)).ne_zero
     have hcard_nonneg :
@@ -12539,9 +12539,9 @@ theorem compact_limit_cliqueDensity_pos_of_gReal_bounds
     (hg_le : ∀ x : E.CompactAddDual, E.gReal x ≤ 1) :
     0 < continuousCliqueDensity E.haar ℓ E.fReal := by
   classical
-  letI : CompactSpace E.CompactAddDual := E.compactAddDual_compactSpace
-  letI : T2Space E.CompactAddDual := E.compactAddDual_t2Space
-  letI : IsTopologicalAddGroup E.CompactAddDual :=
+  let : CompactSpace E.CompactAddDual := E.compactAddDual_compactSpace
+  let : T2Space E.CompactAddDual := E.compactAddDual_t2Space
+  let : IsTopologicalAddGroup E.CompactAddDual :=
     E.compactAddDual_isTopologicalAddGroup
   have hbranch :
       E.gReal (0 : E.CompactAddDual) < 1 ∨
@@ -12574,9 +12574,9 @@ theorem compact_limit_cliqueDensity_pos_of_gReal_bounds_not_finiteIndex
           AddSubgroup E.CompactAddDual).FiniteIndex) :
     0 < continuousCliqueDensity E.haar ℓ E.fReal := by
   classical
-  letI : CompactSpace E.CompactAddDual := E.compactAddDual_compactSpace
-  letI : T2Space E.CompactAddDual := E.compactAddDual_t2Space
-  letI : IsTopologicalAddGroup E.CompactAddDual :=
+  let : CompactSpace E.CompactAddDual := E.compactAddDual_compactSpace
+  let : T2Space E.CompactAddDual := E.compactAddDual_t2Space
+  let : IsTopologicalAddGroup E.CompactAddDual :=
     E.compactAddDual_isTopologicalAddGroup
   have hbranch :
       E.gReal (0 : E.CompactAddDual) < 1 ∨
@@ -12610,9 +12610,9 @@ theorem compact_limit_cliqueDensity_pos_of_gReal_bounds_infiniteIndex
     (hg_le : ∀ x : E.CompactAddDual, E.gReal x ≤ 1) :
     0 < continuousCliqueDensity E.haar ℓ E.fReal := by
   classical
-  letI : CompactSpace E.CompactAddDual := E.compactAddDual_compactSpace
-  letI : T2Space E.CompactAddDual := E.compactAddDual_t2Space
-  letI : IsTopologicalAddGroup E.CompactAddDual :=
+  let : CompactSpace E.CompactAddDual := E.compactAddDual_compactSpace
+  let : T2Space E.CompactAddDual := E.compactAddDual_t2Space
+  let : IsTopologicalAddGroup E.CompactAddDual :=
     E.compactAddDual_isTopologicalAddGroup
   have hbranch :
       E.gReal (0 : E.CompactAddDual) < 1 ∨
@@ -14028,8 +14028,8 @@ lemma finiteCliqueKernelDensity_evalFinite_eventually_eq_compact
     exact E.finiteCliqueFrequencyBalance_all_zero_iff_eventually
       (E.extendCliqueEdgeAssignment ω)
   filter_upwards [hbalance] with n hbalance_n
-  haveI : Fact (S.p (E.φ n)).Prime := ⟨S.prime (E.φ n)⟩
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : Fact (S.p (E.φ n)).Prime := ⟨S.prime (E.φ n)⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   rw [E.finiteCliqueKernelDensity_evalFinite_eq_sum_edgeAssignments P n]
   rw [E.compactCliqueDensity_evalAdd_eq_sum_edgeAssignments P]
   dsimp [A] at hbalance_n
@@ -14097,8 +14097,8 @@ lemma finiteCliqueKernelDensity_evalFinite_tendsto_compact_of_coeff_tendsto
             TrigPoly.evalFinite (Pseq n) n z)) =ᶠ[atTop]
       (fun n => ∑ ω ∈ W, finiteTerm n ω) := by
     filter_upwards [hPseq_support] with n hn_support
-    haveI : Fact (S.p (E.φ n)).Prime := ⟨S.prime (E.φ n)⟩
-    haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+    have : Fact (S.p (E.φ n)).Prime := ⟨S.prime (E.φ n)⟩
+    have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
     rw [E.finiteCliqueKernelDensity_evalFinite_eq_sum_edgeAssignments_of_support_subset
       (Pseq n) A hn_support n]
   have hcompact_exp :
@@ -14243,8 +14243,8 @@ lemma finiteCliqueKernelDensity_finiteSmooth_tendsto_compactSmooth
   filter_upwards
     [E.finiteSmooth_eq_evalFinite_finiteSmoothModelTrigPoly_eventually Q]
     with n hn
-  haveI : Fact (S.p (E.φ n)).Prime := ⟨S.prime (E.φ n)⟩
-  haveI : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
+  have : Fact (S.p (E.φ n)).Prime := ⟨S.prime (E.φ n)⟩
+  have : NeZero (S.p (E.φ n)) := ⟨(S.prime (E.φ n)).ne_zero⟩
   congr 1
   funext z
   exact (hn z).symm
@@ -14475,8 +14475,8 @@ theorem CayleyCounterSeq.false
     hnorm_eventually.and (hspectral_eventually.and hdensity_eventually)
   obtain ⟨N, hN⟩ := Filter.eventually_atTop.mp hall
   rcases hN N le_rfl with ⟨hnorm, hspectral, hdensity⟩
-  haveI : Fact (S.p (E.φ N)).Prime := ⟨S.prime (E.φ N)⟩
-  haveI : NeZero (S.p (E.φ N)) := ⟨(S.prime (E.φ N)).ne_zero⟩
+  have : Fact (S.p (E.φ N)).Prime := ⟨S.prime (E.φ N)⟩
+  have : NeZero (S.p (E.φ N)) := ⟨(S.prime (E.φ N)).ne_zero⟩
   have hdensity' :
       ((ℓ * ℓ : ℕ) : ℝ) * Merr <
         (finiteCliqueKernelDensity (p := S.p (E.φ N)) (ℓ := ℓ)
@@ -14607,7 +14607,7 @@ theorem theorem_1_1_from_compact_cayley
   have hNpos : 0 < N := by omega
   obtain ⟨p, hpprime, hpgt, hple⟩ :=
     Nat.exists_prime_lt_and_le_two_mul (4 * N) (by omega)
-  haveI : Fact p.Prime := ⟨hpprime⟩
+  have : Fact p.Prime := ⟨hpprime⟩
   have hp₀lt : p₀ < p := by omega
   have hpN : N < p := by omega
   have hpupper : p < 8 * N := by

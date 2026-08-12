@@ -496,7 +496,7 @@ lemma lemma1_lucas_step (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1)
           Nat.choose a b ≡
             Nat.choose (a % p) (b % p) * Nat.choose (a / p) (b / p)
               [MOD p] := by
-      haveI := Fact.mk hp; simp +decide [ ← ZMod.natCast_eq_natCast_iff ] ;
+      have := Fact.mk hp; simp +decide [ ← ZMod.natCast_eq_natCast_iff ] ;
       -- Apply Lucas's Theorem to conclude the proof.
       have h_lucas :
           ∀ (a b : ℕ),
@@ -551,7 +551,7 @@ lemma lemma1_lucas_step (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1)
             (h_lucas_iter (k + 1) hk) |> Eq.trans <| by
               simp +decide [Nat.sub_sub]
     specialize h_lucas_iter_start ( j - 1 ) ; rcases j <;> aesop;
-  haveI := Fact.mk hp; simp_all +decide [ ← ZMod.natCast_eq_natCast_iff ] ;
+  have := Fact.mk hp; simp_all +decide [ ← ZMod.natCast_eq_natCast_iff ] ;
   exact Or.inr <| Or.inr <| by rw [ ← ZMod.natCast_eq_zero_iff ] ; aesop;
 
 /-
@@ -630,7 +630,7 @@ lemma lemma1_equality (n j p : ℕ) (hp : p.Prime) (hj : j ≥ 1)
             exact h_div)
           generalize_proofs at *;
           exact h_div;
-        haveI := Fact.mk hp
+        have := Fact.mk hp
         rw [ h_div, padicValNat.pow ]
         aesop
       have h_div : padicValNat p (Nat.choose (n - 1) (p ^ j - 1)) = 0 := by
@@ -762,7 +762,7 @@ lemma lemma_val_div_int (p : ℕ) (n : ℤ) (k : ℕ) (hp : p.Prime)
     padicValNat p (n / p).toNat = k := by
       have h_div : Int.toNat (n / p) = Int.toNat n / p := by
         cases n <;> aesop;
-      haveI := Fact.mk hp
+      have := Fact.mk hp
       rw [ h_div, padicValNat.div_of_dvd ]
       · aesop
       · exact ( by contrapose! h_val; simp_all +decide [ padicValNat.eq_zero_of_not_dvd ] )
@@ -863,7 +863,7 @@ lemma lemma_super_sequence_base (p : ℕ) (A : ℕ → ℤ) (c : ℕ → ℤ)
       -- Since $c_1 \equiv p-1 \pmod p$ and $c_1 \ge 0$, the smallest non-negative integer congruent to $p-1$ modulo $p$ is $p-1$. So $c_1 \ge p-1$.
       have hc1_ge_p_minus_1 : c 1 ≥ p - 1 := by
         have hc1_ge_p_minus_1 : (c 1 : ℤ) ≡ (p - 1 : ℤ) [ZMOD p] := by
-          haveI := Fact.mk hp; simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ] ;
+          have := Fact.mk hp; simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ] ;
           exact mul_left_cancel₀ ( show ( A 1 : ZMod p ) ≠ 0 from by rw [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] at hA1_not_div_p; aesop ) <| by linear_combination' h_cong;
         exact Int.le_of_not_gt fun h => by have := hc1_ge_p_minus_1.symm.dvd; obtain ⟨ k, hk ⟩ := this; nlinarith [ show k = 0 by nlinarith [ hc_nonneg 1 ] ] ;
       exact mul_le_mul_of_nonneg_right hc1_ge_p_minus_1 ( hA.2.2 1 ( by norm_num ) |> le_of_lt )
@@ -900,7 +900,7 @@ lemma lemma_abstract_coeff_congruence (p m : ℕ) (A : ℕ → ℤ) (c : ℕ →
           exact ⟨ Int.modEq_zero_iff_dvd.mpr <| Finset.dvd_sum fun x hx => dvd_mul_of_dvd_right ( Int.dvd_of_emod_eq_zero <| hA_mod_p x hx ) _, Int.modEq_zero_iff_dvd.mpr <| Finset.dvd_sum fun x hx => dvd_mul_of_dvd_right ( Int.dvd_of_emod_eq_zero <| hA_mod_p x hx ) _ ⟩;
         rcases m with ( _ | m ) <;> simp_all +decide [ Finset.sum_Ioc_succ_top, (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc) ];
         simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ];
-      haveI := Fact.mk hp; simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ] ;
+      have := Fact.mk hp; simp_all +decide [ ← ZMod.intCast_eq_intCast_iff ] ;
       exact mul_left_cancel₀ ( show ( A m : ZMod p ) ≠ 0 from by rw [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] at hA_m_not_div_p; aesop ) ( by linear_combination' h_cancel )
 
 /-
@@ -1225,7 +1225,7 @@ lemma lemma_super_sequence_representation_induction_step (p m : ℕ) (A : ℕ �
                    · exact this.resolve_left hp.ne_one |> Or.rec ( fun h => by linarith [ hA.2.2 m ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) ] ) fun h => h;
                    · linarith [ hA.2.2 m ( Finset.mem_Icc.mpr ⟨ by linarith, by linarith ⟩ ) ]
                  generalize_proofs at *; (
-                 haveI := Fact.mk hp; simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd, Int.modEq_iff_dvd ] ;
+                 have := Fact.mk hp; simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd, Int.modEq_iff_dvd ] ;
                  -- Since $A_m$ is not divisible by $p$, we can find $c_m$ such that $c_m \cdot A_m \equiv x \pmod{p}$.
                  obtain ⟨c_m, hc_m⟩ : ∃ c_m : ZMod p, c_m * (A m : ZMod p) = x := by
                    exact ⟨ x / A m, by rw [ div_mul_cancel₀ _ h_not_div ] ⟩;
@@ -1327,7 +1327,7 @@ lemma lemma_cross_term_vanishes (n : ℕ) (p q : ℕ) (j : ℕ)
           linarith [ Nat.zero_le ( padicValNat p ( Nat.choose ( n - 1 ) ( q ^ j - 1 ) ) ) ];
         by_cases h : Nat.choose n ( q ^ j ) = 0 <;> by_cases h' : q ^ j = 0 <;> simp_all +decide [ padicValNat.mul ];
         have hq_val : padicValNat p q = 0 := by
-          haveI := Fact.mk hp.1
+          have := Fact.mk hp.1
           exact padicValNat.eq_zero_of_not_dvd ( by rw [ Nat.dvd_prime hq.1 ] ; aesop )
         nlinarith
       -- Since $p^v divides $\binom{n}{q^j}$, we have $\binom{n}{q^j} \equiv 0 \pmod{p^v}$.
@@ -1645,12 +1645,12 @@ lemma lemma_valuation_binom_lower_bound (n m p : ℕ)
         have h_identity : m * Nat.choose n m = n * Nat.choose (n - 1) (m - 1) := by
           cases n <;> cases m <;> simp_all +decide [ Nat.add_one_mul_choose_eq ];
           ring;
-        haveI := Fact.mk hp
+        have := Fact.mk hp
         rw [ h_identity, padicValNat.mul ]
         · aesop
         · exact ne_of_gt <| Nat.choose_pos <| by omega
       have h_identity : padicValNat p (m * Nat.choose n m) = padicValNat p m + padicValNat p (Nat.choose n m) := by
-        haveI := Fact.mk hp; rw [ padicValNat.mul ( by positivity ) ( Nat.ne_of_gt ( Nat.choose_pos hn ) ) ] ;
+        have := Fact.mk hp; rw [ padicValNat.mul ( by positivity ) ( Nat.ne_of_gt ( Nat.choose_pos hn ) ) ] ;
       grind
 
 /-
@@ -2074,7 +2074,7 @@ lemma lemma_canonical_sum_for_prime_pow_is_local (n m : ℕ)
         have hq_not_dvd_pow : ¬ q ∣ p ^ k := by
           intro h
           exact hq_not_dvd_p (hq_prime.dvd_of_dvd_pow h)
-        haveI := Fact.mk hq_prime
+        have := Fact.mk hq_prime
         exact padicValNat.eq_zero_of_not_dvd hq_not_dvd_pow
       -- Since $v_q(m) = 0$ for any prime $q \neq p$, the canonical coefficients for $q$ are all zero.
       have h_coeff_zero : ∀ q ∈ n.factorization.support, q ≠ p → ∀ j ∈ Finset.Icc 1 (n.factorization q), CanonicalRep n (Nat.choose n (p ^ k)) hn h_not_prime_pow q j = 0 := by

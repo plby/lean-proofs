@@ -114,7 +114,7 @@ lemma lem_divisoravg (t : ℕ) :
       rw [ ← Finset.prod_subset h_prime_factors ];
       · exact Finset.prod_congr rfl fun x hx => by rw [ if_pos ( Nat.dvd_of_mem_primeFactors hx ) ] ;
       · aesop;
-    rw [ h_divisors, h_prod_eq, Finset.prod_image <| by intros a ha b hb hab; simpa using Nat.nth_injective ( Nat.infinite_setOf_prime ) hab ];
+    rw [ h_divisors, h_prod_eq, Finset.prod_image <| by intros a ha b hb hab; simpa using Nat.nth_injective ( Nat.infinite_setOfPred_prime ) hab ];
   -- Therefore, $\sum_{d\mid Q_t}\frac{\varphi(d)}{d}=\sum_{S\subseteq\{1,\dots,t\}}\ \prod_{i\in S}\left(1-\frac1{p_i}\right)$.
   have h_sum_divisors : ∑ d ∈ Nat.divisors (Q t), (Nat.totient d : ℚ) / d = ∑ S ∈ Finset.powerset (Finset.range t), (∏ i ∈ S, (1 - 1 / (Nat.nth Nat.Prime i : ℚ))) := by
     -- By definition of divisors, we can rewrite the sum over the divisors of $Q_t$ as a sum over the subsets of $\{1, \dots, t\}$.
@@ -131,13 +131,13 @@ lemma lem_divisoravg (t : ℕ) :
       simp +decide [ Finset.prod_ite, Nat.Prime.dvd_iff_not_coprime ];
       refine Finset.prod_bij ( fun x hx => x ) ?_ ?_ ?_ ?_ <;> simp_all +decide [ Nat.coprime_prod_right_iff ];
       · intro a ha x hx; rw [ Nat.gcd_comm ] ; simp_all +decide [ Nat.coprime_primes ] ;
-        intro h; have := Nat.nth_injective ( Nat.infinite_setOf_prime ) h; aesop;
+        intro h; have := Nat.nth_injective ( Nat.infinite_setOfPred_prime ) h; aesop;
       · exact fun x hx => ⟨ Finset.mem_range.mp ( hS hx ), x, hx, by simp +decide [ Nat.Prime.ne_one ] ⟩;
     · intros S hS T hT h_eq; apply_fun fun x => x.primeFactors at h_eq; simp_all +decide [ Finset.subset_iff ] ;
       simp_all +decide [ Finset.ext_iff, Set.subset_def ];
       intro x; specialize h_eq ( Nat.nth Nat.Prime x ) ( Nat.prime_nth_prime x ) ; simp_all +decide [ Nat.Prime.dvd_iff_not_coprime, Nat.coprime_prod_right_iff ] ;
       simp_all +decide [ Nat.coprime_primes, Finset.prod_eq_zero_iff, Nat.Prime.ne_zero ];
-      exact ⟨ fun hx => h_eq.mp ⟨ x, hx, rfl ⟩ |> fun ⟨ y, hy, hy' ⟩ => by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) hy'; aesop, fun hx => h_eq.mpr ⟨ x, hx, rfl ⟩ |> fun ⟨ y, hy, hy' ⟩ => by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) hy'; aesop ⟩;
+      exact ⟨ fun hx => h_eq.mp ⟨ x, hx, rfl ⟩ |> fun ⟨ y, hy, hy' ⟩ => by have := Nat.nth_injective ( Nat.infinite_setOfPred_prime ) hy'; aesop, fun hx => h_eq.mpr ⟨ x, hx, rfl ⟩ |> fun ⟨ y, hy, hy' ⟩ => by have := Nat.nth_injective ( Nat.infinite_setOfPred_prime ) hy'; aesop ⟩;
   -- Therefore, $\sum_{S\subseteq\{1,\dots,t\}}\ \prod_{i\in S}\left(1-\frac1{p_i}\right)=\prod_{i=1}^t\left(1+\left(1-\frac1{p_i}\right)\right)$.
   have h_sum_powerset : ∑ S ∈ Finset.powerset (Finset.range t), (∏ i ∈ S, (1 - 1 / (Nat.nth Nat.Prime i : ℚ))) = ∏ i ∈ Finset.range t, (1 + (1 - 1 / (Nat.nth Nat.Prime i : ℚ))) := by
     simp +decide [ add_comm ( 1 : ℚ ), Finset.prod_add ];
@@ -234,12 +234,12 @@ lemma lem_product0 : Filter.Tendsto (fun t => (Finset.range t).prod (fun i => 1 
           · have hp_prime : Nat.Prime p := by simpa using hp.2
             by_contra h_count
             have h_le : t ≤ Nat.count Nat.Prime p := Nat.le_of_not_gt h_count
-            have h_mono := Nat.nth_monotone (Nat.infinite_setOf_prime) h_le
+            have h_mono := Nat.nth_monotone (Nat.infinite_setOfPred_prime) h_le
             have h_count_eq := Nat.nth_count hp_prime
             linarith [hp.1, h_mono, h_count_eq]
           · rw [ Nat.nth_count ] ; aesop;
-        exact le_trans ( Finset.sum_le_sum_of_subset_of_nonneg h_subset fun _ _ _ => by positivity ) ( by rw [ Finset.sum_image <| by intros a ha b hb hab; simpa using Nat.nth_injective ( Nat.infinite_setOf_prime ) hab ] );
-      exact Filter.tendsto_atTop_mono h_reciprocals <| by rename_i h; exact h.comp <| Nat.nth_strictMono ( Nat.infinite_setOf_prime ) |> StrictMono.tendsto_atTop;
+        exact le_trans ( Finset.sum_le_sum_of_subset_of_nonneg h_subset fun _ _ _ => by positivity ) ( by rw [ Finset.sum_image <| by intros a ha b hb hab; simpa using Nat.nth_injective ( Nat.infinite_setOfPred_prime ) hab ] );
+      exact Filter.tendsto_atTop_mono h_reciprocals <| by rename_i h; exact h.comp <| Nat.nth_strictMono ( Nat.infinite_setOfPred_prime ) |> StrictMono.tendsto_atTop;
     simpa [ Finset.mul_sum _ _ _, mul_comm ] using h_sum_diverges.const_mul_atTop ( by norm_num : ( 0 : ℝ ) < 1 / 2 );
   -- Therefore, $\prod_{i=1}^\infty (1 - \frac{1}{2p_i})$ converges to 0.
   have h_prod_zero : Filter.Tendsto (fun t => ∏ i ∈ Finset.range t, (1 - 1 / (2 * Nat.nth Nat.Prime i : ℝ))) Filter.atTop (nhds 0) := by
@@ -421,7 +421,7 @@ lemma n_seq_block_mono (t : ℕ) (k : ℕ)
             | succ t ih =>
               simp_all +decide [ Finset.prod_range_succ ];
               rw [ h_divisors_card, ih ];
-              exact Nat.Coprime.prod_left fun i hi => Nat.coprime_comm.mp <| Nat.Prime.coprime_iff_not_dvd ( Nat.prime_nth_prime _ ) |>.2 <| Nat.not_dvd_of_pos_of_lt ( Nat.Prime.pos <| Nat.prime_nth_prime _ ) <| Nat.nth_strictMono ( Nat.infinite_setOf_prime ) <| Finset.mem_range.mp hi;
+              exact Nat.Coprime.prod_left fun i hi => Nat.coprime_comm.mp <| Nat.Prime.coprime_iff_not_dvd ( Nat.prime_nth_prime _ ) |>.2 <| Nat.not_dvd_of_pos_of_lt ( Nat.Prime.pos <| Nat.prime_nth_prime _ ) <| Nat.nth_strictMono ( Nat.infinite_setOfPred_prime ) <| Finset.mem_range.mp hi;
         simp_all +decide [ Nat.Prime.divisors ];
         exact h_divisors_card.trans ( by rw [ Finset.prod_congr rfl fun _ _ => Finset.card_pair <| ne_of_lt <| Nat.Prime.one_lt <| Nat.prime_nth_prime _ ] ; norm_num );
       have hbound : j < (Nat.divisors (Q t)).card - 1 := by
@@ -586,7 +586,7 @@ lemma n_seq_phi_bound (t : ℕ) (k : ℕ)
                         intro s hs; induction s using Finset.induction <;> simp +decide [ * ] ;
                         rw [ Nat.primeFactors_mul, ‹ ( _ : Finset ℕ ) ⊆ Finset.range t → ( ∏ i ∈ _, Nat.nth Nat.Prime i |> Nat.primeFactors ) = _› <| Finset.Subset.trans ( Finset.subset_insert _ _ ) hs ] <;> norm_num [ Nat.Prime.ne_zero, Finset.prod_eq_zero_iff ];
                       rw [ h_prime_factors a ( fun x hx => Finset.mem_range.mpr ( ha hx ) ), h_prime_factors b ( fun x hx => Finset.mem_range.mpr ( hb hx ) ) ] at h_eq;
-                      exact Finset.image_injective ( Nat.nth_injective ( Nat.infinite_setOf_prime ) ) h_eq;
+                      exact Finset.image_injective ( Nat.nth_injective ( Nat.infinite_setOfPred_prime ) ) h_eq;
                   · intro d hd; simp +decide [ Q ] at hd ⊢;
                     obtain ⟨ a, ha₁, rfl ⟩ := hd; exact ⟨ by rw [ ← Finset.prod_sdiff ha₁ ] ; norm_num, Finset.prod_ne_zero_iff.mpr fun i hi => Nat.Prime.ne_zero <| by norm_num ⟩ ;
               · exact Finset.prod_ne_zero_iff.mpr fun i hi => Nat.Prime.ne_zero <| Nat.prime_nth_prime i;
@@ -608,7 +608,7 @@ lemma n_seq_phi_bound (t : ℕ) (k : ℕ)
                     rw [ h_divisors_card, ih ];
                     refine Nat.Coprime.prod_left ?_;
                     intro i hi; rw [ Nat.coprime_primes ] <;> norm_num [ Nat.Prime.ne_zero, Nat.Prime.ne_one ] ;
-                    exact fun h => by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) h; linarith [ Finset.mem_range.mp hi ] ;
+                    exact fun h => by have := Nat.nth_injective ( Nat.infinite_setOfPred_prime ) h; linarith [ Finset.mem_range.mp hi ] ;
               simp_all +singlePass [ Nat.Prime.divisors ];
               exact h_divisors_card.trans ( by rw [ Finset.prod_congr rfl fun _ _ => Finset.card_pair <| ne_of_lt <| Nat.Prime.one_lt <| Nat.prime_nth_prime _ ] ; norm_num );
             omega
@@ -669,7 +669,7 @@ lemma card_divisors_Q (t : ℕ) : (Nat.divisors (Q t)).card = 2 ^ t := by
     simp_all +decide [ Finset.ext_iff, Set.subset_def ];
     intro x; specialize h_eq ( Nat.nth Nat.Prime x ) ( Nat.prime_nth_prime x ) ; simp_all +decide [ Nat.Prime.dvd_iff_not_coprime, Nat.coprime_prod_right_iff ] ;
     simp_all +decide [ Nat.coprime_primes, Finset.prod_eq_zero_iff, Nat.Prime.ne_zero ];
-    exact ⟨ fun hx => h_eq.mp ⟨ x, hx, rfl ⟩ |> fun ⟨ y, hy, hy' ⟩ => by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) hy'; aesop, fun hx => h_eq.mpr ⟨ x, hx, rfl ⟩ |> fun ⟨ y, hy, hy' ⟩ => by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) hy'; aesop ⟩
+    exact ⟨ fun hx => h_eq.mp ⟨ x, hx, rfl ⟩ |> fun ⟨ y, hy, hy' ⟩ => by have := Nat.nth_injective ( Nat.infinite_setOfPred_prime ) hy'; aesop, fun hx => h_eq.mpr ⟨ x, hx, rfl ⟩ |> fun ⟨ y, hy, hy' ⟩ => by have := Nat.nth_injective ( Nat.infinite_setOfPred_prime ) hy'; aesop ⟩
 
 /-
 For t >= 1, the sum of f(n_k/r_t) over the block t is equal to the sum of f(d) over the divisors of Q_t.

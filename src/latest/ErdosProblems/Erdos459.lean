@@ -241,7 +241,7 @@ theorem infinite_setOf_f_eq_self_add_two : Set.Infinite {u | f u = u + 2} := by
 There are infinitely many u such that f(u) = u^2.
 -/
 theorem infinite_setOf_f_eq_sq : Set.Infinite {u | f u = u ^ 2} := by
-  exact Nat.infinite_setOf_prime.mono fun p hp => f_prime hp
+  exact Nat.infinite_setOfPred_prime.mono fun p hp => f_prime hp
 /-
 A set $A \subseteq \mathbb{N}$ has natural density $d$ if
 $\lim_{n \to \infty} \frac{|A \cap \{0, \dots, n-1\}|}{n} = d$. The natural

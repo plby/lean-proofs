@@ -708,7 +708,7 @@ There exist 3 distinct primes coprime to n (for n != 0).
 lemma exists_three_primes (n : ℕ) (hn : n ≠ 0) : ∃ p : Fin 3 → ℕ, (∀ i, (p i).Prime) ∧ (∀ i j, i ≠ j → p i ≠ p j) ∧ (∀ i, (p i).Coprime n) := by
   -- Since there are infinitely many primes, we can choose three distinct primes that are coprime to n.
   have h_inf_primes : Set.Infinite {p : ℕ | Nat.Prime p ∧ Nat.Coprime p n} := by
-    exact Nat.infinite_setOf_prime.sdiff ( Set.finite_le_nat n ) |>
+    exact Nat.infinite_setOfPred_prime.sdiff ( Set.finite_le_nat n ) |>
       Set.Infinite.mono fun p hp => ⟨ hp.1, Nat.Prime.coprime_iff_not_dvd hp.1 |>.2 fun h =>
         hp.2 <| Nat.le_of_dvd ( Nat.pos_of_ne_zero hn ) h ⟩;
   have := h_inf_primes.exists_subset_card_eq 3; rcases this with ⟨ s, hs ⟩ ; rcases Finset.card_eq_three.mp hs.2 with ⟨ p, q, r, hp, hq, hr ⟩ ; use fun i => if i = 0 then p else if i = 1 then q else r; simp_all +decide [ Fin.forall_fin_succ ] ;
@@ -766,9 +766,9 @@ lemma exists_representation_odd_primes (q : ℚ) (hq : 0 < q) :
       -- Choose `n_p + n_q` distinct odd primes. For example, the first `n_p + n_q` primes starting from 3.
       obtain ⟨ps, hps⟩ : ∃ ps : List ℕ, ps.length = data_p.length + data_q.length ∧ (∀ p ∈ ps, Nat.Prime p ∧ p > 2) ∧ List.Pairwise (fun x1 x2 => x1 ≠ x2) ps := by
         exact ⟨ List.map ( fun i => Nat.nth Nat.Prime ( i + 2 ) ) ( List.range ( List.length data_p + List.length data_q ) ), by simp +decide, fun p hp => by
-          have := List.mem_map.mp hp; obtain ⟨ i, hi, rfl ⟩ := this; exact ⟨ Nat.prime_nth_prime _, Nat.lt_of_le_of_lt ( Nat.Prime.two_le <| Nat.prime_nth_prime _ ) <| Nat.nth_strictMono ( Nat.infinite_setOf_prime ) <| Nat.lt_succ_self _ ⟩ ;, by
+          have := List.mem_map.mp hp; obtain ⟨ i, hi, rfl ⟩ := this; exact ⟨ Nat.prime_nth_prime _, Nat.lt_of_le_of_lt ( Nat.Prime.two_le <| Nat.prime_nth_prime _ ) <| Nat.nth_strictMono ( Nat.infinite_setOfPred_prime ) <| Nat.lt_succ_self _ ⟩ ;, by
           norm_num [ List.pairwise_iff_get ];
-          exact fun i j hij => fun h => hij.ne <| Fin.ext <| by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) h; aesop; ⟩;
+          exact fun i j hij => fun h => hij.ne <| Fin.ext <| by have := Nat.nth_injective ( Nat.infinite_setOfPred_prime ) h; aesop; ⟩;
       refine ⟨ List.zipWith ( fun p x => ( p, x.2.1, x.2.2 ) ) ( List.take data_p.length ps ) data_p, List.zipWith ( fun p x => ( p, x.2.1, x.2.2 ) ) ( List.drop data_p.length ps ) data_q, ?_, ?_, ?_, ?_ ⟩ <;> simp_all +decide [ List.pairwise_append ];
       · unfold target_val;
         congr! 2;
@@ -975,7 +975,7 @@ lemma prime_dvd_R2_imp_dvd_a (data_p data_q : List (ℕ × ℕ × ℕ))
     have h_div_Q : p ∣ Q_val data_q := by
       -- Since $p$ divides $R2_val data_q$, and $R2_val data_q$ is the product of $q^v$ for each $(q, u, v)$ in $data_q$, it follows that $p$ divides some $q^v$.
       obtain ⟨q, v, hq, hv⟩ : ∃ q v, (q, v) ∈ data_q.map (fun (q, u, v) => (q, v)) ∧ p ∣ q ^ v := by
-        haveI := Fact.mk hp; simp_all +decide [← ZMod.natCast_eq_zero_iff] ;
+        have := Fact.mk hp; simp_all +decide [← ZMod.natCast_eq_zero_iff] ;
         unfold R2_val at h; simp_all +decide [ZMod.natCast_eq_zero_iff] ;
         grind;
       obtain ⟨t, ht⟩ : ∃ t ∈ data_q, t.1 = q ∧ t.2.2 = v := by
@@ -1010,7 +1010,7 @@ lemma prime_dvd_R1_imp_dvd_a (data_p data_q : List (ℕ × ℕ × ℕ))
     -- Since p divides R1_val, and R1_val is a product of primes raised to some powers, p must be one of those primes. Therefore, p divides P_val.
     have h_div_P : p ∣ P_val data_p := by
       unfold P_val R1_val at *;
-      haveI := Fact.mk hp; simp_all +decide [← ZMod.natCast_eq_zero_iff] ;
+      have := Fact.mk hp; simp_all +decide [← ZMod.natCast_eq_zero_iff] ;
       grind;
     exact dvd_trans h_div_P ( dvd_mul_of_dvd_left ( dvd_mul_of_dvd_right ( by aesop ) _ ) _ )
 
@@ -1059,7 +1059,7 @@ lemma coprime_a_div_two_plus_one_R1 (data_p data_q : List (ℕ × ℕ × ℕ))
       have hk_prime : ∃ p ∈ data_p.map (fun x => x.1), k ∣ p := by
         have hk_prime : k ∣ (data_p.map (fun (p, _, y) => p ^ y)).prod := by
           exact hk';
-        haveI := Fact.mk hk; simp_all +decide [← ZMod.natCast_eq_zero_iff] ;
+        have := Fact.mk hk; simp_all +decide [← ZMod.natCast_eq_zero_iff] ;
         grind +ring;
       obtain ⟨ p, hp₁, hp₂ ⟩ := hk_prime; have := Nat.prime_dvd_prime_iff_eq hk ( hp_prime p ( by aesop ) ) ; aesop;
     · exact dvd_mul_of_dvd_left ( dvd_mul_of_dvd_left ( by decide ) _ ) _;
@@ -1120,14 +1120,14 @@ lemma coprime_P_Q_mul_R2 (data_p data_q : List (ℕ × ℕ × ℕ))
       have hp_in_data_p : p ∈ List.map (fun x => x.1) data_p := by
         have hp_in_data_p : p ∣ (data_p.map (fun (p, x, _) => p ^ x)).prod := by
           exact hp_div_P;
-        haveI := Fact.mk hp; simp_all +decide [← ZMod.natCast_eq_zero_iff] ;
+        have := Fact.mk hp; simp_all +decide [← ZMod.natCast_eq_zero_iff] ;
         obtain ⟨ a, b, ⟨ x, hx ⟩, ha, hb ⟩ := hp_in_data_p; rw [ ZMod.natCast_eq_zero_iff ] at ha; rw [ Nat.prime_dvd_prime_iff_eq ] at ha <;> aesop;
       have hp_not_in_data_q : p ∉ List.map (fun x => x.1) data_q := by
         grind +ring
       have hp_not_div_QR2 : ¬(p ∣ Q_val data_q) := by
         have hp_not_div_QR2 : ∀ q ∈ List.map (fun x => x.1) data_q, ¬(p ∣ q) := by
           intro q hq hq_div_p; have := List.pairwise_append.mp hp_distinct; simp_all +decide [ Nat.prime_dvd_prime_iff_eq ] ;
-        haveI := Fact.mk hp; simp_all +decide [← ZMod.natCast_eq_zero_iff] ;
+        have := Fact.mk hp; simp_all +decide [← ZMod.natCast_eq_zero_iff] ;
         unfold Q_val; simp_all +decide ;
         exact fun x y z h₁ h₂ => False.elim <| hp_not_div_QR2 x y z h₁ h₂
       have hp_not_div_QR2' : ¬(p ∣ R2_val data_q) := by
@@ -1444,7 +1444,7 @@ lemma prime_dvd_R1_imp_mem (data_p : List (ℕ × ℕ × ℕ))
   (hp_prime : ∀ p ∈ data_p.map (fun x => x.1), Nat.Prime p)
   (p : ℕ) (hp : Nat.Prime p) (h : p ∣ R1_val data_p) :
   p ∈ data_p.map (fun x => x.1) := by
-    haveI := Fact.mk hp; simp_all +decide [ ← ZMod.natCast_eq_zero_iff, R1_val ] ;
+    have := Fact.mk hp; simp_all +decide [ ← ZMod.natCast_eq_zero_iff, R1_val ] ;
     obtain ⟨ a, b, c, h₁, h₂, h₃ ⟩ := h; rw [ ZMod.natCast_eq_zero_iff ] at h₂; have := Nat.prime_dvd_prime_iff_eq hp ( hp_prime _ _ _ h₁ ) ; aesop;
 
 /-

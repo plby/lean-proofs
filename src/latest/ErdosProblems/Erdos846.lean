@@ -923,7 +923,7 @@ lemma exists_bipartite_half (S : Finset (ℕ × ℕ)) (hS_lt : ∀ e ∈ S, e.1 
     · constructor
       · exact (div_le_iff₀' two_pos).mpr (by norm_cast)
       · simp_all only [Prod.forall, ne_eq, ge_iff_le, IsBipartite, Finset.mem_filter,
-          Set.mem_setOf_eq, and_imp]
+          Set.mem_ofPred_eq, and_imp]
         use fun and a s=>by cases f and with norm_num
 
 lemma mantel_half (S : Finset (ℕ × ℕ)) (hS_lt : ∀ e ∈ S, e.1 < e.2) :
@@ -1143,7 +1143,7 @@ lemma finite_ramsey (K : ℕ) : ∃ N : ℕ,
 
 lemma ramsey_infinite_chromatic_type (C : Type) [Finite C] (c : (ℕ × ℕ) → C) :
   ∃ i j k, i < j ∧ j < k ∧ c (i, j) = c (j, k) ∧ c (j, k) = c (i, k) := by
-  letI := Fintype.ofFinite C
+  let := Fintype.ofFinite C
   let K := Fintype.card C
   have h_equiv := Fintype.equivFin C
   let c' : (ℕ × ℕ) → Fin K := fun e ↦ h_equiv (c e)

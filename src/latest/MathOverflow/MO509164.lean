@@ -214,7 +214,7 @@ theorem pi_mem_C_n (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (ω : ℕ → Fin 2) (n 
       have h_pi_mem_I : pi r ω ∈ I_word (take_word n ω) r := by
         exact pi_mem_I_word r hr ω n
       have h_take_word_in_Sigma_n : take_word n ω ∈ Sigma_n n := by
-        exact Set.mem_setOf.mpr ( by unfold take_word; simp +decide ) ;
+        exact Set.mem_ofPred.mpr ( by unfold take_word; simp +decide ) ;
       exact Set.mem_iUnion₂.mpr ⟨take_word n ω, h_take_word_in_Sigma_n, h_pi_mem_I⟩
 
 /-
@@ -1674,7 +1674,7 @@ lemma N_delta_le (r : ℝ) (hr : 0 < r ∧ r < 1 / 2) (n : ℕ) :
               · rintro ⟨a, rfl⟩
                 simp [List.length_ofFn]
           have h_equiv : Nonempty (Fin (2 ^ n) ≃ Sigma_n n) := by
-            letI := h_finite.fintype
+            let := h_finite.fintype
             have h_card_subtype : Fintype.card (Sigma_n n) = 2 ^ n := by
               rw [ Set.fintypeCard_eq_ncard, h_card ]
             exact ⟨ Fintype.equivOfCardEq <| by simp [ h_card_subtype ] ⟩

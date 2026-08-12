@@ -237,7 +237,7 @@ theorem g3 (n : ℕ) (hn : 3 ≤ n) : gFun 3 n = 1 := by
     exact g3_upper n hn A hA hcard
   · -- ∀ k < 1, k ∉ S: lower bound (only k = 0)
     intro k hk
-    simp only [Set.mem_setOf_eq, not_forall]
+    simp only [Set.mem_ofPred_eq, not_forall]
     interval_cases k
     obtain ⟨A, hAsub, hAcard, hAneg⟩ := g3_lower n
     exact ⟨A, hAsub, by omega, hAneg⟩
@@ -292,7 +292,7 @@ theorem g3small : gFun 3 1 = 2 ∧ gFun 3 2 = 2 := by
     apply sInf_eq_of_mem_of_forall_lt_not_mem
     · intro A hA hcard; exact g3small_1_upper A hA hcard
     · intro k hk
-      simp only [Set.mem_setOf_eq, not_forall]
+      simp only [Set.mem_ofPred_eq, not_forall]
       obtain ⟨A, h1, h2, h3⟩ := g3small_1_lower
       interval_cases k
       · exact ⟨A, h1, by omega, h3⟩
@@ -301,7 +301,7 @@ theorem g3small : gFun 3 1 = 2 ∧ gFun 3 2 = 2 := by
     apply sInf_eq_of_mem_of_forall_lt_not_mem
     · intro A hA hcard; exact g3small_2_upper A hA hcard
     · intro k hk
-      simp only [Set.mem_setOf_eq, not_forall]
+      simp only [Set.mem_ofPred_eq, not_forall]
       obtain ⟨A, h1, h2, h3⟩ := g3small_2_lower
       interval_cases k
       · exact ⟨A, h1, by omega, h3⟩
@@ -471,17 +471,17 @@ lemma not_HasPosPairwiseSums_of_no_large_even {A : Finset ℤ}
 lemma h3_lower (n : ℕ) (hn : 4 ≤ n) :
     ∀ k < 2, k ∉ {m : ℕ | ∀ (A : Finset ℤ), A ⊆ Icc (1 : ℤ) (2 * ↑n) →
       n + m ≤ A.card → HasPosPairwiseSums A 3} := by
-  intro k hk_lt hk_mem; contrapose! hk_mem; simp_all +decide [Set.mem_setOf_eq]
+  intro k hk_lt hk_mem; contrapose! hk_mem; simp_all +decide
   use Finset.image (fun i : ℕ => 2 * i + 1 : ℕ → ℤ) (Finset.range n) ∪ {2}
   constructor <;> norm_num [Finset.subset_iff]
   · linarith
-  · rw [Finset.card_insert_of_notMem] <;>
-      norm_num [Finset.card_image_of_injective, Function.Injective]
-    have hodd_inj : Function.Injective
+  · have hodd_inj : Function.Injective
         (fun i : ℕ => 2 * i + 1 : ℕ → ℤ) := by
       intro i j hij
       norm_num at hij
       omega
+    rw [Finset.card_insert_of_notMem] <;>
+      norm_num [Finset.card_image_of_injective, Function.Injective]
     interval_cases k <;> simp_all +decide
     · constructor
       · rw [Finset.card_image_of_injective _ hodd_inj]
@@ -743,7 +743,7 @@ theorem g4 (n : ℕ) (hn : 2 ≤ n) : gFun 4 n = 3 := by
       omega
   · -- ∀ k < 3, k ∉ S
     intro k hk
-    simp only [Set.mem_setOf_eq, not_forall]
+    simp only [Set.mem_ofPred_eq, not_forall]
     obtain ⟨A, hAsub, hAcard, hAneg⟩ := g4_lower n hn
     interval_cases k
     · exact ⟨A, hAsub, by omega, hAneg⟩

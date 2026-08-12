@@ -1702,7 +1702,7 @@ lemma X_set_eq_disjoint_union (s t : ℕ) (hs : 0 < s) (ht : s ≤ t) :
       · convert fiber_gap_bound s t ht ht2 j.val j.prop using 1
         have := fiber_sup_bestNTermSum s t j.val j.prop
         rw [ bestNTermSum_eq ] at this
-        · simp_all only [mem_setOf_eq]
+        · simp_all only
         · exact fiber_sup_mem_X_set s t j.val j.prop |>.1
       · interval_cases t <;> interval_cases s ; norm_num at *
         have h_fiber : ∀ x ∈ X_fiber 1 1 j.val, x ≤ 1 / 2 + egyptianSum (bestNTermSet 1 x) := by

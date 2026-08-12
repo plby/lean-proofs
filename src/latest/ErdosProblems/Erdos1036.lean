@@ -1909,7 +1909,7 @@ theorem lemma_greedy_homogeneous {V : Type*} [Finite V] [DecidableEq V]
       (B.Pairwise Disjoint) ∧
       (C \ B.foldr (· ∪ ·) ∅).card < R m m := by
         classical
-        letI := Fintype.ofFinite V
+        let := Fintype.ofFinite V
         have h_exists_B :
             ∃ B : List (Finset V),
               (∀ b ∈ B, b ⊆ C) ∧
@@ -2931,7 +2931,7 @@ lemma lemma_large_homogeneous_subset {V : Type*} [Finite V]
     ∃ W' ⊆ W, (W'.card : ℝ) ≥ (W.card : ℝ) / 2 ∧
       ((∀ i ∈ W', G.IsNClique m (B i)) ∨ (∀ i ∈ W', G.IsNIndepSet m (B i))) := by
         classical
-        letI := Fintype.ofFinite V
+        let := Fintype.ofFinite V
         -- Let $W_{clique} = \{i \in W \mid B_i \text{ is clique}\}$ and $W_{indep} = \{i \in W \mid
         -- B_i \text{ is indep}\}$.
         set W_clique := Finset.filter (fun i => G.IsNClique m (B i)) W
@@ -2969,7 +2969,7 @@ lemma lemma_ramsey_on_subset {V : Type*} [Finite V]
     (hS : S.card ≥ R a b) :
     (∃ K ⊆ S, G.IsNClique a K) ∨ (∃ I ⊆ S, G.IsNIndepSet b I) := by
       classical
-      letI := Fintype.ofFinite V
+      let := Fintype.ofFinite V
       have := @ramsey_prop_general;
       specialize this a b (S.card) (by simp +decide)
         (ramsey_prop_mono (lemma_ramsey_prop_R a b ha hb) hS) (G.induce S);
@@ -3032,7 +3032,7 @@ lemma lemma_hom_from_uniform_W_cliques {V : Type*} [Finite V]
     (hW' : (W'.card : ℝ) ≥ R s r) :
     hom_num G ≥ r := by
       classical
-      letI := Fintype.ofFinite V
+      let := Fintype.ofFinite V
       -- Apply `lemma_ramsey_on_subset` to `R_graph G rep` and `W'` with parameters `s` and `r`.
       obtain ⟨K, hK⟩ :
           ∃ K ⊆ W',
@@ -3132,7 +3132,7 @@ lemma lemma_hom_from_uniform_W_indep {V : Type*} [Finite V]
     (hW' : (W'.card : ℝ) ≥ R r s) :
     hom_num G ≥ r := by
       classical
-      letI := Fintype.ofFinite V
+      let := Fintype.ofFinite V
       -- Apply `lemma_ramsey_on_subset` to `R_graph G rep` and `W'` with parameters `r` and `s`.
       have h_subset :
           ∃ K ⊆ W', (R_graph G rep).IsClique K ∧ K.card = r ∨
@@ -3235,7 +3235,7 @@ lemma lemma_hom_from_uniform_W {V : Type*} [Finite V]
     (hW : (W.card : ℝ) ≥ 2 * R r s) :
     hom_num G ≥ r := by
       classical
-      letI := Fintype.ofFinite V
+      let := Fintype.ofFinite V
       -- Apply `lemma_large_homogeneous_subset` to get $W' \subseteq W$ with $|W'| \ge |W|/2 \ge
       -- R(r,s)$.
       obtain ⟨W', hW'_subset, hW'_card, hW'_hom⟩ :
@@ -3899,7 +3899,7 @@ If hom(G) is both <= c log n and >= shelah_r(c, n), we have a contradiction.
 lemma shelah_contradiction {V : Type*} [Finite V] (c : ℝ) (n : ℕ) (G : SimpleGraph V)
   (h1 : (hom_num G : ℝ) ≤ c * Real.logb 2 n)
   (h2 : hom_num G ≥ shelah_r c n) : False := by
-    letI := Fintype.ofFinite V
+    let := Fintype.ofFinite V
     exact h1.not_gt ( lt_of_lt_of_le ( shelah_r_gt c n ) ( Nat.cast_le.mpr h2 ) )
 
 /-

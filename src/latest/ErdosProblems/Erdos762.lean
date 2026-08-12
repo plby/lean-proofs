@@ -975,19 +975,19 @@ theorem lemma_exists_clique_disjoint_H_of_cover_3K (sizes : X_collection → ℕ
         apply Set.eq_empty_iff_forall_notMem.mpr
         rintro w ⟨hw1, u, rfl⟩
         have hadj := hk1 hv1 hw1 (by simp [v0])
-        simpa [v0, X0, G] using hadj
+        simp [v0, X0, G] at hadj
       · right
         left
         apply Set.eq_empty_iff_forall_notMem.mpr
         rintro w ⟨hw2, u, rfl⟩
         have hadj := hk2 hv2 hw2 (by simp [v0])
-        simpa [v0, X0, G] using hadj
+        simp [v0, X0, G] at hadj
       · right
         right
         apply Set.eq_empty_iff_forall_notMem.mpr
         rintro w ⟨hw3, u, rfl⟩
         have hadj := hk3 hv3 hw3 (by simp [v0])
-        simpa [v0, X0, G] using hadj
+        simp [v0, X0, G] at hadj
 
 /-
 If one clique in a 3-clique cover of G is disjoint from H, then H is covered by 2 cliques.
@@ -1550,12 +1550,12 @@ theorem not_erdos_762 : ¬ erdos_762 := by
       have ht' : decide (v ∈ t) = true := by exact decide_eq_true ht
       have hs' : decide (v ∈ s) = true := hv.trans ht'
       exact (Set.mem_iff_boolIndicator s v).mpr hs'
-  haveI : Finite (Set H_V) := hfinite_setHV
-  haveI : Finite X_collection := by infer_instance
-  haveI : Finite (G_V sizes) := by
+  have : Finite (Set H_V) := hfinite_setHV
+  have : Finite X_collection := by infer_instance
+  have : Finite (G_V sizes) := by
     unfold G_V
     infer_instance
-  letI : Fintype (G_V sizes) := Fintype.ofFinite (G_V sizes)
+  let : Fintype (G_V sizes) := Fintype.ofFinite (G_V sizes)
   have h4le : (4 : ℕ∞) ≤ cochromaticNumber (G sizes) := by
     simp [hCochrom]
   have hbound :

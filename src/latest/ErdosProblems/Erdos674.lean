@@ -73,7 +73,7 @@ theorem erdos_674_infinite : solutionSet.Infinite := by
     simp [hb'' n hn, i, Nat.prime_two, add_comm]
   apply Set.infinite_of_injOn_mapsTo (f := fun n ↦ (x n, y n, z n)) _ _ (Set.Ici_infinite 2)
   · grind [Set.InjOn]
-  · simp +contextual only [Set.MapsTo, Set.mem_Ici, solutionSet, Set.mem_setOf_eq, h, and_true]
+  · simp +contextual only [Set.MapsTo, Set.mem_Ici, solutionSet, Set.mem_ofPred_eq, h, and_true]
     intro n hn
     exact ⟨by grind, by grind, by grind⟩
 

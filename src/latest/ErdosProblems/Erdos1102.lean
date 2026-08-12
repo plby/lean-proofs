@@ -143,7 +143,7 @@ def a_seq (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter.atTop) : 
             all_goals
               norm_num [ Nat.Prime.ne_zero, Nat.Prime.ne_one ]
             exact fun h => hi₃ <| by
-              have := Nat.nth_injective ( Nat.infinite_setOf_prime ) h
+              have := Nat.nth_injective ( Nat.infinite_setOfPred_prime ) h
               cases r
               all_goals
                 cases i
@@ -234,7 +234,7 @@ lemma a_seq_step_le (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter
               all_goals
                 norm_num [ Nat.Prime.ne_zero, Nat.Prime.ne_one ]
               exact fun h => hi₃ <| by
-                have := Nat.nth_injective ( Nat.infinite_setOf_prime ) h
+                have := Nat.nth_injective ( Nat.infinite_setOfPred_prime ) h
                 cases i
                 all_goals
                   cases r
@@ -476,7 +476,7 @@ lemma card_S_r (r : ℕ) : (S_r r).card = ∏ i ∈ Finset.range r, ((Nat.nth Na
             · refine Nat.Coprime.prod_right fun j hj => ?_
               simp +decide [Nat.Prime.coprime_iff_not_dvd, Nat.prime_dvd_prime_iff_eq]
               exact fun h => hi <| by
-                have := Nat.nth_injective ( Nat.infinite_setOf_prime ) h
+                have := Nat.nth_injective ( Nat.infinite_setOfPred_prime ) h
                 aesop
           exact Nat.mod_eq_of_lt ( Finset.mem_Ico.mp ( Finset.mem_filter.mp hx |>.1 |> Finset.mem_filter.mp |>.1 ) |>.2 ) ▸ Nat.mod_eq_of_lt ( Finset.mem_Ico.mp ( Finset.mem_filter.mp hy |>.1 |> Finset.mem_filter.mp |>.1 ) |>.2 ) ▸ h_crt_step
         rw [ h_crt_step, show ( Finset.image ( fun x => ( x % Nat.nth Nat.Prime i ^ 2, x % ∏ j ∈ rs, Nat.nth Nat.Prime j ^ 2 ) ) ( Finset.filter ( fun x => ¬Nat.nth Nat.Prime i ^ 2 ∣ x ) ( Finset.filter ( fun x => ∀ j ∈ rs, ¬Nat.nth Nat.Prime j ^ 2 ∣ x ) ( Finset.Ico 0 ( Nat.nth Nat.Prime i ^ 2 * ∏ j ∈ rs, Nat.nth Nat.Prime j ^ 2 ) ) ) ) ) = Finset.filter ( fun x => ¬Nat.nth Nat.Prime i ^ 2 ∣ x ) ( Finset.Ico 0 ( Nat.nth Nat.Prime i ^ 2 ) ) ×ˢ Finset.filter ( fun x => ∀ j ∈ rs, ¬Nat.nth Nat.Prime j ^ 2 ∣ x ) ( Finset.Ico 0 ( ∏ j ∈ rs, Nat.nth Nat.Prime j ^ 2 ) ) from ?_ ]
@@ -495,7 +495,7 @@ lemma card_S_r (r : ℕ) : (S_r r).card = ∏ i ∈ Finset.range r, ((Nat.nth Na
                 all_goals
                   norm_num [ Nat.Prime.ne_zero, Nat.Prime.ne_one ]
                 exact fun h => hi <| by
-                  have := Nat.nth_injective ( Nat.infinite_setOf_prime ) h
+                  have := Nat.nth_injective ( Nat.infinite_setOfPred_prime ) h
                   aesop
               have := Nat.chineseRemainder h_crt x y
               exact ⟨ this.val % ( Nat.nth Nat.Prime i ^ 2 * ∏ j ∈ rs, Nat.nth Nat.Prime j ^ 2 ), by simpa [ Nat.ModEq, Nat.mod_mod ] using this.2.1, by simpa [ Nat.ModEq, Nat.mod_mod ] using this.2.2, Nat.mod_lt _ ( Nat.mul_pos ( pow_pos ( Nat.Prime.pos ( Nat.prime_nth_prime i ) ) 2 ) ( Finset.prod_pos fun j hj => pow_pos ( Nat.Prime.pos ( Nat.prime_nth_prime j ) ) 2 ) ) ⟩
@@ -694,7 +694,7 @@ lemma card_non_squarefree_in_T_bound (c : ℝ) (hc : c > 0) :
             norm_num [ add_comm, add_left_comm, add_assoc ]
           · exact Finset.sum_eq_zero fun x hx => if_neg <| not_and_of_not_right _ <| by linarith [ Finset.mem_range.mp hx ]
           · exact Summable.of_nonneg_of_le ( fun p => by positivity ) ( fun p => by aesop ) ( Real.summable_one_div_nat_pow.2 one_lt_two )
-        exact h_tail_zero.comp <| Nat.nth_strictMono ( Nat.infinite_setOf_prime ) |> StrictMono.tendsto_atTop
+        exact h_tail_zero.comp <| Nat.nth_strictMono ( Nat.infinite_setOfPred_prime ) |> StrictMono.tendsto_atTop
       have := h_tail_zero.eventually ( gt_mem_nhds hc )
       obtain ⟨ r, hr ⟩ := this.exists
       exact ⟨ r, fun N => by nlinarith [ h_bound r N ] ⟩
@@ -4144,7 +4144,7 @@ lemma A_lower_card_ineq (k : ℕ) (hk : k ≥ 2) (R : ℕ) (hR1 : n_lower k ≤ 
   ((Finset.Icc 1 (n_lower k)).filter (fun a => a ∈ SF ∧ n_lower k + a ∉ SF)).card -
   n_lower (k - 1) := by
     rw [ Set.ncard_eq_toFinset_card _ ]
-    norm_num [ Set.setOf_and ]
+    norm_num [ Set.ofPred_and ]
     ring_nf
     -- Let's simplify the goal using the definitions of $A_lower$ and $SF$.
     have h_simp : Finset.filter (fun a => a ∈ SF ∧ n_lower (1 + k) + a ∈ SF) (Finset.Icc 1 R) ⊆ Finset.filter (fun a => a ∈ A_lower) (Finset.Icc 1 R) ∪ Finset.filter (fun a => a ∈ SF ∧ n_lower k + a ∉ SF) (Finset.Icc 1 (n_lower k)) ∪ Finset.Icc 1 (n_lower (k - 1)) := by
@@ -4549,7 +4549,7 @@ theorem erdos_1102.lower_density_Q_exists :
   obtain ⟨A, hA⟩ : ∃ A : Set ℕ, A ⊆ SF ∧ PropertyQ A ∧ HasNaturalDensity A (6 / Real.pi^2) := by
     -- Apply the theorem that states there exists a subset of SF with property Q and natural density 6/pi^2.
     apply TheoremQ_lower
-  letI : DecidablePred A := Classical.decPred A
+  let : DecidablePred A := Classical.decPred A
   -- Let's choose any enumeration of the set A.
   obtain ⟨A_enum, hA_enum⟩ : ∃ A_enum : ℕ → ℕ, StrictMono A_enum ∧ Set.range A_enum = A := by
     have h_enum : A.Infinite := by
@@ -5372,7 +5372,7 @@ lemma upperDensity_finite_diff (A B : Set ℕ) (h : (A \ B).Finite ∧ (B \ A).F
       · exact ⟨ 0, fun x hx => by rcases Filter.eventually_atTop.mp hx with ⟨ N, hN ⟩ ; exact le_trans ( by positivity ) ( hN _ le_rfl ) ⟩
       · obtain ⟨ N, hN ⟩ := h_prop ε ε_pos
         obtain ⟨ M, hM ⟩ := Filter.eventually_atTop.mp hb
-        rw [Set.mem_setOf_eq, Filter.eventually_map, Filter.eventually_atTop]
+        rw [Set.mem_ofPred_eq, Filter.eventually_map, Filter.eventually_atTop]
         exact ⟨ Max.max N M, fun n hn => by
           have hdiff := abs_lt.mp ( hN n ( le_trans ( le_max_left _ _ ) hn ) )
           have hB_le := hM n ( le_trans ( le_max_right _ _ ) hn )
@@ -6749,7 +6749,7 @@ lemma card_bad_a_for_p_le (n : ℕ → ℕ) (K : ℕ) (x : ℝ) (p : ℕ) (hK : 
             Finset.mem_range.mpr (Nat.lt_succ_of_le
               (Nat.div_le_div_right haupper)), ?_⟩
           have hrlt : r.val < p ^ 2 := by
-            haveI := Fact.mk (show p ^ 2 > 1 from
+            have := Fact.mk (show p ^ 2 > 1 from
               one_lt_pow₀ (by linarith) two_ne_zero)
             exact ZMod.val_lt r
           change a % p ^ 2 = r.val % p ^ 2 at hmod

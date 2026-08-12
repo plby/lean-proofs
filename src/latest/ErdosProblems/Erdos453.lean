@@ -67,7 +67,7 @@ lemma prime_sq_ne_neighbors (n i : ℕ) (hi : 0 < i) (hin : i ≤ n) :
           (Nat.prime_nth_prime (n - i)) (Nat.prime_nth_prime n)).mp
           (Nat.Prime.dvd_of_dvd_pow (Nat.prime_nth_prime (n - i)) h_div)
       exact absurd h_prime_eq
-        (ne_of_lt (Nat.nth_strictMono (Nat.infinite_setOf_prime) (by omega)))
+        (ne_of_lt (Nat.nth_strictMono (Nat.infinite_setOfPred_prime) (by omega)))
 
 /-
 $p_n \le 2^{n+1}$.
@@ -92,7 +92,7 @@ lemma nth_prime_le_pow_two (n : ℕ) : Nat.nth Nat.Prime n ≤ 2 ^ (n + 1) := by
       (Nat.sInf_le
         ⟨ hp.1, fun k hk =>
           lt_of_le_of_lt
-            (Nat.nth_monotone (Nat.infinite_setOf_prime) (Nat.le_of_lt_succ hk))
+            (Nat.nth_monotone (Nat.infinite_setOfPred_prime) (Nat.le_of_lt_succ hk))
             (lt_of_le_of_lt ih hp.2.1) ⟩)
       hp.2.2
 
@@ -103,7 +103,7 @@ lemma a_tendsto_atTop : Filter.Tendsto a Filter.atTop Filter.atTop := by
   refine Real.tendsto_log_atTop.comp ?_
   refine tendsto_natCast_atTop_atTop.comp ?_
   exact Filter.tendsto_atTop_mono
-    (fun n => Nat.le_nth (fun h => False.elim <| Nat.infinite_setOf_prime h))
+    (fun n => Nat.le_nth (fun h => False.elim <| Nat.infinite_setOfPred_prime h))
     tendsto_natCast_atTop_atTop
 
 /-
@@ -650,7 +650,7 @@ lemma Nat.primeCounting_nth_eq (n : ℕ) : Nat.primeCounting (Nat.nth Nat.Prime 
   have h_prime_counting : Nat.count Nat.Prime (Nat.nth Nat.Prime n) = n := by
     rw [ Nat.count_nth ]
     exact fun h =>
-      False.elim <| Nat.infinite_setOf_prime <| h.subset fun x hx =>
+      False.elim <| Nat.infinite_setOfPred_prime <| h.subset fun x hx =>
         Nat.prime_iff.mp hx |> fun hx' => by
           simpa [ ← Nat.prime_iff ] using hx'
   rw [ Nat.primeCounting ]
@@ -687,7 +687,7 @@ lemma prime_div_log_le_linear :
               (Nat.Prime.pos <| by norm_num)
               (fun n ihn =>
                 Nat.lt_of_le_of_lt ihn <|
-                  Nat.nth_strictMono (Nat.infinite_setOf_prime) <|
+                  Nat.nth_strictMono (Nat.infinite_setOfPred_prime) <|
                     Nat.lt_succ_self _) ⟩
   -- We know $\pi(p_n) = n+1$.
   have h_prime_counting_nth : ∀ n, Nat.primeCounting (Nat.nth Nat.Prime n) = n + 1 := by
@@ -766,7 +766,7 @@ lemma log_prime_isLittleO_id :
     simpa using h_frac_one_c.mul
       (h_log_sq_div_x_zero.comp
         (tendsto_natCast_atTop_atTop.comp
-          (Nat.nth_strictMono (Nat.infinite_setOf_prime) |>
+          (Nat.nth_strictMono (Nat.infinite_setOfPred_prime) |>
             StrictMono.tendsto_atTop)))
   rw [ Asymptotics.isLittleO_iff_tendsto' ]
   · exact squeeze_zero_norm'

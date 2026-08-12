@@ -163,7 +163,7 @@ There are infinitely many primes congruent to -1 modulo k for k > 2.
 lemma infinite_primes_mod_neg_one (k : ℕ) (hk : 2 < k) :
     {p : ℕ | p.Prime ∧ (p : ℤ) ≡ -1 [ZMOD k]}.Infinite := by
   have h_dirichlet : Set.Infinite {p : ℕ | Nat.Prime p ∧ p ≡ k - 1 [MOD k]} := by
-    have := @Nat.infinite_setOf_prime_and_eq_mod;
+    have := @Nat.infinite_setOfPred_prime_and_eq_mod;
     convert @this k ?_ ( k - 1 : ZMod k ) ?_ using 1;
     · rcases k with ( _ | _ | k ) <;> simp_all +decide [ ← ZMod.natCast_eq_natCast_iff ];
       norm_cast;
@@ -607,7 +607,7 @@ lemma same_order_neg_one_power {q1 q2 : ℕ} (hq2 : q2.Prime) (h_odd1 : q1 > 2)
     have h_div : orderOf (a : ZMod q1) ∣ 2 * k ∧ ¬orderOf (a : ZMod q1) ∣ k := by
       exact order_properties_of_neg_one h_odd1 h_pow;
     simp_all +decide [ orderOf_dvd_iff_pow_eq_one ];
-    haveI := Fact.mk hq2;
+    have := Fact.mk hq2;
     exact Or.resolve_left
       ( eq_or_eq_neg_of_sq_eq_sq _ _ <| by linear_combination' h_div.1 ) h_div.2;
 
@@ -1034,10 +1034,10 @@ lemma order_4p {p q : ℕ} (hp : p.Prime) (hp5 : p > 5) (hq : q.Prime)
   orderOf (2 : ZMod q) = 4 * p := by
     refine orderOf_eq_of_pow_and_pow_div_prime ?_ ?_ ?_
     · linarith;
-    · haveI := Fact.mk hq; simp_all +decide [ ← ZMod.natCast_eq_zero_iff, pow_mul' ] ;
+    · have := Fact.mk hq; simp_all +decide [ ← ZMod.natCast_eq_zero_iff, pow_mul' ] ;
       linear_combination' h_div * ( ( 2 ^ p ) ^ 2 - 1 );
     · intro r hr hr' hr'';
-      haveI := Fact.mk hq;
+      have := Fact.mk hq;
       simp_all +decide [ ← ZMod.natCast_eq_zero_iff ] ;
       -- Since $r$ is a prime divisor of $4p$, and $p$ is prime and greater than 5,
       -- $r$ must be 2 or $p$.
@@ -1093,7 +1093,7 @@ theorem infinite_strange_pairs : { q | StrangePair 2 q }.Infinite := by
   -- infinite.
   have h_infinite_primes_gt_5 : Set.Infinite {n : ℕ | n.Prime ∧ n > 5} := by
     exact Set.Infinite.mono ( by aesop_cat )
-      ( Nat.infinite_setOf_prime.sdiff ( Set.finite_le_nat 5 ) );
+      ( Nat.infinite_setOfPred_prime.sdiff ( Set.finite_le_nat 5 ) );
   rw [ Set.infinite_iff_exists_gt ] at *;
   -- For any prime $p > 5$, we can find a prime $q$ such that $\{2, q\}$ is a
   -- strange pair and $\ord_q(2) = 4p$.
@@ -1106,7 +1106,7 @@ theorem infinite_strange_pairs : { q | StrangePair 2 q }.Infinite := by
     -- $q - 1$.
     have h_div : orderOf (2 : ZMod q) ∣ q - 1 := by
       rw [ orderOf_dvd_iff_pow_eq_one ];
-      haveI := Fact.mk hq.1.2.1;
+      have := Fact.mk hq.1.2.1;
       simpa [ ← ZMod.natCast_eq_zero_iff ] using
         ZMod.pow_card_sub_one_eq_one ( by intro h; simp_all +decide ) ;
     rw [hq.2] at h_div

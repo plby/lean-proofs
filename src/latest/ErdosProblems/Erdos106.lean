@@ -536,7 +536,7 @@ lemma side_le_two_of_mem_unit_box
   obtain ⟨hp, hm⟩ := carrier_contains_side_endpoints S hS
   have hpbox := hbox hp
   have hmbox := hbox hm
-  simp only [box, Set.mem_setOf_eq] at hpbox hmbox
+  simp only [box, Set.mem_ofPred_eq] at hpbox hmbox
   have hx :
       -1 ≤
           (S.point (S.side / 2) 0).1 -

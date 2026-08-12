@@ -562,7 +562,7 @@ lemma set_shift_size_lower_bound (A : Set ℕ) (e x y : ℕ) (hxy : x ≤ y) (hx
     (Set.finite_Ico (x - e) (y - e)).inter_of_right A
   have h_right : (((Finset.Ico (y - e) (e + (y - e)) : Finset ℕ) : Set ℕ)).Finite :=
     (Finset.Ico (y - e) (e + (y - e))).finite_toSet
-  haveI : Fintype ↑(A ∩ Ico (x - e) (y - e) ∪
+  have : Fintype ↑(A ∩ Ico (x - e) (y - e) ∪
       ((Finset.Ico (y - e) (e + (y - e)) : Finset ℕ) : Set ℕ)) :=
     (h_left.union h_right).fintype
   use sub_le_iff_le_add.2 (mod_cast(Nat.card_mono (.of_fintype _) fun and=>
@@ -1804,9 +1804,9 @@ lemma sandor_cross_sums (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂
           (A₂ ∩ Ico (S_x k) (S_y k)).ncard =
         (Ico (S_x k) (S_y k)).ncard
       := by
-    haveI : Fintype ↑(A₁ ∩ Ico (S_x k) (S_y k)) :=
+    have : Fintype ↑(A₁ ∩ Ico (S_x k) (S_y k)) :=
       ((Set.finite_Ico (S_x k) (S_y k)).inter_of_right A₁).fintype
-    haveI : Fintype ↑(A₂ ∩ Ico (S_x k) (S_y k)) :=
+    have : Fintype ↑(A₂ ∩ Ico (S_x k) (S_y k)) :=
       ((Set.finite_Ico (S_x k) (S_y k)).inter_of_right A₂).fintype
     rwa [
       ← Set.ncard_union_eq ↑(h_disj.mono ↑Set.inter_subset_left
@@ -1950,9 +1950,9 @@ lemma SandorA_fluctuation_bounds (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁
         (((A₁ + A₁) ∩ Iio (2 * S_x k)).ncard : ℝ) +
           (((A₁ + A₁) ∩ Ico (2 * S_x k) (2 * S_y k)).ncard : ℝ)
       := by
-    haveI : Fintype ↑((A₁ + A₁) ∩ Iio (2 * S_x k)) :=
+    have : Fintype ↑((A₁ + A₁) ∩ Iio (2 * S_x k)) :=
       ((finite_Iio (2 * S_x k)).inter_of_right (A₁ + A₁)).fintype
-    haveI : Fintype ↑((A₁ + A₁) ∩ Ico (2 * S_x k) (2 * S_y k)) :=
+    have : Fintype ↑((A₁ + A₁) ∩ Ico (2 * S_x k) (2 * S_y k)) :=
       ((Set.finite_Ico (2 * S_x k) (2 * S_y k)).inter_of_right (A₁ + A₁)).fintype
     rw [
       ← Nat.cast_add,
@@ -1965,9 +1965,9 @@ lemma SandorA_fluctuation_bounds (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁
         (((A₂ + A₂) ∩ Iio (2 * S_x k)).ncard : ℝ) +
           (((A₂ + A₂) ∩ Ico (2 * S_x k) (2 * S_y k)).ncard : ℝ)
       := by
-    haveI : Fintype ↑((A₂ + A₂) ∩ Iio (2 * S_x k)) :=
+    have : Fintype ↑((A₂ + A₂) ∩ Iio (2 * S_x k)) :=
       ((finite_Iio (2 * S_x k)).inter_of_right (A₂ + A₂)).fintype
-    haveI : Fintype ↑((A₂ + A₂) ∩ Ico (2 * S_x k) (2 * S_y k)) :=
+    have : Fintype ↑((A₂ + A₂) ∩ Ico (2 * S_x k) (2 * S_y k)) :=
       ((Set.finite_Ico (2 * S_x k) (2 * S_y k)).inter_of_right (A₂ + A₂)).fintype
     rw [
       ← Nat.cast_add,
@@ -2601,7 +2601,7 @@ lemma sumset_diff_bound (A A₁ A₂ : Set ℕ) (N K : ℕ)
       (finite_Iic N).inter_of_right A
     have h_fin_sum : ((A₂ ∩ Set.Iic K) + (A ∩ Set.Iic N)).Finite :=
       h_fin_A₂K.image2 (fun x y => x + y) h_fin_AN
-    haveI : Finite ↑((A₂ ∩ Set.Iic K) + (A ∩ Set.Iic N)) :=
+    have : Finite ↑((A₂ ∩ Set.Iic K) + (A ∩ Set.Iic N)) :=
       Set.finite_coe_iff.mpr h_fin_sum
     exact (Set.ncard_le_ncard h_A2A).trans
       (Set.natCard_add_le.trans (Nat.mul_le_mul_right _

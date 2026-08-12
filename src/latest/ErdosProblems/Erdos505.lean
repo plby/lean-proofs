@@ -1173,7 +1173,7 @@ theorem Fa_mem_subspace
     (a : EuclideanSpace ℝ (Fin n)) :
     Fa n p a ∈ MultilinearPolynomialsOfDegreeLE (Fin (n - 1)) (ZMod p) (p - 1) := by
       refine ⟨ ml_is_multilinear _, ?_ ⟩;
-      convert Set.mem_setOf_eq.mpr
+      convert Set.mem_ofPred_eq.mpr
           (totalDegree_ml_le _ |> le_trans <| Pa_degree_le _ _ _) using 1;
       rotate_left;
       · exact n
@@ -1584,7 +1584,7 @@ theorem partition_refinement_indexed
     (∀ i, P i ⊆ U i) ∧
     (Pairwise (fun i j => Disjoint (P i) (P j))) ∧
     (⋃ i, U i) = ⋃ i, P i := by
-      letI := Fintype.ofFinite ι
+      let := Fintype.ofFinite ι
       -- Define $P_i$ as $U_i$ minus the union of $U_j$ for $j < i$.
       set P : ι → Set α := fun i => U i \ ⋃ j < i, U j;
       refine ⟨ P, ?_, ?_, ?_ ⟩;

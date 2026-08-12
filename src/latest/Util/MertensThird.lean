@@ -84,7 +84,7 @@ lemma lcmRange_dvd_even (r : ℕ) (hr : 1 ≤ r) :
       have hpa_div_choose : p ∣ Nat.choose (2 * r) r := by
         have hpa_div_choose : Nat.factorization (Nat.choose (2 * r) r) p ≥ 1 := by
           have hpa_div_choose : Nat.factorization (Nat.choose (2 * r) r) p = (∑ k ∈ Finset.Ico 1 (Nat.log p (2 * r) + 1), (Nat.floor ((2 * r) / p ^ k) - 2 * Nat.floor (r / p ^ k))) := by
-            haveI := Fact.mk ( Nat.prime_of_mem_primeFactors hp ) ; rw [ Nat.factorization_def ];
+            have := Fact.mk ( Nat.prime_of_mem_primeFactors hp ) ; rw [ Nat.factorization_def ];
             · rw [ padicValNat_choose ];
               any_goals exact Nat.lt_succ_self _;
               · norm_num [ two_mul, Nat.add_div ];
@@ -130,7 +130,7 @@ lemma lcmRange_dvd_odd (r : ℕ) (hr : 1 ≤ r) :
       -- Since $p^{a-1} \leq r$, we have $p^a \mid \binom{2r+1}{r}$.
       have hpa_div_choose : p^a ∣ Nat.choose (2 * r + 1) r * p^(a-1) := by
         have hpa_div_choose : padicValNat p (Nat.choose (2 * r + 1) r) ≥ 1 := by
-          haveI := Fact.mk hp; rw [ padicValNat_choose ];
+          have := Fact.mk hp; rw [ padicValNat_choose ];
           any_goals exact Nat.lt_succ_self _;
           · refine Finset.card_pos.mpr ⟨ a, ?_ ⟩ ; norm_num;
             exact ⟨ ⟨ Nat.pos_of_ne_zero ( by rintro rfl; linarith ), Nat.le_log_of_pow_le hp.one_lt ha ⟩, by rw [ Nat.mod_eq_of_lt, Nat.mod_eq_of_lt ] <;> omega ⟩;

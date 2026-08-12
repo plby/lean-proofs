@@ -66,9 +66,9 @@ lemma degree_adjoin_sq (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x ^ 2 ∈
     refine ⟨Polynomial.X ^ 2 - Polynomial.C (⟨x ^ 2, hx⟩ : K), ?_, ?_⟩
     · exact Polynomial.monic_X_pow_sub_C _ two_ne_zero
     · simp
-  haveI : FiniteDimensional K (IntermediateField.adjoin K {x}) :=
+  have : FiniteDimensional K (IntermediateField.adjoin K {x}) :=
     IntermediateField.adjoin.finiteDimensional hxint
-  haveI : Module.Free K (IntermediateField.adjoin K {x}) :=
+  have : Module.Free K (IntermediateField.adjoin K {x}) :=
     Module.Free.of_divisionRing K (IntermediateField.adjoin K {x})
   -- Since $x ^ 2 \in K$, the minimal polynomial of $x$ over $K$ divides $X ^ 2 - x ^ 2$, which has degree 2.
   have h_min_deg : Polynomial.degree (minpoly K x) ≤ 2 := by
@@ -107,9 +107,9 @@ lemma finrank_adjoin_sq {K : IntermediateField ℚ ℝ} {x : ℝ} (hx : x ^ 2 �
     refine ⟨Polynomial.X ^ 2 - Polynomial.C (⟨x ^ 2, hx⟩ : K), ?_, ?_⟩
     · exact Polynomial.monic_X_pow_sub_C _ two_ne_zero
     · simp
-  haveI : FiniteDimensional K (IntermediateField.adjoin K {x}) :=
+  have : FiniteDimensional K (IntermediateField.adjoin K {x}) :=
     IntermediateField.adjoin.finiteDimensional hxint
-  haveI : Module.Free K (IntermediateField.adjoin K {x}) :=
+  have : Module.Free K (IntermediateField.adjoin K {x}) :=
     Module.Free.of_divisionRing K (IntermediateField.adjoin K {x})
   -- Let L = K(x).
   set L := IntermediateField.adjoin K {x}
@@ -287,16 +287,16 @@ lemma constructible_implies_hasQuadTower (x : ℝ) (hx : Constructible x) :
     | rat q =>
       exact ⟨ ⊥, by simp_all only [SubfieldClass.ratCast_mem], hasQuadTower_bot ⟩
     | add hx hy hx_ih hy_ih =>
-      simp_all only [Set.mem_setOf_eq]
+      simp_all only [Set.mem_ofPred_eq]
       obtain ⟨w, h⟩ := hx_ih
       obtain ⟨w_1, h_1⟩ := hy_ih
       obtain ⟨left, right⟩ := h
       obtain ⟨left_1, right_1⟩ := h_1
       exact ⟨ _, add_mem ( IntermediateField.subset_adjoin ℚ _ <| Set.mem_union_left _ left ) ( IntermediateField.subset_adjoin ℚ _ <| Set.mem_union_right _ left_1 ), hasQuadTower_sup right right_1 ⟩
     | neg hx hx_ih =>
-      simp_all only [Set.mem_setOf_eq, neg_mem_iff]
+      simp_all only [Set.mem_ofPred_eq, neg_mem_iff]
     | mul hx hy hx_ih hy_ih =>
-      simp_all only [Set.mem_setOf_eq]
+      simp_all only [Set.mem_ofPred_eq]
       obtain ⟨w, h⟩ := hx_ih
       obtain ⟨w_1, h_1⟩ := hy_ih
       obtain ⟨left, right⟩ := h
@@ -456,9 +456,9 @@ lemma degree_adjoin_sq' (K : IntermediateField ℚ ℝ) (x : ℝ) (hx : x ^ 2 �
         refine ⟨Polynomial.X ^ 2 - Polynomial.C (⟨x ^ 2, hx⟩ : K), ?_, ?_⟩
         · exact Polynomial.monic_X_pow_sub_C _ two_ne_zero
         · simp
-      haveI : FiniteDimensional K (adjoin K {x}) :=
+      have : FiniteDimensional K (adjoin K {x}) :=
         IntermediateField.adjoin.finiteDimensional hxint
-      haveI : Module.Free K (adjoin K {x}) :=
+      have : Module.Free K (adjoin K {x}) :=
         Module.Free.of_divisionRing K (adjoin K {x})
       -- Let $L = K(x)$.
       set L : IntermediateField K ℝ := IntermediateField.adjoin K {x}
@@ -1228,7 +1228,7 @@ lemma RulerCompass.RC_coords_constructible (cfg : RCBase) (P : Point) (h : RCPoi
                 norm_num [ EuclideanSpace.dist_eq ] at *
                 unfold RulerCompass.circleThrough at hP₂
                 unfold RulerCompass.circle at hP₂
-                simp_all only [Set.mem_setOf_eq, Fin.isValue]
+                simp_all only [Set.mem_ofPred_eq, Fin.isValue]
                 norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ] at *
                 rw [ Real.sqrt_inj ( by positivity ) ( by positivity ) ] at hP₂
                 norm_num [ Fin.sum_univ_two, inner ] at *

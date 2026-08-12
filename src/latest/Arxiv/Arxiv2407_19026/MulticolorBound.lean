@@ -444,7 +444,7 @@ theorem multiRamseyProperty_of_multiEasyBoundSq {c : ℕ}
     have hcardZero : Fintype.card V = 0 := by omega
     rw [hcardZero] at hcardSqPos
     norm_num at hcardSqPos
-  letI : Nonempty V := Fintype.card_pos_iff.mp hVcardPos
+  let : Nonempty V := Fintype.card_pos_iff.mp hVcardPos
   by_cases hkone : k = 1
   · subst k
     exact Or.inl

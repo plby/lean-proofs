@@ -236,7 +236,7 @@ theorem finite_van_der_waerden (K L : ℕ) (hL : 1 < L) :
         ∀ r : Fin L, color (b + (r : ℕ) * d) = color b := by
   rcases Line.exists_mono_in_high_dimension (Fin L) (Fin K) with
     ⟨ι, inst, hmono⟩
-  letI : Fintype ι := inst
+  let : Fintype ι := inst
   let N := L ^ Fintype.card ι
   have hN : 0 < N := by
     unfold N
@@ -700,7 +700,7 @@ theorem bounded_residue_combo_of_int_bezout {g₁ g₂ g₃ d : ℕ} (hd : 0 < d
     (r : ℕ) :
     ∃ i j k : ℕ, i < d ∧ j < d ∧ k < d ∧
       i * g₁ + j * g₂ + k * g₃ ≡ r [MOD d] := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   let R : ZMod d := r
   let I : ZMod d := R * u
   let J : ZMod d := R * v

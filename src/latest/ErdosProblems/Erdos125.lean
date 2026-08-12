@@ -615,7 +615,7 @@ lemma A_decomp_mod (k a : ℕ) (ha : a ∈ A) : a % 3 ^ k ∈ A := by
     | S+1 =>
         pow_succ' 3 S▸Nat.mod_mul▸ if hmod: B%3=0 then (? _) else (? _)
   · refine
-      Set.mem_setOf.2
+      Set.mem_ofPred.2
         (.trans (by cases B/3%_ with norm_num[hmod, Finset.insert_subset_iff])
           (Finset.insert_subset (by decide: 0 ∈ _)
             (A S (by constructor) (B/3)
@@ -626,7 +626,7 @@ lemma A_decomp_mod (k a : ℕ) (ha : a ∈ A) : a % 3 ^ k ∈ A := by
 lemma B_decomp_div (m b : ℕ) (hb : b ∈ B) : b / 4 ^ m ∈ B := by
   change b ∈{s |_}at@@hb⊢
   exact
-    (Set.mem_setOf.mpr)
+    (Set.mem_ofPred.mpr)
       (m.rec (b.div_one.symm▸hb) fun and =>
         .trans
           (b.div_div_eq_div_mul (4^ _) 4▸by
@@ -641,7 +641,7 @@ lemma B_decomp_mod (m b : ℕ) (hb : b ∈ B) : b % 4 ^ m ∈ B := by
     | S+1 =>
         pow_succ' 4 S▸Nat.mod_mul▸ if a: B%4=0 then (? _) else (? _)
   · refine
-      Set.mem_setOf.2
+      Set.mem_ofPred.2
         (.trans (by cases B/4%_ with norm_num[a, Finset.insert_subset_iff])
           (Finset.insert_subset (by decide: 0 ∈ _)
             (A S (by constructor) (B/4)

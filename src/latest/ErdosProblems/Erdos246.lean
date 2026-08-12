@@ -378,7 +378,7 @@ lemma exists_subset_sum_lt_pow_card (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) :
         simpa only [ mul_pow, mul_assoc ] using h_factor;
       have := h_exp_growth.eventually ( gt_mem_nhds zero_lt_one );
       rw [ Filter.eventually_atTop ] at this; rcases this with ⟨ k, hk ⟩ ; exact ⟨ k + 2, by linarith, by have := hk ( k + 2 ) ( by linarith ) ; rw [ div_lt_one ( by positivity ) ] at this; exact_mod_cast this ⟩ ;
-    refine ⟨ Finset.image ( fun x : ℕ × ℕ => ( x.1, x.2 ) ) ( Finset.product ( Finset.range k ) ( Finset.range k ) ), ?_, ?_ ⟩ <;> simp_all +decide [ Finset.card_image_of_injective, Function.Injective ];
+    refine ⟨ Finset.image ( fun x : ℕ × ℕ => ( x.1, x.2 ) ) ( Finset.product ( Finset.range k ) ( Finset.range k ) ), ?_, ?_ ⟩ <;> simp_all +decide
     · exact fun x hx => ⟨ Nat.cast_nonneg _, Nat.cast_nonneg _ ⟩;
     · -- The sum of elements in $S_k$ is bounded by $k^2 \cdot p^k \cdot q^k$.
       have h_sum_bound : ∑ x ∈ Finset.range k ×ˢ Finset.range k, p ^ x.1 * q ^ x.2 ≤ k^2 * p^k * q^k := by
@@ -794,7 +794,7 @@ theorem prop_AP (p q : ℕ) (hp : 2 ≤ p) (hq : 2 ≤ q) (h_coprime : Nat.Copri
           unfold translate_set at hx; aesop;
         simp_all +decide [ Q_set ];
         simp +zetaDelta at *;
-        rcases hu.1 with ( hu | ⟨ i, hi, hu ⟩ | ⟨ i, hi, hu ⟩ ) <;> [ exact ⟨ by linarith [ Set.mem_setOf.mp ( hT₁ hu ) ], by linarith [ Set.mem_setOf.mp ( hT₁ hu ) ] ⟩ ; exact hAB.2.2 _ _ _ ( Or.inl hu ) ; exact hAB.2.2 _ _ _ ( Or.inr hu ) ];
+        rcases hu.1 with ( hu | ⟨ i, hi, hu ⟩ | ⟨ i, hi, hu ⟩ ) <;> [ exact ⟨ by linarith [ Set.mem_ofPred.mp ( hT₁ hu ) ], by linarith [ Set.mem_ofPred.mp ( hT₁ hu ) ] ⟩ ; exact hAB.2.2 _ _ _ ( Or.inl hu ) ; exact hAB.2.2 _ _ _ ( Or.inr hu ) ];
       · -- By definition of $S_m$, we have $\Phi(S_m) = p^A q^B \Phi(U_m)$.
         have hS_m : Phi p q S_m = (p : ℚ) ^ A * (q : ℚ) ^ B * Phi p q U_m := by
           simpa [S_m, shift_set] using Phi_shift p q hp hq U_m ( A, B );

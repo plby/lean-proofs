@@ -753,7 +753,7 @@ theorem erdos904 : ∃ s, G.IsNClique r s ∧ 2 * r * #G.edgeFinset ≤ n V * �
   classical
   refine ⟨(l.take r).toFinset, ?_, ?_⟩
   · constructor
-    · haveI : Std.Symm G.Adj := ⟨fun _ _ h ↦ h.symm⟩
+    · have : Std.Symm G.Adj := ⟨fun _ _ h ↦ h.symm⟩
       rw [_root_.SimpleGraph.IsClique, pairwise_iff_coe_toFinset_pairwise nodup_take]
       exact pl.1.pairwise_adj.take
     · rwa [toFinset_card_of_nodup nodup_take]

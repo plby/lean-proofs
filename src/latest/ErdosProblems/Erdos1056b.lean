@@ -179,7 +179,7 @@ theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) →
       exact Nat.modEq_zero_iff_dvd.mpr
         (dvd_trans h_dvd (Finset.dvd_prod_of_mem _ (by simpa using h_mem)))
     exact absurd (h_prod_zero.symm.trans h_prod_i) (by
-      haveI := Fact.mk hp
+      have := Fact.mk hp
       simp +decide [← ZMod.natCast_eq_natCast_iff])
   obtain ⟨m, hm_le, hm_gt⟩ := exists_shift_of_no_dvd h_bk_gt (Nat.Prime.ne_zero hp) h_no_dvd
   let Q := fun i => boundaries i - m * p - 1

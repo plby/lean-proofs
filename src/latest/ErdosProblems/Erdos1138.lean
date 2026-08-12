@@ -95,7 +95,7 @@ def AsymptoticA (C : ℝ) : Prop :=
 -- Section 1: Basic prime number facts
 -- ============================================================================
 
-lemma primes_infinite : (setOf Nat.Prime).Infinite := Nat.infinite_setOf_prime
+lemma primes_infinite : (Set.ofPred Nat.Prime).Infinite := Nat.infinite_setOfPred_prime
 
 lemma nthPrime_prime (n : ℕ) : Nat.Prime (nthPrime n) :=
   Nat.nth_mem_of_infinite primes_infinite n
@@ -127,7 +127,7 @@ lemma not_prime_between_consecutive (n : ℕ) (k : ℕ)
     contrapose! hm₂
     rw [Nat.nth_eq_sInf]
     exact Nat.sInf_le ⟨hm₂, fun k hk => lt_of_le_of_lt
-      (Nat.nth_monotone Nat.infinite_setOf_prime (by linarith)) hm₁⟩
+      (Nat.nth_monotone Nat.infinite_setOfPred_prime (by linarith)) hm₁⟩
   exact h_prime_nth k hlo hhi
 
 -- ============================================================================
@@ -145,11 +145,11 @@ lemma primeCounting'_eq_succ_of_between {n : ℕ} {m : ℕ}
     refine le_trans ?_ (Finset.card_mono <| show Finset.image (fun k => Nat.nth Nat.Prime k)
       (Finset.range (n + 1)) ⊆ Finset.filter Nat.Prime (Finset.range m) from ?_)
     · rw [Finset.card_image_of_injective _ fun a b h =>
-        Nat.nth_injective Nat.infinite_setOf_prime h]
+        Nat.nth_injective Nat.infinite_setOfPred_prime h]
       norm_num
     · exact Finset.image_subset_iff.mpr fun k hk => Finset.mem_filter.mpr
         ⟨Finset.mem_range.mpr <| lt_of_le_of_lt
-          (Nat.nth_monotone Nat.infinite_setOf_prime <| Finset.mem_range_succ_iff.mp hk) hlo,
+          (Nat.nth_monotone Nat.infinite_setOfPred_prime <| Finset.mem_range_succ_iff.mp hk) hlo,
          Nat.prime_nth_prime k⟩
 
 -- This generated proof compares prime-counting filters between consecutive primes.
@@ -239,7 +239,7 @@ lemma primeGap_unbounded (M : ℕ) : ∃ n : ℕ, M ≤ primeGap n := by
   have h_gap : nthPrime (n + 1) ≥ (M + 1)! + (M + 2) := by
     apply h_next_prime
     · exact Nat.prime_nth_prime _
-    · exact hn ▸ Nat.nth_strictMono Nat.infinite_setOf_prime (Nat.lt_succ_self _)
+    · exact hn ▸ Nat.nth_strictMono Nat.infinite_setOfPred_prime (Nat.lt_succ_self _)
   exact ⟨n, Nat.le_sub_of_add_le <| by linarith!⟩
 
 /-- There exist infinitely many strict record prime gaps. -/
@@ -276,7 +276,7 @@ lemma record_gap_arbitrarily_large (B : ℕ) :
   refine le_trans hn_ge_B ?_
   exact Nat.recOn n (by norm_num [nthPrime]) fun n ihn => by
     exact Nat.succ_le_of_lt (lt_of_le_of_lt ihn
-      (Nat.nth_strictMono Nat.infinite_setOf_prime (Nat.lt_succ_self _)))
+      (Nat.nth_strictMono Nat.infinite_setOfPred_prime (Nat.lt_succ_self _)))
 
 -- ============================================================================
 -- Section 5: Algebraic helpers

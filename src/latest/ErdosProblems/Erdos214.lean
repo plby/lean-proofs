@@ -964,22 +964,22 @@ lemma exists_isometry_mapping_pair (A B P Q : Point)
     let basisSeedV : Fin 2 → Point := fun i => if i = 0 then v0 else 0
     have hfin : Module.finrank ℝ Point = Fintype.card (Fin 2) := by
       rw [finrank_euclideanSpace_fin, Fintype.card_fin]
-    have honU : Orthonormal ℝ (({0} : Set (Fin 2)).restrict basisSeedU) := by
+    have honU : Orthonormal ℝ (({0} : Set (Fin 2)).domRestrict basisSeedU) := by
       rw [orthonormal_iff_ite]
       intro i j
       have hi : (i : Fin 2) = 0 := Set.mem_singleton_iff.mp i.2
       have hj : (j : Fin 2) = 0 := Set.mem_singleton_iff.mp j.2
       have hij : i = j := Subtype.ext (hi.trans hj.symm)
       subst j
-      simp [Set.restrict, basisSeedU, hi, hu0_norm, inner_self_eq_norm_sq_to_K]
-    have honV : Orthonormal ℝ (({0} : Set (Fin 2)).restrict basisSeedV) := by
+      simp [Set.domRestrict, basisSeedU, hi, hu0_norm, inner_self_eq_norm_sq_to_K]
+    have honV : Orthonormal ℝ (({0} : Set (Fin 2)).domRestrict basisSeedV) := by
       rw [orthonormal_iff_ite]
       intro i j
       have hi : (i : Fin 2) = 0 := Set.mem_singleton_iff.mp i.2
       have hj : (j : Fin 2) = 0 := Set.mem_singleton_iff.mp j.2
       have hij : i = j := Subtype.ext (hi.trans hj.symm)
       subst j
-      simp [Set.restrict, basisSeedV, hi, hv0_norm, inner_self_eq_norm_sq_to_K]
+      simp [Set.domRestrict, basisSeedV, hi, hv0_norm, inner_self_eq_norm_sq_to_K]
     obtain ⟨bU, hbU⟩ :=
       Orthonormal.exists_orthonormalBasis_extension_of_card_eq
         (𝕜 := ℝ) (E := Point) (ι := Fin 2) hfin

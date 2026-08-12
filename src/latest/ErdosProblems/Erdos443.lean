@@ -2074,7 +2074,7 @@ theorem theorem_1_3 (s : ℕ) (hs : 0 < s) :
       · exact Nat.sub_lt ( Nat.succ_pos _ ) ( by positivity );
       · -- Since $p_{k+1} > p_k$, we have $p_{k+1}^s > p_k^s$ and $2^{s p_{k+1} + 1} > 2^{s p_k + 1}$.
         have h_exp : 2^(s * Nat.nth Nat.Prime (k + 2) + 1) > 2^(s * Nat.nth Nat.Prime (k + 1) + 1) ∧ Nat.nth Nat.Prime (k + 2)^s > Nat.nth Nat.Prime (k + 1)^s := by
-          exact ⟨ pow_lt_pow_right₀ ( by decide ) ( by nlinarith [ Nat.Prime.one_lt ( Nat.prime_nth_prime ( k + 1 ) ), Nat.Prime.one_lt ( Nat.prime_nth_prime ( k + 2 ) ), Nat.nth_strictMono ( Nat.infinite_setOf_prime ) ( by linarith : k + 1 < k + 2 ) ] ), pow_lt_pow_left₀ ( Nat.nth_strictMono ( Nat.infinite_setOf_prime ) ( by linarith ) ) ( Nat.zero_le _ ) ( by linarith ) ⟩;
+          exact ⟨ pow_lt_pow_right₀ ( by decide ) ( by nlinarith [ Nat.Prime.one_lt ( Nat.prime_nth_prime ( k + 1 ) ), Nat.Prime.one_lt ( Nat.prime_nth_prime ( k + 2 ) ), Nat.nth_strictMono ( Nat.infinite_setOfPred_prime ) ( by linarith : k + 1 < k + 2 ) ] ), pow_lt_pow_left₀ ( Nat.nth_strictMono ( Nat.infinite_setOfPred_prime ) ( by linarith ) ) ( Nat.zero_le _ ) ( by linarith ) ⟩;
         unfold seq_m seq_n; simp +decide [ *, Nat.pow_succ' ] at *;
         unfold seq_alpha seq_p seq_m; simp +decide [ *, Nat.pow_succ' ] at * ;
         unfold seq_alpha seq_p; simp +decide [ *, Nat.pow_succ' ] at * ;
@@ -2082,7 +2082,7 @@ theorem theorem_1_3 (s : ℕ) (hs : 0 < s) :
       · have h_seq_p_ge_3 : 3 ≤ seq_p k := by
           exact Nat.succ_le_of_lt
             (Nat.lt_of_le_of_lt (Nat.Prime.two_le (Nat.prime_nth_prime 0))
-              (Nat.nth_strictMono Nat.infinite_setOf_prime (Nat.succ_pos _)))
+              (Nat.nth_strictMono Nat.infinite_setOfPred_prime (Nat.succ_pos _)))
         have hα : 1 ≤ seq_alpha s k := by
           unfold seq_alpha
           omega

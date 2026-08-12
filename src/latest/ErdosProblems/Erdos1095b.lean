@@ -69,7 +69,7 @@ lemma exists_good_bound (k : ℕ) (hk : 2 ≤ k) : ∃ n, Good k n ∧ n ≤ (Na
                 Nat.factorization (Nat.factorial k) p =
                   ∑ i ∈ Finset.Ico 1 (Nat.log p k + 1), (k / p ^ i) := by
               rw [ Nat.factorization_def ]
-              · haveI := Fact.mk (Finset.mem_filter.mp hp |>.2)
+              · have := Fact.mk (Finset.mem_filter.mp hp |>.2)
                 rw [padicValNat_factorial]
                 aesop
               · exact Finset.mem_filter.mp hp |>.2

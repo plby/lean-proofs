@@ -18708,7 +18708,7 @@ end
 
 noncomputable section
 
-open scoped BigOperators Nat.Prime
+open scoped BigOperators _root_.Nat.Prime
 
 /-
 Explicit Chebyshev upper bound for the prime-counting function:
@@ -20144,7 +20144,7 @@ theorem pseudoperfectNumbers_eq_indexedMultiples :
       indexedMultiples primitiveValue ∩ Set.Ioi 0 := by
   ext n
   rw [Set.mem_inter_iff]
-  simp only [pseudoperfectNumbers, Set.mem_setOf_eq, Set.mem_Ioi,
+  simp only [pseudoperfectNumbers, Set.mem_ofPred_eq, Set.mem_Ioi,
     pseudoperfect_iff_exists_primitive_divisor, indexedMultiples,
     Set.mem_range]
   constructor
@@ -20184,7 +20184,7 @@ theorem finitePrimitiveMultiples_subset (F : Finset PrimitiveIndex) :
   obtain ⟨hnpos, a, ha, han⟩ := hn
   obtain ⟨b, hb, hba⟩ := Finset.mem_image.mp ha
   rw [← hba] at han
-  rw [pseudoperfectNumbers, Set.mem_setOf_eq]
+  rw [pseudoperfectNumbers, Set.mem_ofPred_eq]
   exact ⟨hnpos, Nat.IsSumDivisors.of_dvd b.2.1.2 han hnpos⟩
 
 /-- Anything missed by a finite primitive approximation is a positive
@@ -20434,7 +20434,7 @@ theorem card_pseudoperfect_Ioo_le_weight_sum (N : ℕ) :
       ↑(Finset.filter (fun n => 0 < n ∧ n.IsSumDivisors)
         (Finset.Ioo 0 N)) := by
     ext n
-    simp only [pseudoperfectNumbers, Set.mem_inter_iff, Set.mem_setOf_eq,
+    simp only [pseudoperfectNumbers, Set.mem_inter_iff, Set.mem_ofPred_eq,
       Set.mem_Iio, Finset.mem_coe, Finset.mem_filter, Finset.mem_Ioo]
     constructor
     · intro hn

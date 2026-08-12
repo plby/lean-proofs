@@ -44,7 +44,7 @@ lemma List.IsChain_spread {l : List ℕ} (h_sorted : l.SortedLE) (h_chain : l.Is
       contrapose! hlt;
       rw [← hj, ← hi]
       exact h_sorted hlt
-    haveI : Trans (fun p q : ℕ => 2 * p < q) (fun p q : ℕ => 2 * p < q)
+    have : Trans (fun p q : ℕ => 2 * p < q) (fun p q : ℕ => 2 * p < q)
         (fun p q : ℕ => 2 * p < q) :=
       ⟨fun {a b c} hab hbc => by nlinarith⟩
     have h_pairwise : l.Pairwise (fun p q : ℕ => 2 * p < q) := by
@@ -1076,7 +1076,7 @@ lemma upper_density_multiples_tail_bound (F : Set ℕ) (T : ℕ) (hF_subset : F 
       let B : Set ℕ := ⋃ f ∈ {x ∈ F | x > T} \ s.filter (fun f => f > T ∧ f ∈ F), {n | f ∣ n}
       have h_target : (⋃ f ∈ {x | x ∈ F ∧ x > T}, {n | f ∣ n}) = A ∪ B := by
         ext n
-        simp only [A, B, Set.mem_iUnion, Set.mem_setOf_eq, Set.mem_union,
+        simp only [A, B, Set.mem_iUnion, Set.mem_ofPred_eq, Set.mem_union,
           Set.mem_sdiff, Finset.mem_coe]
         constructor
         · rintro ⟨f, hf, hfn⟩

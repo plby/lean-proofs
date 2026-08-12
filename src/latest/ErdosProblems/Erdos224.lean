@@ -617,8 +617,8 @@ theorem card_le_pow_two_of_noObtuse
     let S : AffineSubspace ℝ (E d) := affineSpan ℝ (A : Set (E d))
     have hAset : (A : Set (E d)).Nonempty := by
       exact ⟨a0, ha0⟩
-    letI : Nonempty (A : Set (E d)) := ⟨⟨a0, ha0⟩⟩
-    letI : Nonempty S := ⟨⟨a0, subset_affineSpan ℝ (A : Set (E d)) ha0⟩⟩
+    let : Nonempty (A : Set (E d)) := ⟨⟨a0, ha0⟩⟩
+    let : Nonempty S := ⟨⟨a0, subset_affineSpan ℝ (A : Set (E d)) ha0⟩⟩
     let AsetS : Set S := ((↑) : S → E d) ⁻¹' (A : Set (E d))
     have hspanS : affineSpan ℝ AsetS = ⊤ := by
       simp [AsetS, S]

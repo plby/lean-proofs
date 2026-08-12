@@ -828,7 +828,7 @@ lemma monic_norm_bound_on_unit_interval {n : ℕ} (hn : n ≠ 0) (p : Polynomial
             field_simp [pow_ne_zero]
           have hdeg_eq : u.degree = q.degree := by rw [hu_degree, hq_degree]
           have hlc_eq : u.leadingCoeff = q.leadingCoeff := by rw [hu_lc, hq_lc]
-          exact (Polynomial.degree_sub_lt hdeg_eq hu_ne_zero hlc_eq).trans_eq hu_degree
+          exact (Polynomial.degree_sub_lt_left hdeg_eq hu_ne_zero hlc_eq).trans_eq hu_degree
       -- By the properties of the Chebyshev polynomial, we know that $q(x_k) = \frac{(-1)^k}{2^{n-1}}$ for $x_k = \cos(k \pi / n)$, $k = 0, 1, \ldots, n$.
       have hq_values : ∀ k ∈ Finset.range (n + 1), q.eval (Real.cos (k * Real.pi / n)) = (-1 : ℝ) ^ k / 2 ^ (n - 1) := by
         simp +zetaDelta at *;
@@ -1547,7 +1547,7 @@ theorem exists_extremal_polynomial (n : ℕ) (hn : n ≠ 0) :
         zero_add, one_pow, norm_one]
     · have h_ball : {z : ℂ | ‖p0.eval z‖ ≤ 1} = Metric.closedBall (-1 : ℂ) 1 := by
         ext z
-        simp only [p0, Set.mem_setOf_eq, Metric.mem_closedBall, dist_eq_norm,
+        simp only [p0, Set.mem_ofPred_eq, Metric.mem_closedBall, dist_eq_norm,
           sub_neg_eq_add, Polynomial.eval_pow, Polynomial.eval_add, Polynomial.eval_X, Polynomial.eval_C, norm_pow]
         constructor
         · intro h
@@ -2494,7 +2494,7 @@ lemma perturbed_le_one_on_segment (n : ℕ) (p q : Polynomial ℂ)
       have h1 : IsOpen {x : ℝ | ‖p.eval (x : ℂ)‖ < 1 - margin} :=
         isOpen_lt h_p_cont continuous_const
       have h2 : a ∈ {x : ℝ | ‖p.eval (x : ℂ)‖ < 1 - margin} := by
-        simp only [Set.mem_setOf_eq]
+        simp only [Set.mem_ofPred_eq]
         have h_eval_a : ‖p.eval (a : ℂ)‖ < 1 - (1 - ‖p.eval (a : ℂ)‖) / 2 := by linarith [ha_lt_one]
         exact h_eval_a
       exact IsOpen.mem_nhds h1 h2
@@ -3618,7 +3618,7 @@ lemma unique_from_chebyshev_ode (n : ℕ) (hn : n ≠ 0) (g : Polynomial ℂ)
       rw [Polynomial.leadingCoeff_mul, Polynomial.leadingCoeff_C]
       dsimp [c]
       field_simp [hT_lc_ne]
-    have hlt := Polynomial.degree_sub_lt hdeg_eq hg_ne_zero hlc_eq
+    have hlt := Polynomial.degree_sub_lt_left hdeg_eq hg_ne_zero hlc_eq
     simpa [hg_deg] using hlt
   have hdiff_zero : g - Polynomial.C c * T = 0 := by
     by_contra hdiff_ne_zero

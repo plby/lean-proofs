@@ -2497,7 +2497,7 @@ lemma degree_2_connected_to_degree_2_if_connected_to_degree_1 (S : Finset (ℝ �
     (h4 : S.card = 4)
     (h_count : edge_count S a = 6)
     (h_max_deg : ∀ p ∈ S, (S.filter (fun q => dist_euc p q = a)).card ≤ 2)
-    (h_deg : (S.filter (fun p => (S.filter (fun q => dist_euc p q = a)).card = 2)).card = 2 ∧
+    (_h_deg : (S.filter (fun p => (S.filter (fun q => dist_euc p q = a)).card = 2)).card = 2 ∧
       (S.filter (fun p => (S.filter (fun q => dist_euc p q = a)).card = 1)).card = 2)
     (x y u v : ℝ × ℝ) (hx : x ∈ S) (hy : y ∈ S) (hu : u ∈ S) (hv : v ∈ S)
     (hxy : x ≠ y) (huv : u ≠ v)

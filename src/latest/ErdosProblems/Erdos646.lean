@@ -151,7 +151,7 @@ lemma padicValNat_periodic_pos (p : ℕ) (hp : p.Prime) (n k M : ℕ) (hn : n > 
         exact pow_padicValNat_dvd
       · rw [Nat.dvd_div_iff_mul_dvd]
         · rw [← pow_succ]
-          haveI := Fact.mk hp
+          have := Fact.mk hp
           rw [padicValNat_dvd_iff_le]
           · aesop
           · positivity
@@ -167,7 +167,7 @@ lemma padicValNat_periodic_pos (p : ℕ) (hp : p.Prime) (n k M : ℕ) (hn : n > 
           (dvd_mul_of_dvd_right (dvd_pow_self _ (Nat.sub_ne_zero_of_lt (by linarith))) _)
       ]
       tauto
-    haveI := Fact.mk hp
+    have := Fact.mk hp
     rw [h_factor, padicValNat.mul] <;> norm_num [h_div]
     · exact fun h => absurd h hp.ne_zero
     · exact fun h => absurd h (by
@@ -190,7 +190,7 @@ lemma padicValNat_max_attained_twice_implies_pow_lt_b (p : ℕ) (hp : p.Prime)
     -- $p^M \mid (k2 - k1)$.
     have h_div : p ^ M ∣ Int.natAbs (k2 - k1) := by
       have h_div : p ^ M ∣ (m + k1) ∧ p ^ M ∣ (m + k2) := by
-        haveI := Fact.mk hp
+        have := Fact.mk hp
         simp_all +decide [padicValNat_dvd_iff]
       simpa [← Int.natCast_dvd_natCast] using
         dvd_sub (Int.natCast_dvd_natCast.mpr h_div.2)
@@ -270,7 +270,7 @@ lemma second_largest_valuation_bound (p : ℕ) (hp : p.Prime) (b m : ℕ) (hb : 
       have h_div :
           p ^ (padicValNat p (m + k0)) ∣ (m + k0) ∧
             p ^ (padicValNat p (m + k_next)) ∣ (m + k_next) := by
-        haveI := Fact.mk hp
+        have := Fact.mk hp
         simp +decide [padicValNat_dvd_iff]
       exact
         ⟨ dvd_trans
@@ -442,7 +442,7 @@ lemma lemma_2_case_2 (p : ℕ) (hp : p.Prime) (b m : ℕ) (hb : b > 0) (hm : m >
         by_cases hk_eq_k0 : k = k0;
         · -- Using the properties of p-adic valuations, we can simplify the expression for the valuation of $m + k0 + t * Q$.
           have h_val_simplified : padicValNat p (m + k0 + t * Q) = padicValNat p (u + t) + (M_next + 1) := by
-            haveI := Fact.mk hp; rw [ hu ] ; ring_nf;
+            have := Fact.mk hp; rw [ hu ] ; ring_nf;
             rw [ show u * Q + Q * t = Q * ( u + t ) by ring, padicValNat.mul ] <;> norm_num [ hQ.1, hp.ne_zero ]
             focus ring_nf
             grind +ring;
@@ -521,7 +521,7 @@ lemma lemma_block_recurrence_AP_case2_b_eq_1 (p : ℕ) (hp : p.Prime) (b m : ℕ
     · interval_cases M' <;> nlinarith [ hp.two_le ];
     · -- Let's simplify the expression for the valuation.
       have h_val : ∀ r : ℕ, padicValNat p (p ^ M' * (p + 1 + r * p)) = M' := by
-        intro r; haveI := Fact.mk hp; rw [ padicValNat.mul ] <;> norm_num [ hp.ne_zero ] ;
+        intro r; have := Fact.mk hp; rw [ padicValNat.mul ] <;> norm_num [ hp.ne_zero ] ;
         norm_num [ Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod ];
         exact em _;
       intro r; rw [ show p ^ M' + p ^ M' * p + r * ( p ^ M' * p ) = p ^ M' * ( p + 1 + r * p ) by ring ] ; aesop;
@@ -539,7 +539,7 @@ lemma lemma_exists_a_case2 (p : ℕ) (hp : p.Prime) (b k0 M' : ℕ) (hb : b > 0)
       have h_factor : p ^ M' + p ^ (M' + 1) * b + r * p ^ (M' + 1) = p ^ M' * (1 + p * b + r * p) := by
         ring;
       have h_val : padicValNat p (p ^ M' * (1 + p * b + r * p)) = M' := by
-        haveI := Fact.mk hp; rw [ padicValNat.mul ] <;> norm_num [ hp.ne_zero, hp.ne_one ] ;
+        have := Fact.mk hp; rw [ padicValNat.mul ] <;> norm_num [ hp.ne_zero, hp.ne_one ] ;
         norm_num [ Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod, Nat.pow_mod ] at * ; aesop;
       convert h_val using 2 ; linarith [ Nat.sub_add_cancel ( show k0 ≤ p ^ M' + p ^ ( M' + 1 ) * b from by nlinarith [ pow_pos hp.pos M', pow_pos hp.pos ( M' + 1 ) ] ) ]
 
@@ -569,7 +569,7 @@ lemma lemma_valuation_diff_lt_max (p : ℕ) (hp : p.Prime) (b m : ℕ) (hm : m >
       · linear_combination' h_div_mk + h_div;
       · grind
     have h_contra' : padicValNat p (m + k) ≥ M := by
-      haveI := Fact.mk hp; rw [ padicValNat_dvd_iff ] at *; aesop;
+      have := Fact.mk hp; rw [ padicValNat_dvd_iff ] at *; aesop;
     linarith [h_unique k hk hk_ne_k0]
 
 /-
@@ -602,7 +602,7 @@ lemma lemma_valuation_near_max (p : ℕ) (hp : p.Prime) (b m : ℕ) (hm : m > 0)
             have h_div : padicValNat p (k - k0) < M := by
               have := lemma_valuation_diff_lt_max p hp b m hm k0 hk0 M hM h_unique k hk_lt hk_ne_k0; aesop;
             have h_div : p ^ (padicValNat p (m + k0)) ∣ (m + k0) := by
-              haveI := Fact.mk hp; rw [ padicValNat_dvd_iff ] ; aesop;
+              have := Fact.mk hp; rw [ padicValNat_dvd_iff ] ; aesop;
             exact dvd_trans ( pow_dvd_pow _ ( by linarith ) ) h_div;
           exact dvd_add h_div ‹_›
         have h_not_div : ¬(p ^ (padicValNat p (k - k0) + 1) ∣ (m + k0) + (k - k0)) := by
@@ -803,7 +803,7 @@ theorem infinitely_many_even_factorial_exponents (k : ℕ) (p : Fin k → ℕ) (
           unfold partial_sum val_vec; simp +decide [ add_assoc ] ;
           have h_partial_sum : ∀ m, padicValNat (p i) (Nat.factorial (n + m)) = padicValNat (p i) (Nat.factorial n) + ∑ j ∈ Finset.range m, padicValNat (p i) (n + 1 + j) := by
             intro m; induction m <;> simp_all +decide [ Nat.factorial, Finset.sum_range_succ ] ;
-            haveI := Fact.mk ( hp i ) ; rw [ padicValNat.mul ( by positivity ) ( by positivity ) ] ; simp_all +decide [ add_comm, add_left_comm, add_assoc ] ;
+            have := Fact.mk ( hp i ) ; rw [ padicValNat.mul ( by positivity ) ( by positivity ) ] ; simp_all +decide [ add_comm, add_left_comm, add_assoc ] ;
           simp_all +decide [ add_assoc ];
         simp_all +decide [ funext_iff ];
     exact Set.infinite_of_forall_exists_gt fun N => by obtain ⟨ n, hn₁, hn₂ ⟩ := h_seq N; exact ⟨ n, hn₂, hn₁ ⟩ ;

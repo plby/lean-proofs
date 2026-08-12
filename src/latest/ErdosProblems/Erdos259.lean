@@ -392,7 +392,7 @@ theorem ChenRusza_Lemma3 (l : ℕ) (a b r : ℕ) (q : ℕ) (hq : q.Prime) (hql :
         obtain ⟨m, hm⟩ : ∃ m : ℕ, a * l ^ nr + nr + b = m * q ^ r := by
           exact exists_eq_mul_left_of_dvd <| Nat.dvd_of_mod_eq_zero hnr.1
         obtain ⟨k, hk⟩ : ∃ k : ℕ, m + k * (q - 1) ≡ 0 [MOD q] := by
-          haveI := Fact.mk hq; simp [ ← ZMod.natCast_eq_natCast_iff ]
+          have := Fact.mk hq; simp [ ← ZMod.natCast_eq_natCast_iff ]
           norm_num [ hq.pos ]
           exact ⟨ m, by ring ⟩
         use k
@@ -417,7 +417,7 @@ private lemma exists_prime_neg_one_mod (m : ℕ) (hm : 1 < m) :
     ∃ p : ℕ, p.Prime ∧ m ∣ (p + 1) := by
   -- Dirichlet gives infinitely many primes congruent to `-1` modulo `m`.
   have h_dirichlet : Set.Infinite {p : ℕ | Nat.Prime p ∧ p ≡ -1 [ZMOD m]} := by
-    convert Nat.infinite_setOf_prime_and_eq_mod (show IsUnit ( -1 : ZMod m ) from ?_ ) using 1
+    convert Nat.infinite_setOfPred_prime_and_eq_mod (show IsUnit ( -1 : ZMod m ) from ?_ ) using 1
     · norm_num [ ← ZMod.intCast_eq_intCast_iff ]
     · exact ⟨ by linarith ⟩
     · exact isUnit_iff_exists_inv.mpr ⟨ -1, by ring ⟩
@@ -551,8 +551,8 @@ private lemma consecutive_non_rfree_non_squarefull (r : ℕ) (N : ℕ) :
     use fun i => Nat.nth Nat.Prime ( i + 2 );
     refine ⟨ fun i => Nat.prime_nth_prime (i + 2), fun i => ?_, fun i j hij => ?_ ⟩;
     · exact Nat.lt_of_le_of_lt (Nat.Prime.two_le <| Nat.prime_nth_prime _)
-        (Nat.nth_strictMono Nat.infinite_setOf_prime <| Nat.lt_succ_self _);
-    · exact fun h => hij <| by have := Nat.nth_injective ( Nat.infinite_setOf_prime ) h; aesop;
+        (Nat.nth_strictMono Nat.infinite_setOfPred_prime <| Nat.lt_succ_self _);
+    · exact fun h => hij <| by have := Nat.nth_injective ( Nat.infinite_setOfPred_prime ) h; aesop;
   obtain ⟨s, hs⟩ :
       ∃ s : ℕ → ℕ,
         (∀ i, Nat.Prime (s i)) ∧
@@ -562,7 +562,7 @@ private lemma consecutive_non_rfree_non_squarefull (r : ℕ) (N : ℕ) :
     have h_inf_primes :
         Set.Infinite
           {p : ℕ | Nat.Prime p ∧ 3 ≤ p ∧ p ∉ Finset.image q (Finset.range N)} := by
-      exact Set.Infinite.sdiff (Nat.infinite_setOf_prime.sdiff (Set.finite_le_nat 2))
+      exact Set.Infinite.sdiff (Nat.infinite_setOfPred_prime.sdiff (Set.finite_le_nat 2))
         (Finset.finite_toSet (Finset.image q (Finset.range N))) |>
           Set.Infinite.mono fun p hp => by aesop;
     have := h_inf_primes.exists_gt;
@@ -736,7 +736,7 @@ private lemma first_interval_periodic
           (∀ i j, i ≠ j → P i ≠ P j) := by
       have h_inf_primes : Set.Infinite {q : ℕ | Nat.Prime q ∧ ¬(q ∣ 2 * l)} := by
         exact Set.Infinite.mono (by aesop_cat)
-          (Nat.infinite_setOf_prime.sdiff
+          (Nat.infinite_setOfPred_prime.sdiff
             (Set.finite_iff_bddAbove.mpr
               ⟨2 * l, fun q hq => Nat.le_of_dvd (by positivity) hq⟩))
       have := h_inf_primes.exists_subset_card_eq ( 2 * k )
@@ -1713,8 +1713,8 @@ theorem mobiusSeries_eq_squarefreeSeries :
     exact Eq.symm (if_pos <|
       Nat.nth_mem_of_infinite
         (show Set.Infinite {n : ℕ | Squarefree n} from
-          Nat.infinite_setOf_prime.mono fun x hx => hx.squarefree) _)
-  · exact Nat.nth_injective <| Nat.infinite_setOf_prime.mono fun x hx => hx.squarefree
+          Nat.infinite_setOfPred_prime.mono fun x hx => hx.squarefree) _)
+  · exact Nat.nth_injective <| Nat.infinite_setOfPred_prime.mono fun x hx => hx.squarefree
   · intro n hn; use Nat.count (fun n => Squarefree n ) n; aesop
 
 /-! # Chapter 4: Erdős Problem 259 -/
@@ -1727,7 +1727,7 @@ theorem squarefreeSeq_terms_are_twoFree :
   have h_squarefree : Squarefree (squarefreeSeq n) := by
     exact Nat.nth_mem_of_infinite
       (show Set.Infinite {n | Squarefree n} from
-        Nat.infinite_setOf_prime.mono fun n hn => hn.squarefree) n
+        Nat.infinite_setOfPred_prime.mono fun n hn => hn.squarefree) n
   have := h_squarefree d; simp_all [ sq ]
 
 /-- Theorem 4.2 (Erdős Problem 259). The Möbius series
@@ -1739,7 +1739,7 @@ theorem erdos_259 :
   apply ChenRusza_Theorem4
   · exact Nat.le_refl 2
   · exact Nat.nth_injective
-      (Nat.infinite_setOf_prime.mono fun _ hn => Irreducible.squarefree hn)
+      (Nat.infinite_setOfPred_prime.mono fun _ hn => Irreducible.squarefree hn)
   · exact fun n => Or.inl (squarefreeSeq_terms_are_twoFree n)
   · exact Nat.le_refl 2
 

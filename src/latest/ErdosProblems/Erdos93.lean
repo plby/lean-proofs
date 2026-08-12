@@ -145,7 +145,7 @@ lemma exists_ball_pos_of_pos_continuous_linear_map
     (w : ι → ℝ) (hw : ∀ i, 0 < w i)
     (L : V →L[ℝ] (ι → ℝ)) :
     ∃ δ > 0, ∀ v, ‖v‖ < δ → ∀ i, 0 < w i + L v i := by
-      letI := Fintype.ofFinite ι
+      let := Fintype.ofFinite ι
       -- Let $m = \min_{i} w_i$. Since $w_i > 0$ for all $i$, $m > 0$.
       obtain ⟨m, hm⟩ : ∃ m > 0, ∀ i, w i ≥ m := by
         by_cases h_empty : Nonempty ι;
@@ -1748,7 +1748,7 @@ lemma convex_polygon_vertices_one_side_of_diagonal {A : ℕ → V} {n : ℕ}
   let sub_n := q - p + 1
   have h_sub_n : 3 ≤ sub_n := by dsimp [sub_n]; omega
   have h_sub_n_pos : 0 < sub_n := by omega
-  letI : NeZero sub_n := ⟨by omega⟩
+  let : NeZero sub_n := ⟨by omega⟩
 
   -- Define the sub-polygon vertices embedding
   let emb : Fin sub_n ↪ Fin n := ⟨fun i => ⟨p + i, by
@@ -6181,7 +6181,7 @@ lemma segment_subset_frontier_of_angular_order {n : ℕ} {s : Finset V}
 
     have hy_hull : y ∈ convexHull ℝ (s : Set V) := hU_sub hy_U
     have := h_hull_subset hy_hull
-    rw [Set.mem_setOf_eq] at this
+    rw [Set.mem_ofPred_eq] at this
     linarith
 
 lemma is_convex_polygon_angular_order {n : ℕ} {s : Finset V}

@@ -731,7 +731,7 @@ lemma start_ne_top_of_rest_nonempty {α : Type*} [Finite α] (C : Finset (Finset
     (h_max : ∀ X ∈ C, X ⊆ top)
     (h_rest : (C.erase top).Nonempty) :
     start ≠ top := by
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   intro h_eq
   have h_singleton : C = {top} := by
     ext X
@@ -1101,7 +1101,7 @@ lemma kleitman_bound_unique_proj_C {α : Type*} [Finite α] (T : Set α)
     (X Y : Finset α) (hX : X ∈ F_part) (hY : Y ∈ F_part)
     (h_eq : (X : Set α) ∩ T = (Y : Set α) ∩ T) : X = Y := by
       classical
-      letI := Fintype.ofFinite α
+      let := Fintype.ofFinite α
       -- By h_subset, there exist Ux, Vx, Uy, Vy such that X = Ux ∪ Vx and Y = Uy ∪ Vy.
       obtain ⟨Ux, Vx, hx⟩ : ∃ Ux Vx, Ux ∈ C ∧ Vx ∈ D ∧ X = Ux ∪ Vx := by
         simpa [ eq_comm ] using h_subset hX
@@ -1163,7 +1163,7 @@ lemma kleitman_grid_bound {α : Type*} [Finite α] (T : Set α)
     (h_subset : F_part ⊆ {U ∪ V | (U ∈ C) (V ∈ D)}) :
     F_part.ncard ≤ min C.card D.card := by
   classical
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   have h_card_le_C : F_part.ncard ≤ C.card := by
     have h_card_le_C :
         F_part.ncard ≤
@@ -1225,8 +1225,8 @@ lemma map_chain_is_chain {α β : Type*} [Finite α] [Finite β] (emb : β ↪ �
     (C : Finset (Finset β))
     (hC : IsChain (· ⊆ ·) (C : Set (Finset β))) :
     IsChain (· ⊆ ·) ((C.map (Finset.mapEmbedding emb).toEmbedding) : Set (Finset α)) := by
-  letI := Fintype.ofFinite α
-  letI := Fintype.ofFinite β
+  let := Fintype.ofFinite α
+  let := Fintype.ofFinite β
   intro A hA B hB hneq
   -- Lift A and B back to C
   change A ∈ C.map (Finset.mapEmbedding emb).toEmbedding at hA
@@ -1252,7 +1252,7 @@ lemma map_chain_support {α : Type*} [Finite α] (T : Set α)
     let C' := C.map (Finset.mapEmbedding emb).toEmbedding
     ∀ A ∈ C', (A : Set α) ⊆ T := by
   classical
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   intro C' A hA
   rw [Finset.mem_map] at hA
   rcases hA with ⟨B, _, rfl⟩
@@ -1658,8 +1658,7 @@ lemma scd_middle_rank_sum {G : Type*} [Fintype G] (T : Set G) [DecidablePred (·
         ext S
         rw [Set.mem_toFinset, Finset.mem_powersetCard]
         simp [Erdos498.rankSet]]
-    simpa using
-      (Finset.card_powersetCard (Fintype.card G / 2) (Finset.univ : Finset G)).symm
+    simp
 
 /-- The global summation identity: sum of min chain lengths equals the central
 binomial coefficient. -/
@@ -1680,7 +1679,7 @@ lemma scd_product_identity {α β : Type*} [Fintype α] [Fintype β]
     obtain ⟨C, ⟨hC_mem, hU_in⟩, -⟩ := hα.2 U_fin
     obtain ⟨D, ⟨hD_mem, hV_in⟩, -⟩ := hβ.2 V_fin
     refine Set.mem_iUnion.mpr ⟨(C, D), Set.mem_iUnion.mpr ⟨(by simp [hC_mem, hD_mem]), ?_⟩⟩
-    simp only [P, Set.mem_setOf_eq]; use U_fin, hU_in, V_fin, hV_in
+    simp only [P, Set.mem_ofPred_eq]; use U_fin, hU_in, V_fin, hV_in
     · ext z; rcases z with a|b <;> (simp; exact Finset.mem_preimage)
   have length_sum_congr : (∑ C ∈ Cα, ∑ D ∈ Cβ, min C.card D.card)
       = (∑ C ∈ Cα, ∑ D ∈ Cβ, (P C D ∩ rankSet G (n / 2)).ncard) := by
@@ -1725,7 +1724,7 @@ theorem kleitman_bound_theorem {α : Type*} [Fintype α] (F : Set (Set α))
   (∀ A B, A ∈ F → B ∈ F → A ⊂ B → (B \ A ∩ T).Nonempty ∧ (B \ A ∩ Tᶜ).Nonempty) →
   F.ncard ≤ (Fintype.card α).choose (Fintype.card α / 2) := by
   intro h_kleitman
-  haveI : DecidablePred (· ∈ T) := Classical.decPred _
+  have : DecidablePred (· ∈ T) := Classical.decPred _
   let Tc := Tᶜ
   obtain ⟨CT, hCT⟩ := exists_SCD { x // x ∈ T }
   obtain ⟨DTC, hDTC⟩ := exists_SCD { x // x ∈ Tc }

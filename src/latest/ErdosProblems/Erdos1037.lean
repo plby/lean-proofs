@@ -192,7 +192,7 @@ theorem Lemma_Hoeffding
         simp +decide only [Finset.sum_apply];
       · convert Lemma_Hoeffding_OneSided N ( fun i ω => 1 - Y i ω ) ( fun i => Measurable.const_sub ( h_meas i ) _ ) _ _ _ t t_pos using 1;
         · norm_num [ Finset.sum_sub_distrib ];
-          exact congr_arg _ ( congr_arg _ ( by ext; constructor <;> rintro h <;> rw [ Set.mem_setOf_eq ] at * <;> linarith ) );
+          exact congr_arg _ ( congr_arg _ ( by ext; constructor <;> rintro h <;> rw [ Set.mem_ofPred_eq ] at * <;> linarith ) );
         · rw [ ProbabilityTheory.iIndepFun_iff_measure_inter_preimage_eq_mul ] at *;
           intro S sets hsets
           simpa [Set.preimage] using
@@ -1018,7 +1018,7 @@ theorem degree_concentration_union_bound (m : ℕ) (hm : m > 1) (t : ℝ) (ht : 
         · ac_rfl;
         · unfold randomGraphMeasure; aesop;
       · exact ENNReal.sum_ne_top.mpr fun v _ => ne_of_lt <| lt_of_le_of_lt ( MeasureTheory.measure_mono <| Set.subset_univ _ ) <| by simp +decide [ randomGraphMeasure ] ;
-    exact le_trans ( by simpa only [ Set.setOf_exists ] using h_union_bound ) ( le_trans ( Finset.sum_le_sum fun _ _ => by solve_by_elim ) ( by norm_num; linarith ) )
+    exact le_trans ( by simpa only [ Set.ofPred_exists ] using h_union_bound ) ( le_trans ( Finset.sum_le_sum fun _ _ => by solve_by_elim ) ( by norm_num; linarith ) )
 
 /-
 Definitions for the threshold values used in the proof.
@@ -2026,8 +2026,8 @@ lemma cliqueNum_map_equiv {V W : Type*} [Finite V] [Finite W]
     (G : SimpleGraph V) (e : V ≃ W) :
     (G.map e.toEmbedding).cliqueNum = G.cliqueNum := by
       classical
-      letI := Fintype.ofFinite V
-      letI := Fintype.ofFinite W
+      let := Fintype.ofFinite V
+      let := Fintype.ofFinite W
       have h_back : (G.map e.toEmbedding).map e.symm.toEmbedding = G := by
         rw [SimpleGraph.map_map]
         convert SimpleGraph.map_id G using 2
@@ -2053,8 +2053,8 @@ lemma indepNum_map_equiv {V W : Type*} [Finite V] [Finite W]
     (G : SimpleGraph V) (e : V ≃ W) :
     (G.map e.toEmbedding).indepNum = G.indepNum := by
       classical
-      letI := Fintype.ofFinite V
-      letI := Fintype.ofFinite W
+      let := Fintype.ofFinite V
+      let := Fintype.ofFinite W
       unfold SimpleGraph.indepNum
       congr 1
       ext n
@@ -2205,7 +2205,7 @@ lemma Theorem_Main_Fixed_m (m : ℕ) (R : SimpleGraph (Fin m))
               · exact le_trans ( Nat.cast_le.mpr ( cliqueNum_H_le m R σ_AB σ_CD ) ) ( by norm_num; linarith );
               · exact le_trans ( Nat.cast_le.mpr ( indepNum_H_le m R σ_AB σ_CD ) ) ( by norm_num; linarith );
         let e := iso_VH_Fin m
-        letI : DecidableRel (H.map e.toEmbedding).Adj := Classical.decRel _
+        let : DecidableRel (H.map e.toEmbedding).Adj := Classical.decRel _
         have hDegree (v : Fin (4 * m)) :
             @SimpleGraph.degree (Fin (4 * m)) (H.map e.toEmbedding) v
                 (Subtype.fintype (Membership.mem ((H.map e.toEmbedding).neighborSet v))) =

@@ -78,7 +78,7 @@ noncomputable def GraphDimension {V : Type*} (G : SimpleGraph V) : ℕ :=
 Every finite graph has a unit-distance embedding in some dimension.
 -/
 lemma exists_embedding {V : Type*} [Finite V] (G : SimpleGraph V) : ∃ d, HasUnitDistanceEmbedding G d := by
-  letI := Fintype.ofFinite V
+  let := Fintype.ofFinite V
   use Fintype.card V;
   -- Embed $V$ as a regular simplex in $\mathbb{R}^{|V|}$.
   have h_regular_simplex : ∃ f : V → EuclideanSpace ℝ (Fin (Fintype.card V)), Function.Injective f ∧ ∀ u v : V, u ≠ v → dist (f u) (f v) = 1 := by
@@ -553,7 +553,7 @@ theorem K33_edges : (completeBipartiteGraph (Fin 3) (Fin 3)).edgeFinset.card = 9
       (@SimpleGraph.edgeFinset (Fin 3 ⊕ Fin 3)
         (completeBipartiteGraph (Fin 3) (Fin 3))
         localEdgeSetFintype).card = 9 := by
-    letI := localDecRel
+    let := localDecRel
     have h := SimpleGraph.two_mul_card_edgeFinset
       (G := completeBipartiteGraph (Fin 3) (Fin 3))
     have h_count :
@@ -919,7 +919,7 @@ lemma embedding_extension {V : Type*} [Finite V] (G : SimpleGraph V) (v : V)
     (hp_not_adj : ∀ u (h : u ≠ v), ¬ G.Adj v u → p ≠ f' ⟨u, h⟩) :
     HasUnitDistanceEmbedding G 3 := by
       classical
-      letI := Fintype.ofFinite V
+      let := Fintype.ofFinite V
       refine ⟨ fun u => if hu : u = v then p else f' ⟨ u, hu ⟩, ?_, ?_ ⟩ <;> simp_all +decide [ IsUnitDistanceEmbedding ];
       · intro u w h_eq; by_cases hu : u = v <;> by_cases hw : w = v <;> simp_all +decide [ Function.Injective.eq_iff hf'.1 ] ;
         · contrapose! hp_not_adj;

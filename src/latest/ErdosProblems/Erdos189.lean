@@ -732,7 +732,7 @@ lemma parallelogram_of_rect (a b c d : ℝ²)
       obtain ⟨left_2, right_2⟩ := h_lin_indep
       obtain ⟨left_3, right⟩ := right
       fin_cases i <;>
-        simp_all +decide only [Nat.reduceAdd, Fin.zero_eta, Fin.isValue]
+        simp_all +decide only [Fin.zero_eta, Fin.isValue]
       · replace a_1 := congr_arg (fun x => inner ℝ x (c - b)) a_1
         simp_all +decide [inner_add_left, inner_smul_left]
         simp_all +decide [real_inner_comm]

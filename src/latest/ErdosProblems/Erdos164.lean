@@ -3245,7 +3245,7 @@ lemma boundaryOutflow_eq_sum_compl (s : Finset ℕ) :
       by_contra hbad
       exact hn <| by
         apply modifiedFlow_eq_zero_of_not_dvd_lt
-        simpa [Set.mem_setOf_eq] using hbad
+        simpa [Set.mem_ofPred_eq] using hbad
     let e' :
         {x : {n // n ∉ s} // x.1 ∣ r.1 ∧ x.1 < r.1} ≃
           {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} :=
@@ -3323,7 +3323,7 @@ lemma boundaryInflow_eq_sum_compl (s : Finset ℕ) :
       by_contra hbad
       exact hm <| by
         apply modifiedFlow_eq_zero_of_not_dvd_lt
-        simpa [Set.mem_setOf_eq] using hbad
+        simpa [Set.mem_ofPred_eq] using hbad
     let e' :
         {x : {m // m ∉ s} // n.1 ∣ x.1 ∧ n.1 < x.1} ≃
           {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} :=
@@ -3515,7 +3515,7 @@ lemma boundaryOutflow_le_primeWeightSum_of_downwardClosed {Ω : Set ℕ}
             exact hpointwise m
       _ = ∑' p : primeΩ, erdosWeight p.1.1 := by
             symm
-            simpa [primeΩ, Set.indicator, Set.mem_setOf_eq] using
+            simpa [primeΩ, Set.indicator, Set.mem_ofPred_eq] using
               (tsum_subtype primeΩ (fun m : Ω => erdosWeight m.1))
       _ = ∑' q : SΩ, erdosWeight q.1.1 := by
             simpa [ePrimeΩ] using (Equiv.tsum_eq ePrimeΩ (fun q : SΩ => erdosWeight q.1.1))
@@ -3546,8 +3546,8 @@ lemma boundaryOutflow_ge_boundaryInflow_add_tsum_divergence_of_subset
       outflow_modifiedFlow_ge_inflow_modifiedFlow
         (lt_of_lt_of_le htwo (hΩ_ge_two hr))
   have hAfin : A.Finite := hΩfin.subset hAΩ
-  letI := hΩfin.fintype
-  letI := hAfin.fintype
+  let := hΩfin.fintype
+  let := hAfin.fintype
   let e : A ≃ {r : Ω // (r : ℕ) ∈ A} :=
     { toFun := fun a => ⟨⟨a.1, hAΩ a.2⟩, a.2⟩
       invFun := fun r => ⟨r.1.1, r.2⟩
@@ -4642,7 +4642,7 @@ lemma primitiveWeightSum_le_primeWeightSum_of_finite {A : Set ℕ}
                 refine ENNReal.ofReal_tsum_of_nonneg ?_ ?_
                 · intro a
                   exact hIn_nonneg a
-                · letI := hfin.fintype
+                · let := hfin.fintype
                   apply Summable.of_finite
         _ = ∑' a : A, ∑' mn : T a, ENNReal.ofReal (G mn) := by
               apply tsum_congr
@@ -4690,7 +4690,7 @@ lemma primitiveWeightSum_le_primeWeightSum_of_finite {A : Set ℕ}
           exact hEq ▸ hscol'
         have houter :
             Summable (fun r : Ω => ∑' mn : U r, modifiedFlow mn.1.1.1 mn.1.1.2) := by
-          letI := hΩfin.fintype
+          let := hΩfin.fintype
           apply Summable.of_finite
         exact
           (summable_partition
@@ -4705,7 +4705,7 @@ lemma primitiveWeightSum_le_primeWeightSum_of_finite {A : Set ℕ}
   have hmain :
       primitiveWeightSum A ≤ boundaryInflow modifiedFlow Ω +
         (∑' a : A, (outflow modifiedFlow (a : ℕ) - inflow modifiedFlow (a : ℕ))) := by
-    letI := hfin.fintype
+    let := hfin.fintype
     have hIn_le' : ∑ a : A, inflow modifiedFlow (a : ℕ) ≤ boundaryInflow modifiedFlow Ω := by
       simpa [tsum_fintype] using hIn_le
     rw [hWeight, tsum_fintype, tsum_fintype]
@@ -6546,7 +6546,7 @@ lemma boundaryOutflow_eq_sum_compl_twoFlow (s : Finset ℕ) :
       by_contra hbad
       exact hn <| by
         apply twoFlow_eq_zero_of_not_dvd_lt
-        simpa [Set.mem_setOf_eq] using hbad
+        simpa [Set.mem_ofPred_eq] using hbad
     let e' :
         {x : {n // n ∉ s} // x.1 ∣ r.1 ∧ x.1 < r.1} ≃
           {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} :=
@@ -6625,7 +6625,7 @@ lemma boundaryInflow_eq_sum_compl_twoFlow (s : Finset ℕ)
       by_contra hbad
       exact hm <| by
         apply twoFlow_eq_zero_of_not_dvd_lt
-        simpa [Set.mem_setOf_eq] using hbad
+        simpa [Set.mem_ofPred_eq] using hbad
     let e' :
         {x : {m // m ∉ s} // n.1 ∣ x.1 ∧ n.1 < x.1} ≃
           {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} :=
@@ -6801,8 +6801,8 @@ lemma boundaryOutflow_ge_boundaryInflow_add_tsum_divergence_of_subset_twoFlow
       outflow_twoFlow_ge_inflow_twoFlow
         (lt_of_lt_of_le Nat.one_lt_two (hΩ_ge_two hr))
   have hAfin : A.Finite := hΩfin.subset hAΩ
-  letI := hΩfin.fintype
-  letI := hAfin.fintype
+  let := hΩfin.fintype
+  let := hAfin.fintype
   let e : A ≃ {r : Ω // (r : ℕ) ∈ A} :=
     { toFun := fun a => ⟨⟨a.1, hAΩ a.2⟩, a.2⟩
       invFun := fun r => ⟨r.1.1, r.2⟩
@@ -7033,7 +7033,7 @@ lemma twoWeightSum_le_series_one_of_finite {A : Set ℕ}
                 refine ENNReal.ofReal_tsum_of_nonneg ?_ ?_
                 · intro a
                   exact hIn_nonneg a
-                · letI := hfin.fintype
+                · let := hfin.fintype
                   apply Summable.of_finite
         _ = ∑' a : A, ∑' mn : T a, ENNReal.ofReal (G mn) := by
               apply tsum_congr
@@ -7081,7 +7081,7 @@ lemma twoWeightSum_le_series_one_of_finite {A : Set ℕ}
           exact hEq ▸ hscol'
         have houter :
             Summable (fun r : Ω => ∑' mn : U r, twoFlow mn.1.1.1 mn.1.1.2) := by
-          letI := hΩfin.fintype
+          let := hΩfin.fintype
           apply Summable.of_finite
         exact
           (summable_partition
@@ -7096,7 +7096,7 @@ lemma twoWeightSum_le_series_one_of_finite {A : Set ℕ}
   have hmain :
       twoWeightSum A ≤ boundaryInflow twoFlow Ω +
         (∑' a : A, (outflow twoFlow (a : ℕ) - inflow twoFlow (a : ℕ))) := by
-    letI := hfin.fintype
+    let := hfin.fintype
     have hIn_le' : ∑ a : A, inflow twoFlow (a : ℕ) ≤ boundaryInflow twoFlow Ω := by
       simpa [tsum_fintype] using hIn_le
     rw [hWeight, tsum_fintype, tsum_fintype]
@@ -7930,7 +7930,7 @@ lemma monotoneOn_Qp {p : ℕ} (hp : p.Prime) (hodd : p ≠ 2) :
         intro m
         ext
         rfl }
-  haveI : Fintype ↥S := Fintype.ofEquiv {m : ℕ // m ∈ Finset.Icc 1 (p - 1)} smallEquiv.symm
+  have : Fintype ↥S := Fintype.ofEquiv {m : ℕ // m ∈ Finset.Icc 1 (p - 1)} smallEquiv.symm
   let H : ℝ → ℝ := fun s => ∑ m : ↥S, ((m : ℝ) ^ s)⁻¹
   let tail : ℝ → ℝ := fun s => ∑' m : ↥(Sᶜ), ((m : ℝ) ^ s)⁻¹
   have hprimesBelow :
@@ -8560,7 +8560,7 @@ lemma summable_blockDiff_fin_div_Hp {p : ℕ} (hp : p.Prime) {t : ℝ} (ht : 1 <
 lemma zetaSeries_eq_Hp_add_blockTail {p : ℕ} (hp : p.Prime) {t : ℝ} (ht : 1 < t) :
     zetaSeries t = Hp p t + ∑' k : ℕ, ∑ j : Fin p,
       1 / Real.rpow ((((k + 1) * p + j : ℕ) : ℕ) : ℝ) t := by
-  haveI : NeZero p := ⟨Nat.ne_of_gt hp.pos⟩
+  have : NeZero p := ⟨Nat.ne_of_gt hp.pos⟩
   let zfun : ℕ → ℝ := fun n => if n = 0 then 0 else 1 / Real.rpow (n : ℝ) t
   have hzfun_shift : Summable (fun n : ℕ => zfun (n + 1)) := by
     simpa [zfun] using zetaSeries_term_summable (s := t) ht
@@ -8651,7 +8651,7 @@ lemma zetaSeries_eq_Hp_add_blockTail {p : ℕ} (hp : p.Prime) {t : ℝ} (ht : 1 
 lemma tsum_blockDiff_fin_div_Hp_eq_formula {p : ℕ} (hp : p.Prime) {t : ℝ} (ht : 1 < t) :
     (∑' k : ℕ, ∑ j : Fin p, blockDiff p k j t / Hp p t) =
       1 - ((1 - Real.rpow (p : ℝ) (1 - t)) * zetaSeries t) / Hp p t := by
-  haveI : NeZero p := ⟨Nat.ne_of_gt hp.pos⟩
+  have : NeZero p := ⟨Nat.ne_of_gt hp.pos⟩
   let zfun : ℕ → ℝ := fun n => if n = 0 then 0 else 1 / Real.rpow (n : ℝ) t
   let blk : ℕ → ℝ := fun k => ∑ j : Fin p, zfun (k * p + j)
   have hzfun_shift : Summable (fun n : ℕ => zfun (n + 1)) := by
@@ -9328,7 +9328,7 @@ lemma primeTailSeries_le_roughLogBound {p : ℕ} (hp : p.Prime) (hodd : p ≠ 2)
                   intro r
                   rfl
       _ = ∑' r : ℕ, h r := by
-            simpa [primes, h, Set.indicator, Set.mem_setOf_eq] using
+            simpa [primes, h, Set.indicator, Set.mem_ofPred_eq] using
               (tsum_subtype primes
                 (fun r : ℕ => Real.log (r : ℝ) / (Real.rpow (r : ℝ) s - 1)))
   have hanalytic_prime :
@@ -10437,7 +10437,7 @@ lemma boundaryOutflow_eq_sum_compl_roughFlow (p : ℕ) (s : Finset ℕ) (hp : p.
       by_contra hbad
       exact hn <| by
         apply roughFlow_eq_zero_of_not_dvd_lt
-        simpa [Set.mem_setOf_eq] using hbad
+        simpa [Set.mem_ofPred_eq] using hbad
     let e' :
         {x : {n // n ∉ s} // x.1 ∣ r.1 ∧ x.1 < r.1} ≃
           {n // n ∉ s ∧ n ∣ r.1 ∧ n < r.1} :=
@@ -10518,7 +10518,7 @@ lemma boundaryInflow_eq_sum_compl_roughFlow (p : ℕ) (s : Finset ℕ) (hp : p.P
       by_contra hbad
       exact hm <| by
         apply roughFlow_eq_zero_of_not_dvd_lt
-        simpa [Set.mem_setOf_eq] using hbad
+        simpa [Set.mem_ofPred_eq] using hbad
     let e' :
         {x : {m // m ∉ s} // n.1 ∣ x.1 ∧ n.1 < x.1} ≃
           {m // m ∉ s ∧ n.1 ∣ m ∧ n.1 < m} :=
@@ -10756,8 +10756,8 @@ lemma boundaryOutflow_ge_boundaryInflow_add_tsum_divergence_of_subset_roughFlow
         _ = outflow (roughFlow p) r := (outflow_roughFlow_eq_roughWeight hp hr_lt (hΩrough hr)).symm
     exact sub_nonneg.mpr hin_le
   have hAfin : A.Finite := hΩfin.subset hAΩ
-  letI := hΩfin.fintype
-  letI := hAfin.fintype
+  let := hΩfin.fintype
+  let := hAfin.fintype
   let e : A ≃ {r : Ω // (r : ℕ) ∈ A} :=
     { toFun := fun a => ⟨⟨a.1, hAΩ a.2⟩, a.2⟩
       invFun := fun r => ⟨r.1.1, r.2⟩
@@ -11000,7 +11000,7 @@ lemma roughWeightSum_le_one_div_log_of_finite {p : ℕ} (hp : p.Prime)
                 refine ENNReal.ofReal_tsum_of_nonneg ?_ ?_
                 · intro a
                   exact hIn_nonneg a
-                · letI := hfin.fintype
+                · let := hfin.fintype
                   apply Summable.of_finite
         _ = ∑' a : A, ∑' mn : T a, ENNReal.ofReal (G mn) := by
               apply tsum_congr
@@ -11049,7 +11049,7 @@ lemma roughWeightSum_le_one_div_log_of_finite {p : ℕ} (hp : p.Prime)
           exact hEq ▸ hscol'
         have houter :
             Summable (fun r : Ω => ∑' mn : U r, roughFlow p mn.1.1.1 mn.1.1.2) := by
-          letI := hΩfin.fintype
+          let := hΩfin.fintype
           apply Summable.of_finite
         exact
           (summable_partition
@@ -11064,7 +11064,7 @@ lemma roughWeightSum_le_one_div_log_of_finite {p : ℕ} (hp : p.Prime)
   have hmain :
       roughWeightSum p A ≤ boundaryInflow (roughFlow p) Ω +
         (∑' a : A, (outflow (roughFlow p) (a : ℕ) - inflow (roughFlow p) (a : ℕ))) := by
-    letI := hfin.fintype
+    let := hfin.fintype
     have hIn_le' : ∑ a : A, inflow (roughFlow p) (a : ℕ) ≤ boundaryInflow (roughFlow p) Ω := by
       simpa [tsum_fintype] using hIn_le
     rw [hWeight, tsum_fintype, tsum_fintype]

@@ -320,7 +320,7 @@ theorem ramseyProperty_of_easyBoundSq {x p : ℝ} (hx : 0 < x)
                 simpa using hinsCompl
               exact hbad.2 (insert v K) hins
           · push Not at hlarge
-            letI : Nonempty (Fin n) := ⟨⟨0, hnpos⟩⟩
+            let : Nonempty (Fin n) := ⟨⟨0, hnpos⟩⟩
             have habsorb4 :
                 4 * ((k + (l + 1) : ℕ) : ℝ) ≤
                   p * (1 - p) * n :=

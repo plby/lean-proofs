@@ -127,7 +127,7 @@ theorem circleCluster (α : ℝ) (m : ℕ) (hm : 0 < m) :
   intro i j hi hj
   set pi := nth Nat.Prime (r + 1 + i)
   set pj := nth Nat.Prime (r + 1 + j)
-  have h_mono := nth_monotone infinite_setOf_prime
+  have h_mono := nth_monotone infinite_setOfPred_prime
   have h_diff : |α * (pi - pj) - (q.num * ((pi - pj) / q.den))| ≤ 1 / 8 := by
     have h1 : |α * (pi - pj) - (q.num * ((pi - pj) / q.den))| ≤
         |α - q| * |(pi - pj : ℝ)| := by

@@ -675,7 +675,7 @@ theorem intersection_count_pairwise_coprime (S : Finset Congruence) (I : Finset 
         refine h.not_ge ( le_trans ?_ ( Finset.card_mono h_solutions ) );
         rw [ Finset.card_image_of_injOn ];
         · simp
-          letI : DecidableEq ℤ := Classical.decEq ℤ
+          let : DecidableEq ℤ := Classical.decEq ℤ
           simpa using
             (Finset.card_image_of_injective
               (Finset.range ((S.lcm fun c => c.d) / ∏ c ∈ I, c.d))
@@ -716,7 +716,7 @@ theorem lemma_good (S : Finset Congruence) (h_cd : IsCD S) :
           refine Finset.sum_congr rfl fun I hI => ?_;
           congr 1
           let T : Finset ℕ := {a ∈ Finset.range D | ∀ c ∈ I, (a : ℤ) ≡ c.a [ZMOD c.d]}
-          letI : DecidableEq ℤ := fun a b => Classical.propDecidable (a = b)
+          let : DecidableEq ℤ := fun a b => Classical.propDecidable (a = b)
           have hcard :
               T.card = (@Finset.image ℕ ℤ (fun a b => Classical.propDecidable (a = b))
                 Nat.cast T).card := by

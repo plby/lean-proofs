@@ -63,7 +63,7 @@ lemma lemma_forced_carries_largep (p m i j : ℕ) (hp : p.Prime) (hi : 1 ≤ i) 
   -- the number of carries when m and m are added in base p.
   have h_kummer : padicValNat p (Nat.choose (2 * m) m) = (∑ k ∈ Finset.Ico 1 (Nat.log p (
     2 * m) + 1), (Nat.floor ((2 * m) / p ^ k) - 2 * Nat.floor (m / p ^ k))) := by
-    haveI := Fact.mk hp;
+    have := Fact.mk hp;
     rw [ padicValNat_choose ];
     any_goals exact Nat.lt_succ_self _;
     · norm_num [ two_mul, Nat.add_div ( pow_pos hp.pos _ ) ];
@@ -156,7 +156,7 @@ lemma lemma_p_gt_2k (m k p : ℕ) (hp : p.Prime) (hk : 2 * k < p) :
         rw [ h_prod_factor,
           Finset.prod_eq_mul_prod_sdiff_singleton i₀ (fun i => m + i)
             (by intro h; exact False.elim (h hi₀_range)) ];
-      haveI := Fact.mk hp; rw [ h_prod_factor, padicValNat.mul ] <;>
+      have := Fact.mk hp; rw [ h_prod_factor, padicValNat.mul ] <;>
         simp_all +decide [ Nat.Prime.dvd_iff_not_coprime ] ;
       · exact Or.inr <| Or.inr <| Nat.Coprime.prod_right fun i hi => hi₀_unique i (
         Finset.mem_Icc.mp ( Finset.mem_sdiff.mp hi |>.1 ) |>.1 ) ( Finset.mem_Icc.mp (
@@ -234,7 +234,7 @@ lemma lemma_W_eq_sum_N_pj (p m k : ℕ) (hp : p.Prime) :
       | zero => aesop;
       | succ k ih =>
         rw [ Finset.prod_range_succ', Finset.sum_range_succ' ];
-        haveI := Fact.mk hp; rw [ padicValNat.mul ] <;> simp_all +decide [ ← add_assoc ] ;
+        have := Fact.mk hp; rw [ padicValNat.mul ] <;> simp_all +decide [ ← add_assoc ] ;
         exact Finset.prod_ne_zero_iff.mpr fun x hx => Nat.sub_ne_zero_of_lt <| by
             linarith [ Finset.mem_range.mp hx ] ;
     erw [ Finset.sum_Ico_eq_sum_range ];
@@ -252,12 +252,12 @@ lemma lemma_W_eq_sum_N_pj (p m k : ℕ) (hp : p.Prime) :
     refine Finset.sum_subset ?_ ?_ <;> simp +contextual [ Finset.subset_iff ];
     · intro x hx₁ hx₂; refine ⟨ ?_, ?_ ⟩;
       · exact le_trans hx₂ ( Finset.le_sup ( f := fun i => padicValNat p ( m + i ) ) hi );
-      · haveI := Fact.mk hp
+      · have := Fact.mk hp
         exact (padicValNat_dvd_iff_le
           (p := p) (a := m + i) (n := x)
           (by linarith [Finset.mem_Icc.mp hi])).2 hx₂
     · intro x hx₁ hx₂ hx₃
-      haveI := Fact.mk hp
+      have := Fact.mk hp
       have hx_le_val := (padicValNat_dvd_iff_le
         (p := p) (a := m + i) (n := x)
         (by linarith [Finset.mem_Icc.mp hi])).1 hx₃
@@ -343,7 +343,7 @@ lemma lemma_forced_carries_smallp (p m L : ℕ) (hp : p.Prime) :
   intro m L
   have h_kummer : padicValNat p (Nat.choose (2 * m) m) = ∑ k ∈ Finset.range (Nat.log p (
     2 * m) + 1), ((2 * m) / p ^ (k + 1) - 2 * (m / p ^ (k + 1))) := by
-    haveI := Fact.mk hp;
+    have := Fact.mk hp;
     rw [ padicValNat_choose ];
     any_goals exact Nat.lt_succ_self _;
     · norm_num [ two_mul, Nat.add_div ];
@@ -1551,7 +1551,7 @@ lemma lemma_val_reduction (p m k : ℕ) (hp : p.Prime) :
     W p m k ≤ kappa p m + padicValNat p (Nat.factorial k) := by
   unfold W;
   rw [ Nat.descFactorial_eq_factorial_mul_choose ];
-  haveI := Fact.mk hp; rw [ padicValNat.mul (by positivity ) (by
+  have := Fact.mk hp; rw [ padicValNat.mul (by positivity ) (by
       exact Nat.ne_of_gt ( Nat.choose_pos ( by linarith ) ) ) ] ; ring_nf; norm_num;
 
 /-
@@ -1805,7 +1805,7 @@ lemma lemma_small_primes_good (c : ℝ) (M m : ℕ)
       p ^ j : ℝ)) ≤ padicValNat p (Nat.factorial (k_val c M)) := by
       have h_w_le_kappa : padicValNat p (Nat.factorial (k_val c M)) = ∑ j ∈ Finset.Icc 1 (
         Nat.log p (k_val c M)), (k_val c M / p ^ j) := by
-        haveI := Fact.mk hp_prime; rw [ padicValNat_factorial ]
+        have := Fact.mk hp_prime; rw [ padicValNat_factorial ]
         focus
           aesop
         norm_num;

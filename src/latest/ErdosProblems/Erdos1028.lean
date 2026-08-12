@@ -88,7 +88,7 @@ lemma rademacher_mgf_bound {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω} [I
               rw [ show { ω | X ω = 1 ∨ X ω = -1 } = { ω | X ω = 1 } ∪ { ω | X ω = -1 } by rfl, MeasureTheory.measure_union ]
               · rw [ hX₂, hX₃ ]
                 rw [ ENNReal.div_add_div_same, ENNReal.div_eq_one_iff ] <;> norm_num
-              · exact Set.disjoint_left.mpr fun ω hω₁ hω₂ => by linarith [ Set.mem_setOf.mp hω₁, Set.mem_setOf.mp hω₂ ]
+              · exact Set.disjoint_left.mpr fun ω hω₁ hω₂ => by linarith [ Set.mem_ofPred.mp hω₁, Set.mem_ofPred.mp hω₂ ]
               · exact hX₁ ( MeasurableSingletonClass.measurableSet_singleton _ )
             have h_ae : P {ω | X ω ≠ 1 ∧ X ω ≠ -1} = P Set.univ - P {ω | X ω = 1 ∨ X ω = -1} := by
               rw [ ← MeasureTheory.measure_sdiff ]
@@ -167,10 +167,10 @@ theorem hoeffding_rademacher_sum_one_sided {Ω : Type*} [MeasurableSpace Ω] {P 
                     have h_abs : P {ω | ξ i ω = 1 ∨ ξ i ω = -1} = 1 := by
                       rw [ ← h_abs, ← MeasureTheory.measure_union ]
                       · rfl
-                      · exact Set.disjoint_left.mpr fun x hx₁ hx₂ => by linarith [ Set.mem_setOf.mp hx₁, Set.mem_setOf.mp hx₂ ]
+                      · exact Set.disjoint_left.mpr fun x hx₁ hx₂ => by linarith [ Set.mem_ofPred.mp hx₁, Set.mem_ofPred.mp hx₂ ]
                       · exact this.1 ( MeasurableSingletonClass.measurableSet_singleton _ )
                     have h_abs : P {ω | ξ i ω ≠ 1 ∧ ξ i ω ≠ -1} = P Set.univ - P {ω | ξ i ω = 1 ∨ ξ i ω = -1} := by
-                      rw [ ← MeasureTheory.measure_sdiff ] <;> norm_num [ Set.compl_setOf ]
+                      rw [ ← MeasureTheory.measure_sdiff ] <;> norm_num [ Set.compl_ofPred ]
                       · exact congr_arg _ ( by ext; simp +decide [ not_or ] )
                       · exact MeasurableSet.nullMeasurableSet ( by exact MeasurableSet.union ( this.1 ( MeasurableSingletonClass.measurableSet_singleton _ ) ) ( this.1 ( MeasurableSingletonClass.measurableSet_singleton _ ) ) )
                     aesop
@@ -374,10 +374,10 @@ lemma coloring_product_measure_rademacher (n : ℕ) (e : Sym2 (Fin n)) :
   · exact Measurable.ite ( measurableSet_eq_fun ( measurable_pi_apply e ) measurable_const ) measurable_const measurable_const
   · change coloringProductMeasure n {ω : Sym2 (Fin n) → Bool | (if ω e then (1 : ℝ) else -1) = 1} = 1 / 2
     exact h_measure1
-  · convert congr_arg ( fun x : ENNReal => 1 - x ) h_measure1 using 1 <;> norm_num [ Set.setOf_eq_eq_singleton ]
+  · convert congr_arg ( fun x : ENNReal => 1 - x ) h_measure1 using 1 <;> norm_num [ Set.ofPred_eq_eq_singleton ]
     rw [ eq_comm, ENNReal.sub_eq_of_eq_add ]
     · exact ne_of_lt ( lt_of_le_of_lt ( MeasureTheory.measure_mono ( Set.subset_univ _ ) ) ( by simp +decide [ coloringProductMeasure ] ) )
-    · rw [ ← MeasureTheory.measure_union ] <;> norm_num [ Set.setOf_or ]
+    · rw [ ← MeasureTheory.measure_union ] <;> norm_num [ Set.ofPred_or ]
       · rw [ show { ω : Sym2 ( Fin n ) → Bool | ω e = Bool.false } ∪ { ω : Sym2 ( Fin n ) → Bool | ω e = Bool.true } = Set.univ by ext ω; by_cases h : ω e <;> aesop ] ; norm_num [ coloringProductMeasure ]
       · exact Set.disjoint_left.mpr fun x hx₁ hx₂ => by aesop
       · exact measurableSet_eq_fun ( measurable_pi_apply e ) measurable_const |> MeasurableSet.mem
@@ -539,7 +539,7 @@ lemma prob_exists_induced_sum_ge (n : ℕ) (C : ℝ) (hC : C > 0) (hn : n ≥ 2)
         exact
           measure_iUnion_fintype_le (coloringMeasure n) fun i =>
             {c | ↑|inducedSum n (coloringToInt c) i| ≥ C * ↑n ^ (3 / 2)}
-      simp_all +decide [ Set.setOf_exists ]
+      simp_all +decide [ Set.ofPred_exists ]
       refine le_trans h_union_bound ?_
       exact le_trans ( Finset.sum_le_sum fun _ _ => show ( coloringMeasure n ) { c | C * ( n : ℝ ) ^ ( 3 / 2 : ℝ ) ≤ |↑ ( inducedSum n ( coloringToInt c ) _ )| } ≤ 2 * ENNReal.ofReal ( Real.exp ( - ( C ^ 2 * n ) ) ) from by simpa using prob_induced_sum_le_uniform n _ C hC hn ) ( by simp +decide [ Finset.card_univ ] )
 
@@ -771,11 +771,11 @@ lemma rademacher_props {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω} [IsPro
         have h_X_sq : ∀ᵐ ω ∂P, X ω = 1 ∨ X ω = -1 := by
           have := h.1
           have h_X_values : P {ω | X ω ≠ 1 ∧ X ω ≠ -1} = 0 := by
-            have := h.2.1; have := h.2.2; simp_all +decide [ Set.setOf_and ]
+            have := h.2.1; have := h.2.2; simp_all +decide [ Set.ofPred_and ]
             rw [ show { a : Ω | ¬X a = 1 } ∩ { a : Ω | ¬X a = -1 } = ( { ω | X ω = 1 } ∪ { ω | X ω = -1 } )ᶜ by ext; aesop, MeasureTheory.measure_compl ] <;> norm_num [ * ]
             · rw [ MeasureTheory.measure_union ] <;> norm_num [ * ]
               · norm_num [ ENNReal.inv_two_add_inv_two ]
-              · exact Set.disjoint_left.mpr fun ω hω₁ hω₂ => by linarith [ Set.mem_setOf.mp hω₁, Set.mem_setOf.mp hω₂ ]
+              · exact Set.disjoint_left.mpr fun ω hω₁ hω₂ => by linarith [ Set.mem_ofPred.mp hω₁, Set.mem_ofPred.mp hω₂ ]
               · exact measurableSet_eq_fun ‹_› measurable_const |> MeasurableSet.mem
             · exact MeasurableSet.union ( measurableSet_eq_fun ‹_› measurable_const ) ( measurableSet_eq_fun ‹_› measurable_const )
           filter_upwards [ MeasureTheory.measure_eq_zero_iff_ae_notMem.mp h_X_values ] with ω hω using by contrapose! hω; tauto
@@ -1170,7 +1170,7 @@ lemma rectangle_identity {n : ℕ} (A : Matrix (Fin n) (Fin n) ℝ) (x y : Fin n
     let R (P Q : Set (Fin n)) := ∑ i ∈ univ.filter (fun i => i ∈ P), ∑ j ∈ univ.filter (fun j => j ∈ Q), A i j
     ∑ i, ∑ j, x i * A i j * y j = R S T + R Sᶜ Tᶜ - R S Tᶜ - R Sᶜ T := by
       classical
-      simp +decide only [Set.mem_setOf_eq, Set.mem_compl_iff, Finset.sum_filter]
+      simp +decide only [Set.mem_ofPred_eq, Set.mem_compl_iff, Finset.sum_filter]
       trans ∑ i, ∑ j,
           ((if x i = 1 then (if y j = 1 then A i j else 0) else 0)
             + (if x i ≠ 1 then (if y j ≠ 1 then A i j else 0) else 0)

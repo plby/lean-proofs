@@ -221,7 +221,7 @@ lemma roots_in_sublevelSet' (z : ℂ) (hz : z ∈ roots) : z ∈ sublevelSet' :=
   -- Since $z$ is a root of $f$, we have $f(z) = 0$, thus $|f(z)| = 0$.
   have h_fz_zero : f.eval z = 0 := by
     unfold roots at hz; aesop;
-  exact Set.mem_setOf.mpr ( by rw [ h_fz_zero ] ; norm_num [ show c' = 0.582 by rfl ] )
+  exact Set.mem_ofPred.mpr ( by rw [ h_fz_zero ] ; norm_num [ show c' = 0.582 by rfl ] )
 
 /-
 The set of roots has cardinality 6.
@@ -462,7 +462,7 @@ lemma roots_eq : roots = roots' := by
             Finset.image
               (fun k : Fin 5 => Complex.exp (Complex.I * 2 * k * Real.pi / 5))
               Finset.univ
-        · refine lt_of_lt_of_le (Polynomial.degree_sub_lt ?_ ?_ ?_) ?_ <;>
+        · refine lt_of_lt_of_le (Polynomial.degree_sub_lt_left ?_ ?_ ?_) ?_ <;>
             norm_num [Polynomial.degree_prod]
           · erw [ Polynomial.degree_X_pow_sub_C ] <;> norm_num;
           · exact ne_of_apply_ne ( Polynomial.eval 2 ) ( by norm_num );

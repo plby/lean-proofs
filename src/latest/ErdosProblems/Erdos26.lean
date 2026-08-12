@@ -245,7 +245,7 @@ lemma exists_next_congruence (l : ℕ) (n : ℕ) (h : SatisfiesCongruences n l) 
         refine Nat.Coprime.prod_left fun i hi => ?_
         have h_distinct : Nat.nth Nat.Prime i ≠ Nat.nth Nat.Prime l := by
           exact fun h => by
-            have := Nat.nth_injective (Nat.infinite_setOf_prime) h
+            have := Nat.nth_injective (Nat.infinite_setOfPred_prime) h
             linarith [Finset.mem_range.mp hi]
         simpa [h_distinct] using
           Nat.coprime_primes (Nat.prime_nth_prime i) (Nat.prime_nth_prime l);

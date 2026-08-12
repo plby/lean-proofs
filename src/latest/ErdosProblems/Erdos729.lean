@@ -65,7 +65,7 @@ lemma den_valuation (A B : ℕ) (hA : A > 0) (hB : B > 0) (p : ℕ) (hp : p.Prim
       erw [ Int.sign_eq_one_of_pos ] <;> norm_cast ; aesop
     -- Using the property of $p$-adic valuation that $\vp(B/g) = \vp(B) - \vp(g)$, we can simplify the expression.
     have h_simplify : padicValNat p (B / g) = padicValNat p B - padicValNat p g := by
-      haveI := Fact.mk hp; rw [ padicValNat.div_of_dvd ( Nat.gcd_dvd_right _ _ ) ]
+      have := Fact.mk hp; rw [ padicValNat.div_of_dvd ( Nat.gcd_dvd_right _ _ ) ]
     cases le_total ( padicValNat p A ) ( padicValNat p B ) <;> aesop
 
 /-
@@ -78,7 +78,7 @@ lemma forced_carries_large_p (p m i j : ℕ) (hp : p.Prime) (hi_pos : 1 ≤ i) (
     -- By definition of $\kappa$, we know that $\kappa_p(m)$ is the sum of the carries when adding $m$ and $m$ in base $p$.
     have h_kappa_def : kappa p m = ∑ k ∈ Finset.Ico 1 (Nat.log p (2 * m) + 1), ((Nat.floor ((2 * m) / p ^ k)) - 2 * (Nat.floor (m / p ^ k))) := by
       unfold kappa
-      haveI := Fact.mk hp
+      have := Fact.mk hp
       rw [ padicValNat_choose ]
       any_goals exact Nat.lt_succ_self _
       · norm_num [ two_mul, Nat.add_div ( pow_pos hp.pos _ ) ]
@@ -155,7 +155,7 @@ lemma W_le_k_div_p_sub_one_add_V (m k p : ℕ) (hp : p.Prime) :
         intro i hi
         have h_div : ∀ j, p ^ j ∣ m + i ↔ j ≤ padicValNat p (m + i) := by
           intro j
-          haveI := Fact.mk hp; rw [ padicValNat_dvd_iff_le ] ; aesop
+          have := Fact.mk hp; rw [ padicValNat_dvd_iff_le ] ; aesop
         simp_all +decide
         rw [ show { x ∈ Finset.Icc 1 ( V p m k ) | x ≤ padicValNat p ( m + i ) } = Finset.Icc 1 ( padicValNat p ( m + i ) ) from ?_ ]
         · norm_num
@@ -274,7 +274,7 @@ lemma kappa_eq_sum_carries (p m : ℕ) (hp : p.Prime) :
               linarith [ Nat.mod_add_div ( n + 1 + 1 ) ( p + 1 + 1 ) ]
           exact h_sum_digits n
         rw [ h_sum_digits, Nat.factorization_def ]
-        · haveI := Fact.mk hp; rw [ padicValNat_factorial ] ; aesop
+        · have := Fact.mk hp; rw [ padicValNat_factorial ] ; aesop
         · assumption
       -- Apply the lemma that relates the sum of the digits to the p-adic valuation to the expression for $\kappa_p(m)$.
       have h_sum_digits_eq : (Nat.factorization (Nat.factorial (2 * m)) p) - 2 * (Nat.factorization (Nat.factorial m) p) = kappa p m := by
@@ -339,7 +339,7 @@ lemma forced_carries_small_p (p m L : ℕ) (hp : p.Prime) (hp_ge_3 : p ≥ 3) :
     have h_kummer : ∀ {p : ℕ} (hp : p.Prime) {m : ℕ}, kappa p m = (Finset.range (Nat.log p (2 * m) + 1)).sum (fun i => if p ^ (i + 1) ≤ m % p ^ (i + 1) + m % p ^ (i + 1) then 1 else 0) := by
       intros p hp m
       have h_kummer : padicValNat p (Nat.choose (2 * m) m) = (Finset.range (Nat.log p (2 * m) + 1)).sum (fun i => if p ^ (i + 1) ≤ m % p ^ (i + 1) + m % p ^ (i + 1) then 1 else 0) := by
-        haveI := Fact.mk hp
+        have := Fact.mk hp
         rw [ padicValNat_choose ]
         · rw [ Finset.card_filter ]
           rw [ Finset.sum_Ico_eq_sum_range ]
@@ -582,7 +582,7 @@ lemma V_p_tail (M k t p : ℕ) (η : ℝ) (hM : M > 0) (hp : p.Prime) (ht : t �
           specialize hV x hx
           by_contra h_le
           have h_t_le : t ≤ padicValNat p (m + x) := by omega
-          haveI := Fact.mk hp
+          have := Fact.mk hp
           exact hV ((pow_dvd_pow p h_t_le).trans (pow_padicValNat_dvd : p ^ padicValNat p (m + x) ∣ m + x))
         · exact Nat.pred_lt ( ne_bot_of_gt ht )
       refine ⟨ i, hi.1, ?_ ⟩ ; simp_all +decide [ Nat.dvd_iff_mod_eq_zero ]
@@ -1172,7 +1172,7 @@ theorem main_theorem (C : ℝ) (hC : C > 0) :
               induction k with
               | zero => simp
               | succ k ih =>
-                haveI := Fact.mk hp
+                have := Fact.mk hp
                 have hfact : Nat.factorial (m + (k + 1)) = (m + (k + 1)) * Nat.factorial (m + k) := by
                   rw [show m + (k + 1) = (m + k) + 1 by omega, Nat.factorial_succ]
                 rw [hfact, padicValNat.mul (by positivity) (by positivity), ih]
@@ -1184,12 +1184,12 @@ theorem main_theorem (C : ℝ) (hC : C > 0) :
               have h_den_valuation : padicValNat p (Nat.factorial (2 * m)) = padicValNat p (Nat.factorial m * Nat.factorial m * Nat.choose (2 * m) m) := by
                 rw [ ← Nat.choose_mul_factorial_mul_factorial ( show m ≤ 2 * m by linarith ) ] ; ring_nf
                 rw [ show m * 2 - m = m by rw [ Nat.sub_eq_of_eq_add ] ; ring_nf ] ; ring_nf
-              haveI := Fact.mk hp; rw [ h_den_valuation, padicValNat.mul, padicValNat.mul ] <;> simp +decide [ Nat.factorial_ne_zero ]
+              have := Fact.mk hp; rw [ h_den_valuation, padicValNat.mul, padicValNat.mul ] <;> simp +decide [ Nat.factorial_ne_zero ]
               · ring_nf
               · exact Nat.ne_of_gt <| Nat.choose_pos <| by linarith
             exact h_den_valuation
           have h_den_valuation : padicValNat p (Nat.factorial (m + k_M (C + 1) M) * Nat.factorial m) = padicValNat p (Nat.factorial (m + k_M (C + 1) M)) + padicValNat p (Nat.factorial m) := by
-            haveI := Fact.mk hp; rw [ padicValNat.mul ( by positivity ) ( by positivity ) ]
+            have := Fact.mk hp; rw [ padicValNat.mul ( by positivity ) ( by positivity ) ]
           grind +ring
         simp_all +decide [ Nat.sub_eq_zero_of_le hW_le_kappa ]
       rw [ Filter.eventually_atTop ] at h_solution

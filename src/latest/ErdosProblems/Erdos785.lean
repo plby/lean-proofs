@@ -289,7 +289,7 @@ theorem lemma_limit_3_2 (A B : Set ℕ)
           · exact Set.Finite.to_subtype <| Set.finite_iff_bddAbove.mpr ⟨ ⌊x / 2⌋₊, fun n hn => Nat.le_floor <| hn.2 ⟩;
           · exact Set.Finite.to_subtype <| Set.finite_iff_bddAbove.mpr ⟨ ⌊x⌋₊, fun n hn => Nat.le_floor <| hn.2.1 ⟩;
         · exact Set.disjoint_left.mpr fun n hn hn' => hn'.2.2.not_ge hn.2;
-        · ext; simp [Set.mem_union, Set.mem_setOf_eq];
+        · ext; simp [Set.mem_union];
           exact ⟨ fun h => if h' : ( ↑‹ℕ› : ℝ ) ≤ x / 2 then Or.inl ⟨ h.1, h' ⟩ else Or.inr ⟨ ⟨ h.1, h.2 ⟩, h.1, not_le.mp h' ⟩, fun h => h.elim ( fun h => ⟨ h.1, by linarith ⟩ ) fun h => ⟨ h.2.1, by linarith ⟩ ⟩;
       · rw [ show { n : ℕ | n ∈ B ∧ ( n : ℝ ) ≤ x } = { n : ℕ | n ∈ B ∧ ( n : ℝ ) ≤ x ∧ ( n : ℝ ) > x / 2 } ∪ { n : ℕ | n ∈ B ∧ ( n : ℝ ) ≤ x / 2 } from ?_, Nat.card_congr ( Equiv.Set.union <| ?_ ) ];
         · simp +decide [ Nat.card ];
@@ -298,7 +298,7 @@ theorem lemma_limit_3_2 (A B : Set ℕ)
           · exact Cardinal.lt_aleph0_iff_finite.mpr <| Set.Finite.to_subtype <| Set.finite_iff_bddAbove.mpr ⟨ ⌊x⌋₊, fun n hn => Nat.le_floor <| hn.1.2 ⟩;
           · exact Cardinal.lt_aleph0_iff_finite.mpr <| Set.Finite.to_subtype <| Set.finite_iff_bddAbove.mpr ⟨ ⌊x / 2⌋₊, fun n hn => Nat.le_floor <| hn.2 ⟩;
         · exact Set.disjoint_left.mpr fun n hn hn' => hn.2.2.not_ge hn'.2;
-        · ext n; simp [Set.mem_union, Set.mem_setOf_eq];
+        · ext n; simp [Set.mem_union];
           exact ⟨ fun h => if h' : ( n : ℝ ) ≤ x / 2 then Or.inr ⟨ h.1, h' ⟩ else Or.inl ⟨ ⟨ h.1, h.2 ⟩, h.1, by linarith ⟩, fun h => h.elim ( fun h => ⟨ h.1.1, h.1.2 ⟩ ) fun h => ⟨ h.1, by linarith ⟩ ⟩;
     norm_cast;
     rw [ Int.subNatNat_of_le, Int.subNatNat_of_le ] <;> norm_cast;
@@ -471,7 +471,7 @@ theorem lemma_quarter_limit_expression (A B : Set ℕ) (h_hyp : exact_complement
       have h_count_pairs : ((counting_function A x : ℝ) - (counting_function A (x / 4) : ℝ)) * ((counting_function B x : ℝ) - (counting_function B (3 * x / 4) : ℝ)) ≤ ∑ l ∈ Finset.Ioc ⌊x⌋.toNat ⌊2 * x⌋.toNat, (Nat.card {p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ p.1 ≤ x ∧ p.2 ≤ x ∧ p.1 + p.2 = l}) := by
         have h_count_pairs : ((counting_function A x : ℝ) - (counting_function A (x / 4) : ℝ)) * ((counting_function B x : ℝ) - (counting_function B (3 * x / 4) : ℝ)) ≤ Nat.card {p : ℕ × ℕ | p.1 ∈ A ∧ p.2 ∈ B ∧ x / 4 < p.1 ∧ p.1 ≤ x ∧ 3 * x / 4 < p.2 ∧ p.2 ≤ x} := by
           have h_count_pairs : ((counting_function A x : ℝ) - (counting_function A (x / 4) : ℝ)) = Nat.card {a ∈ A | x / 4 < a ∧ a ≤ x} ∧ ((counting_function B x : ℝ) - (counting_function B (3 * x / 4) : ℝ)) = Nat.card {b ∈ B | 3 * x / 4 < b ∧ b ≤ x} := by
-            constructor <;> unfold counting_function <;> norm_num [ Set.setOf_and ];
+            constructor <;> unfold counting_function <;> norm_num [ Set.ofPred_and ];
             · rw [ show ( A ∩ { a : ℕ | x / 4 < ( a : ℝ ) } ∩ ( A ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) ) = ( A ∩ { a : ℕ | ( a : ℝ ) ≤ x } ) \ ( A ∩ { a : ℕ | ( a : ℝ ) ≤ x / 4 } ) by ext; aesop, @Set.ncard_sdiff ];
               · rw [ Nat.cast_sub ];
                 fapply Set.ncard_le_ncard;
@@ -485,7 +485,7 @@ theorem lemma_quarter_limit_expression (A B : Set ℕ) (h_hyp : exact_complement
               · rw [ Nat.cast_sub ];
                 fapply Set.ncard_le_ncard
                 focus
-                  exact Set.inter_subset_inter_right _ <| Set.setOf_subset_setOf.mpr fun a ha => by linarith
+                  exact Set.inter_subset_inter_right _ <| Set.ofPred_subset_ofPred.mpr fun a ha => by linarith
                 exact Set.finite_iff_bddAbove.mpr ⟨ ⌊x⌋₊, fun n hn => Nat.le_floor <| hn.2 ⟩;
               · exact fun a ha => ha.2.out.trans ( by linarith );
               · exact Set.finite_iff_bddAbove.mpr ⟨ ⌊3 * x / 4⌋₊, fun a ha => Nat.le_floor <| ha.2 ⟩;
@@ -622,7 +622,7 @@ theorem counting_function_tendsto_atTop (A : Set ℕ) (h_inf : A.Infinite) :
       refine Filter.tendsto_atTop_atTop.mpr fun n => ?_;
       obtain ⟨ s, hs ⟩ := h_inf.exists_subset_card_eq n;
       exact ⟨ s.sup id, fun x hx => hs.2 ▸ Finset.card_le_card fun y hy => Finset.mem_filter.mpr ⟨ Finset.mem_Iic.mpr ( le_trans ( Finset.le_sup ( f := id ) hy ) hx ), hs.1 hy ⟩ ⟩;
-    convert h_counting_A_inf using 2 ; simp +decide [Set.setOf_and];
+    convert h_counting_A_inf using 2 ; simp +decide [Set.ofPred_and];
     congr ; ext ; aesop;
   refine Filter.tendsto_atTop_atTop.mpr fun n => ?_;
   obtain ⟨ i, hi ⟩ := Filter.eventually_atTop.mp ( h_counting_A_inf.eventually_ge_atTop n ) ; use i; intro x hx; refine le_trans ( hi ( Nat.floor x ) ( Nat.le_floor <| mod_cast hx ) ) ?_ ;
@@ -2047,7 +2047,7 @@ theorem lemma_sum_delta_minus_one_bound (A B : Set ℕ) (x : ℝ) (t : ℕ) (ε 
               right_inv := fun n => rfl }
         rw [hAcard, hBcard]
         ring
-      · ext n; simp [Set.mem_setOf_eq];
+      · ext n; simp;
         have ht_le_x : (t : ℝ) ≤ x := by linarith
         have ht_le_floor : t ≤ ⌊x⌋.toNat := Nat.le_floor ht_le_x
         constructor
@@ -2064,7 +2064,7 @@ theorem lemma_sum_delta_minus_one_bound (A B : Set ℕ) (x : ℝ) (t : ℕ) (ε 
           have hn_real : (n : ℝ) + t ≤ x := by
             simpa [Nat.cast_add] using hn_add_real
           exact ⟨ h.2, by linarith ⟩
-      · ext; simp [Set.mem_setOf_eq];
+      · ext; simp;
         exact ⟨ fun h => ⟨ Nat.le_floor <| mod_cast h.2, h.1 ⟩, fun h => ⟨ h.2, Nat.floor_le hx |> le_trans ( mod_cast h.1 ) ⟩ ⟩ ;
 
 /-
@@ -2306,7 +2306,7 @@ theorem lemma_z_lower_bound_large_t (A B : Set ℕ) (_h_inf_B : B.Infinite)
           · rw [ div_le_iff₀ hx₂ ];
             unfold a_star;
             split_ifs <;> norm_num;
-            · exact_mod_cast Set.mem_setOf.mp ( show ( sSup ( A ∩ { n : ℕ | ( n : ℝ ) ≤ x } ) : ℕ ) ∈ A ∩ { n : ℕ | ( n : ℝ ) ≤ x } from by exact ( IsCompact.sSup_mem ( show IsCompact ( A ∩ { n : ℕ | ( n : ℝ ) ≤ x } ) from Set.Finite.isCompact <| Set.finite_iff_bddAbove.mpr ⟨ ⌊x⌋₊, fun n hn => Nat.le_floor <| hn.2 ⟩ ) <| by aesop ) ) |>.2;
+            · exact_mod_cast Set.mem_ofPred.mp ( show ( sSup ( A ∩ { n : ℕ | ( n : ℝ ) ≤ x } ) : ℕ ) ∈ A ∩ { n : ℕ | ( n : ℝ ) ≤ x } from by exact ( IsCompact.sSup_mem ( show IsCompact ( A ∩ { n : ℕ | ( n : ℝ ) ≤ x } ) from Set.Finite.isCompact <| Set.finite_iff_bddAbove.mpr ⟨ ⌊x⌋₊, fun n hn => Nat.le_floor <| hn.2 ⟩ ) <| by aesop ) ) |>.2;
             · linarith;
           · positivity;
           · intro hx₄; rw [ abs_lt ] at hx₀; simp_all +decide [ ne_of_gt, sub_mul ] ;

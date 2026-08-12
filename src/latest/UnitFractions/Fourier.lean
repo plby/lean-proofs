@@ -1815,7 +1815,7 @@ lemma minor2_ind_bound {N : ℕ} {A : Finset ℕ} {t : ℤ} {K L : ℝ} (I : Fin
       L / q ≤
         (((local_part A q).filter
             fun n : ℕ => ∀ x ∈ I, ¬ ((n : ℤ) ∣ x)).card : ℝ) := by
-    letI : DecidableEq ℤ := Classical.decEq ℤ
+    let : DecidableEq ℤ := Classical.decEq ℤ
     let sZ : Finset ℤ := (local_part A q).image (fun n : ℕ => (n : ℤ))
     have hcardeq :
         (((sZ.filter fun n : ℤ => ∀ x ∈ I, ¬ n ∣ x).card : ℝ)) =
@@ -2349,7 +2349,7 @@ lemma minor2_bound :
     intro h hh
     refine (hI (t := (h * k : ℝ)) (I := I h K k) (by simp [I, integer_range])).resolve_left ?_
     rw [minor_arc₂_eq, Finset.mem_filter] at hh
-    letI : DecidableEq ℤ := Classical.decEq ℤ
+    let : DecidableEq ℤ := Classical.decEq ℤ
     let sZ : Finset ℤ := A.image (fun n : ℕ => (n : ℤ))
     have hcardeq :
         (((sZ.filter fun n : ℤ => ∀ z ∈ I h K k, ¬ n ∣ z).card : ℝ)) =

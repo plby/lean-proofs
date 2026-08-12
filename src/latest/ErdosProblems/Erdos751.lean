@@ -600,8 +600,8 @@ theorem exists_cycle_of_connected_minDegreeGE2
     refine ⟨⟨v, c, hc, ?_⟩, trivial⟩
     simpa using hc.three_le_length
   have h1 : 1 < Fintype.card V := (Nat.succ_le_iff).1 hcard2
-  haveI : Nontrivial V := (Fintype.one_lt_card_iff_nontrivial).1 h1
-  haveI : Nonempty V := inferInstance
+  have : Nontrivial V := (Fintype.one_lt_card_iff_nontrivial).1 h1
+  have : Nonempty V := inferInstance
   have htree : G.IsTree := ⟨hconn, hacyc⟩
   have hmin1 : G.minDegree = 1 :=
     SimpleGraph.IsTree.minDegree_eq_one_of_nontrivial (G := G) htree
@@ -718,7 +718,7 @@ theorem nonempty_bridge_Cmax_of_hδ3
       _ = 2 := htwo''
   -- pick any vertex to contradict δ≥3
   have hpos : 0 < Fintype.card V := lt_of_lt_of_le (by decide : 0 < 4) hcard4
-  haveI : Nonempty V := (Fintype.card_pos_iff.1 hpos)
+  have : Nonempty V := (Fintype.card_pos_iff.1 hpos)
   classical
   obtain ⟨v⟩ := ‹Nonempty V›
   have hδ3v : 3 ≤ G.degree v := hδ3 v
@@ -2750,7 +2750,7 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
        Fintype.card {v : V // v ∈ S} ≥ 4) := by
     classical
     by_contra hcard4'
-    letI : Fintype {v : V // v ∈ S} := instSub (V := V) S
+    let : Fintype {v : V // v ∈ S} := instSub (V := V) S
     have hcard_lt4 : Fintype.card {v : V // v ∈ S} < 4 :=
       Nat.lt_of_not_ge hcard4'
     have hcard_le3 : Fintype.card {v : V // v ∈ S} ≤ 3 := by
@@ -2887,7 +2887,7 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
     -- H is connected.
     have hH_conn : H.Connected := by
       by_contra hnot
-      letI : Fintype {v : V // v ∈ S} := instSub (V := V) S
+      let : Fintype {v : V // v ∈ S} := instSub (V := V) S
       have hnonempty : Nonempty {v : V // v ∈ S} := by
         have hpos : 0 < Fintype.card {v : V // v ∈ S} :=
           lt_of_lt_of_le (by decide : (0 : ℕ) < 4) (by simpa using hcard4)
@@ -2901,7 +2901,7 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
             have ha : a ∈ c.supp := by simp [hsu]
             have hb : b ∈ c.supp := by simp [hsu]
             exact c.reachable_of_mem_supp ha hb
-          haveI := hnonempty
+          have := hnonempty
           exact hnot ⟨hpre⟩
         obtain ⟨w, hw⟩ := (Set.ne_univ_iff_exists_notMem (c.supp)).1 hne
         let T : Finset V := c.supp.toFinset.image Subtype.val
@@ -2944,7 +2944,7 @@ noncomputable def exists_witness_of_chromaticNumber_ge_4
             simpa [H, SimpleGraph.induce_adj] using hHadj
           exact C'.valid huw'
       have hcolH : H.Colorable 3 :=
-        (SimpleGraph.colorable_iff_forall_connectedComponents (G := H) (n := 3)).2 hcol_all
+        (SimpleGraph.colorable_iff_forall_connectedComponent (G := H) (n := 3)).2 hcol_all
       exact hS_bad hcolH
     -- Deleting any vertex keeps the graph connected.
     have hH_del_conn :
@@ -3462,11 +3462,11 @@ theorem erdos_751_strong [Finite V]
       (Nat.dist (BV.Cycle.length (G := G) C1) (BV.Cycle.length (G := G) C2) = 1) ∨
       (Nat.dist (BV.Cycle.length (G := G) C1) (BV.Cycle.length (G := G) C2) = 2) := by
   classical
-  letI := Fintype.ofFinite V
+  let := Fintype.ofFinite V
   let W := Critical.exists_witness_of_chromaticNumber_ge_4 (G := G) hχ
   -- IMPORTANT: match the exact subtype `Fintype` instance used inside `W.hδ3` and `W.hcard4`.
   -- Do NOT use `Subtype.fintype ...` here.
-  letI : Fintype {v : V // v ∈ W.S} := Critical.instSub (V := V) W.S
+  let : Fintype {v : V // v ∈ W.S} := Critical.instSub (V := V) W.S
   have hBV :
       ∃ D1 D2 : BV.Cycle (G := Critical.H (G := G) W),
         (Nat.dist (BV.Cycle.length (G := Critical.H (G := G) W) D1)

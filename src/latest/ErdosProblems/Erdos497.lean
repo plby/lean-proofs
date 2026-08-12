@@ -1909,7 +1909,8 @@ lemma sum_bad_pairs_eq_sum_count (n : ℕ) (X : Finset (Finset (Finset (Fin n)))
         unfold permute_set; aesop;
       · simp +decide [ pair_in_same_chain ];
         simp +decide only [card_filter];
-        convert rfl <;> congr
+        convert rfl
+        congr
 
 /-
 If $\emptyset$ and $[n]$ are in $\mathcal{A}$, then $|P| \ge 2|\mathcal{A}| - 3$.

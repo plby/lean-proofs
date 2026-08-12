@@ -205,7 +205,7 @@ theorem exists_terminal_vertex
     ∃ W : α, Relation.ReflTransGen R W r ∧ W ≠ r ∧
       ∀ C : α, Relation.ReflTransGen R C r → C ≠ W →
         Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W) C r := by
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   by_contra! h_contra;
   -- By finiteness, the set of vertices that can reach r is nonempty and finite, so it
   -- must have a minimal element with respect to some well-ordering.
@@ -401,7 +401,7 @@ lemma cannot_reach_transitive {α : Type*} [Finite α]
     (_hCU : C ≠ U) :
     ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ U) C target := by
   classical
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   contrapose! hC;
   induction hC;
   · rfl;
@@ -420,7 +420,7 @@ lemma mutual_dependency_impossible {α : Type*} [Finite α]
     (hW_needs_U : ¬Relation.ReflTransGen (fun a b => R a b ∧ a ≠ U) W target) :
     False := by
   classical
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   -- Consider a nodup chain from U to target: U = c₀, c₁, ..., cₖ = target.
   obtain ⟨l, hl_nodup, hl_chain, hl_head, hl_last⟩ : ∃ l : List α, l.Nodup ∧
     l.IsChain R ∧ l.head? = some U ∧ l.getLast? = some target ∧ 2 ≤ l.length := by
@@ -459,7 +459,7 @@ lemma terminal_set_members_are_terminal {α : Type*} [Finite α] [DecidableEq α
     ∀ C ∈ acc, C ≠ W →
       Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W) C target := by
   classical
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   intro C hC hCW; contrapose! hT_U_min; simp_all +decide ;
   refine ⟨ W, hW.1, ⟨ C, hC, hCW, hT_U_min ⟩, ?_ ⟩;
   refine Finset.card_lt_card ?_;
@@ -771,7 +771,7 @@ lemma exists_nodup_chain {α : Type*} [Finite α]
     ∃ l : List α, l.Nodup ∧ l.IsChain R ∧ l.head? = some a ∧
       l.getLast? = some b ∧ 2 ≤ l.length := by
   classical
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   -- Let's take the shortest path from `a` to `b` in the reflexive transitive closure.
   obtain ⟨l, hl⟩ : ∃ l : List α, l.head? = some a ∧ l.getLast? = some b ∧
     List.IsChain R l ∧ ¬∃ l' : List α, l'.head? = some a ∧ l'.getLast? = some b ∧
@@ -1057,7 +1057,7 @@ lemma edgeFinset_card_deleteEdges_lt (G : SimpleGraph V) [DecidableRel G.Adj]
   have hmem : e ∈ (G.deleteEdges {↑e}).edgeSet := by
     rw [hEq]
     exact SimpleGraph.mem_edgeFinset.mp he
-  simpa using hmem
+  simp at hmem
 
 /-! ## Non-accessible case helpers -/
 
@@ -1148,7 +1148,7 @@ lemma exists_terminal_vertex {α : Type*} [Finite α]
         Relation.ReflTransGen (fun a b => R a b ∧ a ≠ W) C r :=
   by
     classical
-    letI := Fintype.ofFinite α
+    let := Fintype.ofFinite α
     exact TerminalVertex.exists_terminal_vertex R r W₀ hW₀ hW₀_ne
 
 omit [Fintype V] [DecidableEq V] in
@@ -3055,7 +3055,7 @@ lemma B_minus_equitable
         (G.induce B_minus).overFin rfl
       let efin : G.induce B_minus ≃g Hfin :=
         (G.induce B_minus).overFinIso rfl
-      haveI : DecidableRel Hfin.Adj := by
+      have : DecidableRel Hfin.Adj := by
         dsimp [Hfin, SimpleGraph.overFin]
         infer_instance
       let W := ULift (Fin (Fintype.card B_minus))
@@ -3064,7 +3064,7 @@ lemma B_minus_equitable
       let e : H ≃g Hfin :=
         SimpleGraph.Iso.comap
           (Equiv.ulift : W ≃ Fin (Fintype.card B_minus)) Hfin
-      haveI : DecidableRel H.Adj := by
+      have : DecidableRel H.Adj := by
         dsimp [H]
         infer_instance
       have h_card_W : Fintype.card W = Fintype.card B_minus := by
@@ -3703,7 +3703,7 @@ lemma non_accessible_case2_paper
     equitable_all_same_size hg_equitable hB_card
   -- z is NOT in B_minus_set (z has accessible color W)
   have hz_not_in_B : z ∉ B_minus_set := by
-    simp only [B_minus_set, Set.mem_setOf_eq, not_and]
+    simp only [B_minus_set, Set.mem_ofPred_eq, not_and]
     intro hnacc; exact absurd (hz_color ▸ hW_acc) hnacc
   -- y₂ IS in B_minus_set
   have hy₂_in_B : y₂ ∈ B_minus_set := by

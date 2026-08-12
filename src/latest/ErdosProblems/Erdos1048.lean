@@ -82,7 +82,7 @@ because (branch n k w)^n = w for w in the disk, and |w - r^n| <= 1.
 lemma branch_mem_S {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) (k : ℕ)
     (w : ℂ) (hw : w ∈ Metric.closedBall (r ^ n : ℂ) 1) :
     branch n k w ∈ S n r := by
-  rw [S, Set.mem_setOf_eq, f]
+  rw [S, Set.mem_ofPred_eq, f]
   have hre : 0 < w.re := disk_in_right_half_plane hr hn w hw
   rw [branch_pow hn k w]
   rw [Metric.mem_closedBall, Complex.dist_eq] at hw
@@ -149,7 +149,7 @@ of the components.
 lemma S_subset_union_components {n : ℕ} (hn : n > 0) {r : ℝ} (hr : r > 1) :
   S n r ⊆ ⋃ k ∈ Finset.range n, component n r k := by
   intro z hz
-  rw [S, Set.mem_setOf_eq, f] at hz
+  rw [S, Set.mem_ofPred_eq, f] at hz
   let w := z^n
   have hw : w ∈ Metric.closedBall (r^n : ℂ) 1 := by
     rw [Metric.mem_closedBall, Complex.dist_eq]

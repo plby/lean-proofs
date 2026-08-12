@@ -1716,7 +1716,7 @@ def targetBoxM (K : ℕ) : Set (Fin 3 → ℝ) :=
 
 lemma targetBoxM_isOpen (K : ℕ) : IsOpen (targetBoxM K) := by
   unfold targetBoxM
-  simp only [setOf_forall]
+  simp only [ofPred_forall]
   exact isOpen_iInter_of_finite fun i => isOpen_Ioo.preimage (continuous_apply i)
 
 lemma targetBoxM_nonempty (K : ℕ) : (targetBoxM K).Nonempty :=

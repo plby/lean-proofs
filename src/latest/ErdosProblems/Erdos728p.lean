@@ -1251,7 +1251,7 @@ theorem property_P_of_not_bad (x : ℝ) (m : ℕ) (hx : x ≥ 3) (hm : m ∈ Fin
         -- If $p > 2k$, then by lemma_large_primes, we have $padicValNat p (Nat.choose (m + k) k) \leq padicValNat p (Nat.choose (2 * m) m)$.
         by_contra hp_gt_2k
         have h_lemma : padicValNat p (Nat.choose (m + k) k) ≤ padicValNat p (Nat.choose (2 * m) m) := by
-          haveI := Fact.mk hp_prime; exact lemma_large_primes m k p ( by linarith [ Finset.mem_Icc.mp hk ] ) ( by linarith [ Finset.mem_Icc.mp hk ] ) ;
+          have := Fact.mk hp_prime; exact lemma_large_primes m k p ( by linarith [ Finset.mem_Icc.mp hk ] ) ( by linarith [ Finset.mem_Icc.mp hk ] ) ;
         linarith;
       -- Since $p \leq 2k$ and $k \leq K(x)$, we have $p \leq 2K(x)$.
       have hp_le_2K : p ≤ 2 * K_func x := by
@@ -3042,7 +3042,7 @@ theorem bad_set_lemma_2_1_card_le_total (x : ℝ) (hx : x ≥ 1) :
             (bad_set_p x p).card)
       · refine Finset.sum_le_sum fun p hp => ?_
         have hp_prime : Nat.Prime p := (Finset.mem_filter.mp hp).2
-        haveI := Fact.mk hp_prime
+        have := Fact.mk hp_prime
         simpa [total_bad_set_bound_v2, hp_prime] using
           bad_set_p_card_bound_v4 x p (Nat.Prime.two_le hp_prime) hx
 
@@ -3491,7 +3491,7 @@ theorem bad_set_lemma_2_2_bound (x : ℝ) (hx : x ≥ 3) :
             exact_mod_cast Finset.card_le_card (by
               intro m hm
               rw [Finset.mem_filter] at hm ⊢
-              haveI := Fact.mk (Finset.mem_filter.mp hp |>.2)
+              have := Fact.mk (Finset.mem_filter.mp hp |>.2)
               exact ⟨hm.1, by
                 simp_all +decide [padicValNat_dvd_iff]
                 exact Or.inr hm.2.le⟩)
@@ -5766,7 +5766,7 @@ theorem bad_set_lemma_3_1_v2_card_bound (x : ℝ) (hx : x ≥ 3) :
       refine le_trans h_union_bound ?_;
       unfold total_bound_lemma_3_1_v2
       exact Finset.sum_le_sum fun p hp => by
-        haveI : Fact p.Prime := ⟨Finset.mem_filter.mp hp |>.2⟩
+        have : Fact p.Prime := ⟨Finset.mem_filter.mp hp |>.2⟩
         exact lemma_3_1_p_bound_v3 x p hx
 
 /-
@@ -6358,7 +6358,7 @@ theorem bad_set_lemma_3_1_small_card_bound (x : ℝ) (hx : x ≥ 3) :
       refine le_trans h_union_bound ?_
       unfold total_bound_lemma_3_1_small_func
       exact Finset.sum_le_sum fun (p : ℕ) hp => by
-        haveI : Fact p.Prime := ⟨(Finset.mem_filter.mp hp).2⟩
+        have : Fact p.Prime := ⟨(Finset.mem_filter.mp hp).2⟩
         exact lemma_3_1_p_bound_v3 x p hx
 
 /-
@@ -6598,7 +6598,7 @@ theorem bad_set_lemma_3_1_thm_card_bound (x : ℝ) (hx : x ≥ 100) :
             ∑ p ∈ Finset.filter Nat.Prime (Finset.range (2 * K_thm x + 1)),
               bound_lemma_3_1_thm_p_v2 x p := by
         exact Finset.sum_le_sum fun (p : ℕ) hp => by
-          haveI : Fact p.Prime := ⟨(Finset.mem_filter.mp hp).2⟩
+          have : Fact p.Prime := ⟨(Finset.mem_filter.mp hp).2⟩
           exact lemma_3_1_card_bound_v2 x p hx
       simpa [total_bound_lemma_3_1_thm] using h_sum_le
 
@@ -6640,7 +6640,7 @@ theorem total_bound_le_parts (x : ℝ) (hx : x ≥ 3) :
           ?_ ?_
         · exact Finset.sum_le_sum fun p hp => by
             have hp_prime : Nat.Prime p := (Finset.mem_filter.mp hp).2
-            haveI := Fact.mk hp_prime
+            have := Fact.mk hp_prime
             exact bound_lemma_3_1_le_term_bound x p (by linarith) (Nat.Prime.two_le hp_prime)
         · refine Finset.sum_le_sum_of_subset_of_nonneg
             (s := Finset.filter Nat.Prime (Finset.range (2 * K_small x + 1)))

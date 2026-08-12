@@ -2766,7 +2766,7 @@ theorem returnSurvival_blocks (P : FiniteKernel F) (s : F)
 theorem summable_pow_nat_div {L : ℕ} (hL : 0 < L) {r : ℝ}
     (hr0 : 0 ≤ r) (hr1 : r < 1) :
     Summable fun n : ℕ ↦ r ^ (n / L) := by
-  letI : NeZero L := ⟨hL.ne'⟩
+  let : NeZero L := ⟨hL.ne'⟩
   have hgeom : Summable fun n : ℕ ↦ r ^ n :=
     summable_geometric_of_lt_one hr0 hr1
   have hprod : Summable fun p : ℕ × Fin L ↦ r ^ p.1 := by
@@ -3849,7 +3849,7 @@ theorem controlledPathWord_imbalance (n : ℕ) (x : AugmentedState)
   induction n generalizing i with
   | zero => rfl
   | succ n ih =>
-      simp only [blockIntervalPath, IntervalPath.mass_cons, blockWeight]
+      simp only [blockIntervalPath, blockWeight]
       exact congrArg
         (fun z ↦ probability α i (w 0) * z)
         (ih (w 0) (Fin.tail w) _)
@@ -4050,7 +4050,7 @@ theorem sum_holdingHitRecordWeight (k n : ℕ) (x : EmbeddedState) :
           rfl
         rw [huniv]
         simp [holdingHitRecordWeight, holdingHit]
-      · letI : IsEmpty (HoldingHitRecord 0 n x) :=
+      · let : IsEmpty (HoldingHitRecord 0 n x) :=
           ⟨fun r ↦ h r.down.2⟩
         rw [show holdingHit 0 n x = 0 by simp [holdingHit, h]]
         apply Finset.sum_eq_zero
@@ -4059,19 +4059,19 @@ theorem sum_holdingHitRecordWeight (k n : ℕ) (x : EmbeddedState) :
   | succ k ih =>
       by_cases hx : x = recurrentControlState
       · subst x
-        letI : IsEmpty (HoldingHitRecord (k + 1) n recurrentControlState) :=
+        let : IsEmpty (HoldingHitRecord (k + 1) n recurrentControlState) :=
           ⟨fun r ↦ r.1.2 rfl⟩
         rw [show holdingHit (k + 1) n recurrentControlState = 0 by
           simp [holdingHit]]
         apply Finset.sum_eq_zero
         intro r _
         exact isEmptyElim r
-      · letI : Fintype {_guard : Unit // x ≠ recurrentControlState} :=
+      · let : Fintype {_guard : Unit // x ≠ recurrentControlState} :=
           Fintype.ofInjective Subtype.val Subtype.val_injective
-        letI (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
+        let (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
             (y : EmbeddedState) : Fintype (HoldingHitRecord k p.1.2 y) :=
           holdingHitRecordFintype k p.1.2 y
-        letI (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
+        let (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
             (y : EmbeddedState) :
             Fintype (ControlReturnSegment p.1.1 x.1.1 y.1.1) :=
           Fintype.ofInjective Subtype.val Subtype.val_injective
@@ -4143,10 +4143,10 @@ theorem sum_recurrentLoopRecordWeight (k n : ℕ) :
       intro r _
       exact r.elim
   | succ k =>
-      letI (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
+      let (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
           (y : EmbeddedState) : Fintype (HoldingHitRecord k p.1.2 y) :=
         holdingHitRecordFintype k p.1.2 y
-      letI (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
+      let (p : {p : ℕ × ℕ // p ∈ Finset.HasAntidiagonal.antidiagonal n})
           (y : EmbeddedState) :
           Fintype (ControlReturnSegment p.1.1 recurrentAugmentedState y.1.1) :=
         Fintype.ofInjective Subtype.val Subtype.val_injective

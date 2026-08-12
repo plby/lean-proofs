@@ -398,7 +398,7 @@ lemma norm_eval_ge_one_of_frontier {f : Polynomial ℂ}
     {z : ℂ} (hz : z ∈ frontier U) :
     1 ≤ ‖f.eval z‖ := by
   have := hfr hz
-  simp only [OmegaSet, mem_compl_iff, mem_setOf_eq, not_lt] at this
+  simp only [OmegaSet, mem_compl_iff, mem_ofPred_eq, not_lt] at this
   exact this
 
 /-
@@ -691,7 +691,7 @@ highSet U is closed when U is open.
 -/
 lemma highSet_isClosed {U : Set ℂ} (hU : IsOpen U) : IsClosed (highSet U) := by
   unfold highSet;
-  simp +decide only [setOf_forall];
+  simp +decide only [ofPred_forall];
   refine isClosed_iInter fun i => ?_;
   rw [ show { x : ℂ | i > x.im → { re := x.re, im := i } ∉ U } = { x : ℂ | i ≤ x.im } ∪ { x : ℂ | { re := x.re, im := i } ∉ U } by ext; by_cases hi : i ≤ ‹ℂ›.im <;> aesop ];
   refine IsClosed.union ?_ ?_;

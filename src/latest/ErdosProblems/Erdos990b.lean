@@ -670,7 +670,7 @@ theorem sparsePoly_rootMultiplicity_at_x0
       _ = analyticOrderAt (expPoly N K) ((d N K : ℂ) * Complex.log (x0 N K : ℂ)) := hcomp
       _ = analyticOrderAt (expPoly N K) (tau N K : ℂ) := by rw [hx0eval]
       _ = N + 1 := expPoly_order_at_tau N K hK
-  exact ENat.coe_inj.mp hroot
+  exact ENat.natCast_inj.mp hroot
 
 /-- All copies of the positive root lie in the crowding interval. -/
 theorem overcrowded_small_interval

@@ -992,7 +992,7 @@ theorem duplicated_generators_subset_sum_all_residues
       ∃ T : Finset (Fin w × Fin (g - 1)),
         r = ∑ t ∈ T, ρ t.1 := by
   intro r
-  haveI : NeZero g := ⟨by omega⟩
+  have : NeZero g := ⟨by omega⟩
   have hr : r ∈ AddSubgroup.closure (Set.range ρ) := by
     rw [hgen]
     trivial
@@ -1141,7 +1141,7 @@ lemma coversResidues_of_frequent_zsmul_eq_one {S : ℕ → ℤ} {w m : ℕ}
     (hfreq : ∀ i : Fin w, ∀ N : ℕ,
       ∃ n : ℕ, N ≤ n ∧ ((S n : ℤ) : ZMod m) = ρ i) :
     CoversResidues S m := by
-  haveI : NeZero m := ⟨by omega⟩
+  have : NeZero m := ⟨by omega⟩
   exact coversResidues_of_frequent_generators hm ρ
     (zmod_closure_range_eq_top_of_sum_zsmul_eq_one ρ a ha)
     hfreq
@@ -1155,7 +1155,7 @@ lemma coversResidues_of_constant_unit_residue {S : ℕ → ℤ} {m : ℕ}
     (hA : ∀ i ∈ A, ((S i : ℤ) : ZMod m) = u) :
     CoversResidues S m := by
   classical
-  haveI : NeZero m := ⟨Nat.ne_of_gt hm⟩
+  have : NeZero m := ⟨Nat.ne_of_gt hm⟩
   intro r
   let v : ZMod m := (↑hu.unit⁻¹ : ZMod m) * r
   have hv_mul : v * u = r := by
@@ -1195,7 +1195,7 @@ lemma coversResidues_of_many_unit_terms {S : ℕ → ℤ} {m : ℕ}
     (hA : ∀ i ∈ A, IsUnit (((S i : ℤ) : ZMod m))) :
     CoversResidues S m := by
   classical
-  haveI : NeZero m := ⟨Nat.ne_of_gt hm⟩
+  have : NeZero m := ⟨Nat.ne_of_gt hm⟩
   let f : ℕ → ZMod m := fun i => ((S i : ℤ) : ZMod m)
   have hmap : ∀ i ∈ A, f i ∈ (Finset.univ : Finset (ZMod m)) := by
     intro i hi
@@ -1238,7 +1238,7 @@ lemma CoversResidues.exists_prefix {S : ℕ → ℤ} {m : ℕ}
     [Finite (ZMod m)] (hcov : CoversResidues S m) :
     ∃ N : ℕ, ∀ r : ZMod m,
       ∃ x ∈ FSOf S (Finset.range N), ((x : ℤ) : ZMod m) = r := by
-  letI := Fintype.ofFinite (ZMod m)
+  let := Fintype.ofFinite (ZMod m)
   classical
   let x : ZMod m → ℤ := fun r => Classical.choose (hcov r)
   have hx : ∀ r : ZMod m, x r ∈ FS S ∧ ((x r : ℤ) : ZMod m) = r := by
@@ -1302,7 +1302,7 @@ lemma fs_finitePrefixSeq_mono (S : ℕ → ℤ) {N M : ℕ} (hNM : N ≤ M) :
 lemma CoversResidues.exists_finitePrefixSeq {S : ℕ → ℤ} {m : ℕ}
     [Finite (ZMod m)] (hcov : CoversResidues S m) :
     ∃ N : ℕ, CoversResidues (finitePrefixSeq S N) m := by
-  letI := Fintype.ofFinite (ZMod m)
+  let := Fintype.ofFinite (ZMod m)
   rcases hcov.exists_prefix with ⟨N, hN⟩
   refine ⟨N, ?_⟩
   intro r
@@ -1918,7 +1918,7 @@ lemma Delta1_degree_lt (f : ℚ[X]) (hf : f ≠ 0) :
       (f.comp (affinePoly 4 2)).leadingCoeff =
         (f.comp (affinePoly 4 0)).leadingCoeff := by
     rw [leadingCoeff_comp_affine f h4, leadingCoeff_comp_affine f h4]
-  simpa [degree_comp_affine f hf h4] using Polynomial.degree_sub_lt hdeg hp0 hlead
+  simpa [degree_comp_affine f hf h4] using Polynomial.degree_sub_lt_left hdeg hp0 hlead
 
 lemma Delta1_natDegree_lt (f : ℚ[X]) (hfdeg : 0 < f.natDegree) :
     (Delta1 f).natDegree < f.natDegree := by
@@ -3075,7 +3075,7 @@ lemma complete_polyValueSeq_of_residues
       ∀ x : ℕ, 1 ≤ x → ((m : ℤ) : ℚ) = (Delta k p).eval (x : ℚ))
     (hres : CoversResidues (polyValueSeq p h_int_pos) m) :
     Complete (polyValueSeq p h_int_pos) := by
-  haveI : NeZero m := ⟨Nat.ne_of_gt hm⟩
+  have : NeZero m := ⟨Nat.ne_of_gt hm⟩
   obtain ⟨N, hprefix⟩ := hres.exists_finitePrefixSeq
   have hprefix_two :
       CoversResidues (finitePrefixSeq (polyValueSeq p h_int_pos) (2 * N)) m :=
@@ -4858,12 +4858,12 @@ theorem switching_values_span_top (p : ℚ[X]) (hp : IntValued p)
   by_contra h_top
   -- Step 1: Extract a prime ℓ : ℕ such that ℓ ∣ z for every z ∈ switchValueSet.
   obtain ⟨M, hM_max, hM_le⟩ := Ideal.exists_le_maximal _ h_top
-  haveI hM_prime : M.IsPrime := hM_max.isPrime
-  haveI hM_principal : Submodule.IsPrincipal M := IsPrincipalIdealRing.principal M
+  have hM_prime : M.IsPrime := hM_max.isPrime
+  have hM_principal : Submodule.IsPrincipal M := IsPrincipalIdealRing.principal M
   -- ℤ is not a field, so the maximal ideal M ≠ ⊥.
   have h_field : ¬ IsField ℤ := by
     intro h
-    haveI := h.toField
+    have := h.toField
     have h2 : (2 : ℤ) ≠ 0 := by norm_num
     obtain ⟨a, ha⟩ := h.mul_inv_cancel h2
     have : (2 : ℤ) ∣ 1 := ⟨a, ha.symm⟩
@@ -4976,7 +4976,7 @@ theorem finite_switch_values_generate_zmod (p : ℚ[X]) (hp : IntValued p)
                   - intEval p hp ((a i : ℕ) : ℤ)) ∧
       AddSubgroup.closure (Set.range fun i : Fin t => ((b i : ℤ) : ZMod g)) = ⊤ := by
   classical
-  haveI hg_neZero : NeZero g := ⟨Nat.one_le_iff_ne_zero.mp hg⟩
+  have hg_neZero : NeZero g := ⟨Nat.one_le_iff_ne_zero.mp hg⟩
   -- Step 1: span = ⊤ ⟹ 1 ∈ span ⟹ a finite ℤ-combination summing to 1.
   have h_top := switching_values_span_top p hp h_nonconst h_lead_pos h_no_fixed
   have h1 : (1 : ℤ) ∈ Ideal.span (switchValueSet p hp) := by rw [h_top]; trivial
@@ -5627,8 +5627,8 @@ lemma main_valuation_profile (j : ℕ) :
     (padicValNat 2 (6 * D j), padicValNat 3 (6 * D j)) = (1, 1) := by
   have hD_ne : D j ≠ 0 := by unfold D u P; positivity
   have hcop := D_coprime_six j
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  haveI : Fact (Nat.Prime 3) := ⟨Nat.prime_three⟩
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have : Fact (Nat.Prime 3) := ⟨Nat.prime_three⟩
   have h2_ndvd : ¬ (2 : ℕ) ∣ D j := by
     have h2cop : Nat.Coprime (D j) 2 := by
       have h6 : (2 : ℕ) ∣ 6 := by norm_num
@@ -5702,8 +5702,8 @@ lemma main_valuation_profile (j : ℕ) :
 /-- `τ_N = 36 · u_{N+1}` has valuation profile `(2, 2)`. -/
 lemma tau_valuation_profile (N : ℕ) :
     padicValNat 2 (tau N) = 2 ∧ padicValNat 3 (tau N) = 2 := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  haveI : Fact (Nat.Prime 3) := ⟨Nat.prime_three⟩
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have : Fact (Nat.Prime 3) := ⟨Nat.prime_three⟩
   have hu_ne : u (N + 1) ≠ 0 := by unfold u P; positivity
   have hcop := u_coprime_six (N + 1)
   have h2_ndvd : ¬ (2 : ℕ) ∣ u (N + 1) := by
@@ -5754,7 +5754,7 @@ lemma tau_valuation_profile (N : ℕ) :
 /-- For `8 ∣ Λ`, `Λ ≥ 1`, and `f ≥ 1`, `v₂(Λ f) ≥ 3`. -/
 lemma filler_v2_at_least_three (Λ f : ℕ) (hΛ : 8 ∣ Λ) (hΛpos : 1 ≤ Λ) (hf : 1 ≤ f) :
     3 ≤ padicValNat 2 (Λ * f) := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   have h8 : (2 : ℕ) ^ 3 ∣ Λ * f := by
     have h8eq : (2 : ℕ) ^ 3 = 8 := by norm_num
     rw [h8eq]
@@ -5918,7 +5918,7 @@ theorem duplicated_generators_subset_sum_all_residues
       ∃ T : Finset (Fin w × Fin (g - 1)),
         r = ∑ t ∈ T, ρ t.1 := by
   intro r
-  haveI : NeZero g := ⟨by omega⟩
+  have : NeZero g := ⟨by omega⟩
   have hr : r ∈ AddSubgroup.closure (Set.range ρ) := by rw [hgen]; trivial
   obtain ⟨a, ha⟩ := AddSubgroup.exists_of_mem_closure_range ρ r hr
   have hgZ : (0 : ℤ) < (g : ℤ) := by exact_mod_cast hg
@@ -6885,7 +6885,7 @@ lemma chooseMainGCDData {α : ℚ} {L : ℕ} (p : ℚ[X]) (hp : IntValued p)
   -- The ideal we extract a generator from.
   set I : Ideal ℤ := Ideal.span (mainValueSet p hp md.J) with hI_def
   -- ℤ is a PID, so I is principal.
-  haveI hI_principal : Submodule.IsPrincipal I := IsPrincipalIdealRing.principal I
+  have hI_principal : Submodule.IsPrincipal I := IsPrincipalIdealRing.principal I
   set z : ℤ := Submodule.IsPrincipal.generator I with hz_def
   set g : ℕ := z.natAbs with hg_def
   -- Span = ⟨z⟩.
@@ -9568,7 +9568,7 @@ lemma witness_from_selected_subsets {α : ℚ} {L : ℕ} (p : ℚ[X])
       (α = ∑ i, (1 : ℚ) / (n i)) ∧
       ((m : ℚ) = ∑ i, p.eval ((n i : ℕ) : ℚ)) := by
   classical
-  haveI : Nonempty (FinalIndex corr fill N S T) :=
+  have : Nonempty (FinalIndex corr fill N S T) :=
     ⟨Sum.inl (Sum.inr PUnit.unit)⟩
   have hrecip : α = ∑ i : FinalIndex corr fill N S T,
       (1 : ℚ) / (finalIndexDenom i : ℚ) := by
@@ -10289,7 +10289,7 @@ theorem corollary_7_pos_leading (p : ℚ[X])
   -- Step 2: Extract h := gcd of (Dp.eval z : ℤ) for z ∈ ℤ via Ideal.span.
   set valSet : Set ℤ := { z : ℤ | ∃ w : ℤ, z = intEval Dp hDp_int w } with hvalSet_def
   set I : Ideal ℤ := Ideal.span valSet with hI_def
-  haveI hI_principal : Submodule.IsPrincipal I := IsPrincipalIdealRing.principal I
+  have hI_principal : Submodule.IsPrincipal I := IsPrincipalIdealRing.principal I
   set z₀ : ℤ := Submodule.IsPrincipal.generator I with hz₀_def
   set h : ℕ := z₀.natAbs with hh_def
   have hI_span : Ideal.span ({z₀} : Set ℤ) = I :=

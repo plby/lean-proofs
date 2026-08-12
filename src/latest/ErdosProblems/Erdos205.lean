@@ -111,7 +111,7 @@ p_{k,j} >= 5 for all valid indices.
 theorem p_kj_ge_5 (E k j : ℕ) : p_kj E k j ≥ 5 := by
   refine le_trans ?_ ( Nat.nth_monotone ?_ <| Nat.le_add_left _ _ )
   · bound;
-  · exact Nat.infinite_setOf_prime
+  · exact Nat.infinite_setOfPred_prime
 
 /-
 The primes p_{k,j} are distinct for distinct indices (k,j).
@@ -123,7 +123,7 @@ theorem p_kj_injective (E : ℕ) :
     intros k1 hk1 j1 hj1 k2 hk2 j2 hj2 h_eq
     -- Equality of nth primes implies equality of their indices.
     have h_inj : k1 * E + (j1 - 1) + 2 = k2 * E + (j2 - 1) + 2 := by
-      apply Nat.nth_injective ( Nat.infinite_setOf_prime ) h_eq
+      apply Nat.nth_injective ( Nat.infinite_setOfPred_prime ) h_eq
     have h_inj : k1 = k2 := by
       nlinarith [ Nat.sub_add_cancel ( Finset.mem_Icc.mp hj1 |>.1 ),
         Nat.sub_add_cancel ( Finset.mem_Icc.mp hj2 |>.1 ),
@@ -453,7 +453,7 @@ theorem p_kj_bound_eventually :
           p_kj E k j ≤ nth_prime (E^2 + E + 1) := by
       refine Filter.Eventually.of_forall fun E k hk j hj => ?_;
       refine Nat.nth_monotone ?_ ?_
-      · exact Nat.infinite_setOf_prime;
+      · exact Nat.infinite_setOfPred_prime;
       · nlinarith [ Finset.mem_Icc.mp hj,
           Nat.sub_add_cancel ( by linarith [ Finset.mem_Icc.mp hj ] : 1 ≤ j ) ];
     filter_upwards [ h_prime_bound,

@@ -1056,7 +1056,7 @@ lemma card_fixed_points_of_char_prime
   (h_char : CharP F q) :
   Fintype.card { x : F // x^q = x } = q := by
   classical
-  letI : Algebra (ZMod q) F := ZMod.algebra F q
+  let : Algebra (ZMod q) F := ZMod.algebra F q
   rw [Fintype.card_subtype]
   let T : Finset F := Finset.filter (fun x : F => x^q = x) Finset.univ
   have hT : T = Finset.filter (fun x : F => x^q = x) Finset.univ := rfl
@@ -1098,12 +1098,12 @@ lemma exists_field_and_sets (q k y : ℕ) (hq : Nat.Prime q) (hk : k ≤ q) (_hy
     S.card = k ∧
     D.card = q ^ 5 - y := by
   classical
-  haveI : Fact q.Prime := ⟨hq⟩
+  have : Fact q.Prime := ⟨hq⟩
   let F := GaloisField q 2
-  letI : Field F := inferInstance
-  letI : Fintype F := Fintype.ofFinite F
-  letI : DecidableEq F := inferInstance
-  letI : Algebra (ZMod q) F := inferInstance
+  let : Field F := inferInstance
+  let : Fintype F := Fintype.ofFinite F
+  let : DecidableEq F := inferInstance
+  let : Algebra (ZMod q) F := inferInstance
   have h_card_F : Fintype.card F = q * q := by
     change Fintype.card (GaloisField q 2) = q * q
     rw [Fintype.card_eq_nat_card, GaloisField.card q 2 (by norm_num)]
@@ -1143,7 +1143,7 @@ lemma exists_field_and_sets (q k y : ℕ) (hq : Nat.Prime q) (hk : k ≤ q) (_hy
                     have h_poly : (Polynomial.X ^ q - Polynomial.X : Polynomial (ZMod q)) = Polynomial.C 1 * (∏ x ∈ Finset.univ, (Polynomial.X - Polynomial.C x)) := by
                       refine Polynomial.eq_of_degree_sub_lt_of_eval_finset_eq ?_ ?_ ?_;
                       exact Finset.univ;
-                      · convert Polynomial.degree_sub_lt _ _ _ <;> norm_num [ Polynomial.degree_prod, Polynomial.degree_X_pow_sub_C ];
+                      · convert Polynomial.degree_sub_lt_left _ _ _ <;> norm_num [ Polynomial.degree_prod, Polynomial.degree_X_pow_sub_C ];
                         · rw [ Polynomial.degree_sub_eq_left_of_degree_lt ] <;> norm_num [ hq.one_lt ];
                         · rw [ Polynomial.degree_sub_eq_left_of_degree_lt ] <;> norm_num [ hq.one_lt ];
                         · exact ne_of_apply_ne ( Polynomial.derivative ) ( by norm_num [ Polynomial.derivative_pow, hq.ne_zero ] );
@@ -1325,11 +1325,11 @@ lemma B_G_properties (q k y : ℕ)
     have h_alg_id : (∀ a b : F, (a + b) ^ q = a ^ q + b ^ q) ∧ (∀ a b : F, (a * b) ^ q = a ^ q * b ^ q) ∧ (∀ a b : F, (a - b) ^ q = a ^ q - b ^ q) ∧ (∀ a : F, a ^ (q * q) = a) ∧ (2 : F) ^ q = 2 ∧ (2 : F) ≠ 0 ∧ (∀ x : F, (-x) ^ q = - (x ^ q)) := by
       have h_alg_id : (∀ a b : F, (a + b) ^ q = a ^ q + b ^ q) ∧ (∀ a b : F, (a * b) ^ q = a ^ q * b ^ q) ∧ (∀ a b : F, (a - b) ^ q = a ^ q - b ^ q) ∧ (∀ a : F, a ^ (q * q) = a) ∧ (2 : F) ^ q = 2 ∧ (2 : F) ≠ 0 ∧ (∀ x : F, (-x) ^ q = -x ^ q) := by
         have h_add : ∀ a b : F, (a + b) ^ q = a ^ q + b ^ q := by
-          haveI := Fact.mk hq_prime; simp +decide [ add_pow_char ] ;
+          have := Fact.mk hq_prime; simp +decide [ add_pow_char ] ;
         have h_mul : ∀ a b : F, (a * b) ^ q = a ^ q * b ^ q := by
           exact fun a b => mul_pow a b q
         have h_sub : ∀ a b : F, (a - b) ^ q = a ^ q - b ^ q := by
-          haveI := Fact.mk hq_prime; simp +decide [ sub_pow_char ] ;
+          have := Fact.mk hq_prime; simp +decide [ sub_pow_char ] ;
         have h_F : ∀ a : F, a ^ (q * q) = a := by
           exact fun x => by rw [ ← h_card_F, FiniteField.pow_card ] ;
         have h_two : (2 : F) ^ q = 2 := by
@@ -1386,7 +1386,7 @@ lemma transfer_to_fin_n {V : Type*} [Fintype V]
             map_rel_iff' := by
               intro x y
               simp [SimpleGraph.comap] }
-        letI : DecidableRel (SimpleGraph.comap (fun x => e.symm x) G).Adj :=
+        let : DecidableRel (SimpleGraph.comap (fun x => e.symm x) G).Adj :=
           fun _ _ => Classical.propDecidable _
         rw [SimpleGraph.edgeFinset_card, ← SimpleGraph.card_edgeSet]
         exact_mod_cast (Fintype.card_congr iso.mapEdgeSet.symm);
@@ -1430,7 +1430,7 @@ lemma exists_counterexample_graph (q k y : ℕ)
               rw [ zero_pow hq_prime.ne_zero ] ⟩
             ) ?_ ?_ ?_ <;> simp +decide [ hA_orig_def ];
           · exact fun a b => b;
-          · exact fun p hp => by exact Set.mem_setOf.mpr (by simpa [P_S] using hp) ;
+          · exact fun p hp => by exact Set.mem_ofPred.mpr (by simpa [P_S] using hp) ;
       have := transfer_to_fin_n (B_G (S : Set F) (D : Set (Line F q))) A_orig n (by
       grind) (by
       simp +zetaDelta at *;

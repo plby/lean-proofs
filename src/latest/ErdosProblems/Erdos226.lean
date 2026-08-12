@@ -361,7 +361,7 @@ lemma M_val_pos (alpha : ℕ → ℝ) (n : ℕ) : 0 < M_val alpha n := by
           -- The interval [0, n+1] is a subset of the set {z : ℂ | ‖z‖ ≤ n + 1} and is infinite.
           have h_interval : Set.Infinite (Set.image (fun x : ℝ => x : ℝ → ℂ) (Set.Icc 0 (n + 1))) := by
             exact Set.Infinite.image ( fun x => by aesop ) ( Set.Icc_infinite ( by positivity ) );
-          exact h_interval.mono fun x hx => by rcases hx with ⟨ y, hy, rfl ⟩ ; exact Set.mem_setOf.mpr <| by simpa [ abs_of_nonneg hy.1 ] using hy.2;
+          exact h_interval.mono fun x hx => by rcases hx with ⟨ y, hy, rfl ⟩ ; exact Set.mem_ofPred.mpr <| by simpa [ abs_of_nonneg hy.1 ] using hy.2;
         exact Set.Infinite.nonempty ( h_compl_nonempty.sdiff <| Set.toFinite _ );
       exact ⟨ z, hz.1, fun x hx => sub_ne_zero_of_ne <| by aesop ⟩;
   refine lt_of_lt_of_le ?_
