@@ -139,7 +139,7 @@ lemma backwardLogFourNumeratorPower_eval
     rationalPowerEval_sub, rationalPowerEval_scale,
     rationalPowerEval_pow, rationalPowerEval]
   norm_num
-  ring
+  ring_nf
   all_goals simp
 
 lemma backwardLogFourDenominatorPower_eval

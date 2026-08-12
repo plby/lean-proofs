@@ -35,29 +35,69 @@ set_option maxRecDepth 10000 in
 theorem optimizedRamseySlope_beta0_pos :
     ∀ z ∈ Set.Icc (1 / 50 : ℝ) 1,
       (1 / 10 : ℝ) ≤ optimizedRamseySlope (2 / 25) z := by
-  unfold optimizedRamseySlope
-  interval_bound_subdiv 20 8
+  have hleft : ∀ z ∈ Set.Icc (1 / 50 : ℝ) (51 / 100),
+      (1 / 10 : ℝ) ≤ optimizedRamseySlope (2 / 25) z := by
+    unfold optimizedRamseySlope
+    certify_bound 20
+  have hright : ∀ z ∈ Set.Icc (51 / 100 : ℝ) 1,
+      (1 / 10 : ℝ) ≤ optimizedRamseySlope (2 / 25) z := by
+    unfold optimizedRamseySlope
+    certify_bound 20
+  intro z hz
+  by_cases hsplit : z ≤ (51 / 100 : ℝ)
+  · exact hleft z ⟨hz.1, hsplit⟩
+  · exact hright z ⟨le_of_not_ge hsplit, hz.2⟩
 
 set_option maxRecDepth 10000 in
 theorem optimizedRamseySlope_beta1_pos :
     ∀ z ∈ Set.Icc (1 / 20 : ℝ) 1,
       (1 / 10 : ℝ) ≤ optimizedRamseySlope (9 / 200) z := by
-  unfold optimizedRamseySlope
-  interval_bound_subdiv 20 8
+  have hleft : ∀ z ∈ Set.Icc (1 / 20 : ℝ) (21 / 40),
+      (1 / 10 : ℝ) ≤ optimizedRamseySlope (9 / 200) z := by
+    unfold optimizedRamseySlope
+    certify_bound 20
+  have hright : ∀ z ∈ Set.Icc (21 / 40 : ℝ) 1,
+      (1 / 10 : ℝ) ≤ optimizedRamseySlope (9 / 200) z := by
+    unfold optimizedRamseySlope
+    certify_bound 20
+  intro z hz
+  by_cases hsplit : z ≤ (21 / 40 : ℝ)
+  · exact hleft z ⟨hz.1, hsplit⟩
+  · exact hright z ⟨le_of_not_ge hsplit, hz.2⟩
 
 set_option maxRecDepth 10000 in
 theorem optimizedRamseySlope_beta2_pos :
     ∀ z ∈ Set.Icc (1 / 20 : ℝ) 1,
       (1 / 10 : ℝ) ≤ optimizedRamseySlope (33 / 1000) z := by
-  unfold optimizedRamseySlope
-  interval_bound_subdiv 20 8
+  have hleft : ∀ z ∈ Set.Icc (1 / 20 : ℝ) (21 / 40),
+      (1 / 10 : ℝ) ≤ optimizedRamseySlope (33 / 1000) z := by
+    unfold optimizedRamseySlope
+    certify_bound 20
+  have hright : ∀ z ∈ Set.Icc (21 / 40 : ℝ) 1,
+      (1 / 10 : ℝ) ≤ optimizedRamseySlope (33 / 1000) z := by
+    unfold optimizedRamseySlope
+    certify_bound 20
+  intro z hz
+  by_cases hsplit : z ≤ (21 / 40 : ℝ)
+  · exact hleft z ⟨hz.1, hsplit⟩
+  · exact hright z ⟨le_of_not_ge hsplit, hz.2⟩
 
 set_option maxRecDepth 10000 in
 theorem optimizedRamseySlope_beta3_pos :
     ∀ z ∈ Set.Icc (1 / 20 : ℝ) 1,
       (1 / 10 : ℝ) ≤ optimizedRamseySlope (3 / 100) z := by
-  unfold optimizedRamseySlope
-  interval_bound_subdiv 20 8
+  have hleft : ∀ z ∈ Set.Icc (1 / 20 : ℝ) (21 / 40),
+      (1 / 10 : ℝ) ≤ optimizedRamseySlope (3 / 100) z := by
+    unfold optimizedRamseySlope
+    certify_bound 20
+  have hright : ∀ z ∈ Set.Icc (21 / 40 : ℝ) 1,
+      (1 / 10 : ℝ) ≤ optimizedRamseySlope (3 / 100) z := by
+    unfold optimizedRamseySlope
+    certify_bound 20
+  intro z hz
+  by_cases hsplit : z ≤ (21 / 40 : ℝ)
+  · exact hleft z ⟨hz.1, hsplit⟩
+  · exact hright z ⟨le_of_not_ge hsplit, hz.2⟩
 
 /-- The first-round elementary book margin after cancelling the two
 occurrences of `z log z`.  This form is substantially better conditioned
