@@ -1,5 +1,4 @@
 import Arxiv.Arxiv2407_19026.PointwiseOptimization
-import LeanCert.Tactic.IntervalAuto
 import LeanCert.Validity.AffineCover
 
 /-!
@@ -31,73 +30,69 @@ lemma optimizationXExp_eq {β z : ℝ}
   congr 2
   ring
 
-set_option maxRecDepth 10000 in
+lemma optimizedRamseySlope_ge_tenth
+    {β z : ℝ} (hβ : 0 ≤ β) (hz0 : 0 < z) (hz1 : z ≤ 1) :
+    (1 / 10 : ℝ) ≤ optimizedRamseySlope β z := by
+  have hlog : Real.log 2 ≤ Real.log (z + 1) - Real.log z := by
+    calc
+      Real.log 2 = Real.log (2 * z) - Real.log z := by
+        rw [Real.log_mul (by norm_num) hz0.ne']
+        ring
+      _ ≤ Real.log (z + 1) - Real.log z := by
+        gcongr
+        linarith
+  let A :=
+    -(1 / 4 : ℝ) + 2 * β * z + (6 / 25 : ℝ) * z ^ 2 -
+      (-(1 / 4 : ℝ) * z + β * z ^ 2 + (2 / 25 : ℝ) * z ^ 3)
+  have hβpart : 0 ≤ β * z * (2 - z) :=
+    mul_nonneg (mul_nonneg hβ hz0.le) (by linarith)
+  have hzpart : 0 ≤ z ^ 2 * ((6 / 25 : ℝ) - 2 / 25 * z) := by
+    exact mul_nonneg (sq_nonneg z) (by nlinarith)
+  have hA : -(1 / 4 : ℝ) ≤ A := by
+    dsimp [A]
+    nlinarith [hβpart, hzpart]
+  have he0 : 0 ≤ Real.exp (-z) := (Real.exp_pos _).le
+  have he1 : Real.exp (-z) ≤ 1 := Real.exp_le_one_iff.mpr (by linarith)
+  have hcorrection : -(1 / 4 : ℝ) ≤ A * Real.exp (-z) := by
+    by_cases hA0 : 0 ≤ A
+    · exact (by norm_num : -(1 / 4 : ℝ) ≤ 0).trans (mul_nonneg hA0 he0)
+    · calc
+        -(1 / 4 : ℝ) ≤ A := hA
+        _ = A * 1 := by ring
+        _ ≤ A * Real.exp (-z) :=
+          mul_le_mul_of_nonpos_left he1 (le_of_not_ge hA0)
+  rw [optimizedRamseySlope]
+  change (1 / 10 : ℝ) ≤
+    Real.log (z + 1) - Real.log z + A * Real.exp (-z)
+  nlinarith [Real.log_two_gt_d9]
+
 theorem optimizedRamseySlope_beta0_pos :
     ∀ z ∈ Set.Icc (1 / 50 : ℝ) 1,
       (1 / 10 : ℝ) ≤ optimizedRamseySlope (2 / 25) z := by
-  have hleft : ∀ z ∈ Set.Icc (1 / 50 : ℝ) (51 / 100),
-      (1 / 10 : ℝ) ≤ optimizedRamseySlope (2 / 25) z := by
-    unfold optimizedRamseySlope
-    certify_bound 20
-  have hright : ∀ z ∈ Set.Icc (51 / 100 : ℝ) 1,
-      (1 / 10 : ℝ) ≤ optimizedRamseySlope (2 / 25) z := by
-    unfold optimizedRamseySlope
-    certify_bound 20
   intro z hz
-  by_cases hsplit : z ≤ (51 / 100 : ℝ)
-  · exact hleft z ⟨hz.1, hsplit⟩
-  · exact hright z ⟨le_of_not_ge hsplit, hz.2⟩
+  exact optimizedRamseySlope_ge_tenth
+    (by norm_num) (by linarith [hz.1]) hz.2
 
-set_option maxRecDepth 10000 in
 theorem optimizedRamseySlope_beta1_pos :
     ∀ z ∈ Set.Icc (1 / 20 : ℝ) 1,
       (1 / 10 : ℝ) ≤ optimizedRamseySlope (9 / 200) z := by
-  have hleft : ∀ z ∈ Set.Icc (1 / 20 : ℝ) (21 / 40),
-      (1 / 10 : ℝ) ≤ optimizedRamseySlope (9 / 200) z := by
-    unfold optimizedRamseySlope
-    certify_bound 20
-  have hright : ∀ z ∈ Set.Icc (21 / 40 : ℝ) 1,
-      (1 / 10 : ℝ) ≤ optimizedRamseySlope (9 / 200) z := by
-    unfold optimizedRamseySlope
-    certify_bound 20
   intro z hz
-  by_cases hsplit : z ≤ (21 / 40 : ℝ)
-  · exact hleft z ⟨hz.1, hsplit⟩
-  · exact hright z ⟨le_of_not_ge hsplit, hz.2⟩
+  exact optimizedRamseySlope_ge_tenth
+    (by norm_num) (by linarith [hz.1]) hz.2
 
-set_option maxRecDepth 10000 in
 theorem optimizedRamseySlope_beta2_pos :
     ∀ z ∈ Set.Icc (1 / 20 : ℝ) 1,
       (1 / 10 : ℝ) ≤ optimizedRamseySlope (33 / 1000) z := by
-  have hleft : ∀ z ∈ Set.Icc (1 / 20 : ℝ) (21 / 40),
-      (1 / 10 : ℝ) ≤ optimizedRamseySlope (33 / 1000) z := by
-    unfold optimizedRamseySlope
-    certify_bound 20
-  have hright : ∀ z ∈ Set.Icc (21 / 40 : ℝ) 1,
-      (1 / 10 : ℝ) ≤ optimizedRamseySlope (33 / 1000) z := by
-    unfold optimizedRamseySlope
-    certify_bound 20
   intro z hz
-  by_cases hsplit : z ≤ (21 / 40 : ℝ)
-  · exact hleft z ⟨hz.1, hsplit⟩
-  · exact hright z ⟨le_of_not_ge hsplit, hz.2⟩
+  exact optimizedRamseySlope_ge_tenth
+    (by norm_num) (by linarith [hz.1]) hz.2
 
-set_option maxRecDepth 10000 in
 theorem optimizedRamseySlope_beta3_pos :
     ∀ z ∈ Set.Icc (1 / 20 : ℝ) 1,
       (1 / 10 : ℝ) ≤ optimizedRamseySlope (3 / 100) z := by
-  have hleft : ∀ z ∈ Set.Icc (1 / 20 : ℝ) (21 / 40),
-      (1 / 10 : ℝ) ≤ optimizedRamseySlope (3 / 100) z := by
-    unfold optimizedRamseySlope
-    certify_bound 20
-  have hright : ∀ z ∈ Set.Icc (21 / 40 : ℝ) 1,
-      (1 / 10 : ℝ) ≤ optimizedRamseySlope (3 / 100) z := by
-    unfold optimizedRamseySlope
-    certify_bound 20
   intro z hz
-  by_cases hsplit : z ≤ (21 / 40 : ℝ)
-  · exact hleft z ⟨hz.1, hsplit⟩
-  · exact hright z ⟨le_of_not_ge hsplit, hz.2⟩
+  exact optimizedRamseySlope_ge_tenth
+    (by norm_num) (by linarith [hz.1]) hz.2
 
 /-- The first-round elementary book margin after cancelling the two
 occurrences of `z log z`.  This form is substantially better conditioned
@@ -609,8 +604,81 @@ set_option maxRecDepth 10000 in
 lemma beta0U_small_upper :
     ∀ z ∈ Set.Icc (0 : ℝ) (1 / 1000),
       beta0U z ≤ (257 / 200 : ℝ) := by
-  unfold beta0U
-  interval_bound_subdiv 8 2
+  rintro z hz
+  let q9 : ℝ := -0.070285151867
+  let q8 : ℝ := 0.429628799767 + z * q9
+  let q7 : ℝ := -1.218022340257 + z * q8
+  let q6 : ℝ := 2.192513219941 + z * q7
+  let q5 : ℝ := -2.940312871156 + z * q6
+  let q4 : ℝ := 3.285022020636 + z * q5
+  let q3 : ℝ := -3.264680122333 + z * q4
+  let q2 : ℝ := 2.891286818537 + z * q3
+  let q1 : ℝ := -2.131427997038 + z * q2
+  have hq9 : q9 ≤ 0 := by norm_num [q9]
+  have hzq9 : z * q9 ≤ 0 := mul_nonpos_of_nonneg_of_nonpos hz.1 hq9
+  have hq8 : q8 ≤ 1 := by
+    dsimp [q8]
+    calc
+      0.429628799767 + z * q9 ≤ 0.429628799767 + 0 :=
+        add_le_add_right hzq9 _
+      _ ≤ 1 := by norm_num
+  have hzq8 : z * q8 ≤ z := by
+    simpa using mul_le_mul_of_nonneg_left hq8 hz.1
+  have hq7 : q7 ≤ 0 := by
+    dsimp [q7]
+    calc
+      -1.218022340257 + z * q8 ≤ -1.218022340257 + z :=
+        add_le_add_right hzq8 _
+      _ ≤ 0 := by norm_num at hz ⊢; linarith
+  have hzq7 : z * q7 ≤ 0 := mul_nonpos_of_nonneg_of_nonpos hz.1 hq7
+  have hq6 : q6 ≤ 3 := by
+    dsimp [q6]
+    calc
+      2.192513219941 + z * q7 ≤ 2.192513219941 + 0 :=
+        add_le_add_right hzq7 _
+      _ ≤ 3 := by norm_num
+  have hzq6 : z * q6 ≤ 3 * z := by
+    simpa [mul_comm] using mul_le_mul_of_nonneg_left hq6 hz.1
+  have hq5 : q5 ≤ 0 := by
+    dsimp [q5]
+    calc
+      -2.940312871156 + z * q6 ≤ -2.940312871156 + 3 * z :=
+        add_le_add_right hzq6 _
+      _ ≤ 0 := by norm_num at hz ⊢; linarith
+  have hzq5 : z * q5 ≤ 0 := mul_nonpos_of_nonneg_of_nonpos hz.1 hq5
+  have hq4 : q4 ≤ 4 := by
+    dsimp [q4]
+    calc
+      3.285022020636 + z * q5 ≤ 3.285022020636 + 0 :=
+        add_le_add_right hzq5 _
+      _ ≤ 4 := by norm_num
+  have hzq4 : z * q4 ≤ 4 * z := by
+    simpa [mul_comm] using mul_le_mul_of_nonneg_left hq4 hz.1
+  have hq3 : q3 ≤ 0 := by
+    dsimp [q3]
+    calc
+      -3.264680122333 + z * q4 ≤ -3.264680122333 + 4 * z :=
+        add_le_add_right hzq4 _
+      _ ≤ 0 := by norm_num at hz ⊢; linarith
+  have hzq3 : z * q3 ≤ 0 := mul_nonpos_of_nonneg_of_nonpos hz.1 hq3
+  have hq2 : q2 ≤ 3 := by
+    dsimp [q2]
+    calc
+      2.891286818537 + z * q3 ≤ 2.891286818537 + 0 :=
+        add_le_add_right hzq3 _
+      _ ≤ 3 := by norm_num
+  have hzq2 : z * q2 ≤ 3 * z := by
+    simpa [mul_comm] using mul_le_mul_of_nonneg_left hq2 hz.1
+  have hq1 : q1 ≤ 0 := by
+    dsimp [q1]
+    calc
+      -2.131427997038 + z * q2 ≤ -2.131427997038 + 3 * z :=
+        add_le_add_right hzq2 _
+      _ ≤ 0 := by norm_num at hz ⊢; linarith
+  change 1.284024751404 + z * q1 + 1 / 2000 ≤ (257 / 200 : ℝ)
+  have hzq1 : z * q1 ≤ 0 := mul_nonpos_of_nonneg_of_nonpos hz.1 hq1
+  norm_num at ⊢
+  linarith
 
 set_option maxRecDepth 10000 in
 lemma beta0V_small_lower :
