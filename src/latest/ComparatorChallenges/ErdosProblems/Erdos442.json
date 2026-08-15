@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos442",
+  "solution_module": "ErdosProblems.Erdos442",
+  "theorem_names": [
+    "Erdos442.erdos_442"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
+
