@@ -44,7 +44,7 @@ theorem Erdos1047.main_result :
                                       (@NormedCommRing.toSeminormedCommRing.{0} Complex
                                         (@CommCStarAlgebra.toNormedCommRing.{0} Complex
                                           instCommCStarAlgebraComplex))))))
-                              (@setOf.{0} Complex fun (w : Complex) ↦
+                              (@Set.ofPred.{0} Complex fun (w : Complex) ↦
                                 @LE.le.{0} Real Real.instLE
                                   (@Norm.norm.{0} Complex Complex.instNorm
                                     (@Polynomial.eval.{0} Complex Complex.instSemiring w f))
@@ -72,7 +72,7 @@ theorem Erdos1047.main_result :
                                         (@NormedCommRing.toSeminormedCommRing.{0} Complex
                                           (@CommCStarAlgebra.toNormedCommRing.{0} Complex
                                             instCommCStarAlgebraComplex))))))
-                                (@setOf.{0} Complex fun (w : Complex) ↦
+                                (@Set.ofPred.{0} Complex fun (w : Complex) ↦
                                   @LE.le.{0} Real Real.instLE
                                     (@Norm.norm.{0} Complex Complex.instNorm
                                       (@Polynomial.eval.{0} Complex Complex.instSemiring w f))
@@ -141,7 +141,7 @@ theorem Erdos1047.erdos_1047 :
                                     (@NormedCommRing.toSeminormedCommRing.{0} Complex
                                       (@CommCStarAlgebra.toNormedCommRing.{0} Complex
                                         instCommCStarAlgebraComplex))))))
-                            (@setOf.{0} Complex fun (w : Complex) ↦
+                            (@Set.ofPred.{0} Complex fun (w : Complex) ↦
                               @LE.le.{0} Real Real.instLE
                                 (@Norm.norm.{0} Complex Complex.instNorm
                                   (@Polynomial.eval.{0} Complex Complex.instSemiring w f))
@@ -168,7 +168,7 @@ theorem Erdos1047.erdos_1047 :
                                       (@NormedCommRing.toSeminormedCommRing.{0} Complex
                                         (@CommCStarAlgebra.toNormedCommRing.{0} Complex
                                           instCommCStarAlgebraComplex))))))
-                              (@setOf.{0} Complex fun (w : Complex) ↦
+                              (@Set.ofPred.{0} Complex fun (w : Complex) ↦
                                 @LE.le.{0} Real Real.instLE
                                   (@Norm.norm.{0} Complex Complex.instNorm
                                     (@Polynomial.eval.{0} Complex Complex.instSemiring w f))

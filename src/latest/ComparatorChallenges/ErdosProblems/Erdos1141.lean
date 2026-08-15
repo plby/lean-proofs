@@ -42,11 +42,11 @@ attribute [local instance] Classical.propDecidable
 
 theorem Erdos1141.erdos_1141_variant :
     @Set.Finite.{0} Nat
-      (@setOf.{0} Nat fun (n : Nat) ↦
+      (@Set.ofPred.{0} Nat fun (n : Nat) ↦
         Erdos1141.Pa (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) n)
   := by
   sorry
 theorem Erdos1141.erdos_1141 :
-    Not (Infinite.{1} (@Set.Elem.{0} Nat (@setOf.{0} Nat fun (n : Nat) ↦ Erdos1141.Erdos1141Prop n)))
+    Not (Infinite.{1} (@Set.Elem.{0} Nat (@Set.ofPred.{0} Nat fun (n : Nat) ↦ Erdos1141.Erdos1141Prop n)))
   := by
   sorry
