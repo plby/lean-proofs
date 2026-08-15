@@ -1,0 +1,15 @@
+{
+  "challenge_module": "Erdos1092",
+  "solution_module": "ErdosProblems.Erdos1092",
+  "theorem_names": [
+    "Erdos1092.f_asymptotic_2",
+    "Erdos1092.f_asymptotic_general"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
+
