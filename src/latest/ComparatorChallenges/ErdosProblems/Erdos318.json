@@ -1,0 +1,18 @@
+{
+  "challenge_module": "Erdos318",
+  "solution_module": "ErdosProblems.Erdos318",
+  "theorem_names": [
+    "erdos_318.parts.i",
+    "erdos_318.variants.infinite_AP",
+    "erdos_318.variants.univ",
+    "erdos_318.variants.odd",
+    "erdos_318.variants.squares"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
+
