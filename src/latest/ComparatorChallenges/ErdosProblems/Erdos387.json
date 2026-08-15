@@ -1,0 +1,22 @@
+{
+  "challenge_module": "Erdos387",
+  "solution_module": "ErdosProblems.Erdos387",
+  "theorem_names": [
+    "Erdos387.erdos_387_of_counterexamples",
+    "Erdos387.erdos_387_of_fixedB",
+    "Erdos387.erdos_387_of_eventually_fixedB",
+    "Erdos387.erdos_387_of_eventually_BNPZ",
+    "Erdos387.erdos_387_of_cover_certificates",
+    "Erdos387.erdos_387_of_absorber_error_bounds",
+    "Erdos387.erdos_387_of_frozen_roughProduct_bounds",
+    "Erdos387.erdos_387_of_refined_error_bounds",
+    "Erdos387.erdos_387_of_refined_five_error_bounds"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
+
