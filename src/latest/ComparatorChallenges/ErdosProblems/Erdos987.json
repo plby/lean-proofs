@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos987",
+  "solution_module": "ErdosProblems.Erdos987",
+  "theorem_names": [
+    "Erdos987.erdos_987.parts.i",
+    "Erdos987.erdos_987.variants.sqrt_log_upper_bound",
+    "Erdos987.erdos_987.parts.ii"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
+
