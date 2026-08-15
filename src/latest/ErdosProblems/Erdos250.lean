@@ -6,7 +6,7 @@ The mathematical proof and the implementation plan are documented in
 `tex/250.tex` at the repository root.
 -/
 
-import ErdosProblems.Erdos250Assemble
+import ErdosProblems.Erdos250.Erdos250Assemble
 
 open Filter
 open scoped ArithmeticFunction.sigma BigOperators Topology
