@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos402",
+  "solution_module": "ErdosProblems.Erdos402",
+  "theorem_names": [
+    "Erdos402.erdos_402_of_sufficiently_large"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
+
