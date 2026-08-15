@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos848",
+  "solution_module": "ErdosProblems.Erdos848",
+  "theorem_names": [
+    "Erdos848.erdos_848.variants.asymptotic"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
+
