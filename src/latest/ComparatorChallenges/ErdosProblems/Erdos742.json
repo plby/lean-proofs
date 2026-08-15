@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos742",
+  "solution_module": "ErdosProblems.Erdos742",
+  "theorem_names": [
+    "Erdos742.furedi_bound"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
+
