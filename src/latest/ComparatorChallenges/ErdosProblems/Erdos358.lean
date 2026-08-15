@@ -15,6 +15,9 @@ namespace Erdos358
 
 open Filter Finset
 
+syntax (name := answerSyntax358) "answer(" term ")" : term
+macro_rules | `(answer($t)) => `($t)
+
 /-- Pairs of positive endpoints whose corresponding consecutive `A`-sum is `n`. -/
 def intervalRepresentations (A : ℕ → ℕ) (n : ℕ) : Set (ℕ × ℕ) :=
   {(u, v) | 0 < u ∧ 0 < v ∧ n = ∑ i ∈ Icc u v, A i}
@@ -36,4 +39,3 @@ theorem erdos_358.parts.ii :
     answer(True) ↔ ∃ A, StrictMono A ∧
       ∀ᶠ n in atTop, 2 ≤ Erdos358.f A n := by
   sorry
-
