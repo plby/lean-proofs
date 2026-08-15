@@ -1,0 +1,15 @@
+{
+  "challenge_module": "Erdos1119",
+  "solution_module": "ErdosProblems.Erdos1119",
+  "theorem_names": [
+    "Erdos1119.erdos_1119.variants.easy_case",
+    "Erdos1119.erdos_1119.variants.erdos_wetzel"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
+
