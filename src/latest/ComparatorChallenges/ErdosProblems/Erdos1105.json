@@ -1,0 +1,15 @@
+{
+  "challenge_module": "Erdos1105",
+  "solution_module": "ErdosProblems.Erdos1105",
+  "theorem_names": [
+    "Erdos1105.not_erdos_1105_parts_ii_type",
+    "Erdos1105.not_erdos_1105_parts_i_type"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
+
