@@ -26,7 +26,7 @@ universe u_1
 
 theorem Erdos1007.erdos_1007 :
     @IsLeast.{0} Nat instLENat
-      (@setOf.{0} Nat fun (n : Nat) ↦
+      (@Set.ofPred.{0} Nat fun (n : Nat) ↦
         @Exists.{2} Type fun (V : Type) ↦
           @Exists.{1} (Fintype.{0} V) fun (x : Fintype.{0} V) ↦
             @Exists.{1} (DecidableEq.{1} V) fun (x_1 : DecidableEq.{1} V) ↦
