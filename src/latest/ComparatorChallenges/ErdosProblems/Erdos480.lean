@@ -12,6 +12,9 @@ import Mathlib
 
 namespace Erdos480
 
+syntax (name := answerSyntax480) "answer(" term ")" : term
+macro_rules | `(answer($t)) => `($t)
+
 @[simp] lemma Nat.dist_self_add' (a k : ℕ) : Nat.dist a (a + k) = k := by
   simp [Nat.dist]
 @[simp] lemma Nat.dist_add_self' (a k : ℕ) : Nat.dist (a + k) a = k := by
@@ -34,4 +37,3 @@ theorem erdos_480 : answer(True) ↔ ∀ (x : ℕ → ℝ), (∀ n, x n ∈ Set.
     ⨅ (n : ℕ+), atTop.liminf (fun m => (n : ℕ) * |x (m + (n : ℕ)) - x m|) ≤
       1 / √5 := by
   sorry
-
