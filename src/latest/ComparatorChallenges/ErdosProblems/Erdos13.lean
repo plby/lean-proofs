@@ -15,7 +15,6 @@ limitations under the License.
 -/
 
 import Mathlib
-import ErdosProblems.Erdos13.Erdos13Additive
 
 /-!
 # Erdős Problem 13
@@ -43,4 +42,3 @@ namespace IsForbiddenTripleFree
 theorem erdos_13 : ∃ C : ℝ, ∀ N : ℕ, ∀ A ⊆ Icc 1 N, IsForbiddenTripleFree A →
     (A.card : ℝ) ≤ (N : ℝ) / 3 + C := by
   sorry
-

@@ -13,28 +13,7 @@ W. H. J. Fuchs, "Proof of a conjecture of G. Pólya concerning gap series",
 Illinois J. Math. 7 (1963), 661--667.
 -/
 
-import Mathlib.Analysis.Analytic.IsolatedZeros
-import Mathlib.Analysis.Complex.AbsMax
-import Mathlib.Analysis.Complex.BorelCaratheodory
-import Mathlib.Analysis.Complex.CanonicalDecomposition
-import Mathlib.Analysis.Complex.HasPrimitives
-import Mathlib.Analysis.Complex.JensenFormula
-import Mathlib.Analysis.Complex.Liouville
-import Mathlib.Analysis.Complex.LocallyUniformLimit
-import Mathlib.Analysis.Normed.Module.MultipliableUniformlyOn
-import Mathlib.Analysis.Polynomial.MahlerMeasure
-import Mathlib.Analysis.PSeries
-import Mathlib.Analysis.Real.Pi.Bounds
-import Mathlib.Analysis.SpecialFunctions.CompareExp
-import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
-import Mathlib.Analysis.SpecialFunctions.Log.Summable
-import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
-import Mathlib.Analysis.SpecialFunctions.Trigonometric.EulerSineProd
-import Mathlib.Data.Nat.Choose.Bounds
-import Mathlib.Data.Nat.Factorial.BigOperators
-import Mathlib.Order.LiminfLimsup
-import Mathlib.Tactic
-import ErdosProblems.Erdos516.Check516
+import Mathlib
 
 open scoped Nat Polynomial
 open Filter MeasureTheory Real Set Topology

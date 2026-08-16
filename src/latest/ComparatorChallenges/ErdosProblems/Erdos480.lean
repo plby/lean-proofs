@@ -10,6 +10,8 @@ gap, from which the stated `liminf` bound follows.
 
 import Mathlib
 
+open Filter
+
 namespace Erdos480
 
 syntax (name := answerSyntax480) "answer(" term ")" : term

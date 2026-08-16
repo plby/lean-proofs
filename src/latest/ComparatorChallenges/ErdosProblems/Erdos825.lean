@@ -4,9 +4,7 @@ Copyright (c) 2026 Boris Alexeev. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
-import ErdosProblems.Erdos469
-import UnitFractions.Fourier
-import Util.ListSorted
+import Mathlib
 
 /-!
 # Erdős Problem 825
@@ -38,4 +36,3 @@ theorem erdos_825 :
       ∀ (n) (_ : σ 1 n > C * n),
         ∃ s ⊆ n.properDivisors, n = s.sum id := by
   sorry
-

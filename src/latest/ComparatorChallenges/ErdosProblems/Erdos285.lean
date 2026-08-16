@@ -17,9 +17,7 @@ Primary references:
 - https://doi.org/10.4064/aa-95-3-231-260
 - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/285.lean
 -/
-import ErdosProblems.Erdos285.MartinUpperFinal
-import ErdosProblems.Erdos285.RatioBridge
-import ErdosProblems.Erdos285.Erdos285Packaging
+import Mathlib
 
 open Filter
 open scoped BigOperators Topology Real
@@ -48,4 +46,3 @@ theorem erdos_285 :
       ∀ k ∈ S,
         f k = (1 + o k) * rexp 1 / (rexp 1 - 1) * (k + 1) := by
   sorry
-

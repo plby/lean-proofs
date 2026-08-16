@@ -4,9 +4,7 @@ Copyright (c) 2026 Boris Alexeev. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
-import ErdosProblems.Erdos965.FiniteColoring
-import ErdosProblems.Erdos965.FiniteMain
-import ErdosProblems.Erdos965.HamelTransfer
+import Mathlib
 
 /-!
 # Erdős Problem 965
@@ -28,4 +26,3 @@ theorem erdos_965 :
       ∀ᵉ (a ∈ A) (b ∈ A) (c ∈ A) (d ∈ A), a ≠ b → c ≠ d →
         f (a + b) = f (c + d) := by
   sorry
-

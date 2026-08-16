@@ -4,14 +4,7 @@ Copyright (c) 2026 Boris Alexeev. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
-import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Mathlib.Combinatorics.SimpleGraph.Bipartite
-import Mathlib.Combinatorics.SimpleGraph.Subgraph
-import Mathlib.Data.Set.Card
-import Mathlib.Tactic.Linarith
-import Mathlib.Tactic.NormNum
-import Mathlib.Tactic.Positivity
-import Mathlib.Tactic.Ring
+import Mathlib
 
 /-!
 # Erdős Problem 1077
@@ -51,6 +44,8 @@ theorem erdos_1077 :
         ∀ G : SimpleGraph (Fin n),
           G.edgeSet.ncard > (n : ℝ) ^ (1 + α) →
             ∃ (H : Subgraph G),
-              letI m := by
+              letI m := H.verts.ncard
+              IsBalanced H.coe D ∧
+                m > (n : ℝ) ^ (1 - α) ∧
+                  H.edgeSet.ncard > ε * m ^ (1 + α) := by
   sorry
-

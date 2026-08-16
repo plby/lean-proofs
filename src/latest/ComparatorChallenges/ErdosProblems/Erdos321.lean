@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos321.FinalAsymptotic
+import Mathlib
 
 /-!
 # Erdős Problem 321
@@ -17,6 +17,39 @@ below by positive constant multiples of
 
 namespace Erdos321
 
+def reciprocalSubsetSum (S : Finset ℕ) : ℚ :=
+  ∑ n ∈ S, ((n : ℚ)⁻¹)
+
+def Valid (A : Finset ℕ) : Prop :=
+  ∀ S ∈ A.powerset, ∀ T ∈ A.powerset,
+    reciprocalSubsetSum S = reciprocalSubsetSum T → S = T
+
+noncomputable def candidateSets (N : ℕ) : Finset (Finset ℕ) := by
+  classical
+  exact (Finset.Icc 1 N).powerset.filter Valid
+
+noncomputable def extremalSize (N : ℕ) : ℕ :=
+  (candidateSets N).sup Finset.card
+
+noncomputable def realIteratedLog : ℕ → ℝ → ℝ
+  | 0, x => x
+  | k + 1, x => Real.log (realIteratedLog k x)
+
+noncomputable def iteratedLogTailProduct : ℕ → ℝ → ℝ
+  | 0, _ => 1
+  | k + 1, x => Real.log x * iteratedLogTailProduct k (Real.log x)
+
+def LogTowerAbove (B : ℝ) (k : ℕ) (x : ℝ) : Prop :=
+  ∀ j ≤ k, B ≤ realIteratedLog j x
+
+def IsTerminalLogDepth (B : ℝ) (n d : ℕ) : Prop :=
+  LogTowerAbove B d (Real.log (Real.log (n : ℝ))) ∧
+    realIteratedLog (d + 1) (Real.log (Real.log (n : ℝ))) < B
+
+noncomputable def terminalReciprocalScale (n d : ℕ) : ℝ :=
+  (n : ℝ) / Real.log n *
+    iteratedLogTailProduct d (Real.log (Real.log (n : ℝ)))
+
 /-- The extremal function in the notation of the formal-conjectures
 statement.  `extremalSize` is its finite-maximum implementation. -/
 noncomputable def R (N : ℕ) : ℕ :=
@@ -30,4 +63,3 @@ theorem erdos_321 :
           c * terminalReciprocalScale n d ≤ (R n : ℝ) ∧
           (R n : ℝ) ≤ C * terminalReciprocalScale n d := by
   sorry
-

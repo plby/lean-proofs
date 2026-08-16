@@ -36,26 +36,7 @@ Citation: Sawhney (2025)
 -- IMPORTS (Mathlib only - no local imports)
 -- ============================================================================
 
-import Mathlib.Data.Finset.Basic
-import Mathlib.Data.Finset.Card
-import Mathlib.Data.Nat.Prime.Basic
-import Mathlib.Data.Nat.Squarefree
-import Mathlib.Tactic.NormNum.Prime
-import Mathlib.Data.Nat.Cast.Order.Field
-import Mathlib.Algebra.BigOperators.Group.Finset.Basic
-import Mathlib.Algebra.Order.Field.Basic
-import Mathlib.Data.ZMod.Basic
-import Mathlib.Data.Real.Basic
-import Mathlib.NumberTheory.LegendreSymbol.Basic
-import Mathlib.Data.Nat.ModEq
-import Mathlib.Tactic.IntervalCases
-import Mathlib.Tactic.FinCases
-import Mathlib.Tactic.Simproc.Factors
-import Mathlib.Tactic.NormNum.BigOperators
-import Mathlib.Data.Num.Prime
-import Mathlib.Data.Num.Lemmas
-import Mathlib.NumberTheory.Chebyshev
-import Mathlib.Analysis.PSeries
+import Mathlib
 
 open scoped BigOperators
 open scoped Finset
@@ -106,6 +87,10 @@ def A₁₈ (N : ℕ) : Finset ℕ :=
 def DiagonalCandidates (N : ℕ) : Finset ℕ :=
   (Finset.range N).filter (fun n => ¬ Squarefree (n * n + 1))
 
+def Erdos848For (N : ℕ) : Prop :=
+  ∀ A : Finset ℕ, A ⊆ Finset.range N → NonSquarefreeProductProp A →
+    A.card ≤ (A₇ N).card
+
 /-- Decidability instance for NonSquarefreeProductProp -/
 instance instDecidableNonSquarefreeProductProp (A : Finset ℕ) :
     Decidable (NonSquarefreeProductProp A) := by
@@ -120,4 +105,3 @@ instance instDecidableNonSquarefreeProductProp (A : Finset ℕ) :
 
 theorem erdos_848.variants.asymptotic : ∀ᶠ N in Filter.atTop, Erdos848For N := by
   sorry
-

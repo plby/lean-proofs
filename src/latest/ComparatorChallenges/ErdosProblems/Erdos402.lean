@@ -23,20 +23,7 @@ Progress log:
   `7001` through the non-effective threshold inherited from `MediumPNT`.
 -/
 
-import Mathlib.Algebra.GCDMonoid.Finset
-import Mathlib.Algebra.GCDMonoid.FinsetLemmas
-import Mathlib.Algebra.Order.Floor.Div
-import Mathlib.Algebra.Field.ZMod
-import Mathlib.Data.Finset.Sort
-import Mathlib.Data.Nat.Factorization.Basic
-import Mathlib.Data.ZMod.Basic
-import Mathlib.NumberTheory.MaricaSchoenheim
-import Mathlib.NumberTheory.Harmonic.Bounds
-import Mathlib.NumberTheory.PrimeCounting
-import Mathlib.Tactic.Linarith
-import Mathlib.Tactic.NormNum
-import Mathlib.Tactic.Push
-import PrimeNumberTheoremAnd.MediumPNT
+import Mathlib
 
 namespace Erdos402
 
@@ -57,4 +44,3 @@ theorem erdos_402_of_sufficiently_large :
     ∃ N₀ : ℕ, ∀ A : Finset ℕ, N₀ ≤ A.card → 0 ∉ A → A.Nonempty →
       ∃ᵉ (a ∈ A) (b ∈ A), a.gcd b ≤ (a / A.card : ℚ) := by
   sorry
-
