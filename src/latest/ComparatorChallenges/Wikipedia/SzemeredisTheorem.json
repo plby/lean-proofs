@@ -1,0 +1,13 @@
+{
+  "challenge_module": "SzemeredisTheorem",
+  "solution_module": "Wikipedia.SzemeredisTheorem",
+  "theorem_names": [
+    "SzemeredisTheorem.szemeredis_theorem"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
