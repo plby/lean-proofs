@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos152",
+  "solution_module": "ErdosProblems.Erdos152",
+  "theorem_names": [
+    "erdos_152.variants.square"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
+
