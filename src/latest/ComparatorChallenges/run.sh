@@ -76,6 +76,7 @@ fingerprint_inputs=(
   "$landrun_bin"
 )
 for input in \
+    "$src_root/lakefile.lean" \
     "$src_root/lakefile.toml" \
     "$src_root/lake-manifest.json" \
     "$comparator_dir/lake-manifest.json" \
