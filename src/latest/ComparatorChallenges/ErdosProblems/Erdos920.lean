@@ -211,9 +211,12 @@ structure DStarWitness (t m q : ℕ) (C : ℝ) where
   fintypeV : Fintype V
   D : Digraph V
   transitiveTournamentFree : ¬ D.HasTransitiveTournament (t + 1)
-  vertex_lower : (q : ℝ) ^ (2 * t - 1) / 4 ≤ (@Fintype.card V fintypeV : ℝ)
+  vertex_lower :
+    letI := fintypeV
+    (q : ℝ) ^ (2 * t - 1) / 4 ≤ (Fintype.card V : ℝ)
   forward_bound :
-    ((@Digraph.forwardIndependentTupleCount V fintypeV D m : ℕ) : ℝ) ≤
+    letI := fintypeV
+    ((Digraph.forwardIndependentTupleCount D m : ℕ) : ℝ) ≤
       (C * (q : ℝ) ^ t) ^ m
 
 namespace DStarWitness
@@ -236,7 +239,8 @@ Keeping this conclusion as a named property permits the finite probability
 or double-counting proof to live in a separate module without concealing any
 numeric assumption used by the final argument. -/
 def HasAveragingSamplingConclusion (W : DStarWitness t m q C) : Prop :=
-  W.samplingDensity * (@Fintype.card W.V W.fintypeV : ℝ) - 1 <
+  letI := W.fintypeV
+  W.samplingDensity * (Fintype.card W.V : ℝ) - 1 <
     (Ramsey.ramseyNumber (t + 1) m : ℝ)
 
 /-- The two standard side conditions for the sampling parameter. -/

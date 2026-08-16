@@ -1,5 +1,4 @@
-import Mathlib.Analysis.SpecialFunctions.Log.Basic
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 open Nat Finset Real Filter Asymptotics Topology
 open scoped Pointwise
@@ -25,9 +24,12 @@ end Erdos237
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos237.erdos_237 :
-    ∀ (A : Set.{0} Nat),
-      @Set.Infinite.{0} Nat A →
-        ∀ (C : Nat), @Exists.{1} Nat fun (n : Nat) ↦ @LT.lt.{0} Nat instLTNat C (Erdos237.repCount A n)
-  := by
+open Nat Set Finset Real
+
+namespace Erdos237
+
+theorem erdos_237 (A : Set ℕ) (hA : A.Infinite) :
+    ∀ C : ℕ, ∃ n : ℕ, C < repCount A n := by
   sorry
+
+end Erdos237

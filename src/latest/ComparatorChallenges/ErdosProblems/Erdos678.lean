@@ -1,7 +1,4 @@
-import Mathlib.Algebra.GCDMonoid.Finset
-import Mathlib.Data.Real.Basic
-import Mathlib.Order.Filter.AtTopBot.Defs
-import Mathlib.Order.Interval.Finset.Nat
+import Mathlib
 
 namespace Erdos678
 
@@ -34,7 +31,6 @@ end Erdos678
 
 attribute [local instance] Classical.propDecidable
 
-universe u_1
 
 theorem Erdos678.not_erdos_678_other :
     ¬ (∀ k ≥ 3,

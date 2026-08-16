@@ -1,5 +1,4 @@
-import Mathlib.Order.LiminfLimsup
-import Mathlib.Algebra.Order.Archimedean.Real.Basic
+import Mathlib
 
 namespace UnitFractions
 
@@ -33,29 +32,17 @@ end UnitFractions
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos298.erdos298 :
-    ∀ (A : Set.{0} Nat),
-      @LT.lt.{0} Real Real.instLT
-          (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero))
-          (UnitFractions.upper_density A) →
-        @Exists.{1} (Finset.{0} Nat) fun (S : Finset.{0} Nat) ↦
-          And
-            (@LE.le.{0} (Set.{0} Nat) (@Set.instLE.{0} Nat)
-              (@SetLike.coe.{0, 0} (Finset.{0} Nat) Nat (@Finset.instSetLike.{0} Nat) S) A)
-            (@Eq.{1} Rat (UnitFractions.rec_sum S)
-              (@OfNat.ofNat.{0} Rat (nat_lit 1) (@Rat.instOfNat (nat_lit 1))))
-  := by
+open UnitFractions
+
+namespace Erdos298
+
+theorem erdos298 (A : Set ℕ) (hA : 0 < upper_density A) :
+    ∃ S : Finset ℕ, (S : Set ℕ) ⊆ A ∧ rec_sum S = 1 := by
   sorry
-theorem Erdos298.erdos298_density :
-    ∀ (A : Set.{0} Nat) (d : Real),
-      UnitFractions.has_density A d →
-        @LT.lt.{0} Real Real.instLT
-            (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) d →
-          @Exists.{1} (Finset.{0} Nat) fun (S : Finset.{0} Nat) ↦
-            And
-              (@LE.le.{0} (Set.{0} Nat) (@Set.instLE.{0} Nat)
-                (@SetLike.coe.{0, 0} (Finset.{0} Nat) Nat (@Finset.instSetLike.{0} Nat) S) A)
-              (@Eq.{1} Rat (UnitFractions.rec_sum S)
-                (@OfNat.ofNat.{0} Rat (nat_lit 1) (@Rat.instOfNat (nat_lit 1))))
-  := by
+
+
+theorem erdos298_density (A : Set ℕ) (d : ℝ) (hA : has_density A d) (hd : 0 < d) :
+    ∃ S : Finset ℕ, (S : Set ℕ) ⊆ A ∧ rec_sum S = 1 := by
   sorry
+
+end Erdos298

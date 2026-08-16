@@ -1,4 +1,4 @@
-import Mathlib.Data.Finset.Card
+import Mathlib
 
 open Finset Nat
 
@@ -11,10 +11,12 @@ end Erdos1193
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos1193.erdos_convolution_counterexample :
-    ∀ (n : Nat),
-      @Eq.{1} Nat (Erdos1193.conv_ind (@Set.univ.{0} Nat) n)
-        (@HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) n
-          (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
-  := by
+open Finset Nat
+
+namespace Erdos1193
+
+theorem erdos_convolution_counterexample :
+    ∀ n : ℕ, conv_ind Set.univ n = n + 1 := by
   sorry
+
+end Erdos1193

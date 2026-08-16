@@ -75,16 +75,17 @@ end Erdos1071b
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos1071.Corollary_3 :
-    @Exists.{1} (Set.{0} (Set.{0} Erdos1071.Point)) fun (S : Set.{0} (Set.{0} Erdos1071.Point)) ↦
-      And (Erdos1071.IsMaximalDisjointCollection S Erdos1071.UnitSquare)
-        (And (@Set.Countable.{0} (Set.{0} Erdos1071.Point) S)
-          (@Set.Infinite.{0} (Set.{0} Erdos1071.Point) S))
-  := by
+open Set
+
+namespace Erdos1071
+
+theorem Corollary_3 : ∃ S, IsMaximalDisjointCollection S UnitSquare ∧ Set.Countable S ∧ Set.Infinite S := by
   sorry
-theorem Erdos1071b.erdos_1071b :
-    @Exists.{1} (Set.{0} (Set.{0} Erdos1071b.Point)) fun (S : Set.{0} (Set.{0} Erdos1071b.Point)) ↦
-      And (Erdos1071b.IsMaximalDisjointCollection S Erdos1071b.UnitSquare)
-        (@Set.Finite.{0} (Set.{0} Erdos1071b.Point) S)
-  := by
+
+end Erdos1071
+namespace Erdos1071b
+
+theorem erdos_1071b : ∃ S, IsMaximalDisjointCollection S UnitSquare ∧ Set.Finite S := by
   sorry
+
+end Erdos1071b

@@ -1,13 +1,12 @@
-import Mathlib.Combinatorics.SimpleGraph.Clique
-import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos618
 
 noncomputable def maxDegreeFin {n : ℕ} (G : SimpleGraph (Fin n)) : ℕ := by
   classical
   exact Finset.univ.sup (fun v : Fin n =>
-    @SimpleGraph.degree (Fin n) G v inferInstance)
+    letI : Fintype ↥(G.neighborSet v) := inferInstance
+    G.degree v)
 
 open scoped Classical in
 noncomputable def h2 {n : ℕ} (G : SimpleGraph (Fin n)) : ℕ := by
@@ -21,32 +20,16 @@ end Erdos618
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos618.erdos_618 :
-    ∀ (G : (n : Nat) → SimpleGraph.{0} (Fin n)),
-      (∀ (n : Nat),
-          @SimpleGraph.CliqueFree.{0} (Fin n) (G n)
-            (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))) →
-        (@Asymptotics.IsLittleO.{0, 0, 0} Nat Real Real Real.norm Real.norm
-            (@Filter.atTop.{0} Nat Nat.instPreorder)
-            (fun (n : Nat) ↦ @Nat.cast.{0} Real Real.instNatCast (@Erdos618.maxDegreeFin n (G n)))
-            fun (n : Nat) ↦
-            (@Nat.cast.{0} Real Real.instNatCast n).rpow
-              (@HDiv.hDiv.{0, 0, 0} Real Real Real
-                (@instHDiv.{0} Real (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
-                (@OfNat.ofNat.{0} Real (nat_lit 1) (@One.toOfNat1.{0} Real Real.instOne))
-                (@OfNat.ofNat.{0} Real (nat_lit 2)
-                  (@instOfNatAtLeastTwo.{0} Real (nat_lit 2) Real.instNatCast
-                    (@Nat.instAtLeastTwoHAddOfNat
-                      (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
-                      (@Nat.instNeZeroSucc
-                        (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))))))))) →
-          @Asymptotics.IsLittleO.{0, 0, 0} Nat Real Real Real.norm Real.norm
-            (@Filter.atTop.{0} Nat Nat.instPreorder)
-            (fun (n : Nat) ↦ @Nat.cast.{0} Real Real.instNatCast (@Erdos618.h2 n (G n))) fun (n : Nat) ↦
-            @HPow.hPow.{0, 0, 0} Real Nat Real
-              (@instHPow.{0, 0} Real Nat
-                (@NPow.toPow.{0} Real (@Monoid.toNPow.{0} Real Real.instMonoid)))
-              (@Nat.cast.{0} Real Real.instNatCast n)
-              (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
-  := by
+namespace Erdos618
+
+theorem erdos_618
+    (G : ∀ n : ℕ, SimpleGraph (Fin n))
+    (hTriangleFree : ∀ n : ℕ, (G n).CliqueFree 3)
+    (hMaxDeg :
+      (fun n : ℕ => (maxDegreeFin (G n) : ℝ))
+        =o[Filter.atTop] (fun n : ℕ => Real.rpow (n : ℝ) ((1 : ℝ) / 2))) :
+    (fun n : ℕ => (h2 (G n) : ℝ))
+      =o[Filter.atTop] (fun n : ℕ => (n : ℝ) ^ (2 : ℕ)) := by
   sorry
+
+end Erdos618

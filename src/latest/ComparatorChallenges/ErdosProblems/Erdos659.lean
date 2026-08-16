@@ -1,6 +1,4 @@
-import Mathlib.AlgebraicTopology.SimplexCategory.Basic
-import Mathlib.Analysis.InnerProductSpace.PiL2
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 open Nat Finset Real Filter Asymptotics Topology
 open scoped Pointwise
@@ -62,63 +60,16 @@ end Erdos659
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos659.erdos_659 :
-    @Exists.{1}
-      (Nat →
-        Finset.{0}
-          (EuclideanSpace.{0, 0} Real
-            (Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))))
-      fun
-        (A :
-          Nat →
-            Finset.{0}
-              (EuclideanSpace.{0, 0} Real
-                (Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))))) ↦
-      And
-        (∀ (n : Nat),
-          And
-            (@Eq.{1} Nat
-              (@Finset.card.{0}
-                (EuclideanSpace.{0, 0} Real
-                  (Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))))
-                (A n))
-              n)
-            (∀
-              (S :
-                Finset.{0}
-                  (EuclideanSpace.{0, 0} Real
-                    (Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))))),
-              @LE.le.{0}
-                  (Finset.{0}
-                    (EuclideanSpace.{0, 0} Real
-                      (Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))))
-                  (@Preorder.toLE.{0}
-                    (Finset.{0}
-                      (EuclideanSpace.{0, 0} Real
-                        (Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))))
-                    (@PartialOrder.toPreorder.{0}
-                      (Finset.{0}
-                        (EuclideanSpace.{0, 0} Real
-                          (Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))))
-                      (@Finset.instPartialOrder.{0}
-                        (EuclideanSpace.{0, 0} Real
-                          (Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))))))
-                  S (A n) →
-                @Eq.{1} Nat
-                    (@Finset.card.{0}
-                      (EuclideanSpace.{0, 0} Real
-                        (Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))))
-                      S)
-                    (@OfNat.ofNat.{0} Nat (nat_lit 4) (instOfNatNat (nat_lit 4))) →
-                  @LE.le.{0} Nat instLENat (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))
-                    (Erdos659.distinctDistances S)))
-        (@Asymptotics.IsBigO.{0, 0, 0} Nat Real Real Real.norm Real.norm
-          (@Filter.atTop.{0} Nat Nat.instPreorder)
-          (fun (n : Nat) ↦ @Nat.cast.{0} Real Real.instNatCast (Erdos659.distinctDistances (A n)))
-          fun (n : Nat) ↦
-          @HDiv.hDiv.{0, 0, 0} Real Real Real
-            (@instHDiv.{0} Real (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
-            (@Nat.cast.{0} Real Real.instNatCast n)
-            (Real.log (@Nat.cast.{0} Real Real.instNatCast n)).sqrt)
-  := by
+open scoped Real
+open Filter
+open Asymptotics
+open EuclideanGeometry Finset Real
+
+namespace Erdos659
+
+theorem erdos_659 : ∃ A : ℕ → Finset ℝ²,
+   (∀ n, #(A n) = n ∧ ∀ S ⊆ A n, #S = 4 → 3 ≤ distinctDistances S) ∧
+    (fun n ↦ distinctDistances (A n)) ≪ fun n ↦ n / sqrt (log n) := by
   sorry
+
+end Erdos659

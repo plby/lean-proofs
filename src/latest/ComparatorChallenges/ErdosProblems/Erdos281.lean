@@ -1,8 +1,4 @@
-import Mathlib.Data.Int.ConditionallyCompleteOrder
-import Mathlib.Data.Int.Interval
-import Mathlib.Data.ZMod.Defs
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos281
 
@@ -32,11 +28,13 @@ end Erdos281
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos281.Erdos_281 :
-    ∀ (n : Nat → Nat) (hmono : @StrictMono.{0, 0} Nat Nat Nat.instPreorder Nat.instPreorder n)
-      (hnpos :
-        ∀ (i : Nat),
-          @LT.lt.{0} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))) (n i)),
-      Erdos281.Erdos281Hyp n hmono hnpos → Erdos281.Erdos281Concl n hmono hnpos
-  := by
+open Filter Topology
+open scoped BigOperators
+
+namespace Erdos281
+
+theorem Erdos_281 (n : ℕ → ℕ) (hmono : StrictMono n) (hnpos : ∀ i, 0 < n i)
+    (h : Erdos281Hyp n hmono hnpos) : Erdos281Concl n hmono hnpos := by
   sorry
+
+end Erdos281

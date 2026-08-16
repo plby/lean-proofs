@@ -176,7 +176,6 @@ namespace ParkPham
 open Finset
 open scoped BigOperators
 
-universe u
 
 section ThresholdDefinitions
 
@@ -230,7 +229,6 @@ namespace Erdos202
 open Finset
 open scoped BigOperators
 
-universe u
 
 end Erdos202
 

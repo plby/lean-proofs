@@ -1,7 +1,4 @@
-import Mathlib.Data.Set.Card
-import Mathlib.Topology.Algebra.InfiniteSum.Defs
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.flexible false
@@ -36,15 +33,14 @@ end Erdos26
 
 attribute [local instance] Classical.propDecidable
 
-universe u_2
 
-theorem Erdos26.erdos_26.variants.rusza :
-    @Exists.{1} (Nat → Nat) fun (A : Nat → Nat) ↦
-      And (@StrictMono.{0, 0} Nat Nat Nat.instPreorder Nat.instPreorder A)
-        (And (Not (@Erdos26.IsThick.{0} Nat A))
-          (∀ (k : Nat),
-            Not
-              (@Erdos26.IsBehrend.{0} Nat fun (x : Nat) ↦
-                @HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) (A x) k)))
-  := by
+open scoped Topology
+open Filter
+
+namespace Erdos26.erdos_26.variants
+
+theorem rusza : ∃ A : ℕ → ℕ,
+    StrictMono A ∧ ¬IsThick A ∧ ∀ k, ¬IsBehrend (A · + k) := by
   sorry
+
+end Erdos26.erdos_26.variants

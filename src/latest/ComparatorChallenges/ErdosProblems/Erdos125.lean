@@ -1,9 +1,4 @@
-import Mathlib.Order.LiminfLimsup
-import Mathlib.Data.Set.Card
-import Mathlib.Data.Nat.Digits.Defs
-import Mathlib.Order.Interval.Finset.Nat
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 open Filter
 
@@ -37,71 +32,25 @@ open scoped Pointwise
 
 attribute [local instance] Classical.propDecidable
 
-universe u_1
 
-theorem Erdos125.erdos_125 :
-    Iff False
-      (@Set.HasPosDensity.{0} Nat Nat.instPreorder
-        (@LocallyFiniteOrder.toLocallyFiniteOrderBot.{0} Nat Nat.instPreorder Nat.instLocallyFiniteOrder
-          Nat.instOrderBot)
-        (@HAdd.hAdd.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
-          (@instHAdd.{0} (Set.{0} Nat) (@Set.add.{0} Nat instAddNat))
-          (@Set.ofPred.{0} Nat fun (x : Nat) ↦
-            @LE.le.{0} (Finset.{0} Nat)
-              (@Preorder.toLE.{0} (Finset.{0} Nat)
-                (@PartialOrder.toPreorder.{0} (Finset.{0} Nat) (@Finset.instPartialOrder.{0} Nat)))
-              (@List.toFinset.{0} Nat instDecidableEqNat
-                (Nat.digits (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) x))
-              (@Insert.insert.{0, 0} Nat (Finset.{0} Nat)
-                (@Finset.instInsert.{0} Nat instDecidableEqNat)
-                (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
-                (@Singleton.singleton.{0, 0} Nat (Finset.{0} Nat) (@Finset.instSingleton.{0} Nat)
-                  (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))))
-          (@Set.ofPred.{0} Nat fun (x : Nat) ↦
-            @LE.le.{0} (Finset.{0} Nat)
-              (@Preorder.toLE.{0} (Finset.{0} Nat)
-                (@PartialOrder.toPreorder.{0} (Finset.{0} Nat) (@Finset.instPartialOrder.{0} Nat)))
-              (@List.toFinset.{0} Nat instDecidableEqNat
-                (Nat.digits (@OfNat.ofNat.{0} Nat (nat_lit 4) (instOfNatNat (nat_lit 4))) x))
-              (@Insert.insert.{0, 0} Nat (Finset.{0} Nat)
-                (@Finset.instInsert.{0} Nat instDecidableEqNat)
-                (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
-                (@Singleton.singleton.{0, 0} Nat (Finset.{0} Nat) (@Finset.instSingleton.{0} Nat)
-                  (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))))
-        (@Set.univ.{0} Nat))
-  := by
+open Filter
+open scoped Topology
+open Nat Pointwise
+open Topology
+
+namespace Erdos125
+
+theorem erdos_125 :
+    False ↔ ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
+      { x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1} }).HasPosDensity := by
   sorry
-theorem Erdos125.erdos_125.variants.positive_lower_density :
-    Iff False
-      (@LT.lt.{0} Real Real.instLT
-        (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero))
-        (@Set.lowerDensity.{0} Nat Nat.instPreorder
-          (@LocallyFiniteOrder.toLocallyFiniteOrderBot.{0} Nat Nat.instPreorder
-            Nat.instLocallyFiniteOrder Nat.instOrderBot)
-          (@HAdd.hAdd.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
-            (@instHAdd.{0} (Set.{0} Nat) (@Set.add.{0} Nat instAddNat))
-            (@Set.ofPred.{0} Nat fun (x : Nat) ↦
-              @LE.le.{0} (Finset.{0} Nat)
-                (@Preorder.toLE.{0} (Finset.{0} Nat)
-                  (@PartialOrder.toPreorder.{0} (Finset.{0} Nat) (@Finset.instPartialOrder.{0} Nat)))
-                (@List.toFinset.{0} Nat instDecidableEqNat
-                  (Nat.digits (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) x))
-                (@Insert.insert.{0, 0} Nat (Finset.{0} Nat)
-                  (@Finset.instInsert.{0} Nat instDecidableEqNat)
-                  (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
-                  (@Singleton.singleton.{0, 0} Nat (Finset.{0} Nat) (@Finset.instSingleton.{0} Nat)
-                    (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))))
-            (@Set.ofPred.{0} Nat fun (x : Nat) ↦
-              @LE.le.{0} (Finset.{0} Nat)
-                (@Preorder.toLE.{0} (Finset.{0} Nat)
-                  (@PartialOrder.toPreorder.{0} (Finset.{0} Nat) (@Finset.instPartialOrder.{0} Nat)))
-                (@List.toFinset.{0} Nat instDecidableEqNat
-                  (Nat.digits (@OfNat.ofNat.{0} Nat (nat_lit 4) (instOfNatNat (nat_lit 4))) x))
-                (@Insert.insert.{0, 0} Nat (Finset.{0} Nat)
-                  (@Finset.instInsert.{0} Nat instDecidableEqNat)
-                  (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
-                  (@Singleton.singleton.{0, 0} Nat (Finset.{0} Nat) (@Finset.instSingleton.{0} Nat)
-                    (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))))
-          (@Set.univ.{0} Nat)))
-  := by
+
+end Erdos125
+namespace Erdos125.erdos_125.variants
+
+theorem positive_lower_density :
+    False ↔ 0 < ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
+      { x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1} }).lowerDensity := by
   sorry
+
+end Erdos125.erdos_125.variants

@@ -27,17 +27,19 @@ noncomputable section
 
 attribute [local instance] Classical.propDecidable
 
-universe u
 
-variable {V : Type u}
+variable {V : Type*}
 
 /-- A graph is uncountably chromatic when it has no coloring by natural numbers. -/
 def IsUncountablyChromatic (G : SimpleGraph V) : Prop :=
   IsEmpty (G.Coloring ℕ)
+
+end
+
+end Erdos594
 
 theorem erdos_594 : answer(True) ↔
     ∀ (V : Type) (G : SimpleGraph V), IsEmpty (G.Coloring ℕ) →
       ∃ N : ℕ, ∀ k : ℕ, N ≤ k →
         ∃ (v : V) (w : G.Walk v v), w.IsCycle ∧ w.length = 2 * k + 1 := by
   sorry
-

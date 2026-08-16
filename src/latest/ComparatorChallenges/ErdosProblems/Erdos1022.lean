@@ -1,6 +1,4 @@
-import Mathlib.Combinatorics.Hypergraph.Basic
-import Mathlib.Data.Real.Basic
-import Mathlib.Order.Filter.AtTopBot.Defs
+import Mathlib
 
 namespace Erdos1022
 
@@ -24,10 +22,12 @@ end Erdos1022
 
 attribute [local instance] Classical.propDecidable
 
-universe u_1
 
-theorem Erdos1022.not_erdos_1022 :
-    Not Erdos1022.erdos_1022.{u_1}
-  := by
-  let _ := ULift.{u_1, 0} PUnit
+open Finset
+
+namespace Erdos1022
+
+theorem not_erdos_1022 : ¬ erdos_1022 := by
   sorry
+
+end Erdos1022

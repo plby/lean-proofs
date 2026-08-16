@@ -1,4 +1,4 @@
-import Mathlib.Combinatorics.SimpleGraph.Clique
+import Mathlib
 
 namespace Erdos582
 
@@ -28,16 +28,14 @@ end Erdos582
 
 attribute [local instance] Classical.propDecidable
 
-universe u_3
 
-theorem Erdos582.erdos_582 :
-    @Exists.{2} Type fun (V : Type) ↦
-      @Exists.{1} (Fintype.{0} V) fun (x : Fintype.{0} V) ↦
-        @Exists.{1} (DecidableEq.{1} V) fun (x : DecidableEq.{1} V) ↦
-          @Exists.{1} (SimpleGraph.{0} V) fun (G : SimpleGraph.{0} V) ↦
-            And
-              (@Eq.{1} Nat (@SimpleGraph.cliqueNum.{0} V G)
-                (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))))
-              (@Erdos582.EdgeRamseyTriangle.{0} V G)
-  := by
+open SimpleGraph
+
+namespace Erdos582
+
+theorem erdos_582 :
+    ∃ (V : Type) (_ : Fintype V) (_ : DecidableEq V) (G : SimpleGraph V),
+      G.cliqueNum = 3 ∧ EdgeRamseyTriangle G := by
   sorry
+
+end Erdos582

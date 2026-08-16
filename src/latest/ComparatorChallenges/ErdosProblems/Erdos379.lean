@@ -1,6 +1,4 @@
-import Mathlib.Order.LiminfLimsup
-import Mathlib.Data.ENat.Lattice
-import Mathlib.Data.Nat.Prime.Defs
+import Mathlib
 
 namespace Erdos379
 
@@ -31,15 +29,11 @@ end Erdos379
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos379.erdos_379 :
-    @Eq.{1} ENat
-      (@Filter.limsup.{0, 0} ENat Nat
-        (@ConditionallyCompleteLinearOrder.toConditionallyCompleteLattice.{0} ENat
-          (@ConditionallyCompleteLinearOrderBot.toConditionallyCompleteLinearOrder.{0} ENat
-            (@CompleteLinearOrder.toConditionallyCompleteLinearOrderBot.{0} ENat
-              instCompleteLinearOrderENat)))
-        (fun (n : Nat) ↦ @Nat.cast.{0} ENat ENat.instNatCast (Erdos379.S n))
-        (@Filter.atTop.{0} Nat Nat.instPreorder))
-      (@Top.top.{0} ENat instTopENat)
-  := by
+open Filter
+
+namespace Erdos379
+
+theorem erdos_379 : atTop.limsup (fun n => (S n : ℕ∞)) = ⊤ := by
   sorry
+
+end Erdos379

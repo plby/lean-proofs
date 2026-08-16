@@ -1,6 +1,4 @@
-import Mathlib.Algebra.Group.Even
-import Mathlib.Order.Interval.Finset.Nat
-import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+import Mathlib
 
 namespace Erdos363
 
@@ -16,10 +14,11 @@ end Erdos363
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos363.erdos_363 :
-    Not
-      (@Set.Finite.{0} (List.{0} (Finset.{0} Nat))
-        (@Set.ofPred.{0} (List.{0} (Finset.{0} Nat)) fun (S : List.{0} (Finset.{0} Nat)) ↦
-          Erdos363.is_valid_collection S))
-  := by
+open Finset
+
+namespace Erdos363
+
+theorem erdos_363 : ¬ Set.Finite { S | is_valid_collection S } := by
   sorry
+
+end Erdos363

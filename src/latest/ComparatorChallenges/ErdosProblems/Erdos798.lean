@@ -1,5 +1,4 @@
-import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos798
 
@@ -34,29 +33,11 @@ end Erdos798
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos798.erdos798 :
-    @Asymptotics.IsBigO.{0, 0, 0} Nat Real Real Real.norm Real.norm
-      (@Filter.atTop.{0} Nat Nat.instPreorder)
-      (fun (n : Nat) ↦
-        @Nat.cast.{0} Real Real.instNatCast
-          (Erdos798.minCoverSize (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n))
-      fun (n : Nat) ↦
-      @HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul)
-        (@HPow.hPow.{0, 0, 0} Real Real Real (@instHPow.{0, 0} Real Real Real.instPow)
-          (@Nat.cast.{0} Real Real.instNatCast n)
-          (@HDiv.hDiv.{0, 0, 0} Real Real Real
-            (@instHDiv.{0} Real (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
-            (@OfNat.ofNat.{0} Real (nat_lit 2)
-              (@instOfNatAtLeastTwo.{0} Real (nat_lit 2) Real.instNatCast
-                (@Nat.instAtLeastTwoHAddOfNat
-                  (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
-                  (@Nat.instNeZeroSucc (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))))))
-            (@OfNat.ofNat.{0} Real (nat_lit 3)
-              (@instOfNatAtLeastTwo.{0} Real (nat_lit 3) Real.instNatCast
-                (@Nat.instAtLeastTwoHAddOfNat
-                  (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
-                  (@Nat.instNeZeroSucc
-                    (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))))))
-        (Real.log (@Nat.cast.{0} Real Real.instNatCast n))
-  := by
+open Finset Int Real Filter Topology
+
+namespace Erdos798
+
+theorem erdos798 : (fun n ↦ (minCoverSize 2 n : ℝ)) =O[atTop] fun n ↦ n ^ (2 / 3 : ℝ) * log n := by
   sorry
+
+end Erdos798

@@ -22,11 +22,7 @@ URLs:
 Proven by GPT-5.2 Pro and formalised by Claude Opus 4.5
 -/
 
-import Mathlib.Algebra.Order.Ring.Star
-import Mathlib.Algebra.Order.Star.Real
-import Mathlib.Analysis.SpecialFunctions.Log.Basic
-import Mathlib.Data.Nat.Cast.Field
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 /-!
 # Erdős Problem #333
@@ -536,8 +532,8 @@ def A : Set ℕ := {x | ∃ n : ℕ, ∃ hn : 3 ≤ n, x ∈ A_dyadic n hn}
 
 /-- B(N) = |B ∩ [0,N]| -/
 def countingFn (B : Set ℕ) (N : ℕ) : ℕ :=
-  @Finset.card ℕ
-    (@Finset.filter ℕ (fun x => x ∈ B) (Classical.decPred _) (Finset.Icc 0 N))
+  letI : DecidablePred (fun x : ℕ => x ∈ B) := Classical.decPred _
+  ((Finset.Icc 0 N).filter (fun x => x ∈ B)).card
 
 end
 
@@ -545,48 +541,19 @@ end Erdos333
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos333.main_obstruction :
-    And
-      (@Filter.Tendsto.{0, 0} Nat Real
-        (fun (N : Nat) ↦
-          @HDiv.hDiv.{0, 0, 0} Real Real Real
-            (@instHDiv.{0} Real (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
-            (@Nat.cast.{0} Real Real.instNatCast
-              (@Finset.card.{0} Nat
-                (@Finset.filter.{0} Nat
-                  (fun (x : Nat) ↦
-                    @Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) Erdos333.A x)
-                  (@Classical.decPred.{1} Nat fun (x : Nat) ↦
-                    @Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) Erdos333.A x)
-                  (@Finset.Icc.{0} Nat Nat.instPreorder Nat.instLocallyFiniteOrder
-                    (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))) N))))
-            (@Nat.cast.{0} Real Real.instNatCast N))
-        (@Filter.atTop.{0} Nat Nat.instPreorder)
-        (@nhds.{0} Real
-          (@UniformSpace.toTopologicalSpace.{0} Real
-            (@PseudoMetricSpace.toUniformSpace.{0} Real Real.pseudoMetricSpace))
-          (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero))))
-      (Not
-        (@Exists.{1} (Set.{0} Nat) fun (B : Set.{0} Nat) ↦
-          And
-            (@LE.le.{0} (Set.{0} Nat) (@Set.instLE.{0} Nat) Erdos333.A
-              (@Set.ofPred.{0} Nat fun (x : Nat) ↦
-                @Exists.{1} Nat fun (b : Nat) ↦
-                  @Exists.{1} Nat fun (b' : Nat) ↦
-                    And (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) B b)
-                      (And (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) B b')
-                        (@Eq.{1} Nat x
-                          (@HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) b b')))))
-            (@Filter.Tendsto.{0, 0} Nat Real
-              (fun (N : Nat) ↦
-                @HDiv.hDiv.{0, 0, 0} Real Real Real
-                  (@instHDiv.{0} Real (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
-                  (@Nat.cast.{0} Real Real.instNatCast (Erdos333.countingFn B N))
-                  (@Nat.cast.{0} Real Real.instNatCast N).sqrt)
-              (@Filter.atTop.{0} Nat Nat.instPreorder)
-              (@nhds.{0} Real
-                (@UniformSpace.toTopologicalSpace.{0} Real
-                  (@PseudoMetricSpace.toUniformSpace.{0} Real Real.pseudoMetricSpace))
-                (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero))))))
-  := by
+open scoped Pointwise
+open Finset Filter Real
+
+namespace Erdos333
+
+theorem main_obstruction :
+    (Filter.Tendsto (fun N : ℕ =>
+      (letI : DecidablePred (fun x : ℕ => x ∈ A) := Classical.decPred _
+       ((Finset.Icc 0 N).filter (fun x => x ∈ A)).card) / (N : ℝ))
+       Filter.atTop (nhds 0)) ∧
+    ¬∃ B : Set ℕ, (A ⊆ {x | ∃ b b' : ℕ, b ∈ B ∧ b' ∈ B ∧ x = b + b'}) ∧
+      Filter.Tendsto (fun N : ℕ => (countingFn B N : ℝ) / Real.sqrt N)
+        Filter.atTop (nhds 0) := by
   sorry
+
+end Erdos333

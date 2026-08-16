@@ -1,5 +1,4 @@
-import Mathlib.Data.Finset.Max
-import Mathlib.Data.Nat.PrimeFin
+import Mathlib
 
 namespace Erdos649
 
@@ -10,9 +9,9 @@ end Erdos649
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos649.infinite_strange_pairs :
-    @Set.Infinite.{0} Nat
-      (@Set.ofPred.{0} Nat fun (q : Nat) ↦
-        Erdos649.StrangePair (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) q)
-  := by
+namespace Erdos649
+
+theorem infinite_strange_pairs : { q | StrangePair 2 q }.Infinite := by
   sorry
+
+end Erdos649

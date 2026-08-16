@@ -132,13 +132,16 @@ end Erdos1044
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos1044.erdos_problem_1044 :
-    @Eq.{1} ENNReal Erdos1044.lambdaInf
-      (@OfNat.ofNat.{0} ENNReal (nat_lit 2)
-        (@instOfNatAtLeastTwo.{0} ENNReal (nat_lit 2)
-          (@AddMonoidWithOne.toNatCast.{0} ENNReal
-            (@AddCommMonoidWithOne.toAddMonoidWithOne.{0} ENNReal ENNReal.instAddCommMonoidWithOne))
-          (@Nat.instAtLeastTwoHAddOfNat (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
-            (@Nat.instNeZeroSucc (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))))))
-  := by
+open Polynomial MeasureTheory Topology Set Metric
+open Set Metric MeasureTheory Topology
+open Polynomial MeasureTheory Topology Set Metric Complex
+open Set Metric MeasureTheory Topology Complex
+open MeasureTheory Topology Set Metric Filter
+open Polynomial MeasureTheory Topology Set Metric Complex MeasureTheory.Measure
+
+namespace Erdos1044
+
+theorem erdos_problem_1044 : lambdaInf = 2 := by
   sorry
+
+end Erdos1044

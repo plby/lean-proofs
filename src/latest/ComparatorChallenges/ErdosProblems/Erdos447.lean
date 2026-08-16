@@ -1,5 +1,4 @@
-import Mathlib.Analysis.Asymptotics.Defs
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos447
 
@@ -31,17 +30,13 @@ end Erdos447
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos447.erdos_447 :
-    @Asymptotics.IsEquivalent.{0, 0} Nat Real
-      (@NonUnitalSeminormedRing.toSeminormedAddCommGroup.{0} Real
-        (@NonUnitalSeminormedCommRing.toNonUnitalSeminormedRing.{0} Real
-          (@SeminormedCommRing.toNonUnitalSeminormedCommRing.{0} Real
-            (@NormedCommRing.toSeminormedCommRing.{0} Real Real.normedCommRing))))
-      (@Filter.atTop.{0} Nat Nat.instPreorder)
-      (fun (n : Nat) ↦ @Nat.cast.{0} Real Real.instNatCast (Erdos447.MaxUnionFree n)) fun (n : Nat) ↦
-      @Nat.cast.{0} Real Real.instNatCast
-        (n.choose
-          (@HDiv.hDiv.{0, 0, 0} Nat Nat Nat (@instHDiv.{0} Nat Nat.instDiv) n
-            (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))))
-  := by
+open scoped Nat
+open Asymptotics Filter
+
+namespace Erdos447
+
+theorem erdos_447 :
+    (fun n => (MaxUnionFree n : ℝ)) ~[atTop] (fun n => (n.choose (n / 2) : ℝ)) := by
   sorry
+
+end Erdos447

@@ -1,10 +1,9 @@
-import Mathlib.Data.List.Cycle
-import Mathlib.Data.Nat.Dist
-import Mathlib.Combinatorics.SimpleGraph.Coloring.Vertex
+import Mathlib
 
 namespace Erdos751
 
 universe u
+
 variable {V : Type u} [Fintype V] [DecidableEq V]
 variable (G : SimpleGraph V) [DecidableRel G.Adj]
 
@@ -15,104 +14,25 @@ structure Cycle where
   walk : G.Walk base base
   isCycle : walk.IsCycle
   len_ge_three : 3 ≤ walk.length
+
 namespace Cycle
 
-def length (C : Cycle (G := G)) : Nat := C.walk.length
+def length (C : Cycle (G := G)) : ℕ := C.walk.length
+
 end Cycle
 
 end BV
-end Erdos751
-
-namespace Erdos751
-
-universe u
-variable {V : Type u} [Fintype V] [DecidableEq V]
-variable (G : SimpleGraph V) [DecidableRel G.Adj]
-
-namespace BV
-
-end BV
-end Erdos751
-
-namespace Erdos751
-
-universe u
-variable {V : Type u} [Fintype V] [DecidableEq V]
-variable (G : SimpleGraph V) [DecidableRel G.Adj]
-
-namespace BV
-
-end BV
-end Erdos751
-
-namespace Erdos751
-
-open SimpleGraph
-
-universe u
-variable {V : Type u} [Fintype V] [DecidableEq V]
-variable (G : SimpleGraph V) [DecidableRel G.Adj]
-
-namespace BV
-
-end BV
-end Erdos751
-
-namespace Erdos751
-
-universe u
-variable {V : Type u} [Fintype V] [DecidableEq V]
-variable (G : SimpleGraph V) [DecidableRel G.Adj]
-
-namespace Critical
-
-end Critical
-end Erdos751
-
-namespace Erdos751
-
-universe u
-variable {V : Type u} [Fintype V] [DecidableEq V]
-variable (G : SimpleGraph V) [DecidableRel G.Adj]
 
 namespace Main
 
-end Main
-end Erdos751
-
-attribute [local instance] Classical.propDecidable
-
-universe u
-
-namespace Erdos751
-
-variable {V : Type u} [Fintype V] [DecidableEq V]
-variable (G : SimpleGraph V) [DecidableRel G.Adj]
-
-namespace BV
-
-end BV
-
-end Erdos751
-
-theorem Erdos751.Main.erdos_751_strong :
-    ∀ {V : Type u} (G : SimpleGraph.{u} V) [Finite.{u + 1} V],
-      @LE.le.{0} ENat instLEENat
-          (@OfNat.ofNat.{0} ENat (nat_lit 4)
-            (@instOfNatAtLeastTwo.{0} ENat (nat_lit 4) ENat.instNatCast
-              (@Nat.instAtLeastTwoHAddOfNat
-                (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))
-                (@Nat.instNeZeroSucc (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))))))
-          (@SimpleGraph.chromaticNumber.{u} V G) →
-        @Exists.{u + 1} (@Erdos751.BV.Cycle.{u} V G) fun (C1 : @Erdos751.BV.Cycle.{u} V G) ↦
-          @Exists.{u + 1} (@Erdos751.BV.Cycle.{u} V G) fun (C2 : @Erdos751.BV.Cycle.{u} V G) ↦
-            Or
-              (@Eq.{1} Nat
-                ((@Erdos751.BV.Cycle.length.{u} V G C1).dist (@Erdos751.BV.Cycle.length.{u} V G C2))
-                (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))
-              (@Eq.{1} Nat
-                ((@Erdos751.BV.Cycle.length.{u} V G C1).dist (@Erdos751.BV.Cycle.length.{u} V G C2))
-                (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
-  := by
-  let _ := ULift.{u, 0} PUnit
+omit [Fintype V] [DecidableEq V] [DecidableRel G.Adj] in
+theorem erdos_751_strong [Finite V]
+    (hχ : (4 : ℕ∞) ≤ G.chromaticNumber) :
+    ∃ C1 C2 : BV.Cycle (G := G),
+      Nat.dist (BV.Cycle.length (G := G) C1) (BV.Cycle.length (G := G) C2) = 1 ∨
+      Nat.dist (BV.Cycle.length (G := G) C1) (BV.Cycle.length (G := G) C2) = 2 := by
   sorry
+
+end Main
+
+end Erdos751

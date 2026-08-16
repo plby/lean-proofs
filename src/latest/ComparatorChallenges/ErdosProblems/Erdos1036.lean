@@ -1,6 +1,4 @@
-import Mathlib.Combinatorics.SimpleGraph.Clique
-import Mathlib.Analysis.SpecialFunctions.Log.Base
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 set_option linter.unnecessarySimpa false
 set_option linter.unreachableTactic false
@@ -56,45 +54,23 @@ end Erdos1036
 
 attribute [local instance] Classical.propDecidable
 
-universe u_1
 
-theorem Erdos1036.erdos_1036 :
-    ∀ (c : Real),
-      @GT.gt.{0} Real Real.instLT c
-          (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) →
-        @Exists.{1} Real fun (ε : Real) ↦
-          And
-            (@GT.gt.{0} Real Real.instLT ε
-              (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)))
-            (@Exists.{1} Nat fun (n₀ : Nat) ↦
-              ∀ (n : Nat),
-                @GE.ge.{0} Nat instLENat n n₀ →
-                  ∀ {V : Type u_1} [inst : Fintype.{u_1} V] [inst_1 : DecidableEq.{u_1 + 1} V]
-                    (G : SimpleGraph.{u_1} V)
-                    [@DecidableRel.{u_1 + 1, u_1 + 1} V V (@SimpleGraph.Adj.{u_1} V G)],
-                    @Eq.{1} Nat (@Fintype.card.{u_1} V inst) n →
-                      @LE.le.{0} Real Real.instLE
-                          (@Nat.cast.{0} Real Real.instNatCast (@Erdos1036.hom_num.{u_1} V G))
-                          (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul) c
-                            (Real.logb
-                              (@OfNat.ofNat.{0} Real (nat_lit 2)
-                                (@instOfNatAtLeastTwo.{0} Real (nat_lit 2) Real.instNatCast
-                                  (@Nat.instAtLeastTwoHAddOfNat
-                                    (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
-                                    (@Nat.instNeZeroSucc
-                                      (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))))))
-                              (@Nat.cast.{0} Real Real.instNatCast n))) →
-                        @GE.ge.{0} Real Real.instLE
-                          (@Nat.cast.{0} Real Real.instNatCast (@Erdos1036.I_num.{u_1} V inst inst_1 G))
-                          (@HPow.hPow.{0, 0, 0} Real Real Real (@instHPow.{0, 0} Real Real Real.instPow)
-                            (@OfNat.ofNat.{0} Real (nat_lit 2)
-                              (@instOfNatAtLeastTwo.{0} Real (nat_lit 2) Real.instNatCast
-                                (@Nat.instAtLeastTwoHAddOfNat
-                                  (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
-                                  (@Nat.instNeZeroSucc
-                                    (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))))))
-                            (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul) ε
-                              (@Nat.cast.{0} Real Real.instNatCast n))))
-  := by
-  let _ := ULift.{u_1, 0} PUnit
+open Lean Meta Elab Parser.Tactic Elab.Tactic Batteries.Tactic.GeneralizeProofs
+open Lean Elab Parser.Tactic Elab.Tactic Batteries.Tactic.GeneralizeProofs
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+namespace Erdos1036
+
+theorem erdos_1036 (c : ℝ) (hc : c > 0) :
+  ∃ (ε : ℝ), ε > 0 ∧ ∃ n₀ : ℕ, ∀ n ≥ n₀,
+    ∀ {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)
+      [DecidableRel G.Adj],
+  Fintype.card V = n →
+  (hom_num G : ℝ) ≤ c * Real.logb 2 n →
+  (I_num G : ℝ) ≥ (2 : ℝ) ^ (ε * n) := by
   sorry
+
+end Erdos1036

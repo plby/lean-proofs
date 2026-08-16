@@ -1,5 +1,4 @@
-import Mathlib.Analysis.Fourier.ZMod
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 attribute [local instance] Classical.propDecidable
 
@@ -87,155 +86,73 @@ end Erdos42
 
 attribute [local instance] Classical.propDecidable
 
-universe u_1
 
-theorem Erdos42.CompactCayley.compact_cayley_clique :
-    ∀ (ℓ : Nat) (η : Real),
-      @LE.le.{0} Nat instLENat (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) ℓ →
-        @LT.lt.{0} Real Real.instLT
-            (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) η →
-          @Exists.{1} Real fun (ε : Real) ↦
-            And
-              (@LT.lt.{0} Real Real.instLT
-                (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) ε)
-              (@Exists.{1} Nat fun (p₀ : Nat) ↦
-                ∀ (p : Nat) [inst : Fact (Nat.Prime p)],
-                  @LT.lt.{0} Nat instLTNat p₀ p →
-                    ∀ (T : Finset.{0} (ZMod p)),
-                      @Erdos42.SymmetricFinset.{0} (ZMod p)
-                          (@NegZeroClass.toNeg.{0} (ZMod p)
-                            (@SubNegZeroMonoid.toNegZeroClass.{0} (ZMod p)
-                              (@SubtractionMonoid.toSubNegZeroMonoid.{0} (ZMod p)
-                                (@SubtractionCommMonoid.toSubtractionMonoid.{0} (ZMod p)
-                                  (@AddCommGroup.toDivisionAddCommMonoid.{0} (ZMod p)
-                                    (@Ring.toAddCommGroup.{0} (ZMod p)
-                                      (@DivisionRing.toRing.{0} (ZMod p)
-                                        (@Field.toDivisionRing.{0} (ZMod p)
-                                          (@ZMod.instField p inst)))))))))
-                          T →
-                        Not
-                            (@Membership.mem.{0, 0} (ZMod p) (Finset.{0} (ZMod p))
-                              (@SetLike.instMembership.{0, 0} (Finset.{0} (ZMod p)) (ZMod p)
-                                (@Finset.instSetLike.{0} (ZMod p)))
-                              T
-                              (@OfNat.ofNat.{0} (ZMod p) (nat_lit 0)
-                                (@Zero.toOfNat0.{0} (ZMod p)
-                                  (@MulZeroClass.toZero.{0} (ZMod p)
-                                    (@instMulZeroClassOfSemiring.{0} (ZMod p)
-                                      (@DivisionSemiring.toSemiring.{0} (ZMod p)
-                                        (@Semifield.toDivisionSemiring.{0} (ZMod p)
-                                          (@Field.toSemifield.{0} (ZMod p)
-                                            (@ZMod.instField p inst))))))))) →
-                          @LE.le.{0} Real Real.instLE
-                              (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul) η
-                                (@Nat.cast.{0} Real Real.instNatCast p))
-                              (@Nat.cast.{0} Real Real.instNatCast (@Finset.card.{0} (ZMod p) T)) →
-                            @Erdos42.FourierUpperIndicator p
-                                (@NeZero.of_gt'.{0} Nat p
-                                  (@MulZeroClass.toZero.{0} Nat Nat.instMulZeroClass) Nat.instPreorder
-                                  (@LinearOrderedCommMonoidWithZero.toIsBotZeroClass.{0} Nat
-                                    Nat.instLinearOrderedCommMonoidWithZero)
-                                  Nat.instOne (@Nat.Prime.one_lt' p inst))
-                                T ε →
-                              @Exists.{1} (Finset.{0} (ZMod p)) fun (C : Finset.{0} (ZMod p)) ↦
-                                And (@Eq.{1} Nat (@Finset.card.{0} (ZMod p) C) ℓ)
-                                  (@Erdos42.CliqueInCayley p T C))
-  := by
+open Finset
+open scoped BigOperators ZMod
+open Finset Erdos42
+open Filter Erdos42
+open scoped Topology
+open Finset Erdos42 Filter
+open Filter
+open scoped BigOperators Topology
+open MeasureTheory
+open scoped ComplexConjugate Topology
+open Filter Complex MeasureTheory
+open scoped BigOperators ComplexConjugate Topology
+open Filter Complex
+open scoped BigOperators
+open Filter Set Finset MeasureTheory
+open scoped Pointwise Topology
+open Filter Erdos42 MeasureTheory
+open Filter MeasureTheory
+open Filter Set
+open scoped Pointwise
+
+namespace Erdos42.CompactCayley
+
+theorem compact_cayley_clique
+    (ℓ : ℕ) (η : ℝ) (_hℓ : 2 ≤ ℓ) (_hη : 0 < η) :
+    ∃ ε : ℝ, 0 < ε ∧
+    ∃ p₀ : ℕ, ∀ p : ℕ, [Fact p.Prime] → p₀ < p →
+    ∀ T : Finset (ZMod p),
+      SymmetricFinset T →
+      (0 : ZMod p) ∉ T →
+      η * (p : ℝ) ≤ (T.card : ℝ) →
+      FourierUpperIndicator T ε →
+      ∃ C : Finset (ZMod p),
+        C.card = ℓ ∧ CliqueInCayley T C := by
   sorry
-theorem Erdos42.CompactCayley.theorem_1_1_from_compact_cayley :
-    ∀ (M : Nat),
-      @LE.le.{0} Nat instLENat (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) M →
-        @Exists.{1} Nat fun (N₀ : Nat) ↦
-          ∀ (N : Nat),
-            @LE.le.{0} Nat instLENat N₀ N →
-              ∀ (A : Finset.{0} Int),
-                (∀ (a : Int),
-                    @Membership.mem.{0, 0} Int (Finset.{0} Int)
-                        (@SetLike.instMembership.{0, 0} (Finset.{0} Int) Int
-                          (@Finset.instSetLike.{0} Int))
-                        A a →
-                      And
-                        (@LE.le.{0} Int Int.instLEInt
-                          (@OfNat.ofNat.{0} Int (nat_lit 1) (@instOfNat (nat_lit 1))) a)
-                        (@LE.le.{0} Int Int.instLEInt a (@Nat.cast.{0} Int instNatCastInt N))) →
-                  Erdos42.IsSidonInt A →
-                    @Finset.Nonempty.{0} Int A →
-                      @Exists.{1} (Finset.{0} Int) fun (B : Finset.{0} Int) ↦
-                        And
-                          (∀ (b : Int),
-                            @Membership.mem.{0, 0} Int (Finset.{0} Int)
-                                (@SetLike.instMembership.{0, 0} (Finset.{0} Int) Int
-                                  (@Finset.instSetLike.{0} Int))
-                                B b →
-                              And
-                                (@LE.le.{0} Int Int.instLEInt
-                                  (@OfNat.ofNat.{0} Int (nat_lit 1) (@instOfNat (nat_lit 1))) b)
-                                (@LE.le.{0} Int Int.instLEInt b (@Nat.cast.{0} Int instNatCastInt N)))
-                          (And (Erdos42.IsSidonInt B)
-                            (And (@Eq.{1} Nat (@Finset.card.{0} Int B) M)
-                              (@Erdos42.AvoidsNonzeroDiff.{0} Int Int.instDecidableEq
-                                (@MulZeroClass.toZero.{0} Int
-                                  (@instMulZeroClassOfSemiring.{0} Int Int.instSemiring))
-                                Int.instSub A B)))
-  := by
+
+
+theorem theorem_1_1_from_compact_cayley
+    (M : ℕ) (_hM : 1 ≤ M) :
+    ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
+      ∀ A : Finset ℤ,
+        (∀ a ∈ A, 1 ≤ a ∧ a ≤ (N : ℤ)) → IsSidonInt A → A.Nonempty →
+        ∃ B : Finset ℤ,
+          (∀ b ∈ B, 1 ≤ b ∧ b ≤ (N : ℤ)) ∧
+          IsSidonInt B ∧ B.card = M ∧
+          AvoidsNonzeroDiff A B := by
   sorry
-theorem Erdos42.theorem_1_1_via_cayley :
-    ∀ (M : Nat),
-      @LE.le.{0} Nat instLENat (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) M →
-        @Exists.{1} Nat fun (N₀ : Nat) ↦
-          ∀ (N : Nat),
-            @LE.le.{0} Nat instLENat N₀ N →
-              ∀ (A : Set.{0} Nat),
-                @LE.le.{0} (Set.{0} Nat) (@Set.instLE.{0} Nat) A
-                    (@Set.Icc.{0} Nat Nat.instPreorder
-                      (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) N) →
-                  Erdos42.IsSidon A →
-                    @Set.Nonempty.{0} Nat A →
-                      @Exists.{1} (Set.{0} Nat) fun (B : Set.{0} Nat) ↦
-                        And
-                          (@LE.le.{0} (Set.{0} Nat) (@Set.instLE.{0} Nat) B
-                            (@Set.Icc.{0} Nat Nat.instPreorder
-                              (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) N))
-                          (And (Erdos42.IsSidon B)
-                            (And (@Eq.{1} Nat (@Set.ncard.{0} Nat B) M)
-                              (@Eq.{1} (Set.{0} Nat)
-                                (@Inter.inter.{0} (Set.{0} Nat) (@Set.instInter.{0} Nat)
-                                  (@HSub.hSub.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
-                                    (@instHSub.{0} (Set.{0} Nat) (@Set.sub.{0} Nat instSubNat)) A A)
-                                  (@HSub.hSub.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
-                                    (@instHSub.{0} (Set.{0} Nat) (@Set.sub.{0} Nat instSubNat)) B B))
-                                (@Singleton.singleton.{0, 0} Nat (Set.{0} Nat)
-                                  (@Set.instSingletonSet.{0} Nat)
-                                  (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))))))
-  := by
+
+end Erdos42.CompactCayley
+namespace Erdos42
+
+theorem theorem_1_1_via_cayley :
+    ∀ M : ℕ, 1 ≤ M → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
+      ∀ A : Set ℕ, A ⊆ Set.Icc 1 N → IsSidon A → A.Nonempty →
+        ∃ B : Set ℕ, B ⊆ Set.Icc 1 N ∧ IsSidon B ∧ B.ncard = M ∧
+          ((A - A) ∩ (B - B) : Set ℕ) = {0} := by
   sorry
-theorem Erdos42.erdos_42_via_cayley :
-    Iff True
-      (∀ (M : Nat),
-        @GE.ge.{0} Nat instLENat M (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) →
-          @Filter.Eventually.{0} Nat
-            (fun (N : Nat) ↦
-              ∀ (A : Set.{0} Nat),
-                Erdos42.IsMaximalSidonSetIn A N →
-                  @Exists.{1} (Set.{0} Nat) fun (B : Set.{0} Nat) ↦
-                    And
-                      (@LE.le.{0} (Set.{0} Nat) (@Set.instLE.{0} Nat) B
-                        (@Set.Icc.{0} Nat Nat.instPreorder
-                          (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) N))
-                      (And (Erdos42.IsSidon B)
-                        (And (@Eq.{1} Nat (@Set.ncard.{0} Nat B) M)
-                          (@Eq.{1} (Set.{0} Nat)
-                            (@Inter.inter.{0} (Set.{0} Nat) (@Set.instInter.{0} Nat)
-                              (@HSub.hSub.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
-                                (@instHSub.{0} (Set.{0} Nat) (@Set.sub.{0} Nat instSubNat)) A A)
-                              (@HSub.hSub.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
-                                (@instHSub.{0} (Set.{0} Nat) (@Set.sub.{0} Nat instSubNat)) B B))
-                            (@Singleton.singleton.{0, 0} Nat (Set.{0} Nat)
-                              (@Set.instSingletonSet.{0} Nat)
-                              (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))))))))
-            (@Filter.atTop.{0} Nat Nat.instPreorder))
-  := by
+
+
+theorem erdos_42_via_cayley :
+    True ↔ ∀ M ≥ 1, ∀ᶠ N in atTop, ∀ (A : Set ℕ) (_ : IsMaximalSidonSetIn A N),
+      ∃ (B : Set ℕ), B ⊆ Set.Icc 1 N ∧ IsSidon B ∧ B.ncard = M ∧
+        ((A - A) ∩ (B - B) : Set ℕ) = {0} := by
   sorry
+
+end Erdos42
 theorem Erdos42.FormalConjecturesShape.erdos_42_via_cayley :
     Iff True Erdos42.FormalConjecturesShape.erdos42RHS
   := by

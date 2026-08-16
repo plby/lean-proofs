@@ -1,6 +1,4 @@
-import Mathlib.Algebra.GCDMonoid.Finset
-import Mathlib.Data.Rat.Init
-import Mathlib.Order.Interval.Finset.Nat
+import Mathlib
 
 namespace Erdos692
 
@@ -18,17 +16,12 @@ end Erdos692
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos692.delta1_not_unimodal :
-    And
-      (@LT.lt.{0} Rat Rat.instLT
-        (Erdos692.delta1 (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))
-          (@OfNat.ofNat.{0} Nat (nat_lit 7) (instOfNatNat (nat_lit 7))))
-        (Erdos692.delta1 (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))
-          (@OfNat.ofNat.{0} Nat (nat_lit 6) (instOfNatNat (nat_lit 6)))))
-      (@LT.lt.{0} Rat Rat.instLT
-        (Erdos692.delta1 (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))
-          (@OfNat.ofNat.{0} Nat (nat_lit 7) (instOfNatNat (nat_lit 7))))
-        (Erdos692.delta1 (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))
-          (@OfNat.ofNat.{0} Nat (nat_lit 8) (instOfNatNat (nat_lit 8)))))
-  := by
+open Finset
+
+namespace Erdos692
+
+theorem delta1_not_unimodal :
+    delta1 3 7 < delta1 3 6 ∧ delta1 3 7 < delta1 3 8 := by
   sorry
+
+end Erdos692

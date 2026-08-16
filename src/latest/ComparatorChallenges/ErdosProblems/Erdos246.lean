@@ -1,4 +1,4 @@
-import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+import Mathlib
 
 namespace Erdos246
 
@@ -18,10 +18,12 @@ end Erdos246
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos246.erdos_246 :
-    ∀ (a b : Nat),
-      @LE.le.{0} Nat instLENat (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) a →
-        @LE.le.{0} Nat instLENat (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) b →
-          a.Coprime b → Erdos246.IsCompleteSeq (Erdos246.Gamma a b)
-  := by
+open BigOperators
+
+namespace Erdos246
+
+theorem erdos_246 (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b) (h_coprime : Nat.Coprime a b) :
+  IsCompleteSeq (Gamma a b) := by
   sorry
+
+end Erdos246
