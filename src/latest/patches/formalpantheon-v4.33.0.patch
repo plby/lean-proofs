@@ -1,0 +1,227 @@
+diff --git a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/AdditiveLargeSieve/ConsecutiveIntervalKernel.lean b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/AdditiveLargeSieve/ConsecutiveIntervalKernel.lean
+index a4c9736..754603a 100644
+--- a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/AdditiveLargeSieve/ConsecutiveIntervalKernel.lean
++++ b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/AdditiveLargeSieve/ConsecutiveIntervalKernel.lean
+@@ -106,22 +106,11 @@ private lemma sum_Ioc_nat_eq_sum_range_succ
+     {A : Type*} [AddCommMonoid A] (f : ℕ → A) (m0 N : ℕ) :
+     (∑ n ∈ Finset.Ioc m0 (m0 + N), f n) =
+       ∑ k ∈ Finset.range N, f (m0 + k + 1) := by
+-  let e : ℕ ↪ ℕ :=
+-    ⟨fun k ↦ m0 + k + 1, by intro a b hab; dsimp at hab; omega⟩
+-  have hset : Finset.Ioc m0 (m0 + N) = (Finset.range N).map e := by
+-    ext n
+-    simp only [Finset.mem_Ioc, Finset.mem_map, Finset.mem_range, e]
+-    constructor
+-    · intro hn
+-      dsimp [e]
+-      refine ⟨n - m0 - 1, ?_, ?_⟩
+-      · omega
+-      · omega
+-    · rintro ⟨k, hk, rfl⟩
+-      dsimp [e]
+-      omega
+-  rw [hset, Finset.sum_map]
+-  simp [e]
++  induction N with
++  | zero => simp
++  | succ N ih =>
++      rw [show m0 + (N + 1) = (m0 + N) + 1 by omega,
++        Finset.sum_Ioc_succ_top (by omega) f, ih, Finset.sum_range_succ]
+
+ private lemma sum_phase_Ioc (t : ℝ) (ht : (t : UnitAddCircle) ≠ 0)
+     (m0 N : ℕ) :
+diff --git a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/CenteredPrimePowerRemoval.lean b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/CenteredPrimePowerRemoval.lean
+index ecf07c0..9480f93 100644
+--- a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/CenteredPrimePowerRemoval.lean
++++ b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/CenteredPrimePowerRemoval.lean
+@@ -172,8 +172,8 @@ theorem
+           |thetaProgressionSum y q a -
+             Chebyshev.theta (y : ℝ) / (q.totient : ℝ)|)) := by
+   rw [maxCenteredThetaProgressionDiscrepancyUpTo, dif_pos hx]
+-  simp_rw [maxCenteredThetaProgressionDiscrepancy, dif_pos hq,
+-    centeredThetaProgressionDiscrepancy, centeredThetaProgressionError]
++  simp_rw [maxCenteredThetaProgressionDiscrepancy, dif_pos hq]
++  rfl
+
+ /-- The endpoint theta maximum costs one global prime-power remainder beyond
+ the endpoint psi maximum. -/
+diff --git a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/CenteredPrimitiveMaxima.lean b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/CenteredPrimitiveMaxima.lean
+index 6ef2057..a7359b4 100644
+--- a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/CenteredPrimitiveMaxima.lean
++++ b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/CenteredPrimitiveMaxima.lean
+@@ -68,9 +68,9 @@ theorem centeredProgressionEndpointMaximum_le_log_sq_add_primitive
+     unfold inducingPrimitiveCenteredEndpointMaximum
+       primitiveCenteredEndpointMaximum
+     rw [dif_pos hx]
+-    simpa using (Finset.le_sup'
++    exact Finset.le_sup'
+       (fun z ↦ ‖centeredTwistedChebyshevSum
+-        z χ.conductor χ.primitiveCharacter‖) hy)
++        z χ.conductor χ.primitiveCharacter‖) hy
+   have hsum :
+       (q.totient : ℝ)⁻¹ *
+           ∑ χ : DirichletCharacter ℂ q,
+diff --git a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/CenteredProgressionCorrection.lean b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/CenteredProgressionCorrection.lean
+index 42c77c7..a6f4056 100644
+--- a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/CenteredProgressionCorrection.lean
++++ b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/CenteredProgressionCorrection.lean
+@@ -49,8 +49,8 @@ theorem maxCenteredProgressionDiscrepancyUpTo_eq_sup_endpoint_residues
+           |chebyshevProgressionSum y q a -
+             Chebyshev.psi (y : ℝ) / (q.totient : ℝ)|)) := by
+   rw [maxCenteredProgressionDiscrepancyUpTo, dif_pos hx]
+-  simp_rw [maxCenteredProgressionDiscrepancy, dif_pos hq,
+-    centeredProgressionDiscrepancy]
++  simp_rw [maxCenteredProgressionDiscrepancy, dif_pos hq]
++  rfl
+
+ /-- The fixed-modulus source discrepancy is bounded by its elementary
+ correction plus the inducing-primitive centered character sum. -/
+diff --git a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/GoldfeldCoefficient.lean b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/GoldfeldCoefficient.lean
+index a262748..ae48d04 100644
+--- a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/GoldfeldCoefficient.lean
++++ b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/GoldfeldCoefficient.lean
+@@ -73,6 +73,7 @@ theorem goldfeldCrossLevelMul_apply
+         simpa [ZMod.isUnit_iff_coprime] using h1)
+     rw [hpzero, hzero, zero_mul]
+
++set_option backward.isDefEq.respectTransparency.types false in
+ theorem goldfeldCoefficient_one
+     {q1 q : ℕ} [NeZero q1] [NeZero q]
+     (chi1 : DirichletCharacter ℂ q1)
+diff --git a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/QuadraticZetaConvolutionSquare.lean b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/QuadraticZetaConvolutionSquare.lean
+index 73f3253..198ed01 100644
+--- a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/QuadraticZetaConvolutionSquare.lean
++++ b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/QuadraticZetaConvolutionSquare.lean
+@@ -19,6 +19,7 @@ namespace BoundedGaps.Maynard
+
+ open ArithmeticFunction
+
++set_option backward.isDefEq.respectTransparency.types false in
+ /-- Even prime-power coefficients of `1 * chi` are at least one for a
+ square-principal character. -/
+ theorem one_le_zetaMul_prime_pow_two_mul
+diff --git a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/VaughanSecondTermAggregate.lean b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/VaughanSecondTermAggregate.lean
+index 12c48c0..1b0766d 100644
+--- a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/VaughanSecondTermAggregate.lean
++++ b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/VaughanSecondTermAggregate.lean
+@@ -51,7 +51,7 @@ theorem vaughanTwistedSumTwoEndpointMaximum_level_one_lt_endpoint_mul_log_sq
+       (x : ℝ) * (Real.log ((x : ℝ) * V)) ^ 2 := by
+   unfold vaughanTwistedSumTwoEndpointMaximum
+   rw [dif_pos (by omega)]
+-  rw [Finset.sup'_lt_iff]
++  apply (Finset.sup'_lt_iff _).2
+   intro y hy
+   exact norm_vaughanTwistedSumTwo_level_one_lt_endpoint_mul_log_sq
+     hx hV (Finset.mem_Icc.mp hy).2 chi
+@@ -69,7 +69,7 @@ theorem vaughanTwistedSumTwoEndpointMaximum_lt_sqrt_mul_cutoff_mul_log_sq
+         (Real.log ((x : ℝ) * V)) ^ 2 := by
+   unfold vaughanTwistedSumTwoEndpointMaximum
+   rw [dif_pos (by omega)]
+-  rw [Finset.sup'_lt_iff]
++  apply (Finset.sup'_lt_iff _).2
+   intro y hy
+   exact norm_vaughanTwistedSumTwo_lt_sqrt_mul_cutoff_mul_log_sq
+     hx hV (Finset.mem_Icc.mp hy).2 hq hqQ hQsqrt chi hchi
+diff --git a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/VaughanThirdTermSmallAggregate.lean b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/VaughanThirdTermSmallAggregate.lean
+index 1c48033..3f13bee 100644
+--- a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/VaughanThirdTermSmallAggregate.lean
++++ b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/VaughanThirdTermSmallAggregate.lean
+@@ -43,7 +43,7 @@ theorem vaughanTwistedSumThreeSmallEndpointMaximum_level_one_lt_endpoint_mul_log
+       (x : ℝ) * (Real.log ((x : ℝ) * U)) ^ 2 := by
+   unfold vaughanTwistedSumThreeSmallEndpointMaximum
+   rw [dif_pos (by omega)]
+-  rw [Finset.sup'_lt_iff]
++  apply (Finset.sup'_lt_iff _).2
+   intro y hy
+   exact norm_vaughanTwistedSumThreeSmall_level_one_lt_endpoint_mul_log_sq
+     hx hU (Finset.mem_Icc.mp hy).2 χ
+@@ -61,7 +61,7 @@ theorem vaughanTwistedSumThreeSmallEndpointMaximum_lt_sqrt_mul_cutoff_mul_log_sq
+         (Real.log ((x : ℝ) * U)) ^ 2 := by
+   unfold vaughanTwistedSumThreeSmallEndpointMaximum
+   rw [dif_pos (by omega)]
+-  rw [Finset.sup'_lt_iff]
++  apply (Finset.sup'_lt_iff _).2
+   intro y _hy
+   exact norm_vaughanTwistedSumThreeSmall_lt_sqrt_mul_cutoff_mul_log_sq
+     hx hU hq hqQ hQsqrt χ hχ
+diff --git a/BoundedGaps/BoundedGaps/Maynard/FaceDecomposition.lean b/BoundedGaps/BoundedGaps/Maynard/FaceDecomposition.lean
+index f9e731c..cb9b021 100644
+--- a/BoundedGaps/BoundedGaps/Maynard/FaceDecomposition.lean
++++ b/BoundedGaps/BoundedGaps/Maynard/FaceDecomposition.lean
+@@ -73,7 +73,9 @@ theorem faceCoordinateEquiv_symm_apply {n : ℕ} (m : Fin (n + 1))
+   apply Prod.ext
+   · simp [maynardInsertCoordinate]
+   · funext j
+-    simp [maynardInsertCoordinate, j.2]
++    change t j = maynardInsertCoordinate m x t j.1
++    rw [maynardInsertCoordinate_off m x t j.1 j.2]
++    congr
+
+ theorem faceCoordinateEquiv_measurePreserving {n : ℕ} (m : Fin (n + 1)) :
+     MeasurePreserving (faceCoordinateEquiv m) volume volume := by
+@@ -227,7 +229,10 @@ theorem face_mem_of_insert_mem_simplex {n : ℕ} (m : Fin (n + 1))
+   refine ⟨?_, ?_⟩
+   · intro j
+     have hj := (h.1 j.1 (by simp)).1
+-    simpa [maynardInsertCoordinate, j.2] using hj
++    have hcoord : maynardInsertCoordinate m x t j.1 = t j := by
++      rw [maynardInsertCoordinate_off m x t j.1 j.2]
++      congr
++    simpa only [hcoord] using hj
+   · have hx0 := (h.1 m (by simp)).1
+     have hx0' : 0 ≤ x := by
+       simpa [maynardInsertCoordinate] using hx0
+diff --git a/BoundedGaps/BoundedGaps/Maynard/ImprovedGPY/S2Pair.lean b/BoundedGaps/BoundedGaps/Maynard/ImprovedGPY/S2Pair.lean
+index 2b9e489..eade2c3 100644
+--- a/BoundedGaps/BoundedGaps/Maynard/ImprovedGPY/S2Pair.lean
++++ b/BoundedGaps/BoundedGaps/Maynard/ImprovedGPY/S2Pair.lean
+@@ -195,8 +195,8 @@ theorem cast_primeVariableProgressionCount
+     (primeVariableProgressionCount A B q r : ℝ) =
+       (primeCountUpTo (B - 1) q r : ℝ) -
+         (primeCountUpTo (A - 1) q r : ℝ) := by
++  classical
+   unfold primeVariableProgressionCount primeCountUpTo
+-  simp only [Nat.ModEq]
+   rw [Finset.natCast_card_filter, Finset.natCast_card_filter,
+     Finset.natCast_card_filter]
+   have hB : 0 < B := lt_of_lt_of_le hA hAB
+@@ -204,7 +204,9 @@ theorem cast_primeVariableProgressionCount
+     Nat.sub_add_cancel (Nat.one_le_iff_ne_zero.mpr hA.ne')
+   have hBeq : B - 1 + 1 = B :=
+     Nat.sub_add_cancel (Nat.one_le_iff_ne_zero.mpr hB.ne')
+-  simpa [hAeq, hBeq] using Finset.sum_Ico_eq_sub
++  change (∑ n ∈ Finset.Ico A B,
++      if n.Prime ∧ n % q = r % q then (1 : ℝ) else 0) = _
++  simpa only [hAeq, hBeq] using Finset.sum_Ico_eq_sub
+     (f := fun n : ℕ => if n.Prime ∧ n % q = r % q then (1 : ℝ) else 0) hAB
+
+ theorem primeVariableProgressionCount_intervalDiscrepancy_le_global_sum
+diff --git a/BoundedGaps/BoundedGaps/Maynard/MaynardS2WeightedDivisorInterval.lean b/BoundedGaps/BoundedGaps/Maynard/MaynardS2WeightedDivisorInterval.lean
+index 5b6bbdc..a0cf585 100644
+--- a/BoundedGaps/BoundedGaps/Maynard/MaynardS2WeightedDivisorInterval.lean
++++ b/BoundedGaps/BoundedGaps/Maynard/MaynardS2WeightedDivisorInterval.lean
+@@ -35,7 +35,7 @@ theorem maynardDivTotientAF_apply (n : ℕ) :
+     maynardDivTotientAF n = (n : ℝ) / Nat.totient n := by
+   unfold maynardDivTotientAF
+   rw [ArithmeticFunction.pdiv_apply]
+-  simp [maynardTotientAF]
++  rfl
+
+ theorem maynardDivTotientAF_multiplicative :
+     maynardDivTotientAF.IsMultiplicative :=
+diff --git a/BoundedGaps/BoundedGaps/Maynard/ReciprocalTotientCorrection.lean b/BoundedGaps/BoundedGaps/Maynard/ReciprocalTotientCorrection.lean
+index 1b0075a..fd6c15c 100644
+--- a/BoundedGaps/BoundedGaps/Maynard/ReciprocalTotientCorrection.lean
++++ b/BoundedGaps/BoundedGaps/Maynard/ReciprocalTotientCorrection.lean
+@@ -110,8 +110,9 @@ private theorem coprimeHarmonicAF_multiplicative (W : ℕ) :
+ theorem coprimeHarmonicAF_apply (W n : ℕ) :
+     coprimeHarmonicAF W n =
+       if n = 0 then 0 else if Nat.Coprime n W then (1 : ℝ) / n else 0 := by
+-  unfold coprimeHarmonicAF coprimeIndicatorAF
+-  simp only [ArithmeticFunction.pmul_apply, realInvIdAF_apply]
++  unfold coprimeHarmonicAF
++  rw [ArithmeticFunction.pmul_apply, realInvIdAF_apply,
++    coprimeIndicatorAF_apply]
+   by_cases hn : n = 0 <;> by_cases hc : Nat.Coprime n W <;> simp [hn, hc]
+
+ noncomputable def coprimeMobiusInvAF (W : ℕ) :
