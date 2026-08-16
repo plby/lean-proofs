@@ -34,7 +34,7 @@ theorem erdos_1119.variants.easy_case (m : Cardinal) (hm : ℵ₀ < m)
   sorry
 
 theorem erdos_1119.variants.erdos_wetzel
-    (h : (ℵ_ 1 : Cardinal) < 𝔠) (F : Set (ℂ → ℂ))
+    (h : (ℵ_ 1 : Cardinal.{0}) < 𝔠) (F : Set (ℂ → ℂ))
     (hF : ∀ f ∈ F, Differentiable ℂ f)
     (hval : ∀ z : ℂ, {y : ℂ | ∃ f ∈ F, f z = y}.Countable) :
     F.Countable := by
