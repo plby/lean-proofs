@@ -57,7 +57,7 @@ private lemma entireFamily_cardinality_le_continuum (F : Set (ℂ → ℂ))
   have hcode : Function.Injective code := by
     intro f g hfg
     apply Subtype.ext
-    apply TopologicalSpace.denseRange_denseSeq.equalizer
+    apply (TopologicalSpace.denseRange_denseSeq ℂ).equalizer
     · exact (hF f.1 f.2).continuous
     · exact (hF g.1 g.2).continuous
     · funext n
