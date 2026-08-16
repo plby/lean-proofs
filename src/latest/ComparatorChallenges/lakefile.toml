@@ -265,6 +265,7 @@ roots = [
   "Erdos6",
   "Erdos590",
   "Erdos851",
+  "Erdos868",
 ]
 
 [[lean_lib]]
