@@ -19,9 +19,7 @@ import Mathlib
 /-!
 # Erdős Problem 13
 
-We formalize Bedert's resolution of the finite property-P problem.  The
-mathematical proof and a dependency-by-dependency formalization plan are in
-`tex/13.tex` at the repository root.
+Bedert's resolution of the finite property-P problem.
 
 Reference: B. Bedert, *On a problem of Erdős and Sárközy about sequences
 with no term dividing the sum of two larger terms*, arXiv:2301.07065.

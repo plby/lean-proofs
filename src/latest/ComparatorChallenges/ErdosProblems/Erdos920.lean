@@ -166,9 +166,8 @@ end Ramsey
 /-!
 # Erdős Problem 920
 
-The graph-theoretic Ramsey bridge is in `Bridge`, the finite-geometric Ramsey
-construction is packaged in `RamseyPackaging`, and the asymptotic inversion is
-in `Inversion`.
+Ramsey-number and directed-construction definitions for the two theorem
+statements below.
 -/
 
 open Real Filter
@@ -235,9 +234,8 @@ into a `K_(t+1)`-free graph.  The factorial saving changes the tuple bound
 `m/(e C q^t)` and deleting one vertex from every surviving independent
 `m`-set then gives precisely the strict Ramsey inequality below.
 
-Keeping this conclusion as a named property permits the finite probability
-or double-counting proof to live in a separate module without concealing any
-numeric assumption used by the final argument. -/
+The named property records the resulting inequality and its numerical
+assumptions. -/
 def HasAveragingSamplingConclusion (W : DStarWitness t m q C) : Prop :=
   letI := W.fintypeV
   W.samplingDensity * (Fintype.card W.V : ℝ) - 1 <
@@ -271,11 +269,6 @@ def chromaticValues (k n : ℕ) : Set ℕ :=
 
 noncomputable def f (k n : ℕ) : ℕ :=
   sSup (chromaticValues k n)
-
-/--
-The final implication, isolated from the construction of Bradač's Ramsey
-lower bound.  This is the narrow assembly interface used by the main theorem.
--/
 
 theorem erdos_920_of_dStarFamilies
     (families : ∀ u : ℕ, 1 ≤ u → RamseyPackaging.DStarFamily u) :

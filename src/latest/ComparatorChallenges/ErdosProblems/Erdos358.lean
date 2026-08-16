@@ -26,11 +26,6 @@ def intervalRepresentations (A : ℕ → ℕ) (n : ℕ) : Set (ℕ × ℕ) :=
 noncomputable def f (A : ℕ → ℕ) (n : ℕ) : ℕ :=
   Nat.card (intervalRepresentations A n)
 
-/-! ## The finite-cardinality interface -/
-
-/-- A positive consecutive sum of a strictly increasing natural-valued sequence has
-both endpoints at most the value of the sum. -/
-
 theorem erdos_358.parts.i :
     answer(True) ↔ ∃ A, StrictMono A ∧ atTop.Tendsto (Erdos358.f A) atTop := by
   sorry

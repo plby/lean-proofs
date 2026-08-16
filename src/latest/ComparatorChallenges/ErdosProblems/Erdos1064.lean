@@ -18,12 +18,8 @@ import Mathlib
 /-!
 # Erdős Problem 1064
 
-This file proves the density-one inequality
-`φ n > φ (n - φ n)`, its strengthening by every natural-valued `o(n)` error,
-and the infinitude of the reverse inequality.
-
-The density proof uses finite first-moment estimates for reciprocal prime-factor
-mass and the divergence of reciprocal primes in a reduced residue class.
+The density-one inequality `φ (n - φ n) + f n < φ n` holds for every
+natural-valued `o(n)` error term `f`.
 -/
 
 open Nat Filter Topology Set Real

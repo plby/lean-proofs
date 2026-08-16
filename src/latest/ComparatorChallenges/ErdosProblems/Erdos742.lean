@@ -38,9 +38,6 @@ variable {V : Type u} [Fintype V] [DecidableEq V]
 def IsDiameter2Critical (G : SimpleGraph V) : Prop :=
   G.diam = 2 ∧ ∀ e ∈ G.edgeSet, (G.deleteEdges {e}).diam ≠ 2
 
-/-- A finite greedy-selection lemma in the cardinal form used to linearize
-the family of light critical paths. -/
-
 theorem furedi_bound : ∃ n₀ : ℕ, ∀ (V : Type*) [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj],
     n₀ ≤ Fintype.card V → IsDiameter2Critical G →

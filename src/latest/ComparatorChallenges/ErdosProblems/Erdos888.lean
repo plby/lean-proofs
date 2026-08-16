@@ -10,11 +10,7 @@ import Mathlib
 # Erdős Problem 888
 
 The largest admissible subset of `{1, ..., n}` has order
-`n * log (log n) / log n`.  The lower bound uses primes and squarefree
-semiprimes.  The upper bound uses exact square-part fibres, a two-largest-prime
-encoding, a coloured rectangle estimate, and dyadic analytic bounds.
-
-The detailed mathematical proof and Leanization map are in `tex/888.tex`.
+`n * log (log n) / log n`.
 -/
 
 open Filter

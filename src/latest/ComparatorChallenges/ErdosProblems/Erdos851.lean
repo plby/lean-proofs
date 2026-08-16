@@ -5,10 +5,7 @@ import Mathlib
 /-!
 # Erdős Problem 851
 
-The source-faithful formulation asks for lower density.  The analytic proof
-uses the Price--Tao rough-residual sieve, first and second moments, and the
-averaged Romanoff singular-series estimate.  The detailed mathematical proof
-and the map from its lemmas to this development are in `tex/851.tex`.
+The source-faithful formulation asks for lower density.
 -/
 
 open Filter

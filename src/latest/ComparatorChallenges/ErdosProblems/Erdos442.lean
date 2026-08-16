@@ -4,13 +4,7 @@ import Mathlib
 /-!
 # Erdős Problem 442
 
-The answer is negative.  We use the elementary counterexample consisting of the
-squarefree semiprimes `p * q` with `p < q`, as described in the introduction of
-Tao's paper *Dense sets of natural numbers with unusually large least common
-multiples* (2024).
-
-The reciprocal-prime Mertens estimate used below is the unconditional theorem
-`Erdos469.abs_primeReciprocalSum_sub_logLog_le` already proved in this repository.
+The answer is negative.
 -/
 
 namespace Erdos442
