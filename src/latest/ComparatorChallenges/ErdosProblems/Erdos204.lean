@@ -1,6 +1,4 @@
-import Mathlib.NumberTheory.Divisors
-import Mathlib.Data.Int.ModEq
-import Mathlib.Data.Real.Basic
+import Mathlib
 
 namespace Erdos204
 
@@ -53,33 +51,22 @@ end Erdos204
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos204.T1 :
-    Not (@Exists.{1} Nat fun (n : Nat) ↦ Erdos204.IsCDCovering n)
-  := by
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+namespace Erdos204
+
+theorem T1 : ¬ ∃ n, IsCDCovering n := by
   sorry
-theorem Erdos204.erdos_204 :
-    Not
-      (@Exists.{1} Nat fun (n : Nat) ↦
-        @Exists.{1} (Nat → Int) fun (a : Nat → Int) ↦
-          have D :=
-            @Set.ofPred.{0} Nat fun (d : Nat) ↦
-              And (@Dvd.dvd.{0} Nat Nat.instDvd d n)
-                (@GT.gt.{0} Nat instLTNat d
-                  (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))));
-          And
-            (∀ (x : Int),
-              @Exists.{1} Nat fun (d : Nat) ↦
-                And (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) D d)
-                  ((@Nat.cast.{0} Int instNatCastInt d).ModEq x (a d)))
-            (∀ (d : Nat),
-              @Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) D d →
-                ∀ (d' : Nat),
-                  @Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) D d' →
-                    @Ne.{1} Nat d d' →
-                      (@Exists.{1} Int fun (x : Int) ↦
-                          (@Nat.cast.{0} Int instNatCastInt d).ModEq x (a d) →
-                            (@Nat.cast.{0} Int instNatCastInt d').ModEq x (a d')) →
-                        @Eq.{1} Nat (d.gcd d')
-                          (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))
-  := by
+
+
+theorem erdos_204 : ¬ ∃ (n : ℕ) (a : ℕ → ℤ),
+    let D := {d : ℕ | d ∣ n ∧ d > 1}
+    (∀ x : ℤ, ∃ d ∈ D, x ≡ a d [ZMOD d]) ∧
+    (∀ d ∈ D, ∀ d' ∈ D, d ≠ d' → (∃ x : ℤ, x ≡ a d [ZMOD d] → x ≡ a d' [ZMOD d']) →
+      Nat.gcd d d' = 1) := by
   sorry
+
+end Erdos204

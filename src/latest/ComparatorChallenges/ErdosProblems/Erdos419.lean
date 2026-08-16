@@ -1,6 +1,4 @@
-import Mathlib.NumberTheory.Divisors
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos419
 
@@ -11,13 +9,9 @@ end Erdos419
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos419.erdos_419 :
-    @Eq.{1} (Set.{0} Real)
-      (@Set.ofPred.{0} Real fun (x : Real) ↦
-        @MapClusterPt.{0, 0} Real
-          (@UniformSpace.toTopologicalSpace.{0} Real
-            (@PseudoMetricSpace.toUniformSpace.{0} Real Real.pseudoMetricSpace))
-          Nat x (@Filter.atTop.{0} Nat Nat.instPreorder) Erdos419.u)
-      Erdos419.S
-  := by
+namespace Erdos419
+
+theorem erdos_419 : {x : ℝ | MapClusterPt x Filter.atTop u} = S := by
   sorry
+
+end Erdos419

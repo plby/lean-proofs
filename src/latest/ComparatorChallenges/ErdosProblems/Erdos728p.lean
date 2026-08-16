@@ -1,5 +1,4 @@
-import Mathlib.Analysis.SpecialFunctions.Log.Basic
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos728p
 
@@ -34,19 +33,18 @@ end Erdos728p
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos728p.theorem_1_1 :
-    @Asymptotics.IsLittleO.{0, 0, 0} Real Real Real Real.norm Real.norm
-      (@Filter.atTop.{0} Real Real.instPreorder)
-      (fun (x : Real) ↦
-        @Nat.cast.{0} Real Real.instNatCast (@Finset.card.{0} Nat (Erdos728p.bad_set_thm_1_1 x)))
-      fun (x : Real) ↦ x
-  := by
+open Real
+open Matrix
+
+namespace Erdos728p
+
+theorem theorem_1_1 :
+    (fun x => ((bad_set_thm_1_1 x).card : ℝ)) =o[Filter.atTop] (fun x => x) := by
   sorry
-theorem Erdos728p.theorem_1_2 :
-    @Asymptotics.IsLittleO.{0, 0, 0} Real Real Real Real.norm Real.norm
-      (@Filter.atTop.{0} Real Real.instPreorder)
-      (fun (x : Real) ↦
-        @Nat.cast.{0} Real Real.instNatCast (@Finset.card.{0} Nat (Erdos728p.bad_set_intrinsic_1_2 x)))
-      fun (x : Real) ↦ x
-  := by
+
+
+theorem theorem_1_2 :
+    (fun x => ((bad_set_intrinsic_1_2 x).card : ℝ)) =o[Filter.atTop] (fun x => x) := by
   sorry
+
+end Erdos728p

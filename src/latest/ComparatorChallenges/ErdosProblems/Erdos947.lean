@@ -1,6 +1,4 @@
-import Mathlib.Data.Int.ModEq
-import Mathlib.Data.Real.Basic
-import Mathlib.RingTheory.PowerSeries.Basic
+import Mathlib
 
 namespace Erdos947
 
@@ -28,15 +26,18 @@ end Erdos947
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos947.exact_covering_system_distinct_moduli_impossible :
-    ∀ (l : List.{0} (Prod.{0, 0} Int Nat)),
-      Erdos947.IsExactCoveringSystem l →
-        @List.Pairwise.{0} (Prod.{0, 0} Int Nat)
-            (fun (p q : Prod.{0, 0} Int Nat) ↦
-              @Ne.{1} Nat (@Prod.snd.{0, 0} Int Nat p) (@Prod.snd.{0, 0} Int Nat q))
-            l →
-          @GE.ge.{0} Nat instLENat (@List.length.{0} (Prod.{0, 0} Int Nat) l)
-              (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) →
-            False
-  := by
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+open PowerSeries
+open Polynomial
+
+namespace Erdos947
+
+theorem exact_covering_system_distinct_moduli_impossible
+    (l : List (ℤ × ℕ)) (h_exact : IsExactCoveringSystem l)
+    (h_distinct : l.Pairwise (fun p q => p.2 ≠ q.2)) (h_len : l.length ≥ 2) : False := by
   sorry
+
+end Erdos947

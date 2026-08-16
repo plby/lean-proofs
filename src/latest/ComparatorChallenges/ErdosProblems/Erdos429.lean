@@ -1,10 +1,4 @@
-import Mathlib.Computability.Reduce
-import Mathlib.Data.Real.Basic
-import Mathlib.Data.ZMod.Defs
-import Mathlib.Data.Nat.Prime.Defs
-import Mathlib.Order.Filter.AtTopBot.Defs
-import Mathlib.Order.Interval.Finset.Nat
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.style.longLine false
@@ -35,30 +29,18 @@ end Erdos429
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos429.main_theorem :
-    ∀ (f : Nat → Nat),
-      @Filter.Tendsto.{0, 0} Nat Nat f (@Filter.atTop.{0} Nat Nat.instPreorder)
-          (@Filter.atTop.{0} Nat Nat.instPreorder) →
-        @Exists.{1} (Set.{0} Nat) fun (B : Set.{0} Nat) ↦
-          And (@Set.Infinite.{0} Nat B)
-            (And
-              (∀ (N : Nat),
-                @LE.le.{0} Nat instLENat
-                  (@Finset.card.{0} Nat
-                    (@Set.toFinset.{0} Nat
-                      (@Inter.inter.{0} (Set.{0} Nat) (@Set.instInter.{0} Nat) B
-                        (@Set.Icc.{0} Nat Nat.instPreorder
-                          (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) N))
-                      (Erdos429.instFintypeSetInterIccNat B
-                        (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) N)))
-                  (f N))
-              (And (Erdos429.Admissible B)
-                (∀ (n : Int),
-                  @Exists.{1} Nat fun (b : Nat) ↦
-                    And (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) B b)
-                      (Not
-                        (Nat.Prime
-                          (@HAdd.hAdd.{0, 0, 0} Int Int Int (@instHAdd.{0} Int Int.instAdd)
-                              (@Nat.cast.{0} Int instNatCastInt b) n).toNat)))))
-  := by
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+namespace Erdos429
+
+theorem main_theorem (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter.atTop) :
+    ∃ B : Set ℕ, B.Infinite ∧
+    (∀ N, (B ∩ Set.Icc 1 N).toFinset.card ≤ f N) ∧
+    Admissible B ∧
+    (∀ n : ℤ, ∃ b ∈ B, ¬ Nat.Prime (Int.toNat (b + n))) := by
   sorry
+
+end Erdos429

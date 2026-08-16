@@ -1,7 +1,4 @@
-import Mathlib.AlgebraicTopology.SimplexCategory.Basic
-import Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional
-import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 scoped[EuclideanGeometry] notation "ℝ²" => EuclideanSpace ℝ (Fin 2)
 
@@ -51,20 +48,28 @@ end Erdos846
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos846.erdos_846 :
-    Iff False
-      (∀
-        (A :
-          Set.{0}
-            (EuclideanSpace.{0, 0} Real
-              (Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))))
-        (ε : Real),
-        @GT.gt.{0} Real Real.instLT ε
-            (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) →
-          @Set.Infinite.{0}
-              (EuclideanSpace.{0, 0} Real
-                (Fin (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))))
-              A →
-            Erdos846.NonTrilinearFor A ε → Erdos846.WeaklyNonTrilinear A)
-  := by
+open EuclideanGeometry
+open MeasureTheory
+open Polynomial
+open scoped BigOperators
+open scoped ENNReal
+open scoped EuclideanGeometry
+open scoped InnerProductSpace
+open scoped intervalIntegral
+open scoped List
+open scoped Matrix
+open scoped Nat
+open scoped NNReal
+open scoped Pointwise
+open scoped ProbabilityTheory
+open scoped Real
+open scoped symmDiff
+open scoped Topology
+
+namespace Erdos846
+
+theorem erdos_846 : (False) ↔ ∀ᵉ (A : Set ℝ²) (ε > 0),
+    A.Infinite → NonTrilinearFor A ε → WeaklyNonTrilinear A := by
   sorry
+
+end Erdos846

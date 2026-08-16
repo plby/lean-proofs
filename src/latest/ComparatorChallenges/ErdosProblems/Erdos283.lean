@@ -1,9 +1,4 @@
-import Mathlib.AlgebraicTopology.SimplexCategory.Basic
-import Mathlib.Data.Int.ConditionallyCompleteOrder
-import Mathlib.Algebra.Polynomial.Degree.Defs
-import Mathlib.Algebra.Polynomial.Eval.Defs
-import Mathlib.Order.Filter.AtTopBot.Defs
-import Mathlib.Order.Interval.Finset.Fin
+import Mathlib
 
 namespace Erdos283
 
@@ -18,7 +13,12 @@ end Erdos283
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos283.erdos_283 :
-    Iff True (∀ (p : @Polynomial.{0} Int Int.instSemiring), Erdos283.Condition p)
-  := by
+open Filter Polynomial Finset
+
+namespace Erdos283
+
+theorem erdos_283 :
+    True ↔ ∀ p : ℤ[X], Condition p := by
   sorry
+
+end Erdos283

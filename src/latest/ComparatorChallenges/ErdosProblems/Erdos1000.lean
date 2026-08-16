@@ -1,7 +1,4 @@
-import Mathlib.Order.Interval.Finset.Nat
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
-import Mathlib.Algebra.BigOperators.Group.Finset.Defs
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos1000
 
@@ -28,18 +25,17 @@ end Erdos1000
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos1000.erdos_1000_true :
-    @Exists.{1} (Nat → Nat) fun (n : Nat → Nat) ↦
-      And (@StrictMono.{0, 0} Nat Nat Nat.instPreorder Nat.instPreorder n)
-        (And
-          (∀ (k : Nat),
-            @LT.lt.{0} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
-              (n k))
-          (@Filter.Tendsto.{0, 0} Nat Real (Erdos1000.cesaroPhi n)
-            (@Filter.atTop.{0} Nat Nat.instPreorder)
-            (@nhds.{0} Real
-              (@UniformSpace.toTopologicalSpace.{0} Real
-                (@PseudoMetricSpace.toUniformSpace.{0} Real Real.pseudoMetricSpace))
-              (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)))))
-  := by
+open scoped BigOperators
+open Filter
+open Topology
+
+namespace Erdos1000
+
+theorem erdos_1000_true :
+  ∃ n : ℕ → ℕ,
+    StrictMono n ∧
+    (∀ k, 0 < n k) ∧
+    Tendsto (cesaroPhi n) atTop (𝓝 (0 : ℝ)) := by
   sorry
+
+end Erdos1000

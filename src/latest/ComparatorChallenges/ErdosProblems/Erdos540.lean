@@ -1,5 +1,4 @@
-import Mathlib.Analysis.Real.Sqrt
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos540
 
@@ -11,24 +10,15 @@ end Erdos540
 
 attribute [local instance] Classical.propDecidable
 
-universe u_1
 
-theorem Erdos540.erdos_540 :
-    @Exists.{1} Real fun (C : Real) ↦
-      And
-        (@LT.lt.{0} Real Real.instLT
-          (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) C)
-        (∀ (N : Nat),
-          @LT.lt.{0} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))) N →
-            ∀ (A : Finset.{0} (ZMod N)),
-              @LE.le.{0} Real Real.instLE
-                  (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul) C
-                    (@Nat.cast.{0} Real Real.instNatCast N).sqrt)
-                  (@Nat.cast.{0} Real Real.instNatCast (@Finset.card.{0} (ZMod N) A)) →
-                @Erdos540.hasZeroSum.{0} (ZMod N) (ZMod.decidableEq N)
-                  (@Semiring.toAddCommMonoid.{0} (ZMod N)
-                    (@CommSemiring.toSemiring.{0} (ZMod N)
-                      (@CommRing.toCommSemiring.{0} (ZMod N) (ZMod.commRing N))))
-                  A)
-  := by
+open Finset BigOperators
+
+namespace Erdos540
+
+theorem erdos_540 : ∃ C : ℝ, 0 < C ∧
+    ∀ (N : ℕ) (_ : 0 < N) (A : Finset (ZMod N)),
+    C * Real.sqrt N ≤ ↑A.card →
+    hasZeroSum A := by
   sorry
+
+end Erdos540

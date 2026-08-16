@@ -1,5 +1,4 @@
-import Mathlib.Data.Real.Basic
-import Mathlib.Order.Fin.Basic
+import Mathlib
 
 noncomputable section
 
@@ -45,29 +44,19 @@ end Erdos194
 
 attribute [local instance] Classical.propDecidable
 
-universe u_1
 
 namespace Erdos194
 
 end Erdos194
 
-theorem Erdos194.erdos_194 :
-    @Exists.{1} (Real → Real → Prop) fun (r : Real → Real → Prop) ↦
-      @Exists.{0} (@Erdos194.LinearOrdering.{0} Real r)
-        fun (hlin : @Erdos194.LinearOrdering.{0} Real r) ↦
-        ∀ (k : Nat),
-          @GE.ge.{0} Nat instLENat k (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) →
-            ∀ (a d : Real),
-              And
-                (Not
-                  (@StrictMono.{0, 0} (Fin k) Real
-                    (@PartialOrder.toPreorder.{0} (Fin k) (@Fin.instPartialOrder k))
-                    (@Erdos194.LinearOrdering.toPreorder.{0} Real r hlin)
-                    (Erdos194.ArithProgression a d k)))
-                (Not
-                  (@StrictAnti.{0, 0} (Fin k) Real
-                    (@PartialOrder.toPreorder.{0} (Fin k) (@Fin.instPartialOrder k))
-                    (@Erdos194.LinearOrdering.toPreorder.{0} Real r hlin)
-                    (Erdos194.ArithProgression a d k)))
-  := by
+namespace Erdos194
+
+theorem erdos_194 :
+    ∃ (r : ℝ → ℝ → Prop) (hlin : LinearOrdering r),
+      ∀ k : ℕ, k ≥ 3 → ∀ a d : ℝ,
+        letI : Preorder ℝ := hlin.toPreorder
+        ¬ StrictMono (ArithProgression a d k) ∧
+          ¬ StrictAnti (ArithProgression a d k) := by
   sorry
+
+end Erdos194

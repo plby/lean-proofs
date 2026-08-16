@@ -1,7 +1,4 @@
-import Mathlib.Order.CompletePartialOrder
-import Mathlib.Order.LiminfLimsup
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.flexible false
@@ -63,56 +60,23 @@ namespace Erdos741b
 
 end Erdos741b
 
-theorem Erdos741b.erdos741_upper_density :
-    ∀ (A : Set.{0} Nat),
-      @GT.gt.{0} Real Real.instLT
-          (Erdos741b.upperDensity
-            (@HAdd.hAdd.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
-              (@instHAdd.{0} (Set.{0} Nat) (@Set.add.{0} Nat instAddNat)) A A))
-          (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) →
-        @Exists.{1} (Erdos741b.BiPartition A) fun (P : Erdos741b.BiPartition A) ↦
-          And
-            (@GT.gt.{0} Real Real.instLT
-              (Erdos741b.upperDensity
-                (@HAdd.hAdd.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
-                  (@instHAdd.{0} (Set.{0} Nat) (@Set.add.{0} Nat instAddNat))
-                  (@Erdos741b.BiPartition.left A P) (@Erdos741b.BiPartition.left A P)))
-              (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)))
-            (@GT.gt.{0} Real Real.instLT
-              (Erdos741b.upperDensity
-                (@HAdd.hAdd.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
-                  (@instHAdd.{0} (Set.{0} Nat) (@Set.add.{0} Nat instAddNat))
-                  (@Erdos741b.BiPartition.right A P) (@Erdos741b.BiPartition.right A P)))
-              (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)))
-  := by
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+namespace Erdos741b
+
+theorem erdos741_upper_density (A : Set ℕ) (hA : upperDensity (A + A) > 0) :
+    ∃ P : BiPartition A,
+      upperDensity (P.left + P.left) > 0 ∧ upperDensity (P.right + P.right) > 0 := by
   sorry
-theorem Erdos741b.erdos741_strict_density_counterexample :
-    @Exists.{1} (Set.{0} Nat) fun (A : Set.{0} Nat) ↦
-      And
-        (Erdos741b.HasNatDensity
-          (@HAdd.hAdd.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
-            (@instHAdd.{0} (Set.{0} Nat) (@Set.add.{0} Nat instAddNat)) A A)
-          (@OfNat.ofNat.{0} Real (nat_lit 1) (@One.toOfNat1.{0} Real Real.instOne)))
-        (∀ (P : Erdos741b.BiPartition A),
-          Not
-            (@Exists.{1} Real fun (d₁ : Real) ↦
-              And
-                (@GT.gt.{0} Real Real.instLT d₁
-                  (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)))
-                (@Exists.{1} Real fun (d₂ : Real) ↦
-                  And
-                    (@GT.gt.{0} Real Real.instLT d₂
-                      (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)))
-                    (And
-                      (Erdos741b.HasNatDensity
-                        (@HAdd.hAdd.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
-                          (@instHAdd.{0} (Set.{0} Nat) (@Set.add.{0} Nat instAddNat))
-                          (@Erdos741b.BiPartition.left A P) (@Erdos741b.BiPartition.left A P))
-                        d₁)
-                      (Erdos741b.HasNatDensity
-                        (@HAdd.hAdd.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
-                          (@instHAdd.{0} (Set.{0} Nat) (@Set.add.{0} Nat instAddNat))
-                          (@Erdos741b.BiPartition.right A P) (@Erdos741b.BiPartition.right A P))
-                        d₂)))))
-  := by
+
+
+theorem erdos741_strict_density_counterexample :
+    ∃ A : Set ℕ, HasNatDensity (A + A) 1 ∧
+      ∀ P : BiPartition A, ¬(∃ d₁ > 0, ∃ d₂ > 0,
+        HasNatDensity (P.left + P.left) d₁ ∧ HasNatDensity (P.right + P.right) d₂) := by
   sorry
+
+end Erdos741b

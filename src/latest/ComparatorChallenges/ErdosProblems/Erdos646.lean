@@ -1,6 +1,4 @@
-import Mathlib.Algebra.Field.ZMod
-import Mathlib.Data.Nat.MaxPowDiv
-import Mathlib.Data.Real.Basic
+import Mathlib
 
 namespace Erdos646
 
@@ -18,31 +16,15 @@ end Erdos646
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos646.infinitely_many_even_factorial_exponents :
-    ∀ (k : Nat) (p : Fin k → Nat),
-      (∀ (i : Fin k), Nat.Prime (p i)) →
-        @Function.Injective.{1, 1} (Fin k) Nat p →
-          @Set.Infinite.{0} Nat
-            (@Set.ofPred.{0} Nat fun (n : Nat) ↦
-              ∀ (i : Fin k),
-                @Eq.{1} (ZMod (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
-                  (Erdos646.partial_sum k p n i)
-                  (@OfNat.ofNat.{0} (ZMod (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
-                    (nat_lit 0)
-                    (@Zero.toOfNat0.{0}
-                      (ZMod (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
-                      (@MulZeroClass.toZero.{0}
-                        (ZMod (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
-                        (@instMulZeroClassOfSemiring.{0}
-                          (ZMod (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
-                          (@DivisionSemiring.toSemiring.{0}
-                            (ZMod (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
-                            (@Semifield.toDivisionSemiring.{0}
-                              (ZMod (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
-                              (@Field.toSemifield.{0}
-                                (ZMod (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
-                                (@ZMod.instField
-                                  (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
-                                  Nat.fact_prime_two)))))))))
-  := by
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+
+namespace Erdos646
+
+theorem infinitely_many_even_factorial_exponents (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i).Prime) (h_distinct : Function.Injective p) :
+  Set.Infinite { n | ∀ i, partial_sum k p n i = 0 } := by
   sorry
+
+end Erdos646

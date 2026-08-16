@@ -179,12 +179,7 @@ lemma levelSet_starConvex : StarConvex ℝ 0 (levelSet counterexample_poly) := b
   nlinarith [ pow_nonneg hb 16 ]
 
 noncomputable local instance instMeasureSpaceRealSpan (u : ℂ) : MeasureSpace ↥(ℝ ∙ u) :=
-  @measureSpaceOfInnerProductSpace (↥(ℝ ∙ u))
-    (inferInstanceAs (NormedAddCommGroup ↥(ℝ ∙ u)))
-    (inferInstanceAs (InnerProductSpace ℝ ↥(ℝ ∙ u)))
-    (inferInstanceAs (FiniteDimensional ℝ ↥(ℝ ∙ u)))
-    (inferInstanceAs (MeasurableSpace ↥(ℝ ∙ u)))
-    (inferInstanceAs (BorelSpace ↥(ℝ ∙ u)))
+  measureSpaceOfInnerProductSpace
 
 lemma measure_proj_ge (u : ℂ) (hu : ‖u‖ = 1) (S : Set ℂ)
     (h_symm : ∀ z ∈ S, -z ∈ S) (h_star : StarConvex ℝ 0 S) (z : ℂ) (hz : z ∈ S) :

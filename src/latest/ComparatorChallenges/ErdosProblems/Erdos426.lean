@@ -1,6 +1,4 @@
-import Mathlib.Combinatorics.SimpleGraph.Subgraph
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos426
 
@@ -129,12 +127,16 @@ end Erdos426
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos426.UniqueSubgraphs.f_tendsto_zero :
-    @Filter.Tendsto.{0, 0} Nat Real Erdos426.UniqueSubgraphs.fSeq
-      (@Filter.atTop.{0} Nat Nat.instPreorder)
-      (@nhds.{0} Real
-        (@UniformSpace.toTopologicalSpace.{0} Real
-          (@PseudoMetricSpace.toUniformSpace.{0} Real Real.pseudoMetricSpace))
-        (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)))
-  := by
+open Finset Function SimpleGraph
+open Finset Function
+open Finset Function SimpleGraph Filter
+open Finset Real Function
+open scoped BigOperators
+open Finset Real
+
+namespace Erdos426.UniqueSubgraphs
+
+theorem f_tendsto_zero : Filter.Tendsto fSeq Filter.atTop (nhds 0) := by
   sorry
+
+end Erdos426.UniqueSubgraphs

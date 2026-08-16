@@ -1,6 +1,4 @@
-import Mathlib.Data.Finset.Sym
-import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos1028
 
@@ -37,53 +35,16 @@ open Erdos1028
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos1028.erdos_1028 :
-    @Exists.{1} Real fun (c : Real) ↦
-      @Exists.{1} Real fun (C : Real) ↦
-        And
-          (@LT.lt.{0} Real Real.instLT
-            (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) c)
-          (And (@LT.lt.{0} Real Real.instLT c C)
-            (@Filter.Eventually.{0} Nat
-              (fun (n : Nat) ↦
-                And
-                  (@LE.le.{0} Real Real.instLE
-                    (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul) c
-                      (@HPow.hPow.{0, 0, 0} Real Real Real (@instHPow.{0, 0} Real Real Real.instPow)
-                        (@Nat.cast.{0} Real Real.instNatCast n)
-                        (@HDiv.hDiv.{0, 0, 0} Real Real Real
-                          (@instHDiv.{0} Real (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
-                          (@OfNat.ofNat.{0} Real (nat_lit 3)
-                            (@instOfNatAtLeastTwo.{0} Real (nat_lit 3) Real.instNatCast
-                              (@Nat.instAtLeastTwoHAddOfNat
-                                (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
-                                (@Nat.instNeZeroSucc
-                                  (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))))
-                          (@OfNat.ofNat.{0} Real (nat_lit 2)
-                            (@instOfNatAtLeastTwo.{0} Real (nat_lit 2) Real.instNatCast
-                              (@Nat.instAtLeastTwoHAddOfNat
-                                (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
-                                (@Nat.instNeZeroSucc
-                                  (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))))))))))
-                    (@Int.cast.{0} Real Real.instIntCast (Erdos1028.H n)))
-                  (@LE.le.{0} Real Real.instLE (@Int.cast.{0} Real Real.instIntCast (Erdos1028.H n))
-                    (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul) C
-                      (@HPow.hPow.{0, 0, 0} Real Real Real (@instHPow.{0, 0} Real Real Real.instPow)
-                        (@Nat.cast.{0} Real Real.instNatCast n)
-                        (@HDiv.hDiv.{0, 0, 0} Real Real Real
-                          (@instHDiv.{0} Real (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
-                          (@OfNat.ofNat.{0} Real (nat_lit 3)
-                            (@instOfNatAtLeastTwo.{0} Real (nat_lit 3) Real.instNatCast
-                              (@Nat.instAtLeastTwoHAddOfNat
-                                (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
-                                (@Nat.instNeZeroSucc
-                                  (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))))
-                          (@OfNat.ofNat.{0} Real (nat_lit 2)
-                            (@instOfNatAtLeastTwo.{0} Real (nat_lit 2) Real.instNatCast
-                              (@Nat.instAtLeastTwoHAddOfNat
-                                (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
-                                (@Nat.instNeZeroSucc
-                                  (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))))))))))))
-              (@Filter.atTop.{0} Nat Nat.instPreorder)))
-  := by
+open Nat Real ENNReal
+open Finset Sym2
+open MeasureTheory ProbabilityTheory
+open BigOperators
+open Matrix
+open Filter
+
+namespace Erdos1028
+
+theorem erdos_1028 : ∃ c C : ℝ, 0 < c ∧ c < C ∧ ∀ᶠ n : ℕ in atTop, c * (n : ℝ)^(3/2 : ℝ) ≤ (H n : ℝ) ∧ (H n : ℝ) ≤ C * (n : ℝ)^(3/2 : ℝ) := by
   sorry
+
+end Erdos1028

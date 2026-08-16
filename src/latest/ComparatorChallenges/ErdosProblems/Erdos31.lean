@@ -1,7 +1,4 @@
-import Mathlib.Data.Set.Card
-import Mathlib.Order.Interval.Finset.Nat
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 set_option linter.style.setOption false
 set_option aesop.warn.nonterminal false
@@ -46,24 +43,18 @@ open scoped Pointwise
 
 attribute [local instance] Classical.propDecidable
 
-universe u_2
 
-theorem Erdos31.erdos_31 :
-    ∀ (A : Set.{0} Nat),
-      @Set.Infinite.{0} Nat A →
-        @Exists.{1} (Set.{0} Nat) fun (B : Set.{0} Nat) ↦
-          And
-            (@Erdos31.HasDensity.{0} Nat Nat.instPreorder
-              (@LocallyFiniteOrder.toLocallyFiniteOrderBot.{0} Nat Nat.instPreorder
-                Nat.instLocallyFiniteOrder Nat.instOrderBot)
-              B (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero))
-              (@Set.univ.{0} Nat))
-            (@Exists.{1} Nat fun (n0 : Nat) ↦
-              ∀ (n : Nat),
-                @GE.ge.{0} Nat instLENat n n0 →
-                  @Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat)
-                    (@HAdd.hAdd.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
-                      (@instHAdd.{0} (Set.{0} Nat) (@Set.add.{0} Nat instAddNat)) A B)
-                    n)
-  := by
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+open scoped Topology
+
+namespace Erdos31
+
+theorem erdos_31 (A : Set ℕ) (hA : A.Infinite) :
+    ∃ B : Set ℕ, HasDensity B 0 ∧
+      ∃ n0 : ℕ, ∀ n ≥ n0, n ∈ A + B := by
   sorry
+
+end Erdos31

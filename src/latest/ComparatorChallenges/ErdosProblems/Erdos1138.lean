@@ -1,6 +1,4 @@
-import Mathlib.NumberTheory.PrimeCounting
-import Mathlib.Analysis.SpecialFunctions.Log.Basic
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos1138
 
@@ -23,11 +21,11 @@ end Erdos1138
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos1138.erdos1138_corollary :
-    Not
-      (∀ (C : Real),
-        @LT.lt.{0} Real Real.instLT
-            (@OfNat.ofNat.{0} Real (nat_lit 1) (@One.toOfNat1.{0} Real Real.instOne)) C →
-          Erdos1138.AsymptoticA C)
-  := by
+open Nat Set Filter
+
+namespace Erdos1138
+
+theorem erdos1138_corollary : ¬(∀ C : ℝ, 1 < C → AsymptoticA C) := by
   sorry
+
+end Erdos1138

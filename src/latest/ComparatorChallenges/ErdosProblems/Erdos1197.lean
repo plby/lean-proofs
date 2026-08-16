@@ -1,6 +1,4 @@
-import Mathlib.Analysis.SpecialFunctions.Log.Base
-import Mathlib.MeasureTheory.Measure.Haar.OfBasis
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos1197
 
@@ -29,48 +27,16 @@ open Erdos1197
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos1197.negative_answer :
-    @Exists.{1} (Set.{0} Real) fun (E : Set.{0} Real) ↦
-      And (@MeasurableSet.{0} Real Real.measurableSpace E)
-        (And
-          (@LE.le.{0} (Set.{0} Real) (@Set.instLE.{0} Real) E
-            (@Set.Ioi.{0} Real Real.instPreorder
-              (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero))))
-          (And
-            (@LT.lt.{0} ENNReal
-              (@Preorder.toLT.{0} ENNReal
-                (@PartialOrder.toPreorder.{0} ENNReal ENNReal.instPartialOrder))
-              (@OfNat.ofNat.{0} ENNReal (nat_lit 0) (@Zero.toOfNat0.{0} ENNReal ENNReal.instZero))
-              (@DFunLike.coe.{1, 1, 1}
-                (@MeasureTheory.Measure.{0} Real
-                  (@MeasureTheory.MeasureSpace.toMeasurableSpace.{0} Real Real.measureSpace))
-                (Set.{0} Real) (fun (x : Set.{0} Real) ↦ ENNReal)
-                (@MeasureTheory.Measure.instFunLike.{0} Real
-                  (@MeasureTheory.MeasureSpace.toMeasurableSpace.{0} Real Real.measureSpace))
-                (@MeasureTheory.MeasureSpace.volume.{0} Real Real.measureSpace) E))
-            (∀ (x : Real),
-              @Membership.mem.{0, 0} Real (Set.{0} Real) (@Set.instMembership.{0} Real) Erdos1197.I_inf
-                  x →
-                @Set.Infinite.{0} Nat
-                  (@Set.ofPred.{0} Nat fun (n : Nat) ↦
-                    And
-                      (@LT.lt.{0} Nat instLTNat
-                        (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))) n)
-                      (∀ (r : Nat),
-                        @LT.lt.{0} Nat instLTNat
-                            (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))) r →
-                          Not
-                            (@Exists.{1} Real fun (e : Real) ↦
-                              And
-                                (@Membership.mem.{0, 0} Real (Set.{0} Real)
-                                  (@Set.instMembership.{0} Real) E e)
-                                (@Eq.{1} Real x
-                                  (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul)
-                                    (@HDiv.hDiv.{0, 0, 0} Real Real Real
-                                      (@instHDiv.{0} Real
-                                        (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
-                                      (@Nat.cast.{0} Real Real.instNatCast r)
-                                      (@Nat.cast.{0} Real Real.instNatCast n))
-                                    e))))))))
-  := by
+open MeasureTheory Set
+open scoped ENNReal
+
+namespace Erdos1197
+
+theorem negative_answer :
+    ∃ E : Set ℝ, MeasurableSet E ∧ E ⊆ Ioi 0 ∧ 0 < volume E ∧
+      ∀ x ∈ I_inf,
+        {n : ℕ | 0 < n ∧ ∀ r : ℕ, 0 < r →
+          ¬∃ e ∈ E, x = ((r : ℝ) / (n : ℝ)) * e}.Infinite := by
   sorry
+
+end Erdos1197

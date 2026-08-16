@@ -1,7 +1,4 @@
-import Mathlib.LinearAlgebra.Matrix.Defs
-import Mathlib.Topology.Algebra.InfiniteSum.Defs
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos268
 
@@ -23,14 +20,13 @@ end Erdos268
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos268.harmonicSubseriesSet_interior_nonempty :
-    @Set.Nonempty.{0} (Fin (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) → Real)
-      (@interior.{0} (Fin (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))) → Real)
-        (@Pi.topologicalSpace.{0, 0} (Fin (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3))))
-          (fun (a : Fin (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))) ↦ Real)
-          fun (i : Fin (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))) ↦
-          @UniformSpace.toTopologicalSpace.{0} Real
-            (@PseudoMetricSpace.toUniformSpace.{0} Real Real.pseudoMetricSpace))
-        Erdos268.harmonicSubseriesSet)
-  := by
+open Set Filter Topology Matrix
+open scoped BigOperators
+
+namespace Erdos268
+
+theorem harmonicSubseriesSet_interior_nonempty :
+    (interior harmonicSubseriesSet).Nonempty := by
   sorry
+
+end Erdos268

@@ -1,6 +1,4 @@
-import Mathlib.SetTheory.Cardinal.Finite
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos785
 
@@ -36,24 +34,18 @@ end Erdos785
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos785.corollary_erdos_785 :
-    ∀ (A B : Set.{0} Nat),
-      @Set.Infinite.{0} Nat A →
-        @Set.Infinite.{0} Nat B →
-          (∀ (a : Nat),
-              @Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) A a →
-                @Ne.{1} Nat a (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))) →
-            (∀ (b : Nat),
-                @Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) B b →
-                  @Ne.{1} Nat b (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))) →
-              Erdos785.exact_complements A B →
-                @Filter.Tendsto.{0, 0} Real Real
-                  (fun (x : Real) ↦
-                    @HSub.hSub.{0, 0, 0} Real Real Real (@instHSub.{0} Real Real.instSub)
-                      (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul)
-                        (@Nat.cast.{0} Real Real.instNatCast (Erdos785.counting_function A x))
-                        (@Nat.cast.{0} Real Real.instNatCast (Erdos785.counting_function B x)))
-                      x)
-                  (@Filter.atTop.{0} Real Real.instPreorder) (@Filter.atTop.{0} Real Real.instPreorder)
-  := by
+open scoped BigOperators
+open scoped Real
+open scoped Nat
+open scoped Pointwise
+open Pointwise
+
+namespace Erdos785
+
+theorem corollary_erdos_785 (A B : Set ℕ) (h_inf_A : A.Infinite) (h_inf_B : B.Infinite)
+    (h_pos_A : ∀ a ∈ A, a ≠ 0) (h_pos_B : ∀ b ∈ B, b ≠ 0)
+    (h_hyp : exact_complements A B) :
+    Filter.Tendsto (fun x : ℝ => counting_function A x * counting_function B x - x) Filter.atTop Filter.atTop := by
   sorry
+
+end Erdos785

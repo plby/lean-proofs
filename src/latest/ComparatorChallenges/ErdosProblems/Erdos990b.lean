@@ -1,6 +1,4 @@
-import Mathlib.Analysis.Analytic.Polynomial
-import Mathlib.Analysis.SpecialFunctions.Complex.Analytic
-import Mathlib.LinearAlgebra.Lagrange
+import Mathlib
 
 open scoped BigOperators Topology
 open Polynomial
@@ -19,10 +17,11 @@ noncomputable def M (f : ℂ[X]) : ℝ :=
 noncomputable def principalArg (z : ℂ) : ℝ :=
   if Complex.arg z < 0 then Complex.arg z + 2 * Real.pi else Complex.arg z
 
-noncomputable def argRootCount (f : ℂ[X]) (I : Set ℝ) : ℕ :=
-  by
-    classical
-    exact f.roots.countP (fun z : ℂ => principalArg z ∈ I)
+noncomputable def argRootCount (f : ℂ[X]) (I : Set ℝ) : ℕ := by
+  classical
+  letI : Semiring ℂ := DivisionSemiring.toSemiring
+  letI : IsDomain ℂ := instIsDomain
+  exact f.roots.countP (fun z : ℂ => principalArg z ∈ I)
 
 noncomputable def expectedRootCount (d : ℕ) (α β : ℝ) : ℝ :=
   ((β - α) / (2 * Real.pi)) * (d : ℝ)
@@ -43,12 +42,13 @@ end Erdos990b
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos990b.erdos990_no_absolute_constant_sparseErdosTuran :
-    Not
-      (@Exists.{1} Real fun (C : Real) ↦
-        And
-          (@LT.lt.{0} Real Real.instLT
-            (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) C)
-          (Erdos990b.SparseErdosTuranBound C))
-  := by
+open scoped BigOperators Topology
+open Polynomial
+
+namespace Erdos990b
+
+theorem erdos990_no_absolute_constant_sparseErdosTuran :
+    ¬ ∃ C : ℝ, 0 < C ∧ SparseErdosTuranBound C := by
   sorry
+
+end Erdos990b

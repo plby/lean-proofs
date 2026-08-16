@@ -1,6 +1,4 @@
-import Mathlib.NumberTheory.Divisors
-import Mathlib.NumberTheory.Real.Irrational
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 open Nat Finset Real Filter Topology
 
@@ -34,15 +32,14 @@ end Erdos258
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos258.erdos_258 :
-    ∀ (a : Nat → Nat),
-      (∀ (n : Nat),
-          @LT.lt.{0} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
-            (a
-              (@HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) n
-                (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))))) →
-        @Filter.Tendsto.{0, 0} Nat Nat a (@Filter.atTop.{0} Nat Nat.instPreorder)
-            (@Filter.atTop.{0} Nat Nat.instPreorder) →
-          Irrational (Erdos258.erdosSeries a)
-  := by
+open Nat Finset Filter
+open scoped BigOperators Topology
+
+namespace Erdos258
+
+theorem erdos_258 (a : ℕ → ℕ) (ha : ∀ n, 0 < a (n + 1))
+    (ha_tendsto : Tendsto a atTop atTop) :
+    Irrational (erdosSeries a) := by
   sorry
+
+end Erdos258

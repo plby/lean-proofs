@@ -1,6 +1,4 @@
-import Mathlib.Data.Fintype.Basic
-import Mathlib.Data.Real.Basic
-import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+import Mathlib
 
 open Finset BigOperators
 
@@ -23,15 +21,13 @@ end Erdos481
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos481.erdos_481 :
-    ∀ {r : Nat} (a b : Fin r → PNat),
-      @LT.lt.{0} Nat instLTNat (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))) r →
-        @LT.lt.{0} Real Real.instLT
-            (@OfNat.ofNat.{0} Real (nat_lit 1) (@One.toOfNat1.{0} Real Real.instOne))
-            (@Erdos481.C r a) →
-          @Exists.{1} Nat fun (k : Nat) ↦
-            And
-              (@LE.le.{0} Nat instLENat (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) k)
-              (Not (@List.Nodup.{0} PNat (@Erdos481.A r a b k)))
-  := by
+open Finset BigOperators
+
+namespace Erdos481
+
+theorem erdos_481 {r : ℕ} (a b : Fin r → ℕ+)
+    (hr : 0 < r) (hC : 1 < C a) :
+    ∃ k, 1 ≤ k ∧ ¬(A a b k).Nodup := by
   sorry
+
+end Erdos481

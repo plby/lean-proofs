@@ -1,5 +1,4 @@
-import Mathlib.MeasureTheory.Measure.Haar.OfBasis
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos206
 
@@ -34,16 +33,12 @@ end Erdos206
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos206.EgyptianFractions.erdos_206 :
-    @Eq.{1} ENNReal
-      (@DFunLike.coe.{1, 1, 1}
-        (@MeasureTheory.Measure.{0} Real
-          (@MeasureTheory.MeasureSpace.toMeasurableSpace.{0} Real Real.measureSpace))
-        (Set.{0} Real) (fun (x : Set.{0} Real) ↦ ENNReal)
-        (@MeasureTheory.Measure.instFunLike.{0} Real
-          (@MeasureTheory.MeasureSpace.toMeasurableSpace.{0} Real Real.measureSpace))
-        (@MeasureTheory.MeasureSpace.volume.{0} Real Real.measureSpace)
-        (@Set.ofPred.{0} Real fun (x : Real) ↦ Erdos206.EgyptianFractions.EventuallyGreedy x))
-      (@OfNat.ofNat.{0} ENNReal (nat_lit 0) (@Zero.toOfNat0.{0} ENNReal ENNReal.instZero))
-  := by
+open scoped BigOperators ENNReal
+open Finset MeasureTheory Set
+
+namespace Erdos206.EgyptianFractions
+
+theorem erdos_206 : volume {x : ℝ | EventuallyGreedy x} = 0 := by
   sorry
+
+end Erdos206.EgyptianFractions

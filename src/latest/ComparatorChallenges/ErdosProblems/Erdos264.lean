@@ -1,5 +1,4 @@
-import Mathlib.NumberTheory.Real.Irrational
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 set_option linter.style.setOption false
 set_option aesop.warn.nonterminal false
@@ -26,21 +25,12 @@ end Erdos264
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos264.erdos_264.parts.i :
-    Not
-      (Erdos264.IsIrrationalitySequence fun (x : Nat) ↦
-        @HPow.hPow.{0, 0, 0} Nat Nat Nat
-          (@instHPow.{0, 0} Nat Nat (@NPow.toPow.{0} Nat (@Monoid.toNPow.{0} Nat Nat.instMonoid)))
-          (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) x)
-  := by
+namespace Erdos264
+
+theorem erdos_264.parts.i : ¬IsIrrationalitySequence (2 ^ ·) := by
   sorry
-theorem Erdos264.erdos_264.variants.example :
-    Erdos264.IsIrrationalitySequence fun (n : Nat) ↦
-      @HPow.hPow.{0, 0, 0} Nat Nat Nat
-        (@instHPow.{0, 0} Nat Nat (@NPow.toPow.{0} Nat (@Monoid.toNPow.{0} Nat Nat.instMonoid)))
-        (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
-        (@HPow.hPow.{0, 0, 0} Nat Nat Nat
-          (@instHPow.{0, 0} Nat Nat (@NPow.toPow.{0} Nat (@Monoid.toNPow.{0} Nat Nat.instMonoid)))
-          (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n)
-  := by
+
+theorem erdos_264.variants.example : IsIrrationalitySequence (fun n ↦ 2 ^ (2 ^ n)) := by
   sorry
+
+end Erdos264

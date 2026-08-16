@@ -2,7 +2,7 @@
   "challenge_module": "Erdos594",
   "solution_module": "ErdosProblems.Erdos594",
   "theorem_names": [
-    "Erdos594.erdos_594"
+    "erdos_594"
   ],
   "permitted_axioms": [
     "propext",
@@ -11,4 +11,3 @@
   ],
   "enable_nanoda": true
 }
-

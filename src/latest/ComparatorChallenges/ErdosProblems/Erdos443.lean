@@ -1,5 +1,4 @@
-import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos443
 
@@ -25,34 +24,19 @@ end Erdos443
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos443.erdos_443_part_one :
-    ∀ (s : Nat),
-      @Exists.{1} Nat fun (m : Nat) ↦
-        @Exists.{1} Nat fun (n : Nat) ↦
-          And (@LT.lt.{0} Nat instLTNat n m)
-            (@LE.le.{0} Real Real.instLE (@Nat.cast.{0} Real Real.instNatCast s)
-              (@Nat.cast.{0} Real Real.instNatCast
-                (@Finset.card.{0} Nat
-                  (@Inter.inter.{0} (Finset.{0} Nat) (@Finset.instInter.{0} Nat instDecidableEqNat)
-                    (Erdos443.A n) (Erdos443.A m)))))
-  := by
+open scoped Classical
+open scoped Pointwise
+
+namespace Erdos443
+
+theorem erdos_443_part_one (s : ℕ) :
+  ∃ m n : ℕ, n < m ∧ s ≤ ((A n ∩ A m).card : ℝ) := by
   sorry
-theorem Erdos443.erdos_443_part_two :
-    ∀ (ε : Real),
-      @LT.lt.{0} Real Real.instLT
-          (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) ε →
-        @Exists.{1} Nat fun (n₀ : Nat) ↦
-          ∀ (m n : Nat),
-            @LT.lt.{0} Nat instLTNat n₀ n →
-              @LT.lt.{0} Nat instLTNat n m →
-                @LT.lt.{0} Real Real.instLT
-                  (@Nat.cast.{0} Real Real.instNatCast
-                    (@Finset.card.{0} Nat
-                      (@Inter.inter.{0} (Finset.{0} Nat) (@Finset.instInter.{0} Nat instDecidableEqNat)
-                        (Erdos443.A n) (Erdos443.A m))))
-                  (@HPow.hPow.{0, 0, 0} Real Real Real (@instHPow.{0, 0} Real Real Real.instPow)
-                    (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul)
-                      (@Nat.cast.{0} Real Real.instNatCast m) (@Nat.cast.{0} Real Real.instNatCast n))
-                    ε)
-  := by
+
+
+theorem erdos_443_part_two (ε : ℝ) (hε : 0 < ε) :
+  ∃ n₀ : ℕ, ∀ m n : ℕ, n₀ < n → n < m →
+  ((A n ∩ A m).card : ℝ) < ((m : ℝ) * n) ^ (ε) := by
   sorry
+
+end Erdos443

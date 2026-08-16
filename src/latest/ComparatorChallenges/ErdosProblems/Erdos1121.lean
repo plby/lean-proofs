@@ -1,6 +1,4 @@
-import Mathlib.AlgebraicTopology.SimplexCategory.Basic
-import Mathlib.Analysis.InnerProductSpace.PiL2
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 set_option linter.style.setOption false
 set_option linter.flexible false
@@ -24,7 +22,7 @@ noncomputable def perp2D (v : EuclideanSpace ℝ (Fin 2)) : EuclideanSpace ℝ (
   (EuclideanSpace.equiv (Fin 2) ℝ).symm ![-(v 1), v 0]
 
 noncomputable def Line2D.signedDist (L : Line2D) (x : EuclideanSpace ℝ (Fin 2)) : ℝ :=
-  @inner ℝ _ _ (perp2D L.direction) (x - L.point)
+  inner ℝ (perp2D L.direction) (x - L.point)
 
 def Circle2D.disjointFromLine (C : Circle2D) (L : Line2D) : Prop :=
   |L.signedDist C.center| > C.radius

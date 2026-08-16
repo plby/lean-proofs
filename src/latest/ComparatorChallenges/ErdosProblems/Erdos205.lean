@@ -1,5 +1,4 @@
-import Mathlib.Analysis.SpecialFunctions.Log.Basic
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Erdos205
 
@@ -14,11 +13,12 @@ end Erdos205
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos205.infinitely_many_counterexamples :
-    @Exists.{1} Real fun (c : Real) ↦
-      And
-        (@LT.lt.{0} Real Real.instLT
-          (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) c)
-        (@Set.Infinite.{0} Nat (@Set.ofPred.{0} Nat fun (n : Nat) ↦ Erdos205.is_counterexample c n))
-  := by
+open Real Filter Asymptotics
+
+namespace Erdos205
+
+theorem infinitely_many_counterexamples :
+    ∃ c : ℝ, 0 < c ∧ {n : ℕ | is_counterexample c n}.Infinite := by
   sorry
+
+end Erdos205

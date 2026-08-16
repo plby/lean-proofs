@@ -1,5 +1,4 @@
-import Mathlib.Analysis.SpecialFunctions.Log.Basic
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 open scoped Topology
 
@@ -31,29 +30,33 @@ end Erdos164
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos164.erdos164 :
-    And (Erdos164.PrimitiveSet Erdos164.primeSet)
-      (And (@Eq.{1} Real (Erdos164.primitiveWeightSum Erdos164.primeSet) Erdos164.primeWeightSum)
-        (∀ (A : Set.{0} Nat),
-          Erdos164.PrimitiveSet A →
-            @LE.le.{0} Real Real.instLE (Erdos164.primitiveWeightSum A)
-              (Erdos164.primitiveWeightSum Erdos164.primeSet)))
-  := by
+open scoped Topology
+open Filter Asymptotics MeasureTheory
+open scoped Nat.Prime
+
+namespace Erdos164
+
+theorem erdos164 :
+    PrimitiveSet primeSet ∧
+      primitiveWeightSum primeSet = primeWeightSum ∧
+      ∀ A : Set ℕ, PrimitiveSet A → primitiveWeightSum A ≤ primitiveWeightSum primeSet := by
   sorry
-theorem Erdos164.erdos_strong_of_two :
-    Erdos164.erdos_strong (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))
-  := by
+
+
+theorem erdos_strong_of_two : erdos_strong 2 := by
   sorry
+
+end Erdos164
 theorem Erdos164.erdos_strong_of_prime :
     ∀ {p : Nat}, Nat.Prime p → Erdos164.erdos_strong p
   := by
   sorry
-theorem Erdos164.erdos164_alt :
-    And (Erdos164.PrimitiveSet Erdos164.primeSet)
-      (And (@Eq.{1} Real (Erdos164.primitiveWeightSum Erdos164.primeSet) Erdos164.primeWeightSum)
-        (∀ (A : Set.{0} Nat),
-          Erdos164.PrimitiveSet A →
-            @LE.le.{0} Real Real.instLE (Erdos164.primitiveWeightSum A)
-              (Erdos164.primitiveWeightSum Erdos164.primeSet)))
-  := by
+namespace Erdos164
+
+theorem erdos164_alt :
+    PrimitiveSet primeSet ∧
+      primitiveWeightSum primeSet = primeWeightSum ∧
+      ∀ A : Set ℕ, PrimitiveSet A → primitiveWeightSum A ≤ primitiveWeightSum primeSet := by
   sorry
+
+end Erdos164

@@ -1,6 +1,4 @@
-import Mathlib.NumberTheory.DirichletCharacter.Basic
-import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import Mathlib
 
 namespace Pollack17
 
@@ -40,13 +38,18 @@ end Erdos1141
 
 attribute [local instance] Classical.propDecidable
 
-theorem Erdos1141.erdos_1141_variant :
-    @Set.Finite.{0} Nat
-      (@Set.ofPred.{0} Nat fun (n : Nat) ↦
-        Erdos1141.Pa (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) n)
-  := by
+open scoped BigOperators
+open Finset Real
+open Nat Set
+
+namespace Erdos1141
+
+theorem erdos_1141_variant : Set.Finite {n : ℕ | Pa 1 n} := by
   sorry
-theorem Erdos1141.erdos_1141 :
-    Not (Infinite.{1} (@Set.Elem.{0} Nat (@Set.ofPred.{0} Nat fun (n : Nat) ↦ Erdos1141.Erdos1141Prop n)))
-  := by
+
+
+theorem erdos_1141 :
+    ¬ Infinite { n | Erdos1141Prop n } := by
   sorry
+
+end Erdos1141
