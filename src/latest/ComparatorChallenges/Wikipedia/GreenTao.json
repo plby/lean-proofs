@@ -1,0 +1,13 @@
+{
+  "challenge_module": "GreenTao",
+  "solution_module": "Wikipedia.GreenTao",
+  "theorem_names": [
+    "GreenTao.green_tao"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
