@@ -23,7 +23,7 @@ theorem Erdos646.infinitely_many_even_factorial_exponents :
       (∀ (i : Fin k), Nat.Prime (p i)) →
         @Function.Injective.{1, 1} (Fin k) Nat p →
           @Set.Infinite.{0} Nat
-            (@setOf.{0} Nat fun (n : Nat) ↦
+            (@Set.ofPred.{0} Nat fun (n : Nat) ↦
               ∀ (i : Fin k),
                 @Eq.{1} (ZMod (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
                   (Erdos646.partial_sum k p n i)

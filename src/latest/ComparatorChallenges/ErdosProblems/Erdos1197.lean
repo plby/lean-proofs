@@ -52,7 +52,7 @@ theorem Erdos1197.negative_answer :
               @Membership.mem.{0, 0} Real (Set.{0} Real) (@Set.instMembership.{0} Real) Erdos1197.I_inf
                   x →
                 @Set.Infinite.{0} Nat
-                  (@setOf.{0} Nat fun (n : Nat) ↦
+                  (@Set.ofPred.{0} Nat fun (n : Nat) ↦
                     And
                       (@LT.lt.{0} Nat instLTNat
                         (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))) n)

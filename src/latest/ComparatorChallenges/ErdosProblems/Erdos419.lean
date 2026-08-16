@@ -13,7 +13,7 @@ attribute [local instance] Classical.propDecidable
 
 theorem Erdos419.erdos_419 :
     @Eq.{1} (Set.{0} Real)
-      (@setOf.{0} Real fun (x : Real) ↦
+      (@Set.ofPred.{0} Real fun (x : Real) ↦
         @MapClusterPt.{0, 0} Real
           (@UniformSpace.toTopologicalSpace.{0} Real
             (@PseudoMetricSpace.toUniformSpace.{0} Real Real.pseudoMetricSpace))

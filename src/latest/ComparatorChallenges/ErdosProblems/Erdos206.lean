@@ -43,7 +43,7 @@ theorem Erdos206.EgyptianFractions.erdos_206 :
         (@MeasureTheory.Measure.instFunLike.{0} Real
           (@MeasureTheory.MeasureSpace.toMeasurableSpace.{0} Real Real.measureSpace))
         (@MeasureTheory.MeasureSpace.volume.{0} Real Real.measureSpace)
-        (@setOf.{0} Real fun (x : Real) ↦ Erdos206.EgyptianFractions.EventuallyGreedy x))
+        (@Set.ofPred.{0} Real fun (x : Real) ↦ Erdos206.EgyptianFractions.EventuallyGreedy x))
       (@OfNat.ofNat.{0} ENNReal (nat_lit 0) (@Zero.toOfNat0.{0} ENNReal ENNReal.instZero))
   := by
   sorry

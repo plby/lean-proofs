@@ -43,7 +43,7 @@ theorem Erdos115.eremenko_lempert_1999 :
                             (@NormedCommRing.toSeminormedCommRing.{0} Complex
                               (@CommCStarAlgebra.toNormedCommRing.{0} Complex
                                 instCommCStarAlgebraComplex))))))
-                    (@setOf.{0} Complex fun (z : Complex) ↦
+                    (@Set.ofPred.{0} Complex fun (z : Complex) ↦
                       @LE.le.{0} Real Real.instLE
                         (@Norm.norm.{0} Complex Complex.instNorm
                           (@Polynomial.eval.{0} Complex Complex.instSemiring z p))

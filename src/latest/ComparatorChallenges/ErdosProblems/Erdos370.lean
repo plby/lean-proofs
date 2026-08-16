@@ -17,7 +17,7 @@ attribute [local instance] Classical.propDecidable
 theorem Erdos370.erdos_370 :
     Iff
       (@Set.Infinite.{0} Nat
-        (@setOf.{0} Nat fun (n : Nat) ↦
+        (@Set.ofPred.{0} Nat fun (n : Nat) ↦
           And
             (@LT.lt.{0} Real Real.instLT (@Nat.cast.{0} Real Real.instNatCast (Erdos370.maxPrimeFac n))
               (@Nat.cast.{0} Real Real.instNatCast n).sqrt)

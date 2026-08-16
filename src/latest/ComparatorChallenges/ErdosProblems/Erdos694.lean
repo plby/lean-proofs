@@ -280,7 +280,7 @@ theorem Erdos694.infinitely_many_collisions :
         @LT.lt.{0} Nat instLTNat b a →
           @Eq.{1} Nat a.totient b.totient →
             @Set.Infinite.{0} Nat
-              (@setOf.{0} Nat fun (N : Nat) ↦
+              (@Set.ofPred.{0} Nat fun (N : Nat) ↦
                 @Exists.{1} Nat fun (x : Nat) ↦
                   @Exists.{1} Nat fun (y : Nat) ↦
                     And (@Eq.{1} Nat x.totient N)

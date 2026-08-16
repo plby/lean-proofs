@@ -46,7 +46,7 @@ theorem Erdos125.erdos_125 :
           Nat.instOrderBot)
         (@HAdd.hAdd.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
           (@instHAdd.{0} (Set.{0} Nat) (@Set.add.{0} Nat instAddNat))
-          (@setOf.{0} Nat fun (x : Nat) ↦
+          (@Set.ofPred.{0} Nat fun (x : Nat) ↦
             @LE.le.{0} (Finset.{0} Nat)
               (@Preorder.toLE.{0} (Finset.{0} Nat)
                 (@PartialOrder.toPreorder.{0} (Finset.{0} Nat) (@Finset.instPartialOrder.{0} Nat)))
@@ -57,7 +57,7 @@ theorem Erdos125.erdos_125 :
                 (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
                 (@Singleton.singleton.{0, 0} Nat (Finset.{0} Nat) (@Finset.instSingleton.{0} Nat)
                   (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))))
-          (@setOf.{0} Nat fun (x : Nat) ↦
+          (@Set.ofPred.{0} Nat fun (x : Nat) ↦
             @LE.le.{0} (Finset.{0} Nat)
               (@Preorder.toLE.{0} (Finset.{0} Nat)
                 (@PartialOrder.toPreorder.{0} (Finset.{0} Nat) (@Finset.instPartialOrder.{0} Nat)))
@@ -80,7 +80,7 @@ theorem Erdos125.erdos_125.variants.positive_lower_density :
             Nat.instLocallyFiniteOrder Nat.instOrderBot)
           (@HAdd.hAdd.{0, 0, 0} (Set.{0} Nat) (Set.{0} Nat) (Set.{0} Nat)
             (@instHAdd.{0} (Set.{0} Nat) (@Set.add.{0} Nat instAddNat))
-            (@setOf.{0} Nat fun (x : Nat) ↦
+            (@Set.ofPred.{0} Nat fun (x : Nat) ↦
               @LE.le.{0} (Finset.{0} Nat)
                 (@Preorder.toLE.{0} (Finset.{0} Nat)
                   (@PartialOrder.toPreorder.{0} (Finset.{0} Nat) (@Finset.instPartialOrder.{0} Nat)))
@@ -91,7 +91,7 @@ theorem Erdos125.erdos_125.variants.positive_lower_density :
                   (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))
                   (@Singleton.singleton.{0, 0} Nat (Finset.{0} Nat) (@Finset.instSingleton.{0} Nat)
                     (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))))))
-            (@setOf.{0} Nat fun (x : Nat) ↦
+            (@Set.ofPred.{0} Nat fun (x : Nat) ↦
               @LE.le.{0} (Finset.{0} Nat)
                 (@Preorder.toLE.{0} (Finset.{0} Nat)
                   (@PartialOrder.toPreorder.{0} (Finset.{0} Nat) (@Finset.instPartialOrder.{0} Nat)))

@@ -15,7 +15,7 @@ theorem Erdos221.thm_main :
                   @LE.le.{0} Real Real.instLE
                     (@Nat.cast.{0} Real Real.instNatCast
                       (@Set.ncard.{0} Nat
-                        (@setOf.{0} Nat fun (a : Nat) ↦
+                        (@Set.ofPred.{0} Nat fun (a : Nat) ↦
                           And
                             (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) A a)
                             (@LE.le.{0} Nat instLENat a x))))

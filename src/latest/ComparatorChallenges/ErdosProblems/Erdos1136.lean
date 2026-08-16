@@ -147,7 +147,7 @@ theorem Erdos1136.general_upper_bound_infinite :
                         (@Nat.cast.{0} Real Real.instNatCast n))
                     (@Filter.atTop.{0} Nat Nat.instPreorder)) →
                 @Set.Infinite.{0} Nat
-                  (@setOf.{0} Nat fun (i : Nat) ↦
+                  (@Set.ofPred.{0} Nat fun (i : Nat) ↦
                     @Exists.{1} Nat fun (a : Nat) ↦
                       And (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) A a)
                         (@Exists.{1} Nat fun (b : Nat) ↦

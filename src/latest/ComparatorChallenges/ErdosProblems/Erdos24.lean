@@ -8,6 +8,15 @@ open Finset Function SimpleGraph Fintype Nat Matrix
 
 attribute [local instance] Classical.propDecidable
 
+def σ₂FlagIdx (adjDA adjDCenter adjDC : Bool) : Option (Fin 5) :=
+  match adjDA, adjDCenter, adjDC with
+  | false, false, false => some 0
+  | true, false, false => some 1
+  | false, true, false => some 2
+  | false, false, true => some 3
+  | true, false, true => some 4
+  | _, _, _ => none
+
 def _root_.SimpleGraph.IsLabeledC5 {V : Type*} (G : SimpleGraph V) (f : Fin 5 → V) : Prop :=
   Function.Injective f ∧ ∀ i : Fin 5, G.Adj (f i) (f (i + 1))
 
