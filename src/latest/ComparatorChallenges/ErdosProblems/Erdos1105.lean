@@ -42,6 +42,8 @@ theorem not_erdos_1105_parts_ii_type :
           ((ℓ - 1).choose 2 + (ℓ - 1) * (n - ℓ + 1) + ε)) := by
   sorry
 
+open Asymptotics Filter
+
 theorem not_erdos_1105_parts_i_type :
     ¬(True ↔ ∀ k : ℕ, 3 ≤ k →
       ((fun n : ℕ ↦ (antiRamseyNum (cycleGraph k) n : ℝ) -
