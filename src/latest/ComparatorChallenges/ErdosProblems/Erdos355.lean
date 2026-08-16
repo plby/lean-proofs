@@ -103,7 +103,7 @@ theorem Erdos355.Theorem_1 :
                             (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
                             (@Nat.instNeZeroSucc
                               (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0))))))))
-                    (@setOf.{0} Real fun (x : Real) ↦
+                    (@Set.ofPred.{0} Real fun (x : Real) ↦
                       @Exists.{1} Rat fun (q : Rat) ↦
                         @Eq.{1} Real x (@Rat.cast.{0} Real Real.instRatCast q)))
                   (Erdos355.SubsetSums fun (i : Nat) ↦
@@ -163,7 +163,7 @@ theorem Erdos355.Theorem_3 :
                     (n i))
                 (And
                   (@Set.Infinite.{0} Nat
-                    (@setOf.{0} Nat fun (i : Nat) ↦
+                    (@Set.ofPred.{0} Nat fun (i : Nat) ↦
                       @GT.gt.{0} Real Real.instLT
                         (@Nat.cast.{0} Real Real.instNatCast
                           (n
@@ -183,7 +183,7 @@ theorem Erdos355.Theorem_3 :
                           (@instHDiv.{0} Real (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
                           (@OfNat.ofNat.{0} Real (nat_lit 1) (@One.toOfNat1.{0} Real Real.instOne))
                           (@Nat.cast.{0} Real Real.instNatCast (n i)))
-                      (@setOf.{0} Real fun (x : Real) ↦
+                      (@Set.ofPred.{0} Real fun (x : Real) ↦
                         @Exists.{1} Rat fun (q : Rat) ↦
                           @Eq.{1} Real x (@Rat.cast.{0} Real Real.instRatCast q))))))
   := by
@@ -211,7 +211,7 @@ theorem Erdos355.Theorem_4 :
                     (fun (x : Nat) ↦
                       @Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) S x)
                     i)))
-            (@setOf.{0} Real fun (x : Real) ↦
+            (@Set.ofPred.{0} Real fun (x : Real) ↦
               @Exists.{1} Rat fun (q : Rat) ↦ @Eq.{1} Real x (@Rat.cast.{0} Real Real.instRatCast q)))
   := by
   sorry
@@ -225,7 +225,7 @@ theorem Erdos355.erdos_355 :
                 @Membership.mem.{0, 0} Real (Set.{0} Real) (@Set.instMembership.{0} Real)
                     (@Set.Ioo.{0} Real Real.instPreorder u v) (@Rat.cast.{0} Real Real.instRatCast q) →
                   @Membership.mem.{0, 0} Rat (Set.{0} Rat) (@Set.instMembership.{0} Rat)
-                    (@setOf.{0} Rat fun (x : Rat) ↦
+                    (@Set.ofPred.{0} Rat fun (x : Rat) ↦
                       @Exists.{1} (Finset.{0} Nat) fun (A' : Finset.{0} Nat) ↦
                         @Exists.{0}
                           (@LE.le.{0} (Set.{0} Nat) (@Set.instLE.{0} Nat)

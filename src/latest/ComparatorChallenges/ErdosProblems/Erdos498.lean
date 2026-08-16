@@ -16,13 +16,13 @@ theorem Erdos498.littlewood_offord_complex_bound :
               (@Singleton.singleton.{0, 0} Int (Finset.{0} Int) (@Finset.instSingleton.{0} Int)
                 (@OfNat.ofNat.{0} Int (nat_lit 1) (@instOfNat (nat_lit 1))));
           have all_coeffs :=
-            @setOf.{0} (Fin n → Int) fun (ε : Fin n → Int) ↦
+            @Set.ofPred.{0} (Fin n → Int) fun (ε : Fin n → Int) ↦
               ∀ (i : Fin n),
                 @Membership.mem.{0, 0} Int (Finset.{0} Int)
                   (@SetLike.instMembership.{0, 0} (Finset.{0} Int) Int (@Finset.instSetLike.{0} Int))
                   signs (ε i);
           have valid_sums :=
-            @setOf.{0} (Fin n → Int) fun (ε : Fin n → Int) ↦
+            @Set.ofPred.{0} (Fin n → Int) fun (ε : Fin n → Int) ↦
               And
                 (@Membership.mem.{0, 0} (Fin n → Int) (Set.{0} (Fin n → Int))
                   (@Set.instMembership.{0} (Fin n → Int)) all_coeffs ε)

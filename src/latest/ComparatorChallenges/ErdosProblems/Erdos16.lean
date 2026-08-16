@@ -24,7 +24,7 @@ theorem Erdos16.ErdosProblem16 :
               And (Erdos16.density_zero W)
                 (@Eq.{1} (Set.{0} Nat) Erdos16.U
                   (@Union.union.{0} (Set.{0} Nat) (@Set.instUnion.{0} Nat)
-                    (@setOf.{0} Nat fun (x : Nat) ↦
+                    (@Set.ofPred.{0} Nat fun (x : Nat) ↦
                       @Exists.{1} Nat fun (h : Nat) ↦
                         @Eq.{1} Nat x
                           (@HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat)

@@ -15,6 +15,9 @@ open scoped Asymptotics
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
 
+@[instance_reducible] noncomputable def instDecidablePredNat_erdosProblems (A : Set Nat) : DecidablePred A :=
+  Classical.decPred A
+
 end Erdos331
 
 open Erdos331
@@ -126,7 +129,7 @@ theorem Erdos331.erdos_331 :
                           (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))))))))
             fun (n : Nat) ↦
             @Nat.cast.{0} Real Real.instNatCast
-              (@Nat.count A (fun (a : Nat) ↦ Classical.propDecidable (A a)) n)) →
+              (@Nat.count A (Erdos331.instDecidablePredNat_erdosProblems A) n)) →
           (@Asymptotics.IsBigO.{0, 0, 0} Nat Real Real Real.norm Real.norm
               (@Filter.atTop.{0} Nat Nat.instPreorder)
               (fun (n : Nat) ↦
@@ -143,9 +146,9 @@ theorem Erdos331.erdos_331 :
                             (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))))))))
               fun (n : Nat) ↦
               @Nat.cast.{0} Real Real.instNatCast
-                (@Nat.count B (fun (a : Nat) ↦ Classical.propDecidable (B a)) n)) →
+                (@Nat.count B (Erdos331.instDecidablePredNat_erdosProblems B) n)) →
             @Set.Infinite.{0} (Prod.{0, 0} Nat (Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat)))
-              (@setOf.{0} (Prod.{0, 0} Nat (Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat)))
+              (@Set.ofPred.{0} (Prod.{0, 0} Nat (Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat)))
                 fun (s : Prod.{0, 0} Nat (Prod.{0, 0} Nat (Prod.{0, 0} Nat Nat))) ↦
                 let a₁ := s.1
                 let a₂ := s.2.1

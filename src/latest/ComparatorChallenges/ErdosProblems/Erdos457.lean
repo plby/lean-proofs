@@ -21,7 +21,7 @@ universe u_1
 
 theorem Erdos457.thm_main :
     @Set.Infinite.{0} Nat
-      (@setOf.{0} Nat fun (n : Nat) ↦
+      (@Set.ofPred.{0} Nat fun (n : Nat) ↦
         ∀ (p : Nat),
           Nat.Prime p →
             @LE.le.{0} Real Real.instLE (@Nat.cast.{0} Real Real.instNatCast p)
@@ -39,7 +39,7 @@ theorem Erdos457.erdos_457 :
         (@GT.gt.{0} Real Real.instLT ε
           (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)))
         (@Set.Infinite.{0} Nat
-          (@setOf.{0} Nat fun (n : Nat) ↦
+          (@Set.ofPred.{0} Nat fun (n : Nat) ↦
             ∀ (p : Nat),
               @LE.le.{0} Real Real.instLE (@Nat.cast.{0} Real Real.instNatCast p)
                   (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul)

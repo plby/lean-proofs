@@ -62,7 +62,7 @@ theorem Erdos204.erdos_204 :
       (@Exists.{1} Nat fun (n : Nat) ↦
         @Exists.{1} (Nat → Int) fun (a : Nat → Int) ↦
           have D :=
-            @setOf.{0} Nat fun (d : Nat) ↦
+            @Set.ofPred.{0} Nat fun (d : Nat) ↦
               And (@Dvd.dvd.{0} Nat Nat.instDvd d n)
                 (@GT.gt.{0} Nat instLTNat d
                   (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))));

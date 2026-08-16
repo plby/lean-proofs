@@ -570,7 +570,7 @@ theorem Erdos333.main_obstruction :
         (@Exists.{1} (Set.{0} Nat) fun (B : Set.{0} Nat) ↦
           And
             (@LE.le.{0} (Set.{0} Nat) (@Set.instLE.{0} Nat) Erdos333.A
-              (@setOf.{0} Nat fun (x : Nat) ↦
+              (@Set.ofPred.{0} Nat fun (x : Nat) ↦
                 @Exists.{1} Nat fun (b : Nat) ↦
                   @Exists.{1} Nat fun (b' : Nat) ↦
                     And (@Membership.mem.{0, 0} Nat (Set.{0} Nat) (@Set.instMembership.{0} Nat) B b)
