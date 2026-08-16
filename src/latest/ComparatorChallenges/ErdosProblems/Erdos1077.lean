@@ -9,11 +9,7 @@ import Mathlib
 /-!
 # Erdős Problem 1077
 
-The literal upstream statement has a negative answer.  The complete bipartite
-graph `K_{2k, k^4 - 2k}` has more than `(k^4)^(5/4)` edges, while every
-nonempty `D`-balanced subgraph has at most `2 * (D + 1) * k` vertices.
-
-The detailed mathematical proof and Leanization map are in `tex/1077.tex`.
+The literal upstream statement about balanced subgraphs has a negative answer.
 -/
 
 syntax (name := answerSyntax1077) "answer(" term ")" : term
@@ -35,8 +31,6 @@ namespace Erdos1077
 open Finset Filter SimpleGraph
 
 attribute [local instance] Classical.propDecidable Classical.decEq
-
-/-- The real-power identity used for the edge threshold. -/
 
 theorem erdos_1077 :
     answer(False) ↔ ∀ ε > (0 : ℝ), ε < 1 → ∀ α > (0 : ℝ), α < 1 →

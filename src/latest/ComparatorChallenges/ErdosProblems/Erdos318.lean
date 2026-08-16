@@ -5,9 +5,6 @@ import Mathlib
 # Erdős Problem 318
 
 This file uses the exact `P₁` predicate from the Formal Conjectures statement.
-The theorem `not_contain_single_even_as_stated` records a boundary defect in
-one auxiliary statement from that file: `A = {2}` has exactly one even member,
-but has `P₁` vacuously because it admits no nonconstant signing.
 -/
 
 open Filter Set Real
@@ -54,10 +51,6 @@ def P₁ (A : Set ℕ) : Prop := ∀ (f : ℕ → ℝ),
   f ∘ (Subtype.val : (A \ {0} : Set ℕ) → ℕ) ≠ (fun _ => -1) →
   Set.range f ⊆ {1, -1} →
   ∃ S : Finset ℕ, S.Nonempty ∧ ↑S ⊆ A \ {0} ∧ ∑ n ∈ S, f n / n = 0
-
-/-! ## The malformed auxiliary statement -/
-
-/-- A singleton has `P₁` vacuously: every `{±1}`-valued signing is constant. -/
 
 theorem erdos_318.parts.i : ∃ A : Set ℕ, A.HasPosDensity ∧ ¬ P₁ A := by
   sorry

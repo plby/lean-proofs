@@ -46,7 +46,7 @@ macro_rules
 
 namespace Erdos987
 
-/-! This file contains the material needed for the two questions: Tao's L2 argument for the universal lower statement, and the APSSV prefix-scrambled van der Corput construction for the little-o witness. The detailed mathematical proof and declaration map are in tex/987.tex. Indices are zero-based, so range n represents j < n. -/
+/-! Indices are zero-based, so `range n` represents `j < n`. -/
 
 /- ## API for the additive character `e(x) = e^{2πi x}` -/
 

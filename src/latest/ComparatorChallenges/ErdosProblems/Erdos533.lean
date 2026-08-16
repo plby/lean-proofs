@@ -41,13 +41,6 @@ noncomputable def complexSphereProbability (k : ℕ) :
     (complexSphereProbability k : MeasureTheory.Measure (ComplexSphere k)) Set.univ = 1 := by
   exact MeasureTheory.measure_univ
 
-/-! ## A two-set concentration lemma on a real sphere -/
-
-/-- Brunn--Minkowski applied to the two truncated cones over `A` and `-B`.
-If both sets have more than `(d / 2)^h` of the spherical surface measure,
-then some pair has distance greater than `d`.  This two-set form is the
-concentration input used to find the three approximate rotations. -/
-
 theorem erdos_533 : answer(False) ↔
     ∀ δ : ℝ, 0 < δ → ∃ c : ℝ, 0 < c ∧ ∀ᶠ n : ℕ in atTop,
       ∀ G : SimpleGraph (Fin n), G.CliqueFree 5 →

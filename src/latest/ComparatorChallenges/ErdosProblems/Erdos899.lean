@@ -3,10 +3,8 @@ import Mathlib
 /-!
 # Erdős Problem 899
 
-Ruzsa's translate-layer proof that an infinite set of natural numbers of
-asymptotic density zero has an unbounded positive-difference/count ratio.
-
-The mathematical proof and a detailed formalization guide are in `tex/899.tex`.
+An infinite set of natural numbers of asymptotic density zero has an
+unbounded positive-difference/count ratio.
 -/
 
 open Filter Set
@@ -18,7 +16,7 @@ syntax (name := answerSyntax899) "answer(" term ")" : term
 macro_rules
   | `(answer($t)) => `($t)
 
-/-! ## Finite-window counting and increasing enumerations -/
+/-! ## Finite-window counting -/
 
 /-- The finite window consisting of the elements of `S` in `[1, N]`. -/
 noncomputable def window (S : Set ℕ) (N : ℕ) : Finset ℕ :=
@@ -40,4 +38,3 @@ theorem erdos_899 : answer(True) ↔ ∀ (A : Set ℕ), A.Infinite →
     atTop.limsup (fun N => ((A - A : Set ℕ) ∩ Icc 1 N |>.ncard : EReal) /
       (A ∩ Icc 1 N).ncard) = ⊤ := by
   sorry
-

@@ -10,11 +10,7 @@ import Mathlib
 # Erdős Problem 825
 
 Benkoski and Erdős asked whether sufficiently large abundancy forces an
-integer to be a sum of distinct proper divisors.  Larsen proved this by a
-rough-number reduction, a controlled greedy construction, and a weighted
-unit-fraction circle method.
-
-The detailed mathematical proof and its Leanization map are in `tex/825.tex`.
+integer to be a sum of distinct proper divisors.
 -/
 
 open scoped ArithmeticFunction.sigma BigOperators List

@@ -28,10 +28,6 @@ noncomputable def f (r m : ℕ) : ℕ :=
           chromaticNumber (H.coe.deleteEdges E) ≤ (r : ℕ∞)) →
       chromaticNumber G ≤ (r + 1 : ℕ∞)}
 
-/-- In the exact specification, `f 2 m` vanishes once `m ≥ 5`.
-The witness refuting every candidate threshold is the complete graph on four
-vertices: it has no `m`-vertex subgraph, but it is not 3-colourable. -/
-
 theorem f_asymptotic_2 : answer(False) ↔
     (fun (n : ℕ) => (n : ℝ)) =o[atTop] (fun (n : ℕ) => (f 2 n : ℝ)) := by
   sorry
@@ -41,4 +37,3 @@ theorem f_asymptotic_general :
       (fun n : ℕ => ((r : ℝ) * n)) =o[atTop]
         (fun n : ℕ => (f r n : ℝ)) := by
   sorry
-

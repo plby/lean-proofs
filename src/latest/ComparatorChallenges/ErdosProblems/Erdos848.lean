@@ -13,21 +13,14 @@ Ported and adapted for this repository by OpenAI Codex.
 /-
 Erdős Problem #848 — Self-Contained Formalization
 
-This file formalizes Sawhney's asymptotic theorem (2025), NOT the full Erdős conjecture.
+The comparator target is Sawhney's asymptotic theorem (2025), NOT the full
+Erdős conjecture.
 
 Original Problem 848 (STILL OPEN):
   Is max|A| ≤ |A₇(N)| for ALL N?
 
-What This File Proves:
+Asymptotic statement:
   ∃ N₀, ∀ N ≥ N₀, max|A| ≤ |A₇(N)|  (asymptotic result)
-
-Contents:
-- All definitions and helper lemmas
-- Sieve bounds (diagonal and off-diagonal)
-- The main stability theorem `SawhneyMain`
-- Asymptotic theorem `erdos_848.variants.asymptotic`
-
-Build status: complete proof under the default Lean limits.
 
 Citation: Sawhney (2025)
 -/
@@ -96,12 +89,6 @@ instance instDecidableNonSquarefreeProductProp (A : Finset ℕ) :
     Decidable (NonSquarefreeProductProp A) := by
   unfold NonSquarefreeProductProp
   infer_instance
-
--- ============================================================================
--- SECTION 2: MOD 25 DIVISIBILITY LEMMAS (PROVED)
--- ============================================================================
-
-/-- Key lemma: If `a ≡ b ≡ r (mod 25)` and `r*r ≡ -1 (mod 25)`, then `5² | (ab + 1)`. -/
 
 theorem erdos_848.variants.asymptotic : ∀ᶠ N in Filter.atTop, Erdos848For N := by
   sorry

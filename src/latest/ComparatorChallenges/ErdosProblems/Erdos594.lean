@@ -10,8 +10,7 @@ import Mathlib
 # Erdős Problem 594
 
 Every graph with no countable proper coloring contains all sufficiently large
-odd cycles.  The mathematical proof and the correspondence between its lemmas
-and this development are in `tex/594.tex`.
+odd cycles.
 -/
 
 syntax (name := answerSyntax594) "answer(" term ")" : term

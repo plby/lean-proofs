@@ -16,10 +16,7 @@ import Mathlib.SetTheory.Ordinal.Exponential
 /-!
 # Erdős Problem 590
 
-This file proves Chang's partition relation
-`ω ^ ω → (ω ^ ω, 3)²`.  The concrete combinatorics follows Larson's proof
-of the stronger finite theorem; see `tex/590.tex` for the mathematical
-reconstruction and the correspondence between its lemmas and this file.
+Chang's partition relation `ω ^ ω → (ω ^ ω, 3)²`.
 -/
 
 open Cardinal Ordinal

@@ -11,11 +11,7 @@ import Mathlib
 
 Haight proved that integers with arbitrarily large abundancy can be chosen so
 that their nontrivial divisors cannot be the distinct moduli of a covering
-system.  The proof below uses the finite residual-density estimate of
-Filaseta--Ford--Konyagin--Pomerance--Yu.
-
-The mathematical proof and a map from its lemmas to this formalization are in
-`tex/277.tex`.
+system.
 -/
 
 open scoped ArithmeticFunction.sigma BigOperators Pointwise
@@ -49,8 +45,6 @@ open MeasureTheory ProbabilityTheory Set
 
 attribute [local instance] Classical.propDecidable
 
-/-! ## The finite residual-density inequality -/
-
 /-- The complement of the union of a finite family of events. -/
 def residual {Ω ι : Type*} (s : Finset ι) (E : ι → Set Ω) : Set Ω :=
   (⋃ i ∈ s, E i)ᶜ
@@ -59,4 +53,3 @@ theorem erdos_277 :
     answer(True) ↔ ∀ c : ℝ, ∃ n : ℕ, (σ 1 n : ℝ) > c * n ∧
       ∀ (m : StrictCoveringSystem ℤ), ∃ i, (n : ℤ) ∉ m.moduli i := by
   sorry
-

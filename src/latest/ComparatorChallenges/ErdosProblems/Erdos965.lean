@@ -9,11 +9,8 @@ import Mathlib
 /-!
 # Erdős Problem 965
 
-Komjáth's ZFC finite-union coloring, transferred through a Hamel basis of
-`ℝ` over `ℚ`, gives a two-coloring for which every uncountable set has two
-distinct pair sums of different colors.  Thus the answer is negative.
-
-The detailed mathematical proof and Leanization map are in `tex/965.tex`.
+There is a two-coloring of `ℝ` for which every uncountable set has two distinct
+pair sums of different colors.  Thus the answer is negative.
 -/
 
 syntax (name := answerSyntax965) "answer(" term ")" : term
