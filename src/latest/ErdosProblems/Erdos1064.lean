@@ -13,10 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -/
-import ErdosProblems.Erdos143.Supply
 import ErdosProblems.Erdos285.RoughCounts
 import ErdosProblems.Erdos459
 import Util.Density
+import Util.Primes
+import Util.Prod
 
 /-!
 # Erdős Problem 1064
@@ -398,7 +399,7 @@ lemma prime_dvd_totient_hasDensity_one (q : ℕ) (hq : q.Prime) :
     {n : ℕ | q ∣ Nat.totient n}.HasDensity 1 := by
   classical
   let : NeZero q := ⟨hq.ne_zero⟩
-  have hnonsum := Erdos143.residue_prime_reciprocals_not_summable
+  have hnonsum := Nat.Primes.residue_reciprocals_not_summable
     q (1 : ZMod q) isUnit_one
   have hdiv0 : Tendsto
       (fun K : ℕ ↦ ∑ p ∈ Finset.range K,
@@ -603,7 +604,7 @@ lemma normalized_gap_lower_bound
       positivity
     exact hle.trans_lt htail
   have hcLower : 1 - δ / 2 < c := by
-    have hprod := Erdos143.one_sub_sum_le_prod_one_sub
+    have hprod := Finset.one_sub_sum_le_prod_one_sub
       (s := R) (f := fun p ↦ (p : ℝ)⁻¹)
       (fun p hp ↦ by positivity)
       (fun p hp ↦ by
