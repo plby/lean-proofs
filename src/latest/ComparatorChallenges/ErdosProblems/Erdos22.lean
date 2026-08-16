@@ -1,15 +1,16 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 
-import ErdosProblems.Erdos615
+import Mathlib
 
 open Filter SimpleGraph Set Real
 open scoped Topology BigOperators ENNReal NNReal
 
 namespace Erdos22
 
-attribute [local instance] Classical.propDecidable
+syntax (name := answerSyntax22) "answer(" term ")" : term
+macro_rules | `(answer($t)) => `($t)
 
-open Erdos615.Construction
+attribute [local instance] Classical.propDecidable
 
 /-! ## Two finite graph operations -/
 
@@ -68,4 +69,3 @@ theorem erdos_22 : answer(True) ↔
       ∃ G : SimpleGraph (Fin n), G.CliqueFree 4 ∧
         (G.indepNum : ℝ) ≤ ε * n ∧ (n : ℝ) ^ 2 / 8 ≤ G.edgeFinset.card := by
   sorry
-

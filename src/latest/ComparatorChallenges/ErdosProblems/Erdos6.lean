@@ -1,4 +1,11 @@
-import ErdosProblems.Erdos6.LargeExcess
+import Mathlib
+
+namespace BoundedGaps
+
+noncomputable def primeGap (n : ℕ) : ℕ :=
+  Nat.nth Nat.Prime (n + 1) - Nat.nth Nat.Prime n
+
+end BoundedGaps
 
 /-!
 # Erdős Problem 6
@@ -24,4 +31,3 @@ theorem erdos_6 :
     {n | primeGap n < primeGap (n + 1) ∧
       primeGap (n + 1) < primeGap (n + 2)}.Infinite := by
   sorry
-

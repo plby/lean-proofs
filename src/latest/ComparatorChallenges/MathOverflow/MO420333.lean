@@ -1,4 +1,4 @@
-import Util.ListSorted
+import Mathlib
 
 namespace MO420333
 

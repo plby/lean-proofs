@@ -1,6 +1,5 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 import Mathlib
-import ErdosProblems.Erdos469
 
 /-!
 # Erdős Problem 442
@@ -66,4 +65,3 @@ theorem erdos_442 : answer(False) ↔ ∀ (A : Set ℕ),
       (1 : ℝ) / n) ^ 2 * ∑ nm ∈ Set.bddProdUpper A x,
         (1 : ℝ) / nm.1.lcm nm.2) atTop atTop := by
   sorry
-

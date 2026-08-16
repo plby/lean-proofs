@@ -13,10 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -/
-import ErdosProblems.Erdos143.Supply
-import ErdosProblems.Erdos285.RoughCounts
-import ErdosProblems.Erdos459
-import Util.Density
+import Mathlib
 
 /-!
 # Erdős Problem 1064
@@ -32,6 +29,19 @@ mass and the divergence of reciprocal primes in a reduced residue class.
 open Nat Filter Topology Set Real
 open scoped BigOperators
 
+namespace Set
+
+@[inline]
+noncomputable abbrev partialDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
+    (S : Set β) (A : Set β := Set.univ) (b : β) : ℝ :=
+  ((S ∩ A) ∩ Iio b).ncard / (A ∩ Iio b).ncard
+
+def HasDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
+    (S : Set β) (α : ℝ) (A : Set β := Set.univ) : Prop :=
+  Tendsto (fun (b : β) => S.partialDensity A b) atTop (𝓝 α)
+
+end Set
+
 namespace Erdos1064
 
 noncomputable section
@@ -46,4 +56,3 @@ theorem erdos_1064.variants.general_function (f : ℕ → ℕ)
     (hf : (fun n ↦ (f n : ℝ)) =o[atTop] (fun n ↦ (n : ℝ))) :
     {n : ℕ | φ (n - φ n) + f n < φ n}.HasDensity 1 := by
   sorry
-

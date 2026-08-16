@@ -6,7 +6,7 @@ The mathematical construction is the `p = 3`, `ℓ = 1` specialization of
 the complex Bollobás--Erdős graph of Liu, Reiher, Sharifzadeh, and Staden.
 -/
 
-import ErdosProblems.Erdos615Construction
+import Mathlib
 
 open Filter SimpleGraph
 open Set MeasureTheory
@@ -55,4 +55,3 @@ theorem erdos_533 : answer(False) ↔
           ∃ S : Finset (Fin n), c * n ≤ (S.card : ℝ) ∧
             G.CliqueFreeOn (S : Set (Fin n)) 3 := by
   sorry
-

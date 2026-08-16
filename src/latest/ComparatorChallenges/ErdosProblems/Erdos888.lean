@@ -4,8 +4,7 @@ Copyright (c) 2026 Boris Alexeev. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
-import ErdosProblems.Erdos888.LowerCount
-import ErdosProblems.Erdos888.UpperBound
+import Mathlib
 
 /-!
 # Erdős Problem 888
@@ -22,6 +21,13 @@ open Filter
 
 namespace Erdos888
 
+def RequiredCondition (A : Finset ℕ) (n : ℕ) : Prop :=
+  A ⊆ Finset.Ioc 0 n ∧ ∀ᵉ (a ∈ A) (b ∈ A) (c ∈ A) (d ∈ A),
+    a ≤ b → b ≤ c → c ≤ d → IsSquare (a * b * c * d) → a * d = b * c
+
+def p (n : ℕ) (k : ℕ) : Prop :=
+  ∃ A : Finset ℕ, RequiredCondition A n ∧ A.card = k
+
 open scoped Classical in
 /-- Resolution of Erdős Problem 888. -/
 
@@ -29,4 +35,3 @@ theorem erdos_888 :
     (fun n : ℕ ↦ (Nat.findGreatest (p n) n : ℝ)) =Θ[atTop]
       (fun n : ℕ ↦ (n : ℝ) * Real.log (Real.log n) / Real.log n) := by
   sorry
-

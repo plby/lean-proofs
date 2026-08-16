@@ -15,20 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -/
 
-import Mathlib.Combinatorics.SimpleGraph.Diam
-import Mathlib.Combinatorics.SimpleGraph.Triangle.Removal
-import Mathlib.Combinatorics.SimpleGraph.Triangle.Tripartite
-import Mathlib.Combinatorics.SimpleGraph.Extremal.Turan
-import Mathlib.Data.Finset.Card
-import Mathlib.Data.Nat.Choose.Cast
-import Mathlib.Tactic.Choose
-import Mathlib.Tactic.FieldSimp
-import Mathlib.Tactic.GCongr
-import Mathlib.Tactic.Linarith
-import Mathlib.Tactic.NormNum
-import Mathlib.Tactic.Positivity
-import Mathlib.Tactic.Push
-import Mathlib.Tactic.Ring
+import Mathlib
 
 /-!
 # Erdős Problem 742
@@ -48,6 +35,9 @@ universe u
 
 variable {V : Type u} [Fintype V] [DecidableEq V]
 
+def IsDiameter2Critical (G : SimpleGraph V) : Prop :=
+  G.diam = 2 ∧ ∀ e ∈ G.edgeSet, (G.deleteEdges {e}).diam ≠ 2
+
 /-- A finite greedy-selection lemma in the cardinal form used to linearize
 the family of light critical paths. -/
 
@@ -56,4 +46,3 @@ theorem furedi_bound : ∃ n₀ : ℕ, ∀ (V : Type*) [Fintype V] [DecidableEq 
     n₀ ≤ Fintype.card V → IsDiameter2Critical G →
       G.edgeFinset.card ≤ (Fintype.card V) ^ 2 / 4 := by
   sorry
-

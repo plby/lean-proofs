@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import Mathlib
-import «_scratch».Erdos847Construction
 
 /-!
 # Erdős Problem 847
@@ -50,4 +49,3 @@ theorem erdos_847 : answer(False) ↔
       ∃ n, ∃ S : Fin n → Set ℕ,
         (∀ i, ThreeAPFree (S i)) ∧ A = ⋃ i : Fin n, S i := by
   sorry
-
