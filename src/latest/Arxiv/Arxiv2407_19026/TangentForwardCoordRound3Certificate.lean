@@ -1,4 +1,5 @@
 import Arxiv.Arxiv2407_19026.TangentKernelBounds
+import Arxiv.Arxiv2407_19026.IntegerPowerPolynomial
 
 /-!
 # Exact certificate for the third-round forward coordinate inequality
@@ -12,11 +13,13 @@ namespace ForwardCoordRound3Certificate
 
 noncomputable section
 
-def decimalNat : List ℕ → ℕ
-  | [] => 0
-  | chunk :: chunks =>
-      chunk * (10 ^ 18) ^ chunks.length +
-        decimalNat chunks
+@[simp] def decimalNatAux : ℕ → List ℕ → ℕ
+  | value, [] => value
+  | value, chunk :: chunks =>
+      decimalNatAux (value * 10 ^ 18 + chunk) chunks
+
+def decimalNat (chunks : List ℕ) : ℕ :=
+  decimalNatAux 0 chunks
 
 def forwardCoordPowerScaleRound3 : ℕ :=
   decimalNat
@@ -630,70 +633,19 @@ def forwardCoordBernsteinCoeffsRound3 : List ℕ :=
         182087246022503099, 965310234911571968]
   ]
 
-def forwardCoordPowerRound3 : List ℤ → ℝ → ℝ
-  | [], _ => 0
-  | coefficient :: coefficients, x =>
-      coefficient + x * forwardCoordPowerRound3 coefficients x
+def forwardCoordPowerRound3 : List ℤ → ℝ → ℝ :=
+  evalIntegerPower
 
-def forwardCoordHomogenizedRound3 : List ℤ → Polynomial ℤ
-  | [] => 0
-  | coefficient :: coefficients =>
-      (coefficient * 250 ^ coefficients.length :
-          Polynomial ℤ) +
-        (25 + 42 * Polynomial.X) *
-          forwardCoordHomogenizedRound3 coefficients
-
-lemma eval₂_forwardCoordHomogenizedRound3
-    (coefficients : List ℤ) (x : ℝ) :
-    Polynomial.eval₂ (Int.castRingHom ℝ) x
-        (forwardCoordHomogenizedRound3 coefficients) *
-          250 =
-      250 ^ coefficients.length *
-        forwardCoordPowerRound3 coefficients
-          ((25 + 42 * x) / 250) := by
-  induction coefficients with
-  | nil =>
-      simp [forwardCoordHomogenizedRound3,
-        forwardCoordPowerRound3]
-  | cons coefficient coefficients ih =>
-      simp only [forwardCoordHomogenizedRound3,
-        forwardCoordPowerRound3, List.length_cons,
-        Polynomial.eval₂_add, Polynomial.eval₂_mul,
-        Polynomial.eval₂_X]
-      simp only [Polynomial.eval₂_ofNat] at *
-      simp only [← Polynomial.C_eq_intCast,
-        Polynomial.eval₂_C, Polynomial.eval₂_pow,
-        Polynomial.eval₂_ofNat] at *
-      rw [pow_succ]
-      field_simp
-      linear_combination (25 + 42 * x) * ih
-
-def forwardCoordBernsteinPolynomialRound3 : Polynomial ℤ :=
-  ∑ i ∈ Finset.range 66,
-    (forwardCoordBernsteinCoeffsRound3.getD i 0 :
-        Polynomial ℤ) *
-      Polynomial.X ^ i *
-        ((1 : Polynomial ℤ) - Polynomial.X) ^
-          (65 - i)
-
-set_option maxHeartbeats 0 in
--- Normalizing this exact degree-65 polynomial identity exceeds the default heartbeat budget.
 set_option maxRecDepth 30000 in
--- The same large normalization exceeds the default simplifier recursion depth.
-lemma forward_coord_polynomial_identity_round3 :
-    ((forwardCoordScaleRound3 : ℤ) : Polynomial ℤ) *
-        forwardCoordHomogenizedRound3
-          forwardCoordPowerCoeffsRound3 =
-      (250 ^ 65 : Polynomial ℤ) *
-        forwardCoordBernsteinPolynomialRound3 := by
-  norm_num (config := { maxSteps := 1000000 })
-    [forwardCoordBernsteinPolynomialRound3,
-    forwardCoordHomogenizedRound3,
-    forwardCoordPowerCoeffsRound3,
-    forwardCoordBernsteinCoeffsRound3,
-    forwardCoordScaleRound3, decimalNat,
-    Finset.sum_range_succ]
-  ring
+-- The closed degree-65 list reduction exceeds Lean's default recursion depth.
+lemma forward_coord_integer_identity_round3 :
+    integerPowerScale (forwardCoordScaleRound3 : ℤ)
+        (integerPowerAffine 250 25 42
+          forwardCoordPowerCoeffsRound3) =
+      integerPowerScale (250 ^ 65 : ℤ)
+        (integerPowerBernstein 65
+          forwardCoordBernsteinCoeffsRound3) := by
+  rfl
 
 end
 

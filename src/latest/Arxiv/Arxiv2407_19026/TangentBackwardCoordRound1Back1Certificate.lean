@@ -1,4 +1,5 @@
 import Arxiv.Arxiv2407_19026.TangentKernelBounds
+import Arxiv.Arxiv2407_19026.IntegerPowerPolynomial
 
 /-!
 # Exact certificates for the first-round first backward coordinate interval
@@ -12,11 +13,13 @@ namespace BackwardCoordRound1Back1Certificate
 
 noncomputable section
 
-def decimalNat : List ℕ → ℕ
-  | [] => 0
-  | chunk :: chunks =>
-      chunk * (10 ^ 18) ^ chunks.length +
-        decimalNat chunks
+@[simp] def decimalNatAux : ℕ → List ℕ → ℕ
+  | value, [] => value
+  | value, chunk :: chunks =>
+      decimalNatAux (value * 10 ^ 18 + chunk) chunks
+
+def decimalNat (chunks : List ℕ) : ℕ :=
+  decimalNatAux 0 chunks
 
 def bluePowerScale : ℕ :=
   decimalNat
@@ -1274,75 +1277,38 @@ def mainBernsteinCoeffs : List ℕ :=
         948889796420995879, 874744053784332238, 087722365076318681, 740800000000000000]
   ]
 
-def evalPower : List ℤ → ℝ → ℝ
-  | [], _ => 0
-  | coefficient :: coefficients, x =>
-      coefficient + x * evalPower coefficients x
+def evalPower (coefficients : List ℤ) (x : ℝ) : ℝ :=
+  evalIntegerPower coefficients x
 
-def homogenized (coefficients : List ℤ) : Polynomial ℤ :=
-  match coefficients with
-  | [] => 0
-  | coefficient :: rest =>
-      (coefficient * 1000 ^ rest.length : Polynomial ℤ) +
-        (387 + 213 * Polynomial.X) * homogenized rest
+set_option maxRecDepth 100000 in
+-- Comparing the exact degree-49 coefficient lists needs deeper recursion.
+lemma blue_power_eq_bernstein (x : ℝ) :
+    evalPower bluePowerCoeffs ((387 + 213 * x) / 1000) =
+      (∑ i ∈ Finset.range 50,
+        (blueBernsteinCoeffs.getD i 0 : ℝ) *
+          x ^ i * (1 - x) ^ (49 - i)) / blueIdentityScale := by
+  have h := evalIntegerPower_affine_bernstein 1000 49
+    blueIdentityScale 387 213 bluePowerCoeffs
+    blueBernsteinCoeffs x (by norm_num) rfl rfl
+  rw [eq_div_iff (by
+    norm_num [blueIdentityScale, decimalNat] :
+      (blueIdentityScale : ℝ) ≠ 0)]
+  simpa [evalPower, mul_comm] using h
 
-lemma eval₂_homogenized (coefficients : List ℤ) (x : ℝ) :
-    Polynomial.eval₂ (Int.castRingHom ℝ) x
-        (homogenized coefficients) * 1000 =
-      1000 ^ coefficients.length *
-        evalPower coefficients ((387 + 213 * x) / 1000) := by
-  induction coefficients with
-  | nil =>
-      simp [homogenized, evalPower]
-  | cons coefficient coefficients ih =>
-      simp only [homogenized, evalPower, List.length_cons,
-        Polynomial.eval₂_add, Polynomial.eval₂_mul,
-        Polynomial.eval₂_X]
-      simp only [Polynomial.eval₂_ofNat] at *
-      simp only [← Polynomial.C_eq_intCast,
-        Polynomial.eval₂_C, Polynomial.eval₂_pow,
-        Polynomial.eval₂_ofNat] at *
-      rw [pow_succ]
-      field_simp
-      linear_combination (387 + 213 * x) * ih
-
-def bernsteinPolynomial (degree : ℕ)
-    (coefficients : List ℕ) : Polynomial ℤ :=
-  ∑ i ∈ Finset.range (degree + 1),
-    (coefficients.getD i 0 : Polynomial ℤ) *
-      Polynomial.X ^ i *
-        ((1 : Polynomial ℤ) - Polynomial.X) ^
-          (degree - i)
-
-set_option maxHeartbeats 0 in
--- Normalizing the exact degree-49 blue-bound identity exceeds the default budget.
-set_option maxRecDepth 30000 in
--- The large polynomial normalization also needs deeper simplifier recursion.
-lemma blue_polynomial_identity :
-    ((blueIdentityScale : ℤ) : Polynomial ℤ) *
-        homogenized bluePowerCoeffs =
-      (1000 ^ 49 : Polynomial ℤ) *
-        bernsteinPolynomial 49 blueBernsteinCoeffs := by
-  norm_num (config := { maxSteps := 1000000 })
-    [bernsteinPolynomial, homogenized, bluePowerCoeffs,
-    blueBernsteinCoeffs, blueIdentityScale, decimalNat,
-    Finset.sum_range_succ]
-  ring
-
-set_option maxHeartbeats 0 in
--- Normalizing the exact degree-66 coordinate identity exceeds the default budget.
-set_option maxRecDepth 30000 in
--- The large polynomial normalization also needs deeper simplifier recursion.
-lemma main_polynomial_identity :
-    ((mainIdentityScale : ℤ) : Polynomial ℤ) *
-        homogenized mainPowerCoeffs =
-      (1000 ^ 66 : Polynomial ℤ) *
-        bernsteinPolynomial 66 mainBernsteinCoeffs := by
-  norm_num (config := { maxSteps := 1000000 })
-    [bernsteinPolynomial, homogenized, mainPowerCoeffs,
-    mainBernsteinCoeffs, mainIdentityScale, decimalNat,
-    Finset.sum_range_succ]
-  ring
+set_option maxRecDepth 100000 in
+-- Comparing the exact degree-66 coefficient lists needs deeper recursion.
+lemma main_power_eq_bernstein (x : ℝ) :
+    evalPower mainPowerCoeffs ((387 + 213 * x) / 1000) =
+      (∑ i ∈ Finset.range 67,
+        (mainBernsteinCoeffs.getD i 0 : ℝ) *
+          x ^ i * (1 - x) ^ (66 - i)) / mainIdentityScale := by
+  have h := evalIntegerPower_affine_bernstein 1000 66
+    mainIdentityScale 387 213 mainPowerCoeffs
+    mainBernsteinCoeffs x (by norm_num) rfl rfl
+  rw [eq_div_iff (by
+    norm_num [mainIdentityScale, decimalNat] :
+      (mainIdentityScale : ℝ) ≠ 0)]
+  simpa [evalPower, mul_comm] using h
 
 end
 

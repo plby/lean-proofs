@@ -38,11 +38,9 @@ private lemma forward_book_lower_round3_pos {z : ℝ}
     dsimp [u]
     constructor <;> nlinarith [hz.1, hz.2]
   have hsum := bernstein_sum_pos_of_ends 90
-    forwardBookBernsteinCoeffsRound3 hu (by
-      norm_num [forwardBookBernsteinCoeffsRound3,
-        decimalNat]) (by
-      norm_num [forwardBookBernsteinCoeffsRound3,
-        decimalNat])
+    forwardBookBernsteinCoeffsRound3 hu
+      forward_book_bernstein_first_pos_round3
+      forward_book_bernstein_last_pos_round3
   have hzwide : z ∈ Set.Icc (0 : ℝ) (2 / 5) := by
     constructor <;> nlinarith [hz.1, hz.2]
   have hz0 : 0 < z := by nlinarith [hz.1]
@@ -135,82 +133,26 @@ private lemma forward_book_lower_round3_pos {z : ℝ}
           r3ForwardTReal, tangentLocalPoly,
           tangentRatHorner, TangentAffine.r3ForwardCs,
           forwardBookPowerRound3,
-          forwardBookPowerCoeffsRound3, decimalNat]
+          forwardBookPowerCoeffsRound3, evalIntegerPower,
+          decimalNat]
         dsimp [plateauMuUpper, plateauExpNegUpper]
-        ring
+        ring_nf (config := { mode := .raw })
       _ = _ := by
-        have hBernstein :
-            Polynomial.eval₂ (Int.castRingHom ℝ) u
-                forwardBookBernsteinPolynomialRound3 =
-              ∑ i ∈ Finset.range 91,
-                (forwardBookBernsteinCoeffsRound3.getD i 0 : ℝ) *
-                  u ^ i * (1 - u) ^ (90 - i) := by
-          dsimp [forwardBookBernsteinPolynomialRound3]
-          change
-            (Polynomial.eval₂RingHom (Int.castRingHom ℝ) u)
-                (∑ i ∈ Finset.range 91,
-                  (forwardBookBernsteinCoeffsRound3.getD i 0 :
-                      Polynomial ℤ) *
-                    Polynomial.X ^ i *
-                      ((1 : Polynomial ℤ) - Polynomial.X) ^
-                        (90 - i)) =
-              _
-          simp [Polynomial.eval₂_pow]
-        have hpoly := congrArg
-          (Polynomial.eval₂ (Int.castRingHom ℝ) u)
-          forward_book_polynomial_identity_round3
+        have hidentity :=
+          forward_book_bernstein_identity_round3 u
         have hzFromU :
             ((25 + 42 * u) / 250 : ℝ) = z := by
           dsimp [u]
           ring
-        have hhom :=
-          eval₂_homogenizedIntegerPolynomialRound3
-            forwardBookPowerCoeffsRound3 u
-        change
-          Polynomial.eval₂ (Int.castRingHom ℝ) u
-                (homogenizedIntegerPolynomialRound3
-                  forwardBookPowerCoeffsRound3) *
-              250 =
-            250 ^ 91 *
-              forwardBookPowerRound3
-                forwardBookPowerCoeffsRound3
-                ((25 + 42 * u) / 250) at hhom
-        rw [hzFromU] at hhom
-        have hhom' :
-            Polynomial.eval₂ (Int.castRingHom ℝ) u
-                (homogenizedIntegerPolynomialRound3
-                  forwardBookPowerCoeffsRound3) =
-              250 ^ 90 *
-                forwardBookPowerRound3
-                  forwardBookPowerCoeffsRound3 z := by
-          apply mul_right_cancel₀
-            (by norm_num : (250 : ℝ) ≠ 0)
-          calc
-            _ = 250 ^ 91 *
-                forwardBookPowerRound3
-                  forwardBookPowerCoeffsRound3 z := hhom
-            _ = _ := by ring
-        simp only [Polynomial.eval₂_mul,
-          Polynomial.eval₂_pow,
-          Polynomial.eval₂_ofNat] at hpoly
-        rw [hBernstein, hhom'] at hpoly
+        rw [hzFromU] at hidentity
         rw [eq_div_iff (by
-          norm_num [forwardBookScaleRound3, decimalNat] :
+          exact_mod_cast forward_book_scale_pos_round3.ne' :
             (forwardBookScaleRound3 : ℝ) ≠ 0)]
-        apply mul_left_cancel₀
-          (by positivity : (250 : ℝ) ^ 90 ≠ 0)
-        calc
-          _ = (forwardBookScaleRound3 : ℝ) *
-              (250 ^ 90 *
-                forwardBookPowerRound3
-                  forwardBookPowerCoeffsRound3 z) := by
-            ring
-          _ = _ := by
-            simpa using hpoly
+        simpa [mul_comm] using hidentity
   rw [hid]
   exact div_pos
     (div_pos hsum (by
-      norm_num [forwardBookScaleRound3, decimalNat]))
+      exact_mod_cast forward_book_scale_pos_round3))
     hden
 
 /-- The book inequality on the third-round forward interval. -/

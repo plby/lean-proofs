@@ -1,4 +1,5 @@
 import Arxiv.Arxiv2407_19026.NumericalProfilesKernelBounds
+import Arxiv.Arxiv2407_19026.IntegerPowerPolynomial
 
 /-!
 # Exact certificate for the third numerical-profile book interval
@@ -12,11 +13,13 @@ namespace NumericalProfilesBook3Certificate
 
 noncomputable section
 
-def decimalNat : List ℕ → ℕ
-  | [] => 0
-  | chunk :: chunks =>
-      chunk * (10 ^ 18) ^ chunks.length +
-        decimalNat chunks
+@[simp] def decimalNatAux : ℕ → List ℕ → ℕ
+  | value, [] => value
+  | value, chunk :: chunks =>
+      decimalNatAux (value * 10 ^ 18 + chunk) chunks
+
+def decimalNat (chunks : List ℕ) : ℕ :=
+  decimalNatAux 0 chunks
 
 def bookThreeScale : ℕ :=
   decimalNat
@@ -1076,63 +1079,197 @@ def bookThreeBernsteinCoeffs : List ℕ :=
         404844956975330100, 601117203412220162, 558873065793432194,
         159139621869453312]]
 
-def bookThreePower : List ℤ → ℝ → ℝ
-  | [], _ => 0
-  | coefficient :: coefficients, x =>
-      coefficient + x * bookThreePower coefficients x
+def bookThreeVPower : RationalPowerPolynomial :=
+  rationalPowerAdd
+    [2.284025580120, -3.131445731927, 2.567372678585,
+      -1.052523072075, -0.329273824258, 0.842245058702,
+      -0.605732339550, 0.214074650516, -0.026060252906,
+      -0.002738794873]
+    (rationalPowerAdd [1 / 1000]
+      (rationalPowerScale (1 / 50)
+        (rationalPowerPow [1, -1] 6)))
 
-def bookThreeHomogenized : List ℤ → Polynomial ℤ
-  | [] => 0
-  | coefficient :: coefficients =>
-      (coefficient * 2 ^ coefficients.length :
-          Polynomial ℤ) +
-        (1 + Polynomial.X) *
-          bookThreeHomogenized coefficients
+def bookThreeXPower : RationalPowerPolynomial :=
+  rationalPowerSub [1]
+    (rationalPowerMul [0, 1] bookThreeVPower)
 
-lemma eval₂_bookThreeHomogenized
-    (coefficients : List ℤ) (x : ℝ) :
-    Polynomial.eval₂ (Int.castRingHom ℝ) x
-        (bookThreeHomogenized coefficients) *
-          2 =
-      2 ^ coefficients.length *
-        bookThreePower coefficients
-          ((1 + x) / 2) := by
-  induction coefficients with
-  | nil =>
-      simp [bookThreeHomogenized, bookThreePower]
-  | cons coefficient coefficients ih =>
-      simp only [bookThreeHomogenized, bookThreePower,
-        List.length_cons, Polynomial.eval₂_add,
-        Polynomial.eval₂_mul, Polynomial.eval₂_X]
-      simp only [← Polynomial.C_eq_intCast,
-        Polynomial.eval₂_C, Polynomial.eval₂_pow,
-        Polynomial.eval₂_ofNat] at *
-      simp only [Polynomial.eval₂_one] at *
-      rw [pow_succ]
-      field_simp
-      linear_combination (1 + x) * ih
+def bookThreeWPower : RationalPowerPolynomial :=
+  rationalPowerSub bookThreeVPower [1 / 100000]
 
-def bookThreeBernsteinPolynomial : Polynomial ℤ :=
-  ∑ i ∈ Finset.range 117,
-    (bookThreeBernsteinCoeffs.getD i 0 : Polynomial ℤ) *
-      Polynomial.X ^ i *
-        ((1 : Polynomial ℤ) - Polynomial.X) ^ (116 - i)
+def bookThreeExpNegUpperPower : RationalPowerPolynomial :=
+  [1, -1, 1 / 2, -1 / 6, 1 / 24, -1 / 120,
+    1 / 720, -1 / 5040, 1 / 40320, -1 / 362880,
+    11 / 36288000]
 
-set_option maxHeartbeats 0 in
--- Exact normalization of the degree-116 polynomial identity exceeds the default heartbeat budget.
-set_option maxRecDepth 20000 in
--- The same exact normalization exceeds the default simplifier recursion depth.
-lemma book_three_polynomial_identity :
-    ((bookThreeScale : ℤ) : Polynomial ℤ) *
-        bookThreeHomogenized bookThreePowerCoeffs =
-      (2 ^ 116 : Polynomial ℤ) *
-        bookThreeBernsteinPolynomial := by
-  norm_num (config := { maxSteps := 1000000 })
-    [bookThreeBernsteinPolynomial,
-    bookThreeHomogenized, bookThreePowerCoeffs,
-    bookThreeBernsteinCoeffs, bookThreeScale,
-    decimalNat, Finset.sum_range_succ]
-  ring
+def bookThreeCorrectionPower : RationalPowerPolynomial :=
+  rationalPowerMul [0, -1 / 4, 2 / 25, 2 / 25]
+    bookThreeExpNegUpperPower
+
+def bookThreeEntropyNumeratorPower : RationalPowerPolynomial :=
+  let z : RationalPowerPolynomial := [0, 1]
+  let Z : RationalPowerPolynomial := [2, 1]
+  rationalPowerScale 2
+    (rationalPowerAdd
+      (rationalPowerAdd
+        (rationalPowerScale 105
+          (rationalPowerMul z (rationalPowerPow Z 6)))
+        (rationalPowerScale 35
+          (rationalPowerMul (rationalPowerPow z 3)
+            (rationalPowerPow Z 4))))
+      (rationalPowerAdd
+        (rationalPowerScale 21
+          (rationalPowerMul (rationalPowerPow z 5)
+            (rationalPowerPow Z 2)))
+        (rationalPowerScale 15 (rationalPowerPow z 7))))
+
+def bookThreeBelowNumeratorPower : RationalPowerPolynomial :=
+  let X := bookThreeXPower
+  let t := rationalPowerSub [1] X
+  rationalPowerScale (-2)
+    (rationalPowerAdd
+      (rationalPowerScale 28
+        (rationalPowerMul X
+          (rationalPowerAdd
+            (rationalPowerAdd
+              (rationalPowerScale 15
+                (rationalPowerMul t
+                  (rationalPowerPow
+                    (rationalPowerAdd X [1]) 4)))
+              (rationalPowerScale 5
+                (rationalPowerMul (rationalPowerPow t 3)
+                  (rationalPowerPow
+                    (rationalPowerAdd X [1]) 2))))
+            (rationalPowerScale 3
+              (rationalPowerPow t 5)))))
+      (rationalPowerScale 15 (rationalPowerPow t 7)))
+
+def bookThreeAboveNumeratorPower : RationalPowerPolynomial :=
+  let W := bookThreeWPower
+  let t := rationalPowerSub W [1]
+  rationalPowerScale 2
+    (rationalPowerSub
+      (rationalPowerScale 200
+        (rationalPowerMul W
+          (rationalPowerAdd
+            (rationalPowerScale 3
+              (rationalPowerMul t
+                (rationalPowerPow
+                  (rationalPowerAdd W [1]) 2)))
+            (rationalPowerPow t 3))))
+      (rationalPowerScale 21
+        (rationalPowerMul (rationalPowerPow t 4)
+          (rationalPowerAdd W [1]))))
+
+def bookThreeBOnePower : RationalPowerPolynomial :=
+  rationalPowerScale 105 (rationalPowerPow [2, 1] 7)
+
+def bookThreeBXPower : RationalPowerPolynomial :=
+  rationalPowerScale 420
+    (rationalPowerMul bookThreeXPower
+      (rationalPowerPow
+        (rationalPowerAdd bookThreeXPower [1]) 5))
+
+def bookThreeBVPower : RationalPowerPolynomial :=
+  rationalPowerScale 600
+    (rationalPowerMul bookThreeWPower
+      (rationalPowerPow
+        (rationalPowerAdd bookThreeWPower [1]) 3))
+
+def bookThreeEntropyTermPower : RationalPowerPolynomial :=
+  rationalPowerScale 2
+    (rationalPowerMul [1, 1]
+      (rationalPowerMul bookThreeEntropyNumeratorPower
+        (rationalPowerMul bookThreeBXPower
+          bookThreeBVPower)))
+
+def bookThreeCorrectionTermPower : RationalPowerPolynomial :=
+  rationalPowerScale 2
+    (rationalPowerMul bookThreeCorrectionPower
+      (rationalPowerMul bookThreeBOnePower
+        (rationalPowerMul bookThreeBXPower
+          bookThreeBVPower)))
+
+def bookThreeBelowTermPower : RationalPowerPolynomial :=
+  rationalPowerMul bookThreeBelowNumeratorPower
+    (rationalPowerMul bookThreeBOnePower
+      bookThreeBVPower)
+
+def bookThreeZSquareTermPower : RationalPowerPolynomial :=
+  rationalPowerNeg
+    (rationalPowerMul [0, 0, 1]
+      (rationalPowerMul bookThreeBOnePower
+        (rationalPowerMul bookThreeBXPower
+          bookThreeBVPower)))
+
+def bookThreeAboveTermPower : RationalPowerPolynomial :=
+  rationalPowerMul [0, 1]
+    (rationalPowerMul bookThreeAboveNumeratorPower
+      (rationalPowerMul bookThreeBOnePower
+        bookThreeBXPower))
+
+def bookThreeClearedPower : RationalPowerPolynomial :=
+  let K : ℚ :=
+    decimalNat [15000, 0, 0, 0, 0, 0, 0, 0]
+  rationalPowerScale K
+    (rationalPowerAdd
+      (rationalPowerAdd
+        (rationalPowerAdd
+          bookThreeEntropyTermPower
+          bookThreeCorrectionTermPower)
+        bookThreeBelowTermPower)
+      (rationalPowerAdd bookThreeZSquareTermPower
+        bookThreeAboveTermPower))
+
+def bookThreeCleared (z : ℝ) : ℝ :=
+  let V := beta0VLarge z
+  let X := 1 - z * V
+  let W := V - 1 / 100000
+  let Z := z + 2
+  let K : ℝ :=
+    decimalNat [15000, 0, 0, 0, 0, 0, 0, 0]
+  let entropyNumerator :=
+    2 *
+      (105 * z * Z ^ 6 + 35 * z ^ 3 * Z ^ 4 +
+        21 * z ^ 5 * Z ^ 2 + 15 * z ^ 7)
+  let belowNumerator :=
+    let t := 1 - X
+    (-2) *
+      (28 * X *
+          (15 * t * (X + 1) ^ 4 +
+            5 * t ^ 3 * (X + 1) ^ 2 +
+            3 * t ^ 5) +
+        15 * t ^ 7)
+  let aboveNumerator :=
+    let t := W - 1
+    2 *
+      (200 * W *
+          (3 * t * (W + 1) ^ 2 + t ^ 3) -
+        21 * t ^ 4 * (W + 1))
+  let B₁ := 105 * Z ^ 7
+  let Bₓ := 420 * X * (X + 1) ^ 5
+  let Bᵥ := 600 * W * (W + 1) ^ 3
+  K *
+    (2 * (1 + z) * entropyNumerator * Bₓ * Bᵥ +
+      2 * beta0CorrectionLower z * B₁ * Bₓ * Bᵥ +
+      belowNumerator * B₁ * Bᵥ -
+      z ^ 2 * B₁ * Bₓ * Bᵥ +
+      z * aboveNumerator * B₁ * Bₓ)
+
+def bookThreePower (coefficients : List ℤ) (x : ℝ) : ℝ :=
+  evalIntegerPower coefficients x
+
+set_option maxRecDepth 100000 in
+lemma book_three_bernstein_identity (x : ℝ) :
+    (bookThreeScale : ℝ) *
+        bookThreePower bookThreePowerCoeffs
+          ((1 + x) / 2) =
+      ∑ i ∈ Finset.range 117,
+        (bookThreeBernsteinCoeffs.getD i 0 : ℝ) *
+          x ^ i * (1 - x) ^ (116 - i) := by
+  simpa [bookThreePower] using
+    (evalIntegerPower_affine_bernstein 2 116
+      bookThreeScale 1 1 bookThreePowerCoeffs
+      bookThreeBernsteinCoeffs x (by norm_num) (by rfl) (by rfl))
 
 end
 

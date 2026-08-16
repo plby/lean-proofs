@@ -12,11 +12,13 @@ namespace PlateauBookRound1Certificate
 
 noncomputable section
 
-def decimalNat : List ℕ → ℕ
-  | [] => 0
-  | chunk :: remaining =>
-      chunk * (10 ^ 18) ^ remaining.length +
-        decimalNat remaining
+@[simp] def decimalNatAux : ℕ → List ℕ → ℕ
+  | value, [] => value
+  | value, chunk :: remaining =>
+      decimalNatAux (value * 10 ^ 18 + chunk) remaining
+
+def decimalNat (chunks : List ℕ) : ℕ :=
+  decimalNatAux 0 chunks
 
 def plateauBookScaleRound1 : ℕ :=
   decimalNat

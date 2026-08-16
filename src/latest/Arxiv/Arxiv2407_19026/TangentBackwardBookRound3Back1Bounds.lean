@@ -1,4 +1,5 @@
 import Arxiv.Arxiv2407_19026.TangentBackwardBookRound3Back1RightCertificate
+import Arxiv.Arxiv2407_19026.TangentBackwardBookRound3Back1CertificateSemantics
 import Arxiv.Arxiv2407_19026.TangentBackwardCoordRound3Back1Bounds
 
 /-!
@@ -30,70 +31,21 @@ private lemma evalPower_eq_bernstein_of_identity
     (hscale : scale ≠ 0)
     (hlength : coefficients.length = degree + 1)
     (hidentity :
-      ((scale : ℤ) : Polynomial ℤ) *
-          homogenizedAffine denominator left width coefficients =
-        (denominator ^ degree : Polynomial ℤ) *
-          BackwardBookRound3Back1Certificate.bernsteinPolynomial
-            degree bernsteinCoefficients)
+      integerPowerScale scale
+          (integerPowerAffine denominator left width coefficients) =
+        integerPowerScale (denominator ^ degree : ℤ)
+          (integerPowerBernstein degree bernsteinCoefficients))
     (u : ℝ) :
     evalPower coefficients
         (((left : ℝ) + (width : ℝ) * u) / denominator) =
       (∑ i ∈ Finset.range (degree + 1),
         (bernsteinCoefficients.getD i 0 : ℝ) *
           u ^ i * (1 - u) ^ (degree - i)) / scale := by
-  have hBernstein :
-      Polynomial.eval₂ (Int.castRingHom ℝ) u
-          (BackwardBookRound3Back1Certificate.bernsteinPolynomial
-            degree bernsteinCoefficients) =
-        ∑ i ∈ Finset.range (degree + 1),
-          (bernsteinCoefficients.getD i 0 : ℝ) *
-            u ^ i * (1 - u) ^ (degree - i) := by
-    dsimp [BackwardBookRound3Back1Certificate.bernsteinPolynomial]
-    change
-      (Polynomial.eval₂RingHom (Int.castRingHom ℝ) u)
-          (∑ i ∈ Finset.range (degree + 1),
-            (bernsteinCoefficients.getD i 0 :
-                Polynomial ℤ) *
-              Polynomial.X ^ i *
-                ((1 : Polynomial ℤ) - Polynomial.X) ^
-                  (degree - i)) =
-        _
-    simp [Polynomial.eval₂_pow]
-  have hhom := eval₂_homogenizedAffine
-    denominator left width coefficients u hdenominator
-  rw [hlength] at hhom
-  have hhom' :
-      Polynomial.eval₂ (Int.castRingHom ℝ) u
-          (homogenizedAffine denominator left width coefficients) =
-        denominator ^ degree *
-          evalPower coefficients
-            (((left : ℝ) + (width : ℝ) * u) /
-              denominator) := by
-    have hdenominatorReal : (denominator : ℝ) ≠ 0 := by
-      exact_mod_cast hdenominator
-    apply mul_right_cancel₀
-      hdenominatorReal
-    calc
-      _ = denominator ^ (degree + 1) *
-          evalPower coefficients
-            (((left : ℝ) + (width : ℝ) * u) /
-              denominator) := hhom
-      _ = _ := by ring
-  have hpoly := congrArg
-    (Polynomial.eval₂ (Int.castRingHom ℝ) u) hidentity
-  simp only [Polynomial.eval₂_mul, Polynomial.eval₂_pow] at hpoly
-  rw [hBernstein, hhom'] at hpoly
+  have h := evalIntegerPower_affine_bernstein
+    denominator degree scale left width coefficients
+    bernsteinCoefficients u hdenominator hlength hidentity
   rw [eq_div_iff (by exact_mod_cast hscale)]
-  apply mul_left_cancel₀
-    (by positivity : (denominator : ℝ) ^ degree ≠ 0)
-  calc
-    _ = (scale : ℝ) *
-        (denominator ^ degree *
-          evalPower coefficients
-            (((left : ℝ) + (width : ℝ) * u) /
-              denominator)) := by
-      ring
-    _ = _ := by simpa using hpoly
+  simpa [evalPower, mul_comm] using h
 
 private lemma blue_fit_bounds {z : ℝ}
     (hz : z ∈ Set.Icc (3 / 8 : ℝ) (3 / 5)) :
@@ -161,7 +113,7 @@ private lemma raw_blue_le_fit {z : ℝ}
     (by norm_num) (by
       norm_num [blueIdentityScale, decimalNat])
     (by norm_num [bluePowerCoeffs])
-    blue_polynomial_identity u
+    blue_integer_identity u
   have hzFromU :
       ((375 + 225 * u) / 1000 : ℝ) = z := by
     dsimp [u]
@@ -184,7 +136,8 @@ private lemma raw_blue_le_fit {z : ℝ}
     dsimp [evalPower, bluePowerCoeffs, bluePowerScale,
       decimalNat]
     field_simp [hzplus.ne']
-    ring
+    simp only [evalIntegerPower]
+    ring_nf
   rw [← sub_nonneg, hrat, hpower]
   have hIdentityScale : (0 : ℝ) < blueIdentityScale := by
     norm_num [blueIdentityScale, decimalNat]

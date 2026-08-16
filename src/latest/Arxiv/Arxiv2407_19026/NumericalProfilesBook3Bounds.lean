@@ -1,4 +1,4 @@
-import Arxiv.Arxiv2407_19026.NumericalProfilesBook3Certificate
+import Arxiv.Arxiv2407_19026.NumericalProfilesBook3PowerSemantics
 
 /-!
 # Semantic bound for the third numerical-profile book interval
@@ -100,40 +100,19 @@ private lemma log_lower_near_one_closed {x : ℝ}
   field_simp [hx.ne']
   ring
 
-private def bookThreeCleared (z : ℝ) : ℝ :=
-  let V := beta0VLarge z
-  let X := 1 - z * V
-  let W := V - 1 / 100000
-  let Z := z + 2
-  let K : ℝ :=
-    decimalNat [15000, 0, 0, 0, 0, 0, 0, 0]
-  let entropyNumerator :=
-    2 *
-      (105 * z * Z ^ 6 + 35 * z ^ 3 * Z ^ 4 +
-        21 * z ^ 5 * Z ^ 2 + 15 * z ^ 7)
-  let belowNumerator :=
-    let t := 1 - X
-    (-2) *
-      (28 * X *
-          (15 * t * (X + 1) ^ 4 +
-            5 * t ^ 3 * (X + 1) ^ 2 +
-            3 * t ^ 5) +
-        15 * t ^ 7)
-  let aboveNumerator :=
-    let t := W - 1
-    2 *
-      (200 * W *
-          (3 * t * (W + 1) ^ 2 + t ^ 3) -
-        21 * t ^ 4 * (W + 1))
-  let B₁ := 105 * Z ^ 7
-  let Bₓ := 420 * X * (X + 1) ^ 5
-  let Bᵥ := 600 * W * (W + 1) ^ 3
-  K *
-    (2 * (1 + z) * entropyNumerator * Bₓ * Bᵥ +
-      2 * beta0CorrectionLower z * B₁ * Bₓ * Bᵥ +
-      belowNumerator * B₁ * Bᵥ -
-      z ^ 2 * B₁ * Bₓ * Bᵥ +
-      z * aboveNumerator * B₁ * Bₓ)
+private lemma book_three_clear_identity
+    (z onePlus entropy correction below above b₁ bₓ bᵥ k : ℝ)
+    (hb₁ : b₁ ≠ 0) (hbₓ : bₓ ≠ 0) (hbᵥ : bᵥ ≠ 0) :
+    (onePlus * (entropy / b₁) + correction +
+        (below / bₓ - z ^ 2 + z * (above / bᵥ)) / 2) *
+        (k * (2 * b₁ * bₓ * bᵥ)) =
+      k *
+        (2 * onePlus * entropy * bₓ * bᵥ +
+          2 * correction * b₁ * bₓ * bᵥ +
+          below * b₁ * bᵥ - z ^ 2 * b₁ * bₓ * bᵥ +
+          z * above * b₁ * bₓ) := by
+  field_simp [hb₁, hbₓ, hbᵥ]
+  ring
 
 private lemma bernstein_sum_pos
     (n : ℕ) (coeffs : List ℕ) {z : ℝ}
@@ -169,10 +148,6 @@ private lemma bernstein_sum_pos
     exact hn.trans_le (Finset.single_le_sum
       (fun i _ => hterm i) (by simp))
 
-set_option maxHeartbeats 0 in
--- Normalizing the exact degree-116 rational identity exceeds the default heartbeat budget.
-set_option maxRecDepth 20000 in
--- The expanded identity also exceeds the default simplifier recursion depth.
 private lemma beta0_book_lower_three_pos {z : ℝ}
     (hz : z ∈ Set.Ioc (1 / 2 : ℝ) 1) :
     0 < beta0BookLowerThree z := by
@@ -236,84 +211,32 @@ private lemma beta0_book_lower_three_pos {z : ℝ}
           logLowerAboveFourClosed,
           logLowerBelowThreeClosed,
           logLowerNearOneClosed]
+        generalize beta0CorrectionLower z = C at ⊢
         generalize
           beta0VLarge z - 1 / 100000 = W at hWpos hWplus ⊢
         generalize
           1 - z * beta0VLarge z = X at hXpos hXplus ⊢
-        field_simp [hEntropyPlus, hzplus.ne',
-          hWpos.ne', hWplus.ne',
-          hXpos.ne', hXplus.ne']
-        ring
-      _ = bookThreePower bookThreePowerCoeffs z := by
-        dsimp [bookThreeCleared, beta0CorrectionLower,
-          expNegUpper, KernelBounds.expNegTaylor9,
-          KernelBounds.expNegError10, beta0VLarge,
-          bookThreePower, bookThreePowerCoeffs,
-          decimalNat]
-        norm_num [Nat.factorial]
-        ring
+        have hzSub : 1 + z - 1 = z := by ring
+        have hzAdd : 1 + z + 1 = z + 2 := by ring
+        have hXAdd : 1 + X = X + 1 := by ring
+        rw [hzSub, hzAdd, hXAdd]
+        apply book_three_clear_identity
+        · positivity
+        · positivity
+        · positivity
+      _ = bookThreePower bookThreePowerCoeffs z :=
+        book_three_cleared_eq_power z
       _ = _ := by
-        have hBernstein :
-            Polynomial.eval₂ (Int.castRingHom ℝ) u
-                bookThreeBernsteinPolynomial =
-              ∑ i ∈ Finset.range 117,
-                (bookThreeBernsteinCoeffs.getD i 0 : ℝ) *
-                  u ^ i * (1 - u) ^ (116 - i) := by
-          dsimp [bookThreeBernsteinPolynomial]
-          change
-            (Polynomial.eval₂RingHom (Int.castRingHom ℝ) u)
-                (∑ i ∈ Finset.range 117,
-                  (bookThreeBernsteinCoeffs.getD i 0 :
-                      Polynomial ℤ) *
-                    Polynomial.X ^ i *
-                      ((1 : Polynomial ℤ) - Polynomial.X) ^
-                        (116 - i)) =
-              _
-          simp [Polynomial.eval₂_pow]
-        have hpoly := congrArg
-          (Polynomial.eval₂ (Int.castRingHom ℝ) u)
-          book_three_polynomial_identity
+        have hidentity := book_three_bernstein_identity u
         have hzFromU :
             ((1 + u) / 2 : ℝ) = z := by
           dsimp [u]
           ring
-        have hhom :=
-          eval₂_bookThreeHomogenized bookThreePowerCoeffs u
-        change
-          Polynomial.eval₂ (Int.castRingHom ℝ) u
-                (bookThreeHomogenized bookThreePowerCoeffs) *
-              2 =
-            2 ^ 117 *
-              bookThreePower bookThreePowerCoeffs
-                ((1 + u) / 2) at hhom
-        rw [hzFromU] at hhom
-        have hhom' :
-            Polynomial.eval₂ (Int.castRingHom ℝ) u
-                (bookThreeHomogenized bookThreePowerCoeffs) =
-              2 ^ 116 *
-                bookThreePower bookThreePowerCoeffs z := by
-          apply mul_right_cancel₀
-            (by norm_num : (2 : ℝ) ≠ 0)
-          calc
-            _ = 2 ^ 117 *
-                bookThreePower bookThreePowerCoeffs z := hhom
-            _ = _ := by ring
-        simp only [Polynomial.eval₂_mul,
-          Polynomial.eval₂_pow,
-          Polynomial.eval₂_ofNat] at hpoly
-        rw [hBernstein, hhom'] at hpoly
+        rw [hzFromU] at hidentity
         rw [eq_div_iff (by
           norm_num [bookThreeScale, decimalNat] :
             (bookThreeScale : ℝ) ≠ 0)]
-        apply mul_left_cancel₀
-          (by positivity : (2 : ℝ) ^ 116 ≠ 0)
-        calc
-          _ = (bookThreeScale : ℝ) *
-              (2 ^ 116 *
-                bookThreePower bookThreePowerCoeffs z) := by
-            ring
-          _ = _ := by
-            simpa using hpoly
+        simpa [mul_comm] using hidentity
   rw [hid]
   exact div_pos
     (div_pos hsum (by

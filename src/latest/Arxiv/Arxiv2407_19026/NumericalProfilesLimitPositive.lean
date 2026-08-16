@@ -1,7 +1,7 @@
-import Arxiv.Arxiv2407_19026.NumericalProfilesLimitCertificateOne
-import Arxiv.Arxiv2407_19026.NumericalProfilesLimitCertificateTwo
-import Arxiv.Arxiv2407_19026.NumericalProfilesLimitCertificateThree
-import Arxiv.Arxiv2407_19026.NumericalProfilesLimitCertificateFour
+import Arxiv.Arxiv2407_19026.NumericalProfilesLimitScaledCertificateOne
+import Arxiv.Arxiv2407_19026.NumericalProfilesLimitScaledCertificateTwo
+import Arxiv.Arxiv2407_19026.NumericalProfilesLimitScaledCertificateThree
+import Arxiv.Arxiv2407_19026.NumericalProfilesLimitScaledCertificateFour
 
 /-!
 # Positivity of the first-profile limit polynomial
@@ -20,17 +20,16 @@ private lemma beta0_limit_numerator_ge_one_of_certificate
     {z u : ℝ} (hu : u ∈ Set.Icc (0 : ℝ) 1)
     (hz : z = (left : ℝ) + (width : ℝ) * u)
     (hcertificate :
-      rationalPowerComp beta0LimitReserveExpandedPower [left, width] =
-        rationalPowerScale (1 / scale)
-          (beta0BernsteinPower 128 coefficients)) :
+      ∀ x,
+        rationalPowerEval
+            (rationalPowerComp beta0LimitReservePower
+              [left, width]) x =
+          beta0LimitBernsteinValue 128 coefficients x / scale) :
     1 ≤ beta0LimitNumerator z := by
   have hnonnegative :=
-    beta0_bernstein_value_nonneg 128 coefficients hu
-  have hevaluation :=
-    congrArg (fun polynomial => rationalPowerEval polynomial u)
-      hcertificate
-  rw [rationalPowerEval_comp, rationalPowerEval_scale,
-    beta0_bernstein_power_eval] at hevaluation
+    beta0LimitBernsteinValue_nonneg 128 coefficients hu
+  have hevaluation := hcertificate u
+  rw [rationalPowerEval_comp] at hevaluation
   have haffine :
       rationalPowerEval [left, width] u =
         (left : ℝ) + (width : ℝ) * u := by
@@ -38,11 +37,10 @@ private lemma beta0_limit_numerator_ge_one_of_certificate
     ring
   rw [haffine, ← hz] at hevaluation
   have hreserve :
-      0 ≤ rationalPowerEval beta0LimitReserveExpandedPower z := by
+      0 ≤ rationalPowerEval beta0LimitReservePower z := by
     rw [hevaluation]
-    exact mul_nonneg (by positivity) hnonnegative
-  rw [← beta0_limit_reserve_expansion,
-    beta0_limit_reserve_power_eval] at hreserve
+    exact div_nonneg hnonnegative (Nat.cast_nonneg _)
+  rw [beta0_limit_reserve_power_eval] at hreserve
   linarith
 
 lemma beta0_limit_numerator_ge_one
@@ -55,12 +53,12 @@ lemma beta0_limit_numerator_ge_one
       constructor <;> nlinarith [hz.1, h₁]
     apply beta0_limit_numerator_ge_one_of_certificate hu
       (left := 3 / 1000) (width := 7 / 1000)
-      (scale := beta0LimitScaleOne)
-      (coefficients := beta0LimitCoeffsOne)
+      (scale := beta0LimitScaleOneFast)
+      (coefficients := beta0LimitCoeffsOneFast)
     · dsimp [u]
       norm_num
       ring
-    · exact beta0_limit_bernstein_one_identity
+    · exact beta0_limit_one_evaluation
   by_cases h₂ : z ≤ 1 / 10
   · let u : ℝ := (100 * z - 1) / 9
     have hu : u ∈ Set.Icc (0 : ℝ) 1 := by
@@ -68,12 +66,12 @@ lemma beta0_limit_numerator_ge_one
       constructor <;> nlinarith [lt_of_not_ge h₁, h₂]
     apply beta0_limit_numerator_ge_one_of_certificate hu
       (left := 1 / 100) (width := 9 / 100)
-      (scale := beta0LimitScaleTwo)
-      (coefficients := beta0LimitCoeffsTwo)
+      (scale := beta0LimitScaleTwoFast)
+      (coefficients := beta0LimitCoeffsTwoFast)
     · dsimp [u]
       norm_num
       ring
-    · exact beta0_limit_bernstein_two_identity
+    · exact beta0_limit_two_evaluation
   by_cases h₃ : z ≤ 1 / 2
   · let u : ℝ := (10 * z - 1) / 4
     have hu : u ∈ Set.Icc (0 : ℝ) 1 := by
@@ -81,30 +79,30 @@ lemma beta0_limit_numerator_ge_one
       constructor <;> nlinarith [lt_of_not_ge h₂, h₃]
     apply beta0_limit_numerator_ge_one_of_certificate hu
       (left := 1 / 10) (width := 2 / 5)
-      (scale := beta0LimitScaleThree)
-      (coefficients := beta0LimitCoeffsThree)
+      (scale := beta0LimitScaleThreeFast)
+      (coefficients := beta0LimitCoeffsThreeFast)
     · dsimp [u]
       norm_num
       ring
-    · exact beta0_limit_bernstein_three_identity
+    · exact beta0_limit_three_evaluation
   · let u : ℝ := 2 * z - 1
     have hu : u ∈ Set.Icc (0 : ℝ) 1 := by
       dsimp [u]
       constructor <;> nlinarith [lt_of_not_ge h₃, hz.2]
     apply beta0_limit_numerator_ge_one_of_certificate hu
       (left := 1 / 2) (width := 1 / 2)
-      (scale := beta0LimitScaleFour)
-      (coefficients := beta0LimitCoeffsFour)
+      (scale := beta0LimitScaleFourFast)
+      (coefficients := beta0LimitCoeffsFourFast)
     · dsimp [u]
       norm_num
       ring
-    · exact beta0_limit_bernstein_four_identity
+    · exact beta0_limit_four_evaluation
 
 private lemma beta0_limit_v_sub_exp_upper_lower
     {z : ℝ} (hz : z ∈ Set.Icc (0 : ℝ) 1) :
     (1 / 10 : ℝ) ≤ beta0VLarge z - expNegUpper z := by
   have hnonnegative :=
-    beta0_bernstein_value_nonneg 10
+    beta0LimitBernsteinValue_nonneg 10
       [683249503928040, 5555925309277791,
         20599400415496014, 46042752079465911,
         68691159818464743, 71362112478929559,
@@ -113,7 +111,7 @@ private lemma beta0_limit_v_sub_exp_upper_lower
         166167549098378] hz
   have hidentity :
       beta0VLarge z - expNegUpper z - 1 / 10 =
-        beta0BernsteinValue 10
+        beta0LimitBernsteinValue 10
             [683249503928040, 5555925309277791,
               20599400415496014, 46042752079465911,
               68691159818464743, 71362112478929559,
@@ -121,7 +119,7 @@ private lemma beta0_limit_v_sub_exp_upper_lower
               8954766265693275, 1809811805987179,
               166167549098378] z /
           567000000000000 := by
-    norm_num [beta0BernsteinValue, beta0VLarge, expNegUpper,
+    norm_num [beta0LimitBernsteinValue, beta0VLarge, expNegUpper,
       KernelBounds.expNegTaylor9, KernelBounds.expNegError10]
     ring
   rw [← sub_nonneg, hidentity]
@@ -131,20 +129,20 @@ private lemma beta0_limit_a_lower_lower
     {z : ℝ} (hz : z ∈ Set.Icc (0 : ℝ) 1) :
     (1 / 2 : ℝ) ≤ beta0LimitALower z := by
   have hnonnegative :=
-    beta0_bernstein_value_nonneg 11
+    beta0LimitBernsteinValue_nonneg 11
       [18144000, 163296000, 671328000, 1669248000,
         2800224000, 3343032000, 2912414400,
         1859709600, 855597600, 270366300,
         52738300, 4794389] hz
   have hidentity :
       beta0LimitALower z - 1 / 2 =
-        beta0BernsteinValue 11
+        beta0LimitBernsteinValue 11
             [18144000, 163296000, 671328000, 1669248000,
               2800224000, 3343032000, 2912414400,
               1859709600, 855597600, 270366300,
               52738300, 4794389] z /
           36288000 := by
-    norm_num [beta0BernsteinValue, beta0LimitALower, expNegUpper,
+    norm_num [beta0LimitBernsteinValue, beta0LimitALower, expNegUpper,
       KernelBounds.expNegTaylor9, KernelBounds.expNegError10]
     ring
   rw [← sub_nonneg, hidentity]
