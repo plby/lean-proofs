@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos1064",
+  "solution_module": "ErdosProblems.Erdos1064",
+  "theorem_names": [
+    "erdos_1064.variants.general_function"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
+
