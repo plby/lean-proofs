@@ -780,8 +780,6 @@ lemma cube_le_six_choose (m : ℕ) :
       Nat.descFactorial_eq_factorial_mul_choose _ _
     _ = 6 * (m + 3).choose 3 := by norm_num
 
-set_option maxHeartbeats 800000 in
--- Normalizing the closed-form bound for this real `tsum` is typeclass-intensive.
 lemma tsum_cube_mul_geometric_le {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) :
     ∑' m : ℕ, (m : ℝ) ^ 3 * r ^ m ≤ 6 / (1 - r) ^ 4 := by
   have hnorm : ‖r‖ < 1 := by simpa [Real.norm_of_nonneg hr0] using hr1
@@ -824,8 +822,6 @@ lemma hasSum_pow_div (r : ℝ) (hr0 : 0 ≤ r) (hr1 : r < 1) :
     Complex.ofReal_re, Complex.neg_re, Complex.log_re,
     hone, neg_neg] using hs
 
-set_option maxHeartbeats 800000 in
--- The ordered infinite-sum comparison below triggers expensive typeclass normalization.
 lemma pairEnergy_lower_bound (z : ℕ → ℂ) (hz : ∀ i, ‖z i‖ = 1)
     (n : ℕ) {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) :
     (n : ℝ) / 2 * (-Real.log (1 - r)) -
@@ -920,8 +916,6 @@ lemma pairEnergy_lower_bound_explicit (z : ℕ → ℂ)
       sub_le_sub_left (mul_le_mul_of_nonneg_left hcube hA) _
     _ ≤ pairEnergy z n r := hbase
 
-set_option maxHeartbeats 800000 in
--- Comparing the two infinite series requires substantial typeclass normalization.
 lemma pairEnergy_lower_bound_sharp (z : ℕ → ℂ)
     (hz : ∀ i, ‖z i‖ = 1) (n : ℕ) {r : ℝ}
     (hr0 : 0 ≤ r) (hr1 : r < 1) :
@@ -1786,3 +1780,9 @@ end Erdos119
 #print axioms Erdos119.erdos_119.parts.iii_quantitative
 -- 'Erdos119.erdos_119.parts.iii_quantitative' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
+#print axioms Erdos119.erdos_119.parts.iii
+-- 'Erdos119.erdos_119.parts.iii' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms Erdos119.erdos_119.parts.ii
+-- 'Erdos119.erdos_119.parts.ii' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms Erdos119.erdos_119.parts.i
+-- 'Erdos119.erdos_119.parts.i' depends on axioms: [propext, Classical.choice, Quot.sound]

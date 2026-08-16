@@ -1,54 +1,66 @@
-import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 119.
+https://www.erdosproblems.com/forum/thread/119
+
+Informal authors:
+- ChatGPT 5.6 Pro
+- Samuel Korsky
+
+Statement authors:
+- Formal Conjectures authors
+
+Formal authors:
+- Codex
+- Boris Alexeev
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/119/proof-claims#proof-claim-7
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/119.lean
+-/
+import Mathlib
 
 open Filter Finset Set
 open Metric
 
 namespace Erdos119
 
+/-
+Here we use 0-indexing for generality and convenience, while in the original problem
+formulation 1-indexing was used. This change does not affect the meaning of the problem.
+In the description of the problem below we remain faithful to the original one.
+-/
+
+/-- Let $z_i$ be an infinite sequence of complex numbers such that $|z_i| = 1$ for all $i \geq 1$.
+For $n \geq 1$ let $p_n(z) = \prod_{i \leq n} (z - z_i)$. -/
 noncomputable def p (z : ℕ → ℂ) (n : ℕ) : ℂ → ℂ :=
   fun w => ∏ i ∈ range n, (w - z i)
 
+/-- Let $M_n = \max_{|z| = 1} |p_n(z)|$. -/
 noncomputable def M (z : ℕ → ℂ) (n : ℕ) : ℝ :=
   sSup {‖p z n w‖ | (w : ℂ) (_ : ‖w‖ = 1)}
-end Erdos119
 
-attribute [local instance] Classical.propDecidable
-
-theorem Erdos119.erdos_119.parts.iii_quantitative :
-    ∀ (z : Nat → Complex),
-      (∀ (i : Nat),
-          @Eq.{1} Real (@Norm.norm.{0} Complex Complex.instNorm (z i))
-            (@OfNat.ofNat.{0} Real (nat_lit 1) (@One.toOfNat1.{0} Real Real.instOne))) →
-        @Exists.{1} Real fun (C : Real) ↦
-          And
-            (@GT.gt.{0} Real Real.instLT C
-              (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)))
-            (@Filter.Eventually.{0} Nat
-              (fun (n : Nat) ↦
-                @LT.lt.{0} Real Real.instLT
-                  (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul) C
-                    (@HDiv.hDiv.{0, 0, 0} Real Real Real
-                      (@instHDiv.{0} Real (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
-                      (@HPow.hPow.{0, 0, 0} Real Real Real (@instHPow.{0, 0} Real Real Real.instPow)
-                        (@Nat.cast.{0} Real Real.instNatCast n)
-                        (@HDiv.hDiv.{0, 0, 0} Real Real Real
-                          (@instHDiv.{0} Real (@DivInvMonoid.toDiv.{0} Real Real.instDivInvMonoid))
-                          (@OfNat.ofNat.{0} Real (nat_lit 5)
-                            (@instOfNatAtLeastTwo.{0} Real (nat_lit 5) Real.instNatCast
-                              (@Nat.instAtLeastTwoHAddOfNat
-                                (@OfNat.ofNat.{0} Nat (nat_lit 4) (instOfNatNat (nat_lit 4)))
-                                (@Nat.instNeZeroSucc
-                                  (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))))))
-                          (@OfNat.ofNat.{0} Real (nat_lit 4)
-                            (@instOfNatAtLeastTwo.{0} Real (nat_lit 4) Real.instNatCast
-                              (@Nat.instAtLeastTwoHAddOfNat
-                                (@OfNat.ofNat.{0} Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))
-                                (@Nat.instNeZeroSucc
-                                  (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2)))))))))
-                      (Real.log (@Nat.cast.{0} Real Real.instNatCast n)).sqrt))
-                  (@Finset.sum.{0, 0} Nat Real Real.instAddCommMonoid (Finset.range n) fun (k : Nat) ↦
-                    Erdos119.M z k))
-              (@Filter.atTop.{0} Nat Nat.instPreorder))
-  := by
+theorem erdos_119.parts.iii_quantitative :
+    ∀ (z : ℕ → ℂ) (_ : ∀ i : ℕ, ‖z i‖ = 1),
+      ∃ C > 0, ∀ᶠ n : ℕ in atTop,
+        C * ((n : ℝ) ^ (5 / 4 : ℝ) /
+          Real.sqrt (Real.log (n : ℝ))) <
+            ∑ k ∈ range n, M z k := by
   sorry
+
+theorem erdos_119.parts.iii :
+    ∀ (z : ℕ → ℂ) (_ : ∀ i : ℕ, ‖z i‖ = 1),
+      ∃ (c : ℝ) (_ : c > 0), ∀ᶠ n in atTop,
+        ∑ k ∈ range n, M z k > n ^ (1 + c) := by
+  sorry
+
+theorem erdos_119.parts.ii :
+    ∀ (z : ℕ → ℂ) (_ : ∀ i : ℕ, ‖z i‖ = 1),
+      ∃ (c : ℝ) (_ : c > 0), Infinite {n : ℕ | M z n > n ^ c} := by
+  sorry
+
+theorem erdos_119.parts.i :
+    ∀ (z : ℕ → ℂ) (_ : ∀ i : ℕ, ‖z i‖ = 1),
+      atTop.limsup (fun n => (M z n : EReal)) = ⊤ := by
+  sorry
+
