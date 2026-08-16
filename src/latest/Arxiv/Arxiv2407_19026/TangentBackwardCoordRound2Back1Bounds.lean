@@ -1,5 +1,5 @@
 import Arxiv.Arxiv2407_19026.TangentBackwardCoordBounds
-import Arxiv.Arxiv2407_19026.TangentBackwardCoordRound2Back1Certificate
+import Arxiv.Arxiv2407_19026.TangentBackwardCoordRound2Back1ScaledSemantics
 
 /-!
 # Second-round first backward coordinate bound
@@ -15,76 +15,9 @@ noncomputable section
 
 open BackwardCoordRound2Back1Certificate
 
-def backwardBlueFitRound2Back1 (z : ℝ) : ℝ :=
-  1950931 / 195312500 +
-    58478641629 / 50000000000 * z -
-    732508917503 / 500000000000 * z ^ 2 +
-    137135452249 / 125000000000 * z ^ 3 -
-    352251748243 / 1000000000000 * z ^ 4 -
-    74489 / 125000000000
-
 private def backwardCoordDenRound2Back1 (z : ℝ) : ℝ :=
   let t := r2Back1TReal z
   t * (1 + t) ^ 7 * (1 - backwardMuLower z)
-
-private lemma evalPower_eq_bernstein_of_identity
-    (degree scale : ℕ) (coefficients : List ℤ)
-    (bernsteinCoefficients : List ℕ)
-    (hscale : scale ≠ 0)
-    (hlength : coefficients.length = degree + 1)
-    (hidentity :
-      ((scale : ℤ) : Polynomial ℤ) * homogenized coefficients =
-        (500 ^ degree : Polynomial ℤ) *
-          BackwardCoordRound2Back1Certificate.bernsteinPolynomial
-            degree bernsteinCoefficients)
-    (u : ℝ) :
-    evalPower coefficients ((189 + 111 * u) / 500) =
-      (∑ i ∈ Finset.range (degree + 1),
-        (bernsteinCoefficients.getD i 0 : ℝ) *
-          u ^ i * (1 - u) ^ (degree - i)) / scale := by
-  have hBernstein :
-      Polynomial.eval₂ (Int.castRingHom ℝ) u
-          (BackwardCoordRound2Back1Certificate.bernsteinPolynomial
-            degree bernsteinCoefficients) =
-        ∑ i ∈ Finset.range (degree + 1),
-          (bernsteinCoefficients.getD i 0 : ℝ) *
-            u ^ i * (1 - u) ^ (degree - i) := by
-    dsimp [BackwardCoordRound2Back1Certificate.bernsteinPolynomial]
-    change
-      (Polynomial.eval₂RingHom (Int.castRingHom ℝ) u)
-          (∑ i ∈ Finset.range (degree + 1),
-            (bernsteinCoefficients.getD i 0 :
-                Polynomial ℤ) *
-              Polynomial.X ^ i *
-                ((1 : Polynomial ℤ) - Polynomial.X) ^
-                  (degree - i)) =
-        _
-    simp [Polynomial.eval₂_pow]
-  have hhom := eval₂_homogenized coefficients u
-  rw [hlength] at hhom
-  have hhom' :
-      Polynomial.eval₂ (Int.castRingHom ℝ) u
-          (homogenized coefficients) =
-        500 ^ degree *
-          evalPower coefficients ((189 + 111 * u) / 500) := by
-    apply mul_right_cancel₀ (by norm_num : (500 : ℝ) ≠ 0)
-    calc
-      _ = 500 ^ (degree + 1) *
-          evalPower coefficients ((189 + 111 * u) / 500) := hhom
-      _ = _ := by ring
-  have hpoly := congrArg
-    (Polynomial.eval₂ (Int.castRingHom ℝ) u) hidentity
-  simp only [Polynomial.eval₂_mul, Polynomial.eval₂_pow,
-    Polynomial.eval₂_ofNat] at hpoly
-  rw [hBernstein, hhom'] at hpoly
-  rw [eq_div_iff (by exact_mod_cast hscale)]
-  apply mul_left_cancel₀ (by positivity : (500 : ℝ) ^ degree ≠ 0)
-  calc
-    _ = (scale : ℝ) *
-        (500 ^ degree *
-          evalPower coefficients ((189 + 111 * u) / 500)) := by
-      ring
-    _ = _ := by simpa using hpoly
 
 lemma round2_back1_t_bounds {z : ℝ}
     (hz : z ∈ Set.Icc (189 / 500 : ℝ) (3 / 5)) :
@@ -183,10 +116,6 @@ private lemma round2_back1_blue_fit_bounds {z : ℝ}
     · have hupos : 0 < u := lt_of_le_of_ne hu0 (Ne.symm hzero)
       positivity
 
-set_option maxHeartbeats 0 in
--- Expanding the degree-49 blue certificate exceeds the default heartbeat budget.
-set_option maxRecDepth 30000 in
--- The exact rational identity also needs additional simplifier recursion.
 private lemma blue_fit_le_raw {z : ℝ}
     (hz : z ∈ Set.Icc (189 / 500 : ℝ) (3 / 5)) :
     backwardBlueFitRound2Back1 z ≤
@@ -199,10 +128,7 @@ private lemma blue_fit_le_raw {z : ℝ}
     blueBernsteinCoeffs hu (by
       norm_num [blueBernsteinCoeffs, decimalNat]) (by
       norm_num [blueBernsteinCoeffs, decimalNat])
-  have hpower := evalPower_eq_bernstein_of_identity
-    49 blueIdentityScale bluePowerCoeffs blueBernsteinCoeffs
-    (by norm_num [blueIdentityScale, decimalNat])
-    (by norm_num [bluePowerCoeffs]) blue_polynomial_identity u
+  have hpower := blue_power_eq_bernstein u
   have hzFromU : ((189 + 111 * u) / 500 : ℝ) = z := by
     dsimp [u]
     ring
@@ -213,17 +139,7 @@ private lemma blue_fit_le_raw {z : ℝ}
           backwardBlueFitRound2Back1 z =
         (evalPower bluePowerCoeffs z / bluePowerScale) /
           (1 + z) := by
-    apply (eq_div_iff hzplus.ne').2
-    dsimp [backwardBlueRawLower, backwardExpQLower,
-      backwardQLower, backwardBlueFitRound2Back1,
-      mediumCorrectionPolynomial]
-    norm_num [KernelBounds.expNegTaylor9,
-      KernelBounds.expNegError10, Finset.sum_range_succ,
-      Nat.factorial]
-    dsimp [evalPower, bluePowerCoeffs, bluePowerScale,
-      decimalNat]
-    field_simp
-    ring
+    exact coord_scaled_blue_identity z hzplus.ne'
   rw [← sub_nonneg, hrat, hpower]
   have hIdentityScale : (0 : ℝ) < blueIdentityScale := by
     norm_num [blueIdentityScale, decimalNat]
@@ -231,10 +147,6 @@ private lemma blue_fit_le_raw {z : ℝ}
     norm_num [bluePowerScale, decimalNat]
   positivity
 
-set_option maxHeartbeats 0 in
--- Expanding the degree-74 final coordinate certificate exceeds the default budget.
-set_option maxRecDepth 30000 in
--- The exact rational identity also needs additional simplifier recursion.
 private lemma backward_coord_lower_pos {z : ℝ}
     (hz : z ∈ Set.Icc (189 / 500 : ℝ) (3 / 5)) :
     0 <
@@ -248,10 +160,7 @@ private lemma backward_coord_lower_pos {z : ℝ}
     mainBernsteinCoeffs hu (by
       norm_num [mainBernsteinCoeffs, decimalNat]) (by
       norm_num [mainBernsteinCoeffs, decimalNat])
-  have hpower := evalPower_eq_bernstein_of_identity
-    74 mainIdentityScale mainPowerCoeffs mainBernsteinCoeffs
-    (by norm_num [mainIdentityScale, decimalNat])
-    (by norm_num [mainPowerCoeffs]) main_polynomial_identity u
+  have hpower := main_power_eq_bernstein u
   have hzFromU : ((189 + 111 * u) / 500 : ℝ) = z := by
     dsimp [u]
     ring
@@ -276,24 +185,12 @@ private lemma backward_coord_lower_pos {z : ℝ}
           backwardXLogUpper (backwardBlueFitRound2Back1 z) z =
         (evalPower mainPowerCoeffs z / mainPowerScale) /
           backwardCoordDenRound2Back1 z := by
-    apply (eq_div_iff hden.ne').2
-    unfold backwardBLogLowerFour backwardXLogUpper
-      backwardCoordDenRound2Back1
-    dsimp only
-    rw [backward_log_lower_below_four_closed
-      ht0.ne' (by positivity : r2Back1TReal z + 1 ≠ 0)]
-    unfold backwardLogLowerFourClosed tangentCoordLogUpper
-      backwardLogUpperBelowFive
-    field_simp [ht0.ne', (sub_pos.mpr hM1).ne',
-      (by positivity : r2Back1TReal z + 1 ≠ 0)]
-    unfold backwardMuLower
-      backwardExpLower5 backwardExpTaylor5 backwardExpError6
-      backwardBlueFitRound2Back1 mediumCorrectionPolynomial
-    norm_num [Finset.sum_range_succ, Nat.factorial]
-    dsimp [r2Back1TReal, tangentLocalPoly, tangentRatHorner,
-      TangentAffine.r2Back1Cs, evalPower, mainPowerCoeffs,
-      mainPowerScale, decimalNat]
-    ring
+    simpa [backwardCoordDenRound2Back1] using
+      coord_scaled_main_identity z ht0.ne'
+        (by positivity : r2Back1TReal z + 1 ≠ 0)
+        (sub_pos.mpr hM1).ne'
+        (by
+          simpa [backwardCoordDenRound2Back1] using hden.ne')
   rw [hrat, hpower]
   have hIdentityScale : (0 : ℝ) < mainIdentityScale := by
     norm_num [mainIdentityScale, decimalNat]

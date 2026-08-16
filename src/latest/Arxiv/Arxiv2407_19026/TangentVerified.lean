@@ -1,5 +1,10 @@
 import Arxiv.Arxiv2407_19026.TangentAssembly
-import Arxiv.Arxiv2407_19026.TangentPolyChecks
+import Arxiv.Arxiv2407_19026.TangentBackwardCoordRound1Back1Bounds
+import Arxiv.Arxiv2407_19026.TangentBackwardCoordRound1Back2Bounds
+import Arxiv.Arxiv2407_19026.TangentBackwardCoordRound2Back1Bounds
+import Arxiv.Arxiv2407_19026.TangentBackwardCoordRound2Back2Bounds
+import Arxiv.Arxiv2407_19026.TangentBackwardCoordRound3Back1Bounds
+import Arxiv.Arxiv2407_19026.TangentBackwardCoordRound3Back2Bounds
 
 /-! Soundness wrappers shared by the certified tangent rounds. -/
 
@@ -110,273 +115,73 @@ lemma mediumBreakpoints_getLast (start count : ℕ) (hc : count ≠ 0)
 
 end TangentAffine
 
-private lemma r1ForwardBps_ne : TangentPolyNative.r1ForwardBps ≠ [] := by
-  exact TangentAffine.mediumBreakpoints_ne 100 169 (by norm_num)
-
-private lemma r1ForwardBps_last :
-    TangentPolyNative.r1ForwardBps.getLast r1ForwardBps_ne = 269 / 1000 := by
-  unfold TangentPolyNative.r1ForwardBps
-  convert TangentAffine.mediumBreakpoints_getLast
-    100 169 (by norm_num) r1ForwardBps_ne using 1
-  all_goals norm_num
-
-private lemma r1Back1Bps_ne : TangentPolyNative.r1Back1Bps ≠ [] := by
-  exact TangentAffine.mediumBreakpoints_ne 387 213 (by norm_num)
-
-private lemma r1Back1Bps_last :
-    TangentPolyNative.r1Back1Bps.getLast r1Back1Bps_ne = 3 / 5 := by
-  unfold TangentPolyNative.r1Back1Bps
-  convert TangentAffine.mediumBreakpoints_getLast
-    387 213 (by norm_num) r1Back1Bps_ne using 1
-  all_goals norm_num
-
-private lemma back2Bps_ne : TangentPolyNative.back2Bps ≠ [] := by
-  exact TangentAffine.mediumBreakpoints_ne 600 400 (by norm_num)
-
-private lemma back2Bps_last :
-    TangentPolyNative.back2Bps.getLast back2Bps_ne = 1 := by
-  unfold TangentPolyNative.back2Bps
-  convert TangentAffine.mediumBreakpoints_getLast
-    600 400 (by norm_num) back2Bps_ne using 1
-  all_goals norm_num
-
-private lemma r2ForwardBps_ne : TangentPolyNative.r2ForwardBps ≠ [] := by
-  exact TangentAffine.mediumBreakpoints_ne 100 168 (by norm_num)
-
-private lemma r2ForwardBps_last :
-    TangentPolyNative.r2ForwardBps.getLast r2ForwardBps_ne = 67 / 250 := by
-  unfold TangentPolyNative.r2ForwardBps
-  convert TangentAffine.mediumBreakpoints_getLast
-    100 168 (by norm_num) r2ForwardBps_ne using 1
-  all_goals norm_num
-
-private lemma r2Back1Bps_ne : TangentPolyNative.r2Back1Bps ≠ [] := by
-  exact TangentAffine.mediumBreakpoints_ne 378 222 (by norm_num)
-
-private lemma r2Back1Bps_last :
-    TangentPolyNative.r2Back1Bps.getLast r2Back1Bps_ne = 3 / 5 := by
-  unfold TangentPolyNative.r2Back1Bps
-  convert TangentAffine.mediumBreakpoints_getLast
-    378 222 (by norm_num) r2Back1Bps_ne using 1
-  all_goals norm_num
-
-private lemma r3ForwardBps_ne : TangentPolyNative.r3ForwardBps ≠ [] := by
-  exact TangentAffine.mediumBreakpoints_ne 100 168 (by norm_num)
-
-private lemma r3ForwardBps_last :
-    TangentPolyNative.r3ForwardBps.getLast r3ForwardBps_ne = 67 / 250 := by
-  unfold TangentPolyNative.r3ForwardBps
-  convert TangentAffine.mediumBreakpoints_getLast
-    100 168 (by norm_num) r3ForwardBps_ne using 1
-  all_goals norm_num
-
-private lemma r3Back1Bps_ne : TangentPolyNative.r3Back1Bps ≠ [] := by
-  exact TangentAffine.mediumBreakpoints_ne 375 225 (by norm_num)
-
-private lemma r3Back1Bps_last :
-    TangentPolyNative.r3Back1Bps.getLast r3Back1Bps_ne = 3 / 5 := by
-  unfold TangentPolyNative.r3Back1Bps
-  convert TangentAffine.mediumBreakpoints_getLast
-    375 225 (by norm_num) r3Back1Bps_ne using 1
-  all_goals norm_num
-
-lemma affineLowerEval
-    (e : Expr) (lower lo hi : ℚ) (bps : List ℚ)
-    (hsupp : ExprSupportedCore e)
-    (hne : bps ≠ [])
-    (hlast : bps.getLast hne = hi)
-    (hcheck :
-      checkLowerAffineCover e lower TangentAffine.cfg lo bps = true) :
-    ∀ x ∈ Set.Icc (lo : ℝ) (hi : ℝ),
-      (lower : ℝ) ≤ Expr.eval (fun _ ↦ x) e := by
-  have h :=
-    verify_lower_affine_cover e hsupp lower TangentAffine.cfg
-      lo bps hne hcheck
-  rw [hlast] at h
-  exact h
-
-lemma witness_mem_of_affine
-    {T : Expr} {f : ℝ → ℝ} {lo hi : ℚ} {bps : List ℚ}
-    (hsuppT : ExprSupportedCore T)
-    (hsuppHi : ExprSupportedCore (TangentPolyNative.belowOne T))
-    (heval : ∀ x, Expr.eval (fun _ ↦ x) T = f x)
-    (hne : bps ≠ [])
-    (hlast : bps.getLast hne = hi)
-    (hlo :
-      checkLowerAffineCover T (1 / 100000)
-        TangentAffine.cfg lo bps = true)
-    (hhi :
-      checkLowerAffineCover (TangentPolyNative.belowOne T) (1 / 100000)
-        TangentAffine.cfg lo bps = true) :
-    ∀ x ∈ Set.Icc ((lo : ℚ) : ℝ) ((hi : ℚ) : ℝ),
-      f x ∈ Set.Ioc (0 : ℝ) 1 := by
-  have hlow := affineLowerEval T (1 / 100000) lo hi bps
-    hsuppT hne hlast hlo
-  have hupp := affineLowerEval (TangentPolyNative.belowOne T)
-    (1 / 100000) lo hi bps hsuppHi hne hlast hhi
-  intro x hx
-  have hxlow := hlow x hx
-  have hxupp := hupp x hx
-  rw [heval x] at hxlow
-  have hbelow :
-      Expr.eval (fun _ ↦ x) (TangentPolyNative.belowOne T) =
-        1 - f x := by
-    simp [TangentPolyNative.belowOne, TangentAffine.sub,
-      TangentAffine.c, heval, Expr.eval]
-  rw [hbelow] at hxupp
-  constructor <;> nlinarith
-
 lemma r1ForwardTReal_mem :
     ∀ z ∈ Set.Icc (1 / 10 : ℝ) (269 / 1000),
-      r1ForwardTReal z ∈ Set.Ioc (0 : ℝ) 1 :=
-by
-  have h := witness_mem_of_affine
-    (T := TangentAffine.r1ForwardT) (f := r1ForwardTReal)
-    (lo := 1 / 10) (hi := 269 / 1000)
-    (bps := TangentPolyNative.r1ForwardBps)
-    (Expr.checkSupportedCore_correct (by decide))
-    (Expr.checkSupportedCore_correct (by decide))
-    eval_r1ForwardT
-    r1ForwardBps_ne r1ForwardBps_last
-    TangentPolyNative.r1Forward_checks.1
-    TangentPolyNative.r1Forward_checks.2
-  norm_num at h ⊢
-  exact h
+      r1ForwardTReal z ∈ Set.Ioc (0 : ℝ) 1 := by
+  intro z hz
+  have h := round1_forward_t_bounds hz
+  exact ⟨h.1, h.2.1⟩
 
 lemma r1Back1TReal_mem :
     ∀ z ∈ Set.Icc (387 / 1000 : ℝ) (3 / 5),
-      r1Back1TReal z ∈ Set.Ioc (0 : ℝ) 1 :=
-by
-  have h := witness_mem_of_affine
-    (T := TangentAffine.r1Back1T) (f := r1Back1TReal)
-    (lo := 387 / 1000) (hi := 3 / 5)
-    (bps := TangentPolyNative.r1Back1Bps)
-    (Expr.checkSupportedCore_correct (by decide))
-    (Expr.checkSupportedCore_correct (by decide))
-    eval_r1Back1T
-    r1Back1Bps_ne r1Back1Bps_last
-    TangentPolyNative.r1Back1_checks.1
-    TangentPolyNative.r1Back1_checks.2
-  norm_num at h ⊢
-  exact h
+      r1Back1TReal z ∈ Set.Ioc (0 : ℝ) 1 := by
+  intro z hz
+  have h :=
+    BackwardCoordRound1Back1Bounds.round1_back1_t_bounds hz
+  exact ⟨h.1, h.2.le⟩
 
 lemma r1Back2TReal_mem :
     ∀ z ∈ Set.Icc (3 / 5 : ℝ) 1,
-      r1Back2TReal z ∈ Set.Ioc (0 : ℝ) 1 :=
-by
-  have h := witness_mem_of_affine
-    (T := TangentAffine.r1Back2T) (f := r1Back2TReal)
-    (lo := 3 / 5) (hi := 1)
-    (bps := TangentPolyNative.back2Bps)
-    (Expr.checkSupportedCore_correct (by decide))
-    (Expr.checkSupportedCore_correct (by decide))
-    eval_r1Back2T
-    back2Bps_ne back2Bps_last
-    TangentPolyNative.r1Back2_checks.1
-    TangentPolyNative.r1Back2_checks.2
-  norm_num at h ⊢
-  exact h
+      r1Back2TReal z ∈ Set.Ioc (0 : ℝ) 1 := by
+  intro z hz
+  have h :=
+    BackwardCoordRound1Back2Bounds.round1_back2_t_bounds hz
+  exact ⟨h.1, h.2.trans (by norm_num)⟩
 
 lemma r2ForwardTReal_mem :
     ∀ z ∈ Set.Icc (1 / 10 : ℝ) (67 / 250),
-      r2ForwardTReal z ∈ Set.Ioc (0 : ℝ) 1 :=
-by
-  have h := witness_mem_of_affine
-    (T := TangentAffine.r2ForwardT) (f := r2ForwardTReal)
-    (lo := 1 / 10) (hi := 67 / 250)
-    (bps := TangentPolyNative.r2ForwardBps)
-    (Expr.checkSupportedCore_correct (by decide))
-    (Expr.checkSupportedCore_correct (by decide))
-    eval_r2ForwardT
-    r2ForwardBps_ne r2ForwardBps_last
-    TangentPolyNative.r2Forward_checks.1
-    TangentPolyNative.r2Forward_checks.2
-  norm_num at h ⊢
-  exact h
+      r2ForwardTReal z ∈ Set.Ioc (0 : ℝ) 1 := by
+  intro z hz
+  have h := round2_forward_t_bounds hz
+  exact ⟨h.1, h.2.1⟩
 
 lemma r2Back1TReal_mem :
     ∀ z ∈ Set.Icc (189 / 500 : ℝ) (3 / 5),
-      r2Back1TReal z ∈ Set.Ioc (0 : ℝ) 1 :=
-by
-  have h := witness_mem_of_affine
-    (T := TangentAffine.r2Back1T) (f := r2Back1TReal)
-    (lo := 189 / 500) (hi := 3 / 5)
-    (bps := TangentPolyNative.r2Back1Bps)
-    (Expr.checkSupportedCore_correct (by decide))
-    (Expr.checkSupportedCore_correct (by decide))
-    eval_r2Back1T
-    r2Back1Bps_ne r2Back1Bps_last
-    TangentPolyNative.r2Back1_checks.1
-    TangentPolyNative.r2Back1_checks.2
-  norm_num at h ⊢
-  exact h
+      r2Back1TReal z ∈ Set.Ioc (0 : ℝ) 1 := by
+  intro z hz
+  have h :=
+    BackwardCoordRound2Back1Bounds.round2_back1_t_bounds hz
+  exact ⟨h.1, h.2.le⟩
 
 lemma r2Back2TReal_mem :
     ∀ z ∈ Set.Icc (3 / 5 : ℝ) 1,
-      r2Back2TReal z ∈ Set.Ioc (0 : ℝ) 1 :=
-by
-  have h := witness_mem_of_affine
-    (T := TangentAffine.r2Back2T) (f := r2Back2TReal)
-    (lo := 3 / 5) (hi := 1)
-    (bps := TangentPolyNative.back2Bps)
-    (Expr.checkSupportedCore_correct (by decide))
-    (Expr.checkSupportedCore_correct (by decide))
-    eval_r2Back2T
-    back2Bps_ne back2Bps_last
-    TangentPolyNative.r2Back2_checks.1
-    TangentPolyNative.r2Back2_checks.2
-  norm_num at h ⊢
-  exact h
+      r2Back2TReal z ∈ Set.Ioc (0 : ℝ) 1 := by
+  intro z hz
+  have h :=
+    BackwardCoordRound2Back2Bounds.round2_back2_t_bounds hz
+  exact ⟨h.1, h.2.trans (by norm_num)⟩
 
 lemma r3ForwardTReal_mem :
     ∀ z ∈ Set.Icc (1 / 10 : ℝ) (67 / 250),
-      r3ForwardTReal z ∈ Set.Ioc (0 : ℝ) 1 :=
-by
-  have h := witness_mem_of_affine
-    (T := TangentAffine.r3ForwardT) (f := r3ForwardTReal)
-    (lo := 1 / 10) (hi := 67 / 250)
-    (bps := TangentPolyNative.r3ForwardBps)
-    (Expr.checkSupportedCore_correct (by decide))
-    (Expr.checkSupportedCore_correct (by decide))
-    eval_r3ForwardT
-    r3ForwardBps_ne r3ForwardBps_last
-    TangentPolyNative.r3Forward_checks.1
-    TangentPolyNative.r3Forward_checks.2
-  norm_num at h ⊢
-  exact h
+      r3ForwardTReal z ∈ Set.Ioc (0 : ℝ) 1 := by
+  intro z hz
+  have h := round3_forward_t_bounds hz
+  exact ⟨h.1, h.2.1⟩
 
 lemma r3Back1TReal_mem :
     ∀ z ∈ Set.Icc (3 / 8 : ℝ) (3 / 5),
-      r3Back1TReal z ∈ Set.Ioc (0 : ℝ) 1 :=
-by
-  have h := witness_mem_of_affine
-    (T := TangentAffine.r3Back1T) (f := r3Back1TReal)
-    (lo := 3 / 8) (hi := 3 / 5)
-    (bps := TangentPolyNative.r3Back1Bps)
-    (Expr.checkSupportedCore_correct (by decide))
-    (Expr.checkSupportedCore_correct (by decide))
-    eval_r3Back1T
-    r3Back1Bps_ne r3Back1Bps_last
-    TangentPolyNative.r3Back1_checks.1
-    TangentPolyNative.r3Back1_checks.2
-  norm_num at h ⊢
-  exact h
+      r3Back1TReal z ∈ Set.Ioc (0 : ℝ) 1 := by
+  intro z hz
+  have h :=
+    BackwardCoordRound3Back1Bounds.round3_back1_t_bounds hz
+  exact ⟨h.1, h.2.le⟩
 
 lemma r3Back2TReal_mem :
     ∀ z ∈ Set.Icc (3 / 5 : ℝ) 1,
-      r3Back2TReal z ∈ Set.Ioc (0 : ℝ) 1 :=
-by
-  have h := witness_mem_of_affine
-    (T := TangentAffine.r3Back2T) (f := r3Back2TReal)
-    (lo := 3 / 5) (hi := 1)
-    (bps := TangentPolyNative.back2Bps)
-    (Expr.checkSupportedCore_correct (by decide))
-    (Expr.checkSupportedCore_correct (by decide))
-    eval_r3Back2T
-    back2Bps_ne back2Bps_last
-    TangentPolyNative.r3Back2_checks.1
-    TangentPolyNative.r3Back2_checks.2
-  norm_num at h ⊢
-  exact h
+      r3Back2TReal z ∈ Set.Ioc (0 : ℝ) 1 := by
+  intro z hz
+  have h :=
+    BackwardCoordRound3Back2Bounds.round3_back2_t_bounds hz
+  exact ⟨h.1, h.2.trans (by norm_num)⟩
 
 end Arxiv2407_19026

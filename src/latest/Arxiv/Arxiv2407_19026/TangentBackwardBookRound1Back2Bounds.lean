@@ -1,4 +1,5 @@
 import Arxiv.Arxiv2407_19026.TangentBackwardBookRound1Back2BlueBounds
+import Arxiv.Arxiv2407_19026.TangentBackwardBookRound1Back2ScaledSemantics
 import Arxiv.Arxiv2407_19026.TangentBackwardCoordRound1Back2Bounds
 
 /-!
@@ -64,18 +65,14 @@ private lemma backward_book_lower_pos {z : ℝ}
     rcases mul_pos_iff.mp hProduct with hpositive | hnegative
     · exact hpositive.2
     · exact (not_lt_of_ge (by positivity) hnegative.1).elim
-  have hNumeratorExpanded :
-      0 < rationalPowerEval bookNumeratorExpandedPower z := by
-    rw [book_numerator_integer_eval]
-    apply div_pos hNumeratorInteger
-    norm_num [bookNumeratorScale, decimalNat]
   have hNumerator :
       0 <
         rationalPowerEval
           (backwardBookNumeratorTwoPower
             (2 / 25) (9 / 200) bookTPower bookBluePower) z := by
-    rw [book_numerator_eval]
-    exact hNumeratorExpanded
+    rw [book_numerator_scaled_eval]
+    apply div_pos hNumeratorInteger
+    norm_num [bookNumeratorScale, decimalNat]
   have htEval :
       rationalPowerEval bookTPower z = r1Back2TReal z := by
     rw [bookTPower, rationalPowerEval_comp]

@@ -13,11 +13,13 @@ namespace BackwardCoordRound3Back2Certificate
 
 noncomputable section
 
-def decimalNat : List ℕ → ℕ
-  | [] => 0
-  | chunk :: chunks =>
-      chunk * (10 ^ 18) ^ chunks.length +
-        decimalNat chunks
+@[simp] def decimalNatAux : ℕ → List ℕ → ℕ
+  | value, [] => value
+  | value, chunk :: chunks =>
+      decimalNatAux (value * 10 ^ 18 + chunk) chunks
+
+def decimalNat (chunks : List ℕ) : ℕ :=
+  decimalNatAux 0 chunks
 
 def bluePowerScale : ℕ :=
   decimalNat

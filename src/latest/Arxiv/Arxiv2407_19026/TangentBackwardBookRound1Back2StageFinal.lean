@@ -28,7 +28,7 @@ lemma book_bracket_product_eval (z : ℝ) :
     bookDenProductExpandedPower,
     bookBracketProductExpandedPower,
     rationalPowerEval]
-  ring
+  ring_nf (config := { mode := .raw })
 
 lemma book_bracket_numerator_sum_expansion :
     rationalPowerAdd
@@ -92,7 +92,7 @@ lemma book_bracket_entropy_product_eval (z : ℝ) :
     rationalPowerPow, rationalPowerMul,
     rationalPowerShift, rationalPowerScale,
     rationalPowerAdd, rationalPowerEval]
-  ring
+  ring_nf (config := { mode := .raw })
 
 lemma book_numerator_sum_expansion :
     rationalPowerAdd bookEntropyProductExpandedPower

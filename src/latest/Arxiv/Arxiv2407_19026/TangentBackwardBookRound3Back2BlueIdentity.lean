@@ -1,4 +1,4 @@
-import Arxiv.Arxiv2407_19026.TangentBackwardBookRound3Back2Certificate
+import Arxiv.Arxiv2407_19026.TangentBackwardBookRound3Back2CertificateData
 
 /-!
 # Exact blue-fit identity for the third-round second backward interval

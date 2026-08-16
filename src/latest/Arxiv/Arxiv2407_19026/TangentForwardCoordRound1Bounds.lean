@@ -126,59 +126,20 @@ private lemma forward_coord_lower_round1_pos {z : ℝ}
       TangentAffine.r1ForwardCs, forwardCoordPowerRound1,
       forwardCoordPowerCoeffsRound1,
       forwardCoordPowerScaleRound1, decimalNat]
-    ring
-  have hBernstein :
-      Polynomial.eval₂ (Int.castRingHom ℝ) u
-          forwardCoordBernsteinPolynomialRound1 =
-        ∑ i ∈ Finset.range 66,
-          (forwardCoordBernsteinCoeffsRound1.getD i 0 : ℝ) *
-            u ^ i * (1 - u) ^ (65 - i) := by
-    dsimp [forwardCoordBernsteinPolynomialRound1]
-    change
-      (Polynomial.eval₂RingHom (Int.castRingHom ℝ) u)
-          (∑ i ∈ Finset.range 66,
-            (forwardCoordBernsteinCoeffsRound1.getD i 0 :
-                Polynomial ℤ) *
-              Polynomial.X ^ i *
-                ((1 : Polynomial ℤ) - Polynomial.X) ^
-                  (65 - i)) =
-        _
-    simp [Polynomial.eval₂_pow]
-  have hpoly := congrArg
-    (Polynomial.eval₂ (Int.castRingHom ℝ) u)
-    forward_coord_polynomial_identity_round1
+    simp only [evalIntegerPower]
+    ring_nf (config := { mode := .raw })
   have hzFromU : ((100 + 169 * u) / 1000 : ℝ) = z := by
     dsimp [u]
     ring
-  have hhom :=
-    eval₂_forwardCoordHomogenizedRound1
-      forwardCoordPowerCoeffsRound1 u
-  change
-    Polynomial.eval₂ (Int.castRingHom ℝ) u
-          (forwardCoordHomogenizedRound1
-            forwardCoordPowerCoeffsRound1) *
-        1000 =
-      1000 ^ 66 *
-        forwardCoordPowerRound1
-          forwardCoordPowerCoeffsRound1
-          ((100 + 169 * u) / 1000) at hhom
-  rw [hzFromU] at hhom
-  have hhom' :
-      Polynomial.eval₂ (Int.castRingHom ℝ) u
-          (forwardCoordHomogenizedRound1
-            forwardCoordPowerCoeffsRound1) =
-        1000 ^ 65 *
-          forwardCoordPowerRound1
-            forwardCoordPowerCoeffsRound1 z := by
-    apply mul_right_cancel₀ (by norm_num : (1000 : ℝ) ≠ 0)
-    calc
-      _ = 1000 ^ 66 *
-          forwardCoordPowerRound1
-            forwardCoordPowerCoeffsRound1 z := hhom
-      _ = _ := by ring
-  simp only [Polynomial.eval₂_mul, Polynomial.eval₂_pow,
-    Polynomial.eval₂_ofNat] at hpoly
-  rw [hBernstein, hhom'] at hpoly
+  have hscaled := evalIntegerPower_affine_bernstein
+    1000 65 forwardCoordScaleRound1 100 169
+    forwardCoordPowerCoeffsRound1
+    forwardCoordBernsteinCoeffsRound1 u
+    (by norm_num)
+    (by norm_num [forwardCoordPowerCoeffsRound1])
+    forward_coord_integer_identity_round1
+  norm_num only [Nat.cast_ofNat, Int.cast_ofNat] at hscaled
+  rw [hzFromU] at hscaled
   have hpower :
       forwardCoordPowerRound1
           forwardCoordPowerCoeffsRound1 z =
@@ -189,16 +150,7 @@ private lemma forward_coord_lower_round1_pos {z : ℝ}
     rw [eq_div_iff (by
       norm_num [forwardCoordScaleRound1, decimalNat] :
         (forwardCoordScaleRound1 : ℝ) ≠ 0)]
-    apply mul_left_cancel₀
-      (by positivity : (1000 : ℝ) ^ 65 ≠ 0)
-    calc
-      _ = (forwardCoordScaleRound1 : ℝ) *
-          (1000 ^ 65 *
-            forwardCoordPowerRound1
-              forwardCoordPowerCoeffsRound1 z) := by
-        ring
-      _ = _ := by
-        simpa using hpoly
+    simpa [forwardCoordPowerRound1, mul_comm] using hscaled
   rw [hrat, hpower]
   exact div_pos
     (div_pos

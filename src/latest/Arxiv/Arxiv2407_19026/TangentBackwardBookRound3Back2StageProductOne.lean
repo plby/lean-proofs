@@ -32,7 +32,7 @@ lemma book_bracket_product_eval (z : ℝ) :
     bookDenProductExpandedPower,
     bookBracketProductExpandedPower,
     rationalPowerEval]
-  ring
+  ring_nf (config := { mode := .raw })
 
 lemma book_bracket_numerator_sum_expansion :
     rationalPowerAdd

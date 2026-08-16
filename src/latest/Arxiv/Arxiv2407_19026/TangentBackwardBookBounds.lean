@@ -1,4 +1,5 @@
 import Arxiv.Arxiv2407_19026.TangentBackwardCoordBounds
+import Arxiv.Arxiv2407_19026.IntegerPowerPolynomial
 
 /-!
 # Semantic bounds for the backward book comparisons
@@ -12,11 +13,6 @@ Bernstein certificate for the resulting rational book margin.
 namespace Arxiv2407_19026
 
 noncomputable section
-
-def evalIntegerPower : List ℤ → ℝ → ℝ
-  | [], _ => 0
-  | coefficient :: coefficients, x =>
-      coefficient + x * evalIntegerPower coefficients x
 
 def integerHornerInterval :
     List ℤ → LeanCert.Core.IntervalRat →

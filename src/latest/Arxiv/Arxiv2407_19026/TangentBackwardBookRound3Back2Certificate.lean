@@ -1,4 +1,5 @@
 import Arxiv.Arxiv2407_19026.TangentBackwardBookRound3Back2CertificateAffine
+import Arxiv.Arxiv2407_19026.TangentBackwardBookRound3Back2ScaledSemantics
 
 /-! Final exact certificate for `TangentBackwardBookRound3Back2`. -/
 
@@ -6,53 +7,6 @@ namespace Arxiv2407_19026
 namespace BackwardBookRound3Back2Certificate
 
 noncomputable section
-
-set_option maxHeartbeats 500000 in
--- Checking the 171 exact rational-to-integer coefficient conversions exceeds the default budget.
-set_option maxRecDepth 5000 in
--- The coefficient-list equality also exceeds the default recursion depth.
-lemma book_numerator_integer_identity :
-    bookNumeratorExpandedPower =
-      rationalPowerFromIntegers
-        bookNumeratorScale bookNumeratorCoeffs := by
-  norm_num (config := { maxSteps := 10000000 })
-    [bookNumeratorExpandedPower,
-    rationalPowerFromIntegers,
-    bookNumeratorScale, bookNumeratorCoeffs,
-    bookNumeratorTail0,
-    bookNumeratorTail5,
-    bookNumeratorTail10,
-    bookNumeratorTail15,
-    bookNumeratorTail20,
-    bookNumeratorTail25,
-    bookNumeratorTail30,
-    bookNumeratorTail35,
-    bookNumeratorTail40,
-    bookNumeratorTail50,
-    bookNumeratorTail60,
-    bookNumeratorTail70,
-    bookNumeratorTail80,
-    bookNumeratorTail90,
-    bookNumeratorTail100,
-    bookNumeratorTail110,
-    bookNumeratorTail120,
-    bookNumeratorTail130,
-    bookNumeratorTail140,
-    bookNumeratorTail150,
-    bookNumeratorTail160,
-    bookNumeratorTail170,
-    decimalNat]
-
-set_option maxRecDepth 100000 in
--- Rewriting the 171-coefficient rational list exceeds the default recursion depth.
-lemma book_numerator_integer_eval (z : ℝ) :
-    rationalPowerEval bookNumeratorExpandedPower z =
-      evalIntegerPower bookNumeratorCoeffs z /
-        bookNumeratorScale := by
-  rw [book_numerator_integer_identity]
-  exact rationalPowerEval_fromIntegers
-    bookNumeratorScale bookNumeratorCoeffs z
-      (by norm_num [bookNumeratorScale, decimalNat])
 
 set_option maxRecDepth 100000 in
 -- Specializing the affine evaluator to 171 coefficients exceeds the default recursion depth.

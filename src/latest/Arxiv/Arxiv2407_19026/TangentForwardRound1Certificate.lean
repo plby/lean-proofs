@@ -1,4 +1,5 @@
 import Arxiv.Arxiv2407_19026.TangentKernelBounds
+import Arxiv.Arxiv2407_19026.TangentBackwardBookPowerPolynomial
 
 /-!
 # Exact certificate for the first-round forward book inequality
@@ -12,11 +13,13 @@ namespace ForwardRound1Certificate
 
 noncomputable section
 
-def decimalNat : List ℕ → ℕ
-  | [] => 0
-  | chunk :: chunks =>
-      chunk * (10 ^ 18) ^ chunks.length +
-        decimalNat chunks
+@[simp] def decimalNatAux : ℕ → List ℕ → ℕ
+  | value, [] => value
+  | value, chunk :: chunks =>
+      decimalNatAux (value * 10 ^ 18 + chunk) chunks
+
+def decimalNat (chunks : List ℕ) : ℕ :=
+  decimalNatAux 0 chunks
 
 def forwardBookScaleRound1 : ℕ :=
   decimalNat
@@ -1488,70 +1491,36 @@ def forwardBookBernsteinCoeffsRound1 : List ℕ :=
         877269421273054836, 108388078326269596, 924018214321723360,
         80276985321221545, 332216520820956761]]
 
-def forwardBookPowerRound1 : List ℤ → ℝ → ℝ
-  | [], _ => 0
-  | coefficient :: coefficients, x =>
-      coefficient + x * forwardBookPowerRound1 coefficients x
+def forwardBookPowerRound1 (coefficients : List ℤ) (x : ℝ) : ℝ :=
+  evalIntegerPower coefficients x
 
-def homogenizedIntegerPolynomialRound1 :
-    List ℤ → Polynomial ℤ
-  | [] => 0
-  | coefficient :: coefficients =>
-      (coefficient * 1000 ^ coefficients.length :
-          Polynomial ℤ) +
-        (100 + 169 * Polynomial.X) *
-          homogenizedIntegerPolynomialRound1 coefficients
+lemma forward_book_bernstein_first_pos_round1 :
+    0 < forwardBookBernsteinCoeffsRound1.getD 0 0 := by
+  norm_num [forwardBookBernsteinCoeffsRound1, decimalNat]
 
-lemma eval₂_homogenizedIntegerPolynomialRound1
-    (coefficients : List ℤ) (x : ℝ) :
-    Polynomial.eval₂ (Int.castRingHom ℝ) x
-        (homogenizedIntegerPolynomialRound1 coefficients) *
-          1000 =
-      1000 ^ coefficients.length *
-        forwardBookPowerRound1 coefficients
-          ((100 + 169 * x) / 1000) := by
-  induction coefficients with
-  | nil =>
-      simp [homogenizedIntegerPolynomialRound1,
-        forwardBookPowerRound1]
-  | cons coefficient coefficients ih =>
-      simp only [homogenizedIntegerPolynomialRound1,
-        forwardBookPowerRound1, List.length_cons,
-        Polynomial.eval₂_add, Polynomial.eval₂_mul,
-        Polynomial.eval₂_X]
-      simp only [Polynomial.eval₂_ofNat] at *
-      simp only [← Polynomial.C_eq_intCast,
-        Polynomial.eval₂_C, Polynomial.eval₂_pow,
-        Polynomial.eval₂_ofNat] at *
-      rw [pow_succ]
-      field_simp
-      linear_combination (100 + 169 * x) * ih
+lemma forward_book_bernstein_last_pos_round1 :
+    0 < forwardBookBernsteinCoeffsRound1.getD 90 0 := by
+  norm_num [forwardBookBernsteinCoeffsRound1, decimalNat]
 
-def forwardBookBernsteinPolynomialRound1 :
-    Polynomial ℤ :=
-  ∑ i ∈ Finset.range 91,
-    (forwardBookBernsteinCoeffsRound1.getD i 0 :
-        Polynomial ℤ) *
-      Polynomial.X ^ i *
-        ((1 : Polynomial ℤ) - Polynomial.X) ^ (90 - i)
+lemma forward_book_scale_pos_round1 :
+    0 < forwardBookScaleRound1 := by
+  norm_num [forwardBookScaleRound1, decimalNat]
 
-set_option maxHeartbeats 0 in
--- Exact normalization of the degree-90 polynomial identity exceeds the default heartbeat budget.
-set_option maxRecDepth 20000 in
--- The same exact normalization exceeds the default simplifier recursion depth.
-lemma forward_book_polynomial_identity_round1 :
-    ((forwardBookScaleRound1 : ℤ) : Polynomial ℤ) *
-        homogenizedIntegerPolynomialRound1
-          forwardBookPowerCoeffsRound1 =
-      (1000 ^ 90 : Polynomial ℤ) *
-        forwardBookBernsteinPolynomialRound1 := by
-  norm_num [forwardBookBernsteinPolynomialRound1,
-    homogenizedIntegerPolynomialRound1,
-    forwardBookPowerCoeffsRound1,
-    forwardBookBernsteinCoeffsRound1,
-    forwardBookScaleRound1, decimalNat,
-    Finset.sum_range_succ]
-  ring
+set_option maxRecDepth 100000 in
+lemma forward_book_bernstein_identity_round1 (x : ℝ) :
+    (forwardBookScaleRound1 : ℝ) *
+        forwardBookPowerRound1 forwardBookPowerCoeffsRound1
+          ((100 + 169 * x) / 1000) =
+      ∑ i ∈ Finset.range 91,
+        (forwardBookBernsteinCoeffsRound1.getD i 0 : ℝ) *
+          x ^ i * (1 - x) ^ (90 - i) := by
+  apply evalIntegerPower_affine_bernstein 1000 90
+    forwardBookScaleRound1 100 169
+    forwardBookPowerCoeffsRound1
+    forwardBookBernsteinCoeffsRound1 x
+  · norm_num
+  · rfl
+  · rfl
 
 
 end
