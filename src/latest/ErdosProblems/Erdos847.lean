@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import Mathlib
-import «_scratch».Erdos847Construction
+import ErdosProblems.Erdos847.Construction
 
 /-!
 # Erdős Problem 847
