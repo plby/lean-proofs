@@ -1,0 +1,8 @@
+# Erdős Problem 121 progress
+
+- Phase 1 — complete. Audited Tao, *On product representations of squares*, arXiv:2405.11610v3, especially Theorem 1.2 and Proposition 2.1, against the local problem page and Tao's exposition. `tex/121.tex` now gives the complete weighted construction, incidence-rank and bin-count estimates, marginal bound, deterministic extraction, source errata, and a lemma-by-lemma Leanization plan.
+- Verified facts — the square-product identity is the unsigned complete-graph edge identity; the lower construction costs `k` independent row constraints; the marginal bound costs `k - 1` row constraints on `K_(k-1)`, explaining the exact threshold `k ≥ 4`; the final union bound gives a fixed positive density gap.
+- Environment note — `pdflatex` is not installed, so PDF rendering could not be run. The TeX source was syntax-audited directly; a malformed `\leq` and an omitted uniqueness explanation in the marginal decomposition were corrected.
+- Phase 2 — complete. `Core.lean` contains the exact extremal definitions, deterministic bridge, `k = 4` theorem, and finite weighted extraction. The remaining modules formalize the explicit `K₅` lattice, prime weights, total-mass bound, Euler cancellation, fibre bound, asymptotic comparison, dense-five extraction, and `(m,4m)` padding.
+- Lean verification — the official Lean 4.33.0 toolchain is available at `/tmp/lean-4.33.0`; the narrow `/proc/<pid>/exe` shim lets checks run in the sandbox without approval.
+- Final audit — complete. `lake build ErdosProblems.Erdos121` succeeds; the forbidden-token scan is empty; scratch files are removed; and `#print axioms Erdos121.erdos_121` reports exactly `[propext, Classical.choice, Quot.sound]`.
