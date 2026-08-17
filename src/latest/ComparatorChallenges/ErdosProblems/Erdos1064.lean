@@ -27,12 +27,6 @@ namespace Erdos1064
 
 noncomputable section
 
-def reciprocalPrimeMass (n : ℕ) : ℝ :=
-  ∑ p ∈ n.primeFactors, (p : ℝ)⁻¹
-
-def largeReciprocalPrimeMass (B n : ℕ) : ℝ :=
-  ∑ p ∈ n.primeFactors.filter (B < ·), (p : ℝ)⁻¹
-
 theorem erdos_1064.variants.general_function (f : ℕ → ℕ)
     (hf : (fun n ↦ (f n : ℝ)) =o[atTop] (fun n ↦ (n : ℝ))) :
     {n : ℕ | φ (n - φ n) + f n < φ n}.HasDensity 1 := by

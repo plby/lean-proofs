@@ -8,15 +8,6 @@ variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V]
   [Fact (Module.finrank ℝ V = 2)] [Module.Oriented ℝ V (Fin 2)]
 variable {P : Type*} [MetricSpace P] [NormedAddTorsor V P] [Nonempty P]
 
-structure Similarity (P : Type*) [MetricSpace P] where
-  toFun : P → P
-  r : ℝ
-  r_pos : r > 0
-  dist_eq : ∀ x y, dist (toFun x) (toFun y) = r * dist x y
-
-instance (P : Type*) [MetricSpace P] : CoeFun (Similarity P) (fun _ => P → P) :=
-  ⟨Similarity.toFun⟩
-
 noncomputable def lineIntersection (p1 : P) (v1 : V) (p2 : P) (v2 : V) : P :=
   Classical.epsilon (fun p =>
     p ∈ AffineSubspace.mk' p1 (Submodule.span ℝ {v1}) ∧

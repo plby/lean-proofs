@@ -2,40 +2,6 @@ import Mathlib
 
 open Nat Finset Real Filter Asymptotics Topology
 open scoped Pointwise
-
-structure BinQuadForm where
-  a : ℤ
-  b : ℤ
-  c : ℤ
-namespace BinQuadForm
-
-def eval (f : BinQuadForm) (x y : ℤ) : ℤ :=
-  f.a * x * x + f.b * x * y + f.c * y * y
-
-def discr (f : BinQuadForm) : ℤ :=
-  f.b * f.b - 4 * f.a * f.c
-
-def Primitive (f : BinQuadForm) : Prop :=
-  Int.gcd f.a (Int.gcd f.b f.c) = 1
-
-def PosDef (f : BinQuadForm) : Prop :=
-  0 < f.a ∧ f.discr < 0
-
-noncomputable def B (f : BinQuadForm) (x : ℝ) : ℕ :=
-  Nat.card {n : ℕ | (n : ℝ) ≤ x ∧ ∃ u v : ℤ, f.eval u v = (n : ℤ)}
-end BinQuadForm
-
-axiom bernays
-    (Δ : ℤ) (hΔnonsq : ¬ ∃ z : ℤ, z * z = Δ) :
-    ∃ CΔ : ℝ, 0 < CΔ ∧
-      ∀ f : BinQuadForm,
-        f.Primitive →
-        f.PosDef →
-        f.discr = Δ →
-        (fun x : ℝ => (f.B x : ℝ))
-          ~[Filter.atTop]
-          (fun x : ℝ => CΔ * x / Real.sqrt (Real.log x))
-
 namespace Erdos659
 
 set_option linter.style.setOption false

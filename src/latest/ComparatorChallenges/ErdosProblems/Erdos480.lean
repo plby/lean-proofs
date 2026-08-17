@@ -17,24 +17,6 @@ namespace Erdos480
 syntax (name := answerSyntax480) "answer(" term ")" : term
 macro_rules | `(answer($t)) => `($t)
 
-@[simp] lemma Nat.dist_self_add' (a k : ℕ) : Nat.dist a (a + k) = k := by
-  simp [Nat.dist]
-@[simp] lemma Nat.dist_add_self' (a k : ℕ) : Nat.dist (a + k) a = k := by
-  simp [Nat.dist]
-
-def jumpWeight : List ℕ → ℚ
-  | a :: b :: l => 1 / (Nat.dist a b : ℚ) + jumpWeight (b :: l)
-  | _ => 0
-
-def HasUpPath (f : ℕ → ℝ) (s : Set ℕ) (c : ℚ) : Prop :=
-  ∃ l : List ℕ, l ≠ [] ∧ (∀ i ∈ l, i ∈ s) ∧
-    l.IsChain (fun a b => f a ≤ f b) ∧ c ≤ jumpWeight l
-
-def HasMonoPath (f : ℕ → ℝ) (s : Set ℕ) (c : ℚ) : Prop :=
-  ∃ l : List ℕ, l ≠ [] ∧ (∀ i ∈ l, i ∈ s) ∧
-    (l.IsChain (fun a b => f a ≤ f b) ∨
-      l.IsChain (fun a b => f b ≤ f a)) ∧ c ≤ jumpWeight l
-
 theorem erdos_480 : answer(True) ↔ ∀ (x : ℕ → ℝ), (∀ n, x n ∈ Set.Icc 0 1) →
     ⨅ (n : ℕ+), atTop.liminf (fun m => (n : ℕ) * |x (m + (n : ℕ)) - x m|) ≤
       1 / √5 := by

@@ -40,10 +40,6 @@ open MeasureTheory ProbabilityTheory Set
 
 attribute [local instance] Classical.propDecidable
 
-/-- The complement of the union of a finite family of events. -/
-def residual {Ω ι : Type*} (s : Finset ι) (E : ι → Set Ω) : Set Ω :=
-  (⋃ i ∈ s, E i)ᶜ
-
 theorem erdos_277 :
     answer(True) ↔ ∀ c : ℝ, ∃ n : ℕ, (σ 1 n : ℝ) > c * n ∧
       ∀ (m : StrictCoveringSystem ℤ), ∃ i, (n : ℤ) ∉ m.moduli i := by

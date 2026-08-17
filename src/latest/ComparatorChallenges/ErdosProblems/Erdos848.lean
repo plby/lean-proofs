@@ -42,19 +42,6 @@ namespace Erdos848
 -- SECTION 1: CORE DEFINITIONS
 -- ============================================================================
 
-/-- Problem metadata -/
-structure ErdosProblem where
-  id : Nat
-  title : String
-  status : String
-  deriving Repr
-
-def problem : ErdosProblem := {
-  id := 848
-  title := "Erdős-Sárközy Squarefree Products"
-  status := "asymptotically resolved"
-}
-
 /-- A set A has the non-squarefree product property if ab+1 is not squarefree
     for all a, b in A. -/
 def NonSquarefreeProductProp (A : Finset ℕ) : Prop :=
@@ -72,23 +59,9 @@ This is the standard Mathlib convention and is mathematically equivalent because
 def A₇ (N : ℕ) : Finset ℕ :=
   (Finset.range N).filter (fun n => n % 25 = 7)
 
-/-- Alternative candidate: {n ∈ {0,…,N-1} : n ≡ 18 (mod 25)} -/
-def A₁₈ (N : ℕ) : Finset ℕ :=
-  (Finset.range N).filter (fun n => n % 25 = 18)
-
-/-- The diagonal filter: n is a candidate if n² + 1 is not squarefree. -/
-def DiagonalCandidates (N : ℕ) : Finset ℕ :=
-  (Finset.range N).filter (fun n => ¬ Squarefree (n * n + 1))
-
 def Erdos848For (N : ℕ) : Prop :=
   ∀ A : Finset ℕ, A ⊆ Finset.range N → NonSquarefreeProductProp A →
     A.card ≤ (A₇ N).card
-
-/-- Decidability instance for NonSquarefreeProductProp -/
-instance instDecidableNonSquarefreeProductProp (A : Finset ℕ) :
-    Decidable (NonSquarefreeProductProp A) := by
-  unfold NonSquarefreeProductProp
-  infer_instance
 
 theorem erdos_848.variants.asymptotic : ∀ᶠ N in Filter.atTop, Erdos848For N := by
   sorry

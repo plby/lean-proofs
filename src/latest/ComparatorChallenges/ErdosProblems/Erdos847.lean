@@ -24,21 +24,6 @@ def HasFew3APs (A : Set ℕ) : Prop :=
   ∃ ε : ℝ, ε > 0 ∧ ∀ B : Set ℕ, B ⊆ A → Finite B →
     ∃ C : Set ℕ, C ⊆ B ∧ C.ncard ≥ ε * B.ncard ∧ ThreeAPFree C
 
-/-- A nonconstant monochromatic three-term arithmetic progression for a coloring of `A`. -/
-def HasMonochromaticThreeAP (A : Set ℕ) {r : ℕ} (color : ℕ → Fin r) : Prop :=
-  ∃ a ∈ A, ∃ b ∈ A, ∃ c ∈ A,
-    a + c = b + b ∧ a ≠ c ∧ color a = color b ∧ color b = color c
-
-/-- Every coloring of `A` by a nonempty finite palette has a monochromatic three-AP. -/
-def RamseyForThreeAP (A : Set ℕ) : Prop :=
-  ∀ r : ℕ, 0 < r → ∀ color : ℕ → Fin r, HasMonochromaticThreeAP A color
-
-/-- The two properties supplied by the Reiher--Rödl--Sales counterexample. -/
-def IsRRSCounterexample (A : Set ℕ) (μ : ℝ) : Prop :=
-  RamseyForThreeAP A ∧
-    ∀ B : Set ℕ, B ⊆ A → Finite B →
-      ∃ C : Set ℕ, C ⊆ B ∧ C.ncard ≥ μ * B.ncard ∧ ThreeAPFree C
-
 theorem erdos_847 : answer(False) ↔
     ∀ A : Set ℕ, Infinite A → HasFew3APs A →
       ∃ n, ∃ S : Fin n → Set ℕ,

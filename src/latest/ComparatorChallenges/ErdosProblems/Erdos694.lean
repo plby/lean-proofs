@@ -2,23 +2,6 @@ import Mathlib
 
 open Nat Finset Real Filter Asymptotics Topology
 open scoped Pointwise
-
-namespace BinQuadForm
-
-end BinQuadForm
-
-axiom mertens_product :
-    Tendsto
-      (fun y : ℝ =>
-        (∏ p ∈ Finset.filter Nat.Prime (Finset.Icc 1 ⌊y⌋₊), ((p : ℝ) / (p - 1))) /
-          (Real.exp Real.eulerMascheroniConstant * Real.log y))
-      atTop (𝓝 1)
-
-axiom linnik_dvd :
-  ∃ C : ℝ, ∃ L : ℕ, 1 ≤ C ∧ 1 ≤ L ∧
-    ∀ M : ℕ, 1 ≤ M →
-      ∃ ℓ : ℕ, Nat.Prime ℓ ∧ M ∣ ℓ - 1 ∧ (ℓ : ℝ) ≤ C * (M : ℝ) ^ L
-
 namespace Erdos694
 
 open Filter Asymptotics Topology

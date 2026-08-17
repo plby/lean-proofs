@@ -6,17 +6,6 @@ import Mathlib.Algebra.Order.Archimedean.Real.Basic
 import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
 open Nat Finset Real Filter
-
-axiom maynardTaoBFT :
-  ∀ m : ℕ, 0 < m → ∃ C : ℕ, 0 < C ∧ ∀ q : ℕ, 0 < q → ∀ a : ℤ,
-    Int.gcd a (q : ℤ) = 1 →
-    ∀ N : ℕ, ∃ r : ℕ, N ≤ r ∧
-      (∀ j, j < m → (Nat.nth Nat.Prime (r + j) : ℤ) ≡ a [ZMOD (q : ℤ)]) ∧
-      Nat.nth Nat.Prime (r + m - 1) - Nat.nth Nat.Prime r ≤ q * C
-namespace BinQuadForm
-
-end BinQuadForm
-
 open Finset Int Nat Real
 
 namespace Erdos997

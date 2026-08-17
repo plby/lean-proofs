@@ -5,10 +5,6 @@ import Mathlib.Data.Nat.Prime.Defs
 
 attribute [local instance] Classical.propDecidable
 
-axiom shiu_consecutive_primes
-    (l : ℕ) (hl : 1 ≤ l) (a q : ℕ) (hq : 1 ≤ q) (haq : Nat.Coprime a q) (N : ℕ) :
-    ∃ m, N ≤ m ∧ ∀ i, i < l → Nat.nth Nat.Prime (m + i) ≡ a [MOD q]
-
 namespace Erdos427
 
 theorem erdos427 (n d : ℕ) (hd : 1 ≤ d) :

@@ -79,10 +79,6 @@ lemma epsilon_sq : epsilon ^ 2 = 1 / 100 := by norm_num [epsilon]
 /-- For N even, the "top half" interval J_N = (N/2, N] as a Finset ℕ. -/
 def J (N : ℕ) : Finset ℕ := Finset.Ioc (N / 2) N
 
-lemma J_card (N : ℕ) (_ : 2 ≤ N) : (J N).card = N - N / 2 := by
-  simp only [J]
-  rw [Nat.card_Ioc]
-
 lemma J_card_eq_half (N : ℕ) (hN : Even N) (hN_pos : 0 < N) : (J N).card = N / 2 := by
   simp only [J]
   rw [Nat.card_Ioc]
@@ -387,8 +383,6 @@ lemma delta_val : delta = 49 / 50 := by norm_num [delta, epsilon]
 
 lemma delta_pos : delta > 0 := by rw [delta_val]; norm_num
 
-lemma delta_le_one : delta ≤ 1 := by rw [delta_val]; norm_num
-
 lemma delta_lt_one : delta < 1 := by rw [delta_val]; norm_num
 
 /-- The family of complement sets {C_B : B ∈ 𝓑_N}. -/
@@ -472,28 +466,6 @@ theorem exists_hard_set (N : ℕ) (hN : 8 ≤ N) (hN_even : Even N) :
   have hx_sum := hA_sub hx_H
   exact hx_not_sum hx_sum
 
-/-- Bound on the size of the family 𝓒_N -/
-lemma card_𝓒_le_card_𝓑 (N : ℕ) : (𝓒 N).card ≤ (𝓑 N).card := by
-  calc (𝓒 N).card
-      ≤ (𝓑 N).card := Finset.card_image_le
-
-/-- Bound on the size of the family 𝓑_N.
-    Trivial bound: |𝓑_N| ≤ 2^{N+1} since 𝓑_N ⊆ powerset([0,N]). -/
-lemma card_𝓑_le_pow (N : ℕ) : (𝓑 N).card ≤ 2 ^ (N + 1) := by
-  calc (𝓑 N).card
-      ≤ ((Finset.Icc 0 N).powerset).card := by
-          have : 𝓑 N ⊆ (Finset.Icc 0 N).powerset := by
-            intros B hB
-            simp only [𝓑, Finset.mem_filter, Finset.mem_powerset] at hB ⊢
-            exact hB.1
-          exact Finset.card_le_card this
-    _ = 2 ^ (Finset.Icc 0 N).card := Finset.card_powerset (Finset.Icc 0 N)
-    _ = 2 ^ (N + 1) := by
-        congr 1
-        rw [Nat.card_Icc]
-        have : 0 ≤ N := Nat.zero_le N
-        omega
-
 /-! ## The Infinite Dyadic Construction -/
 
 /-- Helper: 2^n ≥ 8 for n ≥ 3 -/
@@ -509,22 +481,6 @@ lemma two_pow_even (n : ℕ) (hn : 1 ≤ n) : Even (2 ^ n) := by
     We use Classical.choose to select such a set. -/
 def A_dyadic (n : ℕ) (hn : 3 ≤ n) : Finset ℕ :=
   Classical.choose (exists_hard_set (2^n) (two_pow_ge_eight n hn) (two_pow_even n (by omega)))
-
-lemma A_dyadic_subset (n : ℕ) (hn : 3 ≤ n) : A_dyadic n hn ⊆ J (2^n) :=
-  (Classical.choose_spec
-    (exists_hard_set (2^n) (two_pow_ge_eight n hn) (two_pow_even n (by omega)))).1
-
-lemma A_dyadic_hard (n : ℕ) (hn : 3 ≤ n) :
-    ∀ B : Finset ℕ, B ⊆ Finset.Icc 0 (2^n) → B.card ≤ m (2^n) → ¬(A_dyadic n hn ⊆ B + B) :=
-  (Classical.choose_spec
-    (exists_hard_set (2^n) (two_pow_ge_eight n hn) (two_pow_even n (by omega)))).2.1
-
-/-- Size bound on A_{2^n} from the hitting set theorem. -/
-lemma A_dyadic_card_bound (n : ℕ) (hn : 3 ≤ n) :
-    ((A_dyadic n hn).card : ℝ) ≤
-      Real.log (𝓒 (2^n)).card / Real.log (1 / (1 - delta)) + 1 :=
-  (Classical.choose_spec
-    (exists_hard_set (2^n) (two_pow_ge_eight n hn) (two_pow_even n (by omega)))).2.2
 
 /-- The infinite hard set A = ⋃_{n≥3} A_{2^n} as a Set ℕ. -/
 def A : Set ℕ := {x | ∃ n : ℕ, ∃ hn : 3 ≤ n, x ∈ A_dyadic n hn}

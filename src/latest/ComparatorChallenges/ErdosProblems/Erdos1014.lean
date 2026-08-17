@@ -13,30 +13,6 @@ theorem IndepSetFree.comap {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph
   exact CliqueFree.comap
     (((Embedding.complEquiv (G := H) (H := G)).toFun f).isContained) h
 
-def Iso.compl {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph β}
-    (e : G ≃g H) : Gᶜ ≃g Hᶜ where
-  toEquiv := e.toEquiv
-  map_rel_iff' := by
-    intro v w
-    by_cases hvw : v = w
-    · subst hvw
-      simp
-    · simpa [compl_adj, hvw, e.injective.ne_iff] using
-        not_congr (e.map_adj_iff (v := v) (w := w))
-
-theorem Iso.cliqueFree_iff {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph β} {n : ℕ}
-    (e : G ≃g H) : G.CliqueFree n ↔ H.CliqueFree n := by
-  constructor
-  · intro h
-    exact CliqueFree.comap e.symm.toEmbedding.isContained h
-  · intro h
-    exact CliqueFree.comap e.toEmbedding.isContained h
-
-theorem Iso.indepSetFree_iff {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph β} {n : ℕ}
-    (e : G ≃g H) : G.IndepSetFree n ↔ H.IndepSetFree n := by
-  simpa [indepSetFree_compl] using
-    (Iso.cliqueFree_iff (n := n) (e := Iso.compl e))
-
 end SimpleGraph
 
 namespace Ramsey

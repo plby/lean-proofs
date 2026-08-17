@@ -29,10 +29,6 @@ noncomputable def antiRamseyNum {α : Type*} [Fintype α]
   sSup {q | ∃ c : Sym2 (Fin n) → Fin q, Function.Surjective c ∧
     ∀ f : H →g (⊤ : SimpleGraph (Fin n)), ¬IsRainbow f c}
 
-/-- Five private diagonal colors and one common off-diagonal color. -/
-def diagonalColoringFive (z : Sym2 (Fin 5)) : Fin 6 :=
-  if h : z.IsDiag then Fin.castLE (by omega) (z.diagElem h) else 5
-
 theorem not_erdos_1105_parts_ii_type :
     ¬(True ↔ ∀ (k n : ℕ), 5 ≤ k → k ≤ n →
       let ℓ := (k - 1) / 2

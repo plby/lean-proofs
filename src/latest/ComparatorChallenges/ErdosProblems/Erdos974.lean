@@ -49,64 +49,6 @@ lemma sum_zpow_ne_zero_exponent {z : Fin n → ℂ} {m : ℤ} {k : ℕ} (hsum : 
   by_contra h
   simp_all
 
-omit [NeZero n] in
-lemma _root_.Complex.triangle_eq
-    {f : Fin n → ℂ} (hf₁ : ∀ i, ‖f i‖ = 1) (hf₂ : ‖∑ i, f i‖ = n) {i j : Fin n} : f i = f j := by
-  contrapose! hf₂
-  apply ne_of_lt
-  have hij : i ≠ j := by lia
-  rw [← sum_add_sum_compl {i, j}, sum_pair hij]
-  calc
-    _ ≤ ‖f i + f j‖ + ‖∑ k ∈ {i,j}ᶜ, f k‖ := norm_add_le ..
-    _ ≤ ‖f i + f j‖ + ∑ k ∈ {i,j}ᶜ, ‖f k‖ := add_le_add_right (norm_sum_le ..) _
-    _ = ‖f i + f j‖ + (n - 2) := by
-      congr 1
-      simp_rw [hf₁, sum_const, nsmul_one, card_compl, Fintype.card_fin]
-      rw [card_pair hij, Nat.cast_sub (by lia), Nat.cast_ofNat]
-    _ < ‖f i‖ + ‖f j‖ + (n - 2) := by
-      refine add_lt_add_left ((norm_add_le ..).lt_of_ne ?_) _
-      have n0 (i) : f i ≠ 0 := norm_ne_zero_iff.mp (by simp [hf₁])
-      simp_rw [Ne, norm_add_eq_iff, n0, false_or]
-      contrapose hf₂
-      rw [ext_norm_arg_iff]
-      exact ⟨hf₁ j ▸ hf₁ i, hf₂⟩
-    _ = _ := by grind
-
-section Esymm
-
-open ComplexConjugate
-open _root_.MvPolynomial
-
-variable {ι : Type*} [Fintype ι] {z : ι → ℂ} (hz : ∀ i, ‖z i‖ = 1)
-
-include hz
-
-open scoped Classical in
-lemma prod_eq_prod_univ_mul_conj_compl {S : Finset ι} :
-    ∏ i ∈ S, z i = (∏ i, z i) * conj (∏ i ∈ Sᶜ, z i) := by
-  rw [← prod_mul_prod_compl S, mul_assoc, map_prod, ← prod_mul_distrib]
-  simp [Complex.mul_conj, Complex.normSq_eq_norm_sq, hz]
-
-lemma _root_.MvPolynomial.esymm_sub_eq {k : ℕ} (hk : k ≤ Fintype.card ι) :
-    (esymm _ _ (Fintype.card ι - k)).eval z =
-    (esymm _ _ (Fintype.card ι)).eval z * conj ((esymm _ _ k).eval z) := by
-  simp_rw [esymm, map_sum, map_prod, eval_X, sum_mul]
-  conv_lhs =>
-    enter [2, i]
-    rw [prod_eq_prod_univ_mul_conj_compl hz, map_prod]
-  conv_rhs =>
-    enter [1, 1]
-    rw [← card_univ]
-  rw [powersetCard_self, sum_singleton, ← mul_sum]
-  congr 1
-  classical let e : Finset ι ≃ Finset ι := ⟨_, _, compl_compl, compl_compl⟩
-  refine sum_equiv e (fun s ↦ ?_) fun s ms ↦ ?_
-  · simp_rw [mem_powersetCard_univ, e, Equiv.coe_fn_mk, card_compl]
-    grind [s.card_le_univ]
-  · simp_rw [e, Equiv.coe_fn_mk]
-
-end Esymm
-
 /-- `n - 1` consecutive zero power sums starting at `m`, combined with `z 0 = 1`,
 force `z` to be injective.
 
