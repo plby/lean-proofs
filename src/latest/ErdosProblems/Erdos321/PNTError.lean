@@ -1,4 +1,4 @@
-import PrimeNumberTheoremAnd.MediumPNT
+import ErdosProblems.Erdos49.PNT.MediumPNT
 
 namespace Erdos321
 
