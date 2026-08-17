@@ -9103,28 +9103,17 @@ theorem exists_strictMono_tendsto_f :
   exact ⟨enumerate S, enumerate_strictMono hS,
     tendsto_f_enumerate_of_eventually_set_representations hS h1 hrep⟩
 
-end Erdos358
-
-syntax (name := answerSyntax358) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 theorem erdos_358.parts.i :
-    answer(True) ↔ ∃ A, StrictMono A ∧ atTop.Tendsto (Erdos358.f A) atTop := by
-  constructor
-  · intro _
-    exact Erdos358.exists_strictMono_tendsto_f
-  · intro _
-    trivial
+    ∃ A, StrictMono A ∧ atTop.Tendsto (Erdos358.f A) atTop := by
+  exact Erdos358.exists_strictMono_tendsto_f
 
 theorem erdos_358.parts.ii :
-    answer(True) ↔ ∃ A, StrictMono A ∧
+    ∃ A, StrictMono A ∧
       ∀ᶠ n in atTop, 2 ≤ Erdos358.f A n := by
-  constructor
-  · intro _
-    obtain ⟨A, hA, hlim⟩ := Erdos358.exists_strictMono_tendsto_f
-    exact ⟨A, hA, hlim.eventually (eventually_ge_atTop 2)⟩
-  · intro _
-    trivial
+  obtain ⟨A, hA, hlim⟩ := Erdos358.exists_strictMono_tendsto_f
+  exact ⟨A, hA, hlim.eventually (eventually_ge_atTop 2)⟩
 
-#print axioms erdos_358.parts.i
-#print axioms erdos_358.parts.ii
+end Erdos358
+
+#print axioms Erdos358.erdos_358.parts.i
+#print axioms Erdos358.erdos_358.parts.ii

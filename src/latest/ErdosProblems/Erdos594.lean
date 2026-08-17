@@ -14,10 +14,6 @@ odd cycles.  The mathematical proof and the correspondence between its lemmas
 and this development are in `tex/594.tex`.
 -/
 
-syntax (name := answerSyntax594) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 open Function Set SimpleGraph
 open scoped Ordinal
 
@@ -887,22 +883,19 @@ end Erdos594
 
 /-- Erdős Problem 594: every graph without a countable coloring contains a
 cycle of every sufficiently large odd length. -/
-theorem erdos_594 : answer(True) ↔
+theorem erdos_594 :
     ∀ (V : Type) (G : SimpleGraph V), IsEmpty (G.Coloring ℕ) →
       ∃ N : ℕ, ∀ k : ℕ, N ≤ k →
         ∃ (v : V) (w : G.Walk v v), w.IsCycle ∧ w.length = 2 * k + 1 := by
-  constructor
-  · intro _ V G hG
-    obtain ⟨c, hc⟩ := Erdos594.exists_uncountably_chromatic_component
-      (G := G) hG
-    obtain ⟨N, hN⟩ := Erdos594.eventually_odd_cycles_of_connected
-      c.connected_toSimpleGraph hc
-    refine ⟨N, fun k hk ↦ ?_⟩
-    obtain ⟨v, w, hw, hlen⟩ := hN k hk
-    let f := c.toSimpleGraph_hom
-    refine ⟨f v, w.map f, hw.map Subtype.val_injective, ?_⟩
-    simpa [f] using hlen
-  · intro _
-    trivial
+  intro V G hG
+  obtain ⟨c, hc⟩ := Erdos594.exists_uncountably_chromatic_component
+    (G := G) hG
+  obtain ⟨N, hN⟩ := Erdos594.eventually_odd_cycles_of_connected
+    c.connected_toSimpleGraph hc
+  refine ⟨N, fun k hk ↦ ?_⟩
+  obtain ⟨v, w, hw, hlen⟩ := hN k hk
+  let f := c.toSimpleGraph_hom
+  refine ⟨f v, w.map f, hw.map Subtype.val_injective, ?_⟩
+  simpa [f] using hlen
 
 #print axioms erdos_594

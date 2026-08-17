@@ -38,24 +38,19 @@ end Set
 
 namespace Erdos868
 
-syntax (name := answerSyntax868) "answer(" term ")" : term
-
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- The ordered representation function used by the formal-conjectures specification. -/
 noncomputable def ncard_add_repr (A : Set ℕ) (o : ℕ) (n : ℕ) : ℕ :=
   { a : Fin o → ℕ | Set.range a ⊆ A ∧ ∑ i, a i = n }.ncard
 
 theorem erdos_868.parts.i :
-    answer(False) ↔ ∀ (A : Set ℕ), A.IsAsymptoticAddBasisOfOrder 2 →
+    ¬ ∀ (A : Set ℕ), A.IsAsymptoticAddBasisOfOrder 2 →
       atTop.Tendsto (fun n ↦ ncard_add_repr A 2 n) atTop → ∃ B ⊆ A,
       B.IsAsymptoticAddBasisOfOrder 2 ∧
         ∀ b ∈ B, ¬(B \ {b}).IsAsymptoticAddBasisOfOrder 2 := by
   sorry
 
 theorem erdos_868.parts.ii :
-    answer(False) ↔ ∀ᵉ (A : Set ℕ) (ε > 0), A.IsAsymptoticAddBasisOfOrder 2 →
+    ¬ ∀ᵉ (A : Set ℕ) (ε > 0), A.IsAsymptoticAddBasisOfOrder 2 →
       (∀ᶠ (n : ℕ) in atTop, ε * Real.log n < ncard_add_repr A 2 n) → ∃ B ⊆ A,
       B.IsAsymptoticAddBasisOfOrder 2 ∧
         ∀ b ∈ B, ¬(B \ {b}).IsAsymptoticAddBasisOfOrder 2 := by

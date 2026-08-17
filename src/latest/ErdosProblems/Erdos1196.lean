@@ -3849,7 +3849,7 @@ end PrimitiveSetsAboveX
 
 This file packages the local solution of Erdős Problem `#1196` in the mathematical form used by
 the `formal-conjectures` repository. We keep the same namespace, theorem name, and primitive-set
-definition, but omit the repository-specific metadata attribute and `answer(...)` wrapper.
+definition, but omit repository-specific metadata and statement wrappers.
 
 ## Main statements
 

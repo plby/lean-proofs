@@ -848,15 +848,12 @@ lemma eventual_graphs (ε : ℝ) (hε : 0 < ε) :
     nlinarith only [H]
   exact ⟨Gfin, hfreeFin, hIndFin, hEdgeFin⟩
 
-theorem erdos_22 : answer(True) ↔
+theorem erdos_22 :
     ∀ ε : ℝ, 0 < ε → ∀ᶠ (n : ℕ) in atTop,
       ∃ G : SimpleGraph (Fin n), G.CliqueFree 4 ∧
         (G.indepNum : ℝ) ≤ ε * n ∧ (n : ℝ) ^ 2 / 8 ≤ G.edgeFinset.card := by
-  constructor
-  · intro _ ε hε
-    exact eventual_graphs ε hε
-  · intro _
-    trivial
+  intro ε hε
+  exact eventual_graphs ε hε
 
 #print axioms erdos_22
 

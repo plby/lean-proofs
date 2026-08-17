@@ -12,11 +12,6 @@ namespace Erdos442
 open Filter Set
 open scoped BigOperators Topology
 
-syntax (name := answerSyntax442) "answer(" term ")" : term
-
-macro_rules
-  | `(answer($t)) => `($t)
-
 section Specification
 
 /-- The truncated logarithm used in the upstream statement. -/
@@ -45,7 +40,7 @@ end Specification
 
 section Counterexample
 
-theorem erdos_442 : answer(False) ↔ ∀ (A : Set ℕ),
+theorem erdos_442 : ¬ ∀ (A : Set ℕ),
     Tendsto (fun x : ℝ ↦ 1 / Real.maxLogOne (Real.maxLogOne x) *
       ∑ n ∈ (A ∩ Icc 1 ⌊x⌋₊ : Set ℕ), (1 : ℝ) / n) atTop atTop →
     Tendsto (fun x : ℝ ↦ 1 / (∑ n ∈ (A ∩ Icc 1 ⌊x⌋₊ : Set ℕ),

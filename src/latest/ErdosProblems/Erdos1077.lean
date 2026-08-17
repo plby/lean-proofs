@@ -23,9 +23,6 @@ nonempty `D`-balanced subgraph has at most `2 * (D + 1) * k` vertices.
 The detailed mathematical proof and Leanization map are in `tex/1077.tex`.
 -/
 
-syntax (name := answerSyntax1077) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 namespace SimpleGraph
 
 /-- A finite graph is `D`-balanced when its maximum degree is at most `D`
@@ -247,7 +244,7 @@ lemma balanced_subgraph_vertex_bound {V : Type*} [Fintype V]
 The witnesses `ε = 1/2`, `α = 1/4` and the family
 `K_{2k, k^4 - 2k}` refute its eventual assertion. -/
 theorem erdos_1077 :
-    answer(False) ↔ ∀ ε > (0 : ℝ), ε < 1 → ∀ α > (0 : ℝ), α < 1 →
+    ¬ ∀ ε > (0 : ℝ), ε < 1 → ∀ α > (0 : ℝ), α < 1 →
       ∀ᶠ D in atTop, ∀ᶠ n in atTop,
         ∀ G : SimpleGraph (Fin n),
           G.edgeSet.ncard > (n : ℝ) ^ (1 + α) →
@@ -256,7 +253,6 @@ theorem erdos_1077 :
               IsBalanced H.coe D ∧
                 m > (n : ℝ) ^ (1 - α) ∧
                   H.edgeSet.ncard > ε * m ^ (1 + α) := by
-  rw [false_iff]
   intro hstatement
   have hfixed := hstatement (1 / 2 : ℝ) (by norm_num) (by norm_num)
     (1 / 4 : ℝ) (by norm_num) (by norm_num)

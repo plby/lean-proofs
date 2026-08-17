@@ -13,9 +13,6 @@ namespace Erdos448
 open Filter
 open scoped Topology BigOperators
 
-syntax (name := answerSyntax448) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 /-- The number of dyadic half-open blocks occupied by divisors of n. -/
 def tauPlus (n : ℕ) : ℕ :=
   (n.divisors.image (Nat.log 2)).card
@@ -491,11 +488,9 @@ theorem exists_strict_upperDensity_of_fixed_moment_package
 exceptional set of upper density strictly below one. -/
 theorem erdos_448_of_exists_strict_upperDensity
     (hET : ∃ ε : ℝ, 0 < ε ∧ (smallRatioSet ε).upperDensity < 1) :
-    answer(False) ↔
-      ∀ ε : ℝ, 0 < ε →
+    ¬ ∀ ε : ℝ, 0 < ε →
         {n : ℕ | (tauPlus n : ℝ) <
           ε * (n.divisors.card : ℝ)}.HasDensity 1 := by
-  rw [false_iff]
   intro hall
   obtain ⟨ε, hε, hlt⟩ := hET
   have heq : (smallRatioSet ε).upperDensity = 1 :=

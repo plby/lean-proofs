@@ -12,13 +12,7 @@ open scoped Pointwise Topology
 
 namespace Erdos899
 
-syntax (name := answerSyntax899) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
-/-! ## Finite-window counting -/
-
-theorem erdos_899 : answer(True) ↔ ∀ (A : Set ℕ), A.Infinite →
+theorem erdos_899 : ∀ (A : Set ℕ), A.Infinite →
     Tendsto (fun N => (A ∩ Icc 1 N |>.ncard : ℝ) / N) atTop (𝓝 0) →
     atTop.limsup (fun N => ((A - A : Set ℕ) ∩ Icc 1 N |>.ncard : EReal) /
       (A ∩ Icc 1 N).ncard) = ⊤ := by

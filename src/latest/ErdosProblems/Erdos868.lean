@@ -42,11 +42,6 @@ end Set
 
 namespace Erdos868
 
-syntax (name := answerSyntax868) "answer(" term ")" : term
-
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-! ## Doubly exponential block scale -/
 
 /-- The Larsen--Larsen scale `Xₙ = 2^(2^n)`. -/
@@ -2428,25 +2423,21 @@ lemma RobustCounterexample.no_minimal_subbasis (c : RobustCounterexample) :
   exact hminimal b hb (c.every_subbasis_erasable B hBA hB b hb)
 
 lemma parts_i_of_robustCounterexample (c : RobustCounterexample) :
-    False ↔ ∀ (A : Set ℕ), A.IsAsymptoticAddBasisOfOrder 2 →
+    ¬ ∀ (A : Set ℕ), A.IsAsymptoticAddBasisOfOrder 2 →
       atTop.Tendsto (fun n ↦ ncard_add_repr A 2 n) atTop → ∃ B ⊆ A,
       B.IsAsymptoticAddBasisOfOrder 2 ∧
         ∀ b ∈ B, ¬(B \ {b}).IsAsymptoticAddBasisOfOrder 2 := by
-  constructor
-  · exact False.elim
-  · intro h
-    exact c.no_minimal_subbasis (h c.A c.basis c.representations_tendsto)
+  intro h
+  exact c.no_minimal_subbasis (h c.A c.basis c.representations_tendsto)
 
 lemma parts_ii_of_robustCounterexample (c : RobustCounterexample) :
-    False ↔ ∀ᵉ (A : Set ℕ) (ε > 0), A.IsAsymptoticAddBasisOfOrder 2 →
+    ¬ ∀ᵉ (A : Set ℕ) (ε > 0), A.IsAsymptoticAddBasisOfOrder 2 →
       (∀ᶠ (n : ℕ) in atTop, ε * Real.log n < ncard_add_repr A 2 n) → ∃ B ⊆ A,
       B.IsAsymptoticAddBasisOfOrder 2 ∧
         ∀ b ∈ B, ¬(B \ {b}).IsAsymptoticAddBasisOfOrder 2 := by
-  constructor
-  · exact False.elim
-  · intro h
-    exact c.no_minimal_subbasis
-      (h c.A c.epsilon c.epsilon_pos c.basis c.logarithmic_representations)
+  intro h
+  exact c.no_minimal_subbasis
+    (h c.A c.epsilon c.epsilon_pos c.basis c.logarithmic_representations)
 
 /-- The wider geometric scale used for the dense auxiliary reservoir.  Its
 ratio `256` makes the probability `8⁻ⁿ` equal to the power law `x⁻³˸⁸`
@@ -6698,7 +6689,7 @@ lemma exists_robustCounterexample : ∃ c : RobustCounterexample,
   exact ⟨c.toTrapCertificate.toConstructionCertificate.toRobustCounterexample, hc⟩
 
 theorem erdos_868.parts.i :
-    answer(False) ↔ ∀ (A : Set ℕ), A.IsAsymptoticAddBasisOfOrder 2 →
+    ¬ ∀ (A : Set ℕ), A.IsAsymptoticAddBasisOfOrder 2 →
       atTop.Tendsto (fun n ↦ ncard_add_repr A 2 n) atTop → ∃ B ⊆ A,
       B.IsAsymptoticAddBasisOfOrder 2 ∧
         ∀ b ∈ B, ¬(B \ {b}).IsAsymptoticAddBasisOfOrder 2 := by
@@ -6706,7 +6697,7 @@ theorem erdos_868.parts.i :
   exact parts_i_of_robustCounterexample c
 
 theorem erdos_868.parts.ii :
-    answer(False) ↔ ∀ᵉ (A : Set ℕ) (ε > 0), A.IsAsymptoticAddBasisOfOrder 2 →
+    ¬ ∀ᵉ (A : Set ℕ) (ε > 0), A.IsAsymptoticAddBasisOfOrder 2 →
       (∀ᶠ (n : ℕ) in atTop, ε * Real.log n < ncard_add_repr A 2 n) → ∃ B ⊆ A,
       B.IsAsymptoticAddBasisOfOrder 2 ∧
         ∀ b ∈ B, ¬(B \ {b}).IsAsymptoticAddBasisOfOrder 2 := by

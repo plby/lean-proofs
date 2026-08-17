@@ -3,9 +3,7 @@
 This is a Lean formalization of the resolution of Erdős Problem 285.
 
 The theorem is the logical payload of the Google DeepMind Formal Conjectures
-statement.  That repository's `answer(True)` metadata wrapper is represented
-here by `True`, following the convention used by completed Erdős-problem files
-in this repository.
+statement.
 
 Informal author:
 - Greg Martin

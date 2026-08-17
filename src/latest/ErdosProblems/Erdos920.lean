@@ -14,10 +14,6 @@ in `Inversion`.
 
 open Real Filter
 
-syntax (name := answerSyntax920) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- `g ≫ h` means that `h` is big-O of `g` at infinity. -/
 notation:50 g " ≫ " h => Asymptotics.IsBigO Filter.atTop h g
 
@@ -32,26 +28,23 @@ theorem erdos_920_of_eventual_bradac_ramsey_lower_bound
       ∀ᶠ m : ℕ in atTop,
         A * (m : ℝ) ^ (s - 1) / Real.log (m : ℝ) ^ (2 * s - 4) ≤
           (Ramsey.ramseyNumber s m : ℝ)) :
-    answer(True) ↔ ∀ k : ℕ, k ≥ 4 → ∃ c > 0,
+    ∀ k : ℕ, k ≥ 4 → ∃ c > 0,
       (fun n : ℕ ↦ (f k n : ℝ)) ≫
         (fun n : ℕ ↦ (n : ℝ) ^ (1 - 1 / ((k : ℝ) - 1)) / (log n) ^ c) := by
-  constructor
-  · intro _ k hk
-    obtain ⟨A, hA, hRamsey⟩ := hbradac k (by omega)
-    refine ⟨2, by norm_num, ?_⟩
-    exact Inversion.isBigO_problem920_of_eventual_ramsey_lower_bound
-      k (by omega) (Ramsey.ramseyNumber k) (fun n ↦ (f k n : ℝ)) A hA hRamsey
-      (by
-        intro n m hm hlt
-        exact real_div_le_f_of_lt_ramseyNumber hm hlt)
-  · intro _
-    trivial
+  intro k hk
+  obtain ⟨A, hA, hRamsey⟩ := hbradac k (by omega)
+  refine ⟨2, by norm_num, ?_⟩
+  exact Inversion.isBigO_problem920_of_eventual_ramsey_lower_bound
+    k (by omega) (Ramsey.ramseyNumber k) (fun n ↦ (f k n : ℝ)) A hA hRamsey
+    (by
+      intro n m hm hlt
+      exact real_div_le_f_of_lt_ramseyNumber hm hlt)
 
 /-- A family of proved `D⋆` constructions for all positive parameters is
 enough to settle Problem 920. -/
 theorem erdos_920_of_dStarFamilies
     (families : ∀ u : ℕ, 1 ≤ u → RamseyPackaging.DStarFamily u) :
-    answer(True) ↔ ∀ k : ℕ, k ≥ 4 → ∃ c > 0,
+    ∀ k : ℕ, k ≥ 4 → ∃ c > 0,
       (fun n : ℕ ↦ (f k n : ℝ)) ≫
         (fun n : ℕ ↦ (n : ℝ) ^ (1 - 1 / ((k : ℝ) - 1)) / (log n) ^ c) := by
   apply erdos_920_of_eventual_bradac_ramsey_lower_bound
@@ -61,7 +54,7 @@ theorem erdos_920_of_dStarFamilies
 
 /-- Erdős Problem 920 has a positive answer. -/
 theorem erdos_920 :
-    answer(True) ↔ ∀ k : ℕ, k ≥ 4 → ∃ c > 0,
+    ∀ k : ℕ, k ≥ 4 → ∃ c > 0,
       (fun n : ℕ ↦ (f k n : ℝ)) ≫
         (fun n : ℕ ↦ (n : ℝ) ^ (1 - 1 / ((k : ℝ) - 1)) / (log n) ^ c) := by
   exact erdos_920_of_dStarFamilies Construction.dStarFamily

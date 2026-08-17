@@ -6,14 +6,11 @@ The mathematical construction is the `p = 3`, `ℓ = 1` specialization of
 the complex Bollobás--Erdős graph of Liu, Reiher, Sharifzadeh, and Staden.
 -/
 
-import ErdosProblems.Erdos615Construction
+import ErdosProblems.Erdos615.Erdos615Construction
 
 open Filter SimpleGraph
 open Set MeasureTheory
 open scoped Classical ENNReal NNReal Pointwise Topology BigOperators
-
-syntax (name := answerSyntax533) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
 
 namespace Erdos533
 
@@ -2803,34 +2800,32 @@ theorem counterexamplePackage_of_geometricWitness
 
 /-- Pure quantifier conversion: arbitrarily large finite counterexamples at one
 fixed positive density imply the exact negative answer in Problem 533. -/
-theorem erdos_533_of_counterexamplePackage (hcounter : CounterexamplePackage) : answer(False) ↔
-    ∀ δ : ℝ, 0 < δ → ∃ c : ℝ, 0 < c ∧ ∀ᶠ n : ℕ in atTop,
+theorem erdos_533_of_counterexamplePackage (hcounter : CounterexamplePackage) :
+    ¬ ∀ δ : ℝ, 0 < δ → ∃ c : ℝ, 0 < c ∧ ∀ᶠ n : ℕ in atTop,
       ∀ G : SimpleGraph (Fin n), G.CliqueFree 5 →
         δ * (n : ℝ) ^ 2 ≤ G.edgeFinset.card →
           ∃ S : Finset (Fin n), c * n ≤ (S.card : ℝ) ∧
             G.CliqueFreeOn (S : Set (Fin n)) 3 := by
-  constructor
-  · exact False.elim
-  · intro h
-    obtain ⟨c, hc, h_eventual⟩ := h (1 / 32) (by norm_num)
-    rw [eventually_atTop] at h_eventual
-    obtain ⟨N, hN⟩ := h_eventual
-    obtain ⟨n, hn, G, hG5, hGedge, hGsmall⟩ := hcounter (c / 2) (by positivity) N
-    obtain ⟨S, hScard, hSfree⟩ := hN n hn G hG5 (by simpa using hGedge)
-    have hsmall := hGsmall S hSfree
-    have hn_pos : 0 < (n : ℝ) := by
-      by_contra hn0
-      have hn_eq : n = 0 := by
-        exact Nat.eq_zero_of_not_pos fun hn_nat => hn0 (by exact_mod_cast hn_nat)
-      subst n
-      exact (not_lt_of_ge (Nat.cast_nonneg S.card)) (by simpa using hsmall)
-    nlinarith
+  intro h
+  obtain ⟨c, hc, h_eventual⟩ := h (1 / 32) (by norm_num)
+  rw [eventually_atTop] at h_eventual
+  obtain ⟨N, hN⟩ := h_eventual
+  obtain ⟨n, hn, G, hG5, hGedge, hGsmall⟩ := hcounter (c / 2) (by positivity) N
+  obtain ⟨S, hScard, hSfree⟩ := hN n hn G hG5 (by simpa using hGedge)
+  have hsmall := hGsmall S hSfree
+  have hn_pos : 0 < (n : ℝ) := by
+    by_contra hn0
+    have hn_eq : n = 0 := by
+      exact Nat.eq_zero_of_not_pos fun hn_nat => hn0 (by exact_mod_cast hn_nat)
+    subst n
+    exact (not_lt_of_ge (Nat.cast_nonneg S.card)) (by simpa using hsmall)
+  nlinarith
 
 /-- Erdős Problem 533 has a negative answer.  The graph family above has
 fixed edge density `1/32`, is `K₅`-free, and has triangle-independence
 number `o(n)`. -/
-theorem erdos_533 : answer(False) ↔
-    ∀ δ : ℝ, 0 < δ → ∃ c : ℝ, 0 < c ∧ ∀ᶠ n : ℕ in atTop,
+theorem erdos_533 :
+    ¬ ∀ δ : ℝ, 0 < δ → ∃ c : ℝ, 0 < c ∧ ∀ᶠ n : ℕ in atTop,
       ∀ G : SimpleGraph (Fin n), G.CliqueFree 5 →
         δ * (n : ℝ) ^ 2 ≤ G.edgeFinset.card →
           ∃ S : Finset (Fin n), c * n ≤ (S.card : ℝ) ∧

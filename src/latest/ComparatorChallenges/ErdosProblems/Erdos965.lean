@@ -8,13 +8,10 @@ There is a two-coloring of `ℝ` for which every uncountable set has two distinc
 pair sums of different colors.  Thus the answer is negative.
 -/
 
-syntax (name := answerSyntax965) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 namespace Erdos965
 
 theorem erdos_965 :
-    answer(False) ↔ ∀ f : ℝ → Fin 2, ∃ A : Set ℝ, ¬ A.Countable ∧
+    ¬ ∀ f : ℝ → Fin 2, ∃ A : Set ℝ, ¬ A.Countable ∧
       ∀ᵉ (a ∈ A) (b ∈ A) (c ∈ A) (d ∈ A), a ≠ b → c ≠ d →
         f (a + b) = f (c + d) := by
   sorry

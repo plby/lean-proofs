@@ -948,72 +948,66 @@ theorem frequent_good_gap (x : ℕ → ℝ) (hx : ∀ m, x m ∈ Set.Icc 0 1) :
     simpa [m, n] using hclose
   exact (Finset.frequently_exists (Finset.Icc 1 12)).mp hall
 
-syntax (name := answerSyntax480) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 open Filter
 
-theorem erdos_480 : answer(True) ↔ ∀ (x : ℕ → ℝ), (∀ n, x n ∈ Set.Icc 0 1) →
+theorem erdos_480 : ∀ (x : ℕ → ℝ), (∀ n, x n ∈ Set.Icc 0 1) →
     ⨅ (n : ℕ+), atTop.liminf (fun m => (n : ℕ) * |x (m + (n : ℕ)) - x m|) ≤
       1 / √5 := by
-  constructor
-  · intro _ x hx
-    obtain ⟨n, hn, hfreq⟩ := frequent_good_gap x hx
-    let p : ℕ+ := ⟨n, lt_of_lt_of_le Nat.zero_lt_one (Finset.mem_Icc.mp hn).1⟩
-    let u : ℕ → ℝ := fun m => (p : ℕ) * |x (m + (p : ℕ)) - x m|
-    have hfreq' : ∃ᶠ m in atTop, u m ≤ 3 / 7 := by
-      simpa [u, p] using hfreq
-    have hu_nonneg : ∀ m, 0 ≤ u m := by
+  intro x hx
+  obtain ⟨n, hn, hfreq⟩ := frequent_good_gap x hx
+  let p : ℕ+ := ⟨n, lt_of_lt_of_le Nat.zero_lt_one (Finset.mem_Icc.mp hn).1⟩
+  let u : ℕ → ℝ := fun m => (p : ℕ) * |x (m + (p : ℕ)) - x m|
+  have hfreq' : ∃ᶠ m in atTop, u m ≤ 3 / 7 := by
+    simpa [u, p] using hfreq
+  have hu_nonneg : ∀ m, 0 ≤ u m := by
+    intro m
+    exact mul_nonneg (Nat.cast_nonneg _) (abs_nonneg _)
+  have hlim : atTop.liminf u ≤ 3 / 7 :=
+    Filter.liminf_le_of_frequently_le hfreq'
+      (Filter.isBoundedUnder_of_eventually_ge
+        (Filter.Eventually.of_forall hu_nonneg))
+  have hlim_nonneg : ∀ q : ℕ+,
+      0 ≤ atTop.liminf (fun m => (q : ℕ) * |x (m + (q : ℕ)) - x m|) := by
+    intro q
+    let v : ℕ → ℝ := fun m => (q : ℕ) * |x (m + (q : ℕ)) - x m|
+    have hv_nonneg : ∀ m, 0 ≤ v m := by
       intro m
       exact mul_nonneg (Nat.cast_nonneg _) (abs_nonneg _)
-    have hlim : atTop.liminf u ≤ 3 / 7 :=
-      Filter.liminf_le_of_frequently_le hfreq'
-        (Filter.isBoundedUnder_of_eventually_ge
-          (Filter.Eventually.of_forall hu_nonneg))
-    have hlim_nonneg : ∀ q : ℕ+,
-        0 ≤ atTop.liminf (fun m => (q : ℕ) * |x (m + (q : ℕ)) - x m|) := by
-      intro q
-      let v : ℕ → ℝ := fun m => (q : ℕ) * |x (m + (q : ℕ)) - x m|
-      have hv_nonneg : ∀ m, 0 ≤ v m := by
-        intro m
-        exact mul_nonneg (Nat.cast_nonneg _) (abs_nonneg _)
-      have hv_upper : ∀ m, v m ≤ (q : ℕ) := by
-        intro m
-        have h₁ := hx (m + (q : ℕ))
-        have h₂ := hx m
-        rcases h₁ with ⟨h₁0, h₁1⟩
-        rcases h₂ with ⟨h₂0, h₂1⟩
-        have habs : |x (m + (q : ℕ)) - x m| ≤ 1 := by
-          rw [abs_le]
-          constructor <;> linarith
-        dsimp [v]
-        calc
-          (q : ℕ) * |x (m + (q : ℕ)) - x m| ≤ (q : ℕ) * 1 := by
-            gcongr
-          _ = (q : ℕ) := by ring
-      exact Filter.le_liminf_of_le
-        (Filter.isCoboundedUnder_ge_of_eventually_le atTop
-          (Filter.Eventually.of_forall hv_upper))
-        (Filter.Eventually.of_forall hv_nonneg)
-    have hbdd : BddBelow (Set.range fun q : ℕ+ =>
-        atTop.liminf (fun m => (q : ℕ) * |x (m + (q : ℕ)) - x m|)) := by
-      refine ⟨0, ?_⟩
-      rintro _ ⟨q, rfl⟩
-      exact hlim_nonneg q
-    have hsqrt : (3 / 7 : ℝ) ≤ 1 / √5 := by
-      have hs : 0 < √(5 : ℝ) := Real.sqrt_pos.2 (by norm_num)
-      have hs2 : √(5 : ℝ) ^ 2 = 5 := Real.sq_sqrt (by norm_num)
-      apply (le_div_iff₀ hs).2
-      have hsle : √(5 : ℝ) ≤ 7 / 3 := by nlinarith
-      nlinarith
-    calc
-      (⨅ (q : ℕ+), atTop.liminf
-          (fun m => (q : ℕ) * |x (m + (q : ℕ)) - x m|)) ≤
-          atTop.liminf u := by
-            simpa [u, p] using ciInf_le hbdd p
-      _ ≤ 3 / 7 := hlim
-      _ ≤ 1 / √5 := hsqrt
-  · intro _
-    trivial
+    have hv_upper : ∀ m, v m ≤ (q : ℕ) := by
+      intro m
+      have h₁ := hx (m + (q : ℕ))
+      have h₂ := hx m
+      rcases h₁ with ⟨h₁0, h₁1⟩
+      rcases h₂ with ⟨h₂0, h₂1⟩
+      have habs : |x (m + (q : ℕ)) - x m| ≤ 1 := by
+        rw [abs_le]
+        constructor <;> linarith
+      dsimp [v]
+      calc
+        (q : ℕ) * |x (m + (q : ℕ)) - x m| ≤ (q : ℕ) * 1 := by
+          gcongr
+        _ = (q : ℕ) := by ring
+    exact Filter.le_liminf_of_le
+      (Filter.isCoboundedUnder_ge_of_eventually_le atTop
+        (Filter.Eventually.of_forall hv_upper))
+      (Filter.Eventually.of_forall hv_nonneg)
+  have hbdd : BddBelow (Set.range fun q : ℕ+ =>
+      atTop.liminf (fun m => (q : ℕ) * |x (m + (q : ℕ)) - x m|)) := by
+    refine ⟨0, ?_⟩
+    rintro _ ⟨q, rfl⟩
+    exact hlim_nonneg q
+  have hsqrt : (3 / 7 : ℝ) ≤ 1 / √5 := by
+    have hs : 0 < √(5 : ℝ) := Real.sqrt_pos.2 (by norm_num)
+    have hs2 : √(5 : ℝ) ^ 2 = 5 := Real.sq_sqrt (by norm_num)
+    apply (le_div_iff₀ hs).2
+    have hsle : √(5 : ℝ) ≤ 7 / 3 := by nlinarith
+    nlinarith
+  calc
+    (⨅ (q : ℕ+), atTop.liminf
+        (fun m => (q : ℕ) * |x (m + (q : ℕ)) - x m|)) ≤
+        atTop.liminf u := by
+          simpa [u, p] using ciInf_le hbdd p
+    _ ≤ 3 / 7 := hlim
+    _ ≤ 1 / √5 := hsqrt
 
 end Erdos480

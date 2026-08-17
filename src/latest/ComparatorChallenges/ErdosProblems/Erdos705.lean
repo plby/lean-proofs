@@ -22,10 +22,6 @@ open scoped EuclideanGeometry
 
 scoped[EuclideanGeometry] notation "ℝ²" => EuclideanSpace ℝ (Fin 2)
 
-syntax (name := answerSyntax705) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace SimpleGraph
 
 def UnitDistancePlaneGraph (V : Set (EuclideanSpace ℝ (Fin 2))) : SimpleGraph V where
@@ -44,7 +40,7 @@ namespace Erdos705
 open SimpleGraph
 
 theorem erdos_705 :
-    answer(False) ↔ ∃ k, ∀ V : Set ℝ², V.Finite →
+    ¬ ∃ k, ∀ V : Set ℝ², V.Finite →
       (UnitDistancePlaneGraph V).girth ≥ k →
       (UnitDistancePlaneGraph V).chromaticNumber ≤ 3 := by
   sorry

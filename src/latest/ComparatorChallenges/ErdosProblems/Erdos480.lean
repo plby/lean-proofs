@@ -14,10 +14,7 @@ open Filter
 
 namespace Erdos480
 
-syntax (name := answerSyntax480) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
-theorem erdos_480 : answer(True) ↔ ∀ (x : ℕ → ℝ), (∀ n, x n ∈ Set.Icc 0 1) →
+theorem erdos_480 : ∀ (x : ℕ → ℝ), (∀ n, x n ∈ Set.Icc 0 1) →
     ⨅ (n : ℕ+), atTop.liminf (fun m => (n : ℕ) * |x (m + (n : ℕ)) - x m|) ≤
       1 / √5 := by
   sorry

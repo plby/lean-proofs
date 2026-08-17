@@ -17,11 +17,6 @@ open Filter
 
 namespace Erdos152
 
-/-- Local compatibility syntax for the upstream Formal Conjectures statement. -/
-syntax:max "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- `g ≫ h` means that `h` is big-O of `g` at infinity. -/
 notation:50 g " ≫ " h => Asymptotics.IsBigO Filter.atTop h g
 
@@ -44,7 +39,7 @@ open scoped Classical
 
 open Set Finset
 
-theorem erdos_152.variants.square : answer(True) ↔
+theorem erdos_152.variants.square :
     (fun n => f n : ℕ → ℝ) ≫ (fun n => n ^ 2 : ℕ → ℝ) := by
   sorry
 
