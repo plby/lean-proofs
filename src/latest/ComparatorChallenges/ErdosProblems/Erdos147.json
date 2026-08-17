@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos147",
+  "solution_module": "ErdosProblems.Erdos147",
+  "theorem_names": [
+    "Erdos147.not_erdosSimonovitsConjecture"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

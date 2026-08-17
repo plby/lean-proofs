@@ -422,6 +422,8 @@ roots = [
 
   "Erdos603",
 
+  "Erdos147",
+
 ]
 
 [[lean_lib]]
