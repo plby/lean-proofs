@@ -351,11 +351,11 @@ theorem density_exists (m : ℕ) (α : ℝ) :
 
 /-- The uniquely determined density of `divisorSet m α`. -/
 noncomputable def δ (m : ℕ) (α : ℝ) : ℝ :=
-  (density_exists m α).choose
+  atTop.limUnder fun n : ℕ => (divisorSet m α).partialDensity Set.univ n
 
 theorem divisorSet_hasDensity (m : ℕ) (α : ℝ) :
     (divisorSet m α).HasDensity (δ m α) :=
-  (density_exists m α).choose_spec
+  tendsto_nhds_limUnder (density_exists m α)
 
 theorem delta_nonneg (m : ℕ) (α : ℝ) : 0 ≤ δ m α := by
   apply ge_of_tendsto' (divisorSet_hasDensity m α)
