@@ -20,10 +20,6 @@ The mathematical proof and a map from its lemmas to this formalization are in
 
 open scoped ArithmeticFunction.sigma BigOperators Pointwise
 
-syntax (name := answerSyntax277) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- A finite covering system over a commutative semiring. -/
 structure CoveringSystem (R : Type*) [CommSemiring R] where
   ι : Type
@@ -1265,73 +1261,70 @@ lemma exists_nat_mul_inv_lt {x ε : ℝ} (hx : 0 ≤ x) (hε : 0 < ε) :
 an integer of abundancy greater than `c` which cannot supply all the distinct
 nontrivial moduli of any covering system of the integers. -/
 theorem erdos_277 :
-    answer(True) ↔ ∀ c : ℝ, ∃ n : ℕ, (σ 1 n : ℝ) > c * n ∧
+    ∀ c : ℝ, ∃ n : ℕ, (σ 1 n : ℝ) > c * n ∧
       ∀ (m : StrictCoveringSystem ℤ), ∃ i, (n : ℤ) ∉ m.moduli i := by
-  constructor
-  · intro _ c
-    let A : ℝ := max c 0 + 1
-    have hA : 0 ≤ A := by
-      dsimp only [A]
-      linarith [le_max_right c 0]
-    let B : ℝ := Real.exp (A + 1)
-    have hBpos : 0 < B := by simp only [B, Real.exp_pos]
-    have hxnonneg : 0 ≤ B ^ 2 * (A + 1) :=
-      mul_nonneg (sq_nonneg B) (by linarith)
-    obtain ⟨Q, hQpos, hQsmall⟩ := exists_nat_mul_inv_lt hxnonneg
-      (Real.exp_pos (-2 * B))
-    obtain ⟨P, hPtail, hsum_low, hsum_high⟩ :=
-      exists_nat_prime_finset_sum_between A hA Q
-    have hP : ∀ p ∈ P, Nat.Prime p := fun p hp => (hPtail p hp).1
-    have hlarge : ∀ p ∈ P, Q < p := fun p hp => (hPtail p hp).2
-    have hab_nonneg : 0 ≤ abundancyProduct P := by
-      rw [abundancyProduct]
-      exact Finset.prod_nonneg fun p hp =>
-        add_nonneg zero_le_one (inv_nonneg.mpr (by positivity))
-    have hab_le_B : abundancyProduct P ≤ B := by
-      calc
-        abundancyProduct P ≤ Real.exp (∑ p ∈ P, (p : ℝ)⁻¹) :=
-          abundancyProduct_le_exp_sum P
-        _ ≤ Real.exp (A + 1) := Real.exp_le_exp.mpr hsum_high
-        _ = B := rfl
-    have hab_sq_le : (abundancyProduct P) ^ 2 ≤ B ^ 2 := by
-      nlinarith
-    have hinv_sq := sum_prime_inv_sq_le hQpos hlarge
-    have hsmall : (abundancyProduct P) ^ 2 *
-        ∑ p ∈ (Finset.univ : Finset P), (((((p : P) : ℕ) : ℝ)⁻¹) ^ 2) <
-          Real.exp (-2 * abundancyProduct P) := by
-      calc
-        (abundancyProduct P) ^ 2 *
-              ∑ p ∈ (Finset.univ : Finset P), (((((p : P) : ℕ) : ℝ)⁻¹) ^ 2) ≤
-            (abundancyProduct P) ^ 2 *
-              ((Q : ℝ)⁻¹ * ∑ p ∈ P, (p : ℝ)⁻¹) :=
-          mul_le_mul_of_nonneg_left hinv_sq (sq_nonneg _)
-        _ ≤ B ^ 2 * ((Q : ℝ)⁻¹ * ∑ p ∈ P, (p : ℝ)⁻¹) := by
-          apply mul_le_mul_of_nonneg_right hab_sq_le
-          positivity
-        _ ≤ B ^ 2 * ((Q : ℝ)⁻¹ * (A + 1)) := by
-          apply mul_le_mul_of_nonneg_left _ (sq_nonneg B)
-          exact mul_le_mul_of_nonneg_left hsum_high (inv_nonneg.mpr (by positivity))
-        _ = (B ^ 2 * (A + 1)) * (Q : ℝ)⁻¹ := by ring
-        _ < Real.exp (-2 * B) := hQsmall
-        _ ≤ Real.exp (-2 * abundancyProduct P) := by
-          apply Real.exp_le_exp.mpr
-          nlinarith
-    refine ⟨primeProduct P, ?_, ?_⟩
-    · rw [sigma_primeProduct_cast P hP]
-      have hsum_nonneg : 0 ≤ ∑ p ∈ P, (p : ℝ)⁻¹ := by positivity
-      have hab_lower := one_add_sum_inv_le_abundancyProduct P
-      have hcA : c < A := by
-        dsimp only [A]
-        linarith [le_max_left c 0]
-      have hc_hab : c < abundancyProduct P := by
+  intro c
+  let A : ℝ := max c 0 + 1
+  have hA : 0 ≤ A := by
+    dsimp only [A]
+    linarith [le_max_right c 0]
+  let B : ℝ := Real.exp (A + 1)
+  have hBpos : 0 < B := by simp only [B, Real.exp_pos]
+  have hxnonneg : 0 ≤ B ^ 2 * (A + 1) :=
+    mul_nonneg (sq_nonneg B) (by linarith)
+  obtain ⟨Q, hQpos, hQsmall⟩ := exists_nat_mul_inv_lt hxnonneg
+    (Real.exp_pos (-2 * B))
+  obtain ⟨P, hPtail, hsum_low, hsum_high⟩ :=
+    exists_nat_prime_finset_sum_between A hA Q
+  have hP : ∀ p ∈ P, Nat.Prime p := fun p hp => (hPtail p hp).1
+  have hlarge : ∀ p ∈ P, Q < p := fun p hp => (hPtail p hp).2
+  have hab_nonneg : 0 ≤ abundancyProduct P := by
+    rw [abundancyProduct]
+    exact Finset.prod_nonneg fun p hp =>
+      add_nonneg zero_le_one (inv_nonneg.mpr (by positivity))
+  have hab_le_B : abundancyProduct P ≤ B := by
+    calc
+      abundancyProduct P ≤ Real.exp (∑ p ∈ P, (p : ℝ)⁻¹) :=
+        abundancyProduct_le_exp_sum P
+      _ ≤ Real.exp (A + 1) := Real.exp_le_exp.mpr hsum_high
+      _ = B := rfl
+  have hab_sq_le : (abundancyProduct P) ^ 2 ≤ B ^ 2 := by
+    nlinarith
+  have hinv_sq := sum_prime_inv_sq_le hQpos hlarge
+  have hsmall : (abundancyProduct P) ^ 2 *
+      ∑ p ∈ (Finset.univ : Finset P), (((((p : P) : ℕ) : ℝ)⁻¹) ^ 2) <
+        Real.exp (-2 * abundancyProduct P) := by
+    calc
+      (abundancyProduct P) ^ 2 *
+            ∑ p ∈ (Finset.univ : Finset P), (((((p : P) : ℕ) : ℝ)⁻¹) ^ 2) ≤
+          (abundancyProduct P) ^ 2 *
+            ((Q : ℝ)⁻¹ * ∑ p ∈ P, (p : ℝ)⁻¹) :=
+        mul_le_mul_of_nonneg_left hinv_sq (sq_nonneg _)
+      _ ≤ B ^ 2 * ((Q : ℝ)⁻¹ * ∑ p ∈ P, (p : ℝ)⁻¹) := by
+        apply mul_le_mul_of_nonneg_right hab_sq_le
+        positivity
+      _ ≤ B ^ 2 * ((Q : ℝ)⁻¹ * (A + 1)) := by
+        apply mul_le_mul_of_nonneg_left _ (sq_nonneg B)
+        exact mul_le_mul_of_nonneg_left hsum_high (inv_nonneg.mpr (by positivity))
+      _ = (B ^ 2 * (A + 1)) * (Q : ℝ)⁻¹ := by ring
+      _ < Real.exp (-2 * B) := hQsmall
+      _ ≤ Real.exp (-2 * abundancyProduct P) := by
+        apply Real.exp_le_exp.mpr
         nlinarith
-      have hnpos : (0 : ℝ) < primeProduct P := by
-        exact_mod_cast primeProduct_pos P hP
-      exact mul_lt_mul_of_pos_right hc_hab hnpos
-    · intro m
-      exact exists_modulus_not_containing_primeProduct hP hsmall m
-  · intro _
-    trivial
+  refine ⟨primeProduct P, ?_, ?_⟩
+  · rw [sigma_primeProduct_cast P hP]
+    have hsum_nonneg : 0 ≤ ∑ p ∈ P, (p : ℝ)⁻¹ := by positivity
+    have hab_lower := one_add_sum_inv_le_abundancyProduct P
+    have hcA : c < A := by
+      dsimp only [A]
+      linarith [le_max_left c 0]
+    have hc_hab : c < abundancyProduct P := by
+      nlinarith
+    have hnpos : (0 : ℝ) < primeProduct P := by
+      exact_mod_cast primeProduct_pos P hP
+    exact mul_lt_mul_of_pos_right hc_hab hnpos
+  · intro m
+    exact exists_modulus_not_containing_primeProduct hP hsmall m
 
 end
 

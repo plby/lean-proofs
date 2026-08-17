@@ -115,7 +115,7 @@ theorem not_erdos_1105_parts_ii :
   have hlower := six_le_antiRamseyNum_pathGraph_five
   omega
 
-/-- `answer(True)` elaborates to `True`, so this directly negates the proposed theorem type. -/
+/-- This directly negates the proposed theorem type. -/
 theorem not_erdos_1105_parts_ii_type :
     ¬(True ↔ ∀ (k n : ℕ), 5 ≤ k → k ≤ n →
       let ℓ := (k - 1) / 2
@@ -297,7 +297,7 @@ theorem not_erdos_1105_parts_i :
   have hCN : C + 2 < (N : ℝ) := (le_max_left (C + 2) 2).trans_lt hN
   linarith
 
-/-- `answer(True)` elaborates to `True`, so this directly negates proposed part (i). -/
+/-- This directly negates proposed part (i). -/
 theorem not_erdos_1105_parts_i_type :
     ¬(True ↔ ∀ k : ℕ, 3 ≤ k →
       ((fun n : ℕ ↦ (antiRamseyNum (cycleGraph k) n : ℝ) -

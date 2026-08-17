@@ -42,14 +42,7 @@ import Mathlib.Tactic.Ring
 
 The mathematical proof and the correspondence between its lemmas and the
 formal development are documented in `tex/755.tex`.
-
-The repository-local `answer` macro has the same identity expansion as the
-metadata macro used by `google-deepmind/formal-conjectures`.
 -/
-
-syntax (name := answerSyntax755) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
 
 open Filter Metric
 open scoped BigOperators EuclideanGeometry Asymptotics RealInnerProductSpace SimpleGraph
@@ -1328,17 +1321,13 @@ theorem TUnit_epsilon_bound :
 /-- Erdős Problem 755: the number of unit equilateral triangles determined by
 `n` points in `ℝ⁶` is at most `(1/27 + o(1)) n³`. -/
 theorem erdos_755 :
-    answer(True) ↔ ∃ o : ℕ → ℝ,
+    ∃ o : ℕ → ℝ,
       o =o[atTop] (fun _ : ℕ ↦ (1 : ℝ)) ∧
         ∀ᶠ n in atTop,
           (TUnit 6 n : ℝ) ≤ ((1 / 27 : ℝ) + o n) * (n : ℝ) ^ 3 := by
-  constructor
-  · intro _
-    exact exists_isLittleO_one_bound_of_forall_pos
-      (fun n ↦ (TUnit 6 n : ℝ)) (1 / 27)
-      (fun _ ↦ Nat.cast_nonneg _) TUnit_epsilon_bound
-  · intro _
-    trivial
+  exact exists_isLittleO_one_bound_of_forall_pos
+    (fun n ↦ (TUnit 6 n : ℝ)) (1 / 27)
+    (fun _ ↦ Nat.cast_nonneg _) TUnit_epsilon_bound
 
 theorem erdos_755_test_dim_one :
     unitEquilateralTriangleCount 1

@@ -11,9 +11,6 @@ namespace Erdos1092
 
 open Classical SimpleGraph Finset Asymptotics Filter
 
-syntax (name := answerSyntax1092) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 /--
 Let `f r m` be maximal such that if every `m`-vertex subgraph of any finite
 graph can be made `r`-colourable by deleting at most `f r m` edges, then the
@@ -94,21 +91,17 @@ lemma not_two_mul_id_isLittleO_f_two :
   omega
 
 /-- Erdős Problem 1092 has a negative answer for `r = 2`. -/
-theorem f_asymptotic_2 : answer(False) ↔
-    (fun (n : ℕ) => (n : ℝ)) =o[atTop] (fun (n : ℕ) => (f 2 n : ℝ)) := by
-  constructor
-  · exact False.elim
-  · exact fun h => not_id_isLittleO_f_two h
+theorem f_asymptotic_2 :
+    ¬ (fun (n : ℕ) => (n : ℝ)) =o[atTop] (fun (n : ℕ) => (f 2 n : ℝ)) := by
+  exact fun h => not_id_isLittleO_f_two h
 
 /-- The proposed assertion for every `r` also has a negative answer. -/
 theorem f_asymptotic_general :
-    answer(False) ↔ ∀ r : ℕ,
+    ¬ ∀ r : ℕ,
       (fun n : ℕ => ((r : ℝ) * n)) =o[atTop]
         (fun n : ℕ => (f r n : ℝ)) := by
-  constructor
-  · exact False.elim
-  · intro h
-    exact not_two_mul_id_isLittleO_f_two (h 2)
+  intro h
+  exact not_two_mul_id_isLittleO_f_two (h 2)
 
 end Erdos1092
 

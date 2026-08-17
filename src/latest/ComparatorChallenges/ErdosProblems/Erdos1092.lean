@@ -11,9 +11,6 @@ namespace Erdos1092
 
 open Classical SimpleGraph Finset Asymptotics Filter
 
-syntax (name := answerSyntax1092) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 /--
 Let `f r m` be maximal such that if every `m`-vertex subgraph of any finite
 graph can be made `r`-colourable by deleting at most `f r m` edges, then the
@@ -28,12 +25,12 @@ noncomputable def f (r m : ℕ) : ℕ :=
           chromaticNumber (H.coe.deleteEdges E) ≤ (r : ℕ∞)) →
       chromaticNumber G ≤ (r + 1 : ℕ∞)}
 
-theorem f_asymptotic_2 : answer(False) ↔
-    (fun (n : ℕ) => (n : ℝ)) =o[atTop] (fun (n : ℕ) => (f 2 n : ℝ)) := by
+theorem f_asymptotic_2 :
+    ¬ (fun (n : ℕ) => (n : ℝ)) =o[atTop] (fun (n : ℕ) => (f 2 n : ℝ)) := by
   sorry
 
 theorem f_asymptotic_general :
-    answer(False) ↔ ∀ r : ℕ,
+    ¬ ∀ r : ℕ,
       (fun n : ℕ => ((r : ℝ) * n)) =o[atTop]
         (fun n : ℕ => (f r n : ℝ)) := by
   sorry

@@ -36,10 +36,6 @@ open scoped EuclideanGeometry
 
 scoped[EuclideanGeometry] notation "ℝ²" => EuclideanSpace ℝ (Fin 2)
 
-syntax (name := answerSyntax705) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace SimpleGraph
 
 /-- The faithful unit-distance graph on a set of points in the Euclidean plane. -/
@@ -8279,17 +8275,16 @@ private theorem high_girth_four_chromatic_witnesses :
 /-- Arbitrarily high-girth counterexamples formally imply the negative answer. -/
 theorem erdos_705_of_witnesses
     (hO'Donnell : ∀ K, HasHighGirthFourChromaticUnitDistanceWitness K) :
-    answer(False) ↔ ∃ k, ∀ V : Set (EuclideanSpace ℝ (Fin 2)), V.Finite →
+    ¬ ∃ k, ∀ V : Set (EuclideanSpace ℝ (Fin 2)), V.Finite →
       (UnitDistancePlaneGraph V).girth ≥ k →
       (UnitDistancePlaneGraph V).chromaticNumber ≤ 3 := by
-  rw [false_iff]
   rintro ⟨k, hk⟩
   obtain ⟨V, hV, hgirth, hchrom⟩ := hO'Donnell k
   exact hchrom (hk V hV hgirth)
 
 /-- Erdős Problem 705 has a negative answer. -/
 theorem erdos_705 :
-    answer(False) ↔ ∃ k, ∀ V : Set ℝ², V.Finite →
+    ¬ ∃ k, ∀ V : Set ℝ², V.Finite →
       (UnitDistancePlaneGraph V).girth ≥ k →
       (UnitDistancePlaneGraph V).chromaticNumber ≤ 3 :=
   erdos_705_of_witnesses high_girth_four_chromatic_witnesses

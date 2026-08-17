@@ -12,8 +12,8 @@ namespace Erdos448
 
 /-- Erdős Problem 448 has a negative answer: for some positive threshold,
 the exceptional set has upper density strictly smaller than one. -/
-theorem erdos_448 : answer(False) ↔
-    ∀ ε : ℝ, 0 < ε →
+theorem erdos_448 :
+    ¬ ∀ ε : ℝ, 0 < ε →
       {n : ℕ | (tauPlus n : ℝ) <
         ε * (n.divisors.card : ℝ)}.HasDensity 1 :=
   Erdos448FinalAssembly.erdos_448_of_naturalGrid_linear_moment

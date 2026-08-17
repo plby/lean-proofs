@@ -32,11 +32,6 @@ open Filter
 
 namespace Erdos152
 
-/-- Local compatibility syntax for the upstream Formal Conjectures statement. -/
-syntax:max "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- `g ≫ h` means that `h` is big-O of `g` at infinity. -/
 notation:50 g " ≫ " h => Asymptotics.IsBigO Filter.atTop h g
 
@@ -578,30 +573,23 @@ lemma tendsto_f : Tendsto f atTop atTop := by
 
 
 /-- Must `lim f n = ∞`? -/
-theorem erdos_152 : answer(True) ↔ Tendsto f atTop atTop := by
-  constructor
-  · intro _
-    exact tendsto_f
-  · intro _
-    trivial
+theorem erdos_152 : Tendsto f atTop atTop := by
+  exact tendsto_f
 
 /-- `f n ≫ n ^ 2`, i.e. $f(n) = \Omega(n^2)$.
 This follows from the bound $f(n) \geq (n^2 - 100n - 16)/16$. -/
-theorem erdos_152.variants.square : answer(True) ↔
+theorem erdos_152.variants.square :
     (fun n => f n : ℕ → ℝ) ≫ (fun n => n ^ 2 : ℕ → ℝ) := by
-  constructor
-  · intro _
-    show (fun n : ℕ => (n : ℝ) ^ 2) =O[atTop] (fun n : ℕ => (f n : ℝ))
-    rw [Asymptotics.isBigO_iff]
-    refine ⟨64, ?_⟩
-    filter_upwards [eventually_ge_atTop 200] with n hn
-    rw [Real.norm_of_nonneg (sq_nonneg _), sq, Real.norm_of_nonneg (Nat.cast_nonneg _)]
-    have h := f_lower_bound_div n
-    have h_sq : 200 * n ≤ n * n := Nat.mul_le_mul_right n hn
-    have h_dm := Nat.div_add_mod (n * n - 100 * n - 16) 16
-    have h_ml := Nat.mod_lt (n * n - 100 * n - 16) (show (0 : ℕ) < 16 by omega)
-    have : n * n ≤ 64 * f n := by omega
-    exact_mod_cast this
-  · intro _; trivial
+  show (fun n : ℕ => (n : ℝ) ^ 2) =O[atTop] (fun n : ℕ => (f n : ℝ))
+  rw [Asymptotics.isBigO_iff]
+  refine ⟨64, ?_⟩
+  filter_upwards [eventually_ge_atTop 200] with n hn
+  rw [Real.norm_of_nonneg (sq_nonneg _), sq, Real.norm_of_nonneg (Nat.cast_nonneg _)]
+  have h := f_lower_bound_div n
+  have h_sq : 200 * n ≤ n * n := Nat.mul_le_mul_right n hn
+  have h_dm := Nat.div_add_mod (n * n - 100 * n - 16) 16
+  have h_ml := Nat.mod_lt (n * n - 100 * n - 16) (show (0 : ℕ) < 16 by omega)
+  have : n * n ≤ 64 * f n := by omega
+  exact_mod_cast this
 
 end Erdos152

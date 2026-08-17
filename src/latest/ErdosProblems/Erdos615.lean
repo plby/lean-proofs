@@ -7,9 +7,6 @@ open scoped Topology BigOperators ENNReal NNReal
 
 namespace Erdos615
 
-syntax (name := answerSyntax615) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 attribute [local instance] Classical.propDecidable
 
 open Construction
@@ -473,11 +470,10 @@ lemma exists_counterexample (c : ℝ) (hc : 0 < c) (N : ℕ) :
 
 /-- Erdős Problem 615 has a negative answer, by the quantitative
 Bollobás--Erdős construction. -/
-theorem erdos_615 : answer(False) ↔
-    ∃ c : ℝ, 0 < c ∧ ∀ᶠ (n : ℕ) in atTop,
+theorem erdos_615 :
+    ¬ ∃ c : ℝ, 0 < c ∧ ∀ᶠ (n : ℕ) in atTop,
       ∀ G : SimpleGraph (Fin n), (1 / 8 - c) * n ^ 2 ≤ G.edgeFinset.card →
         ¬ G.CliqueFree 4 ∨ (n : ℝ) / Real.log n ≤ G.indepNum := by
-  rw [false_iff]
   rintro ⟨c, hc, hlarge⟩
   rcases eventually_atTop.1 hlarge with ⟨N, hN⟩
   obtain ⟨n, hn, G, hedges, hfree, hind⟩ := exists_counterexample c hc N

@@ -14,10 +14,6 @@ open scoped Pointwise Topology
 
 namespace Erdos899
 
-syntax (name := answerSyntax899) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-! ## Finite-window counting and increasing enumerations -/
 
 /-- The finite window consisting of the elements of `S` in `[1, N]`. -/
@@ -775,51 +771,48 @@ lemma limsup_ratio_eq_top
       exact_mod_cast hN.1)
   exact (EReal.coe_lt_coe_iff.2 hyk).trans_le hk
 
-theorem erdos_899 : answer(True) ↔ ∀ (A : Set ℕ), A.Infinite →
+theorem erdos_899 : ∀ (A : Set ℕ), A.Infinite →
     Tendsto (fun N => (A ∩ Icc 1 N |>.ncard : ℝ) / N) atTop (𝓝 0) →
     atTop.limsup (fun N => ((A - A : Set ℕ) ∩ Icc 1 N |>.ncard : EReal) /
       (A ∩ Icc 1 N).ncard) = ⊤ := by
-  constructor
-  · intro _ A hA hden
-    let B : Set ℕ := A \ {0}
-    have hB : B.Infinite := hA.sdiff (Set.finite_singleton 0)
-    have hBpos : B ⊆ Ici 1 := by
-      intro x hx
-      have hx0 : x ≠ 0 := by
-        exact fun h ↦ hx.2 (by simp [h])
-      exact Nat.one_le_iff_ne_zero.mpr hx0
-    have hBA : B ⊆ A := sdiff_subset
-    have hwindow (N : ℕ) : B ∩ Icc 1 N = A ∩ Icc 1 N := by
-      ext x
-      constructor
-      · intro hx
-        exact ⟨hBA hx.1, hx.2⟩
-      · intro hx
-        refine ⟨⟨hx.1, ?_⟩, hx.2⟩
-        simp only [mem_singleton_iff]
-        exact Nat.ne_of_gt hx.2.1
-    have hcount (N : ℕ) : countIn B N = (A ∩ Icc 1 N).ncard := by
-      rw [countIn_eq_ncard, hwindow]
-    have hdenB : Tendsto (fun N ↦ (countIn B N : ℝ) / N) atTop (𝓝 0) := by
-      simpa only [hcount] using hden
-    have hdiff : posDiff B ⊆ A - A := by
-      intro d hd
-      exact Set.sub_subset_sub hBA hBA hd.1
-    have hlargeB : ∀ k : ℕ, ∃ᶠ N in atTop,
-        k * countIn B N ≤ countIn (posDiff B) N := by
-      intro k
-      have hnot := no_eventual_bound_posDiff hB hBpos hdenB k
-      exact (not_eventually.mp hnot).mono fun N hN ↦ by omega
-    have hlargeA : ∀ k : ℕ, ∃ᶠ N in atTop,
-        k * countIn B N ≤ countIn (A - A) N := by
-      intro k
-      exact (hlargeB k).mono fun N hN ↦
-        hN.trans (countIn_mono_set hdiff N)
-    have htop := limsup_ratio_eq_top (countIn B) (countIn (A - A))
-      (eventually_countIn_pos hB hBpos) hlargeA
-    simpa only [countIn_eq_ncard, hwindow] using htop
-  · intro _
-    trivial
+  intro A hA hden
+  let B : Set ℕ := A \ {0}
+  have hB : B.Infinite := hA.sdiff (Set.finite_singleton 0)
+  have hBpos : B ⊆ Ici 1 := by
+    intro x hx
+    have hx0 : x ≠ 0 := by
+      exact fun h ↦ hx.2 (by simp [h])
+    exact Nat.one_le_iff_ne_zero.mpr hx0
+  have hBA : B ⊆ A := sdiff_subset
+  have hwindow (N : ℕ) : B ∩ Icc 1 N = A ∩ Icc 1 N := by
+    ext x
+    constructor
+    · intro hx
+      exact ⟨hBA hx.1, hx.2⟩
+    · intro hx
+      refine ⟨⟨hx.1, ?_⟩, hx.2⟩
+      simp only [mem_singleton_iff]
+      exact Nat.ne_of_gt hx.2.1
+  have hcount (N : ℕ) : countIn B N = (A ∩ Icc 1 N).ncard := by
+    rw [countIn_eq_ncard, hwindow]
+  have hdenB : Tendsto (fun N ↦ (countIn B N : ℝ) / N) atTop (𝓝 0) := by
+    simpa only [hcount] using hden
+  have hdiff : posDiff B ⊆ A - A := by
+    intro d hd
+    exact Set.sub_subset_sub hBA hBA hd.1
+  have hlargeB : ∀ k : ℕ, ∃ᶠ N in atTop,
+      k * countIn B N ≤ countIn (posDiff B) N := by
+    intro k
+    have hnot := no_eventual_bound_posDiff hB hBpos hdenB k
+    exact (not_eventually.mp hnot).mono fun N hN ↦ by omega
+  have hlargeA : ∀ k : ℕ, ∃ᶠ N in atTop,
+      k * countIn B N ≤ countIn (A - A) N := by
+    intro k
+    exact (hlargeB k).mono fun N hN ↦
+      hN.trans (countIn_mono_set hdiff N)
+  have htop := limsup_ratio_eq_top (countIn B) (countIn (A - A))
+    (eventually_countIn_pos hB hBpos) hlargeA
+  simpa only [countIn_eq_ncard, hwindow] using htop
 
 #print axioms Erdos899.erdos_899
 

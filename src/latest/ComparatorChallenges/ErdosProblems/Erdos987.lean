@@ -22,12 +22,6 @@ import Mathlib
 
 open Filter Finset Asymptotics
 
-/- The upstream `answer(True)` wrapper is documentary; completed Erdős
-problem files in this repository represent it by the wrapped proposition. -/
-syntax (name := answerSyntax987) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace Erdos987
 
 /-! Indices are zero-based, so `range n` represents `j < n`. -/
@@ -43,7 +37,7 @@ noncomputable def A (x : ℕ → ℝ) (k : ℕ) : EReal :=
   atTop.limsup fun n : ℕ => (‖∑ j ∈ range n, e (k * x j)‖ : EReal)
 
 theorem erdos_987.parts.i :
-    answer(True) ↔ ∀ (x : ℕ → ℝ) (_ : ∀ j : ℕ, x j ∈ Set.Ioo (0 : ℝ) 1),
+    ∀ (x : ℕ → ℝ) (_ : ∀ j : ℕ, x j ∈ Set.Ioo (0 : ℝ) 1),
       atTop.limsup (fun k : ℕ => A x k) = ⊤ := by
   sorry
 
@@ -53,6 +47,6 @@ theorem erdos_987.variants.sqrt_log_upper_bound :
   sorry
 
 theorem erdos_987.parts.ii :
-    answer(True) ↔ ∃ (x : ℕ → ℝ) (_ : ∀ j : ℕ, x j ∈ Set.Ioo (0 : ℝ) 1) (b : ℕ → ℝ),
+    ∃ (x : ℕ → ℝ) (_ : ∀ j : ℕ, x j ∈ Set.Ioo (0 : ℝ) 1) (b : ℕ → ℝ),
       b =o[atTop] (fun k : ℕ => (k : ℝ)) ∧ ∀ᶠ k : ℕ in atTop, A x k ≤ ((b k : ℝ) : EReal) := by
   sorry

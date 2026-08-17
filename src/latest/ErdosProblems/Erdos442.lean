@@ -19,11 +19,6 @@ namespace Erdos442
 open Filter Set
 open scoped BigOperators Topology
 
-syntax (name := answerSyntax442) "answer(" term ")" : term
-
-macro_rules
-  | `(answer($t)) => `($t)
-
 section Specification
 
 /-- The truncated logarithm used in the upstream statement. -/
@@ -979,20 +974,17 @@ lemma not_tendsto_atTop_of_eventually_le {f : ℝ → ℝ} {C : ℝ}
 
 /-- Erdős Problem 442 has a negative answer.  The set of squarefree semiprimes
 satisfies the hypothesis, while its normalized LCM energy is eventually bounded. -/
-theorem erdos_442 : answer(False) ↔ ∀ (A : Set ℕ),
+theorem erdos_442 : ¬ ∀ (A : Set ℕ),
     Tendsto (fun x : ℝ ↦ 1 / Real.maxLogOne (Real.maxLogOne x) *
       ∑ n ∈ (A ∩ Icc 1 ⌊x⌋₊ : Set ℕ), (1 : ℝ) / n) atTop atTop →
     Tendsto (fun x : ℝ ↦ 1 / (∑ n ∈ (A ∩ Icc 1 ⌊x⌋₊ : Set ℕ),
       (1 : ℝ) / n) ^ 2 * ∑ nm ∈ Set.bddProdUpper A x,
         (1 : ℝ) / nm.1.lcm nm.2) atTop atTop := by
-  constructor
-  · intro h
-    exact h.elim
-  · intro hclaimed
-    have hdiverges := hclaimed squarefreeSemiprimes
-      tendsto_squarefreeSemiprime_hypothesis
-    exact (not_tendsto_atTop_of_eventually_le
-      eventually_squarefreeSemiprime_normalizedEnergy_le) hdiverges
+  intro hclaimed
+  have hdiverges := hclaimed squarefreeSemiprimes
+    tendsto_squarefreeSemiprime_hypothesis
+  exact (not_tendsto_atTop_of_eventually_le
+    eventually_squarefreeSemiprime_normalizedEnergy_le) hdiverges
 
 end Counterexample
 

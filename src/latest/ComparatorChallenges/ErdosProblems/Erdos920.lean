@@ -148,10 +148,6 @@ statements below.
 
 open Real Filter
 
-syntax (name := answerSyntax920) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- `g ≫ h` means that `h` is big-O of `g` at infinity. -/
 notation:50 g " ≫ " h => Asymptotics.IsBigO Filter.atTop h g
 
@@ -248,13 +244,13 @@ noncomputable def f (k n : ℕ) : ℕ :=
 
 theorem erdos_920_of_dStarFamilies
     (families : ∀ u : ℕ, 1 ≤ u → RamseyPackaging.DStarFamily u) :
-    answer(True) ↔ ∀ k : ℕ, k ≥ 4 → ∃ c > 0,
+    ∀ k : ℕ, k ≥ 4 → ∃ c > 0,
       (fun n : ℕ ↦ (f k n : ℝ)) ≫
         (fun n : ℕ ↦ (n : ℝ) ^ (1 - 1 / ((k : ℝ) - 1)) / (log n) ^ c) := by
   sorry
 
 theorem erdos_920 :
-    answer(True) ↔ ∀ k : ℕ, k ≥ 4 → ∃ c > 0,
+    ∀ k : ℕ, k ≥ 4 → ∃ c > 0,
       (fun n : ℕ ↦ (f k n : ℝ)) ≫
         (fun n : ℕ ↦ (n : ℝ) ^ (1 - 1 / ((k : ℝ) - 1)) / (log n) ^ c) := by
   sorry

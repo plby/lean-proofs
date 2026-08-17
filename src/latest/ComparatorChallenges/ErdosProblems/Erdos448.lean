@@ -26,17 +26,14 @@ end Set
 
 namespace Erdos448
 
-syntax (name := answerSyntax448) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 def tauPlus (n : ℕ) : ℕ :=
   (n.divisors.image (Nat.log 2)).card
 
 /-- Erdős Problem 448 has a negative answer: for some positive threshold,
 the exceptional set has upper density strictly smaller than one. -/
 
-theorem erdos_448 : answer(False) ↔
-    ∀ ε : ℝ, 0 < ε →
+theorem erdos_448 :
+    ¬ ∀ ε : ℝ, 0 < ε →
       {n : ℕ | (tauPlus n : ℝ) <
         ε * (n.divisors.card : ℝ)}.HasDensity 1 := by
   sorry

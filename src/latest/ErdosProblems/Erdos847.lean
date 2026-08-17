@@ -16,9 +16,6 @@ The negative solution is due to Christian Reiher, Vojtěch Rödl, and Marcelo Sa
 The detailed mathematical proof and its Leanization map are in `tex/847.tex`.
 -/
 
-syntax (name := answerSyntax847) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 namespace Erdos847
 
 open Set
@@ -92,19 +89,16 @@ lemma negative_answer_of_counterexample {A : Set ℕ} [Infinite A] {μ : ℝ} (h
 /-- Erdős Problem 847 has a negative answer.  The witness is the separated
 union of the finite RRS blocks constructed above the sparse Hales--Jewett
 line systems. -/
-theorem erdos_847 : answer(False) ↔
-    ∀ A : Set ℕ, Infinite A → HasFew3APs A →
+theorem erdos_847 :
+    ¬ ∀ A : Set ℕ, Infinite A → HasFew3APs A →
       ∃ n, ∃ S : Fin n → Set ℕ,
         (∀ i, ThreeAPFree (S i)) ∧ A = ⋃ i : Fin n, S i := by
-  constructor
-  · intro hfalse
-    exact False.elim hfalse
-  · intro hcover
-    obtain ⟨A, hAinfinite, hA⟩ :=
-      Erdos847Construction.exists_counterexample
-    letI : Infinite A := Set.infinite_coe_iff.mpr hAinfinite
-    have hA' : IsRRSCounterexample A (1 / 3 : ℝ) := by
-      exact hA
-    exact (negative_answer_of_counterexample (by norm_num) hA') hcover
+  intro hcover
+  obtain ⟨A, hAinfinite, hA⟩ :=
+    Erdos847Construction.exists_counterexample
+  letI : Infinite A := Set.infinite_coe_iff.mpr hAinfinite
+  have hA' : IsRRSCounterexample A (1 / 3 : ℝ) := by
+    exact hA
+  exact (negative_answer_of_counterexample (by norm_num) hA') hcover
 
 end Erdos847

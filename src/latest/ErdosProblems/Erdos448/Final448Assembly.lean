@@ -19,8 +19,7 @@ theorem erdos_448_of_naturalGrid_linear_moment
     (hlinear : ∀ K : ℕ, 0 < K → ∃ C : ℝ, 0 ≤ C ∧
       ∀ᶠ x : ℕ in atTop,
         (∑ n ∈ Finset.range x, naturalGridSelectedPairTerm K n) ≤ C * x) :
-    answer(False) ↔
-      ∀ ε : ℝ, 0 < ε →
+    ¬ ∀ ε : ℝ, 0 < ε →
         {n : ℕ | (Erdos448.tauPlus n : ℝ) <
           ε * (n.divisors.card : ℝ)}.HasDensity 1 := by
   rcases NaturalGridConcentration448.exists_naturalGrid_goodSet with

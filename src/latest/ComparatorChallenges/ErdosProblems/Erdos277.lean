@@ -11,10 +11,6 @@ system.
 
 open scoped ArithmeticFunction.sigma BigOperators Pointwise
 
-syntax (name := answerSyntax277) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- A finite covering system over a commutative semiring. -/
 structure CoveringSystem (R : Type*) [CommSemiring R] where
   ι : Type
@@ -41,6 +37,6 @@ open MeasureTheory ProbabilityTheory Set
 attribute [local instance] Classical.propDecidable
 
 theorem erdos_277 :
-    answer(True) ↔ ∀ c : ℝ, ∃ n : ℕ, (σ 1 n : ℝ) > c * n ∧
+    ∀ c : ℝ, ∃ n : ℕ, (σ 1 n : ℝ) > c * n ∧
       ∀ (m : StrictCoveringSystem ℤ), ∃ i, (n : ℤ) ∉ m.moduli i := by
   sorry

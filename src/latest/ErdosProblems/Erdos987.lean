@@ -38,12 +38,6 @@ import Mathlib
 
 open Filter Finset Asymptotics
 
-/- The upstream `answer(True)` wrapper is documentary; completed Erdős
-problem files in this repository represent it by the wrapped proposition. -/
-syntax (name := answerSyntax987) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace Erdos987
 
 /-! This file contains the material needed for the two questions: Tao's L2 argument for the universal lower statement, and the APSSV prefix-scrambled van der Corput construction for the little-o witness. The detailed mathematical proof and declaration map are in tex/987.tex. Indices are zero-based, so range n represents j < n. -/
@@ -449,9 +443,9 @@ adapted from Tao's formalisation at
 [teorth/analysis](https://github.com/teorth/analysis/blob/main/Analysis/Misc/erdos_987.lean).
 -/
 theorem erdos_987.parts.i :
-    answer(True) ↔ ∀ (x : ℕ → ℝ) (_ : ∀ j : ℕ, x j ∈ Set.Ioo (0 : ℝ) 1),
+    ∀ (x : ℕ → ℝ) (_ : ∀ j : ℕ, x j ∈ Set.Ioo (0 : ℝ) 1),
       atTop.limsup (fun k : ℕ => A x k) = ⊤ := by
-  refine ⟨fun _ x _ => ?_, fun _ => trivial⟩
+  intro x _
   -- Set z j = e (x j) ∈ Circle
   let z : ℕ → Circle := fun j => ⟨e (x j), mem_sphere_zero_iff_norm.mpr (norm_e (x j))⟩
   -- ((z j) ^ k : ℂ) = (e (x j)) ^ k = e (k * x j)
@@ -11869,9 +11863,8 @@ bound $b(k) = o(k)$ such that $A x k \le b k$ eventually. Direct corollary of
 `sqrt_log_upper_bound` (which gives a $\sqrt{k \log k}$ bound) plus the
 asymptotic $\sqrt{k \log k} = o(k)$. -/
 theorem erdos_987.parts.ii :
-    answer(True) ↔ ∃ (x : ℕ → ℝ) (_ : ∀ j : ℕ, x j ∈ Set.Ioo (0 : ℝ) 1) (b : ℕ → ℝ),
+    ∃ (x : ℕ → ℝ) (_ : ∀ j : ℕ, x j ∈ Set.Ioo (0 : ℝ) 1) (b : ℕ → ℝ),
       b =o[atTop] (fun k : ℕ => (k : ℝ)) ∧ ∀ᶠ k : ℕ in atTop, A x k ≤ ((b k : ℝ) : EReal) := by
-  refine ⟨fun _ => ?_, fun _ => trivial⟩
   -- Get the witness from sqrt_log_upper_bound.
   obtain ⟨x, hx, C, hC, hbound⟩ := erdos_987.variants.sqrt_log_upper_bound
   -- The bound function: b k = C · √(k · log k).

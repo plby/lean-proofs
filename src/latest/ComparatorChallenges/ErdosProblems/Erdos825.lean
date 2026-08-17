@@ -10,16 +10,12 @@ integer to be a sum of distinct proper divisors.
 
 open scoped ArithmeticFunction.sigma BigOperators List
 
-syntax (name := answerSyntax825) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace Erdos825
 
 noncomputable section
 
 theorem erdos_825 :
-    answer(True) ↔ ∃ (C : ℝ) (_ : C > 0),
+    ∃ (C : ℝ) (_ : C > 0),
       ∀ (n) (_ : σ 1 n > C * n),
         ∃ s ⊆ n.properDivisors, n = s.sum id := by
   sorry

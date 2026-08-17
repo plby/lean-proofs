@@ -21,10 +21,6 @@ The detailed mathematical proof and its Leanization map are in `tex/825.tex`.
 
 open scoped ArithmeticFunction.sigma BigOperators List
 
-syntax (name := answerSyntax825) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace Erdos825
 
 noncomputable section
@@ -5876,24 +5872,20 @@ lemma conclusion_of_rough_pseudoperfect
 /-- Erdős Problem 825: sufficiently large abundancy forces a representation
 as a sum of distinct proper divisors. -/
 theorem erdos_825 :
-    answer(True) ↔ ∃ (C : ℝ) (_ : C > 0),
+    ∃ (C : ℝ) (_ : C > 0),
       ∀ (n) (_ : σ 1 n > C * n),
         ∃ s ⊆ n.properDivisors, n = s.sum id := by
-  constructor
-  · intro _
-    let A := Real.exp (2 * roughMassTarget)
-    have hA : 0 < A := Real.exp_pos _
-    have hroughA : ∀ m : ℕ, 0 < m → Rough (2 ^ 12) m →
-        A < abundancy m → Pseudoperfect m := by
-      intro m hm hmRough hmLarge
-      apply rough_pseudoperfect_of_mass hm hmRough
-      apply primeReciprocalMass_gt_of_exp_lt_abundancy hm
-      simpa [A] using hmLarge
-    obtain ⟨C, hC, hconclusion⟩ :=
-      conclusion_of_rough_pseudoperfect (2 ^ 12) A hA hroughA
-    exact ⟨C, hC, hconclusion⟩
-  · intro _
-    trivial
+  let A := Real.exp (2 * roughMassTarget)
+  have hA : 0 < A := Real.exp_pos _
+  have hroughA : ∀ m : ℕ, 0 < m → Rough (2 ^ 12) m →
+      A < abundancy m → Pseudoperfect m := by
+    intro m hm hmRough hmLarge
+    apply rough_pseudoperfect_of_mass hm hmRough
+    apply primeReciprocalMass_gt_of_exp_lt_abundancy hm
+    simpa [A] using hmLarge
+  obtain ⟨C, hC, hconclusion⟩ :=
+    conclusion_of_rough_pseudoperfect (2 ^ 12) A hA hroughA
+  exact ⟨C, hC, hconclusion⟩
 
 end
 

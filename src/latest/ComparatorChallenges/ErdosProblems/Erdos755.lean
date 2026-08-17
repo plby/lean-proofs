@@ -6,14 +6,7 @@ import Mathlib
 
 The mathematical proof and the correspondence between its lemmas and the
 formal development are documented in `tex/755.tex`.
-
-The repository-local `answer` macro has the same identity expansion as the
-metadata macro used by `google-deepmind/formal-conjectures`.
 -/
-
-syntax (name := answerSyntax755) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
 
 open Filter Metric
 open scoped BigOperators EuclideanGeometry Asymptotics RealInnerProductSpace SimpleGraph
@@ -42,7 +35,7 @@ noncomputable def TUnit (d n : ℕ) : ℕ :=
     P.card = n ∧ unitEquilateralTriangleCount d P = m}
 
 theorem erdos_755 :
-    answer(True) ↔ ∃ o : ℕ → ℝ,
+    ∃ o : ℕ → ℝ,
       o =o[atTop] (fun _ : ℕ ↦ (1 : ℝ)) ∧
         ∀ᶠ n in atTop,
           (TUnit 6 n : ℝ) ≤ ((1 / 27 : ℝ) + o n) * (n : ℝ) ^ 3 := by
