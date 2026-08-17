@@ -4,6 +4,7 @@ import Mathlib.Order.Filter.Defs
 import Mathlib.Data.Nat.Prime.Defs
 import Mathlib.Algebra.Order.Archimedean.Real.Basic
 import Std.Tactic.BVDecide.LRAT.Internal.Clause
+import ErdosProblems.Axioms
 
 open Nat Finset Real Filter
 open Finset Int Nat Real

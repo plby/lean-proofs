@@ -21,6 +21,9 @@ require erdos211Incidence from "ErdosProblems/Erdos211/Incidence"
 require BoundedGaps from git "https://github.com/frenzymath/FormalPantheon.git" @
   "ffbb65c21afc8a36ace67720f1b0df1c63d26bd1" / "BoundedGaps"
 
+require Waring from git "https://github.com/frenzymath/FormalPantheon.git" @
+  "ffbb65c21afc8a36ace67720f1b0df1c63d26bd1" / "Warning"
+
 require mathlib from git "https://github.com/leanprover-community/mathlib4.git" @ "v4.33.0"
 
 @[default_target] lean_lib All
