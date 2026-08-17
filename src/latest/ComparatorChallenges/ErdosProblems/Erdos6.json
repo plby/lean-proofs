@@ -9,6 +9,5 @@
     "Classical.choice",
     "Quot.sound"
   ],
-  "enable_nanoda": true
+  "enable_nanoda": false
 }
-

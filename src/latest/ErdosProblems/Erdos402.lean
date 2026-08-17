@@ -36,6 +36,7 @@ import Mathlib.NumberTheory.PrimeCounting
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Push
+import PrimeNumberTheoremAnd.Mathlib.Analysis.SpecialFunctions.Log.Basic
 import PrimeNumberTheoremAnd.MediumPNT
 
 namespace Erdos402

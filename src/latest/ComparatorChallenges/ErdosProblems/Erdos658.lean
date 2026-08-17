@@ -10,6 +10,8 @@ def Theorem_2_2 : Prop :=
       (∀ t ⊆ K, t.card = 3 → t ∈ E) ∧ e ⊆ K) →
     (E.card : ℝ) < ε * (V.card : ℝ) ^ 3
 
+axiom frankl_roedl_theorem : Theorem_2_2
+
 namespace Erdos658
 
 section

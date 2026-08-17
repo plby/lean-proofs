@@ -2,6 +2,7 @@ import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 import Mathlib.Data.Nat.ModEq
 import Mathlib.Data.Nat.Nth
 import Mathlib.Data.Nat.Prime.Defs
+import ErdosProblems.Axioms
 
 attribute [local instance] Classical.propDecidable
 
