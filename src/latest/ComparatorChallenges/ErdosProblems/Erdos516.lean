@@ -34,12 +34,6 @@ noncomputable def ratio (r : ℝ) (f : ℂ → ℂ) : ℝ :=
   (⨅ z : {z : ℂ // ‖z‖ = r}, ‖f z‖).log /
     (⨆ z : {z : ℂ // ‖z‖ = r}, ‖f z‖).log
 
-private noncomputable def minModulus (r : ℝ) (f : ℂ → ℂ) : ℝ :=
-  ⨅ z : {z : ℂ // ‖z‖ = r}, ‖f z‖
-
-private noncomputable def maxModulus (r : ℝ) (f : ℂ → ℂ) : ℝ :=
-  ⨆ z : {z : ℂ // ‖z‖ = r}, ‖f z‖
-
 theorem erdos_516 {f : ℂ → ℂ} {n : ℕ → ℕ}
     (hn : HasFabryGaps n) {a : ℕ → ℂ} (ha : ∀ n, a n ≠ 0)
     (hfn : ∀ z, HasSum (fun k ↦ a k * z ^ n k) (f z)) (hf : OfFiniteOrder f) :

@@ -45,13 +45,6 @@ end Specification
 
 section Counterexample
 
-/-- Strictly upper-triangular pairs from a finite linearly ordered set. -/
-def ltPairs {α : Type*} [LinearOrder α] (s : Finset α) : Finset (α × α) :=
-  (s ×ˢ s).filter fun z ↦ z.1 < z.2
-
-private def gtPairs {α : Type*} [LinearOrder α] (s : Finset α) : Finset (α × α) :=
-  (s ×ˢ s).filter fun z ↦ z.2 < z.1
-
 theorem erdos_442 : answer(False) ↔ ∀ (A : Set ℕ),
     Tendsto (fun x : ℝ ↦ 1 / Real.maxLogOne (Real.maxLogOne x) *
       ∑ n ∈ (A ∩ Icc 1 ⌊x⌋₊ : Set ℕ), (1 : ℝ) / n) atTop atTop →

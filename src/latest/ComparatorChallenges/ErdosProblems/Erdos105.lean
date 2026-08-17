@@ -6,7 +6,7 @@ namespace Erdos105
 
 abbrev R2 : Type := EuclideanSpace ℝ (Fin 2)
 
-@[simp] noncomputable def lineThrough (p q : R2) : AffineSubspace ℝ R2 :=
+noncomputable def lineThrough (p q : R2) : AffineSubspace ℝ R2 :=
   affineSpan ℝ ({p, q} : Set R2)
 
 def IsLine (ℓ : AffineSubspace ℝ R2) : Prop :=

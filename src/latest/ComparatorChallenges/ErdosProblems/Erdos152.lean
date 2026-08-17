@@ -39,25 +39,10 @@ noncomputable def f (n : ℕ) : ℕ :=
   {s : ℕ | s - 1 ∉ A.1 + A.1 ∧ s ∈ A.1 + A.1 ∧ s + 1 ∉ A.1 + A.1}.ncard
 
 
-
 open scoped Classical
 
 
-
 open Set Finset
-
-noncomputable def num_isolated (A : Set ℕ) : ℕ :=
-  {s : ℕ | s - 1 ∉ A + A ∧ s ∈ A + A ∧ s + 1 ∉ A + A}.ncard
-
-noncomputable def N_k_N (X : Set ℕ) (k : ℕ) : ℕ := {x ∈ X | x + k ∈ X}.ncard
-noncomputable def N_k_Z (X : Set ℤ) (k : ℤ) : ℕ := {x ∈ X | x + k ∈ X}.ncard
-noncomputable def V_2_N (X : Set ℕ) : ℕ := {x ∈ X | x - 1 ∈ X ∧ x + 1 ∈ X}.ncard
-noncomputable def I_N (X : Set ℕ) : ℕ := {x ∈ X | x - 1 ∉ X ∧ x + 1 ∉ X}.ncard
-
-noncomputable def D_set (A : Set ℕ) : Set ℤ :=
-  {z : ℤ | ∃ a b : ℕ, a ∈ A ∧ b ∈ A ∧ z = (a : ℤ) - (b : ℤ)}
-
-noncomputable def ind (X : Set ℤ) (x : ℤ) : ℤ := if x ∈ X then 1 else 0
 
 theorem erdos_152.variants.square : answer(True) ↔
     (fun n => f n : ℕ → ℝ) ≫ (fun n => n ^ 2 : ℕ → ℝ) := by

@@ -1,16 +1,6 @@
 import Mathlib
 
 open Nat Finset Real Filter Topology
-
-axiom tao_teravainen : ∃ C : ℝ, 0 < C ∧
-    (∃ᶠ N in atTop, ∀ k : ℕ, 0 < k →
-      (N + k).factorization.support.card ≤
-          (N + k).factorization.sum (fun _ k => k) ∧
-        (N + k).factorization.sum (fun _ k => k) ≤ C * k)
-namespace BinQuadForm
-
-end BinQuadForm
-
 namespace Erdos258
 
 open Nat Finset Filter

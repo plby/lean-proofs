@@ -24,10 +24,6 @@ attribute [local instance] Classical.propDecidable
 
 variable {V : Type*}
 
-/-- A graph is uncountably chromatic when it has no coloring by natural numbers. -/
-def IsUncountablyChromatic (G : SimpleGraph V) : Prop :=
-  IsEmpty (G.Coloring ℕ)
-
 end
 
 end Erdos594

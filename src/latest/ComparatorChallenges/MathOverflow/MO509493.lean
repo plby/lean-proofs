@@ -16,10 +16,6 @@ def IsUnitEquiv {n : Type*} [Fintype n] [DecidableEq n]
   ∃ U : Matrix n n 𝕜,
     U * star U = 1 ∧ star U * U = 1 ∧ B = U * A * star U
 
-def IsPowerNonneg {n : Type*} [Fintype n] [DecidableEq n]
-    (X : Matrix n n ℝ) : Prop :=
-  ∀ m : ℕ, 0 ≤ (X ^ m).trace
-
 noncomputable def hadamardSquare {n : Type*} [Fintype n] [DecidableEq n]
     (P₁ P₂ : Matrix n n ℝ) : Matrix n n ℝ :=
   (P₁ * P₂).hadamard (P₂ * P₁)

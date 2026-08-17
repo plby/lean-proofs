@@ -18,10 +18,6 @@ namespace Erdos825
 
 noncomputable section
 
-/-- The exact proper-divisor conclusion occurring in the formal conjecture. -/
-def Pseudoperfect (n : ℕ) : Prop :=
-  ∃ s ⊆ n.properDivisors, n = s.sum id
-
 theorem erdos_825 :
     answer(True) ↔ ∃ (C : ℝ) (_ : C > 0),
       ∀ (n) (_ : σ 1 n > C * n),

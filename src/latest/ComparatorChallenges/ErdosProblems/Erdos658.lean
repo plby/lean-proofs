@@ -1,11 +1,6 @@
 import Mathlib
 
 open Nat Finset Real Filter
-
-namespace BinQuadForm
-
-end BinQuadForm
-
 def Theorem_2_2 : Prop :=
   ∀ ε : ℝ, ε > 0 → ∃ n₀ : ℕ,
     ∀ (V : Finset ℕ) (E : Finset (Finset ℕ)),
@@ -14,8 +9,6 @@ def Theorem_2_2 : Prop :=
     (∀ e ∈ E, ∃! K, K ⊆ V ∧ K.card ≥ 4 ∧
       (∀ t ⊆ K, t.card = 3 → t ∈ E) ∧ e ⊆ K) →
     (E.card : ℝ) < ε * (V.card : ℝ) ^ 3
-
-axiom frankl_roedl_theorem : Theorem_2_2
 
 namespace Erdos658
 
