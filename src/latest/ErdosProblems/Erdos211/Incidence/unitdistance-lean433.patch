@@ -1,0 +1,339 @@
+--- a/Submission/FinitePolygonalSetCyclicElementarySegmentOccurrenceFamily.lean
++++ b/Submission/FinitePolygonalSetCyclicElementarySegmentOccurrenceFamily.lean
+@@ -111,8 +111,8 @@
+     pieceTargetParam, pieceSource, pieceTarget, pieceCarrier, ?_, ?_, ?_, ?_,
+     ?_, ?_, ?_⟩
+   · intro i
+-    simpa [pieceSourceParam, pieceTargetParam] using
+-      hlt (pieceNumber i) (pieceNumber_lt i)
++    change L[pieceNumber i] < L[pieceNumber i + 1]
++    exact hlt (pieceNumber i) (pieceNumber_lt i)
+   · intro i
+     rfl
+   · intro i
+--- a/Submission/OrdinaryLabeledCrossingDiskFamilyExists.lean
++++ b/Submission/OrdinaryLabeledCrossingDiskFamilyExists.lean
+@@ -61,11 +61,13 @@
+           (fun y : Index =>
+             if x = y then (1 : ℝ) else dist x.1 y.1 / 3) ≤
+           dist x.1 y.1 / 3 := by
+-      simpa [hxy] using
+-        (Finset.inf'_le
++      have h :=
++        Finset.inf'_le
+           (fun y : Index =>
+             if x = y then (1 : ℝ) else dist x.1 y.1 / 3)
+-          (Finset.mem_univ y))
++          (Finset.mem_univ y)
++      rw [if_neg hxy] at h
++      exact h
+     exact hhalf.trans_le hle
+   choose disk hdisk using fun x : Index =>
+     OrdinaryLabeledCrossingDiskDataExistsBelow G D x (upper x) (upper_pos x)
+--- a/Submission/InducedSubdrawingBridge.lean
++++ b/Submission/InducedSubdrawingBridge.lean
+@@ -1,8 +1,6 @@
+ import Submission.OrdinaryPolygonalDrawing
+ import Mathlib.Combinatorics.SimpleGraph.Copy
+ 
+-set_option maxHeartbeats 1000000
+-
+ open Classical
+ noncomputable section
+ 
+@@ -35,10 +33,9 @@
+   classical
+   let oldEdge : (G.induce S).edgeFinset → G.edgeFinset := fun ed =>
+     ⟨Sym2.map (Subtype.val : S → V) ed.1, by
+-      exact SimpleGraph.mem_edgeFinset.mpr (by
+-        simpa using
+-          (SimpleGraph.Embedding.induce (G := G) S).toHom.map_mem_edgeSet
+-            (SimpleGraph.mem_edgeFinset.mp ed.2))⟩
++      exact SimpleGraph.mem_edgeFinset.mpr
++        ((SimpleGraph.Embedding.induce (G := G) S).map_mem_edgeSet_iff.mpr
++          (SimpleGraph.mem_edgeFinset.mp ed.2))⟩
+   have oldEdge_val :
+       ∀ ed : (G.induce S).edgeFinset,
+         (oldEdge ed).1 = Sym2.map (Subtype.val : S → V) ed.1 := by
+--- a/Submission/PlaneTreeLeafDeletionDrawingData.lean
++++ b/Submission/PlaneTreeLeafDeletionDrawingData.lean
+@@ -39,10 +39,9 @@
+   intro S
+   let oldEdge : (G.induce S).edgeFinset → G.edgeFinset := fun ed =>
+     ⟨Sym2.map (Subtype.val : S → V) ed.1, by
+-      exact SimpleGraph.mem_edgeFinset.mpr (by
+-        simpa using
+-          (SimpleGraph.Embedding.induce (G := G) S).toHom.map_mem_edgeSet
+-            (SimpleGraph.mem_edgeFinset.mp ed.2))⟩
++      exact SimpleGraph.mem_edgeFinset.mpr
++        ((SimpleGraph.Embedding.induce (G := G) S).map_mem_edgeSet_iff.mpr
++          (SimpleGraph.mem_edgeFinset.mp ed.2))⟩
+   have oldEdge_val :
+       ∀ ed : (G.induce S).edgeFinset,
+         (oldEdge ed).1 = Sym2.map (Subtype.val : S → V) ed.1 := by
+@@ -155,8 +154,10 @@
+       have hedSym_map : Sym2.map (Subtype.val : S → V) edSym = f.1 := by
+         rw [Sym2.pmap_subtype_map_subtypeVal]
+       have hedSym_mem : edSym ∈ (G.induce S).edgeSet := by
+-        exact ((SimpleGraph.Embedding.induce (G := G) S).map_mem_edgeSet_iff).mp (by
+-          simpa [hedSym_map] using (SimpleGraph.mem_edgeFinset.mp f.2))
++        apply ((SimpleGraph.Embedding.induce (G := G) S).map_mem_edgeSet_iff).mp
++        change Sym2.map (Subtype.val : S → V) edSym ∈ G.edgeSet
++        rw [hedSym_map]
++        exact SimpleGraph.mem_edgeFinset.mp f.2
+       let ed : (G.induce S).edgeFinset :=
+         ⟨edSym, SimpleGraph.mem_edgeFinset.mpr hedSym_mem⟩
+       refine ⟨ed, ?_⟩
+--- a/Submission/PolygonalArcOrderedBallCutDataExists.lean
++++ b/Submission/PolygonalArcOrderedBallCutDataExists.lean
+@@ -277,23 +277,31 @@
+     have hrjLeft :
+         (PolygonalArcReverse A.cut.suffixArc).vertices[rj] =
+           A.cut.suffixArc.vertices[j + 1] := by
+-      dsimp [PolygonalArcReverse, rj]
+-      have hidx : A.cut.suffixArc.vertices.length - 1 -
+-          (A.cut.suffixArc.vertices.length - 2 - j) = j + 1 := by
++      have hindex : rj = A.cut.suffixArc.vertices.length - 1 - (j + 1) := by
++        dsimp [rj]
+         omega
+-      simpa [hidx] using
+-        (List.getElem_reverse (l := A.cut.suffixArc.vertices)
+-          (i := A.cut.suffixArc.vertices.length - 2 - j))
++      calc
++        _ = (PolygonalArcReverse A.cut.suffixArc).vertices[
++              A.cut.suffixArc.vertices.length - 1 - (j + 1)] :=
++          getElem_congr_idx hindex
++        _ = _ := by
++          dsimp [PolygonalArcReverse]
++          exact (List.getElem_eq_getElem_reverse
++            (l := A.cut.suffixArc.vertices) (i := j + 1) hj).symm
+     have hrjRight :
+         (PolygonalArcReverse A.cut.suffixArc).vertices[rj + 1] =
+           A.cut.suffixArc.vertices[j] := by
+-      dsimp [PolygonalArcReverse, rj]
+-      have hidx : A.cut.suffixArc.vertices.length - 1 -
+-          (A.cut.suffixArc.vertices.length - 2 - j + 1) = j := by
++      have hindex : rj + 1 = A.cut.suffixArc.vertices.length - 1 - j := by
++        dsimp [rj]
+         omega
+-      simpa [hidx] using
+-        (List.getElem_reverse (l := A.cut.suffixArc.vertices)
+-          (i := A.cut.suffixArc.vertices.length - 2 - j + 1))
++      calc
++        _ = (PolygonalArcReverse A.cut.suffixArc).vertices[
++              A.cut.suffixArc.vertices.length - 1 - j] :=
++          getElem_congr_idx hindex
++        _ = _ := by
++          dsimp [PolygonalArcReverse]
++          exact (List.getElem_eq_getElem_reverse
++            (l := A.cut.suffixArc.vertices) (i := j) (by omega)).symm
+     have hzROpen : z ∈ openSegment ℝ
+         (PolygonalArcReverse A.cut.suffixArc).vertices[rj]
+         (PolygonalArcReverse A.cut.suffixArc).vertices[rj + 1] := by
+@@ -327,23 +335,31 @@
+     have hrkLeft :
+         (PolygonalArcReverse B.cut.prefixArc).vertices[rk] =
+           B.cut.prefixArc.vertices[k + 1] := by
+-      dsimp [PolygonalArcReverse, rk]
+-      have hidx : B.cut.prefixArc.vertices.length - 1 -
+-          (B.cut.prefixArc.vertices.length - 2 - k) = k + 1 := by
++      have hindex : rk = B.cut.prefixArc.vertices.length - 1 - (k + 1) := by
++        dsimp [rk]
+         omega
+-      simpa [hidx] using
+-        (List.getElem_reverse (l := B.cut.prefixArc.vertices)
+-          (i := B.cut.prefixArc.vertices.length - 2 - k))
++      calc
++        _ = (PolygonalArcReverse B.cut.prefixArc).vertices[
++              B.cut.prefixArc.vertices.length - 1 - (k + 1)] :=
++          getElem_congr_idx hindex
++        _ = _ := by
++          dsimp [PolygonalArcReverse]
++          exact (List.getElem_eq_getElem_reverse
++            (l := B.cut.prefixArc.vertices) (i := k + 1) hk).symm
+     have hrkRight :
+         (PolygonalArcReverse B.cut.prefixArc).vertices[rk + 1] =
+           B.cut.prefixArc.vertices[k] := by
+-      dsimp [PolygonalArcReverse, rk]
+-      have hidx : B.cut.prefixArc.vertices.length - 1 -
+-          (B.cut.prefixArc.vertices.length - 2 - k + 1) = k := by
++      have hindex : rk + 1 = B.cut.prefixArc.vertices.length - 1 - k := by
++        dsimp [rk]
+         omega
+-      simpa [hidx] using
+-        (List.getElem_reverse (l := B.cut.prefixArc.vertices)
+-          (i := B.cut.prefixArc.vertices.length - 2 - k + 1))
++      calc
++        _ = (PolygonalArcReverse B.cut.prefixArc).vertices[
++              B.cut.prefixArc.vertices.length - 1 - k] :=
++          getElem_congr_idx hindex
++        _ = _ := by
++          dsimp [PolygonalArcReverse]
++          exact (List.getElem_eq_getElem_reverse
++            (l := B.cut.prefixArc.vertices) (i := k) (by omega)).symm
+     have hzFinalOpen : z ∈ openSegment ℝ
+         (PolygonalArcReverse B.cut.prefixArc).vertices[rk]
+         (PolygonalArcReverse B.cut.prefixArc).vertices[rk + 1] := by
+--- a/Submission/JordanCurveSimultaneousCollarDataExists.lean
++++ b/Submission/JordanCurveSimultaneousCollarDataExists.lean
+@@ -930,7 +930,6 @@
+             (J.successor gamma).1.source = v := by rfl
+         have hdir' : (J.successor gamma).1.vertices[1] - p = v := by
+           rw [← hsource]
+-          exact hdir
+         rw [hsource]
+         have hdist : dist (J.successor gamma).1.source
+             (J.successor gamma).1.vertices[1] = ‖v‖ := by
+--- a/Submission/CrossingLemma.lean
++++ b/Submission/CrossingLemma.lean
+@@ -145,7 +145,9 @@
+         apply Finset.mem_filter.mpr
+         constructor
+         · apply SimpleGraph.mem_edgeFinset.mpr
+-          simpa using
++          change Sym2.map
++            (⇑(SimpleGraph.Embedding.induce (G := G) (X : Set V))) ed ∈ G.edgeSet
++          exact
+             (SimpleGraph.Embedding.induce (G := G) (X : Set V)).toHom.map_mem_edgeSet
+               (SimpleGraph.mem_edgeFinset.mp hed)
+         · intro v hv
+@@ -166,6 +168,7 @@
+         · apply SimpleGraph.mem_edgeFinset.mpr
+           apply (SimpleGraph.Embedding.induce
+             (G := G) (X : Set V)).map_mem_edgeSet_iff.mp
++          change Sym2.map (Subtype.val : (↥(X : Set V)) → V) ed ∈ G.edgeSet
+           simpa [ed, Sym2.attachWith_map_subtypeVal] using
+             (SimpleGraph.mem_edgeFinset.mp heG)
+         · simpa [ed, Sym2.attachWith_map_subtypeVal]
+--- a/Submission/PolygonalReplacementControlCenterDisks.lean
++++ b/Submission/PolygonalReplacementControlCenterDisks.lean
+@@ -111,11 +111,12 @@
+           (fun j : Index =>
+             if i = j then (1 : ℝ) else dist (center i) (center j) / 3) ≤
+           dist (center i) (center j) / 3 := by
+-      simpa [hij] using
+-        (Finset.inf'_le
++      have h := Finset.inf'_le
+           (fun j : Index =>
+             if i = j then (1 : ℝ) else dist (center i) (center j) / 3)
+-          (Finset.mem_univ j))
++          (Finset.mem_univ j)
++      rw [if_neg hij] at h
++      exact h
+     exact hhalf.trans_le hle
+   have radius_disjoint :
+       ∀ ⦃i j : Index⦄, i ≠ j →
+--- a/Submission/PointLineConsecutivePairLineFamilyDataExists.lean
++++ b/Submission/PointLineConsecutivePairLineFamilyDataExists.lean
+@@ -171,7 +171,10 @@
+     rcases Finset.mem_map.mp he1 with ⟨f1, hf1, rfl⟩
+     rcases Finset.mem_map.mp he2 with ⟨f2, hf2, rfl⟩
+     have hfne : f1 ≠ f2 := fun h ↦ hne (congrArg (edgeEmb ell) h)
+-    simpa [edgeEmb] using (rawSpec ell).2.1 f1 f2 hf1 hf2 hfne
++    change Disjoint
++      (Set.Ioo (coord ell f1.1.1) (coord ell f1.2.1))
++      (Set.Ioo (coord ell f2.1.1) (coord ell f2.2.1))
++    exact (rawSpec ell).2.1 f1 f2 hf1 hf2 hfne
+   have local_closed_subsingleton : ∀ (ell : retained) (e1 e2 : P × P),
+       e1 ∈ chosenEdges ell → e2 ∈ chosenEdges ell → e1 ≠ e2 →
+       (Set.Icc (coord ell e1.1.1) (coord ell e1.2.1) ∩
+@@ -182,7 +185,9 @@
+     rcases Finset.mem_map.mp he1 with ⟨f1, hf1, rfl⟩
+     rcases Finset.mem_map.mp he2 with ⟨f2, hf2, rfl⟩
+     have hfne : f1 ≠ f2 := fun h ↦ hne (congrArg (edgeEmb ell) h)
+-    simpa [edgeEmb] using (rawSpec ell).2.2.1 f1 f2 hf1 hf2 hfne
++    change (Set.Icc (coord ell f1.1.1) (coord ell f1.2.1) ∩
++      Set.Icc (coord ell f2.1.1) (coord ell f2.2.1)).Subsingleton
++    exact (rawSpec ell).2.2.1 f1 f2 hf1 hf2 hfne
+   refine ⟨{
+     retainedLines := retained
+     retainedLines_mem_iff := by
+--- a/Submission/PolygonalReplacementCircularSourceRetainedHalfspacePoint.lean
++++ b/Submission/PolygonalReplacementCircularSourceRetainedHalfspacePoint.lean
+@@ -115,7 +115,7 @@
+       have hv : Orthonormal ℝ (({0} : Set (Fin 2)).restrict v) := by
+         rw [orthonormal_iff_ite]
+         intro j k
+-        simp only [Set.restrict_apply]
++        change inner ℝ (v j.1) (v k.1) = if j = k then 1 else 0
+         rcases j with ⟨j, hj⟩
+         rcases k with ⟨k, hk⟩
+         have hj0 : j = 0 := by simpa using hj
+--- a/Submission/PolygonalReplacementCircularTargetRetainedHalfspacePoint.lean
++++ b/Submission/PolygonalReplacementCircularTargetRetainedHalfspacePoint.lean
+@@ -115,7 +115,7 @@
+       have hv : Orthonormal ℝ (({0} : Set (Fin 2)).restrict v) := by
+         rw [orthonormal_iff_ite]
+         intro j k
+-        simp only [Set.restrict_apply]
++        change inner ℝ (v j.1) (v k.1) = if j = k then 1 else 0
+         rcases j with ⟨j, hj⟩
+         rcases k with ⟨k, hk⟩
+         have hj0 : j = 0 := by simpa using hj
+--- a/Submission/PolygonalReplacementEdgeAssemblies.lean
++++ b/Submission/PolygonalReplacementEdgeAssemblies.lean
+@@ -740,14 +740,19 @@
+       have hidx : Γ.vertices.length - 1 - m = k + 1 := by
+         dsimp [k]
+         omega
+-      simpa [hidx] using
+-        (List.getElem_reverse (l := Γ.vertices) (i := m) (h := hm_lt))
++      have hrev : Γ.vertices.reverse[m] =
++          Γ.vertices[Γ.vertices.length - 1 - m] :=
++        List.getElem_reverse (l := Γ.vertices) (i := m) (h := hm_lt)
++      calc
++        Γ.vertices.reverse[m] =
++            Γ.vertices[Γ.vertices.length - 1 - m] := hrev
++        _ = Γ.vertices[k + 1] := by congr 1
+     · dsimp [PolygonalArcReverse]
+       have hidx : Γ.vertices.length - 1 - (m + 1) = k := by
+         dsimp [k]
+         omega
+-      simpa [hidx] using
+-        (List.getElem_reverse (l := Γ.vertices) (i := m + 1) (h := hm))
++      rw [List.getElem_reverse (l := Γ.vertices) (i := m + 1) (h := hm)]
++      congr 1
+   have original_segment_to_reverse :
+       ∀ Γ m (hm : m + 1 < Γ.vertices.length),
+         ∃ r : ℕ, ∃ hr : r + 1 < (PolygonalArcReverse Γ).vertices.length,
+@@ -765,14 +770,19 @@
+       have hidx : Γ.vertices.length - 1 - r = m + 1 := by
+         dsimp [r]
+         omega
+-      simpa [hidx] using
+-        (List.getElem_reverse (l := Γ.vertices) (i := r) (h := hr_lt))
++      have hrev : Γ.vertices.reverse[r] =
++          Γ.vertices[Γ.vertices.length - 1 - r] :=
++        List.getElem_reverse (l := Γ.vertices) (i := r) (h := hr_lt)
++      calc
++        Γ.vertices.reverse[r] =
++            Γ.vertices[Γ.vertices.length - 1 - r] := hrev
++        _ = Γ.vertices[m + 1] := by congr 1
+     · dsimp [PolygonalArcReverse]
+       have hidx : Γ.vertices.length - 1 - (r + 1) = m := by
+         dsimp [r]
+         omega
+-      simpa [hidx] using
+-        (List.getElem_reverse (l := Γ.vertices) (i := r + 1) (h := hr))
++      rw [List.getElem_reverse (l := Γ.vertices) (i := r + 1) (h := hr)]
++      congr 1
+   have reverse_segment_match_to_original
+       (Λ Γ : PolygonalArc) (i m : ℕ)
+       (hi : i + 1 < Λ.vertices.length)
+--- a/Submission/FiniteRealAdjacentPairsExists.lean
++++ b/Submission/FiniteRealAdjacentPairsExists.lean
+@@ -92,7 +92,13 @@
+             | cons b u =>
+                 have htail := (List.nodup_cons.mp hu).2
+                 have hi := ih htail
+-                grind [List.nodup_cons, List.map_snd_zip]
++                change ((a, b) :: (b :: u).consecutivePairs).Nodup
++                apply List.nodup_cons.mpr
++                constructor
++                · intro hab
++                  have ha_mem : a ∈ b :: u := (List.of_mem_zip hab).1
++                  exact (List.nodup_cons.mp hu).1 ha_mem
++                · exact hi
+       exact list_nodup l (Finset.sort_nodup S (fun a b ↦ a ≤ b))
+     change l.consecutivePairs.toFinset.card + 1 = S.card
+     rw [List.toFinset_card_of_nodup hpairs]

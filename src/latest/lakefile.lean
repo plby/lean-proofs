@@ -16,6 +16,8 @@ require leancert from git "https://github.com/alerad/leancert.git" @ "v4.33.0"
 
 require ComparatorChallenges from "ComparatorChallenges"
 
+require erdos211Incidence from "ErdosProblems/Erdos211/Incidence"
+
 require BoundedGaps from git "https://github.com/frenzymath/FormalPantheon.git" @
   "ffbb65c21afc8a36ace67720f1b0df1c63d26bd1" / "BoundedGaps"
 
