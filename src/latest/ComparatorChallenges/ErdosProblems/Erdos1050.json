@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Erdos1050",
+  "solution_module": "ErdosProblems.Erdos1050",
+  "theorem_names": [
+    "Erdos1050.erdos_1050"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
