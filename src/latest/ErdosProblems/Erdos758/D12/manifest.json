@@ -1,0 +1,9782 @@
+{
+  "base_clause_count": 16830,
+  "base_sha256": "78d7d150170b6020237e5d01855751352a3315242ef8a7a4c6c7f86b2ef9e1fe",
+  "case_count": 91,
+  "cases": [
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          false
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "266051d8e4e000cced15add26e96312a1a5417a345474d00463a1ecc3e0e4a44",
+      "final_empty": 20275,
+      "initial_clauses": 16851,
+      "kept_additions": 2368,
+      "key": {
+        "d": 6,
+        "r": 0,
+        "s": 0
+      },
+      "lrat_bytes": 299372,
+      "lrat_sha256": "53232dac1c0b429195cd48ed09d022aaede4008268d890bd1b5bce325f609111",
+      "name": "d6_r0_s0",
+      "units_sha256": "445b9067772d2611e8903b8f7c797fe38a28f677aa071835e6dddb2df64c4370"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          false
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "f04b7e15c074d937c68d26f6fff94886c3e03245a69d2e38f1708ed3142223de",
+      "final_empty": 18510,
+      "initial_clauses": 16851,
+      "kept_additions": 1364,
+      "key": {
+        "d": 6,
+        "r": 0,
+        "s": 1
+      },
+      "lrat_bytes": 179752,
+      "lrat_sha256": "033d87920fbb1fb1c234691acd501fbc46f8269bef97b00cac355b42f9a9089f",
+      "name": "d6_r0_s1",
+      "units_sha256": "1d7add408174f2d7f84d3e6ef88188a6775e355ed62e2180628f371cf4740a2f"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          false
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "2b671a705aef478290362799eb02c5ab5500ff926fd70520e8b01d2eaa9ea017",
+      "final_empty": 18409,
+      "initial_clauses": 16851,
+      "kept_additions": 1105,
+      "key": {
+        "d": 6,
+        "r": 0,
+        "s": 2
+      },
+      "lrat_bytes": 133547,
+      "lrat_sha256": "22967e6f926e2bf21eba92269e2509996a9e40dab7d6216b238835d7bef69036",
+      "name": "d6_r0_s2",
+      "units_sha256": "ba4968fa6cfe69783bdacbd8ec22fd03f1dcdf04c006be8ce6663ce813168d5a"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          false
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "7a48e78a7bc1d170e79137fab87dd1a7379c7ff78999cd93692503ca137f68f0",
+      "final_empty": 24557,
+      "initial_clauses": 16851,
+      "kept_additions": 6314,
+      "key": {
+        "d": 6,
+        "r": 0,
+        "s": 3
+      },
+      "lrat_bytes": 1175677,
+      "lrat_sha256": "47abcdcc8eb1b65fca01a932a62a67996e0292abda36e3f690b1de0b848e97b5",
+      "name": "d6_r0_s3",
+      "units_sha256": "af8c509781fb45071bddcfdb098fa1f1aeaa163c2e98b0df2da69b81a0e6a449"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          false
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "f546e6a8df2522af1fa378c7a424ada0a72cde63e94baa02bc6b17dd0eab30bc",
+      "final_empty": 21560,
+      "initial_clauses": 16851,
+      "kept_additions": 3534,
+      "key": {
+        "d": 6,
+        "r": 0,
+        "s": 4
+      },
+      "lrat_bytes": 752643,
+      "lrat_sha256": "a05a19ebddf826a346bc6daa3b6a688e351bd22cc4b1f3c461a2c23619518eed",
+      "name": "d6_r0_s4",
+      "units_sha256": "bec142d3549a89e6ca13ecf3e803a9c3490c91924fb914d22c049b4fc1de2b44"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          false
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          true
+        ]
+      ],
+      "cnf_sha256": "3d98912984e6d168bcc768cc0477e9f66cc99a5144c623d809c967bffad1ebc6",
+      "final_empty": 27656,
+      "initial_clauses": 16851,
+      "kept_additions": 8800,
+      "key": {
+        "d": 6,
+        "r": 0,
+        "s": 5
+      },
+      "lrat_bytes": 1754608,
+      "lrat_sha256": "94970807b4eeea4cbf14337954793ccf3401924434d670787b53a16b3ba421a7",
+      "name": "d6_r0_s5",
+      "units_sha256": "2d032bc6d366226c55fc42c5989d286bd435947b562fa68844002656f5332f03"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "f7957b22da7bc87317647a9c4ce9c5389c97deb4d45830c2f3ef957d86d31dd6",
+      "final_empty": 24049,
+      "initial_clauses": 16851,
+      "kept_additions": 6230,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 0
+      },
+      "lrat_bytes": 817080,
+      "lrat_sha256": "1daf25043772798c1be2e205a6358d2759ddc07aa37a641dcc35f8c1f8056c7b",
+      "name": "d6_r1_s0",
+      "units_sha256": "cb11c3377381deff3b4f860613854c56ac94e280aa7ee60066a19fbc56a1cd64"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "1b8a5c2924c2809e10fcaa632e8a5985e291387062837983d02d1ca4247f7b4c",
+      "final_empty": 27594,
+      "initial_clauses": 16851,
+      "kept_additions": 9477,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 1
+      },
+      "lrat_bytes": 1538558,
+      "lrat_sha256": "b1f0bd9d8b452124e290bfb7793d3aa43f174a19b54ca36988ea4d562d5f1e5b",
+      "name": "d6_r1_s1",
+      "units_sha256": "6a903d471698a72b1024746687a4a7d0339b49f774af1ae046f914250b02e2b6"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          false
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "f6c1ce5f4cd076e2182f29cdc33fef43c961d2131f6836a697051891d9dd90f4",
+      "final_empty": 28120,
+      "initial_clauses": 16855,
+      "kept_additions": 9269,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 2,
+        "t": 0
+      },
+      "lrat_bytes": 1413648,
+      "lrat_sha256": "3cb264b4cbe759e3a3b9989314f6bea4c0606fb66b8642ea2c09d49b82e0dbeb",
+      "name": "d6_r1_s2_t0",
+      "units_sha256": "67bb6d169c802a0284d81df90e4b6157cc6ade00b89cdea4d65678d164b01e77"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "f7a3f476a0ef777e45681b1b5fe057639b11f83deb2a54d0cfc019faede07cdb",
+      "final_empty": 27873,
+      "initial_clauses": 16855,
+      "kept_additions": 8168,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 2,
+        "t": 1
+      },
+      "lrat_bytes": 1216131,
+      "lrat_sha256": "0383033bcb1586612b2714dad0e0fba88d938c4ad4a29c8f59c2e0ed0f12521f",
+      "name": "d6_r1_s2_t1",
+      "units_sha256": "407fe8ec3493a1a51872dab9eb8c2f581c22373ce33d64e38a3b6bbeaa1cfe0f"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "85ca02288fd6bc26a0b7302c04217941918e7a39568ce3010686a8387459fc93",
+      "final_empty": 21075,
+      "initial_clauses": 16855,
+      "kept_additions": 2842,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 2,
+        "t": 2
+      },
+      "lrat_bytes": 394060,
+      "lrat_sha256": "aa587f48a09af0298fb6a90b31a9a8062841b121efee9e728f60522412387b18",
+      "name": "d6_r1_s2_t2",
+      "units_sha256": "f97cdf174d37a79d2625c38643bc1606a1e7c1d81ee654f7349092b0ff81c3e8"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "c732d8b377d1e0d627dc79f9ab590d3872210da0e62065ac2afa03171e446d07",
+      "final_empty": 16864,
+      "initial_clauses": 16855,
+      "kept_additions": 4,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 2,
+        "t": 3
+      },
+      "lrat_bytes": 192,
+      "lrat_sha256": "9ec185ddd0c28c5451018f22d8101bd7ef502c7a5c18d82e5a31a37266296ca9",
+      "name": "d6_r1_s2_t3",
+      "units_sha256": "a944cdd164065acdb5543cce7c11e471f5c79425ffcd978d01abf712aa22d6e5"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ]
+      ],
+      "cnf_sha256": "f1e88a5230be1f20c9c0602a30985d26bc945a50d55c9e31093ac2e2f4ac16d1",
+      "final_empty": 16864,
+      "initial_clauses": 16855,
+      "kept_additions": 4,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 2,
+        "t": 4
+      },
+      "lrat_bytes": 192,
+      "lrat_sha256": "9ec185ddd0c28c5451018f22d8101bd7ef502c7a5c18d82e5a31a37266296ca9",
+      "name": "d6_r1_s2_t4",
+      "units_sha256": "5fb6cbd4a56e6c5b9d8b4c911dc150621e2e84e52b53ac926f845402e087f811"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          false
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "3bc6eaa3203fcfff9f314b4f64ac0732b733e99968e2086f30d9714ee92b136a",
+      "final_empty": 29581,
+      "initial_clauses": 16855,
+      "kept_additions": 9884,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 3,
+        "t": 0
+      },
+      "lrat_bytes": 1631189,
+      "lrat_sha256": "7b582dc85e7a5d6dca182857ee6491b2804012e17784435db7aad0454aecb791",
+      "name": "d6_r1_s3_t0",
+      "units_sha256": "57ea6d96719df9a7b83c84cda0f2d0bc9de6de62b6cc50594a053003396f8439"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "da40491070b58e708a4ed83885dc70e7ced3776c7f4e34f1242dee7f4cc5c9c2",
+      "final_empty": 28407,
+      "initial_clauses": 16855,
+      "kept_additions": 9085,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 3,
+        "t": 1
+      },
+      "lrat_bytes": 1499541,
+      "lrat_sha256": "ec792a1f601d654128bfa497b9769579d39899bc6f9d1b569df23f90689eb7fd",
+      "name": "d6_r1_s3_t1",
+      "units_sha256": "016374e69b578caf0c46d97bd6885f5a585e71acd1add4f7ad95e8ccab51aeba"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "cf38df4697ce388413e4404a074346f5a46fd9665f5ee8521d8ffe0eb67f2d0c",
+      "final_empty": 26736,
+      "initial_clauses": 16855,
+      "kept_additions": 6694,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 3,
+        "t": 2
+      },
+      "lrat_bytes": 985764,
+      "lrat_sha256": "c9107e2f87277869e6146973e3b0bf3f133f822d4316829443205404c8be99a1",
+      "name": "d6_r1_s3_t2",
+      "units_sha256": "a529f268cb19753660d64673cbc6fa57e11796bb3e208afaf661eb6ded3a52e9"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "16effc5c32020ab13b4336ed1cc5a4c7ab2acacf41bfba72dffe0a0dd277c7c6",
+      "final_empty": 16864,
+      "initial_clauses": 16855,
+      "kept_additions": 4,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 3,
+        "t": 3
+      },
+      "lrat_bytes": 192,
+      "lrat_sha256": "9ec185ddd0c28c5451018f22d8101bd7ef502c7a5c18d82e5a31a37266296ca9",
+      "name": "d6_r1_s3_t3",
+      "units_sha256": "6eece2321d07f76af89546ce97a339aa12f275a2df3fe4edf0b021477a00a63b"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ]
+      ],
+      "cnf_sha256": "6f289538cf1290c2cc59977b66cb3b531c7cab97ad671ef80f9f8e20f0ddd866",
+      "final_empty": 16864,
+      "initial_clauses": 16855,
+      "kept_additions": 4,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 3,
+        "t": 4
+      },
+      "lrat_bytes": 192,
+      "lrat_sha256": "9ec185ddd0c28c5451018f22d8101bd7ef502c7a5c18d82e5a31a37266296ca9",
+      "name": "d6_r1_s3_t4",
+      "units_sha256": "d466efc0d37599cddd59cbddc3bf5643efce7e4d48c5079b61c08276aa40cbf7"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          false
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "7ad3f97e59a97046561caec1be593f3ed25f425d99aee80523c5c981a7bd1449",
+      "final_empty": 25803,
+      "initial_clauses": 16855,
+      "kept_additions": 6856,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 4,
+        "t": 0
+      },
+      "lrat_bytes": 1097129,
+      "lrat_sha256": "d16ae8ab225a104a3b82ca27fe577f9ad277b788b85f91e811802ba8656afb7a",
+      "name": "d6_r1_s4_t0",
+      "units_sha256": "3c28d952104a7854e1c498f39c2e3aa72ab769e217b84b21ed81479103d89bdb"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "0847c349d4010ec9b20e321fe95832bb903a60f4b2354cf176924538a7f352c0",
+      "final_empty": 30930,
+      "initial_clauses": 16855,
+      "kept_additions": 11990,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 4,
+        "t": 1
+      },
+      "lrat_bytes": 2081322,
+      "lrat_sha256": "effadc46db455144712ef8231f8bc51ee1c43e1f5787330de50ed09432dcb679",
+      "name": "d6_r1_s4_t1",
+      "units_sha256": "6c5ed7ff7e6d84a87d9e66daa59da9c3b77888c58ad7b6e04855e84fcc47fd85"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "f146781a2a5369d3b7254a096c0f1db7189207ba9ca0e7ee01ad074a1f9c700d",
+      "final_empty": 26402,
+      "initial_clauses": 16855,
+      "kept_additions": 7461,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 4,
+        "t": 2
+      },
+      "lrat_bytes": 1188786,
+      "lrat_sha256": "125e84684c9e8dede2e2c909f453b561c9fd4c781bd511c5a4b62efbbd3fb008",
+      "name": "d6_r1_s4_t2",
+      "units_sha256": "cb662c836acebe0be194c2441e89f7705d6099283b26518b654d3c9b9d0b41b8"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "5e8e31cf54ae459ac401f739f28bf1cd28c4885021d5b3c35f390ce3609c99b4",
+      "final_empty": 16864,
+      "initial_clauses": 16855,
+      "kept_additions": 4,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 4,
+        "t": 3
+      },
+      "lrat_bytes": 192,
+      "lrat_sha256": "9ec185ddd0c28c5451018f22d8101bd7ef502c7a5c18d82e5a31a37266296ca9",
+      "name": "d6_r1_s4_t3",
+      "units_sha256": "6b573093492f0e5c35020fdbf67fdcd6c139f1c21d3b61f781f94d6344030bcd"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ]
+      ],
+      "cnf_sha256": "7c77733db56bb1fa1ebb14140417599e8c3b80f6db1efa51a55d099647c322b0",
+      "final_empty": 16864,
+      "initial_clauses": 16855,
+      "kept_additions": 4,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 4,
+        "t": 4
+      },
+      "lrat_bytes": 192,
+      "lrat_sha256": "9ec185ddd0c28c5451018f22d8101bd7ef502c7a5c18d82e5a31a37266296ca9",
+      "name": "d6_r1_s4_t4",
+      "units_sha256": "a9970f081373db7509abb6298f5b9d34773f547e94815394db897f665bc104cf"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          true
+        ]
+      ],
+      "cnf_sha256": "9efcdb06d23fa56ba1761c15fc9f98554bdc3ad62e8fd0a214ccd4d1d1d4692d",
+      "final_empty": 22721,
+      "initial_clauses": 16851,
+      "kept_additions": 4398,
+      "key": {
+        "d": 6,
+        "r": 1,
+        "s": 5
+      },
+      "lrat_bytes": 966548,
+      "lrat_sha256": "3244d2b66f1eaa835ef1fcbd3bd9d6447effb42fa7a11c0401270b00d32019d4",
+      "name": "d6_r1_s5",
+      "units_sha256": "460b5e771ac4da1c0c46fee62fe78845ac25c796e9b7d0d81f511a8b9da53d1b"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "b9720c7d5f322aab613e5a6d3075adfccf8d873d129598bea831b94d89737072",
+      "final_empty": 34022,
+      "initial_clauses": 16851,
+      "kept_additions": 13947,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 0
+      },
+      "lrat_bytes": 2354536,
+      "lrat_sha256": "6647f40a93973df6d5caa5bb32b9a0ed35966e876d7a9573b73880a68756f8c6",
+      "name": "d6_r2_s0",
+      "units_sha256": "132295b7d682a692578983407ee40fd050e103eedd331dec34161572451221a1"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "9bd2e96af2cfbcfeee3ede96cdfc3400e4664d78a1d71572a4a681cb6c540db5",
+      "final_empty": 28598,
+      "initial_clauses": 16854,
+      "kept_additions": 8502,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 1,
+        "t": 0
+      },
+      "lrat_bytes": 1265862,
+      "lrat_sha256": "7967f1aff1eb42c5c9f9432ebc1897374ca264b38581b52afa964c04b37ce017",
+      "name": "d6_r2_s1_t0",
+      "units_sha256": "f97ab7c6594fe9e4cfed32b7c15b2809889cbbfd05fe95d7e414917d24d6394d"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "8d044b3d8f64fdd596f95756fdfe2ee01ef4b7ce5ff1b3f43c8d44fb8edf56d7",
+      "final_empty": 28072,
+      "initial_clauses": 16854,
+      "kept_additions": 9637,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 1,
+        "t": 1
+      },
+      "lrat_bytes": 1475614,
+      "lrat_sha256": "eade9c36f952865d685a697e79aafead648b49abcdac8c54faec3213d9248990",
+      "name": "d6_r2_s1_t1",
+      "units_sha256": "796b26f3c0c61b37292f8c86c2fede1c0adf93ed96f915c10891e07ebdbe7f67"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "057ddb00a398f05433b9c04f954bb8e2d6e9842c681dbbb85455a5ea19afb97e",
+      "final_empty": 24300,
+      "initial_clauses": 16854,
+      "kept_additions": 5698,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 1,
+        "t": 2
+      },
+      "lrat_bytes": 777142,
+      "lrat_sha256": "63e22b397f581a789f454f4fbc457813cde9b5df8d84359c100b0553be57141c",
+      "name": "d6_r2_s1_t2",
+      "units_sha256": "f3c930e2e2f4b596f024b72677c0caec0e3697a04cadedcb394ef0604ba11d9d"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ]
+      ],
+      "cnf_sha256": "095dfca90d15c896f1ca91ac9ce1c58914d61890f29d9e0fa9fe1335a06fe04b",
+      "final_empty": 16865,
+      "initial_clauses": 16854,
+      "kept_additions": 4,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 1,
+        "t": 3
+      },
+      "lrat_bytes": 194,
+      "lrat_sha256": "f77b17f0fc80fd2ab6a26705756062395c6287d5d3d29fe1609cab5da9830322",
+      "name": "d6_r2_s1_t3",
+      "units_sha256": "0c2bea9b36e05c54b0f5f1617f7201ebca10adef91348beebc968c6627ce20f4"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "424976d70aa6bdefbfa15d026fe75ee1bc873dfeabc2750dcf89b16937233e15",
+      "final_empty": 28613,
+      "initial_clauses": 16854,
+      "kept_additions": 9614,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 2,
+        "t": 0
+      },
+      "lrat_bytes": 1577149,
+      "lrat_sha256": "90768e03773a8e3bc95361a1eb8bcb7382df1979953e5b401322f6f10a3c4bc6",
+      "name": "d6_r2_s2_t0",
+      "units_sha256": "6e84ae31056ce2be3672ac83def9e1feaea7e737d1225653acbc02bec96fb826"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "f757961d670b0eb06429a9b772c3cf7551513d169320a191f70d50682e30d108",
+      "final_empty": 39680,
+      "initial_clauses": 16854,
+      "kept_additions": 17732,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 2,
+        "t": 1
+      },
+      "lrat_bytes": 2891061,
+      "lrat_sha256": "c5ebd21705922219729b162ebd3a34d85c66f036ece6b2d4d89b09a1da0d0b1e",
+      "name": "d6_r2_s2_t1",
+      "units_sha256": "1bf335f278fb7a847792ccb940f5ebfbf626f49442453201d31fc9040408b013"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "bc9a4075e21876cc60aa78f43eea276493227508b99b1ceccf5946b7b51f31e7",
+      "final_empty": 29915,
+      "initial_clauses": 16854,
+      "kept_additions": 10432,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 2,
+        "t": 2
+      },
+      "lrat_bytes": 1597870,
+      "lrat_sha256": "111f7650cb12ec4e9db5426649a2f00c65f1328d3dc32d7c9cd10f5230d85f33",
+      "name": "d6_r2_s2_t2",
+      "units_sha256": "39829adad28f04c1a40b877e6b4c3c89770f73428702838262fc34693202fc18"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ]
+      ],
+      "cnf_sha256": "8fd8d3bda6664b0bc4d5a0393458a7e4d079043622636b25778bcf2afc52c6d4",
+      "final_empty": 16865,
+      "initial_clauses": 16854,
+      "kept_additions": 4,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 2,
+        "t": 3
+      },
+      "lrat_bytes": 194,
+      "lrat_sha256": "f77b17f0fc80fd2ab6a26705756062395c6287d5d3d29fe1609cab5da9830322",
+      "name": "d6_r2_s2_t3",
+      "units_sha256": "d2914aeb3011a0bbb42938b30c0ae3e5741360a2b97ea2ed9814062f45f017da"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "eae4a1ab138f8555e63d3315f6055e88457296b0505493f8b320b7165b01e37d",
+      "final_empty": 25727,
+      "initial_clauses": 16854,
+      "kept_additions": 6567,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 3,
+        "t": 0
+      },
+      "lrat_bytes": 1008388,
+      "lrat_sha256": "03231729a92cc0780911e82f73cd42a3166cd6d21bd7bd33b47a4cc4beb94127",
+      "name": "d6_r2_s3_t0",
+      "units_sha256": "2dcabe652771f7fb41f7a09a52eb3864886f70f3ba620a5a16df0129c9a7a5aa"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "a8d52bf03e43fa2b2c331802880780a16744f3d4a3a44439229ca2f40cdf0e43",
+      "final_empty": 34136,
+      "initial_clauses": 16854,
+      "kept_additions": 13963,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 3,
+        "t": 1
+      },
+      "lrat_bytes": 2295522,
+      "lrat_sha256": "512ded8aa07005f251567ddf2d55b044d855dba94fe3a46a6bd6daacebddf0cb",
+      "name": "d6_r2_s3_t1",
+      "units_sha256": "5f5ec8b8aabfc4ae7dbd51f22267117828176a39fb855232968bcf5609432e32"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "9e11f67fb15e5339aa83444941dff24343ba208e67cbc4e3b627986bbbd43b76",
+      "final_empty": 30588,
+      "initial_clauses": 16854,
+      "kept_additions": 11255,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 3,
+        "t": 2
+      },
+      "lrat_bytes": 1689227,
+      "lrat_sha256": "318b70a2b32922d4986fa87f26982b262ca3964295ba8cdbac937f95be648ca4",
+      "name": "d6_r2_s3_t2",
+      "units_sha256": "dd50019448f23c1009fd5c1dc1963f6e61b1f3a375106308c77199c243f02391"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ]
+      ],
+      "cnf_sha256": "8865a6293636ff5cf9bc8a75e4075aa6dc4ce13d5ba18eb38b3936d801c3fe22",
+      "final_empty": 16865,
+      "initial_clauses": 16854,
+      "kept_additions": 4,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 3,
+        "t": 3
+      },
+      "lrat_bytes": 194,
+      "lrat_sha256": "f77b17f0fc80fd2ab6a26705756062395c6287d5d3d29fe1609cab5da9830322",
+      "name": "d6_r2_s3_t3",
+      "units_sha256": "86660b50c8be69f8afd9644c8be8662d4947e1c6858b7b8a47adc4d7c9e4a0b8"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "53a3b86cd8036fa9d10112fbd35fe19242a21117cc6815ac526f8ba9b03a4c1c",
+      "final_empty": 19818,
+      "initial_clauses": 16854,
+      "kept_additions": 1883,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 4,
+        "t": 0
+      },
+      "lrat_bytes": 260929,
+      "lrat_sha256": "f7cdb7ffd6ba93042bb49007e49ea910d17d7c94d17afa654a1f9e4652b946ef",
+      "name": "d6_r2_s4_t0",
+      "units_sha256": "f9a1c2f104755555b1ade19efdd55aa4fc7dfb0bcbfdade6f55947c2336b7081"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "f61774df351f84002cc3afb6d96a748f24b423a7e8e5a18cebbde945caaf8fc4",
+      "final_empty": 25774,
+      "initial_clauses": 16854,
+      "kept_additions": 7282,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 4,
+        "t": 1
+      },
+      "lrat_bytes": 1193855,
+      "lrat_sha256": "503bc23e976142547da87f6fbe900c49e6c9a280e9c6d9bab092f5958fa5cd10",
+      "name": "d6_r2_s4_t1",
+      "units_sha256": "ead025f625daa1edf4392d56015eeebfe268ef1b192e0e5a99981cfa8b6c302e"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "b6fcce7d718f098d3a238334395f1cba467b4d5d7e1e04fe4e56e43190a49075",
+      "final_empty": 24740,
+      "initial_clauses": 16854,
+      "kept_additions": 5846,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 4,
+        "t": 2
+      },
+      "lrat_bytes": 861849,
+      "lrat_sha256": "e32e1e8252b30536eff5996a51f6e4c0bc83135feadf127c33e2100e257039bb",
+      "name": "d6_r2_s4_t2",
+      "units_sha256": "852f1c5281041c84d120ac85d9ea36910256c299bdc2e32bdcfc5c965e73829d"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ]
+      ],
+      "cnf_sha256": "7ef622baf0e72e3f5bb2b54486690f595dfe4a112090409c2785ac9044ed1375",
+      "final_empty": 16865,
+      "initial_clauses": 16854,
+      "kept_additions": 4,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 4,
+        "t": 3
+      },
+      "lrat_bytes": 194,
+      "lrat_sha256": "f77b17f0fc80fd2ab6a26705756062395c6287d5d3d29fe1609cab5da9830322",
+      "name": "d6_r2_s4_t3",
+      "units_sha256": "fe0ca89847fe9d0683d19d894fe456a22561335e5123edfc05380d0692d46cd0"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          true
+        ]
+      ],
+      "cnf_sha256": "f006ebc203824354246a30d524deba083cf459ca5235509ecab55198437cf3f7",
+      "final_empty": 20232,
+      "initial_clauses": 16851,
+      "kept_additions": 2582,
+      "key": {
+        "d": 6,
+        "r": 2,
+        "s": 5
+      },
+      "lrat_bytes": 410286,
+      "lrat_sha256": "0b36f9b6fb332c2ef3604fdf96a25440172e2c8c3ea88466be709c4e9541f3c7",
+      "name": "d6_r2_s5",
+      "units_sha256": "a51f883d60e1dcba455116192028fc5f2639fcef4b2557b1f12fe36ac99dc638"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "3f455eda53676dfcc072d814a8e13c0cd98c2a9b495a63beeeedb55bf3bc0dc0",
+      "final_empty": 33842,
+      "initial_clauses": 16851,
+      "kept_additions": 13789,
+      "key": {
+        "d": 6,
+        "r": 3,
+        "s": 0
+      },
+      "lrat_bytes": 2320668,
+      "lrat_sha256": "3e15e341ea38cbabc7b598d9f507575ce1e7dd7ea3faa196bf2c9d59face518f",
+      "name": "d6_r3_s0",
+      "units_sha256": "0acd8fa64e50cb46fa12ee610340ee8c2c1808ac937554a2595decb2930dbfc5"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "89feb380d4d35ed9754b9181c50dc3668e9df6fa0c2caf7cbf28c97eef473c97",
+      "final_empty": 27002,
+      "initial_clauses": 16853,
+      "kept_additions": 7506,
+      "key": {
+        "d": 6,
+        "r": 3,
+        "s": 1,
+        "t": 0
+      },
+      "lrat_bytes": 1066138,
+      "lrat_sha256": "a6cd3fd6092cbf60226895e6c7d4d7df299e20db0ac3f1fe99a1384ad15fe9da",
+      "name": "d6_r3_s1_t0",
+      "units_sha256": "7f061c7bafad9e6445d14acf30d1925e472699863011f0e748009bc01b5ac7fd"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "ea9aa2efeadc5abf3a0bfde4808b9ab7b8c8f6769a163851e04b61622c8106b2",
+      "final_empty": 28450,
+      "initial_clauses": 16853,
+      "kept_additions": 9300,
+      "key": {
+        "d": 6,
+        "r": 3,
+        "s": 1,
+        "t": 1
+      },
+      "lrat_bytes": 1338833,
+      "lrat_sha256": "6a5a65ce859abb422d68d6495f2c59ad6d7e75865d1af310141d0a9233d2834f",
+      "name": "d6_r3_s1_t1",
+      "units_sha256": "f3a09b82fd87c99aaeb43417999c3c83b8200d60fc8f2ca33cc406a5e6cc7c28"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ]
+      ],
+      "cnf_sha256": "1f2d6df70a14bb9b2d774e2a03b4ce47b14298b4d1d23a828f492fc74bb5cede",
+      "final_empty": 27456,
+      "initial_clauses": 16853,
+      "kept_additions": 7260,
+      "key": {
+        "d": 6,
+        "r": 3,
+        "s": 1,
+        "t": 2
+      },
+      "lrat_bytes": 1022553,
+      "lrat_sha256": "bdcde09ea611e2cd8c002e266c071bef02cf50d388ed7d0427ac7590695cc043",
+      "name": "d6_r3_s1_t2",
+      "units_sha256": "e302471e7e72989d7aa2c422fd1a96a209271c4ed652b0c5c5f3dc4a5220993c"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "aeeb50545bc168d9f306665236bcabe16e89eebb91082ea34e9214a9eb77bc89",
+      "final_empty": 24265,
+      "initial_clauses": 16853,
+      "kept_additions": 5545,
+      "key": {
+        "d": 6,
+        "r": 3,
+        "s": 2,
+        "t": 0
+      },
+      "lrat_bytes": 838301,
+      "lrat_sha256": "cff31702241339153ebd25985c574a4a3bcaa00bb06dc35b8b4b2385e6e04e6d",
+      "name": "d6_r3_s2_t0",
+      "units_sha256": "ee7d8a4b10a07d325b6c58343a566ceaf1a2b5634ec046266e5b4b909b4d4ae2"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          false
+        ]
+      ],
+      "cnf_sha256": "7e22bafe4ae889af0ecc1ada686eca0af0df8d1bb0e8f974e098a96ef7820750",
+      "final_empty": 30986,
+      "initial_clauses": 16853,
+      "kept_additions": 11081,
+      "key": {
+        "d": 6,
+        "r": 3,
+        "s": 2,
+        "t": 1
+      },
+      "lrat_bytes": 1642559,
+      "lrat_sha256": "3cb8b04b402db1b257388dfeca33724f0bda7fde96f95e684feab996b05e73df",
+      "name": "d6_r3_s2_t1",
+      "units_sha256": "3b39ca991eaf614c1b698dd646fa86e3baee0de6951af82962cc8fffef5a4fa7"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ]
+      ],
+      "cnf_sha256": "2adb579e45dca7d08f026491de159c8716a6be39bae3858a0b0d354f4e81d4ac",
+      "final_empty": 26808,
+      "initial_clauses": 16853,
+      "kept_additions": 7485,
+      "key": {
+        "d": 6,
+        "r": 3,
+        "s": 2,
+        "t": 2
+      },
+      "lrat_bytes": 1070323,
+      "lrat_sha256": "10d5cf8ab864bcd43497ee3ba8aa158aef08ac3850a2018c5c00c0e535071d76",
+      "name": "d6_r3_s2_t2",
+      "units_sha256": "b32cb29a24ca387d129bdd60dc455a29b77e9596a0825eda994f5d8b3377bdc7"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "e8619f07c6f10de80bf9bf51e8234a7dbd5300a2a3443ebb836298b6019b9dd9",
+      "final_empty": 31338,
+      "initial_clauses": 16851,
+      "kept_additions": 10981,
+      "key": {
+        "d": 6,
+        "r": 3,
+        "s": 3
+      },
+      "lrat_bytes": 1767394,
+      "lrat_sha256": "adba2067069f6d8ba9d9389cf57b1159f80b0bd0d8790a7c9cbe23377657091a",
+      "name": "d6_r3_s3",
+      "units_sha256": "866500ba7db1e2fbcf8901ea0535452884f437743b122b4eef1cd7de065938c9"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "ae05d4b3d4fa6612f06313194f66dc960ef480133984525ec8b93f64108a82d9",
+      "final_empty": 20042,
+      "initial_clauses": 16851,
+      "kept_additions": 1535,
+      "key": {
+        "d": 6,
+        "r": 3,
+        "s": 4
+      },
+      "lrat_bytes": 215968,
+      "lrat_sha256": "a49d70b9a3101dc6110382f9128be18b3bafd7232d745d006d5f3ad0621f580f",
+      "name": "d6_r3_s4",
+      "units_sha256": "a301c52671a08f74b9b45da3ad806cc019d4cf8508d0f6d17e796cc5da5706ce"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          false
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          true
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          true
+        ]
+      ],
+      "cnf_sha256": "d1383ec9fa4459d0bd49e30dfa28bb84fe1844e343ef7c7dcc04b226e6467d4b",
+      "final_empty": 17088,
+      "initial_clauses": 16851,
+      "kept_additions": 189,
+      "key": {
+        "d": 6,
+        "r": 3,
+        "s": 5
+      },
+      "lrat_bytes": 28761,
+      "lrat_sha256": "4fa3c3970ced152f9f64f48847bc20ec7a7d8519456470482534f7f6814dc6a1",
+      "name": "d6_r3_s5",
+      "units_sha256": "f132e33521bfffc3f2d91bb185dd6fe3af905d7d8cf40d152cb587b11a3e3001"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          false
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ]
+      ],
+      "cnf_sha256": "5ac9460a16e3dc74c5453a43586605a4e317945a47ad0a276f17060eb93bf8ea",
+      "final_empty": 16905,
+      "initial_clauses": 16847,
+      "kept_additions": 27,
+      "key": {
+        "d": 7,
+        "r": 0
+      },
+      "lrat_bytes": 2101,
+      "lrat_sha256": "e670b6352cf9c6a8f85ec44cc55701d5a4df1d78d0acacefd7ca8e0166a2505e",
+      "name": "d7_r0",
+      "units_sha256": "e95246d86ce2021158190c95c42d49d0855fe0434a08009bf0b24834bbd7f2bc"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "153af941473c0c6931e3c8904649d623d99efa0639598f28a8f2e1d77bb79fd9",
+      "final_empty": 18890,
+      "initial_clauses": 16851,
+      "kept_additions": 1472,
+      "key": {
+        "d": 7,
+        "r": 1,
+        "s": 0
+      },
+      "lrat_bytes": 173040,
+      "lrat_sha256": "df16e05d1c9791fdcb1d96228ad032aa08643a3e9b9efb8b0b6c140cb7d14030",
+      "name": "d7_r1_s0",
+      "units_sha256": "cc5ab5afe84f83554b0a1621fe421271e3ba631682600d64a473d2d023e86753"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "5c3bc411037d75a73a79eed750327ec57ff0ddc73bcb5d480d62a2ffeb84ccbf",
+      "final_empty": 20119,
+      "initial_clauses": 16851,
+      "kept_additions": 2910,
+      "key": {
+        "d": 7,
+        "r": 1,
+        "s": 1
+      },
+      "lrat_bytes": 457657,
+      "lrat_sha256": "b25045b65ec4727f2014ff4d9b430f0f74971d2fa489c6120fb63329f7d9f583",
+      "name": "d7_r1_s1",
+      "units_sha256": "a3b2d16bb001c943a88abccfa88ffa56800ce2ff5e7cd9317b3a96cf22d8871d"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "d0ec9185d6100d38453f9c7f49076820007b571d4720bc0a41b92fb3022ee240",
+      "final_empty": 25577,
+      "initial_clauses": 16851,
+      "kept_additions": 6836,
+      "key": {
+        "d": 7,
+        "r": 1,
+        "s": 2
+      },
+      "lrat_bytes": 1210821,
+      "lrat_sha256": "d1baae0483fb11f494831ffc9ade1c61d24f879d8cc6a458954852bb2991e88f",
+      "name": "d7_r1_s2",
+      "units_sha256": "6f74a344f93ac5549668aa59d8f172a829cf3a9ff11761fcbad3c6d68e67638f"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "4b107b6244653043c91f4e5f5120d00f62a9bc9893b1d46dc896c047265011d1",
+      "final_empty": 27014,
+      "initial_clauses": 16851,
+      "kept_additions": 7398,
+      "key": {
+        "d": 7,
+        "r": 1,
+        "s": 3
+      },
+      "lrat_bytes": 1359274,
+      "lrat_sha256": "93413ae3cb78202fcb5162e1e8aa403c7b1fa3744dff1a7830e629546a7634bb",
+      "name": "d7_r1_s3",
+      "units_sha256": "0820e4248c5c8f81ad0e3538a43cc59f94a4a9b925875ed769ea6230f65ca8a9"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          true
+        ]
+      ],
+      "cnf_sha256": "039fec9aaf9b119d1053331f0315178f6b83a2dbd8ed7f8fc21c3600f767d639",
+      "final_empty": 23546,
+      "initial_clauses": 16851,
+      "kept_additions": 4544,
+      "key": {
+        "d": 7,
+        "r": 1,
+        "s": 4
+      },
+      "lrat_bytes": 939770,
+      "lrat_sha256": "f01277050d31d70e21915ca1de84d3dc4e81aedda7898545911e61ef270e98f5",
+      "name": "d7_r1_s4",
+      "units_sha256": "38a28a34f3939ec9d07e6ba016305beb741518924e6b93eaa1ddd5595f02e158"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "fdc7d07da89457506372e99b17e9232484c5bfe13ddaf9aa66fed52ee3abaa0b",
+      "final_empty": 27650,
+      "initial_clauses": 16851,
+      "kept_additions": 8686,
+      "key": {
+        "d": 7,
+        "r": 2,
+        "s": 0
+      },
+      "lrat_bytes": 1246828,
+      "lrat_sha256": "5ba1b159247eaae6bf11f5d0dd0d22937d681b1ec2d3984e23bcff6c0b3101d3",
+      "name": "d7_r2_s0",
+      "units_sha256": "49cbdeefb56cede03f74c80239c08bb0fa65364c920048412c19816f4ca7d16d"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "d7bfa41fec5b0622a0d9f64b00d3256d23688646caa3a762335a510d5f3f9f46",
+      "final_empty": 30634,
+      "initial_clauses": 16851,
+      "kept_additions": 10838,
+      "key": {
+        "d": 7,
+        "r": 2,
+        "s": 1
+      },
+      "lrat_bytes": 1638027,
+      "lrat_sha256": "fd398e4b8f6c037ff4ecd367a39f7cc95e11716487ba908f967ee8b1bfb8d557",
+      "name": "d7_r2_s1",
+      "units_sha256": "25d4828425b9b4c8be7c1dd76771ef7b7c5e1d108445599ef7d3652a3b68196c"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "c1cc3eaa5079686326354bf699ad4eed21f8ae23b7772eb74b2ebe9b5ac9663e",
+      "final_empty": 35947,
+      "initial_clauses": 16851,
+      "kept_additions": 15738,
+      "key": {
+        "d": 7,
+        "r": 2,
+        "s": 2
+      },
+      "lrat_bytes": 2688532,
+      "lrat_sha256": "31cf33c347c6a5a009b184f32dacec6b40af39f2b3837137d67200aedf12dcf1",
+      "name": "d7_r2_s2",
+      "units_sha256": "488bcebee272df05dbab7b7fc30be81210dedbb4c93f1f56c31b5e7cc2e475b5"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ],
+        [
+          26,
+          false
+        ]
+      ],
+      "cnf_sha256": "1db9022115dee8ae489bec370094185094499ea9e305b132458290ee78f9b348",
+      "final_empty": 19092,
+      "initial_clauses": 16855,
+      "kept_additions": 1167,
+      "key": {
+        "d": 7,
+        "r": 2,
+        "s": 3,
+        "t": 0
+      },
+      "lrat_bytes": 149597,
+      "lrat_sha256": "a8e0b0770a5908c373d5ef94028f879eafa369baa6aa3b2c7cf5a79a49a8e971",
+      "name": "d7_r2_s3_t0",
+      "units_sha256": "20aaea429c4e7792198a81fd66c53ec5d8c622ca735ca32eefde4b1de5f6364f"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ],
+        [
+          26,
+          false
+        ]
+      ],
+      "cnf_sha256": "56c4b5ab783ba183bde11b8e64e0f81bb636b2b47495c860fc4c1f42e283f31b",
+      "final_empty": 22363,
+      "initial_clauses": 16855,
+      "kept_additions": 4248,
+      "key": {
+        "d": 7,
+        "r": 2,
+        "s": 3,
+        "t": 1
+      },
+      "lrat_bytes": 683748,
+      "lrat_sha256": "051a995d0ec6c819471984985ee176ec44bdcb3c0e4cb9878c3ba1cd8ccff6a6",
+      "name": "d7_r2_s3_t1",
+      "units_sha256": "7f01ebb60cc112aadd134a05bcfbf99654c034490815b4829c7b82ff8290d8e0"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          false
+        ],
+        [
+          26,
+          false
+        ]
+      ],
+      "cnf_sha256": "d38ff94e240837219e17a44e094468cf0a7a12aac4f8d87558018259686dd1fa",
+      "final_empty": 22893,
+      "initial_clauses": 16855,
+      "kept_additions": 4223,
+      "key": {
+        "d": 7,
+        "r": 2,
+        "s": 3,
+        "t": 2
+      },
+      "lrat_bytes": 651240,
+      "lrat_sha256": "3a36f62bc5def0409122eaaaedae6a809e3cf2e70166a4e8bca0dc18bc9d97d6",
+      "name": "d7_r2_s3_t2",
+      "units_sha256": "4918e86b8873d5f11df439bbb6026ecb141b2aaa374f15d7479c918b4bcb3f80"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ],
+        [
+          26,
+          false
+        ]
+      ],
+      "cnf_sha256": "a4e410578740ca79aaeabc54b44a130066995ae043f98477cb6c7b4ea1d9d8e6",
+      "final_empty": 16866,
+      "initial_clauses": 16855,
+      "kept_additions": 4,
+      "key": {
+        "d": 7,
+        "r": 2,
+        "s": 3,
+        "t": 3
+      },
+      "lrat_bytes": 194,
+      "lrat_sha256": "2670f7e26d7cebbb7e8e89d7f5becdc707f70c695b37e8ff7feb9fb9b4e26ec6",
+      "name": "d7_r2_s3_t3",
+      "units_sha256": "7dafeab141095613f9866a231a1e9a71e44cba4db4be05e9d7af63f640e524a5"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ],
+        [
+          26,
+          true
+        ]
+      ],
+      "cnf_sha256": "8ee5a37245b308db2e7d6d8ef8c617f2627fbb0336b481f192a7ace610176aa9",
+      "final_empty": 16866,
+      "initial_clauses": 16855,
+      "kept_additions": 4,
+      "key": {
+        "d": 7,
+        "r": 2,
+        "s": 3,
+        "t": 4
+      },
+      "lrat_bytes": 194,
+      "lrat_sha256": "2670f7e26d7cebbb7e8e89d7f5becdc707f70c695b37e8ff7feb9fb9b4e26ec6",
+      "name": "d7_r2_s3_t4",
+      "units_sha256": "b6ca991e0684ebd2e3cc3b0d3d5654cd1bbd28f112823a678b08b15c4f7cfa2f"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          true
+        ]
+      ],
+      "cnf_sha256": "d88b6b2b49eedd8e91c05a518c0437facf82e307bc21c7a644157275a3605fb7",
+      "final_empty": 21992,
+      "initial_clauses": 16851,
+      "kept_additions": 3436,
+      "key": {
+        "d": 7,
+        "r": 2,
+        "s": 4
+      },
+      "lrat_bytes": 626341,
+      "lrat_sha256": "0f8703ff058874c1a610ff1fa021cd12c3eb296eae95bb82574dc22bcdc6170f",
+      "name": "d7_r2_s4",
+      "units_sha256": "7ef713008e13cd409857cfecd02cd8484d742b232d392f173a207a31a588920a"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "326ad6874f7ce9373e8e3035d15becd93f3544850645ea24d7c9787586d75a13",
+      "final_empty": 20251,
+      "initial_clauses": 16851,
+      "kept_additions": 2126,
+      "key": {
+        "d": 7,
+        "r": 3,
+        "s": 0
+      },
+      "lrat_bytes": 254538,
+      "lrat_sha256": "6239af91fba261819a2f417781d2bdf439f1038217ca669bc58ccf8ed03055c1",
+      "name": "d7_r3_s0",
+      "units_sha256": "6517b9924444984797eb7b22d21c5f699e0da95d657704ca090a3668f25f7855"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          false
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "7e9285cfa604f21596a916678ec4714edb051500a7883dcf1415a863b054d941",
+      "final_empty": 25891,
+      "initial_clauses": 16851,
+      "kept_additions": 7624,
+      "key": {
+        "d": 7,
+        "r": 3,
+        "s": 1
+      },
+      "lrat_bytes": 1179170,
+      "lrat_sha256": "0599994e44ff8f6dbfe0d067b814bdc5a056671cbb87318ca3422f23a9bbc2b8",
+      "name": "d7_r3_s1",
+      "units_sha256": "4a6734b353986c66646b6d7c7409a3afe3fd64bdd85f4e78002131c985981e5e"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          false
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "fc7f52a3b3c9e6adb36fe533a1155fd2ccdc9adb6ae524267d28e2ddd697a80d",
+      "final_empty": 31054,
+      "initial_clauses": 16851,
+      "kept_additions": 10858,
+      "key": {
+        "d": 7,
+        "r": 3,
+        "s": 2
+      },
+      "lrat_bytes": 1719630,
+      "lrat_sha256": "ace54a783a715bc920524ef0156e2e3dec2610b0e7510c25fb704c53140fb223",
+      "name": "d7_r3_s2",
+      "units_sha256": "352ec6f18eb5bf994f5dbfd05b4d538b080021784d701a23e795c894ea31655a"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          false
+        ]
+      ],
+      "cnf_sha256": "edac63cc098688f8cbdd48f0acbfcca1d78d0c9c9df536caef93f8a6473d050e",
+      "final_empty": 36916,
+      "initial_clauses": 16851,
+      "kept_additions": 14514,
+      "key": {
+        "d": 7,
+        "r": 3,
+        "s": 3
+      },
+      "lrat_bytes": 2433878,
+      "lrat_sha256": "5c348c40d9b048c2239fa9a263f50a8b62ae4a8fc5a65fe2b2bb3ad45675a226",
+      "name": "d7_r3_s3",
+      "units_sha256": "e64173bee3543de219b4aadf9331635f133356b0ccdd705d4857719cd6bfdc11"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          false
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          true
+        ],
+        [
+          19,
+          true
+        ],
+        [
+          20,
+          true
+        ],
+        [
+          21,
+          true
+        ]
+      ],
+      "cnf_sha256": "963173afd7be8b3a9386604e619db3fe0a22c58f92f1668b7bc060ed470620b9",
+      "final_empty": 20033,
+      "initial_clauses": 16851,
+      "kept_additions": 1147,
+      "key": {
+        "d": 7,
+        "r": 3,
+        "s": 4
+      },
+      "lrat_bytes": 140104,
+      "lrat_sha256": "c5a90a7fca49e546f153a62f01e9cea75c07756846fc890b56c2a58762417ccd",
+      "name": "d7_r3_s4",
+      "units_sha256": "2d03356d9461921953f67dfd99cf01be7524a42eec3592908385f678af707930"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          false
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ]
+      ],
+      "cnf_sha256": "a6495f8f0ad6efeb125be7413ac035e39fe63c413782d7b70ebedad45068e9e5",
+      "final_empty": 16933,
+      "initial_clauses": 16848,
+      "kept_additions": 28,
+      "key": {
+        "d": 8,
+        "r": 0
+      },
+      "lrat_bytes": 1954,
+      "lrat_sha256": "5beef180a1b32a4cff5ab8070dd5871cffd45bb5c42299b9e80065b6853d9744",
+      "name": "d8_r0",
+      "units_sha256": "16bccebd164601b52864f213af16702607cc7fcb77f07c586eaafffbdfa6f9db"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          22,
+          false
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ],
+        [
+          26,
+          false
+        ],
+        [
+          27,
+          false
+        ]
+      ],
+      "cnf_sha256": "9323bd6b74c1c8aafa244759c581bfda05c4b3005512b3182adad6132b78c2a2",
+      "final_empty": 16959,
+      "initial_clauses": 16854,
+      "kept_additions": 37,
+      "key": {
+        "d": 8,
+        "r": 1,
+        "t": 0
+      },
+      "lrat_bytes": 3004,
+      "lrat_sha256": "c3e2737a3b58df7c97d0baa19ea746d1c127aa5c03dec395b608c488c3141497",
+      "name": "d8_r1_t0",
+      "units_sha256": "b21541522324ae9e211377029e53581e53820a17e094e78ab35ab8b28545f32d"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ],
+        [
+          26,
+          false
+        ],
+        [
+          27,
+          false
+        ]
+      ],
+      "cnf_sha256": "15bb69992691509ed10937e858cdde68521d0deb46f18731d8855f05d63bda91",
+      "final_empty": 16928,
+      "initial_clauses": 16854,
+      "kept_additions": 36,
+      "key": {
+        "d": 8,
+        "r": 1,
+        "t": 1
+      },
+      "lrat_bytes": 3066,
+      "lrat_sha256": "8c44f3f47c7037694d070253baec0abb37684f0b04668bff8c4d84ca1c6901dc",
+      "name": "d8_r1_t1",
+      "units_sha256": "2250c3cf78daaf2e73aba6d59d851ddf3f059310c1289e376c26e212a79842e8"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ],
+        [
+          26,
+          false
+        ],
+        [
+          27,
+          false
+        ]
+      ],
+      "cnf_sha256": "a49e2520bb0cafa7903bd9995e0bb863613949584c0261aac77c922b6e52f844",
+      "final_empty": 16906,
+      "initial_clauses": 16854,
+      "kept_additions": 23,
+      "key": {
+        "d": 8,
+        "r": 1,
+        "t": 2
+      },
+      "lrat_bytes": 1938,
+      "lrat_sha256": "b7f44364ce82780e376c8811d188e8ad3569760630109f593054806781e7a128",
+      "name": "d8_r1_t2",
+      "units_sha256": "3064419084b89da6fc8a7314c9b4228c53583407d1ca7266cca97cff97c4dd78"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          false
+        ],
+        [
+          26,
+          false
+        ],
+        [
+          27,
+          false
+        ]
+      ],
+      "cnf_sha256": "980a297d4ec0601bdf2c50d11238248ad55f140eb381bd903bf9d579664d840c",
+      "final_empty": 16863,
+      "initial_clauses": 16854,
+      "kept_additions": 4,
+      "key": {
+        "d": 8,
+        "r": 1,
+        "t": 3
+      },
+      "lrat_bytes": 192,
+      "lrat_sha256": "5c543e1997145d7ba4cb69a25df20e1d4169afa5238184335ff45db0952159da",
+      "name": "d8_r1_t3",
+      "units_sha256": "2f6b13230c94c08a0320a040fb4b14f018f2047139454b3b4bed78dfb02e4d45"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ],
+        [
+          26,
+          false
+        ],
+        [
+          27,
+          false
+        ]
+      ],
+      "cnf_sha256": "69691ff04b9268c938e1f8d162dad9fd2814835db5de88f1d1eb4ee446550c2b",
+      "final_empty": 16863,
+      "initial_clauses": 16854,
+      "kept_additions": 4,
+      "key": {
+        "d": 8,
+        "r": 1,
+        "t": 4
+      },
+      "lrat_bytes": 192,
+      "lrat_sha256": "5c543e1997145d7ba4cb69a25df20e1d4169afa5238184335ff45db0952159da",
+      "name": "d8_r1_t4",
+      "units_sha256": "6ec22bf034ad067d121d9d2d7de580285bda1dccd6e5753562f76a8c5c416a8f"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ],
+        [
+          26,
+          true
+        ],
+        [
+          27,
+          false
+        ]
+      ],
+      "cnf_sha256": "80b16beec55c3ce80f543564cf648d8a6fce6d0b50f28b583d6bfa8ab0f8ce1f",
+      "final_empty": 16863,
+      "initial_clauses": 16854,
+      "kept_additions": 4,
+      "key": {
+        "d": 8,
+        "r": 1,
+        "t": 5
+      },
+      "lrat_bytes": 192,
+      "lrat_sha256": "5c543e1997145d7ba4cb69a25df20e1d4169afa5238184335ff45db0952159da",
+      "name": "d8_r1_t5",
+      "units_sha256": "64de251c463a53efee3796db7457c62508d498d5bfd5aef2d871d1c7829c8609"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          false
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          22,
+          true
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ],
+        [
+          26,
+          true
+        ],
+        [
+          27,
+          true
+        ]
+      ],
+      "cnf_sha256": "76c5a0161a82b411c417b910843d0b7e1d3db16f876ffcdc176b2f364c273598",
+      "final_empty": 16863,
+      "initial_clauses": 16854,
+      "kept_additions": 4,
+      "key": {
+        "d": 8,
+        "r": 1,
+        "t": 6
+      },
+      "lrat_bytes": 192,
+      "lrat_sha256": "5c543e1997145d7ba4cb69a25df20e1d4169afa5238184335ff45db0952159da",
+      "name": "d8_r1_t6",
+      "units_sha256": "4415d305624cf0f6aac852351c9171c561f4d21a48ff0a4622c28fc1ef2b543f"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          23,
+          false
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ],
+        [
+          26,
+          false
+        ],
+        [
+          27,
+          false
+        ]
+      ],
+      "cnf_sha256": "6319689b94c8f99aa0de0d7692629037571500142788f5d3b1e0ee55734381f1",
+      "final_empty": 16918,
+      "initial_clauses": 16853,
+      "kept_additions": 28,
+      "key": {
+        "d": 8,
+        "r": 2,
+        "t": 0
+      },
+      "lrat_bytes": 2411,
+      "lrat_sha256": "a6b7a8a1fe286c38d0d420eff8fbd6c70f827492745458384d5121ac69eed6d0",
+      "name": "d8_r2_t0",
+      "units_sha256": "ef110c074d462b3060704b498d68945f866f47036000a8ffe7d11ceff338f7ef"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          false
+        ],
+        [
+          25,
+          false
+        ],
+        [
+          26,
+          false
+        ],
+        [
+          27,
+          false
+        ]
+      ],
+      "cnf_sha256": "3e71faac26781d24e60365fbd3c1d3d7ea76a028360dac5d99719356e8698d78",
+      "final_empty": 19111,
+      "initial_clauses": 16853,
+      "kept_additions": 203,
+      "key": {
+        "d": 8,
+        "r": 2,
+        "t": 1
+      },
+      "lrat_bytes": 27766,
+      "lrat_sha256": "376d10d048916e5c50849060fd5cf00089f88de2a7904280dc38c95607ef147a",
+      "name": "d8_r2_t1",
+      "units_sha256": "d830ce865fbf8c01dc927a2e292aa98ca562f723b54654e9b2db473b2929780c"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          false
+        ],
+        [
+          26,
+          false
+        ],
+        [
+          27,
+          false
+        ]
+      ],
+      "cnf_sha256": "72acade801f10a94de9de5aa8c7917206bb6215a024c37d673d4ab5c06acdb2e",
+      "final_empty": 19048,
+      "initial_clauses": 16853,
+      "kept_additions": 329,
+      "key": {
+        "d": 8,
+        "r": 2,
+        "t": 2
+      },
+      "lrat_bytes": 37164,
+      "lrat_sha256": "9f45f4b1964fd87ab0c61b2b6fbfe3a7b1e74e14cfcaa7c0f91895252e29b337",
+      "name": "d8_r2_t2",
+      "units_sha256": "a1bb7664b1233f285a1d2b3816bc324129be8ccbc1647b469ab9987f13971a9b"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ],
+        [
+          26,
+          false
+        ],
+        [
+          27,
+          false
+        ]
+      ],
+      "cnf_sha256": "ed6301ee8e3962ec5715ccbc57452e43b3a1ee0367a0dcb610caed3b4e2f39ea",
+      "final_empty": 16864,
+      "initial_clauses": 16853,
+      "kept_additions": 4,
+      "key": {
+        "d": 8,
+        "r": 2,
+        "t": 3
+      },
+      "lrat_bytes": 194,
+      "lrat_sha256": "04bdd961e7c7e4e4922e718583f7d8b9ca138ca208c6cb9c3249777be0415642",
+      "name": "d8_r2_t3",
+      "units_sha256": "d812d85dc2ea3fde16ad38d29dd9532b4e00fd2f4158cc16f865abcef5285df1"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ],
+        [
+          26,
+          true
+        ],
+        [
+          27,
+          false
+        ]
+      ],
+      "cnf_sha256": "91531d2578bbe49b5ce65997fba5da4f0c23871a5f759939ea580a586d547dd3",
+      "final_empty": 16864,
+      "initial_clauses": 16853,
+      "kept_additions": 4,
+      "key": {
+        "d": 8,
+        "r": 2,
+        "t": 4
+      },
+      "lrat_bytes": 194,
+      "lrat_sha256": "04bdd961e7c7e4e4922e718583f7d8b9ca138ca208c6cb9c3249777be0415642",
+      "name": "d8_r2_t4",
+      "units_sha256": "8fac679724bb32972e5b5cfaaf0101efcd6a1b1cd7c4ec4b7b906e45f48b5daf"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          false
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ],
+        [
+          23,
+          true
+        ],
+        [
+          24,
+          true
+        ],
+        [
+          25,
+          true
+        ],
+        [
+          26,
+          true
+        ],
+        [
+          27,
+          true
+        ]
+      ],
+      "cnf_sha256": "70550253edf91c67ab6ab3d20fb21901a22b0c4a5d935cadd76a9aa125fa1684",
+      "final_empty": 16864,
+      "initial_clauses": 16853,
+      "kept_additions": 4,
+      "key": {
+        "d": 8,
+        "r": 2,
+        "t": 5
+      },
+      "lrat_bytes": 194,
+      "lrat_sha256": "04bdd961e7c7e4e4922e718583f7d8b9ca138ca208c6cb9c3249777be0415642",
+      "name": "d8_r2_t5",
+      "units_sha256": "25804c281978230ddcb5ea6032b55a294920166bd84a373cc35924fcf91284b0"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          false
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ]
+      ],
+      "cnf_sha256": "3a6aae21cfa8bcb0c5575b6b20ab4c42eff9096895e7ecdbbd7def3737deab2e",
+      "final_empty": 21562,
+      "initial_clauses": 16848,
+      "kept_additions": 3260,
+      "key": {
+        "d": 8,
+        "r": 3
+      },
+      "lrat_bytes": 507238,
+      "lrat_sha256": "d486b72fdcc30395026825f7d9b57ec12dbb1b4877132ccefecb9d8f564d2c6c",
+      "name": "d8_r3",
+      "units_sha256": "f85989372a0207f286ba24d14afff72ba072fac1396e9a6a635e7d242a09624e"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          false
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ],
+        [
+          12,
+          true
+        ],
+        [
+          13,
+          true
+        ],
+        [
+          14,
+          true
+        ],
+        [
+          15,
+          true
+        ],
+        [
+          16,
+          false
+        ],
+        [
+          17,
+          false
+        ],
+        [
+          18,
+          false
+        ]
+      ],
+      "cnf_sha256": "cb2dc2b02adf03402b139c874708d9a1c04d7fe3db52e732e0018db62a742972",
+      "final_empty": 16860,
+      "initial_clauses": 16848,
+      "kept_additions": 7,
+      "key": {
+        "d": 8,
+        "r": 4
+      },
+      "lrat_bytes": 329,
+      "lrat_sha256": "11d3ddc6313de2ede27f626905e744e9eb8a71db0beca2683416e97fecd14f1b",
+      "name": "d8_r4",
+      "units_sha256": "e8e9e854963f2ec4d3f94f295bd87bdc435b36cfa40c95ec55be6cfc9f764d79"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          true
+        ],
+        [
+          10,
+          false
+        ],
+        [
+          11,
+          false
+        ]
+      ],
+      "cnf_sha256": "772cbb2e0868f9629631f848b283303d5ec08d8cf1734a7ed63cea9ced5ed696",
+      "final_empty": 24973,
+      "initial_clauses": 16841,
+      "kept_additions": 7873,
+      "key": {
+        "d": 9
+      },
+      "lrat_bytes": 905296,
+      "lrat_sha256": "fef74d8d4d01154cd4f7679f6d342765700f38be100802237b2a3fce9c2220f6",
+      "name": "d9",
+      "units_sha256": "aeb4ebf456cbca10e23d7b3a7a47591a65cd7c8115d56c3cfb7de8e251dfe461"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          true
+        ],
+        [
+          10,
+          true
+        ],
+        [
+          11,
+          false
+        ]
+      ],
+      "cnf_sha256": "244e01e497d3eae088a90495bb12e1f76e7aada289884eba0295f6d853b3c91d",
+      "final_empty": 27607,
+      "initial_clauses": 16841,
+      "kept_additions": 9022,
+      "key": {
+        "d": 10
+      },
+      "lrat_bytes": 1006391,
+      "lrat_sha256": "b6e986429c7facae837320b6df2f384d05e6be496cea3ef453af0fd01fcb0205",
+      "name": "d10",
+      "units_sha256": "1a5c13530eb3ddfb067cf3b6742ba00e345898fdd2d29ced9d3180b7a784152d"
+    },
+    {
+      "assumptions": [
+        [
+          1,
+          true
+        ],
+        [
+          2,
+          true
+        ],
+        [
+          3,
+          true
+        ],
+        [
+          4,
+          true
+        ],
+        [
+          5,
+          true
+        ],
+        [
+          6,
+          true
+        ],
+        [
+          7,
+          true
+        ],
+        [
+          8,
+          true
+        ],
+        [
+          9,
+          true
+        ],
+        [
+          10,
+          true
+        ],
+        [
+          11,
+          true
+        ]
+      ],
+      "cnf_sha256": "b6e80493760f70f6054f52064395a9d14f0ad7d70296fbb1fe1b40c6cb032ee9",
+      "final_empty": 27470,
+      "initial_clauses": 16841,
+      "kept_additions": 8988,
+      "key": {
+        "d": 11
+      },
+      "lrat_bytes": 1027507,
+      "lrat_sha256": "549e5804088f93b0f078d3af69cc4db230aed5d06afc3468fe26c953adc95186",
+      "name": "d11",
+      "units_sha256": "bdac228eda730f710d4ea4a94a1a8a16449fb91f851634f820bffc9eee579249"
+    }
+  ],
+  "edge_variable_count": 66,
+  "max_lrat_bytes": 2891061,
+  "normalization": {
+    "degree_zero_values": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "historical_cases": 91,
+    "root_cases": 44
+  },
+  "problem": "Erdos 758 D12 homogeneous decomposition",
+  "schema": 1,
+  "solver": {
+    "arguments": [
+      "--lrat",
+      "--binary=false",
+      "--quiet",
+      "--plain",
+      "--seed=20"
+    ],
+    "git_revision": "3ff42f04384489916f017acd6d5e7cbfa7257be7",
+    "name": "CaDiCaL",
+    "version": "2.1.2"
+  },
+  "total_lrat_bytes": 71178169,
+  "triple_variable_count": 220,
+  "variable_count": 286,
+  "vertex_count": 12
+}
