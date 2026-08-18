@@ -1,0 +1,811 @@
+/- leanprover/lean4:v4.33.0 mathlib v4.33.0 -/
+
+import Mathlib
+import ErdosProblems.Erdos1149.RestrictedWeyl
+
+/-!
+# Quantitative parameters for controlled Weyl differencing
+
+This file contains only the elementary numerical part of the analytic
+argument for Erdős problem 1149.  In particular, it turns the exact
+restricted-Weyl recurrence into a power-saving estimate and records the
+rounding facts used to choose the number and spacing of the shifts.
+-/
+
+namespace Erdos1149
+
+namespace AnalyticParameters
+
+open RestrictedWeyl
+open Filter
+
+/-! ## Rounding the real parameters -/
+
+/-- A natural ceiling of a number at least one is at most twice that
+number. -/
+lemma natCeil_le_two_mul {t : ℝ} (ht : 1 ≤ t) :
+    (⌈t⌉₊ : ℝ) ≤ 2 * t := by
+  have ht0 : 0 ≤ t := le_trans (by norm_num) ht
+  have hceil : (⌈t⌉₊ : ℝ) < t + 1 := Nat.ceil_lt_add_one ht0
+  linarith
+
+/-- A natural ceiling of a positive number is positive. -/
+lemma natCeil_pos {t : ℝ} (ht : 0 < t) : 0 < ⌈t⌉₊ := by
+  have hle : t ≤ (⌈t⌉₊ : ℝ) := Nat.le_ceil t
+  exact_mod_cast ht.trans_le hle
+
+/-- Once `t ≥ 2`, its natural floor loses at most a factor two. -/
+lemma half_le_natFloor {t : ℝ} (ht : 2 ≤ t) :
+    t / 2 ≤ (⌊t⌋₊ : ℝ) := by
+  have hfloor : t < (⌊t⌋₊ : ℝ) + 1 := Nat.lt_floor_add_one t
+  have hfloorOne : 1 ≤ (⌊t⌋₊ : ℝ) := by
+    linarith
+  linarith
+
+/-- The natural floor never exceeds a nonnegative real number. -/
+lemma natFloor_le {t : ℝ} (ht : 0 ≤ t) : (⌊t⌋₊ : ℝ) ≤ t :=
+  Nat.floor_le ht
+
+/-- In particular, the floor of a number at least two is nonzero. -/
+lemma natFloor_pos {t : ℝ} (ht : 2 ≤ t) : 0 < ⌊t⌋₊ := by
+  have h := half_le_natFloor ht
+  have hpos : 0 < (⌊t⌋₊ : ℝ) := lt_of_lt_of_le (by linarith) h
+  exact_mod_cast hpos
+
+/-- Taking a natural power preserves the two elementary floor bounds. -/
+lemma natFloor_pow_bounds {t : ℝ} (ht : 2 ≤ t) (r : ℕ) :
+    (t / 2) ^ r ≤ ((⌊t⌋₊ : ℝ) : ℝ) ^ r ∧
+      ((⌊t⌋₊ : ℝ) : ℝ) ^ r ≤ t ^ r := by
+  constructor
+  · exact pow_le_pow_left₀ (by positivity) (half_le_natFloor ht) r
+  · exact pow_le_pow_left₀ (by positivity)
+      (natFloor_le (show 0 ≤ t by linarith)) r
+
+/-- The concrete rounding estimate for an `r`th-root step size.  It is
+stated with ordinary natural powers, which is the form used by products of
+`r` finite differences. -/
+lemma natFloor_rpow_inv_pow_bounds
+    {Y : ℝ} {r : ℕ} (hY : 0 ≤ Y) (hr : r ≠ 0)
+    (hlarge : 2 ≤ Y ^ ((r : ℝ)⁻¹)) :
+    Y / (2 : ℝ) ^ r ≤
+        ((⌊Y ^ ((r : ℝ)⁻¹)⌋₊ : ℕ) : ℝ) ^ r ∧
+      ((⌊Y ^ ((r : ℝ)⁻¹)⌋₊ : ℕ) : ℝ) ^ r ≤ Y := by
+  let t : ℝ := Y ^ ((r : ℝ)⁻¹)
+  have ht := natFloor_pow_bounds hlarge r
+  have htPow : t ^ r = Y := by
+    dsimp only [t]
+    exact Real.rpow_inv_natCast_pow hY hr
+  constructor
+  · calc
+      Y / (2 : ℝ) ^ r = t ^ r / (2 : ℝ) ^ r := by rw [htPow]
+      _ = (t / 2) ^ r := by
+        rw [div_pow]
+      _ ≤ ((⌊Y ^ ((r : ℝ)⁻¹)⌋₊ : ℕ) : ℝ) ^ r := by
+        simpa only [t] using ht.1
+  · calc
+      ((⌊Y ^ ((r : ℝ)⁻¹)⌋₊ : ℕ) : ℝ) ^ r ≤ t ^ r := by
+        simpa only [t] using ht.2
+      _ = Y := htPow
+
+/-! ## The exact normalized recurrence -/
+
+/-- One step of the history envelope after dividing the exact restricted
+Weyl inequality by the square of the shift count. -/
+theorem finiteHistoryEnvelope_cons_sq_le
+    (P : ℕ) (s : ConductorStep) (terminal : ℝ)
+    (hterminal : 0 ≤ terminal) (steps : List ConductorStep) :
+    finiteHistoryEnvelope P terminal (s :: steps) ^ 2 ≤
+      2 * ((P : ℝ) ^ 2 / s.shiftCount +
+        (P : ℝ) * finiteHistoryEnvelope P terminal steps +
+        4 * ((s.shiftCount : ℝ) * s.stepSize) ^ 2) := by
+  let E := finiteHistoryEnvelope P terminal steps
+  have hE : 0 ≤ E := finiteHistoryEnvelope_nonneg P hterminal steps
+  have hK : 0 < (s.shiftCount : ℝ) := by
+    exact_mod_cast s.shiftCount_pos
+  have hB := boundaryBudget_le s.shiftCount s.stepSize
+  have hB0 := boundaryBudget_nonneg s.shiftCount s.stepSize
+  have hBsq : boundaryBudget s.shiftCount s.stepSize ^ 2 ≤
+      (2 * (s.shiftCount : ℝ) ^ 2 * s.stepSize) ^ 2 := by
+    exact pow_le_pow_left₀ hB0 hB 2
+  rw [finiteHistoryEnvelope]
+  have hrad : 0 ≤ stepRadicand P s E := stepRadicand_nonneg P s hE
+  rw [div_pow, Real.sq_sqrt hrad]
+  unfold stepRadicand
+  have hKm1 : ((s.shiftCount - 1 : ℕ) : ℝ) ≤ s.shiftCount := by
+    exact_mod_cast Nat.sub_le s.shiftCount 1
+  calc
+    2 * ((P : ℝ) *
+          ((s.shiftCount : ℝ) * P +
+            (s.shiftCount : ℝ) * (s.shiftCount - 1 : ℕ) * E) +
+          boundaryBudget s.shiftCount s.stepSize ^ 2) /
+        (s.shiftCount : ℝ) ^ 2 ≤
+        2 * ((P : ℝ) *
+          ((s.shiftCount : ℝ) * P +
+            (s.shiftCount : ℝ) ^ 2 * E) +
+          (2 * (s.shiftCount : ℝ) ^ 2 * s.stepSize) ^ 2) /
+        (s.shiftCount : ℝ) ^ 2 := by
+      gcongr
+      · nlinarith
+    _ = 2 * ((P : ℝ) ^ 2 / s.shiftCount +
+          (P : ℝ) * E +
+          4 * ((s.shiftCount : ℝ) * s.stepSize) ^ 2) := by
+      field_simp [ne_of_gt hK]
+      ring
+
+/-! ## Iterating a scale-invariant recurrence -/
+
+/-- Constants generated by repeatedly taking the square root in the Weyl
+recurrence.  The number `A` bounds all fresh diagonal and boundary terms,
+while `C` is the terminal constant. -/
+noncomputable def envelopeConstant (A C : ℝ) : ℕ → ℝ
+  | 0 => C
+  | r + 1 => Real.sqrt (2 * A + 2 * envelopeConstant A C r)
+
+lemma envelopeConstant_nonneg {A C : ℝ} (hA : 0 ≤ A) (hC : 0 ≤ C) :
+    ∀ r, 0 ≤ envelopeConstant A C r := by
+  intro r
+  induction r with
+  | zero => simpa [envelopeConstant] using hC
+  | succ r _ => simp [envelopeConstant]
+
+/-- Abstract iteration lemma.  It is often more convenient than the
+specialized power statement below: `q` is the small parameter and every
+fresh term in one Weyl step is assumed to cost at most `A*q` after
+normalization by the interval length.
+
+The exponent `1 / 2^r` is the exact loss caused by `r` square roots. -/
+theorem finiteHistoryEnvelope_replicate_le_qRoot
+    (X q A C : ℝ) (P K d r : ℕ)
+    (hX : 0 < X) (hq0 : 0 < q) (hq1 : q ≤ 1)
+    (hA : 0 ≤ A) (hC : 0 ≤ C) (hP : (P : ℝ) ≤ X)
+    (hK : 0 < K)
+    (hdiag : 2 / (K : ℝ) ≤ A * q)
+    (hboundary : 8 * ((K : ℝ) * d) ^ 2 ≤ A * X ^ 2 * q)
+    (terminal : ℝ) (hterminal0 : 0 ≤ terminal)
+    (hterminal : terminal ≤ C * X * q) :
+    finiteHistoryEnvelope P terminal
+        (List.replicate r
+          { shiftCount := K, stepSize := d, shiftCount_pos := hK }) ≤
+      envelopeConstant A C r * X * q ^ ((2 : ℝ) ^ r)⁻¹ := by
+  let s : ConductorStep :=
+    { shiftCount := K, stepSize := d, shiftCount_pos := hK }
+  have hqpow0 (j : ℕ) : 0 ≤ q ^ ((2 : ℝ) ^ j)⁻¹ :=
+    Real.rpow_nonneg hq0.le _
+  have hq_mono (j : ℕ) : q ≤ q ^ ((2 : ℝ) ^ j)⁻¹ := by
+    have hexp0 : 0 ≤ ((2 : ℝ) ^ j)⁻¹ := by positivity
+    have hexp1 : ((2 : ℝ) ^ j)⁻¹ ≤ 1 := by
+      rw [inv_le_one₀ (by positivity)]
+      exact one_le_pow₀ (by norm_num : (1 : ℝ) ≤ 2)
+    simpa only [Real.rpow_one] using
+      Real.rpow_le_rpow_of_exponent_ge hq0 hq1 hexp1
+  induction r with
+  | zero =>
+      simp only [List.replicate_zero, finiteHistoryEnvelope,
+        envelopeConstant, pow_zero, inv_one, Real.rpow_one]
+      exact hterminal
+  | succ r ih =>
+      rw [List.replicate_succ]
+      have hE0 : 0 ≤ finiteHistoryEnvelope P terminal
+          (List.replicate r s) :=
+        finiteHistoryEnvelope_nonneg P hterminal0 _
+      have hsq := finiteHistoryEnvelope_cons_sq_le
+        P s terminal hterminal0 (List.replicate r s)
+      have hPr : (0 : ℝ) ≤ P := by positivity
+      have hP2 : (P : ℝ) ^ 2 ≤ X ^ 2 := by nlinarith
+      have hdiag' : 2 * (P : ℝ) ^ 2 / K ≤ A * X ^ 2 * q := by
+        calc
+          2 * (P : ℝ) ^ 2 / K = (P : ℝ) ^ 2 * (2 / K) := by ring
+          _ ≤ X ^ 2 * (A * q) :=
+            mul_le_mul hP2 hdiag (by positivity) (sq_nonneg X)
+          _ = A * X ^ 2 * q := by ring
+      have hrecSq : finiteHistoryEnvelope P terminal (s :: List.replicate r s) ^ 2 ≤
+          X ^ 2 * (2 * A + 2 * envelopeConstant A C r) *
+            q ^ ((2 : ℝ) ^ r)⁻¹ := by
+        calc
+          finiteHistoryEnvelope P terminal (s :: List.replicate r s) ^ 2 ≤
+              2 * ((P : ℝ) ^ 2 / K +
+                (P : ℝ) * finiteHistoryEnvelope P terminal
+                  (List.replicate r s) +
+                4 * ((K : ℝ) * d) ^ 2) := hsq
+          _ = 2 * (P : ℝ) ^ 2 / K +
+                2 * (P : ℝ) * finiteHistoryEnvelope P terminal
+                  (List.replicate r s) +
+                8 * ((K : ℝ) * d) ^ 2 := by ring
+          _ ≤ A * X ^ 2 * q +
+                2 * X *
+                  (envelopeConstant A C r * X *
+                    q ^ ((2 : ℝ) ^ r)⁻¹) +
+                A * X ^ 2 * q := by
+              gcongr
+          _ ≤ A * X ^ 2 * q ^ ((2 : ℝ) ^ r)⁻¹ +
+                2 * X *
+                  (envelopeConstant A C r * X *
+                    q ^ ((2 : ℝ) ^ r)⁻¹) +
+                A * X ^ 2 * q ^ ((2 : ℝ) ^ r)⁻¹ := by
+              have hmono := hq_mono r
+              have hAX2 : 0 ≤ A * X ^ 2 := mul_nonneg hA (sq_nonneg X)
+              gcongr
+          _ = X ^ 2 * (2 * A + 2 * envelopeConstant A C r) *
+                q ^ ((2 : ℝ) ^ r)⁻¹ := by ring
+      have hexp :
+          (((2 : ℝ) ^ (r + 1))⁻¹) * 2 = ((2 : ℝ) ^ r)⁻¹ := by
+        rw [pow_succ]
+        field_simp
+      have hqrootSq :
+          (q ^ ((2 : ℝ) ^ (r + 1))⁻¹) ^ 2 =
+            q ^ ((2 : ℝ) ^ r)⁻¹ := by
+        rw [← Real.rpow_natCast]
+        rw [← Real.rpow_mul hq0.le]
+        norm_num
+        rw [hexp]
+      have hrad0 : 0 ≤ 2 * A + 2 * envelopeConstant A C r := by
+        have hCr := envelopeConstant_nonneg hA hC r
+        positivity
+      have htargetSq :
+          (envelopeConstant A C (r + 1) * X *
+              q ^ ((2 : ℝ) ^ (r + 1))⁻¹) ^ 2 =
+            X ^ 2 * (2 * A + 2 * envelopeConstant A C r) *
+              q ^ ((2 : ℝ) ^ r)⁻¹ := by
+        rw [envelopeConstant, mul_pow, mul_pow,
+          Real.sq_sqrt hrad0, hqrootSq]
+        ring
+      have hleft0 : 0 ≤ finiteHistoryEnvelope P terminal
+          (s :: List.replicate r s) :=
+        finiteHistoryEnvelope_nonneg P hterminal0 _
+      have htarget0 : 0 ≤ envelopeConstant A C (r + 1) * X *
+          q ^ ((2 : ℝ) ^ (r + 1))⁻¹ := by
+        exact mul_nonneg
+          (mul_nonneg (envelopeConstant_nonneg hA hC _) hX.le)
+          (hqpow0 _)
+      rw [← htargetSq] at hrecSq
+      nlinarith
+
+/-! ## A power-saving form -/
+
+/-- Explicit power-saving consequence of the repeated restricted-Weyl
+recurrence.
+
+The lower bound for `K` pays for the diagonal term, `K*d` controls every
+translation boundary, and `terminal` controls every leaf.  The inequalities
+`κ ≤ θ` and `κ ≤ 2*δ` say that both the leaves and the boundary decay at
+least as quickly as the diagonal contribution.  Each of the `r` Weyl steps
+halves the saving exponent. -/
+theorem finiteHistoryEnvelope_replicate_le_rpow
+    (X P K d r : ℕ) (κ δ θ Cb Ct terminal : ℝ)
+    (hX : 1 ≤ X) (hP : P ≤ X) (hK : 0 < K)
+    (hκ : 0 < κ) (hCb : 0 ≤ Cb) (hCt : 0 ≤ Ct)
+    (hκθ : κ ≤ θ) (hκδ : κ ≤ 2 * δ)
+    (hKlower : (X : ℝ) ^ κ ≤ K)
+    (hKd : (K : ℝ) * d ≤ Cb * (X : ℝ) ^ (1 - δ))
+    (hterminal0 : 0 ≤ terminal)
+    (hterminal : terminal ≤ Ct * (X : ℝ) ^ (1 - θ)) :
+    finiteHistoryEnvelope P terminal
+        (List.replicate r
+          { shiftCount := K, stepSize := d, shiftCount_pos := hK }) ≤
+      envelopeConstant (2 + 8 * Cb ^ 2) Ct r *
+        (X : ℝ) ^ (1 - κ / (2 : ℝ) ^ r) := by
+  let XR : ℝ := X
+  let q : ℝ := XR ^ (-κ)
+  let A : ℝ := 2 + 8 * Cb ^ 2
+  have hXR : 1 ≤ XR := by
+    change (1 : ℝ) ≤ (X : ℝ)
+    exact_mod_cast hX
+  have hXR0 : 0 < XR := zero_lt_one.trans_le hXR
+  have hq0 : 0 < q := Real.rpow_pos_of_pos hXR0 _
+  have hq1 : q ≤ 1 := by
+    dsimp only [q]
+    simpa only [Real.rpow_zero] using
+      Real.rpow_le_rpow_of_exponent_le hXR (show -κ ≤ 0 by linarith)
+  have hA : 0 ≤ A := by dsimp only [A]; positivity
+  have hKreal : 0 < (K : ℝ) := by exact_mod_cast hK
+  have hpowκ : 0 < XR ^ κ := Real.rpow_pos_of_pos hXR0 _
+  have hinv : ((K : ℝ) : ℝ)⁻¹ ≤ (XR ^ κ)⁻¹ := by
+    exact (inv_le_inv₀ hKreal hpowκ).2 (by simpa only [XR] using hKlower)
+  have hqeq : (XR ^ κ)⁻¹ = q := by
+    dsimp only [q]
+    rw [Real.rpow_neg hXR0.le]
+  have hdiag : 2 / (K : ℝ) ≤ A * q := by
+    calc
+      2 / (K : ℝ) = 2 * ((K : ℝ) : ℝ)⁻¹ := by ring
+      _ ≤ 2 * (XR ^ κ)⁻¹ := by gcongr
+      _ = 2 * q := by rw [hqeq]
+      _ ≤ A * q := by
+        dsimp only [A]
+        have := hq0.le
+        nlinarith [sq_nonneg Cb]
+  have hKd0 : 0 ≤ (K : ℝ) * d := by positivity
+  have hCbPow0 : 0 ≤ Cb * XR ^ (1 - δ) :=
+    mul_nonneg hCb (Real.rpow_nonneg hXR0.le _)
+  have hKdSq : ((K : ℝ) * d) ^ 2 ≤
+      (Cb * XR ^ (1 - δ)) ^ 2 :=
+    pow_le_pow_left₀ hKd0 hKd 2
+  have hpowSquare : (XR ^ (1 - δ)) ^ 2 = XR ^ (2 - 2 * δ) := by
+    rw [← Real.rpow_natCast]
+    rw [← Real.rpow_mul hXR0.le]
+    congr 1
+    norm_num
+    ring
+  have hexponents : 2 - 2 * δ ≤ 2 - κ := by linarith
+  have hpowBoundary : XR ^ (2 - 2 * δ) ≤ XR ^ (2 - κ) :=
+    Real.rpow_le_rpow_of_exponent_le hXR hexponents
+  have hpowTwo : XR ^ (2 - κ) = XR ^ 2 * q := by
+    dsimp only [q]
+    rw [show 2 - κ = 2 + (-κ) by ring, Real.rpow_add hXR0]
+    exact congrArg (fun z : ℝ ↦ z * XR ^ (-κ))
+      (Real.rpow_natCast XR 2)
+  have hboundary : 8 * ((K : ℝ) * d) ^ 2 ≤ A * XR ^ 2 * q := by
+    calc
+      8 * ((K : ℝ) * d) ^ 2 ≤
+          8 * (Cb * XR ^ (1 - δ)) ^ 2 := by gcongr
+      _ = 8 * Cb ^ 2 * XR ^ (2 - 2 * δ) := by
+        rw [mul_pow, hpowSquare]
+        ring
+      _ ≤ 8 * Cb ^ 2 * XR ^ (2 - κ) := by gcongr
+      _ = 8 * Cb ^ 2 * (XR ^ 2 * q) := by rw [hpowTwo]
+      _ ≤ A * XR ^ 2 * q := by
+        dsimp only [A]
+        have hnonneg : 0 ≤ XR ^ 2 * q := mul_nonneg (sq_nonneg XR) hq0.le
+        nlinarith [sq_nonneg Cb]
+  have hexponentsTerminal : 1 - θ ≤ 1 - κ := by linarith
+  have hpowTerminal : XR ^ (1 - θ) ≤ XR ^ (1 - κ) :=
+    Real.rpow_le_rpow_of_exponent_le hXR hexponentsTerminal
+  have hpowOne : XR ^ (1 - κ) = XR * q := by
+    dsimp only [q]
+    rw [show 1 - κ = 1 + (-κ) by ring, Real.rpow_add hXR0,
+      Real.rpow_one]
+  have hterminal' : terminal ≤ Ct * XR * q := by
+    calc
+      terminal ≤ Ct * XR ^ (1 - θ) := by simpa only [XR] using hterminal
+      _ ≤ Ct * XR ^ (1 - κ) := by gcongr
+      _ = Ct * XR * q := by rw [hpowOne]; ring
+  have hmain := finiteHistoryEnvelope_replicate_le_qRoot
+    XR q A Ct P K d r hXR0 hq0 hq1 hA hCt
+    (by change (P : ℝ) ≤ (X : ℝ); exact_mod_cast hP)
+    hK hdiag hboundary terminal hterminal0 hterminal'
+  have hqroot : q ^ ((2 : ℝ) ^ r)⁻¹ =
+      XR ^ (-κ / (2 : ℝ) ^ r) := by
+    dsimp only [q]
+    rw [← Real.rpow_mul hXR0.le]
+    congr 1
+  have hcombine : XR * q ^ ((2 : ℝ) ^ r)⁻¹ =
+      XR ^ (1 - κ / (2 : ℝ) ^ r) := by
+    rw [hqroot]
+    calc
+      XR * XR ^ (-κ / (2 : ℝ) ^ r) =
+          XR ^ 1 * XR ^ (-κ / (2 : ℝ) ^ r) := by rw [Real.rpow_one]
+      _ = XR ^ (1 + (-κ / (2 : ℝ) ^ r)) :=
+        (Real.rpow_add hXR0 _ _).symm
+      _ = XR ^ (1 - κ / (2 : ℝ) ^ r) := by congr 1; ring
+  simpa only [XR, A, hcombine, mul_assoc] using hmain
+
+/-! ## The concrete monomial parameter regime -/
+
+/-- Exponent used to place the terminal first derivative below one. -/
+noncomputable def terminalScaleExponent (ρ : ℝ) : ℝ := 1 - ρ / 2
+
+/-- Small loss used to absorb all fixed rounding constants. -/
+noncomputable def roundingLossExponent (ρ : ℝ) : ℝ := ρ / 8
+
+/-- Growth exponent of the number of restricted shifts. -/
+noncomputable def shiftCountExponent (ρ : ℝ) (R : ℕ) : ℝ :=
+  ρ / (32 * R)
+
+/-- Four elementary power inequalities which are sufficient for all
+rounding estimates, uniformly over `2 ≤ r ≤ R`. -/
+noncomputable def IsLargeMonomialScale
+    (ρ cRatio cU : ℝ) (R X : ℕ) : Prop :=
+  let τ := terminalScaleExponent ρ
+  let σ := roundingLossExponent ρ
+  let κ := shiftCountExponent ρ R
+  1 ≤ X ∧
+    (2 : ℝ) ^ R * cU ≤ (X : ℝ) ^ τ ∧
+    (2 : ℝ) ^ R ≤ cRatio * (X : ℝ) ^ σ ∧
+    (2 : ℝ) ^ (R + 1) ≤ (X : ℝ) ^ (τ - R * κ) ∧
+    2 ≤ (X : ℝ) ^ (τ + σ)
+
+/-- The concrete large-scale conditions hold beyond one threshold. -/
+theorem exists_largeMonomialScale_threshold
+    {ρ cRatio cU : ℝ} {R : ℕ}
+    (hρ0 : 0 < ρ) (hρ1 : ρ < 1)
+    (hcRatio : 0 < cRatio) (hcU : 0 < cU) (hR : 0 < R) :
+    ∃ X0 : ℕ, ∀ X ≥ X0, IsLargeMonomialScale ρ cRatio cU R X := by
+  let τ := terminalScaleExponent ρ
+  let σ := roundingLossExponent ρ
+  let κ := shiftCountExponent ρ R
+  have hτ : 0 < τ := by dsimp only [τ, terminalScaleExponent]; linarith
+  have hσ : 0 < σ := by dsimp only [σ, roundingLossExponent]; linarith
+  have hRreal : 0 < (R : ℝ) := by exact_mod_cast hR
+  have hκR : (R : ℝ) * κ = ρ / 32 := by
+    dsimp only [κ, shiftCountExponent]
+    field_simp [ne_of_gt hRreal]
+  have hτκ : 0 < τ - (R : ℝ) * κ := by
+    rw [hκR]
+    dsimp only [τ, terminalScaleExponent]
+    linarith
+  have hτσ : 0 < τ + σ := by linarith
+  have htτ : Tendsto (fun X : ℕ ↦ (X : ℝ) ^ τ) atTop atTop :=
+    (tendsto_rpow_atTop hτ).comp tendsto_natCast_atTop_atTop
+  have htσ : Tendsto (fun X : ℕ ↦ (X : ℝ) ^ σ) atTop atTop :=
+    (tendsto_rpow_atTop hσ).comp tendsto_natCast_atTop_atTop
+  have htτκ : Tendsto (fun X : ℕ ↦
+      (X : ℝ) ^ (τ - (R : ℝ) * κ)) atTop atTop :=
+    (tendsto_rpow_atTop hτκ).comp tendsto_natCast_atTop_atTop
+  have htτσ : Tendsto (fun X : ℕ ↦ (X : ℝ) ^ (τ + σ)) atTop atTop :=
+    (tendsto_rpow_atTop hτσ).comp tendsto_natCast_atTop_atTop
+  have h1 : ∀ᶠ X : ℕ in atTop, 1 ≤ X := eventually_ge_atTop 1
+  have h2 := htτ.eventually (eventually_ge_atTop ((2 : ℝ) ^ R * cU))
+  have h3raw := htσ.eventually
+    (eventually_ge_atTop (((2 : ℝ) ^ R) / cRatio))
+  have h4 := htτκ.eventually
+    (eventually_ge_atTop ((2 : ℝ) ^ (R + 1)))
+  have h5 := htτσ.eventually (eventually_ge_atTop (2 : ℝ))
+  have hall : ∀ᶠ X : ℕ in atTop,
+      IsLargeMonomialScale ρ cRatio cU R X := by
+    filter_upwards [h1, h2, h3raw, h4, h5] with X hX hXτ hXσ hXτκ hXτσ
+    dsimp only [IsLargeMonomialScale]
+    change 1 ≤ X ∧
+      (2 : ℝ) ^ R * cU ≤ (X : ℝ) ^ τ ∧
+      (2 : ℝ) ^ R ≤ cRatio * (X : ℝ) ^ σ ∧
+      (2 : ℝ) ^ (R + 1) ≤ (X : ℝ) ^ (τ - (R : ℝ) * κ) ∧
+      2 ≤ (X : ℝ) ^ (τ + σ)
+    refine ⟨hX, hXτ, ?_, hXτκ, hXτσ⟩
+    simpa only [mul_comm] using (div_le_iff₀ hcRatio).mp hXσ
+  exact eventually_atTop.1 hall
+
+/-- Rounded shift count in the monomial application. -/
+noncomputable def monomialShiftCount (ρ : ℝ) (R X : ℕ) : ℕ :=
+  ⌈(X : ℝ) ^ shiftCountExponent ρ R⌉₊
+
+/-- Rounded common spacing in the monomial application. -/
+noncomputable def monomialStepSize
+    (ρ Dup : ℝ) (X r : ℕ) : ℕ :=
+  ⌊(((X : ℝ) ^ (-terminalScaleExponent ρ) / Dup) ^
+      ((r : ℝ)⁻¹))⌋₊
+
+lemma largeMonomialScale_lambda_le_half
+    {ρ cRatio cU : ℝ} {R X : ℕ}
+    (hlarge : IsLargeMonomialScale ρ cRatio cU R X) :
+    (X : ℝ) ^ (-(terminalScaleExponent ρ +
+      roundingLossExponent ρ)) ≤ 1 / 2 := by
+  let τ := terminalScaleExponent ρ
+  let σ := roundingLossExponent ρ
+  rcases hlarge with ⟨hX, _h2, _h3, _h4, h5⟩
+  have hXR : 0 < (X : ℝ) := by exact_mod_cast (lt_of_lt_of_le Nat.zero_lt_one hX)
+  have hp : 0 < (X : ℝ) ^ (τ + σ) := Real.rpow_pos_of_pos hXR _
+  rw [Real.rpow_neg hXR.le]
+  simpa only [one_div, τ, σ] using
+    (inv_le_inv₀ hp (by norm_num : (0 : ℝ) < 2)).2 h5
+
+/-- The third large-scale inequality is exactly the one which makes the
+largest terminal derivative at most one half. -/
+lemma largeMonomialScale_shift_pow_mul_le_half
+    {ρ cRatio cU : ℝ} {R X : ℕ}
+    (hlarge : IsLargeMonomialScale ρ cRatio cU R X) :
+    (2 * (X : ℝ) ^ shiftCountExponent ρ R) ^ R *
+        (X : ℝ) ^ (-terminalScaleExponent ρ) ≤ 1 / 2 := by
+  let τ := terminalScaleExponent ρ
+  let κ := shiftCountExponent ρ R
+  rcases hlarge with ⟨hX, _h2, _h3, h4, _h5⟩
+  have hXR : 0 < (X : ℝ) := by exact_mod_cast (lt_of_lt_of_le Nat.zero_lt_one hX)
+  have hpow : 0 < (X : ℝ) ^ (τ - (R : ℝ) * κ) :=
+    Real.rpow_pos_of_pos hXR _
+  have htwo : (2 : ℝ) ^ R ≤
+      (1 / 2) * (X : ℝ) ^ (τ - (R : ℝ) * κ) := by
+    have hrewrite : (2 : ℝ) ^ (R + 1) = 2 * (2 : ℝ) ^ R := by
+      rw [pow_succ]
+      ring
+    rw [hrewrite] at h4
+    nlinarith
+  have hcombine :
+      (X : ℝ) ^ (τ - (R : ℝ) * κ) *
+          ((X : ℝ) ^ κ) ^ R * (X : ℝ) ^ (-τ) = 1 := by
+    rw [← Real.rpow_natCast]
+    rw [← Real.rpow_mul hXR.le]
+    rw [← Real.rpow_add hXR, ← Real.rpow_add hXR]
+    convert Real.rpow_zero (X : ℝ) using 1
+    · congr 1
+      ring
+  calc
+    (2 * (X : ℝ) ^ shiftCountExponent ρ R) ^ R *
+        (X : ℝ) ^ (-terminalScaleExponent ρ) =
+        (2 : ℝ) ^ R * (((X : ℝ) ^ κ) ^ R *
+          (X : ℝ) ^ (-τ)) := by
+      dsimp only [κ, τ]
+      rw [mul_pow]
+      ring
+    _ ≤ ((1 / 2) * (X : ℝ) ^ (τ - (R : ℝ) * κ)) *
+        (((X : ℝ) ^ κ) ^ R * (X : ℝ) ^ (-τ)) := by
+      gcongr
+    _ = (1 / 2) * ((X : ℝ) ^ (τ - (R : ℝ) * κ) *
+        ((X : ℝ) ^ κ) ^ R * (X : ℝ) ^ (-τ)) := by ring
+    _ = (1 / 2) * 1 := by rw [hcombine]
+    _ = 1 / 2 := by ring
+
+/-- The rounded choices of `K` and `d` give the two terminal derivative
+bounds needed by Kusmin--Landau.  The ratio hypothesis is essential: it
+retains the same coefficient in the lower and upper derivative estimates. -/
+theorem monomialParameters_leaf_bounds
+    {ρ cRatio cL cU Dlow Dup : ℝ} {R X r : ℕ}
+    (hρ0 : 0 < ρ) (hρ1 : ρ < 1)
+    (hcRatio : 0 < cRatio) (hcL : 0 < cL) (hcU : 0 < cU)
+    (hr2 : 2 ≤ r) (hrR : r ≤ R)
+    (hlarge : IsLargeMonomialScale ρ cRatio cU R X)
+    (hDup : 0 < Dup)
+    (hDupUpper : Dup ≤ cU * (X : ℝ) ^ (ρ - 2))
+    (hDlowLower : cL * (X : ℝ) ^ (ρ - 3) ≤ Dlow)
+    (hRatio : cRatio * Dup ≤ Dlow) (hDlowDup : Dlow ≤ Dup) :
+    let K := monomialShiftCount ρ R X
+    let d := monomialStepSize ρ Dup X r
+    let τ := terminalScaleExponent ρ
+    let σ := roundingLossExponent ρ
+    0 < K ∧ 0 < d ∧
+      (K : ℝ) ^ r * (d : ℝ) ^ r * Dup ≤ 1 / 2 ∧
+      (X : ℝ) ^ (-(τ + σ)) ≤ (d : ℝ) ^ r * Dlow ∧
+      (X : ℝ) ^ (-(τ + σ)) ≤ 1 / 2 ∧
+      (K : ℝ) * d ≤ 2 * Real.sqrt (cL⁻¹) *
+        (X : ℝ) ^ (1 - σ) := by
+  let τ := terminalScaleExponent ρ
+  let σ := roundingLossExponent ρ
+  let κ := shiftCountExponent ρ R
+  let Y := (X : ℝ) ^ (-τ) / Dup
+  let t := Y ^ ((r : ℝ)⁻¹)
+  let K := monomialShiftCount ρ R X
+  let d := monomialStepSize ρ Dup X r
+  rcases hlarge with ⟨hX, hscaleUpper, hscaleRatio,
+    hscaleTerminal, hscaleLambda⟩
+  have hXR : 1 ≤ (X : ℝ) := by exact_mod_cast hX
+  have hXR0 : 0 < (X : ℝ) := zero_lt_one.trans_le hXR
+  have hR : 0 < R := lt_of_lt_of_le (by omega : 0 < r) hrR
+  have hRreal : 0 < (R : ℝ) := by exact_mod_cast hR
+  have hr : r ≠ 0 := by omega
+  have hκ0 : 0 < κ := by
+    dsimp only [κ, shiftCountExponent]
+    positivity
+  have hXκ1 : 1 ≤ (X : ℝ) ^ κ :=
+    Real.one_le_rpow hXR hκ0.le
+  have hKlower : (X : ℝ) ^ κ ≤ (K : ℝ) := by
+    dsimp only [K, monomialShiftCount]
+    exact Nat.le_ceil _
+  have hKupper : (K : ℝ) ≤ 2 * (X : ℝ) ^ κ := by
+    dsimp only [K, monomialShiftCount]
+    exact natCeil_le_two_mul hXκ1
+  have hKpos : 0 < K := by
+    dsimp only [K, monomialShiftCount]
+    exact natCeil_pos (Real.rpow_pos_of_pos hXR0 _)
+  have hY0 : 0 < Y := div_pos (Real.rpow_pos_of_pos hXR0 _) hDup
+  have hpowIdentity :
+      (X : ℝ) ^ τ * (X : ℝ) ^ (ρ - 2) =
+        (X : ℝ) ^ (-τ) := by
+    rw [← Real.rpow_add hXR0]
+    congr 1
+    dsimp only [τ, terminalScaleExponent]
+    ring
+  have htwoR_Y : (2 : ℝ) ^ R ≤ Y := by
+    apply (le_div_iff₀ hDup).2
+    calc
+      (2 : ℝ) ^ R * Dup ≤
+          (2 : ℝ) ^ R * (cU * (X : ℝ) ^ (ρ - 2)) := by gcongr
+      _ = ((2 : ℝ) ^ R * cU) * (X : ℝ) ^ (ρ - 2) := by ring
+      _ ≤ (X : ℝ) ^ τ * (X : ℝ) ^ (ρ - 2) := by gcongr
+      _ = (X : ℝ) ^ (-τ) := hpowIdentity
+  have htwoR : (2 : ℝ) ^ r ≤ (2 : ℝ) ^ R :=
+    pow_le_pow_right₀ (by norm_num) hrR
+  have htPow : t ^ r = Y := by
+    dsimp only [t]
+    exact Real.rpow_inv_natCast_pow hY0.le hr
+  have ht2 : 2 ≤ t := by
+    apply (pow_le_pow_iff_left₀ (by norm_num) (Real.rpow_nonneg hY0.le _) hr).mp
+    rw [htPow]
+    exact htwoR.trans htwoR_Y
+  have hdDef : d = ⌊t⌋₊ := by
+    rfl
+  have hdpow := natFloor_rpow_inv_pow_bounds hY0.le hr ht2
+  change Y / (2 : ℝ) ^ r ≤ (d : ℝ) ^ r ∧
+      (d : ℝ) ^ r ≤ Y at hdpow
+  have hdpos : 0 < d := by
+    rw [hdDef]
+    exact natFloor_pos ht2
+  have hupperTerminal : (K : ℝ) ^ r * (d : ℝ) ^ r * Dup ≤ 1 / 2 := by
+    have hKpow : (K : ℝ) ^ r ≤ (2 * (X : ℝ) ^ κ) ^ r :=
+      pow_le_pow_left₀ (by positivity) hKupper r
+    have hbaseOne : 1 ≤ 2 * (X : ℝ) ^ κ := by nlinarith
+    have hrpowR : (2 * (X : ℝ) ^ κ) ^ r ≤
+        (2 * (X : ℝ) ^ κ) ^ R :=
+      pow_le_pow_right₀ hbaseOne hrR
+    calc
+      (K : ℝ) ^ r * (d : ℝ) ^ r * Dup ≤
+          (2 * (X : ℝ) ^ κ) ^ r * Y * Dup := by
+        gcongr
+        exact hdpow.2
+      _ = (2 * (X : ℝ) ^ κ) ^ r * (X : ℝ) ^ (-τ) := by
+        dsimp only [Y]
+        field_simp [hDup.ne']
+      _ ≤ (2 * (X : ℝ) ^ κ) ^ R * (X : ℝ) ^ (-τ) := by gcongr
+      _ ≤ 1 / 2 := largeMonomialScale_shift_pow_mul_le_half
+        (ρ := ρ) (cRatio := cRatio) (cU := cU)
+          (R := R) (X := X) ⟨hX, hscaleUpper, hscaleRatio,
+            hscaleTerminal, hscaleLambda⟩
+  have hratioDiv : cRatio ≤ Dlow / Dup :=
+    (le_div_iff₀ hDup).2 (by simpa only [mul_comm] using hRatio)
+  have hYlow : cRatio * (X : ℝ) ^ (-τ) ≤ Y * Dlow := by
+    dsimp only [Y]
+    calc
+      cRatio * (X : ℝ) ^ (-τ) ≤
+          (Dlow / Dup) * (X : ℝ) ^ (-τ) := by gcongr
+      _ = ((X : ℝ) ^ (-τ) / Dup) * Dlow := by ring
+  have htwoRatio : (2 : ℝ) ^ r ≤ cRatio * (X : ℝ) ^ σ :=
+    htwoR.trans hscaleRatio
+  have hpowLoss :
+      (X : ℝ) ^ σ * (X : ℝ) ^ (-(τ + σ)) =
+        (X : ℝ) ^ (-τ) := by
+    rw [← Real.rpow_add hXR0]
+    congr 1
+    ring
+  have hlowerScaled :
+      (X : ℝ) ^ (-(τ + σ)) * (2 : ℝ) ^ r ≤
+        cRatio * (X : ℝ) ^ (-τ) := by
+    calc
+      (X : ℝ) ^ (-(τ + σ)) * (2 : ℝ) ^ r ≤
+          (X : ℝ) ^ (-(τ + σ)) *
+            (cRatio * (X : ℝ) ^ σ) := by gcongr
+      _ = cRatio * (X : ℝ) ^ (-τ) := by rw [← hpowLoss]; ring
+  have hpow2pos : 0 < (2 : ℝ) ^ r := by positivity
+  have hlowerTerminal :
+      (X : ℝ) ^ (-(τ + σ)) ≤ (d : ℝ) ^ r * Dlow := by
+    calc
+      (X : ℝ) ^ (-(τ + σ)) ≤
+          (cRatio * (X : ℝ) ^ (-τ)) / (2 : ℝ) ^ r :=
+        (le_div_iff₀ hpow2pos).2 hlowerScaled
+      _ ≤ (Y * Dlow) / (2 : ℝ) ^ r := by gcongr
+      _ = (Y / (2 : ℝ) ^ r) * Dlow := by ring
+      _ ≤ (d : ℝ) ^ r * Dlow :=
+        mul_le_mul_of_nonneg_right hdpow.1
+          (lt_of_lt_of_le (mul_pos hcRatio hDup) hRatio).le
+  have hlambda := largeMonomialScale_lambda_le_half
+    (ρ := ρ) (cRatio := cRatio) (cU := cU)
+      (R := R) (X := X) ⟨hX, hscaleUpper, hscaleRatio,
+        hscaleTerminal, hscaleLambda⟩
+  have hDupLower : cL * (X : ℝ) ^ (ρ - 3) ≤ Dup :=
+    hDlowLower.trans hDlowDup
+  have hlowerPositive : 0 < cL * (X : ℝ) ^ (ρ - 3) :=
+    mul_pos hcL (Real.rpow_pos_of_pos hXR0 _)
+  have hinvDup : Dup⁻¹ ≤ (cL * (X : ℝ) ^ (ρ - 3))⁻¹ :=
+    (inv_le_inv₀ hDup hlowerPositive).2 hDupLower
+  have hYupper : Y ≤ cL⁻¹ * (X : ℝ) ^ (3 - ρ - τ) := by
+    dsimp only [Y]
+    rw [div_eq_mul_inv]
+    calc
+      (X : ℝ) ^ (-τ) * Dup⁻¹ ≤
+          (X : ℝ) ^ (-τ) *
+            (cL * (X : ℝ) ^ (ρ - 3))⁻¹ := by gcongr
+      _ = cL⁻¹ * (X : ℝ) ^ (3 - ρ - τ) := by
+        rw [mul_inv]
+        rw [← Real.rpow_neg hXR0.le]
+        calc
+          (X : ℝ) ^ (-τ) * (cL⁻¹ * (X : ℝ) ^ (-(ρ - 3))) =
+              cL⁻¹ * ((X : ℝ) ^ (-τ) *
+                (X : ℝ) ^ (-(ρ - 3))) := by ring
+          _ = cL⁻¹ * (X : ℝ) ^ ((-τ) + (-(ρ - 3))) := by
+            rw [Real.rpow_add hXR0]
+          _ = cL⁻¹ * (X : ℝ) ^ (3 - ρ - τ) := by
+            congr 2
+            ring
+  have htOne : 1 ≤ t := by linarith
+  have htSq : t ^ 2 ≤ Y := by
+    calc
+      t ^ 2 ≤ t ^ r := pow_le_pow_right₀ htOne hr2
+      _ = Y := htPow
+  let z : ℝ := Real.sqrt (cL⁻¹) * (X : ℝ) ^ (1 - ρ / 4)
+  have hcLinv0 : 0 ≤ cL⁻¹ := inv_nonneg.mpr hcL.le
+  have hz0 : 0 ≤ z := by
+    dsimp only [z]
+    positivity
+  have hzSq : z ^ 2 = cL⁻¹ * (X : ℝ) ^ (3 - ρ - τ) := by
+    dsimp only [z]
+    rw [mul_pow, Real.sq_sqrt hcLinv0]
+    have hpowSq : ((X : ℝ) ^ (1 - ρ / 4)) ^ 2 =
+        (X : ℝ) ^ (2 - ρ / 2) := by
+      rw [← Real.rpow_natCast]
+      rw [← Real.rpow_mul hXR0.le]
+      congr 1
+      norm_num
+      ring
+    rw [hpowSq]
+    congr 2
+    dsimp only [τ, terminalScaleExponent]
+    ring
+  have htZ : t ≤ z := by
+    have hsq : t ^ 2 ≤ z ^ 2 := by rw [hzSq]; exact htSq.trans hYupper
+    nlinarith
+  have hdT : (d : ℝ) ≤ t := by
+    rw [hdDef]
+    exact natFloor_le (by positivity)
+  have hκle : κ ≤ ρ / 8 := by
+    dsimp only [κ, shiftCountExponent]
+    apply (div_le_div_iff_of_pos_left hρ0
+      (by positivity : (0 : ℝ) < 32 * R) (by norm_num : (0 : ℝ) < 8)).2
+    have hR2 : (2 : ℝ) ≤ R := by exact_mod_cast hr2.trans hrR
+    nlinarith only [hR2]
+  have hexpBoundary : κ + (1 - ρ / 4) ≤ 1 - σ := by
+    dsimp only [σ, roundingLossExponent]
+    linarith
+  have hpowBoundary : (X : ℝ) ^ (κ + (1 - ρ / 4)) ≤
+      (X : ℝ) ^ (1 - σ) :=
+    Real.rpow_le_rpow_of_exponent_le hXR hexpBoundary
+  have hboundary : (K : ℝ) * d ≤ 2 * Real.sqrt (cL⁻¹) *
+      (X : ℝ) ^ (1 - σ) := by
+    calc
+      (K : ℝ) * d ≤ (2 * (X : ℝ) ^ κ) * z := by
+        gcongr
+        exact hdT.trans htZ
+      _ = 2 * Real.sqrt (cL⁻¹) *
+          (X : ℝ) ^ (κ + (1 - ρ / 4)) := by
+        dsimp only [z]
+        rw [Real.rpow_add hXR0]
+        ring
+      _ ≤ 2 * Real.sqrt (cL⁻¹) * (X : ℝ) ^ (1 - σ) := by gcongr
+  exact ⟨hKpos, hdpos, hupperTerminal, hlowerTerminal, hlambda, hboundary⟩
+
+/-- A second harmless threshold absorbs the fixed translation constant.
+Combined with the boundary conclusion of `monomialParameters_leaf_bounds`,
+it ensures that all `r` differencing translations stay inside one further
+dyadic block. -/
+theorem exists_monomialTranslation_threshold
+    {ρ cL : ℝ} {R : ℕ} (hρ : 0 < ρ) (hcL : 0 < cL) :
+    ∃ X0 : ℕ, ∀ X ≥ X0,
+      2 * Real.sqrt (cL⁻¹) * R ≤
+        (X : ℝ) ^ roundingLossExponent ρ := by
+  have hσ : 0 < roundingLossExponent ρ := by
+    dsimp only [roundingLossExponent]
+    linarith
+  have ht : Tendsto (fun X : ℕ ↦
+      (X : ℝ) ^ roundingLossExponent ρ) atTop atTop :=
+    (tendsto_rpow_atTop hσ).comp tendsto_natCast_atTop_atTop
+  exact eventually_atTop.1
+    (ht.eventually (eventually_ge_atTop
+      (2 * Real.sqrt (cL⁻¹) * R)))
+
+/-- The boundary power estimate and the preceding scale condition imply
+the concrete domain bound for all `r ≤ R`. -/
+theorem monomialTranslation_le
+    {ρ cL : ℝ} {R X r K d : ℕ}
+    (hX : 1 ≤ X) (hrR : r ≤ R)
+    (hscale : 2 * Real.sqrt (cL⁻¹) * R ≤
+      (X : ℝ) ^ roundingLossExponent ρ)
+    (hKd : (K : ℝ) * d ≤ 2 * Real.sqrt (cL⁻¹) *
+      (X : ℝ) ^ (1 - roundingLossExponent ρ)) :
+    (r : ℝ) * K * d ≤ X := by
+  have hXR : 0 < (X : ℝ) := by
+    exact_mod_cast (lt_of_lt_of_le Nat.zero_lt_one hX)
+  have hrRreal : (r : ℝ) ≤ R := by exact_mod_cast hrR
+  have hconst0 : 0 ≤ 2 * Real.sqrt (cL⁻¹) := by positivity
+  have hpow0 : 0 ≤ (X : ℝ) ^ (1 - roundingLossExponent ρ) :=
+    Real.rpow_nonneg hXR.le _
+  have hfirst : (r : ℝ) * ((K : ℝ) * d) ≤
+      ((R : ℝ) * (2 * Real.sqrt (cL⁻¹))) *
+        (X : ℝ) ^ (1 - roundingLossExponent ρ) := by
+    calc
+      (r : ℝ) * ((K : ℝ) * d) ≤
+          (r : ℝ) * (2 * Real.sqrt (cL⁻¹) *
+            (X : ℝ) ^ (1 - roundingLossExponent ρ)) := by gcongr
+      _ ≤ (R : ℝ) * (2 * Real.sqrt (cL⁻¹) *
+            (X : ℝ) ^ (1 - roundingLossExponent ρ)) := by gcongr
+      _ = ((R : ℝ) * (2 * Real.sqrt (cL⁻¹))) *
+            (X : ℝ) ^ (1 - roundingLossExponent ρ) := by ring
+  have hscale' : (R : ℝ) * (2 * Real.sqrt (cL⁻¹)) ≤
+      (X : ℝ) ^ roundingLossExponent ρ := by
+    simpa only [mul_assoc, mul_comm, mul_left_comm] using hscale
+  calc
+    (r : ℝ) * K * d = (r : ℝ) * ((K : ℝ) * d) := by ring
+    _ ≤ ((R : ℝ) * (2 * Real.sqrt (cL⁻¹))) *
+        (X : ℝ) ^ (1 - roundingLossExponent ρ) := hfirst
+    _ ≤ (X : ℝ) ^ roundingLossExponent ρ *
+        (X : ℝ) ^ (1 - roundingLossExponent ρ) := by gcongr
+    _ = X := by
+      rw [← Real.rpow_add hXR]
+      convert Real.rpow_one (X : ℝ) using 1
+      ring
+
+end AnalyticParameters
+
+end Erdos1149
