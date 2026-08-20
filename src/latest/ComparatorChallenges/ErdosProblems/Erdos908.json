@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos908",
+  "solution_module": "ErdosProblems.Erdos908",
+  "theorem_names": [
+    "Erdos908.erdos908_continuous_counterexample",
+    "Erdos908.erdos908_measurable"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
