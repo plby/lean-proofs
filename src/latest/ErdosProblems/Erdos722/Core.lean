@@ -1,0 +1,16125 @@
+/-
+Copyright 2026 The Lean-Proofs Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-/
+import ErdosProblems.Erdos722.Probability
+import ErdosProblems.Erdos722.LocalDecoder
+import ErdosProblems.Erdos722.Transversal
+import ErdosProblems.Erdos722.Reserve
+import ErdosProblems.Erdos722.NibbleBasics
+import ErdosProblems.Erdos722.CoverAsymptotic
+import ErdosProblems.Erdos722.BoostAsymptotic
+import ErdosProblems.Erdos722.NibbleTail
+import ErdosProblems.Erdos722.LocalDecoderAsymptotic
+import ErdosProblems.Erdos722.Prune
+import ErdosProblems.Erdos722.Rotations
+import ErdosProblems.Erdos722.GeneratorAsymptotic
+import ErdosProblems.Erdos722.ColoredEmbedding
+import ErdosProblems.Erdos722.ExchangeEmbedding
+import ErdosProblems.Erdos722.FurtherElimination
+import ErdosProblems.Erdos722.Assembly
+import Mathlib
+
+set_option relaxedAutoImplicit true
+
+/-!
+# Erdős Problem 722
+
+For fixed `k > r ≥ 1`, all sufficiently large admissible `n` support a
+Steiner system `S(r, k, n)`.  A block family is represented directly as a
+finite family of finite subsets of `Fin n`; the exact-cover clause is the
+standard definition of a block `r-(n,k,1)` design.
+
+The explanatory sentence on the Erdős Problems page has a typographical
+error in its block count.  Exact coverage forces
+`blocks.card * Nat.choose k r = Nat.choose n r`, as proved below.
+
+Reference: P. Keevash, *The existence of designs*, arXiv:1401.3665.
+-/
+
+namespace Erdos722
+
+open Finset
+
+/-- A labelled block `r-(n,k,1)` design, also called a Steiner system
+`S(r,k,n)`. -/
+def IsSteinerSystem (n k r : ℕ) (blocks : Finset (Finset (Fin n))) : Prop :=
+  (∀ B ∈ blocks, B.card = k) ∧
+    ∀ A ∈ (Finset.univ : Finset (Fin n)).powersetCard r,
+      (blocks.filter fun B ↦ A ⊆ B).card = 1
+
+/-- The usual necessary congruences for a Steiner system. -/
+def IsAdmissible (n k r : ℕ) : Prop :=
+  ∀ i < r, Nat.choose (k - i) (r - i) ∣ Nat.choose (n - i) (r - i)
+
+/-- The exact eventual-existence assertion asked in Erdős Problem 722. -/
+def Resolution : Prop :=
+  ∀ k r : ℕ, 0 < r → r < k →
+    ∃ n₀ : ℕ, ∀ n : ℕ, n₀ ≤ n → IsAdmissible n k r →
+      ∃ blocks : Finset (Finset (Fin n)), IsSteinerSystem n k r blocks
+
+/-- The complete `r`-uniform hypergraph on `Fin n`. -/
+def completeUniform (n r : ℕ) : Finset (Finset (Fin n)) :=
+  (Finset.univ : Finset (Fin n)).powersetCard r
+
+/-- The `r`-edges of the complete hypergraph supported on `B`. -/
+def cliqueEdges (B : Finset (Fin n)) (r : ℕ) : Finset (Finset (Fin n)) :=
+  B.powersetCard r
+
+/-- A family of vertex sets whose complete `r`-graphs partition `host`. -/
+def IsCliqueDecomposition (host blocks : Finset (Finset (Fin n))) (r : ℕ) : Prop :=
+  (∀ B ∈ blocks, cliqueEdges B r ⊆ host) ∧
+    ∀ A ∈ host, (blocks.filter fun B ↦ A ∈ cliqueEdges B r).card = 1
+
+@[simp] theorem mem_completeUniform {A : Finset (Fin n)} :
+    A ∈ completeUniform n r ↔ A.card = r := by
+  simp [completeUniform]
+
+@[simp] theorem mem_cliqueEdges {A B : Finset (Fin n)} :
+    A ∈ cliqueEdges B r ↔ A ⊆ B ∧ A.card = r := by
+  simp [cliqueEdges, Finset.mem_powersetCard]
+
+/-- The exact-cover definition is equivalent to a clique decomposition of
+the complete uniform hypergraph. -/
+theorem isSteinerSystem_iff_isCliqueDecomposition
+    (n k r : ℕ) (blocks : Finset (Finset (Fin n))) :
+    IsSteinerSystem n k r blocks ↔
+      (∀ B ∈ blocks, B.card = k) ∧
+        IsCliqueDecomposition (completeUniform n r) blocks r := by
+  classical
+  constructor
+  · intro h
+    refine ⟨h.1, ?_, ?_⟩
+    · intro B hB A hA
+      exact mem_completeUniform.mpr (mem_cliqueEdges.mp hA).2
+    · intro A hA
+      simpa [mem_cliqueEdges, (mem_completeUniform.mp hA)] using h.2 A hA
+  · rintro ⟨hunif, _hsub, hcover⟩
+    refine ⟨hunif, ?_⟩
+    intro A hA
+    simpa [mem_cliqueEdges, (mem_completeUniform.mp hA)] using hcover A hA
+
+/-- A `k`-uniform block decomposition of an `r`-graph. -/
+def IsBlockDecomposition (host blocks : Finset (Finset (Fin n))) (k r : ℕ) : Prop :=
+  (∀ B ∈ blocks, B.card = k) ∧ IsCliqueDecomposition host blocks r
+
+/-- Candidate blocks in the complete labelled ground set. -/
+def blockCandidates (n k : ℕ) : Finset (Finset (Fin n)) :=
+  completeUniform n k
+
+/-- Boundary of an integer combination of complete `k`-vertex cliques. -/
+def boundary (n k : ℕ) (φ : Finset (Fin n) → ℤ) (A : Finset (Fin n)) : ℤ :=
+  ∑ B ∈ blockCandidates n k, if A ⊆ B then φ B else 0
+
+/-- A hypergraph incidence vector lies in the integer lattice generated by
+the complete `k`-cliques.  This is the integral divisibility notion used in
+the absorption proof. -/
+def IsIntegrallyDecomposable (n k r : ℕ) (host : Finset (Finset (Fin n))) : Prop :=
+  ∃ φ : Finset (Fin n) → ℤ,
+    ∀ A ∈ completeUniform n r,
+      boundary n k φ A = if A ∈ host then 1 else 0
+
+/-- Number of host edges containing a fixed lower-dimensional face. -/
+def localDegree (host : Finset (Finset (Fin n))) (I : Finset (Fin n)) : ℕ :=
+  (host.filter fun A ↦ I ⊆ A).card
+
+/-- The local congruences for decomposing an `r`-graph into complete
+`r`-graphs on `k` vertices.  This is Keevash's `K_k^r`-divisibility
+condition. -/
+def IsCliqueDivisible (n k r : ℕ)
+    (host : Finset (Finset (Fin n))) : Prop :=
+  ∀ i < r, ∀ I ∈ completeUniform n i,
+    Nat.choose (k - i) (r - i) ∣ localDegree host I
+
+/-- Number of `r`-edges in a `k`-clique. -/
+def cliqueSize (k r : ℕ) : ℕ := Nat.choose k r
+
+/-- Denominator of the exponent `ρ = (6 * choose k r)⁻²` in the
+explicit short proof of design existence. -/
+def rhoDen (k r : ℕ) : ℕ := (6 * cliqueSize k r) ^ 2
+
+/-- Denominator of `α = (2k)⁻ʳ ρ`. -/
+def alphaDen (k r : ℕ) : ℕ := (2 * k) ^ r * rhoDen k r
+
+/-- One fixed integer dominating every finite rooted pattern occurring in
+the Section 6 focusing construction.  Outside the meaningful range `r < k`
+we use `1`, so the downstream exponent denominators remain total functions. -/
+noncomputable def sectionSixPatternDen (k r : ℕ) : ℕ :=
+  if hrk : r < k then
+    let E := ExchangeEmbedding.fullExchangeData hrk
+    let e₀ := ExchangeEmbedding.fullExchangeRootEdge hrk
+    let mE := E.pattern.freeEdges.card
+    let mA := (CoverClique.coverPattern k r).freeEdges.card
+    let mX := (E.eliminationPattern e₀).freeEdges.card
+    let mR := (CoverClique.coverPattern k r).freeEdges.card
+    let mS := Nat.choose k r *
+      (Nat.choose k r - 1 +
+        (SpecialCliqueCandidates.remainingBlocks E).card)
+    rhoDen k r + Nat.choose k r + mE + 2 * mA + mX + mR +
+      (3 * rhoDen k r) * mR + mS + 1
+  else 1
+
+/-- Denominator of the sparse integral-generator exponent `α / 2`.
+Keeping this separate from `alphaDen` records the loss in the
+multiplicity-flattening stage of Lemma 6.1. -/
+noncomputable def generatorDen (k r : ℕ) : ℕ :=
+  2 * alphaDen k r + 41 * sectionSixPatternDen k r
+
+/-- Denominator reserved for the final absorber boundary.  The extra factor
+four leaves fixed exponent slack for the three Booleanization allocators. -/
+noncomputable def absorberDen (k r : ℕ) : ℕ := 4 * generatorDen k r
+
+/-- The explicit threshold recorded in the 2024 short proof. -/
+def keevashThreshold (k r : ℕ) : ℕ :=
+  (4 * k) ^ (90 * k * alphaDen k r)
+
+/-- Integral form of the estimate `Δₙ₋₁(host) ≤ c·n⁽¹⁻¹ᐠᵈ⁾`.
+Raising to the positive integer denominator `d` removes fractional real
+powers: `degree^d ≤ c^d * n^(d-1)`. -/
+def IsPowerBounded (n r d c : ℕ)
+    (host : Finset (Finset (Fin n))) : Prop :=
+  ∀ I ∈ completeUniform n (r - 1),
+    (localDegree host I) ^ d ≤ c ^ d * n ^ (d - 1)
+
+theorem IsPowerBounded.mono {host₁ host₂ : Finset (Finset (Fin n))}
+    (hsub : host₁ ⊆ host₂) (h : IsPowerBounded n r d c host₂) :
+    IsPowerBounded n r d c host₁ := by
+  intro I hI
+  exact (Nat.pow_le_pow_left (Finset.card_le_card
+    (Finset.filter_subset_filter (fun A ↦ I ⊆ A) hsub)) d).trans (h I hI)
+
+lemma localDegree_union_le
+    (host₁ host₂ : Finset (Finset (Fin n))) (I : Finset (Fin n)) :
+    localDegree (host₁ ∪ host₂) I ≤
+      localDegree host₁ I + localDegree host₂ I := by
+  unfold localDegree
+  rw [Finset.filter_union]
+  exact Finset.card_union_le _ _
+
+/-- A union of two hosts with the same power-cleared bound has the same
+exponent and at most twice the constant. -/
+theorem IsPowerBounded.union
+    {host₁ host₂ : Finset (Finset (Fin n))}
+    (h₁ : IsPowerBounded n r d c host₁)
+    (h₂ : IsPowerBounded n r d c host₂) :
+    IsPowerBounded n r d (2 * c) (host₁ ∪ host₂) := by
+  intro I hI
+  let a := localDegree host₁ I
+  let b := localDegree host₂ I
+  let M := max a b
+  have hu : localDegree (host₁ ∪ host₂) I ≤ 2 * M := by
+    calc
+      localDegree (host₁ ∪ host₂) I ≤ a + b :=
+        localDegree_union_le host₁ host₂ I
+      _ ≤ M + M := Nat.add_le_add (le_max_left _ _) (le_max_right _ _)
+      _ = 2 * M := by omega
+  have hM : M ^ d ≤ c ^ d * n ^ (d - 1) := by
+    by_cases hab : a ≤ b
+    · simpa [M, max_eq_right hab] using h₂ I hI
+    · have hba : b ≤ a := Nat.le_of_lt (Nat.lt_of_not_ge hab)
+      simpa [M, max_eq_left hba] using h₁ I hI
+  calc
+    localDegree (host₁ ∪ host₂) I ^ d ≤ (2 * M) ^ d :=
+      Nat.pow_le_pow_left hu d
+    _ = 2 ^ d * M ^ d := by rw [mul_pow]
+    _ ≤ 2 ^ d * (c ^ d * n ^ (d - 1)) :=
+      Nat.mul_le_mul_left _ hM
+    _ = (2 * c) ^ d * n ^ (d - 1) := by rw [mul_pow]; ring
+
+/-- Quantitative charging lemma for derived schedules: if every lower-face
+load is at most a fixed multiple of the sum of two already power-bounded
+loads, then the derived family has the same exponent and a fixed enlarged
+constant. -/
+theorem isPowerBounded_of_localDegree_le_mul_add
+    {target host₁ host₂ : Finset (Finset (Fin n))}
+    (K c₁ c₂ : ℕ)
+    (hdegree : ∀ I : Finset (Fin n), I.card = r - 1 →
+      localDegree target I ≤
+        K * (localDegree host₁ I + localDegree host₂ I))
+    (h₁ : IsPowerBounded n r d c₁ host₁)
+    (h₂ : IsPowerBounded n r d c₂ host₂) :
+    IsPowerBounded n r d (2 * K * max c₁ c₂) target := by
+  intro I hI
+  let a := localDegree host₁ I
+  let b := localDegree host₂ I
+  let m := max a b
+  let c := max c₁ c₂
+  have hload : localDegree target I ≤ 2 * K * m := by
+    calc
+      localDegree target I ≤ K * (a + b) :=
+        hdegree I (mem_completeUniform.mp hI)
+      _ ≤ K * (m + m) := by
+        gcongr
+        · exact le_max_left _ _
+        · exact le_max_right _ _
+      _ = 2 * K * m := by ring
+  have hm : m ^ d ≤ c ^ d * n ^ (d - 1) := by
+    by_cases hab : a ≤ b
+    · rw [show m = b by simp [m, max_eq_right hab]]
+      exact (h₂ I hI).trans (Nat.mul_le_mul_right _
+        (Nat.pow_le_pow_left (le_max_right c₁ c₂) d))
+    · have hba : b ≤ a := Nat.le_of_lt (Nat.lt_of_not_ge hab)
+      rw [show m = a by simp [m, max_eq_left hba]]
+      exact (h₁ I hI).trans (Nat.mul_le_mul_right _
+        (Nat.pow_le_pow_left (le_max_left c₁ c₂) d))
+  calc
+    localDegree target I ^ d ≤ (2 * K * m) ^ d :=
+      Nat.pow_le_pow_left hload d
+    _ = (2 * K) ^ d * m ^ d := by rw [mul_pow]
+    _ ≤ (2 * K) ^ d * (c ^ d * n ^ (d - 1)) :=
+      Nat.mul_le_mul_left _ hm
+    _ = (2 * K * c) ^ d * n ^ (d - 1) := by
+      rw [mul_pow]
+      ring
+
+/-- A fixed multiplicative constant can be absorbed by halving the decay
+exponent once `n` exceeds the corresponding fixed power. -/
+theorem IsPowerBounded.absorb_constant
+    {host : Finset (Finset (Fin n))} (hd : 0 < d)
+    (hlarge : c ^ (2 * d) ≤ n)
+    (h : IsPowerBounded n r d c host) :
+    IsPowerBounded n r (2 * d) 1 host := by
+  intro I hI
+  have hpow := Nat.pow_le_pow_left (h I hI) 2
+  calc
+    localDegree host I ^ (2 * d) = (localDegree host I ^ d) ^ 2 := by
+      rw [← pow_mul]
+      congr 1
+      omega
+    _ ≤ (c ^ d * n ^ (d - 1)) ^ 2 := hpow
+    _ = c ^ (2 * d) * n ^ (2 * (d - 1)) := by
+      rw [mul_pow, ← pow_mul, ← pow_mul]
+      congr 2 <;> omega
+    _ ≤ n * n ^ (2 * (d - 1)) := Nat.mul_le_mul_right _ hlarge
+    _ = n ^ ((2 * d) - 1) := by
+      rw [Nat.mul_comm, ← pow_succ]
+      congr 1
+      omega
+    _ = 1 ^ (2 * d) * n ^ ((2 * d) - 1) := by simp
+
+/-- A fixed constant may be absorbed using any strictly weaker power
+denominator.  This is the graded form needed between successive absorber
+allocations, where there is slack but a full doubling would spend too much
+of the exponent. -/
+theorem IsPowerBounded.rebase_constant
+    {host : Finset (Finset (Fin n))} {d' : ℕ}
+    (hd : 0 < d) (hdd' : d < d')
+    (hlarge : c ^ (d * d') ≤ n ^ (d' - d))
+    (h : IsPowerBounded n r d c host) :
+    IsPowerBounded n r d' 1 host := by
+  intro I hI
+  have hp := Nat.pow_le_pow_left (h I hI) d'
+  have hraised : (localDegree host I ^ d') ^ d ≤
+      (n ^ (d' - 1)) ^ d := by
+    calc
+      (localDegree host I ^ d') ^ d =
+          (localDegree host I ^ d) ^ d' := by
+        rw [← pow_mul, ← pow_mul]
+        simp [Nat.mul_comm]
+      _ ≤ (c ^ d * n ^ (d - 1)) ^ d' := hp
+      _ = c ^ (d * d') * n ^ ((d - 1) * d') := by
+        rw [mul_pow, ← pow_mul, ← pow_mul]
+      _ ≤ n ^ (d' - d) * n ^ ((d - 1) * d') :=
+        Nat.mul_le_mul_right _ hlarge
+      _ = n ^ ((d' - 1) * d) := by
+        rw [← pow_add]
+        congr 1
+        have hdle : d ≤ d' := hdd'.le
+        have hdone : d - 1 + 1 = d := Nat.sub_add_cancel hd
+        have hd'one : d' - 1 + 1 = d' :=
+          Nat.sub_add_cancel (by omega)
+        have hdiff : d' - d + d = d' := Nat.sub_add_cancel hdle
+        nlinarith
+      _ = (n ^ (d' - 1)) ^ d := by rw [pow_mul]
+  have hbase : localDegree host I ^ d' ≤ n ^ (d' - 1) :=
+    (Nat.pow_le_pow_iff_left hd.ne').mp hraised
+  simpa using hbase
+
+/-- Eventual uniform form of `IsPowerBounded.rebase_constant`. -/
+theorem eventually_rebase_powerBounded_constant
+    (d d' c : ℕ) (hd : 0 < d) (hdd' : d < d') :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ host : Finset (Finset (Fin n)),
+        IsPowerBounded n r d c host →
+          IsPowerBounded n r d' 1 host := by
+  filter_upwards [Filter.eventually_ge_atTop
+      (max 1 (c ^ (d * d')))] with n hn
+  intro host hhost
+  apply hhost.rebase_constant hd hdd'
+  have hnOne : 1 ≤ n := (le_max_left _ _).trans hn
+  have hconst : c ^ (d * d') ≤ n :=
+    (le_max_right 1 (c ^ (d * d'))).trans hn
+  exact hconst.trans (by
+    simpa using (Nat.le_pow (a := n) (by omega : 0 < d' - d)))
+
+/-- Scalar form of the same exponent-slack estimate.  It is useful for
+derived loads which are sums of local degrees but are not themselves the
+local degree of a named finset. -/
+theorem eventually_rebase_power_inequality_constant
+    (d d' c : ℕ) (hd : 0 < d) (hdd' : d < d') :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ x : ℕ, x ^ d ≤ c ^ d * n ^ (d - 1) →
+        x ^ d' ≤ n ^ (d' - 1) := by
+  filter_upwards [Filter.eventually_ge_atTop
+      (max 1 (c ^ (d * d')))] with n hn
+  intro x hx
+  have hlarge : c ^ (d * d') ≤ n ^ (d' - d) := by
+    have hconst : c ^ (d * d') ≤ n :=
+      (le_max_right 1 (c ^ (d * d'))).trans hn
+    exact hconst.trans (by
+      simpa using (Nat.le_pow (a := n) (by omega : 0 < d' - d)))
+  have hp := Nat.pow_le_pow_left hx d'
+  have hraised : (x ^ d') ^ d ≤ (n ^ (d' - 1)) ^ d := by
+    calc
+      (x ^ d') ^ d = (x ^ d) ^ d' := by
+        rw [← pow_mul, ← pow_mul]
+        simp [Nat.mul_comm]
+      _ ≤ (c ^ d * n ^ (d - 1)) ^ d' := hp
+      _ = c ^ (d * d') * n ^ ((d - 1) * d') := by
+        rw [mul_pow, ← pow_mul, ← pow_mul]
+      _ ≤ n ^ (d' - d) * n ^ ((d - 1) * d') :=
+        Nat.mul_le_mul_right _ hlarge
+      _ = n ^ ((d' - 1) * d) := by
+        rw [← pow_add]
+        congr 1
+        have hdle : d ≤ d' := hdd'.le
+        have hdone : d - 1 + 1 = d := Nat.sub_add_cancel hd
+        have hd'one : d' - 1 + 1 = d' :=
+          Nat.sub_add_cancel (by omega)
+        have hdiff : d' - d + d = d' := Nat.sub_add_cancel hdle
+        nlinarith
+      _ = (n ^ (d' - 1)) ^ d := by rw [pow_mul]
+  exact (Nat.pow_le_pow_iff_left hd.ne').mp hraised
+
+/-- A fixed multiple of the sum of two power-bounded local-degree loads
+fits the coefficient-one bound after one strictly weaker exponent step. -/
+theorem eventually_scaled_localDegree_add_power_le
+    (d d' K c₁ c₂ : ℕ) (hd : 0 < d) (hdd' : d < d') :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ host₁ host₂ : Finset (Finset (Fin n)),
+      IsPowerBounded n r d c₁ host₁ →
+      IsPowerBounded n r d c₂ host₂ →
+      ∀ I : Finset (Fin n), I.card = r - 1 →
+        (K * (localDegree host₁ I + localDegree host₂ I)) ^ d' ≤
+          n ^ (d' - 1) := by
+  let c := 2 * K * max c₁ c₂
+  have hrebase := eventually_rebase_power_inequality_constant d d' c hd hdd'
+  filter_upwards [hrebase] with n hrebase
+  intro host₁ host₂ h₁ h₂ I hI
+  let x := localDegree host₁ I
+  let y := localDegree host₂ I
+  let m := max x y
+  let c₀ := max c₁ c₂
+  have hm : m ^ d ≤ c₀ ^ d * n ^ (d - 1) := by
+    by_cases hxy : x ≤ y
+    · rw [show m = y by simp [m, max_eq_right hxy]]
+      exact (h₂ I (mem_completeUniform.mpr hI)).trans
+        (Nat.mul_le_mul_right _
+          (Nat.pow_le_pow_left (le_max_right c₁ c₂) d))
+    · have hyx : y ≤ x := Nat.le_of_lt (Nat.lt_of_not_ge hxy)
+      rw [show m = x by simp [m, max_eq_left hyx]]
+      exact (h₁ I (mem_completeUniform.mpr hI)).trans
+        (Nat.mul_le_mul_right _
+          (Nat.pow_le_pow_left (le_max_left c₁ c₂) d))
+  apply hrebase (K * (x + y))
+  calc
+    (K * (x + y)) ^ d ≤ (2 * K * m) ^ d := by
+      apply Nat.pow_le_pow_left
+      calc
+        K * (x + y) ≤ K * (m + m) := by
+          gcongr
+          · exact le_max_left _ _
+          · exact le_max_right _ _
+        _ = 2 * K * m := by ring
+    _ = (2 * K) ^ d * m ^ d := by rw [mul_pow]
+    _ ≤ (2 * K) ^ d * (c₀ ^ d * n ^ (d - 1)) :=
+      Nat.mul_le_mul_left _ hm
+    _ = c ^ d * n ^ (d - 1) := by
+      simp [c, c₀, mul_pow]
+      ring
+
+/-- Weakening the fixed multiplicative constant preserves a power-cleared
+degree bound. -/
+theorem IsPowerBounded.mono_constant
+    {host : Finset (Finset (Fin n))} (hcc' : c ≤ c')
+    (h : IsPowerBounded n r d c host) :
+    IsPowerBounded n r d c' host := by
+  intro I hI
+  exact (h I hI).trans (Nat.mul_le_mul_right _
+    (Nat.pow_le_pow_left hcc' d))
+
+/-- A power-cleared degree bound may be raised to any positive multiple of
+its denominator.  The extra powers of `n` only weaken the target. -/
+theorem IsPowerBounded.lift_mul
+    {host : Finset (Finset (Fin n))} (hn : 1 ≤ n) (hm : 0 < m)
+    (h : IsPowerBounded n r d c host) :
+    IsPowerBounded n r (d * m) c host := by
+  intro I hI
+  have hp := Nat.pow_le_pow_left (h I hI) m
+  calc
+    localDegree host I ^ (d * m) = (localDegree host I ^ d) ^ m := by
+      rw [pow_mul]
+    _ ≤ (c ^ d * n ^ (d - 1)) ^ m := hp
+    _ = c ^ (d * m) * n ^ ((d - 1) * m) := by
+      rw [mul_pow, ← pow_mul, ← pow_mul]
+    _ ≤ c ^ (d * m) * n ^ (d * m - 1) := by
+      apply Nat.mul_le_mul_left
+      apply Nat.pow_le_pow_right hn
+      rw [Nat.sub_mul]
+      omega
+
+/-- The maximum codimension-one degree of an `r`-graph. -/
+def maxLowerDegree (n r : ℕ) (host : Finset (Finset (Fin n))) : ℕ :=
+  (completeUniform n (r - 1)).sup (localDegree host)
+
+theorem localDegree_le_maxLowerDegree
+    (host : Finset (Finset (Fin n))) (I : Finset (Fin n))
+    (hI : I.card = r - 1) :
+    localDegree host I ≤ maxLowerDegree n r host := by
+  apply Finset.le_sup
+  exact mem_completeUniform.mpr hI
+
+theorem lowerDegreeLE_maxLowerDegree
+    (host : Finset (Finset (Fin n))) :
+    Counting.LowerDegreeLE n r (maxLowerDegree n r host) host := by
+  intro I hI
+  exact localDegree_le_maxLowerDegree host I hI
+
+theorem maxLowerDegree_pow_le
+    {host : Finset (Finset (Fin n))}
+    (h : IsPowerBounded n r d c host) :
+    maxLowerDegree n r host ^ d ≤ c ^ d * n ^ (d - 1) := by
+  unfold maxLowerDegree
+  apply Finset.sup_mem (s := {x : ℕ | x ^ d ≤ c ^ d * n ^ (d - 1)})
+  · by_cases hd : d = 0 <;> simp [hd, zero_pow]
+  · intro x hx y hy
+    simp only [Set.mem_setOf_eq] at hx hy ⊢
+    rcases max_cases x y with hxy | hxy <;> simp [hxy, hx, hy]
+  · intro I hI
+    exact h I hI
+
+/-- Charging each uniform edge to its codimension-one faces bounds the
+number of edges by the number of faces times the maximum lower degree. -/
+theorem card_le_choose_mul_maxLowerDegree
+    {host : Finset (Finset (Fin n))} (hr : 0 < r)
+    (hhost : host ⊆ completeUniform n r) :
+    host.card ≤ Nat.choose n (r - 1) * maxLowerDegree n r host := by
+  have hcount := Reserve.card_mul_le_card_mul_of_relation host
+    (completeUniform n (r - 1)) (fun e I ↦ I ⊆ e) 1
+    (maxLowerDegree n r host) (by
+      intro e he
+      have hecard : e.card = r := mem_completeUniform.mp (hhost he)
+      have heq : (completeUniform n (r - 1)).filter (fun I ↦ I ⊆ e) =
+          e.powersetCard (r - 1) := by
+        ext I
+        simp [Finset.mem_powersetCard, and_comm]
+      rw [heq, Finset.card_powersetCard, hecard]
+      have hchoose : Nat.choose r (r - 1) = r := by
+        have hrid : r - 1 + 1 = r := Nat.sub_add_cancel hr
+        calc
+          Nat.choose r (r - 1) = Nat.choose (r - 1 + 1) (r - 1) :=
+            congrArg (fun x ↦ Nat.choose x (r - 1)) hrid.symm
+          _ = r - 1 + 1 := Nat.choose_succ_self_right (r - 1)
+          _ = r := hrid
+      rw [hchoose]
+      exact hr) (by
+      intro I hI
+      exact localDegree_le_maxLowerDegree host I
+        (mem_completeUniform.mp hI))
+  simpa [completeUniform] using hcount
+
+/-- Uniformly for large `n`, deleting an `r`-graph with a fixed
+power-cleared sublinear maximum lower degree leaves more than half of the
+complete `r`-graph. -/
+theorem eventually_half_card_sdiff_of_powerBounded
+    (hr : 0 < r) (hd : 1 < d) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ host : Finset (Finset (Fin n)),
+        host ⊆ completeUniform n r →
+        IsPowerBounded n r d 1 host →
+        Nat.choose n r / 2 < (completeUniform n r \ host).card := by
+  let a : ℝ := ((r - 1 : ℕ) : ℝ) + ((d - 1 : ℕ) : ℝ) / d
+  let C : ℝ := 4 * (2 : ℝ) ^ r * r.factorial
+  have ha : a < r := by
+    simpa [a] using BoostAsymptotic.sparse_ambient_exponent_lt hr hd
+  have hdom := Asymptotics.eventually_const_mul_rpow_le_rpow
+    (a := a) (b := (r : ℝ)) (C := C) ha (by positivity)
+  filter_upwards [hdom,
+      Filter.eventually_ge_atTop (max 1 (2 * r))] with n hdom hn
+  intro host hhost hsparse
+  have hnpos : 0 < n := by omega
+  have hnR : (0 : ℝ) < n := by exact_mod_cast hnpos
+  let D := maxLowerDegree n r host
+  have hDpow : D ^ d ≤ n ^ (d - 1) := by
+    simpa [D] using maxLowerDegree_pow_le hsparse
+  have hDreal : (D : ℝ) ≤
+      (n : ℝ) ^ (((d - 1 : ℕ) : ℝ) / d) :=
+    BoostAsymptotic.sparseDegree_cast_le (by omega) hDpow
+  have hcardNat : host.card ≤ Nat.choose n (r - 1) * D :=
+    card_le_choose_mul_maxLowerDegree hr hhost
+  have hfaceNat : Nat.choose n (r - 1) ≤ n ^ (r - 1) :=
+    Nat.choose_le_pow n (r - 1)
+  have hfaceReal : (Nat.choose n (r - 1) : ℝ) ≤
+      (n : ℝ) ^ (r - 1) := by exact_mod_cast hfaceNat
+  have hcardReal : (host.card : ℝ) ≤ (n : ℝ) ^ a := by
+    calc
+      (host.card : ℝ) ≤ (Nat.choose n (r - 1) * D : ℕ) := by
+        exact_mod_cast hcardNat
+      _ = (Nat.choose n (r - 1) : ℝ) * D := by push_cast; rfl
+      _ ≤ (n : ℝ) ^ (r - 1) * D := by
+        exact mul_le_mul_of_nonneg_right hfaceReal (by positivity)
+      _ ≤ (n : ℝ) ^ (r - 1) *
+          (n : ℝ) ^ (((d - 1 : ℕ) : ℝ) / d) := by
+        exact mul_le_mul_of_nonneg_left hDreal (by positivity)
+      _ = (n : ℝ) ^ a := by
+        rw [← Real.rpow_natCast, ← Real.rpow_add hnR]
+  have hchooseLower : (n : ℝ) ^ r /
+        ((2 : ℝ) ^ r * r.factorial) ≤ Nat.choose n r := by
+    calc
+      (n : ℝ) ^ r / ((2 : ℝ) ^ r * r.factorial) =
+          ((n : ℝ) / 2) ^ r / r.factorial := by
+        rw [div_pow]
+        ring
+      _ ≤ Nat.choose (n - 0) r :=
+        BinomialBounds.half_pow_div_factorial_le_choose_sub n 0 r (by omega)
+      _ = Nat.choose n r := by simp
+  have hfour : 4 * (n : ℝ) ^ a ≤
+      (n : ℝ) ^ r / ((2 : ℝ) ^ r * r.factorial) := by
+    apply (le_div_iff₀ (by positivity :
+      (0 : ℝ) < (2 : ℝ) ^ r * r.factorial)).2
+    simpa [C, mul_assoc, mul_left_comm, mul_comm,
+      Real.rpow_natCast] using hdom
+  have htwoReal : (2 : ℝ) * host.card < Nat.choose n r := by
+    calc
+      (2 : ℝ) * host.card ≤ 2 * (n : ℝ) ^ a := by gcongr
+      _ < 4 * (n : ℝ) ^ a := by
+        have : 0 < (n : ℝ) ^ a := Real.rpow_pos_of_pos hnR _
+        linarith
+      _ ≤ (n : ℝ) ^ r / ((2 : ℝ) ^ r * r.factorial) := hfour
+      _ ≤ Nat.choose n r := hchooseLower
+  have htwoNat : 2 * host.card < Nat.choose n r := by exact_mod_cast htwoReal
+  rw [Finset.card_sdiff_of_subset hhost]
+  simp only [completeUniform, Finset.card_powersetCard, Finset.card_univ,
+    Fintype.card_fin]
+  omega
+
+/-- Two hosts with possibly different fixed power denominators can be put
+over one common denominator.  For large `n`, their union has multiplicative
+constant one after one final denominator doubling. -/
+theorem eventually_union_powerBounded_one
+    (d₁ d₂ c₁ c₂ : ℕ) (hd₁ : 0 < d₁) (hd₂ : 0 < d₂) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ host₁ host₂ : Finset (Finset (Fin n)),
+        IsPowerBounded n r d₁ c₁ host₁ →
+        IsPowerBounded n r d₂ c₂ host₂ →
+        IsPowerBounded n r (2 * (d₁ * d₂)) 1 (host₁ ∪ host₂) := by
+  let c := max c₁ c₂
+  let d := d₁ * d₂
+  filter_upwards [Filter.eventually_ge_atTop
+      (max 1 ((2 * c) ^ (2 * d)))] with n hn
+  intro host₁ host₂ h₁ h₂
+  have hnOne : 1 ≤ n := (le_max_left _ _).trans hn
+  have h₁' : IsPowerBounded n r d c host₁ := by
+    apply IsPowerBounded.mono_constant (c' := c) (le_max_left _ _)
+    simpa [d] using h₁.lift_mul hnOne hd₂
+  have h₂' : IsPowerBounded n r d c host₂ := by
+    apply IsPowerBounded.mono_constant (c' := c) (le_max_right _ _)
+    simpa [d, Nat.mul_comm] using h₂.lift_mul hnOne hd₁
+  have hu : IsPowerBounded n r d (2 * c) (host₁ ∪ host₂) := h₁'.union h₂'
+  have hdpos : 0 < d := Nat.mul_pos hd₁ hd₂
+  have hlarge : (2 * c) ^ (2 * d) ≤ n :=
+    (le_max_right 1 ((2 * c) ^ (2 * d))).trans hn
+  simpa [Nat.mul_comm] using hu.absorb_constant hdpos hlarge
+
+/-- A family of `k`-sets with a codimension-one power bound has a boundary
+with the same exponent; only the fixed number of possible subedges is lost
+in the multiplicative constant. -/
+theorem isPowerBounded_rootBoundary_of_powerBounded_blocks
+    {roots : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ roots, Q.card = k)
+    (hroots : IsPowerBounded n r d c roots) :
+    IsPowerBounded n r d (2 ^ k * c)
+      (ExchangeEmbedding.rootBoundary roots r) := by
+  intro J hJmem
+  have hdegree := NearPairing.rootBoundary_localDegree_le_incidenceCount
+    (r := r) huniform J
+  have hroot := hroots J hJmem
+  calc
+    localDegree (ExchangeEmbedding.rootBoundary roots r) J ^ d ≤
+        (localDegree roots J * 2 ^ k) ^ d := by
+      apply Nat.pow_le_pow_left
+      simpa [localDegree, Reserve.localDegree,
+        Transversal.incidenceCount] using hdegree
+    _ = (2 ^ k) ^ d * localDegree roots J ^ d := by
+      rw [mul_pow]
+      ring
+    _ ≤ (2 ^ k) ^ d * (c ^ d * n ^ (d - 1)) :=
+      Nat.mul_le_mul_left _ hroot
+    _ = (2 ^ k * c) ^ d * n ^ (d - 1) := by
+      rw [mul_pow]
+      ring
+
+/-- A path-cap local-degree estimate has exponent denominator `2*d` after
+clearing the square-root slack in the random-greedy cap. -/
+theorem isPowerBounded_of_localDegree_le_scaledDecoderPathCap
+    (hd : 0 < d) {host : Finset (Finset (Fin n))}
+    (F scale v : ℕ)
+    (hdegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      localDegree host J ≤ F *
+        RootedFamilyAsymptotic.scaledDecoderPathCap scale v r d n) :
+    IsPowerBounded n r (2 * d)
+      (F * scale * LocalDecoderAsymptotic.decoderPathMultiplier v r) host := by
+  let M := LocalDecoderAsymptotic.decoderPathMultiplier v r
+  let T := LocalDecoderAsymptotic.decoderPathScale d n
+  intro J hJmem
+  have hJ : J.card = r - 1 := mem_completeUniform.mp hJmem
+  have hlocal := hdegree J hJ
+  have hT := LocalDecoderAsymptotic.decoderPathScale_pow_le d n hd
+  calc
+    localDegree host J ^ (2 * d) ≤
+        (F * RootedFamilyAsymptotic.scaledDecoderPathCap scale v r d n) ^
+          (2 * d) := Nat.pow_le_pow_left hlocal _
+    _ = (F * scale * M) ^ (2 * d) * T ^ (2 * d) := by
+      simp [RootedFamilyAsymptotic.scaledDecoderPathCap,
+        LocalDecoderAsymptotic.decoderPathCap, M, T, mul_pow]
+      ring
+    _ ≤ (F * scale * M) ^ (2 * d) * n ^ (2 * d - 1) :=
+      Nat.mul_le_mul_left _ hT
+
+/-- `k`-sets which cover the root edge `e` and use only reserve edges
+away from `e`. -/
+def reserveCandidates (n k r : ℕ) (reserve : Finset (Finset (Fin n)))
+    (e : Finset (Fin n)) : Finset (Finset (Fin n)) :=
+  (blockCandidates n k).filter fun B ↦
+    e ⊆ B ∧ cliqueEdges B r \ {e} ⊆ reserve
+
+/-- Exact reserve output, with the lower extension count
+`count ≥ n^(k-r-K/(36K²))` cleared of fractional powers as
+`count^(36K²) ≥ n^((36K²)(k-r)-K)`, where `K = choose k r`. -/
+def HasReserveProperty (n k r : ℕ)
+    (reserve : Finset (Finset (Fin n))) : Prop :=
+  reserve ⊆ completeUniform n r ∧
+    IsPowerBounded n r (rhoDen k r) 2 reserve ∧
+    ∀ e ∈ completeUniform n r \ reserve,
+      n ^ (rhoDen k r * (k - r) - cliqueSize k r) ≤
+        (reserveCandidates n k r reserve e).card ^ rhoDen k r
+
+/-- The probabilistic reserve construction, including its simultaneous
+common-neighbour estimates and extension-tree count, supplies exactly the
+reserve interface used by the absorption proof. -/
+theorem eventually_hasReserveProperty
+    (k r : ℕ) (hr : 1 < r) (hrk : r < k) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∃ reserve : Finset (Finset (Fin n)), HasReserveProperty n k r reserve := by
+  filter_upwards [Reserve.eventually_exists_reserve k r hr hrk] with n hreserve
+  obtain ⟨reserve, hsub, hdegree, hcandidates⟩ := hreserve
+  refine ⟨reserve, ?_, ?_, ?_⟩
+  · simpa [completeUniform, Typicality.uniformEdges] using hsub
+  · intro I hI
+    have hIcard : I.card = r - 1 := mem_completeUniform.mp hI
+    simpa [localDegree, Reserve.localDegree, rhoDen, cliqueSize] using
+      hdegree I hIcard
+  · intro e he
+    have he' : e ∈ Typicality.uniformEdges n r \ reserve := by
+      simpa [completeUniform, Typicality.uniformEdges] using he
+    simpa [reserveCandidates, Reserve.reserveCandidates, blockCandidates,
+      completeUniform, Reserve.cliqueEdges, cliqueEdges, rhoDen, cliqueSize,
+      Typicality.uniformEdges] using hcandidates e he'
+
+theorem localDegree_completeUniform (I : Finset (Fin n)) (hIr : I.card ≤ r) :
+    localDegree (completeUniform n r) I =
+      Nat.choose (n - I.card) (r - I.card) := by
+  classical
+  rw [localDegree, completeUniform,
+    Finset.card_filter_powersetCard_subset I Finset.univ r
+      (Finset.subset_univ I) hIr]
+  simp
+
+/-- The numerical admissibility conditions are exactly the local
+divisibility conditions for the complete host. -/
+theorem isCliqueDivisible_completeUniform_iff :
+    IsCliqueDivisible n k r (completeUniform n r) ↔ IsAdmissible n k r := by
+  constructor
+  · intro h i hi
+    by_cases hin : i ≤ n
+    · let I : Finset (Fin n) :=
+        (Finset.univ : Finset (Fin i)).map (Fin.castLEEmb hin)
+      have hIcard : I.card = i := by simp [I]
+      have hdiv := h i hi I (mem_completeUniform.mpr hIcard)
+      rw [localDegree_completeUniform I (by omega), hIcard] at hdiv
+      exact hdiv
+    · have hni : n < i := Nat.lt_of_not_ge hin
+      rw [Nat.choose_eq_zero_of_lt (by omega : n - i < r - i)]
+      exact dvd_zero _
+  · intro h i hi I hI
+    have hcard : I.card = i := mem_completeUniform.mp hI
+    rw [localDegree_completeUniform I (by omega), hcard]
+    exact h i hi
+
+theorem localDegree_sdiff {host₁ host₂ : Finset (Finset (Fin n))}
+    (hsub : host₂ ⊆ host₁) (I : Finset (Fin n)) :
+    localDegree (host₁ \ host₂) I =
+      localDegree host₁ I - localDegree host₂ I := by
+  classical
+  rw [localDegree, localDegree, localDegree]
+  have hfilter :
+      host₂.filter (fun A ↦ I ⊆ A) ⊆ host₁.filter (fun A ↦ I ⊆ A) :=
+    Finset.filter_subset_filter _ hsub
+  rw [← Finset.card_sdiff_of_subset hfilter]
+  congr 1
+  ext A
+  simp only [Finset.mem_filter, Finset.mem_sdiff]
+  aesop
+
+theorem IsCliqueDivisible.sdiff
+    {host₁ host₂ : Finset (Finset (Fin n))}
+    (h₁ : IsCliqueDivisible n k r host₁)
+    (h₂ : IsCliqueDivisible n k r host₂)
+    (hsub : host₂ ⊆ host₁) :
+    IsCliqueDivisible n k r (host₁ \ host₂) := by
+  intro i hi I hI
+  rw [localDegree_sdiff hsub I]
+  exact Nat.dvd_sub (h₁ i hi I hI) (h₂ i hi I hI)
+
+theorem boundary_zero (n k : ℕ) :
+    boundary n k (fun _ ↦ 0) = fun _ ↦ 0 := by
+  funext A
+  simp [boundary]
+
+theorem boundary_add (n k : ℕ) (φ ψ : Finset (Fin n) → ℤ) :
+    boundary n k (fun B ↦ φ B + ψ B) =
+      fun A ↦ boundary n k φ A + boundary n k ψ A := by
+  funext A
+  simp only [boundary]
+  rw [← Finset.sum_add_distrib]
+  apply Finset.sum_congr rfl
+  intro B hB
+  split_ifs <;> simp
+
+theorem boundary_neg (n k : ℕ) (φ : Finset (Fin n) → ℤ) :
+    boundary n k (fun B ↦ -φ B) = fun A ↦ -boundary n k φ A := by
+  funext A
+  simp only [boundary, ← Finset.sum_neg_distrib]
+  apply Finset.sum_congr rfl
+  intro B hB
+  split_ifs <;> simp
+
+theorem integrallyDecomposable_empty (n k r : ℕ) :
+    IsIntegrallyDecomposable n k r ∅ := by
+  refine ⟨fun _ ↦ 0, ?_⟩
+  simp [boundary]
+
+theorem IsIntegrallyDecomposable.union
+    {host₁ host₂ : Finset (Finset (Fin n))}
+    (h₁ : IsIntegrallyDecomposable n k r host₁)
+    (h₂ : IsIntegrallyDecomposable n k r host₂)
+    (hhost : Disjoint host₁ host₂) :
+    IsIntegrallyDecomposable n k r (host₁ ∪ host₂) := by
+  classical
+  obtain ⟨φ₁, hφ₁⟩ := h₁
+  obtain ⟨φ₂, hφ₂⟩ := h₂
+  refine ⟨fun B ↦ φ₁ B + φ₂ B, ?_⟩
+  intro A hA
+  rw [congrFun (boundary_add n k φ₁ φ₂) A, hφ₁ A hA, hφ₂ A hA]
+  by_cases hA₁ : A ∈ host₁
+  · have hA₂ : A ∉ host₂ := fun h ↦ Finset.disjoint_left.mp hhost hA₁ h
+    simp [hA₁, hA₂]
+  · simp [hA₁]
+
+theorem IsIntegrallyDecomposable.sdiff
+    {host₁ host₂ : Finset (Finset (Fin n))}
+    (h₁ : IsIntegrallyDecomposable n k r host₁)
+    (h₂ : IsIntegrallyDecomposable n k r host₂)
+    (hsub : host₂ ⊆ host₁) :
+    IsIntegrallyDecomposable n k r (host₁ \ host₂) := by
+  classical
+  obtain ⟨φ₁, hφ₁⟩ := h₁
+  obtain ⟨φ₂, hφ₂⟩ := h₂
+  refine ⟨fun B ↦ φ₁ B + -φ₂ B, ?_⟩
+  intro A hA
+  rw [congrFun (boundary_add n k φ₁ (fun B ↦ -φ₂ B)) A,
+    congrFun (boundary_neg n k φ₂) A, hφ₁ A hA, hφ₂ A hA]
+  by_cases hA₁ : A ∈ host₁
+  · by_cases hA₂ : A ∈ host₂ <;> simp [hA₁, hA₂]
+  · have hA₂ : A ∉ host₂ := fun h ↦ hA₁ (hsub h)
+    simp [hA₁, hA₂]
+
+/-- Every genuine block decomposition gives an integer decomposition by
+taking its `{0,1}` incidence vector. -/
+theorem IsBlockDecomposition.isIntegrallyDecomposable
+    {host blocks : Finset (Finset (Fin n))}
+    (h : IsBlockDecomposition host blocks k r) :
+    IsIntegrallyDecomposable n k r host := by
+  classical
+  refine ⟨fun B ↦ if B ∈ blocks then 1 else 0, ?_⟩
+  intro A hA
+  rw [boundary]
+  have hblocks : blocks ⊆ blockCandidates n k := by
+    intro B hB
+    exact mem_completeUniform.mpr (h.1 B hB)
+  by_cases hhost : A ∈ host
+  · rw [if_pos hhost]
+    calc
+      (∑ B ∈ blockCandidates n k,
+          if A ⊆ B then (if B ∈ blocks then 1 else 0) else 0) =
+          ∑ B ∈ blocks,
+            (if A ⊆ B then (if B ∈ blocks then 1 else 0) else 0) := by
+        symm
+        apply Finset.sum_subset hblocks
+        intro B hBcan hBnot
+        simp [hBnot]
+      _ = ∑ B ∈ blocks, (if A ⊆ B then (1 : ℤ) else 0) := by
+        apply Finset.sum_congr rfl
+        intro B hB
+        simp [hB]
+      _ = ((blocks.filter fun B ↦ A ⊆ B).card : ℕ) := by simp
+      _ = 1 := by
+        have hc := h.2.2 A hhost
+        simpa [mem_cliqueEdges, mem_completeUniform.mp hA] using hc
+  · rw [if_neg hhost]
+    apply Finset.sum_eq_zero
+    intro B hB
+    by_cases hAB : A ⊆ B
+    · have hBnot : B ∉ blocks := by
+        intro hBmem
+        exact hhost (h.2.1 B hBmem (mem_cliqueEdges.mpr
+          ⟨hAB, mem_completeUniform.mp hA⟩))
+      simp [hAB, hBnot]
+    · simp [hAB]
+
+theorem IsSteinerSystem.isBlockDecomposition {n k r : ℕ}
+    {blocks : Finset (Finset (Fin n))} (h : IsSteinerSystem n k r blocks) :
+    IsBlockDecomposition (completeUniform n r) blocks k r :=
+  (isSteinerSystem_iff_isCliqueDecomposition n k r blocks).mp h
+
+theorem IsSteinerSystem.isIntegrallyDecomposable {n k r : ℕ}
+    {blocks : Finset (Finset (Fin n))} (h : IsSteinerSystem n k r blocks) :
+    IsIntegrallyDecomposable n k r (completeUniform n r) :=
+  h.isBlockDecomposition.isIntegrallyDecomposable
+
+/-- Decompositions of edge-disjoint hosts cannot share a block, provided a
+block has at least one `r`-edge. -/
+theorem IsBlockDecomposition.disjoint_blocks
+    {host₁ host₂ blocks₁ blocks₂ : Finset (Finset (Fin n))}
+    (h₁ : IsBlockDecomposition host₁ blocks₁ k r)
+    (h₂ : IsBlockDecomposition host₂ blocks₂ k r)
+    (hhost : Disjoint host₁ host₂) (hrk : r ≤ k) :
+    Disjoint blocks₁ blocks₂ := by
+  classical
+  apply Finset.disjoint_left.mpr
+  intro B hB₁ hB₂
+  have hrB : r ≤ B.card := by simpa [h₁.1 B hB₁] using hrk
+  obtain ⟨A, hA⟩ := Finset.powersetCard_nonempty.mpr hrB
+  have hA₁ : A ∈ host₁ := h₁.2.1 B hB₁ hA
+  have hA₂ : A ∈ host₂ := h₂.2.1 B hB₂ hA
+  exact Finset.disjoint_left.mp hhost hA₁ hA₂
+
+/-- Edge-disjoint genuine decompositions combine to a genuine
+decomposition. -/
+theorem IsBlockDecomposition.union
+    {host₁ host₂ blocks₁ blocks₂ : Finset (Finset (Fin n))}
+    (h₁ : IsBlockDecomposition host₁ blocks₁ k r)
+    (h₂ : IsBlockDecomposition host₂ blocks₂ k r)
+    (hhost : Disjoint host₁ host₂) (hrk : r ≤ k) :
+    IsBlockDecomposition (host₁ ∪ host₂) (blocks₁ ∪ blocks₂) k r := by
+  classical
+  have hblocks : Disjoint blocks₁ blocks₂ := h₁.disjoint_blocks h₂ hhost hrk
+  refine ⟨?_, ?_, ?_⟩
+  · intro B hB
+    rcases Finset.mem_union.mp hB with hB | hB
+    · exact h₁.1 B hB
+    · exact h₂.1 B hB
+  · intro B hB A hA
+    rcases Finset.mem_union.mp hB with hB | hB
+    · exact Finset.mem_union_left _ (h₁.2.1 B hB hA)
+    · exact Finset.mem_union_right _ (h₂.2.1 B hB hA)
+  · intro A hA
+    rw [Finset.filter_union, Finset.card_union_of_disjoint]
+    · rcases Finset.mem_union.mp hA with hA₁ | hA₂
+      · have hz : (blocks₂.filter fun B ↦ A ∈ cliqueEdges B r).card = 0 := by
+          rw [Finset.card_eq_zero]
+          apply Finset.eq_empty_iff_forall_notMem.mpr
+          intro B hB
+          have hA₂ : A ∈ host₂ := h₂.2.1 B (Finset.mem_filter.mp hB).1
+            (Finset.mem_filter.mp hB).2
+          exact Finset.disjoint_left.mp hhost hA₁ hA₂
+        rw [h₁.2.2 A hA₁, hz]
+      · have hz : (blocks₁.filter fun B ↦ A ∈ cliqueEdges B r).card = 0 := by
+          rw [Finset.card_eq_zero]
+          apply Finset.eq_empty_iff_forall_notMem.mpr
+          intro B hB
+          have hA₁ : A ∈ host₁ := h₁.2.1 B (Finset.mem_filter.mp hB).1
+            (Finset.mem_filter.mp hB).2
+          exact Finset.disjoint_left.mp hhost hA₁ hA₂
+        rw [hz, h₂.2.2 A hA₂]
+    · exact Disjoint.mono (Finset.filter_subset _ _) (Finset.filter_subset _ _) hblocks
+
+/-- An omni-absorber for all integrally divisible leaves inside `reserve`. -/
+def IsAbsorber (n k r : ℕ)
+    (absorber reserve : Finset (Finset (Fin n))) : Prop :=
+  absorber ⊆ completeUniform n r ∧
+    reserve ⊆ completeUniform n r ∧
+    Disjoint absorber reserve ∧
+    IsIntegrallyDecomposable n k r absorber ∧
+    ∀ leave : Finset (Finset (Fin n)), leave ⊆ reserve →
+      IsIntegrallyDecomposable n k r leave →
+        ∃ blocks : Finset (Finset (Fin n)),
+          IsBlockDecomposition (absorber ∪ leave) blocks k r
+
+/-- The quantitative omni-absorber output used before the regularity boost:
+besides absorbing every integral leave in `reserve`, its maximum lower-face
+degree has the final `n^{-α/4}` power bound. -/
+def HasSparseAbsorber (n k r : ℕ)
+    (absorber reserve : Finset (Finset (Fin n))) : Prop :=
+  IsAbsorber n k r absorber reserve ∧
+    IsPowerBounded n r (absorberDen k r) 1 absorber
+
+/-- Exact deterministic last step of the absorption proof.  It exposes the
+three genuinely substantive inputs: integral divisibility of the complete
+host, an omni-absorber, and a packing whose leave lies in the reserve. -/
+theorem steinerSystem_of_absorber_and_cover
+    {n k r : ℕ} (hrk : r ≤ k)
+    {absorber reserve covered usedBlocks : Finset (Finset (Fin n))}
+    (hcomplete :
+      IsIntegrallyDecomposable n k r (completeUniform n r))
+    (habsorber : IsAbsorber n k r absorber reserve)
+    (hcovered : IsBlockDecomposition covered usedBlocks k r)
+    (hcovered_sub : covered ⊆ completeUniform n r \ absorber)
+    (hleave_reserve :
+      (completeUniform n r \ absorber) \ covered ⊆ reserve) :
+    ∃ blocks : Finset (Finset (Fin n)), IsSteinerSystem n k r blocks := by
+  classical
+  let leave := (completeUniform n r \ absorber) \ covered
+  have habsorber_sub : absorber ⊆ completeUniform n r := habsorber.1
+  have habsorber_int : IsIntegrallyDecomposable n k r absorber := habsorber.2.2.2.1
+  have houtside_int :
+      IsIntegrallyDecomposable n k r (completeUniform n r \ absorber) :=
+    hcomplete.sdiff habsorber_int habsorber_sub
+  have hcovered_int : IsIntegrallyDecomposable n k r covered :=
+    hcovered.isIntegrallyDecomposable
+  have hleave_int : IsIntegrallyDecomposable n k r leave :=
+    houtside_int.sdiff hcovered_int hcovered_sub
+  obtain ⟨absorbingBlocks, habsorbing⟩ :=
+    habsorber.2.2.2.2 leave (by simpa [leave] using hleave_reserve) hleave_int
+  have hhost_disjoint : Disjoint covered (absorber ∪ leave) := by
+    apply Finset.disjoint_left.mpr
+    intro A hAc hAal
+    rcases Finset.mem_union.mp hAal with hAa | hAl
+    · exact (Finset.mem_sdiff.mp (hcovered_sub hAc)).2 hAa
+    · exact (Finset.mem_sdiff.mp hAl).2 hAc
+  have hunion := hcovered.union habsorbing hhost_disjoint hrk
+  have hhost_union : covered ∪ (absorber ∪ leave) = completeUniform n r := by
+    ext A
+    simp only [Finset.mem_union, Finset.mem_sdiff, leave]
+    constructor
+    · rintro (hAc | hAa | hAH)
+      · exact (Finset.mem_sdiff.mp (hcovered_sub hAc)).1
+      · exact habsorber_sub hAa
+      · exact hAH.1.1
+    · intro hAH
+      by_cases hAa : A ∈ absorber
+      · exact Or.inr (Or.inl hAa)
+      · by_cases hAc : A ∈ covered
+        · exact Or.inl hAc
+        · exact Or.inr (Or.inr ⟨⟨hAH, hAa⟩, hAc⟩)
+  refine ⟨usedBlocks ∪ absorbingBlocks, ?_⟩
+  apply (isSteinerSystem_iff_isCliqueDecomposition n k r _).mpr
+  change IsBlockDecomposition (completeUniform n r)
+    (usedBlocks ∪ absorbingBlocks) k r
+  exact hhost_union ▸ hunion
+
+private lemma filter_powersetCard_subset_eq (B : Finset (Fin n)) (r : ℕ) :
+    ((Finset.univ.powersetCard r).filter fun A : Finset (Fin n) ↦ A ⊆ B) =
+      B.powersetCard r := by
+  ext A
+  simp [Finset.mem_powersetCard, and_comm]
+
+private lemma sum_subset_indicator (B : Finset (Fin n)) (r : ℕ) :
+    (∑ A ∈ (Finset.univ : Finset (Fin n)).powersetCard r,
+        (if A ⊆ B then 1 else 0)) = Nat.choose B.card r := by
+  rw [← Finset.card_filter]
+  rw [filter_powersetCard_subset_eq]
+  exact Finset.card_powersetCard r B
+
+/-- Double-counting incident pairs `(A,B)` proves the correct block count. -/
+theorem IsSteinerSystem.card_mul_choose {n k r : ℕ}
+    {blocks : Finset (Finset (Fin n))} (h : IsSteinerSystem n k r blocks) :
+    blocks.card * Nat.choose k r = Nat.choose n r := by
+  classical
+  let U : Finset (Finset (Fin n)) :=
+    (Finset.univ : Finset (Fin n)).powersetCard r
+  have hUcard : U.card = Nat.choose n r := by
+    simp [U]
+  have hrow (A : Finset (Fin n)) (hA : A ∈ U) :
+      ∑ B ∈ blocks, (if A ⊆ B then (1 : ℕ) else 0) = 1 := by
+    rw [← Finset.card_filter]
+    exact h.2 A hA
+  calc
+    blocks.card * Nat.choose k r =
+        ∑ B ∈ blocks, Nat.choose k r := by simp
+    _ = ∑ B ∈ blocks, ∑ A ∈ U, (if A ⊆ B then 1 else 0) := by
+      apply Finset.sum_congr rfl
+      intro B hB
+      simpa [U, h.1 B hB] using (sum_subset_indicator B r).symm
+    _ = ∑ A ∈ U, ∑ B ∈ blocks, (if A ⊆ B then 1 else 0) := by
+      rw [Finset.sum_comm]
+    _ = ∑ A ∈ U, 1 := by
+      apply Finset.sum_congr rfl
+      exact hrow
+    _ = Nat.choose n r := by simp [hUcard]
+
+theorem IsSteinerSystem.choose_dvd {n k r : ℕ}
+    {blocks : Finset (Finset (Fin n))} (h : IsSteinerSystem n k r blocks) :
+    Nat.choose k r ∣ Nat.choose n r := by
+  refine ⟨blocks.card, ?_⟩
+  simpa [Nat.mul_comm] using h.card_mul_choose.symm
+
+private lemma sum_containing_subset_indicator (I B : Finset (Fin n)) (r : ℕ)
+    (hIr : I.card ≤ r) :
+    (∑ A ∈ ((Finset.univ : Finset (Fin n)).powersetCard r).filter (I ⊆ ·),
+        (if A ⊆ B then 1 else 0)) =
+      if I ⊆ B then Nat.choose (B.card - I.card) (r - I.card) else 0 := by
+  classical
+  by_cases hIB : I ⊆ B
+  · rw [if_pos hIB, ← Finset.card_filter]
+    have heq :
+        (((Finset.univ : Finset (Fin n)).powersetCard r).filter (I ⊆ ·)).filter
+            (· ⊆ B) =
+          (B.powersetCard r).filter (I ⊆ ·) := by
+      ext A
+      simp only [Finset.mem_filter, Finset.mem_powersetCard, Finset.subset_univ,
+        true_and]
+      aesop
+    rw [heq, Finset.card_filter_powersetCard_subset I B r hIB hIr]
+  · rw [if_neg hIB]
+    apply Finset.sum_eq_zero
+    intro A hA
+    have hIA : I ⊆ A := (Finset.mem_filter.mp hA).2
+    have hnot : ¬A ⊆ B := fun hAB ↦ hIB (hIA.trans hAB)
+    simp [hnot]
+
+/-- Integral clique divisibility implies all local degree congruences.
+This is the direct finite-sum direction of the equivalence between the
+lattice definition in the short proof and the usual design admissibility
+conditions. -/
+theorem IsIntegrallyDecomposable.isCliqueDivisible
+    {n k r : ℕ} {host : Finset (Finset (Fin n))}
+    (hhost : host ⊆ completeUniform n r)
+    (h : IsIntegrallyDecomposable n k r host) :
+    IsCliqueDivisible n k r host := by
+  classical
+  obtain ⟨φ, hφ⟩ := h
+  intro i hir I hI
+  have hIcard : I.card = i := mem_completeUniform.mp hI
+  have hIr : I.card ≤ r := by omega
+  let U := (completeUniform n r).filter fun A ↦ I ⊆ A
+  have hfilter :
+      host.filter (fun A ↦ I ⊆ A) = U.filter (fun A ↦ A ∈ host) := by
+    ext A
+    simp only [Finset.mem_filter, U]
+    constructor
+    · rintro ⟨hAh, hIA⟩
+      exact ⟨⟨hhost hAh, hIA⟩, hAh⟩
+    · rintro ⟨⟨_hAU, hIA⟩, hAh⟩
+      exact ⟨hAh, hIA⟩
+  have hinner (B : Finset (Fin n)) (hB : B ∈ blockCandidates n k) :
+      (∑ A ∈ U, if A ⊆ B then φ B else 0) =
+        (Nat.choose (k - i) (r - i) : ℤ) *
+          (if I ⊆ B then φ B else 0) := by
+    have hBcard : B.card = k := mem_completeUniform.mp hB
+    have hcountNat := sum_containing_subset_indicator I B r hIr
+    rw [hIcard, hBcard] at hcountNat
+    have hcountInt :
+        (∑ A ∈ U, if A ⊆ B then (1 : ℤ) else 0) =
+          (if I ⊆ B then (Nat.choose (k - i) (r - i) : ℤ) else 0) := by
+      exact_mod_cast hcountNat
+    calc
+      (∑ A ∈ U, if A ⊆ B then φ B else 0) =
+          (∑ A ∈ U, if A ⊆ B then (1 : ℤ) else 0) * φ B := by
+        rw [Finset.sum_mul]
+        apply Finset.sum_congr rfl
+        intro A hA
+        split_ifs <;> simp
+      _ = (if I ⊆ B then (Nat.choose (k - i) (r - i) : ℤ) else 0) * φ B := by
+        rw [hcountInt]
+      _ = (Nat.choose (k - i) (r - i) : ℤ) *
+          (if I ⊆ B then φ B else 0) := by
+        split_ifs <;> simp
+  apply Int.natCast_dvd_natCast.mp
+  refine ⟨∑ B ∈ blockCandidates n k, if I ⊆ B then φ B else 0, ?_⟩
+  rw [localDegree, hfilter]
+  calc
+    ((U.filter (fun A ↦ A ∈ host)).card : ℤ) =
+        ∑ A ∈ U, (if A ∈ host then (1 : ℤ) else 0) := by
+      simp
+      congr 1
+    _ = ∑ A ∈ U, boundary n k φ A := by
+      apply Finset.sum_congr rfl
+      intro A hAU
+      rw [hφ A (Finset.mem_filter.mp hAU).1]
+    _ = ∑ A ∈ U, ∑ B ∈ blockCandidates n k,
+          if A ⊆ B then φ B else 0 := by rfl
+    _ = ∑ B ∈ blockCandidates n k, ∑ A ∈ U,
+          if A ⊆ B then φ B else 0 := by rw [Finset.sum_comm]
+    _ = ∑ B ∈ blockCandidates n k,
+          (Nat.choose (k - i) (r - i) : ℤ) *
+            (if I ⊆ B then φ B else 0) := by
+      apply Finset.sum_congr rfl
+      exact hinner
+    _ = (Nat.choose (k - i) (r - i) : ℤ) *
+          ∑ B ∈ blockCandidates n k, if I ⊆ B then φ B else 0 := by
+      rw [Finset.mul_sum]
+
+private lemma intLocalDegree_indicator_eq
+    {n r : ℕ} {host : Finset (Finset (Fin n))}
+    (hhost : host ⊆ completeUniform n r) (I : Finset (Fin n)) :
+    LocalDecoder.intLocalDegree (Finset.univ : Finset (Fin n)) r
+        (fun A ↦ if A ∈ host then (1 : ℤ) else 0) I =
+      (localDegree host I : ℤ) := by
+  classical
+  rw [LocalDecoder.intLocalDegree, localDegree]
+  change (∑ A ∈ completeUniform n r,
+      if I ⊆ A then (if A ∈ host then (1 : ℤ) else 0) else 0) = _
+  calc
+    (∑ A ∈ completeUniform n r,
+        if I ⊆ A then (if A ∈ host then (1 : ℤ) else 0) else 0) =
+        ((((completeUniform n r).filter
+          (fun A ↦ I ⊆ A ∧ A ∈ host)).card : ℕ) : ℤ) := by
+      rw [← Finset.sum_boole (R := ℤ)
+        (fun A ↦ I ⊆ A ∧ A ∈ host) (completeUniform n r)]
+      apply Finset.sum_congr rfl
+      intro A hA
+      by_cases hIA : I ⊆ A <;> by_cases hAh : A ∈ host <;>
+        simp [hIA, hAh]
+    _ = (((host.filter fun A ↦ I ⊆ A).card : ℕ) : ℤ) := by
+      congr 2
+      ext A
+      simp only [Finset.mem_filter]
+      constructor
+      · rintro ⟨_hAU, hIA, hAh⟩
+        exact ⟨hAh, hIA⟩
+      · rintro ⟨hAh, hIA⟩
+        exact ⟨hhost hAh, hIA, hAh⟩
+
+/-- Conversely, once the ground set has at least `k+r` vertices, all local
+degree congruences produce an integer clique decomposition.  This is the
+local-decoder lattice theorem specialized to simple `r`-graphs. -/
+theorem IsCliqueDivisible.isIntegrallyDecomposable
+    {n k r : ℕ} {host : Finset (Finset (Fin n))}
+    (hrk : r ≤ k) (hsize : k + r ≤ n)
+    (hhost : host ⊆ completeUniform n r)
+    (h : IsCliqueDivisible n k r host) :
+    IsIntegrallyDecomposable n k r host := by
+  classical
+  let J : Finset (Fin n) → ℤ := fun A ↦ if A ∈ host then 1 else 0
+  have hlocal : LocalDecoder.IsLocallyDivisible
+      (Finset.univ : Finset (Fin n)) k r J := by
+    intro I hIuniv hIr
+    by_cases hir : I.card < r
+    · have hdivNat := h I.card hir I (mem_completeUniform.mpr rfl)
+      change (Nat.choose (k - I.card) (r - I.card) : ℤ) ∣
+        LocalDecoder.intLocalDegree (Finset.univ : Finset (Fin n)) r
+          (fun A ↦ if A ∈ host then (1 : ℤ) else 0) I
+      rw [intLocalDegree_indicator_eq hhost I]
+      exact Int.natCast_dvd_natCast.mpr hdivNat
+    · have hcard : I.card = r := by omega
+      simp [hcard]
+  have hground : k + r ≤ (Finset.univ : Finset (Fin n)).card := by
+    simpa using hsize
+  obtain ⟨φ, hφ⟩ := LocalDecoder.exists_intBoundary_eq
+    hrk hground hlocal
+  refine ⟨φ, ?_⟩
+  intro A hA
+  have hφA := hφ A (by simpa [completeUniform] using hA)
+  simpa [LocalDecoder.intBoundary, boundary, blockCandidates,
+    completeUniform, J] using hφA
+
+/-- For sufficiently many vertices, the numerical admissibility conditions
+are also exactly the integral clique-lattice condition for the complete
+host. -/
+theorem isIntegrallyDecomposable_completeUniform_iff
+    {n k r : ℕ} (hrk : r ≤ k) (hsize : k + r ≤ n) :
+    IsIntegrallyDecomposable n k r (completeUniform n r) ↔
+      IsAdmissible n k r := by
+  constructor
+  · intro h
+    exact isCliqueDivisible_completeUniform_iff.mp
+      (h.isCliqueDivisible (Finset.Subset.rfl))
+  · intro h
+    exact (isCliqueDivisible_completeUniform_iff.mpr h).isIntegrallyDecomposable
+      hrk hsize Finset.Subset.rfl
+
+/-- The full local double count: the number of blocks through an `i`-set,
+times the number of `r`-sets through it in one block, is the total number of
+`r`-sets through it in the ground set. -/
+theorem IsSteinerSystem.local_count {n k r i : ℕ}
+    {blocks : Finset (Finset (Fin n))} (h : IsSteinerSystem n k r blocks)
+    {I : Finset (Fin n)} (hIcard : I.card = i) (hir : i ≤ r) :
+    (blocks.filter fun B ↦ I ⊆ B).card * Nat.choose (k - i) (r - i) =
+      Nat.choose (n - i) (r - i) := by
+  classical
+  let U : Finset (Finset (Fin n)) :=
+    ((Finset.univ : Finset (Fin n)).powersetCard r).filter (I ⊆ ·)
+  have hIr : I.card ≤ r := by omega
+  have hUcard : U.card = Nat.choose (n - i) (r - i) := by
+    simpa [U, hIcard] using
+      (Finset.card_filter_powersetCard_subset I
+        (Finset.univ : Finset (Fin n)) r (Finset.subset_univ I) hIr)
+  have hrow (A : Finset (Fin n)) (hA : A ∈ U) :
+      ∑ B ∈ blocks, (if A ⊆ B then (1 : ℕ) else 0) = 1 := by
+    rw [← Finset.card_filter]
+    apply h.2 A
+    exact (Finset.mem_filter.mp hA).1
+  calc
+    (blocks.filter fun B ↦ I ⊆ B).card * Nat.choose (k - i) (r - i) =
+        ∑ B ∈ blocks,
+          (if I ⊆ B then Nat.choose (k - i) (r - i) else 0) := by
+      simp [Finset.sum_ite]
+    _ = ∑ B ∈ blocks, ∑ A ∈ U, (if A ⊆ B then 1 else 0) := by
+      apply Finset.sum_congr rfl
+      intro B hB
+      simpa [U, hIcard, h.1 B hB] using
+        (sum_containing_subset_indicator I B r hIr).symm
+    _ = ∑ A ∈ U, ∑ B ∈ blocks, (if A ⊆ B then 1 else 0) := by
+      rw [Finset.sum_comm]
+    _ = ∑ A ∈ U, 1 := by
+      apply Finset.sum_congr rfl
+      exact hrow
+    _ = Nat.choose (n - i) (r - i) := by simp [hUcard]
+
+/-- The same local incidence double count for a decomposition of an
+arbitrary host. -/
+theorem IsBlockDecomposition.local_count {n k r i : ℕ}
+    {host blocks : Finset (Finset (Fin n))}
+    (h : IsBlockDecomposition host blocks k r)
+    (I : Finset (Fin n)) (hIcard : I.card = i) (hIr : i ≤ r) :
+    (blocks.filter fun B ↦ I ⊆ B).card * Nat.choose (k - i) (r - i) =
+      localDegree host I := by
+  classical
+  let U := host.filter fun A ↦ I ⊆ A
+  have hrow (A : Finset (Fin n)) (hA : A ∈ U) :
+      ∑ B ∈ blocks, (if A ∈ cliqueEdges B r then (1 : ℕ) else 0) = 1 := by
+    rw [← Finset.card_filter]
+    exact h.2.2 A (Finset.mem_filter.mp hA).1
+  have hcol (B : Finset (Fin n)) (hB : B ∈ blocks) :
+      ∑ A ∈ U, (if A ∈ cliqueEdges B r then (1 : ℕ) else 0) =
+        if I ⊆ B then Nat.choose (k - i) (r - i) else 0 := by
+    rw [← Finset.card_filter]
+    by_cases hIB : I ⊆ B
+    · rw [if_pos hIB]
+      have heq :
+          U.filter (fun A ↦ A ∈ cliqueEdges B r) =
+            (B.powersetCard r).filter (fun A ↦ I ⊆ A) := by
+        ext A
+        constructor
+        · intro hA
+          have hm := Finset.mem_filter.mp hA
+          exact Finset.mem_filter.mpr ⟨
+            (mem_cliqueEdges.mp hm.2 |>.2 |> fun hc ↦
+              Finset.mem_powersetCard.mpr ⟨(mem_cliqueEdges.mp hm.2).1, hc⟩),
+            (Finset.mem_filter.mp hm.1).2⟩
+        · intro hA
+          have hm := Finset.mem_filter.mp hA
+          have hedge : A ∈ cliqueEdges B r := by
+            exact mem_cliqueEdges.mpr ⟨
+              (Finset.mem_powersetCard.mp hm.1).1,
+              (Finset.mem_powersetCard.mp hm.1).2⟩
+          exact Finset.mem_filter.mpr ⟨Finset.mem_filter.mpr
+            ⟨h.2.1 B hB hedge, hm.2⟩, hedge⟩
+      rw [heq, Finset.card_filter_powersetCard_subset I B r hIB (by
+        simpa [hIcard] using hIr), h.1 B hB, hIcard]
+    · rw [if_neg hIB, Finset.card_eq_zero]
+      apply Finset.eq_empty_iff_forall_notMem.mpr
+      intro A hA
+      have hm := Finset.mem_filter.mp hA
+      exact hIB ((Finset.mem_filter.mp hm.1).2.trans (mem_cliqueEdges.mp hm.2).1)
+  calc
+    (blocks.filter fun B ↦ I ⊆ B).card * Nat.choose (k - i) (r - i) =
+        ∑ B ∈ blocks,
+          (if I ⊆ B then Nat.choose (k - i) (r - i) else 0) := by
+      simp [Finset.sum_ite]
+    _ = ∑ B ∈ blocks, ∑ A ∈ U,
+          (if A ∈ cliqueEdges B r then 1 else 0) := by
+      apply Finset.sum_congr rfl
+      intro B hB
+      exact (hcol B hB).symm
+    _ = ∑ A ∈ U, ∑ B ∈ blocks,
+          (if A ∈ cliqueEdges B r then 1 else 0) := by
+      rw [Finset.sum_comm]
+    _ = ∑ A ∈ U, 1 := by
+      apply Finset.sum_congr rfl
+      exact hrow
+    _ = localDegree host I := by simp [U, localDegree]
+
+theorem IsBlockDecomposition.isCliqueDivisible
+    {host blocks : Finset (Finset (Fin n))}
+    (h : IsBlockDecomposition host blocks k r) :
+    IsCliqueDivisible n k r host := by
+  intro i hi I hI
+  have hIcard : I.card = i := mem_completeUniform.mp hI
+  refine ⟨(blocks.filter fun B ↦ I ⊆ B).card, ?_⟩
+  simpa [Nat.mul_comm] using (h.local_count I hIcard hi.le).symm
+
+/-- Number of blocks in a family incident with an `r`-edge. -/
+def blockIncidenceCount (blocks : Finset (Finset (Fin n)))
+    (e : Finset (Fin n)) : ℕ :=
+  (blocks.filter fun B ↦ e ⊆ B).card
+
+lemma blockIncidenceCount_mono
+    {small large : Finset (Finset (Fin n))} (hsub : small ⊆ large)
+    (e : Finset (Fin n)) :
+    blockIncidenceCount small e ≤ blockIncidenceCount large e := by
+  exact Finset.card_le_card (Finset.filter_subset_filter _ hsub)
+
+lemma blockIncidenceCount_union_le
+    (left right : Finset (Finset (Fin n))) (e : Finset (Fin n)) :
+    blockIncidenceCount (left ∪ right) e ≤
+      blockIncidenceCount left e + blockIncidenceCount right e := by
+  unfold blockIncidenceCount
+  rw [Finset.filter_union]
+  exact Finset.card_union_le _ _
+
+lemma blockIncidenceCount_biUnion_le_sum
+    {I : Type*} [DecidableEq I]
+    (indices : Finset I) (blocks : I → Finset (Finset (Fin n)))
+    (e : Finset (Fin n)) :
+    blockIncidenceCount (indices.biUnion blocks) e ≤
+      ∑ i ∈ indices, blockIncidenceCount (blocks i) e := by
+  classical
+  unfold blockIncidenceCount
+  have hfilter :
+      (indices.biUnion blocks).filter (fun B ↦ e ⊆ B) =
+        indices.biUnion fun i ↦ (blocks i).filter fun B ↦ e ⊆ B := by
+    ext B
+    simp only [Finset.mem_filter, Finset.mem_biUnion]
+    aesop
+  rw [hfilter]
+  exact Finset.card_biUnion_le
+
+lemma blockIncidenceCount_sdiff
+    {small large : Finset (Finset (Fin n))} (hsub : small ⊆ large)
+    (e : Finset (Fin n)) :
+    blockIncidenceCount (large \ small) e =
+      blockIncidenceCount large e - blockIncidenceCount small e := by
+  unfold blockIncidenceCount
+  have hf : small.filter (fun B ↦ e ⊆ B) ⊆
+      large.filter (fun B ↦ e ⊆ B) :=
+    Finset.filter_subset_filter _ hsub
+  rw [← Finset.card_sdiff_of_subset hf]
+  congr 1
+  ext B
+  simp only [Finset.mem_filter, Finset.mem_sdiff]
+  aesop
+
+/-! ## Finite algebra of the integral absorber -/
+
+/-- The `r`-edges occurring in at least one member of a clique family. -/
+def cliqueBoundarySupport (family : Finset (Finset (Fin n))) (r : ℕ) :
+    Finset (Finset (Fin n)) :=
+  family.biUnion fun Q ↦ cliqueEdges Q r
+
+lemma mem_cliqueBoundarySupport {family : Finset (Finset (Fin n))}
+    {e : Finset (Fin n)} :
+    e ∈ cliqueBoundarySupport family r ↔
+      ∃ Q ∈ family, e ⊆ Q ∧ e.card = r := by
+  simp [cliqueBoundarySupport, mem_cliqueEdges]
+
+lemma blockIncidenceCount_eq_zero_of_subset_of_not_mem_boundary
+    {small large : Finset (Finset (Fin n))}
+    (hsub : small ⊆ large) {e : Finset (Fin n)} (hecard : e.card = r)
+    (he : e ∉ cliqueBoundarySupport large r) :
+    blockIncidenceCount small e = 0 := by
+  rw [blockIncidenceCount, Finset.card_eq_zero]
+  apply Finset.eq_empty_iff_forall_notMem.mpr
+  intro B hB
+  have hBData := Finset.mem_filter.mp hB
+  exact he (mem_cliqueBoundarySupport.mpr
+    ⟨B, hsub hBData.1, hBData.2, hecard⟩)
+
+lemma cliqueBoundarySupport_subset_complete
+    {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k) :
+    cliqueBoundarySupport family r ⊆ completeUniform n r := by
+  intro e he
+  obtain ⟨Q, hQ, heQ, hecard⟩ := mem_cliqueBoundarySupport.mp he
+  exact mem_completeUniform.mpr hecard
+
+/-- A face load on the generating cliques controls the lower-face degree
+of their entire clique boundary.  The deliberately coarse factor `2^k`
+is uniform and sufficient for every later power estimate. -/
+lemma localDegree_cliqueBoundarySupport_le_counterLoad
+    {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (J : Finset (Fin n)) :
+    localDegree (cliqueBoundarySupport family r) J ≤
+      Generators.counterLoad (fun J Q : Finset (Fin n) ↦ J ⊆ Q)
+        family J * 2 ^ k := by
+  classical
+  let left := (cliqueBoundarySupport family r).filter fun e ↦ J ⊆ e
+  let right := family.filter fun Q ↦ J ⊆ Q
+  have hcount := Reserve.card_mul_le_card_mul_of_relation
+    left right (fun e Q : Finset (Fin n) ↦ e ⊆ Q) 1 (2 ^ k) (by
+      intro e he
+      have heData := Finset.mem_filter.mp he
+      obtain ⟨Q, hQ, heQ, _hecard⟩ := mem_cliqueBoundarySupport.mp heData.1
+      have hQright : Q ∈ right := by
+        exact Finset.mem_filter.mpr ⟨hQ, heData.2.trans heQ⟩
+      have hmem : Q ∈ right.filter fun Q ↦ e ⊆ Q :=
+        Finset.mem_filter.mpr ⟨hQright, heQ⟩
+      exact Finset.card_pos.mpr ⟨Q, hmem⟩) (by
+      intro Q hQ
+      have hQfamily := (Finset.mem_filter.mp hQ).1
+      have hsub : (left.filter fun e ↦ e ⊆ Q) ⊆ Q.powerset := by
+        intro e he
+        exact Finset.mem_powerset.mpr (Finset.mem_filter.mp he).2
+      calc
+        (left.filter fun e ↦ e ⊆ Q).card ≤ Q.powerset.card :=
+          Finset.card_le_card hsub
+        _ = 2 ^ k := by simp [huniform Q hQfamily])
+  simpa [left, right, localDegree, Generators.counterLoad] using hcount
+
+/-- If every `r`-edge lies in at most `M` blocks, the codimension-one
+degree of the block family is controlled by the degree of its `r`-boundary.
+This is the incidence conversion used when a sparse generator/decoder input
+becomes the root family for the splitting exchanges. -/
+lemma localDegree_blocks_le_boundary_mul_incidence
+    {family : Finset (Finset (Fin n))}
+    (hr : 0 < r) (hrk : r < k)
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hincidence : ∀ e : Finset (Fin n), e.card = r →
+      blockIncidenceCount family e ≤ M)
+    (J : Finset (Fin n)) (hJ : J.card = r - 1) :
+    localDegree family J ≤
+      localDegree (cliqueBoundarySupport family r) J * M := by
+  classical
+  let left := family.filter fun Q ↦ J ⊆ Q
+  let right := (cliqueBoundarySupport family r).filter fun e ↦ J ⊆ e
+  have hcount := Reserve.card_mul_le_card_mul_of_relation
+    left right (fun Q e : Finset (Fin n) ↦ e ⊆ Q) 1 M (by
+      intro Q hQ
+      have hQData := Finset.mem_filter.mp hQ
+      have hdiff : (Q \ J).Nonempty := by
+        rw [Finset.nonempty_iff_ne_empty]
+        intro hempty
+        have hsub : Q ⊆ J := by
+          intro x hxQ
+          by_contra hxJ
+          have : x ∈ Q \ J := Finset.mem_sdiff.mpr ⟨hxQ, hxJ⟩
+          simpa [hempty] using this
+        have hcard := Finset.card_le_card hsub
+        rw [huniform Q hQData.1, hJ] at hcard
+        omega
+      let x := hdiff.choose
+      have hx := hdiff.choose_spec
+      let e := insert x J
+      have hxJ : x ∉ J := (Finset.mem_sdiff.mp hx).2
+      have hecard : e.card = r := by
+        simp [e, hxJ, hJ]
+        omega
+      have heQ : e ⊆ Q := by
+        intro y hy
+        rcases Finset.mem_insert.mp hy with rfl | hyJ
+        · exact (Finset.mem_sdiff.mp hx).1
+        · exact hQData.2 hyJ
+      have heright : e ∈ right := Finset.mem_filter.mpr ⟨
+        mem_cliqueBoundarySupport.mpr ⟨Q, hQData.1, heQ, hecard⟩,
+        Finset.subset_insert x J⟩
+      exact Finset.card_pos.mpr
+        ⟨e, Finset.mem_filter.mpr ⟨heright, heQ⟩⟩) (by
+      intro e he
+      have heData := Finset.mem_filter.mp he
+      have hecard : e.card = r := by
+        obtain ⟨_Q, _hQ, _heQ, hecard⟩ :=
+          mem_cliqueBoundarySupport.mp heData.1
+        exact hecard
+      have hsub : (left.filter fun Q ↦ e ⊆ Q) ⊆
+          family.filter fun Q ↦ e ⊆ Q := by
+        intro Q hQ
+        have hQData := Finset.mem_filter.mp hQ
+        exact Finset.mem_filter.mpr
+          ⟨(Finset.mem_filter.mp hQData.1).1, hQData.2⟩
+      exact (Finset.card_le_card hsub).trans (hincidence e hecard))
+  simpa [left, right, localDegree] using hcount
+
+theorem isPowerBounded_blocks_of_boundary_and_incidence
+    {family : Finset (Finset (Fin n))}
+    (hr : 0 < r) (hrk : r < k)
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hincidence : ∀ e : Finset (Fin n), e.card = r →
+      blockIncidenceCount family e ≤ M)
+    (hboundary : IsPowerBounded n r d c
+      (cliqueBoundarySupport family r)) :
+    IsPowerBounded n r d (M * c) family := by
+  intro J hJmem
+  have hJ : J.card = r - 1 := mem_completeUniform.mp hJmem
+  have hdegree := localDegree_blocks_le_boundary_mul_incidence
+    hr hrk huniform hincidence J hJ
+  calc
+    localDegree family J ^ d ≤
+        (localDegree (cliqueBoundarySupport family r) J * M) ^ d :=
+      Nat.pow_le_pow_left hdegree d
+    _ = M ^ d *
+        localDegree (cliqueBoundarySupport family r) J ^ d := by
+      rw [mul_pow]
+      ring
+    _ ≤ M ^ d * (c ^ d * n ^ (d - 1)) :=
+      Nat.mul_le_mul_left _ (hboundary J hJmem)
+    _ = (M * c) ^ d * n ^ (d - 1) := by
+      rw [mul_pow]
+      ring
+
+theorem isPowerBounded_cliqueBoundarySupport_of_counterLoad
+    {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hload : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Generators.counterLoad (fun J Q : Finset (Fin n) ↦ J ⊆ Q)
+        family J ≤ D)
+    (hD : D ^ d ≤ c ^ d * n ^ (d - 1)) :
+    IsPowerBounded n r d (2 ^ k * c)
+      (cliqueBoundarySupport family r) := by
+  intro J hJmem
+  have hJ : J.card = r - 1 := mem_completeUniform.mp hJmem
+  have hdegree := localDegree_cliqueBoundarySupport_le_counterLoad
+    (r := r) huniform J
+  have hbound : localDegree (cliqueBoundarySupport family r) J ≤
+      D * 2 ^ k := hdegree.trans (Nat.mul_le_mul_right _ (hload J hJ))
+  calc
+    localDegree (cliqueBoundarySupport family r) J ^ d ≤
+        (D * 2 ^ k) ^ d := Nat.pow_le_pow_left hbound d
+    _ = (2 ^ k) ^ d * D ^ d := by rw [mul_pow]; ring
+    _ ≤ (2 ^ k) ^ d * (c ^ d * n ^ (d - 1)) :=
+      Nat.mul_le_mul_left _ hD
+    _ = (2 ^ k * c) ^ d * n ^ (d - 1) := by
+      rw [mul_pow]
+      ring
+
+/-- Section 6's sparse integral generating family, restricted to exactly
+the simple leaves needed by the omni-absorber.  The first two fields are the
+uniformity and corrected multiplicity-four conclusions of Lemma 6.1; the last field
+says that every integrally admissible leave in the reserve has an integer
+boundary representation supported on this one fixed family. -/
+def IsSparseIntegralGenerator (n k r : ℕ)
+    (reserve generators : Finset (Finset (Fin n))) : Prop :=
+  (∀ Q ∈ generators, Q.card = k) ∧
+    (∀ e ∈ completeUniform n r,
+      blockIncidenceCount generators e ≤ 4) ∧
+    ∀ leave : Finset (Finset (Fin n)), leave ⊆ reserve →
+      IsIntegrallyDecomposable n k r leave →
+      ∃ φ : Finset (Fin n) → ℤ,
+        (∀ Q, φ Q ≠ 0 → Q ∈ generators) ∧
+        ∀ e ∈ completeUniform n r,
+          boundary n k φ e = if e ∈ leave then 1 else 0
+
+/-- The family of all local-decoder cliques assigned to a set of root
+edges. -/
+def localDecoderCliques (roots : Finset (Finset (Fin n)))
+    (Z : Finset (Fin n) → Finset (Fin n)) (k : ℕ) :
+    Finset (Finset (Fin n)) :=
+  roots.biUnion fun e ↦ (Z e).powersetCard k
+
+lemma mem_localDecoderCliques
+    {roots : Finset (Finset (Fin n))}
+    {Z : Finset (Fin n) → Finset (Fin n)}
+    {Q : Finset (Fin n)} :
+    Q ∈ localDecoderCliques roots Z k ↔
+      ∃ e ∈ roots, Q ∈ (Z e).powersetCard k := by
+  simp [localDecoderCliques]
+
+/-- Uniform pointwise coefficient budget after modular reduction and local
+decoding. -/
+def reducedDecoderCoeffBound (k r : ℕ) : ℕ :=
+  max (k.descFactorial r - 1)
+    (3 * ((2 * k) ^ r * Nat.factorial r))
+
+/-- A simultaneous placement of the explicit `(k+r)`-vertex local
+decoders.  The separation fields are not needed for the boundary equation,
+but are the exact conditions that later make the coefficient bound and the
+splitting allocation Boolean. -/
+structure LocalDecoderPlacement (n k r : ℕ)
+    (roots generators : Finset (Finset (Fin n))) where
+  Z : Finset (Fin n) → Finset (Fin n)
+  root_subset : ∀ e ∈ roots, e ⊆ Z e
+  ambient : ∀ e ∈ roots, Z e ⊆ Finset.univ
+  card_eq : ∀ e ∈ roots, (Z e).card = k + r
+  generators_disjoint :
+    Disjoint generators (localDecoderCliques roots Z k)
+  decoder_disjoint : ∀ e ∈ roots, ∀ e' ∈ roots, e ≠ e' →
+    Disjoint ((Z e).powersetCard k) ((Z e').powersetCard k)
+
+/-- A local-decoder placement retaining the lower-face load inherited from
+the rooted random-greedy path. -/
+structure BoundedLocalDecoderPlacement (n k r C : ℕ)
+    (roots generators : Finset (Finset (Fin n)))
+    extends LocalDecoderPlacement n k r roots generators where
+  decoder_edge_unique : ∀ e ∈ roots, ∀ e' ∈ roots,
+    ∀ g : Finset (Fin n), g.card = r → g ⊆ toLocalDecoderPlacement.Z e →
+      g ⊆ toLocalDecoderPlacement.Z e' → e = e'
+  input_degree_le : ∀ J : Finset (Fin n), J.card = r - 1 →
+    Reserve.localDegree
+        (cliqueBoundarySupport
+        (generators ∪ localDecoderCliques roots toLocalDecoderPlacement.Z k) r) J ≤
+      Reserve.localDegree roots J +
+        (CoverClique.coverPattern (k + r) r).freeEdges.card * C
+
+/-- The ambient vertex set assigned to a root by a separated complete
+rooted-clique placement.  Unlike `localDecoderPlacementOfSeparated` below,
+this definition applies to an arbitrary root edge family rather than only
+the boundary of a pre-existing clique family. -/
+def decoderVertexSetOfSeparated
+    {n v r : ℕ} {roots forbidden : Finset (Finset (Fin n))}
+    (S : LocalDecoderEmbedding.SeparatedCliqueExtensions
+      n v r roots forbidden) (e : Finset (Fin n)) : Finset (Fin n) :=
+  if he : e ∈ roots then
+    (Finset.univ : Finset (Fin v)).map (S.embedding e he)
+  else ∅
+
+lemma root_subset_decoderVertexSetOfSeparated
+    {n v r : ℕ} {roots forbidden : Finset (Finset (Fin n))}
+    (S : LocalDecoderEmbedding.SeparatedCliqueExtensions
+      n v r roots forbidden) {e : Finset (Fin n)} (he : e ∈ roots) :
+    e ⊆ decoderVertexSetOfSeparated S e := by
+  have hroot := S.root_image e he
+  have hsub : RootedEmbedding.mapEdge (S.embedding e he)
+      (CoverClique.coverRoot v r) ⊆
+        (Finset.univ : Finset (Fin v)).map (S.embedding e he) :=
+    Finset.map_subset_map.mpr (Finset.subset_univ _)
+  rw [hroot] at hsub
+  simpa [decoderVertexSetOfSeparated, he] using hsub
+
+lemma decoderVertexSetOfSeparated_subset_univ
+    {n v r : ℕ} {roots forbidden : Finset (Finset (Fin n))}
+    (S : LocalDecoderEmbedding.SeparatedCliqueExtensions
+      n v r roots forbidden) (e : Finset (Fin n)) :
+    decoderVertexSetOfSeparated S e ⊆
+      (Finset.univ : Finset (Fin n)) :=
+  Finset.subset_univ _
+
+lemma card_decoderVertexSetOfSeparated
+    {n v r : ℕ} {roots forbidden : Finset (Finset (Fin n))}
+    (S : LocalDecoderEmbedding.SeparatedCliqueExtensions
+      n v r roots forbidden) {e : Finset (Fin n)} (he : e ∈ roots) :
+    (decoderVertexSetOfSeparated S e).card = v := by
+  simp [decoderVertexSetOfSeparated, he]
+
+/-! ## Finite modular-to-integral generator assembly
+
+The probabilistic part of Section 6 first constructs a bounded modular
+generator, then adjoins a complete local decoder at every edge on which the
+modular lift can leave an `N`-multiple, and finally flattens the resulting
+clique family.  The following definitions and theorem isolate the exact
+finite algebra performed by those three steps. -/
+
+/-- Every integrally decomposable simple leave in `reserve` has an integer
+coefficient vector on `modular` whose boundary is correct modulo `N`.
+Writing congruence as divisibility avoids choosing representatives in
+`ZMod N` in the later integral lift. -/
+def IsModularIntegralGenerator (N n k r : ℕ)
+    (reserve modular : Finset (Finset (Fin n))) : Prop :=
+  ∀ leave : Finset (Finset (Fin n)), leave ⊆ reserve →
+    IsIntegrallyDecomposable n k r leave →
+    ∃ ψ : Finset (Fin n) → ℤ,
+      (∀ Q, ψ Q ≠ 0 → Q ∈ modular) ∧
+      ∀ e ∈ completeUniform n r,
+        (N : ℤ) ∣
+          (if e ∈ leave then 1 else 0) - boundary n k ψ e
+
+/-- A modular clique family generates the boundary of every complete
+`k`-clique.  Section 6 obtains this from the rotated unsaturated cliques and
+the full-exchange focusing argument. -/
+def IsUniversalModularGenerator (N n k r : ℕ)
+    (modular : Finset (Finset (Fin n))) : Prop :=
+  ∀ Q ∈ blockCandidates n k,
+    Generators.InModularSpan N n r modular
+      (Generators.modCliqueBoundary N n r Q)
+
+/-- Coordinate form of a modular linear combination of clique boundaries. -/
+def modularBoundaryCombination (N r : ℕ)
+    (modular : Finset (Finset (Fin n)))
+    (c : Finset (Fin n) → ZMod N) :
+    Finset (Fin n) → ZMod N :=
+  fun e ↦ ∑ Q ∈ modular,
+    if e.card = r ∧ e ⊆ Q then c Q else 0
+
+/-- Every ambient `k`-clique is the root of a full exchange whose other
+positive blocks and all negative blocks belong to `focused`. -/
+def HasExchangeFocusing (n k r : ℕ)
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (focused : Finset (Finset (Fin n))) : Prop :=
+  ∀ Q ∈ blockCandidates n k,
+    ∃ φ : Fin E.v ↪ Fin n,
+      RootedEmbedding.mapEdge φ E.pattern.root = Q ∧
+      ExchangeEmbedding.mappedPositive E φ \ {Q} ⊆ focused ∧
+      ExchangeEmbedding.mappedNegative E φ ⊆ focused
+
+/-- A `k`-block with at most one `r`-edge outside `host`.  This is the
+literal invariant after the first focusing exchange: a labelled near
+negative block may retain its unique root edge. -/
+def almostSupportedBlocks (n k r : ℕ)
+    (host : Finset (Finset (Fin n))) : Finset (Finset (Fin n)) :=
+  (blockCandidates n k).filter fun Q ↦
+    (Q.powersetCard r \ host).card ≤ 1
+
+/-- A `k`-block all of whose `r`-edges lie in `host`. -/
+def fullySupportedBlocks (n k r : ℕ)
+    (host : Finset (Finset (Fin n))) : Finset (Finset (Fin n)) :=
+  (blockCandidates n k).filter fun Q ↦ Q.powersetCard r ⊆ host
+
+lemma mem_fullySupportedBlocks {Q : Finset (Fin n)} :
+    Q ∈ fullySupportedBlocks n k r host ↔
+      Q.card = k ∧ Q.powersetCard r ⊆ host := by
+  simp [fullySupportedBlocks, blockCandidates, completeUniform]
+
+lemma mem_almostSupportedBlocks {Q : Finset (Fin n)} :
+    Q ∈ almostSupportedBlocks n k r host ↔
+      Q.card = k ∧ (Q.powersetCard r \ host).card ≤ 1 := by
+  simp [almostSupportedBlocks, blockCandidates, completeUniform]
+
+lemma mem_almostSupportedBlocks_of_subset
+    {Q : Finset (Fin n)} (hQ : Q.card = k)
+    (hsub : Q.powersetCard r ⊆ host) :
+    Q ∈ almostSupportedBlocks n k r host := by
+  apply mem_almostSupportedBlocks.mpr
+  refine ⟨hQ, ?_⟩
+  have hempty : Q.powersetCard r \ host = ∅ :=
+    Finset.sdiff_eq_empty_iff_subset.mpr hsub
+  simp [hempty]
+
+lemma mem_almostSupportedBlocks_of_sdiff_subset_singleton
+    {Q e : Finset (Fin n)} (hQ : Q.card = k)
+    (hsub : Q.powersetCard r \ host ⊆ {e}) :
+    Q ∈ almostSupportedBlocks n k r host := by
+  apply mem_almostSupportedBlocks.mpr
+  exact ⟨hQ, (Finset.card_le_card hsub).trans (by simp)⟩
+
+lemma fullySupportedBlocks_subset_almostSupportedBlocks :
+    fullySupportedBlocks n k r host ⊆ almostSupportedBlocks n k r host := by
+  intro Q hQ
+  exact mem_almostSupportedBlocks_of_subset
+    (mem_fullySupportedBlocks.mp hQ).1 (mem_fullySupportedBlocks.mp hQ).2
+
+/-- In a rooted full exchange whose free edges lie in `host`, every positive
+nonroot block and every negative block is almost supported. -/
+theorem exchange_remainders_almostSupported
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (φ : Fin E.v ↪ Fin n)
+    (host : Finset (Finset (Fin n)))
+    (hfree : RootedEmbedding.imageFreeEdges E.pattern φ ⊆ host) :
+    (ExchangeEmbedding.mappedPositive E φ \
+          {RootedEmbedding.mapEdge φ E.pattern.root} ⊆
+        almostSupportedBlocks n k r host) ∧
+      ExchangeEmbedding.mappedNegative E φ ⊆
+        almostSupportedBlocks n k r host := by
+  constructor
+  · intro B hB
+    have hBerase : B ∈ (ExchangeEmbedding.mappedPositive E φ).erase
+        (RootedEmbedding.mapEdge φ E.pattern.root) := by
+      have hB' := Finset.mem_sdiff.mp hB
+      exact Finset.mem_erase.mpr ⟨by
+        intro hEq
+        apply hB'.2
+        simp [hEq], hB'.1⟩
+    apply mem_almostSupportedBlocks_of_subset
+      ((ExchangeEmbedding.mappedPositive_erase_decomp E φ).1 B hBerase)
+    exact ((ExchangeEmbedding.mappedPositive_erase_decomp E φ).2.1
+      B hBerase).trans hfree
+  · intro B hB
+    by_cases hnear : B ∈ ExchangeEmbedding.mappedNearNegative E φ
+    · obtain ⟨e, _he, hBe⟩ := Finset.mem_image.mp hnear
+      subst B
+      let exceptional := RootedEmbedding.mapEdge
+        (E.rootEmbedding.trans φ) e.1
+      apply mem_almostSupportedBlocks_of_sdiff_subset_singleton
+        ((ExchangeEmbedding.mappedNegative_decomp E φ).1 _
+          (ExchangeEmbedding.mappedSpecial_mem_mappedNegative E φ e))
+      intro g hg
+      have hgData := Finset.mem_sdiff.mp hg
+      rcases ExchangeEmbedding.mappedSpecial_edge_eq_or_free
+          E φ e hgData.1 with hge | hgfree
+      · show g ∈ {exceptional}
+        rw [Finset.mem_singleton]
+        exact hge
+      · exact (hgData.2 (hfree hgfree)).elim
+    · have hfar : B ∈ ExchangeEmbedding.mappedFarNegative E φ :=
+        Finset.mem_sdiff.mpr ⟨hB, hnear⟩
+      apply mem_almostSupportedBlocks_of_subset
+        ((ExchangeEmbedding.mappedNegative_decomp E φ).1 B hB)
+      exact (ExchangeEmbedding.mappedFarNegative_edges_subset_freeEdges
+        E φ hfar).trans hfree
+
+/-- Pointwise rooted placements in one host assemble into the exact focusing
+interface used by the modular algebra. -/
+theorem hasExchangeFocusing_almostSupported
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (host : Finset (Finset (Fin n)))
+    (hplace : ∀ Q ∈ blockCandidates n k,
+      ∃ φ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge φ E.pattern.root = Q ∧
+        RootedEmbedding.imageFreeEdges E.pattern φ ⊆ host) :
+    HasExchangeFocusing n k r E
+      (almostSupportedBlocks n k r host) := by
+  intro Q hQ
+  obtain ⟨φ, hroot, hfree⟩ := hplace Q hQ
+  obtain ⟨hpos, hneg⟩ :=
+    exchange_remainders_almostSupported E φ host hfree
+  exact ⟨φ, hroot, by simpa [hroot] using hpos, hneg⟩
+
+/-- Maximum number of coloured constraints needed simultaneously for the
+one-root exchange and the auxiliary rooted clique. -/
+noncomputable def modularFocusingConstraintBound
+    (k r : ℕ) (hrk : r < k) : ℕ :=
+  (ExchangeEmbedding.fullExchangeData hrk).pattern.freeEdges.card +
+    (CoverClique.coverPattern k r).freeEdges.card + 1
+
+/-- Denominator used by the sparse host in the focusing step. -/
+noncomputable def modularFocusingDen
+    (k r : ℕ) (hrk : r < k) : ℕ :=
+  modularFocusingConstraintBound k r hrk + 1
+
+/-- One sufficiently large sparse host focuses every ambient `k`-clique
+through the same relabelled full exchange.  It also contains an auxiliary
+`k`-clique through any prescribed `r`-edge, with all other edges in the host
+and all other vertices avoiding a prescribed `k`-set. -/
+theorem eventually_exists_almostSupportedExchangeFocusing
+    (k r : ℕ) (hr : 0 < r) (hrk : r < k) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∃ host : Finset (Finset (Fin n)),
+        IsPowerBounded n r (modularFocusingDen k r hrk) 2 host ∧
+        HasExchangeFocusing n k r
+          (ExchangeEmbedding.fullExchangeData hrk)
+          (almostSupportedBlocks n k r host) ∧
+        (∀ e ∈ completeUniform n r,
+          ∀ forbiddenVertices : Finset (Fin n), e ⊆ forbiddenVertices →
+            forbiddenVertices.card ≤ 2 * k →
+            ∃ Q ∈ blockCandidates n k,
+              Q.powersetCard r \ {e} ⊆ host ∧
+              Q ∩ forbiddenVertices = e) ∧
+        ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+          ∃ ψ : Fin (ExchangeEmbedding.fullExchangeData hrk).v ↪ Fin n,
+            RootedEmbedding.mapEdge ψ
+                (ExchangeEmbedding.fullExchangeData hrk).pattern.root =
+              P.positive ∧
+            RootedEmbedding.mapEdge ψ
+                ((ExchangeEmbedding.fullExchangeData hrk).special
+                  (ExchangeEmbedding.fullExchangeRootEdge hrk)) =
+              P.negative ∧
+            RootedEmbedding.imageFreeEdges
+                ((ExchangeEmbedding.fullExchangeData hrk).eliminationPattern
+                  (ExchangeEmbedding.fullExchangeRootEdge hrk)) ψ ⊆ host := by
+  let E := ExchangeEmbedding.fullExchangeData hrk
+  let e₀ := ExchangeEmbedding.fullExchangeRootEdge hrk
+  let C := CoverClique.coverPattern k r
+  let h := E.pattern.freeEdges.card + C.freeEdges.card + 1
+  let D := h + 1
+  let V := E.v + 3 * k
+  have hh : 0 < h := by simp [h]
+  have hD : 0 < D := by omega
+  have hhD : h < D := by omega
+  obtain ⟨σE, hσE⟩ := ColoredEmbedding.exists_rootFirstPermutation
+    (root := E.pattern.root) (s := E.pattern.root.card) rfl
+      (by simpa using Finset.card_le_univ E.pattern.root)
+  obtain ⟨σC, hσC⟩ := ColoredEmbedding.exists_rootFirstPermutation
+    (root := C.root) (s := C.root.card) rfl
+      (by simpa using Finset.card_le_univ C.root)
+  obtain ⟨σX, hσX⟩ := ColoredEmbedding.exists_rootFirstPermutation
+    (root := (E.eliminationPattern e₀).root)
+    (s := (E.eliminationPattern e₀).root.card) rfl
+      (by simpa using Finset.card_le_univ (E.eliminationPattern e₀).root)
+  have hsample := ColoredTypicality.eventually_exists_colored_typical_sample
+    1 r h D hr hh hD hhD
+  have hmean := ColoredTypicality.eventually_fixed_le_half_coloredCommonMean
+    1 r h D V hD hhD
+  filter_upwards [hsample, hmean] with n hsample hmean
+  obtain ⟨hn, ω, htyp, _hsub, hdegree⟩ := hsample
+  let host := ColoredTypicality.sampledColorEdges 1 n r ω 0
+  refine ⟨host, ?_, ?_, ?_, ?_⟩
+  · intro I hI
+    have hIcard : I.card = r - 1 := mem_completeUniform.mp hI
+    simpa [host, D, h, E, C, modularFocusingDen,
+      modularFocusingConstraintBound, localDegree, Nat.add_assoc] using
+      hdegree 0 I hIcard
+  · apply hasExchangeFocusing_almostSupported E host
+    intro Q hQ
+    have hQcard : Q.card = k := mem_completeUniform.mp hQ
+    haveI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+    obtain ⟨request, hrequest⟩ :=
+      CoverClique.exists_rootRequest_with_image E.pattern.root Q
+        (E.root_card.trans hQcard.symm)
+    obtain ⟨ψ, hextends, hψfree⟩ :=
+      ColoredEmbedding.exists_rootedColoredEmbedding
+        (P := E.pattern) (u := 1)
+        (by simpa using Finset.card_le_univ E.pattern.root)
+        (fun _ ↦ 0) σE hσE request
+        (h := h) (by dsimp [h]; omega) hr
+        (Reserve.reserveProbabilityIcc n D hn) ω htyp (by
+          intro roots hroots
+          have hEV : E.v ≤ V := by simp [V]
+          exact_mod_cast (show (E.v : ℝ) ≤
+            ColoredTypicality.coloredCommonMean n roots
+              (Reserve.reserveProbabilityIcc n D hn) / 2 from
+                (by exact_mod_cast hEV : (E.v : ℝ) ≤ (V : ℝ)).trans
+                  (hmean hn roots hroots)))
+    refine ⟨ψ, (RootedEmbedding.mapEdge_root_eq_requestImage_of_extends
+      E.pattern.root request ψ hextends).trans hrequest, ?_⟩
+    intro g hg
+    obtain ⟨e, he, rfl⟩ := Finset.mem_image.mp hg
+    simpa [host, RootedEmbedding.mapEdge, Finset.map_eq_image] using
+      hψfree e he
+  · intro e he forbiddenVertices heForbidden hforbiddenCard
+    haveI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+    have hecard : e.card = r := mem_completeUniform.mp he
+    obtain ⟨request, hrequest⟩ :=
+      CoverClique.exists_rootRequest_with_image C.root e (by
+        simpa [C, CoverClique.coverPattern_root,
+          CoverClique.card_coverRoot hrk.le] using hecard.symm)
+    obtain ⟨ψ, hextends, hψfree, hψavoid⟩ :=
+      ColoredEmbedding.exists_rootedColoredEmbedding_avoiding
+        (P := C) (u := 1)
+        (by simpa using Finset.card_le_univ C.root)
+        (fun _ ↦ 0) σC hσC request forbiddenVertices
+        (h := h) (by dsimp [h]; omega) hr
+        (Reserve.reserveProbabilityIcc n D hn) ω htyp (by
+          intro roots hroots
+          have hsmall : k + forbiddenVertices.card ≤ V := by
+            dsimp [V]
+            omega
+          exact (by exact_mod_cast hsmall :
+              ((k + forbiddenVertices.card : ℕ) : ℝ) ≤ (V : ℝ)).trans
+            (hmean hn roots hroots))
+    let Q := (Finset.univ : Finset (Fin k)).map ψ
+    have hrootMap : RootedEmbedding.mapEdge ψ C.root = e :=
+      (RootedEmbedding.mapEdge_root_eq_requestImage_of_extends
+        C.root request ψ hextends).trans hrequest
+    refine ⟨Q, mem_completeUniform.mpr (by simp [Q]), ?_, ?_⟩
+    · have hfreeEq := CoverClique.imageFreeEdges_coverPattern_eq_spill
+        hrk.le request e Q ψ hextends hrequest rfl
+      have hfreeEq' : RootedEmbedding.imageFreeEdges C ψ =
+          Q.powersetCard r \ {e} := by
+        simpa [C, Reserve.cliqueEdges] using hfreeEq
+      rw [← hfreeEq']
+      intro g hg
+      obtain ⟨a, ha, rfl⟩ := Finset.mem_image.mp hg
+      simpa [host, RootedEmbedding.mapEdge, Finset.map_eq_image] using
+        hψfree a ha
+    · apply Finset.Subset.antisymm
+      · intro y hy
+        have hyQ := (Finset.mem_inter.mp hy).1
+        have hyForbidden := (Finset.mem_inter.mp hy).2
+        obtain ⟨x, _hx, hxy⟩ := Finset.mem_map.mp hyQ
+        by_cases hxRoot : x ∈ C.root
+        · rw [← hrootMap]
+          exact Finset.mem_map.mpr ⟨x, hxRoot, hxy⟩
+        · exfalso
+          apply hψavoid x hxRoot
+          rw [hxy]
+          exact hyForbidden
+      · intro y hy
+        apply Finset.mem_inter.mpr
+        refine ⟨?_, heForbidden hy⟩
+        rw [← hrootMap] at hy
+        exact Finset.map_subset_map.mpr (Finset.subset_univ C.root) hy
+  · intro P
+    haveI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+    obtain ⟨request, hrequestRoot, hrequestPos, hrequestNeg⟩ :=
+      ExchangeEliminationEmbedding.exists_eliminationRootRequest
+        E hr hrk e₀ P
+    have hfreeCard : (E.eliminationPattern e₀).freeEdges.card ≤ h := by
+      have hfreeSub : (E.eliminationPattern e₀).freeEdges ⊆
+          E.pattern.freeEdges := by
+        intro g hg
+        have hgData := Finset.mem_filter.mp hg
+        apply Finset.mem_filter.mpr
+        refine ⟨hgData.1, ?_⟩
+        intro hgRoot
+        apply hgData.2
+        exact hgRoot.trans Finset.subset_union_left
+      exact (Finset.card_le_card hfreeSub).trans (by dsimp [h]; omega)
+    obtain ⟨ψ, hextends, hψfree⟩ :=
+      ColoredEmbedding.exists_rootedColoredEmbedding
+        (P := E.eliminationPattern e₀) (u := 1)
+        (by simpa using Finset.card_le_univ (E.eliminationPattern e₀).root)
+        (fun _ ↦ 0) σX hσX request hfreeCard hr
+        (Reserve.reserveProbabilityIcc n D hn) ω htyp (by
+          intro roots hroots
+          have hEV : E.v ≤ V := by simp [V]
+          exact (by exact_mod_cast hEV : (E.v : ℝ) ≤ (V : ℝ)).trans
+            (hmean hn roots hroots))
+    refine ⟨ψ, ?_, ?_, ?_⟩
+    · rw [ExchangeEliminationEmbedding.mapEdge_eq_requestImage_of_extends_of_subset
+          (Finset.subset_union_left : E.pattern.root ⊆
+            (E.eliminationPattern e₀).root) request ψ hextends]
+      exact hrequestPos
+    · rw [ExchangeEliminationEmbedding.mapEdge_eq_requestImage_of_extends_of_subset
+          (Finset.subset_union_right : E.special e₀ ⊆
+            (E.eliminationPattern e₀).root) request ψ hextends]
+      exact hrequestNeg
+    · intro g hg
+      obtain ⟨a, ha, rfl⟩ := Finset.mem_image.mp hg
+      simpa [host, RootedEmbedding.mapEdge, Finset.map_eq_image] using
+        hψfree a ha
+
+/-- A family `target` integrally spans `source` if every finitely supported
+integer vector on `source` can be replaced by one on `target` with the same
+complete `r`-boundary.  This is the invariant preserved by every splitting
+and square-root flattening round. -/
+def IntegrallySpans (n k r : ℕ)
+    (target source : Finset (Finset (Fin n))) : Prop :=
+  ∀ φ : Finset (Fin n) → ℤ,
+    (∀ Q, φ Q ≠ 0 → Q ∈ source) →
+    ∃ φ' : Finset (Fin n) → ℤ,
+      (∀ Q, φ' Q ≠ 0 → Q ∈ target) ∧
+      ∀ e ∈ completeUniform n r,
+        boundary n k φ' e = boundary n k φ e
+
+lemma integrallySpans_refl (n k r : ℕ)
+    (source : Finset (Finset (Fin n))) :
+    IntegrallySpans n k r source source := by
+  intro φ hφ
+  exact ⟨φ, hφ, fun _e _he ↦ rfl⟩
+
+lemma IntegrallySpans.mono_target
+    {n k r : ℕ}
+    {small large source : Finset (Finset (Fin n))}
+    (hsub : small ⊆ large)
+    (hspan : IntegrallySpans n k r small source) :
+    IntegrallySpans n k r large source := by
+  intro φ hφ
+  obtain ⟨φ', hφ', hboundary⟩ := hspan φ hφ
+  exact ⟨φ', fun Q hQ ↦ hsub (hφ' Q hQ), hboundary⟩
+
+lemma IntegrallySpans.mono_source
+    {n k r : ℕ}
+    {target small large : Finset (Finset (Fin n))}
+    (hsub : small ⊆ large)
+    (hspan : IntegrallySpans n k r target large) :
+    IntegrallySpans n k r target small := by
+  intro φ hφ
+  exact hspan φ (fun Q hQ ↦ hsub (hφ Q hQ))
+
+lemma IntegrallySpans.trans
+    {n k r : ℕ}
+    {third second first : Finset (Finset (Fin n))}
+    (hsecond : IntegrallySpans n k r third second)
+    (hfirst : IntegrallySpans n k r second first) :
+    IntegrallySpans n k r third first := by
+  intro φ hφ
+  obtain ⟨ψ, hψ, hψboundary⟩ := hfirst φ hφ
+  obtain ⟨η, hη, hηboundary⟩ := hsecond ψ hψ
+  exact ⟨η, hη, fun e he ↦ (hηboundary e he).trans (hψboundary e he)⟩
+
+/-- Integral spanning cannot lose an `r`-edge from the boundary support of
+a uniform source family.  Apply the span to the coefficient vector of one
+source block; its boundary is `1` on every `r`-edge of that block, so at
+least one target block must still contain the edge. -/
+lemma IntegrallySpans.cliqueBoundarySupport_subset
+    {n k r : ℕ}
+    {target source : Finset (Finset (Fin n))}
+    (hspan : IntegrallySpans n k r target source)
+    (hsourceUniform : ∀ Q ∈ source, Q.card = k) :
+    cliqueBoundarySupport source r ⊆ cliqueBoundarySupport target r := by
+  classical
+  intro e he
+  obtain ⟨Q, hQsource, heQ, hecard⟩ := mem_cliqueBoundarySupport.mp he
+  let single : Finset (Fin n) → ℤ := fun B ↦ if B = Q then 1 else 0
+  have hsingleSupport : ∀ B, single B ≠ 0 → B ∈ source := by
+    intro B hB
+    by_cases hBQ : B = Q
+    · simpa [hBQ] using hQsource
+    · simp [single, hBQ] at hB
+  obtain ⟨phi, hphiSupport, hboundary⟩ :=
+    hspan single hsingleSupport
+  have hQcandidate : Q ∈ blockCandidates n k :=
+    mem_completeUniform.mpr (hsourceUniform Q hQsource)
+  have hsingleBoundary : boundary n k single e = 1 := by
+    rw [boundary]
+    have hsum :
+        (∑ B ∈ blockCandidates n k,
+          if e ⊆ B then single B else 0) =
+          (if e ⊆ Q then single Q else 0) := by
+      apply Finset.sum_eq_single Q
+      · intro B hB hBQ
+        simp [single, hBQ]
+      · intro hQnot
+        exact (hQnot hQcandidate).elim
+    simpa [single, heQ] using hsum
+  by_contra heTarget
+  have htargetZero : boundary n k phi e = 0 := by
+    rw [boundary]
+    apply Finset.sum_eq_zero
+    intro B hB
+    by_cases heB : e ⊆ B
+    · rw [if_pos heB]
+      by_contra hphi
+      exact heTarget (mem_cliqueBoundarySupport.mpr
+        ⟨B, hphiSupport B hphi, heB, hecard⟩)
+    · simp [heB]
+  have heComplete : e ∈ completeUniform n r := mem_completeUniform.mpr hecard
+  have heq := hboundary e heComplete
+  rw [htargetZero, hsingleBoundary] at heq
+  omega
+
+lemma IntegrallySpans.union
+    {n k r : ℕ}
+    {target₁ target₂ source₁ source₂ : Finset (Finset (Fin n))}
+    (h₁ : IntegrallySpans n k r target₁ source₁)
+    (h₂ : IntegrallySpans n k r target₂ source₂) :
+    IntegrallySpans n k r (target₁ ∪ target₂) (source₁ ∪ source₂) := by
+  classical
+  intro φ hφ
+  let φ₁ : Finset (Fin n) → ℤ := fun Q ↦ if Q ∈ source₁ then φ Q else 0
+  let φ₂ : Finset (Fin n) → ℤ := fun Q ↦ if Q ∈ source₁ then 0 else φ Q
+  have hφ₁ : ∀ Q, φ₁ Q ≠ 0 → Q ∈ source₁ := by
+    intro Q hQ
+    by_contra hnot
+    simp [φ₁, hnot] at hQ
+  have hφ₂ : ∀ Q, φ₂ Q ≠ 0 → Q ∈ source₂ := by
+    intro Q hQ
+    have hnot : Q ∉ source₁ := by
+      intro hmem
+      simp [φ₂, hmem] at hQ
+    have hφQ : φ Q ≠ 0 := by simpa [φ₂, hnot] using hQ
+    exact (Finset.mem_union.mp (hφ Q hφQ)).resolve_left hnot
+  obtain ⟨ψ₁, hψ₁, hb₁⟩ := h₁ φ₁ hφ₁
+  obtain ⟨ψ₂, hψ₂, hb₂⟩ := h₂ φ₂ hφ₂
+  have hsplit : (fun Q ↦ φ₁ Q + φ₂ Q) = φ := by
+    funext Q
+    by_cases hQ : Q ∈ source₁ <;> simp [φ₁, φ₂, hQ]
+  refine ⟨fun Q ↦ ψ₁ Q + ψ₂ Q, ?_, ?_⟩
+  · intro Q hQ
+    by_cases hQ₁ : ψ₁ Q = 0
+    · exact Finset.mem_union_right _ (hψ₂ Q (by simpa [hQ₁] using hQ))
+    · exact Finset.mem_union_left _ (hψ₁ Q hQ₁)
+  · intro e he
+    rw [show boundary n k (fun Q ↦ ψ₁ Q + ψ₂ Q) e =
+        boundary n k ψ₁ e + boundary n k ψ₂ e by
+      exact congrFun (boundary_add n k ψ₁ ψ₂) e]
+    rw [hb₁ e he, hb₂ e he]
+    rw [← congrFun (boundary_add n k φ₁ φ₂) e, hsplit]
+
+/-- A single clique boundary has an integer representation on `target`. -/
+def CliqueBoundaryRepresentable (n k r : ℕ)
+    (target : Finset (Finset (Fin n))) (Q : Finset (Fin n)) : Prop :=
+  ∃ η : Finset (Fin n) → ℤ,
+    (∀ B, η B ≠ 0 → B ∈ target) ∧
+    ∀ e ∈ completeUniform n r,
+      boundary n k η e = if e ⊆ Q then 1 else 0
+
+/-- The clique family replacing the positive root of one full exchange. -/
+def exchangeReplacement
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (φ : Fin E.v ↪ Fin n) : Finset (Finset (Fin n)) :=
+  ExchangeEmbedding.mappedNegative E φ ∪
+    (ExchangeEmbedding.mappedPositive E φ).erase
+      (RootedEmbedding.mapEdge φ E.pattern.root)
+
+/-- Union of the root-erased exchange replacements assigned to a family. -/
+def exchangeReplacementFamily
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (source : Finset (Finset (Fin n)))
+    (embedding : ↑source → (Fin E.v ↪ Fin n)) :
+    Finset (Finset (Fin n)) :=
+  source.attach.biUnion fun Q ↦ exchangeReplacement E (embedding Q)
+
+/-- The target support for eliminating the negative member of a two-root
+exchange in favour of its positive intermediate block. -/
+def eliminationFlattenReplacement
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C)
+    (P : ExchangeEliminationEmbedding.EliminationPair n k r)
+    (hP : P ∈ pairs) : Finset (Finset (Fin n)) :=
+  {P.positive} ∪
+    ExchangeEliminationEmbedding.eliminationPositiveRemainder S P hP ∪
+    ExchangeEliminationEmbedding.eliminationNegativeRemainder S P hP
+
+/-- Union of all intermediate roots and root-erased remainders in one
+coefficient-independent two-root flattening bank. -/
+def eliminationFlattenFamily
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C) : Finset (Finset (Fin n)) :=
+  pairs.attach.biUnion fun P ↦ eliminationFlattenReplacement S P.1 P.2
+
+/-- The root-erased remainders of all prescribed two-root exchanges.  In the
+corrected square-root round the fresh positive roots are auxiliary algebraic
+objects and are not themselves inserted into the new generator family. -/
+def eliminationRemainderFamily
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C) : Finset (Finset (Fin n)) :=
+  pairs.attach.biUnion fun P ↦
+    ExchangeEliminationEmbedding.eliminationRemainderBlocks S P.1 P.2
+
+/-- One complete flattening round retains the cliques not assigned to a
+high-multiplicity edge and replaces every assigned clique through the fixed
+two-root elimination bank. -/
+def eliminationFlattenRoundFamily
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (retained : Finset (Finset (Fin n)))
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C) : Finset (Finset (Fin n)) :=
+  retained ∪ eliminationFlattenFamily S
+
+/-- Multiplicity target for one square-root flattening round. -/
+def nextFlattenMultiplicity (x : ℕ) : ℕ :=
+  max (Nat.sqrt x + 2) 4
+
+/-- The corrected finite grouping underlying Lemma 6.5: use
+`⌊√x⌋ + 1` groups.  Then an equipartition has no more than
+`⌊√x⌋ + 1` members in any group.  Taking only `⌊√x⌋` groups, as one
+sentence of the paper says, is false already for `x = 8`; the displayed
+recurrence in the paper agrees with the corrected choice used here. -/
+theorem exists_sqrtGrouping
+    {α : Type*} [DecidableEq α] (s : Finset α) (hs : 2 < s.card) :
+    ∃ P : Finpartition s,
+      P.IsEquipartition ∧
+      P.parts.card = Nat.sqrt s.card + 1 ∧
+      ∀ t ∈ P.parts, t.card ≤ Nat.sqrt s.card + 1 := by
+  let groups := Nat.sqrt s.card + 1
+  have hgroupsPos : 0 < groups := by simp [groups]
+  have hgroupsLe : groups ≤ s.card := by
+    have hsqrt := Nat.sqrt_lt_self (by omega : 1 < s.card)
+    omega
+  obtain ⟨P, hP, hPcard⟩ :=
+    Finpartition.exists_equipartition_card_eq s hgroupsPos.ne' hgroupsLe
+  refine ⟨P, hP, hPcard, ?_⟩
+  intro t ht
+  have hlt : s.card / groups < groups := by
+    apply (Nat.div_lt_iff_lt_mul hgroupsPos).2
+    simpa [groups, Nat.add_comm] using Nat.lt_succ_sqrt s.card
+  rcases hP.card_parts_eq_average ht with hsmall | hlarge
+  · rw [hsmall, hPcard]
+    exact hlt.le
+  · rw [hlarge, hPcard]
+    omega
+
+/-- The blocks through one edge. -/
+def incidentBlockFibre (family : Finset (Finset (Fin n)))
+    (e : Finset (Fin n)) : Finset (Finset (Fin n)) :=
+  family.filter fun Q ↦ e ⊆ Q
+
+@[simp] lemma card_incidentBlockFibre
+    (family : Finset (Finset (Fin n))) (e : Finset (Fin n)) :
+    (incidentBlockFibre family e).card = blockIncidenceCount family e := rfl
+
+/-- Edges whose current block multiplicity exceeds a prescribed cap. -/
+def highMultiplicityEdges (n r cap : ℕ)
+    (family : Finset (Finset (Fin n))) : Finset (Finset (Fin n)) :=
+  (completeUniform n r).filter fun e ↦
+    cap < blockIncidenceCount family e
+
+@[simp] lemma mem_highMultiplicityEdges
+    {e : Finset (Fin n)} :
+    e ∈ highMultiplicityEdges n r cap family ↔
+      e ∈ completeUniform n r ∧ cap < blockIncidenceCount family e := by
+  simp [highMultiplicityEdges]
+
+/-- The canonical equitable square-root grouping of the fibre of a high
+multiplicity edge. -/
+noncomputable def sqrtGroupingAt
+    (family : Finset (Finset (Fin n)))
+    (e : Finset (Fin n))
+    (he : e ∈ highMultiplicityEdges n r 4 family) :
+    Finpartition (incidentBlockFibre family e) :=
+  Classical.choose (exists_sqrtGrouping (incidentBlockFibre family e)
+    (by
+      have h := (mem_highMultiplicityEdges.mp he).2
+      simpa only [card_incidentBlockFibre] using (show
+        2 < blockIncidenceCount family e by omega)))
+
+theorem sqrtGroupingAt_spec
+    (family : Finset (Finset (Fin n)))
+    (e : Finset (Fin n))
+    (he : e ∈ highMultiplicityEdges n r 4 family) :
+    (sqrtGroupingAt family e he).IsEquipartition ∧
+      (sqrtGroupingAt family e he).parts.card =
+        Nat.sqrt (blockIncidenceCount family e) + 1 ∧
+      ∀ group ∈ (sqrtGroupingAt family e he).parts,
+        group.card ≤ Nat.sqrt (blockIncidenceCount family e) + 1 := by
+  unfold sqrtGroupingAt
+  convert (Classical.choose_spec
+    (exists_sqrtGrouping (incidentBlockFibre family e)
+      (by
+        have h := (mem_highMultiplicityEdges.mp he).2
+        simpa only [card_incidentBlockFibre] using (show
+          2 < blockIncidenceCount family e by omega)))) using 1 <;> simp
+
+/-- A global source multiplicity cap bounds the number of canonical groups
+over every high edge by `⌊√x⌋ + 1`. -/
+lemma sqrtGroupingAt_parts_card_le
+    {n r x : ℕ} {family : Finset (Finset (Fin n))}
+    (hsource : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount family e ≤ x) :
+    ∀ e : ↑(highMultiplicityEdges n r 4 family),
+      (sqrtGroupingAt family e.1 e.2).parts.card ≤ Nat.sqrt x + 1 := by
+  intro e
+  rw [(sqrtGroupingAt_spec family e.1 e.2).2.1]
+  exact Nat.add_le_add_right
+    (Nat.sqrt_le_sqrt (hsource e.1
+      (mem_highMultiplicityEdges.mp e.2).1)) 1
+
+lemma sqrtGroupingAt_group_subset
+    (family : Finset (Finset (Fin n)))
+    (e : Finset (Fin n))
+    (he : e ∈ highMultiplicityEdges n r 4 family)
+    {group : Finset (Finset (Fin n))}
+    (hgroup : group ∈ (sqrtGroupingAt family e he).parts) :
+    group ⊆ incidentBlockFibre family e :=
+  (sqrtGroupingAt family e he).le hgroup
+
+lemma sqrtGroupingAt_group_nonempty
+    (family : Finset (Finset (Fin n)))
+    (e : Finset (Fin n))
+    (he : e ∈ highMultiplicityEdges n r 4 family)
+    {group : Finset (Finset (Fin n))}
+    (hgroup : group ∈ (sqrtGroupingAt family e he).parts) :
+    group.Nonempty :=
+  (sqrtGroupingAt family e he).nonempty_of_mem_parts hgroup
+
+/-- Blocks assigned to some currently high-multiplicity edge. -/
+def processedHighBlocks (n r : ℕ)
+    (family : Finset (Finset (Fin n))) : Finset (Finset (Fin n)) :=
+  family.filter fun Q ↦
+    ∃ e ∈ highMultiplicityEdges n r 4 family, e ⊆ Q
+
+/-- Blocks untouched in the current square-root round. -/
+def retainedAfterHigh (n r : ℕ)
+    (family : Finset (Finset (Fin n))) : Finset (Finset (Fin n)) :=
+  family \ processedHighBlocks n r family
+
+/-- Union of all canonical groups over all high-multiplicity edges. -/
+noncomputable def groupedHighBlocks (n r : ℕ)
+    (family : Finset (Finset (Fin n))) : Finset (Finset (Fin n)) :=
+  (highMultiplicityEdges n r 4 family).attach.biUnion fun e ↦
+    (sqrtGroupingAt family e.1 e.2).parts.biUnion id
+
+theorem groupedHighBlocks_eq_processedHighBlocks
+    (n r : ℕ) (family : Finset (Finset (Fin n))) :
+    groupedHighBlocks n r family = processedHighBlocks n r family := by
+  classical
+  ext Q
+  constructor
+  · intro hQ
+    obtain ⟨e, _heAttach, hQ⟩ := Finset.mem_biUnion.mp hQ
+    obtain ⟨group, hgroup, hQgroup⟩ := Finset.mem_biUnion.mp hQ
+    have hQfibre : Q ∈ incidentBlockFibre family e.1 :=
+      sqrtGroupingAt_group_subset family e.1 e.2 hgroup hQgroup
+    have hQdata := Finset.mem_filter.mp hQfibre
+    exact Finset.mem_filter.mpr
+      ⟨hQdata.1, e.1, e.2, hQdata.2⟩
+  · intro hQ
+    have hQdata := Finset.mem_filter.mp hQ
+    obtain ⟨e, he, heQ⟩ := hQdata.2
+    let e' : ↑(highMultiplicityEdges n r 4 family) := ⟨e, he⟩
+    have hQfibre : Q ∈ incidentBlockFibre family e :=
+      Finset.mem_filter.mpr ⟨hQdata.1, heQ⟩
+    obtain ⟨group, hgroup, _hunique⟩ :=
+      (sqrtGroupingAt family e he).existsUnique_mem hQfibre
+    apply Finset.mem_biUnion.mpr
+    refine ⟨e', Finset.mem_attach _ _, ?_⟩
+    apply Finset.mem_biUnion.mpr
+    exact ⟨group, by simpa [e'] using hgroup.1, hgroup.2⟩
+
+theorem retained_union_processedHighBlocks
+    (n r : ℕ) (family : Finset (Finset (Fin n))) :
+    retainedAfterHigh n r family ∪ processedHighBlocks n r family =
+      family := by
+  apply Finset.sdiff_union_of_subset
+  exact Finset.filter_subset _ _
+
+/-- The no-double-assignment invariant established by the initial splitting
+round: a current block contains at most one high edge. -/
+def HasUniqueHighEdge (n r : ℕ)
+    (family : Finset (Finset (Fin n))) : Prop :=
+  ∀ Q ∈ family,
+    ∀ e ∈ highMultiplicityEdges n r 4 family, e ⊆ Q →
+    ∀ e' ∈ highMultiplicityEdges n r 4 family, e' ⊆ Q → e = e'
+
+/-- The exact incidence conclusion supplied by the geometry of one
+square-root flattening round.  A formerly high edge occurs only in the one
+intermediate clique chosen for each group of its old fibre.  A fresh edge
+can occur in that intermediate and in at most one remainder for every old
+clique in its group, giving the corrected `sqrt x + 2` bound.  All remaining
+edges retain the baseline multiplicity-four bound. -/
+def HasSquareRootIncidenceUpdate (n r x : ℕ)
+    (source next : Finset (Finset (Fin n))) : Prop :=
+  (∀ e ∈ highMultiplicityEdges n r 4 source,
+      blockIncidenceCount next e ≤
+        Nat.sqrt (blockIncidenceCount source e) + 1) ∧
+    (∀ e ∈ completeUniform n r,
+      e ∉ highMultiplicityEdges n r 4 source →
+      blockIncidenceCount next e ≤ Nat.sqrt x + 2)
+
+/-- The two geometric cases of a flattening round imply the displayed
+recurrence in Lemma 6.5. -/
+theorem HasSquareRootIncidenceUpdate.incidence_le_nextFlattenMultiplicity
+    {n r x : ℕ}
+    {source next : Finset (Finset (Fin n))}
+    (hsource : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount source e ≤ x)
+    (hupdate :
+      HasSquareRootIncidenceUpdate n r x source next) :
+    ∀ e ∈ completeUniform n r,
+      blockIncidenceCount next e ≤ nextFlattenMultiplicity x := by
+  intro e he
+  by_cases hhigh : e ∈ highMultiplicityEdges n r 4 source
+  · calc
+      blockIncidenceCount next e ≤
+          Nat.sqrt (blockIncidenceCount source e) + 1 :=
+        hupdate.1 e hhigh
+      _ ≤ Nat.sqrt x + 1 :=
+        Nat.add_le_add_right (Nat.sqrt_le_sqrt (hsource e he)) 1
+      _ ≤ Nat.sqrt x + 2 := by omega
+      _ ≤ nextFlattenMultiplicity x := by
+        exact le_max_left (Nat.sqrt x + 2) 4
+  · exact (hupdate.2 e he hhigh).trans
+      (le_max_left (Nat.sqrt x + 2) 4)
+
+/-- With no high edge, the current family already has multiplicity at most
+four on every ambient `r`-edge. -/
+theorem incidence_le_four_of_highMultiplicityEdges_eq_empty
+    {n r : ℕ} {family : Finset (Finset (Fin n))}
+    (hempty : highMultiplicityEdges n r 4 family = ∅) :
+    ∀ e ∈ completeUniform n r,
+      blockIncidenceCount family e ≤ 4 := by
+  intro e he
+  have hnot : e ∉ highMultiplicityEdges n r 4 family := by
+    rw [hempty]
+    simp
+  exact Nat.le_of_not_gt fun hgt ↦
+    hnot (mem_highMultiplicityEdges.mpr ⟨he, hgt⟩)
+
+/-- Dependent index of one canonical group over one high edge. -/
+abbrev SqrtGroupIndex (n r : ℕ)
+    (family : Finset (Finset (Fin n))) :=
+  Σ e : ↑(highMultiplicityEdges n r 4 family),
+    ↑(sqrtGroupingAt family e.1 e.2).parts
+
+/-- Embed the canonical groups over each high edge into one common layer
+set. -/
+noncomputable def sqrtGroupCode {n : ℕ}
+    (group : Finset (Finset (Fin n))) :
+    Fin (Fintype.card (Finset (Finset (Fin n)))) :=
+  Fintype.equivFin (Finset (Finset (Fin n))) group
+
+noncomputable def sqrtGroupSlot
+    {n r M : ℕ} {family : Finset (Finset (Fin n))}
+    (hgroups : ∀ e : ↑(highMultiplicityEdges n r 4 family),
+      (sqrtGroupingAt family e.1 e.2).parts.card ≤ M)
+    (I : SqrtGroupIndex n r family) : Fin M :=
+  Fin.castLE (hgroups I.1)
+    ⟨((sqrtGroupingAt family I.1.1 I.1.2).parts.filter
+        (fun group ↦ sqrtGroupCode group < sqrtGroupCode I.2.1)).card,
+      (Finset.card_le_card (by
+        intro group hgroup
+        have hdata := Finset.mem_filter.mp hgroup
+        exact Finset.mem_erase.mpr
+          ⟨fun hEq ↦ (lt_irrefl (sqrtGroupCode I.2.1))
+            (hEq ▸ hdata.2), hdata.1⟩)).trans_lt
+          (Finset.card_erase_lt_of_mem I.2.2)⟩
+
+lemma sqrtGroupEdge_slot_injective
+    {n r M : ℕ} {family : Finset (Finset (Fin n))}
+    (hgroups : ∀ e : ↑(highMultiplicityEdges n r 4 family),
+      (sqrtGroupingAt family e.1 e.2).parts.card ≤ M)
+    {I J : SqrtGroupIndex n r family}
+    (hpair : (I.1.1, ((sqrtGroupSlot hgroups I : Fin M) : ℕ)) =
+      (J.1.1, ((sqrtGroupSlot hgroups J : Fin M) : ℕ))) : I = J := by
+  have hedgeVal : I.1.1 = J.1.1 := congrArg Prod.fst hpair
+  have hedge : I.1 = J.1 := Subtype.ext hedgeVal
+  have hslotVal : (sqrtGroupSlot hgroups I : ℕ) =
+      (sqrtGroupSlot hgroups J : ℕ) := congrArg Prod.snd hpair
+  have hparts :
+      (sqrtGroupingAt family I.1.1 I.1.2).parts =
+        (sqrtGroupingAt family J.1.1 J.1.2).parts :=
+    congrArg (fun z : ↑(highMultiplicityEdges n r 4 family) ↦
+      (sqrtGroupingAt family z.1 z.2).parts) hedge
+  have hcount :
+      ((sqrtGroupingAt family I.1.1 I.1.2).parts.filter
+        (fun group ↦ sqrtGroupCode group < sqrtGroupCode I.2.1)).card =
+      ((sqrtGroupingAt family J.1.1 J.1.2).parts.filter
+        (fun group ↦ sqrtGroupCode group < sqrtGroupCode J.2.1)).card := by
+    simpa [sqrtGroupSlot] using hslotVal
+  have hgroupVal : I.2.1 = J.2.1 := by
+    by_contra hne
+    have hcodeNe : sqrtGroupCode I.2.1 ≠ sqrtGroupCode J.2.1 := by
+      intro hcode
+      exact hne ((Fintype.equivFin (Finset (Finset (Fin n)))).injective
+        hcode)
+    rcases lt_or_gt_of_ne hcodeNe with hlt | hgt
+    · have hproper :
+          (sqrtGroupingAt family I.1.1 I.1.2).parts.filter
+              (fun group ↦
+                sqrtGroupCode group < sqrtGroupCode I.2.1) ⊂
+            (sqrtGroupingAt family J.1.1 J.1.2).parts.filter
+              (fun group ↦
+                sqrtGroupCode group < sqrtGroupCode J.2.1) := by
+        constructor
+        · intro group hgroup
+          have hdata := Finset.mem_filter.mp hgroup
+          apply Finset.mem_filter.mpr
+          exact ⟨by rw [← hparts]; exact hdata.1, hdata.2.trans hlt⟩
+        · intro hreverse
+          have hmemRight : I.2.1 ∈
+              (sqrtGroupingAt family J.1.1 J.1.2).parts.filter
+                (fun group ↦
+                  sqrtGroupCode group < sqrtGroupCode J.2.1) :=
+            Finset.mem_filter.mpr
+              ⟨by rw [← hparts]; exact I.2.2, hlt⟩
+          have hmemLeft := hreverse hmemRight
+          exact (lt_irrefl (sqrtGroupCode I.2.1))
+            (Finset.mem_filter.mp hmemLeft).2
+      exact (Nat.ne_of_lt (Finset.card_lt_card hproper)) hcount
+    · have hproper :
+          (sqrtGroupingAt family J.1.1 J.1.2).parts.filter
+              (fun group ↦
+                sqrtGroupCode group < sqrtGroupCode J.2.1) ⊂
+            (sqrtGroupingAt family I.1.1 I.1.2).parts.filter
+              (fun group ↦
+                sqrtGroupCode group < sqrtGroupCode I.2.1) := by
+        constructor
+        · intro group hgroup
+          have hdata := Finset.mem_filter.mp hgroup
+          apply Finset.mem_filter.mpr
+          exact ⟨by rw [hparts]; exact hdata.1, hdata.2.trans hgt⟩
+        · intro hreverse
+          have hmemRight : J.2.1 ∈
+              (sqrtGroupingAt family I.1.1 I.1.2).parts.filter
+                (fun group ↦
+                  sqrtGroupCode group < sqrtGroupCode I.2.1) :=
+            Finset.mem_filter.mpr
+              ⟨by rw [hparts]; exact J.2.2, hgt⟩
+          have hmemLeft := hreverse hmemRight
+          exact (lt_irrefl (sqrtGroupCode J.2.1))
+            (Finset.mem_filter.mp hmemLeft).2
+      exact (Nat.ne_of_gt (Finset.card_lt_card hproper)) hcount
+  apply Sigma.ext hedge
+  apply (Subtype.heq_iff_coe_eq (fun group ↦ by rw [hparts])).2
+  exact hgroupVal
+
+/-- The intermediate clique chosen for every square-root group.  Its
+intersection with each old clique of the group is exactly the group's high
+edge, as required by a two-root elimination request. -/
+structure SqrtIntermediateAssignment (n k r : ℕ)
+    (family : Finset (Finset (Fin n))) where
+  intermediate : SqrtGroupIndex n r family → Finset (Fin n)
+  card_eq : ∀ I, (intermediate I).card = k
+  inter_eq : ∀ I, ∀ Q ∈ I.2.1,
+    intermediate I ∩ Q = I.1.1
+  source_edge_eq : ∀ I e,
+    e ∈ cliqueBoundarySupport family r → e ⊆ intermediate I → e = I.1.1
+  free_pairwise : ∀ I J, I ≠ J →
+    Disjoint ((intermediate I).powersetCard r \ {I.1.1})
+      ((intermediate J).powersetCard r \ {J.1.1})
+
+/-- The non-root `r`-edges of all auxiliary intermediate cliques. -/
+noncomputable def sqrtIntermediateFreeEdges
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family) :
+    Finset (Finset (Fin n)) :=
+  (Finset.univ : Finset (SqrtGroupIndex n r family)).biUnion fun I ↦
+    (A.intermediate I).powersetCard r \ {I.1.1}
+
+/-- The set of fresh intermediate cliques used in one square-root round. -/
+noncomputable def sqrtIntermediateCliques
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family) :
+    Finset (Finset (Fin n)) :=
+  (Finset.univ : Finset (SqrtGroupIndex n r family)).image A.intermediate
+
+lemma sqrtGroupEdge_subset_intermediate
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family)
+    (I : SqrtGroupIndex n r family) : I.1.1 ⊆ A.intermediate I := by
+  obtain ⟨Q, hQ⟩ := sqrtGroupingAt_group_nonempty
+    family I.1.1 I.1.2 I.2.2
+  rw [← A.inter_eq I Q hQ]
+  exact Finset.inter_subset_left
+
+lemma highMultiplicityEdges_subset_cliqueBoundarySupport
+    {n r cap : ℕ} {family : Finset (Finset (Fin n))} :
+    highMultiplicityEdges n r cap family ⊆
+      cliqueBoundarySupport family r := by
+  intro e he
+  have heData := mem_highMultiplicityEdges.mp he
+  have hcountPos : 0 < blockIncidenceCount family e := by omega
+  obtain ⟨Q, hQ⟩ := Finset.card_pos.mp hcountPos
+  have hQData := Finset.mem_filter.mp hQ
+  exact mem_cliqueBoundarySupport.mpr
+    ⟨Q, hQData.1, hQData.2, mem_completeUniform.mp heData.1⟩
+
+/-- Auxiliary non-root edges are fresh with respect to the old clique
+boundary. -/
+lemma sqrtIntermediateFreeEdges_disjoint_source
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family) :
+    Disjoint (sqrtIntermediateFreeEdges A)
+      (cliqueBoundarySupport family r) := by
+  classical
+  apply Finset.disjoint_left.mpr
+  intro e heAux heSource
+  obtain ⟨I, _hI, heI⟩ := Finset.mem_biUnion.mp heAux
+  have heIData := Finset.mem_sdiff.mp heI
+  have heSub : e ⊆ A.intermediate I :=
+    (Finset.mem_powersetCard.mp heIData.1).1
+  have heEq := A.source_edge_eq I e heSource heSub
+  exact heIData.2 (by simpa [heEq])
+
+lemma highMultiplicityEdge_not_mem_sqrtIntermediateFreeEdges
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family)
+    {e : Finset (Fin n)} (he : e ∈ highMultiplicityEdges n r 4 family) :
+    e ∉ sqrtIntermediateFreeEdges A := by
+  exact fun heAux ↦ Finset.disjoint_left.mp
+    (sqrtIntermediateFreeEdges_disjoint_source A) heAux
+      (highMultiplicityEdges_subset_cliqueBoundarySupport he)
+
+lemma sqrtIntermediateFreeEdge_not_subset_of_ne
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family)
+    {I J : SqrtGroupIndex n r family} (hIJ : I ≠ J)
+    {e : Finset (Fin n)}
+    (heI : e ∈ (A.intermediate I).powersetCard r \ {I.1.1}) :
+    ¬e ⊆ A.intermediate J := by
+  intro heJsub
+  have heIData := Finset.mem_sdiff.mp heI
+  have hecard := (Finset.mem_powersetCard.mp heIData.1).2
+  have heNotSource : e ∉ cliqueBoundarySupport family r := by
+    intro heSource
+    exact Finset.disjoint_left.mp
+      (sqrtIntermediateFreeEdges_disjoint_source A)
+      (Finset.mem_biUnion.mpr ⟨I, Finset.mem_univ _, heI⟩) heSource
+  have heJne : e ≠ J.1.1 := by
+    intro heEq
+    apply heNotSource
+    rw [heEq]
+    exact highMultiplicityEdges_subset_cliqueBoundarySupport J.1.2
+  have heJ : e ∈ (A.intermediate J).powersetCard r \ {J.1.1} := by
+    apply Finset.mem_sdiff.mpr
+    exact ⟨Finset.mem_powersetCard.mpr ⟨heJsub, hecard⟩, by simpa using heJne⟩
+  exact Finset.disjoint_left.mp (A.free_pairwise I J hIJ) heI heJ
+
+lemma sqrtIntermediateCliques_uniform
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family) :
+    ∀ Q ∈ sqrtIntermediateCliques A, Q.card = k := by
+  classical
+  intro Q hQ
+  obtain ⟨I, _hI, rfl⟩ := Finset.mem_image.mp hQ
+  exact A.card_eq I
+
+/-- At a currently high edge, the fresh intermediate cliques are charged
+to the canonical groups of that edge. -/
+lemma blockIncidenceCount_sqrtIntermediateCliques_high_le
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family)
+    {e : Finset (Fin n)} (he : e ∈ highMultiplicityEdges n r 4 family) :
+    blockIncidenceCount (sqrtIntermediateCliques A) e ≤
+      (sqrtGroupingAt family e he).parts.card := by
+  classical
+  let e' : ↑(highMultiplicityEdges n r 4 family) := ⟨e, he⟩
+  let edgeIntermediates : Finset (Finset (Fin n)) :=
+    (sqrtGroupingAt family e he).parts.attach.image fun group ↦
+      A.intermediate (⟨e', group⟩ : SqrtGroupIndex n r family)
+  have heSource : e ∈ cliqueBoundarySupport family r :=
+    highMultiplicityEdges_subset_cliqueBoundarySupport he
+  have hsub :
+      (sqrtIntermediateCliques A).filter (fun B ↦ e ⊆ B) ⊆
+        edgeIntermediates := by
+    intro B hB
+    have hBData := Finset.mem_filter.mp hB
+    obtain ⟨I, _hI, hBEq⟩ := Finset.mem_image.mp hBData.1
+    have heI : e ⊆ A.intermediate I := by
+      simpa [hBEq] using hBData.2
+    have hEdgeEq : e = I.1.1 := A.source_edge_eq I e heSource heI
+    have hIndexEq : I.1 = e' := Subtype.ext hEdgeEq.symm
+    let group : ↑(sqrtGroupingAt family e'.1 e'.2).parts :=
+      cast (by rw [hIndexEq]) I.2
+    have hSigmaEq :
+        (⟨e', group⟩ : SqrtGroupIndex n r family) = I := by
+      apply Sigma.ext hIndexEq.symm
+      simp [group]
+    apply Finset.mem_image.mpr
+    refine ⟨group, Finset.mem_attach _ _, ?_⟩
+    simpa [hSigmaEq] using hBEq
+  calc
+    blockIncidenceCount (sqrtIntermediateCliques A) e ≤
+        edgeIntermediates.card := Finset.card_le_card hsub
+    _ ≤ (sqrtGroupingAt family e he).parts.attach.card :=
+      Finset.card_image_le
+    _ = (sqrtGroupingAt family e he).parts.card := by simp
+
+/-- A non-root edge of an intermediate clique occurs in no other
+intermediate clique. -/
+lemma blockIncidenceCount_sqrtIntermediateCliques_auxiliary_le_one
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family)
+    (I : SqrtGroupIndex n r family) {e : Finset (Fin n)}
+    (heI : e ∈ (A.intermediate I).powersetCard r \ {I.1.1}) :
+    blockIncidenceCount (sqrtIntermediateCliques A) e ≤ 1 := by
+  classical
+  rw [blockIncidenceCount]
+  apply Finset.card_le_one.mpr
+  intro B hB B' hB'
+  have hBData := Finset.mem_filter.mp hB
+  have hB'Data := Finset.mem_filter.mp hB'
+  obtain ⟨J, _hJ, hBEq⟩ := Finset.mem_image.mp hBData.1
+  obtain ⟨J', _hJ', hB'Eq⟩ := Finset.mem_image.mp hB'Data.1
+  have heJ : e ⊆ A.intermediate J := by
+    simpa [hBEq] using hBData.2
+  have heJ' : e ⊆ A.intermediate J' := by
+    simpa [hB'Eq] using hB'Data.2
+  have hJI : J = I := by
+    by_contra hne
+    exact (sqrtIntermediateFreeEdge_not_subset_of_ne A
+      (I := I) (J := J) (Ne.symm hne) heI) heJ
+  have hJ'I : J' = I := by
+    by_contra hne
+    exact (sqrtIntermediateFreeEdge_not_subset_of_ne A
+      (I := I) (J := J') (Ne.symm hne) heI) heJ'
+  subst J
+  subst J'
+  exact hBEq.symm.trans hB'Eq
+
+/-- A canonical old clique retained as the anchor of a nonempty square-root
+group. -/
+noncomputable def sqrtGroupAnchor
+    {n r : ℕ} {family : Finset (Finset (Fin n))}
+    (I : SqrtGroupIndex n r family) : Finset (Fin n) :=
+  Classical.choose
+    (sqrtGroupingAt_group_nonempty family I.1.1 I.1.2 I.2.2)
+
+lemma sqrtGroupAnchor_mem
+    {n r : ℕ} {family : Finset (Finset (Fin n))}
+    (I : SqrtGroupIndex n r family) : sqrtGroupAnchor I ∈ I.2.1 :=
+  Classical.choose_spec
+    (sqrtGroupingAt_group_nonempty family I.1.1 I.1.2 I.2.2)
+
+/-- Under the unique-high-edge invariant, distinct canonical groups have
+distinct anchor blocks.  Thus a repeated-root group schedule can be
+charged to the old clique family without paying its maximum root
+multiplicity. -/
+lemma sqrtGroupAnchor_injective
+    {n r : ℕ} {family : Finset (Finset (Fin n))}
+    (hunique : HasUniqueHighEdge n r family) :
+    Function.Injective (sqrtGroupAnchor :
+      SqrtGroupIndex n r family → Finset (Fin n)) := by
+  intro I J hanchor
+  have hIfibre := sqrtGroupingAt_group_subset
+    family I.1.1 I.1.2 I.2.2 (sqrtGroupAnchor_mem I)
+  have hJfibre := sqrtGroupingAt_group_subset
+    family J.1.1 J.1.2 J.2.2 (sqrtGroupAnchor_mem J)
+  have hIData := Finset.mem_filter.mp hIfibre
+  have hJData := Finset.mem_filter.mp hJfibre
+  have hJroot : J.1.1 ⊆ sqrtGroupAnchor I := by
+    simpa [hanchor] using hJData.2
+  have hedge : I.1.1 = J.1.1 :=
+    hunique (sqrtGroupAnchor I) hIData.1 I.1.1 I.1.2 hIData.2
+      J.1.1 J.1.2 hJroot
+  have hfirst : I.1 = J.1 := Subtype.ext hedge
+  have hparts :
+      (sqrtGroupingAt family I.1.1 I.1.2).parts =
+        (sqrtGroupingAt family J.1.1 J.1.2).parts :=
+    congrArg (fun z : ↑(highMultiplicityEdges n r 4 family) ↦
+      (sqrtGroupingAt family z.1 z.2).parts) hfirst
+  apply Sigma.ext hfirst
+  apply (Subtype.heq_iff_coe_eq (fun group ↦ by rw [hparts])).2
+  have hJpart : J.2.1 ∈
+      (sqrtGroupingAt family I.1.1 I.1.2).parts := by
+    rw [hparts]
+    exact J.2.2
+  apply (sqrtGroupingAt family I.1.1 I.1.2).eq_of_mem_parts
+    I.2.2 hJpart (sqrtGroupAnchor_mem I)
+  simpa [hanchor] using sqrtGroupAnchor_mem J
+
+/-- One old anchor for every canonical group. -/
+noncomputable def sqrtGroupAnchors (n r : ℕ)
+    (family : Finset (Finset (Fin n))) : Finset (Finset (Fin n)) :=
+  (Finset.univ : Finset (SqrtGroupIndex n r family)).image sqrtGroupAnchor
+
+lemma sqrtGroupAnchors_subset_family
+    (n r : ℕ) (family : Finset (Finset (Fin n))) :
+    sqrtGroupAnchors n r family ⊆ family := by
+  classical
+  intro Q hQ
+  obtain ⟨I, _hI, rfl⟩ := Finset.mem_image.mp hQ
+  exact (Finset.mem_filter.mp
+    (sqrtGroupingAt_group_subset family I.1.1 I.1.2 I.2.2
+      (sqrtGroupAnchor_mem I))).1
+
+/-- The elimination pair attached to one old clique in one square-root
+group. -/
+def sqrtGroupEliminationPair
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    (I : SqrtGroupIndex n r family)
+    (Q : Finset (Fin n)) (hQ : Q ∈ I.2.1) :
+    ExchangeEliminationEmbedding.EliminationPair n k r where
+  positive := A.intermediate I
+  negative := Q
+  positive_card := A.card_eq I
+  negative_card := by
+    apply huniform Q
+    exact (Finset.mem_filter.mp
+      (sqrtGroupingAt_group_subset family I.1.1 I.1.2 I.2.2 hQ)).1
+  inter_card := by
+    rw [A.inter_eq I Q hQ]
+    exact mem_completeUniform.mp (mem_highMultiplicityEdges.mp I.1.2).1
+
+/-- All two-root requests in one square-root round. -/
+noncomputable def sqrtGroupEliminationPairs
+    {n k r : ℕ} (family : Finset (Finset (Fin n)))
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family) :
+    Finset (ExchangeEliminationEmbedding.EliminationPair n k r) := by
+  classical
+  exact (Finset.univ : Finset (SqrtGroupIndex n r family)).biUnion fun I ↦
+    I.2.1.attach.image fun Q ↦
+      sqrtGroupEliminationPair huniform A I Q.1 Q.2
+
+lemma sqrtGroupEliminationPair_mem
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    (I : SqrtGroupIndex n r family)
+    (Q : Finset (Fin n)) (hQ : Q ∈ I.2.1) :
+    sqrtGroupEliminationPair huniform A I Q hQ ∈
+      sqrtGroupEliminationPairs family huniform A := by
+  classical
+  apply Finset.mem_biUnion.mpr
+  refine ⟨I, Finset.mem_univ _, ?_⟩
+  apply Finset.mem_image.mpr
+  exact ⟨⟨Q, hQ⟩, Finset.mem_attach _ _, rfl⟩
+
+lemma exists_sqrtGroupIndex_of_mem_eliminationPairs
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {P : ExchangeEliminationEmbedding.EliminationPair n k r}
+    (hP : P ∈ sqrtGroupEliminationPairs family huniform A) :
+    ∃ I : SqrtGroupIndex n r family, ∃ Q : Finset (Fin n),
+      ∃ hQ : Q ∈ I.2.1,
+        P = sqrtGroupEliminationPair huniform A I Q hQ := by
+  classical
+  obtain ⟨I, _hI, hP⟩ := Finset.mem_biUnion.mp hP
+  obtain ⟨Q, _hQattach, hEq⟩ := Finset.mem_image.mp hP
+  exact ⟨I, Q.1, Q.2, hEq.symm⟩
+
+/-- A codimension-one face of a `k`-set has at least two extensions to an
+`r`-edge when `r < k`; hence one extension can avoid any prescribed edge. -/
+lemma exists_powersetCard_superset_ne
+    {B J e : Finset (Fin n)} {k r : ℕ}
+    (hr : 0 < r) (hrk : r < k) (hBcard : B.card = k)
+    (hJcard : J.card = r - 1) (hJB : J ⊆ B) :
+    ∃ g ∈ B.powersetCard r, J ⊆ g ∧ g ≠ e := by
+  have hdiffCard : (B \ J).card = k - (r - 1) := by
+    rw [Finset.card_sdiff, Finset.inter_eq_left.mpr hJB, hBcard, hJcard]
+  have hdiffLarge : 1 < (B \ J).card := by
+    rw [hdiffCard]
+    omega
+  obtain ⟨x, hx, y, hy, hxy⟩ := Finset.one_lt_card.mp hdiffLarge
+  have hxB : x ∈ B := (Finset.mem_sdiff.mp hx).1
+  have hxJ : x ∉ J := (Finset.mem_sdiff.mp hx).2
+  have hyB : y ∈ B := (Finset.mem_sdiff.mp hy).1
+  have hyJ : y ∉ J := (Finset.mem_sdiff.mp hy).2
+  let gx := insert x J
+  let gy := insert y J
+  have hgxPow : gx ∈ B.powersetCard r := by
+    apply Finset.mem_powersetCard.mpr
+    refine ⟨Finset.insert_subset hxB hJB, ?_⟩
+    rw [show gx.card = J.card + 1 by simp [gx, hxJ], hJcard]
+    omega
+  have hgyPow : gy ∈ B.powersetCard r := by
+    apply Finset.mem_powersetCard.mpr
+    refine ⟨Finset.insert_subset hyB hJB, ?_⟩
+    rw [show gy.card = J.card + 1 by simp [gy, hyJ], hJcard]
+    omega
+  have hJgx : J ⊆ gx := Finset.subset_insert x J
+  have hJgy : J ⊆ gy := Finset.subset_insert y J
+  have hgxy : gx ≠ gy := by
+    intro heq
+    have hxgy : x ∈ gy := by
+      rw [← heq]
+      exact Finset.mem_insert_self x J
+    simp [gy, hxy, hxJ] at hxgy
+  by_cases hgxe : gx = e
+  · exact ⟨gy, hgyPow, hJgy, fun hgye ↦ hgxy (hgxe.trans hgye.symm)⟩
+  · exact ⟨gx, hgxPow, hJgx, hgxe⟩
+
+/-- Every positive-side occurrence in the square-root pair bank has a
+non-root edge extending the queried codimension-one face. -/
+lemma exists_sqrtGroupPair_freeEdge
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (hr : 0 < r) (hrk : r < k)
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {J : Finset (Fin n)} {P : ExchangeEliminationEmbedding.EliminationPair n k r}
+    (hP : P ∈ sqrtGroupEliminationPairs family huniform A)
+    (hJcard : J.card = r - 1) (hJP : J ⊆ P.positive) :
+    ∃ g : Finset (Fin n), ∃ I : SqrtGroupIndex n r family,
+      g ∈ (A.intermediate I).powersetCard r \ {I.1.1} ∧
+        J ⊆ g ∧ g ⊆ P.positive := by
+  obtain ⟨I, Q, hQ, hPEq⟩ :=
+    exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A hP
+  have hJIntermediate : J ⊆ A.intermediate I := by
+    simpa [hPEq, sqrtGroupEliminationPair] using hJP
+  obtain ⟨g, hg, hJg, hgne⟩ := exists_powersetCard_superset_ne
+    hr hrk (A.card_eq I) hJcard hJIntermediate (e := I.1.1)
+  refine ⟨g, I, Finset.mem_sdiff.mpr ⟨hg, ?_⟩, hJg, ?_⟩
+  · simpa using hgne
+  · simpa [hPEq, sqrtGroupEliminationPair] using
+      (Finset.mem_powersetCard.mp hg).1
+
+/-- Canonical charging edge for a positive-side request.  Outside the
+displayed request filter its value is irrelevant. -/
+noncomputable def sqrtGroupPairFreeEdge
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (hr : 0 < r) (hrk : r < k)
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    (J : Finset (Fin n))
+    (P : ExchangeEliminationEmbedding.EliminationPair n k r) :
+    Finset (Fin n) := by
+  classical
+  exact if h : P ∈ sqrtGroupEliminationPairs family huniform A ∧
+      J.card = r - 1 ∧ J ⊆ P.positive then
+    Classical.choose
+      (exists_sqrtGroupPair_freeEdge hr hrk huniform A h.1 h.2.1 h.2.2)
+  else ∅
+
+lemma sqrtGroupPairFreeEdge_spec
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (hr : 0 < r) (hrk : r < k)
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    (J : Finset (Fin n))
+    (P : ExchangeEliminationEmbedding.EliminationPair n k r)
+    (hP : P ∈ sqrtGroupEliminationPairs family huniform A)
+    (hJcard : J.card = r - 1) (hJP : J ⊆ P.positive) :
+    ∃ I : SqrtGroupIndex n r family,
+      sqrtGroupPairFreeEdge hr hrk huniform A J P ∈
+          (A.intermediate I).powersetCard r \ {I.1.1} ∧
+        J ⊆ sqrtGroupPairFreeEdge hr hrk huniform A J P ∧
+        sqrtGroupPairFreeEdge hr hrk huniform A J P ⊆ P.positive := by
+  have h := exists_sqrtGroupPair_freeEdge hr hrk huniform A hP hJcard hJP
+  rw [sqrtGroupPairFreeEdge, dif_pos ⟨hP, hJcard, hJP⟩]
+  exact Classical.choose_spec h
+
+/-- The positive roots occurring in the pair bank are exactly the fresh
+intermediate cliques. -/
+lemma eliminationFlattenFamily_eq_intermediates_union_remainders
+    {n k r C : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C) :
+    eliminationFlattenFamily S =
+      sqrtIntermediateCliques A ∪ eliminationRemainderFamily S := by
+  classical
+  let pairs := sqrtGroupEliminationPairs family huniform A
+  ext B
+  constructor
+  · intro hB
+    obtain ⟨P, _hPattach, hBP⟩ := Finset.mem_biUnion.mp hB
+    rcases Finset.mem_union.mp hBP with hrootOrPos | hneg
+    · rcases Finset.mem_union.mp hrootOrPos with hroot | hpos
+      · have hBEq : B = P.1.positive := by simpa using hroot
+        obtain ⟨I, Q, hQ, hPEq⟩ :=
+          exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A P.2
+        apply Finset.mem_union_left
+        apply Finset.mem_image.mpr
+        refine ⟨I, Finset.mem_univ _, ?_⟩
+        simpa [hBEq, hPEq, sqrtGroupEliminationPair]
+      · apply Finset.mem_union_right
+        apply Finset.mem_biUnion.mpr
+        exact ⟨P, Finset.mem_attach _ _, Finset.mem_union_left _ hpos⟩
+    · apply Finset.mem_union_right
+      apply Finset.mem_biUnion.mpr
+      exact ⟨P, Finset.mem_attach _ _, Finset.mem_union_right _ hneg⟩
+  · intro hB
+    rcases Finset.mem_union.mp hB with hinter | hrem
+    · obtain ⟨I, _hI, hBEq⟩ := Finset.mem_image.mp hinter
+      obtain ⟨Q, hQ⟩ := sqrtGroupingAt_group_nonempty
+        family I.1.1 I.1.2 I.2.2
+      let P := sqrtGroupEliminationPair huniform A I Q hQ
+      have hP : P ∈ pairs :=
+        sqrtGroupEliminationPair_mem huniform A I Q hQ
+      apply Finset.mem_biUnion.mpr
+      refine ⟨⟨P, hP⟩, Finset.mem_attach _ _, ?_⟩
+      apply Finset.mem_union_left
+      apply Finset.mem_union_left
+      simpa [P, sqrtGroupEliminationPair, hBEq]
+    · obtain ⟨P, _hPattach, hBP⟩ := Finset.mem_biUnion.mp hrem
+      apply Finset.mem_biUnion.mpr
+      refine ⟨P, Finset.mem_attach _ _, ?_⟩
+      rcases Finset.mem_union.mp hBP with hpos | hneg
+      · exact Finset.mem_union_left _ (Finset.mem_union_right _ hpos)
+      · exact Finset.mem_union_right _ hneg
+
+/-- Pairs whose old (negative) root contains an edge inject into the old
+incident-block fibre.  The unique-high-edge invariant ensures that one old
+clique cannot be scheduled in two different high-edge groups. -/
+lemma card_sqrtGroupPairs_incident_negative_le_source
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    (e : Finset (Fin n)) :
+    ((sqrtGroupEliminationPairs family huniform A).filter
+      fun P ↦ e ⊆ P.negative).card ≤
+      blockIncidenceCount (processedHighBlocks n r family) e := by
+  classical
+  let pairs := sqrtGroupEliminationPairs family huniform A
+  apply Finset.card_le_card_of_injOn
+      (fun P : ExchangeEliminationEmbedding.EliminationPair n k r ↦ P.negative)
+  · intro P hP
+    have hPData := Finset.mem_filter.mp hP
+    obtain ⟨I, Q, hQ, hEq⟩ :=
+      exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A hPData.1
+    apply Finset.mem_filter.mpr
+    constructor
+    · have hQprocessed : Q ∈ processedHighBlocks n r family := by
+        apply Finset.mem_filter.mpr
+        have hQData := Finset.mem_filter.mp
+          (sqrtGroupingAt_group_subset family I.1.1 I.1.2 I.2.2 hQ)
+        exact ⟨hQData.1, I.1.1, I.1.2, hQData.2⟩
+      simpa [hEq, sqrtGroupEliminationPair] using hQprocessed
+    · simpa [hEq, sqrtGroupEliminationPair] using hPData.2
+  · intro P hP P' hP' hnegative
+    have hPData := Finset.mem_filter.mp hP
+    have hP'Data := Finset.mem_filter.mp hP'
+    obtain ⟨I, Q, hQ, hEq⟩ :=
+      exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A hPData.1
+    obtain ⟨J, Q', hQ', hEq'⟩ :=
+      exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A hP'Data.1
+    have hQQ' : Q = Q' := by
+      simpa [hEq, hEq', sqrtGroupEliminationPair] using hnegative
+    subst Q'
+    have hQfibreI :=
+      sqrtGroupingAt_group_subset family I.1.1 I.1.2 I.2.2 hQ
+    have hQfibreJ :=
+      sqrtGroupingAt_group_subset family J.1.1 J.1.2 J.2.2 hQ'
+    have hQDataI := Finset.mem_filter.mp hQfibreI
+    have hQDataJ := Finset.mem_filter.mp hQfibreJ
+    have hedge : I.1.1 = J.1.1 :=
+      hunique Q hQDataI.1 I.1.1 I.1.2 hQDataI.2
+        J.1.1 J.1.2 hQDataJ.2
+    have hfirst : I.1 = J.1 := Subtype.ext hedge
+    have hparts :
+        (sqrtGroupingAt family I.1.1 I.1.2).parts =
+          (sqrtGroupingAt family J.1.1 J.1.2).parts :=
+      congrArg (fun z : ↑(highMultiplicityEdges n r 4 family) ↦
+        (sqrtGroupingAt family z.1 z.2).parts) hfirst
+    have hindex : I = J := by
+      apply Sigma.ext hfirst
+      apply (Subtype.heq_iff_coe_eq (fun group ↦ by
+        rw [hparts])).2
+      have hJpart : J.2.1 ∈
+          (sqrtGroupingAt family I.1.1 I.1.2).parts := by
+        rw [hparts]
+        exact J.2.2
+      exact (sqrtGroupingAt family I.1.1 I.1.2).eq_of_mem_parts
+        I.2.2 hJpart hQ hQ'
+    subst J
+    simpa [hEq, hEq']
+
+/-- For a non-root edge of one auxiliary clique, all elimination pairs
+whose positive side contains that edge come from that single group.  Their
+negative roots inject into the old cliques of the group. -/
+lemma card_sqrtGroupPairs_incident_auxiliary_le_group
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    (I : SqrtGroupIndex n r family) {e : Finset (Fin n)}
+    (heI : e ∈ (A.intermediate I).powersetCard r \ {I.1.1}) :
+    ((sqrtGroupEliminationPairs family huniform A).filter
+      fun P ↦ e ⊆ P.positive).card ≤ I.2.1.card := by
+  classical
+  let relevant := (sqrtGroupEliminationPairs family huniform A).filter
+    fun P ↦ e ⊆ P.positive
+  apply Finset.card_le_card_of_injOn
+      (fun P : ExchangeEliminationEmbedding.EliminationPair n k r ↦ P.negative)
+  · intro P hP
+    have hPData := Finset.mem_filter.mp hP
+    obtain ⟨J, Q, hQ, hEq⟩ :=
+      exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A hPData.1
+    have heJ : e ⊆ A.intermediate J := by
+      simpa [hEq, sqrtGroupEliminationPair] using hPData.2
+    have hJI : J = I := by
+      by_contra hne
+      exact (sqrtIntermediateFreeEdge_not_subset_of_ne A
+        (I := I) (J := J) (Ne.symm hne) heI) heJ
+    subst J
+    simpa [hEq, sqrtGroupEliminationPair] using hQ
+  · intro P hP P' hP' hnegative
+    have hPData := Finset.mem_filter.mp hP
+    have hP'Data := Finset.mem_filter.mp hP'
+    obtain ⟨J, Q, hQ, hEq⟩ :=
+      exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A hPData.1
+    obtain ⟨J', Q', hQ', hEq'⟩ :=
+      exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A hP'Data.1
+    have heJ : e ⊆ A.intermediate J := by
+      simpa [hEq, sqrtGroupEliminationPair] using hPData.2
+    have heJ' : e ⊆ A.intermediate J' := by
+      simpa [hEq', sqrtGroupEliminationPair] using hP'Data.2
+    have hJI : J = I := by
+      by_contra hne
+      exact (sqrtIntermediateFreeEdge_not_subset_of_ne A
+        (I := I) (J := J) (Ne.symm hne) heI) heJ
+    have hJ'I : J' = I := by
+      by_contra hne
+      exact (sqrtIntermediateFreeEdge_not_subset_of_ne A
+        (I := I) (J := J') (Ne.symm hne) heI) heJ'
+    subst J
+    subst J'
+    have hQQ' : Q = Q' := by
+      simpa [hEq, hEq', sqrtGroupEliminationPair] using hnegative
+    subst Q'
+    simpa [hEq, hEq']
+
+/-- The repeated positive roots in one square-root elimination bank cost
+only the maximum group size times the free-edge codimension-one load. -/
+lemma positiveSideOccurrenceDegree_sqrtGroupEliminationPairs_le
+    {n k r M : ℕ} {family : Finset (Finset (Fin n))}
+    (hr : 0 < r) (hrk : r < k)
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    (hgroups : ∀ I : SqrtGroupIndex n r family, I.2.1.card ≤ M)
+    (J : Finset (Fin n)) (hJcard : J.card = r - 1) :
+    ExchangeEliminationEmbedding.positiveSideOccurrenceDegree
+        (sqrtGroupEliminationPairs family huniform A) J ≤
+      M * Reserve.localDegree (sqrtIntermediateFreeEdges A) J := by
+  classical
+  let pairs := sqrtGroupEliminationPairs family huniform A
+  let relevant := pairs.filter fun P ↦ J ⊆ P.positive
+  let charge : ExchangeEliminationEmbedding.EliminationPair n k r →
+      Finset (Fin n) := sqrtGroupPairFreeEdge hr hrk huniform A J
+  have hfiber : ∀ g ∈ relevant.image charge,
+      (relevant.filter fun P ↦ charge P = g).card ≤ M := by
+    intro g hg
+    obtain ⟨P, hP, hcharge⟩ := Finset.mem_image.mp hg
+    have hPData := Finset.mem_filter.mp hP
+    obtain ⟨I, hgI, _hJg, _hgP⟩ :=
+      sqrtGroupPairFreeEdge_spec hr hrk huniform A J P hPData.1 hJcard
+        hPData.2
+    have hsub : (relevant.filter fun P' ↦ charge P' = g) ⊆
+        pairs.filter fun P' ↦ g ⊆ P'.positive := by
+      intro P' hP'
+      have hP'Data := Finset.mem_filter.mp hP'
+      have hrel := Finset.mem_filter.mp hP'Data.1
+      obtain ⟨I', _hgI', _hJg', hgP'⟩ :=
+        sqrtGroupPairFreeEdge_spec hr hrk huniform A J P' hrel.1 hJcard
+          hrel.2
+      apply Finset.mem_filter.mpr
+      refine ⟨hrel.1, ?_⟩
+      change charge P' ⊆ P'.positive at hgP'
+      rw [hP'Data.2] at hgP'
+      exact hgP'
+    calc
+      (relevant.filter fun P' ↦ charge P' = g).card ≤
+          (pairs.filter fun P' ↦ g ⊆ P'.positive).card :=
+        Finset.card_le_card hsub
+      _ ≤ I.2.1.card :=
+        card_sqrtGroupPairs_incident_auxiliary_le_group huniform A I (by
+          change charge P ∈
+            (A.intermediate I).powersetCard r \ {I.1.1} at hgI
+          rw [hcharge] at hgI
+          exact hgI)
+      _ ≤ M := hgroups I
+  have himage : relevant.image charge ⊆
+      (sqrtIntermediateFreeEdges A).filter fun g ↦ J ⊆ g := by
+    intro g hg
+    obtain ⟨P, hP, hcharge⟩ := Finset.mem_image.mp hg
+    have hPData := Finset.mem_filter.mp hP
+    obtain ⟨I, hgI, hJg, _hgP⟩ :=
+      sqrtGroupPairFreeEdge_spec hr hrk huniform A J P hPData.1 hJcard
+        hPData.2
+    change charge P ∈
+      (A.intermediate I).powersetCard r \ {I.1.1} at hgI
+    change J ⊆ charge P at hJg
+    rw [hcharge] at hgI hJg
+    apply Finset.mem_filter.mpr
+    refine ⟨?_, hJg⟩
+    apply Finset.mem_biUnion.mpr
+    exact ⟨I, Finset.mem_univ _, hgI⟩
+  have hcard := Finset.card_le_mul_card_image relevant M hfiber
+  calc
+    ExchangeEliminationEmbedding.positiveSideOccurrenceDegree pairs J =
+        relevant.card := by
+      rw [show ExchangeEliminationEmbedding.positiveSideOccurrenceDegree
+          pairs J = (pairs.attach.filter fun P ↦ J ⊆ P.1.positive).card by
+        rfl]
+      rw [Finset.card_filter, show relevant.card =
+          (pairs.filter fun P ↦ J ⊆ P.positive).card by rfl,
+        Finset.card_filter]
+      exact Finset.sum_attach pairs
+        (fun P ↦ if J ⊆ P.positive then 1 else 0)
+    _ ≤ M * (relevant.image charge).card := hcard
+    _ ≤ M * Reserve.localDegree (sqrtIntermediateFreeEdges A) J := by
+      exact Nat.mul_le_mul_left M (Finset.card_le_card himage)
+
+/-- Negative-side requests are charged injectively to their old source
+blocks, so they incur no group-size loss. -/
+lemma negativeSideOccurrenceDegree_sqrtGroupEliminationPairs_le
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    (J : Finset (Fin n)) :
+    ExchangeEliminationEmbedding.negativeSideOccurrenceDegree
+        (sqrtGroupEliminationPairs family huniform A) J ≤
+      Reserve.localDegree family J := by
+  classical
+  let pairs := sqrtGroupEliminationPairs family huniform A
+  have hattach :
+      ExchangeEliminationEmbedding.negativeSideOccurrenceDegree pairs J =
+        (pairs.filter fun P ↦ J ⊆ P.negative).card := by
+    rw [show ExchangeEliminationEmbedding.negativeSideOccurrenceDegree
+          pairs J = (pairs.attach.filter fun P ↦ J ⊆ P.1.negative).card by
+      rfl]
+    rw [Finset.card_filter, Finset.card_filter]
+    exact Finset.sum_attach pairs
+      (fun P ↦ if J ⊆ P.negative then 1 else 0)
+  rw [hattach]
+  calc
+    (pairs.filter fun P ↦ J ⊆ P.negative).card ≤
+        blockIncidenceCount (processedHighBlocks n r family) J :=
+      card_sqrtGroupPairs_incident_negative_le_source
+        huniform hunique A J
+    _ ≤ Reserve.localDegree family J := by
+      exact Finset.card_le_card
+        (Finset.filter_subset_filter (fun Q ↦ J ⊆ Q)
+          (Finset.filter_subset _ _))
+
+/-- A canonical non-root edge extending a codimension-one face in one
+intermediate clique. -/
+noncomputable def sqrtIntermediateCliqueFreeEdge
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (hr : 0 < r) (hrk : r < k)
+    (A : SqrtIntermediateAssignment n k r family)
+    (J B : Finset (Fin n)) : Finset (Fin n) := by
+  classical
+  exact if h : B ∈ sqrtIntermediateCliques A ∧
+      J.card = r - 1 ∧ J ⊆ B then
+    Classical.choose (show ∃ g : Finset (Fin n),
+        ∃ I : SqrtGroupIndex n r family,
+          g ∈ (A.intermediate I).powersetCard r \ {I.1.1} ∧
+            J ⊆ g ∧ g ⊆ B by
+      obtain ⟨I, _hI, hBI⟩ := Finset.mem_image.mp h.1
+      have hJIntermediate : J ⊆ A.intermediate I := by
+        simpa [hBI] using h.2.2
+      obtain ⟨g, hg, hJg, hgne⟩ := exists_powersetCard_superset_ne
+        hr hrk (A.card_eq I) h.2.1 hJIntermediate (e := I.1.1)
+      exact ⟨g, I, Finset.mem_sdiff.mpr ⟨hg, by simpa using hgne⟩,
+        hJg, by simpa [hBI] using (Finset.mem_powersetCard.mp hg).1⟩)
+  else ∅
+
+lemma sqrtIntermediateCliqueFreeEdge_spec
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (hr : 0 < r) (hrk : r < k)
+    (A : SqrtIntermediateAssignment n k r family)
+    (J B : Finset (Fin n))
+    (hB : B ∈ sqrtIntermediateCliques A)
+    (hJcard : J.card = r - 1) (hJB : J ⊆ B) :
+    ∃ I : SqrtGroupIndex n r family,
+      sqrtIntermediateCliqueFreeEdge hr hrk A J B ∈
+          (A.intermediate I).powersetCard r \ {I.1.1} ∧
+        J ⊆ sqrtIntermediateCliqueFreeEdge hr hrk A J B ∧
+        sqrtIntermediateCliqueFreeEdge hr hrk A J B ⊆ B := by
+  have hExists : ∃ g : Finset (Fin n), ∃ I : SqrtGroupIndex n r family,
+      g ∈ (A.intermediate I).powersetCard r \ {I.1.1} ∧
+        J ⊆ g ∧ g ⊆ B := by
+    obtain ⟨I, _hI, hBI⟩ := Finset.mem_image.mp hB
+    have hJIntermediate : J ⊆ A.intermediate I := by
+      simpa [hBI] using hJB
+    obtain ⟨g, hg, hJg, hgne⟩ := exists_powersetCard_superset_ne
+      hr hrk (A.card_eq I) hJcard hJIntermediate (e := I.1.1)
+    exact ⟨g, I, Finset.mem_sdiff.mpr ⟨hg, by simpa using hgne⟩,
+      hJg, by simpa [hBI] using (Finset.mem_powersetCard.mp hg).1⟩
+  rw [sqrtIntermediateCliqueFreeEdge, dif_pos ⟨hB, hJcard, hJB⟩]
+  exact Classical.choose_spec hExists
+
+/-- Counting intermediate cliques costs no more than counting their
+non-root edges: the selected charging edge belongs to only one intermediate
+clique. -/
+lemma localDegree_sqrtIntermediateCliques_le_freeEdges
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (hr : 0 < r) (hrk : r < k)
+    (A : SqrtIntermediateAssignment n k r family)
+    (J : Finset (Fin n)) (hJcard : J.card = r - 1) :
+    Reserve.localDegree (sqrtIntermediateCliques A) J ≤
+      Reserve.localDegree (sqrtIntermediateFreeEdges A) J := by
+  classical
+  let relevant := (sqrtIntermediateCliques A).filter fun B ↦ J ⊆ B
+  let charge : Finset (Fin n) → Finset (Fin n) :=
+    sqrtIntermediateCliqueFreeEdge hr hrk A J
+  have hfiber : ∀ g ∈ relevant.image charge,
+      (relevant.filter fun B ↦ charge B = g).card ≤ 1 := by
+    intro g hg
+    obtain ⟨B, hB, hcharge⟩ := Finset.mem_image.mp hg
+    have hBData := Finset.mem_filter.mp hB
+    obtain ⟨I, hgI, _hJg, _hgB⟩ :=
+      sqrtIntermediateCliqueFreeEdge_spec hr hrk A J B hBData.1 hJcard
+        hBData.2
+    have hsub : (relevant.filter fun B' ↦ charge B' = g) ⊆
+        (sqrtIntermediateCliques A).filter fun B' ↦ g ⊆ B' := by
+      intro B' hB'
+      have hB'Data := Finset.mem_filter.mp hB'
+      have hrel := Finset.mem_filter.mp hB'Data.1
+      obtain ⟨I', _hgI', _hJg', hgB'⟩ :=
+        sqrtIntermediateCliqueFreeEdge_spec hr hrk A J B' hrel.1 hJcard
+          hrel.2
+      apply Finset.mem_filter.mpr
+      refine ⟨hrel.1, ?_⟩
+      change charge B' ⊆ B' at hgB'
+      rw [hB'Data.2] at hgB'
+      exact hgB'
+    calc
+      (relevant.filter fun B' ↦ charge B' = g).card ≤
+          ((sqrtIntermediateCliques A).filter fun B' ↦ g ⊆ B').card :=
+        Finset.card_le_card hsub
+      _ ≤ 1 := blockIncidenceCount_sqrtIntermediateCliques_auxiliary_le_one
+        A I (by
+          change charge B ∈
+            (A.intermediate I).powersetCard r \ {I.1.1} at hgI
+          rw [hcharge] at hgI
+          exact hgI)
+  have himage : relevant.image charge ⊆
+      (sqrtIntermediateFreeEdges A).filter fun g ↦ J ⊆ g := by
+    intro g hg
+    obtain ⟨B, hB, hcharge⟩ := Finset.mem_image.mp hg
+    have hBData := Finset.mem_filter.mp hB
+    obtain ⟨I, hgI, hJg, _hgB⟩ :=
+      sqrtIntermediateCliqueFreeEdge_spec hr hrk A J B hBData.1 hJcard
+        hBData.2
+    change charge B ∈
+      (A.intermediate I).powersetCard r \ {I.1.1} at hgI
+    change J ⊆ charge B at hJg
+    rw [hcharge] at hgI hJg
+    apply Finset.mem_filter.mpr
+    refine ⟨?_, hJg⟩
+    apply Finset.mem_biUnion.mpr
+    exact ⟨I, Finset.mem_univ _, hgI⟩
+  have hcard := Finset.card_le_mul_card_image relevant 1 hfiber
+  simpa [Reserve.localDegree, relevant] using
+    hcard.trans (Nat.mul_le_mul_left 1 (Finset.card_le_card himage))
+
+/-- The corrected output of one square-root round: keep one old anchor per
+group and all root-erased exchange remainders, but omit the fresh auxiliary
+intermediate roots. -/
+noncomputable def sqrtGroupFlattenFamily
+    {n k r C : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C) :
+    Finset (Finset (Fin n)) :=
+  sqrtGroupAnchors n r family ∪ eliminationRemainderFamily S
+
+/-- Add the cliques untouched by the current high-edge schedule. -/
+noncomputable def sqrtGroupFlattenRoundFamily
+    {n k r C : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C) :
+    Finset (Finset (Fin n)) :=
+  retainedAfterHigh n r family ∪ sqrtGroupFlattenFamily huniform A S
+
+theorem processedHighBlocks_subset_sqrtGroupPairNegatives
+    {n k r : ℕ} (family : Finset (Finset (Fin n)))
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family) :
+    processedHighBlocks n r family ⊆
+      (sqrtGroupEliminationPairs family huniform A).image
+        ExchangeEliminationEmbedding.EliminationPair.negative := by
+  classical
+  intro Q hQ
+  have hQdata := Finset.mem_filter.mp hQ
+  obtain ⟨e, he, heQ⟩ := hQdata.2
+  have hQfibre : Q ∈ incidentBlockFibre family e :=
+    Finset.mem_filter.mpr ⟨hQdata.1, heQ⟩
+  obtain ⟨group, hgroup, _hunique⟩ :=
+    (sqrtGroupingAt family e he).existsUnique_mem hQfibre
+  let e' : ↑(highMultiplicityEdges n r 4 family) := ⟨e, he⟩
+  let group' : ↑(sqrtGroupingAt family e'.1 e'.2).parts :=
+    ⟨group, by simpa [e'] using hgroup.1⟩
+  let I : SqrtGroupIndex n r family := ⟨e', group'⟩
+  have hQI : Q ∈ I.2.1 := by simpa [I, group'] using hgroup.2
+  let P := sqrtGroupEliminationPair huniform A I Q hQI
+  apply Finset.mem_image.mpr
+  refine ⟨P, ?_, rfl⟩
+  apply Finset.mem_biUnion.mpr
+  refine ⟨I, Finset.mem_univ _, ?_⟩
+  apply Finset.mem_image.mpr
+  exact ⟨⟨Q, hQI⟩, Finset.mem_attach _ _, rfl⟩
+
+lemma nextFlattenMultiplicity_lt_self {x : ℕ} (hx : 4 < x) :
+    nextFlattenMultiplicity x < x := by
+  have hsqrt : Nat.sqrt x < x - 2 := by
+    apply Nat.sqrt_lt.mpr
+    have hy : 2 ≤ x - 2 := by omega
+    have hfirst : x < (x - 2) + (x - 2) := by omega
+    have hsecond : (x - 2) + (x - 2) ≤ (x - 2) * (x - 2) := by
+      calc
+        (x - 2) + (x - 2) = (x - 2) * 2 := by omega
+        _ ≤ (x - 2) * (x - 2) := Nat.mul_le_mul_left _ hy
+    exact hfirst.trans_le hsecond
+  have hsqrt' : Nat.sqrt x + 2 < x := by omega
+  simp [nextFlattenMultiplicity, max_lt_iff, hsqrt', hx]
+
+/-- One square-root step halves the binary logarithm, up to the unavoidable
+rounding by one.  This is the quantitative fact behind the
+`O(log log x)` number of flattening rounds. -/
+lemma log_nextFlattenMultiplicity_le_half
+    {x : ℕ} (hx : 8 ≤ x) :
+    Nat.log 2 (nextFlattenMultiplicity x) ≤
+      (Nat.log 2 x + 1) / 2 := by
+  let L := Nat.log 2 x
+  let p := (L + 1) / 2
+  have hL : 3 ≤ L := by
+    apply Nat.le_log_of_pow_le (by omega : 1 < 2)
+    norm_num
+    exact hx
+  have hp : 2 ≤ p := by
+    dsimp [p]
+    omega
+  have hxpos : x ≠ 0 := by omega
+  have hxpow : x < 2 ^ (L + 1) := by
+    simpa [L] using Nat.lt_pow_succ_log_self (by omega : 1 < 2) x
+  have hLp : L + 1 ≤ 2 * p + 1 := by
+    dsimp [p]
+    omega
+  have hxcoarse : x < 2 * (2 ^ p) ^ 2 := by
+    calc
+      x < 2 ^ (L + 1) := hxpow
+      _ ≤ 2 ^ (2 * p + 1) :=
+        Nat.pow_le_pow_right (by omega : 0 < 2) hLp
+      _ = 2 * (2 ^ p) ^ 2 := by ring
+  let a := 2 ^ (p - 1)
+  have hpowSplit : 2 ^ p = 2 * a := by
+    have hpEq : p = (p - 1) + 1 := by omega
+    rw [hpEq, pow_succ]
+    simp [a, Nat.mul_comm]
+  have hxSquare : x < (3 * a) ^ 2 := by
+    calc
+      x < 2 * (2 ^ p) ^ 2 := hxcoarse
+      _ = 8 * a ^ 2 := by rw [hpowSplit]; ring
+      _ ≤ (3 * a) ^ 2 := by nlinarith [Nat.zero_le a]
+  have hsqrt : Nat.sqrt x < 3 * a := Nat.sqrt_lt'.mpr hxSquare
+  have ha : 2 ≤ a := by
+    dsimp [a]
+    have hpow : 2 ^ 1 ≤ 2 ^ (p - 1) :=
+      Nat.pow_le_pow_right (by omega : 0 < 2) (by omega)
+    simpa using hpow
+  have hsqrtTwo : 2 ≤ Nat.sqrt x := by
+    apply Nat.le_sqrt.mpr
+    omega
+  have hnext : nextFlattenMultiplicity x = Nat.sqrt x + 2 := by
+    simp [nextFlattenMultiplicity, max_eq_left, hsqrtTwo]
+  have hnextPow : nextFlattenMultiplicity x < 2 ^ (p + 1) := by
+    rw [hnext]
+    calc
+      Nat.sqrt x + 2 < 3 * a + 2 := Nat.add_lt_add_right hsqrt 2
+      _ ≤ 4 * a := by omega
+      _ = 2 * (2 ^ p) := by rw [hpowSplit]; ring
+      _ = 2 ^ (p + 1) := by rw [pow_succ]; ring
+  have hnextPos : nextFlattenMultiplicity x ≠ 0 := by
+    simp [nextFlattenMultiplicity]
+  have hlog : Nat.log 2 (nextFlattenMultiplicity x) < p + 1 :=
+    Nat.log_lt_of_lt_pow hnextPos hnextPow
+  simpa [p, L] using (Nat.lt_succ_iff.mp hlog)
+
+/-- Ceiling binary logarithm strictly decreases after halving a natural
+number of size at least three. -/
+lemma clog_half_succ_lt_clog {L : ℕ} (hL : 3 ≤ L) :
+    Nat.clog 2 ((L + 1) / 2) < Nat.clog 2 L := by
+  let c := Nat.clog 2 L
+  have hcpos : 0 < c := Nat.clog_pos (by omega) (by omega)
+  have hLpow : L ≤ 2 ^ c := Nat.le_pow_clog (by omega) L
+  have hhalf : (L + 1) / 2 ≤ 2 ^ (c - 1) := by
+    have hcEq : c = (c - 1) + 1 := by omega
+    have hpowEq : 2 ^ (c - 1) * 2 = 2 ^ c := by
+      calc
+        2 ^ (c - 1) * 2 = 2 ^ ((c - 1) + 1) := by rw [pow_succ]
+        _ = 2 ^ c := by rw [← hcEq]
+    apply (Nat.div_le_iff_le_mul (by omega : 0 < 2)).2
+    omega
+  have hclog : Nat.clog 2 ((L + 1) / 2) ≤ c - 1 :=
+    Nat.clog_le_of_le_pow hhalf
+  exact hclog.trans_lt (by omega)
+
+/-- The binary double-log potential strictly decreases in every
+nonterminal square-root round above the three small exceptional inputs. -/
+lemma clog_log_nextFlattenMultiplicity_lt
+    {x : ℕ} (hx : 8 ≤ x) :
+    Nat.clog 2 (Nat.log 2 (nextFlattenMultiplicity x)) <
+      Nat.clog 2 (Nat.log 2 x) := by
+  have hL : 3 ≤ Nat.log 2 x := by
+    apply Nat.le_log_of_pow_le (by omega : 1 < 2)
+    norm_num
+    exact hx
+  exact (Nat.clog_mono_right 2
+    (log_nextFlattenMultiplicity_le_half hx)).trans_lt
+      (clog_half_succ_lt_clog hL)
+
+/-- Number of nonterminal iterations of the corrected square-root
+recurrence. -/
+def flattenRoundCount (x : ℕ) : ℕ :=
+  if hx : 4 < x then
+    flattenRoundCount (nextFlattenMultiplicity x) + 1
+  else 0
+termination_by x
+decreasing_by exact nextFlattenMultiplicity_lt_self hx
+
+lemma flattenRoundCount_eq_zero {x : ℕ} (hx : x ≤ 4) :
+    flattenRoundCount x = 0 := by
+  rw [flattenRoundCount]
+  simp [Nat.not_lt.mpr hx]
+
+lemma flattenRoundCount_eq_succ {x : ℕ} (hx : 4 < x) :
+    flattenRoundCount x =
+      flattenRoundCount (nextFlattenMultiplicity x) + 1 := by
+  rw [flattenRoundCount]
+  simp [hx]
+
+/-- The corrected recurrence terminates after at most one plus the ceiling
+binary logarithm of the binary logarithm of its input. -/
+theorem flattenRoundCount_le_clog_log (x : ℕ) :
+    flattenRoundCount x ≤ Nat.clog 2 (Nat.log 2 x) + 1 := by
+  induction x using Nat.strong_induction_on with
+  | h x ih =>
+      by_cases hx4 : x ≤ 4
+      · simp [flattenRoundCount_eq_zero hx4]
+      · have hx4' : 4 < x := by omega
+        rw [flattenRoundCount_eq_succ hx4']
+        have hnextLt : nextFlattenMultiplicity x < x :=
+          nextFlattenMultiplicity_lt_self hx4'
+        have ihnext := ih _ hnextLt
+        by_cases hx8 : 8 ≤ x
+        · have hpotential := clog_log_nextFlattenMultiplicity_lt hx8
+          omega
+        · have hxsmall : x = 5 ∨ x = 6 ∨ x = 7 := by omega
+          rcases hxsmall with rfl | rfl | rfl <;> norm_num
+            [nextFlattenMultiplicity, flattenRoundCount_eq_zero]
+
+/-- A family of `k`-sets has at most `n^k` blocks, so every one of its
+edge-incidence fibres has the same crude polynomial bound. -/
+theorem blockIncidenceCount_le_ground_pow
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k) (e : Finset (Fin n)) :
+    blockIncidenceCount family e ≤ n ^ k := by
+  have hfamily : family ⊆
+      (Finset.univ : Finset (Fin n)).powersetCard k := by
+    intro Q hQ
+    exact Finset.mem_powersetCard.mpr
+      ⟨Finset.subset_univ Q, huniform Q hQ⟩
+  calc
+    blockIncidenceCount family e ≤ family.card :=
+      Finset.card_le_card (Finset.filter_subset _ _)
+    _ ≤ ((Finset.univ : Finset (Fin n)).powersetCard k).card :=
+      Finset.card_le_card hfamily
+    _ = Nat.choose n k := by simp
+    _ ≤ n ^ k := Nat.choose_le_pow n k
+
+/-- The binary logarithm of a fixed natural power is at most the exponent
+times one plus the binary logarithm of the base. -/
+lemma log_pow_le_mul_succ_log (n k : ℕ) (hn : 0 < n) :
+    Nat.log 2 (n ^ k) ≤ k * (Nat.log 2 n + 1) := by
+  by_cases hk : k = 0
+  · subst k
+    simp
+  · have hnupper : n < 2 ^ (Nat.log 2 n + 1) :=
+      Nat.lt_pow_succ_log_self (by omega : 1 < 2) n
+    have hpow : n ^ k < (2 ^ (Nat.log 2 n + 1)) ^ k :=
+      Nat.pow_lt_pow_left hnupper hk
+    have hpow' : n ^ k < 2 ^ (k * (Nat.log 2 n + 1)) := by
+      calc
+        n ^ k < (2 ^ (Nat.log 2 n + 1)) ^ k := hpow
+        _ = 2 ^ ((Nat.log 2 n + 1) * k) := by rw [← pow_mul]
+        _ = 2 ^ (k * (Nat.log 2 n + 1)) := by rw [Nat.mul_comm]
+    exact (Nat.log_lt_of_lt_pow (pow_ne_zero _ hn.ne') hpow').le
+
+lemma self_le_two_pow (a : ℕ) : a ≤ 2 ^ a := by
+  induction a with
+  | zero => simp
+  | succ a ih =>
+      rw [pow_succ]
+      have hone : 1 ≤ 2 ^ a := Nat.one_le_two_pow
+      omega
+
+/-- Raising a fixed constant to a ceiling-logarithmic exponent costs only
+a fixed power of the logarithm's argument. -/
+lemma pow_clog_succ_le_poly (A L : ℕ) (hA : 0 < A) (hL : 0 < L) :
+    A ^ (Nat.clog 2 L + 1) ≤ A * (2 * L) ^ A := by
+  by_cases hLone : L = 1
+  · subst L
+    simp
+    have hone : 1 ≤ 2 ^ A := Nat.one_le_two_pow
+    exact (by nlinarith : A ≤ A * 2 ^ A)
+  · have hLtwo : 1 < L := by omega
+    let c := Nat.clog 2 L
+    have hcpos : 0 < c := Nat.clog_pos (by omega) hLtwo
+    have hpred := Nat.pow_pred_clog_lt_self (by omega : 1 < 2) hLtwo
+    have hcEq : c = (c - 1) + 1 := by omega
+    have htwoC : 2 ^ c ≤ 2 * L := by
+      have hrewrite : 2 ^ c = 2 ^ (c - 1) * 2 := by
+        calc
+          2 ^ c = 2 ^ ((c - 1) + 1) := by rw [← hcEq]
+          _ = 2 ^ (c - 1) * 2 := by rw [pow_succ]
+      rw [hrewrite]
+      simpa [Nat.mul_comm] using Nat.mul_le_mul_right 2 hpred.le
+    calc
+      A ^ (Nat.clog 2 L + 1) = A ^ c * A := by
+        simp [c, pow_succ]
+      _ ≤ (2 ^ A) ^ c * A := by
+        exact Nat.mul_le_mul_right A
+          (Nat.pow_le_pow_left (self_le_two_pow A) c)
+      _ = (2 ^ c) ^ A * A := by
+        rw [← pow_mul, ← pow_mul, Nat.mul_comm A c]
+      _ ≤ (2 * L) ^ A * A := by
+        exact Nat.mul_le_mul_right A (Nat.pow_le_pow_left htwoC A)
+      _ = A * (2 * L) ^ A := by rw [Nat.mul_comm]
+
+/-- A convenient real comparison between the natural binary logarithm and
+the ordinary logarithm. -/
+lemma natLog_two_add_one_cast_le_four_log
+    {n : ℕ} (hn : 2 ≤ n) :
+    (Nat.log 2 n + 1 : ℕ) ≤ (4 : ℝ) * Real.log n := by
+  have hlogTwo : (1 / 2 : ℝ) < Real.log 2 := by
+    exact (by norm_num : (1 / 2 : ℝ) < 0.6931471803).trans
+      Real.log_two_gt_d9
+  have hlogn : Real.log 2 ≤ Real.log n := by
+    exact Real.log_le_log (by norm_num) (by exact_mod_cast hn)
+  have hnat := Real.log2_le_logb n
+  rw [Real.logb] at hnat
+  have hnat' : (Nat.log 2 n : ℝ) ≤ 2 * Real.log n := by
+    rw [← Nat.log2_eq_log_two]
+    have hden : 0 < Real.log 2 := Real.log_pos (by norm_num)
+    apply hnat.trans
+    apply (div_le_iff₀ hden).2
+    have hnreal : (1 : ℝ) ≤ n := by exact_mod_cast (show 1 ≤ n by omega)
+    nlinarith [Real.log_nonneg hnreal]
+  have hone : (1 : ℝ) ≤ 2 * Real.log n := by nlinarith
+  norm_num only [Nat.cast_add, Nat.cast_one]
+  linarith
+
+/-- The total constant growth of all square-root rounds is subpolynomial in
+the ground-set size.  This is the analytic form used to absorb every
+round's fixed allocator loss into an arbitrarily small exponent gap. -/
+theorem eventually_pow_flattenRoundCount_le_rpow
+    (A k : ℕ) (hA : 0 < A) (hk : 0 < k)
+    {s : ℝ} (hs : 0 < s) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      (A ^ flattenRoundCount (n ^ k) : ℝ) ≤ (n : ℝ) ^ s := by
+  let C : ℝ := (A : ℝ) * ((8 : ℝ) * k) ^ A
+  have hC : 0 < C := by positivity
+  have hsmallReal :=
+    (isLittleO_log_rpow_rpow_atTop (A : ℝ) hs).bound
+      (show 0 < C⁻¹ by positivity)
+  have hsmallNat := tendsto_natCast_atTop_atTop.eventually hsmallReal
+  filter_upwards [hsmallNat, Filter.eventually_ge_atTop (2 : ℕ)] with
+      n hsmall hn
+  have hnpos : 0 < n := by omega
+  let L := Nat.log 2 (n ^ k)
+  have hLpos : 0 < L := by
+    rw [Nat.log_pos_iff]
+    constructor
+    · have hnk : 2 ≤ n ^ k := by
+        calc
+          2 = 2 ^ 1 := by simp
+          _ ≤ n ^ 1 := Nat.pow_le_pow_left hn 1
+          _ ≤ n ^ k := Nat.pow_le_pow_right hnpos hk
+      exact hnk
+    · omega
+  have hround : flattenRoundCount (n ^ k) ≤ Nat.clog 2 L + 1 := by
+    simpa [L] using flattenRoundCount_le_clog_log (n ^ k)
+  have hnat : A ^ flattenRoundCount (n ^ k) ≤
+      A * (2 * (k * (Nat.log 2 n + 1))) ^ A := by
+    calc
+      A ^ flattenRoundCount (n ^ k) ≤ A ^ (Nat.clog 2 L + 1) :=
+        Nat.pow_le_pow_right hA hround
+      _ ≤ A * (2 * L) ^ A := pow_clog_succ_le_poly A L hA hLpos
+      _ ≤ A * (2 * (k * (Nat.log 2 n + 1))) ^ A := by
+        apply Nat.mul_le_mul_left
+        apply Nat.pow_le_pow_left
+        exact Nat.mul_le_mul_left 2 (log_pow_le_mul_succ_log n k hnpos)
+  have hcast : (A * (2 * (k * (Nat.log 2 n + 1))) ^ A : ℕ) ≤
+      C * Real.log n ^ A := by
+    have hlog := natLog_two_add_one_cast_le_four_log hn
+    norm_num only [Nat.cast_add, Nat.cast_one, Nat.cast_mul, Nat.cast_pow]
+      at hlog ⊢
+    dsimp [C]
+    have hbase :
+        (2 : ℝ) * ((k : ℝ) * ((Nat.log 2 n : ℝ) + 1)) ≤
+          (8 : ℝ) * k * Real.log n := by
+      have hkreal : (0 : ℝ) ≤ k := by positivity
+      have hnreal : (1 : ℝ) ≤ n := by exact_mod_cast (show 1 ≤ n by omega)
+      calc
+        (2 : ℝ) * ((k : ℝ) * ((Nat.log 2 n : ℝ) + 1)) ≤
+            2 * ((k : ℝ) * (4 * Real.log n)) := by gcongr
+        _ = (8 : ℝ) * k * Real.log n := by ring
+    calc
+      (A : ℝ) *
+          ((2 : ℝ) * ((k : ℝ) * ((Nat.log 2 n : ℝ) + 1))) ^ A ≤
+          (A : ℝ) * ((8 : ℝ) * k * Real.log n) ^ A := by
+        exact mul_le_mul_of_nonneg_left
+          (pow_le_pow_left₀ (by positivity) hbase A) (by positivity)
+      _ = C * Real.log n ^ A := by
+        dsimp [C]
+        rw [mul_pow]
+        ring
+  have hsmall' : C * Real.log (n : ℝ) ^ (A : ℝ) ≤ (n : ℝ) ^ s := by
+    have hlognonneg : 0 ≤ Real.log (n : ℝ) :=
+      Real.log_nonneg (by exact_mod_cast (show 1 ≤ n by omega))
+    have hnormLog : ‖Real.log (n : ℝ) ^ (A : ℝ)‖ =
+        Real.log (n : ℝ) ^ (A : ℝ) := by
+      rw [Real.norm_eq_abs, abs_of_nonneg (Real.rpow_nonneg hlognonneg _)]
+    have hnormN : ‖(n : ℝ) ^ s‖ = (n : ℝ) ^ s := by
+      rw [Real.norm_eq_abs, abs_of_nonneg (Real.rpow_nonneg (by positivity) _)]
+    rw [hnormLog, hnormN] at hsmall
+    have hmul := mul_le_mul_of_nonneg_left hsmall hC.le
+    calc
+      C * Real.log (n : ℝ) ^ (A : ℝ) ≤
+          C * (C⁻¹ * (n : ℝ) ^ s) := hmul
+      _ = (n : ℝ) ^ s := by
+        rw [← mul_assoc, mul_inv_cancel₀ hC.ne', one_mul]
+  have hnatReal :
+      (A ^ flattenRoundCount (n ^ k) : ℕ) ≤
+        (A * (2 * (k * (Nat.log 2 n + 1))) ^ A : ℕ) := hnat
+  have hnatReal' :
+      (A ^ flattenRoundCount (n ^ k) : ℝ) ≤
+        (A * (2 * (k * (Nat.log 2 n + 1))) ^ A : ℕ) := by
+    exact_mod_cast hnatReal
+  have hsmallNatExp : C * Real.log (n : ℝ) ^ A ≤ (n : ℝ) ^ s := by
+    simpa only [Real.rpow_natCast] using hsmall'
+  exact hnatReal'.trans (hcast.trans hsmallNatExp)
+
+/-- A fixed polynomial path cap remains genuinely sublinear after all
+square-root rounds.  This is the scalar estimate needed by the finite
+rooted allocator when its stopping cap is chosen linearly in the current
+load rather than with a fresh square-root exponent loss. -/
+theorem eventually_const_mul_roundLoss_mul_pathScale_le_self
+    (C A k d : ℕ) (hA : 0 < A) (hk : 0 < k) (hd : 0 < d) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      C * A ^ flattenRoundCount (n ^ k) *
+          LocalDecoderAsymptotic.decoderPathScale d n ≤ n := by
+  let s : ℝ := 1 / (4 * d : ℕ)
+  let c : ℝ := ((2 * d - 1 : ℕ) : ℝ) / (2 * d : ℕ)
+  let b : ℝ := 1 - 1 / (4 * d : ℕ)
+  have hs : 0 < s := by
+    dsimp [s]
+    positivity
+  have hscale := eventually_pow_flattenRoundCount_le_rpow A k hA hk hs
+  have hcb : b < (1 : ℝ) := by
+    dsimp [b]
+    have : (0 : ℝ) < 1 / (4 * d : ℕ) := by positivity
+    linarith
+  have hconst := Asymptotics.eventually_const_mul_rpow_le_rpow
+    (C := (C : ℝ)) hcb (by positivity : (0 : ℝ) ≤ (C : ℝ))
+  filter_upwards [hscale, hconst,
+      Filter.eventually_ge_atTop (1 : ℕ)] with n hscale hconst hn
+  have hnpos : (0 : ℝ) < n := by positivity
+  have hpath :=
+    LocalDecoderAsymptotic.decoderPathScale_cast_le d n
+  have hmul :
+      (A ^ flattenRoundCount (n ^ k) : ℝ) *
+          LocalDecoderAsymptotic.decoderPathScale d n ≤
+        (n : ℝ) ^ b := by
+    calc
+      (A ^ flattenRoundCount (n ^ k) : ℝ) *
+          LocalDecoderAsymptotic.decoderPathScale d n ≤
+          (n : ℝ) ^ s * (n : ℝ) ^ c := by
+        exact mul_le_mul hscale (by simpa [c] using hpath)
+          (by positivity) (by positivity)
+      _ = (n : ℝ) ^ (s + c) := by
+        rw [← Real.rpow_add hnpos]
+      _ = (n : ℝ) ^ b := by
+        rw [show s + c = b by
+          dsimp [s, c, b]
+          have h2d : (0 : ℝ) < (2 * d : ℕ) := by positivity
+          have h4d : (0 : ℝ) < (4 * d : ℕ) := by positivity
+          rw [Nat.cast_sub (by omega : 1 ≤ 2 * d)]
+          push_cast
+          field_simp
+          ring]
+  have hreal :
+      (C * A ^ flattenRoundCount (n ^ k) *
+          LocalDecoderAsymptotic.decoderPathScale d n : ℕ) ≤ (n : ℝ) := by
+    norm_num only [Nat.cast_mul, Nat.cast_pow]
+    calc
+      (C : ℝ) * (A : ℝ) ^ flattenRoundCount (n ^ k) *
+          LocalDecoderAsymptotic.decoderPathScale d n =
+          (C : ℝ) *
+            ((A : ℝ) ^ flattenRoundCount (n ^ k) *
+              LocalDecoderAsymptotic.decoderPathScale d n) := by ring
+      _ ≤ (C : ℝ) * (n : ℝ) ^ b := by gcongr
+      _ ≤ (n : ℝ) ^ (1 : ℝ) := hconst
+      _ = (n : ℝ) := by simp
+  exact_mod_cast hreal
+
+/-- Total coefficient budget for all flattening rounds.  The additional
+small rational power is the initial multiplicity allowance; the
+`A ^ roundCount` term absorbs every fixed combinatorial loss. -/
+noncomputable def flattenStageBudget (A k d n : ℕ) : ℕ :=
+  A ^ flattenRoundCount (n ^ k) *
+    Asymptotics.rationalPowerThreshold 1 (8 * d) n
+
+/-- Even after multiplying by the small initial multiplicity allowance,
+the accumulated round budget times the rooted path scale remains `o(n)`. -/
+theorem eventually_const_mul_flattenStageBudget_mul_pathScale_le_self
+    (C A k d : ℕ) (hA : 0 < A) (hk : 0 < k) (hd : 0 < d) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      C * flattenStageBudget A k d n *
+          LocalDecoderAsymptotic.decoderPathScale d n ≤ n := by
+  let s : ℝ := 1 / (8 * d : ℕ)
+  let c : ℝ := ((2 * d - 1 : ℕ) : ℝ) / (2 * d : ℕ)
+  let b : ℝ := 1 - 1 / (4 * d : ℕ)
+  have hs : 0 < s := by
+    dsimp [s]
+    positivity
+  have hround := eventually_pow_flattenRoundCount_le_rpow A k hA hk hs
+  have hcb : b < (1 : ℝ) := by
+    dsimp [b]
+    have : (0 : ℝ) < 1 / (4 * d : ℕ) := by positivity
+    linarith
+  have hconst := Asymptotics.eventually_const_mul_rpow_le_rpow
+    (C := (C : ℝ)) hcb (by positivity : (0 : ℝ) ≤ (C : ℝ))
+  filter_upwards [hround, hconst,
+      Filter.eventually_ge_atTop (1 : ℕ)] with n hround hconst hn
+  have hnpos : (0 : ℝ) < n := by positivity
+  have hsmall := Asymptotics.rationalPowerThreshold_cast_le
+    1 (8 * d) n
+  have hpath := LocalDecoderAsymptotic.decoderPathScale_cast_le d n
+  have hmul :
+      (flattenStageBudget A k d n : ℝ) *
+          LocalDecoderAsymptotic.decoderPathScale d n ≤
+        (n : ℝ) ^ b := by
+    rw [flattenStageBudget]
+    norm_num only [Nat.cast_mul, Nat.cast_pow]
+    calc
+      (A : ℝ) ^ flattenRoundCount (n ^ k) *
+            Asymptotics.rationalPowerThreshold 1 (8 * d) n *
+          LocalDecoderAsymptotic.decoderPathScale d n ≤
+          (n : ℝ) ^ s * (n : ℝ) ^ s * (n : ℝ) ^ c := by
+        exact mul_le_mul
+          (mul_le_mul hround (by simpa [s] using hsmall)
+            (by positivity) (by positivity))
+          (by simpa [c] using hpath) (by positivity) (by positivity)
+      _ = (n : ℝ) ^ (s + s + c) := by
+        rw [← Real.rpow_add hnpos, ← Real.rpow_add hnpos]
+      _ = (n : ℝ) ^ b := by
+        rw [show s + s + c = b by
+          dsimp [s, c, b]
+          rw [Nat.cast_sub (by omega : 1 ≤ 2 * d)]
+          push_cast
+          field_simp
+          ring]
+  have hreal :
+      (C * flattenStageBudget A k d n *
+          LocalDecoderAsymptotic.decoderPathScale d n : ℕ) ≤ (n : ℝ) := by
+    norm_num only [Nat.cast_mul]
+    calc
+      (C : ℝ) * (flattenStageBudget A k d n : ℝ) *
+          LocalDecoderAsymptotic.decoderPathScale d n =
+          (C : ℝ) *
+            ((flattenStageBudget A k d n : ℝ) *
+              LocalDecoderAsymptotic.decoderPathScale d n) := by ring
+      _ ≤ (C : ℝ) * (n : ℝ) ^ b := by gcongr
+      _ ≤ (n : ℝ) ^ (1 : ℝ) := hconst
+      _ = (n : ℝ) := by simp
+  exact_mod_cast hreal
+
+/-- Finite scalar estimates for a rooted allocator whose stopping cap is
+linear in the current input load.  The hypotheses expose the sole
+asymptotic requirement, namely that the current load is still `o(n)`;
+unlike the convenience wrappers in `RootedFamilyAsymptotic`, no exponent
+denominator is changed. -/
+theorem rooted_linearCap_finite_estimates
+    {v r n Droot Dfixed C : ℕ}
+    (P : RootedEmbedding.RootedPattern v r)
+    (hr : 0 < r) (hroot : P.root.card < v)
+    (hrootLarge : r ≤ P.root.card)
+    (hDroot : 0 < Droot)
+    (hn : 2 * v ≤ n)
+    (hsublinear :
+      4 * 2 ^ (v - P.root.card) *
+          RootedFamilyAsymptotic.rootedMeetingConstant P *
+            (Dfixed + P.freeEdges.card * C) ≤ n)
+    (hcap :
+      8 * 2 ^ (v - P.root.card) *
+          LocalDecoderAsymptotic.decoderScheduleConstant v r * Droot ≤ C)
+    (hexponential :
+      (Fintype.card (RootedEmbedding.RelevantFaceLoadTarget P n) : ℝ) *
+          Real.exp (-(C : ℝ) / 2) < 1) :
+    0 < RootedEmbedding.rootedFaceLegalLowerBound P n Dfixed C ∧
+      (Real.exp 1 - 1) *
+          ((RootSchedule.faceScheduleNumeratorBound P n Droot : ℝ) /
+            RootedEmbedding.rootedFaceLegalLowerBound P n Dfixed C) ≤
+        (C : ℝ) / 2 ∧
+      (Fintype.card (RootedEmbedding.RelevantFaceLoadTarget P n) : ℝ) *
+          Real.exp (-(C : ℝ) / 2) < 1 := by
+  let s := v - P.root.card
+  let B₀ := 2 ^ s
+  let M := RootedFamilyAsymptotic.rootedMeetingConstant P
+  let base := (n - P.root.card).descFactorial s
+  let lossFixed := RootedEmbedding.codimOneMeetingBound P n Dfixed
+  let lossUsed := RootedEmbedding.codimOneMeetingBound P n
+    (P.freeEdges.card * C)
+  let L := RootedEmbedding.rootedFaceLegalLowerBound P n Dfixed C
+  have hs : 0 < s := by dsimp [s]; omega
+  have hB₀ : 0 < B₀ := by simp [B₀]
+  have hnpos : (0 : ℝ) < n := by
+    have : 0 < n := by omega
+    exact_mod_cast this
+  have hbaseline :=
+    LocalDecoderAsymptotic.descFactorial_sub_cast_lower
+      (n := n) (r := P.root.card) (s := s) (by
+        have hsEq : P.root.card + s = v := by dsimp [s]; omega
+        simpa [hsEq] using hn)
+  have hbaseLower : (n : ℝ) ^ s / B₀ ≤ (base : ℝ) := by
+    have hB₀eq : (B₀ : ℝ) = (2 : ℝ) ^ s := by simp [B₀]
+    rw [hB₀eq]
+    simpa [base] using hbaseline
+  have hlossFixedNat : lossFixed ≤ M * Dfixed * n ^ (s - 1) := by
+    simpa [lossFixed, M, s] using
+      RootedFamilyAsymptotic.codimOneMeetingBound_le
+        P hr hroot n Dfixed
+  have hlossUsedNat : lossUsed ≤
+      M * (P.freeEdges.card * C) * n ^ (s - 1) := by
+    simpa [lossUsed, M, s] using
+      RootedFamilyAsymptotic.codimOneMeetingBound_le
+        P hr hroot n (P.freeEdges.card * C)
+  have hlossNat : lossFixed + lossUsed ≤
+      M * (Dfixed + P.freeEdges.card * C) * n ^ (s - 1) := by
+    calc
+      lossFixed + lossUsed ≤
+          M * Dfixed * n ^ (s - 1) +
+            M * (P.freeEdges.card * C) * n ^ (s - 1) :=
+        Nat.add_le_add hlossFixedNat hlossUsedNat
+      _ = M * (Dfixed + P.freeEdges.card * C) * n ^ (s - 1) := by ring
+  have hsmallNat :
+      4 * B₀ * (lossFixed + lossUsed) ≤ n ^ s := by
+    calc
+      4 * B₀ * (lossFixed + lossUsed) ≤
+          4 * B₀ *
+            (M * (Dfixed + P.freeEdges.card * C) * n ^ (s - 1)) := by
+        gcongr
+      _ = (4 * B₀ * M * (Dfixed + P.freeEdges.card * C)) *
+            n ^ (s - 1) := by ring
+      _ ≤ n * n ^ (s - 1) := by
+        exact Nat.mul_le_mul_right _ (by simpa [B₀, M, s] using hsublinear)
+      _ = n ^ s := by
+        calc
+          n * n ^ (s - 1) = n ^ (s - 1) * n := by ring
+          _ = n ^ ((s - 1) + 1) := by rw [pow_succ]
+          _ = n ^ s := by congr 1 <;> omega
+  have hlossReal : (lossFixed + lossUsed : ℝ) ≤
+      (n : ℝ) ^ s / (4 * B₀ : ℕ) := by
+    have hcast : (4 * B₀ : ℝ) * (lossFixed + lossUsed : ℝ) ≤
+        (n : ℝ) ^ s := by
+      exact_mod_cast hsmallNat
+    exact (le_div_iff₀ (by positivity : (0 : ℝ) < (4 * B₀ : ℕ))).2
+      (by simpa [mul_comm] using hcast)
+  have hlossBaseReal : (lossFixed + lossUsed : ℝ) ≤ (base : ℝ) := by
+    calc
+      (lossFixed + lossUsed : ℝ) ≤
+          (n : ℝ) ^ s / (4 * B₀ : ℕ) := hlossReal
+      _ ≤ (n : ℝ) ^ s / B₀ := by
+        gcongr
+        omega
+      _ ≤ (base : ℝ) := hbaseLower
+  have hlossBase : lossFixed + lossUsed ≤ base := by
+    exact_mod_cast hlossBaseReal
+  have hfixedBase : lossFixed ≤ base :=
+    (Nat.le_add_right _ _).trans hlossBase
+  have husedRemain : lossUsed ≤ base - lossFixed := by omega
+  have hLcast : (L : ℝ) =
+      (base : ℝ) - lossFixed - lossUsed := by
+    change (((base - lossFixed) - lossUsed : ℕ) : ℝ) =
+      (base : ℝ) - lossFixed - lossUsed
+    rw [Nat.cast_sub husedRemain, Nat.cast_sub hfixedBase]
+  have hLlower : (n : ℝ) ^ s / (2 * B₀ : ℕ) ≤ (L : ℝ) := by
+    rw [hLcast]
+    have hratio : (n : ℝ) ^ s / (4 * B₀ : ℕ) =
+        ((n : ℝ) ^ s / B₀) / 4 := by
+      have hBne : (B₀ : ℝ) ≠ 0 := by exact_mod_cast hB₀.ne'
+      push_cast
+      field_simp
+    have hratioTwo : (n : ℝ) ^ s / (2 * B₀ : ℕ) =
+        ((n : ℝ) ^ s / B₀) / 2 := by
+      have hBne : (B₀ : ℝ) ≠ 0 := by exact_mod_cast hB₀.ne'
+      push_cast
+      field_simp
+    rw [hratio] at hlossReal
+    rw [hratioTwo]
+    have := hbaseLower
+    linarith
+  have hLpos : 0 < L := by
+    have hpow : (0 : ℝ) < (n : ℝ) ^ s := by positivity
+    have : (0 : ℝ) < (L : ℝ) :=
+      (div_pos hpow (by positivity)).trans_le hLlower
+    exact_mod_cast this
+  refine ⟨hLpos, ?_, hexponential⟩
+  let S := LocalDecoderAsymptotic.decoderScheduleConstant v r
+  let B := RootSchedule.faceScheduleNumeratorBound P n Droot
+  have hBexact : B = S * n ^ s * Droot := by
+    simp [B, S, s, RootSchedule.faceScheduleNumeratorBound,
+      LocalDecoderAsymptotic.decoderScheduleConstant]
+  have hratio : (B : ℝ) / L ≤
+      (2 * B₀ * S * Droot : ℕ) := by
+    have hLposReal : (0 : ℝ) < L := by exact_mod_cast hLpos
+    apply (div_le_iff₀ hLposReal).2
+    have hpowFromLower : (n : ℝ) ^ s ≤
+        ((2 * B₀ : ℕ) : ℝ) * (L : ℝ) := by
+      simpa [mul_comm] using
+        (div_le_iff₀ (by positivity : (0 : ℝ) < (2 * B₀ : ℕ))).mp
+          hLlower
+    rw [hBexact]
+    push_cast
+    calc
+      (S : ℝ) * (n : ℝ) ^ s * Droot ≤
+          (S : ℝ) * ((2 : ℝ) * B₀ * L) * Droot := by
+        gcongr
+        simpa [mul_assoc] using hpowFromLower
+      _ = (2 : ℝ) * B₀ * S * Droot * L := by ring
+  have hexpCoef : Real.exp 1 - 1 ≤ 2 := by
+    linarith [Real.exp_one_lt_d9]
+  calc
+    (Real.exp 1 - 1) * ((B : ℝ) / L) ≤
+        2 * (2 * B₀ * S * Droot : ℕ) := by
+      exact mul_le_mul hexpCoef hratio (by positivity) (by norm_num)
+    _ = (4 * B₀ * S * Droot : ℕ) := by push_cast; ring
+    _ ≤ (C : ℝ) / 2 := by
+      have hcapReal : (8 * B₀ * S * Droot : ℕ) ≤ (C : ℝ) := by
+        exact_mod_cast (by simpa [B₀, S, s] using hcap)
+      norm_num only [Nat.cast_mul] at hcapReal ⊢
+      linarith
+
+/-- Fixed multiplier making the adaptive face-load inequality automatic
+when the path cap is linear in the current root/forbidden load. -/
+def linearRootedCapMultiplier (v r : ℕ) : ℕ :=
+  8 * 2 ^ v * LocalDecoderAsymptotic.decoderScheduleConstant v r
+
+/-- Worst codimension-one load permitted at any stage of the complete
+square-root recursion. -/
+noncomputable def linearRoundDegree (A k v r d n : ℕ) : ℕ :=
+  A ^ flattenRoundCount (n ^ k) *
+    LocalDecoderAsymptotic.decoderPathCap v r d n
+
+/-- Linear random-greedy stopping cap used uniformly in every round. -/
+noncomputable def linearRoundCap (A k v r d n : ℕ) : ℕ :=
+  linearRootedCapMultiplier v r * linearRoundDegree A k v r d n
+
+/-- The scalar event shared by the rooted-family and request-indexed
+linear-cap allocators. -/
+theorem eventually_linearRoundBudget_finite_estimates
+    (P : RootedEmbedding.RootedPattern v r)
+    (hr : 0 < r) (hroot : P.root.card < v)
+    (hrootLarge : r ≤ P.root.card)
+    (d A k : ℕ) (hd : 0 < d) (hA : 0 < A) (hk : 0 < k) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      2 * v ≤ n ∧
+      0 < linearRoundDegree A k v r d n ∧
+      0 < RootedEmbedding.rootedFaceLegalLowerBound P n
+        (linearRoundDegree A k v r d n)
+        (linearRoundCap A k v r d n) ∧
+      (Real.exp 1 - 1) *
+          ((RootSchedule.faceScheduleNumeratorBound P n
+              (linearRoundDegree A k v r d n) : ℝ) /
+            RootedEmbedding.rootedFaceLegalLowerBound P n
+              (linearRoundDegree A k v r d n)
+              (linearRoundCap A k v r d n)) ≤
+        (linearRoundCap A k v r d n : ℝ) / 2 ∧
+      (Fintype.card (RootedEmbedding.RelevantFaceLoadTarget P n) : ℝ) *
+          Real.exp (-(linearRoundCap A k v r d n : ℝ) / 2) < 1 := by
+  let B := linearRootedCapMultiplier v r
+  let Mp := LocalDecoderAsymptotic.decoderPathMultiplier v r
+  let Csub := 4 * 2 ^ (v - P.root.card) *
+    RootedFamilyAsymptotic.rootedMeetingConstant P *
+      (1 + P.freeEdges.card * B) * Mp
+  have hsub := eventually_const_mul_roundLoss_mul_pathScale_le_self
+    Csub A k d hA hk hd
+  have hexp :=
+    RootedFamilyAsymptotic.eventually_rooted_exponential_union_bound P hr hd
+  have hscaleTop := Asymptotics.rationalPowerThreshold_tendsto_atTop
+    (E := 2 * d - 1) (d := 2 * d) (by omega) (by omega)
+  have hscalePos : ∀ᶠ n : ℕ in Filter.atTop,
+      0 < LocalDecoderAsymptotic.decoderPathScale d n := by
+    filter_upwards [Filter.tendsto_atTop.1 hscaleTop 1] with n hn
+    dsimp [LocalDecoderAsymptotic.decoderPathScale]
+    omega
+  filter_upwards [hsub, hexp, hscalePos,
+      Filter.eventually_ge_atTop (2 * v)] with n hsub hexp hscalePos hn
+  let D := linearRoundDegree A k v r d n
+  let C := linearRoundCap A k v r d n
+  have hpath : 0 < LocalDecoderAsymptotic.decoderPathCap v r d n :=
+    LocalDecoderAsymptotic.decoderPathCap_pos_of_scale hr hscalePos
+  have hD : 0 < D := by
+    exact Nat.mul_pos (Nat.pos_of_ne_zero (pow_ne_zero _ hA.ne')) hpath
+  have hB : 0 < B := by
+    dsimp [B, linearRootedCapMultiplier,
+      LocalDecoderAsymptotic.decoderScheduleConstant]
+    positivity
+  have hsublinear :
+      4 * 2 ^ (v - P.root.card) *
+          RootedFamilyAsymptotic.rootedMeetingConstant P *
+            (D + P.freeEdges.card * C) ≤ n := by
+    calc
+      4 * 2 ^ (v - P.root.card) *
+          RootedFamilyAsymptotic.rootedMeetingConstant P *
+            (D + P.freeEdges.card * C) =
+          Csub * A ^ flattenRoundCount (n ^ k) *
+            LocalDecoderAsymptotic.decoderPathScale d n := by
+        simp [Csub, D, C, B, Mp, linearRoundDegree, linearRoundCap,
+          LocalDecoderAsymptotic.decoderPathCap]
+        ring
+      _ ≤ n := hsub
+  have hcap :
+      8 * 2 ^ (v - P.root.card) *
+          LocalDecoderAsymptotic.decoderScheduleConstant v r * D ≤ C := by
+    dsimp [C, linearRoundCap, B, linearRootedCapMultiplier]
+    apply Nat.mul_le_mul_right D
+    apply Nat.mul_le_mul_right
+    apply Nat.mul_le_mul_left
+    exact Nat.pow_le_pow_right (by omega : 0 < 2)
+      (Nat.sub_le v P.root.card)
+  have hcoeff :
+      1 ≤ B * A ^ flattenRoundCount (n ^ k) :=
+    Nat.mul_pos hB (Nat.pos_of_ne_zero (pow_ne_zero _ hA.ne'))
+  have hCge : LocalDecoderAsymptotic.decoderPathCap v r d n ≤ C := by
+    simpa [C, linearRoundCap, D, linearRoundDegree, B, mul_assoc] using
+      Nat.mul_le_mul_right (LocalDecoderAsymptotic.decoderPathCap v r d n)
+        hcoeff
+  have hexponential :
+      (Fintype.card (RootedEmbedding.RelevantFaceLoadTarget P n) : ℝ) *
+          Real.exp (-(C : ℝ) / 2) < 1 := by
+    have hCgeReal :
+        (LocalDecoderAsymptotic.decoderPathCap v r d n : ℝ) ≤ C := by
+      exact_mod_cast hCge
+    calc
+      (Fintype.card (RootedEmbedding.RelevantFaceLoadTarget P n) : ℝ) *
+          Real.exp (-(C : ℝ) / 2) ≤
+          (Fintype.card (RootedEmbedding.RelevantFaceLoadTarget P n) : ℝ) *
+            Real.exp (-(LocalDecoderAsymptotic.decoderPathCap v r d n : ℝ) /
+              2) := by
+        gcongr
+      _ < 1 := hexp
+  obtain ⟨hlegal, hquant, hcard⟩ := rooted_linearCap_finite_estimates
+    P hr hroot hrootLarge hD hn hsublinear hcap hexponential
+  exact ⟨hn, hD, hlegal, hquant, hcard⟩
+
+/-- Simultaneous rooted-family placement with one exponent denominator
+through all square-root rounds.  The input and forbidden loads may be as
+large as the worst accumulated round loss, and the output load is only a
+fixed linear multiple of that same budget. -/
+theorem eventually_exists_boundedRootedFamilyEmbeddings_linearRoundBudget
+    (P : RootedEmbedding.RootedPattern v r)
+    (hr : 0 < r) (hrootNonempty : P.root.Nonempty)
+    (hroot : P.root.card < v) (hrootLarge : r ≤ P.root.card)
+    (d A k : ℕ) (hd : 0 < d) (hA : 0 < A) (hk : 0 < k) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ roots forbidden : Finset (Finset (Fin n)),
+      (∀ Q ∈ roots, Q.card = P.root.card) →
+      (∀ e ∈ forbidden, e.card = r) →
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree roots J ≤ linearRoundDegree A k v r d n) →
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree forbidden J ≤ linearRoundDegree A k v r d n) →
+      Nonempty (RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+        P roots forbidden (linearRoundCap A k v r d n)) := by
+  let B := linearRootedCapMultiplier v r
+  let Mp := LocalDecoderAsymptotic.decoderPathMultiplier v r
+  let Csub := 4 * 2 ^ (v - P.root.card) *
+    RootedFamilyAsymptotic.rootedMeetingConstant P *
+      (1 + P.freeEdges.card * B) * Mp
+  have hsub := eventually_const_mul_roundLoss_mul_pathScale_le_self
+    Csub A k d hA hk hd
+  have hexp :=
+    RootedFamilyAsymptotic.eventually_rooted_exponential_union_bound P hr hd
+  have hscaleTop := Asymptotics.rationalPowerThreshold_tendsto_atTop
+    (E := 2 * d - 1) (d := 2 * d) (by omega) (by omega)
+  have hscalePos : ∀ᶠ n : ℕ in Filter.atTop,
+      0 < LocalDecoderAsymptotic.decoderPathScale d n := by
+    filter_upwards [Filter.tendsto_atTop.1 hscaleTop 1] with n hn
+    dsimp [LocalDecoderAsymptotic.decoderPathScale]
+    omega
+  filter_upwards [hsub, hexp, hscalePos,
+      Filter.eventually_ge_atTop (2 * v)] with n hsub hexp hscalePos hn
+  intro roots forbidden hrootsUniform hforbiddenUniform hrootDegree
+    hforbiddenDegree
+  let D := linearRoundDegree A k v r d n
+  let C := linearRoundCap A k v r d n
+  have hMp : 0 < Mp :=
+    LocalDecoderAsymptotic.decoderPathMultiplier_pos v r hr
+  have hpath : 0 < LocalDecoderAsymptotic.decoderPathCap v r d n :=
+    LocalDecoderAsymptotic.decoderPathCap_pos_of_scale hr hscalePos
+  have hroundOne : 1 ≤ A ^ flattenRoundCount (n ^ k) := by
+    exact Nat.one_le_iff_ne_zero.mpr (pow_ne_zero _ hA.ne')
+  have hD : 0 < D := by
+    exact Nat.mul_pos (Nat.pos_of_ne_zero (pow_ne_zero _ hA.ne')) hpath
+  have hB : 0 < B := by
+    dsimp [B, linearRootedCapMultiplier,
+      LocalDecoderAsymptotic.decoderScheduleConstant]
+    positivity
+  have hC : 0 < C := Nat.mul_pos hB hD
+  have hsublinear :
+      4 * 2 ^ (v - P.root.card) *
+          RootedFamilyAsymptotic.rootedMeetingConstant P *
+            (D + P.freeEdges.card * C) ≤ n := by
+    calc
+      4 * 2 ^ (v - P.root.card) *
+          RootedFamilyAsymptotic.rootedMeetingConstant P *
+            (D + P.freeEdges.card * C) =
+          Csub * A ^ flattenRoundCount (n ^ k) *
+            LocalDecoderAsymptotic.decoderPathScale d n := by
+        simp [Csub, D, C, B, Mp, linearRoundDegree, linearRoundCap,
+          LocalDecoderAsymptotic.decoderPathCap]
+        ring
+      _ ≤ n := hsub
+  have hcap :
+      8 * 2 ^ (v - P.root.card) *
+          LocalDecoderAsymptotic.decoderScheduleConstant v r * D ≤ C := by
+    dsimp [C, linearRoundCap, B, linearRootedCapMultiplier]
+    apply Nat.mul_le_mul_right D
+    apply Nat.mul_le_mul_right
+    apply Nat.mul_le_mul_left
+    exact Nat.pow_le_pow_right (by omega : 0 < 2)
+      (Nat.sub_le v P.root.card)
+  have hCge : LocalDecoderAsymptotic.decoderPathCap v r d n ≤ C := by
+    have hcoeff : 1 ≤ B * A ^ flattenRoundCount (n ^ k) :=
+      Nat.mul_pos hB (Nat.pos_of_ne_zero (pow_ne_zero _ hA.ne'))
+    simpa [C, linearRoundCap, D, linearRoundDegree, B, mul_assoc] using
+      Nat.mul_le_mul_right (LocalDecoderAsymptotic.decoderPathCap v r d n)
+        hcoeff
+  have hexponential :
+      (Fintype.card (RootedEmbedding.RelevantFaceLoadTarget P n) : ℝ) *
+          Real.exp (-(C : ℝ) / 2) < 1 := by
+    have hCgeReal :
+        (LocalDecoderAsymptotic.decoderPathCap v r d n : ℝ) ≤ C := by
+      exact_mod_cast hCge
+    calc
+      (Fintype.card (RootedEmbedding.RelevantFaceLoadTarget P n) : ℝ) *
+          Real.exp (-(C : ℝ) / 2) ≤
+          (Fintype.card (RootedEmbedding.RelevantFaceLoadTarget P n) : ℝ) *
+            Real.exp (-(LocalDecoderAsymptotic.decoderPathCap v r d n : ℝ) /
+              2) := by
+        gcongr
+      _ < 1 := hexp
+  obtain ⟨hlegal, hquant, hcard⟩ := rooted_linearCap_finite_estimates
+    P hr hroot hrootLarge hD hn hsublinear hcap hexponential
+  by_cases hroots : roots = ∅
+  · subst roots
+    refine ⟨{
+      embedding := fun Q hQ ↦ False.elim (show False by simpa using hQ)
+      root_image := ?_
+      free_disjoint_forbidden := ?_
+      free_pairwise := ?_
+      freeUnion := ∅
+      image_subset_freeUnion := ?_
+      free_degree_le := ?_ }⟩
+    · intro Q hQ
+      simp at hQ
+    · intro Q hQ
+      simp at hQ
+    · intro Q hQ
+      simp at hQ
+    · intro Q hQ
+      simp at hQ
+    · intro J hJ
+      simp [Reserve.localDegree]
+  · letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb (by omega)⟩
+    obtain ⟨Q₀, hQ₀⟩ := Finset.nonempty_iff_ne_empty.mpr hroots
+    apply RootedFamilyEmbedding.exists_boundedRootedFamilyEmbeddings_of_finite_bounds
+      P roots forbidden hrootsUniform hrootNonempty (by omega)
+      hforbiddenUniform Q₀ hQ₀
+    · exact hrootDegree
+    · exact hforbiddenDegree
+    · exact hr
+    · exact hlegal
+    · exact hquant
+    · exact hcard
+
+/-- Request-indexed version of the uniform linear-budget allocator.  This
+is the form used to place one fresh intermediate clique for every
+square-root group. -/
+theorem eventually_exists_boundedRequestedFamilyEmbeddings_linearRoundBudget
+    (P : RootedEmbedding.RootedPattern v r)
+    (hr : 0 < r) (hroot : P.root.card < v)
+    (hrootLarge : r ≤ P.root.card)
+    (d A k : ℕ) (hd : 0 < d) (hA : 0 < A) (hk : 0 < k) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ (request : ℕ → RootedEmbedding.RootRequest v n P.root)
+        (forbidden : Finset (Finset (Fin n))) (depth : ℕ),
+      RootSchedule.HasRootPartCountBound P request depth
+          (linearRoundDegree A k v r d n) →
+      (∀ g ∈ forbidden, g.card = r) →
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree forbidden J ≤ linearRoundDegree A k v r d n) →
+      Nonempty (RequestedFamilyEmbedding.BoundedRequestedFamilyEmbeddings
+        P request forbidden depth (linearRoundCap A k v r d n)) := by
+  have hest := eventually_linearRoundBudget_finite_estimates
+    P hr hroot hrootLarge d A k hd hA hk
+  filter_upwards [hest] with n hest
+  intro request forbidden depth hcount hforbiddenUniform hforbiddenDegree
+  obtain ⟨hn, _hD, hlegal, hquant, hcard⟩ := hest
+  letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb (by omega)⟩
+  apply RequestedFamilyEmbedding.exists_boundedRequestedFamilyEmbeddings_of_finite_bounds
+    P request forbidden hcount hforbiddenUniform hforbiddenDegree hr
+      hlegal hquant hcard
+
+/-- The codimension-one load at one particular flattening stage.  The
+coefficient `z` will be `A ^ t`; exposing it (rather than immediately
+replacing it by the worst value `A ^ flattenRoundCount (n ^ k)`) makes the
+fixed loss of one allocator round visible to the induction. -/
+noncomputable def linearStageDegree (z v r d n : ℕ) : ℕ :=
+  z * LocalDecoderAsymptotic.decoderPathCap v r d n
+
+/-- The total stage budget still has a power saving.  The two explicit
+`1/(8d)` losses (round accumulation and initial multiplicity) together with
+the path exponent leave `1/(4d)`; any denominator strictly larger than
+`4d` can therefore absorb the fixed path multiplier. -/
+theorem eventually_linearStageBudget_powerBounded
+    (v r A k d d' : ℕ) (hA : 0 < A) (hk : 0 < k) (hd : 0 < d)
+    (hgap : 4 * d < d') :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      linearStageDegree (flattenStageBudget A k d n) v r d n ^ d' ≤
+        n ^ (d' - 1) := by
+  let s : ℝ := 1 / (8 * d : ℕ)
+  let c : ℝ := ((2 * d - 1 : ℕ) : ℝ) / (2 * d : ℕ)
+  let b : ℝ := 1 - 1 / (4 * d : ℕ)
+  let target : ℝ := ((d' - 1 : ℕ) : ℝ) / d'
+  let Mp := LocalDecoderAsymptotic.decoderPathMultiplier v r
+  have hs : 0 < s := by
+    dsimp [s]
+    positivity
+  have hround := eventually_pow_flattenRoundCount_le_rpow A k hA hk hs
+  have hbtarget : b < target := by
+    dsimp [b, target]
+    rw [Nat.cast_sub (by omega : 1 ≤ d')]
+    push_cast
+    have hd'pos : 0 < d' := by omega
+    have hd'R : (0 : ℝ) < d' := by exact_mod_cast hd'pos
+    have hgapR : (4 : ℝ) * d < d' := by exact_mod_cast hgap
+    field_simp
+    nlinarith
+  have hconst := Asymptotics.eventually_const_mul_rpow_le_rpow
+    (C := (Mp : ℝ)) hbtarget (by positivity : (0 : ℝ) ≤ (Mp : ℝ))
+  filter_upwards [hround, hconst,
+      Filter.eventually_ge_atTop (1 : ℕ)] with n hround hconst hn
+  have hnpos : (0 : ℝ) < n := by positivity
+  have hsmall := Asymptotics.rationalPowerThreshold_cast_le
+    1 (8 * d) n
+  have hpath := LocalDecoderAsymptotic.decoderPathScale_cast_le d n
+  have hmul :
+      (flattenStageBudget A k d n : ℝ) *
+          LocalDecoderAsymptotic.decoderPathScale d n ≤
+        (n : ℝ) ^ b := by
+    rw [flattenStageBudget]
+    norm_num only [Nat.cast_mul, Nat.cast_pow]
+    calc
+      (A : ℝ) ^ flattenRoundCount (n ^ k) *
+            Asymptotics.rationalPowerThreshold 1 (8 * d) n *
+          LocalDecoderAsymptotic.decoderPathScale d n ≤
+          (n : ℝ) ^ s * (n : ℝ) ^ s * (n : ℝ) ^ c := by
+        exact mul_le_mul
+          (mul_le_mul hround (by simpa [s] using hsmall)
+            (by positivity) (by positivity))
+          (by simpa [c] using hpath) (by positivity) (by positivity)
+      _ = (n : ℝ) ^ (s + s + c) := by
+        rw [← Real.rpow_add hnpos, ← Real.rpow_add hnpos]
+      _ = (n : ℝ) ^ b := by
+        rw [show s + s + c = b by
+          dsimp [s, c, b]
+          rw [Nat.cast_sub (by omega : 1 ≤ 2 * d)]
+          push_cast
+          field_simp
+          ring]
+  have hdegreeReal :
+      (linearStageDegree (flattenStageBudget A k d n) v r d n : ℝ) ≤
+        (n : ℝ) ^ target := by
+    calc
+      (linearStageDegree (flattenStageBudget A k d n) v r d n : ℝ) =
+          (Mp : ℝ) * ((flattenStageBudget A k d n : ℝ) *
+            LocalDecoderAsymptotic.decoderPathScale d n) := by
+        simp [linearStageDegree,
+          LocalDecoderAsymptotic.decoderPathCap, Mp]
+        ring
+      _ ≤ (Mp : ℝ) * (n : ℝ) ^ b := by gcongr
+      _ ≤ (n : ℝ) ^ target := hconst
+  have hp := pow_le_pow_left₀ (by positivity) hdegreeReal d'
+  have htargetMul : target * (d' : ℝ) = ((d' - 1 : ℕ) : ℝ) := by
+    dsimp [target]
+    exact div_mul_cancel₀ _ (by exact_mod_cast (show d' ≠ 0 by omega))
+  have htarget : ((n : ℝ) ^ target) ^ d' =
+      (n : ℝ) ^ (d' - 1 : ℕ) := by
+    calc
+      ((n : ℝ) ^ target) ^ d' =
+          (n : ℝ) ^ (target * (d' : ℝ)) := by
+        rw [← Real.rpow_natCast, ← Real.rpow_mul hnpos.le]
+      _ = (n : ℝ) ^ ((d' - 1 : ℕ) : ℝ) := by rw [htargetMul]
+      _ = (n : ℝ) ^ (d' - 1 : ℕ) := Real.rpow_natCast _ _
+  have hcast :
+      (linearStageDegree (flattenStageBudget A k d n) v r d n ^ d' : ℝ) ≤
+        (n ^ (d' - 1) : ℕ) := by
+    norm_num only [Nat.cast_pow]
+    rw [← htarget]
+    simpa only [Real.rpow_natCast] using hp
+  exact_mod_cast hcast
+
+/-- Stopping cap for one stage-scaled rooted allocation. -/
+noncomputable def linearStageCap (z v r d n : ℕ) : ℕ :=
+  linearRootedCapMultiplier v r * linearStageDegree z v r d n
+
+/-- Uniform finite estimates for every stage coefficient below the total
+round budget.  The sole asymptotic estimate is proved at the worst allowed
+coefficient and then inherited monotonically by each individual stage. -/
+theorem eventually_linearStageBudget_finite_estimates
+    (P : RootedEmbedding.RootedPattern v r)
+    (hr : 0 < r) (hroot : P.root.card < v)
+    (hrootLarge : r ≤ P.root.card)
+    (d A k : ℕ) (hd : 0 < d) (hA : 0 < A) (hk : 0 < k) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ z : ℕ, 0 < z → z ≤ flattenStageBudget A k d n →
+      2 * v ≤ n ∧
+      0 < linearStageDegree z v r d n ∧
+      0 < RootedEmbedding.rootedFaceLegalLowerBound P n
+        (linearStageDegree z v r d n)
+        (linearStageCap z v r d n) ∧
+      (Real.exp 1 - 1) *
+          ((RootSchedule.faceScheduleNumeratorBound P n
+              (linearStageDegree z v r d n) : ℝ) /
+            RootedEmbedding.rootedFaceLegalLowerBound P n
+              (linearStageDegree z v r d n)
+              (linearStageCap z v r d n)) ≤
+        (linearStageCap z v r d n : ℝ) / 2 ∧
+      (Fintype.card (RootedEmbedding.RelevantFaceLoadTarget P n) : ℝ) *
+          Real.exp (-(linearStageCap z v r d n : ℝ) / 2) < 1 := by
+  let B := linearRootedCapMultiplier v r
+  let Mp := LocalDecoderAsymptotic.decoderPathMultiplier v r
+  let Csub := 4 * 2 ^ (v - P.root.card) *
+    RootedFamilyAsymptotic.rootedMeetingConstant P *
+      (1 + P.freeEdges.card * B) * Mp
+  have hsub := eventually_const_mul_flattenStageBudget_mul_pathScale_le_self
+    Csub A k d hA hk hd
+  have hexp :=
+    RootedFamilyAsymptotic.eventually_rooted_exponential_union_bound P hr hd
+  have hscaleTop := Asymptotics.rationalPowerThreshold_tendsto_atTop
+    (E := 2 * d - 1) (d := 2 * d) (by omega) (by omega)
+  have hscalePos : ∀ᶠ n : ℕ in Filter.atTop,
+      0 < LocalDecoderAsymptotic.decoderPathScale d n := by
+    filter_upwards [Filter.tendsto_atTop.1 hscaleTop 1] with n hn
+    dsimp [LocalDecoderAsymptotic.decoderPathScale]
+    omega
+  filter_upwards [hsub, hexp, hscalePos,
+      Filter.eventually_ge_atTop (2 * v)] with n hsub hexp hscalePos hn
+  intro z hz hzMax
+  let D := linearStageDegree z v r d n
+  let C := linearStageCap z v r d n
+  have hpath : 0 < LocalDecoderAsymptotic.decoderPathCap v r d n :=
+    LocalDecoderAsymptotic.decoderPathCap_pos_of_scale hr hscalePos
+  have hD : 0 < D := Nat.mul_pos hz hpath
+  have hB : 0 < B := by
+    dsimp [B, linearRootedCapMultiplier,
+      LocalDecoderAsymptotic.decoderScheduleConstant]
+    positivity
+  have hsublinear :
+      4 * 2 ^ (v - P.root.card) *
+          RootedFamilyAsymptotic.rootedMeetingConstant P *
+            (D + P.freeEdges.card * C) ≤ n := by
+    calc
+      4 * 2 ^ (v - P.root.card) *
+          RootedFamilyAsymptotic.rootedMeetingConstant P *
+            (D + P.freeEdges.card * C) =
+          Csub * z * LocalDecoderAsymptotic.decoderPathScale d n := by
+        simp [Csub, D, C, B, Mp, linearStageDegree, linearStageCap,
+          LocalDecoderAsymptotic.decoderPathCap]
+        ring
+      _ ≤ Csub * flattenStageBudget A k d n *
+          LocalDecoderAsymptotic.decoderPathScale d n := by
+        gcongr
+      _ ≤ n := hsub
+  have hcap :
+      8 * 2 ^ (v - P.root.card) *
+          LocalDecoderAsymptotic.decoderScheduleConstant v r * D ≤ C := by
+    dsimp [C, linearStageCap, B, linearRootedCapMultiplier]
+    apply Nat.mul_le_mul_right D
+    apply Nat.mul_le_mul_right
+    apply Nat.mul_le_mul_left
+    exact Nat.pow_le_pow_right (by omega : 0 < 2)
+      (Nat.sub_le v P.root.card)
+  have hCge : LocalDecoderAsymptotic.decoderPathCap v r d n ≤ C := by
+    have hcoeff : 1 ≤ B * z := Nat.mul_pos hB hz
+    simpa [C, linearStageCap, D, linearStageDegree, B, mul_assoc] using
+      Nat.mul_le_mul_right (LocalDecoderAsymptotic.decoderPathCap v r d n)
+        hcoeff
+  have hexponential :
+      (Fintype.card (RootedEmbedding.RelevantFaceLoadTarget P n) : ℝ) *
+          Real.exp (-(C : ℝ) / 2) < 1 := by
+    have hCgeReal :
+        (LocalDecoderAsymptotic.decoderPathCap v r d n : ℝ) ≤ C := by
+      exact_mod_cast hCge
+    calc
+      (Fintype.card (RootedEmbedding.RelevantFaceLoadTarget P n) : ℝ) *
+          Real.exp (-(C : ℝ) / 2) ≤
+          (Fintype.card (RootedEmbedding.RelevantFaceLoadTarget P n) : ℝ) *
+            Real.exp (-(LocalDecoderAsymptotic.decoderPathCap v r d n : ℝ) /
+              2) := by
+        gcongr
+      _ < 1 := hexp
+  obtain ⟨hlegal, hquant, hcard⟩ := rooted_linearCap_finite_estimates
+    P hr hroot hrootLarge hD hn hsublinear hcap hexponential
+  exact ⟨hn, hD, hlegal, hquant, hcard⟩
+
+/-- Request-indexed rooted placement at a specified flattening stage. -/
+theorem eventually_exists_boundedRequestedFamilyEmbeddings_linearStageBudget
+    (P : RootedEmbedding.RootedPattern v r)
+    (hr : 0 < r) (hroot : P.root.card < v)
+    (hrootLarge : r ≤ P.root.card)
+    (d A k : ℕ) (hd : 0 < d) (hA : 0 < A) (hk : 0 < k) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ z : ℕ, 0 < z → z ≤ flattenStageBudget A k d n →
+      ∀ (request : ℕ → RootedEmbedding.RootRequest v n P.root)
+        (forbidden : Finset (Finset (Fin n))) (depth : ℕ),
+      RootSchedule.HasRootPartCountBound P request depth
+          (linearStageDegree z v r d n) →
+      (∀ g ∈ forbidden, g.card = r) →
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree forbidden J ≤ linearStageDegree z v r d n) →
+      Nonempty (RequestedFamilyEmbedding.BoundedRequestedFamilyEmbeddings
+        P request forbidden depth (linearStageCap z v r d n)) := by
+  have hest := eventually_linearStageBudget_finite_estimates
+    P hr hroot hrootLarge d A k hd hA hk
+  filter_upwards [hest] with n hest
+  intro z hz hzMax request forbidden depth hcount hforbiddenUniform
+    hforbiddenDegree
+  obtain ⟨hn, _hD, hlegal, hquant, hcard⟩ := hest z hz hzMax
+  letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb (by omega)⟩
+  apply RequestedFamilyEmbedding.exists_boundedRequestedFamilyEmbeddings_of_finite_bounds
+    P request forbidden hcount hforbiddenUniform hforbiddenDegree hr
+      hlegal hquant hcard
+
+/-- Family-indexed rooted placement at a specified flattening stage. -/
+theorem eventually_exists_boundedRootedFamilyEmbeddings_linearStageBudget
+    (P : RootedEmbedding.RootedPattern v r)
+    (hr : 0 < r) (hrootNonempty : P.root.Nonempty)
+    (hroot : P.root.card < v) (hrootLarge : r ≤ P.root.card)
+    (d A k : ℕ) (hd : 0 < d) (hA : 0 < A) (hk : 0 < k) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ z : ℕ, 0 < z → z ≤ flattenStageBudget A k d n →
+      ∀ roots forbidden : Finset (Finset (Fin n)),
+      (∀ Q ∈ roots, Q.card = P.root.card) →
+      (∀ e ∈ forbidden, e.card = r) →
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree roots J ≤ linearStageDegree z v r d n) →
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree forbidden J ≤ linearStageDegree z v r d n) →
+      Nonempty (RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+        P roots forbidden (linearStageCap z v r d n)) := by
+  have hest := eventually_linearStageBudget_finite_estimates
+    P hr hroot hrootLarge d A k hd hA hk
+  filter_upwards [hest] with n hest
+  intro z hz hzMax roots forbidden hrootsUniform hforbiddenUniform
+    hrootDegree hforbiddenDegree
+  obtain ⟨hn, _hD, hlegal, hquant, hcard⟩ := hest z hz hzMax
+  by_cases hroots : roots = ∅
+  · subst roots
+    refine ⟨{
+      embedding := fun Q hQ ↦ False.elim (show False by simpa using hQ)
+      root_image := ?_
+      free_disjoint_forbidden := ?_
+      free_pairwise := ?_
+      freeUnion := ∅
+      image_subset_freeUnion := ?_
+      free_degree_le := ?_ }⟩
+    · intro Q hQ
+      simp at hQ
+    · intro Q hQ
+      simp at hQ
+    · intro Q hQ
+      simp at hQ
+    · intro Q hQ
+      simp at hQ
+    · intro J hJ
+      simp [Reserve.localDegree]
+  · letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb (by omega)⟩
+    obtain ⟨Q₀, hQ₀⟩ := Finset.nonempty_iff_ne_empty.mpr hroots
+    apply RootedFamilyEmbedding.exists_boundedRootedFamilyEmbeddings_of_finite_bounds
+      P roots forbidden hrootsUniform hrootNonempty (by omega)
+      hforbiddenUniform Q₀ hQ₀
+    · exact hrootDegree
+    · exact hforbiddenDegree
+    · exact hr
+    · exact hlegal
+    · exact hquant
+    · exact hcard
+
+/-- Stage-scaled placement of a two-root elimination bank from the sharp
+positive and negative occurrence degrees. -/
+theorem eventually_exists_boundedEliminationPairEmbeddings_linearStageBudget
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (hr : 0 < r) (hrk : r < k)
+    (e₀ : Exchange.RootEdge k r)
+    (htrace : E.SpecialTraceIsolated e₀)
+    (d A K : ℕ) (hd : 0 < d) (hA : 0 < A) (hK : 0 < K) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ z : ℕ, 0 < z → z ≤ flattenStageBudget A K d n →
+      ∀ (pairs : Finset
+          (ExchangeEliminationEmbedding.EliminationPair n k r))
+        (forbidden : Finset (Finset (Fin n))),
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        ExchangeEliminationEmbedding.positiveSideOccurrenceDegree pairs J ≤
+          linearStageDegree z E.v r d n) →
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        ExchangeEliminationEmbedding.negativeSideOccurrenceDegree pairs J ≤
+          linearStageDegree z E.v r d n) →
+      (∀ g ∈ forbidden, g.card = r) →
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree forbidden J ≤ linearStageDegree z E.v r d n) →
+      Nonempty
+        (ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+          E e₀ pairs forbidden (linearStageCap z E.v r d n)) := by
+  let P := E.eliminationPattern e₀
+  have hroot : P.root.card < E.v := by
+    simpa [P] using E.eliminationPattern_root_card_lt_v hr hrk e₀
+  have hrootLarge : r ≤ P.root.card := by
+    rw [show P.root.card = 2 * k - r by
+      simpa [P] using E.eliminationPattern_root_card e₀]
+    omega
+  have hrequested :=
+    eventually_exists_boundedRequestedFamilyEmbeddings_linearStageBudget
+      P hr hroot hrootLarge d A K hd hA hK
+  filter_upwards [hrequested, Filter.eventually_ge_atTop (1 : ℕ)] with
+      n hrequested hn
+  intro z hz hzMax pairs forbidden hpositive hnegative hforbiddenUniform
+    hforbiddenDegree
+  by_cases hpairs : pairs = ∅
+  · subst pairs
+    refine ⟨{
+      embedding := fun pair hpair ↦ False.elim (by simpa using hpair)
+      maps_positive := ?_
+      maps_negative := ?_
+      free_disjoint_forbidden := ?_
+      free_pairwise := ?_
+      freeUnion := ∅
+      image_subset_freeUnion := ?_
+      free_uniform := ?_
+      freeUnion_disjoint_forbidden := ?_
+      free_degree_le := ?_ }⟩
+    · intro pair hpair
+      simp at hpair
+    · intro pair hpair
+      simp at hpair
+    · intro pair hpair
+      simp at hpair
+    · intro pair hpair
+      simp at hpair
+    · intro pair hpair
+      simp at hpair
+    · intro g hg
+      simp at hg
+    · simp
+    · intro J hJ
+      simp [Reserve.localDegree]
+  · letI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+    obtain ⟨P₀, hP₀⟩ := Finset.nonempty_iff_ne_empty.mpr hpairs
+    let pairAtFin (i : Fin pairs.card) : ↥pairs := pairs.equivFin.symm i
+    let pairAt (i : ℕ) :
+        ExchangeEliminationEmbedding.EliminationPair n k r :=
+      (pairAtFin ⟨i % pairs.card,
+        Nat.mod_lt _ (Finset.card_pos.mpr ⟨P₀, hP₀⟩)⟩).1
+    have hpairAtMem (i : ℕ) : pairAt i ∈ pairs :=
+      (pairAtFin ⟨i % pairs.card,
+        Nat.mod_lt _ (Finset.card_pos.mpr ⟨P₀, hP₀⟩)⟩).2
+    have hpairAtFin (i : Fin pairs.card) :
+        pairAt i.1 = (pairs.equivFin.symm i).1 := by
+      have himod : i.1 % pairs.card = i.1 := Nat.mod_eq_of_lt i.2
+      simp [pairAt, pairAtFin, himod]
+    have hpairAtInj : Function.Injective
+        (fun i : Fin pairs.card ↦ pairAt i.1) := by
+      intro i j hij
+      have heq : pairs.equivFin.symm i = pairs.equivFin.symm j := by
+        apply Subtype.ext
+        simpa [hpairAtFin] using hij
+      exact pairs.equivFin.symm.injective heq
+    have hrequestExists (i : ℕ) :
+        ∃ request : RootedEmbedding.RootRequest E.v n P.root,
+          RootedEmbedding.requestImage P.root request = (pairAt i).root ∧
+          E.pattern.root.image request.map = (pairAt i).positive ∧
+          (E.special e₀).image request.map = (pairAt i).negative := by
+      simpa [P] using
+        ExchangeEliminationEmbedding.exists_eliminationRootRequest
+          E hr hrk e₀ (pairAt i)
+    let request : ℕ → RootedEmbedding.RootRequest E.v n P.root := fun i ↦
+      Classical.choose (hrequestExists i)
+    have hrequest (i : ℕ) :
+        RootedEmbedding.requestImage P.root (request i) = (pairAt i).root ∧
+          E.pattern.root.image (request i).map = (pairAt i).positive ∧
+          (E.special e₀).image (request i).map = (pairAt i).negative :=
+      Classical.choose_spec (hrequestExists i)
+    have hcount : RootSchedule.HasRootPartCountBound P request pairs.card
+        (linearStageDegree z E.v r d n) := by
+      simpa [P] using
+        ExchangeEliminationEmbedding.hasRootPartCountBound_elimination_requests_of_occurrenceDegree
+          E e₀ htrace pairs request (fun i ↦ pairAt i.1)
+            (fun i ↦ hpairAtMem i.1) hpairAtInj
+            (fun i ↦ (hrequest i.1).2.1)
+            (fun i ↦ (hrequest i.1).2.2)
+            (linearStageDegree z E.v r d n) hrk hpositive hnegative
+    obtain ⟨S⟩ := hrequested z hz hzMax request forbidden pairs.card hcount
+      hforbiddenUniform hforbiddenDegree
+    let index (pair : ExchangeEliminationEmbedding.EliminationPair n k r)
+        (hpair : pair ∈ pairs) : Fin pairs.card :=
+      pairs.equivFin ⟨pair, hpair⟩
+    have hpairIndex
+        (pair : ExchangeEliminationEmbedding.EliminationPair n k r)
+        (hpair : pair ∈ pairs) : pairAt (index pair hpair).1 = pair := by
+      rw [hpairAtFin]
+      simp [index]
+    let embedding
+        (pair : ExchangeEliminationEmbedding.EliminationPair n k r)
+        (hpair : pair ∈ pairs) := S.embedding (index pair hpair)
+    have hmaps
+        (pair : ExchangeEliminationEmbedding.EliminationPair n k r)
+        (hpair : pair ∈ pairs) :
+        RootedEmbedding.mapEdge (embedding pair hpair) E.pattern.root =
+            pair.positive ∧
+          ExchangeEmbedding.mappedSpecial E (embedding pair hpair) e₀ =
+            pair.negative := by
+      have hspec := hrequest (index pair hpair).1
+      have hmain :=
+        ExchangeEliminationEmbedding.extends_eliminationRootRequest_maps_pair
+          E e₀ pair (request (index pair hpair).1)
+            (by simpa [hpairIndex pair hpair] using hspec.2.1)
+            (by simpa [hpairIndex pair hpair] using hspec.2.2)
+            (embedding pair hpair)
+            (by simpa [P, embedding] using
+              S.extends_request (index pair hpair))
+      exact hmain
+    refine ⟨{
+      embedding := embedding
+      maps_positive := fun pair hpair ↦ (hmaps pair hpair).1
+      maps_negative := fun pair hpair ↦ (hmaps pair hpair).2
+      free_disjoint_forbidden := ?_
+      free_pairwise := ?_
+      freeUnion := S.freeUnion
+      image_subset_freeUnion := ?_
+      free_uniform := S.free_uniform
+      freeUnion_disjoint_forbidden := S.freeUnion_disjoint_forbidden
+      free_degree_le := S.free_degree_le }⟩
+    · intro pair hpair
+      exact S.free_disjoint_forbidden (index pair hpair)
+    · intro pair hpair pair' hpair' hne
+      apply S.free_pairwise (index pair hpair) (index pair' hpair')
+      intro hindex
+      apply hne
+      have hsub : (⟨pair, hpair⟩ : ↥pairs) = ⟨pair', hpair'⟩ :=
+        pairs.equivFin.injective hindex
+      exact congrArg Subtype.val hsub
+    · intro pair hpair
+      exact S.image_subset_freeUnion (index pair hpair)
+
+/-- Scalar load contributed by the intermediate-clique allocator in one
+quantitative flattening round, with the common path scale suppressed. -/
+noncomputable def flattenAuxLoad (k r z : ℕ) : ℕ :=
+  (CoverClique.coverPattern k r).freeEdges.card *
+    linearRootedCapMultiplier k r *
+      LocalDecoderAsymptotic.decoderPathMultiplier k r * z
+
+/-- Scalar free-host load of the two-root elimination allocator. -/
+noncomputable def flattenEliminationFreeLoad
+    {k r : ℕ} (hrk : r < k) (z : ℕ) : ℕ :=
+  let E := ExchangeEmbedding.fullExchangeData hrk
+  let e₀ := ExchangeEmbedding.fullExchangeRootEdge hrk
+  (E.eliminationPattern e₀).freeEdges.card *
+    linearRootedCapMultiplier E.v r *
+      LocalDecoderAsymptotic.decoderPathMultiplier E.v r * z
+
+/-- Scalar free-host load of the second, one-root splitting allocator. -/
+noncomputable def flattenSplitFreeLoad
+    {k r : ℕ} (hrk : r < k) (z : ℕ) : ℕ :=
+  let E := ExchangeEmbedding.fullExchangeData hrk
+  E.pattern.freeEdges.card * linearRootedCapMultiplier E.v r *
+    LocalDecoderAsymptotic.decoderPathMultiplier E.v r * z
+
+/-- Stage coefficient used for the two-root bank.  The leading `z` makes
+monotonicity through the recursive certificate literal. -/
+noncomputable def flattenPairStageCoefficient
+    {k r : ℕ} (x z : ℕ) : ℕ :=
+  z + ((Nat.sqrt x + 1) * flattenAuxLoad k r z +
+    LocalDecoderAsymptotic.decoderPathMultiplier k r * z +
+      flattenAuxLoad k r z)
+
+/-- Stage coefficient used to split the intermediate roots. -/
+noncomputable def flattenSplitStageCoefficient
+    {k r : ℕ} (hrk : r < k) (x z : ℕ) : ℕ :=
+  let pair := flattenPairStageCoefficient (k := k) (r := r) x z
+  pair + (2 * LocalDecoderAsymptotic.decoderPathMultiplier k r * z +
+    flattenAuxLoad k r z + flattenEliminationFreeLoad hrk pair)
+
+/-- Codimension-one boundary coefficient after one complete twice-split
+round. -/
+noncomputable def flattenBoundaryStageCoefficient
+    {k r : ℕ} (hrk : r < k) (x z : ℕ) : ℕ :=
+  let pair := flattenPairStageCoefficient (k := k) (r := r) x z
+  let split := flattenSplitStageCoefficient hrk x z
+  split + (2 * LocalDecoderAsymptotic.decoderPathMultiplier k r * z +
+    flattenAuxLoad k r z + flattenEliminationFreeLoad hrk pair +
+      flattenSplitFreeLoad hrk split)
+
+/-- A common coefficient for both the boundary and the block family at the
+next recursive stage. -/
+noncomputable def flattenNextStageCoefficient
+    {k r : ℕ} (hrk : r < k) (x z : ℕ) : ℕ :=
+  nextFlattenMultiplicity x * flattenBoundaryStageCoefficient hrk x z
+
+lemma flattenStageCoefficient_chain
+    {k r x z : ℕ} (hrk : r < k) (hz : 0 < z) :
+    0 < flattenPairStageCoefficient (k := k) (r := r) x z ∧
+    z ≤ flattenPairStageCoefficient (k := k) (r := r) x z ∧
+    flattenPairStageCoefficient (k := k) (r := r) x z ≤
+      flattenSplitStageCoefficient hrk x z ∧
+    flattenSplitStageCoefficient hrk x z ≤
+      flattenBoundaryStageCoefficient hrk x z ∧
+    flattenBoundaryStageCoefficient hrk x z ≤
+      flattenNextStageCoefficient hrk x z := by
+  have hnext : 0 < nextFlattenMultiplicity x := by
+    simp [nextFlattenMultiplicity]
+  let pair := flattenPairStageCoefficient (k := k) (r := r) x z
+  let split := flattenSplitStageCoefficient hrk x z
+  let boundary := flattenBoundaryStageCoefficient hrk x z
+  have hpairPos : 0 < pair := by
+    simp [pair, flattenPairStageCoefficient]
+    omega
+  have hzPair : z ≤ pair := by
+    simp [pair, flattenPairStageCoefficient]
+  have hpairSplit : pair ≤ split := by
+    simp [split, flattenSplitStageCoefficient, pair]
+  have hsplitBoundary : split ≤ boundary := by
+    simp [boundary, flattenBoundaryStageCoefficient, split, pair]
+  have hboundaryNext : boundary ≤ flattenNextStageCoefficient hrk x z := by
+    simpa [flattenNextStageCoefficient, boundary] using
+      Nat.le_mul_of_pos_left boundary hnext
+  exact ⟨hpairPos, hzPair, hpairSplit, hsplitBoundary, hboundaryNext⟩
+
+/-- Suppressing the common path scale is sound: every path multiplier is
+positive in positive rank. -/
+lemma scalar_mul_pathScale_le_linearStageDegree
+    {c z v r d n : ℕ} (hr : 0 < r) (hcz : c ≤ z) :
+    c * LocalDecoderAsymptotic.decoderPathScale d n ≤
+      linearStageDegree z v r d n := by
+  have hM : 1 ≤ LocalDecoderAsymptotic.decoderPathMultiplier v r :=
+    LocalDecoderAsymptotic.decoderPathMultiplier_pos v r hr
+  simp only [linearStageDegree,
+    LocalDecoderAsymptotic.decoderPathCap]
+  calc
+    c * LocalDecoderAsymptotic.decoderPathScale d n ≤
+        z * LocalDecoderAsymptotic.decoderPathScale d n := by gcongr
+    _ ≤ z * (LocalDecoderAsymptotic.decoderPathMultiplier v r *
+          LocalDecoderAsymptotic.decoderPathScale d n) := by
+      exact Nat.mul_le_mul_left z (by
+        simpa using Nat.mul_le_mul_right
+          (LocalDecoderAsymptotic.decoderPathScale d n) hM)
+
+/-- A deliberately roomy fixed combinatorial loss for a complete twice-split
+round.  Its four summands dominate respectively the intermediate, source,
+two-root, and second-split scalar multipliers. -/
+noncomputable def flattenCoefficientBase {k r : ℕ} (hrk : r < k) : ℕ :=
+  5 + flattenAuxLoad k r 1 +
+    LocalDecoderAsymptotic.decoderPathMultiplier k r +
+    flattenEliminationFreeLoad hrk 1 + flattenSplitFreeLoad hrk 1
+
+noncomputable def flattenCoefficientLoss {k r : ℕ} (hrk : r < k) : ℕ :=
+  flattenCoefficientBase hrk ^ 7
+
+lemma flattenCoefficientLoss_pos {k r : ℕ} (hrk : r < k) :
+    0 < flattenCoefficientLoss hrk := by
+  simp [flattenCoefficientLoss, flattenCoefficientBase]
+
+/-- The exact boundary coefficient is linear in the incoming coefficient
+and at most linear in the current multiplicity. -/
+lemma flattenBoundaryStageCoefficient_le
+    {k r x z : ℕ} (hrk : r < k) (hx : 0 < x) :
+    flattenBoundaryStageCoefficient hrk x z ≤
+      flattenCoefficientLoss hrk * x * z := by
+  let a := flattenAuxLoad k r 1
+  let p := LocalDecoderAsymptotic.decoderPathMultiplier k r
+  let s := flattenEliminationFreeLoad hrk 1
+  let t := flattenSplitFreeLoad hrk 1
+  let C := flattenCoefficientBase hrk
+  let m := Nat.sqrt x + 1
+  let pair := flattenPairStageCoefficient (k := k) (r := r) x z
+  let split := flattenSplitStageCoefficient hrk x z
+  have hC : C = 5 + a + p + s + t := by
+    simp [C, flattenCoefficientBase, a, p, s, t]
+  have hCfive : 5 ≤ C := by omega
+  have ha : a ≤ C := by omega
+  have hp : p ≤ C := by omega
+  have hs : s ≤ C := by omega
+  have ht : t ≤ C := by omega
+  have hxone : 1 ≤ x := hx
+  have hm : m ≤ 2 * x := by
+    dsimp [m]
+    have := Nat.sqrt_le_self x
+    omega
+  have hauxEq : flattenAuxLoad k r z = a * z := by
+    simp [flattenAuxLoad, a]
+  have helimEq (q : ℕ) : flattenEliminationFreeLoad hrk q = s * q := by
+    simp [flattenEliminationFreeLoad, s]
+  have hsplitFreeEq (q : ℕ) : flattenSplitFreeLoad hrk q = t * q := by
+    simp [flattenSplitFreeLoad, t]
+  have hpairEq : pair = (1 + m * a + p + a) * z := by
+    simp [pair, flattenPairStageCoefficient, hauxEq, p, m]
+    ring
+  have hma : m * a ≤ (2 * x) * C := Nat.mul_le_mul hm ha
+  have hCpos : 0 < C := by omega
+  have hone : 1 ≤ C * x :=
+    Nat.one_le_iff_ne_zero.mpr (Nat.ne_of_gt (Nat.mul_pos hCpos hx))
+  have hpCx : p ≤ C * x := hp.trans
+    (Nat.le_mul_of_pos_right C hx)
+  have haCx : a ≤ C * x := ha.trans
+    (Nat.le_mul_of_pos_right C hx)
+  have hpairCoeff : 1 + m * a + p + a ≤ C ^ 2 * x := by
+    have hsum : 1 + m * a + p + a ≤ 5 * (C * x) := by
+      nlinarith
+    calc
+      1 + m * a + p + a ≤ 5 * (C * x) := hsum
+      _ ≤ C * (C * x) := Nat.mul_le_mul_right (C * x) hCfive
+      _ = C ^ 2 * x := by ring
+  have hpair : pair ≤ C ^ 2 * x * z := by
+    rw [hpairEq]
+    exact Nat.mul_le_mul_right z hpairCoeff
+  have hsplitEq : split = pair + ((2 * p + a) * z + s * pair) := by
+    simp [split, flattenSplitStageCoefficient, pair, p, hauxEq, helimEq]
+    ring
+  have hbase : (2 * p + a) * z ≤ C ^ 3 * x * z := by
+    apply Nat.mul_le_mul_right z
+    have hcoeff : 2 * p + a ≤ 3 * C := by omega
+    have h3C : 3 * C ≤ C ^ 3 * x := by
+      have hC3 : 3 ≤ C := by omega
+      calc
+        3 * C ≤ C * C := Nat.mul_le_mul_right C hC3
+        _ ≤ C ^ 3 * x := by
+          rw [show C * C = C ^ 2 by ring]
+          calc
+            C ^ 2 ≤ C ^ 2 * (C * x) :=
+              Nat.le_mul_of_pos_right _ (Nat.mul_pos hCpos hx)
+            _ = C ^ 3 * x := by ring
+    exact hcoeff.trans h3C
+  have hspair : s * pair ≤ C ^ 3 * x * z := by
+    calc
+      s * pair ≤ C * (C ^ 2 * x * z) := Nat.mul_le_mul hs hpair
+      _ = C ^ 3 * x * z := by ring
+  have hpairC3 : pair ≤ C ^ 3 * x * z := hpair.trans (by
+    apply Nat.mul_le_mul_right z
+    apply Nat.mul_le_mul_right x
+    exact Nat.pow_le_pow_right (by positivity : 0 < C) (by omega : 2 ≤ 3))
+  have hsplit : split ≤ C ^ 4 * x * z := by
+    rw [hsplitEq]
+    have hsum : pair + ((2 * p + a) * z + s * pair) ≤
+        3 * (C ^ 3 * x * z) := by omega
+    exact hsum.trans (by
+      calc
+        3 * (C ^ 3 * x * z) ≤ C * (C ^ 3 * x * z) :=
+          Nat.mul_le_mul_right _ (by omega)
+        _ = C ^ 4 * x * z := by ring)
+  have hboundaryEq : flattenBoundaryStageCoefficient hrk x z =
+      split + ((2 * p + a) * z + s * pair + t * split) := by
+    simp [flattenBoundaryStageCoefficient, split, pair, p, hauxEq,
+      helimEq, hsplitFreeEq]
+    ring
+  have hpairC5 : pair ≤ C ^ 5 * x * z := hpair.trans (by
+    apply Nat.mul_le_mul_right z
+    apply Nat.mul_le_mul_right x
+    exact Nat.pow_le_pow_right (by positivity : 0 < C) (by omega : 2 ≤ 5))
+  have hbaseC5 : (2 * p + a) * z ≤ C ^ 5 * x * z :=
+    hbase.trans (by
+      apply Nat.mul_le_mul_right z
+      apply Nat.mul_le_mul_right x
+      exact Nat.pow_le_pow_right (by positivity : 0 < C) (by omega : 3 ≤ 5))
+  have hsplitC5 : split ≤ C ^ 5 * x * z := hsplit.trans (by
+    apply Nat.mul_le_mul_right z
+    apply Nat.mul_le_mul_right x
+    exact Nat.pow_le_pow_right (by positivity : 0 < C) (by omega : 4 ≤ 5))
+  have hspairC5 : s * pair ≤ C ^ 5 * x * z := by
+    calc
+      s * pair ≤ C * (C ^ 2 * x * z) := Nat.mul_le_mul hs hpair
+      _ = C ^ 3 * x * z := by ring
+      _ ≤ C ^ 5 * x * z := by
+        apply Nat.mul_le_mul_right z
+        apply Nat.mul_le_mul_right x
+        exact Nat.pow_le_pow_right hCpos (by omega)
+  have htsplitC5 : t * split ≤ C ^ 5 * x * z := by
+    calc
+      t * split ≤ C * (C ^ 4 * x * z) := Nat.mul_le_mul ht hsplit
+      _ = C ^ 5 * x * z := by ring
+  rw [hboundaryEq]
+  have hsum : split + ((2 * p + a) * z + s * pair + t * split) ≤
+      4 * (C ^ 5 * x * z) := by omega
+  calc
+    split + ((2 * p + a) * z + s * pair + t * split) ≤
+        4 * (C ^ 5 * x * z) := hsum
+    _ ≤ C * (C ^ 5 * x * z) :=
+      Nat.mul_le_mul_right _ (by omega)
+    _ = C ^ 6 * x * z := by ring
+    _ ≤ C ^ 7 * x * z := by
+      apply Nat.mul_le_mul_right z
+      apply Nat.mul_le_mul_right x
+      exact Nat.pow_le_pow_right hCpos (by omega)
+    _ = flattenCoefficientLoss hrk * x * z := by
+      simp [flattenCoefficientLoss, C]
+
+/-- One recurrence step itself costs at most a fixed constant times `x²`. -/
+lemma flattenNextStageCoefficient_le
+    {k r x z : ℕ} (hrk : r < k) (hx : 4 < x) :
+    flattenNextStageCoefficient hrk x z ≤
+      flattenCoefficientLoss hrk * x ^ 2 * z := by
+  have hnext : nextFlattenMultiplicity x ≤ x :=
+    (nextFlattenMultiplicity_lt_self hx).le
+  have hboundary := flattenBoundaryStageCoefficient_le (z := z) hrk
+    (by omega : 0 < x)
+  calc
+    flattenNextStageCoefficient hrk x z =
+        nextFlattenMultiplicity x *
+          flattenBoundaryStageCoefficient hrk x z := rfl
+    _ ≤ x * (flattenCoefficientLoss hrk * x * z) :=
+      Nat.mul_le_mul hnext hboundary
+    _ = flattenCoefficientLoss hrk * x ^ 2 * z := by ring
+
+/-- The fourth power of the multiplicity contracts enough to pay for the
+quadratic coefficient loss of the preceding lemma. -/
+lemma nextFlattenMultiplicity_pow_four_le
+    {x : ℕ} (hx : 4 < x) :
+    nextFlattenMultiplicity x ^ 4 ≤ 16 * x ^ 2 := by
+  have hsqrtTwo : 2 ≤ Nat.sqrt x := Nat.le_sqrt.mpr (by omega)
+  have hnext : nextFlattenMultiplicity x = Nat.sqrt x + 2 := by
+    simp [nextFlattenMultiplicity, max_eq_left, hsqrtTwo]
+  have hadd : Nat.sqrt x + 2 ≤ 2 * Nat.sqrt x := by omega
+  calc
+    nextFlattenMultiplicity x ^ 4 ≤ (2 * Nat.sqrt x) ^ 4 := by
+      rw [hnext]
+      exact Nat.pow_le_pow_left hadd 4
+    _ = 16 * (Nat.sqrt x ^ 2) ^ 2 := by ring
+    _ ≤ 16 * x ^ 2 := by
+      gcongr
+      exact Nat.sqrt_le' x
+
+/-- Potential inequality used by the well-founded quantitative iteration. -/
+lemma flattenNextStage_potential_le
+    {k r x z : ℕ} (hrk : r < k) (hx : 4 < x) :
+    flattenNextStageCoefficient hrk x z *
+        nextFlattenMultiplicity x ^ 4 ≤
+      (16 * flattenCoefficientLoss hrk) * z * x ^ 4 := by
+  calc
+    flattenNextStageCoefficient hrk x z *
+        nextFlattenMultiplicity x ^ 4 ≤
+      (flattenCoefficientLoss hrk * x ^ 2 * z) * (16 * x ^ 2) :=
+        Nat.mul_le_mul (flattenNextStageCoefficient_le hrk hx)
+          (nextFlattenMultiplicity_pow_four_le hx)
+    _ = (16 * flattenCoefficientLoss hrk) * z * x ^ 4 := by ring
+
+/-- A finite certificate for the repeated square-root rounds in Lemma 6.5.
+Each nonterminal round both preserves the integral span and establishes the
+next incidence cap; strict decrease of `nextFlattenMultiplicity` prevents
+an infinite certificate. -/
+inductive IsSquareRootFlattening (n k r : ℕ) :
+    ℕ → Finset (Finset (Fin n)) → Finset (Finset (Fin n)) → Prop
+  | done (x : ℕ) (family : Finset (Finset (Fin n)))
+      (hx : x ≤ 4)
+      (huniform : ∀ Q ∈ family, Q.card = k)
+      (hbound : ∀ e ∈ completeUniform n r,
+        blockIncidenceCount family e ≤ x) :
+      IsSquareRootFlattening n k r x family family
+  | step {x : ℕ}
+      {source next final : Finset (Finset (Fin n))}
+      (hx : 4 < x)
+      (hspan : IntegrallySpans n k r next source)
+      (huniform : ∀ Q ∈ next, Q.card = k)
+      (hbound : ∀ e ∈ completeUniform n r,
+        blockIncidenceCount next e ≤ nextFlattenMultiplicity x)
+      (tail : IsSquareRootFlattening n k r
+        (nextFlattenMultiplicity x) next final) :
+      IsSquareRootFlattening n k r x source final
+
+theorem IsSquareRootFlattening.integrallySpans
+    {n k r x : ℕ} {source final : Finset (Finset (Fin n))}
+    (h : IsSquareRootFlattening n k r x source final) :
+    IntegrallySpans n k r final source := by
+  induction h with
+  | done x family hx huniform hbound =>
+      exact integrallySpans_refl n k r family
+  | step hx hspan huniform hbound tail ih =>
+      exact ih.trans hspan
+
+theorem IsSquareRootFlattening.final_uniform
+    {n k r x : ℕ} {source final : Finset (Finset (Fin n))}
+    (h : IsSquareRootFlattening n k r x source final) :
+    ∀ Q ∈ final, Q.card = k := by
+  induction h with
+  | done x family hx huniform hbound => exact huniform
+  | step hx hspan huniform hbound tail ih => exact ih
+
+theorem IsSquareRootFlattening.final_multiplicity_four
+    {n k r x : ℕ} {source final : Finset (Finset (Fin n))}
+    (h : IsSquareRootFlattening n k r x source final) :
+    ∀ e ∈ completeUniform n r,
+      blockIncidenceCount final e ≤ 4 := by
+  induction h with
+  | done x family hx huniform hbound =>
+      intro e he
+      exact (hbound e he).trans hx
+  | step hx hspan huniform hbound tail ih => exact ih
+
+/-- Integer characteristic coefficient of a finite clique family. -/
+def familyIndicatorCoeff (family : Finset (Finset (Fin n)))
+    (Q : Finset (Fin n)) : ℤ :=
+  if Q ∈ family then 1 else 0
+
+/-- The decoder roots needed after lifting a modular representation: the
+leave itself can contribute only on `reserve`, and the modular vector only
+on the boundary of `modular`. -/
+def integralDecoderRoots (reserve modular : Finset (Finset (Fin n)))
+    (r : ℕ) : Finset (Finset (Fin n)) :=
+  reserve ∪ cliqueBoundarySupport modular r
+
+/-- Every decoder root occurs in the clique boundary of the combined
+modular/decoder input. -/
+lemma integralDecoderRoots_subset_cliqueBoundarySupport_input
+    {n k r : ℕ} (hrk : r ≤ k)
+    {reserve modular : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ completeUniform n r)
+    (hmodularUniform : ∀ Q ∈ modular, Q.card = k)
+    (Z : Finset (Fin n) → Finset (Fin n))
+    (hrootSubset : ∀ e ∈ integralDecoderRoots reserve modular r, e ⊆ Z e)
+    (hcard : ∀ e ∈ integralDecoderRoots reserve modular r,
+      (Z e).card = k + r) :
+    integralDecoderRoots reserve modular r ⊆
+      cliqueBoundarySupport
+        (modular ∪ localDecoderCliques
+          (integralDecoderRoots reserve modular r) Z k) r := by
+  intro e heRoot
+  have heComplete : e ∈ completeUniform n r := by
+    rcases Finset.mem_union.mp heRoot with he | he
+    · exact hreserve he
+    · exact cliqueBoundarySupport_subset_complete hmodularUniform he
+  have hecard : e.card = r := mem_completeUniform.mp heComplete
+  obtain ⟨Q, heQ, hQZ, hQcard⟩ :=
+    Finset.exists_subsuperset_card_eq (hrootSubset e heRoot)
+      (by omega : e.card ≤ k) (by rw [hcard e heRoot]; omega : k ≤ (Z e).card)
+  apply mem_cliqueBoundarySupport.mpr
+  refine ⟨Q, ?_, heQ, hecard⟩
+  apply Finset.mem_union_right
+  apply mem_localDecoderCliques.mpr
+  exact ⟨e, heRoot, Finset.mem_powersetCard.mpr ⟨hQZ, hQcard⟩⟩
+
+lemma modular_union_localDecoderCliques_uniform
+    {n k r : ℕ}
+    {reserve modular : Finset (Finset (Fin n))}
+    (hmodularUniform : ∀ Q ∈ modular, Q.card = k)
+    (Z : Finset (Fin n) → Finset (Fin n)) :
+    ∀ Q ∈ modular ∪ localDecoderCliques
+        (integralDecoderRoots reserve modular r) Z k,
+      Q.card = k := by
+  intro Q hQ
+  rcases Finset.mem_union.mp hQ with hQ | hQ
+  · exact hmodularUniform Q hQ
+  · obtain ⟨e, he, hQe⟩ := mem_localDecoderCliques.mp hQ
+    exact (Finset.mem_powersetCard.mp hQe).2
+
+/-- Finite assembly of Lemmas 6.4 and 6.5.  No probability or asymptotics
+remain: a modular representation is lifted by the explicit `(k+r)`-vertex
+delta decoders and is then transported through the integral-span-preserving
+flattening family. -/
+theorem isSparseIntegralGenerator_of_modular_decoders_flattening
+    {N n k r : ℕ} (hN : N = k.descFactorial r)
+    {reserve modular flattened : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ completeUniform n r)
+    (hmodularUniform : ∀ Q ∈ modular, Q.card = k)
+    (hmodular : IsModularIntegralGenerator N n k r reserve modular)
+    (Z : Finset (Fin n) → Finset (Fin n))
+    (hrootSubset : ∀ e ∈ integralDecoderRoots reserve modular r, e ⊆ Z e)
+    (hambient : ∀ e ∈ integralDecoderRoots reserve modular r,
+      Z e ⊆ (Finset.univ : Finset (Fin n)))
+    (hcard : ∀ e ∈ integralDecoderRoots reserve modular r,
+      (Z e).card = k + r)
+    (hspan : IntegrallySpans n k r flattened
+      (modular ∪ localDecoderCliques
+        (integralDecoderRoots reserve modular r) Z k))
+    (hflattenedUniform : ∀ Q ∈ flattened, Q.card = k)
+    (hflattenedMultiplicity : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount flattened e ≤ 4) :
+    IsSparseIntegralGenerator n k r reserve flattened := by
+  classical
+  subst N
+  refine ⟨hflattenedUniform, hflattenedMultiplicity, ?_⟩
+  intro leave hleave hleaveInt
+  obtain ⟨ψ, hψsupport, hψmod⟩ :=
+    hmodular leave hleave hleaveInt
+  let roots := integralDecoderRoots reserve modular r
+  let target : Finset (Fin n) → ℤ := fun e ↦
+    if e ∈ leave then 1 else 0
+  let defect : Finset (Fin n) → ℤ := fun e ↦
+    target e - boundary n k ψ e
+  let m : Finset (Fin n) → ℤ := fun e ↦
+    defect e / (k.descFactorial r : ℤ)
+  let χ : Finset (Fin n) → ℤ :=
+    LocalDecoder.superposedDecoder roots Z k r m
+  let φ : Finset (Fin n) → ℤ := fun Q ↦ ψ Q + χ Q
+  have hrootComplete : roots ⊆ completeUniform n r := by
+    intro e he
+    rcases Finset.mem_union.mp he with heReserve | heModular
+    · exact hreserve heReserve
+    · exact cliqueBoundarySupport_subset_complete hmodularUniform heModular
+  have hχsupport : ∀ Q, χ Q ≠ 0 →
+      Q ∈ localDecoderCliques roots Z k := by
+    intro Q hQ
+    obtain ⟨e, he, hQe⟩ :=
+      LocalDecoder.superposedDecoder_ne_zero_support hQ
+    exact mem_localDecoderCliques.mpr ⟨e, he, hQe⟩
+  have hφsupport : ∀ Q, φ Q ≠ 0 →
+      Q ∈ modular ∪ localDecoderCliques roots Z k := by
+    intro Q hQ
+    by_cases hψQ : ψ Q = 0
+    · apply Finset.mem_union_right
+      apply hχsupport Q
+      simpa [φ, hψQ] using hQ
+    · exact Finset.mem_union_left _ (hψsupport Q hψQ)
+  have hdefectMul (e : Finset (Fin n))
+      (he : e ∈ completeUniform n r) :
+      (k.descFactorial r : ℤ) * m e = defect e := by
+    have hdvd : (k.descFactorial r : ℤ) ∣ defect e := by
+      simpa [defect, target] using hψmod e he
+    change (k.descFactorial r : ℤ) *
+        (defect e / (k.descFactorial r : ℤ)) = defect e
+    rw [mul_comm]
+    exact Int.ediv_mul_cancel hdvd
+  have hχboundary (e : Finset (Fin n))
+      (he : e ∈ completeUniform n r) :
+      boundary n k χ e =
+        (k.descFactorial r : ℤ) * (if e ∈ roots then m e else 0) := by
+    have hlocal := LocalDecoder.intBoundary_superposedDecoder
+      (U := (Finset.univ : Finset (Fin n)))
+      (roots := roots) (Z := Z) (q := k) (r := r) (m := m)
+      (fun e heRoot ↦ by
+        simpa [completeUniform] using hrootComplete heRoot)
+      hrootSubset hambient hcard
+      (by simpa [completeUniform] using he)
+    simpa [χ, LocalDecoder.intBoundary, boundary, blockCandidates,
+      completeUniform] using hlocal
+  have hdefectOutside (e : Finset (Fin n))
+      (he : e ∈ completeUniform n r) (heRoot : e ∉ roots) :
+      defect e = 0 := by
+    have heLeave : e ∉ leave := by
+      intro hel
+      exact heRoot (Finset.mem_union_left _ (hleave hel))
+    have heBoundary : e ∉ cliqueBoundarySupport modular r := by
+      intro hem
+      exact heRoot (Finset.mem_union_right _ hem)
+    have hψzero : boundary n k ψ e = 0 := by
+      rw [boundary]
+      apply Finset.sum_eq_zero
+      intro Q hQ
+      by_cases heQ : e ⊆ Q
+      · rw [if_pos heQ]
+        by_contra hψQ
+        exact heBoundary (mem_cliqueBoundarySupport.mpr
+          ⟨Q, hψsupport Q hψQ, heQ, mem_completeUniform.mp he⟩)
+      · simp [heQ]
+    simp [defect, target, heLeave, hψzero]
+  have hφboundary : ∀ e ∈ completeUniform n r,
+      boundary n k φ e = target e := by
+    intro e he
+    have hadd : boundary n k φ e =
+        boundary n k ψ e + boundary n k χ e := by
+      rw [boundary, boundary, boundary, ← Finset.sum_add_distrib]
+      apply Finset.sum_congr rfl
+      intro Q hQ
+      by_cases heQ : e ⊆ Q <;> simp [φ, heQ]
+    rw [hadd, hχboundary e he]
+    by_cases heRoot : e ∈ roots
+    · rw [if_pos heRoot, hdefectMul e he]
+      simp [defect]
+    · rw [if_neg heRoot, mul_zero]
+      have hz := hdefectOutside e he heRoot
+      dsimp [defect] at hz
+      omega
+  obtain ⟨φ', hφ'support, hφ'boundary⟩ := hspan φ hφsupport
+  refine ⟨φ', hφ'support, ?_⟩
+  intro e he
+  rw [hφ'boundary e he, hφboundary e he]
+
+/-- Source-facing form of the finite assembly theorem: the recursively
+certified square-root process supplies all three flattening conclusions. -/
+theorem isSparseIntegralGenerator_of_modular_decoders_flatteningChain
+    {N n k r x : ℕ} (hN : N = k.descFactorial r)
+    {reserve modular flattened : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ completeUniform n r)
+    (hmodularUniform : ∀ Q ∈ modular, Q.card = k)
+    (hmodular : IsModularIntegralGenerator N n k r reserve modular)
+    (Z : Finset (Fin n) → Finset (Fin n))
+    (hrootSubset : ∀ e ∈ integralDecoderRoots reserve modular r, e ⊆ Z e)
+    (hambient : ∀ e ∈ integralDecoderRoots reserve modular r,
+      Z e ⊆ (Finset.univ : Finset (Fin n)))
+    (hcard : ∀ e ∈ integralDecoderRoots reserve modular r,
+      (Z e).card = k + r)
+    (hflatten : IsSquareRootFlattening n k r x
+      (modular ∪ localDecoderCliques
+        (integralDecoderRoots reserve modular r) Z k) flattened) :
+    IsSparseIntegralGenerator n k r reserve flattened := by
+  exact isSparseIntegralGenerator_of_modular_decoders_flattening
+    hN hreserve hmodularUniform hmodular Z hrootSubset hambient hcard
+      hflatten.integrallySpans hflatten.final_uniform
+        hflatten.final_multiplicity_four
+
+lemma one_lt_choose_of_pos_lt {r k : ℕ} (hr : 0 < r) (hrk : r < k) :
+    1 < Nat.choose k r := by
+  have hpos : 0 < Nat.choose k r := Nat.choose_pos hrk.le
+  have hne : Nat.choose k r ≠ 1 := by
+    intro heq
+    rcases Nat.choose_eq_one_iff.mp heq with hrzero | hkr
+    · exact hr.ne' hrzero
+    · exact hrk.ne hkr.symm
+  omega
+
+lemma exists_powersetCard_ne
+    {Q e : Finset (Fin n)} {k r : ℕ}
+    (hr : 0 < r) (hrk : r < k) (hQcard : Q.card = k) :
+    ∃ g ∈ Q.powersetCard r, g ≠ e := by
+  have hcard : 1 < (Q.powersetCard r).card := by
+    rw [Finset.card_powersetCard, hQcard]
+    exact one_lt_choose_of_pos_lt hr hrk
+  obtain ⟨g, hg, h, hh, hgh⟩ := Finset.one_lt_card.mp hcard
+  by_cases hge : g = e
+  · exact ⟨h, hh, fun hhe ↦ hgh (hge.trans hhe.symm)⟩
+  · exact ⟨g, hg, hge⟩
+
+/-- A full embedding of the rooted clique pattern has as its free edges
+exactly the `r`-subsets of its image other than the image of the root. -/
+lemma imageFreeEdges_coverPattern_eq_clique_sdiff
+    {n k r : ℕ} (hrk : r ≤ k) (φ : Fin k ↪ Fin n) :
+    RootedEmbedding.imageFreeEdges (CoverClique.coverPattern k r) φ =
+      ((Finset.univ : Finset (Fin k)).map φ).powersetCard r \
+        {RootedEmbedding.mapEdge φ (CoverClique.coverRoot k r)} := by
+  classical
+  let request : RootedEmbedding.RootRequest k n
+      (CoverClique.coverRoot k r) :=
+    { map := φ
+      injOn := φ.injective.injOn }
+  have h := CoverClique.imageFreeEdges_coverPattern_eq_spill
+    hrk request
+      (RootedEmbedding.mapEdge φ (CoverClique.coverRoot k r))
+      ((Finset.univ : Finset (Fin k)).map φ) φ
+      (by intro x hx; rfl)
+      (by simp [RootedEmbedding.requestImage, RootedEmbedding.mapEdge,
+        request, Finset.map_eq_image]) rfl
+  simpa [Reserve.cliqueEdges] using h
+
+/-- Number of canonical groups in one square-root round. -/
+noncomputable def sqrtGroupDepth (n r : ℕ)
+    (family : Finset (Finset (Fin n))) : ℕ :=
+  Fintype.card (SqrtGroupIndex n r family)
+
+/-- Decode a position in the finite group schedule. -/
+noncomputable def sqrtGroupIndexAt
+    {n r : ℕ} {family : Finset (Finset (Fin n))}
+    (i : Fin (sqrtGroupDepth n r family)) :
+    SqrtGroupIndex n r family :=
+  (Fintype.equivFin (SqrtGroupIndex n r family)).symm i
+
+/-- Position of one canonical group in the finite request schedule. -/
+noncomputable def sqrtGroupPosition
+    {n r : ℕ} {family : Finset (Finset (Fin n))}
+    (I : SqrtGroupIndex n r family) :
+    Fin (sqrtGroupDepth n r family) :=
+  Fintype.equivFin (SqrtGroupIndex n r family) I
+
+@[simp] lemma sqrtGroupIndexAt_position
+    {n r : ℕ} {family : Finset (Finset (Fin n))}
+    (I : SqrtGroupIndex n r family) :
+    sqrtGroupIndexAt (sqrtGroupPosition I) = I := by
+  simp [sqrtGroupIndexAt, sqrtGroupPosition]
+
+lemma sqrtGroupPosition_injective
+    {n r : ℕ} {family : Finset (Finset (Fin n))} :
+    Function.Injective (sqrtGroupPosition : SqrtGroupIndex n r family →
+      Fin (sqrtGroupDepth n r family)) :=
+  (Fintype.equivFin (SqrtGroupIndex n r family)).injective
+
+/-- A root request whose image is the high edge of one canonical group. -/
+noncomputable def sqrtGroupRootRequest
+    {n k r : ℕ} [Nonempty (Fin n)] (hrk : r ≤ k)
+    {family : Finset (Finset (Fin n))}
+    (I : SqrtGroupIndex n r family) :
+    RootedEmbedding.RootRequest k n (CoverClique.coverRoot k r) :=
+  Classical.choose (CoverClique.exists_rootRequest_with_image
+    (CoverClique.coverRoot k r) I.1.1 (by
+      rw [CoverClique.card_coverRoot hrk]
+      exact (mem_completeUniform.mp
+        (mem_highMultiplicityEdges.mp I.1.2).1).symm))
+
+@[simp] lemma requestImage_sqrtGroupRootRequest
+    {n k r : ℕ} [Nonempty (Fin n)] (hrk : r ≤ k)
+    {family : Finset (Finset (Fin n))}
+    (I : SqrtGroupIndex n r family) :
+    RootedEmbedding.requestImage (CoverClique.coverRoot k r)
+      (sqrtGroupRootRequest hrk I) = I.1.1 :=
+  Classical.choose_spec (CoverClique.exists_rootRequest_with_image
+    (CoverClique.coverRoot k r) I.1.1 (by
+      rw [CoverClique.card_coverRoot hrk]
+      exact (mem_completeUniform.mp
+        (mem_highMultiplicityEdges.mp I.1.2).1).symm))
+
+/-- Total request sequence obtained by enumerating the group indices.  The
+fallback is never inspected below `sqrtGroupDepth`; it merely makes the
+schedule a total function on `ℕ`. -/
+noncomputable def sqrtGroupRequest
+    {n k r : ℕ} [Nonempty (Fin n)] (hrk : r ≤ k)
+    {family : Finset (Finset (Fin n))} (η : Fin k ↪ Fin n) :
+    ℕ → RootedEmbedding.RootRequest k n (CoverClique.coverRoot k r) :=
+  fun t ↦ if ht : t < sqrtGroupDepth n r family then
+    sqrtGroupRootRequest hrk (sqrtGroupIndexAt ⟨t, ht⟩)
+  else
+    { map := η
+      injOn := η.injective.injOn }
+
+lemma requestImage_sqrtGroupRequest
+    {n k r : ℕ} [Nonempty (Fin n)] (hrk : r ≤ k)
+    {family : Finset (Finset (Fin n))} (η : Fin k ↪ Fin n)
+    (i : Fin (sqrtGroupDepth n r family)) :
+    RootedEmbedding.requestImage (CoverClique.coverRoot k r)
+        (sqrtGroupRequest (family := family) hrk η i.1) =
+      (sqrtGroupIndexAt i).1.1 := by
+  simp [sqrtGroupRequest, i.2]
+
+/-- The group request schedule is charged injectively to its chosen old
+anchors.  Consequently its root-part occurrence bound is governed by the
+codimension-one degree of the old clique family, independently of the
+number of groups over one high edge. -/
+lemma sqrtGroupRequest_hasRootPartCountBound
+    {n k r D : ℕ} [Nonempty (Fin n)] (hr : 0 < r) (hrk : r < k)
+    {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hunique : HasUniqueHighEdge n r family)
+    (η : Fin k ↪ Fin n)
+    (hdegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree family J ≤ D) :
+    RootSchedule.HasRootPartCountBound
+      (CoverClique.coverPattern k r)
+      (sqrtGroupRequest (family := family) hrk.le η)
+      (sqrtGroupDepth n r family) D := by
+  intro a ha I hI
+  let blockAt : Fin (sqrtGroupDepth n r family) → Finset (Fin n) :=
+    fun i ↦ sqrtGroupAnchor (sqrtGroupIndexAt i)
+  have hblockMem : ∀ i, blockAt i ∈ family := by
+    intro i
+    exact (Finset.mem_filter.mp
+      (sqrtGroupingAt_group_subset family
+        (sqrtGroupIndexAt i).1.1 (sqrtGroupIndexAt i).1.2
+        (sqrtGroupIndexAt i).2.2
+        (sqrtGroupAnchor_mem (sqrtGroupIndexAt i)))).1
+  have hcover : ∀ i,
+      RootedEmbedding.rootPartImage (CoverClique.coverRoot k r)
+          (sqrtGroupRequest (family := family) hrk.le η i.1) a ⊆ blockAt i := by
+    intro i
+    have hrootPart := RootSchedule.rootPartImage_subset_requestImage
+      (CoverClique.coverRoot k r)
+        (sqrtGroupRequest (family := family) hrk.le η i.1) a
+    rw [requestImage_sqrtGroupRequest (family := family) hrk.le η i]
+      at hrootPart
+    exact hrootPart.trans
+      (Finset.mem_filter.mp
+        (sqrtGroupingAt_group_subset family
+          (sqrtGroupIndexAt i).1.1 (sqrtGroupIndexAt i).1.2
+          (sqrtGroupIndexAt i).2.2
+          (sqrtGroupAnchor_mem (sqrtGroupIndexAt i)))).2
+  have hfiber : ∀ Q ∈ family,
+      ((Finset.univ : Finset (Fin (sqrtGroupDepth n r family))).filter
+        fun i ↦ blockAt i = Q).card ≤ 1 := by
+    intro Q hQ
+    apply Finset.card_le_one.mpr
+    intro i hi j hj
+    have hanchors : sqrtGroupAnchor (sqrtGroupIndexAt i) =
+        sqrtGroupAnchor (sqrtGroupIndexAt j) :=
+      (Finset.mem_filter.mp hi).2.trans (Finset.mem_filter.mp hj).2.symm
+    have hindices := sqrtGroupAnchor_injective hunique hanchors
+    exact (Fintype.equivFin (SqrtGroupIndex n r family)).symm.injective hindices
+  calc
+    (RootSchedule.rootPartIndicesContaining
+        (CoverClique.coverPattern k r)
+          (sqrtGroupRequest (family := family) hrk.le η)
+        (sqrtGroupDepth n r family) a I).card ≤
+        Reserve.localDegree family I * 1 :=
+      RootSchedule.card_rootPartIndicesContaining_le_localDegree_mul_of_cover
+        (CoverClique.coverPattern k r)
+          (sqrtGroupRequest (family := family) hrk.le η)
+          (sqrtGroupDepth n r family) family 1 blockAt a hblockMem hcover
+            hfiber I
+    _ = Reserve.localDegree family I := by omega
+    _ ≤ n ^ (r - 1 - I.card) * D :=
+      RootSchedule.localDegree_le_pow_mul_of_codimOne_of_uniform
+        family huniform (by omega) I hI D hdegree
+
+/-- The bounded multi-rooted clique allocator supplies all intermediate
+cliques required by one square-root grouping round.  The canonical group
+slot is the repeated-copy index at its high edge. -/
+noncomputable def sqrtIntermediateAssignmentOfMultiRooted
+    {n k r M C : ℕ} (hr : 0 < r) (hrk : r < k)
+    {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hgroups : ∀ e : ↑(highMultiplicityEdges n r 4 family),
+      (sqrtGroupingAt family e.1 e.2).parts.card ≤ M)
+    (S : RootedFamilyMultiEmbedding.BoundedMultiRootedFamilyEmbeddings
+      (CoverClique.coverPattern k r)
+      (highMultiplicityEdges n r 4 family)
+      (cliqueBoundarySupport family r) M C) :
+    SqrtIntermediateAssignment n k r family := by
+  classical
+  let φ : SqrtGroupIndex n r family → (Fin k ↪ Fin n) := fun I ↦
+    S.embedding I.1.1 I.1.2 (sqrtGroupSlot hgroups I)
+  let intermediate : SqrtGroupIndex n r family → Finset (Fin n) :=
+    fun I ↦ (Finset.univ : Finset (Fin k)).map (φ I)
+  have hroot (I : SqrtGroupIndex n r family) :
+      RootedEmbedding.mapEdge (φ I) (CoverClique.coverRoot k r) =
+        I.1.1 := by
+    exact S.root_image I.1.1 I.1.2 (sqrtGroupSlot hgroups I)
+  have hfree (I : SqrtGroupIndex n r family) :
+      RootedEmbedding.imageFreeEdges (CoverClique.coverPattern k r) (φ I) =
+        (intermediate I).powersetCard r \ {I.1.1} := by
+    rw [imageFreeEdges_coverPattern_eq_clique_sdiff hrk.le (φ I),
+      hroot I]
+  have hrootSubset (I : SqrtGroupIndex n r family) :
+      I.1.1 ⊆ intermediate I := by
+    rw [← hroot I]
+    exact Finset.map_subset_map.mpr
+      (Finset.subset_univ (CoverClique.coverRoot k r))
+  have hsourceEdge (I : SqrtGroupIndex n r family)
+      (e : Finset (Fin n))
+      (heSource : e ∈ cliqueBoundarySupport family r)
+      (heSub : e ⊆ intermediate I) : e = I.1.1 := by
+    obtain ⟨Q₀, hQ₀, heQ₀, hecard⟩ :=
+      mem_cliqueBoundarySupport.mp heSource
+    by_contra hne
+    have heClique : e ∈ (intermediate I).powersetCard r :=
+      Finset.mem_powersetCard.mpr ⟨heSub, hecard⟩
+    have heFree : e ∈ RootedEmbedding.imageFreeEdges
+        (CoverClique.coverPattern k r) (φ I) := by
+      rw [hfree I]
+      exact Finset.mem_sdiff.mpr ⟨heClique, by simpa using hne⟩
+    exact Finset.disjoint_left.mp
+      (S.free_disjoint_forbidden I.1.1 I.1.2
+        (sqrtGroupSlot hgroups I)) heFree heSource
+  refine
+    { intermediate := intermediate
+      card_eq := ?_
+      inter_eq := ?_
+      source_edge_eq := ?_
+      free_pairwise := ?_ }
+  · intro I
+    simp [intermediate]
+  · intro I Q hQgroup
+    have hQfibre : Q ∈ incidentBlockFibre family I.1.1 :=
+      sqrtGroupingAt_group_subset family I.1.1 I.1.2 I.2.2 hQgroup
+    have hQdata := Finset.mem_filter.mp hQfibre
+    have hrootInter : I.1.1 ⊆ intermediate I ∩ Q := by
+      exact fun x hx ↦ Finset.mem_inter.mpr
+        ⟨hrootSubset I hx, hQdata.2 hx⟩
+    have hinterRoot : intermediate I ∩ Q ⊆ I.1.1 := by
+      by_contra hnot
+      have hproper : I.1.1 ⊂ intermediate I ∩ Q :=
+        ⟨hrootInter, fun hreverse ↦ hnot hreverse⟩
+      have hrootCard : I.1.1.card = r :=
+        mem_completeUniform.mp
+          (mem_highMultiplicityEdges.mp I.1.2).1
+      have hcardLt : r < (intermediate I ∩ Q).card := by
+        simpa [hrootCard] using Finset.card_lt_card hproper
+      obtain ⟨g, hgInter, hgne⟩ :=
+        exists_powersetCard_ne hr hcardLt
+          (Q := intermediate I ∩ Q) (e := I.1.1) rfl
+      have hgData := Finset.mem_powersetCard.mp hgInter
+      have hgSource : g ∈ cliqueBoundarySupport family r := by
+        exact mem_cliqueBoundarySupport.mpr
+          ⟨Q, hQdata.1, hgData.1.trans Finset.inter_subset_right,
+            hgData.2⟩
+      have hgSub : g ⊆ intermediate I :=
+        hgData.1.trans Finset.inter_subset_left
+      exact hgne (hsourceEdge I g hgSource hgSub)
+    exact Finset.Subset.antisymm hinterRoot hrootInter
+  · intro I e heSource heSub
+    exact hsourceEdge I e heSource heSub
+  · intro I J hIJ
+    rw [← hfree I, ← hfree J]
+    apply S.free_pairwise I.1.1 I.1.2 (sqrtGroupSlot hgroups I)
+      J.1.1 J.1.2 (sqrtGroupSlot hgroups J)
+    intro hpair
+    exact hIJ (sqrtGroupEdge_slot_injective hgroups hpair)
+
+/-- Requested-family form of the intermediate assignment.  Unlike the
+multi-rooted wrapper, its quantitative input is the sharp anchor-charged
+root-part count, so the number of groups over a single high edge need not
+be bounded by a fixed asymptotic constant. -/
+noncomputable def sqrtIntermediateAssignmentOfRequested
+    {n k r C : ℕ} [Nonempty (Fin n)] (hr : 0 < r) (hrk : r < k)
+    {family : Finset (Finset (Fin n))} (η : Fin k ↪ Fin n)
+    (S : RequestedFamilyEmbedding.BoundedRequestedFamilyEmbeddings
+      (CoverClique.coverPattern k r)
+      (sqrtGroupRequest (family := family) hrk.le η)
+      (cliqueBoundarySupport family r) (sqrtGroupDepth n r family) C) :
+    SqrtIntermediateAssignment n k r family := by
+  classical
+  let φ : SqrtGroupIndex n r family → (Fin k ↪ Fin n) := fun I ↦
+    S.embedding (sqrtGroupPosition I)
+  let intermediate : SqrtGroupIndex n r family → Finset (Fin n) :=
+    fun I ↦ (Finset.univ : Finset (Fin k)).map (φ I)
+  have hroot (I : SqrtGroupIndex n r family) :
+      RootedEmbedding.mapEdge (φ I) (CoverClique.coverRoot k r) =
+        I.1.1 := by
+    calc
+      RootedEmbedding.mapEdge (φ I) (CoverClique.coverRoot k r) =
+          RootedEmbedding.requestImage (CoverClique.coverRoot k r)
+            (sqrtGroupRequest (family := family) hrk.le η
+              (sqrtGroupPosition I).1) :=
+        RootedEmbedding.mapEdge_root_eq_requestImage_of_extends
+          (CoverClique.coverRoot k r)
+          (sqrtGroupRequest (family := family) hrk.le η
+            (sqrtGroupPosition I).1) (φ I)
+          (S.extends_request (sqrtGroupPosition I))
+      _ = (sqrtGroupIndexAt (sqrtGroupPosition I)).1.1 :=
+        requestImage_sqrtGroupRequest (family := family) hrk.le η
+          (sqrtGroupPosition I)
+      _ = I.1.1 := by rw [sqrtGroupIndexAt_position]
+  have hfree (I : SqrtGroupIndex n r family) :
+      RootedEmbedding.imageFreeEdges (CoverClique.coverPattern k r) (φ I) =
+        (intermediate I).powersetCard r \ {I.1.1} := by
+    rw [imageFreeEdges_coverPattern_eq_clique_sdiff hrk.le (φ I),
+      hroot I]
+  have hrootSubset (I : SqrtGroupIndex n r family) :
+      I.1.1 ⊆ intermediate I := by
+    rw [← hroot I]
+    exact Finset.map_subset_map.mpr
+      (Finset.subset_univ (CoverClique.coverRoot k r))
+  have hsourceEdge (I : SqrtGroupIndex n r family)
+      (e : Finset (Fin n))
+      (heSource : e ∈ cliqueBoundarySupport family r)
+      (heSub : e ⊆ intermediate I) : e = I.1.1 := by
+    obtain ⟨Q₀, hQ₀, heQ₀, hecard⟩ :=
+      mem_cliqueBoundarySupport.mp heSource
+    by_contra hne
+    have heClique : e ∈ (intermediate I).powersetCard r :=
+      Finset.mem_powersetCard.mpr ⟨heSub, hecard⟩
+    have heFree : e ∈ RootedEmbedding.imageFreeEdges
+        (CoverClique.coverPattern k r) (φ I) := by
+      rw [hfree I]
+      exact Finset.mem_sdiff.mpr ⟨heClique, by simpa using hne⟩
+    exact Finset.disjoint_left.mp
+      (S.free_disjoint_forbidden (sqrtGroupPosition I)) heFree heSource
+  refine
+    { intermediate := intermediate
+      card_eq := ?_
+      inter_eq := ?_
+      source_edge_eq := ?_
+      free_pairwise := ?_ }
+  · intro I
+    simp [intermediate]
+  · intro I Q hQgroup
+    have hQfibre : Q ∈ incidentBlockFibre family I.1.1 :=
+      sqrtGroupingAt_group_subset family I.1.1 I.1.2 I.2.2 hQgroup
+    have hQdata := Finset.mem_filter.mp hQfibre
+    have hrootInter : I.1.1 ⊆ intermediate I ∩ Q := by
+      exact fun x hx ↦ Finset.mem_inter.mpr
+        ⟨hrootSubset I hx, hQdata.2 hx⟩
+    have hinterRoot : intermediate I ∩ Q ⊆ I.1.1 := by
+      by_contra hnot
+      have hproper : I.1.1 ⊂ intermediate I ∩ Q :=
+        ⟨hrootInter, fun hreverse ↦ hnot hreverse⟩
+      have hrootCard : I.1.1.card = r :=
+        mem_completeUniform.mp
+          (mem_highMultiplicityEdges.mp I.1.2).1
+      have hcardLt : r < (intermediate I ∩ Q).card := by
+        simpa [hrootCard] using Finset.card_lt_card hproper
+      obtain ⟨g, hgInter, hgne⟩ :=
+        exists_powersetCard_ne hr hcardLt
+          (Q := intermediate I ∩ Q) (e := I.1.1) rfl
+      have hgData := Finset.mem_powersetCard.mp hgInter
+      have hgSource : g ∈ cliqueBoundarySupport family r := by
+        exact mem_cliqueBoundarySupport.mpr
+          ⟨Q, hQdata.1, hgData.1.trans Finset.inter_subset_right,
+            hgData.2⟩
+      have hgSub : g ⊆ intermediate I :=
+        hgData.1.trans Finset.inter_subset_left
+      exact hgne (hsourceEdge I g hgSource hgSub)
+    exact Finset.Subset.antisymm hinterRoot hrootInter
+  · intro I e heSource heSub
+    exact hsourceEdge I e heSource heSub
+  · intro I J hIJ
+    rw [← hfree I, ← hfree J]
+    apply S.free_pairwise (sqrtGroupPosition I) (sqrtGroupPosition J)
+    exact fun hpos ↦ hIJ (sqrtGroupPosition_injective hpos)
+
+/-- Eventual placement of all square-root intermediate cliques with no
+fixed bound on the number of groups over one edge.  The request numerator
+is charged to distinct old anchors, while the newly used free edges inherit
+the usual doubled-denominator power bound from the random-greedy path cap. -/
+theorem eventually_exists_sqrtIntermediateAssignment
+    (k r d : ℕ) (hr : 0 < r) (hrk : r < k) (hd : 0 < d) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ family : Finset (Finset (Fin n)),
+      (∀ Q ∈ family, Q.card = k) →
+      HasUniqueHighEdge n r family →
+      IsPowerBounded n r d 1 family →
+      IsPowerBounded n r d 1 (cliqueBoundarySupport family r) →
+      ∃ A : SqrtIntermediateAssignment n k r family,
+        IsPowerBounded n r (2 * d)
+          ((CoverClique.coverPattern k r).freeEdges.card *
+            LocalDecoderAsymptotic.decoderPathMultiplier k r)
+          (sqrtIntermediateFreeEdges A) := by
+  have hrequested :=
+    RequestedFamilyEmbedding.eventually_exists_boundedRequestedFamilyEmbeddings_of_rootPartBound
+      (CoverClique.coverPattern k r) hr (by
+        rw [CoverClique.coverPattern_root, CoverClique.card_coverRoot hrk.le]
+        exact hrk) (by
+          rw [CoverClique.coverPattern_root,
+            CoverClique.card_coverRoot hrk.le]) hd 1 (by omega)
+  filter_upwards [hrequested, Filter.eventually_ge_atTop k,
+      Filter.eventually_ge_atTop 1] with n hrequested hkn hn
+  intro family huniform hunique hfamily hboundary
+  let η : Fin k ↪ Fin n := Fin.castLEEmb hkn
+  haveI : Nonempty (Fin n) := by
+    exact ⟨⟨0, by omega⟩⟩
+  have hfamilyDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree family J ≤
+        LocalDecoderAsymptotic.decoderInputCap d n := by
+    intro J hJ
+    apply LocalDecoderAsymptotic.le_decoderInputCap_of_pow_le d n _ hd
+    have hJmem : J ∈ completeUniform n (r - 1) :=
+      mem_completeUniform.mpr hJ
+    simpa [localDegree, Reserve.localDegree] using hfamily J hJmem
+  have hcount : RootSchedule.HasRootPartCountBound
+      (CoverClique.coverPattern k r)
+      (sqrtGroupRequest (family := family) hrk.le η)
+      (sqrtGroupDepth n r family)
+      (LocalDecoderAsymptotic.decoderInputCap d n) :=
+    sqrtGroupRequest_hasRootPartCountBound hr hrk huniform hunique η
+      hfamilyDegree
+  have hforbiddenUniform : ∀ e ∈ cliqueBoundarySupport family r,
+      e.card = r := by
+    intro e he
+    exact mem_completeUniform.mp
+      (cliqueBoundarySupport_subset_complete huniform he)
+  have hforbiddenDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (cliqueBoundarySupport family r) J ^ d ≤
+        n ^ (d - 1) := by
+    intro J hJ
+    have hJmem : J ∈ completeUniform n (r - 1) :=
+      mem_completeUniform.mpr hJ
+    simpa [localDegree, Reserve.localDegree] using hboundary J hJmem
+  have hcount' : RootSchedule.HasRootPartCountBound
+      (CoverClique.coverPattern k r)
+      (sqrtGroupRequest (family := family) hrk.le η)
+      (sqrtGroupDepth n r family)
+      (1 * LocalDecoderAsymptotic.decoderInputCap d n) := by
+    simpa using hcount
+  obtain ⟨S⟩ := hrequested
+    (sqrtGroupRequest (family := family) hrk.le η)
+    (cliqueBoundarySupport family r) (sqrtGroupDepth n r family)
+    hcount' hforbiddenUniform hforbiddenDegree
+  let A : SqrtIntermediateAssignment n k r family :=
+    sqrtIntermediateAssignmentOfRequested hr hrk η S
+  refine ⟨A, ?_⟩
+  let F := (CoverClique.coverPattern k r).freeEdges.card
+  let M := LocalDecoderAsymptotic.decoderPathMultiplier k r
+  let T := LocalDecoderAsymptotic.decoderPathScale d n
+  have hfreeSubset : sqrtIntermediateFreeEdges A ⊆ S.freeUnion := by
+    intro e he
+    obtain ⟨I, _hI, heI⟩ := Finset.mem_biUnion.mp he
+    apply S.image_subset_freeUnion (sqrtGroupPosition I)
+    have hfreeEq : RootedEmbedding.imageFreeEdges
+        (CoverClique.coverPattern k r) (S.embedding (sqrtGroupPosition I)) =
+        (A.intermediate I).powersetCard r \ {I.1.1} := by
+      rw [imageFreeEdges_coverPattern_eq_clique_sdiff hrk.le]
+      have hmap := RootedEmbedding.mapEdge_root_eq_requestImage_of_extends
+        (CoverClique.coverRoot k r)
+        (sqrtGroupRequest (family := family) hrk.le η
+          (sqrtGroupPosition I).1)
+        (S.embedding (sqrtGroupPosition I))
+        (S.extends_request (sqrtGroupPosition I))
+      rw [requestImage_sqrtGroupRequest (family := family) hrk.le η
+        (sqrtGroupPosition I), sqrtGroupIndexAt_position] at hmap
+      rw [hmap]
+      rfl
+    rw [hfreeEq]
+    exact heI
+  intro J hJmem
+  have hJ : J.card = r - 1 := mem_completeUniform.mp hJmem
+  have hlocal : localDegree (sqrtIntermediateFreeEdges A) J ≤
+      F * RootedFamilyAsymptotic.scaledDecoderPathCap 1 k r d n := by
+    calc
+      localDegree (sqrtIntermediateFreeEdges A) J ≤
+          localDegree S.freeUnion J := by
+        exact Finset.card_le_card
+          (Finset.filter_subset_filter (fun e ↦ J ⊆ e) hfreeSubset)
+      _ ≤ F * RootedFamilyAsymptotic.scaledDecoderPathCap 1 k r d n := by
+        simpa [localDegree, Reserve.localDegree, F] using S.free_degree_le J hJ
+  have hT := LocalDecoderAsymptotic.decoderPathScale_pow_le d n hd
+  calc
+    localDegree (sqrtIntermediateFreeEdges A) J ^ (2 * d) ≤
+        (F * RootedFamilyAsymptotic.scaledDecoderPathCap 1 k r d n) ^
+          (2 * d) := Nat.pow_le_pow_left hlocal _
+    _ = (F * M) ^ (2 * d) * T ^ (2 * d) := by
+      simp [RootedFamilyAsymptotic.scaledDecoderPathCap,
+        LocalDecoderAsymptotic.decoderPathCap, F, M, T, mul_pow]
+      ring
+    _ ≤ (F * M) ^ (2 * d) * n ^ (2 * d - 1) :=
+      Nat.mul_le_mul_left _ hT
+
+/-- Same-denominator square-root intermediate placement at a specified
+flattening stage.  Unlike the power-bound convenience theorem above, this
+statement records the exact fixed multiplicative loss in codimension-one
+degree. -/
+theorem eventually_exists_sqrtIntermediateAssignment_linearStageBudget
+    (k r d A : ℕ) (hr : 0 < r) (hrk : r < k) (hd : 0 < d)
+    (hA : 0 < A) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ z : ℕ, 0 < z → z ≤ flattenStageBudget A k d n →
+      ∀ family : Finset (Finset (Fin n)),
+      (∀ Q ∈ family, Q.card = k) →
+      HasUniqueHighEdge n r family →
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree family J ≤ linearStageDegree z k r d n) →
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree (cliqueBoundarySupport family r) J ≤
+          linearStageDegree z k r d n) →
+      ∃ X : SqrtIntermediateAssignment n k r family,
+        ∀ J : Finset (Fin n), J.card = r - 1 →
+          Reserve.localDegree (sqrtIntermediateFreeEdges X) J ≤
+            (CoverClique.coverPattern k r).freeEdges.card *
+              linearStageCap z k r d n := by
+  have hrequested :=
+    eventually_exists_boundedRequestedFamilyEmbeddings_linearStageBudget
+      (CoverClique.coverPattern k r) hr (by
+        rw [CoverClique.coverPattern_root, CoverClique.card_coverRoot hrk.le]
+        exact hrk) (by
+          rw [CoverClique.coverPattern_root,
+            CoverClique.card_coverRoot hrk.le]) d A k hd hA (by omega)
+  filter_upwards [hrequested, Filter.eventually_ge_atTop k,
+      Filter.eventually_ge_atTop 1] with n hrequested hkn hn
+  intro z hz hzMax family huniform hunique hfamilyDegree hboundaryDegree
+  let η : Fin k ↪ Fin n := Fin.castLEEmb hkn
+  haveI : Nonempty (Fin n) := by
+    exact ⟨⟨0, by omega⟩⟩
+  have hcount : RootSchedule.HasRootPartCountBound
+      (CoverClique.coverPattern k r)
+      (sqrtGroupRequest (family := family) hrk.le η)
+      (sqrtGroupDepth n r family)
+      (linearStageDegree z k r d n) :=
+    sqrtGroupRequest_hasRootPartCountBound hr hrk huniform hunique η
+      hfamilyDegree
+  have hforbiddenUniform : ∀ e ∈ cliqueBoundarySupport family r,
+      e.card = r := by
+    intro e he
+    exact mem_completeUniform.mp
+      (cliqueBoundarySupport_subset_complete huniform he)
+  obtain ⟨S⟩ := hrequested z hz hzMax
+    (sqrtGroupRequest (family := family) hrk.le η)
+    (cliqueBoundarySupport family r) (sqrtGroupDepth n r family)
+    hcount hforbiddenUniform hboundaryDegree
+  let X : SqrtIntermediateAssignment n k r family :=
+    sqrtIntermediateAssignmentOfRequested hr hrk η S
+  refine ⟨X, ?_⟩
+  let F := (CoverClique.coverPattern k r).freeEdges.card
+  have hfreeSubset : sqrtIntermediateFreeEdges X ⊆ S.freeUnion := by
+    intro e he
+    obtain ⟨I, _hI, heI⟩ := Finset.mem_biUnion.mp he
+    apply S.image_subset_freeUnion (sqrtGroupPosition I)
+    have hfreeEq : RootedEmbedding.imageFreeEdges
+        (CoverClique.coverPattern k r) (S.embedding (sqrtGroupPosition I)) =
+        (X.intermediate I).powersetCard r \ {I.1.1} := by
+      rw [imageFreeEdges_coverPattern_eq_clique_sdiff hrk.le]
+      have hmap := RootedEmbedding.mapEdge_root_eq_requestImage_of_extends
+        (CoverClique.coverRoot k r)
+        (sqrtGroupRequest (family := family) hrk.le η
+          (sqrtGroupPosition I).1)
+        (S.embedding (sqrtGroupPosition I))
+        (S.extends_request (sqrtGroupPosition I))
+      rw [requestImage_sqrtGroupRequest (family := family) hrk.le η
+        (sqrtGroupPosition I), sqrtGroupIndexAt_position] at hmap
+      rw [hmap]
+      rfl
+    rw [hfreeEq]
+    exact heI
+  intro J hJ
+  calc
+    Reserve.localDegree (sqrtIntermediateFreeEdges X) J ≤
+        Reserve.localDegree S.freeUnion J := by
+      exact Finset.card_le_card
+        (Finset.filter_subset_filter (fun e ↦ J ⊆ e) hfreeSubset)
+    _ ≤ F * linearStageCap z k r d n := by
+      simpa [F] using S.free_degree_le J hJ
+
+/-- The generic rooted extension output supplies exactly the simultaneous
+local-decoder placement used by the coefficient-reduction theorem. -/
+noncomputable def localDecoderPlacementOfSeparated
+    {n k r : ℕ} (hr : 0 < r) (hrk : r < k)
+    {generators : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ generators, Q.card = k)
+    {forbidden : Finset (Finset (Fin n))}
+    (hrootForbidden : cliqueBoundarySupport generators r ⊆ forbidden)
+    (S : LocalDecoderEmbedding.SeparatedCliqueExtensions
+      n (k + r) r (cliqueBoundarySupport generators r)
+        forbidden) :
+    LocalDecoderPlacement n k r
+      (cliqueBoundarySupport generators r) generators := by
+  classical
+  let roots := cliqueBoundarySupport generators r
+  let Z : Finset (Fin n) → Finset (Fin n) := fun e ↦
+    if he : e ∈ roots then
+      (Finset.univ : Finset (Fin (k + r))).map (S.embedding e he)
+    else ∅
+  have hfree (e : Finset (Fin n)) (he : e ∈ roots)
+      (g : Finset (Fin n))
+      (hg : g ∈ (Z e).powersetCard r) (hge : g ≠ e) :
+      g ∈ RootedEmbedding.imageFreeEdges
+        (CoverClique.coverPattern (k + r) r) (S.embedding e he) := by
+    rw [S.free_eq e he]
+    apply Finset.mem_sdiff.mpr
+    constructor
+    · simpa [Z, roots, he, Reserve.cliqueEdges] using hg
+    · simpa using hge
+  refine
+    { Z := Z
+      root_subset := ?_
+      ambient := ?_
+      card_eq := ?_
+      generators_disjoint := ?_
+      decoder_disjoint := ?_ }
+  · intro e he
+    have hroot := S.root_image e he
+    have hsub : RootedEmbedding.mapEdge (S.embedding e he)
+        (CoverClique.coverRoot (k + r) r) ⊆
+          (Finset.univ : Finset (Fin (k + r))).map (S.embedding e he) :=
+      Finset.map_subset_map.mpr (Finset.subset_univ _)
+    rw [hroot] at hsub
+    simpa [Z, roots, he] using hsub
+  · intro e he
+    exact Finset.subset_univ _
+  · intro e he
+    simp [Z, roots, he]
+  · apply Finset.disjoint_left.mpr
+    intro Q hQgen hQdecoder
+    obtain ⟨e, he, hQZ⟩ := mem_localDecoderCliques.mp hQdecoder
+    obtain ⟨g, hgQ, hge⟩ :=
+      exists_powersetCard_ne hr hrk (huniform Q hQgen)
+    have hQsub : Q ⊆ Z e := (Finset.mem_powersetCard.mp hQZ).1
+    have hgZ : g ∈ (Z e).powersetCard r := by
+      exact Finset.mem_powersetCard.mpr
+        ⟨(Finset.mem_powersetCard.mp hgQ).1.trans hQsub,
+          (Finset.mem_powersetCard.mp hgQ).2⟩
+    have hgfree := hfree e he g hgZ hge
+    have hgroot : g ∈ roots := by
+      apply mem_cliqueBoundarySupport.mpr
+      exact ⟨Q, hQgen, (Finset.mem_powersetCard.mp hgQ).1,
+        (Finset.mem_powersetCard.mp hgQ).2⟩
+    exact Finset.disjoint_left.mp (S.free_disjoint_forbidden e he)
+      hgfree (hrootForbidden hgroot)
+  · intro e he e' he' hee'
+    apply Finset.disjoint_left.mpr
+    intro Q hQe hQe'
+    obtain ⟨g, hgQ, hge⟩ := exists_powersetCard_ne hr hrk
+      (Finset.mem_powersetCard.mp hQe).2
+    have hgcard : g.card = r := (Finset.mem_powersetCard.mp hgQ).2
+    have hgZe : g ∈ (Z e).powersetCard r :=
+      Finset.mem_powersetCard.mpr
+        ⟨(Finset.mem_powersetCard.mp hgQ).1.trans
+          (Finset.mem_powersetCard.mp hQe).1, hgcard⟩
+    have hgfree := hfree e he g hgZe hge
+    by_cases hge' : g = e'
+    · have hgroot : g ∈ roots := hge' ▸ he'
+      exact Finset.disjoint_left.mp (S.free_disjoint_forbidden e he)
+        hgfree (hrootForbidden hgroot)
+    · have hgZe' : g ∈ (Z e').powersetCard r :=
+        Finset.mem_powersetCard.mpr
+          ⟨(Finset.mem_powersetCard.mp hgQ).1.trans
+            (Finset.mem_powersetCard.mp hQe').1, hgcard⟩
+      have hgfree' := hfree e' he' g hgZe' hge'
+      exact Finset.disjoint_left.mp
+        (S.free_pairwise e he e' he' hee') hgfree hgfree'
+
+lemma cliqueBoundarySupport_localDecoders_subset
+    {n k r : ℕ} (hr : 0 < r) (hrk : r < k)
+    {generators : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ generators, Q.card = k)
+    {forbidden : Finset (Finset (Fin n))}
+    (hrootForbidden : cliqueBoundarySupport generators r ⊆ forbidden)
+    (S : LocalDecoderEmbedding.SeparatedCliqueExtensions
+      n (k + r) r (cliqueBoundarySupport generators r)
+        forbidden) :
+    cliqueBoundarySupport
+        (localDecoderCliques (cliqueBoundarySupport generators r)
+          (localDecoderPlacementOfSeparated hr hrk huniform
+            hrootForbidden S).Z k) r ⊆
+      cliqueBoundarySupport generators r ∪
+        LocalDecoderEmbedding.separatedFreeEdges S := by
+  classical
+  intro g hg
+  obtain ⟨Q, hQdecoder, hgQ, hgcard⟩ := mem_cliqueBoundarySupport.mp hg
+  obtain ⟨e, heRoot, hQZ⟩ := mem_localDecoderCliques.mp hQdecoder
+  by_cases hge : g = e
+  · exact Finset.mem_union_left _ (hge ▸ heRoot)
+  · apply Finset.mem_union_right
+    apply Finset.mem_biUnion.mpr
+    refine ⟨e, heRoot, ?_⟩
+    simp only [LocalDecoderEmbedding.separatedFreeEdges, heRoot, dite_true]
+    rw [S.free_eq e heRoot]
+    apply Finset.mem_sdiff.mpr
+    constructor
+    · have hQimage : Q ⊆
+          (Finset.univ : Finset (Fin (k + r))).map (S.embedding e heRoot) := by
+        simpa [localDecoderPlacementOfSeparated, heRoot] using
+          (Finset.mem_powersetCard.mp hQZ).1
+      exact mem_cliqueEdges.mpr ⟨hgQ.trans hQimage, hgcard⟩
+    · simpa using hge
+
+/-- The bounded rooted placement controls the complete input family used by
+coefficient reduction: its boundary is contained in the generator roots
+plus the bounded free-edge union. -/
+noncomputable def boundedLocalDecoderPlacementOfSeparated
+    {n k r C : ℕ} (hr : 0 < r) (hrk : r < k)
+    {generators : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ generators, Q.card = k)
+    {forbidden : Finset (Finset (Fin n))}
+    (hrootForbidden : cliqueBoundarySupport generators r ⊆ forbidden)
+    (S : LocalDecoderEmbedding.BoundedSeparatedCliqueExtensions
+      n (k + r) r C (cliqueBoundarySupport generators r)
+        forbidden) :
+    BoundedLocalDecoderPlacement n k r C
+      (cliqueBoundarySupport generators r) generators := by
+  classical
+  let placement := localDecoderPlacementOfSeparated hr hrk huniform
+    hrootForbidden S.toSeparatedCliqueExtensions
+  have hfree (e : Finset (Fin n))
+      (he : e ∈ cliqueBoundarySupport generators r)
+      (g : Finset (Fin n))
+      (hg : g ∈ (placement.Z e).powersetCard r) (hge : g ≠ e) :
+      g ∈ RootedEmbedding.imageFreeEdges
+        (CoverClique.coverPattern (k + r) r) (S.embedding e he) := by
+    rw [S.free_eq e he]
+    apply Finset.mem_sdiff.mpr
+    constructor
+    · simpa [placement, localDecoderPlacementOfSeparated, he,
+        Reserve.cliqueEdges] using hg
+    · simpa using hge
+  refine {
+    toLocalDecoderPlacement := placement
+    decoder_edge_unique := ?_
+    input_degree_le := ?_ }
+  · intro e he e' he' g hgcard hgZe hgZe'
+    by_contra hee'
+    have hgMemZe : g ∈ (placement.Z e).powersetCard r :=
+      Finset.mem_powersetCard.mpr ⟨hgZe, hgcard⟩
+    have hgMemZe' : g ∈ (placement.Z e').powersetCard r :=
+      Finset.mem_powersetCard.mpr ⟨hgZe', hgcard⟩
+    by_cases hge : g = e
+    · have hge' : g ≠ e' := by
+        intro h
+        exact hee' (hge.symm.trans h)
+      exact Finset.disjoint_left.mp (S.free_disjoint_forbidden e' he')
+        (hfree e' he' g hgMemZe' hge') (hrootForbidden (hge ▸ he))
+    · have hgfree := hfree e he g hgMemZe hge
+      by_cases hge' : g = e'
+      · exact Finset.disjoint_left.mp (S.free_disjoint_forbidden e he)
+          hgfree (hrootForbidden (hge' ▸ he'))
+      · exact Finset.disjoint_left.mp
+          (S.free_pairwise e he e' he' hee') hgfree
+            (hfree e' he' g hgMemZe' hge')
+  intro J hJ
+  let roots := cliqueBoundarySupport generators r
+  let free := LocalDecoderEmbedding.separatedFreeEdges
+    S.toSeparatedCliqueExtensions
+  have hgeneratorUnion :
+      cliqueBoundarySupport
+          (generators ∪ localDecoderCliques roots placement.Z k) r ⊆
+        roots ∪ free := by
+    intro g hg
+    obtain ⟨Q, hQ, hgQ, hgcard⟩ := mem_cliqueBoundarySupport.mp hg
+    rcases Finset.mem_union.mp hQ with hQgen | hQdecoder
+    · exact Finset.mem_union_left _
+        (mem_cliqueBoundarySupport.mpr ⟨Q, hQgen, hgQ, hgcard⟩)
+    · exact cliqueBoundarySupport_localDecoders_subset hr hrk huniform
+        hrootForbidden S.toSeparatedCliqueExtensions
+        (mem_cliqueBoundarySupport.mpr ⟨Q, hQdecoder, hgQ, hgcard⟩)
+  have hmono : Reserve.localDegree
+        (cliqueBoundarySupport
+          (generators ∪ localDecoderCliques roots placement.Z k) r) J ≤
+      Reserve.localDegree (roots ∪ free) J := by
+    exact Finset.card_le_card (Finset.filter_subset_filter _ hgeneratorUnion)
+  have hunion : Reserve.localDegree (roots ∪ free) J ≤
+      Reserve.localDegree roots J + Reserve.localDegree free J := by
+    simpa [localDegree, Reserve.localDegree] using
+      (localDegree_union_le roots free J)
+  exact hmono.trans (hunion.trans (Nat.add_le_add_left
+    (S.free_degree_le J hJ) _))
+
+/-- The separated rooted-clique construction also places decoders when the
+root family is larger than the generator boundary.  This is the form needed
+for the integral lift, whose roots are `reserve ∪ boundary(modular)`. -/
+noncomputable def localDecoderPlacementOfSeparatedRoots
+    {n k r : ℕ} (hr : 0 < r) (hrk : r < k)
+    {roots generators forbidden : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ generators, Q.card = k)
+    (hboundaryRoots : cliqueBoundarySupport generators r ⊆ roots)
+    (hrootForbidden : roots ⊆ forbidden)
+    (S : LocalDecoderEmbedding.SeparatedCliqueExtensions
+      n (k + r) r roots forbidden) :
+    LocalDecoderPlacement n k r roots generators := by
+  classical
+  let Z : Finset (Fin n) → Finset (Fin n) := fun e ↦
+    if he : e ∈ roots then
+      (Finset.univ : Finset (Fin (k + r))).map (S.embedding e he)
+    else ∅
+  have hfree (e : Finset (Fin n)) (he : e ∈ roots)
+      (g : Finset (Fin n))
+      (hg : g ∈ (Z e).powersetCard r) (hge : g ≠ e) :
+      g ∈ RootedEmbedding.imageFreeEdges
+        (CoverClique.coverPattern (k + r) r) (S.embedding e he) := by
+    rw [S.free_eq e he]
+    apply Finset.mem_sdiff.mpr
+    constructor
+    · simpa [Z, he, Reserve.cliqueEdges] using hg
+    · simpa using hge
+  refine
+    { Z := Z
+      root_subset := ?_
+      ambient := ?_
+      card_eq := ?_
+      generators_disjoint := ?_
+      decoder_disjoint := ?_ }
+  · intro e he
+    have hroot := S.root_image e he
+    have hsub : RootedEmbedding.mapEdge (S.embedding e he)
+        (CoverClique.coverRoot (k + r) r) ⊆
+          (Finset.univ : Finset (Fin (k + r))).map (S.embedding e he) :=
+      Finset.map_subset_map.mpr (Finset.subset_univ _)
+    rw [hroot] at hsub
+    simpa [Z, he] using hsub
+  · intro e he
+    exact Finset.subset_univ _
+  · intro e he
+    simp [Z, he]
+  · apply Finset.disjoint_left.mpr
+    intro Q hQgen hQdecoder
+    obtain ⟨e, he, hQZ⟩ := mem_localDecoderCliques.mp hQdecoder
+    obtain ⟨g, hgQ, hge⟩ :=
+      exists_powersetCard_ne hr hrk (huniform Q hQgen)
+    have hQsub : Q ⊆ Z e := (Finset.mem_powersetCard.mp hQZ).1
+    have hgZ : g ∈ (Z e).powersetCard r :=
+      Finset.mem_powersetCard.mpr
+        ⟨(Finset.mem_powersetCard.mp hgQ).1.trans hQsub,
+          (Finset.mem_powersetCard.mp hgQ).2⟩
+    have hgfree := hfree e he g hgZ hge
+    have hgroot : g ∈ roots := hboundaryRoots
+      (mem_cliqueBoundarySupport.mpr
+        ⟨Q, hQgen, (Finset.mem_powersetCard.mp hgQ).1,
+          (Finset.mem_powersetCard.mp hgQ).2⟩)
+    exact Finset.disjoint_left.mp (S.free_disjoint_forbidden e he)
+      hgfree (hrootForbidden hgroot)
+  · intro e he e' he' hee'
+    apply Finset.disjoint_left.mpr
+    intro Q hQe hQe'
+    obtain ⟨g, hgQ, hge⟩ := exists_powersetCard_ne hr hrk
+      (Finset.mem_powersetCard.mp hQe).2
+    have hgcard : g.card = r := (Finset.mem_powersetCard.mp hgQ).2
+    have hgZe : g ∈ (Z e).powersetCard r :=
+      Finset.mem_powersetCard.mpr
+        ⟨(Finset.mem_powersetCard.mp hgQ).1.trans
+          (Finset.mem_powersetCard.mp hQe).1, hgcard⟩
+    have hgfree := hfree e he g hgZe hge
+    by_cases hge' : g = e'
+    · have hgroot : g ∈ roots := hge' ▸ he'
+      exact Finset.disjoint_left.mp (S.free_disjoint_forbidden e he)
+        hgfree (hrootForbidden hgroot)
+    · have hgZe' : g ∈ (Z e').powersetCard r :=
+        Finset.mem_powersetCard.mpr
+          ⟨(Finset.mem_powersetCard.mp hgQ).1.trans
+            (Finset.mem_powersetCard.mp hQe').1, hgcard⟩
+      have hgfree' := hfree e' he' g hgZe' hge'
+      exact Finset.disjoint_left.mp
+        (S.free_pairwise e he e' he' hee') hgfree hgfree'
+
+/-- Quantitative arbitrary-root decoder placement.  Its boundary load is
+the old root load plus the bounded free-edge load supplied by the rooted
+random-greedy placement. -/
+noncomputable def boundedLocalDecoderPlacementOfSeparatedRoots
+    {n k r C : ℕ} (hr : 0 < r) (hrk : r < k)
+    {roots generators forbidden : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ generators, Q.card = k)
+    (hboundaryRoots : cliqueBoundarySupport generators r ⊆ roots)
+    (hrootForbidden : roots ⊆ forbidden)
+    (S : LocalDecoderEmbedding.BoundedSeparatedCliqueExtensions
+      n (k + r) r C roots forbidden) :
+    BoundedLocalDecoderPlacement n k r C roots generators := by
+  classical
+  let placement := localDecoderPlacementOfSeparatedRoots hr hrk huniform
+    hboundaryRoots hrootForbidden S.toSeparatedCliqueExtensions
+  have hfree (e : Finset (Fin n)) (he : e ∈ roots)
+      (g : Finset (Fin n))
+      (hg : g ∈ (placement.Z e).powersetCard r) (hge : g ≠ e) :
+      g ∈ RootedEmbedding.imageFreeEdges
+        (CoverClique.coverPattern (k + r) r) (S.embedding e he) := by
+    rw [S.free_eq e he]
+    apply Finset.mem_sdiff.mpr
+    constructor
+    · simpa [placement, localDecoderPlacementOfSeparatedRoots, he,
+        Reserve.cliqueEdges] using hg
+    · simpa using hge
+  refine {
+    toLocalDecoderPlacement := placement
+    decoder_edge_unique := ?_
+    input_degree_le := ?_ }
+  · intro e he e' he' g hgcard hgZe hgZe'
+    by_contra hee'
+    have hgMemZe : g ∈ (placement.Z e).powersetCard r :=
+      Finset.mem_powersetCard.mpr ⟨hgZe, hgcard⟩
+    have hgMemZe' : g ∈ (placement.Z e').powersetCard r :=
+      Finset.mem_powersetCard.mpr ⟨hgZe', hgcard⟩
+    by_cases hge : g = e
+    · have hge' : g ≠ e' := by
+        intro h
+        exact hee' (hge.symm.trans h)
+      exact Finset.disjoint_left.mp (S.free_disjoint_forbidden e' he')
+        (hfree e' he' g hgMemZe' hge') (hrootForbidden (hge ▸ he))
+    · have hgfree := hfree e he g hgMemZe hge
+      by_cases hge' : g = e'
+      · exact Finset.disjoint_left.mp (S.free_disjoint_forbidden e he)
+          hgfree (hrootForbidden (hge' ▸ he'))
+      · exact Finset.disjoint_left.mp
+          (S.free_pairwise e he e' he' hee') hgfree
+            (hfree e' he' g hgMemZe' hge')
+  intro J hJ
+  let free := LocalDecoderEmbedding.separatedFreeEdges
+    S.toSeparatedCliqueExtensions
+  have hdecoderBoundary : cliqueBoundarySupport
+      (localDecoderCliques roots placement.Z k) r ⊆ roots ∪ free := by
+    intro g hg
+    obtain ⟨Q, hQdecoder, hgQ, hgcard⟩ :=
+      mem_cliqueBoundarySupport.mp hg
+    obtain ⟨e, heRoot, hQZ⟩ := mem_localDecoderCliques.mp hQdecoder
+    by_cases hge : g = e
+    · exact Finset.mem_union_left _ (hge ▸ heRoot)
+    · apply Finset.mem_union_right
+      apply Finset.mem_biUnion.mpr
+      refine ⟨e, heRoot, ?_⟩
+      simp only [LocalDecoderEmbedding.separatedFreeEdges, heRoot, dite_true]
+      exact hfree e heRoot g
+        (Finset.mem_powersetCard.mpr
+          ⟨hgQ.trans (Finset.mem_powersetCard.mp hQZ).1, hgcard⟩) hge
+  have hgeneratorUnion :
+      cliqueBoundarySupport
+          (generators ∪ localDecoderCliques roots placement.Z k) r ⊆
+        roots ∪ free := by
+    intro g hg
+    obtain ⟨Q, hQ, hgQ, hgcard⟩ := mem_cliqueBoundarySupport.mp hg
+    rcases Finset.mem_union.mp hQ with hQgen | hQdecoder
+    · exact Finset.mem_union_left _ (hboundaryRoots
+        (mem_cliqueBoundarySupport.mpr ⟨Q, hQgen, hgQ, hgcard⟩))
+    · exact hdecoderBoundary
+        (mem_cliqueBoundarySupport.mpr ⟨Q, hQdecoder, hgQ, hgcard⟩)
+  have hmono : Reserve.localDegree
+        (cliqueBoundarySupport
+          (generators ∪ localDecoderCliques roots placement.Z k) r) J ≤
+      Reserve.localDegree (roots ∪ free) J :=
+    Finset.card_le_card (Finset.filter_subset_filter _ hgeneratorUnion)
+  have hunion : Reserve.localDegree (roots ∪ free) J ≤
+      Reserve.localDegree roots J + Reserve.localDegree free J := by
+    simpa [localDegree, Reserve.localDegree] using
+      (localDegree_union_le roots free J)
+  exact hmono.trans (hunion.trans (Nat.add_le_add_left
+    (S.free_degree_le J hJ) _))
+
+/-- Edge separation of the rooted decoder ambients gives a fixed, ambient-
+independent bound on the number of decoder cliques through one `r`-edge. -/
+theorem BoundedLocalDecoderPlacement.decoder_blockIncidenceCount_le
+    {n k r C : ℕ}
+    {roots generators : Finset (Finset (Fin n))}
+    (P : BoundedLocalDecoderPlacement n k r C roots generators)
+    (g : Finset (Fin n)) (hgcard : g.card = r) :
+    blockIncidenceCount (localDecoderCliques roots P.Z k) g ≤ 2 ^ (k + r) := by
+  classical
+  let incident := roots.filter fun e ↦ g ⊆ P.Z e
+  have hincident : incident.card ≤ 1 := by
+    apply Finset.card_le_one.mpr
+    intro e he e' he'
+    have heData := Finset.mem_filter.mp he
+    have he'Data := Finset.mem_filter.mp he'
+    exact P.decoder_edge_unique e heData.1 e' he'Data.1 g hgcard
+      heData.2 he'Data.2
+  have hsubset :
+      (localDecoderCliques roots P.Z k).filter (fun Q ↦ g ⊆ Q) ⊆
+        incident.biUnion (fun e ↦ (P.Z e).powersetCard k) := by
+    intro Q hQ
+    have hQData := Finset.mem_filter.mp hQ
+    obtain ⟨e, he, hQe⟩ := mem_localDecoderCliques.mp hQData.1
+    apply Finset.mem_biUnion.mpr
+    refine ⟨e, Finset.mem_filter.mpr ⟨he, ?_⟩, hQe⟩
+    exact hQData.2.trans (Finset.mem_powersetCard.mp hQe).1
+  calc
+    blockIncidenceCount (localDecoderCliques roots P.Z k) g ≤
+        (incident.biUnion (fun e ↦ (P.Z e).powersetCard k)).card :=
+      Finset.card_le_card hsubset
+    _ ≤ ∑ e ∈ incident, ((P.Z e).powersetCard k).card :=
+      Finset.card_biUnion_le
+    _ ≤ ∑ _e ∈ incident, 2 ^ (k + r) := by
+      apply Finset.sum_le_sum
+      intro e he
+      calc
+        ((P.Z e).powersetCard k).card ≤ (P.Z e).powerset.card :=
+          Finset.card_le_card (by
+            intro A hA
+            exact Finset.mem_powerset.mpr
+              (Finset.mem_powersetCard.mp hA).1)
+        _ = 2 ^ (k + r) := by
+          rw [Finset.card_powerset, P.card_eq e (Finset.mem_filter.mp he).1]
+    _ = incident.card * 2 ^ (k + r) := by simp
+    _ ≤ 1 * 2 ^ (k + r) := Nat.mul_le_mul_right _ hincident
+    _ = 2 ^ (k + r) := by simp
+
+/-- Combining multiplicity four for the sparse generators with the decoder
+ambient separation gives the fixed edge-multiplicity input needed by the
+universal near-pair bank. -/
+theorem BoundedLocalDecoderPlacement.input_blockIncidenceCount_le
+    {n k r C M : ℕ}
+    {roots generators : Finset (Finset (Fin n))}
+    (P : BoundedLocalDecoderPlacement n k r C roots generators)
+    (hgenerators : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount generators e ≤ M)
+    (g : Finset (Fin n)) (hg : g ∈ completeUniform n r) :
+    blockIncidenceCount
+        (generators ∪ localDecoderCliques roots P.Z k) g ≤
+      M + 2 ^ (k + r) := by
+  calc
+    blockIncidenceCount
+        (generators ∪ localDecoderCliques roots P.Z k) g ≤
+        blockIncidenceCount generators g +
+          blockIncidenceCount (localDecoderCliques roots P.Z k) g := by
+      simpa [blockIncidenceCount, localDegree] using
+        localDegree_union_le generators (localDecoderCliques roots P.Z k) g
+    _ ≤ M + 2 ^ (k + r) := Nat.add_le_add (hgenerators g hg)
+      (P.decoder_blockIncidenceCount_le g (mem_completeUniform.mp hg))
+
+theorem BoundedLocalDecoderPlacement.input_incidenceCount_le
+    {n k r C M : ℕ}
+    {roots generators : Finset (Finset (Fin n))}
+    (P : BoundedLocalDecoderPlacement n k r C roots generators)
+    (hgenerators : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount generators e ≤ M)
+    (g : Finset (Fin n)) (hgcard : g.card = r) :
+    Transversal.incidenceCount
+        (generators ∪ localDecoderCliques roots P.Z k) g ≤
+      M + 2 ^ (k + r) := by
+  simpa [Transversal.incidenceCount, blockIncidenceCount] using
+    P.input_blockIncidenceCount_le hgenerators g
+      (mem_completeUniform.mpr hgcard)
+
+/-- A power-bounded generator boundary admits all local decoders
+simultaneously for sufficiently large ambient order, with the induced
+lower-face load retained. -/
+theorem eventually_exists_boundedLocalDecoderPlacement_of_powerBounded
+    (hr : 0 < r) (hrk : r < k) (hd : 0 < d) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ generators : Finset (Finset (Fin n)),
+        (∀ Q ∈ generators, Q.card = k) →
+        IsPowerBounded n r d 1 (cliqueBoundarySupport generators r) →
+        Nonempty (BoundedLocalDecoderPlacement n k r
+          (LocalDecoderAsymptotic.decoderPathCap (k + r) r d n)
+          (cliqueBoundarySupport generators r) generators) := by
+  have hext :=
+    LocalDecoderAsymptotic.eventually_exists_separatedCliqueExtensions_of_power_bound
+      (v := k + r) hr (by omega) hd
+  filter_upwards [hext] with n hext
+  intro generators huniform hsparse
+  let roots := cliqueBoundarySupport generators r
+  have hrootUniform : ∀ e ∈ roots, e.card = r := by
+    intro e he
+    exact mem_completeUniform.mp
+      ((cliqueBoundarySupport_subset_complete (r := r) huniform)
+        (by simpa [roots] using he))
+  have hdegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      (Reserve.localDegree roots J) ^ d ≤ n ^ (d - 1) := by
+    intro J hJ
+    have hJmem : J ∈ completeUniform n (r - 1) :=
+      mem_completeUniform.mpr hJ
+    have hmain := hsparse J hJmem
+    simpa [localDegree, Reserve.localDegree, roots] using hmain
+  obtain ⟨S⟩ := hext roots hrootUniform hdegree
+  exact ⟨boundedLocalDecoderPlacementOfSeparated hr hrk huniform
+    Finset.Subset.rfl S⟩
+
+/-- Projection of the bounded placement theorem to the coefficient-level
+placement used by the decoder algebra. -/
+theorem eventually_exists_localDecoderPlacement_of_powerBounded
+    (hr : 0 < r) (hrk : r < k) (hd : 0 < d) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ generators : Finset (Finset (Fin n)),
+        (∀ Q ∈ generators, Q.card = k) →
+        IsPowerBounded n r d 1 (cliqueBoundarySupport generators r) →
+        Nonempty (LocalDecoderPlacement n k r
+          (cliqueBoundarySupport generators r) generators) := by
+  have hbounded :=
+    eventually_exists_boundedLocalDecoderPlacement_of_powerBounded hr hrk hd
+  filter_upwards [hbounded] with n hbounded
+  intro generators huniform hsparse
+  obtain ⟨placement⟩ := hbounded generators huniform hsparse
+  exact ⟨placement.toLocalDecoderPlacement⟩
+
+/-- Arbitrary power-bounded root edges (in particular, the union of a
+reserve and a modular-generator boundary) admit all complete local decoder
+sets simultaneously. -/
+theorem eventually_exists_integralDecoderSets_of_powerBounded
+    (hr : 0 < r) (hrk : r < k) (hd : 0 < d) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ roots : Finset (Finset (Fin n)),
+        (∀ e ∈ roots, e.card = r) →
+        IsPowerBounded n r d 1 roots →
+        ∃ Z : Finset (Fin n) → Finset (Fin n),
+          (∀ e ∈ roots, e ⊆ Z e) ∧
+          (∀ e ∈ roots, Z e ⊆ (Finset.univ : Finset (Fin n))) ∧
+          (∀ e ∈ roots, (Z e).card = k + r) := by
+  have hmain :=
+    LocalDecoderAsymptotic.eventually_exists_separatedCliqueExtensions_of_power_bound
+      (v := k + r) hr (by omega) hd
+  filter_upwards [hmain] with n hn
+  intro roots huniform hsparse
+  obtain ⟨S⟩ := hn roots huniform (by
+    intro J hJ
+    have hJmem : J ∈ completeUniform n (r - 1) :=
+      mem_completeUniform.mpr hJ
+    simpa [localDegree, Reserve.localDegree] using hsparse J hJmem)
+  let Z := decoderVertexSetOfSeparated S.toSeparatedCliqueExtensions
+  refine ⟨Z, ?_, ?_, ?_⟩
+  · intro e he
+    exact root_subset_decoderVertexSetOfSeparated
+      S.toSeparatedCliqueExtensions he
+  · intro e he
+    exact decoderVertexSetOfSeparated_subset_univ
+      S.toSeparatedCliqueExtensions e
+  · intro e he
+    exact card_decoderVertexSetOfSeparated
+      S.toSeparatedCliqueExtensions he
+
+/-- Quantitative decoder placement for an arbitrary root family containing
+the generator boundary.  Taking the forbidden family to be the roots
+themselves makes all decoder free edges avoid every possible defect edge. -/
+theorem eventually_exists_boundedLocalDecoderPlacementForRoots_of_powerBounded
+    (hr : 0 < r) (hrk : r < k) (hd : 0 < d) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ (roots generators : Finset (Finset (Fin n))),
+        (∀ e ∈ roots, e.card = r) →
+        (∀ Q ∈ generators, Q.card = k) →
+        cliqueBoundarySupport generators r ⊆ roots →
+        IsPowerBounded n r d 1 roots →
+        Nonempty (BoundedLocalDecoderPlacement n k r
+          (LocalDecoderAsymptotic.decoderPathCap (k + r) r d n)
+          roots generators) := by
+  have hext :=
+    LocalDecoderAsymptotic.eventually_exists_separatedCliqueExtensions_of_power_bound
+      (v := k + r) hr (by omega) hd
+  filter_upwards [hext] with n hext
+  intro roots generators hrootsUniform hgeneratorsUniform hboundary hsparse
+  have hdegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree roots J ^ d ≤ n ^ (d - 1) := by
+    intro J hJ
+    have hmain := hsparse J (mem_completeUniform.mpr hJ)
+    simpa [localDegree, Reserve.localDegree] using hmain
+  obtain ⟨S⟩ := hext roots hrootsUniform hdegree
+  exact ⟨boundedLocalDecoderPlacementOfSeparatedRoots hr hrk
+    hgeneratorsUniform hboundary Finset.Subset.rfl S⟩
+
+/-- The complete coefficient input (generators plus all decoder cliques)
+remains power-bounded.  The exponent denominator doubles because the path
+cap uses `1-1/(2d)`. -/
+theorem BoundedLocalDecoderPlacement.input_powerBounded
+    {n k r d : ℕ} (hd : 0 < d) (hn : 1 ≤ n)
+    {roots generators : Finset (Finset (Fin n))}
+    (P : BoundedLocalDecoderPlacement n k r
+      (LocalDecoderAsymptotic.decoderPathCap (k + r) r d n)
+      roots generators)
+    (hroot : IsPowerBounded n r d 1 roots) :
+    IsPowerBounded n r (2 * d)
+      (2 * max 1
+        ((CoverClique.coverPattern (k + r) r).freeEdges.card *
+          LocalDecoderAsymptotic.decoderPathMultiplier (k + r) r))
+      (cliqueBoundarySupport
+        (generators ∪ localDecoderCliques
+          roots P.Z k) r) := by
+  let F := (CoverClique.coverPattern (k + r) r).freeEdges.card
+  let M := LocalDecoderAsymptotic.decoderPathMultiplier (k + r) r
+  let T := LocalDecoderAsymptotic.decoderPathScale d n
+  let c := max 1 (F * M)
+  have hroot2 : IsPowerBounded n r (2 * d) 1 roots := by
+    simpa [Nat.mul_comm] using hroot.lift_mul hn (by omega : 0 < 2)
+  intro J hJmem
+  have hJ : J.card = r - 1 := mem_completeUniform.mp hJmem
+  let a := Reserve.localDegree roots J
+  let b := F * LocalDecoderAsymptotic.decoderPathCap (k + r) r d n
+  let m := max a b
+  have hinput : Reserve.localDegree
+        (cliqueBoundarySupport
+          (generators ∪ localDecoderCliques roots P.Z k) r) J ≤ 2 * m := by
+    calc
+      Reserve.localDegree
+          (cliqueBoundarySupport
+            (generators ∪ localDecoderCliques roots P.Z k) r) J ≤
+          a + b := by
+        simpa [F, a, b] using P.input_degree_le J hJ
+      _ ≤ m + m := Nat.add_le_add (le_max_left _ _) (le_max_right _ _)
+      _ = 2 * m := by omega
+  have ha : a ^ (2 * d) ≤ c ^ (2 * d) * n ^ (2 * d - 1) := by
+    have h := hroot2 J hJmem
+    have hc : 1 ≤ c := by simp [c]
+    exact h.trans (Nat.mul_le_mul_right _ (Nat.pow_le_pow_left hc _))
+  have hb : b ^ (2 * d) ≤ c ^ (2 * d) * n ^ (2 * d - 1) := by
+    have hT := LocalDecoderAsymptotic.decoderPathScale_pow_le d n hd
+    have hFM : F * M ≤ c := le_max_right _ _
+    calc
+      b ^ (2 * d) = (F * M) ^ (2 * d) * T ^ (2 * d) := by
+        simp [b, LocalDecoderAsymptotic.decoderPathCap, F, M, T, mul_pow]
+        ring
+      _ ≤ (F * M) ^ (2 * d) * n ^ (2 * d - 1) :=
+        Nat.mul_le_mul_left _ hT
+      _ ≤ c ^ (2 * d) * n ^ (2 * d - 1) := by
+        exact Nat.mul_le_mul_right _ (Nat.pow_le_pow_left hFM _)
+  have hm : m ^ (2 * d) ≤ c ^ (2 * d) * n ^ (2 * d - 1) := by
+    rcases max_cases a b with hab | hba
+    · simpa [m, hab] using ha
+    · simpa [m, hba] using hb
+  calc
+    localDegree
+        (cliqueBoundarySupport
+          (generators ∪ localDecoderCliques roots P.Z k) r) J ^ (2 * d) ≤
+        (2 * m) ^ (2 * d) := by
+      apply Nat.pow_le_pow_left
+      simpa [localDegree, Reserve.localDegree] using hinput
+    _ = 2 ^ (2 * d) * m ^ (2 * d) := by rw [mul_pow]
+    _ ≤ 2 ^ (2 * d) *
+          (c ^ (2 * d) * n ^ (2 * d - 1)) :=
+      Nat.mul_le_mul_left _ hm
+    _ = (2 * c) ^ (2 * d) * n ^ (2 * d - 1) := by
+      rw [mul_pow]
+      ring
+
+/-- Reduce an integer clique coefficient to its canonical representative
+in `[0,N)`. -/
+def reducedCoeff (N : ℕ) (φ : Finset (Fin n) → ℤ)
+    (Q : Finset (Fin n)) : ℤ :=
+  φ Q % (N : ℤ)
+
+/-- Quotient discarded by `reducedCoeff`. -/
+def quotientCoeff (N : ℕ) (φ : Finset (Fin n) → ℤ)
+    (Q : Finset (Fin n)) : ℤ :=
+  φ Q / (N : ℤ)
+
+lemma reducedCoeff_add_mul_quotientCoeff (N : ℕ)
+    (φ : Finset (Fin n) → ℤ) (Q : Finset (Fin n)) :
+    reducedCoeff N φ Q + (N : ℤ) * quotientCoeff N φ Q = φ Q := by
+  exact Int.emod_add_mul_ediv _ _
+
+lemma reducedCoeff_nonneg {N : ℕ} (hN : 0 < N)
+    (φ : Finset (Fin n) → ℤ) (Q : Finset (Fin n)) :
+    0 ≤ reducedCoeff N φ Q := by
+  exact Int.emod_nonneg _ (by exact_mod_cast hN.ne')
+
+lemma reducedCoeff_lt {N : ℕ} (hN : 0 < N)
+    (φ : Finset (Fin n) → ℤ) (Q : Finset (Fin n)) :
+    reducedCoeff N φ Q < (N : ℤ) := by
+  exact Int.emod_lt_of_pos _ (by exact_mod_cast hN)
+
+lemma boundary_smul (n k : ℕ) (c : ℤ)
+    (φ : Finset (Fin n) → ℤ) :
+    boundary n k (fun Q ↦ c * φ Q) =
+      fun e ↦ c * boundary n k φ e := by
+  funext e
+  rw [boundary, boundary, Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro Q hQ
+  by_cases heQ : e ⊆ Q <;> simp [heQ]
+
+/-- Euclidean coefficient reduction commutes with the clique boundary in
+the expected way: the original boundary is the reduced boundary plus
+`N` times the quotient boundary. -/
+lemma boundary_reduced_add_quotient (N n k : ℕ)
+    (φ : Finset (Fin n) → ℤ) (e : Finset (Fin n)) :
+    boundary n k (reducedCoeff N φ) e +
+        (N : ℤ) * boundary n k (quotientCoeff N φ) e =
+      boundary n k φ e := by
+  rw [boundary, boundary, boundary, Finset.mul_sum,
+    ← Finset.sum_add_distrib]
+  apply Finset.sum_congr rfl
+  intro Q hQ
+  by_cases heQ : e ⊆ Q
+  · simp only [if_pos heQ]
+    exact reducedCoeff_add_mul_quotientCoeff N φ Q
+  · simp [heQ]
+
+lemma reducedCoeff_support
+    {generators : Finset (Finset (Fin n))}
+    {N : ℕ} {φ : Finset (Fin n) → ℤ}
+    (hφ : ∀ Q, φ Q ≠ 0 → Q ∈ generators) :
+    ∀ Q, reducedCoeff N φ Q ≠ 0 → Q ∈ generators := by
+  intro Q hQ
+  apply hφ Q
+  intro hzero
+  simp [reducedCoeff, hzero] at hQ
+
+lemma quotientCoeff_support
+    {generators : Finset (Finset (Fin n))}
+    {N : ℕ} {φ : Finset (Fin n) → ℤ}
+    (hφ : ∀ Q, φ Q ≠ 0 → Q ∈ generators) :
+    ∀ Q, quotientCoeff N φ Q ≠ 0 → Q ∈ generators := by
+  intro Q hQ
+  apply hφ Q
+  intro hzero
+  simp [quotientCoeff, hzero] at hQ
+
+/-- A coefficient vector supported on `family` has zero boundary at every
+uniform edge outside the union of the clique boundaries of `family`. -/
+lemma boundary_eq_zero_of_not_mem_cliqueBoundarySupport
+    {family : Finset (Finset (Fin n))}
+    {φ : Finset (Fin n) → ℤ}
+    (hφ : ∀ Q, φ Q ≠ 0 → Q ∈ family)
+    {e : Finset (Fin n)} (hecard : e.card = r)
+    (he : e ∉ cliqueBoundarySupport family r) :
+    boundary n k φ e = 0 := by
+  rw [boundary]
+  apply Finset.sum_eq_zero
+  intro Q hQ
+  by_cases heQ : e ⊆ Q
+  · rw [if_pos heQ]
+    by_contra hne
+    exact he (mem_cliqueBoundarySupport.mpr ⟨Q, hφ Q hne, heQ, hecard⟩)
+  · simp [heQ]
+
+lemma boundary_eq_sum_incident_of_support
+    {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    {φ : Finset (Fin n) → ℤ}
+    (hφ : ∀ Q, φ Q ≠ 0 → Q ∈ family)
+    (e : Finset (Fin n)) :
+    boundary n k φ e =
+      ∑ Q ∈ family.filter (fun Q ↦ e ⊆ Q), φ Q := by
+  classical
+  have hfamily : family ⊆ blockCandidates n k := by
+    intro Q hQ
+    exact mem_completeUniform.mpr (huniform Q hQ)
+  rw [boundary, ← Finset.sum_filter]
+  symm
+  apply Finset.sum_subset
+  · exact Finset.filter_subset_filter _ hfamily
+  · intro Q hQcandidate hQnot
+    by_contra hne
+    have hQfamily := hφ Q hne
+    have heQ := (Finset.mem_filter.mp hQcandidate).2
+    exact hQnot (Finset.mem_filter.mpr ⟨hQfamily, heQ⟩)
+
+/-- Subtype-indexed form of the supported boundary sum, matching the
+root/layer indexing used by full-exchange placement. -/
+lemma boundary_eq_attach_sum_of_support
+    {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    {φ : Finset (Fin n) → ℤ}
+    (hφ : ∀ Q, φ Q ≠ 0 → Q ∈ family)
+    (e : Finset (Fin n)) :
+    boundary n k φ e =
+      ∑ Q ∈ family.attach, if e ⊆ Q.1 then φ Q.1 else 0 := by
+  calc
+    boundary n k φ e =
+        ∑ Q ∈ family.filter (fun Q ↦ e ⊆ Q), φ Q :=
+      boundary_eq_sum_incident_of_support huniform hφ e
+    _ = ∑ Q ∈ family, if e ⊆ Q then φ Q else 0 := by
+      rw [Finset.sum_filter]
+    _ = ∑ Q ∈ family.attach, if e ⊆ Q.1 then φ Q.1 else 0 := by
+      exact (Finset.sum_attach family
+        (fun Q ↦ if e ⊆ Q then φ Q else 0)).symm
+
+lemma boundary_familyIndicatorCoeff_eq_incidence
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (e : Finset (Fin n)) :
+    boundary n k (familyIndicatorCoeff family) e =
+      (blockIncidenceCount family e : ℤ) := by
+  have hsupport : ∀ Q, familyIndicatorCoeff family Q ≠ 0 →
+      Q ∈ family := by
+    intro Q hQ
+    by_contra hQmem
+    simp [familyIndicatorCoeff, hQmem] at hQ
+  rw [boundary_eq_sum_incident_of_support huniform hsupport e]
+  calc
+    (∑ Q ∈ family.filter (fun Q ↦ e ⊆ Q),
+        familyIndicatorCoeff family Q) =
+        ∑ _Q ∈ family.filter (fun Q ↦ e ⊆ Q), (1 : ℤ) := by
+      apply Finset.sum_congr rfl
+      intro Q hQ
+      simp [familyIndicatorCoeff, (Finset.mem_filter.mp hQ).1]
+    _ = (blockIncidenceCount family e : ℤ) := by
+      simp [blockIncidenceCount]
+
+lemma boundary_sub_coeff (n k : ℕ)
+    (φ ψ : Finset (Fin n) → ℤ) (e : Finset (Fin n)) :
+    boundary n k (fun Q ↦ φ Q - ψ Q) e =
+      boundary n k φ e - boundary n k ψ e := by
+  rw [boundary, boundary, boundary, ← Finset.sum_sub_distrib]
+  apply Finset.sum_congr rfl
+  intro Q hQ
+  by_cases heQ : e ⊆ Q <;> simp [heQ]
+
+lemma exchangeReplacement_uniform
+    {n k r : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (φ : Fin E.v ↪ Fin n) :
+    ∀ Q ∈ exchangeReplacement E φ, Q.card = k := by
+  intro Q hQ
+  rcases Finset.mem_union.mp hQ with hQ | hQ
+  · exact (ExchangeEmbedding.mappedNegative_decomp E φ).1 Q hQ
+  · exact (ExchangeEmbedding.mappedPositive_decomp E φ).1 Q
+      (Finset.mem_of_mem_erase hQ)
+
+lemma exchangeReplacementFamily_uniform
+    {n k r : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (source : Finset (Finset (Fin n)))
+    (embedding : ↑source → (Fin E.v ↪ Fin n)) :
+    ∀ Q ∈ exchangeReplacementFamily E source embedding, Q.card = k := by
+  intro Q hQ
+  obtain ⟨I, _hI, hQ⟩ := Finset.mem_biUnion.mp hQ
+  exact exchangeReplacement_uniform E (embedding I) Q hQ
+
+lemma eliminationFlattenReplacement_uniform
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C)
+    (P : ExchangeEliminationEmbedding.EliminationPair n k r)
+    (hP : P ∈ pairs) :
+    ∀ Q ∈ eliminationFlattenReplacement S P hP, Q.card = k := by
+  intro Q hQ
+  rcases Finset.mem_union.mp hQ with hQ | hQ
+  · rcases Finset.mem_union.mp hQ with hQ | hQ
+    · have : Q = P.positive := by simpa using hQ
+      simpa [this] using P.positive_card
+    · exact (ExchangeEliminationEmbedding.eliminationPositiveRemainder_decomp
+        S P hP).1 Q hQ
+  · exact (ExchangeEliminationEmbedding.eliminationNegativeRemainder_decomp
+      S P hP).1 Q hQ
+
+lemma eliminationFlattenFamily_uniform
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C) :
+    ∀ Q ∈ eliminationFlattenFamily S, Q.card = k := by
+  intro Q hQ
+  obtain ⟨P, _hP, hQ⟩ := Finset.mem_biUnion.mp hQ
+  exact eliminationFlattenReplacement_uniform S P.1 P.2 Q hQ
+
+lemma eliminationFlattenRoundFamily_uniform
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden retained : Finset (Finset (Fin n))}
+    (hretained : ∀ Q ∈ retained, Q.card = k)
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C) :
+    ∀ Q ∈ eliminationFlattenRoundFamily retained S, Q.card = k := by
+  intro Q hQ
+  rcases Finset.mem_union.mp hQ with hQ | hQ
+  · exact hretained Q hQ
+  · exact eliminationFlattenFamily_uniform S Q hQ
+
+/-- An `r`-edge of the prescribed positive root occurs in at most one of
+the two root-erased remainder families.  The negative remainder decomposes
+the host with the entire positive-root boundary deleted. -/
+lemma blockIncidenceCount_eliminationRemainderBlocks_le_one_of_positive
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C)
+    (P : ExchangeEliminationEmbedding.EliminationPair n k r)
+    (hP : P ∈ pairs) {e : Finset (Fin n)}
+    (hecard : e.card = r) (hepositive : e ⊆ P.positive) :
+    blockIncidenceCount
+        (ExchangeEliminationEmbedding.eliminationRemainderBlocks S P hP) e ≤ 1 := by
+  let pos :=
+    ExchangeEliminationEmbedding.eliminationPositiveRemainder S P hP
+  let neg :=
+    ExchangeEliminationEmbedding.eliminationNegativeRemainder S P hP
+  have hpos :=
+    (ExchangeEliminationEmbedding.eliminationPositiveRemainder_decomp
+      S P hP).incidenceCount_eq_indicator hecard
+  have hneg :=
+    (ExchangeEliminationEmbedding.eliminationNegativeRemainder_decomp
+      S P hP).incidenceCount_eq_indicator hecard
+  have hnotNegHost :
+      e ∉ RootedEmbedding.imageFreeEdges E.pattern (S.embedding P hP) := by
+    rw [← ExchangeEmbedding.mappedHost_sdiff_root_eq_freeEdges E
+      (S.embedding P hP)]
+    intro heFree
+    have heNotRoot := (Finset.mem_sdiff.mp heFree).2
+    apply heNotRoot
+    apply Finset.mem_powersetCard.mpr
+    rw [S.maps_positive P hP]
+    exact ⟨hepositive, hecard⟩
+  calc
+    blockIncidenceCount
+        (ExchangeEliminationEmbedding.eliminationRemainderBlocks S P hP) e ≤
+        blockIncidenceCount pos e + blockIncidenceCount neg e := by
+      exact blockIncidenceCount_union_le pos neg e
+    _ = (if e ∈
+          ExchangeEmbedding.mappedHost E (S.embedding P hP) \
+            P.negative.powersetCard r then 1 else 0) +
+        (if e ∈ RootedEmbedding.imageFreeEdges E.pattern
+          (S.embedding P hP) then 1 else 0) := by
+      change Transversal.incidenceCount pos e +
+          Transversal.incidenceCount neg e = _
+      rw [hpos, hneg]
+    _ ≤ 1 := by
+      by_cases hhost : e ∈
+          ExchangeEmbedding.mappedHost E (S.embedding P hP) \
+            P.negative.powersetCard r <;>
+        simp [hhost, hnotNegHost]
+
+/-- Symmetrically, an `r`-edge of the prescribed negative root occurs in
+at most one of the two root-erased remainder families. -/
+lemma blockIncidenceCount_eliminationRemainderBlocks_le_one_of_negative
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C)
+    (P : ExchangeEliminationEmbedding.EliminationPair n k r)
+    (hP : P ∈ pairs) {e : Finset (Fin n)}
+    (hecard : e.card = r) (henegative : e ⊆ P.negative) :
+    blockIncidenceCount
+        (ExchangeEliminationEmbedding.eliminationRemainderBlocks S P hP) e ≤ 1 := by
+  let pos :=
+    ExchangeEliminationEmbedding.eliminationPositiveRemainder S P hP
+  let neg :=
+    ExchangeEliminationEmbedding.eliminationNegativeRemainder S P hP
+  have hpos :=
+    (ExchangeEliminationEmbedding.eliminationPositiveRemainder_decomp
+      S P hP).incidenceCount_eq_indicator hecard
+  have hneg :=
+    (ExchangeEliminationEmbedding.eliminationNegativeRemainder_decomp
+      S P hP).incidenceCount_eq_indicator hecard
+  have hnotPosHost : e ∉
+      ExchangeEmbedding.mappedHost E (S.embedding P hP) \
+        P.negative.powersetCard r := by
+    intro heHost
+    exact (Finset.mem_sdiff.mp heHost).2
+      (Finset.mem_powersetCard.mpr ⟨henegative, hecard⟩)
+  calc
+    blockIncidenceCount
+        (ExchangeEliminationEmbedding.eliminationRemainderBlocks S P hP) e ≤
+        blockIncidenceCount pos e + blockIncidenceCount neg e :=
+      blockIncidenceCount_union_le pos neg e
+    _ = (if e ∈
+          ExchangeEmbedding.mappedHost E (S.embedding P hP) \
+            P.negative.powersetCard r then 1 else 0) +
+        (if e ∈ RootedEmbedding.imageFreeEdges E.pattern
+          (S.embedding P hP) then 1 else 0) := by
+      change Transversal.incidenceCount pos e +
+          Transversal.incidenceCount neg e = _
+      rw [hpos, hneg]
+    _ ≤ 1 := by
+      by_cases hfree : e ∈ RootedEmbedding.imageFreeEdges E.pattern
+          (S.embedding P hP) <;> simp [hnotPosHost, hfree]
+
+/-- Without using either root, a single two-root exchange contributes at
+most two remainder cliques through an edge. -/
+lemma blockIncidenceCount_eliminationRemainderBlocks_le_two
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C)
+    (P : ExchangeEliminationEmbedding.EliminationPair n k r)
+    (hP : P ∈ pairs) {e : Finset (Fin n)}
+    (hecard : e.card = r) :
+    blockIncidenceCount
+        (ExchangeEliminationEmbedding.eliminationRemainderBlocks S P hP) e ≤ 2 := by
+  let pos :=
+    ExchangeEliminationEmbedding.eliminationPositiveRemainder S P hP
+  let neg :=
+    ExchangeEliminationEmbedding.eliminationNegativeRemainder S P hP
+  have hpos :=
+    (ExchangeEliminationEmbedding.eliminationPositiveRemainder_decomp
+      S P hP).incidenceCount_eq_indicator hecard
+  have hneg :=
+    (ExchangeEliminationEmbedding.eliminationNegativeRemainder_decomp
+      S P hP).incidenceCount_eq_indicator hecard
+  calc
+    blockIncidenceCount
+        (ExchangeEliminationEmbedding.eliminationRemainderBlocks S P hP) e ≤
+        blockIncidenceCount pos e + blockIncidenceCount neg e :=
+      blockIncidenceCount_union_le pos neg e
+    _ ≤ 2 := by
+      change Transversal.incidenceCount pos e +
+        Transversal.incidenceCount neg e ≤ 2
+      rw [hpos, hneg]
+      split <;> split <;> simp
+
+/-- The common `r`-edge of the two prescribed roots is deleted from both
+root-erased remainder hosts. -/
+lemma blockIncidenceCount_eliminationRemainderBlocks_eq_zero_of_common
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C)
+    (P : ExchangeEliminationEmbedding.EliminationPair n k r)
+    (hP : P ∈ pairs) {e : Finset (Fin n)}
+    (hecard : e.card = r) (hepositive : e ⊆ P.positive)
+    (henegative : e ⊆ P.negative) :
+    blockIncidenceCount
+        (ExchangeEliminationEmbedding.eliminationRemainderBlocks S P hP) e = 0 := by
+  let pos :=
+    ExchangeEliminationEmbedding.eliminationPositiveRemainder S P hP
+  let neg :=
+    ExchangeEliminationEmbedding.eliminationNegativeRemainder S P hP
+  have hpos :=
+    (ExchangeEliminationEmbedding.eliminationPositiveRemainder_decomp
+      S P hP).incidenceCount_eq_indicator hecard
+  have hneg :=
+    (ExchangeEliminationEmbedding.eliminationNegativeRemainder_decomp
+      S P hP).incidenceCount_eq_indicator hecard
+  have hnotPosHost : e ∉
+      ExchangeEmbedding.mappedHost E (S.embedding P hP) \
+        P.negative.powersetCard r := by
+    intro heHost
+    exact (Finset.mem_sdiff.mp heHost).2
+      (Finset.mem_powersetCard.mpr ⟨henegative, hecard⟩)
+  have hnotNegHost : e ∉ RootedEmbedding.imageFreeEdges
+      E.pattern (S.embedding P hP) := by
+    rw [← ExchangeEmbedding.mappedHost_sdiff_root_eq_freeEdges E
+      (S.embedding P hP)]
+    intro heHost
+    exact (Finset.mem_sdiff.mp heHost).2
+      (by rw [S.maps_positive P hP]
+          exact Finset.mem_powersetCard.mpr ⟨hepositive, hecard⟩)
+  have hsum : blockIncidenceCount pos e + blockIncidenceCount neg e = 0 := by
+    change Transversal.incidenceCount pos e +
+        Transversal.incidenceCount neg e = 0
+    rw [hpos, hneg]
+    simp [hnotPosHost, hnotNegHost]
+  exact Nat.eq_zero_of_le_zero
+    ((blockIncidenceCount_union_le pos neg e).trans_eq hsum)
+
+/-- Admissibility of the two-root exchange says that a mapped host edge
+inside the prescribed root union already belongs to one of its two clique
+sides. -/
+lemma eliminationRoot_edge_mem_positive_or_negative
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C)
+    (P : ExchangeEliminationEmbedding.EliminationPair n k r)
+    (hP : P ∈ pairs) {e : Finset (Fin n)}
+    (heHost : e ∈ ExchangeEmbedding.mappedHost E (S.embedding P hP))
+    (heRoot : e ∈ P.root.powersetCard r) :
+    e ∈ P.positive.powersetCard r ∨ e ∈ P.negative.powersetCard r := by
+  obtain ⟨g, hg, hge⟩ := Transversal.mem_mapFamily.mp heHost
+  subst e
+  have hgRootMap := (Finset.mem_powersetCard.mp heRoot).1
+  rw [← S.map_eliminationRoot P hP] at hgRootMap
+  have hgRoot : g ⊆ (E.eliminationPattern e₀).root :=
+    Finset.map_subset_map.mp hgRootMap
+  have hside :=
+    ExchangeEliminationEmbedding.RelabeledFullExchange.isSpecialIsolated
+      E e₀ g hg
+    (by simpa [ExchangePattern.RelabeledFullExchange.eliminationPattern_root]
+      using hgRoot)
+  rcases hside with hpos | hneg
+  · apply Or.inl
+    apply Finset.mem_powersetCard.mpr
+    constructor
+    · rw [← S.maps_positive P hP]
+      exact Finset.map_subset_map.mpr hpos
+    · simpa [RootedEmbedding.mapEdge] using E.pattern.uniform g hg
+  · apply Or.inr
+    apply Finset.mem_powersetCard.mpr
+    constructor
+    · rw [← S.maps_negative P hP]
+      exact Finset.map_subset_map.mpr hneg
+    · simpa [RootedEmbedding.mapEdge] using E.pattern.uniform g hg
+
+/-- A forbidden edge outside both prescribed root cliques occurs in none of
+the root-erased remainder blocks. -/
+lemma blockIncidenceCount_eliminationRemainderBlocks_eq_zero_of_forbidden
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C)
+    (P : ExchangeEliminationEmbedding.EliminationPair n k r)
+    (hP : P ∈ pairs) {e : Finset (Fin n)}
+    (hecard : e.card = r) (heForbidden : e ∈ forbidden)
+    (hnotPositive : ¬e ⊆ P.positive)
+    (hnotNegative : ¬e ⊆ P.negative) :
+    blockIncidenceCount
+        (ExchangeEliminationEmbedding.eliminationRemainderBlocks S P hP) e = 0 := by
+  rw [blockIncidenceCount, Finset.card_eq_zero]
+  apply Finset.eq_empty_iff_forall_notMem.mpr
+  intro B hB
+  have hBData := Finset.mem_filter.mp hB
+  have heB : e ∈ B.powersetCard r :=
+    Finset.mem_powersetCard.mpr ⟨hBData.2, hecard⟩
+  have heHost : e ∈ ExchangeEmbedding.mappedHost E (S.embedding P hP) := by
+    rcases Finset.mem_union.mp hBData.1 with hpos | hneg
+    · have hbase :=
+          (ExchangeEliminationEmbedding.eliminationPositiveRemainder_decomp
+            S P hP).2.1 B hpos heB
+      exact (Finset.mem_sdiff.mp hbase).1
+    · have hbase :=
+          (ExchangeEliminationEmbedding.eliminationNegativeRemainder_decomp
+            S P hP).2.1 B hneg heB
+      rw [← ExchangeEmbedding.mappedHost_sdiff_root_eq_freeEdges E
+        (S.embedding P hP)] at hbase
+      exact (Finset.mem_sdiff.mp hbase).1
+  have hnotFree : e ∉ RootedEmbedding.imageFreeEdges
+      (E.eliminationPattern e₀) (S.embedding P hP) := by
+    intro heFree
+    exact Finset.disjoint_left.mp (S.free_disjoint_forbidden P hP)
+      heFree heForbidden
+  have heRoot : e ∈ P.root.powersetCard r := by
+    by_contra hnotRoot
+    have heFree : e ∈ RootedEmbedding.imageFreeEdges
+        (E.eliminationPattern e₀) (S.embedding P hP) := by
+      rw [← ExchangeEliminationEmbedding.mappedHost_sdiff_eliminationRoot_eq_freeEdges
+        E e₀ (S.embedding P hP)]
+      apply Finset.mem_sdiff.mpr
+      rw [S.map_eliminationRoot P hP]
+      exact ⟨heHost, hnotRoot⟩
+    exact hnotFree heFree
+  rcases eliminationRoot_edge_mem_positive_or_negative S P hP heHost heRoot with
+    hpos | hneg
+  · exact hnotPositive (Finset.mem_powersetCard.mp hpos).1
+  · exact hnotNegative (Finset.mem_powersetCard.mp hneg).1
+
+/-- All remainder blocks through a fixed non-root auxiliary edge are
+charged injectively to the old cliques in that auxiliary clique's group. -/
+lemma blockIncidenceCount_eliminationRemainderFamily_le_group
+    {n k r C : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C)
+    (hauxForbidden : sqrtIntermediateFreeEdges A ⊆ forbidden)
+    (I : SqrtGroupIndex n r family) {e : Finset (Fin n)}
+    (heI : e ∈ (A.intermediate I).powersetCard r \ {I.1.1}) :
+    blockIncidenceCount (eliminationRemainderFamily S) e ≤ I.2.1.card := by
+  classical
+  let pairs := sqrtGroupEliminationPairs family huniform A
+  have hecard : e.card = r :=
+    (Finset.mem_powersetCard.mp (Finset.mem_sdiff.mp heI).1).2
+  have heAux : e ∈ sqrtIntermediateFreeEdges A :=
+    Finset.mem_biUnion.mpr ⟨I, Finset.mem_univ _, heI⟩
+  have heNotSource : e ∉ cliqueBoundarySupport family r := by
+    intro heSource
+    exact Finset.disjoint_left.mp
+      (sqrtIntermediateFreeEdges_disjoint_source A) heAux heSource
+  have hterm (P : ↑pairs) :
+      blockIncidenceCount
+          (ExchangeEliminationEmbedding.eliminationRemainderBlocks
+            S P.1 P.2) e ≤
+        if e ⊆ P.1.positive then 1 else 0 := by
+    by_cases hePositive : e ⊆ P.1.positive
+    · simpa [hePositive] using
+        blockIncidenceCount_eliminationRemainderBlocks_le_one_of_positive
+          S P.1 P.2 hecard hePositive
+    · have heNegative : ¬e ⊆ P.1.negative := by
+        intro heNeg
+        apply heNotSource
+        obtain ⟨J, Q, hQ, hEq⟩ :=
+          exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A P.2
+        have hQfamily : Q ∈ family :=
+          (Finset.mem_filter.mp
+            (sqrtGroupingAt_group_subset family J.1.1 J.1.2 J.2.2 hQ)).1
+        apply mem_cliqueBoundarySupport.mpr
+        exact ⟨Q, hQfamily, by simpa [hEq, sqrtGroupEliminationPair] using heNeg,
+          hecard⟩
+      have hzero :=
+        blockIncidenceCount_eliminationRemainderBlocks_eq_zero_of_forbidden
+          S P.1 P.2 hecard (hauxForbidden heAux) hePositive heNegative
+      simp [hePositive, hzero]
+  calc
+    blockIncidenceCount (eliminationRemainderFamily S) e ≤
+        ∑ P ∈ pairs.attach,
+          blockIncidenceCount
+            (ExchangeEliminationEmbedding.eliminationRemainderBlocks
+              S P.1 P.2) e := by
+      exact blockIncidenceCount_biUnion_le_sum pairs.attach
+        (fun P ↦ ExchangeEliminationEmbedding.eliminationRemainderBlocks
+          S P.1 P.2) e
+    _ ≤ ∑ P ∈ pairs.attach,
+        if e ⊆ P.1.positive then 1 else 0 := by
+      exact Finset.sum_le_sum fun P _hP ↦ hterm P
+    _ = ∑ P ∈ pairs, if e ⊆ P.positive then 1 else 0 := by
+      exact Finset.sum_attach pairs
+        (fun P ↦ if e ⊆ P.positive then 1 else 0)
+    _ = (pairs.filter fun P ↦ e ⊆ P.positive).card := by
+      simp [Finset.sum_ite]
+    _ ≤ I.2.1.card := by
+      exact card_sqrtGroupPairs_incident_auxiliary_le_group
+        huniform A I heI
+
+/-- If an edge lies in neither prescribed root of any pair, pairwise
+disjointness of the exchange free hosts confines it to one exchange, which
+contributes at most two remainder cliques. -/
+lemma blockIncidenceCount_eliminationRemainderFamily_le_two_of_avoids_roots
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C)
+    {e : Finset (Fin n)} (hecard : e.card = r)
+    (hpositive : ∀ P ∈ pairs, ¬e ⊆ P.positive)
+    (hnegative : ∀ P ∈ pairs, ¬e ⊆ P.negative) :
+    blockIncidenceCount (eliminationRemainderFamily S) e ≤ 2 := by
+  classical
+  let relevant := pairs.attach.filter fun P ↦
+    e ∈ RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀)
+      (S.embedding P.1 P.2)
+  have hterm (P : ↑pairs) :
+      blockIncidenceCount
+          (ExchangeEliminationEmbedding.eliminationRemainderBlocks
+            S P.1 P.2) e ≤
+        if e ∈ RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀)
+            (S.embedding P.1 P.2) then 2 else 0 := by
+    by_cases hfree : e ∈ RootedEmbedding.imageFreeEdges
+        (E.eliminationPattern e₀) (S.embedding P.1 P.2)
+    · simpa [hfree] using
+        blockIncidenceCount_eliminationRemainderBlocks_le_two
+          S P.1 P.2 hecard
+    · simp only [hfree, if_false, nonpos_iff_eq_zero]
+      rw [blockIncidenceCount, Finset.card_eq_zero]
+      apply Finset.eq_empty_iff_forall_notMem.mpr
+      intro B hB
+      have hBData := Finset.mem_filter.mp hB
+      have heB : e ∈ B.powersetCard r :=
+        Finset.mem_powersetCard.mpr ⟨hBData.2, hecard⟩
+      have heHost : e ∈ ExchangeEmbedding.mappedHost E
+          (S.embedding P.1 P.2) := by
+        rcases Finset.mem_union.mp hBData.1 with hpos | hneg
+        · exact (Finset.mem_sdiff.mp
+            ((ExchangeEliminationEmbedding.eliminationPositiveRemainder_decomp
+              S P.1 P.2).2.1 B hpos heB)).1
+        · have hbase :=
+            (ExchangeEliminationEmbedding.eliminationNegativeRemainder_decomp
+              S P.1 P.2).2.1 B hneg heB
+          rw [← ExchangeEmbedding.mappedHost_sdiff_root_eq_freeEdges E
+            (S.embedding P.1 P.2)] at hbase
+          exact (Finset.mem_sdiff.mp hbase).1
+      have heNotRoot : e ∉ P.1.root.powersetCard r := by
+        intro heRoot
+        rcases eliminationRoot_edge_mem_positive_or_negative
+            S P.1 P.2 heHost heRoot with hpos | hneg
+        · exact hpositive P.1 P.2 (Finset.mem_powersetCard.mp hpos).1
+        · exact hnegative P.1 P.2 (Finset.mem_powersetCard.mp hneg).1
+      apply hfree
+      rw [← ExchangeEliminationEmbedding.mappedHost_sdiff_eliminationRoot_eq_freeEdges
+        E e₀ (S.embedding P.1 P.2)]
+      apply Finset.mem_sdiff.mpr
+      rw [S.map_eliminationRoot P.1 P.2]
+      exact ⟨heHost, heNotRoot⟩
+  have hrelevant : relevant.card ≤ 1 := by
+    apply Finset.card_le_one.mpr
+    intro P hP P' hP'
+    have hPData := Finset.mem_filter.mp hP
+    have hP'Data := Finset.mem_filter.mp hP'
+    by_contra hne
+    exact Finset.disjoint_left.mp
+      (S.free_pairwise P.1 P.2 P'.1 P'.2
+        (fun h ↦ hne (Subtype.ext h)))
+        hPData.2 hP'Data.2
+  calc
+    blockIncidenceCount (eliminationRemainderFamily S) e ≤
+        ∑ P ∈ pairs.attach,
+          blockIncidenceCount
+            (ExchangeEliminationEmbedding.eliminationRemainderBlocks
+              S P.1 P.2) e :=
+      blockIncidenceCount_biUnion_le_sum pairs.attach
+        (fun P ↦ ExchangeEliminationEmbedding.eliminationRemainderBlocks
+          S P.1 P.2) e
+    _ ≤ ∑ P ∈ pairs.attach,
+        if e ∈ RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀)
+            (S.embedding P.1 P.2) then 2 else 0 :=
+      Finset.sum_le_sum fun P _hP ↦ hterm P
+    _ = relevant.card * 2 := by
+      simp [relevant, Finset.sum_ite]
+    _ ≤ 1 * 2 := Nat.mul_le_mul_right 2 hrelevant
+    _ = 2 := by simp
+
+/-- A non-high old edge is carried by at most one remainder for every old
+clique that contained it, so its remainder multiplicity does not exceed its
+old multiplicity. -/
+lemma blockIncidenceCount_eliminationRemainderFamily_source_le
+    {n k r C : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C)
+    (hsourceForbidden : cliqueBoundarySupport family r ⊆ forbidden)
+    {e : Finset (Fin n)} (heSource : e ∈ cliqueBoundarySupport family r)
+    (heNotHigh : e ∉ highMultiplicityEdges n r 4 family) :
+    blockIncidenceCount (eliminationRemainderFamily S) e ≤
+      blockIncidenceCount (processedHighBlocks n r family) e := by
+  classical
+  let pairs := sqrtGroupEliminationPairs family huniform A
+  have hecard : e.card = r :=
+    mem_completeUniform.mp
+      (cliqueBoundarySupport_subset_complete huniform heSource)
+  have hterm (P : ↑pairs) :
+      blockIncidenceCount
+          (ExchangeEliminationEmbedding.eliminationRemainderBlocks
+            S P.1 P.2) e ≤
+        if e ⊆ P.1.negative then 1 else 0 := by
+    by_cases heNegative : e ⊆ P.1.negative
+    · simpa [heNegative] using
+        blockIncidenceCount_eliminationRemainderBlocks_le_one_of_negative
+          S P.1 P.2 hecard heNegative
+    · have hePositive : ¬e ⊆ P.1.positive := by
+        intro hePos
+        obtain ⟨I, Q, hQ, hEq⟩ :=
+          exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A P.2
+        have heEqRoot : e = I.1.1 := by
+          apply A.source_edge_eq I e heSource
+          simpa [hEq, sqrtGroupEliminationPair] using hePos
+        apply heNotHigh
+        simpa [heEqRoot] using I.1.2
+      have hzero :=
+        blockIncidenceCount_eliminationRemainderBlocks_eq_zero_of_forbidden
+          S P.1 P.2 hecard (hsourceForbidden heSource)
+            hePositive heNegative
+      simp [heNegative, hzero]
+  calc
+    blockIncidenceCount (eliminationRemainderFamily S) e ≤
+        ∑ P ∈ pairs.attach,
+          blockIncidenceCount
+            (ExchangeEliminationEmbedding.eliminationRemainderBlocks
+              S P.1 P.2) e :=
+      blockIncidenceCount_biUnion_le_sum pairs.attach
+        (fun P ↦ ExchangeEliminationEmbedding.eliminationRemainderBlocks
+          S P.1 P.2) e
+    _ ≤ ∑ P ∈ pairs.attach, if e ⊆ P.1.negative then 1 else 0 :=
+      Finset.sum_le_sum fun P _hP ↦ hterm P
+    _ = ∑ P ∈ pairs, if e ⊆ P.negative then 1 else 0 := by
+      exact Finset.sum_attach pairs
+        (fun P ↦ if e ⊆ P.negative then 1 else 0)
+    _ = (pairs.filter fun P ↦ e ⊆ P.negative).card := by
+      simp [Finset.sum_ite]
+    _ ≤ blockIncidenceCount (processedHighBlocks n r family) e :=
+      card_sqrtGroupPairs_incident_negative_le_source
+        huniform hunique A e
+
+lemma blockIncidenceCount_retained_add_processed
+    (n r : ℕ) (family : Finset (Finset (Fin n)))
+    (e : Finset (Fin n)) :
+    blockIncidenceCount (retainedAfterHigh n r family) e +
+        blockIncidenceCount (processedHighBlocks n r family) e =
+      blockIncidenceCount family e := by
+  have hdis : Disjoint (retainedAfterHigh n r family)
+      (processedHighBlocks n r family) := by
+    exact Finset.sdiff_disjoint
+  have hinc := ExchangeEmbedding.incidenceCount_union_of_disjoint hdis e
+  rw [retained_union_processedHighBlocks] at hinc
+  simpa [blockIncidenceCount, Transversal.incidenceCount] using hinc.symm
+
+lemma blockIncidenceCount_sqrtIntermediateCliques_source_eq_zero
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family)
+    {e : Finset (Fin n)} (heSource : e ∈ cliqueBoundarySupport family r)
+    (heNotHigh : e ∉ highMultiplicityEdges n r 4 family) :
+    blockIncidenceCount (sqrtIntermediateCliques A) e = 0 := by
+  classical
+  rw [blockIncidenceCount, Finset.card_eq_zero]
+  apply Finset.eq_empty_iff_forall_notMem.mpr
+  intro B hB
+  have hBData := Finset.mem_filter.mp hB
+  obtain ⟨I, _hI, hBEq⟩ := Finset.mem_image.mp hBData.1
+  have heSub : e ⊆ A.intermediate I := by
+    simpa [hBEq] using hBData.2
+  have heEq : e = I.1.1 := A.source_edge_eq I e heSource heSub
+  apply heNotHigh
+  simpa [heEq] using I.1.2
+
+/-- A fresh edge which is not a non-root edge of an intermediate occurs in
+no intermediate clique. -/
+lemma blockIncidenceCount_sqrtIntermediateCliques_fresh_eq_zero
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family)
+    {e : Finset (Fin n)} (hecard : e.card = r)
+    (heNotSource : e ∉ cliqueBoundarySupport family r)
+    (heNotAux : e ∉ sqrtIntermediateFreeEdges A) :
+    blockIncidenceCount (sqrtIntermediateCliques A) e = 0 := by
+  classical
+  rw [blockIncidenceCount, Finset.card_eq_zero]
+  apply Finset.eq_empty_iff_forall_notMem.mpr
+  intro B hB
+  have hBData := Finset.mem_filter.mp hB
+  obtain ⟨I, _hI, hBEq⟩ := Finset.mem_image.mp hBData.1
+  have heSub : e ⊆ A.intermediate I := by
+    simpa [hBEq] using hBData.2
+  by_cases heEq : e = I.1.1
+  · apply heNotSource
+    rw [heEq]
+    exact highMultiplicityEdges_subset_cliqueBoundarySupport I.1.2
+  · apply heNotAux
+    apply Finset.mem_biUnion.mpr
+    refine ⟨I, Finset.mem_univ _, Finset.mem_sdiff.mpr ⟨?_, ?_⟩⟩
+    · exact Finset.mem_powersetCard.mpr ⟨heSub, hecard⟩
+    · simpa using heEq
+
+/-- A genuinely fresh non-intermediate edge avoids both prescribed roots
+of every square-root elimination pair. -/
+lemma sqrtGroupPair_avoids_fresh_nonauxiliary
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {e : Finset (Fin n)} (hecard : e.card = r)
+    (heNotSource : e ∉ cliqueBoundarySupport family r)
+    (heNotAux : e ∉ sqrtIntermediateFreeEdges A) :
+    (∀ P ∈ sqrtGroupEliminationPairs family huniform A,
+        ¬e ⊆ P.positive) ∧
+      (∀ P ∈ sqrtGroupEliminationPairs family huniform A,
+        ¬e ⊆ P.negative) := by
+  constructor
+  · intro P hP hePos
+    obtain ⟨I, Q, hQ, hEq⟩ :=
+      exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A hP
+    have heSub : e ⊆ A.intermediate I := by
+      simpa [hEq, sqrtGroupEliminationPair] using hePos
+    by_cases heEq : e = I.1.1
+    · apply heNotSource
+      rw [heEq]
+      exact highMultiplicityEdges_subset_cliqueBoundarySupport I.1.2
+    · apply heNotAux
+      apply Finset.mem_biUnion.mpr
+      refine ⟨I, Finset.mem_univ _, Finset.mem_sdiff.mpr ⟨?_, ?_⟩⟩
+      · exact Finset.mem_powersetCard.mpr ⟨heSub, hecard⟩
+      · simpa using heEq
+  · intro P hP heNeg
+    obtain ⟨I, Q, hQ, hEq⟩ :=
+      exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A hP
+    apply heNotSource
+    have hQfamily : Q ∈ family :=
+      (Finset.mem_filter.mp
+        (sqrtGroupingAt_group_subset family I.1.1 I.1.2 I.2.2 hQ)).1
+    apply mem_cliqueBoundarySupport.mpr
+    exact ⟨Q, hQfamily,
+      by simpa [hEq, sqrtGroupEliminationPair] using heNeg, hecard⟩
+
+/-- Every auxiliary non-root edge obeys the group-size half of the
+square-root recurrence in the corrected round. -/
+lemma sqrtGroupFlattenRound_auxiliary_incidence_le
+    {n k r C x : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hsource : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount family e ≤ x)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C)
+    (hauxForbidden : sqrtIntermediateFreeEdges A ⊆ forbidden) :
+    ∀ e ∈ sqrtIntermediateFreeEdges A,
+      blockIncidenceCount (sqrtGroupFlattenRoundFamily huniform A S) e ≤
+        Nat.sqrt x + 1 := by
+  classical
+  intro e heAux
+  obtain ⟨I, _hI, heI⟩ := Finset.mem_biUnion.mp heAux
+  have hecard : e.card = r :=
+    (Finset.mem_powersetCard.mp (Finset.mem_sdiff.mp heI).1).2
+  have heNotSource : e ∉ cliqueBoundarySupport family r := by
+    intro heSource
+    exact Finset.disjoint_left.mp
+      (sqrtIntermediateFreeEdges_disjoint_source A) heAux heSource
+  have hretainedZero :
+      blockIncidenceCount (retainedAfterHigh n r family) e = 0 :=
+    blockIncidenceCount_eq_zero_of_subset_of_not_mem_boundary
+      (Finset.sdiff_subset) hecard heNotSource
+  have hanchorsZero :
+      blockIncidenceCount (sqrtGroupAnchors n r family) e = 0 :=
+    blockIncidenceCount_eq_zero_of_subset_of_not_mem_boundary
+      (sqrtGroupAnchors_subset_family n r family) hecard heNotSource
+  have hremainder :=
+    blockIncidenceCount_eliminationRemainderFamily_le_group
+      huniform A S hauxForbidden I heI
+  have hgroup := (sqrtGroupingAt_spec family I.1.1 I.1.2).2.2
+    I.2.1 I.2.2
+  have hedgeBound :
+      blockIncidenceCount family I.1.1 ≤ x :=
+    hsource I.1.1 (mem_highMultiplicityEdges.mp I.1.2).1
+  calc
+    blockIncidenceCount (sqrtGroupFlattenRoundFamily huniform A S) e ≤
+        blockIncidenceCount (retainedAfterHigh n r family) e +
+          blockIncidenceCount (sqrtGroupFlattenFamily huniform A S) e :=
+      blockIncidenceCount_union_le _ _ _
+    _ ≤ 0 + (blockIncidenceCount (sqrtGroupAnchors n r family) e +
+          blockIncidenceCount (eliminationRemainderFamily S) e) := by
+      gcongr
+      · exact hretainedZero.le
+      · exact blockIncidenceCount_union_le _ _ _
+    _ ≤ I.2.1.card := by simpa [hanchorsZero] using hremainder
+    _ ≤ Nat.sqrt (blockIncidenceCount family I.1.1) + 1 := hgroup
+    _ ≤ Nat.sqrt x + 1 :=
+      Nat.add_le_add_right (Nat.sqrt_le_sqrt hedgeBound) 1
+
+/-- No root-erased remainder contains a currently high edge: in the pair
+assigned to that edge it is common to both roots, while every other pair is
+separated from it by the old-boundary forbidden set. -/
+lemma blockIncidenceCount_eliminationRemainderFamily_high_eq_zero
+    {n k r C : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C)
+    (hsourceForbidden : cliqueBoundarySupport family r ⊆ forbidden)
+    {e : Finset (Fin n)} (he : e ∈ highMultiplicityEdges n r 4 family) :
+    blockIncidenceCount (eliminationRemainderFamily S) e = 0 := by
+  classical
+  let pairs := sqrtGroupEliminationPairs family huniform A
+  have hecard : e.card = r :=
+    mem_completeUniform.mp (mem_highMultiplicityEdges.mp he).1
+  have heSource : e ∈ cliqueBoundarySupport family r :=
+    highMultiplicityEdges_subset_cliqueBoundarySupport he
+  have hterm (P : ↑pairs) :
+      blockIncidenceCount
+        (ExchangeEliminationEmbedding.eliminationRemainderBlocks
+          S P.1 P.2) e = 0 := by
+    obtain ⟨I, Q, hQ, hEq⟩ :=
+      exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A P.2
+    have hQfibre :=
+      sqrtGroupingAt_group_subset family I.1.1 I.1.2 I.2.2 hQ
+    have hQData := Finset.mem_filter.mp hQfibre
+    have hrootQ : I.1.1 ⊆ Q := hQData.2
+    by_cases hePositive : e ⊆ P.1.positive
+    · have heEqRoot : e = I.1.1 := by
+        apply A.source_edge_eq I e heSource
+        simpa [hEq, sqrtGroupEliminationPair] using hePositive
+      apply blockIncidenceCount_eliminationRemainderBlocks_eq_zero_of_common
+        S P.1 P.2 hecard hePositive
+      simpa [hEq, sqrtGroupEliminationPair, heEqRoot] using hrootQ
+    · have heNegative : ¬e ⊆ P.1.negative := by
+        intro heNeg
+        have heQ : e ⊆ Q := by
+          simpa [hEq, sqrtGroupEliminationPair] using heNeg
+        have heEqRoot := hunique Q hQData.1 e he heQ
+          I.1.1 I.1.2 hrootQ
+        apply hePositive
+        simpa [hEq, sqrtGroupEliminationPair, heEqRoot] using
+          sqrtGroupEdge_subset_intermediate A I
+      exact
+        blockIncidenceCount_eliminationRemainderBlocks_eq_zero_of_forbidden
+          S P.1 P.2 hecard (hsourceForbidden heSource)
+            hePositive heNegative
+  have hle : blockIncidenceCount (eliminationRemainderFamily S) e ≤ 0 := by
+    calc
+      blockIncidenceCount (eliminationRemainderFamily S) e ≤
+          ∑ P ∈ pairs.attach,
+            blockIncidenceCount
+              (ExchangeEliminationEmbedding.eliminationRemainderBlocks
+                S P.1 P.2) e := by
+        exact blockIncidenceCount_biUnion_le_sum pairs.attach
+          (fun P ↦ ExchangeEliminationEmbedding.eliminationRemainderBlocks
+            S P.1 P.2) e
+      _ = 0 := by simp [hterm]
+  exact Nat.eq_zero_of_le_zero hle
+
+/-- At a high edge the retained anchors are charged injectively to the
+canonical groups of that edge.  Unique-high-edge prevents an anchor from a
+different fibre contributing. -/
+lemma blockIncidenceCount_sqrtGroupAnchors_high_le
+    {n r : ℕ} {family : Finset (Finset (Fin n))}
+    (hunique : HasUniqueHighEdge n r family)
+    {e : Finset (Fin n)} (he : e ∈ highMultiplicityEdges n r 4 family) :
+    blockIncidenceCount (sqrtGroupAnchors n r family) e ≤
+      (sqrtGroupingAt family e he).parts.card := by
+  classical
+  let e' : ↑(highMultiplicityEdges n r 4 family) := ⟨e, he⟩
+  let edgeAnchors : Finset (Finset (Fin n)) :=
+    (sqrtGroupingAt family e he).parts.attach.image fun group ↦
+      sqrtGroupAnchor (⟨e', group⟩ : SqrtGroupIndex n r family)
+  have hsub :
+      (sqrtGroupAnchors n r family).filter (fun B ↦ e ⊆ B) ⊆
+        edgeAnchors := by
+    intro B hB
+    have hBData := Finset.mem_filter.mp hB
+    obtain ⟨I, _hI, hanchorEq⟩ := Finset.mem_image.mp hBData.1
+    have hanchorFamily : sqrtGroupAnchor I ∈ family :=
+      sqrtGroupAnchors_subset_family n r family
+        (Finset.mem_image.mpr ⟨I, Finset.mem_univ _, rfl⟩)
+    have hrootAnchor : I.1.1 ⊆ sqrtGroupAnchor I :=
+      (Finset.mem_filter.mp
+        (sqrtGroupingAt_group_subset family I.1.1 I.1.2 I.2.2
+          (sqrtGroupAnchor_mem I))).2
+    have hEdgeEq : e = I.1.1 :=
+      hunique (sqrtGroupAnchor I) hanchorFamily e he
+        (by simpa [hanchorEq] using hBData.2)
+        I.1.1 I.1.2 hrootAnchor
+    have hIndexEq : I.1 = e' := Subtype.ext hEdgeEq.symm
+    let group : ↑(sqrtGroupingAt family e'.1 e'.2).parts :=
+      cast (by rw [hIndexEq]) I.2
+    have hSigmaEq :
+        (⟨e', group⟩ : SqrtGroupIndex n r family) = I := by
+      apply Sigma.ext hIndexEq.symm
+      simp [group]
+    apply Finset.mem_image.mpr
+    refine ⟨group, Finset.mem_attach _ _, ?_⟩
+    simpa [hSigmaEq] using hanchorEq
+  calc
+    blockIncidenceCount (sqrtGroupAnchors n r family) e ≤
+        edgeAnchors.card := Finset.card_le_card hsub
+    _ ≤ (sqrtGroupingAt family e he).parts.attach.card :=
+      Finset.card_image_le
+    _ = (sqrtGroupingAt family e he).parts.card := by simp
+
+lemma blockIncidenceCount_retainedAfterHigh_high_eq_zero
+    {n r : ℕ} {family : Finset (Finset (Fin n))}
+    {e : Finset (Fin n)} (he : e ∈ highMultiplicityEdges n r 4 family) :
+    blockIncidenceCount (retainedAfterHigh n r family) e = 0 := by
+  rw [blockIncidenceCount, Finset.card_eq_zero]
+  apply Finset.eq_empty_iff_forall_notMem.mpr
+  intro Q hQ
+  have hQData := Finset.mem_filter.mp hQ
+  have hretained := Finset.mem_sdiff.mp hQData.1
+  apply hretained.2
+  apply Finset.mem_filter.mpr
+  exact ⟨hretained.1, e, he, hQData.2⟩
+
+/-- Every currently high edge obeys the group-count half of the corrected
+square-root recurrence. -/
+lemma sqrtGroupFlattenRound_high_incidence_le
+    {n k r C : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C)
+    (hsourceForbidden : cliqueBoundarySupport family r ⊆ forbidden) :
+    ∀ e ∈ highMultiplicityEdges n r 4 family,
+      blockIncidenceCount (sqrtGroupFlattenRoundFamily huniform A S) e ≤
+        Nat.sqrt (blockIncidenceCount family e) + 1 := by
+  intro e he
+  have hretained := blockIncidenceCount_retainedAfterHigh_high_eq_zero he
+  have hremainder :=
+    blockIncidenceCount_eliminationRemainderFamily_high_eq_zero
+      huniform hunique A S hsourceForbidden he
+  have hanchors := blockIncidenceCount_sqrtGroupAnchors_high_le hunique he
+  have hparts := (sqrtGroupingAt_spec family e he).2.1
+  calc
+    blockIncidenceCount (sqrtGroupFlattenRoundFamily huniform A S) e ≤
+        blockIncidenceCount (retainedAfterHigh n r family) e +
+          blockIncidenceCount (sqrtGroupFlattenFamily huniform A S) e :=
+      blockIncidenceCount_union_le _ _ _
+    _ ≤ 0 + (blockIncidenceCount (sqrtGroupAnchors n r family) e +
+          blockIncidenceCount (eliminationRemainderFamily S) e) := by
+      gcongr
+      · exact hretained.le
+      · exact blockIncidenceCount_union_le _ _ _
+    _ ≤ (sqrtGroupingAt family e he).parts.card := by
+      simpa [hremainder] using hanchors
+    _ = Nat.sqrt (blockIncidenceCount family e) + 1 := hparts
+
+/-- The literal fresh-intermediate round has the high-edge bound claimed by
+the square-root construction. -/
+lemma sqrtGroupEliminationRound_high_incidence_le
+    {n k r C : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C)
+    (hsourceForbidden : cliqueBoundarySupport family r ⊆ forbidden) :
+    ∀ e ∈ highMultiplicityEdges n r 4 family,
+      blockIncidenceCount
+          (eliminationFlattenRoundFamily
+            (retainedAfterHigh n r family) S) e ≤
+        Nat.sqrt (blockIncidenceCount family e) + 1 := by
+  intro e he
+  have hretained := blockIncidenceCount_retainedAfterHigh_high_eq_zero he
+  have hremainder :=
+    blockIncidenceCount_eliminationRemainderFamily_high_eq_zero
+      huniform hunique A S hsourceForbidden he
+  have hinter := blockIncidenceCount_sqrtIntermediateCliques_high_le A he
+  have hparts := (sqrtGroupingAt_spec family e he).2.1
+  rw [eliminationFlattenRoundFamily,
+    eliminationFlattenFamily_eq_intermediates_union_remainders
+      huniform A S]
+  calc
+    blockIncidenceCount
+        (retainedAfterHigh n r family ∪
+          (sqrtIntermediateCliques A ∪ eliminationRemainderFamily S)) e ≤
+        blockIncidenceCount (retainedAfterHigh n r family) e +
+          (blockIncidenceCount (sqrtIntermediateCliques A) e +
+            blockIncidenceCount (eliminationRemainderFamily S) e) := by
+      exact (blockIncidenceCount_union_le _ _ _).trans
+        (Nat.add_le_add_left (blockIncidenceCount_union_le _ _ _) _)
+    _ ≤ (sqrtGroupingAt family e he).parts.card := by
+      omega
+    _ = Nat.sqrt (blockIncidenceCount family e) + 1 := hparts
+
+/-- A fresh non-root intermediate edge has the corrected group-size-plus-one
+bound: one intermediate clique and at most one remainder per old group
+member. -/
+lemma sqrtGroupEliminationRound_auxiliary_incidence_le
+    {n k r C x : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hsource : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount family e ≤ x)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C)
+    (hauxForbidden : sqrtIntermediateFreeEdges A ⊆ forbidden) :
+    ∀ e ∈ sqrtIntermediateFreeEdges A,
+      blockIncidenceCount
+          (eliminationFlattenRoundFamily
+            (retainedAfterHigh n r family) S) e ≤ Nat.sqrt x + 2 := by
+  classical
+  intro e heAux
+  obtain ⟨I, _hI, heI⟩ := Finset.mem_biUnion.mp heAux
+  have hecard : e.card = r :=
+    (Finset.mem_powersetCard.mp (Finset.mem_sdiff.mp heI).1).2
+  have heNotSource : e ∉ cliqueBoundarySupport family r := by
+    intro heSource
+    exact Finset.disjoint_left.mp
+      (sqrtIntermediateFreeEdges_disjoint_source A) heAux heSource
+  have hretained :
+      blockIncidenceCount (retainedAfterHigh n r family) e = 0 :=
+    blockIncidenceCount_eq_zero_of_subset_of_not_mem_boundary
+      Finset.sdiff_subset hecard heNotSource
+  have hinter :=
+    blockIncidenceCount_sqrtIntermediateCliques_auxiliary_le_one A I heI
+  have hremainder :=
+    blockIncidenceCount_eliminationRemainderFamily_le_group
+      huniform A S hauxForbidden I heI
+  have hgroup := (sqrtGroupingAt_spec family I.1.1 I.1.2).2.2
+    I.2.1 I.2.2
+  have hedgeBound := hsource I.1.1
+    (mem_highMultiplicityEdges.mp I.1.2).1
+  rw [eliminationFlattenRoundFamily,
+    eliminationFlattenFamily_eq_intermediates_union_remainders
+      huniform A S]
+  calc
+    blockIncidenceCount
+        (retainedAfterHigh n r family ∪
+          (sqrtIntermediateCliques A ∪ eliminationRemainderFamily S)) e ≤
+        blockIncidenceCount (retainedAfterHigh n r family) e +
+          (blockIncidenceCount (sqrtIntermediateCliques A) e +
+            blockIncidenceCount (eliminationRemainderFamily S) e) := by
+      exact (blockIncidenceCount_union_le _ _ _).trans
+        (Nat.add_le_add_left (blockIncidenceCount_union_le _ _ _) _)
+    _ ≤ 1 + I.2.1.card := by omega
+    _ ≤ 1 + (Nat.sqrt (blockIncidenceCount family I.1.1) + 1) :=
+      Nat.add_le_add_left hgroup 1
+    _ ≤ Nat.sqrt x + 2 := by
+      have := Nat.sqrt_le_sqrt (hedgeBound)
+      omega
+
+/-- The complete low-edge case distinction for the literal round. -/
+lemma sqrtGroupEliminationRound_nonhigh_incidence_le
+    {n k r C x : ℕ} {family : Finset (Finset (Fin n))}
+    (hx : 4 < x)
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hsource : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount family e ≤ x)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C)
+    (hsourceForbidden : cliqueBoundarySupport family r ⊆ forbidden)
+    (hauxForbidden : sqrtIntermediateFreeEdges A ⊆ forbidden) :
+    ∀ e ∈ completeUniform n r,
+      e ∉ highMultiplicityEdges n r 4 family →
+      blockIncidenceCount
+          (eliminationFlattenRoundFamily
+            (retainedAfterHigh n r family) S) e ≤ Nat.sqrt x + 2 := by
+  classical
+  intro e heComplete heNotHigh
+  have hecard : e.card = r := mem_completeUniform.mp heComplete
+  rw [eliminationFlattenRoundFamily,
+    eliminationFlattenFamily_eq_intermediates_union_remainders
+      huniform A S]
+  have hbasic :
+      blockIncidenceCount
+          (retainedAfterHigh n r family ∪
+            (sqrtIntermediateCliques A ∪ eliminationRemainderFamily S)) e ≤
+        blockIncidenceCount (retainedAfterHigh n r family) e +
+          (blockIncidenceCount (sqrtIntermediateCliques A) e +
+            blockIncidenceCount (eliminationRemainderFamily S) e) := by
+    exact (blockIncidenceCount_union_le _ _ _).trans
+      (Nat.add_le_add_left (blockIncidenceCount_union_le _ _ _) _)
+  by_cases heSource : e ∈ cliqueBoundarySupport family r
+  · have hinter :=
+      blockIncidenceCount_sqrtIntermediateCliques_source_eq_zero
+        A heSource heNotHigh
+    have hremainder :=
+      blockIncidenceCount_eliminationRemainderFamily_source_le
+        huniform hunique A S hsourceForbidden heSource heNotHigh
+    have hpartition := blockIncidenceCount_retained_add_processed
+      n r family e
+    have hnonhigh : blockIncidenceCount family e ≤ 4 := by
+      exact Nat.le_of_not_gt fun hgt ↦
+        heNotHigh (mem_highMultiplicityEdges.mpr ⟨heComplete, hgt⟩)
+    have hsqrt : 2 ≤ Nat.sqrt x := Nat.le_sqrt.mpr (by omega)
+    exact hbasic.trans (by omega)
+  · have hretained :
+        blockIncidenceCount (retainedAfterHigh n r family) e = 0 :=
+      blockIncidenceCount_eq_zero_of_subset_of_not_mem_boundary
+        Finset.sdiff_subset hecard heSource
+    by_cases heAux : e ∈ sqrtIntermediateFreeEdges A
+    · have haux := sqrtGroupEliminationRound_auxiliary_incidence_le
+        huniform hsource A S hauxForbidden e heAux
+      simpa [eliminationFlattenRoundFamily,
+        eliminationFlattenFamily_eq_intermediates_union_remainders
+          huniform A S] using haux
+    · have hinter :=
+        blockIncidenceCount_sqrtIntermediateCliques_fresh_eq_zero
+          A hecard heSource heAux
+      have havoids := sqrtGroupPair_avoids_fresh_nonauxiliary
+        huniform A hecard heSource heAux
+      have hremainder :=
+        blockIncidenceCount_eliminationRemainderFamily_le_two_of_avoids_roots
+          S hecard havoids.1 havoids.2
+      exact hbasic.trans (by omega)
+
+/-- All geometric cases of one literal square-root round establish the
+corrected recurrence `max (sqrt x + 2) 4`. -/
+theorem hasSquareRootIncidenceUpdate_eliminationRound
+    {n k r C x : ℕ} {family : Finset (Finset (Fin n))}
+    (hx : 4 < x)
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hsource : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount family e ≤ x)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C)
+    (hsourceForbidden : cliqueBoundarySupport family r ⊆ forbidden)
+    (hauxForbidden : sqrtIntermediateFreeEdges A ⊆ forbidden) :
+    HasSquareRootIncidenceUpdate n r x family
+      (eliminationFlattenRoundFamily (retainedAfterHigh n r family) S) := by
+  exact ⟨sqrtGroupEliminationRound_high_incidence_le
+      huniform hunique A S hsourceForbidden,
+    sqrtGroupEliminationRound_nonhigh_incidence_le hx huniform hsource
+      hunique A S hsourceForbidden hauxForbidden⟩
+
+theorem cliqueBoundaryRepresentable_exchangeReplacement
+    {n k r : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (φ : Fin E.v ↪ Fin n) :
+    CliqueBoundaryRepresentable n k r (exchangeReplacement E φ)
+      (RootedEmbedding.mapEdge φ E.pattern.root) := by
+  classical
+  let neg := ExchangeEmbedding.mappedNegative E φ
+  let pos := (ExchangeEmbedding.mappedPositive E φ).erase
+    (RootedEmbedding.mapEdge φ E.pattern.root)
+  let η : Finset (Fin n) → ℤ := fun B ↦
+    familyIndicatorCoeff neg B - familyIndicatorCoeff pos B
+  have hnegUniform : ∀ B ∈ neg, B.card = k :=
+    (ExchangeEmbedding.mappedNegative_decomp E φ).1
+  have hposUniform : ∀ B ∈ pos, B.card = k := by
+    intro B hB
+    exact (ExchangeEmbedding.mappedPositive_decomp E φ).1 B
+      (Finset.mem_of_mem_erase hB)
+  refine ⟨η, ?_, ?_⟩
+  · intro B hB
+    by_cases hBn : B ∈ neg
+    · exact Finset.mem_union_left _ hBn
+    · by_cases hBp : B ∈ pos
+      · exact Finset.mem_union_right _ hBp
+      · simp [η, familyIndicatorCoeff, hBn, hBp] at hB
+  · intro e he
+    rw [show boundary n k η e =
+        boundary n k (familyIndicatorCoeff neg) e -
+          boundary n k (familyIndicatorCoeff pos) e by
+      exact boundary_sub_coeff n k _ _ e]
+    rw [boundary_familyIndicatorCoeff_eq_incidence (r := r) hnegUniform e,
+      boundary_familyIndicatorCoeff_eq_incidence (r := r) hposUniform e]
+    have hsigned := ExchangeEmbedding.mappedFullExchange_signed_root E φ
+      (mem_completeUniform.mp he)
+    change (Transversal.incidenceCount neg e : ℤ) -
+        (Transversal.incidenceCount pos e : ℤ) = _
+    exact hsigned
+
+/-- A two-root elimination exchange represents its negative root by the
+positive intermediate root and the two root-erased remainder families. -/
+theorem cliqueBoundaryRepresentable_eliminationFlattenReplacement
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C)
+    (P : ExchangeEliminationEmbedding.EliminationPair n k r)
+    (hP : P ∈ pairs) :
+    CliqueBoundaryRepresentable n k r
+      (eliminationFlattenReplacement S P hP) P.negative := by
+  classical
+  let pos :=
+    ExchangeEliminationEmbedding.eliminationPositiveRemainder S P hP
+  let neg :=
+    ExchangeEliminationEmbedding.eliminationNegativeRemainder S P hP
+  let η : Finset (Fin n) → ℤ := fun B ↦
+    familyIndicatorCoeff {P.positive} B -
+      familyIndicatorCoeff pos B + familyIndicatorCoeff neg B
+  have hposUniform : ∀ B ∈ pos, B.card = k :=
+    (ExchangeEliminationEmbedding.eliminationPositiveRemainder_decomp
+      S P hP).1
+  have hnegUniform : ∀ B ∈ neg, B.card = k :=
+    (ExchangeEliminationEmbedding.eliminationNegativeRemainder_decomp
+      S P hP).1
+  refine ⟨η, ?_, ?_⟩
+  · intro B hB
+    by_cases hroot : B = P.positive
+    · subst B
+      exact Finset.mem_union_left _ (Finset.mem_union_left _ (by simp))
+    · by_cases hpos : B ∈ pos
+      · exact Finset.mem_union_left _ (Finset.mem_union_right _ hpos)
+      · by_cases hneg : B ∈ neg
+        · exact Finset.mem_union_right _ hneg
+        · simp [η, familyIndicatorCoeff, hroot, hpos, hneg] at hB
+  · intro e he
+    have her :=
+      ExchangeEliminationEmbedding.eliminationRemainders_signed_pair
+        S P hP (mem_completeUniform.mp he)
+    have hrootUniform : ∀ B ∈ ({P.positive} : Finset (Finset (Fin n))),
+        B.card = k := by
+      intro B hB
+      have hEq : B = P.positive := by simpa using hB
+      simpa [hEq] using P.positive_card
+    rw [show boundary n k η e =
+        boundary n k
+            (fun B ↦ familyIndicatorCoeff {P.positive} B -
+              familyIndicatorCoeff pos B) e +
+          boundary n k (familyIndicatorCoeff neg) e by
+      exact congrFun (boundary_add n k _ _) e]
+    rw [boundary_sub_coeff,
+      boundary_familyIndicatorCoeff_eq_incidence (r := r) hrootUniform e,
+      boundary_familyIndicatorCoeff_eq_incidence (r := r) hposUniform e,
+      boundary_familyIndicatorCoeff_eq_incidence (r := r) hnegUniform e]
+    have hrootInc :
+        (blockIncidenceCount ({P.positive} :
+          Finset (Finset (Fin n))) e : ℤ) =
+          if e ⊆ P.positive then 1 else 0 := by
+      by_cases heP : e ⊆ P.positive <;>
+        simp only [blockIncidenceCount, heP, if_true, if_false]
+      · have hf :
+            (({P.positive} : Finset (Finset (Fin n))).filter
+              fun B ↦ e ⊆ B) = {P.positive} := by
+          ext B
+          simp only [Finset.mem_filter, Finset.mem_singleton]
+          constructor
+          · exact fun h ↦ h.1
+          · intro h
+            subst B
+            exact ⟨rfl, heP⟩
+        simp [hf]
+      · have hf :
+            (({P.positive} : Finset (Finset (Fin n))).filter
+              fun B ↦ e ⊆ B) = ∅ := by
+          ext B
+          simp only [Finset.mem_filter, Finset.mem_singleton,
+            Finset.notMem_empty, iff_false]
+          intro h
+          apply heP
+          simpa [h.1] using h.2
+        simp [hf]
+    rw [hrootInc]
+    change (if e ⊆ P.positive then (1 : ℤ) else 0) -
+        (Transversal.incidenceCount pos e : ℤ) +
+          (Transversal.incidenceCount neg e : ℤ) = _
+    linarith
+
+/-- The same two-root identity solved in the other direction: the positive
+auxiliary root is represented by an old negative anchor and the two
+root-erased remainder families. -/
+theorem cliqueBoundaryRepresentable_eliminationPositiveFromNegative
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C)
+    (P : ExchangeEliminationEmbedding.EliminationPair n k r)
+    (hP : P ∈ pairs) :
+    CliqueBoundaryRepresentable n k r
+      ({P.negative} ∪
+        ExchangeEliminationEmbedding.eliminationPositiveRemainder S P hP ∪
+        ExchangeEliminationEmbedding.eliminationNegativeRemainder S P hP)
+      P.positive := by
+  classical
+  let pos :=
+    ExchangeEliminationEmbedding.eliminationPositiveRemainder S P hP
+  let neg :=
+    ExchangeEliminationEmbedding.eliminationNegativeRemainder S P hP
+  let η : Finset (Fin n) → ℤ := fun B ↦
+    familyIndicatorCoeff {P.negative} B +
+      familyIndicatorCoeff pos B - familyIndicatorCoeff neg B
+  have hposUniform : ∀ B ∈ pos, B.card = k :=
+    (ExchangeEliminationEmbedding.eliminationPositiveRemainder_decomp
+      S P hP).1
+  have hnegUniform : ∀ B ∈ neg, B.card = k :=
+    (ExchangeEliminationEmbedding.eliminationNegativeRemainder_decomp
+      S P hP).1
+  refine ⟨η, ?_, ?_⟩
+  · intro B hB
+    by_cases hroot : B = P.negative
+    · subst B
+      exact Finset.mem_union_left _ (Finset.mem_union_left _ (by simp))
+    · by_cases hpos : B ∈ pos
+      · exact Finset.mem_union_left _ (Finset.mem_union_right _ hpos)
+      · by_cases hneg : B ∈ neg
+        · exact Finset.mem_union_right _ hneg
+        · simp [η, familyIndicatorCoeff, hroot, hpos, hneg] at hB
+  · intro e he
+    have her :=
+      ExchangeEliminationEmbedding.eliminationRemainders_signed_pair
+        S P hP (mem_completeUniform.mp he)
+    have hrootUniform : ∀ B ∈ ({P.negative} : Finset (Finset (Fin n))),
+        B.card = k := by
+      intro B hB
+      have hEq : B = P.negative := by simpa using hB
+      simpa [hEq] using P.negative_card
+    rw [show boundary n k η e =
+        boundary n k
+            (fun B ↦ familyIndicatorCoeff {P.negative} B +
+              familyIndicatorCoeff pos B) e -
+          boundary n k (familyIndicatorCoeff neg) e by
+      rw [boundary_sub_coeff]]
+    rw [show boundary n k
+          (fun B ↦ familyIndicatorCoeff {P.negative} B +
+            familyIndicatorCoeff pos B) e =
+        boundary n k (familyIndicatorCoeff {P.negative}) e +
+          boundary n k (familyIndicatorCoeff pos) e by
+      exact congrFun (boundary_add n k _ _) e]
+    rw [boundary_familyIndicatorCoeff_eq_incidence (r := r) hrootUniform e,
+      boundary_familyIndicatorCoeff_eq_incidence (r := r) hposUniform e,
+      boundary_familyIndicatorCoeff_eq_incidence (r := r) hnegUniform e]
+    have hrootInc :
+        (blockIncidenceCount ({P.negative} :
+          Finset (Finset (Fin n))) e : ℤ) =
+          if e ⊆ P.negative then 1 else 0 := by
+      by_cases heP : e ⊆ P.negative <;>
+        simp only [blockIncidenceCount, heP, if_true, if_false]
+      · have hf :
+            (({P.negative} : Finset (Finset (Fin n))).filter
+              fun B ↦ e ⊆ B) = {P.negative} := by
+          ext B
+          simp only [Finset.mem_filter, Finset.mem_singleton]
+          constructor
+          · exact fun h ↦ h.1
+          · intro h
+            subst B
+            exact ⟨rfl, heP⟩
+        simp [hf]
+      · have hf :
+            (({P.negative} : Finset (Finset (Fin n))).filter
+              fun B ↦ e ⊆ B) = ∅ := by
+          ext B
+          simp only [Finset.mem_filter, Finset.mem_singleton,
+            Finset.notMem_empty, iff_false]
+          intro h
+          apply heP
+          simpa [h.1] using h.2
+        simp [hf]
+    rw [hrootInc]
+    change (if e ⊆ P.negative then (1 : ℤ) else 0) +
+        (Transversal.incidenceCount pos e : ℤ) -
+          (Transversal.incidenceCount neg e : ℤ) = _
+    linarith
+
+lemma CliqueBoundaryRepresentable.mono
+    {n k r : ℕ} {small large : Finset (Finset (Fin n))}
+    {Q : Finset (Fin n)} (hsub : small ⊆ large)
+    (h : CliqueBoundaryRepresentable n k r small Q) :
+    CliqueBoundaryRepresentable n k r large Q := by
+  obtain ⟨η, hη, hboundary⟩ := h
+  exact ⟨η, fun B hB ↦ hsub (hη B hB), hboundary⟩
+
+/-- A member of the target family represents its own clique boundary. -/
+lemma cliqueBoundaryRepresentable_of_mem
+    {n k r : ℕ} {target : Finset (Finset (Fin n))}
+    {Q : Finset (Fin n)} (hQ : Q ∈ target) (hQcard : Q.card = k) :
+    CliqueBoundaryRepresentable n k r target Q := by
+  classical
+  refine ⟨familyIndicatorCoeff {Q}, ?_, ?_⟩
+  · intro B hB
+    have hBQ : B = Q := by
+      by_contra hne
+      simp [familyIndicatorCoeff, hne] at hB
+    simpa [hBQ] using hQ
+  · intro e he
+    have huniform : ∀ B ∈ ({Q} : Finset (Finset (Fin n))), B.card = k := by
+      intro B hB
+      have hBQ : B = Q := by simpa using hB
+      simpa [hBQ] using hQcard
+    rw [boundary_familyIndicatorCoeff_eq_incidence (r := r) huniform e]
+    by_cases heQ : e ⊆ Q
+    · have hf :
+          (({Q} : Finset (Finset (Fin n))).filter fun B ↦ e ⊆ B) = {Q} := by
+        ext B
+        simp only [Finset.mem_filter, Finset.mem_singleton]
+        constructor
+        · exact fun h ↦ h.1
+        · intro h
+          subst B
+          exact ⟨rfl, heQ⟩
+      simp [blockIncidenceCount, hf, heQ]
+    · have hf :
+          (({Q} : Finset (Finset (Fin n))).filter fun B ↦ e ⊆ B) = ∅ := by
+        ext B
+        simp only [Finset.mem_filter, Finset.mem_singleton,
+          Finset.notMem_empty, iff_false]
+        intro h
+        apply heQ
+        simpa [h.1] using h.2
+      simp [blockIncidenceCount, hf, heQ]
+
+/-- Substitute integral representations of an intermediate family into a
+single represented clique boundary. -/
+lemma CliqueBoundaryRepresentable.of_integrallySpans
+    {n k r : ℕ}
+    {target middle : Finset (Finset (Fin n))}
+    {Q : Finset (Fin n)}
+    (hspan : IntegrallySpans n k r target middle)
+    (hQ : CliqueBoundaryRepresentable n k r middle Q) :
+    CliqueBoundaryRepresentable n k r target Q := by
+  obtain ⟨η, hη, hboundary⟩ := hQ
+  obtain ⟨η', hη', hboundary'⟩ := hspan η hη
+  exact ⟨η', hη', fun e he ↦
+    (hboundary' e he).trans (hboundary e he)⟩
+
+/-- Blockwise integer representations combine to an integer representation
+of every coefficient vector on the source family. -/
+theorem integrallySpans_of_cliqueBoundaryRepresentable
+    {n k r : ℕ} {target source : Finset (Finset (Fin n))}
+    (hsourceUniform : ∀ Q ∈ source, Q.card = k)
+    (hbasis : ∀ Q ∈ source,
+      CliqueBoundaryRepresentable n k r target Q) :
+    IntegrallySpans n k r target source := by
+  classical
+  intro φ hφsupport
+  let η : ↑source → Finset (Fin n) → ℤ := fun Q ↦
+    Classical.choose (hbasis Q.1 Q.2)
+  have hηsupport (Q : ↑source) :
+      ∀ B, η Q B ≠ 0 → B ∈ target :=
+    (Classical.choose_spec (hbasis Q.1 Q.2)).1
+  have hηboundary (Q : ↑source) :
+      ∀ e ∈ completeUniform n r,
+        boundary n k (η Q) e = if e ⊆ Q.1 then 1 else 0 :=
+    (Classical.choose_spec (hbasis Q.1 Q.2)).2
+  let φ' : Finset (Fin n) → ℤ := fun B ↦
+    ∑ Q ∈ source.attach, φ Q.1 * η Q B
+  have hφ'support : ∀ B, φ' B ≠ 0 → B ∈ target := by
+    intro B hB
+    obtain ⟨Q, hQ, hterm⟩ :=
+      Finset.exists_ne_zero_of_sum_ne_zero hB
+    have hηQB : η Q B ≠ 0 := by
+      intro hz
+      simp [hz] at hterm
+    exact hηsupport Q B hηQB
+  refine ⟨φ', hφ'support, ?_⟩
+  intro e he
+  have hcombine : boundary n k φ' e =
+      ∑ Q ∈ source.attach, φ Q.1 * boundary n k (η Q) e := by
+    rw [boundary]
+    simp only [φ']
+    calc
+      (∑ B ∈ blockCandidates n k,
+          if e ⊆ B then
+            ∑ Q ∈ source.attach, φ Q.1 * η Q B
+          else 0) =
+          ∑ B ∈ blockCandidates n k,
+            ∑ Q ∈ source.attach,
+              φ Q.1 * (if e ⊆ B then η Q B else 0) := by
+        apply Finset.sum_congr rfl
+        intro B hB
+        by_cases heB : e ⊆ B <;> simp [heB]
+      _ = ∑ Q ∈ source.attach,
+          ∑ B ∈ blockCandidates n k,
+            φ Q.1 * (if e ⊆ B then η Q B else 0) := by
+        rw [Finset.sum_comm]
+      _ = ∑ Q ∈ source.attach, φ Q.1 * boundary n k (η Q) e := by
+        apply Finset.sum_congr rfl
+        intro Q hQ
+        rw [boundary, Finset.mul_sum]
+  rw [hcombine]
+  calc
+    (∑ Q ∈ source.attach, φ Q.1 * boundary n k (η Q) e) =
+        ∑ Q ∈ source.attach,
+          φ Q.1 * (if e ⊆ Q.1 then 1 else 0) := by
+      apply Finset.sum_congr rfl
+      intro Q hQ
+      rw [hηboundary Q e he]
+    _ = ∑ Q ∈ source,
+          φ Q * (if e ⊆ Q then 1 else 0) := by
+      exact Finset.sum_attach source
+        (fun Q ↦ φ Q * (if e ⊆ Q then 1 else 0))
+    _ = ∑ Q ∈ source.filter (fun Q ↦ e ⊆ Q), φ Q := by
+      simp [Finset.sum_ite]
+    _ = boundary n k φ e :=
+      (boundary_eq_sum_incident_of_support hsourceUniform hφsupport e).symm
+
+/-- The aggregate two-root bank integrally spans all of its prescribed
+negative roots.  Several old cliques may share one intermediate positive
+root; set union is therefore exactly the source's grouping operation. -/
+theorem eliminationFlattenFamily_integrallySpans
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C) :
+    IntegrallySpans n k r (eliminationFlattenFamily S)
+      (pairs.image ExchangeEliminationEmbedding.EliminationPair.negative) := by
+  classical
+  apply integrallySpans_of_cliqueBoundaryRepresentable
+  · intro Q hQ
+    obtain ⟨P, _hP, rfl⟩ := Finset.mem_image.mp hQ
+    exact P.negative_card
+  · intro Q hQ
+    obtain ⟨P, hP, rfl⟩ := Finset.mem_image.mp hQ
+    let P' : ↑pairs := ⟨P, hP⟩
+    have hsingle :=
+      cliqueBoundaryRepresentable_eliminationFlattenReplacement S P hP
+    have hsub : eliminationFlattenReplacement S P hP ⊆
+        eliminationFlattenFamily S := by
+      intro B hB
+      apply Finset.mem_biUnion.mpr
+      refine ⟨P', Finset.mem_attach _ _, ?_⟩
+      simpa [P'] using hB
+    exact hsingle.mono hsub
+
+/-- A full round spans any old family covered by the retained cliques and
+the negative sides of the prescribed elimination pairs. -/
+theorem eliminationFlattenRoundFamily_integrallySpans
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden retained source : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C)
+    (hcover : source ⊆ retained ∪
+      pairs.image ExchangeEliminationEmbedding.EliminationPair.negative) :
+    IntegrallySpans n k r
+      (eliminationFlattenRoundFamily retained S) source := by
+  apply IntegrallySpans.mono_source hcover
+  exact (integrallySpans_refl n k r retained).union
+    (eliminationFlattenFamily_integrallySpans S)
+
+/-- The canonical square-root grouping schedule covers every old clique:
+retained cliques stay put, and each processed clique is the negative root of
+one of the generated elimination requests. -/
+theorem sqrtGroupEliminationRound_integrallySpans
+    {n k r C : ℕ}
+    {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C) :
+    IntegrallySpans n k r
+      (eliminationFlattenRoundFamily (retainedAfterHigh n r family) S)
+      family := by
+  apply eliminationFlattenRoundFamily_integrallySpans S
+  intro Q hQ
+  by_cases hprocessed : Q ∈ processedHighBlocks n r family
+  · apply Finset.mem_union_right
+    exact processedHighBlocks_subset_sqrtGroupPairNegatives
+      family huniform A hprocessed
+  · apply Finset.mem_union_left
+    exact Finset.mem_sdiff.mpr ⟨hQ, hprocessed⟩
+
+/-- One checked square-root elimination bank supplies the three pieces of
+data consumed by the recursive flattening certificate: integral spanning,
+`k`-uniformity, and the corrected next multiplicity cap. -/
+theorem sqrtGroupEliminationRound_step_data
+    {n k r C x : ℕ} {family : Finset (Finset (Fin n))}
+    (hx : 4 < x)
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hsource : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount family e ≤ x)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C)
+    (hsourceForbidden : cliqueBoundarySupport family r ⊆ forbidden)
+    (hauxForbidden : sqrtIntermediateFreeEdges A ⊆ forbidden) :
+    IntegrallySpans n k r
+        (eliminationFlattenRoundFamily (retainedAfterHigh n r family) S)
+        family ∧
+      (∀ Q ∈ eliminationFlattenRoundFamily
+          (retainedAfterHigh n r family) S, Q.card = k) ∧
+      ∀ e ∈ completeUniform n r,
+        blockIncidenceCount
+            (eliminationFlattenRoundFamily
+              (retainedAfterHigh n r family) S) e ≤
+          nextFlattenMultiplicity x := by
+  refine ⟨sqrtGroupEliminationRound_integrallySpans huniform A S,
+    eliminationFlattenRoundFamily_uniform
+      (fun Q hQ ↦ huniform Q (Finset.sdiff_subset hQ)) S, ?_⟩
+  exact (hasSquareRootIncidenceUpdate_eliminationRound hx huniform hsource
+    hunique A S hsourceForbidden hauxForbidden).incidence_le_nextFlattenMultiplicity
+      hsource
+
+/-- Prepend one concrete elimination round to a tail flattening
+certificate. -/
+theorem IsSquareRootFlattening.step_eliminationRound
+    {n k r C x : ℕ} {family final : Finset (Finset (Fin n))}
+    (hx : 4 < x)
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hsource : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount family e ≤ x)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C)
+    (hsourceForbidden : cliqueBoundarySupport family r ⊆ forbidden)
+    (hauxForbidden : sqrtIntermediateFreeEdges A ⊆ forbidden)
+    (tail : IsSquareRootFlattening n k r (nextFlattenMultiplicity x)
+      (eliminationFlattenRoundFamily (retainedAfterHigh n r family) S)
+      final) :
+    IsSquareRootFlattening n k r x family final := by
+  obtain ⟨hspan, hnextUniform, hnextBound⟩ :=
+    sqrtGroupEliminationRound_step_data hx huniform hsource hunique A S
+      hsourceForbidden hauxForbidden
+  exact IsSquareRootFlattening.step hx hspan hnextUniform hnextBound tail
+
+/-- The anchor-based correction of the printed flattening round still
+integrally spans every old clique.  For a processed clique, its auxiliary
+positive root is first recovered from the group's old anchor and the
+anchor exchange; the original two-root identity then recovers the clique.
+The auxiliary root itself never enters the target family. -/
+theorem sqrtGroupFlattenRoundFamily_integrallySpans
+    {n k r C : ℕ}
+    {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) forbidden C) :
+    IntegrallySpans n k r
+      (sqrtGroupFlattenRoundFamily huniform A S) family := by
+  classical
+  apply integrallySpans_of_cliqueBoundaryRepresentable huniform
+  intro Q hQ
+  by_cases hprocessed : Q ∈ processedHighBlocks n r family
+  · have hQdata := Finset.mem_filter.mp hprocessed
+    obtain ⟨e, he, heQ⟩ := hQdata.2
+    have hQfibre : Q ∈ incidentBlockFibre family e :=
+      Finset.mem_filter.mpr ⟨hQdata.1, heQ⟩
+    obtain ⟨group, hgroup, _hunique⟩ :=
+      (sqrtGroupingAt family e he).existsUnique_mem hQfibre
+    let e' : ↑(highMultiplicityEdges n r 4 family) := ⟨e, he⟩
+    let group' : ↑(sqrtGroupingAt family e'.1 e'.2).parts :=
+      ⟨group, by simpa [e'] using hgroup.1⟩
+    let I : SqrtGroupIndex n r family := ⟨e', group'⟩
+    have hQI : Q ∈ I.2.1 := by simpa [I, group'] using hgroup.2
+    have hanchorI : sqrtGroupAnchor I ∈ I.2.1 := sqrtGroupAnchor_mem I
+    let P := sqrtGroupEliminationPair huniform A I Q hQI
+    let P₀ := sqrtGroupEliminationPair huniform A I
+      (sqrtGroupAnchor I) hanchorI
+    have hP : P ∈ sqrtGroupEliminationPairs family huniform A :=
+      sqrtGroupEliminationPair_mem huniform A I Q hQI
+    have hP₀ : P₀ ∈ sqrtGroupEliminationPairs family huniform A :=
+      sqrtGroupEliminationPair_mem huniform A I (sqrtGroupAnchor I) hanchorI
+    let target := sqrtGroupFlattenRoundFamily huniform A S
+    have hanchorReplacementSub :
+        ({P₀.negative} ∪
+            ExchangeEliminationEmbedding.eliminationPositiveRemainder S P₀ hP₀ ∪
+            ExchangeEliminationEmbedding.eliminationNegativeRemainder S P₀ hP₀) ⊆
+          target := by
+      intro B hB
+      rcases Finset.mem_union.mp hB with hleft | hneg
+      · rcases Finset.mem_union.mp hleft with hroot | hpos
+        · have hBanchor : B = sqrtGroupAnchor I := by
+            simpa [P₀, sqrtGroupEliminationPair] using hroot
+          apply Finset.mem_union_right
+          apply Finset.mem_union_left
+          apply Finset.mem_image.mpr
+          exact ⟨I, Finset.mem_univ _, hBanchor.symm⟩
+        · apply Finset.mem_union_right
+          apply Finset.mem_union_right
+          apply Finset.mem_biUnion.mpr
+          refine ⟨⟨P₀, hP₀⟩, Finset.mem_attach _ _, ?_⟩
+          exact Finset.mem_union_left _ hpos
+      · apply Finset.mem_union_right
+        apply Finset.mem_union_right
+        apply Finset.mem_biUnion.mpr
+        refine ⟨⟨P₀, hP₀⟩, Finset.mem_attach _ _, ?_⟩
+        exact Finset.mem_union_right _ hneg
+    have hpositive :
+        CliqueBoundaryRepresentable n k r target P.positive := by
+      have hrep :=
+        (cliqueBoundaryRepresentable_eliminationPositiveFromNegative
+          S P₀ hP₀).mono hanchorReplacementSub
+      simpa [P, P₀, sqrtGroupEliminationPair] using hrep
+    have hreplacementSpan :
+        IntegrallySpans n k r target
+          (eliminationFlattenReplacement S P hP) := by
+      apply integrallySpans_of_cliqueBoundaryRepresentable
+        (eliminationFlattenReplacement_uniform S P hP)
+      intro B hB
+      rcases Finset.mem_union.mp hB with hleft | hneg
+      · rcases Finset.mem_union.mp hleft with hroot | hpos
+        · have hBP : B = P.positive := by simpa using hroot
+          simpa [hBP] using hpositive
+        · apply cliqueBoundaryRepresentable_of_mem
+          · apply Finset.mem_union_right
+            apply Finset.mem_union_right
+            apply Finset.mem_biUnion.mpr
+            refine ⟨⟨P, hP⟩, Finset.mem_attach _ _, ?_⟩
+            exact Finset.mem_union_left _ hpos
+          · exact
+              (ExchangeEliminationEmbedding.eliminationPositiveRemainder_decomp
+                S P hP).1 B hpos
+      · apply cliqueBoundaryRepresentable_of_mem
+        · apply Finset.mem_union_right
+          apply Finset.mem_union_right
+          apply Finset.mem_biUnion.mpr
+          refine ⟨⟨P, hP⟩, Finset.mem_attach _ _, ?_⟩
+          exact Finset.mem_union_right _ hneg
+        · exact
+            (ExchangeEliminationEmbedding.eliminationNegativeRemainder_decomp
+              S P hP).1 B hneg
+    exact
+      (cliqueBoundaryRepresentable_eliminationFlattenReplacement S P hP).of_integrallySpans
+        hreplacementSpan
+  · apply cliqueBoundaryRepresentable_of_mem
+    · apply Finset.mem_union_left
+      exact Finset.mem_sdiff.mpr ⟨hQ, hprocessed⟩
+    · exact huniform Q hQ
+
+/-- Choosing one rooted full exchange for each source block and replacing
+its positive root by the remaining signed exchange blocks preserves the
+entire integer clique-boundary lattice generated by the source family. -/
+theorem exchangeReplacementFamily_integrallySpans
+    {n k r : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {source : Finset (Finset (Fin n))}
+    (hsourceUniform : ∀ Q ∈ source, Q.card = k)
+    (embedding : ↑source → (Fin E.v ↪ Fin n))
+    (hroot : ∀ Q : ↑source,
+      RootedEmbedding.mapEdge (embedding Q) E.pattern.root = Q.1) :
+    IntegrallySpans n k r
+      (exchangeReplacementFamily E source embedding) source := by
+  classical
+  apply integrallySpans_of_cliqueBoundaryRepresentable hsourceUniform
+  intro Q hQ
+  let Q' : ↑source := ⟨Q, hQ⟩
+  have hsingle :=
+    cliqueBoundaryRepresentable_exchangeReplacement E (embedding Q')
+  have hsub : exchangeReplacement E (embedding Q') ⊆
+      exchangeReplacementFamily E source embedding := by
+    intro B hB
+    exact Finset.mem_biUnion.mpr ⟨Q', Finset.mem_attach _ _, hB⟩
+  simpa [hroot Q'] using hsingle.mono hsub
+
+/-- The replacement family furnished by a simultaneous rooted-exchange
+placement.  Keeping this as a separate definition makes the quantitative
+free-edge fields of the placement available to the flattening argument. -/
+def placedExchangeReplacementFamily
+    {n k r C : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {source forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C) :
+    Finset (Finset (Fin n)) :=
+  exchangeReplacementFamily E source (fun Q ↦ S.embedding Q.1 Q.2)
+
+/-- A simultaneous rooted placement therefore gives the first
+span-preserving splitting round without any further algebraic hypothesis. -/
+theorem placedExchangeReplacementFamily_integrallySpans
+    {n k r C : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {source forbidden : Finset (Finset (Fin n))}
+    (hsourceUniform : ∀ Q ∈ source, Q.card = k)
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C) :
+    IntegrallySpans n k r
+      (placedExchangeReplacementFamily E S) source := by
+  apply exchangeReplacementFamily_integrallySpans E hsourceUniform
+    (fun Q ↦ S.embedding Q.1 Q.2)
+  intro Q
+  exact S.root_image Q.1 Q.2
+
+/-- The first splitting family in the names used by the exchange embedding
+module: all mapped negative blocks together with all positive blocks except
+the prescribed source roots. -/
+def initialSplitFamily
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {source forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C) : Finset (Finset (Fin n)) :=
+  ExchangeEmbedding.splitPositiveBlocks S ∪
+    ExchangeEmbedding.splitNegativeBlocks S
+
+lemma placedExchangeReplacementFamily_eq_initialSplitFamily
+    {n k r C : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {source forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C) :
+    placedExchangeReplacementFamily E S = initialSplitFamily S := by
+  classical
+  ext B
+  constructor
+  · intro hB
+    obtain ⟨Q, _hQattach, hBQ⟩ := Finset.mem_biUnion.mp hB
+    rcases Finset.mem_union.mp hBQ with hneg | hpos
+    · apply Finset.mem_union_left
+      apply Finset.mem_biUnion.mpr
+      exact ⟨Q, Finset.mem_attach _ _, hneg⟩
+    · apply Finset.mem_union_right
+      apply Finset.mem_biUnion.mpr
+      refine ⟨Q, Finset.mem_attach _ _, ?_⟩
+      simpa [S.root_image Q.1 Q.2] using hpos
+  · intro hB
+    rcases Finset.mem_union.mp hB with hneg | hpos
+    · obtain ⟨Q, _hQattach, hBQ⟩ := Finset.mem_biUnion.mp hneg
+      apply Finset.mem_biUnion.mpr
+      exact ⟨Q, Finset.mem_attach _ _, Finset.mem_union_left _ hBQ⟩
+    · obtain ⟨Q, _hQattach, hBQ⟩ := Finset.mem_biUnion.mp hpos
+      apply Finset.mem_biUnion.mpr
+      refine ⟨Q, Finset.mem_attach _ _, Finset.mem_union_right _ ?_⟩
+      simpa [S.root_image Q.1 Q.2] using hBQ
+
+theorem initialSplitFamily_integrallySpans
+    {n k r C : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {source forbidden : Finset (Finset (Fin n))}
+    (hsourceUniform : ∀ Q ∈ source, Q.card = k)
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C) :
+    IntegrallySpans n k r (initialSplitFamily S) source := by
+  rw [← placedExchangeReplacementFamily_eq_initialSplitFamily E S]
+  exact placedExchangeReplacementFamily_integrallySpans E hsourceUniform S
+
+/-- Every block after the first split contains at most one edge from the
+old clique boundary.  Positive-root-erased blocks use only free edges; a
+negative block is either far (again all free) or one of the special blocks
+with its single distinguished root edge. -/
+theorem initialSplitFamily_source_edge_unique
+    {n k r C : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (hr : 0 < r) (hrk : r < k)
+    {source forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C)
+    (hsourceForbidden : cliqueBoundarySupport source r ⊆ forbidden) :
+    ∀ B ∈ initialSplitFamily S,
+      ∀ e ∈ cliqueBoundarySupport source r, e ⊆ B →
+      ∀ e' ∈ cliqueBoundarySupport source r, e' ⊆ B → e = e' := by
+  classical
+  intro B hB e heSource heB e' he'Source he'B
+  obtain ⟨_Qe, _hQe, _heQe, hecard⟩ :=
+    mem_cliqueBoundarySupport.mp heSource
+  obtain ⟨_Qe', _hQe', _heQe', he'card⟩ :=
+    mem_cliqueBoundarySupport.mp he'Source
+  rcases Finset.mem_union.mp hB with hnegative | hpositiveErase
+  · obtain ⟨Q, _hQattach, hBQ⟩ := Finset.mem_biUnion.mp hnegative
+    let φ := S.embedding Q.1 Q.2
+    by_cases hnear : B ∈ ExchangeEmbedding.mappedNearNegative E φ
+    · obtain ⟨a, _ha, hBa⟩ := Finset.mem_image.mp hnear
+      have hePow : e ∈ B.powersetCard r :=
+        Finset.mem_powersetCard.mpr ⟨heB, hecard⟩
+      have he'Pow : e' ∈ B.powersetCard r :=
+        Finset.mem_powersetCard.mpr ⟨he'B, he'card⟩
+      rcases ExchangeEmbedding.mappedSpecial_edge_eq_or_free E φ a
+          (by simpa [hBa] using hePow) with heEq | heFree
+      · rcases ExchangeEmbedding.mappedSpecial_edge_eq_or_free E φ a
+            (by simpa [hBa] using he'Pow) with he'Eq | he'Free
+        · exact heEq.trans he'Eq.symm
+        · exact False.elim (Finset.disjoint_left.mp
+            (S.free_disjoint_forbidden Q.1 Q.2) he'Free
+              (hsourceForbidden he'Source))
+      · exact False.elim (Finset.disjoint_left.mp
+          (S.free_disjoint_forbidden Q.1 Q.2) heFree
+            (hsourceForbidden heSource))
+    · have hfar : B ∈ ExchangeEmbedding.mappedFarNegative E φ :=
+        Finset.mem_sdiff.mpr ⟨hBQ, hnear⟩
+      have heFree := ExchangeEmbedding.mappedFarNegative_edges_subset_freeEdges
+        E φ hfar (Finset.mem_powersetCard.mpr ⟨heB, hecard⟩)
+      exact False.elim (Finset.disjoint_left.mp
+        (S.free_disjoint_forbidden Q.1 Q.2) heFree
+          (hsourceForbidden heSource))
+  · obtain ⟨Q, _hQattach, hBQ⟩ := Finset.mem_biUnion.mp hpositiveErase
+    have hdecomp : Transversal.IsUniformDecomposition
+        (RootedEmbedding.imageFreeEdges E.pattern
+          (S.embedding Q.1 Q.2))
+        ((ExchangeEmbedding.mappedPositive E
+          (S.embedding Q.1 Q.2)).erase Q.1) k r := by
+      simpa [S.root_image Q.1 Q.2] using
+        ExchangeEmbedding.mappedPositive_erase_decomp E
+          (S.embedding Q.1 Q.2)
+    have heFree := hdecomp.2.1 B hBQ
+      (Finset.mem_powersetCard.mpr ⟨heB, hecard⟩)
+    exact False.elim (Finset.disjoint_left.mp
+      (S.free_disjoint_forbidden Q.1 Q.2) heFree
+        (hsourceForbidden heSource))
+
+/-- A non-source edge occurs in the mapped-negative half of the initial
+split in at most one block.  Inside one rooted copy this follows from the
+negative decomposition; across two distinct copies it follows from
+free-edge disjointness, since an edge in a root would already be a source
+edge. -/
+theorem blockIncidenceCount_splitPositiveBlocks_nonSource_le_one
+    {n k r C : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {source forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C)
+    {e : Finset (Fin n)} (hecard : e.card = r)
+    (heNotSource : e ∉ cliqueBoundarySupport source r) :
+    blockIncidenceCount (ExchangeEmbedding.splitPositiveBlocks S) e ≤ 1 := by
+  classical
+  unfold blockIncidenceCount
+  apply Finset.card_le_one.mpr
+  intro B hB B' hB'
+  have hBData := Finset.mem_filter.mp hB
+  have hB'Data := Finset.mem_filter.mp hB'
+  obtain ⟨Q, _hQattach, hBQ⟩ := Finset.mem_biUnion.mp hBData.1
+  obtain ⟨Q', _hQ'attach, hB'Q'⟩ := Finset.mem_biUnion.mp hB'Data.1
+  by_cases hQQ' : Q = Q'
+  · subst Q'
+    apply (ExchangeEmbedding.mappedNegative_decomp E
+      (S.embedding Q.1 Q.2)).blocks_eq_of_common_edge hBQ hB'Q'
+    · exact Finset.mem_powersetCard.mpr ⟨hBData.2, hecard⟩
+    · exact Finset.mem_powersetCard.mpr ⟨hB'Data.2, hecard⟩
+  · have heHostQ : e ∈ ExchangeEmbedding.mappedHost E
+        (S.embedding Q.1 Q.2) :=
+      (ExchangeEmbedding.mappedNegative_decomp E
+        (S.embedding Q.1 Q.2)).2.1 B hBQ
+          (Finset.mem_powersetCard.mpr ⟨hBData.2, hecard⟩)
+    have heHostQ' : e ∈ ExchangeEmbedding.mappedHost E
+        (S.embedding Q'.1 Q'.2) :=
+      (ExchangeEmbedding.mappedNegative_decomp E
+        (S.embedding Q'.1 Q'.2)).2.1 B' hB'Q'
+          (Finset.mem_powersetCard.mpr ⟨hB'Data.2, hecard⟩)
+    have heFreeQ : e ∈ RootedEmbedding.imageFreeEdges E.pattern
+        (S.embedding Q.1 Q.2) := by
+      rcases ExchangeEmbedding.mem_mappedRootBoundary_or_imageFreeEdges
+          E (S.embedding Q.1 Q.2) heHostQ with heRoot | heFree
+      · exfalso
+        apply heNotSource
+        apply mem_cliqueBoundarySupport.mpr
+        refine ⟨Q.1, Q.2, ?_, hecard⟩
+        rw [← S.root_image Q.1 Q.2]
+        exact (Finset.mem_powersetCard.mp heRoot).1
+      · exact heFree
+    have heFreeQ' : e ∈ RootedEmbedding.imageFreeEdges E.pattern
+        (S.embedding Q'.1 Q'.2) := by
+      rcases ExchangeEmbedding.mem_mappedRootBoundary_or_imageFreeEdges
+          E (S.embedding Q'.1 Q'.2) heHostQ' with heRoot | heFree
+      · exfalso
+        apply heNotSource
+        apply mem_cliqueBoundarySupport.mpr
+        refine ⟨Q'.1, Q'.2, ?_, hecard⟩
+        rw [← S.root_image Q'.1 Q'.2]
+        exact (Finset.mem_powersetCard.mp heRoot).1
+      · exact heFree
+    exact False.elim (Finset.disjoint_left.mp
+      (S.free_pairwise Q.1 Q.2 Q'.1 Q'.2
+        (fun hval ↦ hQQ' (Subtype.ext hval))) heFreeQ heFreeQ')
+
+/-- The root-erased half is one global decomposition of its free host, so
+every `r`-edge has incidence at most one. -/
+theorem blockIncidenceCount_splitNegativeBlocks_le_one
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {source forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C)
+    (hrk : r ≤ k) {e : Finset (Fin n)} (hecard : e.card = r) :
+    blockIncidenceCount (ExchangeEmbedding.splitNegativeBlocks S) e ≤ 1 := by
+  have h := (ExchangeEmbedding.splitNegativeBlocks_decomp S hrk)
+    |>.incidenceCount_eq_indicator hecard
+  calc
+    blockIncidenceCount (ExchangeEmbedding.splitNegativeBlocks S) e =
+        if e ∈ ExchangeEmbedding.splitFreeHost S then 1 else 0 := by
+      simpa [blockIncidenceCount, Transversal.incidenceCount] using h
+    _ ≤ 1 := by split <;> omega
+
+/-- On an old boundary edge, the mapped-negative half has at most the old
+root incidence.  A mapped host containing the edge must use a root which
+contains it, because all free hosts avoid the old boundary. -/
+theorem blockIncidenceCount_splitPositiveBlocks_source_le
+    {n k r C : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {source forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C)
+    (hsourceForbidden : cliqueBoundarySupport source r ⊆ forbidden)
+    {e : Finset (Fin n)} (heSource : e ∈ cliqueBoundarySupport source r) :
+    blockIncidenceCount (ExchangeEmbedding.splitPositiveBlocks S) e ≤
+      blockIncidenceCount source e := by
+  classical
+  obtain ⟨_Qe, _hQe, _heQe, hecard⟩ :=
+    mem_cliqueBoundarySupport.mp heSource
+  calc
+    blockIncidenceCount (ExchangeEmbedding.splitPositiveBlocks S) e ≤
+        ∑ Q ∈ source.attach,
+          blockIncidenceCount (ExchangeEmbedding.mappedNegative E
+            (S.embedding Q.1 Q.2)) e :=
+      blockIncidenceCount_biUnion_le_sum source.attach
+        (fun Q ↦ ExchangeEmbedding.mappedNegative E
+          (S.embedding Q.1 Q.2)) e
+    _ ≤ ∑ Q ∈ source.attach, if e ⊆ Q.1 then 1 else 0 := by
+      apply Finset.sum_le_sum
+      intro Q _hQ
+      have hdec := (ExchangeEmbedding.mappedNegative_decomp E
+        (S.embedding Q.1 Q.2)).incidenceCount_eq_indicator hecard
+      rw [show blockIncidenceCount
+          (ExchangeEmbedding.mappedNegative E
+            (S.embedding Q.1 Q.2)) e =
+          if e ∈ ExchangeEmbedding.mappedHost E
+            (S.embedding Q.1 Q.2) then 1 else 0 by
+        simpa [blockIncidenceCount, Transversal.incidenceCount] using hdec]
+      by_cases heQ : e ⊆ Q.1
+      · simp only [heQ, if_true]
+        split <;> omega
+      · have heNotHost : e ∉ ExchangeEmbedding.mappedHost E
+            (S.embedding Q.1 Q.2) := by
+          intro heHost
+          rcases ExchangeEmbedding.mem_mappedRootBoundary_or_imageFreeEdges
+              E (S.embedding Q.1 Q.2) heHost with heRoot | heFree
+          · apply heQ
+            rw [← S.root_image Q.1 Q.2]
+            exact (Finset.mem_powersetCard.mp heRoot).1
+          · exact Finset.disjoint_left.mp
+              (S.free_disjoint_forbidden Q.1 Q.2) heFree
+                (hsourceForbidden heSource)
+        simp [heQ, heNotHost]
+    _ = blockIncidenceCount source e := by
+      rw [show (∑ Q ∈ source.attach, if e ⊆ Q.1 then 1 else 0) =
+          (source.attach.filter fun Q ↦ e ⊆ Q.1).card by
+        simp [Finset.sum_ite]]
+      rw [Finset.filter_attach]
+      simp [blockIncidenceCount]
+
+/-- The root-erased half contains no old boundary edge at all. -/
+theorem blockIncidenceCount_splitNegativeBlocks_source_eq_zero
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {source forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C)
+    (hrk : r ≤ k)
+    (hsourceForbidden : cliqueBoundarySupport source r ⊆ forbidden)
+    {e : Finset (Fin n)} (heSource : e ∈ cliqueBoundarySupport source r) :
+    blockIncidenceCount (ExchangeEmbedding.splitNegativeBlocks S) e = 0 := by
+  obtain ⟨_Qe, _hQe, _heQe, hecard⟩ :=
+    mem_cliqueBoundarySupport.mp heSource
+  have heNotFree : e ∉ ExchangeEmbedding.splitFreeHost S := by
+    intro heFree
+    obtain ⟨Q, _hQattach, heQ⟩ := Finset.mem_biUnion.mp heFree
+    exact Finset.disjoint_left.mp
+      (S.free_disjoint_forbidden Q.1 Q.2) heQ
+        (hsourceForbidden heSource)
+  have hdec := (ExchangeEmbedding.splitNegativeBlocks_decomp S hrk)
+    |>.incidenceCount_eq_indicator hecard
+  simpa [blockIncidenceCount, Transversal.incidenceCount, heNotFree] using hdec
+
+/-- The complete initial split does not increase the incidence of any old
+boundary edge. -/
+theorem blockIncidenceCount_initialSplitFamily_source_le
+    {n k r C : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {source forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C)
+    (hrk : r ≤ k)
+    (hsourceForbidden : cliqueBoundarySupport source r ⊆ forbidden)
+    {e : Finset (Fin n)} (heSource : e ∈ cliqueBoundarySupport source r) :
+    blockIncidenceCount (initialSplitFamily S) e ≤
+      blockIncidenceCount source e := by
+  have hpos := blockIncidenceCount_splitPositiveBlocks_source_le
+    E S hsourceForbidden heSource
+  have hneg := blockIncidenceCount_splitNegativeBlocks_source_eq_zero
+    S hrk hsourceForbidden heSource
+  exact (blockIncidenceCount_union_le _ _ e).trans (by omega)
+
+/-- Hence a non-source edge has total incidence at most two after the
+initial split: one occurrence in each orientation. -/
+theorem blockIncidenceCount_initialSplitFamily_nonSource_le_two
+    {n k r C : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {source forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C)
+    (hrk : r ≤ k) {e : Finset (Fin n)} (hecard : e.card = r)
+    (heNotSource : e ∉ cliqueBoundarySupport source r) :
+    blockIncidenceCount (initialSplitFamily S) e ≤ 2 := by
+  exact (blockIncidenceCount_union_le _ _ e).trans (by
+    have hpos := blockIncidenceCount_splitPositiveBlocks_nonSource_le_one
+      E S hecard heNotSource
+    have hneg := blockIncidenceCount_splitNegativeBlocks_le_one S hrk hecard
+    omega)
+
+/-- The first full-exchange split has the no-double-high-edge invariant
+required by every subsequent square-root grouping round. -/
+theorem initialSplitFamily_hasUniqueHighEdge
+    {n k r C : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (hr : 0 < r) (hrk : r < k)
+    {source forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C)
+    (hsourceForbidden : cliqueBoundarySupport source r ⊆ forbidden) :
+    HasUniqueHighEdge n r (initialSplitFamily S) := by
+  intro B hB e heHigh heB e' heHigh' heB'
+  have heData := mem_highMultiplicityEdges.mp heHigh
+  have he'Data := mem_highMultiplicityEdges.mp heHigh'
+  have heSource : e ∈ cliqueBoundarySupport source r := by
+    by_contra heNotSource
+    have hle := blockIncidenceCount_initialSplitFamily_nonSource_le_two
+      E S hrk.le (mem_completeUniform.mp heData.1) heNotSource
+    omega
+  have he'Source : e' ∈ cliqueBoundarySupport source r := by
+    by_contra heNotSource
+    have hle := blockIncidenceCount_initialSplitFamily_nonSource_le_two
+      E S hrk.le (mem_completeUniform.mp he'Data.1) heNotSource
+    omega
+  exact initialSplitFamily_source_edge_unique E hr hrk S
+    hsourceForbidden B hB e heSource heB e' he'Source heB'
+
+/-- Both orientations of the first full-exchange split are `k`-uniform. -/
+theorem initialSplitFamily_uniform
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {source forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C) (hrk : r ≤ k) :
+    ∀ B ∈ initialSplitFamily S, B.card = k := by
+  intro B hB
+  rcases Finset.mem_union.mp hB with hpositive | hnegative
+  · obtain ⟨Q, _hQattach, hBQ⟩ := Finset.mem_biUnion.mp hpositive
+    exact (ExchangeEmbedding.mappedNegative_decomp E
+      (S.embedding Q.1 Q.2)).1 B hBQ
+  · exact (ExchangeEmbedding.splitNegativeBlocks_decomp S hrk).1 B hnegative
+
+/-- A square-root round with its fresh intermediate roots split once more.
+The second split removes the one obstruction to recursive
+`HasUniqueHighEdge`: no output block contains the whole intermediate clique
+and hence no output block contains all of its newly high edges. -/
+noncomputable def splitIntermediateFlattenRoundFamily
+    {n k r C₁ C₂ : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairForbidden splitForbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) pairForbidden C₁)
+    (T : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings E.pattern
+      (sqrtIntermediateCliques A) splitForbidden C₂) :
+    Finset (Finset (Fin n)) :=
+  retainedAfterHigh n r family ∪
+    eliminationRemainderFamily S ∪ initialSplitFamily T
+
+/-- The twice-split round preserves the integer clique-boundary span.  The
+literal two-root round first replaces each processed old clique by its
+intermediate root and remainders; the additional one-root split then
+replaces every intermediate root. -/
+theorem splitIntermediateFlattenRoundFamily_integrallySpans
+    {n k r C₁ C₂ : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairForbidden splitForbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) pairForbidden C₁)
+    (T : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings E.pattern
+      (sqrtIntermediateCliques A) splitForbidden C₂) :
+    IntegrallySpans n k r
+      (splitIntermediateFlattenRoundFamily huniform A S T) family := by
+  let base := retainedAfterHigh n r family ∪ eliminationRemainderFamily S
+  have hinter : IntegrallySpans n k r (initialSplitFamily T)
+      (sqrtIntermediateCliques A) :=
+    initialSplitFamily_integrallySpans E
+      (sqrtIntermediateCliques_uniform A) T
+  have hreplace : IntegrallySpans n k r
+      (base ∪ initialSplitFamily T)
+      (base ∪ sqrtIntermediateCliques A) :=
+    (integrallySpans_refl n k r base).union hinter
+  have hliteral := sqrtGroupEliminationRound_integrallySpans huniform A S
+  have hliteral' : IntegrallySpans n k r
+      (base ∪ sqrtIntermediateCliques A) family := by
+    simpa [base, eliminationFlattenRoundFamily,
+      eliminationFlattenFamily_eq_intermediates_union_remainders huniform A S,
+      Finset.union_assoc, Finset.union_left_comm, Finset.union_comm] using
+        hliteral
+  simpa [splitIntermediateFlattenRoundFamily, base, Finset.union_assoc] using
+    hreplace.trans hliteral'
+
+/-- Uniformity is preserved by the twice-split round. -/
+theorem splitIntermediateFlattenRoundFamily_uniform
+    {n k r C₁ C₂ : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairForbidden splitForbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) pairForbidden C₁)
+    (T : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings E.pattern
+      (sqrtIntermediateCliques A) splitForbidden C₂)
+    (hrk : r ≤ k) :
+    ∀ B ∈ splitIntermediateFlattenRoundFamily huniform A S T,
+      B.card = k := by
+  intro B hB
+  rcases Finset.mem_union.mp hB with hretainedOrRemainder | hsplit
+  · rcases Finset.mem_union.mp hretainedOrRemainder with hretained | hrem
+    · exact huniform B (Finset.sdiff_subset hretained)
+    · obtain ⟨P, _hPattach, hBP⟩ := Finset.mem_biUnion.mp hrem
+      rcases Finset.mem_union.mp hBP with hpos | hneg
+      · exact (ExchangeEliminationEmbedding.eliminationPositiveRemainder_decomp
+          S P.1 P.2).1 B hpos
+      · exact (ExchangeEliminationEmbedding.eliminationNegativeRemainder_decomp
+          S P.1 P.2).1 B hneg
+  · exact initialSplitFamily_uniform T hrk B hsplit
+
+/-- Every edge of an intermediate clique is either its scheduled old high
+edge or a non-root auxiliary edge. -/
+theorem cliqueBoundarySupport_sqrtIntermediateCliques_subset
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family) :
+    cliqueBoundarySupport (sqrtIntermediateCliques A) r ⊆
+      highMultiplicityEdges n r 4 family ∪ sqrtIntermediateFreeEdges A := by
+  intro e he
+  obtain ⟨B, hB, heB, hecard⟩ := mem_cliqueBoundarySupport.mp he
+  obtain ⟨I, _hI, hBI⟩ := Finset.mem_image.mp hB
+  have heI : e ∈ (A.intermediate I).powersetCard r :=
+    Finset.mem_powersetCard.mpr ⟨by simpa [hBI] using heB, hecard⟩
+  by_cases heRoot : e = I.1.1
+  · exact Finset.mem_union_left _ (by simpa [heRoot] using I.1.2)
+  · apply Finset.mem_union_right
+    apply Finset.mem_biUnion.mpr
+    exact ⟨I, Finset.mem_univ _,
+      Finset.mem_sdiff.mpr ⟨heI, by simpa using heRoot⟩⟩
+
+/-- Every scheduled old high edge really belongs to the boundary of the
+intermediate family. -/
+theorem highMultiplicityEdges_subset_sqrtIntermediateBoundary
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family) :
+    highMultiplicityEdges n r 4 family ⊆
+      cliqueBoundarySupport (sqrtIntermediateCliques A) r := by
+  intro e he
+  have hpartsCard := (sqrtGroupingAt_spec family e he).2.1
+  have hpartsPos : 0 < (sqrtGroupingAt family e he).parts.card := by
+    rw [hpartsCard]
+    omega
+  obtain ⟨group, hgroup⟩ := Finset.card_pos.mp hpartsPos
+  let I : SqrtGroupIndex n r family :=
+    ⟨⟨e, he⟩, ⟨group, hgroup⟩⟩
+  apply mem_cliqueBoundarySupport.mpr
+  refine ⟨A.intermediate I, ?_, sqrtGroupEdge_subset_intermediate A I,
+    mem_completeUniform.mp (mem_highMultiplicityEdges.mp he).1⟩
+  exact Finset.mem_image.mpr ⟨I, Finset.mem_univ _, rfl⟩
+
+/-- Auxiliary edges are also in the boundary of their intermediate
+cliques. -/
+theorem sqrtIntermediateFreeEdges_subset_boundary
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (A : SqrtIntermediateAssignment n k r family) :
+    sqrtIntermediateFreeEdges A ⊆
+      cliqueBoundarySupport (sqrtIntermediateCliques A) r := by
+  intro e he
+  obtain ⟨I, _hI, heI⟩ := Finset.mem_biUnion.mp he
+  have heIData := Finset.mem_sdiff.mp heI
+  apply mem_cliqueBoundarySupport.mpr
+  exact ⟨A.intermediate I,
+    Finset.mem_image.mpr ⟨I, Finset.mem_univ _, rfl⟩,
+    (Finset.mem_powersetCard.mp heIData.1).1,
+    (Finset.mem_powersetCard.mp heIData.1).2⟩
+
+/-- The prescribed sides of the square-root elimination requests use only
+old source edges and edges of the auxiliary intermediate cliques. -/
+theorem eliminationPairSideBoundary_sqrtGroup_subset
+    {n k r : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family) :
+    ExchangeEliminationEmbedding.eliminationPairSideBoundary
+        (sqrtGroupEliminationPairs family huniform A) ⊆
+      cliqueBoundarySupport family r ∪
+        cliqueBoundarySupport (sqrtIntermediateCliques A) r := by
+  intro g hg
+  obtain ⟨Q, hQ, hgQ⟩ := Finset.mem_biUnion.mp hg
+  rcases Finset.mem_union.mp hQ with hpositive | hnegative
+  · obtain ⟨P, hP, hQP⟩ := Finset.mem_image.mp hpositive
+    obtain ⟨I, B, hB, hPEq⟩ :=
+      exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A hP
+    apply Finset.mem_union_right
+    apply mem_cliqueBoundarySupport.mpr
+    refine ⟨A.intermediate I, Finset.mem_image.mpr
+      ⟨I, Finset.mem_univ _, rfl⟩, ?_, (Finset.mem_powersetCard.mp hgQ).2⟩
+    have hgsub := (Finset.mem_powersetCard.mp hgQ).1
+    rw [← hQP, hPEq] at hgsub
+    exact hgsub
+  · obtain ⟨P, hP, hQP⟩ := Finset.mem_image.mp hnegative
+    obtain ⟨I, B, hB, hPEq⟩ :=
+      exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A hP
+    have hBfamily : B ∈ family :=
+      (Finset.mem_filter.mp
+        (sqrtGroupingAt_group_subset family I.1.1 I.1.2 I.2.2 hB)).1
+    apply Finset.mem_union_left
+    apply mem_cliqueBoundarySupport.mpr
+    refine ⟨B, hBfamily, ?_, (Finset.mem_powersetCard.mp hgQ).2⟩
+    have hgsub := (Finset.mem_powersetCard.mp hgQ).1
+    rw [← hQP, hPEq] at hgsub
+    exact hgsub
+
+/-- Every edge in the two-root remainder bank is a prescribed side edge or
+an edge charged to that bank's free host. -/
+theorem cliqueBoundarySupport_eliminationRemainderFamily_subset
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C) :
+    cliqueBoundarySupport (eliminationRemainderFamily S) r ⊆
+      ExchangeEliminationEmbedding.eliminationPairSideBoundary pairs ∪
+        S.freeUnion := by
+  intro g hg
+  obtain ⟨B, hB, hgB, hgcard⟩ := mem_cliqueBoundarySupport.mp hg
+  obtain ⟨P, _hPattach, hBP⟩ := Finset.mem_biUnion.mp hB
+  have hgPow : g ∈ B.powersetCard r :=
+    Finset.mem_powersetCard.mpr ⟨hgB, hgcard⟩
+  rcases Finset.mem_union.mp hBP with hpositive | hnegative
+  · have hgHostDiff :=
+      (ExchangeEliminationEmbedding.eliminationPositiveRemainder_decomp
+        S P.1 P.2).2.1 B hpositive hgPow
+    rcases ExchangeEliminationEmbedding.mem_eliminationPairSideBoundary_or_freeUnion_of_mem_mappedHost
+        S (ExchangeEliminationEmbedding.RelabeledFullExchange.isSpecialIsolated
+          E e₀)
+          P.1 P.2 hgcard (Finset.mem_sdiff.mp hgHostDiff).1 with
+      hgSide | hgFree
+    · exact Finset.mem_union_left _ hgSide
+    · exact Finset.mem_union_right _ hgFree
+  · have hgFree :=
+      (ExchangeEliminationEmbedding.eliminationNegativeRemainder_decomp
+        S P.1 P.2).2.1 B hnegative hgPow
+    rw [← ExchangeEmbedding.mappedHost_sdiff_root_eq_freeEdges E
+      (S.embedding P.1 P.2)] at hgFree
+    rcases ExchangeEliminationEmbedding.mem_eliminationPairSideBoundary_or_freeUnion_of_mem_mappedHost
+        S (ExchangeEliminationEmbedding.RelabeledFullExchange.isSpecialIsolated
+          E e₀) P.1 P.2 hgcard (Finset.mem_sdiff.mp hgFree).1 with
+      hgSide | hgFree'
+    · exact Finset.mem_union_left _ hgSide
+    · exact Finset.mem_union_right _ hgFree'
+
+/-- The one-root split similarly introduces only root-boundary edges and
+edges charged to its allocator free host. -/
+theorem cliqueBoundarySupport_initialSplitFamily_subset
+    {n k r C : ℕ}
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {roots forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern roots forbidden C) (hrk : r ≤ k) :
+    cliqueBoundarySupport (initialSplitFamily S) r ⊆
+      cliqueBoundarySupport roots r ∪ S.freeUnion := by
+  intro g hg
+  obtain ⟨B, hB, hgB, hgcard⟩ := mem_cliqueBoundarySupport.mp hg
+  have hgPow : g ∈ B.powersetCard r :=
+    Finset.mem_powersetCard.mpr ⟨hgB, hgcard⟩
+  rcases Finset.mem_union.mp hB with hpositive | hnegative
+  · obtain ⟨Q, _hQattach, hBQ⟩ := Finset.mem_biUnion.mp hpositive
+    have hgHost := (ExchangeEmbedding.mappedNegative_decomp E
+      (S.embedding Q.1 Q.2)).2.1 B hBQ hgPow
+    rcases ExchangeEmbedding.mem_mappedRootBoundary_or_imageFreeEdges E
+        (S.embedding Q.1 Q.2) hgHost with hgRoot | hgFree
+    · apply Finset.mem_union_left
+      apply mem_cliqueBoundarySupport.mpr
+      refine ⟨Q.1, Q.2, ?_, hgcard⟩
+      rw [← S.root_image Q.1 Q.2]
+      exact (Finset.mem_powersetCard.mp hgRoot).1
+    · exact Finset.mem_union_right _
+        (S.image_subset_freeUnion Q.1 Q.2 hgFree)
+  · have hgFreeHost :=
+      (ExchangeEmbedding.splitNegativeBlocks_decomp S hrk).2.1
+        B hnegative hgPow
+    exact Finset.mem_union_right _
+      (ExchangeEmbedding.splitFreeHost_subset_freeUnion S hgFreeHost)
+
+/-- Quantitative summary of the first full-exchange split.  It creates the
+unique-high invariant without increasing old-edge multiplicities, gives
+new edges multiplicity at most two, and charges all new lower-face load to
+the allocator's free-edge host. -/
+theorem initialSplitFamily_quantitative
+    {n k r C x D F : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (hr : 0 < r) (hrk : r < k)
+    {source forbidden : Finset (Finset (Fin n))}
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      E.pattern source forbidden C)
+    (hsourceUniform : ∀ Q ∈ source, Q.card = k)
+    (hsourceForbidden : cliqueBoundarySupport source r ⊆ forbidden)
+    (hsourceIncidence : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount source e ≤ x)
+    (hsourceBoundaryDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (cliqueBoundarySupport source r) J ≤ D)
+    (hfreeDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree S.freeUnion J ≤ F) :
+    IntegrallySpans n k r (initialSplitFamily S) source ∧
+      (∀ Q ∈ initialSplitFamily S, Q.card = k) ∧
+      (∀ e ∈ completeUniform n r,
+        blockIncidenceCount (initialSplitFamily S) e ≤ max x 2) ∧
+      HasUniqueHighEdge n r (initialSplitFamily S) ∧
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree
+          (cliqueBoundarySupport (initialSplitFamily S) r) J ≤ D + F) ∧
+      ∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree (initialSplitFamily S) J ≤
+          (D + F) * max x 2 := by
+  have hspan := initialSplitFamily_integrallySpans E hsourceUniform S
+  have huniform := initialSplitFamily_uniform S hrk.le
+  have hincidence : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount (initialSplitFamily S) e ≤ max x 2 := by
+    intro e he
+    by_cases heSource : e ∈ cliqueBoundarySupport source r
+    · exact (blockIncidenceCount_initialSplitFamily_source_le
+        E S hrk.le hsourceForbidden heSource).trans
+          ((hsourceIncidence e he).trans (le_max_left _ _))
+    · exact (blockIncidenceCount_initialSplitFamily_nonSource_le_two
+        E S hrk.le (mem_completeUniform.mp he) heSource).trans
+          (le_max_right _ _)
+  have hunique := initialSplitFamily_hasUniqueHighEdge
+    E hr hrk S hsourceForbidden
+  have hboundary : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree
+        (cliqueBoundarySupport (initialSplitFamily S) r) J ≤ D + F := by
+    intro J hJ
+    have hsub := cliqueBoundarySupport_initialSplitFamily_subset S hrk.le
+    calc
+      Reserve.localDegree
+          (cliqueBoundarySupport (initialSplitFamily S) r) J ≤
+          Reserve.localDegree
+            (cliqueBoundarySupport source r ∪ S.freeUnion) J :=
+        Finset.card_le_card (Finset.filter_subset_filter _ hsub)
+      _ ≤ Reserve.localDegree (cliqueBoundarySupport source r) J +
+          Reserve.localDegree S.freeUnion J := by
+        exact localDegree_union_le _ _ J
+      _ ≤ D + F := Nat.add_le_add
+        (hsourceBoundaryDegree J hJ) (hfreeDegree J hJ)
+  refine ⟨hspan, huniform, hincidence, hunique, hboundary, ?_⟩
+  intro J hJ
+  exact (localDegree_blocks_le_boundary_mul_incidence hr hrk huniform
+    (fun e he ↦ hincidence e (mem_completeUniform.mpr he)) J hJ).trans
+      (Nat.mul_le_mul_right _ (hboundary J hJ))
+
+/-- Complete support audit for one twice-split round. -/
+theorem cliqueBoundarySupport_splitIntermediateFlattenRoundFamily_subset
+    {n k r C₁ C₂ : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairForbidden splitForbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) pairForbidden C₁)
+    (T : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings E.pattern
+      (sqrtIntermediateCliques A) splitForbidden C₂)
+    (hrk : r ≤ k) :
+    cliqueBoundarySupport
+        (splitIntermediateFlattenRoundFamily huniform A S T) r ⊆
+      cliqueBoundarySupport family r ∪
+        (cliqueBoundarySupport (sqrtIntermediateCliques A) r ∪
+          (S.freeUnion ∪ T.freeUnion)) := by
+  intro g hg
+  obtain ⟨B, hB, hgB, hgcard⟩ := mem_cliqueBoundarySupport.mp hg
+  rcases Finset.mem_union.mp hB with hbase | hsplit
+  · rcases Finset.mem_union.mp hbase with hretained | hremainder
+    · exact Finset.mem_union_left _
+        (mem_cliqueBoundarySupport.mpr
+          ⟨B, Finset.sdiff_subset hretained, hgB, hgcard⟩)
+    · have hsupport :=
+        cliqueBoundarySupport_eliminationRemainderFamily_subset S
+          (mem_cliqueBoundarySupport.mpr ⟨B, hremainder, hgB, hgcard⟩)
+      rcases Finset.mem_union.mp hsupport with hside | hfree
+      · rcases Finset.mem_union.mp
+            (eliminationPairSideBoundary_sqrtGroup_subset huniform A hside) with
+          hsource | hintermediate
+        · exact Finset.mem_union_left _ hsource
+        · exact Finset.mem_union_right _
+            (Finset.mem_union_left _ hintermediate)
+      · exact Finset.mem_union_right _
+          (Finset.mem_union_right _ (Finset.mem_union_left _ hfree))
+  · have hsupport := cliqueBoundarySupport_initialSplitFamily_subset
+      T hrk (mem_cliqueBoundarySupport.mpr ⟨B, hsplit, hgB, hgcard⟩)
+    rcases Finset.mem_union.mp hsupport with hintermediate | hfree
+    · exact Finset.mem_union_right _ (Finset.mem_union_left _ hintermediate)
+    · exact Finset.mem_union_right _
+        (Finset.mem_union_right _ (Finset.mem_union_right _ hfree))
+
+/-- Splitting the intermediate roots creates no occurrence of a non-high
+old source edge.  Such an edge can be neither an intermediate root edge nor
+a free edge of the splitting copy. -/
+theorem blockIncidenceCount_initialSplit_intermediate_oldNonhigh_eq_zero
+    {n k r C : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {splitForbidden : Finset (Finset (Fin n))}
+    (T : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings E.pattern
+      (sqrtIntermediateCliques A) splitForbidden C)
+    (hrk : r ≤ k)
+    (holdForbidden : cliqueBoundarySupport family r ⊆ splitForbidden)
+    {e : Finset (Fin n)} (heSource : e ∈ cliqueBoundarySupport family r)
+    (heNotHigh : e ∉ highMultiplicityEdges n r 4 family) :
+    blockIncidenceCount (initialSplitFamily T) e = 0 := by
+  classical
+  have hecard : e.card = r := mem_completeUniform.mp
+    (cliqueBoundarySupport_subset_complete huniform heSource)
+  have hpositive : blockIncidenceCount
+      (ExchangeEmbedding.splitPositiveBlocks T) e = 0 := by
+    rw [blockIncidenceCount, Finset.card_eq_zero]
+    apply Finset.eq_empty_iff_forall_notMem.mpr
+    intro B hB
+    have hBData := Finset.mem_filter.mp hB
+    obtain ⟨Q, _hQattach, hBQ⟩ := Finset.mem_biUnion.mp hBData.1
+    have heHost : e ∈ ExchangeEmbedding.mappedHost E
+        (T.embedding Q.1 Q.2) :=
+      (ExchangeEmbedding.mappedNegative_decomp E
+        (T.embedding Q.1 Q.2)).2.1 B hBQ
+          (Finset.mem_powersetCard.mpr ⟨hBData.2, hecard⟩)
+    rcases ExchangeEmbedding.mem_mappedRootBoundary_or_imageFreeEdges
+        E (T.embedding Q.1 Q.2) heHost with heRoot | heFree
+    · obtain ⟨I, _hI, hQI⟩ := Finset.mem_image.mp Q.2
+      have heSub : e ⊆ A.intermediate I := by
+        rw [hQI, ← T.root_image Q.1 Q.2]
+        exact (Finset.mem_powersetCard.mp heRoot).1
+      have heEq := A.source_edge_eq I e heSource heSub
+      exact heNotHigh (by simpa [heEq] using I.1.2)
+    · exact Finset.disjoint_left.mp
+        (T.free_disjoint_forbidden Q.1 Q.2) heFree
+          (holdForbidden heSource)
+  have hnegative : blockIncidenceCount
+      (ExchangeEmbedding.splitNegativeBlocks T) e = 0 := by
+    have heNotFree : e ∉ ExchangeEmbedding.splitFreeHost T := by
+      intro heFree
+      obtain ⟨Q, _hQattach, heQ⟩ := Finset.mem_biUnion.mp heFree
+      exact Finset.disjoint_left.mp
+        (T.free_disjoint_forbidden Q.1 Q.2) heQ
+          (holdForbidden heSource)
+    have hdec := (ExchangeEmbedding.splitNegativeBlocks_decomp T hrk)
+      |>.incidenceCount_eq_indicator hecard
+    simpa [blockIncidenceCount, Transversal.incidenceCount, heNotFree] using hdec
+  apply Nat.eq_zero_of_le_zero
+  exact (blockIncidenceCount_union_le _ _ e).trans (by omega)
+
+/-- At an old high edge the twice-split round has exactly the group-count
+scale: retained and root-erased two-root remainders contribute nothing,
+and the split intermediate family contributes no more than the unsplit
+intermediate roots. -/
+theorem splitIntermediateFlattenRound_high_incidence_le
+    {n k r C₁ C₂ : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairForbidden splitForbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) pairForbidden C₁)
+    (T : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings E.pattern
+      (sqrtIntermediateCliques A) splitForbidden C₂)
+    (hrk : r ≤ k)
+    (hpairSource : cliqueBoundarySupport family r ⊆ pairForbidden)
+    (hsplitIntermediate :
+      cliqueBoundarySupport (sqrtIntermediateCliques A) r ⊆ splitForbidden) :
+    ∀ e ∈ highMultiplicityEdges n r 4 family,
+      blockIncidenceCount
+          (splitIntermediateFlattenRoundFamily huniform A S T) e ≤
+        Nat.sqrt (blockIncidenceCount family e) + 1 := by
+  intro e he
+  have hretained := blockIncidenceCount_retainedAfterHigh_high_eq_zero he
+  have hremainder := blockIncidenceCount_eliminationRemainderFamily_high_eq_zero
+    huniform hunique A S hpairSource he
+  have heIntermediate :=
+    highMultiplicityEdges_subset_sqrtIntermediateBoundary A he
+  have hsplit := blockIncidenceCount_initialSplitFamily_source_le E T hrk
+    hsplitIntermediate heIntermediate
+  have hinter := blockIncidenceCount_sqrtIntermediateCliques_high_le A he
+  calc
+    blockIncidenceCount
+        (splitIntermediateFlattenRoundFamily huniform A S T) e ≤
+        blockIncidenceCount (retainedAfterHigh n r family) e +
+          blockIncidenceCount (eliminationRemainderFamily S) e +
+            blockIncidenceCount (initialSplitFamily T) e := by
+      exact (blockIncidenceCount_union_le _ _ e).trans
+        (Nat.add_le_add_right (blockIncidenceCount_union_le _ _ e) _)
+    _ ≤ blockIncidenceCount (sqrtIntermediateCliques A) e := by omega
+    _ ≤ Nat.sqrt (blockIncidenceCount family e) + 1 :=
+      hinter.trans_eq (sqrtGroupingAt_spec family e he).2.1
+
+/-- A non-root edge of one intermediate has one split occurrence plus at
+most one two-root remainder per member of its old group. -/
+theorem splitIntermediateFlattenRound_auxiliary_incidence_le
+    {n k r C₁ C₂ x : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hsource : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount family e ≤ x)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairForbidden splitForbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) pairForbidden C₁)
+    (T : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings E.pattern
+      (sqrtIntermediateCliques A) splitForbidden C₂)
+    (hrk : r ≤ k)
+    (hpairAux : sqrtIntermediateFreeEdges A ⊆ pairForbidden)
+    (hsplitIntermediate :
+      cliqueBoundarySupport (sqrtIntermediateCliques A) r ⊆ splitForbidden) :
+    ∀ e ∈ sqrtIntermediateFreeEdges A,
+      blockIncidenceCount
+          (splitIntermediateFlattenRoundFamily huniform A S T) e ≤
+        Nat.sqrt x + 2 := by
+  intro e heAux
+  obtain ⟨I, _hI, heI⟩ := Finset.mem_biUnion.mp heAux
+  have hecard : e.card = r :=
+    (Finset.mem_powersetCard.mp (Finset.mem_sdiff.mp heI).1).2
+  have heNotSource : e ∉ cliqueBoundarySupport family r := by
+    intro heSource
+    exact Finset.disjoint_left.mp
+      (sqrtIntermediateFreeEdges_disjoint_source A) heAux heSource
+  have hretained :
+      blockIncidenceCount (retainedAfterHigh n r family) e = 0 :=
+    blockIncidenceCount_eq_zero_of_subset_of_not_mem_boundary
+      Finset.sdiff_subset hecard heNotSource
+  have hremainder := blockIncidenceCount_eliminationRemainderFamily_le_group
+    huniform A S hpairAux I heI
+  have heIntermediate := sqrtIntermediateFreeEdges_subset_boundary A heAux
+  have hsplit := blockIncidenceCount_initialSplitFamily_source_le E T hrk
+    hsplitIntermediate heIntermediate
+  have hinter :=
+    blockIncidenceCount_sqrtIntermediateCliques_auxiliary_le_one A I heI
+  have hgroup := (sqrtGroupingAt_spec family I.1.1 I.1.2).2.2
+    I.2.1 I.2.2
+  have hedgeBound := hsource I.1.1
+    (mem_highMultiplicityEdges.mp I.1.2).1
+  calc
+    blockIncidenceCount
+        (splitIntermediateFlattenRoundFamily huniform A S T) e ≤
+        blockIncidenceCount (retainedAfterHigh n r family) e +
+          blockIncidenceCount (eliminationRemainderFamily S) e +
+            blockIncidenceCount (initialSplitFamily T) e := by
+      exact (blockIncidenceCount_union_le _ _ e).trans
+        (Nat.add_le_add_right (blockIncidenceCount_union_le _ _ e) _)
+    _ ≤ I.2.1.card + 1 := by omega
+    _ ≤ (Nat.sqrt (blockIncidenceCount family I.1.1) + 1) + 1 :=
+      Nat.add_le_add_right hgroup 1
+    _ ≤ Nat.sqrt x + 2 := by
+      have hsqrt := Nat.sqrt_le_sqrt hedgeBound
+      omega
+
+/-- All cases of the twice-split round satisfy the corrected square-root
+recurrence. -/
+theorem hasSquareRootIncidenceUpdate_splitIntermediateRound
+    {n k r C₁ C₂ x : ℕ} {family : Finset (Finset (Fin n))}
+    (hx : 4 < x)
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hsource : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount family e ≤ x)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairForbidden splitForbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) pairForbidden C₁)
+    (T : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings E.pattern
+      (sqrtIntermediateCliques A) splitForbidden C₂)
+    (hrk : r ≤ k)
+    (hpairSource : cliqueBoundarySupport family r ⊆ pairForbidden)
+    (hpairAux : sqrtIntermediateFreeEdges A ⊆ pairForbidden)
+    (hsplitSource : cliqueBoundarySupport family r ⊆ splitForbidden)
+    (hsplitIntermediate :
+      cliqueBoundarySupport (sqrtIntermediateCliques A) r ⊆ splitForbidden) :
+    HasSquareRootIncidenceUpdate n r x family
+      (splitIntermediateFlattenRoundFamily huniform A S T) := by
+  refine ⟨splitIntermediateFlattenRound_high_incidence_le huniform hunique
+    A S T hrk hpairSource hsplitIntermediate, ?_⟩
+  intro e heComplete heNotHigh
+  have hecard : e.card = r := mem_completeUniform.mp heComplete
+  have hbasic : blockIncidenceCount
+        (splitIntermediateFlattenRoundFamily huniform A S T) e ≤
+      blockIncidenceCount (retainedAfterHigh n r family) e +
+        blockIncidenceCount (eliminationRemainderFamily S) e +
+          blockIncidenceCount (initialSplitFamily T) e := by
+    exact (blockIncidenceCount_union_le _ _ e).trans
+      (Nat.add_le_add_right (blockIncidenceCount_union_le _ _ e) _)
+  by_cases heSource : e ∈ cliqueBoundarySupport family r
+  · have hsplitZero :=
+      blockIncidenceCount_initialSplit_intermediate_oldNonhigh_eq_zero
+        huniform A T hrk hsplitSource heSource heNotHigh
+    have hremainder := blockIncidenceCount_eliminationRemainderFamily_source_le
+      huniform hunique A S hpairSource heSource heNotHigh
+    have hpartition := blockIncidenceCount_retained_add_processed
+      n r family e
+    have hnonhigh : blockIncidenceCount family e ≤ 4 := by
+      exact Nat.le_of_not_gt fun hgt ↦
+        heNotHigh (mem_highMultiplicityEdges.mpr ⟨heComplete, hgt⟩)
+    have hsqrt : 2 ≤ Nat.sqrt x := Nat.le_sqrt.mpr (by omega)
+    exact hbasic.trans (by omega)
+  · have hretained :
+        blockIncidenceCount (retainedAfterHigh n r family) e = 0 :=
+      blockIncidenceCount_eq_zero_of_subset_of_not_mem_boundary
+        Finset.sdiff_subset hecard heSource
+    by_cases heAux : e ∈ sqrtIntermediateFreeEdges A
+    · exact splitIntermediateFlattenRound_auxiliary_incidence_le
+        huniform hsource A S T hrk hpairAux hsplitIntermediate e heAux
+    · have heNotIntermediate :
+          e ∉ cliqueBoundarySupport (sqrtIntermediateCliques A) r := by
+        intro heIntermediate
+        rcases Finset.mem_union.mp
+            (cliqueBoundarySupport_sqrtIntermediateCliques_subset A
+              heIntermediate) with heHigh | heAux'
+        · exact heSource
+            (highMultiplicityEdges_subset_cliqueBoundarySupport heHigh)
+        · exact heAux heAux'
+      have hsplit :=
+        blockIncidenceCount_initialSplitFamily_nonSource_le_two
+          E T hrk hecard heNotIntermediate
+      have havoids := sqrtGroupPair_avoids_fresh_nonauxiliary
+        huniform A hecard heSource heAux
+      have hremainder :=
+        blockIncidenceCount_eliminationRemainderFamily_le_two_of_avoids_roots
+          S hecard havoids.1 havoids.2
+      have hsqrt : 2 ≤ Nat.sqrt x := Nat.le_sqrt.mpr (by omega)
+      exact hbasic.trans (by omega)
+
+/-- A block of the mapped negative decomposition contains at most one
+`r`-edge of the mapped positive root.  Near blocks have their single
+labelled root edge; far blocks use only free edges. -/
+theorem mappedNegative_root_edge_unique
+    {n k r : ℕ} (E : ExchangePattern.RelabeledFullExchange k r)
+    (φ : Fin E.v ↪ Fin n) {B : Finset (Fin n)}
+    (hB : B ∈ ExchangeEmbedding.mappedNegative E φ)
+    {e e' : Finset (Fin n)}
+    (heRoot : e ∈ (RootedEmbedding.mapEdge φ E.pattern.root).powersetCard r)
+    (heB : e ⊆ B)
+    (he'Root : e' ∈ (RootedEmbedding.mapEdge φ E.pattern.root).powersetCard r)
+    (he'B : e' ⊆ B) : e = e' := by
+  classical
+  have hecard : e.card = r := (Finset.mem_powersetCard.mp heRoot).2
+  have he'card : e'.card = r := (Finset.mem_powersetCard.mp he'Root).2
+  have hnotFree : ∀ {g : Finset (Fin n)},
+      g ∈ (RootedEmbedding.mapEdge φ E.pattern.root).powersetCard r →
+      g ∈ RootedEmbedding.imageFreeEdges E.pattern φ → False := by
+    intro g hgRoot hgFree
+    rw [← ExchangeEmbedding.mappedHost_sdiff_root_eq_freeEdges E φ] at hgFree
+    exact (Finset.mem_sdiff.mp hgFree).2 hgRoot
+  by_cases hnear : B ∈ ExchangeEmbedding.mappedNearNegative E φ
+  · obtain ⟨a, _ha, hBa⟩ := Finset.mem_image.mp hnear
+    have hePow : e ∈ B.powersetCard r :=
+      Finset.mem_powersetCard.mpr ⟨heB, hecard⟩
+    have he'Pow : e' ∈ B.powersetCard r :=
+      Finset.mem_powersetCard.mpr ⟨he'B, he'card⟩
+    rcases ExchangeEmbedding.mappedSpecial_edge_eq_or_free E φ a
+        (by simpa [hBa] using hePow) with heEq | heFree
+    · rcases ExchangeEmbedding.mappedSpecial_edge_eq_or_free E φ a
+          (by simpa [hBa] using he'Pow) with he'Eq | he'Free
+      · exact heEq.trans he'Eq.symm
+      · exact False.elim (hnotFree he'Root he'Free)
+    · exact False.elim (hnotFree heRoot heFree)
+  · have hfar : B ∈ ExchangeEmbedding.mappedFarNegative E φ :=
+      Finset.mem_sdiff.mpr ⟨hB, hnear⟩
+    have heFree := ExchangeEmbedding.mappedFarNegative_edges_subset_freeEdges
+      E φ hfar (Finset.mem_powersetCard.mpr ⟨heB, hecard⟩)
+    exact False.elim (hnotFree heRoot heFree)
+
+/-- Every edge outside the intermediate boundary has load at most four in
+the twice-split output. -/
+theorem blockIncidenceCount_splitIntermediateRound_nonboundary_le_four
+    {n k r C₁ C₂ : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairForbidden splitForbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) pairForbidden C₁)
+    (T : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings E.pattern
+      (sqrtIntermediateCliques A) splitForbidden C₂)
+    (hrk : r ≤ k)
+    (hpairSource : cliqueBoundarySupport family r ⊆ pairForbidden)
+    (hpairAux : sqrtIntermediateFreeEdges A ⊆ pairForbidden)
+    (hsplitSource : cliqueBoundarySupport family r ⊆ splitForbidden)
+    {e : Finset (Fin n)} (hecard : e.card = r)
+    (heNotIntermediate :
+      e ∉ cliqueBoundarySupport (sqrtIntermediateCliques A) r) :
+    blockIncidenceCount
+        (splitIntermediateFlattenRoundFamily huniform A S T) e ≤ 4 := by
+  have hbasic : blockIncidenceCount
+        (splitIntermediateFlattenRoundFamily huniform A S T) e ≤
+      blockIncidenceCount (retainedAfterHigh n r family) e +
+        blockIncidenceCount (eliminationRemainderFamily S) e +
+          blockIncidenceCount (initialSplitFamily T) e := by
+    exact (blockIncidenceCount_union_le _ _ e).trans
+      (Nat.add_le_add_right (blockIncidenceCount_union_le _ _ e) _)
+  by_cases heSource : e ∈ cliqueBoundarySupport family r
+  · have heNotHigh : e ∉ highMultiplicityEdges n r 4 family := fun heHigh ↦
+      heNotIntermediate
+        (highMultiplicityEdges_subset_sqrtIntermediateBoundary A heHigh)
+    have hsplitZero :=
+      blockIncidenceCount_initialSplit_intermediate_oldNonhigh_eq_zero
+        huniform A T hrk hsplitSource heSource heNotHigh
+    have hremainder := blockIncidenceCount_eliminationRemainderFamily_source_le
+      huniform hunique A S hpairSource heSource heNotHigh
+    have hpartition := blockIncidenceCount_retained_add_processed
+      n r family e
+    have hnonhigh : blockIncidenceCount family e ≤ 4 := by
+      exact Nat.le_of_not_gt fun hgt ↦ heNotHigh
+        (mem_highMultiplicityEdges.mpr
+          ⟨cliqueBoundarySupport_subset_complete huniform heSource, hgt⟩)
+    exact hbasic.trans (by omega)
+  · have hretained :
+        blockIncidenceCount (retainedAfterHigh n r family) e = 0 :=
+      blockIncidenceCount_eq_zero_of_subset_of_not_mem_boundary
+        Finset.sdiff_subset hecard heSource
+    have heNotAux : e ∉ sqrtIntermediateFreeEdges A := fun heAux ↦
+      heNotIntermediate (sqrtIntermediateFreeEdges_subset_boundary A heAux)
+    have havoids := sqrtGroupPair_avoids_fresh_nonauxiliary
+      huniform A hecard heSource heNotAux
+    have hremainder :=
+      blockIncidenceCount_eliminationRemainderFamily_le_two_of_avoids_roots
+        S hecard havoids.1 havoids.2
+    have hsplit :=
+      blockIncidenceCount_initialSplitFamily_nonSource_le_two
+        E T hrk hecard heNotIntermediate
+    exact hbasic.trans (by omega)
+
+/-- Therefore every edge which is high after the twice-split round already
+belongs to the intermediate-root boundary. -/
+theorem highMultiplicityEdges_splitIntermediateRound_subset_boundary
+    {n k r C₁ C₂ : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairForbidden splitForbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) pairForbidden C₁)
+    (T : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings E.pattern
+      (sqrtIntermediateCliques A) splitForbidden C₂)
+    (hrk : r ≤ k)
+    (hpairSource : cliqueBoundarySupport family r ⊆ pairForbidden)
+    (hpairAux : sqrtIntermediateFreeEdges A ⊆ pairForbidden)
+    (hsplitSource : cliqueBoundarySupport family r ⊆ splitForbidden) :
+    highMultiplicityEdges n r 4
+        (splitIntermediateFlattenRoundFamily huniform A S T) ⊆
+      cliqueBoundarySupport (sqrtIntermediateCliques A) r := by
+  intro e he
+  by_contra heNotIntermediate
+  have hle := blockIncidenceCount_splitIntermediateRound_nonboundary_le_four
+    huniform hunique A S T hrk hpairSource hpairAux hsplitSource
+      (mem_completeUniform.mp (mem_highMultiplicityEdges.mp he).1)
+        heNotIntermediate
+  exact (Nat.not_lt_of_ge hle) (mem_highMultiplicityEdges.mp he).2
+
+/-- One two-root remainder block contains at most one edge of the
+intermediate-root boundary. -/
+theorem eliminationRemainderFamily_intermediate_edge_unique
+    {n k r C : ℕ} {family : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairForbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) pairForbidden C)
+    (hpairSource : cliqueBoundarySupport family r ⊆ pairForbidden)
+    (hpairAux : sqrtIntermediateFreeEdges A ⊆ pairForbidden) :
+    ∀ B ∈ eliminationRemainderFamily S,
+      ∀ e ∈ cliqueBoundarySupport (sqrtIntermediateCliques A) r, e ⊆ B →
+      ∀ e' ∈ cliqueBoundarySupport (sqrtIntermediateCliques A) r, e' ⊆ B →
+        e = e' := by
+  classical
+  intro B hB e heIntermediate heB e' he'Intermediate he'B
+  obtain ⟨_Be, _hBe, _heBe, hecard⟩ :=
+    mem_cliqueBoundarySupport.mp heIntermediate
+  obtain ⟨_Be', _hBe', _he'Be', he'card⟩ :=
+    mem_cliqueBoundarySupport.mp he'Intermediate
+  obtain ⟨P, _hPattach, hBP⟩ := Finset.mem_biUnion.mp hB
+  obtain ⟨I, Q, hQ, hPEq⟩ :=
+    exists_sqrtGroupIndex_of_mem_eliminationPairs huniform A P.2
+  have hQfamily : Q ∈ family :=
+    (Finset.mem_filter.mp
+      (sqrtGroupingAt_group_subset family I.1.1 I.1.2 I.2.2 hQ)).1
+  have edgeAuxiliary : ∀ {g : Finset (Fin n)},
+      g ∈ cliqueBoundarySupport (sqrtIntermediateCliques A) r →
+      g ⊆ B → g ∈ sqrtIntermediateFreeEdges A := by
+    intro g hgIntermediate hgB
+    rcases Finset.mem_union.mp
+        (cliqueBoundarySupport_sqrtIntermediateCliques_subset A
+          hgIntermediate) with hgHigh | hgAux
+    · have hgcard : g.card = r :=
+        mem_completeUniform.mp (mem_highMultiplicityEdges.mp hgHigh).1
+      have hpositive :=
+        blockIncidenceCount_eliminationRemainderFamily_high_eq_zero
+          huniform hunique A S hpairSource hgHigh
+      have hBfilter : B ∈ (eliminationRemainderFamily S).filter
+          (fun C ↦ g ⊆ C) := Finset.mem_filter.mpr ⟨hB, hgB⟩
+      have : 0 < blockIncidenceCount (eliminationRemainderFamily S) g :=
+        Finset.card_pos.mpr ⟨B, hBfilter⟩
+      exact False.elim (by omega)
+    · exact hgAux
+  have heAux := edgeAuxiliary heIntermediate heB
+  have he'Aux := edgeAuxiliary he'Intermediate he'B
+  have edgePositive : ∀ {g : Finset (Fin n)},
+      g ∈ sqrtIntermediateFreeEdges A → g ⊆ B → g ⊆ P.1.positive := by
+    intro g hgAux hgB
+    have hgcard : g.card = r := by
+      obtain ⟨J, _hJ, hgJ⟩ := Finset.mem_biUnion.mp hgAux
+      exact (Finset.mem_powersetCard.mp (Finset.mem_sdiff.mp hgJ).1).2
+    have hroot : g ⊆ P.1.positive ∨ g ⊆ P.1.negative := by
+      by_contra hnot
+      have hnot' : ¬g ⊆ P.1.positive ∧ ¬g ⊆ P.1.negative := by
+        simpa [not_or] using hnot
+      have hz :=
+        blockIncidenceCount_eliminationRemainderBlocks_eq_zero_of_forbidden
+          S P.1 P.2 hgcard (hpairAux hgAux) hnot'.1 hnot'.2
+      have hBfilter : B ∈
+          (ExchangeEliminationEmbedding.eliminationRemainderBlocks
+            S P.1 P.2).filter (fun C ↦ g ⊆ C) :=
+        Finset.mem_filter.mpr ⟨hBP, hgB⟩
+      have hpos : 0 < blockIncidenceCount
+          (ExchangeEliminationEmbedding.eliminationRemainderBlocks
+            S P.1 P.2) g := Finset.card_pos.mpr ⟨B, hBfilter⟩
+      exact (by omega)
+    rcases hroot with hpos | hneg
+    · exact hpos
+    · exfalso
+      have hgSource : g ∈ cliqueBoundarySupport family r := by
+        apply mem_cliqueBoundarySupport.mpr
+        exact ⟨Q, hQfamily,
+          by simpa [hPEq, sqrtGroupEliminationPair] using hneg, hgcard⟩
+      exact Finset.disjoint_left.mp
+        (sqrtIntermediateFreeEdges_disjoint_source A) hgAux hgSource
+  have hePositive := edgePositive heAux heB
+  have he'Positive := edgePositive he'Aux he'B
+  rcases Finset.mem_union.mp hBP with hposRem | hnegRem
+  · have hBmapped : B ∈ ExchangeEmbedding.mappedNegative E
+        (S.embedding P.1 P.2) := Finset.mem_of_mem_erase hposRem
+    apply mappedNegative_root_edge_unique E (S.embedding P.1 P.2) hBmapped
+    · rw [S.maps_positive P.1 P.2]
+      exact Finset.mem_powersetCard.mpr
+        ⟨hePositive, hecard⟩
+    · exact heB
+    · rw [S.maps_positive P.1 P.2]
+      exact Finset.mem_powersetCard.mpr
+        ⟨he'Positive, he'card⟩
+    · exact he'B
+  · have heFree :=
+        (ExchangeEliminationEmbedding.eliminationNegativeRemainder_decomp
+          S P.1 P.2).2.1 B hnegRem
+          (Finset.mem_powersetCard.mpr
+            ⟨heB, hecard⟩)
+    rw [← ExchangeEmbedding.mappedHost_sdiff_root_eq_freeEdges E
+      (S.embedding P.1 P.2)] at heFree
+    exact False.elim ((Finset.mem_sdiff.mp heFree).2 (by
+      rw [S.maps_positive P.1 P.2]
+      exact Finset.mem_powersetCard.mpr
+        ⟨hePositive, hecard⟩))
+
+/-- The additional split restores `HasUniqueHighEdge`, making the
+square-root round genuinely iterable. -/
+theorem splitIntermediateFlattenRoundFamily_hasUniqueHighEdge
+    {n k r C₁ C₂ : ℕ} {family : Finset (Finset (Fin n))}
+    (hr : 0 < r) (hrk : r < k)
+    (huniform : ∀ Q ∈ family, Q.card = k)
+    (hunique : HasUniqueHighEdge n r family)
+    (A : SqrtIntermediateAssignment n k r family)
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairForbidden splitForbidden : Finset (Finset (Fin n))}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ (sqrtGroupEliminationPairs family huniform A) pairForbidden C₁)
+    (T : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings E.pattern
+      (sqrtIntermediateCliques A) splitForbidden C₂)
+    (hpairSource : cliqueBoundarySupport family r ⊆ pairForbidden)
+    (hpairAux : sqrtIntermediateFreeEdges A ⊆ pairForbidden)
+    (hsplitSource : cliqueBoundarySupport family r ⊆ splitForbidden)
+    (hsplitIntermediate :
+      cliqueBoundarySupport (sqrtIntermediateCliques A) r ⊆ splitForbidden) :
+    HasUniqueHighEdge n r
+      (splitIntermediateFlattenRoundFamily huniform A S T) := by
+  let next := splitIntermediateFlattenRoundFamily huniform A S T
+  have hhigh := highMultiplicityEdges_splitIntermediateRound_subset_boundary
+    huniform hunique A S T hrk.le hpairSource hpairAux hsplitSource
+  intro B hB e heHigh heB e' heHigh' heB'
+  have heIntermediate := hhigh heHigh
+  have he'Intermediate := hhigh heHigh'
+  rcases Finset.mem_union.mp hB with hbase | hsplit
+  · rcases Finset.mem_union.mp hbase with hretained | hrem
+    · have oldHigh : ∀ {g : Finset (Fin n)},
+          g ∈ cliqueBoundarySupport (sqrtIntermediateCliques A) r →
+          g ⊆ B → g ∈ highMultiplicityEdges n r 4 family := by
+        intro g hgIntermediate hgB
+        rcases Finset.mem_union.mp
+            (cliqueBoundarySupport_sqrtIntermediateCliques_subset A
+              hgIntermediate) with hgHigh | hgAux
+        · exact hgHigh
+        · have hgcard : g.card = r := by
+            obtain ⟨I, _hI, hgI⟩ := Finset.mem_biUnion.mp hgAux
+            exact (Finset.mem_powersetCard.mp (Finset.mem_sdiff.mp hgI).1).2
+          have hgSource : g ∈ cliqueBoundarySupport family r :=
+            mem_cliqueBoundarySupport.mpr
+              ⟨B, Finset.sdiff_subset hretained, hgB, hgcard⟩
+          exact False.elim (Finset.disjoint_left.mp
+            (sqrtIntermediateFreeEdges_disjoint_source A) hgAux hgSource)
+      have heOld := oldHigh heIntermediate heB
+      have he'Old := oldHigh he'Intermediate heB'
+      exact hunique B (Finset.sdiff_subset hretained)
+        e heOld heB e' he'Old heB'
+    · exact eliminationRemainderFamily_intermediate_edge_unique
+        huniform hunique A S hpairSource hpairAux B hrem
+          e heIntermediate heB e' he'Intermediate heB'
+  · exact initialSplitFamily_source_edge_unique E hr hrk T
+      hsplitIntermediate B hsplit e heIntermediate heB
+        e' he'Intermediate heB'
+
+/-- Uniform quantitative realization of one complete square-root round.
+The coefficient hypotheses are deliberately stated at the exact next-stage
+coefficient, so the theorem can be iterated without changing the common
+path exponent. -/
+theorem eventually_exists_quantitative_splitIntermediateFlattenRound
+    (k r d A : ℕ) (hr : 0 < r) (hrk : r < k) (hd : 0 < d)
+    (hA : 0 < A) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ x z : ℕ, 4 < x → 0 < z →
+      flattenNextStageCoefficient hrk x z ≤ flattenStageBudget A k d n →
+      ∀ family : Finset (Finset (Fin n)),
+      (∀ Q ∈ family, Q.card = k) →
+      (∀ e ∈ completeUniform n r,
+        blockIncidenceCount family e ≤ x) →
+      HasUniqueHighEdge n r family →
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree family J ≤ linearStageDegree z k r d n) →
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree (cliqueBoundarySupport family r) J ≤
+          linearStageDegree z k r d n) →
+      ∃ next : Finset (Finset (Fin n)),
+        IntegrallySpans n k r next family ∧
+        (∀ Q ∈ next, Q.card = k) ∧
+        (∀ e ∈ completeUniform n r,
+          blockIncidenceCount next e ≤ nextFlattenMultiplicity x) ∧
+        HasUniqueHighEdge n r next ∧
+        (∀ J : Finset (Fin n), J.card = r - 1 →
+          Reserve.localDegree next J ≤
+            linearStageDegree (flattenNextStageCoefficient hrk x z)
+              k r d n) ∧
+        (∀ J : Finset (Fin n), J.card = r - 1 →
+          Reserve.localDegree (cliqueBoundarySupport next r) J ≤
+            linearStageDegree (flattenNextStageCoefficient hrk x z)
+              k r d n) := by
+  let E := ExchangeEmbedding.fullExchangeData hrk
+  let e₀ := ExchangeEmbedding.fullExchangeRootEdge hrk
+  have hintermediate :=
+    eventually_exists_sqrtIntermediateAssignment_linearStageBudget
+      k r d A hr hrk hd hA
+  have hpairs :=
+    eventually_exists_boundedEliminationPairEmbeddings_linearStageBudget
+      E hr hrk e₀ (by
+        simpa [E, e₀] using ExchangeEmbedding.fullExchangeData_trace hrk)
+      d A k hd hA (by omega)
+  have hsplit :=
+    eventually_exists_boundedRootedFamilyEmbeddings_linearStageBudget
+      E.pattern hr (by
+        simpa [E] using ExchangeEmbedding.fullExchangeData_root_nonempty hr hrk)
+      (by simpa [E] using
+        ExchangeEmbedding.fullExchangeData_root_card_lt_v hrk)
+      (by simpa [E] using hrk.le) d A k hd hA (by omega)
+  filter_upwards [hintermediate, hpairs, hsplit] with
+      n hintermediate hpairs hsplit
+  intro x z hx hz hnextBudget family huniform hsource hunique
+    hfamilyDegree hboundaryDegree
+  let pairZ := flattenPairStageCoefficient (k := k) (r := r) x z
+  let splitZ := flattenSplitStageCoefficient hrk x z
+  let boundaryZ := flattenBoundaryStageCoefficient hrk x z
+  let nextZ := flattenNextStageCoefficient hrk x z
+  let Tscale := LocalDecoderAsymptotic.decoderPathScale d n
+  let pk := LocalDecoderAsymptotic.decoderPathMultiplier k r
+  have hchain := flattenStageCoefficient_chain (x := x) hrk hz
+  have hzBudget : z ≤ flattenStageBudget A k d n :=
+    hchain.2.1.trans (hchain.2.2.1.trans
+      (hchain.2.2.2.1.trans (hchain.2.2.2.2.trans hnextBudget)))
+  have hpairBudget : pairZ ≤ flattenStageBudget A k d n := by
+    exact hchain.2.2.1.trans
+      (hchain.2.2.2.1.trans (hchain.2.2.2.2.trans hnextBudget))
+  have hsplitBudget : splitZ ≤ flattenStageBudget A k d n := by
+    exact hchain.2.2.2.1.trans (hchain.2.2.2.2.trans hnextBudget)
+  have hpairPos : 0 < pairZ := hchain.1
+  have hsplitPos : 0 < splitZ := hpairPos.trans_le hchain.2.2.1
+  obtain ⟨X, hXdegree⟩ := hintermediate z hz hzBudget family
+    huniform hunique hfamilyDegree hboundaryDegree
+  let aux := sqrtIntermediateFreeEdges X
+  have hauxUniform : ∀ g ∈ aux, g.card = r := by
+    intro g hg
+    obtain ⟨I, _hI, hgI⟩ := Finset.mem_biUnion.mp hg
+    exact (Finset.mem_powersetCard.mp (Finset.mem_sdiff.mp hgI).1).2
+  have hauxScalar : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree aux J ≤ flattenAuxLoad k r z * Tscale := by
+    intro J hJ
+    calc
+      Reserve.localDegree aux J ≤
+          (CoverClique.coverPattern k r).freeEdges.card *
+            linearStageCap z k r d n := hXdegree J hJ
+      _ = flattenAuxLoad k r z * Tscale := by
+        simp [flattenAuxLoad, linearStageCap, linearStageDegree,
+          LocalDecoderAsymptotic.decoderPathCap, Tscale]
+        ring
+  have hgroups : ∀ I : SqrtGroupIndex n r family,
+      I.2.1.card ≤ Nat.sqrt x + 1 := by
+    intro I
+    have hgroup := (sqrtGroupingAt_spec family I.1.1 I.1.2).2.2
+      I.2.1 I.2.2
+    have hedge := hsource I.1.1
+      (mem_highMultiplicityEdges.mp I.1.2).1
+    exact hgroup.trans (Nat.add_le_add_right (Nat.sqrt_le_sqrt hedge) 1)
+  let pairForbidden := cliqueBoundarySupport family r ∪ aux
+  have hpairForbiddenUniform : ∀ g ∈ pairForbidden, g.card = r := by
+    intro g hg
+    rcases Finset.mem_union.mp hg with hg | hg
+    · exact mem_completeUniform.mp
+        (cliqueBoundarySupport_subset_complete huniform hg)
+    · exact hauxUniform g hg
+  have hpairForbiddenDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree pairForbidden J ≤
+        linearStageDegree pairZ E.v r d n := by
+    intro J hJ
+    have hsourceScalar : Reserve.localDegree
+        (cliqueBoundarySupport family r) J ≤ pk * z * Tscale := by
+      simpa [linearStageDegree, LocalDecoderAsymptotic.decoderPathCap,
+        pk, Tscale, mul_assoc, mul_left_comm, mul_comm] using
+          hboundaryDegree J hJ
+    have hscalar : Reserve.localDegree pairForbidden J ≤
+        (pk * z + flattenAuxLoad k r z) * Tscale := by
+      calc
+        Reserve.localDegree pairForbidden J ≤
+            Reserve.localDegree (cliqueBoundarySupport family r) J +
+              Reserve.localDegree aux J :=
+          localDegree_union_le _ _ J
+        _ ≤ pk * z * Tscale + flattenAuxLoad k r z * Tscale :=
+          Nat.add_le_add hsourceScalar (hauxScalar J hJ)
+        _ = (pk * z + flattenAuxLoad k r z) * Tscale := by ring
+    apply hscalar.trans
+    apply scalar_mul_pathScale_le_linearStageDegree hr
+    simp [pairZ, flattenPairStageCoefficient, pk]
+    omega
+  have hpositive : ∀ J : Finset (Fin n), J.card = r - 1 →
+      ExchangeEliminationEmbedding.positiveSideOccurrenceDegree
+          (sqrtGroupEliminationPairs family huniform X) J ≤
+        linearStageDegree pairZ E.v r d n := by
+    intro J hJ
+    have hocc := positiveSideOccurrenceDegree_sqrtGroupEliminationPairs_le
+      hr hrk huniform X hgroups J hJ
+    have hscalar :
+        (Nat.sqrt x + 1) * Reserve.localDegree aux J ≤
+          ((Nat.sqrt x + 1) * flattenAuxLoad k r z) * Tscale := by
+      calc
+        (Nat.sqrt x + 1) * Reserve.localDegree aux J ≤
+            (Nat.sqrt x + 1) *
+              (flattenAuxLoad k r z * Tscale) := by
+          exact Nat.mul_le_mul_left _ (by
+            simpa [aux] using hauxScalar J hJ)
+        _ = ((Nat.sqrt x + 1) * flattenAuxLoad k r z) * Tscale := by ring
+    exact hocc.trans (hscalar.trans
+      (scalar_mul_pathScale_le_linearStageDegree hr (by
+        simp [pairZ, flattenPairStageCoefficient, pk]
+        omega)))
+  have hnegative : ∀ J : Finset (Fin n), J.card = r - 1 →
+      ExchangeEliminationEmbedding.negativeSideOccurrenceDegree
+          (sqrtGroupEliminationPairs family huniform X) J ≤
+        linearStageDegree pairZ E.v r d n := by
+    intro J hJ
+    have hocc := negativeSideOccurrenceDegree_sqrtGroupEliminationPairs_le
+      huniform hunique X J
+    have hsourceScalar : Reserve.localDegree family J ≤ pk * z * Tscale := by
+      simpa [linearStageDegree, LocalDecoderAsymptotic.decoderPathCap,
+        pk, Tscale, mul_assoc, mul_left_comm, mul_comm] using
+          hfamilyDegree J hJ
+    exact hocc.trans (hsourceScalar.trans
+      (scalar_mul_pathScale_le_linearStageDegree hr (by
+        simp [pairZ, flattenPairStageCoefficient, pk]
+        omega)))
+  obtain ⟨S⟩ := hpairs pairZ hpairPos hpairBudget
+    (sqrtGroupEliminationPairs family huniform X) pairForbidden
+    hpositive hnegative hpairForbiddenUniform hpairForbiddenDegree
+  have hSscalar : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree S.freeUnion J ≤
+        flattenEliminationFreeLoad hrk pairZ * Tscale := by
+    intro J hJ
+    calc
+      Reserve.localDegree S.freeUnion J ≤
+          (E.eliminationPattern e₀).freeEdges.card *
+            linearStageCap pairZ E.v r d n := S.free_degree_le J hJ
+      _ = flattenEliminationFreeLoad hrk pairZ * Tscale := by
+        simp [flattenEliminationFreeLoad, E, e₀, linearStageCap,
+          linearStageDegree, LocalDecoderAsymptotic.decoderPathCap, Tscale]
+        ring
+  let intermediateBoundary := cliqueBoundarySupport
+    (sqrtIntermediateCliques X) r
+  have hintermediateUniform : ∀ g ∈ intermediateBoundary, g.card = r := by
+    intro g hg
+    exact mem_completeUniform.mp
+      (cliqueBoundarySupport_subset_complete
+        (sqrtIntermediateCliques_uniform X) hg)
+  have hintermediateScalar : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree intermediateBoundary J ≤
+        (pk * z + flattenAuxLoad k r z) * Tscale := by
+    intro J hJ
+    have hsub := cliqueBoundarySupport_sqrtIntermediateCliques_subset X
+    have hlocal : Reserve.localDegree intermediateBoundary J ≤
+        Reserve.localDegree
+          (cliqueBoundarySupport family r ∪ aux) J := by
+      apply Finset.card_le_card
+      apply Finset.filter_subset_filter
+      intro g hg
+      rcases Finset.mem_union.mp (hsub hg) with hhigh | haux
+      · exact Finset.mem_union_left _
+          (highMultiplicityEdges_subset_cliqueBoundarySupport hhigh)
+      · exact Finset.mem_union_right _ haux
+    exact hlocal.trans (by
+      calc
+        Reserve.localDegree (cliqueBoundarySupport family r ∪ aux) J ≤
+            Reserve.localDegree (cliqueBoundarySupport family r) J +
+              Reserve.localDegree aux J := localDegree_union_le _ _ J
+        _ ≤ pk * z * Tscale + flattenAuxLoad k r z * Tscale :=
+          Nat.add_le_add (by
+            simpa [linearStageDegree,
+              LocalDecoderAsymptotic.decoderPathCap, pk, Tscale,
+              mul_assoc, mul_left_comm, mul_comm] using
+                hboundaryDegree J hJ) (hauxScalar J hJ)
+        _ = (pk * z + flattenAuxLoad k r z) * Tscale := by ring)
+  let splitForbidden := cliqueBoundarySupport family r ∪
+    (intermediateBoundary ∪ S.freeUnion)
+  have hsplitForbiddenUniform : ∀ g ∈ splitForbidden, g.card = r := by
+    intro g hg
+    rcases Finset.mem_union.mp hg with hg | hg
+    · exact mem_completeUniform.mp
+        (cliqueBoundarySupport_subset_complete huniform hg)
+    · rcases Finset.mem_union.mp hg with hg | hg
+      · exact hintermediateUniform g hg
+      · exact S.free_uniform g hg
+  have hsplitForbiddenDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree splitForbidden J ≤
+        linearStageDegree splitZ E.v r d n := by
+    intro J hJ
+    have hscalar : Reserve.localDegree splitForbidden J ≤
+        (2 * pk * z + flattenAuxLoad k r z +
+          flattenEliminationFreeLoad hrk pairZ) * Tscale := by
+      calc
+        Reserve.localDegree splitForbidden J ≤
+            Reserve.localDegree (cliqueBoundarySupport family r) J +
+              Reserve.localDegree (intermediateBoundary ∪ S.freeUnion) J :=
+          localDegree_union_le _ _ J
+        _ ≤ Reserve.localDegree (cliqueBoundarySupport family r) J +
+            (Reserve.localDegree intermediateBoundary J +
+              Reserve.localDegree S.freeUnion J) := by
+          gcongr
+          exact localDegree_union_le _ _ J
+        _ ≤ pk * z * Tscale +
+            ((pk * z + flattenAuxLoad k r z) * Tscale +
+              flattenEliminationFreeLoad hrk pairZ * Tscale) := by
+          gcongr
+          · simpa [linearStageDegree,
+              LocalDecoderAsymptotic.decoderPathCap, pk, Tscale,
+              mul_assoc, mul_left_comm, mul_comm] using
+                hboundaryDegree J hJ
+          · exact hintermediateScalar J hJ
+          · exact hSscalar J hJ
+        _ = (2 * pk * z + flattenAuxLoad k r z +
+            flattenEliminationFreeLoad hrk pairZ) * Tscale := by ring
+    exact hscalar.trans
+      (scalar_mul_pathScale_le_linearStageDegree hr (by
+        simp [splitZ, flattenSplitStageCoefficient, pairZ, pk]))
+  have hrootDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (sqrtIntermediateCliques X) J ≤
+        linearStageDegree splitZ E.v r d n := by
+    intro J hJ
+    exact (localDegree_sqrtIntermediateCliques_le_freeEdges hr hrk X J hJ)
+      |>.trans ((hauxScalar J hJ).trans
+        (scalar_mul_pathScale_le_linearStageDegree hr (by
+          simp [splitZ, flattenSplitStageCoefficient, pairZ, pk]
+          omega)))
+  obtain ⟨T⟩ := hsplit splitZ hsplitPos hsplitBudget
+    (sqrtIntermediateCliques X) splitForbidden
+    (by
+      intro Q hQ
+      simpa [E] using sqrtIntermediateCliques_uniform X Q hQ)
+    hsplitForbiddenUniform
+    hrootDegree hsplitForbiddenDegree
+  have hTscalar : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree T.freeUnion J ≤
+        flattenSplitFreeLoad hrk splitZ * Tscale := by
+    intro J hJ
+    calc
+      Reserve.localDegree T.freeUnion J ≤
+          E.pattern.freeEdges.card * linearStageCap splitZ E.v r d n :=
+        T.free_degree_le J hJ
+      _ = flattenSplitFreeLoad hrk splitZ * Tscale := by
+        simp [flattenSplitFreeLoad, E, linearStageCap, linearStageDegree,
+          LocalDecoderAsymptotic.decoderPathCap, Tscale]
+        ring
+  let next := splitIntermediateFlattenRoundFamily huniform X S T
+  have hpairSource : cliqueBoundarySupport family r ⊆ pairForbidden :=
+    Finset.subset_union_left
+  have hpairAux : aux ⊆ pairForbidden := Finset.subset_union_right
+  have hsplitSource : cliqueBoundarySupport family r ⊆ splitForbidden :=
+    Finset.subset_union_left
+  have hsplitIntermediate : intermediateBoundary ⊆ splitForbidden := by
+    intro g hg
+    exact Finset.mem_union_right _ (Finset.mem_union_left _ hg)
+  have hspan : IntegrallySpans n k r next family :=
+    splitIntermediateFlattenRoundFamily_integrallySpans huniform X S T
+  have hnextUniform : ∀ Q ∈ next, Q.card = k :=
+    splitIntermediateFlattenRoundFamily_uniform huniform X S T hrk.le
+  have hupdate := hasSquareRootIncidenceUpdate_splitIntermediateRound
+    hx huniform hsource hunique X S T hrk.le hpairSource hpairAux
+      hsplitSource hsplitIntermediate
+  have hnextBound : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount next e ≤ nextFlattenMultiplicity x :=
+    hupdate.incidence_le_nextFlattenMultiplicity hsource
+  have hnextUnique : HasUniqueHighEdge n r next :=
+    splitIntermediateFlattenRoundFamily_hasUniqueHighEdge hr hrk huniform
+      hunique X S T hpairSource hpairAux hsplitSource hsplitIntermediate
+  have hnextBoundaryScalar : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (cliqueBoundarySupport next r) J ≤
+        boundaryZ * Tscale := by
+    intro J hJ
+    have hsupport :=
+      cliqueBoundarySupport_splitIntermediateFlattenRoundFamily_subset
+        huniform X S T hrk.le
+    have hlocal : Reserve.localDegree (cliqueBoundarySupport next r) J ≤
+        Reserve.localDegree
+          (cliqueBoundarySupport family r ∪
+            (intermediateBoundary ∪ (S.freeUnion ∪ T.freeUnion))) J := by
+      exact Finset.card_le_card
+        (Finset.filter_subset_filter (fun g ↦ J ⊆ g) hsupport)
+    calc
+      Reserve.localDegree (cliqueBoundarySupport next r) J ≤
+          Reserve.localDegree (cliqueBoundarySupport family r) J +
+            (Reserve.localDegree intermediateBoundary J +
+              (Reserve.localDegree S.freeUnion J +
+                Reserve.localDegree T.freeUnion J)) := by
+        have houter := localDegree_union_le
+          (cliqueBoundarySupport family r)
+          (intermediateBoundary ∪ (S.freeUnion ∪ T.freeUnion)) J
+        have hmiddle := localDegree_union_le intermediateBoundary
+          (S.freeUnion ∪ T.freeUnion) J
+        have hinner := localDegree_union_le S.freeUnion T.freeUnion J
+        exact hlocal.trans (houter.trans
+          (Nat.add_le_add le_rfl (hmiddle.trans
+            (Nat.add_le_add le_rfl hinner))))
+      _ ≤ pk * z * Tscale +
+          ((pk * z + flattenAuxLoad k r z) * Tscale +
+            (flattenEliminationFreeLoad hrk pairZ * Tscale +
+              flattenSplitFreeLoad hrk splitZ * Tscale)) := by
+        gcongr
+        · simpa [linearStageDegree,
+            LocalDecoderAsymptotic.decoderPathCap, pk, Tscale,
+            mul_assoc, mul_left_comm, mul_comm] using
+              hboundaryDegree J hJ
+        · exact hintermediateScalar J hJ
+        · exact hSscalar J hJ
+        · exact hTscalar J hJ
+      _ ≤ boundaryZ * Tscale := by
+        rw [show pk * z * Tscale +
+            ((pk * z + flattenAuxLoad k r z) * Tscale +
+              (flattenEliminationFreeLoad hrk pairZ * Tscale +
+                flattenSplitFreeLoad hrk splitZ * Tscale)) =
+            (2 * pk * z + flattenAuxLoad k r z +
+              flattenEliminationFreeLoad hrk pairZ +
+                flattenSplitFreeLoad hrk splitZ) * Tscale by ring]
+        apply Nat.mul_le_mul_right Tscale
+        simp [boundaryZ, flattenBoundaryStageCoefficient, splitZ, pairZ, pk]
+  have hnextBoundaryDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (cliqueBoundarySupport next r) J ≤
+        linearStageDegree nextZ k r d n := by
+    intro J hJ
+    exact (hnextBoundaryScalar J hJ).trans
+      (scalar_mul_pathScale_le_linearStageDegree hr (by
+        simp [nextZ, flattenNextStageCoefficient, boundaryZ]
+        exact Nat.le_mul_of_pos_left boundaryZ (by
+          simp [nextFlattenMultiplicity])))
+  have hnextDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree next J ≤ linearStageDegree nextZ k r d n := by
+    intro J hJ
+    have hblocks := localDegree_blocks_le_boundary_mul_incidence hr hrk
+      hnextUniform (fun e he ↦ hnextBound e (mem_completeUniform.mpr he)) J hJ
+    have hscalar : Reserve.localDegree next J ≤ nextZ * Tscale := by
+      calc
+        Reserve.localDegree next J ≤
+            Reserve.localDegree (cliqueBoundarySupport next r) J *
+              nextFlattenMultiplicity x := hblocks
+        _ ≤ (boundaryZ * Tscale) * nextFlattenMultiplicity x := by
+          gcongr
+          exact hnextBoundaryScalar J hJ
+        _ = nextZ * Tscale := by
+          simp [nextZ, flattenNextStageCoefficient, boundaryZ]
+          ring
+    exact hscalar.trans
+      (scalar_mul_pathScale_le_linearStageDegree hr le_rfl)
+  exact ⟨next, hspan, hnextUniform, hnextBound, hnextUnique,
+    hnextDegree, hnextBoundaryDegree⟩
+
+/-- Pointwise package consumed by the quantitative well-founded recursion. -/
+def HasQuantitativeFlattenRounds
+    (n k r d A : ℕ) (hrk : r < k) : Prop :=
+  ∀ x z : ℕ, 4 < x → 0 < z →
+    flattenNextStageCoefficient hrk x z ≤ flattenStageBudget A k d n →
+    ∀ family : Finset (Finset (Fin n)),
+    (∀ Q ∈ family, Q.card = k) →
+    (∀ e ∈ completeUniform n r,
+      blockIncidenceCount family e ≤ x) →
+    HasUniqueHighEdge n r family →
+    (∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree family J ≤ linearStageDegree z k r d n) →
+    (∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (cliqueBoundarySupport family r) J ≤
+        linearStageDegree z k r d n) →
+    ∃ next : Finset (Finset (Fin n)),
+      IntegrallySpans n k r next family ∧
+      (∀ Q ∈ next, Q.card = k) ∧
+      (∀ e ∈ completeUniform n r,
+        blockIncidenceCount next e ≤ nextFlattenMultiplicity x) ∧
+      HasUniqueHighEdge n r next ∧
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree next J ≤
+          linearStageDegree (flattenNextStageCoefficient hrk x z)
+            k r d n) ∧
+      (∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree (cliqueBoundarySupport next r) J ≤
+          linearStageDegree (flattenNextStageCoefficient hrk x z)
+            k r d n)
+
+theorem eventually_hasQuantitativeFlattenRounds
+    (k r d A : ℕ) (hr : 0 < r) (hrk : r < k) (hd : 0 < d)
+    (hA : 0 < A) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      HasQuantitativeFlattenRounds n k r d A hrk := by
+  simpa [HasQuantitativeFlattenRounds] using
+    eventually_exists_quantitative_splitIntermediateFlattenRound
+      k r d A hr hrk hd hA
+
+/-- The fixed-loss potential is exactly what is needed to iterate the
+geometric round until multiplicity four. -/
+theorem exists_squareRootFlattening_of_quantitative_rounds
+    {n k r d A x z : ℕ} {source : Finset (Finset (Fin n))}
+    (hr : 0 < r) (hrk : r < k)
+    (hround : HasQuantitativeFlattenRounds n k r d A hrk)
+    (hbudget :
+      (16 * flattenCoefficientLoss hrk) ^ flattenRoundCount x * z * x ^ 4 ≤
+        flattenStageBudget A k d n)
+    (hz : 0 < z)
+    (huniform : ∀ Q ∈ source, Q.card = k)
+    (hbound : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount source e ≤ x)
+    (hunique : HasUniqueHighEdge n r source)
+    (hfamilyDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree source J ≤ linearStageDegree z k r d n)
+    (hboundaryDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (cliqueBoundarySupport source r) J ≤
+        linearStageDegree z k r d n) :
+    ∃ final : Finset (Finset (Fin n)),
+      IsSquareRootFlattening n k r x source final := by
+  induction x using Nat.strong_induction_on generalizing source z with
+  | h x ih =>
+      by_cases hx : x ≤ 4
+      · exact ⟨source, IsSquareRootFlattening.done x source hx
+          huniform hbound⟩
+      · have hx4 : 4 < x := by omega
+        let y := nextFlattenMultiplicity x
+        let z' := flattenNextStageCoefficient hrk x z
+        let B := 16 * flattenCoefficientLoss hrk
+        have hBpos : 0 < B := by
+          exact Nat.mul_pos (by omega) (flattenCoefficientLoss_pos hrk)
+        have hypos : 0 < y := by simp [y, nextFlattenMultiplicity]
+        have hcount : flattenRoundCount x = flattenRoundCount y + 1 := by
+          simpa [y] using flattenRoundCount_eq_succ hx4
+        have hpotential : z' * y ^ 4 ≤ B * z * x ^ 4 := by
+          simpa [z', y, B] using flattenNextStage_potential_le hrk hx4
+        have hz' : 0 < z' := by
+          have hc := flattenStageCoefficient_chain (x := x) hrk hz
+          exact hc.1.trans_le (hc.2.2.1.trans
+            (hc.2.2.2.1.trans hc.2.2.2.2))
+        have hnextBudget : z' ≤ flattenStageBudget A k d n := by
+          calc
+            z' ≤ z' * y ^ 4 :=
+              Nat.le_mul_of_pos_right z'
+                (Nat.pow_pos hypos)
+            _ ≤ B * z * x ^ 4 := hpotential
+            _ ≤ B ^ flattenRoundCount y * (B * z * x ^ 4) :=
+              Nat.le_mul_of_pos_left _ (Nat.pow_pos hBpos)
+            _ = B ^ flattenRoundCount x * z * x ^ 4 := by
+              rw [hcount, pow_succ]
+              ring
+            _ ≤ flattenStageBudget A k d n := hbudget
+        obtain ⟨next, hspan, hnextUniform, hnextBound, hnextUnique,
+            hnextDegree, hnextBoundaryDegree⟩ :=
+          hround x z hx4 hz hnextBudget source huniform hbound hunique
+            hfamilyDegree hboundaryDegree
+        have hylt : y < x := by
+          simpa [y] using nextFlattenMultiplicity_lt_self hx4
+        have htailBudget :
+            B ^ flattenRoundCount y * z' * y ^ 4 ≤
+              flattenStageBudget A k d n := by
+          calc
+            B ^ flattenRoundCount y * z' * y ^ 4 =
+                B ^ flattenRoundCount y * (z' * y ^ 4) := by ring
+            _ ≤ B ^ flattenRoundCount y * (B * z * x ^ 4) := by
+              gcongr
+            _ = B ^ flattenRoundCount x * z * x ^ 4 := by
+              rw [hcount, pow_succ]
+              ring
+            _ ≤ flattenStageBudget A k d n := hbudget
+        obtain ⟨final, htail⟩ := ih y hylt
+          (by simpa [B, y, z'] using htailBudget) hz' hnextUniform
+          hnextBound hnextUnique hnextDegree hnextBoundaryDegree
+        exact ⟨final, IsSquareRootFlattening.step hx4 hspan hnextUniform
+          hnextBound htail⟩
+
+/-- Quantitative form of the iteration retaining the terminal boundary
+degree.  The qualitative certificate deliberately forgets stage loads, so
+this companion theorem carries the common worst-stage budget through the
+same well-founded recursion. -/
+theorem exists_squareRootFlattening_of_quantitative_rounds_with_boundary
+    {n k r d A x z : ℕ} {source : Finset (Finset (Fin n))}
+    (hr : 0 < r) (hrk : r < k)
+    (hround : HasQuantitativeFlattenRounds n k r d A hrk)
+    (hbudget :
+      (16 * flattenCoefficientLoss hrk) ^ flattenRoundCount x * z * x ^ 4 ≤
+        flattenStageBudget A k d n)
+    (hxpos : 0 < x) (hz : 0 < z)
+    (huniform : ∀ Q ∈ source, Q.card = k)
+    (hbound : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount source e ≤ x)
+    (hunique : HasUniqueHighEdge n r source)
+    (hfamilyDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree source J ≤ linearStageDegree z k r d n)
+    (hboundaryDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (cliqueBoundarySupport source r) J ≤
+        linearStageDegree z k r d n) :
+    ∃ final : Finset (Finset (Fin n)),
+      IsSquareRootFlattening n k r x source final ∧
+      ∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree (cliqueBoundarySupport final r) J ≤
+          linearStageDegree (flattenStageBudget A k d n) k r d n := by
+  induction x using Nat.strong_induction_on generalizing source z with
+  | h x ih =>
+      let B := 16 * flattenCoefficientLoss hrk
+      have hBpos : 0 < B := by
+        exact Nat.mul_pos (by omega) (flattenCoefficientLoss_pos hrk)
+      by_cases hx : x ≤ 4
+      · have hzBudget : z ≤ flattenStageBudget A k d n := by
+          calc
+            z ≤ B ^ flattenRoundCount x * z * x ^ 4 := by
+              have hleft : 0 < B ^ flattenRoundCount x :=
+                Nat.pow_pos hBpos
+              have hright : 0 < x ^ 4 := Nat.pow_pos hxpos
+              exact (Nat.le_mul_of_pos_left z hleft).trans
+                (Nat.le_mul_of_pos_right _ hright)
+            _ ≤ flattenStageBudget A k d n := by
+              simpa [B] using hbudget
+        refine ⟨source,
+          IsSquareRootFlattening.done x source hx huniform hbound, ?_⟩
+        intro J hJ
+        exact (hboundaryDegree J hJ).trans (by
+          simp [linearStageDegree]
+          exact Nat.mul_le_mul_right _ hzBudget)
+      · have hx4 : 4 < x := by omega
+        let y := nextFlattenMultiplicity x
+        let z' := flattenNextStageCoefficient hrk x z
+        have hypos : 0 < y := by simp [y, nextFlattenMultiplicity]
+        have hcount : flattenRoundCount x = flattenRoundCount y + 1 := by
+          simpa [y] using flattenRoundCount_eq_succ hx4
+        have hpotential : z' * y ^ 4 ≤ B * z * x ^ 4 := by
+          simpa [z', y, B] using flattenNextStage_potential_le hrk hx4
+        have hz' : 0 < z' := by
+          have hc := flattenStageCoefficient_chain (x := x) hrk hz
+          exact hc.1.trans_le (hc.2.2.1.trans
+            (hc.2.2.2.1.trans hc.2.2.2.2))
+        have hnextBudget : z' ≤ flattenStageBudget A k d n := by
+          calc
+            z' ≤ z' * y ^ 4 :=
+              Nat.le_mul_of_pos_right z' (Nat.pow_pos hypos)
+            _ ≤ B * z * x ^ 4 := hpotential
+            _ ≤ B ^ flattenRoundCount y * (B * z * x ^ 4) :=
+              Nat.le_mul_of_pos_left _ (Nat.pow_pos hBpos)
+            _ = B ^ flattenRoundCount x * z * x ^ 4 := by
+              rw [hcount, pow_succ]
+              ring
+            _ ≤ flattenStageBudget A k d n := by
+              simpa [B] using hbudget
+        obtain ⟨next, hspan, hnextUniform, hnextBound, hnextUnique,
+            hnextDegree, hnextBoundaryDegree⟩ :=
+          hround x z hx4 hz hnextBudget source huniform hbound hunique
+            hfamilyDegree hboundaryDegree
+        have hylt : y < x := by
+          simpa [y] using nextFlattenMultiplicity_lt_self hx4
+        have htailBudget :
+            B ^ flattenRoundCount y * z' * y ^ 4 ≤
+              flattenStageBudget A k d n := by
+          calc
+            B ^ flattenRoundCount y * z' * y ^ 4 =
+                B ^ flattenRoundCount y * (z' * y ^ 4) := by ring
+            _ ≤ B ^ flattenRoundCount y * (B * z * x ^ 4) := by
+              gcongr
+            _ = B ^ flattenRoundCount x * z * x ^ 4 := by
+              rw [hcount, pow_succ]
+              ring
+            _ ≤ flattenStageBudget A k d n := by
+              simpa [B] using hbudget
+        obtain ⟨final, htail, hfinalBoundary⟩ := ih y hylt
+          (by simpa [B, y, z'] using htailBudget) hypos hz' hnextUniform
+          hnextBound hnextUnique hnextDegree hnextBoundaryDegree
+        exact ⟨final, IsSquareRootFlattening.step hx4 hspan hnextUniform
+          hnextBound htail, hfinalBoundary⟩
+
+/-- Abstract well-founded recursion for the checked square-root step.  Any
+uniform provider of an integrally spanning, unique-high next family with
+the displayed recurrence yields a finite flattening certificate. -/
+theorem exists_squareRootFlattening_of_iteratable_rounds
+    {n k r x : ℕ} {source : Finset (Finset (Fin n))}
+    (hround : ∀ (y : ℕ) (family : Finset (Finset (Fin n))),
+      4 < y →
+      (∀ Q ∈ family, Q.card = k) →
+      (∀ e ∈ completeUniform n r,
+        blockIncidenceCount family e ≤ y) →
+      HasUniqueHighEdge n r family →
+      ∃ next : Finset (Finset (Fin n)),
+        IntegrallySpans n k r next family ∧
+        (∀ Q ∈ next, Q.card = k) ∧
+        (∀ e ∈ completeUniform n r,
+          blockIncidenceCount next e ≤ nextFlattenMultiplicity y) ∧
+        HasUniqueHighEdge n r next)
+    (huniform : ∀ Q ∈ source, Q.card = k)
+    (hbound : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount source e ≤ x)
+    (hunique : HasUniqueHighEdge n r source) :
+    ∃ final : Finset (Finset (Fin n)),
+      IsSquareRootFlattening n k r x source final := by
+  induction x using Nat.strong_induction_on generalizing source with
+  | h x ih =>
+      by_cases hx : x ≤ 4
+      · exact ⟨source, IsSquareRootFlattening.done x source hx huniform hbound⟩
+      · have hx' : 4 < x := by omega
+        obtain ⟨next, hspan, hnextUniform, hnextBound, hnextUnique⟩ :=
+          hround x source hx' huniform hbound hunique
+        have hdecrease : nextFlattenMultiplicity x < x :=
+          nextFlattenMultiplicity_lt_self hx'
+        obtain ⟨final, htail⟩ := ih _ hdecrease hnextUniform
+          hnextBound hnextUnique
+        exact ⟨final, IsSquareRootFlattening.step hx' hspan hnextUniform
+          hnextBound htail⟩
+
+/-- Membership in the additive subgroup generated by modular clique
+boundaries can be represented by one coefficient function on the finite
+generating family. -/
+theorem exists_modularBoundaryCombination_of_mem_span
+    {N n r : ℕ} {modular : Finset (Finset (Fin n))}
+    {x : Finset (Fin n) → ZMod N}
+    (hx : Generators.InModularSpan N n r modular x) :
+    ∃ c : Finset (Fin n) → ZMod N,
+      x = modularBoundaryCombination N r modular c := by
+  classical
+  change x ∈ AddSubgroup.closure
+    (Generators.modCliqueBoundary N n r ''
+      (↑modular : Set (Finset (Fin n)))) at hx
+  induction hx using AddSubgroup.closure_induction with
+  | mem x hx =>
+      obtain ⟨Q, hQ, rfl⟩ := hx
+      have hQ' : Q ∈ modular := hQ
+      refine ⟨fun B ↦ if B = Q then 1 else 0, ?_⟩
+      funext e
+      rw [Generators.modCliqueBoundary, modularBoundaryCombination]
+      by_cases heQ : e.card = r ∧ e ⊆ Q
+      · rw [if_pos heQ]
+        symm
+        rw [Finset.sum_eq_single Q]
+        · simp [heQ]
+        · intro B hB hBQ
+          simp [hBQ]
+        · intro hQnot
+          exact (hQnot hQ').elim
+      · rw [if_neg heQ]
+        symm
+        apply Finset.sum_eq_zero
+        intro B hB
+        by_cases hBQ : B = Q
+        · subst B
+          simp [heQ]
+        · simp [hBQ]
+  | zero =>
+      refine ⟨fun _ ↦ 0, ?_⟩
+      funext e
+      simp [modularBoundaryCombination]
+  | add x y _hx _hy hx hy =>
+      obtain ⟨cx, hcx⟩ := hx
+      obtain ⟨cy, hcy⟩ := hy
+      refine ⟨fun Q ↦ cx Q + cy Q, ?_⟩
+      rw [hcx, hcy]
+      funext e
+      change modularBoundaryCombination N r modular cx e +
+          modularBoundaryCombination N r modular cy e = _
+      rw [show modularBoundaryCombination N r modular cx e +
+          modularBoundaryCombination N r modular cy e =
+          ∑ Q ∈ modular,
+            ((if e.card = r ∧ e ⊆ Q then cx Q else 0) +
+             (if e.card = r ∧ e ⊆ Q then cy Q else 0)) by
+        simp [modularBoundaryCombination, Finset.sum_add_distrib]]
+      apply Finset.sum_congr rfl
+      intro Q hQ
+      by_cases h : e.card = r ∧ e ⊆ Q <;> simp [h]
+  | neg x _hx hx =>
+      obtain ⟨c, hc⟩ := hx
+      refine ⟨fun Q ↦ -c Q, ?_⟩
+      rw [hc]
+      funext e
+      change -modularBoundaryCombination N r modular c e = _
+      rw [show -modularBoundaryCombination N r modular c e =
+          ∑ Q ∈ modular,
+            -(if e.card = r ∧ e ⊆ Q then c Q else 0) by
+        simp [modularBoundaryCombination]]
+      apply Finset.sum_congr rfl
+      intro Q hQ
+      by_cases h : e.card = r ∧ e ⊆ Q <;> simp [h]
+
+lemma sum_modCliqueBoundary_apply_eq_incidence
+    (N n r : ℕ) (family : Finset (Finset (Fin n)))
+    {e : Finset (Fin n)} (he : e.card = r) :
+    (∑ Q ∈ family, Generators.modCliqueBoundary N n r Q) e =
+      (Transversal.incidenceCount family e : ZMod N) := by
+  simp [Generators.modCliqueBoundary, he,
+    Transversal.incidenceCount, Finset.sum_ite]
+
+/-- A two-root exchange whose free edges lie in `host` expresses the
+difference of its two prescribed roots using only fully host-supported
+blocks.  The positive root is allowed one exceptional edge, namely its
+intersection with the negative root. -/
+theorem modCliqueBoundary_sub_mem_span_of_eliminationEmbedding
+    {N n k r : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (e₀ : Exchange.RootEdge k r)
+    (P : ExchangeEliminationEmbedding.EliminationPair n k r)
+    (ψ : Fin E.v ↪ Fin n)
+    (hposMap : RootedEmbedding.mapEdge ψ E.pattern.root = P.positive)
+    (hnegMap : RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative)
+    {host : Finset (Finset (Fin n))}
+    (hfree : RootedEmbedding.imageFreeEdges
+      (E.eliminationPattern e₀) ψ ⊆ host)
+    (hpositive : P.positive.powersetCard r \
+      {P.positive ∩ P.negative} ⊆ host)
+    (hnegative : P.negative.powersetCard r \
+      {P.positive ∩ P.negative} ⊆ host) :
+    Generators.InModularSpan N n r (fullySupportedBlocks n k r host)
+      (Generators.modCliqueBoundary N n r P.positive -
+        Generators.modCliqueBoundary N n r P.negative) := by
+  classical
+  let posRem := (ExchangeEmbedding.mappedNegative E ψ).erase P.negative
+  let negRem := (ExchangeEmbedding.mappedPositive E ψ).erase P.positive
+  have hposRem : posRem ⊆ fullySupportedBlocks n k r host := by
+    intro B hB
+    have hBerase : B ∈ (ExchangeEmbedding.mappedNegative E ψ).erase
+        (ExchangeEmbedding.mappedSpecial E ψ e₀) := by
+      simpa [posRem, ExchangeEmbedding.mappedSpecial, hnegMap] using hB
+    apply mem_fullySupportedBlocks.mpr
+    refine ⟨(ExchangeEmbedding.mappedNegative_decomp E ψ).1 B
+      (Finset.mem_of_mem_erase hBerase), ?_⟩
+    intro g hg
+    have hgHost := (ExchangeEmbedding.mappedNegative_erase_special_decomp
+      E ψ e₀).2.1 B hBerase hg
+    have hgHostData := Finset.mem_sdiff.mp hgHost
+    rcases ExchangeEmbedding.mem_mappedRootBoundary_or_imageFreeEdges
+        E ψ hgHostData.1 with hgRoot | hgFree
+    · have hgPositive : g ∈ P.positive.powersetCard r := by
+        rw [← hposMap]
+        exact hgRoot
+      apply hpositive
+      apply Finset.mem_sdiff.mpr
+      refine ⟨hgPositive, ?_⟩
+      intro hgEq
+      have hgNegative : g ∈ P.negative.powersetCard r := by
+        have hinterSub : P.positive ∩ P.negative ⊆ P.negative :=
+          Finset.inter_subset_right
+        apply Finset.mem_powersetCard.mpr
+        rw [Finset.mem_singleton.mp hgEq]
+        exact ⟨hinterSub, P.inter_card⟩
+      apply hgHostData.2
+      simpa [ExchangeEmbedding.mappedSpecial, hnegMap] using hgNegative
+    · apply hfree
+      obtain ⟨a, ha, hag⟩ := Finset.mem_image.mp hgFree
+      have haData := Finset.mem_filter.mp ha
+      apply Finset.mem_image.mpr
+      refine ⟨a, Finset.mem_filter.mpr ⟨haData.1, ?_⟩, hag⟩
+      intro haElimRoot
+      rcases E.special_isolated e₀ a haData.1 haElimRoot with
+        haPositive | haSpecial
+      · exact haData.2 haPositive
+      · apply hgHostData.2
+        apply Finset.mem_powersetCard.mpr
+        refine ⟨?_, (Finset.mem_powersetCard.mp hg).2⟩
+        rw [← hag]
+        exact Finset.map_subset_map.mpr haSpecial
+  have hnegRem : negRem ⊆ fullySupportedBlocks n k r host := by
+    intro B hB
+    have hBerase : B ∈ (ExchangeEmbedding.mappedPositive E ψ).erase
+        (RootedEmbedding.mapEdge ψ E.pattern.root) := by
+      simpa [negRem, hposMap] using hB
+    apply mem_fullySupportedBlocks.mpr
+    refine ⟨(ExchangeEmbedding.mappedPositive_erase_decomp E ψ).1 B hBerase,
+      ?_⟩
+    intro g hg
+    have hgFree := (ExchangeEmbedding.mappedPositive_erase_decomp E ψ).2.1
+      B hBerase hg
+    by_cases hgSpecial : g ∈
+        (ExchangeEmbedding.mappedSpecial E ψ e₀).powersetCard r
+    · apply hnegative
+      apply Finset.mem_sdiff.mpr
+      refine ⟨by
+        simpa [ExchangeEmbedding.mappedSpecial, hnegMap] using hgSpecial, ?_⟩
+      intro hgEq
+      have hgPositive : g ∈ P.positive.powersetCard r := by
+        apply Finset.mem_powersetCard.mpr
+        rw [Finset.mem_singleton.mp hgEq]
+        exact ⟨Finset.inter_subset_left, P.inter_card⟩
+      obtain ⟨a, ha, hag⟩ := Finset.mem_image.mp hgFree
+      have haData := Finset.mem_filter.mp ha
+      apply haData.2
+      rw [← hposMap] at hgPositive
+      have hsubMap := (Finset.mem_powersetCard.mp hgPositive).1
+      rw [← hag] at hsubMap
+      exact Finset.map_subset_map.mp hsubMap
+    · apply hfree
+      obtain ⟨a, ha, hag⟩ := Finset.mem_image.mp hgFree
+      have haData := Finset.mem_filter.mp ha
+      apply Finset.mem_image.mpr
+      refine ⟨a, Finset.mem_filter.mpr ⟨haData.1, ?_⟩, hag⟩
+      intro haElimRoot
+      rcases E.special_isolated e₀ a haData.1 haElimRoot with
+        haPositive | haSpecial
+      · exact haData.2 haPositive
+      · apply hgSpecial
+        apply Finset.mem_powersetCard.mpr
+        refine ⟨?_, (Finset.mem_powersetCard.mp hg).2⟩
+        rw [← hag]
+        exact Finset.map_subset_map.mpr haSpecial
+  let H := AddSubgroup.closure
+    (Generators.modCliqueBoundary N n r ''
+      (↑(fullySupportedBlocks n k r host) :
+        Set (Finset (Fin n))))
+  have hsum (family : Finset (Finset (Fin n)))
+      (hfamily : family ⊆ fullySupportedBlocks n k r host) :
+      (∑ B ∈ family, Generators.modCliqueBoundary N n r B) ∈ H := by
+    induction family using Finset.induction_on with
+    | empty => simp [H]
+    | @insert B family hB ih =>
+        rw [Finset.sum_insert hB]
+        apply AddSubgroup.add_mem
+        · exact AddSubgroup.subset_closure
+            ⟨B, hfamily (Finset.mem_insert_self B family), rfl⟩
+        · exact ih (fun C hC ↦ hfamily (Finset.mem_insert_of_mem hC))
+  have hcombination := AddSubgroup.sub_mem H
+    (hsum posRem hposRem) (hsum negRem hnegRem)
+  change (Generators.modCliqueBoundary N n r P.positive -
+    Generators.modCliqueBoundary N n r P.negative) ∈ H
+  rw [show Generators.modCliqueBoundary N n r P.positive -
+        Generators.modCliqueBoundary N n r P.negative =
+      (∑ B ∈ posRem, Generators.modCliqueBoundary N n r B) -
+        ∑ B ∈ negRem, Generators.modCliqueBoundary N n r B by
+    funext g
+    by_cases hg : g.card = r
+    · rw [Pi.sub_apply, Pi.sub_apply,
+        sum_modCliqueBoundary_apply_eq_incidence N n r posRem hg,
+        sum_modCliqueBoundary_apply_eq_incidence N n r negRem hg]
+      have htrade := ExchangeEmbedding.mappedFullExchange_signed_root_sub_special
+        E ψ e₀ hg
+      have htrade' :
+          (Transversal.incidenceCount posRem g : ℤ) -
+              (Transversal.incidenceCount negRem g : ℤ) =
+            (if g ⊆ P.positive then (1 : ℤ) else 0) -
+              (if g ⊆ P.negative then (1 : ℤ) else 0) := by
+        simpa [posRem, negRem, ExchangeEmbedding.mappedSpecial,
+          hposMap, hnegMap] using htrade
+      have hz := congrArg (fun z : ℤ ↦ (z : ZMod N)) htrade'.symm
+      simpa [Generators.modCliqueBoundary, hg] using hz
+    · simp [Generators.modCliqueBoundary, hg]]
+  exact hcombination
+
+/-- Two almost-supported blocks with the same exceptional edge have
+congruent clique boundaries modulo the span of fully supported blocks.  A
+clean auxiliary block makes both prescribed intersections exactly that edge,
+so the two-root exchange lemma applies twice. -/
+theorem modCliqueBoundary_sub_mem_span_of_common_exception
+    {N n k r : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (e₀ : Exchange.RootEdge k r)
+    {host : Finset (Finset (Fin n))}
+    {B C e : Finset (Fin n)}
+    (hBcard : B.card = k) (hCcard : C.card = k)
+    (hBexception : B.powersetCard r \ host = {e})
+    (hCexception : C.powersetCard r \ host = {e})
+    (haux : ∀ g ∈ completeUniform n r,
+      ∀ forbiddenVertices : Finset (Fin n), g ⊆ forbiddenVertices →
+        forbiddenVertices.card ≤ 2 * k →
+        ∃ Q ∈ blockCandidates n k,
+          Q.powersetCard r \ {g} ⊆ host ∧
+          Q ∩ forbiddenVertices = g)
+    (helim : ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+      ∃ ψ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge ψ E.pattern.root = P.positive ∧
+        RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative ∧
+        RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀) ψ ⊆ host) :
+    Generators.InModularSpan N n r (fullySupportedBlocks n k r host)
+      (Generators.modCliqueBoundary N n r B -
+        Generators.modCliqueBoundary N n r C) := by
+  classical
+  have heBoutside : e ∈ B.powersetCard r \ host := by
+    rw [hBexception]
+    simp
+  have heCoutside : e ∈ C.powersetCard r \ host := by
+    rw [hCexception]
+    simp
+  have hecard : e.card = r :=
+    (Finset.mem_powersetCard.mp (Finset.mem_sdiff.mp heBoutside).1).2
+  have heComplete : e ∈ completeUniform n r := mem_completeUniform.mpr hecard
+  have heB : e ⊆ B :=
+    (Finset.mem_powersetCard.mp (Finset.mem_sdiff.mp heBoutside).1).1
+  have heC : e ⊆ C :=
+    (Finset.mem_powersetCard.mp (Finset.mem_sdiff.mp heCoutside).1).1
+  let forbiddenVertices := B ∪ C
+  have heForbidden : e ⊆ forbiddenVertices :=
+    heB.trans Finset.subset_union_left
+  have hforbiddenCard : forbiddenVertices.card ≤ 2 * k := by
+    calc
+      forbiddenVertices.card ≤ B.card + C.card := Finset.card_union_le _ _
+      _ = 2 * k := by rw [hBcard, hCcard]; omega
+  obtain ⟨M, hMblock, hMsupported, hMinter⟩ :=
+    haux e heComplete forbiddenVertices heForbidden hforbiddenCard
+  have hMcard : M.card = k := mem_completeUniform.mp hMblock
+  have heM : e ⊆ M := by
+    intro x hx
+    have hxInter : x ∈ M ∩ forbiddenVertices := by
+      rw [hMinter]
+      exact hx
+    exact (Finset.mem_inter.mp hxInter).1
+  have hBM : B ∩ M = e := by
+    ext x
+    constructor
+    · intro hx
+      have hxData := Finset.mem_inter.mp hx
+      have hxMF : x ∈ M ∩ forbiddenVertices := Finset.mem_inter.mpr
+        ⟨hxData.2, Finset.mem_union_left _ hxData.1⟩
+      rw [hMinter] at hxMF
+      exact hxMF
+    · intro hx
+      exact Finset.mem_inter.mpr ⟨heB hx, heM hx⟩
+  have hCM : C ∩ M = e := by
+    ext x
+    constructor
+    · intro hx
+      have hxData := Finset.mem_inter.mp hx
+      have hxMF : x ∈ M ∩ forbiddenVertices := Finset.mem_inter.mpr
+        ⟨hxData.2, Finset.mem_union_right _ hxData.1⟩
+      rw [hMinter] at hxMF
+      exact hxMF
+    · intro hx
+      exact Finset.mem_inter.mpr ⟨heC hx, heM hx⟩
+  have hBsupported : B.powersetCard r \ {e} ⊆ host := by
+    intro g hg
+    by_contra hgHost
+    have hgOutside : g ∈ B.powersetCard r \ host :=
+      Finset.mem_sdiff.mpr ⟨(Finset.mem_sdiff.mp hg).1, hgHost⟩
+    rw [hBexception] at hgOutside
+    exact (Finset.mem_sdiff.mp hg).2 (by simpa using hgOutside)
+  have hCsupported : C.powersetCard r \ {e} ⊆ host := by
+    intro g hg
+    by_contra hgHost
+    have hgOutside : g ∈ C.powersetCard r \ host :=
+      Finset.mem_sdiff.mpr ⟨(Finset.mem_sdiff.mp hg).1, hgHost⟩
+    rw [hCexception] at hgOutside
+    exact (Finset.mem_sdiff.mp hg).2 (by simpa using hgOutside)
+  let PB : ExchangeEliminationEmbedding.EliminationPair n k r :=
+    { positive := B
+      negative := M
+      positive_card := hBcard
+      negative_card := hMcard
+      inter_card := by rw [hBM, hecard] }
+  let PC : ExchangeEliminationEmbedding.EliminationPair n k r :=
+    { positive := C
+      negative := M
+      positive_card := hCcard
+      negative_card := hMcard
+      inter_card := by rw [hCM, hecard] }
+  obtain ⟨ψB, hψBpos, hψBneg, hψBfree⟩ := helim PB
+  obtain ⟨ψC, hψCpos, hψCneg, hψCfree⟩ := helim PC
+  have hspanB := modCliqueBoundary_sub_mem_span_of_eliminationEmbedding
+    (N := N) E e₀ PB ψB hψBpos hψBneg hψBfree
+      (by simpa [PB, hBM] using hBsupported)
+      (by simpa [PB, hBM] using hMsupported)
+  have hspanC := modCliqueBoundary_sub_mem_span_of_eliminationEmbedding
+    (N := N) E e₀ PC ψC hψCpos hψCneg hψCfree
+      (by simpa [PC, hCM] using hCsupported)
+      (by simpa [PC, hCM] using hMsupported)
+  let H := AddSubgroup.closure
+    (Generators.modCliqueBoundary N n r ''
+      (↑(fullySupportedBlocks n k r host) : Set (Finset (Fin n))))
+  change (Generators.modCliqueBoundary N n r B -
+    Generators.modCliqueBoundary N n r C) ∈ H
+  change (Generators.modCliqueBoundary N n r B -
+    Generators.modCliqueBoundary N n r M) ∈ H at hspanB
+  change (Generators.modCliqueBoundary N n r C -
+    Generators.modCliqueBoundary N n r M) ∈ H at hspanC
+  have hsub := AddSubgroup.sub_mem H hspanB hspanC
+  convert hsub using 1 <;> abel
+
+/-- The unique edge outside `host` of an almost-supported but not fully
+supported block.  The empty value in the other cases is immaterial; all
+uses below carry the nonempty-difference hypothesis. -/
+noncomputable def exceptionalEdge
+    (r : ℕ) (host : Finset (Finset (Fin n))) (B : Finset (Fin n)) :
+    Finset (Fin n) :=
+  if h : (B.powersetCard r \ host).Nonempty then
+    Classical.choose h
+  else ∅
+
+lemma exceptionalEdge_mem
+    {host : Finset (Finset (Fin n))} {B : Finset (Fin n)}
+    (h : (B.powersetCard r \ host).Nonempty) :
+    exceptionalEdge (r := r) host B ∈ B.powersetCard r \ host := by
+  simp only [exceptionalEdge, dif_pos h]
+  exact Classical.choose_spec h
+
+lemma powersetCard_sdiff_eq_singleton_exceptionalEdge
+    {host : Finset (Finset (Fin n))} {B : Finset (Fin n)}
+    (hcard : (B.powersetCard r \ host).card ≤ 1)
+    (hnonempty : (B.powersetCard r \ host).Nonempty) :
+    B.powersetCard r \ host = {exceptionalEdge (r := r) host B} := by
+  apply Finset.eq_singleton_iff_unique_mem.mpr
+  refine ⟨exceptionalEdge_mem hnonempty, ?_⟩
+  intro e he
+  exact Finset.card_le_one.mp hcard e he _ (exceptionalEdge_mem hnonempty)
+
+/-- The non-fully-supported part of the almost-supported clique family. -/
+def exceptionalBlocks (n k r : ℕ)
+    (host : Finset (Finset (Fin n))) : Finset (Finset (Fin n)) :=
+  almostSupportedBlocks n k r host \ fullySupportedBlocks n k r host
+
+lemma exceptionalBlock_data
+    {B : Finset (Fin n)}
+    (hB : B ∈ exceptionalBlocks n k r host) :
+    B.card = k ∧
+      (B.powersetCard r \ host).card ≤ 1 ∧
+      (B.powersetCard r \ host).Nonempty := by
+  have hBdata := Finset.mem_sdiff.mp hB
+  have halmost := mem_almostSupportedBlocks.mp hBdata.1
+  refine ⟨halmost.1, halmost.2, ?_⟩
+  rw [Finset.sdiff_nonempty]
+  intro hsub
+  exact hBdata.2 (mem_fullySupportedBlocks.mpr ⟨halmost.1, hsub⟩)
+
+lemma exceptionalEdge_mem_complete_sdiff
+    {B : Finset (Fin n)}
+    (hB : B ∈ exceptionalBlocks n k r host) :
+    exceptionalEdge (r := r) host B ∈ completeUniform n r \ host := by
+  have hmem := exceptionalEdge_mem (exceptionalBlock_data hB).2.2
+  exact Finset.mem_sdiff.mpr
+    ⟨mem_completeUniform.mpr
+      (Finset.mem_powersetCard.mp (Finset.mem_sdiff.mp hmem).1).2,
+      (Finset.mem_sdiff.mp hmem).2⟩
+
+lemma exceptionalFiber_eq_incidentFilter
+    {e : Finset (Fin n)}
+    (he : e ∈ completeUniform n r \ host) :
+    (exceptionalBlocks n k r host).filter
+        (fun B ↦ exceptionalEdge (r := r) host B = e) =
+      (almostSupportedBlocks n k r host).filter (fun B ↦ e ⊆ B) := by
+  ext B
+  constructor
+  · intro hB
+    have hdata := Finset.mem_filter.mp hB
+    have houtside := exceptionalEdge_mem
+      (exceptionalBlock_data hdata.1).2.2
+    have hsub := (Finset.mem_powersetCard.mp
+      (Finset.mem_sdiff.mp houtside).1).1
+    exact Finset.mem_filter.mpr
+      ⟨(Finset.mem_sdiff.mp hdata.1).1, by simpa [hdata.2] using hsub⟩
+  · intro hB
+    have hdata := Finset.mem_filter.mp hB
+    have hecard : e.card = r :=
+      mem_completeUniform.mp (Finset.mem_sdiff.mp he).1
+    have heoutside : e ∈ B.powersetCard r \ host :=
+      Finset.mem_sdiff.mpr
+        ⟨Finset.mem_powersetCard.mpr ⟨hdata.2, hecard⟩,
+          (Finset.mem_sdiff.mp he).2⟩
+    have halmost := mem_almostSupportedBlocks.mp hdata.1
+    have hnotfull : B ∉ fullySupportedBlocks n k r host := by
+      intro hfull
+      exact (Finset.mem_sdiff.mp heoutside).2
+        ((mem_fullySupportedBlocks.mp hfull).2
+          (Finset.mem_sdiff.mp heoutside).1)
+    have hExceptional : B ∈ exceptionalBlocks n k r host :=
+      Finset.mem_sdiff.mpr ⟨hdata.1, hnotfull⟩
+    have hsingle := powersetCard_sdiff_eq_singleton_exceptionalEdge
+      halmost.2 (exceptionalBlock_data hExceptional).2.2
+    have heq : e = exceptionalEdge (r := r) host B := by
+      rw [hsingle] at heoutside
+      simpa using heoutside
+    exact Finset.mem_filter.mpr ⟨hExceptional, heq.symm⟩
+
+/-- A modular boundary combination is the finite sum of the canonical
+residue multiples of the individual clique boundaries. -/
+lemma modularBoundaryCombination_eq_sum_nsmul
+    {N n r : ℕ} (hN : 0 < N)
+    (family : Finset (Finset (Fin n)))
+    (c : Finset (Fin n) → ZMod N) :
+    modularBoundaryCombination N r family c =
+      ∑ B ∈ family, (c B).val •
+        Generators.modCliqueBoundary N n r B := by
+  classical
+  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  funext e
+  simp only [modularBoundaryCombination, Finset.sum_apply, Pi.smul_apply]
+  apply Finset.sum_congr rfl
+  intro B hB
+  by_cases h : e.card = r ∧ e ⊆ B
+  · simp [Generators.modCliqueBoundary, h, nsmul_eq_mul,
+      ZMod.natCast_zmod_val]
+  · simp [Generators.modCliqueBoundary, h]
+
+/-- If a modular combination of almost-supported clique boundaries vanishes
+on every edge outside `host`, then its whole boundary lies in the modular
+span of fully host-supported cliques.  The proof groups blocks by their
+unique exceptional edge and eliminates every group with the same two-root
+exchange congruence. -/
+theorem modularBoundaryCombination_mem_fullySupportedSpan
+    {N n k r : ℕ} (hN : 0 < N)
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (e₀ : Exchange.RootEdge k r)
+    {host : Finset (Finset (Fin n))}
+    (haux : ∀ g ∈ completeUniform n r,
+      ∀ forbiddenVertices : Finset (Fin n), g ⊆ forbiddenVertices →
+        forbiddenVertices.card ≤ 2 * k →
+        ∃ Q ∈ blockCandidates n k,
+          Q.powersetCard r \ {g} ⊆ host ∧
+          Q ∩ forbiddenVertices = g)
+    (helim : ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+      ∃ ψ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge ψ E.pattern.root = P.positive ∧
+        RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative ∧
+        RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀) ψ ⊆ host)
+    (c : Finset (Fin n) → ZMod N)
+    (hzero : ∀ e ∈ completeUniform n r, e ∉ host →
+      modularBoundaryCombination N r
+        (almostSupportedBlocks n k r host) c e = 0) :
+    Generators.InModularSpan N n r (fullySupportedBlocks n k r host)
+      (modularBoundaryCombination N r
+        (almostSupportedBlocks n k r host) c) := by
+  classical
+  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  let H := AddSubgroup.closure
+    (Generators.modCliqueBoundary N n r ''
+      (↑(fullySupportedBlocks n k r host) : Set (Finset (Fin n))))
+  let w : Finset (Fin n) → (Finset (Fin n) → ZMod N) := fun B ↦
+    (c B).val • Generators.modCliqueBoundary N n r B
+  have hfullyFamily : ∀ family : Finset (Finset (Fin n)),
+      family ⊆ fullySupportedBlocks n k r host →
+      (∑ B ∈ family, w B) ∈ H := by
+    intro family hfamily
+    induction family using Finset.induction_on with
+    | empty => simp [H]
+    | @insert B family hB ih =>
+        rw [Finset.sum_insert hB]
+        apply AddSubgroup.add_mem
+        · apply AddSubgroup.nsmul_mem
+          exact AddSubgroup.subset_closure
+            ⟨B, hfamily (Finset.mem_insert_self B family), rfl⟩
+        · exact ih (fun C hC ↦ hfamily (Finset.mem_insert_of_mem hC))
+  have hfully : (∑ B ∈ fullySupportedBlocks n k r host, w B) ∈ H :=
+    hfullyFamily _ Finset.Subset.rfl
+  have hclass : ∀ e ∈ completeUniform n r \ host,
+      (∑ B ∈ (exceptionalBlocks n k r host).filter
+          (fun B ↦ exceptionalEdge (r := r) host B = e), w B) ∈ H := by
+    intro e he
+    let F := (exceptionalBlocks n k r host).filter
+      (fun B ↦ exceptionalEdge (r := r) host B = e)
+    have hcoeffZero : ∑ B ∈ F, c B = 0 := by
+      have hz := hzero e (Finset.mem_sdiff.mp he).1
+        (Finset.mem_sdiff.mp he).2
+      change ∑ B ∈ (exceptionalBlocks n k r host).filter
+        (fun B ↦ exceptionalEdge (r := r) host B = e), c B = 0
+      rw [exceptionalFiber_eq_incidentFilter he]
+      rw [Finset.sum_filter]
+      simpa [modularBoundaryCombination,
+        mem_completeUniform.mp (Finset.mem_sdiff.mp he).1] using hz
+    by_cases hF : F.Nonempty
+    · let C := Classical.choose hF
+      have hC : C ∈ F := Classical.choose_spec hF
+      have hCExceptional : C ∈ exceptionalBlocks n k r host :=
+        (Finset.mem_filter.mp hC).1
+      have hCcard : C.card = k := (exceptionalBlock_data hCExceptional).1
+      have hCexception : C.powersetCard r \ host = {e} := by
+        rw [powersetCard_sdiff_eq_singleton_exceptionalEdge
+          (exceptionalBlock_data hCExceptional).2.1
+          (exceptionalBlock_data hCExceptional).2.2]
+        exact congrArg singleton (Finset.mem_filter.mp hC).2
+      have hdiff : ∀ B ∈ F,
+          Generators.InModularSpan N n r
+            (fullySupportedBlocks n k r host)
+            (Generators.modCliqueBoundary N n r B -
+              Generators.modCliqueBoundary N n r C) := by
+        intro B hB
+        have hBExceptional : B ∈ exceptionalBlocks n k r host :=
+          (Finset.mem_filter.mp hB).1
+        have hBexception : B.powersetCard r \ host = {e} := by
+          rw [powersetCard_sdiff_eq_singleton_exceptionalEdge
+            (exceptionalBlock_data hBExceptional).2.1
+            (exceptionalBlock_data hBExceptional).2.2]
+          exact congrArg singleton (Finset.mem_filter.mp hB).2
+        exact modCliqueBoundary_sub_mem_span_of_common_exception
+          E e₀ (exceptionalBlock_data hBExceptional).1 hCcard
+            hBexception hCexception haux helim
+      have hdiffSumAux : ∀ family : Finset (Finset (Fin n)),
+          family ⊆ F →
+          (∑ B ∈ family, (c B).val •
+            (Generators.modCliqueBoundary N n r B -
+              Generators.modCliqueBoundary N n r C)) ∈ H := by
+        intro family hfamily
+        induction family using Finset.induction_on with
+        | empty => simp [H]
+        | @insert B family hB ih =>
+            rw [Finset.sum_insert hB]
+            apply AddSubgroup.add_mem
+            · exact AddSubgroup.nsmul_mem H
+                (hdiff B (hfamily (Finset.mem_insert_self B family)))
+                (c B).val
+            · exact ih (fun D hD ↦
+                hfamily (Finset.mem_insert_of_mem hD))
+      have hdiffSum : (∑ B ∈ F, (c B).val •
+          (Generators.modCliqueBoundary N n r B -
+            Generators.modCliqueBoundary N n r C)) ∈ H :=
+        hdiffSumAux F Finset.Subset.rfl
+      have hanchorZero :
+          (∑ B ∈ F, (c B).val •
+            Generators.modCliqueBoundary N n r C) = 0 := by
+        funext g
+        simp only [Finset.sum_apply, Pi.smul_apply, Pi.zero_apply,
+          nsmul_eq_mul, Pi.mul_apply, ZMod.natCast_zmod_val]
+        rw [← Finset.sum_mul]
+        simp [hcoeffZero]
+      change (∑ B ∈ F, w B) ∈ H
+      rw [show (∑ B ∈ F, w B) =
+          (∑ B ∈ F, (c B).val •
+            (Generators.modCliqueBoundary N n r B -
+              Generators.modCliqueBoundary N n r C)) +
+            ∑ B ∈ F, (c B).val •
+              Generators.modCliqueBoundary N n r C by
+        simp only [w, nsmul_sub, Finset.sum_sub_distrib]
+        abel]
+      rw [hanchorZero, add_zero]
+      exact hdiffSum
+    · have hFempty : F = ∅ := Finset.not_nonempty_iff_eq_empty.mp hF
+      change (∑ B ∈ F, w B) ∈ H
+      rw [hFempty]
+      simp [H]
+  have hExceptional :
+      (∑ B ∈ exceptionalBlocks n k r host, w B) ∈ H := by
+    have hmaps : ∀ B ∈ exceptionalBlocks n k r host,
+        exceptionalEdge (r := r) host B ∈ completeUniform n r \ host :=
+      fun B hB ↦ exceptionalEdge_mem_complete_sdiff hB
+    have hfiber := Finset.sum_fiberwise_of_maps_to hmaps w
+    rw [← hfiber]
+    have hclasses : ∀ edges : Finset (Finset (Fin n)),
+        edges ⊆ completeUniform n r \ host →
+        (∑ e ∈ edges,
+          ∑ B ∈ exceptionalBlocks n k r host with
+            exceptionalEdge (r := r) host B = e, w B) ∈ H := by
+      intro edges hedges
+      induction edges using Finset.induction_on with
+      | empty => simp [H]
+      | @insert e edges he ih =>
+          rw [Finset.sum_insert he]
+          exact AddSubgroup.add_mem H
+            (hclass e (hedges (Finset.mem_insert_self e edges)))
+            (ih (fun g hg ↦ hedges (Finset.mem_insert_of_mem hg)))
+    exact hclasses _ Finset.Subset.rfl
+  change modularBoundaryCombination N r
+      (almostSupportedBlocks n k r host) c ∈ H
+  rw [modularBoundaryCombination_eq_sum_nsmul hN]
+  change (∑ B ∈ almostSupportedBlocks n k r host, w B) ∈ H
+  rw [← Finset.sum_sdiff
+    (fullySupportedBlocks_subset_almostSupportedBlocks
+      (n := n) (k := k) (r := r) (host := host))]
+  exact AddSubgroup.add_mem H hExceptional hfully
+
+/-- A focusing exchange reduces universal modular generation to generation
+of the focused clique family. -/
+theorem isUniversalModularGenerator_of_exchangeFocusing
+    {N n k r : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {focused modular : Finset (Finset (Fin n))}
+    (hfocus : HasExchangeFocusing n k r E focused)
+    (hfocused : ∀ B ∈ focused,
+      Generators.InModularSpan N n r modular
+        (Generators.modCliqueBoundary N n r B)) :
+    IsUniversalModularGenerator N n k r modular := by
+  classical
+  intro Q hQ
+  obtain ⟨φ, hroot, hpos, hneg⟩ := hfocus Q hQ
+  let H := AddSubgroup.closure
+    (Generators.modCliqueBoundary N n r ''
+      (↑modular : Set (Finset (Fin n))))
+  have hfamilySum (family : Finset (Finset (Fin n)))
+      (hfamily : family ⊆ focused) :
+      (∑ B ∈ family, Generators.modCliqueBoundary N n r B) ∈ H := by
+    induction family using Finset.induction_on with
+    | empty => simp [H]
+    | @insert B family hB ih =>
+        rw [Finset.sum_insert hB]
+        apply AddSubgroup.add_mem
+        · exact hfocused B (hfamily (Finset.mem_insert_self B family))
+        · exact ih (fun C hC ↦ hfamily (Finset.mem_insert_of_mem hC))
+  have hrootMem : Q ∈ ExchangeEmbedding.mappedPositive E φ := by
+    rw [← hroot]
+    exact ExchangeEmbedding.mappedRoot_mem_mappedPositive E φ
+  have heq :
+      Generators.modCliqueBoundary N n r Q +
+          ∑ B ∈ ExchangeEmbedding.mappedPositive E φ \ {Q},
+            Generators.modCliqueBoundary N n r B =
+        ∑ B ∈ ExchangeEmbedding.mappedNegative E φ,
+          Generators.modCliqueBoundary N n r B := by
+    rw [show ExchangeEmbedding.mappedPositive E φ \ {Q} =
+        (ExchangeEmbedding.mappedPositive E φ).erase Q by
+          ext B
+          simp [and_comm]]
+    rw [add_comm, Finset.sum_erase_add _ _ hrootMem]
+    funext e
+    by_cases her : e.card = r
+    · rw [sum_modCliqueBoundary_apply_eq_incidence N n r _ her,
+          sum_modCliqueBoundary_apply_eq_incidence N n r _ her]
+      exact congrArg (fun z : ℕ ↦ (z : ZMod N))
+        (ExchangeEmbedding.mapped_incidence_eq E φ her)
+    · simp [Generators.modCliqueBoundary, her]
+  change Generators.modCliqueBoundary N n r Q ∈ H
+  have hposSum := hfamilySum
+    (ExchangeEmbedding.mappedPositive E φ \ {Q}) hpos
+  have hnegSum := hfamilySum (ExchangeEmbedding.mappedNegative E φ) hneg
+  have hsub := AddSubgroup.sub_mem H hnegSum hposSum
+  rw [← heq] at hsub
+  simpa using hsub
+
+/-- Pointwise form of exchange focusing, used after pruning: only cliques in
+the clean subhost need such an exchange, rather than every ambient clique. -/
+theorem modCliqueBoundary_mem_span_of_exchange
+    {N n k r : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {focused modular : Finset (Finset (Fin n))}
+    {Q : Finset (Fin n)}
+    (φ : Fin E.v ↪ Fin n)
+    (hroot : RootedEmbedding.mapEdge φ E.pattern.root = Q)
+    (hpos : ExchangeEmbedding.mappedPositive E φ \ {Q} ⊆ focused)
+    (hneg : ExchangeEmbedding.mappedNegative E φ ⊆ focused)
+    (hfocused : ∀ B ∈ focused,
+      Generators.InModularSpan N n r modular
+        (Generators.modCliqueBoundary N n r B)) :
+    Generators.InModularSpan N n r modular
+      (Generators.modCliqueBoundary N n r Q) := by
+  classical
+  let H := AddSubgroup.closure
+    (Generators.modCliqueBoundary N n r ''
+      (↑modular : Set (Finset (Fin n))))
+  have hfamilySum (family : Finset (Finset (Fin n)))
+      (hfamily : family ⊆ focused) :
+      (∑ B ∈ family, Generators.modCliqueBoundary N n r B) ∈ H := by
+    induction family using Finset.induction_on with
+    | empty => simp [H]
+    | @insert B family hB ih =>
+        rw [Finset.sum_insert hB]
+        apply AddSubgroup.add_mem
+        · exact hfocused B (hfamily (Finset.mem_insert_self B family))
+        · exact ih (fun C hC ↦ hfamily (Finset.mem_insert_of_mem hC))
+  have hrootMem : Q ∈ ExchangeEmbedding.mappedPositive E φ := by
+    rw [← hroot]
+    exact ExchangeEmbedding.mappedRoot_mem_mappedPositive E φ
+  have heq :
+      Generators.modCliqueBoundary N n r Q +
+          ∑ B ∈ ExchangeEmbedding.mappedPositive E φ \ {Q},
+            Generators.modCliqueBoundary N n r B =
+        ∑ B ∈ ExchangeEmbedding.mappedNegative E φ,
+          Generators.modCliqueBoundary N n r B := by
+    rw [show ExchangeEmbedding.mappedPositive E φ \ {Q} =
+        (ExchangeEmbedding.mappedPositive E φ).erase Q by
+          ext B
+          simp [and_comm]]
+    rw [add_comm, Finset.sum_erase_add _ _ hrootMem]
+    funext e
+    by_cases her : e.card = r
+    · rw [sum_modCliqueBoundary_apply_eq_incidence N n r _ her,
+          sum_modCliqueBoundary_apply_eq_incidence N n r _ her]
+      exact congrArg (fun z : ℕ ↦ (z : ZMod N))
+        (ExchangeEmbedding.mapped_incidence_eq E φ her)
+    · simp [Generators.modCliqueBoundary, her]
+  change Generators.modCliqueBoundary N n r Q ∈ H
+  have hposSum := hfamilySum
+    (ExchangeEmbedding.mappedPositive E φ \ {Q}) hpos
+  have hnegSum := hfamilySum (ExchangeEmbedding.mappedNegative E φ) hneg
+  have hsub := AddSubgroup.sub_mem H hnegSum hposSum
+  rw [← heq] at hsub
+  simpa using hsub
+
+/-- Source-faithful algebraic form of Keevash's Lemma 6.3(iv).  The
+distinguished negative clique through each root edge may use the colour
+already assigned to that edge; all other positive and negative exchange
+cliques may use independent fresh colours.  If each of those clique
+boundaries lies in the common modular span, then the root clique boundary
+does too. -/
+theorem modCliqueBoundary_mem_span_of_specialExchange
+    {N n k r : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {modular : Finset (Finset (Fin n))}
+    {Q : Finset (Fin n)} (φ : Fin E.v ↪ Fin n)
+    (hroot : RootedEmbedding.mapEdge φ E.pattern.root = Q)
+    (hspecial : ∀ e : Exchange.RootEdge k r,
+      Generators.InModularSpan N n r modular
+        (Generators.modCliqueBoundary N n r
+          (RootedEmbedding.mapEdge φ (E.special e))))
+    (hremaining : ∀ B ∈
+      SpecialCliqueCandidates.remainingBlocks E,
+      Generators.InModularSpan N n r modular
+        (Generators.modCliqueBoundary N n r
+          (RootedEmbedding.mapEdge φ B))) :
+    Generators.InModularSpan N n r modular
+      (Generators.modCliqueBoundary N n r Q) := by
+  classical
+  let focused :=
+    (ExchangeEmbedding.mappedPositive E φ \ {Q}) ∪
+      ExchangeEmbedding.mappedNegative E φ
+  apply modCliqueBoundary_mem_span_of_exchange
+    (focused := focused) E φ hroot
+  · exact Finset.subset_union_left
+  · exact Finset.subset_union_right
+  · intro B hB
+    rcases Finset.mem_union.mp hB with hBpos | hBneg
+    · have hBposData := Finset.mem_sdiff.mp hBpos
+      obtain ⟨B₀, hB₀pos, hmap⟩ :=
+        Transversal.mem_mapFamily.mp hBposData.1
+      have hB₀ne : B₀ ≠ E.pattern.root := by
+        intro hEq
+        apply hBposData.2
+        simp only [Finset.mem_singleton]
+        rw [← hroot, ← hmap, hEq]
+        rfl
+      have hremainingB₀ : B₀ ∈
+          SpecialCliqueCandidates.remainingBlocks E := by
+        apply Finset.mem_union_left
+        exact Finset.mem_erase.mpr ⟨hB₀ne, hB₀pos⟩
+      rw [← hmap]
+      exact hremaining B₀ hremainingB₀
+    · obtain ⟨B₀, hB₀neg, hmap⟩ :=
+        Transversal.mem_mapFamily.mp hBneg
+      by_cases hB₀special : B₀ ∈
+          SpecialCliqueCandidates.specialBlocks E
+      · obtain ⟨e, _he, heq⟩ := Finset.mem_image.mp hB₀special
+        rw [← hmap, ← heq]
+        exact hspecial e
+      · have hremainingB₀ : B₀ ∈
+            SpecialCliqueCandidates.remainingBlocks E := by
+          apply Finset.mem_union_right
+          exact Finset.mem_sdiff.mpr ⟨hB₀neg, hB₀special⟩
+        rw [← hmap]
+        exact hremaining B₀ hremainingB₀
+
+/-- Generating every complete clique boundary modulo `N` is sufficient for
+the leave-wise modular generator interface used by the local-decoder lift. -/
+theorem isModularIntegralGenerator_of_universal
+    {N n k r : ℕ} (hN : 0 < N)
+    {reserve modular : Finset (Finset (Fin n))}
+    (hmodularUniform : ∀ Q ∈ modular, Q.card = k)
+    (huniversal : IsUniversalModularGenerator N n k r modular) :
+    IsModularIntegralGenerator N n k r reserve modular := by
+  classical
+  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  intro leave _hleave hleaveInt
+  obtain ⟨φ, hφboundary⟩ := hleaveInt
+  let x : Finset (Fin n) → ZMod N := fun e ↦
+    if e.card = r then (boundary n k φ e : ZMod N) else 0
+  have hxsum : x = ∑ Q ∈ blockCandidates n k,
+      (φ Q) • Generators.modCliqueBoundary N n r Q := by
+    funext e
+    by_cases he : e.card = r
+    · simp only [x, he, if_true, boundary, Finset.sum_apply,
+        Pi.smul_apply]
+      push_cast
+      apply Finset.sum_congr rfl
+      intro Q hQ
+      by_cases heQ : e ⊆ Q
+      · simp [Generators.modCliqueBoundary, he, heQ, zsmul_eq_mul]
+      · simp [Generators.modCliqueBoundary, he, heQ]
+    · simp [x, Generators.modCliqueBoundary, he]
+  have hxspan : Generators.InModularSpan N n r modular x := by
+    let H := AddSubgroup.closure
+      (Generators.modCliqueBoundary N n r ''
+        (↑modular : Set (Finset (Fin n))))
+    change x ∈ H
+    rw [hxsum]
+    have hsum (S : Finset (Finset (Fin n)))
+        (hS : S ⊆ blockCandidates n k) :
+        (∑ Q ∈ S,
+          (φ Q) • Generators.modCliqueBoundary N n r Q) ∈ H := by
+      induction S using Finset.induction_on with
+      | empty => simp [H]
+      | @insert Q S hQS ih =>
+          rw [Finset.sum_insert hQS]
+          apply AddSubgroup.add_mem
+          · exact AddSubgroup.zsmul_mem _
+              (huniversal Q (hS (Finset.mem_insert_self Q S))) (φ Q)
+          · exact ih (fun B hB ↦ hS (Finset.mem_insert_of_mem hB))
+    exact hsum (blockCandidates n k) Finset.Subset.rfl
+  obtain ⟨c, hc⟩ :=
+    exists_modularBoundaryCombination_of_mem_span hxspan
+  let ψ : Finset (Fin n) → ℤ := fun Q ↦
+    if Q ∈ modular then ((c Q).val : ℤ) else 0
+  have hψsupport : ∀ Q, ψ Q ≠ 0 → Q ∈ modular := by
+    intro Q hQ
+    by_contra hQmod
+    simp [ψ, hQmod] at hQ
+  refine ⟨ψ, hψsupport, ?_⟩
+  intro e he
+  have hecard : e.card = r := mem_completeUniform.mp he
+  have hboundaryCast : (boundary n k ψ e : ZMod N) =
+      modularBoundaryCombination N r modular c e := by
+    rw [boundary_eq_sum_incident_of_support hmodularUniform hψsupport e]
+    calc
+      (↑(∑ Q ∈ modular.filter (fun Q ↦ e ⊆ Q), ψ Q) : ZMod N) =
+          ∑ Q ∈ modular.filter (fun Q ↦ e ⊆ Q), c Q := by
+        push_cast
+        apply Finset.sum_congr rfl
+        intro Q hQ
+        have hQmod : Q ∈ modular := (Finset.mem_filter.mp hQ).1
+        simp [ψ, hQmod, ZMod.natCast_zmod_val]
+      _ = ∑ Q ∈ modular, if e ⊆ Q then c Q else 0 := by
+        rw [Finset.sum_filter]
+      _ = modularBoundaryCombination N r modular c e := by
+        simp [modularBoundaryCombination, hecard]
+  apply (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp
+  rw [Int.cast_sub, hboundaryCast, ← congrFun hc e]
+  simp [x, hecard, hφboundary e he]
+
+/-- Leave-wise modular generation from a focusing host.  Unlike universal
+generation, this statement only reduces combinations whose final boundary
+is supported in `host`; the exceptional-edge cancellation theorem is exactly
+what makes that weaker and source-faithful hypothesis sufficient. -/
+theorem isModularIntegralGenerator_of_focusing
+    {N n k r : ℕ} (hN : 0 < N)
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (e₀ : Exchange.RootEdge k r)
+    {reserve host modular : Finset (Finset (Fin n))}
+    (hreserveHost : reserve ⊆ host)
+    (hmodularUniform : ∀ Q ∈ modular, Q.card = k)
+    (hfocus : HasExchangeFocusing n k r E
+      (almostSupportedBlocks n k r host))
+    (haux : ∀ g ∈ completeUniform n r,
+      ∀ forbiddenVertices : Finset (Fin n), g ⊆ forbiddenVertices →
+        forbiddenVertices.card ≤ 2 * k →
+        ∃ Q ∈ blockCandidates n k,
+          Q.powersetCard r \ {g} ⊆ host ∧
+          Q ∩ forbiddenVertices = g)
+    (helim : ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+      ∃ ψ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge ψ E.pattern.root = P.positive ∧
+        RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative ∧
+        RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀) ψ ⊆ host)
+    (hfully : ∀ B ∈ fullySupportedBlocks n k r host,
+      Generators.InModularSpan N n r modular
+        (Generators.modCliqueBoundary N n r B)) :
+    IsModularIntegralGenerator N n k r reserve modular := by
+  classical
+  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  have huniversalAlmost : IsUniversalModularGenerator N n k r
+      (almostSupportedBlocks n k r host) := by
+    apply isUniversalModularGenerator_of_exchangeFocusing E hfocus
+    intro B hB
+    exact Generators.modCliqueBoundary_mem_span N n r _ hB
+  intro leave hleave hleaveInt
+  obtain ⟨φ, hφboundary⟩ := hleaveInt
+  let x : Finset (Fin n) → ZMod N := fun e ↦
+    if e.card = r then (boundary n k φ e : ZMod N) else 0
+  have hxsum : x = ∑ Q ∈ blockCandidates n k,
+      (φ Q) • Generators.modCliqueBoundary N n r Q := by
+    funext e
+    by_cases he : e.card = r
+    · simp only [x, he, if_true, boundary, Finset.sum_apply,
+        Pi.smul_apply]
+      push_cast
+      apply Finset.sum_congr rfl
+      intro Q hQ
+      by_cases heQ : e ⊆ Q
+      · simp [Generators.modCliqueBoundary, he, heQ, zsmul_eq_mul]
+      · simp [Generators.modCliqueBoundary, he, heQ]
+    · simp [x, Generators.modCliqueBoundary, he]
+  have hxAlmost : Generators.InModularSpan N n r
+      (almostSupportedBlocks n k r host) x := by
+    let H := AddSubgroup.closure
+      (Generators.modCliqueBoundary N n r ''
+        (↑(almostSupportedBlocks n k r host) :
+          Set (Finset (Fin n))))
+    change x ∈ H
+    rw [hxsum]
+    have hsum (S : Finset (Finset (Fin n)))
+        (hS : S ⊆ blockCandidates n k) :
+        (∑ Q ∈ S,
+          (φ Q) • Generators.modCliqueBoundary N n r Q) ∈ H := by
+      induction S using Finset.induction_on with
+      | empty => simp [H]
+      | @insert Q S hQS ih =>
+          rw [Finset.sum_insert hQS]
+          apply AddSubgroup.add_mem
+          · exact AddSubgroup.zsmul_mem _
+              (huniversalAlmost Q (hS (Finset.mem_insert_self Q S)))
+              (φ Q)
+          · exact ih (fun B hB ↦ hS (Finset.mem_insert_of_mem hB))
+    exact hsum (blockCandidates n k) Finset.Subset.rfl
+  obtain ⟨cAlmost, hcAlmost⟩ :=
+    exists_modularBoundaryCombination_of_mem_span hxAlmost
+  have hzeroOutside : ∀ e ∈ completeUniform n r, e ∉ host →
+      modularBoundaryCombination N r
+        (almostSupportedBlocks n k r host) cAlmost e = 0 := by
+    intro e he heHost
+    rw [← congrFun hcAlmost e]
+    have hecard : e.card = r := mem_completeUniform.mp he
+    have heLeave : e ∉ leave := by
+      intro heLeave
+      exact heHost (hreserveHost (hleave heLeave))
+    simp [x, hecard, hφboundary e he, heLeave]
+  have hxFully : Generators.InModularSpan N n r
+      (fullySupportedBlocks n k r host) x := by
+    rw [hcAlmost]
+    exact modularBoundaryCombination_mem_fullySupportedSpan
+      hN E e₀ haux helim cAlmost hzeroOutside
+  have hxModular : Generators.InModularSpan N n r modular x := by
+    let Hfull := AddSubgroup.closure
+      (Generators.modCliqueBoundary N n r ''
+        (↑(fullySupportedBlocks n k r host) :
+          Set (Finset (Fin n))))
+    let Hmod := AddSubgroup.closure
+      (Generators.modCliqueBoundary N n r ''
+        (↑modular : Set (Finset (Fin n))))
+    change x ∈ Hfull at hxFully
+    change x ∈ Hmod
+    have hlift : ∀ y : Finset (Fin n) → ZMod N, y ∈ Hfull → y ∈ Hmod := by
+      intro y hy
+      induction hy using AddSubgroup.closure_induction with
+      | mem z hz =>
+          obtain ⟨B, hB, rfl⟩ := hz
+          exact hfully B hB
+      | zero => exact AddSubgroup.zero_mem Hmod
+      | add a b _ha _hb ha hb => exact AddSubgroup.add_mem Hmod ha hb
+      | neg a _ha ha => exact AddSubgroup.neg_mem Hmod ha
+    exact hlift x hxFully
+  obtain ⟨c, hc⟩ :=
+    exists_modularBoundaryCombination_of_mem_span hxModular
+  let ψ : Finset (Fin n) → ℤ := fun Q ↦
+    if Q ∈ modular then ((c Q).val : ℤ) else 0
+  have hψsupport : ∀ Q, ψ Q ≠ 0 → Q ∈ modular := by
+    intro Q hQ
+    by_contra hQmod
+    simp [ψ, hQmod] at hQ
+  refine ⟨ψ, hψsupport, ?_⟩
+  intro e he
+  have hecard : e.card = r := mem_completeUniform.mp he
+  have hboundaryCast : (boundary n k ψ e : ZMod N) =
+      modularBoundaryCombination N r modular c e := by
+    rw [boundary_eq_sum_incident_of_support hmodularUniform hψsupport e]
+    calc
+      (↑(∑ Q ∈ modular.filter (fun Q ↦ e ⊆ Q), ψ Q) : ZMod N) =
+          ∑ Q ∈ modular.filter (fun Q ↦ e ⊆ Q), c Q := by
+        push_cast
+        apply Finset.sum_congr rfl
+        intro Q hQ
+        have hQmod : Q ∈ modular := (Finset.mem_filter.mp hQ).1
+        simp [ψ, hQmod, ZMod.natCast_zmod_val]
+      _ = ∑ Q ∈ modular, if e ⊆ Q then c Q else 0 := by
+        rw [Finset.sum_filter]
+      _ = modularBoundaryCombination N r modular c e := by
+        simp [modularBoundaryCombination, hecard]
+  apply (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp
+  rw [Int.cast_sub, hboundaryCast, ← congrFun hc e]
+  simp [x, hecard, hφboundary e he]
+
+/-- Vector form of the focusing calculation.  The input is an arbitrary
+integer clique boundary which vanishes away from `host`; the exchange,
+exceptional-edge cancellation, and fully-supported generation hypotheses
+then put its reduction modulo `N` in the span of `modular`.
+
+This is the form needed after the reserve-focussing cliques of Lemma 6.4
+have moved a leave from the external reserve into the coloured host. -/
+theorem integralBoundary_mem_span_of_focusing
+    {N n k r : ℕ} (hN : 0 < N)
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (e₀ : Exchange.RootEdge k r)
+    {host modular : Finset (Finset (Fin n))}
+    (hfocus : HasExchangeFocusing n k r E
+      (almostSupportedBlocks n k r host))
+    (haux : ∀ g ∈ completeUniform n r,
+      ∀ forbiddenVertices : Finset (Fin n), g ⊆ forbiddenVertices →
+        forbiddenVertices.card ≤ 2 * k →
+        ∃ Q ∈ blockCandidates n k,
+          Q.powersetCard r \ {g} ⊆ host ∧
+          Q ∩ forbiddenVertices = g)
+    (helim : ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+      ∃ ψ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge ψ E.pattern.root = P.positive ∧
+        RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative ∧
+        RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀) ψ ⊆ host)
+    (hfully : ∀ B ∈ fullySupportedBlocks n k r host,
+      Generators.InModularSpan N n r modular
+        (Generators.modCliqueBoundary N n r B))
+    (phi : Finset (Fin n) → ℤ)
+    (hsupported : ∀ e ∈ completeUniform n r, e ∉ host →
+      boundary n k phi e = 0) :
+    Generators.InModularSpan N n r modular
+      (fun e ↦ if e.card = r then (boundary n k phi e : ZMod N) else 0) := by
+  classical
+  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  let x : Finset (Fin n) → ZMod N := fun e ↦
+    if e.card = r then (boundary n k phi e : ZMod N) else 0
+  have huniversalAlmost : IsUniversalModularGenerator N n k r
+      (almostSupportedBlocks n k r host) := by
+    apply isUniversalModularGenerator_of_exchangeFocusing E hfocus
+    intro B hB
+    exact Generators.modCliqueBoundary_mem_span N n r _ hB
+  have hxsum : x = ∑ Q ∈ blockCandidates n k,
+      (phi Q) • Generators.modCliqueBoundary N n r Q := by
+    funext e
+    by_cases he : e.card = r
+    · simp only [x, he, if_true, boundary, Finset.sum_apply,
+        Pi.smul_apply]
+      push_cast
+      apply Finset.sum_congr rfl
+      intro Q hQ
+      by_cases heQ : e ⊆ Q
+      · simp [Generators.modCliqueBoundary, he, heQ, zsmul_eq_mul]
+      · simp [Generators.modCliqueBoundary, he, heQ]
+    · simp [x, Generators.modCliqueBoundary, he]
+  have hxAlmost : Generators.InModularSpan N n r
+      (almostSupportedBlocks n k r host) x := by
+    let H := AddSubgroup.closure
+      (Generators.modCliqueBoundary N n r ''
+        (↑(almostSupportedBlocks n k r host) :
+          Set (Finset (Fin n))))
+    change x ∈ H
+    rw [hxsum]
+    have hsum (S : Finset (Finset (Fin n)))
+        (hS : S ⊆ blockCandidates n k) :
+        (∑ Q ∈ S,
+          (phi Q) • Generators.modCliqueBoundary N n r Q) ∈ H := by
+      induction S using Finset.induction_on with
+      | empty => simp [H]
+      | @insert Q S hQS ih =>
+          rw [Finset.sum_insert hQS]
+          apply AddSubgroup.add_mem
+          · exact AddSubgroup.zsmul_mem _
+              (huniversalAlmost Q (hS (Finset.mem_insert_self Q S)))
+              (phi Q)
+          · exact ih (fun B hB ↦ hS (Finset.mem_insert_of_mem hB))
+    exact hsum (blockCandidates n k) Finset.Subset.rfl
+  obtain ⟨cAlmost, hcAlmost⟩ :=
+    exists_modularBoundaryCombination_of_mem_span hxAlmost
+  have hzeroOutside : ∀ e ∈ completeUniform n r, e ∉ host →
+      modularBoundaryCombination N r
+        (almostSupportedBlocks n k r host) cAlmost e = 0 := by
+    intro e he heHost
+    rw [← congrFun hcAlmost e]
+    have hecard : e.card = r := mem_completeUniform.mp he
+    simp [x, hecard, hsupported e he heHost]
+  have hxFully : Generators.InModularSpan N n r
+      (fullySupportedBlocks n k r host) x := by
+    rw [hcAlmost]
+    exact modularBoundaryCombination_mem_fullySupportedSpan
+      hN E e₀ haux helim cAlmost hzeroOutside
+  let Hfull := AddSubgroup.closure
+    (Generators.modCliqueBoundary N n r ''
+      (↑(fullySupportedBlocks n k r host) :
+        Set (Finset (Fin n))))
+  let Hmod := AddSubgroup.closure
+    (Generators.modCliqueBoundary N n r ''
+      (↑modular : Set (Finset (Fin n))))
+  change x ∈ Hfull at hxFully
+  change x ∈ Hmod
+  have hlift : ∀ y : Finset (Fin n) → ZMod N,
+      y ∈ Hfull → y ∈ Hmod := by
+    intro y hy
+    induction hy using AddSubgroup.closure_induction with
+    | mem z hz =>
+        obtain ⟨B, hB, rfl⟩ := hz
+        exact hfully B hB
+    | zero => exact AddSubgroup.zero_mem Hmod
+    | add a b _ha _hb ha hb => exact AddSubgroup.add_mem Hmod ha hb
+    | neg a _ha ha => exact AddSubgroup.neg_mem Hmod ha
+  exact hlift x hxFully
+
+/-- A simultaneous family of Lemma 6.4 focussing cliques.  Every reserve
+edge is the unique reserve edge of its assigned clique, while all other
+`r`-edges of that clique lie in the internal coloured host. -/
+structure ReserveFocusingAssignment (n k r : ℕ)
+    (reserve host modular : Finset (Finset (Fin n))) where
+  block : Finset (Fin n) → Finset (Fin n)
+  block_mem : ∀ e ∈ reserve, block e ∈ modular
+  block_card : ∀ e ∈ reserve, (block e).card = k
+  root_subset : ∀ e ∈ reserve, e ⊆ block e
+  spill_subset : ∀ e ∈ reserve,
+    (block e).powersetCard r \ {e} ⊆ host
+  reserve_unique : ∀ e ∈ reserve, ∀ g ∈ reserve,
+    g ⊆ block e → g = e
+
+lemma ReserveFocusingAssignment.reserve_subset_boundary
+    {n k r : ℕ} {reserve host modular : Finset (Finset (Fin n))}
+    (F : ReserveFocusingAssignment n k r reserve host modular)
+    (hreserve : reserve ⊆ completeUniform n r) :
+    reserve ⊆ cliqueBoundarySupport modular r := by
+  intro e he
+  exact mem_cliqueBoundarySupport.mpr
+    ⟨F.block e, F.block_mem e he, F.root_subset e he,
+      mem_completeUniform.mp (hreserve he)⟩
+
+/-- The random-greedy form of reserve focusing also makes the spill edge
+sets pairwise disjoint.  This is the quantitative form used when the focus
+cliques are adjoined to the modular family. -/
+structure SeparatedReserveFocusingAssignment (n k r : ℕ)
+    (reserve host modular : Finset (Finset (Fin n)))
+    extends ReserveFocusingAssignment n k r reserve host modular where
+  spill_pairwise : ∀ e ∈ reserve, ∀ e' ∈ reserve, e ≠ e' →
+    Disjoint ((block e).powersetCard r \ {e})
+      ((block e').powersetCard r \ {e'})
+
+/-- The finite family of focusing cliques, deduplicated by its block
+vertex sets. -/
+noncomputable def reserveFocusingBlocks
+    {n k r : ℕ} {reserve host modular : Finset (Finset (Fin n))}
+    (F : ReserveFocusingAssignment n k r reserve host modular) :
+    Finset (Finset (Fin n)) := by
+  classical
+  exact reserve.image F.block
+
+lemma reserveFocusingBlocks_uniform
+    {n k r : ℕ} {reserve host modular : Finset (Finset (Fin n))}
+    (F : ReserveFocusingAssignment n k r reserve host modular) :
+    ∀ Q ∈ reserveFocusingBlocks F, Q.card = k := by
+  classical
+  intro Q hQ
+  obtain ⟨e, he, rfl⟩ := Finset.mem_image.mp hQ
+  exact F.block_card e he
+
+lemma cliqueBoundarySupport_reserveFocusingBlocks_subset
+    {n k r : ℕ} {reserve host modular : Finset (Finset (Fin n))}
+    (F : ReserveFocusingAssignment n k r reserve host modular) :
+    cliqueBoundarySupport (reserveFocusingBlocks F) r ⊆ reserve ∪ host := by
+  classical
+  intro g hg
+  obtain ⟨Q, hQ, hgQ, hgcard⟩ := mem_cliqueBoundarySupport.mp hg
+  obtain ⟨e, he, hblock⟩ := Finset.mem_image.mp hQ
+  subst Q
+  by_cases hge : g = e
+  · exact Finset.mem_union_left _ (hge ▸ he)
+  · apply Finset.mem_union_right
+    apply F.spill_subset e he
+    exact Finset.mem_sdiff.mpr
+      ⟨Finset.mem_powersetCard.mpr ⟨hgQ, hgcard⟩, by simpa using hge⟩
+
+/-- Pairwise spill separation and uniqueness of reserve roots give
+multiplicity one for the focusing-clique family. -/
+theorem SeparatedReserveFocusingAssignment.blockIncidenceCount_le_one
+    {n k r : ℕ} {reserve host modular : Finset (Finset (Fin n))}
+    (F : SeparatedReserveFocusingAssignment n k r reserve host modular) :
+    ∀ g ∈ completeUniform n r,
+      blockIncidenceCount
+        (reserveFocusingBlocks F.toReserveFocusingAssignment) g ≤ 1 := by
+  classical
+  intro g hg
+  have hgcard : g.card = r := mem_completeUniform.mp hg
+  unfold blockIncidenceCount
+  apply Finset.card_le_one.mpr
+  intro Q hQ Q' hQ'
+  have hQdata := Finset.mem_filter.mp hQ
+  have hQ'data := Finset.mem_filter.mp hQ'
+  obtain ⟨e, he, hQeq⟩ := Finset.mem_image.mp hQdata.1
+  obtain ⟨e', he', hQ'eq⟩ := Finset.mem_image.mp hQ'data.1
+  subst Q
+  subst Q'
+  have heq : e = e' := by
+    by_cases hgReserve : g ∈ reserve
+    · have hge := F.reserve_unique e he g hgReserve hQdata.2
+      have hge' := F.reserve_unique e' he' g hgReserve hQ'data.2
+      exact hge.symm.trans hge'
+    · by_contra hee'
+      have hgSpill : g ∈ (F.block e).powersetCard r \ {e} := by
+        apply Finset.mem_sdiff.mpr
+        refine ⟨Finset.mem_powersetCard.mpr ⟨hQdata.2, hgcard⟩, ?_⟩
+        intro hge
+        have hEq : g = e := Finset.mem_singleton.mp hge
+        exact hgReserve (hEq ▸ he)
+      have hgSpill' : g ∈ (F.block e').powersetCard r \ {e'} := by
+        apply Finset.mem_sdiff.mpr
+        refine ⟨Finset.mem_powersetCard.mpr ⟨hQ'data.2, hgcard⟩, ?_⟩
+        intro hge'
+        have hEq : g = e' := Finset.mem_singleton.mp hge'
+        exact hgReserve (hEq ▸ he')
+      exact Finset.disjoint_left.mp (F.spill_pairwise e he e' he' hee')
+        hgSpill hgSpill'
+  subst e'
+  rfl
+
+/-- Separated focussing cliques inherit the lower-face power bound of the
+reserve together with their spill host.  The point is that every boundary
+edge is charged to the host and, by `blockIncidenceCount_le_one`, is used by
+at most one focussing clique. -/
+theorem SeparatedReserveFocusingAssignment.isPowerBounded
+    {n k r d c : ℕ} (hr : 0 < r) (hrk : r < k)
+    {reserve host modular : Finset (Finset (Fin n))}
+    (F : SeparatedReserveFocusingAssignment n k r reserve host modular)
+    (hpower : IsPowerBounded n r d c (reserve ∪ host)) :
+    IsPowerBounded n r d c
+      (reserveFocusingBlocks F.toReserveFocusingAssignment) := by
+  have hboundary : IsPowerBounded n r d c
+      (cliqueBoundarySupport
+        (reserveFocusingBlocks F.toReserveFocusingAssignment) r) :=
+    hpower.mono
+      (cliqueBoundarySupport_reserveFocusingBlocks_subset
+        F.toReserveFocusingAssignment)
+  simpa using isPowerBounded_blocks_of_boundary_and_incidence
+    (M := 1) hr hrk
+      (reserveFocusingBlocks_uniform F.toReserveFocusingAssignment)
+      (fun e he ↦ F.blockIncidenceCount_le_one e
+        (mem_completeUniform.mpr he))
+      hboundary
+
+/-- A separated focussing family before choosing the ambient modular
+generator family.  This is the literal order of construction in Lemma 6.4:
+first choose one clique above each reserve edge, and only then adjoin those
+cliques to the coloured greedy generators. -/
+structure SeparatedReserveFocusingFamily (n k r : ℕ)
+    (reserve host : Finset (Finset (Fin n))) where
+  block : Finset (Fin n) → Finset (Fin n)
+  block_card : ∀ e ∈ reserve, (block e).card = k
+  root_subset : ∀ e ∈ reserve, e ⊆ block e
+  spill_subset : ∀ e ∈ reserve,
+    (block e).powersetCard r \ {e} ⊆ host
+  reserve_unique : ∀ e ∈ reserve, ∀ g ∈ reserve,
+    g ⊆ block e → g = e
+  spill_pairwise : ∀ e ∈ reserve, ∀ e' ∈ reserve, e ≠ e' →
+    Disjoint ((block e).powersetCard r \ {e})
+      ((block e').powersetCard r \ {e'})
+
+/-- A cover assignment from a spill host disjoint from the actual reserve
+is exactly a separated reserve-focusing family. -/
+noncomputable def separatedReserveFocusingFamilyOfCoverAssignment
+    {n k r : ℕ} {reserve host : Finset (Finset (Fin n))}
+    (hreserveUniform : ∀ e ∈ reserve, e.card = r)
+    (hdisjoint : Disjoint reserve host)
+    (A : Cover.CoverAssignment n k r reserve host) :
+    SeparatedReserveFocusingFamily n k r reserve host := by
+  classical
+  refine {
+    block := A.block
+    block_card := ?_
+    root_subset := ?_
+    spill_subset := ?_
+    reserve_unique := ?_
+    spill_pairwise := ?_ }
+  · intro e he
+    exact A.block_card he
+  · intro e he
+    exact A.root_subset he
+  · intro e he
+    simpa [Cover.spill, Reserve.cliqueEdges] using
+      A.spill_subset_reserve he
+  · intro e he g hg hgsub
+    by_contra hge
+    have hgspill : g ∈ Cover.spill r e (A.block e) :=
+      Finset.mem_sdiff.mpr
+        ⟨Finset.mem_powersetCard.mpr
+          ⟨hgsub, hreserveUniform g hg⟩, by simpa using hge⟩
+    exact Finset.disjoint_left.mp hdisjoint hg
+      (A.spill_subset_reserve he hgspill)
+  · intro e he e' he' hee'
+    simpa [Cover.spill, Reserve.cliqueEdges] using
+      A.spill_disjoint e he e' he' hee'
+
+/-- The focussing blocks selected by a construction-order-independent
+family. -/
+noncomputable def SeparatedReserveFocusingFamily.blocks
+    {n k r : ℕ} {reserve host : Finset (Finset (Fin n))}
+    (F : SeparatedReserveFocusingFamily n k r reserve host) :
+    Finset (Finset (Fin n)) := by
+  classical
+  exact reserve.image F.block
+
+/-- Adjoin the focusing blocks to an arbitrary pre-existing modular
+family. -/
+noncomputable def modularWithReserveFocusing
+    {n k r : ℕ} {reserve host : Finset (Finset (Fin n))}
+    (base : Finset (Finset (Fin n)))
+    (F : SeparatedReserveFocusingFamily n k r reserve host) :
+    Finset (Finset (Fin n)) :=
+  base ∪ F.blocks
+
+/-- Once the modular family is enlarged by the focusing blocks, the
+construction-order-independent data gives the earlier assignment API. -/
+noncomputable def SeparatedReserveFocusingFamily.toAssignment
+    {n k r : ℕ} {reserve host : Finset (Finset (Fin n))}
+    (base : Finset (Finset (Fin n)))
+    (F : SeparatedReserveFocusingFamily n k r reserve host) :
+    SeparatedReserveFocusingAssignment n k r reserve host
+      (modularWithReserveFocusing base F) := by
+  classical
+  refine {
+    block := F.block
+    block_mem := ?_
+    block_card := F.block_card
+    root_subset := F.root_subset
+    spill_subset := F.spill_subset
+    reserve_unique := F.reserve_unique
+    spill_pairwise := F.spill_pairwise }
+  intro e he
+  apply Finset.mem_union_right
+  exact Finset.mem_image.mpr ⟨e, he, rfl⟩
+
+@[simp] lemma SeparatedReserveFocusingFamily.assignment_blocks
+    {n k r : ℕ} {reserve host : Finset (Finset (Fin n))}
+    (base : Finset (Finset (Fin n)))
+    (F : SeparatedReserveFocusingFamily n k r reserve host) :
+    reserveFocusingBlocks
+        (F.toAssignment base).toReserveFocusingAssignment = F.blocks := by
+  rfl
+
+lemma SeparatedReserveFocusingFamily.blocks_uniform
+    {n k r : ℕ} {reserve host : Finset (Finset (Fin n))}
+    (F : SeparatedReserveFocusingFamily n k r reserve host) :
+    ∀ Q ∈ F.blocks, Q.card = k := by
+  simpa [F.assignment_blocks (∅ : Finset (Finset (Fin n)))] using
+    reserveFocusingBlocks_uniform
+      (F.toAssignment (∅ : Finset (Finset (Fin n)))).toReserveFocusingAssignment
+
+lemma SeparatedReserveFocusingFamily.boundary_subset
+    {n k r : ℕ} {reserve host : Finset (Finset (Fin n))}
+    (F : SeparatedReserveFocusingFamily n k r reserve host) :
+    cliqueBoundarySupport F.blocks r ⊆ reserve ∪ host := by
+  simpa [F.assignment_blocks (∅ : Finset (Finset (Fin n)))] using
+    cliqueBoundarySupport_reserveFocusingBlocks_subset
+      (F.toAssignment (∅ : Finset (Finset (Fin n)))).toReserveFocusingAssignment
+
+theorem SeparatedReserveFocusingFamily.blockIncidenceCount_le_one
+    {n k r : ℕ} {reserve host : Finset (Finset (Fin n))}
+    (F : SeparatedReserveFocusingFamily n k r reserve host) :
+    ∀ g ∈ completeUniform n r, blockIncidenceCount F.blocks g ≤ 1 := by
+  simpa [F.assignment_blocks (∅ : Finset (Finset (Fin n)))] using
+    (F.toAssignment (∅ : Finset (Finset (Fin n)))).blockIncidenceCount_le_one
+
+theorem SeparatedReserveFocusingFamily.isPowerBounded
+    {n k r d c : ℕ} (hr : 0 < r) (hrk : r < k)
+    {reserve host : Finset (Finset (Fin n))}
+    (F : SeparatedReserveFocusingFamily n k r reserve host)
+    (hpower : IsPowerBounded n r d c (reserve ∪ host)) :
+    IsPowerBounded n r d c F.blocks := by
+  simpa [F.assignment_blocks (∅ : Finset (Finset (Fin n)))] using
+    (F.toAssignment (∅ : Finset (Finset (Fin n)))).isPowerBounded
+      hr hrk hpower
+
+/-- Integer coefficient vector which uses once the focussing clique assigned
+to each edge of `leave`.  Writing it as a sum (rather than relying on
+injectivity of `block`) keeps the boundary calculation linear. -/
+def reserveFocusCoeff
+    {n k r : ℕ} {reserve host modular : Finset (Finset (Fin n))}
+    (F : ReserveFocusingAssignment n k r reserve host modular)
+    (leave : Finset (Finset (Fin n))) : Finset (Fin n) → ℤ :=
+  fun Q ↦ ∑ e ∈ leave, if F.block e = Q then 1 else 0
+
+lemma reserveFocusCoeff_support
+    {n k r : ℕ} {reserve host modular : Finset (Finset (Fin n))}
+    (F : ReserveFocusingAssignment n k r reserve host modular)
+    {leave : Finset (Finset (Fin n))} (hleave : leave ⊆ reserve) :
+    ∀ Q, reserveFocusCoeff F leave Q ≠ 0 → Q ∈ modular := by
+  intro Q hQ
+  by_contra hQmod
+  have hzero : ∀ e ∈ leave, (if F.block e = Q then (1 : ℤ) else 0) = 0 := by
+    intro e he
+    have heReserve := hleave he
+    have hne : F.block e ≠ Q := by
+      intro hEq
+      apply hQmod
+      simpa [hEq] using F.block_mem e heReserve
+    simp [hne]
+  exact hQ (Finset.sum_eq_zero hzero)
+
+lemma boundary_reserveFocusCoeff
+    {n k r : ℕ} {reserve host modular : Finset (Finset (Fin n))}
+    (F : ReserveFocusingAssignment n k r reserve host modular)
+    {leave : Finset (Finset (Fin n))} (hleave : leave ⊆ reserve)
+    (g : Finset (Fin n)) :
+    boundary n k (reserveFocusCoeff F leave) g =
+      ∑ e ∈ leave, if g ⊆ F.block e then (1 : ℤ) else 0 := by
+  classical
+  rw [boundary]
+  simp only [reserveFocusCoeff]
+  have hdistrib :
+      (∑ B ∈ blockCandidates n k,
+        if g ⊆ B then ∑ e ∈ leave,
+          if F.block e = B then (1 : ℤ) else 0 else 0) =
+      ∑ B ∈ blockCandidates n k, ∑ e ∈ leave,
+        if g ⊆ B then (if F.block e = B then (1 : ℤ) else 0) else 0 := by
+    apply Finset.sum_congr rfl
+    intro B hB
+    by_cases hgB : g ⊆ B <;> simp [hgB]
+  calc
+    (∑ B ∈ blockCandidates n k,
+        if g ⊆ B then ∑ e ∈ leave,
+          if F.block e = B then (1 : ℤ) else 0 else 0) =
+        ∑ B ∈ blockCandidates n k, ∑ e ∈ leave,
+          if g ⊆ B then (if F.block e = B then (1 : ℤ) else 0) else 0 :=
+      hdistrib
+    _ = ∑ e ∈ leave, ∑ B ∈ blockCandidates n k,
+          if g ⊆ B then (if F.block e = B then (1 : ℤ) else 0) else 0 := by
+      exact Finset.sum_comm
+    _ = ∑ e ∈ leave, if g ⊆ F.block e then (1 : ℤ) else 0 := by
+      apply Finset.sum_congr rfl
+      intro e he
+      have heReserve := hleave he
+      have hblock : F.block e ∈ blockCandidates n k := by
+        exact mem_completeUniform.mpr (F.block_card e heReserve)
+      by_cases hg : g ⊆ F.block e
+      · rw [if_pos hg]
+        have hsingle :
+            (∑ B ∈ blockCandidates n k,
+              if g ⊆ B then
+                (if F.block e = B then (1 : ℤ) else 0)
+              else 0) =
+              (if g ⊆ F.block e then
+                (if F.block e = F.block e then (1 : ℤ) else 0)
+              else 0) := by
+          apply Finset.sum_eq_single (F.block e)
+          · intro Q hQ hne
+            simp [hne.symm]
+          · intro hnot
+            exact (hnot hblock).elim
+        simpa [hg] using hsingle
+      · rw [if_neg hg]
+        apply Finset.sum_eq_zero
+        intro Q hQ
+        by_cases hEq : F.block e = Q
+        · subst Q
+          simp [hg]
+        · simp [hEq]
+
+lemma boundary_reserveFocusCoeff_on_reserve
+    {n k r : ℕ} {reserve host modular : Finset (Finset (Fin n))}
+    (F : ReserveFocusingAssignment n k r reserve host modular)
+    {leave : Finset (Finset (Fin n))} (hleave : leave ⊆ reserve)
+    {g : Finset (Fin n)} (hg : g ∈ reserve) :
+    boundary n k (reserveFocusCoeff F leave) g =
+      if g ∈ leave then 1 else 0 := by
+  rw [boundary_reserveFocusCoeff F hleave]
+  by_cases hgLeave : g ∈ leave
+  · rw [if_pos hgLeave]
+    have hsum :
+        (∑ e ∈ leave, if g ⊆ F.block e then (1 : ℤ) else 0) =
+          (if g ⊆ F.block g then 1 else 0) := by
+      apply Finset.sum_eq_single g
+      · intro e he hne
+        have hnot : ¬ g ⊆ F.block e := by
+          intro hsub
+          exact hne (F.reserve_unique e (hleave he) g hg hsub).symm
+        simp [hnot]
+      · intro hnot
+        exact (hnot hgLeave).elim
+    rw [hsum]
+    simp [F.root_subset g hg]
+  · rw [if_neg hgLeave]
+    apply Finset.sum_eq_zero
+    intro e he
+    have hnot : ¬ g ⊆ F.block e := by
+      intro hsub
+      have hEq := F.reserve_unique e (hleave he) g hg hsub
+      exact hgLeave (hEq ▸ he)
+    simp [hnot]
+
+lemma boundary_reserveFocusCoeff_eq_zero_of_outside
+    {n k r : ℕ} {reserve host modular : Finset (Finset (Fin n))}
+    (F : ReserveFocusingAssignment n k r reserve host modular)
+    {leave : Finset (Finset (Fin n))} (hleave : leave ⊆ reserve)
+    {g : Finset (Fin n)} (hgcard : g.card = r)
+    (hgReserve : g ∉ reserve) (hgHost : g ∉ host) :
+    boundary n k (reserveFocusCoeff F leave) g = 0 := by
+  rw [boundary_reserveFocusCoeff F hleave]
+  apply Finset.sum_eq_zero
+  intro e he
+  have heReserve := hleave he
+  have hnot : ¬ g ⊆ F.block e := by
+    intro hsub
+    have hgPower : g ∈ (F.block e).powersetCard r :=
+      Finset.mem_powersetCard.mpr ⟨hsub, hgcard⟩
+    have hgne : g ≠ e := by
+      intro hEq
+      exact hgReserve (hEq ▸ heReserve)
+    have hgSpill : g ∈ (F.block e).powersetCard r \ {e} :=
+      Finset.mem_sdiff.mpr ⟨hgPower, by simpa using hgne⟩
+    exact hgHost (F.spill_subset e heReserve hgSpill)
+  simp [hnot]
+
+/-- Exact finite Lemma 6.4/6.5 algebra: focussing cliques first move an
+external reserve leave into `host`; the vector focusing theorem then
+generates the residual boundary modulo `N`. -/
+theorem isModularIntegralGenerator_of_reserveFocusing
+    {N n k r : ℕ} (hN : 0 < N)
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (e₀ : Exchange.RootEdge k r)
+    {reserve host modular : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ completeUniform n r)
+    (hmodularUniform : ∀ Q ∈ modular, Q.card = k)
+    (F : ReserveFocusingAssignment n k r reserve host modular)
+    (hfocus : HasExchangeFocusing n k r E
+      (almostSupportedBlocks n k r host))
+    (haux : ∀ g ∈ completeUniform n r,
+      ∀ forbiddenVertices : Finset (Fin n), g ⊆ forbiddenVertices →
+        forbiddenVertices.card ≤ 2 * k →
+        ∃ Q ∈ blockCandidates n k,
+          Q.powersetCard r \ {g} ⊆ host ∧
+          Q ∩ forbiddenVertices = g)
+    (helim : ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+      ∃ ψ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge ψ E.pattern.root = P.positive ∧
+        RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative ∧
+        RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀) ψ ⊆ host)
+    (hfully : ∀ B ∈ fullySupportedBlocks n k r host,
+      Generators.InModularSpan N n r modular
+        (Generators.modCliqueBoundary N n r B)) :
+    IsModularIntegralGenerator N n k r reserve modular := by
+  classical
+  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  intro leave hleave hleaveInt
+  obtain ⟨phi, hphiBoundary⟩ := hleaveInt
+  let focusCoeff := reserveFocusCoeff F leave
+  let residual : Finset (Fin n) → ℤ := fun Q ↦ phi Q - focusCoeff Q
+  have hresidualBoundary (g : Finset (Fin n)) :
+      boundary n k residual g =
+        boundary n k phi g - boundary n k focusCoeff g := by
+    simp only [boundary]
+    rw [← Finset.sum_sub_distrib]
+    apply Finset.sum_congr rfl
+    intro Q hQ
+    by_cases hgQ : g ⊆ Q <;> simp [residual, hgQ]
+  have hresidualSupported : ∀ g ∈ completeUniform n r, g ∉ host →
+      boundary n k residual g = 0 := by
+    intro g hgComplete hgHost
+    rw [hresidualBoundary]
+    by_cases hgReserve : g ∈ reserve
+    · rw [hphiBoundary g hgComplete,
+          boundary_reserveFocusCoeff_on_reserve F hleave hgReserve]
+      by_cases hgLeave : g ∈ leave <;> simp [hgLeave]
+    · have hgLeave : g ∉ leave := fun hgL ↦ hgReserve (hleave hgL)
+      rw [hphiBoundary g hgComplete,
+        boundary_reserveFocusCoeff_eq_zero_of_outside F hleave
+          (mem_completeUniform.mp hgComplete) hgReserve hgHost]
+      simp [hgLeave]
+  have hxspan := integralBoundary_mem_span_of_focusing hN E e₀
+    hfocus haux helim hfully residual hresidualSupported
+  obtain ⟨c, hc⟩ :=
+    exists_modularBoundaryCombination_of_mem_span hxspan
+  let modularCoeff : Finset (Fin n) → ℤ := fun Q ↦
+    if Q ∈ modular then ((c Q).val : ℤ) else 0
+  have hmodularSupport : ∀ Q, modularCoeff Q ≠ 0 → Q ∈ modular := by
+    intro Q hQ
+    by_contra hQmod
+    simp [modularCoeff, hQmod] at hQ
+  have hmodularBoundaryCast (g : Finset (Fin n))
+      (hg : g ∈ completeUniform n r) :
+      (boundary n k modularCoeff g : ZMod N) =
+        modularBoundaryCombination N r modular c g := by
+    have hgcard : g.card = r := mem_completeUniform.mp hg
+    rw [boundary_eq_sum_incident_of_support hmodularUniform
+      hmodularSupport g]
+    calc
+      (↑(∑ Q ∈ modular.filter (fun Q ↦ g ⊆ Q),
+          modularCoeff Q) : ZMod N) =
+          ∑ Q ∈ modular.filter (fun Q ↦ g ⊆ Q), c Q := by
+        push_cast
+        apply Finset.sum_congr rfl
+        intro Q hQ
+        have hQmod : Q ∈ modular := (Finset.mem_filter.mp hQ).1
+        simp [modularCoeff, hQmod, ZMod.natCast_zmod_val]
+      _ = ∑ Q ∈ modular, if g ⊆ Q then c Q else 0 := by
+        rw [Finset.sum_filter]
+      _ = modularBoundaryCombination N r modular c g := by
+        simp [modularBoundaryCombination, hgcard]
+  let psi : Finset (Fin n) → ℤ := fun Q ↦
+    focusCoeff Q + modularCoeff Q
+  refine ⟨psi, ?_, ?_⟩
+  · intro Q hQ
+    by_contra hQmod
+    have hfocusZero : focusCoeff Q = 0 := by
+      apply not_ne_iff.mp
+      intro hne
+      exact hQmod (reserveFocusCoeff_support F hleave Q hne)
+    have hmodZero : modularCoeff Q = 0 := by
+      by_contra hne
+      exact hQmod (hmodularSupport Q hne)
+    exact hQ (by simp [psi, hfocusZero, hmodZero])
+  · intro g hg
+    apply (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp
+    have hgcard : g.card = r := mem_completeUniform.mp hg
+    have hpsiBoundary : boundary n k psi g =
+        boundary n k focusCoeff g + boundary n k modularCoeff g := by
+      simp only [boundary]
+      rw [← Finset.sum_add_distrib]
+      apply Finset.sum_congr rfl
+      intro Q hQ
+      by_cases hgQ : g ⊆ Q <;> simp [psi, hgQ]
+    rw [Int.cast_sub, hpsiBoundary, Int.cast_add,
+      hmodularBoundaryCast g hg, ← congrFun hc g]
+    rw [show (if g ∈ leave then (1 : ℤ) else 0) =
+        boundary n k phi g by symm; exact hphiBoundary g hg]
+    have hresidualCast := congrArg (fun z : ℤ ↦ (z : ZMod N))
+      (hresidualBoundary g)
+    rw [if_pos hgcard]
+    push_cast at hresidualCast
+    rw [hresidualCast]
+    abel
+
+/-- Deterministic bridge from the greedy/pruning interface to the
+`fullySupportedBlocks` premise above.  It is enough that every clique in the
+clean subhost be unsaturated; the restricted greedy span then extends by
+zero to the full ambient modular span. -/
+theorem fullySupportedBlocks_mem_span_of_cleanPrunedHost
+    {N n k r cap : ℕ}
+    {K selected Kstar : Finset (Finset (Fin n))}
+    (hselected : selected ⊆
+      IntegralGenerators.cliquesIn n k r K)
+    (hKstar : Kstar ⊆ K)
+    (hclean : ∀ B ∈ fullySupportedBlocks n k r Kstar,
+      B ∈ Prune.unsaturatedCliques n k r cap K selected)
+    (hspan : ∀ B ∈ Prune.unsaturatedCliques n k r cap K selected,
+      Generators.InRestrictedModularSpan N r K selected
+        (Generators.modCliqueBoundaryOn N r K B)) :
+    ∀ B ∈ fullySupportedBlocks n k r Kstar,
+      Generators.InModularSpan N n r selected
+        (Generators.modCliqueBoundary N n r B) := by
+  intro B hB
+  have hBKstar := mem_fullySupportedBlocks.mp hB
+  have hBK : B ∈ IntegralGenerators.cliquesIn n k r K := by
+    apply IntegralGenerators.mem_cliquesIn.mpr
+    exact ⟨hBKstar.1, hBKstar.2.trans hKstar⟩
+  exact Prune.inModularSpan_of_inRestrictedModularSpan
+    hselected hBK (hspan B (hclean B hB))
+
+/-- Saturated cliques which survive inside a pruned edge host.  Keeping
+these cliques as generators is a deterministic alternative to routing them
+through an additional colour: unsaturated cliques are generated by the
+greedy family, while a surviving saturated clique generates itself. -/
+noncomputable def survivingSaturatedCliques
+    (n k r cap : ℕ)
+    (K selected Kstar : Finset (Finset (Fin n))) :
+    Finset (Finset (Fin n)) :=
+  IntegralGenerators.saturatedCliques n k r cap K selected ∩
+    fullySupportedBlocks n k r Kstar
+
+@[simp] lemma mem_survivingSaturatedCliques
+    {Q : Finset (Fin n)} :
+    Q ∈ survivingSaturatedCliques n k r cap K selected Kstar ↔
+      Q ∈ IntegralGenerators.saturatedCliques n k r cap K selected ∧
+      Q ∈ fullySupportedBlocks n k r Kstar := by
+  simp [survivingSaturatedCliques]
+
+/-- The modular family obtained by adjoining only the saturated cliques
+which remain wholly inside the pruned host. -/
+noncomputable def prunedModularGenerators
+    (n k r cap : ℕ)
+    (K selected Kstar : Finset (Finset (Fin n))) :
+    Finset (Finset (Fin n)) :=
+  selected ∪ survivingSaturatedCliques n k r cap K selected Kstar
+
+/-- Every clique of the pruned host is generated by the greedy family
+together with the surviving saturated cliques.  This uses the actual
+span-or-saturated dichotomy and does not assume that pruning deletes every
+saturated clique. -/
+theorem fullySupportedBlocks_mem_span_of_prunedModularGenerators
+    {N n k r cap : ℕ}
+    {K selected Kstar : Finset (Finset (Fin n))}
+    (hselected : selected ⊆
+      IntegralGenerators.cliquesIn n k r K)
+    (hKstar : Kstar ⊆ K)
+    (hspan : ∀ B ∈ Prune.unsaturatedCliques n k r cap K selected,
+      Generators.InRestrictedModularSpan N r K selected
+        (Generators.modCliqueBoundaryOn N r K B)) :
+    ∀ Q ∈ fullySupportedBlocks n k r Kstar,
+      Generators.InModularSpan N n r
+        (prunedModularGenerators n k r cap K selected Kstar)
+        (Generators.modCliqueBoundary N n r Q) := by
+  intro Q hQ
+  have hQdata := mem_fullySupportedBlocks.mp hQ
+  have hQK : Q ∈ IntegralGenerators.cliquesIn n k r K := by
+    apply IntegralGenerators.mem_cliquesIn.mpr
+    exact ⟨hQdata.1, hQdata.2.trans hKstar⟩
+  by_cases hsat : Q ∈
+      IntegralGenerators.saturatedCliques n k r cap K selected
+  · apply Generators.modCliqueBoundary_mem_span
+    exact Finset.mem_union_right _
+      (mem_survivingSaturatedCliques.mpr ⟨hsat, hQ⟩)
+  · have hunsat : Q ∈ Prune.unsaturatedCliques n k r cap K selected :=
+      Prune.mem_unsaturatedCliques.mpr ⟨hQK, hsat⟩
+    have hlocal := Prune.inModularSpan_of_inRestrictedModularSpan
+      hselected hQK (hspan Q hunsat)
+    apply hlocal.mono
+    exact Finset.subset_union_left
+
+lemma survivingSaturatedCliques_uniform
+    {n k r cap : ℕ}
+    {K selected Kstar : Finset (Finset (Fin n))} :
+    ∀ Q ∈ survivingSaturatedCliques n k r cap K selected Kstar,
+      Q.card = k := by
+  intro Q hQ
+  exact (mem_fullySupportedBlocks.mp
+    (mem_survivingSaturatedCliques.mp hQ).2).1
+
+lemma cliqueBoundarySupport_survivingSaturatedCliques_subset
+    {n k r cap : ℕ}
+    {K selected Kstar : Finset (Finset (Fin n))} :
+    cliqueBoundarySupport
+        (survivingSaturatedCliques n k r cap K selected Kstar) r ⊆
+      Kstar := by
+  intro e he
+  obtain ⟨Q, hQ, heQ, hecard⟩ := mem_cliqueBoundarySupport.mp he
+  have hfull := mem_fullySupportedBlocks.mp
+    (mem_survivingSaturatedCliques.mp hQ).2
+  exact hfull.2 (Finset.mem_powersetCard.mpr ⟨heQ, hecard⟩)
+
+/-- The surviving saturated family has edge multiplicity at most the
+pruning threshold.  Outside `Kstar` its multiplicity is zero; on a
+surviving edge this is precisely the saturated-clique load controlled by
+the pruning definition. -/
+theorem blockIncidenceCount_survivingSaturatedCliques_le
+    {n k r cap threshold : ℕ}
+    {K selected Kstar : Finset (Finset (Fin n))}
+    (hload : ∀ e ∈ Kstar,
+      Prune.cliqueLoad r
+        (IntegralGenerators.saturatedCliques n k r cap K selected) e ≤
+          threshold) :
+    ∀ e ∈ completeUniform n r,
+      blockIncidenceCount
+          (survivingSaturatedCliques n k r cap K selected Kstar) e ≤
+        threshold := by
+  intro e he
+  have hecard : e.card = r := mem_completeUniform.mp he
+  by_cases heKstar : e ∈ Kstar
+  · calc
+      blockIncidenceCount
+          (survivingSaturatedCliques n k r cap K selected Kstar) e ≤
+          blockIncidenceCount
+            (IntegralGenerators.saturatedCliques n k r cap K selected) e :=
+        blockIncidenceCount_mono (fun Q hQ ↦
+          (mem_survivingSaturatedCliques.mp hQ).1) e
+      _ = Prune.cliqueLoad r
+          (IntegralGenerators.saturatedCliques n k r cap K selected) e := by
+        unfold blockIncidenceCount Prune.cliqueLoad
+        apply congrArg Finset.card
+        ext Q
+        simp only [Finset.mem_filter]
+        constructor
+        · rintro ⟨hQ, heQ⟩
+          exact ⟨hQ, Finset.mem_powersetCard.mpr ⟨heQ, hecard⟩⟩
+        · rintro ⟨hQ, heQ⟩
+          exact ⟨hQ, (Finset.mem_powersetCard.mp heQ).1⟩
+      _ ≤ threshold := hload e heKstar
+  · have hzero : blockIncidenceCount
+        (survivingSaturatedCliques n k r cap K selected Kstar) e = 0 := by
+      unfold blockIncidenceCount
+      have hempty :
+          (survivingSaturatedCliques n k r cap K selected Kstar).filter
+              (fun B ↦ e ⊆ B) = ∅ := by
+        ext Q
+        simp only [Finset.mem_filter]
+        constructor
+        · rintro ⟨hQ, heQ⟩
+          have hfull := mem_fullySupportedBlocks.mp
+            (mem_survivingSaturatedCliques.mp hQ).2
+          exact (heKstar
+            (hfull.2 (Finset.mem_powersetCard.mpr ⟨heQ, hecard⟩))).elim
+        · intro hQ
+          simpa using hQ
+      rw [hempty]
+      simp
+    simp [hzero]
+
+/-- Specialization to the literal pruned host returned by Lemma 6.2. -/
+theorem blockIncidenceCount_survivingSaturatedCliques_pruned_le
+    {n k r cap threshold : ℕ}
+    {K selected : Finset (Finset (Fin n))} :
+    ∀ e ∈ completeUniform n r,
+      blockIncidenceCount
+          (survivingSaturatedCliques n k r cap K selected
+            (Prune.prunedEdges r threshold K
+              (IntegralGenerators.saturatedCliques n k r cap K selected))) e ≤
+        threshold := by
+  apply blockIncidenceCount_survivingSaturatedCliques_le
+  intro e he
+  exact (Prune.cliqueLoad_lt_of_mem_prunedEdges he).le
+
+lemma prunedModularGenerators_uniform
+    {n k r cap : ℕ}
+    {K selected Kstar : Finset (Finset (Fin n))}
+    (hselected : selected ⊆
+      IntegralGenerators.cliquesIn n k r K) :
+    ∀ Q ∈ prunedModularGenerators n k r cap K selected Kstar,
+      Q.card = k := by
+  intro Q hQ
+  rcases Finset.mem_union.mp hQ with hQ | hQ
+  · exact (IntegralGenerators.mem_cliquesIn.mp (hselected hQ)).1
+  · exact survivingSaturatedCliques_uniform Q hQ
+
+lemma cliqueBoundarySupport_prunedModularGenerators_subset
+    {n k r cap : ℕ}
+    {K selected Kstar : Finset (Finset (Fin n))}
+    (hselected : selected ⊆
+      IntegralGenerators.cliquesIn n k r K)
+    (hKstar : Kstar ⊆ K) :
+    cliqueBoundarySupport
+        (prunedModularGenerators n k r cap K selected Kstar) r ⊆ K := by
+  intro e he
+  obtain ⟨Q, hQ, heQ, hecard⟩ := mem_cliqueBoundarySupport.mp he
+  rcases Finset.mem_union.mp hQ with hQselected | hQsurviving
+  · exact (IntegralGenerators.mem_cliquesIn.mp
+      (hselected hQselected)).2
+        (Finset.mem_powersetCard.mpr ⟨heQ, hecard⟩)
+  · exact hKstar
+      (cliqueBoundarySupport_survivingSaturatedCliques_subset
+        (mem_cliqueBoundarySupport.mpr
+          ⟨Q, hQsurviving, heQ, hecard⟩))
+
+/-- A lower-face cap also bounds the number of selected blocks through a
+complete `r`-edge, by deleting one vertex from that edge. -/
+lemma blockIncidenceCount_le_counterLoad_of_faceCap
+    {n k r cap : ℕ} (hr : 0 < r)
+    {selected : Finset (Finset (Fin n))}
+    (hload : ∀ f : Finset (Fin n), f.card = r - 1 →
+      Generators.counterLoad (fun f Q : Finset (Fin n) ↦ f ⊆ Q)
+        selected f ≤ cap) :
+    ∀ e ∈ completeUniform n r,
+      blockIncidenceCount selected e ≤ cap := by
+  intro e he
+  have hecard : e.card = r := mem_completeUniform.mp he
+  have heNonempty : e.Nonempty := Finset.card_pos.mp (by omega)
+  obtain ⟨x, hxe⟩ := heNonempty
+  let f := e.erase x
+  have hfcard : f.card = r - 1 := by
+    simp [f, hxe, hecard]
+  calc
+    blockIncidenceCount selected e ≤
+        Generators.counterLoad
+          (fun f Q : Finset (Fin n) ↦ f ⊆ Q) selected f := by
+      apply Finset.card_le_card
+      intro Q hQ
+      have hQdata := Finset.mem_filter.mp hQ
+      apply Finset.mem_filter.mpr
+      exact ⟨hQdata.1, (Finset.erase_subset x e).trans hQdata.2⟩
+    _ ≤ cap := hload f hfcard
+
+/-- Edge multiplicity of the enlarged pruned modular family. -/
+theorem blockIncidenceCount_prunedModularGenerators_le
+    {n k r cap threshold : ℕ} (hr : 0 < r)
+    {K selected Kstar : Finset (Finset (Fin n))}
+    (hselectedLoad : ∀ f : Finset (Fin n), f.card = r - 1 →
+      Generators.counterLoad (fun f Q : Finset (Fin n) ↦ f ⊆ Q)
+        selected f ≤ cap)
+    (hsaturatedLoad : ∀ e ∈ Kstar,
+      Prune.cliqueLoad r
+        (IntegralGenerators.saturatedCliques n k r cap K selected) e ≤
+          threshold) :
+    ∀ e ∈ completeUniform n r,
+      blockIncidenceCount
+          (prunedModularGenerators n k r cap K selected Kstar) e ≤
+        cap + threshold := by
+  intro e he
+  exact (blockIncidenceCount_union_le selected
+      (survivingSaturatedCliques n k r cap K selected Kstar) e).trans
+    (Nat.add_le_add
+      (blockIncidenceCount_le_counterLoad_of_faceCap (k := k)
+        hr hselectedLoad e he)
+      (blockIncidenceCount_survivingSaturatedCliques_le
+        hsaturatedLoad e he))
+
+theorem localDegree_survivingSaturatedCliques_le
+    {n k r cap threshold : ℕ} (hr : 0 < r) (hrk : r < k)
+    {K selected Kstar : Finset (Finset (Fin n))}
+    (hsaturatedLoad : ∀ e ∈ Kstar,
+      Prune.cliqueLoad r
+        (IntegralGenerators.saturatedCliques n k r cap K selected) e ≤
+          threshold) :
+    ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree
+          (survivingSaturatedCliques n k r cap K selected Kstar) J ≤
+        Reserve.localDegree Kstar J * threshold := by
+  intro J hJ
+  let bad := survivingSaturatedCliques n k r cap K selected Kstar
+  have hincidence : ∀ e : Finset (Fin n), e.card = r →
+      blockIncidenceCount bad e ≤ threshold := by
+    intro e he
+    exact blockIncidenceCount_survivingSaturatedCliques_le
+      hsaturatedLoad e (mem_completeUniform.mpr he)
+  have hblocks := localDegree_blocks_le_boundary_mul_incidence
+    hr hrk (survivingSaturatedCliques_uniform
+      (n := n) (k := k) (r := r) (cap := cap)
+      (K := K) (selected := selected) (Kstar := Kstar))
+    hincidence J hJ
+  calc
+    Reserve.localDegree bad J = localDegree bad J := rfl
+    _ ≤ localDegree (cliqueBoundarySupport bad r) J * threshold := hblocks
+    _ ≤ localDegree Kstar J * threshold := by
+      apply Nat.mul_le_mul_right
+      exact Finset.card_le_card (Finset.filter_subset_filter
+        (fun e ↦ J ⊆ e)
+        (cliqueBoundarySupport_survivingSaturatedCliques_subset
+          (n := n) (k := k) (r := r) (cap := cap)
+          (K := K) (selected := selected) (Kstar := Kstar)))
+    _ = Reserve.localDegree Kstar J * threshold := rfl
+
+/-- Lower-face load of the enlarged family: the greedy part costs `cap`,
+and surviving saturated blocks are charged to their host edges, at fewer
+than `threshold` blocks per edge. -/
+theorem localDegree_prunedModularGenerators_le
+    {n k r cap threshold : ℕ} (hr : 0 < r) (hrk : r < k)
+    {K selected Kstar : Finset (Finset (Fin n))}
+    (hselectedLoad : ∀ f : Finset (Fin n), f.card = r - 1 →
+      Generators.counterLoad (fun f Q : Finset (Fin n) ↦ f ⊆ Q)
+        selected f ≤ cap)
+    (hsaturatedLoad : ∀ e ∈ Kstar,
+      Prune.cliqueLoad r
+        (IntegralGenerators.saturatedCliques n k r cap K selected) e ≤
+          threshold) :
+    ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree
+          (prunedModularGenerators n k r cap K selected Kstar) J ≤
+        cap + Reserve.localDegree Kstar J * threshold := by
+  intro J hJ
+  calc
+    Reserve.localDegree
+        (prunedModularGenerators n k r cap K selected Kstar) J ≤
+        Reserve.localDegree selected J +
+          Reserve.localDegree
+            (survivingSaturatedCliques n k r cap K selected Kstar) J :=
+      localDegree_union_le _ _ J
+    _ ≤ cap + Reserve.localDegree Kstar J * threshold :=
+      Nat.add_le_add (by
+        simpa [Reserve.localDegree, Generators.counterLoad] using
+          hselectedLoad J hJ)
+        (localDegree_survivingSaturatedCliques_le hr hrk
+          hsaturatedLoad J hJ)
+
+/-- Source-facing modular generator obtained from one greedy/pruned host
+after adjoining its surviving saturated cliques.  The reserve is external:
+its assigned focusing cliques belong to the enlarged modular family and
+move the leave into `Kstar`. -/
+theorem isModularIntegralGenerator_of_reserveFocusing_prunedSaturated
+    {N n k r cap : ℕ} (hN : 0 < N)
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (e₀ : Exchange.RootEdge k r)
+    {reserve K selected Kstar : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ completeUniform n r)
+    (hselected : selected ⊆
+      IntegralGenerators.cliquesIn n k r K)
+    (hKstar : Kstar ⊆ K)
+    (hspan : ∀ B ∈ Prune.unsaturatedCliques n k r cap K selected,
+      Generators.InRestrictedModularSpan N r K selected
+        (Generators.modCliqueBoundaryOn N r K B))
+    (F : ReserveFocusingAssignment n k r reserve Kstar
+      (prunedModularGenerators n k r cap K selected Kstar))
+    (hfocus : HasExchangeFocusing n k r E
+      (almostSupportedBlocks n k r Kstar))
+    (haux : ∀ g ∈ completeUniform n r,
+      ∀ forbiddenVertices : Finset (Fin n), g ⊆ forbiddenVertices →
+        forbiddenVertices.card ≤ 2 * k →
+        ∃ Q ∈ blockCandidates n k,
+          Q.powersetCard r \ {g} ⊆ Kstar ∧
+          Q ∩ forbiddenVertices = g)
+    (helim : ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+      ∃ ψ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge ψ E.pattern.root = P.positive ∧
+        RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative ∧
+        RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀) ψ ⊆
+          Kstar) :
+    IsModularIntegralGenerator N n k r reserve
+      (prunedModularGenerators n k r cap K selected Kstar) := by
+  apply isModularIntegralGenerator_of_reserveFocusing hN E e₀ hreserve
+    (prunedModularGenerators_uniform hselected) F hfocus haux helim
+  exact fullySupportedBlocks_mem_span_of_prunedModularGenerators
+    hselected hKstar hspan
+
+/-- The form used by the actual heavy-edge pruning argument.  A clique of
+the pruned host need not itself be unsaturated; it suffices to replace its
+root by one exchange all of whose root-erased blocks are unsaturated in the
+original sampled host. -/
+theorem fullySupportedBlocks_mem_span_of_unsaturatedExchange
+    {N n k r cap : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {K selected Kstar : Finset (Finset (Fin n))}
+    (hselected : selected ⊆
+      IntegralGenerators.cliquesIn n k r K)
+    (hspan : ∀ B ∈ Prune.unsaturatedCliques n k r cap K selected,
+      Generators.InRestrictedModularSpan N r K selected
+        (Generators.modCliqueBoundaryOn N r K B))
+    (hfocus : ∀ Q ∈ fullySupportedBlocks n k r Kstar,
+      ∃ φ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge φ E.pattern.root = Q ∧
+        ExchangeEmbedding.mappedPositive E φ \ {Q} ⊆
+          Prune.unsaturatedCliques n k r cap K selected ∧
+        ExchangeEmbedding.mappedNegative E φ ⊆
+          Prune.unsaturatedCliques n k r cap K selected) :
+    ∀ Q ∈ fullySupportedBlocks n k r Kstar,
+      Generators.InModularSpan N n r selected
+        (Generators.modCliqueBoundary N n r Q) := by
+  have hfocused : ∀ B ∈ Prune.unsaturatedCliques n k r cap K selected,
+      Generators.InModularSpan N n r selected
+        (Generators.modCliqueBoundary N n r B) := by
+    intro B hB
+    have hBK : B ∈ IntegralGenerators.cliquesIn n k r K :=
+      (Prune.mem_unsaturatedCliques.mp hB).1
+    exact Prune.inModularSpan_of_inRestrictedModularSpan
+      hselected hBK (hspan B hB)
+  intro Q hQ
+  obtain ⟨φ, hroot, hpos, hneg⟩ := hfocus Q hQ
+  exact modCliqueBoundary_mem_span_of_exchange E φ hroot hpos hneg hfocused
+
+/-- Union of the modular generators supplied by finitely many sparse
+colours.  The source proof uses colours only to route different exchange
+blocks; after taking this union the rest of the absorber is uncoloured. -/
+def coloredModularGenerators (u n : ℕ)
+    (selected : Fin u → Finset (Finset (Fin n))) :
+    Finset (Finset (Fin n)) :=
+  (Finset.univ : Finset (Fin u)).biUnion selected
+
+/-- A per-colour lower-face cap adds over the finitely many colours. -/
+lemma localDegree_coloredModularGenerators_le
+    {u n cap : ℕ}
+    (selected : Fin u → Finset (Finset (Fin n)))
+    (hload : ∀ i, ∀ J : Finset (Fin n), J.card = r - 1 →
+      Generators.counterLoad
+        (fun J Q : Finset (Fin n) ↦ J ⊆ Q) (selected i) J ≤ cap) :
+    ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (coloredModularGenerators u n selected) J ≤
+        u * cap := by
+  classical
+  intro J hJ
+  calc
+    Reserve.localDegree (coloredModularGenerators u n selected) J ≤
+        ∑ i : Fin u, Reserve.localDegree (selected i) J := by
+      unfold Reserve.localDegree coloredModularGenerators
+      have hfilter :
+          ((Finset.univ : Finset (Fin u)).biUnion selected).filter
+              (fun Q ↦ J ⊆ Q) =
+            (Finset.univ : Finset (Fin u)).biUnion
+              (fun i ↦ (selected i).filter fun Q ↦ J ⊆ Q) := by
+        ext Q
+        simp only [Finset.mem_filter, Finset.mem_biUnion,
+          Finset.mem_univ, true_and]
+        aesop
+      rw [hfilter]
+      simpa using Finset.card_biUnion_le
+    _ ≤ ∑ _i : Fin u, cap := by
+      apply Finset.sum_le_sum
+      intro i _hi
+      simpa [Reserve.localDegree, Generators.counterLoad] using
+        hload i J hJ
+    _ = u * cap := by simp
+
+/-- The same per-colour face cap bounds edge multiplicity after taking the
+colour union. -/
+theorem blockIncidenceCount_coloredModularGenerators_le
+    {u n k r cap : ℕ} (hr : 0 < r)
+    (selected : Fin u → Finset (Finset (Fin n)))
+    (hload : ∀ i, ∀ J : Finset (Fin n), J.card = r - 1 →
+      Generators.counterLoad
+        (fun J Q : Finset (Fin n) ↦ J ⊆ Q) (selected i) J ≤ cap) :
+    ∀ e ∈ completeUniform n r,
+      blockIncidenceCount (coloredModularGenerators u n selected) e ≤
+        u * cap := by
+  classical
+  intro e he
+  calc
+    blockIncidenceCount (coloredModularGenerators u n selected) e ≤
+        ∑ i : Fin u, blockIncidenceCount (selected i) e := by
+      simpa [coloredModularGenerators] using
+        (blockIncidenceCount_biUnion_le_sum
+          (Finset.univ : Finset (Fin u)) selected e)
+    _ ≤ ∑ _i : Fin u, cap := by
+      apply Finset.sum_le_sum
+      intro i _hi
+      exact blockIncidenceCount_le_counterLoad_of_faceCap (k := k) hr
+        (hload i) e he
+    _ = u * cap := by simp
+
+/-- Direct per-colour edge caps give the sharper multiplicity estimate used
+by the two-threshold greedy construction. -/
+theorem blockIncidenceCount_coloredModularGenerators_le_of_edgeCap
+    {u n r edgeCap : ℕ}
+    (selected : Fin u → Finset (Finset (Fin n)))
+    (hload : ∀ i, ∀ e : Finset (Fin n), e.card = r →
+      Generators.counterLoad
+        (fun e Q : Finset (Fin n) ↦ e ⊆ Q) (selected i) e ≤ edgeCap) :
+    ∀ e ∈ completeUniform n r,
+      blockIncidenceCount (coloredModularGenerators u n selected) e ≤
+        u * edgeCap := by
+  classical
+  intro e he
+  calc
+    blockIncidenceCount (coloredModularGenerators u n selected) e ≤
+        ∑ i : Fin u, blockIncidenceCount (selected i) e := by
+      simpa [coloredModularGenerators] using
+        (blockIncidenceCount_biUnion_le_sum
+          (Finset.univ : Finset (Fin u)) selected e)
+    _ ≤ ∑ _i : Fin u, edgeCap := by
+      apply Finset.sum_le_sum
+      intro i _hi
+      simpa [blockIncidenceCount, Generators.counterLoad] using
+        hload i e (mem_completeUniform.mp he)
+    _ = u * edgeCap := by simp
+
+lemma coloredModularGenerators_uniform
+    {u n k : ℕ} {selected : Fin u → Finset (Finset (Fin n))}
+    (huniform : ∀ i, ∀ Q ∈ selected i, Q.card = k) :
+    ∀ Q ∈ coloredModularGenerators u n selected, Q.card = k := by
+  intro Q hQ
+  obtain ⟨i, _hi, hQi⟩ := Finset.mem_biUnion.mp hQ
+  exact huniform i Q hQi
+
+/-- Quantitative family obtained by adjoining separated reserve-focusing
+cliques to the coloured greedy generators. -/
+theorem modularWithReserveFocusing_quantitative
+    {u n k r cap : ℕ} (hr : 0 < r) (hrk : r < k)
+    {reserve host : Finset (Finset (Fin n))}
+    (selected : Fin u → Finset (Finset (Fin n)))
+    (huniform : ∀ i, ∀ Q ∈ selected i, Q.card = k)
+    (hload : ∀ i, ∀ J : Finset (Fin n), J.card = r - 1 →
+      Generators.counterLoad
+        (fun J Q : Finset (Fin n) ↦ J ⊆ Q) (selected i) J ≤ cap)
+    (F : SeparatedReserveFocusingFamily n k r reserve host) :
+    let modular := modularWithReserveFocusing
+      (coloredModularGenerators u n selected) F
+    (∀ Q ∈ modular, Q.card = k) ∧
+      (∀ e ∈ completeUniform n r,
+        blockIncidenceCount modular e ≤ u * cap + 1) ∧
+      ∀ J : Finset (Fin n), J.card = r - 1 →
+        Reserve.localDegree modular J ≤
+          u * cap + Reserve.localDegree (reserve ∪ host) J := by
+  dsimp
+  refine ⟨?_, ?_, ?_⟩
+  · intro Q hQ
+    rcases Finset.mem_union.mp hQ with hQ | hQ
+    · exact coloredModularGenerators_uniform huniform Q hQ
+    · exact F.blocks_uniform Q hQ
+  · intro e he
+    exact (blockIncidenceCount_union_le _ _ e).trans
+      (Nat.add_le_add
+        (blockIncidenceCount_coloredModularGenerators_le (k := k) hr selected
+          hload e he)
+        (F.blockIncidenceCount_le_one e he))
+  · intro J hJ
+    calc
+      Reserve.localDegree
+          (modularWithReserveFocusing
+            (coloredModularGenerators u n selected) F) J ≤
+          Reserve.localDegree (coloredModularGenerators u n selected) J +
+            Reserve.localDegree F.blocks J :=
+        localDegree_union_le _ _ J
+      _ ≤ u * cap + Reserve.localDegree (reserve ∪ host) J :=
+        Nat.add_le_add
+          (localDegree_coloredModularGenerators_le selected hload J hJ)
+          (by
+            have hblocks :=
+              localDegree_blocks_le_boundary_mul_incidence (M := 1)
+                hr hrk F.blocks_uniform
+                  (fun e he ↦ F.blockIncidenceCount_le_one e
+                    (mem_completeUniform.mpr he)) J hJ
+            calc
+              Reserve.localDegree F.blocks J ≤
+                  Reserve.localDegree (cliqueBoundarySupport F.blocks r) J :=
+                by
+                  change localDegree F.blocks J ≤
+                    localDegree (cliqueBoundarySupport F.blocks r) J
+                  simpa using hblocks
+              _ ≤ Reserve.localDegree (reserve ∪ host) J :=
+                Finset.card_le_card
+                  (Finset.filter_subset_filter _ F.boundary_subset))
+
+/-- Exact algebraic content of the rainbowization step in Lemma 6.3.
+The probabilistic construction need not make every block of an exchange
+itself unsaturated.  It is enough to route those blocks into an intermediate
+`rainbow` family and prove separately that every rainbow boundary belongs to
+the modular span.  This separation mirrors properties (2) and (4) of that
+lemma. -/
+theorem fullySupportedBlocks_mem_span_of_rainbowExchange
+    {N n k r : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    {host rainbow modular : Finset (Finset (Fin n))}
+    (hrainbow : ∀ B ∈ rainbow,
+      Generators.InModularSpan N n r modular
+        (Generators.modCliqueBoundary N n r B))
+    (hrainbowize : ∀ Q ∈ fullySupportedBlocks n k r host,
+      ∃ φ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge φ E.pattern.root = Q ∧
+        ExchangeEmbedding.mappedPositive E φ \ {Q} ⊆ rainbow ∧
+        ExchangeEmbedding.mappedNegative E φ ⊆ rainbow) :
+    ∀ Q ∈ fullySupportedBlocks n k r host,
+      Generators.InModularSpan N n r modular
+        (Generators.modCliqueBoundary N n r Q) := by
+  intro Q hQ
+  obtain ⟨φ, hroot, hpos, hneg⟩ := hrainbowize Q hQ
+  exact modCliqueBoundary_mem_span_of_exchange E φ hroot hpos hneg
+    hrainbow
+
+/-- External-reserve completion with the two logically separate coloured
+properties from Lemma 6.3: rainbowization by one exchange and generation of
+every rainbow boundary. -/
+theorem isModularIntegralGenerator_of_reserveFocusing_rainbow
+    {N n k r : ℕ} (hN : 0 < N)
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (e₀ : Exchange.RootEdge k r)
+    {reserve host rainbow modular : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ completeUniform n r)
+    (hmodularUniform : ∀ Q ∈ modular, Q.card = k)
+    (F : ReserveFocusingAssignment n k r reserve host modular)
+    (hfocus : HasExchangeFocusing n k r E
+      (almostSupportedBlocks n k r host))
+    (haux : ∀ g ∈ completeUniform n r,
+      ∀ forbiddenVertices : Finset (Fin n), g ⊆ forbiddenVertices →
+        forbiddenVertices.card ≤ 2 * k →
+        ∃ Q ∈ blockCandidates n k,
+          Q.powersetCard r \ {g} ⊆ host ∧
+          Q ∩ forbiddenVertices = g)
+    (helim : ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+      ∃ ψ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge ψ E.pattern.root = P.positive ∧
+        RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative ∧
+        RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀) ψ ⊆ host)
+    (hrainbowSpan : ∀ B ∈ rainbow,
+      Generators.InModularSpan N n r modular
+        (Generators.modCliqueBoundary N n r B))
+    (hrainbowize : ∀ Q ∈ fullySupportedBlocks n k r host,
+      ∃ φ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge φ E.pattern.root = Q ∧
+        ExchangeEmbedding.mappedPositive E φ \ {Q} ⊆ rainbow ∧
+        ExchangeEmbedding.mappedNegative E φ ⊆ rainbow) :
+    IsModularIntegralGenerator N n k r reserve modular := by
+  apply isModularIntegralGenerator_of_reserveFocusing hN E e₀ hreserve
+    hmodularUniform F hfocus haux helim
+  exact fullySupportedBlocks_mem_span_of_rainbowExchange
+    E hrainbowSpan hrainbowize
+
+/-- Deterministic coloured version of the pruned-exchange bridge.  Every
+root-erased exchange block may choose its own colour, provided it is an
+unsaturated clique of that colour.  Its boundary then lies in the span of
+that colour's greedy family and hence in the span of their finite union. -/
+theorem fullySupportedBlocks_mem_span_of_coloredUnsaturatedExchange
+    {N n k r cap u : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (K selected : Fin u → Finset (Finset (Fin n)))
+    {host : Finset (Finset (Fin n))}
+    (hselected : ∀ i, selected i ⊆
+      IntegralGenerators.cliquesIn n k r (K i))
+    (hspan : ∀ i, ∀ B ∈ Prune.unsaturatedCliques n k r cap (K i) (selected i),
+      Generators.InRestrictedModularSpan N r (K i) (selected i)
+        (Generators.modCliqueBoundaryOn N r (K i) B))
+    (hfocus : ∀ Q ∈ fullySupportedBlocks n k r host,
+      ∃ φ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge φ E.pattern.root = Q ∧
+        (∀ B ∈ ExchangeEmbedding.mappedPositive E φ \ {Q},
+          ∃ i, B ∈ Prune.unsaturatedCliques n k r cap (K i) (selected i)) ∧
+        ∀ B ∈ ExchangeEmbedding.mappedNegative E φ,
+          ∃ i, B ∈ Prune.unsaturatedCliques n k r cap (K i) (selected i)) :
+    ∀ Q ∈ fullySupportedBlocks n k r host,
+      Generators.InModularSpan N n r
+        (coloredModularGenerators u n selected)
+        (Generators.modCliqueBoundary N n r Q) := by
+  let focused : Finset (Finset (Fin n)) :=
+    (Finset.univ : Finset (Fin u)).biUnion fun i ↦
+      Prune.unsaturatedCliques n k r cap (K i) (selected i)
+  have hfocused : ∀ B ∈ focused,
+      Generators.InModularSpan N n r
+        (coloredModularGenerators u n selected)
+        (Generators.modCliqueBoundary N n r B) := by
+    intro B hB
+    obtain ⟨i, _hi, hBi⟩ := Finset.mem_biUnion.mp hB
+    have hBKi : B ∈ IntegralGenerators.cliquesIn n k r (K i) :=
+      (Prune.mem_unsaturatedCliques.mp hBi).1
+    have hlocal := Prune.inModularSpan_of_inRestrictedModularSpan
+      (hselected i) hBKi (hspan i B hBi)
+    apply hlocal.mono
+    intro C hCi
+    exact Finset.mem_biUnion.mpr ⟨i, Finset.mem_univ _, hCi⟩
+  intro Q hQ
+  obtain ⟨φ, hroot, hpos, hneg⟩ := hfocus Q hQ
+  apply modCliqueBoundary_mem_span_of_exchange E φ hroot
+  · intro B hB
+    obtain ⟨i, hBi⟩ := hpos B hB
+    exact Finset.mem_biUnion.mpr ⟨i, Finset.mem_univ _, hBi⟩
+  · intro B hB
+    obtain ⟨i, hBi⟩ := hneg B hB
+    exact Finset.mem_biUnion.mpr ⟨i, Finset.mem_univ _, hBi⟩
+  · exact hfocused
+
+/-- Two-threshold version of the coloured exchange bridge.  It is the form
+used by the quantitative construction: the face cap controls lower-face
+load, while the independent edge cap makes the later multiplicity
+flattening subpolynomial. -/
+theorem fullySupportedBlocks_mem_span_of_coloredTwoCapUnsaturatedExchange
+    {N n k r faceCap edgeCap u : ℕ}
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (K selected : Fin u → Finset (Finset (Fin n)))
+    {host : Finset (Finset (Fin n))}
+    (hselected : ∀ i, selected i ⊆
+      IntegralGenerators.cliquesIn n k r (K i))
+    (hspan : ∀ i, ∀ B ∈ IntegralGenerators.twoCapUnsaturatedCliques
+        n k r faceCap edgeCap (K i) (selected i),
+      Generators.InRestrictedModularSpan N r (K i) (selected i)
+        (Generators.modCliqueBoundaryOn N r (K i) B))
+    (hfocus : ∀ Q ∈ fullySupportedBlocks n k r host,
+      ∃ φ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge φ E.pattern.root = Q ∧
+        (∀ B ∈ ExchangeEmbedding.mappedPositive E φ \ {Q},
+          ∃ i, B ∈ IntegralGenerators.twoCapUnsaturatedCliques
+            n k r faceCap edgeCap (K i) (selected i)) ∧
+        ∀ B ∈ ExchangeEmbedding.mappedNegative E φ,
+          ∃ i, B ∈ IntegralGenerators.twoCapUnsaturatedCliques
+            n k r faceCap edgeCap (K i) (selected i)) :
+    ∀ Q ∈ fullySupportedBlocks n k r host,
+      Generators.InModularSpan N n r
+        (coloredModularGenerators u n selected)
+        (Generators.modCliqueBoundary N n r Q) := by
+  let focused : Finset (Finset (Fin n)) :=
+    (Finset.univ : Finset (Fin u)).biUnion fun i ↦
+      IntegralGenerators.twoCapUnsaturatedCliques
+        n k r faceCap edgeCap (K i) (selected i)
+  have hfocused : ∀ B ∈ focused,
+      Generators.InModularSpan N n r
+        (coloredModularGenerators u n selected)
+        (Generators.modCliqueBoundary N n r B) := by
+    intro B hB
+    obtain ⟨i, _hi, hBi⟩ := Finset.mem_biUnion.mp hB
+    have hBKi : B ∈ IntegralGenerators.cliquesIn n k r (K i) :=
+      (IntegralGenerators.mem_twoCapUnsaturatedCliques.mp hBi).1
+    have hlocal := Prune.inModularSpan_of_inRestrictedModularSpan
+      (hselected i) hBKi (hspan i B hBi)
+    apply hlocal.mono
+    intro C hCi
+    exact Finset.mem_biUnion.mpr ⟨i, Finset.mem_univ _, hCi⟩
+  intro Q hQ
+  obtain ⟨φ, hroot, hpos, hneg⟩ := hfocus Q hQ
+  apply modCliqueBoundary_mem_span_of_exchange E φ hroot
+  · intro B hB
+    obtain ⟨i, hBi⟩ := hpos B hB
+    exact Finset.mem_biUnion.mpr ⟨i, Finset.mem_univ _, hBi⟩
+  · intro B hB
+    obtain ⟨i, hBi⟩ := hneg B hB
+    exact Finset.mem_biUnion.mpr ⟨i, Finset.mem_univ _, hBi⟩
+  · exact hfocused
+
+/-- Coloured source-facing modular-generator assembly.  This is the exact
+finite target of the random rotations/colour amplification: one sparse host
+per colour, its bounded greedy generators, coloured unsaturated focusing for
+the fully supported cliques, and the three uncoloured focusing fields used
+to move an arbitrary integral leave into the host. -/
+theorem isModularIntegralGenerator_of_coloredFocusing
+    {N n k r cap u : ℕ} (hN : 0 < N)
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (e₀ : Exchange.RootEdge k r)
+    (K selected : Fin u → Finset (Finset (Fin n)))
+    {reserve host : Finset (Finset (Fin n))}
+    (hreserveHost : reserve ⊆ host)
+    (hselected : ∀ i, selected i ⊆
+      IntegralGenerators.cliquesIn n k r (K i))
+    (hspan : ∀ i, ∀ B ∈ Prune.unsaturatedCliques n k r cap (K i) (selected i),
+      Generators.InRestrictedModularSpan N r (K i) (selected i)
+        (Generators.modCliqueBoundaryOn N r (K i) B))
+    (hcoloredFocus : ∀ Q ∈ fullySupportedBlocks n k r host,
+      ∃ φ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge φ E.pattern.root = Q ∧
+        (∀ B ∈ ExchangeEmbedding.mappedPositive E φ \ {Q},
+          ∃ i, B ∈ Prune.unsaturatedCliques n k r cap (K i) (selected i)) ∧
+        ∀ B ∈ ExchangeEmbedding.mappedNegative E φ,
+          ∃ i, B ∈ Prune.unsaturatedCliques n k r cap (K i) (selected i))
+    (hfocus : HasExchangeFocusing n k r E
+      (almostSupportedBlocks n k r host))
+    (haux : ∀ g ∈ completeUniform n r,
+      ∀ forbiddenVertices : Finset (Fin n), g ⊆ forbiddenVertices →
+        forbiddenVertices.card ≤ 2 * k →
+        ∃ Q ∈ blockCandidates n k,
+          Q.powersetCard r \ {g} ⊆ host ∧
+          Q ∩ forbiddenVertices = g)
+    (helim : ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+      ∃ ψ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge ψ E.pattern.root = P.positive ∧
+        RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative ∧
+        RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀) ψ ⊆ host) :
+    IsModularIntegralGenerator N n k r reserve
+      (coloredModularGenerators u n selected) := by
+  have huniform : ∀ Q ∈ coloredModularGenerators u n selected,
+      Q.card = k := by
+    intro Q hQ
+    obtain ⟨i, _hi, hQi⟩ := Finset.mem_biUnion.mp hQ
+    exact (IntegralGenerators.mem_cliquesIn.mp (hselected i hQi)).1
+  apply isModularIntegralGenerator_of_focusing hN E e₀ hreserveHost
+    huniform hfocus haux helim
+  exact fullySupportedBlocks_mem_span_of_coloredUnsaturatedExchange
+    E K selected hselected hspan hcoloredFocus
+
+/-- Literal Section 6 order of assembly.  The reserve is external to the
+coloured host.  Its separated focusing cliques are adjoined to the coloured
+greedy generators, after which the focusing algebra moves every integral
+leave into the host and the coloured unsaturated exchanges generate it
+modulo `N`. -/
+theorem isModularIntegralGenerator_of_coloredFocusing_externalReserve
+    {N n k r cap u : ℕ} (hN : 0 < N)
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (e₀ : Exchange.RootEdge k r)
+    (K selected : Fin u → Finset (Finset (Fin n)))
+    {reserve host : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ completeUniform n r)
+    (hselected : ∀ i, selected i ⊆
+      IntegralGenerators.cliquesIn n k r (K i))
+    (hspan : ∀ i, ∀ B ∈
+      Prune.unsaturatedCliques n k r cap (K i) (selected i),
+      Generators.InRestrictedModularSpan N r (K i) (selected i)
+        (Generators.modCliqueBoundaryOn N r (K i) B))
+    (F : SeparatedReserveFocusingFamily n k r reserve host)
+    (hcoloredFocus : ∀ Q ∈ fullySupportedBlocks n k r host,
+      ∃ φ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge φ E.pattern.root = Q ∧
+        (∀ B ∈ ExchangeEmbedding.mappedPositive E φ \ {Q},
+          ∃ i, B ∈ Prune.unsaturatedCliques n k r cap (K i) (selected i)) ∧
+        ∀ B ∈ ExchangeEmbedding.mappedNegative E φ,
+          ∃ i, B ∈ Prune.unsaturatedCliques n k r cap (K i) (selected i))
+    (hfocus : HasExchangeFocusing n k r E
+      (almostSupportedBlocks n k r host))
+    (haux : ∀ g ∈ completeUniform n r,
+      ∀ forbiddenVertices : Finset (Fin n), g ⊆ forbiddenVertices →
+        forbiddenVertices.card ≤ 2 * k →
+        ∃ Q ∈ blockCandidates n k,
+          Q.powersetCard r \ {g} ⊆ host ∧
+          Q ∩ forbiddenVertices = g)
+    (helim : ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+      ∃ ψ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge ψ E.pattern.root = P.positive ∧
+        RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative ∧
+        RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀) ψ ⊆ host) :
+    IsModularIntegralGenerator N n k r reserve
+      (modularWithReserveFocusing
+        (coloredModularGenerators u n selected) F) := by
+  let base := coloredModularGenerators u n selected
+  let modular := modularWithReserveFocusing base F
+  have hbaseUniform : ∀ Q ∈ base, Q.card = k := by
+    intro Q hQ
+    obtain ⟨i, _hi, hQi⟩ := Finset.mem_biUnion.mp hQ
+    exact (IntegralGenerators.mem_cliquesIn.mp (hselected i hQi)).1
+  have hmodularUniform : ∀ Q ∈ modular, Q.card = k := by
+    intro Q hQ
+    rcases Finset.mem_union.mp hQ with hQ | hQ
+    · exact hbaseUniform Q hQ
+    · exact F.blocks_uniform Q hQ
+  have hfully : ∀ Q ∈ fullySupportedBlocks n k r host,
+      Generators.InModularSpan N n r modular
+        (Generators.modCliqueBoundary N n r Q) := by
+    intro Q hQ
+    have hbase := fullySupportedBlocks_mem_span_of_coloredUnsaturatedExchange
+      E K selected hselected hspan hcoloredFocus Q hQ
+    apply hbase.mono
+    exact Finset.subset_union_left
+  change IsModularIntegralGenerator N n k r reserve modular
+  apply isModularIntegralGenerator_of_reserveFocusing hN E e₀ hreserve
+    hmodularUniform
+      (F.toAssignment base).toReserveFocusingAssignment hfocus haux helim
+  exact hfully
+
+/-- Finite certificate containing precisely the non-asymptotic output of
+the two-cap random-rotation construction.  All later decoder placement,
+splitting, and multiplicity flattening is already available from generic
+checked theorems. -/
+structure TwoCapColoredFocusingCertificate
+    (N n k r faceCap edgeCap u : ℕ) (hrk : r < k)
+    (reserve : Finset (Finset (Fin n))) where
+  host : Finset (Finset (Fin n))
+  K : Fin u → Finset (Finset (Fin n))
+  selected : Fin u → Finset (Finset (Fin n))
+  selected_subset : ∀ i, selected i ⊆
+    IntegralGenerators.cliquesIn n k r (K i)
+  selected_span : ∀ i, ∀ B ∈
+      IntegralGenerators.twoCapUnsaturatedCliques
+        n k r faceCap edgeCap (K i) (selected i),
+    Generators.InRestrictedModularSpan N r (K i) (selected i)
+      (Generators.modCliqueBoundaryOn N r (K i) B)
+  face_load : ∀ i, ∀ J : Finset (Fin n), J.card = r - 1 →
+    Generators.counterLoad
+      (fun J Q : Finset (Fin n) ↦ J ⊆ Q) (selected i) J ≤ faceCap
+  edge_load : ∀ i, ∀ e : Finset (Fin n), e.card = r →
+    Generators.counterLoad
+      (fun e Q : Finset (Fin n) ↦ e ⊆ Q) (selected i) e ≤ edgeCap
+  reserveFocus : SeparatedReserveFocusingFamily n k r reserve host
+  colored_focus :
+    let E := ExchangeEmbedding.fullExchangeData hrk
+    ∀ Q ∈ fullySupportedBlocks n k r host,
+      ∃ φ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge φ E.pattern.root = Q ∧
+        (∀ B ∈ ExchangeEmbedding.mappedPositive E φ \ {Q},
+          ∃ i, B ∈ IntegralGenerators.twoCapUnsaturatedCliques
+            n k r faceCap edgeCap (K i) (selected i)) ∧
+        ∀ B ∈ ExchangeEmbedding.mappedNegative E φ,
+          ∃ i, B ∈ IntegralGenerators.twoCapUnsaturatedCliques
+            n k r faceCap edgeCap (K i) (selected i)
+  exchange_focus :
+    HasExchangeFocusing n k r (ExchangeEmbedding.fullExchangeData hrk)
+      (almostSupportedBlocks n k r host)
+  auxiliary_focus : ∀ g ∈ completeUniform n r,
+    ∀ forbiddenVertices : Finset (Fin n), g ⊆ forbiddenVertices →
+      forbiddenVertices.card ≤ 2 * k →
+      ∃ Q ∈ blockCandidates n k,
+        Q.powersetCard r \ {g} ⊆ host ∧ Q ∩ forbiddenVertices = g
+  elimination_focus :
+    let E := ExchangeEmbedding.fullExchangeData hrk
+    let e₀ := ExchangeEmbedding.fullExchangeRootEdge hrk
+    ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+      ∃ ψ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge ψ E.pattern.root = P.positive ∧
+        RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative ∧
+        RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀) ψ ⊆ host
+
+/-- Source-faithful finite output of Lemma 6.3.  Exchange remainders are
+rainbow (not incorrectly assumed monochromatic); property (iv) then places
+every rainbow boundary in the span of the rotated monochromatic greedy
+generators. -/
+structure RainbowTwoCapFocusingCertificate
+    (N n k r faceCap edgeCap u : ℕ) (hrk : r < k)
+    (reserve : Finset (Finset (Fin n))) where
+  host : Finset (Finset (Fin n))
+  K : Fin u → Finset (Finset (Fin n))
+  Kstar : Fin u → Finset (Finset (Fin n))
+  selected : Fin u → Finset (Finset (Fin n))
+  selected_subset : ∀ i, selected i ⊆
+    IntegralGenerators.cliquesIn n k r (K i)
+  selected_span : ∀ i, ∀ B ∈
+      IntegralGenerators.twoCapUnsaturatedCliques
+        n k r faceCap edgeCap (K i) (selected i),
+    Generators.InRestrictedModularSpan N r (K i) (selected i)
+      (Generators.modCliqueBoundaryOn N r (K i) B)
+  face_load : ∀ i, ∀ J : Finset (Fin n), J.card = r - 1 →
+    Generators.counterLoad
+      (fun J Q : Finset (Fin n) ↦ J ⊆ Q) (selected i) J ≤ faceCap
+  edge_load : ∀ i, ∀ e : Finset (Fin n), e.card = r →
+    Generators.counterLoad
+      (fun e Q : Finset (Fin n) ↦ e ⊆ Q) (selected i) e ≤ edgeCap
+  reserveFocus : SeparatedReserveFocusingFamily n k r reserve host
+  rainbow_span : ∀ B ∈ rainbowBlocks u n k r Kstar,
+    Generators.InModularSpan N n r
+      (coloredModularGenerators u n selected)
+      (Generators.modCliqueBoundary N n r B)
+  rainbow_focus :
+    let E := ExchangeEmbedding.fullExchangeData hrk
+    ∀ Q ∈ fullySupportedBlocks n k r host,
+      ∃ φ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge φ E.pattern.root = Q ∧
+        ExchangeEmbedding.mappedPositive E φ \ {Q} ⊆
+          rainbowBlocks u n k r Kstar ∧
+        ExchangeEmbedding.mappedNegative E φ ⊆
+          rainbowBlocks u n k r Kstar
+  exchange_focus :
+    HasExchangeFocusing n k r (ExchangeEmbedding.fullExchangeData hrk)
+      (almostSupportedBlocks n k r host)
+  auxiliary_focus : ∀ g ∈ completeUniform n r,
+    ∀ forbiddenVertices : Finset (Fin n), g ⊆ forbiddenVertices →
+      forbiddenVertices.card ≤ 2 * k →
+      ∃ Q ∈ blockCandidates n k,
+        Q.powersetCard r \ {g} ⊆ host ∧ Q ∩ forbiddenVertices = g
+  elimination_focus :
+    let E := ExchangeEmbedding.fullExchangeData hrk
+    let e₀ := ExchangeEmbedding.fullExchangeRootEdge hrk
+    ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+      ∃ ψ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge ψ E.pattern.root = P.positive ∧
+        RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative ∧
+        RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀) ψ ⊆ host
+
+/-- Initial edge-multiplicity cap after adjoining the pairwise separated
+complete local decoders. -/
+def twoCapDecoderInputMultiplicity
+    (k r edgeCap u : ℕ) : ℕ :=
+  u * edgeCap + 1 + 2 ^ (k + r)
+
+noncomputable def TwoCapColoredFocusingCertificate.modular
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : TwoCapColoredFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve) :
+    Finset (Finset (Fin n)) :=
+  modularWithReserveFocusing
+    (coloredModularGenerators u n C.selected) C.reserveFocus
+
+/-- Defect edges at which the integral lift installs complete local
+decoders. -/
+noncomputable def TwoCapColoredFocusingCertificate.decoderRoots
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : TwoCapColoredFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve) :
+    Finset (Finset (Fin n)) :=
+  integralDecoderRoots reserve C.modular r
+
+/-- The clique family before the first multiplicity-splitting exchange. -/
+noncomputable def TwoCapColoredFocusingCertificate.decoderInput
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : TwoCapColoredFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve)
+    (Z : Finset (Fin n) → Finset (Fin n)) :
+    Finset (Finset (Fin n)) :=
+  C.modular ∪ localDecoderCliques C.decoderRoots Z k
+
+lemma TwoCapColoredFocusingCertificate.base_uniform
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : TwoCapColoredFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve) :
+    ∀ Q ∈ coloredModularGenerators u n C.selected, Q.card = k := by
+  apply coloredModularGenerators_uniform
+  intro i Q hQ
+  exact (IntegralGenerators.mem_cliquesIn.mp
+    (C.selected_subset i hQ)).1
+
+lemma TwoCapColoredFocusingCertificate.modular_uniform
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : TwoCapColoredFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve) :
+    ∀ Q ∈ C.modular, Q.card = k := by
+  intro Q hQ
+  rcases Finset.mem_union.mp hQ with hQ | hQ
+  · exact C.base_uniform Q hQ
+  · exact C.reserveFocus.blocks_uniform Q hQ
+
+theorem TwoCapColoredFocusingCertificate.isModularIntegralGenerator
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : TwoCapColoredFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve)
+    (hN : 0 < N) (hreserve : reserve ⊆ completeUniform n r) :
+    IsModularIntegralGenerator N n k r reserve C.modular := by
+  let E := ExchangeEmbedding.fullExchangeData hrk
+  let e₀ := ExchangeEmbedding.fullExchangeRootEdge hrk
+  have hfully : ∀ Q ∈ fullySupportedBlocks n k r C.host,
+      Generators.InModularSpan N n r C.modular
+        (Generators.modCliqueBoundary N n r Q) := by
+    intro Q hQ
+    have hbase :=
+      fullySupportedBlocks_mem_span_of_coloredTwoCapUnsaturatedExchange
+        E C.K C.selected C.selected_subset C.selected_span
+          C.colored_focus Q hQ
+    apply hbase.mono
+    exact Finset.subset_union_left
+  apply isModularIntegralGenerator_of_reserveFocusing hN E e₀ hreserve
+    C.modular_uniform
+      (C.reserveFocus.toAssignment
+        (coloredModularGenerators u n C.selected)).toReserveFocusingAssignment
+      C.exchange_focus C.auxiliary_focus C.elimination_focus
+  exact hfully
+
+theorem TwoCapColoredFocusingCertificate.blockIncidenceCount_le
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : TwoCapColoredFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve) :
+    ∀ e ∈ completeUniform n r,
+      blockIncidenceCount C.modular e ≤ u * edgeCap + 1 := by
+  intro e he
+  exact (blockIncidenceCount_union_le _ _ e).trans
+    (Nat.add_le_add
+      (blockIncidenceCount_coloredModularGenerators_le_of_edgeCap
+        C.selected C.edge_load e he)
+      (C.reserveFocus.blockIncidenceCount_le_one e he))
+
+theorem TwoCapColoredFocusingCertificate.localDegree_le
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : TwoCapColoredFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve)
+    (hr : 0 < r) :
+    ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree C.modular J ≤
+        u * faceCap + Reserve.localDegree (reserve ∪ C.host) J := by
+  intro J hJ
+  exact (modularWithReserveFocusing_quantitative hr hrk C.selected
+    (fun i Q hQ ↦ (IntegralGenerators.mem_cliquesIn.mp
+      (C.selected_subset i hQ)).1)
+    C.face_load C.reserveFocus).2.2 J hJ
+
+theorem TwoCapColoredFocusingCertificate.boundary_localDegree_le
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : TwoCapColoredFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve)
+    (hr : 0 < r) :
+    ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (cliqueBoundarySupport C.modular r) J ≤
+        (u * faceCap + Reserve.localDegree (reserve ∪ C.host) J) * 2 ^ k := by
+  intro J hJ
+  have hboundary := localDegree_cliqueBoundarySupport_le_counterLoad
+    (r := r) C.modular_uniform J
+  calc
+    Reserve.localDegree (cliqueBoundarySupport C.modular r) J ≤
+        Reserve.localDegree C.modular J * 2 ^ k := by
+      simpa [Reserve.localDegree, localDegree, Generators.counterLoad] using
+        hboundary
+    _ ≤ (u * faceCap + Reserve.localDegree (reserve ∪ C.host) J) *
+          2 ^ k := by
+      exact Nat.mul_le_mul_right _ (C.localDegree_le hr J hJ)
+
+noncomputable def RainbowTwoCapFocusingCertificate.modular
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : RainbowTwoCapFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve) :
+    Finset (Finset (Fin n)) :=
+  modularWithReserveFocusing
+    (coloredModularGenerators u n C.selected) C.reserveFocus
+
+noncomputable def RainbowTwoCapFocusingCertificate.decoderRoots
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : RainbowTwoCapFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve) :
+    Finset (Finset (Fin n)) :=
+  integralDecoderRoots reserve C.modular r
+
+noncomputable def RainbowTwoCapFocusingCertificate.decoderInput
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : RainbowTwoCapFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve)
+    (Z : Finset (Fin n) → Finset (Fin n)) :
+    Finset (Finset (Fin n)) :=
+  C.modular ∪ localDecoderCliques C.decoderRoots Z k
+
+lemma RainbowTwoCapFocusingCertificate.base_uniform
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : RainbowTwoCapFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve) :
+    ∀ Q ∈ coloredModularGenerators u n C.selected, Q.card = k := by
+  apply coloredModularGenerators_uniform
+  intro i Q hQ
+  exact (IntegralGenerators.mem_cliquesIn.mp
+    (C.selected_subset i hQ)).1
+
+lemma RainbowTwoCapFocusingCertificate.modular_uniform
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : RainbowTwoCapFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve) :
+    ∀ Q ∈ C.modular, Q.card = k := by
+  intro Q hQ
+  rcases Finset.mem_union.mp hQ with hQ | hQ
+  · exact C.base_uniform Q hQ
+  · exact C.reserveFocus.blocks_uniform Q hQ
+
+theorem RainbowTwoCapFocusingCertificate.isModularIntegralGenerator
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : RainbowTwoCapFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve)
+    (hN : 0 < N) (hreserve : reserve ⊆ completeUniform n r) :
+    IsModularIntegralGenerator N n k r reserve C.modular := by
+  let E := ExchangeEmbedding.fullExchangeData hrk
+  let e₀ := ExchangeEmbedding.fullExchangeRootEdge hrk
+  have hrainbow : ∀ B ∈ rainbowBlocks u n k r C.Kstar,
+      Generators.InModularSpan N n r C.modular
+        (Generators.modCliqueBoundary N n r B) := by
+    intro B hB
+    apply (C.rainbow_span B hB).mono
+    exact Finset.subset_union_left
+  exact isModularIntegralGenerator_of_reserveFocusing_rainbow
+    hN E e₀ hreserve C.modular_uniform
+      (C.reserveFocus.toAssignment
+        (coloredModularGenerators u n C.selected)).toReserveFocusingAssignment
+      C.exchange_focus C.auxiliary_focus C.elimination_focus
+      hrainbow C.rainbow_focus
+
+theorem RainbowTwoCapFocusingCertificate.blockIncidenceCount_le
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : RainbowTwoCapFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve) :
+    ∀ e ∈ completeUniform n r,
+      blockIncidenceCount C.modular e ≤ u * edgeCap + 1 := by
+  intro e he
+  exact (blockIncidenceCount_union_le _ _ e).trans
+    (Nat.add_le_add
+      (blockIncidenceCount_coloredModularGenerators_le_of_edgeCap
+        C.selected C.edge_load e he)
+      (C.reserveFocus.blockIncidenceCount_le_one e he))
+
+theorem RainbowTwoCapFocusingCertificate.localDegree_le
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : RainbowTwoCapFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve)
+    (hr : 0 < r) :
+    ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree C.modular J ≤
+        u * faceCap + Reserve.localDegree (reserve ∪ C.host) J := by
+  intro J hJ
+  exact (modularWithReserveFocusing_quantitative hr hrk C.selected
+    (fun i Q hQ ↦ (IntegralGenerators.mem_cliquesIn.mp
+      (C.selected_subset i hQ)).1)
+    C.face_load C.reserveFocus).2.2 J hJ
+
+theorem RainbowTwoCapFocusingCertificate.boundary_localDegree_le
+    {N n k r faceCap edgeCap u : ℕ} {hrk : r < k}
+    {reserve : Finset (Finset (Fin n))}
+    (C : RainbowTwoCapFocusingCertificate
+      N n k r faceCap edgeCap u hrk reserve)
+    (hr : 0 < r) :
+    ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (cliqueBoundarySupport C.modular r) J ≤
+        (u * faceCap + Reserve.localDegree (reserve ∪ C.host) J) * 2 ^ k := by
+  intro J hJ
+  have hboundary := localDegree_cliqueBoundarySupport_le_counterLoad
+    (r := r) C.modular_uniform J
+  calc
+    Reserve.localDegree (cliqueBoundarySupport C.modular r) J ≤
+        Reserve.localDegree C.modular J * 2 ^ k := by
+      simpa [Reserve.localDegree, localDegree, Generators.counterLoad] using
+        hboundary
+    _ ≤ (u * faceCap + Reserve.localDegree (reserve ∪ C.host) J) *
+          2 ^ k := by
+      exact Nat.mul_le_mul_right _ (C.localDegree_le hr J hJ)
+
+/-- Source-facing deterministic modular-generator theorem after pruning.
+All probability and estimates are confined to producing the displayed clean
+subhost and focusing fields. -/
+theorem isModularIntegralGenerator_of_focusing_pruned
+    {N n k r cap : ℕ} (hN : 0 < N)
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (e₀ : Exchange.RootEdge k r)
+    {reserve K selected Kstar : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ Kstar)
+    (hselected : selected ⊆
+      IntegralGenerators.cliquesIn n k r K)
+    (hKstar : Kstar ⊆ K)
+    (hclean : ∀ B ∈ fullySupportedBlocks n k r Kstar,
+      B ∈ Prune.unsaturatedCliques n k r cap K selected)
+    (hspan : ∀ B ∈ Prune.unsaturatedCliques n k r cap K selected,
+      Generators.InRestrictedModularSpan N r K selected
+        (Generators.modCliqueBoundaryOn N r K B))
+    (hfocus : HasExchangeFocusing n k r E
+      (almostSupportedBlocks n k r Kstar))
+    (haux : ∀ g ∈ completeUniform n r,
+      ∀ forbiddenVertices : Finset (Fin n), g ⊆ forbiddenVertices →
+        forbiddenVertices.card ≤ 2 * k →
+        ∃ Q ∈ blockCandidates n k,
+          Q.powersetCard r \ {g} ⊆ Kstar ∧
+          Q ∩ forbiddenVertices = g)
+    (helim : ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+      ∃ ψ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge ψ E.pattern.root = P.positive ∧
+        RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative ∧
+        RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀) ψ ⊆ Kstar) :
+    IsModularIntegralGenerator N n k r reserve selected := by
+  have huniform : ∀ Q ∈ selected, Q.card = k := by
+    intro Q hQ
+    exact (IntegralGenerators.mem_cliquesIn.mp (hselected hQ)).1
+  apply isModularIntegralGenerator_of_focusing hN E e₀ hreserve
+    huniform hfocus haux helim
+  exact fullySupportedBlocks_mem_span_of_cleanPrunedHost
+    hselected hKstar hclean hspan
+
+/-- Heavy-edge-pruning version of the preceding assembly, with
+unsaturated exchange remainders in place of the unnecessarily strong clean
+subhost condition. -/
+theorem isModularIntegralGenerator_of_focusing_prunedExchange
+    {N n k r cap : ℕ} (hN : 0 < N)
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (e₀ : Exchange.RootEdge k r)
+    {reserve K selected Kstar : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ Kstar)
+    (hselected : selected ⊆
+      IntegralGenerators.cliquesIn n k r K)
+    (hspan : ∀ B ∈ Prune.unsaturatedCliques n k r cap K selected,
+      Generators.InRestrictedModularSpan N r K selected
+        (Generators.modCliqueBoundaryOn N r K B))
+    (hfocusedUnsaturated : ∀ Q ∈ fullySupportedBlocks n k r Kstar,
+      ∃ φ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge φ E.pattern.root = Q ∧
+        ExchangeEmbedding.mappedPositive E φ \ {Q} ⊆
+          Prune.unsaturatedCliques n k r cap K selected ∧
+        ExchangeEmbedding.mappedNegative E φ ⊆
+          Prune.unsaturatedCliques n k r cap K selected)
+    (hfocus : HasExchangeFocusing n k r E
+      (almostSupportedBlocks n k r Kstar))
+    (haux : ∀ g ∈ completeUniform n r,
+      ∀ forbiddenVertices : Finset (Fin n), g ⊆ forbiddenVertices →
+        forbiddenVertices.card ≤ 2 * k →
+        ∃ Q ∈ blockCandidates n k,
+          Q.powersetCard r \ {g} ⊆ Kstar ∧
+          Q ∩ forbiddenVertices = g)
+    (helim : ∀ P : ExchangeEliminationEmbedding.EliminationPair n k r,
+      ∃ ψ : Fin E.v ↪ Fin n,
+        RootedEmbedding.mapEdge ψ E.pattern.root = P.positive ∧
+        RootedEmbedding.mapEdge ψ (E.special e₀) = P.negative ∧
+        RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀) ψ ⊆ Kstar) :
+    IsModularIntegralGenerator N n k r reserve selected := by
+  have huniform : ∀ Q ∈ selected, Q.card = k := by
+    intro Q hQ
+    exact (IntegralGenerators.mem_cliquesIn.mp (hselected hQ)).1
+  apply isModularIntegralGenerator_of_focusing hN E e₀ hreserve
+    huniform hfocus haux helim
+  exact fullySupportedBlocks_mem_span_of_unsaturatedExchange
+    E hselected hspan hfocusedUnsaturated
+
+lemma two_le_descFactorial {k r : ℕ} (hr : 0 < r) (hrk : r < k) :
+    2 ≤ k.descFactorial r := by
+  obtain ⟨s, rfl⟩ := Nat.exists_eq_succ_of_ne_zero hr.ne'
+  change 2 ≤ k.descFactorial (s + 1)
+  rw [Nat.descFactorial_succ]
+  have hleft : 2 ≤ k - s := by omega
+  have hright : 1 ≤ k.descFactorial s :=
+    Nat.one_le_iff_ne_zero.mpr
+      (Nat.ne_of_gt (Nat.descFactorial_pos.mpr (by omega)))
+  simpa using Nat.mul_le_mul hleft hright
+
+/-- With at most four generating cliques through an edge, reducing all
+coefficients modulo `N` leaves an edge boundary between `0` and
+`4(N-1)`. -/
+lemma reduced_boundary_bounds
+    {n k r N : ℕ} (hN : 0 < N)
+    {generators : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ generators, Q.card = k)
+    (hload : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount generators e ≤ 4)
+    {φ : Finset (Fin n) → ℤ}
+    (hφ : ∀ Q, φ Q ≠ 0 → Q ∈ generators)
+    {e : Finset (Fin n)} (he : e ∈ completeUniform n r) :
+    0 ≤ boundary n k (reducedCoeff N φ) e ∧
+      boundary n k (reducedCoeff N φ) e ≤
+        (4 : ℤ) * ((N : ℤ) - 1) := by
+  classical
+  have hsupport := reducedCoeff_support (N := N) hφ
+  rw [boundary_eq_sum_incident_of_support huniform hsupport e]
+  constructor
+  · apply Finset.sum_nonneg
+    intro Q hQ
+    exact reducedCoeff_nonneg hN φ Q
+  · calc
+      (∑ Q ∈ generators.filter (fun Q ↦ e ⊆ Q),
+          reducedCoeff N φ Q) ≤
+          ∑ _Q ∈ generators.filter (fun Q ↦ e ⊆ Q),
+            ((N : ℤ) - 1) := by
+        apply Finset.sum_le_sum
+        intro Q hQ
+        have hlt := reducedCoeff_lt hN φ Q
+        omega
+      _ = (blockIncidenceCount generators e : ℤ) *
+          ((N : ℤ) - 1) := by
+        rw [Finset.sum_const, nsmul_eq_mul]
+        simp only [blockIncidenceCount]
+      _ ≤ (4 : ℤ) * ((N : ℤ) - 1) := by
+        have hcount := hload e he
+        have hfactor : (0 : ℤ) ≤ (N : ℤ) - 1 := by
+          have hNcast : (1 : ℤ) ≤ (N : ℤ) := by exact_mod_cast hN
+          omega
+        apply mul_le_mul_of_nonneg_right _ hfactor
+        exact_mod_cast hcount
+
+/-- The discarded quotient boundary is in `{-3,-2,-1,0}`.  This is the
+corrected finite estimate that permits a fixed number of splitting gadgets
+per generator, independent of the original integral coefficients. -/
+lemma quotient_boundary_between_neg_three_zero
+    {n k r : ℕ} (hr : 0 < r) (hrk : r < k)
+    {leave generators : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ generators, Q.card = k)
+    (hload : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount generators e ≤ 4)
+    {φ : Finset (Fin n) → ℤ}
+    (hφsupport : ∀ Q, φ Q ≠ 0 → Q ∈ generators)
+    (hφboundary : ∀ e ∈ completeUniform n r,
+      boundary n k φ e = if e ∈ leave then 1 else 0)
+    {e : Finset (Fin n)} (he : e ∈ completeUniform n r) :
+    -3 ≤ boundary n k (quotientCoeff (k.descFactorial r) φ) e ∧
+      boundary n k (quotientCoeff (k.descFactorial r) φ) e ≤ 0 := by
+  let N := k.descFactorial r
+  have hNtwo : 2 ≤ N := by
+    simpa [N] using two_le_descFactorial hr hrk
+  have hNpos : 0 < N := by omega
+  have hb := reduced_boundary_bounds hNpos huniform hload hφsupport he
+  have hdecomp := boundary_reduced_add_quotient N n k φ e
+  rw [hφboundary e he] at hdecomp
+  have hbounds :
+      -3 ≤ boundary n k (quotientCoeff N φ) e ∧
+        boundary n k (quotientCoeff N φ) e ≤ 0 := by
+    by_cases hel : e ∈ leave
+    · rw [if_pos hel] at hdecomp
+      constructor <;> nlinarith
+    · rw [if_neg hel] at hdecomp
+      constructor <;> nlinarith
+  simpa [N] using hbounds
+
+/-- Pairwise-disjoint local decoders with multipliers of absolute value at
+most three have three times the coefficient budget of a single decoder. -/
+theorem LocalDecoder.natAbs_superposedDecoder_le_three
+    {n q r : ℕ}
+    {roots : Finset (Finset (Fin n))}
+    {Z : Finset (Fin n) → Finset (Fin n)}
+    {m : Finset (Fin n) → ℤ}
+    (hq : 0 < q)
+    (hrootcard : ∀ e ∈ roots, e.card = r)
+    (hm : ∀ e ∈ roots, (m e).natAbs ≤ 3)
+    (hdisjoint : ∀ e ∈ roots, ∀ e' ∈ roots, e ≠ e' →
+      Disjoint ((Z e).powersetCard q) ((Z e').powersetCard q))
+    (Q : Finset (Fin n)) :
+    (LocalDecoder.superposedDecoder roots Z q r m Q).natAbs ≤
+      3 * ((2 * q) ^ r * Nat.factorial r) := by
+  classical
+  by_cases hsome : ∃ e ∈ roots, Q ∈ (Z e).powersetCard q
+  · obtain ⟨e, he, hQe⟩ := hsome
+    have hsum : LocalDecoder.superposedDecoder roots Z q r m Q =
+        m e * LocalDecoder.cliqueCoeff q r (Z e) e Q := by
+      rw [LocalDecoder.superposedDecoder,
+        Finset.sum_eq_single_of_mem e he]
+      · simp [hQe]
+      · intro e' he' hne
+        have hQnot : Q ∉ (Z e').powersetCard q := by
+          intro hQe'
+          exact Finset.disjoint_left.mp
+            (hdisjoint e' he' e he hne) hQe' hQe
+        simp [hQnot]
+    rw [hsum, Int.natAbs_mul]
+    exact Nat.mul_le_mul (hm e he)
+      (LocalDecoder.natAbs_cliqueCoeff_le hq (hrootcard e he))
+  · push_neg at hsome
+    rw [LocalDecoder.superposedDecoder]
+    have hzero : ∀ e ∈ roots,
+        (if Q ∈ (Z e).powersetCard q then
+          m e * LocalDecoder.cliqueCoeff q r (Z e) e Q else 0) = 0 := by
+      intro e he
+      rw [if_neg (hsome e he)]
+    rw [Finset.sum_eq_zero hzero]
+    simp
+
+/-- The checked coefficient-reduction step in Section 4 of the short
+proof.  Starting from the corrected multiplicity-four integral generator, reduce all
+clique coefficients modulo `(k)_r`; the discarded quotient boundary is
+then restored by the explicit local delta decoders. -/
+theorem exists_reduced_localDecoder_decomposition
+    {n k r : ℕ} (hr : 0 < r) (hrk : r < k)
+    {reserve generators : Finset (Finset (Fin n))}
+    (hgen : IsSparseIntegralGenerator n k r reserve generators)
+    (placement : LocalDecoderPlacement n k r
+      (cliqueBoundarySupport generators r) generators)
+    {leave : Finset (Finset (Fin n))} (hleave : leave ⊆ reserve)
+    (hleaveInt : IsIntegrallyDecomposable n k r leave) :
+    ∃ θ : Finset (Fin n) → ℤ,
+      (∀ Q, θ Q ≠ 0 →
+        Q ∈ generators ∪ localDecoderCliques
+          (cliqueBoundarySupport generators r) placement.Z k) ∧
+      (∀ Q, (θ Q).natAbs ≤ reducedDecoderCoeffBound k r) ∧
+      ∀ e ∈ completeUniform n r,
+        boundary n k θ e = if e ∈ leave then 1 else 0 := by
+  classical
+  obtain ⟨φ, hφsupport, hφboundary⟩ := hgen.2.2 leave hleave hleaveInt
+  let N := k.descFactorial r
+  let ψ : Finset (Fin n) → ℤ := reducedCoeff N φ
+  let d : Finset (Fin n) → ℤ := quotientCoeff N φ
+  let roots := cliqueBoundarySupport generators r
+  let m : Finset (Fin n) → ℤ := boundary n k d
+  let χ : Finset (Fin n) → ℤ :=
+    LocalDecoder.superposedDecoder roots placement.Z k r m
+  let θ : Finset (Fin n) → ℤ := fun Q ↦ ψ Q + χ Q
+  have hNpos : 0 < N := Nat.descFactorial_pos.mpr hrk.le
+  have hmBound : ∀ e ∈ roots, (m e).natAbs ≤ 3 := by
+    intro e heRoot
+    have heComplete : e ∈ completeUniform n r := by
+      have hsub := cliqueBoundarySupport_subset_complete
+        (r := r) hgen.1
+      exact hsub (by simpa [roots] using heRoot)
+    have hb := quotient_boundary_between_neg_three_zero hr hrk
+      hgen.1 hgen.2.1 hφsupport hφboundary heComplete
+    have hmCases : m e = -3 ∨ m e = -2 ∨ m e = -1 ∨ m e = 0 := by
+      dsimp [m, d, N]
+      omega
+    rcases hmCases with hm | hm | hm | hm <;> rw [hm] <;> decide
+  have hχSupport : ∀ Q, χ Q ≠ 0 →
+      Q ∈ localDecoderCliques roots placement.Z k := by
+    intro Q hQ
+    obtain ⟨e, he, hQe⟩ :=
+      LocalDecoder.superposedDecoder_ne_zero_support hQ
+    exact mem_localDecoderCliques.mpr ⟨e, he, hQe⟩
+  have hχBound : ∀ Q, (χ Q).natAbs ≤
+      3 * ((2 * k) ^ r * Nat.factorial r) := by
+    intro Q
+    apply LocalDecoder.natAbs_superposedDecoder_le_three
+    · omega
+    · intro e heRoot
+      exact mem_completeUniform.mp
+        ((cliqueBoundarySupport_subset_complete (r := r) hgen.1)
+          (by simpa [roots] using heRoot))
+    · exact hmBound
+    · exact placement.decoder_disjoint
+  refine ⟨θ, ?_, ?_, ?_⟩
+  · intro Q hθQ
+    by_cases hψQ : ψ Q = 0
+    · have hχQ : χ Q ≠ 0 := by
+        simpa [θ, hψQ] using hθQ
+      exact Finset.mem_union_right _ (hχSupport Q hχQ)
+    · exact Finset.mem_union_left _
+        (by
+          apply reducedCoeff_support (N := N) hφsupport Q
+          simpa [ψ])
+  · intro Q
+    by_cases hQgen : Q ∈ generators
+    · have hχzero : χ Q = 0 := by
+        by_contra hne
+        exact Finset.disjoint_left.mp placement.generators_disjoint
+          hQgen (by simpa [roots] using hχSupport Q hne)
+      have hψnonneg : 0 ≤ ψ Q := by
+        simpa [ψ] using reducedCoeff_nonneg hNpos φ Q
+      have hψlt : ψ Q < (N : ℤ) := by
+        simpa [ψ] using reducedCoeff_lt hNpos φ Q
+      have hnat : (ψ Q).natAbs ≤ N - 1 := by
+        have hcastlt : (((ψ Q).natAbs : ℕ) : ℤ) < (N : ℤ) := by
+          rw [Int.natAbs_of_nonneg hψnonneg]
+          exact hψlt
+        have hnatlt : (ψ Q).natAbs < N := by exact_mod_cast hcastlt
+        omega
+      simpa [θ, hχzero, reducedDecoderCoeffBound] using
+        hnat.trans (Nat.le_max_left _ _)
+    · have hφzero : φ Q = 0 := by
+        by_contra hne
+        exact hQgen (hφsupport Q hne)
+      have hψzero : ψ Q = 0 := by simp [ψ, reducedCoeff, hφzero]
+      simpa [θ, hψzero, reducedDecoderCoeffBound] using
+        (hχBound Q).trans (Nat.le_max_right _ _)
+  · intro e he
+    have hecard : e.card = r := mem_completeUniform.mp he
+    have hrootUniform : roots ⊆ completeUniform n r := by
+      simpa [roots] using
+        (cliqueBoundarySupport_subset_complete (r := r) hgen.1)
+    have hχboundary : boundary n k χ e =
+        (N : ℤ) * (if e ∈ roots then m e else 0) := by
+      have hlocal := LocalDecoder.intBoundary_superposedDecoder
+        (U := (Finset.univ : Finset (Fin n)))
+        (roots := roots) (Z := placement.Z) (q := k) (r := r) (m := m)
+        (fun e he ↦ by
+          simpa [completeUniform] using hrootUniform he)
+        placement.root_subset placement.ambient placement.card_eq
+        (by simpa [completeUniform] using he)
+      simpa [χ, LocalDecoder.intBoundary, boundary, blockCandidates,
+        completeUniform] using hlocal
+    have hdSupport : ∀ Q, d Q ≠ 0 → Q ∈ generators := by
+      simpa [d, N] using (quotientCoeff_support (N := N) hφsupport)
+    have hdOutside (heRoot : e ∉ roots) : m e = 0 := by
+      exact boundary_eq_zero_of_not_mem_cliqueBoundarySupport
+        hdSupport hecard (by simpa [roots] using heRoot)
+    rw [show boundary n k θ e = boundary n k ψ e + boundary n k χ e by
+      simpa [θ] using congrFun (boundary_add n k ψ χ) e]
+    rw [hχboundary]
+    by_cases heRoot : e ∈ roots
+    · rw [if_pos heRoot]
+      have hreduce := boundary_reduced_add_quotient N n k φ e
+      simpa [ψ, d, m] using hreduce.trans (hφboundary e he)
+    · rw [if_neg heRoot, mul_zero, add_zero]
+      have hreduce := boundary_reduced_add_quotient N n k φ e
+      have hzero : boundary n k d e = 0 := hdOutside heRoot
+      rw [hzero, mul_zero, add_zero] at hreduce
+      exact hreduce.trans (hφboundary e he)
+
+/-- The checked multi-exchange allocator converts a bounded coefficient
+vector on a sparse input family into two genuine selected block families
+with exactly the same boundary.  The later elimination stage is responsible
+for placing these selections inside one fixed Booleanization bank. -/
+theorem selectedFullExchangeBlocks_realize_boundary
+    {n k r C cap : ℕ} (hr : 0 < r) (hrk : r < k)
+    {input forbidden : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ input, Q.card = k)
+    (S : RootedFamilyMultiEmbedding.BoundedMultiRootedFamilyEmbeddings
+      (ExchangeEmbedding.fullExchangeData hrk).pattern
+      input forbidden C cap)
+    (hrootForbidden : ExchangeEmbedding.rootBoundary input r ⊆ forbidden)
+    (θ : Finset (Fin n) → ℤ)
+    (hθsupport : ∀ Q, θ Q ≠ 0 → Q ∈ input)
+    (hθbound : ∀ Q, (θ Q).natAbs ≤ C)
+    {e : Finset (Fin n)} (he : e ∈ completeUniform n r) :
+    (blockIncidenceCount
+        (ExchangeEmbedding.selectedSignedPositiveBlocks S θ) e : ℤ) -
+      (blockIncidenceCount
+        (ExchangeEmbedding.selectedSignedNegativeBlocks S θ) e : ℤ) =
+      boundary n k θ e := by
+  have hselected := ExchangeEmbedding.selectedSignedBlocks_incidence_sub
+    S hr hrk hrootForbidden θ (fun Q hQ ↦ hθbound Q)
+      (mem_completeUniform.mp he)
+  calc
+    (blockIncidenceCount
+        (ExchangeEmbedding.selectedSignedPositiveBlocks S θ) e : ℤ) -
+      (blockIncidenceCount
+        (ExchangeEmbedding.selectedSignedNegativeBlocks S θ) e : ℤ) =
+        ∑ Q ∈ input.attach, if e ⊆ Q.1 then θ Q.1 else 0 := by
+      simpa [blockIncidenceCount, Transversal.incidenceCount]
+        using hselected
+    _ = boundary n k θ e :=
+      (boundary_eq_attach_sum_of_support huniform hθsupport e).symm
+
+/-- Fixed-sign version of the splitting allocator.  The `2*C` exchange
+copies are permanently divided into positive- and negative-labelled halves;
+later coefficient choices only select subfamilies from those fixed halves. -/
+theorem selectedBankFullExchangeBlocks_realize_boundary
+    {n k r C cap : ℕ} (hr : 0 < r) (hrk : r < k)
+    {input forbidden : Finset (Finset (Fin n))}
+    (huniform : ∀ Q ∈ input, Q.card = k)
+    (S : RootedFamilyMultiEmbedding.BoundedMultiRootedFamilyEmbeddings
+      (ExchangeEmbedding.fullExchangeData hrk).pattern
+      input forbidden (2 * C) cap)
+    (hrootForbidden : ExchangeEmbedding.rootBoundary input r ⊆ forbidden)
+    (θ : Finset (Fin n) → ℤ)
+    (hθsupport : ∀ Q, θ Q ≠ 0 → Q ∈ input)
+    (hθbound : ∀ Q, (θ Q).natAbs ≤ C)
+    {e : Finset (Fin n)} (he : e ∈ completeUniform n r) :
+    (blockIncidenceCount
+        (ExchangeEmbedding.selectedBankPositiveBlocks S θ) e : ℤ) -
+      (blockIncidenceCount
+        (ExchangeEmbedding.selectedBankNegativeBlocks S θ) e : ℤ) =
+      boundary n k θ e := by
+  have hselected := ExchangeEmbedding.selectedBankBlocks_incidence_sub
+    S hr hrk hrootForbidden θ (fun Q hQ ↦ hθbound Q)
+      (mem_completeUniform.mp he)
+  calc
+    (blockIncidenceCount
+        (ExchangeEmbedding.selectedBankPositiveBlocks S θ) e : ℤ) -
+      (blockIncidenceCount
+        (ExchangeEmbedding.selectedBankNegativeBlocks S θ) e : ℤ) =
+        ∑ Q ∈ input.attach, if e ⊆ Q.1 then θ Q.1 else 0 := by
+      simpa [blockIncidenceCount, Transversal.incidenceCount]
+        using hselected
+    _ = boundary n k θ e :=
+      (boundary_eq_attach_sum_of_support huniform hθsupport e).symm
+
+/-! ## Quantitative bookkeeping for the fixed Booleanization banks -/
+
+/-- A union of families which each contribute at most one block through an
+edge is bounded by the number of indices whose host contains that edge. -/
+lemma blockIncidenceCount_biUnion_le_filter_card
+    {I : Type*} [DecidableEq I] (indices : Finset I)
+    (blocks : I → Finset (Finset (Fin n))) (relevant : I → Prop)
+    [DecidablePred relevant] (e : Finset (Fin n))
+    (hterm : ∀ i ∈ indices,
+      blockIncidenceCount (blocks i) e ≤ if relevant i then 1 else 0) :
+    blockIncidenceCount (indices.biUnion blocks) e ≤
+      (indices.filter relevant).card := by
+  calc
+    blockIncidenceCount (indices.biUnion blocks) e ≤
+        ∑ i ∈ indices, blockIncidenceCount (blocks i) e :=
+      blockIncidenceCount_biUnion_le_sum indices blocks e
+    _ ≤ ∑ i ∈ indices, if relevant i then 1 else 0 :=
+      Finset.sum_le_sum fun i hi ↦ hterm i hi
+    _ = (indices.filter relevant).card := by simp [Finset.sum_ite]
+
+/-- Among any set of preallocated splitting copies, an edge can occur in a
+mapped host only in a copy whose prescribed root contains it, or in the
+free part of one single copy. -/
+lemma card_mappedHost_indices_le_root_add_one
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {roots forbidden : Finset (Finset (Fin n))} {m C : ℕ}
+    (S : RootedFamilyMultiEmbedding.BoundedMultiRootedFamilyEmbeddings
+      E.pattern roots forbidden (2 * m) C)
+    (bank : Finset (↥roots × Fin (2 * m)))
+    (e : Finset (Fin n)) :
+    (bank.filter fun I ↦
+      e ∈ ExchangeEmbedding.mappedHost E
+        (S.embedding I.1.1 I.1.2 I.2)).card ≤
+      (bank.filter fun I ↦ e ⊆ I.1.1).card + 1 := by
+  classical
+  let relevant := bank.filter fun I ↦
+    e ∈ ExchangeEmbedding.mappedHost E
+      (S.embedding I.1.1 I.1.2 I.2)
+  let rootPart := bank.filter fun I ↦ e ⊆ I.1.1
+  let freePart := bank.filter fun I ↦
+    e ∈ RootedEmbedding.imageFreeEdges E.pattern
+      (S.embedding I.1.1 I.1.2 I.2)
+  have hsub : relevant ⊆ rootPart ∪ freePart := by
+    intro I hI
+    have hIData := Finset.mem_filter.mp hI
+    rcases ExchangeEmbedding.mem_mappedRootBoundary_or_imageFreeEdges E
+        (S.embedding I.1.1 I.1.2 I.2) hIData.2 with hroot | hfree
+    · apply Finset.mem_union_left
+      apply Finset.mem_filter.mpr
+      exact ⟨hIData.1, by
+        rw [S.root_image I.1.1 I.1.2 I.2] at hroot
+        exact (Finset.mem_powersetCard.mp hroot).1⟩
+    · exact Finset.mem_union_right _
+        (Finset.mem_filter.mpr ⟨hIData.1, hfree⟩)
+  have hfree : freePart.card ≤ 1 := by
+    apply Finset.card_le_one.mpr
+    intro I hI I' hI'
+    have hIData := Finset.mem_filter.mp hI
+    have hI'data := Finset.mem_filter.mp hI'
+    by_contra hne
+    exact Finset.disjoint_left.mp
+      (S.free_pairwise I.1.1 I.1.2 I.2 I'.1.1 I'.1.2 I'.2
+        (ExchangeEmbedding.multiIndex_label_ne hne))
+      hIData.2 hI'data.2
+  change relevant.card ≤ rootPart.card + 1
+  exact (Finset.card_le_card hsub).trans
+    ((Finset.card_union_le rootPart freePart).trans
+      (Nat.add_le_add_left hfree rootPart.card))
+
+/-- One orientation of a splitting bank contributes at most one block per
+relevant mapped host. -/
+lemma blockIncidenceCount_mappedNegative_bank_le
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {roots forbidden : Finset (Finset (Fin n))} {m C : ℕ}
+    (S : RootedFamilyMultiEmbedding.BoundedMultiRootedFamilyEmbeddings
+      E.pattern roots forbidden (2 * m) C)
+    (bank : Finset (↥roots × Fin (2 * m)))
+    (e : Finset (Fin n)) (he : e.card = r) :
+    blockIncidenceCount
+        (bank.biUnion fun I ↦ ExchangeEmbedding.mappedNegative E
+          (S.embedding I.1.1 I.1.2 I.2)) e ≤
+      (bank.filter fun I ↦ e ⊆ I.1.1).card + 1 := by
+  classical
+  refine (blockIncidenceCount_biUnion_le_filter_card bank
+    (fun I ↦ ExchangeEmbedding.mappedNegative E
+      (S.embedding I.1.1 I.1.2 I.2))
+    (fun I ↦ e ∈ ExchangeEmbedding.mappedHost E
+      (S.embedding I.1.1 I.1.2 I.2)) e ?_).trans ?_
+  · intro I hI
+    have hdec := (ExchangeEmbedding.mappedNegative_decomp E
+      (S.embedding I.1.1 I.1.2 I.2)).incidenceCount_eq_indicator he
+    simpa [blockIncidenceCount, Transversal.incidenceCount] using hdec.le
+  · exact card_mappedHost_indices_le_root_add_one S bank e
+
+/-- The root-erased opposite orientation satisfies the same incidence
+bound, by monotonicity inside the mapped positive decomposition. -/
+lemma blockIncidenceCount_mappedPositiveErase_bank_le
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {roots forbidden : Finset (Finset (Fin n))} {m C : ℕ}
+    (S : RootedFamilyMultiEmbedding.BoundedMultiRootedFamilyEmbeddings
+      E.pattern roots forbidden (2 * m) C)
+    (bank : Finset (↥roots × Fin (2 * m)))
+    (e : Finset (Fin n)) (he : e.card = r) :
+    blockIncidenceCount
+        (bank.biUnion fun I ↦
+          (ExchangeEmbedding.mappedPositive E
+            (S.embedding I.1.1 I.1.2 I.2)).erase I.1.1) e ≤
+      (bank.filter fun I ↦ e ⊆ I.1.1).card + 1 := by
+  classical
+  refine (blockIncidenceCount_biUnion_le_filter_card bank
+    (fun I ↦ (ExchangeEmbedding.mappedPositive E
+      (S.embedding I.1.1 I.1.2 I.2)).erase I.1.1)
+    (fun I ↦ e ∈ ExchangeEmbedding.mappedHost E
+      (S.embedding I.1.1 I.1.2 I.2)) e ?_).trans ?_
+  · intro I hI
+    have hmono := blockIncidenceCount_mono
+      (Finset.erase_subset I.1.1
+        (ExchangeEmbedding.mappedPositive E
+          (S.embedding I.1.1 I.1.2 I.2))) e
+    have hdec := (ExchangeEmbedding.mappedPositive_decomp E
+      (S.embedding I.1.1 I.1.2 I.2)).incidenceCount_eq_indicator he
+    exact hmono.trans (by
+      simpa [blockIncidenceCount, Transversal.incidenceCount] using hdec.le)
+  · exact card_mappedHost_indices_le_root_add_one S bank e
+
+/-- The fixed positive splitting bank has a pointwise incidence bound
+depending only on the coefficient budget and the input multiplicity. -/
+theorem blockIncidenceCount_allPositiveSplittingBlocks_le
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {roots forbidden : Finset (Finset (Fin n))} {m C M : ℕ}
+    (S : RootedFamilyMultiEmbedding.BoundedMultiRootedFamilyEmbeddings
+      E.pattern roots forbidden (2 * m) C)
+    (hrootMultiplicity : ∀ e : Finset (Fin n), e.card = r →
+      Transversal.incidenceCount roots e ≤ M)
+    (e : Finset (Fin n)) (he : e.card = r) :
+    blockIncidenceCount (NearPairing.allPositiveSplittingBlocks S) e ≤
+      2 * (m * M + 1) := by
+  have hpos := blockIncidenceCount_mappedNegative_bank_le S
+    (NearPairing.allPositiveBankIndices (m := m) roots) e he
+  have hneg := blockIncidenceCount_mappedPositiveErase_bank_le S
+    (NearPairing.allNegativeBankIndices (m := m) roots) e he
+  rw [NearPairing.card_allPositiveBankIndices_through_edge roots e] at hpos
+  rw [NearPairing.card_allNegativeBankIndices_through_edge roots e] at hneg
+  have hpos' : blockIncidenceCount
+      ((NearPairing.allPositiveBankIndices (m := m) roots).biUnion fun I ↦
+        ExchangeEmbedding.mappedNegative E
+          (S.embedding I.1.1 I.1.2 I.2)) e ≤ m * M + 1 :=
+    hpos.trans (Nat.add_le_add_right
+      (Nat.mul_le_mul_left m (hrootMultiplicity e he)) 1)
+  have hneg' : blockIncidenceCount
+      ((NearPairing.allNegativeBankIndices (m := m) roots).biUnion fun I ↦
+        (ExchangeEmbedding.mappedPositive E
+          (S.embedding I.1.1 I.1.2 I.2)).erase I.1.1) e ≤ m * M + 1 :=
+    hneg.trans (Nat.add_le_add_right
+      (Nat.mul_le_mul_left m (hrootMultiplicity e he)) 1)
+  exact (blockIncidenceCount_union_le _ _ e).trans (by
+    calc
+      blockIncidenceCount
+          ((NearPairing.allPositiveBankIndices (m := m) roots).biUnion
+            fun I ↦ ExchangeEmbedding.mappedNegative E
+              (S.embedding I.1.1 I.1.2 I.2)) e +
+          blockIncidenceCount
+          ((NearPairing.allNegativeBankIndices (m := m) roots).biUnion
+            fun I ↦ (ExchangeEmbedding.mappedPositive E
+              (S.embedding I.1.1 I.1.2 I.2)).erase I.1.1) e ≤
+        (m * M + 1) + (m * M + 1) := Nat.add_le_add hpos' hneg'
+      _ = 2 * (m * M + 1) := by ring)
+
+/-- At an actual `r`-edge, the negative near occurrences are bounded by the
+root fibre plus one globally separated free occurrence. -/
+theorem allNegativeNearBlockLoad_le_rootFiber_add_one
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {roots forbidden : Finset (Finset (Fin n))} {m C M : ℕ}
+    (S : RootedFamilyMultiEmbedding.BoundedMultiRootedFamilyEmbeddings
+      E.pattern roots forbidden (2 * m) C)
+    (hr : 0 < r) (hrk : r < k)
+    (hrootForbidden : ExchangeEmbedding.rootBoundary roots r ⊆ forbidden)
+    (hrootMultiplicity : ∀ e : Finset (Fin n), e.card = r →
+      Transversal.incidenceCount roots e ≤ M)
+    (e : Finset (Fin n)) (he : e.card = r) :
+    NearPairing.allNegativeNearBlockLoad S e ≤ m * M + 1 := by
+  classical
+  let bank := NearPairing.allNegativeBankIndices (m := m) roots
+  let occurrences := bank.product
+    (Finset.univ : Finset (Exchange.RootEdge k r))
+  let left := occurrences.filter fun O ↦
+    e ⊆ NearPairing.nearOccurrenceBlock S O
+  let relevant := bank.filter fun I ↦
+    e ∈ ExchangeEmbedding.mappedHost E
+      (S.embedding I.1.1 I.1.2 I.2)
+  have hleftRelevant : ∀ O ∈ left, O.1 ∈ relevant := by
+    intro O hO
+    have hOData := Finset.mem_filter.mp hO
+    have heBlock : e ∈ (NearPairing.nearOccurrenceBlock S O).powersetCard r :=
+      Finset.mem_powersetCard.mpr ⟨hOData.2, he⟩
+    apply Finset.mem_filter.mpr
+    refine ⟨(Finset.mem_product.mp hOData.1).1, ?_⟩
+    exact (ExchangeEmbedding.mappedNegative_decomp E
+      (S.embedding O.1.1.1 O.1.1.2 O.1.2)).2.1
+        (NearPairing.nearOccurrenceBlock S O)
+        (ExchangeEmbedding.mappedSpecial_mem_mappedNegative E _ O.2)
+        heBlock
+  have hfstInj : ∀ O ∈ left, ∀ O' ∈ left, O.1 = O'.1 → O = O' := by
+    intro O hO O' hO' hfst
+    have hOData := Finset.mem_filter.mp hO
+    have hO'Data := Finset.mem_filter.mp hO'
+    have heO : e ∈ (NearPairing.nearOccurrenceBlock S O).powersetCard r :=
+      Finset.mem_powersetCard.mpr ⟨hOData.2, he⟩
+    have heO' : e ∈ (NearPairing.nearOccurrenceBlock S O').powersetCard r :=
+      Finset.mem_powersetCard.mpr ⟨hO'Data.2, he⟩
+    have hblocks : NearPairing.nearOccurrenceBlock S O =
+        NearPairing.nearOccurrenceBlock S O' := by
+      have hdec := ExchangeEmbedding.mappedNegative_decomp E
+        (S.embedding O.1.1.1 O.1.1.2 O.1.2)
+      apply hdec.blocks_eq_of_common_edge
+      · exact ExchangeEmbedding.mappedSpecial_mem_mappedNegative E _ O.2
+      · simpa [NearPairing.nearOccurrenceBlock, hfst] using
+          (ExchangeEmbedding.mappedSpecial_mem_mappedNegative E
+            (S.embedding O'.1.1.1 O'.1.1.2 O'.1.2) O'.2)
+      · exact heO
+      · exact heO'
+    exact NearPairing.nearOccurrenceBlock_injective S hr hrk
+      hrootForbidden hblocks
+  have hcard : left.card ≤ relevant.card := by
+    exact Finset.card_le_card_of_injOn Prod.fst hleftRelevant hfstInj
+  have hrelevant := card_mappedHost_indices_le_root_add_one S bank e
+  have hrootCount :
+      (bank.filter fun I ↦ e ⊆ I.1.1).card ≤ m * M := by
+    rw [NearPairing.card_allNegativeBankIndices_through_edge roots e]
+    exact Nat.mul_le_mul_left m (hrootMultiplicity e he)
+  change left.card ≤ m * M + 1
+  exact hcard.trans (hrelevant.trans (Nat.add_le_add_right hrootCount 1))
+
+/-- The occurrence-level negative-side load is exactly an upper bound for
+the number of compatible elimination roots whose negative side contains a
+given face. -/
+lemma card_compatibleNearEliminationPairs_negative_through_le
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {roots forbidden : Finset (Finset (Fin n))} {m C : ℕ}
+    (S : RootedFamilyMultiEmbedding.BoundedMultiRootedFamilyEmbeddings
+      E.pattern roots forbidden (2 * m) C)
+    (hr : 0 < r) (hrk : r < k)
+    (hrootForbidden : ExchangeEmbedding.rootBoundary roots r ⊆ forbidden)
+    (J : Finset (Fin n)) :
+    ((NearPairing.compatibleNearEliminationPairs S hr hrk
+        hrootForbidden).filter fun P ↦ J ⊆ P.negative).card ≤
+      NearPairing.compatibleNearNegativeSideLoad S J := by
+  classical
+  rw [NearPairing.compatibleNearEliminationPairs, Finset.filter_map,
+    Finset.card_map]
+  rfl
+
+/-- For an arbitrary preallocated elimination bank, output incidence is
+bounded by the negative-root occurrence fibre plus one free allocator copy. -/
+theorem blockIncidenceCount_allEliminationNegativeOnly_le
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {pairs : Finset
+      (ExchangeEliminationEmbedding.EliminationPair n k r)}
+    {forbidden : Finset (Finset (Fin n))} {C R : ℕ}
+    (S : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings
+      E e₀ pairs forbidden C)
+    (e : Finset (Fin n)) (he : e.card = r)
+    (hroot : (pairs.filter fun P ↦ e ⊆ P.negative).card ≤ R) :
+    blockIncidenceCount
+        (ExchangeEliminationEmbedding.allEliminationNegativeOnly S) e ≤
+      R + 1 := by
+  classical
+  let relevant := pairs.attach.filter fun P ↦
+    e ∈ ExchangeEliminationEmbedding.eliminationNegativeOnlyHost
+      S P.1 P.2
+  let rootPart := pairs.attach.filter fun P ↦ e ⊆ P.1.negative
+  let freePart := pairs.attach.filter fun P ↦
+    e ∈ RootedEmbedding.imageFreeEdges (E.eliminationPattern e₀)
+      (S.embedding P.1 P.2)
+  have hterm : ∀ P ∈ pairs.attach,
+      blockIncidenceCount
+          (ExchangeEliminationEmbedding.eliminationNegativeOnly S P.1 P.2) e ≤
+        if e ∈ ExchangeEliminationEmbedding.eliminationNegativeOnlyHost
+            S P.1 P.2 then 1 else 0 := by
+    intro P hP
+    have hdec :=
+      (ExchangeEliminationEmbedding.eliminationNegativeOnly_decomp
+        S P.1 P.2).incidenceCount_eq_indicator he
+    simpa [blockIncidenceCount, Transversal.incidenceCount] using hdec.le
+  have hbase : blockIncidenceCount
+      (ExchangeEliminationEmbedding.allEliminationNegativeOnly S) e ≤
+        relevant.card := by
+    exact blockIncidenceCount_biUnion_le_filter_card pairs.attach
+      (fun P ↦ ExchangeEliminationEmbedding.eliminationNegativeOnly
+        S P.1 P.2)
+      (fun P ↦ e ∈
+        ExchangeEliminationEmbedding.eliminationNegativeOnlyHost S P.1 P.2)
+      e hterm
+  have hsub : relevant ⊆ rootPart ∪ freePart := by
+    intro P hP
+    have hPData := Finset.mem_filter.mp hP
+    have heBase : e ∈ RootedEmbedding.imageFreeEdges E.pattern
+        (S.embedding P.1 P.2) :=
+      (Finset.mem_sdiff.mp hPData.2).1
+    rcases ExchangeEliminationEmbedding.mem_negativeEdges_or_eliminationFreeEdges
+        S (ExchangeEliminationEmbedding.RelabeledFullExchange.isSpecialIsolated
+          E e₀) P.1 P.2 heBase with hneg | hfree
+    · exact Finset.mem_union_left _ (Finset.mem_filter.mpr
+        ⟨hPData.1, (Finset.mem_powersetCard.mp hneg).1⟩)
+    · exact Finset.mem_union_right _
+        (Finset.mem_filter.mpr ⟨hPData.1, hfree⟩)
+  have hfree : freePart.card ≤ 1 := by
+    apply Finset.card_le_one.mpr
+    intro P hP P' hP'
+    have hPData := Finset.mem_filter.mp hP
+    have hP'Data := Finset.mem_filter.mp hP'
+    by_contra hne
+    exact Finset.disjoint_left.mp
+      (S.free_pairwise P.1 P.2 P'.1 P'.2
+        (fun h ↦ hne (Subtype.ext h))) hPData.2 hP'Data.2
+  have hrootPart : rootPart.card ≤ R := by
+    calc
+      rootPart.card =
+          ∑ P ∈ pairs.attach, if e ⊆ P.1.negative then 1 else 0 := by
+        simp [rootPart]
+      _ = ∑ P ∈ pairs, if e ⊆ P.negative then 1 else 0 := by
+        exact Finset.sum_attach pairs
+          (fun P ↦ if e ⊆ P.negative then 1 else 0)
+      _ = (pairs.filter fun P ↦ e ⊆ P.negative).card := by simp
+      _ ≤ R := hroot
+  exact hbase.trans ((Finset.card_le_card hsub).trans
+    ((Finset.card_union_le rootPart freePart).trans
+      ((Nat.add_le_add hrootPart hfree).trans (by rfl))))
+
+/-- Specialization of the preceding incidence estimate to the universal
+first-elimination bank. -/
+theorem blockIncidenceCount_universalBadEliminationBlocks_le
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {roots splitForbidden : Finset (Finset (Fin n))}
+    {m splitCap eliminationCap M : ℕ}
+    (S : RootedFamilyMultiEmbedding.BoundedMultiRootedFamilyEmbeddings
+      E.pattern roots splitForbidden (2 * m) splitCap)
+    (hr : 0 < r) (hrk : r < k)
+    (hrootForbidden : ExchangeEmbedding.rootBoundary roots r ⊆ splitForbidden)
+    (hrootMultiplicity : ∀ e : Finset (Fin n), e.card = r →
+      Transversal.incidenceCount roots e ≤ M)
+    {eliminationForbidden : Finset (Finset (Fin n))}
+    (U : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings E e₀
+      (NearPairing.compatibleNearEliminationPairs S hr hrk hrootForbidden)
+      eliminationForbidden eliminationCap)
+    (e : Finset (Fin n)) (he : e.card = r) :
+    blockIncidenceCount
+        (FurtherElimination.universalBadEliminationBlocks S hr hrk
+          hrootForbidden U) e ≤
+      (m * M + 1) * (m * M + 1) + 1 := by
+  let F := m * M + 1
+  have hnear := allNegativeNearBlockLoad_le_rootFiber_add_one S hr hrk
+    hrootForbidden hrootMultiplicity e he
+  have hside : NearPairing.compatibleNearNegativeSideLoad S e ≤ F * F :=
+    (NearPairing.compatibleNearNegativeSideLoad_le S hrk.le
+      hrootMultiplicity e).trans (Nat.mul_le_mul_right F (by
+        simpa [F] using hnear))
+  have hroots :
+      ((NearPairing.compatibleNearEliminationPairs S hr hrk
+          hrootForbidden).filter fun P ↦ e ⊆ P.negative).card ≤ F * F :=
+    (card_compatibleNearEliminationPairs_negative_through_le
+      S hr hrk hrootForbidden e).trans hside
+  have hall := blockIncidenceCount_allEliminationNegativeOnly_le U e he hroots
+  exact (blockIncidenceCount_mono
+    FurtherElimination.badEliminationBlocks_subset_firstNegative e).trans (by
+      simpa [FurtherElimination.universalBadEliminationBlocks, F] using hall)
+
+/-- A partner fibre is charged to the common `r`-edge inside the fixed
+positive partner.  A pointwise incidence bound on the bad family therefore
+gives a fixed partner-fibre bound. -/
+theorem card_furtherPositivePartner_fiber_le_choose_mul
+    {bad positive : Finset (Finset (Fin n))}
+    (hpartner : FurtherElimination.HasFurtherPartners n k r bad positive)
+    (L : ℕ)
+    (hincidence : ∀ e : Finset (Fin n), e.card = r →
+      blockIncidenceCount bad e ≤ L)
+    (Q : Finset (Fin n)) :
+    ((bad.attach).filter fun B ↦
+      FurtherElimination.furtherPositivePartner hpartner B = Q).card ≤
+      Nat.choose k r * L := by
+  classical
+  let left := (bad.attach).filter fun B ↦
+    FurtherElimination.furtherPositivePartner hpartner B = Q
+  by_cases hempty : left = ∅
+  · simp [left, hempty]
+  · obtain ⟨B, hB⟩ := Finset.nonempty_iff_ne_empty.mpr hempty
+    have hBQ : FurtherElimination.furtherPositivePartner hpartner B = Q :=
+      (Finset.mem_filter.mp hB).2
+    have hQcard : Q.card = k := by
+      rw [← hBQ]
+      exact FurtherElimination.furtherPositivePartner_card hpartner B
+    let right := Q.powersetCard r
+    let rel (B : ↑bad) (e : Finset (Fin n)) : Prop := e ⊆ B.1
+    have hleft : ∀ B ∈ left, 1 ≤ (right.filter (rel B)).card := by
+      intro B' hB'
+      have hB'Q : FurtherElimination.furtherPositivePartner hpartner B' = Q :=
+        (Finset.mem_filter.mp hB').2
+      let e := Q ∩ B'.1
+      have hecard : e.card = r := by
+        dsimp only [e]
+        rw [← hB'Q]
+        exact FurtherElimination.furtherPartner_inter_card hpartner B'
+      have heright : e ∈ right :=
+        Finset.mem_powersetCard.mpr ⟨Finset.inter_subset_left, hecard⟩
+      exact Finset.card_pos.mpr ⟨e, Finset.mem_filter.mpr
+        ⟨heright, Finset.inter_subset_right⟩⟩
+    have hright : ∀ e ∈ right, (left.filter fun B ↦ rel B e).card ≤ L := by
+      intro e heRight
+      have hecard : e.card = r := (Finset.mem_powersetCard.mp heRight).2
+      have hsub : (left.filter fun B ↦ rel B e).map
+          (Function.Embedding.subtype fun B : Finset (Fin n) ↦ B ∈ bad) ⊆
+          bad.filter fun B ↦ e ⊆ B := by
+        intro B hB
+        obtain ⟨B', hB', rfl⟩ := Finset.mem_map.mp hB
+        have hB'Data := Finset.mem_filter.mp hB'
+        exact Finset.mem_filter.mpr
+          ⟨B'.2, hB'Data.2⟩
+      calc
+        (left.filter fun B ↦ rel B e).card =
+            ((left.filter fun B ↦ rel B e).map
+              (Function.Embedding.subtype
+                fun B : Finset (Fin n) ↦ B ∈ bad)).card := by simp
+        _ ≤ (bad.filter fun B ↦ e ⊆ B).card :=
+          Finset.card_le_card hsub
+        _ = blockIncidenceCount bad e := rfl
+        _ ≤ L := hincidence e hecard
+    have hcount := Reserve.card_mul_le_card_mul_of_relation
+      left right rel 1 L hleft hright
+    simpa [left, right, hQcard] using hcount
+
+/-- Concrete fixed partner-fibre bound for the second Booleanization
+elimination bank. -/
+theorem card_universalFurtherPartner_fiber_le
+    {E : ExchangePattern.RelabeledFullExchange k r}
+    {e₀ : Exchange.RootEdge k r}
+    {roots splitForbidden : Finset (Finset (Fin n))}
+    {m splitCap eliminationCap M : ℕ}
+    (S : RootedFamilyMultiEmbedding.BoundedMultiRootedFamilyEmbeddings
+      E.pattern roots splitForbidden (2 * m) splitCap)
+    (hr : 0 < r) (hrk : r < k)
+    (hrootForbidden : ExchangeEmbedding.rootBoundary roots r ⊆ splitForbidden)
+    (hrootMultiplicity : ∀ e : Finset (Fin n), e.card = r →
+      Transversal.incidenceCount roots e ≤ M)
+    {eliminationForbidden : Finset (Finset (Fin n))}
+    (U : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings E e₀
+      (NearPairing.compatibleNearEliminationPairs S hr hrk hrootForbidden)
+      eliminationForbidden eliminationCap)
+    (hpartner : FurtherElimination.HasFurtherPartners n k r
+      (FurtherElimination.universalBadEliminationBlocks S hr hrk
+        hrootForbidden U)
+      (NearPairing.allPositiveSplittingBlocks S))
+    (Q : Finset (Fin n)) :
+    (((FurtherElimination.universalBadEliminationBlocks S hr hrk
+        hrootForbidden U).attach).filter fun B ↦
+      FurtherElimination.furtherPositivePartner hpartner B = Q).card ≤
+      Nat.choose k r * ((m * M + 1) * (m * M + 1) + 1) := by
+  apply card_furtherPositivePartner_fiber_le_choose_mul hpartner
+  intro e he
+  exact blockIncidenceCount_universalBadEliminationBlocks_le S hr hrk
+    hrootForbidden hrootMultiplicity U e he
+
+/-- Abstract output of the splitting/elimination/flattening construction.
+It is deliberately coefficient-level rather than leave-level: every bounded
+integer vector on the fixed input clique family is converted to a Boolean
+signed family, while `negative` is one fixed edge-disjoint decomposition.
+This is precisely the invariant established by the rooted copies of the
+full exchange gadget in Sections 3--4 of the short proof. -/
+def IsBooleanizationSystem (n k r C : ℕ)
+    (input reserve positive negative : Finset (Finset (Fin n))) : Prop :=
+  Disjoint positive negative ∧
+    (∀ Q ∈ positive, Q.card = k) ∧
+    IsBlockDecomposition (cliqueBoundarySupport negative r) negative k r ∧
+    Disjoint (cliqueBoundarySupport negative r) reserve ∧
+    ∀ θ : Finset (Fin n) → ℤ,
+      (∀ Q, θ Q ≠ 0 → Q ∈ input) →
+      (∀ Q, (θ Q).natAbs ≤ C) →
+      (∀ e ∈ completeUniform n r,
+        boundary n k θ e = 0 ∨ boundary n k θ e = 1) →
+      (∀ e ∈ completeUniform n r,
+        boundary n k θ e ≠ 0 → e ∈ reserve) →
+      ∃ chosenPos chosenNeg : Finset (Finset (Fin n)),
+        chosenPos ⊆ positive ∧ chosenNeg ⊆ negative ∧
+          ∀ e ∈ completeUniform n r,
+            (blockIncidenceCount chosenPos e : ℤ) -
+                (blockIncidenceCount chosenNeg e : ℤ) =
+              boundary n k θ e
+
+theorem isBlockDecomposition_of_canonicalUniformDecomposition
+    {n k r : ℕ} {blocks : Finset (Finset (Fin n))}
+    (h : Transversal.IsUniformDecomposition
+      (blocks.biUnion fun B ↦ B.powersetCard r) blocks k r) :
+    IsBlockDecomposition (cliqueBoundarySupport blocks r) blocks k r := by
+  refine ⟨h.1, ?_, ?_⟩
+  · intro B hB e he
+    exact mem_cliqueBoundarySupport.mpr
+      ⟨B, hB, (Finset.mem_powersetCard.mp he).1,
+        (Finset.mem_powersetCard.mp he).2⟩
+  · intro e he
+    obtain ⟨_B, _hB, _heB, hecard⟩ := mem_cliqueBoundarySupport.mp he
+    simpa [cliqueEdges, hecard] using h.2.2 e (by
+      simpa [cliqueBoundarySupport, cliqueEdges] using he)
+
+/-- Complete finite Booleanization theorem obtained from the fixed
+splitting bank and its two preallocated elimination banks. -/
+theorem isBooleanizationSystem_of_exchangeBanks
+    {n k r m splitCap eliminationCap furtherCap : ℕ}
+    (hr : 0 < r) (hrk : r < k)
+    (E : ExchangePattern.RelabeledFullExchange k r)
+    (e₀ : Exchange.RootEdge k r)
+    (hbound : E.SpecialPositiveInterBounded e₀)
+    (htradeDisjoint : Disjoint E.positive E.negative)
+    {input splitForbidden : Finset (Finset (Fin n))}
+    (hinputUniform : ∀ Q ∈ input, Q.card = k)
+    (S : RootedFamilyMultiEmbedding.BoundedMultiRootedFamilyEmbeddings
+      E.pattern input splitForbidden (2 * m) splitCap)
+    (hrootForbidden : ExchangeEmbedding.rootBoundary input r ⊆ splitForbidden)
+    {eliminationForbidden : Finset (Finset (Fin n))}
+    (U : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings E e₀
+      (NearPairing.compatibleNearEliminationPairs S hr hrk hrootForbidden)
+      eliminationForbidden eliminationCap)
+    (hpositiveForbidden :
+      (NearPairing.allPositiveSplittingBlocks S).biUnion
+          (fun Q ↦ Q.powersetCard r) ⊆ eliminationForbidden)
+    (hnearForbidden :
+      (NearPairing.allNegativeNearSplittingBlocks S).biUnion
+          (fun Q ↦ Q.powersetCard r) ⊆ eliminationForbidden)
+    (hfarForbidden :
+      (NearPairing.allNegativeFarSplittingBlocks S).biUnion
+          (fun Q ↦ Q.powersetCard r) ⊆ eliminationForbidden)
+    (huniversalRootForbidden :
+      ExchangeEliminationEmbedding.eliminationPairSideBoundary
+        (NearPairing.compatibleNearEliminationPairs S hr hrk
+          hrootForbidden) ⊆
+          eliminationForbidden)
+    (hpartner : FurtherElimination.HasFurtherPartners n k r
+      (FurtherElimination.universalBadEliminationBlocks S hr hrk
+        hrootForbidden U)
+      (NearPairing.allPositiveSplittingBlocks S))
+    {furtherForbidden : Finset (Finset (Fin n))}
+    (V : ExchangeEliminationEmbedding.BoundedEliminationPairEmbeddings E e₀
+      (FurtherElimination.furtherEliminationPairs hpartner)
+      furtherForbidden furtherCap)
+    (hfurtherRootForbidden :
+      ExchangeEliminationEmbedding.eliminationPairSideBoundary
+        (FurtherElimination.furtherEliminationPairs hpartner) ⊆
+            furtherForbidden)
+    (hprePositiveForbidden :
+      (FurtherElimination.preFurtherPositiveBlocks S hr hrk
+        hrootForbidden U).biUnion
+          (fun Q ↦ Q.powersetCard r) ⊆ furtherForbidden)
+    (hprefixForbidden :
+      (FurtherElimination.preFurtherNegativeBlocks S hr hrk
+        hrootForbidden U).biUnion
+          (fun Q ↦ Q.powersetCard r) ⊆ furtherForbidden)
+    (reserve : Finset (Finset (Fin n)))
+    (hnegativeReserve : Disjoint
+      (cliqueBoundarySupport
+        (FurtherElimination.finalNegativeBlocks S hr hrk hrootForbidden
+          U hpartner V) r) reserve) :
+    IsBooleanizationSystem n k r m input reserve
+      (FurtherElimination.finalPositiveBlocks S hr hrk hrootForbidden
+        U hpartner V)
+      (FurtherElimination.finalNegativeBlocks S hr hrk hrootForbidden
+        U hpartner V) := by
+  let positive := FurtherElimination.finalPositiveBlocks S hr hrk
+    hrootForbidden U hpartner V
+  let negative := FurtherElimination.finalNegativeBlocks S hr hrk
+    hrootForbidden U hpartner V
+  have hdisjoint : Disjoint positive negative := by
+    exact FurtherElimination.finalPositiveBlocks_disjoint_finalNegativeBlocks
+      S hr hrk htradeDisjoint hrootForbidden U hpositiveForbidden
+        hfarForbidden huniversalRootForbidden hpartner V
+          hfurtherRootForbidden hprePositiveForbidden hprefixForbidden
+  have hnegativeDecomp : Transversal.IsUniformDecomposition
+      (negative.biUnion fun B ↦ B.powersetCard r) negative k r := by
+    exact FurtherElimination.finalNegativeBlocks_decomp
+      S hr hrk hbound hrootForbidden U hpositiveForbidden
+        huniversalRootForbidden hfarForbidden hpartner V
+          hfurtherRootForbidden hprefixForbidden
+  refine ⟨hdisjoint,
+    (fun Q hQ ↦ FurtherElimination.finalPositiveBlocks_uniform
+      S hr hrk hrootForbidden U hpartner V hQ),
+    isBlockDecomposition_of_canonicalUniformDecomposition hnegativeDecomp,
+    ?_, ?_⟩
+  · simpa [negative] using hnegativeReserve
+  · intro theta hthetaSupport hthetaBound hthetaBoolean _hthetaReserve
+    have hnonneg : ∀ g : Finset (Fin n), g.card = r →
+        0 ≤
+          (∑ I ∈ ExchangeEmbedding.positiveBankSelection
+              (m := m) input theta,
+            if g ⊆ I.1.1 then (1 : ℤ) else 0) -
+          (∑ I ∈ ExchangeEmbedding.negativeBankSelection
+              (m := m) input theta,
+            if g ⊆ I.1.1 then (1 : ℤ) else 0) := by
+      intro g hg
+      have hbank := ExchangeEmbedding.signedBankSelection_sum
+        input theta (fun Q hQ ↦ hthetaBound Q) g
+      have hboundary := boundary_eq_attach_sum_of_support
+        hinputUniform hthetaSupport g
+      have hbool := hthetaBoolean g (mem_completeUniform.mpr hg)
+      rw [hbank, ← hboundary]
+      rcases hbool with hzero | hone <;> omega
+    obtain ⟨f, hf⟩ := NearPairing.exists_nearOccurrenceMatching
+      S hrk.le theta hnonneg
+    let chosenPositive := FurtherElimination.booleanizedPositiveBlocks
+      S hr hrk hrootForbidden theta f hf U hpartner V
+    let chosenNegative := FurtherElimination.booleanizedNegativeBlocks
+      S hr hrk hrootForbidden theta f hf U hpartner V
+    refine ⟨chosenPositive, chosenNegative, ?_, ?_, ?_⟩
+    · exact FurtherElimination.booleanizedPositiveBlocks_subset_finalPositiveBlocks
+        S hr hrk hrootForbidden theta f hf U hpartner V
+    · exact FurtherElimination.booleanizedNegativeBlocks_subset_finalNegativeBlocks
+        S hr hrk hrootForbidden theta f hf U hpartner V
+    · intro g hg
+      have hassembly := FurtherElimination.booleanizedBlocks_signedIncidence
+        S hr hrk hbound hrootForbidden theta f hf U hpositiveForbidden
+          hfarForbidden huniversalRootForbidden hpartner V
+            hfurtherRootForbidden hprePositiveForbidden hprefixForbidden g
+              (mem_completeUniform.mp hg)
+      have hbankRaw := ExchangeEmbedding.selectedBankBlocks_incidence_sub
+        S hr hrk hrootForbidden theta (fun Q _hQ ↦ hthetaBound Q)
+          (mem_completeUniform.mp hg)
+      have hboundary := boundary_eq_attach_sum_of_support
+        hinputUniform hthetaSupport g
+      have hbank :
+          (blockIncidenceCount
+              (ExchangeEmbedding.selectedBankPositiveBlocks S theta) g : ℤ) -
+            (blockIncidenceCount
+              (ExchangeEmbedding.selectedBankNegativeBlocks S theta) g : ℤ) =
+            boundary n k theta g := by
+        calc
+          (blockIncidenceCount
+              (ExchangeEmbedding.selectedBankPositiveBlocks S theta) g : ℤ) -
+              (blockIncidenceCount
+                (ExchangeEmbedding.selectedBankNegativeBlocks S theta) g : ℤ) =
+              ∑ Q ∈ input.attach, if g ⊆ Q.1 then theta Q.1 else 0 := by
+                simpa [blockIncidenceCount, Transversal.incidenceCount]
+                  using hbankRaw
+          _ = boundary n k theta g := hboundary.symm
+      have hassembly' :
+          (blockIncidenceCount chosenPositive g : ℤ) -
+              (blockIncidenceCount chosenNegative g : ℤ) =
+            (blockIncidenceCount
+              (ExchangeEmbedding.selectedBankPositiveBlocks S theta) g : ℤ) -
+              (blockIncidenceCount
+                (ExchangeEmbedding.selectedBankNegativeBlocks S theta) g : ℤ) := by
+        simpa [chosenPositive, chosenNegative, blockIncidenceCount,
+          Transversal.incidenceCount] using hassembly
+      exact hassembly'.trans hbank
+
+/-- A Boolean signed certificate is the final finite-algebraic output of
+the splitting/elimination stages of the absorber construction.  It says
+that every admissible leave is the incidence difference of a positive
+subfamily and a subfamily removed from one fixed negative decomposition. -/
+def IsSignedAbsorptionCertificate (n k r : ℕ)
+    (absorber reserve : Finset (Finset (Fin n)))
+    (positive negative : Finset (Finset (Fin n))) : Prop :=
+  Disjoint positive negative ∧
+    (∀ B ∈ positive, B.card = k) ∧
+    IsBlockDecomposition absorber negative k r ∧
+    ∀ leave : Finset (Finset (Fin n)), leave ⊆ reserve →
+      IsIntegrallyDecomposable n k r leave →
+      ∃ chosenPos chosenNeg : Finset (Finset (Fin n)),
+        chosenPos ⊆ positive ∧ chosenNeg ⊆ negative ∧
+          ∀ e ∈ completeUniform n r,
+            (blockIncidenceCount chosenPos e : ℤ) -
+                (blockIncidenceCount chosenNeg e : ℤ) =
+              if e ∈ leave then 1 else 0
+
+/-- The coefficient-reduction theorem and a Booleanization system compose
+to the exact signed absorption certificate. -/
+theorem signedCertificate_of_integralGenerator_and_booleanization
+    {n k r : ℕ} (hr : 0 < r) (hrk : r < k)
+    {reserve generators positive negative : Finset (Finset (Fin n))}
+    (hgen : IsSparseIntegralGenerator n k r reserve generators)
+    (placement : LocalDecoderPlacement n k r
+      (cliqueBoundarySupport generators r) generators)
+    (hbool : IsBooleanizationSystem n k r
+      (reducedDecoderCoeffBound k r)
+      (generators ∪ localDecoderCliques
+        (cliqueBoundarySupport generators r) placement.Z k)
+      reserve positive negative) :
+    IsSignedAbsorptionCertificate n k r
+      (cliqueBoundarySupport negative r) reserve positive negative := by
+  refine ⟨hbool.1, hbool.2.1, hbool.2.2.1, ?_⟩
+  intro leave hleave hleaveInt
+  obtain ⟨θ, hθsupport, hθbound, hθboundary⟩ :=
+    exists_reduced_localDecoder_decomposition hr hrk hgen placement
+      hleave hleaveInt
+  obtain ⟨chosenPos, chosenNeg, hpos, hneg, hsigned⟩ :=
+    hbool.2.2.2.2 θ hθsupport hθbound
+      (by
+        intro e he
+        rw [hθboundary e he]
+        by_cases hel : e ∈ leave <;> simp [hel])
+      (by
+        intro e he hne
+        by_contra hel
+        have helLeave : e ∉ leave := fun h ↦ hel (hleave h)
+        have hz := hθboundary e he
+        rw [if_neg helLeave] at hz
+        exact hne hz)
+  exact ⟨chosenPos, chosenNeg, hpos, hneg, fun e he ↦
+    (hsigned e he).trans (hθboundary e he)⟩
+
+/-- The signed certificate converts mechanically into genuine
+decompositions `positive + (negative \ removed)`.  This is the exact last
+algebraic step of the omni-absorber proof. -/
+theorem isAbsorber_of_signedCertificate
+    {n k r : ℕ} (hrk : r ≤ k)
+    {absorber reserve positive negative : Finset (Finset (Fin n))}
+    (habsorber : absorber ⊆ completeUniform n r)
+    (hreserve : reserve ⊆ completeUniform n r)
+    (hdisjoint : Disjoint absorber reserve)
+    (hint : IsIntegrallyDecomposable n k r absorber)
+    (hcert : IsSignedAbsorptionCertificate n k r absorber reserve positive negative) :
+    IsAbsorber n k r absorber reserve := by
+  classical
+  refine ⟨habsorber, hreserve, hdisjoint, hint, ?_⟩
+  intro leave hleave hleaveInt
+  obtain ⟨chosenPos, chosenNeg, hposSub, hnegSub, hsigned⟩ :=
+    hcert.2.2.2 leave hleave hleaveInt
+  let blocks := chosenPos ∪ (negative \ chosenNeg)
+  refine ⟨blocks, ?_⟩
+  have hblockDisjoint : Disjoint chosenPos (negative \ chosenNeg) :=
+    Disjoint.mono hposSub Finset.sdiff_subset hcert.1
+  have hnegInc (e : Finset (Fin n)) (he : e ∈ completeUniform n r) :
+      blockIncidenceCount negative e = if e ∈ absorber then 1 else 0 := by
+    by_cases hea : e ∈ absorber
+    · rw [if_pos hea]
+      simpa [blockIncidenceCount, mem_cliqueEdges,
+        mem_completeUniform.mp he] using hcert.2.2.1.2.2 e hea
+    · rw [if_neg hea, blockIncidenceCount, Finset.card_eq_zero]
+      apply Finset.eq_empty_iff_forall_notMem.mpr
+      intro B hB
+      have hm := Finset.mem_filter.mp hB
+      have hedge : e ∈ cliqueEdges B r :=
+        mem_cliqueEdges.mpr ⟨hm.2, mem_completeUniform.mp he⟩
+      exact hea (hcert.2.2.1.2.1 B hm.1 hedge)
+  have hnegChosenInc (e : Finset (Fin n)) :
+      blockIncidenceCount chosenNeg e ≤ blockIncidenceCount negative e := by
+    exact Finset.card_le_card (Finset.filter_subset_filter _ hnegSub)
+  refine ⟨?_, ?_, ?_⟩
+  · intro B hB
+    rcases Finset.mem_union.mp hB with hBp | hBn
+    · exact hcert.2.1 B (hposSub hBp)
+    · exact hcert.2.2.1.1 B (Finset.mem_sdiff.mp hBn).1
+  · intro B hB e he
+    have hecard : e.card = r := (mem_cliqueEdges.mp he).2
+    have heComplete : e ∈ completeUniform n r := mem_completeUniform.mpr hecard
+    rcases Finset.mem_union.mp hB with hBp | hBn
+    · by_contra heHost
+      have hea : e ∉ absorber := fun h ↦ heHost (Finset.mem_union_left _ h)
+      have hel : e ∉ leave := fun h ↦ heHost (Finset.mem_union_right _ h)
+      have hnegZero : blockIncidenceCount negative e = 0 := by
+        simpa [hea] using hnegInc e heComplete
+      have hchosenZero : blockIncidenceCount chosenNeg e = 0 := by
+        have hle := hnegChosenInc e
+        omega
+      have hs := hsigned e heComplete
+      rw [if_neg hel, hchosenZero] at hs
+      have hposMem : B ∈ chosenPos.filter fun Q ↦ e ⊆ Q :=
+        Finset.mem_filter.mpr ⟨hBp, (mem_cliqueEdges.mp he).1⟩
+      have hposPositive : 0 < blockIncidenceCount chosenPos e :=
+        Finset.card_pos.mpr ⟨B, hposMem⟩
+      omega
+    · have hBnNeg : B ∈ negative := (Finset.mem_sdiff.mp hBn).1
+      exact Finset.mem_union_left _ (hcert.2.2.1.2.1 B hBnNeg he)
+  · intro e heHost
+    have heComplete : e ∈ completeUniform n r := by
+      rcases Finset.mem_union.mp heHost with hea | hel
+      · exact habsorber hea
+      · exact hreserve (hleave hel)
+    have hfilterUnion :
+        (blocks.filter fun B ↦ e ∈ cliqueEdges B r) =
+          (chosenPos.filter fun B ↦ e ⊆ B) ∪
+            ((negative \ chosenNeg).filter fun B ↦ e ⊆ B) := by
+      ext B
+      simp only [blocks, Finset.mem_filter, Finset.mem_union,
+        mem_cliqueEdges, mem_completeUniform.mp heComplete]
+      aesop
+    rw [hfilterUnion, Finset.card_union_of_disjoint]
+    · change blockIncidenceCount chosenPos e +
+          blockIncidenceCount (negative \ chosenNeg) e = 1
+      rw [blockIncidenceCount_sdiff hnegSub]
+      have hneg := hnegInc e heComplete
+      have hnegChosen := hnegChosenInc e
+      have hs := hsigned e heComplete
+      by_cases hea : e ∈ absorber
+      · have hel : e ∉ leave := by
+          intro hel
+          exact Finset.disjoint_left.mp hdisjoint hea (hleave hel)
+        rw [if_pos hea] at hneg
+        rw [if_neg hel] at hs
+        omega
+      · have hel : e ∈ leave := by
+          rcases Finset.mem_union.mp heHost with h | h
+          · exact (hea h).elim
+          · exact h
+        rw [if_neg hea] at hneg
+        rw [if_pos hel] at hs
+        omega
+    · exact Disjoint.mono (Finset.filter_subset _ _)
+        (Finset.filter_subset _ _) hblockDisjoint
+
+/-- The generator, local decoders, and exchange Booleanization give a
+genuine omni-absorber. -/
+theorem isAbsorber_of_integralGenerator_and_booleanization
+    {n k r : ℕ} (hr : 0 < r) (hrk : r < k)
+    {reserve generators positive negative : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ completeUniform n r)
+    (hgen : IsSparseIntegralGenerator n k r reserve generators)
+    (placement : LocalDecoderPlacement n k r
+      (cliqueBoundarySupport generators r) generators)
+    (hbool : IsBooleanizationSystem n k r
+      (reducedDecoderCoeffBound k r)
+      (generators ∪ localDecoderCliques
+        (cliqueBoundarySupport generators r) placement.Z k)
+      reserve positive negative) :
+    IsAbsorber n k r (cliqueBoundarySupport negative r) reserve := by
+  have hnegativeUniform : ∀ Q ∈ negative, Q.card = k := hbool.2.2.1.1
+  have habsorberSub :
+      cliqueBoundarySupport negative r ⊆ completeUniform n r :=
+    cliqueBoundarySupport_subset_complete hnegativeUniform
+  have habsorberInt :
+      IsIntegrallyDecomposable n k r (cliqueBoundarySupport negative r) :=
+    hbool.2.2.1.isIntegrallyDecomposable
+  have hcert := signedCertificate_of_integralGenerator_and_booleanization
+    hr hrk hgen placement hbool
+  exact isAbsorber_of_signedCertificate hrk.le habsorberSub hreserve
+    hbool.2.2.2.1 habsorberInt hcert
+
+/-- All finite data still to be constructed in the sparse omni-absorber
+lemma.  This packages the exact output of Sections 4 and 6 without assuming
+the desired absorber property itself. -/
+def HasSparseAbsorberConstruction (n k r : ℕ)
+    (reserve : Finset (Finset (Fin n))) : Prop :=
+  ∃ generators : Finset (Finset (Fin n)),
+    IsSparseIntegralGenerator n k r reserve generators ∧
+    ∃ placement : LocalDecoderPlacement n k r
+        (cliqueBoundarySupport generators r) generators,
+      ∃ positive negative : Finset (Finset (Fin n)),
+        IsBooleanizationSystem n k r (reducedDecoderCoeffBound k r)
+          (generators ∪ localDecoderCliques
+            (cliqueBoundarySupport generators r) placement.Z k)
+          reserve positive negative ∧
+        IsPowerBounded n r (absorberDen k r) 1
+          (cliqueBoundarySupport negative r)
+
+/-- The two genuinely source-specific outputs still needed after the
+checked decoder placement theorem: a power-bounded multiplicity-two
+integral generator and a Booleanization system for every separated decoder
+placement.  Quantifying over the placement makes the random-greedy choice
+independent of the subsequent exchange allocation. -/
+def HasSparseGeneratorBooleanization (n k r : ℕ)
+    (reserve : Finset (Finset (Fin n))) : Prop :=
+  HasReserveProperty n k r reserve ∧
+  ∃ generators : Finset (Finset (Fin n)),
+    IsSparseIntegralGenerator n k r reserve generators ∧
+    IsPowerBounded n r (generatorDen k r) 1
+      (cliqueBoundarySupport generators r) ∧
+    reserve ⊆ cliqueBoundarySupport generators r ∧
+    ∀ placement : BoundedLocalDecoderPlacement n k r
+        (LocalDecoderAsymptotic.decoderPathCap (k + r) r
+          (generatorDen k r + 1) n)
+        (cliqueBoundarySupport generators r) generators,
+      ∃ positive negative : Finset (Finset (Fin n)),
+        IsBooleanizationSystem n k r (reducedDecoderCoeffBound k r)
+          (generators ∪ localDecoderCliques
+            (cliqueBoundarySupport generators r)
+              placement.toLocalDecoderPlacement.Z k)
+          reserve positive negative ∧
+        IsPowerBounded n r (absorberDen k r) 1
+          (cliqueBoundarySupport negative r)
+
+/-- The asymptotic rooted-clique placement theorem turns the preceding
+source-specific package into the exact finite construction consumed by the
+absorber assembly. -/
+theorem eventually_hasSparseAbsorberConstruction_of_generatorBooleanization
+    (hr : 0 < r) (hrk : r < k) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ reserve : Finset (Finset (Fin n)),
+        HasSparseGeneratorBooleanization n k r reserve →
+        HasSparseAbsorberConstruction n k r reserve := by
+  let a := generatorDen k r
+  let d := a + 1
+  have ha : 0 < a := by
+    have hchoose : 0 < Nat.choose k r := Nat.choose_pos hrk.le
+    have hk : 0 < k := by omega
+    simp [a, generatorDen, alphaDen, rhoDen, cliqueSize, hchoose,
+      Nat.mul_pos (by omega : 0 < 2) hk]
+  have hd : 0 < d := by omega
+  have hplacement :=
+    LocalDecoderAsymptotic.eventually_exists_separatedCliqueExtensions_of_two_power_bounds
+      (v := k + r) hr (by omega) hd
+  have hrebase := eventually_rebase_powerBounded_constant
+    (r := r) a d 4 ha (by omega)
+  have hrho : 0 < rhoDen k r := by
+    have hchoose : 0 < Nat.choose k r := Nat.choose_pos hrk.le
+    simp [rhoDen, cliqueSize, hchoose]
+  have hrhoA : rhoDen k r < a := by
+    have hk : 0 < k := by omega
+    have halpha : rhoDen k r ≤ alphaDen k r := by
+      exact Nat.le_mul_of_pos_left _ (by positivity : 0 < (2 * k) ^ r)
+    dsimp [a, generatorDen]
+    omega
+  have hreserveRebase := eventually_rebase_powerBounded_constant
+    (r := r) (rhoDen k r) a 2 hrho hrhoA
+  filter_upwards [hplacement, hrebase, hreserveRebase,
+      Filter.eventually_ge_atTop 1] with
+      n hplacement hrebase hreserveRebase hn
+  intro reserve hsource
+  obtain ⟨hreserve, generators, hgen, hroot, hreserveRoot, hbool⟩ := hsource
+  let roots := cliqueBoundarySupport generators r
+  let forbidden := roots ∪ reserve
+  have hreserveA : IsPowerBounded n r a 2 reserve := by
+    exact (hreserveRebase reserve hreserve.2.1).mono_constant (by omega)
+  have hforbiddenA : IsPowerBounded n r a 4 forbidden := by
+    have hrootTwo : IsPowerBounded n r a 2 roots := by
+      exact hroot.mono_constant (by omega)
+    simpa [forbidden] using hrootTwo.union hreserveA
+  have hforbidden : IsPowerBounded n r d 1 forbidden :=
+    hrebase forbidden hforbiddenA
+  have hroots : IsPowerBounded n r d 1 roots :=
+    hforbidden.mono (by simp [forbidden])
+  have hrootsUniform : ∀ e ∈ roots, e.card = r := by
+    intro e he
+    exact mem_completeUniform.mp
+      (cliqueBoundarySupport_subset_complete hgen.1 (by simpa [roots] using he))
+  have hforbiddenUniform : ∀ e ∈ forbidden, e.card = r := by
+    intro e he
+    rcases Finset.mem_union.mp he with he | he
+    · exact hrootsUniform e he
+    · exact mem_completeUniform.mp (hreserve.1 he)
+  obtain ⟨S⟩ := hplacement roots forbidden hrootsUniform hforbiddenUniform
+    (by
+      intro J hJ
+      simpa [localDegree, Reserve.localDegree] using
+        hroots J (mem_completeUniform.mpr hJ))
+    (by
+      intro J hJ
+      simpa [localDegree, Reserve.localDegree] using
+        hforbidden J (mem_completeUniform.mpr hJ))
+  let placement : BoundedLocalDecoderPlacement n k r
+      (LocalDecoderAsymptotic.decoderPathCap (k + r) r d n)
+      roots generators :=
+    boundedLocalDecoderPlacementOfSeparated hr hrk hgen.1
+      (by simp [roots, forbidden]) S
+  obtain ⟨positive, negative, hsystem, hnegative⟩ :=
+    hbool placement
+  exact ⟨generators, hgen, placement.toLocalDecoderPlacement, positive, negative,
+    hsystem, hnegative⟩
+
+theorem hasSparseAbsorber_of_construction
+    {n k r : ℕ} (hr : 0 < r) (hrk : r < k)
+    {reserve : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ completeUniform n r)
+    (h : HasSparseAbsorberConstruction n k r reserve) :
+    ∃ absorber : Finset (Finset (Fin n)),
+      HasSparseAbsorber n k r absorber reserve := by
+  obtain ⟨generators, hgen, placement, positive, negative, hbool, hsparse⟩ := h
+  refine ⟨cliqueBoundarySupport negative r, ?_, hsparse⟩
+  exact isAbsorber_of_integralGenerator_and_booleanization
+    hr hrk hreserve hgen placement hbool
+
+/-- An omni-absorber for every locally divisible leave in `reserve`.  This
+is the exact absorber interface in the design-existence proof. -/
+def IsDivisibleAbsorber (n k r : ℕ)
+    (absorber reserve : Finset (Finset (Fin n))) : Prop :=
+  absorber ⊆ completeUniform n r ∧
+    reserve ⊆ completeUniform n r ∧
+    Disjoint absorber reserve ∧
+    IsCliqueDivisible n k r absorber ∧
+    ∀ leave : Finset (Finset (Fin n)), leave ⊆ reserve →
+      IsCliqueDivisible n k r leave →
+        ∃ blocks : Finset (Finset (Fin n)),
+          IsBlockDecomposition (absorber ∪ leave) blocks k r
+
+/-- Deterministic completion step using the local divisibility notion from
+Keevash's theorem. -/
+theorem steinerSystem_of_divisible_absorber_and_cover
+    {n k r : ℕ} (hrk : r ≤ k)
+    {absorber reserve covered usedBlocks : Finset (Finset (Fin n))}
+    (hcomplete : IsCliqueDivisible n k r (completeUniform n r))
+    (habsorber : IsDivisibleAbsorber n k r absorber reserve)
+    (hcovered : IsBlockDecomposition covered usedBlocks k r)
+    (hcovered_sub : covered ⊆ completeUniform n r \ absorber)
+    (hleave_reserve :
+      (completeUniform n r \ absorber) \ covered ⊆ reserve) :
+    ∃ blocks : Finset (Finset (Fin n)), IsSteinerSystem n k r blocks := by
+  classical
+  let leave := (completeUniform n r \ absorber) \ covered
+  have habsorber_sub : absorber ⊆ completeUniform n r := habsorber.1
+  have habsorber_div : IsCliqueDivisible n k r absorber := habsorber.2.2.2.1
+  have houtside_div :
+      IsCliqueDivisible n k r (completeUniform n r \ absorber) :=
+    hcomplete.sdiff habsorber_div habsorber_sub
+  have hcovered_div : IsCliqueDivisible n k r covered :=
+    hcovered.isCliqueDivisible
+  have hleave_div : IsCliqueDivisible n k r leave :=
+    houtside_div.sdiff hcovered_div hcovered_sub
+  obtain ⟨absorbingBlocks, habsorbing⟩ :=
+    habsorber.2.2.2.2 leave (by simpa [leave] using hleave_reserve) hleave_div
+  have hhost_disjoint : Disjoint covered (absorber ∪ leave) := by
+    apply Finset.disjoint_left.mpr
+    intro A hAc hAal
+    rcases Finset.mem_union.mp hAal with hAa | hAl
+    · exact (Finset.mem_sdiff.mp (hcovered_sub hAc)).2 hAa
+    · exact (Finset.mem_sdiff.mp hAl).2 hAc
+  have hunion := hcovered.union habsorbing hhost_disjoint hrk
+  have hhost_union : covered ∪ (absorber ∪ leave) = completeUniform n r := by
+    ext A
+    simp only [Finset.mem_union, Finset.mem_sdiff, leave]
+    constructor
+    · rintro (hAc | hAa | hAH)
+      · exact (Finset.mem_sdiff.mp (hcovered_sub hAc)).1
+      · exact habsorber_sub hAa
+      · exact hAH.1.1
+    · intro hAH
+      by_cases hAa : A ∈ absorber
+      · exact Or.inr (Or.inl hAa)
+      · by_cases hAc : A ∈ covered
+        · exact Or.inl hAc
+        · exact Or.inr (Or.inr ⟨⟨hAH, hAa⟩, hAc⟩)
+  refine ⟨usedBlocks ∪ absorbingBlocks, ?_⟩
+  apply (isSteinerSystem_iff_isCliqueDecomposition n k r _).mpr
+  change IsBlockDecomposition (completeUniform n r)
+    (usedBlocks ∪ absorbingBlocks) k r
+  exact hhost_union ▸ hunion
+
+/-- The concrete output produced by the reserve, absorber, nibble, and
+cover stages.  Every field is consumed by the deterministic theorem above. -/
+def HasAbsorptionComponents (n k r : ℕ) : Prop :=
+  ∃ absorber reserve covered usedBlocks : Finset (Finset (Fin n)),
+    IsDivisibleAbsorber n k r absorber reserve ∧
+      IsBlockDecomposition covered usedBlocks k r ∧
+      covered ⊆ completeUniform n r \ absorber ∧
+      (completeUniform n r \ absorber) \ covered ⊆ reserve
+
+/-- Source-faithful version of the construction output, using the integral
+divisibility notion in the 2024 absorber lemma. -/
+def HasIntegralAbsorptionComponents (n k r : ℕ) : Prop :=
+  ∃ absorber reserve covered usedBlocks : Finset (Finset (Fin n)),
+    IsAbsorber n k r absorber reserve ∧
+      IsBlockDecomposition covered usedBlocks k r ∧
+      covered ⊆ completeUniform n r \ absorber ∧
+      (completeUniform n r \ absorber) \ covered ⊆ reserve
+
+/-- Convert the submodule's auxiliary-hypergraph matching endpoint into the
+main file's block-decomposition predicate. -/
+theorem NibbleBasics.IsCliquePacking.isBlockDecomposition
+    {host blocks : Finset (Finset (Fin n))}
+    (h : NibbleBasics.IsCliquePacking host blocks k r) :
+    IsBlockDecomposition (NibbleBasics.coveredEdges r blocks) blocks k r := by
+  have hdecomp := h.isUniformDecomposition
+  refine ⟨hdecomp.1, ?_, ?_⟩
+  · intro B hB A hA
+    exact hdecomp.2.1 B hB hA
+  · intro A hA
+    have hAr : A.card = r := (NibbleBasics.mem_coveredEdges.mp hA).choose_spec.2.2
+    have hfilter :
+        (blocks.filter fun B ↦ A ∈ cliqueEdges B r) =
+          blocks.filter fun B ↦ A ⊆ B := by
+      ext B
+      simp only [Finset.mem_filter, mem_cliqueEdges, hAr, and_true]
+    rw [hfilter]
+    exact hdecomp.2.2 A hA
+
+/-- Convert the sparse reserve cover's local exact-decomposition predicate
+into the main block-decomposition predicate. -/
+theorem Cover.CoverAssignment.isBlockDecomposition
+    {leave reserve : Finset (Finset (Fin n))}
+    (C : Cover.CoverAssignment n k r leave reserve)
+    (huniform : ∀ e ∈ leave, e.card = r)
+    (hdisjoint : Disjoint leave reserve) :
+    IsBlockDecomposition (Cover.coveredEdges C) (Cover.coverBlocks C) k r := by
+  have hdecomp := C.isCoverDecomposition huniform hdisjoint
+  refine ⟨hdecomp.1, ?_, ?_⟩
+  · intro B hB e he
+    exact hdecomp.2.1 B hB he
+  · intro e he
+    change ((Cover.coverBlocks C).filter fun B ↦
+      e ∈ Reserve.cliqueEdges B r).card = 1
+    exact hdecomp.2.2 e he
+
+/-- Deterministic assembly of the nibble and sparse reserve cover.  Once an
+integral omni-absorber has been removed, a clique packing of the remaining
+non-reserve host and a cover assignment for its leave produce exactly the
+four components consumed by `steinerSystem_of_integralAbsorptionComponents`.
+-/
+theorem hasIntegralAbsorptionComponents_of_absorber_packing_cover
+    {n k r : ℕ}
+    {absorber reserve blocks : Finset (Finset (Fin n))}
+    (habsorber : IsAbsorber n k r absorber reserve)
+    (hpack : NibbleBasics.IsCliquePacking
+      ((completeUniform n r \ absorber) \ reserve) blocks k r)
+    (C : Cover.CoverAssignment n k r
+      (NibbleBasics.leave ((completeUniform n r \ absorber) \ reserve)
+        blocks r) reserve)
+    (hrk : r ≤ k) :
+    HasIntegralAbsorptionComponents n k r := by
+  classical
+  let G := (completeUniform n r \ absorber) \ reserve
+  let covered₁ := NibbleBasics.coveredEdges r blocks
+  let leave₁ := NibbleBasics.leave G blocks r
+  let covered₂ := Cover.coveredEdges C
+  let blocks₂ := Cover.coverBlocks C
+  have hGsub : G ⊆ completeUniform n r \ absorber := by
+    exact Finset.sdiff_subset
+  have hGR : Disjoint G reserve := by
+    dsimp [G]
+    exact Finset.disjoint_sdiff.symm
+  have hcovered₁subG : covered₁ ⊆ G := by
+    simpa [covered₁, G] using hpack.covered_subset
+  have hleave₁subG : leave₁ ⊆ G := by
+    exact NibbleBasics.leave_subset _ _ _
+  have hleave₁Uniform : ∀ e ∈ leave₁, e.card = r := by
+    intro e he
+    exact mem_completeUniform.mp
+      (Finset.mem_sdiff.mp (hGsub (hleave₁subG he))).1
+  have hreserveUniform : ∀ e ∈ reserve, e.card = r := by
+    intro e he
+    exact mem_completeUniform.mp (habsorber.2.1 he)
+  have hleave₁reserve : Disjoint leave₁ reserve :=
+    hGR.mono hleave₁subG (fun _ h ↦ h)
+  have hdecomp₁ : IsBlockDecomposition covered₁ blocks k r := by
+    simpa [covered₁, G] using hpack.isBlockDecomposition
+  have hdecomp₂ : IsBlockDecomposition covered₂ blocks₂ k r := by
+    simpa [covered₂, blocks₂, leave₁, G] using
+      C.isBlockDecomposition hleave₁Uniform hleave₁reserve
+  have hhosts : Disjoint covered₁ covered₂ := by
+    apply Finset.disjoint_left.mpr
+    intro e he₁ he₂
+    have he₁G := hcovered₁subG he₁
+    rcases Finset.mem_union.mp he₂ with heLeave | heSpent
+    · exact Finset.disjoint_left.mp
+        (NibbleBasics.disjoint_covered_leave (r := r) (blocks := blocks))
+        he₁ heLeave
+    · exact Finset.disjoint_left.mp hGR he₁G
+        (C.spentEdges_subset_reserve heSpent)
+  have hdecomp : IsBlockDecomposition (covered₁ ∪ covered₂)
+      (blocks ∪ blocks₂) k r :=
+    hdecomp₁.union hdecomp₂ hhosts hrk
+  refine ⟨absorber, reserve, covered₁ ∪ covered₂,
+    blocks ∪ blocks₂, habsorber, hdecomp, ?_, ?_⟩
+  · intro e he
+    rcases Finset.mem_union.mp he with he₁ | he₂
+    · exact hGsub (hcovered₁subG he₁)
+    · rcases Finset.mem_union.mp he₂ with heLeave | heSpent
+      · exact hGsub (hleave₁subG heLeave)
+      · have heR := C.spentEdges_subset_reserve heSpent
+        exact Finset.mem_sdiff.mpr ⟨habsorber.2.1 heR,
+          fun heA ↦ Finset.disjoint_left.mp habsorber.2.2.1 heA heR⟩
+  · intro e he
+    have heData := Finset.mem_sdiff.mp he
+    by_contra heR
+    have heG : e ∈ G := Finset.mem_sdiff.mpr ⟨heData.1, heR⟩
+    have heNotCovered₁ : e ∉ covered₁ := by
+      intro he₁
+      exact heData.2 (Finset.mem_union_left _ he₁)
+    have heLeave : e ∈ leave₁ :=
+      Finset.mem_sdiff.mpr ⟨heG, heNotCovered₁⟩
+    exact heData.2 (Finset.mem_union_right _
+      (Finset.mem_union_left _ heLeave))
+
+/-- The asymptotic cover theorem removes the cover stage from the final
+existence problem.  For large `n`, any reserve with the checked reserve
+property, any integral omni-absorber for it, and any clique packing with the
+power-cleared nibble leave bound already give all absorption components. -/
+theorem eventually_hasIntegralAbsorptionComponents_of_absorber_and_nibble
+    (hr : 0 < r) (hrk : r < k) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ (reserve absorber : Finset (Finset (Fin n))),
+        HasReserveProperty n k r reserve →
+        IsAbsorber n k r absorber reserve →
+        NibbleBasics.HasBoundedNibble
+          ((completeUniform n r \ absorber) \ reserve) k r
+          (CoverAsymptotic.coverDen k r)
+          (CoverAsymptotic.coverLeaveNumerator k r) →
+        HasIntegralAbsorptionComponents n k r := by
+  have hcover :=
+    CoverAsymptotic.eventually_exists_coverAssignment_of_power_bounds hr hrk
+  filter_upwards [hcover] with n hcover
+  intro reserve absorber hreserve habsorber hnibble
+  obtain ⟨blocks, hpack, hdegree⟩ := hnibble
+  let G := (completeUniform n r \ absorber) \ reserve
+  let leave := NibbleBasics.leave G blocks r
+  have hleaveSubG : leave ⊆ G := NibbleBasics.leave_subset _ _ _
+  have hleaveUniform : ∀ e ∈ leave, e.card = r := by
+    intro e he
+    exact mem_completeUniform.mp
+      (Finset.mem_sdiff.mp (Finset.mem_sdiff.mp (hleaveSubG he)).1).1
+  have hreserveUniform : ∀ e ∈ reserve, e.card = r := by
+    intro e he
+    exact mem_completeUniform.mp (hreserve.1 he)
+  have hcandidates : ∀ e ∈ leave,
+      n ^ CoverAsymptotic.coverCandidateNumerator k r ≤
+        (Reserve.reserveCandidates n k r reserve e).card ^
+          CoverAsymptotic.coverDen k r := by
+    intro e he
+    have heG := hleaveSubG he
+    have heComplete : e ∈ completeUniform n r :=
+      (Finset.mem_sdiff.mp (Finset.mem_sdiff.mp heG).1).1
+    have heNotReserve : e ∉ reserve := (Finset.mem_sdiff.mp heG).2
+    have hmain := hreserve.2.2 e
+      (Finset.mem_sdiff.mpr ⟨heComplete, heNotReserve⟩)
+    simpa [CoverAsymptotic.coverCandidateNumerator,
+      CoverAsymptotic.coverDen, CoverAsymptotic.coverK,
+      rhoDen, cliqueSize, reserveCandidates, Reserve.reserveCandidates,
+      blockCandidates, completeUniform, cliqueEdges, Reserve.cliqueEdges,
+      Typicality.uniformEdges] using hmain
+  have hdegree' : ∀ J : Finset (Fin n), J.card = r - 1 →
+      (Reserve.localDegree leave J) ^ CoverAsymptotic.coverDen k r ≤
+        n ^ CoverAsymptotic.coverLeaveNumerator k r := by
+    simpa [leave, G] using hdegree
+  obtain ⟨C⟩ := hcover leave reserve hleaveUniform hreserveUniform
+    hdegree' hcandidates
+  exact hasIntegralAbsorptionComponents_of_absorber_packing_cover
+    habsorber (by simpa [G] using hpack) (by simpa [leave, G] using C) hrk.le
+
+/-- The boost, nibble, and cover stages consume exactly a sparse
+omni-absorber.  Thus the only remaining construction input is the
+`HasSparseAbsorber` supplied by the integral-absorber argument. -/
+theorem eventually_hasIntegralAbsorptionComponents_of_sparseAbsorber
+    (hr : 1 < r) (hrk : r < k) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ (reserve absorber : Finset (Finset (Fin n))),
+        HasReserveProperty n k r reserve →
+        HasSparseAbsorber n k r absorber reserve →
+        HasIntegralAbsorptionComponents n k r := by
+  let dA := absorberDen k r
+  let dR := rhoDen k r
+  let d := 2 * (dA * dR)
+  have hkpos : 0 < k := by omega
+  have hKpos : 0 < cliqueSize k r := Nat.choose_pos hrk.le
+  have hdR : 0 < dR := by
+    dsimp [dR, rhoDen]
+    positivity
+  have hdA : 0 < dA := by
+    dsimp [dA, absorberDen, generatorDen, alphaDen]
+    positivity
+  have hd : 1 < d := by
+    dsimp [d]
+    have := Nat.mul_pos hdA hdR
+    omega
+  have hunion := eventually_union_powerBounded_one
+    (r := r) dA dR 1 2 hdA hdR
+  have hhalf := eventually_half_card_sdiff_of_powerBounded
+    (r := r) (d := d) (by omega) hd
+  have hboost := BoostAsymptotic.eventually_exists_boost_of_power_bounded_complement
+    (q := k) (r := r) (d := d) (by omega) hrk hd
+  have herror := NibbleAsymptotic.eventually_boostError_le_initial_error
+    (q := k) (r := r) hrk
+  have hnibble := NibbleTail.eventually_exists_boundedNibble hr hrk
+  have hcover := eventually_hasIntegralAbsorptionComponents_of_absorber_and_nibble
+    (k := k) (r := r) (by omega) hrk
+  filter_upwards [hunion, hhalf, hboost, herror, hnibble, hcover] with
+      n hunion hhalf hboost herror hnibble hcover
+  intro reserve absorber hreserve habsorber
+  let omitted := absorber ∪ reserve
+  let G := (completeUniform n r \ absorber) \ reserve
+  have homittedSub : omitted ⊆ completeUniform n r := by
+    intro e he
+    rcases Finset.mem_union.mp he with heA | heR
+    · exact habsorber.1.1 heA
+    · exact hreserve.1 heR
+  have homittedSparse : IsPowerBounded n r d 1 omitted := by
+    simpa [d, dA, dR, omitted] using
+      hunion absorber reserve habsorber.2 hreserve.2.1
+  have hGsub : G ⊆ Typicality.uniformEdges n r := by
+    intro e he
+    have heComplete : e ∈ completeUniform n r :=
+      (Finset.mem_sdiff.mp (Finset.mem_sdiff.mp he).1).1
+    simpa [completeUniform, Typicality.uniformEdges] using heComplete
+  have hGhalf : Nat.choose n r / 2 < G.card := by
+    have hh := hhalf omitted homittedSub homittedSparse
+    have hGeq : G = completeUniform n r \ omitted := by
+      ext e
+      simp [G, omitted, and_assoc]
+    rw [hGeq]
+    exact hh
+  have hcomp : Boost.complementEdges n r G = omitted := by
+    ext e
+    simp only [Boost.complementEdges, G, omitted, Finset.mem_sdiff,
+      Finset.mem_union]
+    have hcompleteEq : e ∈ Typicality.uniformEdges n r ↔
+        e ∈ completeUniform n r := by
+      simp [Typicality.uniformEdges, completeUniform]
+    rw [hcompleteEq]
+    constructor
+    · rintro ⟨heC, hnot⟩
+      by_cases heA : e ∈ absorber
+      · exact Or.inl heA
+      · by_cases heR : e ∈ reserve
+        · exact Or.inr heR
+        · exact (hnot ⟨⟨heC, heA⟩, heR⟩).elim
+    · rintro (heA | heR)
+      · refine ⟨habsorber.1.1 heA, ?_⟩
+        intro heG
+        exact heG.1.2 heA
+      · refine ⟨hreserve.1 heR, ?_⟩
+        intro heG
+        exact heG.2 heR
+  let D := maxLowerDegree n r omitted
+  have hDpow : D ^ d ≤ n ^ (d - 1) := by
+    simpa [D] using maxLowerDegree_pow_le homittedSparse
+  have hdegree : Counting.LowerDegreeLE n r D
+      (Boost.complementEdges n r G) := by
+    rw [hcomp]
+    exact lowerDegreeLE_maxLowerDegree omitted
+  obtain ⟨H, hHsub, hregular⟩ :=
+    hboost D G hDpow hGsub hdegree
+  have hH : ∀ Q ∈ H,
+      Q.card = k ∧ NibbleBasics.blockEdges r Q ⊆ G := by
+    intro Q hQ
+    have hQdata := Boost.mem_cliqueFamily.mp (hHsub hQ)
+    simpa [NibbleBasics.blockEdges] using hQdata
+  have hregular' : ∀ e ∈ G,
+      |((H.filter fun Q ↦ e ⊆ Q).card : ℝ) -
+          NibbleConcrete.centerDegree n k r| <
+        NibbleInstantiation.initialError n k r / 4 := by
+    intro e he
+    calc
+      |((H.filter fun Q ↦ e ⊆ Q).card : ℝ) -
+          NibbleConcrete.centerDegree n k r| <
+          BoostAsymptotic.boostError n k r := by
+        simpa [NibbleConcrete.centerDegree] using hregular e he
+      _ ≤ NibbleInstantiation.initialError n k r / 4 := by
+        simpa [NibbleInstantiation.initialError] using herror
+  have hb : NibbleBasics.HasBoundedNibble G k r
+      (CoverAsymptotic.coverDen k r)
+      (CoverAsymptotic.coverLeaveNumerator k r) :=
+    hnibble G H hGsub hH hregular' hGhalf
+  exact hcover reserve absorber hreserve habsorber.1 (by simpa [G] using hb)
+
+theorem steinerSystem_of_integralAbsorptionComponents
+    {n k r : ℕ} (hrk : r ≤ k) (hsize : k + r ≤ n)
+    (hadm : IsAdmissible n k r)
+    (hcomponents : HasIntegralAbsorptionComponents n k r) :
+    ∃ blocks : Finset (Finset (Fin n)), IsSteinerSystem n k r blocks := by
+  rcases hcomponents with
+    ⟨absorber, reserve, covered, usedBlocks,
+      habsorber, hcovered, hcovered_sub, hleave⟩
+  exact steinerSystem_of_absorber_and_cover hrk
+    (isIntegrallyDecomposable_completeUniform_iff hrk hsize |>.mpr hadm)
+    habsorber hcovered hcovered_sub hleave
+
+theorem steinerSystem_of_absorptionComponents
+    {n k r : ℕ} (hrk : r ≤ k) (hadm : IsAdmissible n k r)
+    (hcomponents : HasAbsorptionComponents n k r) :
+    ∃ blocks : Finset (Finset (Fin n)), IsSteinerSystem n k r blocks := by
+  rcases hcomponents with
+    ⟨absorber, reserve, covered, usedBlocks,
+      habsorber, hcovered, hcovered_sub, hleave⟩
+  exact steinerSystem_of_divisible_absorber_and_cover hrk
+    (isCliqueDivisible_completeUniform_iff.mpr hadm) habsorber hcovered
+    hcovered_sub hleave
+
+/-- Once the four construction stages are available uniformly for large
+`n`, their output is exactly Erdős Problem 722. -/
+theorem resolution_of_eventual_absorptionComponents
+    (h : ∀ k r : ℕ, 0 < r → r < k →
+      ∃ n₀ : ℕ, ∀ n : ℕ, n₀ ≤ n → IsAdmissible n k r →
+        HasAbsorptionComponents n k r) :
+    Resolution := by
+  intro k r hr hrk
+  obtain ⟨n₀, hn₀⟩ := h k r hr hrk
+  refine ⟨n₀, ?_⟩
+  intro n hn hadm
+  exact steinerSystem_of_absorptionComponents hrk.le hadm (hn₀ n hn hadm)
+
+/-- The rank-one case is elementary: admissibility says `k ∣ n`, and an
+equipartition into `n / k` parts supplies the blocks. -/
+theorem steinerSystem_one {n k : ℕ} (hk : 0 < k) (hnk : k ≤ n)
+    (hadm : IsAdmissible n k 1) :
+    ∃ blocks : Finset (Finset (Fin n)), IsSteinerSystem n k 1 blocks := by
+  classical
+  have hkn : k ∣ n := by
+    have h := hadm 0 (by omega)
+    simpa using h
+  obtain ⟨m, hm⟩ := hkn
+  have hm0 : m ≠ 0 := by
+    rintro rfl
+    simp at hm
+    omega
+  have hmpos : 0 < m := Nat.pos_of_ne_zero hm0
+  have hmn : m ≤ n := by
+    rw [hm]
+    nlinarith
+  obtain ⟨P, hP, hPcard⟩ :=
+    Finpartition.exists_equipartition_card_eq
+      (Finset.univ : Finset (Fin n)) hm0 (by simpa using hmn)
+  have hpart (B : Finset (Fin n)) (hB : B ∈ P.parts) : B.card = k := by
+    have hnotLarge :
+        B.card ≠ (Finset.univ : Finset (Fin n)).card / P.parts.card + 1 := by
+      intro hlarge
+      have hlargeCard := hP.card_large_parts_eq_mod
+      have hmem : B ∈
+          P.parts.filter (fun C ↦
+            C.card = (Finset.univ : Finset (Fin n)).card / P.parts.card + 1) :=
+        Finset.mem_filter.mpr ⟨hB, hlarge⟩
+      have hpos : 0 <
+          (P.parts.filter (fun C ↦
+            C.card = (Finset.univ : Finset (Fin n)).card / P.parts.card + 1)).card :=
+        Finset.card_pos.mpr ⟨B, hmem⟩
+      rw [hlargeCard, hPcard] at hpos
+      have hmod : n % m = 0 := by
+        rw [hm]
+        exact Nat.mul_mod_left k m
+      simp [hmod] at hpos
+    have havg := (hP.card_part_eq_average_iff hB).mpr hnotLarge
+    rw [hPcard] at havg
+    simp only [Finset.card_univ, Fintype.card_fin] at havg
+    calc
+      B.card = n / m := havg
+      _ = (k * m) / m := by rw [hm]
+      _ = k := by simpa [Nat.mul_comm] using Nat.mul_div_right k hmpos
+  refine ⟨P.parts, hpart, ?_⟩
+  intro A hA
+  have hAcard : A.card = 1 := mem_completeUniform.mp hA
+  obtain ⟨a, ha⟩ := Finset.card_eq_one.mp hAcard
+  subst A
+  obtain ⟨B, hB, huniq⟩ := P.existsUnique_mem (a := a) (by simp)
+  have heq :
+      (P.parts.filter fun C ↦ ({a} : Finset (Fin n)) ⊆ C) = {B} := by
+    ext C
+    constructor
+    · intro hC
+      have hmC := Finset.mem_filter.mp hC
+      have haC : a ∈ C := by simpa using hmC.2
+      have hCB : C = B := huniq C ⟨hmC.1, haC⟩
+      simp [hCB]
+    · intro hC
+      have hCB : C = B := Finset.mem_singleton.mp hC
+      subst C
+      exact Finset.mem_filter.mpr ⟨hB.1, by simpa using hB.2⟩
+  rw [heq]
+  simp
+
+/-- It is enough to run absorption in ranks at least two; the preceding
+equipartition theorem supplies rank one. -/
+theorem resolution_of_eventual_absorptionComponents_two
+    (h : ∀ k r : ℕ, 1 < r → r < k →
+      ∃ n₀ : ℕ, ∀ n : ℕ, n₀ ≤ n → IsAdmissible n k r →
+        HasAbsorptionComponents n k r) :
+    Resolution := by
+  intro k r hr hrk
+  by_cases hrone : r = 1
+  · subst r
+    refine ⟨k, ?_⟩
+    intro n hn hadm
+    exact steinerSystem_one (by omega) hn hadm
+  · have hrtwo : 1 < r := by omega
+    obtain ⟨n₀, hn₀⟩ := h k r hrtwo hrk
+    refine ⟨n₀, ?_⟩
+    intro n hn hadm
+    exact steinerSystem_of_absorptionComponents hrk.le hadm (hn₀ n hn hadm)
+
+/-- Source-faithful rank split using the integral absorber interface. -/
+theorem resolution_of_eventual_integralAbsorptionComponents_two
+    (h : ∀ k r : ℕ, 1 < r → r < k →
+      ∃ n₀ : ℕ, k + r ≤ n₀ ∧
+        ∀ n : ℕ, n₀ ≤ n → IsAdmissible n k r →
+          HasIntegralAbsorptionComponents n k r) :
+    Resolution := by
+  intro k r hr hrk
+  by_cases hrone : r = 1
+  · subst r
+    refine ⟨k, ?_⟩
+    intro n hn hadm
+    exact steinerSystem_one (by omega) hn hadm
+  · have hrtwo : 1 < r := by omega
+    obtain ⟨n₀, hkn₀, hn₀⟩ := h k r hrtwo hrk
+    refine ⟨n₀, ?_⟩
+    intro n hn hadm
+    exact steinerSystem_of_integralAbsorptionComponents hrk.le
+      (hkn₀.trans hn) hadm (hn₀ n hn hadm)
+
+/-- Final reduction to the one remaining source lemma: the eventual sparse
+integral omni-absorber for every reserve produced above. -/
+theorem resolution_of_eventual_sparseAbsorber
+    (habsorber : ∀ k r : ℕ, 1 < r → r < k →
+      ∀ᶠ n : ℕ in Filter.atTop,
+        ∀ reserve : Finset (Finset (Fin n)),
+          HasReserveProperty n k r reserve →
+          ∃ absorber : Finset (Finset (Fin n)),
+            HasSparseAbsorber n k r absorber reserve) :
+    Resolution := by
+  apply resolution_of_eventual_integralAbsorptionComponents_two
+  intro k r hr hrk
+  have hreserve := eventually_hasReserveProperty k r hr hrk
+  have habs := habsorber k r hr hrk
+  have hassemble := eventually_hasIntegralAbsorptionComponents_of_sparseAbsorber
+    (k := k) (r := r) hr hrk
+  have hevent : ∀ᶠ n : ℕ in Filter.atTop,
+      HasIntegralAbsorptionComponents n k r := by
+    filter_upwards [hreserve, habs, hassemble] with n hreserve habs hassemble
+    obtain ⟨reserve, hreserve⟩ := hreserve
+    obtain ⟨absorber, habsorber⟩ := habs reserve hreserve
+    exact hassemble reserve absorber hreserve habsorber
+  obtain ⟨N, hN⟩ := Filter.eventually_atTop.1 hevent
+  refine ⟨max (k + r) N, le_max_left _ _, ?_⟩
+  intro n hn _hadm
+  exact hN n ((le_max_right _ _).trans hn)
+
+/-- Refined final reduction: it suffices to build the sparse integral
+generator, its separated local decoders, and the exchange Booleanization
+system.  All conversion from those objects to an omni-absorber is checked
+above. -/
+theorem resolution_of_eventual_sparseAbsorberConstruction
+    (hconstruction : ∀ k r : ℕ, 1 < r → r < k →
+      ∀ᶠ n : ℕ in Filter.atTop,
+        ∀ reserve : Finset (Finset (Fin n)),
+          HasReserveProperty n k r reserve →
+          HasSparseAbsorberConstruction n k r reserve) :
+    Resolution := by
+  apply resolution_of_eventual_sparseAbsorber
+  intro k r hr hrk
+  filter_upwards [hconstruction k r hr hrk] with n hn
+  intro reserve hreserve
+  exact hasSparseAbsorber_of_construction (by omega) hrk
+    hreserve.1 (hn reserve hreserve)
+
+/-- Final source-facing reduction.  The generic rooted-extension theorem
+supplies all local decoder placements, so the remaining omni-absorber lemma
+need only produce the sparse integral generator and the full-exchange
+Booleanization package. -/
+theorem resolution_of_eventual_sparseGeneratorBooleanization
+    (hsource : ∀ k r : ℕ, 1 < r → r < k →
+      ∀ᶠ n : ℕ in Filter.atTop,
+        ∀ reserve : Finset (Finset (Fin n)),
+          HasReserveProperty n k r reserve →
+          HasSparseGeneratorBooleanization n k r reserve) :
+    Resolution := by
+  apply resolution_of_eventual_sparseAbsorberConstruction
+  intro k r hr hrk
+  have hconvert :=
+    eventually_hasSparseAbsorberConstruction_of_generatorBooleanization
+      (k := k) (r := r) (by omega) hrk
+  filter_upwards [hsource k r hr hrk, hconvert] with n hsource hconvert
+  intro reserve hreserve
+  exact hconvert reserve (hsource reserve hreserve)
+
+open Filter
+
+theorem eventually_exists_exchangeBooleanization
+    (hr : 0 < r) (hrk : r < k) :
+    ∀ᶠ n : ℕ in atTop,
+      ∀ (reserve generators : Finset (Finset (Fin n)))
+        (placement : BoundedLocalDecoderPlacement n k r
+          (LocalDecoderAsymptotic.decoderPathCap (k + r) r
+            (generatorDen k r + 1) n)
+          (cliqueBoundarySupport generators r) generators),
+      IsSparseIntegralGenerator n k r reserve generators →
+      IsPowerBounded n r (generatorDen k r) 1
+        (cliqueBoundarySupport generators r) →
+      IsPowerBounded n r (rhoDen k r) 2 reserve →
+      reserve ⊆ completeUniform n r →
+      reserve ⊆
+        (cliqueBoundarySupport
+          (generators ∪ localDecoderCliques
+            (cliqueBoundarySupport generators r) placement.Z k) r) →
+      ∃ positive negative : Finset (Finset (Fin n)),
+        IsBooleanizationSystem n k r (reducedDecoderCoeffBound k r)
+          (generators ∪ localDecoderCliques
+            (cliqueBoundarySupport generators r) placement.Z k)
+          reserve positive negative ∧
+        IsPowerBounded n r (absorberDen k r) 1
+          (cliqueBoundarySupport negative r) := by
+  let E := ExchangeEmbedding.fullExchangeData hrk
+  let e₀ := ExchangeEmbedding.fullExchangeRootEdge hrk
+  let m := reducedDecoderCoeffBound k r
+  let M₀ := 4 + 2 ^ (k + r)
+  let a := generatorDen k r
+  let d₀ := 2 * (a + 1)
+  let d₁ := d₀ + 1
+  let p₁ := a + 2
+  let d₂ := 2 * p₁
+  let d₃ := d₂ + 1
+  let p₂ := a + 3
+  let d₄ := 2 * p₂
+  let d₅ := d₄ + 1
+  let p₃ := a + 4
+  let d₆ := 2 * p₃
+  let c₀ := 2 * max 1
+    ((CoverClique.coverPattern (k + r) r).freeEdges.card *
+      LocalDecoderAsymptotic.decoderPathMultiplier (k + r) r)
+  let cRoots := M₀ * c₀
+  let cSplitUnion := 2 * max c₀ 1
+  let cS := E.pattern.freeEdges.card * (2 * m) *
+    LocalDecoderAsymptotic.decoderPathMultiplier E.v r
+  let cEliminationUnion := 2 * (2 * max cS 1)
+  let K₁ := 2 * ((m * M₀ + 1) * (m * M₀ + 1))
+  let L := (m * M₀ + 1) * (m * M₀ + 1) + 1
+  let Mpos := 2 * (m * M₀ + 1)
+  let cU := (E.eliminationPattern e₀).freeEdges.card * (m * M₀ + 1) *
+    LocalDecoderAsymptotic.decoderPathMultiplier E.v r
+  let cFurther := 2 * max 1 cU
+  let cPositive := Mpos
+  let cBad := L * cFurther
+  let M₂ := Nat.choose k r * L
+  let cV := (E.eliminationPattern e₀).freeEdges.card * M₂ *
+    LocalDecoderAsymptotic.decoderPathMultiplier E.v r
+  let cFinal := 2 * max 1 cV
+  have ha : 4 < a := by
+    have hk : 0 < k := by omega
+    have hfactor : 0 < (2 * k) ^ r := by positivity
+    have hchoose : 0 < Nat.choose k r := Nat.choose_pos hrk.le
+    have hrho : 4 < rhoDen k r := by
+      simp [rhoDen, cliqueSize]
+      nlinarith
+    have halpha : 4 < alphaDen k r := by
+      calc
+        4 < rhoDen k r := hrho
+        _ ≤ (2 * k) ^ r * rhoDen k r :=
+          Nat.le_mul_of_pos_left _ hfactor
+        _ = alphaDen k r := by rfl
+    dsimp [a, generatorDen]
+    omega
+  have hd₀ : 0 < d₀ := by omega
+  have hd₀d₁ : d₀ < d₁ := by omega
+  have hp₁ : 0 < p₁ := by omega
+  have hgap₁ : d₁ < 2 * p₁ := by omega
+  have hd₂ : 0 < d₂ := by omega
+  have hd₂d₃ : d₂ < d₃ := by omega
+  have hp₂ : 0 < p₂ := by omega
+  have hgap₂ : d₃ < 2 * p₂ := by omega
+  have hd₄ : 0 < d₄ := by omega
+  have hd₄d₅ : d₄ < d₅ := by omega
+  have hp₃ : 0 < p₃ := by omega
+  have hgap₃ : d₅ < 2 * p₃ := by omega
+  have hd₆ : 0 < d₆ := by omega
+  have hd₆absorber : d₆ < absorberDen k r := by
+    dsimp [d₆, p₃, absorberDen, a]
+    omega
+  have hM₂ : 0 < M₂ := by
+    have hchoose : 0 < Nat.choose k r := Nat.choose_pos hrk.le
+    dsimp [M₂, L]
+    positivity
+  have hrho : 0 < rhoDen k r := by
+    have hchoose : 0 < Nat.choose k r := Nat.choose_pos hrk.le
+    simp [rhoDen, cliqueSize, hchoose]
+  have hrho_le_a : rhoDen k r ≤ a := by
+    have hk : 0 < k := by omega
+    calc
+      rhoDen k r ≤ alphaDen k r :=
+        Nat.le_mul_of_pos_left _ (by positivity : 0 < (2 * k) ^ r)
+      _ ≤ a := by
+        dsimp [a, generatorDen]
+        omega
+  have hrootPlacementRebase := eventually_rebase_powerBounded_constant
+    (r := r) a (a + 1) 1 (by omega) (by omega)
+  have hinputRootsRebase := eventually_rebase_powerBounded_constant
+    (r := r) d₀ d₁ cRoots hd₀ hd₀d₁
+  have hreserveD₀ := eventually_rebase_powerBounded_constant
+    (r := r) (rhoDen k r) d₀ 2 hrho (by omega)
+  have hsplitForbiddenRebase := eventually_rebase_powerBounded_constant
+    (r := r) d₀ d₁ cSplitUnion hd₀ hd₀d₁
+  have hinputBoundaryD₂ := eventually_rebase_powerBounded_constant
+    (r := r) d₀ d₂ c₀ hd₀ (by omega)
+  have hreserveD₂ := eventually_rebase_powerBounded_constant
+    (r := r) (rhoDen k r) d₂ 2 hrho (by omega)
+  have heliminationForbiddenRebase :=
+    eventually_rebase_powerBounded_constant
+      (r := r) d₂ d₃ cEliminationUnion hd₂ hd₂d₃
+  have hsideLoad := eventually_scaled_localDegree_add_power_le
+    (r := r) d₂ d₃ K₁ 1 cS hd₂ hd₂d₃
+  have hsplit :=
+    ExchangeEmbedding.eventually_exists_boundedMultiFullExchangeEmbeddings_twoScale
+      hr hrk (by omega : 0 < d₁) hp₁ hgap₁ (2 * m)
+  have hfirstElimination :=
+    NearPairing.eventually_exists_compatibleNearEliminationEmbeddings_twoScale
+      E hr hrk e₀ (by
+        simpa [E, e₀] using ExchangeEmbedding.fullExchangeData_trace hrk)
+      (by omega : 0 < d₃) hp₂ hgap₂ m M₀
+  have heliminationForbiddenD₄ := eventually_rebase_powerBounded_constant
+    (r := r) d₃ d₄ 1 (by omega) (by omega)
+  have hfurtherForbiddenRebase := eventually_rebase_powerBounded_constant
+    (r := r) d₄ d₅ cFurther hd₄ hd₄d₅
+  have hfurtherSide := eventually_scaled_localDegree_add_power_le
+    (r := r) d₄ d₅ 1 cPositive cBad hd₄ hd₄d₅
+  have hfurther :=
+    FurtherElimination.eventually_exists_boundedFurtherEliminationEmbeddings_twoScale
+      E hr hrk e₀ (by
+        simpa [E, e₀] using ExchangeEmbedding.fullExchangeData_trace hrk)
+      (by omega : 0 < d₅) hp₃ hgap₃ M₂ hM₂
+  have hfurtherForbiddenD₆ := eventually_rebase_powerBounded_constant
+    (r := r) d₅ d₆ 1 (by omega) (by omega)
+  have hfinalBoundaryRebase := eventually_rebase_powerBounded_constant
+    (r := r) d₆ (absorberDen k r) cFinal hd₆ hd₆absorber
+  filter_upwards [hrootPlacementRebase, hinputRootsRebase, hreserveD₀,
+      hsplitForbiddenRebase, hinputBoundaryD₂, hreserveD₂,
+      heliminationForbiddenRebase, hsideLoad, hsplit,
+      hfirstElimination, heliminationForbiddenD₄,
+      hfurtherForbiddenRebase, hfurtherSide, hfurther,
+      hfurtherForbiddenD₆, hfinalBoundaryRebase,
+      eventually_ge_atTop 1] with
+      n hrootPlacementRebase hinputRootsRebase hreserveD₀
+      hsplitForbiddenRebase hinputBoundaryD₂ hreserveD₂
+      heliminationForbiddenRebase hsideLoad hsplit hfirstElimination
+      heliminationForbiddenD₄ hfurtherForbiddenRebase hfurtherSide hfurther
+      hfurtherForbiddenD₆ hfinalBoundaryRebase
+      hn
+  intro reserve generators placement hgen hgeneratorRoot hreserve
+    hreserveUniform
+    hinputReserve
+  let input := generators ∪ localDecoderCliques
+    (cliqueBoundarySupport generators r) placement.Z k
+  let inputBoundary := cliqueBoundarySupport input r
+  let splitForbidden := inputBoundary ∪ reserve
+  have hinputUniform : ∀ Q ∈ input, Q.card = k := by
+    intro Q hQ
+    rcases Finset.mem_union.mp hQ with hQ | hQ
+    · exact hgen.1 Q hQ
+    · obtain ⟨e, he, hQe⟩ := mem_localDecoderCliques.mp hQ
+      exact (Finset.mem_powersetCard.mp hQe).2
+  have hinputIncidence : ∀ g : Finset (Fin n), g.card = r →
+      Transversal.incidenceCount input g ≤ M₀ := by
+    intro g hg
+    simpa [input, M₀] using placement.input_incidenceCount_le
+      hgen.2.1 g hg
+  have hinputBoundary : IsPowerBounded n r d₀ c₀ inputBoundary := by
+    simpa [input, inputBoundary, d₀, a, c₀, Nat.mul_comm] using
+      placement.input_powerBounded (by omega : 0 < a + 1) hn
+        (hrootPlacementRebase _ (by simpa [a] using hgeneratorRoot))
+  have hinputBlocks : IsPowerBounded n r d₀ cRoots input := by
+    simpa [cRoots] using isPowerBounded_blocks_of_boundary_and_incidence
+      hr hrk hinputUniform hinputIncidence hinputBoundary
+  have hinputBlocks₁ : IsPowerBounded n r d₁ 1 input :=
+    hinputRootsRebase input hinputBlocks
+  have hreserve₀ : IsPowerBounded n r d₀ 1 reserve :=
+    hreserveD₀ reserve hreserve
+  have hsplitForbidden₀ :
+      IsPowerBounded n r d₀ cSplitUnion splitForbidden := by
+    have hi : IsPowerBounded n r d₀ (max c₀ 1) inputBoundary :=
+      hinputBoundary.mono_constant (le_max_left _ _)
+    have hr' : IsPowerBounded n r d₀ (max c₀ 1) reserve :=
+      hreserve₀.mono_constant (le_max_right _ _)
+    simpa [splitForbidden, cSplitUnion] using hi.union hr'
+  have hsplitForbidden₁ : IsPowerBounded n r d₁ 1 splitForbidden :=
+    hsplitForbiddenRebase splitForbidden hsplitForbidden₀
+  have hrootForbidden : ExchangeEmbedding.rootBoundary input r ⊆
+      splitForbidden := by
+    change inputBoundary ⊆ splitForbidden
+    exact Finset.subset_union_left
+  obtain ⟨S⟩ := hsplit input splitForbidden hinputUniform
+    (by
+      intro g hg
+      rcases Finset.mem_union.mp hg with hg | hg
+      · exact mem_completeUniform.mp
+          (cliqueBoundarySupport_subset_complete hinputUniform hg)
+      · exact mem_completeUniform.mp (hreserveUniform hg))
+    (by
+      intro J hJ
+      simpa [localDegree, Reserve.localDegree] using
+        hinputBlocks₁ J (mem_completeUniform.mpr hJ))
+    (by
+      intro J hJ
+      simpa [localDegree, Reserve.localDegree] using
+        hsplitForbidden₁ J (mem_completeUniform.mpr hJ))
+  have hSfree : IsPowerBounded n r d₂ cS S.freeUnion := by
+    apply isPowerBounded_of_localDegree_le_scaledDecoderPathCap hp₁
+      E.pattern.freeEdges.card (2 * m) E.v
+    intro J hJ
+    simpa [localDegree, Reserve.localDegree] using S.free_degree_le J hJ
+  have hinputBoundary₂ : IsPowerBounded n r d₂ 1 inputBoundary :=
+    hinputBoundaryD₂ inputBoundary hinputBoundary
+  have hreserve₂ : IsPowerBounded n r d₂ 1 reserve :=
+    hreserveD₂ reserve hreserve
+  let eliminationBase := inputBoundary ∪ S.freeUnion
+  let eliminationForbidden := eliminationBase ∪ reserve
+  have heliminationBase : IsPowerBounded n r d₂ (2 * max cS 1)
+      eliminationBase := by
+    have hi : IsPowerBounded n r d₂ (max cS 1) inputBoundary :=
+      hinputBoundary₂.mono_constant (le_max_right _ _)
+    have hs : IsPowerBounded n r d₂ (max cS 1) S.freeUnion :=
+      hSfree.mono_constant (le_max_left _ _)
+    simpa [eliminationBase] using hi.union hs
+  have heliminationForbidden₂ : IsPowerBounded n r d₂
+      cEliminationUnion eliminationForbidden := by
+    have hr' : IsPowerBounded n r d₂ (2 * max cS 1) reserve :=
+      hreserve₂.mono_constant (by omega)
+    simpa [eliminationForbidden, cEliminationUnion] using
+      heliminationBase.union hr'
+  have heliminationForbidden₃ : IsPowerBounded n r d₃ 1
+      eliminationForbidden :=
+    heliminationForbiddenRebase eliminationForbidden heliminationForbidden₂
+  have hsidePower : ∀ J : Finset (Fin n), J.card = r - 1 →
+      (NearPairing.compatibleNearPositiveSideLoad S J +
+        NearPairing.compatibleNearNegativeSideLoad S J) ^ d₃ ≤
+          n ^ (d₃ - 1) := by
+    intro J hJ
+    have hle := NearPairing.compatibleNearSideLoads_le S hr hrk
+      hrootForbidden hinputIncidence J hJ
+    exact (Nat.pow_le_pow_left hle d₃).trans (by
+      simpa [K₁, localDegree, Reserve.localDegree,
+        ExchangeEmbedding.rootBoundary, inputBoundary,
+        cliqueBoundarySupport, Erdos722.cliqueEdges] using
+          hsideLoad inputBoundary S.freeUnion hinputBoundary₂ hSfree J hJ)
+  have heliminationUniform : ∀ g ∈ eliminationForbidden, g.card = r := by
+    intro g hg
+    rcases Finset.mem_union.mp hg with hg | hg
+    · rcases Finset.mem_union.mp hg with hg | hg
+      · exact mem_completeUniform.mp
+          (cliqueBoundarySupport_subset_complete hinputUniform hg)
+      · exact RootedFamilyMultiEmbedding.BoundedMultiRootedFamilyEmbeddings.free_uniform
+          S g hg
+    · exact mem_completeUniform.mp (hreserveUniform hg)
+  obtain ⟨U⟩ := hfirstElimination input splitForbidden
+    (RootedFamilyAsymptotic.scaledDecoderPathCap (2 * m) E.v r p₁ n)
+    S hrootForbidden hinputIncidence eliminationForbidden hsidePower
+    heliminationUniform (by
+      intro J hJ
+      simpa [localDegree, Reserve.localDegree] using
+        heliminationForbidden₃ J (mem_completeUniform.mpr hJ))
+  have hbaseSubset : ExchangeEmbedding.rootBoundary input r ∪ S.freeUnion ⊆
+      eliminationForbidden := by
+    change eliminationBase ⊆ eliminationForbidden
+    exact Finset.subset_union_left
+  have hpositiveForbidden :
+      (NearPairing.allPositiveSplittingBlocks S).biUnion
+          (fun Q ↦ Q.powersetCard r) ⊆ eliminationForbidden :=
+    (NearPairing.allPositiveSplittingBlocks_boundary_subset_rootBoundary_union_freeUnion
+      S).trans hbaseSubset
+  have hnearForbidden :
+      (NearPairing.allNegativeNearSplittingBlocks S).biUnion
+          (fun Q ↦ Q.powersetCard r) ⊆ eliminationForbidden :=
+    (NearPairing.allNegativeNearSplittingBlocks_boundary_subset_rootBoundary_union_freeUnion
+      S).trans hbaseSubset
+  have hfarForbidden :
+      (NearPairing.allNegativeFarSplittingBlocks S).biUnion
+          (fun Q ↦ Q.powersetCard r) ⊆ eliminationForbidden := by
+    intro g hg
+    apply hbaseSubset
+    exact Finset.mem_union_right _
+      (NearPairing.cliqueBoundarySupport_allNegativeFarSplittingBlocks_subset_freeUnion
+        S hg)
+  have huniversalRootForbidden :
+      ExchangeEliminationEmbedding.eliminationPairSideBoundary
+        (NearPairing.compatibleNearEliminationPairs S hr hrk
+          hrootForbidden) ⊆ eliminationForbidden :=
+    (NearPairing.compatibleNearEliminationPairSideBoundary_subset_rootBoundary_union_freeUnion
+      S hr hrk hrootForbidden).trans hbaseSubset
+  have hpartner :=
+    FurtherElimination.hasFurtherPartners_universalBadEliminationBlocks
+      S hr hrk (by
+        simpa [E, e₀] using
+          ExchangeEmbedding.fullExchangeData_positive_inter_special hrk)
+      hrootForbidden U hnearForbidden hpositiveForbidden
+  let positive := NearPairing.allPositiveSplittingBlocks S
+  let bad := FurtherElimination.universalBadEliminationBlocks S hr hrk
+    hrootForbidden U
+  have hpositiveUniform : ∀ Q ∈ positive, Q.card = k := by
+    intro Q hQ
+    exact NearPairing.allPositiveSplittingBlocks_uniform S hQ
+  have hbadUniform : ∀ B ∈ bad, B.card = k := by
+    intro B hB
+    have hBneg : B ∈
+        ExchangeEliminationEmbedding.allEliminationNegativeOnly U :=
+      FurtherElimination.badEliminationBlocks_subset_firstNegative hB
+    obtain ⟨P, _hP, hBP⟩ := Finset.mem_biUnion.mp hBneg
+    exact (ExchangeEliminationEmbedding.eliminationNegativeOnly_decomp
+      U P.1 P.2).1 B hBP
+  have heliminationForbidden₄ : IsPowerBounded n r d₄ 1
+      eliminationForbidden :=
+    heliminationForbiddenD₄ eliminationForbidden heliminationForbidden₃
+  have hUfree : IsPowerBounded n r d₄ cU U.freeUnion := by
+    apply isPowerBounded_of_localDegree_le_scaledDecoderPathCap hp₂
+      (E.eliminationPattern e₀).freeEdges.card (m * M₀ + 1) E.v
+    intro J hJ
+    simpa [localDegree, Reserve.localDegree] using U.free_degree_le J hJ
+  let furtherForbidden := eliminationForbidden ∪ U.freeUnion
+  have hfurtherForbidden₄ : IsPowerBounded n r d₄ cFurther
+      furtherForbidden := by
+    have he : IsPowerBounded n r d₄ (max 1 cU) eliminationForbidden :=
+      heliminationForbidden₄.mono_constant (le_max_left _ _)
+    have hu : IsPowerBounded n r d₄ (max 1 cU) U.freeUnion :=
+      hUfree.mono_constant (le_max_right _ _)
+    simpa [furtherForbidden, cFurther] using he.union hu
+  have hpositiveBoundary : IsPowerBounded n r d₄ 1
+      (cliqueBoundarySupport positive r) := by
+    apply heliminationForbidden₄.mono
+    simpa [positive, cliqueBoundarySupport, Erdos722.cliqueEdges] using
+      hpositiveForbidden
+  have hpositivePower : IsPowerBounded n r d₄ cPositive positive := by
+    simpa [cPositive, Mpos] using
+      isPowerBounded_blocks_of_boundary_and_incidence hr hrk
+        hpositiveUniform
+        (blockIncidenceCount_allPositiveSplittingBlocks_le S
+          hinputIncidence)
+        hpositiveBoundary
+  have hbadBoundarySubset : cliqueBoundarySupport bad r ⊆
+      furtherForbidden := by
+    intro g hg
+    have hgSide :=
+      FurtherElimination.universalBadEliminationBlocks_boundary_subset_allocatorHost
+        S hr hrk hrootForbidden U (by
+          simpa [bad, cliqueBoundarySupport, Erdos722.cliqueEdges] using hg)
+    rcases Finset.mem_union.mp hgSide with hgSide | hgFree
+    · exact Finset.mem_union_left _ (huniversalRootForbidden hgSide)
+    · exact Finset.mem_union_right _ hgFree
+  have hbadBoundary : IsPowerBounded n r d₄ cFurther
+      (cliqueBoundarySupport bad r) :=
+    hfurtherForbidden₄.mono hbadBoundarySubset
+  have hbadPower : IsPowerBounded n r d₄ cBad bad := by
+    simpa [cBad, L] using
+      isPowerBounded_blocks_of_boundary_and_incidence hr hrk hbadUniform
+        (blockIncidenceCount_universalBadEliminationBlocks_le S hr hrk
+          hrootForbidden hinputIncidence U)
+        hbadBoundary
+  have hfurtherSidePower : ∀ J : Finset (Fin n), J.card = r - 1 →
+      (Reserve.localDegree positive J + Reserve.localDegree bad J) ^ d₅ ≤
+        n ^ (d₅ - 1) := by
+    intro J hJ
+    simpa [localDegree, Reserve.localDegree] using
+      hfurtherSide positive bad hpositivePower hbadPower J hJ
+  have hfurtherForbidden₅ : IsPowerBounded n r d₅ 1
+      furtherForbidden :=
+    hfurtherForbiddenRebase furtherForbidden hfurtherForbidden₄
+  have hfurtherUniform : ∀ g ∈ furtherForbidden, g.card = r := by
+    intro g hg
+    rcases Finset.mem_union.mp hg with hg | hg
+    · exact heliminationUniform g hg
+    · exact U.free_uniform g hg
+  have hfiber : ∀ Q : Finset (Fin n),
+      ((bad.attach).filter fun B ↦
+        FurtherElimination.furtherPositivePartner hpartner B = Q).card ≤
+          M₂ := by
+    intro Q
+    simpa [bad, positive, M₂, L] using
+      card_universalFurtherPartner_fiber_le S hr hrk hrootForbidden
+        hinputIncidence U hpartner Q
+  obtain ⟨V⟩ := hfurther bad positive hpartner furtherForbidden hfiber
+    hfurtherSidePower hfurtherUniform (by
+      intro J hJ
+      simpa [localDegree, Reserve.localDegree] using
+        hfurtherForbidden₅ J (mem_completeUniform.mpr hJ))
+  have hpositiveBoundarySubset : cliqueBoundarySupport positive r ⊆
+      furtherForbidden := by
+    intro g hg
+    apply Finset.mem_union_left
+    apply hpositiveForbidden
+    simpa [positive, cliqueBoundarySupport, Erdos722.cliqueEdges] using hg
+  have hfurtherRootForbidden :
+      ExchangeEliminationEmbedding.eliminationPairSideBoundary
+        (FurtherElimination.furtherEliminationPairs hpartner) ⊆
+          furtherForbidden := by
+    intro g hg
+    obtain ⟨Q, hQ, hgQ⟩ := Finset.mem_biUnion.mp hg
+    have hQbank :=
+      FurtherElimination.eliminationPairSides_further_subset hpartner hQ
+    rcases Finset.mem_union.mp hQbank with hQpos | hQbad
+    · apply hpositiveBoundarySubset
+      exact mem_cliqueBoundarySupport.mpr
+        ⟨Q, hQpos, (Finset.mem_powersetCard.mp hgQ).1,
+          (Finset.mem_powersetCard.mp hgQ).2⟩
+    · apply hbadBoundarySubset
+      exact mem_cliqueBoundarySupport.mpr
+        ⟨Q, hQbad, (Finset.mem_powersetCard.mp hgQ).1,
+          (Finset.mem_powersetCard.mp hgQ).2⟩
+  have hprePositiveForbidden :
+      (FurtherElimination.preFurtherPositiveBlocks S hr hrk
+        hrootForbidden U).biUnion (fun Q ↦ Q.powersetCard r) ⊆
+          furtherForbidden := by
+    intro g hg
+    obtain ⟨B, hB, hgB⟩ := Finset.mem_biUnion.mp hg
+    rcases Finset.mem_union.mp hB with hB | hB
+    · apply hpositiveBoundarySubset
+      exact mem_cliqueBoundarySupport.mpr
+        ⟨B, hB, (Finset.mem_powersetCard.mp hgB).1,
+          (Finset.mem_powersetCard.mp hgB).2⟩
+    · have hgSide :=
+        ExchangeEliminationEmbedding.allEliminationPositiveOnly_edge_mem_sideBoundary_union_freeUnion
+          U hB hgB
+      rcases Finset.mem_union.mp hgSide with hgSide | hgFree
+      · exact Finset.mem_union_left _ (huniversalRootForbidden hgSide)
+      · exact Finset.mem_union_right _ hgFree
+  have hprefixForbidden :
+      (FurtherElimination.preFurtherNegativeBlocks S hr hrk
+        hrootForbidden U).biUnion (fun Q ↦ Q.powersetCard r) ⊆
+          furtherForbidden := by
+    intro g hg
+    have hsupport :=
+      FurtherElimination.preFurtherNegativeBlocks_boundary_subset_allocatorHosts
+        S hr hrk hrootForbidden U hg
+    rcases Finset.mem_union.mp hsupport with hgS | hgFirst
+    · exact Finset.mem_union_left _
+        (hbaseSubset (Finset.mem_union_right _ hgS))
+    · rcases Finset.mem_union.mp hgFirst with hgSide | hgU
+      · exact Finset.mem_union_left _ (huniversalRootForbidden hgSide)
+      · exact Finset.mem_union_right _ hgU
+  let negative := FurtherElimination.finalNegativeBlocks S hr hrk
+    hrootForbidden U hpartner V
+  have hinputSplit : inputBoundary ⊆ splitForbidden := by
+    exact Finset.subset_union_left
+  have hinputElimination : inputBoundary ⊆ eliminationForbidden := by
+    intro g hg
+    exact hbaseSubset (Finset.mem_union_left _ hg)
+  have hinputFurther : inputBoundary ⊆ furtherForbidden := by
+    intro g hg
+    exact Finset.mem_union_left _ (hinputElimination hg)
+  have hnegativeInput : Disjoint (cliqueBoundarySupport negative r)
+      inputBoundary := by
+    simpa [negative, cliqueBoundarySupport, Erdos722.cliqueEdges] using
+      FurtherElimination.finalNegativeBlocks_boundary_disjoint_source
+        S hr hrk hrootForbidden U hpartner V inputBoundary
+          hinputSplit hinputElimination hinputFurther
+  have hnegativeReserve : Disjoint (cliqueBoundarySupport negative r)
+      reserve := by
+    rw [Finset.disjoint_left]
+    intro g hgNegative hgReserve
+    exact Finset.disjoint_left.mp hnegativeInput hgNegative
+      (by
+        change g ∈ inputBoundary
+        exact hinputReserve hgReserve)
+  have hVfree : IsPowerBounded n r d₆ cV V.freeUnion := by
+    apply isPowerBounded_of_localDegree_le_scaledDecoderPathCap hp₃
+      (E.eliminationPattern e₀).freeEdges.card M₂ E.v
+    intro J hJ
+    simpa [localDegree, Reserve.localDegree] using V.free_degree_le J hJ
+  have hfurtherForbidden₆ : IsPowerBounded n r d₆ 1
+      furtherForbidden :=
+    hfurtherForbiddenD₆ furtherForbidden hfurtherForbidden₅
+  have hfinalSupport : cliqueBoundarySupport negative r ⊆
+      furtherForbidden ∪ V.freeUnion := by
+    simpa [negative, cliqueBoundarySupport, Erdos722.cliqueEdges] using
+      FurtherElimination.finalNegativeBlocks_boundary_subset_forbidden_union_free
+        S hr hrk hrootForbidden U hpartner V
+        (fun _ hgS ↦ Finset.mem_union_left _
+          (hbaseSubset (Finset.mem_union_right _ hgS)))
+        (fun _ hgSide ↦ Finset.mem_union_left _
+          (huniversalRootForbidden hgSide))
+        (fun _ hgU ↦ Finset.mem_union_right _ hgU)
+        hfurtherRootForbidden
+  have hfinalHost : IsPowerBounded n r d₆ cFinal
+      (furtherForbidden ∪ V.freeUnion) := by
+    have hf : IsPowerBounded n r d₆ (max 1 cV) furtherForbidden :=
+      hfurtherForbidden₆.mono_constant (le_max_left _ _)
+    have hv : IsPowerBounded n r d₆ (max 1 cV) V.freeUnion :=
+      hVfree.mono_constant (le_max_right _ _)
+    simpa [cFinal] using hf.union hv
+  have hnegativePower : IsPowerBounded n r (absorberDen k r) 1
+      (cliqueBoundarySupport negative r) :=
+    hfinalBoundaryRebase _ (hfinalHost.mono hfinalSupport)
+  let finalPositive := FurtherElimination.finalPositiveBlocks S hr hrk
+    hrootForbidden U hpartner V
+  have hboolean : IsBooleanizationSystem n k r m input reserve
+      finalPositive negative := by
+    apply isBooleanizationSystem_of_exchangeBanks hr hrk E e₀
+      (by simpa [E, e₀] using
+        ExchangeEmbedding.fullExchangeData_positive_inter_special hrk)
+      (by simpa [E] using ExchangeEmbedding.fullExchangeData_disjoint hrk)
+      hinputUniform S hrootForbidden U hpositiveForbidden hnearForbidden
+        hfarForbidden huniversalRootForbidden hpartner V
+          hfurtherRootForbidden hprePositiveForbidden hprefixForbidden
+            reserve hnegativeReserve
+  refine ⟨finalPositive, negative, ?_, hnegativePower⟩
+  simpa [m, input, finalPositive, negative] using hboolean
+
+/-- The exact output of Section 6 needed by the already-checked exchange
+Booleanization: a multiplicity-four integral generator, a sparse boundary,
+and one generator boundary edge above every reserve edge. -/
+def HasSparseIntegralGeneratorData (n k r : ℕ)
+    (reserve : Finset (Finset (Fin n))) : Prop :=
+  ∃ generators : Finset (Finset (Fin n)),
+    IsSparseIntegralGenerator n k r reserve generators ∧
+    IsPowerBounded n r (generatorDen k r) 1
+      (cliqueBoundarySupport generators r) ∧
+    reserve ⊆ cliqueBoundarySupport generators r
+
+/-- Complete deterministic handoff from a quantitative Section 6 input to
+the sparse integral-generator package.  The initial family may already be
+the result of the first splitting exchange; `hinitial` records that it
+integrally spans the modular generators and all local decoders. -/
+theorem hasSparseIntegralGeneratorData_of_quantitativeFlatteningInput
+    {n k r d A x z : ℕ} (hr : 0 < r) (hrk : r < k)
+    {reserve modular initial : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ completeUniform n r)
+    (hmodularUniform : ∀ Q ∈ modular, Q.card = k)
+    (hmodular : IsModularIntegralGenerator
+      (k.descFactorial r) n k r reserve modular)
+    (Z : Finset (Fin n) → Finset (Fin n))
+    (hrootSubset : ∀ e ∈ integralDecoderRoots reserve modular r, e ⊆ Z e)
+    (hambient : ∀ e ∈ integralDecoderRoots reserve modular r,
+      Z e ⊆ (Finset.univ : Finset (Fin n)))
+    (hcard : ∀ e ∈ integralDecoderRoots reserve modular r,
+      (Z e).card = k + r)
+    (hinitial : IntegrallySpans n k r initial
+      (modular ∪ localDecoderCliques
+        (integralDecoderRoots reserve modular r) Z k))
+    (hinitialUniform : ∀ Q ∈ initial, Q.card = k)
+    (hinitialIncidence : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount initial e ≤ x)
+    (hinitialUnique : HasUniqueHighEdge n r initial)
+    (hinitialDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree initial J ≤ linearStageDegree z k r d n)
+    (hinitialBoundaryDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (cliqueBoundarySupport initial r) J ≤
+        linearStageDegree z k r d n)
+    (hround : HasQuantitativeFlattenRounds n k r d A hrk)
+    (hbudget :
+      (16 * flattenCoefficientLoss hrk) ^ flattenRoundCount x * z * x ^ 4 ≤
+        flattenStageBudget A k d n)
+    (hx : 0 < x) (hz : 0 < z)
+    (hterminalPower :
+      linearStageDegree (flattenStageBudget A k d n) k r d n ^
+          generatorDen k r ≤
+        n ^ (generatorDen k r - 1)) :
+    HasSparseIntegralGeneratorData n k r reserve := by
+  obtain ⟨final, hflatten, hfinalBoundary⟩ :=
+    exists_squareRootFlattening_of_quantitative_rounds_with_boundary
+      hr hrk hround hbudget hx hz hinitialUniform hinitialIncidence
+        hinitialUnique hinitialDegree hinitialBoundaryDegree
+  have hfinalInput : IntegrallySpans n k r final
+      (modular ∪ localDecoderCliques
+        (integralDecoderRoots reserve modular r) Z k) :=
+    hflatten.integrallySpans.trans hinitial
+  have hgenerator : IsSparseIntegralGenerator n k r reserve final :=
+    isSparseIntegralGenerator_of_modular_decoders_flattening
+      rfl hreserve hmodularUniform hmodular Z hrootSubset hambient hcard
+        hfinalInput hflatten.final_uniform
+          hflatten.final_multiplicity_four
+  have hpower : IsPowerBounded n r (generatorDen k r) 1
+      (cliqueBoundarySupport final r) := by
+    intro J hJ
+    have hJcard : J.card = r - 1 := mem_completeUniform.mp hJ
+    have hdegree := hfinalBoundary J hJcard
+    calc
+      localDegree (cliqueBoundarySupport final r) J ^ generatorDen k r ≤
+          linearStageDegree (flattenStageBudget A k d n) k r d n ^
+            generatorDen k r := Nat.pow_le_pow_left hdegree _
+      _ ≤ n ^ (generatorDen k r - 1) := hterminalPower
+      _ = 1 ^ generatorDen k r * n ^ (generatorDen k r - 1) := by simp
+  have hinputUniform : ∀ Q ∈
+      modular ∪ localDecoderCliques
+        (integralDecoderRoots reserve modular r) Z k,
+      Q.card = k :=
+    modular_union_localDecoderCliques_uniform hmodularUniform Z
+  have hinputBoundary : cliqueBoundarySupport
+      (modular ∪ localDecoderCliques
+        (integralDecoderRoots reserve modular r) Z k) r ⊆
+      cliqueBoundarySupport final r :=
+    hfinalInput.cliqueBoundarySupport_subset hinputUniform
+  have hreserveBoundary : reserve ⊆ cliqueBoundarySupport final r := by
+    intro e he
+    apply hinputBoundary
+    apply integralDecoderRoots_subset_cliqueBoundarySupport_input
+      hrk.le hreserve hmodularUniform Z hrootSubset hcard
+    exact Finset.mem_union_left _ he
+  exact ⟨final, hgenerator, hpower, hreserveBoundary⟩
+
+/-- Deterministic end-to-end handoff from the coloured two-cap certificate.
+The hypotheses after the two finite placements are only scalar degree and
+stage-budget inequalities; all modular algebra, local decoding, the first
+split, and every square-root flattening round are discharged here. -/
+theorem TwoCapColoredFocusingCertificate.hasSparseIntegralGeneratorData
+    {n k r faceCap edgeCap u : ℕ}
+    (hr : 0 < r) (hrk : r < k)
+    {reserve : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ completeUniform n r)
+    (C : TwoCapColoredFocusingCertificate
+      (k.descFactorial r) n k r faceCap edgeCap u hrk reserve)
+    {Cdec Csplit d A z D F : ℕ}
+    (P : BoundedLocalDecoderPlacement n k r Cdec
+      C.decoderRoots C.modular)
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      (ExchangeEmbedding.fullExchangeData hrk).pattern
+      (C.decoderInput P.Z)
+      (cliqueBoundarySupport (C.decoderInput P.Z) r) Csplit)
+    (hsourceBoundary : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree
+        (cliqueBoundarySupport (C.decoderInput P.Z) r) J ≤ D)
+    (hfreeDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree S.freeUnion J ≤ F)
+    (hboundaryStage : D + F ≤ linearStageDegree z k r d n)
+    (hfamilyStage :
+      (D + F) * max (twoCapDecoderInputMultiplicity k r edgeCap u) 2 ≤
+        linearStageDegree z k r d n)
+    (hround : HasQuantitativeFlattenRounds n k r d A hrk)
+    (hbudget :
+      (16 * flattenCoefficientLoss hrk) ^
+            flattenRoundCount (twoCapDecoderInputMultiplicity k r edgeCap u) *
+          z * (twoCapDecoderInputMultiplicity k r edgeCap u) ^ 4 ≤
+        flattenStageBudget A k d n)
+    (hz : 0 < z)
+    (hterminalPower :
+      linearStageDegree (flattenStageBudget A k d n) k r d n ^
+          generatorDen k r ≤
+        n ^ (generatorDen k r - 1)) :
+    HasSparseIntegralGeneratorData n k r reserve := by
+  let E := ExchangeEmbedding.fullExchangeData hrk
+  let x := twoCapDecoderInputMultiplicity k r edgeCap u
+  let input := C.decoderInput P.Z
+  let initial := initialSplitFamily S
+  have hinputUniform : ∀ Q ∈ input, Q.card = k := by
+    simpa [input, TwoCapColoredFocusingCertificate.decoderInput,
+      TwoCapColoredFocusingCertificate.decoderRoots] using
+      modular_union_localDecoderCliques_uniform
+        (reserve := reserve) C.modular_uniform P.Z
+  have hinputIncidence : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount input e ≤ x := by
+    intro e he
+    have h := P.input_blockIncidenceCount_le
+      C.blockIncidenceCount_le e he
+    simpa [input, x, twoCapDecoderInputMultiplicity,
+      TwoCapColoredFocusingCertificate.decoderInput] using h
+  obtain ⟨hinitialSpan, hinitialUniform, hinitialIncidence,
+      hinitialUnique, hinitialBoundary, hinitialDegree⟩ :=
+    initialSplitFamily_quantitative E hr hrk S hinputUniform
+      Finset.Subset.rfl hinputIncidence hsourceBoundary hfreeDegree
+  have hinitialDegree' : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree initial J ≤ linearStageDegree z k r d n := by
+    intro J hJ
+    exact (hinitialDegree J hJ).trans (by
+      simpa [x] using hfamilyStage)
+  have hinitialBoundary' : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (cliqueBoundarySupport initial r) J ≤
+        linearStageDegree z k r d n := by
+    intro J hJ
+    exact (hinitialBoundary J hJ).trans hboundaryStage
+  have hxTwo : 2 ≤ x := by
+    have hpow : 1 ≤ 2 ^ (k + r) := Nat.one_le_pow _ _ (by omega)
+    simp only [x, twoCapDecoderInputMultiplicity]
+    omega
+  have hmax : max x 2 = x := max_eq_left hxTwo
+  apply hasSparseIntegralGeneratorData_of_quantitativeFlatteningInput
+    (initial := initial) (modular := C.modular) (x := x)
+    hr hrk hreserve C.modular_uniform
+      (C.isModularIntegralGenerator
+        (Nat.descFactorial_pos.mpr hrk.le) hreserve)
+      P.Z P.root_subset P.ambient P.card_eq
+  · simpa [initial, input,
+      TwoCapColoredFocusingCertificate.decoderInput,
+      TwoCapColoredFocusingCertificate.decoderRoots] using hinitialSpan
+  · simpa [initial] using hinitialUniform
+  · intro e he
+    simpa [initial, hmax] using hinitialIncidence e he
+  · simpa [initial] using hinitialUnique
+  · simpa [initial] using hinitialDegree'
+  · simpa [initial] using hinitialBoundary'
+  · exact hround
+  · simpa [x] using hbudget
+  · simp [x, twoCapDecoderInputMultiplicity]
+  · exact hz
+  · exact hterminalPower
+
+/-- Deterministic completion from the source-faithful rainbow certificate.
+This is the same decoder/splitting/flattening pipeline as above; only the
+modular-span bridge uses Lemma 6.3(iv) instead of the stronger and generally
+false monochromatic-exchange shortcut. -/
+theorem RainbowTwoCapFocusingCertificate.hasSparseIntegralGeneratorData
+    {n k r faceCap edgeCap u : ℕ}
+    (hr : 0 < r) (hrk : r < k)
+    {reserve : Finset (Finset (Fin n))}
+    (hreserve : reserve ⊆ completeUniform n r)
+    (C : RainbowTwoCapFocusingCertificate
+      (k.descFactorial r) n k r faceCap edgeCap u hrk reserve)
+    {Cdec Csplit d A z D F : ℕ}
+    (P : BoundedLocalDecoderPlacement n k r Cdec
+      C.decoderRoots C.modular)
+    (S : RootedFamilyEmbedding.BoundedRootedFamilyEmbeddings
+      (ExchangeEmbedding.fullExchangeData hrk).pattern
+      (C.decoderInput P.Z)
+      (cliqueBoundarySupport (C.decoderInput P.Z) r) Csplit)
+    (hsourceBoundary : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree
+        (cliqueBoundarySupport (C.decoderInput P.Z) r) J ≤ D)
+    (hfreeDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree S.freeUnion J ≤ F)
+    (hboundaryStage : D + F ≤ linearStageDegree z k r d n)
+    (hfamilyStage :
+      (D + F) * max (twoCapDecoderInputMultiplicity k r edgeCap u) 2 ≤
+        linearStageDegree z k r d n)
+    (hround : HasQuantitativeFlattenRounds n k r d A hrk)
+    (hbudget :
+      (16 * flattenCoefficientLoss hrk) ^
+            flattenRoundCount (twoCapDecoderInputMultiplicity k r edgeCap u) *
+          z * (twoCapDecoderInputMultiplicity k r edgeCap u) ^ 4 ≤
+        flattenStageBudget A k d n)
+    (hz : 0 < z)
+    (hterminalPower :
+      linearStageDegree (flattenStageBudget A k d n) k r d n ^
+          generatorDen k r ≤
+        n ^ (generatorDen k r - 1)) :
+    HasSparseIntegralGeneratorData n k r reserve := by
+  let E := ExchangeEmbedding.fullExchangeData hrk
+  let x := twoCapDecoderInputMultiplicity k r edgeCap u
+  let input := C.decoderInput P.Z
+  let initial := initialSplitFamily S
+  have hinputUniform : ∀ Q ∈ input, Q.card = k := by
+    simpa [input, RainbowTwoCapFocusingCertificate.decoderInput,
+      RainbowTwoCapFocusingCertificate.decoderRoots] using
+      modular_union_localDecoderCliques_uniform
+        (reserve := reserve) C.modular_uniform P.Z
+  have hinputIncidence : ∀ e ∈ completeUniform n r,
+      blockIncidenceCount input e ≤ x := by
+    intro e he
+    have h := P.input_blockIncidenceCount_le
+      C.blockIncidenceCount_le e he
+    simpa [input, x, twoCapDecoderInputMultiplicity,
+      RainbowTwoCapFocusingCertificate.decoderInput] using h
+  obtain ⟨hinitialSpan, hinitialUniform, hinitialIncidence,
+      hinitialUnique, hinitialBoundary, hinitialDegree⟩ :=
+    initialSplitFamily_quantitative E hr hrk S hinputUniform
+      Finset.Subset.rfl hinputIncidence hsourceBoundary hfreeDegree
+  have hinitialDegree' : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree initial J ≤ linearStageDegree z k r d n := by
+    intro J hJ
+    exact (hinitialDegree J hJ).trans (by
+      simpa [x] using hfamilyStage)
+  have hinitialBoundary' : ∀ J : Finset (Fin n), J.card = r - 1 →
+      Reserve.localDegree (cliqueBoundarySupport initial r) J ≤
+        linearStageDegree z k r d n := by
+    intro J hJ
+    exact (hinitialBoundary J hJ).trans hboundaryStage
+  have hxTwo : 2 ≤ x := by
+    have hpow : 1 ≤ 2 ^ (k + r) := Nat.one_le_pow _ _ (by omega)
+    simp only [x, twoCapDecoderInputMultiplicity]
+    omega
+  have hmax : max x 2 = x := max_eq_left hxTwo
+  apply hasSparseIntegralGeneratorData_of_quantitativeFlatteningInput
+    (initial := initial) (modular := C.modular) (x := x)
+    hr hrk hreserve C.modular_uniform
+      (C.isModularIntegralGenerator
+        (Nat.descFactorial_pos.mpr hrk.le) hreserve)
+      P.Z P.root_subset P.ambient P.card_eq
+  · simpa [initial, input,
+      RainbowTwoCapFocusingCertificate.decoderInput,
+      RainbowTwoCapFocusingCertificate.decoderRoots] using hinitialSpan
+  · simpa [initial] using hinitialUniform
+  · intro e he
+    simpa [initial, hmax] using hinitialIncidence e he
+  · simpa [initial] using hinitialUnique
+  · simpa [initial] using hinitialDegree'
+  · simpa [initial] using hinitialBoundary'
+  · exact hround
+  · simpa [x] using hbudget
+  · simp [x, twoCapDecoderInputMultiplicity]
+  · exact hz
+  · exact hterminalPower
+
+/-- Once Section 6 supplies its sparse integral generator, the exchange
+allocator proved above supplies the complete source-facing package for every
+reserve and every later decoder placement. -/
+theorem eventually_hasSparseGeneratorBooleanization_of_generatorData
+    (hr : 0 < r) (hrk : r < k)
+    (hgenerator : ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ reserve : Finset (Finset (Fin n)),
+        HasReserveProperty n k r reserve →
+        HasSparseIntegralGeneratorData n k r reserve) :
+    ∀ᶠ n : ℕ in Filter.atTop,
+      ∀ reserve : Finset (Finset (Fin n)),
+        HasReserveProperty n k r reserve →
+        HasSparseGeneratorBooleanization n k r reserve := by
+  have hboolean := eventually_exists_exchangeBooleanization
+    (k := k) (r := r) hr hrk
+  filter_upwards [hgenerator, hboolean] with n hgenerator hboolean
+  intro reserve hreserve
+  obtain ⟨generators, hgen, hpower, hreserveBoundary⟩ :=
+    hgenerator reserve hreserve
+  refine ⟨hreserve, generators, hgen, hpower, hreserveBoundary, ?_⟩
+  intro placement
+  apply hboolean reserve generators placement hgen hpower hreserve.2.1
+    hreserve.1
+  intro e heReserve
+  obtain ⟨Q, hQ, heQ, hecard⟩ :=
+    mem_cliqueBoundarySupport.mp (hreserveBoundary heReserve)
+  apply mem_cliqueBoundarySupport.mpr
+  exact ⟨Q, Finset.mem_union_left _ hQ, heQ, hecard⟩
+
+/-- Final reduction of the entire design-existence theorem to the one
+remaining source construction from Section 6. -/
+theorem resolution_of_eventual_sparseIntegralGeneratorData
+    (hgenerator : ∀ k r : ℕ, 1 < r → r < k →
+      ∀ᶠ n : ℕ in Filter.atTop,
+        ∀ reserve : Finset (Finset (Fin n)),
+          HasReserveProperty n k r reserve →
+          HasSparseIntegralGeneratorData n k r reserve) :
+    Resolution := by
+  apply resolution_of_eventual_sparseGeneratorBooleanization
+  intro k r hr hrk
+  exact eventually_hasSparseGeneratorBooleanization_of_generatorData
+    (k := k) (r := r) (by omega) hrk (hgenerator k r hr hrk)
+
+
+/-- Every Steiner system satisfies all the standard divisibility
+conditions. -/
+theorem IsSteinerSystem.isAdmissible {n k r : ℕ}
+    {blocks : Finset (Finset (Fin n))} (h : IsSteinerSystem n k r blocks) :
+    IsAdmissible n k r := by
+  intro i hir
+  by_cases hin : i ≤ n
+  · let I : Finset (Fin n) :=
+      (Finset.univ : Finset (Fin i)).map (Fin.castLEEmb hin)
+    have hIcard : I.card = i := by simp [I]
+    refine ⟨(blocks.filter fun B ↦ I ⊆ B).card, ?_⟩
+    simpa [Nat.mul_comm] using (h.local_count hIcard hir.le).symm
+  · rw [Nat.choose_eq_zero_of_lt (by omega : n - i < r - i)]
+    exact dvd_zero _
+
+/- The existence theorem is proved below. -/
+
+end Erdos722
