@@ -1,0 +1,64 @@
+import ErdosProblems.Erdos980.ElliottTail.Assembly
+import ErdosProblems.Erdos980.ElliottTail.Burgess
+import ErdosProblems.Erdos980.ElliottTail.CharacterEncoding
+import ErdosProblems.Erdos980.ElliottTail.ConcreteMediumBridge
+import ErdosProblems.Erdos980.ElliottTail.CumulativeMediumApplication
+import ErdosProblems.Erdos980.ElliottTail.CumulativeMediumTail
+import ErdosProblems.Erdos980.ElliottTail.CumulativeCutoffWrapper
+import ErdosProblems.Erdos980.ElliottTail.Definitions
+import ErdosProblems.Erdos980.ElliottTail.ExponentReduction
+import ErdosProblems.Erdos980.ElliottTail.FinalAssembly
+import ErdosProblems.Erdos980.ElliottTail.FixedRayCellCandidateData
+import ErdosProblems.Erdos980.ElliottTail.GeneratorResidueBoundingSieve
+import ErdosProblems.Erdos980.ElliottTail.IdealGeneratorCongruenceCount
+import ErdosProblems.Erdos980.ElliottTail.LargeSieve
+import ErdosProblems.Erdos980.ElliottTail.LargeTail
+import ErdosProblems.Erdos980.ElliottTail.LargeTailApplication
+import ErdosProblems.Erdos980.ElliottTail.LevelRestrictedRosser
+import ErdosProblems.Erdos980.ElliottTail.LocalNormEuler
+import ErdosProblems.Erdos980.ElliottTail.LocalNormRootBound
+import ErdosProblems.Erdos980.ElliottTail.MediumTail
+import ErdosProblems.Erdos980.ElliottTail.ModelBridge
+import ErdosProblems.Erdos980.ElliottTail.NormSiftedInjection
+import ErdosProblems.Erdos980.ElliottTail.NumberFieldLargerSieve
+import ErdosProblems.Erdos980.ElliottTail.NumberFieldPrimeSieve
+import ErdosProblems.Erdos980.ElliottTail.OddAuxiliaryPrimes
+import ErdosProblems.Erdos980.ElliottTail.OddAuxiliaryScaleCore
+import ErdosProblems.Erdos980.ElliottTail.OddCellGeometry
+import ErdosProblems.Erdos980.ElliottTail.OddInertAuxiliaryPrimes
+import ErdosProblems.Erdos980.ElliottTail.OddInertCandidateInjection
+import ErdosProblems.Erdos980.ElliottTail.OddInertFibreCover
+import ErdosProblems.Erdos980.ElliottTail.OddFilteredInertPrimes
+import ErdosProblems.Erdos980.ElliottTail.OddFiniteFibreAssembly
+import ErdosProblems.Erdos980.ElliottTail.OddInertGeneratorMembership
+import ErdosProblems.Erdos980.ElliottTail.OddInertOneCellApplication
+import ErdosProblems.Erdos980.ElliottTail.OddInertTensorCells
+import ErdosProblems.Erdos980.ElliottTail.OddMediumParameters
+import ErdosProblems.Erdos980.ElliottTail.OddMediumRayEncoding
+import ErdosProblems.Erdos980.ElliottTail.OddPrimeTensorBridge
+import ErdosProblems.Erdos980.ElliottTail.OddPrimeMediumApplication
+import ErdosProblems.Erdos980.ElliottTail.OddPowerReciprocity
+import ErdosProblems.Erdos980.ElliottTail.OddRayNormRosser
+import ErdosProblems.Erdos980.ElliottTail.OddRosserParameters
+import ErdosProblems.Erdos980.ElliottTail.OddFiniteLossEstimate
+import ErdosProblems.Erdos980.ElliottTail.OddAuxiliaryScale
+import ErdosProblems.Erdos980.ElliottTail.OddSymbolCollision
+import ErdosProblems.Erdos980.ElliottTail.PrimeIdealMertens
+import ErdosProblems.Erdos980.ElliottTail.QuadraticMediumSieve
+import ErdosProblems.Erdos980.ElliottTail.RationalPrimeGeneratorBridge
+import ErdosProblems.Erdos980.ElliottTail.RayClassTensorSieve
+import ErdosProblems.Erdos980.ElliottTail.RayNormPrimeSieve
+import ErdosProblems.Erdos980.ElliottTail.RayNormRemainder
+import ErdosProblems.Erdos980.ElliottTail.RayPrincipalization
+import ErdosProblems.Erdos980.ElliottTail.RayPrincipalizationHeight
+import ErdosProblems.Erdos980.ElliottTail.SmoothAmplifier
+import ErdosProblems.Erdos980.ElliottTail.SmoothRarityApplication
+import ErdosProblems.Erdos980.ElliottTail.UnconditionalTail
+
+/-!
+# Elliott's uniform-tail development for Erdős Problem 980
+
+This aggregate exposes the exact character encoding, the prime-level
+Pólya--Vinogradov estimate, the restricted large sieve and smooth amplifier,
+and the medium/large uniform-integrability assembly.
+-/
