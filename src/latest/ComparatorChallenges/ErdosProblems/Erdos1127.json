@@ -1,0 +1,15 @@
+{
+  "challenge_module": "Erdos1127",
+  "solution_module": "ErdosProblems.Erdos1127",
+  "theorem_names": [
+    "Erdos1127.erdos_1127_oriented_pair_formulation_false",
+    "Erdos1127.erdos_1127_degenerate_pair_formulation_false",
+    "Erdos1127.erdos_1127"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
