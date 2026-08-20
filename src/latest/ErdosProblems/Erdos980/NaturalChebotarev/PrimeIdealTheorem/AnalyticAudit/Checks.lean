@@ -1,0 +1,18 @@
+import DedekindResidue.CompletedZeta.Existence
+import DedekindResidue.ExplicitFormula.ZeroCapture
+import DedekindResidue.ExplicitFormula.GRHZeros
+import DedekindResidue.ExplicitFormula.PrimeSide
+
+#check DedekindResidue.completedDedekindZeta
+#check DedekindResidue.completedDedekindZetaEntire
+#check DedekindResidue.differentiable_completedDedekindZetaEntire
+#check DedekindResidue.completedDedekindZetaEntire_eq
+#check DedekindResidue.completedDedekindZeta_eq_of_one_lt_re
+#check DedekindResidue.completedDedekindZetaEntire_one_ne_zero
+#check DedekindResidue.dedekindZeta_ne_zero_of_one_lt_re
+#check DedekindResidue.completedDedekindZetaEntire_ne_zero_of_one_lt_re
+#check DedekindResidue.neg_logDeriv_dedekindZeta_eq_tsum
+#check DedekindResidue.neg_logDeriv_dedekindZeta_eq_tsum_prod
+#check DedekindResidue.gammaFactor_ne_zero_of_re_pos
+#check DedekindResidue.GeneralizedRiemannHypothesis
+#check DedekindResidue.generalizedRiemannHypothesis_iff
