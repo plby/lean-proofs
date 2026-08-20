@@ -1,0 +1,6 @@
+import ErdosProblems.Erdos515.Construction
+import ErdosProblems.Erdos515.FullDraft
+
+#print axioms Erdos515.LRWFiniteBlockConstruction.exists_path
+#print axioms Erdos515.LRWLogPosBlockConstruction.exists_path
+#print axioms Erdos515.lineIntegral_lt_top_of_quadratic_growth
