@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos715",
+  "solution_module": "ErdosProblems.Erdos715",
+  "theorem_names": [
+    "Erdos715.erdos_715",
+    "Erdos715.erdos_715_exists_degree"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
