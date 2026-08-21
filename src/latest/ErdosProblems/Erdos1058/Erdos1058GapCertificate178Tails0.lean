@@ -1,0 +1,27 @@
+import ErdosProblems.Erdos1058.Erdos1058Core
+
+namespace Erdos1058
+
+open Nat
+
+noncomputable section
+
+namespace CubicCRTSearchGap178Certificate
+
+lemma tail_1_415 : cubicCRTSearchAux 178 1
+    [19, 31, 37, 43, 61, 67, 73, 79, 97, 103, 109, 127, 139, 151, 157, 163, 181, 193, 199, 211, 223, 229, 241, 271, 277, 283, 307, 313, 331, 337, 349, 367, 373, 379, 397, 409, 421, 433] 546 415 = false := by
+  rfl
+
+lemma tail_1_457 : cubicCRTSearchAux 178 1
+    [19, 31, 37, 43, 61, 67, 73, 79, 97, 103, 109, 127, 139, 151, 157, 163, 181, 193, 199, 211, 223, 229, 241, 271, 277, 283, 307, 313, 331, 337, 349, 367, 373, 379, 397, 409, 421, 433] 546 457 = false := by
+  rfl
+
+lemma tail_1_499 : cubicCRTSearchAux 178 1
+    [19, 31, 37, 43, 61, 67, 73, 79, 97, 103, 109, 127, 139, 151, 157, 163, 181, 193, 199, 211, 223, 229, 241, 271, 277, 283, 307, 313, 331, 337, 349, 367, 373, 379, 397, 409, 421, 433] 546 499 = false := by
+  rfl
+
+end CubicCRTSearchGap178Certificate
+
+end
+
+end Erdos1058
