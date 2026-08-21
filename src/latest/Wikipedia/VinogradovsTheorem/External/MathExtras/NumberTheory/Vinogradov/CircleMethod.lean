@@ -7,7 +7,7 @@ import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
 import Mathlib.NumberTheory.ArithmeticFunction.VonMangoldt
 import Mathlib.NumberTheory.Chebyshev
-import ErdosProblems.Erdos471.External.MathExtras.NumberTheory.Vinogradov.Bilinear
+import Wikipedia.VinogradovsTheorem.External.MathExtras.NumberTheory.Vinogradov.Bilinear
 
 /-!
 # Circle-Method Infrastructure for Vinogradov-Style Arguments

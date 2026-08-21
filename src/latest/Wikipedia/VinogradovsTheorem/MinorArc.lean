@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -/
-import ErdosProblems.Erdos471.MajorMinor
+import Wikipedia.VinogradovsTheorem.MajorMinor
 
 /-!
 # The minor-arc estimate for Erdős Problem 471
@@ -26,7 +26,7 @@ the logarithmic circle-method cutoffs.  It derives a uniform
 
 noncomputable section
 
-namespace Erdos471.Analytic
+namespace VinogradovsTheorem.Analytic
 
 open Filter
 
@@ -445,4 +445,4 @@ theorem eventually_norm_minor_integral_le_mul
       _ ≤ ε * (n : ℝ) ^ 2 :=
         mul_le_mul_of_nonneg_right hratio (sq_nonneg _))
 
-end Erdos471.Analytic
+end VinogradovsTheorem.Analytic

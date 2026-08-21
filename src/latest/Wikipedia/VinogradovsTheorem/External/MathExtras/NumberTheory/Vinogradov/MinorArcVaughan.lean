@@ -2,7 +2,7 @@
 Copyright (c) 2026 Gershon Bialer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import ErdosProblems.Erdos471.External.MathExtras.NumberTheory.Vinogradov.CircleMethod
+import Wikipedia.VinogradovsTheorem.External.MathExtras.NumberTheory.Vinogradov.CircleMethod
 import Mathlib.Algebra.Order.Round
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
 import Mathlib.Data.Nat.Factorization.Basic

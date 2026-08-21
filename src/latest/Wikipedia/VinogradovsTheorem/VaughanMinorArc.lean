@@ -80,11 +80,11 @@ the assembly must use `Σ_j √(x_j) ≤ √(J·Σ x_j)` (Cauchy–Schwarz on th
 box index).  This is Phase-2 content; nothing in this file claims it.
 -/
 
-import ErdosProblems.Erdos471.External.MathExtras.NumberTheory.Vinogradov.HardCutoffTypeIDistanceSensitive
+import Wikipedia.VinogradovsTheorem.External.MathExtras.NumberTheory.Vinogradov.HardCutoffTypeIDistanceSensitive
 import Mathlib.NumberTheory.Harmonic.Bounds
 import Mathlib.Analysis.Complex.ExponentialBounds
 import Mathlib.Algebra.Order.Chebyshev
-import ErdosProblems.Erdos471.External.AnalyticNT.Bilinear.TypeI
+import Wikipedia.VinogradovsTheorem.External.AnalyticNT.Bilinear.TypeI
 import Mathlib.NumberTheory.DiophantineApproximation.Basic
 import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 

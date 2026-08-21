@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -/
-import ErdosProblems.Erdos471.External.MathExtras.NumberTheory.Vinogradov.MajorArcExplicit
+import Wikipedia.VinogradovsTheorem.External.MathExtras.NumberTheory.Vinogradov.MajorArcExplicit
 import Mathlib.NumberTheory.EulerProduct.Basic
 import Mathlib.NumberTheory.SumPrimeReciprocals
 import Mathlib.Analysis.SpecialFunctions.Log.Summable
@@ -27,7 +27,7 @@ convergent Ramanujan denominator series has the expected Euler product and is
 uniformly positive on odd integers.
 -/
 
-namespace Erdos471.Analytic
+namespace VinogradovsTheorem.Analytic
 
 open scoped BigOperators Topology
 open Filter
@@ -754,4 +754,4 @@ theorem tsum_singularTerm_eq_two_singularSeries {n : ℕ} (hodd : Odd n) :
   rw [tsum_singularTerm_eq_tprod_prime_pow n,
     tprod_singularTerm_prime_pow_eq_two_singularSeries hodd]
 
-end Erdos471.Analytic
+end VinogradovsTheorem.Analytic

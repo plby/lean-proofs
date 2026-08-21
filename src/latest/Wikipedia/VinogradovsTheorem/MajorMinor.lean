@@ -13,9 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -/
-import ErdosProblems.Erdos471.MajorArcApproximation
-import ErdosProblems.Erdos471.SingularSeries
-import ErdosProblems.Erdos471.VaughanMinorArc
+import Wikipedia.VinogradovsTheorem.MajorArcApproximation
+import Wikipedia.VinogradovsTheorem.SingularSeries
+import Wikipedia.VinogradovsTheorem.VaughanMinorArc
 
 /-!
 # Qualitative major and minor arcs for Erdős Problem 471
@@ -25,7 +25,7 @@ estimate from the proved Bombieri--Vinogradov theorem and the proved
 q-sensitive Vaughan estimate.
 -/
 
-namespace Erdos471.Analytic
+namespace VinogradovsTheorem.Analytic
 
 open scoped BigOperators Topology ArithmeticFunction.vonMangoldt
 open Filter MeasureTheory
@@ -3971,4 +3971,4 @@ theorem norm_minor_integral_le
       gcongr
       exact sum_vonMangoldt_sq_le n
 
-end Erdos471.Analytic
+end VinogradovsTheorem.Analytic

@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -/
 import ErdosProblems.Erdos387.UniformAnalyticInputs
-import ErdosProblems.Erdos471.SingularSeries
-import ErdosProblems.Erdos471.External.MathExtras.Analysis.AbelSummation
+import Wikipedia.VinogradovsTheorem.SingularSeries
+import Wikipedia.VinogradovsTheorem.External.MathExtras.Analysis.AbelSummation
 
 /-!
 # A qualitative major-arc approximation
@@ -31,7 +31,7 @@ Bombieri--Vinogradov theorem through `Erdos387.UniformAnalyticInputs`.
 
 noncomputable section
 
-namespace Erdos471.Analytic
+namespace VinogradovsTheorem.Analytic
 
 open scoped BigOperators Topology ArithmeticFunction.vonMangoldt
 open Filter Finset
@@ -758,4 +758,4 @@ theorem vonMangoldtExpSum_local_approximation
             (1 + 2 * Real.pi * |β| * (N : ℝ))) +
         (q.primeFactors.card : ℝ) * Real.log ((N : ℝ) + 1) := by rfl
 
-end Erdos471.Analytic
+end VinogradovsTheorem.Analytic

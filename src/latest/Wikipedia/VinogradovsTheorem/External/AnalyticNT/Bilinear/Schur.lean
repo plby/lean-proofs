@@ -38,7 +38,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.Complex.Exponential
 import Mathlib.Analysis.Complex.Trigonometric
 import Mathlib.Algebra.Field.GeomSum
-import ErdosProblems.Erdos471.External.AnalyticNT.Bilinear.TypeI
+import Wikipedia.VinogradovsTheorem.External.AnalyticNT.Bilinear.TypeI
 
 namespace AnalyticNT
 namespace Bilinear
