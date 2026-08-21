@@ -1,4 +1,4 @@
 import ErdosProblems.Erdos471
 
-#print axioms Erdos471.vonMangoldtTernaryLowerBound
+#print axioms VinogradovsTheorem.vinogradovs_theorem
 #print axioms Erdos471.erdos471

@@ -32,7 +32,7 @@ future M4 large sieve).
 import Mathlib.Analysis.SpecialFunctions.Complex.Log
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.Complex.Exponential
-import ErdosProblems.Erdos471.External.AnalyticNT.Bilinear.Schur
+import Wikipedia.VinogradovsTheorem.External.AnalyticNT.Bilinear.Schur
 
 namespace AnalyticNT
 namespace Bilinear

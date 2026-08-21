@@ -812,4 +812,4 @@ roots = ["MO420333", "MO508681", "MO509164", "MO509493"]
 [[lean_lib]]
 name = "WikipediaChallenges"
 srcDir = "Wikipedia"
-roots = ["CycleDoubleCoverConjecture", "SzemeredisTheorem", "GreenTao"]
+roots = ["CycleDoubleCoverConjecture", "SzemeredisTheorem", "GreenTao", "VinogradovsTheorem"]

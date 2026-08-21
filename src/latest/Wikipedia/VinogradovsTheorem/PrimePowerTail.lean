@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -/
-import ErdosProblems.Erdos471.CircleMethod
+import Wikipedia.VinogradovsTheorem.CircleMethod
 
 /-!
 # Prime-power removal for Erdős Problem 471
@@ -27,7 +27,7 @@ the standard observation that a proper prime power `p^k ≤ n` has
 
 noncomputable section
 
-namespace Erdos471.PrimePowerTail
+namespace VinogradovsTheorem.PrimePowerTail
 
 open Finset Filter Asymptotics
 
@@ -526,4 +526,4 @@ theorem eventually_tail_le_eps_sq {ε : ℝ} (hε : 0 < ε) :
 #print axioms vonMangoldtTripleWeight_eq_circleIntegral
 #print axioms eventually_tail_le_eps_sq
 
-end Erdos471.PrimePowerTail
+end VinogradovsTheorem.PrimePowerTail

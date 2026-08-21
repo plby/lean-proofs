@@ -1,0 +1,13 @@
+{
+  "challenge_module": "VinogradovsTheorem",
+  "solution_module": "Wikipedia.VinogradovsTheorem",
+  "theorem_names": [
+    "VinogradovsTheorem.vinogradovs_theorem"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

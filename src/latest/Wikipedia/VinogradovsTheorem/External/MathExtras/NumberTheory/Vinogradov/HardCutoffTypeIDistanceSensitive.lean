@@ -8,9 +8,9 @@ distance estimate from the larger ternary-Goldbach development without
 importing that development's unfinished bridge layer.
 -/
 
-import ErdosProblems.Erdos471.External.MathExtras.NumberTheory.Vinogradov.MinorArcVaughan
-import ErdosProblems.Erdos471.External.MathExtras.Analysis.AbelSummation
-import ErdosProblems.Erdos471.External.AnalyticNT.Bilinear.TypeII
+import Wikipedia.VinogradovsTheorem.External.MathExtras.NumberTheory.Vinogradov.MinorArcVaughan
+import Wikipedia.VinogradovsTheorem.External.MathExtras.Analysis.AbelSummation
+import Wikipedia.VinogradovsTheorem.External.AnalyticNT.Bilinear.TypeII
 
 noncomputable section
 

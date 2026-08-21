@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -/
-import ErdosProblems.Erdos471.MinorArc
-import ErdosProblems.Erdos471.PrimePowerTail
+import Wikipedia.VinogradovsTheorem.MinorArc
+import Wikipedia.VinogradovsTheorem.PrimePowerTail
 
 /-!
 # Analytic conclusion for Erdős Problem 471
@@ -27,7 +27,7 @@ ternary von Mangoldt coefficient.
 
 noncomputable section
 
-namespace Erdos471.Analytic
+namespace VinogradovsTheorem.Analytic
 
 open Filter MeasureTheory
 
@@ -60,13 +60,13 @@ theorem circle_integral_eq_major_add_minor (n D P : ℕ) :
   ring
 
 theorem vonMangoldtTripleWeight_eq_integral (n : ℕ) :
-    (Erdos471.PrimePowerTail.vonMangoldtTripleWeight n : ℂ) =
+    (VinogradovsTheorem.PrimePowerTail.vonMangoldtTripleWeight n : ℂ) =
       ∫ α in Set.Icc (0 : ℝ) 1, integrand n α := by
   simpa [integrand, Vinogradov.negAddChar,
     Vinogradov.vonMangoldtExpSum, Vinogradov.addChar,
-    Erdos471.CircleMethod.vonMangoldtExpSum,
-    Erdos471.CircleMethod.addChar] using
-    Erdos471.PrimePowerTail.vonMangoldtTripleWeight_eq_circleIntegral n
+    VinogradovsTheorem.CircleMethod.vonMangoldtExpSum,
+    VinogradovsTheorem.CircleMethod.addChar] using
+    VinogradovsTheorem.PrimePowerTail.vonMangoldtTripleWeight_eq_circleIntegral n
 
 /-- The completed circle method: on every sufficiently large odd target,
 the ternary von Mangoldt coefficient has a fixed positive quadratic lower
@@ -75,7 +75,7 @@ theorem eventually_vonMangoldtTripleWeight_lower :
     ∃ c : ℝ, 0 < c ∧ ∀ᶠ n : ℕ in atTop,
       Odd n →
         c * (n : ℝ) ^ 2 ≤
-          Erdos471.PrimePowerTail.vonMangoldtTripleWeight n := by
+          VinogradovsTheorem.PrimePowerTail.vonMangoldtTripleWeight n := by
   obtain ⟨c, hc, hmodel⟩ := eventually_denominator_model_re_lower
   have hmajor := eventually_norm_major_integral_sub_model_le_mul
     (show 0 < c / 4 by positivity)
@@ -115,11 +115,11 @@ theorem eventually_vonMangoldtTripleWeight_lower :
   have hsplit := circle_integral_eq_major_add_minor n
     (dirichletCutoff n) (majorDenominatorCutoff n)
   have hfourier := vonMangoldtTripleWeight_eq_integral n
-  have hweight : Erdos471.PrimePowerTail.vonMangoldtTripleWeight n =
+  have hweight : VinogradovsTheorem.PrimePowerTail.vonMangoldtTripleWeight n =
       major.re + minor.re := by
     have hre := congrArg Complex.re (hfourier.trans hsplit)
     simpa [major, minor] using hre
   rw [hweight]
   nlinarith [sq_nonneg (n : ℝ)]
 
-end Erdos471.Analytic
+end VinogradovsTheorem.Analytic

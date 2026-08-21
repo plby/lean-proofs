@@ -24,7 +24,7 @@ and minor-arc estimates are developed separately.
 
 noncomputable section
 
-namespace Erdos471.CircleMethod
+namespace VinogradovsTheorem.CircleMethod
 
 open Finset MeasureTheory
 
@@ -287,4 +287,4 @@ theorem integral_vonMangoldtExpSum_cube_kernel (N n : ℕ) :
 #print axioms integral_primeLogExpSum_cube_kernel
 #print axioms integral_vonMangoldtExpSum_cube_kernel
 
-end Erdos471.CircleMethod
+end VinogradovsTheorem.CircleMethod
