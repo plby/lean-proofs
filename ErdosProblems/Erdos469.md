@@ -2,4 +2,5 @@ This is a formalized proof of [Erdős Problem 469](https://www.erdosproblems.com
 
 It is available for these Mathlib (and Lean) versions:
 
-* [Mathlib/Lean v4.32.0](../src/latest/ErdosProblems/Erdos469.lean) (latest stable release).
+* [Mathlib/Lean v4.33.0](../src/latest/ErdosProblems/Erdos469.lean) (latest stable release).
+* [Mathlib/Lean v4.32.0](../src/v4.32.0/ErdosProblems/Erdos469.lean).
