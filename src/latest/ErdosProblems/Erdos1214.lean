@@ -53,10 +53,6 @@ open Polynomial
 open NumberField
 open scoped KummerExtension
 
-syntax (name := answerSyntax1214) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace Erdos1214
 
 noncomputable section
@@ -949,11 +945,12 @@ private theorem exponents_eq_of_power_relation
 /-- Erdős Problem 1214.  If the prime supports of `x ^ n - 1` and `y ^ n - 1`
 coincide for every positive `n`, then `x = y`. -/
 theorem erdos_1214 :
-    answer(True) ↔ ∀ x y : ℕ, x ≥ 1 → y ≥ 1 →
+    ∀ x y : ℕ, x ≥ 1 → y ≥ 1 →
       (∀ n : ℕ, n ≥ 1 →
         {p : ℕ | p.Prime ∧ p ∣ x ^ n - 1} =
           {p : ℕ | p.Prime ∧ p ∣ y ^ n - 1}) →
       x = y := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _ x y hx hy hsets
     have hsupport : ∀ m : ℕ, 1 ≤ m → ∀ p : ℕ,

@@ -378,8 +378,11 @@ theorem comap_glueRooted {U A : Type*} (old : SimpleGraph U)
     (glueRooted old locals).comap (rootedEmbedding a) = locals a := by
   ext x y
   cases x <;> cases y
-  · change False ↔ (locals a).Adj none none
-    simp only [(locals a).loopless.irrefl none]
+  · constructor
+    · intro h
+      exact False.elim h
+    · intro h
+      exact False.elim ((locals a).loopless.irrefl none h)
   · rfl
   · rfl
   · change old.Adj _ _ ↔ (locals a).Adj (some _) (some _)

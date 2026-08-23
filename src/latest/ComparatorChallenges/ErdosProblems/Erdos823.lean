@@ -9,7 +9,7 @@ noncomputable section
 namespace Erdos823
 
 open scoped Classical in
-theorem erdos_823 : True ↔
+theorem erdos_823 :
     ∀ α : ℝ, 1 ≤ α →
       ∃ n m : ℕ → ℕ,
         (∀ k, 0 < n k) ∧

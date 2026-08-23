@@ -42,9 +42,10 @@ namespace Erdos1096
 noncomputable section
 
 theorem erdos_1096 :
-    answer(True) ↔ ∃ ε > 0, ∀ q, 1 < q → q < 1 + ε →
+    ∃ ε > 0, ∀ q, 1 < q → q < 1 + ε →
     ∀ x : ℕ → ℝ, StrictMono x → Set.range x = { ∑ i ∈ S, q ^ i | S : Finset ℕ } →
     Tendsto (fun k => x (k + 1) - x k) atTop (𝓝 0) := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro htrue
     refine ⟨1 / 1000, by norm_num, fun q hq hqε x hx hrange ↦ ?_⟩

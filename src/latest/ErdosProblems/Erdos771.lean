@@ -34,10 +34,6 @@ The detailed mathematical proof and Leanization map are in tex/771.tex.
 open Filter Finset Nat Real
 open scoped BigOperators Topology
 
-syntax (name := answerSyntax771) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace Erdos771
 
 noncomputable section
@@ -4554,10 +4550,10 @@ theorem erdosF_asymptotic :
 /-- Resolution of Erdős Problem 771 in the repository's Boolean-answer
 convention. -/
 theorem erdos_771 :
-    answer(True) ↔
       Tendsto (fun n : ℕ =>
         (erdosF n : ℝ) / ((n : ℝ) / Real.log (n : ℝ)))
         atTop (𝓝 (1 / 2 : ℝ)) := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _
     exact erdosF_asymptotic

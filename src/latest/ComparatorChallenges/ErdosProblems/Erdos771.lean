@@ -33,7 +33,6 @@ noncomputable def erdosF (n : ℕ) : ℕ :=
 
 
 theorem erdos_771 :
-    True ↔
       Tendsto (fun n : ℕ =>
         (erdosF n : ℝ) / ((n : ℝ) / Real.log (n : ℝ)))
         atTop (𝓝 (1 / 2 : ℝ)) := by

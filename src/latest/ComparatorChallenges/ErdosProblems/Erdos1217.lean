@@ -98,7 +98,6 @@ namespace Erdos1217
 
 open scoped Classical in
 theorem erdos_1217 :
-    True ↔
       ∀ (a : ℕ → ℕ), StrictMono a → (∀ i, 0 < a i) →
         0 < lowerLogDensity (Set.range a) →
         ∃ n : ℕ → ℕ, StrictMono n ∧

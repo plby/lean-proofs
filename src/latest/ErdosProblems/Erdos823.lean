@@ -35,10 +35,6 @@ The detailed mathematical reconstruction and Leanization map are in
 `tex/823.tex`.
 -/
 
-syntax (name := answerSyntax823) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace Erdos823
 
 open Filter Topology
@@ -73,13 +69,14 @@ theorem exists_equal_sigma_sequences {α : ℝ} (hα : 1 ≤ α) :
 /-- **Erdős Problem 823 (Pollack).**  For every `α ≥ 1`, there are positive
 integer sequences whose quotients tend to `α` and whose divisor sums agree
 term by term. -/
-theorem erdos_823 : answer(True) ↔
+theorem erdos_823 :
     ∀ α : ℝ, 1 ≤ α →
       ∃ n m : ℕ → ℕ,
         (∀ k, 0 < n k) ∧
         (∀ k, 0 < m k) ∧
         (∀ k, σ 1 (n k) = σ 1 (m k)) ∧
         Tendsto (fun k ↦ (n k : ℝ) / (m k : ℝ)) atTop (nhds α) := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _ α hα
     exact exists_equal_sigma_sequences hα

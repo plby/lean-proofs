@@ -2157,7 +2157,7 @@ theorem not_erdos27Question : ¬Erdos27Question := by
   linarith
 
 /-- **Erdős Problem 27.** The answer is no. -/
-theorem erdos_27 : False ↔ Erdos27Question := by
+theorem erdos_27 : ¬ Erdos27Question := by
   simpa using not_erdos27Question
 
 #print axioms erdos_27

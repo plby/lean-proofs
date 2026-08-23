@@ -36,9 +36,6 @@ The detailed partite construction and the Leanization map are in
 `tex/924.tex`.
 -/
 
-syntax (name := answerSyntax924) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 namespace Erdos924
 
 open Finset Fintype
@@ -1305,10 +1302,11 @@ theorem exists_cliqueFree_edgeRamsey_graph (k l : ℕ) (hk : 2 ≤ k) (hl : 3 �
 /-- Erdős Problem 924 has an affirmative answer.  The detailed mathematical
 construction and its correspondence with this formal proof are documented in
 `tex/924.tex`. -/
-theorem erdos_924 : answer(True) ↔
+theorem erdos_924 :
     ∀ k l : ℕ, 2 ≤ k → 3 ≤ l →
       ∃ (V : Type) (_ : Fintype V) (G : SimpleGraph V),
         G.CliqueFree (l + 1) ∧ IsEdgeRamseyForClique G k l := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _ k l hk hl
     exact exists_cliqueFree_edgeRamsey_graph k l hk hl

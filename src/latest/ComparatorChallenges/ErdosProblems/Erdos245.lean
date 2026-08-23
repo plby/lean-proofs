@@ -6,7 +6,7 @@ open scoped Pointwise Topology
 namespace Erdos245
 
 theorem erdos_245 :
-    True ↔ ∀ (A : Set ℕ), A.Infinite →
+    ∀ (A : Set ℕ), A.Infinite →
       atTop.Tendsto
         (fun N ↦ (A ∩ Icc 1 ⌊N⌋₊ |>.ncard : ℝ) / N) (nhds 0) →
       3 ≤ atTop.limsup

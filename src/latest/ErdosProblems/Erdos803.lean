@@ -445,8 +445,7 @@ claimed absolute lower-density constant, the proof constructs a sufficiently
 large graph in which *every* subgraph on the chosen number of vertices has
 fewer than six edges per vertex.  Thus the balance requirement cannot rescue
 the assertion. -/
-theorem erdos_803 : False ↔ Erdos803Statement := by
-  rw [false_iff]
+theorem erdos_803 : ¬ Erdos803Statement := by
   rintro ⟨ε, hε, D, hD, hstatement⟩
   obtain ⟨m, hm⟩ := exists_nat_gt (Real.exp (7 / ε))
   have hmReal : (0 : ℝ) < (m : ℝ) := (Real.exp_pos _).trans hm

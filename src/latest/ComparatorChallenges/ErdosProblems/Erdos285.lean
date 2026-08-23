@@ -30,7 +30,7 @@ open scoped Classical in
 `k + 1`-term representation of `1` by distinct unit fractions is asymptotic
 to `e / (e - 1) * (k + 1)`. -/
 theorem erdos_285 :
-    True ↔ ∀ᵉ (f : ℕ → ℕ)
+    ∀ᵉ (f : ℕ → ℕ)
     (S : Set ℕ)
     (hS : S = {k | ∃ (n : Fin k.succ → ℕ), StrictMono n ∧ 0 ∉ Set.range n ∧
       1 = ∑ i, (1 : ℝ) / n i })

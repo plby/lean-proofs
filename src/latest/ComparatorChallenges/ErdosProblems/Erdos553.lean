@@ -53,7 +53,7 @@ end Erdos553
 namespace Erdos553
 
 open scoped Classical in
-theorem erdos_553 : True ↔ Problem553 := by
+theorem erdos_553 : Problem553 := by
   sorry
 
 end Erdos553

@@ -399,12 +399,13 @@ theorem eventually_flat_of_eventually_centered
 /-- Exact formal-conjectures conclusion, directly from the concrete centered
 construction input. -/
 theorem target_of_eventually_centered (hcentered : EventuallyCenteredPaired) :
-    answer(True) ↔ ∃ (c₁ : ℝ) (c₂ : ℝ), ∀ᶠ n : ℕ in Filter.atTop,
+    ∃ (c₁ : ℝ) (c₂ : ℝ), ∀ᶠ n : ℕ in Filter.atTop,
     ∃ p : Polynomial ℂ, p.degree = n ∧
     (∀ i ≤ n, p.coeff i = 1 ∨ p.coeff i = -1) ∧
     ∀ z : ℂ, ‖z‖ = 1 →
     (Real.sqrt n < c₁ * ‖p.eval z‖ ∧
       ‖p.eval z‖ < c₂ * Real.sqrt n) := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _
     have hflat := eventually_flat_of_eventually_centered hcentered

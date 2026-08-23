@@ -61,10 +61,6 @@ The detailed mathematical proof and Leanization plan are in `tex/1217.tex`.
 
 namespace Erdos1217
 
-syntax (name := answerSyntax1217) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- The strengthened sequence form of the resolution: positive doubly harmonic
 upper rate suffices, without an assumption on lower logarithmic density. -/
 theorem exists_divisibility_subsequence_of_weightedRate_pos
@@ -88,12 +84,12 @@ theorem exists_divisibility_subsequence_of_weightedRate_pos
 
 /-- The affirmative resolution of Erdős Problem 1217. -/
 theorem erdos_1217 :
-    answer(True) ↔
       ∀ (a : ℕ → ℕ), StrictMono a → (∀ i, 0 < a i) →
         0 < lowerLogDensity (Set.range a) →
         ∃ n : ℕ → ℕ, StrictMono n ∧
           (∀ i, a (n i) ∣ a (n (i + 1))) ∧
           weightedRate (Set.range a) ≤ chainRate (a ∘ n) := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _ a ha _hapos hlog
     exact exists_divisibility_subsequence_of_weightedRate_pos ha

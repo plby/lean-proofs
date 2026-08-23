@@ -25,9 +25,6 @@ progressions of pairwise coprime powerful numbers.  The mathematical reconstruct
 formalization map are in `tex/937.tex`.
 -/
 
-syntax (name := answerSyntax937) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 namespace Nat
 
 /-- A natural number is `k`-full when every prime factor occurs to exponent at least `k`.

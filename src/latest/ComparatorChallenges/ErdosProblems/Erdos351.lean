@@ -29,7 +29,7 @@ namespace Erdos351
 
 open scoped Classical in
 theorem erdos_351 :
-    True ↔ ∀ P : ℚ[X], 0 < P.natDegree → 0 < P.leadingCoeff →
+    ∀ P : ℚ[X], 0 < P.natDegree → 0 < P.leadingCoeff →
       HasCompleteImage P := by
   sorry
 

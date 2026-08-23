@@ -40,7 +40,7 @@ Bridges between our internal forms and FC's literal syntax:
 
   * `Erdos283.Condition`           — FC's per-polynomial condition (sentinel
                                       `n 0 = 0`, sums over `Finset.Icc 1 (Fin.last k)`).
-  * `Erdos283.erdos_283`           — `True ↔ ∀ p : ℤ[X], Condition p`
+  * `Erdos283.erdos_283`           — `∀ p : ℤ[X], Condition p`
                                       under `answer := True`.
 -/
 
@@ -63,7 +63,8 @@ def Condition (p : ℤ[X]) : Prop :=
 Bridges from `PolynomialEgyptianSums.theorem_1` (with `α = 1`, `L = 1`, `p`
 coerced from `ℤ[X]` to `ℚ[X]`) to FC's sentinel-indexed `Fin (k+1) → ℤ` form. -/
 theorem erdos_283 :
-    True ↔ ∀ p : ℤ[X], Condition p := by
+    ∀ p : ℤ[X], Condition p := by
+  refine Iff.mp ?_ trivial
   refine ⟨fun _ p => ?_, fun _ => trivial⟩
   unfold Condition
   intro hlc hnf

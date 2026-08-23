@@ -14904,12 +14904,13 @@ theorem theorem_1_1_via_cayley :
         obtain ⟨b, hb⟩ := hB_nonempty
         exact ⟨b, hb, b, hb, by simp⟩
 
-/-! ## §4 FC iff form (Route B) -/
+/-! ## §4 FC form (Route B) -/
 
 theorem erdos_42_via_cayley :
-    True ↔ ∀ M ≥ 1, ∀ᶠ N in atTop, ∀ (A : Set ℕ) (_ : IsMaximalSidonSetIn A N),
+    ∀ M ≥ 1, ∀ᶠ N in atTop, ∀ (A : Set ℕ) (_ : IsMaximalSidonSetIn A N),
       ∃ (B : Set ℕ), B ⊆ Set.Icc 1 N ∧ IsSidon B ∧ B.ncard = M ∧
         ((A - A) ∩ (B - B) : Set ℕ) = {0} := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _ M hM
     obtain ⟨N₀, hN₀⟩ := theorem_1_1_via_cayley M hM
@@ -14991,8 +14992,8 @@ theorem erdos42RHS_iff_localRHS :
 /-- **Formal-conjectures shape for #42 (Route B).** Matches FC's literal
 statement after `answer := True` and `∃ᵉ ↦ ExplicitExists`. Mathlib core only. -/
 theorem erdos_42_via_cayley :
-    True ↔ erdos42RHS :=
-  Iff.trans Erdos42.erdos_42_via_cayley erdos42RHS_iff_localRHS.symm
+    erdos42RHS :=
+  erdos42RHS_iff_localRHS.mpr Erdos42.erdos_42_via_cayley
 
 end FormalConjecturesShape
 

@@ -30,7 +30,7 @@ noncomputable def antiRamseyNum {α : Type*} [Fintype α]
     ∀ f : H →g (⊤ : SimpleGraph (Fin n)), ¬IsRainbow f c}
 
 theorem not_erdos_1105_parts_ii_type :
-    ¬(True ↔ ∀ (k n : ℕ), 5 ≤ k → k ≤ n →
+    ¬(∀ (k n : ℕ), 5 ≤ k → k ≤ n →
       let ℓ := (k - 1) / 2
       let ε := if Odd k then 1 else 2
       antiRamseyNum (pathGraph k) n =
@@ -41,7 +41,7 @@ theorem not_erdos_1105_parts_ii_type :
 open Asymptotics Filter
 
 theorem not_erdos_1105_parts_i_type :
-    ¬(True ↔ ∀ k : ℕ, 3 ≤ k →
+    ¬(∀ k : ℕ, 3 ≤ k →
       ((fun n : ℕ ↦ (antiRamseyNum (cycleGraph k) n : ℝ) -
           (((k : ℝ) - 2) / 2 + 1 / ((k : ℝ) - 1)) * n) =O[atTop]
         (fun _ : ℕ ↦ (1 : ℝ)))) := by

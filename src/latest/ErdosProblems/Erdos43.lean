@@ -30,9 +30,6 @@ import ErdosProblems.Erdos862
 
 open scoped Pointwise
 
-syntax (name := answerSyntax43) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 /-- The formal-conjectures definition of a Sidon set. -/
 def IsSidon {α : Type*} [AddCommMonoid α] (A : Set α) : Prop :=
   ∀ᵉ (i₁ ∈ A) (j₁ ∈ A) (i₂ ∈ A) (j₂ ∈ A),
@@ -574,7 +571,7 @@ private theorem exists_good_pair (q : ℕ) (hqprime : q.Prime) (hq : 3 ≤ q)
   norm_num only [Nat.cast_add]
   nlinarith
 
-theorem erdos_43.parts.i : answer(False) ↔
+theorem erdos_43.parts.i : ¬
     ∃ C : ℝ, ∀ᶠ N in Filter.atTop, ∀ (A B : Finset ℕ),
       A ⊆ Finset.Icc 1 N →
       B ⊆ Finset.Icc 1 N →
@@ -582,9 +579,8 @@ theorem erdos_43.parts.i : answer(False) ↔
       IsSidon (B : Set ℕ) →
       (A - A) ∩ (B - B) = {0} →
       ((A.card.choose 2 + B.card.choose 2 : ℕ) : ℝ) ≤ ((f N).choose 2 : ℝ) + C := by
-  constructor
-  · exact False.elim
-  · rintro ⟨C, hC⟩
+  rintro ⟨C, hC⟩
+  ·
     obtain ⟨m : ℕ, hm : C < m⟩ := exists_nat_gt C
     let M := 2 * m + 2
     have hM : 1 ≤ M := by simp [M]
@@ -644,7 +640,7 @@ theorem erdos_43.parts.i : answer(False) ↔
     norm_num only [Nat.cast_add] at hbound
     linarith
 
-theorem erdos_43.parts.ii : answer(False) ↔
+theorem erdos_43.parts.ii : ¬
     ∃ᵉ (c > 0), ∃ o : ℕ → ℝ, o =o[Filter.atTop] (1 : ℕ → ℝ) ∧
     ∀ᶠ N in Filter.atTop, ∀ (A B : Finset ℕ),
       A ⊆ Finset.Icc 1 N →
@@ -655,9 +651,8 @@ theorem erdos_43.parts.ii : answer(False) ↔
       (A - A) ∩ (B - B) = {0} →
       ((A.card.choose 2 + B.card.choose 2 : ℕ) : ℝ) ≤
         (1 - c + o N) * ((f N).choose 2 : ℝ) := by
-  constructor
-  · exact False.elim
-  · rintro ⟨c, hc, o, ho, hall⟩
+  rintro ⟨c, hc, o, ho, hall⟩
+  ·
     let η : ℝ := min (c / 8) (1 / 8)
     have hη : 0 < η := by
       dsimp only [η]

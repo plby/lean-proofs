@@ -38,9 +38,6 @@ The mathematical proof and a lemma-by-lemma Leanization guide are in
 `tex/1128.tex`.
 -/
 
-syntax (name := answerSyntax1128) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 open Cardinal Set Ordinal Order
 
 namespace Erdos1128
@@ -1027,15 +1024,14 @@ theorem infinite_set_of_mk_eq_aleph0 {α : Type*} {S : Set α}
   rw [← Set.infinite_coe_iff, ← Cardinal.aleph0_le_mk_iff]
   simpa [hS]
 
-theorem erdos_1128 : answer(False) ↔
+theorem erdos_1128 : ¬
     ∀ (A B C : Type) (_ : #A = aleph 1) (_ : #B = aleph 1)
       (_ : #C = aleph 1) (f : A → B → C → Fin 2),
       ∃ (A₁ : Set A) (B₁ : Set B) (C₁ : Set C),
         #A₁ = aleph 0 ∧ #B₁ = aleph 0 ∧ #C₁ = aleph 0 ∧
         IsMonochromaticBox f A₁ B₁ C₁ := by
-  constructor
-  · exact False.elim
-  · intro h
+  intro h
+  ·
     obtain ⟨A₁, B₁, C₁, hA, hB, hC, hmono⟩ :=
       h Omega1 Omega1 Omega1 omega1_mk omega1_mk omega1_mk rhoColor
     exact no_infinite_monochromatic_box A₁ B₁ C₁

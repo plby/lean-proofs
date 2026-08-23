@@ -46,7 +46,7 @@ namespace Erdos245
 
 /-- The affirmative resolution of Erdős Problem 245. -/
 theorem erdos_245 :
-    answer(True) ↔ ∀ (A : Set ℕ), A.Infinite →
+    ∀ (A : Set ℕ), A.Infinite →
       atTop.Tendsto
         (fun N ↦ (A ∩ Icc 1 ⌊N⌋₊ |>.ncard : ℝ) / N) (nhds 0) →
       3 ≤ atTop.limsup

@@ -34,14 +34,11 @@ open Filter Set
 
 namespace Erdos444
 
-syntax (name := answerSyntax444) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- The answer to Erdős Problem 444 is yes. -/
-theorem erdos_444 : answer(True) ↔
+theorem erdos_444 :
     ∀ (A : Set ℕ), A.Infinite → ∀ k : ℕ,
       atTop.limsup (fun x : ℝ ↦ (ratio A k x : EReal)) = ⊤ := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _ A hA k
     exact limsup_coe_eq_top_of_tailUnbounded (ratio A k)

@@ -53,10 +53,6 @@ References:
 
 open Filter Real
 
-syntax (name := answerSyntax166) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- `g ≫ h` means that `h` is big-O of `g` at infinity. -/
 notation:50 g " ≫ " h => Asymptotics.IsBigO Filter.atTop h g
 
@@ -84,10 +80,11 @@ theorem mattheus_verstraete_bound :
 /-- Erdős Problem 166 has a positive answer.  The existential natural
 exponent is a faithful rendering of `(log k)^{O(1)}`, and the proof supplies
 the established value `4`. -/
-theorem erdos_166 : answer(True) ↔
+theorem erdos_166 :
     ∃ c : ℕ, 0 < c ∧
       (fun k : ℕ ↦ (Ramsey.ramseyNumber 4 k : ℝ)) ≫
         (fun k : ℕ ↦ (k : ℝ) ^ 3 / Real.log (k : ℝ) ^ c) := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _
     exact ⟨4, by norm_num, mattheus_verstraete_bound⟩

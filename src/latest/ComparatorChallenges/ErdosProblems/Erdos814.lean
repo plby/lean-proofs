@@ -32,7 +32,7 @@ end Erdos814
 namespace Erdos814
 
 open scoped Classical in
-theorem erdos_814 : True ↔ Erdos814Statement := by
+theorem erdos_814 : Erdos814Statement := by
   sorry
 
 end Erdos814

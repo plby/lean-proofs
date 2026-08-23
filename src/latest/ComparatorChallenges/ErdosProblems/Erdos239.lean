@@ -6,7 +6,7 @@ open scoped BigOperators Topology
 namespace Erdos239
 
 theorem erdos_239 :
-    True ↔ ∀ f : ℕ → ℝ,
+    ∀ f : ℕ → ℝ,
     (∀ n ≥ 1, f n = 1 ∨ f n = -1) ∧
     (∀ m n, m.Coprime n → f (m * n) = f m * f n) ∧
     f 1 = 1 →

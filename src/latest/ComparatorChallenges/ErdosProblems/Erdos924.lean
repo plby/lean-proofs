@@ -45,7 +45,7 @@ end Erdos924
 namespace Erdos924
 
 open scoped Classical in
-theorem erdos_924 : True ↔
+theorem erdos_924 :
     ∀ k l : ℕ, 2 ≤ k → 3 ≤ l →
       ∃ (V : Type) (_ : Fintype V) (G : SimpleGraph V),
         G.CliqueFree (l + 1) ∧ IsEdgeRamseyForClique G k l := by

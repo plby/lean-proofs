@@ -85,7 +85,7 @@ abbrev threshold (k : ℕ) : ℕ := 1 + k + pairCount k
 
 
 theorem erdos_926 :
-    True ↔ ∀ k : ℕ, 4 ≤ k →
+    ∀ k : ℕ, 4 ≤ k →
       (fun n : ℕ ↦ (SimpleGraph.extremalNumber n (Hk k) : ℝ)) =O[atTop]
         (fun n : ℕ ↦ (n : ℝ) ^ (3 / 2 : ℝ)) := by
   sorry

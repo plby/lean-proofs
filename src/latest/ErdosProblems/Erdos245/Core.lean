@@ -7,11 +7,6 @@ namespace Erdos245Scratch
 
 open Erdos899
 
-syntax (name := answerSyntax245Scratch) "answer(" term ")" : term
-
-macro_rules
-  | `(answer($t)) => `($t)
-
 lemma countIn_inter_Ici_one (A : Set ℕ) (N : ℕ) :
     countIn (A ∩ Ici 1) N = countIn A N := by
   rw [countIn_eq_ncard, countIn_eq_ncard]
@@ -22,12 +17,13 @@ lemma countIn_inter_Ici_one (A : Set ℕ) (N : ℕ) :
 
 /-- The affirmative resolution of Erdős Problem 245. -/
 theorem erdos_245 :
-    answer(True) ↔ ∀ (A : Set ℕ), A.Infinite →
+    ∀ (A : Set ℕ), A.Infinite →
       atTop.Tendsto
         (fun N ↦ (A ∩ Icc 1 ⌊N⌋₊ |>.ncard : ℝ) / N) (nhds 0) →
       3 ≤ atTop.limsup
         fun N : ℝ ↦ ((A + A) ∩ Icc 1 ⌊N⌋₊ |>.ncard : EReal) /
           (A ∩ Icc 1 ⌊N⌋₊).ncard := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _htrue A hA hdenReal
     let S := A ∩ Ici 1
@@ -129,4 +125,3 @@ theorem erdos_245 :
 #print axioms Erdos245Scratch.erdos_245
 
 end Erdos245Scratch
-

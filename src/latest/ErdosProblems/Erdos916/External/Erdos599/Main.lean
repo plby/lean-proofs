@@ -25898,8 +25898,7 @@ theorem erdos_599_of_pathHypergraph_konig
     (strongKonig : ∀ (V : Type) (G : SimpleGraph V) (A B : Set V),
       Disjoint A B → G.IsIndepSet A → G.IsIndepSet B →
       HasKonigPair (pathHypergraph G A B)) :
-    True ↔
-      ∀ (V : Type) (G : SimpleGraph V) (A B : Set V),
+    ∀ (V : Type) (G : SimpleGraph V) (A B : Set V),
         Disjoint A B → G.IsIndepSet A → G.IsIndepSet B →
         ∃ (ι : Type) (a b : ι → V) (p : ∀ i, G.Walk (a i) (b i)) (S : Set V),
           (∀ i, a i ∈ A) ∧
@@ -25911,6 +25910,7 @@ theorem erdos_599_of_pathHypergraph_konig
           (∀ i, ∃! v, v ∈ S ∧ v ∈ (p i).support) ∧
           (∀ a' ∈ A, ∀ b' ∈ B, ∀ q : G.Walk a' b',
             q.IsPath → ∃ v ∈ q.support, v ∈ S) := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _ V G A B hAB hA hB
     exact hasErdosMengerPair_of_hasKonigPair (strongKonig V G A B hAB hA hB)

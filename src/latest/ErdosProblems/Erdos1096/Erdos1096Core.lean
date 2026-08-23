@@ -14,10 +14,6 @@ open scoped BigOperators Pointwise Topology
 
 namespace Erdos1096
 
-syntax (name := answerSyntax1096) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 noncomputable section
 
 /-- Finite sums of distinct nonnegative powers of `q`. -/
@@ -823,10 +819,11 @@ statement of Problem 1096.  Keeping the front end as an explicit argument
 makes the analytic/combinatorial transfer independently checkable. -/
 lemma erdos_1096_of_small_base_spectral
     (hspectral : ∀ r : ℝ, 1 < r → r < 121 / 100 → SmallSpectrumDifferences r) :
-    answer(True) ↔ ∃ ε > 0, ∀ q, 1 < q → q < 1 + ε →
+    ∃ ε > 0, ∀ q, 1 < q → q < 1 + ε →
       ∀ x : ℕ → ℝ, StrictMono x →
         Set.range x = { ∑ i ∈ S, q ^ i | S : Finset ℕ } →
         Tendsto (fun k ↦ x (k + 1) - x k) atTop (𝓝 0) := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro htrue
     refine ⟨1 / 10, by norm_num, fun q hq hqε x hx hrange ↦ ?_⟩

@@ -163,7 +163,7 @@ end Erdos986
 
 namespace Erdos986
 
-theorem erdos_986 : True ↔ Problem986 := by
+theorem erdos_986 : Problem986 := by
   sorry
 
 end Erdos986

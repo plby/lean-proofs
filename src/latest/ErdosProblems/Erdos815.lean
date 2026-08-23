@@ -43,9 +43,6 @@ open Classical Finset Set SimpleGraph
 
 attribute [local instance] Classical.decEq Classical.propDecidable
 
-syntax (name := answerSyntax815) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 /-- A finite graph has the exact criticality property occurring in Problem 815:
 it has `2|V|-2` edges, and every induced graph on a proper vertex subset has
 minimum degree at most two. -/
@@ -2061,11 +2058,9 @@ theorem erdos815_of_fin_counterexamples
     (hcounter : ∀ N : ℕ, ∃ n : ℕ, N ≤ n ∧
       ∃ G : SimpleGraph (Fin n),
         DegreeThreeCritical G ∧ ¬ cycleGraph 23 ⊑ G) :
-    answer(False) ↔ Erdos815Statement := by
-  constructor
-  · intro hfalse
-    exact hfalse.elim
-  · intro hstatement
+    ¬ Erdos815Statement := by
+  intro hstatement
+  ·
     obtain ⟨N, hN⟩ := hstatement 23 (by omega)
     obtain ⟨n, hn, G, hG, hfree⟩ := hcounter N
     exact (hfree (hN n hn G hG)).elim
@@ -2075,14 +2070,14 @@ theorem erdos815_of_arbitrary_counterexamples
       ∃ (V : Type) (_ : Fintype V) (G : SimpleGraph V),
         N ≤ Fintype.card V ∧ DegreeThreeCritical G ∧
           ¬ cycleGraph 23 ⊑ G) :
-    answer(False) ↔ Erdos815Statement :=
+    ¬ Erdos815Statement :=
   erdos815_of_fin_counterexamples
     (arbitraryCounterexamples_to_fin hcounter)
 
 /-- **Resolution of Erdős Problem 815.**  The proposed eventual cycle
 statement is false: the NPS construction gives arbitrarily large
 degree-three-critical graphs containing no copy of `C₂₃`. -/
-theorem erdos_815 : answer(False) ↔ Erdos815Statement :=
+theorem erdos_815 : ¬ Erdos815Statement :=
   erdos815_of_arbitrary_counterexamples
     nps_arbitrarily_large_counterexamples
 

@@ -13,11 +13,6 @@ open Filter
 
 namespace Erdos228
 
-/- The upstream `answer(True)` wrapper is documentary. -/
-syntax (name := answerSyntax228Target) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 noncomputable section
 
 /-! ## Littlewood polynomials from finite sign vectors -/
@@ -152,11 +147,12 @@ def LittlewoodFlatCore : Prop :=
 /-- Positive non-strict flatness constants yield the strict inequalities and
 eventual quantifier in the exact formal-conjectures statement. -/
 theorem target_of_core (hcore : LittlewoodFlatCore) :
-    answer(True) ↔ ∃ (c₁ : ℝ) (c₂ : ℝ), ∀ᶠ n : ℕ in Filter.atTop,
+    ∃ (c₁ : ℝ) (c₂ : ℝ), ∀ᶠ n : ℕ in Filter.atTop,
     ∃ p : Polynomial ℂ, p.degree = n ∧
     (∀ i ≤ n, p.coeff i = 1 ∨ p.coeff i = -1) ∧
     ∀ z : ℂ, ‖z‖ = 1 →
     ( √n < c₁ * ‖p.eval z‖ ∧ ‖p.eval z‖ < c₂ * √n ) := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _
     rcases hcore with ⟨c, C, hc, hC, hflat⟩

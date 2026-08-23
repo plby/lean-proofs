@@ -28,9 +28,6 @@ open Finset SimpleGraph
 
 namespace Erdos814
 
-syntax (name := answerSyntax814) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 /-- The stronger, published "at least the threshold" form of Problem 814. -/
 def Erdos814AtLeastStatement : Prop :=
   ∀ k : ℕ, 2 ≤ k →
@@ -81,7 +78,8 @@ theorem erdos_814_atLeast : Erdos814AtLeastStatement := by
   · exact (hasMinDegreeOn_iff_induce_minDegree G S k).mp hSmin |>.2
 
 /-- Positive resolution of Erdős Problem 814. -/
-theorem erdos_814 : answer(True) ↔ Erdos814Statement := by
+theorem erdos_814 : Erdos814Statement := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _ k hk
     obtain ⟨c, hc, hstrong⟩ := erdos_814_atLeast k hk

@@ -153,7 +153,7 @@ notation:50 g " ≫ " h => Asymptotics.IsBigO Filter.atTop h g
 
 namespace Erdos166
 
-theorem erdos_166 : True ↔
+theorem erdos_166 :
     ∃ c : ℕ, 0 < c ∧
       (fun k : ℕ ↦ (Ramsey.ramseyNumber 4 k : ℝ)) ≫
         (fun k : ℕ ↦ (k : ℝ) ^ 3 / Real.log (k : ℝ) ^ c) := by

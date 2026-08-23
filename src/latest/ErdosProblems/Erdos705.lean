@@ -3511,8 +3511,7 @@ def restrictEdgesEmbedding (s : Finset H.Edge) :
     | inl x =>
         cases v with
         | inl y =>
-            change False ↔ False
-            simp
+            rfl
         | inr fj =>
             rcases fj with ⟨f, j⟩
             change H.vertex f.1 j = x ↔ H.vertex f.1 j = x

@@ -22,11 +22,6 @@ open scoped BigOperators Topology
 
 namespace Erdos239
 
-syntax (name := answerSyntax239) "answer(" term ")" : term
-
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- The normalized summatory function occurring in Problem 239. -/
 noncomputable def meanUpTo (f : ℕ → ℝ) (N : ℕ) : ℝ :=
   (∑ n ∈ Finset.Icc 1 N, f n) / N

@@ -360,14 +360,13 @@ be the set of integers which have only the digits $0, 1$ when written base 4.
 Does $A + B$ have positive density?
 -/
 theorem erdos_125 :
-    False ↔ ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
+    ¬ ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
       { x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1} }).HasPosDensity := by
   have h :
       ¬ ({x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1}} +
         {x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1}}).HasPosDensity := by
     exact density_zero_of_S3_S4
-  symm
-  exact iff_false_intro h
+  exact h
 
 lemma dirichlet_approximation (α : ℝ) (Q : ℕ) (hQ : Q > 0) :
   ∃ (p : ℤ) (q : ℕ), 0 < q ∧ q ≤ Q ∧ |(q : ℝ) * α - p| ≤ 1 / ((Q : ℝ) + 1) := by
@@ -1088,15 +1087,13 @@ be the set of integers which have only the digits $0, 1$ when written base 4.
 Does $A + B$ have positive lower density?
 -/
 theorem erdos_125.variants.positive_lower_density :
-    False ↔ 0 < ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
+    ¬ 0 < ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
       { x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1} }).lowerDensity := by
   have hA : {x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1}} = A := rfl
   have hB : {x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1}} = B := rfl
   have h_zero : (A + B).lowerDensity = 0 := lower_density_zero
-  constructor
-  · intro h
-    contradiction
-  · intro h
+  intro h
+  ·
     rw [hA, hB] at h
     rw [h_zero] at h
     revert h

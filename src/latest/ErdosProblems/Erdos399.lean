@@ -18,10 +18,10 @@ import Mathlib
 namespace Erdos399
 
 
-theorem erdos_399 : False ↔
+theorem erdos_399 : ¬
     ¬ ∃ (n x y k : ℕ), 1 < x * y ∧ 2 < k ∧
       (Nat.factorial n = x ^ k + y ^ k ∨ Nat.factorial n + y ^ k = x ^ k) := by
-  simp only [false_iff, Classical.not_not]
+  simp only [Classical.not_not]
   exact ⟨10, 48, 36, 4, by decide⟩
 
 #print axioms erdos_399

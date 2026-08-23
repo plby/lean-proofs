@@ -23,7 +23,7 @@ def CycleThroughEdgeOfLength {V : Type} (G : SimpleGraph V)
     c.IsCycle ∧ c.length = n ∧ e ∈ c.edges
 
 open scoped Classical in
-theorem erdos_737 : True ↔
+theorem erdos_737 :
     ∀ (V : Type) (G : SimpleGraph V), Erdos737.ChromaticNumberAlephOne G →
       ∃ e ∈ G.edgeSet, ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
         CycleThroughEdgeOfLength G e n := by

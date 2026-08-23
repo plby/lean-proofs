@@ -20,7 +20,7 @@ def IsCoprimePowerfulAP4 (a d : ℕ) : Prop :=
   (a + 2 * d).Coprime (a + 3 * d)
 
 theorem erdos_937 :
-    True ↔ {p : ℕ × ℕ | IsCoprimePowerfulAP4 p.1 p.2}.Infinite := by
+    {p : ℕ × ℕ | IsCoprimePowerfulAP4 p.1 p.2}.Infinite := by
   sorry
 
 end Erdos937

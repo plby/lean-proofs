@@ -164,7 +164,7 @@ theorem theorem_1_1_via_cayley :
 
 open scoped Classical in
 theorem erdos_42_via_cayley :
-    True ↔ ∀ M ≥ 1, ∀ᶠ N in atTop, ∀ (A : Set ℕ) (_ : IsMaximalSidonSetIn A N),
+    ∀ M ≥ 1, ∀ᶠ N in atTop, ∀ (A : Set ℕ) (_ : IsMaximalSidonSetIn A N),
       ∃ (B : Set ℕ), B ⊆ Set.Icc 1 N ∧ IsSidon B ∧ B.ncard = M ∧
         ((A - A) ∩ (B - B) : Set ℕ) = {0} := by
   sorry

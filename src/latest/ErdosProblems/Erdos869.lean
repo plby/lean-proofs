@@ -2225,14 +2225,12 @@ def toCounterexampleCertificate (c : RecursiveCertificate) : CounterexampleCerti
 /-- Once the finite recursive construction has supplied the fields above, its
 logical consequence is exactly the negative answer to Erdős Problem 869. -/
 theorem erdos_869_of_recursiveCertificate (c : RecursiveCertificate) :
-    False ↔ ∀ (A₁ A₂ : Set ℕ), Disjoint A₁ A₂ →
+    ¬ ∀ (A₁ A₂ : Set ℕ), Disjoint A₁ A₂ →
       IsBasis2 A₁ → IsBasis2 A₂ →
       ∃ D ⊆ A₁ ∪ A₂, IsBasis2 D ∧
         ∀ d ∈ D, ¬ IsBasis2 (D \ {d}) := by
-  constructor
-  · intro h
-    exact h.elim
-  · intro h
+  intro h
+  ·
     apply c.toCounterexampleCertificate.refutes_problem
     simpa only [IsMinimalBasis2] using h
 
@@ -3476,7 +3474,7 @@ theorem exists_recursiveCertificate : Nonempty RecursiveCertificate := by
   exact ⟨FourBuild.recursiveCertificate ω hactive hmanyL hmanyR⟩
 
 theorem erdos_869 :
-    False ↔ ∀ (A₁ A₂ : Set ℕ), Disjoint A₁ A₂ →
+    ¬ ∀ (A₁ A₂ : Set ℕ), Disjoint A₁ A₂ →
       IsBasis2 A₁ → IsBasis2 A₂ →
       ∃ D ⊆ A₁ ∪ A₂, IsBasis2 D ∧
         ∀ d ∈ D, ¬ IsBasis2 (D \ {d}) := by

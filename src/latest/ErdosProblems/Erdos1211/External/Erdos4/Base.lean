@@ -120,11 +120,6 @@ namespace Erdos4
 noncomputable local instance (p : Prop) : Decidable p :=
   Classical.propDecidable p
 
-/- The upstream `answer(True)` wrapper is documentary. -/
-syntax (name := answerSyntaxErdos4) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- The exact set of prime indices occurring in Erdős Problem 4. -/
 def Erdos4For (C : ℝ) : Prop :=
   {n : ℕ | (n + 1).nth Nat.Prime - n.nth Nat.Prime >
@@ -1979,7 +1974,8 @@ theorem erdos4For_of_strongErdos4For {c : ℝ} (hc : 0 < c)
 Ford--Green--Konyagin--Maynard--Tao. -/
 theorem erdos_4_of_strong_large_gaps
     (hFGKMT : ∃ c > 0, StrongErdos4For c) :
-    answer(True) ↔ (∀ C > 0, Erdos4For C) := by
+    (∀ C > 0, Erdos4For C) := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _ C _hC
     obtain ⟨c, hc, hstrong⟩ := hFGKMT

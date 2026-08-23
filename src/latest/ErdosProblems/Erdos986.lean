@@ -28,10 +28,6 @@ stronger explicit exponent `c = 2s - 4`.
 
 open Real Filter
 
-syntax (name := answerSyntax986) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- `g ≫ h` means that `h` is big-O of `g` at infinity. -/
 notation:50 g " ≫ " h => Asymptotics.IsBigO Filter.atTop h g
 
@@ -93,7 +89,8 @@ theorem problem986 : Problem986 := by
   exact bradac_ramsey_lower_bound_isBigO s hs
 
 /-- Erdős Problem 986 has a positive answer. -/
-theorem erdos_986 : answer(True) ↔ Problem986 := by
+theorem erdos_986 : Problem986 := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _
     exact problem986

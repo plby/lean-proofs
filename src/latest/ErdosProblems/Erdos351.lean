@@ -42,8 +42,9 @@ def HasCompleteImage (P : ℚ[X]) : Prop :=
 
 Direct from `PolynomialEgyptianSums.corollary_7_pos_leading`. -/
 theorem erdos_351 :
-    True ↔ ∀ P : ℚ[X], 0 < P.natDegree → 0 < P.leadingCoeff →
+    ∀ P : ℚ[X], 0 < P.natDegree → 0 < P.leadingCoeff →
       HasCompleteImage P := by
+  refine Iff.mp ?_ trivial
   refine ⟨fun _ P _ hlc => ?_, fun _ => trivial⟩
   exact PolynomialEgyptianSums.corollary_7_pos_leading P hlc
 

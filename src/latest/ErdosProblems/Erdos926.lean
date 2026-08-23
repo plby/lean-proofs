@@ -34,10 +34,6 @@ namespace Erdos926
 
 noncomputable section
 
-syntax (name := answerSyntax926) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-! ## The forbidden graph -/
 
 /-- An index for an unordered pair, represented in increasing order. -/
@@ -644,9 +640,10 @@ theorem extremalNumber_isBigO (k : ℕ) (hk : 2 ≤ k) :
 
 /-- Erdős Problem 926 has a positive answer. -/
 theorem erdos_926 :
-    answer(True) ↔ ∀ k : ℕ, 4 ≤ k →
+    ∀ k : ℕ, 4 ≤ k →
       (fun n : ℕ ↦ (SimpleGraph.extremalNumber n (Hk k) : ℝ)) =O[atTop]
         (fun n : ℕ ↦ (n : ℝ) ^ (3 / 2 : ℝ)) := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _ k hk
     exact extremalNumber_isBigO k (by omega)

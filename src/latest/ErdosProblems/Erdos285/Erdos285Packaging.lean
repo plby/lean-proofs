@@ -45,7 +45,7 @@ theorem erdos_285_of_uniform_ratio
             (f k : ℝ) / (rexp 1 / (rexp 1 - 1) * (k + 1 : ℕ))
           else 1)
         atTop (nhds 1)) :
-    True ↔ ∀ᵉ (f : ℕ → ℕ)
+    ∀ᵉ (f : ℕ → ℕ)
     (S : Set ℕ)
     (hS : S = {k | ∃ (n : Fin k.succ → ℕ), StrictMono n ∧ 0 ∉ Set.range n ∧
       1 = ∑ i, (1 : ℝ) / n i })
@@ -56,6 +56,7 @@ theorem erdos_285_of_uniform_ratio
         (f k)),
     ∃ (o : ℕ → ℝ) (_ : o =o[atTop] (1 : ℕ → ℝ)),
       ∀ k ∈ S, f k = (1 + o k) * rexp 1 / (rexp 1 - 1) * (k + 1) := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _ f S hS h
     have hratio := uniform_ratio f S hS h

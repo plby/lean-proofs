@@ -30,9 +30,6 @@ skew-shift counterexample.  The detailed mathematical proof and the
 Leanization map are in `tex/1185.tex`.
 -/
 
-syntax (name := answerSyntax1185) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 namespace Erdos1185
 
 open scoped BigOperators
@@ -922,11 +919,9 @@ theorem finite_counterexample (m N₀ : ℕ) (hm : 1 ≤ m) :
       (by simpa [Q, p, h] using hphase.2)
 
 /-- Erdős Problem 1185 has a negative answer. -/
-theorem erdos_1185 : answer(False) ↔ Erdos1185Statement := by
-  constructor
-  · intro hfalse
-    exact False.elim hfalse
-  · intro hstatement
+theorem erdos_1185 : ¬ Erdos1185Statement := by
+  intro hstatement
+  ·
     rcases hstatement (1 / 200) (by norm_num) 3 (by omega) with
       ⟨m, hm, N₀, hall⟩
     obtain ⟨N, A, B, hN, hA, hB, hcardA, hcardB, hno⟩ :=

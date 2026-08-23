@@ -31,10 +31,6 @@ The mathematical construction and a lemma-by-lemma Leanization plan are in
 `tex/110.tex`.
 -/
 
-syntax (name := answerSyntax110) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 open Filter Set
 
 namespace Erdos110
@@ -163,11 +159,8 @@ theorem lambieHansonConclusion : LambieHansonConclusion := by
 /-- Resolution of Erdős Problem 110: the proposed eventual uniform bound
 does not exist. -/
 theorem erdos_110 :
-    answer(False) ↔ ∃ F : ℕ → ℕ, HasUniformBound F := by
-  constructor
-  · intro h
-    contradiction
-  · exact not_exists_uniformBound_of_lambieHanson lambieHansonConclusion
+    ¬ ∃ F : ℕ → ℕ, HasUniformBound F := by
+  exact not_exists_uniformBound_of_lambieHanson lambieHansonConclusion
 
 end
 

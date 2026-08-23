@@ -18,7 +18,7 @@ namespace Erdos283
 
 open scoped Classical in
 theorem erdos_283 :
-    True ↔ ∀ p : ℤ[X], Condition p := by
+    ∀ p : ℤ[X], Condition p := by
   sorry
 
 end Erdos283

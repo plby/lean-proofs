@@ -50,7 +50,7 @@ end Erdos444
 namespace Erdos444
 
 open scoped Classical in
-theorem erdos_444 : True ↔
+theorem erdos_444 :
     ∀ (A : Set ℕ), A.Infinite → ∀ k : ℕ,
       atTop.limsup (fun x : ℝ ↦ (ratio A k x : EReal)) = ⊤ := by
   sorry

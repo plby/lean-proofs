@@ -1029,7 +1029,8 @@ private lemma coprime_powerful_progressions_infinite :
 /-- Erdős Problem 937: there are infinitely many nonconstant four-term arithmetic
 progressions of pairwise coprime powerful natural numbers. -/
 theorem erdos_937 :
-    answer(True) ↔ {p : ℕ × ℕ | IsCoprimePowerfulAP4 p.1 p.2}.Infinite := by
+    {p : ℕ × ℕ | IsCoprimePowerfulAP4 p.1 p.2}.Infinite := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _
     exact coprime_powerful_progressions_infinite

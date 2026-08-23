@@ -85,7 +85,7 @@ namespace Erdos980
 
 open scoped Classical in
 theorem erdos_980 :
-    True ↔ ∀ k : ℕ, 2 ≤ k → ∃ c : ℝ, 0 < c ∧
+    ∀ k : ℕ, 2 ≤ k → ∃ c : ℝ, 0 < c ∧
       ((fun x : ℕ ↦ ∑ p ∈ (Finset.range x).filter Nat.Prime,
           (leastKthPowerNonresidue k p : ℝ)) ~[atTop]
         (fun x : ℕ ↦ c * (x : ℝ) / Real.log (x : ℝ))) := by

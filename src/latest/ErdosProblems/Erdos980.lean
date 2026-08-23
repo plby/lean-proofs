@@ -35,10 +35,6 @@ it is zero unless the prime is congruent to one modulo `k`.
 The quadratic constant is also identified with Erdős's dyadic prime series.
 -/
 
-syntax (name := answerSyntax980) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace Erdos980
 
 open Filter
@@ -50,10 +46,11 @@ noncomputable section
 strict cutoff `p < x` and the literature's totalized least-nonresidue
 function. -/
 theorem erdos_980 :
-    answer(True) ↔ ∀ k : ℕ, 2 ≤ k → ∃ c : ℝ, 0 < c ∧
+    ∀ k : ℕ, 2 ≤ k → ∃ c : ℝ, 0 < c ∧
       ((fun x : ℕ ↦ ∑ p ∈ (Finset.range x).filter Nat.Prime,
           (leastKthPowerNonresidue k p : ℝ)) ~[atTop]
         (fun x : ℕ ↦ c * (x : ℝ) / Real.log (x : ℝ))) := by
+  refine Iff.mp ?_ trivial
   constructor
   · intro _ k hk
     obtain ⟨hc, hasymp⟩ :=

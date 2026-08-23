@@ -40,9 +40,6 @@ namespace Erdos925
 
 noncomputable section
 
-syntax (name := answerSyntax925) "answer(" term ")" : term
-macro_rules | `(answer($t)) => `($t)
-
 /-- An exact two-coloring of the edges of `G`, with neither color containing a triangle. -/
 def AdmitsTriangleFreeTwoColoring {V : Type*} (G : SimpleGraph V) : Prop :=
   ∃ red blue : SimpleGraph V,
@@ -704,8 +701,7 @@ theorem projective_eventual_counterexamples :
 
 /-! ## Resolution -/
 
-theorem erdos_925 : answer(False) ↔ ProposedBound := by
-  rw [false_iff]
+theorem erdos_925 : ¬ ProposedBound := by
   obtain ⟨A, hA, hwitness⟩ := projective_eventual_counterexamples
   exact eventual_counterexamples_refute_proposedBound hA hwitness
 

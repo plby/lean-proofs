@@ -43,11 +43,6 @@ open scoped BigOperators Topology
 
 namespace Erdos239
 
-syntax (name := answerSyntax239) "answer(" term ")" : term
-
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-- The normalized summatory function occurring in Problem 239. -/
 noncomputable def meanUpTo (f : ℕ → ℝ) (N : ℕ) : ℝ :=
   (∑ n ∈ Finset.Icc 1 N, f n) / N
@@ -1618,12 +1613,13 @@ theorem tendsto_mean_of_companion_mean {f : ℕ → ℝ}
 /-- Erdős Problem 239: every multiplicative `{-1,1}`-valued function has a
 Cesàro mean. -/
 theorem erdos_239 :
-    answer(True) ↔ ∀ f : ℕ → ℝ,
+    ∀ f : ℕ → ℝ,
     (∀ n ≥ 1, f n = 1 ∨ f n = -1) ∧
     (∀ m n, m.Coprime n → f (m * n) = f m * f n) ∧
     f 1 = 1 →
     ∃ L, Tendsto (fun N ↦ (∑ n ∈ Finset.Icc 1 N, f n) / N)
       atTop (𝓝 L) := by
+  refine Iff.mp ?_ trivial
   simp only [true_iff]
   intro f hf
   change IsSignMultiplicative f at hf
