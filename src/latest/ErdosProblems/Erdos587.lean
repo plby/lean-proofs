@@ -1,13 +1,12 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
-This is a Lean formalization of a solution to Erdős Problem 587.
+This is a Lean development toward Erdős Problem 587.
 https://www.erdosproblems.com/forum/thread/587
 
 Informal authors:
-- A. Khalfalah
-- S. Lodha
-- Endre Szemerédi
+- H. H. Nguyen
+- V. H. Vu
 
 Statement authors:
 - Formal Conjectures authors
@@ -20,88 +19,46 @@ URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos587.md
 - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/587.lean
 -/
-/-
-Copyright 2026.
-Released under Apache 2.0 license.
--/
+/- Copyright 2026. Released under Apache 2.0 license. -/
 
-import ErdosProblems.Erdos438
+import ErdosProblems.Erdos587.NguyenVuCompletion
 
 /-!
 # Erdős Problem 587
 
-Let `A ⊆ {1, ..., N}` and suppose that `A + A` contains no square.  The
-largest possible cardinality is
+For `A ⊆ {1, ..., N}`, require every nonempty subset sum of `A` to be a
+non-square.  Nguyen and Vu proved that the largest possible cardinality is
+at most
 
-`(11 / 32 + o(1)) N`.
+`N^(1/3) * (log N)^(O(1))`.
 
-The pair quantified by `SquareSumFree` is allowed to repeat an element, so
-this is the literal sumset formulation.  The lower bound is Massias's eleven
-residue classes modulo `32`; the upper bound is the
-Khalfalah--Lodha--Szemerédi argument using the sharp modular theorem of
-Lagarias--Odlyzko--Shearer.
-
-The repository's complete formalization of these ingredients historically
-lives under `ErdosProblems.Erdos438`.  This file supplies the required Problem
-587 interface with definitionally identical names.  The mathematical proof
-and a theorem-by-theorem Leanization map are in `tex/587.tex`.
+The exact finite quantity `MaxNotSqSum` and the square-subset-sum-free
+predicate are defined in `ErdosProblems.Erdos587.NVDevelopment`.  The checked
+development imported here proves the stopped-sumset construction, divisor
+descent, rank-zero/rank-one cases, and the asymptotic conversion.  The
+remaining mathematical obligation is the unconditional quantitative
+balanced rank-two locator isolated by
+`configured_nguyen_vu_one_step_of_balanced_rank_two_locator`.
 -/
 
 open Filter
 
 namespace Erdos587
 
-/-! ## Exact finite problem -/
+/-- The corrected Formal Conjectures target for Erdős Problem 587. -/
+def NguyenVuBound : Prop :=
+  ∃ᵉ (O > 0) (O' > 0), ∀ᶠ N : ℕ in atTop,
+    (MaxNotSqSum N : ℝ) ≤
+      O' * Real.nthRoot 3 N * (N : ℝ).log ^ O
 
-/-- A finite set is square-sum-free when the sum of every ordered pair of its
-elements, including a repeated element, is not a natural-number square. -/
-abbrev SquareSumFree (A : Finset ℕ) : Prop :=
-  Erdos438.SquareSumFree A
-
-/-- The finite sets considered at cutoff `N`. -/
-abbrev admissible (N : ℕ) (A : Finset ℕ) : Prop :=
-  Erdos438.admissible N A
-
-/-- The maximum cardinality of a square-sum-free subset of `{1, ..., N}`. -/
-noncomputable abbrev extremalSize (N : ℕ) : ℕ :=
-  Erdos438.extremalSize N
-
-/-! ## The explicit lower construction -/
-
-/-- Massias's truncation of the eleven residue classes
-`1, 5, 9, 13, 14, 17, 21, 25, 26, 29, 30` modulo `32`. -/
-abbrev massiasSet (N : ℕ) : Finset ℕ :=
-  Erdos438.massiasSet N
-
-/-- The Massias set is an admissible set for every cutoff. -/
-theorem massiasSet_admissible (N : ℕ) :
-    admissible N (massiasSet N) := by
-  exact Erdos438.massiasSet_admissible N
-
-/-- The explicit lower construction has density tending to `11 / 32`. -/
-theorem tendsto_massiasSet_density :
-    Tendsto (fun N : ℕ ↦ ((massiasSet N).card : ℝ) / (N : ℝ)) atTop
-      (nhds ((11 : ℝ) / 32)) := by
-  exact Erdos438.tendsto_massiasSet_density
-
-/-! ## The asymptotic upper bound -/
-
-/-- Khalfalah--Lodha--Szemerédi upper bound in its precise epsilon form. -/
-theorem eventually_upper :
-    ∀ ε : ℝ, 0 < ε →
-      ∀ᶠ N : ℕ in atTop, ∀ A : Finset ℕ, admissible N A →
-        (A.card : ℝ) / (N : ℝ) ≤ (11 : ℝ) / 32 + ε := by
-  exact Erdos438.kls_eventuallyUpper
-
-/-! ## Resolution -/
-
-/-- Resolution of Erdős Problem 587: the extremal density of subsets of
-`{1, ..., N}` whose two-fold sumset contains no square is exactly `11 / 32`. -/
-theorem erdos_587 :
-    Tendsto (fun N : ℕ ↦ (extremalSize N : ℝ) / (N : ℝ)) atTop
-      (nhds ((11 : ℝ) / 32)) := by
-  exact Erdos438.erdos_438
-
-#print axioms Erdos587.erdos_587
+/-- The target is equivalent to the uniform bound for every admissible
+finite set; this is the interface used by the Nguyen--Vu development. -/
+theorem nguyenVuBound_iff_eventual_uniform_card_bound :
+    NguyenVuBound ↔
+      (∃ᵉ (O > 0) (O' > 0), ∀ᶠ N : ℕ in atTop,
+        ∀ A ⊆ Finset.Icc 1 N, SquareSubsetSumFree A →
+          (A.card : ℝ) ≤
+            O' * Real.nthRoot 3 N * (N : ℝ).log ^ O) := by
+  exact nguyen_vu_iff_eventual_uniform_card_bound
 
 end Erdos587

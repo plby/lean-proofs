@@ -1,38 +1,30 @@
 import Mathlib
 
-namespace Erdos438
+/- `Real.nthRoot` is the compatibility definition used by the upstream
+Formal Conjectures statement; it is not yet in this Mathlib release. -/
+namespace Real
 
-def SquareSumFree (A : Finset ℕ) : Prop :=
-  ∀ a ∈ A, ∀ b ∈ A, ¬ IsSquare (a + b)
+noncomputable def nthRoot (n : ℕ) (r : ℝ) : ℝ :=
+  if Even n then r ^ (n⁻¹ : ℝ) else SignType.sign r ^ n * abs r ^ (n⁻¹ : ℝ)
 
-def admissible (N : ℕ) (A : Finset ℕ) : Prop :=
-  A ⊆ Finset.Icc 1 N ∧ SquareSumFree A
-
-noncomputable def candidateSets (N : ℕ) : Finset (Finset ℕ) := by
-  classical
-  exact (Finset.Icc 1 N).powerset.filter SquareSumFree
-
-noncomputable def extremalSize (N : ℕ) : ℕ :=
-  (candidateSets N).sup Finset.card
-
-end Erdos438
-
-open Filter
+end Real
 
 namespace Erdos587
 
-abbrev SquareSumFree (A : Finset ℕ) : Prop :=
-  Erdos438.SquareSumFree A
+/--
+`MaxNotSqSum N` is the size of the largest subset `A` of
+`{1,...,N}` such that for all non-empty `S ⊆ A`, the sum
+`∑ n ∈ S, n` is not a square.
+-/
+def MaxNotSqSum (N : ℕ) : ℕ :=
+  (Finset.Icc 1 N |>.powerset.filter fun A => ∀ S ⊆ A, S ≠ ⊥ →
+    ¬ IsSquare (∑ n ∈ S, n)).sup Finset.card
 
-abbrev admissible (N : ℕ) (A : Finset ℕ) : Prop :=
-  Erdos438.admissible N A
-
-noncomputable abbrev extremalSize (N : ℕ) : ℕ :=
-  Erdos438.extremalSize N
-
-theorem erdos_587 :
-    Tendsto (fun N : ℕ ↦ (extremalSize N : ℝ) / (N : ℝ)) atTop
-      (nhds ((11 : ℝ) / 32)) := by
+/-- Nguyen and Vu proved that $|A| \ll N^{1/3} (\log N)^{O(1)}$. -/
+theorem erdos_587.variants.nguyen_vu : ∃ᵉ (O > 0) (O' > 0),
+    ∀ᶠ N in Filter.atTop,
+      (MaxNotSqSum N : ℝ) ≤
+        O' * Real.nthRoot 3 N * (N : ℝ).log ^ O := by
   sorry
 
 end Erdos587
