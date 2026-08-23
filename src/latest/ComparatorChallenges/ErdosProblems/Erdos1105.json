@@ -2,8 +2,8 @@
   "challenge_module": "Erdos1105",
   "solution_module": "ErdosProblems.Erdos1105",
   "theorem_names": [
-    "Erdos1105.not_erdos_1105_parts_ii_type",
-    "Erdos1105.not_erdos_1105_parts_i_type"
+    "Erdos1105.erdos_1105_parts_i",
+    "Erdos1105.erdos_1105_parts_ii"
   ],
   "permitted_axioms": [
     "propext",
@@ -12,4 +12,3 @@
   ],
   "enable_nanoda": true
 }
-

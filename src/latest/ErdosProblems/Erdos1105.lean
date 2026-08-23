@@ -1,329 +1,130 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This is a Lean formalization of a solution to Erdős Problem 1105.
-https://www.erdosproblems.com/forum/thread/1105
+import ErdosProblems.Erdos1105.Triangles
+import ErdosProblems.Erdos1105.Paths
+import ErdosProblems.Erdos1105.Blocks
+import ErdosProblems.Erdos1105.PathConstructions
+import ErdosProblems.Erdos1105.CycleUpperReduction
+import ErdosProblems.Erdos1105.CycleBoundary
+import ErdosProblems.Erdos1105.CycleComponents
+import ErdosProblems.Erdos1105.RainbowWalks
+import ErdosProblems.Erdos1105.CrossPrivateColors
+import ErdosProblems.Erdos1105.CycleUpper
+import ErdosProblems.Erdos1105.DenseBipartite
+import ErdosProblems.Erdos1105.DegreeObstruction
+import ErdosProblems.Erdos1105.Disintegration
+import ErdosProblems.Erdos1105.CycleSaturation
+import ErdosProblems.Erdos1105.PathNeighborCounts
+import ErdosProblems.Erdos1105.SetPath
+import ErdosProblems.Erdos1105.UniversalPath
+import ErdosProblems.Erdos1105.PathEar
+import ErdosProblems.Erdos1105.PathSegments
+import ErdosProblems.Erdos1105.ConnectedOddUpper
+import ErdosProblems.Erdos1105.GoodColoring
+import ErdosProblems.Erdos1105.ComponentSumBound
+import ErdosProblems.Erdos1105.SeparatedRepresentative
+import ErdosProblems.Erdos1105.OddPathUpper
+import ErdosProblems.Erdos1105.EvenSplitBound
+import ErdosProblems.Erdos1105.EvenPendant
+import ErdosProblems.Erdos1105.EvenThreeClique
+import ErdosProblems.Erdos1105.LongCoreNeighborPattern
+import ErdosProblems.Erdos1105.ShortCoreNeighborPattern
+import ErdosProblems.Erdos1105.PendantBlock
+import ErdosProblems.Erdos1105.ThreePetalRainbow
+import ErdosProblems.Erdos1105.LowCorePathReduction
+import ErdosProblems.Erdos1105.ShortCoreStructure
+import ErdosProblems.Erdos1105.ShortCoreBoundary
+import ErdosProblems.Erdos1105.EvenNoncliqueCore
+import ErdosProblems.Erdos1105.EvenCliqueCore
+import ErdosProblems.Erdos1105.PathUpper
 
-Informal authors:
-- GPT-5.6 Sol
+/-!
+# Erdős Problem 1105
 
-Statement authors:
-- Formal Conjectures authors
+The corrected anti-Ramsey number counts only colors used on actual edges and
+excludes rainbow non-induced copies. The historical counterexamples to the
+incorrect diagonal-inclusive definition are isolated in `Erdos1105/UpstreamAudit.lean`.
 
-Formal authors:
-- Codex
-- GPT-5.6 Sol
-
-URLs:
-- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1105.md
-- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1105.lean
+Both affirmative statements are proved: the cycle asymptotic for every
+`k ≥ 3`, and the exact path formula for every `5 ≤ k ≤ n`.
 -/
-/-
-This file audits the formal specification proposed for Erdős Problem 1105.
-
-The classical anti-Ramsey theorem is true, but the upstream definition below colors
-all of `Sym2 (Fin n)`, including diagonal pairs.  The formal path assertion is false
-already for `k = n = 5`, and the formal cycle asymptotic is false already for triangles.
-We give kernel-checked counterexamples to both proposed theorem types.
-
-Mathematical details and a Leanization plan for a corrected definition are in
-`tex/1105.tex`.
--/
-
-import Mathlib
 
 namespace Erdos1105
 
-open SimpleGraph
+open SimpleGraph Asymptotics Filter
 
-/-- A graph homomorphism is rainbow when distinct source edges receive distinct colors.
-This is the definition used by the upstream formal-conjectures specification. -/
-def IsRainbow {α V : Type*} {H : SimpleGraph α} {G : SimpleGraph V}
-    (f : H →g G) {C : Type*} (c : Sym2 V → C) : Prop :=
-  Function.Injective fun e : H.edgeSet ↦ c (Sym2.map f e)
+/-- The affirmative cycle asymptotic from Erdős Problem 1105. -/
+def CycleStatement : Prop :=
+  ∀ k : ℕ, 3 ≤ k →
+    ((fun n : ℕ ↦ (antiRamseyNum (cycleGraph k) n : ℝ) -
+        (((k : ℝ) - 2) / 2 + 1 / ((k : ℝ) - 1)) * n) =O[atTop]
+      (fun _ : ℕ ↦ (1 : ℝ)))
 
-/-- The upstream anti-Ramsey definition.  Its coloring domain includes diagonal pairs. -/
-noncomputable def antiRamseyNum {α : Type*} [Fintype α]
-    (H : SimpleGraph α) (n : ℕ) : ℕ :=
-  sSup {q | ∃ c : Sym2 (Fin n) → Fin q, Function.Surjective c ∧
-    ∀ f : H →g (⊤ : SimpleGraph (Fin n)), ¬IsRainbow f c}
+/-- The affirmative exact path formula from Erdős Problem 1105. -/
+def PathStatement : Prop :=
+  ∀ (k n : ℕ), 5 ≤ k → k ≤ n →
+    let ℓ := (k - 1) / 2
+    let ε := if Odd k then 1 else 2
+    antiRamseyNum (pathGraph k) n =
+      max ((k - 2).choose 2 + 1)
+        ((ℓ - 1).choose 2 + (ℓ - 1) * (n - ℓ + 1) + ε)
 
-/-- Five private diagonal colors and one common off-diagonal color. -/
-def diagonalColoringFive (z : Sym2 (Fin 5)) : Fin 6 :=
-  if h : z.IsDiag then Fin.castLE (by omega) (z.diagElem h) else 5
+/-- The full affirmative cycle asymptotic. -/
+theorem erdos_1105_parts_i : CycleStatement := cycle_asymptotic
 
-lemma diagonalColoringFive_surjective : Function.Surjective diagonalColoringFive := by
-  intro i
-  by_cases hi : i.val < 5
-  · let v : Fin 5 := ⟨i.val, hi⟩
-    refine ⟨Sym2.diag v, ?_⟩
-    apply Fin.ext
-    simp [diagonalColoringFive, v, Sym2.diag]
-  · have hi5 : i.val = 5 := by omega
-    refine ⟨s((0 : Fin 5), (1 : Fin 5)), ?_⟩
-    apply Fin.ext
-    simp [diagonalColoringFive, Sym2.mk_isDiag_iff, hi5]
+/-- The full affirmative exact path formula. -/
+theorem erdos_1105_parts_ii : PathStatement := by
+  intro k n hk hn
+  exact antiRamseyNum_pathGraph hk hn
 
-private def firstPathEdge : (pathGraph 5).edgeSet :=
-  ⟨s((0 : Fin 5), (1 : Fin 5)), by simp [SimpleGraph.mem_edgeSet, pathGraph_adj]⟩
+/-- The `k = 3` case of the cycle asymptotic. -/
+theorem erdos_1105_parts_i_triangle :
+    ((fun n : ℕ ↦ (antiRamseyNum (cycleGraph 3) n : ℝ) -
+        (((3 : ℝ) - 2) / 2 + 1 / ((3 : ℝ) - 1)) * n) =O[atTop]
+      (fun _ : ℕ ↦ (1 : ℝ))) := by
+  rw [isBigO_one_nat_atTop_iff]
+  refine ⟨1, fun n ↦ ?_⟩
+  rw [antiRamseyNum_cycleGraph_three]
+  cases n with
+  | zero => norm_num
+  | succ n =>
+    norm_num
 
-private def secondPathEdge : (pathGraph 5).edgeSet :=
-  ⟨s((1 : Fin 5), (2 : Fin 5)), by simp [SimpleGraph.mem_edgeSet, pathGraph_adj]⟩
+/-- The general lower-bound side of the cycle asymptotic. -/
+theorem erdos_1105_parts_i_lower (k : ℕ) (hk : 3 ≤ k) :
+    ∃ C : ℝ, ∀ n : ℕ,
+      (((k : ℝ) - 2) / 2 + 1 / ((k : ℝ) - 1)) * n - C ≤
+        (antiRamseyNum (cycleGraph k) n : ℝ) :=
+  ⟨((k - 1).choose 2 + 2 : ℕ), cycle_lower_bound_real k hk⟩
 
-private lemma firstPathEdge_ne_secondPathEdge : firstPathEdge ≠ secondPathEdge := by
-  intro h
-  have hval := congrArg Subtype.val h
-  simp [firstPathEdge, secondPathEdge, Sym2.eq] at hval
-
-lemma diagonalColoringFive_no_rainbow
-    (f : pathGraph 5 →g (⊤ : SimpleGraph (Fin 5))) :
-    ¬IsRainbow f diagonalColoringFive := by
-  intro hf
-  apply firstPathEdge_ne_secondPathEdge
-  apply hf
-  change diagonalColoringFive (Sym2.map f s((0 : Fin 5), (1 : Fin 5))) =
-    diagonalColoringFive (Sym2.map f s((1 : Fin 5), (2 : Fin 5)))
-  have h01 : ¬s(f (0 : Fin 5), f (1 : Fin 5)).IsDiag := by
-    rw [Sym2.mk_isDiag_iff]
-    exact (f.map_adj (by simp [pathGraph_adj])).ne
-  have h12 : ¬s(f (1 : Fin 5), f (2 : Fin 5)).IsDiag := by
-    rw [Sym2.mk_isDiag_iff]
-    exact (f.map_adj (by simp [pathGraph_adj])).ne
-  simp only [Sym2.map_mk]
-  simp [diagonalColoringFive, h01, h12]
-
-/-- The upstream quantity is at least six at `H = P₅`, `n = 5`. -/
-theorem six_le_antiRamseyNum_pathGraph_five :
-    6 ≤ antiRamseyNum (pathGraph 5) 5 := by
-  unfold antiRamseyNum
-  let S : Set ℕ := {q | ∃ c : Sym2 (Fin 5) → Fin q, Function.Surjective c ∧
-    ∀ f : pathGraph 5 →g (⊤ : SimpleGraph (Fin 5)), ¬IsRainbow f c}
-  have hmem : 6 ∈ S :=
-    ⟨diagonalColoringFive, diagonalColoringFive_surjective,
-      diagonalColoringFive_no_rainbow⟩
-  have hbdd : BddAbove S := by
-    refine ⟨Fintype.card (Sym2 (Fin 5)), ?_⟩
-    intro q hq
-    rcases hq with ⟨c, hc, _⟩
-    simpa using Fintype.card_le_of_surjective c hc
-  exact le_csSup hbdd hmem
-
-/-- The numerical expression asserted by formal part (ii) equals five at `k = n = 5`. -/
-lemma proposedPathFormulaAtFive :
-    let k := 5
-    let n := 5
+/-- The general lower-bound side of the exact path formula. -/
+theorem erdos_1105_parts_ii_lower (k n : ℕ) (hk : 5 ≤ k) (hn : k ≤ n) :
     let ℓ := (k - 1) / 2
     let ε := if Odd k then 1 else 2
     max ((k - 2).choose 2 + 1)
-      ((ℓ - 1).choose 2 + (ℓ - 1) * (n - ℓ + 1) + ε) = 5 := by
-  have hodd : Odd 5 := ⟨2, by norm_num⟩
-  norm_num [hodd, Nat.choose]
+      ((ℓ - 1).choose 2 + (ℓ - 1) * (n - ℓ + 1) + ε) ≤
+        antiRamseyNum (pathGraph k) n :=
+  path_formula_lower_bound k n hk hn
 
-/-- The exact formal statement proposed as part (ii) of Erdős 1105 is false. -/
-theorem not_erdos_1105_parts_ii :
-    ¬(∀ (k n : ℕ), 5 ≤ k → k ≤ n →
-      let ℓ := (k - 1) / 2
-      let ε := if Odd k then 1 else 2
-      antiRamseyNum (pathGraph k) n =
-        max ((k - 2).choose 2 + 1)
-          ((ℓ - 1).choose 2 + (ℓ - 1) * (n - ℓ + 1) + ε)) := by
-  intro h
-  have hfive := h 5 5 (by omega) (by omega)
-  have hvalue : antiRamseyNum (pathGraph 5) 5 = 5 := by
-    simpa only using hfive.trans proposedPathFormulaAtFive
-  have hlower := six_le_antiRamseyNum_pathGraph_five
-  omega
-
-/-- This directly negates the proposed theorem type. -/
-theorem not_erdos_1105_parts_ii_type :
-    ¬(∀ (k n : ℕ), 5 ≤ k → k ≤ n →
-      let ℓ := (k - 1) / 2
-      let ε := if Odd k then 1 else 2
-      antiRamseyNum (pathGraph k) n =
-        max ((k - 2).choose 2 + 1)
-          ((ℓ - 1).choose 2 + (ℓ - 1) * (n - ℓ + 1) + ε)) := by
-  simpa only [true_iff] using not_erdos_1105_parts_ii
-
-/-!
-The cycle assertion is also false for the upstream definition.  For `n ≥ 2`, give
-each diagonal pair its own color `0, ..., n - 1`, and color an off-diagonal pair
-`{a,b}` by `n + max a b - 1`.  This is surjective onto `2n - 1` colors.  Every
-triangle has two edges incident with its largest-labelled image vertex, and those
-two edges have the same color.
--/
-
-/-- The value of the diagonal-plus-maximum coloring on an ordered pair. -/
-def triangleColorValue (n : ℕ) (hn : 2 ≤ n) (a b : Fin n) : Fin (2 * n - 1) :=
-  if h : a = b then
-    ⟨a.val, by omega⟩
-  else
-    ⟨n + max a.val b.val - 1, by
-      have hmax : 1 ≤ max a.val b.val := by
-        by_contra hzero
-        have ha : a.val = 0 := by omega
-        have hb : b.val = 0 := by omega
-        exact h (Fin.ext (ha.trans hb.symm))
-      omega⟩
-
-lemma triangleColorValue_comm (n : ℕ) (hn : 2 ≤ n) (a b : Fin n) :
-    triangleColorValue n hn a b = triangleColorValue n hn b a := by
-  apply Fin.ext
-  by_cases h : a = b
-  · subst b
-    simp [triangleColorValue]
-  · have h' : b ≠ a := Ne.symm h
-    simp [triangleColorValue, h, h', max_comm]
-
-/-- A symmetric coloring of all pairs (including diagonal pairs) by `2n - 1` colors. -/
-def triangleColoring (n : ℕ) (hn : 2 ≤ n) : Sym2 (Fin n) → Fin (2 * n - 1) :=
-  Sym2.lift ⟨triangleColorValue n hn, triangleColorValue_comm n hn⟩
-
-lemma triangleColoring_surjective (n : ℕ) (hn : 2 ≤ n) :
-    Function.Surjective (triangleColoring n hn) := by
-  intro i
-  by_cases hi : i.val < n
-  · let v : Fin n := ⟨i.val, hi⟩
-    refine ⟨Sym2.diag v, ?_⟩
-    apply Fin.ext
-    simp [triangleColoring, triangleColorValue, Sym2.diag, v]
-  · have hin : n ≤ i.val := by omega
-    have hiv : i.val - n + 1 < n := by omega
-    let v : Fin n := ⟨i.val - n + 1, hiv⟩
-    let z : Fin n := ⟨0, by omega⟩
-    have hv0 : z ≠ v := by
-      intro h
-      have hval := congrArg Fin.val h
-      simp [z, v] at hval
-    refine ⟨s(z, v), ?_⟩
-    apply Fin.ext
-    simp [triangleColoring, triangleColorValue, hv0, z, v]
-    omega
-
-private def triangleEdgeZeroOne : (cycleGraph 3).edgeSet :=
-  ⟨s((0 : Fin 3), (1 : Fin 3)), by simp [cycleGraph_three_eq_top]⟩
-
-private def triangleEdgeZeroTwo : (cycleGraph 3).edgeSet :=
-  ⟨s((0 : Fin 3), (2 : Fin 3)), by simp [cycleGraph_three_eq_top]⟩
-
-private def triangleEdgeOneTwo : (cycleGraph 3).edgeSet :=
-  ⟨s((1 : Fin 3), (2 : Fin 3)), by simp [cycleGraph_three_eq_top]⟩
-
-private lemma triangleEdgeZeroOne_ne_zeroTwo :
-    triangleEdgeZeroOne ≠ triangleEdgeZeroTwo := by
-  intro h
-  have hval := congrArg Subtype.val h
-  simp [triangleEdgeZeroOne, triangleEdgeZeroTwo, Sym2.eq] at hval
-
-private lemma triangleEdgeZeroOne_ne_oneTwo :
-    triangleEdgeZeroOne ≠ triangleEdgeOneTwo := by
-  intro h
-  have hval := congrArg Subtype.val h
-  simp [triangleEdgeZeroOne, triangleEdgeOneTwo, Sym2.eq] at hval
-
-private lemma triangleEdgeZeroTwo_ne_oneTwo :
-    triangleEdgeZeroTwo ≠ triangleEdgeOneTwo := by
-  intro h
-  have hval := congrArg Subtype.val h
-  simp [triangleEdgeZeroTwo, triangleEdgeOneTwo, Sym2.eq] at hval
-
-/-- No homomorphic image of `C₃` is rainbow for the diagonal-plus-maximum coloring. -/
-lemma triangleColoring_no_rainbow (n : ℕ) (hn : 2 ≤ n)
-    (f : cycleGraph 3 →g (⊤ : SimpleGraph (Fin n))) :
-    ¬IsRainbow f (triangleColoring n hn) := by
-  intro hf
-  have h01 : f (0 : Fin 3) ≠ f (1 : Fin 3) :=
-    (f.map_adj (by simp [cycleGraph_three_eq_top])).ne
-  have h02 : f (0 : Fin 3) ≠ f (2 : Fin 3) :=
-    (f.map_adj (by simp [cycleGraph_three_eq_top])).ne
-  have h12 : f (1 : Fin 3) ≠ f (2 : Fin 3) :=
-    (f.map_adj (by simp [cycleGraph_three_eq_top])).ne
-  rcases le_total (f (1 : Fin 3)).val (f (0 : Fin 3)).val with h10 | h01v
-  · rcases le_total (f (2 : Fin 3)).val (f (0 : Fin 3)).val with h20 | h02v
-    · apply triangleEdgeZeroOne_ne_zeroTwo
-      apply hf
-      apply Fin.ext
-      simp [triangleEdgeZeroOne, triangleEdgeZeroTwo, triangleColoring,
-        triangleColorValue, h01, h02, h10, h20]
-    · apply triangleEdgeZeroTwo_ne_oneTwo
-      apply hf
-      apply Fin.ext
-      have h12v : (f (1 : Fin 3)).val ≤ (f (2 : Fin 3)).val := h10.trans h02v
-      simp [triangleEdgeZeroTwo, triangleEdgeOneTwo, triangleColoring,
-        triangleColorValue, h02, h12, h02v, h12v]
-  · rcases le_total (f (2 : Fin 3)).val (f (1 : Fin 3)).val with h21 | h12v
-    · apply triangleEdgeZeroOne_ne_oneTwo
-      apply hf
-      apply Fin.ext
-      simp [triangleEdgeZeroOne, triangleEdgeOneTwo, triangleColoring,
-        triangleColorValue, h01, h12, h01v, h21]
-    · apply triangleEdgeZeroTwo_ne_oneTwo
-      apply hf
-      apply Fin.ext
-      have h02v : (f (0 : Fin 3)).val ≤ (f (2 : Fin 3)).val := h01v.trans h12v
-      simp [triangleEdgeZeroTwo, triangleEdgeOneTwo, triangleColoring,
-        triangleColorValue, h02, h12, h02v, h12v]
-
-/-- Under the upstream definition, the triangle anti-Ramsey number is at least `2n - 1`. -/
-theorem two_mul_sub_one_le_antiRamseyNum_cycleGraph_three (n : ℕ) (hn : 2 ≤ n) :
-    2 * n - 1 ≤ antiRamseyNum (cycleGraph 3) n := by
-  unfold antiRamseyNum
-  let S : Set ℕ := {q | ∃ c : Sym2 (Fin n) → Fin q, Function.Surjective c ∧
-    ∀ f : cycleGraph 3 →g (⊤ : SimpleGraph (Fin n)), ¬IsRainbow f c}
-  have hmem : 2 * n - 1 ∈ S :=
-    ⟨triangleColoring n hn, triangleColoring_surjective n hn,
-      triangleColoring_no_rainbow n hn⟩
-  have hbdd : BddAbove S := by
-    refine ⟨Fintype.card (Sym2 (Fin n)), ?_⟩
-    intro q hq
-    rcases hq with ⟨c, hc, _⟩
-    simpa using Fintype.card_le_of_surjective c hc
-  exact le_csSup hbdd hmem
-
-open Asymptotics Filter
-
-/-- The proposed cycle asymptotic is false for the upstream, diagonal-inclusive definition. -/
-theorem not_erdos_1105_parts_i :
-    ¬(∀ k : ℕ, 3 ≤ k →
-      ((fun n : ℕ ↦ (antiRamseyNum (cycleGraph k) n : ℝ) -
-          (((k : ℝ) - 2) / 2 + 1 / ((k : ℝ) - 1)) * n) =O[atTop]
-        (fun _ : ℕ ↦ (1 : ℝ)))) := by
-  intro h
-  have hO :
-      ((fun n : ℕ ↦ (antiRamseyNum (cycleGraph 3) n : ℝ) - n) =O[atTop]
-        (fun _ : ℕ ↦ (1 : ℝ))) := by
-    convert h 3 (by omega) using 1
-    norm_num
-  rw [isBigO_one_nat_atTop_iff] at hO
-  rcases hO with ⟨C, hC⟩
-  obtain ⟨N, hN⟩ := exists_nat_gt (max (C + 2) 2)
-  have hN2real : (2 : ℝ) ≤ (N : ℝ) :=
-    (le_max_right (C + 2) 2).trans hN.le
-  have hN2 : 2 ≤ N := by exact_mod_cast hN2real
-  have hlower := two_mul_sub_one_le_antiRamseyNum_cycleGraph_three N hN2
-  have hlowerR :
-      ((2 * N - 1 : ℕ) : ℝ) ≤ (antiRamseyNum (cycleGraph 3) N : ℝ) := by
-    exact_mod_cast hlower
-  rw [Nat.cast_sub (by omega : 1 ≤ 2 * N)] at hlowerR
-  norm_num at hlowerR
-  have hdiff :
-      (N : ℝ) - 1 ≤ (antiRamseyNum (cycleGraph 3) N : ℝ) - N := by
-    linarith
-  have hdiff_le_norm :
-      (antiRamseyNum (cycleGraph 3) N : ℝ) - N ≤
-        ‖(antiRamseyNum (cycleGraph 3) N : ℝ) - N‖ :=
-    Real.le_norm_self _
-  have hC' := hC N
-  have hCN : C + 2 < (N : ℝ) := (le_max_left (C + 2) 2).trans_lt hN
-  linarith
-
-/-- This directly negates proposed part (i). -/
-theorem not_erdos_1105_parts_i_type :
-    ¬(∀ k : ℕ, 3 ≤ k →
-      ((fun n : ℕ ↦ (antiRamseyNum (cycleGraph k) n : ℝ) -
-          (((k : ℝ) - 2) / 2 + 1 / ((k : ℝ) - 1)) * n) =O[atTop]
-        (fun _ : ℕ ↦ (1 : ℝ)))) := by
-  simpa only [true_iff] using not_erdos_1105_parts_i
-
-#print axioms not_erdos_1105_parts_ii_type
-#print axioms not_erdos_1105_parts_i_type
+/-- The exact affirmative path formula for every odd path order. -/
+theorem erdos_1105_parts_ii_odd (k n : ℕ) (hk : 5 ≤ k) (hodd : Odd k) (hn : k ≤ n) :
+    let ℓ := (k - 1) / 2
+    antiRamseyNum (pathGraph k) n =
+      max ((k - 2).choose 2 + 1)
+        ((ℓ - 1).choose 2 + (ℓ - 1) * (n - ℓ + 1) + 1) := by
+  simpa only [pathFormula, if_pos hodd] using antiRamseyNum_pathGraph_odd hk hodd hn
 
 end Erdos1105
+
+#print axioms Erdos1105.antiRamseyNum_cycleGraph_three
+#print axioms Erdos1105.erdos_1105_parts_i
+#print axioms Erdos1105.erdos_1105_parts_ii
+#print axioms Erdos1105.erdos_1105_parts_i_triangle
+#print axioms Erdos1105.self_le_antiRamseyNum_pathGraph_five
+#print axioms Erdos1105.erdos_1105_parts_i_lower
+#print axioms Erdos1105.erdos_1105_parts_ii_lower
+#print axioms Erdos1105.erdos_1105_parts_ii_odd
+#print axioms Erdos1105.weak_blocks_upper_bound
+#print axioms Erdos1105.private_representative_cycle_boundary
+#print axioms Erdos1105.private_cycle_component_contained
+#print axioms Erdos1105.private_component_hamiltonian_and_card
+#print axioms Erdos1105.cross_component_color_not_private
