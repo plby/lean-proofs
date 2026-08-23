@@ -26,7 +26,7 @@ Mathlib's chromatic number is `ENat`-valued.  All graphs here have finite vertex
 `ENat.toNat` recovers their ordinary natural-valued chromatic number.
 -/
 noncomputable def f (k n : ℕ) : ℕ :=
-  sSup (chromaticValues k n)
+  sSup {(G.chromaticNumber) | (G : SimpleGraph (Fin n)) (_ : G.CliqueFree k)}
 
 lemma chromaticNumber_toNat_le_card {V : Type*} [Fintype V] (G : SimpleGraph V) :
     G.chromaticNumber.toNat ≤ Fintype.card V := by
@@ -46,14 +46,28 @@ lemma chromaticNumber_toNat_mem_chromaticValues {k n : ℕ}
 /-- Any admissible graph witnesses a lower bound for `f`. -/
 lemma chromaticNumber_toNat_le_f {k n : ℕ} (G : SimpleGraph (Fin n))
     (hG : G.CliqueFree k) : G.chromaticNumber.toNat ≤ f k n := by
-  exact le_csSup (chromaticValues_bddAbove k n)
-    (chromaticNumber_toNat_mem_chromaticValues G hG)
+  unfold f
+  apply le_csSup
+  · refine ⟨n, ?_⟩
+    rintro q ⟨H, _hH, hq⟩
+    have hq' : q = H.chromaticNumber.toNat := by
+      simpa using (congrArg ENat.toNat hq).symm
+    rw [hq']
+    simpa using chromaticNumber_toNat_le_card H
+  · refine ⟨G, hG, ?_⟩
+    have hne : G.chromaticNumber ≠ ⊤ :=
+      SimpleGraph.chromaticNumber_ne_top_iff_exists.mpr ⟨_, G.colorable_of_fintype⟩
+    exact (ENat.natCast_toNat_eq_self.mpr hne).symm
 
 /-- The defining supremum is finite and bounded by the number of vertices. -/
 lemma f_le_vertices (k n : ℕ) : f k n ≤ n := by
+  unfold f
   apply csSup_le'
   intro q hq
-  rcases hq with ⟨G, _hG, rfl⟩
+  rcases hq with ⟨G, _hG, hq⟩
+  have hq' : q = G.chromaticNumber.toNat := by
+    simpa using (congrArg ENat.toNat hq).symm
+  rw [hq']
   simpa using chromaticNumber_toNat_le_card G
 
 /-- Below the Ramsey threshold there is a graph avoiding both forbidden configurations. -/

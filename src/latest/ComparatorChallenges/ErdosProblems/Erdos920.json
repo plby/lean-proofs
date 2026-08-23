@@ -2,7 +2,6 @@
   "challenge_module": "Erdos920",
   "solution_module": "ErdosProblems.Erdos920",
   "theorem_names": [
-    "Erdos920.erdos_920_of_dStarFamilies",
     "Erdos920.erdos_920"
   ],
   "permitted_axioms": [
@@ -12,4 +11,3 @@
   ],
   "enable_nanoda": true
 }
-
