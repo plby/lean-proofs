@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos721",
+  "solution_module": "ErdosProblems.Erdos721",
+  "theorem_names": [
+    "Erdos721.exists_forcesW3",
+    "Erdos721.erdos721Resolution"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
