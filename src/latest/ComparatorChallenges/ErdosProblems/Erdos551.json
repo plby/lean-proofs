@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos551",
+  "solution_module": "ErdosProblems.Erdos551",
+  "theorem_names": [
+    "Erdos551.cycleCliqueRamseyProperty_exists",
+    "Erdos551.erdos_551_eventually"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
