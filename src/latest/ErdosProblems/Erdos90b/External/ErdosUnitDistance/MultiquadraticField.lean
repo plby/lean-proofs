@@ -3,9 +3,9 @@ Copyright (c) 2026 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
-import ErdosProblems.Erdos92.External.ErdosUnitDistance.PrimesMod4
-import ErdosProblems.Erdos92.External.TauCeti.NumberTheory.Multiquadratic.SquareClass.Basic
-import ErdosProblems.Erdos92.External.TauCeti.FieldTheory.IntermediateField.Quadratic
+import ErdosProblems.Erdos90b.External.ErdosUnitDistance.PrimesMod4
+import ErdosProblems.Erdos90b.External.TauCeti.NumberTheory.Multiquadratic.SquareClass.Basic
+import ErdosProblems.Erdos90b.External.TauCeti.FieldTheory.IntermediateField.Quadratic
 
 /-!
 # The multiquadratic CM field
@@ -164,6 +164,9 @@ private theorem finrank_sup_adjoin_simple_eq_mul_two
     Module.finrank ℚ ((K ⊔ IntermediateField.adjoin ℚ ({x} : Set E)) :
       IntermediateField ℚ E) =
       Module.finrank ℚ K * 2 := by
+  letI : IsScalarTower ℚ K E := by
+    refine IsScalarTower.of_algebraMap_eq fun q => ?_
+    simpa using (map_ratCast (algebraMap K E) q).symm
   let L : IntermediateField K E := IntermediateField.adjoin K {x}
   have hL :
       L.restrictScalars ℚ = K ⊔ IntermediateField.adjoin ℚ ({x} : Set E) := by

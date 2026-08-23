@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 module
 
 public import Mathlib.NumberTheory.NumberField.Discriminant.Defs
-import ErdosProblems.Erdos92.External.TauCeti.FieldTheory.Trace
-import ErdosProblems.Erdos92.External.TauCeti.NumberTheory.NumberField.Internal.QuadraticIntegralBasis
+import ErdosProblems.Erdos90b.External.TauCeti.FieldTheory.Trace
+import ErdosProblems.Erdos90b.External.TauCeti.NumberTheory.NumberField.Internal.QuadraticIntegralBasis
 import Mathlib.Algebra.Polynomial.Monic
 
 /-!

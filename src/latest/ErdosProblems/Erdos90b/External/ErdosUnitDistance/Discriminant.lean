@@ -3,9 +3,9 @@ Copyright (c) 2026 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
-import ErdosProblems.Erdos92.External.ErdosUnitDistance.MultiquadraticField
-import ErdosProblems.Erdos92.External.TauCeti.NumberTheory.EffectiveBounds.ClassNumber.Basic
-import ErdosProblems.Erdos92.External.TauCeti.NumberTheory.EffectiveBounds.Discriminant.Basic
+import ErdosProblems.Erdos90b.External.ErdosUnitDistance.MultiquadraticField
+import ErdosProblems.Erdos90b.External.TauCeti.NumberTheory.EffectiveBounds.ClassNumber.Basic
+import ErdosProblems.Erdos90b.External.TauCeti.NumberTheory.EffectiveBounds.Discriminant.Basic
 
 /-!
 # The discriminant of the multiquadratic field

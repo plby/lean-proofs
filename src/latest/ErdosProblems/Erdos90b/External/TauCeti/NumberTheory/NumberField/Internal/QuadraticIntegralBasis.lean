@@ -6,7 +6,7 @@ module
 
 public import Mathlib.NumberTheory.NumberField.Basic
 public import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
-import ErdosProblems.Erdos92.External.TauCeti.LinearAlgebra.Dimension.IsQuadraticExtension
+import ErdosProblems.Erdos90b.External.TauCeti.LinearAlgebra.Dimension.IsQuadraticExtension
 
 /-!
 # The `{1, x}` rational basis of algebraic integers in a quadratic number field

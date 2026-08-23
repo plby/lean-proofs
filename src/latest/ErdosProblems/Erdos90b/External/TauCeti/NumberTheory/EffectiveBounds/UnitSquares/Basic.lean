@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 module
 
 public import Mathlib.NumberTheory.NumberField.Units.DirichletTheorem
-public import ErdosProblems.Erdos92.External.TauCeti.Algebra.Group.PowMonoidHom
-public import ErdosProblems.Erdos92.External.TauCeti.Algebra.Group.ElementaryTwoQuotient.Basic
+public import ErdosProblems.Erdos90b.External.TauCeti.Algebra.Group.PowMonoidHom
+public import ErdosProblems.Erdos90b.External.TauCeti.Algebra.Group.ElementaryTwoQuotient.Basic
 public import Mathlib.NumberTheory.NumberField.Basic
 
 /-!

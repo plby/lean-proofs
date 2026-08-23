@@ -3,8 +3,8 @@ Copyright (c) 2026 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 
-import ErdosProblems.Erdos92.External.ErdosUnitDistance.IdealFamily
-import ErdosProblems.Erdos92.External.TauCeti.NumberTheory.EffectiveBounds.UnitSquares.Basic
+import ErdosProblems.Erdos90b.External.ErdosUnitDistance.IdealFamily
+import ErdosProblems.Erdos90b.External.TauCeti.NumberTheory.EffectiveBounds.UnitSquares.Basic
 
 /-!
 # The norm fibre

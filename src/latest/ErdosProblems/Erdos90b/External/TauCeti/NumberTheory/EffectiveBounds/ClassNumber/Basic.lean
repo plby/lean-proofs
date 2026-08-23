@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 module
 
 public import Mathlib.NumberTheory.NumberField.ClassNumber
-public import ErdosProblems.Erdos92.External.TauCeti.NumberTheory.EffectiveBounds.IdealCount.Basic
-public import ErdosProblems.Erdos92.External.TauCeti.Algebra.Group.ElementaryTwoQuotient.Basic
-import ErdosProblems.Erdos92.External.TauCeti.NumberTheory.EffectiveBounds.Discriminant.Basic
-import ErdosProblems.Erdos92.External.TauCeti.NumberTheory.EffectiveBounds.UnitSquares.Basic
+public import ErdosProblems.Erdos90b.External.TauCeti.NumberTheory.EffectiveBounds.IdealCount.Basic
+public import ErdosProblems.Erdos90b.External.TauCeti.Algebra.Group.ElementaryTwoQuotient.Basic
+import ErdosProblems.Erdos90b.External.TauCeti.NumberTheory.EffectiveBounds.Discriminant.Basic
+import ErdosProblems.Erdos90b.External.TauCeti.NumberTheory.EffectiveBounds.UnitSquares.Basic
 
 /-!
 # An effective class-number bound

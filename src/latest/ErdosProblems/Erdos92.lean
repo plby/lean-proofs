@@ -1,5 +1,5 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-import ErdosProblems.Erdos92.External.ErdosUnitDistance.Main
+import ErdosProblems.Erdos90b
 
 /-!
 # Erdős Problem 92: the unit-distance conjecture
@@ -41,8 +41,8 @@ theorem arbitrarily_large_counterexamples :
         N ≤ n ∧ P.card = n ∧
           (n : ℝ) ^ (1 + C / Real.log (Real.log n)) <
             (unitDistancePairs P : ℝ) := by
-  simpa only [unitDistancePairs] using
-    Erdos.erdos_unit_distance_uniform_constant_false
+  simpa only [unitDistancePairs, Erdos90b.unitDistancePairs] using
+    Erdos90b.erdos_90b
 
 /-- No uniform constant can make the proposed upper bound hold eventually. -/
 theorem not_unitDistanceUpperBound : ¬ UnitDistanceUpperBound := by

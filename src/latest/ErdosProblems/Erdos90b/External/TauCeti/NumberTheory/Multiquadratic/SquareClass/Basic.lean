@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 module
 
-public import ErdosProblems.Erdos92.External.TauCeti.FieldTheory.IntermediateField.Quadratic
+public import ErdosProblems.Erdos90b.External.TauCeti.FieldTheory.IntermediateField.Quadratic
 public import Mathlib.Analysis.Real.Sqrt
 public import Mathlib.Data.Finset.Fin
 

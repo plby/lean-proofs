@@ -10,7 +10,7 @@ public import Mathlib.Algebra.Module.ZMod
 public import Mathlib.FieldTheory.Finiteness
 public import Mathlib.GroupTheory.Index
 public import Mathlib.LinearAlgebra.FreeModule.ModN
-public import ErdosProblems.Erdos92.External.TauCeti.Algebra.Group.PowMonoidHom
+public import ErdosProblems.Erdos90b.External.TauCeti.Algebra.Group.PowMonoidHom
 
 /-!
 # The maximal elementary-2 quotient `G / G²` of a commutative group
