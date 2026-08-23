@@ -7,6 +7,9 @@ Informal authors:
 - Yong-Gao Chen
 - Imre Z. Ruzsa
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Stefano Rocca

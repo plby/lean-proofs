@@ -1,5 +1,21 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 72.
+https://www.erdosproblems.com/forum/thread/72
+
+Informal authors:
+- Jacques Verstraëte
+- Hong Liu
+- Richard Montgomery
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos72.md
+-/
+/-
 This is a Lean formalization of the solution to Erdős Problem 72.
 https://www.erdosproblems.com/72
 

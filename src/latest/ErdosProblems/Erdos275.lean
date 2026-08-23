@@ -13,6 +13,9 @@ Informal authors:
 - Julian Sahasrabudhe
 - Marius Tiba
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

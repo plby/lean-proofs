@@ -1,3 +1,19 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 440.
+https://www.erdosproblems.com/forum/thread/440
+
+Informal authors:
+- Paul Erdős
+- Endre Szemerédi
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos440.md
+-/
 import Mathlib
 import ErdosProblems.Erdos440.Liminf
 import ErdosProblems.Erdos440.SharpConstruction

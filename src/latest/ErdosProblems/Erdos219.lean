@@ -1,4 +1,24 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/- Original license: Apache 2.0. Note: This file has been modified. -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 219.
+https://www.erdosproblems.com/forum/thread/219
+
+Informal authors:
+- Ben Green
+- Terence Tao
+
+Statement authors:
+- Formal Conjectures authors
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos219.md
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/219.lean
+-/
 /-
 Copyright (c) 2026 Boris Alexeev. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.

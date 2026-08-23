@@ -1,4 +1,20 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 372.
+https://www.erdosproblems.com/forum/thread/372
+
+Informal authors:
+- Sungjin Kim
+- James Maynard
+- Terence Tao
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos372.md
+-/
 import ErdosProblems.Erdos372.Erdos372AffineExcess
 
 /-!

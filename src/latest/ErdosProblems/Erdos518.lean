@@ -1,4 +1,20 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 518.
+https://www.erdosproblems.com/forum/thread/518
+
+Informal authors:
+- Alexey Pokrovskiy
+- Leo Versteegen
+- Ella Williams
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos518.md
+-/
 import ErdosProblems.Erdos518.MainInduction
 import ErdosProblems.Erdos518.NoConfiguration
 

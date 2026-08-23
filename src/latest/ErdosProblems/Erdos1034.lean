@@ -8,6 +8,9 @@ Informal authors:
 - Quanyu Tang
 - ChatGPT
 
+Statement authors:
+- Boris Alexeev
+
 Formal authors:
 - Aristotle
 - Namrata Anand

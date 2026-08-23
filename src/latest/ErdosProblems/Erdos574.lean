@@ -1,3 +1,20 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 574.
+https://www.erdosproblems.com/forum/thread/574
+
+Informal authors:
+- Felix Lazebnik
+- Vasiliy Ustimenko
+- Andrew Woldar
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos574.md
+-/
 import ErdosProblems.Erdos59.CycleAdapters
 import Mathlib.Analysis.Asymptotics.AsymptoticEquivalent
 import Mathlib.Combinatorics.SimpleGraph.Bipartite

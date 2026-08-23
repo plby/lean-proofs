@@ -1,4 +1,22 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/- Original license: Apache 2.0. Note: This file has been modified. -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1165.
+https://www.erdosproblems.com/forum/thread/1165
+
+Informal authors:
+- C. Hao
+- X. Li
+- Izumi Okada
+- Y. Zheng
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1165.md
+-/
 /-
 Copyright 2026 The Formal Conjectures Authors.
 

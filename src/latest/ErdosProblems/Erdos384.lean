@@ -1,5 +1,19 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 384.
+https://www.erdosproblems.com/forum/thread/384
+
+Informal authors:
+- E. F. Ecklund Jr.
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos384.md
+-/
+/-
 # Erdős Problem 384
 
 The problem-page formulation uses the strict bound `p < n / 2`.  Ecklund's

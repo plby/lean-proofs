@@ -1,3 +1,21 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1190.
+https://www.erdosproblems.com/forum/thread/1190
+
+Informal authors:
+- ChatGPT 5.5
+- Malek Zribi
+
+Formal authors:
+- Claude
+- Pawan Sasanka Ammanamanchi
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/1190#post-5988
+- https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P1190/Proof.lean
+- https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P1190/Proof.lean
+-/
 /-
 Erdős Problem 1190 — reciprocal-sum corollary of Problem 202.
 

@@ -4,8 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 1141.
 https://www.erdosproblems.com/forum/thread/1141
 
 Formalization status:
-- Conditional on: pollack_theorem_1_3
-- Conditional on: mertens_third_theorem
+- Conditional on: Pollack17.theorem_1_3
 
 Informal authors:
 - an internal model at OpenAI

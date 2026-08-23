@@ -10,6 +10,9 @@ Informal authors:
 - GPT-5.4 Pro
 - Przemek Chojecki
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Przemek Chojecki

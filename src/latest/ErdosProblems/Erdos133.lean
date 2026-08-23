@@ -1,4 +1,19 @@
-/- leanprover/lean4:v4.33.0 mathlib v4.33.0 -/
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 133.
+https://www.erdosproblems.com/forum/thread/133
+
+Informal authors:
+- David Hanson
+- Kathy Seyffarth
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos133.md
+-/
 /-
 Erdős Problem 133.
 

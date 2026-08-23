@@ -1,3 +1,18 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 127.
+https://www.erdosproblems.com/forum/thread/127
+
+Informal authors:
+- Noga Alon
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos127.md
+-/
 import ErdosProblems.Erdos127.BalancedCut
 import ErdosProblems.Erdos127.Chromatic
 import ErdosProblems.Erdos127.CutComposition

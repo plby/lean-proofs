@@ -7,6 +7,9 @@ https://www.erdosproblems.com/forum/thread/268
 Informal authors:
 - Vjekoslav Kovač
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Matteo Del Vecchio

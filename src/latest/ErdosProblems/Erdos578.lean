@@ -1,5 +1,19 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 578.
+https://www.erdosproblems.com/forum/thread/578
+
+Informal authors:
+- Oliver Riordan
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos578.md
+-/
+/-
 Erdős Problem 578 (Erdős--Bollobás, proved by Riordan).
 
 For `n = 2 ^ d`, a uniformly random simple graph on `n` labelled vertices

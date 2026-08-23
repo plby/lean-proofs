@@ -1,4 +1,24 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 920.
+https://www.erdosproblems.com/forum/thread/920
+
+Informal authors:
+- D. Bradač
+- Sam Mattheus
+- Jacques Verstraëte
+
+Statement authors:
+- Formal Conjectures authors
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos920.md
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/920.lean
+-/
 import ErdosProblems.Erdos920.Bridge
 import ErdosProblems.Erdos920.Construction
 import ErdosProblems.Erdos920.Inversion

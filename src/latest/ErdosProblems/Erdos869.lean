@@ -1,5 +1,19 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 869.
+https://www.erdosproblems.com/forum/thread/869
+
+Informal authors:
+- Daniel Larsen
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos869.md
+-/
+/-
 This file formalizes Daniel Larsen's negative resolution of Erdős Problem 869.
 
 Mathematical proof and Leanization notes: ../../../tex/869.tex

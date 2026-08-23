@@ -1,5 +1,25 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 391.
+https://www.erdosproblems.com/forum/thread/391
+
+Informal authors:
+- Boris Alexeev
+- John H. Conway
+- Michael Rosenfeld
+- Andrew Sutherland
+- Terence Tao
+- Michael Uhr
+- Kevin Ventullo
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos391.md
+-/
+/-
 Erdős Problem 391: decomposing a factorial into large factors.
 
 The mathematical reconstruction and the correspondence between the published

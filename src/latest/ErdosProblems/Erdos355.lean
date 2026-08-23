@@ -7,6 +7,9 @@ Informal authors:
 - Wouter van Doorn
 - Vjekoslav Kovač
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Wouter van Doorn
@@ -14,8 +17,7 @@ Formal authors:
 URLs:
 - https://www.erdosproblems.com/forum/thread/355#post-4741
 - https://github.com/Woett/Lean-files/blob/main/ErdosProblem355.lean
-- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/
-  ErdosProblems/355.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/355.lean
 -/
 /-
 Solving Erdős Problem #355 (https://www.erdosproblems.com/355), Vjekoslav Kovač and I

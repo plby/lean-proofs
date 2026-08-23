@@ -11,6 +11,9 @@ Informal authors:
 - Imre Z. Ruzsa
 - ChatGPT
 
+Statement authors:
+- Aristotle
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

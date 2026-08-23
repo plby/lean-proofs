@@ -7,6 +7,9 @@ Informal authors:
 - GPT-5.5 Pro
 - Harjas Sandhu
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Codex 5.5
 - GPT-5.5 Pro

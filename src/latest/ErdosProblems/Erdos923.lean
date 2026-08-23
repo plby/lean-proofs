@@ -8,7 +8,7 @@ Informal authors:
 
 Formal authors:
 - Aristotle
-- Parcly Taxel
+- Jeremy Tan Jie Rui
 
 URLs:
 - https://www.erdosproblems.com/forum/thread/923#post-5628

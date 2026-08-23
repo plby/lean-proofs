@@ -8,6 +8,10 @@ Informal authors:
 - Wouter van Doorn
 - ChatGPT 5.1 Pro
 
+Statement authors:
+- Formal Conjectures authors
+- Boris Alexeev
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

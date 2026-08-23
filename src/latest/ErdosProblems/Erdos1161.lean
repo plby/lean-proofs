@@ -1,5 +1,18 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1161.
+https://www.erdosproblems.com/forum/thread/1161
 
+Informal authors:
+- Adrian Beker
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1161.md
+-/
 import ErdosProblems.Erdos1161.ResolutionGlue
 import ErdosProblems.Erdos1161.LocalError
 import ErdosProblems.Erdos1161.LargeOrders

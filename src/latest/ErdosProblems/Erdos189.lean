@@ -6,6 +6,9 @@ https://www.erdosproblems.com/forum/thread/189
 Informal authors:
 - Vjekoslav Kovač
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Vjekoslav Kovač

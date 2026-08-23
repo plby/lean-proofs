@@ -7,6 +7,9 @@ Informal authors:
 - J. A. Haight
 - ChatGPT
 
+Statement authors:
+- ChatGPT
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

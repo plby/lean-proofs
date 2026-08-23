@@ -7,6 +7,9 @@ Informal authors:
 - Wouter van Doorn
 - Anneroos R. F. Everts
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

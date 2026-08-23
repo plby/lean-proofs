@@ -1,4 +1,18 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 922.
+https://www.erdosproblems.com/forum/thread/922
+
+Informal authors:
+- Jon Folkman
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos922.md
+-/
 import Mathlib
 
 /-!

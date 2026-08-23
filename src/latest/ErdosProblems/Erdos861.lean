@@ -1,4 +1,24 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/- Original license: Apache 2.0. Note: This file has been modified. -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 861.
+https://www.erdosproblems.com/forum/thread/861
+
+Informal authors:
+- David Saxton
+- Andrew Thomason
+- Yoshiharu Kohayakawa
+- Sang June Lee
+- Vojtěch Rödl
+- Wojciech Samotij
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos861.md
+-/
 /-
 Copyright (c) 2026. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.

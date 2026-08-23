@@ -1,5 +1,28 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 533.
+https://www.erdosproblems.com/forum/thread/533
+
+Informal authors:
+- József Balogh
+- John Lenz
+- Hong Liu
+- Christian Reiher
+- Maryam Sharifzadeh
+- Katherine Staden
+
+Statement authors:
+- Formal Conjectures authors
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos533.md
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/533.lean
+-/
+/-
 Formalization of the negative answer to Erdős Problem 533.
 
 The mathematical construction is the `p = 3`, `ℓ = 1` specialization of

@@ -3,6 +3,9 @@
 This is a Lean formalization of a solution to Erdős Problem 434.
 https://www.erdosproblems.com/forum/thread/434
 
+Formalization status:
+- Conditional on: Finset.add_kneser
+
 Informal authors:
 - Jacques Dixmier
 - G. Kiss

@@ -10,6 +10,9 @@ Informal authors:
 - Zach Hunter
 - ChatGPT
 
+Statement authors:
+- Aristotle
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

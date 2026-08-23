@@ -1,5 +1,24 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 402.
+https://www.erdosproblems.com/forum/thread/402
+
+Informal authors:
+- R. Balasubramanian
+- K. Soundararajan
+
+Statement authors:
+- Formal Conjectures authors
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos402.md
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/402.lean
+-/
+/-
 This file develops verified supporting lemmas toward a Lean formalization of
 the resolution of Erdős Problem 402, also known as Graham's gcd conjecture.
 

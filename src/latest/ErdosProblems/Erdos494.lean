@@ -1,4 +1,24 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 494.
+https://www.erdosproblems.com/forum/thread/494
+
+Informal authors:
+- Basil Gordon
+- Aviezri S. Fraenkel
+- Ernst G. Straus
+
+Statement authors:
+- Formal Conjectures authors
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos494.md
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/494.lean
+-/
 import Mathlib
 
 /-!

@@ -1,3 +1,18 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1215.
+https://www.erdosproblems.com/forum/thread/1215
+
+Informal authors:
+- Gerald R. Mac Lane
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1215.md
+-/
 import ErdosProblems.Erdos1215.Barrier
 import ErdosProblems.Erdos1215.Geometry
 import ErdosProblems.Erdos1215.Reciprocal

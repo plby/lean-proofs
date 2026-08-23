@@ -1,5 +1,23 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 1092.
+https://www.erdosproblems.com/forum/thread/1092
+
+Informal authors:
+- Vojtěch Rödl
+
+Statement authors:
+- Formal Conjectures authors
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1092.md
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1092.lean
+-/
+/-
 This is a Lean formalization of the negative answer to Erdős Problem 1092.
 The mathematical resolution and the fidelity analysis of the exact formal
 statement are documented in `tex/1092.tex`.

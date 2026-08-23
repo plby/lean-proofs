@@ -1,5 +1,26 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 59.
+https://www.erdosproblems.com/forum/thread/59
+
+Informal authors:
+- Paul Erdős
+- Péter Frankl
+- Vojtěch Rödl
+- Robert Morris
+- David Saxton
+- Zoltán Füredi
+- Assaf Naor
+- Jacques Verstraëte
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos59.md
+-/
+/-
 This is a Lean formalization of the negative resolution of Erdős Problem 59.
 https://www.erdosproblems.com/59
 

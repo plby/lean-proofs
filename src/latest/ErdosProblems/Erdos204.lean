@@ -6,6 +6,9 @@ https://www.erdosproblems.com/forum/thread/204
 Informal authors:
 - Sarosh Adenwalla
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Wouter van Doorn

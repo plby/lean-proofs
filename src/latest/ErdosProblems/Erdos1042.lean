@@ -1,5 +1,20 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 1042.
+https://www.erdosproblems.com/forum/thread/1042
+
+Informal authors:
+- Subhajit Ghosh
+- Koushik Ramachandran
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1042.md
+-/
+/-
 This file formalizes the resolution of Erdős Problem 1042, on the number of
 connected components of polynomial lemniscates whose zeros are constrained to
 a fixed closed subset of the complex plane.

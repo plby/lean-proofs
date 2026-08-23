@@ -7,6 +7,9 @@ Informal authors:
 - Eduard Wirsing
 - Archivara Math Research Agent
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

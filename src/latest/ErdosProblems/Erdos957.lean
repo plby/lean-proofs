@@ -1,5 +1,18 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 957.
+https://www.erdosproblems.com/forum/thread/957
 
+Informal authors:
+- Adrian Dumitrescu
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos957.md
+-/
 import ErdosProblems.Erdos957.Assembly
 import ErdosProblems.Erdos957.Case2SplitProduced
 

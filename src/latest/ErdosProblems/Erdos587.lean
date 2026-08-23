@@ -1,4 +1,25 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/- Original license: Apache 2.0. Note: This file has been modified. -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 587.
+https://www.erdosproblems.com/forum/thread/587
+
+Informal authors:
+- A. Khalfalah
+- S. Lodha
+- Endre Szemerédi
+
+Statement authors:
+- Formal Conjectures authors
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos587.md
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/587.lean
+-/
 /-
 Copyright 2026.
 Released under Apache 2.0 license.

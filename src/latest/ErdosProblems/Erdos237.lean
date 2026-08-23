@@ -19,7 +19,6 @@ URLs:
 - https://www.erdosproblems.com/forum/thread/237#post-5240
 - https://gist.githubusercontent.com/pitmonticone/8ea0d1cdb963b6213ac639b11d33f811/raw/98a5824d16da14313f65d77eeab5563dd874613a/Erdos237.lean
 -/
-
 /-
 Copyright (c) 2026 Pietro Monticone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.

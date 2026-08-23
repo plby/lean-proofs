@@ -1,4 +1,20 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 900.
+https://www.erdosproblems.com/forum/thread/900
+
+Informal authors:
+- Miklós Ajtai
+- János Komlós
+- Endre Szemerédi
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos900.md
+-/
 import Mathlib
 import ErdosProblems.Erdos900.Probability
 

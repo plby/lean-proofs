@@ -1,5 +1,19 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 220.
+https://www.erdosproblems.com/forum/thread/220
 
+Informal authors:
+- Hugh Montgomery
+- Robert Vaughan
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos220.md
+-/
 import ErdosProblems.Erdos220.Basic
 import ErdosProblems.Erdos220.ConcreteGaps
 import ErdosProblems.Erdos220.MomentExpansion

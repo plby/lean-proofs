@@ -1,5 +1,26 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 407.
+https://www.erdosproblems.com/forum/thread/407
+
+Informal authors:
+- Prajeet Bajpai
+- Michael A. Bennett
+- Jan-Hendrik Evertse
+- Kálmán Győry
+- Carl Ludwig Stewart
+- Robert Tijdeman
+- Hans Peter Schlickewei
+- Wolfgang M. Schmidt
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos407.md
+-/
+/-
 This file formalizes Erdős Problem 407 (Newman's conjecture).
 
 For n : ℕ, w n is the number of ordered exponent quadruples (a,b,c,d) : ℕ⁴

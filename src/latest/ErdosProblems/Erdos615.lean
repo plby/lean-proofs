@@ -1,5 +1,24 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 615.
+https://www.erdosproblems.com/forum/thread/615
 
+Informal authors:
+- Jacob Fox
+- Po-Shen Loh
+- Yufei Zhao
+
+Statement authors:
+- Formal Conjectures authors
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos615.md
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/615.lean
+-/
 import ErdosProblems.Erdos615.Erdos615Construction
 
 open Filter SimpleGraph Set Real

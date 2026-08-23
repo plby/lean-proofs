@@ -7,6 +7,9 @@ Informal authors:
 - Charles Albert Ryavec
 - ChatGPT
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

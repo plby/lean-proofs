@@ -7,6 +7,9 @@ Informal authors:
 - Stefan Steinerberger
 - ChatGPT 5.1 Pro
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

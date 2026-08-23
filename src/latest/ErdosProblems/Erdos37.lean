@@ -1,4 +1,19 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/- Original license: Apache 2.0. Note: This file has been modified. -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 37.
+https://www.erdosproblems.com/forum/thread/37
+
+Informal authors:
+- Imre Ruzsa
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos37.md
+-/
 /- Original license: Apache 2.0. -/
 import Mathlib.Combinatorics.Schnirelmann
 import Mathlib.Data.Nat.Nth

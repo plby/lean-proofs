@@ -1,3 +1,20 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1025.
+https://www.erdosproblems.com/forum/thread/1025
+
+Informal authors:
+- David Conlon
+- Jacob Fox
+- Benny Sudakov
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1025.md
+-/
 import Mathlib
 import ErdosProblems.Erdos202
 

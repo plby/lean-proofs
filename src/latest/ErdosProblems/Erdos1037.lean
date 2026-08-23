@@ -8,6 +8,9 @@ Informal authors:
 - Zach Hunter
 - KoishiChan
 
+Statement authors:
+- Aristotle
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

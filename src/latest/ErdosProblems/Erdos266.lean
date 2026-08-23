@@ -1,4 +1,23 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 266.
+https://www.erdosproblems.com/forum/thread/266
+
+Informal authors:
+- Vjekoslav Kovač
+- Terence Tao
+
+Statement authors:
+- Formal Conjectures authors
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos266.md
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/266.lean
+-/
 import ErdosProblems.Erdos266.Erdos266Block
 import ErdosProblems.Erdos266.Erdos266Diagonal
 import ErdosProblems.Erdos266.Erdos266Series

@@ -6,6 +6,9 @@ https://www.erdosproblems.com/forum/thread/1043
 Informal authors:
 - Christian Pommerenke
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

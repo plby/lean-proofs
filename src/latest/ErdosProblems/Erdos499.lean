@@ -7,6 +7,9 @@ Informal authors:
 - Marvin Marcus
 - Henryk Minc
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

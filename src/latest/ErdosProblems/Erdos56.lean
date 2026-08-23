@@ -8,6 +8,10 @@ Informal authors:
 - Levon H. Khachatrian
 - ChatGPT
 
+Statement authors:
+- Formal Conjectures authors
+- Boris Alexeev
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

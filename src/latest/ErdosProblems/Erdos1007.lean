@@ -8,6 +8,9 @@ Informal authors:
 - Joe Chaffee
 - Matt Noble
 
+Statement authors:
+- Aristotle
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

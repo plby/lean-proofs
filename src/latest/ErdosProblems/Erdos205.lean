@@ -3,9 +3,6 @@
 This is a Lean formalization of a solution to Erdős Problem 205.
 https://www.erdosproblems.com/forum/thread/205
 
-Formalization status:
-- Conditional on: nth_prime_asymp
-
 Informal authors:
 - Wouter van Doorn
 - Terence Tao

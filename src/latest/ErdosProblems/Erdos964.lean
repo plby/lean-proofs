@@ -4,7 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 964.
 https://www.erdosproblems.com/forum/thread/964
 
 Formalization status:
-- Conditional on: goldston_graham_pintz_yildirim
+- Conditional on: GoldstonGrahamPintzYildirimStatement
 
 Informal authors:
 - Sean Eberhard

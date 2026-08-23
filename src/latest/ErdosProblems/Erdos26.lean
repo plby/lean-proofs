@@ -6,6 +6,10 @@ https://www.erdosproblems.com/forum/thread/26
 Informal authors:
 - Imre Ruzsa
 
+Statement authors:
+- Formal Conjectures authors
+- Salvatore Mercuri
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

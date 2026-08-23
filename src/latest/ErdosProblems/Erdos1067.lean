@@ -9,6 +9,9 @@ Informal authors:
 - Nathan Bowler
 - Max Pitz
 
+Statement authors:
+- ChatGPT
+
 Formal authors:
 - Aristotle
 - Aleph Prover

@@ -7,6 +7,9 @@ Informal authors:
 - Tom C. Brown
 - Vojtěch Rödl
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Seed-Prover
 - Aristotle

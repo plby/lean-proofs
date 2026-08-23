@@ -3,10 +3,17 @@
 This is a Lean formalization of a solution to Erdős Problem 418.
 https://www.erdosproblems.com/forum/thread/418
 
+Formalization status:
+- Conditional on: computation_lemma_check._native.native_decide.ax_1_1
+
 Informal authors:
 - Jerzy Browkin
 - Andrzej Schinzel
 - ChatGPT 5.1 Pro
+
+Statement authors:
+- Formal Conjectures authors
+- Salvatore Mercuri
 
 Formal authors:
 - Aristotle

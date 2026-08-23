@@ -1,3 +1,27 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/- Original license: Apache 2.0. Note: This file has been modified. -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1217.
+https://www.erdosproblems.com/forum/thread/1217
+
+Informal authors:
+- Boris Alexeev
+- Kevin Barreto
+- Yuchen Li
+- Jared Duker Lichtman
+- Lisa Price
+- J. I. Shah
+- Q. Tang
+- Terence Tao
+- GPT-5.4 Pro
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1217.md
+-/
 /-
 Copyright 2026 The Formal Conjectures Authors.
 

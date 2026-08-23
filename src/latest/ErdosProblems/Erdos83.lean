@@ -1,3 +1,19 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 83.
+https://www.erdosproblems.com/forum/thread/83
+
+Informal authors:
+- Rudolf Ahlswede
+- Levon H. Khachatrian
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos83.md
+-/
 import ErdosProblems.Erdos83.Extremal
 import ErdosProblems.Erdos83.DualLayers
 

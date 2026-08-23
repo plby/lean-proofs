@@ -7,6 +7,9 @@ Informal authors:
 - GPT-5.2 Pro
 - Kevin Barreto
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Wouter van Doorn

@@ -8,6 +8,9 @@ Informal authors:
 - Tom Brown
 - Veselin Jungić
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Stefano Rocca

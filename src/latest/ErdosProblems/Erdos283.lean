@@ -1,4 +1,27 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 283.
+https://www.erdosproblems.com/forum/thread/283
+
+Informal authors:
+- GPT-5.5 Pro
+- Liam Price
+
+Statement authors:
+- Formal Conjectures authors
+
+Formal authors:
+- Opus 4.7
+- GPT-5.5 Pro
+- Pawan Sasanka Ammanamanchi
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/283#post-6290
+- https://www.overleaf.com/read/gdmnffbshxsq#ef2000
+- https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P283/Proof_flat.lean
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/283.lean
+- https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P283/Proof_flat.lean
+-/
 import Util.PolynomialEgyptianSums
 
 /-! =============================================================

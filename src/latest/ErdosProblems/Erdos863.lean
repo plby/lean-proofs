@@ -1,5 +1,23 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 863.
+https://www.erdosproblems.com/forum/thread/863
+
+Informal authors:
+- Boon Suan Ho
+- Javier Cilleruelo
+- Imre Ruzsa
+- Carlos Trujillo
+- GPT-5.4 Pro
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos863.md
+-/
+/-
 Erdős Problem 863.
 
 For r ≥ 2, the asymptotic constant for maximum subsets of [1,N] with at

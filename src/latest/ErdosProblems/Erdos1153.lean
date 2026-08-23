@@ -1,3 +1,18 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1153.
+https://www.erdosproblems.com/forum/thread/1153
+
+Informal authors:
+- Terence Tao
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1153.md
+-/
 import ErdosProblems.Erdos1153.Erdos1153Base
 
 open scoped BigOperators Topology

@@ -1,4 +1,18 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1021.
+https://www.erdosproblems.com/forum/thread/1021
+
+Informal authors:
+- Oliver Janzer
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1021.md
+-/
 import ErdosProblems.Erdos182.Elementary
 import Mathlib.Algebra.Order.Chebyshev
 import Mathlib.Analysis.Asymptotics.Lemmas

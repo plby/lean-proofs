@@ -4,7 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 1090.
 https://www.erdosproblems.com/forum/thread/1090
 
 Informal authors:
-- Hunter
+- Zach Hunter
 
 Formal authors:
 - Aristotle

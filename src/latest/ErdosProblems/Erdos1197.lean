@@ -4,8 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 1197.
 https://www.erdosproblems.com/forum/thread/1197
 
 Formalization status:
-- Conditional on: pnt_plus_chebyshev_asymptotic
-- Conditional on: pnt_plus_prime_in_interval
+- Conditional on: bm_approx_data
 
 Informal authors:
 - GPT Pro

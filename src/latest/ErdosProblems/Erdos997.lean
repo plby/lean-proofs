@@ -5,7 +5,7 @@ This is a Lean formalization of a solution to Erdős Problem 997.
 https://www.erdosproblems.com/forum/thread/997
 
 Formalization status:
-- Conditional on: maynard_tao_bft
+- Conditional on: maynardTaoBFT
 
 Informal authors:
 - an internal model at OpenAI

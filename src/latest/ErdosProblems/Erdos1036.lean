@@ -6,6 +6,9 @@ https://www.erdosproblems.com/forum/thread/1036
 Informal authors:
 - Saharon Shelah
 
+Statement authors:
+- Aristotle
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

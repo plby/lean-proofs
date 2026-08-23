@@ -8,6 +8,9 @@ Informal authors:
 - W. J. Schneider
 - ChatGPT
 
+Statement authors:
+- Aristotle
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

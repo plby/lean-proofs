@@ -1,5 +1,24 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 480.
+https://www.erdosproblems.com/forum/thread/480
+
+Informal authors:
+- Fan Chung
+- Ronald Graham
+
+Statement authors:
+- Formal Conjectures authors
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos480.md
+- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/480.lean
+-/
+/-
 # Erdős Problem 480
 
 Chung and Graham's reciprocal-jump argument gives the stronger finite bound

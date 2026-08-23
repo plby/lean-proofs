@@ -4,7 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 1148.
 https://www.erdosproblems.com/forum/thread/1148
 
 Formalization status:
-- Conditional on: duke_theorem
+- Conditional on: DukeTheoremStatement
 
 Informal authors:
 - GPT-5.4 Pro

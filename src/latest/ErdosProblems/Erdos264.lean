@@ -6,6 +6,9 @@ https://www.erdosproblems.com/forum/thread/264
 Formalization status:
 - Partial
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Pietro Monticone

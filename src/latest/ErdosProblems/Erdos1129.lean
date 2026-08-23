@@ -1,5 +1,20 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This is a Lean formalization of a solution to Erdős Problem 1129.
+https://www.erdosproblems.com/forum/thread/1129
+
+Informal authors:
+- Carl de Boor
+- Allan Pinkus
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1129.md
+-/
+/-
 This file formalizes a correction to the unconstrained formulation of Erdős
 Problem 1129.  The de Boor--Pinkus uniqueness theorem concerns *canonical*
 nodes (the endpoints are fixed).  With only the requirement that the nodes lie

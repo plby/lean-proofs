@@ -1,4 +1,18 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 1009.
+https://www.erdosproblems.com/forum/thread/1009
+
+Informal authors:
+- E. Győri
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1009.md
+-/
 import ErdosProblems.Erdos1009.External.Erdos207.Prefix
 import ErdosProblems.Erdos127.CutComposition
 import Mathlib.Combinatorics.SimpleGraph.Extremal.Turan

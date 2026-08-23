@@ -8,6 +8,9 @@ Informal authors:
 - L. A. Székely
 - ChatGPT
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

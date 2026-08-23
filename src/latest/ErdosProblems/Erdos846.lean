@@ -7,6 +7,9 @@ https://www.erdosproblems.com/forum/thread/846
 Informal authors:
 - a DeepMind prover agent
 
+Statement authors:
+- Formal Conjectures authors
+
 Formal authors:
 - a DeepMind prover agent
 - George Tsoukalas

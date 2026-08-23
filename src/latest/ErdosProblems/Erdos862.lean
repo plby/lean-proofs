@@ -8,6 +8,9 @@ Informal authors:
 - Andrew Thomason
 - ChatGPT
 
+Statement authors:
+- Aristotle
+
 Formal authors:
 - Aristotle
 - Boris Alexeev

@@ -1,10 +1,11 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/- Original license: Apache 2.0. Note: This file has been modified. -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 433.
 https://www.erdosproblems.com/forum/thread/433
 
 Formalization status:
-- Includes a local proof of the finite Kneser input used below.
+- Conditional on: Finset.add_kneser
 
 Informal authors:
 - Jacques Dixmier

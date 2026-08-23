@@ -1,3 +1,19 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 140.
+https://www.erdosproblems.com/forum/thread/140
+
+Informal authors:
+- Zachary Kelley
+- Raghu Meka
+
+Formal authors:
+- Codex
+- GPT-5.6 Sol
+
+URLs:
+- https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos140.md
+-/
 import ErdosProblems.Erdos140.Quantitative
 import ErdosProblems.Erdos140.KelleyMekaCount
 import ErdosProblems.Erdos140.FinalAssembly

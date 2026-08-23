@@ -7,6 +7,9 @@ Informal authors:
 - Bryan John Birch
 - ChatGPT
 
+Statement authors:
+- Aristotle
+
 Formal authors:
 - Aristotle
 - Boris Alexeev
