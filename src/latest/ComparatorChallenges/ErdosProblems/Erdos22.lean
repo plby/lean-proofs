@@ -6,8 +6,7 @@ open Filter SimpleGraph
 
 namespace Erdos22
 
-attribute [local instance] Classical.propDecidable
-
+open scoped Classical in
 theorem erdos_22 :
     ∀ ε : ℝ, 0 < ε → ∀ᶠ (n : ℕ) in atTop,
       ∃ G : SimpleGraph (Fin n), G.CliqueFree 4 ∧

@@ -1,7 +1,5 @@
 import Mathlib
-
-def IsAffineLine (ℓ : AffineSubspace ℝ (EuclideanSpace ℝ (Fin 2))) : Prop :=
-  (ℓ : Set (EuclideanSpace ℝ (Fin 2))).Nonempty ∧ Module.finrank ℝ ℓ.direction = 1
+import Submission.IsAffineLine
 
 open Filter
 open scoped BigOperators Real
@@ -10,7 +8,8 @@ noncomputable section
 
 namespace Erdos607
 
-local instance (p : Prop) : Decidable p := Classical.propDecidable p
+local instance instDecidableProp (p : Prop) : Decidable p :=
+  Classical.propDecidable p
 
 abbrev Point := EuclideanSpace ℝ (Fin 2)
 
