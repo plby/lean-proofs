@@ -17,6 +17,20 @@
   definition genuinely needs noncomputability, mark that individual definition
   `noncomputable` instead of applying it to an entire section. Verify removals
   and remove the matching `end` when removing a section wrapper.
+- Name the final theorem `erdos_NNN`, using the problem number without leading
+  zeros (for example, `erdos_2`). When it naturally states a negative answer,
+  prefer `not_erdos_NNN`. For a formal-conjectures statement of the form
+  `answer(bool) ↔ P`, a false answer normally corresponds to `not_erdos_NNN`
+  proving `¬ P`; check the meaning of the source proposition to choose the
+  appropriate polarity. Keep the final name consistent between the challenge,
+  solution, and Comparator configuration.
+- Prefer inlining the body of a standalone `def ... : Prop` in the final theorem
+  statement, including under negation, rather than asserting or negating the
+  proposition's name. Remove the redundant wrapper definition from the challenge
+  and use the same explicit statement in the solution's final theorem. The
+  solution may retain the proposition definition and helper theorems, and use
+  them to prove that final theorem. This does not require inlining useful
+  parameterized predicates such as `IsDistinctCoveringSystem`.
 - Preserve existing uncommitted changes and keep edits scoped to the requested
   improvements.
 - State exactly what was checked and what remains unverified. Do not claim that
