@@ -1,3 +1,5 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+
 import Mathlib.AlgebraicTopology.SimplexCategory.Basic
 import Mathlib.Combinatorics.SimpleGraph.Basic
 import Mathlib.Data.Set.Card

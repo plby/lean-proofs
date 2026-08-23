@@ -1,17 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This file formalizes the affirmative resolution of Erdős Problem 516.
-
-Informal author:
-- W. H. J. Fuchs
-
-Formal author:
-- OpenAI Codex
-
-Reference:
-W. H. J. Fuchs, "Proof of a conjecture of G. Pólya concerning gap series",
-Illinois J. Math. 7 (1963), 661--667.
--/
 
 import Mathlib
 

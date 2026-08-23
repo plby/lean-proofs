@@ -1,15 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-# Erdős Problem 384
-
-The problem-page formulation uses the strict bound `p < n / 2`.  Ecklund's
-published theorem uses the non-strict bound `p ≤ n / 2`; the distinction is
-essential.  The strict formulation is false already for `n = 4`, `k = 2`,
-since every natural prime is at least `2`.
-
-Mathematical source: E. F. Ecklund, Jr., "On prime divisors of the binomial
-coefficient", Pacific J. Math. 29 (1969), 267–270.
--/
 
 import Mathlib
 

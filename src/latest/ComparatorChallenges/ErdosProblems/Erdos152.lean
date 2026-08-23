@@ -1,4 +1,5 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+
 import Mathlib
 
 /-!
@@ -42,4 +43,3 @@ open Set Finset
 theorem erdos_152.variants.square :
     (fun n => f n : ℕ → ℝ) ≫ (fun n => n ^ 2 : ℕ → ℝ) := by
   sorry
-

@@ -1,8 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-The affirmative statements of Erdős Problem 1105, using edge-only colorings
-and rainbow non-induced copies (injective homomorphisms).
--/
 
 import Mathlib
 

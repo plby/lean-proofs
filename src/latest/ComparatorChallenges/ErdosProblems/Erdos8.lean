@@ -1,10 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This is a Lean formalization of the negative solution to Erdős Problem 8.
-https://www.erdosproblems.com/8
-
-The mathematical proof and its source audit are in `tex/8.tex`.
--/
 
 import Mathlib
 

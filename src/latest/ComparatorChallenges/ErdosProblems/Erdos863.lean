@@ -1,16 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-Erdős Problem 863.
-
-For r ≥ 2, the asymptotic constant for maximum subsets of [1,N] with at
-most r unordered representations of every sum is strictly larger than the
-corresponding constant for maximum subsets with at most r representations
-of every positive difference (provided, as in the question, that the two
-asymptotic constants exist).
-
-The lower bound is the Cilleruelo--Ruzsa--Trujillo pasting construction.
-The upper bound is the Erdős--Turán shifting argument.
--/
 
 import Mathlib
 

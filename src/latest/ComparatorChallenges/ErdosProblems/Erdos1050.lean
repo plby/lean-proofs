@@ -1,8 +1,5 @@
-/-
-Copyright (c) 2026 Joseph Tooby-Smith. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: The Lean Community
--/
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+
 import Mathlib
 
 /-!

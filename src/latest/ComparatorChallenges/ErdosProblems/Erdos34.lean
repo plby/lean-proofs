@@ -1,3 +1,5 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+
 import Mathlib.Data.Fintype.Prod
 import Mathlib.Data.Real.Basic
 import Mathlib.Order.Interval.Finset.Fin

@@ -1,15 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This is a Lean formalization of the resolution of Erdős Problem 758.
-https://www.erdosproblems.com/758
-
-Informal sources:
-- Paul Erdős and John Gimbel, Some Problems and Results in Cochromatic Theory (1993)
-- Ahu Akdemir and Tınaz Ekim, Advances on Defective Parameters in Graphs (2015)
-- Bhavik Mehta's later computation, recorded on the Erdős Problems page
-
-Formal author: Codex
--/
 
 import Mathlib
 

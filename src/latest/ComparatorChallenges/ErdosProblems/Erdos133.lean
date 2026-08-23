@@ -1,15 +1,4 @@
-/- leanprover/lean4:v4.33.0 mathlib v4.33.0 -/
-/-
-Erdős Problem 133.
-
-For an n-vertex triangle-free graph of diameter at most two, minimize the
-maximum degree.  We prove that this function is Θ(√n), and in particular its
-ratio to √n does not tend to infinity.
-
-The lower bound is the diameter-two Moore bound.  The upper bound uses an
-explicit graph on pairs of elements of a finite set with a fixed-point-free
-involution, followed by a controlled vertex duplication.
--/
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 
 import Mathlib
 

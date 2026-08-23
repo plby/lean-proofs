@@ -1,19 +1,5 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This is a Lean formalization of the affirmative resolution of Erdős Problem 286.
 
-Informal authors:
-- Ernest S. Croot III
-- Greg Martin
-
-Formalization:
-- OpenAI Codex
-
-Primary references:
-- https://doi.org/10.4064/aa99-2-1
-- https://doi.org/10.4064/aa-95-3-231-260
-- https://www.erdosproblems.com/286
--/
 import Mathlib
 
 /-!

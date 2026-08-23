@@ -1,13 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This file formalizes a correction to the unconstrained formulation of Erdős
-Problem 1129.  The de Boor--Pinkus uniqueness theorem concerns *canonical*
-nodes (the endpoints are fixed).  With only the requirement that the nodes lie
-in `[-1, 1]`, minimizers are not unique.  We prove the exact universal lower
-bound for three nodes and exhibit two distinct minimizers.
-
-The accompanying mathematical write-up is `tex/1129.tex`.
--/
 
 import Mathlib
 

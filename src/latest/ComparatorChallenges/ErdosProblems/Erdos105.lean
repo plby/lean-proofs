@@ -1,3 +1,5 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+
 import Mathlib.AlgebraicTopology.SimplexCategory.Basic
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Std.Tactic.BVDecide.LRAT.Internal.Clause

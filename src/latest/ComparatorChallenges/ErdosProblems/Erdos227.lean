@@ -1,3 +1,5 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+
 import Mathlib.Analysis.Complex.Exponential
 import Mathlib.Analysis.Complex.Basic
 import Mathlib.Analysis.Complex.Trigonometric

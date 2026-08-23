@@ -1,11 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-Erdős Problem 310: bounded-denominator reciprocal subsums of dense finite sets.
-
-The mathematical proof and Leanization plan are in `tex/310.tex` at the
-repository root.  The analytic input below is Bloom's theorem, already proved
-in the repository's `UnitFractions` development.
--/
 
 import Mathlib
 

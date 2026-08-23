@@ -1,10 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-Erdős Problem 391: decomposing a factorial into large factors.
-
-The mathematical reconstruction and the correspondence between the published
-argument and this development are documented in `tex/391.tex`.
--/
 
 import Mathlib
 

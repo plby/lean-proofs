@@ -1,23 +1,5 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This is a Lean formalization of the all-N formulation of Erdős Problem 343.
-https://www.erdosproblems.com/343
 
-Following the cited source, a locally finite infinite multiset is represented
-by a nondecreasing sequence. Distinct indices are distinct occurrences,
-including when their values are equal. Infinite multiplicity at one value is
-the separate immediate case, since its multiples already form an infinite AP.
-
-The displayed problem asks for a universal linear-density threshold and
-requires its counting estimate for every N. With this all-N quantifier, the
-threshold C = 1 is enough: the nth term is at most n + 1, so Brown's criterion
-shows that every natural number is a finite subset sum.
-
-The stronger published Szemerédi--Vu theorem only assumes the counting bound
-for all sufficiently large N. Its proof needs their deep finite sumset theorem;
-the distinction and the full published proof chain are documented in
-tex/343.tex.
--/
 import Mathlib
 
 namespace Erdos343

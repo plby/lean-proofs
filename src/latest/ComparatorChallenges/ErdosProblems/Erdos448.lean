@@ -1,10 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-Erdős Problem 448.
-
-The mathematical proof and the endpoint-convention comparison with the
-Erdős--Tenenbaum theorem are documented in tex/448.tex.
--/
 
 import Mathlib
 

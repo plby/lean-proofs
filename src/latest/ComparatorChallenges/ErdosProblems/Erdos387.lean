@@ -1,3 +1,5 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+
 import ErdosProblems.Erdos387.AlmostPrimeExhaustion
 import ErdosProblems.Erdos387.Endpoint
 import ErdosProblems.Erdos387.QualitativeRoughCounting

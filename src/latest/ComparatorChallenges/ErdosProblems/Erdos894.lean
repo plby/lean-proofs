@@ -1,13 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This is a Lean formalization of the affirmative resolution of Erdős Problem 894.
-For a positive lacunary sequence of natural numbers, it constructs a finite
-colouring of `ℕ` having no monochromatic difference in the sequence.
-
-The proof follows the elementary argument recorded in the introduction of
-Peres--Schlag, "Two Erdős problems on lacunary sequences: chromatic number and
-Diophantine approximation", Bull. Lond. Math. Soc. 42 (2010), 295--300.
--/
 
 import Mathlib
 

@@ -1,12 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This file formalizes the negative resolution of Erdős Problem 992.
-
-The construction is a self-contained resonant-block version of the mechanism
-behind Berkes--Philipp, "The size of trigonometric and Walsh series and
-uniform distribution mod 1", J. London Math. Soc. (2) 50 (1994), 454--464.
-The detailed mathematical proof is in `tex/992.tex`.
--/
 
 import Mathlib
 

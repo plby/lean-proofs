@@ -1,3 +1,5 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+
 import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 import Mathlib.Algebra.Order.Archimedean.Real.Basic
 import Mathlib.Data.Fintype.Basic

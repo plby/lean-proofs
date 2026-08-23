@@ -1,20 +1,5 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This is a Lean formalization of the resolution of Erdős Problem 285.
 
-The theorem is the logical payload of the Google DeepMind Formal Conjectures
-statement.
-
-Informal author:
-- Greg Martin
-
-Formalization:
-- OpenAI Codex
-
-Primary references:
-- https://doi.org/10.4064/aa-95-3-231-260
-- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/285.lean
--/
 import Mathlib
 
 open Filter

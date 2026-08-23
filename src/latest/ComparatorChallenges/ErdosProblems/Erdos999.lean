@@ -1,18 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-Erdos Problem 999 is the Duffin--Schaeffer theorem.
-
-The exact statement is formalized below on the unit additive circle.  The
-circle is the standard probability-space version of "almost every alpha",
-and `n + 1` indexes the positive denominator q.
-
-Primary reference:
-D. Koukoulopoulos and J. Maynard, On the Duffin--Schaeffer conjecture,
-Annals of Mathematics 192 (2020), 251--307.
-
-The detailed mathematical proof and Leanization dependency map are in
-`tex/999.tex`.
--/
 
 import Mathlib
 

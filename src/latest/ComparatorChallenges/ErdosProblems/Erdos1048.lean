@@ -1,3 +1,5 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+
 import Mathlib.Analysis.CStarAlgebra.Classes
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Std.Tactic.BVDecide.LRAT.Internal.Clause

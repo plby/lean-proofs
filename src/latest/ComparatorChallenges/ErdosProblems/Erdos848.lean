@@ -1,33 +1,4 @@
-/-
-leanprover/lean4:v4.33.0  mathlib v4.33.0
-
-Erdős Problem #848 — Lean 4 Formalization (Asymptotic Result)
-
-Contributors:
-- Raymond Jung (@the-obstacle-is-the-way)
-- Claude Opus 4.5, GPT-5.2 Pro/xHigh, Gemini 3.0, Aristotle
-
-Ported and adapted for this repository by OpenAI Codex.
--/
-
-/-
-Erdős Problem #848 — Self-Contained Formalization
-
-The comparator target is Sawhney's asymptotic theorem (2025), NOT the full
-Erdős conjecture.
-
-Original Problem 848 (STILL OPEN):
-  Is max|A| ≤ |A₇(N)| for ALL N?
-
-Asymptotic statement:
-  ∃ N₀, ∀ N ≥ N₀, max|A| ≤ |A₇(N)|  (asymptotic result)
-
-Citation: Sawhney (2025)
--/
-
--- ============================================================================
--- IMPORTS (Mathlib only - no local imports)
--- ============================================================================
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 
 import Mathlib
 

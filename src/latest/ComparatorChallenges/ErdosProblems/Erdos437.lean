@@ -1,22 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This is a Lean formalization of the positive resolution of Erdős Problem 437.
-https://www.erdosproblems.com/437
-
-For every ε > 0 and every sufficiently large x, we construct a strictly
-increasing finite sequence in [1,x] with more than x^(1-ε) square partial
-products.  The finite combinatorial core is Lemma 4.2 of Bui--Pratt--
-Zaharescu; the reservoir used here consists of fixed-size products of small
-primes, so the only analytic input required for the qualitative result is the
-prime number theorem.
-
-Mathematical sources:
-- H. M. Bui, K. Pratt, A. Zaharescu, Math. Proc. Camb. Phil. Soc. 176 (2024).
-- T. Tao, "A result of Bui--Pratt--Zaharescu, and Erdős problem #437" (2024).
-
-A detailed mathematical proof, including Tao's sharper quantitative bounds,
-is in `tex/437.tex`.
--/
 
 import Mathlib
 

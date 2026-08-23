@@ -1,9 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This is a Lean formalization of the negative answer to Erdős Problem 1092.
-The mathematical resolution and the fidelity analysis of the exact formal
-statement are documented in `tex/1092.tex`.
--/
 
 import Mathlib
 

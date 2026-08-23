@@ -1,11 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This file formalizes the negative resolution of Erdős Problem 868 by
-Daniel Larsen and Michael Larsen.
-
-Mathematical proof and formalization notes: ../../../tex/868.tex
-Primary source: https://github.com/Larsen-Daniel/Erdos-868/blob/main/868.pdf
--/
 
 import Mathlib.Algebra.Group.Pointwise.Set.BigOperators
 import Mathlib.Algebra.Group.Pointwise.Set.Finite

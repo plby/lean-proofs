@@ -1,3 +1,5 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+
 import Mathlib.Analysis.Asymptotics.Defs
 import Mathlib.Data.Set.Card
 import Std.Tactic.BVDecide.LRAT.Internal.Clause

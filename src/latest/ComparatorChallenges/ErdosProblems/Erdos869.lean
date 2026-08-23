@@ -1,3 +1,5 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+
 import Mathlib.Algebra.Group.Pointwise.Set.BigOperators
 import Mathlib.Algebra.Group.Pointwise.Set.Finite
 import Mathlib.Algebra.Order.Monoid.Canonical.Defs

@@ -1,14 +1,5 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-# Erdős Problem 800
 
-Alon's theorem that a graph whose vertices of degree at least three form an
-independent set has Ramsey number at most twelve times its order.
-
-The proof follows N. Alon, *Subdivided graphs have linear Ramsey numbers*,
-J. Graph Theory 18 (1994), 343--347.  One input in the paper is replaced by
-the elementary `sparse_target_embedding` lemma below.
--/
 import Mathlib
 
 open Finset

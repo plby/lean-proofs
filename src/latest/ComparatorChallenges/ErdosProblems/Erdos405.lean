@@ -1,24 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This is a Lean formalization of the resolution of Erdős Problem 405.
-https://www.erdosproblems.com/405
-
-Informal authors:
-- Béla Brindza
-- Paul Erdős
-- Kunrui Yu
-- Dehua Liu
-- Maohua Le
-
-Formal authors:
-- Codex
-
-The main theorem `erdos405_iff` classifies all positive-integer solutions of
-
-  (p - 1)! + a^(p - 1) = p^k
-
-with `p` an odd prime.
--/
 
 import Mathlib
 

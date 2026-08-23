@@ -1,5 +1,5 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/- Original license: Apache 2.0. -/
+
 import Mathlib
 
 /-!

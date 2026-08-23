@@ -1,20 +1,4 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This file formalizes Terence Tao's negative resolution of Erdős Problem 135.
-
-The public theorem constructs, for every `n`, exactly `n` points in the
-Euclidean plane such that every four determine at least five distances, while
-the total number of distances is `O(n^2 / sqrt (log n))`.
-
-Informal sources:
-* T. Tao, "Planar point sets with forbidden 4-point patterns and few
-  distinct distances", arXiv:2409.01343 (2024).
-* A. Dumitrescu, "Distinct distances in planar point sets with forbidden
-  4-point patterns", Discrete Math. 343 (2020), 111967.
-
-The detailed mathematical reconstruction and Leanization plan are in
-`tex/135.tex`.
--/
 
 import Mathlib
 

@@ -1,23 +1,5 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-/-
-This is a Lean formalization of a solution to Erdős Problem 119.
-https://www.erdosproblems.com/forum/thread/119
 
-Informal authors:
-- ChatGPT 5.6 Pro
-- Samuel Korsky
-
-Statement authors:
-- Formal Conjectures authors
-
-Formal authors:
-- Codex
-- Boris Alexeev
-
-URLs:
-- https://www.erdosproblems.com/forum/thread/119/proof-claims#proof-claim-7
-- https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/119.lean
--/
 import Mathlib
 
 open Filter Finset Set
@@ -63,4 +45,3 @@ theorem erdos_119.parts.i :
     ∀ (z : ℕ → ℂ) (_ : ∀ i : ℕ, ‖z i‖ = 1),
       atTop.limsup (fun n => (M z n : EReal)) = ⊤ := by
   sorry
-
