@@ -33,7 +33,8 @@ noncomputable section
 
 namespace Erdos607
 
-local instance (p : Prop) : Decidable p := Classical.propDecidable p
+local instance instDecidableProp (p : Prop) : Decidable p :=
+  Classical.propDecidable p
 
 /-- The real Euclidean plane. -/
 abbrev Point := EuclideanSpace ℝ (Fin 2)
