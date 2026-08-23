@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos989",
+  "solution_module": "ErdosProblems.Erdos989",
+  "theorem_names": [
+    "Erdos989.erdos_989_quantifier_counterexample",
+    "Erdos989.erdos_989"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
