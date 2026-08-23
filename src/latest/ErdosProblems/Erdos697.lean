@@ -3701,12 +3701,15 @@ theorem erdos_697_sharp_transition :
   exact ⟨one_lt_criticalExponent, fun _ => tendsto_delta_zero_of_critical_gt,
     fun _ => tendsto_delta_one_of_critical_lt⟩
 
-/-- Existential formulation matching the statement of Problem 697. -/
+/-- Hall's exact answer to Problem 697, stated with the critical exponent
+visible in the public theorem. -/
 theorem erdos_697 :
-    ∃ β : ℝ, 1 < β ∧
-      (∀ α : ℝ, α < β → Tendsto (fun m : ℕ => δ m α) atTop (𝓝 0)) ∧
-      (∀ α : ℝ, β < α → Tendsto (fun m : ℕ => δ m α) atTop (𝓝 1)) := by
-  exact ⟨criticalExponent, erdos_697_sharp_transition⟩
+    1 < 1 / Real.log 2 ∧
+      (∀ α : ℝ, α < 1 / Real.log 2 →
+        Tendsto (fun m : ℕ => δ m α) atTop (𝓝 0)) ∧
+      (∀ α : ℝ, 1 / Real.log 2 < α →
+        Tendsto (fun m : ℕ => δ m α) atTop (𝓝 1)) := by
+  simpa [criticalExponent] using erdos_697_sharp_transition
 
 
 end

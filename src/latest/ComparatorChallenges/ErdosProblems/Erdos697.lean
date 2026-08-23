@@ -37,9 +37,11 @@ noncomputable def δ (m : ℕ) (α : ℝ) : ℝ :=
   atTop.limUnder fun n : ℕ => (divisorSet m α).partialDensity Set.univ n
 
 theorem erdos_697 :
-    ∃ β : ℝ, 1 < β ∧
-      (∀ α : ℝ, α < β → Tendsto (fun m : ℕ => δ m α) atTop (𝓝 0)) ∧
-      (∀ α : ℝ, β < α → Tendsto (fun m : ℕ => δ m α) atTop (𝓝 1)) := by
+    1 < 1 / Real.log 2 ∧
+      (∀ α : ℝ, α < 1 / Real.log 2 →
+        Tendsto (fun m : ℕ => δ m α) atTop (𝓝 0)) ∧
+      (∀ α : ℝ, 1 / Real.log 2 < α →
+        Tendsto (fun m : ℕ => δ m α) atTop (𝓝 1)) := by
   sorry
 
 end Erdos697
