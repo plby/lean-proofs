@@ -1,3 +1,22 @@
+- key: ErdosProblems.Erdos2
+  epc: https://www.erdosproblems.com/2
+  author:
+    informal:
+      human:
+        - Paul Balister
+        - Béla Bollobás
+        - Robert Morris
+        - Julian Sahasrabudhe
+        - Marius Tiba
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  arxiv: https://arxiv.org/abs/1811.03547
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos2.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos6
   epc: https://www.erdosproblems.com/6
   author:
@@ -12,7 +31,39 @@
         - Codex
         - GPT-5.6 Sol
   arxiv: https://arxiv.org/abs/1311.7003
-  url: https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/6.lean
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos6.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/6.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos8
+  epc: https://www.erdosproblems.com/8
+  author:
+    informal:
+      human:
+        - Bob Hough
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos8.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos13
+  epc: https://www.erdosproblems.com/13
+  author:
+    informal:
+      human:
+        - Borys Bedert
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos13.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/13.lean
   version: "4.33.0"
 
 - key: ErdosProblems.Erdos16
@@ -30,6 +81,38 @@
     - https://github.com/danielchin/proofs/blob/main/Proofs/ErdosProblems/Erdos16.lean
     - https://www.erdosproblems.com/forum/thread/16#post-4464
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos21
+  epc: https://www.erdosproblems.com/21
+  author:
+    informal:
+      human:
+        - Jeff Kahn
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos21.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos22
+  epc: https://www.erdosproblems.com/22
+  author:
+    informal:
+      human:
+        - Jacob Fox
+        - Po-Shen Loh
+        - Yufei Zhao
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos22.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/22.lean
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos24
   epc: https://www.erdosproblems.com/24
@@ -63,6 +146,38 @@
   todo:
     - Google DeepMind's proof
     - Wouter van Doorn's comment
+
+- key: ErdosProblems.Erdos27
+  epc: https://www.erdosproblems.com/27
+  author:
+    informal:
+      human:
+        - Michael Filaseta
+        - Kevin Ford
+        - Sergei Konyagin
+        - Carl Pomerance
+        - Gang Yu
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos27.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos29
+  epc: https://www.erdosproblems.com/29
+  author:
+    informal:
+      human:
+        - Paul Erdős
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos29.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos31
   epc: https://www.erdosproblems.com/31
@@ -103,6 +218,34 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos34.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos35
+  epc: https://www.erdosproblems.com/35
+  author:
+    informal:
+      human:
+        - Helmut Plünnecke
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos35.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos37
+  epc: https://www.erdosproblems.com/37
+  author:
+    informal:
+      human:
+        - Imre Ruzsa
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos37.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos38
   epc: https://www.erdosproblems.com/38
   author:
@@ -135,6 +278,22 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/42.lean
     - https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P42/CompactCayley/Proof.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos43
+  epc: https://www.erdosproblems.com/43
+  author:
+    informal:
+      human:
+        - Kevin Barreto
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos43.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/43.lean
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos45
   epc: https://www.erdosproblems.com/45
@@ -175,6 +334,86 @@
   url: https://github.com/b-mehta/unit-fractions
   version: "3.42.1"
 
+- key: ErdosProblems.Erdos48
+  epc: https://www.erdosproblems.com/48
+  author:
+    informal:
+      human:
+        - Kevin Ford
+        - Florian Luca
+        - Carl Pomerance
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos48.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/48.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos49
+  epc: https://www.erdosproblems.com/49
+  author:
+    informal:
+      human:
+        - Terence Tao
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos49.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos53
+  epc: https://www.erdosproblems.com/53
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Endre Szemerédi
+        - Mei-Chu Chang
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos53.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos54
+  epc: https://www.erdosproblems.com/54
+  author:
+    informal:
+      human:
+        - David Conlon
+        - Jacob Fox
+        - Huy Tuan Pham
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos54.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos55
+  epc: https://www.erdosproblems.com/55
+  author:
+    informal:
+      human:
+        - David Conlon
+        - Jacob Fox
+        - Huy Tuan Pham
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos55.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos56
   epc: https://www.erdosproblems.com/56
   author:
@@ -196,6 +435,151 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
+
+- key: ErdosProblems.Erdos57
+  epc: https://www.erdosproblems.com/57
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - András Hajnal
+        - Hong Liu
+        - Richard Montgomery
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos57.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos58
+  epc: https://www.erdosproblems.com/58
+  author:
+    informal:
+      human:
+        - András Gyárfás
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos58.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos59
+  epc: https://www.erdosproblems.com/59
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Péter Frankl
+        - Vojtěch Rödl
+        - Robert Morris
+        - David Saxton
+        - Zoltán Füredi
+        - Assaf Naor
+        - Jacques Verstraëte
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos59.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos63
+  epc: https://www.erdosproblems.com/63
+  author:
+    informal:
+      human:
+        - Hong Liu
+        - Richard Montgomery
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos63.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos72
+  epc: https://www.erdosproblems.com/72
+  author:
+    informal:
+      human:
+        - Jacques Verstraëte
+        - Hong Liu
+        - Richard Montgomery
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos72.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos79
+  epc: https://www.erdosproblems.com/79
+  author:
+    informal:
+      human:
+        - Yufei Wigderson
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos79.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos83
+  epc: https://www.erdosproblems.com/83
+  author:
+    informal:
+      human:
+        - Rudolf Ahlswede
+        - Levon H. Khachatrian
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos83.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos88
+  epc: https://www.erdosproblems.com/88
+  author:
+    informal:
+      human:
+        - Matthew Kwan
+        - Ashwin Sah
+        - Lisa Sauermann
+        - Mehtaab Sawhney
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos88.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos92
+  epc: https://www.erdosproblems.com/92
+  author:
+    informal:
+      human:
+        - L. Alpöge
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos92.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/92.lean
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos93
   epc: https://www.erdosproblems.com/93
@@ -233,6 +617,21 @@
   version: "4.21.0"
   todo: Add Erdos94b with the SeedProver proof.
 
+- key: ErdosProblems.Erdos95
+  epc: https://www.erdosproblems.com/95
+  author:
+    informal:
+      human:
+        - Larry Guth
+        - Nets Hawk Katz
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos95.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos105
   epc: https://www.erdosproblems.com/105
   author:
@@ -249,6 +648,66 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
+
+- key: ErdosProblems.Erdos106
+  epc: https://www.erdosproblems.com/106
+  author:
+    informal:
+      human:
+        - A. Raj Singh
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos106.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos109
+  epc: https://www.erdosproblems.com/109
+  author:
+    informal:
+      human:
+        - Joel Moreira
+        - Florian K. Richter
+        - Donald Robertson
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos109.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/109.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos110
+  epc: https://www.erdosproblems.com/110
+  author:
+    informal:
+      human:
+        - Chris Lambie-Hanson
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos110.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos113
+  epc: https://www.erdosproblems.com/113
+  author:
+    informal:
+      human:
+        - Oliver Janzer
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos113.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos115
   epc: https://www.erdosproblems.com/115
@@ -270,6 +729,20 @@
   url_ref: JoshuaB_115
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos116
+  epc: https://www.erdosproblems.com/116
+  author:
+    informal:
+      human:
+        - Christian Pommerenke
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos116.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos119
   epc: https://www.erdosproblems.com/119
   author:
@@ -284,6 +757,20 @@
     - https://www.erdosproblems.com/forum/thread/119/proof-claims#proof-claim-7
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/119.lean
   version: "4.32.0"
+
+- key: ErdosProblems.Erdos121
+  epc: https://www.erdosproblems.com/121
+  author:
+    informal:
+      human:
+        - Terence Tao
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos121.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos123
   epc: https://www.erdosproblems.com/123
@@ -326,6 +813,35 @@
   version: "4.22.0"
   todo: Import this proof.
 
+- key: ErdosProblems.Erdos127
+  epc: https://www.erdosproblems.com/127
+  author:
+    informal:
+      human:
+        - Noga Alon
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos127.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos133
+  epc: https://www.erdosproblems.com/133
+  author:
+    informal:
+      human:
+        - David Hanson
+        - Kathy Seyffarth
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos133.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos134
   epc: https://www.erdosproblems.com/134
   author:
@@ -339,6 +855,97 @@
     - https://web.math.princeton.edu/~nalon/PDFS/remark1901.pdf
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos134.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos135
+  epc: https://www.erdosproblems.com/135
+  author:
+    informal:
+      human:
+        - Terence Tao
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos135.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos136
+  epc: https://www.erdosproblems.com/136
+  author:
+    informal:
+      human:
+        - Patrick Bennett
+        - Ryan Cushman
+        - Andrzej Dudek
+        - Paweł Prałat
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos136.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos139
+  epc: https://www.erdosproblems.com/139
+  author:
+    informal:
+      human:
+        - Endre Szemerédi
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos139.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/139.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos140
+  epc: https://www.erdosproblems.com/140
+  author:
+    informal:
+      human:
+        - Zachary Kelley
+        - Raghu Meka
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos140.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos144
+  epc: https://www.erdosproblems.com/144
+  author:
+    informal:
+      human:
+        - Helmut Maier
+        - Gérald Tenenbaum
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos144.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos147
+  epc: https://www.erdosproblems.com/147
+  author:
+    informal:
+      human:
+        - Oliver Janzer
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos147.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos150
   epc: https://www.erdosproblems.com/150
@@ -354,6 +961,26 @@
     - https://gist.githubusercontent.com/pitmonticone/d8558d3361ad2d673b5405239ea30700/raw/c966009555b83985762dac9faaf705aad3f48199/Erdos150.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos152
+  epc: https://www.erdosproblems.com/152
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - András Sárközy
+        - Vera T. Sós
+      AI:
+        - DeepMind prover agent
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos152.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/152.lean
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos154
   epc: https://www.erdosproblems.com/154
   author:
@@ -368,6 +995,20 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem154.lean
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos163
+  epc: https://www.erdosproblems.com/163
+  author:
+    informal:
+      human:
+        - Choongbum Lee
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos163.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos164
   epc: https://www.erdosproblems.com/164
   author:
@@ -378,6 +1019,52 @@
     - https://www.erdosproblems.com/forum/thread/164
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos164.md
   version: "4.29.0"
+
+- key: ErdosProblems.Erdos166
+  epc: https://www.erdosproblems.com/166
+  author:
+    informal:
+      human:
+        - Sam Mattheus
+        - Jacques Verstraëte
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos166.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos171
+  epc: https://www.erdosproblems.com/171
+  author:
+    informal:
+      human:
+        - Pandelis Dodos
+        - Vassilis Kanellopoulos
+        - Konstantinos Tyros
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos171.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos175
+  epc: https://www.erdosproblems.com/175
+  author:
+    informal:
+      human:
+        - Andrew Granville
+        - Olivier Ramaré
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos175.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos178
   epc: https://www.erdosproblems.com/178
@@ -391,6 +1078,68 @@
     - https://www.erdosproblems.com/forum/thread/178#post-5685
     - https://gist.githubusercontent.com/madeve-unipi/ca9c3d1f94fe124c15726d836e1cd623/raw/a272de656847d3956e1c228c833ff3c591dc4872/Erdos178.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos179
+  epc: https://www.erdosproblems.com/179
+  author:
+    informal:
+      human:
+        - Jacob Fox
+        - Cosmin Pohoata
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos179.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos182
+  epc: https://www.erdosproblems.com/182
+  author:
+    informal:
+      human:
+        - Oliver Janzer
+        - Benny Sudakov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos182.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos185
+  epc: https://www.erdosproblems.com/185
+  author:
+    informal:
+      human:
+        - Pandelis Dodos
+        - Vassilis Kanellopoulos
+        - Konstantinos Tyros
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos185.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos186
+  epc: https://www.erdosproblems.com/186
+  author:
+    informal:
+      human:
+        - Károly Bosznay
+        - Huy Tuan Pham
+        - Dmitrii Zakharov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos186.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos189
   epc: https://www.erdosproblems.com/189
@@ -407,6 +1156,34 @@
     - https://web.math.pmf.unizg.hr/~vjekovac/EP/EP189/Erdos189_blueprint.tex
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos189.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos190
+  epc: https://www.erdosproblems.com/190
+  author:
+    informal:
+      human:
+        - J. H. Bae
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos190.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos191
+  epc: https://www.erdosproblems.com/191
+  author:
+    informal:
+      human:
+        - Vojtěch Rödl
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos191.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos194
   epc: https://www.erdosproblems.com/194
@@ -523,6 +1300,37 @@
     - https://gist.githubusercontent.com/madeve-unipi/0920783513a1a00af4a14660852df60e/raw/522569070c2ec3a0fc7d8dfd7f95f3de2b2e3103/Erdos206.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos210
+  epc: https://www.erdosproblems.com/210
+  author:
+    informal:
+      human:
+        - L. M. Kelly
+        - W. O. J. Moser
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos210.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos211
+  epc: https://www.erdosproblems.com/211
+  author:
+    informal:
+      human:
+        - József Beck
+        - Endre Szemerédi
+        - William T. Trotter Jr.
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos211.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos214
   epc: https://www.erdosproblems.com/214
   author:
@@ -536,6 +1344,53 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem214FourPoints.lean
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem214TwelvePoints.lean
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos215
+  epc: https://www.erdosproblems.com/215
+  author:
+    informal:
+      human:
+        - Steve Jackson
+        - R. Daniel Mauldin
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos215.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos219
+  epc: https://www.erdosproblems.com/219
+  author:
+    informal:
+      human:
+        - Ben Green
+        - Terence Tao
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos219.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/219.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos220
+  epc: https://www.erdosproblems.com/220
+  author:
+    informal:
+      human:
+        - Hugh Montgomery
+        - Robert Vaughan
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos220.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos221
   epc: https://www.erdosproblems.com/221
@@ -553,6 +1408,20 @@
     - https://www.cambridge.org/core/services/aop-cambridge-core/content/view/802ABD868A907C2ADB78C580C73C86FC/S0008439500061348a.pdf/on-a-problem-of-p-erdos.pdf
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos223
+  epc: https://www.erdosproblems.com/223
+  author:
+    informal:
+      human:
+        - Konrad J. Swanepoel
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos223.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos224
   epc: https://www.erdosproblems.com/224
   author:
@@ -569,6 +1438,21 @@
     - https://www.erdosproblems.com/forum/thread/224#post-3157
     - https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/blob/main/erdos-problems/erdos224/Erdos224.lean
   version: "4.25.0"
+
+- key: ErdosProblems.Erdos225
+  epc: https://www.erdosproblems.com/225
+  author:
+    informal:
+      human:
+        - E. B. Saff
+        - T. Sheil-Small
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos225.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos226
   epc: https://www.erdosproblems.com/226
@@ -588,6 +1472,41 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos226.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos227
+  epc: https://www.erdosproblems.com/227
+  author:
+    informal:
+      human:
+        - J. Clunie
+        - W. K. Hayman
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos227.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos228
+  epc: https://www.erdosproblems.com/228
+  author:
+    informal:
+      human:
+        - Paul Balister
+        - Béla Bollobás
+        - Robert Morris
+        - Julian Sahasrabudhe
+        - Marius Tiba
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos228.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/228.lean
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos229
   epc: https://www.erdosproblems.com/229
   author:
@@ -604,6 +1523,34 @@
     - https://www.erdosproblems.com/forum/thread/229
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos229.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos230
+  epc: https://www.erdosproblems.com/230
+  author:
+    informal:
+      human:
+        - Jean-Pierre Kahane
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos230.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos235
+  epc: https://www.erdosproblems.com/235
+  author:
+    informal:
+      human:
+        - Christopher Hooley
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos235.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos237
   epc: https://www.erdosproblems.com/237
@@ -623,6 +1570,38 @@
   version: "4.28.0"
   todo: Import Wouter's Mertens3 proof.
 
+- key: ErdosProblems.Erdos239
+  epc: https://www.erdosproblems.com/239
+  author:
+    informal:
+      human:
+        - Eduard Wirsing
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos239.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/239.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos245
+  epc: https://www.erdosproblems.com/245
+  author:
+    informal:
+      human:
+        - Gregory Freiman
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos245.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/245.lean
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos246
   epc: https://www.erdosproblems.com/246
   author:
@@ -638,6 +1617,69 @@
     - https://www.erdosproblems.com/forum/thread/246
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos246.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos248
+  epc: https://www.erdosproblems.com/248
+  author:
+    informal:
+      human:
+        - Terence Tao
+        - Joni Teräväinen
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos248.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/248.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos250
+  epc: https://www.erdosproblems.com/250
+  author:
+    informal:
+      human:
+        - Yuri Nesterenko
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos250.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/250.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos253
+  epc: https://www.erdosproblems.com/253
+  author:
+    informal:
+      human:
+        - J. W. S. Cassels
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos253.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/253.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos255
+  epc: https://www.erdosproblems.com/255
+  author:
+    informal:
+      human:
+        - Wolfgang M. Schmidt
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos255.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos258
   epc: https://www.erdosproblems.com/258
@@ -678,6 +1720,20 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/259.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos262
+  epc: https://www.erdosproblems.com/262
+  author:
+    informal:
+      human:
+        - Jaroslav Hančl
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos262.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos264
   partial: yes
   epc: https://www.erdosproblems.com/264
@@ -715,6 +1771,23 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/264.lean
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos266
+  epc: https://www.erdosproblems.com/266
+  author:
+    informal:
+      human:
+        - Vjekoslav Kovač
+        - Terence Tao
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos266.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/266.lean
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos268
   epc: https://www.erdosproblems.com/268
   author:
@@ -730,6 +1803,21 @@
     - https://gist.githubusercontent.com/madeve-unipi/62a8f68cdb4864b85b81a6752dcb0aa4/raw/5793aaa51089c25c37d8d63f60540367f6abe506/Erdos268.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/268.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos270
+  epc: https://www.erdosproblems.com/270
+  author:
+    informal:
+      human:
+        - T. Crmarić
+        - Vjekoslav Kovač
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos270.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos275
   epc: https://www.erdosproblems.com/275
@@ -755,6 +1843,27 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos275.md
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/275.lean
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos277
+  epc: https://www.erdosproblems.com/277
+  author:
+    informal:
+      human:
+        - J. A. Haight
+        - Michael Filaseta
+        - Kevin Ford
+        - Sergei Konyagin
+        - Carl Pomerance
+        - Gang Yu
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos277.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/277.lean
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos280
   epc: https://www.erdosproblems.com/280
@@ -823,6 +1932,51 @@
     - https://github.com/Woett/A-normal-paper-is-probably-fine/blob/main/The%20binomial%20case%20of%20Graham's%20conjecture%20on%20polynomial%20representations%20with%20prescribed%20sum%20of%20reciprocals.pdf
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos284
+  epc: https://www.erdosproblems.com/284
+  author:
+    informal:
+      human:
+        - Ernest S. Croot III
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos284.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos285
+  epc: https://www.erdosproblems.com/285
+  author:
+    informal:
+      human:
+        - Greg Martin
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos285.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/285.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos286
+  epc: https://www.erdosproblems.com/286
+  author:
+    informal:
+      human:
+        - Ernest S. Croot III
+        - Greg Martin
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos286.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos290
   epc: https://www.erdosproblems.com/290
   author:
@@ -856,6 +2010,35 @@
     - https://github.com/AlexKontorovich/PrimeNumberTheoremAnd
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos292
+  epc: https://www.erdosproblems.com/292
+  author:
+    informal:
+      human:
+        - Greg Martin
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos292.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos294
+  epc: https://www.erdosproblems.com/294
+  author:
+    informal:
+      human:
+        - Yang P. Liu
+        - Mehtaab Sawhney
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos294.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos296
   epc: https://www.erdosproblems.com/296
   author:
@@ -873,6 +2056,21 @@
     - https://gist.githubusercontent.com/JohnEdwardJennings/d1ba8d7b8c63cc7eade1243e19e2eb35/raw/7402a8e36283841cbc7e0588760d701a4e84c3a2/Erdos296.lean
     - https://github.com/b-mehta/unit-fractions/blob/master/src/final_results.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos297
+  epc: https://www.erdosproblems.com/297
+  author:
+    informal:
+      human:
+        - Yang P. Liu
+        - Mehtaab Sawhney
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos297.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos298
   epc: https://www.erdosproblems.com/298
@@ -900,6 +2098,21 @@
   url: https://github.com/b-mehta/unit-fractions
   version: "3.42.1"
 
+- key: ErdosProblems.Erdos300
+  epc: https://www.erdosproblems.com/300
+  author:
+    informal:
+      human:
+        - Yang P. Liu
+        - Mehtaab Sawhney
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos300.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos303
   epc: https://www.erdosproblems.com/303
   author:
@@ -920,6 +2133,70 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos303.md
   version: "4.24.0"
   url_ref: Zheng_Yuan_303
+
+- key: ErdosProblems.Erdos305
+  epc: https://www.erdosproblems.com/305
+  author:
+    informal:
+      human:
+        - Michael N. Bleicher
+        - Paul Erdős
+        - Hisashi Yokota
+        - Yang P. Liu
+        - Mehtaab Sawhney
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos305.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos308
+  epc: https://www.erdosproblems.com/308
+  author:
+    informal:
+      human:
+        - Ernest S. Croot III
+        - Hisashi Yokota
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos308.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos309
+  epc: https://www.erdosproblems.com/309
+  author:
+    informal:
+      human:
+        - Hisashi Yokota
+        - Ernest S. Croot III
+        - Thomas Bloom
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos309.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos310
+  epc: https://www.erdosproblems.com/310
+  author:
+    informal:
+      human:
+        - Thomas Bloom
+        - Bhavik Mehta
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos310.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos314
   epc: https://www.erdosproblems.com/314
@@ -967,6 +2244,62 @@
       human: Bhavik Mehta
   url: https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/316.lean
   version: "4.27.0"
+
+- key: ErdosProblems.Erdos318
+  epc: https://www.erdosproblems.com/318
+  author:
+    informal:
+      human:
+        - Paul Erdős
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos318.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/318.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos320
+  epc: https://www.erdosproblems.com/320
+  author:
+    informal:
+      human:
+        - Sandro Bettin
+        - Loïc Grenié
+        - Giuseppe Molteni
+        - Carlo Sanna
+      AI:
+        - GPT-5.6 Sol
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos320.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos321
+  epc: https://www.erdosproblems.com/321
+  author:
+    informal:
+      human:
+        - Sandro Bettin
+        - Loïc Grenié
+        - Giuseppe Molteni
+        - Carlo Sanna
+      AI:
+        - GPT-5.6 Sol
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos321.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/321.lean
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos331
   epc: https://www.erdosproblems.com/331
@@ -1016,6 +2349,52 @@
     - https://www.erdosproblems.com/forum/thread/337
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos337.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos339
+  epc: https://www.erdosproblems.com/339
+  author:
+    informal:
+      human:
+        - Norbert Hegyvári
+        - François Hennecart
+        - Alain Plagne
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos339.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos343
+  epc: https://www.erdosproblems.com/343
+  author:
+    informal:
+      human:
+        - Endre Szemerédi
+        - Van H. Vu
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos343.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos344
+  epc: https://www.erdosproblems.com/344
+  author:
+    informal:
+      human:
+        - Endre Szemerédi
+        - Van H. Vu
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos344.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos347
   epc: https://www.erdosproblems.com/347
@@ -1091,6 +2470,52 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem355.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/355.lean
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos356
+  epc: https://www.erdosproblems.com/356
+  author:
+    informal:
+      human:
+        - Adrian Beker
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos356.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos358
+  epc: https://www.erdosproblems.com/358
+  author:
+    informal:
+      human:
+        - Terence Tao
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos358.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/358.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos362
+  epc: https://www.erdosproblems.com/362
+  author:
+    informal:
+      human:
+        - András Sárközy
+        - Endre Szemerédi
+        - Gábor Halász
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos362.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos363
   epc: https://www.erdosproblems.com/363
@@ -1173,6 +2598,37 @@
     - "4.20.0-rc5"
     - "4.24.0"
 
+- key: ErdosProblems.Erdos372
+  epc: https://www.erdosproblems.com/372
+  author:
+    informal:
+      human:
+        - Sungjin Kim
+        - James Maynard
+        - Terence Tao
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos372.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos378
+  epc: https://www.erdosproblems.com/378
+  author:
+    informal:
+      human:
+        - Andrew Granville
+        - Olivier Ramaré
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos378.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos379
   epc: https://www.erdosproblems.com/379
   author:
@@ -1187,6 +2643,59 @@
   url: https://www.erdosproblems.com/forum/thread/379#post-2350
   version: "4.22.0"
   url_ref: Zheng_Yuan_379
+
+- key: ErdosProblems.Erdos384
+  epc: https://www.erdosproblems.com/384
+  author:
+    informal:
+      human:
+        - E. F. Ecklund Jr.
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos384.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos387
+  epc: https://www.erdosproblems.com/387
+  author:
+    informal:
+      human:
+        - Hung M. Bui
+        - S. Naprienko
+        - Kyle Pratt
+        - Alexandru Zaharescu
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos387.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/387.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos391
+  epc: https://www.erdosproblems.com/391
+  author:
+    informal:
+      human:
+        - Boris Alexeev
+        - John H. Conway
+        - Michael Rosenfeld
+        - Andrew Sutherland
+        - Terence Tao
+        - Michael Uhr
+        - Kevin Ventullo
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos391.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos392
   epc: https://www.erdosproblems.com/392
@@ -1208,6 +2717,23 @@
     - https://alexkontorovich.github.io/PrimeNumberTheoremAnd/blueprint/sect0009.html#a0000000039
   version: "4.28.0"
   todo: Import PNT+ project.
+
+- key: ErdosProblems.Erdos395
+  epc: https://www.erdosproblems.com/395
+  author:
+    informal:
+      human:
+        - Xiaoyu He
+        - Tomasz Juškevičius
+        - Bhargav Narayanan
+        - Sam Spiro
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos395.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos397
   epc: https://www.erdosproblems.com/397
@@ -1255,6 +2781,62 @@
     - https://drive.google.com/file/d/1SY_LjPToevYaFl5eNl-rUxJrjrP5u4RC/view
     - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos401b.lean
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos402
+  epc: https://www.erdosproblems.com/402
+  author:
+    informal:
+      human:
+        - R. Balasubramanian
+        - K. Soundararajan
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos402.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/402.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos405
+  epc: https://www.erdosproblems.com/405
+  author:
+    informal:
+      human:
+        - Béla Brindza
+        - Paul Erdős
+        - Kunrui Yu
+        - Dehua Liu
+        - Maohua Le
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos405.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos407
+  epc: https://www.erdosproblems.com/407
+  author:
+    informal:
+      human:
+        - Prajeet Bajpai
+        - Michael A. Bennett
+        - Jan-Hendrik Evertse
+        - Kálmán Győry
+        - Carl Ludwig Stewart
+        - Robert Tijdeman
+        - Hans Peter Schlickewei
+        - Wolfgang M. Schmidt
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos407.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos418
   epc: https://www.erdosproblems.com/418
@@ -1414,6 +2996,100 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos435.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos437
+  epc: https://www.erdosproblems.com/437
+  author:
+    informal:
+      human:
+        - Hung M. Bui
+        - Kyle Pratt
+        - Alexandru Zaharescu
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos437.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos438
+  epc: https://www.erdosproblems.com/438
+  author:
+    informal:
+      human:
+        - A. Khalfalah
+        - S. Lodha
+        - Endre Szemerédi
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos438.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos439
+  epc: https://www.erdosproblems.com/439
+  author:
+    informal:
+      human:
+        - A. Khalfalah
+        - S. Lodha
+        - Endre Szemerédi
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos439.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos440
+  epc: https://www.erdosproblems.com/440
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Endre Szemerédi
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos440.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos441
+  epc: https://www.erdosproblems.com/441
+  author:
+    informal:
+      human:
+        - Yong-Gao Chen
+        - Li-Xia Dai
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos441.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos442
+  epc: https://www.erdosproblems.com/442
+  author:
+    informal:
+      human:
+        - Terence Tao
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos442.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/442.lean
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos443
   epc: https://www.erdosproblems.com/443
   author:
@@ -1430,6 +3106,35 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos443.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos444
+  epc: https://www.erdosproblems.com/444
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - András Sárközy
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos444.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos446
+  epc: https://www.erdosproblems.com/446
+  author:
+    informal:
+      human:
+        - Kevin Ford
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos446.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos447
   epc: https://www.erdosproblems.com/447
   author:
@@ -1442,6 +3147,37 @@
     - https://www.erdosproblems.com/forum/thread/447
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos447.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos448
+  epc: https://www.erdosproblems.com/448
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Gérald Tenenbaum
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos448.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/448.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos449
+  epc: https://www.erdosproblems.com/449
+  author:
+    informal:
+      human:
+        - Kevin Ford
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos449.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos453
   epc: https://www.erdosproblems.com/453
@@ -1487,6 +3223,34 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem459.lean
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos465
+  epc: https://www.erdosproblems.com/465
+  author:
+    informal:
+      human:
+        - Sergei V. Konyagin
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos465.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos466
+  epc: https://www.erdosproblems.com/466
+  author:
+    informal:
+      human:
+        - Ronald Graham
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos466.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos469
   epc: https://www.erdosproblems.com/469
   author:
@@ -1502,6 +3266,36 @@
     - https://www.erdosproblems.com/forum/thread/469/proof-claims#proof-claim-2
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem469.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos471
+  epc: https://www.erdosproblems.com/471
+  author:
+    informal:
+      human:
+        - Luka Mrazović
+        - Vjekoslav Kovač
+        - Noga Alon
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos471.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos473
+  epc: https://www.erdosproblems.com/473
+  author:
+    informal:
+      human:
+        - A. M. Odlyzko
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos473.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos476
   epc: https://www.erdosproblems.com/476
@@ -1524,6 +3318,23 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos476.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos480
+  epc: https://www.erdosproblems.com/480
+  author:
+    informal:
+      human:
+        - Fan Chung
+        - Ronald Graham
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos480.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/480.lean
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos481
   epc: https://www.erdosproblems.com/481
   author:
@@ -1535,6 +3346,24 @@
   url: https://www.erdosproblems.com/forum/thread/481#post-1930
   url_ref: KevinBarreto_481
   version: "4.29.1"
+
+- key: ErdosProblems.Erdos482
+  epc: https://www.erdosproblems.com/482
+  author:
+    informal:
+      human:
+        - R. L. Graham
+        - H. O. Pollak
+        - G. Rabinowitz
+        - E. Gilbert
+        - Thomas Stoll
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos482.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos484
   epc: https://www.erdosproblems.com/484
@@ -1550,6 +3379,20 @@
   url: https://www.erdosproblems.com/forum/thread/484#post-5448
   url_ref: tomaz1502_484
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos485
+  epc: https://www.erdosproblems.com/485
+  author:
+    informal:
+      human:
+        - Andrzej Schinzel
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos485.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos485b
   partial: yes
@@ -1597,6 +3440,20 @@
     - dusart_pi_upper
     - dusart_chebyshev
 
+- key: ErdosProblems.Erdos492
+  epc: https://www.erdosproblems.com/492
+  author:
+    informal:
+      human:
+        - Wolfgang M. Schmidt
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos492.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos493
   epc: https://www.erdosproblems.com/493
   author:
@@ -1610,6 +3467,38 @@
     - https://www.erdosproblems.com/forum/thread/493
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos493.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos494
+  epc: https://www.erdosproblems.com/494
+  author:
+    informal:
+      human:
+        - Basil Gordon
+        - Aviezri S. Fraenkel
+        - Ernst G. Straus
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos494.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/494.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos496
+  epc: https://www.erdosproblems.com/496
+  author:
+    informal:
+      human:
+        - Grigory Margulis
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos496.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos497
   epc: https://www.erdosproblems.com/497
@@ -1685,6 +3574,85 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos505.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos506
+  epc: https://www.erdosproblems.com/506
+  author:
+    informal:
+      human:
+        - P. D. T. A. Elliott
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos506.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/506.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos511
+  epc: https://www.erdosproblems.com/511
+  author:
+    informal:
+      human:
+        - Christian Pommerenke
+        - L. Huang
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos511.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos515
+  epc: https://www.erdosproblems.com/515
+  author:
+    informal:
+      human:
+        - John Lewis
+        - John Rossi
+        - Allen Weitsman
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos515.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos516
+  epc: https://www.erdosproblems.com/516
+  author:
+    informal:
+      human:
+        - W. H. J. Fuchs
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos516.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/516.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos518
+  epc: https://www.erdosproblems.com/518
+  author:
+    informal:
+      human:
+        - Alexey Pokrovskiy
+        - Leo Versteegen
+        - Ella Williams
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos518.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos519
   epc: https://www.erdosproblems.com/519
   author:
@@ -1698,6 +3666,64 @@
     - https://gist.githubusercontent.com/JohnEdwardJennings/db1e0cb00b7d6866193c12f1c70a1813/raw/e629fcf1976d5b241d628c0b65e2b1e3701f51a6/Erdos519.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos523
+  epc: https://www.erdosproblems.com/523
+  author:
+    informal:
+      human:
+        - Gábor Halász
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos523.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos525
+  epc: https://www.erdosproblems.com/525
+  author:
+    informal:
+      human:
+        - Nicholas A. Cook
+        - Hoi H. Nguyen
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos525.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos526
+  epc: https://www.erdosproblems.com/526
+  author:
+    informal:
+      human:
+        - L. A. Shepp
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos526.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos527
+  epc: https://www.erdosproblems.com/527
+  author:
+    informal:
+      human:
+        - Marcus Michelen
+        - Mehtaab Sawhney
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos527.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos532
   epc: https://www.erdosproblems.com/532
   author:
@@ -1710,6 +3736,42 @@
     - https://leanprover-community.github.io/mathlib4_docs/Mathlib/Combinatorics/Hindman.html
     - https://github.com/leanprover-community/mathlib4/blob/20c3a51ac9205f8eeb30886a4f1744a22e981ebe/Mathlib/Combinatorics/Hindman.lean
   version: "4.29.1"
+
+- key: ErdosProblems.Erdos533
+  epc: https://www.erdosproblems.com/533
+  author:
+    informal:
+      human:
+        - József Balogh
+        - John Lenz
+        - Hong Liu
+        - Christian Reiher
+        - Maryam Sharifzadeh
+        - Katherine Staden
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos533.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/533.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos534
+  epc: https://www.erdosproblems.com/534
+  author:
+    informal:
+      human:
+        - Rudolf Ahlswede
+        - Levon H. Khachatrian
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos534.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos537
   epc: https://www.erdosproblems.com/537
@@ -1761,6 +3823,185 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos541.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos542
+  epc: https://www.erdosproblems.com/542
+  author:
+    informal:
+      human:
+        - Andrzej Schinzel
+        - György Szekeres
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos542.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos543
+  epc: https://www.erdosproblems.com/543
+  author:
+    informal:
+      human:
+        - Q. Tang
+      AI:
+        - ChatGPT
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos543.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos546
+  epc: https://www.erdosproblems.com/546
+  author:
+    informal:
+      human:
+        - Benny Sudakov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos546.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos549
+  epc: https://www.erdosproblems.com/549
+  author:
+    informal:
+      human:
+        - Sergey Norin
+        - Yelena Sun
+        - Yufei Zhao
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos549.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos553
+  epc: https://www.erdosproblems.com/553
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Vojtěch Rödl
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos553.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos559
+  epc: https://www.erdosproblems.com/559
+  author:
+    informal:
+      human:
+        - Vojtěch Rödl
+        - Endre Szemerédi
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos559.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos565
+  epc: https://www.erdosproblems.com/565
+  author:
+    informal:
+      human:
+        - Luís Aragão
+        - Marcelo Campos
+        - Gabriel Dahia
+        - Rafael Filipe
+        - João Pedro Marciano
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos565.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos570
+  epc: https://www.erdosproblems.com/570
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Ralph Faudree
+        - Cecil Rousseau
+        - Richard Schelp
+        - Wayne Goddard
+        - Daniel Kleitman
+        - Alexander Sidorenko
+        - C. J. Jayawardene
+        - Stijn Cambie
+        - Alberto Freschi
+        - Piotr Morawski
+        - K. Petrova
+        - Alexey Pokrovskiy
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos570.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos574
+  epc: https://www.erdosproblems.com/574
+  author:
+    informal:
+      human:
+        - Felix Lazebnik
+        - Vasiliy Ustimenko
+        - Andrew Woldar
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos574.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos578
+  epc: https://www.erdosproblems.com/578
+  author:
+    informal:
+      human:
+        - Oliver Riordan
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos578.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos581
+  epc: https://www.erdosproblems.com/581
+  author:
+    informal:
+      human:
+        - Noga Alon
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos581.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos582
   epc: https://www.erdosproblems.com/582
   author:
@@ -1774,6 +4015,139 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos582.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos586
+  epc: https://www.erdosproblems.com/586
+  author:
+    informal:
+      human:
+        - Paul Balister
+        - Béla Bollobás
+        - Robert Morris
+        - Julian Sahasrabudhe
+        - Marius Tiba
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos586.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos587
+  epc: https://www.erdosproblems.com/587
+  author:
+    informal:
+      human:
+        - A. Khalfalah
+        - S. Lodha
+        - Endre Szemerédi
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos587.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/587.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos590
+  epc: https://www.erdosproblems.com/590
+  author:
+    informal:
+      human:
+        - C. C. Chang
+        - Jean A. Larson
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos590.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/590.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos594
+  epc: https://www.erdosproblems.com/594
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - András Hajnal
+        - Saharon Shelah
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos594.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/594.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos603
+  epc: https://www.erdosproblems.com/603
+  author:
+    informal:
+      human:
+        - Przemek Chojecki
+      AI:
+        - GPT-5.4 Pro
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos603.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos605
+  epc: https://www.erdosproblems.com/605
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Dean Hickerson
+        - János Pach
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos605.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos606
+  epc: https://www.erdosproblems.com/606
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Peter Salamon
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos606.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos607
+  epc: https://www.erdosproblems.com/607
+  author:
+    informal:
+      human:
+        - Endre Szemerédi
+        - William T. Trotter Jr.
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos607.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos613
   epc: https://www.erdosproblems.com/613
   author:
@@ -1785,6 +4159,24 @@
     - https://www.erdosproblems.com/forum/thread/613#post-1678
     - https://github.com/teorth/analysis/blob/main/Analysis/Misc/erdos_613.lean
   version: "4.29.0-rc8"
+
+- key: ErdosProblems.Erdos615
+  epc: https://www.erdosproblems.com/615
+  author:
+    informal:
+      human:
+        - Jacob Fox
+        - Po-Shen Loh
+        - Yufei Zhao
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos615.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/615.lean
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos618
   epc: https://www.erdosproblems.com/618
@@ -1814,6 +4206,98 @@
     - https://gist.githubusercontent.com/LorenzoLuccioli/71247a0c86fa35cb1e000160baef0bba/raw/eff1f49238af6ae9119b879ee91ff36ec6ee6b31/Erdos621.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos622
+  epc: https://www.erdosproblems.com/622
+  author:
+    informal:
+      human:
+        - Nemanja Draganić
+        - Peter Keevash
+        - Alp Müyesser
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos622.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos630
+  epc: https://www.erdosproblems.com/630
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Michael Tarsi
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos630.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos631
+  epc: https://www.erdosproblems.com/631
+  author:
+    informal:
+      human:
+        - Carsten Thomassen
+        - Margit Voigt
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos631.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos632
+  epc: https://www.erdosproblems.com/632
+  author:
+    informal:
+      human:
+        - Zdeněk Dvořák
+        - Xiaolan Hu
+        - Jean-Sébastien Sereni
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos632.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos636
+  epc: https://www.erdosproblems.com/636
+  author:
+    informal:
+      human:
+        - Matthew Kwan
+        - Benny Sudakov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos636.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos637
+  epc: https://www.erdosproblems.com/637
+  author:
+    informal:
+      human:
+        - Boris Bukh
+        - Benny Sudakov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos637.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos639
   epc: https://www.erdosproblems.com/639
   author:
@@ -1829,6 +4313,22 @@
     - https://gist.githubusercontent.com/Parcly-Taxel/f9a6a963d1057880633e4034294aa98e/raw/885ce8aa2d80d8ac598b98126de3321b5b8842ff/Erdos639.lean
     - https://gist.githubusercontent.com/Parcly-Taxel/f9a6a963d1057880633e4034294aa98e/raw/885ce8aa2d80d8ac598b98126de3321b5b8842ff/Erdos639.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos641
+  epc: https://www.erdosproblems.com/641
+  author:
+    informal:
+      human:
+        - Barnabás Janzer
+        - Richard Steiner
+        - Benny Sudakov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos641.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos645
   epc: https://www.erdosproblems.com/645
@@ -1908,6 +4408,52 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem650.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos651
+  epc: https://www.erdosproblems.com/651
+  author:
+    informal:
+      human:
+        - Cosmin Pohoata
+        - Dmitrii Zakharov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos651.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos652
+  epc: https://www.erdosproblems.com/652
+  author:
+    informal:
+      human:
+        - Surya Mathialagan
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos652.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos656
+  epc: https://www.erdosproblems.com/656
+  author:
+    informal:
+      human:
+        - Bryna Kra
+        - Joel Moreira
+        - Florian K. Richter
+        - Donald Robertson
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos656.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos658
   epc: https://www.erdosproblems.com/658
   author:
@@ -1950,6 +4496,20 @@
   version: "4.24.0"
   conditional: bernays
 
+- key: ErdosProblems.Erdos664
+  epc: https://www.erdosproblems.com/664
+  author:
+    informal:
+      human:
+        - Noga Alon
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos664.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos666
   epc: https://www.erdosproblems.com/666
   author:
@@ -1966,6 +4526,21 @@
     - https://www.erdosproblems.com/forum/thread/666
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos666.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos673
+  epc: https://www.erdosproblems.com/673
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Gérald Tenenbaum
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos673.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos674
   epc: https://www.erdosproblems.com/674
@@ -1989,6 +4564,35 @@
     - https://www.erdosproblems.com/forum/thread/678
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos678.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos682
+  epc: https://www.erdosproblems.com/682
+  author:
+    informal:
+      human:
+        - Ayla Gafni
+        - Terence Tao
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos682.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos690
+  epc: https://www.erdosproblems.com/690
+  author:
+    informal:
+      human:
+        - Stijn Cambie
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos690.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos692
   epc: https://www.erdosproblems.com/692
@@ -2025,6 +4629,22 @@
     - linnik_dvd
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos697
+  epc: https://www.erdosproblems.com/697
+  author:
+    informal:
+      human:
+        - Richard R. Hall
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos697.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/697.lean
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos698
   epc: https://www.erdosproblems.com/698
   author:
@@ -2037,6 +4657,51 @@
     - https://www.erdosproblems.com/forum/thread/698#post-3276
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem698.lean
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos702
+  epc: https://www.erdosproblems.com/702
+  author:
+    informal:
+      human:
+        - Péter Frankl
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos702.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos703
+  epc: https://www.erdosproblems.com/703
+  author:
+    informal:
+      human:
+        - Péter Frankl
+        - Vojtěch Rödl
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos703.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos705
+  epc: https://www.erdosproblems.com/705
+  author:
+    informal:
+      human:
+        - Paul O'Donnell
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos705.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/705.lean
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos707
   epc: https://www.erdosproblems.com/707
@@ -2054,6 +4719,83 @@
     - https://borisalexeev.com/papers/erdos707.html
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos707.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos715
+  epc: https://www.erdosproblems.com/715
+  author:
+    informal:
+      human:
+        - V. A. Tashkinov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos715.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos717
+  epc: https://www.erdosproblems.com/717
+  author:
+    informal:
+      human:
+        - Jacob Fox
+        - Choongbum Lee
+        - Benny Sudakov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos717.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos718
+  epc: https://www.erdosproblems.com/718
+  author:
+    informal:
+      human:
+        - János Komlós
+        - Endre Szemerédi
+        - Béla Bollobás
+        - Andrew Thomason
+        - Robin Thomas
+        - Paul Wollan
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos718.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos720
+  epc: https://www.erdosproblems.com/720
+  author:
+    informal:
+      human:
+        - József Beck
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos720.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos722
+  epc: https://www.erdosproblems.com/722
+  author:
+    informal:
+      human:
+        - Peter Keevash
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos722.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos728
   epc: https://www.erdosproblems.com/728
@@ -2100,6 +4842,67 @@
   url: https://www.erdosproblems.com/forum/thread/729#post-2899
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos732
+  epc: https://www.erdosproblems.com/732
+  author:
+    informal:
+      human:
+        - Noga Alon
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos732.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos733
+  epc: https://www.erdosproblems.com/733
+  author:
+    informal:
+      human:
+        - Endre Szemerédi
+        - William T. Trotter Jr.
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos733.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos735
+  epc: https://www.erdosproblems.com/735
+  author:
+    informal:
+      human:
+        - Eyal Ackerman
+        - Kevin Buchin
+        - Christian Knauer
+        - Rom Pinchasi
+        - Günter Rote
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos735.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos737
+  epc: https://www.erdosproblems.com/737
+  author:
+    informal:
+      human:
+        - Carsten Thomassen
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos737.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos741
   epc: https://www.erdosproblems.com/741
   author:
@@ -2129,6 +4932,67 @@
     - https://www.ulam.ai/research/erdos741.lean
   version: "4.29.1"
 
+- key: ErdosProblems.Erdos742
+  epc: https://www.erdosproblems.com/742
+  author:
+    informal:
+      human:
+        - Zoltán Füredi
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos742.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/742.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos744
+  epc: https://www.erdosproblems.com/744
+  author:
+    informal:
+      human:
+        - Vojtěch Rödl
+        - Zsolt Tuza
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos744.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos746
+  epc: https://www.erdosproblems.com/746
+  author:
+    informal:
+      human:
+        - János Komlós
+        - Endre Szemerédi
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos746.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos748
+  epc: https://www.erdosproblems.com/748
+  author:
+    informal:
+      human:
+        - Ben Green
+        - Alexander Sapozhenko
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos748.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos751
   epc: https://www.erdosproblems.com/751
   author:
@@ -2148,6 +5012,21 @@
     - https://github.com/SpringSense-Innovation-Institute/ai-for-math-lean/tree/main/erdos-problems/erdos751
   version: "4.23.0"
 
+- key: ErdosProblems.Erdos752
+  epc: https://www.erdosproblems.com/752
+  author:
+    informal:
+      human:
+        - Benny Sudakov
+        - Jacques Verstraëte
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos752.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos753
   epc: https://www.erdosproblems.com/753
   author:
@@ -2160,6 +5039,38 @@
     - https://www.erdosproblems.com/forum/thread/753#post-5373
     - https://gist.githubusercontent.com/madeve-unipi/80eaf8008c7c798b4f7b5baeb8c1812b/raw/70704b54755e9012597c99bab7db153786abfa8a/Erdos753.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos754
+  epc: https://www.erdosproblems.com/754
+  author:
+    informal:
+      human:
+        - Konrad J. Swanepoel
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos754.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos755
+  epc: https://www.erdosproblems.com/755
+  author:
+    informal:
+      human:
+        - Frank Clemen
+        - Adrian Dumitrescu
+        - Ding Liu
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos755.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/755.lean
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos756
   epc: https://www.erdosproblems.com/756
@@ -2174,6 +5085,35 @@
     - https://www.erdosproblems.com/forum/thread/756#post-4792
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem756.lean
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos758
+  epc: https://www.erdosproblems.com/758
+  author:
+    informal:
+      human:
+        - Bhavik Mehta
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos758.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos759
+  epc: https://www.erdosproblems.com/759
+  author:
+    informal:
+      human:
+        - John Gimbel
+        - Carsten Thomassen
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos759.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos760
   epc: https://www.erdosproblems.com/760
@@ -2207,6 +5147,81 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos762.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos763
+  epc: https://www.erdosproblems.com/763
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - W. H. J. Fuchs
+        - Hugh Montgomery
+        - Robert Vaughan
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos763.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos764
+  epc: https://www.erdosproblems.com/764
+  author:
+    informal:
+      human:
+        - Robert Vaughan
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos764.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos767
+  epc: https://www.erdosproblems.com/767
+  author:
+    informal:
+      human:
+        - Tao Jiang
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos767.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos771
+  epc: https://www.erdosproblems.com/771
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Gregory Freiman
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos771.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos772
+  epc: https://www.erdosproblems.com/772
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Paul Erdős
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos772.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos775
   epc: https://www.erdosproblems.com/775
   author:
@@ -2219,6 +5234,84 @@
     - https://www.erdosproblems.com/forum/thread/775#post-5619
     - https://gist.githubusercontent.com/LorenzoLuccioli/dc7dac92dff47aac05b50f2562dbe8c1/raw/2c53e497b3d685bc4883c0a2394b5f10ecb367a0/Erdos775.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos777
+  epc: https://www.erdosproblems.com/777
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Péter Frankl
+        - Shagnik Das
+        - Roman Glebov
+        - Benny Sudakov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos777.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos780
+  epc: https://www.erdosproblems.com/780
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Péter Frankl
+        - László Lovász
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos780.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos781
+  epc: https://www.erdosproblems.com/781
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Joel Spencer
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos781.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos783
+  epc: https://www.erdosproblems.com/783
+  author:
+    informal:
+      human:
+        - Terence Tao
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos783.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos784
+  epc: https://www.erdosproblems.com/784
+  author:
+    informal:
+      human:
+        - Imre Ruzsa
+        - Andreas Weingartner
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos784.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos785
   epc: https://www.erdosproblems.com/785
@@ -2253,6 +5346,37 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos794.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos795
+  epc: https://www.erdosproblems.com/795
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Rushil Raghavan
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos795.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos797
+  epc: https://www.erdosproblems.com/797
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Colin McDiarmid
+        - Bruce Reed
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos797.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos798
   epc: https://www.erdosproblems.com/798
   author:
@@ -2267,6 +5391,174 @@
     - https://gist.githubusercontent.com/Parcly-Taxel/757ca8323d74784da1a776795b9c90a9/raw/3a9724b1f6cd2504b809cf3c66f843b89d375e8b/Erdos798.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos799
+  epc: https://www.erdosproblems.com/799
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Michael Krivelevich
+        - Benny Sudakov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos799.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos800
+  epc: https://www.erdosproblems.com/800
+  author:
+    informal:
+      human:
+        - Noga Alon
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos800.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos801
+  epc: https://www.erdosproblems.com/801
+  author:
+    informal:
+      human:
+        - Noga Alon
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos801.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos803
+  epc: https://www.erdosproblems.com/803
+  author:
+    informal:
+      human:
+        - Noga Alon
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos803.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos804
+  epc: https://www.erdosproblems.com/804
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Benny Sudakov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos804.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos806
+  epc: https://www.erdosproblems.com/806
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Boris Bukh
+        - Benny Sudakov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos806.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos807
+  epc: https://www.erdosproblems.com/807
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Tom Bohman
+        - Hao Huang
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos807.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos808
+  epc: https://www.erdosproblems.com/808
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Imre Ruzsa
+        - József Solymosi
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos808.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos814
+  epc: https://www.erdosproblems.com/814
+  author:
+    informal:
+      human:
+        - Lisa Sauermann
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos814.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos815
+  epc: https://www.erdosproblems.com/815
+  author:
+    informal:
+      human:
+        - Lothar Narins
+        - Alexey Pokrovskiy
+        - Tibor Szabó
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos815.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos816
+  epc: https://www.erdosproblems.com/816
+  author:
+    informal:
+      human:
+        - Kaizhe Chen
+        - Jie Ma
+        - Zhen Liu
+        - Qinghou Zeng
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos816.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos818
   epc: https://www.erdosproblems.com/818
   author:
@@ -2279,6 +5571,110 @@
     - https://www.erdosproblems.com/forum/thread/818#post-5890
     - https://gist.githubusercontent.com/tomaz1502/d8f3632157bae289e5d0ed68ccdc9433/raw/fa7570f83d63ead268ebe5478670f6c06142edcd/Erdos_818.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos823
+  epc: https://www.erdosproblems.com/823
+  author:
+    informal:
+      human:
+        - Paul Pollack
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos823.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos825
+  epc: https://www.erdosproblems.com/825
+  author:
+    informal:
+      human:
+        - Daniel Larsen
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos825.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/825.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos832
+  epc: https://www.erdosproblems.com/832
+  author:
+    informal:
+      human:
+        - Noga Alon
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos832.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos833
+  epc: https://www.erdosproblems.com/833
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - László Lovász
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos833.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos834
+  epc: https://www.erdosproblems.com/834
+  author:
+    informal:
+      human:
+        - R. Li
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos834.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos842
+  epc: https://www.erdosproblems.com/842
+  author:
+    informal:
+      human:
+        - Herbert Fleischner
+        - Michael Stiebitz
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos842.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos843
+  epc: https://www.erdosproblems.com/843
+  author:
+    informal:
+      human:
+        - David Conlon
+        - Jacob Fox
+        - Huy Tuan Pham
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos843.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos844
   epc: https://www.erdosproblems.com/844
@@ -2328,6 +5724,93 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/2404258180688283e5141021c75464dc2acfb798/FormalConjectures/ErdosProblems/846.lean
   version: "4.22.0"
 
+- key: ErdosProblems.Erdos847
+  epc: https://www.erdosproblems.com/847
+  author:
+    informal:
+      human:
+        - Christian Reiher
+        - Vojtěch Rödl
+        - Marcelo Sales
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos847.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/847.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos848
+  epc: https://www.erdosproblems.com/848
+  author:
+    informal:
+      human:
+        - Mehtaab Sawhney
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos848.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/848.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos851
+  epc: https://www.erdosproblems.com/851
+  author:
+    informal:
+      human:
+        - Lisa Price
+      AI:
+        - GPT-5.2 Pro
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos851.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/851.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos858
+  epc: https://www.erdosproblems.com/858
+  author:
+    informal:
+      human:
+        - Przemek Chojecki
+      AI:
+        - GPT-5.4 Pro
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos858.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos861
+  epc: https://www.erdosproblems.com/861
+  author:
+    informal:
+      human:
+        - David Saxton
+        - Andrew Thomason
+        - Yoshiharu Kohayakawa
+        - Sang June Lee
+        - Vojtěch Rödl
+        - Wojciech Samotij
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos861.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos862
   epc: https://www.erdosproblems.com/862
   author:
@@ -2347,6 +5830,25 @@
     - https://www.erdosproblems.com/forum/thread/862
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos862.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos863
+  epc: https://www.erdosproblems.com/863
+  author:
+    informal:
+      human:
+        - Boon Suan Ho
+        - Javier Cilleruelo
+        - Imre Ruzsa
+        - Carlos Trujillo
+      AI:
+        - GPT-5.4 Pro
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos863.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos866b
   partial: yes
@@ -2377,6 +5879,37 @@
     - https://gist.githubusercontent.com/pitmonticone/5c1b173e3140f869d7425d8f1003ac70/raw/2ae361451c92d1b033d144bc50212dc8e76abdc9/Erdos867.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos868
+  epc: https://www.erdosproblems.com/868
+  author:
+    informal:
+      human:
+        - Daniel Larsen
+        - Michael Larsen
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos868.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/868.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos869
+  epc: https://www.erdosproblems.com/869
+  author:
+    informal:
+      human:
+        - Daniel Larsen
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos869.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos871
   epc: https://www.erdosproblems.com/871
   author:
@@ -2396,6 +5929,135 @@
     - https://www.erdosproblems.com/forum/thread/871
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos871.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos874
+  epc: https://www.erdosproblems.com/874
+  author:
+    informal:
+      human:
+        - Jean-Marc Deshouillers
+        - Gregory Freiman
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos874.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos877
+  epc: https://www.erdosproblems.com/877
+  author:
+    informal:
+      human:
+        - József Balogh
+        - Hong Liu
+        - Maryam Sharifzadeh
+        - Andrew Treglown
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos877.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos880
+  epc: https://www.erdosproblems.com/880
+  author:
+    informal:
+      human:
+        - Norbert Hegyvári
+        - François Hennecart
+        - Alain Plagne
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos880.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos882
+  epc: https://www.erdosproblems.com/882
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Vsevolod F. Lev
+        - Gérard Rauzy
+        - Csaba Sándor
+        - András Sárközy
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos882.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos888
+  epc: https://www.erdosproblems.com/888
+  author:
+    informal:
+      human:
+        - Przemek Chojecki
+      AI:
+        - GPT-5.5 Pro
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos888.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/888.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos894
+  epc: https://www.erdosproblems.com/894
+  author:
+    informal:
+      human:
+        - Yuval Peres
+        - Wilhelm Schlag
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos894.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos895
+  epc: https://www.erdosproblems.com/895
+  author:
+    informal:
+      human:
+        - Ben Barber
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos895.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos896
+  epc: https://www.erdosproblems.com/896
+  author:
+    informal:
+      human:
+        - Przemek Chojecki
+      AI:
+        - GPT-5.5 Pro
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos896.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos897
   epc: https://www.erdosproblems.com/897
@@ -2429,6 +6091,55 @@
   url: https://www.erdosproblems.com/forum/thread/898#post-3882
   url_ref: JoshuaB_898
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos899
+  epc: https://www.erdosproblems.com/899
+  author:
+    informal:
+      human:
+        - Imre Ruzsa
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos899.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/899.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos900
+  epc: https://www.erdosproblems.com/900
+  author:
+    informal:
+      human:
+        - Miklós Ajtai
+        - János Komlós
+        - Endre Szemerédi
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos900.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos903
+  epc: https://www.erdosproblems.com/903
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Joel Fowler
+        - Vera T. Sós
+        - Richard Wilson
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos903.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos904
   epc: https://www.erdosproblems.com/904
@@ -2473,6 +6184,35 @@
     - https://gist.githubusercontent.com/pitmonticone/f419ac0a78259498f93fd60d49c0b3ea/raw/959cb0ef93596d9ade256e3cd0f4141e66176e04/Erdos907.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos908
+  epc: https://www.erdosproblems.com/908
+  author:
+    informal:
+      human:
+        - Miklós Laczkovich
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos908.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos909
+  epc: https://www.erdosproblems.com/909
+  author:
+    informal:
+      human:
+        - R. D. Anderson
+        - J. E. Keisler
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos909.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos914
   epc: https://www.erdosproblems.com/914
   author:
@@ -2488,6 +6228,83 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem914.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos915
+  epc: https://www.erdosproblems.com/915
+  author:
+    informal:
+      human:
+        - Bo Sørensen
+        - Carsten Thomassen
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos915.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos916
+  epc: https://www.erdosproblems.com/916
+  author:
+    informal:
+      human:
+        - Carsten Thomassen
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos916.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos920
+  epc: https://www.erdosproblems.com/920
+  author:
+    informal:
+      human:
+        - D. Bradač
+        - Sam Mattheus
+        - Jacques Verstraëte
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos920.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/920.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos921
+  epc: https://www.erdosproblems.com/921
+  author:
+    informal:
+      human:
+        - H. A. Kierstead
+        - Endre Szemerédi
+        - William T. Trotter Jr.
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos921.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos922
+  epc: https://www.erdosproblems.com/922
+  author:
+    informal:
+      human:
+        - Jon Folkman
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos922.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos923
   epc: https://www.erdosproblems.com/923
   author:
@@ -2500,6 +6317,68 @@
     - https://www.erdosproblems.com/forum/thread/923#post-5628
     - https://gist.githubusercontent.com/Parcly-Taxel/28b95db1e5d3e77077d30c07afc55992/raw/8069e58aa1abcbcff57e1c99addfbdeb8f32f302/E923-aristotle.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos924
+  epc: https://www.erdosproblems.com/924
+  author:
+    informal:
+      human:
+        - Jaroslav Nešetřil
+        - Vojtěch Rödl
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos924.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos925
+  epc: https://www.erdosproblems.com/925
+  author:
+    informal:
+      human:
+        - Noga Alon
+        - Vojtěch Rödl
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos925.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos926
+  epc: https://www.erdosproblems.com/926
+  author:
+    informal:
+      human:
+        - Zoltán Füredi
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos926.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos937
+  epc: https://www.erdosproblems.com/937
+  author:
+    informal:
+      human:
+        - Prajeet Bajpai
+        - Michael A. Bennett
+        - Tsz Ho Chan
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos937.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/937.lean
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos947
   epc: https://www.erdosproblems.com/947
@@ -2515,6 +6394,36 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem947.lean
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos948
+  epc: https://www.erdosproblems.com/948
+  author:
+    informal:
+      human:
+        - Lisa Price
+      AI:
+        - GPT-5.5 Pro
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos948.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos957
+  epc: https://www.erdosproblems.com/957
+  author:
+    informal:
+      human:
+        - Adrian Dumitrescu
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos957.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos958
   epc: https://www.erdosproblems.com/958
   author:
@@ -2525,6 +6434,26 @@
     - https://www.erdosproblems.com/forum/thread/958
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos958.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos960
+  epc: https://www.erdosproblems.com/960
+  author:
+    informal:
+      human:
+        - Boris Alexeev
+        - Matthew Putterman
+        - Mehtaab Sawhney
+        - Mark Sellke
+        - Gregory Valiant
+      AI:
+        - OpenAI internal model
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos960.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos964
   epc: https://www.erdosproblems.com/964
@@ -2543,6 +6472,22 @@
     - https://raw.githubusercontent.com/danielchin/proofs/refs/heads/main/Proofs/ErdosProblems/Erdos964.lean
   conditional: GoldstonGrahamPintzYildirimStatement
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos965
+  epc: https://www.erdosproblems.com/965
+  author:
+    informal:
+      human:
+        - Péter Komjáth
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos965.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/965.lean
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos966
   epc: https://www.erdosproblems.com/966
@@ -2587,6 +6532,112 @@
     - https://gist.githubusercontent.com/Parcly-Taxel/a44cbf9a214a5358bf584d05265aec4c/raw/40bea6d343e4563e8f1c3d17b423deb72b3f8265/Erdos974.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos977
+  epc: https://www.erdosproblems.com/977
+  author:
+    informal:
+      human:
+        - C. L. Stewart
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos977.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos980
+  epc: https://www.erdosproblems.com/980
+  author:
+    informal:
+      human:
+        - P. D. T. A. Elliott
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos980.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos981
+  epc: https://www.erdosproblems.com/981
+  author:
+    informal:
+      human:
+        - P. D. T. A. Elliott
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos981.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos984
+  epc: https://www.erdosproblems.com/984
+  author:
+    informal:
+      human:
+        - Zach Hunter
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos984.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos986
+  epc: https://www.erdosproblems.com/986
+  author:
+    informal:
+      human:
+        - D. Bradač
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos986.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos987
+  epc: https://www.erdosproblems.com/987
+  author:
+    informal:
+      human:
+        - Boris Alexeev
+        - Matthew Putterman
+        - Mehtaab Sawhney
+        - Mark Sellke
+        - Gregory Valiant
+      AI:
+        - OpenAI internal model
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos987.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/987.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos988
+  epc: https://www.erdosproblems.com/988
+  author:
+    informal:
+      human:
+        - Wolfgang M. Schmidt
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos988.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos990
   epc: https://www.erdosproblems.com/990
   author:
@@ -2616,6 +6667,50 @@
     - https://github.com/yuta0x89/ErdosProblems/blob/main/Erdos990.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos991
+  epc: https://www.erdosproblems.com/991
+  author:
+    informal:
+      human:
+        - Jordi Marzo
+        - Albert Mas
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos991.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos992
+  epc: https://www.erdosproblems.com/992
+  author:
+    informal:
+      human:
+        - István Berkes
+        - Walter Philipp
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos992.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos994
+  epc: https://www.erdosproblems.com/994
+  author:
+    informal:
+      human:
+        - J. M. Marstrand
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos994.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos997
   epc: https://www.erdosproblems.com/997
   author:
@@ -2637,6 +6732,35 @@
   conditional: maynardTaoBFT
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos998
+  epc: https://www.erdosproblems.com/998
+  author:
+    informal:
+      human:
+        - Harry Kesten
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos998.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos999
+  epc: https://www.erdosproblems.com/999
+  author:
+    informal:
+      human:
+        - Dimitris Koukoulopoulos
+        - James Maynard
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos999.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1000
   epc: https://www.erdosproblems.com/1000
   author:
@@ -2652,6 +6776,36 @@
     - https://www.erdosproblems.com/forum/thread/1000
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1000.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos1001
+  epc: https://www.erdosproblems.com/1001
+  author:
+    informal:
+      human:
+        - Harry Kesten
+        - Vera T. Sós
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1001.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1006
+  epc: https://www.erdosproblems.com/1006
+  author:
+    informal:
+      human:
+        - Jaroslav Nešetřil
+        - Vojtěch Rödl
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1006.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1007
   epc: https://www.erdosproblems.com/1007
@@ -2692,6 +6846,34 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1008.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1009
+  epc: https://www.erdosproblems.com/1009
+  author:
+    informal:
+      human:
+        - E. Győri
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1009.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1012
+  epc: https://www.erdosproblems.com/1012
+  author:
+    informal:
+      human:
+        - D. R. Woodall
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1012.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1014
   epc: https://www.erdosproblems.com/1014
   author:
@@ -2705,6 +6887,65 @@
     - https://cdn.openai.com/pdf/6dc7175d-d9e7-4b8d-96b8-48fe5798cd5b/Ramsey.pdf
     - https://www.erdosproblems.com/forum/thread/1014#post-5749
   version: "4.29.0"
+
+- key: ErdosProblems.Erdos1015
+  epc: https://www.erdosproblems.com/1015
+  author:
+    informal:
+      human:
+        - S. A. Burr
+        - Paul Erdős
+        - Joel Spencer
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1015.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1018
+  epc: https://www.erdosproblems.com/1018
+  author:
+    informal:
+      human:
+        - Alexandr Kostochka
+        - László Pyber
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1018.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1019
+  epc: https://www.erdosproblems.com/1019
+  author:
+    informal:
+      human:
+        - Miklós Simonovits
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1019.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1021
+  epc: https://www.erdosproblems.com/1021
+  author:
+    informal:
+      human:
+        - Oliver Janzer
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1021.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1022
   epc: https://www.erdosproblems.com/1022
@@ -2734,6 +6975,37 @@
     - https://www.erdosproblems.com/forum/thread/1023
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1023.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos1024
+  epc: https://www.erdosproblems.com/1024
+  author:
+    informal:
+      human:
+        - K. T. Phelps
+        - Vojtěch Rödl
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1024.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1025
+  epc: https://www.erdosproblems.com/1025
+  author:
+    informal:
+      human:
+        - David Conlon
+        - Jacob Fox
+        - Benny Sudakov
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1025.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1026
   epc: https://www.erdosproblems.com/1026
@@ -2767,6 +7039,20 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1026.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1027
+  epc: https://www.erdosproblems.com/1027
+  author:
+    informal:
+      human:
+        - Koishi Chan
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1027.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1028
   epc: https://www.erdosproblems.com/1028
   author:
@@ -2784,6 +7070,21 @@
     - https://www.erdosproblems.com/forum/thread/1028
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1028.md
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos1031
+  epc: https://www.erdosproblems.com/1031
+  author:
+    informal:
+      human:
+        - Hans Jürgen Prömel
+        - Vojtěch Rödl
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1031.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1034
   epc: https://www.erdosproblems.com/1034
@@ -2838,6 +7139,21 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1037.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1042
+  epc: https://www.erdosproblems.com/1042
+  author:
+    informal:
+      human:
+        - Subhajit Ghosh
+        - Koushik Ramachandran
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1042.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1043
   epc: https://www.erdosproblems.com/1043
   author:
@@ -2865,6 +7181,20 @@
     - https://github.com/QuanyuTang/erdos-problem-1044/blob/main/On_Erd%C5%91s_Problem_1044.pdf
     - https://gist.githubusercontent.com/LorenzoLuccioli/c3ace69881872112109a6c31b7a87cfc/raw
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos1046
+  epc: https://www.erdosproblems.com/1046
+  author:
+    informal:
+      human:
+        - Christian Pommerenke
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1046.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1047
   epc: https://www.erdosproblems.com/1047
@@ -2909,6 +7239,20 @@
     - https://raw.githubusercontent.com/plby/lean-proofs/refs/heads/main/src/v4.24.0/ErdosProblems/Erdos1048b.lean
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1050
+  epc: https://www.erdosproblems.com/1050
+  author:
+    informal:
+      human:
+        - Peter B. Borwein
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1050.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1051
   epc: https://www.erdosproblems.com/1051
   author:
@@ -2943,6 +7287,37 @@
     - https://gist.githubusercontent.com/LorenzoLuccioli/62c1534cff0ae0268f4e5fb92f3f5ae2/raw/b5f2abd33e6a90bbd7693089f14babbddbefcdb7/1056_aristotle.lean
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1058
+  epc: https://www.erdosproblems.com/1058
+  author:
+    informal:
+      human:
+        - Florian Luca
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1058.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1064
+  epc: https://www.erdosproblems.com/1064
+  author:
+    informal:
+      human:
+        - Florian Luca
+        - Carl Pomerance
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1064.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1064.lean
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1067
   epc: https://www.erdosproblems.com/1067
   author:
@@ -2965,6 +7340,21 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1067.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1069
+  epc: https://www.erdosproblems.com/1069
+  author:
+    informal:
+      human:
+        - Endre Szemerédi
+        - William T. Trotter Jr.
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1069.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1071
   epc: https://www.erdosproblems.com/1071
   author:
@@ -2984,6 +7374,66 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1071.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1076
+  epc: https://www.erdosproblems.com/1076
+  author:
+    informal:
+      human:
+        - Stefan Glock
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1076.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1077
+  epc: https://www.erdosproblems.com/1077
+  author:
+    informal:
+      AI:
+        - GPT-5.6 Sol
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1077.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1077.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1078
+  epc: https://www.erdosproblems.com/1078
+  author:
+    informal:
+      human:
+        - Penny Haxell
+        - Tibor Szabó
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1078.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1079
+  epc: https://www.erdosproblems.com/1079
+  author:
+    informal:
+      human:
+        - Béla Bollobás
+        - Andrew Thomason
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1079.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1080
   epc: https://www.erdosproblems.com/1080
   author:
@@ -3001,6 +7451,39 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1080.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1081
+  epc: https://www.erdosproblems.com/1081
+  author:
+    informal:
+      human:
+        - Valentin Blomer
+        - Andrew Granville
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1081.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1089
+  epc: https://www.erdosproblems.com/1089
+  author:
+    informal:
+      human:
+        - Eiichi Bannai
+        - Etsuko Bannai
+        - Dennis Stanton
+      AI:
+        - Aletheia
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1089.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1090
   epc: https://www.erdosproblems.com/1090
   author:
@@ -3014,6 +7497,22 @@
   url: https://www.erdosproblems.com/forum/thread/1090#post-4523
   url_ref: JoshuaB_1090
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos1092
+  epc: https://www.erdosproblems.com/1092
+  author:
+    informal:
+      human:
+        - Vojtěch Rödl
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1092.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1092.lean
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1095b
   partial: yes
@@ -3038,6 +7537,23 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/3d6dc14ba924f82ab5200288f6c6ee1be1326a2d/FormalConjectures/ErdosProblems/1095.lean
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1096
+  epc: https://www.erdosproblems.com/1096
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Vilmos Komornik
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1096.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1096.lean
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1098
   epc: https://www.erdosproblems.com/1098
   author:
@@ -3050,6 +7566,20 @@
     - https://www.erdosproblems.com/forum/thread/1098#post-5863
     - https://gist.githubusercontent.com/JohnEdwardJennings/783dce98df9fa6c333c24617ef07403b/raw/4963c590ee551175a3734014a8f08e8b86674e76/Erdos1098.lean
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos1099
+  epc: https://www.erdosproblems.com/1099
+  author:
+    informal:
+      human:
+        - Michael D. Vose
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1099.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1100b
   partial: yes
@@ -3088,6 +7618,97 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1102.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos1105
+  epc: https://www.erdosproblems.com/1105
+  author:
+    informal:
+      AI:
+        - GPT-5.6 Sol
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1105.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1105.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1114
+  epc: https://www.erdosproblems.com/1114
+  author:
+    informal:
+      human:
+        - Elemér Bálint
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1114.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1115
+  epc: https://www.erdosproblems.com/1115
+  author:
+    informal:
+      human:
+        - A. A. Gol'dberg
+        - Alexandre Eremenko
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1115.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1116
+  epc: https://www.erdosproblems.com/1116
+  author:
+    informal:
+      human:
+        - A. A. Gol'dberg
+        - Sakari Toppila
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1116.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1118
+  epc: https://www.erdosproblems.com/1118
+  author:
+    informal:
+      human:
+        - G. Camera
+        - A. A. Gol'dberg
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1118.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1119
+  epc: https://www.erdosproblems.com/1119
+  author:
+    informal:
+      human:
+        - Paul Erdős
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1119.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1119.lean
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1121
   epc: https://www.erdosproblems.com/1121
   author:
@@ -3100,6 +7721,20 @@
       human: Amogh Parab
   url: https://www.erdosproblems.com/forum/thread/1121#post-5504
   version: "4.28.0"
+
+- key: ErdosProblems.Erdos1124
+  epc: https://www.erdosproblems.com/1124
+  author:
+    informal:
+      human:
+        - Miklós Laczkovich
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1124.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1125
   epc: https://www.erdosproblems.com/1125
@@ -3125,6 +7760,67 @@
   url: https://www.erdosproblems.com/forum/thread/1126#post-4524
   url_ref: JoshuaB_1126
   version: "4.24.0"
+
+- key: ErdosProblems.Erdos1127
+  epc: https://www.erdosproblems.com/1127
+  author:
+    informal:
+      human:
+        - Kenneth Kunen
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1127.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1128
+  epc: https://www.erdosproblems.com/1128
+  author:
+    informal:
+      human:
+        - Karel Prikry
+        - George Mills
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1128.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1128.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1129
+  epc: https://www.erdosproblems.com/1129
+  author:
+    informal:
+      human:
+        - Carl de Boor
+        - Allan Pinkus
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1129.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1130
+  epc: https://www.erdosproblems.com/1130
+  author:
+    informal:
+      human:
+        - Carl de Boor
+        - Allan Pinkus
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1130.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1136
   epc: https://www.erdosproblems.com/1136
@@ -3158,6 +7854,23 @@
     - https://gist.githubusercontent.com/LorenzoLuccioli/c7fbdd9809a616974b5587ee526c163b/raw
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos1140
+  epc: https://www.erdosproblems.com/1140
+  author:
+    informal:
+      human:
+        - Mihai Epure
+        - Alexandru Gica
+        - Richard A. Mollin
+        - Hugh C. Williams
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1140.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1141
   epc: https://www.erdosproblems.com/1141
   author:
@@ -3180,6 +7893,20 @@
   conditional: Pollack17.theorem_1_3
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos1147
+  epc: https://www.erdosproblems.com/1147
+  author:
+    informal:
+      human:
+        - Jakub Konieczny
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1147.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1148
   epc: https://www.erdosproblems.com/1148
   author:
@@ -3200,6 +7927,124 @@
   url_ref: PrzemekChojecki_1148
   conditional: DukeTheoremStatement
   version: "4.27.0"
+
+- key: ErdosProblems.Erdos1149
+  epc: https://www.erdosproblems.com/1149
+  author:
+    informal:
+      human:
+        - Vitaly Bergelson
+        - Florian Karl Richter
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1149.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1153
+  epc: https://www.erdosproblems.com/1153
+  author:
+    informal:
+      human:
+        - Terence Tao
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1153.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1161
+  epc: https://www.erdosproblems.com/1161
+  author:
+    informal:
+      human:
+        - Adrian Beker
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1161.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1165
+  epc: https://www.erdosproblems.com/1165
+  author:
+    informal:
+      human:
+        - C. Hao
+        - X. Li
+        - Izumi Okada
+        - Y. Zheng
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1165.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1179
+  epc: https://www.erdosproblems.com/1179
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - Richard R. Hall
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1179.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1180
+  epc: https://www.erdosproblems.com/1180
+  author:
+    informal:
+      human:
+        - A. A. Glibichuk
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1180.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1185
+  epc: https://www.erdosproblems.com/1185
+  author:
+    informal:
+      human:
+        - Hillel Furstenberg
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1185.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1187
+  epc: https://www.erdosproblems.com/1187
+  author:
+    informal:
+      human:
+        - Ben Green
+        - Terence Tao
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1187.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1187b
   partial: yes
@@ -3242,6 +8087,22 @@
     - https://gist.githubusercontent.com/pitmonticone/c2658d464f8f5ca0e7fa40ed6fb78a5d/raw/793317d6a959dca24f5f313364c49c4c75fc5c01/Erdos1193.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos1195
+  epc: https://www.erdosproblems.com/1195
+  author:
+    informal:
+      human:
+        - Boon Suan Ho
+      AI:
+        - GPT-5.4 Pro
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1195.md
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos1196
   epc: https://www.erdosproblems.com/1196
   author:
@@ -3280,3 +8141,146 @@
   version: "4.28.0"
   conditional: bm_approx_data
   todo: Import PNT+ project.
+
+- key: ErdosProblems.Erdos1198
+  epc: https://www.erdosproblems.com/1198
+  author:
+    informal:
+      human:
+        - Gregory L. Smith
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1198.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1202
+  epc: https://www.erdosproblems.com/1202
+  author:
+    informal:
+      human:
+        - Lisa Price
+      AI:
+        - GPT-5.4 Pro
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1202.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1205
+  epc: https://www.erdosproblems.com/1205
+  author:
+    informal:
+      human:
+        - Thomas Bloom
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1205.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1211
+  epc: https://www.erdosproblems.com/1211
+  author:
+    informal:
+      human:
+        - David Conlon
+        - Jacob Fox
+        - Huy Tuan Pham
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1211.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1213
+  epc: https://www.erdosproblems.com/1213
+  author:
+    informal:
+      human:
+        - Norbert Hegyvári
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1213.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1214
+  epc: https://www.erdosproblems.com/1214
+  author:
+    informal:
+      human:
+        - Capi Corrales-Rodrigáñez
+        - René Schoof
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1214.md
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1214.lean
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1215
+  epc: https://www.erdosproblems.com/1215
+  author:
+    informal:
+      human:
+        - Gerald R. Mac Lane
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1215.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1216
+  epc: https://www.erdosproblems.com/1216
+  author:
+    informal:
+      human:
+        - K. B. Reid
+        - E. T. Parker
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1216.md
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1217
+  epc: https://www.erdosproblems.com/1217
+  author:
+    informal:
+      human:
+        - Boris Alexeev
+        - Kevin Barreto
+        - Yuchen Li
+        - Jared Duker Lichtman
+        - Lisa Price
+        - J. I. Shah
+        - Q. Tang
+        - Terence Tao
+      AI:
+        - GPT-5.4 Pro
+    formal:
+      AI:
+        - Codex
+        - GPT-5.6 Sol
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1217.md
+  version: "4.33.0"
