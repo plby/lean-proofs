@@ -2,7 +2,7 @@
   "challenge_module": "Erdos2",
   "solution_module": "ErdosProblems.Erdos2",
   "theorem_names": [
-    "Erdos2.uniformMinimumBound"
+    "Erdos2.erdos_2"
   ],
   "permitted_axioms": [
     "propext",

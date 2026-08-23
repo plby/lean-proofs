@@ -3846,7 +3846,14 @@ large. -/
 theorem not_hasArbitrarilyLargeMinimum : ¬HasArbitrarilyLargeMinimum :=
   uniformBound_iff_not_arbitrarilyLarge.mp uniformMinimumBound
 
-#print axioms uniformMinimumBound
+/-- Erdős Problem 2: distinct covering systems have a uniform bound on their
+least modulus. -/
+theorem erdos_2 :
+    ∃ M : ℕ, ∀ (D : Finset ℕ) (a : ℕ → ℤ),
+      IsDistinctCoveringSystem D a → ∃ d ∈ D, d < M :=
+  uniformMinimumBound
+
+#print axioms erdos_2
 
 end
 
