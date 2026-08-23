@@ -20,13 +20,13 @@ def erdos_1022 : Prop :=
     TwoColorable F
 end Erdos1022
 
-attribute [local instance] Classical.propDecidable
 
 
 open Finset
 
 namespace Erdos1022
 
+open scoped Classical in
 theorem not_erdos_1022 : ¬ erdos_1022 := by
   sorry
 

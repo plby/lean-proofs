@@ -17,12 +17,12 @@ def HasDisjointUnitDecomps (N k : ℕ) : Prop :=
 end
 end Erdos296
 
-attribute [local instance] Classical.propDecidable
 
 open Finset Filter
 
 namespace Erdos296
 
+open scoped Classical in
 theorem erdos296 :
     ∃ c : ℝ, c > 0 ∧ ∀ᶠ N : ℕ in atTop,
       HasDisjointUnitDecomps N ⌊ c * Real.log N ⌋₊ := by

@@ -495,13 +495,13 @@ end
 
 end Erdos333
 
-attribute [local instance] Classical.propDecidable
 
 open scoped Pointwise
 open Finset Filter Real
 
 namespace Erdos333
 
+open scoped Classical in
 theorem main_obstruction :
     (Filter.Tendsto (fun N : ℕ =>
       (letI : DecidablePred (fun x : ℕ => x ∈ A) := Classical.decPred _

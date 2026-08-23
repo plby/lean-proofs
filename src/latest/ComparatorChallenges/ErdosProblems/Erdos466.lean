@@ -5,22 +5,24 @@ open scoped ENNReal NNReal Topology
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable Classical.decEq
 
 namespace Erdos466
 
+open scoped Classical in
 abbrev Plane := EuclideanSpace ℝ (Fin 2)
 
 end Erdos466
 
 namespace Erdos466
 
+open scoped Classical in
 def distToInt (x : ℝ) : ℝ := |x - (round x : ℝ)|
 
 end Erdos466
 
 namespace Erdos466
 
+open scoped Classical in
 def Realizable (X δ : ℝ) (n : ℕ) : Prop :=
   ∃ (c : Plane) (P : Fin n → Plane), Function.Injective P ∧
     (∀ i, P i ∈ closedBall c X) ∧
@@ -30,18 +32,21 @@ end Erdos466
 
 namespace Erdos466
 
+open scoped Classical in
 def admissibleSizes (X δ : ℝ) : Set ℕ := {n | Realizable X δ n}
 
 end Erdos466
 
 namespace Erdos466
 
+open scoped Classical in
 def N (X δ : ℝ) : ℕ := sSup (admissibleSizes X δ)
 
 end Erdos466
 
 namespace Erdos466
 
+open scoped Classical in
 theorem erdos466 :
     ∃ δ : ℝ, 0 < δ ∧ Tendsto (fun X : ℝ ↦ N X δ) atTop atTop := by
   sorry

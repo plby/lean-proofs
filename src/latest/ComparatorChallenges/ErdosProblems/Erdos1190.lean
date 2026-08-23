@@ -382,12 +382,13 @@ def Erdos1190BridgeReady : Prop :=
     tailCountingFunction Q N ≤ f N
 end Erdos1190
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 theorem Erdos1190.erdos1190_bridge_ready :
     Erdos1190.Erdos1190BridgeReady
   := by
   sorry
+open scoped Classical in
 theorem Erdos1190.erdos1190_main :
     Erdos1190.HasErdos1190Asymptotic
   := by

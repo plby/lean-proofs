@@ -16,7 +16,6 @@ def HasMonochromaticAP (A : Set ℕ) (k : ℕ) {r : ℕ} (c : ℕ → Fin r) : P
       ∃ y : Fin r, ∀ i : Fin k, c (a + i * d) = y
 end Erdos966
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open scoped Real
@@ -25,6 +24,7 @@ open scoped Pointwise
 
 namespace Erdos966
 
+open scoped Classical in
 theorem existence_of_AP_free_Ramsey_set :
     ∀ k r : ℕ,
       k ≥ 2 → r ≥ 2 →

@@ -14,14 +14,13 @@ def f (u : ℕ) : ℕ :=
       lt_mul_of_one_lt_right ( by linarith ) hp.1.one_lt,
       fun x hx => by
         rw [ Nat.primeFactors_mul ] at * <;> aesop⟩)
-attribute [local instance] Classical.propDecidable
 
 end Erdos459
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos459
 
+open scoped Classical in
 theorem main_theorem (ε δ : ℝ) (hε : 0 < ε) (hδ : 0 < δ) :
   ∃ x₀ : ℝ, ∀ x ≥ x₀,
     (Finset.filter (fun n => (f n : ℝ) < (1 + ε) * n)

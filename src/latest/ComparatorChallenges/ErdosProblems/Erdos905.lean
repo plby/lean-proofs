@@ -17,13 +17,13 @@ end ErdosProblems.P905
 
 end Erdos905
 
-attribute [local instance] Classical.propDecidable
 
 
 open SimpleGraph
 
 namespace Erdos905.ErdosProblems.P905
 
+open scoped Classical in
 theorem erdos_905 {V : Type*} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
     (h : Fintype.card V ^ 2 / 4 < G.edgeFinset.card) :
     ∃ e ∈ G.edgeFinset, Fintype.card V / 6 ≤ triangleDegree G e := by

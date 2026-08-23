@@ -26,7 +26,6 @@ end
 
 end Erdos224
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open scoped Real
@@ -37,6 +36,7 @@ open Filter
 
 namespace Erdos224
 
+open scoped Classical in
 theorem exists_obtuse_of_card_succ_pow_two
   (A : Finset (E d))
   (hcard : A.card = (2 ^ d) + 1) :

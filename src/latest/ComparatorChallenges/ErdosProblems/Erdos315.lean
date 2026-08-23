@@ -16,10 +16,10 @@ noncomputable def vardi_constant : ℝ :=
   Filter.atTop.limUnder usual_sylvester_seq_pow
 end Erdos315
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos315
 
+open scoped Classical in
 theorem erdos_315 (a : ℕ → ℕ)
   (h_pos : ∀ i, 0 < a i)
   (h_mono : Monotone a)

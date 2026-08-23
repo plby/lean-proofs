@@ -12,7 +12,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-attribute [local instance] Classical.propDecidable
 
 set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
@@ -26,29 +25,36 @@ namespace Erdos355
 open Set Filter Topology
 open scoped BigOperators
 
+open scoped Classical in
 def IsLambdaLacunary (lambda : ℝ) (seq : ℕ → ℝ) : Prop :=
   ∀ i, seq (i + 1) / seq i ≥ lambda
+open scoped Classical in
 def IsLacunary (a : ℕ → ℕ) : Prop :=
   ∃ lambda_val > 1, ∀ i ≥ 1, (a (i + 1) : ℝ) / a i ≥ lambda_val
+open scoped Classical in
 def SubsetSums (seq : ℕ → ℝ) : Set ℝ :=
   { s | ∃ t : Finset ℕ, s = ∑ i ∈ t, seq i }
+open scoped Classical in
 def FillsInterval (lambda : ℝ) (alpha beta : ℝ) : Prop :=
   ∃ n : ℕ → ℕ,
     (∀ i, 0 < n i) ∧
     IsLambdaLacunary lambda (fun i => n i) ∧
     Set.Ioo alpha beta ∩ {x | ∃ q : ℚ, x = q} ⊆ SubsetSums (fun i => (1 : ℝ) / n i)
+open scoped Classical in
 noncomputable def R_lambda (lambda : ℝ) : ℝ :=
   sSup {len | ∃ alpha beta, beta - alpha = len ∧ FillsInterval lambda alpha beta}
+open scoped Classical in
 def S_cond (S : Set ℕ) : Prop :=
   (∀ s ∈ S, s > 0) ∧ (∀ s ∈ S, 2 * s ∈ S) ∧ (∀ k, Odd k → ∃ s ∈ S, k ∣ s)
+open scoped Classical in
 noncomputable def TargetInterval (f : ℕ → ℝ) : Set ℝ :=
   if Summable f then Set.Ico 0 (∑' i, f i) else Set.Ici 0
+open scoped Classical in
 noncomputable def a_seq (lambda : ℝ) : ℕ → ℕ
 | 0 => 1
 | (n + 1) => Nat.ceil (lambda * (a_seq lambda n))
 end Erdos355
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open scoped Real
@@ -58,6 +64,7 @@ open Set Filter Topology
 
 namespace Erdos355
 
+open scoped Classical in
 theorem Theorem_1 (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) :
   ∃ n : ℕ → ℕ,
     (∀ i, 0 < n i) ∧
@@ -67,11 +74,13 @@ theorem Theorem_1 (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) :
   sorry
 
 
+open scoped Classical in
 theorem Theorem_2 (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) :
   R_lambda lambda = ∑' i, (1 : ℝ) / a_seq lambda i := by
   sorry
 
 
+open scoped Classical in
 theorem Theorem_3 (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda ≥ 2) (h_lambda : 1 < lambda ∧ lambda < Lambda / (Lambda - 1)) :
   ∃ n : ℕ → ℕ,
     IsLambdaLacunary lambda (fun i => n i) ∧
@@ -81,12 +90,14 @@ theorem Theorem_3 (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda ≥ 2) (h_lam
   sorry
 
 
+open scoped Classical in
 theorem Theorem_4 (S : Set ℕ) (hS : S_cond S) :
   SubsetSums (fun i => (1 : ℝ) / (Nat.nth (· ∈ S) i)) =
     (TargetInterval (fun i => (1 : ℝ) / (Nat.nth (· ∈ S) i))) ∩ {x | ∃ q : ℚ, x = q} := by
   sorry
 
 
+open scoped Classical in
 theorem erdos_355 :
     ∃ A : ℕ → ℕ, IsLacunary A ∧ ∃ u v : ℝ, u < v ∧ ∀ q : ℚ, ↑q ∈ Set.Ioo u v →
       q ∈ {∑ a ∈ A', (1 / a : ℚ) | (A' : Finset ℕ)

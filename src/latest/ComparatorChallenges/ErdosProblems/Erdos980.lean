@@ -5,23 +5,28 @@ open scoped Asymptotics BigOperators
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos980
 
+open scoped Classical in
 def Eligible (k p : ℕ) : Prop := p.Prime ∧ p ≡ 1 [MOD k]
 
+open scoped Classical in
 def IsKthPowerNonresidue (k p a : ℕ) : Prop :=
   IsUnit (a : ZMod p) ∧ ¬ ∃ b : ZMod p, b ^ k = (a : ZMod p)
 
+open scoped Classical in
 theorem eligible_prime {k p : ℕ} (h : Eligible k p) : p.Prime := h.1
 
+open scoped Classical in
 theorem eligible_modEq {k p : ℕ} (h : Eligible k p) : p ≡ 1 [MOD k] := h.2
 
+open scoped Classical in
 theorem dvd_prime_sub_one_of_eligible {k p : ℕ} (h : Eligible k p) :
     k ∣ p - 1 := by
   exact h.2.symm.dvd'
 
+open scoped Classical in
 theorem exists_not_mem_powMonoidHom_range
     (G : Type*) [CommGroup G] [Finite G] [IsCyclic G]
     {k : ℕ} (hk : 2 ≤ k) (hdiv : k ∣ Nat.card G) :
@@ -36,6 +41,7 @@ theorem exists_not_mem_powMonoidHom_range
     omega
   exact SetLike.exists_not_mem_of_ne_top _ hne
 
+open scoped Classical in
 theorem exists_kthPowerNonresidue_lt {k p : ℕ} (hk : 2 ≤ k)
     (hp : Eligible k p) :
     ∃ a : ℕ, a < p ∧ IsKthPowerNonresidue k p a := by
@@ -61,11 +67,13 @@ theorem exists_kthPowerNonresidue_lt {k p : ℕ} (hk : 2 ≤ k)
     apply Units.ext
     simpa [v, IsUnit.unit_spec, hcast] using hb
 
+open scoped Classical in
 theorem exists_kthPowerNonresidue {k p : ℕ} (hk : 2 ≤ k)
     (hp : Eligible k p) : ∃ a : ℕ, IsKthPowerNonresidue k p a := by
   obtain ⟨a, _, ha⟩ := exists_kthPowerNonresidue_lt hk hp
   exact ⟨a, ha⟩
 
+open scoped Classical in
 noncomputable def leastKthPowerNonresidue (k p : ℕ) : ℕ :=
   if h : 2 ≤ k ∧ Eligible k p then
     Nat.find (exists_kthPowerNonresidue h.1 h.2)
@@ -75,6 +83,7 @@ end Erdos980
 
 namespace Erdos980
 
+open scoped Classical in
 theorem erdos_980 :
     True ↔ ∀ k : ℕ, 2 ≤ k → ∃ c : ℝ, 0 < c ∧
       ((fun x : ℕ ↦ ∑ p ∈ (Finset.range x).filter Nat.Prime,

@@ -18,12 +18,12 @@ noncomputable def erdos_f (m : ℕ) : ℕ :=
     ∀ (x : ℝ), HasDivMatching A (Finset.Ioo ⌊x⌋ ⌈x + 2 * ↑(A.sup id)⌉) r }
 end Erdos650
 
-attribute [local instance] Classical.propDecidable
 
 open Finset Real Nat
 
 namespace Erdos650
 
+open scoped Classical in
 theorem erdos_f_eq (m : ℕ) (hm : 0 < m) :
     erdos_f m = min m ⌈(2 : ℝ) * Real.sqrt ↑m⌉₊ := by
   sorry

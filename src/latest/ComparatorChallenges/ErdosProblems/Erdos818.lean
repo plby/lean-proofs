@@ -2,13 +2,13 @@ import Mathlib
 
 open scoped Pointwise
 
-attribute [local instance] Classical.propDecidable
 
 open Finset
 open scoped Pointwise BigOperators
 
 namespace Erdos818
 
+open scoped Classical in
 theorem erdos_problem_818_general
     (A : Finset ℝ) (hcard : 5 ≤ A.card)
     (c : ℕ)

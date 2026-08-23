@@ -26,16 +26,18 @@ open scoped Topology
 
 open Finset
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 def Is45Coloring {n k : ℕ}
     (C : SimpleGraph.TopEdgeLabeling (Fin n) (Fin k)) : Prop :=
   ∀ v : Fin 4 ↪ Fin n,
     5 ≤ (Finset.univ.image (C.pullback v)).card
 
+open scoped Classical in
 def Colorable (n k : ℕ) : Prop :=
   ∃ C : SimpleGraph.TopEdgeLabeling (Fin n) (Fin k), Is45Coloring C
 
+open scoped Classical in
 theorem colorable_nonempty (n : ℕ) : ∃ k, Colorable n k := by
   let E : Type := (⊤ : SimpleGraph (Fin n)).edgeSet
   let C : SimpleGraph.TopEdgeLabeling (Fin n) (Fin (Fintype.card E)) :=
@@ -54,14 +56,14 @@ theorem colorable_nonempty (n : ℕ) : ∃ k, Colorable n k := by
     SimpleGraph.card_edgeFinset_top_eq_card_choose_two]
   norm_num [Nat.choose]
 
+open scoped Classical in
 noncomputable def erdos136Fun (n : ℕ) : ℕ :=
   Nat.find (colorable_nonempty n)
 
+open scoped Classical in
 /-- Erdős Problem 136: the minimum number of colours in a colouring of the
 edges of `K_n` for which every `K_4` receives at least five colours has
 normalized limit `5 / 6`. -/
-
-
 theorem erdos136 :
     Tendsto (fun n : ℕ ↦ (erdos136Fun n : ℝ) / (n : ℝ)) atTop
       (nhds (5 / 6 : ℝ)) := by

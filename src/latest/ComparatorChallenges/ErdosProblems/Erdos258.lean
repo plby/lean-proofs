@@ -21,13 +21,13 @@ end
 
 end Erdos258
 
-attribute [local instance] Classical.propDecidable
 
 open Nat Finset Filter
 open scoped BigOperators Topology
 
 namespace Erdos258
 
+open scoped Classical in
 theorem erdos_258 (a : ℕ → ℕ) (ha : ∀ n, 0 < a (n + 1))
     (ha_tendsto : Tendsto a atTop atTop) :
     Irrational (erdosSeries a) := by

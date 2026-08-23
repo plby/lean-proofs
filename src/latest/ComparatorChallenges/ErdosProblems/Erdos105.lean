@@ -23,8 +23,8 @@ def erdos_105 : Prop :=
     (∀ b ∈ B, b ∉ (lineThrough p q : Set R2))
 end Erdos105
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 theorem Erdos105.not_erdos_105 :
     Not Erdos105.erdos_105
   := by

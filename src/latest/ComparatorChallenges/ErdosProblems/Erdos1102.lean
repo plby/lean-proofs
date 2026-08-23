@@ -19,10 +19,10 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-attribute [local instance] Classical.propDecidable
 
 noncomputable section
 
+open scoped Classical in
 def HasPropertyP (A : Set ℕ) : Prop :=
   ∀ n ≥ 1, {a ∈ A | Squarefree (n + a)}.Finite
 end
@@ -38,16 +38,20 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-attribute [local instance] Classical.propDecidable
 
 noncomputable section
 
+open scoped Classical in
 def SF : Set ℕ := {n | Squarefree n}
+open scoped Classical in
 def PropertyQ (A : Set ℕ) : Prop := ({n | ∀ a ∈ A, a < n → Squarefree (n + a)}).Infinite
+open scoped Classical in
 def HasNaturalDensity (A : Set ℕ) (d : ℝ) : Prop :=
   Filter.Tendsto (fun n => ((A ∩ Set.Icc 1 n).ncard : ℝ) / n) Filter.atTop (nhds d)
+open scoped Classical in
 def upperDensity (A : Set ℕ) : ℝ :=
   Filter.limsup (fun (n : ℕ) => ((A ∩ Set.Icc 1 n).ncard : ℝ) / n) Filter.atTop
+open scoped Classical in
 def HasPropertyQ (A : Set ℕ) : Prop :=
   {n : ℕ | ∀ a ∈ A, a < n → Squarefree (n + a)}.Infinite
 end
@@ -62,16 +66,19 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-attribute [local instance] Classical.propDecidable
 
 noncomputable section
 
+open scoped Classical in
 def PropertyP_bar (A : Set ℕ) : Prop := ({n | ∀ a ∈ A, Squarefree (n + a)}).Infinite
+open scoped Classical in
 def PropertyP_bar_infty (A : Set ℕ) : Prop := ({n | ({a ∈ A | ¬Squarefree (n + a)}).Finite}).Infinite
+open scoped Classical in
 def upperDensity (A : Set ℕ) : ℝ :=
   Filter.limsup (fun (n : ℕ) => ((A ∩ Set.Icc 1 n).ncard : ℝ) / n) Filter.atTop
 open Finset Filter Asymptotics
 
+open scoped Classical in
 def lowerDensity (A : Set ℕ) : ℝ :=
   Filter.liminf (fun (n : ℕ) => ((A ∩ Set.Icc 1 n).ncard : ℝ) / n) Filter.atTop
 end
@@ -84,23 +91,28 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-attribute [local instance] Classical.propDecidable
 
 noncomputable section
 
+open scoped Classical in
 def PropertyQ (A : Set ℕ) : Prop := ({n | ∀ a ∈ A, a < n → Squarefree (n + a)}).Infinite
+open scoped Classical in
 def Admissible (A : Set ℕ) : Prop :=
   ∀ p, Nat.Prime p → ∃ b, b < p^2 ∧ ∀ a ∈ A, a % p^2 ≠ b
+open scoped Classical in
 def A1 : Set ℕ := {n | ∃ j : ℕ, j ≥ 1 ∧ n = 2^j + 1}
+open scoped Classical in
 def A2 : Set ℕ := {n | ∃ j : ℕ, j ≥ 1 ∧ n = 2^j - 1}
+open scoped Classical in
 def A3 : Set ℕ := {n | ∃ j : ℕ, j ≥ 1 ∧ n = Nat.factorial j + 1}
+open scoped Classical in
 def A4 : Set ℕ := {n | ∃ j : ℕ, j > 1 ∧ n = Nat.factorial j - 1}
+open scoped Classical in
 def GrowthCondition (A : Set ℕ) (C : ℝ) : Prop :=
   ∃ᶠ j in Filter.atTop, (Nat.nth (· ∈ A) (j - 1) : ℝ) ≥ Real.exp (C * j / Real.log j)
 end
 end Erdos1102d
 
-attribute [local instance] Classical.propDecidable
 
 open Squarefree Set Order Filter Topology
 open scoped BigOperators
@@ -111,6 +123,7 @@ open Finset Filter Asymptotics
 
 namespace Erdos1102.erdos_1102
 
+open scoped Classical in
 theorem exists_sequence_with_P
     (f : ℕ → ℕ) (h_inf : Tendsto f atTop atTop)
     (h_pos : ∀ n, f n ≠ 0) :
@@ -122,16 +135,19 @@ theorem exists_sequence_with_P
 end Erdos1102.erdos_1102
 namespace Erdos1102b
 
+open scoped Classical in
 theorem TheoremQ_upper (A : Set ℕ) (h : PropertyQ A) : upperDensity A ≤ 6 / Real.pi^2 := by
   sorry
 
 
+open scoped Classical in
 theorem TheoremQ_lower : ∃ A : Set ℕ, A ⊆ SF ∧ PropertyQ A ∧ HasNaturalDensity A (6 / Real.pi^2) := by
   sorry
 
 end Erdos1102b
 namespace Erdos1102b.erdos_1102
 
+open scoped Classical in
 theorem upper_density_Q
     (A : ℕ → ℕ) (h_inc : StrictMono A)
     (hQ : HasPropertyQ (range A)) :
@@ -139,6 +155,7 @@ theorem upper_density_Q
   sorry
 
 
+open scoped Classical in
 theorem lower_density_Q_exists :
     ∃ A : ℕ → ℕ, StrictMono A ∧
     (∀ j, Squarefree (A j)) ∧
@@ -149,11 +166,13 @@ theorem lower_density_Q_exists :
 end Erdos1102b.erdos_1102
 namespace Erdos1102c
 
+open scoped Classical in
 theorem theorem_overp_i (A : Set ℕ) (h : PropertyP_bar_infty A) :
     upperDensity A < 6 / Real.pi^2 := by
   sorry
 
 
+open scoped Classical in
 theorem theorem_overp_ii :
     ∀ ε > 0, ∃ A : Set ℕ, PropertyP_bar A ∧ lowerDensity A ≥ 6 / Real.pi^2 - ε := by
   sorry
@@ -161,11 +180,13 @@ theorem theorem_overp_ii :
 end Erdos1102c
 namespace Erdos1102d
 
+open scoped Classical in
 theorem Theorem_suff :
   ∃ C > 0, ∀ A : Set ℕ, Admissible A → A.Infinite → GrowthCondition A C → PropertyQ A := by
   sorry
 
 end Erdos1102d
+open scoped Classical in
 theorem Erdos1102d.All_Sequences_PropertyQ :
     And (Erdos1102d.PropertyQ Erdos1102d.A1)
       (And (Erdos1102d.PropertyQ Erdos1102d.A2)

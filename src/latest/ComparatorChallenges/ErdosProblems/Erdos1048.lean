@@ -23,8 +23,8 @@ def erdos_1048 : Prop :=
           Metric.diam (Subtype.val '' (connectedComponent x : Set (↥U)))
 end Erdos1048
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 theorem Erdos1048.not_erdos_1048 :
     Not Erdos1048.erdos_1048
   := by

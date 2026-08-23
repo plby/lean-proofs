@@ -6,10 +6,10 @@ open SimpleGraph
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos842
 
+open scoped Classical in
 def cyclePart {V : Type*} (n : ℕ) (cycleOrder : Fin (3 * n) ≃ V) : SimpleGraph V :=
   (cycleGraph (3 * n)).map cycleOrder.toEmbedding
 
@@ -17,6 +17,7 @@ end Erdos842
 
 namespace Erdos842
 
+open scoped Classical in
 def triangleFactor {V : Type*} (n : ℕ) (triangleCoord : V ≃ Fin n × Fin 3) :
     SimpleGraph V :=
   ((completeEquipartiteGraph n 3)ᶜ).comap triangleCoord
@@ -25,6 +26,7 @@ end Erdos842
 
 namespace Erdos842
 
+open scoped Classical in
 def IsCyclePlusTriangles {V : Type*} (G : SimpleGraph V) (n : ℕ) : Prop :=
   ∃ (cycleOrder : Fin (3 * n) ≃ V) (triangleCoord : V ≃ Fin n × Fin 3),
     Disjoint (cyclePart n cycleOrder) (triangleFactor n triangleCoord) ∧
@@ -34,6 +36,7 @@ end Erdos842
 
 namespace Erdos842
 
+open scoped Classical in
 theorem erdos_842 {V : Type*} (G : SimpleGraph V) {n : ℕ}
     (hG : IsCyclePlusTriangles G n) :
     G.chromaticNumber ≤ 3 := by

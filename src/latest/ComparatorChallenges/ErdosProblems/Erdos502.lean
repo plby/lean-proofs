@@ -43,7 +43,6 @@ open Matrix LinearMap MvPolynomial BigOperators
 
 end Erdos502
 
-attribute [local instance] Classical.propDecidable
 
 
 open scoped BigOperators
@@ -58,6 +57,7 @@ open Matrix LinearMap MvPolynomial BigOperators
 
 namespace Erdos502
 
+open scoped Classical in
 theorem bannai_bannai_stanton (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
     [Fintype A]
     (hA : is_s_distance_set A s) : Fintype.card A ≤ Nat.choose (d + s) s := by

@@ -13,12 +13,12 @@ def pow2SumFree (S : Set ℕ) : Prop :=
   ∀ a ∈ S, ∀ b ∈ S, ∀ k : ℕ, a + b ≠ 2 ^ k
 end Erdos1136
 
-attribute [local instance] Classical.propDecidable
 
 open Finset Nat
 
 namespace Erdos1136
 
+open scoped Classical in
 theorem main_result :
     (∃ S : Set ℕ, pow2SumFree S ∧
       Filter.Tendsto (fun n : ℕ => (countIn S n : ℝ) / ↑n)
@@ -29,6 +29,7 @@ theorem main_result :
   sorry
 
 
+open scoped Classical in
 theorem general_upper_bound (s : ℕ → ℕ) (hs_pos : ∀ k, 0 < s k)
     (hs_mono : StrictMono s) (hs_growth : ∀ k, s (k + 1) ≤ 2 * s k + 2)
     (n : ℕ) (hn : 0 < n) (A : Finset ℕ) (hA_sub : A ⊆ Finset.Icc 1 n)
@@ -37,6 +38,7 @@ theorem general_upper_bound (s : ℕ → ℕ) (hs_pos : ∀ k, 0 < s k)
   sorry
 
 
+open scoped Classical in
 theorem general_upper_bound_infinite
     (s : ℕ → ℕ) (hs_pos : ∀ k, 0 < s k)
     (hs_mono : StrictMono s) (hs_growth : ∀ k, s (k + 1) ≤ 2 * s k + 2)

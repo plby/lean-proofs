@@ -19,12 +19,12 @@ def A : ℕ → List ℕ+
   | n + 2 => T a b (A (n + 1))
 end Erdos481
 
-attribute [local instance] Classical.propDecidable
 
 open Finset BigOperators
 
 namespace Erdos481
 
+open scoped Classical in
 theorem erdos_481 {r : ℕ} (a b : Fin r → ℕ+)
     (hr : 0 < r) (hC : 1 < C a) :
     ∃ k, 1 ≤ k ∧ ¬(A a b k).Nodup := by

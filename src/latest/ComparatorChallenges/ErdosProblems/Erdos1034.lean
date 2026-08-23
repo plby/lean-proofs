@@ -48,11 +48,11 @@ end
 
 end Erdos1034
 
-attribute [local instance] Classical.propDecidable
 
 
 namespace Erdos1034
 
+open scoped Classical in
 theorem MaTang_main (ε : ℝ) (hε : 0 < ε) :
   ∃ N : ℕ, ∀ n ≥ N,
     let G : SimpleGraph (Fin n) := MaTangGraph n alpha_star (s_func_robust n alpha_star)
@@ -62,6 +62,7 @@ theorem MaTang_main (ε : ℝ) (hε : 0 < ε) :
   sorry
 
 end Erdos1034
+open scoped Classical in
 theorem Erdos1034.not_erdos_1034 :
     Not Erdos1034.erdos_1034
   := by

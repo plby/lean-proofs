@@ -26,13 +26,13 @@ def erdos_1067 : Prop :=
         ∀ u v : S, u ≠ v → ¬ finite_independent_paths (G.induce S) u v
 end Erdos1067
 
-attribute [local instance] Classical.propDecidable
 
 
 open Set Ordinal Function Cardinal
 
 namespace Erdos1067
 
+open scoped Classical in
 theorem not_erdos_1067 : ¬erdos_1067.{1} := by
   sorry
 

@@ -11,12 +11,12 @@ def Condition (p : ℤ[X]) : Prop :=
       m = ∑ i ∈ Finset.Icc 1 (Fin.last k), p.eval (n i)
 end Erdos283
 
-attribute [local instance] Classical.propDecidable
 
 open Filter Polynomial Finset
 
 namespace Erdos283
 
+open scoped Classical in
 theorem erdos_283 :
     True ↔ ∀ p : ℤ[X], Condition p := by
   sorry

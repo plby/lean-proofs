@@ -34,8 +34,8 @@ noncomputable section
 
 open MeasureTheory ProbabilityTheory Set
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 theorem erdos_277 :
     ∀ c : ℝ, ∃ n : ℕ, (σ 1 n : ℝ) > c * n ∧
       ∀ (m : StrictCoveringSystem ℤ), ∃ i, (n : ℤ) ∉ m.moduli i := by

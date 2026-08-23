@@ -6,10 +6,10 @@ open SimpleGraph
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos1031
 
+open scoped Classical in
 noncomputable def homNum {V : Type*} (G : SimpleGraph V) : ℕ :=
   max G.cliqueNum G.indepNum
 
@@ -17,6 +17,7 @@ end Erdos1031
 
 namespace Erdos1031
 
+open scoped Classical in
 def HasLargeInducedNontrivialRegular {V : Type*} [Fintype V]
     (G : SimpleGraph V) (L : ℝ) : Prop :=
   ∃ (S : Set V) (d : ℕ),
@@ -28,6 +29,7 @@ end Erdos1031
 
 namespace Erdos1031
 
+open scoped Classical in
 theorem erdos_1031 :
     ∃ c : ℝ, 0 < c ∧ ∃ n₀ : ℕ, ∀ n ≥ n₀,
       ∀ {V : Type*} [Fintype V] (G : SimpleGraph V),

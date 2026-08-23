@@ -31,12 +31,12 @@ end
 
 end Erdos798
 
-attribute [local instance] Classical.propDecidable
 
 open Finset Int Real Filter Topology
 
 namespace Erdos798
 
+open scoped Classical in
 theorem erdos798 : (fun n ↦ (minCoverSize 2 n : ℝ)) =O[atTop] fun n ↦ n ^ (2 / 3 : ℝ) * log n := by
   sorry
 

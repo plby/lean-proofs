@@ -2,10 +2,10 @@ import Mathlib
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos586
 
+open scoped Classical in
 theorem erdos_586 (A : List (ℤ × ℕ))
     (hnontrivial : ∀ i : Fin A.length, 1 < (A.get i).2)
     (hcover : ∀ z : ℤ, ∃ i : Fin A.length,

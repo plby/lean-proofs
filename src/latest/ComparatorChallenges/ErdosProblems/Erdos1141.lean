@@ -38,7 +38,6 @@ def Erdos1141Prop (n : ℕ) : Prop :=
   ∀ k, k ^ 2 < n → Coprime n k → (n - k ^ 2).Prime
 end Erdos1141
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open Finset Real
@@ -46,10 +45,12 @@ open Nat Set
 
 namespace Erdos1141
 
+open scoped Classical in
 theorem erdos_1141_variant : Set.Finite {n : ℕ | Pa 1 n} := by
   sorry
 
 
+open scoped Classical in
 theorem erdos_1141 :
     ¬ Infinite { n | Erdos1141Prop n } := by
   sorry

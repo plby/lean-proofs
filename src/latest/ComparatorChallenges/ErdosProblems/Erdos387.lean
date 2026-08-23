@@ -20,19 +20,19 @@ def IsFixedBCounterexample (B n k : ℕ) : Prop :=
 
 theorem erdos_387_of_counterexamples
     (h : ∀ c : ℝ, 0 < c → ∃ n k : ℕ, IsCounterexample c n k) :
-    False ↔ ∃ c : ℝ, UniversalNearDivisor c := by
+    ¬ ∃ c : ℝ, UniversalNearDivisor c := by
   sorry
 
 theorem erdos_387_of_fixedB
     (h : ∀ B : ℕ, 2 ≤ B → ∃ n k : ℕ, IsFixedBCounterexample B n k) :
-    False ↔ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
+    ¬ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
       ∃ d : ℕ, (d : ℝ) ∈ Set.Ioc (c * n) n ∧ d ∣ n.choose k := by
   sorry
 
 theorem erdos_387_of_eventually_fixedB
     (h : ∃ B₀ : ℕ, ∀ B : ℕ, B₀ ≤ B →
       ∃ n k : ℕ, IsFixedBCounterexample B n k) :
-    False ↔ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
+    ¬ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
       ∃ d : ℕ, (d : ℝ) ∈ Set.Ioc (c * n) n ∧ d ∣ n.choose k := by
   sorry
 
@@ -41,7 +41,7 @@ theorem erdos_387_of_eventually_BNPZ
       ∃ n : ℕ, 1 ≤ k ∧ k < n ∧
         ∀ d : ℕ,
           (d : ℝ) ∈ Set.Ioc (BNPZEndpoint k * n) n → ¬d ∣ n.choose k) :
-    False ↔ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
+    ¬ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
       ∃ d : ℕ, (d : ℝ) ∈ Set.Ioc (c * n) n ∧ d ∣ n.choose k := by
   sorry
 
@@ -52,7 +52,7 @@ theorem erdos_387_of_cover_certificates
         ∀ e : ℕ → ℕ,
           (∀ i < k, e i ∣ (n - i) / D.g i) →
           ¬((∏ i ∈ Finset.range k, e i : ℕ) : ℝ) ∈ Set.Ioc ((n : ℝ) / B) n) :
-    False ↔ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
+    ¬ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
       ∃ d : ℕ, (d : ℝ) ∈ Set.Ioc (c * n) n ∧ d ∣ n.choose k := by
   sorry
 
@@ -66,7 +66,7 @@ theorem erdos_387_of_absorber_error_bounds
               (AbsorberConvenientErrors C T z y medium).card +
               (AbsorberAlmostPrimeErrors C T z y medium).card <
             (SiftedAbsorberParameterCandidates C T z).card) :
-    False ↔ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
+    ¬ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
       ∃ d : ℕ, (d : ℝ) ∈ Set.Ioc (c * n) n ∧ d ∣ n.choose k := by
   sorry
 
@@ -77,7 +77,7 @@ theorem erdos_387_of_frozen_roughProduct_bounds
           3 ≤ k ∧
           (FrozenRoughProductErrors C t₀ T z).card <
             (SiftedAbsorberParameterCandidates (C.frozen t₀) T z).card) :
-    False ↔ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
+    ¬ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
       ∃ d : ℕ, (d : ℝ) ∈ Set.Ioc (c * n) n ∧ d ∣ n.choose k := by
   sorry
 
@@ -91,7 +91,7 @@ theorem erdos_387_of_refined_error_bounds
               (CoverBPZ.RefinedConvenientErrors S X z y medium).card +
               (CoverBPZ.RefinedAlmostPrimeErrors S X z y medium).card <
             (RefinedSiftedCandidates S X z).card) :
-    False ↔ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
+    ¬ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
       ∃ d : ℕ, (d : ℝ) ∈ Set.Ioc (c * n) n ∧ d ∣ n.choose k := by
   sorry
 
@@ -110,7 +110,7 @@ theorem erdos_387_of_refined_five_error_bounds
               (CoverBPZ.RefinedSeparatedAlmostPrimeErrors S X z y medium
                 secondMin gap).card <
             (RefinedSiftedCandidates S X z).card) :
-    False ↔ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
+    ¬ ∃ c : ℝ, 0 < c ∧ ∀ n k : ℕ, 1 ≤ k → k < n →
       ∃ d : ℕ, (d : ℝ) ∈ Set.Ioc (c * n) n ∧ d ∣ n.choose k := by
   sorry
 

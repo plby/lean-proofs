@@ -34,13 +34,13 @@ end LimitAndBound
 
 end Erdos150
 
-attribute [local instance] Classical.propDecidable
 
 open Finset Fintype Real SimpleGraph
 open Filter Topology Real
 
 namespace Erdos150
 
+open scoped Classical in
 theorem limit_alpha_exists_and_lt_two :
     ∃ α, Filter.Tendsto (fun n ↦ (c n : ℝ) ^ (1 / n : ℝ)) .atTop (nhds α) ∧
       α < 2 := by

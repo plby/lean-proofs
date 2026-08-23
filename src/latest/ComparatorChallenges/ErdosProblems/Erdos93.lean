@@ -14,7 +14,6 @@ set_option linter.unusedVariables false
 set_option maxHeartbeats 2000000
 open Real Metric Set InnerProductSpace Complex
 open scoped InnerProductSpace Pointwise Complex
-attribute [local instance] Classical.propDecidable
 namespace Erdos93
 section
 
@@ -22,6 +21,7 @@ variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V]
 variable [FiniteDimensional ℝ V]
 variable [Fact (Module.finrank ℝ V = 2)]
 
+open scoped Classical in
 noncomputable def distinctDistances (s : Finset V) : Finset ℝ :=
   (s.product s).filter (fun p => p.1 ≠ p.2) |>.image (fun p => dist p.1 p.2)
 variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V]
@@ -31,6 +31,7 @@ variable [Fact (Module.finrank ℝ V = 2)]
 open EuclideanGeometry
 open scoped EuclideanGeometry
 
+open scoped Classical in
 theorem altman_erdos (s : Finset V) (n : ℕ)
     (h_n : 3 ≤ n)
     (h_card : s.card = n)

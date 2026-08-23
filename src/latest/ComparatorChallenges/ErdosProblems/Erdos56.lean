@@ -39,7 +39,6 @@ noncomputable def FirstPrimesMultiples (N k : ℕ) : Finset ℕ :=
     (Finset.Icc 1 N).filter fun i => ∃ j < k, (j.nth Nat.Prime ∣ i)
 end Erdos56
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open scoped Real
@@ -48,6 +47,7 @@ open scoped Pointwise
 
 namespace Erdos56
 
+open scoped Classical in
 theorem erdos_56 :
   (∀ᵉ (N ≥ 2) (k > 0),
       N ≥ k.nth Nat.Prime →

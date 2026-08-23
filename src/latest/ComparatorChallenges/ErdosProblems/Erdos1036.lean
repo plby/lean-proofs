@@ -23,7 +23,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-attribute [local instance] Classical.propDecidable
 
 set_option maxHeartbeats 1000000
 set_option maxRecDepth 4000
@@ -34,9 +33,12 @@ set_option autoImplicit false
 
 noncomputable section
 
+open scoped Classical in
 def hom_num {V : Type*} (G : SimpleGraph V) : ℕ := max G.cliqueNum G.indepNum
+open scoped Classical in
 def induced_iso_rel {V : Type*} (G : SimpleGraph V) (s t : Set V) : Prop :=
   Nonempty (G.induce s ≃g G.induce t)
+open scoped Classical in
 def I_num {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) : ℕ :=
   Fintype.card (Quotient (Setoid.mk (induced_iso_rel G) (by
   constructor;
@@ -52,7 +54,6 @@ end
 
 end Erdos1036
 
-attribute [local instance] Classical.propDecidable
 
 
 open Lean Meta Elab Parser.Tactic Elab.Tactic Batteries.Tactic.GeneralizeProofs
@@ -64,6 +65,7 @@ open scoped Pointwise
 
 namespace Erdos1036
 
+open scoped Classical in
 theorem erdos_1036 (c : ℝ) (hc : c > 0) :
   ∃ (ε : ℝ), ε > 0 ∧ ∃ n₀ : ℕ, ∀ n ≥ n₀,
     ∀ {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V)

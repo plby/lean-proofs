@@ -11,19 +11,22 @@ namespace Erdos337
 
 open scoped Pointwise
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 def iterated_sumset (A : Set ℕ) : ℕ → Set ℕ
 | 0 => {0}
 | (k + 1) => A + iterated_sumset A k
 
+open scoped Classical in
 noncomputable def count_in_range (A : Set ℕ) (x : ℝ) : ℕ :=
   (A ∩ Set.Icc 1 ⌊x⌋₊).ncard
 
+open scoped Classical in
 def is_basis_of_order (A : Set ℕ) (h : ℕ) : Prop :=
   ∃ N₀, Set.Ici N₀ ⊆ iterated_sumset A h
 open Filter
 
+open scoped Classical in
 def erdos_337 : Prop :=
   ∀ A : Set ℕ,
     (∃ k : ℕ, is_basis_of_order A k) →
@@ -38,8 +41,8 @@ def erdos_337 : Prop :=
       Filter.atTop
 end Erdos337
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 theorem Erdos337.not_erdos_337 :
     Not Erdos337.erdos_337
   := by

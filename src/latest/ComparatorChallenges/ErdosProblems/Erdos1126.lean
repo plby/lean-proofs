@@ -1,6 +1,5 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open scoped Real
@@ -10,6 +9,7 @@ open MeasureTheory Measure Filter Set
 
 namespace Erdos1126
 
+open scoped Classical in
 theorem erdos_1126
     (f : ℝ → ℝ)
     (h :

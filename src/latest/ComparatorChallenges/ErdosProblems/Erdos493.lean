@@ -1,9 +1,9 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos493
 
+open scoped Classical in
 theorem erdos_493_aristotle :
   ∃ k : ℕ, ∃ N : ℤ, ∀ n : ℤ, N ≤ n →
     ∃ a : Fin k → ℤ,

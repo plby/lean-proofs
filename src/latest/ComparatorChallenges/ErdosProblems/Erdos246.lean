@@ -16,12 +16,12 @@ def Gamma (a b : ℕ) : Set ℕ :=
   {x | ∃ k l : ℕ, x = a^k * b^l}
 end Erdos246
 
-attribute [local instance] Classical.propDecidable
 
 open BigOperators
 
 namespace Erdos246
 
+open scoped Classical in
 theorem erdos_246 (a b : ℕ) (ha : 2 ≤ a) (hb : 2 ≤ b) (h_coprime : Nat.Coprime a b) :
   IsCompleteSeq (Gamma a b) := by
   sorry

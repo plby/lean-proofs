@@ -4,16 +4,17 @@ open Filter
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable Classical.decEq
 
 namespace Erdos223
 
+open scoped Classical in
 abbrev Point (d : ℕ) := EuclideanSpace ℝ (Fin d)
 
 end Erdos223
 
 namespace Erdos223
 
+open scoped Classical in
 def IsDiameterOne {d : ℕ} (A : Finset (Point d)) : Prop :=
   Metric.diam (↑A : Set (Point d)) = 1
 
@@ -21,6 +22,7 @@ end Erdos223
 
 namespace Erdos223
 
+open scoped Classical in
 noncomputable def diameterGraph {d : ℕ} (A : Finset (Point d)) :
     SimpleGraph {x // x ∈ A} where
   Adj x y := dist (x : Point d) (y : Point d) = 1
@@ -35,10 +37,12 @@ end Erdos223
 
 namespace Erdos223
 
+open scoped Classical in
 noncomputable instance diameterGraph.instDecidableRelAdj {d : ℕ}
     (A : Finset (Point d)) : DecidableRel (diameterGraph A).Adj :=
   Classical.decRel _
 
+open scoped Classical in
 noncomputable def diameterPairCount {d : ℕ} (A : Finset (Point d)) : ℕ :=
   (diameterGraph A).edgeFinset.card
 
@@ -46,6 +50,7 @@ end Erdos223
 
 namespace Erdos223
 
+open scoped Classical in
 def attainableCounts (d n : ℕ) : Set ℕ :=
   {m | ∃ A : Finset (Point d),
     A.card = n ∧ IsDiameterOne A ∧ diameterPairCount A = m}
@@ -54,6 +59,7 @@ end Erdos223
 
 namespace Erdos223
 
+open scoped Classical in
 noncomputable def f (d n : ℕ) : ℕ :=
   sSup (attainableCounts d n)
 
@@ -61,6 +67,7 @@ end Erdos223
 
 namespace Erdos223
 
+open scoped Classical in
 def turanNumber (p n : ℕ) : ℕ :=
   (SimpleGraph.turanGraph n p).edgeFinset.card
 
@@ -68,12 +75,14 @@ end Erdos223
 
 namespace Erdos223
 
+open scoped Classical in
 def ceilQuot (n p : ℕ) : ℕ := (n + p - 1) / p
 
 end Erdos223
 
 namespace Erdos223
 
+open scoped Classical in
 def fourCorrection (n : ℕ) : ℕ :=
   if n % 4 = 3 then 0 else 1
 
@@ -81,6 +90,7 @@ end Erdos223
 
 namespace Erdos223
 
+open scoped Classical in
 def exactValue (d n : ℕ) : ℕ :=
   if d = 4 then
     turanNumber 2 n + ceilQuot n 2 + fourCorrection n
@@ -95,6 +105,7 @@ end Erdos223
 
 namespace Erdos223
 
+open scoped Classical in
 def PublishedEventualExactClaim : Prop :=
   ∀ d, 4 ≤ d → ∃ N, ∀ n, N ≤ n → f d n = exactValue d n
 
@@ -102,6 +113,7 @@ end Erdos223
 
 namespace Erdos223
 
+open scoped Classical in
 def Resolution : Prop :=
   f 2 2 = 1 ∧
   (∀ n, 3 ≤ n → f 2 n = n) ∧
@@ -121,6 +133,7 @@ end Erdos223
 
 namespace Erdos223
 
+open scoped Classical in
 theorem erdos_223 : Resolution := by
   sorry
 

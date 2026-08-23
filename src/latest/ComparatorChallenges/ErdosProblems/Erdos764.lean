@@ -15,10 +15,10 @@ open Finset Complex MeasureTheory Set Filter
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos764
 
+open scoped Classical in
 def addConv (f g : ℕ → ℕ) (n : ℕ) : ℕ :=
   ∑ p ∈ Finset.HasAntidiagonal.antidiagonal n, f p.1 * g p.2
 
@@ -26,6 +26,7 @@ end Erdos764
 
 namespace Erdos764
 
+open scoped Classical in
 noncomputable def indicator (A : Set ℕ) (n : ℕ) : ℕ :=
   if n ∈ A then 1 else 0
 
@@ -33,6 +34,7 @@ end Erdos764
 
 namespace Erdos764
 
+open scoped Classical in
 noncomputable def tripleConv (A : Set ℕ) (n : ℕ) : ℕ :=
   addConv (addConv (indicator A) (indicator A)) (indicator A) n
 
@@ -40,6 +42,7 @@ end Erdos764
 
 namespace Erdos764
 
+open scoped Classical in
 noncomputable def summatory (A : Set ℕ) (N : ℕ) : ℕ :=
   ∑ n ∈ range (N + 1), tripleConv A n
 
@@ -47,6 +50,7 @@ end Erdos764
 
 namespace Erdos764
 
+open scoped Classical in
 noncomputable def remainder (A : Set ℕ) (c : ℝ) (N : ℕ) : ℝ :=
   (summatory A N : ℝ) - c * N
 
@@ -54,6 +58,7 @@ end Erdos764
 
 namespace Erdos764
 
+open scoped Classical in
 theorem erdos_764 :
     ¬ ∃ A : Set ℕ, ∃ c : ℝ, 0 < c ∧
       remainder A c =O[Filter.atTop] (fun _ : ℕ ↦ (1 : ℝ)) := by

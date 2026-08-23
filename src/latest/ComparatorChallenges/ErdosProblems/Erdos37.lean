@@ -9,10 +9,10 @@ open Filter Topology
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable Classical.decEq
 
 namespace Erdos37
 
+open scoped Classical in
 def positivePart (A : Set ℕ) : Set ℕ :=
   {n | 0 < n ∧ n ∈ A}
 
@@ -20,6 +20,7 @@ end Erdos37
 
 namespace Erdos37
 
+open scoped Classical in
 def IsLacunary (A : Set ℕ) : Prop :=
   (positivePart A).Infinite ∧
     ∃ q : ℝ, 1 < q ∧
@@ -31,6 +32,7 @@ end Erdos37
 
 namespace Erdos37
 
+open scoped Classical in
 noncomputable abbrev sd (A : Set ℕ) : ℝ :=
   @schnirelmannDensity A (fun n => Classical.propDecidable (n ∈ A))
 
@@ -38,6 +40,7 @@ end Erdos37
 
 namespace Erdos37
 
+open scoped Classical in
 def IsEssentialComponent (A : Set ℕ) : Prop :=
   ∀ B : Set ℕ,
     0 < sd B →
@@ -48,6 +51,7 @@ end Erdos37
 
 namespace Erdos37
 
+open scoped Classical in
 theorem erdos_37 :
     ∀ A : Set ℕ, IsLacunary A → ¬ IsEssentialComponent A := by
   sorry

@@ -23,13 +23,14 @@ end AristotleLemmas
 
 end Erdos264
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos264
 
+open scoped Classical in
 theorem erdos_264.parts.i : ¬IsIrrationalitySequence (2 ^ ·) := by
   sorry
 
+open scoped Classical in
 theorem erdos_264.variants.example : IsIrrationalitySequence (fun n ↦ 2 ^ (2 ^ n)) := by
   sorry
 

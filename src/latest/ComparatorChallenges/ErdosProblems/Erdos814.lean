@@ -4,10 +4,10 @@ open Finset SimpleGraph
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos814
 
+open scoped Classical in
 def edgeThreshold (k n : ℕ) : ℕ :=
   (k - 1) * (n + 2 - k) + (k - 2).choose 2 + 1
 
@@ -15,6 +15,7 @@ end Erdos814
 
 namespace Erdos814
 
+open scoped Classical in
 def Erdos814Statement : Prop :=
   ∀ k : ℕ, 2 ≤ k →
     ∃ c : ℝ, 0 < c ∧
@@ -30,6 +31,7 @@ end Erdos814
 
 namespace Erdos814
 
+open scoped Classical in
 theorem erdos_814 : True ↔ Erdos814Statement := by
   sorry
 

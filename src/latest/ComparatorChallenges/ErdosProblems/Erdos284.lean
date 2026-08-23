@@ -24,26 +24,27 @@ namespace Erdos284
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
+open scoped Classical in
 /-- The representation appearing verbatim in the problem, with exactly `k`
 terms. -/
 def OriginalRepresentation (k : ℕ) (n : Fin k → ℕ) : Prop :=
   StrictMono n ∧ 0 ∉ Set.range n ∧ 1 = ∑ i, (1 : ℝ) / n i
 
+open scoped Classical in
 /-- The possible values of the first denominator in a `k`-term
 representation.  For `k = 0` this set is empty. -/
 def OriginalFirstDenominators (k : ℕ) : Set ℕ :=
   {m | ∃ (hk : 0 < k) (n : Fin k → ℕ),
     OriginalRepresentation k n ∧ n ⟨0, hk⟩ = m}
 
+open scoped Classical in
 /-- The extremal function `f(k)` in the statement of Erdős Problem 284. -/
 def originalErdosF (k : ℕ) : ℕ :=
   sSup (OriginalFirstDenominators k)
 
 /-- The literal `k + 1`-term denominator set is the internally used set. -/
-
-
 theorem erdos_284 :
     Tendsto (fun k : ℕ ↦ (originalErdosF k : ℝ) / (k : ℝ))
       atTop (nhds (1 / (Real.exp 1 - 1))) := by

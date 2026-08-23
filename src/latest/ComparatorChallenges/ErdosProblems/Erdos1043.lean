@@ -13,7 +13,6 @@ noncomputable local instance instMeasureSpaceRealSpan (u : ℂ) : MeasureSpace �
   measureSpaceOfInnerProductSpace
 end Erdos1043
 
-attribute [local instance] Classical.propDecidable
 
 open MeasureTheory
 open Polynomial
@@ -22,6 +21,7 @@ namespace Erdos1043
 
 attribute [local instance] instMeasureSpaceRealSpan
 
+open scoped Classical in
 theorem erdos_1043 :
     ¬ (∀ (f : ℂ[X]), f.Monic → f.degree ≥ 1 →
       ∃ (u : ℂ), ‖u‖ = 1 ∧

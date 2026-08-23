@@ -25,12 +25,12 @@ end Erdos283b
 
 open Erdos283b
 
-attribute [local instance] Classical.propDecidable
 
 open Finset BigOperators
 
 namespace Erdos283b
 
+open scoped Classical in
 theorem meta_theorem
     (a : ℤ) (ha : 0 < a)
     (b : ℤ)
@@ -67,6 +67,7 @@ theorem meta_theorem
   sorry
 
 end Erdos283b
+open scoped Classical in
 theorem Erdos283b.general_theorem
     (a : ℤ) (ha : 0 < a)
     (b : ℤ)

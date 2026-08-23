@@ -1,11 +1,11 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 open Filter
 
 namespace Erdos124b
 
+open scoped Classical in
 theorem erdos_124 : ∀ k, ∀ d : Fin k → ℕ,
     (∀ i, 2 ≤ d i) → 1 ≤ ∑ i : Fin k, (1 : ℚ) / (d i - 1) →
     ∀ n, ∃ a : Fin k → ℕ,
@@ -17,6 +17,7 @@ end Erdos124b
 
 namespace Erdos124b
 
+open scoped Classical in
 theorem formal_conjectures_erdos_124_corrected : (∀ k, ∀ d : Fin k → ℕ,
     (∀ i, 3 ≤ d i) →  StrictMono d → 1 ≤ ∑ i : Fin k, (1 : ℚ) / (d i - 1) →
     ∀ᶠ n in atTop, ∃ c : Fin k → ℕ, ∃ a : Fin k → ℕ,

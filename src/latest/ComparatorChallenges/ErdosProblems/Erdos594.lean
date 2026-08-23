@@ -15,7 +15,6 @@ namespace Erdos594
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 
 variable {V : Type*}
@@ -24,6 +23,7 @@ end
 
 end Erdos594
 
+open scoped Classical in
 theorem erdos_594 :
     ∀ (V : Type) (G : SimpleGraph V), IsEmpty (G.Coloring ℕ) →
       ∃ N : ℕ, ∀ k : ℕ, N ≤ k →

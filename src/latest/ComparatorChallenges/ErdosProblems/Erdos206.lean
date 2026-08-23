@@ -31,13 +31,13 @@ end EgyptianFractions
 
 end Erdos206
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators ENNReal
 open Finset MeasureTheory Set
 
 namespace Erdos206.EgyptianFractions
 
+open scoped Classical in
 theorem erdos_206 : volume {x : ℝ | EventuallyGreedy x} = 0 := by
   sorry
 

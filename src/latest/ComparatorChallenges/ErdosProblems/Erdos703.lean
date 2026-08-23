@@ -27,21 +27,24 @@ open scoped BigOperators
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 /-- Two finite sets have an `r`-intersection when their intersection has size `r`. -/
 def HasRIntersection (r : ℕ) (A B : Finset ℕ) : Prop :=
   #(A ∩ B) = r
 
+open scoped Classical in
 /-- No two members of `𝓕`, including a member paired with itself, meet in `r` points. -/
 def AvoidsRIntersection (r : ℕ) (𝓕 : Finset (Finset ℕ)) : Prop :=
   ∀ A ∈ 𝓕, ∀ B ∈ 𝓕, #(A ∩ B) ≠ r
 
+open scoped Classical in
 /-- The extremal quantity in Erdős Problem 703. -/
 def T (n r : ℕ) : ℕ :=
   (((range n).powerset.powerset).filter (AvoidsRIntersection r)).sup card
 
 
+open scoped Classical in
 theorem erdos_703 :
     ∀ ε : ℝ, 0 < ε → ∃ δ : ℝ, 0 < δ ∧
       ∀ (n r : ℕ), ε * n < r → r < (1 / 2 - ε) * n →

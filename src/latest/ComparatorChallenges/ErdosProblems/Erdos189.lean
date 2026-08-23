@@ -91,11 +91,11 @@ end Erdos189
 namespace Erdos189
 
 theorem erdos_189 :
-    Erdos189For
+    ¬ Erdos189For
       (fun a b c d ↦
         line[ℝ, a, b].direction ⟂ line[ℝ, b, c].direction ∧
           line[ℝ, b, c].direction ⟂ line[ℝ, c, d].direction ∧
             line[ℝ, c, d].direction ⟂ line[ℝ, d, a].direction)
-      (fun a b c _d ↦ dist a b * dist b c) ↔ False := by
+      (fun a b c _d ↦ dist a b * dist b c) := by
   sorry
 end Erdos189

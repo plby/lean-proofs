@@ -35,20 +35,23 @@ end Erdos707
 
 open Erdos707
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 theorem Erdos707.not_erdos_707P :
     Not Erdos707.erdos_707_prime
   := by
   sorry
+open scoped Classical in
 theorem Erdos707.not_erdos_707H :
     Not Erdos707.erdos_707_integer
   := by
   sorry
+open scoped Classical in
 theorem Erdos707.not_erdos_707H2 :
     Not Erdos707.erdos_707
   := by
   sorry
+open scoped Classical in
 theorem Erdos707.not_erdos_707AM :
     Not Erdos707.erdos_707
   := by

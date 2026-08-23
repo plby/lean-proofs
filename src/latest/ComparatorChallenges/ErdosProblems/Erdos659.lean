@@ -25,7 +25,6 @@ noncomputable def distinctDistances (points : Finset ℝ²) : ℕ :=
   (points.offDiag.image fun (pair : ℝ² × ℝ²) => dist pair.1 pair.2).card
 end Erdos659
 
-attribute [local instance] Classical.propDecidable
 
 open scoped Real
 open Filter
@@ -34,6 +33,7 @@ open EuclideanGeometry Finset Real
 
 namespace Erdos659
 
+open scoped Classical in
 theorem erdos_659 : ∃ A : ℕ → Finset ℝ²,
    (∀ n, #(A n) = n ∧ ∀ S ⊆ A n, #S = 4 → 3 ≤ distinctDistances S) ∧
     (fun n ↦ distinctDistances (A n)) ≪ fun n ↦ n / sqrt (log n) := by

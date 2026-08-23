@@ -12,12 +12,12 @@ noncomputable def monochromaticSumSet (N : ℕ) (k : ℕ) (f : ℕ → Fin k) : 
     ∃ a ∈ Finset.Icc 1 N, ∃ b ∈ Finset.Icc 1 N, a ≠ b ∧ f a = f b ∧ a + b = n)
 end Erdos484
 
-attribute [local instance] Classical.propDecidable
 
 open Finset
 
 namespace Erdos484
 
+open scoped Classical in
 theorem monochromatic_sums_linear :
     ∃ c : ℝ, c > 0 ∧
       ∀ k : ℕ, k ≥ 1 →

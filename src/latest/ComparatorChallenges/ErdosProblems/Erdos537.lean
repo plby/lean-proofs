@@ -1,9 +1,9 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos537
 
+open scoped Classical in
 theorem erdos_537 : ¬(∀ ε > 0, ∃ N₀, ∀ N ≥ N₀, ∀ A, A ⊆ Finset.range (N + 1) → (A.card : ℝ) ≥ ε * N
   →
   ∃ a₁ ∈ A, ∃ a₂ ∈ A, ∃ a₃ ∈ A, ∃ p₁ p₂ p₃, p₁.Prime ∧ p₂.Prime ∧ p₃.Prime ∧

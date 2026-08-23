@@ -24,7 +24,6 @@ open Polynomial
 
 end Erdos947
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open scoped Real
@@ -35,6 +34,7 @@ open Polynomial
 
 namespace Erdos947
 
+open scoped Classical in
 theorem exact_covering_system_distinct_moduli_impossible
     (l : List (ℤ × ℕ)) (h_exact : IsExactCoveringSystem l)
     (h_distinct : l.Pairwise (fun p q => p.2 ≠ q.2)) (h_len : l.length ≥ 2) : False := by

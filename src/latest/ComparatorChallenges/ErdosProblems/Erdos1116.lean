@@ -23,10 +23,10 @@ open scoped Topology
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos1116
 
+open scoped Classical in
 noncomputable def aPointCount (f : ℂ → ℂ) (r : ℝ) (a : ℂ) : ℕ :=
   ∑ᶠ z : ℂ,
     Int.toNat (MeromorphicOn.divisor (fun w ↦ f w - a) (ball 0 r) z)
@@ -35,6 +35,7 @@ end Erdos1116
 
 namespace Erdos1116
 
+open scoped Classical in
 def UnboundedCountRatio (f : ℂ → ℂ) (a b : ℂ) : Prop :=
   ∀ M : ℕ, ∀ R : ℝ, ∃ r : ℝ, R < r ∧
     0 < aPointCount f r b ∧
@@ -44,6 +45,7 @@ end Erdos1116
 
 namespace Erdos1116
 
+open scoped Classical in
 theorem erdos_1116 :
     ∃ f : ℂ → ℂ, Differentiable ℂ f ∧
       ∀ a b : ℂ, a ≠ b → UnboundedCountRatio f a b := by

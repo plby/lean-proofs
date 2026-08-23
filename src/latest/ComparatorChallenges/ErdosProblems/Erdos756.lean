@@ -14,7 +14,6 @@ noncomputable def distance_count (P : Finset ℂ) (d : ℝ) : ℕ :=
   (P.offDiag.filter (fun (x, y) => dist x y = d)).card / 2
 end Erdos756
 
-attribute [local instance] Classical.propDecidable
 
 
 open scoped BigOperators
@@ -24,6 +23,7 @@ open scoped Pointwise
 
 namespace Erdos756
 
+open scoped Classical in
 theorem erdos756 (n : ℕ) :
   ∃ P : Finset ℂ, P.card = n ∧
     ∃ S ⊆ (P.offDiag.image (fun (x, y) => dist x y)),

@@ -2,10 +2,10 @@ import Mathlib
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable Classical.decEq
 
 namespace Erdos182
 
+open scoped Classical in
 def ContainsRegularSubgraph {V : Type*} [Fintype V]
     (G : SimpleGraph V) (k : ℕ) : Prop :=
   ∃ H : G.Subgraph, H.verts.Nonempty ∧
@@ -15,6 +15,7 @@ end Erdos182
 
 namespace Erdos182
 
+open scoped Classical in
 def IsRegularSubgraphFree {V : Type*} [Fintype V]
     (G : SimpleGraph V) (k : ℕ) : Prop :=
   ¬ ContainsRegularSubgraph G k
@@ -23,6 +24,7 @@ end Erdos182
 
 namespace Erdos182
 
+open scoped Classical in
 noncomputable def regularSubgraphFreeGraphs (n k : ℕ) :
     Finset (SimpleGraph (Fin n)) :=
   open scoped Classical in
@@ -32,6 +34,7 @@ end Erdos182
 
 namespace Erdos182
 
+open scoped Classical in
 noncomputable def regularExtremalNumber (n k : ℕ) : ℕ :=
   open scoped Classical in
   @Finset.sup ℕ (SimpleGraph (Fin n))
@@ -42,6 +45,7 @@ end Erdos182
 
 namespace Erdos182
 
+open scoped Classical in
 noncomputable def logLog (n : ℕ) : ℝ :=
   Real.log (Real.log (n : ℝ))
 
@@ -49,6 +53,7 @@ end Erdos182
 
 namespace Erdos182
 
+open scoped Classical in
 theorem erdos_182 (k : ℕ) (hk : 3 ≤ k) :
     (fun n : ℕ ↦ (regularExtremalNumber n k : ℝ))
       =Θ[Filter.atTop] (fun n : ℕ ↦ (n : ℝ) * logLog n) := by

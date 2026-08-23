@@ -6,10 +6,10 @@ open scoped BigOperators Classical SimpleGraph
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos1021
 
+open scoped Classical in
 noncomputable def extremalGrowth {W : Type*} (H : SimpleGraph W) (n : ℕ) : ℝ :=
   SimpleGraph.extremalNumber n H
 
@@ -17,18 +17,21 @@ end Erdos1021
 
 namespace Erdos1021
 
+open scoped Classical in
 abbrev CliquePair (k : ℕ) := Set.powersetCard (Fin k) 2
 
 end Erdos1021
 
 namespace Erdos1021
 
+open scoped Classical in
 abbrev CliqueSubdivisionVertex (k : ℕ) := Fin k ⊕ CliquePair k
 
 end Erdos1021
 
 namespace Erdos1021
 
+open scoped Classical in
 def cliqueSubdivision (k : ℕ) : SimpleGraph (CliqueSubdivisionVertex k) where
   Adj x y :=
     match x, y with
@@ -48,6 +51,7 @@ end Erdos1021
 
 namespace Erdos1021
 
+open scoped Classical in
 noncomputable def polynomialGrowth (a : ℝ) (n : ℕ) : ℝ :=
   (n : ℝ) ^ a
 
@@ -55,9 +59,11 @@ end Erdos1021
 
 namespace Erdos1021
 
+open scoped Classical in
 noncomputable def janzerAlpha (k : ℕ) : ℝ :=
   ((k : ℝ) - 2) / (2 * k - 3)
 
+open scoped Classical in
 def ErdosProblem1021 : Prop :=
   ∀ k : ℕ, 3 ≤ k → ∃ c : ℝ, 0 < c ∧
     extremalGrowth (cliqueSubdivision k) =O[atTop]
@@ -67,6 +73,7 @@ end Erdos1021
 
 namespace Erdos1021
 
+open scoped Classical in
 theorem erdosProblem1021 : ErdosProblem1021 := by
   sorry
 

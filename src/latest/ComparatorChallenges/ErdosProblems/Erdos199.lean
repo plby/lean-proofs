@@ -18,8 +18,8 @@ def Conjecture : Prop :=
     (∃ S : Set ℝ, IsInfiniteAP S ∧ S ⊆ (Set.univ \ A))
 end Erdos199
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 theorem Erdos199.disproof_of_conjecture :
     Not Erdos199.Conjecture
   := by

@@ -13,8 +13,8 @@ def erdos_34 : Prop :=
       (perm_consecutive_sums n p).card < c * n^2
 end Erdos34
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 theorem Erdos34.not_erdos_34 :
     Not Erdos34.erdos_34
   := by

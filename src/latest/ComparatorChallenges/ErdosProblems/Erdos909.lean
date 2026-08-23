@@ -4,10 +4,10 @@ open Set Topology
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos909
 
+open scoped Classical in
 theorem erdos_909 (n : ℕ) (hn : 2 ≤ n) :
     ∃ (S : Type) (_ : TopologicalSpace S),
       smallInductiveDimension S = n ∧

@@ -5,10 +5,10 @@ open scoped BigOperators ArithmeticFunction.Omega
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos542
 
+open scoped Classical in
 def PairwiseLCMExceeds (n : ℕ) (A : Finset ℕ) : Prop :=
   (∀ a ∈ A, 1 ≤ a ∧ a ≤ n) ∧
     ∀ a ∈ A, ∀ b ∈ A, a ≠ b → n < Nat.lcm a b
@@ -17,6 +17,7 @@ end Erdos542
 
 namespace Erdos542
 
+open scoped Classical in
 noncomputable def reciprocalSum (A : Finset ℕ) : ℝ :=
   ∑ a ∈ A, (1 : ℝ) / a
 
@@ -24,18 +25,21 @@ end Erdos542
 
 namespace Erdos542
 
+open scoped Classical in
 def constructionExponent (t : ℕ) : ℕ := 2 ^ (6 * t)
 
 end Erdos542
 
 namespace Erdos542
 
+open scoped Classical in
 def constructionAmbient (t : ℕ) : ℕ := 2 ^ constructionExponent t
 
 end Erdos542
 
 namespace Erdos542
 
+open scoped Classical in
 def thresholdSet (n : ℕ) : Finset ℕ :=
   (Finset.Icc 1 n).filter fun r => n < r * r.minFac
 
@@ -43,6 +47,7 @@ end Erdos542
 
 namespace Erdos542
 
+open scoped Classical in
 def minimalThresholdSet (n : ℕ) : Finset ℕ :=
   (thresholdSet n).filter fun a =>
     ∀ c ∈ thresholdSet n, c ∣ a → a ∣ c
@@ -51,6 +56,7 @@ end Erdos542
 
 namespace Erdos542
 
+open scoped Classical in
 def constructionFamily (t : ℕ) : Finset ℕ :=
   minimalThresholdSet (constructionAmbient t)
 
@@ -58,6 +64,7 @@ end Erdos542
 
 namespace Erdos542
 
+open scoped Classical in
 def uncovered (n : ℕ) (A : Finset ℕ) : Finset ℕ :=
   (Finset.Icc 1 n).filter fun m => ∀ a ∈ A, ¬a ∣ m
 
@@ -67,6 +74,7 @@ end Erdos542
 
 namespace Erdos542
 
+open scoped Classical in
 def HasUniformLinearUncoveredLowerBound : Prop :=
   ∃ c : ℝ, 0 < c ∧ ∀ n : ℕ, ∀ A : Finset ℕ,
     PairwiseLCMExceeds n A → c * n ≤ ((uncovered n A).card : ℝ)
@@ -75,6 +83,7 @@ end Erdos542
 
 namespace Erdos542
 
+open scoped Classical in
 theorem erdos542_resolution :
     (∀ n : ℕ, ∀ A : Finset ℕ,
       PairwiseLCMExceeds n A → reciprocalSum A ≤ (31 : ℝ) / 30) ∧

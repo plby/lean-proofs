@@ -34,22 +34,23 @@ end Construction
 
 def MaximalSidonSubset (U : Finset ℕ) (S : Finset ℕ) : Prop :=
   S ⊆ U ∧ Sidon (S : Set ℕ) ∧ ∀ S' : Finset ℕ, S' ⊆ U → Sidon (S' : Set ℕ) → S ⊆ S' → S = S'
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 noncomputable def A1 (N : ℕ) : ℕ :=
   ((Finset.range N).powerset.filter (fun S => MaximalSidonSubset (Finset.range N) S)).card
+open scoped Classical in
 noncomputable def eta : ℝ := 1 / 2 * Real.log (5 / 4)
 end
 
 end Erdos862
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open Real Filter Asymptotics
 
 namespace Erdos862
 
+open scoped Classical in
 theorem erdos_862 :
     ∀ c < eta, ∀ᶠ N : ℕ in Filter.atTop, Real.log (A1 N : ℝ) / Real.sqrt N ≥ c := by
   sorry

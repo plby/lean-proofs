@@ -15,7 +15,6 @@ def IsAPOfLength (s : Set α) (l : ℕ∞) : Prop :=
   ∃ a d : α, IsAPOfLengthWith s l a d
 end Erdos198
 
-attribute [local instance] Classical.propDecidable
 
 
 open scoped BigOperators
@@ -25,7 +24,8 @@ open scoped Pointwise
 
 namespace Erdos198
 
-theorem erdos_198 : (∀ A : Set ℕ, IsSidon A → (∃ Y, IsAPOfLength Y ⊤ ∧ Y ⊆ Aᶜ)) ↔ False := by
+open scoped Classical in
+theorem erdos_198 : ¬ ∀ A : Set ℕ, IsSidon A → (∃ Y, IsAPOfLength Y ⊤ ∧ Y ⊆ Aᶜ) := by
   sorry
 
 end Erdos198

@@ -13,13 +13,13 @@ noncomputable def MaxUnionFreeMany (n : ℕ) : ℕ := by
     ((Finset.univ : Finset (Finset (Finset (Fin n)))).filter UnionFreeMany).sup Finset.card
 end Erdos1023
 
-attribute [local instance] Classical.propDecidable
 
 open scoped Nat
 open Asymptotics Filter
 
 namespace Erdos1023
 
+open scoped Classical in
 theorem erdos_1023 :
     ∃ c : ℝ, 0 < c ∧
       (fun n => (MaxUnionFreeMany n : ℝ)) ~[Filter.atTop]

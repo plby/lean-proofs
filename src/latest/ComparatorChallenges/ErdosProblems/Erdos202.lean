@@ -417,7 +417,6 @@ open scoped BigOperators
 
 end Erdos202
 
-attribute [local instance] Classical.propDecidable
 
 
 open Filter
@@ -428,6 +427,7 @@ open Filter Finset
 
 namespace Erdos202.ParkPham
 
+open scoped Classical in
 theorem park_pham_threshold_not_small_lt_exists :
     ∃ CKK : ℝ, 0 < CKK ∧
       ∀ {α : Type*} [DecidableEq α]
@@ -444,6 +444,7 @@ section
 
 variable {α : Type*} [DecidableEq α]
 
+open scoped Classical in
 theorem spread_disjointness_theorem :
     ∃ Csp : ℝ, 0 < Csp ∧
       ∀ {α : Type*} [DecidableEq α]
@@ -463,6 +464,7 @@ end
 end Erdos202.ParkPham
 namespace Erdos202
 
+open scoped Classical in
 theorem bfv_omega_count_theorem :
     ∀ ε : ℝ, 0 < ε → ∀ᶠ N : ℕ in atTop,
       ∀ y K W : ℕ,
@@ -477,6 +479,7 @@ theorem bfv_omega_count_theorem :
   sorry
 
 
+open scoped Classical in
 theorem bfv_lower_bound_theorem :
     ∀ ε : ℝ, 0 < ε → ∀ᶠ N : ℕ in atTop,
       (N : ℝ) * Lscale (-(1 + ε)) N ≤ (f N : ℝ) := by
@@ -487,6 +490,7 @@ end Erdos202
 
 namespace Erdos202
 
+open scoped Classical in
 theorem bfv_pruning_theorem :
     ∀ ε : ℝ, 0 < ε → ∀ᶠ N : ℕ in atTop,
       ∀ Q : Finset ℕ, ∀ a : ResidueAssignment Q,
@@ -498,6 +502,7 @@ theorem bfv_pruning_theorem :
   sorry
 
 end Erdos202
+open scoped Classical in
 theorem Erdos202.erdos202_main :
     Erdos202.Erdos202Statement
   := by

@@ -9,11 +9,6 @@ noncomputable def unitDist (P : Finset (EuclideanSpace ℝ (Fin 2))) : ℕ :=
 
 end Erdos
 
-syntax (name := answerSyntax92Challenge) "answer(" term ")" : term
-
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace Erdos92
 
 abbrev Point := EuclideanSpace ℝ (Fin 2)
@@ -27,7 +22,7 @@ def UnitDistanceUpperBound : Prop :=
       (unitDistancePairs P : ℝ) ≤
         (n : ℝ) ^ (1 + C / Real.log (Real.log n))
 
-theorem erdos_92 : answer(False) ↔ UnitDistanceUpperBound := by
+theorem erdos_92 : ¬ UnitDistanceUpperBound := by
   sorry
 
 end Erdos92

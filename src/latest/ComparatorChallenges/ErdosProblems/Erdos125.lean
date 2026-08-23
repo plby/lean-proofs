@@ -30,7 +30,6 @@ end Set
 
 open scoped Pointwise
 
-attribute [local instance] Classical.propDecidable
 
 
 open Filter
@@ -40,16 +39,18 @@ open Topology
 
 namespace Erdos125
 
+open scoped Classical in
 theorem erdos_125 :
-    False ↔ ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
+    ¬ ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
       { x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1} }).HasPosDensity := by
   sorry
 
 end Erdos125
 namespace Erdos125.erdos_125.variants
 
+open scoped Classical in
 theorem positive_lower_density :
-    False ↔ 0 < ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
+    ¬ 0 < ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
       { x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1} }).lowerDensity := by
   sorry
 

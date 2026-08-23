@@ -8,8 +8,8 @@ namespace Erdos897
 set_option linter.style.longLine false
 set_option linter.flexible false
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 theorem erdos_897.parts.i : (∀ (f : ℕ → ℝ),
     (∀ᵉ (a > 0) (b > 0), a.Coprime b → f (a * b) = f a + f b) →
     ((Filter.atTop ⊓ Filter.principal {x : ℕ × ℕ | x.1.Prime}).limsup
@@ -18,6 +18,7 @@ theorem erdos_897.parts.i : (∀ (f : ℕ → ℝ),
     false := by
   sorry
 
+open scoped Classical in
 theorem erdos_897.parts.ii : (∀ (f : ℕ → ℝ),
     (∀ᵉ (a > 0) (b > 0), a.Coprime b → f (a * b) = f a + f b) →
     ((Filter.atTop ⊓ Filter.principal {x : ℕ × ℕ | x.1.Prime}).limsup

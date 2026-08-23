@@ -1,11 +1,11 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 
 namespace Erdos532
 
+open scoped Classical in
 theorem erdos532 (c : ℕ → Fin 2) :
     ∃ A : Set ℕ, A.Infinite ∧
       ∃ color : Fin 2,

@@ -1,9 +1,5 @@
 import Mathlib
 
-syntax (name := answerSyntax937Challenge) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace Nat
 
 def Full (k n : ℕ) : Prop := ∀ p ∈ n.primeFactors, p ^ k ∣ n
@@ -24,7 +20,7 @@ def IsCoprimePowerfulAP4 (a d : ℕ) : Prop :=
   (a + 2 * d).Coprime (a + 3 * d)
 
 theorem erdos_937 :
-    answer(True) ↔ {p : ℕ × ℕ | IsCoprimePowerfulAP4 p.1 p.2}.Infinite := by
+    True ↔ {p : ℕ × ℕ | IsCoprimePowerfulAP4 p.1 p.2}.Infinite := by
   sorry
 
 end Erdos937

@@ -1,11 +1,11 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 open Finset BigOperators
 
 namespace Erdos178
 
+open scoped Classical in
 theorem erdos_178 (a : ℕ → ℕ → ℕ)
     (ha : ∀ i, StrictMono (a i)) :
     ∃ f : ℕ → ℤ, (∀ n, f n = 1 ∨ f n = -1) ∧

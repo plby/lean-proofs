@@ -1,9 +1,9 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos1047
 
+open scoped Classical in
 theorem main_result : ∃ (f : Polynomial ℂ) (c : ℝ) (m : ℕ),
   f.Monic ∧
   f.roots.Nodup ∧
@@ -21,6 +21,7 @@ end Erdos1047
 
 namespace Erdos1047
 
+open scoped Classical in
 theorem erdos_1047 :
   ¬ (∀ (f : Polynomial ℂ) (c : ℝ) (m : ℕ),
       f.Monic →

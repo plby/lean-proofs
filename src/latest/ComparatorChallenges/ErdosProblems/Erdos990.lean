@@ -41,8 +41,8 @@ def SparseErdosTuranEstimate : Prop :=
                 ((coeffSupportCardUpTo f d : ℝ) * Real.log (coefficientRatio f d))
 end Erdos990
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 theorem Erdos990.erdos990 :
     Not Erdos990.SparseErdosTuranEstimate
   := by

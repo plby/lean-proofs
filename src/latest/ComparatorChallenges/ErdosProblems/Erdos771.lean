@@ -10,10 +10,6 @@ The detailed mathematical proof and Leanization map are in tex/771.tex.
 open Filter Finset Nat Real
 open scoped BigOperators Topology
 
-syntax (name := answerSyntax771) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace Erdos771
 
 noncomputable section
@@ -37,7 +33,7 @@ noncomputable def erdosF (n : ℕ) : ℕ :=
 
 
 theorem erdos_771 :
-    answer(True) ↔
+    True ↔
       Tendsto (fun n : ℕ =>
         (erdosF n : ℝ) / ((n : ℝ) / Real.log (n : ℝ)))
         atTop (𝓝 (1 / 2 : ℝ)) := by

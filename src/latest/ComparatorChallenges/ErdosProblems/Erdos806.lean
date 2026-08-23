@@ -5,10 +5,10 @@ open scoped Pointwise
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos806
 
+open scoped Classical in
 def Erdos806Statement : Prop :=
   ∀ ε : ℝ, 0 < ε →
     ∀ᶠ n : ℕ in Filter.atTop,
@@ -22,6 +22,7 @@ end Erdos806
 
 namespace Erdos806
 
+open scoped Classical in
 theorem erdos_806 : Erdos806Statement := by
   sorry
 

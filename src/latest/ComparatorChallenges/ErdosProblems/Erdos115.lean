@@ -9,7 +9,6 @@ open scoped BigOperators
 open scoped Real
 open scoped Nat
 open scoped Pointwise
-attribute [local instance] Classical.propDecidable
 
 set_option maxHeartbeats 1000000
 set_option relaxedAutoImplicit false
@@ -17,12 +16,13 @@ set_option autoImplicit false
 
 namespace Erdos115
 
+open scoped Classical in
 noncomputable def eremenko_bound (n : ℕ) : ℝ := (2 : ℝ) ^ ((1 : ℝ) / n - 1) * (n : ℝ) ^ 2
+open scoped Classical in
 noncomputable def extremal_polynomial (n : ℕ) : Polynomial ℂ :=
   (Polynomial.Chebyshev.T ℂ n).comp (Polynomial.C ((2 : ℂ) ^ ((1 : ℂ) / n - 1)) * Polynomial.X + 1)
 end Erdos115
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open scoped Real
@@ -31,6 +31,7 @@ open scoped Pointwise
 
 namespace Erdos115
 
+open scoped Classical in
 theorem eremenko_lempert_1999 (n : ℕ) :
     (n ≠ 0 → ∀ p : Polynomial ℂ, p.Monic → p.degree = n →
       IsConnected {z | ‖p.eval z‖ ≤ 1} →

@@ -21,7 +21,6 @@ end Erdos331
 
 open Erdos331
 
-attribute [local instance] Classical.propDecidable
 
 
 open scoped BigOperators
@@ -35,6 +34,7 @@ namespace Erdos331
 
 attribute [local instance] instDecidablePredNat_erdosProblems
 
+open scoped Classical in
 theorem main_theorem : ∃ (A' B' : Set ℕ),
   (∀ x ∈ A', x > 0) ∧ (∀ x ∈ B', x > 0) ∧
   (∃ N₀, ∀ N ≥ N₀,
@@ -45,6 +45,7 @@ theorem main_theorem : ∃ (A' B' : Set ℕ),
   sorry
 
 
+open scoped Classical in
 theorem erdos_331 :
     ¬(∀ A B : Set ℕ,
       (fun (n : ℕ) ↦ (n : ℝ) ^ (1 / 2 : ℝ)) =O[atTop]

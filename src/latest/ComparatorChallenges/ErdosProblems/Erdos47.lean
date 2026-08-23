@@ -7,7 +7,6 @@ open Filter Real Finset Nat
 open _root_.Finset
 
 noncomputable section
-attribute [local instance] Classical.propDecidable
 
 section
 
@@ -17,6 +16,7 @@ variable {A}
 
 end
 
+open scoped Classical in
 def rec_sum (A : Finset ℕ) : ℚ := A.sum fun n ↦ (1 : ℚ) / n
 namespace Nat
 
@@ -26,7 +26,6 @@ end
 
 end UnitFractions
 
-attribute [local instance] Classical.propDecidable
 
 open UnitFractions
 open Filter Finset Real
@@ -34,6 +33,7 @@ open scoped ArithmeticFunction.omega BigOperators
 
 namespace Erdos47
 
+open scoped Classical in
 theorem erdos47_bloom :
     ∃ C : ℝ, 0 < C ∧ ∃ N₀ : ℕ, ∀ N ≥ N₀, ∀ A : Finset ℕ,
       A ⊆ Finset.Icc 1 N →
@@ -42,6 +42,7 @@ theorem erdos47_bloom :
   sorry
 
 
+open scoped Classical in
 theorem erdos47 :
     ∀ δ > 0, ∃ N₀ : ℕ, ∀ N ≥ N₀, ∀ A : Finset ℕ,
       A ⊆ Finset.Icc 1 N →

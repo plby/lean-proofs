@@ -2,22 +2,24 @@ import Mathlib
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos581.UpperBlock
 
+open scoped Classical in
 abbrev F (t : ℕ) := GaloisField 2 (t + 1)
 
 end Erdos581.UpperBlock
 
 namespace Erdos581.UpperBlock
 
+open scoped Classical in
 abbrev V (t : ℕ) := Fin 3 → F t
 
 end Erdos581.UpperBlock
 
 namespace Erdos581
 
+open scoped Classical in
 def Guarantees (m k : ℕ) : Prop :=
   ∀ (V : Type) [Fintype V] (G : SimpleGraph V),
     G.CliqueFree 3 → G.edgeSet.ncard = m →
@@ -28,6 +30,7 @@ end Erdos581
 
 namespace Erdos581
 
+open scoped Classical in
 noncomputable def f (m : ℕ) : ℕ :=
   open scoped Classical in
   Nat.findGreatest (Guarantees m) m
@@ -36,6 +39,7 @@ end Erdos581
 
 namespace Erdos581
 
+open scoped Classical in
 theorem erdos581 :
     ∃ c₁ c₂ : ℝ, 0 < c₁ ∧ 0 < c₂ ∧
       ∀ m : ℕ,

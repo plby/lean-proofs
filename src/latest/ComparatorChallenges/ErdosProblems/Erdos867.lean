@@ -14,18 +14,19 @@ end Erdos867
 
 open Erdos867
 
-attribute [local instance] Classical.propDecidable
 
 open Finset
 
 namespace Erdos867
 
+open scoped Classical in
 theorem construction_19_36 :
     ∃ C : ℕ, ∀ n : ℕ, 144 ≤ n → ∃ S : Finset ℕ,
     S ⊆ Icc 1 n ∧ ConsecutiveSumFree S ∧ 36 * S.card + C ≥ 19 * n := by
   sorry
 
 
+open scoped Classical in
 theorem csf_exceeds_half_plus_constant :
     ¬∃ C : ℕ, ∀ n : ℕ, ∀ S : Finset ℕ, S ⊆ Icc 1 n → ConsecutiveSumFree S → 2 * S.card ≤ n + C := by
   sorry

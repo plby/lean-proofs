@@ -11,8 +11,8 @@ def SecondQuestionStatement : Prop :=
     ∃ a p : Nat, Prime p ∧ MonochromaticAP color a p k
 end Erdos1187b
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 theorem Erdos1187b.second_question_general_statement_is_false :
     Not Erdos1187b.SecondQuestionStatement
   := by

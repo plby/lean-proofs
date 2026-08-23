@@ -20,13 +20,13 @@ end AristotleLemmas
 
 end Erdos898
 
-attribute [local instance] Classical.propDecidable
 
 
 open EuclideanGeometry Metric RealInnerProductSpace
 
 namespace Erdos898
 
+open scoped Classical in
 theorem erdos_mordell {V : Type*} [NormedAddCommGroup V]
     [InnerProductSpace ℝ V] [FiniteDimensional ℝ V]
     [Fact (Module.finrank ℝ V = 2)] {A B C P : V}

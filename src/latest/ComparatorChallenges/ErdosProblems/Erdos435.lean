@@ -18,10 +18,10 @@ def Representable (n : ℕ) : AddSubmonoid ℤ :=
   AddSubmonoid.closure (generators_int n)
 end Erdos435
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos435
 
+open scoped Classical in
 theorem erdos_435 (n : ℕ)
     (hn : n ≠ 0)
     (h_not_prime_pow : ∀ p k, Nat.Prime p → n ≠ p ^ k) :

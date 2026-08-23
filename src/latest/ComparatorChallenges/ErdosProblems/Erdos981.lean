@@ -5,10 +5,10 @@ open scoped Asymptotics
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos981
 
+open scoped Classical in
 def oddPrimesBelow (x : ℕ) : Finset ℕ :=
   (range x).filter fun p => p.Prime ∧ Odd p
 
@@ -16,6 +16,7 @@ end Erdos981
 
 namespace Erdos981
 
+open scoped Classical in
 def legendrePartialSum (p N : ℕ) : ℤ :=
   ∑ n ∈ range N, jacobiSym (n + 1 : ℤ) p
 
@@ -23,6 +24,7 @@ end Erdos981
 
 namespace Erdos981
 
+open scoped Classical in
 def IsEventualThreshold (ε : ℝ) (p m : ℕ) : Prop :=
   1 ≤ m ∧ ∀ N : ℕ, m ≤ N → (legendrePartialSum p N : ℝ) < ε * (N : ℝ)
 
@@ -30,6 +32,7 @@ end Erdos981
 
 namespace Erdos981
 
+open scoped Classical in
 noncomputable def eventualThreshold (ε : ℝ) (p : ℕ) : ℕ :=
   by
     classical
@@ -39,6 +42,7 @@ end Erdos981
 
 namespace Erdos981
 
+open scoped Classical in
 noncomputable def thresholdPrimeSum (ε : ℝ) (x : ℕ) : ℝ :=
   ∑ p ∈ oddPrimesBelow x, (eventualThreshold ε p : ℝ)
 
@@ -48,6 +52,7 @@ end Erdos981
 
 namespace Erdos981
 
+open scoped Classical in
 theorem erdos_981 {ε : ℝ} (hε : 0 < ε) :
     ∃ cε : ℝ, 0 < cε ∧
       thresholdPrimeSum ε ~[atTop]

@@ -19,12 +19,12 @@ def AsymptoticA (C : ℝ) : Prop :=
       Real.log y / (C * (maxPrimeGap x : ℝ)) - 1| < ε
 end Erdos1138
 
-attribute [local instance] Classical.propDecidable
 
 open Nat Set Filter
 
 namespace Erdos1138
 
+open scoped Classical in
 theorem erdos1138_corollary : ¬(∀ C : ℝ, 1 < C → AsymptoticA C) := by
   sorry
 

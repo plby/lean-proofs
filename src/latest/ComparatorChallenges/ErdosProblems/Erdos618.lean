@@ -18,10 +18,10 @@ noncomputable def h2 {n : ℕ} (G : SimpleGraph (Fin n)) : ℕ := by
       ((H.edgeFinset \ G.edgeFinset).card = k)}
 end Erdos618
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos618
 
+open scoped Classical in
 theorem erdos_618
     (G : ∀ n : ℕ, SimpleGraph (Fin n))
     (hTriangleFree : ∀ n : ℕ, (G n).CliqueFree 3)

@@ -27,8 +27,8 @@ noncomputable section
 end
 end Erdos123
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 theorem Erdos123.erdos_123 :
     Erdos123.IntendedStatement
   := by

@@ -2,10 +2,6 @@ import Mathlib
 
 open scoped ArithmeticFunction.sigma
 
-syntax (name := answerSyntax48) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 namespace Erdos48
 
 /-- Natural numbers attained by both Euler's totient and the divisor sum. -/
@@ -23,5 +19,5 @@ end Erdos48
 /-- Erdős Problem 48: Euler's totient and the sum-of-divisors function have
 infinitely many common values. -/
 theorem erdos_48 :
-    answer(True) ↔ {(n, m) : ℕ × ℕ | n.totient = σ 1 m}.Infinite := by
+    True ↔ {(n, m) : ℕ × ℕ | n.totient = σ 1 m}.Infinite := by
   sorry

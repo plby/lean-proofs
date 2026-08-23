@@ -4,10 +4,10 @@ open Finset Filter SimpleGraph
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable Classical.decEq
 
 namespace SimpleGraph
 
+open scoped Classical in
 def IsBalanced {V : Type*} [Fintype V] (G : SimpleGraph V) (D : ℝ)
     [DecidableRel G.Adj] : Prop :=
   G.maxDegree ≤ D * G.minDegree
@@ -16,6 +16,7 @@ end SimpleGraph
 
 namespace Erdos803
 
+open scoped Classical in
 def Erdos803Statement : Prop :=
   ∃ ε : ℝ, 0 < ε ∧ ∃ D : ℝ, 1 ≤ D ∧
     ∀ m : ℕ, 1 ≤ m →
@@ -31,7 +32,8 @@ end Erdos803
 
 namespace Erdos803
 
-theorem erdos_803 : False ↔ Erdos803Statement := by
+open scoped Classical in
+theorem erdos_803 : ¬ Erdos803Statement := by
   sorry
 
 end Erdos803

@@ -5,10 +5,10 @@ open scoped BigOperators Real
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos808
 
+open scoped Classical in
 def edgeValues {V R : Type*} [Fintype V] [DecidableEq R]
     (op : V → V → R) (hop : ∀ u v, op u v = op v u)
     (G : SimpleGraph V) [DecidableRel G.Adj] : Finset R :=
@@ -18,6 +18,7 @@ end Erdos808
 
 namespace Erdos808
 
+open scoped Classical in
 def edgeSums {V R : Type*} [Fintype V] [DecidableEq R] [AddCommMagma R]
     (a : V → R) (G : SimpleGraph V) [DecidableRel G.Adj] : Finset R :=
   edgeValues (fun u v ↦ a u + a v) (fun u v ↦ add_comm (a u) (a v)) G
@@ -26,6 +27,7 @@ end Erdos808
 
 namespace Erdos808
 
+open scoped Classical in
 def edgeProducts {V R : Type*} [Fintype V] [DecidableEq R] [CommMagma R]
     (a : V → R) (G : SimpleGraph V) [DecidableRel G.Adj] : Finset R :=
   edgeValues (fun u v ↦ a u * a v) (fun u v ↦ mul_comm (a u) (a v)) G
@@ -34,6 +36,7 @@ end Erdos808
 
 namespace Erdos808
 
+open scoped Classical in
 def StrongErdos808 : Prop :=
   ∀ c : ℝ, 0 < c → ∀ ε : ℝ, 0 < ε →
     ∃ n₀ : ℕ, ∀ (V : Type) [Fintype V] (a : V ↪ ℕ)
@@ -49,6 +52,7 @@ end Erdos808
 
 namespace Erdos808
 
+open scoped Classical in
 theorem erdos_808 : ¬ StrongErdos808 := by
   sorry
 

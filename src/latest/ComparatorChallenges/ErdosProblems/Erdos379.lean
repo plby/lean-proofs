@@ -27,12 +27,12 @@ end depth_0_lemma_5
 
 end Erdos379
 
-attribute [local instance] Classical.propDecidable
 
 open Filter
 
 namespace Erdos379
 
+open scoped Classical in
 theorem erdos_379 : atTop.limsup (fun n => (S n : ℕ∞)) = ⊤ := by
   sorry
 

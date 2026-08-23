@@ -12,7 +12,6 @@ def DecidableDistinctSubsetSums {M : Type*} [AddCommMonoid M] [DecidableEq M]
   ∀ X ⊆ A, ∀ Y ⊆ A, X ≠ Y → X.sum id ≠ Y.sum id
 end Erdos350
 
-attribute [local instance] Classical.propDecidable
 
 
 open scoped BigOperators
@@ -23,6 +22,7 @@ open Finset
 
 namespace Erdos350
 
+open scoped Classical in
 theorem erdos_350 (A : Finset ℕ) (hA : DecidableDistinctSubsetSums A) :
     ∑ n ∈ A, (1 / n : ℝ) < 2 := by
   sorry

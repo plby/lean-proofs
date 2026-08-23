@@ -5,12 +5,8 @@ open scoped BigOperators Topology
 
 namespace Erdos239
 
-syntax (name := answerSyntax239Challenge) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 theorem erdos_239 :
-    answer(True) ↔ ∀ f : ℕ → ℝ,
+    True ↔ ∀ f : ℕ → ℝ,
     (∀ n ≥ 1, f n = 1 ∨ f n = -1) ∧
     (∀ m n, m.Coprime n → f (m * n) = f m * f n) ∧
     f 1 = 1 →

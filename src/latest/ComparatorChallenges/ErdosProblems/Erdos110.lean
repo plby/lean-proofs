@@ -16,10 +16,6 @@ The mathematical construction and a lemma-by-lemma Leanization plan are in
 `tex/110.tex`.
 -/
 
-syntax (name := answerSyntax110) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 open Filter Set
 
 namespace Erdos110
@@ -75,7 +71,7 @@ bound. -/
 
 
 theorem erdos_110 :
-    answer(False) ↔ ∃ F : ℕ → ℕ, HasUniformBound F := by
+    ¬ ∃ F : ℕ → ℕ, HasUniformBound F := by
   sorry
 
 end

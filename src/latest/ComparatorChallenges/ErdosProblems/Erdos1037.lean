@@ -6,19 +6,19 @@ set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 def NumDistinctDegrees {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj] : ℕ :=
   (Finset.univ.image (fun v => G.degree v)).card
 end Erdos1037
 
 open Erdos1037
 
-attribute [local instance] Classical.propDecidable
 
 
 namespace Erdos1037
 
+open scoped Classical in
 theorem not_erdos_1037 :
   ¬(
     ∀ ε : ℝ, 0 < ε →

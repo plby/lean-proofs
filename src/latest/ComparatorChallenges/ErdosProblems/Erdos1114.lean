@@ -6,10 +6,10 @@ open Polynomial
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos1114
 
+open scoped Classical in
 def RightGapMonotone (N : ℕ) (b : ℕ → ℝ) : Prop :=
   ∀ i : ℕ, i + 2 < N → N ≤ 2 * (i + 1) →
     b (i + 1) - b i ≤ b (i + 2) - b (i + 1)
@@ -18,6 +18,7 @@ end Erdos1114
 
 namespace Erdos1114
 
+open scoped Classical in
 def GapSymmetric (N : ℕ) (b : ℕ → ℝ) : Prop :=
   ∀ i : ℕ, i + 1 < N →
     b (i + 1) - b i = b (N - 1 - i) - b (N - 2 - i)
@@ -26,6 +27,7 @@ end Erdos1114
 
 namespace Erdos1114
 
+open scoped Classical in
 theorem erdos_1114 {N : ℕ} (hN : 0 < N) {a d : ℝ}
     (hd : 0 < d) {f : ℝ[X]} {b : ℕ → ℝ}
     (hf0 : f ≠ 0) (hdegree : f.natDegree = N + 1)

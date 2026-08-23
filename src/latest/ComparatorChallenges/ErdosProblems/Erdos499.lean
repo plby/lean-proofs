@@ -1,9 +1,9 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos499
 
+open scoped Classical in
 theorem erdos_499 :
     (∀ n, ∀ M ∈ doublyStochastic ℝ (Fin n), ∃ σ : Equiv.Perm (Fin n),
       n ^ (- n : ℤ) ≤ ∏ i, M i (σ i)) := by

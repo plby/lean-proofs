@@ -6,10 +6,10 @@ open Function
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos922
 
+open scoped Classical in
 def HasLargeIndependentSets {V : Type u} [Finite V]
     (G : SimpleGraph V) (k : ℕ) : Prop :=
   ∀ H : G.Subgraph, ∃ I : Finset H.verts,
@@ -19,6 +19,7 @@ end Erdos922
 
 namespace Erdos922
 
+open scoped Classical in
 theorem erdos_922 {V : Type u} [Finite V] (G : SimpleGraph V) (k : ℕ)
     (hG : HasLargeIndependentSets G k) :
     G.chromaticNumber ≤ ((k + 2 : ℕ) : ℕ∞) := by

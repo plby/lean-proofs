@@ -8,10 +8,10 @@ def P_plus (m : ℕ) : ℕ :=
   | none => 1
 end Erdos368b
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos368b
 
+open scoped Classical in
 theorem n_n_plus_one_inf :
     Filter.Tendsto (fun n => P_plus (n * (n + 1))) Filter.atTop Filter.atTop := by
   sorry

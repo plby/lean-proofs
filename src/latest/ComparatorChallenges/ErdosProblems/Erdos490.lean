@@ -1,7 +1,6 @@
 import Mathlib
 import ErdosProblems.Axioms
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 
@@ -9,6 +8,7 @@ open Finset BigOperators Nat Real
 
 namespace Erdos490
 
+open scoped Classical in
 theorem main_theorem :
     ∃ N₀ : ℕ, ∀ n : ℕ, N₀ ≤ n →
       ∀ A B : Finset ℕ,

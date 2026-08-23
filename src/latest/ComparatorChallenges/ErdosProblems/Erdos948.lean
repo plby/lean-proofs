@@ -6,10 +6,10 @@ open Nat List Finset
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos948
 
+open scoped Classical in
 def Erdos948Statement : Prop :=
   ∃ (f : ℕ → ℕ) (k : ℕ), 0 < k ∧
     ∀ colouring : ℤ → Fin k,
@@ -22,6 +22,7 @@ end Erdos948
 
 namespace Erdos948
 
+open scoped Classical in
 theorem erdos_948 : ¬ Erdos948Statement := by
   sorry
 

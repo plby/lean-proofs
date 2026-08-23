@@ -22,12 +22,12 @@ def HasCompleteImage (P : ℚ[X]) : Prop :=
   PolynomialEgyptianSums.IsStronglyComplete (imageSet P)
 end Erdos351
 
-attribute [local instance] Classical.propDecidable
 
 open Polynomial
 
 namespace Erdos351
 
+open scoped Classical in
 theorem erdos_351 :
     True ↔ ∀ P : ℚ[X], 0 < P.natDegree → 0 < P.leadingCoeff →
       HasCompleteImage P := by

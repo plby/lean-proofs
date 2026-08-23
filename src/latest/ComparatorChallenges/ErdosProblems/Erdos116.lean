@@ -5,10 +5,10 @@ open Polynomial MeasureTheory Set Metric Complex
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable Classical.decEq
 
 namespace Erdos116
 
+open scoped Classical in
 def lemniscateProduct {n : ℕ} (a : Fin n → ℂ) (z : ℂ) : ℂ :=
   ∏ i, (z - a i)
 
@@ -16,6 +16,7 @@ end Erdos116
 
 namespace Erdos116
 
+open scoped Classical in
 theorem erdos_116 {n : ℕ} (hn : 0 < n) (a : Fin n → ℂ)
     (ha : ∀ i, ‖a i‖ ≤ 1) :
     ENNReal.ofReal (Real.pi / (2 ^ 31 * (n : ℝ) ^ 14)) <

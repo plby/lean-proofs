@@ -1,11 +1,11 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 open Finset Nat Real Multiset Asymptotics
 
 namespace Erdos392
 
+open scoped Classical in
 theorem Solution_2 (ε : ℝ) (hε : ε > 0) :
     ∀ᶠ n in .atTop, ∃ (t : ℕ) (a : Fin t → ℕ),
       ∏ i, a i = n.factorial ∧ ∀ i, a i ≤ n ^ 2 ∧

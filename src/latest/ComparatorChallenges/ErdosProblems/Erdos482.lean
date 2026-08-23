@@ -2,22 +2,24 @@ import Mathlib
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos482
 
+open scoped Classical in
 noncomputable def alpha (t : ℝ) : ℝ := 2 * (t + 1) / (t + 2)
 
 end Erdos482
 
 namespace Erdos482
 
+open scoped Classical in
 noncomputable def beta (t : ℝ) : ℝ := (t + 2) / (t + 1)
 
 end Erdos482
 
 namespace Erdos482
 
+open scoped Classical in
 noncomputable def stollBinary (t : ℝ) : ℕ → ℕ
   | 0 => 1
   | n + 1 =>
@@ -28,6 +30,7 @@ end Erdos482
 
 namespace Erdos482
 
+open scoped Classical in
 noncomputable def grahamPollak : ℕ → ℕ
   | 0 => 0
   | n + 1 => stollBinary (Real.sqrt 2) n
@@ -36,6 +39,7 @@ end Erdos482
 
 namespace Erdos482
 
+open scoped Classical in
 noncomputable def binaryDigit (t : ℝ) : ℕ → Fin 2
   | 0 => 0
   | 1 => 1
@@ -45,6 +49,7 @@ end Erdos482
 
 namespace Erdos482
 
+open scoped Classical in
 theorem erdos_482 :
     grahamPollak 1 = 1 ∧
       (∀ n, 1 ≤ n →

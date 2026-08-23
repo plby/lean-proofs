@@ -48,10 +48,10 @@ noncomputable def c_opt (n : ℕ) : ℝ :=
       r = score x }
 end Erdos1026
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos1026
 
+open scoped Classical in
 theorem c_opt_eq_k_div_sq_add_a
     (k n : ℕ) (a : ℤ)
     (hk : 1 < k)

@@ -10,7 +10,6 @@ set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
 set_option linter.unusedSimpArgs false
 
-attribute [local instance] Classical.propDecidable
 
 namespace TerminalVertex
 
@@ -27,6 +26,7 @@ open Finset Function SimpleGraph
 
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
+open scoped Classical in
 def HasDisjointCliques (G : SimpleGraph V) (r m : ℕ) : Prop :=
   ∃ f : Fin m → Finset V,
     (∀ i, (f i).card = r) ∧
@@ -36,7 +36,6 @@ end HajnalSzemeredi
 
 end Erdos914
 
-attribute [local instance] Classical.propDecidable
 
 
 open Finset
@@ -44,6 +43,7 @@ open Finset Function SimpleGraph
 
 namespace Erdos914.HajnalSzemeredi
 
+open scoped Classical in
 theorem hajnal_szemeredi_clique_cover {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     (r m : ℕ) (hr : 1 ≤ r) (hcard : Fintype.card V = r * m)

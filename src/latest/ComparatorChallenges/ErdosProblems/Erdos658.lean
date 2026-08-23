@@ -39,12 +39,12 @@ end
 
 end Erdos658
 
-attribute [local instance] Classical.propDecidable
 
 open Finset
 
 namespace Erdos658
 
+open scoped Classical in
 theorem Theorem_1_2 (hFR : Theorem_2_2) :
     ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
       ∀ S : Finset (ℤ × ℤ × ℤ), S ⊆ grid3 N →
@@ -53,6 +53,7 @@ theorem Theorem_1_2 (hFR : Theorem_2_2) :
   sorry
 
 
+open scoped Classical in
 theorem Theorem_1_1 (hFR : Theorem_2_2) :
     ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
       ∀ S : Finset (ℤ × ℤ), S ⊆ grid2 N →
@@ -60,6 +61,7 @@ theorem Theorem_1_1 (hFR : Theorem_2_2) :
   sorry
 
 
+open scoped Classical in
 theorem erdos658 :
     ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
       ∀ S : Finset (ℤ × ℤ), S ⊆ grid2 N →

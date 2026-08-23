@@ -1,9 +1,9 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos1051
 
+open scoped Classical in
 theorem erdos_1051_irrational
   (a : ℕ → ℕ)
   (h_mono : StrictMono a)

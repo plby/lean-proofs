@@ -14,13 +14,14 @@ namespace Erdos847
 
 open Set
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 /-- `HasFew3APs A` is the local positive-proportion hypothesis in the upstream statement. -/
 def HasFew3APs (A : Set ℕ) : Prop :=
   ∃ ε : ℝ, ε > 0 ∧ ∀ B : Set ℕ, B ⊆ A → Finite B →
     ∃ C : Set ℕ, C ⊆ B ∧ C.ncard ≥ ε * B.ncard ∧ ThreeAPFree C
 
+open scoped Classical in
 theorem erdos_847 :
     ¬ ∀ A : Set ℕ, Infinite A → HasFew3APs A →
       ∃ n, ∃ S : Fin n → Set ℕ,

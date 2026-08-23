@@ -7,8 +7,8 @@ open scoped Topology BigOperators ENNReal NNReal
 
 namespace Erdos615
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 theorem erdos_615 :
     ¬ ∃ c : ℝ, 0 < c ∧ ∀ᶠ (n : ℕ) in atTop,
       ∀ G : SimpleGraph (Fin n), (1 / 8 - c) * n ^ 2 ≤ G.edgeFinset.card →

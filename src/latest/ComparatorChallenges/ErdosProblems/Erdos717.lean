@@ -16,10 +16,10 @@ open SimpleGraph
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos717
 
+open scoped Classical in
 noncomputable def chiNat {V : Type*} (G : SimpleGraph V) : ℕ :=
   G.chromaticNumber.toNat
 
@@ -27,12 +27,14 @@ end Erdos717
 
 namespace Erdos717
 
+open scoped Classical in
 abbrev CliqueEdge (r : ℕ) := {e : Fin r × Fin r // e.1 < e.2}
 
 end Erdos717
 
 namespace Erdos717
 
+open scoped Classical in
 def walkInteriorSet {V : Type*} {G : SimpleGraph V} {u v : V}
     (p : G.Walk u v) : Set V :=
   {x | x ∈ p.support ∧ x ≠ u ∧ x ≠ v}
@@ -41,6 +43,7 @@ end Erdos717
 
 namespace Erdos717
 
+open scoped Classical in
 structure CliqueSubdivision {V : Type*} (G : SimpleGraph V) (r : ℕ) where
   branch : Fin r ↪ V
   path : ∀ e : CliqueEdge r, G.Walk (branch e.1.1) (branch e.1.2)
@@ -54,6 +57,7 @@ end Erdos717
 
 namespace Erdos717
 
+open scoped Classical in
 def ContainsCliqueSubdivision {V : Type*} (G : SimpleGraph V) (r : ℕ) : Prop :=
   Nonempty (CliqueSubdivision G r)
 
@@ -61,6 +65,7 @@ end Erdos717
 
 namespace Erdos717
 
+open scoped Classical in
 noncomputable def cliqueSubdivisionNumber {V : Type*} [Fintype V]
     (G : SimpleGraph V) : ℕ := by
   classical
@@ -70,6 +75,7 @@ end Erdos717
 
 namespace Erdos717
 
+open scoped Classical in
 def Erdos717Bound : Prop :=
   ∃ C : ℝ, 0 < C ∧
     ∀ (V : Type) [Fintype V] (G : SimpleGraph V),
@@ -82,6 +88,7 @@ end Erdos717
 
 namespace Erdos717
 
+open scoped Classical in
 theorem erdos_717 : Erdos717Bound := by
   sorry
 

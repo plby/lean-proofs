@@ -10,18 +10,19 @@ set_option linter.flexible false
 
 namespace Erdos226
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 def IsAffine (f : ℝ → ℝ) : Prop :=
   ∃ a b : ℝ, ∀ x, f x = a * x + b
+open scoped Classical in
 def PreservesRationality (f : ℝ → ℝ) : Prop :=
   ∀ x : ℝ, x ∈ (Set.range ((↑) : ℚ → ℝ)) ↔ f x ∈ (Set.range ((↑) : ℚ → ℝ))
 end Erdos226
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos226
 
+open scoped Classical in
 theorem erdos_226 : ∃ F : ℂ → ℂ, Differentiable ℂ F ∧ (∀ x : ℝ, (F x).im = 0) ∧ ¬ IsAffine (fun x : ℝ => (F x).re) ∧ PreservesRationality (fun x : ℝ => (F x).re) := by
   sorry
 

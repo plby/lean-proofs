@@ -5,10 +5,10 @@ open Finset
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable Classical.decEq
 
 namespace Erdos362
 
+open scoped Classical in
 def subsetSumFiber (A : Finset ℕ) (t : ℕ) : Finset (Finset ℕ) :=
   A.powerset.filter fun S ↦ ∑ a ∈ S, a = t
 
@@ -16,6 +16,7 @@ end Erdos362
 
 namespace Erdos362
 
+open scoped Classical in
 def fixedCardSubsetSumFiber (A : Finset ℕ) (l t : ℕ) : Finset (Finset ℕ) :=
   (A.powersetCard l).filter fun S ↦ ∑ a ∈ S, a = t
 
@@ -23,12 +24,14 @@ end Erdos362
 
 namespace Erdos362
 
+open scoped Classical in
 def IndexedScalarBound (C : ℝ) : Prop :=
   ∀ {α : Type} [Fintype α] [DecidableEq α] (w : α → ℕ), Function.Injective w →
     (∀ i, 0 < w i) → 1 ≤ Fintype.card α → ∀ b t : ℕ,
       (((Finset.univ.powerset.filter fun R ↦ b + ∑ i ∈ R, w i = t).card : ℝ) ≤
         C * (2 : ℝ) ^ Fintype.card α / Real.sqrt (Fintype.card α) ^ 3)
 
+open scoped Classical in
 def Erdos362Statement : Prop :=
   (∃ C : ℝ, 0 < C ∧ ∀ (A : Finset ℕ), A.Nonempty → ∀ t : ℕ,
       ((subsetSumFiber A t).card : ℝ) ≤
@@ -41,6 +44,7 @@ end Erdos362
 
 namespace Erdos362
 
+open scoped Classical in
 theorem erdos_362 : Erdos362Statement := by
   sorry
 

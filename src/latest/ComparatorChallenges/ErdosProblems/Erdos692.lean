@@ -14,12 +14,12 @@ noncomputable def delta1 (n m : ℕ) : ℚ :=
   countWithOneDivisor n m ((Ioo n m).lcm id) / ((Ioo n m).lcm id)
 end Erdos692
 
-attribute [local instance] Classical.propDecidable
 
 open Finset
 
 namespace Erdos692
 
+open scoped Classical in
 theorem delta1_not_unimodal :
     delta1 3 7 < delta1 3 6 ∧ delta1 3 7 < delta1 3 8 := by
   sorry

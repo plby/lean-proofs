@@ -12,13 +12,13 @@ noncomputable def listChromaticNumber {V : Type*} (G : SimpleGraph V) : ℕ :=
   sInf {k : ℕ | IsKChoosable G k}
 end Erdos753
 
-attribute [local instance] Classical.propDecidable
 
 
 open Real Finset
 
 namespace Erdos753
 
+open scoped Classical in
 theorem erdos_753_negation :
     ¬∃ c : ℝ, c > 0 ∧ ∃ N : ℕ, ∀ n : ℕ, N ≤ n → ∀ (G : SimpleGraph (Fin n)),
         (n : ℝ) ^ ((1 : ℝ) / 2 + c) <

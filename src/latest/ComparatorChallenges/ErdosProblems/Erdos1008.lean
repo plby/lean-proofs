@@ -8,12 +8,12 @@ open SimpleGraph Finset
 
 end Erdos1008
 
-attribute [local instance] Classical.propDecidable
 
 open SimpleGraph Finset
 
 namespace Erdos1008
 
+open scoped Classical in
 theorem exists_C4_free_subgraph_with_many_edges {V : Type} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
   ∃ (S' : Finset (Sym2 V)), S' ⊆ G.edgeFinset ∧

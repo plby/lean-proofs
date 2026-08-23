@@ -138,7 +138,6 @@ def ramseyNumber (k l : ℕ) : ℕ :=
 
 end Ramsey
 
-attribute [local instance] Classical.propDecidable
 
 open Filter
 open Finset
@@ -148,6 +147,7 @@ open Ramsey
 
 namespace Erdos1014
 
+open scoped Classical in
 theorem erdos1014 (k : ℕ) (hk : 3 ≤ k) :
     Tendsto (fun l => (ramseyNumber k (l + 1) : ℝ) / ramseyNumber k l) atTop (𝓝 1) := by
   sorry

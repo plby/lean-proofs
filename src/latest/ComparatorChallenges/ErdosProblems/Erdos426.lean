@@ -21,10 +21,10 @@ noncomputable section
 
 open Finset Function SimpleGraph
 
-attribute [local instance] Classical.propDecidable
 
 namespace UniqueSubgraphs
 
+open scoped Classical in
 instance graphIsoSetoid (n : ℕ) : Setoid (SimpleGraph (Fin n)) where
   r G₁ G₂ := Nonempty (G₁.Iso G₂)
   iseqv := {
@@ -33,20 +33,25 @@ instance graphIsoSetoid (n : ℕ) : Setoid (SimpleGraph (Fin n)) where
     trans := fun ⟨i⟩ ⟨j⟩ => ⟨i.trans j⟩
   }
 
+open scoped Classical in
 def paperDenom (n : ℕ) : ℝ :=
   (2 ^ n.choose 2 : ℝ) / (Nat.factorial n : ℝ)
 
+open scoped Classical in
 def IsUniqueSubgraph {n : ℕ} (G H : SimpleGraph (Fin n)) : Prop :=
   ∃! S : H.Subgraph, S.IsSpanning ∧ Nonempty (S.spanningCoe.Iso G)
 
+open scoped Classical in
 def uniqueSubgraphClasses {n : ℕ} (H : SimpleGraph (Fin n)) :
     Finset (Quotient (graphIsoSetoid n)) :=
   (Finset.univ.filter (fun G : SimpleGraph (Fin n) => IsUniqueSubgraph G H)).image
     (Quotient.mk (graphIsoSetoid n))
 
+open scoped Classical in
 def fH {n : ℕ} (H : SimpleGraph (Fin n)) : ℝ :=
   ((uniqueSubgraphClasses H).card : ℝ) / paperDenom n
 
+open scoped Classical in
 def fSeq (n : ℕ) : ℝ :=
   (Finset.univ : Finset (SimpleGraph (Fin n))).sup' ⟨⊥, mem_univ _⟩ fH
 end UniqueSubgraphs
@@ -125,7 +130,6 @@ end
 
 end Erdos426
 
-attribute [local instance] Classical.propDecidable
 
 open Finset Function SimpleGraph
 open Finset Function
@@ -136,6 +140,7 @@ open Finset Real
 
 namespace Erdos426.UniqueSubgraphs
 
+open scoped Classical in
 theorem f_tendsto_zero : Filter.Tendsto fSeq Filter.atTop (nhds 0) := by
   sorry
 

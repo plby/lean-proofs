@@ -18,10 +18,10 @@ def DukeTheoremStatement : Prop :=
     t.1 % 2 = t.2.2 % 2
 end Erdos1148
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos1148
 
+open scoped Classical in
 theorem erdos_problem_1148 (h_duke : DukeTheoremStatement) :
   ∃ N : ℤ, ∀ n : ℤ, n ≥ N → ∃ x y z : ℤ, n = x^2 + y^2 - z^2 ∧ max (x^2) (max (y^2) (z^2)) ≤ n := by
   sorry

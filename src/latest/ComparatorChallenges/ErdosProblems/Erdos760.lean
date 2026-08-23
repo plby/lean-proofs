@@ -20,7 +20,6 @@ end SimpleGraph
 
 end Erdos760
 
-attribute [local instance] Classical.propDecidable
 
 
 open scoped ENat
@@ -28,6 +27,7 @@ open _root_.SimpleGraph
 
 namespace Erdos760.SimpleGraph
 
+open scoped Classical in
 theorem erdos_760 : ∃ C : ℕ, 0 < C ∧
     ∀ (V : Type*) [Finite V] (G : SimpleGraph V) (m : ℕ),
       G.chromaticNumber = ↑m → 2 ≤ m →

@@ -5,10 +5,10 @@ open scoped BigOperators Pointwise Topology
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos1096
 
+open scoped Classical in
 theorem erdos_1096 :
     True ↔ ∃ ε > 0, ∀ q, 1 < q → q < 1 + ε →
     ∀ x : ℕ → ℝ, StrictMono x → Set.range x = { ∑ i ∈ S, q ^ i | S : Finset ℕ } →

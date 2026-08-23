@@ -16,12 +16,12 @@ end Erdos280
 
 end Erdos280
 
-attribute [local instance] Classical.propDecidable
 
 open Nat
 
 namespace Erdos280
 
+open scoped Classical in
 theorem erdos_280_counterexample :
     ∃ (n a : ℕ → ℕ) (ε : ℝ),
       0 < ε ∧

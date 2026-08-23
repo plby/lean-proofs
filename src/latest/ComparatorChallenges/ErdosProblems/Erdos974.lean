@@ -214,7 +214,6 @@ end ProblemData
 
 end Erdos974
 
-attribute [local instance] Classical.propDecidable
 
 open Finset Matrix Complex Function
 open ComplexConjugate
@@ -222,6 +221,7 @@ open _root_.MvPolynomial
 
 namespace Erdos974.ProblemData
 
+open scoped Classical in
 theorem erdos974_even {n : ℕ} [NeZero n] (PD : ProblemData (2 * n)) :
     univ.image PD.z = Polynomial.nthRootsFinset n 1 ∪
     Polynomial.nthRootsFinset n (-∏ i ∈ PD.oddIndices, -PD.z i) := by

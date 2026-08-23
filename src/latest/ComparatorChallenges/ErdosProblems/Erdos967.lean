@@ -17,7 +17,6 @@ def question_1_1_statement : Prop :=
   ∀ (t : ℝ), 1 + (∑' n, if n ∈ S then (n : ℂ) ^ (-(1 + Complex.I * t)) else 0) ≠ 0
 end Erdos967
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open scoped Real
@@ -26,6 +25,7 @@ open scoped Pointwise
 
 namespace Erdos967
 
+open scoped Classical in
 theorem main_theorem (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
   ∃ S : Set ℕ, (∀ n ∈ S, n ≥ 2) ∧
   Summable (fun n => if n ∈ S then (n : ℝ)⁻¹ else 0) ∧
@@ -33,6 +33,7 @@ theorem main_theorem (t : ℝ) (ht : t ≠ 0) (lambda_val : ℂ) :
   sorry
 
 end Erdos967
+open scoped Classical in
 theorem Erdos967.disproof_of_question_1_1 :
     Not Erdos967.question_1_1_statement
   := by

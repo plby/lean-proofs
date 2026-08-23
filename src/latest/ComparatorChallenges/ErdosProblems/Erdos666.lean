@@ -16,13 +16,13 @@ def HasCycleOfLength {V : Type*} (G : SimpleGraph V) (k : ℕ) : Prop :=
   ∃ (u : V) (p : G.Walk u u), p.IsCycle ∧ p.length = k
 end Erdos666
 
-attribute [local instance] Classical.propDecidable
 
 
 open SimpleGraph
 
 namespace Erdos666
 
+open scoped Classical in
 theorem not_erdos_666 :
   ¬ (∀ ε > 0,
       ∃ N,

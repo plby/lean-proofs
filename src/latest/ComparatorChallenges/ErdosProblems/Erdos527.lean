@@ -30,10 +30,10 @@ open Filter MeasureTheory ProbabilityTheory Set
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos527
 
+open scoped Classical in
 def SquareSumDiverges (a : ℕ → ℝ) : Prop :=
   Tendsto (fun N ↦ ∑ n ∈ Finset.range N, |a n| ^ 2) atTop atTop
 
@@ -41,6 +41,7 @@ end Erdos527
 
 namespace Erdos527
 
+open scoped Classical in
 def DecaysFasterThanInvSqrt (a : ℕ → ℝ) : Prop :=
   (fun n : ℕ ↦ |a n|) =o[atTop]
     (fun n : ℕ ↦ (Real.sqrt (n : ℝ))⁻¹)
@@ -51,12 +52,14 @@ end Erdos527
 
 namespace Erdos527
 
+open scoped Classical in
 noncomputable def half : unitInterval := ⟨1 / 2, by norm_num⟩
 
 end Erdos527
 
 namespace Erdos527
 
+open scoped Classical in
 noncomputable def rademacherMeasure : Measure ℝ :=
   Ber((1 : ℝ), (-1 : ℝ), half)
 
@@ -64,6 +67,7 @@ end Erdos527
 
 namespace Erdos527
 
+open scoped Classical in
 noncomputable def rademacherProductMeasure : Measure (ℕ → ℝ) :=
   Measure.infinitePi fun _ : ℕ ↦ rademacherMeasure
 
@@ -71,6 +75,7 @@ end Erdos527
 
 namespace Erdos527
 
+open scoped Classical in
 def seriesTerm (a ε : ℕ → ℝ) (z : ℂ) (n : ℕ) : ℂ :=
   ((ε n * a n : ℝ) : ℂ) * z ^ n
 
@@ -78,6 +83,7 @@ end Erdos527
 
 namespace Erdos527
 
+open scoped Classical in
 def SeriesConvergesAt (a ε : ℕ → ℝ) (z : ℂ) : Prop :=
   Summable (seriesTerm a ε z) (SummationFilter.conditional ℕ)
 
@@ -85,6 +91,7 @@ end Erdos527
 
 namespace Erdos527
 
+open scoped Classical in
 theorem erdos_527
     (a : ℕ → ℝ) (hsq : SquareSumDiverges a)
     (hsmall : DecaysFasterThanInvSqrt a) :

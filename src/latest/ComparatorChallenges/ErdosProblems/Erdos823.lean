@@ -5,10 +5,10 @@ open scoped ArithmeticFunction.sigma
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos823
 
+open scoped Classical in
 theorem erdos_823 : True ↔
     ∀ α : ℝ, 1 ≤ α →
       ∃ n m : ℕ → ℕ,

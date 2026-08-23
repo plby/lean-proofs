@@ -27,7 +27,6 @@ def Admissible (B : Set ℕ) : Prop :=
   ∀ p, p.Prime → ∃ (a : ZMod p), ∀ b ∈ B, (b : ZMod p) ≠ a
 end Erdos429
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open scoped Real
@@ -36,6 +35,7 @@ open scoped Pointwise
 
 namespace Erdos429
 
+open scoped Classical in
 theorem main_theorem (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter.atTop) :
     ∃ B : Set ℕ, B.Infinite ∧
     (∀ N, (B ∩ Set.Icc 1 N).toFinset.card ≤ f N) ∧

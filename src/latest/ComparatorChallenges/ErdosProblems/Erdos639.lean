@@ -43,7 +43,6 @@ end SimpleGraph
 
 end Erdos639
 
-attribute [local instance] Classical.propDecidable
 
 
 open Finset
@@ -51,6 +50,7 @@ open _root_.SimpleGraph
 
 namespace Erdos639.SimpleGraph
 
+open scoped Classical in
 theorem erdos639 {V : Type*} {C : Sym2 V → Fin 2} [Fintype V] [DecidableEq V]
     (hn : 10 ≤ n V) : #(nimt C).edgeFinset ≤ n V ^ 2 / 4 := by
   sorry

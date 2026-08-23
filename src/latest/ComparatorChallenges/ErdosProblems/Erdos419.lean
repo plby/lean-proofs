@@ -7,10 +7,10 @@ noncomputable def u (n : ℕ) : ℝ := (tau (n + 1).factorial : ℝ) / (tau n.fa
 def S : Set ℝ := {1} ∪ {x | ∃ k : ℕ, k ≥ 1 ∧ x = 1 + 1 / (k : ℝ)}
 end Erdos419
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos419
 
+open scoped Classical in
 theorem erdos_419 : {x : ℝ | MapClusterPt x Filter.atTop u} = S := by
   sorry
 

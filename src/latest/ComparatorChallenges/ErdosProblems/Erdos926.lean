@@ -21,10 +21,6 @@ namespace Erdos926
 
 noncomputable section
 
-syntax (name := answerSyntax926) "answer(" term ")" : term
-macro_rules
-  | `(answer($t)) => `($t)
-
 /-! ## The forbidden graph -/
 
 /-- An index for an unordered pair, represented in increasing order. -/
@@ -89,7 +85,7 @@ abbrev threshold (k : ℕ) : ℕ := 1 + k + pairCount k
 
 
 theorem erdos_926 :
-    answer(True) ↔ ∀ k : ℕ, 4 ≤ k →
+    True ↔ ∀ k : ℕ, 4 ≤ k →
       (fun n : ℕ ↦ (SimpleGraph.extremalNumber n (Hk k) : ℝ)) =O[atTop]
         (fun n : ℕ ↦ (n : ℝ) ^ (3 / 2 : ℝ)) := by
   sorry

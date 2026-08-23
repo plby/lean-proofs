@@ -2,12 +2,12 @@ import Mathlib
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos916
 
 variable {V : Type u} [Fintype V] [DecidableEq V]
 
+open scoped Classical in
 def HasWheelWitness (G : SimpleGraph V) [DecidableRel G.Adj] : Prop :=
   ∃ (a : V) (p : G.Walk a a) (x : V),
     p.IsCycle ∧ x ∉ p.support ∧
@@ -17,6 +17,7 @@ end Erdos916
 
 namespace Erdos916
 
+open scoped Classical in
 theorem erdos916 {V : Type u} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     (hcard : 4 ≤ Fintype.card V)

@@ -4,10 +4,10 @@ open scoped Cardinal
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos1127
 
+open scoped Classical in
 def HasDistinctOrientedPairDistances {X : Type*} [PseudoMetricSpace X]
     (color : X → ℕ) : Prop :=
   ∀ ⦃x y u v : X⦄,
@@ -22,6 +22,7 @@ end Erdos1127
 
 namespace Erdos1127
 
+open scoped Classical in
 def HasDistinctIncludingDegeneratePairs {X : Type*} [PseudoMetricSpace X]
     (color : X → ℕ) : Prop :=
   ∀ ⦃x y u v : X⦄,
@@ -35,6 +36,7 @@ end Erdos1127
 
 namespace Erdos1127
 
+open scoped Classical in
 def ContinuumHypothesis : Prop :=
   𝔠 = (ℵ_ 1 : Cardinal.{0})
 
@@ -42,6 +44,7 @@ end Erdos1127
 
 namespace Erdos1127
 
+open scoped Classical in
 def HasDistinctPairDistances {X : Type*} [PseudoMetricSpace X]
     (color : X → ℕ) : Prop :=
   ∀ ⦃x y u v : X⦄,
@@ -56,6 +59,7 @@ end Erdos1127
 
 namespace Erdos1127
 
+open scoped Classical in
 def PositiveAnswer : Prop :=
   ∀ n : ℕ, ∃ color : EuclideanSpace ℝ (Fin n) → ℕ,
     HasDistinctPairDistances color
@@ -73,6 +77,7 @@ end Erdos1127
 
 namespace Erdos1127
 
+open scoped Classical in
 theorem erdos_1127_oriented_pair_formulation_false :
     ¬ ∃ color : ℝ → ℕ, HasDistinctOrientedPairDistances color := by
   sorry
@@ -81,6 +86,7 @@ end Erdos1127
 
 namespace Erdos1127
 
+open scoped Classical in
 theorem erdos_1127_degenerate_pair_formulation_false :
     ¬ ∃ color : ℝ → ℕ, HasDistinctIncludingDegeneratePairs color := by
   sorry
@@ -89,6 +95,7 @@ end Erdos1127
 
 namespace Erdos1127
 
+open scoped Classical in
 theorem erdos_1127 : ContinuumHypothesis ↔ PositiveAnswer := by
   sorry
 

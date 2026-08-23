@@ -27,13 +27,13 @@ def ConvexPosition (P : Finset Point) : Prop :=
 end
 end Erdos94
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open Finset
 
 namespace Erdos94
 
+open scoped Classical in
 theorem erdos94_convex_no3collinear (P : Finset Point)
     (hconv : ConvexPosition P) (hnc : NoThreeCollinear P) :
     S P ≤ (3 / 4 : ℝ) * (P.card : ℝ)^2 * ((P.card : ℝ) - 1) := by

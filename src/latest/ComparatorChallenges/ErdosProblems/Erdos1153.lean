@@ -5,10 +5,10 @@ open Finset Set Polynomial Filter MeasureTheory
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos1153
 
+open scoped Classical in
 structure NodeConfiguration (n : ℕ) where
   nodes : Fin n → ℝ
   injective_nodes : Function.Injective nodes
@@ -18,6 +18,7 @@ end Erdos1153
 
 namespace Erdos1153
 
+open scoped Classical in
 noncomputable def lagrangeBasis {n : ℕ} (X : NodeConfiguration n)
     (k : Fin n) (x : ℝ) : ℝ :=
   (Lagrange.basis Finset.univ X.nodes k).eval x
@@ -26,6 +27,7 @@ end Erdos1153
 
 namespace Erdos1153
 
+open scoped Classical in
 noncomputable def lebesgueFunction {n : ℕ} (X : NodeConfiguration n)
     (x : ℝ) : ℝ :=
   ∑ k : Fin n, |lagrangeBasis X k x|
@@ -34,6 +36,7 @@ end Erdos1153
 
 namespace Erdos1153
 
+open scoped Classical in
 noncomputable def heightDropKernel (eta t : ℝ) : ℝ :=
   Real.log ((t ^ 2 + (2 * eta) ^ 2) / (t ^ 2 + eta ^ 2)) / 2
 
@@ -41,6 +44,7 @@ end Erdos1153
 
 namespace Erdos1153
 
+open scoped Classical in
 def Problem1153 : Prop :=
   ∀ a b : ℝ, -1 ≤ a → a < b → b ≤ 1 →
     ∀ ε : ℝ, 0 < ε →
@@ -52,6 +56,7 @@ end Erdos1153
 
 namespace Erdos1153
 
+open scoped Classical in
 theorem erdos1153 : Problem1153 := by
   sorry
 

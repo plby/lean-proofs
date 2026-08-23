@@ -12,12 +12,12 @@ def is_valid_collection (S : List (Finset ℕ)) : Prop :=
   IsSquare ((S.map (fun I => ∏ m ∈ I, m)).prod)
 end Erdos363
 
-attribute [local instance] Classical.propDecidable
 
 open Finset
 
 namespace Erdos363
 
+open scoped Classical in
 theorem erdos_363 : ¬ Set.Finite { S | is_valid_collection S } := by
   sorry
 

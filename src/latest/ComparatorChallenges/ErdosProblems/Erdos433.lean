@@ -12,7 +12,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-attribute [local instance] Classical.propDecidable
 
 set_option maxHeartbeats 1000000
 set_option maxRecDepth 4000
@@ -54,9 +53,12 @@ local notation:max "#" s:max => Finset.card s
 
 namespace Erdos433
 
+open scoped Classical in
 def S (E : Set ℕ) : AddSubsemigroup ℕ := AddSubsemigroup.closure E
+open scoped Classical in
 noncomputable def G (E : Set ℕ) : ℕ := sSup {n | n ∉ S E}
 
+open scoped Classical in
 noncomputable def g (b a : ℕ) : ℕ :=
   sSup {G E | (E : Finset ℕ)
     (_hE_sub : (E : Set ℕ) ⊆ Set.Icc 1 a)
@@ -64,7 +66,6 @@ noncomputable def g (b a : ℕ) : ℕ :=
     (_hE_gcd : Finset.gcd E id = 1)}
 end Erdos433
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open scoped Real
@@ -74,6 +75,7 @@ open Function MulAction
 
 namespace Erdos433
 
+open scoped Classical in
 theorem theorem_1 (a b : ℕ) (hb_ge_2 : b ≥ 2) (hb_lt_a : b < a) :
   ⌊(a - 2 : ℝ) / (b - 1 : ℝ)⌋ * (a - b + 1) - 1 ≤ g b a ∧
   g b a ≤ (⌈(a - 1 : ℝ) / (b - 1 : ℝ)⌉ - 1) * a - 1 := by

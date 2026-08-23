@@ -16,10 +16,10 @@ open Filter Function MeasureTheory ProbabilityTheory Set
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 namespace Set
 
+open scoped Classical in
 noncomputable abbrev partialDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
     (S : Set β) (A : Set β := Set.univ) (b : β) : ℝ :=
   ((S ∩ A) ∩ Iio b).ncard / (A ∩ Iio b).ncard
@@ -28,6 +28,7 @@ end Set
 
 namespace Set
 
+open scoped Classical in
 noncomputable def upperDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
     (S : Set β) (A : Set β := Set.univ) : ℝ :=
   atTop.limsup fun (b : β) ↦ S.partialDensity A b
@@ -36,6 +37,7 @@ end Set
 
 namespace Erdos109
 
+open scoped Classical in
 theorem erdos_109 (A : Set ℕ) (hA : A.upperDensity > 0) :
     ∃ B C : Set ℕ, B.Infinite ∧ C.Infinite ∧ B + C ⊆ A := by
   sorry

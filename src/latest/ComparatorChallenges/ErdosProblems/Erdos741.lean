@@ -18,7 +18,6 @@ end HasDensity
 
 end Set
 
-attribute [local instance] Classical.propDecidable
 
 
 open Filter
@@ -28,6 +27,7 @@ open Set
 
 namespace Erdos741.erdos_741.variants
 
+open scoped Classical in
 theorem upper : (True) ↔ ∀ A :
     Set ℕ, 0 < upperDensity (A + A) → ∃ A₁ A₂,
     A = A₁ ∪ A₂ ∧ Disjoint A₁ A₂ ∧ 0 < upperDensity (A₁ + A₁)

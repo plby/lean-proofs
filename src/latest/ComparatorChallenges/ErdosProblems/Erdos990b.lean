@@ -40,13 +40,13 @@ def SparseErdosTuranBound (C : ℝ) : Prop :=
 
 end Erdos990b
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators Topology
 open Polynomial
 
 namespace Erdos990b
 
+open scoped Classical in
 theorem erdos990_no_absolute_constant_sparseErdosTuran :
     ¬ ∃ C : ℝ, 0 < C ∧ SparseErdosTuranBound C := by
   sorry

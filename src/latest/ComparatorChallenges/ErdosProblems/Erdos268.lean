@@ -18,13 +18,13 @@ noncomputable section
 end
 end Erdos268
 
-attribute [local instance] Classical.propDecidable
 
 open Set Filter Topology Matrix
 open scoped BigOperators
 
 namespace Erdos268
 
+open scoped Classical in
 theorem harmonicSubseriesSet_interior_nonempty :
     (interior harmonicSubseriesSet).Nonempty := by
   sorry

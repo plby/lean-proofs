@@ -130,7 +130,6 @@ namespace Erdos1044
 
 end Erdos1044
 
-attribute [local instance] Classical.propDecidable
 
 open Polynomial MeasureTheory Topology Set Metric
 open Set Metric MeasureTheory Topology
@@ -141,6 +140,7 @@ open Polynomial MeasureTheory Topology Set Metric Complex MeasureTheory.Measure
 
 namespace Erdos1044
 
+open scoped Classical in
 theorem erdos_problem_1044 : lambdaInf = 2 := by
   sorry
 

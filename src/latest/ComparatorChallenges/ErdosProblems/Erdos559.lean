@@ -18,6 +18,7 @@ end SimpleGraph
 
 namespace Ramsey
 
+open scoped Classical in
 /--
 The Ramsey property on `n` vertices: every finite simple graph on `n` vertices contains
 either a `k`-clique or an independent set of size `l`.
@@ -155,8 +156,8 @@ open scoped SimpleGraph
 
 namespace Erdos559
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 /-- A uniform finite enumeration of graph copies, used so that all subtype
 cardinalities below share the same canonical `Fintype` instances. -/
 noncomputable local instance (priority := 2000) copyFintype
@@ -175,14 +176,17 @@ or the complementary set of host edges contains a copy of `G`.  Containment `⊑
 def IsRamseyFor {V W : Type*} (H : SimpleGraph V) (G : SimpleGraph W) : Prop :=
   ∀ R : SimpleGraph V, R ≤ H → G ⊑ R ∨ G ⊑ (H \ R)
 
+open scoped Classical in
 /-- The number of unordered edges of a finite simple graph. -/
 noncomputable def edgeCount {V : Type*} [Finite V] (H : SimpleGraph V) : ℕ :=
   Nat.card H.edgeSet
 
+open scoped Classical in
 lemma edgeCount_eq_card_edgeFinset {V : Type*} [Fintype V] (H : SimpleGraph V)
     [DecidableRel H.Adj] : edgeCount H = H.edgeFinset.card := by
   rw [edgeCount, Nat.card_eq_fintype_card, SimpleGraph.card_edgeSet]
 
+open scoped Classical in
 /-- There is a finite Ramsey host for every finite graph. -/
 lemma ramseyHost_exists {W : Type*} [Fintype W] (G : SimpleGraph W) :
     ∃ (N : ℕ) (H : SimpleGraph (Fin N)), IsRamseyFor H G := by
@@ -213,42 +217,51 @@ lemma ramseyHost_exists {W : Type*} [Fintype W] (G : SimpleGraph W) :
     rw [hdiff]
     exact hGtop.trans htop
 
+open scoped Classical in
 /-- A natural number is realized as the edge count of a finite Ramsey host for `G`. -/
 def HasRamseyHostWithEdges {W : Type*} [Fintype W] (G : SimpleGraph W) (m : ℕ) : Prop :=
   ∃ (N : ℕ) (H : SimpleGraph (Fin N)), IsRamseyFor H G ∧ edgeCount H = m
 
+open scoped Classical in
 lemma ramseyHostEdgeCount_exists {W : Type*} [Fintype W] (G : SimpleGraph W) :
     ∃ m, HasRamseyHostWithEdges G m := by
   obtain ⟨N, H, hH⟩ := ramseyHost_exists G
   exact ⟨edgeCount H, N, H, hH, rfl⟩
 
+open scoped Classical in
 /-- The size Ramsey number: the least number of edges in a finite graph Ramsey for `G`. -/
 noncomputable def sizeRamseyNumber {W : Type*} [Fintype W] (G : SimpleGraph W) : ℕ :=
   Nat.find (ramseyHostEdgeCount_exists G)
 
+open scoped Classical in
 lemma sizeRamseyNumber_spec {W : Type*} [Fintype W] (G : SimpleGraph W) :
     HasRamseyHostWithEdges G (sizeRamseyNumber G) := by
   exact Nat.find_spec (ramseyHostEdgeCount_exists G)
 
+open scoped Classical in
 lemma sizeRamseyNumber_le_of_ramsey {W : Type*} [Fintype W] (G : SimpleGraph W)
     {N : ℕ} {H : SimpleGraph (Fin N)} (hH : IsRamseyFor H G) :
     sizeRamseyNumber G ≤ edgeCount H := by
   exact Nat.find_min' (ramseyHostEdgeCount_exists G) ⟨N, H, hH, rfl⟩
 
+open scoped Classical in
 lemma ramsey_edgeCount_ge_sizeRamseyNumber {W : Type*} [Fintype W]
     (G : SimpleGraph W) {N : ℕ} {H : SimpleGraph (Fin N)} (hH : IsRamseyFor H G) :
     sizeRamseyNumber G ≤ edgeCount H :=
   sizeRamseyNumber_le_of_ramsey G hH
 
+open scoped Classical in
 /-- The proposed uniform linear size-Ramsey bound at one fixed maximum degree. -/
 def FixedDegreeLinearSizeRamsey (d : ℕ) : Prop :=
   ∃ C : ℕ, ∀ (V : Type) [Fintype V] (G : SimpleGraph V),
     G.maxDegree ≤ d → sizeRamseyNumber G ≤ C * Fintype.card V
 
+open scoped Classical in
 /-- The assertion asked for in Erdős Problem 559. -/
 def Erdos559Statement : Prop :=
   ∀ d : ℕ, FixedDegreeLinearSizeRamsey d
 
+open scoped Classical in
 theorem erdos_559 : ¬Erdos559Statement := by
   sorry
 

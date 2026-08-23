@@ -13,12 +13,12 @@ def erdos_1056 : Prop :=
     AllModProdEqualsOne p boundaries)
 end Erdos1056b
 
-attribute [local instance] Classical.propDecidable
 
 open Nat
 
 namespace Erdos1056b
 
+open scoped Classical in
 theorem noll_simmons (h1056 : erdos_1056) :
     (∀ᶠ k in Filter.atTop,
     ∃ (p : ℕ) (_ : p.Prime) (Q : Fin k → ℕ) (_ : StrictMono Q) (_ : ∀ i, Q i < p),

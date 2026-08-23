@@ -13,8 +13,8 @@ open Real
 
 open scoped Nat Topology
 
-attribute [local instance] Classical.propDecidable
 
+open scoped Classical in
 def good_triples (C ε : ℝ) : Set (ℕ × ℕ × ℕ) :=
   { t | let (a, b, n) := t; ε * n ≤ a ∧ a ≤ (1 - ε) * n ∧ ε * n ≤ b ∧ b ≤ (1 - ε) * n ∧
         Nat.factorial a * Nat.factorial b ∣ Nat.factorial n * Nat.factorial (a + b - n) ∧
@@ -23,18 +23,19 @@ end Erdos728b
 
 end Erdos728
 
-attribute [local instance] Classical.propDecidable
 
 open Real
 open scoped Nat Topology
 
 namespace Erdos728.Erdos728b
 
+open scoped Classical in
 theorem erdos_728 (C ε : ℝ) (hC : 0 < C) (hε : 0 < ε) (hε_small : ε < 1 / 2) :
     (good_triples C ε).Infinite := by
   sorry
 
 
+open scoped Classical in
 theorem erdos_728_fc :
     ∀ᶠ ε : ℝ in 𝓝[>] 0, ∀ C > (0 : ℝ), ∀ C' > C,
       ∃ a b n : ℕ,

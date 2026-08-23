@@ -32,7 +32,6 @@ def GoldstonGrahamPintzYildirimStatement : Prop :=
         (L (a i) x) / r i ∈ E2 C ∧ (L (a j) x) / r j ∈ E2 C}.Infinite
 end Erdos964
 
-attribute [local instance] Classical.propDecidable
 
 open scoped BigOperators
 open scoped Real
@@ -41,6 +40,7 @@ open scoped Pointwise
 
 namespace Erdos964
 
+open scoped Classical in
 theorem ErdosProblem964 (hGPY : GoldstonGrahamPintzYildirimStatement) :
   Set.Ioi (0 : ℝ) ⊆ closure (Set.image (fun q : ℚ => (q : ℝ)) divisor_ratios) := by
   sorry

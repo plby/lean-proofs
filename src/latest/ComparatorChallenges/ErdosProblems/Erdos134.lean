@@ -1,9 +1,9 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos134
 
+open scoped Classical in
 theorem erdos_134
     {ε δ : ℝ} (hε : 0 < ε) (hδ : 0 < δ) :
     ∃ N : ℕ, ∀ n ≥ N, ∀ G : SimpleGraph (Fin n),

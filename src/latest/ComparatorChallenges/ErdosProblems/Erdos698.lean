@@ -1,9 +1,9 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos698
 
+open scoped Classical in
 theorem binomial_gcd_lower_bound (n i j : ℕ) (h2 : 2 ≤ i) (hij : i < j)
     (hjn : j ≤ n / 2) :
     (Nat.gcd (Nat.choose n i) (Nat.choose n j) : ℝ) >

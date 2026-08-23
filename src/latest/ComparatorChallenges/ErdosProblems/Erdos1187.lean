@@ -24,6 +24,8 @@ open scoped BigOperators Finset
 
 namespace Erdos1187
 
+open scoped Classical in
+open scoped Classical in
 /-- A positive-step arithmetic progression of natural primes, regarded as
 integers by the coloring, is monochromatic. -/
 def HasMonochromaticPrimeAP {κ : Type*} (color : ℤ → κ) (k : ℕ) : Prop :=
@@ -63,7 +65,6 @@ noncomputable section
 
 open Combinatorics
 
-attribute [local instance] Classical.decEq
 
 /-- Encode a finite word by the sum of its natural-valued letters. -/
 private def wordIndex {ι : Type*} [Fintype ι] {k : ℕ}
@@ -71,8 +72,6 @@ private def wordIndex {ι : Type*} [Fintype ι] {k : ℕ}
   ∑ i, (v i : ℕ)
 
 /-- Every word index is below one plus `card ι * k`. -/
-
-
 theorem erdos_1187 :
     FirstQuestion ∧ ∀ k : ℕ, 3 ≤ k → ¬ SecondQuestionAt k := by
   sorry

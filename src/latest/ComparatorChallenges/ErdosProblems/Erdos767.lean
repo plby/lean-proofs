@@ -41,10 +41,10 @@ namespace Erdos767
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 universe u
 
+open scoped Classical in
 /-- A graph has the forbidden configuration for Problem 767 when a simple
 cycle has at least `k` distinct chord edges which share a cycle vertex.
 
@@ -56,10 +56,12 @@ def HasCycleWithKIncidentChords {V : Type u} (k : ℕ) (G : SimpleGraph V) : Pro
   ∃ (v : V) (c : G.Walk v v), c.IsCycle ∧
     ∃ f : Fin k → V, Function.Injective f ∧ ∀ i, c.IsChord s(v, f i)
 
+open scoped Classical in
 /-- The admissibility predicate in the definition of `g_k(n)`. -/
 def AvoidsCycleWithKIncidentChords {V : Type u} (k : ℕ) (G : SimpleGraph V) : Prop :=
   ¬HasCycleWithKIncidentChords k G
 
+open scoped Classical in
 /-- The extremal number from Problem 767, using labelled graphs on `Fin n`.
 Every finite graph on `n` vertices is isomorphic to one of these graphs. -/
 def chordCycleExtremalNumber (k n : ℕ) : ℕ :=
@@ -67,6 +69,7 @@ def chordCycleExtremalNumber (k n : ℕ) : ℕ :=
     AvoidsCycleWithKIncidentChords k G).sup fun G => G.edgeFinset.card
 
 
+open scoped Classical in
 theorem erdos_767 (k n : ℕ) (hk : 0 < k) (hn : 3 * k + 3 ≤ n) :
     chordCycleExtremalNumber k n =
       (k + 1) * n - (k + 1) ^ 2 := by

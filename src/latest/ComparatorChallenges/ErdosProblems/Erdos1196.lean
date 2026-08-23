@@ -85,7 +85,6 @@ def IsPrimitive {M : Type*} [CommMonoid M] (A : Set M) : Prop :=
   ∀ᵉ (x ∈ A) (y ∈ A), x ∣ y → Associated x y
 end Erdos1196
 
-attribute [local instance] Classical.propDecidable
 
 
 open scoped ArithmeticFunction BigOperators
@@ -97,6 +96,7 @@ open scoped Asymptotics BigOperators
 
 namespace Erdos1196.PrimitiveSetsAboveX
 
+open scoped Classical in
 theorem mainTheorem :
     ∃ C : ℝ, ∃ x₀ : ℕ,
       ∀ ⦃x : ℕ⦄, x₀ ≤ x →
@@ -109,6 +109,7 @@ theorem mainTheorem :
 end Erdos1196.PrimitiveSetsAboveX
 namespace Erdos1196
 
+open scoped Classical in
 theorem erdos_1196 :
     ∃ o : ℕ → ℝ, o =o[Filter.atTop] (1 : ℕ → ℝ) ∧
       ∀ x > (0 : ℕ), ∀ A ⊆ Set.Ici x, IsPrimitive A →

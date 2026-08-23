@@ -7,7 +7,6 @@ open scoped unitInterval
 
 noncomputable section
 
-attribute [local instance] Classical.propDecidable
 
 universe u
 
@@ -15,6 +14,7 @@ variable {V : Type u} [Fintype V]
 
 namespace Erdos630
 
+open scoped Classical in
 structure PlaneDrawing (G : SimpleGraph V) where
   vertexPoint : V → (Fin 2 → ℝ)
   vertexPoint_injective : Function.Injective vertexPoint
@@ -33,6 +33,7 @@ end Erdos630
 
 namespace Erdos630
 
+open scoped Classical in
 structure PlaneMap (G : SimpleGraph V) (F : Finset G.edgeSet) where
   Face : Type u
   instFintypeFace : Fintype Face
@@ -57,6 +58,7 @@ end Erdos630
 
 namespace Erdos630
 
+open scoped Classical in
 structure PlaneEmbedding (G : SimpleGraph V) extends PlaneDrawing G where
   planeMap (F : Finset G.edgeSet) : PlaneMap G F
 
@@ -64,12 +66,14 @@ end Erdos630
 
 namespace Erdos630
 
+open scoped Classical in
 def IsPlanar (G : SimpleGraph V) : Prop := Nonempty (PlaneEmbedding G)
 
 end Erdos630
 
 namespace Erdos753
 
+open scoped Classical in
 def IsKChoosable {V : Type*} (G : SimpleGraph V) (k : ℕ) : Prop :=
   ∀ (L : V → Finset ℕ), (∀ v, (L v).card = k) →
     ∃ f : G.Coloring ℕ, ∀ v, f v ∈ L v
@@ -78,6 +82,7 @@ end Erdos753
 
 namespace Erdos753
 
+open scoped Classical in
 noncomputable def listChromaticNumber {V : Type*} (G : SimpleGraph V) : ℕ :=
   sInf {k : ℕ | IsKChoosable G k}
 
@@ -87,6 +92,7 @@ end Erdos753
 
 namespace Erdos630
 
+open scoped Classical in
 theorem erdos_630 (G : SimpleGraph V) (hplanar : IsPlanar G)
     (hbipartite : G.IsBipartite) :
     Erdos753.listChromaticNumber G ≤ 3 := by

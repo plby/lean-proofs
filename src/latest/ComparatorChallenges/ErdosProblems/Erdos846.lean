@@ -46,7 +46,6 @@ open scoped Topology
 
 end Erdos846
 
-attribute [local instance] Classical.propDecidable
 
 open EuclideanGeometry
 open MeasureTheory
@@ -68,6 +67,7 @@ open scoped Topology
 
 namespace Erdos846
 
+open scoped Classical in
 theorem erdos_846 : (False) ↔ ∀ᵉ (A : Set ℝ²) (ε > 0),
     A.Infinite → NonTrilinearFor A ε → WeaklyNonTrilinear A := by
   sorry

@@ -1,20 +1,23 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 namespace Erdos42
 
 open Finset
 
+open scoped Classical in
 def DiffFinset {α : Type*} [DecidableEq α] [Sub α] (A B : Finset α) : Finset α :=
   (A ×ˢ B).image (fun ab => ab.1 - ab.2)
 
+open scoped Classical in
 def SymmetricFinset {α : Type*} [Neg α] (S : Finset α) : Prop :=
   ∀ x, x ∈ S ↔ -x ∈ S
 
+open scoped Classical in
 def CliqueInCayley {p : ℕ} (T C : Finset (ZMod p)) : Prop :=
   ∀ x ∈ C, ∀ y ∈ C, x ≠ y → x - y ∈ T
 
+open scoped Classical in
 def AvoidsNonzeroDiff {α : Type*} [DecidableEq α] [Zero α] [Sub α]
     (A B : Finset α) : Prop :=
   ∀ d ∈ DiffFinset A A, d ∈ DiffFinset B B → d = 0
@@ -24,6 +27,7 @@ namespace Erdos42
 
 open Finset
 
+open scoped Classical in
 def IsSidonInt (A : Finset ℤ) : Prop :=
   ∀ ⦃a₁⦄, a₁ ∈ A → ∀ ⦃a₂⦄, a₂ ∈ A → ∀ ⦃a₃⦄, a₃ ∈ A → ∀ ⦃a₄⦄, a₄ ∈ A →
     a₁ + a₂ = a₃ + a₄ → (a₁ = a₃ ∧ a₂ = a₄) ∨ (a₁ = a₄ ∧ a₂ = a₃)
@@ -33,17 +37,21 @@ namespace Erdos42
 
 open scoped BigOperators ZMod
 
+open scoped Classical in
 noncomputable def indicatorC {p : ℕ} (T : Finset (ZMod p)) : ZMod p → ℂ :=
   fun x => if x ∈ T then 1 else 0
 
+open scoped Classical in
 noncomputable def normalizedDftFunction {p : ℕ} [NeZero p]
     (f : ZMod p → ℂ) (r : ZMod p) : ℂ :=
   ((p : ℂ)⁻¹) * (ZMod.dft f r)
 
+open scoped Classical in
 noncomputable def normalizedDftCoeff {p : ℕ} [NeZero p]
     (T : Finset (ZMod p)) (r : ZMod p) : ℂ :=
   normalizedDftFunction (indicatorC T) r
 
+open scoped Classical in
 def FourierUpperIndicator {p : ℕ} [NeZero p] (T : Finset (ZMod p)) (ε : ℝ) : Prop :=
   ∀ r : ZMod p, r ≠ 0 → (normalizedDftCoeff T r).re ≤ ε
 end Erdos42
@@ -54,10 +62,12 @@ namespace Erdos42
 open Filter Set
 open scoped Pointwise
 
+open scoped Classical in
 def IsSidon (A : Set ℕ) : Prop :=
   ∀ ⦃a₁⦄, a₁ ∈ A → ∀ ⦃a₂⦄, a₂ ∈ A → ∀ ⦃a₃⦄, a₃ ∈ A → ∀ ⦃a₄⦄, a₄ ∈ A →
     a₁ + a₂ = a₃ + a₄ → (a₁ = a₃ ∧ a₂ = a₄) ∨ (a₁ = a₄ ∧ a₂ = a₃)
 
+open scoped Classical in
 def IsMaximalSidonSetIn (A : Set ℕ) (N : ℕ) : Prop :=
   A ⊆ Set.Icc 1 N ∧ IsSidon A ∧
     ∀ x ∈ Set.Icc 1 N, x ∉ A → ¬ IsSidon (insert x A)
@@ -65,17 +75,21 @@ namespace FormalConjecturesShape
 
 universe u
 
+open scoped Classical in
 def ExplicitExists {α : Sort u} (P : α → Prop) : Prop :=
   ∃ x, P x
 
+open scoped Classical in
 def IsSidon (A : Set ℕ) : Prop :=
   ∀ ⦃a₁⦄, a₁ ∈ A → ∀ ⦃a₂⦄, a₂ ∈ A → ∀ ⦃a₃⦄, a₃ ∈ A → ∀ ⦃a₄⦄, a₄ ∈ A →
     a₁ + a₂ = a₃ + a₄ → (a₁ = a₃ ∧ a₂ = a₄) ∨ (a₁ = a₄ ∧ a₂ = a₃)
 
+open scoped Classical in
 def IsMaximalSidonSetIn (A : Set ℕ) (N : ℕ) : Prop :=
   A ⊆ Set.Icc 1 N ∧ IsSidon A ∧
     ∀ x ∈ Set.Icc 1 N, x ∉ A → ¬ IsSidon (insert x A)
 
+open scoped Classical in
 def erdos42RHS : Prop :=
   ∀ M ≥ 1, ∀ᶠ N in atTop, ∀ (A : Set ℕ) (_ : IsMaximalSidonSetIn A N),
     ExplicitExists fun (B : Set ℕ) => B ⊆ Set.Icc 1 N ∧ IsSidon B ∧ B.ncard = M ∧
@@ -84,7 +98,6 @@ end FormalConjecturesShape
 
 end Erdos42
 
-attribute [local instance] Classical.propDecidable
 
 
 open Finset
@@ -110,6 +123,7 @@ open scoped Pointwise
 
 namespace Erdos42.CompactCayley
 
+open scoped Classical in
 theorem compact_cayley_clique
     (ℓ : ℕ) (η : ℝ) (_hℓ : 2 ≤ ℓ) (_hη : 0 < η) :
     ∃ ε : ℝ, 0 < ε ∧
@@ -124,6 +138,7 @@ theorem compact_cayley_clique
   sorry
 
 
+open scoped Classical in
 theorem theorem_1_1_from_compact_cayley
     (M : ℕ) (_hM : 1 ≤ M) :
     ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
@@ -138,6 +153,7 @@ theorem theorem_1_1_from_compact_cayley
 end Erdos42.CompactCayley
 namespace Erdos42
 
+open scoped Classical in
 theorem theorem_1_1_via_cayley :
     ∀ M : ℕ, 1 ≤ M → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
       ∀ A : Set ℕ, A ⊆ Set.Icc 1 N → IsSidon A → A.Nonempty →
@@ -146,6 +162,7 @@ theorem theorem_1_1_via_cayley :
   sorry
 
 
+open scoped Classical in
 theorem erdos_42_via_cayley :
     True ↔ ∀ M ≥ 1, ∀ᶠ N in atTop, ∀ (A : Set ℕ) (_ : IsMaximalSidonSetIn A N),
       ∃ (B : Set ℕ), B ⊆ Set.Icc 1 N ∧ IsSidon B ∧ B.ncard = M ∧
@@ -153,6 +170,7 @@ theorem erdos_42_via_cayley :
   sorry
 
 end Erdos42
+open scoped Classical in
 theorem Erdos42.FormalConjecturesShape.erdos_42_via_cayley :
     Iff True Erdos42.FormalConjecturesShape.erdos42RHS
   := by

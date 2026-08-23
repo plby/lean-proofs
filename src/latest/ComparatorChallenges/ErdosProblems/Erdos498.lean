@@ -1,12 +1,12 @@
 import Mathlib
 
-attribute [local instance] Classical.propDecidable
 
 open Complex ArithmeticFunction Int Set Real Filter Topology BigOperators Metric
 open scoped BigOperators
 
 namespace Erdos498
 
+open scoped Classical in
 theorem littlewood_offord_complex_bound (n : ℕ) (z : Fin n → ℂ) (hz : ∀ i, 1 < ‖z i‖) (c : ℂ) :
     let signs : Finset ℤ := {-1, 1}
     let all_coeffs : Set (Fin n → ℤ) := {ε | ∀ i, ε i ∈ signs}

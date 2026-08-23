@@ -14,12 +14,12 @@ noncomputable def g (n : ℕ) : ℕ :=
   sSup { k | ∃ l, is_valid_seq n l ∧ l.length = k }
 end Erdos648
 
-attribute [local instance] Classical.propDecidable
 
 open Asymptotics Filter Nat Real
 
 namespace Erdos648
 
+open scoped Classical in
 theorem erdos_648 :
   (fun (n : ℕ) => (g n : ℝ)) =Θ[atTop]
     (fun (n : ℕ) => Real.sqrt ((n : ℝ) / Real.log (n : ℝ))) := by
