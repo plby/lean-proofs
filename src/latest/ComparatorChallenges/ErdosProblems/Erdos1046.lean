@@ -24,7 +24,6 @@ def closedLemniscate (f : ℂ[X]) : Set ℂ := {z | ‖f.eval z‖ ≤ 1}
 noncomputable def rootCentroid (f : ℂ[X]) : ℂ :=
   f.roots.sum / (f.natDegree : ℂ)
 
-
 theorem erdos_1046 (f : ℂ[X]) (hf : f.Monic)
     (hE : IsConnected (lemniscate f)) :
     ∃ c : ℂ, lemniscate f ⊆ Metric.ball c 2 := by

@@ -50,8 +50,6 @@ end
 
 end Erdos1034
 
-
-
 namespace Erdos1034
 
 open scoped Classical in

@@ -2,7 +2,6 @@
 
 import Mathlib
 
-
 namespace Erdos316
 
 open scoped Classical in

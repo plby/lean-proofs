@@ -4,7 +4,6 @@ import Mathlib
 
 namespace Erdos974
 
-
 /-- Data associated with the problem. -/
 structure ProblemData (n : ℕ) [NeZero n] where
   /-- The tuple of complex numbers `z` -/
@@ -187,7 +186,6 @@ noncomputable def p : ℕ :=
   {p ∈ Icc 1 PD.q | (fun k ↦ ∑ i, PD.z i ^ k).Periodic p}.min'
     ⟨PD.q, mem_filter.mpr ⟨by grind [PD.q_pos], by simp [pow_add, PD.z_qth_root]⟩⟩
 
-
 variable (PD : ProblemData (2 * n))
 
 /-- The indices `i` such that `z_i^(p/2) = -1`. -/
@@ -197,7 +195,6 @@ noncomputable def oddIndices : Finset (Fin (2 * n)) :=
 end ProblemData
 
 end Erdos974
-
 
 open Finset Matrix Complex Function
 open ComplexConjugate

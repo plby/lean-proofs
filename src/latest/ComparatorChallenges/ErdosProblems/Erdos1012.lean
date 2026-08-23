@@ -9,7 +9,6 @@ namespace Erdos1012
 
 universe u
 
-
 open scoped Classical in
 /-- `G` contains a simple cycle with exactly `d` edges. -/
 def HasCycleLength {V : Type u} (G : SimpleGraph V) (d : ℕ) : Prop :=

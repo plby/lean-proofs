@@ -143,7 +143,6 @@ noncomputable def completePartialDesign {P : Type u} {I : Type u}
 
 /-- Completion adds only blocks of cardinality two. -/
 
-
 theorem erdos_732 :
     ∃ c : ℝ, 0 < c ∧ ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
       ∃ S : Finset (Multiset ℕ),

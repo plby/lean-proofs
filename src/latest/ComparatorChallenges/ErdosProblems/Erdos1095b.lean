@@ -15,7 +15,6 @@ noncomputable def g (k : ℕ) : ℕ :=
   if h : ∃ n : ℕ, Good k n then Nat.find h else 0
 end Erdos1095b
 
-
 open Filter Real
 open scoped Asymptotics Topology
 

@@ -12,7 +12,6 @@ set_option linter.unusedVariables false
 
 open Finset SimpleGraph BigOperators
 
-
 namespace Trigraph
 
 variable {V : Type*} [Fintype V]

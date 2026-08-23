@@ -13,7 +13,6 @@ def is_counterexample (c : ℝ) (n : ℕ) : Prop :=
   ∀ k, 2^k ≤ n → (Omega (n - 2^k) : ℝ) ≥ c * pntRate n
 end Erdos205
 
-
 open Real Filter Asymptotics
 
 namespace Erdos205

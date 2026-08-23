@@ -2,7 +2,6 @@
 
 import Mathlib
 
-
 open Set
 
 namespace Erdos275

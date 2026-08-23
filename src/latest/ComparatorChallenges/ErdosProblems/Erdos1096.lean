@@ -7,7 +7,6 @@ open scoped BigOperators Pointwise Topology
 
 noncomputable section
 
-
 namespace Erdos1096
 
 open scoped Classical in

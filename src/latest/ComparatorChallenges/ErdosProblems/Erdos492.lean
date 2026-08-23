@@ -7,7 +7,6 @@ open scoped BigOperators ENNReal Topology
 
 noncomputable section
 
-
 namespace Erdos492
 
 open scoped Classical in

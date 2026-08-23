@@ -29,7 +29,6 @@ end depth_0_lemma_5
 
 end Erdos379
 
-
 open Filter
 
 namespace Erdos379

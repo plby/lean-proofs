@@ -15,7 +15,6 @@ noncomputable def powerSum {n : ℕ} (z : Fin n → ℂ) (k : ℕ) : ℂ :=
   ∑ m : Fin n, z m ^ k
 end Erdos519
 
-
 open Finset Complex MeasureTheory
 
 namespace Erdos519

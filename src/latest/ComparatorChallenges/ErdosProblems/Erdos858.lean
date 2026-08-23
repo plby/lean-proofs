@@ -7,7 +7,6 @@ open Filter Finset Set
 
 noncomputable section
 
-
 namespace Erdos858
 
 open scoped Classical in

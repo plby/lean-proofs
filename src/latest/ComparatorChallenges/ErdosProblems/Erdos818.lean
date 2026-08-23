@@ -4,7 +4,6 @@ import Mathlib
 
 open scoped Pointwise
 
-
 open Finset
 open scoped Pointwise BigOperators
 

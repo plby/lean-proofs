@@ -33,7 +33,6 @@ end EgyptianFractions
 
 end Erdos206
 
-
 open scoped BigOperators ENNReal
 open Finset MeasureTheory Set
 

@@ -32,7 +32,6 @@ private noncomputable def lowerEndpoint (n : ℕ → ℕ) (k : ℕ) : ℝ :=
 private noncomputable def upperEndpoint (n : ℕ → ℕ) (k : ℕ) : ℝ :=
   (((intervalIndex n k : ℤ) : ℝ) + 3 / 4) / (n k : ℝ)
 
-
 theorem erdos_894 {n : ℕ → ℕ} (hn : IsLacunary n) :
     HasAvoidingColoring n := by
   sorry

@@ -7,7 +7,6 @@ open scoped Ordinal Sym2
 
 noncomputable section
 
-
 namespace Erdos737
 
 variable {V : Type u}

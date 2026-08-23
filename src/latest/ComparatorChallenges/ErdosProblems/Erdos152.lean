@@ -27,16 +27,13 @@ def IsSidon {α : Type*} [AddCommMonoid α] (A : Set α) : Prop :=
     i₁ + i₂ = j₁ + j₂ →
       (i₁ = j₁ ∧ i₂ = j₂) ∨ (i₁ = j₂ ∧ i₂ = j₁)
 
-
 /-- Define `f n` to be the minimum of `|{s | s - 1 ∉ A + A, s ∈ A + A, s + 1 ∉ A + A}|` as `A`
 ranges over all Sidon sets of size `n`. -/
 noncomputable def f (n : ℕ) : ℕ :=
   ⨅ A : {A : Set ℕ | A.ncard = n ∧ IsSidon A},
   {s : ℕ | s - 1 ∉ A.1 + A.1 ∧ s ∈ A.1 + A.1 ∧ s + 1 ∉ A.1 + A.1}.ncard
 
-
 open scoped Classical
-
 
 open Set Finset
 

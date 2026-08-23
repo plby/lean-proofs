@@ -7,7 +7,6 @@ open Set Filter Topology
 
 noncomputable section
 
-
 namespace Erdos57
 
 open scoped Classical in

@@ -39,7 +39,6 @@ def OnlyRealAngularRoots (n : ℕ) (c : ℕ → ℂ) : Prop :=
 
 @[simp]
 
-
 theorem erdos_225
     (n : ℕ) (c : ℕ → ℂ) (hn : 0 < n) (hcn : c n ≠ 0) (hc0 : c 0 ≠ 0)
     (hroots : RootsOnUnitCircle (coeffPolynomial n c))

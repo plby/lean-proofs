@@ -7,7 +7,6 @@ open Filter Finset Set Asymptotics
 
 noncomputable section
 
-
 namespace Set
 
 open scoped Classical in

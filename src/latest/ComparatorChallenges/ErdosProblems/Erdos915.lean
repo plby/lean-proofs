@@ -44,7 +44,6 @@ def Erdos915VertexClaim : Prop :=
         G.edgeSet.ncard = 1 + n * Nat.choose m 2 →
           HasMInternallyVertexDisjointPaths G m
 
-
 theorem erdos_915 : ¬ Erdos915VertexClaim := by
   sorry
 

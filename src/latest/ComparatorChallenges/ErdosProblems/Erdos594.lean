@@ -16,8 +16,6 @@ namespace Erdos594
 
 noncomputable section
 
-
-
 variable {V : Type*}
 
 end

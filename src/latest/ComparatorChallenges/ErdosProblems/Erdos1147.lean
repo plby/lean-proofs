@@ -7,7 +7,6 @@ open scoped Pointwise Topology
 
 noncomputable section
 
-
 namespace Set
 
 variable {M : Type*} [AddCommMonoid M]

@@ -6,7 +6,6 @@ open Finset SimpleGraph
 
 noncomputable section
 
-
 namespace Erdos549
 
 open scoped Classical in

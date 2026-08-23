@@ -18,7 +18,6 @@ namespace Erdos784
 
 noncomputable section
 
-
 /-! ## Exact finite formulations -/
 
 open scoped Classical in

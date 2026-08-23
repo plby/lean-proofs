@@ -6,7 +6,6 @@ open scoped SimpleGraph
 
 noncomputable section
 
-
 namespace Erdos58
 
 variable {V W : Type*} {G G' : SimpleGraph V} {H : SimpleGraph W}

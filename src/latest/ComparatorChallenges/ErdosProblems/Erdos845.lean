@@ -17,7 +17,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-
 variable {β : Type*} [Preorder β]
 
 variable (S : Set β) (a b : β)

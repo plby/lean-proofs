@@ -21,7 +21,6 @@ def AsymptoticA (C : ℝ) : Prop :=
       Real.log y / (C * (maxPrimeGap x : ℝ)) - 1| < ε
 end Erdos1138
 
-
 open Nat Set Filter
 
 namespace Erdos1138

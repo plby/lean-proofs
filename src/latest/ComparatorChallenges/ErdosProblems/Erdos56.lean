@@ -41,7 +41,6 @@ noncomputable def FirstPrimesMultiples (N k : ℕ) : Finset ℕ :=
     (Finset.Icc 1 N).filter fun i => ∃ j < k, (j.nth Nat.Prime ∣ i)
 end Erdos56
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

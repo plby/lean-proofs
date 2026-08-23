@@ -14,8 +14,6 @@ def DecidableDistinctSubsetSums {M : Type*} [AddCommMonoid M] [DecidableEq M]
   ∀ X ⊆ A, ∀ Y ⊆ A, X ≠ Y → X.sum id ≠ Y.sum id
 end Erdos350
 
-
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

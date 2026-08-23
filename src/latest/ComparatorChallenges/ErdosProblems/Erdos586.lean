@@ -4,7 +4,6 @@ import Mathlib
 
 noncomputable section
 
-
 namespace Erdos586
 
 open scoped Classical in

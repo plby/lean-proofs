@@ -7,7 +7,6 @@ open MeasureTheory ProbabilityTheory
 
 noncomputable section
 
-
 namespace Erdos88
 
 universe u

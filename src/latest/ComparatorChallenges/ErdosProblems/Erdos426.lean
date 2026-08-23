@@ -23,7 +23,6 @@ noncomputable section
 
 open Finset Function SimpleGraph
 
-
 namespace UniqueSubgraphs
 
 open scoped Classical in
@@ -131,7 +130,6 @@ end UniqueSubgraphs
 end
 
 end Erdos426
-
 
 open Finset Function SimpleGraph
 open Finset Function

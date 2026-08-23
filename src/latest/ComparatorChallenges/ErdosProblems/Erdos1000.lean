@@ -8,7 +8,6 @@ set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
 
-
 open scoped BigOperators
 
 open Filter
@@ -25,7 +24,6 @@ noncomputable def cesaroPhi (n : ℕ → ℕ) (N : ℕ) : ℝ :=
   ((N : ℝ)⁻¹) *
     ∑ k ∈ Finset.range N, (phiA n k : ℝ) / (n k : ℝ)
 end Erdos1000
-
 
 open scoped BigOperators
 open Filter

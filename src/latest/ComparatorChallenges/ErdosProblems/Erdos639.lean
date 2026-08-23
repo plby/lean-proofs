@@ -45,8 +45,6 @@ end SimpleGraph
 
 end Erdos639
 
-
-
 open Finset
 open _root_.SimpleGraph
 

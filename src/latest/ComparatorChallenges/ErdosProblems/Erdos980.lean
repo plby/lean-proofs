@@ -7,7 +7,6 @@ open scoped Asymptotics BigOperators
 
 noncomputable section
 
-
 namespace Erdos980
 
 open scoped Classical in

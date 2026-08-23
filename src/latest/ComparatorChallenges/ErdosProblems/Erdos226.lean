@@ -12,7 +12,6 @@ set_option linter.flexible false
 
 namespace Erdos226
 
-
 open scoped Classical in
 def IsAffine (f : ℝ → ℝ) : Prop :=
   ∃ a b : ℝ, ∀ x, f x = a * x + b
@@ -20,7 +19,6 @@ open scoped Classical in
 def PreservesRationality (f : ℝ → ℝ) : Prop :=
   ∀ x : ℝ, x ∈ (Set.range ((↑) : ℚ → ℝ)) ↔ f x ∈ (Set.range ((↑) : ℚ → ℝ))
 end Erdos226
-
 
 namespace Erdos226
 

@@ -8,7 +8,6 @@ open ProbabilityTheory
 
 noncomputable section
 
-
 namespace Erdos523
 
 open scoped Classical in

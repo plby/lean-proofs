@@ -20,7 +20,6 @@ def DukeTheoremStatement : Prop :=
     t.1 % 2 = t.2.2 % 2
 end Erdos1148
 
-
 namespace Erdos1148
 
 open scoped Classical in

@@ -22,8 +22,6 @@ def erdos_1022 : Prop :=
     TwoColorable F
 end Erdos1022
 
-
-
 open Finset
 
 namespace Erdos1022

@@ -15,7 +15,6 @@ def pow2SumFree (S : Set ℕ) : Prop :=
   ∀ a ∈ S, ∀ b ∈ S, ∀ k : ℕ, a + b ≠ 2 ^ k
 end Erdos1136
 
-
 open Finset Nat
 
 namespace Erdos1136
@@ -30,7 +29,6 @@ theorem main_result :
         Filter.atTop ≤ 1 / 2) := by
   sorry
 
-
 open scoped Classical in
 theorem general_upper_bound (s : ℕ → ℕ) (hs_pos : ∀ k, 0 < s k)
     (hs_mono : StrictMono s) (hs_growth : ∀ k, s (k + 1) ≤ 2 * s k + 2)
@@ -38,7 +36,6 @@ theorem general_upper_bound (s : ℕ → ℕ) (hs_pos : ∀ k, 0 < s k)
     (hA_card : 2 * A.card > n + s 0) :
     ∃ i, ∃ a ∈ A, ∃ b ∈ A, a + b = s i := by
   sorry
-
 
 open scoped Classical in
 theorem general_upper_bound_infinite

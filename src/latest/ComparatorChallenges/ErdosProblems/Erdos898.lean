@@ -22,8 +22,6 @@ end AristotleLemmas
 
 end Erdos898
 
-
-
 open EuclideanGeometry Metric RealInnerProductSpace
 
 namespace Erdos898

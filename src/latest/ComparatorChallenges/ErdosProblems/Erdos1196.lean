@@ -87,8 +87,6 @@ def IsPrimitive {M : Type*} [CommMonoid M] (A : Set M) : Prop :=
   ∀ᵉ (x ∈ A) (y ∈ A), x ∣ y → Associated x y
 end Erdos1196
 
-
-
 open scoped ArithmeticFunction BigOperators
 open scoped ArithmeticFunction BigOperators Topology
 open Filter MeasureTheory

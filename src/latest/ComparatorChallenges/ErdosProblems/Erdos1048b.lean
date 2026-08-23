@@ -14,7 +14,6 @@ noncomputable def my_f : Polynomial ℂ := Polynomial.X ^ 10 - Polynomial.C 2
 noncomputable def my_S : Set ℂ := {z | ‖my_f.eval z‖ < 1}
 end Erdos1048b
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

@@ -32,8 +32,6 @@ end Set
 
 open scoped Pointwise
 
-
-
 open Filter
 open scoped Topology
 open Nat Pointwise

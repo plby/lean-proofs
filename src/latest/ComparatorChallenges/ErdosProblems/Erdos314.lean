@@ -16,7 +16,6 @@ def harmonicPartialSum (n m : ℕ) : ℝ :=
 end
 end Erdos314
 
-
 open Finset Real MeasureTheory intervalIntegral
 
 namespace Erdos314

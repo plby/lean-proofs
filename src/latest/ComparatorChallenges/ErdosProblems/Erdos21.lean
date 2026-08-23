@@ -7,7 +7,6 @@ open Equiv
 
 noncomputable section
 
-
 namespace Erdos21
 
 open scoped Classical in

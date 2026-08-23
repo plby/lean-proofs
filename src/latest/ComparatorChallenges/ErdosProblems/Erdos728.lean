@@ -15,7 +15,6 @@ open Real
 
 open scoped Nat Topology
 
-
 open scoped Classical in
 def good_triples (C ε : ℝ) : Set (ℕ × ℕ × ℕ) :=
   { t | let (a, b, n) := t; ε * n ≤ a ∧ a ≤ (1 - ε) * n ∧ ε * n ≤ b ∧ b ≤ (1 - ε) * n ∧
@@ -24,7 +23,6 @@ def good_triples (C ε : ℝ) : Set (ℕ × ℕ × ℕ) :=
 end Erdos728b
 
 end Erdos728
-
 
 open Real
 open scoped Nat Topology
@@ -35,7 +33,6 @@ open scoped Classical in
 theorem erdos_728 (C ε : ℝ) (hC : 0 < C) (hε : 0 < ε) (hε_small : ε < 1 / 2) :
     (good_triples C ε).Infinite := by
   sorry
-
 
 open scoped Classical in
 theorem erdos_728_fc :

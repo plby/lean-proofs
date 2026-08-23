@@ -6,7 +6,6 @@ open Polynomial
 
 noncomputable section
 
-
 namespace Erdos1214
 
 open scoped Classical in

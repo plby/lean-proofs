@@ -2,7 +2,6 @@
 
 import Mathlib
 
-
 namespace Erdos42
 
 open Finset
@@ -58,7 +57,6 @@ def FourierUpperIndicator {p : ℕ} [NeZero p] (T : Finset (ZMod p)) (ε : ℝ) 
   ∀ r : ZMod p, r ≠ 0 → (normalizedDftCoeff T r).re ≤ ε
 end Erdos42
 
-
 namespace Erdos42
 
 open Filter Set
@@ -100,8 +98,6 @@ end FormalConjecturesShape
 
 end Erdos42
 
-
-
 open Finset
 open scoped BigOperators ZMod
 open Finset Erdos42
@@ -139,7 +135,6 @@ theorem compact_cayley_clique
         C.card = ℓ ∧ CliqueInCayley T C := by
   sorry
 
-
 open scoped Classical in
 theorem theorem_1_1_from_compact_cayley
     (M : ℕ) (_hM : 1 ≤ M) :
@@ -162,7 +157,6 @@ theorem theorem_1_1_via_cayley :
         ∃ B : Set ℕ, B ⊆ Set.Icc 1 N ∧ IsSidon B ∧ B.ncard = M ∧
           ((A - A) ∩ (B - B) : Set ℕ) = {0} := by
   sorry
-
 
 open scoped Classical in
 theorem erdos_42_via_cayley :

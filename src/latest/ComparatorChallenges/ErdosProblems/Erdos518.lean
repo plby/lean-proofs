@@ -6,7 +6,6 @@ open scoped SimpleGraph
 
 noncomputable section
 
-
 namespace Erdos518
 
 variable {V : Type u}

@@ -8,7 +8,6 @@ set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
 
-
 set_option maxHeartbeats 20000000
 open Nat Real ENNReal
 open Finset Sym2
@@ -36,7 +35,6 @@ open Filter
 end Erdos1028
 
 open Erdos1028
-
 
 open Nat Real ENNReal
 open Finset Sym2

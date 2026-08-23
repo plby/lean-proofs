@@ -20,7 +20,6 @@ def Conjecture : Prop :=
     (∃ S : Set ℝ, IsInfiniteAP S ∧ S ⊆ (Set.univ \ A))
 end Erdos199
 
-
 open scoped Classical in
 theorem Erdos199.disproof_of_conjecture :
     Not Erdos199.Conjecture

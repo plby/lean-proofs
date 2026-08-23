@@ -18,7 +18,6 @@ end Erdos280
 
 end Erdos280
 
-
 open Nat
 
 namespace Erdos280

@@ -11,7 +11,6 @@ set_option linter.style.cases false
 set_option maxHeartbeats 1000000
 open scoped Nat
 
-
 set_option linter.unusedSimpArgs false
 set_option linter.unusedVariables false
 
@@ -31,8 +30,6 @@ def lcmInterval (n k : ℕ) : ℕ := (Finset.Ioc n (n + k)).lcm id
 end
 
 end Erdos678
-
-
 
 open scoped Classical in
 theorem Erdos678.not_erdos_678_other :

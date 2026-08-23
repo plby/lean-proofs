@@ -25,7 +25,6 @@ noncomputable def extremal_polynomial (n : ℕ) : Polynomial ℂ :=
   (Polynomial.Chebyshev.T ℂ n).comp (Polynomial.C ((2 : ℂ) ^ ((1 : ℂ) / n - 1)) * Polynomial.X + 1)
 end Erdos115
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

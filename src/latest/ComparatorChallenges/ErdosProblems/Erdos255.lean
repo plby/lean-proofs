@@ -31,7 +31,6 @@ namespace Erdos255
 noncomputable def anchoredDiscrepancy (z : ℕ → ℝ) (N : ℕ) (x : ℝ) : ℝ :=
   (((range N).filter fun n ↦ z n ∈ Ico (0 : ℝ) x).card : ℝ) - N * x
 
-
 theorem erdos_255 (z : ℕ → ℝ) (hz : ∀ n, z n ∈ Icc (0 : ℝ) 1) :
     ∃ x ∈ Icc (0 : ℝ) 1,
       Ico (0 : ℝ) x ⊆ Icc (0 : ℝ) 1 ∧

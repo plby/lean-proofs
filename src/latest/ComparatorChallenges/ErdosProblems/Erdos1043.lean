@@ -15,7 +15,6 @@ noncomputable local instance instMeasureSpaceRealSpan (u : â„‚) : MeasureSpace â
   measureSpaceOfInnerProductSpace
 end Erdos1043
 
-
 open MeasureTheory
 open Polynomial
 

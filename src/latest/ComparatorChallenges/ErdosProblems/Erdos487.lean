@@ -10,12 +10,10 @@ namespace Erdos487
 open scoped Nat
 open Filter
 
-
 open scoped Classical in
 noncomputable def lowerDensity (A : Set ℕ) : ℝ :=
   Filter.liminf (fun N => ((Finset.Icc 1 N).filter (· ∈ A)).card / (N : ℝ)) Filter.atTop
 end Erdos487
-
 
 open scoped Nat
 open Asymptotics Filter

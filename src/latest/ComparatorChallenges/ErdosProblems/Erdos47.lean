@@ -28,7 +28,6 @@ end
 
 end UnitFractions
 
-
 open UnitFractions
 open Filter Finset Real
 open scoped ArithmeticFunction.omega BigOperators
@@ -42,7 +41,6 @@ theorem erdos47_bloom :
       C * ((log (log (log (N : ℝ))) / log (log (N : ℝ))) * log (N : ℝ)) < rec_sum A →
       ∃ S ⊆ A, rec_sum S = 1 := by
   sorry
-
 
 open scoped Classical in
 theorem erdos47 :

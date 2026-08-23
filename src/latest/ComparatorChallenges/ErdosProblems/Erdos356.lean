@@ -42,7 +42,6 @@ def partialSum (b t : ℕ) : ℕ := t ^ 2 + t / b
 /-- The `i`-th, zero-based, term is the next difference of the partial-sum ruler. -/
 def bekerTerm (b i : ℕ) : ℕ := partialSum b (i + 1) - partialSum b i
 
-
 theorem erdos356 : Problem356 := by
   sorry
 

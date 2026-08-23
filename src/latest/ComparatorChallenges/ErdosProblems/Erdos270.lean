@@ -7,7 +7,6 @@ open scoped BigOperators Topology
 
 noncomputable section
 
-
 namespace Erdos270
 
 open scoped Classical in

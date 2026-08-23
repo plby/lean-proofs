@@ -7,7 +7,6 @@ open SimpleGraph
 
 noncomputable section
 
-
 universe u
 
 namespace Erdos752

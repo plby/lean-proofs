@@ -6,7 +6,6 @@ open Filter Polynomial
 
 noncomputable section
 
-
 namespace Erdos485
 
 open scoped Classical in

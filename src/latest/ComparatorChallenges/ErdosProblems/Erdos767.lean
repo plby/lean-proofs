@@ -28,7 +28,6 @@ namespace Erdos767
 
 noncomputable section
 
-
 universe u
 
 open scoped Classical in
@@ -54,7 +53,6 @@ Every finite graph on `n` vertices is isomorphic to one of these graphs. -/
 def chordCycleExtremalNumber (k n : ℕ) : ℕ :=
   (Finset.univ.filter fun G : SimpleGraph (Fin n) =>
     AvoidsCycleWithKIncidentChords k G).sup fun G => G.edgeFinset.card
-
 
 open scoped Classical in
 theorem erdos_767 (k n : ℕ) (hk : 0 < k) (hn : 3 * k + 3 ≤ n) :

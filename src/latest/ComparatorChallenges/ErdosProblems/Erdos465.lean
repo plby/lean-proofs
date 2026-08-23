@@ -7,7 +7,6 @@ open Filter Metric Set
 
 noncomputable section
 
-
 namespace Erdos465
 
 open scoped Classical in

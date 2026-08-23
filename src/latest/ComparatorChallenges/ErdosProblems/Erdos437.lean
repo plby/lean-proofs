@@ -43,7 +43,6 @@ def PositiveAnswer : Prop :=
 
 /-- A positive natural number whose prime valuations are all even is a square. -/
 
-
 theorem erdos437 : PositiveAnswer := by
   sorry
 

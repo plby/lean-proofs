@@ -7,7 +7,6 @@ namespace Erdos38
 open scoped Pointwise
 open Finset Real Filter
 
-
 noncomputable section
 
 open scoped Classical in
@@ -72,7 +71,6 @@ noncomputable section
 end
 
 end Erdos38
-
 
 open scoped BigOperators Pointwise
 open Finset Real Filter

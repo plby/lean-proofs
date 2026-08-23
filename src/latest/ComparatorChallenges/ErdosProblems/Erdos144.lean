@@ -7,7 +7,6 @@ open scoped Topology
 
 noncomputable section
 
-
 namespace Set
 
 open scoped Classical in

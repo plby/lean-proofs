@@ -20,7 +20,6 @@ open MeasureTheory ProbabilityTheory
 
 noncomputable section
 
-
 namespace Set
 
 variable {M : Type*} [AddCommMonoid M]

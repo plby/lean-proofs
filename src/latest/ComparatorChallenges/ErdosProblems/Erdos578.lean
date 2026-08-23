@@ -8,7 +8,6 @@ open scoped BigOperators SimpleGraph Topology
 
 noncomputable section
 
-
 namespace Erdos578
 
 open scoped Classical in

@@ -20,7 +20,6 @@ noncomputable def h2 {n : ℕ} (G : SimpleGraph (Fin n)) : ℕ := by
       ((H.edgeFinset \ G.edgeFinset).card = k)}
 end Erdos618
 
-
 namespace Erdos618
 
 open scoped Classical in

@@ -10,7 +10,6 @@ namespace Erdos505
 
 open scoped Pointwise
 
-
 open scoped Classical in
 noncomputable def diam {d : ℕ} (E : Set (EuclideanSpace ℝ (Fin d))) : ℝ :=
   sSup {dist x y | (x ∈ E) (y ∈ E)}
@@ -29,7 +28,6 @@ def BorsukConjecture : Prop :=
 variable {σ : Type*} {R : Type*} [CommRing R] (c : R) (p : MvPolynomial σ R)
 
 end Erdos505
-
 
 open scoped Classical in
 theorem Erdos505.not_erdos_505 :

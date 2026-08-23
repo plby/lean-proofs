@@ -7,7 +7,6 @@ open scoped Topology BigOperators ENNReal NNReal
 
 namespace Erdos615
 
-
 open scoped Classical in
 theorem erdos_615 :
     ¬ ∃ c : ℝ, 0 < c ∧ ∀ᶠ (n : ℕ) in atTop,

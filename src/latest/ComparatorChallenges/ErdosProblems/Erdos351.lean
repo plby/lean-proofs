@@ -24,7 +24,6 @@ def HasCompleteImage (P : ℚ[X]) : Prop :=
   PolynomialEgyptianSums.IsStronglyComplete (imageSet P)
 end Erdos351
 
-
 open Polynomial
 
 namespace Erdos351

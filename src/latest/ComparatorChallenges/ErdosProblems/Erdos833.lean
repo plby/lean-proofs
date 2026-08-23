@@ -6,7 +6,6 @@ open scoped BigOperators
 
 noncomputable section
 
-
 variable {V : Type u} [Fintype V] [DecidableEq V]
 
 namespace Erdos833

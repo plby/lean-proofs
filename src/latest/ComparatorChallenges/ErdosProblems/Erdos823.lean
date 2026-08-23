@@ -7,7 +7,6 @@ open scoped ArithmeticFunction.sigma
 
 noncomputable section
 
-
 namespace Erdos823
 
 open scoped Classical in

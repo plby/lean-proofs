@@ -7,7 +7,6 @@ namespace Erdos497
 set_option linter.style.setOption false
 set_option linter.flexible false
 
-
 open Equiv
 open Filter
 open Finset
@@ -29,7 +28,6 @@ open scoped Classical in
 noncomputable def A (n : ℕ) : ℕ :=
   (antichains n).card
 end Erdos497
-
 
 open Equiv
 open Filter

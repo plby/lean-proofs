@@ -15,7 +15,6 @@ namespace Erdos847
 
 open Set
 
-
 open scoped Classical in
 /-- `HasFew3APs A` is the local positive-proportion hypothesis in the upstream statement. -/
 def HasFew3APs (A : Set ℕ) : Prop :=

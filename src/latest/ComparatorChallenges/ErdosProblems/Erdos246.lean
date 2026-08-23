@@ -18,7 +18,6 @@ def Gamma (a b : ℕ) : Set ℕ :=
   {x | ∃ k l : ℕ, x = a^k * b^l}
 end Erdos246
 
-
 open BigOperators
 
 namespace Erdos246

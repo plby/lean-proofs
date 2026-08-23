@@ -7,7 +7,6 @@ open scoped BigOperators Topology
 
 noncomputable section
 
-
 namespace UnitFractions
 
 open scoped Classical in

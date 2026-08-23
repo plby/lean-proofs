@@ -2,7 +2,6 @@
 
 import Mathlib
 
-
 open scoped Pointwise
 open Multiset
 open Filter

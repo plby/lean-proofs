@@ -45,8 +45,6 @@ open Matrix LinearMap MvPolynomial BigOperators
 
 end Erdos502
 
-
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

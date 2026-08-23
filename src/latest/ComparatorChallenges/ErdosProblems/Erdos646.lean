@@ -16,7 +16,6 @@ def partial_sum (k : ℕ) (p : Fin k → ℕ) (n : ℕ) : Fin k → ZMod 2 :=
   fun i => padicValNat (p i) (Nat.factorial n)
 end Erdos646
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

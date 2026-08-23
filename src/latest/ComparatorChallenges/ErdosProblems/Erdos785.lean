@@ -14,7 +14,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-
 set_option autoImplicit false
 
 section
@@ -35,7 +34,6 @@ def exact_complements (A B : Set ℕ) : Prop :=
 end
 
 end Erdos785
-
 
 open scoped BigOperators
 open scoped Real

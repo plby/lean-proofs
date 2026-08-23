@@ -25,7 +25,6 @@ namespace Erdos284
 
 noncomputable section
 
-
 open scoped Classical in
 open scoped Classical in
 /-- The representation appearing verbatim in the problem, with exactly `k`

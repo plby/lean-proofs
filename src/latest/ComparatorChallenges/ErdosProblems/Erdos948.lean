@@ -8,7 +8,6 @@ open Nat List Finset
 
 noncomputable section
 
-
 namespace Erdos948
 
 open scoped Classical in

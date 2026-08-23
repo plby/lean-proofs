@@ -49,7 +49,6 @@ def FourierUpperIndicator {p : ℕ} [NeZero p] (T : Finset (ZMod p)) (ε : ℝ) 
   ∀ r : ZMod p, r ≠ 0 → (normalizedDftCoeff T r).re ≤ ε
 end Erdos42
 
-
 namespace Erdos42
 
 open Filter Set

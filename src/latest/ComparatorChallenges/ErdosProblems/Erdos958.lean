@@ -45,7 +45,6 @@ def erdos_958 : Prop :=
     HasProfile A ↔ (EquallySpacedOnLine A ∨ EquallySpacedOnCircle A)
 end Erdos958
 
-
 open scoped Classical in
 theorem Erdos958.not_erdos_958 :
     Not Erdos958.erdos_958

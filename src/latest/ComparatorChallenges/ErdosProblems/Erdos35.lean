@@ -32,7 +32,6 @@ Mathematical sources:
 open scoped BigOperators Pointwise
 open Finset Set Real
 
-
 noncomputable section
 
 namespace Erdos35
@@ -52,7 +51,6 @@ open scoped Classical in
 /-- The number of elements of `A` in `{1, ..., n}`. -/
 def countIn (A : Set ℕ) (n : ℕ) : ℕ :=
   #{x ∈ Ioc 0 n | x ∈ A}
-
 
 open scoped Classical in
 theorem erdos35 (A B : Set ℕ) (k : ℕ) (_hzero : 0 ∈ B)

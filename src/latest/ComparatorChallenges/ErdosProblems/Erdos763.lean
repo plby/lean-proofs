@@ -53,7 +53,6 @@ noncomputable def powerSeriesValue (a : ℕ → ℂ) (z : ℂ) : ℂ :=
 noncomputable def truncPolynomial (a : ℕ → ℂ) (r : ℝ) (K : ℕ) : Polynomial ℂ :=
   ∑ n ∈ Finset.range K, Polynomial.monomial n (a n * (r : ℂ) ^ n)
 
-
 theorem erdos_763 :
     ¬ ∃ (A : Set ℕ) (c : ℝ), 0 < c ∧
       (fun N : ℕ ↦ (summatoryRepresentationCount A N : ℝ) - c * N) =O[atTop]

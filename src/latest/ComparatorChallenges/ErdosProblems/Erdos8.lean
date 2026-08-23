@@ -4,7 +4,6 @@ import Mathlib
 
 namespace Erdos8
 
-
 open scoped Classical in
 /-- A finite family of congruence classes with distinct nontrivial moduli.
 

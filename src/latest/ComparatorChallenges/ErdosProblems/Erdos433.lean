@@ -14,7 +14,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-
 set_option maxHeartbeats 1000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 2000000
@@ -48,7 +47,6 @@ namespace Finset
 
 variable (s t)
 
-
 end Finset
 
 local notation:max "#" s:max => Finset.card s
@@ -67,7 +65,6 @@ noncomputable def g (b a : ℕ) : ℕ :=
     (_hE_card : E.card = b)
     (_hE_gcd : Finset.gcd E id = 1)}
 end Erdos433
-
 
 open scoped BigOperators
 open scoped Real

@@ -27,7 +27,6 @@ end Erdos283b
 
 open Erdos283b
 
-
 open Finset BigOperators
 
 namespace Erdos283b

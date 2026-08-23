@@ -20,7 +20,6 @@ noncomputable section
 end
 end Erdos268
 
-
 open Set Filter Topology Matrix
 open scoped BigOperators
 

@@ -50,7 +50,6 @@ noncomputable def c_opt (n : ℕ) : ℝ :=
       r = score x }
 end Erdos1026
 
-
 namespace Erdos1026
 
 open scoped Classical in

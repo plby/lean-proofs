@@ -47,7 +47,6 @@ def HasBoundedGaps (B : Set ℕ) : Prop :=
 def EventuallyGapAtMost (B : Set ℕ) (C : ℕ) : Prop :=
   ∀ᶠ n in atTop, enum B (n + 1) - enum B n ≤ C
 
-
 theorem erdos_880 :
     (∀ A : Set ℕ, IsAdditiveBasisOfOrder A 2 →
       HasBoundedGaps (restrictedSums A 2)) ∧

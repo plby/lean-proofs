@@ -35,7 +35,6 @@ def Erdos605Statement : Prop :=
 def scale (n : ℕ) : ℕ :=
   Nat.findGreatest (fun q ↦ 3 * q ^ 3 ≤ n) n
 
-
 theorem erdos_605 : Erdos605Statement := by
   sorry
 

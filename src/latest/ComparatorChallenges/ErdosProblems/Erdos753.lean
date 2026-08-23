@@ -14,8 +14,6 @@ noncomputable def listChromaticNumber {V : Type*} (G : SimpleGraph V) : ℕ :=
   sInf {k : ℕ | IsKChoosable G k}
 end Erdos753
 
-
-
 open Real Finset
 
 namespace Erdos753

@@ -7,7 +7,6 @@ open Filter Function Finset Fintype
 
 noncomputable section
 
-
 namespace Erdos190
 
 open scoped Classical in

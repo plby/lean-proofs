@@ -16,7 +16,6 @@ end Erdos867
 
 open Erdos867
 
-
 open Finset
 
 namespace Erdos867
@@ -26,7 +25,6 @@ theorem construction_19_36 :
     ∃ C : ℕ, ∀ n : ℕ, 144 ≤ n → ∃ S : Finset ℕ,
     S ⊆ Icc 1 n ∧ ConsecutiveSumFree S ∧ 36 * S.card + C ≥ 19 * n := by
   sorry
-
 
 open scoped Classical in
 theorem csf_exceeds_half_plus_constant :

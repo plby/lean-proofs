@@ -8,7 +8,6 @@ variable {V : Type u} {Color : Type v}
 
 noncomputable section
 
-
 namespace Erdos632
 
 open scoped Classical in

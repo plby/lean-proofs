@@ -13,7 +13,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-
 set_option maxHeartbeats 300000
 
 open scoped Classical in
@@ -48,7 +47,6 @@ noncomputable def I0 (p : ProblemParameters) : Finset ℕ :=
   if ∀ n ∈ J1' p, |X p.r n| > (n : ℚ)^(z p.m) then J1' p else J2' p
 end Erdos291b
 
-
 namespace Erdos291b
 
 end Erdos291b
@@ -64,7 +62,6 @@ open scoped Classical in
 theorem ohyeah1 (p : ProblemParameters) :
     ∃ n ∈ I0 p, ∃ q, q.Prime ∧ q ≥ p.m ∧ q ∣ Int.natAbs (X_int p.r n) := by
   sorry
-
 
 open scoped Classical in
 theorem generalErdos291 (r : ℕ → ℤ) (t : ℕ) (ht : t > 0) (h_per : Function.Periodic r t)

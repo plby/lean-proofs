@@ -22,8 +22,6 @@ end SimpleGraph
 
 end Erdos760
 
-
-
 open scoped ENat
 open _root_.SimpleGraph
 

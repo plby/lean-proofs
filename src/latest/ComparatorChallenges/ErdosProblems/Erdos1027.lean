@@ -7,7 +7,6 @@ open Finset
 
 noncomputable section
 
-
 universe u
 
 namespace Erdos1027

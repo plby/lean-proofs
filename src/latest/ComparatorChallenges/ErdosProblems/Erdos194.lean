@@ -44,8 +44,6 @@ def ArithProgression (a d : ℝ) (k : ℕ) : Fin k → ℝ :=
   fun i => a + (i : ℝ) * d
 end Erdos194
 
-
-
 namespace Erdos194
 
 end Erdos194

@@ -66,7 +66,6 @@ noncomputable section
 
 open Combinatorics
 
-
 /-- Encode a finite word by the sum of its natural-valued letters. -/
 private def wordIndex {ι : Type*} [Fintype ι] {k : ℕ}
     (v : ι → Fin k) : ℕ :=

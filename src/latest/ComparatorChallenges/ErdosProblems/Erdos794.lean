@@ -15,7 +15,6 @@ def erdos_794 : Prop :=
     has_subgraph E 4 3 ∨ has_subgraph E 5 7
 end Erdos794
 
-
 open scoped Classical in
 theorem Erdos794.not_erdos_794 :
     Not Erdos794.erdos_794

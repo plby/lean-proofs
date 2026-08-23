@@ -8,7 +8,6 @@ open scoped ArithmeticFunction.Moebius
 
 noncomputable section
 
-
 namespace Erdos977
 
 open scoped Classical in

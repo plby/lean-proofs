@@ -20,7 +20,6 @@ namespace Erdos1205
 
 noncomputable section
 
-
 open scoped Classical in
 /-- A choice of one residue for each modulus `1, ..., x`.
 The index `i : Fin x` represents modulus `i + 1`. -/
@@ -52,7 +51,6 @@ open scoped Classical in
 /-- The all-zero residue assignment. -/
 def zeroAssignment (x : ℕ) : Assignment x :=
   fun i ↦ ⟨0, Nat.succ_pos i.1⟩
-
 
 open scoped Classical in
 theorem erdos_1205 :

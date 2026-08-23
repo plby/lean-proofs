@@ -2,7 +2,6 @@
 
 import Mathlib
 
-
 open Filter Topology Set Real
 
 namespace Erdos1125

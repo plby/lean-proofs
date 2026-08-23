@@ -64,7 +64,6 @@ def Resolution : Prop :=
     ∃ A B : Set ℕ, IsNatPartition A B ∧
       partitionValue A B = sharpConstant
 
-
 open scoped Classical in
 theorem erdos1211 : Resolution := by
   sorry

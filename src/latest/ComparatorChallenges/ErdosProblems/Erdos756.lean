@@ -16,8 +16,6 @@ noncomputable def distance_count (P : Finset ℂ) (d : ℝ) : ℕ :=
   (P.offDiag.filter (fun (x, y) => dist x y = d)).card / 2
 end Erdos756
 
-
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

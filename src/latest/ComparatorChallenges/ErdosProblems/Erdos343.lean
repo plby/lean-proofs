@@ -30,7 +30,6 @@ def HasLinearCountingLowerBound (C : ℕ) (A : ℕ → ℕ) : Prop :=
 
 /-- Brown's finite-interval argument for occurrence-indexed subset sums. -/
 
-
 theorem erdos_343 :
     ∃ C : ℕ, 0 < C ∧ ∀ A : ℕ → ℕ,
       Monotone A →

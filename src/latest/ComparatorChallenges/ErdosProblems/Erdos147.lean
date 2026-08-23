@@ -8,7 +8,6 @@ open scoped SimpleGraph Topology
 
 noncomputable section
 
-
 namespace Erdos147
 
 open scoped Classical in

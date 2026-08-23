@@ -59,7 +59,6 @@ end Erdos741b
 
 open scoped Pointwise
 
-
 namespace Erdos741b
 
 end Erdos741b
@@ -76,7 +75,6 @@ theorem erdos741_upper_density (A : Set ℕ) (hA : upperDensity (A + A) > 0) :
     ∃ P : BiPartition A,
       upperDensity (P.left + P.left) > 0 ∧ upperDensity (P.right + P.right) > 0 := by
   sorry
-
 
 open scoped Classical in
 theorem erdos741_strict_density_counterexample :

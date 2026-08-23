@@ -42,7 +42,6 @@ def SparseErdosTuranBound (C : ℝ) : Prop :=
 
 end Erdos990b
 
-
 open scoped BigOperators Topology
 open Polynomial
 

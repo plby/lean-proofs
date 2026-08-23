@@ -8,7 +8,6 @@ open Asymptotics
 
 noncomputable section
 
-
 namespace Erdos1025
 
 open scoped Classical in

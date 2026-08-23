@@ -7,7 +7,6 @@ open scoped BigOperators ENNReal ProbabilityTheory Topology
 
 noncomputable section
 
-
 namespace Erdos783
 
 open scoped Classical in

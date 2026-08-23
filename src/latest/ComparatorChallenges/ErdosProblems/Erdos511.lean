@@ -6,7 +6,6 @@ open Polynomial Set Topology Metric Filter
 
 noncomputable section
 
-
 namespace Erdos511
 
 open scoped Classical in

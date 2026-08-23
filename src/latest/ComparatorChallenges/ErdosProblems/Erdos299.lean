@@ -28,7 +28,6 @@ end
 
 end UnitFractions
 
-
 open UnitFractions
 
 namespace Erdos299

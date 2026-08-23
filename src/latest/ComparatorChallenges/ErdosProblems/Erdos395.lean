@@ -7,7 +7,6 @@ open Classical Finset
 
 noncomputable section
 
-
 namespace Erdos395
 
 open scoped Classical in

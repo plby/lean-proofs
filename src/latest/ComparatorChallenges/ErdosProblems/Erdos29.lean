@@ -7,7 +7,6 @@ open scoped Pointwise Real
 
 noncomputable section
 
-
 namespace Erdos29
 
 open scoped Classical in

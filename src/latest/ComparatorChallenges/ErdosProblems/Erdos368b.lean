@@ -10,7 +10,6 @@ def P_plus (m : ℕ) : ℕ :=
   | none => 1
 end Erdos368b
 
-
 namespace Erdos368b
 
 open scoped Classical in

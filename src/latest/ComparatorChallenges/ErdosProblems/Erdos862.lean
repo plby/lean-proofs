@@ -46,7 +46,6 @@ end
 
 end Erdos862
 
-
 open scoped BigOperators
 open Real Filter Asymptotics
 

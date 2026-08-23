@@ -35,7 +35,6 @@ noncomputable section
 
 open MeasureTheory ProbabilityTheory Set
 
-
 open scoped Classical in
 theorem erdos_277 :
     ∀ c : ℝ, ∃ n : ℕ, (σ 1 n : ℝ) > c * n ∧

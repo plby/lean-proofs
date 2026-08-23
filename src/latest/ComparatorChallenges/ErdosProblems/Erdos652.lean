@@ -7,7 +7,6 @@ open scoped Real Topology
 
 noncomputable section
 
-
 namespace Erdos652
 
 open scoped Classical in

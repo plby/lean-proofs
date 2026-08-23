@@ -6,7 +6,6 @@ open Filter Finset Set
 
 noncomputable section
 
-
 namespace UnitFractions
 
 variable (A : Set ℕ)

@@ -12,7 +12,6 @@ set_option linter.unusedVariables false
 open scoped Real
 open scoped Nat
 
-
 noncomputable section
 
 open scoped Classical in
@@ -57,7 +56,6 @@ end
 
 end Erdos204
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat
@@ -68,7 +66,6 @@ namespace Erdos204
 open scoped Classical in
 theorem T1 : ¬ ∃ n, IsCDCovering n := by
   sorry
-
 
 open scoped Classical in
 theorem erdos_204 : ¬ ∃ (n : ℕ) (a : ℕ → ℤ),

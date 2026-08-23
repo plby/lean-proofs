@@ -23,7 +23,6 @@ open scoped BigOperators
 /-- The largest prime factor of `n`, or `1` when `n` has no prime factors. -/
 def P (n : ℕ) : ℕ := n.primeFactors.max.getD 1
 
-
 theorem erdos_372 :
     Set.Infinite
       {n : ℕ | P n > P (n + 1) ∧ P (n + 1) > P (n + 2)} := by

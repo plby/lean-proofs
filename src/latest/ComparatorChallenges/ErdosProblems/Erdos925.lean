@@ -44,7 +44,6 @@ def ThreeColorCounterexample (m n : ℕ) : Prop :=
   ∃ red blue : SimpleGraph (Fin n), red.CliqueFree 3 ∧ blue.CliqueFree 3 ∧
     (red ⊔ blue).IndepSetFree m
 
-
 theorem erdos_925 : ¬ ProposedBound := by
   sorry
 

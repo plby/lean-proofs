@@ -53,7 +53,6 @@ def upperHalf (p : ℕ) (hp0 : p ≠ 0) : Finset (ZMod p) :=
   letI : NeZero p := ⟨hp0⟩
   Finset.univ.filter fun a ↦ (p + 1) / 2 ≤ a.val
 
-
 theorem erdos_1202 : ¬ Erdos1202Statement := by
   sorry
 

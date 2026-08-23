@@ -6,7 +6,6 @@ open Filter Set Topology
 
 noncomputable section
 
-
 namespace Set
 
 open scoped Classical in

@@ -15,7 +15,6 @@ set_option maxRecDepth 4096
 open Finset
 open scoped Pointwise
 
-
 open scoped Classical in
 def HasPairwiseSums (A : Finset ℤ) (k : ℕ) : Prop :=
   ∃ b : Fin k → ℤ, Function.Injective b ∧ ∀ i j : Fin k, i < j → b i + b j ∈ A
@@ -42,7 +41,6 @@ end SidonBound
 
 end Erdos866b
 
-
 open Finset
 open scoped Pointwise
 open Real
@@ -53,26 +51,21 @@ open scoped Classical in
 theorem g3 (n : ℕ) (hn : 3 ≤ n) : gFun 3 n = 1 := by
   sorry
 
-
 open scoped Classical in
 theorem h3 (n : ℕ) (hn : 4 ≤ n) : hFun 3 n = 2 := by
   sorry
-
 
 open scoped Classical in
 theorem g4 (n : ℕ) (hn : 2 ≤ n) : gFun 4 n = 3 := by
   sorry
 
-
 open scoped Classical in
 theorem h4upper (n : ℕ) (hn : 0 < n) : hFun 4 n ≤ 2270 := by
   sorry
 
-
 open scoped Classical in
 theorem g5upper (n : ℕ) : gFun 5 n < 120000000 := by
   sorry
-
 
 open scoped Classical in
 theorem generalupper (k : ℕ) (hk : 3 ≤ k) :

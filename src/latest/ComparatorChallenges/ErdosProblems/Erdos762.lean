@@ -9,7 +9,6 @@ set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.unusedSimpArgs false
 
-
 open SimpleGraph
 
 open scoped Classical in
@@ -28,7 +27,6 @@ def erdos_762 : Prop :=
   4 ≤ cochromaticNumber G →
   G.chromaticNumber ≤ cochromaticNumber G + 2
 end Erdos762
-
 
 open scoped Classical in
 theorem Erdos762.not_erdos_762 :

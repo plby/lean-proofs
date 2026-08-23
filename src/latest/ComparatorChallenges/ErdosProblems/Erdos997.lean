@@ -26,7 +26,6 @@ def IsWellDistributed (x : ℕ → ℝ) : Prop :=
       |((countInIcc x a b n k) : ℝ) - (b - a) * (k : ℝ)| < ε * (k : ℝ)
 end Erdos997
 
-
 open scoped Classical in
 theorem Erdos997.erdos997 :
     ∀ (α : Real), Not (Erdos997.IsWellDistributed (Erdos997.fracSeq α))

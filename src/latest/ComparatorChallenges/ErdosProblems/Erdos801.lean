@@ -7,7 +7,6 @@ open scoped Finset
 
 noncomputable section
 
-
 namespace Erdos801
 
 variable {V : Type*} [Fintype V] [DecidableEq V]

@@ -15,7 +15,6 @@ def erdos_1056 : Prop :=
     AllModProdEqualsOne p boundaries)
 end Erdos1056b
 
-
 open Nat
 
 namespace Erdos1056b

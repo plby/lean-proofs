@@ -8,7 +8,6 @@ def harmonicSum (a b : ℕ) : ℚ := ∑ i ∈ Finset.Icc a b, (1 : ℚ) / i
 def v (a b : ℕ) : ℕ := (harmonicSum a b).den
 end Erdos290
 
-
 namespace Erdos290
 
 open scoped Classical in

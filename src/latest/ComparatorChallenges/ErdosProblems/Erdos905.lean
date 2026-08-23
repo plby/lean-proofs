@@ -19,8 +19,6 @@ end ErdosProblems.P905
 
 end Erdos905
 
-
-
 open SimpleGraph
 
 namespace Erdos905.ErdosProblems.P905

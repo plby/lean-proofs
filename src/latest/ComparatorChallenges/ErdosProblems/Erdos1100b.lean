@@ -24,7 +24,6 @@ noncomputable def bound (n : ℕ) (ε : ℝ) : ℝ :=
   Real.exp ( (1 / 2 - ε) * (Real.log (Real.log n))^2 / Real.log (Real.log (Real.log n)) )
 end Erdos1100b
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

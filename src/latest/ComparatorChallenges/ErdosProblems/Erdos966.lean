@@ -18,7 +18,6 @@ def HasMonochromaticAP (A : Set ℕ) (k : ℕ) {r : ℕ} (c : ℕ → Fin r) : P
       ∃ y : Fin r, ∀ i : Fin k, c (a + i * d) = y
 end Erdos966
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

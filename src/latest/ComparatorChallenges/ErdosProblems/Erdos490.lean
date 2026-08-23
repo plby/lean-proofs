@@ -3,7 +3,6 @@
 import Mathlib
 import ErdosProblems.Axioms
 
-
 open scoped BigOperators
 
 open Finset BigOperators Nat Real

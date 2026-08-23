@@ -17,7 +17,6 @@ open Finset Complex MeasureTheory Set Filter
 
 noncomputable section
 
-
 namespace Erdos764
 
 open scoped Classical in

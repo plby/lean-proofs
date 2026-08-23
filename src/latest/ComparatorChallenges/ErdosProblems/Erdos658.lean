@@ -41,7 +41,6 @@ end
 
 end Erdos658
 
-
 open Finset
 
 namespace Erdos658
@@ -54,14 +53,12 @@ theorem Theorem_1_2 (hFR : Theorem_2_2) :
         ContainsQuadruple S := by
   sorry
 
-
 open scoped Classical in
 theorem Theorem_1_1 (hFR : Theorem_2_2) :
     ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
       ∀ S : Finset (ℤ × ℤ), S ⊆ grid2 N →
         δ * (↑N) ^ 2 ≤ ↑S.card → ContainsSquare S := by
   sorry
-
 
 open scoped Classical in
 theorem erdos658 :

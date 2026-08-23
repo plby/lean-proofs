@@ -25,7 +25,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-
 set_option maxHeartbeats 1000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
@@ -55,8 +54,6 @@ def I_num {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V) : ℕ :=
 end
 
 end Erdos1036
-
-
 
 open Lean Meta Elab Parser.Tactic Elab.Tactic Batteries.Tactic.GeneralizeProofs
 open Lean Elab Parser.Tactic Elab.Tactic Batteries.Tactic.GeneralizeProofs

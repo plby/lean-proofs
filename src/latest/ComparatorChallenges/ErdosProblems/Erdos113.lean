@@ -8,7 +8,6 @@ open scoped BigOperators
 
 noncomputable section
 
-
 namespace Erdos113
 
 open scoped Classical in

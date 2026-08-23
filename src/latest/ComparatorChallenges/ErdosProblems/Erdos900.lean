@@ -7,7 +7,6 @@ open scoped BigOperators SimpleGraph Topology
 
 noncomputable section
 
-
 namespace Erdos88.Fourier
 
 universe u

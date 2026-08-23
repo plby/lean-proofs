@@ -6,7 +6,6 @@ open Filter Set Topology
 
 noncomputable section
 
-
 namespace Erdos49
 
 open scoped Classical in

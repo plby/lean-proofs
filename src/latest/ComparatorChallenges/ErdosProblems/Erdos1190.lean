@@ -178,7 +178,6 @@ namespace ParkPham
 open Finset
 open scoped BigOperators
 
-
 section ThresholdDefinitions
 
 variable {α : Type*} [DecidableEq α]
@@ -230,7 +229,6 @@ namespace Erdos202
 
 open Finset
 open scoped BigOperators
-
 
 end Erdos202
 
@@ -383,7 +381,6 @@ def Erdos1190BridgeReady : Prop :=
     TailAdmissible m Q →
     tailCountingFunction Q N ≤ f N
 end Erdos1190
-
 
 open scoped Classical in
 theorem Erdos1190.erdos1190_bridge_ready :

@@ -29,7 +29,6 @@ def Admissible (B : Set ℕ) : Prop :=
   ∀ p, p.Prime → ∃ (a : ZMod p), ∀ b ∈ B, (b : ZMod p) ≠ a
 end Erdos429
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

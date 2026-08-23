@@ -6,7 +6,6 @@ import Mathlib.Data.Nat.Nth
 import Mathlib.Data.Nat.Prime.Defs
 import ErdosProblems.Axioms
 
-
 namespace Erdos427
 
 open scoped Classical in

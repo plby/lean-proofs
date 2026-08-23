@@ -18,7 +18,6 @@ open Filter Function MeasureTheory ProbabilityTheory Set
 
 noncomputable section
 
-
 namespace Set
 
 open scoped Classical in

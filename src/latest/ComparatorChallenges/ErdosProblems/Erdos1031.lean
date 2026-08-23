@@ -8,7 +8,6 @@ open SimpleGraph
 
 noncomputable section
 
-
 namespace Erdos1031
 
 open scoped Classical in

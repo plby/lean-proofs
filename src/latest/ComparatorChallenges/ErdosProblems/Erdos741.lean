@@ -20,8 +20,6 @@ end HasDensity
 
 end Set
 
-
-
 open Filter
 open scoped Topology
 open scoped Pointwise

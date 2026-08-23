@@ -29,7 +29,6 @@ def ConvexPosition (P : Finset Point) : Prop :=
 end
 end Erdos94
 
-
 open scoped BigOperators
 open Finset
 

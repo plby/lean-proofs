@@ -6,7 +6,6 @@ open scoped SimpleGraph
 
 noncomputable section
 
-
 namespace Erdos79
 
 open scoped Classical in

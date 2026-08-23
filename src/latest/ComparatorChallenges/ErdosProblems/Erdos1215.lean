@@ -76,7 +76,6 @@ def HasArbitrarilyLongCounterexamples : Prop :=
     ∃ P : Polynomial ℂ, IsAdmissible P ∧
       ∀ γ : ℝ → ℂ, IsEscapePath P γ → ENNReal.ofReal L < PathELength γ
 
-
 theorem erdos_1215 :
     ¬ ∃ C : ℝ, ∀ P : Polynomial ℂ,
       (P.eval 0 = 1 ∧ 0 < P.natDegree ∧

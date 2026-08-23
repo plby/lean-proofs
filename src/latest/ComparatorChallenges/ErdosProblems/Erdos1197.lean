@@ -28,7 +28,6 @@ end Erdos1197
 
 open Erdos1197
 
-
 open MeasureTheory Set
 open scoped ENNReal
 

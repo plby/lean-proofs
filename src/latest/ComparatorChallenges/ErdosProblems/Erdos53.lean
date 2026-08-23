@@ -10,7 +10,6 @@ open ZMod
 
 noncomputable section
 
-
 namespace Erdos53
 
 variable {M : Type*} [CommMonoid M] [DecidableEq M]

@@ -6,7 +6,6 @@ open Set Topology
 
 noncomputable section
 
-
 namespace Erdos909
 
 open scoped Classical in

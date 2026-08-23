@@ -13,7 +13,6 @@ namespace Erdos337
 
 open scoped Pointwise
 
-
 open scoped Classical in
 def iterated_sumset (A : Set ℕ) : ℕ → Set ℕ
 | 0 => {0}
@@ -42,7 +41,6 @@ def erdos_337 : Prop :=
       Filter.atTop
       Filter.atTop
 end Erdos337
-
 
 open scoped Classical in
 theorem Erdos337.not_erdos_337 :

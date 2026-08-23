@@ -16,7 +16,6 @@ noncomputable def g (n : ℕ) : ℕ :=
   sSup { k | ∃ l, is_valid_seq n l ∧ l.length = k }
 end Erdos648
 
-
 open Asymptotics Filter Nat Real
 
 namespace Erdos648

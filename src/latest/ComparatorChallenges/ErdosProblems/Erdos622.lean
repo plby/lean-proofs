@@ -6,7 +6,6 @@ open Filter
 
 noncomputable section
 
-
 namespace Erdos622
 
 variable {V : Type*} [Fintype V] [DecidableEq V]

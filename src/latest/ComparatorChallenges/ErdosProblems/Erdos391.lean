@@ -9,7 +9,6 @@ namespace Erdos391
 
 noncomputable section
 
-
 open scoped Classical in
 /-- A positive, nondecreasing `n`-tuple whose product is `n!`. -/
 def IsFactorialRepresentation (n : ℕ) (a : Fin n → ℕ) : Prop :=

@@ -83,7 +83,6 @@ abbrev pairCount (k : ℕ) : ℕ := Fintype.card (PairIndex k)
 /-- Richness threshold: the number of vertices of `Hₖ`. -/
 abbrev threshold (k : ℕ) : ℕ := 1 + k + pairCount k
 
-
 theorem erdos_926 :
     ∀ k : ℕ, 4 ≤ k →
       (fun n : ℕ ↦ (SimpleGraph.extremalNumber n (Hk k) : ℝ)) =O[atTop]

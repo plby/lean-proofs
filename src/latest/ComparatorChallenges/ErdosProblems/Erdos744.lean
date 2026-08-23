@@ -7,7 +7,6 @@ open Function
 
 noncomputable section
 
-
 namespace Erdos744
 
 open scoped Classical in

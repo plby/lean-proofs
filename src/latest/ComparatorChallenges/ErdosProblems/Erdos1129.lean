@@ -72,7 +72,6 @@ def standardThreeNodes : NodeConfiguration 3 :=
 noncomputable def contractedThreeNodes : NodeConfiguration 3 :=
   symmetricThreeNodes (49 / 50 : ℝ) (by norm_num) (by norm_num)
 
-
 theorem erdos_1129 :
     standardThreeNodes ≠ contractedThreeNodes ∧
       lebesgueConstant standardThreeNodes = ENNReal.ofReal (5 / 4 : ℝ) ∧

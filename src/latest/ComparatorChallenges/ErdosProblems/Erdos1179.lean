@@ -7,7 +7,6 @@ open scoped BigOperators Topology
 
 noncomputable section
 
-
 namespace Erdos1179
 
 variable {G : Type*} [AddCommGroup G] [Fintype G]

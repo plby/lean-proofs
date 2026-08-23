@@ -38,7 +38,6 @@ end LowerConstruction
 
 end Erdos694
 
-
 open Filter Asymptotics Topology
 open scoped BigOperators Nat
 open Filter
@@ -49,7 +48,6 @@ open scoped Classical in
 theorem totient_sq_ge_half (m : ℕ) (_hm : 1 ≤ m) : m ≤ 2 * (Nat.totient m) ^ 2 := by
   sorry
 
-
 open scoped Classical in
 theorem landau_max_ratio :
     Tendsto
@@ -57,7 +55,6 @@ theorem landau_max_ratio :
         (m : ℝ) / Nat.totient m) / (Real.exp Real.eulerMascheroniConstant * Real.log (Real.log T)))
       atTop (𝓝 1) := by
   sorry
-
 
 open scoped Classical in
 theorem R_upper_bound :
@@ -93,7 +90,6 @@ theorem collision_at_height :
               (n : ℝ) ≤ Real.exp (K * Y) := by
   sorry
 
-
 open scoped Classical in
 theorem totient_collision_construction :
     ∀ ε > 0, ∀ᶠ x : ℕ in atTop,
@@ -102,13 +98,11 @@ theorem totient_collision_construction :
         (b : ℝ) / a ≥ (Real.exp Real.eulerMascheroniConstant - ε) * Real.log (Real.log x) := by
   sorry
 
-
 open scoped Classical in
 theorem R_lower_bound :
     ∀ ε > 0, ∀ᶠ x : ℕ in atTop,
       R x ≥ (Real.exp Real.eulerMascheroniConstant - ε) * Real.log (Real.log x) := by
   sorry
-
 
 open scoped Classical in
 theorem totient_fibre_extremes :
@@ -117,20 +111,17 @@ theorem totient_fibre_extremes :
       atTop (𝓝 1) := by
   sorry
 
-
 open scoped Classical in
 theorem permanence_step (a b r : ℕ)
     (hab : Nat.totient a = Nat.totient b) (hr : Nat.Prime r) (hra : ¬ r ∣ a) (hrb : ¬ r ∣ b) :
     Nat.totient (r * a) = Nat.totient (r * b) := by
   sorry
 
-
 open scoped Classical in
 theorem infinitely_many_collisions (a b : ℕ) (hb : 1 ≤ b) (hgt : b < a)
     (hab : Nat.totient a = Nat.totient b) :
     {N : ℕ | ∃ x y, Nat.totient x = N ∧ Nat.totient y = N ∧ y < x ∧ b * x ≥ a * y}.Infinite := by
   sorry
-
 
 open scoped Classical in
 theorem erdos_694_asymptotic :

@@ -132,7 +132,6 @@ namespace Erdos1044
 
 end Erdos1044
 
-
 open Polynomial MeasureTheory Topology Set Metric
 open Set Metric MeasureTheory Topology
 open Polynomial MeasureTheory Topology Set Metric Complex

@@ -17,8 +17,6 @@ def IsAPOfLength (s : Set α) (l : ℕ∞) : Prop :=
   ∃ a d : α, IsAPOfLengthWith s l a d
 end Erdos198
 
-
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

@@ -7,7 +7,6 @@ open Finset Set Polynomial Filter MeasureTheory
 
 noncomputable section
 
-
 namespace Erdos1153
 
 open scoped Classical in

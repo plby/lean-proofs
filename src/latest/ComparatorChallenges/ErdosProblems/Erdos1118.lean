@@ -7,7 +7,6 @@ open scoped ENNReal Topology Pointwise InnerProductSpace
 
 noncomputable section
 
-
 namespace Erdos1118
 
 open scoped Classical in

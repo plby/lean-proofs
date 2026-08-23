@@ -34,7 +34,6 @@ def GoldstonGrahamPintzYildirimStatement : Prop :=
         (L (a i) x) / r i ∈ E2 C ∧ (L (a j) x) / r j ∈ E2 C}.Infinite
 end Erdos964
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

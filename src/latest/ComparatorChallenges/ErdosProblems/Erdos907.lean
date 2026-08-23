@@ -10,7 +10,6 @@ def IsAdditiveFn (H : ℝ → ℝ) : Prop :=
   ∀ x y : ℝ, H (x + y) = H x + H y
 end Erdos907
 
-
 open Filter Topology Set Metric
 
 namespace Erdos907

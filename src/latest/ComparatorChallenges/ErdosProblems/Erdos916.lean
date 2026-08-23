@@ -4,7 +4,6 @@ import Mathlib
 
 noncomputable section
 
-
 namespace Erdos916
 
 variable {V : Type u} [Fintype V] [DecidableEq V]

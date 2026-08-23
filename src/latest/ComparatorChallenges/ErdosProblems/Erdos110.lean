@@ -65,7 +65,6 @@ def HasSlowFiniteGrowth (f : ℕ → ℕ) (X : BundledGraph) : Prop :=
 /-- An arbitrarily-late pointwise counterexample defeats an eventual uniform
 bound. -/
 
-
 theorem erdos_110 :
     ¬ ∃ F : ℕ → ℕ, HasUniformBound F := by
   sorry

@@ -2,7 +2,6 @@
 
 import Mathlib
 
-
 open Complex Polynomial Set Filter Topology Metric
 
 namespace Erdos229

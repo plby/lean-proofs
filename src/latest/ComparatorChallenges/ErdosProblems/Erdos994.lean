@@ -7,7 +7,6 @@ open scoped Topology
 
 namespace Erdos994
 
-
 open scoped Classical in
 open scoped Classical in
 /-- The normalized number of visits of the fractional parts

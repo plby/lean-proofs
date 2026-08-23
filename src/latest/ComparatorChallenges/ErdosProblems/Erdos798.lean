@@ -33,7 +33,6 @@ end
 
 end Erdos798
 
-
 open Finset Int Real Filter Topology
 
 namespace Erdos798

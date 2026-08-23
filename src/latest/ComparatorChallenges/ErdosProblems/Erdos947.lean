@@ -26,7 +26,6 @@ open Polynomial
 
 end Erdos947
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

@@ -10,7 +10,6 @@ def Nat.largestPrimeFactor (n : ℕ) : ℕ :=
   if n ≤ 1 then 0 else n.primeFactors.sup id
 end Erdos369
 
-
 open Finset Nat BigOperators
 
 namespace Erdos369

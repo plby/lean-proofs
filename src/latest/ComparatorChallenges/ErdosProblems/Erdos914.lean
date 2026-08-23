@@ -12,7 +12,6 @@ set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
 set_option linter.unusedSimpArgs false
 
-
 namespace TerminalVertex
 
 variable {α : Type*} [Fintype α] [DecidableEq α]
@@ -37,8 +36,6 @@ def HasDisjointCliques (G : SimpleGraph V) (r m : ℕ) : Prop :=
 end HajnalSzemeredi
 
 end Erdos914
-
-
 
 open Finset
 open Finset Function SimpleGraph

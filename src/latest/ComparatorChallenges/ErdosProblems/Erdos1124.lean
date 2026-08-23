@@ -44,7 +44,6 @@ def TranslationEquidecomposable (A B : Set Plane) : Prop :=
 /-- The standard volume formula for the disk, in the exact normalization used
 in the final statement. -/
 
-
 theorem erdos_1124 (r : ℝ) (hr : 0 < r) :
     TranslationEquidecomposable (disk r) (square r) := by
   sorry

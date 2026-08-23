@@ -23,7 +23,6 @@ namespace Erdos1077
 
 open Finset Filter SimpleGraph
 
-
 open scoped Classical in
 theorem erdos_1077 :
     ¬ ∀ ε > (0 : ℝ), ε < 1 → ∀ α > (0 : ℝ), α < 1 →

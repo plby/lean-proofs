@@ -7,7 +7,6 @@ open Polynomial MeasureTheory Set Metric Complex
 
 noncomputable section
 
-
 namespace Erdos116
 
 open scoped Classical in

@@ -13,7 +13,6 @@ def Condition (p : ℤ[X]) : Prop :=
       m = ∑ i ∈ Finset.Icc 1 (Fin.last k), p.eval (n i)
 end Erdos283
 
-
 open Filter Polynomial Finset
 
 namespace Erdos283

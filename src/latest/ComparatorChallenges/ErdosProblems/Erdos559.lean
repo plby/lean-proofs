@@ -157,7 +157,6 @@ open scoped SimpleGraph
 
 namespace Erdos559
 
-
 open scoped Classical in
 /-- A uniform finite enumeration of graph copies, used so that all subtype
 cardinalities below share the same canonical `Fintype` instances. -/

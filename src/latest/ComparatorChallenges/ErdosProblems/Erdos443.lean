@@ -24,7 +24,6 @@ def A (k : ℕ) : Finset ℕ :=
   (Finset.Ioo 0 k).image (fun r => r * (k - r))
 end Erdos443
 
-
 open scoped Classical
 open scoped Pointwise
 
@@ -34,7 +33,6 @@ open scoped Classical in
 theorem erdos_443_part_one (s : ℕ) :
   ∃ m n : ℕ, n < m ∧ s ≤ ((A n ∩ A m).card : ℝ) := by
   sorry
-
 
 open scoped Classical in
 theorem erdos_443_part_two (ε : ℝ) (hε : 0 < ε) :

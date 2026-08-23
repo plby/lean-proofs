@@ -28,8 +28,6 @@ def erdos_1067 : Prop :=
         ∀ u v : S, u ≠ v → ¬ finite_independent_paths (G.induce S) u v
 end Erdos1067
 
-
-
 open Set Ordinal Function Cardinal
 
 namespace Erdos1067

@@ -23,8 +23,6 @@ end Erdos331
 
 open Erdos331
 
-
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat
@@ -45,7 +43,6 @@ theorem main_theorem : ∃ (A' B' : Set ℕ),
   (∀ a₁ ∈ A', ∀ a₂ ∈ A', ∀ b₁ ∈ B', ∀ b₂ ∈ B',
     a₁ ≠ a₂ → a₁ - (a₂ : ℤ) ≠ b₁ - (b₂ : ℤ)) := by
   sorry
-
 
 open scoped Classical in
 theorem erdos_331 :

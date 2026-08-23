@@ -23,7 +23,6 @@ open scoped BigOperators
 
 noncomputable section
 
-
 open scoped Classical in
 /-- Two finite sets have an `r`-intersection when their intersection has size `r`. -/
 def HasRIntersection (r : ℕ) (A B : Finset ℕ) : Prop :=
@@ -38,7 +37,6 @@ open scoped Classical in
 /-- The extremal quantity in Erdős Problem 703. -/
 def T (n r : ℕ) : ℕ :=
   (((range n).powerset.powerset).filter (AvoidsRIntersection r)).sup card
-
 
 open scoped Classical in
 theorem erdos_703 :

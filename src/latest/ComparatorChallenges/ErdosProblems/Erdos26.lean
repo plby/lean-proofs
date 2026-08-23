@@ -7,7 +7,6 @@ set_option linter.flexible false
 
 namespace Erdos26
 
-
 variable {β : Type*} [Preorder β]
 
 variable (S : Set β) (a b : β)
@@ -37,8 +36,6 @@ def MultiplesOf {ι : Type*} (A : ι → ℕ) : Set ℕ := Set.range fun (n, i) 
 open scoped Classical in
 def IsBehrend {ι : Type*} (A : ι → ℕ) : Prop := HasDensity (MultiplesOf A) 1
 end Erdos26
-
-
 
 open scoped Topology
 open Filter

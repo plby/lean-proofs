@@ -8,7 +8,6 @@ open Polynomial
 
 noncomputable section
 
-
 namespace Erdos1114
 
 open scoped Classical in

@@ -37,7 +37,6 @@ def edgeCount {α : Type u} [Fintype α] (G : SimpleGraph α) : ℕ :=
 /-- A clique containing at least as many vertices as the target contains a copy
 of the target. -/
 
-
 theorem erdos_800 (n : ℕ) (H : SimpleGraph (Fin n))
     (hH : NoAdjacentHighDegree H) : RamseyFor H (12 * n) := by
   sorry

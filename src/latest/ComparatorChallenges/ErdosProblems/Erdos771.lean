@@ -32,7 +32,6 @@ local instance decidableAdmissibleCard (n : ℕ) : DecidablePred (AdmissibleCard
 noncomputable def erdosF (n : ℕ) : ℕ :=
   Nat.findGreatest (AdmissibleCard n) n
 
-
 theorem erdos_771 :
       Tendsto (fun n : ℕ =>
         (erdosF n : ℝ) / ((n : ℝ) / Real.log (n : ℝ)))

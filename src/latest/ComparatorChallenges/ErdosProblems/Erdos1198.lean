@@ -79,7 +79,6 @@ private noncomputable def smithColor (n : ℕ+) : SmithColor :=
         ⟨hi n % 2, Nat.mod_lt _ (by omega)⟩,
         if LowSide n then true else false, if HighSide n then true else false)
 
-
 theorem erdos1198 : ¬ Erdos1198Statement := by
   sorry
 

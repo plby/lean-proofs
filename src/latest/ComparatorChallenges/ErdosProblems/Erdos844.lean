@@ -13,7 +13,6 @@ noncomputable def erdosSarkozySet (N : ℕ) : Finset ℕ :=
   (Finset.Icc 1 N).filter (fun k => 2 ∣ k ∨ ¬ Squarefree k)
 end Erdos844
 
-
 open Finset Nat
 
 namespace Erdos844

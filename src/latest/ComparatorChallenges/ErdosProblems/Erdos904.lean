@@ -22,8 +22,6 @@ end SimpleGraph
 
 end Erdos904
 
-
-
 open List Finset
 
 namespace Erdos904.SimpleGraph

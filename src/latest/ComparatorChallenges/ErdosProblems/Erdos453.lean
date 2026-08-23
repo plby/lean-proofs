@@ -13,7 +13,6 @@ def erdos_453 : Prop :=
         (Nat.nth Nat.Prime (n + i)) * (Nat.nth Nat.Prime (n - i))
 end Erdos453
 
-
 open scoped Classical in
 theorem Erdos453.not_erdos_453 :
     Not Erdos453.erdos_453

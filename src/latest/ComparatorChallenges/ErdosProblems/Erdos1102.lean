@@ -21,7 +21,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-
 noncomputable section
 
 open scoped Classical in
@@ -39,7 +38,6 @@ open scoped BigOperators
 open scoped Real
 open scoped Nat
 open scoped Pointwise
-
 
 noncomputable section
 
@@ -68,7 +66,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-
 noncomputable section
 
 open scoped Classical in
@@ -93,7 +90,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-
 noncomputable section
 
 open scoped Classical in
@@ -114,7 +110,6 @@ def GrowthCondition (A : Set ℕ) (C : ℝ) : Prop :=
   ∃ᶠ j in Filter.atTop, (Nat.nth (· ∈ A) (j - 1) : ℝ) ≥ Real.exp (C * j / Real.log j)
 end
 end Erdos1102d
-
 
 open Squarefree Set Order Filter Topology
 open scoped BigOperators
@@ -141,7 +136,6 @@ open scoped Classical in
 theorem TheoremQ_upper (A : Set ℕ) (h : PropertyQ A) : upperDensity A ≤ 6 / Real.pi^2 := by
   sorry
 
-
 open scoped Classical in
 theorem TheoremQ_lower : ∃ A : Set ℕ, A ⊆ SF ∧ PropertyQ A ∧ HasNaturalDensity A (6 / Real.pi^2) := by
   sorry
@@ -155,7 +149,6 @@ theorem upper_density_Q
     (hQ : HasPropertyQ (range A)) :
     limsup (fun j : ℕ  ↦ (j / A j : ℝ)) atTop ≤ 6 / Real.pi^2 := by
   sorry
-
 
 open scoped Classical in
 theorem lower_density_Q_exists :
@@ -172,7 +165,6 @@ open scoped Classical in
 theorem theorem_overp_i (A : Set ℕ) (h : PropertyP_bar_infty A) :
     upperDensity A < 6 / Real.pi^2 := by
   sorry
-
 
 open scoped Classical in
 theorem theorem_overp_ii :

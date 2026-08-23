@@ -20,7 +20,6 @@ noncomputable def erdos_f (m : ℕ) : ℕ :=
     ∀ (x : ℝ), HasDivMatching A (Finset.Ioo ⌊x⌋ ⌈x + 2 * ↑(A.sup id)⌉) r }
 end Erdos650
 
-
 open Finset Real Nat
 
 namespace Erdos650

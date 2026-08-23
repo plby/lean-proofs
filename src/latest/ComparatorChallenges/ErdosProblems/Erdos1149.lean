@@ -7,7 +7,6 @@ open scoped Topology
 
 noncomputable section
 
-
 namespace Erdos1149
 
 open scoped Classical in

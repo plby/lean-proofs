@@ -8,7 +8,6 @@ open Function
 
 noncomputable section
 
-
 namespace Erdos922
 
 open scoped Classical in

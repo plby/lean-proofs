@@ -48,7 +48,6 @@ open scoped Topology
 
 end Erdos846
 
-
 open EuclideanGeometry
 open MeasureTheory
 open Polynomial

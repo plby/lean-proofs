@@ -4,7 +4,6 @@ import Mathlib
 
 noncomputable section
 
-
 namespace Erdos581.UpperBlock
 
 open scoped Classical in

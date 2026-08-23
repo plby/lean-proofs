@@ -6,7 +6,6 @@ open scoped Cardinal
 
 noncomputable section
 
-
 namespace Erdos1127
 
 open scoped Classical in

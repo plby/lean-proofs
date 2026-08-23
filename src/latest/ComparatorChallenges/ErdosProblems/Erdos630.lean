@@ -9,7 +9,6 @@ open scoped unitInterval
 
 noncomputable section
 
-
 universe u
 
 variable {V : Type u} [Fintype V]

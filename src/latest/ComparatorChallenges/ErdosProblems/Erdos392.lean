@@ -2,7 +2,6 @@
 
 import Mathlib
 
-
 open Finset Nat Real Multiset Asymptotics
 
 namespace Erdos392

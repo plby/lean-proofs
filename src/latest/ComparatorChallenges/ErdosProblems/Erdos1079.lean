@@ -35,7 +35,6 @@ noncomputable def linkEdgeCount {V : Type*} [Finite V]
     (G : SimpleGraph V) (v : V) : ℕ :=
   {e : Sym2 V | e ∈ G.edgeSet ∧ ∀ x, x ∈ e → G.Adj v x}.ncard
 
-
 theorem erdos_problem_1079_strict {n r : ℕ} (hr : 4 ≤ r) (hn : 2 ≤ n)
     (G : SimpleGraph (Fin n))
     (hG : cliqueExtremalNumber n r < edgeCount G) :

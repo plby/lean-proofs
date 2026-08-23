@@ -24,7 +24,6 @@ noncomputable def intervalError (x : ℕ → ℤ) (α : ℝ) (N : ℕ) (I : Unit
 noncomputable def intervalDiscrepancy (x : ℕ → ℤ) (α : ℝ) (N : ℕ) : ℝ :=
   sSup (Set.range fun I : UnitSubinterval ↦ |intervalError x α N I|)
 
-
 theorem erdos_992 :
     ∃ x : ℕ → ℤ, StrictMono x ∧
       ∃ c : ℝ, 0 < c ∧

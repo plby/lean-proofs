@@ -20,7 +20,6 @@ def Representable (n : ℕ) : AddSubmonoid ℤ :=
   AddSubmonoid.closure (generators_int n)
 end Erdos435
 
-
 namespace Erdos435
 
 open scoped Classical in

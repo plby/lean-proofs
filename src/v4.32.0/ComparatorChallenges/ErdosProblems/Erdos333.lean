@@ -323,7 +323,6 @@ theorem exists_hitting_set_log_bound
           _ = Real.log 𝓕.card / Real.log (1 / r) + 1 := by ring
           _ = Real.log ((k + 1 : ℕ) : ℝ) / Real.log (1 / (1 - δ)) + 1 := by rw [hn]
 
-
 /-! ## Finite Dyadic Obstruction -/
 
 /-- Lemma 4.1: For B ∈ 𝓑_N (dyadic N), |C_B| ≥ (1/2 - ε²)N -/
@@ -532,7 +531,6 @@ lemma A_dyadic_card_bound (n : ℕ) (hn : 3 ≤ n) :
 
 /-- The infinite hard set A = ⋃_{n≥3} A_{2^n} as a Set ℕ. -/
 def A : Set ℕ := {x | ∃ n : ℕ, ∃ hn : 3 ≤ n, x ∈ A_dyadic n hn}
-
 
 /-- B(N) = |B ∩ [0,N]| -/
 def countingFn (B : Set ℕ) (N : ℕ) : ℕ :=

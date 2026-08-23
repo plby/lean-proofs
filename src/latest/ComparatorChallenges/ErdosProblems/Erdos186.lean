@@ -50,7 +50,6 @@ This is deliberately a theorem with an ordinary proof parameter, not a
 postulate.  The unconditional main theorem is added only after `PZBoxBound`
 has itself been proved. -/
 
-
 theorem erdos_186 :
     (fun N : ℕ ↦ (N : ℝ) ^ (1 / 4 : ℝ)) =O[atTop]
         (fun N : ℕ ↦ (F N : ℝ)) ∧

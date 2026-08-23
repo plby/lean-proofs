@@ -7,7 +7,6 @@ open Finset MeasureTheory ProbabilityTheory
 
 noncomputable section
 
-
 namespace Erdos664
 
 open scoped Classical in

@@ -6,7 +6,6 @@ open Finset
 
 noncomputable section
 
-
 namespace Erdos83
 
 variable {N k : ℕ}

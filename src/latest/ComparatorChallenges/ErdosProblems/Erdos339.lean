@@ -7,7 +7,6 @@ open scoped Pointwise BigOperators
 
 noncomputable section
 
-
 namespace Set
 
 variable {M : Type*} [AddCommMonoid M]

@@ -19,7 +19,6 @@ def f (u : ℕ) : ℕ :=
 
 end Erdos459
 
-
 namespace Erdos459
 
 open scoped Classical in

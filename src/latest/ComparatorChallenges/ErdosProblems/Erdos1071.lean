@@ -12,7 +12,6 @@ set_option linter.unnecessarySeqFocus false
 set_option linter.unreachableTactic false
 set_option linter.unusedTactic false
 
-
 set_option maxHeartbeats 50000000
 open scoped Classical in
 abbrev Point := EuclideanSpace ℝ (Fin 2)
@@ -47,7 +46,6 @@ set_option linter.unusedTactic false
 set_option linter.unnecessarySeqFocus false
 set_option linter.unnecessarySimpa false
 set_option linter.unreachableTactic false
-
 
 set_option maxHeartbeats 50000000
 open scoped Classical in
@@ -84,7 +82,6 @@ def IsMaximalDisjointCollection (S : Set (Set Point)) (R : Set Point) : Prop :=
   IsDisjointCollection S ∧ IsInRegion S R ∧
   ∀ S', IsDisjointCollection S' → IsInRegion S' R → S ⊆ S' → S = S'
 end Erdos1071b
-
 
 open Set
 

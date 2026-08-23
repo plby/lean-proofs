@@ -6,7 +6,6 @@ open Filter
 
 noncomputable section
 
-
 namespace Erdos746
 
 open scoped Classical in

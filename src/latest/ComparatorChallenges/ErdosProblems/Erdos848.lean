@@ -6,7 +6,6 @@ open scoped BigOperators
 open scoped Finset
 open scoped Nat.Prime
 
-
 namespace Erdos848
 
 -- ============================================================================

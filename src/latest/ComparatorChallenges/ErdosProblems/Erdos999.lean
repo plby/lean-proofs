@@ -45,7 +45,6 @@ def Erdos999Statement : Prop :=
   ∀ f : ℕ → ℕ,
     AlmostEverywhereApproximable f ↔ duffinSchaefferSum f = ∞
 
-
 theorem erdos_999 : Erdos999Statement := by
   sorry
 

@@ -11,7 +11,6 @@ set_option linter.flexible false
 
 open SimpleGraph
 
-
 variable {V W : Type*} [Fintype V] [Fintype W] [DecidableEq V] [DecidableEq W]
 variable (G : SimpleGraph V) (v0 : V) (H' : SimpleGraph W)
 
@@ -27,8 +26,6 @@ def EdgeRamseyTriangle {V : Type*} (G : SimpleGraph V) : Prop :=
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
 end Erdos582
-
-
 
 open SimpleGraph
 

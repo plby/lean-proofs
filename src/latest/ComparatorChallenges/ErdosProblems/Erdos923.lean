@@ -2,8 +2,6 @@
 
 import Mathlib
 
-
-
 open SimpleGraph
 
 namespace Erdos923

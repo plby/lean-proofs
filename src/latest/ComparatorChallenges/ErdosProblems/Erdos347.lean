@@ -13,7 +13,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-
 set_option relaxedAutoImplicit false
 set_option autoImplicit false
 
@@ -24,7 +23,6 @@ open scoped Classical in
 def subset_sums_of_set (S : Set ℕ) : Set ℕ :=
   {s | ∃ (B : Finset ℕ), (∀ x ∈ B, x ∈ S) ∧ s = B.sum id}
 end Erdos347
-
 
 open scoped BigOperators
 open scoped Real

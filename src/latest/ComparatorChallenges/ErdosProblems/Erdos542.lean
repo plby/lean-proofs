@@ -7,7 +7,6 @@ open scoped BigOperators ArithmeticFunction.Omega
 
 noncomputable section
 
-
 namespace Erdos542
 
 open scoped Classical in

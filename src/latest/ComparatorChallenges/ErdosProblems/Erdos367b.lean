@@ -18,7 +18,6 @@ def erdos_367 : Prop :=
       C * (n : ℝ) * (n : ℝ)
 end Erdos367b
 
-
 open scoped Classical in
 theorem Erdos367b.disproof_367 :
     Not Erdos367b.erdos_367

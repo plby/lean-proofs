@@ -23,7 +23,6 @@ end
 
 end Erdos258
 
-
 open Nat Finset Filter
 open scoped BigOperators Topology
 

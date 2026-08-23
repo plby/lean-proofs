@@ -9,7 +9,6 @@ set_option linter.flexible false
 
 open Finset
 
-
 set_option maxHeartbeats 12800000
 open Finset
 
@@ -35,8 +34,6 @@ end KUniformHypergraph
 end
 
 end Erdos775
-
-
 
 namespace Erdos775
 

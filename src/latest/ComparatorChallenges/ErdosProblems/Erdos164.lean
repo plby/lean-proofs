@@ -30,7 +30,6 @@ def erdos_strong (n : ℕ) : Prop :=
     primitiveWeightSum A ≤ erdosWeight n
 end Erdos164
 
-
 open scoped Topology
 open Filter Asymptotics MeasureTheory
 open scoped Nat.Prime
@@ -43,7 +42,6 @@ theorem erdos164 :
       primitiveWeightSum primeSet = primeWeightSum ∧
       ∀ A : Set ℕ, PrimitiveSet A → primitiveWeightSum A ≤ primitiveWeightSum primeSet := by
   sorry
-
 
 open scoped Classical in
 theorem erdos_strong_of_two : erdos_strong 2 := by

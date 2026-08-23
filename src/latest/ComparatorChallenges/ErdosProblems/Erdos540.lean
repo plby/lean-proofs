@@ -10,8 +10,6 @@ def hasZeroSum {G : Type*} [DecidableEq G] [AddCommMonoid G] (A : Finset G) : Pr
   ∃ S : Finset G, S ⊆ A ∧ S.Nonempty ∧ S.sum id = 0
 end Erdos540
 
-
-
 open Finset BigOperators
 
 namespace Erdos540

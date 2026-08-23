@@ -35,7 +35,6 @@ def degree {v b : ℕ} (block : Fin b → Finset (Fin v)) (x : Fin v) : ℕ :=
     {x : Fin v} {i : Fin b} : i ∈ through block x ↔ x ∈ block i := by
   simp [through]
 
-
 theorem erdos_903 (p b : ℕ) (hp : IsPrimePow p)
     (block : Fin b → Finset (Fin (p ^ 2 + p + 1)))
     (hpb : PairwiseBalanced block) (hmore : p ^ 2 + p + 1 < b) :

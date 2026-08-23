@@ -17,7 +17,6 @@ def IsSidonSetNat (A : Set ℕ) : Prop :=
   ∀ a ∈ A, ∀ b ∈ A, ∀ c ∈ A, ∀ d ∈ A, a ≤ b → c ≤ d → a + b = c + d → a = c ∧ b = d
 end Erdos154
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

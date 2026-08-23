@@ -7,7 +7,6 @@ open scoped Sym2
 
 noncomputable section
 
-
 namespace Erdos207
 
 open scoped Classical in

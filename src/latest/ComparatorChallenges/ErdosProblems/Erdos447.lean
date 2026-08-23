@@ -17,7 +17,6 @@ set_option linter.style.whitespace false
 open scoped Nat
 open Asymptotics Filter
 
-
 set_option maxHeartbeats 50000000
 open scoped Classical in
 def UnionFree {α : Type*} [DecidableEq α] (F : Finset (Finset α)) : Prop :=
@@ -30,7 +29,6 @@ open scoped Classical in
 noncomputable def MaxUnionFree (n : ℕ) : ℕ :=
   ((Finset.univ : Finset (Finset (Finset (Fin n)))).filter UnionFree).sup Finset.card
 end Erdos447
-
 
 open scoped Nat
 open Asymptotics Filter

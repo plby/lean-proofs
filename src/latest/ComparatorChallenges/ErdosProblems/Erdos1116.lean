@@ -25,7 +25,6 @@ open scoped Topology
 
 noncomputable section
 
-
 namespace Erdos1116
 
 open scoped Classical in

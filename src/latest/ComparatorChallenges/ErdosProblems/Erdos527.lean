@@ -32,7 +32,6 @@ open Filter MeasureTheory ProbabilityTheory Set
 
 noncomputable section
 
-
 namespace Erdos527
 
 open scoped Classical in

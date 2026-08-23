@@ -13,7 +13,6 @@ def density_zero (S : Set ℕ) : Prop :=
   ∀ m a : ℕ, m > 0 → ¬ {x | ∃ k, x = m * k + a} ⊆ S
 end Erdos16
 
-
 open scoped Nat
 open scoped Pointwise
 

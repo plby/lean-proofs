@@ -18,7 +18,6 @@ noncomputable def vardi_constant : ℝ :=
   Filter.atTop.limUnder usual_sylvester_seq_pow
 end Erdos315
 
-
 namespace Erdos315
 
 open scoped Classical in

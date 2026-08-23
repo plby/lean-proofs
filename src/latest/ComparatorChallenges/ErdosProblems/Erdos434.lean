@@ -14,7 +14,6 @@ noncomputable def non_representable_count (A : Set ℕ) : ℕ :=
 def A_opt (n k : ℕ) : Finset ℕ := Finset.Icc (n - k + 1) n
 end Erdos434
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

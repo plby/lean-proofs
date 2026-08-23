@@ -40,7 +40,6 @@ def shiftedTerm (h : ℕ) : ℝ :=
 def shiftedValue : ℝ :=
   ∑' h : ℕ, shiftedTerm h
 
-
 theorem erdos_1050 : Irrational erdos1050Series := by
   sorry
 

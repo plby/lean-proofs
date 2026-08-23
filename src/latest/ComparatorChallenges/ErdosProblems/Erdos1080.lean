@@ -9,7 +9,6 @@ set_option linter.style.longLine false
 set_option linter.flexible false
 set_option linter.unusedSectionVars false
 
-
 open SimpleGraph
 
 universe u
@@ -27,7 +26,6 @@ def erdos_1080 : Prop :=
       G.edgeSet.ncard ≥ c * Fintype.card V →
         ∃ (v : V) (walk : G.Walk v v), walk.IsCycle ∧ walk.length = 6
 end Erdos1080
-
 
 open scoped Classical in
 theorem Erdos1080.not_erdos_1080 :

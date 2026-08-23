@@ -7,7 +7,6 @@ open Filter
 
 noncomputable section
 
-
 open scoped Classical in
 def IsSidon {α : Type*} [AddCommMonoid α] (A : Set α) : Prop :=
   ∀ᵉ (i₁ ∈ A) (j₁ ∈ A) (i₂ ∈ A) (j₂ ∈ A),

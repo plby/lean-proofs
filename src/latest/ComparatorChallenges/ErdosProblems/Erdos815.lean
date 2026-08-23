@@ -6,7 +6,6 @@ open Classical Finset Set SimpleGraph
 
 noncomputable section
 
-
 namespace Erdos815
 
 open scoped Classical in

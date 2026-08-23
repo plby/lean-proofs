@@ -20,7 +20,6 @@ def IsIrrationalitySequence (a : ℕ → ℕ) : Prop := ∀ b : ℕ → ℕ, Bdd
   0 ∉ Set.range (a + b) → 0 ∉ Set.range b → Irrational (∑' n, (1 : ℝ) / (a n + b n))
 end Erdos264b
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

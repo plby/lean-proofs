@@ -7,7 +7,6 @@ open scoped Topology
 
 noncomputable section
 
-
 namespace Erdos543.FinalLogic
 
 open scoped Classical in

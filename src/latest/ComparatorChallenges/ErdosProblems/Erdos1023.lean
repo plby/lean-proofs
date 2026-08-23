@@ -15,7 +15,6 @@ noncomputable def MaxUnionFreeMany (n : ℕ) : ℕ := by
     ((Finset.univ : Finset (Finset (Finset (Fin n)))).filter UnionFreeMany).sup Finset.card
 end Erdos1023
 
-
 open scoped Nat
 open Asymptotics Filter
 

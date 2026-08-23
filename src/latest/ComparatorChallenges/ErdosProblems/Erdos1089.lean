@@ -7,7 +7,6 @@ open scoped BigOperators Topology RealInnerProductSpace
 
 noncomputable section
 
-
 namespace Erdos1089
 
 open scoped Classical in

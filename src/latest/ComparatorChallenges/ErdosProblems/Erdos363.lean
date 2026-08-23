@@ -14,7 +14,6 @@ def is_valid_collection (S : List (Finset ℕ)) : Prop :=
   IsSquare ((S.map (fun I => ∏ m ∈ I, m)).prod)
 end Erdos363
 
-
 open Finset
 
 namespace Erdos363

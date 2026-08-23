@@ -28,7 +28,6 @@ def Erdos281Concl (n : ℕ → ℕ) (_hmono : StrictMono n) (_hnpos : ∀ i, 0 <
       ∃ d : ℝ, HasIntDensity (avoidPrefix n a k) d ∧ d < ε
 end Erdos281
 
-
 open Filter Topology
 open scoped BigOperators
 

@@ -19,7 +19,6 @@ def question_1_1_statement : Prop :=
   ∀ (t : ℝ), 1 + (∑' n, if n ∈ S then (n : ℂ) ^ (-(1 + Complex.I * t)) else 0) ≠ 0
 end Erdos967
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

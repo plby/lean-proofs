@@ -36,7 +36,6 @@ end
 
 end UnitFractions
 
-
 open UnitFractions
 
 namespace Erdos298
@@ -45,7 +44,6 @@ open scoped Classical in
 theorem erdos298 (A : Set ℕ) (hA : 0 < upper_density A) :
     ∃ S : Finset ℕ, (S : Set ℕ) ⊆ A ∧ rec_sum S = 1 := by
   sorry
-
 
 open scoped Classical in
 theorem erdos298_density (A : Set ℕ) (d : ℝ) (hA : has_density A d) (hd : 0 < d) :

@@ -6,7 +6,6 @@ open Filter MeasureTheory
 
 noncomputable section
 
-
 namespace Erdos526
 
 open scoped Classical in

@@ -44,7 +44,6 @@ def SquaresRamseyTwoComplete : Prop :=
 def Covers (D : Finset ℕ) (L U : ℕ) : Prop :=
   ∀ n : ℕ, L ≤ n → n ≤ U → n ∈ D.subsetSum
 
-
 theorem erdos_843 : SquaresRamseyTwoComplete := by
   sorry
 

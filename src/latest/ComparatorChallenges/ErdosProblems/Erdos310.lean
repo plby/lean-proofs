@@ -11,7 +11,6 @@ open Finset
 
 /-- The explicit reciprocal sum used in the problem is `UnitFractions.rec_sum`. -/
 
-
 theorem erdos_310 :
     ∀ α : ℝ, 0 < α →
       ∃ C : ℕ, 1 ≤ C ∧

@@ -11,7 +11,6 @@ noncomputable def conv_ind (A : Set ℕ) (n : ℕ) : ℕ :=
   ((range (n + 1)).filter (fun k => k ∈ A ∧ (n - k) ∈ A)).card
 end Erdos1193
 
-
 open Finset Nat
 
 namespace Erdos1193

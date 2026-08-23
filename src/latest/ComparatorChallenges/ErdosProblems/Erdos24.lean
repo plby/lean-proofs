@@ -8,7 +8,6 @@ noncomputable section
 
 open Finset Function SimpleGraph Fintype Nat Matrix
 
-
 open scoped Classical in
 def σ₂FlagIdx (adjDA adjDCenter adjDC : Bool) : Option (Fin 5) :=
   match adjDA, adjDCenter, adjDC with

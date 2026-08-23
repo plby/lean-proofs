@@ -7,7 +7,6 @@ open scoped ENNReal Pointwise Topology
 
 noncomputable section
 
-
 namespace Erdos1001
 
 open scoped Classical in

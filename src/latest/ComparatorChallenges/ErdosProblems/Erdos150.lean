@@ -36,7 +36,6 @@ end LimitAndBound
 
 end Erdos150
 
-
 open Finset Fintype Real SimpleGraph
 open Filter Topology Real
 

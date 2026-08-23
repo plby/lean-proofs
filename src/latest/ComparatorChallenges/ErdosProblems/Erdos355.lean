@@ -14,7 +14,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-
 set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
@@ -57,7 +56,6 @@ noncomputable def a_seq (lambda : ℝ) : ℕ → ℕ
 | (n + 1) => Nat.ceil (lambda * (a_seq lambda n))
 end Erdos355
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat
@@ -75,12 +73,10 @@ theorem Theorem_1 (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) :
     Set.Icc 0 2 ∩ {x : ℝ | ∃ q : ℚ, x = q} ⊆ SubsetSums (fun i => (1 : ℝ) / n i) := by
   sorry
 
-
 open scoped Classical in
 theorem Theorem_2 (lambda : ℝ) (h_lambda : 1 < lambda ∧ lambda < 2) :
   R_lambda lambda = ∑' i, (1 : ℝ) / a_seq lambda i := by
   sorry
-
 
 open scoped Classical in
 theorem Theorem_3 (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda ≥ 2) (h_lambda : 1 < lambda ∧ lambda < Lambda / (Lambda - 1)) :
@@ -91,13 +87,11 @@ theorem Theorem_3 (Lambda : ℝ) (lambda : ℝ) (h_Lambda : Lambda ≥ 2) (h_lam
     SubsetSums (fun i => (1 : ℝ) / n i) ⊇ (TargetInterval (fun i => (1 : ℝ) / n i)) ∩ {x | ∃ q : ℚ, x = q} := by
   sorry
 
-
 open scoped Classical in
 theorem Theorem_4 (S : Set ℕ) (hS : S_cond S) :
   SubsetSums (fun i => (1 : ℝ) / (Nat.nth (· ∈ S) i)) =
     (TargetInterval (fun i => (1 : ℝ) / (Nat.nth (· ∈ S) i))) ∩ {x | ∃ q : ℚ, x = q} := by
   sorry
-
 
 open scoped Classical in
 theorem erdos_355 :

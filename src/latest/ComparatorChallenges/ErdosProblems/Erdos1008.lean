@@ -10,7 +10,6 @@ open SimpleGraph Finset
 
 end Erdos1008
 
-
 open SimpleGraph Finset
 
 namespace Erdos1008

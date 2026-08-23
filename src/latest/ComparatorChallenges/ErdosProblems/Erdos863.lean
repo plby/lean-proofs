@@ -55,7 +55,6 @@ def Sidon {α : Type*} [AddCommMonoid α] (S : Set α) : Prop :=
 def SidonMod (M : ℕ) (S : Set ℕ) : Prop :=
   Sidon ((fun x : ℕ => (x : ZMod M)) '' S)
 
-
 theorem erdos_863 {r : ℕ} (hr : 2 ≤ r) {cSum cDiff : ℝ}
     (hsum : HasSqrtAsymptotic (sumMax r) cSum)
     (hdiff : HasSqrtAsymptotic (diffMax r) cDiff) :

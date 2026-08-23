@@ -7,7 +7,6 @@ open scoped ENat Topology
 
 noncomputable section
 
-
 namespace Erdos760.SimpleGraph
 
 open _root_.SimpleGraph

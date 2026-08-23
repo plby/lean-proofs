@@ -39,7 +39,6 @@ cardinality. -/
 def enumerate {k : ℕ} (A : Finset ℕ) (hA : A.card = k) : Fin k → ℕ :=
   A.orderEmbOfFin hA
 
-
 theorem erdos_286 :
     ∃ o : ℕ → ℝ,
       o =o[atTop] (1 : ℕ → ℝ) ∧

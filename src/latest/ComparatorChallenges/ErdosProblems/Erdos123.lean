@@ -29,7 +29,6 @@ noncomputable section
 end
 end Erdos123
 
-
 open scoped Classical in
 theorem Erdos123.erdos_123 :
     Erdos123.IntendedStatement

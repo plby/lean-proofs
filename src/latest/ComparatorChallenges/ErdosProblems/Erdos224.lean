@@ -28,7 +28,6 @@ end
 
 end Erdos224
 
-
 open scoped BigOperators
 open scoped Real
 open scoped RealInnerProductSpace

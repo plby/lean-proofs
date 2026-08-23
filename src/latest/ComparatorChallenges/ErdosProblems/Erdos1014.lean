@@ -140,7 +140,6 @@ def ramseyNumber (k l : ℕ) : ℕ :=
 
 end Ramsey
 
-
 open Filter
 open Finset
 open MeasureTheory ProbabilityTheory unitInterval

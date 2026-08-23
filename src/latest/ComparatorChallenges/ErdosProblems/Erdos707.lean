@@ -37,7 +37,6 @@ end Erdos707
 
 open Erdos707
 
-
 open scoped Classical in
 theorem Erdos707.not_erdos_707P :
     Not Erdos707.erdos_707_prime

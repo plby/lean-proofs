@@ -2,7 +2,6 @@
 
 import Mathlib
 
-
 open Filter
 
 namespace Erdos124b

@@ -7,7 +7,6 @@ open scoped BigOperators ENNReal NNReal Pointwise Topology
 
 noncomputable section
 
-
 namespace Erdos988
 
 open scoped Classical in

@@ -7,7 +7,6 @@ open Asymptotics Filter
 
 noncomputable section
 
-
 namespace Erdos525
 
 open scoped Classical in

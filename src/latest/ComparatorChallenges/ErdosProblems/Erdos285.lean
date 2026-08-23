@@ -9,7 +9,6 @@ namespace Erdos285
 
 noncomputable section
 
-
 open scoped Classical in
 /-- Erdős Problem 285: the least possible largest denominator in a
 `k + 1`-term representation of `1` by distinct unit fractions is asymptotic

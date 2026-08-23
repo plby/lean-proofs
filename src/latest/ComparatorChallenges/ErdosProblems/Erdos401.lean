@@ -8,7 +8,6 @@ set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
 
-
 open scoped Classical in
 noncomputable def p (j : ℕ) : ℕ := Nat.nth Nat.Prime (j - 1)
 open scoped Classical in
@@ -20,7 +19,6 @@ noncomputable def ω (r : ℕ) : ℝ :=
   let q := (p (r + 1) : ℝ)
   (γ / 16) * (q - 1) / Real.log q
 end Erdos401
-
 
 namespace Erdos401
 

@@ -44,7 +44,6 @@ def Erdos998Statement : Prop :=
 
 /-- Subtracting before or after taking a fractional part gives the same fractional part. -/
 
-
 theorem erdos_problem_998 : ¬ Erdos998Statement := by
   sorry
 

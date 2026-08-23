@@ -7,7 +7,6 @@ open scoped BigOperators ENNReal
 
 noncomputable section
 
-
 namespace Erdos27
 
 open scoped Classical in

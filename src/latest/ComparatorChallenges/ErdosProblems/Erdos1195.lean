@@ -7,7 +7,6 @@ open scoped ENNReal Topology Function
 
 noncomputable section
 
-
 namespace Erdos1195
 
 open scoped Classical in

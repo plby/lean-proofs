@@ -43,7 +43,6 @@ def rapidB : ℕ → ℕ
 
 @[simp] lemma rapidB_succ (n : ℕ) : rapidB (n + 1) = 27 * (rapidB n) ^ 2 := rfl
 
-
 theorem erdos_1185 : ¬ Erdos1185Statement := by
   sorry
 

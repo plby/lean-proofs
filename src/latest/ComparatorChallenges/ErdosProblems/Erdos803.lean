@@ -6,7 +6,6 @@ open Finset Filter SimpleGraph
 
 noncomputable section
 
-
 namespace SimpleGraph
 
 open scoped Classical in

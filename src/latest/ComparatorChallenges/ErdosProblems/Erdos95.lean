@@ -6,7 +6,6 @@ open scoped BigOperators
 
 noncomputable section
 
-
 namespace Erdos95
 
 open scoped Classical in

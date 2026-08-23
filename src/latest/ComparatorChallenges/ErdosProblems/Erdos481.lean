@@ -21,7 +21,6 @@ def A : ℕ → List ℕ+
   | n + 2 => T a b (A (n + 1))
 end Erdos481
 
-
 open Finset BigOperators
 
 namespace Erdos481

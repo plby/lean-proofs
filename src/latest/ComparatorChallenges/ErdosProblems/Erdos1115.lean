@@ -100,7 +100,6 @@ noncomputable def spiralPoint (k : ℕ) (T s : ℝ) : ℂ :=
 noncomputable def spiralSet (k : ℕ) (T : ℝ) : Set ℂ :=
   spiralPoint k T '' Set.Icc 2 3
 
-
 theorem erdos_1115 :
     ∀ φ : ℝ → ℝ, Tendsto φ atTop atTop →
       ∃ f : ℂ → ℂ,

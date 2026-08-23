@@ -6,7 +6,6 @@ open scoped BigOperators Matrix
 
 noncomputable section
 
-
 namespace Erdos407
 
 open scoped Classical in

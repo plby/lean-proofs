@@ -21,7 +21,6 @@ open scoped Topology
 
 open Finset
 
-
 open scoped Classical in
 def Is45Coloring {n k : ℕ}
     (C : SimpleGraph.TopEdgeLabeling (Fin n) (Fin k)) : Prop :=

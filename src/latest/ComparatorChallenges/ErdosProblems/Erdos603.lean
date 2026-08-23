@@ -6,7 +6,6 @@ open Set Function Cardinal Ordinal
 
 noncomputable section
 
-
 namespace Erdos603
 
 open scoped Classical in

@@ -6,7 +6,6 @@ open Function
 
 noncomputable section
 
-
 namespace Erdos1216
 
 open scoped Classical in

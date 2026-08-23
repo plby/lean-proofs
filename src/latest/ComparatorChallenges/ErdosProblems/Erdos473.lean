@@ -24,7 +24,6 @@ open Function
 to contain any prescribed vertex, then any enumeration of the vertex type can
 be reordered into a spanning one-way `R`-chain. -/
 
-
 theorem erdos473 :
     ∃ a : ℕ ≃ ℕ+, ∀ n : ℕ,
       Nat.Prime ((a n : ℕ) + (a (n + 1) : ℕ)) := by

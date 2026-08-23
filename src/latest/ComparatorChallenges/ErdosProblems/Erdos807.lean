@@ -7,7 +7,6 @@ open scoped Topology SimpleGraph
 
 noncomputable section
 
-
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
 namespace Erdos807.RandomGraph

@@ -13,7 +13,6 @@ noncomputable def repCount (A : Set ℕ) (n : ℕ) : ℕ :=
   Set.ncard {a ∈ A | a ≤ n ∧ (n - a).Prime}
 end Erdos237
 
-
 open Nat Set Finset Real
 
 namespace Erdos237

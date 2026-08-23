@@ -14,7 +14,6 @@ noncomputable def monochromaticSumSet (N : ℕ) (k : ℕ) (f : ℕ → Fin k) : 
     ∃ a ∈ Finset.Icc 1 N, ∃ b ∈ Finset.Icc 1 N, a ≠ b ∧ f a = f b ∧ a + b = n)
 end Erdos484
 
-
 open Finset
 
 namespace Erdos484

@@ -16,7 +16,6 @@ noncomputable def delta1 (n m : ℕ) : ℚ :=
   countWithOneDivisor n m ((Ioo n m).lcm id) / ((Ioo n m).lcm id)
 end Erdos692
 
-
 open Finset
 
 namespace Erdos692

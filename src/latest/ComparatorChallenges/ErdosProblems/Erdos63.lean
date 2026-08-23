@@ -7,7 +7,6 @@ open scoped SimpleGraph
 
 noncomputable section
 
-
 universe u
 
 namespace Erdos63

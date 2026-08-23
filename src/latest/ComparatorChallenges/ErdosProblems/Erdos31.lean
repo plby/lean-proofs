@@ -12,7 +12,6 @@ open scoped Real
 open scoped Nat
 open scoped Pointwise
 
-
 set_option maxHeartbeats 50000000
 set_option maxRecDepth 4000
 set_option synthInstance.maxHeartbeats 20000
@@ -44,8 +43,6 @@ end
 end Erdos31
 
 open scoped Pointwise
-
-
 
 open scoped BigOperators
 open scoped Real

@@ -2,7 +2,6 @@
 
 import Mathlib
 
-
 open scoped BigOperators
 open ArithmeticFunction
 

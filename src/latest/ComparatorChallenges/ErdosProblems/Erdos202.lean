@@ -232,7 +232,6 @@ namespace ParkPham
 open Finset
 open scoped BigOperators
 
-
 section ThresholdDefinitions
 
 variable {α : Type*} [DecidableEq α]
@@ -284,7 +283,6 @@ namespace Erdos202
 
 open Finset
 open scoped BigOperators
-
 
 end Erdos202
 
@@ -419,8 +417,6 @@ open scoped BigOperators
 
 end Erdos202
 
-
-
 open Filter
 open Asymptotics
 open scoped BigOperators
@@ -480,13 +476,11 @@ theorem bfv_omega_count_theorem :
                 * Real.exp (((W : ℝ) / 2) * Real.log (Real.log (N : ℝ)))) := by
   sorry
 
-
 open scoped Classical in
 theorem bfv_lower_bound_theorem :
     ∀ ε : ℝ, 0 < ε → ∀ᶠ N : ℕ in atTop,
       (N : ℝ) * Lscale (-(1 + ε)) N ≤ (f N : ℝ) := by
   sorry
-
 
 end Erdos202
 

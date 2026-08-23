@@ -19,7 +19,6 @@ def HasDisjointUnitDecomps (N k : ℕ) : Prop :=
 end
 end Erdos296
 
-
 open Finset Filter
 
 namespace Erdos296

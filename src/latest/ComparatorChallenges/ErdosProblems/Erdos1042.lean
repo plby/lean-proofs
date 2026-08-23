@@ -8,7 +8,6 @@ open MeasureTheory
 
 noncomputable section
 
-
 namespace Erdos1042
 
 open scoped Classical in

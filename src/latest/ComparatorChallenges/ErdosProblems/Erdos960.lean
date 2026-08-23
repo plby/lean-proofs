@@ -7,7 +7,6 @@ open Filter Finset Asymptotics
 
 noncomputable section
 
-
 namespace Erdos735
 
 open scoped Classical in

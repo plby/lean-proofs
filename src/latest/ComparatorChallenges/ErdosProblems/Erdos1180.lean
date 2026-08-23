@@ -8,7 +8,6 @@ open Filter Topology Asymptotics Real
 
 noncomputable section
 
-
 namespace Erdos1180
 
 open scoped Classical in

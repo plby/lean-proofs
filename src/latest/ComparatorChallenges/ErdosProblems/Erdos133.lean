@@ -5,7 +5,6 @@ import Mathlib
 set_option linter.style.setOption false
 set_option linter.flexible false
 
-
 open Filter
 
 namespace Erdos133

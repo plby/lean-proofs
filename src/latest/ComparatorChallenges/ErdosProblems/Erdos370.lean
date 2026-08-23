@@ -12,7 +12,6 @@ open scoped Pointwise
 noncomputable def maxPrimeFac (n : ℕ) : ℕ := sSup {p : ℕ | p.Prime ∧ p ∣ n}
 end Erdos370
 
-
 open scoped BigOperators
 open scoped Real
 open scoped Nat

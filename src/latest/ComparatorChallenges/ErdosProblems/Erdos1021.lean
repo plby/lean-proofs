@@ -8,7 +8,6 @@ open scoped BigOperators Classical SimpleGraph
 
 noncomputable section
 
-
 namespace Erdos1021
 
 open scoped Classical in

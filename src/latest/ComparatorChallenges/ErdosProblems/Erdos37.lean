@@ -11,7 +11,6 @@ open Filter Topology
 
 noncomputable section
 
-
 namespace Erdos37
 
 open scoped Classical in

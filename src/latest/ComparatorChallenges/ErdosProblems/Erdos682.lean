@@ -8,7 +8,6 @@ open scoped ArithmeticFunction.Moebius ArithmeticFunction.Omega
 
 noncomputable section
 
-
 namespace Erdos682
 
 open scoped Classical in

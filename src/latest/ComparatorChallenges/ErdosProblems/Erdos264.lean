@@ -25,7 +25,6 @@ end AristotleLemmas
 
 end Erdos264
 
-
 namespace Erdos264
 
 open scoped Classical in

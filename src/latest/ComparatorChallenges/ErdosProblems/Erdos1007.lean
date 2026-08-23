@@ -8,7 +8,6 @@ set_option linter.style.setOption false
 set_option linter.style.longLine false
 set_option linter.flexible false
 
-
 open SimpleGraph
 
 open scoped Classical in
@@ -21,8 +20,6 @@ open scoped Classical in
 noncomputable def GraphDimension {V : Type*} (G : SimpleGraph V) : ℕ :=
   sInf { d | HasUnitDistanceEmbedding G d }
 end Erdos1007
-
-
 
 open SimpleGraph
 

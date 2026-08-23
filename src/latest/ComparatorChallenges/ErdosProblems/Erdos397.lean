@@ -11,7 +11,6 @@ end Erdos397
 
 open Erdos397
 
-
 namespace Erdos397
 
 open scoped Classical in

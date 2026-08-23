@@ -10,7 +10,6 @@ namespace Erdos897
 set_option linter.style.longLine false
 set_option linter.flexible false
 
-
 open scoped Classical in
 theorem erdos_897.parts.i : (∀ (f : ℕ → ℝ),
     (∀ᵉ (a > 0) (b > 0), a.Coprime b → f (a * b) = f a + f b) →
