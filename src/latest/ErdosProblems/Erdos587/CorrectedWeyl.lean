@@ -60,8 +60,13 @@ lemma sum_gcd_Icc_le_mul_card_divisors (q M : ℕ) (hq : 0 < q) :
     _ ≤ ∑ _d ∈ q.divisors, M := by
       apply Finset.sum_le_sum
       intro d hd
-      have hdpos : 0 < d := Nat.pos_of_mem_divisors hd
-      have hcard := Erdos202.card_Icc_filter_dvd_le_div M d hdpos
+      have hcard : ((Finset.Icc 1 M).filter fun m => d ∣ m).card ≤ M / d := by
+        have heq : (Finset.Icc 1 M).filter (fun m => d ∣ m) =
+            (Finset.range (M + 1)).filter (fun m => m ≠ 0 ∧ d ∣ m) := by
+          ext m
+          simp only [Finset.mem_filter, Finset.mem_Icc, Finset.mem_range]
+          omega
+        rw [heq, Nat.card_multiples']
       calc
         d * ((Finset.Icc 1 M).filter fun m ↦ d ∣ m).card ≤
             d * (M / d) := Nat.mul_le_mul_left d hcard

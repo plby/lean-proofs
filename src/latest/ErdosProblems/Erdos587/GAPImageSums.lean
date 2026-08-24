@@ -1,0 +1,134 @@
+import ErdosProblems.Erdos587.GAPContraction
+import ErdosProblems.Erdos587.BoxSubgroupStability
+
+/-!
+Centered coordinates for a GAP containing zero. Their iterated sums map
+onto the corresponding integer sumset and fit in the dilated coefficient
+box, so integer-sumset density gives a finite coordinate-lattice index.
+-/
+
+open scoped Pointwise
+
+namespace Erdos587.GeneralizedAP
+
+noncomputable def centeredCoordinates (P : GeneralizedAP) (a : ℤ) : Fin P.rank → ℤ :=
+  fun i => (P.coordinates a i : ℤ) - (P.coordinates 0 i : ℤ)
+
+@[simp] theorem centeredCoordinates_zero (P : GeneralizedAP) :
+    P.centeredCoordinates 0 = 0 := by
+  funext i
+  simp [centeredCoordinates]
+
+theorem linearEval_centeredCoordinates (P : GeneralizedAP)
+    (hzero : (0 : ℤ) ∈ P.carrier) {a : ℤ} (ha : a ∈ P.carrier) :
+    P.nvLinearEvalHom (P.centeredCoordinates a) = a :=
+  P.linearEval_coordinates_sub_zero hzero ha
+
+theorem centeredCoordinates_bounds (P : GeneralizedAP) (a : ℤ) (i : Fin P.rank) :
+    -(P.coordinates 0 i : ℤ) ≤ P.centeredCoordinates a i ∧
+      P.centeredCoordinates a i ≤ (P.length i : ℤ) - (P.coordinates 0 i : ℤ) := by
+  have hlo : (0 : ℤ) ≤ (P.coordinates a i : ℤ) := by positivity
+  have hhi : (P.coordinates a i : ℤ) ≤ (P.length i : ℤ) := by
+    exact_mod_cast Nat.le_of_lt_succ (P.coordinates a i).isLt
+  dsimp only [centeredCoordinates]
+  constructor <;> omega
+
+theorem image_centeredCoordinates_with_zero (P : GeneralizedAP) (A : Finset ℤ)
+    (hzero : (0 : ℤ) ∈ P.carrier) (hA : A ⊆ P.carrier) :
+    (insert 0 (A.image P.centeredCoordinates)).image P.nvLinearEvalHom = insert 0 A := by
+  classical
+  rw [Finset.image_insert, map_zero, Finset.image_image]
+  congr 1
+  calc
+    A.image (fun a => P.nvLinearEvalHom (P.centeredCoordinates a)) = A.image id := by
+      apply Finset.image_congr
+      intro a ha
+      exact P.linearEval_centeredCoordinates hzero (hA ha)
+    _ = A := Finset.image_id
+
+theorem image_iterated_centeredCoordinates (P : GeneralizedAP) (A : Finset ℤ)
+    (hzero : (0 : ℤ) ∈ P.carrier) (hA : A ⊆ P.carrier) (h : ℕ) :
+    (CFP.iteratedImageSums P.centeredCoordinates A h).image P.nvLinearEvalHom =
+      h • insert 0 A := by
+  rw [CFP.iteratedImageSums, Finset.image_nsmul,
+    P.image_centeredCoordinates_with_zero A hzero hA]
+
+/-- Only surjectivity is needed for the density transfer; properness is
+not an assumption of this cardinality inequality. -/
+theorem card_nsmul_le_iterated_centeredCoordinates (P : GeneralizedAP) (A : Finset ℤ)
+    (hzero : (0 : ℤ) ∈ P.carrier) (hA : A ⊆ P.carrier) (h : ℕ) :
+    (h • insert 0 A).card ≤ (CFP.iteratedImageSums P.centeredCoordinates A h).card := by
+  rw [← P.image_iterated_centeredCoordinates A hzero hA h]
+  exact Finset.card_image_le
+
+theorem inserted_centeredCoordinates_bounds (P : GeneralizedAP) (A : Finset ℤ)
+    {x : Fin P.rank → ℤ} (hx : x ∈ insert 0 (A.image P.centeredCoordinates))
+    (i : Fin P.rank) :
+    -(P.coordinates 0 i : ℤ) ≤ x i ∧
+      x i ≤ (P.length i : ℤ) - (P.coordinates 0 i : ℤ) := by
+  rcases Finset.mem_insert.mp hx with rfl | hx
+  · simpa only [P.centeredCoordinates_zero, Pi.zero_apply] using P.centeredCoordinates_bounds 0 i
+  · obtain ⟨a, ha, rfl⟩ := Finset.mem_image.mp hx
+    exact P.centeredCoordinates_bounds a i
+
+theorem iterated_centeredCoordinates_bounds (P : GeneralizedAP) (A : Finset ℤ) :
+    ∀ h : ℕ, ∀ x ∈ CFP.iteratedImageSums P.centeredCoordinates A h, ∀ i,
+      -(h : ℤ) * (P.coordinates 0 i : ℤ) ≤ x i ∧
+        x i ≤ (h : ℤ) * ((P.length i : ℤ) - (P.coordinates 0 i : ℤ)) := by
+  intro h
+  induction h with
+  | zero =>
+    intro x hx i
+    have hx0 : x = 0 := by simpa [CFP.iteratedImageSums] using hx
+    subst x
+    simp
+  | succ h ih =>
+    intro x hx i
+    simp only [CFP.iteratedImageSums, succ_nsmul] at hx
+    obtain ⟨y, hy, z, hz, rfl⟩ := Finset.mem_add.mp hx
+    have hiy := ih y hy i
+    have hiz := P.inserted_centeredCoordinates_bounds A hz i
+    change -((h + 1 : ℕ) : ℤ) * (P.coordinates 0 i : ℤ) ≤ y i + z i ∧
+      y i + z i ≤ ((h + 1 : ℕ) : ℤ) * ((P.length i : ℤ) - (P.coordinates 0 i : ℤ))
+    push_cast
+    constructor <;> nlinarith [hiy.1, hiy.2, hiz.1, hiz.2]
+
+noncomputable def centeredSumBox (P : GeneralizedAP) (h : ℕ) : Finset (Fin P.rank → ℤ) :=
+  CFP.integerBox (fun i => -(h : ℤ) * (P.coordinates 0 i : ℤ))
+    (fun i => h * P.length i + 1)
+
+theorem card_centeredSumBox (P : GeneralizedAP) (h : ℕ) :
+    (P.centeredSumBox h).card = (P.dilate h).boxCard := by
+  rw [centeredSumBox, CFP.card_integerBox]
+  rfl
+
+theorem iterated_centeredCoordinates_subset_box (P : GeneralizedAP) (A : Finset ℤ)
+    (h : ℕ) : CFP.iteratedImageSums P.centeredCoordinates A h ⊆ P.centeredSumBox h := by
+  intro x hx
+  rw [centeredSumBox, CFP.mem_integerBox]
+  intro i
+  have hi := P.iterated_centeredCoordinates_bounds A h x hx i
+  constructor
+  · exact hi.1
+  · push_cast
+    nlinarith [hi.2]
+
+/-- Integer high-fold density bounds the index of the subgroup generated by
+centered coordinates. This supplies the geometric input to deletion stability. -/
+theorem finiteIndex_of_highFold_density (P : GeneralizedAP) (A : Finset ℤ)
+    (hzero : (0 : ℤ) ∈ P.carrier) (hA : A ⊆ P.carrier) (h M : ℕ)
+    (hdense : 2 * (P.dilate h).boxCard < M * (h • insert 0 A).card)
+    (hwidth : ∀ i, M ≤ h * P.length i + 1) :
+    (CFP.generatedSubgroup P.centeredCoordinates A).FiniteIndex ∧
+      (CFP.generatedSubgroup P.centeredCoordinates A).index ≤ M ^ P.rank := by
+  have hd : 2 * (P.centeredSumBox h).card <
+      (CFP.iteratedImageSums P.centeredCoordinates A h).card * M := by
+    rw [P.card_centeredSumBox]
+    have hc := Nat.mul_le_mul_left M (P.card_nsmul_le_iterated_centeredCoordinates A hzero hA h)
+    exact hdense.trans_le (by simpa only [mul_comm] using hc)
+  have hi := CFP.finiteIndex_and_index_le_of_dense_box
+    (fun x hx => CFP.iteratedImageSums_mem_generatedSubgroup P.centeredCoordinates A h x hx)
+    (P.iterated_centeredCoordinates_subset_box A h) hd hwidth
+  simpa only [Fintype.card_fin] using hi
+
+end Erdos587.GeneralizedAP

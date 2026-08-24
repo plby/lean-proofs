@@ -1,0 +1,31 @@
+diff --git a/projects/HasseWeil/HasseWeil/Pic0/ToClassSurjective.lean b/projects/HasseWeil/HasseWeil/Pic0/ToClassSurjective.lean
+index 8cd46a6c0..31ceaa04d 100644
+--- a/projects/HasseWeil/HasseWeil/Pic0/ToClassSurjective.lean
++++ b/projects/HasseWeil/HasseWeil/Pic0/ToClassSurjective.lean
+@@ -506,7 +506,7 @@ private noncomputable def quotComapEquivCoeIdealQuot_aux [W.IsElliptic]
+     rw [Submodule.mem_comap] at hy
+     rw [FractionalIdeal.mem_coe, FractionalIdeal.mem_coeIdeal] at hy
+     obtain ⟨r, hrIJ, hry⟩ := hy
+-    have hrI : r ∈ I := Ideal.mul_le_right hrIJ
++    have hrI : r ∈ I := Ideal.mul_le_left hrIJ
+     refine ⟨⟨r, hrI⟩, ?_, ?_⟩
+     · rw [SetLike.mem_coe, Submodule.mem_comap]; exact hrIJ
+     · apply Subtype.ext
+@@ -571,7 +571,7 @@ noncomputable def quotIdealMulEquiv [W.IsElliptic] {I J : Ideal W.CoordinateRing
+       = (1 : FractionalIdeal R⁰ K) * (↑(I * J) : FractionalIdeal R⁰ K) := by
+     rw [one_mul, ← FractionalIdeal.coeIdeal_mul]
+   have hle1 : (↑(I * J) : FractionalIdeal R⁰ K) ≤ (↑I : FractionalIdeal R⁰ K) := by
+-    rw [FractionalIdeal.coeIdeal_le_coeIdeal]; exact Ideal.mul_le_right
++    rw [FractionalIdeal.coeIdeal_le_coeIdeal]; exact Ideal.mul_le_left
+   have hle2 : (↑J : FractionalIdeal R⁰ K) ≤ (1 : FractionalIdeal R⁰ K) :=
+     FractionalIdeal.coeIdeal_le_one
+   have hJne : (↑J : FractionalIdeal R⁰ K) ≠ 0 := by rwa [Ne, FractionalIdeal.coeIdeal_eq_zero]
+@@ -599,7 +599,7 @@ theorem finrank_quotient_mul [W.IsElliptic] {I J : Ideal W.CoordinateRing}
+     finiteDimensional_quotient_of_ne_bot _ hIJ
+   haveI : FiniteDimensional F (W.CoordinateRing ⧸ I) := finiteDimensional_quotient_of_ne_bot _ hI
+   haveI : FiniteDimensional F (W.CoordinateRing ⧸ J) := finiteDimensional_quotient_of_ne_bot _ hJ
+-  have hIJ_le : I * J ≤ I := Ideal.mul_le_right
++  have hIJ_le : I * J ≤ I := Ideal.mul_le_left
+   set M : Submodule (W.CoordinateRing) (W.CoordinateRing ⧸ (I * J)) :=
+     Submodule.map (Submodule.mkQ (I * J))
+       (I : Submodule (W.CoordinateRing) (W.CoordinateRing)) with hM
