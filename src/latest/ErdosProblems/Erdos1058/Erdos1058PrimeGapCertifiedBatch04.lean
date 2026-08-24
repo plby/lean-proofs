@@ -1,6 +1,9 @@
 import ErdosProblems.Erdos1058.Erdos1058PrimeGapBase
 import ErdosProblems.Erdos1058.Erdos1058PrimeCertificate
 
+-- Serial elaboration keeps the large generated certificate table out of memory at once.
+set_option Elab.async false
+
 namespace Erdos1058
 
 namespace PrimeGap210Certificate

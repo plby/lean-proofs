@@ -14,22 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -/
 import Mathlib.Data.Nat.Factorial.Basic
-import Mathlib.Data.Nat.Choose.Factorization
-import Mathlib.Data.Nat.Factorization.Basic
 import Mathlib.Data.Nat.Prime.Basic
 import Mathlib.Data.Nat.Prime.Infinite
-import Mathlib.Data.Nat.PrimeFin
 import Mathlib.Data.Nat.Prime.Nth
 import Mathlib.Data.ZMod.Basic
-import Mathlib.FieldTheory.Finite.Basic
 import Mathlib.NumberTheory.Bertrand
-import Mathlib.NumberTheory.Chebyshev
-import Mathlib.NumberTheory.Harmonic.Bounds
-import Mathlib.NumberTheory.Multiplicity
-import Mathlib.NumberTheory.PrimesCongruentOne
-import Mathlib.Analysis.SpecialFunctions.Stirling
-import Mathlib.Analysis.Real.Pi.Bounds
-import Mathlib.Analysis.Calculus.Deriv.MeanValue
 import Mathlib.Tactic.Group
 import Mathlib.Tactic.IntervalCases
 import Mathlib.Tactic.NormNum
@@ -267,7 +256,9 @@ lemma pow_div_three_eq_one_of_isCubeMod
   rcases hcube with ⟨x, hx⟩
   have hxpow : IsUnit (x ^ 3) := by simpa [hx] using hz
   have hxunit : IsUnit x := (isUnit_pow_iff (by norm_num : 3 ≠ 0)).mp hxpow
-  have heulerUnits := ZMod.pow_totient hxunit.unit
+  let _ : NeZero r := ⟨hr.ne_zero⟩
+  have heulerUnits : hxunit.unit ^ Nat.totient r = 1 := by
+    rw [← ZMod.card_units_eq_totient, pow_card_eq_one]
   have heuler := congrArg (fun u : (ZMod r)ˣ ↦ (u : ZMod r)) heulerUnits
   have hxEuler : x ^ (r - 1) = 1 := by
     simpa [Nat.totient_prime hr, hxunit.unit_spec] using heuler

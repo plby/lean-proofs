@@ -1,4 +1,6 @@
-import ErdosProblems.Erdos1058.Erdos1058Core
+import Mathlib.Data.List.Chain
+import Mathlib.Data.Nat.Prime.Basic
+import Mathlib.Tactic.NormNum.Prime
 
 namespace Erdos1058
 

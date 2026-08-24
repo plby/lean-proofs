@@ -1,3 +1,4 @@
+import ErdosProblems.Erdos1058.Erdos1058Core
 import ErdosProblems.Erdos1058.Erdos1058PrimeGapCertified000
 import ErdosProblems.Erdos1058.Erdos1058PrimeGapCertified001
 import ErdosProblems.Erdos1058.Erdos1058PrimeGapCertifiedBatch00
@@ -37,6 +38,10 @@ import ErdosProblems.Erdos1058.Erdos1058PrimeGapCertifiedBatch33
 import ErdosProblems.Erdos1058.Erdos1058PrimeGapCertifiedBatch34
 import ErdosProblems.Erdos1058.Erdos1058PrimeGapCertifiedBatch35
 import ErdosProblems.Erdos1058.Erdos1058PrimeGapCertifiedBatch36
+
+-- The cover is assembled from hundreds of generated declarations; joining each
+-- declaration before starting the next one bounds the elaborator's live state.
+set_option Elab.async false
 
 namespace Erdos1058
 
