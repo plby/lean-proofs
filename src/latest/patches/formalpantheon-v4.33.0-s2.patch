@@ -1,0 +1,39 @@
+diff --git a/BoundedGaps/BoundedGaps/Maynard/ConcreteS2CoordinateOneWirsingLimit.lean b/BoundedGaps/BoundedGaps/Maynard/ConcreteS2CoordinateOneWirsingLimit.lean
+index 0b09db1..fe0d296 100644
+--- a/BoundedGaps/BoundedGaps/Maynard/ConcreteS2CoordinateOneWirsingLimit.lean
++++ b/BoundedGaps/BoundedGaps/Maynard/ConcreteS2CoordinateOneWirsingLimit.lean
+@@ -61,8 +61,12 @@ theorem tendsto_engelsmaS2CoordinateFiberShortSquareDiagonal_div_squareScale_zer
+   have hLpos' : 0 < L := by simpa [L, R] using hLpos
+   have hSL : S * L ≠ 0 := (mul_pos hS hLpos').ne'
+   have hk : Fintype.card (engelsmaOffFaceFinset m) = 104 := by
+-    simp [engelsmaOffFaceFinset, Finset.card_erase_of_mem m.property,
+-      BoundedGaps.engelsmaTuple_card]
++    calc
++      Fintype.card (engelsmaOffFaceFinset m) = (engelsmaOffFaceFinset m).card :=
++        Fintype.card_coe _
++      _ = 104 := by
++        rw [engelsmaOffFaceFinset, Finset.card_erase_of_mem m.property,
++          BoundedGaps.engelsmaTuple_card]
+   rw [hk]
+   field_simp [hSL]
+ 
+diff --git a/BoundedGaps/BoundedGaps/Maynard/ConcreteS2GoodComplementExpansion.lean b/BoundedGaps/BoundedGaps/Maynard/ConcreteS2GoodComplementExpansion.lean
+index 18bf962..7352d35 100644
+--- a/BoundedGaps/BoundedGaps/Maynard/ConcreteS2GoodComplementExpansion.lean
++++ b/BoundedGaps/BoundedGaps/Maynard/ConcreteS2GoodComplementExpansion.lean
+@@ -90,9 +90,12 @@ theorem eventually_normalizedEngelsmaS2CoordinateFiberGoodComplementOuterMoment_
+       rw [Finset.card_erase_of_mem (Finset.mem_univ m)]
+       simpa using BoundedGaps.engelsmaTuple_card
+     have hoff : Fintype.card H = 104 := by
+-      simp [H, engelsmaOffFaceFinset,
+-        Finset.card_erase_of_mem m.property,
+-        BoundedGaps.engelsmaTuple_card]
++      calc
++        Fintype.card H = H.card := Fintype.card_coe _
++        _ = 104 := by
++          change (engelsmaOffFaceFinset m).card = 104
++          rw [engelsmaOffFaceFinset, Finset.card_erase_of_mem m.property,
++            BoundedGaps.engelsmaTuple_card]
+     omega
+   have hW : W = primorial D := by
+     simp [W, D, engelsmaMaynardModulus]

@@ -1,0 +1,159 @@
+diff --git a/projects/Chebotarev/CebotarevDensity/ForMathlib/IdealCongruenceCount.lean b/projects/Chebotarev/CebotarevDensity/ForMathlib/IdealCongruenceCount.lean
+index 303b41291..f7d71bac6 100644
+--- a/projects/Chebotarev/CebotarevDensity/ForMathlib/IdealCongruenceCount.lean
++++ b/projects/Chebotarev/CebotarevDensity/ForMathlib/IdealCongruenceCount.lean
+@@ -2221,7 +2221,7 @@ private theorem relIndex_mul_ideal_eq_absNorm {K : Type*} [Field K] [NumberField
+       ≤ ((J : (Ideal (𝓞 K))⁰) : Ideal (𝓞 K)).toAddSubgroup := by
+     rw [Submodule.toAddSubgroup_le]
+     push_cast
+-    exact Ideal.mul_le_left
++    exact Ideal.mul_le_right
+   have key := AddSubgroup.relIndex_mul_index hle
+   rw [← Ideal.absNorm_eq_index, ← Ideal.absNorm_eq_index] at key
+   have hNbJ : Ideal.absNorm ((𝔟 * J : (Ideal (𝓞 K))⁰) : Ideal (𝓞 K))
+@@ -2245,7 +2245,7 @@ private theorem idealLattice_mul_le {K : Type*} [Field K] [NumberField K]
+       ≤ (FractionalIdeal.mk0 K J : FractionalIdeal (𝓞 K)⁰ K) := by
+     simp only [FractionalIdeal.coe_mk0]
+     rw [FractionalIdeal.coeIdeal_le_coeIdeal]
+-    exact Ideal.mul_le_left
++    exact Ideal.mul_le_right
+   exact hsub hy
+ 
+ open Ideal NumberField in
+@@ -2473,7 +2473,7 @@ private theorem exists_mk0_eq_absNorm_coprime {K : Type*} [Field K] [NumberField
+     have : 2 ≤ n ^ Module.finrank ℤ (𝓞 K) :=
+       le_trans hn2 (Nat.le_self_pow Module.finrank_pos.ne' n)
+     lia
+-  have hle : 𝔫 * (J₀ : Ideal (𝓞 K)) ≤ (J₀ : Ideal (𝓞 K)) := Ideal.mul_le_left
++  have hle : 𝔫 * (J₀ : Ideal (𝓞 K)) ≤ (J₀ : Ideal (𝓞 K)) := Ideal.mul_le_right
+   have hIne : 𝔫 * (J₀ : Ideal (𝓞 K)) ≠ 0 := mul_ne_zero h𝔫ne hJ₀ne
+   obtain ⟨a, ha⟩ := IsDedekindDomain.exists_sup_span_eq hle hIne
+   have hane : a ≠ 0 := by
+diff --git a/projects/Chebotarev/CebotarevDensity/NumberFieldEulerProduct.lean b/projects/Chebotarev/CebotarevDensity/NumberFieldEulerProduct.lean
+index a364763e0..753a2f1ee 100644
+--- a/projects/Chebotarev/CebotarevDensity/NumberFieldEulerProduct.lean
++++ b/projects/Chebotarev/CebotarevDensity/NumberFieldEulerProduct.lean
+@@ -125,11 +125,11 @@ private lemma mul_sup_span_natCast_left {m n : ℕ} (hcop : Nat.Coprime m n)
+           (span_natCast_sup_span_natCast L hcop).symm
+       _ ≤ Ideal.span {(m : 𝓞 L)} ⊔ L' :=
+           sup_le_sup_left (span_natCast_le_of_absNorm_eq L hL) _
+-  refine le_antisymm (sup_le Ideal.mul_le_right (span_natCast_le_of_absNorm_eq L hJ)) ?_
++  refine le_antisymm (sup_le Ideal.mul_le_left (span_natCast_le_of_absNorm_eq L hJ)) ?_
+   · calc J = J * ⊤ := (Ideal.mul_top J).symm
+       _ = J * (Ideal.span {(m : 𝓞 L)} ⊔ L') := by rw [h_cop_mL_sup]
+       _ = J * Ideal.span {(m : 𝓞 L)} ⊔ J * L' := Ideal.mul_sup _ _ _
+-      _ ≤ Ideal.span {(m : 𝓞 L)} ⊔ J * L' := sup_le_sup_right Ideal.mul_le_left _
++      _ ≤ Ideal.span {(m : 𝓞 L)} ⊔ J * L' := sup_le_sup_right Ideal.mul_le_right _
+       _ = J * L' ⊔ Ideal.span {(m : 𝓞 L)} := sup_comm _ _
+ 
+ lemma idealNormMultiplicity_mul {m n : ℕ} (hcop : Nat.Coprime m n) :
+diff --git a/projects/FltRegularBernoulli/BernoulliRegular/NumberFieldEulerProduct.lean b/projects/FltRegularBernoulli/BernoulliRegular/NumberFieldEulerProduct.lean
+index bfabd23bb..243002a25 100644
+--- a/projects/FltRegularBernoulli/BernoulliRegular/NumberFieldEulerProduct.lean
++++ b/projects/FltRegularBernoulli/BernoulliRegular/NumberFieldEulerProduct.lean
+@@ -163,7 +163,7 @@ lemma idealNormMultiplicity_mul {m n : ℕ} (hcop : Nat.Coprime m n) :
+         J * L' ⊔ Ideal.span {(m : 𝓞 L)} = J := fun J L' hJ hL => by
+       have h_cop_mL_sup : Ideal.span {(m : 𝓞 L)} ⊔ L' = ⊤ :=
+         Ideal.isCoprime_iff_sup_eq.mp (h_cop_m_L L' hL)
+-      refine le_antisymm (sup_le Ideal.mul_le_right ?_) ?_
++      refine le_antisymm (sup_le Ideal.mul_le_left ?_) ?_
+       · rw [Ideal.span_le, Set.singleton_subset_iff]
+         have : ((m : ℕ) : 𝓞 L) ∈ J := by rw [← hJ]; exact Ideal.absNorm_mem J
+         exact_mod_cast this
+@@ -171,13 +171,13 @@ lemma idealNormMultiplicity_mul {m n : ℕ} (hcop : Nat.Coprime m n) :
+           J = J * ⊤ := (Ideal.mul_top J).symm
+           _ = J * (Ideal.span {(m : 𝓞 L)} ⊔ L') := by rw [h_cop_mL_sup]
+           _ = J * Ideal.span {(m : 𝓞 L)} ⊔ J * L' := Ideal.mul_sup _ _ _
+-          _ ≤ Ideal.span {(m : 𝓞 L)} ⊔ J * L' := sup_le_sup_right Ideal.mul_le_left _
++          _ ≤ Ideal.span {(m : 𝓞 L)} ⊔ J * L' := sup_le_sup_right Ideal.mul_le_right _
+           _ = J * L' ⊔ Ideal.span {(m : 𝓞 L)} := sup_comm _ _
+     have h_inv_n : ∀ (J L' : Ideal (𝓞 L)), Ideal.absNorm J = m → Ideal.absNorm L' = n →
+         J * L' ⊔ Ideal.span {(n : 𝓞 L)} = L' := fun J L' hJ hL => by
+       have h_cop_nJ_sup : Ideal.span {(n : 𝓞 L)} ⊔ J = ⊤ :=
+         Ideal.isCoprime_iff_sup_eq.mp (h_cop_n_J J hJ)
+-      refine le_antisymm (sup_le Ideal.mul_le_left ?_) ?_
++      refine le_antisymm (sup_le Ideal.mul_le_right ?_) ?_
+       · rw [Ideal.span_le, Set.singleton_subset_iff]
+         have : ((n : ℕ) : 𝓞 L) ∈ L' := by rw [← hL]; exact Ideal.absNorm_mem L'
+         exact_mod_cast this
+@@ -185,7 +185,7 @@ lemma idealNormMultiplicity_mul {m n : ℕ} (hcop : Nat.Coprime m n) :
+           L' = ⊤ * L' := (Ideal.top_mul L').symm
+           _ = (Ideal.span {(n : 𝓞 L)} ⊔ J) * L' := by rw [h_cop_nJ_sup]
+           _ = Ideal.span {(n : 𝓞 L)} * L' ⊔ J * L' := Ideal.sup_mul _ _ _
+-          _ ≤ Ideal.span {(n : 𝓞 L)} ⊔ J * L' := sup_le_sup_right Ideal.mul_le_right _
++          _ ≤ Ideal.span {(n : 𝓞 L)} ⊔ J * L' := sup_le_sup_right Ideal.mul_le_left _
+           _ = J * L' ⊔ Ideal.span {(n : 𝓞 L)} := sup_comm _ _
+     let fwd : {I : NonzeroIdeal L // Ideal.absNorm I.1 = m * n} →
+         {J : NonzeroIdeal L // Ideal.absNorm J.1 = m} ×
+diff --git a/projects/FltRegularBernoulli/BernoulliRegular/Reflection/ResidueSymbol/Furtwaengler/KummerFurtwaengler/StickelbergerIdealOrbit.lean b/projects/FltRegularBernoulli/BernoulliRegular/Reflection/ResidueSymbol/Furtwaengler/KummerFurtwaengler/StickelbergerIdealOrbit.lean
+index b9ca770e6..b844db8d7 100644
+--- a/projects/FltRegularBernoulli/BernoulliRegular/Reflection/ResidueSymbol/Furtwaengler/KummerFurtwaengler/StickelbergerIdealOrbit.lean
++++ b/projects/FltRegularBernoulli/BernoulliRegular/Reflection/ResidueSymbol/Furtwaengler/KummerFurtwaengler/StickelbergerIdealOrbit.lean
+@@ -484,7 +484,7 @@ theorem stickelbergerIdeal_le_factor
+   rw [← Finset.prod_erase_mul (Finset.univ : Finset (CyclotomicUnitDelta p))
+         (fun a => cyclotomicGaloisConjugate (p := p) (K := K) a⁻¹ q_K ^
+             ((a : ZMod p).val)) (Finset.mem_univ a)]
+-  exact Ideal.mul_le_left
++  exact Ideal.mul_le_right
+ 
+ /-- Every cyclotomic conjugate of `q_K` divides `stickelbergerIdeal q_K`.
+ The factor at `a = c⁻¹` contributes `(σ_c q_K)^k` with k ≥ 1. -/
+@@ -526,7 +526,7 @@ theorem stickelbergerIdeal_le_self (q_K : Ideal (𝓞 K)) :
+     simp [cyclotomicGaloisConjugate_one, ZMod.val_one_eq_one_mod,
+       Nat.one_mod_eq_one.mpr (Fact.out : p.Prime).one_lt.ne']
+   rw [hone]
+-  exact Ideal.mul_le_left
++  exact Ideal.mul_le_right
+ 
+ /-! ### Connection to Mathlib's `primesOver`
+ 
+diff --git a/projects/FltRegularBernoulli/BernoulliRegular/Reflection/ResidueSymbol/Furtwaengler/PthSymbolPrincipalCanonical/CanonicalIdealSymbol.lean b/projects/FltRegularBernoulli/BernoulliRegular/Reflection/ResidueSymbol/Furtwaengler/PthSymbolPrincipalCanonical/CanonicalIdealSymbol.lean
+index 33fe45859..108890989 100644
+--- a/projects/FltRegularBernoulli/BernoulliRegular/Reflection/ResidueSymbol/Furtwaengler/PthSymbolPrincipalCanonical/CanonicalIdealSymbol.lean
++++ b/projects/FltRegularBernoulli/BernoulliRegular/Reflection/ResidueSymbol/Furtwaengler/PthSymbolPrincipalCanonical/CanonicalIdealSymbol.lean
+@@ -599,7 +599,7 @@ theorem pthSymbolAtPrime_canonical_eq_zero_of_eta_factor
+     have hp_pos : 0 < p := (Fact.out : p.Prime).pos
+     rcases Nat.exists_eq_succ_of_ne_zero (by omega : p ≠ 0) with ⟨k, hk⟩
+     rw [hk, pow_succ]
+-    exact Ideal.mul_le_left
++    exact Ideal.mul_le_right
+   exact hP_b (hb_pow_le hη_in_span)
+ 
+ /-- **Unconditional ideal-level vanishing at `-α^p` for odd p**: rewrites
+diff --git a/projects/HasseWeil/HasseWeil/Pic0/ToClassSurjective.lean b/projects/HasseWeil/HasseWeil/Pic0/ToClassSurjective.lean
+index 8cd46a6c0..a4aea6ebe 100644
+--- a/projects/HasseWeil/HasseWeil/Pic0/ToClassSurjective.lean
++++ b/projects/HasseWeil/HasseWeil/Pic0/ToClassSurjective.lean
+@@ -506,7 +506,10 @@ private noncomputable def quotComapEquivCoeIdealQuot_aux [W.IsElliptic]
+     rw [Submodule.mem_comap] at hy
+     rw [FractionalIdeal.mem_coe, FractionalIdeal.mem_coeIdeal] at hy
+     obtain ⟨r, hrIJ, hry⟩ := hy
+-    have hrI : r ∈ I := Ideal.mul_le_right hrIJ
++    have hIJ_le : I * J ≤ I := by
++      rw [mul_comm]
++      exact Ideal.mul_le_right
++    have hrI : r ∈ I := hIJ_le hrIJ
+     refine ⟨⟨r, hrI⟩, ?_, ?_⟩
+     · rw [SetLike.mem_coe, Submodule.mem_comap]; exact hrIJ
+     · apply Subtype.ext
+@@ -571,7 +574,8 @@ noncomputable def quotIdealMulEquiv [W.IsElliptic] {I J : Ideal W.CoordinateRing
+       = (1 : FractionalIdeal R⁰ K) * (↑(I * J) : FractionalIdeal R⁰ K) := by
+     rw [one_mul, ← FractionalIdeal.coeIdeal_mul]
+   have hle1 : (↑(I * J) : FractionalIdeal R⁰ K) ≤ (↑I : FractionalIdeal R⁰ K) := by
+-    rw [FractionalIdeal.coeIdeal_le_coeIdeal]; exact Ideal.mul_le_right
++    rw [FractionalIdeal.coeIdeal_le_coeIdeal, mul_comm]
++    exact Ideal.mul_le_right
+   have hle2 : (↑J : FractionalIdeal R⁰ K) ≤ (1 : FractionalIdeal R⁰ K) :=
+     FractionalIdeal.coeIdeal_le_one
+   have hJne : (↑J : FractionalIdeal R⁰ K) ≠ 0 := by rwa [Ne, FractionalIdeal.coeIdeal_eq_zero]
+@@ -599,7 +603,9 @@ theorem finrank_quotient_mul [W.IsElliptic] {I J : Ideal W.CoordinateRing}
+     finiteDimensional_quotient_of_ne_bot _ hIJ
+   haveI : FiniteDimensional F (W.CoordinateRing ⧸ I) := finiteDimensional_quotient_of_ne_bot _ hI
+   haveI : FiniteDimensional F (W.CoordinateRing ⧸ J) := finiteDimensional_quotient_of_ne_bot _ hJ
+-  have hIJ_le : I * J ≤ I := Ideal.mul_le_right
++  have hIJ_le : I * J ≤ I := by
++    rw [mul_comm]
++    exact Ideal.mul_le_right
+   set M : Submodule (W.CoordinateRing) (W.CoordinateRing ⧸ (I * J)) :=
+     Submodule.map (Submodule.mkQ (I * J))
+       (I : Submodule (W.CoordinateRing) (W.CoordinateRing)) with hM

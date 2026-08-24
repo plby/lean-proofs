@@ -59,22 +59,26 @@ private def runGitApply
   }
 
 post_update pkg do
-  let dependency := pkg.dir / ".lake" / "packages" / "BoundedGaps"
-  let patch := pkg.dir / "patches" / "formalpantheon-v4.33.0.patch"
-  if !(← dependency.pathExists) then
-    error s!"BoundedGaps package directory does not exist: {dependency}"
-  if !(← patch.pathExists) then
-    error s!"BoundedGaps compatibility patch does not exist: {patch}"
-  let forwardCheck ← runGitApply dependency patch #["--check"]
-  if forwardCheck.exitCode = 0 then
-    let result ← runGitApply dependency patch #[]
-    if result.exitCode != 0 then
-      error s!"failed to apply BoundedGaps compatibility patch {patch}:\n{result.stderr}"
-    IO.println "Applied FormalPantheon compatibility patch for Lean/Mathlib v4.33.0."
-  else
-    let reverseCheck ← runGitApply dependency patch #["--reverse", "--check"]
-    if reverseCheck.exitCode = 0 then
-      IO.println "FormalPantheon compatibility patch is already applied."
+  for (name, patchName) in #[
+      ("BoundedGaps", "formalpantheon-v4.33.0.patch"),
+      ("BoundedGaps", "formalpantheon-v4.33.0-s2.patch"),
+      ("AINTLIB", "aintlib-v4.33.0.patch")] do
+    let dependency := pkg.dir / ".lake" / "packages" / name
+    let patch := pkg.dir / "patches" / patchName
+    if !(← dependency.pathExists) then
+      error s!"{name} package directory does not exist: {dependency}"
+    if !(← patch.pathExists) then
+      error s!"{name} compatibility patch does not exist: {patch}"
+    let forwardCheck ← runGitApply dependency patch #["--check"]
+    if forwardCheck.exitCode = 0 then
+      let result ← runGitApply dependency patch #[]
+      if result.exitCode != 0 then
+        error s!"failed to apply {name} compatibility patch {patch}:\n{result.stderr}"
+      IO.println s!"Applied {name} compatibility patch {patchName}."
     else
-      error s!"BoundedGaps checkout is incompatible with compatibility patch {patch}.\n\
-        Forward check:\n{forwardCheck.stderr}\nReverse check:\n{reverseCheck.stderr}"
+      let reverseCheck ← runGitApply dependency patch #["--reverse", "--check"]
+      if reverseCheck.exitCode = 0 then
+        IO.println s!"{name} compatibility patch {patchName} is already applied."
+      else
+        error s!"{name} checkout is incompatible with compatibility patch {patch}.\n\
+          Forward check:\n{forwardCheck.stderr}\nReverse check:\n{reverseCheck.stderr}"

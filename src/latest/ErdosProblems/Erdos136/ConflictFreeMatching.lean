@@ -620,6 +620,7 @@ def AvailableDegreeWithin (H : Hypergraph V) (C : ConflictSystem V)
 relative error, using the exact eight-uniform handshake identity. -/
 theorem availableEdges_card_bounds_of_degreeWithin [Fintype V]
     {H : Hypergraph V} {C : ConflictSystem V} {M : Hypergraph V}
+    {lo hi : ℝ}
     (hH : IsUniform H 8) (htrack : AvailableDegreeWithin H C M lo hi) :
     ((uncoveredVertices H M).card : ℝ) * lo ≤
         8 * ((availableEdges H C M).card : ℝ) ∧
@@ -46468,6 +46469,8 @@ end CFMSharpTestCutoff
 
 section SharpExternalProfileClosure
 
+variable {epsRaw GammaCert : ℝ} {ellCert : ℕ}
+
 variable {io : Type*} [Fintype io]
 
 theorem weightedF0TruncatedGainCollisionResidualRootMass_eq_representationSum
@@ -51506,6 +51509,8 @@ noncomputable section
 
 variable {V io : Type*} [DecidableEq V] [Fintype V] [Fintype io]
 
+variable {epsRaw GammaCert : ℝ} {ellCert : ℕ}
+
 /-- The availability-truncated residual source for one internal conflict-link
 test.  Its static family rank is `r-2`, including the genuine rank-three
 boundary when `r=5`. -/
@@ -52108,6 +52113,8 @@ attribute [local instance] Classical.propDecidable
 noncomputable section
 
 variable {V io : Type*} [DecidableEq V] [Fintype V] [Fintype io]
+
+variable {epsRaw GammaCert : ℝ} {ellCert : ℕ}
 
 def vertexDuplicateToCombinedRootCoordinate
     (H : Hypergraph V) (C : ConflictSystem V) (j : io → ℕ)
