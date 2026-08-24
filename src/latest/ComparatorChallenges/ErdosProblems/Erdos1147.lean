@@ -18,8 +18,6 @@ namespace Erdos1147
 
 abbrev IsBasis2 (A : Set ℕ) : Prop := A.IsAsymptoticAddBasisOfOrder 2
 
-/-! ## An odd Pell sequence for `√2` -/
-
 noncomputable def circleDist (x : ℝ) : ℝ :=
   ‖(x : AddCircle (1 : ℝ))‖
 

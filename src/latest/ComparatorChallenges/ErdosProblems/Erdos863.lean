@@ -36,8 +36,6 @@ noncomputable def diffMax (r N : ℕ) : ℕ :=
 def HasSqrtAsymptotic (f : ℕ → ℕ) (c : ℝ) : Prop :=
   Tendsto (fun N : ℕ => (f N : ℝ) / Real.sqrt N) atTop (nhds c)
 
-/-! ### Ruzsa's optimal modular Sidon sets -/
-
 theorem erdos_863 {r : ℕ} (hr : 2 ≤ r) {cSum cDiff : ℝ}
     (hsum : HasSqrtAsymptotic (sumMax r) cSum)
     (hdiff : HasSqrtAsymptotic (diffMax r) cDiff) :

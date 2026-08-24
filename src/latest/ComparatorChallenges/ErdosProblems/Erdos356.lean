@@ -11,8 +11,6 @@ def consecutiveSums {k : ℕ} (a : Fin k → ℕ) : Finset ℕ :=
   (((Finset.univ : Finset (Fin k)).product Finset.univ).filter fun uv ↦ uv.1 ≤ uv.2).image
     fun uv ↦ ∑ i ∈ Finset.Icc uv.1 uv.2, a i
 
-/-! ## Beker's explicit sequence -/
-
 theorem erdos_356 :
     ∃ c : ℝ, 0 < c ∧ ∀ᶠ n : ℕ in atTop,
       ∃ k : ℕ, ∃ a : Fin k → ℕ,

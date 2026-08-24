@@ -19,8 +19,6 @@ noncomputable def representationCount (A : Set ℕ) (n : ℕ) : ℕ :=
 noncomputable def summatoryRepresentationCount (A : Set ℕ) (N : ℕ) : ℕ :=
   ∑ n ∈ Finset.range (N + 1), representationCount A n
 
-/-! ## Bounded power series and Parseval on a circle -/
-
 theorem not_erdos_763 :
     ¬ ∃ (A : Set ℕ) (c : ℝ), 0 < c ∧
       (fun N : ℕ ↦ (summatoryRepresentationCount A N : ℝ) - c * N) =O[atTop]

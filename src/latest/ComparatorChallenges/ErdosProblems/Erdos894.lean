@@ -15,8 +15,6 @@ def HasAvoidingColoring (n : ℕ → ℕ) : Prop :=
   ∃ C : ℕ, ∃ color : ℕ → Fin C,
     ∀ a b : ℕ, a - b ∈ Set.range n → color a ≠ color b
 
-/-! ## A separated rotation for a sequence with ratio at least four -/
-
 theorem erdos_894 {n : ℕ → ℕ} (hn : IsLacunary n) :
     HasAvoidingColoring n := by
   sorry

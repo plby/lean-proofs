@@ -11,8 +11,6 @@ def HasMonoMatching {n r t : ℕ} (c : Edge n r → Fin t) (k : ℕ) : Prop :=
     (∀ i, c (e i) = color) ∧
     ∀ i j : Fin k, i ≠ j → Disjoint (e i).1 (e j).1
 
-/-- A matching for the restriction is a matching for the original coloring. -/
-
 theorem erdos_780 {n k r t : ℕ} (hr : 1 ≤ r) (ht : 1 ≤ t)
     (hn : k * r + (t - 1) * (k - 1) ≤ n) (c : Edge n r → Fin t) :
     HasMonoMatching c k := by

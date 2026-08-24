@@ -54,8 +54,6 @@ noncomputable def determinedCircles (P : Finset Point) : Finset Circle := by
 def circleCounts (n : ℕ) : Set ℕ :=
   {m | ∃ P : Finset Point, Admissible n P ∧ (determinedCircles P).card = m}
 
-/-! ## Connecting lines as finite incidence blocks -/
-
 def correctedBound (n : ℕ) : ℕ :=
   Nat.choose (n - 1) 2 + 1 - (n - 1) / 2
 

@@ -9,7 +9,6 @@ abbrev Point := EuclideanSpace ℝ (Fin 2)
 end Erdos733
 
 def IsAffineLine (ℓ : AffineSubspace ℝ (EuclideanSpace ℝ (Fin 2))) : Prop :=
--- BODY
   (ℓ : Set (EuclideanSpace ℝ (Fin 2))).Nonempty ∧ Module.finrank ℝ ℓ.direction = 1
 
 namespace Erdos733

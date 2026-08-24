@@ -8,8 +8,6 @@ def IsEdgeRamseyForClique {V : Type*} (G : SimpleGraph V) (k l : ℕ) : Prop :=
   ∀ C : SimpleGraph.EdgeLabeling G (Fin k),
     ∃ i : Fin k, ∃ S : Finset V, (C.labelGraph i).IsNClique l S
 
-/-! ## Arbitrary-palette finite hypergraph Ramsey -/
-
 theorem erdos_924 :
     ∀ k l : ℕ, 2 ≤ k → 3 ≤ l →
       ∃ (V : Type) (_ : Fintype V) (G : SimpleGraph V),

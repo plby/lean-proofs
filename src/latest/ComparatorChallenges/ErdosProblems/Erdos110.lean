@@ -31,9 +31,6 @@ def HasUniformBound (F : ℕ → ℕ) : Prop :=
           H.verts.Finite ∧ H.verts.ncard ≤ F n ∧
             H.coe.chromaticNumber = n
 
-/-- An arbitrarily-late pointwise counterexample defeats an eventual uniform
-bound. -/
-
 theorem not_erdos_110 :
     ¬ ∃ F : ℕ → ℕ, HasUniformBound F := by
   sorry

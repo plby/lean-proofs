@@ -17,8 +17,6 @@ def edgeProducts {V R : Type*} [Fintype V] [DecidableEq R] [CommMagma R]
     (a : V → R) (G : SimpleGraph V) [DecidableRel G.Adj] : Finset R :=
   edgeValues (fun u v ↦ a u * a v) (fun u v ↦ mul_comm (a u) (a v)) G
 
-/-! ## The complementary Alon--Ruzsa--Solymosi lower bound -/
-
 theorem not_erdos_808 :
     ¬ (∀ c : ℝ, 0 < c → ∀ ε : ℝ, 0 < ε →
       ∃ n₀ : ℕ, ∀ (V : Type) [Fintype V] (a : V ↪ ℕ)

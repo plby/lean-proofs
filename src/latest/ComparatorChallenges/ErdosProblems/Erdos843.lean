@@ -27,8 +27,6 @@ def MonochromaticSquareSum (colour : ℕ → Fin 2) (n : ℕ) : Prop :=
     (∃ i : Fin 2, ∀ q ∈ squares, colour q = i) ∧
     ∑ q ∈ squares, q = n
 
-/-! ## Finite subset-sum intervals -/
-
 theorem erdos_843 :
     ∀ colour : ℕ → Fin 2, ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
       Erdos843.MonochromaticSquareSum colour n := by

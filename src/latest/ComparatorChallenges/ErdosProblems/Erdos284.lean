@@ -13,11 +13,6 @@ as a sum of unit fractions.  This file states that definition literally and
 proves
 
 `f(k) / k → 1 / (exp 1 - 1)`.
-
-The internal development uses `k + 1` terms in order to avoid carrying a
-positivity proof through every occurrence of `Fin k`.  The bridge theorem
-`originalFirstDenominators_succ` verifies that the public definition below is
-exactly the shifted internal one.
 -/
 
 namespace Erdos284
@@ -37,7 +32,6 @@ def OriginalFirstDenominators (k : ℕ) : Set ℕ :=
 noncomputable def originalErdosF (k : ℕ) : ℕ :=
   sSup (OriginalFirstDenominators k)
 
-/-- The literal `k + 1`-term denominator set is the internally used set. -/
 theorem erdos_284 :
     Tendsto (fun k : ℕ ↦ (originalErdosF k : ℝ) / (k : ℝ))
       atTop (nhds (1 / (Real.exp 1 - 1))) := by

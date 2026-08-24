@@ -37,8 +37,6 @@ end Erdos832.FiniteHypergraph
 
 namespace Erdos832
 
-/-! ## The explicit binary construction -/
-
 theorem not_erdos_832 :
     ¬(∀ r : ℕ, 3 ≤ r → ∃ K : ℕ, ∀ k : ℕ, K ≤ k →
       ∀ H : Erdos832.FiniteHypergraph,

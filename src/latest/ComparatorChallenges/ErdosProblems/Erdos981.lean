@@ -24,8 +24,6 @@ noncomputable def eventualThreshold (ε : ℝ) (p : ℕ) : ℕ :=
 noncomputable def thresholdPrimeSum (ε : ℝ) (x : ℕ) : ℝ :=
   ∑ p ∈ oddPrimesBelow x, (eventualThreshold ε p : ℝ)
 
-/-! ## The finite random completely multiplicative model -/
-
 theorem erdos_981 {ε : ℝ} (hε : 0 < ε) :
     ∃ cε : ℝ, 0 < cε ∧
       thresholdPrimeSum ε ~[atTop]

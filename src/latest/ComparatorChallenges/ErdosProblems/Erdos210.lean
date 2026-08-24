@@ -32,8 +32,6 @@ def attainableCounts (n : ℕ) : Set ℕ :=
 
 noncomputable def ordinaryMinimum (n : ℕ) : ℕ := sInf (attainableCounts n)
 
-/-! ### Nonemptiness, the near-pencil upper bound, and divergence -/
-
 theorem erdos_210 : Filter.Tendsto ordinaryMinimum Filter.atTop Filter.atTop := by
   sorry
 

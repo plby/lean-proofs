@@ -61,8 +61,6 @@ def IsKChoosable {V : Type*} (G : SimpleGraph V) (k : ℕ) : Prop :=
 noncomputable def listChromaticNumber {V : Type*} (G : SimpleGraph V) : ℕ :=
   sInf {k : ℕ | IsKChoosable G k}
 
-/-! ### Basic Properties of Choosability -/
-
 end Erdos753
 
 namespace Erdos630

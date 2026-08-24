@@ -25,10 +25,6 @@ Problem 133. -/
 noncomputable def erdos133Function (n : ℕ) : ℕ :=
   sInf {d : ℕ | Nonempty (Model n d)}
 
-/-! ## The Moore lower bound -/
-
-/-- A graph of maximum degree `d` and diameter at most two has at most
-`d^2 + 1` vertices. -/
 theorem erdos_133 :
     (∀ n : ℕ, 64 ≤ n →
       Real.sqrt n - 1 ≤ erdos133Function n ∧

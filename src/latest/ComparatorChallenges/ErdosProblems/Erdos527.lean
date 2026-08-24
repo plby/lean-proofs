@@ -14,8 +14,6 @@ def DecaysFasterThanInvSqrt (a : ℕ → ℝ) : Prop :=
   (fun n : ℕ ↦ |a n|) =o[atTop]
     (fun n : ℕ ↦ (Real.sqrt (n : ℝ))⁻¹)
 
-/-! ## Exact cyclic grids and refinement -/
-
 noncomputable def half : unitInterval := ⟨1 / 2, by norm_num⟩
 
 noncomputable def rademacherMeasure : Measure ℝ :=

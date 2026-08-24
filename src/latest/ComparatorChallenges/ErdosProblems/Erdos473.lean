@@ -7,20 +7,9 @@ import Mathlib
 
 Does there exist a permutation `a` of the positive integers such that
 `a n + a (n + 1)` is prime for every `n`?
-
-The proof is split into two parts.  The first is a general graph-theoretic
-construction: a countable graph in which every finite simple path can be
-extended so as to contain any prescribed vertex has a spanning one-way ray.
-The second verifies that extension property for the prime-sum graph.
 -/
 
 namespace Erdos473
-
-/-! ## A spanning ray from finite path extensions -/
-
-/-- If finite duplicate-free `R`-chains can always be extended, as prefixes,
-to contain any prescribed vertex, then any enumeration of the vertex type can
-be reordered into a spanning one-way `R`-chain. -/
 
 theorem erdos_473 :
     ∃ a : ℕ ≃ ℕ+, ∀ n : ℕ,

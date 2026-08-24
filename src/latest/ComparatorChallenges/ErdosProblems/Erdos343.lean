@@ -26,8 +26,6 @@ a value has infinitely many occurrences.
 def HasLinearCountingLowerBound (C : ℕ) (A : ℕ → ℕ) : Prop :=
   ∀ N : ℕ, ∃ s : Finset ℕ, C * N ≤ s.card ∧ ∀ i ∈ s, A i ≤ N
 
-/-- Brown's finite-interval argument for occurrence-indexed subset sums. -/
-
 theorem erdos_343 :
     ∃ C : ℕ, 0 < C ∧ ∀ A : ℕ → ℕ,
       Monotone A →

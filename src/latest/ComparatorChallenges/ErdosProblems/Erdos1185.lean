@@ -11,8 +11,6 @@ def HasAPWithStepInDiff (k : ℕ) (A B : Finset ℕ) : Prop :=
     (∀ j : ℕ, j < k → a + j * d ∈ A) ∧
     ∃ b₁ ∈ B, ∃ b₂ ∈ B, d = b₁ - b₂
 
-/-! ## The rapidly divisible sequence -/
-
 theorem not_erdos_1185 :
     ¬ (∀ δ : ℝ, 0 < δ → ∀ k : ℕ, 3 ≤ k →
       ∃ m : ℕ, 1 ≤ m ∧ ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →

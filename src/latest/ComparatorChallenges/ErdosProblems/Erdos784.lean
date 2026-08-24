@@ -32,8 +32,6 @@ def HasPolylogLowerBound
 abbrev LiteralAnswer (C : ℝ) : Prop :=
   HasPolylogLowerBound LiteralAdmissible C
 
-/-! ## The elementary union bound -/
-
 theorem erdos_784 {C : ℝ} (_hC : 0 < C) :
     LiteralAnswer C ↔ C < 1 := by
   sorry

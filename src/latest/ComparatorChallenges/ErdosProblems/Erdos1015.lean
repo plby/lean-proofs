@@ -4,13 +4,6 @@ import Mathlib
 
 open Finset
 
-/-!
-# Finite Ramsey theory utilities
-
-This file contains the finite two-color Ramsey definitions and elementary bounds shared by
-multiple developments.
--/
-
 namespace SimpleGraph
 
 theorem IndepSetFree.comap {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph β} {n : ℕ}

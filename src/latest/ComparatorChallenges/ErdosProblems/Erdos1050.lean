@@ -12,8 +12,6 @@ We prove that
 
 namespace Erdos1050
 
-/-! ## The original series and a shifted Lambert series -/
-
 /-- The `n`th term of the target series, with `n = 0` representing the
 mathematical index `1`. -/
 noncomputable def targetTerm (n : ℕ) : ℝ :=

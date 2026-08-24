@@ -5,13 +5,6 @@ import Mathlib
 /-!
 # Erdős Problem 732
 
-We formalize Noga Alon's projective-plane construction of many block-size
-sequences of pairwise balanced designs.  The exact finite construction gives
-`q ^ (q - 2)` different sequences on every ground set of size at least
-`q ^ 2 + q + 1`, for every prime `q ≥ 5`.  Bertrand's postulate then gives
-the requested `exp (c * sqrt n * log n)` lower bound for every sufficiently
-large `n`.
-
 Block-size sequences are represented as multisets.  This is canonically
 equivalent to the nonincreasing lists in the statement and avoids carrying a
 chosen sorting order through the construction.
@@ -41,8 +34,6 @@ noncomputable def PairwiseBalancedDesign.blockSizes {P : Type u} [Fintype P]
 on `Fin n` has exactly those block sizes. -/
 def BlockCompatible (n : ℕ) (sizes : Multiset ℕ) : Prop :=
   ∃ D : PairwiseBalancedDesign (Fin n), D.blockSizes = sizes
-
-/-- Completion adds only blocks of cardinality two. -/
 
 theorem erdos_732 :
     ∃ c : ℝ, 0 < c ∧ ∃ N : ℕ, ∀ n : ℕ, N ≤ n →

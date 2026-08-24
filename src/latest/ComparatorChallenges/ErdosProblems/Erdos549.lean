@@ -21,8 +21,6 @@ noncomputable def graphRamseyNumber {V : Type*} [Fintype V]
     (T : SimpleGraph V) : ℕ :=
   sInf {N : ℕ | GraphRamseyAt T N}
 
-/-! ## Double stars -/
-
 theorem not_erdos_549 :
     ¬ (∀ (V : Type) [Fintype V] (T : SimpleGraph V) (k : ℕ),
       T.IsTree → HasBipartitionSizes T k →

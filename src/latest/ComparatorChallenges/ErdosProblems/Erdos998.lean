@@ -8,13 +8,6 @@ import Mathlib
 The endpoint formulation copied in the problem statement is false.  Kesten's actual theorem
 characterizes bounded-remainder intervals by their *length*, not by requiring each endpoint to
 belong to the orbit of the irrational rotation.
-
-This file gives an explicit counterexample.  For
-
-`α = √2 / 10`, `u = 1 / 4`, and `v = u + α`,
-
-the discrepancy is bounded by `1` for every `n`, by a telescoping fractional-part identity, while
-`u` is not the fractional part of any integer multiple of `α`.
 -/
 
 namespace Erdos998
@@ -29,10 +22,6 @@ noncomputable def countInIco (α u v : ℝ) (n : ℕ) : ℕ :=
 def HasBoundedRemainder (α u v : ℝ) : Prop :=
   ∃ C : ℝ, 0 ≤ C ∧ ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
     |(countInIco α u v n : ℝ) - (n : ℝ) * (v - u)| ≤ C
-
-/-! ## The transfer and telescoping identities -/
-
-/-- Subtracting before or after taking a fractional part gives the same fractional part. -/
 
 theorem not_erdos_998 :
     ¬ (∀ α u v : ℝ, Irrational α → 0 ≤ u → u < v → v ≤ 1 →

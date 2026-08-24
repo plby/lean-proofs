@@ -20,9 +20,6 @@ def NoAdjacentHighDegree {α : Type u} [Fintype α]
   classical
   exact ∀ ⦃x y : α⦄, H.Adj x y → H.degree x < 3 ∨ H.degree y < 3
 
-/-- A clique containing at least as many vertices as the target contains a copy
-of the target. -/
-
 theorem erdos_800 (n : ℕ) (H : SimpleGraph (Fin n))
     (hH : NoAdjacentHighDegree H) : RamseyFor H (12 * n) := by
   sorry

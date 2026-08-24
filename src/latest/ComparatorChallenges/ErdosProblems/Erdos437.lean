@@ -20,10 +20,6 @@ sequence in the original problem. -/
 def IsAdmissible (x : ℕ) (a : List ℕ) : Prop :=
   a.Pairwise (· < ·) ∧ ∀ n ∈ a, 1 ≤ n ∧ n ≤ x
 
-/-! ## Squares and factorization parity -/
-
-/-- A positive natural number whose prime valuations are all even is a square. -/
-
 theorem erdos_437 :
     ∀ ε : ℝ, 0 < ε → ∀ᶠ x : ℕ in atTop,
       ∃ a : List ℕ, IsAdmissible x a ∧

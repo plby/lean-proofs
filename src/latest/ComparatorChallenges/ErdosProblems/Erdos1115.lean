@@ -66,8 +66,7 @@ def IsAsymptoticPath (f : ℂ → ℂ) (γ : ℝ → ℂ) : Prop :=
   IsArcLengthPath γ ∧ EscapesAlong f γ
 
 /-- A geometric wall whose eventual avoidance costs at least `cost` units of arclength before
-leaving the disk of radius `outer`.  This definition contains no analytic information about `f`;
-the spiral lemma below supplies it for the explicit walls. -/
+leaving the disk of radius `outer`. -/
 def IsLengthBarrier (S : Set ℂ) (inner outer cost : ℝ) : Prop :=
   ∀ γ : ℝ → ℂ, IsArcLengthPath γ →
     Tendsto (fun t ↦ ‖γ t‖) atTop atTop →

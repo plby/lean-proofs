@@ -43,8 +43,6 @@ def ContainsK33Subdivision {V : Type*} (G : SimpleGraph V) : Prop :=
 def IsNonplanar {V : Type*} (G : SimpleGraph V) : Prop :=
   ContainsCliqueSubdivision G 5 ∨ ContainsK33Subdivision G
 
-/-! ### The exponent-gap reduction -/
-
 theorem erdos_1018 :
     ∀ ε : ℝ, 0 < ε → ∃ C N : ℕ, ∀ n : ℕ, N ≤ n →
       ∀ G : SimpleGraph (Fin n),

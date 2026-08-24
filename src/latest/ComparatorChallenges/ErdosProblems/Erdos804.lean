@@ -31,8 +31,6 @@ noncomputable def squareValue (n : ℕ) : ℕ :=
 noncomputable def cubicValue (n : ℕ) : ℕ :=
   localIndependenceNumber n (logWindow 3 n) (logThreshold n)
 
-/-! ## Finite double counting for the lower bound -/
-
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
 theorem erdos_804 :

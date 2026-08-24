@@ -10,14 +10,6 @@ open Filter
 The supplied statement asks for, asymptotically in the number k of terms,
 k distinct positive integers in a real interval of width
 (exp 1 - 1 + o(1)) * k whose unit fractions sum to one.
-
-The local formalization of Martin's theorem supplies, for every sufficiently
-large k, an exact k-term representation whose largest denominator is
-(exp 1 / (exp 1 - 1) + o(1)) * k.  The elementary strict inequality
-
-exp 1 / (exp 1 - 1) < exp 1 - 1
-
-therefore lets us enlarge the containing interval to the width requested here.
 -/
 
 namespace Erdos286

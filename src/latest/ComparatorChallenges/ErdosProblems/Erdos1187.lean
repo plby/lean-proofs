@@ -30,7 +30,6 @@ def SecondQuestionAt (k : ℕ) : Prop :=
   ∀ (κ : Type) [Finite κ], ∀ color : ℤ → κ,
     HasMonochromaticAPWithPrimeStep color k
 
-/-- Every word index is below one plus `card ι * k`. -/
 theorem erdos_1187 :
     (∀ k : ℕ, 3 ≤ k → Erdos1187.FirstQuestionAt k) ∧ ∀ k : ℕ, 3 ≤ k → ¬ SecondQuestionAt k := by
   sorry

@@ -28,8 +28,6 @@ def constructionFamily (t : ℕ) : Finset ℕ :=
 def uncovered (n : ℕ) (A : Finset ℕ) : Finset ℕ :=
   (Finset.Icc 1 n).filter fun m => ∀ a ∈ A, ¬a ∣ m
 
-/-! ## Definitions and the Schinzel--Szekeres rational certificate -/
-
 theorem erdos_542 :
     (∀ n : ℕ, ∀ A : Finset ℕ,
           PairwiseLCMExceeds n A → reciprocalSum A ≤ (31 : ℝ) / 30) ∧

@@ -11,8 +11,6 @@ abbrev E3 := EuclideanSpace ℝ (Fin 3)
 noncomputable def pairDistance {n : ℕ} (x : Fin n → E3) : Sym2 (Fin n) → ℝ :=
   Sym2.lift ⟨fun i j ↦ dist (x i) (x j), fun _ _ ↦ dist_comm _ _⟩
 
-/-! ## The all-`n` scale -/
-
 theorem erdos_605 :
     ∃ f : ℕ → ℝ, Tendsto f atTop atTop ∧
       ∃ center : E3, ∃ radius : ℝ, 0 < radius ∧ ∀ n : ℕ,

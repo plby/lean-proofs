@@ -2,11 +2,6 @@
 
 import Mathlib
 
-/- The local verification cache for `BoundedGaps` was produced by Lake and
-records this generated name for the standard order on `ℕ`.  Re-exporting the
-same reducible instance name keeps that cache compatible; a clean Lake build
-reduces it to the ordinary `Nat` partial order. -/
-
 /-!
 # Erdős Problem 1202
 

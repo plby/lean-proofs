@@ -10,8 +10,6 @@ every triangle-free graph on the labelled vertices `{1, ..., n}`, with
 `n ≥ 18`, contains three distinct independent vertices `a`, `b`, `a + b`.
 
 Lean vertex `i : Fin n` represents the mathematical label `i.val + 1`.
-The finite `n = 18` core is reconstructed from an LRAT certificate by
-Mathlib's kernel-checked propositional proof generator.
 -/
 
 namespace Erdos895

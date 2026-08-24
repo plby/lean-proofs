@@ -28,9 +28,6 @@ canonical action of `Multiplicative Plane` is vector addition. -/
 def TranslationEquidecomposable (A B : Set Plane) : Prop :=
   ∃ e : Equidecomp Plane (Multiplicative Plane), e.source = A ∧ e.target = B
 
-/-- The standard volume formula for the disk, in the exact normalization used
-in the final statement. -/
-
 theorem erdos_1124 (r : ℝ) (hr : 0 < r) :
     TranslationEquidecomposable (disk r) (square r) := by
   sorry
