@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos360",
+  "solution_module": "ErdosProblems.Erdos360",
+  "theorem_names": [
+    "Erdos360.exists_colorable",
+    "Erdos360.erdos_360"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
