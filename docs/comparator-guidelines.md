@@ -52,8 +52,11 @@
   proposition's name. Remove the redundant wrapper definition from the challenge
   and use the same explicit statement in the solution's final theorem. The
   solution may retain the proposition definition and helper theorems, and use
-  them to prove that final theorem. This does not require inlining useful
-  parameterized predicates such as `IsDistinctCoveringSystem`.
+  them to prove that final theorem. Also inline parameterized predicates that
+  merely bundle the problem's conclusion, such as `SolvesErdos29 A` in
+  `∃ A, SolvesErdos29 A`; having a parameter does not make such a wrapper useful
+  in the challenge. This does not require inlining independently useful
+  predicates such as `IsDistinctCoveringSystem`.
 - Keep challenge files limited to the main result(s) and the definitions and
   supporting declarations needed to state them, including transitive
   dependencies. Omit unused definitions, proof-only constructions such as

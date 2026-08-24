@@ -97,9 +97,17 @@ theorem explicitBasis_solves : SolvesErdos29 explicitBasis := by
   · intro ε hε
     simpa only [addRepCount_explicitBasis, explicitSystem] using hsmall ε hε
 
-/-- Erdős Problem 29 has an explicit affirmative solution. -/
-theorem erdos_29 : ∃ A : Set ℕ, SolvesErdos29 A :=
+theorem exists_solvesErdos29 : ∃ A : Set ℕ, SolvesErdos29 A :=
   ⟨explicitBasis, explicitBasis_solves⟩
+
+/-- Erdős Problem 29 has an explicit affirmative solution. -/
+theorem erdos_29 :
+    ∃ A : Set ℕ, A + A = Set.univ ∧
+      ∀ ε : ℝ, 0 < ε →
+        Asymptotics.IsLittleO Filter.atTop
+          (fun n : ℕ => (addRepCount A n : ℝ))
+          (fun n : ℕ => (n : ℝ) ^ ε) :=
+  exists_solvesErdos29
 
 end Erdos29
 
