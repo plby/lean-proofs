@@ -303,7 +303,7 @@ private theorem rational_counterexample_coordinates :
 
 /-- Erdős Problem 266 has a negative answer: there is a positive reciprocal-
 summable sequence for which every positive integral shifted sum is rational. -/
-theorem erdos_266 :
+theorem not_erdos_266 :
     ¬ ∀ (a : ℕ → ℕ), ((∀ n : ℕ, a n ≥ 1) ∧ Summable ((1 : ℝ) / a ·)) →
       ∃ t ≥ (1 : ℕ), Irrational (∑' n, (1 : ℝ) / ((a n) + t)) := by
   intro hclaim
@@ -322,4 +322,6 @@ end
 
 end Erdos266
 
-#print axioms Erdos266.erdos_266
+#print axioms Erdos266.not_erdos_266
+
+alias _root_.Erdos266.erdos_266 := _root_.Erdos266.not_erdos_266

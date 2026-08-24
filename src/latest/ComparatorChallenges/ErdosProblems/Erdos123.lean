@@ -3,8 +3,6 @@
 import Mathlib.Order.Filter.Defs
 import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 
-open Filter
-
 namespace Erdos123
 
 def Smooth3 (a b c : ℕ) : Set ℕ :=
@@ -21,16 +19,9 @@ def IsDComplete (A : Set ℕ) : Prop :=
 def PairwiseCoprime3 (a b c : ℕ) : Prop :=
   Nat.Coprime a b ∧ Nat.Coprime a c ∧ Nat.Coprime b c
 
-def IntendedStatement : Prop :=
-  ∀ a b c : ℕ, 1 < a → 1 < b → 1 < c → PairwiseCoprime3 a b c →
-    IsDComplete (Smooth3 a b c)
-noncomputable section
-
-end
 end Erdos123
 
-open scoped Classical in
 theorem Erdos123.erdos_123 :
-    Erdos123.IntendedStatement
-  := by
+    ∀ a b c : ℕ, 1 < a → 1 < b → 1 < c → Erdos123.PairwiseCoprime3 a b c →
+      Erdos123.IsDComplete (Erdos123.Smooth3 a b c) := by
   sorry

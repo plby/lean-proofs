@@ -172,7 +172,10 @@ theorem erdos_198 : (∀ A : Set ℕ, IsSidon A → (∃ Y, IsAPOfLength Y ⊤ �
   · intro h
     exact False.elim h
 
-#print axioms erdos_198
+theorem not_erdos_198 : ¬ ∀ A : Set ℕ, IsSidon A → (∃ Y, IsAPOfLength Y ⊤ ∧ Y ⊆ Aᶜ) := by
+  exact erdos_198.mp
+
+#print axioms not_erdos_198
 -- 'Erdos198.erdos_198' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos198

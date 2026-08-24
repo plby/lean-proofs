@@ -181,7 +181,11 @@ theorem powerTwoUnavoidable : PowerTwoUnavoidable := by
     exact ⟨k, x, w, hwCycle, hwLength⟩
 
 /-- Erdős Problem 72, resolved with the density-zero set of powers of two. -/
-theorem erdos_72 : ResolutionStatement :=
+theorem erdos_72 :
+    ∃ A : Set ℕ, A.HasDensity 0 ∧
+      ∃ c : ℝ, 0 < c ∧
+        ∃ N₀ : ℕ, ∀ n, N₀ ≤ n → ∀ G : SimpleGraph (Fin n),
+          c ≤ averageDegree G → ∃ m ∈ A, HasCycleLength G m :=
   resolution_of_powerTwoUnavoidable powerTwoUnavoidable
 
 end Erdos72

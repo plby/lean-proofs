@@ -2,13 +2,7 @@
 
 import Mathlib
 
-open scoped BigOperators symmDiff
-
 namespace Erdos841
-
-noncomputable section
-
-attribute [local instance] Classical.propDecidable
 
 def Admissible (n T : ℕ) : Prop :=
   ∃ J : Finset ℕ, J ⊆ Finset.Icc 1 T ∧
@@ -17,26 +11,27 @@ def Admissible (n T : ℕ) : Prop :=
 lemma exists_admissible (n : ℕ) : ∃ T, Admissible n T := by
   sorry
 
+open scoped Classical in
 noncomputable def t (n : ℕ) : ℕ := Nat.find (exists_admissible n)
 
 noncomputable def largestPrimeFactor (n : ℕ) : ℕ :=
   if h : n.primeFactors.Nonempty then n.primeFactors.max' h else 1
 
-def powerThreshold (c : ℝ) (x : ℕ) : ℕ :=
+noncomputable def powerThreshold (c : ℝ) (x : ℕ) : ℕ :=
   ⌊(x : ℝ) ^ c⌋₊
 
-def manySmallUpTo (x : ℕ) : Finset ℕ :=
+noncomputable def manySmallUpTo (x : ℕ) : Finset ℕ :=
   (Finset.Icc 1 x).filter fun n ↦
     (t n : ℝ) ≤ Real.exp
       (20 * Real.sqrt (Real.log n * Real.log (Real.log n)))
 
-def movingSmallTUpTo (x : ℕ) (c : ℝ) : Finset ℕ :=
+noncomputable def movingSmallTUpTo (x : ℕ) (c : ℝ) : Finset ℕ :=
   (Finset.Icc 1 x).filter fun n ↦ t n ≤ powerThreshold c n
 
-def movingSmoothUpTo (x : ℕ) (c : ℝ) : Finset ℕ :=
+noncomputable def movingSmoothUpTo (x : ℕ) (c : ℝ) : Finset ℕ :=
   (Finset.Icc 1 x).filter fun n ↦ largestPrimeFactor n ≤ powerThreshold c n
 
-theorem erdos841_comparator_resolution :
+theorem erdos_841 :
     (∀ n : ℕ, 1 < n →
       Real.sqrt (2 * (n : ℝ)) + 1 < (largestPrimeFactor n : ℝ) →
         t n = largestPrimeFactor n) ∧
@@ -63,7 +58,5 @@ theorem erdos841_comparator_resolution :
             Real.log (Real.log (Real.log (n : ℝ))) ^ (-((1 : ℝ) / 5))) ≤
         (t n : ℝ)) := by
   sorry
-
-end
 
 end Erdos841

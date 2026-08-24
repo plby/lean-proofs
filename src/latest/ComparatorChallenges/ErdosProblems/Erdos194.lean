@@ -2,8 +2,6 @@
 
 import Mathlib
 
-noncomputable section
-
 namespace Erdos194
 
 structure LinearOrdering {α : Type*}
@@ -42,16 +40,8 @@ def LinearOrdering.toPreorder {α : Type*}
 
 def ArithProgression (a d : ℝ) (k : ℕ) : Fin k → ℝ :=
   fun i => a + (i : ℝ) * d
-end Erdos194
 
-namespace Erdos194
-
-end Erdos194
-
-namespace Erdos194
-
-open scoped Classical in
-theorem erdos_194 :
+theorem not_erdos_194 :
     ∃ (r : ℝ → ℝ → Prop) (hlin : LinearOrdering r),
       ∀ k : ℕ, k ≥ 3 → ∀ a d : ℝ,
         letI : Preorder ℝ := hlin.toPreorder

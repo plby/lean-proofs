@@ -4785,7 +4785,7 @@ theorem primitiveWeightSum_le_primeWeightSum {A : Set ℕ} (hA : PrimitiveSet A)
       exact hA.2 (hA₀ ha) (hA₀ hb) hab
   exact primitiveWeightSum_le_primeWeightSum_of_finite hA₀_primitive hA₀fin
 
-theorem erdos164 :
+theorem erdos_164 :
     PrimitiveSet primeSet ∧
       primitiveWeightSum primeSet = primeWeightSum ∧
       ∀ A : Set ℕ, PrimitiveSet A → primitiveWeightSum A ≤ primitiveWeightSum primeSet := by
@@ -11396,7 +11396,7 @@ theorem erdos164_alt :
             exact hA.2 (hA₀ ha) (hA₀ hb) hab
         exact primitiveWeightSum_le_primeWeightSum_of_finite_alt hA₀_primitive hA₀fin)
 
-#print axioms erdos164
+#print axioms erdos_164
 -- 'Erdos164.erdos164' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms erdos_strong_of_two
@@ -11409,3 +11409,5 @@ theorem erdos164_alt :
 -- 'Erdos164.erdos164_alt' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos164
+
+alias _root_.Erdos164.erdos164 := _root_.Erdos164.erdos_164

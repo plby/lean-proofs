@@ -2,7 +2,7 @@
   "challenge_module": "Erdos1026",
   "solution_module": "ErdosProblems.Erdos1026",
   "theorem_names": [
-    "Erdos1026.c_opt_eq_k_div_sq_add_a"
+    "Erdos1026.erdos_1026"
   ],
   "permitted_axioms": [
     "propext",

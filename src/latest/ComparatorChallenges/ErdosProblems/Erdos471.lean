@@ -40,7 +40,7 @@ def HasUnboundedGenerations (Q : Finset ℕ) : Prop :=
   ∀ k : ℕ, ∃ i : ℕ, k ≤ (generation Q i).card
 
 /-- Some finite set of primes generates arbitrarily large generations. -/
-theorem erdos471 :
+theorem erdos_471 :
     ∃ Q : Finset ℕ, IsPrimeFinset Q ∧ HasUnboundedGenerations Q := by
   sorry
 

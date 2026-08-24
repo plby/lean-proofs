@@ -244,7 +244,7 @@ theorem second_question_universal_no : ¬ SecondQuestion := by
 
 /-- Complete resolution of Erdős Problem 1187. -/
 theorem erdos_1187 :
-    FirstQuestion ∧ ∀ k : ℕ, 3 ≤ k → ¬ SecondQuestionAt k :=
+    (∀ k : ℕ, 3 ≤ k → Erdos1187.FirstQuestionAt k) ∧ ∀ k : ℕ, 3 ≤ k → ¬ SecondQuestionAt k :=
   ⟨first_question_yes, second_question_no⟩
 
 #print axioms erdos_1187

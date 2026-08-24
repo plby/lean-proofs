@@ -233,7 +233,7 @@ theorem erdos473_of_finitely_avoidably_connected
 
 /-- Erdős Problem 473: the positive integers admit a permutation in which
 every two consecutive terms have prime sum. -/
-theorem erdos473 :
+theorem erdos_473 :
     ∃ a : ℕ ≃ ℕ+, ∀ n : ℕ,
       Nat.Prime ((a n : ℕ) + (a (n + 1) : ℕ)) := by
   apply erdos473_of_finitely_avoidably_connected
@@ -242,4 +242,6 @@ theorem erdos473 :
 
 end Erdos473
 
-#print axioms Erdos473.erdos473
+#print axioms Erdos473.erdos_473
+
+alias _root_.Erdos473.erdos473 := _root_.Erdos473.erdos_473

@@ -213,13 +213,15 @@ theorem counterexampleAt (K : ℕ) : CounterexampleAt K := by
 theorem erdos_664_counterexamples : ∀ K : ℕ, CounterexampleAt K := counterexampleAt
 
 /-- Negative resolution of Erdős Problem 664 at the fixed constant `2/5 < 1`. -/
-theorem erdos_664 : ¬∃ K : ℕ, HasUniformTransversalBound (2 / 5 : ℝ) K := by
+theorem not_erdos_664 : ¬∃ K : ℕ, HasUniformTransversalBound (2 / 5 : ℝ) K := by
   rintro ⟨K, hK⟩
   obtain ⟨n, m, A, hsize, hlinear, hunbounded⟩ := counterexampleAt K
   obtain ⟨B, hhit, hbound⟩ := hK n m A hsize hlinear
   obtain ⟨i, hi⟩ := hunbounded B hhit
   exact (Nat.not_lt_of_ge (hbound i)) hi
 
-#print axioms erdos_664
+#print axioms not_erdos_664
 
 end Erdos664
+
+alias _root_.Erdos664.erdos_664 := _root_.Erdos664.not_erdos_664

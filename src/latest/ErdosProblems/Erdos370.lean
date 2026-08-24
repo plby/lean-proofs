@@ -72,7 +72,6 @@ lemma lem_threeconsecutive (k : ℕ) (hk : 3 ≤ k) :
             rintro h
             exact absurd (h.even_iff.mp h_even) (by linarith [Nat.self_le_factorial k])⟩
 
-
 lemma lem_construction (m : ℕ) (hm : m ≥ 3)
   (h1 : Composite (m - 1)) (h2 : Composite m) (h3 : Composite (m + 1)) :
   let n := m^2 - 1
@@ -193,11 +192,9 @@ theorem infinitely_many_n : Set.Infinite { n : ℕ | (P n : ℝ) < Real.sqrt n �
     lt_tsub_iff_left.mpr (by
       nlinarith [Nat.self_le_factorial (n + 3), Nat.factorial_pos (n + 3)])⟩
 
-
-
 noncomputable def maxPrimeFac (n : ℕ) : ℕ := sSup {p : ℕ | p.Prime ∧ p ∣ n}
 
-theorem erdos_370 :
+theorem erdos_370_iff :
   { n | maxPrimeFac n < √n ∧ maxPrimeFac (n + 1) < √(n + 1) }.Infinite ↔ True := by
   refine iff_of_true ?_ trivial
   have h_finset_sSup :
@@ -255,7 +252,11 @@ theorem erdos_370 :
   · simpa [h_max_prime_factor hn_gt] using hnP
   · simpa [h_max_prime_factor hn1_gt] using hnP1
 
-#print axioms erdos_370
+#print axioms erdos_370_iff
 -- 'Erdos370.erdos_370' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+theorem erdos_370 :
+    { n | maxPrimeFac n < √n ∧ maxPrimeFac (n + 1) < √(n + 1) }.Infinite := by
+  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using Erdos370.erdos_370_iff
 
 end Erdos370

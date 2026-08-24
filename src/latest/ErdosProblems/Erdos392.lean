@@ -2943,7 +2943,7 @@ lemma pairProd_bound (l : List ℕ) (n : ℕ) (hl : ∀ x ∈ l, x ≤ n) :
         _ = n ^ 2 := (sq n).symm
     · exact ih (fun x hx' ↦ hl x <| by grind) x hx
 
-theorem Solution_2 (ε : ℝ) (hε : ε > 0) :
+theorem erdos_392 (ε : ℝ) (hε : ε > 0) :
     ∀ᶠ n in .atTop, ∃ (t : ℕ) (a : Fin t → ℕ),
       ∏ i, a i = n.factorial ∧ ∀ i, a i ≤ n ^ 2 ∧
         t ≤ (n / 2) - n / (2 * Real.log n) + ε * n / Real.log n := by
@@ -2987,7 +2987,9 @@ theorem Solution_2 (ε : ℝ) (hε : ε > 0) :
       (fun x hx ↦ f.ha x (mem_toList.mp hx)) _
       (List.get_mem ..), ht_bound⟩
 
-#print axioms Solution_2
+#print axioms erdos_392
 -- 'Erdos392.Solution_2' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos392
+
+alias _root_.Erdos392.Solution_2 := _root_.Erdos392.erdos_392

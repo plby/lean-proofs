@@ -1123,7 +1123,7 @@ private lemma frequently_large_discrepancy {α : ℝ}
 at least a fixed positive multiple of `sqrt (N log N)` infinitely often for
 Lebesgue-almost every `α ∈ [0,1]`.  This is the negative resolution of both
 questions in Erdős Problem 992. -/
-theorem erdos_992 :
+theorem not_erdos_992 :
     ∃ x : ℕ → ℤ, StrictMono x ∧
       ∃ c : ℝ, 0 < c ∧
         ∀ᵐ α : ℝ ∂volume, α ∈ Icc 0 1 →
@@ -1142,4 +1142,6 @@ theorem erdos_992 :
 
 end Erdos992
 
-#print axioms Erdos992.erdos_992
+#print axioms Erdos992.not_erdos_992
+
+alias _root_.Erdos992.erdos_992 := _root_.Erdos992.not_erdos_992

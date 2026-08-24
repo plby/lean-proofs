@@ -34,11 +34,17 @@ theorem erdos_989_fixed_scale_explicit :
 /-- A checked counterexample to the abstract quantifier interchange used in
 the overstated global reading. -/
 theorem erdos_989_quantifier_counterexample :
-    HasFixedScaleButNoGlobalWitness :=
+    (∃ P : ℕ → ℕ → Prop,
+  (∀ scale : ℕ, ∃ witness : ℕ, P witness scale) ∧
+    ¬ ∃ witness : ℕ, ∀ scale : ℕ, P witness scale) :=
   hasFixedScaleButNoGlobalWitness
 
 /-- Main source-correct resolution of the fixed-scale construction. -/
-theorem erdos_989 : SourceCorrectFixedScaleResolution :=
+theorem erdos_989 : ((∃ C : ℝ, 0 < C ∧ ∃ R : ℝ, ∀ r ≥ R, ∃ A : Set Erdos989.Plane,
+  Erdos989.IsAdmissible A ∧ ∀ x : Erdos989.Plane,
+    Erdos989.diskError A x r ≤ C * Real.sqrt (r * Real.log r)) ∧ (∃ P : ℕ → ℕ → Prop,
+  (∀ scale : ℕ, ∃ witness : ℕ, P witness scale) ∧
+    ¬ ∃ witness : ℕ, ∀ scale : ℕ, P witness scale)) :=
   ⟨erdos_989_upper_bound, erdos_989_quantifier_counterexample⟩
 
 /-- The literal resolution contains the unsupported universal square-root

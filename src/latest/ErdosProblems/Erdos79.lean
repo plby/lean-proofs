@@ -51,12 +51,14 @@ of which is not Ramsey size linear while each of its proper ordinary subgraphs i
 linear.  `GraphCode` represents a finite graph on `Fin n`; `Isomorphic` is ordinary graph
 isomorphism, so pairwise non-isomorphism states infinitude of isomorphism classes rather than
 mere infinitude of labelled presentations. -/
-theorem erdos79 :
+theorem erdos_79 :
     ∃ f : ℕ → GraphCode,
       (∀ n, MinimallyNonRamseySizeLinear (f n)) ∧
       Pairwise fun i j ↦ ¬ Isomorphic (f i) (f j) :=
   exists_pairwise_nonisomorphic_sequence infinitudeInputs
 
-#print axioms erdos79
+#print axioms erdos_79
 
 end Erdos79
+
+alias _root_.Erdos79.erdos79 := _root_.Erdos79.erdos_79

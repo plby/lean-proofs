@@ -5,6 +5,9 @@ import Mathlib.NumberTheory.Divisors
 import Mathlib.Topology.Algebra.InfiniteSum.Defs
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
 
+open Filter
+open scoped Topology
+
 def Nat.IsSumDivisors (n : ℕ) : Prop :=
   ∃ S ⊆ n.properDivisors, ∑ d ∈ S, d = n
 
@@ -17,10 +20,6 @@ theorem erdos_469 :
   sorry
 
 end Erdos469
-
-open Filter
-
-open scoped Topology
 
 namespace Set
 

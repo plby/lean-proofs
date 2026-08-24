@@ -68,7 +68,7 @@ subtree.  Thus the hypotheses here are exactly the output needed from the
 tree argument, while the cycle construction itself does not mention a
 tree.
 -/
-theorem exists_distinct_cycle_lengths_of_uniform_detours
+theorem exists_distinct_cycle_lengths_of_uniform_detours_bounded
     {G : SimpleGraph V} {root a z : V} {i d : ℕ}
     (p : G.Walk a z) (hp : p.IsPath)
     (B : Finset V) (hB : ∀ b ∈ B, b ∈ p.support)
@@ -80,7 +80,7 @@ theorem exists_distinct_cycle_lengths_of_uniform_detours
     (hqBelow : ∀ b x, x ∈ (q b).support → x ≠ a → x ≠ b.1 →
       G.dist root x < i) :
     ∃ L : Finset ℕ, L.card = B.card ∧
-      ∀ l ∈ L, ∃ v : V, ∃ c : G.Walk v v,
+      ∀ l ∈ L, l ≤ p.length + d ∧ ∃ v : V, ∃ c : G.Walk v v,
         c.IsCycle ∧ c.length = l := by
   let f : ↑B → ℕ := fun b ↦ prefixLength p B hB b + d
   let L : Finset ℕ := B.attach.image f
@@ -113,9 +113,30 @@ theorem exists_distinct_cycle_lengths_of_uniform_detours
       apply hpbPath.isCycle_append (hqPath b).reverse hdisj
       right
       simpa [SimpleGraph.Walk.length_reverse, hqLength b] using hd
-    refine ⟨a, pb.append (q b).reverse, hcycle, ?_⟩
+    refine ⟨?_, a, pb.append (q b).reverse, hcycle, ?_⟩
+    · exact Nat.add_le_add_right (p.length_takeUntil_le_length (hB b.1 b.2)) d
     simp [f, prefixLength, pb, SimpleGraph.Walk.length_append,
       SimpleGraph.Walk.length_reverse, hqLength b]
+
+/-- The distinct-length conclusion without the additional upper bound. -/
+theorem exists_distinct_cycle_lengths_of_uniform_detours
+    {G : SimpleGraph V} {root a z : V} {i d : ℕ}
+    (p : G.Walk a z) (hp : p.IsPath)
+    (B : Finset V) (hB : ∀ b ∈ B, b ∈ p.support)
+    (hpLevel : ∀ x ∈ p.support, i ≤ G.dist root x)
+    (q : ∀ b : ↑B, G.Walk a b.1)
+    (hqPath : ∀ b, (q b).IsPath)
+    (hqLength : ∀ b, (q b).length = d)
+    (hd : 1 < d)
+    (hqBelow : ∀ b x, x ∈ (q b).support → x ≠ a → x ≠ b.1 →
+      G.dist root x < i) :
+    ∃ L : Finset ℕ, L.card = B.card ∧
+      ∀ l ∈ L, ∃ v : V, ∃ c : G.Walk v v,
+        c.IsCycle ∧ c.length = l := by
+  obtain ⟨L, hcard, hcycles⟩ :=
+    exists_distinct_cycle_lengths_of_uniform_detours_bounded p hp B hB
+      hpLevel q hqPath hqLength hd hqBelow
+  exact ⟨L, hcard, fun l hl ↦ (hcycles l hl).2⟩
 
 end
 

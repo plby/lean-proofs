@@ -894,7 +894,7 @@ lemma degree_multipartiteComplement {r n : ℕ}
 division-free form of
 `deg(v) > (r - 3/2 - 1/(2(r-1))) n`; its error term tends to zero as the
 number of parts tends to infinity. -/
-theorem erdos1078 {r n : ℕ} (hr : 2 ≤ r) (hn : 0 < n)
+theorem erdos_1078 {r n : ℕ} (hr : 2 ≤ r) (hn : 0 < n)
     (G : SimpleGraph (Fin r × Fin n))
     (hpart : IsPartite G Prod.fst)
     (hdegree : ∀ x,
@@ -912,4 +912,6 @@ theorem erdos1078 {r n : ℕ} (hr : 2 ≤ r) (hn : 0 < n)
 
 end Erdos1078
 
-#print axioms Erdos1078.erdos1078
+#print axioms Erdos1078.erdos_1078
+
+alias _root_.Erdos1078.erdos1078 := _root_.Erdos1078.erdos_1078

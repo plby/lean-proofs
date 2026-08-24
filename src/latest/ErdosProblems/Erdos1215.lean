@@ -129,7 +129,7 @@ theorem hasArbitrarilyLongCounterexamples :
 /-- The negative resolution of Erdős Problem 1215, stated without an
 abbreviation: no real constant bounds an escape path for every normalized
 positive-degree polynomial whose roots lie on the unit circle. -/
-theorem erdos_1215 :
+theorem not_erdos_1215 :
     ¬ ∃ C : ℝ, ∀ P : Polynomial ℂ,
       (P.eval 0 = 1 ∧ 0 < P.natDegree ∧
         ∀ z : ℂ, P.IsRoot z → ‖z‖ = 1) →
@@ -142,4 +142,6 @@ theorem erdos_1215 :
 
 end Erdos1215
 
-#print axioms Erdos1215.erdos_1215
+#print axioms Erdos1215.not_erdos_1215
+
+alias _root_.Erdos1215.erdos_1215 := _root_.Erdos1215.not_erdos_1215

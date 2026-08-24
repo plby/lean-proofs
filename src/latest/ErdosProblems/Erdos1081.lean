@@ -56,12 +56,14 @@ theorem specialBernaysLower : SpecialBernaysLower := by
 
 /-- Erdős's proposed asymptotic for sums of two positive squarefull numbers is
 false. -/
-theorem not_erdosConjecture : ¬ ErdosConjecture :=
+theorem not_erdos_1081 : ¬ (∃ c : ℝ, 0 < c ∧ Filter.Tendsto Erdos1081.normalizedCount Filter.atTop (nhds c)) :=
   not_erdosConjecture_of_specialBernaysLower specialBernaysLower
 
-#print axioms not_erdosConjecture
+#print axioms not_erdos_1081
 
 end
 
 
 end Erdos1081
+
+alias _root_.Erdos1081.not_erdosConjecture := _root_.Erdos1081.not_erdos_1081

@@ -449,7 +449,7 @@ $$G := \gcd\left(\binom{n}{i}, \binom{n}{j} \right) >
 -/
 set_option maxHeartbeats 1000000 in
 -- The final binomial-gcd estimate times out at the default heartbeat limit.
-theorem binomial_gcd_lower_bound (n i j : ℕ) (h2 : 2 ≤ i) (hij : i < j)
+theorem erdos_698 (n i j : ℕ) (h2 : 2 ≤ i) (hij : i < j)
     (hjn : j ≤ n / 2) :
     (Nat.gcd (Nat.choose n i) (Nat.choose n j) : ℝ) >
       (2 ^ i * Real.sqrt n) / (4 * i * Real.sqrt (i - 1)) := by
@@ -670,5 +670,7 @@ theorem binomial_gcd_lower_bound (n i j : ℕ) (h2 : 2 ≤ i) (hij : i < j)
 
 end Erdos698
 
-#print axioms Erdos698.binomial_gcd_lower_bound
+#print axioms Erdos698.erdos_698
 -- 'Erdos698.binomial_gcd_lower_bound' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos698.binomial_gcd_lower_bound := _root_.Erdos698.erdos_698

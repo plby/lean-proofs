@@ -1439,7 +1439,13 @@ theorem quadruple_free_bound (hFR : Theorem_2_2) :
 /-! ## §10. Theorem 1.2 -/
 
 /-- **Theorem 1.2** (Solymosi, 2004). -/
-theorem Theorem_1_2 (hFR : Theorem_2_2) :
+theorem Theorem_1_2 (hFR : (∀ ε : ℝ, ε > 0 → ∃ n₀ : ℕ,
+  ∀ (V : Finset ℕ) (E : Finset (Finset ℕ)),
+  V.card ≥ n₀ →
+  (∀ e ∈ E, e.card = 3 ∧ e ⊆ V) →
+  (∀ e ∈ E, ∃! K, K ⊆ V ∧ K.card ≥ 4 ∧
+    (∀ t ⊆ K, t.card = 3 → t ∈ E) ∧ e ⊆ K) →
+  (E.card : ℝ) < ε * (V.card : ℝ) ^ 3)) :
     ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
       ∀ S : Finset (ℤ × ℤ × ℤ), S ⊆ grid3 N →
         δ * (↑N) ^ 3 ≤ ↑S.card →
@@ -1510,7 +1516,7 @@ theorem Theorem_1_1 (hFR : Theorem_2_2) :
   convert Proposition_1_3 _ using 1
   exact Theorem_1_2 hFR
 
-theorem erdos658 :
+theorem erdos_658 :
     ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
       ∀ S : Finset (ℤ × ℤ), S ⊆ grid2 N →
         δ * (↑N) ^ 2 ≤ ↑S.card → ContainsSquare S :=
@@ -1522,8 +1528,10 @@ end
 -- 'Erdos658.Theorem_1_1' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms Theorem_1_2
 -- 'Erdos658.Theorem_1_2' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms erdos658
+#print axioms erdos_658
 -- 'Erdos658.erdos658' depends on axioms: [frankl_roedl_theorem, propext, Classical.choice,
 -- Quot.sound]
 
 end Erdos658
+
+alias _root_.Erdos658.erdos658 := _root_.Erdos658.erdos_658

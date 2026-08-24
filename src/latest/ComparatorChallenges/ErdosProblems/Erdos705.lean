@@ -38,12 +38,10 @@ end SimpleGraph
 
 namespace Erdos705
 
-open SimpleGraph
-
-theorem erdos_705 :
+theorem not_erdos_705 :
     ¬ ∃ k, ∀ V : Set ℝ², V.Finite →
-      (UnitDistancePlaneGraph V).girth ≥ k →
-      (UnitDistancePlaneGraph V).chromaticNumber ≤ 3 := by
+      (SimpleGraph.UnitDistancePlaneGraph V).girth ≥ k →
+      (SimpleGraph.UnitDistancePlaneGraph V).chromaticNumber ≤ 3 := by
   sorry
 
 end Erdos705

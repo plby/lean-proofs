@@ -462,14 +462,16 @@ lemma nonempty_aframe_of_card_edgeFinset_gt (he : n V ^ 2 / 4 < #(nimt C).edgeFi
 
 /-- **Erdős Problem 639.**
 Any edge 2-colouring of `K_n` with `n ≥ 10` has at most `n^2 / 4` `NIMT` edges. -/
-theorem erdos639 (hn : 10 ≤ n V) : #(nimt C).edgeFinset ≤ n V ^ 2 / 4 := by
+theorem erdos_639 (hn : 10 ≤ n V) : #(nimt C).edgeFinset ≤ n V ^ 2 / 4 := by
   by_contra! he
   obtain ⟨A⟩ := nonempty_aframe_of_card_edgeFinset_gt he
   grind [erdos639_pre hn A]
 
-#print axioms erdos639
+#print axioms erdos_639
 -- 'Erdos639.SimpleGraph.erdos639' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end SimpleGraph
 
 end Erdos639
+
+alias _root_.Erdos639.SimpleGraph.erdos639 := _root_.Erdos639.SimpleGraph.erdos_639

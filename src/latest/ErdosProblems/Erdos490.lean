@@ -3485,7 +3485,7 @@ theorem numerical_certificate :
 
 /-- If n is large enough, then every n-admissible pair satisfies
     |A|·|B| < 60 · n²/log n. -/
-theorem main_theorem :
+theorem erdos_490 :
     ∃ N₀ : ℕ, ∀ n : ℕ, N₀ ≤ n →
       ∀ A B : Finset ℕ,
         A ⊆ Finset.Icc 1 n → B ⊆ Finset.Icc 1 n →
@@ -3497,6 +3497,8 @@ theorem main_theorem :
   obtain ⟨N₀, hN₀⟩ := layer_weighted_bound lam0 mSeq gSeq hadm 60 hcert
   exact ⟨N₀, fun n hn A B hA hB hinj => hN₀ n hn A B ⟨hA, hB, hinj⟩⟩
 
-#print axioms main_theorem
+#print axioms erdos_490
 
 end Erdos490
+
+alias _root_.Erdos490.main_theorem := _root_.Erdos490.erdos_490

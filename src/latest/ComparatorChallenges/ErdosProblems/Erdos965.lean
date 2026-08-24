@@ -11,7 +11,7 @@ pair sums of different colors.  Thus the answer is negative.
 
 namespace Erdos965
 
-theorem erdos_965 :
+theorem not_erdos_965 :
     ¬ ∀ f : ℝ → Fin 2, ∃ A : Set ℝ, ¬ A.Countable ∧
       ∀ᵉ (a ∈ A) (b ∈ A) (c ∈ A) (d ∈ A), a ≠ b → c ≠ d →
         f (a + b) = f (c + d) := by

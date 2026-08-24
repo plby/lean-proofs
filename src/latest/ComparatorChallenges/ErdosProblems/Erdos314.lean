@@ -4,24 +4,10 @@ import Mathlib
 
 namespace Erdos314
 
-open Finset Real MeasureTheory intervalIntegral
-
-noncomputable section
-
-set_option linter.style.setOption false
-set_option linter.flexible false
-
-def harmonicPartialSum (n m : ℕ) : ℝ :=
+noncomputable def harmonicPartialSum (n m : ℕ) : ℝ :=
   ∑ ℓ ∈ Finset.Icc n m, (↑ℓ : ℝ)⁻¹
-end
-end Erdos314
 
-open Finset Real MeasureTheory intervalIntegral
-
-namespace Erdos314
-
-open scoped Classical in
-theorem main_theorem (c : ℝ) (hc : c > 0) :
+theorem erdos_314 (c : ℝ) (hc : c > 0) :
     ∀ N : ℕ, ∃ m n : ℕ, N ≤ n ∧
       1 ≤ harmonicPartialSum n m ∧ harmonicPartialSum n m ≤ 1 + c / (↑n) ^ 2 := by
   sorry

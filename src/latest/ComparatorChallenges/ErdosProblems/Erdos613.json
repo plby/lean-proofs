@@ -2,7 +2,7 @@
   "challenge_module": "Erdos613",
   "solution_module": "ErdosProblems.Erdos613",
   "theorem_names": [
-    "Erdos613.PikhurkoN5.main"
+    "Erdos613.PikhurkoN5.not_erdos_613"
   ],
   "permitted_axioms": [
     "propext",

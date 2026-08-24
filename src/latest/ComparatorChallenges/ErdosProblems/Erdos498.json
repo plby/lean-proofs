@@ -2,7 +2,7 @@
   "challenge_module": "Erdos498",
   "solution_module": "ErdosProblems.Erdos498",
   "theorem_names": [
-    "Erdos498.littlewood_offord_complex_bound"
+    "Erdos498.erdos_498"
   ],
   "permitted_axioms": [
     "propext",

@@ -2,8 +2,6 @@
 
 import Mathlib
 
-open Finset BigOperators
-
 namespace Erdos481
 
 variable {r : ℕ}
@@ -19,13 +17,7 @@ def A : ℕ → List ℕ+
   | 0 => []
   | 1 => [1]
   | n + 2 => T a b (A (n + 1))
-end Erdos481
 
-open Finset BigOperators
-
-namespace Erdos481
-
-open scoped Classical in
 theorem erdos_481 {r : ℕ} (a b : Fin r → ℕ+)
     (hr : 0 < r) (hC : 1 < C a) :
     ∃ k, 1 ≤ k ∧ ¬(A a b k).Nodup := by

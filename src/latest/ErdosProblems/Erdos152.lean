@@ -596,12 +596,12 @@ lemma tendsto_f : Tendsto f atTop atTop := by
 
 
 /-- Must `lim f n = ∞`? -/
-theorem erdos_152 : Tendsto f atTop atTop := by
+theorem erdos_152_unbounded : Tendsto f atTop atTop := by
   exact tendsto_f
 
 /-- `f n ≫ n ^ 2`, i.e. $f(n) = \Omega(n^2)$.
 This follows from the bound $f(n) \geq (n^2 - 100n - 16)/16$. -/
-theorem erdos_152.variants.square :
+theorem erdos_152 :
     (fun n => f n : ℕ → ℝ) ≫ (fun n => n ^ 2 : ℕ → ℝ) := by
   show (fun n : ℕ => (n : ℝ) ^ 2) =O[atTop] (fun n : ℕ => (f n : ℝ))
   rw [Asymptotics.isBigO_iff]
@@ -616,3 +616,5 @@ theorem erdos_152.variants.square :
   exact_mod_cast this
 
 end Erdos152
+
+alias Erdos152.erdos_152.variants.square := Erdos152.erdos_152

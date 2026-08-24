@@ -2,10 +2,11 @@
 
 import Mathlib
 
+open SimpleGraph Filter
+
 namespace Erdos1092
 
-open Classical SimpleGraph Finset Asymptotics Filter
-
+open scoped Classical in
 /--
 Let `f r m` be maximal such that if every `m`-vertex subgraph of any finite
 graph can be made `r`-colourable by deleting at most `f r m` edges, then the
@@ -24,7 +25,7 @@ theorem f_asymptotic_2 :
     ¬ (fun (n : ℕ) => (n : ℝ)) =o[atTop] (fun (n : ℕ) => (f 2 n : ℝ)) := by
   sorry
 
-theorem f_asymptotic_general :
+theorem not_erdos_1092 :
     ¬ ∀ r : ℕ,
       (fun n : ℕ => ((r : ℝ) * n)) =o[atTop]
         (fun n : ℕ => (f r n : ℝ)) := by

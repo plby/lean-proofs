@@ -3473,7 +3473,7 @@ theorem exists_recursiveCertificate : Nonempty RecursiveCertificate := by
     (FourBuild.finalRight ω) (ordinary_many_finalRight ω hcoverage)
   exact ⟨FourBuild.recursiveCertificate ω hactive hmanyL hmanyR⟩
 
-theorem erdos_869 :
+theorem not_erdos_869 :
     ¬ ∀ (A₁ A₂ : Set ℕ), Disjoint A₁ A₂ →
       IsBasis2 A₁ → IsBasis2 A₂ →
       ∃ D ⊆ A₁ ∪ A₂, IsBasis2 D ∧
@@ -3484,4 +3484,6 @@ theorem erdos_869 :
 
 end Erdos869
 
-#print axioms Erdos869.erdos_869
+#print axioms Erdos869.not_erdos_869
+
+alias _root_.Erdos869.erdos_869 := _root_.Erdos869.not_erdos_869

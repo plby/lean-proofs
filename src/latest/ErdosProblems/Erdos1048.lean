@@ -881,7 +881,16 @@ lemma connected_subset_le_diam {S : Set ℂ} (hS : Bornology.IsBounded S)
   · refine hS.subset ?_;
     exact Subtype.coe_image_subset S (connectedComponent ⟨x, hKS hxK_nonempty⟩)
 
-theorem not_erdos_1048 : ¬ erdos_1048 := by
+theorem not_erdos_1048 : ¬ (∀ f : ℂ[X],
+  f.Monic →
+  Polynomial.degree f ≥ 1 →
+∀ r : ℝ,
+  r < 2 →
+  (∀ z : ℂ, f.IsRoot z → ‖z‖ ≤ r) →
+    let U : Set ℂ := { z : ℂ | ‖f.eval z‖ < 1 }
+    ∃ x : ↥U,
+      (2 - r) ≤
+        Metric.diam (Subtype.val '' (connectedComponent x : Set (↥U)))) := by
   intro h_erdos_1048
   obtain ⟨N, hN⟩ :=
     (main_result (1.5 : ℝ) (by norm_num)).2 (0.5 : ℝ) (by norm_num)

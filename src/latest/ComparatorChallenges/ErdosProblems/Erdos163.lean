@@ -2,8 +2,6 @@
 
 import Mathlib
 
-open Finset
-
 namespace Erdos163
 
 universe u v

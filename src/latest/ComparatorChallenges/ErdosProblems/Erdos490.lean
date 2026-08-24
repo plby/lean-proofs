@@ -3,14 +3,9 @@
 import Mathlib
 import ErdosProblems.Axioms
 
-open scoped BigOperators
-
-open Finset BigOperators Nat Real
-
 namespace Erdos490
 
-open scoped Classical in
-theorem main_theorem :
+theorem erdos_490 :
     ∃ N₀ : ℕ, ∀ n : ℕ, N₀ ≤ n →
       ∀ A B : Finset ℕ,
         A ⊆ Finset.Icc 1 n → B ⊆ Finset.Icc 1 n →

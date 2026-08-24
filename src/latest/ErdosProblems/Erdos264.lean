@@ -637,7 +637,7 @@ Is $2^n$ an example of an irrationality sequence? Kovač and Tao proved that it 
 [KoTa24] Kovač, V. and Tao T., On several irrationality problems for
 Ahmes series. arXiv:2406.17593 (2024).
 -/
-theorem erdos_264.parts.i : ¬IsIrrationalitySequence (2 ^ ·) := by
+theorem not_erdos_264 : ¬IsIrrationalitySequence (2 ^ ·) := by
   -- Apply the theorem to obtain the sequence b_n and the rational q.
   obtain ⟨b, q, hb, hq⟩ := exists_bounded_seq_rational_sum;
   -- Since $b_n \ge 1$, we have $b_n \neq 0$ for all $n$.
@@ -1185,7 +1185,7 @@ set_option maxHeartbeats 50000000 in
 /--
 One example is $2^{2^n}$.
 -/
-theorem erdos_264.variants.example : IsIrrationalitySequence (fun n ↦ 2 ^ (2 ^ n)) := by
+theorem erdos_264_example : IsIrrationalitySequence (fun n ↦ 2 ^ (2 ^ n)) := by
   intro b hb hb₀ hb₁;
   -- Let $x_n = a_n + b_n$.
   set x : ℕ → ℕ := fun n => 2 ^ (2 ^ n) + b n;
@@ -1407,7 +1407,11 @@ theorem erdos_264.variants.example : IsIrrationalitySequence (fun n ↦ 2 ^ (2 ^
 
 end Erdos264
 
-#print axioms Erdos264.erdos_264.parts.i
+#print axioms Erdos264.not_erdos_264
 -- 'Erdos264.erdos_264.parts.i' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms Erdos264.erdos_264.variants.example
+#print axioms Erdos264.erdos_264_example
 -- 'Erdos264.erdos_264.variants.example' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos264.erdos_264.parts.i := _root_.Erdos264.not_erdos_264
+
+alias _root_.Erdos264.erdos_264.variants.example := _root_.Erdos264.erdos_264_example

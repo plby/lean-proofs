@@ -6140,7 +6140,11 @@ lemma not_erdos_707_integer_given_counterexample
 The Sidon set {1, 2, 4, 8} does not extend to a perfect difference set
 modulo p * p + p + 1 for any prime p.
 -/
-theorem not_erdos_707P : ¬ erdos_707_prime :=
+theorem not_erdos_707P : ¬ (∀ (A : Set ℕ), A.Finite → Erdos707.IsSidon A →
+  ∃ (B : Set ℤ) (p : ℕ),
+    Nat.Prime p ∧
+    (↑) '' A ⊆ B ∧
+    Erdos707.IsPerfectDifferenceSetModulo B (p * p + p + 1)) :=
   not_erdos_707_prime_given_counterexample
     counterexampleP
     counterexampleP_finite
@@ -6152,7 +6156,11 @@ theorem not_erdos_707P : ¬ erdos_707_prime :=
 The Sidon set {-8, -6, 0, 1, 4} does not extend to a perfect difference set
 modulo v for any nonnegative v.
 -/
-theorem not_erdos_707H : ¬ erdos_707_integer :=
+theorem not_erdos_707H : ¬ (∀ A : Set ℤ, A.Finite → Erdos707.IsSidon A →
+  ∃ (B : Set ℤ) (v : ℕ),
+    v ≠ 0 ∧
+    A ⊆ B ∧
+    Erdos707.IsPerfectDifferenceSetModulo B v) :=
   not_erdos_707_integer_given_counterexample
     counterexampleH
     counterexampleH_finite
@@ -6164,7 +6172,11 @@ theorem not_erdos_707H : ¬ erdos_707_integer :=
 The Sidon set {1, 3, 9, 10, 13} = 9 + {-8, -6, 0, 1, 4} does not extend
 to a perfect difference set modulo v for any nonnegative v.
 -/
-theorem not_erdos_707H2 : ¬ erdos_707 :=
+theorem not_erdos_707 : ¬ (∀ A : Set ℕ, A.Finite → Erdos707.IsSidon A →
+  ∃ (B : Set ℤ) (v : ℕ),
+    v ≠ 0 ∧
+    (↑) '' A ⊆ B ∧
+    Erdos707.IsPerfectDifferenceSetModulo B v) :=
   not_erdos_707_given_counterexample
     counterexampleH2
     counterexampleH2_finite
@@ -6190,7 +6202,9 @@ open Erdos707
 -- 'Erdos707.not_erdos_707P' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms not_erdos_707H
 -- 'Erdos707.not_erdos_707H' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms not_erdos_707H2
+#print axioms not_erdos_707
 -- 'Erdos707.not_erdos_707H2' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms not_erdos_707AM
 -- 'Erdos707.not_erdos_707AM' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos707.not_erdos_707H2 := _root_.Erdos707.not_erdos_707

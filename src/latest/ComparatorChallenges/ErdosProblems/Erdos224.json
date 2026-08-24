@@ -2,7 +2,7 @@
   "challenge_module": "Erdos224",
   "solution_module": "ErdosProblems.Erdos224",
   "theorem_names": [
-    "Erdos224.exists_obtuse_of_card_succ_pow_two"
+    "Erdos224.erdos_224"
   ],
   "permitted_axioms": [
     "propext",

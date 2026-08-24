@@ -4,30 +4,6 @@ import Mathlib
 
 namespace Erdos1026
 
-set_option linter.style.setOption false
-set_option linter.style.maxHeartbeats false
-set_option linter.style.whitespace false
-set_option linter.style.cdot false
-set_option linter.style.longLine false
-set_option linter.style.emptyLine false
-set_option linter.deprecated false
-set_option linter.flexible false
-set_option linter.unusedVariables false
-
-set_option aesop.warn.nonterminal false
-set_option maxHeartbeats 50000000
-noncomputable section AristotleLemmas
-
-end AristotleLemmas
-
-noncomputable section AristotleLemmas
-
-end AristotleLemmas
-
-noncomputable section AristotleLemmas
-
-end AristotleLemmas
-
 noncomputable def IsMonotoneSubseq {n : ℕ} (x : Fin n → ℝ) (m : ℕ) (s : Fin (m + 1) → Fin n) : Prop :=
   StrictMono s ∧
     (Monotone (fun i => x (s i)) ∨ Antitone (fun i => x (s i)))
@@ -48,12 +24,8 @@ noncomputable def c_opt (n : ℕ) : ℝ :=
       (∀ i, 0 < x i) ∧
       Function.Injective x ∧
       r = score x }
-end Erdos1026
 
-namespace Erdos1026
-
-open scoped Classical in
-theorem c_opt_eq_k_div_sq_add_a
+theorem erdos_1026
     (k n : ℕ) (a : ℤ)
     (hk : 1 < k)
     (ha_low : -k < a)

@@ -2,13 +2,8 @@
 
 import Mathlib
 
-open Set Topology
-
-noncomputable section
-
 namespace Erdos909
 
-open scoped Classical in
 theorem erdos_909 (n : ℕ) (hn : 2 ≤ n) :
     ∃ (S : Type) (_ : TopologicalSpace S),
       smallInductiveDimension S = n ∧
@@ -16,5 +11,3 @@ theorem erdos_909 (n : ℕ) (hn : 2 ≤ n) :
   sorry
 
 end Erdos909
-
-end

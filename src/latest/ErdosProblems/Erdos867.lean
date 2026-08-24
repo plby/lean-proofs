@@ -41,7 +41,7 @@ Coppersmith–Phillips (1996): `13N/24 - O(1) ≤ |A| ≤ (2/3 - 1/512)N + log N
 * `freudSet_csf`: proof that `freudSet` is consecutive-sum-free.
 * `construction_19_36`: for all `N`, there exists a CSF subset of
   `{1, …, N}` of size `≥ 19N/36 - O(1)`.
-* `csf_exceeds_half_plus_constant`: the conjecture `|A| ≤ N/2 + O(1)`
+* `not_erdos_867`: the conjecture `|A| ≤ N/2 + O(1)`
   is **false**.
 
 ## References
@@ -737,7 +737,7 @@ theorem construction_19_36 :
 /-- **Erdős Problem 867 (disproof).** It is false that every CSF subset of
 `{1, …, N}` satisfies `|A| ≤ N/2 + O(1)`. Freud's construction achieves
 density `19/36 > 1/2`. -/
-theorem csf_exceeds_half_plus_constant :
+theorem not_erdos_867 :
     ¬∃ C : ℕ, ∀ n : ℕ, ∀ S : Finset ℕ, S ⊆ Icc 1 n → ConsecutiveSumFree S → 2 * S.card ≤ n + C := by
   push Not; intro C
   obtain ⟨C', hC'⟩ := construction_19_36
@@ -750,6 +750,8 @@ open Erdos867
 
 #print axioms construction_19_36
 -- 'Erdos867.construction_19_36' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms csf_exceeds_half_plus_constant
+#print axioms not_erdos_867
 -- 'Erdos867.csf_exceeds_half_plus_constant' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
+
+alias _root_.Erdos867.csf_exceeds_half_plus_constant := _root_.Erdos867.not_erdos_867

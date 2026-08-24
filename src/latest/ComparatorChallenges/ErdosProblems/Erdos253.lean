@@ -2,9 +2,9 @@
 
 import Mathlib
 
-namespace Erdos253
-
 open scoped Topology
+
+namespace Erdos253
 
 def subsetSums {M : Type*} [AddCommMonoid M] (A : Set M) : Set M :=
   {n | ∃ B : Finset M, ↑B ⊆ A ∧ n = ∑ i ∈ B, i}
@@ -21,7 +21,7 @@ def Set.IsAPOfLength {α : Type*} [AddCommMonoid α]
 def RepresentsAPs (a : ℕ → ℕ) : Prop :=
   StrictMono a ∧ ∀ l, Set.IsAPOfLength l ⊤ → (subsetSums (Set.range a) ∩ l).Infinite
 
-theorem erdos_253 : ¬ ∀ a : ℕ → ℕ, 0 < a 0 →
+theorem not_erdos_253 : ¬ ∀ a : ℕ → ℕ, 0 < a 0 →
     RepresentsAPs a → (Filter.atTop.Tendsto (fun n ↦ (a <| n + 1 : ℝ) / a n) (𝓝 1)) →
       subsetSums (Set.range a) ∈ Filter.cofinite := by
   sorry

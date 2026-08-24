@@ -39,7 +39,8 @@ noncomputable section
 
 /-- Resolution of Erdős Problem 297 in natural-logarithm form.  The count is
 the exact rational reciprocal-sum count from `Basic.lean`. -/
-theorem erdos_297 : NaturalLogResolution := by
+theorem erdos_297 : (∃ lam : ℝ, Erdos297.IsUniqueCriticalParameter lam ∧
+  Filter.Tendsto Erdos297.logGrowth Filter.atTop (nhds (Erdos297.gamma lam))) := by
   obtain ⟨lam, hlam⟩ := exists_unique_criticalParameter
   refine ⟨lam, hlam, ?_⟩
   exact tendsto_logGrowth_of_eventual_bounds lam

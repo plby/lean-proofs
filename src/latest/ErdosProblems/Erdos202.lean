@@ -21767,7 +21767,7 @@ Combines:
 
 The historical omega-count and lower-bound input names now point to theorem
 aliases.  The current non-core trust boundary is visible through
-`#print axioms Erdos202.erdos202_main`: the only project-level dependency is
+`#print axioms Erdos202.erdos_202`: the only project-level dependency is
 the Park--Pham threshold package.
 
 Audit by uncommenting the `#print axioms` block below.
@@ -21789,7 +21789,7 @@ theorem erdos202_upper_bound_from_inputs :
 
 /-- **Erdős Problem 202 — main theorem.** The sharp BFV asymptotic
 `f(N) = N · exp(-(1 + o(1)) · sqrt(log N · log log N))`. -/
-theorem erdos202_main : Erdos202Statement := by
+theorem erdos_202 : (Erdos202.HasErdos202Asymptotic Erdos202.f) := by
   intro ε hε
   filter_upwards [bfv_lower_bound_theorem ε hε, f_upper_bound ε hε] with N hLow hUp
   exact ⟨hLow, hUp⟩
@@ -21802,13 +21802,13 @@ the standard Mathlib core axioms `propext`, `Classical.choice`, and
 -/
 
 -- #print axioms erdos202_upper_bound_from_inputs
--- #print axioms erdos202_main
+-- #print axioms erdos_202
 
 end Erdos202
 
 /-! ## Axiom audit -/
 
-#print axioms Erdos202.erdos202_main
+#print axioms Erdos202.erdos_202
 -- 'Erdos202.erdos202_main' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms Erdos202.ParkPham.park_pham_threshold_not_small_lt_exists
 -- 'Erdos202.ParkPham.park_pham_threshold_not_small_lt_exists' depends on axioms:
@@ -21825,3 +21825,5 @@ end Erdos202
 #print axioms Erdos202.bfv_lower_bound_theorem
 -- 'Erdos202.bfv_lower_bound_theorem' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
+
+alias _root_.Erdos202.erdos202_main := _root_.Erdos202.erdos_202

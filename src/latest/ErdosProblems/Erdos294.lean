@@ -42,7 +42,10 @@ noncomputable section
 /-- Resolution of Erdős Problem 294.  The lower bound has the explicit
 exponent `20` in place of the source's `(log log log N)^O(1)`; the constants
 on both sides are absolute and positive. -/
-theorem erdos_294 : Resolution := by
+theorem erdos_294 : (∃ (k : ℕ) (c C : ℝ), 0 < c ∧ 0 < C ∧
+  ∀ᶠ N : ℕ in Filter.atTop,
+    c * Erdos294.lowerProfile k N ≤ Erdos294.firstForbidden N ∧
+      (Erdos294.firstForbidden N : ℝ) ≤ C * Erdos294.upperProfile N) := by
   obtain ⟨k, c, hc, hlower⟩ :=
     SharpLower.eventually_lowerProfile_le_firstForbidden
   obtain ⟨C, hC, hupper⟩ := Upper.eventually_firstForbidden_le_upper

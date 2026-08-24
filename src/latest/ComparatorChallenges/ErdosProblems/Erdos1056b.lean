@@ -10,20 +10,13 @@ def AllModProdEqualsOne (p : ℕ) {k : ℕ} (boundaries : Fin (k + 1) → ℕ) :
   ∀ i : Fin k,
     (∏ n ∈ Finset.Ico (boundaries i.castSucc) (boundaries (i.castSucc + 1)), n) ≡ 1 [MOD p]
 
-def erdos_1056 : Prop :=
-    (∀ k ≥ 2, ∃ (p : ℕ) (_ : p.Prime) (boundaries : Fin (k + 1) → ℕ) (_ : StrictMono boundaries),
-    AllModProdEqualsOne p boundaries)
-end Erdos1056b
-
-open Nat
-
-namespace Erdos1056b
-
-open scoped Classical in
-theorem noll_simmons (h1056 : erdos_1056) :
-    (∀ᶠ k in Filter.atTop,
-    ∃ (p : ℕ) (_ : p.Prime) (Q : Fin k → ℕ) (_ : StrictMono Q) (_ : ∀ i, Q i < p),
-    ∀ i j : Fin k, (Q i)! ≡ (Q j)! [MOD p]) := by
+theorem erdos_1056
+    (h1056 : ∀ k ≥ 2, ∃ (p : ℕ) (_ : p.Prime)
+      (boundaries : Fin (k + 1) → ℕ) (_ : StrictMono boundaries),
+        AllModProdEqualsOne p boundaries) :
+    ∀ᶠ k in Filter.atTop,
+      ∃ (p : ℕ) (_ : p.Prime) (Q : Fin k → ℕ) (_ : StrictMono Q)
+        (_ : ∀ i, Q i < p), ∀ i j : Fin k, (Q i)! ≡ (Q j)! [MOD p] := by
   sorry
 
 end Erdos1056b

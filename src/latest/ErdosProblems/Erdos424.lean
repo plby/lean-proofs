@@ -6312,7 +6312,7 @@ by finite stages, whereas the main development uses the inductive predicate
 The linked conjecture currently uses `Set.HasPosDensity`, which asks for the
 existence of a full natural-density limit.  Erdős's intended question, and
 the theorem proved by Hofstadter's argument, concern positive lower density.
-The theorem `erdos_424_lower_density` below states that conclusion directly
+The theorem `erdos_424` below states that conclusion directly
 for the `formal-conjectures` generated set.
 -/
 
@@ -6406,10 +6406,12 @@ theorem generatedSet_has_positive_lower_density :
 
 open Classical in
 /-- The intended problem statement in the staged-set formulation. -/
-theorem erdos_424_lower_density :
+theorem erdos_424 :
     ∃ c : ℝ, 0 < c ∧ ∀ᶠ x : ℕ in Filter.atTop,
       c * (x : ℝ) ≤
         (((Finset.Icc 1 x).filter fun n ↦ n ∈ generatedSet).card : ℝ) :=
   generatedSet_has_positive_lower_density
 
 end Erdos424
+
+alias _root_.Erdos424.erdos_424_lower_density := _root_.Erdos424.erdos_424

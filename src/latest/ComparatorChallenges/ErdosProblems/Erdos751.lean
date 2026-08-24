@@ -28,7 +28,7 @@ end BV
 namespace Main
 
 omit [Fintype V] [DecidableEq V] [DecidableRel G.Adj] in
-theorem erdos_751_strong [Finite V]
+theorem erdos_751 [Finite V]
     (hχ : (4 : ℕ∞) ≤ G.chromaticNumber) :
     ∃ C1 C2 : BV.Cycle (G := G),
       Nat.dist (BV.Cycle.length (G := G) C1) (BV.Cycle.length (G := G) C2) = 1 ∨

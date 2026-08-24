@@ -2,14 +2,11 @@
 
 import Mathlib
 
-open Filter Topology
+open Filter
 open scoped ArithmeticFunction.sigma
-
-noncomputable section
 
 namespace Erdos823
 
-open scoped Classical in
 theorem erdos_823 :
     ∀ α : ℝ, 1 ≤ α →
       ∃ n m : ℕ → ℕ,
@@ -20,5 +17,3 @@ theorem erdos_823 :
   sorry
 
 end Erdos823
-
-end

@@ -2,7 +2,7 @@
   "challenge_module": "Erdos26",
   "solution_module": "ErdosProblems.Erdos26",
   "theorem_names": [
-    "Erdos26.erdos_26.variants.rusza"
+    "Erdos26.not_erdos_26"
   ],
   "permitted_axioms": [
     "propext",

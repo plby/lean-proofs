@@ -16,15 +16,13 @@ The second verifies that extension property for the prime-sum graph.
 
 namespace Erdos473
 
-open Function
-
 /-! ## A spanning ray from finite path extensions -/
 
 /-- If finite duplicate-free `R`-chains can always be extended, as prefixes,
 to contain any prescribed vertex, then any enumeration of the vertex type can
 be reordered into a spanning one-way `R`-chain. -/
 
-theorem erdos473 :
+theorem erdos_473 :
     ∃ a : ℕ ≃ ℕ+, ∀ n : ℕ,
       Nat.Prime ((a n : ℕ) + (a (n + 1) : ℕ)) := by
   sorry

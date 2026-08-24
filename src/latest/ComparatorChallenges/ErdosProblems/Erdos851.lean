@@ -2,14 +2,13 @@
 
 import Mathlib
 
+open Filter
+
 /-!
 # Erdős Problem 851
 
-The source-faithful formulation asks for lower density.
+The formulation uses lower density.
 -/
-
-open Filter
-open scoped Topology
 
 namespace Set
 

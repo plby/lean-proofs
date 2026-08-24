@@ -2,6 +2,8 @@
 
 import Mathlib
 
+open EuclideanGeometry
+
 scoped[EuclideanGeometry] notation "ℝ²" => EuclideanSpace ℝ (Fin 2)
 
 namespace Set
@@ -15,7 +17,6 @@ end Set
 
 def NonTrilinear (A : Set (EuclideanSpace ℝ (Fin 2))) : Prop :=
   A.Triplewise (fun x y z ↦ ¬ Collinear ℝ {x, y, z})
-open EuclideanGeometry
 
 namespace Erdos846
 
@@ -29,48 +30,9 @@ def WeaklyNonTrilinear (A : Set ℝ²) : Prop :=
   ∃ B : Finset (Set ℝ²), A = sSup B ∧ ∀ b ∈ B, NonTrilinear b
 end Prelims
 
-open MeasureTheory
-open Polynomial
-open scoped BigOperators
-open scoped ENNReal
-open scoped EuclideanGeometry
-open scoped InnerProductSpace
-open scoped intervalIntegral
-open scoped List
-open scoped Matrix
-open scoped Nat
-open scoped NNReal
-open scoped Pointwise
-open scoped ProbabilityTheory
-open scoped Real
-open scoped symmDiff
-open scoped Topology
-
-end Erdos846
-
-open EuclideanGeometry
-open MeasureTheory
-open Polynomial
-open scoped BigOperators
-open scoped ENNReal
-open scoped EuclideanGeometry
-open scoped InnerProductSpace
-open scoped intervalIntegral
-open scoped List
-open scoped Matrix
-open scoped Nat
-open scoped NNReal
-open scoped Pointwise
-open scoped ProbabilityTheory
-open scoped Real
-open scoped symmDiff
-open scoped Topology
-
-namespace Erdos846
-
-open scoped Classical in
-theorem erdos_846 : (False) ↔ ∀ᵉ (A : Set ℝ²) (ε > 0),
-    A.Infinite → NonTrilinearFor A ε → WeaklyNonTrilinear A := by
+theorem not_erdos_846 :
+    ¬ (∀ᵉ (A : Set ℝ²) (ε > 0),
+        A.Infinite → NonTrilinearFor A ε → WeaklyNonTrilinear A) := by
   sorry
 
 end Erdos846

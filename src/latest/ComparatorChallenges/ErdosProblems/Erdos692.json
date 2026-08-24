@@ -2,7 +2,7 @@
   "challenge_module": "Erdos692",
   "solution_module": "ErdosProblems.Erdos692",
   "theorem_names": [
-    "Erdos692.delta1_not_unimodal"
+    "Erdos692.not_erdos_692"
   ],
   "permitted_axioms": [
     "propext",

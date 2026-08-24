@@ -4671,7 +4671,7 @@ noncomputable def c_opt (n : ℕ) : ℝ :=
       Function.Injective x ∧
       r = score x }
 
-theorem c_opt_eq_k_div_sq_add_a
+theorem erdos_1026
     (k n : ℕ) (a : ℤ)
     (hk : 1 < k)
     (ha_low : -k < a)
@@ -4732,7 +4732,9 @@ theorem c_opt_eq_k_div_sq_add_a
           simp [x0] at h
           exact Fin.ext (by exact_mod_cast h)
 
-#print axioms c_opt_eq_k_div_sq_add_a
+#print axioms erdos_1026
 -- 'Erdos1026.c_opt_eq_k_div_sq_add_a' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1026
+
+alias _root_.Erdos1026.c_opt_eq_k_div_sq_add_a := _root_.Erdos1026.erdos_1026

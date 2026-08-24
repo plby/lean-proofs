@@ -2,6 +2,8 @@ import Mathlib.AlgebraicTopology.SimplexCategory.Basic
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Geometry.Euclidean.Angle.Unoriented.Affine
 
+open scoped EuclideanGeometry
+
 namespace Theorem8
 
 inductive Constructible : ℝ → Prop
@@ -25,8 +27,6 @@ theorem freek_08 :
     (¬ (∀ θ : ℝ, ConstructibleAngle θ → ConstructibleAngle (θ / 3))) ∧
     (¬ ∃ x : ℝ, x ^ 3 = (2 : ℝ) ∧ Constructible x) := by
   sorry
-
-open scoped EuclideanGeometry
 
 abbrev Point : Type := EuclideanSpace ℝ (Fin 2)
 

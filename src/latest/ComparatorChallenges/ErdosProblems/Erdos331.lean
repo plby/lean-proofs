@@ -2,35 +2,12 @@
 
 import Mathlib
 
-namespace Erdos331
-
-set_option linter.style.longLine false
-
-open scoped BigOperators
-open scoped Real
-open scoped Nat
-open scoped Pointwise
 open Nat Filter
-open scoped Asymptotics
 
-set_option relaxedAutoImplicit false
-set_option autoImplicit false
+namespace Erdos331
 
 @[instance_reducible] noncomputable def instDecidablePredNat_erdosProblems (A : Set Nat) : DecidablePred A :=
   Classical.decPred A
-
-end Erdos331
-
-open Erdos331
-
-open scoped BigOperators
-open scoped Real
-open scoped Nat
-open scoped Pointwise
-open Nat Filter
-open scoped Asymptotics
-
-namespace Erdos331
 
 attribute [local instance] instDecidablePredNat_erdosProblems
 
@@ -44,8 +21,7 @@ theorem main_theorem : ∃ (A' B' : Set ℕ),
     a₁ ≠ a₂ → a₁ - (a₂ : ℤ) ≠ b₁ - (b₂ : ℤ)) := by
   sorry
 
-open scoped Classical in
-theorem erdos_331 :
+theorem not_erdos_331 :
     ¬(∀ A B : Set ℕ,
       (fun (n : ℕ) ↦ (n : ℝ) ^ (1 / 2 : ℝ)) =O[atTop]
         (fun (n : ℕ) ↦ (count A n : ℝ)) →

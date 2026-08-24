@@ -779,7 +779,7 @@ lemma erdos_mordell_summation (R₁ R₂ R₃ d₁ d₂ d₃ a b c : ℝ)
   nlinarith
 
 /-- The Erdős-Mordell Theorem: R₁ + R₂ + R₃ ≥ 2 * (d₁ + d₂ + d₃). -/
-theorem erdos_mordell {A B C P : V}
+theorem erdos_898 {A B C P : V}
     (h_triangle : ¬ Collinear ℝ ({A, B, C} : Set V))
     (h_interior : P ∈ interior (convexHull ℝ ({A, B, C} : Set V))) :
     dist P A + dist P B + dist P C ≥
@@ -849,5 +849,7 @@ theorem erdos_mordell {A B C P : V}
 
 end Erdos898
 
-#print axioms Erdos898.erdos_mordell
+#print axioms Erdos898.erdos_898
 -- 'Erdos898.erdos_mordell' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos898.erdos_mordell := _root_.Erdos898.erdos_898

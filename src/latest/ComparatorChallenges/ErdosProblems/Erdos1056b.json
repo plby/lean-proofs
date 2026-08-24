@@ -2,7 +2,7 @@
   "challenge_module": "Erdos1056b",
   "solution_module": "ErdosProblems.Erdos1056b",
   "theorem_names": [
-    "Erdos1056b.noll_simmons"
+    "Erdos1056b.erdos_1056"
   ],
   "permitted_axioms": [
     "propext",

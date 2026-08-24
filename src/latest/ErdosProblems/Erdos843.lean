@@ -2336,7 +2336,8 @@ lemma ramseyBlockIntervals_overlappingUnbounded :
 /-- Resolution of Erdős Problem 843: in every two-colouring of the positive
 square values, every sufficiently large natural number is a sum of distinct
 squares of one colour. -/
-theorem erdos_843 : SquaresRamseyTwoComplete := by
+theorem erdos_843 : (∀ colour : ℕ → Fin 2, ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
+  Erdos843.MonochromaticSquareSum colour n) := by
   apply squaresRamseyTwoComplete_of_robust_blocks
     (block := fun k ↦ indexedSquareValues
       (Finset.univ : Finset (Fin (ramseyGroupCount k) × Fin 3)))

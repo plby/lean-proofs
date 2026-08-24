@@ -796,7 +796,10 @@ lemma not_polynomialGrowth_isBigO_of_lt {a b : ℝ} (hab : a < b) :
 
 /-- Erdős Problem 147 has a negative answer.  The witness is the bipartite,
 4-regular graph `C₁₂[2]`, whose extremal exponent is at most `139/84 < 5/3`. -/
-theorem not_erdosSimonovitsConjecture : ¬ErdosSimonovitsConjecture := by
+theorem not_erdos_147 :
+    ¬ (∀ (W : Type) [Fintype W] [Nonempty W]
+      (H : SimpleGraph W) [DecidableRel H.Adj] (r : ℕ),
+        H.IsBipartite → H.minDegree = r → HasConjecturedLowerBound H r) := by
   intro hconjecture
   obtain ⟨ε, hε, hlower⟩ := hconjecture (Fin 12 × Fin 2)
     counterexampleGraph 4 counterexampleGraph_isBipartite
@@ -809,6 +812,8 @@ theorem not_erdosSimonovitsConjecture : ¬ErdosSimonovitsConjecture := by
   exact (not_polynomialGrowth_isBigO_of_lt hlt)
     (hlower.trans counterexampleGraph_extremal_upper)
 
-#print axioms not_erdosSimonovitsConjecture
+#print axioms not_erdos_147
 
 end Erdos147
+
+alias _root_.Erdos147.not_erdosSimonovitsConjecture := _root_.Erdos147.not_erdos_147

@@ -2,7 +2,7 @@
   "challenge_module": "Erdos1090",
   "solution_module": "ErdosProblems.Erdos1090",
   "theorem_names": [
-    "Erdos1090.exists_set_with_strict_monochromatic_line_property"
+    "Erdos1090.erdos_1090"
   ],
   "permitted_axioms": [
     "propext",

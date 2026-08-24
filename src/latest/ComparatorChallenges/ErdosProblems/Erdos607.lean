@@ -4,20 +4,17 @@ import Mathlib
 import Submission.IsAffineLine
 
 open Filter
-open scoped BigOperators Real
-
-noncomputable section
 
 namespace Erdos607
 
-local instance instDecidableProp (p : Prop) : Decidable p :=
+noncomputable local instance instDecidableProp (p : Prop) : Decidable p :=
   Classical.propDecidable p
 
 abbrev Point := EuclideanSpace ℝ (Fin 2)
 
 abbrev Line := {ℓ : AffineSubspace ℝ Point // IsAffineLine ℓ}
 
-local instance : DecidableEq Line := Classical.decEq Line
+noncomputable local instance : DecidableEq Line := Classical.decEq Line
 
 noncomputable def pairLine (P : Finset Point) (pq : P.offDiag) : Line :=
   ⟨affineSpan ℝ ({pq.1.1, pq.1.2} : Set Point),
@@ -53,5 +50,3 @@ theorem erdos_607 :
   sorry
 
 end Erdos607
-
-end

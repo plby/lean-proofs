@@ -2,10 +2,8 @@
   "challenge_module": "Erdos318",
   "solution_module": "ErdosProblems.Erdos318",
   "theorem_names": [
-    "Erdos318.erdos_318.parts.i",
+    "Erdos318.not_erdos_318",
     "Erdos318.erdos_318.variants.infinite_AP",
-    "Erdos318.erdos_318.variants.univ",
-    "Erdos318.erdos_318.variants.odd",
     "Erdos318.erdos_318.variants.squares"
   ],
   "permitted_axioms": [

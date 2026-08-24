@@ -29,10 +29,8 @@ def HasDivergentGaps (P : Set ℕ) : Prop :=
   ∃ a : ℕ → ℕ, EnumeratesSmooth P a ∧
     Tendsto (fun i : ℕ => a (i + 1) - a i) atTop atTop
 
-def Problem240 : Prop :=
-  ∃ P : Set ℕ, P.Infinite ∧ IsPrimeSet P ∧ HasDivergentGaps P
-
-theorem erdos_240 : Problem240 := by
+theorem erdos_240 :
+    ∃ P : Set ℕ, P.Infinite ∧ Erdos240.IsPrimeSet P ∧ Erdos240.HasDivergentGaps P := by
   sorry
 
 end Erdos240

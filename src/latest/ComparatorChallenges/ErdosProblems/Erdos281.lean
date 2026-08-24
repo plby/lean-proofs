@@ -2,9 +2,9 @@
 
 import Mathlib
 
-namespace Erdos281
-
 open Filter Topology
+
+namespace Erdos281
 
 variable {n : ℕ → ℕ} (hmono : StrictMono n) (hnpos : ∀ i, 0 < n i)
 
@@ -26,15 +26,8 @@ def Erdos281Concl (n : ℕ → ℕ) (_hmono : StrictMono n) (_hnpos : ∀ i, 0 <
   ∀ ε : ℝ, 0 < ε →
     ∃ k : ℕ, ∀ a : Choice n,
       ∃ d : ℝ, HasIntDensity (avoidPrefix n a k) d ∧ d < ε
-end Erdos281
 
-open Filter Topology
-open scoped BigOperators
-
-namespace Erdos281
-
-open scoped Classical in
-theorem Erdos_281 (n : ℕ → ℕ) (hmono : StrictMono n) (hnpos : ∀ i, 0 < n i)
+theorem erdos_281 (n : ℕ → ℕ) (hmono : StrictMono n) (hnpos : ∀ i, 0 < n i)
     (h : Erdos281Hyp n hmono hnpos) : Erdos281Concl n hmono hnpos := by
   sorry
 

@@ -3193,12 +3193,14 @@ Therefore
 
 for all sufficiently large ell.
 -/
-theorem erdos1014 (k : ℕ) (hk : 3 ≤ k) :
+theorem erdos_1014 (k : ℕ) (hk : 3 ≤ k) :
     Tendsto (fun l => (ramseyNumber k (l + 1) : ℝ) / ramseyNumber k l) atTop (𝓝 1) := by
   exact ratio_tendsto_one_of_gap_div_critical_tendsto_zero k (by omega)
     (ramseyGap_div_critical_tendsto_zero k hk)
 
-#print axioms erdos1014
+#print axioms erdos_1014
 -- 'Erdos1014.erdos1014' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1014
+
+alias _root_.Erdos1014.erdos1014 := _root_.Erdos1014.erdos_1014

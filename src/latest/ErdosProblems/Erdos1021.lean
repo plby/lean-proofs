@@ -2339,11 +2339,15 @@ def ErdosProblem1021 : Prop :=
 
 /-- **Resolution of Erdős Problem 1021 (Conlon--Lee; sharp exponent due to
 Janzer).**  One may take `c_k = 1 / (4k - 6)`. -/
-theorem erdosProblem1021 : ErdosProblem1021 := by
+theorem erdos_1021 : (∀ k : ℕ, 3 ≤ k → ∃ c : ℝ, 0 < c ∧
+  Erdos1021.extremalGrowth (Erdos1021.cliqueSubdivision k) =O[Filter.atTop]
+    Erdos1021.polynomialGrowth (3 / 2 - c)) := by
   intro k hk
   exact ⟨janzerSaving k, janzerSaving_pos hk,
     cliqueSubdivision_extremal_upper hk⟩
 
-#print axioms erdosProblem1021
+#print axioms erdos_1021
 
 end Erdos1021
+
+alias _root_.Erdos1021.erdosProblem1021 := _root_.Erdos1021.erdos_1021

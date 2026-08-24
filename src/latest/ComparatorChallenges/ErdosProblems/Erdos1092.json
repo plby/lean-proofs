@@ -3,7 +3,7 @@
   "solution_module": "ErdosProblems.Erdos1092",
   "theorem_names": [
     "Erdos1092.f_asymptotic_2",
-    "Erdos1092.f_asymptotic_general"
+    "Erdos1092.not_erdos_1092"
   ],
   "permitted_axioms": [
     "propext",
@@ -12,4 +12,3 @@
   ],
   "enable_nanoda": true
 }
-

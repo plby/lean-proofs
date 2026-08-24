@@ -41,7 +41,12 @@ theorem geometryProducesTransfer : GeometryProducesTransfer :=
   Erdos957Case2SplitProduced.geometryProducesTransfer
 
 /-- Uniform linear-error form of Erdős Problem 957. -/
-theorem erdos957 : HasLinearErrorBound :=
+theorem erdos_957 : (∃ C : ℝ, 0 ≤ C ∧
+  ∀ (A : Finset Erdos957.Point) (d₁ dₖ : ℝ),
+    Erdos957.IsMinimumDistance A d₁ →
+    Erdos957.IsMaximumDistance A dₖ →
+    (Erdos957.multiplicity A d₁ : ℝ) * Erdos957.multiplicity A dₖ ≤
+      (9 / 8 : ℝ) * (A.card : ℝ) ^ 2 + C * A.card) :=
   erdos957_linearErrorBound_of_geometry geometryProducesTransfer
 
 /-- Literal uniform epsilon formulation of the `9 / 8 + o(1)` bound. -/
@@ -58,6 +63,8 @@ end
 end Erdos957
 
 #print axioms Erdos957.geometryProducesTransfer
-#print axioms Erdos957.erdos957
+#print axioms Erdos957.erdos_957
 #print axioms Erdos957.erdos957_asymptotic
 #print axioms Erdos957.erdos957_filter
+
+alias _root_.Erdos957.erdos957 := _root_.Erdos957.erdos_957

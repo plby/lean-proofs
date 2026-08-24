@@ -2000,9 +2000,17 @@ theorem erdos721Resolution_of_sourceTheorems
 /-- Unconditional resolution of Erdős Problem 721.  The Hunter source
 predicate follows from the finite torus construction formalized above, and
 the cyclic Bloom--Sisask endpoint is proved in `CyclicRothEndpoint`. -/
-theorem erdos721Resolution : Erdos721Resolution := by
+theorem erdos_721 : ((∃ c : ℝ, 0 < c ∧
+  ∀ᶠ k : ℕ in Filter.atTop,
+    Real.exp (c * (Real.log k) ^ 2 / Real.log (Real.log k)) ≤ (Erdos721.W3 k : ℝ)) ∧ (∃ C : ℝ, 0 < C ∧
+  ∀ᶠ k : ℕ in Filter.atTop,
+    (Erdos721.W3 k : ℝ) ≤ Real.exp (C * (Real.log k) ^ 9)) ∧ (∃ γ : ℝ, 0 < γ ∧ γ < 1 ∧
+  ∀ᶠ k : ℕ in Filter.atTop,
+    (Erdos721.W3 k : ℝ) < Real.exp ((k : ℝ) ^ γ))) := by
   exact erdos721Resolution_of_sourceTheorems
     (hunterColoringBound_of_hunterLowerBound hunterLowerBound)
     cyclicThreeAPSupersaturation
 
 end Erdos721
+
+alias _root_.Erdos721.erdos721Resolution := _root_.Erdos721.erdos_721

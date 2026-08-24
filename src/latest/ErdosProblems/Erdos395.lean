@@ -4053,7 +4053,7 @@ lemma normSq_le_two_iff (w : ℂ) :
 /-- **Resolution of Erdős Problem 395.**  There is one absolute positive
 constant such that every nonempty sequence of unit complex numbers has
 `1/n`-scale probability of a signed sum in the closed disk of radius `√2`. -/
-theorem erdos395 :
+theorem erdos_395 :
     ∃ c : ℝ, 0 < c ∧
       ∀ (n : ℕ), 0 < n → ∀ (z : Fin n → ℂ),
         (∀ i, ‖z i‖ = 1) →
@@ -4087,6 +4087,8 @@ theorem erdos395 :
     simpa only [Nat.cast_add, Nat.cast_mul, Nat.cast_ofNat,
       Nat.cast_one, normSq_le_two_iff] using hodd
 
-#print axioms erdos395
+#print axioms erdos_395
 
 end Erdos395
+
+alias _root_.Erdos395.erdos395 := _root_.Erdos395.erdos_395

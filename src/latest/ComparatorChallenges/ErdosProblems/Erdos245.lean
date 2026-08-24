@@ -3,7 +3,7 @@
 import Mathlib
 
 open Filter Set
-open scoped Pointwise Topology
+open scoped Pointwise
 
 namespace Erdos245
 

@@ -644,7 +644,7 @@ theorem density_bound : ∃ c > 0, ∃ x₀, ∀ x ≥ x₀, Set.ncard {a ∈ A 
 /-
 There exists a set A such that for large x, the number of elements of A up to x is O(x/log x), and every large integer is of the form 2^k + a with a in A.
 -/
-theorem thm_main : ∃ A : Set ℕ,
+theorem erdos_221 : ∃ A : Set ℕ,
   (∃ c > 0, ∃ x₀, ∀ x ≥ x₀, Set.ncard {a ∈ A | a ≤ x} ≤ c * x / Real.log x) ∧
   (∃ N₀, ∀ N ≥ N₀, ∃ k a, k ≥ 1 ∧ a ∈ A ∧ N = 2^k + a) := by
     obtain ⟨ c, hc, x₀, hx₀ ⟩ := density_bound;
@@ -652,7 +652,9 @@ theorem thm_main : ∃ A : Set ℕ,
     exact fun N a => thm_covering_explicit N a
 
 
-#print axioms thm_main
+#print axioms erdos_221
 -- 'Erdos221.thm_main' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos221
+
+alias _root_.Erdos221.thm_main := _root_.Erdos221.erdos_221

@@ -2,7 +2,7 @@
   "challenge_module": "Erdos1138",
   "solution_module": "ErdosProblems.Erdos1138",
   "theorem_names": [
-    "Erdos1138.erdos1138_corollary"
+    "Erdos1138.not_erdos_1138"
   ],
   "permitted_axioms": [
     "propext",

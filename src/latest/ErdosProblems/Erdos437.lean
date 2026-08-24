@@ -743,7 +743,10 @@ lemma rpow_one_sub_inv_lt_of_pow_lt {x c q : ℕ} (hq : 1 ≤ q)
 /-- Erdős Problem 437 has a positive answer: for every `ε > 0`, all
 sufficiently large cutoffs have a strictly increasing sequence in `[1,x]`
 with more than `x^(1-ε)` square partial products. -/
-theorem erdos437 : PositiveAnswer := by
+theorem erdos_437 :
+    ∀ ε : ℝ, 0 < ε → ∀ᶠ x : ℕ in atTop,
+      ∃ a : List ℕ, IsAdmissible x a ∧
+        (x : ℝ) ^ (1 - ε) < squarePartialProductCount a := by
   intro ε hε
   obtain ⟨q : ℕ, hqbound⟩ := exists_nat_gt (max (2 : ℝ) (1 / ε))
   have htwoR : (2 : ℝ) < q := (le_max_left _ _).trans_lt hqbound
@@ -766,4 +769,6 @@ theorem erdos437 : PositiveAnswer := by
 
 end Erdos437
 
-#print axioms Erdos437.erdos437
+#print axioms Erdos437.erdos_437
+
+alias _root_.Erdos437.erdos437 := _root_.Erdos437.erdos_437

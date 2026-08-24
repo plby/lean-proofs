@@ -3,7 +3,7 @@
   "solution_module": "ErdosProblems.Erdos119",
   "theorem_names": [
     "Erdos119.erdos_119.parts.iii_quantitative",
-    "Erdos119.erdos_119.parts.iii",
+    "Erdos119.erdos_119",
     "Erdos119.erdos_119.parts.ii",
     "Erdos119.erdos_119.parts.i"
   ],
@@ -14,4 +14,3 @@
   ],
   "enable_nanoda": true
 }
-

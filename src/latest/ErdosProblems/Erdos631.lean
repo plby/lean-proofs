@@ -1540,7 +1540,7 @@ theorem gutner_listChromaticNumber_eq_five :
 /-- **Resolution of Erdős Problem 631.** Every finite planar graph has list
 chromatic number at most five, and Gutner's finite planar graph shows that the
 constant five is best possible. -/
-theorem erdos631 :
+theorem erdos_631 :
     (∀ {V : Type*} [Fintype V] (G : SimpleGraph V), IsPlanar G →
       Erdos753.listChromaticNumber G ≤ 5) ∧
     (∃ G : SimpleGraph (Fin 86), IsPlanar G ∧
@@ -1550,6 +1550,8 @@ theorem erdos631 :
     exact planar_listChromaticNumber_le_five G hG
   · exact ⟨gutnerGraph, gutnerGraph_planar, gutner_listChromaticNumber_eq_five⟩
 
-#print axioms erdos631
+#print axioms erdos_631
 
 end Erdos631
+
+alias _root_.Erdos631.erdos631 := _root_.Erdos631.erdos_631

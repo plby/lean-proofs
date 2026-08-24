@@ -2,14 +2,11 @@
 
 import Mathlib
 
-open Filter Set
-open scoped BigOperators Pointwise Topology
-
-noncomputable section
+open Filter
+open scoped Topology
 
 namespace Erdos1096
 
-open scoped Classical in
 theorem erdos_1096 :
     ∃ ε > 0, ∀ q, 1 < q → q < 1 + ε →
     ∀ x : ℕ → ℝ, StrictMono x → Set.range x = { ∑ i ∈ S, q ^ i | S : Finset ℕ } →
@@ -17,5 +14,3 @@ theorem erdos_1096 :
   sorry
 
 end Erdos1096
-
-end

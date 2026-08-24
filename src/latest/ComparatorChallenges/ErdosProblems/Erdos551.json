@@ -3,7 +3,7 @@
   "solution_module": "ErdosProblems.Erdos551",
   "theorem_names": [
     "Erdos551.cycleCliqueRamseyProperty_exists",
-    "Erdos551.erdos_551_eventually"
+    "Erdos551.erdos_551"
   ],
   "permitted_axioms": [
     "propext",

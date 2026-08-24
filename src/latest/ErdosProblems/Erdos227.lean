@@ -2234,13 +2234,20 @@ end
 end Construction
 
 /-- Erdős Problem 227 has a negative answer: an ordinary nonzero limit exists. -/
-theorem erdos_227 : ¬ Erdos227Claim := by
+theorem not_erdos_227 :
+    ¬ (∀ (a : ℕ → ℂ) (f : ℂ → ℂ) (L : ℝ),
+      IsEntirePowerSeries a f →
+      IsTranscendentalSeries a →
+      Tendsto (fun r : ℝ ↦ maximumTerm a r / maximumModulus f r) atTop (𝓝 L) →
+      L = 0) := by
   intro hclaim
   have hzero := hclaim Construction.coeff Construction.function (1 / 2 : ℝ)
     Construction.counterexample.1 Construction.counterexample.2.1
     Construction.counterexample.2.2
   norm_num at hzero
 
-#print axioms erdos_227
+#print axioms not_erdos_227
 
 end Erdos227
+
+alias _root_.Erdos227.erdos_227 := _root_.Erdos227.not_erdos_227

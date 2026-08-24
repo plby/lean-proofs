@@ -2,9 +2,7 @@
 
 import Mathlib
 
-open Finset
-
-noncomputable section
+open SimpleGraph Filter
 
 namespace SimpleGraph
 
@@ -127,7 +125,7 @@ theorem ramseyProperty_exists (k l : ℕ) : ∃ n, RamseyProperty k l n := by
               exact hbad.2 _ ht''
             exact ramseyProperty_of_card (Gᶜ.card_neighborSet_eq_degree v) hprop H ⟨hcf, hif⟩
 
-def ramseyNumber (k l : ℕ) : ℕ :=
+noncomputable def ramseyNumber (k l : ℕ) : ℕ :=
   by
     classical
     exact Nat.find (ramseyProperty_exists k l)
@@ -139,11 +137,7 @@ lemma ramseyNumber_spec (k l : ℕ) : RamseyProperty k l (ramseyNumber k l) :=
 
 end Ramsey
 
-open scoped SimpleGraph
-
 namespace Erdos720
-
-open SimpleGraph
 
 /-- Every two-coloring of the host contains a monochromatic target copy. -/
 def Arrows {V W : Type*} (H : SimpleGraph V) (F : SimpleGraph W) : Prop :=
@@ -182,7 +176,7 @@ lemma exists_sizeRamseyWitness {W : Type*} [Fintype W] (F : SimpleGraph W) :
     simpa [H] using hF
 
 /-- The size-Ramsey number of a finite simple graph. -/
-def sizeRamsey {W : Type*} [Fintype W] (F : SimpleGraph W) : ℕ :=
+noncomputable def sizeRamsey {W : Type*} [Fintype W] (F : SimpleGraph W) : ℕ :=
   by
     classical
     exact Nat.find (exists_sizeRamseyWitness F)
@@ -192,10 +186,8 @@ def cycleVertexConstant : ℕ := 8520192
 def cycleRamseyEdgeConstant : ℕ :=
   4 * ((2 * cycleVertexConstant + 2) * cycleVertexConstant * cycleVertexConstant)
 
-open Filter Topology
-
 /-- The path and cycle size-Ramsey asymptotics, including effective bounds. -/
-theorem erdos_problem_720 :
+theorem erdos_720 :
     (¬ Tendsto (fun n : ℕ ↦
       (sizeRamsey (pathGraph (n + 1)) : ℝ) / n) atTop atTop) ∧
     Tendsto (fun n : ℕ ↦
@@ -209,5 +201,3 @@ theorem erdos_problem_720 :
   sorry
 
 end Erdos720
-
-end

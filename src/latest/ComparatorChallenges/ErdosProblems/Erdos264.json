@@ -2,8 +2,8 @@
   "challenge_module": "Erdos264",
   "solution_module": "ErdosProblems.Erdos264",
   "theorem_names": [
-    "Erdos264.erdos_264.parts.i",
-    "Erdos264.erdos_264.variants.example"
+    "Erdos264.not_erdos_264",
+    "Erdos264.erdos_264_example"
   ],
   "permitted_axioms": [
     "propext",

@@ -1643,7 +1643,13 @@ private lemma twoColor_eq_one (B : Set ℕ+) (n : ℕ+) :
 /-- Erdős Problem 1198 has a negative answer.  This is the exact negation of
 the statement above, for all two-colourings and all admissible nontrivial
 sums of products. -/
-theorem erdos1198 : ¬ Erdos1198Statement := by
+theorem not_erdos_1198 :
+    ¬ (∀ c : ℕ → Fin 2,
+      ∃ a : ℕ → ℕ, StrictMono a ∧ (∀ i, 0 < a i) ∧
+        ∃ color : Fin 2,
+          ∀ blocks : Finset (Finset ℕ),
+            Admissible blocks → Nontrivial blocks →
+              c (expressionValue a blocks) = color) := by
   classical
   obtain ⟨B, hnoFP, hnoSP⟩ := smith_two_cell_separation
   intro h1198
@@ -1683,6 +1689,8 @@ theorem erdos1198 : ¬ Erdos1198Statement := by
     intro z hz
     exact (twoColor_eq_one B z).mp (hFPcolor z hz)
 
-#print axioms erdos1198
+#print axioms not_erdos_1198
 
 end Erdos1198
+
+alias _root_.Erdos1198.erdos1198 := _root_.Erdos1198.not_erdos_1198

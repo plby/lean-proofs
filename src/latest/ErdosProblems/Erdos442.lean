@@ -992,7 +992,7 @@ lemma not_tendsto_atTop_of_eventually_le {f : ℝ → ℝ} {C : ℝ}
 
 /-- Erdős Problem 442 has a negative answer.  The set of squarefree semiprimes
 satisfies the hypothesis, while its normalized LCM energy is eventually bounded. -/
-theorem erdos_442 : ¬ ∀ (A : Set ℕ),
+theorem not_erdos_442 : ¬ ∀ (A : Set ℕ),
     Tendsto (fun x : ℝ ↦ 1 / Real.maxLogOne (Real.maxLogOne x) *
       ∑ n ∈ (A ∩ Icc 1 ⌊x⌋₊ : Set ℕ), (1 : ℝ) / n) atTop atTop →
     Tendsto (fun x : ℝ ↦ 1 / (∑ n ∈ (A ∩ Icc 1 ⌊x⌋₊ : Set ℕ),
@@ -1007,3 +1007,5 @@ theorem erdos_442 : ¬ ∀ (A : Set ℕ),
 end Counterexample
 
 end Erdos442
+
+alias _root_.Erdos442.erdos_442 := _root_.Erdos442.not_erdos_442

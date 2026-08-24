@@ -9,20 +9,6 @@ Every graph with no countable proper coloring contains all sufficiently large
 odd cycles.
 -/
 
-open Function Set SimpleGraph
-open scoped Ordinal
-
-namespace Erdos594
-
-noncomputable section
-
-variable {V : Type*}
-
-end
-
-end Erdos594
-
-open scoped Classical in
 theorem erdos_594 :
     ∀ (V : Type) (G : SimpleGraph V), IsEmpty (G.Coloring ℕ) →
       ∃ N : ℕ, ∀ k : ℕ, N ≤ k →

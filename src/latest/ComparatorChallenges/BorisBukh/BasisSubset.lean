@@ -2,9 +2,9 @@ import Mathlib.Data.Real.Basic
 import Mathlib.Data.Set.Card
 import Mathlib.LinearAlgebra.Basis.Defs
 
-namespace BasisSubset
-
 open scoped Pointwise
+
+namespace BasisSubset
 
 abbrev RealSpace (n : ℕ) : Type :=
   Fin n → ℝ

@@ -1269,10 +1269,12 @@ theorem erdos_559_fixed_degree_three : ¬FixedDegreeLinearSizeRamsey 3 := by
 
 /-- Negative resolution of Erdős Problem 559 (Rödl--Szemerédi): the fixed-degree
 linear size-Ramsey assertion is false. -/
-theorem erdos_559 : ¬Erdos559Statement := by
+theorem not_erdos_559 : ¬(∀ d : ℕ, Erdos559.FixedDegreeLinearSizeRamsey d) := by
   intro h
   exact erdos_559_fixed_degree_three (h 3)
 
 end Erdos559
 
-#print axioms Erdos559.erdos_559
+#print axioms Erdos559.not_erdos_559
+
+alias _root_.Erdos559.erdos_559 := _root_.Erdos559.not_erdos_559

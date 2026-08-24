@@ -1274,7 +1274,7 @@ Main theorem: Erdős Problem #369.
     there exists a with N/2 ≤ a-k+1 < ··· < a ≤ N and P⁺(m) ≤ m^ε
     for all m ∈ {a-k+1, ..., a}.
 -/
-theorem erdos_problem_369 (ε : ℝ) (hε : 0 < ε) (k : ℕ) (hk : 2 ≤ k) :
+theorem erdos_369 (ε : ℝ) (hε : 0 < ε) (k : ℕ) (hk : 2 ≤ k) :
     ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
       ∃ a : ℕ, N / 2 ≤ a - (k - 1) ∧ a ≤ N ∧ k ≤ a ∧
         ∀ j : ℕ, j < k → (Nat.largestPrimeFactor (a - j) : ℝ) ≤ ((a - j : ℕ) : ℝ) ^ ε := by
@@ -1284,5 +1284,7 @@ theorem erdos_problem_369 (ε : ℝ) (hε : 0 < ε) (k : ℕ) (hk : 2 ≤ k) :
 
 end Erdos369
 
-#print axioms Erdos369.erdos_problem_369
+#print axioms Erdos369.erdos_369
 -- 'Erdos369.erdos_problem_369' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos369.erdos_problem_369 := _root_.Erdos369.erdos_369

@@ -1996,15 +1996,17 @@ lemma exists_ball_in_harmonicSubseriesSet :
 
 /-- **Theorem 1** (Kovač, answering Erdős–Graham 1980):
 The set of harmonic subseries points has non-empty interior. -/
-theorem harmonicSubseriesSet_interior_nonempty :
+theorem erdos_268 :
     (interior harmonicSubseriesSet).Nonempty := by
   obtain ⟨center, radius, hr, hball⟩ := exists_ball_in_harmonicSubseriesSet
   exact ⟨center, interior_mono hball (mem_interior.mpr ⟨Metric.ball center radius,
     Subset.refl _, Metric.isOpen_ball, Metric.mem_ball_self hr⟩)⟩
 
-#print axioms harmonicSubseriesSet_interior_nonempty
+#print axioms erdos_268
 -- 'Erdos268.harmonicSubseriesSet_interior_nonempty' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
 end
 end Erdos268
+
+alias _root_.Erdos268.harmonicSubseriesSet_interior_nonempty := _root_.Erdos268.erdos_268

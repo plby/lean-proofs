@@ -18,11 +18,11 @@ open Nat
 def solutionSet : Set (ℕ × ℕ × ℕ) :=
     { (x, y, z) | 1 < x ∧ 1 < y ∧ 1 < z ∧ x ^ x * y ^ y = z ^ z }
 
-theorem erdos_674 : solutionSet.Nonempty := by
+theorem erdos_674_nonempty : solutionSet.Nonempty := by
   rw [solutionSet]
   exact ⟨⟨2 ^ 12 * 3 ^ 6, 2 ^ 8 * 3 ^ 8, 2 ^ 11 * 3 ^ 7⟩, by decide +kernel⟩
 
-theorem erdos_674_infinite : solutionSet.Infinite := by
+theorem erdos_674 : solutionSet.Infinite := by
   let i (n : ℕ) : ℕ := 2 ^ n
   let b (n : ℕ) : ℕ := i n - 1
   let K (n : ℕ) : ℕ := 2 ^ (2 * i n * (b n - n)) * (b n ^ b n) ^ 2
@@ -79,5 +79,7 @@ theorem erdos_674_infinite : solutionSet.Infinite := by
 
 end Erdos674
 
-#print axioms Erdos674.erdos_674_infinite
+#print axioms Erdos674.erdos_674
 -- 'Erdos674.erdos_674_infinite' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos674.erdos_674_infinite := _root_.Erdos674.erdos_674

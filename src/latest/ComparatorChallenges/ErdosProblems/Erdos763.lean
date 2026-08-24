@@ -2,17 +2,7 @@
 
 import Mathlib
 
-/-!
-# Erdős Problem 763
-
-The detailed mathematical argument and its formalization plan are in
-`tex/763.tex`.  We formalize the ordered additive convolution of the
-indicator of an arbitrary set `A ⊆ ℕ` and prove that its summatory function
-cannot differ from a positive linear function by `O(1)`.
--/
-
-open Filter Metric Set
-open scoped BigOperators Topology Asymptotics Real
+open Filter
 
 namespace Erdos763
 
@@ -29,31 +19,9 @@ noncomputable def representationCount (A : Set ℕ) (n : ℕ) : ℕ :=
 noncomputable def summatoryRepresentationCount (A : Set ℕ) (N : ℕ) : ℕ :=
   ∑ n ∈ Finset.range (N + 1), representationCount A n
 
-@[simp] lemma indicator_eq_one_iff {A : Set ℕ} {n : ℕ} :
-    indicator A n = 1 ↔ n ∈ A := by
-  classical
-  simp [indicator]
-
-@[simp] lemma indicator_le_one (A : Set ℕ) (n : ℕ) : indicator A n ≤ 1 := by
-  classical
-  by_cases hn : n ∈ A <;> simp [indicator, hn]
-
-@[simp] lemma norm_indicator_cast (A : Set ℕ) (n : ℕ) :
-    ‖(indicator A n : ℂ)‖ = indicator A n := by
-  classical
-  by_cases hn : n ∈ A <;> simp [indicator, hn]
-
 /-! ## Bounded power series and Parseval on a circle -/
 
-/-- The analytic function represented by a sequence of complex coefficients. -/
-noncomputable def powerSeriesValue (a : ℕ → ℂ) (z : ℂ) : ℂ :=
-  ∑' n : ℕ, a n * z ^ n
-
-/-- The degree `< K` truncation of a coefficient sequence. -/
-noncomputable def truncPolynomial (a : ℕ → ℂ) (r : ℝ) (K : ℕ) : Polynomial ℂ :=
-  ∑ n ∈ Finset.range K, Polynomial.monomial n (a n * (r : ℂ) ^ n)
-
-theorem erdos_763 :
+theorem not_erdos_763 :
     ¬ ∃ (A : Set ℕ) (c : ℝ), 0 < c ∧
       (fun N : ℕ ↦ (summatoryRepresentationCount A N : ℝ) - c * N) =O[atTop]
         (fun _N : ℕ ↦ (1 : ℝ)) := by

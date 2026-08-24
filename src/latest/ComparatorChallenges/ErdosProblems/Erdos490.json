@@ -2,7 +2,7 @@
   "challenge_module": "Erdos490",
   "solution_module": "ErdosProblems.Erdos490",
   "theorem_names": [
-    "Erdos490.main_theorem"
+    "Erdos490.erdos_490"
   ],
   "permitted_axioms": [
     "dusart_chebyshev",

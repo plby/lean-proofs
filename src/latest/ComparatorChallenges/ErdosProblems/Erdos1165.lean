@@ -2,8 +2,7 @@
 
 import Mathlib
 
-open Filter MeasureTheory ProbabilityTheory Set
-open scoped BigOperators ENNReal
+open Filter MeasureTheory
 
 namespace Erdos1165
 
@@ -23,10 +22,6 @@ def directionVector : Direction → Point
 
 noncomputable def fairStep : Measure Direction :=
   ProbabilityTheory.uniformOn Set.univ
-
-noncomputable instance : IsProbabilityMeasure fairStep := by
-  unfold fairStep
-  infer_instance
 
 noncomputable def fairSteps : Measure StepPath :=
   Measure.infinitePi fun _ : ℕ ↦ fairStep

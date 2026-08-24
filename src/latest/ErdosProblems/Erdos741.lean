@@ -80,7 +80,6 @@ def IsAddBasisOfOrder (A : Set ℕ) (r : ℕ) : Prop :=
 def IsSyndetic (S : Set ℕ) : Prop :=
   ∃ C, ∀ n, ∃ m ∈ S, n ≤ m ∧ m ≤ n + C
 
-
 def S_x (k : ℕ) : ℕ := 4 ^ (3 ^ k)
 def S_y (k : ℕ) : ℕ := 10 * 4 ^ (3 ^ k)
 
@@ -712,8 +711,6 @@ lemma cross_term_disjoint (A₁ A₂ : Set ℕ) (h_disj : Disjoint A₁ A₂) :
     rw [←h_empty]
     exact h_in_both
   exact h_false
-
-
 
 lemma sum_size_bound (X Y : Set ℕ) (N : ℕ) :
     ((X + Y) ∩ Iio N).ncard ≤ (X ∩ Iio N).ncard * (Y ∩ Iio N).ncard := by
@@ -1707,8 +1704,6 @@ lemma limit_lower_bound (A : Set ℕ) (α : ℝ) (h_dens : HasDensity A α) (ε 
   rw [←h_eq]
   exact h1
 
-
-
 lemma tendsto_2Sx : Filter.Tendsto (fun k => 2 * S_x k) Filter.atTop Filter.atTop := by
   have h_tendsto := tendsto_Sx
   exact Filter.tendsto_atTop_mono (fun k => by omega) h_tendsto
@@ -1892,8 +1887,6 @@ lemma algebra_fluctuation (Nx x y c : ℝ) (h_x_pos : x > 0) (h_y : y = 10 * x)
     linarith
   exact (le_div_iff₀ h_y_pos).mpr h_le
 
-
-
 lemma SandorA_fluctuation_bounds (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁ ∪ A₂)
     (h_disj : Disjoint A₁ A₂)
     (α₁ α₂ : ℝ) (h_dens1 : HasDensity (A₁ + A₁) α₁)
@@ -2048,8 +2041,6 @@ lemma SandorA_fluctuation_bounds (A₁ A₂ : Set ℕ) (h_union : SandorA = A₁
       (S_x k : ℝ) (S_y k : ℝ) c h_Sx_pos h_Sy_eq (hK1 k hk_K1) h_Nx_bound
   linarith
 
-
-
 lemma max_of_five (N1u N1l N2u N2l N_ext : ℕ) : ∃ Nmax :
     ℕ, Nmax ≥ N1u ∧ Nmax ≥ N1l ∧ Nmax ≥ N2u ∧ Nmax ≥ N2l ∧ Nmax ≥ N_ext := by
   use max (max (max N1u N1l) (max N2u N2l)) N_ext
@@ -2139,8 +2130,6 @@ lemma exists_erdos_counterexample : ∃ A :
   use SandorA
   exact ⟨SandorA_has_pos_density, SandorA_no_valid_partition⟩
 
-
-
 /-- Let $A\subseteq \mathbb{N}$ be such that $A+A$ has positive density.
 Can one always decompose $A=A_1\sqcup A_2$ such that $A_1+A_1$ and $A_2+A_2$
 both have positive density?
@@ -2159,7 +2148,6 @@ theorem erdos_741.parts.i : (False) ↔ ∀ A : Set ℕ, HasPosDensity (A + A) �
     rcases h2 with ⟨A₁, A₂, h_union, h_disj, h_A1, h_A2⟩
     have h3 := h_no_partition A₁ A₂ h_union h_disj
     exact h3 ⟨h_A1, h_A2⟩
-
 
 def P (k : ℕ) : ℕ := 100^k
 def y (k : ℕ) : ℕ := P k
@@ -2395,7 +2383,6 @@ lemma upperDensity_pos_implies_seq (S : Set ℕ) (h : 0 < upperDensity S) :
           (div_le_div_of_nonneg_right (mod_cast ? _) (by bound))⟩
   exact (Set.ncard_le_ncard fun and=>.imp_right (@·.out.le))
 
-
 lemma exists_N_sparse (A : Set ℕ) (c : ℝ) (hc : 0 < c)
     (f : ℕ → ℕ) (hf : StrictMono f)
     (h_sum : ∀ k, c ≤ (Set.ncard ((A + A) ∩ Set.Iic (f k)) : ℝ) / (f k : ℝ))
@@ -2428,7 +2415,6 @@ lemma exists_N_sparse (A : Set ℕ) (c : ℝ) (hc : 0 < c)
   exact (.trans (by rw [Nat.cast_succ])
     ((ge_of_eq (by rw [inv_mul_eq_div, mul_div_right_comm])).trans' (by
       nlinarith! [(‹∀ (x _), _ ≤ y› and (by valid)).trans' (by positivity)])))
-
 
 lemma exists_rapid_seq (P : ℕ → ℕ → Prop) (h_inf : ∀ K, ∃ N > K, P K N) :
     ∃ M : ℕ → ℕ, StrictMono M ∧ ∀ k, P (M k) (M (k + 1)) := by
@@ -2789,7 +2775,7 @@ both have positive upper density?
 
 The DeepMind prover agent found a formal proof for this statement
 -/
-theorem erdos_741.variants.upper : (True) ↔ ∀ A :
+theorem erdos_741.variants.erdos_741_iff : (True) ↔ ∀ A :
     Set ℕ, 0 < upperDensity (A + A) → ∃ A₁ A₂,
     A = A₁ ∪ A₂ ∧ Disjoint A₁ A₂ ∧ 0 < upperDensity (A₁ + A₁)
     ∧ 0 < upperDensity (A₂ + A₂) := by
@@ -2802,7 +2788,16 @@ theorem erdos_741.variants.upper : (True) ↔ ∀ A :
   · intro _
     trivial
 
-#print axioms erdos_741.variants.upper
+#print axioms erdos_741.variants.erdos_741_iff
 -- 'Erdos741.erdos_741.variants.upper' depends on axioms: [propext, Classical.choice, Quot.sound]
 
+theorem erdos_741.variants.erdos_741 :
+    ∀ A :
+        Set ℕ, 0 < upperDensity (A + A) → ∃ A₁ A₂,
+        A = A₁ ∪ A₂ ∧ Disjoint A₁ A₂ ∧ 0 < upperDensity (A₁ + A₁)
+        ∧ 0 < upperDensity (A₂ + A₂) := by
+  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using Erdos741.erdos_741.variants.erdos_741_iff
+
 end Erdos741
+
+alias _root_.Erdos741.erdos_741.variants.upper := _root_.Erdos741.erdos_741.variants.erdos_741_iff

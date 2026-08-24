@@ -2,12 +2,9 @@
 
 import Mathlib
 
-open Filter Finset Real
-open scoped BigOperators EuclideanGeometry Real
+open Filter
 
 namespace Erdos135
-
-set_option autoImplicit false
 
 /-- The Euclidean plane used in the public statement. -/
 abbrev Plane := EuclideanSpace ℝ (Fin 2)
@@ -25,9 +22,7 @@ def HasPhi45 (S : Finset Plane) : Prop :=
 noncomputable def distanceCount (S : Finset Plane) : ℕ :=
   (distinctDistances S).card
 
-open scoped LSeries.notation NNReal
-
-theorem erdos_135 :
+theorem not_erdos_135 :
     ∃ A : ℕ → Finset Plane,
       (∀ n : ℕ, (A n).card = n ∧ HasPhi45 (A n)) ∧
       (fun n : ℕ => (distanceCount (A n) : ℝ)) =O[atTop]

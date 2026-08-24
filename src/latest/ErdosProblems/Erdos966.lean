@@ -400,7 +400,7 @@ The set A is constructed as the image of a high-dimensional grid under a map
 that preserves arithmetic progressions, using the Hales-Jewett theorem to
 guarantee the monochromatic AP.
 -/
-theorem existence_of_AP_free_Ramsey_set :
+theorem erdos_966 :
     ∀ k r : ℕ,
       k ≥ 2 → r ≥ 2 →
         ∃ A : Set ℕ,
@@ -428,6 +428,8 @@ theorem existence_of_AP_free_Ramsey_set :
 
 end Erdos966
 
-#print axioms Erdos966.existence_of_AP_free_Ramsey_set
+#print axioms Erdos966.erdos_966
 -- 'Erdos966.existence_of_AP_free_Ramsey_set' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
+
+alias _root_.Erdos966.existence_of_AP_free_Ramsey_set := _root_.Erdos966.erdos_966

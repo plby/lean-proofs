@@ -562,7 +562,7 @@ lemma mono_card_ge_of_bad_small (N k : ℕ) (f : ℕ → Fin k)
   for every number of colors `k ≥ 1`, there is a threshold `N₀` so that for all `N ≥ N₀`,
   every `k`-coloring of `{1, ..., N}` yields at least `⌊c * N⌋` elements of `{1, ..., N}`
   that are representable as monochromatic sums `a + b` with `a ≠ b` and `f(a) = f(b)`. -/
-theorem monochromatic_sums_linear :
+theorem erdos_484 :
     ∃ c : ℝ, c > 0 ∧
       ∀ k : ℕ, k ≥ 1 →
         ∃ N₀ : ℕ, ∀ N : ℕ, N ≥ N₀ →
@@ -594,5 +594,7 @@ theorem monochromatic_sums_linear :
 
 end Erdos484
 
-#print axioms Erdos484.monochromatic_sums_linear
+#print axioms Erdos484.erdos_484
 -- 'Erdos484.monochromatic_sums_linear' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos484.monochromatic_sums_linear := _root_.Erdos484.erdos_484

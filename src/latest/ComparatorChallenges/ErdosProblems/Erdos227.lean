@@ -12,8 +12,8 @@ import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
 import Lean.Elab.Tactic.Omega
 
-open Filter Set
-open scoped BigOperators Topology
+open Filter
+open scoped Topology
 
 namespace Erdos227
 
@@ -29,14 +29,12 @@ def IsEntirePowerSeries (a : ℕ → ℂ) (f : ℂ → ℂ) : Prop :=
 def IsTranscendentalSeries (a : ℕ → ℂ) : Prop :=
   ¬ ∃ N : ℕ, ∀ n ≥ N, a n = 0
 
-def Erdos227Claim : Prop :=
-  ∀ (a : ℕ → ℂ) (f : ℂ → ℂ) (L : ℝ),
-    IsEntirePowerSeries a f →
-    IsTranscendentalSeries a →
-    Tendsto (fun r : ℝ ↦ maximumTerm a r / maximumModulus f r) atTop (𝓝 L) →
-    L = 0
-
-theorem erdos_227 : ¬ Erdos227Claim := by
+theorem not_erdos_227 :
+    ¬ (∀ (a : ℕ → ℂ) (f : ℂ → ℂ) (L : ℝ),
+      IsEntirePowerSeries a f →
+      IsTranscendentalSeries a →
+      Tendsto (fun r : ℝ ↦ maximumTerm a r / maximumModulus f r) atTop (𝓝 L) →
+      L = 0) := by
   sorry
 
 end Erdos227

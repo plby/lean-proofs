@@ -2676,7 +2676,7 @@ theorem theorem_estimate (A B : Set ℕ) (h_inf_A : A.Infinite) (h_inf_B : B.Inf
 /-
 Corollary 3.5: If A and B are exact complements, then A(x)B(x) - x tends to infinity.
 -/
-theorem corollary_erdos_785 (A B : Set ℕ) (h_inf_A : A.Infinite) (h_inf_B : B.Infinite)
+theorem erdos_785 (A B : Set ℕ) (h_inf_A : A.Infinite) (h_inf_B : B.Infinite)
     (h_pos_A : ∀ a ∈ A, a ≠ 0) (h_pos_B : ∀ b ∈ B, b ≠ 0)
     (h_hyp : exact_complements A B) :
     Filter.Tendsto (fun x : ℝ => counting_function A x * counting_function B x - x) Filter.atTop Filter.atTop := by
@@ -2714,5 +2714,7 @@ end
 
 end Erdos785
 
-#print axioms Erdos785.corollary_erdos_785
+#print axioms Erdos785.erdos_785
 -- 'Erdos785.corollary_erdos_785' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos785.corollary_erdos_785 := _root_.Erdos785.erdos_785

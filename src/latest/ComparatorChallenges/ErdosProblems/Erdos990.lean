@@ -4,8 +4,6 @@ import Mathlib.Analysis.SpecialFunctions.Complex.Arg
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
-open BigOperators Polynomial
-
 namespace Erdos990
 
 def IsArgument (z : ℂ) (θ : ℝ) : Prop :=
@@ -32,19 +30,15 @@ def HasRootsWithArguments (f : Polynomial ℂ) (d : ℕ) (z : Fin d → ℂ)
     f = Polynomial.C (f.coeff d) * ∏ i : Fin d, (Polynomial.X - Polynomial.C (z i)) ∧
     ∀ i : Fin d, IsArgument (z i) (θ i) ∧ θ i ∈ Set.Ico (0 : ℝ) (2 * Real.pi)
 
-def SparseErdosTuranEstimate : Prop :=
-  ∃ C : ℝ, 0 ≤ C ∧
-    ∀ (d : ℕ) (f : Polynomial ℂ) (z : Fin d → ℂ) (θ : Fin d → ℝ),
-      HasRootsWithArguments f d z θ →
-        ∀ α β : ℝ,
-          0 ≤ α → α ≤ β → β ≤ 2 * Real.pi →
-            |(argumentCount θ α β : ℝ) - ((β - α) / (2 * Real.pi)) * d| ≤
-              C * Real.sqrt
-                ((coeffSupportCardUpTo f d : ℝ) * Real.log (coefficientRatio f d))
 end Erdos990
 
-open scoped Classical in
-theorem Erdos990.erdos990 :
-    Not Erdos990.SparseErdosTuranEstimate
-  := by
+theorem Erdos990.erdos_990 :
+    Not (∃ C : ℝ, 0 ≤ C ∧
+      ∀ (d : ℕ) (f : Polynomial ℂ) (z : Fin d → ℂ) (θ : Fin d → ℝ),
+        Erdos990.HasRootsWithArguments f d z θ →
+          ∀ α β : ℝ,
+            0 ≤ α → α ≤ β → β ≤ 2 * Real.pi →
+              |(Erdos990.argumentCount θ α β : ℝ) - ((β - α) / (2 * Real.pi)) * d| ≤
+                C * Real.sqrt
+                  ((Erdos990.coeffSupportCardUpTo f d : ℝ) * Real.log (Erdos990.coefficientRatio f d))) := by
   sorry

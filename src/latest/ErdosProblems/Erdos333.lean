@@ -84,11 +84,8 @@ lemma J_card (N : ℕ) (_ : 2 ≤ N) : (J N).card = N - N / 2 := by
   rw [Nat.card_Ioc]
 
 lemma J_card_eq_half (N : ℕ) (hN : Even N) (hN_pos : 0 < N) : (J N).card = N / 2 := by
-  simp only [J]
-  rw [Nat.card_Ioc]
-  have : N / 2 ≤ N := Nat.div_le_self N 2
-  have h2 : N = 2 * (N / 2) := (Nat.two_mul_div_two_of_even hN).symm
-  omega
+  exact (Nat.card_Ioc (N / 2) N).trans
+    (Nat.sub_eq_of_eq_add ((Nat.two_mul_div_two_of_even hN).symm.trans (two_mul (N / 2))))
 
 /-- m(N) = ⌊ε√N⌋, the threshold for "small" sets. -/
 def m (N : ℕ) : ℕ := ⌊epsilon * Real.sqrt N⌋₊
@@ -1327,7 +1324,7 @@ lemma A_covered_by_B_implies_local
 /-- Main Theorem: There exists a set A ⊆ ℕ of density 0 such that
     no B with A ⊆ B+B can have |B ∩ [0,N]| = o(√N).
     This negatively answers Erdős Problem 333. -/
-theorem main_obstruction :
+theorem not_erdos_333 :
     (Filter.Tendsto (fun N : ℕ => (@Finset.filter ℕ (fun x => x ∈ A) (Classical.decPred _)
       (Finset.Icc 0 N)).card / (N : ℝ)) Filter.atTop (nhds 0)) ∧
     ¬∃ B : Set ℕ, (A ⊆ {x | ∃ b b' : ℕ, b ∈ B ∧ b' ∈ B ∧ x = b + b'}) ∧
@@ -1401,7 +1398,9 @@ theorem main_obstruction :
 
 end
 
-#print axioms main_obstruction
+#print axioms not_erdos_333
 -- 'Erdos333.main_obstruction' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos333
+
+alias _root_.Erdos333.main_obstruction := _root_.Erdos333.not_erdos_333

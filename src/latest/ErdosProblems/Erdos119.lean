@@ -1684,7 +1684,7 @@ $\sum_{k \leq n} M_k > n^{1 + c}$?
 
 The proof below gives the affirmative answer with $c=1/256$.
 -/
-theorem erdos_119.parts.iii :
+theorem erdos_119 :
     ∀ (z : ℕ → ℂ) (_ : ∀ i : ℕ, ‖z i‖ = 1),
       ∃ (c : ℝ) (_ : c > 0), ∀ᶠ n in atTop,
         ∑ k ∈ range n, M z k > n ^ (1 + c) := by
@@ -1713,7 +1713,7 @@ theorem erdos_119.parts.ii :
     ∀ (z : ℕ → ℂ) (_ : ∀ i : ℕ, ‖z i‖ = 1),
       ∃ (c : ℝ) (_ : c > 0), Infinite {n : ℕ | M z n > n ^ c} := by
   intro z hz
-  obtain ⟨c, hc, hsum⟩ := erdos_119.parts.iii z hz
+  obtain ⟨c, hc, hsum⟩ := erdos_119 z hz
   refine ⟨c, hc, Set.infinite_coe_iff.mpr ?_⟩
   have hlarge :
       ∀ᶠ n : ℕ in atTop, ∃ k : ℕ, k < n ∧ (n : ℝ) ^ c < M z k := by
@@ -1780,9 +1780,11 @@ end Erdos119
 #print axioms Erdos119.erdos_119.parts.iii_quantitative
 -- 'Erdos119.erdos_119.parts.iii_quantitative' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
-#print axioms Erdos119.erdos_119.parts.iii
+#print axioms Erdos119.erdos_119
 -- 'Erdos119.erdos_119.parts.iii' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms Erdos119.erdos_119.parts.ii
 -- 'Erdos119.erdos_119.parts.ii' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms Erdos119.erdos_119.parts.i
 -- 'Erdos119.erdos_119.parts.i' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos119.erdos_119.parts.iii := _root_.Erdos119.erdos_119

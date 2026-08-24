@@ -702,7 +702,8 @@ def erdos_34 : Prop :=
   ∀ (c : ℝ), c > 0 → ∃ N, ∀ n ≥ N, ∀ (p : Equiv.Perm (Fin n)),
       (perm_consecutive_sums n p).card < c * n^2
 
-theorem not_erdos_34 : ¬ erdos_34 := by
+theorem not_erdos_34 : ¬ (∀ (c : ℝ), c > 0 → ∃ N, ∀ n ≥ N, ∀ (p : Equiv.Perm (Fin n)),
+    (Erdos34.perm_consecutive_sums n p).card < c * n^2) := by
   intro h
   rcases exists_perm_not_small_o with ⟨c, hc_pos, hlarge⟩
   rcases h c hc_pos with ⟨N, hN⟩

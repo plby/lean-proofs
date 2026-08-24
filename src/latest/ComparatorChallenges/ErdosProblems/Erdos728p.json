@@ -2,8 +2,8 @@
   "challenge_module": "Erdos728p",
   "solution_module": "ErdosProblems.Erdos728p",
   "theorem_names": [
-    "Erdos728p.theorem_1_1",
-    "Erdos728p.theorem_1_2"
+    "Erdos728p.erdos_728",
+    "Erdos728p.erdos_728_intrinsic"
   ],
   "permitted_axioms": [
     "propext",

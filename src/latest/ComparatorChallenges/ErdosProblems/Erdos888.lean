@@ -2,14 +2,14 @@
 
 import Mathlib
 
+open Filter
+
 /-!
 # Erdős Problem 888
 
 The largest admissible subset of `{1, ..., n}` has order
 `n * log (log n) / log n`.
 -/
-
-open Filter
 
 namespace Erdos888
 

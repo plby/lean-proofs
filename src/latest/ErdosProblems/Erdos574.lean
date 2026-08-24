@@ -340,7 +340,10 @@ private theorem scaled_constant_gap (q₀ : ℕ) (hq₀ : 0 < q₀) :
       mul_lt_mul_of_pos_right conjectured_constant_strictly_too_small (pow_pos hqreal 4)
 
 /-- Erdős Problem 574 has a negative answer.  The asserted asymptotic fails already at `k = 3`. -/
-theorem not_erdos_574 : ¬ erdos_574 := by
+theorem not_erdos_574 :
+    ¬ (∀ k : ℕ, 2 ≤ k →
+      (fun n : ℕ ↦ (consecutiveCycleExtremalNumber k n : ℝ)) ~[atTop]
+        erdos574Comparison k) := by
   intro h574
   have hequiv := h574 3 (by omega)
   have hsmall := hequiv.isLittleO.def (by norm_num : (0 : ℝ) < 1 / 10)

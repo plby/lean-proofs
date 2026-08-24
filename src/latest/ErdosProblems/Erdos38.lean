@@ -2407,7 +2407,7 @@ noncomputable section
     and a function f with f(α) > 0 for 0 < α < 1, such that for every A ⊆ ℕ with
     Schnirelmann density α and every N ≥ 1, there exists b ∈ B with
     |(A ∪ (A+b)) ∩ {1,...,N}| ≥ (α + f(α))N. -/
-theorem erdos_problem_38 :
+theorem erdos_38 :
     ∃ (B : Set ℕ) (f : ℝ → ℝ),
       ¬IsAdditiveBasis B ∧
         (∀ α : ℝ, 0 < α → α < 1 → 0 < f α) ∧
@@ -2429,9 +2429,11 @@ theorem erdos_problem_38 :
   · intro A hα0 hα1 N hN
     exact density_increment d A N hN hα0 hα1
 
-#print axioms erdos_problem_38
+#print axioms erdos_38
 -- 'Erdos38.erdos_problem_38' depends on axioms: [propext, choice, Quot.sound]
 
 end
 
 end Erdos38
+
+alias _root_.Erdos38.erdos_problem_38 := _root_.Erdos38.erdos_38

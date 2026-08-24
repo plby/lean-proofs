@@ -2,20 +2,7 @@
 
 import Mathlib
 
-/-!
-# Erdős Problem 697
-
-For `m : ℕ` and `α : ℝ`, let `divisorSet m α` be the natural numbers
-divisible by a `d ≡ 1 (mod m)` with `1 < d < exp (m ^ α)`. Hall's sharp
-transition for the density of this set occurs at `1 / log 2`.
-
-The hypotheses in the two limit declarations in the upstream
-`formal-conjectures` file are reversed. The corrected directions below
-agree with its prose and with Hall's theorem: the limit is zero below the
-critical exponent and one above it.
--/
-
-open Filter Set Real
+open Filter
 open scoped Topology
 
 namespace Set

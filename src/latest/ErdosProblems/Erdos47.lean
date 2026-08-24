@@ -481,7 +481,7 @@ theorem unit_fractions_upper_log_density :
   have hnA' : n ∈ A' := (Finset.mem_sdiff.mp hnA'').1
   exact (Finset.mem_filter.mp hnA').1
 
-theorem erdos47_bloom :
+theorem erdos_47_quantitative :
     ∃ C : ℝ, 0 < C ∧ ∃ N₀ : ℕ, ∀ N ≥ N₀, ∀ A : Finset ℕ,
       A ⊆ Finset.Icc 1 N →
       C * ((log (log (log (N : ℝ))) / log (log (N : ℝ))) * log (N : ℝ)) < rec_sum A →
@@ -492,13 +492,13 @@ theorem erdos47_bloom :
   intro N hN A hA hrec
   exact hN₀ N hN A hA (le_of_lt hrec)
 
-theorem erdos47 :
+theorem erdos_47 :
     ∀ δ > 0, ∃ N₀ : ℕ, ∀ N ≥ N₀, ∀ A : Finset ℕ,
       A ⊆ Finset.Icc 1 N →
       δ * log N < rec_sum A →
       ∃ S ⊆ A, rec_sum S = 1 := by
   intro δ hδ
-  rcases erdos47_bloom with ⟨C, hC, N₁, hBloom⟩
+  rcases erdos_47_quantitative with ⟨C, hC, N₁, hBloom⟩
   have hδC : 0 < δ / C := div_pos hδ hC
   have haux := Real.isLittleO_log_id_atTop.bound hδC
   have hcompare :
@@ -539,9 +539,13 @@ theorem erdos47 :
   refine hBloom N hN₁' A hA ?_
   exact lt_of_le_of_lt (hN₂ N hN₂') hsum
 
-#print axioms erdos47_bloom
+#print axioms erdos_47_quantitative
 -- 'Erdos47.erdos47_bloom' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms erdos47
+#print axioms erdos_47
 -- 'Erdos47.erdos47' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos47
+
+alias _root_.Erdos47.erdos47 := _root_.Erdos47.erdos_47
+
+alias _root_.Erdos47.erdos47_bloom := _root_.Erdos47.erdos_47_quantitative

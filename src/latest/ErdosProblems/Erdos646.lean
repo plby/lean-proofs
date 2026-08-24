@@ -784,7 +784,7 @@ lemma exists_rich_block (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i).Prime) 
 There are infinitely many n such that n! is divisible by an even power of each of the p_i.
 -/
 set_option linter.flexible false in
-theorem infinitely_many_even_factorial_exponents (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i).Prime) (h_distinct : Function.Injective p) :
+theorem erdos_646 (k : ℕ) (p : Fin k → ℕ) (hp : ∀ i, (p i).Prime) (h_distinct : Function.Injective p) :
   Set.Infinite { n | ∀ i, partial_sum k p n i = 0 } := by
     -- By induction on $N$, we can construct an infinite sequence of such $n$.
     have h_seq : ∀ N : ℕ, ∃ n > N, ∀ i, (partial_sum k p n i) = 0 := by
@@ -808,8 +808,10 @@ theorem infinitely_many_even_factorial_exponents (k : ℕ) (p : Fin k → ℕ) (
         simp_all +decide [ funext_iff ];
     exact Set.infinite_of_forall_exists_gt fun N => by obtain ⟨ n, hn₁, hn₂ ⟩ := h_seq N; exact ⟨ n, hn₂, hn₁ ⟩ ;
 
-#print axioms infinitely_many_even_factorial_exponents
+#print axioms erdos_646
 -- 'Erdos646.infinitely_many_even_factorial_exponents' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
 
 end Erdos646
+
+alias _root_.Erdos646.infinitely_many_even_factorial_exponents := _root_.Erdos646.erdos_646

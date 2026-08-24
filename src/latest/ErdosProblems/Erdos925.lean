@@ -701,12 +701,17 @@ theorem projective_eventual_counterexamples :
 
 /-! ## Resolution -/
 
-theorem erdos_925 : ¬ ProposedBound := by
+theorem not_erdos_925 : ¬ (∃ δ c : ℝ, 0 < δ ∧ 0 < c ∧ ∃ threshold : ℕ,
+  ∀ (n : ℕ) (G : SimpleGraph (Fin n)), threshold ≤ n →
+    Erdos925.AdmitsTriangleFreeTwoColoring G →
+      c * (n : ℝ) ^ ((1 : ℝ) / 3 + δ) ≤ (G.indepNum : ℝ)) := by
   obtain ⟨A, hA, hwitness⟩ := projective_eventual_counterexamples
   exact eventual_counterexamples_refute_proposedBound hA hwitness
 
-#print axioms Erdos925.erdos_925
+#print axioms Erdos925.not_erdos_925
 
 end
 
 end Erdos925
+
+alias _root_.Erdos925.erdos_925 := _root_.Erdos925.not_erdos_925

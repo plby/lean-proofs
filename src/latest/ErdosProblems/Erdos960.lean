@@ -1525,7 +1525,7 @@ that `NoKCollinear A k` means no `k` points of `A` lie on one line.
 The first conjunct records the APSSV quadratic counterexample and Erdős's
 Turán upper bound for every `n ≥ 72`; the remaining conjuncts give the two
 negative answers to the asymptotic questions posed in the problem. -/
-theorem erdos960_resolution {r k : ℕ} (hr : 3 ≤ r) (hk : 4 ≤ k) :
+theorem erdos_960 {r k : ℕ} (hr : 3 ≤ r) (hk : 4 ≤ k) :
     (∀ n : ℕ, 72 ≤ n →
       (n : ℝ) ^ 2 / 12 - (10 / 3 : ℝ) * n + 1 ≤ (f r k n : ℝ) ∧
       (f r k n : ℝ) ≤
@@ -1538,8 +1538,10 @@ theorem erdos960_resolution {r k : ℕ} (hr : 3 ≤ r) (hk : 4 ≤ k) :
   intro n hn
   exact ⟨erdos960_lower_bound hr hk hn, erdos960_upper_bound r k n (by omega)⟩
 
-#print axioms erdos960_resolution
+#print axioms erdos_960
 
 end
 
 end Erdos960
+
+alias _root_.Erdos960.erdos960_resolution := _root_.Erdos960.erdos_960

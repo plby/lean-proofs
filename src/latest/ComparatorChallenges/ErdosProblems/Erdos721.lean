@@ -4,10 +4,6 @@ import Mathlib
 
 namespace Erdos721
 
-open Filter
-open Classical
-open scoped BigOperators Topology
-
 def HasMonochromaticAP (n l : ℕ) (color : ℕ → Fin 2) (hue : Fin 2) : Prop :=
   ∃ a d : ℕ, 0 < d ∧ a + (l - 1) * d < n ∧
     ∀ i : Fin l, color (a + i.val * d) = hue
@@ -25,25 +21,14 @@ noncomputable def W3 (k : ℕ) : ℕ :=
     classical
     exact Nat.find (exists_forcesW3 k)
 
-def HunterLowerBound : Prop :=
-  ∃ c : ℝ, 0 < c ∧
-    ∀ᶠ k : ℕ in atTop,
-      Real.exp (c * (Real.log k) ^ 2 / Real.log (Real.log k)) ≤ (W3 k : ℝ)
-
-def QuasipolynomialUpperBound : Prop :=
-  ∃ C : ℝ, 0 < C ∧
-    ∀ᶠ k : ℕ in atTop,
-      (W3 k : ℝ) ≤ Real.exp (C * (Real.log k) ^ 9)
-
-def SubexponentialUpperBound : Prop :=
-  ∃ γ : ℝ, 0 < γ ∧ γ < 1 ∧
-    ∀ᶠ k : ℕ in atTop,
-      (W3 k : ℝ) < Real.exp ((k : ℝ) ^ γ)
-
-def Erdos721Resolution : Prop :=
-  HunterLowerBound ∧ QuasipolynomialUpperBound ∧ SubexponentialUpperBound
-
-theorem erdos721Resolution : Erdos721Resolution := by
+theorem erdos_721 :
+    (∃ c : ℝ, 0 < c ∧
+      ∀ᶠ k : ℕ in Filter.atTop,
+        Real.exp (c * (Real.log k) ^ 2 / Real.log (Real.log k)) ≤ (Erdos721.W3 k : ℝ)) ∧ (∃ C : ℝ, 0 < C ∧
+      ∀ᶠ k : ℕ in Filter.atTop,
+        (Erdos721.W3 k : ℝ) ≤ Real.exp (C * (Real.log k) ^ 9)) ∧ (∃ γ : ℝ, 0 < γ ∧ γ < 1 ∧
+      ∀ᶠ k : ℕ in Filter.atTop,
+        (Erdos721.W3 k : ℝ) < Real.exp ((k : ℝ) ^ γ)) := by
   sorry
 
 end Erdos721

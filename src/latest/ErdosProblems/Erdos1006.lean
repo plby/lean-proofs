@@ -54,7 +54,7 @@ theorem erdos1006_orientation_counterexample :
 /-- Erdős Problem 1006 has a negative answer: a finite graph with no cycle
 of length three or four need not possess an acyclic orientation that remains
 acyclic after every one-edge reversal. -/
-theorem erdos1006 :
+theorem not_erdos_1006 :
     ∃ (n : ℕ) (G : SimpleGraph (Fin n)),
       GirthGreaterThanFour G ∧ ¬HasGoodOrientation G := by
   obtain ⟨G, hgirth, hmono⟩ :=
@@ -67,9 +67,11 @@ theorem erdos1006_universal_claim_false :
     ¬∀ (n : ℕ) (G : SimpleGraph (Fin n)),
       GirthGreaterThanFour G → HasGoodOrientation G := by
   rintro hall
-  obtain ⟨n, G, hgirth, hbad⟩ := erdos1006
+  obtain ⟨n, G, hgirth, hbad⟩ := not_erdos_1006
   exact hbad (hall n G hgirth)
 
-#print axioms erdos1006
+#print axioms not_erdos_1006
 
 end Erdos1006
+
+alias _root_.Erdos1006.erdos1006 := _root_.Erdos1006.not_erdos_1006

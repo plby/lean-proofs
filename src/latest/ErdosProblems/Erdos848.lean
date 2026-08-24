@@ -44,7 +44,7 @@ Contents:
 - All definitions and helper lemmas
 - Sieve bounds (diagonal and off-diagonal)
 - The main stability theorem `SawhneyMain`
-- Asymptotic theorem `erdos_848.variants.asymptotic`
+- Asymptotic theorem `erdos_848.variants.erdos_848`
 
 Build status: complete proof under the default Lean limits.
 
@@ -4229,10 +4229,12 @@ theorem sawhney_main : SawhneyMain := by
 
 /-- The asymptotic resolution: for sufficiently large N, max|A| ≤ |A₇(N)|.
     The full Erdős conjecture (∀ N) remains open. -/
-theorem erdos_848.variants.asymptotic : ∀ᶠ N in Filter.atTop, Erdos848For N := by
+theorem erdos_848.variants.erdos_848 : ∀ᶠ N in Filter.atTop, Erdos848For N := by
   obtain ⟨N₀, hN₀⟩ := problem_848_resolved_up_to_finite_check_of_sawhney sawhney_main
   exact Filter.eventually_atTop.2 ⟨N₀, hN₀⟩
 
 end Erdos848
 
-#print axioms Erdos848.erdos_848.variants.asymptotic
+#print axioms Erdos848.erdos_848.variants.erdos_848
+
+alias _root_.Erdos848.erdos_848.variants.asymptotic := _root_.Erdos848.erdos_848.variants.erdos_848

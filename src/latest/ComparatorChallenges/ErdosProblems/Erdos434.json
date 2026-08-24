@@ -2,7 +2,7 @@
   "challenge_module": "Erdos434",
   "solution_module": "ErdosProblems.Erdos434",
   "theorem_names": [
-    "Erdos434.main_theorem_final"
+    "Erdos434.erdos_434"
   ],
   "permitted_axioms": [
     "propext",

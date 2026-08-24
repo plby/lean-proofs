@@ -54,7 +54,10 @@ theorem epsilon_isBigO_growth446 :
     exists_smoothSquarefreeClusterUpperBlockCount
 
 /-- The complete resolution of Erdős Problem 446. -/
-theorem erdos_446 : Resolution446 :=
+theorem erdos_446 :
+    (delta =Θ[atTop] growth446) ∧
+      (∀ r : ℕ, 1 ≤ r → delta =O[atTop] (deltaR r)) ∧
+        ¬ (deltaR 1 =o[atTop] delta) :=
   resolution446_of_upper epsilon_isBigO_growth446
 
 /-- The sharp growth-rate answer to Erdős Problem 446. -/

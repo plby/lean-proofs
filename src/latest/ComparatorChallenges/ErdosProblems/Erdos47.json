@@ -2,8 +2,8 @@
   "challenge_module": "Erdos47",
   "solution_module": "ErdosProblems.Erdos47",
   "theorem_names": [
-    "Erdos47.erdos47",
-    "Erdos47.erdos47_bloom"
+    "Erdos47.erdos_47",
+    "Erdos47.erdos_47_quantitative"
   ],
   "permitted_axioms": [
     "propext",

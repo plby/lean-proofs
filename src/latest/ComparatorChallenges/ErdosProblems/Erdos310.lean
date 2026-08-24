@@ -2,12 +2,9 @@
 
 import Mathlib
 
-open Filter Real
-open scoped ArithmeticFunction.omega BigOperators
+open Finset
 
 namespace Erdos310
-
-open Finset
 
 /-- The explicit reciprocal sum used in the problem is `UnitFractions.rec_sum`. -/
 

@@ -508,7 +508,7 @@ $\left\lfloor\frac{n}{4}\right\rfloor$ distances occur at least $n+1$ times.
 -/
 set_option linter.flexible false in
 set_option linter.style.longLine false in
-theorem erdos756 (n : ℕ) :
+theorem erdos_756 (n : ℕ) :
   ∃ P : Finset ℂ, P.card = n ∧
     ∃ S ⊆ (P.offDiag.image (fun (x, y) => dist x y)),
       S.card = n / 4 ∧ ∀ d ∈ S, distance_count P d ≥ n + 1 := by
@@ -526,5 +526,7 @@ theorem erdos756 (n : ℕ) :
 
 end Erdos756
 
-#print axioms Erdos756.erdos756
+#print axioms Erdos756.erdos_756
 -- 'Erdos756.erdos756' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos756.erdos756 := _root_.Erdos756.erdos_756

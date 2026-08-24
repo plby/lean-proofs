@@ -2,7 +2,7 @@
   "challenge_module": "Erdos674",
   "solution_module": "ErdosProblems.Erdos674",
   "theorem_names": [
-    "Erdos674.erdos_674_infinite"
+    "Erdos674.erdos_674"
   ],
   "permitted_axioms": [
     "propext",

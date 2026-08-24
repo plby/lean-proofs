@@ -2,6 +2,8 @@
 
 import Mathlib
 
+open Finset Matrix Function
+
 namespace Erdos974
 
 /-- Data associated with the problem. -/
@@ -20,8 +22,6 @@ structure ProblemData (n : ℕ) [NeZero n] where
   sums_b : ∀ k < n - 1, ∑ i, z i ^ (b + k) = 0
 
 variable {n : ℕ} [NeZero n]
-
-open Finset Matrix Complex Function
 
 lemma zpow_add_int_natCast {z : ℂ} {m : ℤ} {k : ℕ} (hmk : m + (k : ℤ) ≠ 0) :
     z ^ (m + k) = z ^ k * z ^ m := by
@@ -167,7 +167,6 @@ def q : ℕ := (PD.b - PD.a).toNat
 
 lemma q_pos : PD.q ≠ 0 := by grind [q, PD.hab]
 
-/-- Proposition 1 in https://www.erdosproblems.com/forum/thread/974#post-640. -/
 lemma z_qth_root (i : Fin n) : PD.z i ^ PD.q = 1 := by
   have hva (k) (hk : k < n - 1) : ∑ i, PD.z i ^ k * PD.z i ^ PD.a = 0 := by
     have h := PD.sums_a k hk
@@ -192,20 +191,11 @@ variable (PD : ProblemData (2 * n))
 noncomputable def oddIndices : Finset (Fin (2 * n)) :=
   {i | PD.z i ^ (PD.p / 2) = -1}
 
-end ProblemData
-
-end Erdos974
-
-open Finset Matrix Complex Function
-open ComplexConjugate
-open _root_.MvPolynomial
-
-namespace Erdos974.ProblemData
-
-open scoped Classical in
-theorem erdos974_even {n : ℕ} [NeZero n] (PD : ProblemData (2 * n)) :
+theorem erdos_974 {n : ℕ} [NeZero n] (PD : ProblemData (2 * n)) :
     univ.image PD.z = Polynomial.nthRootsFinset n 1 ∪
     Polynomial.nthRootsFinset n (-∏ i ∈ PD.oddIndices, -PD.z i) := by
   sorry
 
-end Erdos974.ProblemData
+end ProblemData
+
+end Erdos974

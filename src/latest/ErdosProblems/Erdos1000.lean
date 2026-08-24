@@ -1040,7 +1040,7 @@ Notes:
 
 The Erdős-Graham conjecture is true: there exists a strictly increasing sequence A such that the Cesaro mean of phi_A(k)/n_k tends to 0. We use the constructed sequence n_seq.
 -/
-theorem erdos_1000_true :
+theorem erdos_1000 :
   ∃ n : ℕ → ℕ,
     StrictMono n ∧
     (∀ k, 0 < n k) ∧
@@ -1101,7 +1101,9 @@ theorem erdos_1000_true :
       simpa using Filter.Tendsto.congr' ( by filter_upwards [ Filter.eventually_ge_atTop 1 ] with N hN; aesop ) ( h_a0.add h_shift );
     exact h_shift.congr fun N => by simp +decide [ cesaroPhi ] ;
 
-#print axioms erdos_1000_true
+#print axioms erdos_1000
 -- 'Erdos1000.erdos_1000_true' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1000
+
+alias _root_.Erdos1000.erdos_1000_true := _root_.Erdos1000.erdos_1000

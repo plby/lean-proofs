@@ -2,10 +2,6 @@
 
 import Mathlib
 
-open Finset
-
-noncomputable section
-
 namespace Erdos631
 
 abbrev Edge := ℕ × ℕ
@@ -16,9 +12,7 @@ inductive DiskExpr where
   | fan (child : DiskExpr) (pref tail : List ℕ) (z : ℕ)
   deriving Repr
 
-end Erdos631
-
-namespace Erdos631.DiskExpr
+namespace DiskExpr
 
 def root₁ : DiskExpr → ℕ
   | .triangle a _ _ => a
@@ -77,17 +71,13 @@ inductive Valid : DiskExpr → Prop where
 def EdgeAdj (E : Finset Edge) (x y : ℕ) : Prop :=
   (x, y) ∈ E ∨ (y, x) ∈ E
 
-end Erdos631.DiskExpr
-
-namespace Erdos631
+end DiskExpr
 
 inductive PlaneExpr where
   | disk (D : DiskExpr)
   | edgeSum (left right : PlaneExpr)
 
-end Erdos631
-
-namespace Erdos631.PlaneExpr
+namespace PlaneExpr
 
 def root₁ : PlaneExpr → ℕ
   | .disk D => D.root₁
@@ -112,9 +102,7 @@ inductive Valid : PlaneExpr → Prop where
       (hinter : left.vertices ∩ right.vertices = {left.root₁, left.root₂}) :
       Valid (.edgeSum left right)
 
-end Erdos631.PlaneExpr
-
-namespace Erdos631
+end PlaneExpr
 
 structure PlanarCertificate {V : Type*} (G : SimpleGraph V) where
   plane : PlaneExpr
@@ -122,10 +110,6 @@ structure PlanarCertificate {V : Type*} (G : SimpleGraph V) where
   embed : V ↪ ℕ
   vertex_mem : ∀ v, embed v ∈ plane.vertices
   adj_sub : ∀ {v w}, G.Adj v w → DiskExpr.EdgeAdj plane.edges (embed v) (embed w)
-
-end Erdos631
-
-namespace Erdos631
 
 def IsPlanar {V : Type*} (G : SimpleGraph V) : Prop :=
   Nonempty (PlanarCertificate G)
@@ -138,10 +122,6 @@ def IsKChoosable {V : Type*} (G : SimpleGraph V) (k : ℕ) : Prop :=
   ∀ (L : V → Finset ℕ), (∀ v, (L v).card = k) →
     ∃ f : G.Coloring ℕ, ∀ v, f v ∈ L v
 
-end Erdos753
-
-namespace Erdos753
-
 noncomputable def listChromaticNumber {V : Type*} (G : SimpleGraph V) : ℕ :=
   sInf {k : ℕ | IsKChoosable G k}
 
@@ -151,7 +131,7 @@ end Erdos753
 
 namespace Erdos631
 
-theorem erdos631 :
+theorem erdos_631 :
     (∀ {V : Type*} [Fintype V] (G : SimpleGraph V), IsPlanar G →
       Erdos753.listChromaticNumber G ≤ 5) ∧
     (∃ G : SimpleGraph (Fin 86), IsPlanar G ∧
@@ -159,5 +139,3 @@ theorem erdos631 :
   sorry
 
 end Erdos631
-
-end

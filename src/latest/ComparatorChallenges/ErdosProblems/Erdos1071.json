@@ -2,8 +2,8 @@
   "challenge_module": "Erdos1071",
   "solution_module": "ErdosProblems.Erdos1071",
   "theorem_names": [
-    "Erdos1071.Corollary_3",
-    "Erdos1071b.erdos_1071b"
+    "Erdos1071.erdos_1071",
+    "Erdos1071b.erdos_1071_finite"
   ],
   "permitted_axioms": [
     "propext",

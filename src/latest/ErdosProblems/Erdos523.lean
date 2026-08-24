@@ -6388,7 +6388,12 @@ def Erdos523Statement : Prop :=
       (fun n : ℕ ↦ maximumModulus ω n / Real.sqrt ((n : ℝ) * Real.log n))
       atTop (𝓝 1)
 
-theorem erdos523 : Erdos523Statement := by
+theorem erdos_523 :
+    ∀ᵐ ω ∂signMeasure,
+      Tendsto
+        (fun n : ℕ ↦ maximumModulus ω n / Real.sqrt ((n : ℝ) * Real.log n))
+        atTop (𝓝 1) := by
+  change Erdos523Statement
   unfold Erdos523Statement
   filter_upwards [ae_tendsto_sampleSize_normalized_maximum] with ω hω
   have hshift := hω.comp (tendsto_add_atTop_nat 1)
@@ -6410,8 +6415,10 @@ theorem erdos523 : Erdos523Statement := by
     field_simp
   simpa only [asymptoticScale] using hfinal
 
-#print axioms erdos523
+#print axioms erdos_523
 
 end
 
 end Erdos523
+
+alias _root_.Erdos523.erdos523 := _root_.Erdos523.erdos_523

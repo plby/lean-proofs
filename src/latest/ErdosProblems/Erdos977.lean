@@ -4268,7 +4268,9 @@ theorem erdos_977_of_yamada (hYamada : YamadaMersenneEstimate) :
 
 /-- Erdős Problem 977 has an affirmative answer: the greatest prime
 factor of `2^n - 1`, divided by `n`, tends to positive infinity. -/
-theorem erdos_977 : Erdos977Statement := by
+theorem erdos_977 : (Filter.Tendsto
+  (fun n : ℕ => (Erdos977.greatestPrimeFactor (Erdos977.mersenne n) : ℝ) / (n : ℝ))
+  Filter.atTop Filter.atTop) := by
   exact erdos_977_of_fermat_quotient_bound
     1_000_000_000_000_000 (by positivity) fermat_quotient_uniform_bound
 

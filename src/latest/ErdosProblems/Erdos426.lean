@@ -5250,7 +5250,7 @@ theorem main_theorem :
 /-! ## Corollary: f(n) → 0 -/
 
 /-- f(n) → 0 as n → ∞. -/
-theorem f_tendsto_zero : Filter.Tendsto fSeq Filter.atTop (nhds 0) := by
+theorem erdos_426 : Filter.Tendsto fSeq Filter.atTop (nhds 0) := by
   rw [Metric.tendsto_atTop]
   intro ε hε
   obtain ⟨n₀, hn₀⟩ := main_theorem ε hε
@@ -5262,7 +5262,7 @@ theorem f_tendsto_zero : Filter.Tendsto fSeq Filter.atTop (nhds 0) := by
         (Finset.univ : Finset (SimpleGraph (Fin n))).Nonempty)).2 ?_
     exact fun H _ => hn₀ n hn H⟩
 
-#print axioms f_tendsto_zero
+#print axioms erdos_426
 -- 'Erdos426.UniqueSubgraphs.f_tendsto_zero' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
@@ -5271,3 +5271,5 @@ end UniqueSubgraphs
 end
 
 end Erdos426
+
+alias _root_.Erdos426.UniqueSubgraphs.f_tendsto_zero := _root_.Erdos426.UniqueSubgraphs.erdos_426

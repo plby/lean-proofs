@@ -39,7 +39,11 @@ structured correlation by insensitive sets, and a greedy subspace tiling.
 namespace Erdos171
 
 /-- The affirmative resolution of Erdős Problem 171. -/
-theorem erdos_171 : Erdos171Statement :=
+theorem erdos_171 :
+    ∀ ε : ℝ, 0 < ε → ∀ t : ℕ, 1 ≤ t →
+      ∃ N₀ : ℕ, ∀ N ≥ N₀, ∀ A : Finset (Word t N),
+        ε * (t : ℝ) ^ N ≤ (A.card : ℝ) →
+          ContainsLine (A : Set (Word t N)) :=
   erdos171Statement_of_alphabetDensityIncrement alphabetDensityIncrement
 
 #print axioms Erdos171.erdos_171

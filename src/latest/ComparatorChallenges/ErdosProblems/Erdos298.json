@@ -2,8 +2,8 @@
   "challenge_module": "Erdos298",
   "solution_module": "ErdosProblems.Erdos298",
   "theorem_names": [
-    "Erdos298.erdos298",
-    "Erdos298.erdos298_density"
+    "Erdos298.erdos_298",
+    "Erdos298.erdos_298_density"
   ],
   "permitted_axioms": [
     "propext",

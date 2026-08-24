@@ -2,7 +2,7 @@
   "challenge_module": "Erdos621",
   "solution_module": "ErdosProblems.Erdos621",
   "theorem_names": [
-    "Erdos621.TriangleIndep.erdos_conjecture"
+    "Erdos621.TriangleIndep.erdos_621"
   ],
   "permitted_axioms": [
     "propext",

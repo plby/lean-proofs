@@ -68,10 +68,14 @@ theorem choose_four_two_counterexample :
 /-- Erdős Problem 384, with the strict inequality stated on the problem page,
 is false.  The witness is `Nat.choose 4 2 = 6`; its divisor `2` lies exactly
 on the boundary `n / 2`. -/
-theorem erdos384_strict_statement_false : ¬ Erdos384StrictStatement := by
+theorem not_erdos_384 :
+    ¬ (∀ n k : ℕ, 1 < k → k < n - 1 → ¬ IsErdos384Exception n k →
+      ∃ p : ℕ, p.Prime ∧ p ∣ Nat.choose n k ∧ 2 * p < n) := by
   intro h
   have hWitness := h 4 2 (by norm_num) (by norm_num)
     (by norm_num [IsErdos384Exception])
   exact no_prime_divisor_strictly_below_half_at_four hWitness
 
 end Erdos384
+
+alias _root_.Erdos384.erdos384_strict_statement_false := _root_.Erdos384.not_erdos_384

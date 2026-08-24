@@ -179,7 +179,7 @@ theorem eremenko_lempert_reduction (n : ℕ) :
 The polynomial $f_n(z) = T_n(2^{(1-n)/n}z + 1)$ satisfies $|f_n'(0)| = 2^{(1/n)-1}n^2$.
 -/
 noncomputable def extremal_polynomial (n : ℕ) : Polynomial ℂ :=
-  (Polynomial.Chebyshev.T ℂ n).comp (Polynomial.C ((2 : ℂ) ^ ((1 : ℂ) / n - 1)) * Polynomial.X + 1)
+  (Polynomial.Chebyshev.T ℂ n).comp (Polynomial.C (((2 : ℕ) : ℂ) ^ ((1 : ℂ) / n - 1)) * Polynomial.X + 1)
 
 theorem extremal_polynomial_derivative_at_zero (n : ℕ) (hn : n ≠ 0) :
     ‖(extremal_polynomial n).derivative.eval 0‖ = eremenko_bound n := by
@@ -4309,15 +4309,17 @@ If $p(z)$ is a polynomial of degree $n$ such that $\{z : \lvert p(z)\rvert\leq 1
 \[\max_{\substack{z\in\mathbb{C}\\ \lvert p(z)\rvert\leq 1}} \lvert p'(z)\rvert \leq (\tfrac{1}{2}+o(1))n^2?\]
 and that the Chebyshev polynomials are the extreme examples
 -/
-theorem eremenko_lempert_1999 (n : ℕ) :
+theorem erdos_115 (n : ℕ) :
     (n ≠ 0 → ∀ p : Polynomial ℂ, p.Monic → p.degree = n →
       IsConnected {z | ‖p.eval z‖ ≤ 1} →
-      ∀ z, ‖p.eval z‖ ≤ 1 → ‖p.derivative.eval z‖ ≤ (2 : ℝ) ^ ((1 : ℝ) / n - 1) * (n : ℝ) ^ 2) ∧
-    (n ≠ 0 → ‖(extremal_polynomial n).derivative.eval 0‖ = (2 : ℝ) ^ ((1 : ℝ) / n - 1) * (n : ℝ) ^ 2) := by
-  have h_bound : (2 : ℝ) ^ ((1 : ℝ) / n - 1) * (n : ℝ) ^ 2 = eremenko_bound n := rfl
+      ∀ z, ‖p.eval z‖ ≤ 1 → ‖p.derivative.eval z‖ ≤ ((2 : ℕ) : ℝ) ^ ((1 : ℝ) / n - 1) * (n : ℝ) ^ 2) ∧
+    (n ≠ 0 → ‖(extremal_polynomial n).derivative.eval 0‖ = ((2 : ℕ) : ℝ) ^ ((1 : ℝ) / n - 1) * (n : ℝ) ^ 2) := by
+  have h_bound : ((2 : ℕ) : ℝ) ^ ((1 : ℝ) / n - 1) * (n : ℝ) ^ 2 = eremenko_bound n := rfl
   rw [h_bound]
   exact ⟨eremenko_lempert_reduction n (eremenko_lempert_at_zero_proof n),
          extremal_polynomial_derivative_at_zero n⟩
-#print axioms eremenko_lempert_1999
+#print axioms erdos_115
 -- 'Erdos115.eremenko_lempert_1999' depends on axioms: [propext, Classical.choice, Quot.sound]
 end Erdos115
+
+alias _root_.Erdos115.eremenko_lempert_1999 := _root_.Erdos115.erdos_115

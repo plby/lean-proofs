@@ -817,7 +817,7 @@ theorem meta_theorem
     exact ⟨A, hQ, hpos, hsumF, hrecip⟩
 
 /-- Second metatheorem. -/
-theorem general_theorem
+theorem erdos_283
     (a : ℤ) (ha : 0 < a)
     (b : ℤ)
     (d : ℕ) (hd : 0 < d)
@@ -930,5 +930,7 @@ open Erdos283b
 
 #print axioms meta_theorem
 -- 'Erdos283b.meta_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms general_theorem
+#print axioms erdos_283
 -- 'Erdos283b.general_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos283b.general_theorem := _root_.Erdos283b.erdos_283

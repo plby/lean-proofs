@@ -110,7 +110,7 @@ lemma negative_answer_of_counterexample {A : Set ℕ} [Infinite A] {μ : ℝ} (h
 /-- Erdős Problem 847 has a negative answer.  The witness is the separated
 union of the finite RRS blocks constructed above the sparse Hales--Jewett
 line systems. -/
-theorem erdos_847 :
+theorem not_erdos_847 :
     ¬ ∀ A : Set ℕ, Infinite A → HasFew3APs A →
       ∃ n, ∃ S : Fin n → Set ℕ,
         (∀ i, ThreeAPFree (S i)) ∧ A = ⋃ i : Fin n, S i := by
@@ -123,3 +123,5 @@ theorem erdos_847 :
   exact (negative_answer_of_counterexample (by norm_num) hA') hcover
 
 end Erdos847
+
+alias _root_.Erdos847.erdos_847 := _root_.Erdos847.not_erdos_847

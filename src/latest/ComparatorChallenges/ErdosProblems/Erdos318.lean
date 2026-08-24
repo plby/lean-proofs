@@ -2,14 +2,14 @@
 
 import Mathlib
 
+open Filter
+open scoped Topology
+
 /-!
 # Erdős Problem 318
 
 This file uses the exact `P₁` predicate from the Formal Conjectures statement.
 -/
-
-open Filter Set Real
-open scoped Topology
 
 namespace Set
 
@@ -53,17 +53,11 @@ def P₁ (A : Set ℕ) : Prop := ∀ (f : ℕ → ℝ),
   Set.range f ⊆ {1, -1} →
   ∃ S : Finset ℕ, S.Nonempty ∧ ↑S ⊆ A \ {0} ∧ ∑ n ∈ S, f n / n = 0
 
-theorem erdos_318.parts.i : ∃ A : Set ℕ, A.HasPosDensity ∧ ¬ P₁ A := by
+theorem not_erdos_318 : ∃ A : Set ℕ, A.HasPosDensity ∧ ¬ P₁ A := by
   sorry
 
 theorem erdos_318.variants.infinite_AP {A : Set ℕ}
     (hA : Set.IsAPOfLength A ⊤) : P₁ A := by
-  sorry
-
-theorem erdos_318.variants.univ : P₁ Set.univ := by
-  sorry
-
-theorem erdos_318.variants.odd : P₁ {n : ℕ | Odd n} := by
   sorry
 
 theorem erdos_318.variants.squares : ¬ P₁ ({n | IsSquare n}) := by

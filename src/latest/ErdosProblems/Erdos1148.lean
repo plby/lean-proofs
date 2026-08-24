@@ -93,7 +93,10 @@ def DukeTheoremStatement : Prop :=
 Main Theorem: Assuming Duke's Theorem, every sufficiently large integer n
 can be written as x ^ 2 + y ^ 2 - z ^ 2 with max(x ^ 2, y ^ 2, z ^ 2) <= n.
 -/
-theorem erdos_problem_1148 (h_duke : DukeTheoremStatement) :
+theorem erdos_1148 (h_duke : (∃ N : ℤ, ∀ n : ℤ, n ≥ N →
+∃ t ∈ Erdos1148.R_star_disc (4 * n),
+  Erdos1148.project_to_hyperboloid n t ∈ Erdos1148.Omega_strict ∧
+  t.1 % 2 = t.2.2 % 2)) :
   ∃ N : ℤ, ∀ n : ℤ, n ≥ N → ∃ x y z : ℤ, n = x^2 + y^2 - z^2 ∧ max (x^2) (max (y^2) (z^2)) ≤ n := by
   rcases h_duke with ⟨N, hN⟩
   use max N 1
@@ -222,5 +225,7 @@ theorem erdos_problem_1148 (h_duke : DukeTheoremStatement) :
 
 end Erdos1148
 
-#print axioms Erdos1148.erdos_problem_1148
+#print axioms Erdos1148.erdos_1148
 -- 'Erdos1148.erdos_problem_1148' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos1148.erdos_problem_1148 := _root_.Erdos1148.erdos_1148

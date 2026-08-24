@@ -2,7 +2,7 @@
   "challenge_module": "Erdos848",
   "solution_module": "ErdosProblems.Erdos848",
   "theorem_names": [
-    "Erdos848.erdos_848.variants.asymptotic"
+    "Erdos848.erdos_848.variants.erdos_848"
   ],
   "permitted_axioms": [
     "propext",
@@ -11,4 +11,3 @@
   ],
   "enable_nanoda": true
 }
-

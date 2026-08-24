@@ -31,7 +31,11 @@ namespace Erdos746
 
 /-- Almost surely, every uniform random graph sequence with eventually at
 least `(1 / 2 + ε) n log n` edges is Hamiltonian. -/
-theorem erdos_746 : Erdos746Statement := by
+theorem erdos_746 : (∀ ε : ℝ, 0 < ε → ∀ m : ℕ → ℕ,
+  (∀ᶠ n : ℕ in Filter.atTop,
+    (1 / 2 + ε) * (n : ℝ) * Real.log (n : ℝ) ≤ (m n : ℝ)) →
+  (∀ᶠ n : ℕ in Filter.atTop, m n ≤ n.choose 2) →
+  Filter.Tendsto (fun n ↦ Erdos746.hamiltonianProbability n (m n)) Filter.atTop (nhds 1)) := by
   apply erdos746Statement_of_auxiliaryMargin_finite
   · intro ε hε
     change Filter.Tendsto

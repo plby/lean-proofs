@@ -2077,10 +2077,14 @@ theorem erdos815_of_arbitrary_counterexamples
 /-- **Resolution of Erdős Problem 815.**  The proposed eventual cycle
 statement is false: the NPS construction gives arbitrarily large
 degree-three-critical graphs containing no copy of `C₂₃`. -/
-theorem erdos_815 : ¬ Erdos815Statement :=
+theorem not_erdos_815 : ¬ (∀ k : ℕ, 3 ≤ k → ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
+  ∀ G : SimpleGraph (Fin n),
+    Erdos815.DegreeThreeCritical G → SimpleGraph.cycleGraph k ⊑ G) :=
   erdos815_of_arbitrary_counterexamples
     nps_arbitrarily_large_counterexamples
 
-#print axioms Erdos815.erdos_815
+#print axioms Erdos815.not_erdos_815
 
 end Erdos815
+
+alias _root_.Erdos815.erdos_815 := _root_.Erdos815.not_erdos_815

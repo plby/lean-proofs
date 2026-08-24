@@ -2741,10 +2741,19 @@ theorem not_sparseErdosTuranEstimate_of_counterexamples
   exact not_lt_of_ge (hestimate d f z θ hroots α β hα hαβ hβ) hlt
 
 /-- Erdos 990 has a negative answer: the proposed sparse Erdős--Turán estimate is false. -/
-theorem erdos990 : ¬ SparseErdosTuranEstimate := by
+theorem erdos_990 : ¬ (∃ C : ℝ, 0 ≤ C ∧
+  ∀ (d : ℕ) (f : Polynomial ℂ) (z : Fin d → ℂ) (θ : Fin d → ℝ),
+    Erdos990.HasRootsWithArguments f d z θ →
+      ∀ α β : ℝ,
+        0 ≤ α → α ≤ β → β ≤ 2 * Real.pi →
+          |(Erdos990.argumentCount θ α β : ℝ) - ((β - α) / (2 * Real.pi)) * d| ≤
+            C * Real.sqrt
+              ((Erdos990.coeffSupportCardUpTo f d : ℝ) * Real.log (Erdos990.coefficientRatio f d))) := by
   exact not_sparseErdosTuranEstimate_of_counterexamples exists_angularCounterexample
 
-#print axioms erdos990
+#print axioms erdos_990
 -- 'Erdos990.erdos990' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos990
+
+alias _root_.Erdos990.erdos990 := _root_.Erdos990.erdos_990

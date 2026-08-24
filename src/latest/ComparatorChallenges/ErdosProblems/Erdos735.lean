@@ -4,10 +4,6 @@ import Mathlib
 
 namespace Erdos735
 
-open scoped BigOperators
-
-noncomputable section
-
 /-- The concrete real affine plane used in Problem 735. -/
 abbrev Point := EuclideanSpace ℝ (Fin 2)
 
@@ -74,7 +70,5 @@ theorem erdos_735 (P : Finset Point) :
       IsCollinearConfig P ∨ InGeneralPosition P ∨
         IsNearPencil P ∨ IsFailedFano P := by
   sorry
-
-end
 
 end Erdos735

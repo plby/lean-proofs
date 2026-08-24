@@ -1776,7 +1776,7 @@ theorem tau1_le_tauB (G : SimpleGraph V) [DecidableRel G.Adj] :
     4 * (α₁(G) + τ₁(G)) ≤ |V(G)|².
     This follows from the stronger inequality α₁(G) + τ_B(G) ≤ |V(G)|²/4
     together with τ₁(G) ≤ τ_B(G). -/
-theorem erdos_conjecture (G : SimpleGraph V) [DecidableRel G.Adj] :
+theorem erdos_621 (G : SimpleGraph V) [DecidableRel G.Adj] :
     4 * (alpha1 G + tau1 G) ≤ (Fintype.card V) ^ 2 := by
   have h1 := main_inequality G
   have h2 := tau1_le_tauB G
@@ -1784,7 +1784,7 @@ theorem erdos_conjecture (G : SimpleGraph V) [DecidableRel G.Adj] :
       ≤ 4 * (alpha1 G + tauB G) := by omega
     _ ≤ (Fintype.card V) ^ 2 := h1
 
-#print axioms erdos_conjecture
+#print axioms erdos_621
 -- 'Erdos621.TriangleIndep.erdos_conjecture' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
@@ -1792,3 +1792,5 @@ end TriangleIndep
 
 
 end Erdos621
+
+alias _root_.Erdos621.TriangleIndep.erdos_conjecture := _root_.Erdos621.TriangleIndep.erdos_621

@@ -8,12 +8,8 @@ def P_plus (m : ℕ) : ℕ :=
   match (Nat.primeFactorsList m).maximum with
   | some p => p
   | none => 1
-end Erdos368b
 
-namespace Erdos368b
-
-open scoped Classical in
-theorem n_n_plus_one_inf :
+theorem erdos_368 :
     Filter.Tendsto (fun n => P_plus (n * (n + 1))) Filter.atTop Filter.atTop := by
   sorry
 

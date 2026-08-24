@@ -4,7 +4,6 @@ import Mathlib
 
 namespace Erdos303
 
-open scoped Classical in
 theorem erdos_303 :
   (∀ (𝓒 : ℤ → ℤ), (Set.range 𝓒).Finite →
     ∃ (a b c : ℤ),

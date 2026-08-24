@@ -2,7 +2,7 @@
   "challenge_module": "Erdos397",
   "solution_module": "ErdosProblems.Erdos397",
   "theorem_names": [
-    "Erdos397.infinite_solutions"
+    "Erdos397.not_erdos_397"
   ],
   "permitted_axioms": [
     "propext",

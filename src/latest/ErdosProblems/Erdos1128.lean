@@ -1024,7 +1024,7 @@ theorem infinite_set_of_mk_eq_aleph0 {α : Type*} {S : Set α}
   rw [← Set.infinite_coe_iff, ← Cardinal.aleph0_le_mk_iff]
   simpa [hS]
 
-theorem erdos_1128 : ¬
+theorem not_erdos_1128 : ¬
     ∀ (A B C : Type) (_ : #A = aleph 1) (_ : #B = aleph 1)
       (_ : #C = aleph 1) (f : A → B → C → Fin 2),
       ∃ (A₁ : Set A) (B₁ : Set B) (C₁ : Set C),
@@ -1043,4 +1043,6 @@ end
 
 end Erdos1128
 
-#print axioms Erdos1128.erdos_1128
+#print axioms Erdos1128.not_erdos_1128
+
+alias _root_.Erdos1128.erdos_1128 := _root_.Erdos1128.not_erdos_1128

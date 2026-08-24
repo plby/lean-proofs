@@ -2,23 +2,12 @@
 
 import Mathlib
 
-open Finset
-open scoped BigOperators
-
-noncomputable section
-
 namespace Erdos816
 
-open scoped Classical in
 def JoinedByPathThree {V : Type*} (G : SimpleGraph V) (u v : V) : Prop :=
   ∃ x y, u ≠ x ∧ u ≠ y ∧ u ≠ v ∧ x ≠ y ∧ x ≠ v ∧ y ≠ v ∧
     G.Adj u x ∧ G.Adj x y ∧ G.Adj y v
 
-end Erdos816
-
-namespace Erdos816
-
-open scoped Classical in
 theorem erdos_816
     {V : Type*} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
@@ -29,5 +18,3 @@ theorem erdos_816
   sorry
 
 end Erdos816
-
-end

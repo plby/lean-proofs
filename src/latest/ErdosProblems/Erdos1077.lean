@@ -262,7 +262,7 @@ lemma balanced_subgraph_vertex_bound {V : Type*} [Fintype V]
 /-- The literal Formal Conjectures statement of Erdős Problem 1077 is false.
 The witnesses `ε = 1/2`, `α = 1/4` and the family
 `K_{2k, k^4 - 2k}` refute its eventual assertion. -/
-theorem erdos_1077 :
+theorem not_erdos_1077 :
     ¬ ∀ ε > (0 : ℝ), ε < 1 → ∀ α > (0 : ℝ), α < 1 →
       ∀ᶠ D in atTop, ∀ᶠ n in atTop,
         ∀ G : SimpleGraph (Fin n),
@@ -328,6 +328,8 @@ theorem erdos_1077 :
   norm_num only [Nat.cast_ofNat, Nat.cast_mul] at hbound
   linarith
 
-#print axioms Erdos1077.erdos_1077
+#print axioms Erdos1077.not_erdos_1077
 
 end Erdos1077
+
+alias _root_.Erdos1077.erdos_1077 := _root_.Erdos1077.not_erdos_1077

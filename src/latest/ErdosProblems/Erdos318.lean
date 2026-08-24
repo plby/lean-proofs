@@ -382,7 +382,7 @@ theorem densityCounterexample_hasDensity :
   rw [ncard_densityCounterexample_inter_Iio hN]
 
 /-- There is a positive-density set without property `P₁`. -/
-theorem erdos_318.parts.i : ∃ A : Set ℕ, A.HasPosDensity ∧ ¬ P₁ A := by
+theorem not_erdos_318 : ∃ A : Set ℕ, A.HasPosDensity ∧ ¬ P₁ A := by
   refine ⟨densityCounterexample, ⟨1 / 2, by norm_num, densityCounterexample_hasDensity⟩,
     densityCounterexample_not_P₁⟩
 
@@ -852,10 +852,12 @@ theorem erdos_318.variants.squares : ¬ P₁ ({n | IsSquare n}) := by
 #print axioms not_contain_single_even_as_stated
 #print axioms contain_single_even_of_positive_and_odd
 #print axioms densityCounterexample_hasDensity
-#print axioms erdos_318.parts.i
+#print axioms not_erdos_318
 #print axioms erdos_318.variants.infinite_AP
 #print axioms erdos_318.variants.univ
 #print axioms erdos_318.variants.odd
 #print axioms erdos_318.variants.squares
 
 end Erdos318
+
+alias _root_.Erdos318.erdos_318.parts.i := _root_.Erdos318.not_erdos_318

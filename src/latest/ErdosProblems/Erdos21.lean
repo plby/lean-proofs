@@ -13013,7 +13013,8 @@ lemma eventually_oddField_dualWitness :
 /-- Kahn's affirmative resolution of Erdős Problem 21: the least size of
 an intersecting `n`-uniform family with transversal number `n` is eventually
 bounded by a constant multiple of `n`. -/
-theorem erdos_21 : Erdos21Question := by
+theorem erdos_21 :
+    ∃ C N : ℕ, ∀ n : ℕ, N ≤ n → erdosLovaszF n ≤ C * n := by
   apply erdos21_of_eventual_dualWitness
   obtain ⟨R₀, hR₀⟩ := eventually_evenField_dualWitness
   obtain ⟨R₁, hR₁⟩ := eventually_oddField_dualWitness

@@ -838,16 +838,18 @@ theorem image_zo :
     exact (Multiset.toFinset_card_le _).trans (Polynomial.card_nthRoots ..)
 
 /-- **Even case of Erdős Problem 974.** -/
-theorem erdos974_even : univ.image PD.z = Polynomial.nthRootsFinset n 1 ∪
+theorem erdos_974 : univ.image PD.z = Polynomial.nthRootsFinset n 1 ∪
     Polynomial.nthRootsFinset n (-∏ i ∈ PD.oddIndices, -PD.z i) := by
   rw [← PD.image_ze, ← PD.image_zo]
   ext z
   simp_rw [mem_union, mem_image, mem_univ, true_and, ze, zo, Subtype.exists, exists_prop,
     ← exists_or, ← or_and_right, ← mem_union, union_evenIndices_oddIndices, mem_univ, true_and]
 
-#print axioms erdos974_even
+#print axioms erdos_974
 -- 'Erdos974.ProblemData.erdos974_even' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end ProblemData
 
 end Erdos974
+
+alias _root_.Erdos974.ProblemData.erdos974_even := _root_.Erdos974.ProblemData.erdos_974

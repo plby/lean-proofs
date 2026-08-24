@@ -2,7 +2,7 @@
   "challenge_module": "Erdos649",
   "solution_module": "ErdosProblems.Erdos649",
   "theorem_names": [
-    "Erdos649.infinite_strange_pairs"
+    "Erdos649.erdos_649"
   ],
   "permitted_axioms": [
     "propext",

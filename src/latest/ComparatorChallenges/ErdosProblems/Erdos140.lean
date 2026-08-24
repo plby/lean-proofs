@@ -2,21 +2,7 @@
 
 import Mathlib
 
-/-!
-# Erdős Problem 140
-
-The public theorem below is the literal r3 formulation of the problem:
-for every positive real exponent C, the largest three-term-progression-free
-subset of {1, ..., N} is O(N / (log N)^C).
-
-The long finite-group argument is split into the files in
-ErdosProblems/Erdos140/.  This endpoint first turns the concrete
-rank-regular two-Bohr supply into the ordered Kelley--Meka progression count,
-then uses the elementary quantitative endpoint from Quantitative.lean.
--/
-
 open Filter
-open scoped Topology
 
 namespace Erdos140
 

@@ -2,8 +2,7 @@
   "challenge_module": "Erdos1190",
   "solution_module": "ErdosProblems.Erdos1190",
   "theorem_names": [
-    "Erdos1190.erdos1190_bridge_ready",
-    "Erdos1190.erdos1190_main"
+    "Erdos1190.erdos_1190"
   ],
   "permitted_axioms": [
     "propext",

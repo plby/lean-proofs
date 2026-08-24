@@ -20,7 +20,7 @@ namespace Erdos493
 There exists a `k` such that every sufficiently large integer `n`
 can be written as `∏ aᵢ - ∑ aᵢ` with all `aᵢ ≥ 2`.
 -/
-theorem erdos_493_aristotle :
+theorem erdos_493 :
   ∃ k : ℕ, ∃ N : ℤ, ∀ n : ℤ, N ≤ n →
     ∃ a : Fin k → ℤ,
       (∀ i : Fin k, (2 : ℤ) ≤ a i) ∧
@@ -51,7 +51,9 @@ theorem erdos_493_chatgpt :
     simp [a, Fin.prod_univ_two, Fin.sum_univ_two]
     ring
 
-#print axioms erdos_493_aristotle
+#print axioms erdos_493
 -- 'Erdos493.erdos_493_aristotle' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos493
+
+alias _root_.Erdos493.erdos_493_aristotle := _root_.Erdos493.erdos_493

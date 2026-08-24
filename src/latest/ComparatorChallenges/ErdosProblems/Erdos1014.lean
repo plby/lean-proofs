@@ -2,9 +2,8 @@
 
 import Mathlib
 
-open Finset
-
-noncomputable section
+open Filter
+open scoped Topology
 
 namespace SimpleGraph
 
@@ -133,24 +132,17 @@ theorem ramseyProperty_exists (k l : ℕ) : ∃ n, RamseyProperty k l n := by
             exact ramseyProperty_of_card (Gᶜ.card_neighborSet_eq_degree v) hprop H ⟨hcf, hif⟩
 
 /-- The off-diagonal Ramsey number `R(k, l)`. -/
-def ramseyNumber (k l : ℕ) : ℕ :=
+noncomputable def ramseyNumber (k l : ℕ) : ℕ :=
   by
     classical
     exact Nat.find (ramseyProperty_exists k l)
 
 end Ramsey
 
-open Filter
-open Finset
-open MeasureTheory ProbabilityTheory unitInterval
-open scoped Topology ENNReal
-open Ramsey
-
 namespace Erdos1014
 
-open scoped Classical in
-theorem erdos1014 (k : ℕ) (hk : 3 ≤ k) :
-    Tendsto (fun l => (ramseyNumber k (l + 1) : ℝ) / ramseyNumber k l) atTop (𝓝 1) := by
+theorem erdos_1014 (k : ℕ) (hk : 3 ≤ k) :
+    Tendsto (fun l => (Ramsey.ramseyNumber k (l + 1) : ℝ) / Ramsey.ramseyNumber k l) atTop (𝓝 1) := by
   sorry
 
 end Erdos1014

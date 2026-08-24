@@ -435,7 +435,7 @@ theorem sumfree_upperDensity_le_half (S : Set ℕ) (hS : pow2SumFree S) :
 /-- **Main result**: There exists a set with natural density 1/2 that is
     power-of-2 sum-free, and every power-of-2 sum-free set has upper density
     at most 1/2. -/
-theorem main_result :
+theorem erdos_1136 :
     (∃ S : Set ℕ, pow2SumFree S ∧
       Filter.Tendsto (fun n : ℕ => (countIn S n : ℝ) / ↑n)
         Filter.atTop (nhds (1 / 2 : ℝ))) ∧
@@ -444,7 +444,7 @@ theorem main_result :
         Filter.atTop ≤ 1 / 2) :=
   ⟨⟨A, A_sumfree, A_density_half⟩, fun S hS => sumfree_upperDensity_le_half S hS⟩
 
-#print axioms main_result
+#print axioms erdos_1136
 -- 'Erdos1136.main_result' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 -- ============================================================================
@@ -690,3 +690,5 @@ theorem general_upper_bound_infinite
 -- Quot.sound]
 
 end Erdos1136
+
+alias _root_.Erdos1136.main_result := _root_.Erdos1136.erdos_1136

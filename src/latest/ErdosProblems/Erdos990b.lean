@@ -1910,7 +1910,7 @@ theorem explicit_counterexample_family (N : ℕ) (hN : 1 ≤ N) :
   · exact sparsePoly_rootMultiplicity_at_x0 N K (le_max_left _ _)
 
 /-- Main theorem `p990:thm:main`: there is no absolute sparse Erdős--Turán bound. -/
-theorem erdos990_no_absolute_constant_sparseErdosTuran :
+theorem not_erdos_990 :
     ¬ ∃ C : ℝ, 0 < C ∧ SparseErdosTuranBound C := by
   rintro ⟨C, hC, hET⟩
   have hCnonneg : 0 ≤ C := le_of_lt hC
@@ -2020,8 +2020,10 @@ theorem erdos990_no_absolute_constant_sparseErdosTuran :
     linarith
   nlinarith [hdisc_lower, hub', htarget]
 
-#print axioms erdos990_no_absolute_constant_sparseErdosTuran
+#print axioms not_erdos_990
 -- 'Erdos990b.erdos990_no_absolute_constant_sparseErdosTuran' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
 
 end Erdos990b
+
+alias _root_.Erdos990b.erdos990_no_absolute_constant_sparseErdosTuran := _root_.Erdos990b.not_erdos_990

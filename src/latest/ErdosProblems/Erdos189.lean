@@ -898,7 +898,16 @@ theorem erdos_189 :
     apply is_rectangle_of_erdos a b c d h₂ h₄.left h₄.right.left h₄.right.right h₃
   exact hf n ⟨_, by simpa [Set.subset_def] using h₁, h_rect⟩
 
-#print axioms erdos_189
+theorem not_erdos_189 :
+    ¬ Erdos189For
+      (fun a b c d ↦
+        line[ℝ, a, b].direction ⟂ line[ℝ, b, c].direction ∧
+          line[ℝ, b, c].direction ⟂ line[ℝ, c, d].direction ∧
+            line[ℝ, c, d].direction ⟂ line[ℝ, d, a].direction)
+      (fun a b c _d ↦ dist a b * dist b c) := by
+  exact erdos_189.mp
+
+#print axioms not_erdos_189
 -- 'Erdos189.erdos_189' depends on axioms: [propext, Classical.choice, Quot.sound]
 --'Erdos189.erdos_189' depends on axioms: [propext, Classical.choice, Quot.sound]
 

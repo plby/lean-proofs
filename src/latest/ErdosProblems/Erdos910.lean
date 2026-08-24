@@ -1008,12 +1008,13 @@ the sharp consequences of the property Rudin actually published. -/
 
 /-- Corrected formal resolution of the statements supported by the cited
 source and of the literal modern ambient-dimension formulation. -/
-theorem erdos_910 :
+theorem not_erdos_910 :
     (∀ m : Set (Euclidean 1), IsConnected m → Nondegenerate m →
       ∃ n : Set (Euclidean 1),
         n ⊆ m ∧ IsConnected n ∧ Nondegenerate n ∧ ¬ Nonempty (m ≃ₜ n)) ∧
     Cardinal.mk (ConnectedSubsets planeInterval) = Cardinal.continuum ∧
-    ¬ SecondQuestionAllDimensions ∧
+    ¬ (∀ n : ℕ, 2 ≤ n → ∀ M : Set (Erdos910.Euclidean n), IsConnected M → Erdos910.Nondegenerate M →
+  Cardinal.continuum < Cardinal.mk (Erdos910.EuclideanConnectedSubsets n M)) ∧
     ∀ M : Set Plane, RudinCountableComplement M →
       Cardinal.mk (ConnectedSubsets M) = Cardinal.continuum ∧
       ∃ N : Set Plane,
@@ -1043,4 +1044,6 @@ end Erdos910
 #print axioms Erdos910.rudinCountableComplement_has_proper_candidate
 #print axioms Erdos910.rudin1958Statement_refutes_second
 #print axioms Erdos910.rudinCountableComplement_mk_connectedSubsets_eq
-#print axioms Erdos910.erdos_910
+#print axioms Erdos910.not_erdos_910
+
+alias _root_.Erdos910.erdos_910 := _root_.Erdos910.not_erdos_910

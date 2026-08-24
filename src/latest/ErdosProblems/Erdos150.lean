@@ -1323,7 +1323,7 @@ theorem limit_alpha_exists_and_le_two_pow_entropy :
   obtain ⟨α, hα⟩ := limit_alpha_exists
   exact ⟨α, hα, alpha_le_two_pow_entropy α hα⟩
 
-theorem limit_alpha_exists_and_lt_two :
+theorem erdos_150 :
     ∃ α, Filter.Tendsto (fun n ↦ (c n : ℝ) ^ (1 / n : ℝ)) .atTop (nhds α) ∧
       α < 2 := by
   obtain ⟨α, hα, hα_le⟩ := limit_alpha_exists_and_le_two_pow_entropy
@@ -1350,10 +1350,12 @@ theorem limit_alpha_exists_and_lt_two :
       Real.rpow_lt_rpow_of_exponent_lt one_lt_two h_entropy_lt_one
     _ = 2 := by norm_num
 
-#print axioms limit_alpha_exists_and_lt_two
+#print axioms erdos_150
 -- 'Erdos150.limit_alpha_exists_and_lt_two' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
 end LimitAndBound
 
 end Erdos150
+
+alias _root_.Erdos150.limit_alpha_exists_and_lt_two := _root_.Erdos150.erdos_150

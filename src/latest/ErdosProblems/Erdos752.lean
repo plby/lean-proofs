@@ -204,7 +204,15 @@ theorem explicitMinimumDegreeResolution : ExplicitMinimumDegreeResolution.{u} :=
 
 /-- Erdős Problem 752: a finite graph of minimum degree `k` and girth
 greater than `2 * s` has `≫_s k ^ s` distinct cycle lengths. -/
-theorem erdos_752 : MinimumDegreeResolution.{u} :=
+theorem erdos_752 : (∀ (s : ℕ), 1 ≤ s →
+  ∃ C : ℕ, 0 < C ∧ ∃ k₀ : ℕ,
+    ∀ (k : ℕ), k₀ ≤ k →
+      ∀ (V : Type u) [Fintype V] [Nonempty V] (G : SimpleGraph V)
+        [DecidableRel G.Adj],
+        k ≤ G.minDegree →
+        Erdos752.GirthGreaterThan G (2 * s) →
+        ∃ L : Finset ℕ,
+          k ^ s ≤ C * L.card ∧ ∀ l ∈ L, Erdos752.HasCycleLength G l) :=
   minimumDegreeResolution_of_explicit explicitMinimumDegreeResolution
 
 #print axioms distinctLengthKernel

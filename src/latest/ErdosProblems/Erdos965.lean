@@ -39,7 +39,7 @@ The detailed mathematical proof and Leanization map are in `tex/965.tex`.
 
 namespace Erdos965
 
-theorem erdos_965 :
+theorem not_erdos_965 :
     ¬ ∀ f : ℝ → Fin 2, ∃ A : Set ℝ, ¬ A.Countable ∧
       ∀ᵉ (a ∈ A) (b ∈ A) (c ∈ A) (d ∈ A), a ≠ b → c ≠ d →
         f (a + b) = f (c + d) := by
@@ -53,4 +53,6 @@ theorem erdos_965 :
 
 end Erdos965
 
-#print axioms Erdos965.erdos_965
+#print axioms Erdos965.not_erdos_965
+
+alias _root_.Erdos965.erdos_965 := _root_.Erdos965.not_erdos_965

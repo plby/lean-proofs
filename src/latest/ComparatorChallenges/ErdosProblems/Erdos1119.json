@@ -3,7 +3,7 @@
   "solution_module": "ErdosProblems.Erdos1119",
   "theorem_names": [
     "Erdos1119.erdos_1119.variants.easy_case",
-    "Erdos1119.erdos_1119.variants.erdos_wetzel"
+    "Erdos1119.erdos_1119"
   ],
   "permitted_axioms": [
     "propext",
@@ -12,4 +12,3 @@
   ],
   "enable_nanoda": true
 }
-

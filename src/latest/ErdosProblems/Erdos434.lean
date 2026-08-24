@@ -27,7 +27,7 @@ Co-authored-by: Aristotle (Harmonic) <aristotle-harmonic@harmonic.fun>
 -/
 
 /-
-I have formalized the proof of the main theorem as `main_theorem_final`.
+I have formalized the proof of the main theorem as `erdos_434`.
 The theorem states that for $2 \le k \le n$, the set
 $A_{opt} = \{n, n-1, \dots, n-k+1\}$ maximizes the number of
 non-representable integers among all subsets of $\{1, \dots, n\}$ of size
@@ -616,7 +616,7 @@ Let k ≤ n and k ≥ 2. The choice of A ⊆ {1, ..., n} (with gcd(A) = 1) of
 size |A| = k which maximises the number of integers not representable as the
 sum of finitely many elements from A is A = {n, n-1, ..., n-k+1}.
 -/
-theorem main_theorem_final (n k : ℕ) (hk : k ≤ n) (hk_ge_2 : k ≥ 2) :
+theorem erdos_434 (n k : ℕ) (hk : k ≤ n) (hk_ge_2 : k ≥ 2) :
   ∀ A : Finset ℕ, (A : Set ℕ) ⊆ Set.Icc 1 n → A.card = k →
     Finset.gcd A id = 1 →
     non_representable_count A ≤ non_representable_count (A_opt n k) := by
@@ -649,4 +649,6 @@ theorem main_theorem_final (n k : ℕ) (hk : k ≤ n) (hk_ge_2 : k ≥ 2) :
 
 end Erdos434
 
-#print axioms Erdos434.main_theorem_final
+#print axioms Erdos434.erdos_434
+
+alias _root_.Erdos434.main_theorem_final := _root_.Erdos434.erdos_434

@@ -253,7 +253,11 @@ theorem problem553 : Problem553 := by
       div_le_div_of_nonneg_right hlower hdenpos.le
 
 /-- Erdős Problem 553 has a positive answer. -/
-theorem erdos_553 : Problem553 := by
+theorem erdos_553 :
+    Tendsto
+      (fun m : ℕ ↦
+        (threeColorRamseyNumber m : ℝ) / (twoColorRamseyNumber m : ℝ))
+      atTop atTop := by
   refine Iff.mp ?_ trivial
   constructor
   · intro _

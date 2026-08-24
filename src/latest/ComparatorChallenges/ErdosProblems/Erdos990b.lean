@@ -2,7 +2,6 @@
 
 import Mathlib
 
-open scoped BigOperators Topology
 open Polynomial
 
 namespace Erdos990b
@@ -40,15 +39,7 @@ def SparseErdosTuranBound (C : ℝ) : Prop :=
     β ≤ 2 * Real.pi →
     angularDiscrepancy f α β ≤ C * Real.sqrt ((nu f : ℝ) * Real.log (M f))
 
-end Erdos990b
-
-open scoped BigOperators Topology
-open Polynomial
-
-namespace Erdos990b
-
-open scoped Classical in
-theorem erdos990_no_absolute_constant_sparseErdosTuran :
+theorem not_erdos_990 :
     ¬ ∃ C : ℝ, 0 < C ∧ SparseErdosTuranBound C := by
   sorry
 

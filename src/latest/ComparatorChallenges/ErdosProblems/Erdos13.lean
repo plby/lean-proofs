@@ -2,17 +2,11 @@
 
 import Mathlib
 
+open Finset
+
 /-!
 # Erdős Problem 13
-
-Bedert's resolution of the finite property-P problem.
-
-Reference: B. Bedert, *On a problem of Erdős and Sárközy about sequences
-with no term dividing the sum of two larger terms*, arXiv:2301.07065.
 -/
-
-open Finset Nat
-open scoped Pointwise
 
 namespace Erdos13
 

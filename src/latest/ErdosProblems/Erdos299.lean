@@ -19,7 +19,7 @@ namespace Erdos299
 
 open UnitFractions
 
-theorem not_erdos299 :
+theorem not_erdos_299 :
     ¬ ∃ a : ℕ → ℕ, StrictMono a ∧
       (∀ i : ℕ, 1 ≤ a i) ∧
       (∃ C : ℕ, ∀ i : ℕ, a (i + 1) - a i ≤ C) ∧
@@ -132,7 +132,9 @@ theorem not_erdos299 :
     simpa [himageI] using hrecS
   exact hnosum I hrecI
 
-#print axioms not_erdos299
+#print axioms not_erdos_299
 -- 'Erdos299.not_erdos299' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos299
+
+alias _root_.Erdos299.not_erdos299 := _root_.Erdos299.not_erdos_299

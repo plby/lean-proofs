@@ -2,7 +2,7 @@
   "challenge_module": "Erdos426",
   "solution_module": "ErdosProblems.Erdos426",
   "theorem_names": [
-    "Erdos426.UniqueSubgraphs.f_tendsto_zero"
+    "Erdos426.UniqueSubgraphs.erdos_426"
   ],
   "permitted_axioms": [
     "propext",

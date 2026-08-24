@@ -2,26 +2,18 @@
 
 import Mathlib
 
-namespace Erdos1095b
-
 open Filter Real
+open scoped Topology
 
-open scoped Asymptotics Topology
+namespace Erdos1095b
 
 def Good (k n : ℕ) : Prop :=
   k + 1 < n ∧ k < Nat.minFac (Nat.choose n k)
 open Classical in
 noncomputable def g (k : ℕ) : ℕ :=
   if h : ∃ n : ℕ, Good k n then Nat.find h else 0
-end Erdos1095b
 
-open Filter Real
-open scoped Asymptotics Topology
-
-namespace Erdos1095b
-
-open scoped Classical in
-theorem erdos_1095_weaker_upper_bound :
+theorem erdos_1095 :
     ∃ f : ℕ → ℝ, Tendsto f atTop (𝓝 0) ∧ ∀ k, 2 ≤ k → g k ≤ exp (k ^ (1 + f k)) := by
   sorry
 

@@ -1256,7 +1256,7 @@ theorem bad_set_finite (B : ℕ) : (bad_set B).Finite := by
 /-
 The largest prime factor of n(n+1) tends to infinity as n tends to infinity.
 -/
-theorem n_n_plus_one_inf :
+theorem erdos_368 :
     Filter.Tendsto (fun n => P_plus (n * (n + 1))) Filter.atTop Filter.atTop := by
   -- By definition of $P^+$, we know that $P^+(n(n+1)) \ge B$ for all
   -- $n \ge N$ if and only if $n \notin \text{bad\_set } B$.
@@ -1271,5 +1271,7 @@ theorem n_n_plus_one_inf :
 
 end Erdos368b
 
-#print axioms Erdos368b.n_n_plus_one_inf
+#print axioms Erdos368b.erdos_368
 -- 'Erdos368b.n_n_plus_one_inf' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos368b.n_n_plus_one_inf := _root_.Erdos368b.erdos_368

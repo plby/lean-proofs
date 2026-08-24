@@ -6,44 +6,6 @@ import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
 namespace Erdos189
 
-open scoped BigOperators
-
-open scoped Real
-
-open scoped Nat
-
-open scoped Pointwise
-
-open Complex
-
-open Complex
-
-open Complex
-
-open Complex
-
-open Complex
-
-open Complex
-
-open Complex
-
-open Complex
-
-open Complex
-
-open Complex
-
-open Complex
-
-open Complex
-
-open Complex
-
-open Complex
-
-open Complex
-
 notation "ℝ²" => EuclideanSpace ℝ (Fin 2)
 
 variable {V P : Type*} {n : ℕ}
@@ -68,31 +30,8 @@ def Erdos189For (P : ℝ² → ℝ² → ℝ² → ℝ² → Prop) (A : ℝ² �
     ∀ area > (0 : ℝ), ∃ a b c d,
       {a, b, c, d} ⊆ colouring⁻¹' {colour} ∧ IsCcwConvexPolygon ![a, b, c, d] ∧
         A a b c d = area ∧ P a b c d
-noncomputable section AristotleLemmas
 
-open Complex
-
-open Complex
-
-open Complex EuclideanGeometry
-
-open Complex EuclideanGeometry
-
-open Complex EuclideanGeometry
-
-open Complex EuclideanGeometry
-
-open Complex EuclideanGeometry
-
-open Complex EuclideanGeometry
-
-end AristotleLemmas
-
-end Erdos189
-
-namespace Erdos189
-
-theorem erdos_189 :
+theorem not_erdos_189 :
     ¬ Erdos189For
       (fun a b c d ↦
         line[ℝ, a, b].direction ⟂ line[ℝ, b, c].direction ∧

@@ -1695,13 +1695,22 @@ lemma pos_rats_dense_in_pos_reals : Set.Ioi (0 : ℝ) ⊆ closure (Set.image (fu
 /-
 The set of divisor ratios is dense in (0, \infty).
 -/
-theorem ErdosProblem964 (hGPY : GoldstonGrahamPintzYildirimStatement) :
+theorem erdos_964 (hGPY : (∀ (a r : Fin 3 → ℕ),
+  (∀ i, 0 < a i) → (∀ i, 0 < r i) →
+  (∀ i, (r i).Coprime (a i)) →
+  (∀ i j, i ≠ j → (r i).Coprime (if a i > a j then a i - a j else a j - a i)) →
+  (∀ i j, i ≠ j → (r i).Coprime (r j)) →
+  ∀ C : ℕ,
+    ∃ i j, i < j ∧ {x : ℕ | r i ∣ Erdos964.L (a i) x ∧ r j ∣ Erdos964.L (a j) x ∧
+      (Erdos964.L (a i) x) / r i ∈ Erdos964.E2 C ∧ (Erdos964.L (a j) x) / r j ∈ Erdos964.E2 C}.Infinite)) :
   Set.Ioi (0 : ℝ) ⊆ closure (Set.image (fun q : ℚ => (q : ℝ)) divisor_ratios) := by
     have h_image_subset : Set.image (fun q : ℚ => (q : ℝ)) {q : ℚ | 0 < q} ⊆ Set.image (fun q : ℚ => (q : ℝ)) divisor_ratios :=
       Set.image_mono ( divisor_ratios_contains_all_pos_rats hGPY );
     exact Set.Subset.trans ( pos_rats_dense_in_pos_reals ) ( closure_mono h_image_subset )
 
-#print axioms ErdosProblem964
+#print axioms erdos_964
 -- 'Erdos964.ErdosProblem964' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos964
+
+alias _root_.Erdos964.ErdosProblem964 := _root_.Erdos964.erdos_964

@@ -5066,7 +5066,14 @@ def Resolution : Prop :=
   DirectGrowthTheorem ∧ SharpGrowthTheorem ∧ PrescribedThresholdTheorem
 
 /-- Complete formal resolution of Erdős Problem 1118. -/
-theorem erdos_1118 : Resolution :=
+theorem erdos_1118 : ((∀ (f : ℂ → ℂ) (c : ℝ),
+  Erdos1118.IsNonconstantEntire f → Erdos1118.HasFiniteArea f c → Erdos1118.GrowthIntegralConverges f) ∧ (∀ φ : ℝ → ℝ,
+  Monotone φ → (∀ r, 0 ≤ r → 0 < φ r) →
+  MeasureTheory.IntegrableOn (fun r : ℝ ↦ r / φ r) (Set.Ioi 0) →
+  ∃ (f : ℂ → ℂ) (c C R : ℝ),
+    Erdos1118.IsNonconstantEntire f ∧ 0 < c ∧ Erdos1118.HasFiniteArea f c ∧ 0 < C ∧ 0 < R ∧
+      ∀ r, R ≤ r →
+        Real.log (Real.log (Erdos1118.maximumModulus f r)) ≤ C * φ r) ∧ (∀ m : ℝ, 0 < m → Erdos1118.ClosedThresholdWitness m ∧ Erdos1118.OpenThresholdWitness m)) :=
   ⟨directGrowthTheorem, sharpGrowthTheorem, prescribedThresholdTheorem⟩
 
 /-- The second answer follows formally from Gol'dberg's exact theorem. -/

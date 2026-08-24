@@ -3456,7 +3456,7 @@ theorem lift_cycle_from_critical_preserve_length
 set_option maxHeartbeats 50000000 in
 -- The final subtype-instance bridge normalizes a stored critical witness through induced graphs.
 omit [Fintype V] [DecidableEq V] [DecidableRel G.Adj] in
-theorem erdos_751_strong [Finite V]
+theorem erdos_751 [Finite V]
     (hχ : (4 : ℕ∞) ≤ G.chromaticNumber) :
     ∃ C1 C2 : BV.Cycle (G := G),
       (Nat.dist (BV.Cycle.length (G := G) C1) (BV.Cycle.length (G := G) C2) = 1) ∨
@@ -3484,8 +3484,10 @@ theorem erdos_751_strong [Finite V]
   refine ⟨C1, C2, ?_⟩
   simpa [hlen1, hlen2] using hdist
 
-#print axioms erdos_751_strong
+#print axioms erdos_751
 -- 'Erdos751.Main.erdos_751_strong' depends on axioms: [propext, choice, Quot.sound]
 
 end Main
 end Erdos751
+
+alias _root_.Erdos751.Main.erdos_751_strong := _root_.Erdos751.Main.erdos_751

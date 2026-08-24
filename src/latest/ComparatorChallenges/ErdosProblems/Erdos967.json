@@ -2,7 +2,7 @@
   "challenge_module": "Erdos967",
   "solution_module": "ErdosProblems.Erdos967",
   "theorem_names": [
-    "Erdos967.disproof_of_question_1_1",
+    "Erdos967.not_erdos_967",
     "Erdos967.main_theorem"
   ],
   "permitted_axioms": [

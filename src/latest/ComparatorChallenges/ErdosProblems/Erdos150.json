@@ -2,7 +2,7 @@
   "challenge_module": "Erdos150",
   "solution_module": "ErdosProblems.Erdos150",
   "theorem_names": [
-    "Erdos150.limit_alpha_exists_and_lt_two"
+    "Erdos150.erdos_150"
   ],
   "permitted_axioms": [
     "propext",

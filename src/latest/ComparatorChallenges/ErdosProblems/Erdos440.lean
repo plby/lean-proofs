@@ -2,25 +2,7 @@
 
 import Mathlib
 
-/-!
-# Erdős Problem 440
-
-For a strictly increasing sequence of positive natural numbers, let its
-counting function be the number of indices whose adjacent least common
-multiple is at most the threshold.
-
-The file proves the square-root upper bound, the sharp universal limsup
-constant of Erdős--Szemerédi, and that the largest possible liminf is one.
-
-References:
-
-* P. Erdős and E. Szemerédi, *Megjegyzések az American Mathematical
-  Monthly egy problémájáról*, Matematikai Lapok 28 (1980), 121--124.
-* W. van Doorn, *Sequences with bounded lcm for consecutive elements*.
--/
-
-open scoped BigOperators NNReal Topology
-open Filter Finset
+open Filter
 
 namespace Erdos440SharpUpper.IncreasingSequence
 

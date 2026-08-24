@@ -774,7 +774,7 @@ theorem counterexample_unbounded_restricted_gaps {h : ℕ} (hh : 3 ≤ h) :
   exact (not_lt_of_ge (hC i)) (hsquareC.trans_le hgap)
 
 /-- Complete formal resolution of Erdős Problem 880. -/
-theorem erdos_880 :
+theorem not_erdos_880 :
     (∀ A : Set ℕ, IsAdditiveBasisOfOrder A 2 →
       HasBoundedGaps (restrictedSums A 2)) ∧
     (∀ h : ℕ, 3 ≤ h → ∃ A : Set ℕ,
@@ -786,6 +786,8 @@ theorem erdos_880 :
     exact ⟨counterexample h, counterexample_exact_order hh,
       counterexample_unbounded_restricted_gaps hh⟩
 
-#print axioms erdos_880
+#print axioms not_erdos_880
 
 end Erdos880
+
+alias _root_.Erdos880.erdos_880 := _root_.Erdos880.not_erdos_880

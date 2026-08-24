@@ -919,7 +919,12 @@ theorem finite_counterexample (m N₀ : ℕ) (hm : 1 ≤ m) :
       (by simpa [Q, p, h] using hphase.2)
 
 /-- Erdős Problem 1185 has a negative answer. -/
-theorem erdos_1185 : ¬ Erdos1185Statement := by
+theorem not_erdos_1185 : ¬ (∀ δ : ℝ, 0 < δ → ∀ k : ℕ, 3 ≤ k →
+  ∃ m : ℕ, 1 ≤ m ∧ ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
+    ∀ A B : Finset ℕ,
+      A ⊆ Finset.Icc 1 N → B ⊆ Finset.Icc 1 N →
+      δ * (N : ℝ) ≤ (A.card : ℝ) → m ≤ B.card →
+      Erdos1185.HasAPWithStepInDiff k A B) := by
   intro hstatement
   ·
     rcases hstatement (1 / 200) (by norm_num) 3 (by omega) with
@@ -929,3 +934,5 @@ theorem erdos_1185 : ¬ Erdos1185Statement := by
     exact hno (hall N hN A B hA hB hcardA hcardB)
 
 end Erdos1185
+
+alias _root_.Erdos1185.erdos_1185 := _root_.Erdos1185.not_erdos_1185

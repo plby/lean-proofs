@@ -2,8 +2,7 @@
 
 import Mathlib
 
-open Filter Finset Set
-open Metric
+open Filter Finset
 
 namespace Erdos119
 
@@ -30,7 +29,7 @@ theorem erdos_119.parts.iii_quantitative :
             ∑ k ∈ range n, M z k := by
   sorry
 
-theorem erdos_119.parts.iii :
+theorem erdos_119 :
     ∀ (z : ℕ → ℂ) (_ : ∀ i : ℕ, ‖z i‖ = 1),
       ∃ (c : ℝ) (_ : c > 0), ∀ᶠ n in atTop,
         ∑ k ∈ range n, M z k > n ^ (1 + c) := by

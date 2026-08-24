@@ -3983,7 +3983,7 @@ namespace Erdos797
 \(f(d) \ll d^{4/3}\), the second is
 \(d^{4/3}/(\log d)^{1/3} \ll f(d)\), and the third is the requested
 consequence \(f(d)=o(d^2)\). -/
-theorem erdos797_resolution :
+theorem erdos_797 :
     (∀ d : ℕ, 1 ≤ d → f₇₉₇ d ^ 3 ≤ 1024 ^ 3 * d ^ 4) ∧
     (∀ d : ℕ, LowerBound.lowerD 1 ≤ d →
       d ^ 4 ≤ 2 ^ 67 * Nat.log 2 d * f₇₉₇ d ^ 3) ∧
@@ -3995,6 +3995,8 @@ theorem erdos797_resolution :
   · intro d hd
     exact LowerBound.fourth_le_log_mul_extremal_cube hd
 
-#print axioms erdos797_resolution
+#print axioms erdos_797
 
 end Erdos797
+
+alias _root_.Erdos797.erdos797_resolution := _root_.Erdos797.erdos_797

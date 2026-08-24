@@ -2,13 +2,9 @@
 
 import Mathlib
 
+open MeasureTheory
+
 namespace Erdos206
-
-set_option linter.style.setOption false
-set_option linter.flexible false
-
-open scoped BigOperators ENNReal
-open Finset MeasureTheory Set
 
 namespace EgyptianFractions
 
@@ -29,17 +25,10 @@ def EventuallyGreedy (x : ℝ) : Prop :=
   x > 0 ∧ ∃ (m : ℕ → ℕ), StrictMono m ∧ (∀ k, 0 < m k) ∧
     ∃ n₀ : ℕ, ∀ n ≥ n₀,
       IsBestNTerm (Finset.image m (Finset.range n)) n x
-end EgyptianFractions
 
-end Erdos206
-
-open scoped BigOperators ENNReal
-open Finset MeasureTheory Set
-
-namespace Erdos206.EgyptianFractions
-
-open scoped Classical in
 theorem erdos_206 : volume {x : ℝ | EventuallyGreedy x} = 0 := by
   sorry
 
-end Erdos206.EgyptianFractions
+end EgyptianFractions
+
+end Erdos206

@@ -91,7 +91,7 @@ theorem sequenceRepresents_iff_represents {N t : ℕ} :
 
 lemma exists_positive_not_represents (N : ℕ) :
     ∃ t : ℕ, 1 ≤ t ∧ ¬ Represents N t := by
-  refine ⟨N + 1, by omega, ?_⟩
+  refine ⟨N + 1, Nat.succ_le_succ (Nat.zero_le N), ?_⟩
   rintro ⟨-, A, htA, hbounds, -⟩
   exact (Nat.not_succ_le_self N) (hbounds (N + 1) htA).2
 
@@ -138,4 +138,3 @@ def Resolution : Prop :=
 end
 
 end Erdos294
-

@@ -3,13 +3,10 @@
 import Mathlib
 
 open Filter
-open scoped BigOperators Topology Real
+open scoped Real
 
 namespace Erdos285
 
-noncomputable section
-
-open scoped Classical in
 /-- Erdős Problem 285: the least possible largest denominator in a
 `k + 1`-term representation of `1` by distinct unit fractions is asymptotic
 to `e / (e - 1) * (k + 1)`. -/

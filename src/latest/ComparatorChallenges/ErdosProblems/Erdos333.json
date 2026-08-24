@@ -2,7 +2,7 @@
   "challenge_module": "Erdos333",
   "solution_module": "ErdosProblems.Erdos333",
   "theorem_names": [
-    "Erdos333.main_obstruction"
+    "Erdos333.not_erdos_333"
   ],
   "permitted_axioms": [
     "propext",

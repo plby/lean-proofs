@@ -20,20 +20,24 @@ namespace Erdos298
 
 open UnitFractions
 
-theorem erdos298 (A : Set ℕ) (hA : 0 < upper_density A) :
+theorem erdos_298 (A : Set ℕ) (hA : 0 < upper_density A) :
     ∃ S : Finset ℕ, (S : Set ℕ) ⊆ A ∧ rec_sum S = 1 := by
   simpa [rec_sum] using unit_fractions_upper_density A hA
 
-theorem erdos298_density (A : Set ℕ) (d : ℝ) (hA : has_density A d) (hd : 0 < d) :
+theorem erdos_298_density (A : Set ℕ) (d : ℝ) (hA : has_density A d) (hd : 0 < d) :
     ∃ S : Finset ℕ, (S : Set ℕ) ⊆ A ∧ rec_sum S = 1 := by
   have hA' : 0 < upper_density A := by
     rw [hA.1]
     exact hd
-  exact erdos298 A hA'
+  exact erdos_298 A hA'
 
-#print axioms erdos298
+#print axioms erdos_298
 -- 'Erdos298.erdos298' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms erdos298_density
+#print axioms erdos_298_density
 -- 'Erdos298.erdos298_density' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos298
+
+alias _root_.Erdos298.erdos298 := _root_.Erdos298.erdos_298
+
+alias _root_.Erdos298.erdos298_density := _root_.Erdos298.erdos_298_density

@@ -12,8 +12,6 @@ end Nat
 
 namespace Erdos937
 
-open Nat Set
-
 def IsCoprimePowerfulAP4 (a d : ℕ) : Prop :=
   0 < d ∧
   a.Powerful ∧ (a + d).Powerful ∧ (a + 2 * d).Powerful ∧ (a + 3 * d).Powerful ∧

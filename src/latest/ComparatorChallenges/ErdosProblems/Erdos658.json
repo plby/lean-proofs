@@ -2,9 +2,8 @@
   "challenge_module": "Erdos658",
   "solution_module": "ErdosProblems.Erdos658",
   "theorem_names": [
-    "Erdos658.Theorem_1_1",
     "Erdos658.Theorem_1_2",
-    "Erdos658.erdos658"
+    "Erdos658.erdos_658"
   ],
   "permitted_axioms": [
     "frankl_roedl_theorem",

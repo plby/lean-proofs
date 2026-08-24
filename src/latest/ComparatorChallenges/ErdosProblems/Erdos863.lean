@@ -2,17 +2,9 @@
 
 import Mathlib
 
-open scoped BigOperators
+open Filter
 
 namespace Erdos863
-
-open Filter Real
-
-noncomputable section
-
-/-- Ordered representations of `n` as a sum of two members of `A`. -/
-def orderedSumReps (A : Finset ℕ) (n : ℕ) : Finset (ℕ × ℕ) :=
-  (A ×ˢ A).filter fun x => x.1 + x.2 = n
 
 /-- Representations of `n` as `a + b`, counted once by imposing `a ≤ b`. -/
 def sumReps (A : Finset ℕ) (n : ℕ) : Finset (ℕ × ℕ) :=
@@ -46,21 +38,10 @@ def HasSqrtAsymptotic (f : ℕ → ℕ) (c : ℝ) : Prop :=
 
 /-! ### Ruzsa's optimal modular Sidon sets -/
 
-/-- A Sidon set in an additive commutative monoid. -/
-def Sidon {α : Type*} [AddCommMonoid α] (S : Set α) : Prop :=
-  ∀ a b c d, a ∈ S → b ∈ S → c ∈ S → d ∈ S →
-    a + b = c + d → ({a, b} : Set α) = {c, d}
-
-/-- Sidonicity after reduction modulo `M`. -/
-def SidonMod (M : ℕ) (S : Set ℕ) : Prop :=
-  Sidon ((fun x : ℕ => (x : ZMod M)) '' S)
-
 theorem erdos_863 {r : ℕ} (hr : 2 ≤ r) {cSum cDiff : ℝ}
     (hsum : HasSqrtAsymptotic (sumMax r) cSum)
     (hdiff : HasSqrtAsymptotic (diffMax r) cDiff) :
     cDiff < cSum := by
   sorry
-
-end
 
 end Erdos863

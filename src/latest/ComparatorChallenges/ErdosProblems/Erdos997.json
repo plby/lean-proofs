@@ -2,7 +2,7 @@
   "challenge_module": "Erdos997",
   "solution_module": "ErdosProblems.Erdos997",
   "theorem_names": [
-    "Erdos997.erdos997"
+    "Erdos997.erdos_997"
   ],
   "permitted_axioms": [
     "maynardTaoBFT",

@@ -289,15 +289,17 @@ lemma graham_lower_bound_of_radius {X : ℝ} (n : ℕ) (hX : 2 * (4 : ℝ) ^ n �
 
 /-- Resolution of Erdős Problem 466: for the fixed positive separation
 `δ = 1/10`, the exact maximum `N(X,δ)` tends to infinity with the radius. -/
-theorem erdos466 :
+theorem erdos_466 :
     ∃ δ : ℝ, 0 < δ ∧ Tendsto (fun X : ℝ ↦ N X δ) atTop atTop := by
   refine ⟨1 / 10, by norm_num, ?_⟩
   refine tendsto_atTop.2 fun n ↦ ?_
   filter_upwards [eventually_ge_atTop (2 * (4 : ℝ) ^ n)] with X hX
   exact graham_lower_bound_of_radius n hX
 
-#print axioms erdos466
+#print axioms erdos_466
 
 end
 
 end Erdos466
+
+alias _root_.Erdos466.erdos466 := _root_.Erdos466.erdos_466

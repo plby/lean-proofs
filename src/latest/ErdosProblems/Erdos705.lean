@@ -8301,12 +8301,14 @@ theorem erdos_705_of_witnesses
   exact hchrom (hk V hV hgirth)
 
 /-- Erdős Problem 705 has a negative answer. -/
-theorem erdos_705 :
+theorem not_erdos_705 :
     ¬ ∃ k, ∀ V : Set ℝ², V.Finite →
       (UnitDistancePlaneGraph V).girth ≥ k →
       (UnitDistancePlaneGraph V).chromaticNumber ≤ 3 :=
   erdos_705_of_witnesses high_girth_four_chromatic_witnesses
 
-#print axioms Erdos705.erdos_705
+#print axioms Erdos705.not_erdos_705
 
 end Erdos705
+
+alias _root_.Erdos705.erdos_705 := _root_.Erdos705.not_erdos_705

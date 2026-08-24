@@ -4346,11 +4346,13 @@ theorem erdos300_of_dense (hLS : DenseContainsOne) :
 
 /-- Erdős Problem 300: the largest subset of `{1, ..., N}` having no
 unit-sum reciprocal subcollection has asymptotic density `1 - 1 / e`. -/
-theorem erdos300 :
+theorem erdos_300 :
     Tendsto (fun N : ℕ => (erdos300Max N : ℝ) / (N : ℝ)) atTop
       (𝓝 (1 - 1 / Real.exp 1)) :=
   erdos300_of_dense dense_contains_one
 
-#print axioms erdos300
+#print axioms erdos_300
 
 end Erdos300
+
+alias _root_.Erdos300.erdos300 := _root_.Erdos300.erdos_300

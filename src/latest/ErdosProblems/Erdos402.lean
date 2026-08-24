@@ -7977,7 +7977,7 @@ private theorem eventually_grahamBound_normalized :
 
 /-- Eventual form of the exact Formal Conjectures statement, with no gcd
 normalization assumption. -/
-theorem erdos_402_of_sufficiently_large :
+theorem erdos_402 :
     ∃ N₀ : ℕ, ∀ A : Finset ℕ, N₀ ≤ A.card → 0 ∉ A → A.Nonempty →
       ∃ᵉ (a ∈ A) (b ∈ A), a.gcd b ≤ (a / A.card : ℚ) := by
   have hlargeEv := eventually_grahamBound_normalized
@@ -8065,3 +8065,5 @@ private lemma grahamBound_of_analytic_sum_bounds
     _ ≤ totalSafeLargePrimeCandidates A.card G (globalD A G) := hsafe
 
 end Erdos402
+
+alias _root_.Erdos402.erdos_402_of_sufficiently_large := _root_.Erdos402.erdos_402

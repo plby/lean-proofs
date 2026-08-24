@@ -232,7 +232,8 @@ def erdos_958 : Prop :=
   ∀ A : Finset Point,
     HasProfile A ↔ (EquallySpacedOnLine A ∨ EquallySpacedOnCircle A)
 
-theorem not_erdos_958 : ¬erdos_958 := by
+theorem not_erdos_958 : ¬(∀ A : Finset Erdos958.Point,
+  Erdos958.HasProfile A ↔ (Erdos958.EquallySpacedOnLine A ∨ Erdos958.EquallySpacedOnCircle A)) := by
   have h_not_line : ¬ EquallySpacedOnLine counterexample_set := by
     exact counterexample_not_line
   have h_not_circle : ¬ EquallySpacedOnCircle counterexample_set := by

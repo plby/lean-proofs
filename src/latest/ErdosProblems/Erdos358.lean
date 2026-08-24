@@ -9121,11 +9121,11 @@ theorem exists_strictMono_tendsto_f :
   exact ⟨enumerate S, enumerate_strictMono hS,
     tendsto_f_enumerate_of_eventually_set_representations hS h1 hrep⟩
 
-theorem erdos_358.parts.i :
+theorem erdos_358 :
     ∃ A, StrictMono A ∧ atTop.Tendsto (Erdos358.f A) atTop := by
   exact Erdos358.exists_strictMono_tendsto_f
 
-theorem erdos_358.parts.ii :
+theorem erdos_358_part_ii :
     ∃ A, StrictMono A ∧
       ∀ᶠ n in atTop, 2 ≤ Erdos358.f A n := by
   obtain ⟨A, hA, hlim⟩ := Erdos358.exists_strictMono_tendsto_f
@@ -9133,5 +9133,9 @@ theorem erdos_358.parts.ii :
 
 end Erdos358
 
-#print axioms Erdos358.erdos_358.parts.i
-#print axioms Erdos358.erdos_358.parts.ii
+#print axioms Erdos358.erdos_358
+#print axioms Erdos358.erdos_358_part_ii
+
+alias _root_.Erdos358.erdos_358.parts.i := _root_.Erdos358.erdos_358
+
+alias _root_.Erdos358.erdos_358.parts.ii := _root_.Erdos358.erdos_358_part_ii

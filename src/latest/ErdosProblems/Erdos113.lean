@@ -4907,7 +4907,11 @@ theorem janzerGraph_hasExtremalBound :
     eventually_janzerHostEmbedding
 
 /-- Janzer's counterexample resolves Erdős Problem 113 negatively. -/
-theorem erdos113_resolution : ¬ ErdosSimonovitsConjecture :=
+theorem not_erdos_113 :
+    ¬ (∀ (V : Type) [Fintype V], ∀ H : SimpleGraph V,
+      H.IsBipartite → (HasThreeHalvesExtremalBound H ↔ IsTwoDegenerate H)) :=
   not_erdosSimonovitsConjecture_of_janzer_bound janzerGraph_hasExtremalBound
 
 end Erdos113
+
+alias _root_.Erdos113.erdos113_resolution := _root_.Erdos113.not_erdos_113

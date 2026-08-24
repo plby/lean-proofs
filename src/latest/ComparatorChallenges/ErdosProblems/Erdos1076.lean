@@ -5,27 +5,11 @@ import Mathlib
 /-!
 # Erdős Problem 1076
 
-The displayed assertion in Problem 1076 is false as written.  Already for
-`k = 5`, Glock proved that the true asymptotic constant is `1 / 5`, rather
-than `1 / 6`.
-
-This file gives a self-contained disproof, not relying on Glock's approximate
-packing theorem.  On `23 * 23^d` vertices we construct a `(5,3)`-free
-three-uniform hypergraph with `92 * (23^d)^2` triples.  Its normalized density
-is `92 / 529 > 1 / 6`.
-
-The construction replaces every block in an explicit packing of an
-eleven-edge support graph by four triples.  The packing is obtained from a
-cyclic graceful labeling over `ZMod 23` and a two-column orthogonal array.
-The detailed mathematical proof and source audit are in `tex/1076.tex`.
+For arbitrarily large orders, there are `(5,3)`-free three-uniform
+hypergraphs with normalized density greater than `1 / 6`.
 -/
 
 namespace Erdos1076
-
-open Filter Finset
-open scoped BigOperators Topology
-
-noncomputable section
 
 /-! ## The finite extremal problem -/
 
@@ -59,15 +43,11 @@ noncomputable def extremalNumber (k n : ℕ) : ℕ :=
     exact (Finset.univ : Finset (TripleSystem n)).sup fun G ↦
       if FkFree k G then G.card else 0
 
-def Problem1076Claim : Prop :=
-  ∀ k : ℕ, 5 ≤ k →
-    Tendsto
-      (fun n : ℕ ↦ (extremalNumber k n : ℝ) / (n : ℝ) ^ 2)
-      atTop (𝓝 (1 / 6 : ℝ))
-
-theorem erdos_1076 : ¬ Problem1076Claim := by
+theorem not_erdos_1076 :
+    ¬ (∀ k : ℕ, 5 ≤ k →
+      Filter.Tendsto
+        (fun n : ℕ ↦ (Erdos1076.extremalNumber k n : ℝ) / (n : ℝ) ^ 2)
+        Filter.atTop (nhds (1 / 6 : ℝ))) := by
   sorry
-
-end
 
 end Erdos1076

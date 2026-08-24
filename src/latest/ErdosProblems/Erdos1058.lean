@@ -43,9 +43,11 @@ theorem largePrimeBound : LargePrimeBound :=
 /-- Erdős Problem 1058 (Luca): the only positive integers whose factorial
 plus one has no prime divisors beyond the first two primes after `n` are
 `1, 2, 3, 4, 5`. -/
-theorem erdos1058 (n : ℕ) :
+theorem erdos_1058 (n : ℕ) :
     IsSolution n ↔ n = 1 ∨ n = 2 ∨ n = 3 ∨ n = 4 ∨ n = 5 :=
   erdos1058_classification_of_large_certificates
     largePrimeBound largeCubicCertificate n
 
 end Erdos1058
+
+alias _root_.Erdos1058.erdos1058 := _root_.Erdos1058.erdos_1058

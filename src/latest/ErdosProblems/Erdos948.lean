@@ -443,13 +443,20 @@ theorem erdos_948_nat : ¬ Erdos948NatStatement := by
   exact homitted I hhit
 
 /-- Erdős Problem 948 has a negative answer, verbatim for integer colourings and sequences. -/
-theorem erdos_948 : ¬ Erdos948Statement := by
+theorem not_erdos_948 : ¬ (∃ (f : ℕ → ℕ) (k : ℕ), 0 < k ∧
+  ∀ colouring : ℤ → Fin k,
+    ∃ a : ℕ → ℤ, StrictMono a ∧
+      {n | a n < (f n : ℤ)}.Infinite ∧
+      ∃ omitted : Fin k, ∀ I : Finset ℕ,
+        colouring (∑ i ∈ I, a i) ≠ omitted) := by
   rintro ⟨f, k, hk, hclaimed⟩
   obtain ⟨colouring, hcolouring⟩ := finite f k hk
   obtain ⟨a, ha, hinf, omitted, homitted⟩ := hclaimed colouring
   obtain ⟨I, _hI, hhit⟩ := hcolouring a ha hinf omitted
   exact homitted I hhit
 
-#print axioms erdos_948
+#print axioms not_erdos_948
 
 end Erdos948
+
+alias _root_.Erdos948.erdos_948 := _root_.Erdos948.not_erdos_948

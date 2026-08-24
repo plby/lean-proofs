@@ -2,9 +2,9 @@
 
 import Mathlib
 
-namespace Erdos692
-
 open Finset
+
+namespace Erdos692
 
 def numDivisorsIn (x n m : ℕ) : ℕ :=
   ((Ioo n m).filter (· ∣ x)).card
@@ -14,14 +14,8 @@ def countWithOneDivisor (n m L : ℕ) : ℕ :=
 
 noncomputable def delta1 (n m : ℕ) : ℚ :=
   countWithOneDivisor n m ((Ioo n m).lcm id) / ((Ioo n m).lcm id)
-end Erdos692
 
-open Finset
-
-namespace Erdos692
-
-open scoped Classical in
-theorem delta1_not_unimodal :
+theorem not_erdos_692 :
     delta1 3 7 < delta1 3 6 ∧ delta1 3 7 < delta1 3 8 := by
   sorry
 

@@ -78,7 +78,15 @@ theorem erdos_814_atLeast : Erdos814AtLeastStatement := by
   · exact (hasMinDegreeOn_iff_induce_minDegree G S k).mp hSmin |>.2
 
 /-- Positive resolution of Erdős Problem 814. -/
-theorem erdos_814 : Erdos814Statement := by
+theorem erdos_814 : (∀ k : ℕ, 2 ≤ k →
+  ∃ c : ℝ, 0 < c ∧
+    ∀ n : ℕ, k - 1 ≤ n →
+      ∀ (G : SimpleGraph (Fin n)) [DecidableRel G.Adj],
+        G.edgeFinset.card = Erdos814.edgeThreshold k n →
+          ∃ S : Finset (Fin n),
+            S.Nonempty ∧
+            (S.card : ℝ) ≤ (1 - c) * (n : ℝ) ∧
+            k ≤ (G.induce (↑S : Set (Fin n))).minDegree) := by
   refine Iff.mp ?_ trivial
   constructor
   · intro _ k hk

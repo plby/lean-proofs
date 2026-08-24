@@ -1725,9 +1725,17 @@ theorem erdos808_disproved : ¬ StrongErdos808 := by
   exact (not_lt_of_ge hclaimed') hout
 
 /-- The repository's conventional name for the resolution of Problem 808. -/
-theorem erdos_808 : ¬ StrongErdos808 := erdos808_disproved
+theorem not_erdos_808 : ¬ (∀ c : ℝ, 0 < c → ∀ ε : ℝ, 0 < ε →
+  ∃ n₀ : ℕ, ∀ (V : Type) [Fintype V] (a : V ↪ ℕ)
+    (G : SimpleGraph V) [DecidableRel G.Adj],
+    n₀ ≤ Fintype.card V →
+    (Fintype.card V : ℝ) ^ (1 + c) ≤ (G.edgeFinset.card : ℝ) →
+    (Fintype.card V : ℝ) ^ (1 + c - ε) ≤
+      Max.max ((Erdos808.edgeSums a G).card : ℝ) ((Erdos808.edgeProducts a G).card : ℝ)) := erdos808_disproved
 
 #print axioms erdos808_quantitative_bound
-#print axioms erdos_808
+#print axioms not_erdos_808
 
 end Erdos808
+
+alias _root_.Erdos808.erdos_808 := _root_.Erdos808.not_erdos_808

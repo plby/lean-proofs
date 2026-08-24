@@ -627,7 +627,7 @@ theorem pe_iff_fiz : IsPEGroup G ↔ IsFIZGroup G := by
 subgraph, then there is a finite bound on the size of complete subgraphs.
 -/
 set_option linter.flexible false in
-theorem erdos1098 (G : Type*) [Group G]
+theorem erdos_1098 (G : Type*) [Group G]
     (h : ∀ S : Set G, S.PairwiseNonCommuting → S.Finite) :
     ∃ n : ℕ, ∀ S : Finset G,
       (↑S : Set G).PairwiseNonCommuting → S.card ≤ n := by
@@ -662,5 +662,7 @@ theorem erdos1098 (G : Type*) [Group G]
 
 end Erdos1098
 
-#print axioms Erdos1098.erdos1098
+#print axioms Erdos1098.erdos_1098
 -- 'Erdos1098.erdos1098' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos1098.erdos1098 := _root_.Erdos1098.erdos_1098

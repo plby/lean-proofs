@@ -335,7 +335,7 @@ theorem eventually_guaranteedIndependence_lower_bound :
 
 /-- Resolution of Erdős Problem 1024: the exact minimum guaranteed
 independence number is of order `sqrt (n log n)`. -/
-theorem erdos_problem_1024 :
+theorem erdos_1024 :
     (fun n : ℕ ↦ (guaranteedIndependence n : ℝ)) =Θ[atTop]
       resolutionScale := by
   apply isTheta_of_eventually_two_sided
@@ -351,4 +351,6 @@ theorem erdos_problem_1024 :
 
 end Erdos1024
 
-#print axioms Erdos1024.erdos_problem_1024
+#print axioms Erdos1024.erdos_1024
+
+alias _root_.Erdos1024.erdos_problem_1024 := _root_.Erdos1024.erdos_1024

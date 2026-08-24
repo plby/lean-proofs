@@ -2,6 +2,8 @@
 
 import Mathlib
 
+open Filter SimpleGraph
+
 /-!
 # Erdős Problem 1077
 
@@ -21,10 +23,8 @@ end SimpleGraph
 
 namespace Erdos1077
 
-open Finset Filter SimpleGraph
-
 open scoped Classical in
-theorem erdos_1077 :
+theorem not_erdos_1077 :
     ¬ ∀ ε > (0 : ℝ), ε < 1 → ∀ α > (0 : ℝ), α < 1 →
       ∀ᶠ D in atTop, ∀ᶠ n in atTop,
         ∀ G : SimpleGraph (Fin n),

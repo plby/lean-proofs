@@ -2,19 +2,9 @@
 
 import Mathlib
 
-/-!
-# Erdős Problem 358
-
-This file formalizes the statement from
-`google-deepmind/formal-conjectures/FormalConjectures/ErdosProblems/358.lean`.
-The mathematical construction is described in detail in `tex/358.tex`.
--/
-
-open scoped BigOperators Topology
+open Filter Finset
 
 namespace Erdos358
-
-open Filter Finset
 
 /-- Pairs of positive endpoints whose corresponding consecutive `A`-sum is `n`. -/
 def intervalRepresentations (A : ℕ → ℕ) (n : ℕ) : Set (ℕ × ℕ) :=
@@ -24,11 +14,11 @@ def intervalRepresentations (A : ℕ → ℕ) (n : ℕ) : Set (ℕ × ℕ) :=
 noncomputable def f (A : ℕ → ℕ) (n : ℕ) : ℕ :=
   Nat.card (intervalRepresentations A n)
 
-theorem erdos_358.parts.i :
+theorem erdos_358 :
     ∃ A, StrictMono A ∧ atTop.Tendsto (Erdos358.f A) atTop := by
   sorry
 
-theorem erdos_358.parts.ii :
+theorem erdos_358_part_ii :
     ∃ A, StrictMono A ∧
       ∀ᶠ n in atTop, 2 ≤ Erdos358.f A n := by
   sorry

@@ -23,7 +23,7 @@ URLs:
 /-
 We prove Theorem 1 from the paper "Factorial divisibility with bounded primes beyond
 the logarithmic barrier: an infinitely-many n result of Erdős type".
-The main result is `theorem_1`, which states that for any $r \ge 1$, there are
+The main result is `erdos_401`, which states that for any $r \ge 1$, there are
 infinitely many $n$ such that there exist $a_1, a_2 > 0$ with
 $a_1 + a_2 > n + \omega(r) \log n$ and $a_1! a_2! \mid n! P_r^n$.
 The proof follows the strategy outlined in the paper, using a primewise reduction,
@@ -1640,7 +1640,7 @@ lemma exists_good_m (r : ℕ) (hr : r ≥ 1) :
 Theorem 1.
 For fixed r, there are infinitely many n with the desired property.
 -/
-theorem theorem_1 (r : ℕ) (hr : r ≥ 1) :
+theorem erdos_401 (r : ℕ) (hr : r ≥ 1) :
     Set.Infinite {n : ℕ | ∃ a1 a2 : ℕ, a1 > 0 ∧ a2 > 0 ∧
       (a1 : ℝ) + a2 > n + ω r * Real.log n ∧
       (Nat.factorial a1 * Nat.factorial a2) ∣ (Nat.factorial n * (P r)^n)} := by
@@ -1655,5 +1655,7 @@ theorem theorem_1 (r : ℕ) (hr : r ≥ 1) :
 
 end Erdos401
 
-#print axioms Erdos401.theorem_1
+#print axioms Erdos401.erdos_401
 -- 'Erdos401.theorem_1' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos401.theorem_1 := _root_.Erdos401.erdos_401

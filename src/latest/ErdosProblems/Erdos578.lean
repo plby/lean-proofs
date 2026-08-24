@@ -34,6 +34,8 @@ open scoped BigOperators SimpleGraph
 /-- The vertices of the `d`-dimensional discrete cube. -/
 abbrev CubeVertex (d : ℕ) := Fin d → ZMod 2
 
+local instance twoNeZero : NeZero (2 : ℕ) := Nat.instNeZeroSucc
+
 /-- The `d`-dimensional cube: two bit vectors are adjacent when they differ
 in exactly one coordinate. -/
 abbrev cubeGraph (d : ℕ) : SimpleGraph (CubeVertex d) where

@@ -1005,7 +1005,7 @@ theorem main_result : ∃ (f : Polynomial ℂ) (c : ℝ) (m : ℕ),
         unfold f c'
         norm_num
 
-theorem erdos_1047 :
+theorem not_erdos_1047 :
   ¬ (∀ (f : Polynomial ℂ) (c : ℝ) (m : ℕ),
       f.Monic →
       f.roots.Nodup →
@@ -1026,7 +1026,9 @@ theorem erdos_1047 :
 
 #print axioms main_result
 -- 'Erdos1047.main_result' depends on axioms: [propext, choice, Quot.sound]
-#print axioms erdos_1047
+#print axioms not_erdos_1047
 -- 'Erdos1047.erdos_1047' depends on axioms: [propext, choice, Quot.sound]
 
 end Erdos1047
+
+alias _root_.Erdos1047.erdos_1047 := _root_.Erdos1047.not_erdos_1047

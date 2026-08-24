@@ -2,7 +2,7 @@
   "challenge_module": "Erdos152",
   "solution_module": "ErdosProblems.Erdos152",
   "theorem_names": [
-    "Erdos152.erdos_152.variants.square"
+    "Erdos152.erdos_152"
   ],
   "permitted_axioms": [
     "propext",

@@ -52,9 +52,11 @@ theorem jmStrong : JMStrong :=
 /-- Positive resolution of Erdős Problem 215 (Steinhaus's lattice-copy
 problem): a planar set meets every translated and rotated copy of `ℤ²` in
 exactly one point. -/
-theorem erdos215 : ∃ S : Set Point, IsSteinhaus S :=
+theorem erdos_215 : ∃ S : Set Point, IsSteinhaus S :=
   erdos215_of_jmStrong jmStrong
 
 end
 
 end Erdos215
+
+alias _root_.Erdos215.erdos215 := _root_.Erdos215.erdos_215

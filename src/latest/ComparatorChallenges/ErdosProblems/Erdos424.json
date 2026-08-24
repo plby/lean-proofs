@@ -1,7 +1,13 @@
 {
   "challenge_module": "Erdos424",
   "solution_module": "ErdosProblems.Erdos424",
-  "theorem_names": ["Erdos424.erdos_424_lower_density"],
-  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "theorem_names": [
+    "Erdos424.erdos_424"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
   "enable_nanoda": true
 }

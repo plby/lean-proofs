@@ -748,7 +748,7 @@ theorem card_le_pow_two_of_noObtuse
     simp [hA']
 
 -- Final existence result ("some three points give an obtuse angle")
-theorem exists_obtuse_of_card_succ_pow_two
+theorem erdos_224
   (A : Finset (E d))
   (hcard : A.card = (2 ^ d) + 1) :
   ∃ x y z : E d, x ∈ A ∧ y ∈ A ∧ z ∈ A ∧
@@ -773,10 +773,12 @@ theorem exists_obtuse_of_card_succ_pow_two
   rcases h' with ⟨x, y, z, hx, hy, hz, hxy, hxz, hyz, h⟩
   exact ⟨x, y, z, hx, hy, hz, hxy, hxz, hyz, h⟩
 
-#print axioms exists_obtuse_of_card_succ_pow_two
+#print axioms erdos_224
 -- 'Erdos224.exists_obtuse_of_card_succ_pow_two' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
 end
 
 end Erdos224
+
+alias _root_.Erdos224.exists_obtuse_of_card_succ_pow_two := _root_.Erdos224.erdos_224

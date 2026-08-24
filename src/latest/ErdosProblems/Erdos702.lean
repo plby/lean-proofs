@@ -24,7 +24,7 @@ The source-correct theorem is eventual in the ground-set size: for every
 two-star contains two members meeting in exactly one point.
 
 The literal stronger all-`n` formulation is false; the named theorem
-`erdos_702_all_n_false` records the concrete counterexample `n = 5`, `k = 4`.
+`not_erdos_702` records the concrete counterexample `n = 5`, `k = 4`.
 
 The detailed mathematical proof and Leanization map are in `tex/702.tex`.
 -/
@@ -86,7 +86,11 @@ lemma allFourSubsetsOfFive_avoids : AvoidsSingleton allFourSubsetsOfFive := by
 
 /-- **Named main result (counterexample).**  The stronger formulation with no
 lower bound on `n` is false already for all four-subsets of `Fin 5`. -/
-theorem erdos_702_all_n_false : ¬ AllNStatement := by
+theorem not_erdos_702 : ¬ (∀ (n k : ℕ) (𝓕 : Finset (Finset (Fin n))),
+  4 ≤ k →
+  Erdos702.IsUniform k 𝓕 →
+  Nat.choose (n - 2) (k - 2) < 𝓕.card →
+  Erdos702.HasSingletonIntersection 𝓕) := by
   intro h
   obtain ⟨A, hA, B, hB, hAB⟩ :=
     h 5 4 allFourSubsetsOfFive (by decide) allFourSubsetsOfFive_uniform
@@ -4732,7 +4736,11 @@ lemma descend_excess_by_structural_deletion
 
 /-- **Main result.**  Frankl's resolution of Erdős Problem 702 in its
 source-correct eventual form. -/
-theorem erdos_702_eventually : EventualStatement := by
+theorem erdos_702_eventually : (∀ k : ℕ, 4 ≤ k → ∃ n₀ : ℕ, ∀ n : ℕ, n₀ ≤ n →
+  ∀ 𝓕 : Finset (Finset (Fin n)),
+    Erdos702.IsUniform k 𝓕 →
+    Erdos702.twoStarBound n k < 𝓕.card →
+    Erdos702.HasSingletonIntersection 𝓕) := by
   intro k hk4
   obtain ⟨N₀, hN₀⟩ :=
     exists_threshold_low_point_or_low_pair_of_large_family k hk4
@@ -4774,3 +4782,5 @@ theorem erdos_702_eventually : EventualStatement := by
   omega
 
 end Erdos702
+
+alias _root_.Erdos702.erdos_702_all_n_false := _root_.Erdos702.not_erdos_702

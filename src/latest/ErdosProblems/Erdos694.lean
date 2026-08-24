@@ -2838,7 +2838,7 @@ PDF Theorem 2.1 in the natural `Tendsto` shape an asymptotic result requires.
 
 Trust boundary: `mertens_product` + `linnik_dvd` plus
 Mathlib core. There are no `sorry`s in this file. -/
-theorem erdos_694_asymptotic :
+theorem erdos_694 :
     Tendsto
       (fun x : ℕ => R x /
         (Real.exp Real.eulerMascheroniConstant * Real.log (Real.log x)))
@@ -2860,7 +2860,7 @@ Expected results, where `core` denotes Mathlib's
 * `landau_max_ratio`, `R_upper_bound`, `collision_at_height` —
   `core + mertens_product` (Linnik enters as a hypothesis, not as a global axiom).
 * `totient_collision_construction`, `R_lower_bound`,
-  `totient_fibre_extremes`, `erdos_694_asymptotic` —
+  `totient_fibre_extremes`, `erdos_694` —
   `core + mertens_product + linnik_dvd`.
 -/
 #print axioms Erdos694.totient_sq_ge_half
@@ -2893,6 +2893,8 @@ Expected results, where `core` denotes Mathlib's
 #print axioms Erdos694.totient_fibre_extremes
 -- 'Erdos694.totient_fibre_extremes' depends on axioms: [linnik_dvd,
 -- mertens_product, propext, Classical.choice, Quot.sound]
-#print axioms Erdos694.erdos_694_asymptotic
+#print axioms Erdos694.erdos_694
 -- 'Erdos694.erdos_694_asymptotic' depends on axioms: [linnik_dvd, mertens_product, propext,
 -- Classical.choice, Quot.sound]
+
+alias _root_.Erdos694.erdos_694_asymptotic := _root_.Erdos694.erdos_694

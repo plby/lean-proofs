@@ -19,7 +19,7 @@ namespace Erdos46
 
 open UnitFractions
 
-theorem erdos46 :
+theorem erdos_46 :
     ∀ {α : Type*} [Finite α] (c : ℤ → α),
       ∃ S : Finset ℕ, (∀ n ∈ S, 2 ≤ n) ∧ rec_sum S = 1 ∧ ∃ a : α, ∀ n ∈ S, c (n : ℤ) = a := by
   intro α _ c
@@ -107,7 +107,9 @@ theorem erdos46 :
     have hnB : n ∈ B := hS hn
     simpa [B, Acol, Set.mem_insert_iff] using hnB.1
 
-#print axioms erdos46
+#print axioms erdos_46
 -- 'Erdos46.erdos46' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos46
+
+alias _root_.Erdos46.erdos46 := _root_.Erdos46.erdos_46

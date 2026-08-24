@@ -5,8 +5,6 @@ import Mathlib.Analysis.Normed.Group.AddTorsor
 
 namespace Theorem61
 
-open Affine AffineSubspace Set
-
 variable {V : Type*} {P : Type*}
 variable [NormedAddCommGroup V] [InnerProductSpace ℝ V] [MetricSpace P]
 variable [NormedAddTorsor V P]

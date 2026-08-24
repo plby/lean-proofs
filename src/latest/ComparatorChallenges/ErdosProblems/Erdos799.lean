@@ -2,11 +2,6 @@
 
 import Mathlib
 
-open Filter
-open scoped Topology
-
-noncomputable section
-
 namespace Erdos799
 
 open scoped Classical in
@@ -19,16 +14,10 @@ end Erdos799
 
 namespace Erdos753
 
-open scoped Classical in
 def IsKChoosable {V : Type*} (G : SimpleGraph V) (k : ℕ) : Prop :=
   ∀ (L : V → Finset ℕ), (∀ v, (L v).card = k) →
     ∃ f : G.Coloring ℕ, ∀ v, f v ∈ L v
 
-end Erdos753
-
-namespace Erdos753
-
-open scoped Classical in
 noncomputable def listChromaticNumber {V : Type*} (G : SimpleGraph V) : ℕ :=
   sInf {k : ℕ | IsKChoosable G k}
 
@@ -38,23 +27,13 @@ end Erdos753
 
 namespace Erdos799
 
-open scoped Classical in
-def AlmostAllListChromaticSublinear : Prop :=
-  ∃ b : ℕ → ℕ,
-    (fun n : ℕ ↦ (b n : ℝ)) =o[atTop] (fun n : ℕ ↦ (n : ℝ)) ∧
-    Tendsto
-      (graphDensity
-        (fun n G ↦ Erdos753.listChromaticNumber G ≤ b n))
-      atTop (nhds 1)
-
-end Erdos799
-
-namespace Erdos799
-
-open scoped Classical in
-theorem erdos_799 : AlmostAllListChromaticSublinear := by
+theorem erdos_799 :
+    ∃ b : ℕ → ℕ,
+      (fun n : ℕ ↦ (b n : ℝ)) =o[Filter.atTop] (fun n : ℕ ↦ (n : ℝ)) ∧
+      Filter.Tendsto
+        (Erdos799.graphDensity
+          (fun n G ↦ Erdos753.listChromaticNumber G ≤ b n))
+        Filter.atTop (nhds 1) := by
   sorry
 
 end Erdos799
-
-end

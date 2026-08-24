@@ -28,7 +28,7 @@ constants.
 namespace Erdos581
 
 /-- Complete resolution of Erdős Problem 581, with explicit constants. -/
-theorem erdos581 :
+theorem erdos_581 :
     ∃ c₁ c₂ : ℝ, 0 < c₁ ∧ 0 < c₂ ∧
       ∀ m : ℕ,
         (m : ℝ) / 2 + c₁ * (m : ℝ) ^ ((4 : ℝ) / 5) ≤ (f m : ℝ) ∧
@@ -40,3 +40,5 @@ theorem erdos581 :
   · exact upper_bound m
 
 end Erdos581
+
+alias _root_.Erdos581.erdos581 := _root_.Erdos581.erdos_581

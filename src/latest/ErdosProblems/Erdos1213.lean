@@ -343,7 +343,7 @@ lemma slot_length_bin_injective {K : ℕ} (_hK : 0 < K) :
     rfl
 
 /-- The exact affirmative assertion in Erdős Problem 1213, in zero-based notation. -/
-def erdos_1213 : Prop :=
+def HasUniformEqualIntervalSumBound : Prop :=
   ∀ a K : ℕ, 1 ≤ a → 1 ≤ K → ∃ f : ℕ, ∀ (s : ℕ) (A : ℕ → ℕ),
     0 < s →
     A 0 = a →
@@ -492,7 +492,13 @@ theorem equal_interval_sums_of_last_gt_explicitBound
   exact hrawEq
 
 /-- Hegyvári's affirmative resolution of Erdős Problem 1213. -/
-theorem erdos1213 : erdos_1213 := by
+theorem erdos_1213 : (∀ a K : ℕ, 1 ≤ a → 1 ≤ K → ∃ f : ℕ, ∀ (s : ℕ) (A : ℕ → ℕ),
+  0 < s →
+  A 0 = a →
+  (∀ ⦃i j : ℕ⦄, i < j → j < s → A i < A j) →
+  (∀ ⦃i : ℕ⦄, i + 1 < s → A (i + 1) - A i ≤ K) →
+  f < A (s - 1) →
+  Erdos1213.HasEqualIntervalSums A s) := by
   intro a K ha hK
   refine ⟨explicitBound a K, ?_⟩
   intro s A hs hA0 hmono hgap hlast
@@ -500,6 +506,8 @@ theorem erdos1213 : erdos_1213 := by
     a K ha hK s A hs hA0 hmono hgap hlast
 
 #print axioms equal_interval_sums_of_last_gt_explicitBound
-#print axioms erdos1213
+#print axioms erdos_1213
 
 end Erdos1213
+
+alias _root_.Erdos1213.erdos1213 := _root_.Erdos1213.erdos_1213

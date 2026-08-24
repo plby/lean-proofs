@@ -2563,7 +2563,7 @@ theorem ohyeah1 (p : ProblemParameters) :
 /-
 If the sequence of numerators r is periodic, then limsup gcd(X_b, L_b) = infinity.
 -/
-theorem generalErdos291 (r : ℕ → ℤ) (t : ℕ) (ht : t > 0) (h_per : Function.Periodic r t)
+theorem erdos_291 (r : ℕ → ℤ) (t : ℕ) (ht : t > 0) (h_per : Function.Periodic r t)
     (h_r_nz : ∀ i, r i ≠ 0)
     (h_priemteller : ∀ m : ℕ, m ≥ 4 → (m : ℝ)^(2 * z m) < Real.exp (2.52 * m))
     (h_bla0 : ∀ n : ℕ, n ≥ 100 → L n > 2^n) :
@@ -2600,7 +2600,9 @@ theorem generalErdos291 (r : ℕ → ℤ) (t : ℕ) (ht : t > 0) (h_per : Functi
 #print axioms ohyeah1
 -- 'Erdos291b.ohyeah1' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-#print axioms generalErdos291
+#print axioms erdos_291
 -- 'Erdos291b.generalErdos291' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos291b
+
+alias _root_.Erdos291b.generalErdos291 := _root_.Erdos291b.erdos_291

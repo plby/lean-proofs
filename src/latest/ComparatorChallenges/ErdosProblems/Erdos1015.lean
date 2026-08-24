@@ -2,16 +2,14 @@
 
 import Mathlib
 
+open Finset
+
 /-!
 # Finite Ramsey theory utilities
 
 This file contains the finite two-color Ramsey definitions and elementary bounds shared by
 multiple developments.
 -/
-
-open Finset
-
-noncomputable section
 
 namespace SimpleGraph
 
@@ -21,30 +19,6 @@ theorem IndepSetFree.comap {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph
   rw [← cliqueFree_compl] at h ⊢
   exact CliqueFree.comap
     (((Embedding.complEquiv (G := H) (H := G)).toFun f).isContained) h
-
-def Iso.compl {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph β}
-    (e : G ≃g H) : Gᶜ ≃g Hᶜ where
-  toEquiv := e.toEquiv
-  map_rel_iff' := by
-    intro v w
-    by_cases hvw : v = w
-    · subst hvw
-      simp
-    · simpa [compl_adj, hvw, e.injective.ne_iff] using
-        not_congr (e.map_adj_iff (v := v) (w := w))
-
-theorem Iso.cliqueFree_iff {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph β} {n : ℕ}
-    (e : G ≃g H) : G.CliqueFree n ↔ H.CliqueFree n := by
-  constructor
-  · intro h
-    exact CliqueFree.comap e.symm.toEmbedding.isContained h
-  · intro h
-    exact CliqueFree.comap e.toEmbedding.isContained h
-
-theorem Iso.indepSetFree_iff {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph β} {n : ℕ}
-    (e : G ≃g H) : G.IndepSetFree n ↔ H.IndepSetFree n := by
-  simpa [indepSetFree_compl] using
-    (Iso.cliqueFree_iff (n := n) (e := Iso.compl e))
 
 end SimpleGraph
 
@@ -164,18 +138,14 @@ theorem ramseyProperty_exists (k l : ℕ) : ∃ n, RamseyProperty k l n := by
             exact ramseyProperty_of_card (Gᶜ.card_neighborSet_eq_degree v) hprop H ⟨hcf, hif⟩
 
 /-- The off-diagonal Ramsey number `R(k, l)`. -/
-def ramseyNumber (k l : ℕ) : ℕ :=
+noncomputable def ramseyNumber (k l : ℕ) : ℕ :=
   by
     classical
     exact Nat.find (ramseyProperty_exists k l)
 
 end Ramsey
 
-open scoped SimpleGraph
-
 namespace Erdos1015
-
-open Ramsey SimpleGraph
 
 /-- A red or blue clique of order t, with red encoded by G and blue by
 independence in G. -/
@@ -206,30 +176,28 @@ theorem remainderBound_exists (t n : ℕ) : ∃ b, RemainderBound t n b := by
   simp [hcard]
 
 /-- The exact worst-case minimum uncovered count. -/
-def packingRemainder (t n : ℕ) : ℕ :=
+noncomputable def packingRemainder (t n : ℕ) : ℕ :=
   by
     classical
     exact Nat.find (remainderBound_exists t n)
 
 /-- The inclusive Burr--Erdős--Spencer remainder. -/
-def besRemainder (t n : ℕ) : ℕ :=
-  let R := ramseyNumber t (t - 1)
+noncomputable def besRemainder (t n : ℕ) : ℕ :=
+  let R := Ramsey.ramseyNumber t (t - 1)
   R - 1 + (n - (R - 1)) % t
 
 /-- The reservoir size in the Burr--Erdős--Spencer proof. -/
-def besReservoir (t : ℕ) : ℕ :=
-  (t - 1) * (ramseyNumber t t - ramseyNumber t (t - 1)) +
+noncomputable def besReservoir (t : ℕ) : ℕ :=
+  (t - 1) * (Ramsey.ramseyNumber t t - Ramsey.ramseyNumber t (t - 1)) +
     (t - 1) * (t - 2) + 1
 
 /-- An explicit sufficient host threshold for the exact formula. -/
-def besThreshold (t : ℕ) : ℕ :=
-  ramseyNumber (besReservoir t) (besReservoir t)
+noncomputable def besThreshold (t : ℕ) : ℕ :=
+  Ramsey.ramseyNumber (besReservoir t) (besReservoir t)
 
-theorem erdos1015_exact {t n : ℕ} (ht : 3 ≤ t)
+theorem erdos_1015 {t n : ℕ} (ht : 3 ≤ t)
     (hn : besThreshold t ≤ n) :
     packingRemainder t n = besRemainder t n := by
   sorry
 
 end Erdos1015
-
-end

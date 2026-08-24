@@ -2,7 +2,11 @@
 
 import Mathlib
 
+open Finset
+
 namespace Erdos639
+
+section
 
 variable {V : Type*} {C : Sym2 V → Fin 2} {u v w x y z : V}
 
@@ -19,11 +23,7 @@ lemma irrefl : ¬NIMT C x x := by
 
 end NIMT
 
-open Finset
-
 namespace SimpleGraph
-
-open _root_.SimpleGraph
 
 variable (C) in
 def nimt : SimpleGraph V where
@@ -43,16 +43,14 @@ instance : DecidableRel (nimt C).Adj :=
   inferInstanceAs <| DecidableRel (NIMT C)
 end SimpleGraph
 
-end Erdos639
+end
 
-open Finset
-open _root_.SimpleGraph
+namespace SimpleGraph
 
-namespace Erdos639.SimpleGraph
-
-open scoped Classical in
-theorem erdos639 {V : Type*} {C : Sym2 V → Fin 2} [Fintype V] [DecidableEq V]
+theorem erdos_639 {V : Type*} {C : Sym2 V → Fin 2} [Fintype V] [DecidableEq V]
     (hn : 10 ≤ n V) : #(nimt C).edgeFinset ≤ n V ^ 2 / 4 := by
   sorry
 
-end Erdos639.SimpleGraph
+end SimpleGraph
+
+end Erdos639

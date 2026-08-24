@@ -2,20 +2,14 @@
 
 import Mathlib
 
-open scoped ENNReal Pointwise Topology ComplexConjugate
-
 namespace Erdos656
 
-open Filter Function Set Topology MeasureTheory
-
-noncomputable section
-
-def countIn (A : Set ℕ) (N : ℕ) : ℕ :=
+noncomputable def countIn (A : Set ℕ) (N : ℕ) : ℕ :=
   by
     classical
     exact ((Finset.range N).filter (· ∈ A)).card
 
-def upperDensity (A : Set ℕ) : ℝ :=
+noncomputable def upperDensity (A : Set ℕ) : ℝ :=
   Filter.limsup (fun N : ℕ => (countIn A N : ℝ) / N) Filter.atTop
 
 def HasPositiveUpperDensity (A : Set ℕ) : Prop :=
@@ -25,11 +19,9 @@ def HasTranslatedRestrictedPairSums (A B : Set ℕ) : Prop :=
   ∃ t : ℤ, ∀ b₁ ∈ B, ∀ b₂ ∈ B, b₁ ≠ b₂ →
     ∃ a ∈ A, (a : ℤ) = (b₁ : ℤ) + b₂ + t
 
-theorem erdos656 {A : Set ℕ} (hA : HasPositiveUpperDensity A) :
+theorem erdos_656 {A : Set ℕ} (hA : HasPositiveUpperDensity A) :
     ∃ B : Set ℕ, B.Infinite ∧ B ⊆ A ∧
       HasTranslatedRestrictedPairSums A B := by
   sorry
-
-end
 
 end Erdos656

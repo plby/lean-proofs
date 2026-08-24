@@ -2,26 +2,16 @@
 
 import Mathlib.Data.Real.Basic
 
-set_option linter.style.setOption false
-set_option linter.style.longLine false
-set_option linter.flexible false
-
-open scoped Real
-open scoped Nat
-
 namespace Erdos199
 
 def IsThreeTermAP (a b c : ℝ) : Prop :=
   a + c = 2 * b ∧ a ≠ c
 def IsInfiniteAP (S : Set ℝ) : Prop :=
   ∃ a b : ℝ, b ≠ 0 ∧ S = {x | ∃ n : ℕ, x = a + n * b}
-def Conjecture : Prop :=
-  ∀ A : Set ℝ, (∀ a ∈ A, ∀ b ∈ A, ∀ c ∈ A, ¬ IsThreeTermAP a b c) →
-    (∃ S : Set ℝ, IsInfiniteAP S ∧ S ⊆ (Set.univ \ A))
+
 end Erdos199
 
-open scoped Classical in
-theorem Erdos199.disproof_of_conjecture :
-    Not Erdos199.Conjecture
-  := by
+theorem Erdos199.not_erdos_199 :
+    Not (∀ A : Set ℝ, (∀ a ∈ A, ∀ b ∈ A, ∀ c ∈ A, ¬ Erdos199.IsThreeTermAP a b c) →
+      (∃ S : Set ℝ, Erdos199.IsInfiniteAP S ∧ S ⊆ (Set.univ \ A))) := by
   sorry

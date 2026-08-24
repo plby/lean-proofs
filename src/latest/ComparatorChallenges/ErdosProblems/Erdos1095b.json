@@ -2,7 +2,7 @@
   "challenge_module": "Erdos1095b",
   "solution_module": "ErdosProblems.Erdos1095b",
   "theorem_names": [
-    "Erdos1095b.erdos_1095_weaker_upper_bound"
+    "Erdos1095b.erdos_1095"
   ],
   "permitted_axioms": [
     "propext",

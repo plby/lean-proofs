@@ -2,10 +2,6 @@
 
 import Mathlib
 
-set_option linter.style.setOption false
-set_option linter.style.longLine false
-set_option linter.flexible false
-
 namespace Erdos435
 
 def generators (n : ℕ) : Set ℕ :=
@@ -18,11 +14,7 @@ def generators_int (n : ℕ) : Set ℤ :=
   Int.ofNat '' (generators n)
 def Representable (n : ℕ) : AddSubmonoid ℤ :=
   AddSubmonoid.closure (generators_int n)
-end Erdos435
 
-namespace Erdos435
-
-open scoped Classical in
 theorem erdos_435 (n : ℕ)
     (hn : n ≠ 0)
     (h_not_prime_pow : ∀ p k, Nat.Prime p → n ≠ p ^ k) :

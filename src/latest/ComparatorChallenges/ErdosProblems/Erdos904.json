@@ -2,7 +2,7 @@
   "challenge_module": "Erdos904",
   "solution_module": "ErdosProblems.Erdos904",
   "theorem_names": [
-    "Erdos904.SimpleGraph.erdos904"
+    "Erdos904.SimpleGraph.erdos_904"
   ],
   "permitted_axioms": [
     "propext",

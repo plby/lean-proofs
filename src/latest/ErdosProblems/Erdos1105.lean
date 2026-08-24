@@ -69,10 +69,18 @@ def PathStatement : Prop :=
         ((ℓ - 1).choose 2 + (ℓ - 1) * (n - ℓ + 1) + ε)
 
 /-- The full affirmative cycle asymptotic. -/
-theorem erdos_1105_parts_i : CycleStatement := cycle_asymptotic
+theorem erdos_1105 : (∀ k : ℕ, 3 ≤ k →
+  ((fun n : ℕ ↦ (Erdos1105.antiRamseyNum (SimpleGraph.cycleGraph k) n : ℝ) -
+      (((k : ℝ) - 2) / 2 + 1 / ((k : ℝ) - 1)) * n) =O[Filter.atTop]
+    (fun _ : ℕ ↦ (1 : ℝ)))) := cycle_asymptotic
 
 /-- The full affirmative exact path formula. -/
-theorem erdos_1105_parts_ii : PathStatement := by
+theorem erdos_1105_paths : (∀ (k n : ℕ), 5 ≤ k → k ≤ n →
+  let ℓ := (k - 1) / 2
+  let ε := if Odd k then 1 else 2
+  Erdos1105.antiRamseyNum (SimpleGraph.pathGraph k) n =
+    Max.max ((k - 2).choose 2 + 1)
+      ((ℓ - 1).choose 2 + (ℓ - 1) * (n - ℓ + 1) + ε)) := by
   intro k n hk hn
   exact antiRamseyNum_pathGraph hk hn
 
@@ -116,8 +124,8 @@ theorem erdos_1105_parts_ii_odd (k n : ℕ) (hk : 5 ≤ k) (hodd : Odd k) (hn : 
 end Erdos1105
 
 #print axioms Erdos1105.antiRamseyNum_cycleGraph_three
-#print axioms Erdos1105.erdos_1105_parts_i
-#print axioms Erdos1105.erdos_1105_parts_ii
+#print axioms Erdos1105.erdos_1105
+#print axioms Erdos1105.erdos_1105_paths
 #print axioms Erdos1105.erdos_1105_parts_i_triangle
 #print axioms Erdos1105.self_le_antiRamseyNum_pathGraph_five
 #print axioms Erdos1105.erdos_1105_parts_i_lower
@@ -128,3 +136,7 @@ end Erdos1105
 #print axioms Erdos1105.private_cycle_component_contained
 #print axioms Erdos1105.private_component_hamiltonian_and_card
 #print axioms Erdos1105.cross_component_color_not_private
+
+alias _root_.Erdos1105.erdos_1105_parts_i := _root_.Erdos1105.erdos_1105
+
+alias _root_.Erdos1105.erdos_1105_parts_ii := _root_.Erdos1105.erdos_1105_paths

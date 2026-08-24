@@ -585,7 +585,7 @@ theorem erdos_753 :
 
 /-- The negation form: there is **no** constant `c > 0` such that
 `n^{1/2+c} < χ_L(G) + χ_L(Gᶜ)` for all graphs on `n` vertices for large enough `n`. -/
-theorem erdos_753_negation :
+theorem not_erdos_753 :
     ¬∃ c : ℝ, c > 0 ∧ ∃ N : ℕ, ∀ n : ℕ, N ≤ n → ∀ (G : SimpleGraph (Fin n)),
         (n : ℝ) ^ ((1 : ℝ) / 2 + c) <
           ((listChromaticNumber G : ℝ) + (listChromaticNumber Gᶜ : ℝ)) := by
@@ -595,5 +595,7 @@ theorem erdos_753_negation :
 
 end Erdos753
 
-#print axioms Erdos753.erdos_753_negation
+#print axioms Erdos753.not_erdos_753
 -- 'Erdos753.erdos_753_negation' depends on axioms: [propext, choice, Quot.sound]
+
+alias _root_.Erdos753.erdos_753_negation := _root_.Erdos753.not_erdos_753

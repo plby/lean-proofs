@@ -42,10 +42,12 @@ namespace Erdos1140
 /-- **Resolution of Erdős Problem 1140.**  There are only finitely many
 positive natural numbers `n` for which every positive value `n - 2*x^2` is
 prime. -/
-theorem erdos_1140 : Set.Finite {n : ℕ | Good n} :=
+theorem not_erdos_1140 : Set.Finite {n : ℕ | Good n} :=
   finite_good_of_eventually_small_solvable_prime
     eventually_small_solvable_prime
 
 end Erdos1140
 
-#print axioms Erdos1140.erdos_1140
+#print axioms Erdos1140.not_erdos_1140
+
+alias _root_.Erdos1140.erdos_1140 := _root_.Erdos1140.not_erdos_1140

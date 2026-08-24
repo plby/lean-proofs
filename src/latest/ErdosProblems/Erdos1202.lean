@@ -614,7 +614,15 @@ theorem erdos_1202_counterexample (k : ℕ) :
   exact hRlarge.trans_le (by exact_mod_cast hcardsub)
 
 /-- Erdős Problem 1202 has a negative answer. -/
-theorem erdos_1202 : ¬ Erdos1202Statement := by
+theorem not_erdos_1202 :
+    ¬ (∀ ε η : ℝ, 0 < ε → 0 < η →
+      ∃ k : ℕ, 0 < k ∧ ∀ (n : ℕ) (p : Fin k → ℕ)
+        (A : (i : Fin k) → Finset (ZMod (p i))),
+        (∀ i, (p i).Prime) →
+        StrictMono p →
+        (∀ i, (p i : ℝ) < (n : ℝ) ^ (1 - ε)) →
+        (∀ i, (A i).card = (p i - 1) / 2) →
+        ((survivors n p A).card : ℝ) ≤ ε * n) := by
   intro hstatement
   obtain ⟨k, hkpos, hk⟩ :=
     hstatement (1 / 10) 1 (by norm_num) (by norm_num)
@@ -630,4 +638,6 @@ end
 
 end Erdos1202
 
-#print axioms Erdos1202.erdos_1202
+#print axioms Erdos1202.not_erdos_1202
+
+alias _root_.Erdos1202.erdos_1202 := _root_.Erdos1202.not_erdos_1202

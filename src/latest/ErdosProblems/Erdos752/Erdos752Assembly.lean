@@ -66,12 +66,12 @@ The lower bound four is sharp for this purely path-local statement: a
 length-two upper--lower--upper path may occur in a tree.  In the application
 the DFS path has length at least `2 * m` with `m ≥ 2`.
 -/
-theorem exists_cycle_lengths_of_bfsPair_path [Fintype V]
+theorem exists_cycle_lengths_of_bfsPair_path_bounded [Fintype V]
     (G : SimpleGraph V) (hconn : G.Connected) (root : V) (i : ℕ)
     {x y : V} (p : (bfsPair G root i).Walk x y)
     (hp : p.IsPath) (hlen : 4 ≤ p.length) :
     ∃ L : Finset ℕ, p.length ≤ 8 * L.card ∧
-      ∀ l ∈ L, ∃ v : V, ∃ c : G.Walk v v,
+      ∀ l ∈ L, l ≤ p.length + 2 * i ∧ ∃ v : V, ∃ c : G.Walk v v,
         c.IsCycle ∧ c.length = l := by
   classical
   let H := bfsPair G root i
@@ -104,6 +104,9 @@ theorem exists_cycle_lengths_of_bfsPair_path [Fintype V]
   let q : G.Walk a endpoint := qH.mapLe (bfsPair_le G root i)
   have hqPath : q.IsPath := by
     exact hqHPath.mapLe (bfsPair_le G root i)
+  have hqLength : q.length ≤ p.length := by
+    have hsupport := hqHPath.support_nodup.length_le_of_subset hqHSupport
+    simpa [q, SimpleGraph.Walk.length_support] using hsupport
   have hB₀q' : ∀ b ∈ B₀, b ∈ q.support := by
     intro b hb
     simpa [q] using hB₀q b hb
@@ -132,15 +135,58 @@ theorem exists_cycle_lengths_of_bfsPair_path [Fintype V]
     exact (Classical.choose_spec (hdetour b)).2.2 v hv hva hvb
   have hdetourLong : 1 < 2 * (i - j) := by omega
   obtain ⟨L, hLcard, hLcycles⟩ :=
-    exists_distinct_cycle_lengths_of_uniform_detours q hqPath B₀ hB₀q'
+    exists_distinct_cycle_lengths_of_uniform_detours_bounded q hqPath B₀ hB₀q'
       hqLevel detour hdetourPath hdetourLength hdetourLong hdetourBelow
-  refine ⟨L, ?_, hLcycles⟩
-  calc
-    p.length ≤ 2 * S.card := hpS
-    _ ≤ 2 * (2 * B.card) := Nat.mul_le_mul_left 2 hSB
-    _ ≤ 2 * (2 * (2 * B₀.card)) := by
-      gcongr
-    _ = 8 * L.card := by omega
+  refine ⟨L, ?_, ?_⟩
+  · calc
+      p.length ≤ 2 * S.card := hpS
+      _ ≤ 2 * (2 * B.card) := Nat.mul_le_mul_left 2 hSB
+      _ ≤ 2 * (2 * (2 * B₀.card)) := by
+        gcongr
+      _ = 8 * L.card := by omega
+  · intro l hl
+    obtain ⟨hbound, hcycle⟩ := hLcycles l hl
+    exact ⟨by omega, hcycle⟩
+
+/-- The assembly theorem without the additional upper bound on lengths. -/
+theorem exists_cycle_lengths_of_bfsPair_path [Fintype V]
+    (G : SimpleGraph V) (hconn : G.Connected) (root : V) (i : ℕ)
+    {x y : V} (p : (bfsPair G root i).Walk x y)
+    (hp : p.IsPath) (hlen : 4 ≤ p.length) :
+    ∃ L : Finset ℕ, p.length ≤ 8 * L.card ∧
+      ∀ l ∈ L, ∃ v : V, ∃ c : G.Walk v v,
+        c.IsCycle ∧ c.length = l := by
+  obtain ⟨L, hcard, hcycles⟩ :=
+    exists_cycle_lengths_of_bfsPair_path_bounded G hconn root i p hp hlen
+  exact ⟨L, hcard, fun l hl ↦ (hcycles l hl).2⟩
+
+/-- Bounded cycle lengths from a path in a subgraph of two BFS layers. -/
+theorem exists_cycle_lengths_of_path_in_subgraph_bfsPair_bounded [Fintype V]
+    (G : SimpleGraph V) (hconn : G.Connected) (root : V) (i : ℕ)
+    {K : SimpleGraph V} (hK : K ≤ bfsPair G root i)
+    {x y : V} (p : K.Walk x y) (hp : p.IsPath) (hlen : 4 ≤ p.length) :
+    ∃ L : Finset ℕ, p.length ≤ 8 * L.card ∧
+      ∀ l ∈ L, l ≤ p.length + 2 * i ∧ ∃ v : V, ∃ c : G.Walk v v,
+        c.IsCycle ∧ c.length = l := by
+  have hlen' : 4 ≤ (p.mapLe hK).length := by simpa using hlen
+  simpa using exists_cycle_lengths_of_bfsPair_path_bounded G hconn root i
+    (p.mapLe hK) (hp.mapLe hK) hlen'
+
+/-- Bounded cycle lengths for a path induced on the support of a slice subgraph. -/
+theorem exists_cycle_lengths_of_induce_support_path_bounded [Fintype V]
+    (G : SimpleGraph V) (hconn : G.Connected) (root : V) (i : ℕ)
+    {K : SimpleGraph V} (hK : K ≤ bfsPair G root i)
+    {x y : K.support} (p : (K.induce K.support).Walk x y)
+    (hp : p.IsPath) (hlen : 4 ≤ p.length) :
+    ∃ L : Finset ℕ, p.length ≤ 8 * L.card ∧
+      ∀ l ∈ L, l ≤ p.length + 2 * i ∧ ∃ v : V, ∃ c : G.Walk v v,
+        c.IsCycle ∧ c.length = l := by
+  let inclusion : K.induce K.support →g K :=
+    (SimpleGraph.Embedding.induce (G := K) K.support).toHom
+  have hpK : (p.map inclusion).IsPath := hp.map Subtype.val_injective
+  have hlenK : 4 ≤ (p.map inclusion).length := by simpa using hlen
+  simpa using exists_cycle_lengths_of_path_in_subgraph_bfsPair_bounded
+    G hconn root i hK (p.map inclusion) hpK hlenK
 
 /-- The same assembly theorem for a path lying in any subgraph of the
 two-level slice. -/

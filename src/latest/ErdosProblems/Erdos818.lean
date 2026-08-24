@@ -861,7 +861,7 @@ private lemma exists_pos_large_subset
       exact prodset_card_mono
         (negFilter_subset A)
 
-theorem erdos_problem_818_general
+theorem erdos_818
     (A : Finset ℝ) (hcard : 5 ≤ A.card)
     (c : ℕ)
     (hc : (A + A).card ≤ c * A.card) :
@@ -906,7 +906,9 @@ theorem erdos_problem_818_general
         (4 * c ^ 2 * Nat.clog 2 #A)]
   · nlinarith
 
-#print axioms erdos_problem_818_general
+#print axioms erdos_818
 -- 'Erdos818.erdos_problem_818_general' depends on axioms: [propext, choice, Quot.sound]
 
 end Erdos818
+
+alias _root_.Erdos818.erdos_problem_818_general := _root_.Erdos818.erdos_818

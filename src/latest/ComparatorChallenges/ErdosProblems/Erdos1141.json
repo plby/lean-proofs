@@ -2,7 +2,7 @@
   "challenge_module": "Erdos1141",
   "solution_module": "ErdosProblems.Erdos1141",
   "theorem_names": [
-    "Erdos1141.erdos_1141",
+    "Erdos1141.not_erdos_1141",
     "Erdos1141.erdos_1141_variant"
   ],
   "permitted_axioms": [

@@ -63,13 +63,19 @@ theorem erdos_632_counterexample :
   finalGraph_counterexample
 
 /-- Erdős Problem 632 has a negative answer. -/
-theorem erdos_632 : ¬ Erdos632Conjecture := by
+theorem not_erdos_632 :
+    ¬ (∀ (V : Type) (_ : Fintype V) (G : SimpleGraph V) (a b m : ℕ),
+      1 ≤ b → b ≤ a → 1 ≤ m →
+        IsABChoosable.{0, 0} G a b →
+          IsABChoosable.{0, 0} G (a * m) (b * m)) := by
   intro h
   have hscaled : IsABChoosable.{0, 0} finalGraph (4 * 2) (1 * 2) :=
     h FinalVertex inferInstance finalGraph 4 1 2 (by decide) (by decide)
       (by decide) erdos_632_counterexample.1
   exact erdos_632_counterexample.2 (by simpa using hscaled)
 
-#print axioms Erdos632.erdos_632
+#print axioms Erdos632.not_erdos_632
 
 end Erdos632
+
+alias _root_.Erdos632.erdos_632 := _root_.Erdos632.not_erdos_632

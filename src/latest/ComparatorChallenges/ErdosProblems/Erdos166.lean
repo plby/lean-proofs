@@ -2,10 +2,6 @@
 
 import Mathlib
 
-open Finset
-
-noncomputable section
-
 namespace SimpleGraph
 
 theorem IndepSetFree.comap {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph β} {n : ℕ}
@@ -133,21 +129,12 @@ theorem ramseyProperty_exists (k l : ℕ) : ∃ n, RamseyProperty k l n := by
             exact ramseyProperty_of_card (Gᶜ.card_neighborSet_eq_degree v) hprop H ⟨hcf, hif⟩
 
 /-- The off-diagonal Ramsey number `R(k, l)`. -/
-def ramseyNumber (k l : ℕ) : ℕ :=
+noncomputable def ramseyNumber (k l : ℕ) : ℕ :=
   by
     classical
     exact Nat.find (ramseyProperty_exists k l)
 
 end Ramsey
-
-/-!
-# Erdős Problem 920
-
-Ramsey-number and directed-construction definitions for the two theorem
-statements below.
--/
-
-open Real Filter
 
 /-- `g ≫ h` means that `h` is big-O of `g` at infinity. -/
 notation:50 g " ≫ " h => Asymptotics.IsBigO Filter.atTop h g
@@ -161,5 +148,3 @@ theorem erdos_166 :
   sorry
 
 end Erdos166
-
-end

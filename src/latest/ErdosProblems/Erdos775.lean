@@ -30,7 +30,7 @@ Formalization of the main results from "On cliques in hypergraphs" by Jun Gao.
 
 * `main_theorem` — **Theorem 1.1**: For any k ≥ 3 and C ≥ 0, there exists N such that
   every k-uniform hypergraph on n ≥ N vertices has at most n − C distinct clique sizes.
-* `erdos_problem_775` — The k = 3 specialization, answering Erdős Problem #775.
+* `erdos_775` — The k = 3 specialization, answering Erdős Problem #775.
 
 ## Supporting results
 
@@ -1560,7 +1560,7 @@ Formalization of the main results from "On cliques in hypergraphs" by Jun Gao.
 * `helly_complete` — **Fact 2.3**: Helly-type property for complete subgraphs.
 * `tree_from_many_clique_sizes` — The tree construction from Section 3.
 * `main_theorem` — **Theorem 1.1**: The all-k clique-size bound.
-* `erdos_problem_775` — The k=3 specialization answering Erdős's question.
+* `erdos_775` — The k=3 specialization answering Erdős's question.
 -/
 
 noncomputable section
@@ -2894,7 +2894,7 @@ theorem main_theorem (k : ℕ) (hk : k ≥ 3) (C : ℕ) :
 
 /-! ## k = 3 Corollary: Erdős Problem #775 -/
 
-theorem erdos_problem_775 (C : ℕ) :
+theorem erdos_775 (C : ℕ) :
     ∃ N : ℕ, ∀ n : ℕ, n ≥ N →
       ∀ H : KUniformHypergraph (Fin n) 3,
         ∀ sizes : Finset ℕ,
@@ -2902,9 +2902,11 @@ theorem erdos_problem_775 (C : ℕ) :
           sizes.card ≤ n - C :=
   main_theorem 3 (by omega) C
 
-#print axioms erdos_problem_775
+#print axioms erdos_775
 -- 'Erdos775.erdos_problem_775' depends on axioms: [propext, choice, Quot.sound]
 
 end
 
 end Erdos775
+
+alias _root_.Erdos775.erdos_problem_775 := _root_.Erdos775.erdos_775

@@ -6609,14 +6609,16 @@ lemma theorem_1_upper_bound (a b : ℕ) (hb_ge_2 : b ≥ 2) (hb_lt_a : b < a) :
   show (G (E : Set ℕ) : ℤ) ≤ (⌈(a - 1 : ℝ) / (b - 1 : ℝ)⌉ - 1) * a - 1
   exact g_upper_bound_helper a b hb_ge_2 hb_lt_a E hE_sub hE_card hE_gcd
 /-- Theorem 1: Main bounds on g(b, a). -/
-theorem theorem_1 (a b : ℕ) (hb_ge_2 : b ≥ 2) (hb_lt_a : b < a) :
+theorem erdos_433 (a b : ℕ) (hb_ge_2 : b ≥ 2) (hb_lt_a : b < a) :
   ⌊(a - 2 : ℝ) / (b - 1 : ℝ)⌋ * (a - b + 1) - 1 ≤ g b a ∧
   g b a ≤ (⌈(a - 1 : ℝ) / (b - 1 : ℝ)⌉ - 1) * a - 1 := by
   constructor
   · exact theorem_1_lower_bound a b hb_ge_2 hb_lt_a
   · exact theorem_1_upper_bound a b hb_ge_2 hb_lt_a
 -- 'theorem_1' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms theorem_1
+#print axioms erdos_433
 -- 'Erdos433.theorem_1' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos433
+
+alias _root_.Erdos433.theorem_1 := _root_.Erdos433.erdos_433

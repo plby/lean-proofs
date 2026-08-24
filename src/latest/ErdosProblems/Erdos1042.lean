@@ -2401,7 +2401,18 @@ def Erdos1042Resolution : Prop :=
           componentCount (rootPolynomial z) = 1)
 
 /-- Complete formal resolution of Erdős Problem 1042. -/
-theorem erdos1042_resolution : Erdos1042Resolution := by
+theorem erdos_1042 : ((∃ K : Set ℂ,
+    IsClosed K ∧
+    Erdos1042.HasTransfiniteDiameter K 1 ∧
+    (¬ ∃ a : ℂ, K ⊆ Metric.closedBall a 1) ∧
+    Erdos1042.HasInfinitelyManyMaximalLemniscates K) ∧
+(∀ K : Set ℂ, IsClosed K →
+    ∀ d : ℝ, Erdos1042.HasTransfiniteDiameter K d → 0 < d → d < 1 →
+      Erdos1042.HasUniformComponentGap K) ∧
+(∀ K : Set ℂ, IsClosed K → IsConnected K →
+    ∀ d : ℝ, Erdos1042.HasTransfiniteDiameter K d → d ≤ 1 / 4 →
+      ∀ n : ℕ, 0 < n → ∀ z : Fin n → ℂ, (∀ i, z i ∈ K) →
+        Erdos1042.componentCount (Erdos1042.rootPolynomial z) = 1)) := by
   refine ⟨?_, ?_, ?_⟩
   · exact ⟨capacityOneSet, capacityOneSet_isClosed,
       capacityOneSet_hasTransfiniteDiameter,
@@ -2418,6 +2429,8 @@ theorem erdos1042_resolution : Erdos1042Resolution := by
     exact componentCount_eq_one_of_connected_transfiniteDiameter_le_quarter
       hcompact hconn hd hdq hn z hzK
 
-#print axioms erdos1042_resolution
+#print axioms erdos_1042
 
 end Erdos1042
+
+alias _root_.Erdos1042.erdos1042_resolution := _root_.Erdos1042.erdos_1042

@@ -22,7 +22,7 @@ noncomputable abbrev unitDistancePairs (P : Finset Point) : ℕ :=
 
 /-- Alpöge's counterexamples beat every fixed constant in the proposed
 unit-distance exponent, above every prescribed cardinality threshold. -/
-theorem erdos_90b :
+theorem not_erdos_90 :
     ∀ C : ℝ, 0 < C → ∀ N : ℕ,
       ∃ (n : ℕ) (P : Finset Point),
         N ≤ n ∧ P.card = n ∧
@@ -31,6 +31,8 @@ theorem erdos_90b :
   simpa only [unitDistancePairs] using
     Erdos.erdos_unit_distance_uniform_constant_false
 
-#print axioms Erdos90b.erdos_90b
+#print axioms Erdos90b.not_erdos_90
 
 end Erdos90b
+
+alias _root_.Erdos90b.erdos_90b := _root_.Erdos90b.not_erdos_90

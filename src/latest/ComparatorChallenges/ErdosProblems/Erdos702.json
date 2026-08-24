@@ -2,7 +2,7 @@
   "challenge_module": "Erdos702",
   "solution_module": "ErdosProblems.Erdos702",
   "theorem_names": [
-    "Erdos702.erdos_702_all_n_false",
+    "Erdos702.not_erdos_702",
     "Erdos702.erdos_702_eventually"
   ],
   "permitted_axioms": [

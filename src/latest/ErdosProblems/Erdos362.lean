@@ -2533,7 +2533,13 @@ def Erdos362Statement : Prop :=
         C * (2 : ℝ) ^ A.card / (A.card : ℝ) ^ 2)
 
 /-- Erdős Problem 362: both subset-sum concentration estimates hold uniformly. -/
-theorem erdos_362 : Erdos362Statement := by
+theorem erdos_362 :
+    (∃ C : ℝ, 0 < C ∧ ∀ (A : Finset ℕ), A.Nonempty → ∀ t : ℕ,
+        ((subsetSumFiber A t).card : ℝ) ≤
+          C * (2 : ℝ) ^ A.card / Real.sqrt (A.card : ℝ) ^ 3) ∧
+    (∃ C : ℝ, 0 < C ∧ ∀ (A : Finset ℕ), A.Nonempty → ∀ l t : ℕ,
+        ((fixedCardSubsetSumFiber A l t).card : ℝ) ≤
+          C * (2 : ℝ) ^ A.card / (A.card : ℝ) ^ 2) := by
   constructor
   · exact exists_subsetSumFiber_real_bound
   · obtain ⟨C, hC, hscalar⟩ := exists_indexedScalarBound

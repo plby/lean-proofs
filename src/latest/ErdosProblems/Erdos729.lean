@@ -1100,7 +1100,7 @@ Equivalently, for all primes $p>K$,
 \vp\!\Big(\den\Big(\frac{n!}{a!\,b!}\Big)\Big)=0.
 \]
 -/
-theorem main_theorem (C : ℝ) (hC : C > 0) :
+theorem erdos_729 (C : ℝ) (hC : C > 0) :
   ∃ K ≥ 3, Set.Infinite { T : ℕ × ℕ × ℕ |
     let a := T.1
     let b := T.2.1
@@ -1203,5 +1203,7 @@ theorem main_theorem (C : ℝ) (hC : C > 0) :
 
 end Erdos729
 
-#print axioms Erdos729.main_theorem
+#print axioms Erdos729.erdos_729
 -- 'Erdos729.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos729.main_theorem := _root_.Erdos729.erdos_729

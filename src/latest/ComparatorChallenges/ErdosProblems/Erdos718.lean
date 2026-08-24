@@ -12,29 +12,14 @@ import Lean.Elab.Tactic.Omega
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
 
-open SimpleGraph
-
-noncomputable section
-
 namespace Erdos718
 
-open scoped Classical in
 abbrev CliqueEdge (r : ℕ) := {e : Fin r × Fin r // e.1 < e.2}
 
-end Erdos718
-
-namespace Erdos718
-
-open scoped Classical in
 def walkInteriorSet {V : Type*} {G : SimpleGraph V} {u v : V}
     (p : G.Walk u v) : Set V :=
   {x | x ∈ p.support ∧ x ≠ u ∧ x ≠ v}
 
-end Erdos718
-
-namespace Erdos718
-
-open scoped Classical in
 structure CliqueSubdivision {V : Type*} (G : SimpleGraph V) (r : ℕ) where
   branch : Fin r ↪ V
   path : ∀ e : CliqueEdge r, G.Walk (branch e.1.1) (branch e.1.2)
@@ -44,19 +29,9 @@ structure CliqueSubdivision {V : Type*} (G : SimpleGraph V) (r : ℕ) where
   interior_pairwise : Pairwise fun e f =>
     Disjoint (walkInteriorSet (path e)) (walkInteriorSet (path f))
 
-end Erdos718
-
-namespace Erdos718
-
-open scoped Classical in
 def ContainsCliqueSubdivision {V : Type*} (G : SimpleGraph V) (r : ℕ) : Prop :=
   Nonempty (CliqueSubdivision G r)
 
-end Erdos718
-
-namespace Erdos718
-
-open scoped Classical in
 theorem erdos_718 :
     ∃ C : ℝ, 0 < C ∧
       ∀ (r : ℕ) (V : Type) [Fintype V] [Nonempty V]
@@ -67,5 +42,3 @@ theorem erdos_718 :
   sorry
 
 end Erdos718
-
-end

@@ -6,8 +6,6 @@ namespace Erdos280
 
 section Erdos280
 
-open Nat
-
 def isCoveredBy (n a : ℕ → ℕ) (m k : ℕ) : Prop :=
   ∃ i, 1 ≤ i ∧ i ≤ k ∧ m % n i = a i
 
@@ -16,14 +14,7 @@ noncomputable instance isCoveredBy_decidable (n a : ℕ → ℕ) (m k : ℕ) :
   Classical.dec _
 end Erdos280
 
-end Erdos280
-
-open Nat
-
-namespace Erdos280
-
-open scoped Classical in
-theorem erdos_280_counterexample :
+theorem not_erdos_280 :
     ∃ (n a : ℕ → ℕ) (ε : ℝ),
       0 < ε ∧
       StrictMono n ∧

@@ -34,7 +34,7 @@ Key definitions and theorems:
 - `dim_s_le_binom`: Bound on `dim_s` by the binomial coefficient.
 - `theorem_1_2`: The main technical result relating the inertia indices of a matrix associated
   with a polynomial to `dim_s`.
-- `bannai_bannai_stanton`: The main theorem stating that |A| ≤ (d+s choose s).
+- `erdos_502`: The main theorem stating that |A| ≤ (d+s choose s).
 -/
 
 import Mathlib
@@ -722,7 +722,7 @@ open Matrix LinearMap MvPolynomial BigOperators
 
 set_option linter.flexible false in
 /-- Theorem 1.1: If A is an s-distance subset in ℝ^d, then |A| ≤ (d+s choose s). -/
-theorem bannai_bannai_stanton (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
+theorem erdos_502 (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
     [Fintype A]
     (hA : is_s_distance_set A s) : Fintype.card A ≤ Nat.choose (d + s) s := by
   classical
@@ -786,5 +786,7 @@ theorem bannai_bannai_stanton (d s : ℕ) (A : Set (EuclideanSpace ℝ (Fin d)))
 
 end Erdos502
 
-#print axioms Erdos502.bannai_bannai_stanton
+#print axioms Erdos502.erdos_502
 -- 'Erdos502.bannai_bannai_stanton' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos502.bannai_bannai_stanton := _root_.Erdos502.erdos_502

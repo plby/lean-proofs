@@ -4938,13 +4938,13 @@ theorem tendsto_ratio :
 /-- Complete resolution of the two questions in Erdős Problem 391.  The
 second conjunct is stronger than requested: the logarithmic deficit used to
 prove it holds for every sufficiently large integer. -/
-theorem erdos391 :
+theorem erdos_391 :
     Tendsto ratio Filter.atTop (nhds (1 / Real.exp 1)) ∧
       ∃ c : ℝ, 0 < c ∧
         {n : ℕ | ratio n ≤ 1 / Real.exp 1 - c / Real.log n}.Infinite := by
   exact ⟨tendsto_ratio, infinitely_many_ratio_le_sub_deficit⟩
 
-#print axioms erdos391
+#print axioms erdos_391
 
 /-- A maximizing representation exists, and its first (smallest) factor is
 exactly `t n`, matching the indexing in the original problem. -/
@@ -4965,3 +4965,5 @@ theorem exists_maximizing_representation {n : ℕ} (hn : 0 < n) :
 end
 
 end Erdos391
+
+alias _root_.Erdos391.erdos391 := _root_.Erdos391.erdos_391

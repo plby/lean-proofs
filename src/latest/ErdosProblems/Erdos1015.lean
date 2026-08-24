@@ -841,7 +841,7 @@ theorem besLower_le_packingRemainder {t n : ℕ} (ht : 3 ≤ t)
 
 /-- The exact pointwise resolution of Erdős Problem 1015.  This is the
 inclusive (`at most`) version of Burr--Erdős--Spencer, Theorem 6. -/
-theorem erdos1015_exact {t n : ℕ} (ht : 3 ≤ t)
+theorem erdos_1015 {t n : ℕ} (ht : 3 ≤ t)
     (hn : besThreshold t ≤ n) :
     packingRemainder t n = besRemainder t n := by
   apply le_antisymm
@@ -860,7 +860,7 @@ theorem erdos1015_strict_exact {t n : ℕ} (ht : 3 ≤ t)
     strictPackingThreshold t n =
       ramseyNumber t (t - 1) +
         (n - (ramseyNumber t (t - 1) - 1)) % t := by
-  rw [strictPackingThreshold, erdos1015_exact ht hn]
+  rw [strictPackingThreshold, erdos_1015 ht hn]
   dsimp [besRemainder]
   have hRpos : 0 < ramseyNumber t (t - 1) :=
     ramseyNumber_pos (by omega) (by omega)
@@ -908,7 +908,7 @@ theorem exists_large_host_attaining_uniform {t N : ℕ} (ht : 3 ≤ t) :
     rw [hnsub, Nat.add_mod, Nat.mul_mod]
     simp [Nat.mod_eq_of_lt (by omega : t - 1 < t)]
   refine ⟨n, hNn, hthreshold, ?_⟩
-  rw [erdos1015_exact ht hthreshold]
+  rw [erdos_1015 ht hthreshold]
   unfold besRemainder besUniformRemainder
   change q + (n - q) % t = ramseyNumber t (t - 1) + t - 2
   rw [hrem]
@@ -1171,7 +1171,7 @@ theorem uniformRoot_not_tendsto_one :
   rw [Real.dist_eq, abs_of_nonneg (sub_nonneg.mpr hroot_one)] at hnear
   linarith
 
-#print axioms erdos1015_exact
+#print axioms erdos_1015
 #print axioms erdos1015_eventual_uniform
 #print axioms uniform_not_eventually_linear
 #print axioms uniformRemainder_not_isBigO_id
@@ -1179,3 +1179,5 @@ theorem uniformRoot_not_tendsto_one :
 #print axioms uniformRoot_not_tendsto_one
 
 end Erdos1015
+
+alias _root_.Erdos1015.erdos1015_exact := _root_.Erdos1015.erdos_1015

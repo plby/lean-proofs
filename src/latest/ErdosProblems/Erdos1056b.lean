@@ -27,7 +27,7 @@ This project request had uuid: ae58cefd-5214-47b0-9caf-ce96b083801e
 The following was proved by Aristotle:
 
 - @[category research open, AMS 11]
-theorem noll_simmons :
+theorem erdos_1056 :
     (∀ᶠ k in Filter.atTop,
     ∃ (p : ℕ) (_ : p.Prime) (Q : Fin k → ℕ) (_ : StrictMono Q) (_ : ∀ i, Q i < p),
     ∀ i j : Fin k, (Q i)! ≡ (Q j)! [MOD p])
@@ -75,7 +75,7 @@ def AllModProdEqualsOne (p : ℕ) {k : ℕ} (boundaries : Fin (k + 1) → ℕ) :
 Let $k ≥ 2$. Does there exist a prime $p$ and consecutive intervals $I_0,\dots,I_k$
 such that $\prod\limits_{n{\in}I_i}n \equiv 1 \mod n$ for all $1 \le i \le k$?
 -/
-def erdos_1056 : Prop :=
+def HasModularProductPartitions : Prop :=
     (∀ k ≥ 2, ∃ (p : ℕ) (_ : p.Prime) (boundaries : Fin (k + 1) → ℕ) (_ : StrictMono boundaries),
     AllModProdEqualsOne p boundaries)
 
@@ -300,7 +300,7 @@ theorem noll_simmons_reduction {k : ℕ} {p : ℕ} {boundaries : Fin (k + 1) →
 /-
 For any $k \ge 3$, there exists a solution to the Noll-Simmons problem of length $k$.
 -/
-theorem noll_simmons_aux (h1056 : erdos_1056) (k : ℕ) (hk : k ≥ 3) :
+theorem noll_simmons_aux (h1056 : HasModularProductPartitions) (k : ℕ) (hk : k ≥ 3) :
     ∃ (p : ℕ) (_ : p.Prime) (Q : Fin k → ℕ) (_ : StrictMono Q) (_ : ∀ i, Q i < p),
     ∀ i j : Fin k, (Q i)! ≡ (Q j)! [MOD p] := by
   have h := h1056 (k - 1) (Nat.le_sub_one_of_lt hk)
@@ -317,16 +317,21 @@ theorem noll_simmons_aux (h1056 : erdos_1056) (k : ℕ) (hk : k ≥ 3) :
 Noll and Simmons asked, more generally, whether there are solutions to
 $q_1! \equiv \dots \equiv q_k! \mod p$ for arbitrarily large $k$ (with $q_1 < \dots < q_k$).
 -/
-theorem noll_simmons (h1056 : erdos_1056) :
-    (∀ᶠ k in Filter.atTop,
-    ∃ (p : ℕ) (_ : p.Prime) (Q : Fin k → ℕ) (_ : StrictMono Q) (_ : ∀ i, Q i < p),
-    ∀ i j : Fin k, (Q i)! ≡ (Q j)! [MOD p]) := by
+theorem erdos_1056
+    (h1056 : ∀ k ≥ 2, ∃ (p : ℕ) (_ : p.Prime)
+      (boundaries : Fin (k + 1) → ℕ) (_ : StrictMono boundaries),
+        AllModProdEqualsOne p boundaries) :
+    ∀ᶠ k in Filter.atTop,
+      ∃ (p : ℕ) (_ : p.Prime) (Q : Fin k → ℕ) (_ : StrictMono Q)
+        (_ : ∀ i, Q i < p), ∀ i j : Fin k, (Q i)! ≡ (Q j)! [MOD p] := by
   refine Filter.eventually_atTop.mpr ?_
   use 3
   intro k hk
   apply noll_simmons_aux h1056 k hk
 
-#print axioms noll_simmons
+#print axioms erdos_1056
 -- 'Erdos1056b.noll_simmons' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1056b
+
+alias _root_.Erdos1056b.noll_simmons := _root_.Erdos1056b.erdos_1056

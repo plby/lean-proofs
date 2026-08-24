@@ -395,13 +395,18 @@ theorem not_unitExponentAsymptotic :
 
 /-- Complete resolution of Erdős Problem 861: the first answer is yes and the
 second is no. -/
-theorem erdos861 :
+theorem erdos_861 :
     Tendsto normalizedRatio atTop atTop ∧
-      ¬ UnitExponentAsymptotic :=
+      ¬ (Filter.Tendsto
+  (fun N : ℕ =>
+    Real.log (Erdos861.A N : ℝ) / ((Erdos861.f N : ℝ) * Real.log 2))
+  Filter.atTop (nhds 1)) :=
   ⟨ratio_tendsto_atTop, not_unitExponentAsymptotic⟩
 
 end
 
 end Erdos861
 
-#print axioms Erdos861.erdos861
+#print axioms Erdos861.erdos_861
+
+alias _root_.Erdos861.erdos861 := _root_.Erdos861.erdos_861

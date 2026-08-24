@@ -64,7 +64,8 @@ lemma two_le_abs_form_neg_sqrt_two (x y z : ℕ) (hx : 0 < x) (hy : 0 < y) :
 The counterexample is the irrational number `-√2` at tolerance `1`.  For any
 positive `x` and `y` (and, a fortiori, for positive `z`) the expression is at
 least `2`, so it cannot be strictly less than `1`. -/
-theorem erdos_496 : ¬ Erdos496Statement := by
+theorem not_erdos_496 :
+    ¬ (∀ α : ℝ, Irrational α → ∀ ε : ℝ, 0 < ε → HasApproximation α ε) := by
   intro h
   have hirr : Irrational (-Real.sqrt 2) := irrational_sqrt_two.neg
   obtain ⟨x, y, z, hx, hy, _hz, hlt⟩ := h (-Real.sqrt 2) hirr 1 one_pos
@@ -222,13 +223,19 @@ Oppenheim--Margulis specialization stated above.
 Keeping the deep input as an explicit proof argument makes the dependency kernel-visible and does
 not introduce a project-local assumption. -/
 theorem erdos_496_positive
-    (hoppenheim : OppenheimMargulisSpecialization) :
-    PositiveErdos496Statement := by
+    (hoppenheim : (∀ α : ℝ, 0 < α → Irrational α → ∀ δ : ℝ, 0 < δ →
+  ∃ a b c : ℤ,
+    (a ≠ 0 ∨ b ≠ 0 ∨ c ≠ 0) ∧
+    0 < |Erdos496.integralForm α a b c| ∧
+    |Erdos496.integralForm α a b c| < δ)) :
+    (∀ α : ℝ, 0 < α → Irrational α → ∀ ε : ℝ, 0 < ε → Erdos496.HasApproximation α ε) := by
   intro α hα hα_irr ε hε
   exact hasApproximation_of_oppenheim_small_values hα hε
     (hoppenheim α hα hα_irr)
 
-#print axioms erdos_496
+#print axioms not_erdos_496
 #print axioms erdos_496_positive
 
 end Erdos496
+
+alias _root_.Erdos496.erdos_496 := _root_.Erdos496.not_erdos_496

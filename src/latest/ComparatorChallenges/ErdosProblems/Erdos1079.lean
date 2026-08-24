@@ -5,13 +5,9 @@ import Mathlib
 /-!
 # Erdős Problem 1079
 
-We prove the dense-neighbourhood extension of Turán's theorem.  In fact, the witness can be
-chosen to have maximum degree.  At the strict Turán threshold the neighbourhood inequality is
-strict, which is Bondy's strengthening of the Bollobás--Thomason result.
+The dense-neighbourhood witness can be chosen to have maximum degree.
+At the strict Turán threshold the neighbourhood inequality is strict.
 -/
-
-open Finset Fintype
-open scoped Classical SimpleGraph
 
 namespace Erdos1079
 
@@ -25,17 +21,13 @@ noncomputable def cliqueExtremalNumber (n r : ℕ) : ℕ :=
 noncomputable def edgeCount {V : Type*} [Finite V] (G : SimpleGraph V) : ℕ :=
   Nat.card G.edgeSet
 
-/-- The graph induced by the open neighbourhood of `v`. -/
-abbrev link {V : Type*} [Finite V] (G : SimpleGraph V) (v : V) :
-    SimpleGraph (G.neighborFinset v) :=
-  G.induce (G.neighborFinset v)
-
 /-- The number of edges spanned by the open neighbourhood of `v`. -/
 noncomputable def linkEdgeCount {V : Type*} [Finite V]
     (G : SimpleGraph V) (v : V) : ℕ :=
   {e : Sym2 V | e ∈ G.edgeSet ∧ ∀ x, x ∈ e → G.Adj v x}.ncard
 
-theorem erdos_problem_1079_strict {n r : ℕ} (hr : 4 ≤ r) (hn : 2 ≤ n)
+open scoped Classical in
+theorem erdos_1079 {n r : ℕ} (hr : 4 ≤ r) (hn : 2 ≤ n)
     (G : SimpleGraph (Fin n))
     (hG : cliqueExtremalNumber n r < edgeCount G) :
     ∃ v : Fin n,

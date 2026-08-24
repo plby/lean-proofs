@@ -619,7 +619,7 @@ theorem formal_conjectures_erdos_124 : (∀ k, ∀ d : Fin k → ℕ,
 This is a modification of the statement of Erdős problem 124 from the
 Formal Conjectures project, correcting the "\geq 1" issue.
 -/
-theorem formal_conjectures_erdos_124_corrected : (∀ k, ∀ d : Fin k → ℕ,
+theorem formal_conjectures_erdos_124_corrected_iff : (∀ k, ∀ d : Fin k → ℕ,
     (∀ i, 3 ≤ d i) →  StrictMono d → 1 ≤ ∑ i : Fin k, (1 : ℚ) / (d i - 1) →
     ∀ᶠ n in atTop, ∃ c : Fin k → ℕ, ∃ a : Fin k → ℕ,
     ∀ i, c i ∈ ({0, 1} : Finset ℕ) ∧
@@ -638,12 +638,21 @@ theorem formal_conjectures_erdos_124_corrected : (∀ k, ∀ d : Fin k → ℕ,
     refine ⟨fun _ => 1, a, fun i => ?_⟩
     exact ⟨by simp, fun j => ⟨ha₁ j, by simpa using ha₂⟩⟩
 
+theorem formal_conjectures_erdos_124_corrected :
+    (∀ k, ∀ d : Fin k → ℕ,
+        (∀ i, 3 ≤ d i) →  StrictMono d → 1 ≤ ∑ i : Fin k, (1 : ℚ) / (d i - 1) →
+        ∀ᶠ n in atTop, ∃ c : Fin k → ℕ, ∃ a : Fin k → ℕ,
+        ∀ i, c i ∈ ({0, 1} : Finset ℕ) ∧
+        ∀ i, ((d i).digits (a i)).toFinset ⊆ {0, 1} ∧
+        n = ∑ i, c i * a i) := by
+  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using Erdos124b.formal_conjectures_erdos_124_corrected_iff
+
 end Erdos124b
 
 open Erdos124b
 
 #print axioms erdos_124
 -- 'Erdos124b.erdos_124' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms formal_conjectures_erdos_124_corrected
+#print axioms formal_conjectures_erdos_124_corrected_iff
 -- 'Erdos124b.formal_conjectures_erdos_124_corrected' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]

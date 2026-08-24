@@ -78,10 +78,15 @@ theorem ma_tang_prime_cyclic_obstruction :
 
 /-- Resolution of Erdős Problem 543: the proposed
 `f(N) ≤ log₂ N + o(log log N)` upper bound is false. -/
-theorem erdos_543 : ¬ Problem543UpperBound :=
+theorem not_erdos_543 : ¬ ((∃ g : ℕ → ℝ,
+  Erdos543.FinalLogic.IsLittleOLogLog g ∧
+  ∀ᶠ N : ℕ in Filter.atTop,
+    (Model.universalF N : ℝ) ≤ Erdos543.cutoffArgument g N)) :=
   FinalLogic.not_problem543UpperBound_of_eventualPrimeCyclicFailure
     ma_tang_prime_cyclic_obstruction
 
 end Erdos543
 
-#print axioms Erdos543.erdos_543
+#print axioms Erdos543.not_erdos_543
+
+alias _root_.Erdos543.erdos_543 := _root_.Erdos543.not_erdos_543

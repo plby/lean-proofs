@@ -717,7 +717,7 @@ of at least `gamma * n^2 * sqrt n` induced vertex sets whose profiles are
 pairwise distinct.  Injectivity of `inducedProfile` says literally that two
 different members differ in their number of vertices or their number of
 induced edges. -/
-theorem erdos636 (C : ℝ) (hC : 0 < C) :
+theorem erdos_636 (C : ℝ) (hC : 0 < C) :
     ∃ γ : ℝ, 0 < γ ∧ ∃ N : ℕ, ∀ n ≥ N,
       ∀ G : SimpleGraph (Fin n), Erdos88.HomogeneousFree C G →
         ∃ F : Finset (Finset (Fin n)),
@@ -738,7 +738,7 @@ theorem erdos636_rpow (C : ℝ) (hC : 0 < C) :
         ∃ F : Finset (Finset (Fin n)),
           IsProfileInjectiveFamily G F ∧
             γ * (n : ℝ) ^ (5 / 2 : ℝ) ≤ (F.card : ℝ) := by
-  rcases erdos636 C hC with ⟨γ, hγ, N, hN⟩
+  rcases erdos_636 C hC with ⟨γ, hγ, N, hN⟩
   refine ⟨γ, hγ, N, ?_⟩
   intro n hn G hG
   obtain ⟨F, hF, hcard⟩ := hN n hn G hG
@@ -747,3 +747,5 @@ theorem erdos636_rpow (C : ℝ) (hC : 0 < C) :
   simpa only [mul_assoc] using hcard
 
 end Erdos636
+
+alias _root_.Erdos636.erdos636 := _root_.Erdos636.erdos_636

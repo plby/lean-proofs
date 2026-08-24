@@ -2,19 +2,7 @@
 
 import Mathlib
 
-/-!
-# Erdős Problem 152
-
-#TODO: Formalize the corresponding conjecture for infinite Sidon sets.
-
-*References:*
- - [erdosproblems.com/152](https://www.erdosproblems.com/152)
- - [ESS94] Erdős, P. and Sárközy, A. and Sós, T., On Sum Sets of Sidon Sets, I. Journal of Number
-    Theory (1994), 329-347.
--/
-
-open scoped Pointwise Asymptotics
-open Filter
+open scoped Pointwise
 
 namespace Erdos152
 
@@ -33,10 +21,6 @@ noncomputable def f (n : ℕ) : ℕ :=
   ⨅ A : {A : Set ℕ | A.ncard = n ∧ IsSidon A},
   {s : ℕ | s - 1 ∉ A.1 + A.1 ∧ s ∈ A.1 + A.1 ∧ s + 1 ∉ A.1 + A.1}.ncard
 
-open scoped Classical
-
-open Set Finset
-
-theorem erdos_152.variants.square :
+theorem erdos_152 :
     (fun n => f n : ℕ → ℝ) ≫ (fun n => n ^ 2 : ℕ → ℝ) := by
   sorry

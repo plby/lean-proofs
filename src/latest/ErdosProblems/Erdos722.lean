@@ -44,7 +44,10 @@ namespace Erdos722
 
 /-- Resolution of Erdős Problem 722: the standard divisibility conditions
 are sufficient for all sufficiently large orders. -/
-theorem erdos_722 : Resolution := by
+theorem erdos_722 :
+    ∀ k r : ℕ, 0 < r → r < k →
+      ∃ n₀ : ℕ, ∀ n : ℕ, n₀ ≤ n → IsAdmissible n k r →
+        ∃ blocks : Finset (Finset (Fin n)), IsSteinerSystem n k r blocks := by
   apply resolution_of_eventual_sparseIntegralGeneratorData
   intro k r hr hrk
   exact eventually_hasSparseIntegralGeneratorData k r hr hrk

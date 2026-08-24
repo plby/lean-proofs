@@ -467,7 +467,7 @@ The proof here is the "second proof" given in the discussion at erdosproblems.co
 adapted from Tao's formalisation at
 [teorth/analysis](https://github.com/teorth/analysis/blob/main/Analysis/Misc/erdos_987.lean).
 -/
-theorem erdos_987.parts.i :
+theorem erdos_987 :
     ∀ (x : ℕ → ℝ) (_ : ∀ j : ℕ, x j ∈ Set.Ioo (0 : ℝ) 1),
       atTop.limsup (fun k : ℕ => A x k) = ⊤ := by
   intro x _
@@ -11942,6 +11942,8 @@ theorem erdos_987.parts.ii :
 
 end Erdos987
 
-#print axioms Erdos987.erdos_987.parts.i
+#print axioms Erdos987.erdos_987
 #print axioms Erdos987.erdos_987.variants.sqrt_log_upper_bound
 #print axioms Erdos987.erdos_987.parts.ii
+
+alias _root_.Erdos987.erdos_987.parts.i := _root_.Erdos987.erdos_987

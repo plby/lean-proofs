@@ -8,8 +8,7 @@ import Mathlib.Algebra.Order.Archimedean.Real.Basic
 import Std.Tactic.BVDecide.LRAT.Internal.Clause
 import ErdosProblems.Axioms
 
-open Nat Finset Real Filter
-open Finset Int Nat Real
+open Finset Int Nat
 
 namespace Erdos997
 
@@ -26,8 +25,7 @@ def IsWellDistributed (x : ℕ → ℝ) : Prop :=
       |((countInIcc x a b n k) : ℝ) - (b - a) * (k : ℝ)| < ε * (k : ℝ)
 end Erdos997
 
-open scoped Classical in
-theorem Erdos997.erdos997 :
+theorem Erdos997.erdos_997 :
     ∀ (α : Real), Not (Erdos997.IsWellDistributed (Erdos997.fracSeq α))
   := by
   sorry

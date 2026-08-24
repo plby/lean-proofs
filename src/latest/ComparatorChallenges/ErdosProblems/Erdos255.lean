@@ -2,28 +2,7 @@
 
 import Mathlib
 
-/-!
-# Erdős Problem 255
-
-For every sequence in `[0,1]`, some interval has unbounded discrepancy.  We
-prove the stronger form established by Schmidt: the interval may be chosen to
-be an anchored half-open interval `[0,x)`.
-
-The proof has three parts.  `FiniteRoth.lean` proves a finite two-dimensional
-Roth inequality by exact sums of dyadic Haar functions.  `NoUniform.lean`
-deduces that no sequence in `[0,1)` has uniformly bounded anchored
-discrepancy.  `Baire.lean` localizes a hypothetical pointwise bound by the
-Baire category theorem, extends it one-sidedly across the countable set of
-sequence values, and rescales the resulting local subsequence.  The detailed
-mathematical proof and Leanization map are in `tex/255.tex`.
-
-The interval convention is half open.  This is harmless for the problem and,
-more importantly, the theorem below explicitly counts membership in `[0,x)`;
-there is no endpoint-convention abstraction hidden in the statement.
--/
-
 open Filter Finset Set
-open scoped BigOperators Topology
 
 namespace Erdos255
 

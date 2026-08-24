@@ -178,7 +178,7 @@ theorem exists_four_regular_free_high_chromatic (k : ℕ) :
 /-- **Negative resolution of Erdős Problem 641.**  No function can force
 `r` edge-disjoint cycles on one common vertex set solely from a chromatic
 number threshold; the failure already occurs for `r = 2`. -/
-theorem erdos_641 : ¬ ∃ F : ℕ → ℕ, ErdosHajnalProperty F := by
+theorem not_erdos_641 : ¬ ∃ F : ℕ → ℕ, ErdosHajnalProperty F := by
   rintro ⟨F, hF⟩
   obtain ⟨n, ω, hω, hchrom, hfree⟩ :=
     exists_four_regular_free_high_chromatic (F 2)
@@ -188,4 +188,6 @@ theorem erdos_641 : ¬ ∃ F : ℕ → ℕ, ErdosHajnalProperty F := by
 
 end Erdos641
 
-#print axioms Erdos641.erdos_641
+#print axioms Erdos641.not_erdos_641
+
+alias _root_.Erdos641.erdos_641 := _root_.Erdos641.not_erdos_641

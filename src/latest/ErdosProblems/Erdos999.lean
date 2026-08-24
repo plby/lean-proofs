@@ -1081,7 +1081,8 @@ theorem duffinSchaefferHardDirection : DuffinSchaefferHardDirection :=
     (largeValuePairOverlap_of_pairCountBound largeValuePairCountBound)
 
 /-- Resolution of Erdős Problem 999. -/
-theorem erdos_999 : Erdos999Statement :=
+theorem erdos_999 : (∀ f : ℕ → ℕ,
+  Erdos999.AlmostEverywhereApproximable f ↔ Erdos999.duffinSchaefferSum f = ∞) :=
   erdos999Statement_iff_hardDirection.mpr duffinSchaefferHardDirection
 
 end

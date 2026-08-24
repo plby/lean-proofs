@@ -26,7 +26,7 @@ def tauPlus (n : ℕ) : ℕ :=
 /-- Erdős Problem 448 has a negative answer: for some positive threshold,
 the exceptional set has upper density strictly smaller than one. -/
 
-theorem erdos_448 :
+theorem not_erdos_448 :
     ¬ ∀ ε : ℝ, 0 < ε →
       {n : ℕ | (tauPlus n : ℝ) <
         ε * (n.divisors.card : ℝ)}.HasDensity 1 := by

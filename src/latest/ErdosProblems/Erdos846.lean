@@ -1242,8 +1242,6 @@ lemma counterexample_exists :
     ⟨by norm_num, A_infinite f hinj, non_trilinear_for_A f hinj hgeom,
       not_weakly_non_trilinear_A f hinj hgeom⟩
 
-
-
 /--
 **Erdős Problem 846**
 Let `A ⊂ ℝ²` be an infinite set for which there exists some `ϵ>0` such that
@@ -1266,5 +1264,10 @@ theorem erdos_846 : (False) ↔ ∀ᵉ (A : Set ℝ²) (ε > 0),
 
 #print axioms erdos_846
 -- 'Erdos846.erdos_846' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+theorem not_erdos_846 :
+    ¬ (∀ᵉ (A : Set ℝ²) (ε > 0),
+        A.Infinite → NonTrilinearFor A ε → WeaklyNonTrilinear A) := by
+  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using Erdos846.erdos_846
 
 end Erdos846

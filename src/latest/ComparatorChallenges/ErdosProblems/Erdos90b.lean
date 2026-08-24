@@ -2,8 +2,6 @@
 
 import Mathlib
 
-open scoped Classical
-
 namespace Erdos
 
 noncomputable def unitDist (P : Finset (EuclideanSpace ℝ (Fin 2))) : ℕ :=
@@ -18,7 +16,7 @@ abbrev Point := EuclideanSpace ℝ (Fin 2)
 noncomputable abbrev unitDistancePairs (P : Finset Point) : ℕ :=
   Erdos.unitDist P
 
-theorem erdos_90b :
+theorem not_erdos_90 :
     ∀ C : ℝ, 0 < C → ∀ N : ℕ,
       ∃ (n : ℕ) (P : Finset Point),
         N ≤ n ∧ P.card = n ∧

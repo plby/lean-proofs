@@ -2,7 +2,7 @@
   "challenge_module": "Erdos947",
   "solution_module": "ErdosProblems.Erdos947",
   "theorem_names": [
-    "Erdos947.exact_covering_system_distinct_moduli_impossible"
+    "Erdos947.erdos_947"
   ],
   "permitted_axioms": [
     "propext",

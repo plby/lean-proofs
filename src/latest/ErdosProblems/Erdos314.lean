@@ -1865,7 +1865,7 @@ set_option maxHeartbeats 6400000 in
 -- The main theorem combines the generated expansion and limiting estimates.
 /-- **Main Theorem**: For every c > 0 there exist infinitely many pairs
     (n, m) of positive integers such that 1 ≤ ∑_{ℓ=n}^{m} 1/ℓ ≤ 1 + c/n². -/
-theorem main_theorem (c : ℝ) (hc : c > 0) :
+theorem erdos_314 (c : ℝ) (hc : c > 0) :
     ∀ N : ℕ, ∃ m n : ℕ, N ≤ n ∧
       1 ≤ harmonicPartialSum n m ∧ harmonicPartialSum n m ≤ 1 + c / (↑n) ^ 2 := by
   intro N
@@ -1983,8 +1983,10 @@ theorem main_theorem (c : ℝ) (hc : c > 0) :
   · rw [harmonicPartialSum_eq_diff (by omega) hn_le_m]; linarith
   · rw [harmonicPartialSum_eq_diff (by omega) hn_le_m]; linarith
 
-#print axioms main_theorem
+#print axioms erdos_314
 -- 'Erdos314.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 end Erdos314
+
+alias _root_.Erdos314.main_theorem := _root_.Erdos314.erdos_314

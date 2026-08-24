@@ -2,15 +2,15 @@
 
 import Mathlib
 
+open Filter Set
+open scoped Pointwise Topology
+
 /-!
 # Erdős Problem 899
 
 An infinite set of natural numbers of asymptotic density zero has an
 unbounded positive-difference/count ratio.
 -/
-
-open Filter Set
-open scoped Pointwise Topology
 
 namespace Erdos899
 

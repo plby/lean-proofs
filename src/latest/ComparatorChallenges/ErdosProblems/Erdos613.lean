@@ -5,8 +5,6 @@ import Mathlib.Combinatorics.SimpleGraph.Basic
 import Mathlib.Data.Set.Card
 import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
-open scoped BigOperators
-
 namespace Erdos613
 
 def hasMonoStar {V : Type*} (G : SimpleGraph V) (color : Sym2 V → Fin 2)
@@ -24,16 +22,11 @@ def hasMonoTriangle {V : Type*} (G : SimpleGraph V) (color : Sym2 V → Fin 2)
     color (s(b, c)) = col ∧
     color (s(a, c)) = col
 
-def Pikhurko_n5_statement : Prop :=
-  ∃ (V:Type) (G : SimpleGraph V),
-    G.edgeSet.ncard = 44 ∧
-    ∀ (color : Sym2 V → Fin 2),
-      hasMonoStar G color 0 5 ∨ hasMonoTriangle G color 1
-
 end Erdos613
 
-open scoped Classical in
-theorem Erdos613.PikhurkoN5.main :
-    Erdos613.Pikhurko_n5_statement
-  := by
+theorem Erdos613.PikhurkoN5.not_erdos_613 :
+    ∃ (V:Type) (G : SimpleGraph V),
+      G.edgeSet.ncard = 44 ∧
+      ∀ (color : Sym2 V → Fin 2),
+        Erdos613.hasMonoStar G color 0 5 ∨ Erdos613.hasMonoTriangle G color 1 := by
   sorry

@@ -594,7 +594,7 @@ end Pushforward
 
 /-- There exists `f(n)` such that any graph `G` with `χ(G) ≥ f(n)`
 has a triangle-free subgraph `H` with `χ(H) ≥ n`. -/
-theorem erdos923 {V : Type*} (n : ℕ) :
+theorem erdos_923 {V : Type*} (n : ℕ) :
     ∃ k : ℕ, ∀ G : SimpleGraph V, k ≤ G.chromaticNumber →
     ∃ H ≤ G, n ≤ H.chromaticNumber ∧ H.CliqueFree 3 := by
   classical
@@ -638,7 +638,9 @@ theorem erdos923 {V : Type*} (n : ℕ) :
   · -- Case: Rödl gives us the desired H directly.
     exact ⟨H, hle, hchi, hcf⟩
 
-#print axioms erdos923
+#print axioms erdos_923
 -- 'Erdos923.erdos923' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos923
+
+alias _root_.Erdos923.erdos923 := _root_.Erdos923.erdos_923

@@ -3,7 +3,7 @@
   "solution_module": "ErdosProblems.Erdos841",
   "theorem_names": [
     "Erdos841.exists_admissible",
-    "Erdos841.erdos841_comparator_resolution"
+    "Erdos841.erdos_841"
   ],
   "permitted_axioms": [
     "propext",

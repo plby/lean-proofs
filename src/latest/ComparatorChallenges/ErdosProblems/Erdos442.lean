@@ -2,6 +2,8 @@
 
 import Mathlib
 
+open Filter Set
+
 /-!
 # Erdős Problem 442
 
@@ -9,9 +11,6 @@ The answer is negative.
 -/
 
 namespace Erdos442
-
-open Filter Set
-open scoped BigOperators Topology
 
 section Specification
 
@@ -41,7 +40,7 @@ end Specification
 
 section Counterexample
 
-theorem erdos_442 : ¬ ∀ (A : Set ℕ),
+theorem not_erdos_442 : ¬ ∀ (A : Set ℕ),
     Tendsto (fun x : ℝ ↦ 1 / Real.maxLogOne (Real.maxLogOne x) *
       ∑ n ∈ (A ∩ Icc 1 ⌊x⌋₊ : Set ℕ), (1 : ℝ) / n) atTop atTop →
     Tendsto (fun x : ℝ ↦ 1 / (∑ n ∈ (A ∩ Icc 1 ⌊x⌋₊ : Set ℕ),

@@ -43,12 +43,14 @@ For the six-cycle there is an explicit constant `c = 1 / 100 > 0` and
 infinitely many orders on which the number of labelled `C₆`-free graphs is
 at least `2 ^ ((1 + c) * ex(n,C₆))`.  Consequently the proposed
 `2 ^ ((1 + o(1)) * ex(n,C₆))` upper bound is false in general. -/
-theorem erdos_59 :
+theorem not_erdos_59 :
     HasMorrisSaxtonLowerBound (SimpleGraph.cycleGraph 6) ∧
       ¬ HasErdos59UpperBound (SimpleGraph.cycleGraph 6) :=
   ⟨hasMorrisSaxtonLowerBound_cycleGraph_six,
     morrisSaxtonDisprovesErdos59⟩
 
-#print axioms Erdos59.erdos_59
+#print axioms Erdos59.not_erdos_59
 
 end Erdos59
+
+alias _root_.Erdos59.erdos_59 := _root_.Erdos59.not_erdos_59

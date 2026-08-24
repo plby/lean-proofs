@@ -518,7 +518,7 @@ Every graph with m edges contains a C4-free subgraph with at least (1/2) * m^(2/
 set_option maxHeartbeats 1000000 in
 -- Generated final extraction proof times out at the default heartbeat limit.
 set_option linter.flexible false in
-theorem exists_C4_free_subgraph_with_many_edges {V : Type} [Fintype V] [DecidableEq V]
+theorem erdos_1008 {V : Type} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
   ∃ (S' : Finset (Sym2 V)), S' ⊆ G.edgeFinset ∧
   (∀ s, s ⊆ S' → ¬is_C4 s) ∧
@@ -669,8 +669,10 @@ theorem exists_C4_free_subgraph_with_many_edges {V : Type} [Fintype V] [Decidabl
       ring_nf
       exact le_refl (m ^ ((-1 : ℝ) / 3) * m)
 
-#print axioms exists_C4_free_subgraph_with_many_edges
+#print axioms erdos_1008
 -- 'Erdos1008.exists_C4_free_subgraph_with_many_edges' depends on axioms: [propext, choice,
 -- Quot.sound]
 
 end Erdos1008
+
+alias _root_.Erdos1008.exists_C4_free_subgraph_with_many_edges := _root_.Erdos1008.erdos_1008

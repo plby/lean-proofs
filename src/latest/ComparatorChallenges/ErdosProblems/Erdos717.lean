@@ -13,38 +13,17 @@ import Lean.Elab.Tactic.Omega
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
 
-open Function Set
-open SimpleGraph
-
-noncomputable section
-
 namespace Erdos717
 
-open scoped Classical in
 noncomputable def chiNat {V : Type*} (G : SimpleGraph V) : ℕ :=
   G.chromaticNumber.toNat
 
-end Erdos717
-
-namespace Erdos717
-
-open scoped Classical in
 abbrev CliqueEdge (r : ℕ) := {e : Fin r × Fin r // e.1 < e.2}
 
-end Erdos717
-
-namespace Erdos717
-
-open scoped Classical in
 def walkInteriorSet {V : Type*} {G : SimpleGraph V} {u v : V}
     (p : G.Walk u v) : Set V :=
   {x | x ∈ p.support ∧ x ≠ u ∧ x ≠ v}
 
-end Erdos717
-
-namespace Erdos717
-
-open scoped Classical in
 structure CliqueSubdivision {V : Type*} (G : SimpleGraph V) (r : ℕ) where
   branch : Fin r ↪ V
   path : ∀ e : CliqueEdge r, G.Walk (branch e.1.1) (branch e.1.2)
@@ -54,45 +33,21 @@ structure CliqueSubdivision {V : Type*} (G : SimpleGraph V) (r : ℕ) where
   interior_pairwise : Pairwise fun e f =>
     Disjoint (walkInteriorSet (path e)) (walkInteriorSet (path f))
 
-end Erdos717
-
-namespace Erdos717
-
-open scoped Classical in
 def ContainsCliqueSubdivision {V : Type*} (G : SimpleGraph V) (r : ℕ) : Prop :=
   Nonempty (CliqueSubdivision G r)
 
-end Erdos717
-
-namespace Erdos717
-
-open scoped Classical in
 noncomputable def cliqueSubdivisionNumber {V : Type*} [Fintype V]
     (G : SimpleGraph V) : ℕ := by
   classical
   exact Nat.findGreatest (ContainsCliqueSubdivision G) (Fintype.card V)
 
-end Erdos717
-
-namespace Erdos717
-
-open scoped Classical in
-def Erdos717Bound : Prop :=
-  ∃ C : ℝ, 0 < C ∧
-    ∀ (V : Type) [Fintype V] (G : SimpleGraph V),
-      2 ≤ Fintype.card V →
-      (chiNat G : ℝ) ≤
-        C * (Real.sqrt (Fintype.card V : ℝ) / Real.log (Fintype.card V : ℝ)) *
-          (cliqueSubdivisionNumber G : ℝ)
-
-end Erdos717
-
-namespace Erdos717
-
-open scoped Classical in
-theorem erdos_717 : Erdos717Bound := by
+theorem erdos_717 :
+    ∃ C : ℝ, 0 < C ∧
+      ∀ (V : Type) [Fintype V] (G : SimpleGraph V),
+        2 ≤ Fintype.card V →
+        (chiNat G : ℝ) ≤
+          C * (Real.sqrt (Fintype.card V : ℝ) / Real.log (Fintype.card V : ℝ)) *
+            (cliqueSubdivisionNumber G : ℝ) := by
   sorry
 
 end Erdos717
-
-end

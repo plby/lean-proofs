@@ -2,7 +2,7 @@
   "challenge_module": "Erdos502",
   "solution_module": "ErdosProblems.Erdos502",
   "theorem_names": [
-    "Erdos502.bannai_bannai_stanton"
+    "Erdos502.erdos_502"
   ],
   "permitted_axioms": [
     "propext",

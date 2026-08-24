@@ -359,7 +359,7 @@ have only the digits $0, 1$ when written base 3, and $B = {∑ ε_{k} 4^{k} : ε
 be the set of integers which have only the digits $0, 1$ when written base 4.
 Does $A + B$ have positive density?
 -/
-theorem erdos_125 :
+theorem not_erdos_125 :
     ¬ ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
       { x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1} }).HasPosDensity := by
   have h :
@@ -1086,7 +1086,7 @@ have only the digits $0, 1$ when written base 3, and $B = {∑ ε_{k} 4^{k} : ε
 be the set of integers which have only the digits $0, 1$ when written base 4.
 Does $A + B$ have positive lower density?
 -/
-theorem erdos_125.variants.positive_lower_density :
+theorem not_erdos_125_lower_density :
     ¬ 0 < ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
       { x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1} }).lowerDensity := by
   have hA : {x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1}} = A := rfl
@@ -1103,8 +1103,12 @@ end Erdos125
 
 open Erdos125
 
-#print axioms erdos_125.variants.positive_lower_density
+#print axioms not_erdos_125_lower_density
 -- 'Erdos125.erdos_125.variants.positive_lower_density' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
-#print axioms erdos_125
+#print axioms not_erdos_125
 -- 'Erdos125.erdos_125' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos125.erdos_125 := _root_.Erdos125.not_erdos_125
+
+alias _root_.Erdos125.erdos_125.variants.positive_lower_density := _root_.Erdos125.not_erdos_125_lower_density

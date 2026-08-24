@@ -2,7 +2,7 @@
   "challenge_module": "Erdos1008",
   "solution_module": "ErdosProblems.Erdos1008",
   "theorem_names": [
-    "Erdos1008.exists_C4_free_subgraph_with_many_edges"
+    "Erdos1008.erdos_1008"
   ],
   "permitted_axioms": [
     "propext",

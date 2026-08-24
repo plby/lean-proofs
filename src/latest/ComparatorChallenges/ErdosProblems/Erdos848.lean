@@ -2,10 +2,6 @@
 
 import Mathlib
 
-open scoped BigOperators
-open scoped Finset
-open scoped Nat.Prime
-
 namespace Erdos848
 
 -- ============================================================================
@@ -19,8 +15,8 @@ def NonSquarefreeProductProp (A : Finset ℕ) : Prop :=
 
 /-! ### Indexing Convention
 
-We use `Finset.range N` which gives {0, 1, ..., N-1} rather than the paper's {1, ..., N}.
-This is the standard Mathlib convention and is mathematically equivalent because:
+We use `Finset.range N`, which gives {0, 1, ..., N-1}.
+Changing to {1, ..., N} does not affect the result because:
 - 0 cannot satisfy `NonSquarefreeProductProp` (since 0·0+1 = 1 is squarefree)
 - The asymptotic bounds for "sufficiently large N" are unaffected
 -/
@@ -33,5 +29,5 @@ def Erdos848For (N : ℕ) : Prop :=
   ∀ A : Finset ℕ, A ⊆ Finset.range N → NonSquarefreeProductProp A →
     A.card ≤ (A₇ N).card
 
-theorem erdos_848.variants.asymptotic : ∀ᶠ N in Filter.atTop, Erdos848For N := by
+theorem erdos_848.variants.erdos_848 : ∀ᶠ N in Filter.atTop, Erdos848For N := by
   sorry

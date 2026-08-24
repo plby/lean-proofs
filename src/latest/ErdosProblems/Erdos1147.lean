@@ -535,7 +535,7 @@ theorem sqrtTwo_not_basis : ¬ IsBasis2 (problemSet (Real.sqrt 2)) := by
 /-- Erdős Problem 1147 has a negative answer: it is false that every
 positive irrational parameter gives an asymptotic additive basis of order
 two. -/
-theorem erdos_1147 :
+theorem not_erdos_1147 :
     ¬ ∀ α : ℝ, 0 < α → Irrational α → IsBasis2 (problemSet α) := by
   intro h
   exact sqrtTwo_not_basis
@@ -543,4 +543,6 @@ theorem erdos_1147 :
 
 end Erdos1147
 
-#print axioms Erdos1147.erdos_1147
+#print axioms Erdos1147.not_erdos_1147
+
+alias _root_.Erdos1147.erdos_1147 := _root_.Erdos1147.not_erdos_1147

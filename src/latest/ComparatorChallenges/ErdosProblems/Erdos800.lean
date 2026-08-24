@@ -2,11 +2,7 @@
 
 import Mathlib
 
-open Finset
-
 namespace Erdos800
-
-noncomputable section
 
 universe u v
 
@@ -24,23 +20,11 @@ def NoAdjacentHighDegree {α : Type u} [Fintype α]
   classical
   exact ∀ ⦃x y : α⦄, H.Adj x y → H.degree x < 3 ∨ H.degree y < 3
 
-/-- A convenient pointwise formulation of “there is no independent triple”. -/
-def NoIndependentTriple {α : Type u} (G : SimpleGraph α) : Prop :=
-  ∀ ⦃a b c : α⦄, a ≠ b → a ≠ c → b ≠ c →
-    G.Adj a b ∨ G.Adj a c ∨ G.Adj b c
-
-/-- The number of edges of a finite graph, packaged without exposing
-decidability instances in theorem statements. -/
-def edgeCount {α : Type u} [Fintype α] (G : SimpleGraph α) : ℕ :=
-  Nat.card G.edgeSet
-
 /-- A clique containing at least as many vertices as the target contains a copy
 of the target. -/
 
 theorem erdos_800 (n : ℕ) (H : SimpleGraph (Fin n))
     (hH : NoAdjacentHighDegree H) : RamseyFor H (12 * n) := by
   sorry
-
-end
 
 end Erdos800

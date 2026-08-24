@@ -38,7 +38,6 @@ set_option linter.style.setOption false
 
 namespace Erdos897
 
-
 set_option linter.style.longLine false
 set_option linter.flexible false
 
@@ -939,7 +938,7 @@ Let $f(n)$ be an additive function (so that $f(ab)=f(a)+f(b)$
 if $(a,b)=1$ such that $\limsup_{p,k} f(p^k) \log(p^k) = ∞$.
 Is it true that $\limsup_n (f(n+1)−f(n))/ \log n = ∞$?
 -/
-theorem erdos_897.parts.i : (∀ (f : ℕ → ℝ),
+theorem not_erdos_897_iff : (∀ (f : ℕ → ℝ),
     (∀ᵉ (a > 0) (b > 0), a.Coprime b → f (a * b) = f a + f b) →
     ((Filter.atTop ⊓ Filter.principal {x : ℕ × ℕ | x.1.Prime}).limsup
       (fun x => (f (x.1 ^ x.2) / (x.1 ^ x.2 : ℝ).log : EReal)) = ⊤) →
@@ -963,7 +962,7 @@ Let $f(n)$ be an additive function (so that $f(ab)=f(a)+f(b)$
 if $(a,b)=1$) such that $\limsup_{p,k} f(p^k) \log(p^k) = ∞$.
 Is it true that $\limsup_n f(n+1)/ f(n) = ∞$?
 -/
-theorem erdos_897.parts.ii : (∀ (f : ℕ → ℝ),
+theorem not_erdos_897_part_ii_iff : (∀ (f : ℕ → ℝ),
     (∀ᵉ (a > 0) (b > 0), a.Coprime b → f (a * b) = f a + f b) →
     ((Filter.atTop ⊓ Filter.principal {x : ℕ × ℕ | x.1.Prime}).limsup
       (fun x => (f (x.1 ^ x.2) / (x.1 ^ x.2 : ℝ).log : EReal)) = ⊤) →
@@ -985,10 +984,30 @@ theorem erdos_897.parts.ii : (∀ (f : ℕ → ℝ),
       exact EReal.coe_le_coe_iff.mpr hn;
     · exact EReal.coe_lt_top _
 
+theorem not_erdos_897 :
+    ¬ ((∀ (f : ℕ → ℝ),
+        (∀ᵉ (a > 0) (b > 0), a.Coprime b → f (a * b) = f a + f b) →
+        ((Filter.atTop ⊓ Filter.principal {x : ℕ × ℕ | x.1.Prime}).limsup
+          (fun x => (f (x.1 ^ x.2) / (x.1 ^ x.2 : ℝ).log : EReal)) = ⊤) →
+        Filter.atTop.limsup (fun (n : ℕ) => ((f (n + 1) - f n) / (n : ℝ).log : EReal)) = ⊤)) := by
+  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using Erdos897.not_erdos_897_iff
+
+theorem not_erdos_897_part_ii :
+    ¬ ((∀ (f : ℕ → ℝ),
+        (∀ᵉ (a > 0) (b > 0), a.Coprime b → f (a * b) = f a + f b) →
+        ((Filter.atTop ⊓ Filter.principal {x : ℕ × ℕ | x.1.Prime}).limsup
+          (fun x => (f (x.1 ^ x.2) / (x.1 ^ x.2 : ℝ).log : EReal)) = ⊤) →
+        Filter.atTop.limsup (fun (n : ℕ) => (f (n + 1) / f n : EReal)) = ⊤)) := by
+  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using Erdos897.not_erdos_897_part_ii_iff
+
 end Erdos897
 
-#print axioms Erdos897.erdos_897.parts.i
+#print axioms Erdos897.not_erdos_897_iff
 -- 'Erdos897.erdos_897.parts.i' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-#print axioms Erdos897.erdos_897.parts.ii
+#print axioms Erdos897.not_erdos_897_part_ii_iff
 -- 'Erdos897.erdos_897.parts.ii' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos897.erdos_897.parts.i := _root_.Erdos897.not_erdos_897_iff
+
+alias _root_.Erdos897.erdos_897.parts.ii := _root_.Erdos897.not_erdos_897_part_ii_iff

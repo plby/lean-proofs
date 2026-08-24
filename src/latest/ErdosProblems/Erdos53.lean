@@ -3071,13 +3071,15 @@ theorem positive_natural_resolution :
 sufficiently large finite set of integers has at least `|A|^k` distinct
 integers which occur as a subset sum or a subset product of distinct members
 of `A`. -/
-theorem erdos53 :
+theorem erdos_53 :
     ∀ k : ℕ, ∃ N : ℕ, ∀ A : Finset ℤ,
       N ≤ A.card → A.card ^ k ≤ (sumProdValues A).card := by
   exact integer_resolution_of_positive_naturals positive_natural_resolution
 
-#print axioms erdos53
+#print axioms erdos_53
 
 end
 
 end Erdos53
+
+alias _root_.Erdos53.erdos53 := _root_.Erdos53.erdos_53

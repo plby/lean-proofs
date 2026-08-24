@@ -2,13 +2,8 @@
 
 import Mathlib
 
-open Polynomial
-
-noncomputable section
-
 namespace Erdos1214
 
-open scoped Classical in
 theorem erdos_1214 :
     ∀ x y : ℕ, x ≥ 1 → y ≥ 1 →
       (∀ n : ℕ, n ≥ 1 →
@@ -18,5 +13,3 @@ theorem erdos_1214 :
   sorry
 
 end Erdos1214
-
-end

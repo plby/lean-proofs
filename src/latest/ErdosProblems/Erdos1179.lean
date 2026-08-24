@@ -3528,7 +3528,7 @@ cardinality is `(1 + o(1)) log₂ N`.  The final clause says that this cardinali
 works with probability tending to one, uniformly along every growing sequence
 of finite abelian groups.  Thus the answer to the question in Problem 1179 is
 affirmative. -/
-theorem erdos1179 :
+theorem erdos_1179 :
     (∀ (G : Type u) [AddCommGroup G] [Fintype G] (ε : ℝ),
       0 < ε → ε < 1 → ∀ A : Finset G,
         SetBalanced ε A → Fintype.card G ≤ 2 ^ A.card) ∧
@@ -3549,4 +3549,6 @@ end FinalAssembly
 
 end Erdos1179
 
-#print axioms Erdos1179.erdos1179
+#print axioms Erdos1179.erdos_1179
+
+alias _root_.Erdos1179.erdos1179 := _root_.Erdos1179.erdos_1179

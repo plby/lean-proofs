@@ -835,7 +835,10 @@ def erdos_453 : Prop :=
       (Nat.nth Nat.Prime n) ^ (2 : ℕ) <
         (Nat.nth Nat.Prime (n + i)) * (Nat.nth Nat.Prime (n - i))
 
-theorem not_erdos_453 : ¬ erdos_453 := by
+theorem not_erdos_453 : ¬ (∃ N : ℕ, ∀ n : ℕ, n ≥ N →
+  ∃ i : ℕ, i < n ∧
+    (Nat.nth Nat.Prime n) ^ (2 : ℕ) <
+      (Nat.nth Nat.Prime (n + i)) * (Nat.nth Nat.Prime (n - i))) := by
   -- By combining the results, we conclude that
   -- $p_n^2 > p_{n-i} p_{n+i}$ for infinitely many $n$.
   have h_inf :

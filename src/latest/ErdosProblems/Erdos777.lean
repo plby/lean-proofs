@@ -1755,11 +1755,22 @@ theorem firstQuestion_true : FirstQuestion :=
   firstQuestion_of_comparableTrianglesVanish comparableTrianglesVanish_true
 
 /-- Complete resolution of Erdős Problem 777: yes, no, yes. -/
-theorem erdos777 : Resolution :=
+theorem erdos_777 : ((∀ ε : ℝ, 0 < ε →
+  ∃ n₀ : ℕ, ∀ n : ℕ, n₀ ≤ n → ∀ 𝓕 : Finset (Finset (Fin n)),
+    (𝓕.card : ℝ) ≤ (2 - ε) * (2 : ℝ) ^ ((n : ℝ) / 2) →
+    Erdos777.comparableEdges 𝓕 < 2 ^ n) ∧ ¬ (∀ c : ℝ, 0 < c →
+  ∃ C : ℝ, 0 < C ∧ ∀ n : ℕ, ∀ 𝓕 : Finset (Finset (Fin n)),
+    c * (𝓕.card : ℝ) ^ 2 ≤ Erdos777.comparableEdges 𝓕 →
+    (𝓕.card : ℝ) ≤ C * (2 : ℝ) ^ ((n : ℝ) / 2)) ∧ (∀ ε : ℝ, 0 < ε →
+  ∃ δ : ℝ, 0 < δ ∧ ∀ n : ℕ, ∀ 𝓕 : Finset (Finset (Fin n)),
+    (𝓕.card : ℝ) ^ (2 - δ) < Erdos777.comparableEdges 𝓕 →
+    (𝓕.card : ℝ) < (2 + ε) ^ ((n : ℝ) / 2))) :=
   ⟨firstQuestion_true, secondQuestion_false, thirdQuestion_true⟩
 
-#print axioms erdos777
+#print axioms erdos_777
 
 end
 
 end Erdos777
+
+alias _root_.Erdos777.erdos777 := _root_.Erdos777.erdos_777

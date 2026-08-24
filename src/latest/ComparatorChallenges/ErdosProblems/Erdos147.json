@@ -2,7 +2,7 @@
   "challenge_module": "Erdos147",
   "solution_module": "ErdosProblems.Erdos147",
   "theorem_names": [
-    "Erdos147.not_erdosSimonovitsConjecture"
+    "Erdos147.not_erdos_147"
   ],
   "permitted_axioms": [
     "propext",

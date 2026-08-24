@@ -189,7 +189,7 @@ theorem collection_is_valid (n : ℕ) (h : n > 1) : is_valid_collection (collect
 It is not true that there are only finitely many collections of disjoint intervals
 I_1,...,I_n of size |I_i| >= 4 such that the product of their elements is a square.
 -/
-theorem erdos_363 : ¬ Set.Finite { S | is_valid_collection S } := by
+theorem not_erdos_363 : ¬ Set.Finite { S | is_valid_collection S } := by
   -- Construct the map $f : \mathbb{N} \to \text{Finset } \mathbb{N}$ by
   -- $f(n) = \text{collection } (n + 2)$.
   set f : ℕ → List (Finset ℕ) := fun n => collection (n + 2)
@@ -200,5 +200,7 @@ theorem erdos_363 : ¬ Set.Finite { S | is_valid_collection S } := by
 
 end Erdos363
 
-#print axioms Erdos363.erdos_363
+#print axioms Erdos363.not_erdos_363
 -- 'Erdos363.erdos_363' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos363.erdos_363 := _root_.Erdos363.not_erdos_363

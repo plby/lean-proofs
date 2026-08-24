@@ -46,7 +46,7 @@ open scoped Topology
 /-- Erdős Problem 136: the minimum number of colours in a colouring of the
 edges of `K_n` for which every `K_4` receives at least five colours has
 normalized limit `5 / 6`. -/
-theorem erdos136 :
+theorem erdos_136 :
     Tendsto (fun n : ℕ ↦ (erdos136Fun n : ℝ) / (n : ℝ)) atTop
       (nhds (5 / 6 : ℝ)) := by
   obtain ⟨C, C0, hC, hC0, hinstances⟩ :=
@@ -67,3 +67,5 @@ theorem erdos136_asymptotic :
     hinstances
 
 end Erdos136
+
+alias _root_.Erdos136.erdos136 := _root_.Erdos136.erdos_136

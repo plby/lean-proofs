@@ -450,13 +450,15 @@ theorem not_eventually_erdosConstruction_extremal :
 /-- **Erdős Problem 441 (negative resolution).** Erdős's proposed set is
 always admissible, but it fails to attain the exact maximum for arbitrarily
 large bounds. -/
-theorem erdos_441 :
+theorem not_erdos_441 :
     (∀ N : ℕ, LcmBounded N (erdosConstruction N)) ∧
       ∀ M : ℕ, ∃ N ≥ M,
         (erdosConstruction N).card < g N := by
   exact ⟨erdosConstruction_lcmBounded,
     erdosConstruction_not_eventually_extremal⟩
 
-#print axioms erdos_441
+#print axioms not_erdos_441
 
 end Erdos441
+
+alias _root_.Erdos441.erdos_441 := _root_.Erdos441.not_erdos_441

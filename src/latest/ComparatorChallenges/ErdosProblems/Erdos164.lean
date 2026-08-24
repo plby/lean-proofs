@@ -2,10 +2,6 @@
 
 import Mathlib
 
-open scoped Topology
-
-noncomputable section
-
 namespace Erdos164
 
 noncomputable def erdosWeight (n : ℕ) : ℝ :=
@@ -19,8 +15,6 @@ noncomputable def primitiveWeightSum (A : Set ℕ) : ℝ :=
   ∑' a : A, erdosWeight (a : ℕ)
 noncomputable def primeWeightSum : ℝ :=
   primitiveWeightSum primeSet
-open Filter Asymptotics
-open scoped Nat.Prime
 
 def IsPRough (p m : ℕ) : Prop :=
   ∀ q : ℕ, q.Prime → q ∣ m → p ≤ q
@@ -28,38 +22,18 @@ def erdos_strong (n : ℕ) : Prop :=
   ∀ ⦃A : Set ℕ⦄, PrimitiveSet A →
     A ⊆ {m : ℕ | n ∣ m ∧ IsPRough n (m / n)} →
     primitiveWeightSum A ≤ erdosWeight n
-end Erdos164
 
-open scoped Topology
-open Filter Asymptotics MeasureTheory
-open scoped Nat.Prime
-
-namespace Erdos164
-
-open scoped Classical in
-theorem erdos164 :
+theorem erdos_164 :
     PrimitiveSet primeSet ∧
       primitiveWeightSum primeSet = primeWeightSum ∧
       ∀ A : Set ℕ, PrimitiveSet A → primitiveWeightSum A ≤ primitiveWeightSum primeSet := by
   sorry
 
-open scoped Classical in
 theorem erdos_strong_of_two : erdos_strong 2 := by
   sorry
 
 end Erdos164
-open scoped Classical in
 theorem Erdos164.erdos_strong_of_prime :
     ∀ {p : Nat}, Nat.Prime p → Erdos164.erdos_strong p
   := by
   sorry
-namespace Erdos164
-
-open scoped Classical in
-theorem erdos164_alt :
-    PrimitiveSet primeSet ∧
-      primitiveWeightSum primeSet = primeWeightSum ∧
-      ∀ A : Set ℕ, PrimitiveSet A → primitiveWeightSum A ≤ primitiveWeightSum primeSet := by
-  sorry
-
-end Erdos164

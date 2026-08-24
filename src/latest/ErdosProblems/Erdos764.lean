@@ -3758,7 +3758,7 @@ lemma scaled_selected_lower_power_coarse
 /-- Negative resolution of Erdős Problem 764: the summatory ordered
 three-fold additive convolution of a set indicator cannot be `c * N + O(1)`
 for any positive real constant `c`. -/
-theorem erdos_764 :
+theorem not_erdos_764 :
     ¬ ∃ A : Set ℕ, ∃ c : ℝ, 0 < c ∧
       remainder A c =O[Filter.atTop] (fun _ : ℕ ↦ (1 : ℝ)) := by
   rintro ⟨A, c, hc, hO⟩
@@ -3865,4 +3865,6 @@ theorem erdos_764 :
 
 end Erdos764
 
-#print axioms Erdos764.erdos_764
+#print axioms Erdos764.not_erdos_764
+
+alias _root_.Erdos764.erdos_764 := _root_.Erdos764.not_erdos_764

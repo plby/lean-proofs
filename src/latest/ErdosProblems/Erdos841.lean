@@ -54,7 +54,7 @@ theorem erdos841_final_resolution :
 /-- The same complete resolution with its positive lower-bound constant
 existentially quantified, so the statement does not expose construction-level
 height estimates. -/
-theorem erdos841_comparator_resolution :
+theorem erdos_841 :
     (∀ n : ℕ, 1 < n →
       Real.sqrt (2 * (n : ℝ)) + 1 < (largestPrimeFactor n : ℝ) →
         t n = largestPrimeFactor n) ∧
@@ -90,8 +90,10 @@ end
 end Erdos841
 
 #print axioms Erdos841.erdos841_final_resolution
-#print axioms Erdos841.erdos841_comparator_resolution
+#print axioms Erdos841.erdos_841
 #print axioms Erdos841.erdos841_lower_bound_explicit
 #print axioms Erdos841.erdos841_distributional_resolution
 #print axioms Erdos841.erdos841_many_small_values_global
 #print axioms Erdos841.erdos841_selfridge_sqrt_bound_all
+
+alias _root_.Erdos841.erdos841_comparator_resolution := _root_.Erdos841.erdos_841

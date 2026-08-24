@@ -151,10 +151,13 @@ theorem alon_bohman_huang :
 
 /-- Erdős Problem 807 has a negative answer: the proposed equality does not
 hold with high probability in `G(n, 1 / 2)`. -/
-theorem erdos_807 : ¬ Erdos807Conjecture :=
+theorem not_erdos_807 : ¬ (RandomGraph.AlmostSurely (fun n G ↦
+  Erdos807.bipartitionNumber G = n - G.indepNum)) :=
   erdos_807_of_structured structured_bipartition_bound_almostSurely
 
 end Erdos807
 
 #print axioms Erdos807.alon_bohman_huang
-#print axioms Erdos807.erdos_807
+#print axioms Erdos807.not_erdos_807
+
+alias _root_.Erdos807.erdos_807 := _root_.Erdos807.not_erdos_807

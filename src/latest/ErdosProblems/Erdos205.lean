@@ -810,7 +810,7 @@ Infinitely many counterexamples, in the PNT-scale form:
 ∃ c > 0, there are infinitely many n such that
   ∀ k with 2^k ≤ n, Omega(n - 2^k) ≥ c * sqrt(log n / log log n).
 -/
-theorem infinitely_many_counterexamples :
+theorem not_erdos_205 :
     ∃ c : ℝ, 0 < c ∧ {n : ℕ | is_counterexample c n}.Infinite := by
   -- Extract a value that works for all sufficiently large `E`.
   obtain ⟨c, hc_pos, hc⟩ :
@@ -875,8 +875,10 @@ theorem infinitely_many_counterexamples :
       le_trans (Nat.le_of_dvd hQ_pos hp_dvd_Q) hQ_le_one
     exact (Nat.Prime.one_lt (Nat.prime_nth_prime _)).not_ge hp_le_one
 
-#print axioms infinitely_many_counterexamples
+#print axioms not_erdos_205
 -- 'Erdos205.infinitely_many_counterexamples' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
 end Erdos205
+
+alias _root_.Erdos205.infinitely_many_counterexamples := _root_.Erdos205.not_erdos_205

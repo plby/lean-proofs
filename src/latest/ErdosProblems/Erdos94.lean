@@ -873,7 +873,7 @@ theorem erdos94_general_position (P : Finset Point) (hgp : GeneralPosition P) :
   exact erdos94 P hperp
 
 -- Convenience wrapper combining convex + no-three-collinear into GeneralPosition.
-theorem erdos94_convex_no3collinear (P : Finset Point)
+theorem erdos_94 (P : Finset Point)
     (hconv : ConvexPosition P) (hnc : NoThreeCollinear P) :
     S P ≤ (3 / 4 : ℝ) * (P.card : ℝ)^2 * ((P.card : ℝ) - 1) := by
   exact erdos94_general_position P ⟨hconv, hnc⟩
@@ -914,8 +914,10 @@ theorem erdos94_bigO_convex_no3collinear (P : Finset Point)
     S(P)=O(n^3) := by
   exact erdos94_bigO_general_position P ⟨hconv, hnc⟩
 
-#print axioms erdos94_convex_no3collinear
+#print axioms erdos_94
 -- 'Erdos94.erdos94_convex_no3collinear' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 end Erdos94
+
+alias _root_.Erdos94.erdos94_convex_no3collinear := _root_.Erdos94.erdos_94

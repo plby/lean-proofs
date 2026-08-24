@@ -913,7 +913,10 @@ theorem explicit_counterexamples (N : ℕ) :
   exact ⟨p, hpMonic, ⟨C, hCinjective, hlarge⟩⟩
 
 /-- The exact boundedness assertion in Erdős Problem 511 is false. -/
-theorem erdos_511 : ¬ Erdos511Bounded := by
+theorem not_erdos_511 :
+    ¬ (∀ d : ℝ, 1 < d →
+      ∃ B : ℕ, ∀ p : Polynomial ℂ, p.Monic →
+        ¬ HasAtLeastLargeComponents p d (B + 1)) := by
   intro hbounded
   obtain ⟨B, hB⟩ := hbounded (6 / 5 : ℝ) (by norm_num)
   obtain ⟨p, hp, hmany⟩ := explicit_counterexamples (B + 1)
@@ -921,4 +924,6 @@ theorem erdos_511 : ¬ Erdos511Bounded := by
 
 end Erdos511
 
-#print axioms Erdos511.erdos_511
+#print axioms Erdos511.not_erdos_511
+
+alias _root_.Erdos511.erdos_511 := _root_.Erdos511.not_erdos_511

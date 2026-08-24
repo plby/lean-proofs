@@ -730,7 +730,7 @@ theorem component_subset_image_final (z : ℂ) (hz : z ∈ my_S) :
 /-
 All connected components of $S$ have diameter $< 2-r$.
 -/
-theorem components_small_final :
+theorem erdos_1048 :
   ∀ z ∈ my_S, Metric.ediam (connectedComponentIn my_S z) < ENNReal.ofReal (2 - my_r) := by
     exact fun z a => components_small z a
 
@@ -768,5 +768,7 @@ theorem my_U_diam (k : ℕ) : Metric.ediam (my_U k) = Metric.ediam (my_g '' my_D
 
 end Erdos1048b
 
-#print axioms Erdos1048b.components_small_final
+#print axioms Erdos1048b.erdos_1048
 -- 'Erdos1048b.components_small_final' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos1048b.components_small_final := _root_.Erdos1048b.erdos_1048

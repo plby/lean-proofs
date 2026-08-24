@@ -2,6 +2,9 @@
 
 import Mathlib
 
+open Order
+open scoped Cardinal
+
 /-!
 # Erdős Problem 1119
 
@@ -10,9 +13,6 @@ that if `succ m < 𝔠`, a family of entire functions taking at most `m` values 
 each point has size at most `m`.  The second statement is Erdős's countable
 theorem when `ℵ_ 1 < 𝔠`.
 -/
-
-open Cardinal Order
-open scoped Cardinal
 
 namespace Erdos1119
 
@@ -23,7 +23,7 @@ theorem erdos_1119.variants.easy_case (m : Cardinal) (hm : ℵ₀ < m)
     #F ≤ m := by
   sorry
 
-theorem erdos_1119.variants.erdos_wetzel
+theorem erdos_1119
     (h : (ℵ_ 1 : Cardinal.{0}) < 𝔠) (F : Set (ℂ → ℂ))
     (hF : ∀ f ∈ F, Differentiable ℂ f)
     (hval : ∀ z : ℂ, {y : ℂ | ∃ f ∈ F, f z = y}.Countable) :

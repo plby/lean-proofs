@@ -832,7 +832,12 @@ theorem erdos_26.variants.rusza : ∃ A : ℕ → ℕ,
           h_upper_density.trans' <| by
             linarith [isBehrend_implies_upperDensity_eq_one h]
 
+theorem not_erdos_26 : ∃ A : ℕ → ℕ,
+    StrictMono A ∧ ¬IsThick A ∧ ∀ k, ¬IsBehrend (A · + k) := by
+  exact Erdos26.erdos_26.variants.rusza
+
 end Erdos26
 
-#print axioms Erdos26.erdos_26.variants.rusza
--- 'Erdos26.erdos_26.variants.rusza' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms Erdos26.not_erdos_26
+
+alias _root_.Erdos26.erdos_26 := _root_.Erdos26.not_erdos_26

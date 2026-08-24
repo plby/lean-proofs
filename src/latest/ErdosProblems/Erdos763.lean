@@ -1462,7 +1462,7 @@ lemma block_circle_lower_chosen {A : Set ℕ} {c D L : ℝ} (hc : 0 < c) (hD : 0
 /-- **Erdős Problem 763 (Erdős--Fuchs).**  No subset of the natural numbers has an
 ordered two-fold representation function whose summatory function differs from `cN` by a
 bounded amount for a positive constant `c`. -/
-theorem erdos_763 :
+theorem not_erdos_763 :
     ¬ ∃ (A : Set ℕ) (c : ℝ), 0 < c ∧
       (fun N : ℕ ↦ (summatoryRepresentationCount A N : ℝ) - c * N) =O[atTop]
         (fun _N : ℕ ↦ (1 : ℝ)) := by
@@ -1489,6 +1489,8 @@ theorem erdos_763 :
   dsimp only [L] at hboth
   nlinarith
 
-#print axioms erdos_763
+#print axioms not_erdos_763
 
 end Erdos763
+
+alias _root_.Erdos763.erdos_763 := _root_.Erdos763.not_erdos_763

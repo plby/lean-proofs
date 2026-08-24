@@ -4,8 +4,7 @@ import Mathlib
 
 namespace Erdos493
 
-open scoped Classical in
-theorem erdos_493_aristotle :
+theorem erdos_493 :
   ∃ k : ℕ, ∃ N : ℤ, ∀ n : ℤ, N ≤ n →
     ∃ a : Fin k → ℤ,
       (∀ i : Fin k, (2 : ℤ) ≤ a i) ∧

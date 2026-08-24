@@ -371,14 +371,16 @@ theorem erdos_309_not_littleO :
 
 /-- Erdős Problem 309, with both the sharp asymptotic and the requested
 negative answer bundled as the final theorem. -/
-theorem erdos_309 :
+theorem not_erdos_309 :
     Tendsto (fun N : ℕ ↦ (F N : ℝ) / Real.log (N : ℝ)) atTop (𝓝 1) ∧
       ¬ ((fun N : ℕ ↦ (F N : ℝ)) =o[atTop]
           (fun N : ℕ ↦ Real.log (N : ℝ))) :=
   ⟨erdos_309_asymptotic, erdos_309_not_littleO⟩
 
-#print axioms Erdos309.erdos_309
+#print axioms Erdos309.not_erdos_309
 
 end
 
 end Erdos309
+
+alias _root_.Erdos309.erdos_309 := _root_.Erdos309.not_erdos_309

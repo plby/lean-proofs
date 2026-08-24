@@ -206,7 +206,13 @@ theorem erdos_1027_nat : NatBudgetResolution.{u} := by
 budget `c`, a positive proportion (depending only on `c`) of all subsets of
 the ground set meet every edge without containing an edge, once the common
 edge size is sufficiently large. -/
-theorem erdos_1027 : RealBudgetResolution.{u} :=
+theorem erdos_1027 : (∀ c : ℝ, 0 < c →
+  ∃ δ : ℝ, 0 < δ ∧ ∃ N : ℕ,
+    ∀ (n : ℕ), N ≤ n →
+    ∀ (α : Type u) [DecidableEq α] (𝓕 : Erdos1027.Hypergraph α),
+      Erdos1027.IsUniform 𝓕 n →
+        (𝓕.card : ℝ) ≤ c * (2 : ℝ) ^ n →
+          δ * (2 : ℝ) ^ (Erdos1027.groundSet 𝓕).card ≤ (Erdos1027.goodSets 𝓕).card) :=
   realBudgetResolution_of_natBudgetResolution erdos_1027_nat
 
 end Erdos1027

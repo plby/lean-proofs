@@ -20,7 +20,7 @@ URLs:
 
   This file is the packaged proof development for the main result
 
-    `Erdos1044.erdos_problem_1044 : lambdaInf = 2`.
+    `Erdos1044.erdos_1044 : lambdaInf = 2`.
 
   It imports only `Mathlib` and contains all definitions, lemmas, and proofs
   needed on the live dependency path to the main theorem. Fixed-degree side
@@ -3679,12 +3679,14 @@ theorem lambdaInf_ge_two : (2 : ENNReal) ≤ lambdaInf := by
 /-- **Main Theorem** (Solution to Problem 1.2).
     inf_f Λ(f) = 2, where the infimum is over all monic polynomials with roots in
     the closed unit disk. -/
-theorem erdos_problem_1044 : lambdaInf = 2 := by
+theorem erdos_1044 : lambdaInf = 2 := by
   apply le_antisymm
   · exact lambdaInf_le_two
   · exact lambdaInf_ge_two
 
-#print axioms erdos_problem_1044
+#print axioms erdos_1044
 -- 'Erdos1044.erdos_problem_1044' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1044
+
+alias _root_.Erdos1044.erdos_problem_1044 := _root_.Erdos1044.erdos_1044

@@ -2,7 +2,7 @@
   "challenge_module": "Erdos283b",
   "solution_module": "ErdosProblems.Erdos283b",
   "theorem_names": [
-    "Erdos283b.general_theorem",
+    "Erdos283b.erdos_283",
     "Erdos283b.meta_theorem"
   ],
   "permitted_axioms": [

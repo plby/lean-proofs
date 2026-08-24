@@ -2,10 +2,9 @@
 
 import Mathlib
 
-namespace Erdos1166
-
 open Filter MeasureTheory
-open scoped BigOperators ENNReal
+
+namespace Erdos1166
 
 abbrev Site := ℤ × ℤ
 

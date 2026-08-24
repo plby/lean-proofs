@@ -2847,7 +2847,7 @@ theorem erdos_533_of_counterexamplePackage (hcounter : CounterexamplePackage) :
 /-- Erdős Problem 533 has a negative answer.  The graph family above has
 fixed edge density `1/32`, is `K₅`-free, and has triangle-independence
 number `o(n)`. -/
-theorem erdos_533 :
+theorem not_erdos_533 :
     ¬ ∀ δ : ℝ, 0 < δ → ∃ c : ℝ, 0 < c ∧ ∀ᶠ n : ℕ in atTop,
       ∀ G : SimpleGraph (Fin n), G.CliqueFree 5 →
         δ * (n : ℝ) ^ 2 ≤ G.edgeFinset.card →
@@ -2856,6 +2856,8 @@ theorem erdos_533 :
   erdos_533_of_counterexamplePackage
     (counterexamplePackage_of_geometricWitness geometricWitness_exists)
 
-#print axioms erdos_533
+#print axioms not_erdos_533
 
 end Erdos533
+
+alias _root_.Erdos533.erdos_533 := _root_.Erdos533.not_erdos_533

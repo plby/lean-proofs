@@ -4,9 +4,6 @@ import Mathlib
 
 namespace Erdos1130
 
-open scoped BigOperators
-open Finset Set
-
 structure NodeConfiguration (n : ℕ) where
   nodes : Fin n → ℝ
   strictMono_nodes : StrictMono nodes
@@ -40,7 +37,7 @@ def GapPeaksEqual {n : ℕ} (X : NodeConfiguration n) : Prop :=
 def IsUpsilonMaximizer {n : ℕ} (X : NodeConfiguration n) : Prop :=
   ∀ Y : NodeConfiguration n, upsilon Y ≤ upsilon X
 
-theorem erdos_1130_free_node_characterization_false :
+theorem not_erdos_1130 :
     ∃ X : NodeConfiguration 3,
       IsUpsilonMaximizer X ∧ ¬ GapPeaksEqual X := by
   sorry

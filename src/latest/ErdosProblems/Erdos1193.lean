@@ -36,7 +36,7 @@ in mind, but these are not recorded in [Er80].
 ## Main results
 
 * `conv_ind`: the additive convolution `(1_A ∗ 1_A)(n)` as a `Finset` cardinality.
-* `erdos_convolution_counterexample`: `conv_ind ℕ n = n + 1` for all `n`.
+* `not_erdos_1193`: `conv_ind ℕ n = n + 1` for all `n`.
 
 ## References
 
@@ -58,12 +58,14 @@ noncomputable def conv_ind (A : Set ℕ) (n : ℕ) : ℕ :=
 /-- **Erdős Problem 1193 (counterexample).** The convolution of the indicator of `ℕ` with itself
 equals `n + 1` everywhere, so both the lower and upper density of the matching set are `1`.
 This disproves both of Erdős's questions without additional restrictions. -/
-theorem erdos_convolution_counterexample :
+theorem not_erdos_1193 :
     ∀ n : ℕ, conv_ind Set.univ n = n + 1 := by
   simp [conv_ind]
 
-#print axioms erdos_convolution_counterexample
+#print axioms not_erdos_1193
 -- 'Erdos1193.erdos_convolution_counterexample' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
 end Erdos1193
+
+alias _root_.Erdos1193.erdos_convolution_counterexample := _root_.Erdos1193.not_erdos_1193

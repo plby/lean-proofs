@@ -31,11 +31,13 @@ open scoped SimpleGraph
 namespace Erdos518
 
 /-- The affirmative resolution of Erdős Problem 518. -/
-theorem erdos518 (n : ℕ) (G : SimpleGraph (Fin n)) : Erdos518For n G := by
+theorem erdos_518 (n : ℕ) (G : SimpleGraph (Fin n)) : Erdos518For n G := by
   apply erdos518For_of_configuration_impossible
   intro V _ C
   exact configuration_impossible C
 
-#print axioms erdos518
+#print axioms erdos_518
 
 end Erdos518
+
+alias _root_.Erdos518.erdos518 := _root_.Erdos518.erdos_518

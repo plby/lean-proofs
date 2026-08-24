@@ -43,7 +43,14 @@ namespace Erdos55
 
 /-- The complete sharp-order Conlon--Fox--Pham resolution of Erdős Problem
 55, comprising both the uniform construction and the matching obstruction. -/
-theorem erdos_55 : ConlonFoxPhamResolution :=
+theorem erdos_55 :
+    (∃ C : ℝ, 0 < C ∧ ∀ r : ℕ, 2 ≤ r →
+      ∃ A : PositiveNatSet, RamseyComplete r A ∧
+        ∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
+          (countUpTo A N : ℝ) ≤ C * (r : ℝ) * Real.log (N : ℝ) ^ 2) ∧ (∃ c : ℝ, 0 < c ∧ ∀ r : ℕ, 2 ≤ r → ∀ A : PositiveNatSet,
+      (∃ N₀ : ℕ, ∀ N : ℕ, N₀ ≤ N →
+        (countUpTo A N : ℝ) ≤ c * (r : ℝ) * Real.log (N : ℝ) ^ 2) →
+      ¬ RamseyComplete r A) :=
   ⟨conlonFoxPham_upperBound, conlonFoxPham_lowerBound⟩
 
 end Erdos55

@@ -157,11 +157,13 @@ theorem not_simultaneouslyGood (α : ℝ) : ¬SimultaneouslyGood α := by
 
 It is false that for almost every `α`, the fractional-part visit averages have
 the expected limit simultaneously for every measurable `E ⊆ (0, 1)`. -/
-theorem erdos_994 : ¬KhintchineSimultaneous := by
+theorem not_erdos_994 : ¬(∀ᵐ α : ℝ, Erdos994.SimultaneouslyGood α) := by
   intro h
   obtain ⟨α, hα⟩ := h.exists
   exact not_simultaneouslyGood α hα
 
-#print axioms erdos_994
+#print axioms not_erdos_994
 
 end Erdos994
+
+alias _root_.Erdos994.erdos_994 := _root_.Erdos994.not_erdos_994

@@ -370,7 +370,10 @@ theorem not_graphRamseyAt_counterexampleTree_63 :
 
 /-- Erdős Problem 549 is false.  The counterexample is the tree
 `S(31,15)`, whose bipartition classes have sizes 16 and 32. -/
-theorem erdos_549 : ¬Erdos549Statement := by
+theorem not_erdos_549 :
+    ¬ (∀ (V : Type) [Fintype V] (T : SimpleGraph V) (k : ℕ),
+      T.IsTree → HasBipartitionSizes T k →
+        graphRamseyNumber T = 4 * k - 1) := by
   intro h
   have heq : graphRamseyNumber counterexampleTree = 63 := by
     simpa using h CounterVertex counterexampleTree 16
@@ -381,4 +384,6 @@ theorem erdos_549 : ¬Erdos549Statement := by
 
 end Erdos549
 
-#print axioms Erdos549.erdos_549
+#print axioms Erdos549.not_erdos_549
+
+alias _root_.Erdos549.erdos_549 := _root_.Erdos549.not_erdos_549

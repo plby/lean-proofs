@@ -2,7 +2,7 @@
   "challenge_module": "Erdos384",
   "solution_module": "ErdosProblems.Erdos384",
   "theorem_names": [
-    "Erdos384.erdos384_strict_statement_false"
+    "Erdos384.not_erdos_384"
   ],
   "permitted_axioms": [
     "propext",

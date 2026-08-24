@@ -471,7 +471,7 @@ lemma contradiction_of_large_unitDist (c : ℝ) (hc : 0 < c) (N n : ℕ)
       _ ≤ r := hr_le
   exact (not_le_of_gt hrk) hk_le_r
 
-theorem erdos_92.variants.strong : ¬
+theorem erdos_92.variants.not_erdos_92 : ¬
     ∃ c > 0, ∀ᶠ n in atTop, (f n : ℝ) ≤ n ^ (c / (n : ℝ).log.log) := by
   rintro ⟨c, hc, hupper_event⟩
   obtain ⟨N, hupper⟩ := Filter.eventually_atTop.mp hupper_event
@@ -524,3 +524,5 @@ theorem erdos_92.variants.strong : ¬
     hupper (by simpa [mul_assoc] using hedges)
 
 end Erdos92
+
+alias _root_.Erdos92.erdos_92.variants.strong := _root_.Erdos92.erdos_92.variants.not_erdos_92

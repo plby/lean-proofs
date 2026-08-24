@@ -214,7 +214,11 @@ theorem eventually_smooth_expansion_square {c : ℝ} (hc : 0 < c) :
 /-- Erdős Problem 305 has an affirmative answer: uniformly over every
 proper numerator `a`, the least possible largest denominator is at most
 `b * (log b) ^ (1 + o(1))`, up to an absolute constant. -/
-theorem erdos305 : Erdos305Answer := by
+theorem erdos_305 :
+    ∃ δ : ℕ → ℝ, Tendsto δ atTop (𝓝 0) ∧
+      ∃ C : ℝ, 0 < C ∧
+        ∀ᶠ b : ℕ in atTop,
+          (Dmax b : ℝ) ≤ C * b * (log b) ^ (1 + δ b) := by
   refine ⟨Scale.delta, Scale.delta_tendsto_zero, 8, by norm_num, ?_⟩
   filter_upwards [Assembly.eventually_uniform_expansion,
     Scale.eventually_cutoff_le_two_realScale,
@@ -238,4 +242,6 @@ end
 
 end Erdos305
 
-#print axioms Erdos305.erdos305
+#print axioms Erdos305.erdos_305
+
+alias _root_.Erdos305.erdos305 := _root_.Erdos305.erdos_305

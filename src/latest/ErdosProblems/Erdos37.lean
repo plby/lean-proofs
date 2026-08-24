@@ -6723,7 +6723,7 @@ namespace Erdos37
 
 /-- **Erdős Problem 37.** No uniformly lacunary subset of the natural
 numbers is an essential component for Schnirelmann density. -/
-theorem erdos_37 :
+theorem not_erdos_37 :
     ∀ A : Set ℕ, IsLacunary A → ¬ IsEssentialComponent A := by
   intro A hL hE
   have hzero : 0 ∈ A := zero_mem_of_essential hE
@@ -6737,6 +6737,8 @@ theorem erdos_37 :
   rw [hC, hAC] at hstrict
   exact (lt_irrefl δ) hstrict
 
-#print axioms erdos_37
+#print axioms not_erdos_37
 
 end Erdos37
+
+alias _root_.Erdos37.erdos_37 := _root_.Erdos37.not_erdos_37

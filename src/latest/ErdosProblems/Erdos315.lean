@@ -2518,15 +2518,14 @@ theorem main_theorem (n : ℕ) (hn : 1 ≤ n) (a : ℕ → ℕ)
 Definition of the usual Sylvester sequence s_i. Note that we use 0-based indexing where index 0
 corresponds to s_1 in the paper.
 -/
-def sylvester : ℕ → ℕ
-| 0 => 2
-| (i + 1) => (sylvester i)^2 - (sylvester i) + 1
+def sylvester (i : ℕ) : ℕ :=
+  Nat.rec 2 (fun _ previous ↦ previous ^ 2 - previous + 1) i
 
 /-
 Definition of the Vardi constant.
 -/
 noncomputable def usual_sylvester_seq_pow (i : ℕ) : ℝ :=
-  (sylvester i : ℝ) ^ ((1 / 2 : ℝ) ^ (i + 1))
+  (sylvester i : ℝ) ^ ((1 / ((2 : ℕ) : ℝ) : ℝ) ^ (i + 1))
 
 noncomputable def vardi_constant : ℝ :=
   Filter.atTop.limUnder usual_sylvester_seq_pow
@@ -2542,7 +2541,7 @@ theorem erdos_315 (a : ℕ → ℕ)
   (h_mono : Monotone a)
   (h_sum : ∑' i, (1 : ℝ) / a i = 1)
   (h_neq : ∃ i, a i ≠ sylvester i) :
-  Filter.liminf (fun i => (a i : ℝ) ^ ((1 / 2 : ℝ) ^ (i + 1))) Filter.atTop < vardi_constant := by
+  Filter.liminf (fun i => (a i : ℝ) ^ ((1 / ((2 : ℕ) : ℝ) : ℝ) ^ (i + 1))) Filter.atTop < vardi_constant := by
   convert main_theorem 1 ( by norm_num ) a h_pos h_mono _ using 1
   · rw [ show c 1 = vardi_constant from ?_ ]
     · rw [ show generalized_sylvester 1 = sylvester from ?_ ]

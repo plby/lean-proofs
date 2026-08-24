@@ -1087,7 +1087,7 @@ lemma exists_strange_q_for_p {p : ℕ} (hp : p.Prime) (hp5 : p > 5) :
 /-
 There are infinitely many primes $q$ such that $\{2, q\}$ is a strange pair.
 -/
-theorem infinite_strange_pairs : { q | StrangePair 2 q }.Infinite := by
+theorem erdos_649 : { q | StrangePair 2 q }.Infinite := by
   -- The set of primes is infinite, and the set of primes greater than 5 is also
   -- infinite. Therefore, the image of this set under an injective function is also
   -- infinite.
@@ -1120,5 +1120,7 @@ theorem infinite_strange_pairs : { q | StrangePair 2 q }.Infinite := by
 
 end Erdos649
 
-#print axioms Erdos649.infinite_strange_pairs
+#print axioms Erdos649.erdos_649
 -- 'Erdos649.infinite_strange_pairs' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos649.infinite_strange_pairs := _root_.Erdos649.erdos_649

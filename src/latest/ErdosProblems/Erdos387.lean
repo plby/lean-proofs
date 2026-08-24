@@ -681,7 +681,7 @@ theorem erdos_387_of_refined_error_bounds
 /-- The sharpened remaining analytic interface matching the five divisor
 estimates in BNPZ Propositions 6.2--6.6.  The almost-prime case has been
 split unconditionally by `AlmostPrimeExhaustion.lean`. -/
-theorem erdos_387_of_refined_five_error_bounds
+theorem not_erdos_387
     (h : ∀ B K : ℕ, 3 ≤ B →
       ∀ S : CoverBPZ.BPZSection6Input B K,
         ∃ X z y medium large secondMin gap : ℕ,
@@ -735,7 +735,7 @@ theorem erdos_387_of_refined_five_error_bounds
 #print axioms erdos_387_of_absorber_error_bounds
 #print axioms erdos_387_of_frozen_roughProduct_bounds
 #print axioms erdos_387_of_refined_error_bounds
-#print axioms erdos_387_of_refined_five_error_bounds
+#print axioms not_erdos_387
 #print axioms BoundedGaps.BombieriVinogradov.unconditional_weightedBombieriVinogradov
 #print axioms shiftedSiegelWalfiszLower
 #print axioms CoverBPZ.unconditional_fixed_B_cover_section6_input
@@ -948,3 +948,5 @@ theorem erdos_387_of_refined_five_error_bounds
 #print axioms siftedCandidates_brunUpperBound
 
 end Erdos387
+
+alias _root_.Erdos387.erdos_387_of_refined_five_error_bounds := _root_.Erdos387.not_erdos_387

@@ -2,21 +2,15 @@
 
 import Mathlib
 
-open Finset Nat
+open Finset
 
 namespace Erdos1193
 
 open scoped Classical in
 noncomputable def conv_ind (A : Set ℕ) (n : ℕ) : ℕ :=
   ((range (n + 1)).filter (fun k => k ∈ A ∧ (n - k) ∈ A)).card
-end Erdos1193
 
-open Finset Nat
-
-namespace Erdos1193
-
-open scoped Classical in
-theorem erdos_convolution_counterexample :
+theorem not_erdos_1193 :
     ∀ n : ℕ, conv_ind Set.univ n = n + 1 := by
   sorry
 

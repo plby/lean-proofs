@@ -256,11 +256,13 @@ theorem distinctTernaryGoldbachEventually : DistinctTernaryGoldbachEventually :=
 
 /-- Erdős Problem 471 has an affirmative answer: a finite set of primes can
 be chosen whose generations have arbitrarily large cardinality. -/
-theorem erdos471 :
+theorem erdos_471 :
     ∃ Q : Finset ℕ, IsPrimeFinset Q ∧ HasUnboundedGenerations Q :=
   erdos471_of_distinctTernaryGoldbachEventually
     distinctTernaryGoldbachEventually
 
-#print axioms erdos471
+#print axioms erdos_471
 
 end Erdos471
+
+alias _root_.Erdos471.erdos471 := _root_.Erdos471.erdos_471

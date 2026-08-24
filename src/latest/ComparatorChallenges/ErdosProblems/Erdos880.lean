@@ -2,24 +2,9 @@
 
 import Mathlib
 
-/-!
-# Erdős Problem 880
-
-Hegyvári, Hennecart, and Plagne proved that the sums of at most two
-distinct elements of an additive basis of order two have eventual gaps at
-most two, while for every order at least three there is an additive basis
-whose corresponding restricted sumset has unbounded gaps.
-
-The detailed mathematical reconstruction and Leanization plan are in
-`tex/880.tex`.  The counterexample below is the linear-spike variant of
-the block construction proved there.
--/
-
 open Filter
 
 namespace Erdos880
-
-open scoped BigOperators
 
 /-- `n` is a sum of at most `k` (not necessarily distinct) elements of `A`. -/
 def UnrestrictedSum (A : Set ℕ) (k n : ℕ) : Prop :=
@@ -43,11 +28,7 @@ noncomputable def enum (B : Set ℕ) (n : ℕ) : ℕ := Nat.nth (fun m ↦ m ∈
 def HasBoundedGaps (B : Set ℕ) : Prop :=
   ∃ C, ∀ n, enum B (n + 1) - enum B n ≤ C
 
-/-- A sharp eventual bound for the consecutive gaps. -/
-def EventuallyGapAtMost (B : Set ℕ) (C : ℕ) : Prop :=
-  ∀ᶠ n in atTop, enum B (n + 1) - enum B n ≤ C
-
-theorem erdos_880 :
+theorem not_erdos_880 :
     (∀ A : Set ℕ, IsAdditiveBasisOfOrder A 2 →
       HasBoundedGaps (restrictedSums A 2)) ∧
     (∀ h : ℕ, 3 ≤ h → ∃ A : Set ℕ,

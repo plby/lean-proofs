@@ -1069,7 +1069,7 @@ lemma transformed_inequality_eventually
 /-
 Main theorem: density of A_i converges to 1/m.
 -/
-theorem sidon_density_limit
+theorem erdos_154
   (m : ℕ) (hm : 2 ≤ m)
   (n_seq : ℕ → ℕ) (A_seq : ℕ → Finset ℕ)
   (h_n_tendsto : Filter.Tendsto (fun k => (n_seq k : ℝ)) Filter.atTop Filter.atTop)
@@ -1105,7 +1105,9 @@ theorem sidon_density_limit
       convert h_limsup using 1);
     intro i hi; specialize h_v_const; rw [ tendsto_pi_nhds ] at h_v_const; specialize h_v_const ⟨ i, hi ⟩ ; aesop;
 
-#print axioms sidon_density_limit
+#print axioms erdos_154
 -- 'Erdos154.sidon_density_limit' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos154
+
+alias _root_.Erdos154.sidon_density_limit := _root_.Erdos154.erdos_154

@@ -2,8 +2,8 @@
   "challenge_module": "Erdos214",
   "solution_module": "ErdosProblems.Erdos214",
   "theorem_names": [
-    "Erdos214.theorem_1",
-    "Erdos214.theorem_2"
+    "Erdos214.erdos_214",
+    "Erdos214.not_erdos_214_twelve_points"
   ],
   "permitted_axioms": [
     "propext",

@@ -4196,7 +4196,11 @@ lemma test_shell_derivative_bound {n : ℕ} (hn2 : 2 ≤ n)
         rw [abs_sub_comm]
         ring)
 
-theorem erdos1153 : Problem1153 := by
+theorem erdos_1153 : (∀ a b : ℝ, -1 ≤ a → a < b → b ≤ 1 →
+  ∀ ε : ℝ, 0 < ε →
+    ∃ N : ℕ, ∀ n : ℕ, N ≤ n → ∀ X : Erdos1153.NodeConfiguration n,
+      ∃ x ∈ Set.Icc a b,
+        (2 / Real.pi - ε) * Real.log (n : ℝ) ≤ Erdos1153.lebesgueFunction X x) := by
   intro a b ha hab hb epsilon hepsilon
   let d : ℝ := b - a
   let gap0 : ℝ := d / 4
@@ -4486,3 +4490,5 @@ theorem erdos1153 : Problem1153 := by
   exact ⟨N, fun n hn X => hN n hn X⟩
 
 end Erdos1153
+
+alias _root_.Erdos1153.erdos1153 := _root_.Erdos1153.erdos_1153

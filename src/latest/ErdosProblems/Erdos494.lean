@@ -263,7 +263,7 @@ theorem card_eq_2k_counterexample :
 namespace erdos_494.variants
 
 /-- The exact `card = 2k` variant from the formal-conjectures specification. -/
-theorem card_eq_2k : ∀ k > 2, ¬ Erdos494Unique k (2 * k) :=
+theorem erdos_494 : ∀ k > 2, ¬ Erdos494Unique k (2 * k) :=
   card_eq_2k_counterexample
 
 end erdos_494.variants
@@ -271,3 +271,5 @@ end erdos_494.variants
 end
 
 end Erdos494
+
+alias _root_.Erdos494.erdos_494.variants.card_eq_2k := _root_.Erdos494.erdos_494.variants.erdos_494

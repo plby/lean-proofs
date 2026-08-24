@@ -8,6 +8,29 @@
 - Use lightweight static checks where appropriate.
 - Do not use consecutive blank lines in ComparatorChallenges Lean files. Keep
   at most one blank line between sections; whitespace-only lines count as blank.
+- Keep contiguous declarations in the same namespace in a single namespace
+  block; do not repeatedly close and reopen it between declarations. Preserve
+  separate blocks only when their boundaries serve a purpose, such as limiting
+  the scope of local options, variables, instances, or notation.
+- Group file-wide `open` and `open scoped` commands in one block at the top,
+  after imports. List each namespace or scope only once, consolidating compatible
+  commands instead of repeating them across sections or namespace blocks. Remove
+  unused openings and check that consolidation preserves name resolution and
+  notation. Keep genuinely local openings, such as a necessary
+  `open scoped Classical in`, local rather than broadening their scope.
+- Prefer Comparator challenge files without `set_option` directives, including
+  linter suppressions and resource-limit overrides. Keep proof-specific option
+  settings in the solution when needed, and verify that the challenge compiles
+  without them.
+- Do not include bibliographic references or source pointers in Comparator
+  challenge files, including paper citations, arXiv identifiers, URLs, and links
+  to proof writeups. Keep these in solution files or supporting documentation
+  instead. Comments should explain the mathematical definitions and statements;
+  preserve required copyright and license notices.
+- Do not tag results in Comparator challenge files with `@[simp]`, or register
+  them using `attribute [simp]`. This applies to both final theorems and helper
+  lemmas. If a helper proof needs a fact for simplification, pass it explicitly
+  to `simp` instead. Solution-side `simp` attributes may remain.
 - Minimize `open scoped Classical in`: use it only when classical instances are
   actually needed, not as boilerplate before definitions or theorems. Quantifiers
   and logical connectives alone do not require it. Keep necessary uses local to
@@ -31,6 +54,12 @@
   solution may retain the proposition definition and helper theorems, and use
   them to prove that final theorem. This does not require inlining useful
   parameterized predicates such as `IsDistinctCoveringSystem`.
+- Keep challenge files limited to the main result(s) and the definitions and
+  supporting declarations needed to state them, including transitive
+  dependencies. Omit unused definitions, proof-only constructions such as
+  `cutoffColour`, and intermediate results that do not support those statements.
+  Keep such helpers in the solution instead. Preserve any instances or lemmas
+  needed by the retained definitions.
 - Preserve existing uncommitted changes and keep edits scoped to the requested
   improvements.
 - State exactly what was checked and what remains unverified. Do not claim that

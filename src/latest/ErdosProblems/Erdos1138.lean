@@ -49,7 +49,7 @@ by Hrishi Sunder, Sourish Kumrawat, and Kireet Cheri (April 2026).
 
 * `erdos1138_theorem` — **Theorem 1.2**: For 1 < C₁ < C₂ with C₂ - C₁ < 1/2,
   A(C₁) and A(C₂) cannot both hold.
-* `erdos1138_corollary` — **Corollary 3.1**: A(C) cannot hold for every C > 1.
+* `not_erdos_1138` — **Corollary 3.1**: A(C) cannot hold for every C > 1.
   This gives a negative answer to Erdős Problem #1138.
 -/
 
@@ -425,12 +425,14 @@ theorem erdos1138_theorem (C₁ C₂ : ℝ) (hC₁_pos : 1 < C₁) (hlt : C₁ <
 
 /-- **Corollary 3.1**. The assertion A(C) cannot hold for every fixed C > 1.
 This gives a negative answer to Erdős Problem #1138. -/
-theorem erdos1138_corollary : ¬(∀ C : ℝ, 1 < C → AsymptoticA C) := by
+theorem not_erdos_1138 : ¬(∀ C : ℝ, 1 < C → AsymptoticA C) := by
   intro h
   exact erdos1138_theorem 2 (9/4) (by norm_num) (by norm_num) (by norm_num)
     ⟨h 2 (by norm_num), h (9/4) (by norm_num)⟩
 
-#print axioms erdos1138_corollary
+#print axioms not_erdos_1138
 -- 'Erdos1138.erdos1138_corollary' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1138
+
+alias _root_.Erdos1138.erdos1138_corollary := _root_.Erdos1138.not_erdos_1138

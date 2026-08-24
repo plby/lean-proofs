@@ -730,7 +730,10 @@ def Problem1076Claim : Prop :=
 /-- **Resolution of Erdős Problem 1076.**  The displayed assertion is false:
 the case `k = 5` has density bounded below by `92 / 529`, strictly exceeding
 `1 / 6`, along the unbounded sequence `23 * 23^d`. -/
-theorem erdos_1076 : ¬ Problem1076Claim := by
+theorem not_erdos_1076 : ¬ (∀ k : ℕ, 5 ≤ k →
+  Filter.Tendsto
+    (fun n : ℕ ↦ (Erdos1076.extremalNumber k n : ℝ) / (n : ℝ) ^ 2)
+    Filter.atTop (nhds (1 / 6 : ℝ))) := by
   intro hclaim
   have hfive := hclaim 5 (by omega)
   obtain ⟨N, hN⟩ := Metric.tendsto_atTop.mp hfive (1 / 276 : ℝ) (by norm_num)
@@ -767,4 +770,6 @@ end
 
 end Erdos1076
 
-#print axioms Erdos1076.erdos_1076
+#print axioms Erdos1076.not_erdos_1076
+
+alias _root_.Erdos1076.erdos_1076 := _root_.Erdos1076.not_erdos_1076

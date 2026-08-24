@@ -1392,11 +1392,10 @@ private theorem exists_separable_chart_polynomial {k : ℕ}
       rw [Polynomial.eval₂_map]
       rw [hev_alg]
       simpa only [P, R, evalChartPolynomial] using hzero
-    have hdmap := congrArg Polynomial.derivative hPmap
+    have hdmap := congrArg Polynomial.derivative
+      (hPmap.trans (IsScalarTower.algebraMap_smul K b q).symm)
     rw [Polynomial.derivative_map, Polynomial.derivative_smul] at hdmap
-    rw [hdmap] at hzero'
-    rw [← IsScalarTower.algebraMap_smul K b q.derivative,
-      Polynomial.eval₂_smul] at hzero'
+    rw [hdmap, Polynomial.eval₂_smul] at hzero'
     exact (mul_ne_zero hevb0 hqderiv) hzero'
 
 private theorem exists_point_chart_polynomials {n : ℕ}
@@ -4536,7 +4535,8 @@ theorem erdos_1127_if (hCH : ContinuumHypothesis) : PositiveAnswer := by
 
 /-- MAIN RESULT (complete resolution of Erdős Problem 1127): the requested decompositions in
 all finite dimensions exist exactly under the continuum hypothesis. -/
-theorem erdos_1127 : ContinuumHypothesis ↔ PositiveAnswer :=
+theorem erdos_1127 : (𝔠 = (ℵ_ 1 : Cardinal.{0})) ↔ (∀ n : ℕ, ∃ color : EuclideanSpace ℝ (Fin n) → ℕ,
+  Erdos1127.HasDistinctPairDistances color) :=
   ⟨erdos_1127_if, erdos_1127_only_if⟩
 
 /-- The exact version of Problem 1127 on the real line. -/

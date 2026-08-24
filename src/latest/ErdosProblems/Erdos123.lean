@@ -3357,7 +3357,9 @@ theorem intended_erdos_123 : IntendedStatement := by
     exact h
 
 /-- Erdős Problem 123 for the intended nondegenerate hypothesis `a,b,c>1`. -/
-theorem erdos_123 : IntendedStatement := intended_erdos_123
+theorem erdos_123 :
+    ∀ a b c : ℕ, 1 < a → 1 < b → 1 < c → Erdos123.PairwiseCoprime3 a b c →
+      Erdos123.IsDComplete (Erdos123.Smooth3 a b c) := intended_erdos_123
 end
 end Erdos123
 

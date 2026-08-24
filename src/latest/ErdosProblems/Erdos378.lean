@@ -3249,13 +3249,15 @@ theorem erdos378_of_granville_ramare
 /-- Complete resolution of Erdős Problem 378: for every `r ≥ 0`, the rows
 with at least `r` squarefree interior binomial coefficients have an existing,
 strictly positive natural density. -/
-theorem erdos378 :
+theorem erdos_378 :
     ∀ r : ℕ, ∃ d : ℝ, 0 < d ∧ (atLeastCountSet r).HasDensity d := by
   apply erdos378_of_middleTail
   apply middleTailVanishes_of_pairScarcity
   apply middlePairScarcity_of_highIndexExcluded
   exact highIndexExcluded
 
-#print axioms erdos378
+#print axioms erdos_378
 
 end Erdos378
+
+alias _root_.Erdos378.erdos378 := _root_.Erdos378.erdos_378

@@ -1192,7 +1192,7 @@ theorem chvatal_squarefree (N : ℕ) (B : Finset ℕ)
 
 /-! ### Main Theorem -/
 
-theorem erdos_sarkozy (N : ℕ) (A : Finset ℕ)
+theorem erdos_844 (N : ℕ) (A : Finset ℕ)
     (hA_sub : A ⊆ Finset.Icc 1 N)
     (hA_prod : ∀ a ∈ A, ∀ b ∈ A, ¬ Squarefree (a * b)) :
     A.card ≤ (erdosSarkozySet N).card := by
@@ -1228,5 +1228,7 @@ theorem erdos_sarkozy (N : ℕ) (A : Finset ℕ)
 
 end Erdos844
 
-#print axioms Erdos844.erdos_sarkozy
+#print axioms Erdos844.erdos_844
 -- 'Erdos844.erdos_sarkozy' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos844.erdos_sarkozy := _root_.Erdos844.erdos_844

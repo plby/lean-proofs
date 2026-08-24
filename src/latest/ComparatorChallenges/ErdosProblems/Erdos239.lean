@@ -3,7 +3,7 @@
 import Mathlib
 
 open Filter
-open scoped BigOperators Topology
+open scoped Topology
 
 namespace Erdos239
 

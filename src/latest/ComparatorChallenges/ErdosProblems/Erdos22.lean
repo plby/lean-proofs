@@ -2,7 +2,7 @@
 
 import Mathlib
 
-open Filter SimpleGraph
+open Filter
 
 namespace Erdos22
 

@@ -2,7 +2,7 @@
   "challenge_module": "Erdos442",
   "solution_module": "ErdosProblems.Erdos442",
   "theorem_names": [
-    "Erdos442.erdos_442"
+    "Erdos442.not_erdos_442"
   ],
   "permitted_axioms": [
     "propext",
@@ -11,4 +11,3 @@
   ],
   "enable_nanoda": true
 }
-

@@ -211,7 +211,7 @@ theorem erdos_1119.variants.easy_case (m : Cardinal.{0}) (hm : ℵ₀ < m)
 Erdős's theorem answering Wetzel: if `ℵ₁ < 𝔠`, a pointwise-countable family
 of entire functions is countable.
 -/
-theorem erdos_1119.variants.erdos_wetzel
+theorem erdos_1119
     (h : (ℵ_ 1 : Cardinal.{0}) < 𝔠) (F : Set (ℂ → ℂ))
     (hF : ∀ f ∈ F, Differentiable ℂ f)
     (hval : ∀ z : ℂ, {y : ℂ | ∃ f ∈ F, f z = y}.Countable) :
@@ -226,4 +226,6 @@ theorem erdos_1119.variants.erdos_wetzel
 end Erdos1119
 
 #print axioms Erdos1119.erdos_1119.variants.easy_case
-#print axioms Erdos1119.erdos_1119.variants.erdos_wetzel
+#print axioms Erdos1119.erdos_1119
+
+alias _root_.Erdos1119.erdos_1119.variants.erdos_wetzel := _root_.Erdos1119.erdos_1119

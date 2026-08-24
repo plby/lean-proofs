@@ -2,83 +2,29 @@
 
 import Mathlib
 
+open Finset
+open scoped Pointwise
+
 namespace Erdos38
 
-open scoped Pointwise
-open Finset Real Filter
-
-noncomputable section
-
 open scoped Classical in
-def countIn (A : Set ℕ) (N : ℕ) : ℕ :=
+noncomputable def countIn (A : Set ℕ) (N : ℕ) : ℕ :=
   #{a ∈ Ioc 0 N | a ∈ A}
 
-open scoped Classical in
 def hSumset : ℕ → Set ℕ → Set ℕ
   | 0, _ => {0}
   | h + 1, B => hSumset h B + B
 
-open scoped Classical in
 def IsAdditiveBasis (B : Set ℕ) : Prop :=
   ∃ h : ℕ, ∀ᶠ n in Filter.atTop, n ∈ hSumset h B
 
-open scoped Classical in
 def translateSet (A : Set ℕ) (b : ℕ) : Set ℕ := (· + b) '' A
 
-open scoped Classical in
-def unionTranslateCount (A : Set ℕ) (b : ℕ) (N : ℕ) : ℕ :=
+noncomputable def unionTranslateCount (A : Set ℕ) (b : ℕ) (N : ℕ) : ℕ :=
   countIn (A ∪ translateSet A b) N
-end
-
-section CountIn
-
-end CountIn
-
-section SchnirelmannProps
-
-end SchnirelmannProps
-
-section ErdosF
-
-end ErdosF
-
-noncomputable section
-
-end
-
-noncomputable section
-
-end
-
-noncomputable section
-
-end
-
-noncomputable section
-
-end
-
-noncomputable section
-
-end
-
-noncomputable section
-
-end
-
-noncomputable section
-
-end
-
-end Erdos38
-
-open scoped BigOperators Pointwise
-open Finset Real Filter
-
-namespace Erdos38
 
 open scoped Classical in
-theorem erdos_problem_38 :
+theorem erdos_38 :
     ∃ (B : Set ℕ) (f : ℝ → ℝ),
       ¬IsAdditiveBasis B ∧
         (∀ α : ℝ, 0 < α → α < 1 → 0 < f α) ∧

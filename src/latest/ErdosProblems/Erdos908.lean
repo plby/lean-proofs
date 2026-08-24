@@ -2904,13 +2904,13 @@ theorem erdos908_counterexample :
 
 /-- **Main result for the supplied continuous wording:** the universal
 affirmative statement with a continuous first summand is false. -/
-theorem erdos908_continuous_counterexample : ¬ Erdos908Claim := by
+theorem not_erdos_908 : ¬ (∀ f : ℝ → ℝ, Erdos908.HasMeasurablePositiveDifferences f → Erdos908.HasDecomposition f) := by
   intro h
   exact heaviside_no_decomposition (h heaviside heaviside_hasMeasurablePositiveDifferences)
 
 /-- Backwards-compatible short name for the continuous-wording counterexample. -/
 theorem erdos908 : ¬ Erdos908Claim :=
-  erdos908_continuous_counterexample
+  not_erdos_908
 
 
 
@@ -7414,7 +7414,8 @@ lemma measurableDecomposition_of_periodic_measurableDifferences
 function with measurable positive translate differences is the sum of an
 almost-everywhere measurable function, an additive function, and a function
 with null translate increments. -/
-theorem erdos908_measurable : Erdos908MeasurableClaim :=
+theorem erdos_908_measurable : (∀ f : ℝ → ℝ,
+  Erdos908.HasMeasurablePositiveDifferences f → Erdos908.HasMeasurableDecomposition f) :=
   measurableClaim_of_periodic_core fun _p hpper hp =>
     measurableDecomposition_of_periodic_measurableDifferences hpper hp
 
@@ -7423,4 +7424,8 @@ theorem erdos908_measurable : Erdos908MeasurableClaim :=
 end Erdos908
 
 #print axioms Erdos908.erdos908
-#print axioms Erdos908.erdos908_measurable
+#print axioms Erdos908.erdos_908_measurable
+
+alias _root_.Erdos908.erdos908_continuous_counterexample := _root_.Erdos908.not_erdos_908
+
+alias _root_.Erdos908.erdos908_measurable := _root_.Erdos908.erdos_908_measurable

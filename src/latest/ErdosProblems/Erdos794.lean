@@ -70,7 +70,11 @@ def erdos_794 : Prop :=
     E.card ≥ n ^ 3 + 1 →
     has_subgraph E 4 3 ∨ has_subgraph E 5 7
 
-theorem not_erdos_794 : ¬ erdos_794 := by
+theorem not_erdos_794 : ¬ (∀ (n : ℕ) (V : Finset ℕ) (E : Finset (Finset ℕ)),
+  V.card = 3 * n →
+  (∀ e ∈ E, e.card = 3) →
+  E.card ≥ n ^ 3 + 1 →
+  Erdos794.has_subgraph E 4 3 ∨ Erdos794.has_subgraph E 5 7) := by
   intro h
   have hce := counterexample_disproves_conjecture
   have hinst :

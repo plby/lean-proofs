@@ -2,53 +2,14 @@
 
 import Mathlib
 
-/-!
-# Erdős Problem #333
-
-## Problem Statement
-
-Let $A \subseteq \mathbb{N}$ be a set of natural density 0. Does there exist a set
-$B \subseteq \mathbb{N}$ such that $A \subseteq B + B$ and $|B \cap [0,N]| = o(\sqrt{N})$?
-
-## Answer
-
-**No.** We construct a set $A$ of density 0 such that for every $B$ with $A \subseteq B + B$,
-we have $|B \cap [0,N]| \geq c\sqrt{N}$ for infinitely many $N$.
-
-## Proof Outline
-
-1. **Finite obstruction (Lemma 4.1-4.2)**: For each dyadic $N = 2^n$, we construct a
-   "hard set" $A_N \subseteq (N/2, N]$ using a greedy hitting set argument. Any $B$ with
-   $A_N \subseteq B + B$ must have $|B \cap [0,N]| \geq \varepsilon\sqrt{N}$ where
-   $\varepsilon = 1/10$.
-
-2. **Greedy hitting set (Lemma 2)**: Given a family $\mathcal{F}$ of sets, each covering
-   a $\delta$-fraction of a universe $U$, we can find a hitting set $H$ with
-   $|H| \leq O(\log|\mathcal{F}|)$.
-
-3. **Infinite construction (Section 5)**: Define $A = \bigcup_{n \geq 3} A_{2^n}$.
-   The sets $A_{2^n}$ are disjoint (living in disjoint dyadic intervals), and each
-   contributes $O(n \cdot 2^{n/2})$ elements, giving $A$ density 0.
-
-4. **Main theorem (Section 7)**: For any $B$ with $A \subseteq B + B$, infinitely many
-   dyadic levels force $|B \cap [0,N]| \geq c\sqrt{N}$.
-
-## References
-
-* Erdős Problem #333: https://www.erdosproblems.com/333
--/
-
 open scoped Pointwise
-open Finset Filter Real
 
 namespace Erdos333
-
-noncomputable section
 
 /-! ## Basic Definitions -/
 
 /-- The fixed constant ε = 1/10. -/
-def epsilon : ℝ := 1 / 10
+noncomputable def epsilon : ℝ := 1 / 10
 
 lemma epsilon_pos : epsilon > 0 := by norm_num [epsilon]
 
@@ -58,14 +19,11 @@ lemma epsilon_sq : epsilon ^ 2 = 1 / 100 := by norm_num [epsilon]
 def J (N : ℕ) : Finset ℕ := Finset.Ioc (N / 2) N
 
 lemma J_card_eq_half (N : ℕ) (hN : Even N) (hN_pos : 0 < N) : (J N).card = N / 2 := by
-  simp only [J]
-  rw [Nat.card_Ioc]
-  have : N / 2 ≤ N := Nat.div_le_self N 2
-  have h2 : N = 2 * (N / 2) := (Nat.two_mul_div_two_of_even hN).symm
-  omega
+  exact (Nat.card_Ioc (N / 2) N).trans
+    (Nat.sub_eq_of_eq_add ((Nat.two_mul_div_two_of_even hN).symm.trans (two_mul (N / 2))))
 
 /-- m(N) = ⌊ε√N⌋, the threshold for "small" sets. -/
-def m (N : ℕ) : ℕ := ⌊epsilon * Real.sqrt N⌋₊
+noncomputable def m (N : ℕ) : ℕ := ⌊epsilon * Real.sqrt N⌋₊
 
 lemma m_le_sqrt (N : ℕ) : (m N : ℝ) ≤ epsilon * Real.sqrt N :=
   Nat.floor_le (by
@@ -74,7 +32,7 @@ lemma m_le_sqrt (N : ℕ) : (m N : ℝ) ≤ epsilon * Real.sqrt N :=
     · exact Real.sqrt_nonneg _)
 
 /-- The family 𝓑_N of subsets B ⊆ [0,N] with |B| ≤ m(N). -/
-def 𝓑 (N : ℕ) : Finset (Finset ℕ) :=
+noncomputable def 𝓑 (N : ℕ) : Finset (Finset ℕ) :=
   (Finset.Icc 0 N).powerset.filter (fun B => B.card ≤ m N)
 
 /-- For B ⊆ [0,N], S_B = (B + B) ∩ J_N. -/
@@ -85,7 +43,7 @@ def C (B : Finset ℕ) (N : ℕ) : Finset ℕ := J N \ S B N
 
 /-! ## Greedy Hitting Set Lemma -/
 
-/-- Lemma 2 (greedy hitting set) with logarithmic bound.
+/-- A greedy hitting set with a logarithmic bound.
     The greedy algorithm produces a hitting set H with
     |H| ≤ ⌈log|𝓕| / log(1/(1-δ))⌉.
 
@@ -295,7 +253,7 @@ theorem exists_hitting_set_log_bound
 
 /-! ## Finite Dyadic Obstruction -/
 
-/-- Lemma 4.1: For B ∈ 𝓑_N (dyadic N), |C_B| ≥ (1/2 - ε²)N -/
+/-- For B ∈ 𝓑_N (dyadic N), |C_B| ≥ (1/2 - ε²)N. -/
 lemma C_card_lower_bound (N : ℕ) (hN : 8 ≤ N) (hN_even : Even N)
     (B : Finset ℕ) (hB : B ∈ 𝓑 N) :
     ((1 / 2 - epsilon ^ 2) * N : ℝ) ≤ (C B N).card := by
@@ -354,7 +312,7 @@ lemma C_card_lower_bound (N : ℕ) (hN : 8 ≤ N) (hN_even : Even N)
         rw [← Nat.cast_sub (Finset.card_le_card h_sub), h_C_eq]
 
 /-- δ = 1 - 2ε² = 49/50 -/
-def delta : ℝ := 1 - 2 * epsilon ^ 2
+noncomputable def delta : ℝ := 1 - 2 * epsilon ^ 2
 
 lemma delta_val : delta = 49 / 50 := by norm_num [delta, epsilon]
 
@@ -363,9 +321,9 @@ lemma delta_pos : delta > 0 := by rw [delta_val]; norm_num
 lemma delta_lt_one : delta < 1 := by rw [delta_val]; norm_num
 
 /-- The family of complement sets {C_B : B ∈ 𝓑_N}. -/
-def 𝓒 (N : ℕ) : Finset (Finset ℕ) := (𝓑 N).image (fun B => C B N)
+noncomputable def 𝓒 (N : ℕ) : Finset (Finset ℕ) := (𝓑 N).image (fun B => C B N)
 
-/-- Lemma 4.2: Existence of finite hard set A_N ⊆ J_N for dyadic N.
+/-- Existence of a finite hard set A_N ⊆ J_N for dyadic N.
     Also provides a logarithmic size bound from the hitting set theorem. -/
 theorem exists_hard_set (N : ℕ) (hN : 8 ≤ N) (hN_even : Even N) :
     ∃ A_N : Finset ℕ, A_N ⊆ J N ∧
@@ -456,28 +414,18 @@ lemma two_pow_even (n : ℕ) (hn : 1 ≤ n) : Even (2 ^ n) := by
 
 /-- For each dyadic N = 2^n with n ≥ 3, we have a hard set A_N ⊆ J_N.
     We use Classical.choose to select such a set. -/
-def A_dyadic (n : ℕ) (hn : 3 ≤ n) : Finset ℕ :=
+noncomputable def A_dyadic (n : ℕ) (hn : 3 ≤ n) : Finset ℕ :=
   Classical.choose (exists_hard_set (2^n) (two_pow_ge_eight n hn) (two_pow_even n (by omega)))
 
 /-- The infinite hard set A = ⋃_{n≥3} A_{2^n} as a Set ℕ. -/
 def A : Set ℕ := {x | ∃ n : ℕ, ∃ hn : 3 ≤ n, x ∈ A_dyadic n hn}
 
 /-- B(N) = |B ∩ [0,N]| -/
-def countingFn (B : Set ℕ) (N : ℕ) : ℕ :=
+noncomputable def countingFn (B : Set ℕ) (N : ℕ) : ℕ :=
   letI : DecidablePred (fun x : ℕ => x ∈ B) := Classical.decPred _
   ((Finset.Icc 0 N).filter (fun x => x ∈ B)).card
 
-end
-
-end Erdos333
-
-open scoped Pointwise
-open Finset Filter Real
-
-namespace Erdos333
-
-open scoped Classical in
-theorem main_obstruction :
+theorem not_erdos_333 :
     (Filter.Tendsto (fun N : ℕ =>
       (letI : DecidablePred (fun x : ℕ => x ∈ A) := Classical.decPred _
        ((Finset.Icc 0 N).filter (fun x => x ∈ A)).card) / (N : ℝ))

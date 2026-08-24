@@ -925,12 +925,14 @@ lemma hasContinuousDifferences_of_pos (f : ℝ → ℝ)
 /-- **Theorem 1.1 (de Bruijn & Erdős).** If `f : ℝ → ℝ` is such that, for each `h > 0`,
 `x ↦ f(x + h) - f(x)` is continuous, then `f = g + H` where `g` is continuous and `H`
 is additive. -/
-theorem erdos907 (f : ℝ → ℝ)
+theorem erdos_907 (f : ℝ → ℝ)
     (hf : ∀ h : ℝ, 0 < h → Continuous fun x => f (x + h) - f x) :
     ∃ g H : ℝ → ℝ, Continuous g ∧ IsAdditiveFn H ∧ ∀ x, f x = g x + H x :=
   erdos907_of_all_h f <| hasContinuousDifferences_of_pos f hf
 
 end Erdos907
 
-#print axioms Erdos907.erdos907
+#print axioms Erdos907.erdos_907
 -- 'Erdos907.erdos907' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos907.erdos907 := _root_.Erdos907.erdos_907

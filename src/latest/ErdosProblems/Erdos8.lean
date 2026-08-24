@@ -158,9 +158,12 @@ theorem hough_minimum_modulus_bound :
 /-- **Erdős Problem 8.** The answer is no: there is a finite colouring of
 the integers for which no distinct covering system has monochromatic
 moduli. -/
-theorem erdos_8 : ¬ EveryFiniteColoringHasMonochromaticCover :=
+theorem not_erdos_8 :
+    ¬ (∀ (r : ℕ), 0 < r → ∀ colour : ℤ → Fin r,
+      ∃ D : Finset ℕ, ∃ a : ℕ → ℤ,
+        IsDistinctCoveringSystem D a ∧ Monochromatic colour D) :=
   negative_answer_of_minimum_modulus_bound hough_minimum_modulus_bound
 
-#print axioms erdos_8
+#print axioms not_erdos_8
 
 end Erdos8

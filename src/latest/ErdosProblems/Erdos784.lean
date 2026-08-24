@@ -1759,7 +1759,7 @@ theorem not_literalAnswer_of_one_le {C : ℝ} (hC : 1 ≤ C) :
 
 /-- Complete resolution of Problem 784 exactly as printed: for a positive
 budget the proposed lower bound holds precisely below reciprocal mass one. -/
-theorem erdos_784_literal {C : ℝ} (_hC : 0 < C) :
+theorem erdos_784 {C : ℝ} (_hC : 0 < C) :
     LiteralAnswer C ↔ C < 1 := by
   constructor
   · intro h
@@ -1771,6 +1771,8 @@ end
 
 end Erdos784
 
-#print axioms Erdos784.erdos_784_literal
+#print axioms Erdos784.erdos_784
 #print axioms Erdos784.erdos_784_corrected
 #print axioms Erdos784.correctedAnswer_one
+
+alias _root_.Erdos784.erdos_784_literal := _root_.Erdos784.erdos_784

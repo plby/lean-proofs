@@ -2,8 +2,8 @@
   "challenge_module": "Erdos358",
   "solution_module": "ErdosProblems.Erdos358",
   "theorem_names": [
-    "Erdos358.erdos_358.parts.i",
-    "Erdos358.erdos_358.parts.ii"
+    "Erdos358.erdos_358",
+    "Erdos358.erdos_358_part_ii"
   ],
   "permitted_axioms": [
     "propext",

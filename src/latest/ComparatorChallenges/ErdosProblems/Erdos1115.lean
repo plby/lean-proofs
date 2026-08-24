@@ -12,20 +12,16 @@ import Mathlib.MeasureTheory.Measure.Haar.NormedSpace
 import Mathlib.Topology.ContinuousMap.Polynomial
 import Mathlib.Tactic
 
+open Filter MeasureTheory
+
 /-!
 # Erdős Problem 1115
 
-Gol'dberg and Eremenko disproved the conjecture that every finite-order entire function admits an
-asymptotic curve over infinity whose length in the disk of radius `r` is `O(r)`.  More sharply, an
-arbitrarily slowly divergent factor multiplying Hayman's growth threshold `(log r)²` already
+There are finite-order entire functions with no asymptotic curve over infinity
+whose length in the disk of radius `r` is `O(r)`. An arbitrarily slowly
+divergent factor multiplying the growth threshold `(log r)²` already
 permits a counterexample.
-
-The detailed mathematical reconstruction and the correspondence between the paper and this file
-are in `tex/1115.tex`.
 -/
-
-open Filter MeasureTheory Set Topology unitInterval
-open scoped ENNReal NNReal Topology
 
 namespace Erdos1115
 
@@ -59,8 +55,7 @@ noncomputable def lengthInDisc (γ : ℝ → ℂ) (r : ℝ) : ℝ :=
 def HasLinearLength (γ : ℝ → ℂ) : Prop :=
   (fun r : ℝ ↦ lengthInDisc γ r) =O[atTop] (fun r ↦ r)
 
-/-- The near-Hayman growth estimate `log M(r,f) = O(φ(r) (log r)²)`, stated as the
-one-sided estimate actually proved and used in the source. -/
+/-- The one-sided growth estimate `log M(r,f) = O(φ(r) (log r)²)`. -/
 def HasGolbergEremenkoGrowth (φ : ℝ → ℝ) (f : ℂ → ℂ) : Prop :=
   ∃ C : ℝ, 0 ≤ C ∧
     ∀ᶠ r : ℝ in atTop,
@@ -80,7 +75,7 @@ def IsLengthBarrier (S : Set ℂ) (inner outer cost : ℝ) : Prop :=
     (∀ t ≥ t₀, γ t ∉ S) →
     cost ≤ lengthInDisc γ outer
 
-/-- The abstract certificate produced by the Gol'dberg--Eremenko construction: bounded-value
+/-- A certificate of bounded-value
 walls at radii tending to infinity, whose unavoidable length divided by radius tends to infinity. -/
 def HasEscapingBarriers (f : ℂ → ℂ) : Prop :=
   ∃ (S : ℕ → Set ℂ) (inner outer cost : ℕ → ℝ),
@@ -91,16 +86,7 @@ def HasEscapingBarriers (f : ℂ → ℂ) : Prop :=
     ∀ n, (∀ z ∈ S n, ‖f z‖ ≤ 1) ∧
       IsLengthBarrier (S n) (inner n) (outer n) (cost n)
 
-/-- The `k`-turn spiral used by Gol'dberg and Eremenko, dilated by `T`. -/
-noncomputable def spiralPoint (k : ℕ) (T s : ℝ) : ℂ :=
-  (T * s : ℂ) *
-    Complex.exp (((2 * Real.pi * (k : ℝ) * (s - 2) : ℝ) : ℂ) * Complex.I)
-
-/-- The image of the closed radial interval `[2,3]` under `spiralPoint`. -/
-noncomputable def spiralSet (k : ℕ) (T : ℝ) : Set ℂ :=
-  spiralPoint k T '' Set.Icc 2 3
-
-theorem erdos_1115 :
+theorem not_erdos_1115 :
     ∀ φ : ℝ → ℝ, Tendsto φ atTop atTop →
       ∃ f : ℂ → ℂ,
         (∃ z w : ℂ, f z ≠ f w) ∧

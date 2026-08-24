@@ -17,12 +17,7 @@ def f (u : ℕ) : ℕ :=
       fun x hx => by
         rw [ Nat.primeFactors_mul ] at * <;> aesop⟩)
 
-end Erdos459
-
-namespace Erdos459
-
-open scoped Classical in
-theorem main_theorem (ε δ : ℝ) (hε : 0 < ε) (hδ : 0 < δ) :
+theorem erdos_459 (ε δ : ℝ) (hε : 0 < ε) (hδ : 0 < δ) :
   ∃ x₀ : ℝ, ∀ x ≥ x₀,
     (Finset.filter (fun n => (f n : ℝ) < (1 + ε) * n)
       (Finset.range (⌊x⌋₊ + 1))).card ≥ (1 - δ) * x := by

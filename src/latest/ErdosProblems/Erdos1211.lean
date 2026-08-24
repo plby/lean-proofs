@@ -398,7 +398,11 @@ lemma extremal_partitionValue_eq :
 
 /-- **Resolution of Erdős Problem 1211.**  The least possible value of the
 larger monochromatic upper logarithmic density is `(2 + √3) / 4`. -/
-theorem erdos1211 : Resolution := by
+theorem erdos_1211 :
+    (∀ A B : Set ℕ, IsNatPartition A B →
+        sharpConstant ≤ partitionValue A B) ∧
+      ∃ A B : Set ℕ, IsNatPartition A B ∧
+        partitionValue A B = sharpConstant := by
   constructor
   · intro A B hpart
     exact sharpConstant_le_partitionValue A B hpart
@@ -408,3 +412,5 @@ theorem erdos1211 : Resolution := by
 end
 
 end Erdos1211
+
+alias _root_.Erdos1211.erdos1211 := _root_.Erdos1211.erdos_1211

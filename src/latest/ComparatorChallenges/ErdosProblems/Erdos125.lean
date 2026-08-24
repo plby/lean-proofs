@@ -3,8 +3,7 @@
 import Mathlib
 
 open Filter
-
-open scoped Topology
+open scoped Pointwise Topology
 
 namespace Set
 
@@ -24,34 +23,23 @@ def HasDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
 def HasPosDensity {β : Type*} [Preorder β] [LocallyFiniteOrderBot β]
     (S : Set β) (A : Set β := Set.univ) : Prop :=
   ∃ α > 0, S.HasDensity α A
-namespace HasDensity
-
-end HasDensity
 
 end Set
 
-open scoped Pointwise
-
-open Filter
-open scoped Topology
-open Nat Pointwise
-open Topology
-
 namespace Erdos125
 
-open scoped Classical in
-theorem erdos_125 :
+theorem not_erdos_125 :
     ¬ ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
       { x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1} }).HasPosDensity := by
   sorry
 
-end Erdos125
-namespace Erdos125.erdos_125.variants
+namespace erdos_125.variants
 
-open scoped Classical in
-theorem positive_lower_density :
+theorem _root_.Erdos125.not_erdos_125_lower_density :
     ¬ 0 < ({ x : ℕ | (Nat.digits 3 x).toFinset ⊆ {0, 1} } +
       { x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1} }).lowerDensity := by
   sorry
 
-end Erdos125.erdos_125.variants
+end erdos_125.variants
+
+end Erdos125

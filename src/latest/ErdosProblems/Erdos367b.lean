@@ -672,7 +672,9 @@ def erdos_367 : Prop :=
     (∏ m ∈ Finset.Ico n (n + k), (powerfulPart m : ℝ)) ≤
       C * (n : ℝ) * (n : ℝ)
 
-theorem disproof_367 : ¬ erdos_367 := by
+theorem not_erdos_367 : ¬ (∀ k ≥ 1, ∃ C : ℝ, ∀ n : ℕ,
+  (∏ m ∈ Finset.Ico n (n + k), (Erdos367b.powerfulPart m : ℝ)) ≤
+    C * (n : ℝ) * (n : ℝ)) := by
   -- By contradiction, assume the conjecture is true.
   by_contra h_contra
   -- Apply the contradiction assumption to obtain the required result.
@@ -681,7 +683,9 @@ theorem disproof_367 : ¬ erdos_367 := by
   apply neg_powerfulPart_bound_k3
   exact h_contra
 
-#print axioms disproof_367
+#print axioms not_erdos_367
 -- 'Erdos367b.disproof_367' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos367b
+
+alias _root_.Erdos367b.disproof_367 := _root_.Erdos367b.not_erdos_367

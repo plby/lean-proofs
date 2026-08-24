@@ -642,7 +642,10 @@ def question_1_1_statement : Prop :=
 /-
 Disproof of Question 1.1: It is not true that for every sequence 1 < a_1 < ... with summable reciprocals and every t, 1 + sum a_k^{-1-it} != 0.
 -/
-theorem disproof_of_question_1_1 : ¬ question_1_1_statement := by
+open scoped Classical in
+theorem not_erdos_967 : ¬ (∀ (S : Set ℕ), (∀ n ∈ S, 1 < n) →
+Summable (fun n => if n ∈ S then (n : ℝ)⁻¹ else 0) →
+∀ (t : ℝ), 1 + (∑' n, if n ∈ S then (n : ℂ) ^ (-(1 + Complex.I * t)) else 0) ≠ 0) := by
   by_contra h_contra;
   -- Apply the main theorem to obtain the set S.
   obtain ⟨S, hS⟩ := main_theorem 1 (by norm_num) (-1);
@@ -651,7 +654,9 @@ theorem disproof_of_question_1_1 : ¬ question_1_1_statement := by
 
 #print axioms main_theorem
 -- 'Erdos967.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms disproof_of_question_1_1
+#print axioms not_erdos_967
 -- 'Erdos967.disproof_of_question_1_1' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos967
+
+alias _root_.Erdos967.disproof_of_question_1_1 := _root_.Erdos967.not_erdos_967

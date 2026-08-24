@@ -2,7 +2,7 @@
   "challenge_module": "Erdos90b",
   "solution_module": "ErdosProblems.Erdos90b",
   "theorem_names": [
-    "Erdos90b.erdos_90b"
+    "Erdos90b.not_erdos_90"
   ],
   "permitted_axioms": [
     "propext",

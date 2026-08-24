@@ -2,19 +2,17 @@
 
 import Mathlib
 
-open Filter Metric Set MeasureTheory
-open scoped ENNReal MeasureTheory Topology
+open Metric
+open scoped ENNReal
 
 namespace Erdos999
-
-noncomputable section
 
 /-- A reduced numerator for the positive denominator `q`. -/
 abbrev ReducedNumerator (q : ℕ) :=
   {p : ℕ // p < q ∧ q.Coprime p}
 
 /-- The radius in the inequality of Problem 999. -/
-def approximationRadius (f : ℕ → ℕ) (q : ℕ) : ℝ :=
+noncomputable def approximationRadius (f : ℕ → ℕ) (q : ℕ) : ℝ :=
   (f q : ℝ) / q
 
 /-- The set of points admitting a reduced approximation with denominator
@@ -35,19 +33,13 @@ def AlmostEverywhereApproximable (f : ℕ → ℕ) : Prop :=
 
 /-- The nonnegative extended-real series from Problem 999.  Index `n`
 corresponds to the positive denominator `q = n + 1`. -/
-def duffinSchaefferSum (f : ℕ → ℕ) : ℝ≥0∞ :=
+noncomputable def duffinSchaefferSum (f : ℕ → ℕ) : ℝ≥0∞ :=
   ∑' n : ℕ,
     (Nat.totient (n + 1) : ℝ≥0∞) * (f (n + 1) : ℝ≥0∞) / (n + 1 : ℝ≥0∞)
 
-/-- Exact formal statement of the `ℕ → ℕ` specialization recorded as
-Erdos Problem 999. -/
-def Erdos999Statement : Prop :=
-  ∀ f : ℕ → ℕ,
-    AlmostEverywhereApproximable f ↔ duffinSchaefferSum f = ∞
-
-theorem erdos_999 : Erdos999Statement := by
+theorem erdos_999 :
+    ∀ f : ℕ → ℕ,
+      Erdos999.AlmostEverywhereApproximable f ↔ Erdos999.duffinSchaefferSum f = ∞ := by
   sorry
-
-end
 
 end Erdos999

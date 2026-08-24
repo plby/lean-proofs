@@ -2,7 +2,7 @@
   "challenge_module": "Erdos914",
   "solution_module": "ErdosProblems.Erdos914",
   "theorem_names": [
-    "Erdos914.HajnalSzemeredi.hajnal_szemeredi_clique_cover"
+    "Erdos914.HajnalSzemeredi.erdos_914"
   ],
   "permitted_axioms": [
     "propext",

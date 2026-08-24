@@ -2045,7 +2045,17 @@ def erdos_337 : Prop :=
       Filter.atTop
 
 /-- Negation of Erdős 337. -/
-theorem not_erdos_337 : ¬ erdos_337 := by
+theorem not_erdos_337 : ¬ (∀ A : Set ℕ,
+  (∃ k : ℕ, Erdos337.is_basis_of_order A k) →
+  Asymptotics.IsLittleO Filter.atTop
+    (fun x => (Erdos337.count_in_range A x : ℝ))
+    (fun x => x) →
+  Filter.Tendsto
+    (fun x =>
+      (Erdos337.count_in_range (A + A) x : ℝ) /
+      (Erdos337.count_in_range A x : ℝ))
+    Filter.atTop
+    Filter.atTop) := by
   -- Let's choose specific values for h, r, and C.
   set h := 3
   set r : ℝ := 3 / 4

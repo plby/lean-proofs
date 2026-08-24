@@ -2,7 +2,7 @@
   "challenge_module": "Erdos94",
   "solution_module": "ErdosProblems.Erdos94",
   "theorem_names": [
-    "Erdos94.erdos94_convex_no3collinear"
+    "Erdos94.erdos_94"
   ],
   "permitted_axioms": [
     "propext",

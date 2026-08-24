@@ -36,7 +36,10 @@ The detailed mathematical proof and Leanization map are in `tex/984.tex`.
 namespace Erdos984
 
 /-- The affirmative resolution of Erdős Problem 984. -/
-theorem erdos_984 : Erdos984Statement :=
+theorem erdos_984 : (∃ color : ℕ → Bool, ∀ ε : ℝ, 0 < ε →
+  ∃ A : ℝ, 0 < A ∧ ∀ a d k : ℕ,
+    0 < a → 0 < d → Erdos984.IsMonochromaticAP color a d k →
+      (k : ℝ) ≤ A * (a : ℝ) ^ ε) :=
   erdos984_of_offDiagonal hunterEventualOffDiagonalData.toOffDiagonalData
 
 #print axioms erdos_984

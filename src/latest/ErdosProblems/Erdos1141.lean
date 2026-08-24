@@ -1592,7 +1592,7 @@ theorem erdos_1141_variant_general (a : ℕ) (ha : 1 ≤ a) :
   exact hN (n := n) (Nat.le_of_not_lt hlt) hn
 
 /-- Paper-style `Pa` statement for `a = 1`, stronger than the Formal Conjectures
-statement `erdos_1141` below. -/
+statement `not_erdos_1141` below. -/
 theorem erdos_1141_variant : Set.Finite {n : ℕ | Pa 1 n} := by
   simpa using erdos_1141_variant_general 1 (by decide : 1 ≤ 1)
 
@@ -1606,7 +1606,7 @@ theorem erdos_1141_variant : Set.Finite {n : ℕ | Pa 1 n} := by
 The following block is copied as literally as possible from
 https://github.com/google-deepmind/formal-conjectures/blob/main/
 FormalConjectures/ErdosProblems/1141.lean
-with only the proof of `erdos_1141` filled in via the stronger theorem `erdos_1141_variant` above.
+with only the proof of `not_erdos_1141` filled in via the stronger theorem `erdos_1141_variant` above.
 -/
 
 open Nat Set
@@ -1651,15 +1651,17 @@ error, since for example $968-9=7\cdot 137$.
 The list of $n$ satisfying the given property is [A214583] in the OEIS. The largest known such $n$
 is $1722$.
 -/
-theorem erdos_1141 :
+theorem not_erdos_1141 :
     ¬ Infinite { n | Erdos1141Prop n } := by
   have hsubset : { n | Erdos1141Prop n } ⊆ { n | Pa 1 n } := by
     intro n hn
     exact (erdos1141Prop_iff_pa_one_ne_one n).1 hn |>.1
   exact Finite.not_infinite (erdos_1141_variant.subset hsubset).to_subtype
 
-#print axioms erdos_1141
+#print axioms not_erdos_1141
 -- 'Erdos1141.erdos_1141' depends on axioms: [propext, Classical.choice, Pollack17.theorem_1_3,
 -- Quot.sound]
 
 end Erdos1141
+
+alias _root_.Erdos1141.erdos_1141 := _root_.Erdos1141.not_erdos_1141

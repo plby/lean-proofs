@@ -2110,7 +2110,7 @@ theorem erdos542_no_uniform_linear_uncovered_bound :
 true with sharp constant `31/30`, while the proposed linear lower bound in the
 second assertion is false.  The exhibited counterexamples also have reciprocal
 sum arbitrarily close to `1`. -/
-theorem erdos542_resolution :
+theorem erdos_542 :
     (∀ n : ℕ, ∀ A : Finset ℕ,
       PairwiseLCMExceeds n A → reciprocalSum A ≤ (31 : ℝ) / 30) ∧
     (PairwiseLCMExceeds 5 {2, 3, 5} ∧
@@ -2123,7 +2123,8 @@ theorem erdos542_resolution :
       Filter.atTop (nhds 0) ∧
     (∀ ε : ℝ, 0 < ε → ∀ᶠ t : ℕ in Filter.atTop,
       1 - ε < reciprocalSum (constructionFamily t)) ∧
-    ¬HasUniformLinearUncoveredLowerBound := by
+    ¬(∃ c : ℝ, 0 < c ∧ ∀ n : ℕ, ∀ A : Finset ℕ,
+  Erdos542.PairwiseLCMExceeds n A → c * n ≤ ((Erdos542.uncovered n A).card : ℝ)) := by
   refine ⟨?_, erdos542_sharp_example, constructionFamily_admissible,
     erdos542_uncovered_density_tendsto_zero, ?_,
     erdos542_no_uniform_linear_uncovered_bound⟩
@@ -2134,4 +2135,6 @@ theorem erdos542_resolution :
 
 end Erdos542
 
-#print axioms Erdos542.erdos542_resolution
+#print axioms Erdos542.erdos_542
+
+alias _root_.Erdos542.erdos542_resolution := _root_.Erdos542.erdos_542

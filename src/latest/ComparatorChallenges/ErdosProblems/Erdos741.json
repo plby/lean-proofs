@@ -2,7 +2,7 @@
   "challenge_module": "Erdos741",
   "solution_module": "ErdosProblems.Erdos741",
   "theorem_names": [
-    "Erdos741.erdos_741.variants.upper"
+    "Erdos741.erdos_741.variants.erdos_741"
   ],
   "permitted_axioms": [
     "propext",

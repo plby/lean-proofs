@@ -2,36 +2,18 @@
 
 import Mathlib
 
-/-!
-# Erdős Problem 136
-
-Let `f(n)` be the least number of colours needed to colour the edges of the
-complete graph `K_n` so that every four vertices span edges of at least five
-different colours.  We prove
-
-`f(n) ~ (5 / 6) n`.
-
-The detailed mathematical proof and Leanization plan are in `tex/136.tex`.
--/
+open Filter
 
 namespace Erdos136
 
-open Filter
-open scoped Topology
-
-open Finset
-
-open scoped Classical in
 def Is45Coloring {n k : ℕ}
     (C : SimpleGraph.TopEdgeLabeling (Fin n) (Fin k)) : Prop :=
   ∀ v : Fin 4 ↪ Fin n,
     5 ≤ (Finset.univ.image (C.pullback v)).card
 
-open scoped Classical in
 def Colorable (n k : ℕ) : Prop :=
   ∃ C : SimpleGraph.TopEdgeLabeling (Fin n) (Fin k), Is45Coloring C
 
-open scoped Classical in
 theorem colorable_nonempty (n : ℕ) : ∃ k, Colorable n k := by
   let E : Type := (⊤ : SimpleGraph (Fin n)).edgeSet
   let C : SimpleGraph.TopEdgeLabeling (Fin n) (Fin (Fintype.card E)) :=
@@ -54,11 +36,10 @@ open scoped Classical in
 noncomputable def erdos136Fun (n : ℕ) : ℕ :=
   Nat.find (colorable_nonempty n)
 
-open scoped Classical in
 /-- Erdős Problem 136: the minimum number of colours in a colouring of the
 edges of `K_n` for which every `K_4` receives at least five colours has
 normalized limit `5 / 6`. -/
-theorem erdos136 :
+theorem erdos_136 :
     Tendsto (fun n : ℕ ↦ (erdos136Fun n : ℝ) / (n : ℝ)) atTop
       (nhds (5 / 6 : ℝ)) := by
   sorry

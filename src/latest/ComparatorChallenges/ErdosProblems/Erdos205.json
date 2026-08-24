@@ -2,7 +2,7 @@
   "challenge_module": "Erdos205",
   "solution_module": "ErdosProblems.Erdos205",
   "theorem_names": [
-    "Erdos205.infinitely_many_counterexamples"
+    "Erdos205.not_erdos_205"
   ],
   "permitted_axioms": [
     "propext",

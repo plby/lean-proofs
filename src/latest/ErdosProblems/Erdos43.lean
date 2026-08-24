@@ -571,7 +571,7 @@ private theorem exists_good_pair (q : ℕ) (hqprime : q.Prime) (hq : 3 ≤ q)
   norm_num only [Nat.cast_add]
   nlinarith
 
-theorem erdos_43.parts.i : ¬
+theorem not_erdos_43 : ¬
     ∃ C : ℝ, ∀ᶠ N in Filter.atTop, ∀ (A B : Finset ℕ),
       A ⊆ Finset.Icc 1 N →
       B ⊆ Finset.Icc 1 N →
@@ -640,7 +640,7 @@ theorem erdos_43.parts.i : ¬
     norm_num only [Nat.cast_add] at hbound
     linarith
 
-theorem erdos_43.parts.ii : ¬
+theorem not_erdos_43_part_ii : ¬
     ∃ᵉ (c > 0), ∃ o : ℕ → ℝ, o =o[Filter.atTop] (1 : ℕ → ℝ) ∧
     ∀ᶠ N in Filter.atTop, ∀ (A B : Finset ℕ),
       A ⊆ Finset.Icc 1 N →
@@ -752,7 +752,11 @@ theorem erdos_43.parts.ii : ¬
         mul_nonpos_of_nonpos_of_nonneg hcoefneg.le hchoose_nonneg
       linarith
 
-#print axioms Erdos43.erdos_43.parts.i
-#print axioms Erdos43.erdos_43.parts.ii
+#print axioms Erdos43.not_erdos_43
+#print axioms Erdos43.not_erdos_43_part_ii
 
 end Erdos43
+
+alias _root_.Erdos43.erdos_43.parts.i := _root_.Erdos43.not_erdos_43
+
+alias _root_.Erdos43.erdos_43.parts.ii := _root_.Erdos43.not_erdos_43_part_ii

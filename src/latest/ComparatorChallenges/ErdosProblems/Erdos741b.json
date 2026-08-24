@@ -2,8 +2,8 @@
   "challenge_module": "Erdos741b",
   "solution_module": "ErdosProblems.Erdos741b",
   "theorem_names": [
-    "Erdos741b.erdos741_strict_density_counterexample",
-    "Erdos741b.erdos741_upper_density"
+    "Erdos741b.not_erdos_741_natural_density",
+    "Erdos741b.erdos_741"
   ],
   "permitted_axioms": [
     "propext",

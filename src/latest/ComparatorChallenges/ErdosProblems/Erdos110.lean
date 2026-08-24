@@ -2,21 +2,9 @@
 
 import Mathlib
 
-/-!
-# Erdős Problem 110
-
-There is no uniform eventual bound on the order of finite subgraphs of
-prescribed chromatic number in graphs of chromatic number `ℵ₁`.
-
-The mathematical construction and a lemma-by-lemma Leanization plan are in
-`tex/110.tex`.
--/
-
-open Filter Set
+open Filter
 
 namespace Erdos110
-
-noncomputable section
 
 universe u
 
@@ -43,32 +31,11 @@ def HasUniformBound (F : ℕ → ℕ) : Prop :=
           H.verts.Finite ∧ H.verts.ncard ≤ F n ∧
             H.coe.chromaticNumber = n
 
-/-- A graph witnessing failure of `F` at arbitrarily large chromatic
-numbers.  This is exactly the pointwise negation needed for the eventual
-quantifier in `HasUniformBound`. -/
-def IsCounterexampleFor (F : ℕ → ℕ) (X : BundledGraph) : Prop :=
-  IsAlephOneChromatic X.graph ∧
-    ∀ N : ℕ, ∃ n : ℕ, N ≤ n ∧
-      ∀ H : X.graph.Subgraph,
-        H.verts.Finite → H.verts.ncard ≤ F n →
-          H.coe.chromaticNumber ≠ n
-
-/-- The quantitative conclusion of Lambie-Hanson's theorem, in the form
-needed here.  Every finite subgraph on fewer than `f n` vertices has
-chromatic number strictly below `n`, simultaneously for all `n ≥ 3`. -/
-def HasSlowFiniteGrowth (f : ℕ → ℕ) (X : BundledGraph) : Prop :=
-  IsAlephOneChromatic X.graph ∧
-    ∀ n : ℕ, 3 ≤ n → ∀ H : X.graph.Subgraph,
-      H.verts.Finite → H.verts.ncard < f n →
-        H.coe.chromaticNumber < n
-
 /-- An arbitrarily-late pointwise counterexample defeats an eventual uniform
 bound. -/
 
-theorem erdos_110 :
+theorem not_erdos_110 :
     ¬ ∃ F : ℕ → ℕ, HasUniformBound F := by
   sorry
-
-end
 
 end Erdos110

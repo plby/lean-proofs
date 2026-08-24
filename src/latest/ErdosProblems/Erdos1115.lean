@@ -3190,7 +3190,7 @@ divergent loss `φ` above Hayman's `(log r)²` threshold there is a genuinely no
 finite-order entire function with that growth, but no arclength-parametrized asymptotic curve over
 infinity has length `O(r)` in the disk of radius `r`.  The escaping barriers are retained in the
 conclusion as the explicit, non-vacuous geometric certificate behind the last assertion. -/
-theorem erdos_1115 :
+theorem not_erdos_1115 :
     ∀ φ : ℝ → ℝ, Tendsto φ atTop atTop →
       ∃ f : ℂ → ℂ,
         (∃ z w : ℂ, f z ≠ f w) ∧
@@ -3213,6 +3213,8 @@ theorem erdos_1115 :
   intro γ hγ
   exact not_hasLinearLength_of_hasEscapingBarriers hbarriers hγ
 
-#print axioms erdos_1115
+#print axioms not_erdos_1115
 
 end Erdos1115
+
+alias _root_.Erdos1115.erdos_1115 := _root_.Erdos1115.not_erdos_1115

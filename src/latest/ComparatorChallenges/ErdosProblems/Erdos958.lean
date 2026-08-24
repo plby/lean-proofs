@@ -40,13 +40,9 @@ def HasProfile (A : Finset Point) : Prop :=
   let D := distances A
   D.card = n - 1 ∧ D.image (distMultiplicity A) = Finset.Icc 1 (n - 1)
 
-def erdos_958 : Prop :=
-  ∀ A : Finset Point,
-    HasProfile A ↔ (EquallySpacedOnLine A ∨ EquallySpacedOnCircle A)
 end Erdos958
 
-open scoped Classical in
 theorem Erdos958.not_erdos_958 :
-    Not Erdos958.erdos_958
-  := by
+    Not (∀ A : Finset Erdos958.Point,
+      Erdos958.HasProfile A ↔ (Erdos958.EquallySpacedOnLine A ∨ Erdos958.EquallySpacedOnCircle A)) := by
   sorry

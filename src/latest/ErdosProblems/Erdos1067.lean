@@ -3776,7 +3776,12 @@ def erdos_1067 : Prop :=
             uncountably_chromatic (G.induce S)) ∧
         ∀ u v : S, u ≠ v → ¬ finite_independent_paths (G.induce S) u v
 
-theorem not_erdos_1067 : ¬erdos_1067.{1} := by
+theorem not_erdos_1067 : ¬ (∀ {V : Type 1} (G : SimpleGraph V),
+    (Nonempty (G.Coloring (Set.Iio (Ordinal.omega.{0} 1))) ∧ uncountably_chromatic G) →
+      ∃ (S : Set V),
+        (Nonempty ((G.induce S).Coloring (Set.Iio (Ordinal.omega.{0} 1))) ∧
+            uncountably_chromatic (G.induce S)) ∧
+        ∀ u v : S, u ≠ v → ¬ finite_independent_paths (G.induce S) u v) := by
   intro h
   classical
   have hG :

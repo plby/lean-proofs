@@ -37,11 +37,17 @@ produces arbitrarily large unimodular polynomials with uniform upper norm
 namespace Erdos230
 
 /-- The negative resolution of Erdős Problem 230. -/
-theorem erdos_230 : ¬ ErdosNewmanClaim :=
+theorem not_erdos_230 :
+    ¬ (∃ c : ℝ, 0 < c ∧
+      ∀ n : ℕ, 2 ≤ n →
+        ∀ a : Fin n → ℂ, IsUnimodular a →
+          (1 + c) * Real.sqrt n ≤ circleMaximum a) :=
   not_erdos230Claim_of_ultraflat_upper
     (hasUltraflatUpper_of_angular
       (hasAngularUltraflatUpper_of_power_examples hasPowerUpperExamples))
 
 end Erdos230
 
-#print axioms Erdos230.erdos_230
+#print axioms Erdos230.not_erdos_230
+
+alias _root_.Erdos230.erdos_230 := _root_.Erdos230.not_erdos_230

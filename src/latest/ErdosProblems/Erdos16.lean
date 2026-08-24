@@ -361,7 +361,11 @@ theorem ErdosProblem16 :
       refine ⟨by decide, by omega, rfl⟩
     exact hx_not_in_U hx_in_U
 
-#print axioms ErdosProblem16
--- 'Erdos16.ErdosProblem16' depends on axioms: [propext, choice, Quot.sound]
+theorem not_erdos_16 :
+    ¬ ∃ m_0 a_0 : ℕ, m_0 > 0 ∧ ∃ W : Set ℕ,
+      density_zero W ∧ U = { x | ∃ h, x = m_0 * h + a_0 } ∪ W := by
+  exact ErdosProblem16
+
+#print axioms not_erdos_16
 
 end Erdos16

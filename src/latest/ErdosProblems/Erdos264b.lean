@@ -459,7 +459,7 @@ theorem main_theorem : ∃ b : ℕ → ℕ, (∀ k, b k ∈ ({1, 2, 3, 4, 5} : S
 def IsIrrationalitySequence (a : ℕ → ℕ) : Prop := ∀ b : ℕ → ℕ, BddAbove (Set.range b) →
   0 ∉ Set.range (a + b) → 0 ∉ Set.range b → Irrational (∑' n, (1 : ℝ) / (a n + b n))
 
-theorem erdos_264.parts.i : ¬IsIrrationalitySequence (2 ^ ·) := by
+theorem not_erdos_264 : ¬IsIrrationalitySequence (2 ^ ·) := by
   intro hseq
   obtain ⟨b, hb_mem, q, hq⟩ := main_theorem
   let b' : ℕ → ℕ := fun n => if n = 0 then 1 else b n
@@ -507,7 +507,9 @@ theorem erdos_264.parts.i : ¬IsIrrationalitySequence (2 ^ ·) := by
 
 #print axioms main_theorem
 -- 'Erdos264b.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms erdos_264.parts.i
+#print axioms not_erdos_264
 -- 'Erdos264b.erdos_264.parts.i' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos264b
+
+alias _root_.Erdos264b.erdos_264.parts.i := _root_.Erdos264b.not_erdos_264

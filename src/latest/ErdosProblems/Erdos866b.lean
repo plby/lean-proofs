@@ -3711,7 +3711,7 @@ theorem hk_upper (k : ℕ) (hk : 3 ≤ k) (n : ℕ) (hn : 1 ≤ n) :
 For every k ≥ 3, there exists N such that for all n ≥ N,
   g_k(n) ≤ h_k(n) < 4n^{1-1/2^{k-2}}
 -/
-theorem generalupper (k : ℕ) (hk : 3 ≤ k) :
+theorem erdos_866 (k : ℕ) (hk : 3 ≤ k) :
     ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
       gFun k n ≤ hFun k n ∧
       (hFun k n : ℝ) < 4 * (↑n : ℝ) ^ ((1:ℝ) - 1 / 2 ^ ((k:ℝ) - 2)) := by
@@ -3758,7 +3758,9 @@ theorem generalupper (k : ℕ) (hk : 3 ≤ k) :
         rw [ Int.subNatNat_of_le ( by linarith ) ] ; norm_cast;
         grind
 
-#print axioms generalupper
+#print axioms erdos_866
 -- 'Erdos866b.generalupper' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos866b
+
+alias _root_.Erdos866b.generalupper := _root_.Erdos866b.erdos_866

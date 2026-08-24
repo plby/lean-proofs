@@ -4,8 +4,6 @@ import Mathlib
 
 namespace Erdos758
 
-open SimpleGraph
-
 /-! # Erdős Problem 758
 
 The cochromatic number of a finite graph is the least number of vertex colours

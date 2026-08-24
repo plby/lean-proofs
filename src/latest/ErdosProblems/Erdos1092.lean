@@ -114,7 +114,7 @@ theorem f_asymptotic_2 :
   exact fun h => not_id_isLittleO_f_two h
 
 /-- The proposed assertion for every `r` also has a negative answer. -/
-theorem f_asymptotic_general :
+theorem not_erdos_1092 :
     ¬ ∀ r : ℕ,
       (fun n : ℕ => ((r : ℝ) * n)) =o[atTop]
         (fun n : ℕ => (f r n : ℝ)) := by
@@ -124,4 +124,6 @@ theorem f_asymptotic_general :
 end Erdos1092
 
 #print axioms Erdos1092.f_asymptotic_2
-#print axioms Erdos1092.f_asymptotic_general
+#print axioms Erdos1092.not_erdos_1092
+
+alias _root_.Erdos1092.f_asymptotic_general := _root_.Erdos1092.not_erdos_1092

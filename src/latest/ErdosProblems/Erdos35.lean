@@ -1727,7 +1727,7 @@ theorem interval_density_expansion {A B : Set ℕ} {k a b : ℕ}
 /-- **Erdős Problem 35.**  If `B` is an additive basis of order `k` and
 contains zero, then adding `B` increases Schnirelmann density by at least
 `α(1-α)/k`, where `α` is the Schnirelmann density of `A`. -/
-theorem erdos35 (A B : Set ℕ) (k : ℕ) (_hzero : 0 ∈ B)
+theorem erdos_35 (A B : Set ℕ) (k : ℕ) (_hzero : 0 ∈ B)
     (hBasis : IsAdditiveBasisOfOrder B k) :
     schnirelmannDensity A +
         schnirelmannDensity A * (1 - schnirelmannDensity A) / k ≤
@@ -1811,4 +1811,6 @@ lemma erdos35_le_rpow {α : ℝ} {k : ℕ} (hα₀ : 0 ≤ α) (hα₁ : α ≤ 
 
 end Erdos35
 
-#print axioms Erdos35.erdos35
+#print axioms Erdos35.erdos_35
+
+alias _root_.Erdos35.erdos35 := _root_.Erdos35.erdos_35

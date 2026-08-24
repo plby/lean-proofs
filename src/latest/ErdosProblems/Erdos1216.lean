@@ -1167,7 +1167,8 @@ theorem f_fourteen_eq_five : f 14 = 5 := by
   · exact five_le_f_fourteen
 
 /-- Erdős Problem 1216 has a negative answer (already at n = 14). -/
-theorem erdos_1216 : ¬ ProposedFormula := by
+theorem not_erdos_1216 :
+    ¬ (∀ n, 1 ≤ n → f n = Nat.log2 n + 1) := by
   intro hformula
   have heq := hformula 14 (by omega)
   have hlog : Nat.log2 14 + 1 = 4 := by decide
@@ -1178,3 +1179,5 @@ theorem erdos_1216 : ¬ ProposedFormula := by
 end
 
 end Erdos1216
+
+alias _root_.Erdos1216.erdos_1216 := _root_.Erdos1216.not_erdos_1216

@@ -2,6 +2,8 @@
 
 import Mathlib
 
+open Filter
+
 /-!
 # Erdős Problem 286
 
@@ -20,11 +22,6 @@ therefore lets us enlarge the containing interval to the width requested here.
 
 namespace Erdos286
 
-open Filter Finset
-open scoped BigOperators Topology
-
-noncomputable section
-
 /-- A literal ordered k-term representation of one by positive natural
 denominators lying in the real interval [a, b]. -/
 def IntervalRepresentation (k : ℕ) (a b : ℝ) : Prop :=
@@ -33,11 +30,6 @@ def IntervalRepresentation (k : ℕ) (a b : ℝ) : Prop :=
     0 ∉ Set.range n ∧
     1 = ∑ i, (1 : ℝ) / n i ∧
     ∀ i, (n i : ℝ) ∈ Set.Icc a b
-
-/-- Increasing enumeration of an arbitrary finite set with prescribed
-cardinality. -/
-def enumerate {k : ℕ} (A : Finset ℕ) (hA : A.card = k) : Fin k → ℕ :=
-  A.orderEmbOfFin hA
 
 theorem erdos_286 :
     ∃ o : ℕ → ℝ,
@@ -48,7 +40,5 @@ theorem erdos_286 :
             b - a = (Real.exp 1 - 1 + o k) * k ∧
             IntervalRepresentation k a b := by
   sorry
-
-end
 
 end Erdos286

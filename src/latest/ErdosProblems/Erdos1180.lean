@@ -1238,7 +1238,8 @@ lemma large_prime_representation {ε δ γ : ℝ} {k p : ℕ}
     (eightfold_mem_exactlyRepresentable hp q hq_prime hq_le hHlt hHsq a ha)
 
 /-- The affirmative resolution of Erdős Problem 1180. -/
-theorem erdos_1180 : Erdos1180Claim := by
+theorem erdos_1180 : (∀ ε : ℝ, 0 < ε → ∃ C : ℕ, ∀ p : ℕ, p.Prime → ∀ a : ZMod p,
+  ∃ xs : List ℕ, xs.length ≤ C ∧ Erdos1180.Represents ε p a xs) := by
   intro ε hε
   obtain ⟨k, δ, γ, t, hk, hδ, hγ, hδone, hclear, hdenom,
     hgrow, ht0, ht1, hsupply⟩ := choose_parameters hε

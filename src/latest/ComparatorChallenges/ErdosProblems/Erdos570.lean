@@ -2,16 +2,14 @@
 
 import Mathlib
 
+open scoped SimpleGraph
+
 /-!
 # Finite Ramsey theory utilities
 
 This file contains the finite two-color Ramsey definitions and elementary bounds shared by
 multiple developments.
 -/
-
-open Finset
-
-noncomputable section
 
 namespace SimpleGraph
 
@@ -21,30 +19,6 @@ theorem IndepSetFree.comap {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph
   rw [← cliqueFree_compl] at h ⊢
   exact CliqueFree.comap
     (((Embedding.complEquiv (G := H) (H := G)).toFun f).isContained) h
-
-def Iso.compl {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph β}
-    (e : G ≃g H) : Gᶜ ≃g Hᶜ where
-  toEquiv := e.toEquiv
-  map_rel_iff' := by
-    intro v w
-    by_cases hvw : v = w
-    · subst hvw
-      simp
-    · simpa [compl_adj, hvw, e.injective.ne_iff] using
-        not_congr (e.map_adj_iff (v := v) (w := w))
-
-theorem Iso.cliqueFree_iff {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph β} {n : ℕ}
-    (e : G ≃g H) : G.CliqueFree n ↔ H.CliqueFree n := by
-  constructor
-  · intro h
-    exact CliqueFree.comap e.symm.toEmbedding.isContained h
-  · intro h
-    exact CliqueFree.comap e.toEmbedding.isContained h
-
-theorem Iso.indepSetFree_iff {α β : Type*} {G : SimpleGraph α} {H : SimpleGraph β} {n : ℕ}
-    (e : G ≃g H) : G.IndepSetFree n ↔ H.IndepSetFree n := by
-  simpa [indepSetFree_compl] using
-    (Iso.cliqueFree_iff (n := n) (e := Iso.compl e))
 
 end SimpleGraph
 
@@ -163,15 +137,7 @@ theorem ramseyProperty_exists (k l : ℕ) : ∃ n, RamseyProperty k l n := by
               exact hbad.2 _ ht''
             exact ramseyProperty_of_card (Gᶜ.card_neighborSet_eq_degree v) hprop H ⟨hcf, hif⟩
 
-/-- The off-diagonal Ramsey number `R(k, l)`. -/
-def ramseyNumber (k l : ℕ) : ℕ :=
-  by
-    classical
-    exact Nat.find (ramseyProperty_exists k l)
-
 end Ramsey
-
-open scoped SimpleGraph
 
 namespace Erdos79
 
@@ -223,19 +189,13 @@ end Erdos79
 
 namespace Erdos570
 
-open Erdos79
+def cycleCode (k : ℕ) : Erdos79.GraphCode := ⟨k, SimpleGraph.cycleGraph k⟩
 
-def cycleCode (k : ℕ) : GraphCode := ⟨k, SimpleGraph.cycleGraph k⟩
-
-def Erdős570Statement : Prop :=
-  ∀ k : ℕ, 3 ≤ k →
-    ∃ M : ℕ, ∀ H : GraphCode, NoIsolated H → M ≤ H.edgeCount →
-      graphRamseyNumber (cycleCode k) H ≤
-        2 * H.edgeCount + (k - 1) / 2
-
-theorem erdos570 : Erdős570Statement := by
+theorem erdos_570 :
+    ∀ k : ℕ, 3 ≤ k →
+      ∃ M : ℕ, ∀ H : Erdos79.GraphCode, Erdos79.NoIsolated H → M ≤ H.edgeCount →
+        Erdos79.graphRamseyNumber (Erdos570.cycleCode k) H ≤
+          2 * H.edgeCount + (k - 1) / 2 := by
   sorry
 
 end Erdos570
-
-end

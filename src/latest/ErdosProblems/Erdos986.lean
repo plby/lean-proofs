@@ -89,7 +89,10 @@ theorem problem986 : Problem986 := by
   exact bradac_ramsey_lower_bound_isBigO s hs
 
 /-- Erdős Problem 986 has a positive answer. -/
-theorem erdos_986 : Problem986 := by
+theorem erdos_986 : (∀ s : ℕ, 3 ≤ s → ∃ c : ℕ, 0 < c ∧
+  (fun k : ℕ ↦ (Ramsey.ramseyNumber s k : ℝ)) ≫
+    (fun k : ℕ ↦
+      (k : ℝ) ^ (s - 1) / Real.log (k : ℝ) ^ c)) := by
   refine Iff.mp ?_ trivial
   constructor
   · intro _

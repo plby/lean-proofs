@@ -21,7 +21,7 @@ Binomial Coefficient" by Carl Pomerance.
 Specifically, we have defined the properties and bad sets for Theorems 1.1 and
 1.2, and stated the density results.
 We have also formalized the intermediate lemmas and bounds required for the proofs.
-The final theorems are `theorem_1_1` and `theorem_1_2`.
+The final theorems are `erdos_728` and `erdos_728_intrinsic`.
 -/
 
 import Mathlib
@@ -4437,7 +4437,7 @@ The set of integers m for which the divisibility property fails has asymptotic d
 -/
 set_option maxHeartbeats 5000000 in
 -- The density argument combines several eventual and little-o bounds and exceeds the default limit.
-theorem theorem_1_1 :
+theorem erdos_728 :
     (fun x => ((bad_set_thm_1_1 x).card : ℝ)) =o[Filter.atTop] (fun x => x) := by
       -- The third set is finite because `property_holds_for_large_m` holds eventually.
       have finite_third_set : Set.Finite {m : ℕ | ¬((∀ p ∈ Finset.range (Nat.floor (2 * Real.log (m : ℝ))), p.Prime → (padicValNat p (Nat.choose (2 * m) m) : ℝ) ≥ 0.49 * Real.log (m : ℝ) / Real.log p) →
@@ -7006,7 +7006,7 @@ theorem K_small_mono {x y : ℝ} (hxy : x ≤ y) (hx : x ≥ 1) : K_small x ≤ 
 /-
 The set of m where the property fails for k <= K_small(m) has asymptotic density 0.
 -/
-theorem theorem_1_2 :
+theorem erdos_728_intrinsic :
     (fun x => ((bad_set_intrinsic_1_2 x).card : ℝ)) =o[Filter.atTop] (fun x => x) := by
       have h_subset : (fun x => ((bad_set_intrinsic_1_2 x).card : ℝ)) =o[Filter.atTop] (fun x => x) := by
         have h_subset : ∀ x : ℝ, x ≥ 1 → (bad_set_intrinsic_1_2 x).card ≤ (bad_set_thm_1_2_small x).card := by
@@ -7021,9 +7021,13 @@ theorem theorem_1_2 :
         exact le_trans ( by simpa [ abs_of_nonneg ( show 0 ≤ ( bad_set_intrinsic_1_2 x |> Finset.card : ℝ ) by positivity ), abs_of_nonneg ( show 0 ≤ ( bad_set_thm_1_2_small x |> Finset.card : ℝ ) by positivity ) ] using hcard ) hx₁;
       convert h_subset using 1
 
-#print axioms theorem_1_1
+#print axioms erdos_728
 -- 'Erdos728p.theorem_1_1' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms theorem_1_2
+#print axioms erdos_728_intrinsic
 -- 'Erdos728p.theorem_1_2' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos728p
+
+alias _root_.Erdos728p.theorem_1_1 := _root_.Erdos728p.erdos_728
+
+alias _root_.Erdos728p.theorem_1_2 := _root_.Erdos728p.erdos_728_intrinsic

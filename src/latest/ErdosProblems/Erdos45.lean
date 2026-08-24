@@ -20,7 +20,7 @@ namespace Erdos45
 
 open UnitFractions
 
-theorem erdos45 :
+theorem erdos_45 :
     ∀ k : ℕ, 2 ≤ k → ∃ nₖ : ℕ, ∀ c : ℕ → Fin k,
       ∃ D' : Finset ℕ, D' ⊆ ((nₖ.divisors.erase 1).erase nₖ) ∧
         rec_sum D' = 1 ∧ ∃ a : Fin k, ∀ d ∈ D', c d = a := by
@@ -93,7 +93,9 @@ theorem erdos45 :
   · exact ⟨Nat.dvd_factorial (lt_of_lt_of_le zero_lt_two hdIcc.1)
       (le_trans hdIcc.2 (Nat.le_add_right N 2)), Nat.factorial_ne_zero _⟩
 
-#print axioms erdos45
+#print axioms erdos_45
 -- 'Erdos45.erdos45' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos45
+
+alias _root_.Erdos45.erdos45 := _root_.Erdos45.erdos_45

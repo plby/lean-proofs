@@ -18,11 +18,7 @@ noncomputable def h2 {n : ℕ} (G : SimpleGraph (Fin n)) : ℕ := by
       H.CliqueFree 3 ∧
       (∀ x y : Fin n, x ≠ y → H.Adj x y ∨ ∃ z, H.Adj x z ∧ H.Adj z y) ∧
       ((H.edgeFinset \ G.edgeFinset).card = k)}
-end Erdos618
 
-namespace Erdos618
-
-open scoped Classical in
 theorem erdos_618
     (G : ∀ n : ℕ, SimpleGraph (Fin n))
     (hTriangleFree : ∀ n : ℕ, (G n).CliqueFree 3)

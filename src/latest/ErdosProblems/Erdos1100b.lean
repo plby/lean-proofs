@@ -1318,8 +1318,11 @@ lemma tau_perp_gt_bound (hPNT : PNT_statement) (ε : ℝ) (hε : ε > 0) (hε2 :
 /-
 There are infinitely many n for which tau_perp(n) > bound(n, epsilon).
 -/
-theorem main_theorem (hPNT : PNT_statement) :
+theorem erdos_1100
+    (hPNT : Filter.Tendsto (fun x => Real.log (Erdos1100b.n_val_Ioc x) / x)
+      Filter.atTop (nhds 1)) :
     ∀ ε ∈ Set.Ioo 0 (1 / 2), ∀ N, ∃ n ≥ N, (tau_perp n : ℝ) > bound n ε := by
+      change PNT_statement at hPNT
       intro ε hε N
       obtain ⟨N0, hN0⟩ := tau_perp_gt_bound hPNT ε hε.left hε.right
       obtain ⟨x, hx⟩ : ∃ x : ℝ, x ≥ N0 ∧ (Nat.floor x ≥ N) ∧ (n_val_Ioc x ≥ N) := by
@@ -1342,7 +1345,9 @@ theorem main_theorem (hPNT : PNT_statement) :
       generalize_proofs at *;
       exact ⟨ _, hx.2.2, hN0 x hx.1 ⟩
 
-#print axioms main_theorem
+#print axioms erdos_1100
 -- 'Erdos1100b.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1100b
+
+alias _root_.Erdos1100b.main_theorem := _root_.Erdos1100b.erdos_1100

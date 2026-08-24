@@ -4,13 +4,9 @@ import Mathlib
 
 open scoped Pointwise
 
-open Finset
-open scoped Pointwise BigOperators
-
 namespace Erdos818
 
-open scoped Classical in
-theorem erdos_problem_818_general
+theorem erdos_818
     (A : Finset ℝ) (hcard : 5 ≤ A.card)
     (c : ℕ)
     (hc : (A + A).card ≤ c * A.card) :

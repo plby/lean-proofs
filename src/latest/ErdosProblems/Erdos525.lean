@@ -115,7 +115,7 @@ theorem erdos_525_hasSmallValue_probability_tendsto_one :
 
 /-- The full resolution: the exact limiting law, its `o(2^N)` counting
 consequence, and the literal unit-circle small-value probability statement. -/
-theorem erdos_525_resolution :
+theorem erdos_525 :
     (∀ τ : ℝ, 0 < τ →
       Tendsto (fun N : ℕ ↦ minimumTail N τ) atTop
         (𝓝 (Real.exp (-rate * τ)))) ∧
@@ -130,6 +130,8 @@ theorem erdos_525_resolution :
     erdos_525_exceptional_family_isLittleO,
     erdos_525_hasSmallValue_probability_tendsto_one⟩
 
-#print axioms erdos_525_resolution
+#print axioms erdos_525
 
 end Erdos525
+
+alias _root_.Erdos525.erdos_525_resolution := _root_.Erdos525.erdos_525

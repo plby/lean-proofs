@@ -13,18 +13,12 @@ def Omega_strict : Set (ℝ × ℝ × ℝ) :=
 noncomputable def project_to_hyperboloid (n : ℤ) (t : ℤ × ℤ × ℤ) : ℝ × ℝ × ℝ :=
   let s := Real.sqrt (4 * (n : ℝ))
   ((t.1 : ℝ) / s, (t.2.1 : ℝ) / s, (t.2.2 : ℝ) / s)
-def DukeTheoremStatement : Prop :=
-  ∃ N : ℤ, ∀ n : ℤ, n ≥ N →
-  ∃ t ∈ R_star_disc (4 * n),
-    project_to_hyperboloid n t ∈ Omega_strict ∧
-    t.1 % 2 = t.2.2 % 2
-end Erdos1148
 
-namespace Erdos1148
-
-open scoped Classical in
-theorem erdos_problem_1148 (h_duke : DukeTheoremStatement) :
-  ∃ N : ℤ, ∀ n : ℤ, n ≥ N → ∃ x y z : ℤ, n = x^2 + y^2 - z^2 ∧ max (x^2) (max (y^2) (z^2)) ≤ n := by
+theorem erdos_1148 (h_duke : (∃ N : ℤ, ∀ n : ℤ, n ≥ N →
+∃ t ∈ Erdos1148.R_star_disc (4 * n),
+  Erdos1148.project_to_hyperboloid n t ∈ Erdos1148.Omega_strict ∧
+  t.1 % 2 = t.2.2 % 2)) :
+    ∃ N : ℤ, ∀ n : ℤ, n ≥ N → ∃ x y z : ℤ, n = x^2 + y^2 - z^2 ∧ max (x^2) (max (y^2) (z^2)) ≤ n := by
   sorry
 
 end Erdos1148

@@ -2499,7 +2499,7 @@ theorem sum_product_result (c : ℝ) (hc0 : 0 < c) (hc1 : c < 1) :
     obtain ⟨N, hN⟩ := sum_product_result_implication c hc0 hc1;
     exact ⟨ N, fun n hn A hA h1 h2 => by specialize hN n hn A hA h1 h2; contrapose! hN; aesop ⟩
 
-theorem erdos_443_part_one (s : ℕ) :
+theorem erdos_443 (s : ℕ) :
   ∃ m n : ℕ, n < m ∧ s ≤ ((A n ∩ A m).card : ℝ) := by
   -- By Theorem 1.3, there exist infinitely many pairs (n_k, m_k) such that |A_{n_k} \cap A_{m_k}| = s.
   have h_inf : ∀ s : ℕ, 0 < s → ∃ n m : ℕ, n < m ∧ (A n ∩ A m).card = s := by
@@ -2533,10 +2533,12 @@ theorem erdos_443_part_two (ε : ℝ) (hε : 0 < ε) :
     exact ⟨ N2 + 1, fun m hm => Real.rpow_lt_rpow_of_exponent_lt ( by norm_cast; linarith ) ( hN2 m ( by linarith ) ) ⟩;
   use Max.max N1 N2 + 1; intros m n hn hm; specialize hN1 m n ( by linarith [ Nat.le_max_left N1 N2 ] ) hm; specialize hN2 m ( by linarith [ Nat.le_max_right N1 N2 ] ) ; rw [ Real.mul_rpow ( by positivity ) ( by positivity ) ] ; exact lt_of_lt_of_le hN1 ( le_trans hN2.le <| le_mul_of_one_le_right ( by positivity ) <| Real.one_le_rpow ( by norm_cast; linarith [ Nat.le_max_left N1 N2, Nat.le_max_right N1 N2 ] ) <| by positivity ) ;
 
-#print axioms erdos_443_part_one
+#print axioms erdos_443
 -- 'erdos_443_part_one' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms erdos_443_part_two
 -- 'erdos_443_part_two' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos443
+
+alias _root_.Erdos443.erdos_443_part_one := _root_.Erdos443.erdos_443

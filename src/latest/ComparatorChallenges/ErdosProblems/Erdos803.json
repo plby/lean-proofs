@@ -2,7 +2,7 @@
   "challenge_module": "Erdos803",
   "solution_module": "ErdosProblems.Erdos803",
   "theorem_names": [
-    "Erdos803.erdos_803"
+    "Erdos803.not_erdos_803"
   ],
   "permitted_axioms": [
     "propext",

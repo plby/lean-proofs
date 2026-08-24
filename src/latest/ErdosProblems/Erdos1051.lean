@@ -823,7 +823,7 @@ lemma erdos_1051_liminf_shift_pow
 /-
 Main theorem: The series $\sum \frac{1}{a_n a_{n+1}}$ is irrational.
 -/
-theorem erdos_1051_irrational
+theorem erdos_1051
   (a : ℕ → ℕ)
   (h_mono : StrictMono a)
   (h_pos : ∀ n, 0 < a n)
@@ -919,5 +919,7 @@ lemma erdos_1051_sum_tail_rational
 
 end Erdos1051
 
-#print axioms Erdos1051.erdos_1051_irrational
+#print axioms Erdos1051.erdos_1051
 -- 'Erdos1051.erdos_1051_irrational' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos1051.erdos_1051_irrational := _root_.Erdos1051.erdos_1051

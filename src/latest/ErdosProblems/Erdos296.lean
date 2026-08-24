@@ -374,15 +374,17 @@ Since `erdos296_answer` gives `k(N) ≥ ⌊(1-ε) log N⌋` for every
 `ε > 0`, we can take `ε = 1/2` to obtain `k(N) ≥ ⌊(1/2) log N⌋`
 for all large `N`.  In particular `k(N) / log N ≥ 1/2 - o(1)`,
 which is incompatible with `k(N) = o(log N)`. -/
-theorem erdos296 :
+theorem erdos_296 :
     ∃ c : ℝ, c > 0 ∧ ∀ᶠ N : ℕ in atTop,
       HasDisjointUnitDecomps N ⌊ c * Real.log N ⌋₊ := by
   exact ⟨1 / 2, by norm_num, by
     have := erdos296_answer (1/2) (by norm_num) (by norm_num)
     simp only [one_div] at this ⊢; convert this using 2; ring_nf⟩
 
-#print axioms erdos296
+#print axioms erdos_296
 -- 'Erdos296.erdos296' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 end Erdos296
+
+alias _root_.Erdos296.erdos296 := _root_.Erdos296.erdos_296

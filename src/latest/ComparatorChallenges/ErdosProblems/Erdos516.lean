@@ -2,8 +2,7 @@
 
 import Mathlib
 
-open scoped Nat Polynomial
-open Filter MeasureTheory Real Set Topology
+open Filter Real
 
 namespace Erdos516
 

@@ -2,7 +2,7 @@
   "challenge_module": "Erdos705",
   "solution_module": "ErdosProblems.Erdos705",
   "theorem_names": [
-    "Erdos705.erdos_705"
+    "Erdos705.not_erdos_705"
   ],
   "permitted_axioms": [
     "propext",

@@ -588,7 +588,7 @@ theorem main_theorem : ∃ (A' B' : Set ℕ),
 
 set_option linter.flexible false in
 open Classical in
-theorem erdos_331 :
+theorem not_erdos_331 :
     ¬(∀ A B : Set ℕ,
       (fun (n : ℕ) ↦ (n : ℝ) ^ (1 / 2 : ℝ)) =O[atTop]
         (fun (n : ℕ) ↦ (count A n : ℝ)) →
@@ -626,5 +626,7 @@ open Erdos331
 #print axioms main_theorem
 -- 'Erdos331.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-#print axioms erdos_331
+#print axioms not_erdos_331
 -- 'Erdos331.erdos_331' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos331.erdos_331 := _root_.Erdos331.not_erdos_331

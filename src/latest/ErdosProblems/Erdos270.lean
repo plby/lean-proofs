@@ -1025,7 +1025,11 @@ def Erdos270Assertion : Prop :=
     Irrational (∑' n, productTerm n (f (n + 1)))
 
 /-- Consequently, the answer to Erdős and Graham's question is no. -/
-theorem erdos_270 : ¬ Erdos270Assertion := by
+theorem not_erdos_270 :
+    ¬ (∀ f : ℕ → ℕ,
+      (∀ n, 0 < f n) →
+      Tendsto f atTop atTop →
+      Irrational (∑' n, productTerm n (f (n + 1)))) := by
   intro hassert
   obtain ⟨f, hfpos, hflim, hsum⟩ := erdos_270_resolution 1 (by norm_num)
   have hsum' : HasSum (fun n => productTerm n (f (n + 1))) 1 := by
@@ -1035,8 +1039,10 @@ theorem erdos_270 : ¬ Erdos270Assertion := by
   exact (by norm_num : ¬ Irrational (1 : ℝ)) hirr
 
 #print axioms erdos_270_resolution
-#print axioms erdos_270
+#print axioms not_erdos_270
 
 end
 
 end Erdos270
+
+alias _root_.Erdos270.erdos_270 := _root_.Erdos270.not_erdos_270

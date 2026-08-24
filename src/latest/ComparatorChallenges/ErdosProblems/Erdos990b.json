@@ -2,7 +2,7 @@
   "challenge_module": "Erdos990b",
   "solution_module": "ErdosProblems.Erdos990b",
   "theorem_names": [
-    "Erdos990b.erdos990_no_absolute_constant_sparseErdosTuran"
+    "Erdos990b.not_erdos_990"
   ],
   "permitted_axioms": [
     "propext",

@@ -21,7 +21,7 @@ import ErdosProblems.Erdos606.PlanarIncidence
 
 For a finite set `P` of points in the real affine plane, `lineCount P` is the
 number of affine lines containing at least two points of `P`.  The main theorem
-`erdos606` gives the eventual Erdős--Salamon classification of all possible
+`erdos_606` gives the eventual Erdős--Salamon classification of all possible
 values.
 
 Mathematical sources:
@@ -3289,7 +3289,7 @@ lemma possibleLineCount_classified_of_separation {n m : ℕ} (hn : 100 ≤ n)
     omega
 
 /-- Erdős--Salamon's complete resolution of Erdős Problem 606. -/
-theorem erdos606 :
+theorem erdos_606 :
     ∃ n₀ : ℕ, ∀ n ≥ n₀, ∀ m : ℕ,
       PossibleLineCount n m ↔ ClassifiedValue n m := by
   obtain ⟨n₁, hlarge⟩ := large_richest_line_separation
@@ -3305,8 +3305,10 @@ theorem erdos606 :
     simpa [hPcard] using hp
   · exact classifiedValue_possible hn100
 
-#print axioms erdos606
+#print axioms erdos_606
 
 end
 
 end Erdos606
+
+alias _root_.Erdos606.erdos606 := _root_.Erdos606.erdos_606

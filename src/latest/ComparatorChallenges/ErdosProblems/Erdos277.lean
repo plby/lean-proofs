@@ -2,6 +2,8 @@
 
 import Mathlib
 
+open scoped ArithmeticFunction.sigma Pointwise
+
 /-!
 # Erdős Problem 277
 
@@ -9,8 +11,6 @@ Haight proved that integers with arbitrarily large abundancy can be chosen so
 that their nontrivial divisors cannot be the distinct moduli of a covering
 system.
 -/
-
-open scoped ArithmeticFunction.sigma BigOperators Pointwise
 
 /-- A finite covering system over a commutative semiring. -/
 structure CoveringSystem (R : Type*) [CommSemiring R] where
@@ -31,11 +31,6 @@ structure StrictCoveringSystem (R : Type*) [CommSemiring R]
 
 namespace Erdos277
 
-noncomputable section
-
-open MeasureTheory ProbabilityTheory Set
-
-open scoped Classical in
 theorem erdos_277 :
     ∀ c : ℝ, ∃ n : ℕ, (σ 1 n : ℝ) > c * n ∧
       ∀ (m : StrictCoveringSystem ℤ), ∃ i, (n : ℤ) ∉ m.moduli i := by

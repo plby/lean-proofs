@@ -52,8 +52,6 @@ noncomputable def terminalReciprocalScale (n d : ℕ) : ℝ :=
   (n : ℝ) / Real.log n *
     iteratedLogTailProduct d (Real.log (Real.log (n : ℝ)))
 
-/-- The extremal function in the notation of the formal-conjectures
-statement.  `extremalSize` is its finite-maximum implementation. -/
 noncomputable def R (N : ℕ) : ℕ :=
   extremalSize N
 

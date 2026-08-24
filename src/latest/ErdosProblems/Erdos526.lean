@@ -37,7 +37,7 @@ of the unit circle infinitely often almost surely if and only if
 The infinite-coverage formulation is the standard Dvoretzky--Shepp event.  It
 also makes explicit why the series must be evaluated after rearrangement:
 coverage is invariant under permutations, while prefix sums are not. -/
-theorem erdos_526_resolution
+theorem erdos_526
     {a : ℕ → ℝ}
     (ha₀ : ∀ n, 0 ≤ a n)
     (halim : Tendsto a atTop (nhds 0))
@@ -54,8 +54,10 @@ theorem erdos_526_resolution_for_rearrangement
     (hdiv : ¬ Summable a)
     (hrearr : IsDecreasingRearrangement a b) :
     sampleMeasure (fullCoverageEvent a) = 1 ↔ SheppCondition b :=
-  erdos_526 ha₀ halim hdiv hrearr
+  shepp_criterion_for_rearrangement ha₀ halim hdiv hrearr
 
-#print axioms erdos_526_resolution
+#print axioms erdos_526
 
 end Erdos526
+
+alias _root_.Erdos526.erdos_526_resolution := _root_.Erdos526.erdos_526

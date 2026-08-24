@@ -2,9 +2,9 @@ import Mathlib.AlgebraicTopology.SimplexCategory.Basic
 import Mathlib.Data.Real.Star
 import Mathlib.LinearAlgebra.Matrix.Hadamard
 
-namespace MO509493
+open Matrix
 
-open Matrix Finset BigOperators
+namespace MO509493
 
 def IsOrthProj {n : Type*} [Fintype n] [DecidableEq n]
     (P : Matrix n n ℝ) : Prop :=

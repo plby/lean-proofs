@@ -279,7 +279,7 @@ and Selfridge conjectured $g(k)\leq \exp(k^{1+o(1)})$.
 
 [EES74](https://mathscinet.ams.org/mathscinet/relay-station?mr=1199990)
 -/
-theorem erdos_1095_weaker_upper_bound :
+theorem erdos_1095 :
     ∃ f : ℕ → ℝ, Tendsto f atTop (𝓝 0) ∧ ∀ k, 2 ≤ k → g k ≤ exp (k ^ (1 + f k)) := by
   refine ⟨ ?_, ?_, fun k hk => ?_ ⟩
   · refine fun k =>
@@ -507,5 +507,7 @@ theorem erdos_1095_weaker_upper_bound :
 
 end Erdos1095b
 
-#print axioms Erdos1095b.erdos_1095_weaker_upper_bound
+#print axioms Erdos1095b.erdos_1095
 -- 'Erdos1095b.erdos_1095_weaker_upper_bound' depends on axioms: [propext, choice, Quot.sound]
+
+alias _root_.Erdos1095b.erdos_1095_weaker_upper_bound := _root_.Erdos1095b.erdos_1095

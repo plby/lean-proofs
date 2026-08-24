@@ -849,7 +849,7 @@ theorem B_final_v4_infinite (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTo
 /-
 The main theorem: there exists an infinite set B satisfying the density condition, admissibility, and the composite shift property.
 -/
-theorem main_theorem (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter.atTop) :
+theorem erdos_429 (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filter.atTop) :
     ∃ B : Set ℕ, B.Infinite ∧
     (∀ N, (B ∩ Set.Icc 1 N).toFinset.card ≤ f N) ∧
     Admissible B ∧
@@ -859,7 +859,9 @@ theorem main_theorem (f : ℕ → ℕ) (hf : Filter.Tendsto f Filter.atTop Filte
       exact ⟨ B_final_v4_infinite f hf, B_final_v4_density f hf, B_final_v4_admissible f hf, B_final_v4_composite_shift f hf ⟩
 
 
-#print axioms main_theorem
+#print axioms erdos_429
 -- 'Erdos429.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos429
+
+alias _root_.Erdos429.main_theorem := _root_.Erdos429.erdos_429

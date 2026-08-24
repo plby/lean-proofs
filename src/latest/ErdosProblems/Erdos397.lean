@@ -121,7 +121,7 @@ theorem sol_family_is_solution (a : ℕ) (h : a ≥ 2) :
 /-
 The set of solutions is infinite.
 -/
-theorem infinite_solutions : Set.Infinite { s : List ℕ × List ℕ | is_solution s.1 s.2 } := by
+theorem not_erdos_397 : Set.Infinite { s : List ℕ × List ℕ | is_solution s.1 s.2 } := by
   -- Since a can be chosen arbitrarily large, there are infinitely many distinct solutions.
   have h_infinite : Set.Infinite {s | ∃ a ≥ 2, s = (sol_family a)} := by
     exact Set.infinite_of_injective_forall_mem
@@ -136,5 +136,9 @@ end Erdos397
 
 open Erdos397
 
-#print axioms infinite_solutions
+#print axioms not_erdos_397
 -- 'Erdos397.infinite_solutions' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos397.infinite_solutions := _root_.Erdos397.not_erdos_397
+
+alias _root_.Erdos397.erdos_397 := _root_.Erdos397.not_erdos_397

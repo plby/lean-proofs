@@ -1462,7 +1462,7 @@ $x \ge x_0$ at least $(1 - \delta)x$ of the integers $n \le x$ satisfy
 $f(n) < (1 + \epsilon)n$.
 -/
 set_option linter.flexible false in
-theorem main_theorem (ε δ : ℝ) (hε : 0 < ε) (hδ : 0 < δ) :
+theorem erdos_459 (ε δ : ℝ) (hε : 0 < ε) (hδ : 0 < δ) :
   ∃ x₀ : ℝ, ∀ x ≥ x₀,
     (Finset.filter (fun n => (f n : ℝ) < (1 + ε) * n)
       (Finset.range (⌊x⌋₊ + 1))).card ≥ (1 - δ) * x := by
@@ -1639,7 +1639,9 @@ theorem main_theorem (ε δ : ℝ) (hε : 0 < ε) (hδ : 0 < δ) :
                     ( Finset.range ( ⌊x⌋₊ + 1 ) ) ) by
           exact_mod_cast h_card]
 
-#print axioms main_theorem
+#print axioms erdos_459
 -- 'Erdos459.main_theorem' depends on axioms: [propext, choice, Quot.sound]
 
 end Erdos459
+
+alias _root_.Erdos459.main_theorem := _root_.Erdos459.erdos_459

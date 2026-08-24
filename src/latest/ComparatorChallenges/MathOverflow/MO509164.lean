@@ -47,10 +47,6 @@ def E_plus (rho : ℝ) : Set ℝ :=
   {x | ∃ u : List (Fin 2), u ≠ [] ∧ u.head! = 1 ∧
     x = pi rho (append_zeros u)}
 
-open scoped ENNReal
-
-open Topology Filter Metric MeasureTheory
-
 noncomputable def N_delta (E : Set ℝ) (δ : ℝ) : ℕ :=
   sInf {n | ∃ (U : Fin n → Set ℝ),
     (∀ i, Metric.ediam (U i) ≤ ENNReal.ofReal δ) ∧ E ⊆ ⋃ i, U i}

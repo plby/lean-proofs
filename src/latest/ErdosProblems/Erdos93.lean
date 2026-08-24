@@ -6544,7 +6544,7 @@ lemma distinct_distances_nonempty_of_ge_2 {s : Finset V} (h : 2 ≤ s.card) :
 Altman-Erdos Theorem (1963):
 If n distinct points in R^2 form a convex polygon, then they determine at least floor(n/2) distinct distances.
 -/
-theorem altman_erdos (s : Finset V) (n : ℕ)
+theorem erdos_93 (s : Finset V) (n : ℕ)
     (h_n : 3 ≤ n)
     (h_card : s.card = n)
     (h_conv : ConvexIndependent ℝ (Subtype.val : s → V)) :
@@ -6663,8 +6663,10 @@ theorem altman_erdos (s : Finset V) (n : ℕ)
       omega
 
     exact h_contradiction_final
-#print axioms altman_erdos
+#print axioms erdos_93
 -- 'Erdos93.altman_erdos' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 end Erdos93
+
+alias _root_.Erdos93.altman_erdos := _root_.Erdos93.erdos_93

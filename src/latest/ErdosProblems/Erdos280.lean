@@ -223,7 +223,7 @@ contradicting the conjecture of Erdős Problem 280.
 
 The concrete witnesses are `n i = 2^i`, `a 1 = 0`, `a i = 2^(i-1) + 1` for `i ≥ 2`,
 and `ε = 1`. -/
-theorem erdos_280_counterexample :
+theorem not_erdos_280 :
     ∃ (n a : ℕ → ℕ) (ε : ℝ),
       0 < ε ∧
       StrictMono n ∧
@@ -252,9 +252,11 @@ theorem erdos_280_counterexample :
         norm_num⟩)
       tendsto_one_div_atTop_nhds_zero_nat
 
-#print axioms Erdos280.erdos_280_counterexample
+#print axioms Erdos280.not_erdos_280
 -- 'Erdos280.erdos_280_counterexample' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos280
 
 end Erdos280
+
+alias _root_.Erdos280.erdos_280_counterexample := _root_.Erdos280.not_erdos_280

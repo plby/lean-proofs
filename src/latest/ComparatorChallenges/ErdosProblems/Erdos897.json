@@ -2,8 +2,8 @@
   "challenge_module": "Erdos897",
   "solution_module": "ErdosProblems.Erdos897",
   "theorem_names": [
-    "Erdos897.erdos_897.parts.i",
-    "Erdos897.erdos_897.parts.ii"
+    "Erdos897.not_erdos_897",
+    "Erdos897.not_erdos_897_part_ii"
   ],
   "permitted_axioms": [
     "propext",

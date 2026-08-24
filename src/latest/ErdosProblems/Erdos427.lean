@@ -80,7 +80,7 @@ lemma sum_range_split (f : ℕ → ℕ) (a b : ℕ) :
 positive `k` such that `d` divides the sum of `k` consecutive primes starting
 from the `(n+1)`-th prime (0-indexed via `Nat.nth Nat.Prime`).
 -/
-theorem erdos427 (n d : ℕ) (hd : 1 ≤ d) :
+theorem erdos_427 (n d : ℕ) (hd : 1 ≤ d) :
     ∃ k, 1 ≤ k ∧ d ∣ (Finset.range k).sum (fun i => Nat.nth Nat.Prime (n + i)) := by
   obtain ⟨m, hm⟩ := shiu_consecutive_primes d hd 1 d hd (Nat.coprime_one_left d) (n + 1)
   -- Let `len := m - n`,
@@ -119,6 +119,8 @@ theorem erdos427 (n d : ℕ) (hd : 1 ≤ d) :
 
 end Erdos427
 
-#print axioms Erdos427.erdos427
+#print axioms Erdos427.erdos_427
 -- 'Erdos427.erdos427' depends on axioms: [propext, shiu_consecutive_primes,
 -- Classical.choice, Quot.sound]
+
+alias _root_.Erdos427.erdos427 := _root_.Erdos427.erdos_427

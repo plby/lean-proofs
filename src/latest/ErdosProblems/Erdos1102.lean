@@ -1095,7 +1095,7 @@ theorem erdos_1102.density_zero_of_P
     simp +decide [ S_shifts ]
     exact fun x y hx hy => Nat.sub_ne_zero_of_lt ( by linarith [ Finset.mem_Icc.mp ( Finset.mem_filter.mp hy |>.1 ) ] ) ) ) ) ) fun x hx => by aesop )
 
-theorem erdos_1102.exists_sequence_with_P
+theorem erdos_1102
     (f : ℕ → ℕ) (h_inf : Tendsto f atTop atTop)
     (h_pos : ∀ n, f n ≠ 0) :
     ∃ A : ℕ → ℕ, StrictMono A ∧
@@ -1123,7 +1123,7 @@ theorem erdos_1102.exists_sequence_with_P
     field_simp
     exact_mod_cast le_trans ( a_seq_upper_bound f h_inf j hj ) ( mul_le_mul_of_nonneg_left ( W_k_le_f f h_inf ( fun n => Nat.pos_of_ne_zero ( h_pos n ) ) j ) ( Nat.cast_nonneg _ ) )
 
-#print axioms erdos_1102.exists_sequence_with_P
+#print axioms erdos_1102
 -- 'Erdos1102.erdos_1102.exists_sequence_with_P' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
@@ -9287,3 +9287,5 @@ theorem All_Sequences_PropertyQ : PropertyQ A1 ∧ PropertyQ A2 ∧ PropertyQ A3
 
 end
 end Erdos1102d
+
+alias _root_.Erdos1102.erdos_1102.exists_sequence_with_P := _root_.Erdos1102.erdos_1102

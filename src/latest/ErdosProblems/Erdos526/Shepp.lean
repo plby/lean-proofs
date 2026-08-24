@@ -2457,7 +2457,7 @@ lemma measure_fullCoverageEvent_eq_rearrangement
 /-- Resolution of Erdős Problem 526.  For an arbitrary nonnegative sequence,
 the order-dependent series is evaluated on its nonincreasing rearrangement of
 positive terms. -/
-theorem erdos_526
+theorem shepp_criterion_for_rearrangement
     {a b : ℕ → ℝ}
     (ha₀ : ∀ n, 0 ≤ a n)
     (halim : Tendsto a atTop (nhds 0))
@@ -2614,7 +2614,7 @@ theorem erdos_526_exists_rearrangement
     ∃ b : ℕ → ℝ, IsDecreasingRearrangement a b ∧
       (sampleMeasure (fullCoverageEvent a) = 1 ↔ SheppCondition b) := by
   obtain ⟨b, hb⟩ := exists_decreasingRearrangement ha₀ halim hdiv
-  exact ⟨b, hb, erdos_526 ha₀ halim hdiv hb⟩
+  exact ⟨b, hb, shepp_criterion_for_rearrangement ha₀ halim hdiv hb⟩
 
 end
 end Erdos526

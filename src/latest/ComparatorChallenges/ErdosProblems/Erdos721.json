@@ -3,7 +3,7 @@
   "solution_module": "ErdosProblems.Erdos721",
   "theorem_names": [
     "Erdos721.exists_forcesW3",
-    "Erdos721.erdos721Resolution"
+    "Erdos721.erdos_721"
   ],
   "permitted_axioms": [
     "propext",

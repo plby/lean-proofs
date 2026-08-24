@@ -865,14 +865,16 @@ theorem isBigO_minCoverSize :
     _ ≤ _ := cardS
     _ = _ := by rw [logb]; ring
 
-theorem erdos798 : (fun n ↦ (minCoverSize 2 n : ℝ)) =O[atTop] fun n ↦ n ^ (2 / 3 : ℝ) * log n := by
+theorem erdos_798 : (fun n ↦ (minCoverSize 2 n : ℝ)) =O[atTop] fun n ↦ n ^ (2 / 3 : ℝ) * log n := by
   convert isBigO_minCoverSize using 4
   · norm_num [K]
   · infer_instance
 
 end
 
-#print axioms erdos798
+#print axioms erdos_798
 -- 'Erdos798.erdos798' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos798
+
+alias _root_.Erdos798.erdos798 := _root_.Erdos798.erdos_798

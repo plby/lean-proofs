@@ -4217,7 +4217,7 @@ private lemma square_div_four_lt_succ_nat (n : ℕ) :
 /-- Füredi's theorem, in exactly the form used by the Formal Conjectures
 statement: the Murty--Simon bound holds for every sufficiently large finite
 diameter-two edge-critical graph. -/
-theorem furedi_bound : ∃ n₀ : ℕ, ∀ (V : Type*) [Fintype V] [DecidableEq V]
+theorem erdos_742 : ∃ n₀ : ℕ, ∀ (V : Type*) [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj],
     n₀ ≤ Fintype.card V → IsDiameter2Critical G →
       G.edgeFinset.card ≤ (Fintype.card V) ^ 2 / 4 := by
@@ -4312,4 +4312,6 @@ end Final
 
 end Erdos742
 
-#print axioms Erdos742.furedi_bound
+#print axioms Erdos742.erdos_742
+
+alias _root_.Erdos742.furedi_bound := _root_.Erdos742.erdos_742

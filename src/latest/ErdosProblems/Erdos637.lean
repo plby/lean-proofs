@@ -1055,7 +1055,7 @@ lemma exists_richness_scale (ρ : ℝ) (hρ : 0 < ρ) :
 `C`, every sufficiently large `C`-Ramsey graph on `n` vertices contains an
 induced subgraph on a positive proportion of its vertices with a positive
 multiple of `sqrt n` distinct degrees. -/
-theorem erdos637 :
+theorem erdos_637 :
     ∀ C : ℝ, 0 < C →
       ∃ α : ℝ, 0 < α ∧
       ∃ β : ℝ, 0 < β ∧
@@ -1163,4 +1163,6 @@ theorem erdos637 :
 
 end Erdos637
 
-#print axioms Erdos637.erdos637
+#print axioms Erdos637.erdos_637
+
+alias _root_.Erdos637.erdos637 := _root_.Erdos637.erdos_637

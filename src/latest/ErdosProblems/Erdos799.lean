@@ -124,7 +124,12 @@ theorem exceptionalDensity_tendsto_zero :
 /-- The resolution of Erdős Problem 799: there is a single sublinear bound
 which contains the list chromatic number of an asymptotic proportion one of
 all labelled graphs. -/
-theorem erdos_799 : AlmostAllListChromaticSublinear := by
+theorem erdos_799 : (∃ b : ℕ → ℕ,
+  (fun n : ℕ ↦ (b n : ℝ)) =o[Filter.atTop] (fun n : ℕ ↦ (n : ℝ)) ∧
+  Filter.Tendsto
+    (Erdos799.graphDensity
+      (fun n G ↦ Erdos753.listChromaticNumber G ≤ b n))
+    Filter.atTop (nhds 1)) := by
   refine ⟨ramseyDiagonalBound, ramseyDiagonalBound_isLittleO, ?_⟩
   simpa only [IsExceptional, not_not] using
     graphDensity_not_tendsto_one IsExceptional

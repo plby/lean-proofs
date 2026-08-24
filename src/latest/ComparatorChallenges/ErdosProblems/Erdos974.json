@@ -2,7 +2,7 @@
   "challenge_module": "Erdos974",
   "solution_module": "ErdosProblems.Erdos974",
   "theorem_names": [
-    "Erdos974.ProblemData.erdos974_even"
+    "Erdos974.ProblemData.erdos_974"
   ],
   "permitted_axioms": [
     "propext",

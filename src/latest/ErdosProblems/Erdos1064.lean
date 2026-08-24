@@ -938,7 +938,7 @@ theorem erdos_1064.variants.k2 : {n | φ n < φ (n - φ n)}.Infinite := by
     omega
 
 /-- The strengthened result with an arbitrary natural-valued error `f = o(n)`. -/
-theorem erdos_1064.variants.general_function (f : ℕ → ℕ)
+theorem erdos_1064.variants.erdos_1064 (f : ℕ → ℕ)
     (hf : (fun n ↦ (f n : ℝ)) =o[atTop] (fun n ↦ (n : ℝ))) :
     {n : ℕ | φ (n - φ n) + f n < φ n}.HasDensity 1 := by
   exact general_density_aux f hf
@@ -947,3 +947,5 @@ theorem erdos_1064.variants.general_function (f : ℕ → ℕ)
 end
 
 end Erdos1064
+
+alias _root_.Erdos1064.erdos_1064.variants.general_function := _root_.Erdos1064.erdos_1064.variants.erdos_1064

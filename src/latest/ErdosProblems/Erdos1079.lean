@@ -416,7 +416,7 @@ theorem erdos_problem_1079 {n r : ℕ} (hr : 4 ≤ r) (hn : 2 ≤ n)
 
 /-- Bondy's strict version of the resolution: above the Turán threshold the same maximum-degree
 vertex has strictly more than `ex(d, K_{r-1})` edges in its neighbourhood. -/
-theorem erdos_problem_1079_strict {n r : ℕ} (hr : 4 ≤ r) (hn : 2 ≤ n)
+theorem erdos_1079 {n r : ℕ} (hr : 4 ≤ r) (hn : 2 ≤ n)
     (G : SimpleGraph (Fin n))
     (hG : cliqueExtremalNumber n r < edgeCount G) :
     ∃ v : Fin n,
@@ -431,4 +431,6 @@ theorem erdos_problem_1079_strict {n r : ℕ} (hr : 4 ≤ r) (hn : 2 ≤ n)
 end Erdos1079
 
 #print axioms Erdos1079.erdos_problem_1079
-#print axioms Erdos1079.erdos_problem_1079_strict
+#print axioms Erdos1079.erdos_1079
+
+alias _root_.Erdos1079.erdos_problem_1079_strict := _root_.Erdos1079.erdos_1079

@@ -4318,7 +4318,7 @@ def HasDisjointCliques (G : SimpleGraph V) (r m : ℕ) : Prop :=
 
 omit [DecidableEq V] in
 /-- **Hajnal-Szemerédi Theorem** (clique cover version). -/
-theorem hajnal_szemeredi_clique_cover (G : SimpleGraph V) [DecidableRel G.Adj]
+theorem erdos_914 (G : SimpleGraph V) [DecidableRel G.Adj]
     (r m : ℕ) (hr : 1 ≤ r) (hcard : Fintype.card V = r * m)
     (hmin : m * (r - 1) ≤ G.minDegree) :
     HasDisjointCliques G r m := by
@@ -4361,10 +4361,12 @@ theorem hajnal_szemeredi_clique_cover (G : SimpleGraph V) [DecidableRel G.Adj]
   · grind
   · exact fun i j hij => Finset.disjoint_filter.2 fun v => by aesop
 
-#print axioms hajnal_szemeredi_clique_cover
+#print axioms erdos_914
 -- 'Erdos914.HajnalSzemeredi.hajnal_szemeredi_clique_cover' depends on axioms: [propext, choice,
 -- Quot.sound]
 
 end HajnalSzemeredi
 
 end Erdos914
+
+alias _root_.Erdos914.HajnalSzemeredi.hajnal_szemeredi_clique_cover := _root_.Erdos914.HajnalSzemeredi.erdos_914

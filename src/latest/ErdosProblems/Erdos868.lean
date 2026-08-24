@@ -6707,7 +6707,7 @@ lemma exists_robustCounterexample : ∃ c : RobustCounterexample,
   obtain ⟨c, hc⟩ := exists_dense_stagedTrapCertificate
   exact ⟨c.toTrapCertificate.toConstructionCertificate.toRobustCounterexample, hc⟩
 
-theorem erdos_868.parts.i :
+theorem not_erdos_868 :
     ¬ ∀ (A : Set ℕ), A.IsAsymptoticAddBasisOfOrder 2 →
       atTop.Tendsto (fun n ↦ ncard_add_repr A 2 n) atTop → ∃ B ⊆ A,
       B.IsAsymptoticAddBasisOfOrder 2 ∧
@@ -6715,7 +6715,7 @@ theorem erdos_868.parts.i :
   obtain ⟨c, _hc⟩ := exists_robustCounterexample
   exact parts_i_of_robustCounterexample c
 
-theorem erdos_868.parts.ii :
+theorem not_erdos_868_part_ii :
     ¬ ∀ᵉ (A : Set ℕ) (ε > 0), A.IsAsymptoticAddBasisOfOrder 2 →
       (∀ᶠ (n : ℕ) in atTop, ε * Real.log n < ncard_add_repr A 2 n) → ∃ B ⊆ A,
       B.IsAsymptoticAddBasisOfOrder 2 ∧
@@ -6725,5 +6725,9 @@ theorem erdos_868.parts.ii :
 
 end Erdos868
 
-#print axioms Erdos868.erdos_868.parts.i
-#print axioms Erdos868.erdos_868.parts.ii
+#print axioms Erdos868.not_erdos_868
+#print axioms Erdos868.not_erdos_868_part_ii
+
+alias _root_.Erdos868.erdos_868.parts.i := _root_.Erdos868.not_erdos_868
+
+alias _root_.Erdos868.erdos_868.parts.ii := _root_.Erdos868.not_erdos_868_part_ii

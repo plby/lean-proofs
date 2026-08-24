@@ -2,55 +2,27 @@
 
 import Mathlib
 
-noncomputable section
-
 namespace Erdos482
 
-open scoped Classical in
 noncomputable def alpha (t : ℝ) : ℝ := 2 * (t + 1) / (t + 2)
 
-end Erdos482
-
-namespace Erdos482
-
-open scoped Classical in
 noncomputable def beta (t : ℝ) : ℝ := (t + 2) / (t + 1)
 
-end Erdos482
-
-namespace Erdos482
-
-open scoped Classical in
 noncomputable def stollBinary (t : ℝ) : ℕ → ℕ
   | 0 => 1
   | n + 1 =>
       ⌊(if Even n then alpha t else beta t) *
           ((stollBinary t n : ℝ) + 1 / 2)⌋₊
 
-end Erdos482
-
-namespace Erdos482
-
-open scoped Classical in
 noncomputable def grahamPollak : ℕ → ℕ
   | 0 => 0
   | n + 1 => stollBinary (Real.sqrt 2) n
 
-end Erdos482
-
-namespace Erdos482
-
-open scoped Classical in
 noncomputable def binaryDigit (t : ℝ) : ℕ → Fin 2
   | 0 => 0
   | 1 => 1
   | k + 2 => Real.digits (t - 1) 2 k
 
-end Erdos482
-
-namespace Erdos482
-
-open scoped Classical in
 theorem erdos_482 :
     grahamPollak 1 = 1 ∧
       (∀ n, 1 ≤ n →
@@ -69,5 +41,3 @@ theorem erdos_482 :
   sorry
 
 end Erdos482
-
-end

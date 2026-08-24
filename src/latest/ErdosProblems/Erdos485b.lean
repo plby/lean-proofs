@@ -1063,7 +1063,7 @@ lemma arithmetic_bound (n N a : ℕ) (_hn : 0 < n) (ha1 : 1 ≤ a) (ha8 : a ≤ 
 /-- **Main Theorem.** For every positive integer `n`, there exists a polynomial `f(x)` of
 degree `n` with all nonzero integer coefficients such that `f(x)²` has fewer than
 `(1/5)(102 · n^{log₉ 6} - 12)` nonzero coefficients. -/
-theorem exists_complete_poly_with_sparse_square (n : ℕ) (hn : 0 < n) :
+theorem erdos_485 (n : ℕ) (hn : 0 < n) :
     ∃ f : ℤ[X],
       f.natDegree = n ∧
       (∀ i : ℕ, i ≤ n → f.coeff i ≠ 0) ∧
@@ -2081,7 +2081,7 @@ lemma arithmetic_bound_improved (n N a : ℕ) (ha1 : 1 ≤ a) (ha12 : a ≤ 12)
 -- Main improved theorem
 -- ============================================================
 
-theorem exists_complete_poly_with_sparse_square_improved (n : ℕ) (hn : 0 < n) :
+theorem erdos_485_improved (n : ℕ) (hn : 0 < n) :
     ∃ f : ℝ[X],
       f.natDegree = n ∧
       (∀ i : ℕ, i ≤ n → f.coeff i ≠ 0) ∧
@@ -2099,10 +2099,14 @@ end
 
 end Erdos485b
 
-#print axioms Erdos485b.exists_complete_poly_with_sparse_square
+#print axioms Erdos485b.erdos_485
 -- 'Erdos485b.exists_complete_poly_with_sparse_square' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
 
-#print axioms Erdos485b.exists_complete_poly_with_sparse_square_improved
+#print axioms Erdos485b.erdos_485_improved
 -- 'Erdos485b.exists_complete_poly_with_sparse_square_improved' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
+
+alias _root_.Erdos485b.exists_complete_poly_with_sparse_square := _root_.Erdos485b.erdos_485
+
+alias _root_.Erdos485b.exists_complete_poly_with_sparse_square_improved := _root_.Erdos485b.erdos_485_improved

@@ -2330,7 +2330,10 @@ def Erdos1009Statement : Prop :=
 
 /-- Erdős Problem 1009, resolved affirmatively.  The proof above gives the
 explicit (non-optimal) choice `f = 210000 * C²` for any natural `C > c`. -/
-theorem erdos1009 : Erdos1009Statement := by
+theorem erdos_1009 : (∀ c : ℝ, 0 < c → ∃ f : ℕ, ∀ (n k : ℕ) (G : SimpleGraph (Fin n)),
+  G.edgeSet.ncard ≥ n ^ 2 / 4 + k →
+  (k : ℝ) < c * n →
+  ∃ P : Erdos1009.TriangleFamilyOn (Fin n), Erdos1009.IsTrianglePacking G P ∧ k ≤ P.card + f) := by
   classical
   intro c hc
   obtain ⟨C, hC⟩ := exists_nat_gt c
@@ -2347,8 +2350,10 @@ theorem erdos1009 : Erdos1009Statement := by
     exists_packing_exact_nat C n k hCNat hkNat H hHedges
   exact ⟨P, IsTrianglePacking.mono hHG hP, hPcard⟩
 
-#print axioms erdos1009
+#print axioms erdos_1009
 
 end
 
 end Erdos1009
+
+alias _root_.Erdos1009.erdos1009 := _root_.Erdos1009.erdos_1009

@@ -2,10 +2,8 @@
 
 import Mathlib
 
-open Filter Finset Set
-open scoped BigOperators Pointwise Topology
-
-noncomputable section
+open Filter Finset
+open scoped Topology
 
 namespace Erdos179
 
@@ -36,16 +34,6 @@ def HasAP : ℕ → Finset ℕ → Prop
   | 0, _ => True
   | 1, A => A.Nonempty
   | Nat.succ (Nat.succ k), A => (apPairs (k + 2) A).Nonempty
-
-/-- A finite set contains no `k`-term arithmetic progression. -/
-def APFree (k : ℕ) (A : Finset ℕ) : Prop := ¬HasAP k A
-
-@[simp] lemma mem_apPairs {k : ℕ} {A : Finset ℕ} {a b : ℕ} :
-    (a, b) ∈ apPairs k A ↔
-      a ∈ A ∧ b ∈ A ∧ a < b ∧
-        ∀ i < k, a + i * (b - a) ∈ A := by
-  classical
-  simp [apPairs, IsAPPair, and_assoc]
 
 lemma apCount_le_sq (k : ℕ) (A : Finset ℕ) : apCount k A ≤ #A ^ 2 := by
   classical
@@ -92,5 +80,3 @@ theorem erdos_179 :
   sorry
 
 end Erdos179
-
-end

@@ -568,7 +568,13 @@ theorem erdos717_weight_bound
   exact hmain (Fintype.card V) V G rfl
 
 /-- Erdős Problem 717 has an affirmative answer. -/
-theorem erdos_717 : Erdos717Bound := by
+theorem erdos_717 :
+    ∃ C : ℝ, 0 < C ∧
+      ∀ (V : Type) [Fintype V] (G : SimpleGraph V),
+        2 ≤ Fintype.card V →
+        (chiNat G : ℝ) ≤
+          C * (Real.sqrt (Fintype.card V : ℝ) / Real.log (Fintype.card V : ℝ)) *
+            (cliqueSubdivisionNumber G : ℝ) := by
   refine ⟨erdos717Constant, erdos717Constant_pos, ?_⟩
   intro V _ G hn
   have hnPos : 0 < Fintype.card V := by omega

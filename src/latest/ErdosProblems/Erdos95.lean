@@ -999,7 +999,9 @@ theorem statement_of_epsilon_rich_point_bound
 
 /-- Erdős Problem 95, resolved via the Guth--Katz/Elekes--Sharir incidence
 method and Guth's epsilon-loss polynomial-partitioning theorem. -/
-theorem erdos95 : Statement := by
+theorem erdos_95 :
+    ∀ ε : ℝ, 0 < ε → ∃ C : ℝ, 0 < C ∧ ∀ P : Finset Point,
+      (distanceEnergy P : ℝ) ≤ C * (P.card : ℝ) ^ (3 + ε) := by
   apply statement_of_epsilon_rich_point_bound
   intro δ hδ
   obtain ⟨A, hA, hrich⟩ :=
@@ -1010,3 +1012,5 @@ theorem erdos95 : Statement := by
   exact hrich P k hk
 
 end Erdos95
+
+alias _root_.Erdos95.erdos95 := _root_.Erdos95.erdos_95

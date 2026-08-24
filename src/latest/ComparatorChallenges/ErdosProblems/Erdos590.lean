@@ -9,13 +9,13 @@ import Mathlib.Data.Nat.Pairing
 import Mathlib.Order.RelIso.Set
 import Mathlib.SetTheory.Ordinal.Exponential
 
+open Cardinal Ordinal
+
 /-!
 # Erdős Problem 590
 
 Chang's partition relation `ω ^ ω → (ω ^ ω, 3)²`.
 -/
-
-open Cardinal Ordinal
 
 universe u
 

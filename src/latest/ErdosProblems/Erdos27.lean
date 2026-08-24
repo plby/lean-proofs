@@ -2160,7 +2160,13 @@ theorem not_erdos27Question : ¬Erdos27Question := by
 theorem erdos_27 : ¬ Erdos27Question := by
   simpa using not_erdos27Question
 
-#print axioms erdos_27
+theorem not_erdos_27 :
+    ¬ (∃ C : ℝ, 1 < C ∧
+      ∀ ε : ℝ, 0 < ε → ∀ N : ℕ, 1 ≤ N →
+        IsEpsilonAlmostCovering C N ε) := by
+  exact erdos_27
+
+#print axioms not_erdos_27
 
 end
 

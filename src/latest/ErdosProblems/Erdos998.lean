@@ -257,13 +257,18 @@ lemma counterexampleU_not_orbit (k : ℤ) :
     simpa [counterexampleU] using heq
 
 /-- The exact endpoint implication in the supplied Problem 998 statement is false. -/
-theorem erdos_problem_998 : ¬ Erdos998Statement := by
+theorem not_erdos_998 : ¬ (∀ α u v : ℝ, Irrational α → 0 ≤ u → u < v → v ≤ 1 →
+  Erdos998.HasBoundedRemainder α u v →
+    (∃ k : ℤ, u = Int.fract (α * (k : ℝ))) ∧
+    (∃ l : ℤ, v = Int.fract (α * (l : ℝ)))) := by
   intro h
   obtain ⟨⟨k, hk⟩, _⟩ := h counterexampleAlpha counterexampleU counterexampleV
     counterexampleAlpha_irrational counterexample_bounds.1 counterexample_bounds.2.1
     counterexample_bounds.2.2 counterexample_bounded_remainder
   exact counterexampleU_not_orbit k hk
 
-#print axioms erdos_problem_998
+#print axioms not_erdos_998
 
 end Erdos998
+
+alias _root_.Erdos998.erdos_problem_998 := _root_.Erdos998.not_erdos_998

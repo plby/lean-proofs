@@ -178,7 +178,7 @@ private lemma FS_nat_of_pnat_coe {a : Stream' ℕ+} {m : ℕ}
 If the natural numbers are 2-colored, then there is an infinite set `A` of
 natural numbers whose nonempty finite subset sums are all the same color.
 -/
-theorem erdos532 (c : ℕ → Fin 2) :
+theorem erdos_532 (c : ℕ → Fin 2) :
     ∃ A : Set ℕ, A.Infinite ∧
       ∃ color : Fin 2,
         ∀ S : Finset ℕ, S.Nonempty → ↑S ⊆ A →
@@ -222,7 +222,9 @@ theorem erdos532 (c : ℕ → Fin 2) :
   rw [hsum, ← hpval]
   exact hmono hp_a
 
-#print axioms erdos532
+#print axioms erdos_532
 -- 'Erdos532.erdos532' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos532
+
+alias _root_.Erdos532.erdos532 := _root_.Erdos532.erdos_532

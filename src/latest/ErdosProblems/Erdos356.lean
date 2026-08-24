@@ -1129,7 +1129,12 @@ lemma eventually_sqrt_harmonic_conditions :
 
 /-- Erdős Problem 356 has an affirmative answer.  The proof supplies the
 absolute constant `c = 1 / 300000`. -/
-theorem erdos356 : Problem356 := by
+theorem erdos_356 :
+    ∃ c : ℝ, 0 < c ∧ ∀ᶠ n : ℕ in atTop,
+      ∃ k : ℕ, ∃ a : Fin k → ℕ,
+        StrictMono a ∧
+        (∀ i, 1 ≤ a i ∧ a i ≤ n) ∧
+        c * (n : ℝ) ^ 2 ≤ ((consecutiveSums a).card : ℝ) := by
   refine ⟨1 / 300000, by norm_num, ?_⟩
   have hparameters : ∀ᶠ n : ℕ in atTop,
       2 ≤ n / 2 ∧ 0 < Nat.sqrt (n / 2) ∧
@@ -1174,6 +1179,8 @@ theorem erdos356 : Problem356 := by
         norm_num
         nlinarith
 
-#print axioms Erdos356.erdos356
+#print axioms Erdos356.erdos_356
 
 end Erdos356
+
+alias _root_.Erdos356.erdos356 := _root_.Erdos356.erdos_356

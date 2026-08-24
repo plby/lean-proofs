@@ -31,7 +31,7 @@ Informal authors:
 Formal authors:
 - Codex
 
-The main theorem `erdos405_iff` classifies all positive-integer solutions of
+The main theorem `erdos_405` classifies all positive-integer solutions of
 
   (p - 1)! + a^(p - 1) = p^k
 
@@ -4063,7 +4063,7 @@ theorem IsSolution.eq_exceptional {p a k : ℕ} (h : IsSolution p a k) :
     exact ((erdosOblath_eighth_large hX hY hcop hn256) hdiff).elim
 
 /-- Exact resolution of Erdős Problem 405 for odd primes. -/
-theorem erdos405_iff {p a k : ℕ} :
+theorem erdos_405 {p a k : ℕ} :
     IsSolution p a k ↔
       (p = 3 ∧ a = 1 ∧ k = 1) ∨
       (p = 3 ∧ a = 5 ∧ k = 3) ∨
@@ -4076,7 +4076,7 @@ theorem solution_set_eq_exceptional :
       (exceptionalSolutions : Set (ℕ × ℕ × ℕ)) := by
   ext t
   rcases t with ⟨p, a, k⟩
-  simp [erdos405_iff, exceptionalSolutions]
+  simp [erdos_405, exceptionalSolutions]
 
 /-- In particular, Erdős and Graham's finiteness question has an affirmative answer. -/
 theorem erdos405_finite :
@@ -4084,6 +4084,8 @@ theorem erdos405_finite :
   rw [solution_set_eq_exceptional]
   exact exceptionalSolutions.finite_toSet
 
-#print axioms erdos405_iff
+#print axioms erdos_405
 
 end Erdos405
+
+alias _root_.Erdos405.erdos405_iff := _root_.Erdos405.erdos_405

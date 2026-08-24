@@ -2,7 +2,7 @@
   "challenge_module": "Erdos1064",
   "solution_module": "ErdosProblems.Erdos1064",
   "theorem_names": [
-    "Erdos1064.erdos_1064.variants.general_function"
+    "Erdos1064.erdos_1064.variants.erdos_1064"
   ],
   "permitted_axioms": [
     "propext",

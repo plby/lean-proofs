@@ -293,7 +293,7 @@ Pommerenke [Po61] proved that the answer is no.
 97-115.
 -/
 -- The final contradiction proof uses a generated simplification over the negated theorem.
-theorem erdos_1043 :
+theorem not_erdos_1043 :
     ¬ (∀ (f : ℂ[X]), f.Monic → f.degree ≥ 1 →
       ∃ (u : ℂ), ‖u‖ = 1 ∧
       volume ((ℝ ∙ u).orthogonalProjectionOnto '' levelSet f) ≤ 2) := by
@@ -321,7 +321,9 @@ theorem erdos_1043 :
         norm_cast
       simpa [h_norm] using h_abs
 
-#print axioms erdos_1043
+#print axioms not_erdos_1043
 -- 'Erdos1043.erdos_1043' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1043
+
+alias _root_.Erdos1043.erdos_1043 := _root_.Erdos1043.not_erdos_1043

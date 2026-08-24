@@ -2,11 +2,13 @@
 
 import Mathlib
 
+open Finset
+
 namespace Erdos904
 
-open List Finset
-
 namespace SimpleGraph
+
+section
 
 variable {V : Type*} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj] (l : List V)
 
@@ -18,20 +20,15 @@ section TuranNumber
 abbrev turanNumber (n r : ℕ) : ℕ := #(_root_.SimpleGraph.turanGraph n r).edgeFinset
 end TuranNumber
 
-end SimpleGraph
+end
 
-end Erdos904
-
-open List Finset
-
-namespace Erdos904.SimpleGraph
-
-open scoped Classical in
-theorem erdos904 {V : Type*} [Fintype V] {G : SimpleGraph V}
+theorem erdos_904 {V : Type*} [Fintype V] {G : SimpleGraph V}
     [DecidableRel G.Adj] {r : ℕ}
     (hr : r ∈ Set.Icc 1 (n V))
     (hm : turanNumber (n V) r ≤ #G.edgeFinset) :
     ∃ s, G.IsNClique r s ∧ 2 * r * #G.edgeFinset ≤ n V * ∑ v ∈ s, G.degree v := by
   sorry
 
-end Erdos904.SimpleGraph
+end SimpleGraph
+
+end Erdos904

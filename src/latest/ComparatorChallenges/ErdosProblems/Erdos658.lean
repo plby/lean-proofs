@@ -2,22 +2,9 @@
 
 import Mathlib
 
-open Nat Finset Real Filter
-def Theorem_2_2 : Prop :=
-  ∀ ε : ℝ, ε > 0 → ∃ n₀ : ℕ,
-    ∀ (V : Finset ℕ) (E : Finset (Finset ℕ)),
-    V.card ≥ n₀ →
-    (∀ e ∈ E, e.card = 3 ∧ e ⊆ V) →
-    (∀ e ∈ E, ∃! K, K ⊆ V ∧ K.card ≥ 4 ∧
-      (∀ t ⊆ K, t.card = 3 → t ∈ E) ∧ e ⊆ K) →
-    (E.card : ℝ) < ε * (V.card : ℝ) ^ 3
-
-axiom frankl_roedl_theorem : Theorem_2_2
-
 namespace Erdos658
 
 section
-open Finset
 
 def gridRange (N : ℕ) : Finset ℤ :=
   (Finset.range N).image (↑· : ℕ → ℤ)
@@ -39,29 +26,20 @@ def ContainsQuadruple (S : Finset (ℤ × ℤ × ℤ)) : Prop :=
     (a, b + d, c) ∈ S ∧ (a + d, b + d, c + d) ∈ S
 end
 
-end Erdos658
-
-open Finset
-
-namespace Erdos658
-
-open scoped Classical in
-theorem Theorem_1_2 (hFR : Theorem_2_2) :
+theorem Theorem_1_2 (hFR : (∀ ε : ℝ, ε > 0 → ∃ n₀ : ℕ,
+  ∀ (V : Finset ℕ) (E : Finset (Finset ℕ)),
+  V.card ≥ n₀ →
+  (∀ e ∈ E, e.card = 3 ∧ e ⊆ V) →
+  (∀ e ∈ E, ∃! K, K ⊆ V ∧ K.card ≥ 4 ∧
+    (∀ t ⊆ K, t.card = 3 → t ∈ E) ∧ e ⊆ K) →
+  (E.card : ℝ) < ε * (V.card : ℝ) ^ 3)) :
     ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
-      ∀ S : Finset (ℤ × ℤ × ℤ), S ⊆ grid3 N →
-        δ * (↑N) ^ 3 ≤ ↑S.card →
-        ContainsQuadruple S := by
+          ∀ S : Finset (ℤ × ℤ × ℤ), S ⊆ grid3 N →
+            δ * (↑N) ^ 3 ≤ ↑S.card →
+            ContainsQuadruple S := by
   sorry
 
-open scoped Classical in
-theorem Theorem_1_1 (hFR : Theorem_2_2) :
-    ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
-      ∀ S : Finset (ℤ × ℤ), S ⊆ grid2 N →
-        δ * (↑N) ^ 2 ≤ ↑S.card → ContainsSquare S := by
-  sorry
-
-open scoped Classical in
-theorem erdos658 :
+theorem erdos_658 :
     ∀ δ : ℝ, δ > 0 → ∃ N₀ : ℕ, ∀ N : ℕ, N₀ < N →
       ∀ S : Finset (ℤ × ℤ), S ⊆ grid2 N →
         δ * (↑N) ^ 2 ≤ ↑S.card → ContainsSquare S := by

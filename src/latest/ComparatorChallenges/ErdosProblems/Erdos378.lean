@@ -29,7 +29,7 @@ def squarefreeBinomialCount (n : ℕ) : ℕ :=
 def atLeastCountSet (r : ℕ) : Set ℕ :=
   {n | r ≤ squarefreeBinomialCount n}
 
-theorem erdos378 :
+theorem erdos_378 :
     ∀ r : ℕ, ∃ d : ℝ, 0 < d ∧ (atLeastCountSet r).HasDensity d := by
   sorry
 

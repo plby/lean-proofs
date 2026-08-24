@@ -136,11 +136,13 @@ theorem delta1_3_7_lt_3_8 : delta1 3 7 < delta1 3 8 := by
 
 It has a local minimum at `m = 7`: `δ₁(3, 7) = 1/3 < 7/20 = δ₁(3, 6)` and
 `δ₁(3, 7) = 1/3 < 38/105 = δ₁(3, 8)`. -/
-theorem delta1_not_unimodal :
+theorem not_erdos_692 :
     delta1 3 7 < delta1 3 6 ∧ delta1 3 7 < delta1 3 8 :=
   ⟨delta1_3_7_lt_3_6, delta1_3_7_lt_3_8⟩
 
-#print axioms delta1_not_unimodal
+#print axioms not_erdos_692
 -- 'Erdos692.delta1_not_unimodal' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos692
+
+alias _root_.Erdos692.delta1_not_unimodal := _root_.Erdos692.not_erdos_692

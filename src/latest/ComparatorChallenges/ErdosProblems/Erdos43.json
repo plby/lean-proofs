@@ -2,8 +2,8 @@
   "challenge_module": "Erdos43",
   "solution_module": "ErdosProblems.Erdos43",
   "theorem_names": [
-    "Erdos43.erdos_43.parts.i",
-    "Erdos43.erdos_43.parts.ii"
+    "Erdos43.not_erdos_43",
+    "Erdos43.not_erdos_43_part_ii"
   ],
   "permitted_axioms": [
     "propext",

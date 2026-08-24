@@ -34,7 +34,9 @@ namespace Erdos54
 
 /-- The Conlon--Fox--Pham resolution of Erdős Problem 54: a positive Ramsey
 `2`-complete set exists with eventual `O((log N)^2)` counting function. -/
-theorem erdos_54 : ConlonFoxPhamUpperBoundTwo :=
+theorem erdos_54 :
+    ∃ A : Set ℕ,
+      PositiveNatSet A ∧ RamseyTwoComplete A ∧ HasLogSquaredCountingBound A :=
   upperBound_of_robust_block_existence robust_blocks
 
 end Erdos54

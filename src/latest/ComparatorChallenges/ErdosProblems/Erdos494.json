@@ -2,7 +2,7 @@
   "challenge_module": "Erdos494",
   "solution_module": "ErdosProblems.Erdos494",
   "theorem_names": [
-    "Erdos494.erdos_494.variants.card_eq_2k"
+    "Erdos494.erdos_494.variants.erdos_494"
   ],
   "permitted_axioms": [
     "propext",

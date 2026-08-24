@@ -3739,7 +3739,7 @@ equivalence `numC5_eq_numC5Copies_of_triangleFree`.
 /-- A function `f : Fin 5 → V` defines a **labeled 5-cycle** in `G` if it is injective
 and maps consecutive vertices (cyclically) to adjacent vertices. -/
 def _root_.SimpleGraph.IsLabeledC5 {V : Type*} (G : SimpleGraph V) (f : Fin 5 → V) : Prop :=
-  Function.Injective f ∧ ∀ i : Fin 5, G.Adj (f i) (f (i + 1))
+  Function.Injective f ∧ ∀ i : Fin 5, G.Adj (f i) (f (i + ⟨1, Nat.one_lt_succ_succ 3⟩))
 
 /-- The number of 5-cycles in `G`, counting each cycle once.
 
@@ -4470,8 +4470,12 @@ theorem erdos_pentagon_conjecture (n : ℕ) (G : SimpleGraph (Fin (5 * n))) (hG 
   rw [numC5_eq_numC5Copies_of_triangleFree G hG]
   exact erdos_pentagon_conjecture' n G hG
 
-#print axioms erdos_pentagon_conjecture
--- 'Erdos24.erdos_pentagon_conjecture' depends on axioms: [propext, Classical.choice, Quot.sound]
+theorem erdos_24 (n : ℕ) (G : SimpleGraph (Fin (5 * n)))
+    (hG : G.CliqueFree 3) :
+    G.numC5 ≤ n ^ 5 := by
+  exact erdos_pentagon_conjecture n G hG
+
+#print axioms erdos_24
 
 end
 

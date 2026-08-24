@@ -10377,7 +10377,7 @@ theorem IsErdosProgression.kroneckerGraph_fst
 /-- Erdős Problem 656: every set of natural numbers of positive upper
 density contains an infinite set whose restricted pair sums, after one
 integer translate, all return to the original set. -/
-theorem erdos656 {A : Set ℕ} (hA : HasPositiveUpperDensity A) :
+theorem erdos_656 {A : Set ℕ} (hA : HasPositiveUpperDensity A) :
     ∃ B : Set ℕ, B.Infinite ∧ B ⊆ A ∧
       HasTranslatedRestrictedPairSums A B := by
   obtain ⟨mu, baseStart, baseLength, hmuErgodic, hmuOrigin, hbaseGeneric⟩ :=
@@ -10577,3 +10577,5 @@ theorem erdos656 {A : Set ℕ} (hA : HasPositiveUpperDensity A) :
     ⟨t, p.1.1, p.2.1, hpF, hpt, hpProjected⟩
 
 end Erdos656
+
+alias _root_.Erdos656.erdos656 := _root_.Erdos656.erdos_656

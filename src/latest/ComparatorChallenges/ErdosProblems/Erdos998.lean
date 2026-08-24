@@ -17,9 +17,6 @@ the discrepancy is bounded by `1` for every `n`, by a telescoping fractional-par
 `u` is not the fractional part of any integer multiple of `α`.
 -/
 
-open scoped BigOperators
-open Finset Real
-
 namespace Erdos998
 
 /-- The number of integers `m` with `1 ≤ m ≤ n` for which `{mα} ∈ [u,v)`.  The index `j` in
@@ -33,18 +30,15 @@ def HasBoundedRemainder (α u v : ℝ) : Prop :=
   ∃ C : ℝ, 0 ≤ C ∧ ∃ N : ℕ, ∀ n : ℕ, N ≤ n →
     |(countInIco α u v n : ℝ) - (n : ℝ) * (v - u)| ≤ C
 
-/-- The endpoint implication asked for in the copied formulation of Erdős Problem 998. -/
-def Erdos998Statement : Prop :=
-  ∀ α u v : ℝ, Irrational α → 0 ≤ u → u < v → v ≤ 1 →
-    HasBoundedRemainder α u v →
-      (∃ k : ℤ, u = Int.fract (α * (k : ℝ))) ∧
-      (∃ l : ℤ, v = Int.fract (α * (l : ℝ)))
-
 /-! ## The transfer and telescoping identities -/
 
 /-- Subtracting before or after taking a fractional part gives the same fractional part. -/
 
-theorem erdos_problem_998 : ¬ Erdos998Statement := by
+theorem not_erdos_998 :
+    ¬ (∀ α u v : ℝ, Irrational α → 0 ≤ u → u < v → v ≤ 1 →
+      Erdos998.HasBoundedRemainder α u v →
+        (∃ k : ℤ, u = Int.fract (α * (k : ℝ))) ∧
+        (∃ l : ℤ, v = Int.fract (α * (l : ℝ)))) := by
   sorry
 
 end Erdos998

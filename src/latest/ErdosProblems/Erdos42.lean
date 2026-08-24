@@ -14938,6 +14938,12 @@ theorem erdos_42_via_cayley :
   · intro _
     trivial
 
+theorem erdos_42 :
+    ∀ M ≥ 1, ∀ᶠ N in atTop, ∀ (A : Set ℕ) (_ : IsMaximalSidonSetIn A N),
+      ∃ (B : Set ℕ), B ⊆ Set.Icc 1 N ∧ IsSidon B ∧ B.ncard = M ∧
+        ((A - A) ∩ (B - B) : Set ℕ) = {0} := by
+  exact erdos_42_via_cayley
+
 /-! ## §5 FC-shape variant (matches FC's `∃ᵉ` and FC's local Sidon predicates) -/
 
 namespace FormalConjecturesShape

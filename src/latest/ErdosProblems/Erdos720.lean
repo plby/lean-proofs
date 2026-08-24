@@ -36,7 +36,7 @@ to zero.
 
 /-- Formal resolution of Erdős Problem 720, together with the stronger
 eventual linear bounds supplied by the sparse no-hole constructions. -/
-theorem erdos_problem_720 :
+theorem erdos_720 :
     (¬ Tendsto (fun n : ℕ ↦
       (sizeRamsey (pathGraph (n + 1)) : ℝ) / n) atTop atTop) ∧
     Tendsto (fun n : ℕ ↦
@@ -55,4 +55,6 @@ theorem erdos_problem_720 :
 
 end Erdos720
 
-#print axioms Erdos720.erdos_problem_720
+#print axioms Erdos720.erdos_720
+
+alias _root_.Erdos720.erdos_problem_720 := _root_.Erdos720.erdos_720

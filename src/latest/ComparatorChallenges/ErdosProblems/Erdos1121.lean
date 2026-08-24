@@ -2,13 +2,7 @@
 
 import Mathlib
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-
 namespace Erdos1121
-
-open scoped BigOperators
-open Finset
 
 structure Circle2D where
   center : EuclideanSpace ℝ (Fin 2)
@@ -39,11 +33,6 @@ def Circle2D.onDifferentSidesOfLine (C₁ C₂ : Circle2D) (L : Line2D) : Prop :
 def CirclesNonseparable {n : ℕ} (circles : Fin n → Circle2D) : Prop :=
   ∀ L : Line2D, (∀ i, (circles i).disjointFromLine L) →
     ¬∃ i j, (circles i).onDifferentSidesOfLine (circles j) L
-end Erdos1121
-
-open scoped BigOperators
-
-namespace Erdos1121
 
 theorem erdos_1121 {n : ℕ} (circles : Fin n → Circle2D)
     (hns : CirclesNonseparable circles) :

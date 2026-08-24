@@ -17420,13 +17420,15 @@ theorem eventually_denseCounterexampleExcludedAt_551 :
 /-- Erdős Problem 551, in the unconditional form established by
 Keevash--Long--Skokan: for every sufficiently large clique parameter `n`,
 the exact formula holds simultaneously for all cycle lengths `k ≥ n`. -/
-theorem erdos_551_eventually :
+theorem erdos_551 :
     ∃ N₀ : ℕ, ∀ n : ℕ, N₀ ≤ n → ∀ k : ℕ, n ≤ k →
       cycleCliqueRamseyNumber k n = (k - 1) * (n - 1) + 1 :=
   erdos551_eventually_of_eventually_denseCounterexampleExcluded
     eventually_denseCounterexampleExcludedAt_551
 
-#print axioms erdos_551_eventually
+#print axioms erdos_551
 
 
 end Erdos551
+
+alias _root_.Erdos551.erdos_551_eventually := _root_.Erdos551.erdos_551

@@ -730,7 +730,7 @@ for every `x ∈ [16/25, 2/3]`, there are infinitely many positive integers `n` 
 In particular, it is _not_ true that for every positive-measure `E ⊂ (0,∞)`,
 for a.e. `x > 0`, for all sufficiently large `n`, there exists `r ≥ 1` with `x ∈ (r/n)·E`.
 -/
-theorem negative_answer :
+theorem not_erdos_1197 :
     ∃ E : Set ℝ, MeasurableSet E ∧ E ⊆ Ioi 0 ∧ 0 < volume E ∧
       ∀ x ∈ I_inf,
         {n : ℕ | 0 < n ∧ ∀ r : ℕ, 0 < r →
@@ -767,6 +767,8 @@ end Erdos1197
 
 open Erdos1197
 
-#print axioms negative_answer
+#print axioms not_erdos_1197
 -- 'Erdos1197.negative_answer' depends on axioms: [propext, Classical.choice, bm_approx_data,
 -- Quot.sound]
+
+alias _root_.Erdos1197.negative_answer := _root_.Erdos1197.not_erdos_1197

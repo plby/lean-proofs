@@ -2355,13 +2355,15 @@ theorem main_theorem (S : Set ℕ) (h : is_cofinite_subsequence S) :
 /-
 There exists a sequence A satisfying the required properties.
 -/
-theorem answer_is_yes : ∃ A : ℕ → ℕ, Monotone A ∧ (Filter.Tendsto (fun n => (A (n + 1) : ℝ) / A n) Filter.atTop (nhds 2)) ∧ (∀ S, S ⊆ Set.range A ∧ (Set.range A \ S).Finite → has_asymptotic_density_one (subset_sums_of_set S)) := by
+theorem erdos_347 : ∃ A : ℕ → ℕ, Monotone A ∧ (Filter.Tendsto (fun n => (A (n + 1) : ℝ) / A n) Filter.atTop (nhds 2)) ∧ (∀ S, S ⊆ Set.range A ∧ (Set.range A \ S).Finite → has_asymptotic_density_one (subset_sums_of_set S)) := by
   use A_val
   refine ⟨A_is_nondecreasing, A_ratio_limit, ?_⟩
   intro S hS
   exact main_theorem S hS
 
-#print axioms answer_is_yes
+#print axioms erdos_347
 -- 'Erdos347.answer_is_yes' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos347
+
+alias _root_.Erdos347.answer_is_yes := _root_.Erdos347.erdos_347

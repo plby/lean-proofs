@@ -3199,7 +3199,7 @@ theorem Corollary_2 : ∃ S, IsMaximalDisjointCollection S Region_Square ∧ Set
 /-
 There exists a countably infinite maximal disjoint collection in the closed unit square.
 -/
-theorem Corollary_3 : ∃ S, IsMaximalDisjointCollection S UnitSquare ∧ Set.Countable S ∧ Set.Infinite S := by
+theorem erdos_1071 : ∃ S, IsMaximalDisjointCollection S UnitSquare ∧ Set.Countable S ∧ Set.Infinite S := by
   use S_cor3;
   apply And.intro;
   · apply (maximal_iff_blocking S_cor3 UnitSquare _ _).mpr;
@@ -8841,7 +8841,7 @@ theorem S_total_maximal : IsMaximalDisjointCollection S_total UnitSquare := by
 /-
 There exists a finite maximal disjoint collection in the closed unit square.
 -/
-theorem erdos_1071b : ∃ S, IsMaximalDisjointCollection S UnitSquare ∧ Set.Finite S := by
+theorem erdos_1071_finite : ∃ S, IsMaximalDisjointCollection S UnitSquare ∧ Set.Finite S := by
   -- Let's choose the set S to be the union of S_finite and S_sides.
   use S_total;
   -- By definition of $S_total$, we know that it is finite and maximal in the closed unit square.
@@ -8849,8 +8849,12 @@ theorem erdos_1071b : ∃ S, IsMaximalDisjointCollection S UnitSquare ∧ Set.Fi
 
 end Erdos1071b
 
-#print axioms Erdos1071.Corollary_3
+#print axioms Erdos1071.erdos_1071
 -- 'Erdos1071.Corollary_3' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-#print axioms Erdos1071b.erdos_1071b
+#print axioms Erdos1071b.erdos_1071_finite
 -- 'Erdos1071b.erdos_1071b' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos1071.Corollary_3 := _root_.Erdos1071.erdos_1071
+
+alias _root_.Erdos1071b.erdos_1071b := _root_.Erdos1071b.erdos_1071_finite

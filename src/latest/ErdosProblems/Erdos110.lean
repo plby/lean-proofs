@@ -158,10 +158,12 @@ theorem lambieHansonConclusion : LambieHansonConclusion := by
 
 /-- Resolution of Erdős Problem 110: the proposed eventual uniform bound
 does not exist. -/
-theorem erdos_110 :
+theorem not_erdos_110 :
     ¬ ∃ F : ℕ → ℕ, HasUniformBound F := by
   exact not_exists_uniformBound_of_lambieHanson lambieHansonConclusion
 
 end
 
 end Erdos110
+
+alias _root_.Erdos110.erdos_110 := _root_.Erdos110.not_erdos_110

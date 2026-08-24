@@ -11,14 +11,14 @@ Formal authors:
 
 URLs:
 - https://www.erdosproblems.com/forum/thread/613#post-1678
-- https://github.com/teorth/analysis/blob/main/Analysis/Misc/erdos_613.lean
+- https://github.com/teorth/analysis/blob/not_erdos_613/Analysis/Misc/erdos_613.lean
 -/
 import Mathlib
 
 open scoped BigOperators
 
 namespace Erdos613
--- 1. Define the main claim
+-- 1. Define the not_erdos_613 claim
 
 /-- “Color-{name}`col` monochromatic star of size {name}`k`”: there is a center {given}`x` and a set
     {given (type := "Finset V")}`S` of {name}`k` distinct neighbors of {name}`x` such that every
@@ -1167,7 +1167,10 @@ end PikhurkoN5
 
 namespace PikhurkoN5
 
-theorem main : Pikhurko_n5_statement := by
+theorem not_erdos_613 : (∃ (V:Type) (G : SimpleGraph V),
+  G.edgeSet.ncard = 44 ∧
+  ∀ (color : Sym2 V → Fin 2),
+    Erdos613.hasMonoStar G color 0 5 ∨ Erdos613.hasMonoTriangle G color 1) := by
   use V, G
   split_ands
   · exact edge_count_44
@@ -1181,5 +1184,7 @@ end Erdos613
 
 open Erdos613.PikhurkoN5
 
-#print axioms main
+#print axioms not_erdos_613
 -- 'Erdos613.PikhurkoN5.main' depends on axioms: [propext, choice, Quot.sound]
+
+alias _root_.Erdos613.PikhurkoN5.main := _root_.Erdos613.PikhurkoN5.not_erdos_613

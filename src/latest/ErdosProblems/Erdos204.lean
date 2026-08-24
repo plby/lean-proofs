@@ -1031,7 +1031,7 @@ theorem T1 : ¬ ∃ n, IsCDCovering n := by
 /-
 Statement taken from the Formal Conjectures project.
 -/
-theorem erdos_204 : ¬ ∃ (n : ℕ) (a : ℕ → ℤ),
+theorem not_erdos_204 : ¬ ∃ (n : ℕ) (a : ℕ → ℤ),
     let D := {d : ℕ | d ∣ n ∧ d > 1}
     (∀ x : ℤ, ∃ d ∈ D, x ≡ a d [ZMOD d]) ∧
     (∀ d ∈ D, ∀ d' ∈ D, d ≠ d' → (∃ x : ℤ, x ≡ a d [ZMOD d] → x ≡ a d' [ZMOD d']) →
@@ -1054,5 +1054,7 @@ end Erdos204
 #print axioms Erdos204.T1
 -- 'Erdos204.T1' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-#print axioms Erdos204.erdos_204
+#print axioms Erdos204.not_erdos_204
 -- 'Erdos204.erdos_204' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos204.erdos_204 := _root_.Erdos204.not_erdos_204

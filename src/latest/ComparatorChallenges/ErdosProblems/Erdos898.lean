@@ -2,9 +2,11 @@
 
 import Mathlib
 
+open EuclideanGeometry
+
 namespace Erdos898
 
-open EuclideanGeometry Metric RealInnerProductSpace
+section
 
 variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V] [FiniteDimensional ℝ V]
 
@@ -12,22 +14,10 @@ variable [hV : Fact (Module.finrank ℝ V = 2)]
 
 noncomputable def dist_to_line (P A B : V) : ℝ :=
   dist P (orthogonalProjection (affineSpan ℝ ({A, B} : Set V)) P)
-section AristotleLemmas
 
-end AristotleLemmas
+end
 
-section AristotleLemmas
-
-end AristotleLemmas
-
-end Erdos898
-
-open EuclideanGeometry Metric RealInnerProductSpace
-
-namespace Erdos898
-
-open scoped Classical in
-theorem erdos_mordell {V : Type*} [NormedAddCommGroup V]
+theorem erdos_898 {V : Type*} [NormedAddCommGroup V]
     [InnerProductSpace ℝ V] [FiniteDimensional ℝ V]
     [Fact (Module.finrank ℝ V = 2)] {A B C P : V}
     (h_triangle : ¬ Collinear ℝ ({A, B, C} : Set V))

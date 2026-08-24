@@ -358,7 +358,7 @@ private theorem hasDensity_union_of_disjoint
   ring
 
 /-- Erdős Problem 449 has a negative answer. -/
-theorem erdos_449 : ¬
+theorem not_erdos_449 : ¬
     ∀ ε : ℝ, 0 < ε →
       {n : ℕ | (r n : ℝ) < ε * (tau n : ℝ)}.HasDensity 1 := by
   intro hall
@@ -384,4 +384,6 @@ theorem erdos_449 : ¬
 
 end Erdos449
 
-#print axioms Erdos449.erdos_449
+#print axioms Erdos449.not_erdos_449
+
+alias _root_.Erdos449.erdos_449 := _root_.Erdos449.not_erdos_449

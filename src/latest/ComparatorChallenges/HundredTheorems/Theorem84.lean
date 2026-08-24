@@ -1,8 +1,8 @@
 import Mathlib
 
-namespace Theorem84
+open EuclideanGeometry
 
-open EuclideanGeometry Real InnerProductSpace
+namespace Theorem84
 
 variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V]
   [Fact (Module.finrank ℝ V = 2)] [Module.Oriented ℝ V (Fin 2)]

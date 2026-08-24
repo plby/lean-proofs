@@ -49,10 +49,15 @@ almost-bipartite branches.
 
 namespace Erdos622
 
+open scoped Classical in
 /-- Resolution of Erdős Problem 622: uniformly over `(n + 1)`-regular graphs
 on `2 * n` vertices, the density of vertex subsets spanned by a cycle has
 limit inferior at least `1 / 2`. -/
-theorem erdos_622 : Resolution :=
+theorem erdos_622 : (∀ ε : ℝ, 0 < ε → ∀ᶠ n : ℕ in Filter.atTop,
+  ∀ G : SimpleGraph (Fin (2 * n)),
+    G.IsRegularOfDegree (n + 1) →
+      ((1 / 2 : ℝ) - ε) * (2 : ℝ) ^ (2 * n) ≤
+        ((Erdos622.cycleSpannedSubsets G).card : ℝ)) :=
   resolution_of_trichotomy_and_case_density
     uniform_regime_trichotomy
     BiDenseCase.uniformCaseDensityBound_biDense

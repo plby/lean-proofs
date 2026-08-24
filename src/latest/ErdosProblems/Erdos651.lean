@@ -52,8 +52,8 @@ theorem erdos_651_of_pohoata_zakharov
 /-- Unconditional incompatibility formulation of the established resolution:
 the published subexponential conclusion and Erdős's proposed exponential
 lower bound cannot both hold for `f₃`. -/
-theorem erdos_651 :
-    ¬ (PohoataZakharovConclusion ∧ Erdos651Claim) := by
+theorem not_erdos_651 :
+    ¬ ((Erdos651.HasSubexponentialUpperBound (Erdos651.erdosSzekeresNumber 3)) ∧ (Erdos651.HasExponentialLowerBound (Erdos651.erdosSzekeresNumber 3))) := by
   rintro ⟨hPZ, hErdos⟩
   exact erdos_651_of_pohoata_zakharov hPZ hErdos
 
@@ -61,4 +61,6 @@ end
 
 end Erdos651
 
-#print axioms Erdos651.erdos_651
+#print axioms Erdos651.not_erdos_651
+
+alias _root_.Erdos651.erdos_651 := _root_.Erdos651.not_erdos_651

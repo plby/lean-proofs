@@ -2,7 +2,7 @@
   "challenge_module": "Erdos443",
   "solution_module": "ErdosProblems.Erdos443",
   "theorem_names": [
-    "Erdos443.erdos_443_part_one",
+    "Erdos443.erdos_443",
     "Erdos443.erdos_443_part_two"
   ],
   "permitted_axioms": [

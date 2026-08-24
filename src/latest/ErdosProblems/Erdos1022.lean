@@ -805,7 +805,12 @@ def erdos_1022 : Prop :=
 /-
 The negation of erdos_1022.
 -/
-theorem not_erdos_1022 : ¬ erdos_1022 := by
+theorem not_erdos_1022 : ¬ (∃ c : ℕ → ℝ, Filter.Tendsto c Filter.atTop Filter.atTop ∧
+∀ t, ∀ {α : Type*} [DecidableEq α] (F : Erdos1022.Hypergraph α),
+  (∀ A ∈ F, A.card ≥ t) →
+  (∀ X : Finset α, X.Nonempty →
+    (F.filter (fun A => A ⊆ X)).card < c t * (X.card : ℝ)) →
+  Erdos1022.TwoColorable F) := by
   -- Assume erdos_1022 is true.
   by_contra h_contra
   obtain ⟨c, hc_tendsto, hc_property⟩ := h_contra

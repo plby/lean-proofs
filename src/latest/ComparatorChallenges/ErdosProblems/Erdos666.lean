@@ -4,8 +4,6 @@ import Mathlib
 
 namespace Erdos666
 
-open SimpleGraph
-
 abbrev hypercubeGraph (n : ℕ) : SimpleGraph (Fin n → ZMod 2) where
   Adj x y := hammingDist x y = 1
   symm := ⟨fun x y h => by
@@ -16,11 +14,6 @@ abbrev hypercubeGraph (n : ℕ) : SimpleGraph (Fin n → ZMod 2) where
     simp [hammingDist] at h⟩
 def HasCycleOfLength {V : Type*} (G : SimpleGraph V) (k : ℕ) : Prop :=
   ∃ (u : V) (p : G.Walk u u), p.IsCycle ∧ p.length = k
-end Erdos666
-
-open SimpleGraph
-
-namespace Erdos666
 
 open scoped Classical in
 theorem not_erdos_666 :

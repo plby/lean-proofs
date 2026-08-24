@@ -113,7 +113,7 @@ lemma tendsto_partial_density_largestDenominators :
   simpa [exceptional] using (partial_density_compl largestDenominators hN).symm
 
 /-- Erdős Problem 292: the set of possible largest denominators has natural density `1`. -/
-theorem erdos292 : has_density largestDenominators 1 := by
+theorem erdos_292 : has_density largestDenominators 1 := by
   exact ⟨tendsto_partial_density_largestDenominators.limsup_eq,
     tendsto_partial_density_largestDenominators.liminf_eq⟩
 
@@ -121,4 +121,6 @@ end
 
 end Erdos292
 
-#print axioms Erdos292.erdos292
+#print axioms Erdos292.erdos_292
+
+alias _root_.Erdos292.erdos292 := _root_.Erdos292.erdos_292

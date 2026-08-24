@@ -4,11 +4,6 @@ import Mathlib
 
 namespace Erdos1081
 
-noncomputable section
-
-open Filter Finset Set
-open scoped nonZeroDivisors
-
 def IsSquarefull (n : ℕ) : Prop :=
   ∀ p : ℕ, p.Prime → p ∣ n → p ^ 2 ∣ n
 
@@ -19,21 +14,14 @@ noncomputable def A (N : ℕ) : ℕ := by
   classical
   exact ((Finset.Icc 1 N).filter IsSumOfTwoSquarefull).card
 
-local instance isSumOfTwoSquarefullDecidable :
-    DecidablePred IsSumOfTwoSquarefull := Classical.decPred _
-
 noncomputable def landauScale (N : ℕ) : ℝ :=
   (N : ℝ) / Real.sqrt (Real.log (N : ℝ))
 
 noncomputable def normalizedCount (N : ℕ) : ℝ :=
   (A N : ℝ) / landauScale N
 
-def ErdosConjecture : Prop :=
-  ∃ c : ℝ, 0 < c ∧ Tendsto normalizedCount atTop (nhds c)
-
-theorem not_erdosConjecture : ¬ ErdosConjecture := by
+theorem not_erdos_1081 :
+    ¬ (∃ c : ℝ, 0 < c ∧ Filter.Tendsto Erdos1081.normalizedCount Filter.atTop (nhds c)) := by
   sorry
-
-end
 
 end Erdos1081

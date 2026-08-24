@@ -58,7 +58,7 @@ In particular:
 
 ## Main results
 
-* `erdos_194`: There exists a linear ordering of `ℝ` with no `StrictMono`
+* `not_erdos_194`: There exists a linear ordering of `ℝ` with no `StrictMono`
   or `StrictAnti` `k`-arithmetic progression for `k ≥ 3`.
 
 ## Key definitions
@@ -840,7 +840,7 @@ linear ordering of `ℝ` (namely `orderR`) with no `StrictMono` or
 A strictly monotone AP is one where `ArithProgression a d k : Fin k → ℝ` is
 `StrictMono` or `StrictAnti` with respect to the preorder induced
 by the ordering. -/
-theorem erdos_194 : ∃ (r : ℝ → ℝ → Prop) (hlin : LinearOrdering r),
+theorem not_erdos_194 : ∃ (r : ℝ → ℝ → Prop) (hlin : LinearOrdering r),
     ∀ k : ℕ, k ≥ 3 → ∀ a d : ℝ,
       ¬@StrictMono _ _ _ hlin.toPreorder (ArithProgression a d k) ∧
         ¬@StrictAnti _ _ _ hlin.toPreorder (ArithProgression a d k) := by
@@ -848,7 +848,9 @@ theorem erdos_194 : ∃ (r : ℝ → ℝ → Prop) (hlin : LinearOrdering r),
   intro k hk a d
   exact no_strictMono_arithProgression _ orderR_chaotic orderR_linear k hk a d
 
-#print axioms erdos_194
+#print axioms not_erdos_194
 -- 'Erdos194.erdos_194' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos194
+
+alias _root_.Erdos194.erdos_194 := _root_.Erdos194.not_erdos_194

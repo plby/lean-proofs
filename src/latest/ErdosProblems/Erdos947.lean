@@ -274,7 +274,7 @@ set_option maxHeartbeats 1000000 in
 -- The root-of-unity contradiction proof needs extra heartbeats for polynomial simplification.
 set_option linter.flexible false in
 -- The generated contradiction proof uses broad `simp_all` case cleanup in several branches.
-theorem exact_covering_system_distinct_moduli_impossible
+theorem erdos_947
     (l : List (ℤ × ℕ)) (h_exact : IsExactCoveringSystem l)
     (h_distinct : l.Pairwise (fun p q => p.2 ≠ q.2)) (h_len : l.length ≥ 2) : False := by
   -- Let $N = \max_i n_i$. Since $l$ has length >= 2 and moduli are distinct, $N > 1$.
@@ -375,8 +375,10 @@ theorem exact_covering_system_distinct_moduli_impossible
       (Finset.mem_erase_of_ne_of_mem (Ne.symm hj) <| Finset.mem_univ _) <|
       sub_eq_zero.mpr <| by simp +decide [hk.1, hζ.pow_eq_one]
 
-#print axioms exact_covering_system_distinct_moduli_impossible
+#print axioms erdos_947
 -- 'Erdos947.exact_covering_system_distinct_moduli_impossible' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
 
 end Erdos947
+
+alias _root_.Erdos947.exact_covering_system_distinct_moduli_impossible := _root_.Erdos947.erdos_947

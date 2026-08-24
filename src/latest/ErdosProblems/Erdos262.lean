@@ -404,7 +404,7 @@ private lemma index_succ_le_of_strictMono
 
 /-- The double-logarithmic quotient, with the one-based index represented by `n + 1`. -/
 def doubleLogRatio (a : ℕ → ℕ) (n : ℕ) : ℝ :=
-  Real.logb 2 (Real.logb 2 (a n : ℝ)) / ((n + 1 : ℕ) : ℝ)
+  Real.logb ((2 : ℕ) : ℝ) (Real.logb ((2 : ℕ) : ℝ) (a n : ℝ)) / ((n + 1 : ℕ) : ℝ)
 
 private theorem summable_logBudget_of_eventually_doubleLogRatio_lt
     (a : ℕ → ℕ) (ha : ∀ n, 0 < a n) (hmono : StrictMono a)

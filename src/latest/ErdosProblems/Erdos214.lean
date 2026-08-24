@@ -5316,7 +5316,7 @@ lemma lemma_config_extension (cfg : Fin 4 → Point) :
 /-
 Theorem 1: Any configuration of 4 points has a red copy.
 -/
-theorem theorem_1 (c : Point → Color) (cfg : Fin 4 → Point)
+theorem erdos_214 (c : Point → Color) (cfg : Fin 4 → Point)
   (h_blue : ∀ P Q, dist P Q = 1 → ¬ (c P = Color.Blue ∧ c Q = Color.Blue)) :
   ∃ cfg' : Fin 4 → Point, Congruent cfg cfg' ∧ ∀ i, c (cfg' i) = Color.Red := by
   obtain ⟨cfg_ext, hcfg_ext_inj, hcfg_ext_range⟩ := lemma_config_extension cfg
@@ -6006,7 +6006,7 @@ lemma lemma_config_intersects_blue (f : Point ≃ᵃⁱ[ℝ] Point) :
 /-
 There exists a coloring of the plane without blue points at distance 1 and a configuration X consisting of 12 points such that any configuration which is congruent to X contains necessarily a blue point.
 -/
-theorem theorem_2 :
+theorem not_erdos_214_twelve_points :
   ∃ (c : Point → Color) (X : Set Point),
     (∀ P Q, dist P Q = 1 → ¬ (c P = Color.Blue ∧ c Q = Color.Blue)) ∧
     X.Finite ∧ X.ncard = 12 ∧
@@ -6021,8 +6021,12 @@ theorem theorem_2 :
 end
 end Erdos214
 
-#print axioms Erdos214.theorem_1
+#print axioms Erdos214.erdos_214
 -- 'Erdos214.theorem_1' depends on axioms: [propext, Classical.choice, Quot.sound]
 
-#print axioms Erdos214.theorem_2
+#print axioms Erdos214.not_erdos_214_twelve_points
 -- 'Erdos214.theorem_2' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos214.theorem_1 := _root_.Erdos214.erdos_214
+
+alias _root_.Erdos214.theorem_2 := _root_.Erdos214.not_erdos_214_twelve_points

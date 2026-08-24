@@ -3010,7 +3010,7 @@ Let $C > 0$. Is it true that the set of integers of the form $n = b_1 + \cdots +
 with $b_1 < \cdots < b_t$, where $b_i = 2^{k_i}3^{l_i}$ for $1 \leq i\leq t$ and
 $b_t \leq Cb_1$ has density $0$?
 -/
-theorem erdos_845 : (false) ↔ ∀ᵉ (C : ℝ) (hC : 0 < C),
+theorem not_erdos_845_iff : (false) ↔ ∀ᵉ (C : ℝ) (hC : 0 < C),
     let f : ℕ × ℕ → ℕ := fun x ↦ 2 ^ x.1 * 3 ^ x.2
     HasDensity { ∑ x ∈ B, f x | (B : Finset (ℕ × ℕ)) (h : B.Nonempty)
       (hB : B.sup f ≤ C * B.inf' h f) } 0 := by
@@ -3071,11 +3071,20 @@ theorem van_doorn_everts_asymptotic_inexact :
           _ = y := (hf y (List.mem_toFinset.mp hy)).symm
   · exact ⟨ ∅, by aesop ⟩
 
-#print axioms erdos_845
+#print axioms not_erdos_845_iff
 -- 'Erdos845.erdos_845' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 #print axioms van_doorn_everts_asymptotic_inexact
 -- 'Erdos845.van_doorn_everts_asymptotic_inexact' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
+theorem not_erdos_845 :
+    ¬ (∀ᵉ (C : ℝ) (hC : 0 < C),
+        let f : ℕ × ℕ → ℕ := fun x ↦ 2 ^ x.1 * 3 ^ x.2
+        HasDensity {∑ x ∈ B, f x | (B : Finset (ℕ × ℕ)) (h : B.Nonempty)
+          (hB : B.sup f ≤ C * B.inf' h f)} 0) := by
+  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using Erdos845.not_erdos_845_iff
+
 end Erdos845
+
+alias _root_.Erdos845.erdos_845 := _root_.Erdos845.not_erdos_845

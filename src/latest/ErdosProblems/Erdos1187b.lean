@@ -151,3 +151,8 @@ theorem second_question_general_statement_is_false :
 -- 'Erdos1187b.second_question_general_statement_is_false' depends on axioms: [propext]
 
 end Erdos1187b
+
+theorem Erdos1187b.not_erdos_1187 :
+    Not (∀ (c k : Nat), 0 < c → 3 ≤ k → ∀ color : Nat → Fin c,
+      ∃ a p : Nat, Erdos1187b.Prime p ∧ Erdos1187b.MonochromaticAP color a p k) := by
+  exact Erdos1187b.second_question_general_statement_is_false

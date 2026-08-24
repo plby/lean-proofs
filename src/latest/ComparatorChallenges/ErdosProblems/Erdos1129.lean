@@ -2,10 +2,9 @@
 
 import Mathlib
 
-namespace Erdos1129
+open scoped ENNReal
 
-open scoped BigOperators ENNReal
-open Finset Set
+namespace Erdos1129
 
 /-- An ordered choice of `n` distinct interpolation nodes in `[-1, 1]`.
 

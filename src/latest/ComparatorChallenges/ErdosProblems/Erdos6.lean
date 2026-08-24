@@ -18,8 +18,6 @@ increasing runs of length three.
 
 namespace Erdos6
 
-open Set
-
 /-- The gap after the zero-based `n`th prime. -/
 noncomputable abbrev primeGap (n : ℕ) : ℕ := BoundedGaps.primeGap n
 

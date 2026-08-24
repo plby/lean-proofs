@@ -1494,7 +1494,9 @@ theorem eps1190_lower (ε : ℝ) (hε : 0 < ε) :
   exact htarget_eps.trans (htarget_eta.trans heps_base)
 
 /-- **Erdős Problem 1190 — main theorem.** -/
-theorem erdos1190_main : HasErdos1190Asymptotic := by
+theorem erdos_1190 : (∀ ε : ℝ, 0 < ε → ∀ᶠ m : ℕ in Filter.atTop,
+  Erdos202.Lscale (-(1 + ε)) m ≤ Erdos1190.epsilon1190 m ∧
+  Erdos1190.epsilon1190 m ≤ Erdos202.Lscale (-(1 - ε)) m) := by
   intro ε hε
   filter_upwards [eps1190_lower ε hε, eps1190_upper ε hε] with m hlow hup
   exact ⟨hlow, hup⟩
@@ -1512,5 +1514,7 @@ end Erdos1190
 #print axioms Erdos1190.erdos1190_bridge_ready
 -- 'Erdos1190.erdos1190_bridge_ready' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
-#print axioms Erdos1190.erdos1190_main
+#print axioms Erdos1190.erdos_1190
 -- 'Erdos1190.erdos1190_main' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos1190.erdos1190_main := _root_.Erdos1190.erdos_1190

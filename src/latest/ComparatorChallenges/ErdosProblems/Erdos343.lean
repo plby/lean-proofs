@@ -4,8 +4,6 @@ import Mathlib
 
 namespace Erdos343
 
-open scoped BigOperators
-
 /-- Finite subset sums of an infinite multiset represented by indexed occurrences. -/
 def SubsetSums (A : ℕ → ℕ) : Set ℕ :=
   {n | ∃ s : Finset ℕ, n = ∑ i ∈ s, A i}

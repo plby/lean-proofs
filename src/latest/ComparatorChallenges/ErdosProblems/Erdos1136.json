@@ -4,7 +4,7 @@
   "theorem_names": [
     "Erdos1136.general_upper_bound",
     "Erdos1136.general_upper_bound_infinite",
-    "Erdos1136.main_result"
+    "Erdos1136.erdos_1136"
   ],
   "permitted_axioms": [
     "propext",

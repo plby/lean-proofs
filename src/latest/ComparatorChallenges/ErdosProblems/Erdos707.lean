@@ -13,47 +13,26 @@ def IsSidon {α : Type*} [AddCommMonoid α] (A : Set α) : Prop :=
 def IsPerfectDifferenceSetModulo (B : Set ℤ) (v : ℕ) : Prop :=
   B.offDiag.BijOn (fun (a, b) => (a - b : ZMod v)) {x : ZMod v | x ≠ 0}
 
-def erdos_707 : Prop :=
-  ∀ A : Set ℕ, A.Finite → IsSidon A →
-    ∃ (B : Set ℤ) (v : ℕ),
-      v ≠ 0 ∧
-      (↑) '' A ⊆ B ∧
-      IsPerfectDifferenceSetModulo B v
-
-def erdos_707_prime : Prop :=
-  ∀ (A : Set ℕ), A.Finite → IsSidon A →
-    ∃ (B : Set ℤ) (p : ℕ),
-      Nat.Prime p ∧
-      (↑) '' A ⊆ B ∧
-      IsPerfectDifferenceSetModulo B (p * p + p + 1)
-
-def erdos_707_integer : Prop :=
-  ∀ A : Set ℤ, A.Finite → IsSidon A →
-    ∃ (B : Set ℤ) (v : ℕ),
-      v ≠ 0 ∧
-      A ⊆ B ∧
-      IsPerfectDifferenceSetModulo B v
 end Erdos707
 
-open Erdos707
-
-open scoped Classical in
 theorem Erdos707.not_erdos_707P :
-    Not Erdos707.erdos_707_prime
-  := by
+    Not (∀ (A : Set ℕ), A.Finite → Erdos707.IsSidon A →
+      ∃ (B : Set ℤ) (p : ℕ),
+        Nat.Prime p ∧
+        (↑) '' A ⊆ B ∧
+        Erdos707.IsPerfectDifferenceSetModulo B (p * p + p + 1)) := by
   sorry
-open scoped Classical in
 theorem Erdos707.not_erdos_707H :
-    Not Erdos707.erdos_707_integer
-  := by
+    Not (∀ A : Set ℤ, A.Finite → Erdos707.IsSidon A →
+      ∃ (B : Set ℤ) (v : ℕ),
+        v ≠ 0 ∧
+        A ⊆ B ∧
+        Erdos707.IsPerfectDifferenceSetModulo B v) := by
   sorry
-open scoped Classical in
-theorem Erdos707.not_erdos_707H2 :
-    Not Erdos707.erdos_707
-  := by
-  sorry
-open scoped Classical in
-theorem Erdos707.not_erdos_707AM :
-    Not Erdos707.erdos_707
-  := by
+theorem Erdos707.not_erdos_707 :
+    Not (∀ A : Set ℕ, A.Finite → Erdos707.IsSidon A →
+      ∃ (B : Set ℤ) (v : ℕ),
+        v ≠ 0 ∧
+        (↑) '' A ⊆ B ∧
+        Erdos707.IsPerfectDifferenceSetModulo B v) := by
   sorry

@@ -2,11 +2,11 @@
 
 import Mathlib
 
+open Real
+
 /-!
 # Erdős Problem 920
 -/
-
-open Real Filter
 
 /-- `g ≫ h` means that `h` is big-O of `g` at infinity. -/
 notation:50 g " ≫ " h => Asymptotics.IsBigO Filter.atTop h g

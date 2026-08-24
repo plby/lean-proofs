@@ -2,7 +2,7 @@
   "challenge_module": "Erdos268",
   "solution_module": "ErdosProblems.Erdos268",
   "theorem_names": [
-    "Erdos268.harmonicSubseriesSet_interior_nonempty"
+    "Erdos268.erdos_268"
   ],
   "permitted_axioms": [
     "propext",

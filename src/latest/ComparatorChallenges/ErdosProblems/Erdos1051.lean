@@ -4,8 +4,7 @@ import Mathlib
 
 namespace Erdos1051
 
-open scoped Classical in
-theorem erdos_1051_irrational
+theorem erdos_1051
   (a : ℕ → ℕ)
   (h_mono : StrictMono a)
   (h_pos : ∀ n, 0 < a n)

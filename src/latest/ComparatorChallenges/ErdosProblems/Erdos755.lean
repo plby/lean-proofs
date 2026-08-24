@@ -2,15 +2,7 @@
 
 import Mathlib
 
-/-!
-# Erdős Problem 755
-
-The mathematical proof and the correspondence between its lemmas and the
-formal development are documented in `tex/755.tex`.
--/
-
-open Filter Metric
-open scoped BigOperators EuclideanGeometry Asymptotics RealInnerProductSpace SimpleGraph
+open Filter
 
 namespace Erdos755
 

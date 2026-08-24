@@ -1580,7 +1580,6 @@ lemma E_no_k_plus_1 (n k : ℕ) : has_no_k_plus_1_coprime (E n k) k := by
               Nat.dvd_gcd (hf x hx |>.2.2) (hxy.symm ▸ hf y hy |>.2.2)
   ] at h_distinct_primes
 
-
 lemma C_subset_n
     (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t ≤ n) :
     C t ⊆ Finset.Icc 1 n := by
@@ -1692,7 +1691,6 @@ lemma B_disjoint_C (t n : ℕ) : Disjoint (B t n) (C t) := by
       exact (not_lt_of_ge h_contradiction) ( Nat.nth_strictMono ( Nat.infinite_setOf_prime ) (
           Nat.lt_succ_self _ ) );
   exact Finset.disjoint_left.mpr h_contradiction
-
 
 lemma t_ge_one_of_satisfies_H (t : ℕ) (h : satisfies_H t) : t ≥ 1 := by
   contrapose! h; aesop; ( unfold satisfies_H at *; aesop );
@@ -1870,7 +1868,6 @@ lemma card_A (t n : ℕ) (h_disjoint : Disjoint (B t n) (C t)) (h : satisfies_H 
     exact h_C_eq_image ▸ h_image_card;
   rw [ ← h_C_card, ← Finset.card_union_of_disjoint h_disjoint, A ]
 
-
 lemma p_strictMono_new {i j : ℕ} (hi : 1 ≤ i) (hij : i < j) : p i < p j := by
   apply Nat.nth_strictMono;
   · exact Nat.infinite_setOf_prime;
@@ -1895,7 +1892,6 @@ lemma card_C_new (t : ℕ) (h : satisfies_H t) : (C t).card = 36 := by
 lemma card_A_new (t n : ℕ) (h_disjoint : Disjoint (B t n) (C t)) (h : satisfies_H t) : (A t
     n).card = (B t n).card + 36 := by
   rw [ show A t n = B t n ∪ C t from rfl, ← card_C t h, Finset.card_union_of_disjoint h_disjoint ]
-
 
 lemma max_B (t n : ℕ) : has_no_k_plus_1_coprime (B t n) (t - 1) := by
   -- For each $u \in B$, there exists a prime $p_i$ in the set $\{p_1, p_2, \dots, p_{t-1}\}$ such
@@ -1936,7 +1932,6 @@ lemma max_B (t n : ℕ) : has_no_k_plus_1_coprime (B t n) (t - 1) := by
         Finset.image_subset_iff.2 fun u hu => by
           aesop))
   aesop
-
 
 lemma max_C (t : ℕ) : has_no_k_plus_1_coprime (C t) 4 := by
   -- Define the function f that maps each element of C t to its corresponding pair of indices.
@@ -1983,7 +1978,6 @@ lemma max_C (t : ℕ) : has_no_k_plus_1_coprime (C t) 4 := by
   have h_sum_card : ∑ x ∈ S, (f x).card = (Finset.biUnion S f).card := by
     rw [ Finset.card_biUnion ] ; aesop;
   exact Nat.le_of_lt_succ ( by have := Finset.sum_le_sum h_card_f; norm_num at *; linarith )
-
 
 lemma p_t_injective (t : ℕ) (ht : t ≥ 1) : Function.Injective (fun i => p (t + i)) := by
   -- Since $p$ is strictly increasing, if $p(t + i) = p(t + j)$, then $t + i = t + j$, which implies
@@ -2047,11 +2041,9 @@ lemma prime_indices_disjoint (t x y : ℕ) (hx : x ∈ C t) (hy : y ∈ C t) (h 
   exact Finset.disjoint_left.mpr fun i hi₁ hi₂ =>
       h_not_div i ( Finset.mem_filter.mp hi₁ |>.2 ) ( Finset.mem_filter.mp hi₂ |>.2 )
 
-
 lemma max_C_bound (t : ℕ) (ht : t ≥ 1) : has_no_k_plus_1_coprime (C t) 4 := by
   have _ : t ≥ 1 := ht
   exact max_C t
-
 
 lemma card_union_indices (t : ℕ) (ht : t ≥ 1) (S : Finset ℕ) (hS : S ⊆ C t) (h_coprime : (S :
     Set ℕ).Pairwise Nat.Coprime) :
@@ -2075,7 +2067,6 @@ lemma card_union_le_nine (t : ℕ) (S : Finset ℕ) (hS : S ⊆ C t) :
 lemma max_C_bound_final (t : ℕ) (ht : t ≥ 1) : has_no_k_plus_1_coprime (C t) 4 := by
   exact max_C_bound t ht
 
-
 lemma max_C_proven (t : ℕ) (ht : t ≥ 1) : has_no_k_plus_1_coprime (C t) 4 := by
   intro S hS h_coprime
   have h1 := card_union_indices t ht S hS h_coprime
@@ -2094,7 +2085,6 @@ lemma card_split (A B S : Finset ℕ) (h_disjoint : Disjoint A B) (h_subset : S 
     convert h_card_union using 2 ; ext ; aesop;
     -- Since $S \subseteq A \cup B$, if $a \in S$, then $a \in A \cup B$.
     apply Finset.mem_union.mp; exact h_subset a_1
-
 
 lemma A_no_k_plus_1 (t n : ℕ) (h_H : satisfies_H t) : has_no_k_plus_1_coprime (A t n) (t + 3) := by
   -- Let S be a pairwise coprime subset of A(t, n). Then S can be split into S ∩ B(t, n) and S ∩
@@ -2123,7 +2113,6 @@ lemma A_no_k_plus_1 (t n : ℕ) (h_H : satisfies_H t) : has_no_k_plus_1_coprime 
         h_pairwise_coprime ( Finset.mem_of_mem_inter_left hx ) ( Finset.mem_of_mem_inter_left hy
             ) hxy );
   linarith [ Nat.sub_add_cancel ( show 1 ≤ t from t_ge_one_of_satisfies_H t h_H ) ]
-
 
 lemma C_map_injective_final (t : ℕ) (ht : t ≥ 1) :
   ∀ i j k l, 0 ≤ i ∧ i < j ∧ j ≤ 8 → 0 ≤ k ∧ k < l ∧ l ≤ 8 →
@@ -2349,7 +2338,6 @@ lemma D_union_subset_D (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t
         exact Nat.Coprime.prod_right h_coprime;
       unfold B at a; aesop;
 
-
 lemma D_primes_subset (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t ≤ n) :
   D_primes t ⊆ D t n := by
     -- Each element of D_primes t is in E(n, t+3) and not in B t n, hence in D t n.
@@ -2518,7 +2506,6 @@ lemma D_union_subset (t n : ℕ) (h_H : satisfies_H t) (h_n : interval_start t �
     · exact D_squares_subset t n h_H h_n h_square
   · exact D_products_subset t n h_H h_n h
 
-
 lemma p_lt_interval_start (t : ℕ) (ht : t ≥ 1) : p (t + 3) < interval_start t := by
   -- Since $p$ is strictly increasing for indices $\geq 1$, we have $p(t+3) < p(t+7)$ and $p(t+3) <
   -- p(t+8)$.
@@ -2535,7 +2522,6 @@ lemma p_lt_interval_start (t : ℕ) (ht : t ≥ 1) : p (t + 3) < interval_start 
   -- Since $p(t+3) < p(t+7)$ and $p(t+3) < p(t+8)$, and $p(t+7) * p(t+8) > p(t+7)$ and $p(t+7) *
   -- p(t+8) > p(t+8)$, it follows that $p(t+3) < p(t+7) * p(t+8)$.
   apply lt_of_lt_of_le h_p_lt.left (Nat.le_of_lt h_prod_gt.left)
-
 
 lemma D_prime_factors_ge_pt (t n : ℕ) (u : ℕ) (hu : u ∈ D t n) :
   ∀ q, Nat.Prime q → q ∣ u → q ≥ p t := by
@@ -2572,11 +2558,9 @@ lemma D_prime_factors_ge_pt (t n : ℕ) (u : ℕ) (hu : u ∈ D t n) :
     · obtain ⟨ i, hi, rfl ⟩ := h_q_ge_pt q hq hq';
         have := Nat.nth_monotone ( Nat.infinite_setOf_prime ) hi; aesop;
 
-
 lemma D_prime_factors_ge_pt_new (t n : ℕ) (u : ℕ) (hu : u ∈ D t n) :
   ∀ q, Nat.Prime q → q ∣ u → q ≥ p t := by
     exact fun q a a_1 ↦ D_prime_factors_ge_pt t n u hu q a a_1
-
 
 lemma prime_dvd_P_of_lt_pt (t : ℕ) (q : ℕ) (hq : Nat.Prime q) (h_lt : q < p t) :
   q ∣ P (t - 1) := by
@@ -2608,7 +2592,6 @@ lemma D_prime_factors_ge_pt_final (t n : ℕ) (u : ℕ) (hu : u ∈ D t n) :
   ∀ q, Nat.Prime q → q ∣ u → q ≥ p t := by
     exact fun q a a_1 ↦ D_prime_factors_ge_pt_new t n u hu q a a_1
 
-
 lemma D_has_small_prime_factor (t n : ℕ) (u : ℕ) (hu : u ∈ D t n) :
   ∃ q, Nat.Prime q ∧ q ∣ u ∧ q ≤ p (t + 3) := by
     -- Since $u \in E(n, t+3)$, there exists a prime $q$ such that $q \mid u$ and $q \mid P(t+3)$.
@@ -2633,7 +2616,6 @@ lemma D_has_small_prime_factor (t n : ℕ) (u : ℕ) (hu : u ∈ D t n) :
     unfold p; aesop;
     exact ⟨ _, Nat.prime_nth_prime _, hq_div_u,
         Nat.nth_monotone ( Nat.infinite_setOf_prime ) ( by linarith ) ⟩
-
 
 lemma has_no_k_plus_1_coprime_union_v2 (B C : Finset ℕ) (k_B k_C : ℕ)
   (h_disjoint : Disjoint B C)
@@ -2675,7 +2657,6 @@ lemma D_prime_factors_ge_pt_v7 (t n : ℕ) (u : ℕ) (hu : u ∈ D t n) :
   have h_div_gcd : q ∣ Nat.gcd u (P (t - 1)) := Nat.dvd_gcd hqu h_div_P
   rw [h_coprime] at h_div_gcd
   exact Nat.Prime.not_dvd_one hq h_div_gcd
-
 
 noncomputable def D_extra (t : ℕ) : Finset ℕ := {p t * p (t + 9)}
 
@@ -2779,7 +2760,6 @@ lemma m_structure (t : ℕ) (m : ℕ) (h_t : t = 209) (hm_le : m ≤ p (t + 9)) 
         h_composite x hx₁ ( ( m + 1 + 1 ) / x ) ( by nlinarith [ Nat.div_mul_cancel hx₃ ] ) ( by
             nlinarith [ Nat.div_mul_cancel hx₃ ] )
 
-
 noncomputable def D_extra_v3 (t : ℕ) : Finset ℕ := {p t * p (t + 9)}
 
 noncomputable def D_plus_v3 (t : ℕ) : Finset ℕ := D_union t ∪ D_extra_v3 t
@@ -2810,7 +2790,6 @@ lemma m_is_prime_or_one_v3 (t : ℕ) (m : ℕ) (h_t : t =
     209) (hm_le : m ≤ p (t + 9)) (hm_factors : ∀ r,
         Nat.Prime r → r ∣ m → p t ≤ r) : m = 1 ∨ Nat.Prime m := by
   exact m_structure t m h_t hm_le hm_factors
-
 
 lemma D_subset_D_plus_final (t n : ℕ) (h_t : t = 209) (h_n : n =
     interval_end t) : D t n ⊆ D_plus t := by
@@ -2987,7 +2966,6 @@ lemma card_D_plus_final (t : ℕ) (h_t : t = 209) : (D_plus t).card ≤ 35 := by
 lemma card_C_209_final (t : ℕ) (h_t : t = 209) : (C t).card = 36 := by
   subst h_t; exact card_C 209 satisfies_H_209;
 
-
 lemma D_decomp_final (t n : ℕ) (h_t : t = 209) (h_n : n = interval_end t) (u : ℕ) (hu : u ∈ D t n) :
   ∃ q ∈ D_primes t, ∃ m, u = q * m ∧ (m = 1 ∨ (Nat.Prime m ∧ p t ≤ m)) ∧ m ≤ p (t + 9) := by
     -- Since $u \in D t n$, it must have a prime factor $q$ that divides $P(t + 3)$ but not $P(t -
@@ -3066,7 +3044,6 @@ lemma card_C_209_final_v2 (t : ℕ) (h_t : t = 209) : (C t).card = 36 := by
   subst h_t;
   exact card_C_209_final 209 rfl
 
-
 lemma D_decomp_final_v3 (t n : ℕ) (h_t : t = 209) (h_n : n =
     interval_end t) (u : ℕ) (hu : u ∈ D t n) :
   ∃ q ∈ D_primes t, ∃ m, u = q * m ∧ (m = 1 ∨ (Nat.Prime m ∧ p t ≤ m)) ∧ m ≤ p (t + 9) := by
@@ -3083,7 +3060,6 @@ lemma card_C_209_final_v3 (t : ℕ) (h_t : t = 209) : (C t).card = 36 := by
   -- By definition of $C$, we know that its cardinality is 36 when $t = 209$.
   apply card_C_209_final_v2 t h_t
 
-
 lemma D_subset_D_plus_v5 (t n : ℕ) (h_t : t = 209) (h_n : n =
     interval_end t) : D t n ⊆ D_plus_v3 t := by
   apply_rules [ D_subset_D_plus_final_v2 ]
@@ -3096,7 +3072,6 @@ lemma card_D_plus_v5 (t : ℕ) (h_t : t = 209) : (D_plus_v3 t).card ≤ 35 := by
 lemma card_C_209_v5 (t : ℕ) (h_t : t = 209) : (C t).card = 36 := by
   -- By definition of $C$, we know that its cardinality is 36.
   apply card_C_209_final_v3 t h_t
-
 
 lemma gcd_P_iff (k u : ℕ) : Nat.gcd u (P k) > 1 ↔ ∃ q, Nat.Prime q ∧ q ∣ u ∧ ∃ i < k,
     q = Nat.nth Nat.Prime i := by
@@ -3122,7 +3097,6 @@ lemma gcd_P_iff (k u : ℕ) : Nat.gcd u (P k) > 1 ↔ ∃ q, Nat.Prime q ∧ q �
     exact lt_of_lt_of_le hq_prime.one_lt
       (Nat.le_of_dvd (Nat.gcd_pos_of_pos_right u hP_pos) (Nat.dvd_gcd hq_div_u hq_div_P))
 
-
 lemma D_decomp_final_v4 (t n : ℕ) (h_t : t = 209) (h_n : n =
     interval_end t) (u : ℕ) (hu : u ∈ D t n) :
   ∃ q ∈ D_primes t, ∃ m, u = q * m ∧ (m = 1 ∨ (Nat.Prime m ∧ p t ≤ m)) ∧ m ≤ p (t + 9) := by
@@ -3138,7 +3112,6 @@ lemma card_D_plus_final_v4 (t : ℕ) (h_t : t = 209) : (D_plus t).card ≤ 35 :=
 lemma card_C_209_final_v4 (t : ℕ) (h_t : t = 209) : (C t).card = 36 := by
   -- Apply the lemma that states the cardinality of C t is 36 when t is 209.
   apply card_C_209_final_v3 t h_t
-
 
 /--
 Say a set of natural numbers is `k`-weakly divisible if any `k+1` elements
@@ -3258,5 +3231,11 @@ theorem erdos_56 :
 
 #print axioms erdos_56
 -- 'Erdos56.erdos_56' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+theorem not_erdos_56 :
+    ¬ ((∀ᵉ (N ≥ 2) (k > 0),
+          N ≥ k.nth Nat.Prime →
+          MaxWeaklyDivisible N k = (FirstPrimesMultiples N k).card)) := by
+  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using Erdos56.erdos_56
 
 end Erdos56

@@ -1785,7 +1785,7 @@ theorem f_946_ge_1650 : BorsukNumber 946 ≥ 1650 := by
 /-
 Borsuk's conjecture is false.
 -/
-theorem not_erdos_505 : ¬ BorsukConjecture := by
+theorem not_erdos_505 : ¬ (∀ (d : ℕ), d ≥ 1 → Erdos505.BorsukNumber d = d + 1) := by
   have h_f946 : BorsukNumber 946 ≥ 1650 := by
     exact f_946_ge_1650
   exact fun h => by linarith [h 946 (by norm_num)] ;

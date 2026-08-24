@@ -27,13 +27,9 @@ import Mathlib.Tactic.Ring
 
 namespace Erdos1058
 
-open Nat
-
-noncomputable section
-
 noncomputable abbrev primeAt (k : ℕ) : ℕ := Nat.nth Nat.Prime k
 
-def lowerEndpoint : ℕ → ℕ
+noncomputable def lowerEndpoint : ℕ → ℕ
   | 0 => 1
   | k + 1 => primeAt k
 
@@ -43,10 +39,8 @@ def IsSolution (n : ℕ) : Prop :=
       ∀ r, r.Prime → r ∣ n.factorial + 1 →
         r = primeAt k ∨ r = primeAt (k + 1)
 
-theorem erdos1058 (n : ℕ) :
+theorem erdos_1058 (n : ℕ) :
     IsSolution n ↔ n = 1 ∨ n = 2 ∨ n = 3 ∨ n = 4 ∨ n = 5 := by
   sorry
-
-end
 
 end Erdos1058

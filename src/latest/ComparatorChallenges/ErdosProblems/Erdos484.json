@@ -2,7 +2,7 @@
   "challenge_module": "Erdos484",
   "solution_module": "ErdosProblems.Erdos484",
   "theorem_names": [
-    "Erdos484.monochromatic_sums_linear"
+    "Erdos484.erdos_484"
   ],
   "permitted_axioms": [
     "propext",

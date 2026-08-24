@@ -1260,7 +1260,7 @@ theorem erdos741_upper_density_case2 (A : Set ℕ) (hA : ¬ upperDensity A > 0)
           ⟨ lt_of_lt_of_le (half_pos (half_pos hAA)) hA₁_upperDensity,
             lt_of_lt_of_le (half_pos (half_pos hAA)) hA₂_upperDensity ⟩
 
-theorem erdos741_upper_density (A : Set ℕ) (hA : upperDensity (A + A) > 0) :
+theorem erdos_741 (A : Set ℕ) (hA : upperDensity (A + A) > 0) :
     ∃ P : BiPartition A,
       upperDensity (P.left + P.left) > 0 ∧ upperDensity (P.right + P.right) > 0 := by
   by_cases h : upperDensity A > 0
@@ -2539,7 +2539,7 @@ lemma prop_interval_scale (P : BiPartition counterexA)
 
 /-- Theorem 2: There exists A with d(A+A) = 1 such that no bipartition gives
     both self-sumsets positive natural density. -/
-theorem erdos741_strict_density_counterexample :
+theorem not_erdos_741_natural_density :
     ∃ A : Set ℕ, HasNatDensity (A + A) 1 ∧
       ∀ P : BiPartition A, ¬(∃ d₁ > 0, ∃ d₂ > 0,
         HasNatDensity (P.left + P.left) d₁ ∧ HasNatDensity (P.right + P.right) d₂) := by
@@ -2552,10 +2552,14 @@ theorem erdos741_strict_density_counterexample :
 
 end
 
-#print axioms erdos741_upper_density
+#print axioms erdos_741
 -- 'Erdos741b.erdos741_upper_density' depends on axioms: [propext, Classical.choice, Quot.sound]
-#print axioms erdos741_strict_density_counterexample
+#print axioms not_erdos_741_natural_density
 -- 'Erdos741b.erdos741_strict_density_counterexample' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
 end Erdos741b
+
+alias _root_.Erdos741b.erdos741_upper_density := _root_.Erdos741b.erdos_741
+
+alias _root_.Erdos741b.erdos741_strict_density_counterexample := _root_.Erdos741b.not_erdos_741_natural_density

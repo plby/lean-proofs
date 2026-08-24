@@ -696,7 +696,7 @@ private theorem exists_cassels_sequence :
   · exact tail_subsetSums_not_cofinite N hN
 
 /-- Erdős Problem 253 has a negative answer. -/
-theorem erdos_253 : ¬ ∀ a : ℕ → ℕ, 0 < a 0 →
+theorem not_erdos_253 : ¬ ∀ a : ℕ → ℕ, 0 < a 0 →
     RepresentsAPs a → (Filter.atTop.Tendsto (fun n ↦ (a <| n + 1 : ℝ) / a n) (𝓝 1)) →
       subsetSums (Set.range a) ∈ Filter.cofinite := by
   rintro h
@@ -704,3 +704,5 @@ theorem erdos_253 : ¬ ∀ a : ℕ → ℕ, 0 < a 0 →
   exact hnot (h a ha0 ⟨hmono, haps⟩ hratio)
 
 end Erdos253
+
+alias _root_.Erdos253.erdos_253 := _root_.Erdos253.not_erdos_253

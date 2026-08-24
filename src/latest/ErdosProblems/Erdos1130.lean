@@ -531,7 +531,7 @@ lemma not_GapPeaksEqual_halfNodes : ¬ GapPeaksEqual halfNodes := by
 /-- The literal free-node three-point problem has a global maximizer whose
 four augmented-gap peaks are not all equal.  This disproves the
 characterization quoted in the supplied resolution. -/
-theorem erdos_1130_free_node_characterization_false :
+theorem not_erdos_1130 :
     ∃ X : NodeConfiguration 3,
       IsUpsilonMaximizer X ∧ ¬ GapPeaksEqual X := by
   refine ⟨halfNodes, ?_, not_GapPeaksEqual_halfNodes⟩
@@ -541,4 +541,6 @@ theorem erdos_1130_free_node_characterization_false :
 
 end Erdos1130
 
-#print axioms Erdos1130.erdos_1130_free_node_characterization_false
+#print axioms Erdos1130.not_erdos_1130
+
+alias _root_.Erdos1130.erdos_1130_free_node_characterization_false := _root_.Erdos1130.not_erdos_1130

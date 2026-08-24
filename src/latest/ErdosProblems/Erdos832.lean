@@ -892,7 +892,12 @@ lemma construction_strict_bound (n : ℕ) (hn : 9 ≤ n) :
 /-- Erdős Problem 832 has a negative answer: its exact eventual assertion,
 including the proposed equality characterization, is false already for
 `4`-uniform hypergraphs. -/
-theorem erdos832 : ¬Erdos832Claim := by
+theorem not_erdos_832 : ¬(∀ r : ℕ, 3 ≤ r → ∃ K : ℕ, ∀ k : ℕ, K ≤ k →
+  ∀ H : Erdos832.FiniteHypergraph,
+    H.IsUniform r → H.HasChromaticNumber k →
+      ((r - 1) * (k - 1) + 1).choose r ≤ H.edges.card ∧
+        (H.edges.card = ((r - 1) * (k - 1) + 1).choose r →
+          H.IsCompleteOn r ((r - 1) * (k - 1) + 1))) := by
   intro hclaim
   obtain ⟨K, hK⟩ := hclaim 4 (by omega)
   let n := K + 9
@@ -923,6 +928,8 @@ theorem erdos832 : ¬Erdos832Claim := by
     hsubcard.trans_lt hstrictConstruction
   exact (Nat.not_lt_of_ge hlower') hstrict
 
-#print axioms erdos832
+#print axioms not_erdos_832
 
 end Erdos832
+
+alias _root_.Erdos832.erdos832 := _root_.Erdos832.not_erdos_832

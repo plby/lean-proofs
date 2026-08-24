@@ -2,15 +2,10 @@
 
 import Mathlib
 
-open scoped BigOperators
-open scoped Real
-open scoped Nat
-open scoped Pointwise
-open MeasureTheory Measure Filter Set
+open MeasureTheory
 
 namespace Erdos1126
 
-open scoped Classical in
 theorem erdos_1126
     (f : ℝ → ℝ)
     (h :

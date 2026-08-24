@@ -359,7 +359,11 @@ theorem counterexample_has_no_five_paths :
 
 /-- Negative resolution of Erdős Problem 915 for the standard `k`-rail
 (internally vertex-disjoint path) interpretation. -/
-theorem erdos_915 : ¬ Erdos915VertexClaim := by
+theorem not_erdos_915 : ¬ (∀ (m n : ℕ), 2 ≤ m → 1 ≤ n →
+  ∀ (V : Type) [Fintype V] (G : SimpleGraph V),
+    Fintype.card V = 1 + n * (m - 1) →
+      G.edgeSet.ncard = 1 + n * Nat.choose m 2 →
+        Erdos915.HasMInternallyVertexDisjointPaths G m) := by
   intro hclaim
   apply counterexample_has_no_five_paths
   exact hclaim 5 4 (by omega) (by omega) (Fin 17) counterexample (by decide) (by
@@ -368,4 +372,6 @@ theorem erdos_915 : ¬ Erdos915VertexClaim := by
 
 end Erdos915
 
-#print axioms Erdos915.erdos_915
+#print axioms Erdos915.not_erdos_915
+
+alias _root_.Erdos915.erdos_915 := _root_.Erdos915.not_erdos_915

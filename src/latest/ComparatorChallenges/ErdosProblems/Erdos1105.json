@@ -2,8 +2,8 @@
   "challenge_module": "Erdos1105",
   "solution_module": "ErdosProblems.Erdos1105",
   "theorem_names": [
-    "Erdos1105.erdos_1105_parts_i",
-    "Erdos1105.erdos_1105_parts_ii"
+    "Erdos1105.erdos_1105",
+    "Erdos1105.erdos_1105_paths"
   ],
   "permitted_axioms": [
     "propext",

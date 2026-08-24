@@ -3596,7 +3596,7 @@ there exists k ∈ {1, ..., n} such that |∑ᵢ zᵢᵏ| > 1/6.
 This generalizes `erdos519_unit_disk` by removing the |zᵢ| ≤ 1 hypothesis.
 The proof reduces to the unit-disk case by swapping the largest-magnitude
 term to index 0 and scaling all terms by its value. -/
-theorem erdos519 {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
+theorem erdos_519 {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
     (hz1 : z ⟨0, hn⟩ = 1) :
     ∃ k : Fin n, 1 / 6 < ‖powerSum z (k.val + 1)‖ := by
   -- Find the index with maximum norm
@@ -3635,5 +3635,7 @@ theorem erdos519 {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
 
 end Erdos519
 
-#print axioms Erdos519.erdos519
+#print axioms Erdos519.erdos_519
 -- 'Erdos519.erdos519' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos519.erdos519 := _root_.Erdos519.erdos_519

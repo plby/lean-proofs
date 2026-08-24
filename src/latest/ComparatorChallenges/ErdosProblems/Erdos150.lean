@@ -4,8 +4,6 @@ import Mathlib
 
 namespace Erdos150
 
-open Finset Fintype Real SimpleGraph
-
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
 def IsSeparator (G : SimpleGraph V) (u v : V) (T : Finset V) : Prop :=
@@ -28,21 +26,7 @@ noncomputable def c (n : ℕ) : ℕ :=
   sSup {k : ℕ | ∃ (G : SimpleGraph (Fin n)) (_ : DecidableRel G.Adj), numMinCuts G = k}
 end BradacFull
 
-section LimitAndBound
-
-open Filter Topology Real
-
-end LimitAndBound
-
-end Erdos150
-
-open Finset Fintype Real SimpleGraph
-open Filter Topology Real
-
-namespace Erdos150
-
-open scoped Classical in
-theorem limit_alpha_exists_and_lt_two :
+theorem erdos_150 :
     ∃ α, Filter.Tendsto (fun n ↦ (c n : ℝ) ^ (1 / n : ℝ)) .atTop (nhds α) ∧
       α < 2 := by
   sorry

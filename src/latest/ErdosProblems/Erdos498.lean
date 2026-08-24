@@ -2003,7 +2003,7 @@ lemma compatibility_helper (z : Fin n → ℂ) (hz : ∀ i, 1 < ‖z i‖) (c : 
   rw [←hAf_s, ←hBf_s, hT]
   exact res
 
-theorem littlewood_offord_complex_bound (n : ℕ) (z : Fin n → ℂ) (hz : ∀ i, 1 < ‖z i‖) (c : ℂ) :
+theorem erdos_498 (n : ℕ) (z : Fin n → ℂ) (hz : ∀ i, 1 < ‖z i‖) (c : ℂ) :
     let signs : Finset ℤ := {-1, 1}
     let all_coeffs : Set (Fin n → ℤ) := {ε | ∀ i, ε i ∈ signs}
     let valid_sums : Set (Fin n → ℤ) :=
@@ -2051,8 +2051,10 @@ theorem littlewood_offord_complex_bound (n : ℕ) (z : Fin n → ℂ) (hz : ∀ 
   simp only [Fintype.card_fin] at bound
   exact bound
 
-#print axioms littlewood_offord_complex_bound
+#print axioms erdos_498
 -- 'Erdos498.littlewood_offord_complex_bound' depends on axioms: [propext, Classical.choice,
 -- Quot.sound]
 
 end Erdos498
+
+alias _root_.Erdos498.littlewood_offord_complex_bound := _root_.Erdos498.erdos_498

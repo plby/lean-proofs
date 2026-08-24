@@ -2,7 +2,7 @@
   "challenge_module": "Erdos24",
   "solution_module": "ErdosProblems.Erdos24",
   "theorem_names": [
-    "Erdos24.erdos_pentagon_conjecture"
+    "Erdos24.erdos_24"
   ],
   "permitted_axioms": [
     "propext",

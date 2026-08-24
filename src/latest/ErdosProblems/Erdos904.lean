@@ -743,7 +743,7 @@ theorem exists_isPSequence : ∃ l, IsPSequence G l := by
 
 include hr hm in
 /-- Erdős Problem 904. -/
-theorem erdos904 : ∃ s, G.IsNClique r s ∧ 2 * r * #G.edgeFinset ≤ n V * ∑ v ∈ s, G.degree v := by
+theorem erdos_904 : ∃ s, G.IsNClique r s ∧ 2 * r * #G.edgeFinset ≤ n V * ∑ v ∈ s, G.degree v := by
   let _ := nonempty_of_params hr
   obtain ⟨l, pl⟩ : ∃ l, IsPSequence G l := exists_isPSequence
   have key := pl.1.take.equation_16 (pl.mul_length_sub_one_le_sum_take hr hm)
@@ -764,9 +764,11 @@ theorem erdos904 : ∃ s, G.IsNClique r s ∧ 2 * r * #G.edgeFinset ≤ n V * �
     simp only [get_eq_getElem, map_take, getElem_take, getElem_map, Fin.getElem_fin]
     grind
 
-#print axioms erdos904
+#print axioms erdos_904
 -- 'Erdos904.SimpleGraph.erdos904' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end SimpleGraph
 
 end Erdos904
+
+alias _root_.Erdos904.SimpleGraph.erdos904 := _root_.Erdos904.SimpleGraph.erdos_904

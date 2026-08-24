@@ -5107,7 +5107,7 @@ lemma exists_phi45_subset_of_card {K : ℕ}
 /-- Tao's negative resolution of Erdős Problem 135: there are arbitrarily
 large `Φ(4,5)` point sets whose number of distances is
 `O(n² / sqrt(log n))`. -/
-theorem erdos_135 :
+theorem not_erdos_135 :
     ∃ A : ℕ → Finset Plane,
       (∀ n : ℕ, (A n).card = n ∧ HasPhi45 (A n)) ∧
       (fun n : ℕ => (distanceCount (A n) : ℝ)) =O[atTop]
@@ -5165,6 +5165,8 @@ theorem erdos_135 :
       norm_num [Nat.cast_mul]
       ring
 
-#print axioms erdos_135
+#print axioms not_erdos_135
 
 end Erdos135
+
+alias _root_.Erdos135.erdos_135 := _root_.Erdos135.not_erdos_135

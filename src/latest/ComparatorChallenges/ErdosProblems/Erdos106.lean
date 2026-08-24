@@ -5,11 +5,7 @@ import Mathlib.Algebra.Order.Archimedean.Real.Basic
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Order.CompletePartialOrder
 
-open scoped BigOperators
-
 namespace Erdos106
-
-noncomputable section
 
 abbrev Point := ℝ × ℝ
 
@@ -53,7 +49,5 @@ noncomputable def f (n : ℕ) : ℝ :=
 theorem not_erdos_106 :
     ¬ ∀ k : ℕ, f (k ^ 2 + 1) = k := by
   sorry
-
-end
 
 end Erdos106

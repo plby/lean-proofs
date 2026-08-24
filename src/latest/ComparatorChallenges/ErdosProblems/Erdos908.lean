@@ -2,10 +2,9 @@
 
 import Mathlib
 
-namespace Erdos908
+open MeasureTheory
 
-open Filter MeasureTheory Set Function
-open scoped Pointwise ENNReal
+namespace Erdos908
 
 /-- An additive real-valued function. -/
 def IsAdditiveFn (H : ℝ → ℝ) : Prop :=
@@ -35,21 +34,15 @@ def HasMeasurableDecomposition (f : ℝ → ℝ) : Prop :=
         (∀ x : ℝ, f x = g x + H x + r x) ∧
           HasNullIncrements r
 
-/-- The universal assertion with the incorrect continuous conclusion. -/
-def Erdos908Claim : Prop :=
-  ∀ f : ℝ → ℝ, HasMeasurablePositiveDifferences f → HasDecomposition f
-
-/-- The corrected universal assertion with a measurable summand. -/
-def Erdos908MeasurableClaim : Prop :=
-  ∀ f : ℝ → ℝ,
-    HasMeasurablePositiveDifferences f → HasMeasurableDecomposition f
-
 /-- The continuous version admits a counterexample. -/
-theorem erdos908_continuous_counterexample : ¬ Erdos908Claim := by
+theorem not_erdos_908 :
+    ¬ (∀ f : ℝ → ℝ, Erdos908.HasMeasurablePositiveDifferences f → Erdos908.HasDecomposition f) := by
   sorry
 
 /-- The measurable version holds. -/
-theorem erdos908_measurable : Erdos908MeasurableClaim := by
+theorem erdos_908_measurable :
+    ∀ f : ℝ → ℝ,
+      Erdos908.HasMeasurablePositiveDifferences f → Erdos908.HasMeasurableDecomposition f := by
   sorry
 
 end Erdos908

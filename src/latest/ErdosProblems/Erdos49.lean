@@ -339,7 +339,7 @@ theorem erdos_49_uniform_density_zero :
   linarith
 
 /-- Maximal-function formulation of the `o(N)` conclusion of Erdős Problem 49. -/
-theorem erdos_49_density_zero :
+theorem erdos_49 :
     (fun N : ℕ ↦ (strictMaximum N : ℝ)) =o[atTop]
       (fun N : ℕ ↦ (N : ℝ)) := by
   rw [Asymptotics.isLittleO_iff]
@@ -353,8 +353,10 @@ theorem erdos_49_density_zero :
   rw [strictMaximum, hAcard]
   simpa [Real.norm_eq_abs, abs_of_nonneg] using hbound.le
 
-#print axioms erdos_49_density_zero
+#print axioms erdos_49
 
 end
 
 end Erdos49
+
+alias _root_.Erdos49.erdos_49_density_zero := _root_.Erdos49.erdos_49

@@ -2,7 +2,7 @@
   "challenge_module": "Erdos199",
   "solution_module": "ErdosProblems.Erdos199",
   "theorem_names": [
-    "Erdos199.disproof_of_conjecture"
+    "Erdos199.not_erdos_199"
   ],
   "permitted_axioms": [
     "propext",

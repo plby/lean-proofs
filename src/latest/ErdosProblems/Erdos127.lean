@@ -583,7 +583,7 @@ theorem alon_correction_lower_bound (t : ℕ) (ht : 1 ≤ t) :
 /-- **Erdős Problem 127 (Alon).** There is a sequence of edge counts tending
 to infinity along which the integral correction above the Edwards baseline
 also tends to infinity. -/
-theorem erdos127 :
+theorem erdos_127 :
     ∃ mseq : ℕ → ℕ, Tendsto mseq atTop atTop ∧
       Tendsto (fun i ↦ correction (mseq i)) atTop atTop := by
   let mseq : ℕ → ℕ := fun i ↦ alonEdgeCount (i + 1)
@@ -603,6 +603,8 @@ theorem erdos127 :
       exact alon_correction_lower_bound (i + 1) (by omega)
     omega
 
-#print axioms Erdos127.erdos127
+#print axioms Erdos127.erdos_127
 
 end Erdos127
+
+alias _root_.Erdos127.erdos127 := _root_.Erdos127.erdos_127

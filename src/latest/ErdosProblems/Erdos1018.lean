@@ -1610,7 +1610,11 @@ theorem kostochka_pyber_compact_k5
   simpa [r] using twentyStageChain_contains_compact_k5 C S hp hlen
 
 /-- The affirmative resolution of Erdős Problem 1018. -/
-theorem erdos_1018 : Erdos1018 := by
+theorem erdos_1018 : (∀ ε : ℝ, 0 < ε → ∃ C N : ℕ, ∀ n : ℕ, N ≤ n →
+  ∀ G : SimpleGraph (Fin n),
+    (n : ℝ) ^ ((1 : ℝ) + ε) ≤ (G.edgeSet.ncard : ℝ) →
+      ∃ S : G.Subgraph,
+        S.verts.ncard ≤ C ∧ Erdos1018.IsNonplanar S.coe) := by
   intro ε hε
   let δ : ℝ := min (ε / 2) (1 / 2)
   have hδ : 0 < δ := by

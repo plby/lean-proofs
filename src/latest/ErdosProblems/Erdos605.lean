@@ -452,7 +452,15 @@ lemma mem_equalDistancePairs {n q : ℕ} (hfit : 3 * q ^ 3 ≤ n)
 
 /-! ## Resolution of Problem 605 -/
 
-theorem erdos_605 : Erdos605Statement := by
+theorem erdos_605 :
+    ∃ f : ℕ → ℝ, Tendsto f atTop atTop ∧
+      ∃ center : E3, ∃ radius : ℝ, 0 < radius ∧ ∀ n : ℕ,
+        ∃ x : Fin n → E3, ∃ d : ℝ, ∃ E : Finset (Sym2 (Fin n)),
+          Function.Injective x ∧
+          (∀ i, dist (x i) center = radius) ∧
+          0 < d ∧
+          (∀ e ∈ E, ¬ e.IsDiag ∧ pairDistance x e = d) ∧
+          f n * (n : ℝ) ≤ (E.card : ℝ) := by
   refine ⟨growth, growth_tendsto, 0, 1, by norm_num, ?_⟩
   intro n
   let hfit : 3 * scale n ^ 3 ≤ n := scale_spec n

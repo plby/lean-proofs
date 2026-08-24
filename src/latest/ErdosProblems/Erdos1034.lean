@@ -1597,7 +1597,13 @@ def erdos_1034 : Prop :=
           ∃ T ∈ G.cliqueFinset 3,
             ((Y_set G T).card : ℝ) > (((1 : ℝ) / 2) - ε) * (n : ℝ)
 
-theorem not_erdos_1034 : ¬ erdos_1034 := by
+theorem not_erdos_1034 : ¬ (∀ ε : ℝ, 0 < ε →
+  ∃ n0 : ℕ,
+    ∀ n ≥ n0,
+      ∀ (G : SimpleGraph (Fin n)) [DecidableRel G.Adj],
+        (G.edgeFinset.card : ℝ) > ((n : ℝ)^2 / 4) →
+        ∃ T ∈ G.cliqueFinset 3,
+          ((Erdos1034.Y_set G T).card : ℝ) > (((1 : ℝ) / 2) - ε) * (n : ℝ)) := by
   intro h
   -- Apply the MaTang graph's properties to derive a contradiction with h.
   have := h (1 / 100) (by norm_num)

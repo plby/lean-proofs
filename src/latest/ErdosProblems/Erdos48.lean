@@ -597,7 +597,7 @@ end Erdos48
 /-- Erdős Problem 48: Euler's totient and the sum-of-divisors function have
 infinitely many common values. -/
 theorem erdos_48 :
-    {(n, m) : ℕ × ℕ | n.totient = σ 1 m}.Infinite := by
+    {p : ℕ × ℕ | p.1.totient = σ 1 p.2}.Infinite := by
   refine Iff.mp ?_ trivial
   constructor
   · intro _

@@ -1647,7 +1647,10 @@ theorem erdos570_statement_iff : Erdős570Statement ↔
   rfl
 
 /-- Resolution of Erdős Problem 570. -/
-theorem erdos570 : Erdős570Statement := by
+theorem erdos_570 : (∀ k : ℕ, 3 ≤ k →
+  ∃ M : ℕ, ∀ H : Erdos79.GraphCode, Erdos79.NoIsolated H → M ≤ H.edgeCount →
+    Erdos79.graphRamseyNumber (Erdos570.cycleCode k) H ≤
+      2 * H.edgeCount + (k - 1) / 2) := by
   intro k hk
   by_cases hk3 : k = 3
   · subst k
@@ -1661,6 +1664,8 @@ theorem erdos570 : Erdős570Statement := by
   · have hkodd : k % 2 = 1 := by omega
     exact eventual_odd_cycle_bound hk5 hkodd
 
-#print axioms erdos570
+#print axioms erdos_570
 
 end Erdos570
+
+alias _root_.Erdos570.erdos570 := _root_.Erdos570.erdos_570

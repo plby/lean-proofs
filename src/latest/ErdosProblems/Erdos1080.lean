@@ -1519,7 +1519,12 @@ def erdos_1080 : Prop :=
 /-
 No.
 -/
-theorem not_erdos_1080 : ¬erdos_1080 := by
+theorem not_erdos_1080 : ¬(∃ c > (0 : ℝ), ∀ (V : Type) [_finV : Fintype V] [_nonemptyV : Nonempty V]
+  (G : SimpleGraph V) (X Y : Set V),
+  Erdos1080.IsBipartition G X Y →
+  X.ncard = ⌊(Fintype.card V : ℝ) ^ (((2 : ℕ) : ℝ) / ((3 : ℕ) : ℝ))⌋₊ →
+  G.edgeSet.ncard ≥ c * Fintype.card V →
+    ∃ (v : V) (walk : G.Walk v v), walk.IsCycle ∧ walk.length = 6) := by
   intro h;
   obtain ⟨ c, hc₀, hc ⟩ := h;
   apply thm_counterexamples_nonempty;

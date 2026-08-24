@@ -2,13 +2,12 @@
 
 import Mathlib
 
-open Filter SimpleGraph Set Real
-open scoped Topology BigOperators ENNReal NNReal
+open Filter
 
 namespace Erdos615
 
 open scoped Classical in
-theorem erdos_615 :
+theorem not_erdos_615 :
     ¬ ∃ c : ℝ, 0 < c ∧ ∀ᶠ (n : ℕ) in atTop,
       ∀ G : SimpleGraph (Fin n), (1 / 8 - c) * n ^ 2 ≤ G.edgeFinset.card →
         ¬ G.CliqueFree 4 ∨ (n : ℝ) / Real.log n ≤ G.indepNum := by

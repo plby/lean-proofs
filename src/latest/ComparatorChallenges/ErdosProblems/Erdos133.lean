@@ -2,15 +2,8 @@
 
 import Mathlib
 
-set_option linter.style.setOption false
-set_option linter.flexible false
-
-open Filter
-
 namespace Erdos133
 
-open scoped Classical in
-open scoped Classical in
 /-- The combinatorial form of having diameter at most two. -/
 def HasDiameterTwo {V : Type*} (G : SimpleGraph V) : Prop :=
   ∀ x y, x ≠ y → G.Adj x y ∨ ∃ z, G.Adj x z ∧ G.Adj z y
@@ -26,7 +19,6 @@ structure Model (n d : ℕ) where
   diameterTwo : HasDiameterTwo G
   degree_le : ∀ v, G.degree v ≤ d
 
-open scoped Classical in
 /-- The smallest possible maximum degree of an `n`-vertex triangle-free
 diameter-two graph.  This is the standard meaning of the function in
 Problem 133. -/

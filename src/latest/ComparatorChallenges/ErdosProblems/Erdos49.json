@@ -2,7 +2,7 @@
   "challenge_module": "Erdos49",
   "solution_module": "ErdosProblems.Erdos49",
   "theorem_names": [
-    "Erdos49.erdos_49_density_zero"
+    "Erdos49.erdos_49"
   ],
   "permitted_axioms": [
     "propext",

@@ -13,7 +13,7 @@ Formal authors:
 
 URLs:
 - https://www.erdosproblems.com/forum/thread/290#post-3180
-- https://github.com/Woett/Lean-files/blob/main/ErdosProblem290.lean
+- https://github.com/Woett/Lean-files/blob/erdos_290/ErdosProblem290.lean
 -/
 /-
 For positive integers $a$ and $b$, let $u_{a,b}$ and $v_{a,b}$ be the coprime
@@ -852,7 +852,7 @@ lemma pequaltothreevaluationofvab_final (a : ℕ) (ha : a > 0) :
 For every positive integer $a$ there exists a positive integer $b$ with
 $a < b \le 6a$ such that $v_{a,b} < v_{a,b-1}$.
 -/
-theorem main (a : ℕ) (ha : a > 0) : ∃ b, a < b ∧ b ≤ 6 * a ∧ v a b < v a (b - 1) := by
+theorem erdos_290 (a : ℕ) (ha : a > 0) : ∃ b, a < b ∧ b ≤ 6 * a ∧ v a b < v a (b - 1) := by
   use b_val a
   -- By combining the results from the lemmas, we conclude that $v_{a,b} < v_{a,b-1}$.
   have h_div : v a (b_val a) ∣ v a (b_val a - 1) := by
@@ -887,5 +887,7 @@ theorem main (a : ℕ) (ha : a > 0) : ∃ b, a < b ∧ b ≤ 6 * a ∧ v a b < v
 
 end Erdos290
 
-#print axioms Erdos290.main
+#print axioms Erdos290.erdos_290
 -- 'Erdos290.main' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos290.main := _root_.Erdos290.erdos_290

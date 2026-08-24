@@ -14,19 +14,15 @@ noncomputable def lineThrough (p q : R2) : AffineSubspace ℝ R2 :=
 def IsLine (ℓ : AffineSubspace ℝ R2) : Prop :=
   ∃ p q : R2, p ≠ q ∧ ℓ = lineThrough p q
 
-def erdos_105 : Prop :=
-  ∀ (A B : Finset R2) (n : ℕ),
-  Disjoint A B →
-  A.card = n →
-  B.card = n - 3 →
-  (¬ ∃ ℓ : AffineSubspace ℝ R2, IsLine ℓ ∧ (A : Set R2) ⊆ (ℓ : Set R2)) →
-  ∃ (p q : R2),
-    p ∈ A ∧ q ∈ A ∧ p ≠ q ∧
-    (∀ b ∈ B, b ∉ (lineThrough p q : Set R2))
 end Erdos105
 
-open scoped Classical in
 theorem Erdos105.not_erdos_105 :
-    Not Erdos105.erdos_105
-  := by
+    Not (∀ (A B : Finset Erdos105.R2) (n : ℕ),
+    Disjoint A B →
+    A.card = n →
+    B.card = n - 3 →
+    (¬ ∃ ℓ : AffineSubspace ℝ Erdos105.R2, Erdos105.IsLine ℓ ∧ (A : Set Erdos105.R2) ⊆ (ℓ : Set Erdos105.R2)) →
+    ∃ (p q : Erdos105.R2),
+      p ∈ A ∧ q ∈ A ∧ p ≠ q ∧
+      (∀ b ∈ B, b ∉ (Erdos105.lineThrough p q : Set Erdos105.R2))) := by
   sorry

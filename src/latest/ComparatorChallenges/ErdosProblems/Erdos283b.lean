@@ -4,8 +4,6 @@ import Mathlib
 
 namespace Erdos283b
 
-open Finset BigOperators
-
 def sumPow (A : Finset ℕ) (d : ℕ) : ℤ :=
   ∑ x ∈ A, (x : ℤ) ^ d
 
@@ -23,15 +21,7 @@ noncomputable def n₀ (f : ℕ → ℤ) (α : ℚ) : WithTop ℤ :=
 
 def mFinset (m : ℕ) (A : Finset ℕ) : Finset ℕ :=
   A.image (· * m)
-end Erdos283b
 
-open Erdos283b
-
-open Finset BigOperators
-
-namespace Erdos283b
-
-open scoped Classical in
 theorem meta_theorem
     (a : ℤ) (ha : 0 < a)
     (b : ℤ)
@@ -68,8 +58,7 @@ theorem meta_theorem
   sorry
 
 end Erdos283b
-open scoped Classical in
-theorem Erdos283b.general_theorem
+theorem Erdos283b.erdos_283
     (a : ℤ) (ha : 0 < a)
     (b : ℤ)
     (d : ℕ) (hd : 0 < d)

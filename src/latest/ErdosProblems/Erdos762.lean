@@ -1526,7 +1526,10 @@ def erdos_762 : Prop :=
   4 ≤ cochromaticNumber G →
   G.chromaticNumber ≤ cochromaticNumber G + 2
 
-theorem not_erdos_762 : ¬ erdos_762 := by
+theorem not_erdos_762 : ¬ (∀ (V : Type) [Fintype V] (G : SimpleGraph V),
+G.CliqueFree 5 →
+4 ≤ Erdos762.cochromaticNumber G →
+G.chromaticNumber ≤ Erdos762.cochromaticNumber G + 2) := by
   classical
   intro hE
   let sizes : X_collection → ℕ := fun _ => 1

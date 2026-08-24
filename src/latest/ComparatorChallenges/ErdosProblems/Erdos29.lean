@@ -2,14 +2,10 @@
 
 import Mathlib
 
-open Filter
-open scoped Pointwise Real
-
-noncomputable section
+open scoped Pointwise
 
 namespace Erdos29
 
-open scoped Classical in
 noncomputable def addRepCount (A : Set ℕ) (n : ℕ) : ℕ :=
   by
     classical
@@ -17,11 +13,6 @@ noncomputable def addRepCount (A : Set ℕ) (n : ℕ) : ℕ :=
       (self := Finset.Nat.instHasAntidiagonal) n : Finset (ℕ × ℕ)).filter
       fun ab : ℕ × ℕ => ab.1 ∈ A ∧ ab.2 ∈ A).card
 
-end Erdos29
-
-namespace Erdos29
-
-open scoped Classical in
 def SolvesErdos29 (A : Set ℕ) : Prop :=
   A + A = Set.univ ∧
     ∀ ε : ℝ, 0 < ε →
@@ -31,14 +22,7 @@ def SolvesErdos29 (A : Set ℕ) : Prop :=
 
 /-! ## The explicit construction -/
 
-end Erdos29
-
-namespace Erdos29
-
-open scoped Classical in
 theorem erdos_29 : ∃ A : Set ℕ, SolvesErdos29 A := by
   sorry
 
 end Erdos29
-
-end

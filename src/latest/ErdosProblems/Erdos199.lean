@@ -1208,7 +1208,8 @@ def Conjecture : Prop :=
   ∀ A : Set ℝ, (∀ a ∈ A, ∀ b ∈ A, ∀ c ∈ A, ¬ IsThreeTermAP a b c) →
     (∃ S : Set ℝ, IsInfiniteAP S ∧ S ⊆ (Set.univ \ A))
 
-theorem disproof_of_conjecture : ¬ Conjecture := by
+theorem not_erdos_199 : ¬ (∀ A : Set ℝ, (∀ a ∈ A, ∀ b ∈ A, ∀ c ∈ A, ¬ Erdos199.IsThreeTermAP a b c) →
+  (∃ S : Set ℝ, Erdos199.IsInfiniteAP S ∧ S ⊆ (Set.univ \ A))) := by
   -- By definition of conjecture, we need to show that there exists a subset A of ℝ such that A has no 3-term arithmetic progression but R \ A does not contain an infinite arithmetic progression.
   simp [Conjecture];
   obtain ⟨ A, hA ⟩ := exists_baumgartner_set_real;
@@ -1218,5 +1219,7 @@ theorem disproof_of_conjecture : ¬ Conjecture := by
 
 end Erdos199
 
-#print axioms Erdos199.disproof_of_conjecture
+#print axioms Erdos199.not_erdos_199
 -- 'Erdos199.disproof_of_conjecture' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+alias _root_.Erdos199.disproof_of_conjecture := _root_.Erdos199.not_erdos_199

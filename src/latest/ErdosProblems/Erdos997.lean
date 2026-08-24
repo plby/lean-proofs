@@ -251,11 +251,13 @@ theorem fracSeq_hasClustering (α : ℝ) : HasClustering (fracSeq α) := by
 
 /-- **Erdős Problem 997**: for every `α ∈ ℝ`, the sequence `{α pₙ}` is not well-distributed.
 Uses the Maynard–Tao–BFT axiom. -/
-theorem erdos997 (α : ℝ) : ¬IsWellDistributed (fracSeq α) :=
+theorem erdos_997 (α : ℝ) : ¬IsWellDistributed (fracSeq α) :=
   not_wellDistributed_of_clustering (fracSeq_hasClustering α)
 
-#print axioms erdos997
+#print axioms erdos_997
 -- 'Erdos997.erdos997' depends on axioms: [maynardTaoBFT, propext, Classical.choice,
 -- Quot.sound]
 
 end Erdos997
+
+alias _root_.Erdos997.erdos997 := _root_.Erdos997.erdos_997

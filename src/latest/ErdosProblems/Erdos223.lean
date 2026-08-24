@@ -87,7 +87,20 @@ theorem not_publishedEventualExactClaim : ¬ PublishedEventualExactClaim := by
   exact hlt.ne (hN n hn).symm
 
 /-- The source-corrected resolution of Erdős Problem 223. -/
-theorem erdos_223 : Resolution := by
+theorem erdos_223 :
+    f 2 2 = 1 ∧
+    (∀ n, 3 ≤ n → f 2 n = n) ∧
+    f 3 2 = 1 ∧
+    f 3 3 = 3 ∧
+    (∀ n, 4 ≤ n → f 3 n = 2 * n - 2) ∧
+    (∀ d, 4 ≤ d →
+      Tendsto (fun n : ℕ ↦ (f d n : ℝ) / (n : ℝ) ^ 2) atTop
+        (nhds ((((d / 2 : ℕ) : ℝ) - 1) / (2 * (d / 2 : ℕ))))) ∧
+    (∃ N, ∀ n, N ≤ n → f 4 n = exactValue 4 n) ∧
+    (∀ d, 6 ≤ d → Even d →
+      ∃ N, ∀ n, N ≤ n → f d n = exactValue d n) ∧
+    ¬ (∀ d, 4 ≤ d → ∃ N, ∀ n, N ≤ n → f d n = exactValue d n) ∧
+    (∀ N, ∃ n, N ≤ n ∧ exactValue 7 n < f 7 n) := by
   refine ⟨f_two 2 (by omega), ?_, f_two 3 (by omega), f_space_three,
     f_space, ?_, eventually_f_eq_exactValue_four, ?_,
     not_publishedEventualExactClaim, infinitely_often_exactValue_seven_lt_f⟩

@@ -2,7 +2,7 @@
   "challenge_module": "Erdos742",
   "solution_module": "ErdosProblems.Erdos742",
   "theorem_names": [
-    "Erdos742.furedi_bound"
+    "Erdos742.erdos_742"
   ],
   "permitted_axioms": [
     "propext",
@@ -11,4 +11,3 @@
   ],
   "enable_nanoda": true
 }
-
