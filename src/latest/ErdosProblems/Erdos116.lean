@@ -880,7 +880,7 @@ lemma delta_sq_eq {n : ℕ} (hn : 0 < n) :
 /-- **Erdős Problem 116.**  The strict unit lemniscate of every monic product
 whose `n > 0` zeros lie in the closed unit disk has an explicit uniform
 polynomial area lower bound. -/
-theorem erdos_116 {n : ℕ} (hn : 0 < n) (a : Fin n → ℂ)
+theorem erdos_116_explicit {n : ℕ} (hn : 0 < n) (a : Fin n → ℂ)
     (ha : ∀ i, ‖a i‖ ≤ 1) :
     ENNReal.ofReal (Real.pi / (2 ^ 31 * (n : ℝ) ^ 14)) <
       volume {z : ℂ | ‖lemniscateProduct a z‖ < 1} := by
@@ -900,7 +900,7 @@ theorem erdos_116 {n : ℕ} (hn : 0 < n) (a : Fin n → ℂ)
   field_simp [ne_of_gt hnR]
   nlinarith [Real.pi_pos]
 
-/-- The conventional `n^{-O(1)}` packaging of `erdos_116`, with the absolute
+/-- The conventional `n^{-O(1)}` packaging of `erdos_116_explicit`, with the absolute
 constants `c = π / 2^31` and `C = 14`. -/
 theorem erdos_116_power_law :
     ∃ c : ℝ, 0 < c ∧ ∃ C : ℕ, ∀ (n : ℕ), 0 < n → ∀ a : Fin n → ℂ,
@@ -909,7 +909,16 @@ theorem erdos_116_power_law :
         volume {z : ℂ | ‖lemniscateProduct a z‖ < 1} := by
   refine ⟨Real.pi / 2 ^ 31, by positivity, 14, ?_⟩
   intro n hn a ha
-  simpa only [div_div] using erdos_116 hn a ha
+  simpa only [div_div] using erdos_116_explicit hn a ha
+
+/-- **Erdős Problem 116.**  The area where the product has modulus less than one
+has a polynomial lower bound, uniform over all roots in the closed unit disk. -/
+theorem erdos_116 :
+    ∃ c : ℝ, 0 < c ∧ ∃ C : ℕ, ∀ (n : ℕ), 0 < n → ∀ a : Fin n → ℂ,
+      (∀ i, ‖a i‖ ≤ 1) →
+      ENNReal.ofReal (c / (n : ℝ) ^ C) <
+        volume {z : ℂ | ‖∏ i, (z - a i)‖ < 1} := by
+  simpa only [lemniscateProduct] using erdos_116_power_law
 
 #print axioms erdos_116
 
