@@ -5,8 +5,7 @@ import Mathlib
 
 A matching is represented by its finite set of edges.  The defining predicate
 says directly that the sets of edges over every left and right vertex have
-cardinality at most one.  This representation is small enough that its exact
-cardinality can be checked by evaluation.
+cardinality at most one.
 -/
 
 namespace Erdos59
@@ -204,9 +203,5 @@ theorem rel_iff_lefts_eq_singleton (M : Matching) (i j : Fibre) :
     exact (M.mem_lefts i j).mp this
 
 end Matching
-
-/-- There are exactly 34 matchings between two labelled three-element fibres. -/
-theorem matching_card : Fintype.card Matching = 34 := by
-  native_decide
 
 end Erdos59

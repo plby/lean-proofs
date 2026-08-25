@@ -162,9 +162,6 @@ theorem janzerAlpha_lt_one {k : ℕ} (hk : 3 ≤ k) : janzerAlpha k < 1 := by
 /-- The fixed arity used in the finite density-regularization recursion. -/
 def regularizationParts : ℕ := 2 ^ 24
 
-theorem regularizationParts_eq : regularizationParts = 16777216 := by
-  native_decide
-
 theorem janzerAlpha_ge_quarter {k : ℕ} (hk : 3 ≤ k) :
     (4 : ℝ)⁻¹ ≤ janzerAlpha k := by
   have hk' : (3 : ℝ) ≤ k := by exact_mod_cast hk
