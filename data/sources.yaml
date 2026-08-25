@@ -2030,6 +2030,8 @@
 
 - key: ErdosProblems.Erdos291b
   partial: yes
+  # Explicit prime-counting and lcm bounds remain hypotheses in src/latest.
+  conditional: h_priemteller, h_bla0
   epc: https://www.erdosproblems.com/291
   author:
     informal:
@@ -2894,7 +2896,7 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
-  conditional: computation_lemma_check._native.native_decide.ax_1_1
+  # Older ports used native_decide; the latest proof uses only standard Lean axioms.
 
 - key: ErdosProblems.Erdos419
   epc: https://www.erdosproblems.com/419
@@ -6519,7 +6521,7 @@
   url:
     - https://www.erdosproblems.com/forum/thread/964#post-4280
     - https://raw.githubusercontent.com/danielchin/proofs/refs/heads/main/Proofs/ErdosProblems/Erdos964.lean
-  conditional: GoldstonGrahamPintzYildirimStatement
+  # The latest proof establishes the GPY input; older ports retain it as an assumption.
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos965
@@ -7631,6 +7633,8 @@
 
 - key: ErdosProblems.Erdos1100b
   partial: yes
+  # The current final theorem takes this prime-number-theorem consequence as hPNT.
+  conditional: PNT_statement
   epc: https://www.erdosproblems.com/1100
   author:
     informal:
@@ -7886,7 +7890,7 @@
   version: "4.28.0"
 
 - key: ErdosProblems.Erdos1138
-  partial: yes
+  # Disproves the universal conjecture; no claim of failure for every individual C.
   epc: https://www.erdosproblems.com/1138
   author:
     informal:
@@ -7993,6 +7997,7 @@
     - https://www.ulam.ai/research/erdos1148-full.pdf
     - https://github.com/ulamai/ulamai
   url_ref: PrzemekChojecki_1148
+  # Supplied as h_duke; the adapted Duke statement is not proved by this setup.
   conditional: DukeTheoremStatement
   version: "4.27.0"
 
