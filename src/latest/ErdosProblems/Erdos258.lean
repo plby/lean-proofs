@@ -4,7 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 258.
 https://www.erdosproblems.com/forum/thread/258
 
 Formalization status:
-- Conditional on: tao_teravainen
+- Unconditional; the prime-multiplicity bound is proved in Erdos258/Multiplicities.lean.
 
 Informal authors:
 - GPT-5.4 Pro
@@ -17,6 +17,7 @@ Formal authors:
 - Aristotle
 - Przemek Chojecki
 - Stefano Rocca
+- OpenAI Codex (unconditional prime-multiplicity bound)
 
 URLs:
 - https://www.ulam.ai/research/erdos258.pdf
@@ -24,7 +25,7 @@ URLs:
 - https://gist.githubusercontent.com/ster-oc/2b7adcf9d753cf6e29d782f7374cc57e/raw/689a8483895cbe147634dfbf2d7b1db93a3b5b5f/Erdos258.lean
 - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/258.lean
 -/
-import ErdosProblems.Axioms
+import ErdosProblems.Erdos258.Multiplicities
 import Mathlib.Analysis.SpecificLimits.Normed
 import Mathlib.NumberTheory.Divisors
 import Mathlib.NumberTheory.Real.Irrational
@@ -41,8 +42,10 @@ integers `(aₙ)` with `aₙ → ∞`, the Erdős–Straus series
 
   `S = ∑_{n ≥ 1} τ(n) / (a₁ a₂ ⋯ aₙ)`
 
-is irrational, modulo the deep Tao–Teräväinen theorem from analytic number
-theory (stated here without proof).
+is irrational. The analytic input is proved using the unconditional
+distinct-prime sieve for Problem 248, together with a prime-power extension.
+The first five copies of each prime are charged to the distinct-prime count;
+single-prime-power estimates and Cauchy--Schwarz control the remaining copies.
 
 The proof strategy follows the note by Erdős–Straus and is organized into
 four chapters:
@@ -51,14 +54,14 @@ four chapters:
    summability.
 2. **Tail irrationality lemma** — the core
    irrationality-by-clearing-denominators argument.
-3. **Tao–Teräväinen theorem** — the analytic input.
+3. **Divisor bound** — the consequence of the proved prime-multiplicity bound.
 4. **Main theorem** — combining the pieces.
 
 ## Main declarations
 
 * `erdosSeries`: the Erdős–Straus series `∑_{n≥1} τ(n) / Q_n`.
 * `tail_irrationality_lemma`: the core irrationality argument.
-* `tao_teravainen`: the deep analytic input.
+* `tao_teravainen`: the proved analytic input, imported from `Multiplicities`.
 * `erdos_258`: the main theorem.
 -/
 
@@ -417,13 +420,12 @@ theorem tail_irrationality_lemma
       (fun n hn => hN₀ n (by linarith)) hN₁.right;
   linarith [ show ( z : ℝ ) ≥ 1 by exact_mod_cast hz_pos ]
 
-/-! ## Tao–Teräväinen Theorem
+/-! ## Consequence of the Tao–Teräväinen bound
 
-The Tao–Teräväinen theorem is a deep result from analytic number theory
-asserting that there exist arbitrarily long strings of consecutive integers
-whose number of prime factors grows at most linearly. Combined with the
-elementary bound `τ(n) ≤ 2^{Ω(n)}`, this provides the exponential divisor
-bound used in the tail irrationality lemma.
+The imported theorem `Erdos258.tao_teravainen` supplies infinitely many starting
+points with a simultaneous linear bound on prime factors counted with
+multiplicity. Combined with `τ(n) ≤ 2^{Ω(n)}`, this provides the exponential
+divisor bound used in the tail irrationality lemma.
 
 The elementary bound `τ(n) ≤ 2^{Ω(n)}`, where `Ω(n)` is the number of
 prime factors with multiplicity, follows from
@@ -486,7 +488,7 @@ theorem erdos_258 (a : ℕ → ℕ) (ha : ∀ n, 0 < a (n + 1))
   exact tail_irrationality_lemma a ha ha_tendsto Λ hΛ hbound
 
 #print axioms Erdos258.erdos_258
--- 'Erdos258.erdos_258' depends on axioms: [propext, tao_teravainen, Classical.choice, Quot.sound]
+-- 'Erdos258.erdos_258' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 

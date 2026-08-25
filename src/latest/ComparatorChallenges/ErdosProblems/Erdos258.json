@@ -6,7 +6,6 @@
   ],
   "permitted_axioms": [
     "propext",
-    "tao_teravainen",
     "Classical.choice",
     "Quot.sound"
   ],
