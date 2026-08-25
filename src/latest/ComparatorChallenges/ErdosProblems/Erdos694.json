@@ -8,7 +8,6 @@
   ],
   "permitted_axioms": [
     "linnik_dvd",
-    "mertens_product",
     "propext",
     "Classical.choice",
     "Quot.sound"

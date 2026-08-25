@@ -1,29 +1,11 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 import Mathlib
 import ErdosProblems.Erdos13.Erdos13Kneser
+import Util.FranklRodl
+import Util.MertensProduct
 
 open Nat Finset Real Filter Asymptotics Topology
 open scoped Pointwise
-
-/-! ## Axioms from unit fractions -/
-
-/-- **Bloom–Mehta formalized statement (Theorem 3).**
-This is the statement at line 2042 of
-`https://github.com/b-mehta/unit-fractions/blob/master/src/final_results.lean`,
-translated from Lean 3 / mathlib3 into Lean 4 / Mathlib4.
-
-The Bloom–Mehta formalization is in Lean 3, and there is currently no
-automated way to import Lean 3 projects into a Lean 4 build.
-Consequently we state this theorem here with `axiom` as a trusted
-external result. Should a Lean 4 port of the `unit-fractions`
-repository become available, this `axiom` can be replaced by `theorem`
-proved by an import. -/
-axiom unit_fractions_upper_log_density :
-    ∃ C : ℝ, ∀ᶠ (N : ℕ) in atTop, ∀ A ⊆ Icc 1 N,
-      C * (Real.log (Real.log (Real.log N)) /
-        Real.log (Real.log N)) * Real.log N
-        ≤ ∑ n ∈ A, (1 : ℝ) / n →
-      ∃ S ⊆ A, ∑ n ∈ S, (1 / n : ℚ) = 1
 
 /-- A set `B` of integers is *admissible* if for every prime `p`, the
 residues of `B` modulo `p` do not cover all of `ZMod p`. -/
@@ -150,46 +132,14 @@ axiom dusart_chebyshev (x : ℝ) (hx : x ≥ 2) :
 consecutive primes each congruent to `a` modulo `q`.
 
 D. K. L. Shiu, "Strings of Congruent Primes",
-J. London Math. Soc. 61 (2000), 359-373. -/
-axiom shiu_consecutive_primes
+J. London Math. Soc. 61 (2000), 359-373.
+This form follows from the shared `maynardTaoBFT` assumption. -/
+theorem shiu_consecutive_primes
     (l : ℕ) (hl : 1 ≤ l) (a q : ℕ) (hq : 1 ≤ q) (haq : Nat.Coprime a q) (N : ℕ) :
-    ∃ m, N ≤ m ∧ ∀ i, i < l → Nat.nth Nat.Prime (m + i) ≡ a [MOD q]
-
-/-! ## Axioms from additive combinatorics -/
-
-/- `Finset.addStab` and the proved `Finset.add_kneser` are supplied by
-`ErdosProblems.Erdos13.Erdos13Kneser`. -/
-
-/-- **Theorem 2.2** (Frankl–Rödl, 2002):
-If `G` is a 3-uniform hypergraph such that every edge belongs to exactly one
-complete subgraph (clique of size ≥ 4), then `|E(G)| = o(|V(G)|³)`.
-
-Formally: for every `ε > 0` there exists `n₀` such that for any finite vertex-set
-`V` with `|V| ≥ n₀` and any edge-set `E` of 3-element subsets of `V` satisfying the
-unique-clique property, `|E| < ε |V|³`.
-See [Solymosi, *A Note on a Question of Erdős and Graham*, Theorem 2.2]. -/
-def Theorem_2_2 : Prop :=
-  ∀ ε : ℝ, ε > 0 → ∃ n₀ : ℕ,
-    ∀ (V : Finset ℕ) (E : Finset (Finset ℕ)),
-    V.card ≥ n₀ →
-    (∀ e ∈ E, e.card = 3 ∧ e ⊆ V) →
-    (∀ e ∈ E, ∃! K, K ⊆ V ∧ K.card ≥ 4 ∧
-      (∀ t ⊆ K, t.card = 3 → t ∈ E) ∧ e ⊆ K) →
-    (E.card : ℝ) < ε * (V.card : ℝ) ^ 3
-
-/-- **Theorem 2.2** (Frankl–Rödl, 2002). -/
-axiom frankl_roedl_theorem : Theorem_2_2
-
-/-- **Mertens' product theorem.**
-`∏_{p ≤ y, p prime} (1 - 1/p)^{-1}` is asymptotic to `e^γ · log y` as `y → ∞`.
-Mathlib has `Nat.Primes.not_summable_one_div` (divergence of Σ 1/p) but not
-the asymptotic of the product. -/
-axiom mertens_product :
-    Tendsto
-      (fun y : ℝ =>
-        (∏ p ∈ Finset.filter Nat.Prime (Finset.Icc 1 ⌊y⌋₊), ((p : ℝ) / (p - 1))) /
-          (Real.exp Real.eulerMascheroniConstant * Real.log y))
-      atTop (𝓝 1)
+    ∃ m, N ≤ m ∧ ∀ i, i < l → Nat.nth Nat.Prime (m + i) ≡ a [MOD q] := by
+  obtain ⟨_, _, h⟩ := maynardTaoBFT l hl
+  obtain ⟨m, hm, hcong, _⟩ := h q hq a (by simpa using haq.gcd_eq_one) N
+  exact ⟨m, hm, fun i hi => Int.natCast_modEq_iff.mp (hcong i hi)⟩
 
 /-- **Linnik's theorem (divisibility form).**
 There exist absolute constants `C, L ≥ 1` such that for every `M ≥ 1`,

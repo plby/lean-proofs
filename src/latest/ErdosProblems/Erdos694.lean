@@ -4,7 +4,6 @@ This is a Lean formalization of a solution to Erdős Problem 694.
 https://www.erdosproblems.com/forum/thread/694
 
 Formalization status:
-- Conditional on: mertens_product
 - Conditional on: linnik_dvd
 
 Informal authors:
@@ -27,11 +26,10 @@ STANDALONE VERSION of Erdős Problem #694 — TOTIENT FIBRE EXTREMES.
 
 Trust boundary:
   Mathlib core (propext, Classical.choice, Quot.sound)
-  + mertens_product       (Mertens' product theorem, shared trusted input)
   + linnik_dvd            (Linnik's theorem, divisibility form, shared trusted input)
 
-Both trusted inputs are classical unconditional theorems (Mertens 1874, Linnik 1944);
-Mathlib v4.27/v4.28 has surrounding infrastructure but not these named statements.
+Mertens' product theorem is supplied by the proved `Util.MertensProduct`.
+Linnik's theorem remains the only project-specific axiom used here.
 -/
 
 import Mathlib
@@ -417,28 +415,18 @@ theorem totient_preimage_bound {m n : ℕ} (hm : 1 ≤ m) (h : Nat.totient m = n
   rw [← h]
   exact totient_sq_ge_half m hm
 
-/-! ### Shared trusted prerequisites
+/-! ### Analytic prerequisites
 
-Mathlib v4.27 has neither:
-  1. Linnik's theorem in the divisibility form used here
-     (`linnik_dvd`); nor
-  2. the Mertens product asymptotic `∏_{p ≤ y}(1 - 1/p)^{-1} ~ e^γ log y`
-     (`mertens_product`).
-
-We rely on exactly these two classical inputs from `ErdosProblems.Axioms`.
-Both are well-known
-unconditional results (Linnik 1944, Mertens 1874) for which Mathlib v4.27 has
-the surrounding infrastructure (e.g., `Nat.Primes.not_summable_one_div`,
-`Chebyshev.theta`, `Nat.forall_exists_prime_gt_and_modEq`) but not the named
-quantitative theorems themselves. When they land in Mathlib these declarations can
-be deleted and replaced with imports.
+The Mertens product asymptotic is proved in `Util.MertensProduct` and
+re-exported by `ErdosProblems.Axioms`. Only Linnik's divisibility-form
+prime bound (`linnik_dvd`) remains an assumption.
 
 The original PDF additionally invokes the PNT in the form `ϑ(y) ~ y`. This
 formalization avoids that dependency: the lower-bound size estimate uses the
 cruder bound `A_Y ≤ P_Y ≤ 4^Y` (provable from `Nat.primorial_le_4_pow`,
 already in Mathlib), which is enough for the final `log log x` asymptotic.
 
-Both shared inputs are transitively used by `totient_fibre_extremes`:
+Both results are transitively used by `totient_fibre_extremes`:
 `mertens_product` is consumed by `landau_max_ratio` for the upper bound and
 by the lower-bound construction; `linnik_dvd` is consumed by the lower-bound
 construction at the height-to-`x` rescaling step. -/
@@ -1967,8 +1955,8 @@ The proof packages the analytic combination (Mertens product asymptotic on
 `ℓ ≤ C · (A_Y P_Y)^L ≤ C · 16^(LY)`) into a single height-level statement,
 leaving the rescaling to `x` to be done in pure Lean below.
 
-Trust boundary: depends on `mertens_product` only (the Linnik input is taken
-as an explicit hypothesis rather than from the shared declaration). -/
+Trust boundary: standard Lean axioms only; the Linnik input is taken
+as an explicit hypothesis rather than from the shared declaration. -/
 theorem collision_at_height :
     ∀ (C : ℝ) (L : ℕ), 1 ≤ C → 1 ≤ L →
       (∀ M : ℕ, 1 ≤ M →
@@ -2836,7 +2824,7 @@ theorem infinitely_many_collisions (a b : ℕ) (hb : 1 ≤ b) (hgt : b < a)
 
 PDF Theorem 2.1 in the natural `Tendsto` shape an asymptotic result requires.
 
-Trust boundary: `mertens_product` + `linnik_dvd` plus
+Trust boundary: `linnik_dvd` plus
 Mathlib core. There are no `sorry`s in this file. -/
 theorem erdos_694 :
     Tendsto
@@ -2858,43 +2846,21 @@ Expected results, where `core` denotes Mathlib's
   `LowerConstruction.totient_a_eq_totient_b`,
   `infinitely_many_collisions` — `core` only.
 * `landau_max_ratio`, `R_upper_bound`, `collision_at_height` —
-  `core + mertens_product` (Linnik enters as a hypothesis, not as a global axiom).
+  `core` only (Linnik enters as a hypothesis, not as a global axiom).
 * `totient_collision_construction`, `R_lower_bound`,
   `totient_fibre_extremes`, `erdos_694` —
-  `core + mertens_product + linnik_dvd`.
+  `core + linnik_dvd`.
 -/
 #print axioms Erdos694.totient_sq_ge_half
--- 'Erdos694.totient_sq_ge_half' depends on axioms: [propext,
--- Classical.choice, Quot.sound]
 #print axioms Erdos694.permanence_step
--- 'Erdos694.permanence_step' depends on axioms: [propext,
--- Classical.choice, Quot.sound]
 #print axioms Erdos694.infinitely_many_collisions
--- 'Erdos694.infinitely_many_collisions' depends on axioms: [propext,
--- Classical.choice, Quot.sound]
 #print axioms Erdos694.LowerConstruction.totient_a_eq_totient_b
--- 'Erdos694.LowerConstruction.totient_a_eq_totient_b' depends on axioms: [propext,
--- Classical.choice, Quot.sound]
 #print axioms Erdos694.landau_max_ratio
--- 'Erdos694.landau_max_ratio' depends on axioms: [mertens_product, propext,
--- Classical.choice, Quot.sound]
 #print axioms Erdos694.R_upper_bound
--- 'Erdos694.R_upper_bound' depends on axioms: [mertens_product, propext, Classical.choice,
--- Quot.sound]
 #print axioms Erdos694.collision_at_height
--- 'Erdos694.collision_at_height' depends on axioms: [mertens_product, propext,
--- Classical.choice, Quot.sound]
 #print axioms Erdos694.totient_collision_construction
--- 'Erdos694.totient_collision_construction' depends on axioms: [linnik_dvd,
--- mertens_product, propext, Classical.choice, Quot.sound]
 #print axioms Erdos694.R_lower_bound
--- 'Erdos694.R_lower_bound' depends on axioms: [linnik_dvd, mertens_product, propext,
--- Classical.choice, Quot.sound]
 #print axioms Erdos694.totient_fibre_extremes
--- 'Erdos694.totient_fibre_extremes' depends on axioms: [linnik_dvd,
--- mertens_product, propext, Classical.choice, Quot.sound]
 #print axioms Erdos694.erdos_694
--- 'Erdos694.erdos_694_asymptotic' depends on axioms: [linnik_dvd, mertens_product, propext,
--- Classical.choice, Quot.sound]
 
 alias _root_.Erdos694.erdos_694_asymptotic := _root_.Erdos694.erdos_694

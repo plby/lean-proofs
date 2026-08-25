@@ -5,7 +5,7 @@ This is a Lean formalization of a solution to Erdős Problem 427.
 https://www.erdosproblems.com/forum/thread/427
 
 Formalization status:
-- Conditional on: shiu_consecutive_primes
+- Conditional on: maynardTaoBFT
 
 Informal authors:
 - Cedric Pilatte
@@ -52,6 +52,7 @@ namespace Erdos427
 
 For any `l ≥ 1` and `(a, q) = 1` with `q ≥ 1`, there are infinitely many
 runs of `l` consecutive primes all congruent to `a` modulo `q`.
+Here this is derived from the shared `maynardTaoBFT` assumption.
 
 *D. K. L. Shiu, "Strings of Congruent Primes", J. London Math. Soc. 61 (2000), 359–373.*
 -/
@@ -120,7 +121,5 @@ theorem erdos_427 (n d : ℕ) (hd : 1 ≤ d) :
 end Erdos427
 
 #print axioms Erdos427.erdos_427
--- 'Erdos427.erdos427' depends on axioms: [propext, shiu_consecutive_primes,
--- Classical.choice, Quot.sound]
 
 alias _root_.Erdos427.erdos427 := _root_.Erdos427.erdos_427

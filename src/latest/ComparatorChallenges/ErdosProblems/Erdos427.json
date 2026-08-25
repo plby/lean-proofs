@@ -6,7 +6,7 @@
   ],
   "permitted_axioms": [
     "propext",
-    "shiu_consecutive_primes",
+    "maynardTaoBFT",
     "Classical.choice",
     "Quot.sound"
   ],

@@ -4,9 +4,6 @@
 This is a Lean formalization of a solution to Erdős Problem 658.
 https://www.erdosproblems.com/forum/thread/658
 
-Formalization status:
-- Conditional on: frankl_roedl_theorem
-
 Informal authors:
 - József Solymosi
 - Peter Frankl
@@ -28,7 +25,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: John Jennings, Aristotle (Harmonic)
 -/
 import Mathlib
-import ErdosProblems.Axioms
+import Util.FranklRodl
 
 namespace Erdos658
 
@@ -52,7 +49,7 @@ Probability and Computing, 2004), along with its dependencies.
 * `Proposition_1_3` : Theorem 1.2 implies Theorem 1.1
   (via a lifting argument).
 * `Theorem_2_2` : The Frankl–Rödl theorem on linear
-  3-uniform hypergraphs (stated).
+  3-uniform hypergraphs (proved from hypergraph removal).
 * `Conjecture_2_1` : The generalization to k-uniform
   hypergraphs (stated).
 
@@ -98,7 +95,7 @@ def ContainsQuadruple (S : Finset (ℤ × ℤ × ℤ)) : Prop :=
 
 /-! ## §3. Statements of Theorem 2.2 and Conjecture 2.1
 
-Theorem 2.2 (Frankl–Rödl) is imported from `ErdosProblems.Axioms` and is
+Theorem 2.2 (Frankl–Rödl) is proved in `Util.FranklRodl` and is
 taken as a hypothesis in the proofs that follow.
 Conjecture 2.1 is its generalization. -/
 
@@ -1529,8 +1526,6 @@ end
 #print axioms Theorem_1_2
 -- 'Erdos658.Theorem_1_2' depends on axioms: [propext, Classical.choice, Quot.sound]
 #print axioms erdos_658
--- 'Erdos658.erdos658' depends on axioms: [frankl_roedl_theorem, propext, Classical.choice,
--- Quot.sound]
 
 end Erdos658
 

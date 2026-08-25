@@ -6,7 +6,6 @@
     "Erdos658.erdos_658"
   ],
   "permitted_axioms": [
-    "frankl_roedl_theorem",
     "propext",
     "Classical.choice",
     "Quot.sound"
