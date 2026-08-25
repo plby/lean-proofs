@@ -1,5 +1,5 @@
 import ErdosProblems.Erdos223.SphericalEuler.WeightedPlaneBound
-import ErdosProblems.Erdos223.Schoenflies.Graph.Component
+import Wikipedia.SchoenfliesTheorem.Graph.Component
 
 open Set
 open scoped Graph

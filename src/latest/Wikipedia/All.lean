@@ -1,5 +1,6 @@
 import Wikipedia.CycleDoubleCoverConjecture
 import Wikipedia.GreenTao
 import Wikipedia.JordanCurveTheorem
+import Wikipedia.SchoenfliesTheorem
 import Wikipedia.SzemeredisTheorem
 import Wikipedia.VinogradovsTheorem

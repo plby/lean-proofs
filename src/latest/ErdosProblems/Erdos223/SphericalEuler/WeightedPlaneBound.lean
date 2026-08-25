@@ -1,5 +1,5 @@
 import ErdosProblems.Erdos223.SphericalEuler.WeightedPlaneGraph
-import ErdosProblems.Erdos223.Schoenflies.Graph.Redrawing
+import Wikipedia.SchoenfliesTheorem.Graph.Redrawing
 
 open Metric Set Schoenflies unitInterval
 open scoped Graph

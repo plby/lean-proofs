@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos223.Schoenflies.FaceCyclesLand
+import Wikipedia.SchoenfliesTheorem.FaceCyclesLand
 
 open Metric Set Schoenflies unitInterval
 

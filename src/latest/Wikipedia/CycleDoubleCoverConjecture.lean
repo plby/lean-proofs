@@ -1,4 +1,5 @@
 import Mathlib
+import Wikipedia.SchoenfliesTheorem.Graph.Reachability
 
 universe u
 
@@ -25,13 +26,6 @@ noncomputable instance edgeFintype
     {α β : Type*} [Fintype β] (G : Graph α β) :
     Fintype G.Edge :=
   @Subtype.fintype β (fun e ↦ e ∈ G.edgeSet) (Classical.decPred _) inferInstance
-
-def Reachable {α β : Type*} (G : Graph α β) (u v : α) : Prop :=
-  Relation.ReflTransGen G.Adj u v
-
-def Connected {α β : Type*} (G : Graph α β) : Prop :=
-  G.vertexSet.Nonempty ∧
-    ∀ ⦃u v : α⦄, u ∈ G.vertexSet → v ∈ G.vertexSet → G.Reachable u v
 
 def Bridgeless {α β : Type*} (G : Graph α β) : Prop :=
   ∀ e ∈ G.edgeSet, ∀ ⦃x y : α⦄,
@@ -4568,6 +4562,7 @@ lemma simpleGraphAsGraph_loopless {α : Type*} (G : SimpleGraph α) :
 lemma simpleGraphAsGraph_connected {α : Type*} (G : SimpleGraph α)
     (hG : G.Connected) :
     (simpleGraphAsGraph G).Connected := by
+  apply Graph.connected_iff_pairwise_reachable.mpr
   refine ⟨?_, ?_⟩
   · let := hG.nonempty
     exact ⟨Classical.choice inferInstance, Set.mem_univ _⟩
@@ -4577,6 +4572,7 @@ lemma simpleGraphAsGraph_connected {α : Type*} (G : SimpleGraph α)
 lemma simpleGraphAsGraph_deleteEdges_connected {α : Type*} (G : SimpleGraph α)
     (F : Set (Sym2 α)) (hG : (G.deleteEdges F).Connected) :
     ((simpleGraphAsGraph G).deleteEdges F).Connected := by
+  apply Graph.connected_iff_pairwise_reachable.mpr
   refine ⟨?_, ?_⟩
   · let := hG.nonempty
     exact ⟨Classical.choice inferInstance, Set.mem_univ _⟩

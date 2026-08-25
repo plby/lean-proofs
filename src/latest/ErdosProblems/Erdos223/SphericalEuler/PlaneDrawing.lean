@@ -1,6 +1,6 @@
 import ErdosProblems.Erdos223.SphericalEuler.GlobalPaths
-import ErdosProblems.Erdos223.Schoenflies.Graph.Redrawing
-import ErdosProblems.Erdos223.Schoenflies.FaceCyclesLand
+import Wikipedia.SchoenfliesTheorem.Graph.Redrawing
+import Wikipedia.SchoenfliesTheorem.FaceCyclesLand
 import Mathlib.Combinatorics.Graph.Simple
 import Mathlib.Combinatorics.Graph.Maps
 

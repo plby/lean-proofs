@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import ErdosProblems.Erdos515.JordanSimplyConnected
-import ErdosProblems.Erdos515.Schoenflies.JordanSchoenflies
+import Wikipedia.SchoenfliesTheorem
 
 /-!
 # Simply connected closed Jordan domains

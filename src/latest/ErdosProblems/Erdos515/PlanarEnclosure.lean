@@ -3,8 +3,8 @@ Copyright (c) 2026. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
-import ErdosProblems.Erdos515.Schoenflies.SquareCycle
-import ErdosProblems.Erdos515.Schoenflies.FaceCyclesLand
+import Wikipedia.SchoenfliesTheorem.SquareCycle
+import Wikipedia.SchoenfliesTheorem.FaceCyclesLand
 
 /-!
 # Jordan enclosures of planar paths

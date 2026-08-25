@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import ErdosProblems.Erdos515.NestedDomains
-import ErdosProblems.Erdos515.Schoenflies.PolygonalJordan
-import ErdosProblems.Erdos515.Schoenflies.FaceCyclesLand
+import Wikipedia.SchoenfliesTheorem.PolygonalJordan
+import Wikipedia.SchoenfliesTheorem.FaceCyclesLand
 
 /-!
 # Polygonal Jordan filling for sublevel components
