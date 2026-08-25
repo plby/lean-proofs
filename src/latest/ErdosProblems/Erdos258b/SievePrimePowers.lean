@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos258.PrimePowerCounting
+import ErdosProblems.Erdos258b.PrimePowerCounting
 import ErdosProblems.Erdos248.Weight
 
 /-!
@@ -12,7 +12,7 @@ change to their construction or to the distinct-prime-factor estimates.
 open BoundedGaps.Maynard Erdos248
 open scoped BigOperators
 
-namespace Erdos258
+namespace Erdos258b
 
 theorem squarefree_nat_lcm {a b : ℕ} (ha : Squarefree a) (hb : Squarefree b) :
     Squarefree (Nat.lcm a b) := by
@@ -133,4 +133,4 @@ theorem sieve_prime_pow_mass_le {K p j : ℕ} (k : ℕ)
   rw [sievePair_abs_sum] at h
   exact h
 
-end Erdos258
+end Erdos258b

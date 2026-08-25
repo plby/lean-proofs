@@ -12,7 +12,7 @@ divisibility events below a fixed power of the interval endpoint.
 
 open scoped BigOperators ArithmeticFunction.omega ArithmeticFunction.Omega
 
-namespace Erdos258
+namespace Erdos258b
 
 /-- For positive `m`, the number of prime powers `p^j` dividing `m` with
 `j ≥ 2` and `p^j ≤ R`.
@@ -187,4 +187,4 @@ theorem highPrimePowerExcess_le_count {m R : ℕ} (hm : m ≠ 0) :
       simp [hpow]
     _ = highPrimePowerCount m R := rfl
 
-end Erdos258
+end Erdos258b

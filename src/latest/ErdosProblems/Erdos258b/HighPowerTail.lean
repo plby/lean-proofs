@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos258.HighPowerMoment
+import ErdosProblems.Erdos258b.HighPowerMoment
 import ErdosProblems.Erdos248.MomentScaleBounds
 import ErdosProblems.Erdos248.FinalReduction
 import ErdosProblems.Erdos248.TailMarkov
@@ -10,7 +10,7 @@ import ErdosProblems.Erdos248.TailMarkov
 open Erdos248 BoundedGaps.Maynard
 open scoped BigOperators
 
-namespace Erdos258
+namespace Erdos258b
 
 theorem sieveCoefficientMass_le_radiusCube {K : ℕ} (hK : 0 < K) :
     compatibleDivisorPairCoefficientMass (nearShifts K)
@@ -123,4 +123,4 @@ theorem exists_uniform_highPower_tail : ∃ T : ℕ, 0 < T ∧
     (by exact_mod_cast hk) (highPowerBadMass_nonneg K T k) hTsq
   exact (highPowerBadMass_mul_sq_le K T k).trans (sieve_highPower_second_moment_le hA hreg k)
 
-end Erdos258
+end Erdos258b

@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos258.HighPowerTail
+import ErdosProblems.Erdos258b.HighPowerTail
 import ErdosProblems.Erdos248.TailAssembly
 
 /-!
@@ -12,7 +12,7 @@ Outside the finite shift range, the elementary bound `2^Ω(m) ≤ m` applies.
 open Erdos248 Filter
 open scoped BigOperators ArithmeticFunction.omega ArithmeticFunction.Omega
 
-namespace Erdos258
+namespace Erdos258b
 
 noncomputable def multiplicityBadMass (K C k : ℕ) : ℝ :=
   ∑ n ∈ Finset.Ico (intervalStart K) (2 * intervalStart K),
@@ -172,9 +172,9 @@ theorem cardFactors_le_linear_frequently : ∃ C : ℝ, 0 < C ∧
 
 #print axioms cardFactors_le_linear_frequently
 
-/-- The exact statement formerly assumed as `tao_teravainen`.  This local
-theorem replaces that axiom in the divisor-tail proof. -/
-theorem tao_teravainen : ∃ C : ℝ, 0 < C ∧
+/-- A direct prime-multiplicity bound for the divisor-tail proof, using the
+high-power second moment rather than the development in `Util.TaoTeravainen`. -/
+theorem prime_multiplicity_bound : ∃ C : ℝ, 0 < C ∧
     (∃ᶠ N in atTop, ∀ k : ℕ, 0 < k →
       (N + k).factorization.support.card ≤
           (N + k).factorization.sum (fun _ e => e) ∧
@@ -191,6 +191,6 @@ theorem tao_teravainen : ∃ C : ℝ, 0 < C ∧
         exact Nat.pos_of_ne_zero (Finsupp.mem_support_iff.mp hp)
   · simpa only [ArithmeticFunction.cardFactors_eq_sum_factorization] using hN k hk
 
-#print axioms tao_teravainen
+#print axioms prime_multiplicity_bound
 
-end Erdos258
+end Erdos258b

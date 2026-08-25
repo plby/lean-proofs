@@ -13,7 +13,7 @@ bounded independently of the prime and its exponent.
 open BoundedGaps.Maynard
 open scoped BigOperators
 
-namespace Erdos258
+namespace Erdos258b
 
 def progressionDivisorCount (N L c k q : ℕ) : ℕ :=
   ((Finset.Ico N (2 * N)).filter fun n => n ≡ c [MOD L] ∧ q ∣ n + k).card
@@ -207,4 +207,4 @@ theorem divisorEventMass_prime_pow_le {ι : Type*} (S : Finset ι)
     (show (0 : ℝ) ≤ (p : ℝ) ^ (j - 1) by positivity)
   linarith
 
-end Erdos258
+end Erdos258b

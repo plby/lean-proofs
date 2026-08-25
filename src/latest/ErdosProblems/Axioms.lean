@@ -3,6 +3,7 @@ import Mathlib
 import ErdosProblems.Erdos13.Erdos13Kneser
 import Util.FranklRodl
 import Util.MertensProduct
+import Util.TaoTeravainen.Final
 import Util.MaynardBFT.Result
 import Util.Linnik.Theorem
 
@@ -38,14 +39,14 @@ theorem maynardTaoBFT :
 
 /-- **Tao–Teräväinen theorem** (Theorem 1.1 of Tao–Teräväinen, 2025).
 
-This is a deep theorem from analytic number theory and is stated here
-without proof. It shows `ω (N + k) ≤ Ω(N + k) ≤ C·k` for some absolute
-constant `C > 0` and infinitely many `N`. -/
-axiom tao_teravainen : ∃ C : ℝ, 0 < C ∧
+It shows `ω (N + k) ≤ Ω(N + k) ≤ C·k` for some absolute constant `C > 0`
+and infinitely many `N`. The proof is in `Util.TaoTeravainen.Final`. -/
+theorem tao_teravainen : ∃ C : ℝ, 0 < C ∧
     (∃ᶠ N in atTop, ∀ k : ℕ, 0 < k →
       (N + k).factorization.support.card ≤
           (N + k).factorization.sum (fun _ k => k) ∧
-        (N + k).factorization.sum (fun _ k => k) ≤ C * k)
+        (N + k).factorization.sum (fun _ k => k) ≤ C * k) :=
+  TaoTeravainen.tao_teravainen_unconditional
 
 /-- An (integral) binary quadratic form `f(X,Y) = a X^2 + b X Y + c Y^2`. -/
 structure BinQuadForm where

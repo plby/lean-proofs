@@ -4,7 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 258.
 https://www.erdosproblems.com/forum/thread/258
 
 Formalization status:
-- Unconditional; the prime-multiplicity bound is proved in Util/TaoTeravainen/Final.lean.
+- Unconditional; the prime-multiplicity bound is proved in Erdos258b/Multiplicities.lean.
 
 Informal authors:
 - GPT-5.4 Pro
@@ -25,26 +25,29 @@ URLs:
 - https://gist.githubusercontent.com/ster-oc/2b7adcf9d753cf6e29d782f7374cc57e/raw/689a8483895cbe147634dfbf2d7b1db93a3b5b5f/Erdos258.lean
 - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/258.lean
 -/
-import Util.TaoTeravainen.Final
+import ErdosProblems.Erdos258b.Multiplicities
 import Mathlib.Analysis.SpecificLimits.Normed
 import Mathlib.NumberTheory.Divisors
 import Mathlib.NumberTheory.Real.Irrational
 import Mathlib.NumberTheory.ArithmeticFunction.Misc
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
-namespace Erdos258
+namespace Erdos258b
 
 /-!
-# Erdős Problem 258 (original formalization by Przemek Chojecki)
+# Erdős Problem 258: separate prime-power proof
 
 This file gives a self-contained formal proof that for any sequence of positive
 integers `(aₙ)` with `aₙ → ∞`, the Erdős–Straus series
 
   `S = ∑_{n ≥ 1} τ(n) / (a₁ a₂ ⋯ aₙ)`
 
-is irrational, using the unconditional Tao–Teräväinen theorem formalized in
-`Util.TaoTeravainen`. The original divisor-tail argument is unchanged.
-A separate proof of the analytic input is used in `ErdosProblems.Erdos258b`.
+is irrational. The analytic input is proved using the unconditional
+distinct-prime sieve for Problem 248, together with a prime-power extension.
+The first five copies of each prime are charged to the distinct-prime count;
+single-prime-power estimates and Cauchy--Schwarz control the remaining copies.
+This proof does not import the Tao–Teräväinen development in `Util`; the
+original proof using that development is in `ErdosProblems.Erdos258`.
 
 The proof strategy follows the note by Erdős–Straus and is organized into
 four chapters:
@@ -60,7 +63,7 @@ four chapters:
 
 * `erdosSeries`: the Erdős–Straus series `∑_{n≥1} τ(n) / Q_n`.
 * `tail_irrationality_lemma`: the core irrationality argument.
-* `TaoTeravainen.tao_teravainen_unconditional`: the proved analytic input.
+* `prime_multiplicity_bound`: the proved analytic input, imported from `Multiplicities`.
 * `erdos_258`: the main theorem.
 -/
 
@@ -419,17 +422,17 @@ theorem tail_irrationality_lemma
       (fun n hn => hN₀ n (by linarith)) hN₁.right;
   linarith [ show ( z : ℝ ) ≥ 1 by exact_mod_cast hz_pos ]
 
-/-! ## Consequence of the Tao–Teräväinen bound
+/-! ## Consequence of the direct prime-multiplicity bound
 
-The imported theorem `TaoTeravainen.tao_teravainen_unconditional` supplies
-infinitely many starting points with a simultaneous linear bound on prime factors counted with
+The imported theorem `Erdos258b.prime_multiplicity_bound` supplies infinitely many starting
+points with a simultaneous linear bound on prime factors counted with
 multiplicity. Combined with `τ(n) ≤ 2^{Ω(n)}`, this provides the exponential
 divisor bound used in the tail irrationality lemma.
 
 The elementary bound `τ(n) ≤ 2^{Ω(n)}`, where `Ω(n)` is the number of
 prime factors with multiplicity, follows from
 `τ(n) = ∏ (αᵢ + 1) ≤ ∏ 2^αᵢ`. This is the bridge between the
-Tao–Teräväinen bound on `Ω` and the divisor bound used in the tail
+direct bound on `Ω` and the divisor bound used in the tail
 irrationality lemma.
 -/
 
@@ -448,9 +451,9 @@ lemma divisors_card_le_two_pow_omega (n : ℕ) (hn : n ≠ 0) :
 
 /-- There exists `Λ > 1` such that for infinitely many `N`,
 `τ(N + k) ≤ Λ^k` for all `k ≥ 1`. -/
-theorem tao_teravainen_divisors_le : ∃ Λ : ℝ, 1 < Λ ∧
+theorem divisors_le_frequently : ∃ Λ : ℝ, 1 < Λ ∧
     (∃ᶠ N in atTop, ∀ k, 0 < k → ((N + k).divisors.card : ℝ) ≤ Λ ^ k) := by
-  obtain ⟨C, hC_pos, hC⟩ := TaoTeravainen.tao_teravainen_unconditional
+  obtain ⟨C, hC_pos, hC⟩ := prime_multiplicity_bound
   refine ⟨(2 : ℝ) ^ C, ?_, ?_⟩
   · rw [Real.one_lt_rpow_iff_of_pos (by norm_num : (0:ℝ) < 2)]
     left; exact ⟨by norm_num, hC_pos⟩
@@ -483,12 +486,12 @@ the series `∑ τ(n)/(a₁a₂⋯aₙ)` is irrational. -/
 theorem erdos_258 (a : ℕ → ℕ) (ha : ∀ n, 0 < a (n + 1))
     (ha_tendsto : Tendsto a atTop atTop) :
     Irrational (erdosSeries a) := by
-  obtain ⟨Λ, hΛ, hbound⟩ := tao_teravainen_divisors_le
+  obtain ⟨Λ, hΛ, hbound⟩ := divisors_le_frequently
   exact tail_irrationality_lemma a ha ha_tendsto Λ hΛ hbound
 
-#print axioms Erdos258.erdos_258
--- 'Erdos258.erdos_258' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms Erdos258b.erdos_258
+-- 'Erdos258b.erdos_258' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end
 
-end Erdos258
+end Erdos258b

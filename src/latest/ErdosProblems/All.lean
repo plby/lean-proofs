@@ -109,6 +109,7 @@ import ErdosProblems.Erdos250
 import ErdosProblems.Erdos253
 import ErdosProblems.Erdos255
 import ErdosProblems.Erdos258
+import ErdosProblems.Erdos258b
 import ErdosProblems.Erdos259
 import ErdosProblems.Erdos262
 import ErdosProblems.Erdos264

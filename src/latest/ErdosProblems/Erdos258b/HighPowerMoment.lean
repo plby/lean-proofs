@@ -1,5 +1,5 @@
-import ErdosProblems.Erdos258.PrimePowers
-import ErdosProblems.Erdos258.SievePrimePowers
+import ErdosProblems.Erdos258b.PrimePowers
+import ErdosProblems.Erdos258b.SievePrimePowers
 import ErdosProblems.Erdos248.PrimeSumBounds
 import Mathlib.Analysis.SpecificLimits.Normed
 
@@ -15,7 +15,7 @@ The single-prime-power estimate makes this summable in both `p` and `j`.
 open Erdos248
 open scoped BigOperators
 
-namespace Erdos258
+namespace Erdos258b
 
 noncomputable def highPowerGeometricConstant : ℝ :=
   ∑' j : ℕ, (j : ℝ) ^ 2 * (1 / 2 : ℝ) ^ j
@@ -241,4 +241,4 @@ theorem highPower_second_moment_le (N R k : ℕ) {w : ℕ → ℝ} {M E : ℝ}
       add_le_add (mul_le_mul_of_nonneg_right (highPowerRect_weight_div_le R) hM)
         (mul_le_mul_of_nonneg_right (highPowerRect_weight_le R) hE)
 
-end Erdos258
+end Erdos258b
