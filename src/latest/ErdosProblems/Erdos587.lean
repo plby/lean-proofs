@@ -261,8 +261,11 @@ theorem nguyenVuBound_iff_eventual_uniform_card_bound :
 /-- The unconditional upper bound, in the exact target proposition. -/
 theorem nguyenVuBound : NguyenVuBound := unconditional_nguyen_vu
 
-end Erdos587
-
 /-- The corrected Formal Conjectures Nguyen--Vu variant. -/
-theorem erdos_587.variants.nguyen_vu : Erdos587.NguyenVuBound :=
-  Erdos587.nguyenVuBound
+theorem erdos_587.variants.nguyen_vu : ∃ᵉ (O > 0) (O' > 0),
+    ∀ᶠ N in Filter.atTop,
+      (MaxNotSqSum N : ℝ) ≤
+        O' * Real.nthRoot 3 N * (N : ℝ).log ^ O :=
+  nguyenVuBound
+
+end Erdos587
