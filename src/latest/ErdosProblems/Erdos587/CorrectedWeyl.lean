@@ -1,5 +1,5 @@
 import ErdosProblems.Erdos587.NVDevelopment
-import ErdosProblems.Erdos981.External.Erdos439.Main
+import ErdosProblems.Erdos439.PowerSums
 
 open Filter MeasureTheory
 open scoped Pointwise
@@ -250,7 +250,7 @@ noncomputable def twistedPairMajorant
 
 lemma rationalMajorant_le_twistedPairMajorants
     (a q L m h : ℕ) (hq : 0 < q) :
-    Erdos587.External.Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h ≤
+    Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h ≤
       twistedPairMajorant a q L m h +
         twistedPairMajorant (q - a % q) q L m h := by
   let r := (a * (2 * m * h)) % q
@@ -260,12 +260,12 @@ lemma rationalMajorant_le_twistedPairMajorants
     congr 1
     ring
   by_cases hr0 : r = 0
-  · have hdist0 : Erdos587.External.Erdos438.QuadraticWeyl.residueDistance (a * m) q h = 0 := by
-      simp [Erdos587.External.Erdos438.QuadraticWeyl.residueDistance, hres, hr0]
+  · have hdist0 : Erdos438.QuadraticWeyl.residueDistance (a * m) q h = 0 := by
+      simp [Erdos438.QuadraticWeyl.residueDistance, hres, hr0]
     have hz : (a * (2 * m * h)) % q = 0 := by simpa [r] using hr0
     have hcomp0 := complementary_twisted_residue_zero_of_zero
       a q (2 * m * h) hq hz
-    rw [Erdos587.External.Erdos438.QuadraticWeyl.rationalMajorant, if_pos hdist0]
+    rw [Erdos438.QuadraticWeyl.rationalMajorant, if_pos hdist0]
     simp only [twistedPairMajorant, hz, hcomp0, if_pos]
     exact le_add_of_nonneg_right (Nat.cast_nonneg L)
   · have hrpos : 0 < r := Nat.pos_of_ne_zero hr0
@@ -274,13 +274,13 @@ lemma rationalMajorant_le_twistedPairMajorants
     have hcompPos : 0 < ((q - a % q) * (2 * m * h)) % q := by
       rw [hcomp]
       omega
-    have hdistNe : Erdos587.External.Erdos438.QuadraticWeyl.residueDistance (a * m) q h ≠ 0 := by
-      simp only [Erdos587.External.Erdos438.QuadraticWeyl.residueDistance, hres]
+    have hdistNe : Erdos438.QuadraticWeyl.residueDistance (a * m) q h ≠ 0 := by
+      simp only [Erdos438.QuadraticWeyl.residueDistance, hres]
       omega
-    rw [Erdos587.External.Erdos438.QuadraticWeyl.rationalMajorant, if_neg hdistNe]
+    rw [Erdos438.QuadraticWeyl.rationalMajorant, if_neg hdistNe]
     simp only [twistedPairMajorant, hz, hcompPos.ne', if_false]
     rw [hcomp]
-    simp only [Erdos587.External.Erdos438.QuadraticWeyl.residueDistance, hres]
+    simp only [Erdos438.QuadraticWeyl.residueDistance, hres]
     change (q : ℝ) / (min r (q - r) : ℕ) ≤
       (q : ℝ) / r + (q : ℝ) / (q - r : ℕ)
     by_cases hle : r ≤ q - r
@@ -387,7 +387,7 @@ lemma sum_twistedPairMajorant_eq
 lemma sum_rationalMajorant_mul_frequency_le
     (a q L M N : ℕ) (hq : 0 < q) :
     (∑ m ∈ Finset.Icc 1 M, ∑ h ∈ Finset.Icc 1 N,
-        Erdos587.External.Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h) ≤
+        Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h) ≤
       2 * (twistedResiduePairCount a q 0 M N : ℝ) * L +
         (∑ r ∈ Finset.Icc 1 (q - 1),
           (twistedResiduePairCount a q r M N : ℝ) * ((q : ℝ) / r)) +
@@ -396,7 +396,7 @@ lemma sum_rationalMajorant_mul_frequency_le
             ((q : ℝ) / r)) := by
   calc
     (∑ m ∈ Finset.Icc 1 M, ∑ h ∈ Finset.Icc 1 N,
-        Erdos587.External.Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h) ≤
+        Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h) ≤
         ∑ m ∈ Finset.Icc 1 M, ∑ h ∈ Finset.Icc 1 N,
           (twistedPairMajorant a q L m h +
             twistedPairMajorant (q - a % q) q L m h) := by
@@ -420,21 +420,21 @@ lemma norm_quadraticSum_rational_mul_sq_le_majorants
     (a q L m : ℕ) (beta : ℝ) (hq : 0 < q) :
     ‖quadraticSum (((a * m : ℕ) : ℝ) / q) beta L‖ ^ 2 ≤
       L + 2 * ∑ h ∈ Finset.Icc 1 L,
-        Erdos587.External.Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h := by
+        Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h := by
   calc
     ‖quadraticSum (((a * m : ℕ) : ℝ) / q) beta L‖ ^ 2 ≤
         L + 2 * ∑ h ∈ Finset.range L,
-          Erdos587.External.Erdos438.QuadraticWeyl.correlationMajorant
+          Erdos438.QuadraticWeyl.correlationMajorant
             (((a * m : ℕ) : ℝ) / q) L (h + 1) :=
-      Erdos587.External.Erdos438.QuadraticWeyl.norm_quadraticSum_sq_le _ _ _
+      Erdos438.QuadraticWeyl.norm_quadraticSum_sq_le _ _ _
     _ = L + 2 * ∑ h ∈ Finset.Icc 1 L,
-          Erdos587.External.Erdos438.QuadraticWeyl.correlationMajorant
+          Erdos438.QuadraticWeyl.correlationMajorant
             (((a * m : ℕ) : ℝ) / q) L h := by
-      rw [Erdos587.External.Erdos438.QuadraticWeyl.sum_range_correlationMajorant_succ]
+      rw [Erdos438.QuadraticWeyl.sum_range_correlationMajorant_succ]
     _ ≤ L + 2 * ∑ h ∈ Finset.Icc 1 L,
-          Erdos587.External.Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h := by
+          Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h := by
       gcongr with h hh
-      apply Erdos587.External.Erdos438.QuadraticWeyl.correlationMajorant_le_rationalMajorant
+      apply Erdos438.QuadraticWeyl.correlationMajorant_le_rationalMajorant
         ((((a * m : ℕ) : ℝ) / q)) (a * m) q (4 * L) L h hq
       · exact (Finset.mem_Icc.mp hh).1
       · exact (Finset.mem_Icc.mp hh).2
@@ -448,20 +448,20 @@ lemma sum_norm_quadraticSum_rational_mul_sq_le
         ‖quadraticSum (((a * m : ℕ) : ℝ) / q) (beta m) L‖ ^ 2 ≤
       (M : ℝ) * L +
         2 * ∑ m ∈ Finset.Icc 1 M, ∑ h ∈ Finset.Icc 1 L,
-          Erdos587.External.Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h := by
+          Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h := by
   calc
     (∑ m ∈ Finset.Icc 1 M,
         ‖quadraticSum (((a * m : ℕ) : ℝ) / q) (beta m) L‖ ^ 2) ≤
         ∑ m ∈ Finset.Icc 1 M,
           ((L : ℝ) + 2 * ∑ h ∈ Finset.Icc 1 L,
-            Erdos587.External.Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h) := by
+            Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h) := by
       apply Finset.sum_le_sum
       intro m hm
       exact norm_quadraticSum_rational_mul_sq_le_majorants
         a q L m (beta m) hq
     _ = (M : ℝ) * L +
         2 * ∑ m ∈ Finset.Icc 1 M, ∑ h ∈ Finset.Icc 1 L,
-          Erdos587.External.Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h := by
+          Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h := by
       rw [Finset.sum_add_distrib]
       rw [← Finset.mul_sum]
       simp
@@ -482,7 +482,7 @@ lemma sum_norm_quadraticSum_rational_mul_sq_le_residues
         ‖quadraticSum (((a * m : ℕ) : ℝ) / q) (beta m) L‖ ^ 2) ≤
         (M : ℝ) * L +
           2 * ∑ m ∈ Finset.Icc 1 M, ∑ h ∈ Finset.Icc 1 L,
-            Erdos587.External.Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h :=
+            Erdos438.QuadraticWeyl.rationalMajorant (a * m) q L h :=
       sum_norm_quadraticSum_rational_mul_sq_le a q L M beta hq
     _ ≤ _ := by
       have hres := sum_rationalMajorant_mul_frequency_le a q L M L hq

@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -/
 
-import ErdosProblems.Erdos636.External.Erdos88.Concentration
+import ErdosProblems.Erdos88.Concentration
 
 /-!
 # Truncated expectations on finite probability spaces

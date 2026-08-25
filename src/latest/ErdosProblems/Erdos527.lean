@@ -23,7 +23,7 @@ Authors: OpenAI Codex
 import Mathlib
 import BoundedGaps.BombieriVinogradov.Analytic.AdditiveLargeSieve.ConsecutiveInterval
 import ErdosProblems.Erdos615.Erdos615BrunnMinkowski
-import ErdosProblems.Erdos527.External.Erdos88.Invariance
+import ErdosProblems.Erdos88.Invariance
 
 /-!
 # Erdős Problem 527

@@ -12,7 +12,7 @@ open scoped BigOperators
 
 namespace Erdos587
 
-open External.Erdos438.QuadraticWeyl
+open Erdos438.QuadraticWeyl
 
 /-- A nonnegative real number is at most one plus the number of positive
 integers below it. The cutoff may be any larger integer. -/

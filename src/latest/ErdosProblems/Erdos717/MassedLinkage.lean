@@ -27,14 +27,14 @@ theorem isLinkedSet_of_kLinkedSubgraph_of_noSmallRigid
     isKLinked_induce_range_of_embedding J.inclusion J.linked
   obtain ⟨P₀, T, hP₀, hTcover, hcard, _hmax, hTmin⟩ :=
     Erdos718.finite_pathHypergraph_minmax C.G A B
-  have hTsep : Erdos599.Separates C.G A B T :=
-    Erdos599.isCover_pathHypergraph_iff.mp hTcover
+  have hTsep : Erdos599.Countable.Separates C.G A B T :=
+    Erdos599.Countable.isCover_pathHypergraph_iff.mp hTcover
   by_cases hlarge : C.X.card ≤ T.ncard
-  · have hall : ∀ U, Erdos599.Separates C.G A B U →
+  · have hall : ∀ U, Erdos599.Countable.Separates C.G A B U →
         C.X.card ≤ U.ncard := by
       intro U hUsep
       exact hlarge.trans (hTmin U
-        (Erdos599.isCover_pathHypergraph_iff.mpr hUsep))
+        (Erdos599.Countable.isCover_pathHypergraph_iff.mpr hUsep))
     obtain ⟨P⟩ := Erdos718.exists_abLinkage_of_forall_separator_ncard_ge
       C.G A B C.X.card hall
     have P' : Erdos718.ABLinkage C.G A B A.ncard := by
@@ -50,7 +50,7 @@ theorem isLinkedSet_of_kLinkedSubgraph_of_noSmallRigid
       (rightSeparator t : Set (t.right : Set C.V))
     let D : Set (t.right : Set C.V) := {x | (x : C.V) ∈ B}
     let K := C.G.induce (t.right : Set C.V)
-    have hcutLower : ∀ U, Erdos599.Separates K Y D U →
+    have hcutLower : ∀ U, Erdos599.Countable.Separates K Y D U →
         t.separator.card ≤ U.ncard := by
       intro U hUsep
       obtain ⟨u, hYuLeft, hDuRight, huCard⟩ :=
@@ -77,11 +77,11 @@ theorem isLinkedSet_of_kLinkedSubgraph_of_noSmallRigid
         let bR : (t.right : Set C.V) := ⟨b, hbR⟩
         have hbD : bR ∈ D := hb
         exact Finset.mem_map.mpr ⟨bR, hDuRight hbD, rfl⟩
-      have hqSep : Erdos599.Separates C.G A B
+      have hqSep : Erdos599.Countable.Separates C.G A B
           (q.separator : Set C.V) :=
         separation_separator_separates_of_subsets q hAq hBq
       have hmin := hTmin (q.separator : Set C.V)
-        (Erdos599.isCover_pathHypergraph_iff.mpr hqSep)
+        (Erdos599.Countable.isCover_pathHypergraph_iff.mpr hqSep)
       rw [Set.ncard_coe_finset, composeRight_separator_card,
         huCard] at hmin
       rw [htCard]

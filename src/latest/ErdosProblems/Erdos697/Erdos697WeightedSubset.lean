@@ -1,6 +1,6 @@
 import Mathlib
 import ErdosProblems.Erdos697.Erdos697Probability
-import ErdosProblems.Erdos697.Erdos697SubsetProduct
+import ErdosProblems.Erdos696.SubsetProduct
 import ErdosProblems.Erdos697.Erdos697Bernoulli
 
 /-!

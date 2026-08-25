@@ -7,7 +7,7 @@ Authors: OpenAI Codex
 import ErdosProblems.Erdos980.ElliottTail.OddRayNormRosser
 import ErdosProblems.Erdos980.ElliottTail.OddAuxiliaryScaleCore
 import ErdosProblems.Erdos980.ElliottTail.FixedRayCellCandidateData
-import ErdosProblems.Erdos980.External.Erdos387.BinomialBetaCutoff
+import ErdosProblems.Erdos387.BinomialBetaCutoff
 
 /-!
 # Concrete numerical parameters for the odd norm Rosser sieve

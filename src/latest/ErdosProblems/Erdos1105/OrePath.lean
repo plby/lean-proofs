@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos551.Erdos551BondyChvatal
+import ErdosProblems.Erdos570.BondyChvatal
 import ErdosProblems.Erdos1105.Basic
 
 namespace Erdos1105

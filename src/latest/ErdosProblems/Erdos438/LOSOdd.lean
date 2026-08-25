@@ -5,7 +5,7 @@ Released under Apache 2.0 license.
 -/
 
 import ErdosProblems.Erdos438.LOSCover
-import ErdosProblems.Erdos438.Hensel
+import ErdosProblems.Erdos587.Hensel
 
 /-!
 # The odd part of the Lagarias--Odlyzko--Shearer cover

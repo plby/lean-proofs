@@ -26,6 +26,7 @@ Erdős--Tenenbaum theorem are documented in tex/448.tex.
 -/
 
 import ErdosProblems.Erdos448.Final448Assembly
+import ErdosProblems.Erdos448.MeanValueSpecial448
 
 namespace Erdos448
 

@@ -15,7 +15,7 @@ limitations under the License.
 -/
 import Mathlib
 import ErdosProblems.Erdos622.Hamiltonicity
-import ErdosProblems.Erdos622.External.Erdos570.BondyChvatal
+import ErdosProblems.Erdos570.BondyChvatal
 import ErdosProblems.Erdos58.Structural.SpliceConstruction
 
 /-!

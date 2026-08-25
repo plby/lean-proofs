@@ -1,5 +1,5 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-import ErdosProblems.Erdos48.External.Erdos4.Base
+import ErdosProblems.Erdos4.Base
 import BoundedGaps.Maynard.MaynardS2CoordinateFiberAbel
 import BoundedGaps.Maynard.MaynardS2CoordinateFiberWirsingLogarithmic
 

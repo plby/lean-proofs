@@ -14,7 +14,7 @@ open scoped BigOperators
 
 namespace Erdos587
 
-open External.Erdos438.QuadraticWeyl
+open Erdos438.QuadraticWeyl
 
 lemma periodic_nat_multiple (f : ℕ → ℂ) (q : ℕ) (hper : ∀ n, f (n + q) = f n)
     (n k : ℕ) : f (n + k * q) = f n := by

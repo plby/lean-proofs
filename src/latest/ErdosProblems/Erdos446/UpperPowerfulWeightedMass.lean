@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: The Formal Conjectures Authors
 -/
 
-import ErdosProblems.Erdos446.External.Erdos439.Main
+import ErdosProblems.Erdos439.PowerSums
 import ErdosProblems.Erdos446.UpperPowerfulReduction
 
 /-!

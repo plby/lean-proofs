@@ -21,6 +21,7 @@ Copyright 2026.
 Released under Apache 2.0 license.
 -/
 
+import ErdosProblems.Erdos439.PowerSums
 import ErdosProblems.Erdos438
 
 /-!

@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -/
 
-import ErdosProblems.Erdos636.External.Erdos88.ProductPermutationConcentration
-import ErdosProblems.Erdos636.External.Erdos88.SignedSliceConcentration
+import ErdosProblems.Erdos88.ProductPermutationConcentration
+import ErdosProblems.Erdos88.SignedSliceConcentration
 import ErdosProblems.Erdos636.AugmentationIdentity
 import ErdosProblems.Erdos636.OuterSwitching
 import ErdosProblems.Erdos636.SliceMoments

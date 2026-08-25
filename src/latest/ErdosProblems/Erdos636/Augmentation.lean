@@ -22,8 +22,8 @@ import ErdosProblems.Erdos636.AugmentationPartial
 import ErdosProblems.Erdos636.NestedUniform
 import ErdosProblems.Erdos636.Switching
 import ErdosProblems.Erdos636.TuranEdges
-import ErdosProblems.Erdos636.External.Erdos88.Foundations
-import ErdosProblems.Erdos636.External.Erdos88.BooleanSlices
+import ErdosProblems.Erdos88.Foundations
+import ErdosProblems.Erdos88.BooleanSlices
 
 /-!
 # The deterministic augmentation step for Erdős Problem 636

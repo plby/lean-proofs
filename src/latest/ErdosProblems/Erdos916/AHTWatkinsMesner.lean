@@ -1150,12 +1150,12 @@ structure ThreeABLinkage {W : Type*} (H : SimpleGraph W) (A B : Set W) where
 /-- Finite vertex Menger, specialized to three paths. -/
 theorem exists_threeABLinkage_of_separator_three_le {W : Type} [Finite W]
     (H : SimpleGraph W) (A B : Set W)
-    (hsep : ∀ S, Erdos599.Separates H A B S → 3 ≤ S.ncard) :
+    (hsep : ∀ S, Erdos599.Countable.Separates H A B S → 3 ≤ S.ncard) :
     Nonempty (ThreeABLinkage H A B) := by
   classical
-  have hEM : Erdos599.HasErdosMengerPair H A B :=
-    Erdos599.hasErdosMengerPair_of_safePathRemoval_of_countable
-      Erdos599.safePathRemoval H A B (Set.toFinite A).countable
+  have hEM : Erdos599.Countable.HasErdosMengerPair H A B :=
+    Erdos599.Countable.hasErdosMengerPair_of_safePathRemoval_of_countable
+      Erdos599.Countable.safePathRemoval H A B (Set.toFinite A).countable
   rcases hEM with ⟨ι, left, right, path, S, hleft, hright, hpath,
     hdisjoint, hSsub, horth, hseparates⟩
   have hScard : 3 ≤ S.ncard := hsep S hseparates

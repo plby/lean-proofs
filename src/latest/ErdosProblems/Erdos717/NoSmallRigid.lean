@@ -28,14 +28,14 @@ theorem noRigidSeparationEqual_of_lexMinimal
   let H := C.G.induce (s.left : Set C.V)
   obtain ⟨P₀, T, hP₀, hTcover, hcard, _hmax, hTmin⟩ :=
     Erdos718.finite_pathHypergraph_minmax H A B
-  have hTsep : Erdos599.Separates H A B T :=
-    Erdos599.isCover_pathHypergraph_iff.mp hTcover
+  have hTsep : Erdos599.Countable.Separates H A B T :=
+    Erdos599.Countable.isCover_pathHypergraph_iff.mp hTcover
   by_cases hlarge : C.X.card ≤ T.ncard
-  · have hall : ∀ U, Erdos599.Separates H A B U →
+  · have hall : ∀ U, Erdos599.Countable.Separates H A B U →
         C.X.card ≤ U.ncard := by
       intro U hUsep
       exact hlarge.trans (hTmin U
-        (Erdos599.isCover_pathHypergraph_iff.mpr hUsep))
+        (Erdos599.Countable.isCover_pathHypergraph_iff.mpr hUsep))
     obtain ⟨P⟩ := Erdos718.exists_abLinkage_of_forall_separator_ncard_ge
       H A B C.X.card hall
     let PG : Erdos718.ABLinkage C.G (C.X : Set C.V)
@@ -75,7 +75,7 @@ theorem noRigidSeparationEqual_of_lexMinimal
     let D : Set (t.right : Set (s.left : Set C.V)) :=
       {x | ((x : (s.left : Set C.V)) : C.V) ∈ s.separator}
     let K := (leftTorso s).induce (t.right : Set (s.left : Set C.V))
-    have hcutLower : ∀ U, Erdos599.Separates K Y D U →
+    have hcutLower : ∀ U, Erdos599.Countable.Separates K Y D U →
         t.separator.card ≤ U.ncard := by
       intro U hUsep
       obtain ⟨u, hYuLeft, hDuRight, huCard⟩ :=
@@ -108,11 +108,11 @@ theorem noRigidSeparationEqual_of_lexMinimal
         let bR : (t.right : Set (s.left : Set C.V)) := ⟨b, hbR⟩
         have hbD : bR ∈ D := hb
         exact Finset.mem_map.mpr ⟨bR, hDuRight hbD, rfl⟩
-      have hqSep : Erdos599.Separates H A B
+      have hqSep : Erdos599.Countable.Separates H A B
           (qH.separator : Set (s.left : Set C.V)) :=
         separation_separator_separates_of_subsets qH hAq hBq
       have hmin := hTmin (qH.separator : Set (s.left : Set C.V))
-        (Erdos599.isCover_pathHypergraph_iff.mpr hqSep)
+        (Erdos599.Countable.isCover_pathHypergraph_iff.mpr hqSep)
       have hqCard : qH.separator.card = u.separator.card := by
         exact composeRight_separator_card t u hYfin
       rw [Set.ncard_coe_finset, hqCard, huCard] at hmin

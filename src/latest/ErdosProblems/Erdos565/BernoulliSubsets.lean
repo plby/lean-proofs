@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos565.FiniteBernoulliLocality
+import ErdosProblems.Erdos76.FiniteBernoulliLocality
 import Mathlib.Combinatorics.SetFamily.FourFunctions
 
 /-!

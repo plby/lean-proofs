@@ -16,8 +16,8 @@ URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos843.md
 -/
 import Mathlib
-import ErdosProblems.Erdos843.External.Erdos186.CFP.GrowthLemmas
-import ErdosProblems.Erdos843.External.Erdos186.CFP.Lev
+import ErdosProblems.Erdos186.CFP.GrowthLemmas
+import ErdosProblems.Erdos186.CFP.Lev
 
 /-!
 # Erdős Problem 843

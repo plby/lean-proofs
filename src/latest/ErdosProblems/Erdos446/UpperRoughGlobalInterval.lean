@@ -5,7 +5,7 @@ Authors: The Formal Conjectures Authors
 -/
 
 import ErdosProblems.Erdos446.UpperRoughUniformEnvelope
-import ErdosProblems.Erdos446.External.Erdos69.RoughSelberg
+import ErdosProblems.Erdos69.RoughSelberg
 
 /-!
 # Erdős Problem 446: a uniform one-dimensional rough interval bound

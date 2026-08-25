@@ -6,7 +6,7 @@ Authors: OpenAI Codex
 import Mathlib.Combinatorics.SimpleGraph.Hall
 import Mathlib.Combinatorics.SimpleGraph.VertexCover
 import Mathlib.Tactic
-import ErdosProblems.Erdos622.External.Erdos88.Concentration
+import ErdosProblems.Erdos88.Concentration
 import ErdosProblems.Erdos622.HallMatching
 import ErdosProblems.Erdos622.Concentration
 

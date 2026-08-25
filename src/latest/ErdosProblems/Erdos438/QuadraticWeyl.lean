@@ -5,7 +5,7 @@ Released under Apache 2.0 license.
 -/
 
 import ErdosProblems.Erdos387.FiniteWeylInequality
-import ErdosProblems.Erdos438.Analytic
+import ErdosProblems.Erdos587.Analytic
 
 /-!
 # A completed quadratic Weyl estimate for Erdős problem 438
@@ -300,6 +300,27 @@ theorem norm_correlation_le_majorant (θ : ℝ) (L h : ℕ) :
   · rw [correlationMajorant, if_neg hf]
     simpa using Erdos587.norm_quadratic_correlation_sum_le θ 0 L h hf
 
+/-- The autocorrelation majorant is unchanged by an arbitrary linear term
+in the quadratic phase. -/
+theorem norm_quadratic_correlation_le_majorant
+    (θ β : ℝ) (L h : ℕ) :
+    ‖∑ z ∈ Finset.range (L - h),
+        Erdos587.phase (θ * (z + h : ℕ) ^ 2 + β * (z + h : ℕ)) *
+          starRingEnd ℂ
+            (Erdos587.phase (θ * (z : ℕ) ^ 2 + β * z))‖ ≤
+      correlationMajorant θ L h := by
+  by_cases hf : Erdos587.nearestIntDist (2 * θ * h) = 0
+  · rw [correlationMajorant, if_pos hf]
+    calc
+      _ ≤ ∑ z ∈ Finset.range (L - h),
+          ‖Erdos587.phase (θ * (z + h : ℕ) ^ 2 + β * (z + h : ℕ)) *
+            starRingEnd ℂ
+              (Erdos587.phase (θ * (z : ℕ) ^ 2 + β * z))‖ :=
+        norm_sum_le _ _
+      _ = (L - h : ℕ) := by simp [Erdos587.norm_phase]
+  · rw [correlationMajorant, if_neg hf]
+    exact Erdos587.norm_quadratic_correlation_sum_le θ β L h hf
+
 /-- One-step Weyl differencing, with all correlation sums replaced by their
 explicit geometric majorants. -/
 theorem norm_squareExpSum_sq_le (θ : ℝ) (L : ℕ) :
@@ -322,6 +343,32 @@ theorem norm_squareExpSum_sq_le (θ : ℝ) (L : ℕ) :
   rw [hsub]
   simpa [Nat.cast_add, Nat.cast_one, add_assoc] using
     norm_correlation_le_majorant θ L (h + 1)
+
+/-- One-step Weyl differencing for a quadratic phase with an arbitrary
+linear coefficient.  The linear term contributes only a unit-modulus factor
+to each autocorrelation, so the same majorant applies. -/
+theorem norm_quadraticSum_sq_le (θ β : ℝ) (L : ℕ) :
+    ‖Erdos587.quadraticSum θ β L‖ ^ 2 ≤
+      L + 2 * ∑ h ∈ Finset.range L, correlationMajorant θ L (h + 1) := by
+  have hweyl := Erdos387.FiniteWeyl.norm_sum_range_sq_le_sum_positiveShift
+    (fun z : ℕ => Erdos587.phase
+      (θ * (z : ℝ) ^ 2 + β * (z : ℝ))) L
+    (fun z _hz => Erdos587.norm_phase _)
+  change ‖Erdos587.quadraticSum θ β L‖ ^ 2 ≤ _
+  rw [Erdos587.quadraticSum]
+  refine hweyl.trans ?_
+  gcongr with h hh
+  change
+    ‖∑ y ∈ Finset.range (L - h - 1),
+        Erdos587.phase
+            (θ * ((y + h + 1 : ℕ) : ℝ) ^ 2 + β * (y + h + 1 : ℕ)) *
+          starRingEnd ℂ
+            (Erdos587.phase (θ * (y : ℝ) ^ 2 + β * (y : ℝ)))‖ ≤
+      correlationMajorant θ L (h + 1)
+  have hsub : L - h - 1 = L - (h + 1) := by omega
+  rw [hsub]
+  simpa [Nat.cast_add, Nat.cast_one, add_assoc] using
+    norm_quadratic_correlation_le_majorant θ β L (h + 1)
 
 /-! ## Harmonic aggregation of rationally approximated correlations -/
 
@@ -710,6 +757,30 @@ theorem norm_squareExpSum_sq_le_explicit
     ‖squareExpSum θ L‖ ^ 2 ≤
         L + 2 * ∑ h ∈ Finset.range L,
           correlationMajorant θ L (h + 1) := norm_squareExpSum_sq_le θ L
+    _ = L + 2 * ∑ h ∈ Finset.Icc 1 L,
+          correlationMajorant θ L h := by
+      rw [sum_range_correlationMajorant_succ]
+    _ ≤ L + 2 * (2 * ((L : ℝ) / b + 1) * L +
+          4 * (L + b) * (1 + Real.log b)) := by
+      gcongr
+      exact sum_correlationMajorant_le θ a b Q L hb ha hQ happrox
+    _ = L + 4 * ((L : ℝ) / b + 1) * L +
+          8 * (L + b) * (1 + Real.log b) := by ring
+
+/-- The fully explicit completed quadratic Weyl inequality, allowing an
+arbitrary linear coefficient in the phase. -/
+theorem norm_quadraticSum_sq_le_explicit
+    (θ β : ℝ) (a b Q L : ℕ) (hb : 0 < b) (ha : a.Coprime b)
+    (hQ : 4 * L ≤ Q)
+    (happrox : |θ - (a : ℝ) / b| ≤ 1 / ((b : ℝ) * Q)) :
+    ‖Erdos587.quadraticSum θ β L‖ ^ 2 ≤
+      L + 4 * ((L : ℝ) / b + 1) * L +
+        8 * (L + b) * (1 + Real.log b) := by
+  calc
+    ‖Erdos587.quadraticSum θ β L‖ ^ 2 ≤
+        L + 2 * ∑ h ∈ Finset.range L,
+          correlationMajorant θ L (h + 1) :=
+      norm_quadraticSum_sq_le θ β L
     _ = L + 2 * ∑ h ∈ Finset.Icc 1 L,
           correlationMajorant θ L h := by
       rw [sum_range_correlationMajorant_succ]

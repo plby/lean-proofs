@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos636.External.Erdos88.Foundations
+import ErdosProblems.Erdos88.Foundations
 import ErdosProblems.Erdos636.Structural
 import Mathlib.Combinatorics.SimpleGraph.Density
 import Mathlib.Data.Nat.Choose.Bounds

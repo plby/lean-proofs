@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos622.External.Erdos570.BondyChvatal
+import ErdosProblems.Erdos570.BondyChvatal
 
 /-!
 # Deterministic Hamiltonicity tools for Erdős Problem 622

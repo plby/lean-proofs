@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos1140.External.Erdos587.Main
+import ErdosProblems.Erdos587.NVDevelopment
 import ErdosProblems.Erdos1141
 import ErdosProblems.Erdos1140.Erdos1140Base
 import BoundedGaps.BombieriVinogradov.Analytic.QuadraticZetaLFunctionComparison

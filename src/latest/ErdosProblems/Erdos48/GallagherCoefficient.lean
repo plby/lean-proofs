@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import ErdosProblems.Erdos48.GallagherHybridTaylor
-import ErdosProblems.Erdos48.External.Erdos4.SingletonAsymptotics
+import ErdosProblems.Erdos4.SingletonAsymptotics
 
 /-!
 # Lower bounds for Gallagher's arithmetic amplifier coefficient

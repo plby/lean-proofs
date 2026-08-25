@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos438.Analytic
+import ErdosProblems.Erdos587.Analytic
 
 /-!
 # Gaussian regularization for the Fresnel transform

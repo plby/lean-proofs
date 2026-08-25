@@ -23,8 +23,8 @@ Copyright (c) 2026 Boris Alexeev. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Boris Alexeev, OpenAI Codex
 -/
-import ErdosProblems.Erdos239.External.Erdos67.MRRealPrefixCompleteStability
-import ErdosProblems.Erdos239.External.Erdos69.HalaszMean
+import ErdosProblems.Erdos67.MRRealPrefixCompleteStability
+import ErdosProblems.Erdos69.HalaszMean
 
 /-!
 # Erdős Problem 239

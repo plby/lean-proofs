@@ -35,7 +35,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -/
 
-import ErdosProblems.Erdos960.External.Erdos735.OrdinaryLineReduction
+import ErdosProblems.Erdos735.OrdinaryLineReduction
 import Mathlib.Combinatorics.SimpleGraph.Extremal.Turan
 import Mathlib.Combinatorics.SimpleGraph.DegreeSum
 import Mathlib.Combinatorics.SimpleGraph.Bipartite

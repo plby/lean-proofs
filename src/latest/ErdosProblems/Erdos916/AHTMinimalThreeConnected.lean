@@ -137,7 +137,7 @@ private theorem splitEndpoints_separator_three_le_type0
     {H : SimpleGraph V} [DecidableRel H.Adj]
     {a b : V} (hab : a ≠ b) (hthree : IsThreeConnected H)
     (S : Set (SplitEndpoints a b))
-    (hS : Erdos599.Separates (splitEndpointsGraph H a b)
+    (hS : Erdos599.Countable.Separates (splitEndpointsGraph H a b)
       (splitSources a b) (splitTargets a b) S) :
     3 ≤ S.ncard := by
   classical

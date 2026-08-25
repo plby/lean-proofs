@@ -323,7 +323,7 @@ theorem two_le_ncard_threeSplit_separator
     (hconn : G.Connected)
     (hdelete : ∀ d : V, (G.induce fun w : V ↦ w ≠ d).Connected)
     (S : Set (ThreeSplitVertex x))
-    (hS : Erdos599.Separates (threeSplitGraph G x)
+    (hS : Erdos599.Countable.Separates (threeSplitGraph G x)
       (threeSplitSources x) (threeSplitTargets x R) S) :
     2 ≤ S.ncard := by
   classical
@@ -414,7 +414,7 @@ theorem threeSplit_separator_eq_old_pair
     (hconn : G.Connected)
     (hdelete : ∀ d : V, (G.induce fun w : V ↦ w ≠ d).Connected)
     (S : Set (ThreeSplitVertex x))
-    (hS : Erdos599.Separates (threeSplitGraph G x)
+    (hS : Erdos599.Countable.Separates (threeSplitGraph G x)
       (threeSplitSources x) (threeSplitTargets x R) S)
     (hcard : S.ncard = 2) :
     ∃ a b : {w : V // w ≠ x}, a ≠ b ∧ S = {.inr a, .inr b} := by
@@ -459,7 +459,7 @@ theorem threeSplit_separator_eq_old_pair
     obtain ⟨w, -, hw⟩ := List.mem_map.mp hd
     exact w.2 (by simpa [inc] using hw)
   have false_source_source (i j : Fin 3) (hij : i ≠ j)
-      (hsep : Erdos599.Separates (threeSplitGraph G x)
+      (hsep : Erdos599.Countable.Separates (threeSplitGraph G x)
         (threeSplitSources x) (threeSplitTargets x R) {(.inl i), (.inl j)}) :
       False := by
     have hpairCard : ({i, j} : Finset (Fin 3)).card ≤ 2 :=
@@ -486,7 +486,7 @@ theorem threeSplit_separator_eq_old_pair
       · cases hwa.symm.trans hwi
       · cases hwa.symm.trans hwj
   have false_source_old (i : Fin 3) (d : {w : V // w ≠ x})
-      (hsep : Erdos599.Separates (threeSplitGraph G x)
+      (hsep : Erdos599.Countable.Separates (threeSplitGraph G x)
         (threeSplitSources x) (threeSplitTargets x R) {(.inl i), (.inr d)}) :
       False := by
     let k := otherThreeSource i
@@ -519,7 +519,7 @@ theorem threeSplit_separator_eq_old_pair
   | inr a =>
       cases t with
       | inl j =>
-          have hsep : Erdos599.Separates (threeSplitGraph G x)
+          have hsep : Erdos599.Countable.Separates (threeSplitGraph G x)
               (threeSplitSources x) (threeSplitTargets x R)
               {(.inl j), (.inr a)} := by
             simpa [Set.pair_comm] using hS
@@ -539,7 +539,7 @@ theorem exists_vertexCycleSeparator_of_threeSplit_separator
     (hconn : G.Connected)
     (hdelete : ∀ d : V, (G.induce fun w : V ↦ w ≠ d).Connected)
     (S : Set (ThreeSplitVertex x))
-    (hS : Erdos599.Separates (threeSplitGraph G x)
+    (hS : Erdos599.Countable.Separates (threeSplitGraph G x)
       (threeSplitSources x)
       (threeSplitTargets x {w | w ∈ C.support}) S)
     (hcard : S.ncard = 2)
@@ -899,7 +899,7 @@ theorem exists_vertexCycleSeparator_of_no_common_cycle
   let H := threeSplitGraph G x
   let A := threeSplitSources x
   let B := threeSplitTargets x {w | w ∈ C.support}
-  by_cases hlarge : ∀ S, Erdos599.Separates H A B S → 3 ≤ S.ncard
+  by_cases hlarge : ∀ S, Erdos599.Countable.Separates H A B S → 3 ≤ S.ncard
   · obtain ⟨L⟩ : Nonempty (ThreeABLinkage H A B) :=
       exists_threeABLinkage_of_separator_three_le H A B hlarge
     obtain ⟨F⟩ := exists_cleanThreeFanToCycle_of_threeABLinkage C hxC L
@@ -3545,7 +3545,7 @@ theorem two_le_ncard_separator_of_vertexTwoConnected
     {A B : Set W} {a₀ a₁ b₀ b₁ : W}
     (ha₀ : a₀ ∈ A) (ha₁ : a₁ ∈ A) (ha : a₀ ≠ a₁)
     (hb₀ : b₀ ∈ B) (hb₁ : b₁ ∈ B) (hb : b₀ ≠ b₁)
-    (S : Set W) (hS : Erdos599.Separates H A B S) :
+    (S : Set W) (hS : Erdos599.Countable.Separates H A B S) :
     2 ≤ S.ncard := by
   classical
   by_contra hcard
@@ -3586,12 +3586,12 @@ theorem two_le_ncard_separator_of_vertexTwoConnected
 discharge `hsep` from two-connectivity of the chosen `G_A` or `G_B`. -/
 theorem exists_wmTwoABLinkage_of_separator_two_le {W : Type} [Finite W]
     (H : SimpleGraph W) (A B : Set W)
-    (hsep : ∀ S, Erdos599.Separates H A B S → 2 ≤ S.ncard) :
+    (hsep : ∀ S, Erdos599.Countable.Separates H A B S → 2 ≤ S.ncard) :
     Nonempty (WMTwoABLinkage H A B) := by
   classical
-  have hEM : Erdos599.HasErdosMengerPair H A B :=
-    Erdos599.hasErdosMengerPair_of_safePathRemoval_of_countable
-      Erdos599.safePathRemoval H A B (Set.toFinite A).countable
+  have hEM : Erdos599.Countable.HasErdosMengerPair H A B :=
+    Erdos599.Countable.hasErdosMengerPair_of_safePathRemoval_of_countable
+      Erdos599.Countable.safePathRemoval H A B (Set.toFinite A).countable
   rcases hEM with ⟨ι, left, right, path, S, hleft, hright, hpath,
     hdisjoint, hSsub, horth, hseparates⟩
   have hScard : 2 ≤ S.ncard := hsep S hseparates
@@ -3633,7 +3633,7 @@ theorem exists_wmTwoABLinkage_of_no_singleton_separator
     {A B : Set W} {a b : W}
     (ha : a ∈ A) (hb : b ∈ B)
     (p : H.Walk a b) (hp : p.IsPath)
-    (hnone : ∀ u : W, ¬Erdos599.Separates H A B ({u} : Set W)) :
+    (hnone : ∀ u : W, ¬Erdos599.Countable.Separates H A B ({u} : Set W)) :
     Nonempty (WMTwoABLinkage H A B) := by
   apply exists_wmTwoABLinkage_of_separator_two_le
   intro S hS
@@ -3653,7 +3653,7 @@ theorem exists_disjoint_pair_paths_of_no_singleton_separator
     {a₀ a₁ b₀ b₁ : W}
     (p₀ : H.Walk a₀ b₀) (hp₀ : p₀.IsPath)
     (hnone : ∀ u : W,
-      ¬Erdos599.Separates H ({a₀, a₁} : Set W)
+      ¬Erdos599.Countable.Separates H ({a₀, a₁} : Set W)
         ({b₀, b₁} : Set W) ({u} : Set W)) :
     (∃ (p : H.Walk a₀ b₀) (q : H.Walk a₁ b₁),
       p.IsPath ∧ q.IsPath ∧
@@ -3862,7 +3862,7 @@ theorem exists_ambient_disjoint_pair_paths_of_subgraph_no_singleton_separator
     (H : G.Subgraph) {a₀ a₁ b₀ b₁ : H.verts}
     (p₀ : H.coe.Walk a₀ b₀) (hp₀ : p₀.IsPath)
     (hnone : ∀ u : H.verts,
-      ¬Erdos599.Separates H.coe ({a₀, a₁} : Set H.verts)
+      ¬Erdos599.Countable.Separates H.coe ({a₀, a₁} : Set H.verts)
         ({b₀, b₁} : Set H.verts) ({u} : Set H.verts)) :
     (∃ (p : G.Walk a₀.1 b₀.1) (q : G.Walk a₁.1 b₁.1),
       p.IsPath ∧ q.IsPath ∧
@@ -5779,7 +5779,7 @@ on the `zB` stem. -/
 theorem mem_zBStem_of_conditionV_singleton_separator
     (hzA : M.zSep.left ≠ M.xSep.left)
     (u : {w : V // w ∉ M.zPart ∧ w ≠ M.xSep.left})
-    (hsep : Erdos599.Separates M.conditionVGraph
+    (hsep : Erdos599.Countable.Separates M.conditionVGraph
       ({M.conditionVZA hzA, M.conditionVZB} : Set
         {w : V // w ∉ M.zPart ∧ w ≠ M.xSep.left})
       ({M.conditionVXB, M.conditionVYB} : Set
@@ -6074,7 +6074,7 @@ which avoids `u` contradicts the singleton-separator hypothesis. -/
 theorem false_of_conditionV_good_path
     (hzA : M.zSep.left ≠ M.xSep.left)
     (u : {w : V // w ∉ M.zPart ∧ w ≠ M.xSep.left})
-    (hsep : Erdos599.Separates M.conditionVGraph
+    (hsep : Erdos599.Countable.Separates M.conditionVGraph
       ({M.conditionVZA hzA, M.conditionVZB} : Set
         {w : V // w ∉ M.zPart ∧ w ≠ M.xSep.left})
       ({M.conditionVXB, M.conditionVYB} : Set
@@ -6149,7 +6149,7 @@ theorem conditionV_replacement_rim_free
     (hzA : M.zSep.left ≠ M.xSep.left)
     (u : {w : V // w ∉ M.zPart ∧ w ≠ M.xSep.left})
     (huStem : u.1 ∈ M.zBStem.support)
-    (hsep : Erdos599.Separates M.conditionVGraph
+    (hsep : Erdos599.Countable.Separates M.conditionVGraph
       ({M.conditionVZA hzA, M.conditionVZB} : Set
         {w : V // w ∉ M.zPart ∧ w ≠ M.xSep.left})
       ({M.conditionVXB, M.conditionVYB} : Set
@@ -6356,7 +6356,7 @@ theorem conditionV_no_singleton_separator
     (hxyA : M.xSep.left = M.ySep.left)
     (hzA : M.zSep.left ≠ M.xSep.left) :
     ∀ u : {w : V // w ∉ M.zPart ∧ w ≠ M.xSep.left},
-      ¬Erdos599.Separates M.conditionVGraph
+      ¬Erdos599.Countable.Separates M.conditionVGraph
         ({M.conditionVZA hzA, M.conditionVZB} : Set
           {w : V // w ∉ M.zPart ∧ w ≠ M.xSep.left})
         ({M.conditionVXB, M.conditionVYB} : Set
@@ -9282,7 +9282,7 @@ component extraction used in the maximal-endpiece exchange on p.15. -/
 theorem exists_isolatingCutSide_of_singleton_separator
     {H : G.Subgraph} {a b c u : H.verts}
     (hau : a ≠ u)
-    (hsep : Erdos599.Separates H.coe ({a} : Set H.verts)
+    (hsep : Erdos599.Countable.Separates H.coe ({a} : Set H.verts)
       ({b, c} : Set H.verts) ({u} : Set H.verts)) :
     ∃ S : IsolatingCutSide H a b c, S.cut = u := by
   classical
@@ -10589,7 +10589,7 @@ theorem false_of_separator_of_connected_subgraph
     (hsA : s ∈ A) (htB : t ∈ B)
     (hsR : s.1 ∈ R.verts) (htR : t.1 ∈ R.verts)
     (huR : u.1 ∉ R.verts)
-    (hsep : Erdos599.Separates H.coe A B ({u} : Set H.verts)) : False := by
+    (hsep : Erdos599.Countable.Separates H.coe A B ({u} : Set H.verts)) : False := by
   let sR : R.verts := ⟨s.1, hsR⟩
   let tR : R.verts := ⟨t.1, htR⟩
   obtain ⟨q, hq⟩ := (hR.coe sR tR).exists_isPath
@@ -10623,7 +10623,7 @@ theorem false_of_separator_of_same_delete_component
     (hsA : s ∈ A) (htB : t ∈ B) (hsu : s ≠ u) (htu : t ≠ u)
     (hcomp : (deleteVertex H.coe u).connectedComponentMk ⟨s, hsu⟩ =
       (deleteVertex H.coe u).connectedComponentMk ⟨t, htu⟩)
-    (hsep : Erdos599.Separates H.coe A B ({u} : Set H.verts)) : False := by
+    (hsep : Erdos599.Countable.Separates H.coe A B ({u} : Set H.verts)) : False := by
   obtain ⟨q, hq⟩ := (ConnectedComponent.exact hcomp).exists_isPath
   let inc := (SimpleGraph.Embedding.induce
     (G := H.coe) (s := {w : H.verts | w ≠ u})).toHom
@@ -11280,10 +11280,10 @@ theorem IsolatingCutSide.IsMaximal.false_of_separator_cut_outside_endBlock
     {H : G.Subgraph} {a b c : H.verts}
     (hH : H.Connected) (S : IsolatingCutSide H a b c)
     (hS : S.IsMaximal) {t u : H.verts} (hau : a ≠ u)
-    (hsep : Erdos599.Separates H.coe ({a, t} : Set H.verts)
+    (hsep : Erdos599.Countable.Separates H.coe ({a, t} : Set H.verts)
       ({b, c} : Set H.verts) ({u} : Set H.verts))
     (hu : u ∉ ComponentEndBlock.verts S.cut S.component) : False := by
-  have hsepA : Erdos599.Separates H.coe ({a} : Set H.verts)
+  have hsepA : Erdos599.Countable.Separates H.coe ({a} : Set H.verts)
       ({b, c} : Set H.verts) ({u} : Set H.verts) := by
     intro a' ha' v hv q hq
     exact hsep a' (by
@@ -11310,7 +11310,7 @@ theorem MinimalABConnectorPair.no_singleton_B_separator_of_active
     (htSide : t ∉ ComponentEndBlock.side S.cut S.component)
     (htCut : t ≠ S.cut) :
     ∀ u : C.bGraph.verts,
-      ¬Erdos599.Separates C.bGraph.coe
+      ¬Erdos599.Countable.Separates C.bGraph.coe
         ({ABConnectorPair.xBIn (M := M) C.toABConnectorPair, t} :
           Set C.bGraph.verts)
         ({ABConnectorPair.yBIn (M := M) C.toABConnectorPair,
@@ -11446,7 +11446,7 @@ theorem MinimalABConnectorPair.no_singleton_B_separator_of_default
     {t : C.bGraph.verts}
     (htX : t ≠ ABConnectorPair.xBIn (M := M) C.toABConnectorPair) :
     ∀ u : C.bGraph.verts,
-      ¬Erdos599.Separates C.bGraph.coe
+      ¬Erdos599.Countable.Separates C.bGraph.coe
         ({ABConnectorPair.xBIn (M := M) C.toABConnectorPair, t} :
           Set C.bGraph.verts)
         ({ABConnectorPair.yBIn (M := M) C.toABConnectorPair,
@@ -11544,7 +11544,7 @@ theorem MinimalABConnectorPair.no_singleton_B_separator_of_default
           change K = (deleteVertex C.bGraph.coe xB).connectedComponentMk zDel
           rw [hzDel]
           exact hside.2.symm) hsep
-  · have hsepX : Erdos599.Separates C.bGraph.coe
+  · have hsepX : Erdos599.Countable.Separates C.bGraph.coe
         ({ABConnectorPair.xBIn (M := M) C.toABConnectorPair} :
           Set C.bGraph.verts)
         ({ABConnectorPair.yBIn (M := M) C.toABConnectorPair,
@@ -14661,7 +14661,7 @@ theorem MinimalABConnectorPair.false_of_classifiedCleanNearExit_start_A
     exact Or.inl (Or.inr htCarrier)
   have htNotCut : t ≠ B.cut.1 := (hcuts t p.end_mem_support).2
   have hnone : ∀ u : C.bGraph.verts,
-      ¬Erdos599.Separates C.bGraph.coe ({xB, tB} : Set C.bGraph.verts)
+      ¬Erdos599.Countable.Separates C.bGraph.coe ({xB, tB} : Set C.bGraph.verts)
         ({yB, zB} : Set C.bGraph.verts) ({u} : Set C.bGraph.verts) := by
     cases B with
     | active SB hSB =>

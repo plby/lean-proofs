@@ -12,7 +12,7 @@ open scoped BigOperators
 
 namespace Erdos587
 
-open External.Erdos438.QuadraticWeyl
+open Erdos438.QuadraticWeyl
 
 lemma exactQuadraticInterval_neg (q : ℕ) (a s : ℤ) (L : ℕ) :
     exactQuadraticInterval q (-a) s L = starRingEnd ℂ (exactQuadraticInterval q a s L) := by

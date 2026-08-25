@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -/
 import ErdosProblems.Erdos636.Pairing
-import ErdosProblems.Erdos636.External.Erdos88.Fourier
+import ErdosProblems.Erdos88.Fourier
 
 /-!
 # From unordered matchings to Fourier pair embeddings

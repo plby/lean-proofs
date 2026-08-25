@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos438.Analytic
+import ErdosProblems.Erdos587.Analytic
 
 /-!
 # First-derivative exponential sums: the finite algebraic step

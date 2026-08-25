@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos1211.Erdos1211Bridges
+import ErdosProblems.Erdos344.IntervalBridges
 import ErdosProblems.Erdos1211.Erdos1211RoughShell
 import ErdosProblems.Erdos1211.Erdos1211Theta
 
@@ -8,8 +8,8 @@ import ErdosProblems.Erdos1211.Erdos1211Theta
 This file proves the finite input used in the lower-bound half of Erdős
 Problem 1211.  It is a two-colour specialization of the local interval lemma
 of Conlon--Fox--Pham.  The proof uses the fixed rough shell developed in
-`Erdos1211RoughShell`, the modular-phase machinery in `Erdos1211Finite`, and
-the interval-valued sum-tree bridge in `Erdos1211Bridges`.
+`Erdos1211RoughShell`, the modular-phase machinery in `Erdos344`, and
+the interval-valued sum-tree bridge in `Erdos344.IntervalBridges`.
 -/
 
 namespace Erdos1211Local
@@ -509,7 +509,7 @@ lemma depthSeven_exceeds {N L : ℕ} (hN : 200 ≤ N) (hL : 0 < L) :
   have hK : 2 ≤ L * (N / 4) := by
     have hdiv : 50 ≤ N / 4 := by omega
     nlinarith
-  have hgrowth := Erdos344.SumTree.growthLower_ge_pow_mul hK 7
+  have hgrowth := Erdos344.growthLower_ge_pow_mul hK 7
   have hround : N ≤ 4 * (N / 4) + 3 := by omega
   have hdiv : 50 ≤ N / 4 := by omega
   have hmul : L * N ≤ L * (4 * (N / 4) + 3) :=

@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 
-import ErdosProblems.Erdos980.External.Erdos380.AntiSieve
+import ErdosProblems.Erdos380.AntiSieve
 import ErdosProblems.Erdos387.CongruenceCounting
-import ErdosProblems.Erdos980.External.Erdos387.FiniteBetaSieveBridge
-import ErdosProblems.Erdos980.External.Erdos387.GeneralBetaMainTerm
+import ErdosProblems.Erdos387.FiniteBetaSieveBridge
+import ErdosProblems.Erdos387.GeneralBetaMainTerm
 import ErdosProblems.Erdos822.MertensUpper
 import ErdosProblems.Erdos822.SieveErrorAverage
 import ErdosProblems.Erdos822.SlowCutoffLog

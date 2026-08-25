@@ -13,7 +13,7 @@ open scoped BigOperators
 
 namespace Erdos587
 
-open External.Erdos438.QuadraticWeyl
+open Erdos438.QuadraticWeyl
 
 lemma sum_norm_centeredQuadraticInterval_sq_le_majorants (a q M L : ℕ) (hq : 0 < q)
     (s : ℕ → ℤ) (l : ℕ → ℕ) (hl : ∀ m ∈ Finset.Icc 1 M, l m ≤ L) :

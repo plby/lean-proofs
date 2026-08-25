@@ -14,7 +14,7 @@ open scoped BigOperators
 
 namespace Erdos587
 
-open External.Erdos438.QuadraticWeyl
+open Erdos438.QuadraticWeyl
 
 lemma twistedResiduePairCount_le_iterated_moments
     (j a q r M N D : ℕ) (hsize : 2 * M * N ≤ D ^ (4 ^ j)) :

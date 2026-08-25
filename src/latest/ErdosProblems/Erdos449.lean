@@ -21,7 +21,7 @@ in the problem-page Cauchy--Schwarz inequality, is documented in tex/449.tex.
 -/
 
 import ErdosProblems.Erdos448.Prop2Scale448
-import ErdosProblems.Erdos449.External.Erdos446.Basic
+import ErdosProblems.Erdos446.Basic
 
 namespace Erdos449
 

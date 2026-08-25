@@ -20,8 +20,8 @@ Copyright (c) 2026 Boris Alexeev. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
-import ErdosProblems.Erdos636.External.Erdos88.Richness
-import ErdosProblems.Erdos636.External.Erdos88.Probability
+import ErdosProblems.Erdos88.Richness
+import ErdosProblems.Erdos88.Probability
 import ErdosProblems.Erdos920.Sampling
 import ErdosProblems.Erdos487
 

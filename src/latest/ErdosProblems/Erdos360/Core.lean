@@ -1,8 +1,8 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 import Mathlib
 import ErdosProblems.Erdos851.ConcreteBetaCardinality
-import ErdosProblems.Erdos360.External.Erdos4.ResidualPrimeFiberMertens
-import ErdosProblems.Erdos360.External.Erdos587Core
+import ErdosProblems.Erdos4.ResidualPrimeFiberMertens
+import ErdosProblems.Erdos587.Erdos587Core
 import ErdosProblems.Erdos13.Erdos13Kneser
 import ErdosProblems.Erdos13.Erdos13Additive
 import ErdosProblems.Erdos360.DiverseSampling

@@ -18,12 +18,12 @@ form, this statement permits source and target vertices to belong to the
 separator. -/
 theorem exists_separation_of_path_separator_with_sides
     {G : SimpleGraph V} {A B S : Set V}
-    (hsep : Erdos599.Separates G A B S) :
+    (hsep : Erdos599.Countable.Separates G A B S) :
     ∃ s : Erdos718.Separation G,
       A ⊆ (s.left : Set V) ∧ B ⊆ (s.right : Set V) ∧
         s.separator.card = S.ncard := by
   classical
-  let H := Erdos599.outsideGraph G S
+  let H := Erdos599.Countable.outsideGraph G S
   let R : Finset V := Finset.univ.filter fun v =>
     ∃ a ∈ A, a ∉ S ∧ H.Reachable a v
   have source_left (a : V) (ha : a ∈ A) : a ∈ S.toFinset ∪ R := by
@@ -43,11 +43,11 @@ theorem exists_separation_of_path_separator_with_sides
       simp only [R, Finset.mem_filter, Finset.mem_univ, true_and] at hbR
       rcases hbR with ⟨a, ha, haS, hab⟩
       rcases hab.exists_isPath with ⟨q, hq⟩
-      let qG := q.mapLe (Erdos599.outsideGraph_le G S)
+      let qG := q.mapLe (Erdos599.Countable.outsideGraph_le G S)
       rcases hsep a ha b hb qG (hq.mapLe _) with ⟨x, hxqG, hxS⟩
       have hxq : x ∈ q.support := by
         simpa [qG, Walk.support_mapLe_eq_support] using hxqG
-      exact (Erdos599.Walk.vertex_not_mem_of_outsideGraph q haS hxq) hxS
+      exact (Erdos599.Countable.Walk.vertex_not_mem_of_outsideGraph q haS hxq) hxS
   let s : Erdos718.Separation G := {
     left := S.toFinset ∪ R
     right := S.toFinset ∪ (Finset.univ \ R)
@@ -95,7 +95,7 @@ theorem separation_separator_separates_of_subsets
     {G : SimpleGraph V} (s : Erdos718.Separation G)
     {A B : Set V} (hA : A ⊆ (s.left : Set V))
     (hB : B ⊆ (s.right : Set V)) :
-    Erdos599.Separates G A B (s.separator : Set V) := by
+    Erdos599.Countable.Separates G A B (s.separator : Set V) := by
   intro a ha b hb p _hp
   have haL := hA ha
   have hbR := hB hb

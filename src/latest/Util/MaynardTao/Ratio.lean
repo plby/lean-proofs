@@ -1,6 +1,6 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 import Util.MaynardTao.Kernel
-import ErdosProblems.Erdos48.External.Erdos4.Base
+import ErdosProblems.Erdos4.Base
 
 /-!
 # A parameterized face-mass lower bound for the variable Maynard candidate

@@ -30,8 +30,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -/
 
-import ErdosProblems.Erdos715.External.Erdos182.Foundations
-import ErdosProblems.Erdos715.External.Erdos182.MultiColor
+import ErdosProblems.Erdos182.Foundations
+import ErdosProblems.Erdos182.MultiColor
 import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Data.Fintype.EquivFin

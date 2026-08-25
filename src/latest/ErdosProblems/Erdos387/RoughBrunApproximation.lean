@@ -177,8 +177,9 @@ theorem intervalSieve_brunLowerErrSum_le
   exact intervalSieve_brunErrSum_le hAU hz
 
 /-- Real indicator of `z`-roughness. -/
-def roughIndicator (z n : ℕ) : ℝ :=
-  if IsZRough z n then 1 else 0
+noncomputable def roughIndicator (z n : ℕ) : ℝ := by
+  classical
+  exact if IsZRough z n then 1 else 0
 
 /-- The divisor-sum approximation furnished by an even Brun weight. -/
 noncomputable def upperApproximation (z L n : ℕ) : ℝ := by
@@ -201,7 +202,11 @@ theorem upperApproximation_eq_gcd_divisorSum
   ext d
   simp only [Finset.mem_filter]
   rw [dvd_gcd_iff]
-  tauto
+  constructor
+  · rintro ⟨hdP, hdn⟩
+    exact ⟨hdP, (Nat.mem_divisors.mp hdP).1, hdn⟩
+  · rintro ⟨hdP, _hd, hdn⟩
+    exact ⟨hdP, hdn⟩
 
 /-- An even Brun approximation pointwise majorizes the roughness
 indicator. -/
@@ -216,8 +221,11 @@ theorem roughIndicator_le_upperApproximation
   have hindicator : roughIndicator z n =
       if Nat.gcd (sievePrimeProduct 1 z) n = 1 then 1 else 0 := by
     unfold roughIndicator
-    rw [← Nat.coprime_iff_gcd_eq_one,
-      coprime_sievePrimeProduct_one_iff_rough]
+    have hiff : IsZRough z n ↔
+        Nat.gcd (sievePrimeProduct 1 z) n = 1 := by
+      rw [← Nat.coprime_iff_gcd_eq_one,
+        coprime_sievePrimeProduct_one_iff_rough]
+    simp only [hiff]
   rw [hindicator]
   exact hupper
 
@@ -245,6 +253,7 @@ theorem sum_upperApproximation_eq_multipleSum
 theorem sum_roughIndicator_eq_siftedSum (z A U : ℕ) :
     (∑ n ∈ Finset.Ioc A U, roughIndicator z n) =
       (intervalSieve z A U).siftedSum := by
+  classical
   rw [intervalSieve_siftedSum]
   unfold roughIndicator RoughHarmonic.roughPositiveIoc
   rw [← Finset.sum_filter]
@@ -260,6 +269,13 @@ theorem multipleSum_eq_main_add_signedRemainder
           (intervalSieve z A U).mainSum (brunUpperWeight L) +
         ∑ d ∈ (sievePrimeProduct 1 z).divisors,
           brunUpperWeight L d * (intervalSieve z A U).rem d := by
+  let s := intervalSieve z A U
+  change
+    (∑ d ∈ s.prodPrimes.divisors,
+        brunUpperWeight L d * s.multSum d) =
+      s.totalMass * s.mainSum (brunUpperWeight L) +
+        ∑ d ∈ s.prodPrimes.divisors,
+          brunUpperWeight L d * s.rem d
   rw [BoundingSieve.mainSum, Finset.mul_sum, ← Finset.sum_add_distrib]
   apply Finset.sum_congr rfl
   intro d _hd
@@ -287,7 +303,14 @@ theorem sum_upperApproximation_sub_roughIndicator_le
     (fun p => binomialSieveNu 1 p) Lplus
   let Tminus := brunSubsetTail (sievePrimeProduct 1 z).primeFactors
     (fun p => binomialSieveNu 1 p) Lminus
-  have hsumUpper := multipleSum_eq_main_add_signedRemainder z A U Lplus
+  have hsumUpper :
+      (∑ d ∈ (sievePrimeProduct 1 z).divisors,
+          brunUpperWeight Lplus d * s.multSum d) =
+        s.totalMass * s.mainSum (brunUpperWeight Lplus) +
+          ∑ d ∈ (sievePrimeProduct 1 z).divisors,
+            brunUpperWeight Lplus d * s.rem d := by
+    simpa only [s] using
+      multipleSum_eq_main_add_signedRemainder z A U Lplus
   have hsiftedLower := BoundingSieve.totalMass_mainSum_sub_errSum_le_siftedSum
     (s := s) (brunLowerWeight Lminus)
       (brunLowerWeight_isLowerOnProdPrimes s hminus)
@@ -307,8 +330,6 @@ theorem sum_upperApproximation_sub_roughIndicator_le
   have hmainDiff :
       s.mainSum (brunUpperWeight Lplus) -
           s.mainSum (brunLowerWeight Lminus) ≤ Tplus + Tminus := by
-    have hp := (abs_le.mp hmainPlus)
-    have hm := (abs_le.mp hmainMinus)
     change |s.mainSum (brunUpperWeight Lplus) - E| ≤ Tplus at hmainPlus
     change |s.mainSum (brunLowerWeight Lminus) - E| ≤ Tminus at hmainMinus
     have hp' := (abs_le.mp hmainPlus).2
@@ -321,33 +342,77 @@ theorem sum_upperApproximation_sub_roughIndicator_le
     (L := Lplus)
   have herrMinus := intervalSieve_brunLowerErrSum_le hAU hz
     (L := Lminus)
-  rw [Finset.sum_sub_distrib, sum_upperApproximation_eq_multipleSum,
-    sum_roughIndicator_eq_siftedSum]
-  change _ ≤ ((Finset.Ioc A U).card : ℝ) * (Tplus + Tminus) + _
-  change s.siftedSum ≥
-      s.totalMass * s.mainSum (brunLowerWeight Lminus) -
-        s.errSum (brunLowerWeight Lminus) at hsiftedLower
-  calc
-    (∑ d ∈ (sievePrimeProduct 1 z).divisors,
+  have hcore :
+      (∑ d ∈ (sievePrimeProduct 1 z).divisors,
           brunUpperWeight Lplus d * s.multSum d) - s.siftedSum ≤
+        s.totalMass * (Tplus + Tminus) +
+          2 * (z ^ Lplus + 1 : ℕ) +
+          2 * (z ^ Lminus + 1 : ℕ) := by
+    calc
+      (∑ d ∈ (sievePrimeProduct 1 z).divisors,
+            brunUpperWeight Lplus d * s.multSum d) - s.siftedSum ≤
         (s.totalMass * s.mainSum (brunUpperWeight Lplus) +
             s.errSum (brunUpperWeight Lplus)) -
           (s.totalMass * s.mainSum (brunLowerWeight Lminus) -
             s.errSum (brunLowerWeight Lminus)) := by
-      rw [hsumUpper]
-      linarith
-    _ = s.totalMass *
-          (s.mainSum (brunUpperWeight Lplus) -
-            s.mainSum (brunLowerWeight Lminus)) +
-          s.errSum (brunUpperWeight Lplus) +
-          s.errSum (brunLowerWeight Lminus) := by ring
-    _ ≤ s.totalMass * (Tplus + Tminus) +
-          (2 * (z ^ Lplus + 1 : ℕ)) +
-          (2 * (z ^ Lminus + 1 : ℕ)) := by
-      gcongr
-    _ = ((Finset.Ioc A U).card : ℝ) * (Tplus + Tminus) +
-          2 * (z ^ Lplus + 1 : ℕ) +
-          2 * (z ^ Lminus + 1 : ℕ) := by rfl
+        rw [hsumUpper]
+        linarith
+      _ = s.totalMass *
+            (s.mainSum (brunUpperWeight Lplus) -
+              s.mainSum (brunLowerWeight Lminus)) +
+            s.errSum (brunUpperWeight Lplus) +
+            s.errSum (brunLowerWeight Lminus) := by ring
+      _ ≤ s.totalMass * (Tplus + Tminus) +
+            (2 * (z ^ Lplus + 1 : ℕ)) +
+            (2 * (z ^ Lminus + 1 : ℕ)) := by
+        have herrPlus' : s.errSum (brunUpperWeight Lplus) ≤
+            (2 : ℝ) * (z ^ Lplus + 1 : ℕ) := by
+          simpa only [s] using herrPlus
+        have herrMinus' : s.errSum (brunLowerWeight Lminus) ≤
+            (2 : ℝ) * (z ^ Lminus + 1 : ℕ) := by
+          simpa only [s] using herrMinus
+        gcongr
+  rw [Finset.sum_sub_distrib, sum_upperApproximation_eq_multipleSum,
+    sum_roughIndicator_eq_siftedSum]
+  simpa only [s, intervalSieve, Tplus, Tminus] using hcore
+
+/-- Replacing exact roughness by the even Brun divisor sum costs no more
+against an arbitrary complex phase of modulus at most one than its scalar
+`L¹` loss.  This is the form used before completing the resulting interval
+Kloosterman sums. -/
+theorem norm_sum_upperApproximation_sub_roughIndicator_mul_le
+    {z A U Lminus Lplus : ℕ} {phase : ℕ → ℂ}
+    (hAU : A ≤ U) (hz : 1 ≤ z)
+    (hminus : Odd Lminus) (hplus : Even Lplus)
+    (hphase : ∀ n ∈ Finset.Ioc A U, ‖phase n‖ ≤ 1) :
+    ‖∑ n ∈ Finset.Ioc A U,
+        (((upperApproximation z Lplus n - roughIndicator z n : ℝ) : ℂ) *
+          phase n)‖ ≤
+      ((Finset.Ioc A U).card : ℝ) *
+        (brunSubsetTail (sievePrimeProduct 1 z).primeFactors
+            (fun p => binomialSieveNu 1 p) Lplus +
+          brunSubsetTail (sievePrimeProduct 1 z).primeFactors
+            (fun p => binomialSieveNu 1 p) Lminus) +
+        2 * (z ^ Lplus + 1 : ℕ) + 2 * (z ^ Lminus + 1 : ℕ) := by
+  have hnonneg (n : ℕ) :
+      0 ≤ upperApproximation z Lplus n - roughIndicator z n :=
+    sub_nonneg.mpr (roughIndicator_le_upperApproximation hplus)
+  calc
+    ‖∑ n ∈ Finset.Ioc A U,
+        (((upperApproximation z Lplus n - roughIndicator z n : ℝ) : ℂ) *
+          phase n)‖ ≤
+        ∑ n ∈ Finset.Ioc A U,
+          ‖(((upperApproximation z Lplus n - roughIndicator z n : ℝ) : ℂ) *
+            phase n)‖ := norm_sum_le _ _
+    _ ≤ ∑ n ∈ Finset.Ioc A U,
+          (upperApproximation z Lplus n - roughIndicator z n) := by
+      apply Finset.sum_le_sum
+      intro n hn
+      rw [norm_mul, Complex.norm_real,
+        Real.norm_of_nonneg (hnonneg n)]
+      exact mul_le_of_le_one_right (hnonneg n) (hphase n hn)
+    _ ≤ _ := sum_upperApproximation_sub_roughIndicator_le
+      hAU hz hminus hplus
 
 end RoughBrun
 

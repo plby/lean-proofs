@@ -6,7 +6,7 @@ Authors: GPT-5.4 Pro
 -/
 import BoundedGaps.BombieriVinogradov.Analytic.SiegelZeroFreeRegion
 import BoundedGaps.BombieriVinogradov.Analytic.QuadraticZetaConvolutionSquare
-import ErdosProblems.Erdos1140.External.Erdos587.Main
+import ErdosProblems.Erdos587.NVDevelopment
 import ErdosProblems.Erdos1141
 import Mathlib.Analysis.SumIntegralComparisons
 

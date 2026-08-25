@@ -15,7 +15,7 @@ limitations under the License.
 -/
 import ErdosProblems.Erdos622.LinearForest
 import ErdosProblems.Erdos622.AlonSparseSubgraph
-import ErdosProblems.Erdos622.External.Erdos76.HypergraphGreedyColoring
+import ErdosProblems.Erdos76.HypergraphGreedyColoring
 import Mathlib.Combinatorics.SimpleGraph.Walk.Counting
 
 /-!

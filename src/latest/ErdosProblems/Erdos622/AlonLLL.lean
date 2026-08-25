@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -/
-import ErdosProblems.Erdos622.External.Erdos76.FiniteBernoulliLocality
+import ErdosProblems.Erdos76.FiniteBernoulliLocality
 
 /-!
 # A finite asymmetric local lemma for Alon's linear-arboricity argument

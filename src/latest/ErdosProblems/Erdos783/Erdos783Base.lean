@@ -15,10 +15,10 @@ import Mathlib.MeasureTheory.Integral.IntervalIntegral.IntegrationByParts
 import Mathlib.NumberTheory.Chebyshev
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
-import ErdosProblems.Erdos783.External.Erdos390.PoissonDickmanDensityReal
+import ErdosProblems.Erdos390.PoissonDickmanDensityReal
 import ErdosProblems.Erdos783.GSKernel
 import ErdosProblems.Erdos783.PrimeQuadrature
-import ErdosProblems.Erdos783.External.PrimeNumberTheoremAnd.IEANTN.Mertens
+import ErdosProblems.Erdos49.PNT.IEANTN.Mertens
 
 /-!
 # Erdős Problem 783

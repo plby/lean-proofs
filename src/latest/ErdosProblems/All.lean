@@ -1,5 +1,6 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 import ErdosProblems.Erdos2
+import ErdosProblems.Erdos4
 import ErdosProblems.Erdos6
 import ErdosProblems.Erdos8
 import ErdosProblems.Erdos13
@@ -30,6 +31,8 @@ import ErdosProblems.Erdos57
 import ErdosProblems.Erdos58
 import ErdosProblems.Erdos59
 import ErdosProblems.Erdos63
+import ErdosProblems.Erdos67
+import ErdosProblems.Erdos69
 import ErdosProblems.Erdos72
 import ErdosProblems.Erdos79
 import ErdosProblems.Erdos83
@@ -63,6 +66,7 @@ import ErdosProblems.Erdos147
 import ErdosProblems.Erdos150
 import ErdosProblems.Erdos152
 import ErdosProblems.Erdos154
+import ErdosProblems.Erdos161
 import ErdosProblems.Erdos163
 import ErdosProblems.Erdos164
 import ErdosProblems.Erdos166
@@ -83,6 +87,7 @@ import ErdosProblems.Erdos202
 import ErdosProblems.Erdos204
 import ErdosProblems.Erdos205
 import ErdosProblems.Erdos206
+import ErdosProblems.Erdos207
 import ErdosProblems.Erdos210
 import ErdosProblems.Erdos211
 import ErdosProblems.Erdos214
@@ -169,8 +174,10 @@ import ErdosProblems.Erdos370
 import ErdosProblems.Erdos372
 import ErdosProblems.Erdos378
 import ErdosProblems.Erdos379
+import ErdosProblems.Erdos380
 import ErdosProblems.Erdos384
 import ErdosProblems.Erdos387
+import ErdosProblems.Erdos390
 import ErdosProblems.Erdos391
 import ErdosProblems.Erdos392
 import ErdosProblems.Erdos395
@@ -295,6 +302,7 @@ import ErdosProblems.Erdos682
 import ErdosProblems.Erdos690
 import ErdosProblems.Erdos692
 import ErdosProblems.Erdos694
+import ErdosProblems.Erdos696
 import ErdosProblems.Erdos697
 import ErdosProblems.Erdos698
 import ErdosProblems.Erdos702

@@ -1,6 +1,6 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 import Util.MaynardTao.Assembly
-import ErdosProblems.Erdos48.External.Erdos4.Base
+import ErdosProblems.Erdos4.Base
 
 /-!
 # Transporting the variable Maynard candidate to an arbitrary tuple

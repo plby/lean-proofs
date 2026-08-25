@@ -31,8 +31,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -/
 
-import ErdosProblems.Erdos636.External.Erdos88.Richness
-import ErdosProblems.Erdos636.External.Erdos88.Esseen
+import ErdosProblems.Erdos88.Richness
+import ErdosProblems.Erdos88.Esseen
 import ErdosProblems.Erdos636.FiniteChoice
 import ErdosProblems.Erdos636.KwanSudakov
 import ErdosProblems.Erdos636.OuterAssembly

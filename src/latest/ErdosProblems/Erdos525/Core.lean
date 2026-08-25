@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import Mathlib
-import ErdosProblems.Erdos525.External.Erdos88.Concentration
-import ErdosProblems.Erdos525.External.Erdos88.Fourier
+import ErdosProblems.Erdos88.Concentration
+import ErdosProblems.Erdos88.Fourier
 import ErdosProblems.Erdos485.Dirichlet
 import ErdosProblems.Erdos358
 

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 
-import ErdosProblems.Erdos980.External.Erdos387.FiniteBetaSieveBridge
+import ErdosProblems.Erdos387.FiniteBetaSieveBridge
 import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 import Mathlib.RingTheory.Ideal.Norm.AbsNorm

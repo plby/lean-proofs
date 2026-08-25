@@ -5,7 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import ErdosProblems.Erdos980.ElliottTail.IdealGeneratorCongruenceCount
-import ErdosProblems.Erdos980.External.Erdos387.FiniteBetaSieveBridge
+import ErdosProblems.Erdos387.FiniteBetaSieveBridge
 
 /-!
 # The bounding sieve attached to finitely many prime ideals

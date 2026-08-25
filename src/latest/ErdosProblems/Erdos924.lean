@@ -21,7 +21,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import Mathlib
-import ErdosProblems.Erdos924.Ramsey
+import ErdosProblems.Erdos161.Ramsey
 
 /-!
 # Erdős Problem 924

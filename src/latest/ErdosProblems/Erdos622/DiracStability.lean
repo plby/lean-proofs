@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -/
-import ErdosProblems.Erdos622.External.Erdos570.BondyChvatal
+import ErdosProblems.Erdos570.BondyChvatal
 import Mathlib.Combinatorics.SimpleGraph.Density
 import Mathlib.Combinatorics.SimpleGraph.Clique
 import Mathlib.Order.Filter.AtTopBot.CountablyGenerated

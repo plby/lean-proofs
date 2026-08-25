@@ -4,7 +4,7 @@ Copyright 2026.
 Released under Apache 2.0 license.
 -/
 
-import ErdosProblems.Erdos438.Analytic
+import ErdosProblems.Erdos587.Analytic
 
 /-!
 # A discrete Kusmin--Landau inequality

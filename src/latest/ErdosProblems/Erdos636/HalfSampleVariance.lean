@@ -1,6 +1,6 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 import ErdosProblems.Erdos636.HalfSample
-import ErdosProblems.Erdos636.External.Erdos88.Concentration
+import ErdosProblems.Erdos88.Concentration
 
 /-! # Second moments of uniform half-samples -/
 

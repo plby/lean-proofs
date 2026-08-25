@@ -1,5 +1,5 @@
 import ErdosProblems.Erdos980.ElliottTail.CumulativeMediumApplication
-import ErdosProblems.Erdos980.External.Erdos387.BinomialEulerProduct
+import ErdosProblems.Erdos387.BinomialEulerProduct
 import ErdosProblems.Erdos851.ConcreteBetaCardinality
 
 /-!

@@ -18,7 +18,7 @@ import ErdosProblems.Erdos622.PippengerSchedule
 import ErdosProblems.Erdos622.PetersenFactor
 import ErdosProblems.Erdos622.AlonOriginal
 import ErdosProblems.Erdos622.RegularCompletion
-import ErdosProblems.Erdos622.External.Erdos76.HypergraphGreedyColoring
+import ErdosProblems.Erdos76.HypergraphGreedyColoring
 import Mathlib.Combinatorics.SimpleGraph.Girth
 import Mathlib.Combinatorics.SimpleGraph.Matching
 

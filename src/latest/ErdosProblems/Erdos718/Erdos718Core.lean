@@ -25,7 +25,7 @@ import Mathlib.Tactic.Linarith
 import Lean.Elab.Tactic.Omega
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
-import ErdosProblems.Erdos718.External.Erdos599.Main
+import ErdosProblems.Erdos599.Countable
 open Function Set
 open SimpleGraph
 
@@ -223,19 +223,19 @@ structure ABLinkage {V : Type} (G : SimpleGraph V) (A B : Set V) (k : ℕ) where
 `ErdosProblems.Erdos599`. -/
 theorem finite_hasErdosMengerPair {V : Type} [Finite V]
     (G : SimpleGraph V) (A B : Set V) :
-    Erdos599.HasErdosMengerPair G A B := by
-  exact Erdos599.hasErdosMengerPair_of_safePathRemoval_of_countable
-    Erdos599.safePathRemoval G A B (Set.toFinite A).countable
+    Erdos599.Countable.HasErdosMengerPair G A B := by
+  exact Erdos599.Countable.hasErdosMengerPair_of_safePathRemoval_of_countable
+    Erdos599.Countable.safePathRemoval G A B (Set.toFinite A).countable
 
 theorem finite_pathHypergraph_hasKonigPair {V : Type} [Finite V]
     (G : SimpleGraph V) (A B : Set V) :
-    Erdos599.HasKonigPair (Erdos599.pathHypergraph G A B) := by
-  exact Erdos599.hasKonigPair_pathHypergraph_of_hasErdosMengerPair
+    Erdos599.Countable.HasKonigPair (Erdos599.Countable.pathHypergraph G A B) := by
+  exact Erdos599.Countable.hasKonigPair_pathHypergraph_of_hasErdosMengerPair
     (finite_hasErdosMengerPair G A B)
 
 /-- Weak duality for finite hypergraph packings and covers. -/
 theorem packing_ncard_le_cover_ncard {V : Type} {F P : Set (Set V)}
-    {S : Set V} (hP : Erdos599.IsPacking F P) (hS : Erdos599.IsCover F S)
+    {S : Set V} (hP : Erdos599.Countable.IsPacking F P) (hS : Erdos599.Countable.IsCover F S)
     (hPfinite : P.Finite) (hSfinite : S.Finite) : P.ncard ≤ S.ncard := by
   classical
   have hex (e : P) : ∃ v, v ∈ (e : Set V) ∧ v ∈ S :=
@@ -256,8 +256,8 @@ theorem packing_ncard_le_cover_ncard {V : Type} {F P : Set (Set V)}
 
 /-- A finite structural König pair has equally large packing and cover. -/
 theorem ncard_eq_of_hasKonigPair {V : Type} [Finite V]
-    {F : Set (Set V)} (h : Erdos599.HasKonigPair F) :
-    ∃ P S, Erdos599.IsPacking F P ∧ Erdos599.IsCover F S ∧
+    {F : Set (Set V)} (h : Erdos599.Countable.HasKonigPair F) :
+    ∃ P S, Erdos599.Countable.IsPacking F P ∧ Erdos599.Countable.IsCover F S ∧
       P.ncard = S.ncard := by
   classical
   rcases h with ⟨P, S, hPF, hdisj, hSsub, horth, hcover⟩
@@ -292,12 +292,12 @@ theorem ncard_eq_of_hasKonigPair {V : Type} [Finite V]
 theorem finite_pathHypergraph_minmax {V : Type} [Finite V]
     (G : SimpleGraph V) (A B : Set V) :
     ∃ P S,
-      Erdos599.IsPacking (Erdos599.pathHypergraph G A B) P ∧
-      Erdos599.IsCover (Erdos599.pathHypergraph G A B) S ∧
+      Erdos599.Countable.IsPacking (Erdos599.Countable.pathHypergraph G A B) P ∧
+      Erdos599.Countable.IsCover (Erdos599.Countable.pathHypergraph G A B) S ∧
       P.ncard = S.ncard ∧
-      (∀ Q, Erdos599.IsPacking (Erdos599.pathHypergraph G A B) Q →
+      (∀ Q, Erdos599.Countable.IsPacking (Erdos599.Countable.pathHypergraph G A B) Q →
         Q.ncard ≤ P.ncard) ∧
-      (∀ T, Erdos599.IsCover (Erdos599.pathHypergraph G A B) T →
+      (∀ T, Erdos599.Countable.IsCover (Erdos599.Countable.pathHypergraph G A B) T →
         S.ncard ≤ T.ncard) := by
   rcases ncard_eq_of_hasKonigPair
       (finite_pathHypergraph_hasKonigPair G A B) with
@@ -314,22 +314,22 @@ theorem finite_pathHypergraph_minmax {V : Type} [Finite V]
 fully vertex-disjoint `A`--`B` paths. -/
 theorem exists_abLinkage_of_forall_separator_ncard_ge {V : Type} [Finite V]
     (G : SimpleGraph V) (A B : Set V) (k : ℕ)
-    (hsep : ∀ S, Erdos599.Separates G A B S → k ≤ S.ncard) :
+    (hsep : ∀ S, Erdos599.Countable.Separates G A B S → k ≤ S.ncard) :
     Nonempty (ABLinkage G A B k) := by
   classical
   rcases finite_pathHypergraph_minmax G A B with
     ⟨P, S, hP, hS, hcard, _hmax, _hmin⟩
   have hkP : k ≤ P.ncard := by
     rw [hcard]
-    exact hsep S (Erdos599.isCover_pathHypergraph_iff.mp hS)
+    exact hsep S (Erdos599.Countable.isCover_pathHypergraph_iff.mp hS)
   have hPfinite : P.Finite := Set.toFinite P
   let _ : Fintype P := hPfinite.fintype
   have hkcard : Fintype.card (Fin k) ≤ Fintype.card P := by
     simpa [Set.fintypeCard_eq_ncard] using hkP
   rcases Function.Embedding.nonempty_of_card_le hkcard with ⟨emb⟩
   have hedge (i : Fin k) : (emb i : Set V) ∈
-      Erdos599.pathHypergraph G A B := hP.1 (emb i).property
-  let q (i : Fin k) : Erdos599.ABPath G A B := Classical.choose (hedge i)
+      Erdos599.Countable.pathHypergraph G A B := hP.1 (emb i).property
+  let q (i : Fin k) : Erdos599.Countable.ABPath G A B := Classical.choose (hedge i)
   have hq (i : Fin k) : (q i).vertices = (emb i : Set V) :=
     Classical.choose_spec (hedge i)
   refine ⟨{
@@ -698,9 +698,9 @@ lemma IsKConnected.preconnected {G : SimpleGraph V} {k : ℕ}
 theorem finite_vertex_menger {V : Type} [Finite V]
     (G : SimpleGraph V) (A B : Set V) (q : ℕ) :
     Nonempty (ABLinkage G A B q) ∨
-      ∃ S : Set V, S.Finite ∧ S.ncard < q ∧ Erdos599.Separates G A B S := by
+      ∃ S : Set V, S.Finite ∧ S.ncard < q ∧ Erdos599.Countable.Separates G A B S := by
   classical
-  by_cases hlarge : ∀ S, Erdos599.Separates G A B S → q ≤ S.ncard
+  by_cases hlarge : ∀ S, Erdos599.Countable.Separates G A B S → q ≤ S.ncard
   · exact Or.inl (exists_abLinkage_of_forall_separator_ncard_ge G A B q hlarge)
   · push Not at hlarge
     obtain ⟨S, hsep, hsmall⟩ := hlarge
@@ -711,7 +711,7 @@ sides. -/
 theorem separation_separator_separates_strict_sides
     {V : Type} [Fintype V] [DecidableEq V] {G : SimpleGraph V}
     (s : Separation G) :
-    Erdos599.Separates G
+    Erdos599.Countable.Separates G
       (s.left \ s.right : Finset V)
       (s.right \ s.left : Finset V)
       (s.separator : Finset V) := by
@@ -726,10 +726,10 @@ theorem exists_proper_separation_of_path_separator
     {V : Type} [Fintype V] [DecidableEq V] {G : SimpleGraph V}
     {A B S : Set V} (hA : A.Nonempty) (hB : B.Nonempty)
     (hAS : Disjoint A S) (hBS : Disjoint B S)
-    (hsep : Erdos599.Separates G A B S) :
+    (hsep : Erdos599.Countable.Separates G A B S) :
     ∃ s : Separation G, s.Proper ∧ s.separator.card = S.ncard := by
   classical
-  let H := Erdos599.outsideGraph G S
+  let H := Erdos599.Countable.outsideGraph G S
   let R : Finset V := Finset.univ.filter fun v => ∃ a ∈ A, H.Reachable a v
   have source_strict (a : V) (ha : a ∈ A) :
       a ∈ (S.toFinset ∪ R) \ (S.toFinset ∪ (Finset.univ \ R)) := by
@@ -748,12 +748,12 @@ theorem exists_proper_separation_of_path_separator
       simp only [R, Finset.mem_filter, Finset.mem_univ, true_and] at hbR
       rcases hbR with ⟨a, ha, hab⟩
       rcases hab.exists_isPath with ⟨q, hq⟩
-      let qG := q.mapLe (Erdos599.outsideGraph_le G S)
+      let qG := q.mapLe (Erdos599.Countable.outsideGraph_le G S)
       rcases hsep a ha b hb qG (hq.mapLe _) with ⟨x, hxqG, hxS⟩
       have hxq : x ∈ q.support := by
         simpa [qG, Walk.support_mapLe_eq_support] using hxqG
       have haS : a ∉ S := Set.disjoint_left.mp hAS ha
-      exact (Erdos599.Walk.vertex_not_mem_of_outsideGraph q haS hxq) hxS
+      exact (Erdos599.Countable.Walk.vertex_not_mem_of_outsideGraph q haS hxq) hxS
     simp only [Finset.mem_sdiff, Finset.mem_union, Set.mem_toFinset,
       Finset.mem_univ, true_and]
     exact ⟨Or.inr hbR, fun h => h.elim hbS hbR⟩
@@ -808,7 +808,7 @@ theorem separator_ncard_ge_of_isKConnected
     {A B S : Set V} {k : ℕ}
     (hconn : IsKConnected G k)
     (hAcard : k ≤ A.ncard) (hBcard : k ≤ B.ncard)
-    (hsep : Erdos599.Separates G A B S) :
+    (hsep : Erdos599.Countable.Separates G A B S) :
     k ≤ S.ncard := by
   by_contra hSk
   have hSlt : S.ncard < k := Nat.lt_of_not_ge hSk
@@ -828,7 +828,7 @@ theorem separator_ncard_ge_of_isKConnected
       exact hne ⟨b, hb, hbS⟩
     have hcard := Set.ncard_le_ncard hsub
     omega
-  have hsep0 : Erdos599.Separates G (A \ S) (B \ S) S := by
+  have hsep0 : Erdos599.Countable.Separates G (A \ S) (B \ S) S := by
     intro a ha b hb p hp
     exact hsep a ha.1 b hb.1 p hp
   rcases exists_proper_separation_of_path_separator hA0 hB0

@@ -5,7 +5,7 @@ Authors: The Formal Conjectures Authors
 -/
 
 import ErdosProblems.Erdos446.UpperPowerfulReduction
-import ErdosProblems.Erdos446.External.Erdos387.RoughIntervalBrunUpper
+import ErdosProblems.Erdos387.RoughIntervalBrunUpper
 
 /-!
 # Erdős Problem 446: the finite rough-residual shell

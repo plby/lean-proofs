@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos636.External.Erdos88.Richness
+import ErdosProblems.Erdos88.Richness
 
 /-!
 # Counting bad ordered tuples

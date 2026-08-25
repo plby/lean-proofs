@@ -1,6 +1,6 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 import ErdosProblems.Erdos360.Core
-import ErdosProblems.Erdos360.External.Erdos387.BinomialEulerProductSharp
+import ErdosProblems.Erdos387.BinomialEulerProductSharp
 
 /-!
 # Erdős 360: diagonal lower-bound parameters

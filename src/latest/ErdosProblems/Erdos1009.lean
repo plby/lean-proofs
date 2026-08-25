@@ -13,7 +13,7 @@ Formal authors:
 URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1009.md
 -/
-import ErdosProblems.Erdos1009.External.Erdos207.Prefix
+import ErdosProblems.Erdos207.Prefix
 import ErdosProblems.Erdos127.CutComposition
 import Mathlib.Combinatorics.SimpleGraph.Extremal.Turan
 import Mathlib.Combinatorics.SimpleGraph.DeleteEdges

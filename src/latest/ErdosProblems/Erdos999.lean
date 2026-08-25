@@ -31,7 +31,7 @@ The detailed mathematical proof and Leanization dependency map are in
 
 import Mathlib.NumberTheory.WellApproximable
 import Mathlib.MeasureTheory.OuterMeasure.BorelCantelli
-import ErdosProblems.Erdos999.External.Erdos1165.SecondMoment
+import ErdosProblems.Erdos1165.SecondMoment
 import ErdosProblems.Erdos220
 import ErdosProblems.Erdos999.LayerLower
 import ErdosProblems.Erdos999.PairGeometry

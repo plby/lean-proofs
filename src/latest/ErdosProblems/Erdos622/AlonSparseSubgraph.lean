@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -/
-import ErdosProblems.Erdos622.External.Erdos76.FiniteBernoulliLocality
+import ErdosProblems.Erdos76.FiniteBernoulliLocality
 import ErdosProblems.Erdos697.Erdos697Bernoulli
 import ErdosProblems.Erdos622.AlonOriginal
 import ErdosProblems.Erdos622.AlonScalar

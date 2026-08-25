@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import ErdosProblems.Erdos48.AnalyticMean
-import ErdosProblems.Erdos48.External.Erdos4.ResidualPrimeFiberTail
+import ErdosProblems.Erdos4.ResidualPrimeFiberTail
 
 /-!
 # Sieve encoding of the large shifted-prime-factor exception

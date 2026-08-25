@@ -15,8 +15,8 @@ limitations under the License.
 -/
 import ErdosProblems.Erdos622.LinearArboricity
 import ErdosProblems.Erdos622.PippengerSchedule
-import ErdosProblems.Erdos622.External.Erdos76.FiniteBernoulliLocality
-import ErdosProblems.Erdos622.External.Erdos76.PippengerSpencerInnerSurvival
+import ErdosProblems.Erdos76.FiniteBernoulliLocality
+import ErdosProblems.Erdos76.PippengerSpencerInnerSurvival
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 
 /-!

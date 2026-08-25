@@ -7,8 +7,8 @@ import ErdosProblems.Erdos182.Elementary
 import ErdosProblems.Erdos182.PRSEntry
 import ErdosProblems.Erdos752.Erdos752BFS
 import ErdosProblems.Erdos752.Erdos752Component
-import ErdosProblems.Erdos551.Erdos551BondyChvatal
-import ErdosProblems.Erdos551.External.Erdos207.SharpRobustHallSampling
+import ErdosProblems.Erdos570.BondyChvatal
+import ErdosProblems.Erdos207.SharpRobustHallSampling
 
 /-!
 # Erdős Problem 551

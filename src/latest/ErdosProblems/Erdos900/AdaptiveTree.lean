@@ -1,5 +1,5 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
-import ErdosProblems.Erdos636.External.Erdos88.Fourier
+import ErdosProblems.Erdos88.Fourier
 
 /-!
 # Adaptive exposure trees

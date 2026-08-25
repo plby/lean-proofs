@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -/
-import ErdosProblems.Erdos622.External.Erdos76.PippengerSpencerInnerSurvival
+import ErdosProblems.Erdos76.PippengerSpencerInnerSurvival
 
 /-!
 # The finite joint-survival step in the Pippenger--Spencer nibble

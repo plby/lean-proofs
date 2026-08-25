@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -/
 
-import ErdosProblems.Erdos636.External.Erdos88.BooleanSlices
-import ErdosProblems.Erdos636.External.Erdos88.Richness
+import ErdosProblems.Erdos88.BooleanSlices
+import ErdosProblems.Erdos88.Richness
 
 /-!
 # Exact moments of uniform fixed-cardinality subsets

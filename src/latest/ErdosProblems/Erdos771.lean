@@ -21,7 +21,7 @@ import ErdosProblems.Erdos38
 import ErdosProblems.Erdos285.RoughCounts
 import ErdosProblems.Erdos55.FiniteSums
 import ErdosProblems.Erdos54.CyclicGrowth
-import ErdosProblems.Erdos636.External.Erdos88.Fourier
+import ErdosProblems.Erdos88.Fourier
 import ErdosProblems.Erdos387.LocalDensity
 import ErdosProblems.Erdos387.UniformAnalyticInputs
 

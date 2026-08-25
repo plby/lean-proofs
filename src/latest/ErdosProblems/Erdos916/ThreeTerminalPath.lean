@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos718.External.Erdos599.Main
+import ErdosProblems.Erdos599.Countable
 import ErdosProblems.Erdos916.Blocks
 
 /-!
@@ -46,12 +46,12 @@ structure TwoABLinkage {W : Type*} (H : SimpleGraph W) (A B : Set W) where
 /-- Finite vertex Menger, specialized to two paths. -/
 theorem exists_twoABLinkage_of_separator_two_le {W : Type} [Finite W]
     (H : SimpleGraph W) (A B : Set W)
-    (hsep : ∀ S, Erdos599.Separates H A B S → 2 ≤ S.ncard) :
+    (hsep : ∀ S, Erdos599.Countable.Separates H A B S → 2 ≤ S.ncard) :
     Nonempty (TwoABLinkage H A B) := by
   classical
-  have hEM : Erdos599.HasErdosMengerPair H A B :=
-    Erdos599.hasErdosMengerPair_of_safePathRemoval_of_countable
-      Erdos599.safePathRemoval H A B (Set.toFinite A).countable
+  have hEM : Erdos599.Countable.HasErdosMengerPair H A B :=
+    Erdos599.Countable.hasErdosMengerPair_of_safePathRemoval_of_countable
+      Erdos599.Countable.safePathRemoval H A B (Set.toFinite A).countable
   rcases hEM with ⟨ι, left, right, path, S, hleft, hright, hpath,
     hdisjoint, hSsub, horth, hseparates⟩
   have hScard : 2 ≤ S.ncard := hsep S hseparates
@@ -288,7 +288,7 @@ private theorem split_separator_two_le
     (hconn : G.Connected)
     (hdelete : ∀ v : V, (G.induce fun w : V ↦ w ≠ v).Connected)
     (S : Set (SplitVertex c))
-    (hS : Erdos599.Separates (splitTerminalGraph G c) (splitSources c)
+    (hS : Erdos599.Countable.Separates (splitTerminalGraph G c) (splitSources c)
       (splitTargets ⟨a, hac⟩ ⟨b, hbc⟩) S) :
     2 ≤ S.ncard := by
   classical
