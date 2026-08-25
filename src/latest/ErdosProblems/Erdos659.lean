@@ -4,7 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 659.
 https://www.erdosproblems.com/forum/thread/659
 
 Formalization status:
-- Conditional on: bernays
+- Unconditional; checked at default computational limits
 
 Informal authors:
 - Benjamin Grayzel
@@ -20,6 +20,7 @@ Statement authors:
 Formal authors:
 - Aristotle
 - Boris Alexeev
+- Codex
 
 URLs:
 - https://adamsheffer.wordpress.com/2014/07/16/point-sets-with-few-distinct-distances/
@@ -31,23 +32,22 @@ We defined the lattice `L` and the point sets `P_m`.
 We proved that `P_m` satisfies the local constraint (every 4 points determine at least 3 distances)
 by reducing it to the absence of squares, equilateral triangles, and golden ratio distances in `L`,
 which we verified.
-We proved that the number of distinct distances in `P_m` is bounded by `B_Q(3m^2)`, where `Q` is the
-quadratic form `x^2 + 2y^2`.
-Using Bernays' theorem (assumed as a hypothesis), we established the asymptotic bound `O(n /
-sqrt(log n))` for the number of distinct distances in a subset of size `n`.
---
-I have proved Perucca's classification theorem (`PeruccaClassificationStatement_proof`) using some
-helper lemmas I established.
+The squared Euclidean distances in `P_m` are positive integers represented by
+`x^2 + 2y^2`. The companion `Erdos659.Counting` module proves their counting
+function is `O(X / sqrt(log X))`, using the Halberstam–Richert mean-value bound
+and the Euler product of the quadratic character modulo eight. This upper
+bound suffices; Bernays' full asymptotic theorem is not assumed.
+
+Perucca's classification theorem is proved as `PeruccaClassificationStatement_proof`.
 -/
 
 import Mathlib
-import ErdosProblems.Axioms
+import ErdosProblems.Erdos659.Counting
 
 namespace Erdos659
 
 set_option linter.style.setOption false
 set_option linter.flexible false
-set_option maxHeartbeats 50000000
 
 open scoped Real
 
@@ -72,117 +72,6 @@ Define D(P) as the set of nonzero distances between pairs of points in P.
 -/
 noncomputable def distinctDistances' (S : Finset (ℝ × ℝ)) : Finset ℝ :=
   (S.product S).image (fun (p, q) => dist p q) \ {0}
-
-/-
-Define the quadratic form Q(u,v) = u^2 + 2v^2 and prove it is primitive and positive definite with
-discriminant -8.
--/
-def Q_form : BinQuadForm := ⟨1, 0, 2⟩
-
-lemma Q_form_primitive : Q_form.Primitive := by
-  unfold BinQuadForm.Primitive Q_form
-  decide
-
-lemma Q_form_posDef : Q_form.PosDef := by
-  unfold BinQuadForm.PosDef BinQuadForm.discr Q_form
-  decide
-
-lemma Q_form_discr : Q_form.discr = -8 := by
-  unfold BinQuadForm.discr Q_form
-  rfl
-
-/-
-The number of distinct distances in P_m is at most the number of integers <= 3m^2 represented by the
-quadratic form Q(u,v) = u^2 + 2v^2.
--/
-theorem distinctDistances'_bound (m : ℕ) (hm : m ≥ 1) :
-    (distinctDistances' (P m)).card ≤ BinQuadForm.B Q_form (3 * m ^ 2) := by
-      -- The squared distances are exactly the values of Q(u,v) = u^2 + 2v^2 with |u|, |v| ≤
-      -- m-1.
-      have h_squared_dist : ∀ p ∈ (P m), ∀ q ∈ (P m), p ≠ q → ∃ u v : ℤ,
-        u^2 + 2 * v^2 = (dist p q)^2 ∧ 0 < u^2 + 2 * v^2 ∧
-          u^2 + 2 * v^2 ≤ 3 * m^2 := by
-        intros p hp q hq hne
-        obtain ⟨u, v, huv⟩ : ∃ u v : ℤ,
-          u^2 + 2 * v^2 = (dist p q)^2 ∧ |u| ≤ m - 1 ∧ |v| ≤ m - 1 := by
-          unfold P at hp hq;
-          unfold latticePoint at hp hq;
-          norm_num [ dist_eq_norm, Prod.norm_def ] at *;
-          rcases hp with ⟨ a, b, ⟨ ha, hb ⟩, rfl ⟩ ;
-          rcases hq with ⟨ c, d, ⟨ hc, hd ⟩, rfl ⟩;
-          cases max_cases ( |(a : ℝ) - c| ) ( |Real.sqrt 2 * b - Real.sqrt 2 * d| ) <;>
-            simp_all +decide [ ← mul_sub, abs_mul ];
-          · refine ⟨ (a : ℤ) - (c : ℤ), 0, ?_, ?_, ?_ ⟩ <;> norm_num;
-            · have ha_le : a ≤ m - 1 := Nat.le_sub_one_of_lt ha
-              have hc_le : c ≤ m - 1 := Nat.le_sub_one_of_lt hc
-              have h_abs : ((a : ℤ) - (c : ℤ)).natAbs ≤ m - 1 :=
-                Int.natAbs_coe_sub_coe_le_of_le ha_le hc_le
-              have h_abs_lt : ((a : ℤ) - (c : ℤ)).natAbs < m :=
-                lt_of_le_of_lt h_abs (by omega)
-              rw [← Int.natCast_natAbs]
-              exact_mod_cast h_abs_lt;
-            · linarith;
-          · norm_num [ mul_pow, abs_of_nonneg ] at *;
-            refine ⟨ 0, (b : ℤ) - (d : ℤ), by push_cast; ring, by norm_num; linarith, ?_ ⟩;
-            have hb_le : b ≤ m - 1 := Nat.le_sub_one_of_lt hb
-            have hd_le : d ≤ m - 1 := Nat.le_sub_one_of_lt hd
-            have h_abs : ((b : ℤ) - (d : ℤ)).natAbs ≤ m - 1 :=
-              Int.natAbs_coe_sub_coe_le_of_le hb_le hd_le
-            have h_abs_lt : ((b : ℤ) - (d : ℤ)).natAbs < m :=
-              lt_of_le_of_lt h_abs (by omega)
-            rw [← Int.natCast_natAbs]
-            exact_mod_cast h_abs_lt;
-        exact ⟨ u, v, huv.1,
-          by
-            exact_mod_cast
-              ( by nlinarith [ show 0 < dist p q from dist_pos.mpr hne ] :
-                ( 0 : ℝ ) < u ^ 2 + 2 * v ^ 2 ),
-          by nlinarith [ abs_le.mp huv.2.1, abs_le.mp huv.2.2 ] ⟩;
-      have h_squared_dist : ∀ d ∈ distinctDistances' (P m), ∃ n : ℕ,
-        n ≤ 3 * m^2 ∧ ∃ u v : ℤ,
-        u^2 + 2 * v^2 = n ∧ d^2 = n := by
-        intro d hd;
-        -- By definition of $distinctDistances'$, there exist $p, q \in P_m$ such that $p \neq q$
-        -- and $d = dist p q$.
-        obtain ⟨p, hp, q, hq, hpq, rfl⟩ : ∃ p ∈ P m, ∃ q ∈ P m,
-          p ≠ q ∧ d = dist p q := by
-          unfold distinctDistances' at hd; aesop;
-        obtain ⟨ u, v, h₁, h₂,
-          h₃ ⟩ := h_squared_dist p hp q hq hpq; exact ⟨ u.natAbs ^ 2 + 2 * v.natAbs ^ 2,
-          by linarith [ abs_mul_abs_self u, abs_mul_abs_self v ], u, v,
-          by simp +decide,
-          by
-            simp +decide at *
-            linarith ⟩ ;
-      -- Therefore, the number of distinct distances in $P_m$ is at most the number of integers $n
-      -- \leq 3m^2$ represented by $Q(u,v) = u^2 + 2v^2$.
-      have h_card_le_B : (distinctDistances' (P m)).card ≤
-          (Nat.card {n : ℕ | (n : ℝ) ≤ 3 * m^2 ∧
-            ∃ u v : ℤ, u^2 + 2 * v^2 = (n : ℤ)}) := by
-        have h_card_le_B : (distinctDistances' (P m)).card ≤
-            (Nat.card (Finset.image (fun d => Nat.floor (d^2)) (distinctDistances' (P m)))) := by
-          rw [ Nat.card_eq_fintype_card, Fintype.card_coe, Finset.card_image_of_injOn ];
-          intro d hd d' hd' h_eq; obtain ⟨ n, hn₁, u, v, huv,
-            hd₂ ⟩ := h_squared_dist d hd; obtain ⟨ n', hn₁', u', v', huv',
-            hd₂' ⟩ := h_squared_dist d' hd'; simp_all +decide [ sq ] ;
-          -- Since $d$ and $d'$ are both non-negative (as they are distances), we can conclude that
-          -- $d = d'$.
-          have h_nonneg : 0 ≤ d ∧ 0 ≤ d' := by
-            unfold distinctDistances' at hd hd'; aesop;
-          nlinarith;
-        refine le_trans h_card_le_B ?_;
-        apply_rules [ Nat.card_mono ];
-        · exact Set.finite_iff_bddAbove.mpr ⟨ 3 * m ^ 2, fun n hn => mod_cast hn.1 ⟩;
-        · intro n hn;
-          obtain ⟨ d, hd, rfl ⟩ := Finset.mem_image.mp hn;
-          obtain ⟨ n, hn₁, u, v, hn₂,
-            hn₃ ⟩ := h_squared_dist d hd
-          use mod_cast Nat.floor_le_of_le ( mod_cast hn₃.symm ▸ mod_cast hn₁ )
-          aesop;
-      convert h_card_le_B using 1;
-      unfold Q_form; norm_num [ BinQuadForm.eval ] ;
-      unfold BinQuadForm.B; norm_num [ BinQuadForm.eval ] ;
-      norm_num [ sq, mul_assoc ]
 
 /-
 The set L is closed under subtraction.
@@ -1030,9 +919,32 @@ lemma P_coords (m : ℕ) (p : ℝ × ℝ) (hp : p ∈ P m) :
         rfl ⟩ := hp; exact ⟨ x.1, x.2, Finset.mem_range.mp ( Finset.mem_product.mp hx |>.1 ),
         Finset.mem_range.mp ( Finset.mem_product.mp hx |>.2 ), rfl ⟩ ;
 
-/-
-Squared Euclidean distance between points in P_m is of the form u^2 + 2v^2 with |u|, |v| < m.
--/
+/-- A nonzero distance is realized by two distinct points. -/
+lemma mem_distinctDistances_euc {S : Finset (ℝ × ℝ)} {d : ℝ} :
+    d ∈ distinctDistances'_euc S ↔
+      ∃ p ∈ S, ∃ q ∈ S, p ≠ q ∧ dist_euc p q = d := by
+  classical
+  constructor
+  · intro hd
+    rcases Finset.mem_sdiff.mp hd with ⟨hi, hz⟩
+    rcases Finset.mem_image.mp hi with ⟨⟨p, q⟩, hpq, rfl⟩
+    rcases Finset.mem_product.mp hpq with ⟨hp, hq⟩
+    refine ⟨p, hp, q, hq, ?_, rfl⟩
+    intro heq
+    apply hz
+    simp [dist_euc_eq_zero.mpr heq]
+  · rintro ⟨p, hp, q, hq, hne, rfl⟩
+    refine Finset.mem_sdiff.mpr ⟨?_, ?_⟩
+    · exact Finset.mem_image.mpr ⟨(p, q), Finset.mem_product.mpr ⟨hp, hq⟩, rfl⟩
+    · simpa only [Finset.mem_singleton, dist_euc_eq_zero] using hne
+
+lemma distinctDistances_euc_pos {S : Finset (ℝ × ℝ)} {d : ℝ}
+    (hd : d ∈ distinctDistances'_euc S) : 0 < d := by
+  rcases mem_distinctDistances_euc.mp hd with ⟨p, _, q, _, hne, rfl⟩
+  exact lt_of_le_of_ne (Real.sqrt_nonneg _) (Ne.symm (dist_euc_eq_zero.not.mpr hne))
+
+/-- Squared Euclidean distances in `P m` have the form `u² + 2v²`,
+with `|u|, |v| < m`. -/
 lemma P_dist_sq_form (m : ℕ) (p q : ℝ × ℝ) (hp : p ∈ P m) (hq : q ∈ P m) :
     ∃ u v : ℤ, |u| < m ∧ |v| < m ∧ (dist_euc p q)^2 = u^2 + 2 * v^2 := by
       -- Let's unfold the definitions of P_coords and use the provided solution's approach.
@@ -1051,73 +963,6 @@ lemma P_dist_sq_form (m : ℕ) (p q : ℝ × ℝ) (hp : p ∈ P m) (hq : q ∈ P
         ring;
       exact ⟨ i1 - i2, j1 - j2, abs_lt.mpr ⟨ by linarith, by linarith ⟩,
         abs_lt.mpr ⟨ by linarith, by linarith ⟩, by simpa using h_dist_sq ⟩
-
-/-
-The number of distinct Euclidean distances in P_m is bounded by B_Q(3m^2).
--/
-theorem distinctDistances'_euc_bound (m : ℕ) (_hm : m ≥ 1) :
-    (distinctDistances'_euc (P m)).card ≤ BinQuadForm.B Q_form (3 * m ^ 2) := by
-      -- The number of distinct squared distances in P_m is at most the number of integers ≤ 3m^2
-      -- represented by the quadratic form Q(u,v) = u^2 + 2v^2.
-      have h_card_dist_sq : (distinctDistances'_euc (P m)).card ≤
-          (Nat.card {n : ℕ | (n : ℝ) ≤ 3 * m ^ 2 ∧
-            ∃ u v : ℤ, (Q_form.eval u v : ℤ) = n}) := by
-        -- By definition of $distinctDistances'_euc$, every element in $distinctDistances'_euc (P
-        -- m)$ is a square root of an integer in the set $\{n \mid (n : ℝ) \leq 3 *
-        -- m ^ 2 ∧ \exists
-        -- u v : ℤ, (Q_form.eval u v : ℤ) = n\}$.
-        have h_subset : ∀ d ∈ distinctDistances'_euc (P m),
-          ∃ n ∈ {n : ℕ | (n : ℝ) ≤ 3 * m ^ 2 ∧
-            ∃ u v : ℤ, (Q_form.eval u v : ℤ) = n},
-          d = Real.sqrt n := by
-          intro d hd
-          obtain ⟨p, q, hp, hq, hd_eq⟩ : ∃ p q : ℝ × ℝ,
-            p ∈ P m ∧ q ∈ P m ∧ dist_euc p q = d := by
-            unfold distinctDistances'_euc at hd;
-            simp +zetaDelta at *;
-            tauto;
-          obtain ⟨ u, v, hu, hv, h ⟩ := P_dist_sq_form m p q hp hq;
-          use Int.natAbs (u^2 + 2 * v^2);
-          field_simp;
-          constructor;
-          · constructor;
-            · norm_cast;
-              nlinarith only [ abs_lt.mp hu, abs_lt.mp hv,
-                abs_of_nonneg ( by positivity : 0 ≤ u ^ 2 + 2 * v ^ 2 ) ];
-            · use u, v;
-              unfold Q_form
-              norm_num [ abs_of_nonneg ( by positivity : 0 ≤ u ^ 2 + 2 * v ^ 2 ) ] ;
-              unfold BinQuadForm.eval; norm_num; ring;
-          · norm_num [ ← hd_eq, ← h ];
-            rw [ Real.sqrt_sq ( by exact Real.sqrt_nonneg _ ) ];
-        have h_finite : Set.Finite {n : ℕ | (n : ℝ) ≤ 3 * m ^ 2 ∧
-            ∃ u v : ℤ, (Q_form.eval u v : ℤ) = n} := by
-          exact Set.finite_iff_bddAbove.mpr
-            ⟨ ⌊ ( 3 * m ^ 2 : ℝ ) ⌋₊, fun n hn => Nat.le_floor hn.1 ⟩
-        have h_card : (distinctDistances'_euc (P m)).card ≤
-            (Finset.image (fun n : ℕ => Real.sqrt n) (Set.Finite.toFinset h_finite)).card := by
-          exact Finset.card_le_card fun x hx => by
-            obtain ⟨ n, hn, rfl ⟩ := h_subset x hx
-            exact Finset.mem_image.mpr ⟨ n, by aesop ⟩ ;
-        generalize_proofs at *;
-        exact h_card.trans ( Finset.card_image_le.trans ( by
-          rw [ ← Nat.card_eq_finsetCard ]
-          aesop ) );
-      simpa [BinQuadForm.B] using h_card_dist_sq
-
-/-
-The quadratic form Q satisfies the conditions of Bernays' theorem.
--/
-lemma Q_satisfies_bernays :
-    let Δ := Q_form.discr
-    (¬ ∃ z : ℤ, z * z = Δ) ∧ Q_form.Primitive ∧ Q_form.PosDef := by
-      unfold Q_form;
-      constructor;
-      · unfold BinQuadForm.discr;
-        exact fun ⟨ z, hz ⟩ => by
-          norm_num [ BinQuadForm.b, BinQuadForm.a, BinQuadForm.c ] at hz
-          nlinarith
-      · exact ⟨ by trivial, by trivial ⟩
 
 /-
 m_of_n(n) squared is at least n.
@@ -1152,128 +997,93 @@ lemma P_seq_spec (n : ℕ) : (P_seq n).card = n ∧ P_seq n ⊆ P (m_of_n n) := 
     norm_num +zetaDelta at *;
     linarith [ Nat.lt_succ_sqrt n ]
 
-/-
-Main theorem: Existence of sets P_n satisfying the local constraint and the distinct distance bound.
--/
-theorem main_theorem (h_perucca : PeruccaClassificationStatement)
-    (h_bernays : ∀ (Δ : ℤ) (_hΔnonsq : ¬ ∃ z : ℤ, z * z = Δ),
-    ∃ CΔ : ℝ, 0 < CΔ ∧
-      ∀ f : BinQuadForm,
-        f.Primitive →
-        f.PosDef →
-        f.discr = Δ →
-        (fun x : ℝ => (f.B x : ℝ))
-          ~[Filter.atTop]
-          (fun x : ℝ => CΔ * x / Real.sqrt (Real.log x))) :
+/-- The distance-count estimate with zero excluded, so only the upper-bound
+counting theorem for positive represented values is needed. -/
+lemma distinctDistances_euc_bound_values (m : ℕ) :
+    (distinctDistances'_euc (P m)).card ≤ (Counting.values (3 * m ^ 2)).card := by
+  classical
+  have hsub : distinctDistances'_euc (P m) ⊆
+      (Counting.values (3 * m ^ 2)).image (fun n : ℕ => Real.sqrt n) := by
+    intro d hd
+    have hdpos := distinctDistances_euc_pos hd
+    rcases mem_distinctDistances_euc.mp hd with ⟨p, hp, q, hq, hne, rfl⟩
+    obtain ⟨u, v, hu, hv, heq⟩ := P_dist_sq_form m p q hp hq
+    let n := u.natAbs ^ 2 + 2 * v.natAbs ^ 2
+    have hni : (n : ℤ) = u ^ 2 + 2 * v ^ 2 := by
+      simp [n, sq_abs]
+    have hncast : (n : ℝ) = (dist_euc p q) ^ 2 := by
+      rw [heq]
+      exact_mod_cast hni
+    have hnpos : 0 < n := by
+      by_contra hn
+      have hnzero : n = 0 := by omega
+      rw [hnzero, Nat.cast_zero] at hncast
+      nlinarith only [hncast, hdpos]
+    have huN : u.natAbs ≤ m := by
+      rw [← Int.natCast_natAbs] at hu
+      exact_mod_cast hu.le
+    have hvN : v.natAbs ≤ m := by
+      rw [← Int.natCast_natAbs] at hv
+      exact_mod_cast hv.le
+    have hnle : n ≤ 3 * m ^ 2 := by
+      dsimp [n]
+      nlinarith only [Nat.pow_le_pow_left huN 2, Nat.pow_le_pow_left hvN 2]
+    apply Finset.mem_image.mpr
+    refine ⟨n, Finset.mem_filter.mpr ⟨Finset.mem_Icc.mpr ⟨hnpos, hnle⟩,
+      u.natAbs, v.natAbs, rfl⟩, ?_⟩
+    rw [hncast, Real.sqrt_sq hdpos.le]
+  exact (Finset.card_le_card hsub).trans Finset.card_image_le
+
+lemma distinctDistances_euc_mono {S T : Finset (ℝ × ℝ)} (h : S ⊆ T) :
+    distinctDistances'_euc S ⊆ distinctDistances'_euc T := by
+  intro d hd
+  rcases mem_distinctDistances_euc.mp hd with ⟨p, hp, q, hq, hne, he⟩
+  exact mem_distinctDistances_euc.mpr ⟨p, h hp, q, h hq, hne, he⟩
+
+/-- Existence follows from the unconditional upper bound for `x² + 2y²`;
+no asymptotic equivalence for binary quadratic forms is assumed. -/
+theorem main_theorem (h_perucca : PeruccaClassificationStatement) :
     ∃ (P : ℕ → Finset (ℝ × ℝ)),
       (∀ n, (P n).card = n) ∧
       (∀ n, n ≥ 4 → ∀ S, S ⊆ P n → S.card = 4 →
         (distinctDistances'_euc S).card ≥ 3) ∧
       (Asymptotics.IsBigO Filter.atTop (fun n => ((distinctDistances'_euc (P n)).card : ℝ))
         (fun n => (n : ℝ) / Real.sqrt (Real.log n))) := by
-          -- Apply Bernays' theorem to the quadratic form Q.
-          obtain ⟨CΔ, hCΔ_pos, hCΔ⟩ : ∃ CΔ : ℝ,
-            0 < CΔ ∧ (fun x => (Q_form.B x : ℝ)) ~[Filter.atTop]
-              (fun x => CΔ * x / Real.sqrt (Real.log x)) := by
-            exact h_bernays _
-              (by
-                rintro ⟨ z, hz ⟩
-                nlinarith [ show z ≤ 2 by nlinarith, show z ≥ -2 by nlinarith ])
-              |> fun ⟨ CΔ, hCΔ₁, hCΔ₂ ⟩ =>
-                ⟨ CΔ, hCΔ₁, hCΔ₂ _ Q_form_primitive Q_form_posDef Q_form_discr ⟩;
-          refine ⟨ fun n => P_seq n, ?_, ?_, ?_ ⟩;
-          · exact fun n => P_seq_spec n |>.1;
-          · intro n hn S hS hS_card
-            have h_subset : S ⊆ P (m_of_n n) := by
-              exact hS.trans ( P_seq_spec n |>.2 );
-            exact P_local_constraint (m_of_n n) h_perucca S h_subset hS_card;
-          · -- Since $B_Q(3 * (m_of_n n)^2) \leq B_Q(3n + 6\sqrt{n} + 3)$, we can
-            -- use the bound from
-            -- Bernays' theorem.
-            have h_bound : ∀ n : ℕ,
-              n ≥ 1 →
-                (distinctDistances'_euc (P_seq n)).card ≤
-                  (Q_form.B (3 * n + 6 * Real.sqrt n + 3) : ℝ) := by
-              intros n hn
-              have h_bound : (distinctDistances'_euc (P_seq n)).card ≤
-                  (Q_form.B (3 * (m_of_n n) ^ 2) : ℝ) := by
-                have h_bound : (distinctDistances'_euc (P_seq n)).card ≤
-                    (distinctDistances'_euc (P (m_of_n n))).card := by
-                  have h_subset : P_seq n ⊆ P (m_of_n n) := by
-                    exact P_seq_spec n |>.2;
-                  apply_rules [ Finset.card_le_card ];
-                  simp_all +decide [ Finset.subset_iff ];
-                  unfold distinctDistances'_euc; aesop;
-                exact_mod_cast h_bound.trans ( distinctDistances'_euc_bound _ <| Nat.succ_pos _ );
-              refine le_trans h_bound ?_;
-              refine Nat.cast_le.mpr ?_;
-              refine Nat.card_mono ?_ ?_;
-              · refine Set.finite_iff_bddAbove.mpr ⟨ ⌊3 * n + 6 * Real.sqrt n + 3⌋₊,
-                fun x hx => Nat.le_floor <| hx.1 ⟩;
-              · refine fun x hx => ⟨ ?_, hx.2 ⟩;
-                refine le_trans hx.1 ?_;
-                norm_num [ m_of_n ];
-                nlinarith only [ show ( n.sqrt : ℝ ) ^ 2 ≤ n by exact_mod_cast Nat.sqrt_le' n,
-                  Real.sqrt_nonneg n, Real.sq_sqrt <| Nat.cast_nonneg n,
-                  show ( n.sqrt : ℝ ) ≥ 0 by positivity ];
-            -- Using the bound from Bernays' theorem, we get $B_Q(3n + 6\sqrt{n} + 3) \leq CΔ * (3n
-            -- + 6\sqrt{n} + 3) / \sqrt{\log(3n + 6\sqrt{n} + 3)}$.
-            have h_bernays_bound : ∀ᶠ n in Filter.atTop,
-              (Q_form.B (3 * n + 6 * Real.sqrt n + 3) : ℝ) ≤
-                CΔ * (3 * n + 6 * Real.sqrt n + 3) /
-                  Real.sqrt (Real.log (3 * n + 6 * Real.sqrt n + 3)) * 2 := by
-              have h_bernays_bound : ∀ᶠ x in Filter.atTop,
-                (Q_form.B x : ℝ) ≤ CΔ * x / Real.sqrt (Real.log x) * 2 := by
-                have := hCΔ.def ( show 0 < 1 by norm_num );
-                filter_upwards [ this, Filter.eventually_gt_atTop 1 ] with x hx₁ hx₂;
-                norm_num [ abs_of_nonneg, div_nonneg, Real.sqrt_nonneg, hCΔ_pos.le,
-                  hx₂.le ] at hx₁ ⊢;
-                rw [ abs_of_nonneg ( by positivity : 0 ≤ x ) ] at hx₁
-                linarith [ abs_le.mp hx₁ ];
-              rw [ Filter.eventually_atTop ] at *;
-              obtain ⟨ a, ha ⟩ := h_bernays_bound
-              use Max.max a 1
-              intro b hb
-              specialize ha ( 3 * b + 6 * Real.sqrt b + 3 )
-                ( by linarith [ le_max_left a 1, le_max_right a 1, Real.sqrt_nonneg b ] )
-              aesop;
-            -- Using the bound from Bernays' theorem, we get $B_Q(3n + 6\sqrt{n} + 3) \leq CΔ * (3n
-            -- + 6\sqrt{n} + 3) / \sqrt{\log(3n + 6\sqrt{n} + 3)}$ for sufficiently large $n$.
-            have h_bernays_bound_simplified : ∀ᶠ n in Filter.atTop,
-              (Q_form.B (3 * n + 6 * Real.sqrt n + 3) : ℝ) ≤
-                CΔ * (3 * n + 6 * Real.sqrt n + 3) / Real.sqrt (Real.log n) * 2 := by
-              filter_upwards [ h_bernays_bound,
-                Filter.eventually_gt_atTop 1 ] with n hn hn' using
-                le_trans hn ( mul_le_mul_of_nonneg_right
-                  ( div_le_div_of_nonneg_left ( by positivity )
-                    ( Real.sqrt_pos.mpr <| Real.log_pos <| by linarith ) <|
-                      Real.sqrt_le_sqrt <| Real.log_le_log ( by positivity ) <|
-                        by linarith [ Real.sqrt_nonneg n ] )
-                  zero_le_two );
-            -- Using the bound from Bernays' theorem, we get $B_Q(3n + 6\sqrt{n} + 3) \leq CΔ * (3n
-            -- + 6\sqrt{n} + 3) / \sqrt{\log n}$ for sufficiently large $n$.
-            have h_bernays_bound_final : ∀ᶠ n in Filter.atTop,
-              (Q_form.B (3 * n + 6 * Real.sqrt n + 3) : ℝ) ≤
-                12 * CΔ * n / Real.sqrt (Real.log n) := by
-              filter_upwards [ h_bernays_bound_simplified,
-                Filter.eventually_gt_atTop 16 ] with n hn hn';
-              refine le_trans hn ?_;
-              rw [ div_mul_eq_mul_div,
-                div_le_div_iff_of_pos_right ( Real.sqrt_pos.mpr <| Real.log_pos <| by linarith ) ];
-              nlinarith [ sq_nonneg ( Real.sqrt n - 4 ),
-                Real.mul_self_sqrt ( show 0 ≤ n by linarith ), Real.sqrt_nonneg n,
-                mul_le_mul_of_nonneg_left
-                  ( show Real.sqrt n ≤ n / 2 by
-                    nlinarith [ sq_nonneg ( Real.sqrt n - 4 ),
-                      Real.mul_self_sqrt ( show 0 ≤ n by linarith ), Real.sqrt_nonneg n ] )
-                  hCΔ_pos.le ];
-            rw [ Asymptotics.isBigO_iff ];
-            exact ⟨ 12 * CΔ, by
-              filter_upwards [ Filter.eventually_ge_atTop 1,
-                h_bernays_bound_final.natCast_atTop ] with n hn hn'
-              rw [ Real.norm_of_nonneg ( Nat.cast_nonneg _ ),
-                Real.norm_of_nonneg ( by positivity ) ]
-              exact le_trans ( h_bound n hn ) ( by simpa [ mul_div_assoc ] using hn' ) ⟩
+  classical
+  obtain ⟨C, hCpos, hC⟩ := Counting.exists_count_le
+  refine ⟨P_seq, fun n => (P_seq_spec n).1, ?_, ?_⟩
+  · intro n _ S hS hcard
+    exact P_local_constraint (m_of_n n) h_perucca S
+      (hS.trans (P_seq_spec n).2) hcard
+  · apply Asymptotics.IsBigO.of_bound (12 * C)
+    filter_upwards [Filter.eventually_ge_atTop 2] with n hn
+    have hnR : (1 : ℝ) < n := by exact_mod_cast hn
+    have hscale : 3 * (m_of_n n) ^ 2 ≤ 12 * n := by
+      dsimp [m_of_n]
+      nlinarith only [Nat.sqrt_le' n, Nat.sqrt_le_self n, hn]
+    have hvalues : Counting.values (3 * (m_of_n n) ^ 2) ⊆ Counting.values (12 * n) := by
+      intro k hk
+      rcases Finset.mem_filter.mp hk with ⟨hk, hrep⟩
+      exact Finset.mem_filter.mpr ⟨Finset.mem_Icc.mpr
+        ⟨(Finset.mem_Icc.mp hk).1, (Finset.mem_Icc.mp hk).2.trans hscale⟩, hrep⟩
+    have hcount : (distinctDistances'_euc (P_seq n)).card ≤
+        (Counting.values (12 * n)).card :=
+      (Finset.card_le_card (distinctDistances_euc_mono (P_seq_spec n).2)).trans
+        ((distinctDistances_euc_bound_values (m_of_n n)).trans (Finset.card_le_card hvalues))
+    have hlog : 0 < Real.sqrt (Real.log (n : ℝ)) := Real.sqrt_pos.mpr (Real.log_pos hnR)
+    have hroot : Real.sqrt (Real.log (n : ℝ)) ≤ Real.sqrt (Real.log (12 * n : ℕ)) := by
+      apply Real.sqrt_le_sqrt
+      apply Real.log_le_log (by positivity)
+      norm_num
+      linarith
+    rw [Real.norm_of_nonneg (Nat.cast_nonneg _), Real.norm_of_nonneg (by positivity)]
+    calc
+      ((distinctDistances'_euc (P_seq n)).card : ℝ) ≤ (Counting.values (12 * n)).card :=
+        Nat.cast_le.mpr hcount
+      _ ≤ C * (12 * n : ℕ) / Real.sqrt (Real.log (12 * n : ℕ)) := hC _ (by omega)
+      _ ≤ C * (12 * n : ℕ) / Real.sqrt (Real.log (n : ℝ)) :=
+        div_le_div_of_nonneg_left (by positivity) hlog hroot
+      _ = (12 * C) * ((n : ℝ) / Real.sqrt (Real.log (n : ℝ))) := by push_cast; ring
 
 /-
 Helper lemma 2: A rhombus with equal diagonals is a square. Specifically, if 4 points have sides a,
@@ -1415,7 +1225,10 @@ lemma configuration_3_3_implies_golden (p1 p2 p3 p4 : ℝ × ℝ) (a b : ℝ)
         have hy_neg : y1 = -y4 := by
           grind;
         subst hy_neg;
-        nlinarith [ mul_pos ha hb ]
+        have hxsum : x1 + x4 = a := by
+          nlinarith only [h1, h2, h3, h4, ha]
+        nlinarith only [h1, h4, h5, sq_nonneg (x1 - x4),
+          sq_nonneg (x1 + x4), sq_nonneg (x1 + x4 - a), hxsum, ha, hb]
 
 /-
 Definition of C4+2K2 configuration: 4 points forming a rhombus with sides a and diagonals b.
@@ -2366,109 +2179,6 @@ lemma degree_1_connects_to_distinct_degree_2 (S : Finset (ℝ × ℝ)) (a : ℝ)
         · exact ⟨ x, y, hx.1, hy.1, hxy, hx.2.1, hy.2.1, hx.2.2, hy.2.2 ⟩
 
 /-
-If a graph on 4 vertices has 6 directed edges of color 'a', no monochromatic triangle, and degrees
-{2, 2, 1, 1}, then it is a P4 path graph in color 'a'.
--/
-lemma path_graph_structure (S : Finset (ℝ × ℝ)) (a b : ℝ)
-    (h4 : S.card = 4)
-    (h_dist : ∀ x y, x ∈ S → y ∈ S → x ≠ y → dist_euc x y = a ∨ dist_euc x y = b)
-    (hab : a ≠ b)
-    (h_count : edge_count S a = 6)
-    (h_no_tri : ¬ has_equilateral_triangle_euc S)
-    (h_deg : (S.filter (fun p => (S.filter (fun q => dist_euc p q = a)).card = 2)).card = 2 ∧
-      (S.filter (fun p => (S.filter (fun q => dist_euc p q = a)).card = 1)).card = 2) :
-    is_P4_P4 S a b := by
-      -- By definition of `is_P4_P4`, we need to find points `p1`, `p2`, `p3`, `p4` such that the
-      -- conditions hold.
-      obtain ⟨u, v, x, y, h_set, h_deg_u, h_deg_v, h_deg_x, h_deg_y,
-        h.neighbors⟩ : ∃ u v x y : ℝ × ℝ, {u, v, x,
-        y} = S ∧ (S.filter (fun q => dist_euc u q = a)).card = 1 ∧
-          (S.filter (fun q => dist_euc v q = a)).card = 1 ∧
-          (S.filter (fun q => dist_euc x q = a)).card = 2 ∧
-          (S.filter (fun q => dist_euc y q = a)).card = 2 ∧ dist_euc u x = a ∧
-          dist_euc v y = a := by
-        -- By definition of `is_P4_P4`, we need to find points `u`, `v`, `x`, `y` such that the
-        -- conditions hold.
-        obtain ⟨u, v, hu, hv, h_deg_u, h_deg_v⟩ : ∃ u v : ℝ × ℝ,
-          u ∈ S ∧ v ∈ S ∧ u ≠ v ∧ (S.filter (fun q => dist_euc u q = a)).card = 1 ∧
-            (S.filter (fun q => dist_euc v q = a)).card = 1 := by
-          obtain ⟨ u, hu, v, hv,
-            huv ⟩ := Finset.one_lt_card.1
-              ( by
-                linarith :
-                  1 < Finset.card
-                    ( Finset.filter
-                      ( fun p => Finset.card ( Finset.filter ( fun q => dist_euc p q = a ) S ) = 1 )
-                      S ) )
-          use u, v
-          aesop;
-        obtain ⟨x, y, hx, hy, hxy⟩ : ∃ x y : ℝ × ℝ,
-          x ∈ S ∧ y ∈ S ∧ x ≠ y ∧ (S.filter (fun q => dist_euc x q = a)).card = 2 ∧
-            (S.filter (fun q => dist_euc y q = a)).card = 2 ∧ dist_euc u x = a ∧
-            dist_euc v y = a := by
-          have := degree_1_connects_to_distinct_degree_2 S a h4 h_count
-            ( fun p hp => max_degree_le_2 S a b h4 h_dist hab h_no_tri p hp ) h_deg u v
-            hu hv h_deg_u h_deg_v.1 h_deg_v.2
-          aesop;
-        use u, v, x, y;
-        rw [ Finset.eq_of_subset_of_card_le ( Finset.insert_subset_iff.mpr ⟨ hu,
-          Finset.insert_subset_iff.mpr ⟨ hv, Finset.insert_subset_iff.mpr ⟨ hx,
-          Finset.singleton_subset_iff.mpr hy ⟩ ⟩ ⟩ ) ]
-        · aesop
-        · rw [ Finset.card_insert_of_notMem, Finset.card_insert_of_notMem,
-            Finset.card_insert_of_notMem ] <;> aesop
-      -- Since $x$ and $y$ have degree 2, they must be connected to each other.
-      have h_xy : dist_euc x y = a := by
-        contrapose! h_deg_x; simp_all +decide;
-        have h_xy : {q ∈ S | dist_euc x q = a} ⊆ {y, u} := by
-          simp_all +decide [ Finset.subset_iff ];
-          intro a b ha hb; subst h_set; simp_all +decide ;
-          rcases ha with ( ha | ha | ha | ha ) <;> simp_all +decide;
-          · contrapose! h_deg_v; simp_all +decide ;
-            refine ne_of_gt ( Finset.one_lt_card.mpr ?_ );
-            use x, by
-              simp +decide [ ← hb ];
-              exact Real.sqrt_inj ( add_nonneg ( sq_nonneg _ ) ( sq_nonneg _ ) )
-                ( add_nonneg ( sq_nonneg _ ) ( sq_nonneg _ ) ) |>.2 ( by ring ), y, by
-              aesop;
-            grind;
-          · unfold dist_euc at *; simp_all +decide ;
-            norm_num [ ← hb ] at *;
-            rw [ Real.sqrt_eq_zero' ] at *;
-            exact Or.inr ( Prod.mk_inj.mpr ⟨ by nlinarith only [ h.neighbors.1 ],
-              by nlinarith only [ h.neighbors.1 ] ⟩ );
-        exact ne_of_lt ( lt_of_le_of_lt
-          ( Finset.card_le_card ( show { q ∈ S | dist_euc x q = a } ⊆ { u } from
-            fun q hq => by
-              have := h_xy hq
-              aesop ) )
-          ( by norm_num ) );
-      -- Since $u$ and $v$ have degree 1, they must be connected to $x$ and $y$ respectively.
-      have h_uv : dist_euc u y = b ∧ dist_euc v x = b ∧ dist_euc u v = b := by
-        have h_uv : dist_euc u y ≠ a ∧ dist_euc v x ≠ a ∧ dist_euc u v ≠ a := by
-          refine ⟨ ?_, ?_, ?_ ⟩ <;> intro h <;> simp_all +decide [ Finset.card_eq_one ];
-          · obtain ⟨ a, b, h ⟩ := h_deg_u
-            simp_all +decide [ Finset.eq_singleton_iff_unique_mem ] ;
-            grind +ring;
-          · simp_all +decide [ Finset.eq_singleton_iff_unique_mem ];
-            grind;
-          · simp_all +decide [ Finset.eq_singleton_iff_unique_mem ];
-            grind;
-        grind;
-      use u, x, y, v;
-      simp_all +decide [ Finset.ext_iff ];
-      refine ⟨ ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_ ⟩;
-      any_goals intro h; simp_all +decide;
-      · intro a b; specialize h_set a b; aesop;
-      · simp_all +decide [ dist_euc ];
-        exact ⟨ by
-          rw [ ← h.neighbors.2, Real.sqrt_inj ( by positivity ) ( by positivity ) ]
-          ring,
-          by
-            rw [ ← h_uv.2.1, Real.sqrt_inj ( by positivity ) ( by positivity ) ]
-            ring ⟩
-
-/-
 The number of directed edges of a given length in a graph is even (because edges come in pairs (u,v)
 and (v,u)).
 -/
@@ -2638,6 +2348,57 @@ lemma degree_2_vertices_connected (S : Finset (ℝ × ℝ)) (a : ℝ)
           convert this using 1;
           unfold dist_euc; ring_nf; ⟩
 
+/-- The two degree-one vertices and their distinct degree-two neighbors
+give the required path ordering. -/
+lemma path_graph_structure (S : Finset (ℝ × ℝ)) (a b : ℝ)
+    (h4 : S.card = 4)
+    (h_dist : ∀ x y, x ∈ S → y ∈ S → x ≠ y → dist_euc x y = a ∨ dist_euc x y = b)
+    (hab : a ≠ b)
+    (h_count : edge_count S a = 6)
+    (h_no_tri : ¬ has_equilateral_triangle_euc S)
+    (h_deg : (S.filter (fun p => (S.filter (fun q => dist_euc p q = a)).card = 2)).card = 2 ∧
+      (S.filter (fun p => (S.filter (fun q => dist_euc p q = a)).card = 1)).card = 2) :
+    is_P4_P4 S a b := by
+  classical
+  obtain ⟨u, hu, v, hv, huv⟩ := Finset.one_lt_card.mp
+    (show 1 < (S.filter (fun p => (S.filter (fun q => dist_euc p q = a)).card = 1)).card
+      by omega)
+  rcases Finset.mem_filter.mp hu with ⟨hu, hdu⟩
+  rcases Finset.mem_filter.mp hv with ⟨hv, hdv⟩
+  have hmax := max_degree_le_2 S a b h4 h_dist hab h_no_tri
+  obtain ⟨x, y, hx, hy, hxy, hdx, hdy, hux, hvy⟩ :=
+    degree_1_connects_to_distinct_degree_2 S a h4 h_count hmax h_deg u v hu hv huv hdu hdv
+  have huxne : u ≠ x := by intro h; subst x; omega
+  have huyne : u ≠ y := by intro h; subst y; omega
+  have hvxne : v ≠ x := by intro h; subst x; omega
+  have hvyne : v ≠ y := by intro h; subst y; omega
+  have hxyedge : dist_euc x y = a :=
+    degree_2_connected_to_degree_2_if_connected_to_degree_1 S a h4 h_count hmax h_deg
+      x y u v hx hy hu hv hxy huv hdx hdy hdu hdv (by rw [dist_euc_comm]; exact hux)
+  have huunique : ∀ z ∈ S, dist_euc u z = a → z = x := by
+    intro z hz he
+    exact Finset.card_le_one.mp (by omega : (S.filter (fun q => dist_euc u q = a)).card ≤ 1)
+      z (Finset.mem_filter.mpr ⟨hz, he⟩) x (Finset.mem_filter.mpr ⟨hx, hux⟩)
+  have hvunique : ∀ z ∈ S, dist_euc v z = a → z = y := by
+    intro z hz he
+    exact Finset.card_le_one.mp (by omega : (S.filter (fun q => dist_euc v q = a)).card ≤ 1)
+      z (Finset.mem_filter.mpr ⟨hz, he⟩) y (Finset.mem_filter.mpr ⟨hy, hvy⟩)
+  have huy : dist_euc u y = b :=
+    (h_dist u y hu hy huyne).resolve_left (fun he => hxy (huunique y hy he).symm)
+  have hvx : dist_euc v x = b :=
+    (h_dist v x hv hx hvxne).resolve_left (fun he => hxy (hvunique x hx he))
+  have huv' : dist_euc u v = b :=
+    (h_dist u v hu hv huv).resolve_left (fun he => hvxne (huunique v hv he))
+  have hset : S = {u, x, y, v} := by
+    symm
+    apply Finset.eq_of_subset_of_card_le
+    · simpa only [Finset.insert_subset_iff, Finset.singleton_subset_iff] using
+        And.intro hu (And.intro hx (And.intro hy hv))
+    · simp [h4, huxne, huyne, huv, hxy, hvxne.symm, hvyne.symm]
+  exact ⟨u, x, y, v, hset, huxne, hxy, hvyne.symm, huyne, hvxne.symm, huv,
+    hux, hxyedge, by rw [dist_euc_comm]; exact hvy, huy,
+    by rw [dist_euc_comm]; exact hvx, huv'⟩
+
 /-
 If a 4-point graph has 6 edges of color 'a' and no equilateral triangle, it has golden ratio
 distances.
@@ -2677,121 +2438,39 @@ Proof of Perucca's classification theorem: any 4-point set with 2 distances is a
 equilateral triangle, or has golden ratio distances.
 -/
 theorem PeruccaClassificationStatement_proof : PeruccaClassificationStatement := by
+  classical
   intro S h4 h_distinct
-  obtain ⟨a, b, ha, hb, hab⟩ : ∃ a b, a > 0 ∧ b > 0 ∧ a ≠ b ∧
-      (∀ p ∈ S, ∀ q ∈ S, q ≠ p → dist_euc p q = a ∨ dist_euc p q = b) ∧
-        (distinctDistances'_euc S).card = 2 := by
-    have := Finset.card_eq_two.mp h_distinct;
-    obtain ⟨ a, b, hab, h ⟩ := this; use a, b; simp_all +decide [ Finset.ext_iff ] ;
-    refine ⟨ ?_, ?_, ?_, ?_ ⟩;
-    · contrapose! h;
-      use a; simp;
-      intro H;
-      obtain ⟨ p, hp, q, hq, hpq, rfl ⟩ := Finset.mem_image.mp ( Finset.mem_sdiff.mp H |>.1 );
-      unfold dist_euc at *; simp_all +decide [ Real.sqrt_le_iff ] ;
-      norm_num [ show p.1.1 = p.2.1 by nlinarith, show p.1.2 = p.2.2 by nlinarith ] at *;
-      unfold distinctDistances'_euc at H; aesop;
-    · contrapose! h;
-      refine ⟨ b, Or.inr ⟨ ?_, Or.inr rfl ⟩ ⟩;
-      simp [distinctDistances'_euc];
-      exact fun x y z t hx hy hxy => le_antisymm h ( hxy ▸ Real.sqrt_nonneg _ );
-    · intro x y hx z w hz hne; specialize h ( dist_euc ( x, y ) ( z,
-      w ) ) ; simp_all +decide [ distinctDistances'_euc ] ;
-      exact h.mp ⟨ ⟨ x, y, z, w, ⟨ hx, hz ⟩, rfl ⟩,
-        by
-          exact ne_of_gt ( Real.sqrt_pos.mpr ( by
-            exact not_le.mp fun h => hne ( by nlinarith ) ( by nlinarith ) ) ) ⟩;
-    · rw [ show distinctDistances'_euc S = { a, b } by ext; aesop ] ; aesop;
-  have h_edge_count : edge_count S a + edge_count S b = 12 := by
-    exact edge_count_sum S a b h4 ( by aesop ) hab.1
-  have h_edge_count_even : Even (edge_count S a) ∧ Even (edge_count S b) := by
-    exact ⟨ edge_count_even S a, edge_count_even S b ⟩
-  have h_edge_count_nonzero : edge_count S a ≠ 0 ∧ edge_count S b ≠ 0 := by
-    constructor <;> intro h <;> simp_all +decide;
-    · -- If the edge count for a is zero, then all edges in S must be of distance b.
-      have h_all_b : ∀ p ∈ S, ∀ q ∈ S, q ≠ p → dist_euc p q = b := by
-        intros p hp q hq hneq
-        have h_dist : dist_euc p q = a ∨ dist_euc p q = b := by
-          grind;
-        rw [ edge_count ] at h; simp_all +decide ;
-        exact h_dist.resolve_left fun h' => h _ _ _ _ hp hq ( by aesop ) h';
-      have h_contradiction : (distinctDistances'_euc S).card ≤ 1 := by
-        refine Finset.card_le_one.mpr ?_;
-        simp_all +decide [ distinctDistances'_euc ];
-        intros a x x_1 x_2 x_3 hx hx' hx'' hx''' b x x_4 x_5 x_6 hx'''' hx''''' hx'''''' hx''''''';
-        by_cases h : x = x_5 ∧ x_4 = x_6 <;> simp_all +decide [ dist_euc ];
-        grind +ring;
-      linarith;
-    · -- If edge_count S b = 0, then all distances in S must be a.
-      have h_all_a : ∀ p ∈ S, ∀ q ∈ S, q ≠ p → dist_euc p q = a := by
-        intros p hp q hq hqp
-        have h_dist : dist_euc p q = a ∨ dist_euc p q = b := by
-          exact hab.2.1 _ _ hp _ _ hq ( by aesop ) |> Or.imp id id;
-        generalize_proofs at *; (
-        contrapose! h; simp_all +decide [ edge_count ] ;
-        exact ⟨ p.1, p.2, hp, q.1, q.2, hq, by aesop ⟩);
-      have h_eq_dist : ∀ p ∈ S, ∀ q ∈ S, dist_euc p q = if p = q then 0 else a := by
-        intros p hp q hq; split_ifs <;> simp_all +decide ;
-        · unfold dist_euc; norm_num;
-        · grind;
-      have h_eq_dist : distinctDistances'_euc S = {a} := by
-        ext; simp;
-        constructor <;> intro h <;> simp_all +decide [ distinctDistances'_euc ];
-        · grind +ring;
-        · obtain ⟨ p, hp, q, hq,
-          hpq ⟩ := Finset.one_lt_card.1 ( by linarith : 1 < Finset.card S )
-          use ⟨ p.1, p.2, q.1, q.2, ⟨ hp, hq ⟩,
-            h_eq_dist _ _ hp _ _ hq ▸ if_neg ( by aesop ) ⟩
-          linarith;
-      aesop
-  have h_edge_count_cases : edge_count S a = 2 ∨ edge_count S a = 4 ∨ edge_count S a = 6 ∨
-    edge_count S a = 8 ∨ edge_count S a = 10 := by
-    have : edge_count S a ≤ 12 := Nat.le_of_lt_succ ( by linarith )
-    interval_cases edge_count S a <;>
-      simp_all +decide ;
-  rcases h_edge_count_cases with h_case | h_case <;> simp_all +decide only;
-  · -- If `edge_count S a = 2`, then `edge_count S b = 10`, which implies a monochromatic triangle
-    -- of color `b`, contradiction.
-    have h_contra : has_equilateral_triangle_euc S := by
-      have h_monochromatic_triangle : edge_count S b > 8 := by
-        linarith;
-      contrapose! h_monochromatic_triangle;
-      apply_rules [ num_edges_le_4_of_no_triangle ];
-      exact fun ⟨ p, q, r, h₁, h₂, h₃, h₄, h₅, h₆, h₇ ⟩ =>
-        h_monochromatic_triangle ⟨ p, q, r, by aesop ⟩
-    exact Or.inr (Or.inl h_contra);
-  · rcases h_case with ( h_case | h_case | h_case | h_case );
-    · by_cases h_no_triangle : ¬ has_equilateral_triangle_euc S;
-      · have h_C4_2K2 : is_C4_2K2 S b a := by
-          apply C4_of_edge_count_8 S b a h4 (by
-          exact fun x y hx hy hxy => Or.symm ( hab.2.1 x hx y hy hxy.symm )) (by
-          tauto) (by
-          grind) (by
-          assumption);
-        exact Or.inl <| C4_2K2_implies_square S b a hb ha ( Ne.symm hab.1 ) h_C4_2K2;
-      · exact Or.inr <| Or.inl <| Classical.not_not.mp h_no_triangle;
-    · by_cases h_no_tri : has_equilateral_triangle_euc S <;> simp_all +decide;
-      exact Or.inr ( count_6_implies_golden S a b h4 ( by aesop ) hab.1 h_case h_no_tri );
-    · by_cases h_no_triangle : ¬ has_equilateral_triangle_euc S;
-      · exact Or.inl <|
-          C4_2K2_implies_square S a b ha hb hab.1 <|
-            C4_of_edge_count_8 S a b h4
-              ( fun x y hx hy hxy => hab.2.1 x hx y hy <| by tauto )
-              hab.1 h_case h_no_triangle;
-      · exact Or.inr <| Or.inl <| Classical.not_not.mp h_no_triangle;
-    · -- If `edge_count S a = 10`, then `edge_count S a > 8`, which implies a
-      -- monochromatic triangle
-      -- of color `a` (by `num_edges_le_4_of_no_triangle`), contradiction.
-      have h_monochromatic_triangle : ∃ p q r, {p, q,
-        r} ⊆ S ∧ p ≠ q ∧ q ≠ r ∧ r ≠ p ∧ dist_euc p q = a ∧ dist_euc q r = a ∧
-          dist_euc r p = a := by
-        contrapose! h_case;
-        exact ne_of_lt ( lt_of_le_of_lt
-          ( num_edges_le_4_of_no_triangle S a h4
-            ( by simpa [ Finset.subset_iff ] using h_case ) )
-          ( by decide ) );
-      obtain ⟨ p, q, r, hpqr, hpq, hqr, hrp, hpq', hqr',
-        hrp' ⟩ := h_monochromatic_triangle; exact Or.inr <| Or.inl ⟨ p, q, r, by aesop ⟩ ;
+  by_cases htri : has_equilateral_triangle_euc S
+  · exact Or.inr (Or.inl htri)
+  obtain ⟨a, b, hab, hset⟩ := Finset.card_eq_two.mp h_distinct
+  have ha : 0 < a := distinctDistances_euc_pos (by rw [hset]; simp)
+  have hb : 0 < b := distinctDistances_euc_pos (by rw [hset]; simp)
+  have hd : ∀ x y, x ∈ S → y ∈ S → x ≠ y →
+      dist_euc x y = a ∨ dist_euc x y = b := by
+    intro x y hx hy hxy
+    have hm := mem_distinctDistances_euc.mpr ⟨x, hx, y, hy, hxy, rfl⟩
+    rw [hset] at hm
+    simpa using hm
+  have hsum := edge_count_sum S a b h4 hd hab
+  have hbound (d : ℝ) : edge_count S d ≤ 8 := by
+    apply num_edges_le_4_of_no_triangle S d h4
+    rintro ⟨p, q, r, hsub, hpq, hqr, hrp, h1, h2, h3⟩
+    apply htri
+    exact ⟨p, q, r, hsub, hpq, hqr, hrp, by rw [h1, h2], by rw [h2, h3]⟩
+  have he := edge_count_even S a
+  have hc : edge_count S a = 4 ∨ edge_count S a = 6 ∨ edge_count S a = 8 := by
+    obtain ⟨k, hk⟩ := he
+    have hba := hbound a
+    have hbb := hbound b
+    omega
+  rcases hc with hc | hc | hc
+  · have hcb : edge_count S b = 8 := by omega
+    exact Or.inl (C4_2K2_implies_square S b a hb ha hab.symm
+      (C4_of_edge_count_8 S b a h4
+        (fun x y hx hy hxy => (hd x y hx hy hxy).symm) hab.symm hcb htri))
+  · exact Or.inr (Or.inr (count_6_implies_golden S a b h4 hd hab hc htri))
+  · exact Or.inl (C4_2K2_implies_square S a b ha hb hab
+      (C4_of_edge_count_8 S a b h4 hd hab hc htri))
 
 /-
 Any 4-point subset of P_m determines at least 3 distinct Euclidean distances.
@@ -2895,7 +2574,6 @@ theorem erdos_659 : ∃ A : ℕ → Finset ℝ²,
     (fun n ↦ distinctDistances (A n)) ≪ fun n ↦ n / sqrt (log n) := by
   obtain ⟨P, hP_card, hP_local, hP_bigO⟩ :=
     main_theorem PeruccaClassificationStatement_proof
-      (by intro Δ hΔ; exact _root_.bernays Δ hΔ)
   refine ⟨fun n => (P n).image toEuclideanPoint, ?_, ?_⟩
   · intro n
     constructor
@@ -2930,6 +2608,6 @@ theorem erdos_659 : ∃ A : ℕ → Finset ℝ²,
   · simpa [distinctDistances_image_toEuclideanPoint] using hP_bigO
 
 #print axioms erdos_659
--- 'Erdos659.erdos_659' depends on axioms: [bernays, propext, Classical.choice, Quot.sound]
+-- 'Erdos659.erdos_659' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos659

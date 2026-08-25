@@ -5,7 +5,6 @@
     "Erdos659.erdos_659"
   ],
   "permitted_axioms": [
-    "bernays",
     "propext",
     "Classical.choice",
     "Quot.sound"
