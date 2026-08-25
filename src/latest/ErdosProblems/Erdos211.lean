@@ -22,7 +22,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Codex, Boris Alexeev
 -/
 import Mathlib
-import Submission.SzemerediTrotter
+import Util.IncidenceGeometry.SzemerediTrotter
 
 /-!
 # Erdős Problem 211

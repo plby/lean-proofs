@@ -32,8 +32,8 @@ The detailed mathematical reconstruction and Leanization plan are in
 
 import Mathlib
 import ErdosProblems.Erdos448.HalberstamComplete448
-import Submission.RichLinesBound
-import Submission.unit_distance_upper_bound
+import Util.IncidenceGeometry.RichLinesBound
+import Util.IncidenceGeometry.UnitDistanceBound
 import Mathlib.NumberTheory.EulerProduct.DirichletLSeries
 import BoundedGaps.Maynard.PrimePredecessorMertens
 
@@ -3379,7 +3379,7 @@ lemma exists_radius_neighbor_mass_bound :
       ∀ (a b : GridPoint N), a ≠ b →
         ((N ^ 2 * Nat.card (SphereNeighbor N a b) : ℕ) : ℝ) ≤
           C * (N : ℝ) ^ ((8 : ℝ) / 3) := by
-  obtain ⟨C₀, hC₀, hunit⟩ := UnitDistanceUpperBoundProof.unit_distance_upper_bound
+  obtain ⟨C₀, hC₀, hunit⟩ := IncidenceGeometry.unit_distance_upper_bound
   let C : ℝ := 2 * C₀ * (5 : ℝ) ^ ((8 : ℝ) / 3) + 1
   have hC : 0 < C := by
     dsimp [C]
@@ -3398,7 +3398,7 @@ lemma exists_radius_neighbor_mass_bound :
     exact_mod_cast hmNat
   have hunitP : ((m / 2 : ℕ) : ℝ) ≤
       C₀ * (P.card : ℝ) ^ ((4 : ℝ) / 3) := by
-    simpa [P, m, UnitDistanceUpperBoundProof.unitDist] using hunit P
+    simpa [P, m, IncidenceGeometry.unitDistanceCount] using hunit P
   have hPcard : P.card = (4 * N + 1) ^ 2 := by
     exact card_scaledExpandedPlaneGrid N a b hab
   have hB : ((4 * N + 1 : ℕ) : ℝ) ≤ 5 * (N : ℝ) := by

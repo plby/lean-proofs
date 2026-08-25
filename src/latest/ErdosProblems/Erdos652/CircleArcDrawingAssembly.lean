@@ -1,4 +1,4 @@
-import Submission.GeometricArcDrawing
+import Util.IncidenceGeometry.GeometricArcDrawing
 import ErdosProblems.Erdos652.Circles
 
 open Classical

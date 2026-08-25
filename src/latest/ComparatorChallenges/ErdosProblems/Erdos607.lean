@@ -1,9 +1,11 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 
 import Mathlib
-import Submission.IsAffineLine
 
 open Filter
+
+def IsAffineLine (ℓ : AffineSubspace ℝ (EuclideanSpace ℝ (Fin 2))) : Prop :=
+  (ℓ : Set (EuclideanSpace ℝ (Fin 2))).Nonempty ∧ Module.finrank ℝ ℓ.direction = 1
 
 namespace Erdos607
 

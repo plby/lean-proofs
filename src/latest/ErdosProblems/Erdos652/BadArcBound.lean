@@ -1,6 +1,6 @@
 import ErdosProblems.Erdos652.PerpendicularBisectors
 import ErdosProblems.Erdos652.PinnedCircles
-import Submission.LineIncidences
+import Util.IncidenceGeometry.LineIncidences
 
 open Classical
 open scoped BigOperators Real

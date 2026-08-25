@@ -23,7 +23,7 @@ Authors: Codex, Boris Alexeev
 -/
 import Mathlib
 import PrimeNumberTheoremAnd.Consequences
-import Submission.SzemerediTrotter
+import Util.IncidenceGeometry.SzemerediTrotter
 
 /-!
 # Erdős Problem 808

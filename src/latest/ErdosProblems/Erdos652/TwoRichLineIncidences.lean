@@ -1,5 +1,5 @@
-import Submission.RichLinesBound
-import Submission.SzemerediTrotter
+import Util.IncidenceGeometry.RichLinesBound
+import Util.IncidenceGeometry.SzemerediTrotter
 import ErdosProblems.Erdos652.Circles
 
 open Classical

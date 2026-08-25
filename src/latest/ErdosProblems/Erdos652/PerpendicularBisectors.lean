@@ -1,6 +1,6 @@
 import ErdosProblems.Erdos652.Circles
-import Submission.CircleLineNoThreePoints
-import Submission.IsAffineLine
+import Util.IncidenceGeometry.CircleLineNoThreePoints
+import Util.IncidenceGeometry.IsAffineLine
 import Mathlib.Geometry.Euclidean.PerpBisector
 
 open Classical

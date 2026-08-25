@@ -2,8 +2,8 @@ import ErdosProblems.Erdos652.RetainedCircleArcFamily
 import ErdosProblems.Erdos652.BadArcBound
 import ErdosProblems.Erdos652.TwoRichLineIncidences
 import ErdosProblems.Erdos652.EndpointPairMultiplicitySimpleGraph
-import Submission.CrossingLemma
-import Submission.PolygonalReplacementForGeometricArcs
+import Util.IncidenceGeometry.CrossingLemma
+import Util.IncidenceGeometry.PolygonalReplacementForGeometricArcs
 
 open Classical
 open scoped BigOperators Real

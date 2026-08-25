@@ -1,4 +1,4 @@
-import Submission.TwoCirclesIntersectionsAtMostTwo
+import Util.IncidenceGeometry.TwoCirclesIntersectionsAtMostTwo
 
 /-!
 # Circles used in the proof of Erdős Problem 652

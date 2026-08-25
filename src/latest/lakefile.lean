@@ -16,8 +16,6 @@ require leancert from git "https://github.com/alerad/leancert.git" @ "v4.33.0"
 
 require ComparatorChallenges from "ComparatorChallenges"
 
-require erdos211Incidence from "ErdosProblems/Erdos211/Incidence"
-
 require APAP from git "https://github.com/YaelDillies/apap.git" @ "v4.33.0"
 
 require AINTLIB from git "https://github.com/CBirkbeck/AINTLIB.git" @

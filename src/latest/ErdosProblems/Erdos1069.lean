@@ -20,7 +20,7 @@ Copyright (c) 2026.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Codex, Boris Alexeev
 -/
-import Submission.RichLinesBound
+import Util.IncidenceGeometry.RichLinesBound
 
 /-!
 # Erdős Problem 1069

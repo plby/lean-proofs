@@ -1,5 +1,5 @@
 import ErdosProblems.Erdos652.Circles
-import Submission.UnitCircleCyclicSuccessorArcs
+import Util.IncidenceGeometry.UnitCircleCyclicSuccessorArcs
 
 /-!
 # Successor arcs on an arbitrary positive-radius circle

@@ -1,4 +1,4 @@
-import ErdosProblems.Erdos733.ST.SzemerediTrotter
+import Util.IncidenceGeometry.SzemerediTrotter
 
 open Classical
 open scoped Real
