@@ -1,4 +1,8 @@
 import ErdosProblems.Erdos1058.Erdos1058Core
+import ErdosProblems.Erdos1058.Erdos1058GapCertificate6Tails0
+
+-- Concrete search reductions are memory-intensive; elaborate them sequentially.
+set_option Elab.async false
 
 namespace Erdos1058
 

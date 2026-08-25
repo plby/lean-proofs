@@ -8,6 +8,9 @@ import ErdosProblems.Erdos1058.Erdos1058GapCertificate84Tails5
 import ErdosProblems.Erdos1058.Erdos1058GapCertificate84Tails6
 import ErdosProblems.Erdos1058.Erdos1058GapCertificate84Tails7
 
+-- Serialize concrete search reductions to bound elaborator memory.
+set_option Elab.async false
+
 namespace Erdos1058
 
 open Nat
