@@ -2925,7 +2925,6 @@
     - https://www.erdosproblems.com/forum/thread/427#post-5920
     - https://gist.githubusercontent.com/JohnEdwardJennings/e2c6ef0daab55857b7cc9d340de7af84/raw/8ff97800e38582c71246a238e7541a9d69488cbd/Erdos427.lean
   version: "4.28.0"
-  conditional: maynardTaoBFT
 
 - key: ErdosProblems.Erdos429
   epc: https://www.erdosproblems.com/429
@@ -6719,7 +6718,6 @@
   url:
     - https://www.erdosproblems.com/forum/thread/997#post-5189
     - https://gist.githubusercontent.com/pitmonticone/016f2ed66b4cd1c4c4b9998095170e60/raw/b7dfc05c525ae385b5835f89f1ada721443e4305/Erdos997.lean
-  conditional: maynardTaoBFT
   version: "4.28.0"
 
 - key: ErdosProblems.Erdos998

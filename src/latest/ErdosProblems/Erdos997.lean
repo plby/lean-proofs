@@ -5,7 +5,7 @@ This is a Lean formalization of a solution to Erdős Problem 997.
 https://www.erdosproblems.com/forum/thread/997
 
 Formalization status:
-- Conditional on: maynardTaoBFT
+- Unconditional
 
 Informal authors:
 - an internal model at OpenAI
@@ -49,8 +49,8 @@ in arithmetic progressions (specifically the Banks–Freiberg–Turnage-Butterba
 For every `α ∈ ℝ`, the sequence `{α pₙ}` of fractional parts is not well-distributed in the sense of
 Hlawka–Petersen.
 
-The Maynard–Tao–BFT theorem (a deep result not in Mathlib) is imported from
-`ErdosProblems.Axioms`. Everything else is proved formally.
+The Maynard–Tao–BFT theorem is proved in `Util.MaynardBFT.Result` and exposed
+through `ErdosProblems.Axioms`. The proof uses only standard Lean axioms.
 
 ## References
 
@@ -250,13 +250,12 @@ theorem fracSeq_hasClustering (α : ℝ) : HasClustering (fracSeq α) := by
 /-! ## Main theorem -/
 
 /-- **Erdős Problem 997**: for every `α ∈ ℝ`, the sequence `{α pₙ}` is not well-distributed.
-Uses the Maynard–Tao–BFT axiom. -/
+Uses the unconditional Maynard–Tao–BFT theorem. -/
 theorem erdos_997 (α : ℝ) : ¬IsWellDistributed (fracSeq α) :=
   not_wellDistributed_of_clustering (fracSeq_hasClustering α)
 
 #print axioms erdos_997
--- 'Erdos997.erdos997' depends on axioms: [maynardTaoBFT, propext, Classical.choice,
--- Quot.sound]
+-- 'Erdos997.erdos_997' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos997
 

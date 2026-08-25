@@ -5,7 +5,6 @@
     "Erdos997.erdos_997"
   ],
   "permitted_axioms": [
-    "maynardTaoBFT",
     "propext",
     "Classical.choice",
     "Quot.sound"

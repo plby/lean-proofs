@@ -6,7 +6,6 @@
   ],
   "permitted_axioms": [
     "propext",
-    "maynardTaoBFT",
     "Classical.choice",
     "Quot.sound"
   ],

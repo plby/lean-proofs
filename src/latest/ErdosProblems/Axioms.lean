@@ -3,6 +3,7 @@ import Mathlib
 import ErdosProblems.Erdos13.Erdos13Kneser
 import Util.FranklRodl
 import Util.MertensProduct
+import Util.MaynardBFT.Result
 
 open Nat Finset Real Filter Asymptotics Topology
 open scoped Pointwise
@@ -26,12 +27,13 @@ axiom maynard_tao (m : ℕ) (hm : 2 ≤ m) (B : Finset ℤ)
 `m ≥ 1`, there exists `Cₘ ≥ 1` such that for every coprime residue class `a mod q`
 (with `q ≥ 1`), there are infinitely many index-runs of `m` consecutive primes in
 that class with total gap `≤ q · Cₘ`. -/
-axiom maynardTaoBFT :
+theorem maynardTaoBFT :
   ∀ m : ℕ, 0 < m → ∃ C : ℕ, 0 < C ∧ ∀ q : ℕ, 0 < q → ∀ a : ℤ,
     Int.gcd a (q : ℤ) = 1 →
     ∀ N : ℕ, ∃ r : ℕ, N ≤ r ∧
       (∀ j, j < m → (Nat.nth Nat.Prime (r + j) : ℤ) ≡ a [ZMOD (q : ℤ)]) ∧
-      Nat.nth Nat.Prime (r + m - 1) - Nat.nth Nat.Prime r ≤ q * C
+      Nat.nth Nat.Prime (r + m - 1) - Nat.nth Nat.Prime r ≤ q * C :=
+  MaynardBFT.consecutive_primes
 
 /-- **Tao–Teräväinen theorem** (Theorem 1.1 of Tao–Teräväinen, 2025).
 
@@ -133,7 +135,7 @@ consecutive primes each congruent to `a` modulo `q`.
 
 D. K. L. Shiu, "Strings of Congruent Primes",
 J. London Math. Soc. 61 (2000), 359-373.
-This form follows from the shared `maynardTaoBFT` assumption. -/
+This form follows from the unconditional `maynardTaoBFT` theorem. -/
 theorem shiu_consecutive_primes
     (l : ℕ) (hl : 1 ≤ l) (a q : ℕ) (hq : 1 ≤ q) (haq : Nat.Coprime a q) (N : ℕ) :
     ∃ m, N ≤ m ∧ ∀ i, i < l → Nat.nth Nat.Prime (m + i) ≡ a [MOD q] := by
