@@ -265,7 +265,7 @@ theorem nguyenVuBound : NguyenVuBound := unconditional_nguyen_vu
 theorem erdos_587.variants.nguyen_vu : ∃ᵉ (O > 0) (O' > 0),
     ∀ᶠ N in Filter.atTop,
       (MaxNotSqSum N : ℝ) ≤
-        O' * Real.nthRoot 3 N * (N : ℝ).log ^ O :=
-  nguyenVuBound
+        O' * (N : ℝ) ^ (1 / 3 : ℝ) * (N : ℝ).log ^ O := by
+  simpa only [NguyenVuBound, nthRoot_three_natCast, one_div] using nguyenVuBound
 
 end Erdos587
