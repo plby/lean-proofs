@@ -5,7 +5,7 @@ Authors: Álvaro Begué
 -/
 import ErdosProblems.Erdos515.Schoenflies.SquareCycle
 import ErdosProblems.Erdos515.Schoenflies.PolyArcRealize
-import ErdosProblems.Erdos515.Schoenflies.Jordan
+import Wikipedia.JordanCurveTheorem
 
 /-!
 # Part I, with nothing assumed
@@ -65,7 +65,55 @@ regions, one bounded and one unbounded, and both have the curve as their boundar
 `Schoenflies.outside` and the whole region API of `Schoenflies/CrosscutCells.lean` apply to a
 general Jordan curve with nothing to transport. -/
 theorem jordan_curve_theorem {C : Set Plane} (hC : IsJordanCurve C) : IsSeparating C :=
-  hC.isSeparating fun _ hA => arc_complement hA
+  by
+    obtain ⟨f, hf, hrange⟩ := hC
+    let g : AddCircle (1 : ℝ) → Plane := AddCircle.liftIco 1 0 f
+    have hg_cont : Continuous g :=
+      AddCircle.liftIco_zero_continuous hf.closes hf.continuousOn
+    have hg_inj : Function.Injective g := by
+      intro x y hxy
+      apply (AddCircle.equivIco (1 : ℝ) 0).injective
+      apply Subtype.ext
+      exact hf.injOn
+        (by simpa using (AddCircle.equivIco (1 : ℝ) 0 x).property)
+        (by simpa using (AddCircle.equivIco (1 : ℝ) 0 y).property)
+        hxy
+    have hg_range : Set.range g = C := by
+      rw [← hrange]
+      ext x
+      constructor
+      · rintro ⟨z, rfl⟩
+        refine ⟨(AddCircle.equivIco (1 : ℝ) 0 z : ℝ), ?_, rfl⟩
+        have hz := (AddCircle.equivIco (1 : ℝ) 0 z).property
+        exact ⟨hz.1, le_of_lt (by simpa using hz.2)⟩
+      · rintro ⟨t, ht, rfl⟩
+        by_cases ht_one : t = 1
+        · subst t
+          refine ⟨0, ?_⟩
+          calc
+            g 0 = f 0 := by
+              exact AddCircle.liftIco_zero_coe_apply (by norm_num)
+            _ = f 1 := hf.closes
+        · have ht_lt : t < 1 := lt_of_le_of_ne ht.2 ht_one
+          exact ⟨(t : AddCircle (1 : ℝ)),
+            AddCircle.liftIco_zero_coe_apply ⟨ht.1, ht_lt⟩⟩
+    let r : JordanCurveTheorem.UnitCircle → Plane :=
+      g ∘ JordanCurve.Brouwer.acToSphere.symm
+    have hr_cont : Continuous r :=
+      hg_cont.comp JordanCurve.Brouwer.acToSphere.symm.continuous
+    have hr_inj : Function.Injective r :=
+      hg_inj.comp JordanCurve.Brouwer.acToSphere.symm.injective
+    have hr_range : Set.range r = C := by
+      exact (JordanCurve.Brouwer.acToSphere.symm.surjective.range_comp g).trans hg_range
+    refine ⟨⟨f, hf, hrange⟩, ?_, ?_, ?_, ?_⟩
+    · simpa [JordanCurveTheorem.inside, Schoenflies.inside, hr_range] using
+        (JordanCurveTheorem.isPathConnected_inside hr_cont hr_inj).isConnected
+    · simpa [JordanCurveTheorem.outside, Schoenflies.outside, hr_range] using
+        (JordanCurveTheorem.isPathConnected_outside hr_cont).isConnected
+    · simpa [JordanCurveTheorem.inside, Schoenflies.inside, hr_range] using
+        JordanCurveTheorem.frontier_inside hr_cont hr_inj
+    · simpa [JordanCurveTheorem.outside, Schoenflies.outside, hr_range] using
+        JordanCurveTheorem.frontier_outside hr_cont hr_inj
 
 /-- **`thm:general-crosscut`, first sentence.** A polygonal crosscut of a Jordan domain cuts it
 into exactly two components, the interiors of the two curves the crosscut makes with the two

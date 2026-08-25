@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 
-import ErdosProblems.Erdos223.JordanCurve
+import Wikipedia.JordanCurveTheorem
 
 /-!
 A checked set-level crosscut lemma in an *adapted open-cell chart*.

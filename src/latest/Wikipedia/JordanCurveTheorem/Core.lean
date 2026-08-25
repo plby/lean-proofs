@@ -5,9 +5,9 @@ Released there under the Apache License 2.0.
 -/
 
 import Mathlib
-import ErdosProblems.Erdos223.JordanCurve.Arcs
-import ErdosProblems.Erdos223.JordanCurve.Counting
-import ErdosProblems.Erdos223.JordanCurve.Brouwer
+import Wikipedia.JordanCurveTheorem.Arcs
+import Wikipedia.JordanCurveTheorem.Counting
+import Wikipedia.JordanCurveTheorem.Brouwer
 
 /-!
 # The (continuous) Jordan Curve Theorem, via Brouwer — Maehara's proof
@@ -28,7 +28,8 @@ Mathlib — PR #36770 is landing Brouwer — or built separately). The reduction
   `l,m,p,q` on a vertical segment, show `ℝ²∖J` has exactly one bounded component;
   with the unique unbounded component that gives exactly two.
 
-This file is imported by the top-level `JordanPick` module and is complete:
+This shared proof is imported by the standalone Jordan curve theorem development
+and its consumers. It is complete:
 placeholder-free, with the dependency audit for `JordanCurve.jordan_curve` reporting only
 `[propext, Classical.choice, Quot.sound]`.
 -/

@@ -7,7 +7,7 @@ Released there under the Apache License 2.0.
 import Mathlib
 
 /-!
-# Counting plumbing for the Jordan curve theorem
+# Shared counting plumbing for the Jordan curve theorem
 
 Pure-topology lemmas, independent of any geometry, used to turn the statement
 "the complement of the curve has exactly two connected components" into the
@@ -60,4 +60,3 @@ theorem connectedComponents_subtype_eq_iff {S : Set X} {x y : X}
     ← ConnectedComponents.coe_eq_coe]
 
 end JordanCurve.Counting
-

@@ -6,6 +6,7 @@ Authors: Álvaro Begué
 import ErdosProblems.Erdos515.Schoenflies.CommonSubdivision
 import ErdosProblems.Erdos515.Schoenflies.CrosscutExists
 import ErdosProblems.Erdos515.Schoenflies.FreshAccess
+import ErdosProblems.Erdos515.Schoenflies.Graph.Redrawing
 import ErdosProblems.Erdos515.Schoenflies.Graph.VertexSquares
 
 /-!

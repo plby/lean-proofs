@@ -7,7 +7,7 @@ Released there under the Apache License 2.0.
 import Mathlib
 
 /-!
-# Arc scaffolding for the (continuous) Jordan curve theorem
+# Shared arc scaffolding for the (continuous) Jordan curve theorem
 
 Reusable topology lemmas that split a topological circle into closed arcs, each
 homeomorphic to the unit interval.  These feed Maehara's proof of the Jordan
@@ -462,4 +462,3 @@ theorem exists_proper_arc {C : Set (sphere (0 : Plane) 1)}
   exact ⟨θ', ⟨hmem'.1, hθ'ub⟩, hpar'⟩
 
 end JordanCurve.Arcs
-

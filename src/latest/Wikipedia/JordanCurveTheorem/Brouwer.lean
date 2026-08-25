@@ -5,7 +5,7 @@ Released there under the Apache License 2.0.
 -/
 
 import Mathlib
-import ErdosProblems.Erdos223.JordanCurve.Arcs
+import Wikipedia.JordanCurveTheorem.Arcs
 
 /-!
 # Toward the 2D Brouwer fixed point theorem

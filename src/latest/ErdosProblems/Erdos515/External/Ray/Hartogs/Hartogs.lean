@@ -753,7 +753,7 @@ theorem unevenSeries_strong_bound' [CompleteSpace E] [SecondCountableTopology E]
   rcases Filter.eventually_atTop.mp (unevenSeries_strong_bound u sp sr) with ⟨n, h⟩
   set g := fun z1 ↦ partialSups (fun k ↦ s ^ k * ‖unevenSeries u z1 k‖) n
   have gc : ContinuousOn g (closedBall c1 s) := by
-    apply ContinuousOn.partialSups; intro n; apply ContinuousOn.mul continuousOn_const
+    apply ContinuousOn.partialSups_apply; intro n _; apply ContinuousOn.mul continuousOn_const
     apply ContinuousOn.norm
     exact (unevenSeries_analytic u n).continuousOn.mono (Metric.closedBall_subset_ball sr)
   rcases ((isCompact_closedBall _ _).bddAbove_image gc).exists_ge 0 with ⟨b, bp, gb⟩
