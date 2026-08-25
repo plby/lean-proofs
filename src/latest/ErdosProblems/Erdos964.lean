@@ -4,7 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 964.
 https://www.erdosproblems.com/forum/thread/964
 
 Formalization status:
-- Conditional on: GoldstonGrahamPintzYildirimStatement
+- Unconditional; the Goldston-Graham-Pintz-Yildirim input is proved in Lean.
 
 Informal authors:
 - Sean Eberhard
@@ -27,15 +27,17 @@ Formalizes original paper:
 
 /-
 We prove that the sequence of ratios of consecutive values of the divisor function,
-$\tau(n+1)/\tau(n)$, is everywhere dense in $(0, \infty)$, assuming the
-Goldston-Graham-Pintz-Yildirim theorem (GPY). The proof proceeds by showing that every positive
+$\tau(n+1)/\tau(n)$, is everywhere dense in $(0, \infty)$. The
+Goldston-Graham-Pintz-Yildirim theorem (GPY) is proved in the imported development.
+The proof proceeds by showing that every positive
 rational number is a value taken by this sequence (in fact, infinitely often). This is achieved by
 constructing specific configurations of prime factors for $n$ and $n+1$ using the GPY theorem to
 ensure their existence. Finally, since the positive rationals are dense in the positive reals, the
 result follows.
 -/
 
-import Mathlib
+import ErdosProblems.Erdos964.Basic
+import ErdosProblems.Erdos964.GGPYUnconditional
 
 namespace Erdos964
 
@@ -48,49 +50,6 @@ open scoped BigOperators
 open scoped Real
 open scoped Nat
 open scoped Pointwise
-
-set_option maxRecDepth 4000
-set_option synthInstance.maxSize 128
-
-/-
-The divisor function tau(n) counts the number of divisors of n.
--/
-def tau (n : ℕ) : ℕ := (Nat.divisors n).card
-
-/-
-E2(C) is the set of products of two distinct primes both greater than C.
--/
-def E2 (C : ℕ) : Set ℕ :=
-  { n | ∃ p1 p2 : ℕ, p1.Prime ∧ p2.Prime ∧ p1 ≠ p2 ∧ C < p1 ∧ C < p2 ∧ n = p1 * p2 }
-
-/-
-L_i(x) = a_i * x + 1
--/
-def L (a : ℕ) (x : ℕ) : ℕ := a * x + 1
-
-/-
-The set of ratios of consecutive values of the divisor function.
--/
-def divisor_ratios : Set ℚ :=
-  { q | ∃ n : ℕ, n > 0 ∧ q = (tau (n + 1) : ℚ) / (tau n : ℚ) }
-
-/-
-The statement of the Goldston-Graham-Pintz-Yildirim theorem (Corollary 2.1 in the paper).
--/
-def GoldstonGrahamPintzYildirimStatement : Prop :=
-  ∀ (a r : Fin 3 → ℕ),
-    (∀ i, 0 < a i) → (∀ i, 0 < r i) →
-    (∀ i, (r i).Coprime (a i)) →
-    (∀ i j, i ≠ j → (r i).Coprime (if a i > a j then a i - a j else a j - a i)) →
-    (∀ i j, i ≠ j → (r i).Coprime (r j)) →
-    ∀ C : ℕ,
-      ∃ i j, i < j ∧ {x : ℕ | r i ∣ L (a i) x ∧ r j ∣ L (a j) x ∧
-        (L (a i) x) / r i ∈ E2 C ∧ (L (a j) x) / r j ∈ E2 C}.Infinite
-
-/-
-R is the set of values attained infinitely many times by the sequence d(n+1)/d(n).
--/
-def R_set : Set ℚ := {q | {n | (tau (n + 1) : ℚ) / (tau n : ℚ) = q}.Infinite}
 
 /-
 Define the sequence a_i = (a, a+1, a+2).
@@ -386,8 +345,6 @@ Proof sketch:
    - Image of infinite set under injective map is infinite.
 7. Thus the ratio is in `R_set`.
 -/
-set_option maxHeartbeats 5000000 in
--- The GPY case split and divisor-ratio simplification are computationally heavy.
 lemma R_contains_one_of_three (hGPY : GoldstonGrahamPintzYildirimStatement)
   (a : ℕ) (r : Fin 3 → ℕ)
   (ha : Even a) (ha_pos : 0 < a)
@@ -396,109 +353,54 @@ lemma R_contains_one_of_three (hGPY : GoldstonGrahamPintzYildirimStatement)
   (hr_coprime : ∀ i j, i ≠ j → (r i).Coprime (r j))
   (hra : ∀ i, (r i).Coprime (a_seq a i)) :
   val1 a r ∈ R_set ∨ val2 a r ∈ R_set ∨ val3 a r ∈ R_set := by
-    -- By the properties of the Goldston-Graham-Pintz-Yildirim theorem, we can find such `i` and `j`.
-    obtain ⟨i, j, hij, h_inf⟩ := hGPY (a_seq a) r
-      (fun i => by fin_cases i <;> [ exact ha_pos; exact Nat.succ_pos _; exact Nat.succ_pos _ ])
-      hr hra
-      (fun i j hij => by
-        fin_cases i <;> fin_cases j <;> simp_all +decide [ Fin.forall_fin_succ ]
-        all_goals unfold a_seq; simp +decide [*])
-      hr_coprime
-      (Nat.findGreatest (fun p => p.Prime ∧ p ∣ a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2) (a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2))
-    -- We'll use the fact that if the set of $x$ is infinite, then the set of corresponding $n$ values is also infinite.
-    have h_infinite_n : Set.Infinite {n : ℕ | ∃ x : ℕ, r i ∣ L (a_seq a i) x ∧ r j ∣ L (a_seq a j) x ∧ L (a_seq a i) x / r i ∈ E2 (Nat.findGreatest (fun p => p.Prime ∧ p ∣ a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2) (a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2)) ∧ L (a_seq a j) x / r j ∈ E2 (Nat.findGreatest (fun p => p.Prime ∧ p ∣ a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2) (a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2)) ∧ n = if i = 0 ∧ j = 1 then a_seq a 0 * L (a_seq a 1) x else if i = 1 ∧ j = 2 then a_seq a 1 * L (a_seq a 2) x else (a_seq a 0) * L (a_seq a 2) x / 2} := by
-      intro H;
-      apply h_inf;
-      let f : ℕ → ℕ := fun x =>
-        if i = 0 ∧ j = 1 then a_seq a 0 * L ( a_seq a 1 ) x
-        else if i = 1 ∧ j = 2 then a_seq a 1 * L ( a_seq a 2 ) x
-        else a_seq a 0 * L ( a_seq a 2 ) x / 2;
-      refine Set.Finite.subset ( H.preimage (f := f) ?_ ) ?_;
-      · intro x hx y hy; simp +decide [ f, Fin.forall_fin_succ ] at *;
-        fin_cases i <;> fin_cases j <;> simp +decide at hij;
-        · simp +decide [ L, a_seq ];
-          aesop;
-        · simp +decide [L] at *;
-          intro h; rw [ Nat.div_eq_iff_eq_mul_left zero_lt_two ] at h
-          focus
-            simp_all +decide [ Nat.mul_assoc, Nat.mul_comm, Nat.mul_left_comm ]
-          · rw [ Nat.mul_div_cancel' ] at h;
-            · simp_all +decide [ a_seq ];
-              exact h.resolve_right ha_pos.ne';
-            · exact dvd_mul_of_dvd_left ( even_iff_two_dvd.mp ( by unfold a_seq; simp +decide [ ha, parity_simps ] ) ) _;
-          · exact dvd_mul_of_dvd_left ( even_iff_two_dvd.mp ( by unfold a_seq; simp +decide [ ha, parity_simps ] ) ) _;
-        · simp +decide [L, a_seq] at *;
-      · exact fun x hx => ⟨ x, hx.1, hx.2.1, hx.2.2.1, hx.2.2.2, rfl ⟩;
-    -- By the properties of the Goldston-Graham-Pintz-Yildirim theorem, we can find such `i` and `j` and use them to show that one of the three values is in `R_set`.
-    have h_ratio : ∀ x : ℕ, (r i ∣ L (a_seq a i) x ∧ r j ∣ L (a_seq a j) x ∧ L (a_seq a i) x / r i ∈ E2 (Nat.findGreatest (fun p => p.Prime ∧ p ∣ a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2) (a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2)) ∧ L (a_seq a j) x / r j ∈ E2 (Nat.findGreatest (fun p => p.Prime ∧ p ∣ a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2) (a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2))) → (tau ((if i = 0 ∧ j = 1 then a_seq a 0 * L (a_seq a 1) x else if i = 1 ∧ j = 2 then a_seq a 1 * L (a_seq a 2) x else (a_seq a 0) * L (a_seq a 2) x / 2) + 1) : ℚ) / (tau (if i = 0 ∧ j = 1 then a_seq a 0 * L (a_seq a 1) x else if i = 1 ∧ j = 2 then a_seq a 1 * L (a_seq a 2) x else (a_seq a 0) * L (a_seq a 2) x / 2) : ℚ) = if i = 0 ∧ j = 1 then val1 a r else if i = 1 ∧ j = 2 then val2 a r else val3 a r := by
-      fin_cases i <;> fin_cases j <;> simp +decide at hij;
-      · intro x hx;
-        simpa [val1] using
-          ratio_lemma_12 a r _ x hr
-            (fun p pp dp => by
-              refine Nat.le_findGreatest ?_ ?_ <;> norm_num at *
-              · exact Nat.le_of_dvd
-                  (Nat.mul_pos
-                    (Nat.mul_pos
-                      (Nat.mul_pos
-                        (Nat.mul_pos
-                          (Nat.mul_pos
-                            (Nat.pos_of_ne_zero (by unfold a_seq; aesop))
-                            (Nat.pos_of_ne_zero (by unfold a_seq; aesop)))
-                          (Nat.pos_of_ne_zero (by unfold a_seq; aesop)))
-                        (hr 0))
-                      (hr 1))
-                    (hr 2))
-                  dp
-              · grind)
-            hx.1 hx.2.1 hx.2.2.1 hx.2.2.2
-      · simp +zetaDelta at *;
-        intro x hx1 hx2 hx3 hx4; exact (by
-        convert ratio_lemma_13 a r _ x ha hr
-          (fun p pp dp => by
-            refine Nat.le_findGreatest ?_ ?_
-            · exact Nat.le_of_dvd
-                (Nat.mul_pos
-                  (Nat.mul_pos
-                    (Nat.mul_pos
-                      (Nat.mul_pos
-                        (Nat.mul_pos
-                          (Nat.pos_of_ne_zero (by unfold a_seq; aesop))
-                          (Nat.pos_of_ne_zero (by unfold a_seq; aesop)))
-                        (Nat.pos_of_ne_zero (by unfold a_seq; aesop)))
-                      (hr 0))
-                    (hr 1))
-                  (hr 2))
-                dp
-            · exact And.symm ⟨dp, pp⟩)
-          hx1 hx2 hx3 hx4 using 1;
-        · unfold val3; ring_nf;
-          rw [ Nat.mul_comm ( a_seq a 2 / 2 ), Nat.mul_comm ( a_seq a 0 / 2 ) ] ; rw [ Nat.mul_div_assoc _ ( even_iff_two_dvd.mp ( by unfold a_seq; simp +decide [ *, parity_simps ] ) ), Nat.mul_div_assoc _ ( even_iff_two_dvd.mp ( by unfold a_seq; simp +decide [ *, parity_simps ] ) ) ] ;
-        );
-      · intro x hx;
-        simpa [val2] using
-          ratio_lemma_23 a r _ x hr
-            (fun p pp dp => by
-              refine Nat.le_findGreatest ?_ ?_
-              · exact Nat.le_of_dvd
-                  (Nat.mul_pos
-                    (Nat.mul_pos
-                      (Nat.mul_pos
-                        (Nat.mul_pos
-                          (Nat.mul_pos
-                            (Nat.pos_of_ne_zero (by unfold a_seq; aesop_cat))
-                            (Nat.pos_of_ne_zero (by unfold a_seq; aesop_cat)))
-                          (Nat.pos_of_ne_zero (by unfold a_seq; aesop_cat)))
-                        (Nat.pos_of_ne_zero (by linarith [hr 0])))
-                      (Nat.pos_of_ne_zero (by linarith [hr 1])))
-                    (Nat.pos_of_ne_zero (by linarith [hr 2])))
-                  dp
-              · exact And.symm ⟨dp, pp⟩)
-            hx.1 hx.2.1 hx.2.2.1 hx.2.2.2;
-    contrapose! h_infinite_n;
-    simp_all +decide [ R_set ];
-    refine Set.Finite.subset ( h_infinite_n.1.union ( h_infinite_n.2.1.union h_infinite_n.2.2 ) ) ?_;
-    rintro n ⟨ x, hx₁, hx₂, hx₃, hx₄, rfl ⟩ ; specialize h_ratio x; aesop;
+  have hapos : ∀ i, 0 < a_seq a i := by
+    intro i
+    fin_cases i <;> simp [a_seq, ha_pos]
+  let C := a_seq a 0 * a_seq a 1 * a_seq a 2 * r 0 * r 1 * r 2
+  have hCpos : 0 < C := by
+    dsimp [C]
+    exact mul_pos (mul_pos (mul_pos (mul_pos (mul_pos (hapos 0)
+      (hapos 1)) (hapos 2)) (hr 0)) (hr 1)) (hr 2)
+  have hC : ∀ p, p.Prime → p ∣ C → p ≤ C :=
+    fun _ _ hd => Nat.le_of_dvd hCpos hd
+  have hdiff : ∀ i j, i ≠ j → (r i).Coprime
+      (if a_seq a i > a_seq a j then a_seq a i - a_seq a j
+       else a_seq a j - a_seq a i) := by
+    intro i j hij
+    have htwo : (r i).Coprime 2 := Nat.coprime_two_right.mpr (hr_odd i)
+    fin_cases i <;> fin_cases j <;> simp_all [a_seq]
+  obtain ⟨i, j, hij, hInf⟩ := hGPY (a_seq a) r hapos hr hra hdiff hr_coprime C
+  have transfer {S : Set ℕ} (hS : S.Infinite) {c b : ℕ}
+      (hc : 0 < c) (hb : 0 < b) {q : ℚ}
+      (hq : ∀ x ∈ S, (tau (c * L b x + 1) : ℚ) / tau (c * L b x) = q) :
+      q ∈ R_set := by
+    apply (hS.image (f := fun x => c * L b x) ?_).mono
+    · rintro n ⟨x, hx, rfl⟩
+      exact hq x hx
+    · intro x hx y hy hxy
+      have hL := Nat.eq_of_mul_eq_mul_left hc hxy
+      exact Nat.eq_of_mul_eq_mul_left hb (Nat.add_right_cancel hL)
+  have hpairs : (i = 0 ∧ j = 1) ∨ (i = 0 ∧ j = 2) ∨ (i = 1 ∧ j = 2) := by
+    omega
+  rcases hpairs with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
+  · left
+    apply transfer hInf (hapos 0) (hapos 1)
+    intro x hx
+    exact ratio_lemma_12 a r C x hr hC hx.1 hx.2.1 hx.2.2.1 hx.2.2.2
+  · right; right
+    have ha2 : 2 ∣ a := even_iff_two_dvd.mp ha
+    have ha_half : 0 < a / 2 := Nat.div_pos (Nat.le_of_dvd ha_pos ha2) (by decide)
+    have hdiv (b t : ℕ) (hb : 2 ∣ b) : b * t / 2 = b / 2 * t := by
+      rw [mul_comm b t, Nat.mul_div_assoc t hb, mul_comm]
+    apply transfer hInf ha_half (hapos 2)
+    intro x hx
+    simpa [val3, a_seq,
+      hdiv a _ ha2, hdiv (a + 2) _ (dvd_add ha2 (dvd_refl 2))] using
+      ratio_lemma_13 a r C x ha hr hC hx.1 hx.2.1 hx.2.2.1 hx.2.2.2
+  · right; left
+    apply transfer hInf (hapos 1) (hapos 2)
+    intro x hx
+    exact ratio_lemma_23 a r C x hr hC hx.1 hx.2.1 hx.2.2.1 hx.2.2.2
 
 /-
 By modifying r_i to r'_i = r_i * p_i^(e_i-1), we can show that R contains one of the modified values.
@@ -828,8 +730,6 @@ def R2_val (data_q : List (ℕ × ℕ × ℕ)) : ℕ := (data_q.map (fun (q, _, 
 /-
 There exists a representation of `q` where all exponents `x, y` (and `u, v`) are positive.
 -/
-set_option maxHeartbeats 5000000 in
--- The generated list-product representation proof needs a larger heartbeat budget.
 lemma exists_representation_clean (q : ℚ) (hq : 0 < q) :
   ∃ data_p data_q : List (ℕ × ℕ × ℕ),
     q = target_val data_p data_q ∧
@@ -881,42 +781,37 @@ lemma two_in_G : Units.mk0 (2 : ℚ) (by norm_num) ∈ G_subgroup_def := by
 /-
 The divisor function of the product of P and R1 is the product of (x+y+1).
 -/
-set_option maxHeartbeats 5000000 in
--- This generated divisor-count proof repeatedly expands products of prime powers.
 lemma tau_P_mul_R1 (data_p : List (ℕ × ℕ × ℕ))
   (hp : ∀ p ∈ data_p.map (·.1), Nat.Prime p)
   (hd : (data_p.map (·.1)).Pairwise (· ≠ ·)) :
   tau (P_val data_p * R1_val data_p) = (data_p.map (fun (_, x, y) => x + y + 1)).prod := by
-    -- By definition of `tau`, we know that `tau(n)` is the number of divisors of `n`. Since `P_val data_p * R1_val data_p` is a product of powers of distinct primes, its number of divisors is the product of the number of divisors of each prime power.
-    have h_divisors : tau ((List.map (fun (d : ℕ × ℕ × ℕ) => d.1 ^ (d.2.1 + d.2.2)) data_p).prod) = (List.map (fun d => d.2.1 + d.2.2 + 1) data_p).prod := by
-      induction data_p <;> simp_all +decide [ List.prod_cons, List.map ];
-      -- Apply the multiplicativity of the divisor function.
-      have h_mult : ∀ {a b : ℕ}, Nat.Coprime a b → (Nat.divisors (a * b)).card = (Nat.divisors a).card * (Nat.divisors b).card := by
-        exact fun {a b} a_1 ↦ Nat.Coprime.card_divisors_mul a_1;
-      -- Apply the multiplicativity of the divisor function to the product of prime powers.
-      have h_prod : ∀ {l : List (ℕ × ℕ × ℕ)}, (∀ d ∈ l, Nat.Prime d.1) → (List.Pairwise (fun x1 x2 => ¬x1.1 = x2.1) l) → (Nat.divisors ((List.map (fun d => d.1 ^ (d.2.1 + d.2.2)) l).prod)).card = (List.map (fun d => d.2.1 + d.2.2 + 1) l).prod := by
-        intros l hl_prime hl_pairwise; induction l <;> simp_all +decide [ List.prod_cons, List.map ] ;
-        rw [ h_mult ];
-        · simp_all +decide [ Nat.divisors_prime_pow ];
-          induction ‹List ( ℕ × ℕ × ℕ ) › <;> simp_all +decide [ List.prod_cons, List.map ];
-          rw [ h_mult ];
-          · rw [ Nat.divisors_prime_pow ( hl_prime.2 _ _ _ ( Or.inl rfl ) ) ] ; aesop;
-          · have h_coprime : ∀ {l : List (ℕ × ℕ × ℕ)}, (∀ d ∈ l, Nat.Prime d.1) → (List.Pairwise (fun x1 x2 => ¬x1.1 = x2.1) l) → ∀ {p : ℕ}, Nat.Prime p → (∀ d ∈ l, d.1 ≠ p) → Nat.Coprime (p ^ (‹ℕ × ℕ × ℕ›.2.1 + ‹ℕ × ℕ × ℕ›.2.2)) (List.prod (List.map (fun d => d.1 ^ (d.2.1 + d.2.2)) l)) := by
-              intros l hl_prime hl_pairwise p hp hne; induction l <;> simp_all +decide [Nat.coprime_mul_iff_right] ;
-              exact ⟨ Nat.Coprime.pow _ _ <| hp.coprime_iff_not_dvd.mpr fun h => hne.1 <| by have := Nat.prime_dvd_prime_iff_eq hp hl_prime.1; tauto, by assumption ⟩;
-            exact h_coprime ( fun d hd => hl_prime.2 _ _ _ <| Or.inr hd ) hl_pairwise.2.2 ( hl_prime.2 _ _ _ <| Or.inl rfl ) fun d hd => by aesop;
-        · induction ‹List ( ℕ × ℕ × ℕ ) › <;> simp_all +decide [Nat.coprime_mul_iff_right];
-          rename_i k hk ih;
-          exact ⟨ Nat.coprime_pow_primes _ _ hl_prime.1 ( hl_prime.2 _ _ _ ( Or.inl rfl ) ) ( by aesop ), ih ( fun a a_1 b hab => hl_prime.2 _ _ _ ( Or.inr hab ) ) ( fun a a_1 b hab => hl_pairwise.1 _ _ _ ( Or.inr hab ) ) ⟩;
-      convert h_prod _ _ using 1;
-      any_goals exact List.cons ‹_› ‹_›;
-      · unfold tau; aesop;
-      · simp +decide;
-      · aesop;
-      · simp_all +decide [ List.pairwise_cons ];
-        exact ⟨ hd.1, by simpa [ List.pairwise_map ] using hd.2 ⟩;
-    convert h_divisors using 3;
-    unfold P_val R1_val; simp +decide [pow_add, List.prod_map_mul] ;
+  have hprod : P_val data_p * R1_val data_p =
+      (data_p.map (fun d => d.1 ^ (d.2.1 + d.2.2))).prod := by
+    simp [P_val, R1_val, pow_add, List.prod_map_mul]
+  rw [hprod]
+  clear hprod
+  induction data_p with
+  | nil => simp [tau]
+  | cons d ds ih =>
+    have hprime : d.1.Prime := hp d.1 (by simp)
+    have hprimes : ∀ p ∈ ds.map (·.1), p.Prime :=
+      fun p h => hp p (List.mem_cons_of_mem _ h)
+    have hdistinct := List.pairwise_cons.mp hd
+    have hc : (d.1 ^ (d.2.1 + d.2.2)).Coprime
+        (ds.map (fun e => e.1 ^ (e.2.1 + e.2.2))).prod := by
+      apply Nat.coprime_list_prod_right_iff.mpr
+      intro v hv
+      obtain ⟨e, he, rfl⟩ := List.mem_map.mp hv
+      have he' : e.1 ∈ ds.map (·.1) := List.mem_map.mpr ⟨e, he, rfl⟩
+      exact (Nat.coprime_primes hprime (hprimes _ he')).mpr
+        (hdistinct.1 _ he') |>.pow _ _
+    simp only [List.map_cons, List.prod_cons]
+    change (Nat.divisors (_ * _)).card = _
+    rw [hc.card_divisors_mul]
+    change tau (d.1 ^ (d.2.1 + d.2.2)) *
+      tau (ds.map (fun e => e.1 ^ (e.2.1 + e.2.2))).prod = _
+    rw [ih hprimes hdistinct.2]
+    simp [tau, Nat.divisors_prime_pow hprime]
 
 /-
 The divisor function of P is the product of (x+1).
@@ -1077,71 +972,37 @@ lemma odd_Q_val (data_q : List (ℕ × ℕ × ℕ))
 /-
 Q is coprime to P*R1.
 -/
-set_option maxHeartbeats 5000000 in
--- The coprimality proof unfolds several generated products.
 lemma coprime_Q_P_mul_R1 (data_p data_q : List (ℕ × ℕ × ℕ))
   (hp_prime : ∀ p ∈ (data_p.map (fun x => x.1)) ++ (data_q.map (fun x => x.1)), Nat.Prime p)
   (hp_distinct : (data_p.map (fun x => x.1) ++ data_q.map (fun x => x.1)).Pairwise (· ≠ ·)) :
   (Q_val data_q).Coprime (P_val data_p * R1_val data_p) := by
-    have h_coprime : ∀ p ∈ data_q.map (fun x => x.1), ∀ q ∈ data_p.map (fun x => x.1) ++ data_p.map (fun x => x.1), p ≠ q := by
-      grind;
-    have h_coprime : ∀ p ∈ data_q.map (fun x => x.1), Nat.Coprime p (P_val data_p * R1_val data_p) := by
-      intros p hp
-      have h_coprime_p : ∀ q ∈ data_p.map (fun x => x.1) ++ data_p.map (fun x => x.1), p ≠ q := by
-        exact h_coprime p hp;
-      have h_coprime_p : ∀ q ∈ data_p.map (fun x => x.1) ++ data_p.map (fun x => x.1), Nat.Coprime p q := by
-        intros q hq; exact Nat.Coprime.symm ( hp_prime q ( by aesop ) |> Nat.Prime.coprime_iff_not_dvd |> Iff.mpr <| fun h => h_coprime_p q hq <| by have := Nat.prime_dvd_prime_iff_eq ( hp_prime q ( by aesop ) ) ( hp_prime p ( by aesop ) ) ; tauto ) ;
-      have h_coprime_p : Nat.Coprime p (List.prod (List.map (fun (p, x, y) => p ^ x) data_p)) ∧ Nat.Coprime p (List.prod (List.map (fun (p, x, y) => p ^ y) data_p)) := by
-        have h_coprime_p : ∀ {l : List ℕ}, (∀ q ∈ l, Nat.Coprime p q) → Nat.Coprime p (List.prod l) := by
-          intros l hl; induction l <;> simp_all +decide [Nat.coprime_mul_iff_right] ;
-          grind;
-        exact ⟨ h_coprime_p fun q hq => by rcases List.mem_map.mp hq with ⟨ x, hx, rfl ⟩ ; exact Nat.Coprime.pow_right _ <| by aesop, h_coprime_p fun q hq => by rcases List.mem_map.mp hq with ⟨ x, hx, rfl ⟩ ; exact Nat.Coprime.pow_right _ <| by aesop ⟩;
-      exact Nat.Coprime.mul_right h_coprime_p.1 h_coprime_p.2;
-    have h_coprime_prod : ∀ {l : List ℕ}, (∀ p ∈ l, Nat.Coprime p (P_val data_p * R1_val data_p)) → Nat.Coprime (List.prod l) (P_val data_p * R1_val data_p) := by
-      exact fun {l} a ↦ (fun {l} {k} ↦ Nat.coprime_list_prod_left_iff.mpr) a;
-    unfold Q_val
-    exact h_coprime_prod (l := data_q.map (fun d => d.1 ^ d.2.1)) (by
-      intro n hn
-      rcases List.mem_map.mp hn with ⟨d, hd, rfl⟩
-      exact Nat.Coprime.pow_left _ (h_coprime d.1 (List.mem_map.mpr ⟨d, hd, rfl⟩)))
+  have hcross := (List.pairwise_append.mp hp_distinct).2.2
+  have hprod (f : ℕ × ℕ × ℕ → ℕ) :
+      (Q_val data_q).Coprime ((data_p.map (fun d => d.1 ^ f d)).prod) := by
+    apply Nat.coprime_list_prod_left_iff.mpr
+    intro u hu
+    obtain ⟨d, hd, rfl⟩ := List.mem_map.mp hu
+    apply Nat.coprime_list_prod_right_iff.mpr
+    intro v hv
+    obtain ⟨e, he, rfl⟩ := List.mem_map.mp hv
+    have hd' : d.1 ∈ data_q.map (·.1) := List.mem_map.mpr ⟨d, hd, rfl⟩
+    have he' : e.1 ∈ data_p.map (·.1) := List.mem_map.mpr ⟨e, he, rfl⟩
+    have hdp := hp_prime d.1 (List.mem_append_right _ hd')
+    have hep := hp_prime e.1 (List.mem_append_left _ he')
+    exact ((Nat.coprime_primes hdp hep).mpr (hcross _ he' _ hd').symm).pow _ _
+  exact (hprod (fun d => d.2.1)).mul_right (hprod (fun d => d.2.2))
 
 /-
 P is coprime to Q*R2.
 -/
-set_option maxHeartbeats 5000000 in
--- The symmetric coprimality proof has the same generated product expansion.
 lemma coprime_P_Q_mul_R2 (data_p data_q : List (ℕ × ℕ × ℕ))
   (hp_prime : ∀ p ∈ (data_p.map (fun x => x.1)) ++ (data_q.map (fun x => x.1)), Nat.Prime p)
   (hp_distinct : (data_p.map (fun x => x.1) ++ data_q.map (fun x => x.1)).Pairwise (· ≠ ·)) :
   (P_val data_p).Coprime (Q_val data_q * R2_val data_q) := by
-    -- Since `data_p` and `data_q` have distinct primes, `P_val` and `Q_val * R2_val` are coprime.
-    have h_coprime : ∀ (p : ℕ), Nat.Prime p → p ∣ P_val data_p → ¬(p ∣ Q_val data_q * R2_val data_q) := by
-      intros p hp hp_div_P hp_div_QR2
-      have hp_in_data_p : p ∈ List.map (fun x => x.1) data_p := by
-        have hp_in_data_p : p ∣ (data_p.map (fun (p, x, _) => p ^ x)).prod := by
-          exact hp_div_P;
-        have := Fact.mk hp; simp_all +decide [← ZMod.natCast_eq_zero_iff] ;
-        obtain ⟨ a, b, ⟨ x, hx ⟩, ha, hb ⟩ := hp_in_data_p; rw [ ZMod.natCast_eq_zero_iff ] at ha; rw [ Nat.prime_dvd_prime_iff_eq ] at ha <;> aesop;
-      have hp_not_in_data_q : p ∉ List.map (fun x => x.1) data_q := by
-        grind +ring
-      have hp_not_div_QR2 : ¬(p ∣ Q_val data_q) := by
-        have hp_not_div_QR2 : ∀ q ∈ List.map (fun x => x.1) data_q, ¬(p ∣ q) := by
-          intro q hq hq_div_p; have := List.pairwise_append.mp hp_distinct; simp_all +decide [ Nat.prime_dvd_prime_iff_eq ] ;
-        have := Fact.mk hp; simp_all +decide [← ZMod.natCast_eq_zero_iff] ;
-        unfold Q_val; simp_all +decide ;
-        exact fun x y z h₁ h₂ => False.elim <| hp_not_div_QR2 x y z h₁ h₂
-      have hp_not_div_QR2' : ¬(p ∣ R2_val data_q) := by
-        have hp_not_div_R2 : ∀ q ∈ data_q.map (fun x => x.1), ¬(p ∣ q) := by
-          intro q hq hq_div_p; have := Nat.prime_dvd_prime_iff_eq hp ( hp_prime q ( List.mem_append_right _ hq ) ) ; aesop;
-        simp_all +decide [ R2_val, Nat.Prime.dvd_iff_not_coprime hp ];
-        have hp_not_div_R2 : ∀ {l : List ℕ}, (∀ q ∈ l, Nat.gcd p q = 1) → Nat.gcd p (List.prod l) = 1 := by
-          intros l hl; induction l <;> simp_all +decide [Nat.coprime_mul_iff_right] ;
-          tauto;
-        exact hp_not_div_R2 fun q hq => by obtain ⟨ x, hx, rfl ⟩ := List.mem_map.mp hq; exact Nat.Coprime.pow_right _ ( by aesop ) ;
-      have hp_not_div_QR2'' : ¬(p ∣ Q_val data_q * R2_val data_q) := by
-        exact Nat.Prime.not_dvd_mul hp hp_not_div_QR2 hp_not_div_QR2'
-      exact hp_not_div_QR2'' hp_div_QR2;
-    exact Nat.coprime_of_dvd <| by tauto;
+  apply coprime_Q_P_mul_R1 data_q data_p
+  · intro p hp
+    exact hp_prime p (by simpa only [List.mem_append, or_comm] using hp)
+  · exact (List.pairwise_append_comm (fun h => h.symm)).mp hp_distinct
 
 /-
 P*R1 is odd.
@@ -1695,21 +1556,14 @@ lemma pos_rats_dense_in_pos_reals : Set.Ioi (0 : ℝ) ⊆ closure (Set.image (fu
 /-
 The set of divisor ratios is dense in (0, \infty).
 -/
-theorem erdos_964 (hGPY : (∀ (a r : Fin 3 → ℕ),
-  (∀ i, 0 < a i) → (∀ i, 0 < r i) →
-  (∀ i, (r i).Coprime (a i)) →
-  (∀ i j, i ≠ j → (r i).Coprime (if a i > a j then a i - a j else a j - a i)) →
-  (∀ i j, i ≠ j → (r i).Coprime (r j)) →
-  ∀ C : ℕ,
-    ∃ i j, i < j ∧ {x : ℕ | r i ∣ Erdos964.L (a i) x ∧ r j ∣ Erdos964.L (a j) x ∧
-      (Erdos964.L (a i) x) / r i ∈ Erdos964.E2 C ∧ (Erdos964.L (a j) x) / r j ∈ Erdos964.E2 C}.Infinite)) :
+theorem erdos_964 :
   Set.Ioi (0 : ℝ) ⊆ closure (Set.image (fun q : ℚ => (q : ℝ)) divisor_ratios) := by
     have h_image_subset : Set.image (fun q : ℚ => (q : ℝ)) {q : ℚ | 0 < q} ⊆ Set.image (fun q : ℚ => (q : ℝ)) divisor_ratios :=
-      Set.image_mono ( divisor_ratios_contains_all_pos_rats hGPY );
+      Set.image_mono (divisor_ratios_contains_all_pos_rats goldston_graham_pintz_yildirim)
     exact Set.Subset.trans ( pos_rats_dense_in_pos_reals ) ( closure_mono h_image_subset )
 
 #print axioms erdos_964
--- 'Erdos964.ErdosProblem964' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- Uses only propext, Classical.choice, and Quot.sound.
 
 end Erdos964
 
