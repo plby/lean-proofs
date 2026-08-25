@@ -1,0 +1,8 @@
+import StackExchange.Puzzling139335.N5.TopContacts.Bounds
+
+#print axioms Puzzling139335.N5.swapped_inverse_top_point
+#print axioms Puzzling139335.N5.top_preimage_coords_of_swapped_form
+#print axioms Puzzling139335.N5.top_contact_gt_base_height_of_swapped_form
+#print axioms Puzzling139335.N5.Normalized.singleton_top_contact_gt_base_height
+#print axioms Puzzling139335.N5.Normalized.exists_singleton_top_contact_lt_one
+#print axioms Puzzling139335.N5.Normalized.top_contact_one_iff_of_right_interval

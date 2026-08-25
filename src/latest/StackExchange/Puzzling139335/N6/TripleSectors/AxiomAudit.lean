@@ -1,0 +1,13 @@
+import StackExchange.Puzzling139335.N6.TripleSectors
+
+#print axioms Puzzling139335.N6.TripleSectors.LocalSector.interior_eq_openSector_of_two_rays
+#print axioms Puzzling139335.N6.TripleSectors.LocalSector.exists_local_openSector_of_straightBranchCount
+#print axioms Puzzling139335.N6.TripleSectors.Angles.exists_raySectorGerms_trisection
+#print axioms Puzzling139335.N6.TripleSectors.exists_normalized_triple
+#print axioms Puzzling139335.N6.TripleSectors.middle_placement_of_boundary_pair
+#print axioms Puzzling139335.N6.TripleSectors.last_placement_of_boundary_pair
+#print axioms Puzzling139335.N6.TripleSectors.subset_thirtyCone_of_opposite_outer_parity
+#print axioms Puzzling139335.N6.TripleSectors.convexHull_subset_equalParityBound_of_square_fits
+#print axioms Puzzling139335.N6.TripleSectors.NormalizedTriple.exists_ordered_cone
+#print axioms Puzzling139335.N6.TripleSectors.exists_actual_ordered_cone
+#print axioms Puzzling139335.N6.TripleSectors.supports45_of_three_equal_intrinsic

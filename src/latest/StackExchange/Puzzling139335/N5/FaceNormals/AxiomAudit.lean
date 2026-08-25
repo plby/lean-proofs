@@ -1,0 +1,9 @@
+import StackExchange.Puzzling139335.N5.FaceNormals
+
+#print axioms Puzzling139335.N5.allowedNormal_of_excluded_cones
+#print axioms Puzzling139335.N5.support_normal_not_in_origin_cone
+#print axioms Puzzling139335.N5.support_normal_not_in_bottom_right_cone
+#print axioms Puzzling139335.N5.support_normal_not_in_corner_cone
+#print axioms Puzzling139335.N5.corner_support_inequalities_of_frame
+#print axioms Puzzling139335.N5.allowedNormal_of_corner_frame
+#print axioms Puzzling139335.N5.allowedNormal_of_corner_frame_support_points

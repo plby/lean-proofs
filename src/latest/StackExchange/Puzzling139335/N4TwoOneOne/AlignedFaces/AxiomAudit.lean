@@ -1,0 +1,5 @@
+import StackExchange.Puzzling139335.N4TwoOneOne.AlignedFaces
+
+#print axioms Puzzling139335.N4TwoOneOne.incoming_aligned_false
+#print axioms Puzzling139335.N4TwoOneOne.outgoing_aligned_translation_of_intervals
+#print axioms Puzzling139335.N4TwoOneOne.outgoing_aligned_translation

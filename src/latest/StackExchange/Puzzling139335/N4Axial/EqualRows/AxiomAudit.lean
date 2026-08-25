@@ -1,0 +1,6 @@
+import StackExchange.Puzzling139335.N4Axial.EqualRows
+
+#print axioms Puzzling139335.N4Axial.first_coordinates_eq_of_right_contacts_equal_first_rows
+#print axioms Puzzling139335.N4Axial.vertical_translation_or_horizontal_reflection_of_first_coordinate
+#print axioms Puzzling139335.N4OuterPair.Configuration.false_of_middle_right_contact_equal_first_rows
+#print axioms Puzzling139335.N4OuterPair.Configuration.false_of_middle_equal_first_rows_of_source_right_contacts

@@ -1,0 +1,4 @@
+import StackExchange.Puzzling139335.N5.SideContacts.DiagonalInterval
+
+#print axioms Puzzling139335.N5.exists_diagonal_interval_of_compact_preconnected
+#print axioms Puzzling139335.N5.exists_diagonal_interval_eq_of_compact_preconnected

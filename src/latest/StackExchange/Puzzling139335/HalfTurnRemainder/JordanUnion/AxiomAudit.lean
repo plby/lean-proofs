@@ -1,0 +1,13 @@
+import StackExchange.Puzzling139335.HalfTurnRemainder.JordanUnion
+
+/-! Kernel dependency audit for the actual Jordan-remainder theorem. -/
+
+#print axioms Puzzling139335.HalfTurnRemainder.outer_arc_subset_of_connected_remainder
+#print axioms Puzzling139335.HalfTurnRemainder.exists_arc_between_frontier_through_interior
+#print axioms Puzzling139335.HalfTurnRemainder.inter_nontrivial_of_connected_interior_union
+#print axioms Puzzling139335.HalfTurnRemainder.exists_contact_arc_of_connected_compl_union
+#print axioms Puzzling139335.HalfTurnRemainder.isConnected_inter_of_connected_interior_compl_union
+#print axioms Schoenflies.IsJordanCurve.exists_isArcBetween_compact_connected_subset
+#print axioms Puzzling139335.HalfTurnRemainder.exists_inter_isArcBetween_of_connected_interior_compl
+#print axioms Puzzling139335.HalfTurnRemainder.jordan_union_of_connected_interior_compl
+#print axioms Puzzling139335.SquareDissection.pair_remainder_jordan_of_connected

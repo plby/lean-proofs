@@ -1,0 +1,13 @@
+import StackExchange.Puzzling139335.HalfTurnRemainder.InvariantHole
+
+/-! Axiom audit for the obstruction to an invariant bounded complementary component. -/
+
+namespace Puzzling139335.HalfTurnRemainder
+
+#print axioms closure_outside_subset_connectedComponentIn_compl
+#print axioms not_isBounded_connectedComponentIn_compl_of_subset_inside
+#print axioms exists_pointReflection_invariant_jordanCurve_subset
+#print axioms not_isBounded_connectedComponentIn_compl_of_pointReflection
+#print axioms no_bounded_invariant_complement_component
+
+end Puzzling139335.HalfTurnRemainder

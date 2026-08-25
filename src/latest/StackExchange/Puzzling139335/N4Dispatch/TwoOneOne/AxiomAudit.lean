@@ -1,0 +1,9 @@
+import StackExchange.Puzzling139335.N4Dispatch.TwoOneOne
+
+#print axioms Puzzling139335.N4Dispatch.TwoOneOne.exists_side_of_count_two
+#print axioms Puzzling139335.N4Dispatch.TwoOneOne.exists_cornerPattern_of_degree2110
+#print axioms Puzzling139335.N4Dispatch.TwoOneOne.singleton_types_eq
+#print axioms Puzzling139335.N4Dispatch.TwoOneOne.vertical_of_top_corner_pair
+#print axioms Puzzling139335.N4Dispatch.TwoOneOne.CornerPattern.configuration
+#print axioms Puzzling139335.N4Dispatch.TwoOneOne.exists_configuration_of_degree2110
+#print axioms Puzzling139335.N4Dispatch.TwoOneOne.exists_configuration_of_permuted_degree2110

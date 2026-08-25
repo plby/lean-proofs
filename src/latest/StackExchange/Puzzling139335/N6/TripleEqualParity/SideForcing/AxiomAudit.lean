@@ -1,0 +1,6 @@
+import StackExchange.Puzzling139335.N6.TripleEqualParity.SideForcing
+
+#print axioms Puzzling139335.N6.TripleEqualParity.closed_piece_owns_side_tail
+#print axioms Puzzling139335.N6.TripleEqualParity.other_right_side_height
+#print axioms Puzzling139335.N6.TripleEqualParity.other_top_side_coordinate
+#print axioms Puzzling139335.N6.TripleEqualParity.forced_corner_triangle_mem

@@ -1,0 +1,16 @@
+import StackExchange.Puzzling139335.N6.TwoDouble
+
+#print axioms Puzzling139335.N6.TwoDouble.repeated_unique_counts_two
+#print axioms Puzzling139335.N6.TwoDouble.pair_eq_of_common_full_type
+#print axioms Puzzling139335.N6.TwoDouble.not_protected_of_one_split_type
+#print axioms Puzzling139335.N6.TwoDouble.type_cardinalities
+#print axioms Puzzling139335.N6.TwoDouble.exists_actual_full_pair
+#print axioms Puzzling139335.N6.TwoDouble.exists_actual_full_pair_with_unique
+#print axioms Puzzling139335.N6.TwoDouble.square_pair_map_cases
+#print axioms Puzzling139335.N6.TwoDouble.mixed_rotation_placement_impossible
+#print axioms Puzzling139335.N6.TwoDouble.MixedCornerGeometry.no_normalized_mixed_pair
+#print axioms Puzzling139335.N6.TwoDouble.MixedCornerGeometry.no_normalized_mixed_same_intrinsic
+#print axioms Puzzling139335.N6.TwoDouble.normalized_three_cornered_impossible
+#print axioms Puzzling139335.N6.TwoDouble.horizontal_singleton_type_cases
+#print axioms Puzzling139335.N6.TwoDouble.no_third_double_tile_of_unique_ends_and_double_corner
+#print axioms Puzzling139335.N6.TwoDouble.RightSideGerm.center_not_mem_pair_of_sample

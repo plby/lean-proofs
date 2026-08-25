@@ -1,0 +1,7 @@
+import StackExchange.Puzzling139335.N5.AlignedFace
+
+#print axioms Puzzling139335.N5.AlignedFace.reflection_impossible
+#print axioms Puzzling139335.N5.AlignedFace.translation_impossible
+#print axioms Puzzling139335.N5.AlignedFace.placement_of_top_intervals
+#print axioms Puzzling139335.N5.AlignedFace.contact_lengths_of_top_intervals
+#print axioms Puzzling139335.N5.Normalized.incoming_aligned_face_impossible

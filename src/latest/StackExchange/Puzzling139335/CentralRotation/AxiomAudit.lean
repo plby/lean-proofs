@@ -1,0 +1,15 @@
+import StackExchange.Puzzling139335.CentralRotation
+
+/-! Axiom audit of the checked central-rotation components. -/
+
+#print axioms Puzzling139335.CentralRotation.decreasing_lift_not_identity
+#print axioms Puzzling139335.CentralRotation.exists_fixedPoint_of_decreasing_lift
+#print axioms Schoenflies.IsArcBetween.endpoints_fixed_or_swapped
+#print axioms Puzzling139335.CentralRotation.eq_halfTurn_of_internal_fixedPoint
+#print axioms Puzzling139335.CentralRotation.halfTurn_of_decreasing_lift_overlap
+#print axioms Puzzling139335.CentralRotation.disjoint_of_decreasing_lift_of_not_halfTurn
+#print axioms Puzzling139335.JordanCrosscut.halfTurn_image_outer_of_congruent_sides
+#print axioms Puzzling139335.JordanCrosscut.rotation_gap_identity
+#print axioms Puzzling139335.CentralRotation.center_mem_of_boundaryLifts
+#print axioms Puzzling139335.JordanCrosscut.center_mem_of_direct_non_halfTurn
+#print axioms Puzzling139335.JordanCrosscut.center_mem_of_direct_multiplier_ne_neg_one

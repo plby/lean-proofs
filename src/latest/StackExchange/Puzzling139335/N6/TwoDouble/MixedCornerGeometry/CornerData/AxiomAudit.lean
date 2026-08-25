@@ -1,0 +1,6 @@
+import StackExchange.Puzzling139335.N6.TwoDouble.MixedCornerGeometry.CornerData
+
+#print axioms Puzzling139335.N6.TwoDouble.MixedCornerGeometry.normalized_mixed_corner_counts
+#print axioms Puzzling139335.N6.TwoDouble.MixedCornerGeometry.center_mem_mixed_pair
+#print axioms Puzzling139335.N6.TwoDouble.MixedCornerGeometry.mixed_placement_not_fix_right_corner
+#print axioms Puzzling139335.N6.TwoDouble.MixedCornerGeometry.source_corner_preimage_data

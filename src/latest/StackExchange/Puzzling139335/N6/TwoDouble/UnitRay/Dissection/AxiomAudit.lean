@@ -1,0 +1,14 @@
+import StackExchange.Puzzling139335.N6.TwoDouble.UnitRay.Dissection
+
+namespace Puzzling139335.N6.TwoDouble.UnitRay
+
+#print axioms corners_eq_of_singleton
+#print axioms singleton_unit_frontier_ray_impossible
+#print axioms singleton_unit_frontier_ray_impossible_at_corner
+#print axioms repeated_corner_singleton_unitRay_impossible
+#print axioms normalized_germ_of_transported_filled45
+#print axioms singleton_unitRay_from_repeated_corner_impossible
+#print axioms actual_side_segment_frontier
+#print axioms transported_unit_side_segment
+
+end Puzzling139335.N6.TwoDouble.UnitRay

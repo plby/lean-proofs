@@ -1,0 +1,6 @@
+import StackExchange.Puzzling139335.SquareSymmetry.CornerPermutation
+
+#print axioms Puzzling139335.SquareSymmetry.maps_corner_of_maps_square_into_square
+#print axioms Puzzling139335.SquareSymmetry.exists_corner_permutation_of_maps_square_into_square
+#print axioms Puzzling139335.SquareSymmetry.cornerPermutation_apply
+#print axioms Puzzling139335.SquareSymmetry.image_corners_of_maps_square_into_square

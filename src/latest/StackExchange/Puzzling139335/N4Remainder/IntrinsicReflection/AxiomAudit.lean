@@ -1,0 +1,5 @@
+import StackExchange.Puzzling139335.N4Remainder.IntrinsicReflection
+
+#print axioms Puzzling139335.N4Remainder.intrinsic_symmetry_bottom_pair_cases
+#print axioms Puzzling139335.N4Remainder.intrinsic_symmetry_bottom_pair
+#print axioms Puzzling139335.N4Remainder.intrinsic_symmetry_bottom_pair_image

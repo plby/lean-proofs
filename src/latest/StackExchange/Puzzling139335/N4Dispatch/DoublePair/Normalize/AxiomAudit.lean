@@ -1,0 +1,5 @@
+import StackExchange.Puzzling139335.N4Dispatch.DoublePair.Normalize
+
+#print axioms Puzzling139335.N4Dispatch.DoublePair.exists_configuration_of_adjacent_square_pair
+#print axioms Puzzling139335.N4Dispatch.DoublePair.exists_configuration_of_square_pair
+#print axioms Puzzling139335.N4Dispatch.DoublePair.Normalize.no_center_reflection_pair_map

@@ -1,0 +1,9 @@
+import StackExchange.Puzzling139335.N4Dispatch.FiniteRouting
+
+#print axioms Puzzling139335.N4Dispatch.tile_pattern
+#print axioms Puzzling139335.N4Dispatch.corner_pattern_cases
+#print axioms Puzzling139335.N4Dispatch.corner_pattern_cases_selected
+#print axioms Puzzling139335.N4Dispatch.one_corner_normalization
+#print axioms Puzzling139335.N4Dispatch.one_corner_normalization_protected
+#print axioms Puzzling139335.SquareDissection.reindex_cornerTileCount
+#print axioms Puzzling139335.SquareDissection.reindex_cornerIncidenceCount

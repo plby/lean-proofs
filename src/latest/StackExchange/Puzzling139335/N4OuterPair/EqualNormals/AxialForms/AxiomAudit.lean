@@ -1,0 +1,13 @@
+import StackExchange.Puzzling139335.N4OuterPair.EqualNormals.AxialForms
+
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.AxialForms.direct_halfTurn_form
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.AxialForms.direct_involutive
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.AxialForms.direct_parameter_eq_zero
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.AxialForms.direct_center_fixed
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.AxialForms.direct_parameter_eq_zero_and_center_fixed
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.AxialForms.reversed_inverse_coordinates
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.AxialForms.reversed_inverse_coordinates_neg
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.AxialForms.reversed_square
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.AxialForms.horizontal_conjugates_reversed
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.AxialForms.reversed_center_fixed_of_zero
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.AxialForms.vertical_double_ne_zero

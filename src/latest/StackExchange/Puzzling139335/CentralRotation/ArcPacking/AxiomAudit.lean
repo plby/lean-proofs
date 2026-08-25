@@ -1,0 +1,12 @@
+import StackExchange.Puzzling139335.CentralRotation.ArcPacking
+
+/-! Axiom audit for the actual Jordan-subarc packing argument. -/
+
+#print axioms Puzzling139335.CentralRotation.ArcPacking.finite_of_separated_in_compact
+#print axioms Puzzling139335.CentralRotation.ArcPacking.finite_of_interval_packing
+#print axioms Puzzling139335.CentralRotation.ArcPacking.exists_subarc_interval
+#print axioms Puzzling139335.CentralRotation.ArcPacking.exists_uniform_span_lower_bound
+#print axioms Puzzling139335.CentralRotation.ArcPacking.finite_of_disjoint_subarcs
+#print axioms Puzzling139335.CentralRotation.ArcPacking.exists_overlap_of_subarcs
+#print axioms Puzzling139335.CentralRotation.ArcPacking.finite_of_disjoint_isometric_subarcs
+#print axioms Puzzling139335.CentralRotation.ArcPacking.exists_overlap_of_isometric_subarcs

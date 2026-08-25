@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Puzzling139335",
+  "solution_module": "StackExchange.Puzzling139335",
+  "theorem_names": [
+    "Puzzling139335.square_center_theorem"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

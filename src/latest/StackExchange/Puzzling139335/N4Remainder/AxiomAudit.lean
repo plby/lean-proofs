@@ -1,0 +1,12 @@
+import StackExchange.Puzzling139335.N4Remainder
+
+#print axioms Puzzling139335.N4Remainder.component_unbounded_of_exterior_contact
+#print axioms Puzzling139335.N4OuterPair.Configuration.middle_union_no_holes
+#print axioms Puzzling139335.N4OuterPair.Configuration.middle_union_isConnected_compl
+#print axioms Puzzling139335.N4OuterPair.Configuration.outer_halfTurn_of_reversing_symmetry
+#print axioms Puzzling139335.N4OuterPair.Configuration.outer_halfTurn_of_piece_reversing_symmetry
+#print axioms Puzzling139335.N4OuterPair.Configuration.outer_halfTurn_or_middle_connected_interior
+#print axioms
+  Puzzling139335.N4OuterPair.Configuration.middle_union_jordanCrosscut_of_no_outer_halfTurn
+#print axioms Puzzling139335.N4OuterPair.Configuration.middle_inter_nontrivial_of_no_outer_halfTurn
+#print axioms Puzzling139335.N4OuterPair.Configuration.outer_halfTurn_or_middle_union_jordan

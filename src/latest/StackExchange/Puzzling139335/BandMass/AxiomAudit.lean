@@ -1,0 +1,11 @@
+import StackExchange.Puzzling139335.BandMass
+
+#print axioms Puzzling139335.volume_horizontalBand
+#print axioms Puzzling139335.closure_interior_horizontalBand
+#print axioms Puzzling139335.jordan_two_piece_packing_covers_half_band
+#print axioms Puzzling139335.SquareDissection.congruent_pair_packing_covers_half_band
+#print axioms Puzzling139335.SquareDissection.other_middle_piece_crosses_midline
+#print axioms Puzzling139335.SquareDissection.center_piece_crosses_midline
+#print axioms Puzzling139335.SquareDissection.horizontal_cut_height_eq_card_div_four
+#print axioms Puzzling139335.SquareDissection.horizontal_separator_height_eq_nat_quarter
+#print axioms Puzzling139335.SquareDissection.horizontal_frontier_separator_height_eq_nat_quarter

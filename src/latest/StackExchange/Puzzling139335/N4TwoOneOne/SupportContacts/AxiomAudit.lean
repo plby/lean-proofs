@@ -1,0 +1,10 @@
+import StackExchange.Puzzling139335.N4TwoOneOne.SupportContacts
+
+/-! Kernel dependency audit for the actual support-contact classification. -/
+
+#print axioms Puzzling139335.N4TwoOneOne.SupportContacts.supportsAt_iff_eq_upper_corner
+#print axioms Puzzling139335.N4TwoOneOne.SupportContacts.hasTwoSupportPoints_allowed
+#print axioms Puzzling139335.N4TwoOneOne.SupportContacts.common_support_of_perpendicular_faces
+#print axioms Puzzling139335.N4TwoOneOne.SupportContacts.exists_square_corner_of_adjacent_contacts
+#print axioms Puzzling139335.N4TwoOneOne.SupportContacts.hasTwoSidePoints_unique
+#print axioms Puzzling139335.N4TwoOneOne.SupportContacts.hasTwoSupportPoints_angle_classification

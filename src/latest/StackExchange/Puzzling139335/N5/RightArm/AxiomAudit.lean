@@ -1,0 +1,11 @@
+import StackExchange.Puzzling139335.N5.RightArm
+
+#print axioms Puzzling139335.N5.direct_inverse_right_point
+#print axioms Puzzling139335.N5.swapped_inverse_right_point
+#print axioms Puzzling139335.N5.CornerPlacementForm.inverse_center
+#print axioms Puzzling139335.N5.right_arm_direct_impossible
+#print axioms Puzzling139335.N5.right_arm_swapped_form_of_contact
+#print axioms Puzzling139335.N5.right_arm_source_endpoint_mem_of_contact
+#print axioms Puzzling139335.N5.Normalized.right_arm_inequality_of_contact
+#print axioms Puzzling139335.N5.Normalized.right_arm_height_bound_of_contact
+#print axioms Puzzling139335.N5.Normalized.center_not_mem_singleton_of_right_contact

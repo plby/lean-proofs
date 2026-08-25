@@ -1,0 +1,7 @@
+import StackExchange.Puzzling139335.N5.FourthSide
+
+#print axioms Puzzling139335.N5.FourthSide.orthogonal_allowed_classification
+#print axioms Puzzling139335.N5.FourthSide.two_side_contacts_place_B_or_C
+#print axioms Puzzling139335.N5.Normalized.fourth_right_or_top_subsingleton
+#print axioms Puzzling139335.N5.Normalized.exists_fourth_right_normalization
+#print axioms Puzzling139335.N5.Normalized.exists_fourth_right_geometry

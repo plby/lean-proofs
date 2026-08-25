@@ -1,0 +1,17 @@
+import StackExchange.Puzzling139335.DoubleCorner
+import StackExchange.Puzzling139335.DoubleCorner.DiagonalSegment
+
+/-! The complete actual double-corner theorem, including its local germs. -/
+
+#print axioms Puzzling139335.DoubleCorner.positive_rotation_double_corner_cos_le_sin
+#print axioms Puzzling139335.DoubleCorner.diagonal_cones_of_local_congruence
+#print axioms Puzzling139335.DoubleCorner.halfCone_germs_of_local_congruence
+#print axioms Puzzling139335.SquareDissection.double_corner_normalized_halfCones
+#print axioms Puzzling139335.SquareDissection.double_corner_support_and_center_exclusion
+#print axioms Puzzling139335.SquareDissection.same_intrinsic_double_corner
+#print axioms Puzzling139335.SquareDissection.same_intrinsic_double_corner_prototype_support
+#print axioms Puzzling139335.DoubleCorner.MixedCorner.center_excluded_of_support
+#print axioms Puzzling139335.SquareDissection.center_excluded_at_double_corner_of_support
+#print axioms Puzzling139335.DoubleCorner.diagonal_segment_of_halfCone_germs
+#print axioms Puzzling139335.SquareDissection.double_corner_diagonal_segment
+#print axioms Puzzling139335.SquareDissection.same_intrinsic_double_corner_diagonal_segment

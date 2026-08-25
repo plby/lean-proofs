@@ -1,0 +1,6 @@
+import StackExchange.Puzzling139335.N5.TopContacts.MiddleInterval
+
+#print axioms Puzzling139335.N5.TopContacts.top_segment_subset_of_interval
+#print axioms Puzzling139335.N5.TopContacts.top_open_not_mem_of_segment
+#print axioms Puzzling139335.N5.Normalized.top_side_not_mem_zero
+#print axioms Puzzling139335.N5.Normalized.top_side_mem_three_iff_of_neighbor_intervals

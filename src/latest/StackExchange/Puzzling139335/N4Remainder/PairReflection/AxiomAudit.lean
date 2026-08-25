@@ -1,0 +1,8 @@
+import StackExchange.Puzzling139335.N4Remainder.PairReflection
+
+#print axioms Puzzling139335.N4Remainder.eq_vertical_of_center_fixed_and_bottom_pair
+#print axioms Puzzling139335.N4Remainder.eq_vertical_of_invariant_bottom_pair
+#print axioms Puzzling139335.N4Remainder.horizontal_vertical_apply
+#print axioms Puzzling139335.N4Remainder.horizontal_image_eq_pointReflection_image
+#print axioms
+  Puzzling139335.N4Remainder.horizontal_image_eq_pointReflection_image_of_invariant_bottom_pair

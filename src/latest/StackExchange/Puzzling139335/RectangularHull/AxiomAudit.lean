@@ -1,0 +1,12 @@
+import StackExchange.Puzzling139335.RectangularHull
+
+/-! Kernel-dependency audit for the rectangular-hull reductions. -/
+
+#print axioms Puzzling139335.RectangularHull.CommonFrames.no_protectedCenter_of_small
+#print axioms Puzzling139335.RectangularHull.exists_unit_edge_frames
+#print axioms Puzzling139335.RectangularHull.same_rectangular_hull_impossible
+#print axioms Puzzling139335.RectangularHull.NormalizedOuterBands.exists_axis_middle_copy
+#print axioms Puzzling139335.RectangularHull.lower_outer_piece_contains_bottom_side
+#print axioms Puzzling139335.RectangularHull.Frame.center_frontier_of_axis_quarter_rectangle
+#print axioms Puzzling139335.SquareDissection.not_protectedCenter_of_rectangular_hull
+#print axioms Puzzling139335.SquareDissection.no_rectangular_hull

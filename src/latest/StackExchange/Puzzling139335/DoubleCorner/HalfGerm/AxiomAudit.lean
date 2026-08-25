@@ -1,0 +1,10 @@
+import StackExchange.Puzzling139335.DoubleCorner.HalfGerm
+
+#print axioms Puzzling139335.DoubleCorner.closure_strictCone45
+#print axioms Puzzling139335.DoubleCorner.closure_strictUpperCone45
+#print axioms Puzzling139335.DoubleCorner.halfCone_equalities_of_local_cover
+#print axioms Puzzling139335.DoubleCorner.halfCone_germs_of_local_cover
+#print axioms Puzzling139335.DoubleCorner.frontier_germ_of_germ
+#print axioms Puzzling139335.DoubleCorner.halfCone_frontier_germs_of_local_cover
+#print axioms Puzzling139335.DoubleCorner.rotation45_halfCone_germs
+#print axioms Puzzling139335.DoubleCorner.negative_rotation_halfCone_germs

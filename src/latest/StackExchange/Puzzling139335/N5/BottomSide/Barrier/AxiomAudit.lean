@@ -1,0 +1,6 @@
+import StackExchange.Puzzling139335.N5.BottomSide.Barrier
+
+#print axioms Puzzling139335.N5.bottom_boundary_contacts_impossible
+#print axioms Puzzling139335.N5.bottom_open_not_mem_of_top_right
+#print axioms Puzzling139335.N5.left_boundary_contacts_impossible
+#print axioms Puzzling139335.N5.left_open_not_mem_of_top_right

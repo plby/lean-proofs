@@ -1,0 +1,10 @@
+import StackExchange.Puzzling139335.N6.TripleOppositeParity
+
+#print axioms Puzzling139335.N6.TripleOppositeParity.normalized_impossible
+#print axioms Puzzling139335.N6.TripleOppositeParity.normalized_reflected_middle_impossible
+#print axioms Puzzling139335.N6.TripleOppositeParity.normalized_middle_parity_impossible
+#print axioms Puzzling139335.N6.TripleOppositeParity.topVertex_not_mem
+#print axioms Puzzling139335.N6.TripleOppositeParity.SupportArms.direction_bounds
+#print axioms Puzzling139335.N6.TripleOppositeParity.SupportArms.sine_eq_zero_of_long_arm
+#print axioms Puzzling139335.N6.TripleOppositeParity.full_corner_arms_mem
+#print axioms Puzzling139335.N6.TripleOppositeParity.side_intervals_of_triangle_cover

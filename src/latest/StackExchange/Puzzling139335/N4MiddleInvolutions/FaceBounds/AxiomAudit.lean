@@ -1,0 +1,18 @@
+import StackExchange.Puzzling139335.N4MiddleInvolutions.FaceBounds
+
+namespace Puzzling139335.N4MiddleInvolutions.FaceBounds
+
+#print axioms no_unit_oblique_support_of_axis_symmetries
+#print axioms sum_abs_horizontal_span_le
+#print axioms sum_abs_vertical_span_le
+#print axioms sum_supporting_segment_lengths_le_box
+#print axioms card_unit_supporting_segments_le_three
+#print axioms supportingNormalsAtLeast_finite
+#print axioms unitSupportingNormals_finite_and_ncard_le_three
+#print axioms not_mem_unitSupportingNormals_of_snd_eq_zero
+#print axioms SupportsSegment.image_affineIsometry
+#print axioms SupportsSegment.convexHull
+#print axioms SupportsSegment.normal_coordinates_ne_zero_of_oblique
+#print axioms mem_supportingNormalsAtLeast_image_affineIsometry
+
+end Puzzling139335.N4MiddleInvolutions.FaceBounds

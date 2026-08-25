@@ -1,0 +1,15 @@
+import StackExchange.Puzzling139335.N4HalfLeg
+
+#print axioms Puzzling139335.N4HalfLeg.single_gap_owner_false
+#print axioms Puzzling139335.N4HalfLeg.left_halfleg_impossible_of_distinct_rows
+#print axioms Puzzling139335.N4OuterPair.Configuration.left_halfleg_not_mem
+#print axioms Puzzling139335.N4OuterPair.Configuration.right_halfleg_not_mem
+#print axioms Puzzling139335.N4OuterPair.Configuration.exists_side_contact_heights_strict
+
+#print axioms Puzzling139335.N4HalfLeg.normal_det_ne_zero
+#print axioms Puzzling139335.N4HalfLeg.SourceFace.lower_height_ge
+#print axioms Puzzling139335.N4HalfLeg.SourceFace.vertical_budget
+#print axioms Puzzling139335.N4HalfLeg.SourceFace.upper_height_le_lower_of_det_pos
+#print axioms Puzzling139335.N4HalfLeg.SourceFace.pair_vertical_budget
+#print axioms Puzzling139335.N4HalfLeg.SourceFace.not_length_ge
+#print axioms Puzzling139335.N4HalfLeg.SourceFace.not_total_length_ge

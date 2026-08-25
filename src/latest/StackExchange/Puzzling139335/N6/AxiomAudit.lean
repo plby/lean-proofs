@@ -1,0 +1,7 @@
+import StackExchange.Puzzling139335.N6
+
+#print axioms Puzzling139335.SquareDissection.not_hasProtectedCenter_of_six
+#print axioms Puzzling139335.SquareDissection.cornerIncidenceCount_ne_six
+#print axioms Puzzling139335.N6.triple_corner_impossible
+#print axioms Puzzling139335.N6.TwoDouble.two_double_corner_impossible
+#print axioms Puzzling139335.N6.TwoDouble.normalized_horizontal_impossible

@@ -1,0 +1,8 @@
+import StackExchange.Puzzling139335.RectangularHull.Normalization
+
+#print axioms Puzzling139335.RectangularHull.exists_sideBand_normalizing_isometry
+#print axioms Puzzling139335.RectangularHull.exists_piece_relabeling
+#print axioms Puzzling139335.RectangularHull.cornerless_image_square_isometry
+#print axioms Puzzling139335.RectangularHull.NormalizedOuterBands.of_opposite_hulls
+#print axioms Puzzling139335.RectangularHull.exists_normalized_outerBands_of_opposite_cornered_bands
+#print axioms Puzzling139335.RectangularHull.CommonFrames.exists_normalized_outerBands

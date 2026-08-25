@@ -1,0 +1,8 @@
+import StackExchange.Puzzling139335.DoubleCorner.RotationCone
+
+#print axioms Puzzling139335.DoubleCorner.interior_coord_le
+#print axioms Puzzling139335.DoubleCorner.not_mem_interior_of_diagonal_support
+#print axioms Puzzling139335.DoubleCorner.positive_rotation_support_and_center_exclusion
+#print axioms Puzzling139335.DoubleCorner.negative_rotation_support_and_center_exclusion
+#print axioms Puzzling139335.DoubleCorner.rotation45_support_and_center_exclusion
+#print axioms Puzzling139335.DoubleCorner.quarterTurn_square_fit_empty_interior

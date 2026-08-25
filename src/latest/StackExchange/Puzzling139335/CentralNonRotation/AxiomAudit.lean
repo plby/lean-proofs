@@ -1,0 +1,16 @@
+import StackExchange.Puzzling139335.CentralNonRotation
+
+namespace Puzzling139335
+
+#print axioms CentralNonRotation.square_translation_eq_twice_displacement
+#print axioms CentralNonRotation.pointReflection_conjugate_eq_symm_of_square_translation
+#print axioms CentralNonRotation.not_mem_interiors_of_central_square_translation
+#print axioms JordanCrosscut.closure_sides_outer_contact_finite
+#print axioms JordanCrosscut.center_mem_of_square_translation
+#print axioms JordanCrosscut.center_mem_of_involutive
+#print axioms JordanCrosscut.center_mem_of_translation
+#print axioms JordanCrosscut.center_mem_of_reversing
+#print axioms JordanCrosscut.center_mem_of_halfTurn
+#print axioms JordanCrosscut.center_mem_or_other_rotation
+
+end Puzzling139335

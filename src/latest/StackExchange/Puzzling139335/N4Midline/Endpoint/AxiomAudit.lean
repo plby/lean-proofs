@@ -1,0 +1,5 @@
+import StackExchange.Puzzling139335.N4Midline.Endpoint
+
+#print axioms Puzzling139335.N4Midline.eq_bottomMidpoint_of_mem_supportCone
+#print axioms Puzzling139335.N4Midline.cos_nonneg_of_bottom_cone_germ
+#print axioms Puzzling139335.N4Midline.endpoint_of_bottomMidpoint_mem

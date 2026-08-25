@@ -1,0 +1,10 @@
+import StackExchange.Puzzling139335.N6.TripleSectors.Angles.Congruence
+
+namespace Puzzling139335.N6.TripleSectors.Angles.Congruence
+
+#print axioms image_left_ray_of_boundary_germs
+#print axioms image_right_ray_of_boundary_germs
+#print axioms normalized_rays_match_of_region_congruence
+#print axioms angle_eq_of_region_congruence
+
+end Puzzling139335.N6.TripleSectors.Angles.Congruence

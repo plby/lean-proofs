@@ -1,0 +1,9 @@
+import StackExchange.Puzzling139335.N4Midline
+
+#print axioms Puzzling139335.N4Midline.reflected_pair_subset_left
+#print axioms Puzzling139335.N4Midline.corner_frame_coordinates
+#print axioms Puzzling139335.N4Midline.bottom_contact_finite_of_coordinate_faces
+#print axioms Puzzling139335.N4Midline.ordered_midpoint_forced
+#print axioms Puzzling139335.SquareDissection.false_of_upper_endpoint_reflected_pair
+#print axioms Puzzling139335.N4Midline.ordered_not_protected
+#print axioms Puzzling139335.N4Midline.normalized_midline_not_protected

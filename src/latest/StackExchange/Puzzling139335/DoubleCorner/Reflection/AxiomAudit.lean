@@ -1,0 +1,15 @@
+import StackExchange.Puzzling139335.DoubleCorner.Reflection
+
+/-! Axiom checks for the actual two-tile reflection argument. -/
+
+#print axioms Puzzling139335.DoubleCorner.Reflection.eq_diagonal_of_involutive_local_cover
+#print axioms Puzzling139335.DoubleCorner.Reflection.supports45_pair_of_diagonal
+#print axioms Puzzling139335.SquareDissection.involution_at_double_corner_preserves_square
+#print axioms Puzzling139335.SquareDissection.involution_at_double_corner_center_excluded
+#print axioms Puzzling139335.SquareDissection.reflection_at_double_corner_center_excluded
+#print axioms Puzzling139335.SquareDissection.involution_at_double_corner_zero
+#print axioms Puzzling139335.SquareDissection.involution_at_double_corner_zero_consequences
+#print axioms Puzzling139335.SquareDissection.reflection_at_double_corner_zero
+#print axioms Puzzling139335.SquareDissection.reflection_at_double_corner_zero_consequences
+#print axioms Puzzling139335.SquareDissection.reversing_coordinates_at_double_corner_zero
+#print axioms Puzzling139335.SquareDissection.reversing_coordinates_at_double_corner_zero_consequences

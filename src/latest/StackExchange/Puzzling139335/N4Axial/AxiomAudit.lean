@@ -1,0 +1,20 @@
+import StackExchange.Puzzling139335.N4Axial
+
+namespace Puzzling139335
+
+#print axioms SquareDissection.densityReal_sum_ae
+
+namespace N4OuterPair.Configuration
+
+#print axioms middle_density_sum_reflected_ae
+#print axioms middle_reflected_of_dihedral_translation_square
+#print axioms false_of_middle_dihedral_translation_square
+#print axioms middle_reflected_of_vertical_translation
+#print axioms false_of_middle_vertical_translation
+#print axioms middle_horizontal_reflection_parameter_eq_one
+#print axioms false_of_middle_horizontal_reflection
+#print axioms false_of_middle_right_contact_equal_first_rows
+#print axioms false_of_middle_equal_first_rows_of_source_right_contacts
+
+end N4OuterPair.Configuration
+end Puzzling139335

@@ -1,0 +1,13 @@
+import StackExchange.Puzzling139335.CentralRotation.FirstOverlap
+
+/-! Axiom audit of the actual boundary-subarc orbit and endpoint arguments. -/
+
+#print axioms Puzzling139335.CentralRotation.FirstOverlap.disjoint_of_disjoint_arc_interiors
+#print axioms Puzzling139335.CentralRotation.FirstOverlap.pairwise_disjoint_positive_images
+#print axioms Puzzling139335.CentralRotation.FirstOverlap.next_subset_gap
+#print axioms Puzzling139335.CentralRotation.FirstOverlap.exists_overlap_index
+#print axioms Puzzling139335.CentralRotation.FirstOverlap.exists_first_overlap_of_image_gap
+#print axioms Puzzling139335.CentralRotation.FirstOverlap.exists_first_overlap
+#print axioms Puzzling139335.CentralRotation.FirstOverlap.subarc_diff_isRelOpen_of_isJordanCurve
+#print axioms Puzzling139335.CentralRotation.FirstOverlap.disjoint_of_disjoint_arc_interiors_of_isJordanCurve
+#print axioms Puzzling139335.CentralRotation.FirstOverlap.subset_complement_of_disjoint_arc_interiors_of_isJordanCurve

@@ -1,0 +1,12 @@
+import StackExchange.Puzzling139335.N4Dispatch.OneCorner.Normalization
+
+open Puzzling139335.N4Dispatch.OneCorner.Normalization
+
+#print axioms reoriented_corners
+#print axioms reoriented_hasProtectedCenter
+#print axioms pair_maps_owned_corner
+#print axioms conjugate_eq_center_reflection_iff
+#print axioms no_center_reflection_pair_reoriented
+#print axioms exists_pair_normalizing_isometry
+#print axioms exists_normalized_pair
+#print axioms exists_normalized_pair_of_not_halfturn

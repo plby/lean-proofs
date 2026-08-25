@@ -1,0 +1,8 @@
+import StackExchange.Puzzling139335.SingletonBand
+
+#print axioms Puzzling139335.IsJordanRegion.eq_horizontalBand_of_mass_eq
+#print axioms Puzzling139335.SquareDissection.piece_eq_quarter_band
+#print axioms Puzzling139335.SquareDissection.piece_eq_lower_quarter_band
+#print axioms Puzzling139335.SquareDissection.piece_eq_upper_quarter_band
+#print axioms Puzzling139335.SquareDissection.singleton_lower_partition_eq_band
+#print axioms Puzzling139335.SquareDissection.singleton_upper_partition_eq_band

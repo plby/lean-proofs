@@ -1,0 +1,4 @@
+import StackExchange.Puzzling139335.RectangularHull.MixedBands
+
+#print axioms Puzzling139335.RectangularHull.bottom_left_contacts_impossible
+#print axioms Puzzling139335.RectangularHull.sideBand_hulls_same_or_opposite

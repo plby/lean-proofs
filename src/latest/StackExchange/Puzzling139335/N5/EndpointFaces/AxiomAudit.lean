@@ -1,0 +1,10 @@
+import StackExchange.Puzzling139335.N5.EndpointFaces
+
+#print axioms Puzzling139335.N5.prefix_height_bound_of_points
+#print axioms Puzzling139335.N5.prefix_face_impossible_of_points
+#print axioms Puzzling139335.N5.terminal_top_normal_excludes_center
+#print axioms Puzzling139335.N5.Normalized.terminal_top_normal_excludes_center
+#print axioms Puzzling139335.N5.base_column_sq_lt_one_of_positive_endpoints
+#print axioms Puzzling139335.N5.top_row_nonzero_of_positive_unit_base
+#print axioms Puzzling139335.N5.Normalized.remaining_top_row_nonzero
+#print axioms Puzzling139335.N5.Normalized.fourth_top_row_nonzero

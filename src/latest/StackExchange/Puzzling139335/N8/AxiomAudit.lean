@@ -1,0 +1,13 @@
+import StackExchange.Puzzling139335.N8
+
+open Puzzling139335.SquareDissection
+
+#print axioms Puzzling139335.N8.exists_three_types_and_all_pairs
+#print axioms Puzzling139335.N8.relativePlacement_preserves_square_of_pair_eq
+#print axioms Puzzling139335.N8.equilateral_side_hulls_of_three_types
+#print axioms Puzzling139335.N8.jordan_regions_no_three_common_boundary_points
+#print axioms Puzzling139335.N8.no_two_equilateral_side_hull_pieces
+#print axioms Puzzling139335.SquareDissection.side_subset_of_other_pieces_have_external_corner
+#print axioms Puzzling139335.N8.eq_triangle_of_three_segments
+#print axioms Puzzling139335.N8.no_dissection_of_three_side_pairs
+#print axioms not_hasProtectedCenter_of_eight_incidences_of_le_three_types

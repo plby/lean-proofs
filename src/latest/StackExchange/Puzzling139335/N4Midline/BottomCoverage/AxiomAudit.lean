@@ -1,0 +1,6 @@
+import StackExchange.Puzzling139335.N4Midline.BottomCoverage
+
+#print axioms Puzzling139335.N4Midline.mapsTo_Icc_of_finite_exceptions
+#print axioms Puzzling139335.N4Midline.bottom_interval_subset_of_finite_contacts
+#print axioms Puzzling139335.SquareDissection.bottom_left_subset_piece_of_finite_contacts
+#print axioms Puzzling139335.SquareDissection.bottom_right_subset_piece_of_finite_contacts

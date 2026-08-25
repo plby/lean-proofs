@@ -1,0 +1,11 @@
+import StackExchange.Puzzling139335.CentralRotation.RotationAlgebra
+
+namespace Puzzling139335.CentralRotation.RotationAlgebra
+
+#print axioms direct_eq_refl_of_two_fixed
+#print axioms direct_eq_pointReflection_of_fixed_of_swap
+#print axioms direct_iterate_eq_id_of_fixed
+#print axioms overlap_halfTurn_algebra
+#print axioms first_overlap_forces_center_mem
+
+end Puzzling139335.CentralRotation.RotationAlgebra

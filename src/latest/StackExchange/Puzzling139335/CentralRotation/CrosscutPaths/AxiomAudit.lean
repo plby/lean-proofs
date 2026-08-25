@@ -1,0 +1,6 @@
+import StackExchange.Puzzling139335.CentralRotation.CrosscutPaths
+
+#print axioms Puzzling139335.JordanCrosscut.exists_crosscutPaths
+#print axioms Puzzling139335.JordanCrosscut.exists_boundaryCoordinates
+#print axioms Puzzling139335.CentralRotation.CrosscutPaths.Data.fA_injective
+#print axioms Puzzling139335.CentralRotation.CrosscutPaths.Data.fA_eq_fB_on_crosscut

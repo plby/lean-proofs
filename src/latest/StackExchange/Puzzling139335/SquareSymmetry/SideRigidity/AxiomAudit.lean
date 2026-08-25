@@ -1,0 +1,6 @@
+import StackExchange.Puzzling139335.SquareSymmetry.SideRigidity
+
+#print axioms Puzzling139335.SquareSymmetry.normalized_side_coordinate_form
+#print axioms Puzzling139335.SquareSymmetry.side_rigidity_of_adjacent_images
+#print axioms Puzzling139335.SquareSymmetry.side_rigidity_unordered
+#print axioms Puzzling139335.SquareSymmetry.center_fixed_of_side_endpoints

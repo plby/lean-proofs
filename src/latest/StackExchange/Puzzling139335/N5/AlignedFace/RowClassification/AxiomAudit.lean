@@ -1,0 +1,8 @@
+import StackExchange.Puzzling139335.N5.AlignedFace.RowClassification
+
+#print axioms Puzzling139335.N5.AlignedFace.linearMatrix_forms_of_second_row
+#print axioms Puzzling139335.N5.AlignedFace.first_row_forms_of_second_row
+#print axioms Puzzling139335.N5.AlignedFace.affine_forms_of_second_row
+#print axioms Puzzling139335.N5.AlignedFace.vertical_offset_eq_of_top_contacts
+#print axioms Puzzling139335.N5.AlignedFace.aligned_affine_forms_of_top_contacts
+#print axioms Puzzling139335.N5.AlignedFace.exists_aligned_affine_form_of_top_contacts

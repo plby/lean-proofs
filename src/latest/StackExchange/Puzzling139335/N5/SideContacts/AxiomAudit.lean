@@ -1,0 +1,13 @@
+import StackExchange.Puzzling139335.N5.SideContacts
+
+#print axioms Puzzling139335.N5.Normalized.remainder_isConnected_compl
+#print axioms Puzzling139335.N5.Normalized.remainder_isConnected_interior
+#print axioms Puzzling139335.N5.Normalized.remainder_jordan
+#print axioms Puzzling139335.N5.Normalized.remainder_jordanCrosscut
+#print axioms Puzzling139335.N5.Normalized.outer_union_isConnected_interior
+#print axioms Puzzling139335.N5.Normalized.outer_union_isConnected_compl
+#print axioms Puzzling139335.N5.Normalized.outer_inter_isConnected
+#print axioms Puzzling139335.N5.Normalized.exists_right_contact_interval
+#print axioms Puzzling139335.N5.Normalized.exists_diagonal_contact_interval
+#print axioms Puzzling139335.N5.Normalized.exists_side_contact_parameters
+#print axioms Puzzling139335.N5.Normalized.exists_exact_side_contact_sets

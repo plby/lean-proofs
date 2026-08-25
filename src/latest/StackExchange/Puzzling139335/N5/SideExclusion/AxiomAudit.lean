@@ -1,0 +1,9 @@
+import StackExchange.Puzzling139335.N5.SideExclusion
+
+#print axioms Puzzling139335.N5.exists_interior_strict_support_in_ball
+#print axioms Puzzling139335.N5.supporting_segment_hasInteriorHalfBall
+#print axioms Puzzling139335.N5.openSegment_not_mem_of_same_supporting_halfspace
+#print axioms Puzzling139335.N5.bottom_open_not_mem_of_bottom_segment
+#print axioms Puzzling139335.N5.left_open_not_mem_of_left_segment
+#print axioms Puzzling139335.N5.bottom_open_owner_iff
+#print axioms Puzzling139335.N5.Normalized.remaining_coordinates_pos

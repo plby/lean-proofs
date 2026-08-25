@@ -1,0 +1,8 @@
+import StackExchange.Puzzling139335.N4Diagonal
+
+#print axioms Puzzling139335.SquareDissection.not_hasProtectedCenter_of_one_corner_antiDiagonal_pair
+#print axioms Puzzling139335.N4Diagonal.Model.center_not_mem_interior
+#print axioms Puzzling139335.N4Diagonal.Model.angles_are_endpoints
+#print axioms Puzzling139335.N4Diagonal.Model.assignment_two_angles
+#print axioms Puzzling139335.N4Diagonal.Model.reflect
+#print axioms Puzzling139335.N4Diagonal.exists_model_of_actual_pair

@@ -1,0 +1,9 @@
+import StackExchange.Puzzling139335.N5.SideExclusion.Normalized
+
+#print axioms Puzzling139335.N5.Normalized.remaining_corner_eq_top_right
+#print axioms Puzzling139335.N5.Normalized.remaining_not_mem_corner
+#print axioms Puzzling139335.N5.Normalized.bottom_side_disjoint_remaining
+#print axioms Puzzling139335.N5.Normalized.left_side_disjoint_remaining
+#print axioms Puzzling139335.N5.Normalized.remaining_coordinates_pos
+#print axioms Puzzling139335.N5.Normalized.piece_two_coordinates_pos
+#print axioms Puzzling139335.N5.Normalized.piece_three_coordinates_pos

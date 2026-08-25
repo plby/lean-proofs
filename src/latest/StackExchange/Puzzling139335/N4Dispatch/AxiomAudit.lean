@@ -1,0 +1,12 @@
+import StackExchange.Puzzling139335.N4Dispatch
+
+#print axioms Puzzling139335.N4Dispatch.OneCorner.exists_repeated_type
+#print axioms Puzzling139335.N4Dispatch.OneCorner.exists_square_corner_pair
+#print axioms Puzzling139335.N4Dispatch.OneCorner.bottom_corner_map_forms
+#print axioms Puzzling139335.N4Dispatch.OneCorner.opposite_corner_map_forms
+#print axioms Puzzling139335.N4Dispatch.OneCorner.midline_corner_preimages_distinct
+#print axioms Puzzling139335.N4Dispatch.OneCorner.midline_pair_not_protected
+#print axioms Puzzling139335.N4Dispatch.OneCorner.halfTurn_pair_of_labeled_corners
+#print axioms Puzzling139335.N4Dispatch.OneCorner.halfTurn_pair_of_each_tile_one
+#print axioms Puzzling139335.N4Dispatch.OneCorner.not_hasProtectedCenter_of_each_tile_one
+#print axioms Puzzling139335.N4Dispatch.exists_outerPair_of_four_incidences

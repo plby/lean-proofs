@@ -1,0 +1,6 @@
+import StackExchange.Puzzling139335.N4Midline.EndpointMass
+
+#print axioms Puzzling139335.SquareDissection.false_of_two_pieces_in_left_half
+#print axioms Puzzling139335.SquareDissection.false_of_upperLeft_endpoint_coordinates
+#print axioms Puzzling139335.SquareDissection.false_of_upperLeft_endpoint
+#print axioms Puzzling139335.SquareDissection.false_of_upper_endpoint_reflected_pair

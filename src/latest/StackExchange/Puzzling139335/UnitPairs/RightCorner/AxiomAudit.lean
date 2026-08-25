@@ -1,0 +1,5 @@
+import StackExchange.Puzzling139335.UnitPairs.RightCorner
+
+#print axioms Puzzling139335.UnitPairs.IsFullSquareCorner.dist_sq_two_of_unit_partners
+#print axioms Puzzling139335.UnitPairs.unit_partners_eq_of_protected_center
+#print axioms Puzzling139335.UnitPairs.unit_partners_eq_of_placement

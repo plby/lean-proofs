@@ -1,0 +1,4 @@
+import StackExchange.Puzzling139335.N5.BottomSide
+
+#print axioms Puzzling139335.N5.bottom_segment_subset_of_diagonal_pair
+#print axioms Puzzling139335.N5.bottom_left_segments_subset_of_diagonal_pair

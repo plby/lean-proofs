@@ -1,0 +1,9 @@
+import StackExchange.Puzzling139335.N4MiddleInvolutions.HalfTurn
+
+#print axioms Puzzling139335.N4MiddleInvolutions.eq_of_pointReflection_maps
+#print axioms Puzzling139335.N4MiddleInvolutions.middleUnion_jordan_of_involution
+#print axioms Puzzling139335.N4MiddleInvolutions.HalfTurn.center_mem_common
+#print axioms Puzzling139335.N4MiddleInvolutions.HalfTurn.exists_left_source
+#print axioms Puzzling139335.N4MiddleInvolutions.HalfTurn.upper_coordinate_lt_quarter
+#print axioms Puzzling139335.N4MiddleInvolutions.HalfTurn.false_of_left_source
+#print axioms Puzzling139335.N4MiddleInvolutions.halfTurn_middle_impossible

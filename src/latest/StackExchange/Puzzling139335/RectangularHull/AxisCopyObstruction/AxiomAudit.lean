@@ -1,0 +1,8 @@
+import StackExchange.Puzzling139335.RectangularHull.AxisCopyObstruction
+
+/-! # Axiom audit for the axis-aligned copy obstruction -/
+
+#print axioms Puzzling139335.RectangularHull.quarter_horizontal_segment_forces_height_and_convex
+#print axioms Puzzling139335.RectangularHull.normalized_axis_quarter_copy_center_frontier
+#print axioms Puzzling139335.RectangularHull.normalized_middle_horizontal_axis_impossible
+#print axioms Puzzling139335.RectangularHull.normalized_axis_copy_impossible

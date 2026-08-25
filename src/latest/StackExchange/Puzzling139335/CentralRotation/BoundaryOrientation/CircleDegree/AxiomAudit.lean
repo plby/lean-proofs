@@ -1,0 +1,19 @@
+import StackExchange.Puzzling139335.CentralRotation.BoundaryOrientation.CircleDegree
+
+namespace Puzzling139335.CentralRotation.BoundaryOrientation.CircleDegree
+
+#print axioms displacement_eq_sub_of_lift
+#print axioms displacement_trans
+#print axioms displacement_reverse
+#print axioms displacement_add_const
+#print axioms displacement_boundary_gluing
+#print axioms displacement_slice_eq
+#print axioms displacement_eq_zero_iff_homotopicRel_const
+#print axioms displacement_map
+#print axioms degree_eq_int
+#print axioms degree_comp
+#print axioms degree_eq_of_homotopy
+#print axioms degree_homeomorph_eq_one_or_neg_one
+#print axioms exists_decreasing_lift_of_degree_neg
+
+end Puzzling139335.CentralRotation.BoundaryOrientation.CircleDegree

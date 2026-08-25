@@ -1,0 +1,5 @@
+import StackExchange.Puzzling139335.CentralRotation.LocalInvariantArc
+
+#print axioms Puzzling139335.CentralRotation.exists_invariant_subarc
+#print axioms Puzzling139335.CentralRotation.exists_invariant_arc_component
+#print axioms Schoenflies.IsArcBetween.exists_isArcBetween_compact_connected_neighborhood

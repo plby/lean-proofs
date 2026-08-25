@@ -1,0 +1,7 @@
+import StackExchange.Puzzling139335.N6.TripleEqualParity
+
+#print axioms Puzzling139335.N6.TripleEqualParity.no_equal_legs_in_low_strip
+#print axioms Puzzling139335.N6.TripleEqualParity.endpoints_of_dist_sq_eq_diagonal
+#print axioms Puzzling139335.N6.TripleEqualParity.no_congruent_forced_triangle
+#print axioms Puzzling139335.N6.TripleEqualParity.normalized_bounds_impossible
+#print axioms Puzzling139335.N6.TripleEqualParity.normalized_equal_parity_impossible

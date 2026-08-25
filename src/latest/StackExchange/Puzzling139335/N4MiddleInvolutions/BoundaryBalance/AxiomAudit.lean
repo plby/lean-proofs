@@ -1,0 +1,11 @@
+import StackExchange.Puzzling139335.N4MiddleInvolutions.BoundaryBalance
+
+open Puzzling139335.N4MiddleInvolutions.BoundaryBalance
+
+#print axioms boundaryArcSum_signed_identity
+#print axioms pairArcSum_balance_abs_le
+#print axioms outer_pairArcSum_lower_of_occurrences
+#print axioms middle_exterior_pairArcSum_le
+#print axioms two_contact_sum_le_segment_length
+#print axioms middle_interface_not_subset_segment_of_full_left_arm
+#print axioms middle_interface_not_subset_segment_of_full_right_arm

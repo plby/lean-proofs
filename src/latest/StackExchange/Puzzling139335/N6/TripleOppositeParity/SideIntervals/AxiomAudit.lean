@@ -1,0 +1,14 @@
+import StackExchange.Puzzling139335.N6.TripleOppositeParity.SideIntervals
+import StackExchange.Puzzling139335.N6.TripleOppositeParity.SideIntervals.Exceptional
+
+#print axioms Puzzling139335.N6.TripleOppositeParity.right_contact_downward
+#print axioms Puzzling139335.N6.TripleOppositeParity.right_contact_interval
+#print axioms Puzzling139335.N6.TripleOppositeParity.terminal_interval_of_initial_cover
+#print axioms Puzzling139335.N6.TripleOppositeParity.opposite_pair_side_intervals
+#print axioms Puzzling139335.N6.TripleOppositeParity.side_intervals_of_triangle_cover
+#print axioms Puzzling139335.N6.TripleOppositeParity.right_segment_of_terminal_interval
+#print axioms Puzzling139335.N6.TripleOppositeParity.top_segment_of_terminal_interval
+#print axioms Puzzling139335.N6.TripleOppositeParity.SideIntervals.left_endpoints_strict_contact_impossible
+#print axioms Puzzling139335.N6.TripleOppositeParity.SideIntervals.bottom_endpoints_strict_contact_impossible
+#print axioms Puzzling139335.N6.TripleOppositeParity.SideIntervals.swappedPlacement_impossible
+#print axioms Puzzling139335.N6.TripleOppositeParity.SideIntervals.straightPlacement_impossible

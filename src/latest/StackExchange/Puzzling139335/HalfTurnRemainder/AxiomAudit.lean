@@ -1,0 +1,15 @@
+import StackExchange.Puzzling139335.HalfTurnRemainder
+
+/-! # Kernel audit of the complete actual half-turn remainder reduction -/
+
+#print axioms Puzzling139335.SquareDissection.pair_remainder_eq_closure
+#print axioms Puzzling139335.SquareDissection.pair_remainder_pointReflection
+#print axioms Puzzling139335.SquareDissection.pair_remainder_isConnected_interior
+#print axioms Puzzling139335.HalfTurnRemainder.no_bounded_invariant_complement_component
+#print axioms Puzzling139335.HalfTurnRemainder.boundaryArcSum_bounds
+#print axioms Puzzling139335.HalfTurnRemainder.two_hole_components_impossible
+#print axioms Puzzling139335.SquareDissection.pair_remainder_no_holes
+#print axioms Puzzling139335.SquareDissection.pair_remainder_isConnected_compl
+#print axioms Puzzling139335.HalfTurnRemainder.jordan_union_of_connected_interior_compl
+#print axioms Puzzling139335.SquareDissection.pair_remainder_jordan
+#print axioms Puzzling139335.SquareDissection.reindexed_pair_remainder_jordan

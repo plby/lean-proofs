@@ -1,0 +1,9 @@
+import StackExchange.Puzzling139335.TranslationCancellation
+
+/-! Kernel-dependency audit of translation and glide cancellation. -/
+
+#print axioms Puzzling139335.finite_measure_eq_zero_of_measurePreserving_add
+#print axioms Puzzling139335.integrable_eq_zero_of_ae_add_invariant
+#print axioms Puzzling139335.integrable_eq_zero_of_ae_add_comp_affineIsometry
+#print axioms Puzzling139335.dihedral_density_cancellation
+#print axioms Puzzling139335.IsJordanRegion.image_eq_of_dihedral_union_symmetry_of_finite

@@ -1,0 +1,9 @@
+import StackExchange.Puzzling139335.CentralNonRotation.CutData
+
+#print axioms Puzzling139335.JordanCrosscut.closure_sides_disjoint_interiors
+#print axioms Puzzling139335.JordanCrosscut.closure_sides_outer_contact_eq
+#print axioms Puzzling139335.JordanCrosscut.closure_sides_outer_contact_finite
+#print axioms Puzzling139335.JordanCrosscut.closure_sides_pointReflection_image_union
+#print axioms Puzzling139335.JordanCrosscut.center_mem_inside_of_pointReflection
+#print axioms Puzzling139335.JordanCrosscut.center_mem_interior_union
+#print axioms Puzzling139335.JordanCrosscut.center_mem_cut_of_not_mem_sides

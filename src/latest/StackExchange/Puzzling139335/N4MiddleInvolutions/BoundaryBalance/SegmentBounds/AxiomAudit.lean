@@ -1,0 +1,18 @@
+import StackExchange.Puzzling139335.N4MiddleInvolutions.BoundaryBalance.SegmentBounds.PairArcSum
+
+/-! Kernel-dependency audit of the actual segment and arc-sum bounds. -/
+
+namespace Puzzling139335.N4MiddleInvolutions.BoundaryBalance
+
+#print axioms variationOn_lineMap_le_dist
+#print axioms arcVariation_segment_le_dist
+#print axioms dist_sub_le_arcVariation_segment
+#print axioms arc_eq_segment_of_subset_segment
+#print axioms sum_dist_le_of_disjoint_openSegments
+#print axioms arcVariation_le_dist_of_subset_segment
+#print axioms sum_arcVariation_le_dist_of_subset_segment
+#print axioms selected_arcVariation_sum_le_dist
+#print axioms pairArcSum_le_dist_of_subset_segment
+#print axioms pairArcSum_le_dist_of_inter_subset_segment
+
+end Puzzling139335.N4MiddleInvolutions.BoundaryBalance

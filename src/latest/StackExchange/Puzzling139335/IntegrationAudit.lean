@@ -1,0 +1,45 @@
+import StackExchange.Puzzling139335
+
+/-!
+# Kernel audit of the complete impossibility proof
+
+These commands audit the actual final theorem and its components, rather
+than an assumed certificate or the proposition naming the goal.
+-/
+
+#print axioms Puzzling139335.square_center_theorem
+#print axioms Puzzling139335.SquareDissection.not_hasProtectedCenter
+#print axioms Puzzling139335.SquareDissection.center_ball_not_subset_piece
+#print axioms Puzzling139335.SquareDissection.center_mem_two_frontiers
+#print axioms Puzzling139335.N5.Prepared.impossible
+#print axioms Puzzling139335.SquareDissection.not_hasProtectedCenter_of_five
+#print axioms Puzzling139335.congruent_iff_isometryEquiv
+#print axioms Puzzling139335.SquareDissection.no_diameter_pair
+#print axioms Puzzling139335.SquareDissection.usedCornerTypes_card_le_four
+#print axioms Puzzling139335.SquareDissection.hasRectangularHull_of_four_usedCornerTypes
+#print axioms Puzzling139335.SquareDissection.not_protectedCenter_of_rectangular_hull
+#print axioms Puzzling139335.SquareDissection.usedCornerTypes_card_le_three
+#print axioms Puzzling139335.SquareDissection.not_hasProtectedCenter_of_eight_incidences
+#print axioms Puzzling139335.SquareDissection.tileCornerCount_eq_of_square_congruence
+#print axioms Puzzling139335.SquareDissection.center_owner_type_unique_of_four_incidences
+#print axioms Puzzling139335.SquareDissection.piece_weightedMass_eq_quarter
+#print axioms Puzzling139335.SquareDissection.not_hasProtectedCenter_of_quarterTurn_pair
+#print axioms Puzzling139335.JordanCrosscut.center_mem_of_congruent_sides
+#print axioms Puzzling139335.SquareDissection.not_hasProtectedCenter_of_halfTurn_pair
+#print axioms Puzzling139335.SquareDissection.same_intrinsic_double_corner
+#print axioms Puzzling139335.N4Midline.normalized_midline_not_protected
+#print axioms Puzzling139335.SquareDissection.not_hasProtectedCenter_of_one_corner_antiDiagonal_pair
+#print axioms Puzzling139335.N4TwoOneOne.Configuration.not_protectedCenter
+#print axioms Puzzling139335.N4OuterPair.Configuration.middle_inter_nontrivial_of_protected
+#print axioms Puzzling139335.N4OuterPair.Configuration.not_protectedCenter
+#print axioms Puzzling139335.SquareDissection.not_hasProtectedCenter_of_four_incidences
+#print axioms Puzzling139335.SquareDissection.not_hasProtectedCenter_of_seven_incidences
+#print axioms Puzzling139335.SquareDissection.remaining_incidence_cases_five_six
+#print axioms Puzzling139335.N6.triple_corner_impossible
+#print axioms Puzzling139335.SquareDissection.not_hasProtectedCenter_of_six
+#print axioms Puzzling139335.SquareDissection.remaining_incidence_case_five
+#print axioms Puzzling139335.SquareDissection.exists_prepared_of_protected_center
+#print axioms Puzzling139335.SquareDissection.not_hasProtectedCenter_of_three_square_symmetry_copies
+#print axioms Puzzling139335.common_cut_endpoints_antipodal
+#print axioms Puzzling139335.SourceFaceBridge.UpperSupportedSource.not_disjoint_interiors
+#print axioms Puzzling139335.N7Geometry.no_normalized_dissection

@@ -1,0 +1,6 @@
+import StackExchange.Puzzling139335.QuadrantMass
+
+#print axioms Puzzling139335.QuadrantMass.lintegral_foldedDensity
+#print axioms Puzzling139335.QuadrantMass.container_subset_union_of_folded_mass
+#print axioms Puzzling139335.SquareDissection.upperLeftQuarter_subset_pair_of_rotated_copy
+#print axioms Puzzling139335.SquareDissection.false_of_rotated_quadrant_pair

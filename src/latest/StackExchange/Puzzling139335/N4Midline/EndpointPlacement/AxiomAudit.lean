@@ -1,0 +1,6 @@
+import StackExchange.Puzzling139335.N4Midline.EndpointPlacement
+
+#print axioms Puzzling139335.N4Midline.endpoint_frameCoordinates_zero
+#print axioms Puzzling139335.N4Midline.endpoint_frameCoordinates_one
+#print axioms Puzzling139335.N4Midline.endpoint_upperLeft_coordinates
+#print axioms Puzzling139335.N4Midline.endpoint_upperLeft_form

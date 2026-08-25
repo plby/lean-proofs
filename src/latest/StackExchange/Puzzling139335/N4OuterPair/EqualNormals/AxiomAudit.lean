@@ -1,0 +1,17 @@
+import StackExchange.Puzzling139335.N4OuterPair.EqualNormals
+
+/-! Dependency audit for the complete actual equal-source-normal obstruction. -/
+
+#print axioms
+  Puzzling139335.SourceFaceBridge.UpperSupportedSource.support_levels_eq_of_equal_normals
+#print axioms
+  Puzzling139335.SourceFaceBridge.UpperSupportedSource.leftProper_coordinates_of_equal_normals
+#print axioms
+  Puzzling139335.SourceFaceBridge.UpperSupportedSource.leftGlide_coordinates_of_equal_normals
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.actualRelative_image
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.actualRelative_proper_coordinates
+#print axioms Puzzling139335.N4OuterPair.EqualNormals.actualRelative_glide_coordinates
+#print axioms Puzzling139335.N4OuterPair.Configuration.false_of_proper_equal_source_normals
+#print axioms Puzzling139335.N4OuterPair.Configuration.false_of_glide_equal_source_normals
+#print axioms Puzzling139335.N4OuterPair.Configuration.false_of_equal_source_normals
+#print axioms Puzzling139335.N4OuterPair.Configuration.source_normals_ne

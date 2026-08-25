@@ -1,0 +1,4 @@
+import StackExchange.Puzzling139335.N5.OutgoingAlignedFace
+
+#print axioms Puzzling139335.N5.OutgoingAlignedFace.top_of_right_contact
+#print axioms Puzzling139335.N5.Prepared.outgoing_aligned_impossible

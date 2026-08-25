@@ -45,6 +45,8 @@ lean_lib MathOverflow
 
 lean_lib PrimeNumberTheoremAnd
 
+lean_lib StackExchange
+
 lean_lib Util
 
 lean_lib UnitFractions

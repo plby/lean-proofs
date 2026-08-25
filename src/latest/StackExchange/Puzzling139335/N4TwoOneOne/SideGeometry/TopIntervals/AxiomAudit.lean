@@ -1,0 +1,5 @@
+import StackExchange.Puzzling139335.N4TwoOneOne.SideGeometry.TopIntervals
+
+#print axioms Puzzling139335.N4TwoOneOne.rightMap_outgoingEnd
+#print axioms Puzzling139335.N4TwoOneOne.SourceData.exists_top_contact_intervals
+#print axioms Puzzling139335.N4TwoOneOne.SourceData.exists_top_geometry
