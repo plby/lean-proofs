@@ -1,6 +1,6 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 
-import Mathlib
+import Mathlib.Analysis.Normed.Affine.Isometry
 import Wikipedia.SchoenfliesTheorem.CrosscutCells
 
 open Set
