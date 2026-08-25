@@ -8,7 +8,6 @@
   "permitted_axioms": [
     "propext",
     "Classical.choice",
-    "Pollack17.theorem_1_3",
     "Quot.sound"
   ],
   "enable_nanoda": true
