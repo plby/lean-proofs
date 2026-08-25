@@ -5,7 +5,7 @@ This is a Lean formalization of a solution to Erdős Problem 1138.
 https://www.erdosproblems.com/forum/thread/1138
 
 Formalization status:
-- Partial
+- Unconditional; disproves the assertion that A(C) holds for every fixed C > 1.
 
 Informal authors:
 - Hrishi Sunder
@@ -431,7 +431,7 @@ theorem not_erdos_1138 : ¬(∀ C : ℝ, 1 < C → AsymptoticA C) := by
     ⟨h 2 (by norm_num), h (9/4) (by norm_num)⟩
 
 #print axioms not_erdos_1138
--- 'Erdos1138.erdos1138_corollary' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos1138.not_erdos_1138' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1138
 

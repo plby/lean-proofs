@@ -4,7 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 418.
 https://www.erdosproblems.com/forum/thread/418
 
 Formalization status:
-- Conditional on: computation_lemma_check._native.native_decide.ax_1_1
+- Unconditional; the final theorem uses only Lean's standard axioms.
 
 Informal authors:
 - Jerzy Browkin
