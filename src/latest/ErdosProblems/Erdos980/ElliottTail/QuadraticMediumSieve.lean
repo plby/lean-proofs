@@ -8,9 +8,9 @@ import ErdosProblems.Erdos980.External.Erdos380.AntiSieve
 import ErdosProblems.Erdos387.CongruenceCounting
 import ErdosProblems.Erdos980.External.Erdos387.FiniteBetaSieveBridge
 import ErdosProblems.Erdos980.External.Erdos387.GeneralBetaMainTerm
-import ErdosProblems.Erdos980.External.Erdos822.MertensUpper
-import ErdosProblems.Erdos980.External.Erdos822.SieveErrorAverage
-import ErdosProblems.Erdos980.External.Erdos822.SlowCutoffLog
+import ErdosProblems.Erdos822.MertensUpper
+import ErdosProblems.Erdos822.SieveErrorAverage
+import ErdosProblems.Erdos822.SlowCutoffLog
 import ErdosProblems.Erdos851.ConcreteBetaCardinality
 import ErdosProblems.Erdos851.EndpointBridge
 import ErdosProblems.Erdos851.SieveSpecialization

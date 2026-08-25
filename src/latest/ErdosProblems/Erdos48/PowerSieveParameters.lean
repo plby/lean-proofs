@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import ErdosProblems.Erdos48.BadRootIncidence
-import ErdosProblems.Erdos48.External.Erdos822.PrimeReciprocal
+import ErdosProblems.Erdos822.PrimeReciprocal
 
 /-!
 # Integer-power parameters for the shifted-smooth sieve

@@ -8,7 +8,7 @@ import BoundedGaps.PrimeNumberTheorem.Analytic.PrimeCounting
 import BoundedGaps.BombieriVinogradov.Analytic.AdditiveLargeSieve.CharacterLargeSieve
 import ErdosProblems.Erdos981.External.Erdos439.Main
 import ErdosProblems.Erdos888.SquarePart
-import ErdosProblems.Erdos981.External.Erdos822.FiniteEnergy
+import ErdosProblems.Erdos822.FiniteEnergy
 import ErdosProblems.Erdos387.AnalyticInputs
 import ErdosProblems.Erdos981.External.Erdos980.Assembly
 import ErdosProblems.Erdos981.External.Erdos980.ElliottTail.Burgess

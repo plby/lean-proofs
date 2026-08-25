@@ -17,7 +17,7 @@ import Mathlib.Tactic.Ring
 import ErdosProblems.Erdos240.Analytic
 import ErdosProblems.Erdos240.BakerSourceAssemblyIndependent
 import ErdosProblems.Erdos240.BakerSourceFinalAssemblyIndependent
-import ErdosProblems.Erdos240.External.Erdos822.PrimeIntervals
+import ErdosProblems.Erdos822.PrimeIntervals
 
 /-!
 # Erdős Problem 240

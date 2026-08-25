@@ -14,7 +14,7 @@ URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos356.md
 -/
 import Mathlib
-import ErdosProblems.Erdos356.External.Erdos822.FiniteEnergy
+import ErdosProblems.Erdos822.FiniteEnergy
 
 /-!
 # Erdős Problem 356

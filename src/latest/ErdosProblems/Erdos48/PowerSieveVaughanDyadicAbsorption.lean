@@ -5,7 +5,7 @@ Authors: OpenAI Codex
 -/
 import ErdosProblems.Erdos48.PowerSieveVaughanBudgetAbsorption
 import ErdosProblems.Erdos48.PowerSieveDyadicBadRoots
-import ErdosProblems.Erdos48.External.Erdos822.PrimeIntervals
+import ErdosProblems.Erdos822.PrimeIntervals
 
 /-!
 # Vaughan-budget-free dyadic power-sieve bounds
