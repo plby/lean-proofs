@@ -19,9 +19,10 @@ import ErdosProblems.Erdos1058.Erdos1058BugeaudLaurentProof
 /-!
 # Erdős Problem 1058
 
-This file combines the finite certificate development with the specialized
-Bugeaud--Laurent interpolation-determinant estimate.  The module split keeps
-both substantial kernel checks within Lean's ordinary default resource limits.
+This file combines batched primality and periodic cubic-character certificates
+with the specialized Bugeaud--Laurent interpolation-determinant estimate.
+The certificates share their mathematical work across cases and use only
+kernel-checked arithmetic, without compiled-evaluation axioms.
 -/
 
 noncomputable section

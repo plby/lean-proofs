@@ -1,299 +1,23 @@
 import ErdosProblems.Erdos1058.Erdos1058Core
-import ErdosProblems.Erdos1058.Erdos1058PrimeGap210
-import ErdosProblems.Erdos1058.Erdos1058GapCertificateSingle
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate2
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate4
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate6
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate8
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate10
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate12
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate14
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate16
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate18
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate20
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate22
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate24
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate26
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate28
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate30
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate32
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate34
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate36
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate38
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate40
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate42
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate44
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate46
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate48
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate50
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate52
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate54
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate56
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate58
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate60
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate62
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate64
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate66
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate68
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate70
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate72
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate74
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate76
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate78
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate80
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate82
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate84
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate86
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate88
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate90
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate92
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate94
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate96
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate98
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate100
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate102
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate104
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate106
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate108
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate110
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate112
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate114
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate116
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate118
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate120
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate122
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate124
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate126
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate128
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate130
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate132
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate134
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate136
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate138
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate140
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate142
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate144
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate146
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate148
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate150
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate152
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate154
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate156
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate158
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate160
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate162
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate164
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate166
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate168
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate170
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate172
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate174
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate176
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate178
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate180
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate182
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate184
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate186
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate188
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate190
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate192
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate194
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate196
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate198
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate200
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate202
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate204
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate206
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate208
-import ErdosProblems.Erdos1058.Erdos1058GapCertificate210
+import ErdosProblems.Erdos1058.Erdos1058PrimeGapBatch210
+import ErdosProblems.Erdos1058.Erdos1058PeriodicCertificates
+import Mathlib.Data.Nat.Choose.Factorization
+import Mathlib.Data.Nat.Factorization.Basic
+import Mathlib.Data.Nat.PrimeFin
+import Mathlib.FieldTheory.Finite.Basic
+import Mathlib.NumberTheory.Chebyshev
+import Mathlib.NumberTheory.Harmonic.Bounds
+import Mathlib.NumberTheory.Multiplicity
+import Mathlib.NumberTheory.PrimesCongruentOne
+import Mathlib.Analysis.SpecialFunctions.Stirling
+import Mathlib.Analysis.Real.Pi.Bounds
+import Mathlib.Analysis.Calculus.Deriv.MeanValue
 
 namespace Erdos1058
 
 open Nat
 
 noncomputable section
-
-theorem cubicCRTSearchGapCheck_eq_true_of_even_le_210 {d : ℕ}
-    (hpos : 0 < d) (hle : d ≤ 210) (heven : d % 2 = 0) :
-    cubicCRTSearchGapCheck d = true := by
-  interval_cases d <;>
-    norm_num at hpos heven
-  all_goals simp only [cubicCRTSearchGapCheck_two_eq_true, cubicCRTSearchGapCheck_4_eq_true, cubicCRTSearchGapCheck_6_eq_true, cubicCRTSearchGapCheck_8_eq_true, cubicCRTSearchGapCheck_10_eq_true, cubicCRTSearchGapCheck_12_eq_true, cubicCRTSearchGapCheck_14_eq_true, cubicCRTSearchGapCheck_16_eq_true, cubicCRTSearchGapCheck_18_eq_true, cubicCRTSearchGapCheck_20_eq_true, cubicCRTSearchGapCheck_22_eq_true, cubicCRTSearchGapCheck_24_eq_true, cubicCRTSearchGapCheck_26_eq_true, cubicCRTSearchGapCheck_28_eq_true, cubicCRTSearchGapCheck_30_eq_true, cubicCRTSearchGapCheck_32_eq_true, cubicCRTSearchGapCheck_34_eq_true, cubicCRTSearchGapCheck_36_eq_true, cubicCRTSearchGapCheck_38_eq_true, cubicCRTSearchGapCheck_40_eq_true, cubicCRTSearchGapCheck_42_eq_true, cubicCRTSearchGapCheck_44_eq_true, cubicCRTSearchGapCheck_46_eq_true, cubicCRTSearchGapCheck_48_eq_true, cubicCRTSearchGapCheck_50_eq_true, cubicCRTSearchGapCheck_52_eq_true, cubicCRTSearchGapCheck_54_eq_true, cubicCRTSearchGapCheck_56_eq_true, cubicCRTSearchGapCheck_58_eq_true, cubicCRTSearchGapCheck_60_eq_true, cubicCRTSearchGapCheck_62_eq_true, cubicCRTSearchGapCheck_64_eq_true, cubicCRTSearchGapCheck_66_eq_true, cubicCRTSearchGapCheck_68_eq_true, cubicCRTSearchGapCheck_70_eq_true, cubicCRTSearchGapCheck_72_eq_true, cubicCRTSearchGapCheck_74_eq_true, cubicCRTSearchGapCheck_76_eq_true, cubicCRTSearchGapCheck_78_eq_true, cubicCRTSearchGapCheck_80_eq_true, cubicCRTSearchGapCheck_82_eq_true, cubicCRTSearchGapCheck_84_eq_true, cubicCRTSearchGapCheck_86_eq_true, cubicCRTSearchGapCheck_88_eq_true, cubicCRTSearchGapCheck_90_eq_true, cubicCRTSearchGapCheck_92_eq_true, cubicCRTSearchGapCheck_94_eq_true, cubicCRTSearchGapCheck_96_eq_true, cubicCRTSearchGapCheck_98_eq_true, cubicCRTSearchGapCheck_100_eq_true, cubicCRTSearchGapCheck_102_eq_true, cubicCRTSearchGapCheck_104_eq_true, cubicCRTSearchGapCheck_106_eq_true, cubicCRTSearchGapCheck_108_eq_true, cubicCRTSearchGapCheck_110_eq_true, cubicCRTSearchGapCheck_112_eq_true, cubicCRTSearchGapCheck_114_eq_true, cubicCRTSearchGapCheck_116_eq_true, cubicCRTSearchGapCheck_118_eq_true, cubicCRTSearchGapCheck_120_eq_true, cubicCRTSearchGapCheck_122_eq_true, cubicCRTSearchGapCheck_124_eq_true, cubicCRTSearchGapCheck_126_eq_true, cubicCRTSearchGapCheck_128_eq_true, cubicCRTSearchGapCheck_130_eq_true, cubicCRTSearchGapCheck_132_eq_true, cubicCRTSearchGapCheck_134_eq_true, cubicCRTSearchGapCheck_136_eq_true, cubicCRTSearchGapCheck_138_eq_true, cubicCRTSearchGapCheck_140_eq_true, cubicCRTSearchGapCheck_142_eq_true, cubicCRTSearchGapCheck_144_eq_true, cubicCRTSearchGapCheck_146_eq_true, cubicCRTSearchGapCheck_148_eq_true, cubicCRTSearchGapCheck_150_eq_true, cubicCRTSearchGapCheck_152_eq_true, cubicCRTSearchGapCheck_154_eq_true, cubicCRTSearchGapCheck_156_eq_true, cubicCRTSearchGapCheck_158_eq_true, cubicCRTSearchGapCheck_160_eq_true, cubicCRTSearchGapCheck_162_eq_true, cubicCRTSearchGapCheck_164_eq_true, cubicCRTSearchGapCheck_166_eq_true, cubicCRTSearchGapCheck_168_eq_true, cubicCRTSearchGapCheck_170_eq_true, cubicCRTSearchGapCheck_172_eq_true, cubicCRTSearchGapCheck_174_eq_true, cubicCRTSearchGapCheck_176_eq_true, cubicCRTSearchGapCheck_178_eq_true, cubicCRTSearchGapCheck_180_eq_true, cubicCRTSearchGapCheck_182_eq_true, cubicCRTSearchGapCheck_184_eq_true, cubicCRTSearchGapCheck_186_eq_true, cubicCRTSearchGapCheck_188_eq_true, cubicCRTSearchGapCheck_190_eq_true, cubicCRTSearchGapCheck_192_eq_true, cubicCRTSearchGapCheck_194_eq_true, cubicCRTSearchGapCheck_196_eq_true, cubicCRTSearchGapCheck_198_eq_true, cubicCRTSearchGapCheck_200_eq_true, cubicCRTSearchGapCheck_202_eq_true, cubicCRTSearchGapCheck_204_eq_true, cubicCRTSearchGapCheck_206_eq_true, cubicCRTSearchGapCheck_208_eq_true, cubicCRTSearchGapCheck_210_eq_true]
-
-
-
-
-lemma cubicCRTSearchAux_eq_false_of_local_false
-    {d kind r M x : ℕ} {rs : List ℕ}
-    (hcross : 36000000 ≤ M) (hrspos : ∀ s ∈ rs, 0 < s)
-    (hr : r ∈ rs) (hlocal : cubicCRTConstraint d kind r x = false) :
-    cubicCRTSearchAux d kind rs M x = false := by
-  induction rs generalizing M with
-  | nil => simp at hr
-  | cons s rs ih =>
-      have hspos : 0 < s := hrspos s (by simp)
-      have hrspos' : ∀ t ∈ rs, 0 < t := by
-        intro t ht
-        exact hrspos t (by simp [ht])
-      have hcross' : 36000000 ≤ M * s :=
-        hcross.trans (Nat.le_mul_of_pos_right M hspos)
-      rw [cubicCRTSearchAux.eq_2]
-      simp only [if_pos hcross]
-      rcases List.mem_cons.mp hr with hsr | hr
-      · subst s
-        simp [hlocal]
-      · rw [ih hcross' hrspos' hr]
-        simp
-
-lemma cubicCRTSearchAux_eq_false_of_gate_false
-    {d kind M x : ℕ} {rs : List ℕ}
-    (hcross : 36000000 ≤ M) (hrspos : ∀ s ∈ rs, 0 < s)
-    (hgate : cubicCRTTrialPairGate d x = false) :
-    cubicCRTSearchAux d kind rs M x = false := by
-  induction rs generalizing M with
-  | nil => simp [cubicCRTSearchAux, hgate]
-  | cons s rs ih =>
-      have hspos : 0 < s := hrspos s (by simp)
-      have hrspos' : ∀ t ∈ rs, 0 < t := by
-        intro t ht
-        exact hrspos t (by simp [ht])
-      have hcross' : 36000000 ≤ M * s :=
-        hcross.trans (Nat.le_mul_of_pos_right M hspos)
-      rw [cubicCRTSearchAux.eq_2]
-      simp only [if_pos hcross]
-      rw [ih hcross' hrspos']
-      simp
-
-lemma cubicCRTSearchAux_complete {d kind p M x : ℕ} {rs : List ℕ}
-    (hM : 0 < M) (hp433 : 433 < p) (hp36 : p < 36000000) (hp : p.Prime)
-    (hrspos : ∀ r ∈ rs, 0 < r)
-    (hcapacity : 36000000 ≤ M * rs.prod)
-    (hx : x = cubicCRTRepresentative 36000000 M p)
-    (hlocal : ∀ r ∈ rs, cubicCRTConstraint d kind r p = true)
-    (hwheel : cubicCRTWheelGate d p = true)
-    (htrial : cubicCRTTrialPairGate d p = true) :
-    cubicCRTSearchAux d kind rs M x = true := by
-  induction rs generalizing M x with
-  | nil =>
-      have hcrossed : 36000000 ≤ M := by simpa using hcapacity
-      have hxp : x = p := by simpa [cubicCRTRepresentative, hcrossed] using hx
-      simp [cubicCRTSearchAux, hxp, hp433,
-        cubicCRTTerminalCompositeGate_of_prime hp433 hp, htrial]
-  | cons r rs ih =>
-      have hr : 0 < r := hrspos r (by simp)
-      have hrspos' : ∀ s ∈ rs, 0 < s := by
-        intro s hs
-        exact hrspos s (by simp [hs])
-      have hcapacity' : 36000000 ≤ (M * r) * rs.prod := by
-        simpa [List.prod_cons, mul_assoc, mul_left_comm, mul_comm] using hcapacity
-      by_cases hcrossed : 36000000 ≤ M
-      · have hxp : x = p := by simpa [cubicCRTRepresentative, hcrossed] using hx
-        simp only [cubicCRTSearchAux, hcrossed, if_true, Bool.and_eq_true]
-        constructor
-        · simpa [hxp] using hlocal r (by simp)
-        · apply ih (M := M * r) (x := x)
-          · exact Nat.mul_pos hM hr
-          · exact hrspos'
-          · exact hcapacity'
-          · have hcrossed' : 36000000 ≤ M * r :=
-              hcrossed.trans (Nat.le_mul_of_pos_right M hr)
-            simp [hxp, cubicCRTRepresentative, hcrossed']
-          · intro s hs
-            exact hlocal s (by simp [hs])
-      · let t := p / M % r
-        let z := p % M + M * t
-        have hxmod : x = p % M := by
-          simpa [cubicCRTRepresentative, hcrossed] using hx
-        have hxz : x + M * t = z := by simp [z, hxmod]
-        have ht : t < r := by
-          dsimp [t]
-          exact Nat.mod_lt _ hr
-        have hzmodprod : z = p % (M * r) := by
-          dsimp [z, t]
-          exact (Nat.mod_mul).symm
-        have hzmodr : z % r = p % r := by
-          rw [hzmodprod, Nat.mod_mul_left_mod]
-        have hzlocal : cubicCRTConstraint d kind r z = true :=
-          cubicCRTConstraint_of_modEq hzmodr (hlocal r (by simp))
-        have hzrep : z = cubicCRTRepresentative 36000000 (M * r) p := by
-          rw [hzmodprod]
-          unfold cubicCRTRepresentative
-          split_ifs with hnewcross
-          · exact Nat.mod_eq_of_lt (hp36.trans_le hnewcross)
-          · rfl
-        have hzbound : z < 36000000 := by
-          rw [hzrep]
-          unfold cubicCRTRepresentative
-          split_ifs with hnewcross
-          · exact hp36
-          · exact (Nat.mod_lt _ (Nat.mul_pos hM hr)).trans (by omega)
-        have hgate :
-            (if 36000000 ≤ M * r then cubicCRTWheelGate d z else true) = true := by
-          split_ifs with hnewcross
-          · have hzp : z = p := by
-              simpa [cubicCRTRepresentative, hnewcross] using hzrep
-            simpa [hzp] using hwheel
-          · rfl
-        simp only [cubicCRTSearchAux, hcrossed, if_false]
-        apply cubicAnyRange_eq_true_of (i := t)
-        · omega
-        · simpa using ht
-        · simp only [hxz, Bool.and_eq_true, decide_eq_true_eq]
-          refine ⟨⟨⟨hzbound, hzlocal⟩, hgate⟩, ?_⟩
-          apply ih (M := M * r) (x := z)
-          · exact Nat.mul_pos hM hr
-          · exact hrspos'
-          · exact hcapacity'
-          · exact hzrep
-          · intro s hs
-            exact hlocal s (by simp [hs])
-
-lemma cubicCRTSearch_complete {p q d kind : ℕ}
-    (hp433 : 433 < p) (hp36 : p < 36000000)
-    (hp : p.Prime) (hq : q.Prime) (hqp : q = p + d)
-    (hlocal : ∀ r ∈ cubicModuliList, cubicCRTLocalForm d kind r p = true) :
-    cubicCRTSearch d kind = true := by
-  have hconstraint : ∀ r ∈ cubicCRTConstraintList,
-      cubicCRTConstraint d kind r p = true := by
-    intro r hrlist
-    by_cases hr2 : r = 2
-    · subst r
-      have hpmod : p % 2 ≠ 0 := by
-        intro hz
-        rcases (Nat.dvd_prime hp).mp (Nat.dvd_iff_mod_eq_zero.mpr hz) with h | h <;>
-          omega
-      have hqmod : (p + d) % 2 ≠ 0 := by
-        rw [← hqp]
-        intro hz
-        rcases (Nat.dvd_prime hq).mp (Nat.dvd_iff_mod_eq_zero.mpr hz) with h | h <;>
-          omega
-      simp [cubicCRTConstraint, hpmod, hqmod]
-    by_cases hr3 : r = 3
-    · subst r
-      have hpmod : p % 3 ≠ 0 := by
-        intro hz
-        rcases (Nat.dvd_prime hp).mp (Nat.dvd_iff_mod_eq_zero.mpr hz) with h | h <;>
-          omega
-      have hqmod : (p + d) % 3 ≠ 0 := by
-        rw [← hqp]
-        intro hz
-        rcases (Nat.dvd_prime hq).mp (Nat.dvd_iff_mod_eq_zero.mpr hz) with h | h <;>
-          omega
-      simp [cubicCRTConstraint, hpmod, hqmod]
-    have hrmod : r ∈ cubicModuliList := by
-      simpa [cubicCRTConstraintList, cubicModuliList, hr2, hr3] using hrlist
-    simp [cubicCRTConstraint, hr2, hr3, hlocal r hrmod]
-  apply cubicCRTSearchAux_complete (p := p)
-  · omega
-  · exact hp433
-  · exact hp36
-  · exact hp
-  · decide
-  · norm_num [cubicCRTConstraintList]
-  · simpa [cubicCRTRepresentative] using (Nat.mod_one p).symm
-  · exact hconstraint
-  · exact cubicCRTWheelGate_of_prime_pair hp433 hp hq hqp
-  · exact cubicCRTTrialPairGate_of_prime_pair hp hq hqp
 
 lemma cubicCRTLocalForm_of_isCubeMod
     {d kind r p q : ℕ} (hrmem : r ∈ cubicModuli)
@@ -333,23 +57,19 @@ lemma cubicCRTLocalForm_of_isCubeMod
     pow_div_three_eq_one_of_isCubeMod hr
       (three_dvd_sub_one_of_mem_cubicModuli hrmem) hbaseunit hcube⟩
 
-lemma exists_not_isCubeMod_cubicCRTLocalBase_of_search_false
+lemma exists_not_isCubeMod_cubicCRTLocalBase_of_obstruction
     {d kind p q : ℕ} (hkind : kind ≤ 2)
     (hp433 : 433 < p) (hp36 : p < 36000000)
     (hp : p.Prime) (hq : q.Prime) (hqp : q = p + d)
-    (hsearch : cubicCRTSearch d kind = false) :
+    (hobstruction : PeriodicSieveCertificate.Obstruction d kind) :
     ∃ r ∈ cubicModuli, ¬IsCubeMod r (cubicCRTLocalBase d kind r p) := by
   by_contra hnone
   push_neg at hnone
-  have hlocal : ∀ r ∈ cubicModuliList,
-      cubicCRTLocalForm d kind r p = true := by
-    intro r hr
-    have hrmem := mem_cubicModuli_of_mem_list hr
-    exact cubicCRTLocalForm_of_isCubeMod hrmem hkind hp433 hp hq hqp
-      (hnone r hrmem)
-  have htrue := cubicCRTSearch_complete hp433 hp36 hp hq hqp hlocal
-  rw [hsearch] at htrue
-  contradiction
+  apply hobstruction p hp433 hp36 hp (by simpa only [hqp] using hq)
+  intro r hr
+  have hrmem := mem_cubicModuli_of_mem_list hr
+  exact cubicCRTLocalForm_of_isCubeMod hrmem hkind hp433 hp hq hqp
+    (hnone r hrmem)
 
 lemma isCubeMod_of_cast_eq {m x y : ℕ}
     (hxy : (x : ZMod m) = (y : ZMod m)) (hx : IsCubeMod m x) :
@@ -372,39 +92,31 @@ lemma isCubeMod_of_square_isCubeMod {m z : ℕ}
   change IsCube (((z ^ 2 : ℕ) : ZMod m)) at hsq
   simpa only [Nat.cast_pow] using hsq
 
-lemma cubicSieveHolds_of_cubicCRTChecks
+lemma cubicSieveHolds_of_periodic_obstructions
     {p q d : ℕ} (hp433 : 433 < p) (hpq : p < q) (hq36 : q < 36000000)
     (hp : p.Prime) (hq : q.Prime) (hqp : q = p + d)
-    (hgap : cubicCRTSearchGapCheck d = true)
-    (hsingle : cubicCRTSearchSingleCheck = true) :
+    (hzero : PeriodicSieveCertificate.Obstruction d 0)
+    (hone : PeriodicSieveCertificate.Obstruction d 1)
+    (hsingle : PeriodicSieveCertificate.Obstruction 0 2) :
     CubicSieveHolds p q := by
   have hp36 : p < 36000000 := hpq.trans hq36
   have hq433 : 433 < q := hp433.trans hpq
-  have hsearchSingle : cubicCRTSearch 0 2 = false := by
-    simpa [cubicCRTSearchSingleCheck] using hsingle
-  have hgapParts :
-      (!cubicCRTSearch d 0 = true) ∧ (!cubicCRTSearch d 1 = true) := by
-    simpa [cubicCRTSearchGapCheck] using hgap
-  have hsearchZero : cubicCRTSearch d 0 = false := by
-    simpa using hgapParts.1
-  have hsearchOne : cubicCRTSearch d 1 = false := by
-    simpa using hgapParts.2
   have hbaseP :=
-    exists_not_isCubeMod_cubicCRTLocalBase_of_search_false
+    exists_not_isCubeMod_cubicCRTLocalBase_of_obstruction
       (d := 0) (kind := 2) (p := p) (q := p) (by omega)
-      hp433 hp36 hp hp (by omega) hsearchSingle
+      hp433 hp36 hp hp (by omega) hsingle
   have hbaseQ :=
-    exists_not_isCubeMod_cubicCRTLocalBase_of_search_false
+    exists_not_isCubeMod_cubicCRTLocalBase_of_obstruction
       (d := 0) (kind := 2) (p := q) (q := q) (by omega)
-      hq433 hq36 hq hq (by omega) hsearchSingle
+      hq433 hq36 hq hq (by omega) hsingle
   have hbaseZero :=
-    exists_not_isCubeMod_cubicCRTLocalBase_of_search_false
+    exists_not_isCubeMod_cubicCRTLocalBase_of_obstruction
       (d := d) (kind := 0) (p := p) (q := q) (by omega)
-      hp433 hp36 hp hq hqp hsearchZero
+      hp433 hp36 hp hq hqp hzero
   have hbaseOne :=
-    exists_not_isCubeMod_cubicCRTLocalBase_of_search_false
+    exists_not_isCubeMod_cubicCRTLocalBase_of_obstruction
       (d := d) (kind := 1) (p := p) (q := q) (by omega)
-      hp433 hp36 hp hq hqp hsearchOne
+      hp433 hp36 hp hq hqp hone
   have hpOne : ∃ r ∈ cubicModuli, ¬IsCubeMod r p := by
     obtain ⟨r, hr, hnot⟩ := hbaseP
     refine ⟨r, hr, ?_⟩
@@ -533,8 +245,8 @@ lemma cubicSieveHolds_of_cubicCRTChecks
   · simpa using hpqTwoOne
   · simpa using hpqTwoTwo
 
-/-- The finite Lucas-certified prime cover supplies the exact gap range used
-by the cubic CRT certificates. -/
+/-- The batched prime cover bounds the gap; periodic character-set certificates
+exclude the four nonzero cubic-character directions. -/
 theorem largeCubicCertificate : LargeCubicCertificate := by
   intro p q hp433 hp hqfirst hq36
   have hpq : p < q := hqfirst.1
@@ -544,7 +256,7 @@ theorem largeCubicCertificate : LargeCubicCertificate := by
     dsimp [d]
     omega
   have hdle : d ≤ 210 := by
-    exact PrimeGap210Certificate.prime_gap_le_210_below_36000000
+    exact PrimeGapBatch210Certificate.prime_gap_le_210_below_36000000
       hp433 hp hqfirst hq36
   have hpodd : Odd p := hp.odd_of_ne_two (by omega)
   have hqodd : Odd q := hq.odd_of_ne_two (by omega)
@@ -556,9 +268,9 @@ theorem largeCubicCertificate : LargeCubicCertificate := by
   have hqp : q = p + d := by
     dsimp [d]
     omega
-  exact cubicSieveHolds_of_cubicCRTChecks hp433 hpq hq36 hp hq hqp
-    (cubicCRTSearchGapCheck_eq_true_of_even_le_210 hdpos hdle hdeven)
-    cubicCRTSearchSingleCheck_eq_true
+  obtain ⟨hzero, hone⟩ := PeriodicSieveCertificate.gap_obstructions hdpos hdle hdeven
+  exact cubicSieveHolds_of_periodic_obstructions hp433 hpq hq36 hp hq hqp
+    hzero hone PeriodicSieveCertificate.periodic_0_2
 
 /-- The purely algebraic conclusion of the finite cubic sieve. -/
 lemma mod_three_eq_zero_of_cubicSieveHolds
