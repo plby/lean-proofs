@@ -6,6 +6,7 @@ import ErdosProblems.Erdos587.Erdos587Core
 import ErdosProblems.Erdos13.Erdos13Kneser
 import ErdosProblems.Erdos13.Erdos13Additive
 import ErdosProblems.Erdos360.DiverseSampling
+import ErdosProblems.Erdos360.ResolutionScale
 import ErdosProblems.Erdos360.TernaryClosure
 import ErdosProblems.Erdos360.StructuredSmallDoubling
 import UnitFractions.ForMathlib.BasicEstimates
@@ -15324,13 +15325,6 @@ lemma tuned_modulus_inv_le {n h z d : ℕ} (hh : 0 < h)
     have hcast : (M : ℝ) * h < (M.totient : ℝ) * d := by
       exact_mod_cast hMd
     nlinarith)
-
-/-- The real-valued scale in the Conlon--Fox--Pham resolution. -/
-noncomputable def resolutionScale (n : ℕ) : ℝ :=
-  Real.rpow (n : ℝ) (1 / 3 : ℝ) *
-      ((n : ℝ) / (Nat.totient n : ℝ)) /
-    (Real.rpow (Real.log n) (1 / 3 : ℝ) *
-      Real.rpow (Real.log (Real.log n)) (2 / 3 : ℝ))
 
 lemma resolutionScale_mainTerm_identity {n : ℕ} (hn : 0 < n)
     (hL : 0 < Real.log (n : ℝ))

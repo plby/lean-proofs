@@ -6,9 +6,6 @@ open MeasureTheory Set
 
 namespace Erdos1197
 
-def Phi (A : Set ℝ) : Set ℝ :=
-  Ico (1/2 : ℝ) 1 ∩ {x | ∃ m : ℕ, 0 < m ∧ ((m : ℝ) * x) ∈ A}
-
 def I_inf : Set ℝ := Icc (16/25 : ℝ) (2/3)
 
 theorem not_erdos_1197 :

@@ -16,12 +16,15 @@ lemma pairwiseCoprime_empty : PairwiseCoprime ∅ := by
 noncomputable def reciprocalMass (A : Finset ℕ) : ℝ :=
   ∑ a ∈ A, (a : ℝ)⁻¹
 
+lemma reciprocalMass_empty : reciprocalMass ∅ = 0 := by
+  simp [reciprocalMass]
+
 def Admissible (C : ℝ) (N : ℕ) (A : Finset ℕ) : Prop :=
   A ⊆ Finset.Icc 2 N ∧ PairwiseCoprime A ∧ reciprocalMass A ≤ C
 
 lemma admissible_empty {C : ℝ} (hC : 0 ≤ C) (N : ℕ) :
     Admissible C N ∅ := by
-  exact ⟨by simp, pairwiseCoprime_empty, by simpa [reciprocalMass] using hC⟩
+  exact ⟨by simp, pairwiseCoprime_empty, by simpa only [reciprocalMass_empty] using hC⟩
 
 open scoped Classical in
 noncomputable def admissibleFamily (C : ℝ) (N : ℕ) : Finset (Finset ℕ) :=
