@@ -1769,22 +1769,8 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos262.md
   version: "4.33.0"
 
-- key: ErdosProblems.Erdos264
-  partial: yes
-  epc: https://www.erdosproblems.com/264
-  author:
-    statement: Formal Conjectures authors
-    formal:
-      AI: Aristotle
-      human: Pietro Monticone
-  url:
-    - https://www.erdosproblems.com/forum/thread/264#post-2258
-    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos264.md
-    - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos264.lean
-    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/264.lean
-  version: "4.24.0"
-
 - key: ErdosProblems.Erdos264b
+  # The latest port combines the former Erdos264 and Erdos264b formalizations.
   partial: yes
   epc: https://www.erdosproblems.com/264
   author:
@@ -1795,10 +1781,15 @@
     statement: Formal Conjectures authors
     formal:
       AI: Aristotle
-      human: Vjekoslav Kovač
+      human:
+        - Pietro Monticone
+        - Vjekoslav Kovač
   arxiv: https://arxiv.org/abs/2406.17593
   url:
+    - https://www.erdosproblems.com/forum/thread/264#post-2258
     - https://www.erdosproblems.com/forum/thread/264#post-2236
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos264.md
+    - https://github.com/plby/lean-proofs/blob/main/src/v4.24.0/ErdosProblems/Erdos264.lean
     - https://web.math.pmf.unizg.hr/~vjekovac/EP/EP264/Erdos264_blueprint.tex
     - https://web.math.pmf.unizg.hr/~vjekovac/EP/EP264/Erdos264_converted.pdf
     - https://github.com/VjekoKovac/erdosproblems/blob/main/Erdos264.lean
