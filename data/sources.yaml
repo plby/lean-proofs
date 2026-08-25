@@ -3425,17 +3425,14 @@
       human: Endre Szemerédi
       AI: ChatGPT 5.5 Pro
     formal:
-      AI: Aristotle
+      AI:
+        - Aristotle
+        - Codex
       human: Wouter van Doorn
   url:
     - https://www.erdosproblems.com/forum/thread/490#post-6497
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem490.lean
-  version: "4.28.0"
-  conditional:
-    - dusart_mertens_product
-    - dusart_pi_lower
-    - dusart_pi_upper
-    - dusart_chebyshev
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos492
   epc: https://www.erdosproblems.com/492

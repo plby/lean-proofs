@@ -5,10 +5,6 @@
     "Erdos490.erdos_490"
   ],
   "permitted_axioms": [
-    "dusart_chebyshev",
-    "dusart_mertens_product",
-    "dusart_pi_lower",
-    "dusart_pi_upper",
     "propext",
     "Classical.choice",
     "Quot.sound"
