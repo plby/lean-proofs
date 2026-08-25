@@ -4,26 +4,22 @@ import ErdosProblems.Erdos13.Erdos13Kneser
 import Util.FranklRodl
 import Util.MertensProduct
 import Util.TaoTeravainen.Final
-import Util.MaynardBFT.Result
+import Util.MaynardTao
 import Util.Linnik.Theorem
 
 open Nat Finset Real Filter Asymptotics Topology
 open scoped Pointwise
-
-/-- A set `B` of integers is *admissible* if for every prime `p`, the
-residues of `B` modulo `p` do not cover all of `ZMod p`. -/
-def Admissible (B : Finset ℤ) : Prop :=
-  ∀ p : ℕ, p.Prime → (Finset.image (· % (p : ℤ)) B).card < p
 
 /-! ## Axioms from analytic number theory -/
 
 /-- **Maynard–Tao Theorem** (2015). For any `m ≥ 2`, if `B` is an
 admissible set with `|B| log |B| > e^{8m+4}`, then there are infinitely
 many `n` such that at least `m` of `{n + b : b ∈ B}` are prime. -/
-axiom maynard_tao (m : ℕ) (hm : 2 ≤ m) (B : Finset ℤ)
+theorem maynard_tao (m : ℕ) (hm : 2 ≤ m) (B : Finset ℤ)
     (hB : Admissible B) (hk : exp (8 * m + 4) < B.card * Real.log B.card) :
     ∀ N : ℕ, ∃ n : ℤ, N < n ∧
-      m ≤ (B.filter (fun b ↦ (n + b).natAbs.Prime)).card
+      m ≤ (B.filter (fun b ↦ (n + b).natAbs.Prime)).card :=
+  MaynardTao.maynard_tao m hm B hB hk
 
 /-- The Maynard–Tao theorem (Banks–Freiberg–Turnage-Butterbaugh corollary): for every
 `m ≥ 1`, there exists `Cₘ ≥ 1` such that for every coprime residue class `a mod q`

@@ -29,7 +29,6 @@ import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Data.Int.Star
 import Mathlib.Algebra.Order.Star.Real
 import Mathlib.Tactic.Cases
-import ErdosProblems.Erdos237.Unconditional
 import ErdosProblems.Axioms
 import Util.MertensThird
 
@@ -48,15 +47,13 @@ The assumption that `A` is infinite suffices.
 
 ## Proof structure
 
-The final proof uses `qualitativePrimeTuples_unconditional`:
-1. Coarse dyadic product weights give an unbounded sieve ratio.
-2. Generic S1 limits and an extra-coordinate S2 lower bound apply to arbitrary tuples.
-3. The proved Bombieri–Vinogradov theorem and ordinary PNT control the prime sums.
-4. Selecting one residue class modulo `k!` and reflecting gives Chen–Ding's finite theorem.
-5. An infinite set contains every required finite cardinality.
-
-The quantitative sieve infrastructure below is retained, but the final proof no longer
-uses its Mertens estimate or the assumed quantitative `maynard_tao` theorem.
+The proof chain is:
+1. `maynard_tao` (proved in `Util.MaynardTao.Theorem`): admissible tuples yield many primes.
+2. `mertens_third_theorem`: `∏_{p ≤ n} (1 - 1/p) ≥ 1/(3 log n)`.
+3. `sieving_lemma` (proved): large sets contain admissible subsets meeting the Maynard–Tao
+    threshold, via iterated residue class removal + Mertens.
+4. `chen_ding_theorem` (proved): reduction to Maynard–Tao via ℤ embedding.
+5. `erdos_237` (proved): unboundedness from Chen–Ding + monotonicity.
 
 ## References
 
@@ -69,6 +66,13 @@ uses its Mertens estimate or the assumed quantitative `maynard_tao` theorem.
 namespace Erdos237
 
 open Nat Set Finset Real
+
+/-! ## Definitions -/
+
+/-- The number of representations of `n` as `p + a` with `p` prime and `a ∈ A`.
+For a given `n`, this counts elements `a ∈ A` with `a ≤ n` and `n - a` prime. -/
+noncomputable def repCount (A : Set ℕ) (n : ℕ) : ℕ :=
+  Set.ncard {a ∈ A | a ≤ n ∧ (n - a).Prime}
 
 /-! ## Sieve infrastructure -/
 
@@ -240,10 +244,43 @@ lemma sieving_lemma (m : ℕ) (_hm : 2 ≤ m) :
 
 /-! ## Chen–Ding theorem -/
 
-/-- **Chen–Ding Theorem** (2022), from the unconditional qualitative prime-tuple theorem. -/
+/-- **Chen–Ding Theorem** (2022), proved from `maynard_tao` + `sieving_lemma`. -/
 theorem chen_ding_theorem (m : ℕ) :
     ∃ ℓ₀ : ℕ, ∀ (S : Finset ℕ), ℓ₀ ≤ S.card → ∃ n : ℕ, m ≤ repCount (S : Set ℕ) n := by
-  exact chen_ding_of_qualitative qualitativePrimeTuples_unconditional m
+  obtain ⟨ℓ₀, hℓ₀⟩ := sieving_lemma (max m 2) (le_max_right m 2)
+  refine ⟨ℓ₀, fun S hS ↦ ?_⟩
+  set S' := S.image (fun (a : ℕ) ↦ -(a : ℤ))
+  have hS'card : S'.card = S.card :=
+    Finset.card_image_of_injective _ fun (a b : ℕ) (h : -(a : ℤ) = -(b : ℤ)) ↦ by omega
+  obtain ⟨B, hBS', hBadm, hBsize⟩ := hℓ₀ S' (hS'card ▸ hS)
+  obtain ⟨n, hnN, hn⟩ := maynard_tao (max m 2) (le_max_right m 2) B hBadm hBsize (↑(S.sup id) + 1)
+  refine ⟨n.toNat, (le_max_left m 2).trans (hn.trans ?_)⟩
+  have hrc : repCount (↑S) n.toNat = (S.filter fun a ↦ a ≤ n.toNat ∧ (n.toNat - a).Prime).card := by
+    simp only [repCount, ← ncard_coe_finset]; congr 1; ext; simp
+  rw [hrc]
+  apply Finset.card_le_card_of_injOn (fun b ↦ (-b).toNat)
+  · intro b hb
+    rw [mem_coe, mem_filter] at hb ⊢
+    obtain ⟨a, haS, hab⟩ := mem_image.mp (hBS' hb.1)
+    change (-b).toNat ∈ S ∧ (-b).toNat ≤ n.toNat ∧ (n.toNat - (-b).toNat).Prime
+    rw [show (-b).toNat = a from by omega]
+    have ha_lt : (a : ℤ) < n := by have := le_sup (f := id) haS; simp only [id] at this; omega
+    exact ⟨haS, by omega, by convert hb.2 using 2; omega⟩
+  · intro b₁ hb₁ b₂ hb₂ heq
+    rw [mem_coe, mem_filter] at hb₁ hb₂
+    obtain ⟨a₁, _, hab₁⟩ := mem_image.mp (hBS' hb₁.1)
+    obtain ⟨a₂, _, hab₂⟩ := mem_image.mp (hBS' hb₂.1)
+    dsimp only at heq
+    rw [show -b₁ = (↑a₁ : ℤ) by linarith, show -b₂ = (↑a₂ : ℤ) by linarith] at heq
+    simp only [Int.toNat_natCast] at heq; linarith
+
+/-! ## Monotonicity -/
+
+/-- The representation count is monotone in the base set. -/
+theorem repCount_mono {A B : Set ℕ} (h : A ⊆ B) (n : ℕ) :
+    repCount A n ≤ repCount B n :=
+  ncard_le_ncard (fun _ hx ↦ ⟨h hx.1, hx.2.1, hx.2.2⟩) <|
+    finite_iff_bddAbove.2 ⟨n, fun _ hx ↦ hx.2.1⟩
 
 /-! ## Main result -/
 

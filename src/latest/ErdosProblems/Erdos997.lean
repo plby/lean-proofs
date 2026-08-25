@@ -49,7 +49,7 @@ in arithmetic progressions (specifically the Banks–Freiberg–Turnage-Butterba
 For every `α ∈ ℝ`, the sequence `{α pₙ}` of fractional parts is not well-distributed in the sense of
 Hlawka–Petersen.
 
-The Maynard–Tao–BFT theorem is proved in `Util.MaynardBFT.Result` and exposed
+The Maynard–Tao–BFT theorem is proved in `Util.MaynardTao.BFT.Result` and exposed
 through `ErdosProblems.Axioms`. The proof uses only standard Lean axioms.
 
 ## References

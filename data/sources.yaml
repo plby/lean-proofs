@@ -1566,9 +1566,24 @@
   url:
     - https://www.erdosproblems.com/forum/thread/237#post-5240
     - https://gist.githubusercontent.com/pitmonticone/8ea0d1cdb963b6213ac639b11d33f811/raw/98a5824d16da14313f65d77eeab5563dd874613a/Erdos237.lean
-  conditional: maynard_tao
-  version: "4.28.0"
-  todo: Import Wouter's Mertens3 proof.
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos237b
+  epc: https://www.erdosproblems.com/237
+  author:
+    informal:
+      human:
+        - Yong-Gao Chen
+        - Yuchen Ding
+    formal:
+      AI:
+        - Aristotle
+        - Codex
+      human: Pietro Monticone
+  url:
+    - https://github.com/plby/lean-proofs/blob/main/src/latest/ErdosProblems/Erdos237b.lean
+    - https://github.com/plby/lean-proofs/blob/main/docs/erdos237b-unconditional.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos239
   epc: https://www.erdosproblems.com/239
