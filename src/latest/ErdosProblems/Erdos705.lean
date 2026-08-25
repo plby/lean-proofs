@@ -41,6 +41,7 @@ import Mathlib.Geometry.Euclidean.Triangle
 import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Push
 import Mathlib.Tactic.FinCases
+import Util.EuclideanGeometry
 
 /-!
 # Erdős Problem 705
@@ -52,8 +53,6 @@ the realization can be chosen injective with no accidental unit nonedges.
 -/
 
 open scoped EuclideanGeometry
-
-scoped[EuclideanGeometry] notation "ℝ²" => EuclideanSpace ℝ (Fin 2)
 
 namespace SimpleGraph
 

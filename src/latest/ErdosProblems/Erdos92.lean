@@ -18,8 +18,7 @@ URLs:
 - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/92.lean
 -/
 import ErdosProblems.Erdos90b
-
-scoped[EuclideanGeometry] notation "ℝ²" => EuclideanSpace ℝ (Fin 2)
+import Util.EuclideanGeometry
 
 open Filter
 open scoped EuclideanGeometry

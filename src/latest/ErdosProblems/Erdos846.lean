@@ -36,8 +36,7 @@ limitations under the License.
 -/
 
 import Mathlib
-
-scoped[EuclideanGeometry] notation "ℝ²" => EuclideanSpace ℝ (Fin 2)
+import Util.EuclideanGeometry
 
 def Triplewise {α : Type*} (r : α → α → α → Prop) : Prop :=
   ∀ ⦃i j k ⦄, i ≠ j → j ≠ k → i ≠ k → r i j k
