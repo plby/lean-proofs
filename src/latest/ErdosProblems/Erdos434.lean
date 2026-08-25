@@ -4,7 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 434.
 https://www.erdosproblems.com/forum/thread/434
 
 Formalization status:
-- Conditional on: Finset.add_kneser
+- Uses the proved Kneser theorem through ErdosProblems.Erdos433
 
 Informal authors:
 - Jacques Dixmier

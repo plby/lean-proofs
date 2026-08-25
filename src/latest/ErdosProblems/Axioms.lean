@@ -1,5 +1,6 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 import Mathlib
+import ErdosProblems.Erdos13.Erdos13Kneser
 
 open Nat Finset Real Filter Asymptotics Topology
 open scoped Pointwise
@@ -156,14 +157,8 @@ axiom shiu_consecutive_primes
 
 /-! ## Axioms from additive combinatorics -/
 
-def Finset.addStab {α : Type*} [AddGroup α] [DecidableEq α] (s : Finset α) : Finset α :=
-  {a ∈ s - s | a +ᵥ s = s}
-
-/-- **Kneser's addition theorem**: a lower bound on the size of `s + t` in terms
-of its stabilizer. -/
-axiom Finset.add_kneser {α : Type*} [AddCommGroup α] [DecidableEq α] (s t : Finset α) :
-    (s + (s + t).addStab).card + (t + (s + t).addStab).card ≤
-      (s + t).card + ((s + t).addStab).card
+/- `Finset.addStab` and the proved `Finset.add_kneser` are supplied by
+`ErdosProblems.Erdos13.Erdos13Kneser`. -/
 
 /-- **Theorem 2.2** (Frankl–Rödl, 2002):
 If `G` is a 3-uniform hypergraph such that every edge belongs to exactly one

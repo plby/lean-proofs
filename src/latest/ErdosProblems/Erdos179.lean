@@ -15,7 +15,7 @@ URLs:
 - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos179.md
 -/
 import Mathlib
-import ErdosProblems.Erdos179.AddCombi.BSG
+import AddCombi.BSG
 import ErdosProblems.Erdos179.CyclicModel
 import ErdosProblems.Erdos179.SzemerediFour
 

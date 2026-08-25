@@ -2960,8 +2960,6 @@
     - https://github.com/YaelDillies/MiscYD/blob/master/MiscYD/AddCombi/Kneser/Kneser.lean
   url_ref: JoshuaB_433
   version: "4.24.0"
-  conditional: Finset.add_kneser
-  todo: Import Yael Dillies's proof of add_kneser.
 
 - key: ErdosProblems.Erdos434
   epc: https://www.erdosproblems.com/434
@@ -2976,7 +2974,6 @@
   url: https://www.erdosproblems.com/forum/thread/434#post-4437
   url_ref: JoshuaB_434
   version: "4.24.0"
-  conditional: Finset.add_kneser
 
 - key: ErdosProblems.Erdos435
   epc: https://www.erdosproblems.com/435

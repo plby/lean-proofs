@@ -26,7 +26,7 @@ import Mathlib.MeasureTheory.Integral.IntervalIntegral.Periodic
 import Mathlib.MeasureTheory.Integral.Prod
 import Mathlib.Algebra.Polynomial.Eval.Defs
 import Mathlib.Tactic
-import ErdosProblems.Erdos225.External.Erdos228.Bernstein
+import ErdosProblems.Erdos228.Bernstein
 import ErdosProblems.Erdos1215.Reciprocal
 
 /-!

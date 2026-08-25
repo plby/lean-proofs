@@ -8,7 +8,7 @@ The accompanying mathematical reconstruction is `tex/1153.tex`.
 -/
 
 import Mathlib
-import ErdosProblems.Erdos1153.External.Erdos228.Bernstein
+import ErdosProblems.Erdos228.Bernstein
 
 namespace Erdos1153
 
@@ -4044,7 +4044,7 @@ lemma eventually_localNodeCount_mesoscopic_le {a b : ℝ}
 The local derivative bound will be obtained by truncating the Laurent
 polynomial produced by the Joukowski parametrization of a short real
 interval.  The sharp unit-circle Bernstein inequality is already available
-in `ErdosProblems.Erdos1153.External.Erdos228.Bernstein`; the definitions below connect it to
+in `ErdosProblems.Erdos228.Bernstein`; the definitions below connect it to
 the nodal polynomial without importing any unproved analytic assertion. -/
 
 /-! ### Sharp Bernstein at the center of a real interval
