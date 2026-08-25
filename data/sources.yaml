@@ -1582,7 +1582,6 @@
       human: Pietro Monticone
   url:
     - https://github.com/plby/lean-proofs/blob/main/src/latest/ErdosProblems/Erdos237b.lean
-    - https://github.com/plby/lean-proofs/blob/main/docs/erdos237b-unconditional.md
   version: "4.33.0"
 
 - key: ErdosProblems.Erdos239

@@ -9,5 +9,4 @@ It is available for these Mathlib (and Lean) versions:
 * [Mathlib/Lean v4.29.1](../src/v4.29.1/ErdosProblems/Erdos237.lean).
 
 The original proof uses the unconditional [Maynard–Tao development](../src/latest/Util/MaynardTao/README.md).
-The alternative proof, `Erdos237b`, avoids that quantitative theorem; see its
-[proof notes](../docs/erdos237b-unconditional.md).
+The alternative proof, `Erdos237b`, avoids that quantitative theorem.
