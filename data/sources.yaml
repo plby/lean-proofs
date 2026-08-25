@@ -7898,8 +7898,28 @@
     - https://www.erdosproblems.com/forum/thread/1141#post-5335
     - https://github.com/yuta0x89/ErdosProblems/blob/a1319f732cdee5140faf47d984e2c451c1184803/Erdos1141.lean
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1141.lean
-  conditional: Pollack17.theorem_1_3
-  version: "4.28.0"
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos1141b
+  epc: https://www.erdosproblems.com/1141
+  author:
+    informal:
+      AI: an internal model at OpenAI
+      human:
+        - Boris Alexeev
+        - Moe Putterman
+        - Mehtaab Sawhney
+        - Mark Sellke
+        - Gregory Valiant
+    formal:
+      AI: Codex
+      human: Yuta Oriike
+  arxiv: https://arxiv.org/abs/2604.06609
+  url:
+    - https://www.erdosproblems.com/forum/thread/1141#post-5335
+    - https://github.com/yuta0x89/ErdosProblems/blob/a1319f732cdee5140faf47d984e2c451c1184803/Erdos1141.lean
+    - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1141.lean
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1147
   epc: https://www.erdosproblems.com/1147

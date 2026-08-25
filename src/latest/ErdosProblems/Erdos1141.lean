@@ -4,7 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 1141.
 https://www.erdosproblems.com/forum/thread/1141
 
 Formalization status:
-- Unconditional; the final theorems use only Lean's standard axioms.
+- Unconditional
 
 Informal authors:
 - an internal model at OpenAI
@@ -24,10 +24,9 @@ URLs:
 - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1141.lean
 -/
 import Mathlib
-import Util.MertensThird
+import ErdosProblems.Erdos1141.PollackTheorem
 import ErdosProblems.Erdos1141.AttachedCharacter
-import ErdosProblems.Erdos1141.CoprimeCounting
-import ErdosProblems.Erdos1141.SmallResiduePrime
+import Util.MertensThird
 
 /-!
 # Erdős Problem 1141
@@ -39,24 +38,49 @@ Fix `a ≥ 1`. Let `Pa a n` denote the property that
 `n - a*k^2` is prime for every positive integer `k` with `(k,n)=1` and `a*k^2 < n`.
 Then only finitely many `n` satisfy `Pa a n`.
 
+The main development intentionally mirrors the style of Pietro Monticone's
+`Erdos237.lean`:
+
+* source: <https://gist.githubusercontent.com/pitmonticone/
+  8ea0d1cdb963b6213ac639b11d33f811/raw/
+  98a5824d16da14313f65d77eeab5563dd874613a/Erdos237.lean>
+
+* the analytic inputs are proved in supporting modules;
+* the rest is organized into helper lemmas matching the paper;
+* the medium-weight arithmetic / analytic steps are spelled out in helper lemmas.
+
 ## Analytic inputs
 
-The supporting modules prove a weak Burgess estimate from the Hasse bound,
-a Siegel lower bound for quadratic L-values from the unconditional zero-free
-region, and existence of one split prime outside a prescribed modulus.
-The Mertens product estimate is also proved in the imported library.
-No form of Pollack's theorem is assumed.
+1. `Pollack17.theorem_1_3`: Pollack's Theorem 1.3, proved in the literal
+   `DirichletCharacter`-based form from Pollack's paper
+   <https://www.ams.org/journals/proc/2017-145-07/
+   S0002-9939-2016-13432-1/S0002-9939-2016-13432-1.pdf>.
+2. `mertens_third_theorem`: the same product bound used in Pietro Monticone's `Erdos237.lean`.
 
 ## Proof structure
 
-Write `a*n = u^2*d` with `d` squarefree.
+Given `n`, write `a*n = u^2*d` with `d` squarefree.
 
-* If `d > 1`, the small-prime theorem gives an odd prime
-  `p ≤ (8*a*n)^(31/64)`, with `p ∤ a*n`, at which `d` is a square.
-  Thus `a*x^2 ≡ n [MOD p]` is solvable. Inclusion-exclusion in a root
-  class provides two admissible values of `k` for large `n`.
-* If `d = 1`, the test `k = 1` suffices: primality of `n-a`, together
-  with `(u+a)*(u-a) = a*(n-a)`, contradicts `n > 4*a`.
+* Case 1: `d > 1`.
+  Pollack gives an odd prime `p ≲ (4*a*n)^(3/8)` for which `d` is a quadratic residue mod `p`.
+  Hence `a*x^2 ≡ n [MOD p]` is solvable.
+
+* Case 2: `d = 1`, so `a*n` is a square.
+  We **do not** introduce a separate lemma producing a small odd prime `p ∤ a*n`.
+  Instead, factor the fixed coefficient `a = v^2*dₐ` with `dₐ` squarefree.
+
+  - If `dₐ > 1`, then from `a = v^2*dₐ` we get `4*dₐ ∣ 4*a*n`.  Pollack applied to the *fixed*
+    squarefree part `dₐ` with modulus `4*a*n` again gives an odd prime `p ≲ (4*a*n)^(3/8)`
+    with `p ∤ a*n`.
+    Since `a*n` is a square, the congruence `a*x^2 ≡ n [MOD p]` is automatically solvable,
+    so the same counting contradiction applies.
+
+  - If `dₐ = 1`, then `a = v^2` is itself a square.  From `a*n = u^2` we deduce that `n`
+    is also a square, say `n = m^2`.  Then `k = 1` already gives
+    `n - a = m^2 - v^2 = (m-v)(m+v)`, which is composite for all sufficiently large `n`.
+
+Both analytic inputs are proved without custom axioms.
+The independent proof in `ErdosProblems.Erdos1141b` avoids Pollack entirely.
 -/
 
 namespace Erdos1141
@@ -80,9 +104,10 @@ def QuadResidueMod (d p : ℕ) : Prop :=
 def SolvableAX2EqNMod (a n p : ℕ) : Prop :=
   ∃ x : ℕ, Nat.ModEq p (a * x ^ 2) n
 
-/-- The small-prime cutoff used by the nonsquare case. -/
-noncomputable def smallPrimeSizeBound (a n : ℕ) : ℝ :=
-  Real.rpow ((8 * a * n : ℕ) : ℝ) ((31 : ℝ) / 64)
+/-- The size bound that naturally appears after specializing Pollack with `ε = 1/8`
+and `m = 4*a*n`. -/
+noncomputable def pollackSizeBound (a n : ℕ) : ℝ :=
+  Real.rpow ((4 * a * n : ℕ) : ℝ) ((3 : ℝ) / 8)
 
 /-- Candidate values of `k` used in both cases of the proof.  We range over `k < n`; this is
 harmless because `a*k^2 < n` and `a ≥ 1` automatically force `k < n`. -/
@@ -112,27 +137,42 @@ lemma one_lt_of_squarefree_ne_one {d : ℕ} (hd : Squarefree d) (h : d ≠ 1) : 
       | zero => exact (h rfl).elim
       | succ d => exact Nat.succ_lt_succ (Nat.succ_pos _)
 
-/-- The size comparison needed to apply the residue-prime theorem with `m = 8*a*n`. -/
-lemma le_residue_modulus {a n : ℕ} (ha : 1 ≤ a) : n ≤ 8 * a * n := by
-  have hmul : 1 ≤ 8 * a := by
+/-- The obvious size comparison `n ≤ 4*a*n` for `a ≥ 1`, used to feed Pollack with `m = 4*a*n`. -/
+lemma le_pollack_modulus {a n : ℕ} (ha : 1 ≤ a) : n ≤ 4 * a * n := by
+  have hmul : 1 ≤ 4 * a := by
     nlinarith
   simpa [Nat.mul_assoc] using Nat.mul_le_mul_right n hmul
 
-/-- If `u^2*d = a*n`, then the conductor-relevant multiple `8*d` divides `8*a*n`. -/
-private lemma squarefree_factor_dvd_residue_modulus {a n u d : ℕ}
-    (hdecomp : u ^ 2 * d = a * n) : 8 * d ∣ 8 * a * n := by
+/-- If `u^2*d = a*n`, then the conductor-relevant multiple `4*d` divides `4*a*n`. -/
+private lemma squarefree_factor_dvd_pollack_modulus {a n u d : ℕ}
+    (hdecomp : u ^ 2 * d = a * n) : 4 * d ∣ 4 * a * n := by
   refine ⟨u ^ 2, ?_⟩
   calc
-    8 * a * n = 8 * (a * n) := by ac_rfl
-    _ = 8 * (u ^ 2 * d) := by rw [← hdecomp]
-    _ = (8 * d) * (u ^ 2) := by ac_rfl
+    4 * a * n = 4 * (a * n) := by ac_rfl
+    _ = 4 * (u ^ 2 * d) := by rw [← hdecomp]
+    _ = (4 * d) * (u ^ 2) := by ac_rfl
 
-/-- A prime not dividing `8*a*n` certainly does not divide `a*n`. -/
-lemma not_dvd_an_of_not_dvd_residue_modulus {a n p : ℕ}
-    (h : ¬ p ∣ 8 * a * n) : ¬ p ∣ a * n := by
+/-- If `v^2*d = a`, then the conductor-relevant multiple `4*d` divides `4*a*n`. -/
+private lemma squarefree_coeff_dvd_pollack_modulus {a n v d : ℕ}
+    (hadecomp : v ^ 2 * d = a) : 4 * d ∣ 4 * a * n := by
+  refine ⟨v ^ 2 * n, ?_⟩
+  calc
+    4 * a * n = 4 * (v ^ 2 * d) * n := by rw [← hadecomp]
+    _ = (4 * d) * (v ^ 2 * n) := by ac_rfl
+
+/-- A prime not dividing `4*a*n` certainly does not divide `a*n`. -/
+lemma not_dvd_an_of_not_dvd_pollack_modulus {a n p : ℕ}
+    (h : ¬ p ∣ 4 * a * n) : ¬ p ∣ a * n := by
   intro hp
   apply h
-  simpa [Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm] using dvd_mul_of_dvd_right hp 8
+  simpa [Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm] using dvd_mul_of_dvd_right hp 4
+
+/-- If the squarefree part of `a` is `1`, then `a` is a square. -/
+private lemma coeff_is_square_of_squarefree_part_eq_one {a v d : ℕ}
+    (hadecomp : v ^ 2 * d = a)
+    (hd1 : d = 1) :
+    a = v ^ 2 := by
+  simpa [hd1] using hadecomp.symm
 
 /-- A square root in `ZMod p` yields a witness for `QuadResidueMod d p`. -/
 private lemma quadResidueMod_of_isSquare_zmod {d p : ℕ} (h : IsSquare (d : ZMod p)) :
@@ -154,24 +194,109 @@ private lemma quadResidueMod_of_isSquare_zmod {d p : ℕ} (h : IsSquare (d : ZMo
         _ = (d : ZMod (p + 1)) := by
           simpa [pow_two] using hx.symm
 
-/-! ## The unconditional small-prime input -/
+/-! ## Bridge from Pollack's literal theorem to the Jacobi-symbol specialization -/
 
-lemma exists_small_residue_prime :
-    ∃ M0 : ℕ, ∀ {m d : ℕ}, M0 ≤ m → Squarefree d → 1 < d → 8 * d ∣ m →
-      ∃ p : ℕ, p.Prime ∧ p ≠ 2 ∧ ¬p ∣ m ∧
-        (p : ℝ) ≤ (m : ℝ) ^ (31 / 64 : ℝ) ∧ QuadResidueMod d p := by
-  obtain ⟨M0, hprime⟩ := exists_small_quadratic_residue_prime_cutoff
-  refine ⟨M0, ?_⟩
-  intro m d hm hd hdgt hdvd
-  obtain ⟨p, hp, hp2, hpm, hpbound, hJ⟩ := hprime hm hd hdgt hdvd
+/-- If the attached character takes the value `1` at a prime `p`, then `p` is an odd prime
+not dividing `m`, and `d` is a quadratic residue modulo `p`.
+
+This is the exact downstream interface needed in the two contradiction arguments. -/
+private lemma attachedQuadraticCharacter_spec
+    {d m p : ℕ} (hdvd : 4 * d ∣ m)
+    (hp : p.Prime)
+    (hχ : attachedQuadraticCharacter d m hdvd p = 1) :
+    p ≠ 2 ∧ ¬ p ∣ m ∧ QuadResidueMod d p := by
+  have hcop : Nat.Coprime p m := by
+    by_contra hnot
+    have hzero : attachedQuadraticCharacter d m hdvd p = 0 := by
+      simp [attachedQuadraticCharacter, hnot]
+    have h01 : (0 : ℤ) = 1 := by
+      rw [hzero] at hχ
+      exact hχ
+    norm_num at h01
+  have hpndvd : ¬ p ∣ m := (hp.coprime_iff_not_dvd).1 hcop
+  have hp2 : p ≠ 2 := by
+    intro hp2
+    apply hpndvd
+    simpa [hp2] using two_dvd_of_four_d_dvd hdvd
+  have hJacobi : jacobiSym (d : ℤ) p = 1 := by
+    rw [attachedQuadraticCharacter_apply_coprime hdvd hcop] at hχ
+    exact hχ
   have : Fact p.Prime := ⟨hp⟩
+  have hsqInt : IsSquare ((d : ℤ) : ZMod p) :=
+    ZMod.isSquare_of_jacobiSym_eq_one (a := (d : ℤ)) (p := p) hJacobi
   have hsq : IsSquare (d : ZMod p) := by
-    simpa only [Int.cast_natCast] using ZMod.isSquare_of_jacobiSym_eq_one hJ
-  exact ⟨p, hp, hp2, hpm, hpbound, quadResidueMod_of_isSquare_zmod hsq⟩
+    rcases hsqInt with ⟨x, hx⟩
+    refine ⟨x, ?_⟩
+    simpa using hx
+  exact ⟨hp2, hpndvd, quadResidueMod_of_isSquare_zmod hsq⟩
+
+/-! ## Pollack specialized to the exact bound used in the paper -/
+
+/-- The `A = 1`, `ε = 1/8` specialization of Pollack, reduced to the only output needed later:
+the existence of one Pollack-sized odd prime with `d` a quadratic residue modulo `p`.
+
+This is the abstraction boundary for the rest of the file.  All later arguments use only this
+lemma, and never the full cardinality statement of `Pollack17.theorem_1_3`. -/
+lemma exists_small_prime_from_pollack :
+    ∃ M0 : ℕ, ∀ {m d : ℕ}, M0 ≤ m → 4 * d ∣ m →
+      ∃ p : ℕ,
+        p.Prime ∧ p ≠ 2 ∧ ¬ p ∣ m ∧
+        (p : ℝ) ≤ Real.rpow (m : ℝ) ((3 : ℝ) / 8) ∧
+        QuadResidueMod d p := by
+  classical
+  obtain ⟨m0, hm0⟩ :=
+    Pollack17.theorem_1_3 ((1 : ℝ) / 8) 1 (by norm_num) (by norm_num)
+  refine ⟨max (m0 + 1) 2, ?_⟩
+  intro m d hm hdvd
+  have hm2 : 2 ≤ m := le_trans (le_max_right _ _) hm
+  have hmpos : 0 < m := lt_of_lt_of_le (by decide : 0 < 2) hm2
+  have : NeZero m := ⟨Nat.ne_of_gt hmpos⟩
+  set χ : QuadraticCharacterMod m := attachedQuadraticCharacter d m hdvd
+  set P : Finset ℕ :=
+    Pollack17.residuePrimesUpTo m χ.toDirichletCharacterComplex ((1 : ℝ) / 8)
+  have hgt : m > m0 := by
+    exact Nat.lt_of_lt_of_le (Nat.lt_succ_self m0) (le_trans (le_max_left _ _) hm)
+  have hcard : Real.rpow (Real.log (m : ℝ)) 1 ≤ (P.card : ℝ) := by
+    simpa [P] using
+      hm0 m hgt χ.toDirichletCharacterComplex χ.toDirichletCharacterComplex_isQuadratic
+  have hcard' : Real.log (m : ℝ) ≤ (P.card : ℝ) := by
+    simpa using hcard
+  have hm1_real : (1 : ℝ) < (m : ℝ) := by
+    exact_mod_cast (lt_of_lt_of_le (by decide : 1 < 2) hm2)
+  have hlog_pos : 0 < Real.log (m : ℝ) := Real.log_pos hm1_real
+  have hcard_pos : 0 < P.card := by
+    by_contra hcard_not
+    have hcard0 : P.card = 0 := Nat.eq_zero_of_not_pos hcard_not
+    have hcard_pos_real : (0 : ℝ) < (P.card : ℝ) := lt_of_lt_of_le hlog_pos hcard'
+    have : (0 : ℝ) < 0 := by
+      rw [hcard0] at hcard_pos_real
+      norm_num at hcard_pos_real
+    exact (lt_irrefl (0 : ℝ)) this
+  obtain ⟨p, hpP⟩ := Finset.card_pos.mp hcard_pos
+  have hpP' : p ∈ Pollack17.residuePrimesUpTo m χ.toDirichletCharacterComplex ((1 : ℝ) / 8) := by
+    simpa [P] using hpP
+  have hpP'' := Finset.mem_filter.mp (show p ∈
+    (Finset.range
+      (Nat.ceil
+        (Pollack17.residuePrimeUpperBound m ((1 : ℝ) / 8)) + 1)).filter
+      (fun ℓ => Nat.Prime ℓ ∧
+        (ℓ : ℝ) ≤ Pollack17.residuePrimeUpperBound m ((1 : ℝ) / 8) ∧
+        χ.toDirichletCharacterComplex (ℓ : ZMod m) = (1 : ℂ)) from hpP')
+  rcases hpP''.2 with ⟨hpp, hpbound, hχpComplex⟩
+  have hχp : χ p = 1 := by
+    exact χ.eq_one_of_toDirichletCharacterComplex_apply_nat_eq_one
+      (n := p) (by simpa using hχpComplex)
+  have hspec : p ≠ 2 ∧ ¬ p ∣ m ∧ QuadResidueMod d p := by
+    simpa [χ] using attachedQuadraticCharacter_spec (d := d) (m := m) (p := p) hdvd hpp hχp
+  rcases hspec with ⟨hp2, hpndvd, hres⟩
+  refine ⟨p, hpp, hp2, hpndvd, ?_, hres⟩
+  rw [Pollack17.residuePrimeUpperBound] at hpbound
+  convert hpbound using 1
+  norm_num
 
 /-! ## Turning quadratic residuosity into solvability of `a*x^2 ≡ n [MOD p]` -/
 
-/-- In the non-square case, The small-prime theorem gives `d` as a quadratic residue.  Combined with
+/-- In the non-square case, Pollack gives `d` as a quadratic residue.  Combined with
 `u^2*d = a*n` and `p ∤ a*n`, this yields solvability of `a*x^2 ≡ n [MOD p]`. -/
 lemma solvable_of_squarefree_part
     {a n u d p : ℕ}
@@ -271,43 +396,139 @@ private lemma candidateKs_card_le_one
     simpa [t1, t2] using ht12
   exact Nat.pow_left_injective (show (2 : ℕ) ≠ 0 by decide) hsq_eq
 
-/-! ### Counting helpers for `many_candidates_of_small_prime_size` -/
+/-! ### Counting helpers for `many_candidates_of_pollack_size` -/
 
-private lemma two_pow_primeFactors_card_le_rpow_eventually :
+private lemma factorial_card_le_prod_of_one_le (s : Finset ℕ)
+    (hs : ∀ x ∈ s, 1 ≤ x) :
+    Nat.factorial s.card ≤ ∏ x ∈ s, x := by
+  classical
+  let f : Fin s.card ↪o ℕ := s.orderEmbOfFin rfl
+  have hidx : ∀ i : ℕ, ∀ hi : i < s.card, i + 1 ≤ f ⟨i, hi⟩ := by
+    intro i hi
+    induction i with
+    | zero =>
+        have hmem : f ⟨0, hi⟩ ∈ s := by
+          simp [f]
+        simpa [f] using hs (f ⟨0, hi⟩) hmem
+    | succ i ih =>
+        have hi' : i < s.card := Nat.lt_of_succ_lt hi
+        have hprev : i + 1 ≤ f ⟨i, hi'⟩ := ih hi'
+        have hlt : f ⟨i, hi'⟩ < f ⟨i + 1, hi⟩ := by
+          exact f.strictMono (Nat.lt_succ_self i)
+        exact le_trans (Nat.succ_le_succ hprev) (Nat.succ_le_of_lt hlt)
+  have hprod : (∏ i : Fin s.card, (i.1 + 1)) ≤ ∏ i : Fin s.card, f i := by
+    refine Finset.prod_le_prod' ?_
+    intro i _
+    exact hidx i.1 i.2
+  have hleft : (∏ i : Fin s.card, (i.1 + 1)) = Nat.factorial s.card := by
+    calc
+      (∏ i : Fin s.card, (i.1 + 1)) = ∏ i ∈ Finset.range s.card, (i + 1) := by
+        simpa using (Fin.prod_univ_eq_prod_range (fun i : ℕ => i + 1) s.card)
+      _ = Nat.factorial s.card := Finset.prod_range_add_one_eq_factorial s.card
+  have hright : (∏ i : Fin s.card, f i) = ∏ x ∈ s, x := by
+    calc
+      (∏ i : Fin s.card, f i) =
+        ∏ x ∈ Finset.map (s.orderEmbOfFin rfl).toEmbedding Finset.univ, x := by
+        symm
+        simpa [f] using
+          (Finset.prod_map (s := Finset.univ) (e := (s.orderEmbOfFin rfl).toEmbedding)
+            (f := fun x : ℕ => x))
+      _ = ∏ x ∈ s, x := by
+        rw [Finset.map_orderEmbOfFin_univ (s := s) (h := rfl)]
+  calc
+    Nat.factorial s.card = ∏ i : Fin s.card, (i.1 + 1) := hleft.symm
+    _ ≤ ∏ i : Fin s.card, f i := hprod
+    _ = ∏ x ∈ s, x := hright
+
+private lemma factorial_card_primeFactors_le (n : ℕ) (hn : n ≠ 0) :
+    Nat.factorial n.primeFactors.card ≤ n := by
+  have h1 : Nat.factorial n.primeFactors.card ≤ ∏ p ∈ n.primeFactors, p :=
+    factorial_card_le_prod_of_one_le _ (by
+      intro p hp
+      exact (Nat.prime_of_mem_primeFactors hp).one_le)
+  exact le_trans h1 (Nat.le_of_dvd (Nat.pos_of_ne_zero hn) (Nat.prod_primeFactors_dvd n))
+
+private lemma two_pow_primeFactors_card_le_rpow_sixteenth_eventually :
     ∃ Nω : ℕ, ∀ {n : ℕ}, Nω ≤ n →
-      (2 : ℝ) ^ n.primeFactors.card ≤ (n : ℝ) ^ ((1 : ℝ) / 128) := by
-  have hbound := eventually_divisors_card_le_rpow_uniform 256 (by norm_num)
-  obtain ⟨N, hN⟩ := Filter.eventually_atTop.mp hbound
-  refine ⟨max N 1, ?_⟩
+      (2 : ℝ) ^ n.primeFactors.card ≤ (n : ℝ) ^ ((1 : ℝ) / 16) := by
+  have hfact : ∀ᶠ k : ℕ in Filter.atTop, (2 ^ 16) ^ k < Nat.factorial (k - 1) := by
+    simpa using (Nat.eventually_pow_lt_factorial_sub 65536 1)
+  rcases Filter.eventually_atTop.mp hfact with ⟨k0, hk0⟩
+  refine ⟨max 3 ((2 ^ k0) ^ 16), ?_⟩
   intro n hn
-  have hn0 : n ≠ 0 := by have := (le_max_right N 1).trans hn; omega
-  have htwo : (2 : ℝ) ^ n.primeFactors.card ≤ (n.divisors.card : ℝ) := by
-    exact_mod_cast two_pow_primeFactors_card_le_divisors_card n hn0
-  have hdiv := hN n ((le_max_left N 1).trans hn) n hn0 le_rfl
-  norm_num at hdiv
-  exact htwo.trans hdiv
+  let k := n.primeFactors.card
+  have hn3 : 3 ≤ n := le_trans (Nat.le_max_left _ _) hn
+  have hnpos : 0 < n := by omega
+  by_cases hk_small : k < k0
+  · have hk_le : k ≤ k0 := hk_small.le
+    have hpow_nat : (2 ^ k : ℕ) ≤ 2 ^ k0 :=
+      Nat.pow_le_pow_right Nat.zero_lt_two hk_le
+    have hpow_real : (2 : ℝ) ^ k ≤ (2 : ℝ) ^ k0 := by
+      exact_mod_cast hpow_nat
+    have hconst_nat : ((2 ^ k0 : ℕ) ^ 16) ≤ n :=
+      le_trans (Nat.le_max_right _ _) hn
+    have hconst16_real : (((2 : ℝ) ^ k0) ^ (16 : ℕ)) ≤ (n : ℝ) := by
+      exact_mod_cast hconst_nat
+    have hconst_le' :
+        (((2 : ℝ) ^ k0) ^ (16 : ℕ)) ^ ((1 : ℝ) / 16) ≤
+          (n : ℝ) ^ ((1 : ℝ) / 16) := by
+      exact Real.rpow_le_rpow
+        (show 0 ≤ (((2 : ℝ) ^ k0) ^ (16 : ℕ)) by positivity)
+        hconst16_real
+        (by norm_num : 0 ≤ ((1 : ℝ) / 16))
+    have hnonneg_k0 : 0 ≤ (2 : ℝ) ^ k0 := by positivity
+    have hroot : (((2 : ℝ) ^ k0) ^ (16 : ℕ)) ^ ((1 : ℝ) / 16) = (2 : ℝ) ^ k0 := by
+      simpa [one_div] using Real.pow_rpow_inv_natCast hnonneg_k0 (by norm_num : (16 : ℕ) ≠ 0)
+    rw [hroot] at hconst_le'
+    exact hpow_real.trans hconst_le'
+  · have hk_ge : k0 ≤ k := Nat.le_of_not_gt hk_small
+    have hmain_nat : (2 ^ 16) ^ k < Nat.factorial k := by
+      exact lt_of_lt_of_le (hk0 k hk_ge) (Nat.factorial_le (Nat.sub_le _ _))
+    have hk_fact_le_n : Nat.factorial k ≤ n := by
+      simpa [k] using factorial_card_primeFactors_le n (Nat.ne_of_gt hnpos)
+    have hpow16_nat' : (2 ^ 16) ^ k ≤ n := le_trans (Nat.le_of_lt hmain_nat) hk_fact_le_n
+    have hpow16_nat : (2 ^ k : ℕ) ^ 16 ≤ n := by
+      calc
+        (2 ^ k : ℕ) ^ 16 = 2 ^ (k * 16) := by rw [pow_mul]
+        _ = 2 ^ (16 * k) := by rw [Nat.mul_comm]
+        _ = (2 ^ 16) ^ k := by rw [pow_mul]
+        _ ≤ n := hpow16_nat'
+    have hpow16_real : (((2 : ℝ) ^ k) ^ (16 : ℕ)) ≤ (n : ℝ) := by
+      exact_mod_cast hpow16_nat
+    have hgoal' :
+        (((2 : ℝ) ^ k) ^ (16 : ℕ)) ^ ((1 : ℝ) / 16) ≤
+          (n : ℝ) ^ ((1 : ℝ) / 16) := by
+      exact Real.rpow_le_rpow
+        (show 0 ≤ (((2 : ℝ) ^ k) ^ (16 : ℕ)) by positivity)
+        hpow16_real
+        (by norm_num : 0 ≤ ((1 : ℝ) / 16))
+    have hnonneg_k : 0 ≤ (2 : ℝ) ^ k := by positivity
+    have hroot : (((2 : ℝ) ^ k) ^ (16 : ℕ)) ^ ((1 : ℝ) / 16) = (2 : ℝ) ^ k := by
+      simpa [one_div] using Real.pow_rpow_inv_natCast hnonneg_k (by norm_num : (16 : ℕ) ≠ 0)
+    rw [hroot] at hgoal'
+    exact hgoal'
 
-private lemma nat_rpow_div_log_eventually_large (N : ℝ) :
+private lemma nat_rpow_sixteenth_div_log_eventually_large (N : ℝ) :
     ∃ N0 : ℕ, 3 ≤ N0 ∧ ∀ n : ℕ, N0 ≤ n →
-      N ≤ (n : ℝ) ^ ((1 : ℝ) / 128) / (3 * Real.log n) := by
+      N ≤ (n : ℝ) ^ ((1 : ℝ) / 16) / (3 * Real.log n) := by
   have h_tend : Filter.Tendsto
-      (fun n : ℕ ↦ (n : ℝ) ^ ((1 : ℝ) / 128) / (3 * Real.log n))
+      (fun n : ℕ ↦ (n : ℝ) ^ ((1 : ℝ) / 16) / (3 * Real.log n))
       Filter.atTop Filter.atTop := by
-    have h_aux : Filter.Tendsto (fun u : ℝ ↦ Real.exp u / (384 * u)) Filter.atTop Filter.atTop := by
+    have h_aux : Filter.Tendsto (fun u : ℝ ↦ Real.exp u / (48 * u)) Filter.atTop Filter.atTop := by
       have h1 : Filter.Tendsto (fun u : ℝ ↦ Real.exp u / u) Filter.atTop Filter.atTop := by
         simpa using Real.tendsto_exp_div_pow_atTop 1
-      convert Filter.Tendsto.atTop_div_const (show 0 < (384 : ℝ) by norm_num) h1 using 1 with u
+      convert Filter.Tendsto.atTop_div_const (show 0 < (48 : ℝ) by norm_num) h1 using 1 with u
       ring_nf
-    have hlog : Filter.Tendsto (fun n : ℕ ↦ Real.log n / 128) Filter.atTop Filter.atTop := by
-      exact Filter.Tendsto.atTop_div_const (show 0 < (128 : ℝ) by norm_num) <|
+    have hlog : Filter.Tendsto (fun n : ℕ ↦ Real.log n / 16) Filter.atTop Filter.atTop := by
+      exact Filter.Tendsto.atTop_div_const (show 0 < (16 : ℝ) by norm_num) <|
         (Real.tendsto_log_atTop.comp tendsto_natCast_atTop_atTop)
     exact (h_aux.comp hlog).congr' (by
       filter_upwards [Filter.eventually_gt_atTop 0] with n hn
       have hn' : (0 : ℝ) < n := by exact_mod_cast hn
-      have hlog128 : Real.log n / 128 = Real.log n * ((1 : ℝ) / 128) := by ring
-      have hden' : 384 * (Real.log n * ((1 : ℝ) / 128)) = 3 * Real.log n := by ring
+      have hlog16 : Real.log n / 16 = Real.log n * ((1 : ℝ) / 16) := by ring
+      have hden' : 48 * (Real.log n * ((1 : ℝ) / 16)) = 3 * Real.log n := by ring
       simp only [Function.comp_apply]
-      rw [Real.rpow_def_of_pos hn', hlog128, hden'])
+      rw [Real.rpow_def_of_pos hn', hlog16, hden'])
   rcases Filter.eventually_atTop.1 (h_tend.eventually_ge_atTop N) with ⟨N0, hN0⟩
   refine ⟨max N0 3, le_max_right _ _, ?_⟩
   intro n hn
@@ -322,6 +543,258 @@ private lemma mem_finset_inf_iff {ι α : Type*} [Fintype α] [DecidableEq α]
       simp
   | @insert b s hb ih =>
       simp [Finset.inf_insert, ih]
+
+private lemma count_root_class_with_divisors
+    {n p r K : ℕ} (hp : p.Prime) (_hn0 : n ≠ 0) (hpn : ¬ p ∣ n)
+    (t : Finset ℕ) (ht : t ⊆ n.primeFactors) :
+    ∃ v : ℕ,
+      #{k ∈ (Finset.range K) | Nat.ModEq p k r ∧ ∀ q ∈ t, q ∣ k}
+        = K.count (· ≡ v [MOD p * ∏ q ∈ t, q]) := by
+  classical
+  let d : ℕ := ∏ q ∈ t, q
+  have hp_coprime_d : Nat.Coprime p d := by
+    refine Nat.coprime_prod_right_iff.mpr ?_
+    intro q hq
+    have hqmem : q ∈ n.primeFactors := ht hq
+    have hqprime : q.Prime := Nat.prime_of_mem_primeFactors hqmem
+    have hpq : p ≠ q := by
+      intro hpq
+      apply hpn
+      simpa [hpq] using (Nat.dvd_of_mem_primeFactors hqmem)
+    exact (Nat.coprime_primes hp hqprime).2 hpq
+  have hpair : Set.Pairwise (↑t : Set ℕ) (fun q q' : ℕ ↦ Nat.Coprime q q') := by
+    intro q hq q' hq' hqq'
+    exact (Nat.coprime_primes
+      (Nat.prime_of_mem_primeFactors (ht hq))
+      (Nat.prime_of_mem_primeFactors (ht hq'))).2 hqq'
+  have hlcm : t.lcm (fun q : ℕ ↦ q) = d := by
+    simpa [d] using (Finset.lcm_eq_prod (s := t) (f := fun q : ℕ ↦ q) hpair)
+  have hdiv_iff : ∀ k : ℕ, (∀ q ∈ t, q ∣ k) ↔ d ∣ k := by
+    intro k
+    simpa [d, hlcm] using
+      (Finset.lcm_dvd_iff (s := t) (f := fun q : ℕ ↦ q) (a := k)).symm
+  let v : ℕ := Nat.chineseRemainder hp_coprime_d r 0
+  have hvp : Nat.ModEq p v r := by
+    simpa [v] using (Nat.chineseRemainder hp_coprime_d r 0).prop.1
+  have hvd : Nat.ModEq d v 0 := by
+    simpa [v] using (Nat.chineseRemainder hp_coprime_d r 0).prop.2
+  refine ⟨v, ?_⟩
+  rw [Nat.count_eq_card_filter_range]
+  apply congrArg Finset.card
+  ext k
+  simp only [Finset.mem_filter, Finset.mem_range]
+  constructor
+  · rintro ⟨hkK, hkpr, hkt⟩
+    refine ⟨hkK, ?_⟩
+    have hk0 : d ∣ k := (hdiv_iff k).1 hkt
+    simpa [d, v] using
+      (Nat.chineseRemainder_modEq_unique hp_coprime_d hkpr
+        (Nat.modEq_zero_iff_dvd.2 hk0))
+  · rintro ⟨hkK, hk⟩
+    have hk' : Nat.ModEq p k v ∧ Nat.ModEq d k v := by
+      have hk'' : Nat.ModEq (p * d) k v := by
+        simpa [d] using hk
+      exact (Nat.modEq_and_modEq_iff_modEq_mul hp_coprime_d).mpr hk''
+    refine ⟨hkK, hk'.1.trans hvp, ?_⟩
+    exact (hdiv_iff k).2 <| Nat.modEq_zero_iff_dvd.1 (hk'.2.trans hvd)
+
+private lemma root_class_good_count_lower_bound
+    {a n p r K : ℕ}
+    (_ha : 1 ≤ a)
+    (hn3 : 3 ≤ n)
+    (hp : p.Prime)
+    (hpndvd : ¬ p ∣ a * n)
+    (_hroot : Nat.ModEq p (a * r ^ 2) n)
+    (_hK : K = Nat.sqrt ((n - 1) / a) + 1) :
+    let U : Finset ℕ := ((Finset.range K).filter fun k ↦ Nat.ModEq p k r)
+    let α := {k : ℕ // k ∈ U}
+    let emb : α ↪ ℕ :=
+      ⟨Subtype.val, by
+        intro x y h
+        exact Subtype.ext h⟩
+    let S : ℕ → Finset α := fun q ↦ (Finset.univ : Finset α).filter fun k ↦ q ∣ (k : ℕ)
+    let good : Finset α := n.primeFactors.inf fun q ↦ (S q)ᶜ
+    ((good.map emb).card : ℝ)
+      ≥ (K : ℝ) / p * ∏ q ∈ n.primeFactors, (1 - 1 / (q : ℝ))
+          - (2 : ℝ) ^ n.primeFactors.card := by
+  classical
+  let U : Finset ℕ := ((Finset.range K).filter fun k ↦ Nat.ModEq p k r)
+  let α := {k : ℕ // k ∈ U}
+  let emb : α ↪ ℕ :=
+    ⟨Subtype.val, by
+      intro x y h
+      exact Subtype.ext h⟩
+  let S : ℕ → Finset α := fun q ↦ (Finset.univ : Finset α).filter fun k ↦ q ∣ (k : ℕ)
+  let good : Finset α := n.primeFactors.inf fun q ↦ (S q)ᶜ
+  change ((good.map emb).card : ℝ)
+      ≥ (K : ℝ) / p * ∏ q ∈ n.primeFactors, (1 - 1 / (q : ℝ))
+          - (2 : ℝ) ^ n.primeFactors.card
+  have hn0 : n ≠ 0 := by omega
+  have hpn : ¬ p ∣ n := by
+    intro hpn
+    exact hpndvd (dvd_mul_of_dvd_right hpn a)
+  have hIE : ((good.map emb).card : ℤ) =
+      ∑ t ∈ n.primeFactors.powerset, (-1 : ℤ) ^ t.card * ((t.inf S).card : ℤ) := by
+    rw [Finset.card_map]
+    simpa [good] using
+      (Finset.inclusion_exclusion_card_inf_compl (s := n.primeFactors) (S := S))
+  have hIE_real : ((good.map emb).card : ℝ) =
+      ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((t.inf S).card : ℝ) := by
+    exact_mod_cast hIE
+  have hterm :
+      ∀ t ∈ n.primeFactors.powerset,
+        (-1 : ℝ) ^ t.card * ((K : ℝ) / (p * ∏ q ∈ t, q)) - 1 ≤
+          (-1 : ℝ) ^ t.card * ((t.inf S).card : ℝ) := by
+    intro t ht
+    have htsub : t ⊆ n.primeFactors := Finset.mem_powerset.mp ht
+    obtain ⟨v, hv⟩ :=
+      count_root_class_with_divisors (n := n) (p := p) (r := r) (K := K) hp hn0 hpn t htsub
+    have hmap :
+        (t.inf S).map emb =
+          (Finset.range K).filter fun k ↦ Nat.ModEq p k r ∧ ∀ q ∈ t, q ∣ k := by
+      ext k
+      constructor
+      · intro hk
+        rcases Finset.mem_map.mp hk with ⟨x, hx, rfl⟩
+        have hxU : (x : ℕ) ∈ U := x.property
+        rcases Finset.mem_filter.mp hxU with ⟨hxK, hxr⟩
+        have hxdiv : ∀ q ∈ t, q ∣ (x : ℕ) := by
+          intro q hq
+          have hxq : x ∈ S q :=
+            (mem_finset_inf_iff (s := t) (f := S) (a := x)).1 hx q hq
+          simpa [S] using hxq
+        exact Finset.mem_filter.mpr ⟨hxK, ⟨hxr, hxdiv⟩⟩
+      · intro hk
+        rcases Finset.mem_filter.mp hk with ⟨hkK, hkcond⟩
+        rcases hkcond with ⟨hkr, hkdiv⟩
+        have hkU : k ∈ U := Finset.mem_filter.mpr ⟨hkK, hkr⟩
+        let x : α := ⟨k, hkU⟩
+        have hx : x ∈ t.inf S := by
+          refine (mem_finset_inf_iff (s := t) (f := S) (a := x)).2 ?_
+          intro q hq
+          simpa [x, S] using hkdiv q hq
+        exact Finset.mem_map.mpr ⟨x, hx, rfl⟩
+    have hcard_map :
+        ((t.inf S).map emb).card = K.count (· ≡ v [MOD p * ∏ q ∈ t, q]) := by
+      simpa [hmap] using hv
+    have hcard_eq_count :
+        (t.inf S).card = K.count (· ≡ v [MOD p * ∏ q ∈ t, q]) := by
+      simpa using hcard_map
+    let m : ℕ := p * ∏ q ∈ t, q
+    have hm_pos : 0 < m := by
+      dsimp [m]
+      refine Nat.mul_pos hp.pos ?_
+      refine Finset.prod_pos ?_
+      intro q hq
+      exact (Nat.prime_of_mem_primeFactors (htsub hq)).pos
+    have hcount_formula :
+        (t.inf S).card = K / m + if v % m < K % m then 1 else 0 := by
+      rw [hcard_eq_count, Nat.count_modEq_card (b := K) (r := m) (hr := hm_pos) v]
+    have hcount_formula_real :
+        ((t.inf S).card : ℝ) =
+          ((K / m : ℕ) : ℝ) + ((if v % m < K % m then 1 else 0 : ℕ) : ℝ) := by
+      exact_mod_cast hcount_formula
+    have hdiv_le : ((K / m : ℕ) : ℝ) ≤ (K : ℝ) / m := Nat.cast_div_le
+    have hm_posR : (0 : ℝ) < m := by exact_mod_cast hm_pos
+    have hlt_nat : K < (K / m + 1) * m := by
+      exact (Nat.div_lt_iff_lt_mul hm_pos).mp (Nat.lt_succ_self _)
+    have hlt_real : (K : ℝ) < ((((K / m : ℕ) : ℝ) + 1) * m) := by
+      exact_mod_cast hlt_nat
+    have hdiv_lt : (K : ℝ) / m < ((K / m : ℕ) : ℝ) + 1 := by
+      exact (div_lt_iff₀ hm_posR).2 hlt_real
+    have hbit_nonneg :
+        (0 : ℝ) ≤ ((if v % m < K % m then 1 else 0 : ℕ) : ℝ) := by
+      by_cases h : v % m < K % m
+      · simp [h]
+      · simp [h]
+    have hbit_le_one :
+        ((if v % m < K % m then 1 else 0 : ℕ) : ℝ) ≤ 1 := by
+      by_cases h : v % m < K % m
+      · simp [h]
+      · simp [h]
+    have hlower : (K : ℝ) / m - 1 ≤ ((t.inf S).card : ℝ) := by
+      rw [hcount_formula_real]
+      have hq_ge : (K : ℝ) / m - 1 ≤ (K / m : ℝ) := by
+        linarith
+      linarith
+    have hupper : ((t.inf S).card : ℝ) ≤ (K : ℝ) / m + 1 := by
+      rw [hcount_formula_real]
+      linarith
+    rcases neg_one_pow_eq_or ℝ t.card with hsgn | hsgn
+    · rw [hsgn]
+      simpa [m] using hlower
+    · rw [hsgn]
+      have hupper' : ((t.inf S).card : ℝ) ≤ (K : ℝ) / (p * ∏ q ∈ t, q) + 1 := by
+        simpa [m] using hupper
+      linarith
+  have hsum_lower :
+      ∑ t ∈ n.primeFactors.powerset,
+        ((-1 : ℝ) ^ t.card * ((K : ℝ) / (p * ∏ q ∈ t, q)) - 1)
+        ≤ ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((t.inf S).card : ℝ) := by
+    exact Finset.sum_le_sum (fun t ht ↦ hterm t ht)
+  have hsum_lower' :
+      ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((K : ℝ) / (p * ∏ q ∈ t, q))
+        - ∑ t ∈ n.primeFactors.powerset, (1 : ℝ)
+        ≤ ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((t.inf S).card : ℝ) := by
+    simpa [Finset.sum_sub_distrib] using hsum_lower
+  have hmain_expand :
+      ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((K : ℝ) / (p * ∏ q ∈ t, q))
+        = (K : ℝ) / p * ∏ q ∈ n.primeFactors, (1 - 1 / (q : ℝ)) := by
+    calc
+      ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((K : ℝ) / (p * ∏ q ∈ t, q))
+          = ∑ t ∈ n.primeFactors.powerset,
+              (-1 : ℝ) ^ t.card * ((K : ℝ) / p * ∏ q ∈ t, (1 / (q : ℝ))) := by
+              refine Finset.sum_congr rfl ?_
+              intro t ht
+              have htsub : t ⊆ n.primeFactors := Finset.mem_powerset.mp ht
+              have hp0 : (p : ℝ) ≠ 0 := by exact_mod_cast hp.ne_zero
+              have hprod_pos : 0 < ∏ q ∈ t, (q : ℝ) := by
+                refine Finset.prod_pos ?_
+                intro q hq
+                exact_mod_cast (Nat.prime_of_mem_primeFactors (htsub hq)).pos
+              have hprod_ne0 : (∏ q ∈ t, (q : ℝ)) ≠ 0 := by
+                exact ne_of_gt hprod_pos
+              have hprod_inv :
+                  ∏ q ∈ t, (1 / (q : ℝ)) = 1 / ∏ q ∈ t, (q : ℝ) := by
+                calc
+                  ∏ q ∈ t, (1 / (q : ℝ)) = ∏ q ∈ t, ((q : ℝ)⁻¹) := by
+                    simp [one_div]
+                  _ = (∏ q ∈ t, (q : ℝ))⁻¹ := by
+                    rw [Finset.prod_inv_distrib]
+                  _ = 1 / ∏ q ∈ t, (q : ℝ) := by
+                    simp [one_div]
+              rw [hprod_inv]
+              have hcast_prod : ((∏ q ∈ t, q : ℕ) : ℝ) = ∏ q ∈ t, (q : ℝ) := by
+                simp
+              rw [hcast_prod]
+              field_simp [hp0, hprod_ne0]
+      _ = ∑ t ∈ n.primeFactors.powerset,
+            (K : ℝ) / p * ((-1 : ℝ) ^ t.card * ∏ q ∈ t, (1 / (q : ℝ))) := by
+          refine Finset.sum_congr rfl ?_
+          intro t ht
+          ring
+      _ = (K : ℝ) / p * ∑ t ∈ n.primeFactors.powerset,
+            (-1 : ℝ) ^ t.card * ∏ q ∈ t, (1 / (q : ℝ)) := by
+          symm
+          rw [Finset.mul_sum]
+      _ = (K : ℝ) / p * ∏ q ∈ n.primeFactors, (1 - 1 / (q : ℝ)) := by
+          congr 1
+          symm
+          simpa using
+            (Finset.prod_sub (s := n.primeFactors) (f := fun _ : ℕ => (1 : ℝ))
+              (g := fun q : ℕ => 1 / (q : ℝ)))
+  have herror :
+      ∑ t ∈ n.primeFactors.powerset, (1 : ℝ) = (2 : ℝ) ^ n.primeFactors.card := by
+    calc
+      ∑ t ∈ n.primeFactors.powerset, (1 : ℝ) = (n.primeFactors.powerset.card : ℝ) := by simp
+      _ = (2 : ℝ) ^ n.primeFactors.card := by simp
+  calc
+    ((good.map emb).card : ℝ)
+        = ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((t.inf S).card : ℝ) := hIE_real
+    _ ≥ ∑ t ∈ n.primeFactors.powerset, (-1 : ℝ) ^ t.card * ((K : ℝ) / (p * ∏ q ∈ t, q))
+          - ∑ t ∈ n.primeFactors.powerset, (1 : ℝ) := hsum_lower'
+    _ = (K : ℝ) / p * ∏ q ∈ n.primeFactors, (1 - 1 / (q : ℝ))
+          - (2 : ℝ) ^ n.primeFactors.card := by rw [hmain_expand, herror]
 
 private lemma mertens_primeFactors_lower_bound {n : ℕ} (hn3 : 3 ≤ n) :
     1 / (3 * Real.log n)
@@ -369,14 +842,14 @@ private lemma mertens_primeFactors_lower_bound {n : ℕ} (hn3 : 3 ≤ n) :
 
 /-- Main counting lemma.
 
-For fixed `a`, if `p` is an odd prime of the stated size, `p ∤ a*n`, and
+For fixed `a`, if `p` is an odd prime of Pollack-size, `p ∤ a*n`, and
 `a*x^2 ≡ n [MOD p]` is solvable, then for all sufficiently large `n`
 there are more than one candidates.
 
 This is exactly where the Möbius-inversion count and `mertens_third_theorem` enter.
 In this formalization, it is enough to count one chosen root class modulo `p`; the
 factor `2` from the paper is not needed. -/
-private lemma many_candidates_of_small_prime_size
+private lemma many_candidates_of_pollack_size
     (a : ℕ)
     (ha : 1 ≤ a) :
     ∃ N0 : ℕ, ∀ {n p : ℕ},
@@ -385,11 +858,11 @@ private lemma many_candidates_of_small_prime_size
       p ≠ 2 →
       ¬ p ∣ a * n →
       SolvableAX2EqNMod a n p →
-      (p : ℝ) ≤ smallPrimeSizeBound a n →
+      (p : ℝ) ≤ pollackSizeBound a n →
       1 < (candidateKs a n p).card := by
   classical
-  obtain ⟨Nω, hω⟩ := two_pow_primeFactors_card_le_rpow_eventually
-  obtain ⟨Nmain, hNmain_ge3, hmain⟩ := nat_rpow_div_log_eventually_large (96 * a)
+  obtain ⟨Nω, hω⟩ := two_pow_primeFactors_card_le_rpow_sixteenth_eventually
+  obtain ⟨Nmain, hNmain_ge3, hmain⟩ := nat_rpow_sixteenth_div_log_eventually_large (48 * a)
   refine ⟨max Nω Nmain, ?_⟩
   intro n p hn hp hp2 hpndvd hsol hpbound
   have hnω : Nω ≤ n := le_trans (le_max_left _ _) hn
@@ -468,27 +941,26 @@ private lemma many_candidates_of_small_prime_size
       ≥ (K : ℝ) / p * ∏ q ∈ n.primeFactors, (1 - 1 / (q : ℝ))
           - (2 : ℝ) ^ n.primeFactors.card := by
     simpa [U, α, emb, S, good, K] using
-      (Sieve.root_class_good_count_lower_bound (n := n) (p := p) (r := r) (K := K)
-        hn0 hp.ne_zero (hp.coprime_iff_not_dvd.mpr
-          (fun hpn ↦ hpndvd (dvd_mul_of_dvd_right hpn a))))
+      (root_class_good_count_lower_bound (a := a) (n := n) (p := p) (r := r) (K := K)
+        ha hn3 hp hpndvd hr_root rfl)
   have hmertens : 1 / (3 * Real.log n)
       ≤ ∏ q ∈ n.primeFactors, (1 - 1 / (q : ℝ)) :=
     mertens_primeFactors_lower_bound hn3
-  have hmain' : (96 * a : ℝ) ≤ (n : ℝ) ^ ((1 : ℝ) / 128) / (3 * Real.log n) := hmain n hnmain
-  have hω' : (2 : ℝ) ^ n.primeFactors.card ≤ (n : ℝ) ^ ((1 : ℝ) / 128) := hω hnω
+  have hmain' : (48 * a : ℝ) ≤ (n : ℝ) ^ ((1 : ℝ) / 16) / (3 * Real.log n) := hmain n hnmain
+  have hω' : (2 : ℝ) ^ n.primeFactors.card ≤ (n : ℝ) ^ ((1 : ℝ) / 16) := hω hnω
   have hp_pos : (0 : ℝ) < p := by exact_mod_cast hp.pos
-  have hp_le : p ≤ (8 * a * n : ℝ) ^ ((31 : ℝ) / 64) := by
-    simpa [smallPrimeSizeBound] using hpbound
+  have hp_le : p ≤ (4 * a * n : ℝ) ^ ((3 : ℝ) / 8) := by
+    simpa [pollackSizeBound] using hpbound
   have hK_over_p : (2 : ℝ) + (2 : ℝ) ^ n.primeFactors.card
       ≤ (K : ℝ) / p * (1 / (3 * Real.log n)) := by
     have ha_pos_nat : 0 < a := by omega
     have hn_pos_nat : 0 < n := by omega
     have ha_pos : (0 : ℝ) < a := by exact_mod_cast ha_pos_nat
     have hn_pos : (0 : ℝ) < n := by exact_mod_cast hn_pos_nat
-    have hnpow128_pos : 0 < (n : ℝ) ^ ((1 : ℝ) / 128) := by positivity
-    have h8a_ne : (8 * a : ℝ) ≠ 0 := by positivity
-    have hpow128_ne : (n : ℝ) ^ ((1 : ℝ) / 128) ≠ 0 := hnpow128_pos.ne'
-    have hKp_lower : (n : ℝ) ^ ((1 : ℝ) / 64) / (8 * a) ≤ (K : ℝ) / p := by
+    have hnpow16_pos : 0 < (n : ℝ) ^ ((1 : ℝ) / 16) := by positivity
+    have h4a_ne : (4 * a : ℝ) ≠ 0 := by positivity
+    have hpow16_ne : (n : ℝ) ^ ((1 : ℝ) / 16) ≠ 0 := hnpow16_pos.ne'
+    have hKp_lower : (n : ℝ) ^ ((1 : ℝ) / 8) / (4 * a) ≤ (K : ℝ) / p := by
       have hKsq_nat : ((n - 1) / a + 1) ≤ K ^ 2 := by
         dsimp [K]
         simpa [pow_two] using Nat.succ_le_succ_sqrt' ((n - 1) / a)
@@ -516,10 +988,10 @@ private lemma many_candidates_of_small_prime_size
         rw [← Real.sqrt_eq_rpow, Real.sqrt_le_iff]
         exact ⟨by positivity, hna_div⟩
       have hmid :
-          ((n : ℝ) / a) ^ ((1 : ℝ) / 2) / (8 * a * n : ℝ) ^ ((31 : ℝ) / 64)
+          ((n : ℝ) / a) ^ ((1 : ℝ) / 2) / (4 * a * n : ℝ) ^ ((3 : ℝ) / 8)
             ≤ (K : ℝ) / p := by
         have h1 :
-            ((n : ℝ) / a) ^ ((1 : ℝ) / 2) / (8 * a * n : ℝ) ^ ((31 : ℝ) / 64)
+            ((n : ℝ) / a) ^ ((1 : ℝ) / 2) / (4 * a * n : ℝ) ^ ((3 : ℝ) / 8)
               ≤ ((n : ℝ) / a) ^ ((1 : ℝ) / 2) / p := by
           exact div_le_div_of_nonneg_left (by positivity) hp_pos hp_le
         have h2 :
@@ -527,22 +999,22 @@ private lemma many_candidates_of_small_prime_size
           exact div_le_div_of_nonneg_right hsqrt_leK hp_pos.le
         exact le_trans h1 h2
       have hbase :
-          (n : ℝ) ^ ((1 : ℝ) / 64) / (8 * a)
-            ≤ ((n : ℝ) / a) ^ ((1 : ℝ) / 2) / (8 * a * n : ℝ) ^ ((31 : ℝ) / 64) := by
-        have h8a_pos : 0 < (8 * a : ℝ) := by positivity
-        have h8an_pos : 0 < (8 * a * n : ℝ) ^ ((31 : ℝ) / 64) := by positivity
-        rw [div_le_div_iff₀ h8a_pos h8an_pos]
+          (n : ℝ) ^ ((1 : ℝ) / 8) / (4 * a)
+            ≤ ((n : ℝ) / a) ^ ((1 : ℝ) / 2) / (4 * a * n : ℝ) ^ ((3 : ℝ) / 8) := by
+        have h4a_pos : 0 < (4 * a : ℝ) := by positivity
+        have h4an_pos : 0 < (4 * a * n : ℝ) ^ ((3 : ℝ) / 8) := by positivity
+        rw [div_le_div_iff₀ h4a_pos h4an_pos]
         have hrewrite :
-            (8 * a * n : ℝ) ^ ((31 : ℝ) / 64)
-              = ((8 : ℝ) * a) ^ ((31 : ℝ) / 64) * (n : ℝ) ^ ((31 : ℝ) / 64) := by
-          have hmul : (8 * a * n : ℝ) = ((8 : ℝ) * a) * n := by ring
+            (4 * a * n : ℝ) ^ ((3 : ℝ) / 8)
+              = ((4 : ℝ) * a) ^ ((3 : ℝ) / 8) * (n : ℝ) ^ ((3 : ℝ) / 8) := by
+          have hmul : (4 * a * n : ℝ) = ((4 : ℝ) * a) * n := by ring
           rw [hmul, Real.mul_rpow (by positivity) (by positivity)]
         have hdivrpow :
             ((n : ℝ) / a) ^ ((1 : ℝ) / 2)
               = (n : ℝ) ^ ((1 : ℝ) / 2) / (a : ℝ) ^ ((1 : ℝ) / 2) := by
           rw [Real.div_rpow (by positivity) (by positivity)]
         have hncombine :
-            (n : ℝ) ^ ((1 : ℝ) / 64) * (n : ℝ) ^ ((31 : ℝ) / 64)
+            (n : ℝ) ^ ((1 : ℝ) / 8) * (n : ℝ) ^ ((3 : ℝ) / 8)
               = (n : ℝ) ^ ((1 : ℝ) / 2) := by
           rw [← Real.rpow_add hn_pos]
           norm_num
@@ -557,78 +1029,78 @@ private lemma many_candidates_of_small_prime_size
                 = (a : ℝ) ^ ((1 : ℝ) - (1 : ℝ) / 2) := by simpa using hsub.symm
             _ = (a : ℝ) ^ ((1 : ℝ) / 2) := by norm_num
         have hconst :
-            ((8 : ℝ) * a) ^ ((31 : ℝ) / 64) ≤ (8 : ℝ) * (a : ℝ) ^ ((1 : ℝ) / 2) := by
+            ((4 : ℝ) * a) ^ ((3 : ℝ) / 8) ≤ (4 : ℝ) * (a : ℝ) ^ ((1 : ℝ) / 2) := by
           calc
-            ((8 : ℝ) * a) ^ ((31 : ℝ) / 64)
-                = (8 : ℝ) ^ ((31 : ℝ) / 64) * (a : ℝ) ^ ((31 : ℝ) / 64) := by
+            ((4 : ℝ) * a) ^ ((3 : ℝ) / 8)
+                = (4 : ℝ) ^ ((3 : ℝ) / 8) * (a : ℝ) ^ ((3 : ℝ) / 8) := by
                     rw [Real.mul_rpow (by positivity) (by positivity)]
-            _ ≤ (8 : ℝ) * (a : ℝ) ^ ((1 : ℝ) / 2) := by
-              have h8 : (8 : ℝ) ^ ((31 : ℝ) / 64) ≤ 8 := by
-                have htmp := Real.rpow_le_rpow_of_exponent_le (by norm_num : (1 : ℝ) ≤ 8)
-                  (by norm_num : (31 : ℝ) / 64 ≤ 1)
+            _ ≤ (4 : ℝ) * (a : ℝ) ^ ((1 : ℝ) / 2) := by
+              have h4 : (4 : ℝ) ^ ((3 : ℝ) / 8) ≤ 4 := by
+                have htmp := Real.rpow_le_rpow_of_exponent_le (by norm_num : (1 : ℝ) ≤ 4)
+                  (by norm_num : (3 : ℝ) / 8 ≤ 1)
                 simpa [Real.rpow_one] using htmp
-              have haexp : (a : ℝ) ^ ((31 : ℝ) / 64) ≤ (a : ℝ) ^ ((1 : ℝ) / 2) := by
+              have haexp : (a : ℝ) ^ ((3 : ℝ) / 8) ≤ (a : ℝ) ^ ((1 : ℝ) / 2) := by
                 have ha_one : (1 : ℝ) ≤ a := by exact_mod_cast ha
                 exact Real.rpow_le_rpow_of_exponent_le ha_one
-                  (by norm_num : (31 : ℝ) / 64 ≤ (1 : ℝ) / 2)
-              exact mul_le_mul h8 haexp (by positivity) (by positivity)
+                  (by norm_num : (3 : ℝ) / 8 ≤ (1 : ℝ) / 2)
+              exact mul_le_mul h4 haexp (by positivity) (by positivity)
         rw [hrewrite, hdivrpow]
         calc
-          (n : ℝ) ^ ((1 : ℝ) / 64) *
-              (((8 : ℝ) * a) ^ ((31 : ℝ) / 64) * (n : ℝ) ^ ((31 : ℝ) / 64))
-              = ((8 : ℝ) * a) ^ ((31 : ℝ) / 64) *
-                  ((n : ℝ) ^ ((1 : ℝ) / 64) * (n : ℝ) ^ ((31 : ℝ) / 64)) := by ring
-          _ = ((8 : ℝ) * a) ^ ((31 : ℝ) / 64) * (n : ℝ) ^ ((1 : ℝ) / 2) := by
+          (n : ℝ) ^ ((1 : ℝ) / 8) *
+              (((4 : ℝ) * a) ^ ((3 : ℝ) / 8) * (n : ℝ) ^ ((3 : ℝ) / 8))
+              = ((4 : ℝ) * a) ^ ((3 : ℝ) / 8) *
+                  ((n : ℝ) ^ ((1 : ℝ) / 8) * (n : ℝ) ^ ((3 : ℝ) / 8)) := by ring
+          _ = ((4 : ℝ) * a) ^ ((3 : ℝ) / 8) * (n : ℝ) ^ ((1 : ℝ) / 2) := by
             rw [hncombine]
-          _ = (n : ℝ) ^ ((1 : ℝ) / 2) * (((8 : ℝ) * a) ^ ((31 : ℝ) / 64)) := by ring
-          _ ≤ (n : ℝ) ^ ((1 : ℝ) / 2) * ((8 : ℝ) * (a : ℝ) ^ ((1 : ℝ) / 2)) := by
+          _ = (n : ℝ) ^ ((1 : ℝ) / 2) * (((4 : ℝ) * a) ^ ((3 : ℝ) / 8)) := by ring
+          _ ≤ (n : ℝ) ^ ((1 : ℝ) / 2) * ((4 : ℝ) * (a : ℝ) ^ ((1 : ℝ) / 2)) := by
             exact mul_le_mul_of_nonneg_left hconst (by positivity)
-          _ = ((n : ℝ) ^ ((1 : ℝ) / 2) / (a : ℝ) ^ ((1 : ℝ) / 2)) * ((8 : ℝ) * a) := by
+          _ = ((n : ℝ) ^ ((1 : ℝ) / 2) / (a : ℝ) ^ ((1 : ℝ) / 2)) * ((4 : ℝ) * a) := by
             calc
-              (n : ℝ) ^ ((1 : ℝ) / 2) * ((8 : ℝ) * (a : ℝ) ^ ((1 : ℝ) / 2))
-                  = (8 : ℝ) * (n : ℝ) ^ ((1 : ℝ) / 2) * (a : ℝ) ^ ((1 : ℝ) / 2) := by ring
-              _ = (8 : ℝ) * (n : ℝ) ^ ((1 : ℝ) / 2) *
+              (n : ℝ) ^ ((1 : ℝ) / 2) * ((4 : ℝ) * (a : ℝ) ^ ((1 : ℝ) / 2))
+                  = (4 : ℝ) * (n : ℝ) ^ ((1 : ℝ) / 2) * (a : ℝ) ^ ((1 : ℝ) / 2) := by ring
+              _ = (4 : ℝ) * (n : ℝ) ^ ((1 : ℝ) / 2) *
                     ((a : ℝ) / (a : ℝ) ^ ((1 : ℝ) / 2)) := by rw [hahalf]
-              _ = ((n : ℝ) ^ ((1 : ℝ) / 2) / (a : ℝ) ^ ((1 : ℝ) / 2)) * ((8 : ℝ) * a) := by
+              _ = ((n : ℝ) ^ ((1 : ℝ) / 2) / (a : ℝ) ^ ((1 : ℝ) / 2)) * ((4 : ℝ) * a) := by
                 ring
       exact le_trans hbase hmid
-    have hlog_lower : (96 * a : ℝ) / (n : ℝ) ^ ((1 : ℝ) / 128) ≤ 1 / (3 * Real.log n) := by
-      have hmain'' : (96 * a : ℝ) ≤ (n : ℝ) ^ ((1 : ℝ) / 128) * (1 / (3 * Real.log n)) := by
+    have hlog_lower : (48 * a : ℝ) / (n : ℝ) ^ ((1 : ℝ) / 16) ≤ 1 / (3 * Real.log n) := by
+      have hmain'' : (48 * a : ℝ) ≤ (n : ℝ) ^ ((1 : ℝ) / 16) * (1 / (3 * Real.log n)) := by
         simpa [div_eq_mul_inv, mul_comm, mul_left_comm, mul_assoc] using hmain'
-      have hmain''' : (96 * a : ℝ) ≤ (1 / (3 * Real.log n)) * (n : ℝ) ^ ((1 : ℝ) / 128) := by
+      have hmain''' : (48 * a : ℝ) ≤ (1 / (3 * Real.log n)) * (n : ℝ) ^ ((1 : ℝ) / 16) := by
         simpa [mul_comm, mul_left_comm, mul_assoc] using hmain''
-      exact (div_le_iff₀ hnpow128_pos).2 hmain'''
-    have hpow64_eq :
-        (n : ℝ) ^ ((1 : ℝ) / 64)
-          = (n : ℝ) ^ ((1 : ℝ) / 128) * (n : ℝ) ^ ((1 : ℝ) / 128) := by
-      rw [show ((1 : ℝ) / 64) = (1 : ℝ) / 128 + (1 : ℝ) / 128 by norm_num]
+      exact (div_le_iff₀ hnpow16_pos).2 hmain'''
+    have hpow8_eq :
+        (n : ℝ) ^ ((1 : ℝ) / 8)
+          = (n : ℝ) ^ ((1 : ℝ) / 16) * (n : ℝ) ^ ((1 : ℝ) / 16) := by
+      rw [show ((1 : ℝ) / 8) = (1 : ℝ) / 16 + (1 : ℝ) / 16 by norm_num]
       rw [Real.rpow_add hn_pos]
     have hprod_eq :
-        ((n : ℝ) ^ ((1 : ℝ) / 64) / (8 * a)) *
-            ((96 * a : ℝ) / (n : ℝ) ^ ((1 : ℝ) / 128))
-          = 12 * (n : ℝ) ^ ((1 : ℝ) / 128) := by
-      rw [hpow64_eq]
-      field_simp [h8a_ne, hpow128_ne]
+        ((n : ℝ) ^ ((1 : ℝ) / 8) / (4 * a)) *
+            ((48 * a : ℝ) / (n : ℝ) ^ ((1 : ℝ) / 16))
+          = 12 * (n : ℝ) ^ ((1 : ℝ) / 16) := by
+      rw [hpow8_eq]
+      field_simp [h4a_ne, hpow16_ne]
       ring
     have h12 :
-        12 * (n : ℝ) ^ ((1 : ℝ) / 128)
+        12 * (n : ℝ) ^ ((1 : ℝ) / 16)
           ≤ (K : ℝ) / p * (1 / (3 * Real.log n)) := by
       have hmul := mul_le_mul hKp_lower hlog_lower (by positivity) (by positivity)
       rw [hprod_eq] at hmul
       simpa [mul_assoc, mul_left_comm, mul_comm] using hmul
-    have hn128_ge_one : 1 ≤ (n : ℝ) ^ ((1 : ℝ) / 128) := by
+    have hn16_ge_one : 1 ≤ (n : ℝ) ^ ((1 : ℝ) / 16) := by
       have hn_one : (1 : ℝ) ≤ n := by
         exact_mod_cast (show 1 ≤ n by omega)
       simpa using Real.rpow_le_rpow_of_exponent_le hn_one
-        (by norm_num : (0 : ℝ) ≤ (1 : ℝ) / 128)
+        (by norm_num : (0 : ℝ) ≤ (1 : ℝ) / 16)
     have hlhs : (2 : ℝ) + (2 : ℝ) ^ n.primeFactors.card
-        ≤ 3 * (n : ℝ) ^ ((1 : ℝ) / 128) := by
-      have h2le : (2 : ℝ) ≤ 2 * (n : ℝ) ^ ((1 : ℝ) / 128) := by
+        ≤ 3 * (n : ℝ) ^ ((1 : ℝ) / 16) := by
+      have h2le : (2 : ℝ) ≤ 2 * (n : ℝ) ^ ((1 : ℝ) / 16) := by
         nlinarith
       linarith
-    have h3 : 3 * (n : ℝ) ^ ((1 : ℝ) / 128)
+    have h3 : 3 * (n : ℝ) ^ ((1 : ℝ) / 16)
         ≤ (K : ℝ) / p * (1 / (3 * Real.log n)) := by
-      nlinarith [h12, hnpow128_pos]
+      nlinarith [h12, hnpow16_pos]
     exact le_trans hlhs h3
   have hcard_ge : (2 : ℝ) ≤ (good.map emb).card := by
     have htmp : (2 : ℝ) + (2 : ℝ) ^ n.primeFactors.card
@@ -640,9 +1112,9 @@ private lemma many_candidates_of_small_prime_size
     exact le_trans (by exact_mod_cast hcard_ge) hmap_le
   exact lt_of_lt_of_le (by decide : 1 < 2) hge_nat
 
-/-- Contradiction engine for the nonsquare case.
+/-- Contradiction engine for the two Pollack-driven branches.
 
-Once we have one odd prime `p` of the stated size such that `p ∤ a*n` and
+Once we have one odd prime `p` of Pollack-size such that `p ∤ a*n` and
 `a*x^2 ≡ n [MOD p]` is solvable, the counting argument rules out `Pa a n`. -/
 private lemma not_Pa_of_good_prime
     (a : ℕ) (ha : 1 ≤ a) :
@@ -652,9 +1124,9 @@ private lemma not_Pa_of_good_prime
       p ≠ 2 →
       ¬ p ∣ a * n →
       SolvableAX2EqNMod a n p →
-      (p : ℝ) ≤ smallPrimeSizeBound a n →
+      (p : ℝ) ≤ pollackSizeBound a n →
       ¬ Pa a n := by
-  obtain ⟨N0, hcount⟩ := many_candidates_of_small_prime_size a ha
+  obtain ⟨N0, hcount⟩ := many_candidates_of_pollack_size a ha
   refine ⟨N0, ?_⟩
   intro n p hn hp hp2 hpndvd hsol hpbound hPa
   have hgt : 1 < (candidateKs a n p).card :=
@@ -663,53 +1135,135 @@ private lemma not_Pa_of_good_prime
     candidateKs_card_le_one ha hPa hp
   exact not_lt_of_ge hle hgt
 
+/-! ## Square-case helpers based on the fixed coefficient `a` -/
 
-/-! ## An elementary square-case argument -/
+/-- If `a = v^2` and `u^2 = a*n`, with `a ≥ 1`, then `n` is also a square. -/
+private lemma n_is_square_of_square_case_and_square_coeff
+    {a n u v : ℕ}
+    (ha : 1 ≤ a)
+    (haSq : a = v ^ 2)
+    (hsq : u ^ 2 = a * n) :
+    ∃ m : ℕ, n = m ^ 2 := by
+  have hv_pos : 0 < v := by
+    by_contra hv
+    have hv0 : v = 0 := Nat.eq_zero_of_not_pos hv
+    have ha0 : a = 0 := by
+      simpa [hv0] using haSq
+    omega
+  have hv2_dvd : v ^ 2 ∣ u ^ 2 := by
+    refine ⟨n, ?_⟩
+    simpa [haSq, Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm] using hsq
+  have hv_dvd_u : v ∣ u := by
+    exact (Nat.pow_dvd_pow_iff (show (2 : ℕ) ≠ 0 by decide)).1 hv2_dvd
+  rcases hv_dvd_u with ⟨m, hm⟩
+  refine ⟨m, ?_⟩
+  have hmain : v ^ 2 * m ^ 2 = v ^ 2 * n := by
+    calc
+      v ^ 2 * m ^ 2 = (v * m) ^ 2 := by
+        simp [pow_two, Nat.mul_left_comm, Nat.mul_comm]
+      _ = u ^ 2 := by
+        simp [hm]
+      _ = v ^ 2 * n := by
+        simpa [haSq] using hsq
+  have hm2 : m ^ 2 = n := Nat.eq_of_mul_eq_mul_left (pow_pos hv_pos 2) hmain
+  exact hm2.symm
 
-/-- The square case needs only the test at `k = 1`. -/
-theorem not_Pa_of_square_large {a n u : ℕ} (ha : 1 ≤ a)
-    (hn : 4 * a < n) (hsq : u ^ 2 = a * n) : ¬ Pa a n := by
+/-- If `a = v^2`, `n = m^2`, and `m` is sufficiently larger than `v`, then `Pa a n` already fails
+at `k = 1`, since `n - a = (m-v)(m+v)` is composite. -/
+private lemma not_Pa_of_large_square_difference
+    {a n v m : ℕ}
+    (haSq : a = v ^ 2)
+    (hnSq : n = m ^ 2)
+    (hm : v + 2 ≤ m) :
+    ¬ Pa a n := by
   intro hPa
-  have han : a < n := by omega
-  have hprime : (n - a).Prime := by
-    simpa using hPa 1 (by decide) (by simp) (by simpa using han)
-  have hau : 2 * a < u := by
-    by_contra! h
-    have hmul := Nat.mul_self_le_mul_self h
-    nlinarith
-  have hau' : a ≤ u := by omega
-  have hprod : (u + a) * (u - a) = a * (n - a) := by
-    rw [← Nat.sq_sub_sq, hsq, Nat.mul_sub, pow_two]
-  have hdiv : n - a ∣ (u + a) * (u - a) := by
-    rw [hprod]
-    exact dvd_mul_left _ _
-  have hp_le : n - a ≤ u + a := by
-    rcases hprime.dvd_mul.mp hdiv with h | h
-    · exact Nat.le_of_dvd (by omega) h
-    · exact (Nat.le_of_dvd (by omega) h).trans (by omega)
-  have hsub := Nat.sub_add_cancel han.le
-  have hmul₁ := Nat.mul_lt_mul_of_pos_left hau (by omega : 0 < u)
-  have hmul₂ := Nat.mul_lt_mul_of_pos_left hau (by omega : 0 < a)
-  nlinarith
+  have hvlt_aux : v < v + 2 := by
+    exact Nat.lt_trans (Nat.lt_succ_self v) (Nat.lt_succ_self (v + 1))
+  have hvlt : v < m := lt_of_lt_of_le hvlt_aux hm
+  have hlt : a * 1 ^ 2 < n := by
+    have hsq_lt : v ^ 2 < m ^ 2 := Nat.pow_lt_pow_left hvlt (by decide : (2 : ℕ) ≠ 0)
+    simpa [haSq, hnSq] using hsq_lt
+  have hprime : Nat.Prime (n - a * 1 ^ 2) :=
+    hPa 1 (by decide) (by simp) hlt
+  have hprod : n - a * 1 ^ 2 = (m + v) * (m - v) := by
+    calc
+      n - a * 1 ^ 2 = m ^ 2 - v ^ 2 := by
+        simp [haSq, hnSq]
+      _ = (m + v) * (m - v) := by
+        simpa using Nat.sq_sub_sq m v
+  have htwo_le_vaddtwo : 2 ≤ v + 2 := by
+    simp
+  have hm_ge_two : 2 ≤ m := le_trans htwo_le_vaddtwo hm
+  have hmplus_ge_two : 2 ≤ m + v := le_trans hm_ge_two (Nat.le_add_right m v)
+  have hmplus_ne_one : m + v ≠ 1 :=
+    ne_of_gt (lt_of_lt_of_le (by decide : 1 < 2) hmplus_ge_two)
+  have hvle : v ≤ m := le_trans (Nat.le_add_right v 2) hm
+  have hmsub_ge_two : 2 ≤ m - v :=
+    (Nat.le_sub_iff_add_le hvle).2 (by simpa [Nat.add_comm] using hm)
+  have hmsub_ne_one : m - v ≠ 1 :=
+    ne_of_gt (lt_of_lt_of_le (by decide : 1 < 2) hmsub_ge_two)
+  have hnotprime : ¬ Nat.Prime ((m + v) * (m - v)) :=
+    Nat.not_prime_mul hmplus_ne_one hmsub_ne_one
+  exact hnotprime (hprod ▸ hprime)
 
-/-- The nonsquare-coefficient specialization of the elementary square case. -/
+/-- Square case, non-square coefficient branch.
+
+Here `a = v^2*d` with squarefree `d > 1`.  From `a = v^2*d` we get `4*d ∣ 4*a*n`, so
+Pollack applied with modulus `m = 4*a*n` produces a prime `p` of Pollack-size with `p ∤ a*n`;
+the square identity `u^2 = a*n`
+then makes `a*x^2 ≡ n [MOD p]` solvable, and the contradiction is delegated to
+`not_Pa_of_good_prime`. -/
 lemma square_case_nonsquare_coeff_impossible_of_coeff
-    (a v d : ℕ) (ha : 1 ≤ a) (_hdSq : Squarefree d) (_hdGt : 1 < d)
-    (_hadecomp : v ^ 2 * d = a) :
-    ∃ N0 : ℕ, ∀ {n u : ℕ}, N0 ≤ n → u ^ 2 = a * n → ¬ Pa a n := by
-  exact ⟨4 * a + 1, fun hn hsq ↦ not_Pa_of_square_large ha (by omega) hsq⟩
+    (a v d : ℕ)
+    (ha : 1 ≤ a)
+    (_hdSq : Squarefree d)
+    (_hdGt : 1 < d)
+    (hadecomp : v ^ 2 * d = a) :
+    ∃ N0 : ℕ, ∀ {n u : ℕ},
+      N0 ≤ n →
+      u ^ 2 = a * n →
+      ¬ Pa a n := by
+  obtain ⟨M0, hPollack⟩ := exists_small_prime_from_pollack
+  obtain ⟨Nbad, hbad⟩ := not_Pa_of_good_prime a ha
+  refine ⟨max M0 Nbad, ?_⟩
+  intro n u hn hsq
+  have hm : M0 ≤ 4 * a * n := by
+    exact le_trans (le_trans (le_max_left _ _) hn) (le_pollack_modulus ha)
+  have hdvd : 4 * d ∣ 4 * a * n :=
+    squarefree_coeff_dvd_pollack_modulus (n := n) hadecomp
+  obtain ⟨p, hp, hp2, hpndvdMod, hpbound, _hres⟩ := hPollack hm hdvd
+  have hpndvd : ¬ p ∣ a * n := not_dvd_an_of_not_dvd_pollack_modulus hpndvdMod
+  have hsol : SolvableAX2EqNMod a n p :=
+    solvable_of_square_case hsq hp hpndvd
+  exact hbad (le_trans (le_max_right _ _) hn) hp hp2 hpndvd hsol (by
+    simpa [pollackSizeBound] using hpbound)
 
-/-- The square-coefficient specialization of the elementary square case. -/
+/-- Square case, square coefficient branch.
+
+Once `a = v^2`, the relation `u^2 = a*n` forces `n = m^2`.  For all sufficiently large `n`
+we then have `m ≥ v + 2`, and `k = 1` gives a composite value `n - a`. -/
 lemma square_case_square_coeff_impossible_of_coeff
-    (a v : ℕ) (ha : 1 ≤ a) (_haSq : a = v ^ 2) :
-    ∃ N0 : ℕ, ∀ {n u : ℕ}, N0 ≤ n → u ^ 2 = a * n → ¬ Pa a n := by
-  exact ⟨4 * a + 1, fun hn hsq ↦ not_Pa_of_square_large ha (by omega) hsq⟩
+    (a v : ℕ)
+    (ha : 1 ≤ a)
+    (haSq : a = v ^ 2) :
+    ∃ N0 : ℕ, ∀ {n u : ℕ},
+      N0 ≤ n →
+      u ^ 2 = a * n →
+      ¬ Pa a n := by
+  refine ⟨(v + 2) ^ 2, ?_⟩
+  intro n u hn hsq
+  obtain ⟨m, hnSq⟩ := n_is_square_of_square_case_and_square_coeff ha haSq hsq
+  have hm_sq : (v + 2) ^ 2 ≤ m ^ 2 := by
+    simpa [hnSq] using hn
+  have hm : v + 2 ≤ m :=
+    (Nat.pow_le_pow_iff_left (by decide : (2 : ℕ) ≠ 0)).1 hm_sq
+  exact not_Pa_of_large_square_difference haSq hnSq hm
 
 /-! ## The two contradiction arguments -/
 
 /-- Case 1: the squarefree part `d` of `a*n` is `> 1`.
 
-The only nontrivial input is the existence of one small residue prime; once that is in hand,
+The only nontrivial input is the existence of one good Pollack prime; once that is in hand,
 the rest is again delegated to `not_Pa_of_good_prime`. -/
 lemma case1_non_square_impossible
     (a : ℕ)
@@ -720,26 +1274,38 @@ lemma case1_non_square_impossible
       1 < d →
       u ^ 2 * d = a * n →
       ¬ Pa a n := by
-  obtain ⟨M0, hPrime⟩ := exists_small_residue_prime
+  obtain ⟨M0, hPollack⟩ := exists_small_prime_from_pollack
   obtain ⟨Nbad, hbad⟩ := not_Pa_of_good_prime a ha
   refine ⟨max M0 Nbad, ?_⟩
-  intro n u d hn hdSq hdGt hdecomp
-  have hm : M0 ≤ 8 * a * n := by
-    exact le_trans (le_trans (le_max_left _ _) hn) (le_residue_modulus ha)
-  have hdvd : 8 * d ∣ 8 * a * n :=
-    squarefree_factor_dvd_residue_modulus hdecomp
-  obtain ⟨p, hp, hp2, hpndvdMod, hpbound, hres⟩ := hPrime hm hdSq hdGt hdvd
-  have hpndvd : ¬ p ∣ a * n := not_dvd_an_of_not_dvd_residue_modulus hpndvdMod
+  intro n u d hn _hdSq _hdGt hdecomp
+  have hm : M0 ≤ 4 * a * n := by
+    exact le_trans (le_trans (le_max_left _ _) hn) (le_pollack_modulus ha)
+  have hdvd : 4 * d ∣ 4 * a * n :=
+    squarefree_factor_dvd_pollack_modulus hdecomp
+  obtain ⟨p, hp, hp2, hpndvdMod, hpbound, hres⟩ := hPollack hm hdvd
+  have hpndvd : ¬ p ∣ a * n := not_dvd_an_of_not_dvd_pollack_modulus hpndvdMod
   have hsol : SolvableAX2EqNMod a n p :=
     solvable_of_squarefree_part hdecomp hp hpndvd hres
   exact hbad (le_trans (le_max_right _ _) hn) hp hp2 hpndvd hsol (by
-    simpa [smallPrimeSizeBound] using hpbound)
+    simpa [pollackSizeBound] using hpbound)
 
-/-- Case 2: `a*n` is a square. The explicit cutoff needs no analytic input. -/
+/-- Case 2: `a*n` is a square.
+
+We factor the fixed coefficient `a = v^2*d` with `d` squarefree and split according to whether
+`d > 1` or `d = 1`.  This removes the need for any separate small-prime lemma in the square case. -/
 lemma case2_square_impossible
-    (a : ℕ) (ha : 1 ≤ a) :
-    ∃ N2 : ℕ, ∀ {n u : ℕ}, N2 ≤ n → u ^ 2 = a * n → ¬ Pa a n := by
-  exact ⟨4 * a + 1, fun hn hsq ↦ not_Pa_of_square_large ha (by omega) hsq⟩
+    (a : ℕ)
+    (ha : 1 ≤ a) :
+    ∃ N2 : ℕ, ∀ {n u : ℕ},
+      N2 ≤ n →
+      u ^ 2 = a * n →
+      ¬ Pa a n := by
+  obtain ⟨v, d, hadecomp, hdSq⟩ := exists_squarefree_factorization a
+  by_cases hd1 : d = 1
+  · have haSq : a = v ^ 2 := coeff_is_square_of_squarefree_part_eq_one hadecomp hd1
+    exact square_case_square_coeff_impossible_of_coeff a v ha haSq
+  · have hdGt : 1 < d := one_lt_of_squarefree_ne_one hdSq hd1
+    exact square_case_nonsquare_coeff_impossible_of_coeff a v d ha hdSq hdGt hadecomp
 
 /-! ## Main theorem -/
 

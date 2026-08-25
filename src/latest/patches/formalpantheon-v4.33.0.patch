@@ -77,29 +77,35 @@ index 42c77c7..a6f4056 100644
  /-- The fixed-modulus source discrepancy is bounded by its elementary
  correction plus the inducing-primitive centered character sum. -/
 diff --git a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/GoldfeldCoefficient.lean b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/GoldfeldCoefficient.lean
-index a262748..ae48d04 100644
+index a262748..b9b7768 100644
 --- a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/GoldfeldCoefficient.lean
 +++ b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/GoldfeldCoefficient.lean
-@@ -73,6 +73,7 @@ theorem goldfeldCrossLevelMul_apply
-         simpa [ZMod.isUnit_iff_coprime] using h1)
-     rw [hpzero, hzero, zero_mul]
-
-+set_option backward.isDefEq.respectTransparency.types false in
- theorem goldfeldCoefficient_one
-     {q1 q : ℕ} [NeZero q1] [NeZero q]
+@@ -78,7 +78,8 @@ theorem goldfeldCoefficient_one
      (chi1 : DirichletCharacter ℂ q1)
+     (chi : DirichletCharacter ℂ q) :
+     goldfeldCoefficient chi1 chi 1 = 1 := by
+-  simp [goldfeldCoefficient, toArithmeticFunction]
++  simp only [goldfeldCoefficient, ArithmeticFunction.mul_apply_one]
++  simp [toArithmeticFunction]
+
+ private theorem characterAF_prime_pow
+     {q p k : ℕ} (chi : DirichletCharacter ℂ q) (hp : p.Prime) :
 diff --git a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/QuadraticZetaConvolutionSquare.lean b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/QuadraticZetaConvolutionSquare.lean
-index 73f3253..198ed01 100644
+index 73f3253..30b6ab4 100644
 --- a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/QuadraticZetaConvolutionSquare.lean
 +++ b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/QuadraticZetaConvolutionSquare.lean
-@@ -19,6 +19,7 @@ namespace BoundedGaps.Maynard
-
- open ArithmeticFunction
-
-+set_option backward.isDefEq.respectTransparency.types false in
- /-- Even prime-power coefficients of `1 * chi` are at least one for a
- square-principal character. -/
- theorem one_le_zetaMul_prime_pow_two_mul
+@@ -25,8 +25,9 @@ theorem one_le_zetaMul_prime_pow_two_mul
+     {q p k : ℕ} [NeZero q] {chi : DirichletCharacter ℂ q}
+     (hsquare : chi ^ 2 = 1) (hp : p.Prime) :
+     (1 : ℂ) ≤ chi.zetaMul (p ^ (2 * k)) := by
+-  simp only [DirichletCharacter.zetaMul, toArithmeticFunction,
+-    coe_zeta_mul_apply, coe_mk, Nat.sum_divisors_prime_pow hp,
++  change (1 : ℂ) ≤ (ArithmeticFunction.zeta * toArithmeticFunction (chi ·)) (p ^ (2 * k))
++  rw [coe_zeta_mul_apply]
++  simp only [toArithmeticFunction, coe_mk, Nat.sum_divisors_prime_pow hp,
+     pow_eq_zero_iff', hp.ne_zero, ne_eq, false_and, ↓reduceIte,
+     Nat.cast_pow, map_pow]
+   rcases MulChar.isQuadratic_iff_sq_eq_one.mpr hsquare p with h | h | h
 diff --git a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/VaughanSecondTermAggregate.lean b/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/VaughanSecondTermAggregate.lean
 index 12c48c0..1b0766d 100644
 --- a/BoundedGaps/BoundedGaps/BombieriVinogradov/Analytic/VaughanSecondTermAggregate.lean
