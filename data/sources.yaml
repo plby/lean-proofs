@@ -8132,9 +8132,7 @@
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem1197/Solution.tex
     - https://github.com/ebarschkis/ErdosProblem/blob/main/Problem1197/Formalization.lean
     - https://github.com/Tomodovodoo/Erdos_1197
-  version: "4.28.0"
-  conditional: bm_approx_data
-  todo: Import PNT+ project.
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1198
   epc: https://www.erdosproblems.com/1198

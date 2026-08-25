@@ -4,7 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 1197.
 https://www.erdosproblems.com/forum/thread/1197
 
 Formalization status:
-- Conditional on: bm_approx_data
+- Unconditional
 
 Informal authors:
 - GPT Pro
@@ -15,6 +15,7 @@ Formal authors:
 - GPT-5.4 Pro
 - Enrique Barschkis
 - Tom de Groot
+- Codex
 
 URLs:
 - https://www.erdosproblems.com/forum/thread/1197#post-5362
@@ -24,6 +25,7 @@ URLs:
 - https://github.com/Tomodovodoo/Erdos_1197
 -/
 import Mathlib
+import ErdosProblems.Erdos1197.ApproximationData
 
 /-!
 # A Negative Answer to the Eventual Covering Question
@@ -36,8 +38,8 @@ The construction uses:
 - `F := ⋃ k, H k` where `H k` are pairwise disjoint open "shells"
 - `E := I_F \ Φ(F)` where `I_F = (8/9, 1)` and `Φ` captures integer-multiple shadows
 
-The proof relies on the Buczolich–Mauldin shell construction, which is stated here
-without proof (`disjoint_shells`). Everything else is proved from this single input.
+The Buczolich–Mauldin shell construction and its Kronecker–PNT approximation
+input are proved here and in the imported supporting modules.
 
 ## References
 
@@ -59,9 +61,6 @@ def Phi (A : Set ℝ) : Set ℝ :=
 /-- `I_F = (8/9, 1)`, the fundamental interval from which `E` is carved. -/
 def I_F : Set ℝ := Ioo (8/9 : ℝ) 1
 
-/-- `I_∞ = [16/25, 2/3]`, the interval on which the covering property fails. -/
-def I_inf : Set ℝ := Icc (16/25 : ℝ) (2/3)
-
 /-- `MultSat(E) = ⋃_{r≥1} r·E`, the multiplicative saturation of `E`. -/
 def MultSat (E : Set ℝ) : Set ℝ :=
   {y | ∃ r : ℕ, 0 < r ∧ ∃ e ∈ E, y = (r : ℝ) * e}
@@ -82,36 +81,9 @@ lemma Phi_empty : Phi ∅ = ∅ := by
 
 /-! ### Kronecker–PNT approximation data
 
-The following lemma packages the combined output of Kronecker's theorem on
-simultaneous Diophantine approximation and the Prime Number Theorem.
-It is the deep number-theoretic foundation for the BM construction. -/
-
-/-- **Kronecker–PNT approximation data** for the BM construction.
-
-For each sufficiently large `k`, there exists `N_k` such that for all `ν ≥ N_k`,
-there exist:
-- A positive integer `q`,
-- For each `y ∈ I_∞`, a multiplier `m > 0` with `m·y ∈ ((8/9)·2^ν, 2^ν)` and
-  `log₂(m·y)` within `1/(q·2^k)` of a lattice point `n/q`,
-- For each integer `n ∈ ((7/8)·2^ν, (9/8)·2^ν)`, `log₂(n)` is within
-  `1/(4·q·2^k)` of a lattice point.
-
-This follows from Kronecker's theorem applied to `2^k` primes in
-`((23/16)·2^ν, (3/2)·2^ν)` (guaranteed by PNT for large `ν`)
-and `2^{ν−2}+1` integers in `((7/8)·2^ν, (9/8)·2^ν)`.
-Condition B of Kronecker's theorem is verified using the Fundamental Theorem of
-Arithmetic (the primes exceed all the integers in the relevant range). -/
-axiom bm_approx_data :
-    ∃ K₀ : ℕ, ∀ k, K₀ ≤ k →
-      ∃ N_k : ℕ, ∀ ν, N_k ≤ ν →
-        ∃ q : ℕ, 0 < q ∧
-          (∀ y ∈ I_inf, ∃ m : ℕ, 0 < m ∧
-            (m : ℝ) * y ∈ Ioo ((8 : ℝ) / 9 * 2 ^ ν) ((2 : ℝ) ^ ν) ∧
-            ∃ n : ℤ, |Real.logb 2 ((m : ℝ) * y) - (n : ℝ) / (q : ℝ)| <
-              1 / ((q : ℝ) * 2 ^ k)) ∧
-          (∀ n : ℕ, (n : ℝ) ∈ Ioo ((7 : ℝ) / 8 * 2 ^ ν) ((9 : ℝ) / 8 * 2 ^ ν) →
-            ∃ m : ℤ, |Real.logb 2 (n : ℝ) - (m : ℝ) / (q : ℝ)| <
-              1 / (4 * (q : ℝ) * 2 ^ k))
+The imported approximation-data module proves the combined output of
+Kronecker's theorem on simultaneous Diophantine approximation and the Prime
+Number Theorem used below. -/
 
 /-! ### BM shell definition and properties -/
 
@@ -767,8 +739,8 @@ end Erdos1197
 
 open Erdos1197
 
+/-- info: 'Erdos1197.not_erdos_1197' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
 #print axioms not_erdos_1197
--- 'Erdos1197.negative_answer' depends on axioms: [propext, Classical.choice, bm_approx_data,
--- Quot.sound]
 
 alias _root_.Erdos1197.negative_answer := _root_.Erdos1197.not_erdos_1197

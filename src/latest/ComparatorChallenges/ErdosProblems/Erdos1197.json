@@ -7,7 +7,6 @@
   "permitted_axioms": [
     "propext",
     "Classical.choice",
-    "Erdos1197.bm_approx_data",
     "Quot.sound"
   ],
   "enable_nanoda": true
