@@ -4,6 +4,7 @@ import ErdosProblems.Erdos13.Erdos13Kneser
 import Util.FranklRodl
 import Util.MertensProduct
 import Util.MaynardBFT.Result
+import Util.Linnik.Theorem
 
 open Nat Finset Real Filter Asymptotics Topology
 open scoped Pointwise
@@ -149,7 +150,8 @@ there exists a prime `ℓ` with `M ∣ ℓ - 1` and `ℓ ≤ C · M^L`.
 
 This is the divisibility-form version of Linnik 1944 (best `L = 5` due to
 Xylouris 2011), in the form most convenient for lower-bound constructions. -/
-axiom linnik_dvd :
+theorem linnik_dvd :
   ∃ C : ℝ, ∃ L : ℕ, 1 ≤ C ∧ 1 ≤ L ∧
     ∀ M : ℕ, 1 ≤ M →
-      ∃ ℓ : ℕ, Nat.Prime ℓ ∧ M ∣ ℓ - 1 ∧ (ℓ : ℝ) ≤ C * (M : ℝ) ^ L
+      ∃ ℓ : ℕ, Nat.Prime ℓ ∧ M ∣ ℓ - 1 ∧ (ℓ : ℝ) ≤ C * (M : ℝ) ^ L :=
+  Linnik.exists_polynomial_prime_dvd_sub_one
