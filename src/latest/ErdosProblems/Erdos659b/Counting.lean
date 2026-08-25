@@ -13,7 +13,7 @@ No Bernays asymptotic or class-group equidistribution is used.
 open Filter Finset Real
 open scoped BigOperators Real
 
-namespace Erdos659.Counting
+namespace Erdos659b.Counting
 
 open Erdos135 (realZetaFactor complexZetaFactor complex_nat_cpow_neg_real
   norm_complexZetaFactor prime_rpow_neg_pos_le_half realZetaFactor_pos
@@ -537,4 +537,4 @@ theorem exists_count_le : ∃ C : ℝ, 0 < C ∧ ∀ N : ℕ, 3 ≤ N →
 
 #print axioms exists_count_le
 
-end Erdos659.Counting
+end Erdos659b.Counting

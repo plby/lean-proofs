@@ -6,6 +6,7 @@ import Util.MertensProduct
 import Util.TaoTeravainen.Final
 import Util.MaynardTao
 import Util.Linnik.Theorem
+import Util.Bernays.Theorem
 
 open Nat Finset Real Filter Asymptotics Topology
 open scoped Pointwise
@@ -44,43 +45,6 @@ theorem tao_teravainen : ∃ C : ℝ, 0 < C ∧
         (N + k).factorization.sum (fun _ k => k) ≤ C * k) :=
   TaoTeravainen.tao_teravainen_unconditional
 
-/-- An (integral) binary quadratic form `f(X,Y) = a X^2 + b X Y + c Y^2`. -/
-structure BinQuadForm where
-  a : ℤ
-  b : ℤ
-  c : ℤ
-
-namespace BinQuadForm
-
-/-- Evaluate the form on integer inputs. -/
-def eval (f : BinQuadForm) (x y : ℤ) : ℤ :=
-  f.a * x * x + f.b * x * y + f.c * y * y
-
-/-- Discriminant `Δ = b^2 - 4ac`. -/
-def discr (f : BinQuadForm) : ℤ :=
-  f.b * f.b - 4 * f.a * f.c
-
-/-- `f` is primitive if `gcd(a,b,c) = 1`. -/
-def Primitive (f : BinQuadForm) : Prop :=
-  Int.gcd f.a (Int.gcd f.b f.c) = 1
-
-/--
-A convenient (sufficient) positive-definiteness condition for integral binary quadratic forms:
-`a > 0` and discriminant is negative.
-(For integer forms this is equivalent to positive definiteness over `ℝ`.)
--/
-def PosDef (f : BinQuadForm) : Prop :=
-  0 < f.a ∧ f.discr < 0
-
-/--
-Counting function `B_f(x)`: number of *natural numbers* `n ≤ x` represented by `f`.
-(Here “represented” means `∃ u v : ℤ, f(u,v) = n`.)
--/
-noncomputable def B (f : BinQuadForm) (x : ℝ) : ℕ :=
-  Nat.card {n : ℕ | (n : ℝ) ≤ x ∧ ∃ u v : ℤ, f.eval u v = (n : ℤ)}
-
-end BinQuadForm
-
 /--
 **Bernays' theorem.**
 
@@ -90,7 +54,7 @@ with non-square discriminant `Δ`. Then there exists a constant `C_Δ > 0` such 
 
 We phrase this so that `C_Δ` depends only on `Δ` (and works for every `f` of that discriminant).
 -/
-axiom bernays
+theorem bernays
     (Δ : ℤ) (hΔnonsq : ¬ ∃ z : ℤ, z * z = Δ) :
     ∃ CΔ : ℝ, 0 < CΔ ∧
       ∀ f : BinQuadForm,
@@ -99,7 +63,8 @@ axiom bernays
         f.discr = Δ →
         (fun x : ℝ => (f.B x : ℝ))
           ~[Filter.atTop]
-          (fun x : ℝ => CΔ * x / Real.sqrt (Real.log x))
+          (fun x : ℝ => CΔ * x / Real.sqrt (Real.log x)) :=
+  Bernays.bernays_theorem Δ hΔnonsq
 
 /-- **Dusart's Mertens product estimate** (Theorem 5.1): for `x ≥ 2278382`,
 `|∏_{p≤x}(1-1/p) - 1/(e^γ log x)| ≤ 1/(5 e^γ log⁴ x)`. -/

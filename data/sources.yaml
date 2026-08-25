@@ -4513,15 +4513,40 @@
       AI: Gemini
     statement: Formal Conjectures authors
     formal:
-      AI: Aristotle
+      AI:
+        - Aristotle
+        - Codex
       human: Boris Alexeev
   arxiv: https://arxiv.org/abs/math/0604163
   url:
     - https://www.erdosproblems.com/forum/thread/659
     - https://adamsheffer.wordpress.com/2014/07/16/point-sets-with-few-distinct-distances/
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos659.md
-  version: "4.24.0"
-  conditional: bernays
+  version: "4.33.0"
+
+- key: ErdosProblems.Erdos659b
+  epc: https://www.erdosproblems.com/659
+  author:
+    informal:
+      human:
+        - Benjamin Grayzel
+        - Adam Sheffer
+        - Pieter Moree
+        - Robert Osburn
+        - Desmond Weisenberg
+      AI: Gemini
+    statement: Formal Conjectures authors
+    formal:
+      AI:
+        - Aristotle
+        - Codex
+      human: Boris Alexeev
+  arxiv: https://arxiv.org/abs/math/0604163
+  url:
+    - https://www.erdosproblems.com/forum/thread/659
+    - https://adamsheffer.wordpress.com/2014/07/16/point-sets-with-few-distinct-distances/
+    - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos659.md
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos664
   epc: https://www.erdosproblems.com/664

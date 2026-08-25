@@ -1,9 +1,21 @@
 This is a formalized proof of [Erdős Problem 659](https://www.erdosproblems.com/forum/thread/659).
 
-The latest version is unconditional. It replaces the Bernays axiom with an
-upper bound for integers represented by `x² + 2y²`, proved using
-Halberstam–Richert and the quadratic character modulo eight. The proof uses
-default computational limits. Earlier version snapshots still assume Bernays.
+The latest version has two unconditional proofs, both using default
+computational limits:
+
+* [Erdos659](../src/latest/ErdosProblems/Erdos659.lean) retains the original
+  Bernays argument. The full [Bernays theorem](../src/latest/Util/Bernays/Theorem.lean)
+  is now proved, with one positive asymptotic constant for every primitive
+  positive-definite form of a given discriminant.
+* [Erdos659b](../src/latest/ErdosProblems/Erdos659b.lean) avoids Bernays entirely.
+  Its [counting proof](../src/latest/ErdosProblems/Erdos659b/Counting.lean)
+  bounds values of `x² + 2y²` using Halberstam–Richert and the quadratic
+  character modulo eight.
+
+The proofs share only the [lattice geometry](../src/latest/ErdosProblems/Erdos659/Geometry.lean).
+The Bernays development and its audit commands are described in its
+[README](../src/latest/Util/Bernays/README.md). Earlier version snapshots
+still assume Bernays.
 
 It is available for these Mathlib (and Lean) versions:
 

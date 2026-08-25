@@ -1,0 +1,114 @@
+import Util.Bernays.Reduction
+import Util.Bernays.Normalization
+import Util.Bernays.CharacterNormLimit
+import Util.Bernays.LocalCountingAsymptotic
+import Util.Bernays.CanonicalFormClass
+import Util.Bernays.DiscriminantCharacter
+import Util.Bernays.SplitPrimeClasses
+import Util.Bernays.DivisibleClassBalls
+import Util.Bernays.IdealGenerators
+import Util.Bernays.ClassPrimeDivergence
+import Util.Bernays.SquareClassExceptional
+import Util.Bernays.SignedIdealProducts
+import Util.Bernays.SquareExceptionalUnion
+import Util.Bernays.GoodClassCounts
+import Util.Bernays.GoodLocalCounting
+import Util.Bernays.CoprimeIdealDecomposition
+import Util.Bernays.IdealFactorizationUnique
+import Util.Bernays.FiniteGroupDistribution
+import Util.Bernays.IdealClassAreaAsymptotic
+import Util.Bernays.ClassLSeries
+import Util.Bernays.GenusSquareSeries
+import Util.Bernays.GenusSeriesNonzero
+import Util.Bernays.SquareSeriesSmoothing
+import Util.Bernays.GenusSmoothedCancellation
+import Util.Bernays.GoodClassAsymptotic
+import Util.Bernays.Theorem
+
+#print axioms BinQuadForm.exists_reduced
+#print axioms BinQuadForm.exists_equiv_mem_reducedForms
+#print axioms Bernays.real_asymptotic_iff_nat
+#print axioms Bernays.finiteMeasure_tendsto_of_moments
+#print axioms Bernays.cutoff_integral_tendsto_of_moments
+#print axioms Bernays.halfPowerMeasure_moment
+#print axioms Bernays.halfPowerMeasure_cutoff_integral
+#print axioms Bernays.halfPowerTauberian
+#print axioms Bernays.reciprocalSum_div_sqrt_log_tendsto
+#print axioms Bernays.localParity_dirichlet_square
+#print axioms Bernays.localParity_dirichlet_halfPole
+#print axioms Bernays.localParity_reciprocal_asymptotic
+#print axioms Bernays.localLogMass_div_tendsto_half
+#print axioms Bernays.localParity_ordinarySum_limit
+#print axioms Bernays.localCount_isEquivalent
+#print axioms Bernays.quadraticOrderClassGroupFintype
+#print axioms BinQuadForm.formIdeal_isUnit
+#print axioms BinQuadForm.formIdeal_cardQuot
+#print axioms BinQuadForm.represented_pos_iff_canonicalClass_norm
+#print axioms Bernays.discriminantCharacter_sq
+#print axioms Bernays.discriminantCharacter_ne_one
+#print axioms Bernays.goodQuadraticIdeal_factorization
+#print axioms Bernays.InvertibleIdeal.cardQuot_mul
+#print axioms Bernays.SplitPrime.idealClass_conjugate
+#print axioms Bernays.exists_uniform_natCard_idealClassBall_le
+#print axioms Bernays.natCard_divisibleIdealClassBall_le
+#print axioms Bernays.InvertibleIdeal.exists_coprime_representative
+#print axioms Bernays.natCard_affineAllowedResiduePairs
+#print axioms Bernays.classSieve_lower
+#print axioms Bernays.classSieve_upper_of_cover
+#print axioms Bernays.not_summable_badSplitPrimeWeight
+#print axioms Bernays.exists_proper_squareSubgroup_with_few_coordinates_of_no_signedProduct
+#print axioms Bernays.localCount_dilation_limit
+#print axioms Bernays.eventually_fewPacketCount_le
+#print axioms Bernays.fewPrimeFactorValues_div_scale_tendsto_zero
+#print axioms Bernays.squareBadPrime_few_values_limit
+#print axioms Bernays.exists_ideal_of_signed_goodMaximals
+#print axioms Bernays.squareExceptionalValues_div_scale_tendsto_zero
+#print axioms Bernays.missing_same_genus_mem_exceptional
+#print axioms Bernays.exists_ideal_norm_of_local
+#print axioms Bernays.genusValue_goodIdeal_norm
+#print axioms Bernays.goodClass_genus_count_error_limit
+#print axioms Bernays.goodLocalValues_card_limit
+#print axioms Bernays.goodLocalConstant_pos
+#print axioms Bernays.exists_coprime_norm_factors
+#print axioms Bernays.InvertibleIdeal.maximal_factors_perm
+#print axioms Bernays.fiber_card_limit_of_character_cancellation
+#print axioms Bernays.fundamental_cell_ball_bounds
+#print axioms Bernays.latticeCosetBall_error
+#print axioms Bernays.quadraticIdealLattice_covolume
+#print axioms Bernays.quadraticIdealCosetBall_error
+#print axioms Bernays.idealGeneratorBall_card
+#print axioms Bernays.coprimeQuadraticBall_eq_sum_cosets
+#print axioms Bernays.idealClassAreaConstant_pos
+#print axioms Bernays.idealClassArea_error
+#print axioms Bernays.summatoryLSeries_eq
+#print axioms Bernays.summatoryLSeries_differentiableAt
+#print axioms Bernays.idealClassNormCount_cumsum
+#print axioms Bernays.idealClassCharacterCount_bigO
+#print axioms Bernays.weightedIdealNormCoeff_summable
+#print axioms Bernays.classCharacterLSeries_continuation
+#print axioms Bernays.InvertibleIdeal.coprime_norm_factors_unique
+#print axioms Bernays.goodIdealNormAF_isMultiplicative
+#print axioms Bernays.SplitPrime.normPower_card
+#print axioms Bernays.inert_normPower_card
+#print axioms Bernays.genusLocalAF_square
+#print axioms Bernays.genusLocalLSeries_square_continuation
+#print axioms Bernays.genusLocalLSeries_continuation_nonzero
+#print axioms Bernays.sqrt_mul_norm_deriv_le_of_deriv_bound
+#print axioms Bernays.halfPlane_square_scaled_deriv_integral_tendsto
+#print axioms Bernays.halfPlane_square_fourier_decay
+#print axioms Bernays.LSeries_square_smoothed_cancellation
+#print axioms Bernays.logarithmicKernelMass_scaled_bound
+#print axioms Bernays.genusLocal_smoothed_cancellation
+#print axioms Bernays.genusLocal_sharp_norm_cancellation
+#print axioms Bernays.genusValues_card_limit
+#print axioms Bernays.goodClassConstant_pos
+#print axioms Bernays.goodClassValues_card_limit
+#print axioms Bernays.summable_factored_inv_sqrt
+#print axioms Bernays.positiveValues_card_smooth_sum
+#print axioms Bernays.classSliceValues_card_limit
+#print axioms Bernays.exists_classSlice_dilation_bound
+#print axioms Bernays.fullClassConstant_pos
+#print axioms Bernays.classValues_card_limit
+#print axioms BinQuadForm.B_nat_eq_positiveValues_add_one
+#print axioms BinQuadForm.B_isEquivalent
+#print axioms Bernays.bernays_theorem
