@@ -4620,8 +4620,7 @@
     - https://www.overleaf.com/read/fgmhvywvdjkt#54ca5d
     - https://github.com/Shashi456/erdos-formalizations/blob/main/Erdos/P694/Proof.lean
     - https://raw.githubusercontent.com/Shashi456/erdos-formalizations/refs/heads/main/Erdos/P694/Proof.lean
-  conditional: linnik_dvd
-  version: "4.28.0"
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos697
   epc: https://www.erdosproblems.com/697

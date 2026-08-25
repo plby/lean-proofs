@@ -7,7 +7,6 @@
     "Erdos694.totient_collision_construction"
   ],
   "permitted_axioms": [
-    "linnik_dvd",
     "propext",
     "Classical.choice",
     "Quot.sound"
