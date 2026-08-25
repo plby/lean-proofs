@@ -1,6 +1,6 @@
 import ErdosProblems.Erdos981.Core
 import ErdosProblems.Erdos387.AnalyticInputs
-import ErdosProblems.Erdos981.External.Erdos980.NaturalChebotarev.WeightedToCounting
+import ErdosProblems.Erdos980.NaturalChebotarev.WeightedToCounting
 
 open scoped BigOperators
 open Filter Finset Asymptotics

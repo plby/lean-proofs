@@ -1,5 +1,5 @@
 import ErdosProblems.Erdos981.Core
-import ErdosProblems.Erdos981.External.Erdos980.ElliottTail.Burgess
+import ErdosProblems.Erdos980.ElliottTail.Burgess
 import BoundedGaps.BombieriVinogradov.Analytic.AdditiveLargeSieve.CharacterLargeSieve
 
 open scoped BigOperators NumberTheorySymbols

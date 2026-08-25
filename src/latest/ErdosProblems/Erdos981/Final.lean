@@ -1,7 +1,7 @@
 import ErdosProblems.Erdos981.FixedPatterns
 import ErdosProblems.Erdos981.LargeRange
 import ErdosProblems.Erdos981.PrimeMoment
-import ErdosProblems.Erdos981.External.Erdos746.Asymptotics
+import ErdosProblems.Erdos746.Asymptotics
 
 open scoped BigOperators NumberTheorySymbols Asymptotics
 open Filter Finset

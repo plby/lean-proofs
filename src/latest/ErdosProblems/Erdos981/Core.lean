@@ -10,8 +10,8 @@ import ErdosProblems.Erdos981.External.Erdos439.Main
 import ErdosProblems.Erdos888.SquarePart
 import ErdosProblems.Erdos822.FiniteEnergy
 import ErdosProblems.Erdos387.AnalyticInputs
-import ErdosProblems.Erdos981.External.Erdos980.Assembly
-import ErdosProblems.Erdos981.External.Erdos980.ElliottTail.Burgess
+import ErdosProblems.Erdos980.Assembly
+import ErdosProblems.Erdos980.ElliottTail.Burgess
 import Mathlib.Algebra.BigOperators.Associated
 import Mathlib.Data.Nat.Factorization.Basic
 import Mathlib.NumberTheory.DirichletCharacter.Orthogonality
