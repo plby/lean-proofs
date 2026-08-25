@@ -2,7 +2,9 @@
   "challenge_module": "Erdos587",
   "solution_module": "ErdosProblems.Erdos587",
   "theorem_names": [
-    "Erdos587.erdos_587.variants.nguyen_vu"
+    "Erdos587.erdos_587.variants.lower_bound",
+    "Erdos587.erdos_587.variants.nguyen_vu",
+    "Erdos587.erdos_587"
   ],
   "permitted_axioms": [
     "propext",

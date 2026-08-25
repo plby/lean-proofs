@@ -213,7 +213,7 @@ nonempty square subset sum, this development proves the results of
   natural threshold rather than filter notation.
 * `Erdos587.subpolynomial_upper_bound`: the weaker exponential-logarithmic
   upper bound from the comparison section.
-* `Erdos587.eventually_power_bounds`: for every positive `ε`, eventually
+* `Erdos587.erdos_587`: for every positive `ε`, eventually
   `N^(1/3-ε) ≤ MaxNotSqSum N ≤ N^(1/3+ε)`.
 
 The proof does not assume Nguyen--Vu's false composite-modulus Weyl lemma
@@ -261,11 +261,23 @@ theorem nguyenVuBound_iff_eventual_uniform_card_bound :
 /-- The unconditional upper bound, in the exact target proposition. -/
 theorem nguyenVuBound : NguyenVuBound := unconditional_nguyen_vu
 
+/-- A cube-root lower bound for every $N \ge 64$. -/
+theorem erdos_587.variants.lower_bound (N : ℕ) (hN : 64 ≤ N) :
+    (N : ℝ) ^ (1 / 3 : ℝ) / 4 ≤ (MaxNotSqSum N : ℝ) := by
+  exact cube_root_div_four_le_maxNotSqSum N hN
+
 /-- The corrected Formal Conjectures Nguyen--Vu variant. -/
 theorem erdos_587.variants.nguyen_vu : ∃ᵉ (O > 0) (O' > 0),
     ∀ᶠ N in Filter.atTop,
       (MaxNotSqSum N : ℝ) ≤
         O' * (N : ℝ) ^ (1 / 3 : ℝ) * (N : ℝ).log ^ O := by
   simpa only [NguyenVuBound, nthRoot_three_natCast, one_div] using nguyenVuBound
+
+/-- Growth $N^{1/3+o(1)}$, expressed by eventual bounds for every positive $\varepsilon$. -/
+theorem erdos_587 (ε : ℝ) (hε : 0 < ε) :
+    ∀ᶠ N : ℕ in Filter.atTop,
+      (N : ℝ) ^ (1 / 3 - ε) ≤ (MaxNotSqSum N : ℝ) ∧
+        (MaxNotSqSum N : ℝ) ≤ (N : ℝ) ^ (1 / 3 + ε) := by
+  exact eventually_power_bounds ε hε
 
 end Erdos587
