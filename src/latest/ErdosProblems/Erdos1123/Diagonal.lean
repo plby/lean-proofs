@@ -2,7 +2,7 @@ import Mathlib.Data.Nat.Find
 import Mathlib.Order.Filter.AtTopBot.Basic
 import Mathlib.Order.Filter.Finite
 import Mathlib.Analysis.SpecificLimits.Basic
-import Mathlib.Tactic.Omega
+import Mathlib.Tactic
 
 /-! # Diagonal selection for countably many eventual constraints -/
 
