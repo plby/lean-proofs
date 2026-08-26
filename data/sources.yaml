@@ -4370,6 +4370,22 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos607.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos608
+  epc: https://www.erdosproblems.com/608
+  author:
+    informal:
+      human:
+        - Zoltán Füredi
+        - Zeinab Maleki
+    formal:
+      AI: Claude Fable 5
+      human: Emerson Hsieh
+  url:
+    - https://github.com/teorth/erdosproblems/pull/365
+    - https://github.com/primateria/erdos608/tree/b50849234b8de6cb5c642b5cb0479cab2e9e9908
+    - https://arxiv.org/abs/1605.09055
+  version: "4.27.0"
+
 - key: ErdosProblems.Erdos613
   epc: https://www.erdosproblems.com/613
   author:

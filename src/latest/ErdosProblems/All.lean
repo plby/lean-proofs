@@ -283,6 +283,7 @@ import ErdosProblems.Erdos603
 import ErdosProblems.Erdos605
 import ErdosProblems.Erdos606
 import ErdosProblems.Erdos607
+import ErdosProblems.Erdos608
 import ErdosProblems.Erdos613
 import ErdosProblems.Erdos615
 import ErdosProblems.Erdos618
