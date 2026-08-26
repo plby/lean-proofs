@@ -2509,6 +2509,20 @@
   url_ref: KevinBarreto_333
   version: "4.29.1"
 
+- key: ErdosProblems.Erdos336
+  epc: https://www.erdosproblems.com/336
+  author:
+    informal:
+      human: Colin Snyder
+      AI: GPT-5.6
+    formal:
+      human: Colin Snyder
+      AI: GPT-5.6
+  url:
+    - https://www.erdosproblems.com/forum/thread/336/proof-claims#proof-claim-32
+    - https://www.starfleetmath.com/solutions/f1d1ef78-ae72-45c9-9990-17012d60f244
+    - https://www.starfleetmath.com/downloads/verify/erdos-336/erdos-336-solution.zip
+  version: 4.31.0
 - key: ErdosProblems.Erdos337
   epc: https://www.erdosproblems.com/337
   author:

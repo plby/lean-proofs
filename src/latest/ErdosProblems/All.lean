@@ -167,6 +167,7 @@ import ErdosProblems.Erdos328
 import ErdosProblems.Erdos330
 import ErdosProblems.Erdos331
 import ErdosProblems.Erdos333
+import ErdosProblems.Erdos336
 import ErdosProblems.Erdos337
 import ErdosProblems.Erdos339
 import ErdosProblems.Erdos341
