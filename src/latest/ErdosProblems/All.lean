@@ -1,6 +1,7 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 import ErdosProblems.Erdos2
 import ErdosProblems.Erdos4
+import ErdosProblems.Erdos4b
 import ErdosProblems.Erdos6
 import ErdosProblems.Erdos8
 import ErdosProblems.Erdos13

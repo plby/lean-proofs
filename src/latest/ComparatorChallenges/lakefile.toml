@@ -429,6 +429,7 @@ roots = [
 
   "Erdos2",
   "Erdos4",
+  "Erdos4b",
 
   "Erdos8",
 
