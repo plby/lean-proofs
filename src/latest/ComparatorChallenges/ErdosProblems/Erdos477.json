@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos477",
+  "solution_module": "ErdosProblems.Erdos477",
+  "theorem_names": [
+    "Erdos477.erdos477_sixth_power",
+    "Erdos477.erdos_477"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
