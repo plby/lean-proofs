@@ -8806,6 +8806,20 @@
     - https://github.com/KitaKen1/erdos-1187-lean/blob/main/SecondSolution.lean
   version: "4.29.1"
 
+- key: ErdosProblems.Erdos1188
+  epc: https://www.erdosproblems.com/1188
+  author:
+    informal:
+      human: Colin Snyder
+      AI: GPT-5.6
+    formal:
+      human: Colin Snyder
+      AI: GPT-5.6
+  url:
+    - https://www.erdosproblems.com/forum/thread/1188/proof-claims#proof-claim-51
+    - https://www.starfleetmath.com/solutions/3ba934e6-6256-435e-bbd1-2a2ddc1ac5a7
+    - https://www.starfleetmath.com/downloads/verify/erdos-1188/erdos-1188-solution.zip
+  version: 4.31.0
 - key: ErdosProblems.Erdos1190
   epc: https://www.erdosproblems.com/1190
   author:
