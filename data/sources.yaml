@@ -3394,6 +3394,19 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem459.lean
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos464
+  epc: https://www.erdosproblems.com/464
+  author:
+    informal:
+      human: Bernard de Mathan
+    formal:
+      AI: Aristotle
+      human: JoshuaB
+  url:
+    - https://www.erdosproblems.com/forum/thread/464#post-7120
+    - https://aristotle.harmonic.fun/dashboard/requests/f9894d2d-4bb1-42da-9301-e508aa881b17
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos465
   epc: https://www.erdosproblems.com/465
   author:
