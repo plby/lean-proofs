@@ -145,6 +145,7 @@
 * [Erdős Problem 756](Erdos756.md)
 * [Erdős Problem 760](Erdos760.md)
 * [Erdős Problem 762](Erdos762.md)
+* [Erdős Problem 765](Erdos765.md)
 * [Erdős Problem 775](Erdos775.md)
 * [Erdős Problem 785](Erdos785.md)
 * [Erdős Problem 794](Erdos794.md)

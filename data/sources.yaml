@@ -5505,6 +5505,24 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos764.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos765
+  epc: https://www.erdosproblems.com/765
+  author:
+    informal:
+      human:
+        - István Reiman
+        - Paul Erdős
+        - Alfréd Rényi
+        - W. G. Brown
+    formal:
+      AI: Aristotle
+      human: Jeremy Tan Jie Rui
+  url:
+    - https://www.erdosproblems.com/765#post-6480
+    - https://gist.githubusercontent.com/Parcly-Taxel/13d3bd0f1390b0832a42994a09cf91c5/raw/e267a3a494e64019a1a442b3b05438745923883b/Erdos765.lean
+    - https://alexkontorovich.github.io/PrimeNumberTheoremAnd/blueprint/corollaries-chapter.html#prime_between
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos767
   epc: https://www.erdosproblems.com/767
   author:
