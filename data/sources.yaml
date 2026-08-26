@@ -8481,6 +8481,8 @@
 
 - key: ErdosProblems.Erdos1148
   epc: https://www.erdosproblems.com/1148
+  # These credits describe the original EPC formalization; see the documentation
+  # for the later unconditional repository completion and its provenance.
   author:
     informal:
       AI: GPT-5.4 Pro
@@ -8489,17 +8491,17 @@
       AI:
         - Gemini 3.1
         - Claude Opus 4.6
-        - GPT-5.4 Pro
+        - GPT-5.4
         - UlamAI Prover
       human: Przemek Chojecki
   url:
     - https://www.erdosproblems.com/forum/thread/1148#post-4849
     - https://www.ulam.ai/research/erdos1148-full.pdf
     - https://github.com/ulamai/ulamai
+    - https://github.com/plby/lean-proofs/commit/a6e8981de30fd4bc839c1c58d6f687c2f78449ed
   url_ref: PrzemekChojecki_1148
-  # Supplied as h_duke; the adapted Duke statement is not proved by this setup.
-  conditional: DukeTheoremStatement
-  version: "4.27.0"
+  # Selected unconditional version; the original EPC editor link is unversioned.
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1149
   epc: https://www.erdosproblems.com/1149

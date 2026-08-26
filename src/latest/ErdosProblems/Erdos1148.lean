@@ -1,4 +1,6 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/- No explicit license was supplied with the original EPC Lean snippet.
+Modified for this repository; the original conditional proof is retained as a helper. -/
 /-
 This is a Lean formalization of a solution to Erdős Problem 1148.
 https://www.erdosproblems.com/forum/thread/1148
@@ -10,17 +12,24 @@ Informal authors:
 - GPT-5.4 Pro
 - Przemek Chojecki
 
-Formal authors:
+Authors/tools of the original conditional formalization:
 - Gemini 3.1
 - Claude Opus 4.6
-- GPT-5.4 Pro
+- GPT-5.4
 - UlamAI Prover
 - Przemek Chojecki
+
+The unconditional completion was added in repository commit
+a6e8981de30fd4bc839c1c58d6f687c2f78449ed (Lean/Mathlib 4.33.0).
+That commit records Boris Alexeev as its author, but does not identify additional
+proof-writing tools. The original EPC editor snippet contains no version pin.
+See ErdosProblems/Erdos1148.md for the distinction between the two versions.
 
 URLs:
 - https://www.erdosproblems.com/forum/thread/1148#post-4849
 - https://www.ulam.ai/research/erdos1148-full.pdf
 - https://github.com/ulamai/ulamai
+- https://github.com/plby/lean-proofs/commit/a6e8981de30fd4bc839c1c58d6f687c2f78449ed
 -/
 import Mathlib
 import ErdosProblems.Erdos1148.UnconditionalLocalExistence
