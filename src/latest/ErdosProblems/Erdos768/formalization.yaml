@@ -1,0 +1,154 @@
+# formalization.yaml (v0.3): repo-root metadata for formalization projects.
+# Schema: https://github.com/mathlib-initiative/formalization.yaml
+
+version: "v0.3"
+
+project:
+  name: "erdos768-lean"
+  authors: ["Eric Li"]
+  license: "Apache-2.0"
+
+sources:
+  - title: "The Sylow Divisor Condition: a Resolution of Erdős Problem 768"
+    authors: ["Eric Li"]
+    id: "arXiv:2606.24872v1"
+    type: "preprint"
+    license: "arXiv.org perpetual, non-exclusive license (http://arxiv.org/licenses/nonexclusive-distrib/1.0/)"
+    author_contacted: "n/a"    # the formalization author is the source author
+    prior_work: ""
+  - title: "Erdős Problem #768 (problem statement)"
+    authors: ["Paul Erdős; page curated by Thomas F. Bloom"]
+    id: "https://www.erdosproblems.com/768"
+    type: "problem database entry"
+
+status:
+  scope: >
+    Complete, unconditional formalisation of the paper's main theorem
+    (Theorem 1.1), resolving Erdős Problem 768. The Bombieri–Davenport
+    multiplicative large sieve, the subset-product second moment, and the
+    compression/reconstruction package are proved from scratch (~8,500 lines
+    of new Lean); the error-term PNT input is derived from MediumPNT of the
+    community PrimeNumberTheoremAnd project, whose sorry-free 13-module
+    dependency closure is vendored byte-for-byte under vendor/ with license
+    and provenance notes.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
+  main_results:
+    - declaration: "Erdos768.erdos_768"
+      file: "RequestProject/Main.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: ""    # pending: comparator CI run in progress; will point at the JSON config
+      literature_dependencies: []   # none — every input is proved within the dependency graph
+    - declaration: "Erdos768.lower_bound"
+      file: "RequestProject/Main.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      literature_dependencies: []
+    - declaration: "Erdos768.upper_bound"
+      file: "RequestProject/Main.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      literature_dependencies: []
+
+automation:
+  methods:
+    - method: "agent"
+      models: []               # underlying models not publicly documented by Harmonic
+      framework: "Aristotle (Harmonic)"
+      tool_setup: >
+        Aristotle runs directed by the author from the paper's LaTeX source
+        (erdos768_source.tex, kept in-repo): an initial run stated all results
+        faithfully with 9 sorries; successive runs discharged the deep inputs
+        from scratch; final runs were adversarial self-audits. Complete per-run
+        summaries in ARISTOTLE_SUMMARY.md; audit report in AUDIT_REPORT.md.
+      cost:
+        wall_time: "not recorded"
+        spend_usd: "not recorded"
+        hardware: "Aristotle cloud service"
+      prompting_notes: ""
+    - method: "manual"
+      framework: ""
+      tool_setup: >
+        Author work: direction of the Aristotle runs, verification of the
+        formal statements against the paper, local reproduction of the full
+        build and axiom certificate, packaging fixes (lake manifest), and
+        hardening of the axiom audit via #guard_msgs. Release engineering and
+        an independent source-level audit were assisted by Claude (Anthropic).
+  spend_usd: "not recorded"
+  notes: >
+    The paper's mathematics was developed by the author, with LLMs pursuing
+    and investigating the author's ideas under his direction; the author
+    checked and corrected their work. The Lean formalization was then
+    produced by Aristotle from the finished paper.
+
+fidelity:
+  divergences: >
+    One substantive divergence: the internal error-term PNT lemma
+    (pnt_li_error in RequestProject/PNT.lean) carries error exponent
+    (log y)^(1/10), inherited from the vendored MediumPNT, instead of the
+    paper's de la Vallée Poussin exponent sqrt(log y). Any fixed positive
+    power of log y suffices for the Lemma 2.8 reduction, so the top-level
+    theorem is stated exactly as the paper's Theorem 1.1. Intermediate proofs
+    do not follow the paper line-by-line. The definitions (SylowDivisor,
+    Acount, c₀, Sscale) match the paper's §1 verbatim, including d > 1 and
+    1 ∈ A vacuously.
+
+review:
+  status: "author-verified"
+  reviewers: []
+  notes: >
+    Statements checked against the paper source by the author; full clean
+    build and axiom certificate ([propext, Classical.choice, Quot.sound],
+    no sorryAx) reproduced on the author's machine and enforced in CI via
+    #guard_msgs. Aristotle performed multiple adversarial audit runs (see
+    ARISTOTLE_SUMMARY.md). Community review invited: erdosproblems.com/768
+    discussion thread and formal-conjectures PR #4425.
+
+alignment:
+  namespace: "Erdos768"
+  statements:
+    - source: "Theorem 1.1 (main theorem)"
+      lean: "Erdos768.erdos_768"
+      module: "RequestProject/Main.lean"
+      status: "proved"
+    - source: "Theorem 5.3 (constructive lower bound)"
+      lean: "Erdos768.lower_bound"
+      module: "RequestProject/Main.lean"
+      status: "proved"
+    - source: "Theorem 10.4 (sieve upper bound)"
+      lean: "Erdos768.upper_bound"
+      module: "RequestProject/Main.lean"
+      status: "proved"
+    - source: "Theorem 2.6 (multiplicative large sieve)"
+      lean: "Erdos768.multiplicative_large_sieve"
+      module: "RequestProject/Analytic.lean"
+      status: "proved"
+      note: "proved from scratch in LargeSieve.lean + LargeSieveMult.lean"
+    - source: "Lemma 2.8 (primes in logarithmic intervals)"
+      lean: "Erdos768.primes_in_log_interval"
+      module: "RequestProject/Analytic.lean"
+      status: "proved"
+      note: "via RequestProject/PNT.lean from vendored MediumPNT; weaker error exponent, see fidelity"
+    - source: "Lemma 3.1 (subset-product second moment)"
+      lean: "Erdos768.subset_product_hits_identity"
+      module: "RequestProject/Analytic.lean"
+      status: "proved"
+      note: "proved from scratch in SubsetProduct.lean; counting forms in SubsetProductCount.lean"
+    - source: "Propositions 8.5 & 9.2 (compression/reconstruction)"
+      lean: "Erdos768.canonical_compression_exists"
+      module: "RequestProject/UpperBound.lean"
+      status: "proved"
+      note: "built in Compression.lean + Canonical.lean"
+    - source: "§1 definitions (Sylow divisor condition, A(x), c₀, S(x))"
+      lean: "Erdos768.SylowDivisor, Erdos768.Acount, Erdos768.c₀, Erdos768.Sscale"
+      module: "RequestProject/Defs.lean"
+      status: "proved"
+
+acknowledgements: >
+  Aristotle (Harmonic) produced the Lean proofs. The vendored
+  PrimeNumberTheoremAnd (MediumPNT closure; Alex Kontorovich, Terence Tao,
+  and contributors) and LeanArchitect (Hanwen Zhu) are included under
+  Apache-2.0 with per-package PROVENANCE.md notes. Built on Mathlib; thanks
+  to the Mathlib community and to Thomas Bloom for erdosproblems.com.

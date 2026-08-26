@@ -23,6 +23,7 @@ rev = "v4.33.0"
 name = "ComparatorChallenges"
 srcDir = "ErdosProblems"
 roots = [
+  "Erdos768",
   "Erdos1177",
   "Erdos550",
   "Erdos593",
