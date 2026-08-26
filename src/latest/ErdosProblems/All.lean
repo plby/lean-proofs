@@ -530,6 +530,7 @@ import ErdosProblems.Erdos1116
 import ErdosProblems.Erdos1118
 import ErdosProblems.Erdos1119
 import ErdosProblems.Erdos1121
+import ErdosProblems.Erdos1123
 import ErdosProblems.Erdos1124
 import ErdosProblems.Erdos1125
 import ErdosProblems.Erdos1126
