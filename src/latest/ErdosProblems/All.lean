@@ -371,6 +371,7 @@ import ErdosProblems.Erdos781
 import ErdosProblems.Erdos783
 import ErdosProblems.Erdos784
 import ErdosProblems.Erdos785
+import ErdosProblems.Erdos793
 import ErdosProblems.Erdos794
 import ErdosProblems.Erdos795
 import ErdosProblems.Erdos797

@@ -5695,6 +5695,24 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem785.lean
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos793
+  epc: https://www.erdosproblems.com/793
+  author:
+    informal:
+      AI: GPT-5.6 Sol Ultra
+      human: Przemek Chojecki
+    formal:
+      AI: Aristotle
+      human:
+        - Wouter van Doorn
+        - Jake Mallen
+  url:
+    - https://www.erdosproblems.com/793#post-7596
+    - https://github.com/Woett/Lean-files/blob/ce4bcdac98415c60c7a7d7f78ce54c9adb79bc47/ErdosProblem793.lean
+    - https://github.com/Jayyhk/erdos-lean/tree/cc6c94bd3f9de7c4cf7703ed40d8fd06380780a3/problems/793
+    - https://www.ulam.ai/research/erdos793.pdf
+  version: "4.30.0"
+
 - key: ErdosProblems.Erdos794
   epc: https://www.erdosproblems.com/794
   author:

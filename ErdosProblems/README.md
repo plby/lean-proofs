@@ -148,6 +148,7 @@
 * [Erdős Problem 765](Erdos765.md)
 * [Erdős Problem 775](Erdos775.md)
 * [Erdős Problem 785](Erdos785.md)
+* [Erdős Problem 793](Erdos793.md)
 * [Erdős Problem 794](Erdos794.md)
 * [Erdős Problem 798](Erdos798.md)
 * [Erdős Problem 818](Erdos818.md)
