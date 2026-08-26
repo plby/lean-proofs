@@ -1898,5 +1898,5 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
   [#633](https://www.erdosproblems.com/633), [#747](https://www.erdosproblems.com/747), [#941](https://www.erdosproblems.com/941).
 
 <!-- Status snapshot SHA-256 (official range-page HTML):
-b0a1535a93a78c6977883aa4b031188d6cc97537e2d11708e722f6330cafd7be
+5b417a16164142713d6d9c72166cca7b8c6524a2091963b06e16605222e4ca03
 -->
