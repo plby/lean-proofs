@@ -167,6 +167,7 @@
 * [Erdős Problem 907](Erdos907.md)
 * [Erdős Problem 914](Erdos914.md)
 * [Erdős Problem 923](Erdos923.md)
+* [Erdős Problem 927](Erdos927.md)
 * [Erdős Problem 947](Erdos947.md)
 * [Erdős Problem 958](Erdos958.md)
 * [Erdős Problem 964](Erdos964.md)

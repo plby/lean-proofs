@@ -446,6 +446,7 @@ import ErdosProblems.Erdos923
 import ErdosProblems.Erdos924
 import ErdosProblems.Erdos925
 import ErdosProblems.Erdos926
+import ErdosProblems.Erdos927
 import ErdosProblems.Erdos937
 import ErdosProblems.Erdos946
 import ErdosProblems.Erdos947

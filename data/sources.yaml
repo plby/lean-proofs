@@ -6817,6 +6817,22 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos926.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos927
+  epc: https://www.erdosproblems.com/927
+  author:
+    informal:
+      human: Joel H. Spencer
+    formal:
+      AI: Aristotle
+      human:
+        - John Jennings
+        - Jake Mallen
+  url:
+    - https://www.erdosproblems.com/927#post-6850
+    - https://gist.githubusercontent.com/JohnEdwardJennings/24c9debc9854cb118fbc1314c70941c3/raw/b4fc5ef91876a89018b10508c479c000258504fb/Erdos927.lean
+    - https://github.com/Jayyhk/erdos-lean/tree/cc6c94bd3f9de7c4cf7703ed40d8fd06380780a3/problems/927
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos937
   epc: https://www.erdosproblems.com/937
   author:
