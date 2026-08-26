@@ -86,6 +86,7 @@ import ErdosProblems.Erdos186
 import ErdosProblems.Erdos189
 import ErdosProblems.Erdos190
 import ErdosProblems.Erdos191
+import ErdosProblems.Erdos192
 import ErdosProblems.Erdos194
 import ErdosProblems.Erdos198
 import ErdosProblems.Erdos199
