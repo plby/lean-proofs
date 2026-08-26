@@ -8641,6 +8641,22 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1165.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos1177
+  epc: https://www.erdosproblems.com/1177
+  author:
+    informal:
+      human: Eric Li
+      AI: GPT-5.5 Pro
+    formal:
+      human: Eric Li
+      AI: Aristotle
+  arxiv: https://arxiv.org/abs/2606.24882v2
+  url:
+    - https://www.erdosproblems.com/forum/thread/1177/proof-claims#proof-claim-73
+    - https://github.com/ericlisg/erdos-593-1177-lean/tree/v1.0.0
+    - https://github.com/ericlisg/erdos-593-1177-lean/tree/5dcb6e4906df03f2e4294b21be73b55db7736f5a
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos1179
   epc: https://www.erdosproblems.com/1179
   author:

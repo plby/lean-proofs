@@ -572,6 +572,7 @@ import ErdosProblems.Erdos1161
 import ErdosProblems.Erdos1164
 import ErdosProblems.Erdos1165
 import ErdosProblems.Erdos1166
+import ErdosProblems.Erdos1177
 import ErdosProblems.Erdos1179
 import ErdosProblems.Erdos1180
 import ErdosProblems.Erdos1185
