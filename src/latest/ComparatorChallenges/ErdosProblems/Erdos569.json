@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos569",
+  "solution_module": "ErdosProblems.Erdos569",
+  "theorem_names": [
+    "Erdos569.cycle_bound",
+    "Erdos569.erdos_569"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
