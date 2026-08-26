@@ -21,6 +21,7 @@
 * the former statement of [Erdős Problem 124](Erdos124b.md)
 * [Erdős Problem 125](Erdos125.md)
 * [Erdős Problem 134](Erdos134.md)
+* [Erdős Problem 146](Erdos146.md)
 * [Erdős Problem 150](Erdos150.md)
 * [Erdős Problem 154](Erdos154.md)
 * [Erdős Problem 164](Erdos164.md)
