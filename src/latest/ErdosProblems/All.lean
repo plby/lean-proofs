@@ -595,6 +595,7 @@ import ErdosProblems.Erdos1185
 import ErdosProblems.Erdos1187
 import ErdosProblems.Erdos1187b
 import ErdosProblems.Erdos1188
+import ErdosProblems.Erdos1189
 import ErdosProblems.Erdos1190
 import ErdosProblems.Erdos1193
 import ErdosProblems.Erdos1195
