@@ -1124,6 +1124,20 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos179.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos180
+  epc: https://www.erdosproblems.com/180
+  author:
+    informal:
+      AI: Astra (internal OpenAI model)
+    formal:
+      AI: Astra (internal OpenAI model)
+      human: OpenAI team
+  url:
+    - https://www.erdosproblems.com/forum/thread/180#post-8255
+    - https://github.com/openai/ten-proofs/blob/a13547c6be4563746881d0b3b4c9fd03f72f0484/CompactnessAndDegeneracy.lean
+    - https://openai.com/index/ten-advances-in-mathematics/
+  version: "4.32.0"
+
 - key: ErdosProblems.Erdos182
   epc: https://www.erdosproblems.com/182
   author:

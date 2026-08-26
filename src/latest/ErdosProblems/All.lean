@@ -77,6 +77,7 @@ import ErdosProblems.Erdos171
 import ErdosProblems.Erdos175
 import ErdosProblems.Erdos178
 import ErdosProblems.Erdos179
+import ErdosProblems.Erdos180
 import ErdosProblems.Erdos182
 import ErdosProblems.Erdos185
 import ErdosProblems.Erdos186
