@@ -1,0 +1,22 @@
+Erdős Problem #501 in Lean 4
+Copyright 2026 Elliot Glazer
+
+This product includes software developed by third parties:
+
+* Flypitch — a formal proof of the independence of the continuum hypothesis.
+  Copyright 2019 The Flypitch Project (Jesse Michael Han, Floris van Doorn).
+  Licensed under the Apache License, Version 2.0.
+  https://github.com/flypitch/flypitch
+
+* Flypitch Lean 4 port (`flypitch4/`), by Ian Klatzco with Claude,
+  https://github.com/ianklatzco/flypitch (commit ad649f8).
+  Licensed under the Apache License, Version 2.0.
+  Vendored here as the `Flypitch4` library, with modifications (port to a newer
+  Mathlib; measure-algebra / random-algebra additions).
+
+* Statement shapes of the comparator targets follow
+  google-deepmind/formal-conjectures, FormalConjectures/ErdosProblems/501.lean,
+  Copyright 2025 The Formal Conjectures Authors, Apache License, Version 2.0.
+  https://github.com/google-deepmind/formal-conjectures
+
+* Mathlib, Copyright the Mathlib community, Apache License, Version 2.0.

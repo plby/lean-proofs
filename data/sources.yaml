@@ -3726,6 +3726,31 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos499.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos501
+  epc: https://www.erdosproblems.com/501
+  author:
+    informal:
+      human:
+        - Elliot Glazer
+        - Stephen H. Hechler
+        - Ludomir Newelski
+        - Janusz Pawlikowski
+        - Wiesław Seredyński
+      AI:
+        - GPT-5.6 Sol
+    statement: Formal Conjectures authors; Elliot Glazer and Claude Fable 5
+    formal:
+      human:
+        - Elliot Glazer
+      AI:
+        - Claude Fable 5
+        - Claude Opus 4.8
+  url:
+    - https://www.erdosproblems.com/forum/thread/501/proof-claims#proof-claim-207
+    - https://github.com/elliotglazer/erdos501/tree/218d1c1e46f77d4db80e566d1721782e85b94a17
+    - https://github.com/elliotglazer/erdos501/blob/218d1c1e46f77d4db80e566d1721782e85b94a17/formalization.yaml
+  version: "4.34.0-rc1"
+
 - key: ErdosProblems.Erdos502
   epc: https://www.erdosproblems.com/502
   author:

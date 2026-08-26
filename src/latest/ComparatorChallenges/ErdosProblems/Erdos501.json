@@ -1,0 +1,19 @@
+{
+  "challenge_module": "Erdos501",
+  "solution_module": "ErdosProblems.Erdos501",
+  "theorem_names": [
+    "erdos501_closed_infinite",
+    "erdos501_closed_size3",
+    "erdos501_hechler_of_CH",
+    "erdos501_not_refutable",
+    "erdos501_not_provable",
+    "Erdos501.erdos_501",
+    "erdos501_sentence_faithful"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}
