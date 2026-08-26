@@ -1153,6 +1153,20 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos182.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos183
+  epc: https://www.erdosproblems.com/183
+  author:
+    informal:
+      AI: Astra (internal OpenAI model)
+    formal:
+      AI: Astra (internal OpenAI model)
+      human: OpenAI team
+  url:
+    - https://www.erdosproblems.com/forum/thread/183#post-8250
+    - https://github.com/openai/ten-proofs/blob/94bc0feb6a9ff12c7d31d6de640a725c9d43d2b6/MulticolorTriangleRamsey.lean
+    - https://openai.com/index/ten-advances-in-mathematics/
+  version: "4.32.0"
+
 - key: ErdosProblems.Erdos185
   epc: https://www.erdosproblems.com/185
   author:
