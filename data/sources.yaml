@@ -3655,6 +3655,20 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem485.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos486
+  epc: https://www.erdosproblems.com/486
+  author:
+    informal:
+      human: Shouqiao Wang
+      AI: GPT-5.6 Sol
+    formal:
+      human: Shouqiao Wang
+  url:
+    - https://www.erdosproblems.com/forum/thread/486/proof-claims#proof-claim-63
+    - https://github.com/ShouqiaoW/erdos/tree/bb8d6cf6180e3abbe67fc5b01ac1c0efa2f2d0fe/486/lean
+    - https://github.com/ShouqiaoW/erdos/tree/d28713ac8245ca86a686b8c67370a8d19d81b242/486/lean
+    - https://github.com/ShouqiaoW/erdos/blob/d28713ac8245ca86a686b8c67370a8d19d81b242/486/paper.pdf
+  version: 4.27.0
 - key: ErdosProblems.Erdos487
   epc: https://www.erdosproblems.com/487
   author:

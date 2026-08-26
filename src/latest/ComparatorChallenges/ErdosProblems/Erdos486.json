@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos486",
+  "solution_module": "ErdosProblems.Erdos486",
+  "theorem_names": [
+    "Erdos486.erdos_486_quantitative",
+    "Erdos486.not_erdos_486"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}

@@ -240,6 +240,7 @@ import ErdosProblems.Erdos482
 import ErdosProblems.Erdos484
 import ErdosProblems.Erdos485
 import ErdosProblems.Erdos485b
+import ErdosProblems.Erdos486
 import ErdosProblems.Erdos487
 import ErdosProblems.Erdos490
 import ErdosProblems.Erdos491
