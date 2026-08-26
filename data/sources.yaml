@@ -2915,6 +2915,21 @@
   version: "4.28.0"
   todo: Import PNT+ project.
 
+- key: ErdosProblems.Erdos394
+  epc: https://www.erdosproblems.com/394
+  author:
+    informal:
+      human: Colin Snyder
+      AI: GPT-5.6
+    formal:
+      human: Colin Snyder
+      AI: GPT-5.6
+  url:
+    - https://www.erdosproblems.com/forum/thread/394/proof-claims#proof-claim-33
+    - https://www.starfleetmath.com/solutions/188c4e29-f0bb-4975-8f1d-b0a31c5fcd2e
+    - https://www.starfleetmath.com/downloads/verify/erdos-394/erdos-394-solution.zip
+  version: "4.31.0"
+
 - key: ErdosProblems.Erdos395
   epc: https://www.erdosproblems.com/395
   author:
