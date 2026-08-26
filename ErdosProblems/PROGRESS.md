@@ -2,7 +2,7 @@
 
 Snapshot: **2026-08-25** · **1,217 problems**
 
-**🟩 561 formalized · 🟨 20 solved, not formalized here · 🟥 636 open**
+**🟩 562 formalized · 🟨 20 solved, not formalized here · 🟥 635 open**
 
 ## Legend
 
@@ -881,7 +881,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="https://www.erdosproblems.com/566" title="#566: Open; no complete local Comparator setup counted" aria-label="#566: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/567" title="#567: Open; no complete local Comparator setup counted" aria-label="#567: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/568" title="#568: Open; no complete local Comparator setup counted" aria-label="#568: Open; no complete local Comparator setup counted">🟥</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/569" title="#569: Open; no complete local Comparator setup counted" aria-label="#569: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos569.json" title="#569: Formalized in this repository with a Comparator setup" aria-label="#569: Formalized in this repository with a Comparator setup">🟩</a></td>
     </tr>
     <tr>
       <th scope="row">57x</th>
@@ -1885,10 +1885,10 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
 
 ## Status notes
 
-- **Formalized here, open on EPC (16):** [#106](https://www.erdosproblems.com/106), [#146](https://www.erdosproblems.com/146), [#180](https://www.erdosproblems.com/180), [#183](https://www.erdosproblems.com/183), [#327](https://www.erdosproblems.com/327),
+- **Formalized here, open on EPC (17):** [#106](https://www.erdosproblems.com/106), [#146](https://www.erdosproblems.com/146), [#180](https://www.erdosproblems.com/180), [#183](https://www.erdosproblems.com/183), [#327](https://www.erdosproblems.com/327),
   [#341](https://www.erdosproblems.com/341), [#394](https://www.erdosproblems.com/394), [#424](https://www.erdosproblems.com/424), [#469](https://www.erdosproblems.com/469), [#501](https://www.erdosproblems.com/501),
-  [#520](https://www.erdosproblems.com/520), [#671](https://www.erdosproblems.com/671), [#1002](https://www.erdosproblems.com/1002), [#1005](https://www.erdosproblems.com/1005), [#1038](https://www.erdosproblems.com/1038),
-  [#1112](https://www.erdosproblems.com/1112).
+  [#520](https://www.erdosproblems.com/520), [#569](https://www.erdosproblems.com/569), [#671](https://www.erdosproblems.com/671), [#1002](https://www.erdosproblems.com/1002), [#1005](https://www.erdosproblems.com/1005),
+  [#1038](https://www.erdosproblems.com/1038), [#1112](https://www.erdosproblems.com/1112).
 
 - **Marked “Lean” on EPC, not green here (2):** [#192](https://www.erdosproblems.com/192), [#610](https://www.erdosproblems.com/610).
 
@@ -1898,5 +1898,5 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
   [#633](https://www.erdosproblems.com/633), [#747](https://www.erdosproblems.com/747), [#941](https://www.erdosproblems.com/941).
 
 <!-- Status snapshot SHA-256 (official range-page HTML):
-5b417a16164142713d6d9c72166cca7b8c6524a2091963b06e16605222e4ca03
+f6c85bcabcaa6b2d7237f15f4b2b7a8e23ebd73b4384dd59df568e6921e4e7ad
 -->
