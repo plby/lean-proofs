@@ -390,6 +390,7 @@ import ErdosProblems.Erdos788
 import ErdosProblems.Erdos793
 import ErdosProblems.Erdos794
 import ErdosProblems.Erdos795
+import ErdosProblems.Erdos796
 import ErdosProblems.Erdos797
 import ErdosProblems.Erdos798
 import ErdosProblems.Erdos799

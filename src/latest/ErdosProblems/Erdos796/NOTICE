@@ -1,0 +1,11 @@
+Erdos 796 Lean Formalization
+Copyright 2026 Rishikesh Gajjala
+
+This product includes a Lean 4 formalization developed against Mathlib and
+PrimeNumberTheoremAnd. Their licenses and attribution notices remain those of
+their respective projects.
+
+The initial proofs were generated and formalized in Lean using OpenAI's
+GPT 5.6 Sol; the authors then verified and rewrote the proofs to improve
+readability and provide additional context. The formal declarations are
+checked by the Lean kernel and the release audit documented in AUDIT.md.

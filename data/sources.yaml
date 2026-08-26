@@ -5915,6 +5915,20 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos795.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos796
+  epc: https://www.erdosproblems.com/796
+  author:
+    informal:
+      human: Rishikesh Gajjala
+      AI: GPT-5.6 Sol
+    formal:
+      human: Rishikesh Gajjala
+      AI: GPT-5.6 Sol
+  url:
+    - https://www.erdosproblems.com/forum/thread/796/proof-claims#proof-claim-53
+    - https://github.com/rishigajjala/erdos-796-lean/tree/37f72e245ffec2bc31326d2388547f05ab02f13c
+    - https://github.com/rishigajjala/erdos-796-lean/blob/37f72e245ffec2bc31326d2388547f05ab02f13c/paper/On_Erdos_Multiplicative_Representation_Problem.pdf
+  version: 4.30.0
 - key: ErdosProblems.Erdos797
   epc: https://www.erdosproblems.com/797
   author:

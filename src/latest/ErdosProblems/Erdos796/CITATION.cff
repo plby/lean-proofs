@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use this formalization, please cite the repository and accompanying manuscript."
+title: "On Erdős's Multiplicative Representation Problem: Lean 4 Formalization"
+type: software
+authors:
+  - family-names: Gajjala
+    given-names: Rishikesh
+    affiliation: NYU Abu Dhabi
+repository-code: "https://github.com/rishigajjala/erdos-796-lean"
+url: "https://github.com/rishigajjala/erdos-796-lean"
+license: Apache-2.0
+version: 1.0.0
+date-released: 2026-07-15
+keywords:
+  - Lean 4
+  - formal proof
+  - number theory
+  - multiplicative Sidon sets
+  - Erdős Problem 796
+abstract: >-
+  A Lean 4 formalization of the corrected second-order form of Erdős
+  Problem 796, including explicit kernel-checked bounds for the variational
+  correction and the Meissel--Mertens constant.
+preferred-citation:
+  type: article
+  title: "On Erdős's Multiplicative Representation Problem"
+  authors:
+    - family-names: Gajjala
+      given-names: Rishikesh
+      affiliation: NYU Abu Dhabi
+  year: 2026
