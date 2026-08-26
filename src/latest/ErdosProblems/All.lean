@@ -271,6 +271,7 @@ import ErdosProblems.Erdos532
 import ErdosProblems.Erdos533
 import ErdosProblems.Erdos534
 import ErdosProblems.Erdos537
+import ErdosProblems.Erdos538
 import ErdosProblems.Erdos540
 import ErdosProblems.Erdos541
 import ErdosProblems.Erdos542

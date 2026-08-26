@@ -4118,6 +4118,20 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos537.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos538
+  epc: https://www.erdosproblems.com/538
+  author:
+    informal:
+      human: Colin Snyder
+      AI: GPT-5.6
+    formal:
+      human: Colin Snyder
+      AI: GPT-5.6
+  url:
+    - https://www.erdosproblems.com/forum/thread/538/proof-claims#proof-claim-39
+    - https://www.starfleetmath.com/solutions/c82e5d7a-dda9-411c-b02c-fc5b25e587c1
+    - https://www.starfleetmath.com/downloads/verify/erdos-538/erdos-538-solution.zip
+  version: 4.31.0
 - key: ErdosProblems.Erdos540
   epc: https://www.erdosproblems.com/540
   author:
