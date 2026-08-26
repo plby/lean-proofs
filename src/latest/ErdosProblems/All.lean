@@ -288,6 +288,7 @@ import ErdosProblems.Erdos549
 import ErdosProblems.Erdos550
 import ErdosProblems.Erdos551
 import ErdosProblems.Erdos553
+import ErdosProblems.Erdos556
 import ErdosProblems.Erdos559
 import ErdosProblems.Erdos565
 import ErdosProblems.Erdos569
