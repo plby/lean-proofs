@@ -62,6 +62,7 @@ roots = [
   "Erdos47",
   "Erdos56",
   "Erdos67",
+  "Erdos67b",
   "Erdos69",
   "Erdos71",
   "Erdos76",
