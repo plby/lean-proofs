@@ -1358,6 +1358,18 @@
     - https://gist.githubusercontent.com/madeve-unipi/0920783513a1a00af4a14660852df60e/raw/522569070c2ec3a0fc7d8dfd7f95f3de2b2e3103/Erdos206.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos209
+  epc: https://www.erdosproblems.com/209
+  author:
+    informal:
+      human: Juan García Escudero
+    formal:
+      AI: AxiomProver
+  url:
+    - https://www.erdosproblems.com/forum/thread/209#post-7065
+    - https://github.com/AxiomMath/erdos-public/blob/3ccf48c78b9df4aa26e1b2f90058bdd3f61da1ab/Erdos/Erdos209/solution.lean
+  version: "4.27.0"
+
 - key: ErdosProblems.Erdos210
   epc: https://www.erdosproblems.com/210
   author:
