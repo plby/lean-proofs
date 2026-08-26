@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos521",
+  "solution_module": "ErdosProblems.Erdos521",
+  "theorem_names": [
+    "Erdos521.erdos521_oscillation",
+    "Erdos521.not_erdos_521"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
