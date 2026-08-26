@@ -1,0 +1,43 @@
+/-
+Copyright 2026 The Lean-Proofs Authors.
+Licensed under the Apache License, Version 2.0.
+-/
+import ErdosProblems.Erdos76.PackedExhaustion
+
+/-! Exact packed transition-row pilot for the first `n = 11` step. -/
+namespace Erdos76.CertificateExhaustion.Certificates.PackedExhaustionN11Pilot
+
+open CertificateChecker
+open CertificateChecker.PackedBucketCertificate
+open Packed
+
+def parents : Array (BitVec (edgeCount 11)) := #[0]
+
+def children : Array (BitVec (edgeCount 11)) :=
+  #[BitVec.ofNat (edgeCount 11) 35184372088832]
+
+def row0 : Blob := ⟨660,
+  [0x1442830810002481c61440ca0020402481c61440ca0800402481c61440ca0810002481c61440c22800402481c61440c22810002481c61440c204a000,
+    0xc20402481c614a1030020402481c614a1030800402481c614a1030810002481c61442800c20402481c61442830020402481c61442830800402481c6,
+    0x2481c62850040c20402481c62851000c20402481c62851030020402481c62851030800402481c62851030810002481c614a0040c20402481c614a100,
+    0x1801440c20402481ca1850040c20402481ca1851000c20402481ca1851030020402481ca1851030800402481ca1851030810002481c62801440c2040,
+    0xc20402482871850040c20402482871851000c20402482871851030020402482871851030800402482871851030810002481ca0061440c20402481ca,
+    0x24a2071851000c204024a20718510300204024a20718510308004024a2071851030810002482801c61440c20402482870061440c2040248287180144,
+    0x18510308004028920718510308100024a0081c61440c204024a2001c61440c204024a2070061440c204024a2071801440c204024a2071850040c2040,
+    0xc20402892001c61440c20402892070061440c20402892071801440c20402892071850040c20402892071851000c2040289207185103002040289207,
+    0x2802481c61440c20402890081c6144]⟩
+
+theorem check0 : checkRowSparse parents children 0 row0 = true := by
+  decide
+
+def rows : List Blob := [row0]
+
+theorem rowsValid : Packed.SparseRowsValidFrom parents children 0 rows := by
+  exact Packed.SparseRowsValidFrom.cons check0
+    (Packed.SparseRowsValidFrom.nil 1)
+
+theorem stepValid :
+    StepValid parents children (tableFrom parents 0 rows) := by
+  exact rowsValid.stepValid (by decide)
+
+end Erdos76.CertificateExhaustion.Certificates.PackedExhaustionN11Pilot
