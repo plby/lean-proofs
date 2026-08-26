@@ -491,7 +491,6 @@ import ErdosProblems.Erdos1031
 import ErdosProblems.Erdos1034
 import ErdosProblems.Erdos1036
 import ErdosProblems.Erdos1037
-import ErdosProblems.Erdos1038
 import ErdosProblems.Erdos1042
 import ErdosProblems.Erdos1043
 import ErdosProblems.Erdos1044
