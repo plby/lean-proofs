@@ -204,6 +204,7 @@
 * [Erdős Problem 1121](Erdos1121.md)
 * [Erdős Problem 1125](Erdos1125.md)
 * [Erdős Problem 1126](Erdos1126.md)
+* [Erdős Problem 1134](Erdos1134.md)
 * [Erdős Problem 1136](Erdos1136.md)
 * [Erdős Problem 1138](Erdos1138.md)
 * [Erdős Problem 1141](Erdos1141.md)

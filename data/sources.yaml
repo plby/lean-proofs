@@ -8360,6 +8360,20 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1130.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos1134
+  epc: https://www.erdosproblems.com/1134
+  author:
+    informal:
+      human:
+        - D. J. Crampin
+        - A. J. W. Hilton
+    formal:
+      AI: AxiomProver
+  url:
+    - https://www.erdosproblems.com/1134#post-7068
+    - https://github.com/AxiomMath/erdos-public/blob/3ccf48c78b9df4aa26e1b2f90058bdd3f61da1ab/Erdos/Erdos1134/solution.lean
+  version: "4.27.0"
+
 - key: ErdosProblems.Erdos1136
   epc: https://www.erdosproblems.com/1136
   author:
