@@ -3786,6 +3786,22 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos511.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos512
+  epc: https://www.erdosproblems.com/512
+  author:
+    informal:
+      human:
+        - O. Carruth McGehee
+        - Louis Pigno
+        - Brent Smith
+    formal:
+      AI: Aristotle
+      human: JoshuaB
+  url:
+    - https://www.erdosproblems.com/forum/thread/512#post-7140
+    - https://aristotle.harmonic.fun/dashboard/requests/b663fac0-b653-4148-8d0a-9ae5c7dbdaea
+  # Original toolchain not supplied; see ErdosProblems/Erdos512.md.
+
 - key: ErdosProblems.Erdos515
   epc: https://www.erdosproblems.com/515
   author:
