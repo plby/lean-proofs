@@ -2962,6 +2962,18 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/402.lean
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos403
+  epc: https://www.erdosproblems.com/403
+  author:
+    informal:
+      AI: AxiomProver
+    formal:
+      AI: AxiomProver
+  url:
+    - https://www.erdosproblems.com/forum/thread/403#post-7067
+    - https://github.com/AxiomMath/erdos-public/blob/3ccf48c78b9df4aa26e1b2f90058bdd3f61da1ab/Erdos/Erdos403/solution.lean
+  version: "4.27.0"
+
 - key: ErdosProblems.Erdos405
   epc: https://www.erdosproblems.com/405
   author:
