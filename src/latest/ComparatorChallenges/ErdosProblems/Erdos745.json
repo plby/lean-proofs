@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos745",
+  "solution_module": "ErdosProblems.Erdos745",
+  "theorem_names": [
+    "Erdos745.erdos_745",
+    "Erdos745.erdos_745_supercritical"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
