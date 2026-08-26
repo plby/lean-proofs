@@ -1,4 +1,4 @@
-"""Emit kernel-checkable inverse certificates from the existing prime-cover data.
+"""Emit kernel-checkable inverse certificates from a regenerated prime cover.
 
 This generator is not trusted: each emitted modular identity is proved by rfl.
 It writes Lean source to stdout; it does not modify the repository.
@@ -11,6 +11,29 @@ import re
 
 
 HERE = Path(__file__).resolve().parent
+
+
+def prime_cover():
+    """Reconstruct the greedy gap-210 cover, without obsolete Lean data files."""
+    bound = 36_000_000
+    gap = 210
+    limit = bound + gap
+    is_prime = bytearray(b'\x01') * (limit + 1)
+    is_prime[:2] = b'\x00\x00'
+    for p in range(2, math.isqrt(limit) + 1):
+        if is_prime[p]:
+            is_prime[p * p::p] = b'\x00' * ((limit - p * p) // p + 1)
+
+    cover = [439]
+    while cover[-1] < bound:
+        previous = cover[-1]
+        next_prime = previous + gap
+        while next_prime > previous and not is_prime[next_prime]:
+            next_prime -= 1
+        if next_prime == previous:
+            raise ValueError(f"No prime within {gap} of {previous}")
+        cover.append(next_prime)
+    return cover
 
 
 def numbers(name, xs):
@@ -40,11 +63,14 @@ def generate(start, count, part):
     divisors = list(map(int, re.findall(r'\d+', table)))
     assert len(divisors) == 784
     modulus = 2 * math.prod(divisors)
+    cover = prime_cover()
+    batch_size = 500
+    batch_count = (len(cover) + batch_size - 1) // batch_size
+    if start < 0 or count <= 0 or start + count > batch_count:
+        raise ValueError(f"Requested batches must lie in [0, {batch_count})")
     batches = []
     for index in range(start, start + count):
-        source = (HERE / f'Erdos1058PrimeGapData{index:03d}.lean').read_text()
-        chunks = re.findall(r'def primeGapData_\d+_\d+ : List ℕ := \[([^]]*)\]', source)
-        xs = [int(x) for chunk in chunks for x in re.findall(r'\d+', chunk)]
+        xs = cover[index * batch_size:(index + 1) * batch_size]
         assert xs and all(a < b <= a + 210 for a, b in zip(xs, xs[1:]))
         if batches:
             assert batches[-1][1][-1] < xs[0] <= batches[-1][1][-1] + 210
