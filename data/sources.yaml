@@ -4444,6 +4444,22 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos618.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos619
+  epc: https://www.erdosproblems.com/619
+  author:
+    informal:
+      AI: Claude Fable 5
+    formal:
+      AI:
+        - Claude Fable 5
+        - GPT-5.5
+        - Codex
+      human: Nick Kuhn
+  url:
+    - https://www.erdosproblems.com/619#post-6986
+    - https://github.com/nick-kuhn/erdos-619/tree/7f65718b8c1019ecc24e6c9a6b04ec4c66a4e26f
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos621
   epc: https://www.erdosproblems.com/621
   author:
