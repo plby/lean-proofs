@@ -1,0 +1,11 @@
+Erdős Problem #1112 — proof and Lean 4 formalization
+Copyright 2026 Johan Land
+
+Licensed under the Apache License, Version 2.0 (see the LICENSE file).
+
+If you use this work — the proof, the Lean formalization, or the verification
+scripts — please cite it. Citation metadata is in CITATION.cff (GitHub renders a
+"Cite this repository" button from it).
+
+This work depends on Mathlib and the formal-conjectures library, which are
+themselves licensed under the Apache License, Version 2.0.

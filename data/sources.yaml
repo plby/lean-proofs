@@ -8141,6 +8141,24 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/1105.lean
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos1112
+  epc: https://www.erdosproblems.com/1112
+  author:
+    informal:
+      AI:
+        - Claude Fable 5
+        - Claude Opus 4.8
+      human: Johan Land
+    formal:
+      AI:
+        - Claude Fable 5
+        - Claude Opus 4.8
+      human: Johan Land
+  url:
+    - https://www.erdosproblems.com/1112#post-7375
+    - https://github.com/beetree/math_erdos_1112/tree/63ed94d3e802782aeb521095c17d6109a2dc57b5
+  version: "4.27.0"
+
 - key: ErdosProblems.Erdos1114
   epc: https://www.erdosproblems.com/1114
   author:

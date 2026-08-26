@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Erdos1112",
+  "solution_module": "ErdosProblems.Erdos1112",
+  "theorem_names": [
+    "Erdos1112.erdos_1112_existence_bound",
+    "Erdos1112.erdos_1112_strong_nonexistence",
+    "Erdos1112.erdos_1112",
+    "Erdos1112.erdos_1112_int"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

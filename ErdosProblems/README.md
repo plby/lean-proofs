@@ -200,6 +200,7 @@
 * (a previously-known part of) [Erdős Problem 1095](Erdos1095.md)
 * [Erdős Problem 1098](Erdos1098.md)
 * [Erdős Problem 1102](Erdos1102.md)
+* [Erdős Problem 1112](Erdos1112.md)
 * [Erdős Problem 1121](Erdos1121.md)
 * [Erdős Problem 1125](Erdos1125.md)
 * [Erdős Problem 1126](Erdos1126.md)
