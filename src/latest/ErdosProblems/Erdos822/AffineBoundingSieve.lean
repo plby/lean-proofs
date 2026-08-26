@@ -5,6 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import ErdosProblems.Erdos822.AffineCRT
+import ErdosProblems.Erdos387.BrunMainTerm
+import ErdosProblems.Erdos387.BrunSieve
+import ErdosProblems.Erdos387.SieveInstantiation
 
 /-!
 # A finite bounding sieve for two affine forms

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import ErdosProblems.Erdos822.ReducedCollision
+import ErdosProblems.Erdos822.ReducedTotientDet
 
 /-!
 # Determinant of a primitive collision fiber
@@ -15,12 +16,6 @@ is the totient difference divided by the common shifted-totient gcd.
 -/
 
 namespace Erdos822
-
-/-- Absolute totient difference after dividing by the common shifted
-coefficient gcd. -/
-def reducedTotientDet (m m' : ℕ) : ℕ :=
-  ((Nat.totient m : ℤ) - Nat.totient m').natAbs /
-    Nat.gcd (shiftedTotient m) (shiftedTotient m')
 
 theorem affineDetNat_reducedCollision_eq_reducedTotientDet_of_collision
     {x m m' q q' : ℕ}
@@ -74,7 +69,7 @@ theorem affineDetNat_reducedCollision_eq_reducedTotientDet_of_collision
         ((Nat.totient m : ℤ) - Nat.totient m').natAbs := by
     rw [Int.natAbs_mul, Int.natAbs_natCast, hneg, Int.natAbs_neg] at habs
     simpa [affineDetNat, Nat.mul_comm] using habs
-  unfold reducedTotientDet
+  unfold reducedTotientDet shiftedCoefficientGcd
   exact Nat.eq_div_of_mul_eq_right hg.ne' hmulNat
 
 end Erdos822

@@ -4,8 +4,8 @@ Copyright (c) 2026 Boris Alexeev. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
-import ErdosProblems.Erdos822.PrimeReciprocalUpper
-import ErdosProblems.Erdos822.PowerScaleAssembly
+import ErdosProblems.Erdos822.NthRootScale
+import Mathlib.NumberTheory.Harmonic.Bounds
 
 /-!
 # Logarithmic size of the slow sieve cutoff

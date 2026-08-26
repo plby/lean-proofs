@@ -4,7 +4,7 @@ Copyright (c) 2026 Boris Alexeev. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
-import ErdosProblems.Erdos822.FixedPrimeFiber
+import ErdosProblems.Erdos822.HarmonicElementary
 
 /-!
 # Reciprocal mass of divisible small factors

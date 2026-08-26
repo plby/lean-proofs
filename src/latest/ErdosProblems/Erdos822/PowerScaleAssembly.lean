@@ -6,7 +6,7 @@ Authors: OpenAI Codex
 -/
 import ErdosProblems.Erdos822.OuterEnergy
 import ErdosProblems.Erdos822.AnalyticInput
-import Mathlib.Analysis.SpecialFunctions.Pow.NthRootLemmas
+import ErdosProblems.Erdos822.NthRootScale
 
 /-!
 # Passing from perfect-power scales to every scale
@@ -25,30 +25,6 @@ below x. -/
 def oddPowerInputs (x : ℕ) : Finset ℕ :=
   let N := Nat.nthRoot 60 x
   outerInputs (fun _ => oddRawCofactors N) (N ^ 60)
-
-theorem eventually_nthRoot_ge (k T : ℕ) (hk : k ≠ 0) :
-    ∀ᶠ x : ℕ in atTop, T ≤ Nat.nthRoot k x := by
-  filter_upwards [Filter.eventually_ge_atTop (T ^ k)] with x hx
-  exact (Nat.le_nthRoot_iff hk).2 hx
-
-theorem nthRoot_pow_le {k x : ℕ} (hk : k ≠ 0) :
-    Nat.nthRoot k x ^ k ≤ x :=
-  (Nat.pow_nthRoot_le_iff).2 (Or.inl hk)
-
-theorem le_two_pow_mul_nthRoot_pow {k x : ℕ}
-    (hk : k ≠ 0) (hroot : 1 ≤ Nat.nthRoot k x) :
-    x ≤ 2 ^ k * Nat.nthRoot k x ^ k := by
-  let N := Nat.nthRoot k x
-  have hxlt : x < (N + 1) ^ k := Nat.lt_pow_nthRoot_add_one hk x
-  have hN : N + 1 ≤ 2 * N := by
-    dsimp [N] at hroot ⊢
-    omega
-  have hpow : (N + 1) ^ k ≤ (2 * N) ^ k :=
-    Nat.pow_le_pow_left hN k
-  calc
-    x ≤ (N + 1) ^ k := hxlt.le
-    _ ≤ (2 * N) ^ k := hpow
-    _ = 2 ^ k * N ^ k := by ring
 
 theorem oddPowerInputs_bounded (x : ℕ) :
     ∀ n ∈ oddPowerInputs x, n ≤ x := by

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import ErdosProblems.Erdos822.DivisibleSmallMass
+import ErdosProblems.Erdos822.FixedPrimeFiber
 
 /-!
 # Summing a fixed-prime incidence over the odd cofactor layer

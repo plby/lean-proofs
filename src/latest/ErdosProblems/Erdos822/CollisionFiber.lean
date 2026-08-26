@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import ErdosProblems.Erdos822.ReducedCollision
+import ErdosProblems.Erdos822.OuterCollisionPairs
 
 /-!
 # Fixed-cofactor collision fibers
@@ -16,20 +17,6 @@ into one ordered primitive prime-solution set.
 -/
 
 namespace Erdos822
-
-/-- Pairs of outer primes producing the same shifted-totient value for fixed
-cofactors. -/
-def outerCollisionPairs (x m m' : ℕ) : Finset (ℕ × ℕ) :=
-  ((outerPrimes x m).product (outerPrimes x m')).filter fun z ↦
-    shiftedTotient (m * z.1) = shiftedTotient (m' * z.2)
-
-@[simp]
-theorem mem_outerCollisionPairs_iff
-    {x m m' p p' : ℕ} :
-    (p, p') ∈ outerCollisionPairs x m m' ↔
-      p ∈ outerPrimes x m ∧ p' ∈ outerPrimes x m' ∧
-        shiftedTotient (m * p) = shiftedTotient (m' * p') := by
-  simp [outerCollisionPairs, and_assoc]
 
 theorem outerPrime_le_scale {x m p : ℕ}
     (hp : p ∈ outerPrimes x m) : p ≤ x := by

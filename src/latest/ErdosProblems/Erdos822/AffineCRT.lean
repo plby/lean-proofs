@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import ErdosProblems.Erdos822.AffineSieve
-import ErdosProblems.Erdos387.QualitativeSieve
+import ErdosProblems.Erdos387.LocalDensity
 
 /-!
 # CRT classes for the two-affine-form sieve

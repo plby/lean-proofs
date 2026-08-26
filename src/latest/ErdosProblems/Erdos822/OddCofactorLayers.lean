@@ -6,6 +6,7 @@ Authors: OpenAI Codex
 -/
 import ErdosProblems.Erdos822.CofactorLayers
 import ErdosProblems.Erdos822.OddSmooth
+import ErdosProblems.Erdos822.NthRootScale
 
 /-!
 # Odd raw cofactor layers
@@ -137,19 +138,6 @@ theorem oddRawCofactors_ge_pow_twenty_five {N m : ℕ} (hN : 2 ≤ N)
   calc
     N ^ 25 = 1 * (N ^ 4) * (N ^ 21) := by ring
     _ ≤ k * r * q := Nat.mul_le_mul (Nat.mul_le_mul hk hr) hq
-
-/-- A positive natural root of the scale is no larger than the scale. -/
-theorem nthRoot_le_self_of_pos {k N : ℕ} (hk : 0 < k) :
-    Nat.nthRoot k N ≤ N := by
-  let y := Nat.nthRoot k N
-  change y ≤ N
-  by_cases hy : y = 0
-  · rw [hy]
-    exact Nat.zero_le _
-  · have hy1 : 1 ≤ y := Nat.one_le_iff_ne_zero.mpr hy
-    have hpow : y ^ k ≤ N :=
-      (Nat.pow_nthRoot_le_iff).2 (Or.inl hk.ne')
-    exact (le_self_pow hy1 hk.ne').trans hpow
 
 theorem oddRawCofactors_odd {N m : ℕ}
     (hm : m ∈ oddRawCofactors N) : Odd m := by

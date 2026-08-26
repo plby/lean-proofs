@@ -32,8 +32,8 @@ theorem mem_primeResidueInterval_iff
 
 /-- A nonempty prime residue interval injects into one duplicated affine
 prime-candidate set, based at its least member. -/
-theorem card_primeResidueInterval_le_duplicateCandidates_of_nonempty
-    {p a L U y : ℕ} (hp : p.Prime)
+theorem card_primeResidueInterval_le_duplicateCandidates_of_nonempty_of_pos
+    {p a L U y : ℕ} (hp : 0 < p)
     (hne : (primeResidueInterval p a L U y).Nonempty) :
     let q₀ := (primeResidueInterval p a L U y).min' hne
     (primeResidueInterval p a L U y).card ≤
@@ -69,7 +69,7 @@ theorem card_primeResidueInterval_le_duplicateCandidates_of_nonempty
       have hq₀L : L < q₀ := hq₀data.1
       omega
     have hf : f q ≤ (U - L) / p :=
-      (Nat.le_div_iff_mul_le hp.pos).2 (by
+      (Nat.le_div_iff_mul_le hp).2 (by
         simpa [Nat.mul_comm] using hmul)
     refine ⟨by omega, ?_, ?_, ?_, ?_⟩
     · simpa [hreprq] using hqdata.2.2.1
@@ -81,6 +81,14 @@ theorem card_primeResidueInterval_le_duplicateCandidates_of_nonempty
     have hq'repr := hrepr q' hq'
     rw [hf] at hqrepr
     omega
+
+theorem card_primeResidueInterval_le_duplicateCandidates_of_nonempty
+    {p a L U y : ℕ} (hp : p.Prime)
+    (hne : (primeResidueInterval p a L U y).Nonempty) :
+    let q₀ := (primeResidueInterval p a L U y).min' hne
+    (primeResidueInterval p a L U y).card ≤
+      (twoAffinePrimeCandidates p q₀ p q₀ ((U - L) / p + 1) y).card :=
+  card_primeResidueInterval_le_duplicateCandidates_of_nonempty_of_pos hp.pos hne
 
 /-- Uniform beta-sieve cardinality bound for one prime residue interval. -/
 theorem exists_primeResidueInterval_card_upper_bound :
