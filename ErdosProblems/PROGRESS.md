@@ -1888,8 +1888,6 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
 - **Formalized here, open on EPC (6):** [#106](https://www.erdosproblems.com/106), [#146](https://www.erdosproblems.com/146), [#180](https://www.erdosproblems.com/180), [#183](https://www.erdosproblems.com/183), [#424](https://www.erdosproblems.com/424),
   [#469](https://www.erdosproblems.com/469).
 
-- **Conditional formalization (0):** None.
-
 - **Marked “Lean” on EPC, not green here (16):** [#192](https://www.erdosproblems.com/192), [#464](https://www.erdosproblems.com/464), [#512](https://www.erdosproblems.com/512), [#608](https://www.erdosproblems.com/608), [#610](https://www.erdosproblems.com/610),
   [#619](https://www.erdosproblems.com/619), [#696](https://www.erdosproblems.com/696), [#716](https://www.erdosproblems.com/716), [#750](https://www.erdosproblems.com/750), [#765](https://www.erdosproblems.com/765),
   [#793](https://www.erdosproblems.com/793), [#865](https://www.erdosproblems.com/865), [#884](https://www.erdosproblems.com/884), [#927](https://www.erdosproblems.com/927), [#1112](https://www.erdosproblems.com/1112),
