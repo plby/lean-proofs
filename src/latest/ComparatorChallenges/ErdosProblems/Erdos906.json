@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos906",
+  "solution_module": "ErdosProblems.Erdos906",
+  "theorem_names": [
+    "Erdos906.erdos_906",
+    "Erdos906.erdos_906_cofinite"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}

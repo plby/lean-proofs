@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite the paper and this Lean formalization."
+title: "Cofinite Zeros of High Derivatives"
+type: software
+authors:
+  - family-names: Hou
+    given-names: Eric
+date-released: 2026-07-20
+version: 1.0.0
+repository-code: "https://github.com/erichou1/cofinite-derivative-zeros"
+url: "https://www.ehou.me/assets/cofinite-derivative-zeros.pdf"
+keywords:
+  - Lean 4
+  - Mathlib
+  - complex analysis
+  - entire functions
+  - formalized mathematics
+  - probability
+abstract: >-
+  A Lean 4 formalization and accompanying manuscript constructing a nonzero
+  transcendental entire function whose sufficiently high derivatives have a
+  zero in every prescribed nonempty open subset of the complex plane.
+preferred-citation:
+  type: article
+  title: "Cofinite Zeros of High Derivatives"
+  authors:
+    - family-names: Hou
+      given-names: Eric
+  year: 2026
+  url: "https://www.ehou.me/assets/cofinite-derivative-zeros.pdf"

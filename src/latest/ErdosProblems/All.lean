@@ -434,6 +434,7 @@ import ErdosProblems.Erdos900
 import ErdosProblems.Erdos903
 import ErdosProblems.Erdos904
 import ErdosProblems.Erdos905
+import ErdosProblems.Erdos906
 import ErdosProblems.Erdos907
 import ErdosProblems.Erdos908
 import ErdosProblems.Erdos909
