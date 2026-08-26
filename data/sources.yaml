@@ -7428,6 +7428,19 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1037.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos1038
+  epc: https://www.erdosproblems.com/1038
+  author:
+    informal:
+      human: Shouqiao Wang
+      AI: GPT-5.6 Sol
+    formal:
+      AI: GPT
+  url:
+    - https://www.erdosproblems.com/forum/thread/1038/proof-claims#proof-claim-8
+    - https://github.com/ShouqiaoW/erdos/tree/dc20752268ede5a3548e3d63ae74e45c3cfcf78c/1038/lean
+  version: "4.27.0"
+
 - key: ErdosProblems.Erdos1042
   epc: https://www.erdosproblems.com/1042
   author:

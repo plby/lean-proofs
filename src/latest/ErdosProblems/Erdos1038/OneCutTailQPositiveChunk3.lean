@@ -1,0 +1,27 @@
+import ErdosProblems.Erdos1038.OneCutTailQCandidates
+import ErdosProblems.Erdos1038.KernelDecision
+
+set_option warningAsError false
+set_option maxHeartbeats 4000000
+set_option maxRecDepth 100000
+
+namespace Erdos1038
+noncomputable section
+namespace OneCutTailCertificate
+namespace OneCutTailQCandidates
+
+theorem positiveCoverChunk3_certified :
+    TailQBox.PositiveCoverCertified 80
+      (10685873412148736195987 / 250000000000000000000000) (279103034865584602509 / 7812500000000000000000) ((positiveBoxes.drop 15).take 5) := by
+  refine ⟨by kernel_decide, by kernel_decide, ?_⟩
+  refine ⟨by kernel_decide, by kernel_decide, ?_⟩
+  refine ⟨by kernel_decide, by kernel_decide, ?_⟩
+  refine ⟨by kernel_decide, by kernel_decide, ?_⟩
+  refine ⟨by kernel_decide, by kernel_decide, ?_⟩
+  kernel_decide
+
+end OneCutTailQCandidates
+end OneCutTailCertificate
+end
+end Erdos1038
+

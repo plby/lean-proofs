@@ -181,6 +181,7 @@
 * [Erdős Problem 1034](Erdos1034.md)
 * [Erdős Problem 1036](Erdos1036.md)
 * [Erdős Problem 1037](Erdos1037.md)
+* [Erdős Problem 1038](Erdos1038.md) (proof claim)
 * [Erdős Problem 1043](Erdos1043.md)
 * [Erdős Problem 1044](Erdos1044.md)
 * [Erdős Problem 1047](Erdos1047.md)
