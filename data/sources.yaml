@@ -3695,6 +3695,20 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos487.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos489
+  epc: https://www.erdosproblems.com/489
+  author:
+    informal:
+      human: Colin Snyder
+      AI: GPT-5.6
+    formal:
+      human: Colin Snyder
+      AI: GPT-5.6
+  url:
+    - https://www.erdosproblems.com/forum/thread/489/proof-claims#proof-claim-36
+    - https://www.starfleetmath.com/solutions/e5d1c3ca-0e42-4e89-84cc-31a603f56468
+    - https://www.starfleetmath.com/downloads/verify/erdos-489/erdos-489-solution.zip
+  version: 4.31.0
 - key: ErdosProblems.Erdos490
   epc: https://www.erdosproblems.com/490
   author:
