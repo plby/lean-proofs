@@ -2,7 +2,7 @@
 
 Snapshot: **2026-08-25** · **1,217 problems**
 
-**🟩 558 formalized · 🟨 21 solved, not formalized here · 🟥 638 open**
+**🟩 561 formalized · 🟨 20 solved, not formalized here · 🟥 636 open**
 
 ## Legend
 
@@ -1556,7 +1556,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <th scope="row">100x</th>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1000.json" title="#1000: Formalized in this repository with a Comparator setup" aria-label="#1000: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1001.json" title="#1001: Formalized in this repository with a Comparator setup" aria-label="#1001: Formalized in this repository with a Comparator setup">🟩</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/1002" title="#1002: Open; no complete local Comparator setup counted" aria-label="#1002: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1002.json" title="#1002: Formalized in this repository with a Comparator setup" aria-label="#1002: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1003" title="#1003: Open; no complete local Comparator setup counted" aria-label="#1003: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1004" title="#1004: Open; no complete local Comparator setup counted" aria-label="#1004: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1005.json" title="#1005: Formalized in this repository with a Comparator setup" aria-label="#1005: Formalized in this repository with a Comparator setup">🟩</a></td>
@@ -1721,7 +1721,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <th scope="row">111x</th>
       <td align="center"><a href="https://www.erdosproblems.com/1110" title="#1110: Open; no complete local Comparator setup counted" aria-label="#1110: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1111" title="#1111: Open; no complete local Comparator setup counted" aria-label="#1111: Open; no complete local Comparator setup counted">🟥</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/1112" title="#1112: Open; no complete local Comparator setup counted" aria-label="#1112: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1112.json" title="#1112: Formalized in this repository with a Comparator setup" aria-label="#1112: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1113" title="#1113: Open; no complete local Comparator setup counted" aria-label="#1113: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1114.json" title="#1114: Formalized in this repository with a Comparator setup" aria-label="#1114: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1115.json" title="#1115: Formalized in this repository with a Comparator setup" aria-label="#1115: Formalized in this repository with a Comparator setup">🟩</a></td>
@@ -1749,7 +1749,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="https://www.erdosproblems.com/1131" title="#1131: Open; no complete local Comparator setup counted" aria-label="#1131: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1132" title="#1132: Open; no complete local Comparator setup counted" aria-label="#1132: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1133" title="#1133: Open; no complete local Comparator setup counted" aria-label="#1133: Open; no complete local Comparator setup counted">🟥</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/1134" title="#1134: Solved; no complete local Comparator setup counted" aria-label="#1134: Solved; no complete local Comparator setup counted">🟨</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1134.json" title="#1134: Formalized in this repository with a Comparator setup" aria-label="#1134: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1135" title="#1135: Open; no complete local Comparator setup counted" aria-label="#1135: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1136.json" title="#1136: Formalized in this repository with a Comparator setup" aria-label="#1136: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1137" title="#1137: Open; no complete local Comparator setup counted" aria-label="#1137: Open; no complete local Comparator setup counted">🟥</a></td>
@@ -1885,11 +1885,12 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
 
 ## Status notes
 
-- **Formalized here, open on EPC (14):** [#106](https://www.erdosproblems.com/106), [#146](https://www.erdosproblems.com/146), [#180](https://www.erdosproblems.com/180), [#183](https://www.erdosproblems.com/183), [#327](https://www.erdosproblems.com/327),
+- **Formalized here, open on EPC (16):** [#106](https://www.erdosproblems.com/106), [#146](https://www.erdosproblems.com/146), [#180](https://www.erdosproblems.com/180), [#183](https://www.erdosproblems.com/183), [#327](https://www.erdosproblems.com/327),
   [#341](https://www.erdosproblems.com/341), [#394](https://www.erdosproblems.com/394), [#424](https://www.erdosproblems.com/424), [#469](https://www.erdosproblems.com/469), [#501](https://www.erdosproblems.com/501),
-  [#520](https://www.erdosproblems.com/520), [#671](https://www.erdosproblems.com/671), [#1005](https://www.erdosproblems.com/1005), [#1038](https://www.erdosproblems.com/1038).
+  [#520](https://www.erdosproblems.com/520), [#671](https://www.erdosproblems.com/671), [#1002](https://www.erdosproblems.com/1002), [#1005](https://www.erdosproblems.com/1005), [#1038](https://www.erdosproblems.com/1038),
+  [#1112](https://www.erdosproblems.com/1112).
 
-- **Marked “Lean” on EPC, not green here (4):** [#192](https://www.erdosproblems.com/192), [#610](https://www.erdosproblems.com/610), [#1112](https://www.erdosproblems.com/1112), [#1134](https://www.erdosproblems.com/1134).
+- **Marked “Lean” on EPC, not green here (2):** [#192](https://www.erdosproblems.com/192), [#610](https://www.erdosproblems.com/610).
 
 - **Solved on EPC without a “Lean” badge, not green here (18):** [#4](https://www.erdosproblems.com/4), [#19](https://www.erdosproblems.com/19), [#67](https://www.erdosproblems.com/67), [#73](https://www.erdosproblems.com/73), [#118](https://www.erdosproblems.com/118),
   [#207](https://www.erdosproblems.com/207), [#216](https://www.erdosproblems.com/216), [#380](https://www.erdosproblems.com/380), [#491](https://www.erdosproblems.com/491), [#504](https://www.erdosproblems.com/504),
@@ -1897,5 +1898,5 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
   [#633](https://www.erdosproblems.com/633), [#747](https://www.erdosproblems.com/747), [#941](https://www.erdosproblems.com/941).
 
 <!-- Status snapshot SHA-256 (official range-page HTML):
-d772d660706af6b4934b571ff614d3f56215cf85da5e1738283ce77b1ede7806
+b0a1535a93a78c6977883aa4b031188d6cc97537e2d11708e722f6330cafd7be
 -->
