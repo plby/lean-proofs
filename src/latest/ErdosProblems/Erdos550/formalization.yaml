@@ -1,0 +1,141 @@
+# formalization.yaml (v0.3): repo-root metadata for formalization projects.
+# Schema: https://github.com/mathlib-initiative/formalization.yaml
+
+version: "v0.3"
+
+project:
+  name: "Erdős Problem 550 (Lean 4 / Mathlib formalisation)"
+  authors:
+    - "Eric Li"
+  license: "All rights reserved"
+
+sources:
+  - title: "A Resolution of Erdős Problem 550 on Tree versus Complete Multipartite Ramsey Numbers"
+    authors: ["Eric Li"]
+    id: "https://github.com/ericlisg/erdos550-lean/blob/main/erdos-550-paper.pdf"
+    type: "manuscript"
+    license: "All rights reserved"
+    author_contacted: "n/a"
+    prior_work: ""
+  - title: "Multipartite graph--tree Ramsey numbers"
+    authors: ["P. Erdős", "R. J. Faudree", "C. C. Rousseau", "R. H. Schelp"]
+    id: "https://www.renyi.hu/~p_erdos/1989-12.pdf"
+    type: "journal article"
+    license: "All rights reserved"
+    author_contacted: "no"
+    prior_work: ""
+
+status:
+  scope: >-
+    Full and unconditional formalisation of Theorem 1.1 of the accompanying
+    manuscript, resolving Erdős Problem 550 for every fixed number of parts,
+    every nondecreasing sequence of positive part sizes, and every sufficiently
+    large finite tree. The public declaration is `Erdos550.erdos_550`.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "Erdos550.erdos_550"
+      file: "RequestProject/Main.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "comparator/erdos_550.json"
+      literature_dependencies: []
+
+automation:
+  methods:
+    - method: "agent"
+      models: ["Harmonic Aristotle"]
+      framework: "Harmonic Aristotle"
+      tool_setup: >-
+        Lean 4 proof generation and proof completion, directed and audited by
+        Eric Li.
+      cost:
+        wall_time: "not recorded"
+        spend_usd: "not recorded"
+        hardware: "hosted service"
+      prompting_notes: >-
+        The author supplied the mathematical objectives, selected the proof
+        direction, reviewed intermediate outputs, and required a complete
+        sorry-free dependency chain.
+    - method: "agent"
+      models: ["OpenAI ChatGPT", "OpenAI Codex (GPT-5 family)"]
+      framework: "OpenAI ChatGPT and Codex"
+      tool_setup: >-
+        Technical proof development, Lean implementation, debugging, auditing,
+        manuscript preparation, and repository verification, directed and
+        audited by Eric Li.
+      cost:
+        wall_time: "not recorded"
+        spend_usd: "not recorded"
+        hardware: "hosted service with local macOS tooling"
+      prompting_notes: >-
+        The author set the research direction and acceptance criteria, compared
+        model outputs, and made all strategic decisions.
+  spend_usd: "not recorded"
+  notes: >-
+    The author critically evaluated and audited the generated mathematics and
+    code and takes responsibility for the final result.
+
+fidelity:
+  divergences: >-
+    The headline Lean theorem matches the complete quantified content of
+    manuscript Theorem 1.1. The formal development packages intermediate
+    arguments into reusable declarations while preserving the manuscript's
+    direct off-Turán mathematical architecture.
+
+review:
+  status: "self-assessed"
+  reviewers:
+    - "Eric Li"
+  notes: >-
+    The complete public dependency closure was built with Lean, audited for
+    axioms and placeholders, and checked against a separately stated trusted
+    challenge with leanprover/comparator.
+
+alignment:
+  namespace: "Erdos550"
+  statements:
+    - source: "Theorem 1.1 (Resolution of Erdős Problem 550)"
+      lean: "Erdos550.erdos_550"
+      module: "RequestProject/Main.lean"
+      status: "proved"
+      note: "Full unconditional statement."
+    - source: "Off-Turán tree-embedding theorem"
+      lean: "Erdos550.off_turan_embedding_direct"
+      module: "RequestProject/OffTuranDirectProof.lean"
+      status: "proved"
+      note: "Direct whole-edge/stateful embedding route."
+    - source: "Near-Turán red-density corollary"
+      lean: "Erdos550.near_turan_red_density_direct"
+      module: "RequestProject/OffTuranDirectProof.lean"
+      status: "proved"
+      note: "Feeds the stability and reservoir reduction."
+
+verification:
+  challenge: "Challenge.lean"
+  solution: "Solution.lean"
+  comparator_config: "comparator/erdos_550.json"
+  comparator_version: "v4.28.0"
+  comparator_status: "passed"
+  kernel: "Lean default kernel (accepted)"
+  external_kernel: "not enabled"
+  execution_environment: >-
+    Comparator v4.28.0 was run on macOS through a compatibility launcher
+    because its Linux Landlock runner is unavailable on macOS. All project
+    sources were trusted; no sandbox-isolation claim is made.
+  challenge_placeholder_sorries: 1
+  notes: >-
+    The sole placeholder is confined to the trusted Comparator challenge and is
+    not imported by the formal proof or the Comparator solution. Comparator
+    confirmed statement equality, the permitted axiom set, and acceptance by
+    Lean's default kernel.
+
+acknowledgements: >-
+  Mathlib, Lean 4, Harmonic Aristotle, OpenAI ChatGPT, and OpenAI Codex.

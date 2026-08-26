@@ -4189,6 +4189,27 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos549.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos550
+  epc: https://www.erdosproblems.com/550
+  author:
+    informal:
+      human: Eric Li
+      AI:
+        - GPT-5.5 Pro
+        - OpenAI Codex (GPT-5 family)
+    formal:
+      human: Eric Li
+      AI:
+        - Aristotle
+        - OpenAI ChatGPT
+        - OpenAI Codex (GPT-5 family)
+  arxiv: https://arxiv.org/abs/2606.23659v2
+  url:
+    - https://www.erdosproblems.com/forum/thread/550/proof-claims#proof-claim-74
+    - https://github.com/ericlisg/erdos550-lean/tree/6624ede70821f095eaee49865448af4e4f8c421c
+    - https://github.com/ericlisg/erdos550-lean/blob/6624ede70821f095eaee49865448af4e4f8c421c/formalization.yaml
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos553
   epc: https://www.erdosproblems.com/553
   author:
