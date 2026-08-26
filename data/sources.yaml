@@ -5731,6 +5731,19 @@
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem785.lean
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos788
+  epc: https://www.erdosproblems.com/788
+  author:
+    informal:
+      human: Shouqiao Wang
+      AI: GPT-5.6 Sol
+    formal:
+      human: Shouqiao Wang
+  url:
+    - https://www.erdosproblems.com/forum/thread/788/proof-claims#proof-claim-89
+    - https://github.com/ShouqiaoW/erdos/tree/f2ae0edb45cbdb257e135d51ef855f64caeb348b/788/lean
+  version: "4.27.0"
+
 - key: ErdosProblems.Erdos793
   epc: https://www.erdosproblems.com/793
   author:

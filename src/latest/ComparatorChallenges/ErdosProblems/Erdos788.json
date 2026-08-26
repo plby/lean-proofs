@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos788",
+  "solution_module": "ErdosProblems.Erdos788",
+  "theorem_names": [
+    "Erdos788.erdos_788",
+    "Erdos788.erdos_788_quantitative"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}
