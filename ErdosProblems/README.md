@@ -11,6 +11,7 @@
 * [Erdős Problem 46](Erdos46.md)
 * [Erdős Problem 47](Erdos47.md)
 * [Erdős Problem 56](Erdos56.md)
+* [Erdős Problem 71](Erdos71.md)
 * [Erdős Problem 93](Erdos93.md)
 * [Erdős Problem 94](Erdos94.md)
 * [Erdős Problem 105](Erdos105.md)

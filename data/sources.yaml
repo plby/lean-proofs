@@ -503,6 +503,22 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos63.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos71
+  epc: https://www.erdosproblems.com/71
+  author:
+    informal:
+      human: Béla Bollobás
+    formal:
+      AI:
+        - Aristotle
+        - GPT-5.5
+        - Opus 4.7
+      human: Andres Gutierrez
+  url:
+    - https://www.erdosproblems.com/forum/thread/71#post-6635
+  url_ref: andresg535_71
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos72
   epc: https://www.erdosproblems.com/72
   author:
