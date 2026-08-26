@@ -1,0 +1,22 @@
+import ErdosProblems.Erdos1164
+import ErdosProblems.Erdos1165.PointBeforeReturn
+import ErdosProblems.Erdos1165.HLOZFixedPointLocalTimeTail
+import ErdosProblems.Erdos1165.RadialHarnackSpecialization
+
+#print axioms Erdos1165.PointBeforeReturn.pointBeforeReturnProbability_eq
+#print axioms Erdos1165.PointBeforeReturn.pointBeforeReturnProbability_lower_log
+#print axioms Erdos1165.PotentialAsymptotic.abs_planarPotentialKernel_sub_pointLogMain_le
+#print axioms Erdos1165.HLOZFixedPointLocalTimeTail.simpleRandomWalk_originLocalTimeEvent_le
+#check Erdos1165.PointBeforeReturn.pointBeforeReturnProbability_eq
+#check Erdos1165.PointBeforeReturn.pointBeforeReturnProbability_lower_log
+
+#print axioms Erdos1165.PotentialRadialAll.abs_planarPotentialKernel_sub_log_euclideanRadius_sub_cPotential_le
+#print axioms Erdos1165.GreenHarnack.infiniteGreen_toReal_le_of_potentialBoundary_le
+#print axioms Erdos1165.GreenAsymptotic.potentialBoundaryLower_sub_le_infiniteGreen_toReal
+
+#print axioms Erdos1164.erdos_1164
+#print axioms Erdos1164.coveredRadius_log_order
+#print axioms Erdos1164.le_coveredRadius_iff
+#print axioms Erdos1164.radius_lower_tail
+#print axioms Erdos1164.radius_upper_tail
+#check Erdos1164.coveredRadius_log_order
