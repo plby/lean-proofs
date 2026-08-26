@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos591",
+  "solution_module": "ErdosProblems.Erdos591",
+  "theorem_names": [
+    "Erdos591.erdos_591_counterexample",
+    "Erdos591.not_erdos_591"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

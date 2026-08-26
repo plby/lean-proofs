@@ -306,6 +306,7 @@ import ErdosProblems.Erdos582
 import ErdosProblems.Erdos586
 import ErdosProblems.Erdos587
 import ErdosProblems.Erdos590
+import ErdosProblems.Erdos591
 import ErdosProblems.Erdos593
 import ErdosProblems.Erdos594
 import ErdosProblems.Erdos603
