@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos633b",
+  "solution_module": "ErdosProblems.Erdos633b",
+  "theorem_names": [
+    "Erdos633b.erdos_633",
+    "Erdos633b.erdos_633_only_square"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
