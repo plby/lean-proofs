@@ -469,6 +469,7 @@ import ErdosProblems.Erdos1006
 import ErdosProblems.Erdos1007
 import ErdosProblems.Erdos1008
 import ErdosProblems.Erdos1009
+import ErdosProblems.Erdos1010
 import ErdosProblems.Erdos1012
 import ErdosProblems.Erdos1014
 import ErdosProblems.Erdos1015
