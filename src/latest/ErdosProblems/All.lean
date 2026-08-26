@@ -514,6 +514,7 @@ import ErdosProblems.Erdos1080
 import ErdosProblems.Erdos1081
 import ErdosProblems.Erdos1089
 import ErdosProblems.Erdos1090
+import ErdosProblems.Erdos1091
 import ErdosProblems.Erdos1092
 import ErdosProblems.Erdos1095b
 import ErdosProblems.Erdos1096
