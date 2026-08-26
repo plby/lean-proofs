@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos254",
+  "solution_module": "ErdosProblems.Erdos254",
+  "theorem_names": [
+    "Erdos254.fan_six_per_dyadic",
+    "Erdos254.erdos_254"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
