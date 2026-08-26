@@ -1,8 +1,8 @@
 # Erdős Problems solution formalization progress
 
-Snapshot: **2026-08-25** · **1,217 problems**
+Snapshot: **2026-08-26** · **1,217 problems**
 
-**🟩 564 formalized · 🟨 20 solved, not formalized here · 🟥 633 open**
+**🟩 585 formalized · 🟨 15 solved, not formalized here · 🟥 617 open**
 
 ## Legend
 
@@ -119,7 +119,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="https://www.erdosproblems.com/64" title="#64: Open; no complete local Comparator setup counted" aria-label="#64: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/65" title="#65: Open; no complete local Comparator setup counted" aria-label="#65: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/66" title="#66: Open; no complete local Comparator setup counted" aria-label="#66: Open; no complete local Comparator setup counted">🟥</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/67" title="#67: Solved; no complete local Comparator setup counted" aria-label="#67: Solved; no complete local Comparator setup counted">🟨</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos67.json" title="#67: Formalized in this repository with a Comparator setup" aria-label="#67: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/68" title="#68: Open; no complete local Comparator setup counted" aria-label="#68: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos69.json" title="#69: Formalized in this repository with a Comparator setup" aria-label="#69: Formalized in this repository with a Comparator setup">🟩</a></td>
     </tr>
@@ -305,7 +305,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <th scope="row">19x</th>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos190.json" title="#190: Formalized in this repository with a Comparator setup" aria-label="#190: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos191.json" title="#191: Formalized in this repository with a Comparator setup" aria-label="#191: Formalized in this repository with a Comparator setup">🟩</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/192" title="#192: Solved; no complete local Comparator setup counted" aria-label="#192: Solved; no complete local Comparator setup counted">🟨</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos192.json" title="#192: Formalized in this repository with a Comparator setup" aria-label="#192: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/193" title="#193: Open; no complete local Comparator setup counted" aria-label="#193: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos194.json" title="#194: Formalized in this repository with a Comparator setup" aria-label="#194: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/195" title="#195: Open; no complete local Comparator setup counted" aria-label="#195: Open; no complete local Comparator setup counted">🟥</a></td>
@@ -407,7 +407,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="https://www.erdosproblems.com/251" title="#251: Open; no complete local Comparator setup counted" aria-label="#251: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/252" title="#252: Open; no complete local Comparator setup counted" aria-label="#252: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos253.json" title="#253: Formalized in this repository with a Comparator setup" aria-label="#253: Formalized in this repository with a Comparator setup">🟩</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/254" title="#254: Open; no complete local Comparator setup counted" aria-label="#254: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos254.json" title="#254: Formalized in this repository with a Comparator setup" aria-label="#254: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos255.json" title="#255: Formalized in this repository with a Comparator setup" aria-label="#255: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/256" title="#256: Open; no complete local Comparator setup counted" aria-label="#256: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/257" title="#257: Open; no complete local Comparator setup counted" aria-label="#257: Open; no complete local Comparator setup counted">🟥</a></td>
@@ -416,14 +416,14 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
     </tr>
     <tr>
       <th scope="row">26x</th>
-      <td align="center"><a href="https://www.erdosproblems.com/260" title="#260: Open; no complete local Comparator setup counted" aria-label="#260: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos260.json" title="#260: Formalized in this repository with a Comparator setup" aria-label="#260: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/261" title="#261: Open; no complete local Comparator setup counted" aria-label="#261: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos262.json" title="#262: Formalized in this repository with a Comparator setup" aria-label="#262: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/263" title="#263: Open; no complete local Comparator setup counted" aria-label="#263: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/264" title="#264: Open; no complete local Comparator setup counted" aria-label="#264: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/265" title="#265: Open; no complete local Comparator setup counted" aria-label="#265: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos266.json" title="#266: Formalized in this repository with a Comparator setup" aria-label="#266: Formalized in this repository with a Comparator setup">🟩</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/267" title="#267: Open; no complete local Comparator setup counted" aria-label="#267: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos267.json" title="#267: Formalized in this repository with a Comparator setup" aria-label="#267: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos268.json" title="#268: Formalized in this repository with a Comparator setup" aria-label="#268: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/269" title="#269: Open; no complete local Comparator setup counted" aria-label="#269: Open; no complete local Comparator setup counted">🟥</a></td>
     </tr>
@@ -535,7 +535,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos333.json" title="#333: Formalized in this repository with a Comparator setup" aria-label="#333: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/334" title="#334: Open; no complete local Comparator setup counted" aria-label="#334: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/335" title="#335: Open; no complete local Comparator setup counted" aria-label="#335: Open; no complete local Comparator setup counted">🟥</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/336" title="#336: Open; no complete local Comparator setup counted" aria-label="#336: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos336.json" title="#336: Formalized in this repository with a Comparator setup" aria-label="#336: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos337.json" title="#337: Formalized in this repository with a Comparator setup" aria-label="#337: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/338" title="#338: Open; no complete local Comparator setup counted" aria-label="#338: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos339.json" title="#339: Formalized in this repository with a Comparator setup" aria-label="#339: Formalized in this repository with a Comparator setup">🟩</a></td>
@@ -548,7 +548,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos343.json" title="#343: Formalized in this repository with a Comparator setup" aria-label="#343: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos344.json" title="#344: Formalized in this repository with a Comparator setup" aria-label="#344: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/345" title="#345: Open; no complete local Comparator setup counted" aria-label="#345: Open; no complete local Comparator setup counted">🟥</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/346" title="#346: Open; no complete local Comparator setup counted" aria-label="#346: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos346.json" title="#346: Formalized in this repository with a Comparator setup" aria-label="#346: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos347.json" title="#347: Formalized in this repository with a Comparator setup" aria-label="#347: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/348" title="#348: Open; no complete local Comparator setup counted" aria-label="#348: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/349" title="#349: Open; no complete local Comparator setup counted" aria-label="#349: Open; no complete local Comparator setup counted">🟥</a></td>
@@ -594,7 +594,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
     </tr>
     <tr>
       <th scope="row">38x</th>
-      <td align="center"><a href="https://www.erdosproblems.com/380" title="#380: Solved; no complete local Comparator setup counted" aria-label="#380: Solved; no complete local Comparator setup counted">🟨</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos380.json" title="#380: Formalized in this repository with a Comparator setup" aria-label="#380: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos381.json" title="#381: Formalized in this repository with a Comparator setup" aria-label="#381: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/382" title="#382: Open; no complete local Comparator setup counted" aria-label="#382: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/383" title="#383: Open; no complete local Comparator setup counted" aria-label="#383: Open; no complete local Comparator setup counted">🟥</a></td>
@@ -752,15 +752,15 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="https://www.erdosproblems.com/483" title="#483: Open; no complete local Comparator setup counted" aria-label="#483: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos484.json" title="#484: Formalized in this repository with a Comparator setup" aria-label="#484: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos485.json" title="#485: Formalized in this repository with a Comparator setup" aria-label="#485: Formalized in this repository with a Comparator setup">🟩</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/486" title="#486: Open; no complete local Comparator setup counted" aria-label="#486: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos486.json" title="#486: Formalized in this repository with a Comparator setup" aria-label="#486: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos487.json" title="#487: Formalized in this repository with a Comparator setup" aria-label="#487: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/488" title="#488: Open; no complete local Comparator setup counted" aria-label="#488: Open; no complete local Comparator setup counted">🟥</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/489" title="#489: Open; no complete local Comparator setup counted" aria-label="#489: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos489.json" title="#489: Formalized in this repository with a Comparator setup" aria-label="#489: Formalized in this repository with a Comparator setup">🟩</a></td>
     </tr>
     <tr>
       <th scope="row">49x</th>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos490.json" title="#490: Formalized in this repository with a Comparator setup" aria-label="#490: Formalized in this repository with a Comparator setup">🟩</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/491" title="#491: Solved; no complete local Comparator setup counted" aria-label="#491: Solved; no complete local Comparator setup counted">🟨</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos491.json" title="#491: Formalized in this repository with a Comparator setup" aria-label="#491: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos492.json" title="#492: Formalized in this repository with a Comparator setup" aria-label="#492: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos493.json" title="#493: Formalized in this repository with a Comparator setup" aria-label="#493: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos494.json" title="#494: Formalized in this repository with a Comparator setup" aria-label="#494: Formalized in this repository with a Comparator setup">🟩</a></td>
@@ -841,7 +841,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="https://www.erdosproblems.com/535" title="#535: Open; no complete local Comparator setup counted" aria-label="#535: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/536" title="#536: Open; no complete local Comparator setup counted" aria-label="#536: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos537.json" title="#537: Formalized in this repository with a Comparator setup" aria-label="#537: Formalized in this repository with a Comparator setup">🟩</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/538" title="#538: Open; no complete local Comparator setup counted" aria-label="#538: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos538.json" title="#538: Formalized in this repository with a Comparator setup" aria-label="#538: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/539" title="#539: Open; no complete local Comparator setup counted" aria-label="#539: Open; no complete local Comparator setup counted">🟥</a></td>
     </tr>
     <tr>
@@ -859,7 +859,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
     </tr>
     <tr>
       <th scope="row">55x</th>
-      <td align="center"><a href="https://www.erdosproblems.com/550" title="#550: Open; no complete local Comparator setup counted" aria-label="#550: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos550.json" title="#550: Formalized in this repository with a Comparator setup" aria-label="#550: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos551.json" title="#551: Formalized in this repository with a Comparator setup" aria-label="#551: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/552" title="#552: Open; no complete local Comparator setup counted" aria-label="#552: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos553.json" title="#553: Formalized in this repository with a Comparator setup" aria-label="#553: Formalized in this repository with a Comparator setup">🟩</a></td>
@@ -914,7 +914,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos590.json" title="#590: Formalized in this repository with a Comparator setup" aria-label="#590: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/591" title="#591: Solved; no complete local Comparator setup counted" aria-label="#591: Solved; no complete local Comparator setup counted">🟨</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/592" title="#592: Open; no complete local Comparator setup counted" aria-label="#592: Open; no complete local Comparator setup counted">🟥</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/593" title="#593: Open; no complete local Comparator setup counted" aria-label="#593: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos593.json" title="#593: Formalized in this repository with a Comparator setup" aria-label="#593: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos594.json" title="#594: Formalized in this repository with a Comparator setup" aria-label="#594: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/595" title="#595: Open; no complete local Comparator setup counted" aria-label="#595: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/596" title="#596: Open; no complete local Comparator setup counted" aria-label="#596: Open; no complete local Comparator setup counted">🟥</a></td>
@@ -1137,7 +1137,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
     </tr>
     <tr>
       <th scope="row">73x</th>
-      <td align="center"><a href="https://www.erdosproblems.com/730" title="#730: Open; no complete local Comparator setup counted" aria-label="#730: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos730.json" title="#730: Formalized in this repository with a Comparator setup" aria-label="#730: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/731" title="#731: Open; no complete local Comparator setup counted" aria-label="#731: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos732.json" title="#732: Formalized in this repository with a Comparator setup" aria-label="#732: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos733.json" title="#733: Formalized in this repository with a Comparator setup" aria-label="#733: Formalized in this repository with a Comparator setup">🟩</a></td>
@@ -1157,7 +1157,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos744.json" title="#744: Formalized in this repository with a Comparator setup" aria-label="#744: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos745.json" title="#745: Formalized in this repository with a Comparator setup" aria-label="#745: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos746.json" title="#746: Formalized in this repository with a Comparator setup" aria-label="#746: Formalized in this repository with a Comparator setup">🟩</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/747" title="#747: Solved; no complete local Comparator setup counted" aria-label="#747: Solved; no complete local Comparator setup counted">🟨</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos747.json" title="#747: Formalized in this repository with a Comparator setup" aria-label="#747: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos748.json" title="#748: Formalized in this repository with a Comparator setup" aria-label="#748: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/749" title="#749: Open; no complete local Comparator setup counted" aria-label="#749: Open; no complete local Comparator setup counted">🟥</a></td>
     </tr>
@@ -1184,7 +1184,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos765.json" title="#765: Formalized in this repository with a Comparator setup" aria-label="#765: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/766" title="#766: Open; no complete local Comparator setup counted" aria-label="#766: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos767.json" title="#767: Formalized in this repository with a Comparator setup" aria-label="#767: Formalized in this repository with a Comparator setup">🟩</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/768" title="#768: Open; no complete local Comparator setup counted" aria-label="#768: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos768.json" title="#768: Formalized in this repository with a Comparator setup" aria-label="#768: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/769" title="#769: Open; no complete local Comparator setup counted" aria-label="#769: Open; no complete local Comparator setup counted">🟥</a></td>
     </tr>
     <tr>
@@ -1210,7 +1210,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos785.json" title="#785: Formalized in this repository with a Comparator setup" aria-label="#785: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/786" title="#786: Open; no complete local Comparator setup counted" aria-label="#786: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/787" title="#787: Open; no complete local Comparator setup counted" aria-label="#787: Open; no complete local Comparator setup counted">🟥</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/788" title="#788: Open; no complete local Comparator setup counted" aria-label="#788: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos788.json" title="#788: Formalized in this repository with a Comparator setup" aria-label="#788: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/789" title="#789: Open; no complete local Comparator setup counted" aria-label="#789: Open; no complete local Comparator setup counted">🟥</a></td>
     </tr>
     <tr>
@@ -1221,7 +1221,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos793.json" title="#793: Formalized in this repository with a Comparator setup" aria-label="#793: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos794.json" title="#794: Formalized in this repository with a Comparator setup" aria-label="#794: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos795.json" title="#795: Formalized in this repository with a Comparator setup" aria-label="#795: Formalized in this repository with a Comparator setup">🟩</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/796" title="#796: Open; no complete local Comparator setup counted" aria-label="#796: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos796.json" title="#796: Formalized in this repository with a Comparator setup" aria-label="#796: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos797.json" title="#797: Formalized in this repository with a Comparator setup" aria-label="#797: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos798.json" title="#798: Formalized in this repository with a Comparator setup" aria-label="#798: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos799.json" title="#799: Formalized in this repository with a Comparator setup" aria-label="#799: Formalized in this repository with a Comparator setup">🟩</a></td>
@@ -1804,7 +1804,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="https://www.erdosproblems.com/1174" title="#1174: Open; no complete local Comparator setup counted" aria-label="#1174: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1175" title="#1175: Open; no complete local Comparator setup counted" aria-label="#1175: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1176" title="#1176: Open; no complete local Comparator setup counted" aria-label="#1176: Open; no complete local Comparator setup counted">🟥</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/1177" title="#1177: Open; no complete local Comparator setup counted" aria-label="#1177: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1177.json" title="#1177: Formalized in this repository with a Comparator setup" aria-label="#1177: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1178" title="#1178: Open; no complete local Comparator setup counted" aria-label="#1178: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1179.json" title="#1179: Formalized in this repository with a Comparator setup" aria-label="#1179: Formalized in this repository with a Comparator setup">🟩</a></td>
     </tr>
@@ -1818,7 +1818,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1185.json" title="#1185: Formalized in this repository with a Comparator setup" aria-label="#1185: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1186" title="#1186: Open; no complete local Comparator setup counted" aria-label="#1186: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1187.json" title="#1187: Formalized in this repository with a Comparator setup" aria-label="#1187: Formalized in this repository with a Comparator setup">🟩</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/1188" title="#1188: Open; no complete local Comparator setup counted" aria-label="#1188: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1188.json" title="#1188: Formalized in this repository with a Comparator setup" aria-label="#1188: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1189" title="#1189: Open; no complete local Comparator setup counted" aria-label="#1189: Open; no complete local Comparator setup counted">🟥</a></td>
     </tr>
     <tr>
@@ -1885,18 +1885,20 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
 
 ## Status notes
 
-- **Formalized here, open on EPC (19):** [#106](https://www.erdosproblems.com/106), [#146](https://www.erdosproblems.com/146), [#180](https://www.erdosproblems.com/180), [#183](https://www.erdosproblems.com/183), [#327](https://www.erdosproblems.com/327),
-  [#341](https://www.erdosproblems.com/341), [#394](https://www.erdosproblems.com/394), [#424](https://www.erdosproblems.com/424), [#469](https://www.erdosproblems.com/469), [#501](https://www.erdosproblems.com/501),
-  [#520](https://www.erdosproblems.com/520), [#569](https://www.erdosproblems.com/569), [#671](https://www.erdosproblems.com/671), [#856](https://www.erdosproblems.com/856), [#906](https://www.erdosproblems.com/906),
-  [#1002](https://www.erdosproblems.com/1002), [#1005](https://www.erdosproblems.com/1005), [#1038](https://www.erdosproblems.com/1038), [#1112](https://www.erdosproblems.com/1112).
+- **Formalized here, open on EPC (35):** [#106](https://www.erdosproblems.com/106), [#146](https://www.erdosproblems.com/146), [#180](https://www.erdosproblems.com/180), [#183](https://www.erdosproblems.com/183), [#254](https://www.erdosproblems.com/254),
+  [#260](https://www.erdosproblems.com/260), [#267](https://www.erdosproblems.com/267), [#327](https://www.erdosproblems.com/327), [#336](https://www.erdosproblems.com/336), [#341](https://www.erdosproblems.com/341),
+  [#346](https://www.erdosproblems.com/346), [#394](https://www.erdosproblems.com/394), [#424](https://www.erdosproblems.com/424), [#469](https://www.erdosproblems.com/469), [#486](https://www.erdosproblems.com/486),
+  [#489](https://www.erdosproblems.com/489), [#501](https://www.erdosproblems.com/501), [#520](https://www.erdosproblems.com/520), [#538](https://www.erdosproblems.com/538), [#550](https://www.erdosproblems.com/550),
+  [#569](https://www.erdosproblems.com/569), [#593](https://www.erdosproblems.com/593), [#671](https://www.erdosproblems.com/671), [#730](https://www.erdosproblems.com/730), [#768](https://www.erdosproblems.com/768),
+  [#788](https://www.erdosproblems.com/788), [#796](https://www.erdosproblems.com/796), [#856](https://www.erdosproblems.com/856), [#906](https://www.erdosproblems.com/906), [#1002](https://www.erdosproblems.com/1002),
+  [#1005](https://www.erdosproblems.com/1005), [#1038](https://www.erdosproblems.com/1038), [#1112](https://www.erdosproblems.com/1112), [#1177](https://www.erdosproblems.com/1177), [#1188](https://www.erdosproblems.com/1188).
 
-- **Marked “Lean” on EPC, not green here (2):** [#192](https://www.erdosproblems.com/192), [#610](https://www.erdosproblems.com/610).
+- **Marked “Lean” on EPC, not green here (1):** [#610](https://www.erdosproblems.com/610).
 
-- **Solved on EPC without a “Lean” badge, not green here (18):** [#4](https://www.erdosproblems.com/4), [#19](https://www.erdosproblems.com/19), [#67](https://www.erdosproblems.com/67), [#73](https://www.erdosproblems.com/73), [#118](https://www.erdosproblems.com/118),
-  [#207](https://www.erdosproblems.com/207), [#216](https://www.erdosproblems.com/216), [#380](https://www.erdosproblems.com/380), [#491](https://www.erdosproblems.com/491), [#504](https://www.erdosproblems.com/504),
-  [#547](https://www.erdosproblems.com/547), [#556](https://www.erdosproblems.com/556), [#577](https://www.erdosproblems.com/577), [#591](https://www.erdosproblems.com/591), [#599](https://www.erdosproblems.com/599),
-  [#633](https://www.erdosproblems.com/633), [#747](https://www.erdosproblems.com/747), [#941](https://www.erdosproblems.com/941).
+- **Solved on EPC without a “Lean” badge, not green here (14):** [#4](https://www.erdosproblems.com/4), [#19](https://www.erdosproblems.com/19), [#73](https://www.erdosproblems.com/73), [#118](https://www.erdosproblems.com/118), [#207](https://www.erdosproblems.com/207),
+  [#216](https://www.erdosproblems.com/216), [#504](https://www.erdosproblems.com/504), [#547](https://www.erdosproblems.com/547), [#556](https://www.erdosproblems.com/556), [#577](https://www.erdosproblems.com/577),
+  [#591](https://www.erdosproblems.com/591), [#599](https://www.erdosproblems.com/599), [#633](https://www.erdosproblems.com/633), [#941](https://www.erdosproblems.com/941).
 
 <!-- Status snapshot SHA-256 (official range-page HTML):
-a430ac95029333114f0f5b4fbf1df01dd0fed69c58d1f41a8a8f9db711492793
+977d09cb92d460d02b300aa15498bda0d0b22c21bd583c269ad2b0b1d14c6a5b
 -->
