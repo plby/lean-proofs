@@ -1913,6 +1913,20 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/266.lean
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos267
+  epc: https://www.erdosproblems.com/267
+  author:
+    informal:
+      human: Colin Snyder
+      AI: GPT-5.6
+    formal:
+      human: Colin Snyder
+      AI: GPT-5.6
+  url:
+    - https://www.erdosproblems.com/forum/thread/267/proof-claims#proof-claim-29
+    - https://www.starfleetmath.com/solutions/688c4c2a-dc90-40b1-9501-c82eeb3a42e5
+    - https://www.starfleetmath.com/downloads/verify/erdos-267/erdos-267-solution.zip
+  version: 4.31.0
 - key: ErdosProblems.Erdos268
   epc: https://www.erdosproblems.com/268
   author:
