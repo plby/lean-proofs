@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos1002",
+  "solution_module": "ErdosProblems.Erdos1002",
+  "theorem_names": [
+    "Erdos1002.erdos_1002",
+    "Erdos1002.erdos_1002_cauchy"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}
