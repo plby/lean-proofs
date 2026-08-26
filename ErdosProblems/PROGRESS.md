@@ -2,7 +2,7 @@
 
 Snapshot: **2026-08-25** · **1,217 problems**
 
-**🟩 537 formalized · 🟨 36 solved, not formalized here · 🟥 644 open**
+**🟩 539 formalized · 🟨 35 solved, not formalized here · 🟥 643 open**
 
 ## Legend
 
@@ -968,7 +968,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="https://www.erdosproblems.com/616" title="#616: Open; no complete local Comparator setup counted" aria-label="#616: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/617" title="#617: Open; no complete local Comparator setup counted" aria-label="#617: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos618.json" title="#618: Formalized in this repository with a Comparator setup" aria-label="#618: Formalized in this repository with a Comparator setup">🟩</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/619" title="#619: Solved; no complete local Comparator setup counted" aria-label="#619: Solved; no complete local Comparator setup counted">🟨</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos619.json" title="#619: Formalized in this repository with a Comparator setup" aria-label="#619: Formalized in this repository with a Comparator setup">🟩</a></td>
     </tr>
     <tr>
       <th scope="row">62x</th>
@@ -1601,7 +1601,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="https://www.erdosproblems.com/1035" title="#1035: Open; no complete local Comparator setup counted" aria-label="#1035: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1036.json" title="#1036: Formalized in this repository with a Comparator setup" aria-label="#1036: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1037.json" title="#1037: Formalized in this repository with a Comparator setup" aria-label="#1037: Formalized in this repository with a Comparator setup">🟩</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/1038" title="#1038: Open; no complete local Comparator setup counted" aria-label="#1038: Open; no complete local Comparator setup counted">🟥</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos1038.json" title="#1038: Formalized in this repository with a Comparator setup" aria-label="#1038: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/1039" title="#1039: Open; no complete local Comparator setup counted" aria-label="#1039: Open; no complete local Comparator setup counted">🟥</a></td>
     </tr>
     <tr>
@@ -1885,12 +1885,12 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
 
 ## Status notes
 
-- **Formalized here, open on EPC (8):** [#106](https://www.erdosproblems.com/106), [#146](https://www.erdosproblems.com/146), [#180](https://www.erdosproblems.com/180), [#183](https://www.erdosproblems.com/183), [#341](https://www.erdosproblems.com/341),
-  [#424](https://www.erdosproblems.com/424), [#469](https://www.erdosproblems.com/469), [#501](https://www.erdosproblems.com/501).
+- **Formalized here, open on EPC (9):** [#106](https://www.erdosproblems.com/106), [#146](https://www.erdosproblems.com/146), [#180](https://www.erdosproblems.com/180), [#183](https://www.erdosproblems.com/183), [#341](https://www.erdosproblems.com/341),
+  [#424](https://www.erdosproblems.com/424), [#469](https://www.erdosproblems.com/469), [#501](https://www.erdosproblems.com/501), [#1038](https://www.erdosproblems.com/1038).
 
-- **Marked “Lean” on EPC, not green here (13):** [#192](https://www.erdosproblems.com/192), [#610](https://www.erdosproblems.com/610), [#619](https://www.erdosproblems.com/619), [#696](https://www.erdosproblems.com/696), [#716](https://www.erdosproblems.com/716),
-  [#750](https://www.erdosproblems.com/750), [#765](https://www.erdosproblems.com/765), [#793](https://www.erdosproblems.com/793), [#865](https://www.erdosproblems.com/865), [#884](https://www.erdosproblems.com/884),
-  [#927](https://www.erdosproblems.com/927), [#1112](https://www.erdosproblems.com/1112), [#1134](https://www.erdosproblems.com/1134).
+- **Marked “Lean” on EPC, not green here (12):** [#192](https://www.erdosproblems.com/192), [#610](https://www.erdosproblems.com/610), [#696](https://www.erdosproblems.com/696), [#716](https://www.erdosproblems.com/716), [#750](https://www.erdosproblems.com/750),
+  [#765](https://www.erdosproblems.com/765), [#793](https://www.erdosproblems.com/793), [#865](https://www.erdosproblems.com/865), [#884](https://www.erdosproblems.com/884), [#927](https://www.erdosproblems.com/927),
+  [#1112](https://www.erdosproblems.com/1112), [#1134](https://www.erdosproblems.com/1134).
 
 - **Solved on EPC without a “Lean” badge, not green here (24):** [#4](https://www.erdosproblems.com/4), [#19](https://www.erdosproblems.com/19), [#67](https://www.erdosproblems.com/67), [#69](https://www.erdosproblems.com/69), [#73](https://www.erdosproblems.com/73),
   [#76](https://www.erdosproblems.com/76), [#118](https://www.erdosproblems.com/118), [#207](https://www.erdosproblems.com/207), [#216](https://www.erdosproblems.com/216), [#380](https://www.erdosproblems.com/380),
@@ -1899,5 +1899,5 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
   [#941](https://www.erdosproblems.com/941), [#1091](https://www.erdosproblems.com/1091), [#1123](https://www.erdosproblems.com/1123), [#1164](https://www.erdosproblems.com/1164).
 
 <!-- Status snapshot SHA-256 (official range-page HTML):
-7fdf01a53191875d4ad6076df0a7777481fbfdd93243fb7e7fc986736c550f9d
+5ad2543da725263f5b9db0a9d4aa318b7cf656336e7cfe7a2883b6eb993938a3
 -->
