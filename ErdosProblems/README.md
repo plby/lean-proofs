@@ -136,6 +136,7 @@
 * [Erdős Problem 694](Erdos694.md)
 * [Erdős Problem 698](Erdos698.md)
 * [Erdős Problem 707](Erdos707.md)
+* [Erdős Problem 716](Erdos716.md)
 * [Erdős Problem 728](Erdos728.md)
 * [Erdős Problem 729](Erdos729.md)
 * [Erdős Problem 741](Erdos741.md)

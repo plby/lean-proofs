@@ -5024,6 +5024,22 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos715.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos716
+  epc: https://www.erdosproblems.com/716
+  author:
+    informal:
+      human:
+        - Imre Z. Ruzsa
+        - Endre Szemerédi
+    formal:
+      AI: Aristotle
+      human: JoshuaB
+  url:
+    - https://www.erdosproblems.com/716#post-7096
+    - https://aristotle.harmonic.fun/dashboard/requests/a876356c-15d8-4d24-b51f-001f57955616
+  url_ref: JoshuaB_716
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos717
   epc: https://www.erdosproblems.com/717
   author:
