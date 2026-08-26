@@ -2585,6 +2585,19 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos344.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos346
+  epc: https://www.erdosproblems.com/346
+  author:
+    informal:
+      human: Liam Price
+      AI: GPT Pro
+    formal:
+      human: Liam Price
+      AI: GPT-5.5 (Codex)
+  url:
+    - https://www.erdosproblems.com/forum/thread/346/proof-claims#proof-claim-59
+    - https://www.erdosproblems.com/forum/thread/346
+    - https://www.overleaf.com/read/tgrrgqpbjpht#c5a085
 - key: ErdosProblems.Erdos347
   epc: https://www.erdosproblems.com/347
   author:
