@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos520",
+  "solution_module": "ErdosProblems.Erdos520",
+  "theorem_names": [
+    "Erdos.Problem520.not_erdos_520",
+    "Erdos.Problem520.normalized_tendsto_zero"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}

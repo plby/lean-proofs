@@ -3903,6 +3903,27 @@
     - https://gist.githubusercontent.com/JohnEdwardJennings/db1e0cb00b7d6866193c12f1c70a1813/raw/e629fcf1976d5b241d628c0b65e2b1e3701f51a6/Erdos519.lean
   version: "4.28.0"
 
+- key: ErdosProblems.Erdos520
+  epc: https://www.erdosproblems.com/520
+  author:
+    informal:
+      human: Sigurd William Rachlew Høystad
+      AI:
+        - GPT-5.6 Sol Pro
+        - Claude Fable 5
+    formal:
+      human: Sigurd William Rachlew Høystad
+      AI:
+        - GPT-5.6 Sol Pro
+        - Claude Fable 5
+  url:
+    - https://www.erdosproblems.com/forum/thread/520/proof-claims#proof-claim-183
+    - https://github.com/saasom/Erdos520/tree/v1.1.0
+    - https://github.com/saasom/Erdos520/blob/dea062793bf11efd962752ee378ef84720c9857e/Erdos/Problem520/Unconditional.lean
+    - https://github.com/saasom/Erdos520/blob/dea062793bf11efd962752ee378ef84720c9857e/paper/erdos520_note.tex
+    - https://github.com/saasom/Erdos520/blob/dea062793bf11efd962752ee378ef84720c9857e/CITATION.cff
+  version: "4.30.0-rc2"
+
 - key: ErdosProblems.Erdos523
   epc: https://www.erdosproblems.com/523
   author:
