@@ -1,0 +1,15 @@
+{
+  "challenge_module": "Erdos118",
+  "solution_module": "ErdosProblems.Erdos118",
+  "theorem_names": [
+    "Erdos118.counterexample_at_five",
+    "Erdos118.counterexample_at_six",
+    "Erdos118.not_erdos_118"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}

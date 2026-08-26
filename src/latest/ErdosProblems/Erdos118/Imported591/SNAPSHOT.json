@@ -1,0 +1,319 @@
+{
+  "description": "Task-owned snapshot of completed negative-six dependencies, proved countable fusion, and unary indivisibility. Active shared sources are not modified.",
+  "source_root": "/root/code/lean-proofs/src/latest",
+  "renames": {
+    "ErdosProblems.Erdos591.": "ErdosProblems.Erdos118.Imported591.",
+    "Erdos591": "Erdos118"
+  },
+  "files": [
+    {
+      "path": "ErdosProblems/Erdos591/ExactDensity.lean",
+      "sha256": "902ec02ed6237950a286636c39f70fd013e80d12c1487d164b3e3871f5e2d322",
+      "lines": 134,
+      "imports": [
+        "ErdosProblems.Erdos591.LevelCrossing"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/ExactDensity.lean",
+      "copied_sha256": "bf1cf30e2d5513a40af8e7c868d363068aca100a6a387b2c4a01f5ab6f49b2da"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/LevelCrossing.lean",
+      "sha256": "d7ba11466f31a232cee3b96d924c0115a538377c8734ae0c32ce3f2a55725026",
+      "lines": 59,
+      "imports": [
+        "ErdosProblems.Erdos591.LevelState"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/LevelCrossing.lean",
+      "copied_sha256": "fb5ad88cd53de8768dff1768d611f2ba4a57421dccc9b92bd96dfccf33f8ab51"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/LevelState.lean",
+      "sha256": "ea23fc805361366e9e44ecfac4d385405a57693c471c5c99628ec904d71a879a",
+      "lines": 106,
+      "imports": [
+        "ErdosProblems.Erdos591.PartialSequence"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/LevelState.lean",
+      "copied_sha256": "ddafddeaf79a337593fea00838ae8f70ed85d9e1869ced280b0bddf3217393a9"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/PartialSequence.lean",
+      "sha256": "688406a1b1fbf6d50148ca07fb55e8aa4cabdf1d798ef0605d5ef06177fab04c",
+      "lines": 207,
+      "imports": [
+        "ErdosProblems.Erdos591.BodyPrefix"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/PartialSequence.lean",
+      "copied_sha256": "d1fdcb861c1510e8749d04bc3c9c9d8fdcc114992753cbef68b217b98c22f4bb"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/BodyPrefix.lean",
+      "sha256": "faccc0318138f4a9da4d860a21acb39de4db1bff1fdbdbeece6b6b0d2b3afb29",
+      "lines": 128,
+      "imports": [
+        "ErdosProblems.Erdos591.ExactLevelProgress"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/BodyPrefix.lean",
+      "copied_sha256": "e43198c2965586aa6e816212a55d114f4497ae1f3f4bcd3267e38953d135b8ea"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/ExactLevelProgress.lean",
+      "sha256": "72bfec102471800c477bb81d2a7f937fbfeac81a165e726f6346e45fe92268f7",
+      "lines": 79,
+      "imports": [
+        "ErdosProblems.Erdos591.ExtractionBudget"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/ExactLevelProgress.lean",
+      "copied_sha256": "92a9adced2832a8f9f93916020e1eb159bc038a3a4b76be7be719e1f150cd796"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/ExtractionBudget.lean",
+      "sha256": "d36410b5ebf2d1eba311ff8817519c3676578fbaf5d0b7c1000e6b2e0082c0b2",
+      "lines": 137,
+      "imports": [
+        "ErdosProblems.Erdos591.ExactLargeLevels"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/ExtractionBudget.lean",
+      "copied_sha256": "786088f4fcfb1b09e7fcc0e3fb047ab4f389fda1a6d9a671f378e6f2df35a313"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/ExactLargeLevels.lean",
+      "sha256": "7db0e46dc0c62de6378d17004bf70202dd8827b977ed90408970631d08b5e463",
+      "lines": 136,
+      "imports": [
+        "ErdosProblems.Erdos591.ExactLevels",
+        "ErdosProblems.Erdos591.LexFiberBound"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/ExactLargeLevels.lean",
+      "copied_sha256": "754a0af5f57b6912b25563a5f8ad513e703615f5e34ec88679509d7d2cfc2bf4"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/ExactLevels.lean",
+      "sha256": "84daf09febf96ee1af684f40bb5692ed59e0bcf490fe7e802dfb7adc6a089ddd",
+      "lines": 186,
+      "imports": [
+        "ErdosProblems.Erdos591.ExactOuterLevels",
+        "ErdosProblems.Erdos591.InnerLevels",
+        "ErdosProblems.Erdos591.LexPrefix"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/ExactLevels.lean",
+      "copied_sha256": "2c858817f9a25ba3d49bb62dcce0b59c55719b1d220ce3a0dd67beaa67feea06"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/ExactOuterLevels.lean",
+      "sha256": "bde6058a76fb7e2f69b2d1262832e259e7972843f47bb5a6810d3e7c1b9285e5",
+      "lines": 99,
+      "imports": [
+        "ErdosProblems.Erdos591.ExactCanonicalSequence",
+        "ErdosProblems.Erdos591.OuterLevels"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/ExactOuterLevels.lean",
+      "copied_sha256": "afd9d6d4c9402c666cf4858618f3ef94f67988d2088a99504fd888b6fc79090e"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/ExactCanonicalSequence.lean",
+      "sha256": "5cc44fbc84c7a80901b18e4a74e489d93afdb062a68b7a8fe1e81ee9c89cca86",
+      "lines": 83,
+      "imports": [
+        "ErdosProblems.Erdos591.ExactGoodSequence",
+        "ErdosProblems.Erdos591.CanonicalSequence"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/ExactCanonicalSequence.lean",
+      "copied_sha256": "74a7e9bd09b25db047529f4c0257111e90ee72c6e1810310f6efa29ba1999603"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/ExactGoodSequence.lean",
+      "sha256": "81ad5be8ab3433fcc8175de24cb8ea721ad051a833718e45c8b7b4bbb36b4a82",
+      "lines": 238,
+      "imports": [
+        "ErdosProblems.Erdos591.GoodSequenceTwo"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/ExactGoodSequence.lean",
+      "copied_sha256": "f69bef1a14f030e5604c70474efd33f50d374826d2d174ddcf485740f06e892e"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/GoodSequenceTwo.lean",
+      "sha256": "e67e94bdc13ceea1e28c18ca53a3c3c46a1b04f7cf9ae4d8db910bae29765949",
+      "lines": 143,
+      "imports": [
+        "ErdosProblems.Erdos591.WeakPigeon"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/GoodSequenceTwo.lean",
+      "copied_sha256": "e7c875919a3f2d642d2f89068a098739d554a2c808bd95af65e9902ca1bc4402"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/WeakPigeon.lean",
+      "sha256": "fd625b153a6bec9b492f19d610f7a644de30afa6d9ffc9fe51cb2f52a82249c6",
+      "lines": 551,
+      "imports": [
+        "ErdosProblems.Erdos590"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/WeakPigeon.lean",
+      "copied_sha256": "f1b1d63201b1582a306d7e7cc7f8cf35e4db3865658061bcd38cbc05fcbc5ffc"
+    },
+    {
+      "path": "ErdosProblems/Erdos590.lean",
+      "sha256": "8e25d43cd8ca38ae7bf725f4771163078deef7390d73f6f4f419aad31db20c0c",
+      "lines": 7940,
+      "imports": [
+        "Mathlib.Combinatorics.SimpleGraph.Clique",
+        "Mathlib.Data.List.Lex",
+        "Mathlib.Data.List.Shortlex",
+        "Mathlib.Data.List.SplitBy",
+        "Mathlib.Data.Nat.Nth",
+        "Mathlib.Data.Nat.Pairing",
+        "Mathlib.Order.RelIso.Set",
+        "Mathlib.SetTheory.Ordinal.Exponential"
+      ],
+      "disposition": "use existing committed Erdos590; shared differs only by header"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/CanonicalSequence.lean",
+      "sha256": "6a90eaf7ad64feeabb5208e116e2662202e1ed47846c3e95cac39483beb84bc5",
+      "lines": 275,
+      "imports": [
+        "ErdosProblems.Erdos591.SixClique"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/CanonicalSequence.lean",
+      "copied_sha256": "29e296ab2f6ff79dcbe67db99463887a5b65876e18e083c262ad0c904b6d435e"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/SixClique.lean",
+      "sha256": "64a0a5ea498d227f74166d2a33c7f4460f8ea8b207306560135388edfff909b3",
+      "lines": 387,
+      "imports": [
+        "ErdosProblems.Erdos591.InterlacingGraph"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/SixClique.lean",
+      "copied_sha256": "836371ad4a5ccd5c6ea083b70894b9d21718095d18ddc7a00fd93d0843a7f252"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/InterlacingGraph.lean",
+      "sha256": "7c8955dbf2c5d31712f3e3da0974adb1e8292e60411bd3c4bc09209a67612cd8",
+      "lines": 708,
+      "imports": [
+        "ErdosProblems.Erdos591.CounterexampleTransport"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/InterlacingGraph.lean",
+      "copied_sha256": "bbf9f9c161d7f11bc5d8b1d0a9caceaa0a8d75f1a7b43b918a63bfc5aedbb898"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/CounterexampleTransport.lean",
+      "sha256": "d7c265a40ebe1a919f7595ade28890fa3e6174ba0b4e906ceab996150fd43817",
+      "lines": 96,
+      "imports": [
+        "ErdosProblems.Erdos591.GoodSequenceTwo",
+        "Mathlib.Order.RelIso.Set"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/CounterexampleTransport.lean",
+      "copied_sha256": "0a4dece720cb134395eb5ccb412929f35cee97a6c1e7a6dd92e70f838e2cc5e1"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/OuterLevels.lean",
+      "sha256": "5a63a87ec919df63f9081900b572c49fe5100b614f2991ddec5698dfa14d5d0c",
+      "lines": 240,
+      "imports": [
+        "ErdosProblems.Erdos591.GoodSequenceTwo",
+        "ErdosProblems.Erdos591.LexPrefix"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/OuterLevels.lean",
+      "copied_sha256": "cd1feb7c8b3e8a9451b9c4441267136d37681dd9e407740c05879850235638c4"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/LexPrefix.lean",
+      "sha256": "d001fafead86d43b4cf49562c51c5f7bc2fbeeb1754c3a6dfc045aa347c705f3",
+      "lines": 539,
+      "imports": [
+        "ErdosProblems.Erdos591.CNFStrong",
+        "ErdosProblems.Erdos591.WeakPigeon"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/LexPrefix.lean",
+      "copied_sha256": "cf6050d5bc79dc0b58d3393fc88762d4311f6e5e20587c84afc2500cfa7bfc75"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/CNFStrong.lean",
+      "sha256": "0ed0e49efe000473a7bf969ec13b4c7c58d75282f950108d2fe454d466d4387f",
+      "lines": 542,
+      "imports": [
+        "Mathlib"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/CNFStrong.lean",
+      "copied_sha256": "dd6d9c104f961e8f53cfc20b761a5b36fc09cb0400efdb6ba9a068a50869b275"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/InnerLevels.lean",
+      "sha256": "308f2a9c0862d5d89c064724e669303d9af44baa50bbaea803a96d2034491e7d",
+      "lines": 236,
+      "imports": [
+        "ErdosProblems.Erdos591.OuterLevels"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/InnerLevels.lean",
+      "copied_sha256": "d8ba169204c551547569bf30b7057c977fcb94637cf63badfe57f4ac16ad8e6a"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/LexFiberBound.lean",
+      "sha256": "f9d4302d2f9bc9fdc495c8b2f9445e3bf54e2604b0ab24ede81538b4da2a5f1d",
+      "lines": 111,
+      "imports": [
+        "ErdosProblems.Erdos591.PieceIndiv"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/LexFiberBound.lean",
+      "copied_sha256": "4a1b21aa39fc63b00cc0bfb3440406a37214889bd9ba697301c658a6546e3fc5"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/PieceIndiv.lean",
+      "sha256": "60c812e87cb042fef2e276b1c7ab1727943be4639e20feac7b83f752c952ba80",
+      "lines": 138,
+      "imports": [
+        "ErdosProblems.Erdos591.WeakPigeon",
+        "ErdosProblems.Erdos591.EMUnary",
+        "ErdosProblems.Erdos591.K4Core",
+        "ErdosProblems.Erdos591.CNFStrong"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/PieceIndiv.lean",
+      "copied_sha256": "45e7c126f3c6c061cbdaee3bb24dbf9cb60f2ca5fdfa6c850a5f1c404d4ba080"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/EMUnary.lean",
+      "sha256": "f68e3350f9d9e3841fa65ad25e84f5c3c405609f977fbaed9298f9f13a8a8720",
+      "lines": 270,
+      "imports": [
+        "ErdosProblems.Erdos590"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/EMUnary.lean",
+      "copied_sha256": "b16c12e4b59df98dbc92e78c264793d00028902883e3358207b3d2082f70c6cd"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/K4Core.lean",
+      "sha256": "3323764bb1b97f89f288989ff9b877726190cde9f3f4273e6bd0f2766b68aedc",
+      "lines": 470,
+      "imports": [
+        "ErdosProblems.Erdos590",
+        "Mathlib.Tactic.FinCases"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/K4Core.lean",
+      "copied_sha256": "fcf01407d4a4bbc45088f5769a0bc966358be0a481c8bc03136f17be7b7f57db"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/StrongIteration.lean",
+      "sha256": "08c4f05ef7183c0de735dbb9da40205ce982fa584a6590a65529bec2b78941d3",
+      "lines": 433,
+      "imports": [
+        "ErdosProblems.Erdos590"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/StrongIteration.lean",
+      "copied_sha256": "d8c8c84ed715cb28895d62a2e5dcfeb1f3d12cfd7068f863def4f55165a254de"
+    },
+    {
+      "path": "ErdosProblems/Erdos591/GlobalIndiv.lean",
+      "sha256": "50539c52ef540bacfa06efdf9ede28608bc38fb3f633fffd983dea5d902d9558",
+      "lines": 127,
+      "imports": [
+        "ErdosProblems.Erdos591.GoodSequenceTwo",
+        "ErdosProblems.Erdos591.PieceIndiv"
+      ],
+      "copied_path": "ErdosProblems/Erdos118/Imported591/GlobalIndiv.lean",
+      "copied_sha256": "039a1696648edf848e1c35431a0b02d81ba3754b6daccaf07de5f2d398bbd76d"
+    }
+  ]
+}
