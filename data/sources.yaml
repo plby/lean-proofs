@@ -7173,6 +7173,28 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos1001.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos1005
+  epc: https://www.erdosproblems.com/1005
+  author:
+    informal:
+      human:
+        - Ricky Cipollini
+        - Wouter van Doorn
+      AI:
+        - GPT-5.5 Thinking
+        - GPT-5.5 Pro
+    formal:
+      human:
+        - Ricky Cipollini
+        - Wouter van Doorn
+      AI: Aristotle
+  arxiv: https://arxiv.org/abs/2607.23302
+  url:
+    - https://www.erdosproblems.com/forum/thread/1005/proof-claims#proof-claim-9
+    - https://github.com/Woett/Lean-files/blob/d30552f64c55686d40b928a0a3b8e2396357a4ee/ErdosProblem1005.lean
+    - https://github.com/mrricky22/erdos-1005-lean/tree/b0b308115cd6502baae120c085b09861e45e7d1e
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos1006
   epc: https://www.erdosproblems.com/1006
   author:
