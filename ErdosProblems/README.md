@@ -42,6 +42,7 @@
 * [Erdős Problem 224](Erdos224.md)
 * [Erdős Problem 226](Erdos226.md)
 * [Erdős Problem 229](Erdos229.md)
+* [Erdős Problem 231](Erdos231.md)
 * [Erdős Problem 237](Erdos237.md)
 * [Erdős Problem 246](Erdos246.md)
 * [Erdős Problem 258](Erdos258.md)

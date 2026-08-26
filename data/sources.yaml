@@ -1608,6 +1608,20 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos230.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos231
+  epc: https://www.erdosproblems.com/231
+  author:
+    informal:
+      human:
+        - Nicolaas Govert de Bruijn
+        - Paul Erdős
+    formal:
+      AI: AxiomProver
+  url:
+    - https://www.erdosproblems.com/forum/thread/231#post-4320
+    - https://github.com/AxiomMath/erdos-public/blob/3ccf48c78b9df4aa26e1b2f90058bdd3f61da1ab/Erdos/Erdos231/solution.lean
+  version: "4.27.0"
+
 - key: ErdosProblems.Erdos235
   epc: https://www.erdosproblems.com/235
   author:
