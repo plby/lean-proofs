@@ -1853,7 +1853,6 @@
   version: "4.33.0"
 
 - key: ErdosProblems.Erdos264b
-  # The latest port combines the former Erdos264 and Erdos264b formalizations.
   partial: yes
   epc: https://www.erdosproblems.com/264
   author:
@@ -2104,7 +2103,6 @@
 
 - key: ErdosProblems.Erdos291b
   partial: yes
-  # Explicit prime-counting and lcm bounds remain hypotheses in src/latest.
   conditional: h_priemteller, h_bla0
   epc: https://www.erdosproblems.com/291
   author:
@@ -3083,7 +3081,6 @@
   version:
     - "4.20.0-rc5"
     - "4.24.0"
-  # Older ports used native_decide; the latest proof uses only standard Lean axioms.
 
 - key: ErdosProblems.Erdos419
   epc: https://www.erdosproblems.com/419
@@ -3874,7 +3871,6 @@
   url:
     - https://www.erdosproblems.com/forum/thread/512#post-7140
     - https://aristotle.harmonic.fun/dashboard/requests/b663fac0-b653-4148-8d0a-9ae5c7dbdaea
-  # Original toolchain not supplied; see ErdosProblems/Erdos512.md.
 
 - key: ErdosProblems.Erdos515
   epc: https://www.erdosproblems.com/515
@@ -6941,7 +6937,6 @@
   url:
     - https://www.erdosproblems.com/forum/thread/964#post-4280
     - https://raw.githubusercontent.com/danielchin/proofs/refs/heads/main/Proofs/ErdosProblems/Erdos964.lean
-  # The latest proof establishes the GPY input; older ports retain it as an assumption.
   version: "4.24.0"
 
 - key: ErdosProblems.Erdos965
@@ -8101,7 +8096,6 @@
 
 - key: ErdosProblems.Erdos1100b
   partial: yes
-  # The current final theorem takes this prime-number-theorem consequence as hPNT.
   conditional: PNT_statement
   epc: https://www.erdosproblems.com/1100
   author:
@@ -8390,7 +8384,6 @@
   version: "4.28.0"
 
 - key: ErdosProblems.Erdos1138
-  # Disproves the universal conjecture; no claim of failure for every individual C.
   epc: https://www.erdosproblems.com/1138
   author:
     informal:
@@ -8481,8 +8474,6 @@
 
 - key: ErdosProblems.Erdos1148
   epc: https://www.erdosproblems.com/1148
-  # These credits describe the original EPC formalization; see the documentation
-  # for the later unconditional repository completion and its provenance.
   author:
     informal:
       AI: GPT-5.4 Pro
@@ -8491,17 +8482,15 @@
       AI:
         - Gemini 3.1
         - Claude Opus 4.6
-        - GPT-5.4
+        - GPT-5.4 Pro
         - UlamAI Prover
       human: Przemek Chojecki
   url:
     - https://www.erdosproblems.com/forum/thread/1148#post-4849
     - https://www.ulam.ai/research/erdos1148-full.pdf
     - https://github.com/ulamai/ulamai
-    - https://github.com/plby/lean-proofs/commit/a6e8981de30fd4bc839c1c58d6f687c2f78449ed
   url_ref: PrzemekChojecki_1148
-  # Selected unconditional version; the original EPC editor link is unversioned.
-  version: "4.33.0"
+  version: "4.27.0"
 
 - key: ErdosProblems.Erdos1149
   epc: https://www.erdosproblems.com/1149
