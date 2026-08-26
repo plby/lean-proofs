@@ -2506,6 +2506,21 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos339.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos341
+  epc: https://www.erdosproblems.com/341
+  author:
+    informal:
+      human: Zhiheng Li
+      AI: GPT-5.6 Sol
+    formal:
+      human: Zhiheng Li
+      AI: GPT-5.6 Sol
+  url:
+    - https://www.erdosproblems.com/forum/thread/341/proof-claims#proof-claim-200
+    - https://github.com/LiAlreadyExists/Erdos-341/blob/c1d912189983ac2fa177e7adb1223d4b9ba85e6f/LeanProject/Erdos341.lean
+    - https://github.com/LiAlreadyExists/Erdos-341/blob/c1d912189983ac2fa177e7adb1223d4b9ba85e6f/README.md
+  version: "4.33.0-rc1"
+
 - key: ErdosProblems.Erdos343
   epc: https://www.erdosproblems.com/343
   author:
