@@ -1,0 +1,193 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "lean-proofs: formal Lean 4 proofs of solved Erdős problems"
+  description: >-
+    Machine-checked Lean 4 proofs of solved research problems from the Erdős problems
+    collection, hosted as stable formal_proof targets for Google DeepMind's Formal
+    Conjectures. The principal result is an affirmative answer to Erdős Problem #730
+    (Erdős, Graham, Ruzsa and Straus, 1975): the set of pairs n < m for which binom(2n, n)
+    and binom(2m, m) have the same set of prime divisors is infinite, and in fact contains
+    infinitely many consecutive pairs (n, n + 1). The proof formalises the argument posted
+    informally by Liam Price on the problem's discussion page on 24 June 2026: Kummer's
+    theorem converts equality of prime supports into a base-p digit condition, an explicit
+    quadratic family of consecutive pairs is constructed, a fixed-depth Fourier estimate
+    bounds the digit obstruction on blocks of length p^r, a uniform depth tail uses a
+    Mertens-type reciprocal-prime input, the top-prime range is handled by fixed-modulus
+    divisor switching using the prime number theorem in arithmetic progressions, and an
+    exact rational density budget yields positive lower density and hence infinitude. The
+    repository also proves the sumset form of Erdős Problem #154 (equidistribution of A + A
+    in residue classes for Sidon sets A with |A| ~ sqrt N, from Lindström's theorem) and
+    hosts smaller bounded results for Problems #94, #399 and #1074. Every tracked theorem
+    depends only on propext, Classical.choice and Quot.sound; each registry statement under
+    Palomar/ restates its result in a Challenge importing Mathlib alone.
+  authors: ["Will Blair"]
+  responsible_maintainers: ["Will Blair"]
+  license: "MIT"
+
+sources:
+  - title: "Erdős Problem #730 (erdosproblems.com), after P. Erdős, R. L. Graham, I. Z. Ruzsa and E. G. Straus, 'On the prime factors of C(2n, n)', Math. Comp. 29 (1975)"
+    authors: ["Paul Erdős", "Ronald L. Graham", "Imre Z. Ruzsa", "Ernst G. Straus"]
+    contributors:
+      - name: "Thomas F. Bloom"
+        role: "maintainer of erdosproblems.com, where the problem and its status are recorded"
+    id: "https://www.erdosproblems.com/730"
+    type: "web discussion"
+    location: "problem statement and remarks; site status OPEN as of 21 August 2026"
+    relationship: "background"
+    author_endorsement: "n/a"
+  - title: "Comment on Erdős Problem #730 asserting, with a one-paragraph gist, that GPT Pro proves infinitely many consecutive pairs (n, n+1)"
+    authors: ["Liam Price"]
+    id: "https://www.erdosproblems.com/forum/thread/730"
+    type: "web discussion"
+    location: "comment of 21:06 on 24 June 2026"
+    relationship: "formalizes"
+    author_endorsement: "not-contacted"
+  - title: "Closing derivation ('Proof Route Mapping') linked as a follow-up, reproducing the algebraic skeleton of the argument; the analytic sections exist only in a private document and are reconstructed in this formalisation"
+    authors: ["Tomodovodoo (forum handle)"]
+    id: "https://chatgpt.com/share/6a3c7e81-cab8-83eb-a247-cd10b62e80fb"
+    type: "web discussion"
+    location: "comment of 01:08 on 25 June 2026, and the linked shared conversation"
+    relationship: "adapts"
+    author_endorsement: "not-contacted"
+  - title: "Bernt Lindström, 'Well distribution of Sidon sets in residue classes', J. Number Theory 69 (1998), 197–200"
+    authors: ["Bernt Lindström"]
+    id: "https://doi.org/10.1006/jnth.1997.2212"
+    type: "paper"
+    location: "the theorem that a Sidon set A with |A| ~ sqrt N is equidistributed in residue classes"
+    relationship: "adapts"
+    author_endorsement: "n/a"
+  - title: "Erdős Problem #154 discussion (erdosproblems.com), including the post presenting Lindström's proof"
+    authors: ["Thomas F. Bloom (site)"]
+    id: "https://www.erdosproblems.com/forum/thread/154#post-4218"
+    type: "web discussion"
+    relationship: "background"
+    author_endorsement: "n/a"
+  - title: "Formal statements of Erdős Problems #730, #154, #94, #399 and #1074 in Formal Conjectures (the objects each Challenge restates)"
+    authors: ["The Formal Conjectures Authors (Google DeepMind)"]
+    id: "https://github.com/google-deepmind/formal-conjectures"
+    type: "other"
+    location: "FormalConjectures/ErdosProblems/{730,154,94,399,1074}.lean"
+    relationship: "background"
+    license: "Apache-2.0"
+    author_endorsement: "n/a"
+
+related_formalizations:
+  - id: "https://github.com/Woett/Lean-files/blob/main/ErdosProblem154.lean"
+    relationship: "builds-on"
+    note: "Lindström's residue-distribution theorem for the Sidon set itself, formalised by Aristotle (Harmonic) and Wouter van Doorn; reproduced as ErdosProblems/Erdos154/Lindstrom.lean with its header, and extended to the sumset statement in ErdosProblems/Erdos154/Sumset.lean. No licence is published upstream; see NOTICE."
+  - id: "https://github.com/AlexKontorovich/PrimeNumberTheoremAnd"
+    relationship: "builds-on"
+    note: "Pinned proof dependency supplying the prime number theorem in arithmetic progressions used by the #730 proof; not in any Challenge's import closure."
+  - id: "https://github.com/google-deepmind/formal-conjectures/pull/664"
+    relationship: "other"
+    note: "AlphaProof's formal witness for the non-consecutive #730 pair (10003, 10005), recorded in Formal Conjectures as erdos_730.variants.delta_ne_one."
+
+classification:
+  arxiv: ["math.NT", "math.CO"]
+  msc2020: ["11B65", "11N13", "11A41", "11B13"]
+
+status:
+  scope: >-
+    Complete, kernel-checked proofs of the results listed under main_results, together with
+    the component lemmas of the #730 development (indexed in proofs.yaml and audited in
+    Audit.lean). Each registry-shaped statement under Palomar/<Problem>/ is one Comparator
+    comparison: a Challenge importing only Mathlib, a Solution delegating to the proof here,
+    and the configuration naming the compared declaration.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
+  main_results:
+    - declaration: "Palomar.Erdos730.erdos_730_infinite"
+      file: "PalomarSolutions/Erdos730.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "Palomar/Erdos730/comparator.json"
+      literature_dependencies: []
+    - declaration: "Palomar.Erdos154.erdos_154_sumset"
+      file: "PalomarSolutions/Erdos154.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "Palomar/Erdos154/comparator.json"
+      literature_dependencies: []
+    - declaration: "Palomar.Erdos94.sum_multiplicity"
+      file: "PalomarSolutions/Erdos94.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "Palomar/Erdos94/comparator.json"
+      literature_dependencies: []
+
+automation:
+  methods:
+    - method: "agent"
+      models: []
+      framework: "Codex and Claude Code agent sessions"
+      tool_setup: >-
+        The #730 development was produced in AI-agent sessions directed and audited by the
+        author, with an exact-arithmetic certificate suite (ErdosProblems/Erdos730/compute/) checking the
+        numerical constants independently of Lean and hostile-audit plans retained under
+        ErdosProblems/Erdos730/plans/. The #94 identity was produced by an OpenAI Codex agent session. The
+        #154 sumset extension was produced in agent sessions over the third-party Lindström
+        formalisation named in related_formalizations. Exact model identifiers and
+        per-session costs were not recorded at the time and are not reconstructed here.
+      prompting_notes: >-
+        The informal #730 argument under formalisation was itself produced by a language
+        model (GPT Pro, per the cited comment); its full text is a private document not
+        linked publicly, so the formalisation was built from the public gist, the linked
+        route mapping, and the author's own reconstruction of the analytic sections
+        (ErdosProblems/Erdos730/compute/audit.md records the audit).
+  spend_usd: "not reconstructed"
+  notes: >-
+    Every tracked theorem is rebuilt and axiom-audited on every push
+    (.github/workflows/verify.yml), and each Palomar configuration is replayed through
+    Comparator in CI with a non-adversarial sandbox stand-in; the registry's own run is
+    the trusted one.
+
+fidelity:
+  divergences: >-
+    #730: none in the statement — the Challenge inlines the Formal Conjectures set verbatim;
+    the proof establishes the stronger consecutive-pair statement, available in the
+    development as Erdos730.FullDensityCore.GoodParameter and the density theorems around
+    it. #154: the Challenge states the sumset form Formal Conjectures records, which is
+    the consequence proved here of Lindström's theorem for A itself, with IsSidon in the
+    Formal Conjectures shape (two representations agree up to order). #94: an elementary
+    bounded identity only; it does not prove the cubic distance-multiplicity theorem or
+    the regular-polygon conjecture of that problem.
+
+review:
+  status: "self-assessed"
+  reviewers: []
+  notes: >-
+    Kernel-checked and axiom-audited in this repository's CI and reproduced from source by
+    the author; no independent human review of the mathematics has been performed, and the
+    informal #730 source argument is itself unadjudicated on erdosproblems.com. The #730
+    statement is submitted to Palomar to obtain the registry's independent dual-kernel
+    Comparator check; #154 waits on the upstream licence of the formalisation it builds
+    on; #94 is below a registry's research-interest floor and is not submitted.
+
+alignment:
+  namespace: "Palomar"
+  statements:
+    - source: "Erdős #730: are there infinitely many n < m with binom(2n,n), binom(2m,m) sharing prime support?"
+      lean: "Palomar.Erdos730.erdos_730_infinite"
+      module: "Palomar.Erdos730.Challenge"
+      status: "proved"
+      note: "Answer yes; proof via Erdos730.FullDensityTheorem.pairSet_infinite."
+    - source: "Erdős #154, sumset form: A + A equidistributed mod m along Sidon sets with |A| ~ sqrt N"
+      lean: "Palomar.Erdos154.erdos_154_sumset"
+      module: "Palomar.Erdos154.Challenge"
+      status: "proved"
+      note: "Proof via Erdos154.erdos_154_sumset, from Lindström's theorem."
+    - source: "Erdős #94, sum_multiplicity variant: multiplicities of distinct distances sum to (|P| choose 2)"
+      lean: "Palomar.Erdos94.sum_multiplicity"
+      module: "Palomar.Erdos94.Challenge"
+      status: "proved"
+      note: "Proof via Erdos94.variants.sum_multiplicity."
+
+acknowledgements: >-
+  Liam Price for the informal #730 argument; Moritz Firsching, Salvatore Mercuri and the
+  AlphaProof team for the computational and formal groundwork recorded on the problem
+  page; Bernt Lindström, Aristotle (Harmonic) and Wouter van Doorn for the #154 lineage;
+  Alex Kontorovich and the PrimeNumberTheoremAnd contributors for the prime number theorem
+  in arithmetic progressions.

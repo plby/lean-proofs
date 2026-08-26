@@ -1,0 +1,14 @@
+{
+  "challenge_module": "Erdos730",
+  "solution_module": "ErdosProblems.Erdos730",
+  "theorem_names": [
+    "Erdos730.erdos_730_consecutive",
+    "Erdos730.erdos_730"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}

@@ -1,0 +1,39 @@
+NOTICE
+
+This repository is MIT licensed (see LICENSE), Copyright (c) 2026 Will Blair.
+That grant covers the material authored here. It does not cover the third-party
+material listed below, which remains the property of its authors.
+
+
+ErdosProblems/Erdos154/Lindstrom.lean
+---------------------------
+
+The Lindström residue-distribution formalisation in this file was written by
+Aristotle (Harmonic) and Wouter van Doorn, and is reproduced from
+https://github.com/Woett/Lean-files/blob/main/ErdosProblem154.lean with its
+original header. That repository publishes no licence; the file is retained
+here with attribution, for `ErdosProblems/Erdos154/Sumset.lean` to build on,
+and is not covered by the MIT licence above. Copyright remains with its
+authors. Until its terms are clarified, results depending on it are not
+submitted to any registry.
+
+
+Problem statements
+------------------
+
+Problem statements and commentary quoted in docstrings, in `proofs.yaml`, and in
+`Palomar/*/Challenge.lean` (`source: erdosproblems`) are from
+https://www.erdosproblems.com, maintained by Thomas Bloom, and are used for
+identification and reference. Formal statements copied verbatim from Google
+DeepMind's Formal Conjectures are Apache-2.0 licensed by the Formal Conjectures
+Authors.
+
+
+Formerly hosted material
+------------------------
+
+The Lean 4 sources under `starfleet/` (Star Fleet Math, Colin Snyder) were
+hosted here with the author's permission through commit
+4f915a323443bfb1709a6805a013812016dca88a and have moved out of this repository.
+They were never covered by the MIT licence above. Commit-pinned links to them
+remain valid.
