@@ -4,7 +4,7 @@ This is a Lean formalization of a solution to Erdős Problem 1148.
 https://www.erdosproblems.com/forum/thread/1148
 
 Formalization status:
-- Conditional on: DukeTheoremStatement
+- Unconditional; the Duke hypothesis is removed using packet entropy and full support.
 
 Informal authors:
 - GPT-5.4 Pro
@@ -23,6 +23,7 @@ URLs:
 - https://github.com/ulamai/ulamai
 -/
 import Mathlib
+import ErdosProblems.Erdos1148.UnconditionalLocalExistence
 
 namespace Erdos1148
 
@@ -93,7 +94,7 @@ def DukeTheoremStatement : Prop :=
 Main Theorem: Assuming Duke's Theorem, every sufficiently large integer n
 can be written as x ^ 2 + y ^ 2 - z ^ 2 with max(x ^ 2, y ^ 2, z ^ 2) <= n.
 -/
-theorem erdos_1148 (h_duke : (∃ N : ℤ, ∀ n : ℤ, n ≥ N →
+theorem erdos_1148_of_duke (h_duke : (∃ N : ℤ, ∀ n : ℤ, n ≥ N →
 ∃ t ∈ Erdos1148.R_star_disc (4 * n),
   Erdos1148.project_to_hyperboloid n t ∈ Erdos1148.Omega_strict ∧
   t.1 % 2 = t.2.2 % 2)) :
@@ -223,9 +224,16 @@ theorem erdos_1148 (h_duke : (∃ N : ℤ, ∀ n : ℤ, n ≥ N →
     rwa [this] at h_bound3
   exact max_le hx_bound (max_le hy_bound hz_bound)
 
+/-- Every sufficiently large integer has a representation with all three squares bounded by it.
+The proof uses unconditional local existence, with no Duke theorem hypothesis. -/
+theorem erdos_1148 :
+    ∃ N : ℤ, ∀ n : ℤ, n ≥ N → ∃ x y z : ℤ,
+      n = x ^ 2 + y ^ 2 - z ^ 2 ∧ max (x ^ 2) (max (y ^ 2) (z ^ 2)) ≤ n :=
+  erdos_1148_of_fixed_ball_existence unconditional_fixed_ball_existence
+
 end Erdos1148
 
 #print axioms Erdos1148.erdos_1148
--- 'Erdos1148.erdos_problem_1148' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos1148.erdos_1148' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 alias _root_.Erdos1148.erdos_problem_1148 := _root_.Erdos1148.erdos_1148
