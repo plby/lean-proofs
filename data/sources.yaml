@@ -6232,6 +6232,21 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos863.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos865
+  epc: https://www.erdosproblems.com/865
+  author:
+    informal:
+      AI: GPT-5.5 Pro
+      human: Ricky Cipollini
+    formal:
+      AI: Aristotle
+      human: Ricky Cipollini
+  arxiv: https://arxiv.org/abs/2606.29361
+  url:
+    - https://www.erdosproblems.com/865#post-7378
+    - https://github.com/mrricky22/erdos-865-lean/tree/54bfae36c1b0384737bc23b18180bdf001816c5d
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos866b
   partial: yes
   epc: https://www.erdosproblems.com/866
