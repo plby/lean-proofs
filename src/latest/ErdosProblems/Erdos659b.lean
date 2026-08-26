@@ -51,9 +51,12 @@ namespace Erdos659b
 
 open Erdos659
 
-/-- The same distance-counting function as in the common geometric development. -/
-noncomputable abbrev distinctDistances (points : Finset ℝ²) : ℕ :=
-  Erdos659.distinctDistances points
+/-- The number of distinct distances between unequal pairs of points. -/
+noncomputable def distinctDistances (points : Finset ℝ²) : ℕ :=
+  (points.offDiag.image fun (pair : ℝ² × ℝ²) => dist pair.1 pair.2).card
+
+private theorem distinctDistances_eq (points : Finset ℝ²) :
+    distinctDistances points = Erdos659.distinctDistances points := rfl
 
 /-- The distance-count estimate with zero excluded, so only the upper-bound
 counting theorem for positive represented values is needed. -/
@@ -181,9 +184,9 @@ theorem erdos_659 : ∃ A : ℕ → Finset ℝ²,
         rw [← hS_card, ← hS_image,
           Finset.card_image_of_injective _ toEuclideanPoint_injective]
       have hdist := hP_local n hn S' hS'_subset hS'_card
-      rw [distinctDistances, ← hS_image, distinctDistances_image_toEuclideanPoint]
+      rw [distinctDistances_eq, ← hS_image, distinctDistances_image_toEuclideanPoint]
       exact hdist
-  · simpa [distinctDistances, distinctDistances_image_toEuclideanPoint] using hP_bigO
+  · simpa only [distinctDistances_eq, distinctDistances_image_toEuclideanPoint] using hP_bigO
 
 #print axioms erdos_659
 -- 'Erdos659b.erdos_659' depends on axioms: [propext, Classical.choice, Quot.sound]
