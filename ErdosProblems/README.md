@@ -62,6 +62,7 @@
 * [Erdős Problem 315](Erdos315.md)
 * [Erdős Problem 316](Erdos316.md)
 * [Erdős Problem 328](Erdos328.md)
+* [Erdős Problem 330](Erdos330.md)
 * [Erdős Problem 331](Erdos331.md)
 * [Erdős Problem 333](Erdos333.md)
 * [Erdős Problem 337](Erdos337.md)

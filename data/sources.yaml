@@ -2424,6 +2424,23 @@
     - https://github.com/AxiomMath/erdos-public/blob/3ccf48c78b9df4aa26e1b2f90058bdd3f61da1ab/Erdos/Erdos328/solution.lean
   version: "4.27.0"
 
+- key: ErdosProblems.Erdos330
+  epc: https://www.erdosproblems.com/330
+  author:
+    informal:
+      AI: GPT-5.5 Pro
+      human: David Turturean
+    formal:
+      AI:
+        - Codex
+        - GPT-5.5 Pro
+      human: Allen Graham Hart
+  url:
+    - https://www.erdosproblems.com/forum/thread/330#post-6271
+    - https://www.erdosproblems.com/forum/thread/330#post-5756
+    - https://github.com/AllenGrahamHart/FormalConjectures-Bench/tree/6160036caab0dcee80395ba3beb7b6ef2731604e/formalizations/erdos330
+  version: "4.27.0"
+
 - key: ErdosProblems.Erdos331
   epc: https://www.erdosproblems.com/331
   author:
