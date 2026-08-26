@@ -407,6 +407,7 @@ import ErdosProblems.Erdos846
 import ErdosProblems.Erdos847
 import ErdosProblems.Erdos848
 import ErdosProblems.Erdos851
+import ErdosProblems.Erdos856b
 import ErdosProblems.Erdos858
 import ErdosProblems.Erdos861
 import ErdosProblems.Erdos862
