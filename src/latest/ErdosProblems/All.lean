@@ -314,6 +314,7 @@ import ErdosProblems.Erdos659
 import ErdosProblems.Erdos659b
 import ErdosProblems.Erdos664
 import ErdosProblems.Erdos666
+import ErdosProblems.Erdos671
 import ErdosProblems.Erdos673
 import ErdosProblems.Erdos674
 import ErdosProblems.Erdos678

@@ -4860,6 +4860,31 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos666.md
   version: "4.24.0"
 
+- key: ErdosProblems.Erdos671
+  epc: https://www.erdosproblems.com/671
+  author:
+    informal:
+      human:
+        - Liam Price
+        - QuietMethod
+      AI:
+        - GPT Pro
+        - GPT-5.5
+        - GPT-5 (Codex)
+    formal:
+      human:
+        - Liam Price
+        - QuietMethod
+      AI:
+        - GPT-5.5
+        - GPT-5 (Codex)
+  url:
+    - https://www.erdosproblems.com/forum/thread/671/proof-claims#proof-claim-61
+    - https://www.erdosproblems.com/forum/thread/671/proof-claims#proof-claim-127
+    - https://quietmethod-erdos671.gintsuta-kobo.chatgpt.site/Erdos671_square_samples.lean
+    - https://quietmethod-erdos671.gintsuta-kobo.chatgpt.site/
+  version: "4.33.0-rc1"
+
 - key: ErdosProblems.Erdos673
   epc: https://www.erdosproblems.com/673
   author:
