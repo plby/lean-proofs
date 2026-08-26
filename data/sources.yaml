@@ -4373,6 +4373,29 @@
     - https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/590.lean
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos593
+  epc: https://www.erdosproblems.com/593
+  author:
+    informal:
+      human:
+        - Eric Li
+        - Samuil Petkov
+      AI:
+        - GPT-5.5 Pro
+        - GPT-5.6 Sol Pro
+    formal:
+      human: Samuil Petkov
+      AI:
+        - GPT-5.6 Pro
+        - Aristotle
+  arxiv: https://arxiv.org/abs/2606.24882
+  url:
+    - https://www.erdosproblems.com/forum/thread/593/proof-claims#proof-claim-54
+    - https://github.com/SamPetkov/Erdos593/tree/bc763cdbe5a1cf971d9cc1c4cff92e41ebb69b3d/formalization
+    - https://github.com/SamPetkov/Erdos593/blob/d834f1f42e7e0d5d2a6c23e9487563bedb1b277b/formalization/PROVENANCE.md
+    - https://github.com/SamPetkov/Erdos593/blob/d834f1f42e7e0d5d2a6c23e9487563bedb1b277b/README.md
+  version: "4.32.0"
+
 - key: ErdosProblems.Erdos594
   epc: https://www.erdosproblems.com/594
   author:

@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: >-
+  If you use material from this repository, please cite Samuil Petkov using
+  the metadata below and also cite Eric Li's prior complete proof,
+  arXiv:2606.24882, where the shared classification and proof architecture are
+  relevant.
+title: "Obligatory Triple Systems: An Alternative Proof and Lean Verification"
+type: article
+authors:
+  - family-names: Petkov
+    given-names: Samuil
+version: 1.2.0
+date-released: 2026-07-21
+url: "https://github.com/SamPetkov/Erdos593"
+repository-code: "https://github.com/SamPetkov/Erdos593"
+license: CC-BY-4.0
+references:
+  - type: article
+    title: "A Resolution of Erdős Problems 593 and 1177: Obligatory Triple Systems and Exact Spectra"
+    authors:
+      - family-names: Li
+        given-names: Eric
+    year: 2026
+    doi: "10.48550/arXiv.2606.24882"
+    url: "https://arxiv.org/abs/2606.24882"
