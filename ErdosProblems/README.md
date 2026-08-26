@@ -69,6 +69,7 @@
 * [Erdős Problem 347](Erdos347.md)
 * [Erdős Problem 350](Erdos350.md)
 * [Erdős Problem 351](Erdos351.md)
+* [Erdős Problem 353](Erdos353.md)
 * [Erdős Problem 355](Erdos355.md)
 * [Erdős Problem 363](Erdos363.md)
 * (part of) [Erdős Problem 367](Erdos367b.md)

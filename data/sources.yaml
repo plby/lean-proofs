@@ -2593,6 +2593,29 @@
     - "4.27.0"
     - "4.28.0"
 
+- key: ErdosProblems.Erdos353
+  epc: https://www.erdosproblems.com/353
+  author:
+    informal:
+      human:
+        - Junnosuke Koizumi
+        - Vjekoslav Kovač
+        - Bruno Predojević
+    formal:
+      AI: Aristotle
+      human: JoshuaB
+  url:
+    - https://www.erdosproblems.com/forum/thread/353#post-7085
+    - https://www.erdosproblems.com/forum/thread/353#post-7095
+    - https://www.erdosproblems.com/forum/thread/353#post-7098
+    - https://arxiv.org/abs/2501.01914
+    - https://arxiv.org/abs/2412.11725
+  url_ref:
+    - JoshuaB_353_koizumi
+    - JoshuaB_353_cyclic
+    - JoshuaB_353_polygon
+  version: "4.28.0"
+
 - key: ErdosProblems.Erdos355
   epc: https://www.erdosproblems.com/355
   author:
