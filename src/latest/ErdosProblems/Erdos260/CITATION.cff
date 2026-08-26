@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: >-
+  If you use this formalization, please cite the accompanying paper.
+title: "Erdős Problem 260 in Lean"
+type: software
+authors:
+  - family-names: Wang
+    given-names: Han
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Wang
+      given-names: Han
+  title: "Positive dyadic density for rational weighted binary expansions"
+  year: 2026
+  collection-title: arXiv
+  version: "2"
+  status: preprint
+  identifiers:
+    - type: doi
+      value: 10.48550/arXiv.2606.24972
+    - type: url
+      value: https://arxiv.org/abs/2606.24972
+  url: https://arxiv.org/abs/2606.24972
+  notes: "Version 2 is forthcoming; upload in progress at repository preparation time."
