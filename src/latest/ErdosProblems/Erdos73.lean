@@ -1,0 +1,335 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+Copyright (c) 2026 Boris Alexeev. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: OpenAI Codex
+-/
+import ErdosProblems.Erdos73.ProperLinkage
+import ErdosProblems.Erdos73.Pregrill
+import ErdosProblems.Erdos73.DegreeRadius
+import ErdosProblems.Erdos73.FiniteAveraging
+import ErdosProblems.Erdos73.RootedPartition
+import ErdosProblems.Erdos73.ProductMinors
+import ErdosProblems.Erdos73.GrillColumns
+import ErdosProblems.Erdos73.FullPregrill
+import ErdosProblems.Erdos73.PregrillHulls
+import ErdosProblems.Erdos73.PregrillConnectors
+import ErdosProblems.Erdos73.PregrillMinor
+import ErdosProblems.Erdos73.NormalizedLinkageDeletion
+import ErdosProblems.Erdos73.ContractLinkage
+import ErdosProblems.Erdos73.ContractAvoidance
+import ErdosProblems.Erdos73.MinimalLinkageGraph
+import ErdosProblems.Erdos73.LinkageDeletion
+import ErdosProblems.Erdos73.BoundaryLinkageDeletion
+import ErdosProblems.Erdos73.SimultaneousLinkage
+import ErdosProblems.Erdos73.SimultaneousRouting
+import ErdosProblems.Erdos73.OrdinaryGrid
+import ErdosProblems.Erdos73.TangleControl
+import ErdosProblems.Erdos73.ControlledGrid
+import ErdosProblems.Erdos73.GridSeparation
+import ErdosProblems.Erdos73.BrickWall
+import ErdosProblems.Erdos73.ThreeArms
+import ErdosProblems.Erdos73.SubcubicSubdivision
+import ErdosProblems.Erdos73.ControlledWall
+import ErdosProblems.Erdos73.OddPathMatchingBarrier
+import ErdosProblems.Erdos73.OddPathBarrierWitness
+import ErdosProblems.Erdos73.OddPathBarrierHitting
+import ErdosProblems.Erdos73.OddTerminalPaths
+import ErdosProblems.Erdos73.RegularSubwalls
+import ErdosProblems.Erdos73.SubdivisionRestriction
+import ErdosProblems.Erdos73.ControlledBalancedWall
+import ErdosProblems.Erdos73.WallTerminalColors
+import ErdosProblems.Erdos73.HavenWallTerminals
+import ErdosProblems.Erdos73.HavenOddPaths
+import ErdosProblems.Erdos73.WallParityPaths
+import ErdosProblems.Erdos73.ParityNetworkExtension
+import ErdosProblems.Erdos73.PathCongestion
+import ErdosProblems.Erdos73.RobustConnectedSupport
+import ErdosProblems.Erdos73.BrickFaces
+import ErdosProblems.Erdos73.SubdividedBrickFaces
+import ErdosProblems.Erdos73.BrickFaceOverlap
+import ErdosProblems.Erdos73.RobustSupportFamilies
+import ErdosProblems.Erdos73.BrickFaceCoverage
+import ErdosProblems.Erdos73.BrickFaceStrips
+import ErdosProblems.Erdos73.BrickStripNetworks
+import ErdosProblems.Erdos73.BrickTerminalCounts
+import ErdosProblems.Erdos73.StripCongestion
+import ErdosProblems.Erdos73.SmallStripSelection
+import ErdosProblems.Erdos73.UnusedTerminalPath
+import ErdosProblems.Erdos73.WallOddTerminalPacking
+import ErdosProblems.Erdos73.BrickStripSelection
+import ErdosProblems.Erdos73.BrickNetworkEdges
+import ErdosProblems.Erdos73.ExactEdgeExtension
+import ErdosProblems.Erdos73.BrickBlockPacking
+import ErdosProblems.Erdos73.BlockBoundaryBranches
+import ErdosProblems.Erdos73.BrickColumnSlice
+import ErdosProblems.Erdos73.BrickSlicePacking
+import ErdosProblems.Erdos73.ControlledWallHandles
+import ErdosProblems.Erdos73.ColumnHandleFamilies
+import ErdosProblems.Erdos73.HandleRowSelection
+import ErdosProblems.Erdos73.SameRowHandleCycles
+import ErdosProblems.Erdos73.LeftHandleCycles
+import ErdosProblems.Erdos73.RightHandleCycles
+import ErdosProblems.Erdos73.ThroughHandleCycles
+import ErdosProblems.Erdos73.HandleFamilySelection
+import ErdosProblems.Erdos73.CrossingHandleExtraction
+import ErdosProblems.Erdos73.ControlledCrossingWall
+import ErdosProblems.Erdos73.MonochromaticRectangle
+import ErdosProblems.Erdos73.MonochromaticTileArms
+import ErdosProblems.Erdos73.SubdivisionModelComposition
+import ErdosProblems.Erdos73.BrickColumnPathsClipped
+import ErdosProblems.Erdos73.BrickTileArray
+import ErdosProblems.Erdos73.TileGapPaths
+import ErdosProblems.Erdos73.TileGapArmIntersection
+import ErdosProblems.Erdos73.TileGridAnchors
+import ErdosProblems.Erdos73.ControlledMonochromaticHandles
+import ErdosProblems.Erdos73.ControlledOddCrossingWall
+import ErdosProblems.Erdos73.TreeExpansion
+import ErdosProblems.Erdos73.SubdivisionOddRouting
+import ErdosProblems.Erdos73.NoncrossingLeftRegions
+import ErdosProblems.Erdos73.NoncrossingRightRegions
+import ErdosProblems.Erdos73.SubdivisionTreeRegions
+import ErdosProblems.Erdos73.SubdivisionIncidenceModel
+import ErdosProblems.Erdos73.EvenTreeCellLinks
+import ErdosProblems.Erdos73.RegionLinkDefect
+import ErdosProblems.Erdos73.AntipodalPortDefect
+import ErdosProblems.Erdos73.UCombPortRegions
+import ErdosProblems.Erdos73.ControlledPortDefect
+import ErdosProblems.Erdos73.QuadrangularFaceSwitch
+import ErdosProblems.Erdos73.NoncrossingFreshInsertion
+import ErdosProblems.Erdos73.TwistedGridCoordinates
+import ErdosProblems.Erdos73.TreeAntipodalWord
+import ErdosProblems.Erdos73.ProjectiveDiagonalTree
+import ErdosProblems.Erdos73.ProjectiveSelectedPorts
+import ErdosProblems.Erdos73.EdgePairRotation
+import ErdosProblems.Erdos73.ProjectiveAcrossFace
+import ErdosProblems.Erdos73.UnconditionalStructural
+import ErdosProblems.Erdos73.PathCutParity
+import ErdosProblems.Erdos73.OrderedThroughPaths
+import ErdosProblems.Erdos73.BrickEdgeCoordinates
+
+/-!
+# Erdős Problem 73
+
+The exact problem and the earlier elementary proofs are in `Foundations`.
+Finite Menger, bramble havens, rooted-tree models, and boundary-proper
+linkages are fully proved in the imported modules, as are controlled wall
+handles and finite crossing/noncrossing routing. The projective-grid
+antipodal construction proves the hereditary-defect obstruction, and
+the high-order bramble induction gives the unconditional result below.
+-/
+
+theorem Erdos73.erdos_73 : Erdos73.Problem73 :=
+  Erdos73.problem73_of_defectHighOrderBramble Erdos73.reedDefectHighOrderBramble
+
+#print axioms Erdos73.erdos_73
+#print axioms Erdos73.reedDefectHighOrderBramble
+#print axioms Erdos73.exists_high_defect_antipodal_word
+#print axioms Erdos73.projectiveRotation_fiber
+#print axioms Erdos73.projectivePair_commutes_contour
+
+#print axioms Erdos73.exists_clean_linkage_in_nested_interval
+#print axioms Erdos73.LeftRootedModel.exists_transport_of_nested
+#print axioms Erdos73.BrambleHaven.saturated_right_properties
+#print axioms Erdos73.BrambleHaven.exists_saturated_treeModel
+#print axioms Erdos73.exists_treeSeparation_properLinked
+#print axioms Erdos73Infrastructure.SimpleGraph.PathSlicing.linkageOrderingOfUnique
+#print axioms Erdos73Infrastructure.SimpleGraph.pregrill_or_avoiding_linkage_of_unique
+#print axioms Erdos73.exists_longPath_or_large_degree
+#print axioms Erdos73.exists_rows_common_half_columns
+#print axioms Erdos73Infrastructure.SimpleGraph.IsMinor.trans
+#print axioms Erdos73.exists_connected_rooted_partition
+#print axioms Erdos73.connectedPartitionGraph_connected
+#print axioms Erdos73.product_has_grid_or_completeBipartite
+#print axioms Erdos73.grill_has_grid_or_completeBipartite
+#print axioms Erdos73.exists_connected_partition_extending
+#print axioms Erdos73Infrastructure.SimpleGraph.Pregrill.exists_fullPregrill
+#print axioms Erdos73Infrastructure.SimpleGraph.FullPregrill.expandedColumn_disjoint
+#print axioms Erdos73Infrastructure.SimpleGraph.FullPregrill.expandedColumn_connected
+#print axioms Erdos73Infrastructure.SimpleGraph.FullPregrill.connector_dropLast_disjoint
+#print axioms Erdos73Infrastructure.SimpleGraph.FullPregrill.exists_column_partition
+#print axioms Erdos73Infrastructure.SimpleGraph.FullPregrill.exists_grillMinor_of_pos
+#print axioms Erdos73.pregrill_has_grid_or_completeBipartite
+#print axioms Erdos73.unique_linkage_avoiding_connected_column
+#print axioms Erdos73Infrastructure.SimpleGraph.TreewidthSparsifier.contractEdgeGraph.isMinor
+#print axioms Erdos73Infrastructure.SimpleGraph.PerfectPathPacking.contractEdge
+#print axioms Erdos73Infrastructure.SimpleGraph.TreewidthSparsifier.exists_lift_avoiding
+#print axioms Erdos73Infrastructure.SimpleGraph.LinkageNormalization.exists_edgeMinimal
+#print axioms Erdos73Infrastructure.SimpleGraph.LinkageNormalization.EdgeMinimal.linkage_edgeSet_eq
+#print axioms Erdos73.perfect_linkage_avoiding_connected_column
+#print axioms Erdos73.linkage_avoiding_connected_column
+#print axioms Erdos73.boundaryProper_linkage_avoiding_path
+#print axioms Erdos73.exists_path_simultaneously_preserving
+#print axioms Erdos73.exists_boundaryProper_disjoint_paths
+#print axioms Erdos73Infrastructure.SimpleGraph.BranchRouting.toMinorModel
+#print axioms Erdos73.bramble_grid_or_completeBipartite
+#print axioms Erdos73.squareGrid_minor_of_bramble
+#print axioms Erdos73.BrambleHaven.boundary_smallSide_card_le
+#print axioms Erdos73.noGridRowInHavenSmallSide_of_column_witnesses
+#print axioms Erdos73.pregrill_has_columnRich_grid_or_bipartite
+#print axioms Erdos73.linkage_avoiding_column_of_no_richGrid
+#print axioms Erdos73.exists_controlled_boundaryProper_disjoint_paths_staysIn
+#print axioms Erdos73.BrambleHaven.exists_grid_with_row_control
+#print axioms Erdos73.exists_haven_and_grid_with_row_control
+#print axioms Erdos73.NoGridRowInHavenSmallSide.pointsTo_iff_contains_row
+#print axioms Erdos73.elementaryWall_degree_le_three
+#print axioms Erdos73Infrastructure.SimpleGraph.exists_disjointArms_of_card_le_three
+#print axioms Erdos73.exists_subdivisionModel_of_subcubic_minor
+#print axioms Erdos73.BrambleHaven.exists_wallSubdivision_with_row_control
+#print axioms Erdos73.exists_disjoint_augmentingPaths
+#print axioms Erdos73.exists_oddTerminalPath_of_augmenting
+#print axioms Erdos73.oddTerminalPacking_of_large_auxMatching
+#print axioms Erdos73.exists_oddPathMatchingBarrier
+#print axioms Erdos73.exists_oddPathBarrierWitness
+#print axioms Erdos73.OddPathBarrierWitness.deletion_card
+#print axioms Erdos73.OddPathBarrierWitness.not_surviving_augmentingPath
+#print axioms Erdos73.exists_augmentingPath_of_oddTerminalPath
+#print axioms Erdos73.odd_terminal_paths_packing_or_covering
+#print axioms Erdos73.elementaryWallCopyOfOffsets
+#print axioms Erdos73.GraphSubdivisionModel.restrictCopy
+#print axioms Erdos73.GraphSubdivisionModel.supportOver_disjoint
+#print axioms Erdos73.BrambleHaven.exists_bipartite_wallSubdivision_with_row_control
+#print axioms Erdos73.BrambleHaven.exists_bipartite_wallSubdivision_with_gridAnchor
+#print axioms Erdos73.GraphSubdivisionModel.connected_supportOver
+#print axioms Erdos73.WallGridAnchor.interiorRow_not_subset_smallSide
+#print axioms Erdos73.exists_monochromatic_row_terminals
+#print axioms Erdos73.WallGridAnchor.row_terminals_meet_region
+#print axioms Erdos73.BrambleHaven.odd_region_of_lowOrderOddSides
+#print axioms Erdos73.IsOddCycleSubgraph.exists_oppositeParity_paths
+#print axioms Erdos73.IsOddCycleSubgraph.exists_oddTerminalPath_of_two_paths
+#print axioms Erdos73.exists_oddCycle_region_separator
+#print axioms Erdos73.BrambleHaven.odd_terminal_paths_or_odd_cycles
+#print axioms Erdos73.exists_parityBreaking_segment
+#print axioms Erdos73.BrambleHaven.exists_controlled_balanced_wall_with_parityBreaking_paths
+#print axioms Erdos73.exists_parityBreaking_network_extension
+#print axioms Erdos73.parityBreaking_paths_packing_or_covering
+#print axioms Erdos73.parityBreaking_packing_of_bounded_congestion
+#print axioms Erdos73.cycle_support_sdiff_connected
+#print axioms Erdos73.DeletionOneConnected.union
+#print axioms Erdos73.elementaryBrickFaceCopy
+#print axioms Erdos73.GraphSubdivisionModel.exists_path_with_walkSupport
+#print axioms Erdos73.GraphSubdivisionModel.exists_cycle_with_walkSupport
+#print axioms Erdos73.brickFaceSupport_deletionOneConnected
+#print axioms Erdos73.brickFaceSupport_horizontal_overlap
+#print axioms Erdos73.brickFaceSupport_diagonal_overlap
+#print axioms Erdos73.deletionOneConnected_biUnion
+#print axioms Erdos73.brickFaceRegion_union_robust
+#print axioms Erdos73.interior_branch_mem_faceRegion_union
+#print axioms Erdos73.brickFaceRowStrip_membership_card_le_two
+#print axioms Erdos73.brickFaceColumnStrip_membership_card_le_two
+#print axioms Erdos73.brickStripNetwork_robust
+#print axioms Erdos73.interior_terminals_outside_available_strips_card
+#print axioms Erdos73.brickStripNetwork_membership_card_le_four
+#print axioms Erdos73.exists_small_brickStripNetwork
+#print axioms Erdos73.exists_unused_terminal_path
+#print axioms Erdos73.BrambleHaven.exists_controlled_balanced_wall_with_odd_terminal_packing
+#print axioms Erdos73.exists_brickStripSelectionState
+#print axioms Erdos73.BrickStripSelectionState.exists_free_block
+#print axioms Erdos73.BrickStripSelectionState.support_congestion_le_five
+#print axioms Erdos73.GraphSubdivisionModel.restrictCopy_actualEdgeGraph_le
+#print axioms Erdos73.brickStripNetwork_robust_of_edges
+#print axioms Erdos73.IsParityBreakingPath.no_edge_in_terminals
+#print axioms Erdos73.exists_exact_edge_network_extension
+#print axioms Erdos73.brickColumnBlock_robust_of_edges
+#print axioms Erdos73.SelectedBrickSegment.exists_breaking_block_path
+#print axioms Erdos73.BrickStripSelectionState.exists_breaking_block_packing
+#print axioms Erdos73.BrickStripSelectionState.block_path_endpoints_on_wall_boundary
+#print axioms Erdos73.BrickStripSelectionState.block_path_endpoints_are_branches
+#print axioms Erdos73.exists_brickFace_at_vertex
+#print axioms Erdos73.exists_brickFace_at_adj
+#print axioms Erdos73.brickWall_actualEdgeGraph_eq_faceUnion
+#print axioms Erdos73.brickColumnSlice_vertexSet
+#print axioms Erdos73.brickColumnSlice_actualEdgeGraph
+#print axioms Erdos73.BrickStripSelectionState.exists_breaking_slice_packing
+#print axioms Erdos73.brickColumnSlice_boundary_column
+#print axioms Erdos73.BrickStripSelectionState.exists_breaking_slice_handles
+#print axioms Erdos73.BrambleHaven.exists_controlled_wall_with_breaking_handles
+#print axioms Erdos73.brickBoundaryRank_injective_on_boundary
+#print axioms Erdos73.exists_pure_endpoint_pairs
+#print axioms Erdos73.ColumnHandleFamily.exists_pure_subfamily
+#print axioms Erdos73.ColumnHandleFamily.exists_row_disjoint_subfamily
+#print axioms Erdos73.GraphSubdivisionModel.exists_horizontal_path
+#print axioms Erdos73.not_bipartite_union_of_parityBreaking
+#print axioms Erdos73.ColumnHandleFamily.oddCyclePacking_of_same_row
+#print axioms Erdos73.exists_brick_column_path
+#print axioms Erdos73.GraphSubdivisionModel.exists_left_hook_path
+#print axioms Erdos73.GraphSubdivisionModel.exists_right_hook_path
+#print axioms Erdos73.ColumnHandleFamily.oddCyclePacking_of_left_series
+#print axioms Erdos73.ColumnHandleFamily.oddCyclePacking_of_left_nested
+#print axioms Erdos73.ColumnHandleFamily.oddCyclePacking_of_right_series
+#print axioms Erdos73.ColumnHandleFamily.oddCyclePacking_of_right_nested
+#print axioms Erdos73.ColumnHandleFamily.oddCyclePacking_of_through_ordered
+#print axioms Erdos73.ColumnHandleFamily.exists_homogeneous_row_disjoint_subfamily
+#print axioms Erdos73.ColumnHandleFamily.oddPacking_or_sameSide_crossing_any_rows
+#print axioms Erdos73.ColumnHandleFamily.oddPacking_or_through_crossing
+#print axioms Erdos73.ColumnHandleFamily.oddPacking_or_crossing_handles
+#print axioms Erdos73.HasOddCyclePacking.mono
+#print axioms Erdos73.BrambleHaven.exists_controlled_crossing_wall_of_order
+#print axioms Erdos73.exists_monochromatic_rectangle
+#print axioms Erdos73.tilePathOfPositions_intersection
+#print axioms Erdos73.wallTileSouthPath
+#print axioms Erdos73.GraphSubdivisionModel.supportOver_inter
+#print axioms Erdos73.GraphSubdivisionModel.compose
+#print axioms Erdos73.exists_brick_column_path_clipped
+#print axioms Erdos73.wallTileArm_intersection
+#print axioms Erdos73.BrickTileArray.arms_disjoint_of_ne
+#print axioms Erdos73.BrickTileArray.arms_intersection
+#print axioms Erdos73.BrickTileArray.horizontalGap_disjoint_verticalGap
+#print axioms Erdos73.BrickTileArray.exists_horizontal_gap_path
+#print axioms Erdos73.BrickTileArray.exists_vertical_gap_path
+#print axioms Erdos73.BrickTileArray.horizontalGap_arm_endpoint
+#print axioms Erdos73.BrickTileArray.verticalGap_arm_endpoint
+#print axioms Erdos73.brickEdgeCode_injective
+#print axioms Erdos73.BrickTileArray.edgeGap_disjoint
+#print axioms Erdos73.BrickTileArray.edgeGap_arm_endpoint
+#print axioms Erdos73.BrickTileArray.toSubdivisionModel
+#print axioms Erdos73.exists_monochromatic_tileArray
+#print axioms Erdos73.WallGridAnchor.exists_monochromatic_subwall
+#print axioms Erdos73.GraphSubdivisionModel.even_edgePaths_of_monochromaticBranches
+#print axioms Erdos73.WallGridAnchor.exists_wall_with_odd_handles
+#print axioms Erdos73.ColumnHandleFamily.odd_paths_of_monochromaticBranches
+#print axioms Erdos73.BrambleHaven.exists_controlled_odd_crossing_wall_of_order
+#print axioms Erdos73.treeIncidence_isIndepSet_card_le
+#print axioms Erdos73.treeExpansion_full_defect
+#print axioms Erdos73.GraphSubdivisionModel.hasIndependenceDefectAtLeast_of_odd
+#print axioms Erdos73.NoncrossingPortWord.interval_cases
+#print axioms Erdos73.exists_disjoint_noncrossing_left_regions
+#print axioms Erdos73.brickWallRotation
+#print axioms Erdos73.exists_disjoint_noncrossing_right_regions
+#print axioms Erdos73.GraphSubdivisionModel.exists_even_tree_region
+#print axioms Erdos73.GraphSubdivisionModel.incidenceSubdivisionModel
+#print axioms Erdos73.GraphSubdivisionModel.incidencePath_odd
+#print axioms Erdos73.EdgePathRealization.toSubdivisionModel
+#print axioms Erdos73.TreeCellLinks.hasIndependenceDefectAtLeast
+#print axioms Erdos73.EvenTreeCellLinks.hasIndependenceDefectAtLeast
+#print axioms Erdos73.hasIndependenceDefectAtLeast_of_regions_and_links
+#print axioms Erdos73.antipodalEdgeIndex_injective
+#print axioms Erdos73.hasIndependenceDefectAtLeast_of_left_antipodal_word
+#print axioms Erdos73.hasIndependenceDefectAtLeast_of_right_antipodal_word
+#print axioms Erdos73.rectangularUComb_disjoint_series
+#print axioms Erdos73.rectangularUComb_disjoint_nested
+#print axioms Erdos73.portWordUComb_disjoint
+#print axioms Erdos73.nail_mem_portWordUComb
+#print axioms Erdos73.exists_brick_bottom_u_path
+#print axioms Erdos73.exists_disjoint_noncrossing_boundary_regions
+#print axioms Erdos73.hasIndependenceDefectAtLeast_of_boundary_antipodal_word
+#print axioms Erdos73.ColumnHandleFamily.exists_ordered_avoiding_bottom
+#print axioms Erdos73.ColumnHandleFamily.defect_of_crossing_handles
+#print axioms Erdos73.BrambleHaven.defect_of_antipodal_port_word
+#print axioms Erdos73.free_involution_commuting_finRotate
+#print axioms Erdos73.faceSwitch_commutes_with_edge_pairing
+#print axioms Erdos73.NoncrossingPortWord.insert_fresh_block
+#print axioms Erdos73.twistedGridGraph_le_coordinateGraph
+#print axioms Erdos73.TreeSwitchSystem.contour_isCycleOn
+#print axioms Erdos73.TreeSwitchSystem.contour_word_noncrossing
+#print axioms Erdos73.TreeSwitchSystem.exists_noncrossing_antipodal_word
+#print axioms Erdos73.projectiveDiagonal_isTree
+#print axioms Erdos73.projectiveDiagonalEdge_bijective
+#print axioms Erdos73.projectiveFaceCorner_injective
+#print axioms Erdos73.projectivePortSwitch_port_unique
+#print axioms Erdos73.exists_quadrangular_rotation
+#print axioms Erdos73.projectiveAlphaPair_injective
+#print axioms Erdos73.GraphPath.odd_parts_of_even_path_odd_cut
+#print axioms Erdos73.exists_disjoint_ordered_through_paths
+#print axioms Erdos73.orderedThroughRegion_left_boundary
+#print axioms Erdos73.orderedThroughRegion_right_boundary
