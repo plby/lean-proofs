@@ -54,7 +54,7 @@ References:
 open Filter Real
 
 /-- `g ≫ h` means that `h` is big-O of `g` at infinity. -/
-notation:50 g " ≫ " h => Asymptotics.IsBigO Filter.atTop h g
+local notation:50 g " ≫ " h => Asymptotics.IsBigO Filter.atTop h g
 
 namespace Erdos166
 

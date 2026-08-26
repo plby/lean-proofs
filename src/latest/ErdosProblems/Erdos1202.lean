@@ -17,14 +17,6 @@ URLs:
 import BoundedGaps.PrimeNumberTheorem.Analytic.PrimeCounting
 import Mathlib
 
-/- The local verification cache for `BoundedGaps` was produced by Lake and
-records this generated name for the standard order on `ℕ`.  Re-exporting the
-same reducible instance name keeps that cache compatible; a clean Lake build
-reduces it to the ordinary `Nat` partial order. -/
-namespace Nat
-abbrev «instPartialOrder_.lake» : PartialOrder ℕ := inferInstance
-end Nat
-
 /-!
 # Erdős Problem 1202
 

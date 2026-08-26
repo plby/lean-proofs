@@ -29,7 +29,7 @@ stronger explicit exponent `c = 2s - 4`.
 open Real Filter
 
 /-- `g ≫ h` means that `h` is big-O of `g` at infinity. -/
-notation:50 g " ≫ " h => Asymptotics.IsBigO Filter.atTop h g
+local notation:50 g " ≫ " h => Asymptotics.IsBigO Filter.atTop h g
 
 namespace Erdos986
 

@@ -1,5 +1,5 @@
-import ErdosProblems.Erdos980.External.CebotarevDensity.ForMathlib.IdealCongruenceCount
-import ErdosProblems.Erdos980.External.CebotarevDensity.NumberFieldEulerProduct
+import CebotarevDensity.ForMathlib.IdealCongruenceCount
+import CebotarevDensity.NumberFieldEulerProduct
 import Mathlib.NumberTheory.NumberField.Ideal.Asymptotics
 
 /-!

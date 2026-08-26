@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 
-import ErdosProblems.Erdos980.External.CebotarevDensity.ForMathlib.IdealCongruenceCount
+import CebotarevDensity.ForMathlib.IdealCongruenceCount
 
 /-!
 # Uniform congruence-cell counts for canonical number-field generators
