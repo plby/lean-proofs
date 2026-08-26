@@ -6418,6 +6418,24 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos882.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos884
+  epc: https://www.erdosproblems.com/884
+  author:
+    informal:
+      human:
+        - Daniel Larsen
+        - Terence Tao
+    statement: Formal Conjectures authors
+    formal:
+      AI: Claude Fable 5
+      human: R. J. Honicky
+  url:
+    - https://www.erdosproblems.com/884#post-7362
+    - https://github.com/honicky/erdos884/tree/323e9a01306df1e094b434beaa48c018370fe258
+    - https://github.com/Larsen-Daniel/Erdos-884/blob/main/884.pdf
+    - https://terrytao.wordpress.com/wp-content/uploads/2025/09/erdos-884.pdf
+  version: "4.31.0"
+
 - key: ErdosProblems.Erdos888
   epc: https://www.erdosproblems.com/888
   author:
