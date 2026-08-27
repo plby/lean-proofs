@@ -10,12 +10,15 @@ import ErdosProblems.Erdos745.TreeMoments
 import ErdosProblems.Erdos745.CriticalLower
 import ErdosProblems.Erdos745.CriticalUpper
 import ErdosProblems.Erdos745.MacroscopicUniqueness
+import ErdosProblems.Erdos745.Noncritical
 
 /-!
 # Erdős Problem 745
 
-The two parameter regimes are kept separate: the KSS logarithmic conclusion
-uses a fixed parameter `λ > 1`, whereas `λ = 1` has scale `n^(2/3)`.
+For every fixed positive `λ ≠ 1`, the second-largest component has logarithmic
+size, with leading coefficient `(λ - 1 - log λ)⁻¹`. At `λ = 1`, its size is
+`Θ_P(n^(2/3))`. The critical constants depend on the probability tolerance;
+the noncritical logarithmic constants are fixed as `n` tends to infinity.
 -/
 
 namespace Erdos745
@@ -48,6 +51,32 @@ theorem erdos745_critical :
 /-- Both parameter regimes in the corrected resolution of Erdős Problem 745. -/
 theorem erdos745 : KSSLogarithmicStatement ∧ CriticalSecondLargestScaling :=
   ⟨kss_logarithmic, critical_secondLargest_scaling⟩
+
+/-- The exact first-order law on both sides of the phase transition, with no
+assumptions supplying random-graph estimates. The parameter is fixed in `n`. -/
+theorem erdos745_noncritical_asymptotic (lam : ℝ) (hlam : 0 < lam) (hne : lam ≠ 1) :
+    ∀ ε : ℝ, 0 < ε → Filter.Tendsto (fun n : ℕ ↦ probability lam n (fun G ↦
+      |(secondLargestComponentOrder G : ℝ) / Real.log (n : ℝ) -
+        1 / (lam - 1 - Real.log lam)| < ε)) Filter.atTop (𝓝 1) := by
+  intro ε hε
+  simpa only [WithHighProbabilityAt, secondOrder, logarithmicConstant,
+    logarithmicDecay, one_div] using noncritical_logarithmic_asymptotic lam hlam hne ε hε
+
+/-- For any fixed positive noncritical density, one fixed pair of positive
+logarithmic bounds holds with probability tending to one. -/
+theorem erdos745_noncritical (lam : ℝ) (hlam : 0 < lam) (hne : lam ≠ 1) :
+    ∃ c C : ℝ, 0 < c ∧ c < C ∧ Filter.Tendsto (fun n : ℕ ↦ probability lam n (fun G ↦
+      c * Real.log (n : ℝ) ≤ (secondLargestComponentOrder G : ℝ) ∧
+        (secondLargestComponentOrder G : ℝ) ≤ C * Real.log (n : ℝ))) Filter.atTop (𝓝 1) := by
+  simpa only [WithHighProbabilityAt, secondOrder] using noncritical_logarithmic_scaling lam hlam hne
+
+/-- The unconditional noncritical logarithmic law and critical scaling theorem,
+including the sharper leading coefficient in the noncritical regime. -/
+theorem erdos745_all_parameters :
+    NoncriticalLogarithmicAsymptotic ∧ NoncriticalLogarithmicScaling ∧
+      CriticalSecondLargestScaling :=
+  ⟨noncritical_logarithmic_asymptotic, noncritical_logarithmic_scaling,
+    critical_secondLargest_scaling⟩
 
 /-- The logarithmic second-component bound belongs to the supercritical
 regime `lam > 1`, not to the critical graph `G(n, 1 / n)`. -/

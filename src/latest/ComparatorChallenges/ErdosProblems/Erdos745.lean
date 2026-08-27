@@ -58,4 +58,16 @@ theorem erdos_745 :
           (secondLargestComponentOrder G : ℝ) ≤ C * (n : ℝ) ^ (2 / 3 : ℝ)) := by
   sorry
 
+theorem erdos745_noncritical_asymptotic (lam : ℝ) (hlam : 0 < lam) (hne : lam ≠ 1) :
+    ∀ ε : ℝ, 0 < ε → Filter.Tendsto (fun n : ℕ ↦ probability lam n (fun G ↦
+      |(secondLargestComponentOrder G : ℝ) / Real.log (n : ℝ) -
+        1 / (lam - 1 - Real.log lam)| < ε)) Filter.atTop (𝓝 1) := by
+  sorry
+
+theorem erdos745_noncritical (lam : ℝ) (hlam : 0 < lam) (hne : lam ≠ 1) :
+    ∃ c C : ℝ, 0 < c ∧ c < C ∧ Filter.Tendsto (fun n : ℕ ↦ probability lam n (fun G ↦
+      c * Real.log (n : ℝ) ≤ (secondLargestComponentOrder G : ℝ) ∧
+        (secondLargestComponentOrder G : ℝ) ≤ C * Real.log (n : ℝ))) Filter.atTop (𝓝 1) := by
+  sorry
+
 end Erdos745

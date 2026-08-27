@@ -18,11 +18,12 @@ def MacroscopicUniqueness (lam : ℝ) : Prop :=
   ∀ δ : ℝ, 0 < δ →
     Tendsto (fun n ↦ probability lam n (fun G ↦ δ * (n : ℝ) < secondOrder n G)) atTop (𝓝 0)
 
-theorem logarithmic_upper_of_macroscopic_uniqueness {lam : ℝ} (hlam : 1 < lam)
+theorem logarithmic_upper_of_macroscopic_uniqueness_of_ne_one {lam : ℝ}
+    (hlam : 0 < lam) (hne : lam ≠ 1)
     (hmacro : MacroscopicUniqueness lam) {A : ℝ} (hA : logarithmicConstant lam < A) :
     WithHighProbabilityAt lam (fun n G ↦ secondOrder n G ≤ A * Real.log (n : ℝ)) := by
-  obtain ⟨δ, hδ, hmiddle⟩ := exists_no_intermediate_components hlam hA
-  have hA0 : 0 < A := (logarithmicConstant_pos hlam).trans hA
+  obtain ⟨δ, hδ, hmiddle⟩ := exists_no_intermediate_components_of_ne_one hlam hne hA
+  have hA0 : 0 < A := (logarithmicConstant_pos_of_ne_one hlam hne).trans hA
   have hbad : Tendsto
       (fun n ↦ probability lam n (fun G ↦ A * Real.log (n : ℝ) < secondOrder n G))
       atTop (𝓝 0) := by
@@ -51,5 +52,10 @@ theorem logarithmic_upper_of_macroscopic_uniqueness {lam : ℝ} (hlam : 1 < lam)
   unfold WithHighProbabilityAt
   simp_rw [hcompl]
   simpa only [sub_zero] using (tendsto_const_nhds (x := (1 : ℝ))).sub hbad
+
+theorem logarithmic_upper_of_macroscopic_uniqueness {lam : ℝ} (hlam : 1 < lam)
+    (hmacro : MacroscopicUniqueness lam) {A : ℝ} (hA : logarithmicConstant lam < A) :
+    WithHighProbabilityAt lam (fun n G ↦ secondOrder n G ≤ A * Real.log (n : ℝ)) :=
+  logarithmic_upper_of_macroscopic_uniqueness_of_ne_one (by linarith) (ne_of_gt hlam) hmacro hA
 
 end Erdos745

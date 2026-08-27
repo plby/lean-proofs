@@ -117,13 +117,13 @@ theorem tendsto_logarithmic_error_zero {lam β A : ℝ} (hAβ : 1 < A * β) :
 
 /-- Above any coefficient larger than the KSS constant, some linear cutoff
 separates logarithmic components from possible macroscopic ones. -/
-theorem exists_no_intermediate_components {lam A : ℝ} (hlam : 1 < lam)
+theorem exists_no_intermediate_components_of_ne_one {lam A : ℝ}
+    (hlam0 : 0 < lam) (hne : lam ≠ 1)
     (hA : logarithmicConstant lam < A) :
     ∃ δ : ℝ, 0 < δ ∧
       Tendsto (fun n ↦ probability lam n (IntermediateComponent n A δ)) atTop (𝓝 0) := by
-  have hlam0 : 0 < lam := by linarith
-  have hα : 0 < logarithmicDecay lam := logarithmicDecay_pos hlam0 (ne_of_gt hlam)
-  have hA0 : 0 < A := (logarithmicConstant_pos hlam).trans hA
+  have hα : 0 < logarithmicDecay lam := logarithmicDecay_pos hlam0 hne
+  have hA0 : 0 < A := (logarithmicConstant_pos_of_ne_one hlam0 hne).trans hA
   have hAα : 1 < A * logarithmicDecay lam := by
     apply (div_lt_iff₀ hα).mp
     simpa only [logarithmicConstant, one_div] using hA
@@ -147,6 +147,12 @@ theorem exists_no_intermediate_components {lam A : ℝ} (hlam : 1 < lam)
   filter_upwards [eventually_ge_atTop 1,
     tendsto_natCast_atTop_atTop.eventually_ge_atTop lam] with n hn hlamn
   exact probability_intermediate_le (by omega) hlam0 hlamn hA0.le hβ
+
+theorem exists_no_intermediate_components {lam A : ℝ} (hlam : 1 < lam)
+    (hA : logarithmicConstant lam < A) :
+    ∃ δ : ℝ, 0 < δ ∧
+      Tendsto (fun n ↦ probability lam n (IntermediateComponent n A δ)) atTop (𝓝 0) :=
+  exists_no_intermediate_components_of_ne_one (by linarith) (ne_of_gt hlam) hA
 
 end
 

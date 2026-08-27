@@ -143,6 +143,10 @@ theorem logarithmicDecay_pos {lam : ℝ} (hlam : 0 < lam) (hne : lam ≠ 1) :
 /-- The leading constant in the KSS logarithmic asymptotic. -/
 noncomputable def logarithmicConstant (lam : ℝ) : ℝ := (logarithmicDecay lam)⁻¹
 
+theorem logarithmicConstant_pos_of_ne_one {lam : ℝ} (hlam : 0 < lam) (hne : lam ≠ 1) :
+    0 < logarithmicConstant lam :=
+  inv_pos.mpr (logarithmicDecay_pos hlam hne)
+
 theorem logarithmicConstant_pos {lam : ℝ} (hlam : 1 < lam) :
     0 < logarithmicConstant lam :=
   inv_pos.mpr (logarithmicDecay_pos (zero_lt_one.trans hlam) (ne_of_gt hlam))

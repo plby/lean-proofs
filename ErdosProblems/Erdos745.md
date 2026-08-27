@@ -1,6 +1,9 @@
 This is a formalized proof of [Erdős Problem 745](https://www.erdosproblems.com/forum/thread/745).
 
-At the critical edge probability `1 / n`, the second-largest component has order `n^(2/3)` in probability. The development also proves the separate logarithmic bound in the supercritical regime `λ > 1`.
+At the critical edge probability `1 / n`, the second-largest component has order
+`n^(2/3)` in probability. For every fixed `λ > 0` with `λ ≠ 1`, it has
+logarithmic order with exact leading coefficient `(λ - 1 - log λ)⁻¹`, covering
+both subcritical and supercritical random graphs.
 
 It is available for these Mathlib (and Lean) versions:
 

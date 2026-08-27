@@ -26,3 +26,16 @@ import ErdosProblems.Erdos745.SmallComponentVertices
 #print axioms Erdos745.kss_logarithmic
 #print axioms Erdos745.erdos745_supercritical
 #print axioms Erdos745.erdos745
+#print axioms Erdos745.treeCount_factorial_le
+#print axioms Erdos745.tendsto_inverse_treeMean_log
+#print axioms Erdos745.noncritical_logarithmic_lower
+#print axioms Erdos745.subcritical_root_mean_le
+#print axioms Erdos745.subcritical_secondLargest_tail
+#print axioms Erdos745.subcritical_macroscopic_uniqueness
+#print axioms Erdos745.subcritical_logarithmic_upper
+#print axioms Erdos745.noncritical_logarithmic_asymptotic
+#print axioms Erdos745.noncritical_logarithmic_scaling
+#print axioms Erdos745.kss_logarithmic_asymptotic
+#print axioms Erdos745.erdos745_noncritical_asymptotic
+#print axioms Erdos745.erdos745_noncritical
+#print axioms Erdos745.erdos745_all_parameters
