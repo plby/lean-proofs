@@ -103,9 +103,10 @@ import ErdosProblems.Erdos4b.SourceUnboundedProfiles
 import ErdosProblems.Erdos4b.SourceUnconditionalDyadicCovers
 import ErdosProblems.Erdos4b.RankinMonotonicity
 import ErdosProblems.Erdos4b.RankinDyadicEndpoint
+import ErdosProblems.Erdos4b.FGKMTIndexGap
 
 /-!
-# Erdős Problem 4: unbounded Rankin-scale prime gaps
+# Erdős Problem 4: unbounded Rankin constants and the stronger FGKMT18 bound
 
 The proof constructs smooth profiles with unbounded variational quotient,
 uses them in the proved sieve and finite probability covering argument,
@@ -113,6 +114,10 @@ and transfers the resulting covers to the exact prime-index inequality.
 
 The definition `Erdos4For` in `Base.lean` is the literal statement, with
 zero-indexed `Nat.nth Nat.Prime` and real subtraction and logarithms.
+
+The growing-dimensional sieve and finite hypergraph covering argument also
+give the stronger FGKMT18 maximal-gap bound, with a single third logarithm
+in the denominator, and its exact infinite prime-index corollary below.
 -/
 
 namespace Erdos4b
@@ -151,6 +156,31 @@ theorem erdos_4 (C : ℝ) (hC : 0 < C) :
         (Real.log (Real.log (Real.log n))) ^ 2 * Real.log n}.Infinite := by
   simpa [Erdos4For] using erdos4For_pos C hC
 
+/-- The stronger FGKMT18 bound holds below every sufficiently large real endpoint.
+Both consecutive primes, including the right-hand prime, lie below that endpoint. -/
+theorem fgkmt18 :
+    ∃ c : ℝ, 0 < c ∧ ∃ X₀ : ℝ, ∀ X : ℝ, X₀ ≤ X → ∃ n : ℕ,
+      (Nat.nth Nat.Prime (n + 1) : ℝ) ≤ X ∧
+      c * Real.log X * Real.log (Real.log X) *
+        Real.log (Real.log (Real.log (Real.log X))) / Real.log (Real.log (Real.log X)) ≤
+          (Nat.nth Nat.Prime (n + 1) : ℝ) - Nat.nth Nat.Prime n := by
+  obtain ⟨c, hc, hgap⟩ := FGKMT.exists_eventual_maximal_gap
+  obtain ⟨X₀, hX₀⟩ := eventually_atTop.mp hgap
+  refine ⟨c, hc, X₀, ?_⟩
+  intro X hX
+  simpa only [fgkmtScale, mul_div_assoc, mul_assoc] using hX₀ X hX
+
+/-- Infinitely many indices satisfy the stronger bound with a single third-logarithm
+factor in the denominator. -/
+theorem fgkmt18_index :
+    ∃ c : ℝ, 0 < c ∧
+      {n : ℕ | (Nat.nth Nat.Prime (n + 1) : ℝ) - Nat.nth Nat.Prime n >
+        c * Real.log (Real.log (n : ℝ)) * Real.log (Real.log (Real.log (Real.log (n : ℝ)))) /
+          Real.log (Real.log (Real.log (n : ℝ))) * Real.log (n : ℝ)}.Infinite := by
+  simpa only [StrongErdos4For, strongThreshold] using FGKMT.exists_strong_index_gaps
+
 end Erdos4b
 
 #print axioms Erdos4b.erdos_4
+#print axioms Erdos4b.fgkmt18
+#print axioms Erdos4b.fgkmt18_index
