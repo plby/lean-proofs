@@ -4,7 +4,8 @@
   "theorem_names": [
     "Erdos4.erdos_4",
     "Erdos4.fgkmt18",
-    "Erdos4.fgkmt18_forall_ge"
+    "Erdos4.fgkmt18_forall_ge",
+    "Erdos4.Tilted.all_endpoint_consecutive_prime_gaps"
   ],
   "permitted_axioms": [
     "propext",

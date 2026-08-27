@@ -24,6 +24,7 @@ import ErdosProblems.Erdos4.PrimeExposure
 import ErdosProblems.Erdos4.OuterCover
 import ErdosProblems.Erdos4.OuterThreshold
 import ErdosProblems.Erdos4.FGKMTAllEndpoints
+import ErdosProblems.Erdos4Tilted
 
 /-!
 # Erdős Problem 4: large prime gaps at the FGKMT18 scale

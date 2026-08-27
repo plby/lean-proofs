@@ -26,4 +26,12 @@ theorem fgkmt18_forall_ge :
           (Nat.nth Nat.Prime (n + 1) : ℝ) - Nat.nth Nat.Prime n := by
   sorry
 
+theorem Tilted.all_endpoint_consecutive_prime_gaps :
+    ∃ c T₀ : ℝ, 0 < c ∧ ∀ T : ℝ, T₀ ≤ T → ∃ n : ℕ,
+      (Nat.nth Nat.Prime (n + 1) : ℝ) ≤ T ∧
+      c * Real.log T * Real.log (Real.log T) /
+        Real.log (Real.log (Real.log (Real.log T))) ≤
+          (Nat.nth Nat.Prime (n + 1) : ℝ) - Nat.nth Nat.Prime n := by
+  sorry
+
 end Erdos4
