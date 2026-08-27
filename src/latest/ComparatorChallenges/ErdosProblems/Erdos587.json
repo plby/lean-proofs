@@ -4,6 +4,7 @@
   "theorem_names": [
     "Erdos587.erdos_587.variants.lower_bound",
     "Erdos587.erdos_587.variants.nguyen_vu",
+    "Erdos587.erdos_587.variants.loglog_upper_bound",
     "Erdos587.erdos_587"
   ],
   "permitted_axioms": [

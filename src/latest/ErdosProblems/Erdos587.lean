@@ -198,6 +198,7 @@ import ErdosProblems.Erdos587.PrescribedRank
 import ErdosProblems.Erdos587.MultiscaleSubsetProgression
 import ErdosProblems.Erdos587.SubgroupStableMultiscale
 import ErdosProblems.Erdos587.AsymptoticBounds
+import ErdosProblems.Erdos587.HooleyUpperBound
 
 /-!
 # Erdős Problem 587: unconditional bounds for square-free subset sums
@@ -209,6 +210,8 @@ nonempty square subset sum, this development proves the results of
 * `Erdos587.lower_bound`: `N^(1/3)/4 ≤ MaxNotSqSum N` for `N ≥ 64`.
 * `Erdos587.unconditional_nguyen_vu`: an eventual upper bound
   `MaxNotSqSum N ≤ K * N^(1/3) * (log N)^O`, for absolute positive constants.
+* `Erdos587.unconditional_loglog_upper_bound`: the stronger eventual bound
+  `MaxNotSqSum N ≤ K * N^(1/3) * max(1, log(log N))^16`.
 * `Erdos587.upper_bound`: the same bound with an explicit existential
   natural threshold rather than filter notation.
 * `Erdos587.subpolynomial_upper_bound`: the weaker exponential-logarithmic
@@ -232,6 +235,14 @@ progression with retained side lengths, cardinality, and fixed base/span ratio.
 `DyadicSquareForcing.lean`, `DyadicSurplus.lean`, and
 `UnconditionalUpperBound.lean` select all numerical parameters and finish
 without structural or analytic hypotheses.
+
+The independent log-log reconstruction is completed in `HooleyUpperBound.lean`.
+It proves a sufficient harmonic Hooley-Delta mean, transfers it through the
+quadratic square locator, and constructs full-width homogeneous subset-sum
+progressions with only constant-fraction loss. `HooleyIntervalExtraction.lean`
+chooses the geometric parameters uniformly; `HooleyFinalForcing.lean` supplies
+the final cubic surplus. See `tex/erdos587/LOGLOG_RECONSTRUCTION.md`, Section 11,
+for the checked route and its differences from the original informal proof.
 
 No `sorry`, added axiom, or computational-limit override occurs in these
 Erdos587 sources. The pinned Hasse dependency's Mathlib API compatibility
@@ -272,6 +283,13 @@ theorem erdos_587.variants.nguyen_vu : ∃ᵉ (O > 0) (O' > 0),
       (MaxNotSqSum N : ℝ) ≤
         O' * (N : ℝ) ^ (1 / 3 : ℝ) * (N : ℝ).log ^ O := by
   simpa only [NguyenVuBound, nthRoot_three_natCast, one_div] using nguyenVuBound
+
+/-- An eventual upper bound of the form $N^{1/3} \max(1,\log\log N)^{16}$. -/
+theorem erdos_587.variants.loglog_upper_bound :
+    ∃ K : ℝ, 0 < K ∧ ∀ᶠ N : ℕ in Filter.atTop,
+      (MaxNotSqSum N : ℝ) ≤ K * (N : ℝ) ^ (1 / 3 : ℝ) *
+        (max 1 (Real.log (Real.log (N : ℝ)))) ^ 16 := by
+  exact unconditional_loglog_upper_bound
 
 /-- Growth $N^{1/3+o(1)}$, expressed by eventual bounds for every positive $\varepsilon$. -/
 theorem erdos_587 (ε : ℝ) (hε : 0 < ε) :

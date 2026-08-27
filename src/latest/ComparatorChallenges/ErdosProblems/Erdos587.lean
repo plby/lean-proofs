@@ -25,6 +25,13 @@ theorem erdos_587.variants.nguyen_vu : ∃ᵉ (O > 0) (O' > 0),
         O' * (N : ℝ) ^ (1 / 3 : ℝ) * (N : ℝ).log ^ O := by
   sorry
 
+/-- An eventual upper bound of the form $N^{1/3} \max(1,\log\log N)^{16}$. -/
+theorem erdos_587.variants.loglog_upper_bound :
+    ∃ K : ℝ, 0 < K ∧ ∀ᶠ N : ℕ in Filter.atTop,
+      (MaxNotSqSum N : ℝ) ≤ K * (N : ℝ) ^ (1 / 3 : ℝ) *
+        (max 1 (Real.log (Real.log (N : ℝ)))) ^ 16 := by
+  sorry
+
 /-- Growth $N^{1/3+o(1)}$, expressed by eventual bounds for every positive $\varepsilon$. -/
 theorem erdos_587 (ε : ℝ) (hε : 0 < ε) :
     ∀ᶠ N : ℕ in Filter.atTop,
