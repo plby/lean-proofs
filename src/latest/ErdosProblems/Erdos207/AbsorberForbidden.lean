@@ -64,20 +64,6 @@ lemma mem_absorberErdosForbiddenConfigurationsOn_iff
   rw [nonempty_iff_ne_empty]
   aesop
 
-/-- Every member of the KSSS absorber-relative forbidden family is itself
-a partial Steiner system.  The defining packing is inherited by its outside
-part after the bank triangles are removed. -/
-lemma isPackingOn_of_mem_absorberErdosForbiddenConfigurationsOn
-    {V : Type*} [Fintype V] [DecidableEq V]
-    {q : ℕ} {B C : TripleSystemOn V}
-    (hC : C ∈ absorberErdosForbiddenConfigurationsOn q B) :
-    IsPackingOn C := by
-  obtain ⟨_hne, _r, _hr4, _hrq, E, _hE, hpacking, hEB⟩ :=
-    mem_absorberErdosForbiddenConfigurationsOn_iff.mp hC
-  apply hpacking.mono
-  rw [← hEB]
-  exact sdiff_subset
-
 /-- If an outside triangle does not belong to the bank, membership in a
 union with a bank subfamily forces membership in the outside family. -/
 lemma mem_left_of_mem_union_bank

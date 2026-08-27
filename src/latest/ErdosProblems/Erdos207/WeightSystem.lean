@@ -103,10 +103,10 @@ lemma setWeight_union_eq_mul_sdiff
   unfold setWeight
   rw [← union_sdiff_self_eq_union, Finset.prod_union disjoint_sdiff]
 
-/-- One step of the tuple-weight recursion, with the deliberately coarse
-`2 ^ |U|` count of possible intersections.  Since `d` and the moment order
-are fixed in KSSS, this is as sufficient asymptotically as their sharper
-`(dt)^d` count. -/
+/-- One step of the tuple-weight recursion with a coarse `2 ^ |U|` count.
+This is useful at fixed moment order. KSSS also uses growing moment orders;
+those applications require the bounded-intersection refinement in
+`BoundedIntersectionMoment.lean`. -/
 lemma sum_weight_union_le
     {W I : Type*} [DecidableEq W] [Fintype I]
     (F : I → Finset W) (π : W → ℝ≥0) (U : Finset W) {κ : ℝ≥0}
@@ -166,9 +166,9 @@ lemma card_tupleUnion_le {W I : Type*} [DecidableEq W] [Fintype I]
     _ ≤ ∑ _t : Fin s, d := Finset.sum_le_sum fun t _ ↦ hcard (f t)
     _ = s * d := by simp
 
-/-- Coarse tuple-weight form of the combinatorial half of KSSS Lemma 3.7.
-The sharper paper constant is unnecessary: for fixed `m,d`, this bound is
-still an absolute constant times `κ^t`. -/
+/-- Coarse fixed-order tuple-weight estimate. For growing moment orders,
+use the polynomial-in-order refinement in `BoundedIntersectionMoment.lean`.
+The present bound remains an absolute constant times `κ^t` for fixed `m,d`. -/
 lemma sum_tupleWeight_le
     {W I : Type*} [DecidableEq W] [Fintype I]
     (F : I → Finset W) (π : W → ℝ≥0) {κ : ℝ≥0} {d m : ℕ}
