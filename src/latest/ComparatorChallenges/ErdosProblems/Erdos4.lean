@@ -9,28 +9,19 @@ theorem erdos_4 (C : ℝ) (hC : 0 < C) :
   sorry
 
 theorem fgkmt18 :
-    ∃ c : ℝ, 0 < c ∧ ∀ᶠ X : ℝ in Filter.atTop,
+    ∃ C X₀ : ℝ, 0 < C ∧ ∀ X : ℝ, X₀ ≤ X →
       ∃ n : ℕ, (Nat.nth Nat.Prime (n + 1) : ℝ) ≤ X ∧
-        c * (Real.log X * Real.log (Real.log X) *
-          Real.log (Real.log (Real.log (Real.log X))) /
-            Real.log (Real.log (Real.log X))) ≤
-          (Nat.nth Nat.Prime (n + 1) : ℝ) - Nat.nth Nat.Prime n := by
-  sorry
-
-theorem fgkmt18_forall_ge :
-    ∃ c X₀ : ℝ, 0 < c ∧ ∀ X : ℝ, X₀ ≤ X →
-      ∃ n : ℕ, (Nat.nth Nat.Prime (n + 1) : ℝ) ≤ X ∧
-        c * (Real.log X * Real.log (Real.log X) *
+        C * (Real.log X * Real.log (Real.log X) *
           Real.log (Real.log (Real.log (Real.log X))) /
             Real.log (Real.log (Real.log X))) ≤
           (Nat.nth Nat.Prime (n + 1) : ℝ) - Nat.nth Nat.Prime n := by
   sorry
 
 theorem Tilted.all_endpoint_consecutive_prime_gaps :
-    ∃ c T₀ : ℝ, 0 < c ∧ ∀ T : ℝ, T₀ ≤ T → ∃ n : ℕ,
-      (Nat.nth Nat.Prime (n + 1) : ℝ) ≤ T ∧
-      c * Real.log T * Real.log (Real.log T) /
-        Real.log (Real.log (Real.log (Real.log T))) ≤
+    ∃ C X₀ : ℝ, 0 < C ∧ ∀ X : ℝ, X₀ ≤ X → ∃ n : ℕ,
+      (Nat.nth Nat.Prime (n + 1) : ℝ) ≤ X ∧
+      C * Real.log X * Real.log (Real.log X) /
+        Real.log (Real.log (Real.log (Real.log X))) ≤
           (Nat.nth Nat.Prime (n + 1) : ℝ) - Nat.nth Nat.Prime n := by
   sorry
 

@@ -111,16 +111,16 @@ theorem prime_gap_corollary :
 
 /-- A witness form of the prime-gap bound that avoids referring to a maximum. -/
 theorem all_endpoint_consecutive_prime_gaps :
-    ∃ c T₀ : ℝ, 0 < c ∧ ∀ T : ℝ, T₀ ≤ T → ∃ n : ℕ,
-      (Nat.nth Nat.Prime (n + 1) : ℝ) ≤ T ∧
-      c * Real.log T * Real.log (Real.log T) /
-        Real.log (Real.log (Real.log (Real.log T))) ≤
+    ∃ C X₀ : ℝ, 0 < C ∧ ∀ X : ℝ, X₀ ≤ X → ∃ n : ℕ,
+      (Nat.nth Nat.Prime (n + 1) : ℝ) ≤ X ∧
+      C * Real.log X * Real.log (Real.log X) /
+        Real.log (Real.log (Real.log (Real.log X))) ≤
           (Nat.nth Nat.Prime (n + 1) : ℝ) - Nat.nth Nat.Prime n := by
-  obtain ⟨c, hc, hbound⟩ := exists_all_endpoint_tilted_gaps
-  obtain ⟨T₀, hT₀⟩ := eventually_atTop.mp hbound
-  refine ⟨c, T₀, hc, ?_⟩
-  intro T hT
-  obtain ⟨n, hn, hgap⟩ := hT₀ T hT
+  obtain ⟨C, hC, hbound⟩ := exists_all_endpoint_tilted_gaps
+  obtain ⟨X₀, hX₀⟩ := eventually_atTop.mp hbound
+  refine ⟨C, X₀, hC, ?_⟩
+  intro X hX
+  obtain ⟨n, hn, hgap⟩ := hX₀ X hX
   exact ⟨n, hn, hgap.trans_eq' (by unfold primeGapScale coverScale; ring)⟩
 
 end Erdos4.Tilted

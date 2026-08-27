@@ -145,24 +145,15 @@ theorem erdos_4 (C : ℝ) (hC : 0 < C) :
 
 /-- The full FGKMT18 scale, below every sufficiently large real endpoint. -/
 theorem fgkmt18 :
-    ∃ c : ℝ, 0 < c ∧ ∀ᶠ X : ℝ in Filter.atTop,
+    ∃ C X₀ : ℝ, 0 < C ∧ ∀ X : ℝ, X₀ ≤ X →
       ∃ n : ℕ, (Nat.nth Nat.Prime (n + 1) : ℝ) ≤ X ∧
-        c * (Real.log X * Real.log (Real.log X) *
+        C * (Real.log X * Real.log (Real.log X) *
           Real.log (Real.log (Real.log (Real.log X))) /
             Real.log (Real.log (Real.log X))) ≤
           (Nat.nth Nat.Prime (n + 1) : ℝ) - Nat.nth Nat.Prime n := by
-  simpa only [FGKMT.gapScale, FGKMT.realOuterScale] using FGKMT.exists_all_endpoint_gaps
-
-/-- An explicit-threshold form of the all-endpoint FGKMT18 theorem. -/
-theorem fgkmt18_forall_ge :
-    ∃ c X₀ : ℝ, 0 < c ∧ ∀ X : ℝ, X₀ ≤ X →
-      ∃ n : ℕ, (Nat.nth Nat.Prime (n + 1) : ℝ) ≤ X ∧
-        c * (Real.log X * Real.log (Real.log X) *
-          Real.log (Real.log (Real.log (Real.log X))) /
-            Real.log (Real.log (Real.log X))) ≤
-          (Nat.nth Nat.Prime (n + 1) : ℝ) - Nat.nth Nat.Prime n := by
-  obtain ⟨c, hc, hlarge⟩ := fgkmt18
+  obtain ⟨C, hC, hlarge⟩ := FGKMT.exists_all_endpoint_gaps
   obtain ⟨X₀, hX₀⟩ := Filter.eventually_atTop.mp hlarge
-  exact ⟨c, X₀, hc, hX₀⟩
+  refine ⟨C, X₀, hC, ?_⟩
+  simpa only [FGKMT.gapScale, FGKMT.realOuterScale] using hX₀
 
 end Erdos4

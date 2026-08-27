@@ -31,13 +31,13 @@ import ErdosProblems.Erdos4.FGKMTSourcePartition
 /-! Exact-statement and kernel-dependency audit of the unconditional FGKMT18 theorem. -/
 
 example :
-    ∃ c X₀ : ℝ, 0 < c ∧ ∀ X : ℝ, X₀ ≤ X →
+    ∃ C X₀ : ℝ, 0 < C ∧ ∀ X : ℝ, X₀ ≤ X →
       ∃ n : ℕ, (Nat.nth Nat.Prime (n + 1) : ℝ) ≤ X ∧
-        c * (Real.log X * Real.log (Real.log X) *
+        C * (Real.log X * Real.log (Real.log X) *
           Real.log (Real.log (Real.log (Real.log X))) /
             Real.log (Real.log (Real.log X))) ≤
           (Nat.nth Nat.Prime (n + 1) : ℝ) - Nat.nth Nat.Prime n :=
-  Erdos4.fgkmt18_forall_ge
+  Erdos4.fgkmt18
 
 example (C : ℝ) (hC : 0 < C) : Erdos4.Erdos4For C := Erdos4.erdos4 C hC
 
@@ -241,5 +241,4 @@ example (C : ℝ) (hC : 0 < C) : Erdos4.Erdos4For C := Erdos4.erdos4 C hC
 #print axioms Erdos4.FGKMT.eventually_endpoint_scale_compare
 #print axioms Erdos4.FGKMT.exists_all_endpoint_gaps
 #print axioms Erdos4.fgkmt18
-#print axioms Erdos4.fgkmt18_forall_ge
 #print axioms Erdos4.erdos4
