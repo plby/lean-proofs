@@ -1,5 +1,5 @@
 {
-  "challenge_module": "DesignExistence",
+  "challenge_module": "Arxiv2411_18291",
   "solution_module": "Arxiv.DesignExistence",
   "theorem_names": [
     "DesignExistence.designs_exist"

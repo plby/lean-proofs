@@ -939,7 +939,7 @@ roots = [
 [[lean_lib]]
 name = "ArxivChallenges"
 srcDir = "Arxiv"
-roots = ["DesignExistence"]
+roots = ["Arxiv2411_18291"]
 
 [[lean_lib]]
 name = "BorisBukhChallenges"
