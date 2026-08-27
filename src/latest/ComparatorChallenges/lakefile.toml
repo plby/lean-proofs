@@ -2,6 +2,7 @@ name = "ComparatorChallenges"
 version = "0.1.0"
 defaultTargets = [
   "ComparatorChallenges",
+  "ArxivChallenges",
   "BorisBukhChallenges",
   "HundredTheoremsChallenges",
   "MathOverflowChallenges",
@@ -934,6 +935,11 @@ roots = [
   "Erdos360",
 
 ]
+
+[[lean_lib]]
+name = "ArxivChallenges"
+srcDir = "Arxiv"
+roots = ["DesignExistence"]
 
 [[lean_lib]]
 name = "BorisBukhChallenges"

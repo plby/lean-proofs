@@ -1,0 +1,13 @@
+{
+  "challenge_module": "DesignExistence",
+  "solution_module": "Arxiv.DesignExistence",
+  "theorem_names": [
+    "DesignExistence.designs_exist"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "enable_nanoda": true
+}
