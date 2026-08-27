@@ -23,9 +23,10 @@ import ErdosProblems.Erdos4.ProbabilityFallback
 import ErdosProblems.Erdos4.PrimeExposure
 import ErdosProblems.Erdos4.OuterCover
 import ErdosProblems.Erdos4.OuterThreshold
+import ErdosProblems.Erdos4.FGKMTAllEndpoints
 
 /-!
-# Erdős Problem 4: arbitrary-constant large prime gaps
+# Erdős Problem 4: large prime gaps at the FGKMT18 scale
 
 Sieve, residue-covering, and variational estimates from the large-prime-gap development.
 
@@ -76,6 +77,15 @@ threshold completes the passage from residue covers to indexed prime gaps.
 The theorem `Erdos4.erdos4` below is unconditional for every real `C > 0`.
 `Erdos4/Verification.lean` checks its exact statement and kernel axiom
 dependencies. No claim of historical novelty is asserted here.
+
+The growing-dimension construction also proves the full FGKMT18 bound.
+`Erdos4.fgkmt18` supplies a consecutive-prime gap with right endpoint at
+most `X`, for every sufficiently large real `X`, and with size at least
+an absolute positive constant times `log X * log₂ X * log₄ X / log₃ X`.
+Its arithmetic input, disjoint covering rounds, smooth-number cleanup,
+and endpoint comparison are proved in the supporting `FGKMT` modules.
+`Erdos4/FGKMTVerification.lean` checks the explicit statement and kernel
+dependencies of this stronger theorem as well as its intermediate results.
 -/
 
 namespace Erdos4
@@ -131,5 +141,27 @@ theorem erdos_4 (C : ℝ) (hC : 0 < C) :
       C * Real.log (Real.log n) * Real.log (Real.log (Real.log (Real.log n))) /
         (Real.log (Real.log (Real.log n))) ^ 2 * Real.log n}.Infinite := by
   simpa [Erdos4For] using erdos4 C hC
+
+/-- The full FGKMT18 scale, below every sufficiently large real endpoint. -/
+theorem fgkmt18 :
+    ∃ c : ℝ, 0 < c ∧ ∀ᶠ X : ℝ in Filter.atTop,
+      ∃ n : ℕ, (Nat.nth Nat.Prime (n + 1) : ℝ) ≤ X ∧
+        c * (Real.log X * Real.log (Real.log X) *
+          Real.log (Real.log (Real.log (Real.log X))) /
+            Real.log (Real.log (Real.log X))) ≤
+          (Nat.nth Nat.Prime (n + 1) : ℝ) - Nat.nth Nat.Prime n := by
+  simpa only [FGKMT.gapScale, FGKMT.realOuterScale] using FGKMT.exists_all_endpoint_gaps
+
+/-- An explicit-threshold form of the all-endpoint FGKMT18 theorem. -/
+theorem fgkmt18_forall_ge :
+    ∃ c X₀ : ℝ, 0 < c ∧ ∀ X : ℝ, X₀ ≤ X →
+      ∃ n : ℕ, (Nat.nth Nat.Prime (n + 1) : ℝ) ≤ X ∧
+        c * (Real.log X * Real.log (Real.log X) *
+          Real.log (Real.log (Real.log (Real.log X))) /
+            Real.log (Real.log (Real.log X))) ≤
+          (Nat.nth Nat.Prime (n + 1) : ℝ) - Nat.nth Nat.Prime n := by
+  obtain ⟨c, hc, hlarge⟩ := fgkmt18
+  obtain ⟨X₀, hX₀⟩ := Filter.eventually_atTop.mp hlarge
+  exact ⟨c, X₀, hc, hX₀⟩
 
 end Erdos4

@@ -2,7 +2,9 @@
   "challenge_module": "Erdos4",
   "solution_module": "ErdosProblems.Erdos4",
   "theorem_names": [
-    "Erdos4.erdos_4"
+    "Erdos4.erdos_4",
+    "Erdos4.fgkmt18",
+    "Erdos4.fgkmt18_forall_ge"
   ],
   "permitted_axioms": [
     "propext",
