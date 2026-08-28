@@ -7,7 +7,7 @@ open Finset
 namespace Erdos76
 
 /-- Distinct selected triangles share at most one vertex. -/
-def EdgeDisjoint {α : Type*} [Fintype α] [DecidableEq α]
+def EdgeDisjoint {α : Type*} [DecidableEq α]
     (P : Finset (Finset α)) : Prop :=
   ∀ ⦃s⦄, s ∈ P → ∀ ⦃t⦄, t ∈ P → s ≠ t → #(s ∩ t) ≤ 1
 

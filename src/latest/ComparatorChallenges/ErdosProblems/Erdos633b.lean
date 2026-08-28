@@ -1,29 +1,6 @@
-import Mathlib
+import Erdos633b.Geometry
 
 namespace Erdos633b
-
-abbrev Plane := EuclideanSpace ℝ (Fin 2)
-
-abbrev Triangle := Affine.Triangle ℝ Plane
-
-namespace Triangle
-
-def support (T : Triangle) : Set Plane := convexHull ℝ (Set.range T.points)
-
-noncomputable def angle (T : Triangle) (i : Fin 3) : ℝ :=
-  EuclideanGeometry.angle (T.points (i + 1)) (T.points i) (T.points (i + 2))
-
-noncomputable def side (T : Triangle) (i : Fin 3) : ℝ :=
-  dist (T.points (i + 1)) (T.points (i + 2))
-
-end Triangle
-
-structure Tiling (T : Triangle) (n : ℕ) where
-  tile : Triangle
-  place : Fin n → Plane ≃ᵃⁱ[ℝ] Plane
-  covers : (⋃ i, place i '' tile.support) = T.support
-  disjoint_interiors : Pairwise fun i j =>
-    Disjoint (interior (place i '' tile.support)) (interior (place j '' tile.support))
 
 def IsRational (x : ℝ) : Prop := ∃ q : ℚ, (q : ℝ) = x
 

@@ -3341,7 +3341,8 @@ theorem erdos_1091 :
       G.chromaticNumber = (4 : ℕ∞) → G.CliqueFree 4 →
         ∃ (u : Fin n) (p : G.Walk u u),
           p.IsCycle ∧ Odd p.length ∧ 2 ≤ Walk.chordCount p) ∧
-    (¬ ∃ f : ℕ → ℕ, Tendsto f atTop atTop ∧
+    (¬ ∃ f : ℕ → ℕ,
+      Tendsto f (@Filter.atTop ℕ Nat.instPreorder) (@Filter.atTop ℕ Nat.instPreorder) ∧
       ∀ (r n : ℕ) (G : SimpleGraph (Fin n)),
         G.chromaticNumber = (4 : ℕ∞) →
         (∀ s : Finset (Fin n), s.card ≤ r →

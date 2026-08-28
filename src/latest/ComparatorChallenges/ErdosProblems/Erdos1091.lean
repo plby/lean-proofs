@@ -10,14 +10,14 @@ universe u
 namespace Walk
 
 /-- The finite set of chords of a walk in a finite ambient graph. -/
-noncomputable def chordFinset {V : Type u} [Fintype V]
-    {G : SimpleGraph V} {a b : V} (p : G.Walk a b) : Finset (Sym2 V) := by
+noncomputable def chordFinset {V : Type u} {G : SimpleGraph V} {a b : V}
+    [Fintype V] (p : G.Walk a b) : Finset (Sym2 V) := by
   classical
   exact {e ∈ G.edgeFinset | p.IsChord e}
 
 /-- The number of ambient-graph chords of a walk. -/
-noncomputable def chordCount {V : Type u} [Fintype V]
-    {G : SimpleGraph V} {a b : V} (p : G.Walk a b) : ℕ :=
+noncomputable def chordCount {V : Type u} {G : SimpleGraph V} {a b : V}
+    [Fintype V] (p : G.Walk a b) : ℕ :=
   (chordFinset p).card
 
 end Walk

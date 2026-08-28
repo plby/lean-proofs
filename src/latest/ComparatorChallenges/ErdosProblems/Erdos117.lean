@@ -1,19 +1,19 @@
 import Mathlib
 
-universe u
-
-namespace Erdos117
+universe u u_2 u_3
 
 open Filter Asymptotics
 open scoped Topology
 
-def NoncommutingBound (G : Type*) [Group G] (n : ℕ) : Prop :=
+namespace Erdos117
+
+def NoncommutingBound (G : Type u_2) [Group G] (n : ℕ) : Prop :=
   ∀ s : Finset G, (s : Set G).Pairwise (fun x y => ¬ Commute x y) → s.card ≤ n
 
-def AbelianCover (G : Type*) [Group G] (ι : Type*) (A : ι → Subgroup G) : Prop :=
+def AbelianCover (G : Type u_2) [Group G] (ι : Type u_3) (A : ι → Subgroup G) : Prop :=
   (∀ i, IsMulCommutative (A i)) ∧ ∀ x : G, ∃ i, x ∈ A i
 
-def HasAbelianCover (G : Type*) [Group G] (k : ℕ) : Prop :=
+def HasAbelianCover (G : Type u_2) [Group G] (k : ℕ) : Prop :=
   ∃ A : Fin k → Subgroup G, AbelianCover G (Fin k) A
 
 def UniversalAbelianCoverBound (n k : ℕ) : Prop :=
