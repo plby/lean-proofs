@@ -1,0 +1,139 @@
+import ErdosProblems.Erdos577.CliqueReplacementObstructions
+import ErdosProblems.Erdos577.PathSaturatedRows
+
+/-! The six insertion restrictions needed for the uniform fourth-path bounds in pattern (15). -/
+
+namespace Erdos577.PathBlock
+
+open Finset
+
+variable {V : Type*} [DecidableEq V] {G : SimpleGraph V}
+
+structure FourthInsertionsExcluded (p : FourPath G) (s : Finset V) (x y : V) : Prop where
+  row1 : ¬CommonReplacement G (p.vertices 2) (p.vertices 1) (p.vertices 3) s
+  row2 : ¬CommonReplacement G (p.vertices 3) (p.vertices 0) (p.vertices 2) s
+  row3 : ¬CommonReplacement G (p.vertices 0) x (p.vertices 1) s
+  row4 : ¬CommonReplacement G y (p.vertices 2) (p.vertices 1) s
+  row5 : ¬CommonReplacement G (p.vertices 1) x (p.vertices 0) s
+  row6 : ¬CommonReplacement G (p.vertices 3) (p.vertices 1) y s
+
+variable [DecidableRel G.Adj]
+
+def FourthBounds (p : FourPath G) (s : Finset V) (x y : V) : Prop :=
+  degreeIn G x s ≤ 1 ∧ contacts G p.support s + degreeIn G x s ≤ 10 ∧
+    degreeIn G y s ≤ 2 ∧ contacts G p.support s + degreeIn G x s + degreeIn G y s +
+      degreeIn G (p.vertices 3) s + degreeIn G (p.vertices 2) s ≤ 16
+
+lemma PatternA.fourth_bounds (p : FourPath G) (q : Quadrilateral G)
+    (hd : Disjoint p.support q.support) (hcl : G.IsNClique 4 q.support)
+    (h : PatternA p q) (hh : 9 ≤ contacts G p.support q.support)
+    (x y : V) (hn : FourthInsertionsExcluded p q.support x y) :
+    FourthBounds p q.support x y := by
+  have hout (i : Fin 4) : p.vertices i ∉ q.support := by
+    intro hv
+    exact disjoint_left.mp hd ((p.mem_support _).mpr ⟨i, rfl⟩) hv
+  have hsum := p.contacts_support q.support
+  have hrow (i : Fin 4) (hi : i = 0 ∨ i = 2) : degreeIn G (p.vertices i) q.support ≤ 3 := by
+    have hbits : ∀ j : Fin 4, j ≠ 3 → (7 : ℕ).testBit j.val = true := by decide +kernel
+    have hb := q.degree_le_mask (p.vertices i) 7 (fun j hj ↦ hbits j (h.1 j (by
+      rcases hi with rfl | rfl
+      · exact Or.inl hj
+      · exact Or.inr hj)))
+    have he : (∑ j : Fin 4, ((7 : ℕ).testBit j.val).toNat) = 3 := by decide +kernel
+    rwa [he] at hb
+  have h0 := hrow 0 (Or.inl rfl)
+  have h2 := hrow 2 (Or.inr rfl)
+  have hzero := h.2.2.2
+  have hc := h.2.1
+  have hcmax := h.2.2.1
+  have hp0 : 2 ≤ degreeIn G (p.vertices 0) q.support := by omega
+  have hYr := no_common_replacement_degree_sum hcl y (p.vertices 2) (p.vertices 1)
+    (hout 1) hc hn.row4
+  have hnone : ¬∃ u ∈ q.support, G.Adj (p.vertices 1) u ∧ G.Adj x u := by
+    rintro ⟨u, hu, hcu, hxu⟩
+    have hp0u : ¬G.Adj (p.vertices 0) u := by
+      intro he
+      exact hn.row3 ⟨u, hu, he, hxu, clique_replace_of_degree_three hcl (hout 1) hc hu⟩
+    have he := degreeIn_erase_add G (p.vertices 0) u hu
+    rw [if_neg hp0u] at he
+    have hrep := (clique_replace_iff_two_contacts hcl (hout 0) hu).mpr (by omega)
+    exact hn.row5 ⟨u, hu, hcu, hxu, hrep⟩
+  have hXc : degreeIn G (p.vertices 1) q.support + degreeIn G x q.support ≤ 4 := by
+    by_contra! hbig
+    apply hnone
+    apply common_neighbor_of_union_bound _ _ q.support 4 _ hbig
+    exact (card_le_card (union_subset (filter_subset _ _) (filter_subset _ _))).trans
+      (le_of_eq q.card_support)
+  exact ⟨by omega, by omega, by omega, by omega⟩
+
+lemma PatternB.fourth_bounds (p : FourPath G) (q : Quadrilateral G)
+    (hd : Disjoint p.support q.support) (hcl : G.IsNClique 4 q.support)
+    (h : PatternB p q) (hh : 9 ≤ contacts G p.support q.support)
+    (x y : V) (hy : y ∉ q.support) (hn : FourthInsertionsExcluded p q.support x y) :
+    FourthBounds p q.support x y := by
+  have hout (i : Fin 4) : p.vertices i ∉ q.support := by
+    intro hv
+    exact disjoint_left.mp hd ((p.mem_support _).mpr ⟨i, rfl⟩) hv
+  obtain ⟨h0, h1, h2, h3⟩ := h.row_bounds p q
+  have hsum := p.contacts_support q.support
+  have hr : degreeIn G (p.vertices 2) q.support ≤ 2 := by
+    by_contra! hbig
+    have he : degreeIn G (p.vertices 2) q.support = 3 := by omega
+    exact hn.row2 (h.common_for_middle p q hd hcl hh 2 (Or.inr rfl) he
+      3 0 (by decide) (by decide) (by decide))
+  have he : contacts G p.support q.support = 9 := by omega
+  have hc : degreeIn G (p.vertices 1) q.support = 3 := by omega
+  have hp0 : degreeIn G (p.vertices 0) q.support = 2 := by omega
+  have hp3 : degreeIn G (p.vertices 3) q.support = 2 := by omega
+  have hX : degreeIn G x q.support ≤ 1 := by
+    have hb := q.degree_le_mask x 8 (by
+      intro j hj
+      fin_cases j
+      · exact False.elim (hn.row3 ⟨q 0, (q.mem_support _).mpr ⟨0, rfl⟩,
+          h.full_endpoint_adj p q 0 (Or.inl rfl) hp0 0 (Or.inl rfl), hj,
+          clique_replace_of_degree_three hcl (hout 1) (by omega)
+            ((q.mem_support _).mpr ⟨0, rfl⟩)⟩)
+      · exact False.elim (hn.row3 ⟨q 1, (q.mem_support _).mpr ⟨1, rfl⟩,
+          h.full_endpoint_adj p q 0 (Or.inl rfl) hp0 1 (Or.inr rfl), hj,
+          clique_replace_of_degree_three hcl (hout 1) (by omega)
+            ((q.mem_support _).mpr ⟨1, rfl⟩)⟩)
+      · have hv : q 2 ∈ q.support := (q.mem_support _).mpr ⟨2, rfl⟩
+        have hn0 : ¬G.Adj (p.vertices 0) (q 2) := by
+          intro hb
+          have ht := h.1 2 (Or.inl hb)
+          omega
+        have hd0 := degreeIn_erase_add G (p.vertices 0) (q 2) hv
+        rw [if_neg hn0] at hd0
+        exact False.elim (hn.row5 ⟨q 2, hv, h.full_middle_adj p q 1 hc 2 (by decide), hj,
+          (clique_replace_iff_two_contacts hcl (hout 0) hv).mpr (by omega)⟩)
+      · decide +kernel)
+    have hs : (∑ j : Fin 4, ((8 : ℕ).testBit j.val).toNat) = 1 := by decide +kernel
+    rwa [hs] at hb
+  have hY := no_common_replacement_degree_le_two hcl (p.vertices 3) (p.vertices 1) y hy
+    hn.row6 ⟨q 0, (q.mem_support _).mpr ⟨0, rfl⟩,
+      h.full_endpoint_adj p q 3 (Or.inr rfl) hp3 0 (Or.inl rfl),
+      h.full_middle_adj p q 1 hc 0 (by decide)⟩
+  exact ⟨hX, by omega, hY, by omega⟩
+
+lemma Classified.fourth_bounds (p : FourPath G) (q : Quadrilateral G)
+    (hd : Disjoint p.support q.support) (hcl : G.IsNClique 4 q.support)
+    (h : Classified p q) (hh : 9 ≤ contacts G p.support q.support)
+    (x y : V) (hy : y ∉ q.support) (hn : FourthInsertionsExcluded p q.support x y) :
+    FourthBounds p q.support x y := by
+  obtain ⟨_, rev, q', hq', ha | hb⟩ := h
+  · cases rev
+    · have ht := ha.1.fourth_bounds p q' (hq'.symm ▸ hd) (hq'.symm ▸ hcl)
+        (hq'.symm ▸ hh) x y (hq'.symm ▸ hn)
+      simpa only [hq'] using ht
+    · have hc := ha.2 0 1 2 (by decide) (by decide) (by decide)
+      change CommonReplacement G (p.vertices 2) (p.vertices 1) (p.vertices 3) q'.support at hc
+      exact False.elim (hn.row1 (hq' ▸ hc))
+  · have hb' : PatternB p q' := by
+      cases rev
+      · exact hb.1
+      · exact (PatternB.reverse_iff p q').mp hb.1
+    have ht := hb'.fourth_bounds p q' (hq'.symm ▸ hd) (hq'.symm ▸ hcl)
+      (hq'.symm ▸ hh) x y (hq'.symm ▸ hy) (hq'.symm ▸ hn)
+    simpa only [hq'] using ht
+
+end Erdos577.PathBlock

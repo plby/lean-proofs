@@ -1,0 +1,604 @@
+import ErdosProblems.Erdos577.PawNineMasks3
+
+/-! Explicit factors for the nine-contact paw with diagonal mask 3. -/
+
+namespace Erdos577.PawNine.D3
+
+open Finset
+
+private theorem witness_0 : LocalFactor (PawModel.graph 3 278) univ := by
+  refine ⟨{0, 5, 7, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_1 : LocalFactor (PawModel.graph 3 282) univ := by
+  refine ⟨{0, 5, 6, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_2 : LocalFactor (PawModel.graph 3 284) univ := by
+  refine ⟨{0, 6, 5, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_3 : LocalFactor (PawModel.graph 3 549) univ := by
+  refine ⟨{0, 4, 7, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_4 : LocalFactor (PawModel.graph 3 553) univ := by
+  refine ⟨{0, 4, 6, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_5 : LocalFactor (PawModel.graph 3 556) univ := by
+  refine ⟨{0, 6, 4, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_6 : LocalFactor (PawModel.graph 3 1091) univ := by
+  refine ⟨{0, 4, 7, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_7 : LocalFactor (PawModel.graph 3 1097) univ := by
+  refine ⟨{0, 4, 5, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_8 : LocalFactor (PawModel.graph 3 1098) univ := by
+  refine ⟨{0, 5, 4, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_9 : LocalFactor (PawModel.graph 3 2179) univ := by
+  refine ⟨{0, 4, 6, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_10 : LocalFactor (PawModel.graph 3 2181) univ := by
+  refine ⟨{0, 4, 5, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_11 : LocalFactor (PawModel.graph 3 2182) univ := by
+  refine ⟨{0, 5, 4, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_12 : LocalFactor (PawModel.graph 3 4118) univ := by
+  refine ⟨{0, 5, 7, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_13 : LocalFactor (PawModel.graph 3 4122) univ := by
+  refine ⟨{0, 5, 6, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_14 : LocalFactor (PawModel.graph 3 4124) univ := by
+  refine ⟨{0, 6, 5, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_15 : LocalFactor (PawModel.graph 3 4358) univ := by
+  refine ⟨{0, 5, 7, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_16 : LocalFactor (PawModel.graph 3 4362) univ := by
+  refine ⟨{0, 5, 6, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_17 : LocalFactor (PawModel.graph 3 4364) univ := by
+  refine ⟨{0, 6, 5, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_18 : LocalFactor (PawModel.graph 3 4680) univ := by
+  refine ⟨{0, 1, 6, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_19 : LocalFactor (PawModel.graph 3 4740) univ := by
+  refine ⟨{0, 1, 7, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_20 : LocalFactor (PawModel.graph 3 5160) univ := by
+  refine ⟨{0, 1, 5, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_21 : LocalFactor (PawModel.graph 3 5250) univ := by
+  refine ⟨{0, 1, 7, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_22 : LocalFactor (PawModel.graph 3 5633) univ := by
+  refine ⟨{0, 1, 3, 4}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_23 : LocalFactor (PawModel.graph 3 6180) univ := by
+  refine ⟨{0, 1, 5, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_24 : LocalFactor (PawModel.graph 3 6210) univ := by
+  refine ⟨{0, 1, 6, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_25 : LocalFactor (PawModel.graph 3 6657) univ := by
+  refine ⟨{0, 1, 3, 4}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_26 : LocalFactor (PawModel.graph 3 7169) univ := by
+  refine ⟨{0, 1, 3, 4}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_27 : LocalFactor (PawModel.graph 3 8229) univ := by
+  refine ⟨{0, 4, 7, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_28 : LocalFactor (PawModel.graph 3 8233) univ := by
+  refine ⟨{0, 4, 6, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_29 : LocalFactor (PawModel.graph 3 8236) univ := by
+  refine ⟨{0, 6, 4, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_30 : LocalFactor (PawModel.graph 3 8520) univ := by
+  refine ⟨{0, 1, 6, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_31 : LocalFactor (PawModel.graph 3 8580) univ := by
+  refine ⟨{0, 1, 7, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_32 : LocalFactor (PawModel.graph 3 8709) univ := by
+  refine ⟨{0, 4, 7, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_33 : LocalFactor (PawModel.graph 3 8713) univ := by
+  refine ⟨{0, 4, 6, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_34 : LocalFactor (PawModel.graph 3 8716) univ := by
+  refine ⟨{0, 6, 4, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_35 : LocalFactor (PawModel.graph 3 9240) univ := by
+  refine ⟨{0, 1, 4, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_36 : LocalFactor (PawModel.graph 3 9345) univ := by
+  refine ⟨{0, 1, 7, 4}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_37 : LocalFactor (PawModel.graph 3 9474) univ := by
+  refine ⟨{0, 1, 3, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_38 : LocalFactor (PawModel.graph 3 10260) univ := by
+  refine ⟨{0, 1, 4, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_39 : LocalFactor (PawModel.graph 3 10305) univ := by
+  refine ⟨{0, 1, 6, 4}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_40 : LocalFactor (PawModel.graph 3 10498) univ := by
+  refine ⟨{0, 1, 3, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_41 : LocalFactor (PawModel.graph 3 11266) univ := by
+  refine ⟨{0, 1, 3, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_42 : LocalFactor (PawModel.graph 3 13316) univ := by
+  refine ⟨{0, 1, 2, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_43 : LocalFactor (PawModel.graph 3 14344) univ := by
+  refine ⟨{0, 1, 2, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_44 : LocalFactor (PawModel.graph 3 16451) univ := by
+  refine ⟨{0, 4, 7, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_45 : LocalFactor (PawModel.graph 3 16457) univ := by
+  refine ⟨{0, 4, 5, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_46 : LocalFactor (PawModel.graph 3 16458) univ := by
+  refine ⟨{0, 5, 4, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_47 : LocalFactor (PawModel.graph 3 16680) univ := by
+  refine ⟨{0, 1, 5, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_48 : LocalFactor (PawModel.graph 3 16770) univ := by
+  refine ⟨{0, 1, 7, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_49 : LocalFactor (PawModel.graph 3 16920) univ := by
+  refine ⟨{0, 1, 4, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_50 : LocalFactor (PawModel.graph 3 17025) univ := by
+  refine ⟨{0, 1, 7, 4}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_51 : LocalFactor (PawModel.graph 3 17156) univ := by
+  refine ⟨{0, 1, 3, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_52 : LocalFactor (PawModel.graph 3 17411) univ := by
+  refine ⟨{0, 4, 7, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_53 : LocalFactor (PawModel.graph 3 17417) univ := by
+  refine ⟨{0, 4, 5, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_54 : LocalFactor (PawModel.graph 3 17418) univ := by
+  refine ⟨{0, 5, 4, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_55 : LocalFactor (PawModel.graph 3 18450) univ := by
+  refine ⟨{0, 1, 4, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_56 : LocalFactor (PawModel.graph 3 18465) univ := by
+  refine ⟨{0, 1, 5, 4}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_57 : LocalFactor (PawModel.graph 3 18692) univ := by
+  refine ⟨{0, 1, 3, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_58 : LocalFactor (PawModel.graph 3 18948) univ := by
+  refine ⟨{0, 1, 3, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_59 : LocalFactor (PawModel.graph 3 20994) univ := by
+  refine ⟨{0, 1, 2, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_60 : LocalFactor (PawModel.graph 3 22536) univ := by
+  refine ⟨{0, 1, 2, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_61 : LocalFactor (PawModel.graph 3 24833) univ := by
+  refine ⟨{0, 1, 2, 4}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_62 : LocalFactor (PawModel.graph 3 26632) univ := by
+  refine ⟨{0, 1, 2, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_63 : LocalFactor (PawModel.graph 3 32899) univ := by
+  refine ⟨{0, 4, 6, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_64 : LocalFactor (PawModel.graph 3 32901) univ := by
+  refine ⟨{0, 4, 5, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_65 : LocalFactor (PawModel.graph 3 32902) univ := by
+  refine ⟨{0, 5, 4, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_66 : LocalFactor (PawModel.graph 3 33060) univ := by
+  refine ⟨{0, 1, 5, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_67 : LocalFactor (PawModel.graph 3 33090) univ := by
+  refine ⟨{0, 1, 6, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_68 : LocalFactor (PawModel.graph 3 33300) univ := by
+  refine ⟨{0, 1, 4, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_69 : LocalFactor (PawModel.graph 3 33345) univ := by
+  refine ⟨{0, 1, 6, 4}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_70 : LocalFactor (PawModel.graph 3 33544) univ := by
+  refine ⟨{0, 1, 3, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_71 : LocalFactor (PawModel.graph 3 33810) univ := by
+  refine ⟨{0, 1, 4, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_72 : LocalFactor (PawModel.graph 3 33825) univ := by
+  refine ⟨{0, 1, 5, 4}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_73 : LocalFactor (PawModel.graph 3 34056) univ := by
+  refine ⟨{0, 1, 3, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_74 : LocalFactor (PawModel.graph 3 34312) univ := by
+  refine ⟨{0, 1, 3, 7}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_75 : LocalFactor (PawModel.graph 3 34819) univ := by
+  refine ⟨{0, 4, 6, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_76 : LocalFactor (PawModel.graph 3 34821) univ := by
+  refine ⟨{0, 4, 5, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_77 : LocalFactor (PawModel.graph 3 34822) univ := by
+  refine ⟨{0, 5, 4, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_78 : LocalFactor (PawModel.graph 3 37378) univ := by
+  refine ⟨{0, 1, 2, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_79 : LocalFactor (PawModel.graph 3 37892) univ := by
+  refine ⟨{0, 1, 2, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_80 : LocalFactor (PawModel.graph 3 41217) univ := by
+  refine ⟨{0, 1, 2, 4}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_81 : LocalFactor (PawModel.graph 3 41988) univ := by
+  refine ⟨{0, 1, 2, 6}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_82 : LocalFactor (PawModel.graph 3 49409) univ := by
+  refine ⟨{0, 1, 2, 4}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private theorem witness_83 : LocalFactor (PawModel.graph 3 49666) univ := by
+  refine ⟨{0, 1, 2, 5}, subset_univ _, ?_, ?_⟩
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+  · exact QuadOn.of_degreeIn (by decide +kernel) (by decide +kernel)
+
+private def group_0 : List ℕ := [
+  278, 282, 284, 549, 553, 556, 1091, 1097,
+  1098, 2179, 2181, 2182, 4118, 4122, 4124, 4358]
+
+private theorem group_sound_0 {m : ℕ} (h : m ∈ group_0) :
+    LocalFactor (PawModel.graph 3 m) univ := by
+  simp only [group_0, List.mem_cons, List.not_mem_nil, or_false] at h
+  rcases h with
+    rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact witness_0
+  · exact witness_1
+  · exact witness_2
+  · exact witness_3
+  · exact witness_4
+  · exact witness_5
+  · exact witness_6
+  · exact witness_7
+  · exact witness_8
+  · exact witness_9
+  · exact witness_10
+  · exact witness_11
+  · exact witness_12
+  · exact witness_13
+  · exact witness_14
+  · exact witness_15
+
+private def group_1 : List ℕ := [
+  4362, 4364, 4680, 4740, 5160, 5250, 5633, 6180,
+  6210, 6657, 7169, 8229, 8233, 8236, 8520, 8580]
+
+private theorem group_sound_1 {m : ℕ} (h : m ∈ group_1) :
+    LocalFactor (PawModel.graph 3 m) univ := by
+  simp only [group_1, List.mem_cons, List.not_mem_nil, or_false] at h
+  rcases h with
+    rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact witness_16
+  · exact witness_17
+  · exact witness_18
+  · exact witness_19
+  · exact witness_20
+  · exact witness_21
+  · exact witness_22
+  · exact witness_23
+  · exact witness_24
+  · exact witness_25
+  · exact witness_26
+  · exact witness_27
+  · exact witness_28
+  · exact witness_29
+  · exact witness_30
+  · exact witness_31
+
+private def group_2 : List ℕ := [
+  8709, 8713, 8716, 9240, 9345, 9474, 10260, 10305,
+  10498, 11266, 13316, 14344, 16451, 16457, 16458, 16680]
+
+private theorem group_sound_2 {m : ℕ} (h : m ∈ group_2) :
+    LocalFactor (PawModel.graph 3 m) univ := by
+  simp only [group_2, List.mem_cons, List.not_mem_nil, or_false] at h
+  rcases h with
+    rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact witness_32
+  · exact witness_33
+  · exact witness_34
+  · exact witness_35
+  · exact witness_36
+  · exact witness_37
+  · exact witness_38
+  · exact witness_39
+  · exact witness_40
+  · exact witness_41
+  · exact witness_42
+  · exact witness_43
+  · exact witness_44
+  · exact witness_45
+  · exact witness_46
+  · exact witness_47
+
+private def group_3 : List ℕ := [
+  16770, 16920, 17025, 17156, 17411, 17417, 17418, 18450,
+  18465, 18692, 18948, 20994, 22536, 24833, 26632, 32899]
+
+private theorem group_sound_3 {m : ℕ} (h : m ∈ group_3) :
+    LocalFactor (PawModel.graph 3 m) univ := by
+  simp only [group_3, List.mem_cons, List.not_mem_nil, or_false] at h
+  rcases h with
+    rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact witness_48
+  · exact witness_49
+  · exact witness_50
+  · exact witness_51
+  · exact witness_52
+  · exact witness_53
+  · exact witness_54
+  · exact witness_55
+  · exact witness_56
+  · exact witness_57
+  · exact witness_58
+  · exact witness_59
+  · exact witness_60
+  · exact witness_61
+  · exact witness_62
+  · exact witness_63
+
+private def group_4 : List ℕ := [
+  32901, 32902, 33060, 33090, 33300, 33345, 33544, 33810,
+  33825, 34056, 34312, 34819, 34821, 34822, 37378, 37892]
+
+private theorem group_sound_4 {m : ℕ} (h : m ∈ group_4) :
+    LocalFactor (PawModel.graph 3 m) univ := by
+  simp only [group_4, List.mem_cons, List.not_mem_nil, or_false] at h
+  rcases h with
+    rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact witness_64
+  · exact witness_65
+  · exact witness_66
+  · exact witness_67
+  · exact witness_68
+  · exact witness_69
+  · exact witness_70
+  · exact witness_71
+  · exact witness_72
+  · exact witness_73
+  · exact witness_74
+  · exact witness_75
+  · exact witness_76
+  · exact witness_77
+  · exact witness_78
+  · exact witness_79
+
+private def group_5 : List ℕ := [
+  41217, 41988, 49409, 49666]
+
+private theorem group_sound_5 {m : ℕ} (h : m ∈ group_5) :
+    LocalFactor (PawModel.graph 3 m) univ := by
+  simp only [group_5, List.mem_cons, List.not_mem_nil, or_false] at h
+  rcases h with
+    rfl | rfl | rfl | rfl
+  · exact witness_80
+  · exact witness_81
+  · exact witness_82
+  · exact witness_83
+
+theorem masks_sound {m : ℕ} (h : m ∈ masks) :
+    LocalFactor (PawModel.graph 3 m) univ := by
+  have hg :
+      m ∈ group_0 ∨
+      m ∈ group_1 ∨
+      m ∈ group_2 ∨
+      m ∈ group_3 ∨
+      m ∈ group_4 ∨
+      m ∈ group_5 := by
+    change m ∈
+      group_0 ++
+      group_1 ++
+      group_2 ++
+      group_3 ++
+      group_4 ++
+      group_5 at h
+    simpa only [List.mem_append, or_assoc] using h
+  rcases hg with
+    hg | hg | hg | hg | hg | hg
+  · exact group_sound_0 hg
+  · exact group_sound_1 hg
+  · exact group_sound_2 hg
+  · exact group_sound_3 hg
+  · exact group_sound_4 hg
+  · exact group_sound_5 hg
+
+theorem finite_factor (m : Fin 65536) (hz : DenseOutside.terminalCount m.val = 1)
+    (ht : DenseOutside.triangleCount m.val = 9) (hg : HasGoodRow 3 m.val) :
+    LocalFactor (PawModel.graph 3 m.val) univ := by
+  obtain ⟨w, hw, hsub⟩ := List.any_eq_true.mp (coverage m hz ht hg)
+  exact PawModel.factor_mono (masks_sound hw) (beq_iff_eq.mp hsub)
+
+end Erdos577.PawNine.D3
