@@ -1,0 +1,16 @@
+{
+  "challenge_module": "HomotopyGroupsOfSpheres",
+  "solution_module": "Wikipedia.HomotopyGroupsOfSpheres",
+  "theorem_names": [
+    "Wikipedia.HomotopyGroupsOfSpheres.pi1_sphere_one",
+    "Wikipedia.HomotopyGroupsOfSpheres.pi2_sphere_one",
+    "Wikipedia.HomotopyGroupsOfSpheres.pi1_sphere_two",
+    "Wikipedia.HomotopyGroupsOfSpheres.pi2_sphere_two",
+    "Wikipedia.HomotopyGroupsOfSpheres.pi3_sphere_two",
+    "Wikipedia.HomotopyGroupsOfSpheres.pi3_sphere_three",
+    "Wikipedia.HomotopyGroupsOfSpheres.pi6_sphere_three",
+    "Wikipedia.HomotopyGroupsOfSpheres.pi7_sphere_seven"
+  ],
+  "permitted_axioms": ["propext", "Classical.choice", "Quot.sound"],
+  "enable_nanoda": true
+}

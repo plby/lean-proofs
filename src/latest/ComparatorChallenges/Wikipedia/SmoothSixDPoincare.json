@@ -1,0 +1,10 @@
+{
+  "challenge_module": "SmoothSixDPoincare",
+  "solution_module": "Wikipedia.SmoothSixDPoincare",
+  "theorem_names": [
+    "Wikipedia.SmoothSixDPoincare.homeomorphic_sixSphere_of_homotopySixSphere",
+    "Wikipedia.SmoothSixDPoincare.diffeomorphic_sixSphere_of_homotopySixSphere"
+  ],
+  "permitted_axioms": ["propext", "Classical.choice", "Quot.sound"],
+  "enable_nanoda": true
+}

@@ -1,0 +1,7 @@
+{
+  "challenge_module": "NoExoticSixSphere",
+  "solution_module": "Wikipedia.NoExoticSixSphere",
+  "theorem_names": ["NoExoticSixSphere.no_exotic_six_sphere"],
+  "permitted_axioms": ["propext", "Classical.choice", "Quot.sound"],
+  "enable_nanoda": true
+}

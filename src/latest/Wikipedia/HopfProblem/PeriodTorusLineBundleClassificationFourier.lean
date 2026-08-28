@@ -1,0 +1,19 @@
+import Wikipedia.HopfProblem.PeriodTorusLineBundleClassificationFourierBasic
+import Wikipedia.HopfProblem.PeriodTorusLineBundleClassificationFourierDerivative
+import Wikipedia.HopfProblem.PeriodTorusLineBundleClassificationFourierWeights
+import Wikipedia.HopfProblem.PeriodTorusLineBundleClassificationFourierDecay
+import Wikipedia.HopfProblem.PeriodTorusLineBundleClassificationFourierSummability
+import Wikipedia.HopfProblem.PeriodTorusLineBundleClassificationFourierSymbolMode
+import Wikipedia.HopfProblem.PeriodTorusLineBundleClassificationFourierPeriod
+import Wikipedia.HopfProblem.PeriodTorusLineBundleClassificationFourierPeriodCoordinates
+import Wikipedia.HopfProblem.PeriodTorusLineBundleClassificationFourierDescent
+
+/-!
+# Fourier prerequisites on the actual torus and period lattice
+
+This family proves the directional derivative coefficient formula, rapid
+decay and polynomially weighted absolute summability from actual smoothness,
+and uniform Fourier reconstruction. The period-coordinate Dolbeault symbols
+are computed by genuine differentiation and satisfy proved ellipticity bounds.
+No periodic Dolbeault solver, Hodge theorem, or factor normal form is assumed.
+-/

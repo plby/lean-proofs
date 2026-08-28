@@ -1,0 +1,11 @@
+{
+  "challenge_module": "HopfProblem",
+  "solution_module": "Wikipedia.HopfProblem",
+  "theorem_names": [
+    "Wikipedia.HopfProblem.hopf_problem",
+    "Wikipedia.HopfProblem.hopf_problem_smooth",
+    "Wikipedia.HopfProblem.SixSphereProjection.holomorphic_nullhomotopic_surjection"
+  ],
+  "permitted_axioms": ["propext", "Classical.choice", "Quot.sound"],
+  "enable_nanoda": true
+}

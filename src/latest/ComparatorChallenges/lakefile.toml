@@ -965,4 +965,4 @@ roots = ["Puzzling139335"]
 [[lean_lib]]
 name = "WikipediaChallenges"
 srcDir = "Wikipedia"
-roots = ["CycleDoubleCoverConjecture", "SzemeredisTheorem", "GreenTao", "VinogradovsTheorem"]
+roots = ["CycleDoubleCoverConjecture", "SzemeredisTheorem", "GreenTao", "VinogradovsTheorem", "HopfProblem", "NoExoticSixSphere", "SmoothSixDPoincare", "HomotopyGroupsOfSpheres"]
