@@ -1,6 +1,14 @@
 /-
+This file is derived from Yury Kudryashov's Mathlib development.
+
+Source: Mathlib/Analysis/Complex/RiemannMapping.lean
+in the bundled Mathlib v4.33.0.
+
+The reused upstream material was released under the Apache License,
+Version 2.0, as described in the file LICENSE. This file has been modified.
+The upstream copyright and author notices are retained below.
+
 Copyright (c) 2026 Yury Kudryashov. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yury Kudryashov
 -/
 
@@ -16,11 +24,8 @@ import Mathlib.Analysis.Complex.BranchLogRoot
 /-!
 # Reduction to an injective map into the unit disc
 
-These two proofs are adapted from Yury Kudryashov's
-`Mathlib/Analysis/Complex/RiemannMapping.lean` in the bundled Mathlib v4.33.0.
-That module keeps these intermediate results module-private. This file provides public
-declarations for use in the proof of the Riemann mapping theorem for the Hopf construction.
-The proofs and original Apache 2.0 attribution are retained.
+These two results are used in the proof of the Riemann mapping theorem
+for the Hopf construction.
 -/
 
 open Function Filter Metric Set

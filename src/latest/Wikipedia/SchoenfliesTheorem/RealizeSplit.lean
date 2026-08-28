@@ -1,6 +1,11 @@
 /-
+This file is derived from Álvaro Begué's Schoenflies development.
+
+The reused upstream material was released under the Apache License,
+Version 2.0, as described in the file LICENSE. This file has been modified.
+The upstream copyright and author notices are retained below.
+
 Copyright (c) 2026 Álvaro Begué. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Álvaro Begué
 -/
 import Wikipedia.SchoenfliesTheorem.CellulationInvariants

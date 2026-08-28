@@ -1,6 +1,11 @@
 /-
+Parts of this file are derived from Formal Conjectures.
+
+The reused upstream material was released under the Apache License,
+Version 2.0, as described in the file LICENSE. This file has been modified.
+The upstream copyright and author notices are retained below.
+
 Copyright 2025 The Formal Conjectures Authors.
-Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Mathlib.Geometry.Manifold.Diffeomorph
 import Mathlib.Geometry.Manifold.Instances.Sphere

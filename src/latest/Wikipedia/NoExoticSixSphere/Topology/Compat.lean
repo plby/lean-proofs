@@ -1,6 +1,14 @@
 /-
+This file is derived from Sebastian Kumar's Mathlib development.
+
+Source: https://github.com/leanprover-community/mathlib4/pull/28246
+Source commit: 037ad801e1e5a5b7aa1750957c07f7769812effc.
+
+The reused upstream material was released under the Apache License,
+Version 2.0, as described in the file LICENSE. This file has been modified.
+The upstream copyright and author notices are retained below.
+
 Copyright (c) 2026 Sebastian Kumar. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Kumar
 -/
 module
@@ -9,9 +17,7 @@ public import Mathlib.Topology.Subpath
 public import Mathlib.Logic.Equiv.PartialEquiv
 
 /-!
-Compatibility lemmas from mathlib PR #28246 at commit
-037ad801e1e5a5b7aa1750957c07f7769812effc. These are the small additions made to
-existing mathlib files by that PR; the installed mathlib is not modified.
+Compatibility lemmas from the Mathlib source cited above.
 -/
 
 @[expose] public section

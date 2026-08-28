@@ -1,6 +1,14 @@
 /-
+This file is derived from Yury Kudryashov's Mathlib development.
+
+Source: https://raw.githubusercontent.com/urkud/mathlib4/d43061d911b1aeae0788591da437a3b115098962/Mathlib/Analysis/Complex/UnitDisc/Shift.lean
+Source commit: d43061d911b1aeae0788591da437a3b115098962.
+
+The reused upstream material was released under the Apache License,
+Version 2.0, as described in the file LICENSE. This file has been modified.
+The upstream copyright and author notices are retained below.
+
 Copyright (c) 2025 Yury Kudryashov. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yury Kudryashov
 -/
 
@@ -10,16 +18,8 @@ public import Mathlib.Analysis.Complex.UnitDisc.Basic
 /-!
 # Shift on the unit disc
 
-This file ports the unit-disc shift API needed by the Riemann mapping theorem from
-Yury Kudryashov's Mathlib development, commit
-`d43061d911b1aeae0788591da437a3b115098962`:
-
-<https://raw.githubusercontent.com/urkud/mathlib4/d43061d911b1aeae0788591da437a3b115098962/Mathlib/Analysis/Complex/UnitDisc/Shift.lean>.
-
 `Complex.UnitDisc.shift z` is the automorphism of the unit disc that sends `0` to `z`
-and preserves the diameter joining `0` to `z`. The port retains the original algebraic
-construction and adds continuity in the input point. Unneeded composition and rotation
-formulas are omitted.
+and preserves the diameter joining `0` to `z`.
 -/
 
 open Set Function Metric

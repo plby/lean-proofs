@@ -1,7 +1,14 @@
 /-
-Copyright (c) 2026 Gershon Bialer. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
+This file is derived from Gershon Bialer's ternary-Goldbach development.
 
+The reused upstream material was released under the Apache License,
+Version 2.0, as described in the file LICENSE. This file has been modified.
+The upstream copyright and author notices are retained below.
+
+Copyright (c) 2026 Gershon Bialer. All rights reserved.
+-/
+
+/-
 # Type-II bilinear bound (M3)
 
 Scaffold for milestone **M3** of `ext/analytic_nt` (see `SPEC.md` §4.3).

@@ -1,7 +1,10 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
+This file is released under the Apache License, Version 2.0, as described
+in the file LICENSE. This file has been modified. Its copyright and author
+notices are retained below.
+
 Copyright (c) 2026 Boris Alexeev. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import Wikipedia.SzemeredisTheorem.FormalConjectures139

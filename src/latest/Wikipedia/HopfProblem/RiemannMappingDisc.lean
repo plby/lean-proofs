@@ -1,6 +1,14 @@
 /-
+This file is derived from Yury Kudryashov's Mathlib development.
+
+Source: https://github.com/leanprover-community/mathlib4/pull/33505
+Source commit: d43061d911b1aeae0788591da437a3b115098962.
+
+The reused upstream material was released under the Apache License,
+Version 2.0, as described in the file LICENSE. This file has been modified.
+The upstream copyright and author notices are retained below.
+
 Copyright (c) 2026 Yury Kudryashov. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yury Kudryashov
 -/
 
@@ -14,12 +22,7 @@ import Mathlib.Tactic
 /-!
 # Normalized disc embeddings and strict derivative improvement
 
-Adapted from Yury Kudryashov's Riemann mapping theorem development,
-Mathlib PR 33505, commit `d43061d911b1aeae0788591da437a3b115098962`,
-lines 467–606.  The branch-root API is updated to the bundled Mathlib
-version.  In addition to the source statement, the improvement preserves
-nonvanishing derivatives throughout the domain when the input has that
-property.
+The reused material appears in lines 467–606 of the source cited above.
 -/
 
 noncomputable section

@@ -1,13 +1,15 @@
 /-
-Copyright (c) 2026 Yury Kudryashov. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Yury Kudryashov
+Parts of this file are derived from Yury Kudryashov's Mathlib development.
 
-Adapted and strengthened from
-https://github.com/leanprover-community/mathlib4/pull/33505
+Source: https://github.com/leanprover-community/mathlib4/pull/33505
 Source commit: d43061d911b1aeae0788591da437a3b115098962.
-The admissible class additionally records nonzero derivatives everywhere;
-Hurwitz applied to the derivative family preserves this at the extremizer.
+
+The reused upstream material was released under the Apache License,
+Version 2.0, as described in the file LICENSE. This file has been modified.
+The upstream copyright and author notices are retained below.
+
+Copyright (c) 2026 Yury Kudryashov. All rights reserved.
+Authors: Yury Kudryashov
 -/
 import Wikipedia.HopfProblem.RiemannMappingCompact
 import Wikipedia.HopfProblem.RiemannMappingHurwitz

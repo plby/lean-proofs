@@ -1,11 +1,16 @@
 /-
-Copyright (c) 2026 Gershon Bialer. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
+This file is derived from Gershon Bialer's ternary-Goldbach development.
 
-This is the small, proof-complete interface needed by the q-sensitive
-Vaughan estimate used for Erdős 471.  It extracts the elementary Type-I
-distance estimate from the larger ternary-Goldbach development without
-importing that development's unfinished bridge layer.
+The reused upstream material was released under the Apache License,
+Version 2.0, as described in the file LICENSE. This file has been modified.
+The upstream copyright and author notices are retained below.
+
+Copyright (c) 2026 Gershon Bialer. All rights reserved.
+-/
+
+/-
+This file provides the elementary Type-I distance estimate used by the
+q-sensitive Vaughan estimate.
 -/
 
 import Wikipedia.VinogradovsTheorem.External.MathExtras.NumberTheory.Vinogradov.MinorArcVaughan

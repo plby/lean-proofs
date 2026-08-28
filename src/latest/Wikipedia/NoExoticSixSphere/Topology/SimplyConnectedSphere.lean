@@ -1,12 +1,17 @@
 /-
+This file is derived from Sebastian Kumar's Mathlib development.
+
+Source: https://github.com/leanprover-community/mathlib4/pull/28246
+Source commit: 037ad801e1e5a5b7aa1750957c07f7769812effc.
+
+The reused upstream material was released under the Apache License,
+Version 2.0, as described in the file LICENSE. This file has been modified.
+The upstream copyright and author notices are retained below.
+
 Copyright (c) 2026 Sebastian Kumar. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Kumar
 -/
 module
-
-/- Adapted from mathlib PR #28246, commit
-037ad801e1e5a5b7aa1750957c07f7769812effc. See PROVENANCE.md for local changes. -/
 
 public import Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected
 public import Wikipedia.NoExoticSixSphere.Topology.VanKampen

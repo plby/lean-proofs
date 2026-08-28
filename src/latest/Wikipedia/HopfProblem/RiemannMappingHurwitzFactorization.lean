@@ -1,12 +1,17 @@
 /-
-Copyright (c) 2026 Yury Kudryashov. All rights reserved.
-SPDX-License-Identifier: Apache-2.0
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Yury Kudryashov
+This file is derived from Yury Kudryashov's Mathlib development.
 
-Ported from mathlib4 PR #33505:
-https://github.com/leanprover-community/mathlib4/pull/33505
-Source commit: d43061d911b1aeae0788591da437a3b115098962
+Source: https://github.com/leanprover-community/mathlib4/pull/33505
+Source commit: d43061d911b1aeae0788591da437a3b115098962.
+
+SPDX-License-Identifier: Apache-2.0
+
+The reused upstream material was released under the Apache License,
+Version 2.0, as described in the file LICENSE. This file has been modified.
+The upstream copyright and author notices are retained below.
+
+Copyright (c) 2026 Yury Kudryashov. All rights reserved.
+Authors: Yury Kudryashov
 -/
 import Mathlib.Algebra.BigOperators.Finprod
 import Mathlib.Analysis.Analytic.Order
@@ -21,9 +26,6 @@ The supplied analytic function factors into its finitely many zero factors
 and a nonvanishing analytic function on a compact preconnected set.  Applied
 to a closed complex disc, this gives the logarithmic-derivative argument
 principle needed for Hurwitz's theorem.
-
-This is the factorization and argument-principle portion of the source
-listed above, adapted to the repository's Mathlib version.
 -/
 
 open Set Metric Function Filter
