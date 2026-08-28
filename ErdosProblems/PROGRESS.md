@@ -1,8 +1,8 @@
 # Erdős Problems solution formalization progress
 
-Snapshot: **2026-08-26** · **1,217 problems**
+Snapshot: **2026-08-27** · **1,217 problems**
 
-**🟩 600 formalized · 🟨 5 solved, not formalized here · 🟥 612 open**
+**🟩 601 formalized · 🟨 4 solved, not formalized here · 🟥 612 open**
 
 ## Legend
 
@@ -892,7 +892,7 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos574.json" title="#574: Formalized in this repository with a Comparator setup" aria-label="#574: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/575" title="#575: Open; no complete local Comparator setup counted" aria-label="#575: Open; no complete local Comparator setup counted">🟥</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/576" title="#576: Open; no complete local Comparator setup counted" aria-label="#576: Open; no complete local Comparator setup counted">🟥</a></td>
-      <td align="center"><a href="https://www.erdosproblems.com/577" title="#577: Solved; no complete local Comparator setup counted" aria-label="#577: Solved; no complete local Comparator setup counted">🟨</a></td>
+      <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos577.json" title="#577: Formalized in this repository with a Comparator setup" aria-label="#577: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="../src/latest/ComparatorChallenges/ErdosProblems/Erdos578.json" title="#578: Formalized in this repository with a Comparator setup" aria-label="#578: Formalized in this repository with a Comparator setup">🟩</a></td>
       <td align="center"><a href="https://www.erdosproblems.com/579" title="#579: Open; no complete local Comparator setup counted" aria-label="#579: Open; no complete local Comparator setup counted">🟥</a></td>
     </tr>
@@ -1896,8 +1896,8 @@ Green boxes link to their local Comparator configurations. Red and yellow boxes 
 
 - **Marked “Lean” on EPC, not green here (1):** [#610](https://www.erdosproblems.com/610).
 
-- **Solved on EPC without a “Lean” badge, not green here (4):** [#216](https://www.erdosproblems.com/216), [#504](https://www.erdosproblems.com/504), [#577](https://www.erdosproblems.com/577), [#599](https://www.erdosproblems.com/599).
+- **Solved on EPC without a “Lean” badge, not green here (3):** [#216](https://www.erdosproblems.com/216), [#504](https://www.erdosproblems.com/504), [#599](https://www.erdosproblems.com/599).
 
 <!-- Status snapshot SHA-256 (official range-page HTML):
-375e54d3dac8dbfefee191aee0bb12f9a2f6ea599287741fc29fae08b2899746
+799bba3febf8208f4ab3ddfae238bc2a67f8046b3a0d25bb9721b23a731485e9
 -->
