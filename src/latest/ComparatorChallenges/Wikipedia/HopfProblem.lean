@@ -21,14 +21,14 @@ abbrev SixSphere := Metric.sphere (0 : EuclideanSpace ℝ (Fin 7)) 1
 
 /-- The topological six-sphere admits a complex analytic structure of dimension three. -/
 theorem hopf_problem :
-    ∃ _c : ChartedSpace (EuclideanSpace ℂ (Fin 3)) SixSphere,
+    ∃ c : ChartedSpace (EuclideanSpace ℂ (Fin 3)) SixSphere,
       IsManifold 𝓘(ℂ, EuclideanSpace ℂ (Fin 3)) ω SixSphere := by
   sorry
 
 /-- A complex analytic atlas compatible with the original stereographic smooth atlas.
 The identity map is smooth in both directions between the real structures. -/
 theorem hopf_problem_smooth :
-    ∃ _c : ChartedSpace (EuclideanSpace ℂ (Fin 3)) SixSphere,
+    ∃ c : ChartedSpace (EuclideanSpace ℂ (Fin 3)) SixSphere,
       IsManifold 𝓘(ℂ, EuclideanSpace ℂ (Fin 3)) ω SixSphere ∧
         ContMDiff 𝓘(ℝ, EuclideanSpace ℂ (Fin 3)) (𝓡 6) ∞ (id : SixSphere → SixSphere) ∧
         ContMDiff (𝓡 6) 𝓘(ℝ, EuclideanSpace ℂ (Fin 3)) ∞ (id : SixSphere → SixSphere) := by
@@ -42,8 +42,8 @@ abbrev TwoSphere := Metric.sphere (0 : EuclideanSpace ℝ (Fin 3)) 1
 /-- A single surjective holomorphic map is null-homotopic, for complex atlases
 whose source retains the standard real smooth structure. -/
 theorem holomorphic_nullhomotopic_surjection :
-    ∃ _c₆ : ChartedSpace (EuclideanSpace ℂ (Fin 3)) SixSphere,
-      ∃ _c₂ : ChartedSpace ℂ TwoSphere,
+    ∃ c₆ : ChartedSpace (EuclideanSpace ℂ (Fin 3)) SixSphere,
+      ∃ c₂ : ChartedSpace ℂ TwoSphere,
         IsManifold 𝓘(ℂ, EuclideanSpace ℂ (Fin 3)) ω SixSphere ∧
           IsManifold 𝓘(ℂ) ω TwoSphere ∧
           ContMDiff 𝓘(ℝ, EuclideanSpace ℂ (Fin 3)) (𝓡 6) ∞ (id : SixSphere → SixSphere) ∧
