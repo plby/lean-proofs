@@ -1,6 +1,7 @@
 import Wikipedia.HomotopyGroupsOfSpheres.Circle
 import Wikipedia.HomotopyGroupsOfSpheres.SphereTwo
 import Wikipedia.HomotopyGroupsOfSpheres.SphereTwoThird
+import Wikipedia.HomotopyGroupsOfSpheres.SphereTwoSix
 import Wikipedia.HomotopyGroupsOfSpheres.SphereThreeSix
 import Wikipedia.HomotopyGroupsOfSpheres.SphereSeven
 
@@ -19,6 +20,7 @@ multiplicative notation for homotopy groups.
 * `pi3_sphere_two_mulEquiv`: `π₃(S²) ≅ ℤ`.
 * `pi3_sphere_three_mulEquiv`: `π₃(S³) ≅ ℤ`.
 * `pi6_sphere_three_mulEquiv`: `π₆(S³) ≅ ℤ/12ℤ`.
+* `pi6_sphere_two_mulEquiv`: `π₆(S²) ≅ ℤ/12ℤ`.
 * `pi7_sphere_seven_mulEquiv`: `π₇(S⁷) ≅ ℤ`.
 
 The accompanying `AxiomAudit` module checks their axiom dependencies.

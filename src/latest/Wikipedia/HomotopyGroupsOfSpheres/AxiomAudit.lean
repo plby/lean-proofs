@@ -7122,3 +7122,21 @@ open NoExoticSixSphere.RankSixComplexProjection.SpinorFibration in
 #print axioms Wikipedia.HomotopyGroupsOfSpheres.sphereThreeBasepointHomeomorph_apply
 
 #print axioms Wikipedia.HomotopyGroupsOfSpheres.pi6_sphere_three_mulEquiv
+
+/-! ## Higher Hopf comparison and the sixth homotopy group of the two-sphere -/
+
+#print axioms NoExoticSixSphere.HigherHopf.coordinates
+#print axioms NoExoticSixSphere.HigherHopf.sphereCubeBoundary
+#print axioms NoExoticSixSphere.HigherHopf.boundary_simplyConnected
+#print axioms NoExoticSixSphere.HigherHopf.boundary_locallyPathConnected
+#print axioms NoExoticSixSphere.HigherHopf.boundary_circle_log
+#print axioms NoExoticSixSphere.HigherHopf.boundary_circle_extension
+#print axioms NoExoticSixSphere.HigherHopf.based_cube_lift
+#print axioms NoExoticSixSphere.HigherHopf.pi_surjective
+#print axioms NoExoticSixSphere.HigherHopf.fiber_cube_nullhomotopic
+#print axioms NoExoticSixSphere.HigherHopf.nullhomotopic_of_projection
+#print axioms NoExoticSixSphere.HigherHopf.pi_injective
+#print axioms NoExoticSixSphere.HigherHopf.piMulEquiv
+#print axioms NoExoticSixSphere.HigherHopf.piMulEquiv_apply
+#print axioms NoExoticSixSphere.HigherHopf.piMulEquiv_zero
+#print axioms Wikipedia.HomotopyGroupsOfSpheres.pi6_sphere_two_mulEquiv

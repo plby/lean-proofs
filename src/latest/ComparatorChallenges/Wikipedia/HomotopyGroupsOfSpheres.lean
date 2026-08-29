@@ -32,6 +32,11 @@ theorem pi3_sphere_two (x : Sphere 2) :
     Nonempty (π_ 3 (Sphere 2) x ≃* Multiplicative ℤ) := by
   sorry
 
+/-- The sixth homotopy group of the two-sphere is cyclic of order twelve. -/
+theorem pi6_sphere_two (x : Sphere 2) :
+    Nonempty (π_ 6 (Sphere 2) x ≃* Multiplicative (ZMod 12)) := by
+  sorry
+
 /-- The third homotopy group of the three-sphere is infinite cyclic. -/
 theorem pi3_sphere_three (x : Sphere 3) :
     Nonempty (π_ 3 (Sphere 3) x ≃* Multiplicative ℤ) := by

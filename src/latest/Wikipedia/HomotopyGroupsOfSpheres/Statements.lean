@@ -24,6 +24,10 @@ theorem pi3_sphere_two (x : Sphere 2) :
     Nonempty (π_ 3 (Sphere 2) x ≃* Multiplicative ℤ) :=
   ⟨pi3_sphere_two_mulEquiv x⟩
 
+theorem pi6_sphere_two (x : Sphere 2) :
+    Nonempty (π_ 6 (Sphere 2) x ≃* Multiplicative (ZMod 12)) :=
+  ⟨pi6_sphere_two_mulEquiv x⟩
+
 theorem pi3_sphere_three (x : Sphere 3) :
     Nonempty (π_ 3 (Sphere 3) x ≃* Multiplicative ℤ) :=
   ⟨pi3_sphere_three_mulEquiv x⟩
