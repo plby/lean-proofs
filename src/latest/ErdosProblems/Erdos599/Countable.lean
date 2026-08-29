@@ -11303,7 +11303,7 @@ theorem first_right_contact_after_reachable_mem_alternatingWarp {V : Type}
       · have hnext :=
           (right_dart_neighbor_mem_alternatingWarp_of_nonterminal
             hXY t (q.getVert iz) hizU hizNotTerminal hδY).1
-      
+
         apply hiyNotU
         apply hnext
         simp [δq, hipEq]

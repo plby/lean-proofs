@@ -1,0 +1,15 @@
+import ErdosProblems.Erdos599.SafeSwitchingAssembly
+#check Relation.ReflTransGen.head
+#check Relation.ReflTransGen.tail
+#check Relation.ReflTransGen.mono
+#check Relation.ReflTransGen.single
+#check Relation.TransGen.head
+#check Walk.length_support
+#check Walk.support_length
+#check Walk.length_reverse
+#check List.get_append_left
+#check List.get_append_right
+#check Walk.adj_get_support
+#check Erdos599.Alternating.FinitePath.mem_edgeSet_reverse_iff
+#check Erdos599.DirectedPath.FinitePath.mem_edgeSet_reverse_iff
+#check Erdos599.Alternating.SwitchingCore.FinitePath.mem_edgeSet_reverse_iff
