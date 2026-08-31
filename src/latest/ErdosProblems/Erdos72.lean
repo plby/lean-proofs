@@ -164,8 +164,8 @@ theorem powerTwoUnavoidable : PowerTwoUnavoidable := by
     simp [averageDegree] at haverage
     linarith
   · have hnPos : 0 < n := Nat.pos_of_ne_zero hn
-    letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hnPos
-    letI : DecidableRel G.Adj := Classical.decRel G.Adj
+    let _ : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hnPos
+    let _ : DecidableRel G.Adj := Classical.decRel G.Adj
     have hnReal : (0 : ℝ) < n := by exact_mod_cast hnPos
     have haverage' : (d : ℝ) ≤
         ((2 * G.edgeFinset.card : ℕ) : ℝ) / n := by
