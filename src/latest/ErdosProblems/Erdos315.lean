@@ -2541,7 +2541,9 @@ theorem erdos_315 (a : ℕ → ℕ)
   (h_mono : Monotone a)
   (h_sum : ∑' i, (1 : ℝ) / a i = 1)
   (h_neq : ∃ i, a i ≠ sylvester i) :
-  Filter.liminf (fun i => (a i : ℝ) ^ ((1 / ((2 : ℕ) : ℝ) : ℝ) ^ (i + 1))) Filter.atTop < vardi_constant := by
+  Filter.liminf
+      (fun i => (a i : ℝ) ^ ((1 / ((2 : ℕ) : ℝ) : ℝ) ^ (i + 1))) Filter.atTop <
+    vardi_constant := by
   convert main_theorem 1 ( by norm_num ) a h_pos h_mono _ using 1
   · rw [ show c 1 = vardi_constant from ?_ ]
     · rw [ show generalized_sylvester 1 = sylvester from ?_ ]
