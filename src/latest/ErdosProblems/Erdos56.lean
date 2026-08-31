@@ -3236,6 +3236,7 @@ theorem not_erdos_56 :
     ¬ ((∀ᵉ (N ≥ 2) (k > 0),
           N ≥ k.nth Nat.Prime →
           MaxWeaklyDivisible N k = (FirstPrimesMultiples N k).card)) := by
-  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using Erdos56.erdos_56
+  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using
+    Erdos56.erdos_56
 
 end Erdos56
