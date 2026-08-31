@@ -84,7 +84,7 @@ lemma upperHalf_card {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) :
 lemma not_mem_upperHalf_of_mod_le {p x : ℕ} (hp : p.Prime)
     (hx : x % p ≤ (p - 1) / 2) :
     (x : ZMod p) ∉ upperHalf p hp.ne_zero := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let _ : NeZero p := ⟨hp.ne_zero⟩
   simp only [upperHalf, Finset.mem_filter, Finset.mem_univ, true_and,
     ZMod.val_natCast, not_le]
   have hp2 := hp.two_le
@@ -101,8 +101,7 @@ def blockEmbedding (B : ℕ) [NeZero B] : (ℕ × Fin B) ↪ ℕ where
     have hr := congrArg (fun x : ℕ ↦ x % B) h
     have hB : 0 < B := NeZero.pos B
     simp only [Nat.mul_add_div hB, Nat.div_eq_of_lt r.isLt, add_zero,
-      Nat.add_mod, Nat.mul_mod_right, zero_add, Nat.mod_eq_of_lt r.isLt,
-      Nat.div_eq_of_lt r'.isLt, Nat.mod_eq_of_lt r'.isLt] at hq
+      Nat.div_eq_of_lt r'.isLt] at hq
     simp only [Nat.add_mod, Nat.mul_mod_right, zero_add,
       Nat.mod_eq_of_lt r.isLt, Nat.mod_eq_of_lt r'.isLt] at hr
     exact Prod.ext hq (Fin.ext hr)
@@ -135,7 +134,7 @@ lemma lt_nine_tenths_rpow_of_pow {p n : ℕ} (h : p ^ 10 < n ^ 9) :
   norm_num
 
 lemma common_remainder_le_half {M H B p q r x : ℕ}
-    (hM : 0 < M) (hH : 0 < H) (hBM : M ≤ B)
+    (hM : 0 < M) (hBM : M ≤ B)
     (hpB : B ≤ p) (hpBH : p < B + H)
     (hqH : q * H ≤ M / 16) (hrlo : M / 16 ≤ r) (hrhi : r ≤ B / 2)
     (hp : p.Prime) (hp2 : p ≠ 2)
@@ -164,7 +163,7 @@ lemma common_remainder_le_half {M H B p q r x : ℕ}
       _ = q * p + (r - q * (p - B)) := by rw [hp_split]
   rw [hrewrite]
   simp only [Nat.add_mod, Nat.mul_mod, Nat.mod_self, mul_zero, Nat.zero_mod,
-    zero_add, Nat.mod_mod, Nat.mod_eq_of_lt hremp]
+    zero_add, Nat.mod_eq_of_lt hremp]
   exact (Nat.sub_le r _).trans (hrhi.trans hhalf)
 
 /-! ## Short clusters of primes -/
@@ -341,7 +340,9 @@ lemma eventually_scale_supply (k : ℕ) :
             (1 / 2 : ℝ) * (t : ℝ) ^ 2 * (4 * (t : ℝ) ^ 2) :=
           mul_le_mul_of_nonneg_left hlogupper (by positivity)
         _ = 2 * (t : ℝ) ^ 4 := by ring
-    convert hdiv using 1 <;> push_cast <;> ring
+    convert hdiv using 1
+    all_goals push_cast
+    all_goals ring
   have hMH : (4 * t ^ 4) / (t ^ 3) = 4 * t := by
     rw [show 4 * t ^ 4 = (4 * t) * t ^ 3 by ring,
       Nat.mul_div_left _ (pow_pos htpos 3)]
@@ -489,7 +490,7 @@ theorem erdos_1202_counterexample (k : ℕ) :
     (hcluster (p i0) (hpS i0)).1.trans (hp_le_twoM i0)
   have hMpos : 0 < M := by positivity
   have hBpos : 0 < B := hMpos.trans_le hMB
-  letI : NeZero B := ⟨hBpos.ne'⟩
+  let _ : NeZero B := ⟨hBpos.ne'⟩
   have hloB : M / 16 < B := by
     have hlt : M / 16 < M := Nat.div_lt_self hMpos (by omega)
     exact hlt.trans_le hMB
@@ -516,7 +517,7 @@ theorem erdos_1202_counterexample (k : ℕ) :
     calc
       q * H ≤ u * H := Nat.mul_le_mul_right H huq
       _ = 1728 * u ^ 4 := by dsimp [H, t, u]; ring
-      _ ≤ 5184 * u ^ 4 := by gcongr <;> norm_num
+      _ ≤ 5184 * u ^ 4 := Nat.mul_le_mul_right (u ^ 4) (by norm_num)
   have hRsub : R ⊆ survivors N p A := by
     intro x hxR
     change x ∈ ((Finset.range Q).product Rfin).map (blockEmbedding B) at hxR
@@ -526,10 +527,8 @@ theorem erdos_1202_counterexample (k : ℕ) :
     have hq : q < Q := Finset.mem_range.mp (Finset.mem_product.mp hqr).1
     have hr := Finset.mem_Icc.mp (Finset.mem_product.mp hqr).2
     have hrlo : M / 16 ≤ r.val := by
-      change M / 16 ≤ r.val
       exact hr.1
     have hrhi : r.val ≤ B / 2 := by
-      change r.val ≤ B / 2
       exact hr.2
     have hxone : 1 ≤ B * q + r.val := by
       have hloPos : 0 < M / 16 := by
@@ -549,7 +548,7 @@ theorem erdos_1202_counterexample (k : ℕ) :
     refine ⟨Finset.mem_Icc.mpr ⟨hxone, hxN⟩, ?_⟩
     intro i
     apply not_mem_upperHalf_of_mod_le (hpPrime i)
-    apply common_remainder_le_half hMpos hHpos hMB
+    apply common_remainder_le_half hMpos hMB
       (hcluster (p i) (hpS i)).1 (hcluster (p i) (hpS i)).2
       (hqH q hq) hrlo hrhi (hpPrime i)
     · intro hp2
@@ -562,9 +561,13 @@ theorem erdos_1202_counterexample (k : ℕ) :
       rw [Nat.mul_comm B q]
   have hRcard : R.card = Q * (B / 2 + 1 - M / 16) := by
     dsimp [R, Rfin]
-    simpa [Nat.mod_eq_of_lt hloB] using
-      alignedBlock_card B Q (M / 16) (B / 2)
-        (Nat.div_lt_self hBpos (by omega))
+    have hloEq : (⟨M / 16, hloB⟩ : Fin B) =
+        ⟨(M / 16) % B, Nat.mod_lt _ (NeZero.pos B)⟩ :=
+      Fin.ext (Nat.mod_eq_of_lt hloB).symm
+    rw [hloEq]
+    exact (alignedBlock_card B Q (M / 16) (B / 2)
+      (Nat.div_lt_self hBpos (by norm_num))).trans (by
+        rw [Nat.mod_eq_of_lt hloB])
   have hRlarge : (1 / 10 : ℝ) * N < R.card := by
     let u := max T 100
     have hhalfmono : M / 2 ≤ B / 2 := Nat.div_le_div_right hMB
@@ -579,7 +582,9 @@ theorem erdos_1202_counterexample (k : ℕ) :
       omega
     have hnat : 7 * Q * (M / 16) ≤ R.card := by
       rw [hRcard]
-      nlinarith [Nat.mul_le_mul_left Q hinner]
+      calc
+        7 * Q * (M / 16) = Q * (7 * (M / 16)) := by ring
+        _ ≤ Q * (B / 2 + 1 - M / 16) := Nat.mul_le_mul_left Q hinner
     have hreal : (1 / 10 : ℝ) * N < (7 * Q * (M / 16) : ℕ) := by
       let C : ℕ := 7 * Q * (M / 16)
       have huNat : 0 < u := by dsimp [u]; omega
