@@ -543,4 +543,5 @@ end Erdos1090
 -- 'Erdos1090.exists_set_with_strict_monochromatic_line_property' depends on axioms: [propext,
 -- Classical.choice, Quot.sound]
 
-alias _root_.Erdos1090.exists_set_with_strict_monochromatic_line_property := _root_.Erdos1090.erdos_1090
+alias _root_.Erdos1090.exists_set_with_strict_monochromatic_line_property :=
+  _root_.Erdos1090.erdos_1090
