@@ -220,11 +220,12 @@ theorem exists_ramseyCriticalGraph {a b : ℕ}
   exact hnot
 
 /-- Ramsey extraction from an arbitrary finite vertex set. -/
-theorem monoClique_exists_of_ramsey_le {V : Type*} [Fintype V] [DecidableEq V]
+theorem monoClique_exists_of_ramsey_le {V : Type*}
     (G : SimpleGraph V) {a b : ℕ} {S : Finset V}
     (hcard : ramseyNumber a b ≤ S.card) :
     (∃ K : Finset V, K ⊆ S ∧ G.IsNClique a K) ∨
       (∃ K : Finset V, K ⊆ S ∧ G.IsNIndepSet b K) := by
+  classical
   let H : SimpleGraph {x // x ∈ S} := G.induce S
   have hprop : RamseyProperty a b S.card :=
     ramseyProperty_of_ramseyNumber_le hcard
@@ -257,10 +258,11 @@ theorem monoClique_exists_of_ramsey_le {V : Type*} [Fintype V] [DecidableEq V]
       exact (isNClique_induce_iff (G := G) (S : Set V) K a).1 hK'
 
 /-- A useful single-parameter form of Ramsey extraction. -/
-theorem monoClique_exists_of_card_ge_ramsey {V : Type*} [Fintype V]
-    [DecidableEq V] (G : SimpleGraph V) {t : ℕ} {S : Finset V}
+theorem monoClique_exists_of_card_ge_ramsey {V : Type*}
+    (G : SimpleGraph V) {t : ℕ} {S : Finset V}
     (hcard : ramseyNumber t t ≤ S.card) :
     ∃ K : Finset V, K ⊆ S ∧ MonoClique G t K := by
+  classical
   rcases monoClique_exists_of_ramsey_le G hcard with h | h
   · rcases h with ⟨K, hKS, hK⟩
     exact ⟨K, hKS, Or.inl hK⟩
@@ -269,7 +271,7 @@ theorem monoClique_exists_of_card_ge_ramsey {V : Type*} [Fintype V]
 
 /-- Greedily tile a finite set until its remainder contains no monochromatic
 K_t.  Ramsey's theorem then bounds that remainder by R(t,t)-1. -/
-theorem greedyTiles {V : Type*} [Fintype V] [DecidableEq V]
+theorem greedyTiles {V : Type*} [DecidableEq V]
     (G : SimpleGraph V) {t : ℕ} (ht : 0 < t) (S : Finset V) :
     ∃ D : Finset V, TilesTo G t S D ∧
       (∀ K : Finset V, K ⊆ D → ¬ MonoClique G t K) ∧
@@ -357,7 +359,7 @@ theorem tilesTo_remainder_of_isIndepSet {V : Type*} [DecidableEq V]
 
 /-- The reservoir exchange lemma of Burr--Erdős--Spencer.  The natural number
 e is a bound on the number of exchanges still needed. -/
-theorem absorbBlueCliques {V : Type*} [Fintype V] [DecidableEq V]
+theorem absorbBlueCliques {V : Type*} [DecidableEq V]
     (G : SimpleGraph V) {t e : ℕ} (ht : 3 ≤ t)
     {C D : Finset V}
     (hCD : Disjoint C D) (hC : G.IsClique C)
@@ -730,8 +732,8 @@ theorem remainderBound_besUpper {t n : ℕ} (ht : 3 ≤ t)
 
 /-- In the Ramsey-critical lower-bound coloring, every monochromatic tile
 lies entirely in the red-complete left summand. -/
-theorem monoClique_subset_left_of_critical {A B : Type*} [Fintype A] [Fintype B]
-    [DecidableEq A] [DecidableEq B] (H : SimpleGraph B) {t : ℕ} (ht : 3 ≤ t)
+theorem monoClique_subset_left_of_critical {A B : Type*} [Fintype A]
+    (H : SimpleGraph B) {t : ℕ} (ht : 3 ≤ t)
     (hcrit : H.CliqueFree t ∧ H.IndepSetFree (t - 1))
     {K : Finset (A ⊕ B)} (hK : MonoClique ((⊤ : SimpleGraph A) ⊕g H) t K) :
     K ⊆ (univ : Finset A).map ⟨Sum.inl, Sum.inl_injective⟩ := by
