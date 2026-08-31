@@ -177,7 +177,7 @@ private lemma witnessValue_injective (m : ℕ) :
           cases b <;> cases c
           · congr 2
             apply Fin.ext
-            simp [witnessValue] at him
+            simp only [witnessValue, add_left_inj, Nat.cast_inj] at him
             exact him
           · exfalso
             simp [witnessValue] at him
@@ -191,7 +191,7 @@ private lemma witnessValue_injective (m : ℕ) :
             linarith
           · congr 2
             apply Fin.ext
-            simp [witnessValue] at him
+            simp only [witnessValue, neg_add_rev, add_right_inj, neg_inj, Nat.cast_inj] at him
             exact him
 
 private def witnessEmbedding (m : ℕ) : Fin 4 ⊕ (Fin m × Bool) ↪ ℂ :=
@@ -263,7 +263,7 @@ theorem card_eq_2k_counterexample :
 namespace erdos_494.variants
 
 /-- The exact `card = 2k` variant from the formal-conjectures specification. -/
-theorem erdos_494 : ∀ k > 2, ¬ Erdos494Unique k (2 * k) :=
+theorem card_eq_2k : ∀ k > 2, ¬ Erdos494Unique k (2 * k) :=
   card_eq_2k_counterexample
 
 end erdos_494.variants
@@ -271,5 +271,3 @@ end erdos_494.variants
 end
 
 end Erdos494
-
-alias _root_.Erdos494.erdos_494.variants.card_eq_2k := _root_.Erdos494.erdos_494.variants.erdos_494
