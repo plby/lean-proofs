@@ -17,9 +17,10 @@ private lemma exists_uncountable_fiber {β : Type*} [Countable β]
   intro i hi
   exact Set.mem_iUnion.2 ⟨f i, hi, rfl⟩
 
-private lemma exists_maximal_pairwiseDisjoint [DecidableEq α]
+private lemma exists_maximal_pairwiseDisjoint
     (F : ι → Finset α) (I : Set ι) :
     ∃ J, Maximal (fun J : Set ι ↦ J ⊆ I ∧ J.Pairwise fun i j ↦ Disjoint (F i) (F j)) J := by
+  classical
   let P : Set (Set ι) := {J | J ⊆ I ∧ J.Pairwise fun i j ↦ Disjoint (F i) (F j)}
   simpa only [P, Set.mem_ofPred_eq] using
     (zorn_subset P fun c hc hchain ↦ by
@@ -33,11 +34,12 @@ private lemma exists_maximal_pairwiseDisjoint [DecidableEq α]
 
 /-- If every point-star of a family of nonempty finite sets is countable, then an
 uncountable index set has an uncountable pairwise-disjoint subset. -/
-private lemma exists_uncountable_pairwiseDisjoint [DecidableEq α]
+private lemma exists_uncountable_pairwiseDisjoint
     (F : ι → Finset α) {I : Set ι} (hI : ¬ I.Countable)
     (hne : ∀ i ∈ I, (F i).Nonempty)
     (hstar : ∀ a : α, {i ∈ I | a ∈ F i}.Countable) :
     ∃ J ⊆ I, ¬ J.Countable ∧ J.Pairwise fun i j ↦ Disjoint (F i) (F j) := by
+  classical
   obtain ⟨J, hJmax⟩ := exists_maximal_pairwiseDisjoint F I
   refine ⟨J, hJmax.prop.1, ?_, hJmax.prop.2⟩
   intro hJcount

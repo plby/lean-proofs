@@ -162,8 +162,7 @@ theorem uncountable_lowerNormalized {r : β → β → Prop} [IsWellOrder β r]
       exact ⟨⟨y, hJsub hy.1, rfl⟩, hy.2⟩
     exact Set.countable_of_injective_of_countable_image
       (hp.mono fun _ hy ↦ hJsub hy.1) himage
-  ·
-    refine ⟨I, Set.Subset.rfl, hI, ?_⟩
+  · refine ⟨I, Set.Subset.rfl, hI, ?_⟩
     intro x hxI
     have hpxP : p x ∈ P := ⟨x, hxI, rfl⟩
     have hpredP : {y ∈ P | r y (p x)}.Countable := by
