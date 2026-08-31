@@ -1093,11 +1093,10 @@ theorem not_erdos_125_lower_density :
   have hB : {x : ℕ | (Nat.digits 4 x).toFinset ⊆ {0, 1}} = B := rfl
   have h_zero : (A + B).lowerDensity = 0 := lower_density_zero
   intro h
-  ·
-    rw [hA, hB] at h
-    rw [h_zero] at h
-    revert h
-    norm_num
+  rw [hA, hB] at h
+  rw [h_zero] at h
+  revert h
+  norm_num
 
 end Erdos125
 
@@ -1111,4 +1110,5 @@ open Erdos125
 
 alias _root_.Erdos125.erdos_125 := _root_.Erdos125.not_erdos_125
 
-alias _root_.Erdos125.erdos_125.variants.positive_lower_density := _root_.Erdos125.not_erdos_125_lower_density
+alias _root_.Erdos125.erdos_125.variants.positive_lower_density :=
+  _root_.Erdos125.not_erdos_125_lower_density
