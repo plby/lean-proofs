@@ -402,7 +402,7 @@ lemma commonNeighbors_finite_of_no_completeBipartite {G : SimpleGraph V} {n : �
     (commonNeighbors G f).Finite := by
   rw [← Set.finite_coe_iff]
   by_contra hinf
-  letI : Infinite (commonNeighbors G f) := not_finite_iff_infinite.mp hinf
+  let _ : Infinite (commonNeighbors G f) := not_finite_iff_infinite.mp hinf
   let g₀ : Fin n ↪ commonNeighbors G f :=
     Fin.valEmbedding.trans (Infinite.natEmbedding (commonNeighbors G f))
   let g : Fin n ↪ V := g₀.trans (Function.Embedding.subtype _)
@@ -564,7 +564,7 @@ lemma mem_commonClosure_Iio_exists_Iic [LinearOrder V] {G : SimpleGraph V}
           intro j
           exact ih (f j).property
         choose b hb_lt hb_mem using hgen
-        letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
+        let _ : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
         have huniv : (Finset.univ : Finset (Fin n)).Nonempty := Finset.univ_nonempty
         let bmax : V := Finset.univ.sup' huniv b
         have hb_le (j : Fin n) : b j ≤ bmax := by
@@ -660,7 +660,7 @@ lemma earlierCrossNeighbors_finite [LinearOrder V] [WellFoundedLT V]
     (earlierCrossNeighbors G n v).Finite := by
   rw [← Set.finite_coe_iff]
   by_contra hinf
-  letI : Infinite (earlierCrossNeighbors G n v) := not_finite_iff_infinite.mp hinf
+  let _ : Infinite (earlierCrossNeighbors G n v) := not_finite_iff_infinite.mp hinf
   let f : Fin n ↪ earlierCrossNeighbors G n v :=
     Fin.valEmbedding.trans (Infinite.natEmbedding (earlierCrossNeighbors G n v))
   let fcl : Fin n ↪ commonClosure G n (Iio (closureRank G n v)) :=
@@ -707,9 +707,9 @@ lemma finitePredecessorColor_ne {r : V → V → Prop} (hr : WellFounded r)
   apply ne_of_lt
   conv_rhs => rw [WellFounded.fix_eq]
   unfold finitePredecessorColorStep
-  letI : Finite {w // r w v ∧ G.Adj w v} :=
+  let _ : Finite {w // r w v ∧ G.Adj w v} :=
     Set.finite_coe_iff.mpr (hfin v)
-  letI : Fintype {w // r w v ∧ G.Adj w v} := Fintype.ofFinite _
+  let _ : Fintype {w // r w v ∧ G.Adj w v} := Fintype.ofFinite _
   exact Nat.lt_succ_of_le <| Finset.le_sup
     (f := fun w : {w // r w v ∧ G.Adj w v} ↦
       hr.fix (finitePredecessorColorStep G hfin) w.1)
@@ -772,9 +772,9 @@ theorem nonempty_coloring_of_no_completeBipartite {n : ℕ} (hn : 0 < n) :
         · exact nonempty_coloring_of_mk_le_aleph0 G hcount
         · have huncountable : Cardinal.aleph0 < Cardinal.mk W := lt_of_not_ge hcount
           obtain ⟨r, hr, hord⟩ := Cardinal.exists_ord_eq W
-          letI : IsWellOrder W r := hr
-          letI : LinearOrder W := IsWellOrder.linearOrder r
-          letI : WellFoundedLT W := ⟨hr.wf⟩
+          let _ : IsWellOrder W r := hr
+          let _ : LinearOrder W := IsWellOrder.linearOrder r
+          let _ : WellFoundedLT W := ⟨hr.wf⟩
           have hord' : (Cardinal.mk W).ord = typeLT W := hord
           have hfiberColor (a : W) :
               Nonempty ((G.induce (rankFiber G n a)).Coloring ℕ) := by
