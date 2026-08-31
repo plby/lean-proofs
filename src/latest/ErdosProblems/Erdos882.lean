@@ -101,7 +101,8 @@ lemma binaryWeight_add_geomSum_le (n : ℕ) (s : Finset ℕ) :
       calc
         binaryWeight (n + (2 ^ i + ∑ j ∈ s, 2 ^ j)) =
             binaryWeight ((n + ∑ j ∈ s, 2 ^ j) + 2 ^ i) := by
-              congr 1 <;> omega
+              congr 1
+              omega
         _ ≤ binaryWeight (n + ∑ j ∈ s, 2 ^ j) + 1 :=
           binaryWeight_add_pow_le _ _
         _ ≤ binaryWeight n + (insert i s).card := by
@@ -279,7 +280,8 @@ private lemma no_proper_divisor
   have hyupper : y < (d * k) * 2 ^ m := by
     have hh := Nat.mul_lt_mul_of_pos_right hxlt (by omega : 0 < d)
     rw [hxy]
-    convert hh using 1 <;> ring
+    convert hh using 1
+    all_goals ring
   have hlcoef : l - 1 < d * k :=
     (Nat.mul_lt_mul_right hM).mp (hylow.trans hyupper)
   have hldk : l ≤ d * k := by omega
@@ -288,7 +290,8 @@ private lemma no_proper_divisor
   have hdxlow : (d * (k - 1)) * 2 ^ m < y := by
     have hh := Nat.mul_lt_mul_of_pos_right hxlow (by omega : 0 < d)
     rw [hxy]
-    convert hh using 1 <;> ring
+    convert hh using 1
+    all_goals ring
   have hcoef : d * (k - 1) < l :=
     (Nat.mul_lt_mul_right hM).mp (hdxlow.trans hylt)
   have hdk : d * (k - 1) + d = d * k := by
@@ -345,7 +348,8 @@ private lemma no_proper_divisor
         2 * (d * q) = d * (2 * q) := by ring
         _ ≤ d * 2 ^ m := hh
         _ ≤ 2 * ((d - 1) * 2 ^ m) := by
-          convert hh' using 1 <;> ring
+          convert hh' using 1
+          all_goals ring
     omega
   omega
 
@@ -473,8 +477,7 @@ private lemma recover_indices {m : ℕ} {U : Finset ℕ} (hU : U ⊆ constructio
     simp only [Finset.sum_map]
     change (∑ i ∈ P, (2 ^ m - 2 ^ i.val)) = indexedSum m S
     unfold indexedSum
-    simpa [S, valEmbedding] using
-      (Finset.sum_map P (valEmbedding m) (fun i : ℕ => 2 ^ m - 2 ^ i)).symm
+    simp [S, valEmbedding]
 
 /-- Every pair of nonempty subset sums of the construction is incomparable by divisibility. -/
 theorem construction_subset_sums_primitive (m : ℕ) :
