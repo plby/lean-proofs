@@ -304,7 +304,7 @@ theorem tendsto_completeCompanion_mean_mul_sub_mul {f : ℕ → ℝ}
       rw [Nat.add_sub_of_le huv] at hsum
       exact hsum.symm
     rw [htel]
-    have hsum := tendsto_finset_sum (Finset.range d) (fun j _hj =>
+    have hsum := tendsto_finsetSum (Finset.range d) (fun j _hj =>
       hadj (u + j) (by omega))
     simpa using hsum
   rcases le_total a b with hab | hba
@@ -400,7 +400,7 @@ lemma avoids_empty (n : ℕ) : Avoids ∅ n := by
 
 lemma avoids_insert {P : Finset ℕ} {p n : ℕ} :
     Avoids (insert p P) n ↔ ¬p ∣ n ∧ Avoids P n := by
-  simp [Avoids, and_comm]
+  simp [Avoids]
 
 lemma avoids_prime_mul_iff {P : Finset ℕ} {p m : ℕ}
     (hp : p.Prime) (hP : ∀ q ∈ P, q.Prime) (hpP : p ∉ P) :
@@ -452,7 +452,7 @@ lemma avoidanceSum_insert {c : ℕ → ℝ} {P : Finset ℕ} {p X : ℕ}
       (avoidanceFinset P X).filter (fun n => ¬p ∣ n) =
         avoidanceFinset (insert p P) X := by
     ext n
-    simp [avoidanceFinset, avoids_insert, and_assoc, and_left_comm, and_comm]
+    simp [avoidanceFinset, avoids_insert, and_assoc, and_comm]
   have hdvd := sum_avoidance_multiples (c := c) (X := X) hp hP hpP
   rw [hnot, hdvd] at hsplit
   have hmul : (∑ m ∈ avoidanceFinset P (X / p), c (p * m)) =
@@ -702,7 +702,9 @@ theorem eventually_abs_completeCompanion_mean_mul_le {f : ℕ → ℝ}
     nlinarith [abs_nonneg M]
   have htri : |M * E| ≤ |U| + |U - M * E| := by
     calc
-      |M * E| = |U - (U - M * E)| := by congr 1 <;> ring
+      |M * E| = |U - (U - M * E)| := by
+        congr 1
+        ring
       _ ≤ |U| + |U - M * E| := abs_sub U (U - M * E)
   dsimp only [M, U, E] at hME htri
   exact (hME.trans htri).trans (by linarith)
@@ -852,7 +854,7 @@ theorem summable_of_multiplicative_prime_tails (w : ℕ → ℝ)
     have hs : Summable (fun k : ℕ => w (p ^ k)) :=
       (hlocal_full hp).of_norm
     rw [← hs.sum_add_tsum_nat_add 1]
-    simp [tail, hp, hw1, Nat.add_comm]
+    simp [tail, hp, hw1]
   apply summable_of_sum_range_le hw_nonneg
     (c := Real.exp (∑' p : ℕ, tail p))
   intro N
@@ -1248,7 +1250,7 @@ lemma companionTransfer_mul_companion {f : ℕ → ℝ}
       ext n
       by_cases hn : n = 0
       · subst n
-        simp [relativeSign]
+        simp
       have hnpos : 0 < n := Nat.pos_of_ne_zero hn
       rw [ArithmeticFunction.pmul_apply, companionArithmetic_apply,
         arithmeticFunction_apply_of_pos (relativeSign f) hnpos,
