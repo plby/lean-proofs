@@ -117,7 +117,7 @@ lemma line_sum_eq {M ι : Type*} [AddCommMonoid M] [Fintype ι]
     apply Finset.sum_congr rfl
     intro i hi
     rw [wildcards, Finset.mem_filter] at hi
-    simpa [Combinatorics.Line.coe_apply, hi.2]
+    simp [Combinatorics.Line.coe_apply, hi.2]
   · unfold fixedSum
     apply Finset.sum_congr rfl
     intro i hi
@@ -286,7 +286,7 @@ theorem good_exists_ge_two (k : ℕ) (hk : 2 ≤ k) :
       have hpt₀ (u : Fin k) :
           pt (l z₀) (Fin.succ u) = P₀.term u := by
         apply Fin.ext
-        simp only [pt, AP.term_val, P₀, Fin.succ_mk]
+        simp only [pt, AP.term_val, P₀]
         dsimp [a, d]
         ring
       have hcenter :
@@ -307,7 +307,7 @@ theorem good_exists_ge_two (k : ℕ) (hk : 2 ≤ k) :
       have hleft (t : Fin k) :
           pt (l (z t)) (Fin.succ i) = pt (l z₀) (Fin.succ i) := by
         apply Fin.ext
-        simp only [pt, Fin.succ_mk]
+        simp only [pt]
         rw [hsum₁, hsum₂, hsum₁, hsum₂]
         dsimp [z, z₀, x]
         have hcancel : M - (i.1 + 1) * t.1 + (i.1 + 1) * t.1 = M :=
@@ -346,7 +346,7 @@ theorem good_exists_ge_two (k : ℕ) (hk : 2 ≤ k) :
       have hright (v : Fin k) :
           P.term v = pt (l (z v)) (Fin.succ j) := by
         apply Fin.ext
-        simp only [AP.term_val, P, pt, Fin.succ_mk]
+        simp only [AP.term_val, P, pt]
         exact hright_val v
       rw [hright t, hright u]
       exact ht.symm.trans hu
@@ -470,9 +470,9 @@ lemma card_monoColorings_le {r N k : ℕ} (hk : 1 ≤ k) (P : AP N k) :
   classical
   let i₀ : Fin k := ⟨0, hk⟩
   let Range := Set.range P.term
-  letI : Fintype Range := Fintype.ofFinite Range
+  let _ : Fintype Range := Fintype.ofFinite Range
   let Off := {x : Fin N // x ∉ Range}
-  letI : Fintype Off := Fintype.ofFinite Off
+  let _ : Fintype Off := Fintype.ofFinite Off
   let encode : MonoColorings r P → Fin r × (Off → Fin r) :=
     fun c => (c.1 (P.term i₀), fun x => c.1 x.1)
   have hencode : Injective encode := by
@@ -490,8 +490,9 @@ lemma card_monoColorings_le {r N k : ℕ} (hk : 1 ≤ k) (P : AP N k) :
     simpa [Range] using
       (Fintype.card_congr (Equiv.ofInjective P.term P.term_injective)).symm
   have hoff : Fintype.card Off = N - k := by
-    simpa [Off, Fintype.card_fin, hrange] using
-      (Fintype.card_subtype_compl (fun x : Fin N => x ∈ Range))
+    dsimp [Off]
+    rw [Fintype.card_subtype_compl]
+    simp [hrange]
   calc
     Fintype.card (MonoColorings r P)
         ≤ Fintype.card (Fin r × (Off → Fin r)) :=
@@ -506,8 +507,8 @@ theorem avoidable_of_sq_lt_pow {r k N : ℕ} (hr : 2 ≤ r) (hk : 2 ≤ k)
     Avoidable r k N := by
   classical
   let e := apEmbedding (N := N) hk
-  letI : Finite (AP N k) := Finite.of_injective e e.injective
-  letI : Fintype (AP N k) := Fintype.ofFinite (AP N k)
+  let _ : Finite (AP N k) := Finite.of_injective e e.injective
+  let _ : Fintype (AP N k) := Fintype.ofFinite (AP N k)
   let bad (P : AP N k) : Finset (Fin N → Fin r) :=
     Finset.univ.filter fun c => Monochromatic c P
   let allBad : Finset (Fin N → Fin r) :=
@@ -601,7 +602,7 @@ arithmetic progression run through every residue modulo `p`. -/
 lemma residue_surjective {p a d : ℕ} (hp : p.Prime) (hpd : ¬p ∣ d) :
     Surjective (fun i : Fin p =>
       (⟨(a + i.1 * d) % p, Nat.mod_lt _ hp.pos⟩ : Fin p)) := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let _ : Fact p.Prime := ⟨hp⟩
   apply Finite.surjective_of_injective
   intro i j hij
   apply Fin.ext
@@ -782,7 +783,8 @@ lemma eventually_prime_window :
   · have hreal : (p : ℝ) < k := by
       calc
         (p : ℝ) < (21 / 20 : ℝ) * ((19 / 20 : ℝ) * (k : ℝ)) := by
-          convert hpHigh using 1 <;> norm_num
+          norm_num at hpHigh ⊢
+          exact hpHigh
         _ = (399 / 400 : ℝ) * (k : ℝ) := by ring
         _ < (k : ℝ) := by nlinarith [show (0 : ℝ) < k by positivity]
     exact_mod_cast hreal
