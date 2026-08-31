@@ -159,9 +159,9 @@ lemma mass_union_le [DecidableEq Ω] (P : FinProb Ω) (S T : Finset Ω) :
         (Finset.sum_le_sum_of_subset_of_nonneg (Finset.sdiff_subset : T \ S ⊆ T)
           fun x hxT hxTS => P.weight_nonneg x) _
 
-lemma mass_biUnion_le_sum [DecidableEq Ω] {ι : Type*} [DecidableEq ι]
-    (P : FinProb Ω) (I : Finset ι) (E : ι → Finset Ω) :
+lemma mass_biUnion_le_sum {ι : Type*} (P : FinProb Ω) (I : Finset ι) (E : ι → Finset Ω) :
     P.mass (I.biUnion E) ≤ ∑ i ∈ I, P.mass (E i) := by
+  classical
   induction I using Finset.induction_on with
   | empty => simp
   | @insert i I hi ih =>
@@ -169,10 +169,11 @@ lemma mass_biUnion_le_sum [DecidableEq Ω] {ι : Type*} [DecidableEq ι]
       exact (P.mass_union_le (E i) (I.biUnion E)).trans
         (add_le_add_right ih _)
 
-lemma exists_outside_of_sum_mass_lt_one [DecidableEq Ω]
-    {ι : Type*} [DecidableEq ι] (P : FinProb Ω) (I : Finset ι)
+lemma exists_outside_of_sum_mass_lt_one
+    {ι : Type*} (P : FinProb Ω) (I : Finset ι)
     (E : ι → Finset Ω) (hsmall : (∑ i ∈ I, P.mass (E i)) < 1) :
     ∃ x : Ω, ∀ i ∈ I, x ∉ E i := by
+  classical
   have hproper : I.biUnion E ≠ (Finset.univ : Finset Ω) := by
     intro hall
     have hunion : P.mass (I.biUnion E) = 1 := by rw [hall, P.mass_univ]
@@ -185,10 +186,11 @@ lemma exists_outside_of_sum_mass_lt_one [DecidableEq Ω]
   simp only [Finset.mem_biUnion, Finset.mem_univ, iff_true]
   exact hnone x
 
-lemma mass_le_of_pointwise [DecidableEq Ω] (P Q : FinProb Ω)
+lemma mass_le_of_pointwise (P Q : FinProb Ω)
     (S : Finset Ω) {c : ℝ}
     (hpoint : ∀ x, P.weight x ≤ c * Q.weight x) :
     P.mass S ≤ c * Q.mass S := by
+  classical
   rw [mass, mass, Finset.mul_sum]
   exact Finset.sum_le_sum fun x _ => hpoint x
 
@@ -217,10 +219,12 @@ def fibreDensity (B : X → Finset Y) (x : X) : ℝ :=
 lemma card_pos_real : (0 : ℝ) < Fintype.card Y := by
   exact_mod_cast Fintype.card_pos
 
+omit [Fintype X] in
 lemma fibreDensity_nonneg (B : X → Finset Y) (x : X) :
     0 ≤ fibreDensity B x := by
   exact div_nonneg (by positivity) (card_pos_real.le)
 
+omit [Fintype X] in
 lemma fibreDensity_le_one (B : X → Finset Y) (x : X) :
     fibreDensity B x ≤ 1 := by
   rw [fibreDensity, div_le_one (card_pos_real)]
@@ -254,11 +258,13 @@ lemma sum_ite_mem (S : Finset Y) (a b : ℝ) :
   rw [Finset.sum_ite]
   simp [hcard]
 
+omit [Fintype X] in
 lemma one_sub_fibreDensity_pos_of_le
     (B : X → Finset Y) (x : X) {δ : ℝ} (hδ : δ < 1)
     (hα : fibreDensity B x ≤ δ) : 0 < 1 - fibreDensity B x := by
   linarith
 
+omit [Fintype X] in
 lemma fibreDensity_pos_of_not_le
     (B : X → Finset Y) (x : X) {δ : ℝ} (hδ : 0 ≤ δ)
     (hα : ¬fibreDensity B x ≤ δ) : 0 < fibreDensity B x := by
@@ -269,6 +275,7 @@ lemma cast_card_sub (S : Finset Y) :
       (Fintype.card Y : ℝ) - (S.card : ℝ) := by
   exact_mod_cast Nat.cast_sub (Finset.card_le_univ S)
 
+omit [Fintype X] in
 /-- The multiplier has average one on every fibre. -/
 lemma sum_multiplier (B : X → Finset Y) {δ : ℝ}
     (hδ0 : 0 ≤ δ) (hδ1 : δ < 1) (x : X) :
@@ -308,6 +315,7 @@ lemma sum_multiplier (B : X → Finset Y) {δ : ℝ}
     field_simp [hαne, hδne]
     ring
 
+omit [Fintype X] in
 lemma multiplier_nonneg (B : X → Finset Y) {δ : ℝ}
     (hδ0 : 0 ≤ δ) (hδ1 : δ < 1) (x : X) (y : Y) :
     0 ≤ multiplier B δ x y := by
@@ -326,6 +334,7 @@ lemma multiplier_nonneg (B : X → Finset Y) {δ : ℝ}
         (mul_nonneg hαpos.le hδpos.le)
     · exact inv_nonneg.mpr hδpos.le
 
+omit [Fintype X] in
 lemma multiplier_le (B : X → Finset Y) {δ : ℝ}
     (hδ0 : 0 ≤ δ) (hδ1 : δ < 1) (x : X) (y : Y) :
     multiplier B δ x y ≤ (1 - δ)⁻¹ := by
@@ -408,6 +417,7 @@ distortion. -/
 def removedFraction (δ α : ℝ) : ℝ :=
   if α ≤ δ then 0 else (α - δ) / (1 - δ)
 
+omit [Fintype X] in
 lemma cast_card_eq_density_mul (B : X → Finset Y) (x : X) :
     ((B x).card : ℝ) = fibreDensity B x * (Fintype.card Y : ℝ) := by
   rw [fibreDensity]
@@ -1894,7 +1904,7 @@ lemma prod_secondLocal_stageExponent
     rw [secondLocalFactor, stageCoefficient_of_lt Q d₁ hi,
       stageCoefficient_of_lt Q d₂ hi]
     simp only [Fin.val_last, if_true, stageExponentVector, stageCoordinate,
-      hapos₁.1, hapos₂.1, or_false, false_or, if_false]
+      hapos₁.1, hapos₂.1, or_false, if_false]
     have hp : primeAt Q ⟨i, hi⟩ ≠ 0 := (primeAt_prime Q ⟨i, hi⟩).ne_zero
     push_cast
     rw [pow_add]
@@ -2080,8 +2090,7 @@ lemma fin_inv_pow_sum_eq (p γ : ℕ) (hp : p ≠ 0) (hp1 : p ≠ 1) :
   | zero => simp
   | succ γ ih =>
       rw [Fin.sum_univ_castSucc]
-      simp only [Fin.coe_castSucc, ih, Fin.val_last, Nat.add_eq_zero, Nat.succ_ne_zero,
-        and_false, if_false]
+      simp only [Fin.val_castSucc, ih, Fin.val_last, Nat.succ_ne_zero, if_false]
       push_cast
       have hpR : (p : ℝ) ≠ 0 := by exact_mod_cast hp
       have hp1R : (p : ℝ) - 1 ≠ 0 := sub_ne_zero.mpr (by exact_mod_cast hp1)
@@ -2259,10 +2268,10 @@ lemma sum_firstLocalFactor_le
   have hp2 : 2 ≤ p := (primeAt_prime Q (stageCoordinate Q hi j)).two_le
   have hgeom := fin_inv_pow_sum_le p γ hp2
   by_cases hjlast : j.1 = i
-  · simp only [firstLocalFactor, p, γ, hjlast, if_true]
+  · simp only [firstLocalFactor, hjlast, if_true]
     exact hgeom
   · rw [if_neg hjlast]
-    simp only [firstLocalFactor, p, γ, hjlast, if_false]
+    simp only [firstLocalFactor, hjlast, if_false]
     have hinv : 0 ≤ (1 - S.delta j.1)⁻¹ :=
       inv_nonneg.mpr (by linarith [S.delta_lt_one j.1])
     calc
@@ -2304,7 +2313,7 @@ lemma sum_secondLocalFactor_le
   have hgeom := fin_inv_pow_sum_le p γ hp2
   have hdouble := fin_double_max_sum_le p γ hp2
   by_cases hjlast : j.1 = i
-  · simp only [secondLocalFactor, p, γ, hjlast, if_true]
+  · simp only [secondLocalFactor, hjlast, if_true]
     let f : Fin (γ + 1) → ℝ := fun e =>
       if e.1 = 0 then 0 else 1 / (((p ^ e.1 : ℕ) : ℝ))
     have hrewrite (e₁ e₂ : Fin (γ + 1)) :
@@ -2338,7 +2347,7 @@ lemma sum_secondLocalFactor_le
           dsimp only [f]
           positivity) hgeom
   · rw [if_neg hjlast]
-    simp only [secondLocalFactor, p, γ, hjlast, if_false]
+    simp only [secondLocalFactor, hjlast, if_false]
     have hinv : 0 ≤ (1 - S.delta j.1)⁻¹ :=
       inv_nonneg.mpr (by linarith [S.delta_lt_one j.1])
     let splitTerm : Fin (γ + 1) → Fin (γ + 1) → ℝ := fun e₁ e₂ =>
@@ -2349,11 +2358,15 @@ lemma sum_secondLocalFactor_le
     have hone :
         (∑ e₁ : Fin (γ + 1), ∑ e₂ : Fin (γ + 1),
           if max e₁.1 e₂.1 = 0 then (1 : ℝ) else 0) = 1 := by
-      simp [Fin.sum_univ_succ, max_eq_zero]
-      rw [show (Finset.univ.filter fun x : Fin (γ + 1) => x = 0) = {0} by
-        ext x
-        simp]
-      simp
+      simp only [max_eq_zero, Fin.val_eq_zero_iff, Finset.sum_boole]
+      classical
+      rw [Finset.sum_eq_single 0]
+      · norm_cast
+        rw [Finset.card_eq_one]
+        exact ⟨0, by ext e; simp⟩
+      · intro e he_mem he_ne
+        simp [he_ne]
+      · simp
     calc
       (∑ e₁ : Fin (γ + 1), ∑ e₂ : Fin (γ + 1),
         if max e₁.1 e₂.1 = 0 then 1 else
@@ -2419,7 +2432,7 @@ lemma sum_stage_first_products_le_standard
       congr 1
       apply Fintype.prod_congr
       intro j
-      simp only [Fin.val_castSucc, Nat.ne_of_lt j.2, if_false, stageCoordinate]
+      simp only [Fin.val_castSucc, Nat.ne_of_lt j.2, if_false]
 
 lemma sum_stage_second_products_le_standard
     (S : Distortion.Schedule (primePowerSize Q))
@@ -2466,7 +2479,7 @@ lemma sum_stage_second_products_le_standard
       congr 1
       apply Fintype.prod_congr
       intro j
-      simp only [Fin.val_castSucc, Nat.ne_of_lt j.2, if_false, stageCoordinate]
+      simp only [Fin.val_castSucc, Nat.ne_of_lt j.2, if_false]
 
 lemma firstMoment_stageBad_le_standard
     (Q : ℕ) (D : Finset ℕ) (a : ℕ → ℤ)
@@ -2570,9 +2583,9 @@ lemma prod_primeAt_pow_factorization_eq
       intro j
       rfl
     _ = ∏ p ∈ Q.primeFactors, p ^ d.factorization p := by
-      simpa using
-        (Finset.prod_attach Q.primeFactors
-          (fun p : ℕ => p ^ d.factorization p))
+      exact
+        Finset.prod_attach Q.primeFactors
+          (fun p : ℕ => p ^ d.factorization p)
     _ = ∏ p ∈ d.primeFactors, p ^ d.factorization p := by
       symm
       apply Finset.prod_subset (Nat.primeFactors_mono hdQ hQ)
@@ -2719,18 +2732,19 @@ lemma mem_classCoordinates_iff_cast
         (finPrimePowerEquiv Q i x) =
       (b : ZMod ((primeAt Q i) ^ d.factorization (primeAt Q i))) := by
   by_cases he : d.factorization (primeAt Q i) = 0
-  · simp [classCoordinates, primeRestriction, finPrimePowerEquiv, i.isLt, he]
-    have hone : (primeAt Q i) ^ d.factorization (primeAt Q i) = 1 := by
-      rw [he, pow_zero]
-    rw [hone]
-    exact Subsingleton.elim _ _
-  · simp [classCoordinates, primeRestriction, finPrimePowerEquiv, i.isLt, he]
-    have hcast :
+  · constructor
+    · intro _
+      haveI : Subsingleton (ZMod ((primeAt Q i) ^ d.factorization (primeAt Q i))) := by
+        rw [he, pow_zero]
+        infer_instance
+      exact Subsingleton.elim _ _
+    · intro _
+      simp [classCoordinates, primeRestriction, i.isLt, he]
+  · have hcast :
         (Equiv.cast (congrArg Fin (primePowerSize_of_lt Q i.isLt).symm)).symm x =
           Equiv.cast (congrArg Fin (primePowerSize_of_lt Q i.isLt)) x := by
       rfl
-    rw [hcast]
-    constructor <;> intro h <;> convert h using 1 <;> congr 2
+    simp [classCoordinates, primeRestriction, finPrimePowerEquiv, i.isLt, he, hcast]
 
 /-- A full prefix belongs to a congruence-class box whenever its CRT residue
 reduces to that class modulo `d`. -/
@@ -3444,7 +3458,7 @@ lemma firstLocalFactor_primeTailDelta
       Arithmetic.stageCoordinate]
     by_cases he : d.1.factorization (Arithmetic.primeAt Q ⟨j.1, hjpc⟩) = 0
     · simp [he]
-    · simp [S, Arithmetic.arithmeticSchedule, hdelta, he]
+    · simp [Arithmetic.arithmeticSchedule, hdelta, he]
 
 /-- At a stage below the prime cutoff, the first-moment weight of an assigned
 modulus is exactly its reciprocal. -/
@@ -3474,8 +3488,10 @@ lemma small_stage_weight_eq_inv
       exact Arithmetic.prod_firstLocal_stageExponent S hQ
         (hd d.1 d.2) (hdQ d.1 d.2) hi ha
     _ = ∏ j : Fin (i + 1),
-        (1 : ℝ) / ((Arithmetic.primeAt Q (Arithmetic.stageCoordinate Q hi j) ^
-          d.1.factorization (Arithmetic.primeAt Q (Arithmetic.stageCoordinate Q hi j)) : ℕ) : ℝ) := by
+        (1 : ℝ) /
+          ((Arithmetic.primeAt Q (Arithmetic.stageCoordinate Q hi j) ^
+            d.1.factorization
+              (Arithmetic.primeAt Q (Arithmetic.stageCoordinate Q hi j)) : ℕ) : ℝ) := by
       apply Fintype.prod_congr
       intro j
       exact firstLocalFactor_primeTailDelta Q D a hQ hd hdQ K hi d ha hpK j
