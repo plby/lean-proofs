@@ -39,10 +39,10 @@ open scoped BigOperators
 def P (n : ℕ) : ℕ := n.primeFactors.max.getD 1
 
 lemma P_pos (n : ℕ) : 0 < P n := by
-  rcases n with (_ | _ | n) <;> simp_all +arith +decide [P]
-  rcases h : Finset.max ((n + 2).primeFactors) with (_ | _ | p) <;>
-    simp_all +arith +decide
-  exact absurd (Finset.mem_of_max h) (by norm_num)
+  unfold P
+  rcases h : n.primeFactors.max with _ | p
+  · simp
+  · simpa using Nat.pos_of_mem_primeFactors (Finset.mem_of_max h)
 
 lemma P_prime {p : ℕ} (hp : p.Prime) : P p = p := by
   unfold P
@@ -196,7 +196,6 @@ lemma descending_at_of_two_affine_primes
     (hp : (c * d * M * r + 1).Prime)
     (hq : ((c + 1) * d * M * r + 1).Prime)
     (hlarge : c + 2 < c * d * M * r + 1) :
-    let p := c * d * M * r + 1
     let q := (c + 1) * d * M * r + 1
     let n := c * q
     P n > P (n + 1) ∧ P (n + 1) > P (n + 2) := by
@@ -269,7 +268,7 @@ lemma descending_at_of_ordered_kim_pair {k : ℕ} (K : KimFamily k)
     by_contra hcZero
     have : c = 0 := Nat.eq_zero_of_not_pos hcZero
     subst c
-    simp at hcEq
+    rw [mul_zero] at hcEq
     exact (K.coeff_pos i).ne' hcEq
   have hi : K.coeff i = c * d := by
     rw [mul_comm]
