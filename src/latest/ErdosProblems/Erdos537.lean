@@ -1867,10 +1867,14 @@ lemma density_implies_interval_bound {S : Set ℕ} (d : ℝ) (hd : d > 0) (h : H
 /-
 Put together the results above.
 -/
-theorem not_erdos_537 : ¬(∀ ε > 0, ∃ N₀, ∀ N ≥ N₀, ∀ A, A ⊆ Finset.range (N + 1) → (A.card : ℝ) ≥ ε * N
-  →
-  ∃ a₁ ∈ A, ∃ a₂ ∈ A, ∃ a₃ ∈ A, ∃ p₁ p₂ p₃, p₁.Prime ∧ p₂.Prime ∧ p₃.Prime ∧
-  p₁ ≠ p₂ ∧ p₁ ≠ p₃ ∧ p₂ ≠ p₃ ∧ a₁ * p₁ = a₂ * p₂ ∧ a₂ * p₂ = a₃ * p₃) := by
+theorem not_erdos_537 :
+    ¬(∀ ε > 0, ∃ N₀, ∀ N ≥ N₀, ∀ A,
+      A ⊆ Finset.range (N + 1) →
+      (A.card : ℝ) ≥ ε * N →
+      ∃ a₁ ∈ A, ∃ a₂ ∈ A, ∃ a₃ ∈ A, ∃ p₁ p₂ p₃,
+        p₁.Prime ∧ p₂.Prime ∧ p₃.Prime ∧
+        p₁ ≠ p₂ ∧ p₁ ≠ p₃ ∧ p₂ ≠ p₃ ∧
+        a₁ * p₁ = a₂ * p₂ ∧ a₂ * p₂ = a₃ * p₃) := by
   by_contra h_contra;
   -- Apply the theorem `answer` to obtain the contradiction.
   apply answer;
