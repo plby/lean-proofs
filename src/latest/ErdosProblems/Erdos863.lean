@@ -110,10 +110,11 @@ lemma ruzsaSet_sidon (p : ℕ) (hp : p.Prime) (g : ZMod p)
     (hg : IsPrimitiveRoot g (p - 1)) :
     Sidon (ruzsaSet p g : Set (ZMod (p - 1) × ZMod p)) := by
   intro a b c d
-  simp [ruzsaSet]
+  simp only [ruzsaSet, Finset.coe_image, Finset.coe_range, Set.mem_image, Set.mem_Iio,
+    forall_exists_index, and_imp]
   rintro x hx rfl y hy rfl z hz rfl w hw rfl h
   have := Fact.mk hp
-  simp_all +decide
+  simp_all +decide only [Prod.mk_add_mk, Prod.mk.injEq]
   have hprod : g ^ x * g ^ y = g ^ z * g ^ w := by
     have hexp : (x + y : ℕ) ≡ (z + w : ℕ) [MOD (p - 1)] := by
       have := Fact.mk hp
@@ -155,20 +156,28 @@ lemma exists_modular_sidon (p : ℕ) (hp : p.Prime) :
     rwa [Nat.mul_comm] at h'
   obtain ⟨f⟩ := hiso
   refine ⟨Finset.image (fun x : ZMod (p - 1) × ZMod p => f x) (ruzsaSet p g),
-    ?_, ?_⟩ <;> simp_all +decide [Sidon]
+    ?_, ?_⟩
   · rw [Finset.card_image_of_injective _ f.injective, Finset.card_eq_of_bijective]
     · use fun i _ => (i, g ^ i)
     · unfold ruzsaSet
       aesop
     · exact fun i hi => Finset.mem_image.mpr ⟨i, Finset.mem_range.mpr hi, rfl⟩
-    · simp +contextual [ZMod.natCast_eq_natCast_iff']
+    · simp +contextual only [ZMod.natCast_eq_natCast_iff', Prod.mk.injEq, and_imp]
       exact fun i j hi hj hij h =>
         Nat.mod_eq_of_lt hi ▸ Nat.mod_eq_of_lt hj ▸ hij ▸ rfl
-  · intro a b c d x y hx hy z t hz ht u v hu hv w x' hw hx' habcd
-    have := f.injective
-    simp_all +decide [Set.Subset.antisymm_iff, Set.subset_def]
-    specialize hsidon x y z t u v w x' hx hz hu hw
-    simp_all +decide [← hy, ← ht, ← hv, ← hx', ← map_add]
+  · intro a b c d ha hb hc hd habcd
+    change a ∈ Finset.image f (ruzsaSet p g) at ha
+    change b ∈ Finset.image f (ruzsaSet p g) at hb
+    change c ∈ Finset.image f (ruzsaSet p g) at hc
+    change d ∈ Finset.image f (ruzsaSet p g) at hd
+    obtain ⟨a', ha', rfl⟩ := Finset.mem_image.mp ha
+    obtain ⟨b', hb', rfl⟩ := Finset.mem_image.mp hb
+    obtain ⟨c', hc', rfl⟩ := Finset.mem_image.mp hc
+    obtain ⟨d', hd', rfl⟩ := Finset.mem_image.mp hd
+    have hadd : a' + b' = c' + d' := f.injective (by simpa only [map_add] using habcd)
+    have hpairs := hsidon a' b' c' d' ha' hb' hc' hd' hadd
+    have himage := congrArg (Set.image f) hpairs
+    simpa only [Set.image_insert_eq, Set.image_singleton] using himage
 
 /-- Translate a modular Sidon set so that it avoids zero. -/
 lemma shift_sidon_mod (M : ℕ) (hM : 1 < M) (S : Finset (ZMod M))
@@ -719,19 +728,22 @@ lemma diff_erdos_turan_inequality {N m r : ℕ} (hm : 0 < m) (A : Finset ℕ)
             field_simp [hne] at this
             exact this
           nlinarith [sq_nonneg (∑ y ∈ S, g y)]
-      convert h_cs _ _ using 2
-      rw [Finset.sum_comm]
-      rw [Finset.sum_congr rfl fun x _ => ?_]
-      · rw [Finset.sum_const, Finset.card_eq_sum_ones]
-        norm_num
-        rw [mul_comm]
-      · simp +zetaDelta at *
+      have hinner (x : ℕ) (hx : x ∈ Finset.Icc 1 m) :
+          (∑ x' ∈ Finset.biUnion (Finset.Icc 1 m)
+            (fun j => Finset.image (fun a => a + j) A),
+            if ∃ a ∈ A, a + x = x' then (1 : ℝ) else 0) = A.card := by
+        simp +zetaDelta only [Finset.mem_Icc, Finset.sum_boole, Nat.cast_inj] at *
         rw [show {x' ∈ Finset.biUnion (Finset.Icc 1 m)
             (fun j => Finset.image (fun a => a + j) A) |
             ∃ a ∈ A, a + x = x'} = Finset.image (fun a => a + x) A from ?_]
         · exact Finset.card_image_of_injective _ (add_left_injective x)
         · ext
           aesop
+      convert h_cs _ _ using 2
+      rw [Finset.sum_comm]
+      rw [Finset.sum_congr rfl hinner, Finset.sum_const, Finset.card_eq_sum_ones]
+      norm_num
+      rw [mul_comm]
     have h_sum_r_sq :
         (∑ x ∈ Finset.biUnion (Finset.Icc 1 m)
           (fun j => Finset.image (fun a => a + j) A),
