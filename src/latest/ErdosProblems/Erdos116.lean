@@ -386,9 +386,10 @@ lemma fourier_negativity {n : ℕ} (hn : 0 < n) (b : Fin n → ℂ)
 
 /-! ## Uniform product and scale estimates -/
 
-lemma norm_prod_one_sub_le_pow {ι : Type*} [DecidableEq ι] (s : Finset ι)
+lemma norm_prod_one_sub_le_pow {ι : Type*} (s : Finset ι)
     (u : ι → ℂ) (r : ℝ) (hr : 0 ≤ r) (hu : ∀ i ∈ s, ‖u i‖ ≤ r) :
     ‖(∏ i ∈ s, (1 - u i)) - 1‖ ≤ (1 + r) ^ s.card - 1 := by
+  classical
   induction s using Finset.induction_on with
   | empty => simp
   | @insert a s ha ih =>
@@ -532,7 +533,8 @@ lemma scaledCoeffs_nonzero_of_reflectedPoly_ne_one {n : ℕ} (hn : 0 < n)
   intro k
   have hk := h k
   unfold scaledCoeffs at hk
-  exact (mul_eq_zero.mp hk).resolve_right (pow_ne_zero _ (ofReal_ne_zero.mpr (ne_of_gt (rho_pos hn))))
+  exact (mul_eq_zero.mp hk).resolve_right
+    (pow_ne_zero _ (ofReal_ne_zero.mpr (ne_of_gt (rho_pos hn))))
 
 lemma reflectedPoly_eval_sub_one_lt {n : ℕ} (hn : 0 < n) (a : Fin n → ℂ)
     (ha : ∀ i, ‖a i‖ ≤ 1) (z : ℂ) (hz : ‖z‖ = rho n) :
