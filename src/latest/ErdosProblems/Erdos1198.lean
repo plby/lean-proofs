@@ -1630,14 +1630,16 @@ private lemma twoColor_eq_zero (B : Set ℕ+) (n : ℕ+) :
     twoColor B n = 0 ↔ n ∈ B := by
   classical
   have heta (h : 0 < (n : ℕ)) : (⟨(n : ℕ), h⟩ : ℕ+) = n := Subtype.ext rfl
-  simp [twoColor, n.pos, heta]
+  simp only [twoColor, n.pos, ↓reduceDIte, heta, Fin.isValue, ite_eq_left_iff,
+    one_ne_zero, imp_false, Decidable.not_not]
   exact Iff.rfl
 
 private lemma twoColor_eq_one (B : Set ℕ+) (n : ℕ+) :
     twoColor B n = 1 ↔ n ∉ B := by
   classical
   have heta (h : 0 < (n : ℕ)) : (⟨(n : ℕ), h⟩ : ℕ+) = n := Subtype.ext rfl
-  simp [twoColor, n.pos, heta]
+  simp only [twoColor, n.pos, ↓reduceDIte, heta, Fin.isValue, ite_eq_right_iff,
+    zero_ne_one, imp_false]
   exact Iff.rfl
 
 /-- Erdős Problem 1198 has a negative answer.  This is the exact negation of
