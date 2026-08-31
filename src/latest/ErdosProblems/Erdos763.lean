@@ -173,7 +173,7 @@ lemma truncPolynomial_parseval (a : ℕ → ℂ) {r : ℝ} (hr0 : 0 ≤ r) (K : 
     simp [hnsupp]
 
 lemma powerSeriesValue_continuousOn_sphere {a : ℕ → ℂ} {C r : ℝ}
-    (hC : 0 ≤ C) (hr0 : 0 ≤ r) (hr1 : r < 1)
+    (hr0 : 0 ≤ r) (hr1 : r < 1)
     (ha : ∀ n, ‖a n‖ ≤ C) :
     ContinuousOn (fun z : ℂ ↦ powerSeriesValue a ((r : ℂ) * z)) (sphere 0 1) := by
   apply continuousOn_tsum (u := fun n : ℕ ↦ C * r ^ n)
@@ -307,7 +307,7 @@ lemma circleParseval_bounded {a : ℕ → ℂ} {C r : ℝ}
   let P : ℕ → ℂ → ℂ := fun K z ↦
     ∑ n ∈ Finset.range K, a n * ((r : ℂ) * z) ^ n
   have hScont : ContinuousOn S (sphere 0 1) :=
-    powerSeriesValue_continuousOn_sphere hC hr0 hr1 ha
+    powerSeriesValue_continuousOn_sphere hr0 hr1 ha
   have hPcont (K : ℕ) : ContinuousOn (P K) (sphere 0 1) := by
     exact (by
       dsimp only [P]
@@ -430,13 +430,12 @@ lemma summatoryError_bounded_of_isBigO {A : Set ℕ} {c : ℝ}
   have hid :
       (summatoryRepresentationCount A n : ℝ) - c * (n + 1) =
         ((summatoryRepresentationCount A n : ℝ) - c * n) - c := by
-    push_cast
     ring
   rw [hid]
   exact (norm_sub_le _ _).trans (by simpa [add_comm] using add_le_add_right hn ‖c‖)
 
 lemma summable_norm_coeff_mul_pow {a : ℕ → ℂ} {D : ℝ} {z : ℂ}
-    (hD : 0 ≤ D) (ha : ∀ n, ‖a n‖ ≤ D) (hz : ‖z‖ < 1) :
+    (ha : ∀ n, ‖a n‖ ≤ D) (hz : ‖z‖ < 1) :
     Summable fun n : ℕ ↦ ‖a n * z ^ n‖ := by
   have hgeom : Summable fun n : ℕ ↦ D * ‖z‖ ^ n :=
     (summable_geometric_of_norm_lt_one (K := ℝ) (by simpa using hz)).mul_left D
@@ -447,7 +446,7 @@ lemma summable_norm_coeff_mul_pow {a : ℕ → ℂ} {D : ℝ} {z : ℂ}
 
 lemma indicator_series_summable' (A : Set ℕ) {z : ℂ} (hz : ‖z‖ < 1) :
     Summable fun n : ℕ ↦ ‖indicatorComplex A n * z ^ n‖ := by
-  exact summable_norm_coeff_mul_pow zero_le_one (indicatorComplex_norm_le_one A) hz
+  exact summable_norm_coeff_mul_pow (indicatorComplex_norm_le_one A) hz
 
 lemma indicatorSeries_sq {A : Set ℕ} {z : ℂ} (hz : ‖z‖ < 1) :
     powerSeriesValue (indicatorComplex A) z ^ 2 =
@@ -470,12 +469,12 @@ lemma indicatorSeries_sq {A : Set ℕ} {z : ℂ} (hz : ‖z‖ < 1) :
       rw [← pow_add, Nat.add_sub_of_le hkn]
 
 lemma shifted_error_hasSum {A : Set ℕ} {c D : ℝ} {z : ℂ}
-    (hD : 0 ≤ D) (he : ∀ n, ‖summatoryError A c n‖ ≤ D) (hz : ‖z‖ < 1) :
+    (he : ∀ n, ‖summatoryError A c n‖ ≤ D) (hz : ‖z‖ < 1) :
     HasSum
       (fun n : ℕ ↦ ((if n = 0 then 0 else summatoryError A c (n - 1)) : ℂ) * z ^ n)
       (z * powerSeriesValue (fun n ↦ (summatoryError A c n : ℂ)) z) := by
   have hsum : Summable fun n : ℕ ↦ (summatoryError A c n : ℂ) * z ^ n := by
-    exact (summable_norm_coeff_mul_pow hD (by simpa using he) hz).of_norm
+    exact (summable_norm_coeff_mul_pow (by simpa using he) hz).of_norm
   let g : ℕ → ℂ := fun n ↦
     ((if n = 0 then 0 else summatoryError A c (n - 1)) : ℂ) * z ^ n
   have htail : HasSum (fun n : ℕ ↦ g (n + 1))
@@ -486,15 +485,15 @@ lemma shifted_error_hasSum {A : Set ℕ} {c D : ℝ} {z : ℂ}
   simpa [g] using hall
 
 lemma representation_series_identity {A : Set ℕ} {c D : ℝ} {z : ℂ}
-    (hD : 0 ≤ D) (he : ∀ n, ‖summatoryError A c n‖ ≤ D) (hz : ‖z‖ < 1) :
+    (he : ∀ n, ‖summatoryError A c n‖ ≤ D) (hz : ‖z‖ < 1) :
     powerSeriesValue (fun n ↦ (representationCount A n : ℂ)) z =
       (c : ℂ) / (1 - z) + (1 - z) *
         powerSeriesValue (fun n ↦ (summatoryError A c n : ℂ)) z := by
   have heSum : Summable fun n : ℕ ↦ (summatoryError A c n : ℂ) * z ^ n := by
-    exact (summable_norm_coeff_mul_pow hD (by simpa using he) hz).of_norm
+    exact (summable_norm_coeff_mul_pow (by simpa using he) hz).of_norm
   have hcSum : HasSum (fun n : ℕ ↦ (c : ℂ) * z ^ n) ((c : ℂ) / (1 - z)) := by
     simpa [div_eq_mul_inv] using (hasSum_geometric_of_norm_lt_one hz).mul_left (c : ℂ)
-  have hshift := shifted_error_hasSum (A := A) hD he hz
+  have hshift := shifted_error_hasSum (A := A) he hz
   have htotal := hcSum.add heSum.hasSum |>.sub hshift
   rw [powerSeriesValue, powerSeriesValue]
   calc
@@ -508,8 +507,8 @@ lemma representation_series_identity {A : Set ℕ} {c D : ℝ} {z : ℂ}
             (((if n = 0 then 0 else summatoryError A c (n - 1)) : ℝ) : ℂ) := by
         exact_mod_cast representationCount_eq_error_difference A c n
       rw [hrC]
-      push_cast
-      split_ifs <;> simp_all <;> ring
+      split_ifs
+      all_goals simp_all <;> ring
     _ = (c : ℂ) / (1 - z) +
         (∑' n : ℕ, (summatoryError A c n : ℂ) * z ^ n) -
           z * ∑' n : ℕ, (summatoryError A c n : ℂ) * z ^ n := htotal.tsum_eq
@@ -517,11 +516,11 @@ lemma representation_series_identity {A : Set ℕ} {c D : ℝ} {z : ℂ}
         ∑' n : ℕ, (summatoryError A c n : ℂ) * z ^ n := by ring
 
 lemma indicatorSeries_sq_eq_main {A : Set ℕ} {c D : ℝ} {z : ℂ}
-    (hD : 0 ≤ D) (he : ∀ n, ‖summatoryError A c n‖ ≤ D) (hz : ‖z‖ < 1) :
+    (he : ∀ n, ‖summatoryError A c n‖ ≤ D) (hz : ‖z‖ < 1) :
     powerSeriesValue (indicatorComplex A) z ^ 2 =
       (c : ℂ) / (1 - z) + (1 - z) *
         powerSeriesValue (fun n ↦ (summatoryError A c n : ℂ)) z := by
-  rw [indicatorSeries_sq hz, representation_series_identity hD he hz]
+  rw [indicatorSeries_sq hz, representation_series_identity he hz]
 
 /-! ## A finite geometric block and its integer coefficients -/
 
@@ -689,7 +688,7 @@ lemma blockCoefficient_real_series_identity {A : Set ℕ} (M : ℕ) {q : ℝ}
         simp [hk]
 
 lemma summable_real_coeff_mul_pow_of_bounded {a : ℕ → ℝ} {C q : ℝ}
-    (hC : 0 ≤ C) (hq0 : 0 ≤ q) (hq1 : q < 1) (ha : ∀ n, |a n| ≤ C) :
+    (hq0 : 0 ≤ q) (hq1 : q < 1) (ha : ∀ n, |a n| ≤ C) :
     Summable fun n : ℕ ↦ a n * q ^ n := by
   have hgeom : Summable fun n : ℕ ↦ C * q ^ n :=
     (summable_geometric_of_norm_lt_one (K := ℝ) (by
@@ -704,7 +703,7 @@ lemma summable_real_coeff_mul_pow_of_bounded {a : ℕ → ℝ} {C q : ℝ}
 lemma blockCoefficient_series_summable (A : Set ℕ) (M : ℕ) {q : ℝ}
     (hq0 : 0 ≤ q) (hq1 : q < 1) :
     Summable fun n : ℕ ↦ (blockCoefficient A M n : ℝ) * q ^ n := by
-  apply summable_real_coeff_mul_pow_of_bounded (C := M) (Nat.cast_nonneg M) hq0 hq1
+  apply summable_real_coeff_mul_pow_of_bounded (C := M) hq0 hq1
   intro n
   rw [abs_of_nonneg (Nat.cast_nonneg _)]
   exact_mod_cast blockCoefficient_le A M n
@@ -743,7 +742,7 @@ noncomputable def indicatorSeriesReal (A : Set ℕ) (q : ℝ) : ℝ :=
 
 lemma indicator_real_series_summable (A : Set ℕ) {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1) :
     Summable fun n : ℕ ↦ (indicator A n : ℝ) * q ^ n := by
-  apply summable_real_coeff_mul_pow_of_bounded (C := 1) zero_le_one hq0 hq1
+  apply summable_real_coeff_mul_pow_of_bounded (C := 1) hq0 hq1
   intro n
   rw [abs_of_nonneg (Nat.cast_nonneg _)]
   exact_mod_cast indicator_le_one A n
@@ -754,7 +753,7 @@ lemma indicatorSeriesReal_nonneg (A : Set ℕ) {q : ℝ} (hq0 : 0 ≤ q) :
   intro n
   exact mul_nonneg (Nat.cast_nonneg _) (pow_nonneg hq0 n)
 
-lemma indicatorSeries_at_real {A : Set ℕ} {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1) :
+lemma indicatorSeries_at_real {A : Set ℕ} {q : ℝ} :
     powerSeriesValue (indicatorComplex A) (q : ℂ) = indicatorSeriesReal A q := by
   rw [powerSeriesValue, indicatorSeriesReal]
   rw [Complex.ofReal_tsum]
@@ -772,8 +771,8 @@ lemma indicatorSeriesReal_sq_lower {A : Set ℕ} {c D q : ℝ} (_hc : 0 < c) (hD
     (he : ∀ n, ‖summatoryError A c n‖ ≤ D) (hq0 : 0 ≤ q) (hq1 : q < 1) :
     c / (1 - q) - D ≤ (indicatorSeriesReal A q) ^ 2 := by
   have hqnorm : ‖(q : ℂ)‖ < 1 := by simpa [Real.norm_eq_abs, abs_of_nonneg hq0]
-  have hid := indicatorSeries_sq_eq_main (A := A) (c := c) hD he hqnorm
-  rw [indicatorSeries_at_real hq0 hq1] at hid
+  have hid := indicatorSeries_sq_eq_main (A := A) (c := c) he hqnorm
+  rw [indicatorSeries_at_real] at hid
   have herr := errorSeries_norm_le hD he hq0 hq1
   have hden : 0 < 1 - q := sub_pos.mpr hq1
   have hre :
@@ -843,9 +842,9 @@ lemma circleKernel_den_pos {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) (θ : ℝ) :
   have hle : 1 - r ≤ ‖(1 : ℂ) - (r : ℂ) * circleMap 0 1 θ‖ := by
     calc
       1 - r = |‖(1 : ℂ)‖ - ‖(r : ℂ) * circleMap 0 1 θ‖| := by
-        simp [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hr0,
-          norm_circleMap_zero, abs_of_nonneg]
-        exact (abs_of_nonneg (sub_nonneg.mpr hr1.le)).symm
+        simp only [norm_one, Complex.norm_mul, Complex.norm_real, Real.norm_eq_abs,
+          norm_circleMap_zero, abs_one, mul_one, abs_of_nonneg hr0,
+          abs_of_nonneg (sub_nonneg.mpr hr1.le)]
       _ ≤ ‖(1 : ℂ) - (r : ℂ) * circleMap 0 1 θ‖ := hrev
   exact (sub_pos.mpr hr1).trans_le hle
 
@@ -865,7 +864,7 @@ lemma circleKernelAngle_edge_le {r θ : ℝ} (hrhalf : 1 / 2 ≤ r) (hr1 : r < 1
     have hrev := abs_norm_sub_norm_le (1 : ℂ) ((r : ℂ) * circleMap 0 1 θ)
     calc
       1 - r = |‖(1 : ℂ)‖ - ‖(r : ℂ) * circleMap 0 1 θ‖| := by
-        simp [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hr0,
+        simp [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hr0,
           norm_circleMap_zero, abs_of_nonneg, abs_of_nonneg (sub_nonneg.mpr hr1.le)]
       _ ≤ d := hrev
   have hsin0 : 0 ≤ Real.sin θ := Real.sin_nonneg_of_nonneg_of_le_pi hθ0 (by linarith [Real.pi_pos])
@@ -1062,13 +1061,13 @@ lemma one_sub_mul_geometricBlock (M : ℕ) (z : ℂ) :
   rw [geometricBlock, mul_comm]
   exact geom_sum_mul_neg z M
 
-lemma block_master_identity {A : Set ℕ} {c D : ℝ} (hD : 0 ≤ D)
+lemma block_master_identity {A : Set ℕ} {c D : ℝ}
     (he : ∀ n, ‖summatoryError A c n‖ ≤ D) (M : ℕ) {z : ℂ} (hz : ‖z‖ < 1) :
     (geometricBlock M z * powerSeriesValue (indicatorComplex A) z) ^ 2 =
       (c : ℂ) * geometricBlock M z ^ 2 / (1 - z) +
         (1 - z ^ M) * geometricBlock M z *
           powerSeriesValue (fun n ↦ (summatoryError A c n : ℂ)) z := by
-  rw [mul_pow, indicatorSeries_sq_eq_main hD he hz]
+  rw [mul_pow, indicatorSeries_sq_eq_main he hz]
   have hg := one_sub_mul_geometricBlock M z
   calc
     geometricBlock M z ^ 2 *
@@ -1081,7 +1080,7 @@ lemma block_master_identity {A : Set ℕ} {c D : ℝ} (hD : 0 ≤ D)
         (1 - z ^ M) * geometricBlock M z *
           powerSeriesValue (fun n ↦ (summatoryError A c n : ℂ)) z := by rw [hg]
 
-lemma block_integrand_le {A : Set ℕ} {c D : ℝ} (hc : 0 ≤ c) (hD : 0 ≤ D)
+lemma block_integrand_le {A : Set ℕ} {c D : ℝ} (hc : 0 ≤ c)
     (he : ∀ n, ‖summatoryError A c n‖ ≤ D) (M : ℕ) {z : ℂ}
     (hz : ‖z‖ < 1) :
     ‖geometricBlock M z * powerSeriesValue (indicatorComplex A) z‖ ^ 2 ≤
@@ -1098,7 +1097,7 @@ lemma block_integrand_le {A : Set ℕ} {c D : ℝ} (hc : 0 ≤ c) (hD : 0 ≤ D)
     _ = ‖(c : ℂ) * geometricBlock M z ^ 2 / (1 - z) +
         (1 - z ^ M) * geometricBlock M z *
           powerSeriesValue (fun n ↦ (summatoryError A c n : ℂ)) z‖ := by
-      rw [block_master_identity hD he M hz]
+      rw [block_master_identity he M hz]
     _ ≤ ‖(c : ℂ) * geometricBlock M z ^ 2 / (1 - z)‖ +
         ‖(1 - z ^ M) * geometricBlock M z *
           powerSeriesValue (fun n ↦ (summatoryError A c n : ℂ)) z‖ := norm_add_le _ _
@@ -1106,7 +1105,7 @@ lemma block_integrand_le {A : Set ℕ} {c D : ℝ} (hc : 0 ≤ c) (hD : 0 ≤ D)
         2 * ‖geometricBlock M z‖ *
           ‖powerSeriesValue (fun n ↦ (summatoryError A c n : ℂ)) z‖ := by
       simp only [norm_div, norm_mul, norm_pow]
-      have hcabs : ‖(c : ℂ)‖ = c := by simpa [Real.norm_eq_abs, abs_of_nonneg hc]
+      have hcabs : ‖(c : ℂ)‖ = c := by simp [Real.norm_eq_abs, abs_of_nonneg hc]
       rw [hcabs, div_eq_mul_inv]
       have hsub : ‖(1 : ℂ) - z ^ M‖ ≤ 2 := by
         have hpow' : ‖z‖ ^ M ≤ 1 := by simpa only [norm_pow] using hpow
@@ -1124,7 +1123,7 @@ lemma circleKernel_continuousOn {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) :
     have hcomplex : (1 : ℂ) - (r : ℂ) * z = 0 := norm_eq_zero.mp hzero
     have heq : (1 : ℂ) = (r : ℂ) * z := sub_eq_zero.mp hcomplex
     have heqnorm := congrArg norm heq
-    simp [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hr0, hznorm] at heqnorm
+    simp [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hr0, hznorm] at heqnorm
     linarith
 
 lemma young_two_mul {α x y : ℝ} (hα : 0 < α) :
@@ -1152,13 +1151,13 @@ lemma block_circle_upper {A : Set ℕ} {c D α r : ℝ} (hc : 0 ≤ c) (hD : 0 �
     dsimp only [H, geometricBlock]
     fun_prop
   have hFcont : ContinuousOn F (sphere 0 1) :=
-    powerSeriesValue_continuousOn_sphere zero_le_one hr0 hr1
+    powerSeriesValue_continuousOn_sphere hr0 hr1
       (indicatorComplex_norm_le_one A)
   have heC : ∀ n, ‖(summatoryError A c n : ℂ)‖ ≤ D := by
     intro n
     simpa using he n
   have hEcont : ContinuousOn E (sphere 0 1) :=
-    powerSeriesValue_continuousOn_sphere hD hr0 hr1 heC
+    powerSeriesValue_continuousOn_sphere hr0 hr1 heC
   have hKcont : ContinuousOn K (sphere 0 1) :=
     circleKernel_continuousOn hr0 hr1
   have hfint : CircleIntegrable (fun z ↦ ‖H z * F z‖ ^ 2) 0 1 :=
@@ -1189,15 +1188,15 @@ lemma block_circle_upper {A : Set ℕ} {c D α r : ℝ} (hc : 0 ≤ c) (hD : 0 �
     intro z hz
     have hznorm : ‖z‖ = 1 := by simpa using hz
     have hwle : ‖(r : ℂ) * z‖ ≤ 1 := by
-      simp [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hr0, hznorm, hr1.le]
+      simp [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hr0, hznorm, hr1.le]
     have hwlt : ‖(r : ℂ) * z‖ < 1 := by
-      simp [norm_mul, Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hr0, hznorm, hr1]
+      simp [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg hr0, hznorm, hr1]
     have hHle : ‖H z‖ ≤ M := by
       exact geometricBlock_norm_le M hwle
     have hHsq : ‖H z‖ ^ 2 ≤ (M : ℝ) ^ 2 := by
       have hM0 : (0 : ℝ) ≤ (M : ℝ) := Nat.cast_nonneg M
       nlinarith [norm_nonneg (H z), sq_nonneg ((M : ℝ) - ‖H z‖)]
-    have hpoint := block_integrand_le hc hD he M hwlt
+    have hpoint := block_integrand_le hc he M hwlt
     change ‖H z * F z‖ ^ 2 ≤
       c * (M : ℝ) ^ 2 * K z + (α * ‖H z‖ ^ 2 + α⁻¹ * ‖E z‖ ^ 2)
     calc
