@@ -366,7 +366,7 @@ lemma prod_four_eight {groups : ℕ} (s : Finset (Fin groups)) :
           _ = 8 ^ ((Finset.univ : Finset (Fin groups)) \ s).card :=
             Finset.prod_const 8
       rw [hleft, hright, Finset.card_sdiff]
-      simp [hsub]
+      simp
 
 lemma card_seedCylinder {groups r : ℕ} (j : Fin r → Fin (4 * groups))
     (a : Fin r → Bool) (hj : Function.Injective fun i ↦ blockGroup (j i)) :
@@ -435,7 +435,7 @@ lemma card_groupAllowed_of_fiber_le_two {groups r : ℕ}
     · simp [hzero]
     · intro i hi
       have hm : i ∈ requestFiber j q := by simp [requestFiber, hi]
-      simpa [he] using hm
+      simp [he] at hm
   · obtain ⟨i, hi⟩ := Finset.card_eq_one.mp hone
     rw [groupAllowed_eq_patternsWith_of_fiber_singleton j a q i hi,
       card_patternsWith, hone]
@@ -562,7 +562,7 @@ lemma add_first_gap_le_value {k n : ℕ} {x : Fin k → Fin n}
 def pointBlock {b blocks : ℕ} (hb : 0 < b) (x : Fin (b * blocks)) : Fin blocks :=
   ⟨x.val / b, by
     rw [Nat.div_lt_iff_lt_mul hb]
-    simpa [mul_comm] using x.isLt⟩
+    simp [mul_comm]⟩
 
 lemma pointBlock_add_le {b blocks : ℕ} (hb : 0 < b)
     {x y : Fin (b * blocks)} {d : ℕ} (hxy : x.val + d * b ≤ y.val) :
@@ -682,7 +682,7 @@ lemma coarseGap_mono {k n b : ℕ} {x : Fin k → Fin n}
       coarseGap (b := b) x (i + 1) (by omega) := by
   exact Nat.div_le_div_right (ascending_gap_mono hx i hi)
 
-lemma div_add_div_le_div_add_one {a d b : ℕ} (hb : 0 < b) :
+lemma div_add_div_le_div_add_one {a d b : ℕ} :
     a / b + d / b ≤ (a + d) / b ∧
       (a + d) / b ≤ a / b + d / b + 1 := by
   exact ⟨Nat.div_add_div_le_add_div,
@@ -701,33 +701,34 @@ lemma add_waveGap_eq {k n : ℕ} {x : Fin k → Fin n}
   omega
 
 /-- The carry made by a gap when positions are divided into blocks. -/
-def blockCarry {k n b : ℕ} (hb : 0 < b) (x : Fin k → Fin n)
+def blockCarry {k n b : ℕ} (x : Fin k → Fin n)
     (hx : StrictMono x)
     (i : ℕ) (hi : i + 1 < k) : Fin 2 :=
   ⟨(x ⟨i + 1, hi⟩).val / b -
       ((x ⟨i, by omega⟩).val / b + coarseGap (b := b) x i hi), by
     have hsum := add_waveGap_eq hx i hi
     have hbounds := div_add_div_le_div_add_one
-      (a := (x ⟨i, by omega⟩).val) (d := waveGap x i hi) hb
+      (a := (x ⟨i, by omega⟩).val) (d := waveGap x i hi) (b := b)
     rw [hsum] at hbounds
     simp only [coarseGap]
     omega⟩
 
-lemma blockCarry_congr_index {k n b : ℕ} (hb : 0 < b) (x : Fin k → Fin n)
+lemma blockCarry_congr_index {k n b : ℕ} (x : Fin k → Fin n)
     (hx : StrictMono x) {i j : ℕ} (hi : i + 1 < k) (hj : j + 1 < k)
-    (hij : i = j) : blockCarry hb x hx i hi = blockCarry hb x hx j hj := by
+    (hij : i = j) : blockCarry (b := b) x hx i hi =
+      blockCarry (b := b) x hx j hj := by
   subst j
   rfl
 
-lemma blockCarry_spec {k n b : ℕ} (hb : 0 < b) (x : Fin k → Fin n)
+lemma blockCarry_spec {k n b : ℕ} (x : Fin k → Fin n)
     (hx : StrictMono x)
     (i : ℕ) (hi : i + 1 < k) :
     (x ⟨i + 1, hi⟩).val / b =
       (x ⟨i, by omega⟩).val / b + coarseGap (b := b) x i hi +
-        (blockCarry hb x hx i hi).val := by
+        (blockCarry (b := b) x hx i hi).val := by
   have hsum := add_waveGap_eq hx i hi
   have hbounds := div_add_div_le_div_add_one
-    (a := (x ⟨i, by omega⟩).val) (d := waveGap x i hi) hb
+    (a := (x ⟨i, by omega⟩).val) (d := waveGap x i hi) (b := b)
   rw [hsum] at hbounds
   simp only [blockCarry, coarseGap]
   omega
@@ -735,7 +736,7 @@ lemma blockCarry_spec {k n b : ℕ} (hb : 0 < b) (x : Fin k → Fin n)
 lemma blockCarry_eq_ite {k n b : ℕ} (hb : 0 < b)
     (x : Fin k → Fin n) (hx : StrictMono x)
     (i : ℕ) (hi : i + 1 < k) :
-    (blockCarry hb x hx i hi).val =
+    (blockCarry (b := b) x hx i hi).val =
       if b ≤ (x ⟨i, by omega⟩).val % b + waveGap x i hi % b then 1 else 0 := by
   have hsum := add_waveGap_eq hx i hi
   have hdiv := Nat.add_div (a := (x ⟨i, by omega⟩).val)
@@ -757,7 +758,7 @@ lemma mod_le_mod_of_le_of_div_eq {a d b : ℕ} (had : a ≤ d)
 lemma pointMod_step_of_carry_one {k n b : ℕ} (hb : 0 < b)
     (x : Fin k → Fin n) (hx : StrictMono x)
     (i : ℕ) (hi : i + 1 < k)
-    (hc : (blockCarry hb x hx i hi).val = 1) :
+    (hc : (blockCarry (b := b) x hx i hi).val = 1) :
     (x ⟨i + 1, hi⟩).val % b + b =
       (x ⟨i, by omega⟩).val % b + waveGap x i hi % b := by
   have hchar := blockCarry_eq_ite hb x hx i hi
@@ -772,7 +773,7 @@ lemma pointMod_step_of_carry_one {k n b : ℕ} (hb : 0 < b)
 lemma pointMod_step_of_carry_zero {k n b : ℕ} (hb : 0 < b)
     (x : Fin k → Fin n) (hx : StrictMono x)
     (i : ℕ) (hi : i + 1 < k)
-    (hc : (blockCarry hb x hx i hi).val = 0) :
+    (hc : (blockCarry (b := b) x hx i hi).val = 0) :
     (x ⟨i + 1, hi⟩).val % b =
       (x ⟨i, by omega⟩).val % b + waveGap x i hi % b := by
   have hchar := blockCarry_eq_ite hb x hx i hi
@@ -802,11 +803,11 @@ lemma carries_ne_11100 {k n b : ℕ} (hb : 0 < b)
     (heq : ∀ (j : ℕ) (hj : j < 5),
       coarseGap (b := b) x (i + j) (by omega) =
         coarseGap (b := b) x i (by omega)) :
-    ¬((blockCarry hb x hx.1 i (by omega)).val = 1 ∧
-      (blockCarry hb x hx.1 (i + 1) (by omega)).val = 1 ∧
-      (blockCarry hb x hx.1 (i + 2) (by omega)).val = 1 ∧
-      (blockCarry hb x hx.1 (i + 3) (by omega)).val = 0 ∧
-      (blockCarry hb x hx.1 (i + 4) (by omega)).val = 0) := by
+    ¬((blockCarry (b := b) x hx.1 i (by omega)).val = 1 ∧
+      (blockCarry (b := b) x hx.1 (i + 1) (by omega)).val = 1 ∧
+      (blockCarry (b := b) x hx.1 (i + 2) (by omega)).val = 1 ∧
+      (blockCarry (b := b) x hx.1 (i + 3) (by omega)).val = 0 ∧
+      (blockCarry (b := b) x hx.1 (i + 4) (by omega)).val = 0) := by
   rintro ⟨hc0, hc1, hc2, hc3, hc4⟩
   have hr01 : waveGap x i (by omega) % b ≤
       waveGap x (i + 1) (by omega) % b :=
@@ -1005,7 +1006,7 @@ lemma selectedCarryIndex_injective {l : ℕ} (G : Finset (Fin (l / 160))) :
   have hqq : q = q' := Subtype.ext hq
   have hcc : c = c' := Fin.ext hc
   have huu : u = u' := Fin.ext hu
-  simpa [hqq, hcc, huu]
+  simp [hqq, hcc, huu]
 
 abbrev CarryCode {l : ℕ} (G : Finset (Fin (l / 160))) :=
   {q : Fin (l / 160) // q ∈ G} → Fin 32 → AllowedCarry5
@@ -1031,7 +1032,7 @@ lemma card_allowedCarryAssignments_le {l : ℕ} (G : Finset (Fin (l / 160))) :
   classical
   rw [allowedCarryAssignments, Finset.card_image_of_injective Finset.univ
     (flattenCarryCode_injective G)]
-  simp only [Finset.card_univ, Fintype.card_fun, Fintype.card_prod,
+  simp only [Finset.card_univ, Fintype.card_fun,
     Fintype.card_fin, Fintype.card_coe, card_allowedCarry5]
   have hpow : (31 ^ 32) ^ G.card ≤ (2 ^ 159) ^ G.card :=
     Nat.pow_le_pow_left thirty_one_pow_thirty_two_le G.card
@@ -1076,13 +1077,13 @@ lemma card_admissibleCarries_le {l : ℕ} (s : Fin l → ℕ) :
 def coarseGapWord {k n b : ℕ} (x : Fin k → Fin n) : Fin (k - 1) → ℕ :=
   fun i ↦ coarseGap (b := b) x i.val (by omega)
 
-def carryWord {k n b : ℕ} (hb : 0 < b) (x : Fin k → Fin n)
+def carryWord {k n b : ℕ} (x : Fin k → Fin n)
     (hx : StrictMono x) : Fin (k - 1) → Fin 2 :=
-  fun i ↦ blockCarry hb x hx i.val (by omega)
+  fun i ↦ blockCarry (b := b) x hx i.val (by omega)
 
-def carrySegment5 {k n b : ℕ} (hb : 0 < b) (x : Fin k → Fin n)
+def carrySegment5 {k n b : ℕ} (x : Fin k → Fin n)
     (hx : StrictMono x) (i : ℕ) (hi : i + 5 < k) : Fin 5 → Fin 2 :=
-  fun u ↦ blockCarry hb x hx (i + u.val) (by omega)
+  fun u ↦ blockCarry (b := b) x hx (i + u.val) (by omega)
 
 def carrySegment5Allowed {k n b : ℕ} (hb : 0 < b)
     {x : Fin k → Fin n} (hx : IsAscendingWave x)
@@ -1090,14 +1091,14 @@ def carrySegment5Allowed {k n b : ℕ} (hb : 0 < b)
     (heq : ∀ (j : ℕ) (hj : j < 5),
       coarseGap (b := b) x (i + j) (by omega) =
         coarseGap (b := b) x i (by omega)) : AllowedCarry5 := by
-  refine ⟨carrySegment5 hb x hx.1 i hi, ?_⟩
+  refine ⟨carrySegment5 (b := b) x hx.1 i hi, ?_⟩
   have hforbid := carries_ne_11100 hb hx i hi heq
   change
-    ¬ (blockCarry hb x hx.1 i (by omega)).val = 1 ∨
-    ¬ (blockCarry hb x hx.1 (i + 1) (by omega)).val = 1 ∨
-    ¬ (blockCarry hb x hx.1 (i + 2) (by omega)).val = 1 ∨
-    ¬ (blockCarry hb x hx.1 (i + 3) (by omega)).val = 0 ∨
-    ¬ (blockCarry hb x hx.1 (i + 4) (by omega)).val = 0
+    ¬ (blockCarry (b := b) x hx.1 i (by omega)).val = 1 ∨
+    ¬ (blockCarry (b := b) x hx.1 (i + 1) (by omega)).val = 1 ∨
+    ¬ (blockCarry (b := b) x hx.1 (i + 2) (by omega)).val = 1 ∨
+    ¬ (blockCarry (b := b) x hx.1 (i + 3) (by omega)).val = 0 ∨
+    ¬ (blockCarry (b := b) x hx.1 (i + 4) (by omega)).val = 0
   tauto
 
 @[simp] lemma carrySegment5Allowed_val {k n b : ℕ} (hb : 0 < b)
@@ -1106,7 +1107,8 @@ def carrySegment5Allowed {k n b : ℕ} (hb : 0 < b)
     (heq : ∀ (j : ℕ) (hj : j < 5),
       coarseGap (b := b) x (i + j) (by omega) =
         coarseGap (b := b) x i (by omega)) :
-    (carrySegment5Allowed hb hx i hi heq).val = carrySegment5 hb x hx.1 i hi := rfl
+    (carrySegment5Allowed hb hx i hi heq).val =
+      carrySegment5 (b := b) x hx.1 i hi := rfl
 
 def carrySegment5AllowedWord {k n b : ℕ} (hb : 0 < b)
     {x : Fin k → Fin n} (hx : IsAscendingWave x)
@@ -1125,7 +1127,7 @@ def carrySegment5AllowedWord {k n b : ℕ} (hb : 0 < b)
       coarseGapWord (b := b) x ⟨i + u.val, by omega⟩ =
         coarseGapWord (b := b) x ⟨i, by omega⟩) :
     (carrySegment5AllowedWord hb hx i hi heq).val =
-      carrySegment5 hb x hx.1 i hi := rfl
+      carrySegment5 (b := b) x hx.1 i hi := rfl
 
 lemma coarseGap_eq_in_goodMacro {k n b : ℕ} (x : Fin k → Fin n)
     {q : Fin ((k - 1) / 160)}
@@ -1133,12 +1135,10 @@ lemma coarseGap_eq_in_goodMacro {k n b : ℕ} (x : Fin k → Fin n)
     (u v : Fin 160) :
     coarseGap (b := b) x (q.val * 160 + u.val) (by
       have hq' := q.isLt
-      have hd := Nat.div_mul_le_self (k - 1) 160
       have hu := u.isLt
       omega) =
     coarseGap (b := b) x (q.val * 160 + v.val) (by
       have hq' := q.isLt
-      have hd := Nat.div_mul_le_self (k - 1) 160
       have hv := v.isLt
       omega) := by
   have hgood := (Finset.mem_filter.mp hq).2
@@ -1213,7 +1213,8 @@ lemma goodMacroCarryEntry_as_segment {k n b : ℕ} (hb : 0 < b)
     (q : {q : Fin ((k - 1) / 160) //
       q ∈ goodMacros (coarseGapWord (b := b) x)}) (r : Fin 32) :
     (goodMacroCarryEntry hb hx q r).val =
-      carrySegment5 hb x hx.1 (goodMacroBase q r) (goodMacroBase_room q r) := by
+      carrySegment5 (b := b) x hx.1 (goodMacroBase q r)
+        (goodMacroBase_room q r) := by
   exact carrySegment5AllowedWord_val hb hx (goodMacroBase q r)
     (goodMacroBase_room q r) (goodMacro_coarse_eq q r)
 
@@ -1222,7 +1223,7 @@ lemma goodMacroCarryEntry_as_segment {k n b : ℕ} (hb : 0 < b)
     (q : {q : Fin ((k - 1) / 160) //
       q ∈ goodMacros (coarseGapWord (b := b) x)}) (r : Fin 32) (u : Fin 5) :
     (goodMacroCarryEntry hb hx q r).val u =
-      carryWord hb x hx.1 (selectedCarryIndex
+      carryWord (b := b) x hx.1 (selectedCarryIndex
         (goodMacros (coarseGapWord (b := b) x)) ((q, r), u)) := by
   rw [congrFun (goodMacroCarryEntry_as_segment hb hx q r) u]
   have hidx : goodMacroBase q r + u.val =
@@ -1230,15 +1231,15 @@ lemma goodMacroCarryEntry_as_segment {k n b : ℕ} (hb : 0 < b)
         ((q, r), u)).val := by
     simp only [selectedCarryIndex, macroIndex_val, goodMacroBase]
     omega
-  change blockCarry hb x hx.1 (goodMacroBase q r + u.val) _ =
-    blockCarry hb x hx.1
+  change blockCarry (b := b) x hx.1 (goodMacroBase q r + u.val) _ =
+    blockCarry (b := b) x hx.1
       (selectedCarryIndex (goodMacros (coarseGapWord (b := b) x))
         ((q, r), u)).val _
-  exact blockCarry_congr_index hb x hx.1 _ _ hidx
+  exact blockCarry_congr_index (b := b) x hx.1 _ _ hidx
 
 lemma carryWord_mem_admissible {k n b : ℕ} (hb : 0 < b)
     {x : Fin k → Fin n} (hx : IsAscendingWave x) :
-    carryWord hb x hx.1 ∈ admissibleCarries (coarseGapWord (b := b) x) := by
+    carryWord (b := b) x hx.1 ∈ admissibleCarries (coarseGapWord (b := b) x) := by
   classical
   rw [admissibleCarries, bitRestrictionEvent, Finset.mem_filter]
   refine ⟨Finset.mem_univ _, ?_⟩
@@ -1261,11 +1262,11 @@ lemma badMacro_start_lt_end {l : ℕ} {s : Fin l → ℕ}
   obtain ⟨u, hu⟩ := hq'
   have hsu : s (macroIndex q 0) ≤ s (macroIndex q u) := hs (by
     apply Fin.mk_le_mk.mpr
-    simp [macroIndex])
+    simp)
   have hue : s (macroIndex q u) ≤ s (macroIndex q ⟨159, by omega⟩) := hs (by
     apply Fin.mk_le_mk.mpr
     have hu' := u.isLt
-    simp [macroIndex]
+    simp
     omega)
   omega
 
@@ -1293,7 +1294,7 @@ lemma card_goodMacros_ge {l D : ℕ} {s : Fin l → ℕ}
         have hbetween : s (macroIndex q.1 ⟨159, by omega⟩) ≤
             s (macroIndex r.1 0) := hs (by
           apply Fin.mk_le_mk.mpr
-          simp [macroIndex]
+          simp
           omega)
         have hv := congrArg Fin.val hcode
         simp only [code] at hv
@@ -1306,7 +1307,7 @@ lemma card_goodMacros_ge {l D : ℕ} {s : Fin l → ℕ}
         have hbetween : s (macroIndex r.1 ⟨159, by omega⟩) ≤
             s (macroIndex q.1 0) := hs (by
           apply Fin.mk_le_mk.mpr
-          simp [macroIndex]
+          simp
           omega)
         have hv := congrArg Fin.val hcode
         simp only [code] at hv
@@ -1456,14 +1457,13 @@ def waveCoarseWord {k b blocks D : ℕ}
     ((waveCoarseWord x hx hD).val i).val =
       coarseGapWord (b := b) x i := rfl
 
-def waveCarryWord {k b blocks : ℕ} (hb : 0 < b)
-    (x : Fin k → Fin (b * blocks)) (hx : StrictMono x) :
-    Fin (k - 1) → Fin 2 := carryWord hb x hx
+def waveCarryWord {k b blocks : ℕ} (x : Fin k → Fin (b * blocks))
+    (hx : StrictMono x) : Fin (k - 1) → Fin 2 := carryWord (b := b) x hx
 
 lemma waveCarryWord_mem {k b blocks D : ℕ} (hb : 0 < b)
     (x : Fin k → Fin (b * blocks)) (hx : IsAscendingWave x)
     (hD : ∀ i : Fin (k - 1), coarseGapWord (b := b) x i ≤ D) :
-    waveCarryWord hb x hx.1 ∈
+    waveCarryWord (b := b) x hx.1 ∈
       admissibleCarries (fun i ↦ ((waveCoarseWord x hx hD).val i).val) := by
   simpa only [waveCarryWord, waveCoarseWord_val] using
     (carryWord_mem_admissible hb hx)
@@ -1473,7 +1473,7 @@ def encodeWaveProfile {k b blocks D : ℕ} (hb : 0 < b)
     (hD : ∀ i : Fin (k - 1), coarseGapWord (b := b) x i ≤ D) :
     WaveProfileCode (k - 1) D blocks :=
   (pointBlock hb (x ⟨0, hk⟩), ⟨waveCoarseWord x hx hD,
-    waveCarryWord hb x hx.1, waveCarryWord_mem hb x hx hD⟩)
+    waveCarryWord (b := b) x hx.1, waveCarryWord_mem hb x hx hD⟩)
 
 lemma pointBlock_profile_eq_of_code_eq {k b blocks D : ℕ} (hb : 0 < b)
     (hk : 0 < k)
@@ -1488,7 +1488,7 @@ lemma pointBlock_profile_eq_of_code_eq {k b blocks D : ℕ} (hb : 0 < b)
   have hsigma := congrArg Prod.snd hcode
   have hs : waveCoarseWord x hx hDx = waveCoarseWord y hy hDy :=
     congrArg Sigma.fst hsigma
-  have he : waveCarryWord hb x hx.1 = waveCarryWord hb y hy.1 := by
+  have he : waveCarryWord (b := b) x hx.1 = waveCarryWord (b := b) y hy.1 := by
     have hdep := congrArg (fun z ↦ z.2.1) hsigma
     exact hdep
   funext i
@@ -1501,22 +1501,22 @@ lemma pointBlock_profile_eq_of_code_eq {k b blocks D : ℕ} (hb : 0 < b)
     | zero => exact congrArg Fin.val hfirst
     | succ j ih =>
         have hjl : j < k - 1 := by omega
-        have hstepx := blockCarry_spec hb x hx.1 j (by omega)
-        have hstepy := blockCarry_spec hb y hy.1 j (by omega)
+        have hstepx := blockCarry_spec (b := b) x hx.1 j (by omega)
+        have hstepy := blockCarry_spec (b := b) y hy.1 j (by omega)
         have hsj := congrArg
           (fun s : BoundedMonoWord (k - 1) D ↦ (s.val ⟨j, hjl⟩).val) hs
         have hej := congrArg (fun e : Fin (k - 1) → Fin 2 ↦ (e ⟨j, hjl⟩).val) he
         change (x ⟨j + 1, by omega⟩).val / b =
             (x ⟨j, by omega⟩).val / b +
               coarseGap (b := b) x j (by omega) +
-                (blockCarry hb x hx.1 j (by omega)).val at hstepx
+                (blockCarry (b := b) x hx.1 j (by omega)).val at hstepx
         change (y ⟨j + 1, by omega⟩).val / b =
             (y ⟨j, by omega⟩).val / b +
               coarseGap (b := b) y j (by omega) +
-                (blockCarry hb y hy.1 j (by omega)).val at hstepy
+                (blockCarry (b := b) y hy.1 j (by omega)).val at hstepy
         simp only [waveCoarseWord_val, coarseGapWord] at hsj
-        change (blockCarry hb x hx.1 j (by omega)).val =
-          (blockCarry hb y hy.1 j (by omega)).val at hej
+        change (blockCarry (b := b) x hx.1 j (by omega)).val =
+          (blockCarry (b := b) y hy.1 j (by omega)).val at hej
         change (x ⟨j + 1, by omega⟩).val / b =
           (y ⟨j + 1, by omega⟩).val / b
         have ih' := ih (by omega)
@@ -1660,7 +1660,8 @@ lemma base4097_entropy : 4097 ^ 4097 ≤ 2 ^ 14 * 4096 ^ 4096 := by
   have hexp : (1 + (4096 : ℝ)⁻¹) ^ 4096 < 3 :=
     (Real.one_add_inv_pow_le_exp (n := 4096)).trans_lt Real.exp_one_lt_three
   have hratio : ((4097 : ℝ) / 4096) ^ 4096 < 3 := by
-    convert hexp using 1 <;> norm_num
+    convert hexp using 1
+    all_goals norm_num
   rw [div_pow] at hratio
   have hpow : (4097 : ℝ) ^ 4096 < 3 * (4096 : ℝ) ^ 4096 :=
     (div_lt_iff₀ (by positivity : (0 : ℝ) < 4096 ^ 4096)).mp hratio
@@ -1670,7 +1671,7 @@ lemma base4097_entropy : 4097 ^ 4097 ≤ 2 ^ 14 * 4096 ^ 4096 := by
       (4097 : ℝ) ^ 4096 * 4097 <
           (3 * 4096 ^ 4096) * 4097 := by gcongr
       _ ≤ 16384 * 4096 ^ 4096 := by
-        ring_nf
+        rw [mul_assoc, mul_comm (4096 ^ 4096) 4097, ← mul_assoc]
         gcongr
         norm_num
   rw [show (2 : ℕ) ^ 14 = 16384 by norm_num]
@@ -1956,7 +1957,7 @@ lemma card_apAvoidSeeds_le {b groups q : ℕ} (hb : 0 < b)
         (apRequestBlock hb p) (apRequestColours colour state)
         (apRequestBlock_injective hb p) (apRequestFiber_card_le_two hb p)
     _ = 3 ^ q * 2 ^ (3 * groups - 2 * q) := by
-      simp [Fintype.card_fun]
+      simp
 
 def badProgressionSeeds {b groups q : ℕ} (hb : 0 < b) :
     Finset (Seed groups) :=
@@ -2002,7 +2003,7 @@ lemma card_badProgressionSeeds_le {b groups q : ℕ} (hb : 0 < b) :
       exact card_apCandidates_le b groups q
 
 lemma card_seed (groups : ℕ) : Fintype.card (Seed groups) = 8 ^ groups := by
-  simp [Seed, Pattern, Fintype.card_fun, ← pow_mul]
+  simp [Seed, Pattern]
 
 def GoodProgressions {b groups q : ℕ} (hb : 0 < b) (ω : Seed groups) : Prop :=
   ∀ p : APCandidate b groups q, ∀ colour : Bool,
@@ -2086,7 +2087,7 @@ lemma value_le_add_mul_later_gap {k n : ℕ} {x : Fin k → Fin n}
       simp only [Nat.add_mul, Nat.one_mul]
       omega
 
-def waveAPCandidate {k b groups q : ℕ} (hb : 0 < b)
+def waveAPCandidate {k b groups q : ℕ}
     {x : Fin k → Fin (b * (4 * groups))} (hx : IsAscendingWave x)
     (hq : 0 < q) (h : ℕ) (hroom : h + 5 * q < k)
     (hlarge : b < waveGap x h (by omega)) : APCandidate b groups q := by
@@ -2108,7 +2109,7 @@ lemma goodProgression_gap_step {k b groups q : ℕ} (hb : 0 < b)
     (hlarge : b < waveGap x h (by omega)) :
     5 * q * waveGap x h (by omega) + b ≤
       5 * q * waveGap x (h + 5 * q) (by omega) := by
-  let p := waveAPCandidate hb hx hq h (by omega) hlarge
+  let p := waveAPCandidate hx hq h (by omega) hlarge
   obtain ⟨i, hpair0, hpair1⟩ := hgood p (!colour)
   let j := h + 5 * i.val
   have hj : j < k := by
