@@ -95,7 +95,7 @@ lemma odd_mem_restrictedSums_two {A : Set ℕ} {n : ℕ}
   rcases hrep with ⟨l, hlen, hmem, hsum⟩
   cases l with
   | nil =>
-      simp at hsum
+      simp only [List.sum_nil] at hsum
       subst n
       exact (Nat.not_odd_zero hn).elim
   | cons a l =>
@@ -361,7 +361,7 @@ lemma exists_bounded_coefficients {r q : ℕ} (hr : 0 < r) (hq : q ≤ r ^ 2) :
     simp only [core, List.length_append, List.length_replicate]
     split_ifs with hs
     · simp [ht]
-    · simp
+    · simp only [List.length_cons, List.length_nil, zero_add, Order.add_one_le_iff]
       have hts : t < r := by
         by_contra hnot
         have htr : r ≤ t := by omega
@@ -390,7 +390,8 @@ lemma exists_bounded_coefficients {r q : ℕ} (hr : 0 < r) (hq : q ≤ r ^ 2) :
   · simp only [l, List.sum_append, List.sum_replicate, smul_eq_mul, mul_zero, add_zero]
     simp only [core, List.sum_append, List.sum_replicate, smul_eq_mul]
     split_ifs with hs
-    · simp [hs] at hdiv ⊢
+    · rw [hs, add_zero] at hdiv
+      rw [List.sum_nil, add_zero]
       exact hdiv
     · simp only [List.sum_singleton]
       exact hdiv
@@ -541,8 +542,7 @@ lemma missed_not_unrestricted {h j n : ℕ} (hh : 3 ≤ h) (hj : j < h) :
 lemma counterexample_exact_order {h : ℕ} (hh : 3 ≤ h) :
     IsAdditiveBasisOfOrder (counterexample h) h := by
   refine ⟨counterexample_infinite hh, counterexample_eventually_unrestricted hh, ?_⟩
-  intro j hj
-  intro hev
+  intro j hj hev
   rcases eventually_atTop.1 hev with ⟨N, hN⟩
   let n := N + 1
   have hlarge : N ≤ missed h n := by
@@ -556,7 +556,7 @@ lemma counterexample_exact_order {h : ℕ} (hh : 3 ≤ h) :
     have hadd : (h - 1) * scale h n ≤
         (h - 1) * scale h n + ((h - 1) ^ 2 * scale h n ^ 2 + 1) :=
       Nat.le_add_right _ _
-    exact hsN.trans (hfirst.trans (by simpa [missed, add_assoc] using hadd))
+    exact hsN.trans (hfirst.trans (by simp [missed, add_assoc] at hadd ⊢))
   exact missed_not_unrestricted hh hj (hN (missed h n) hlarge)
 
 private lemma sum_Icc_one_add_one_le_sq {r : ℕ} (hr : 2 ≤ r) :
