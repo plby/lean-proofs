@@ -167,11 +167,11 @@ lemma baseAdj_symm (k : ℕ) : Std.Symm (BaseAdj k) := by
   rcases h with h | h
   · left
     constructor
-    · simpa [h.1] using (flip_flip x.1).symm
+    · rw [h.1, flip_flip]
     · exact h.2.symm
   · right
     constructor
-    · simpa [h.1] using (flip_flip x.2).symm
+    · rw [h.1, flip_flip]
     · exact h.2.symm
 
 lemma baseAdj_loopless (k : ℕ) : Std.Irrefl (BaseAdj k) := by
@@ -242,7 +242,9 @@ theorem baseGraph_diameterTwo {k : ℕ} (hk : 2 ≤ k) :
   by_cases h₁ : y.1 = flip x.1
   · by_cases h₂ : y.2 = flip x.2
     · left
-      exact baseGraph_adj.mpr (Or.inl ⟨h₁, by simpa [h₂] using flip_ne x.2⟩)
+      exact baseGraph_adj.mpr (Or.inl ⟨h₁, by
+        rw [h₂]
+        exact flip_ne x.2⟩)
     · by_cases heq : x.2 = y.2
       · let t := spareBlock hk x.1
         refine Or.inr ⟨(t, flip x.2), ?_, ?_⟩
@@ -251,7 +253,7 @@ theorem baseGraph_diameterTwo {k : ℕ} (hk : 2 ≤ k) :
         · apply baseGraph_adj.mpr
           right
           constructor
-          · simpa [heq] using (flip_flip x.2).symm
+          · rw [← heq, flip_flip]
           · intro h
             exact spareBlock_ne_flip hk x.1 (h.symm.trans h₁)
       · left
@@ -265,7 +267,7 @@ theorem baseGraph_diameterTwo {k : ℕ} (hk : 2 ≤ k) :
         · apply baseGraph_adj.mpr
           left
           constructor
-          · simpa [heq] using (flip_flip x.1).symm
+          · rw [← heq, flip_flip]
           · intro h
             exact spareBlock_ne_flip hk x.2 (h.symm.trans h₂)
       · left
@@ -527,11 +529,11 @@ theorem erdos133Function_lower (n : ℕ) (hn : 64 ≤ n) :
     Real.sqrt n ≤ erdos133Function n + 1 := by
   let M : Model n (erdos133Function n) :=
     Classical.choice (erdos133Function_mem ⟨_, exists_upper_model n hn⟩)
-  letI : Fintype M.V := M.fintypeV
+  let _ : Fintype M.V := M.fintypeV
   have hcardpos : 0 < Fintype.card M.V := by
     rw [M.card_eq]
     omega
-  letI : Nonempty M.V := Fintype.card_pos_iff.mp hcardpos
+  let _ : Nonempty M.V := Fintype.card_pos_iff.mp hcardpos
   have hmoore := moore_bound M.G (erdos133Function n)
     M.diameterTwo M.degree_le
   rw [M.card_eq] at hmoore
@@ -570,7 +572,6 @@ theorem erdos133_isTheta :
     have hsqrt : 2 ≤ Real.sqrt n := by
       rw [show (2 : ℝ) = Real.sqrt 4 by norm_num]
       exact Real.sqrt_le_sqrt (by norm_num; omega)
-    norm_num at hlower ⊢
     nlinarith
 
 /-- The conjectured divergence is false: the quotient is eventually bounded
