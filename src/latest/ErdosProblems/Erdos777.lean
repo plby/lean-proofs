@@ -765,7 +765,8 @@ lemma first_moment_factor_bound {b δ : ℝ} {t n m : ℕ}
     _ = (b ^ ((n : ℝ) / 2)) ^ ((t : ℝ) * (1 - 2 * δ)) := by
       rw [← Real.rpow_mul (y := (n : ℝ) / 2)
         (z := (t : ℝ) * (1 - 2 * δ)) hb.le]
-      congr 1 <;> ring
+      congr 1
+      ring
     _ ≤ (m : ℝ) ^ ((t : ℝ) * (1 - 2 * δ)) :=
       Real.rpow_le_rpow (Real.rpow_nonneg hb.le _) hm hδ
 
@@ -788,7 +789,8 @@ lemma second_moment_factor_bound {b δ : ℝ} {t n m : ℕ}
     _ = (b ^ ((n : ℝ) / 2)) ^ (1 - 2 * (t : ℝ) * δ) := by
       rw [← Real.rpow_mul (y := (n : ℝ) / 2)
         (z := 1 - 2 * (t : ℝ) * δ) hb.le]
-      congr 1 <;> ring
+      congr 1
+      ring
     _ ≤ (m : ℝ) ^ (1 - 2 * (t : ℝ) * δ) :=
       Real.rpow_le_rpow (Real.rpow_nonneg hb.le _) hm hδ
 
@@ -1503,7 +1505,9 @@ lemma rpow_half_sq (n : ℕ) :
       (Real.rpow_natCast ((2 : ℝ) ^ ((n : ℝ) / 2)) 2).symm
     _ = (2 : ℝ) ^ (((n : ℝ) / 2) * 2) :=
       (Real.rpow_mul (by positivity : (0 : ℝ) ≤ 2) ((n : ℝ) / 2) 2).symm
-    _ = (2 : ℝ) ^ (n : ℝ) := by congr 1 <;> ring
+    _ = (2 : ℝ) ^ (n : ℝ) := by
+      congr 1
+      ring
     _ = (2 : ℝ) ^ (n : ℕ) := Real.rpow_natCast 2 n
 
 lemma nat_third_cast_le (n : ℕ) : ((n / 3 : ℕ) : ℝ) ≤ (n : ℝ) / 3 := by
@@ -1617,7 +1621,8 @@ lemma triangleCoefficient_eventually {γ : ℝ} (hγ : 0 < γ) :
       (fun n : ℕ ↦ 2 * ((1 / 2 : ℝ) ^ n) +
         ((2 : ℝ) ^ (-(1 : ℝ) / 6)) ^ n)
       Filter.atTop (nhds 0) := by
-    convert (hhalf.const_mul 2).add hr using 1 <;> simp
+    convert (hhalf.const_mul 2).add hr using 1
+    all_goals simp
   exact Filter.eventually_atTop.mp
     (hsum.eventually_lt tendsto_const_nhds (by positivity))
 
