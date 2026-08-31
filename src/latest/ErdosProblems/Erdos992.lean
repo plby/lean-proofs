@@ -334,8 +334,10 @@ private lemma union_initial_children {q m : ℕ} (hq : 0 < q) (hm : 0 < m)
         unfold gridCell
         rw [show a * m + k + 1 = a * m + (k + 1) by omega]
         apply Set.Ico_union_Ico_eq_Ico
-        · gcongr <;> omega
-        · gcongr <;> omega
+        · gcongr
+          all_goals omega
+        · gcongr
+          all_goals omega
 
 private lemma union_all_children {q m : ℕ} (hq : 0 < q) (hm : 0 < m) (a : ℕ) :
     (⋃ d ∈ Finset.range m, gridCell (q * m) (a * m + d)) = gridCell q a := by
