@@ -40,10 +40,11 @@ theorem sum_naturalRatioWeight_mul (q M H : ℕ) [NeZero q]
     _ = _ := Finset.sum_product _ _ _
 
 theorem sum_card_fiber_sq_eq_card_collision
-    {α β : Type*} [Fintype β] [DecidableEq α] [DecidableEq β]
+    {α β : Type*} [Fintype β] [DecidableEq β]
     (s : Finset α) (f : α → β) :
     (∑ y : β, ((s.filter fun a => f a = y).card) ^ 2) =
       (((s ×ˢ s).filter fun ab => f ab.1 = f ab.2).card) := by
+  classical
   let c := (s ×ˢ s).filter fun ab => f ab.1 = f ab.2
   have hmap : (c : Set (α × α)).MapsTo (fun ab => f ab.1)
       (Finset.univ : Finset β) := by

@@ -21,7 +21,7 @@ theorem prod_divisibility_indicator (s : Finset ℕ) (hs : ∀ p ∈ s, p.Prime)
     exact Finset.prod_eq_one fun p hp => if_pos ((prod_dvd_iff_all_prime_dvd s hs n).mp h p hp)
   · rw [if_neg h]
     have hn : ¬ ∀ p ∈ s, p ∣ n := by rwa [← prod_dvd_iff_all_prime_dvd s hs n]
-    push_neg at hn
+    push Not at hn
     obtain ⟨p, hp, hpn⟩ := hn
     exact Finset.prod_eq_zero hp (if_neg hpn)
 
@@ -83,7 +83,6 @@ theorem changeLevel_sum_eq_alternating {d m : ℕ} (hm : m ≠ 0) (hd : d ∣ m)
 
 theorem abs_changeLevel_sum_le {d m : ℕ} (hm : m ≠ 0) (hd : d ∣ m)
     (φ : DirichletCharacter ℝ d) (hφ : φ.IsQuadratic) (M H : ℕ) {B : ℝ}
-    (hB : 0 ≤ B)
     (hbound : ∀ K L : ℕ, L ≤ H → |∑ j ∈ Finset.range L, φ (K + j : ℕ)| ≤ B) :
     |∑ i ∈ Finset.range H, DirichletCharacter.changeLevel hd φ (M + i : ℕ)| ≤
       (2 : ℝ) ^ m.primeFactors.card * B := by

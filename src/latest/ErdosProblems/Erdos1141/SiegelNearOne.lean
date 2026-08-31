@@ -211,7 +211,7 @@ theorem norm_iteratedDeriv_two_LFunction_ofReal_near_one_le
 lower bound needed just to the right of one. -/
 theorem one_le_riemannZeta_mul_LFunction_ofReal
     {q : ℕ} [NeZero q]
-    (chi : DirichletCharacter ℂ q) (hchi : chi ≠ 1)
+    (chi : DirichletCharacter ℂ q)
     (hsquare : chi ^ 2 = 1) {sigma : ℝ} (hsigma : 1 < sigma) :
     (1 : ℂ) ≤ riemannZeta (sigma : ℂ) *
       DirichletCharacter.LFunction chi (sigma : ℂ) := by
@@ -241,7 +241,7 @@ theorem one_le_riemannZeta_mul_LFunction_ofReal
         LSeries_convolution']
       · have hs : 1 < ((sigma : ℂ)).re := by simpa using hsigma
         congr 1
-        · simpa only [← LSeries_zeta_eq_riemannZeta hs, ← natCoe_apply]
+        · simp only [← LSeries_zeta_eq_riemannZeta hs, ← natCoe_apply]
         · rw [DirichletCharacter.LFunction_eq_LSeries chi hs]
           exact (LSeries_congr chi.apply_eq_toArithmeticFunction_apply (sigma : ℂ)).symm
       · exact LSeriesSummable_zeta_iff.mpr (by simpa using hsigma)
@@ -362,7 +362,7 @@ theorem sub_one_div_self_le_LFunction_ofReal
   let V := DirichletCharacter.LFunction chi (sigma : ℂ)
   have hprod : (1 : ℂ) ≤ Z * V := by
     simpa [Z, V] using
-      one_le_riemannZeta_mul_LFunction_ofReal chi hchi hsquare hsigma
+      one_le_riemannZeta_mul_LFunction_ofReal chi hsquare hsigma
   have hZupper : Z ≤ (((1 + 1 / (sigma - 1) : ℝ) : ℂ)) := by
     simpa [Z] using riemannZeta_ofReal_le_one_add_inv_sub_one hsigma
   have hZlower : (1 : ℂ) ≤ Z := by
@@ -457,7 +457,8 @@ theorem exists_real_zero_of_LFunction_one_re_lt
           gcongr <;> nlinarith
         _ = (2 ^ 24 : ℝ) * L ^ 3 * ell := by ring
     dsimp [delta]
-    convert hcomparison.trans hscaled.le using 1 <;> ring
+    convert hcomparison.trans hscaled.le using 1
+    all_goals ring
   have hdeltaHalf : delta ≤ 1 / 2 := by
     have hquarter : 1 / (4 * L) < 1 / 2 := by
       rw [div_lt_iff₀ (by positivity : 0 < 4 * L)]
@@ -494,8 +495,7 @@ theorem exists_real_zero_of_LFunction_one_re_lt
             have : 1 - 1 / (4 * L) < 1 := by linarith
             change 1 - 1 / (4 * L) ≤ sigma
             exact this.le.trans hsigma.1
-          · change sigma ≤ 3 / 2
-            linarith [hsigma.2, hdeltaHalf])
+          · linarith [hsigma.2, hdeltaHalf])
     simpa using hraw
   have hleftRem :
       ‖F (1 - delta) - F 1 - ((-delta : ℝ) : ℂ) * F' 1‖ ≤
@@ -520,8 +520,7 @@ theorem exists_real_zero_of_LFunction_one_re_lt
           hq chi hchi
         · change 1 - 1 / (4 * L) ≤ sigma
           linarith [hsigma.1, hdeltaNear]
-        · change sigma ≤ 3 / 2
-          linarith [hsigma.2])
+        · linarith [hsigma.2])
     simpa using hraw
   have hrightLower : 4 * ell ≤ (F (1 + delta)).re := by
     have hcomplex := sub_one_div_self_le_LFunction_ofReal
@@ -536,7 +535,8 @@ theorem exists_real_zero_of_LFunction_one_re_lt
       (F (1 + delta)).re at hre
     have hre' : (delta / (1 + delta) : ℝ) ≤
         (F (1 + delta)).re := by
-      convert hre using 1 <;> ring
+      convert hre using 1
+      all_goals ring
     exact hratio.trans hre'
   have hrightError :
       (F (1 + delta)).re - ell - delta * (F' 1).re ≤

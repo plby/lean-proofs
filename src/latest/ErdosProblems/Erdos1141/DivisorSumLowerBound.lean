@@ -25,7 +25,8 @@ theorem principal_divisor_sum_lower (m X : ℕ) :
     (X : ℝ) ≤ ∑ n ∈ Finset.Icc 1 X, divisorCoefficient (1 : DirichletCharacter ℂ m) n := by
   calc
     _ = ∑ _n ∈ Finset.Icc 1 X, (1 : ℝ) := by simp
-    _ ≤ _ := Finset.sum_le_sum fun n hn => one_le_principal_divisorCoefficient (Finset.mem_Icc.mp hn).1
+    _ ≤ _ := Finset.sum_le_sum fun n hn =>
+      one_le_principal_divisorCoefficient (Finset.mem_Icc.mp hn).1
 
 theorem eventually_divisor_sum_lower_bound {c δ : ℝ} (hc : 1 / 4 < c) (hδ : 0 < δ) :
     ∀ᶠ m : ℕ in atTop, ∀ (χ : DirichletCharacter ℂ m), χ.IsQuadratic →

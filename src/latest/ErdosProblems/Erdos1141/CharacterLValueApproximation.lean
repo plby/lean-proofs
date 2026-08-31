@@ -55,7 +55,9 @@ theorem abs_reciprocal_prefix_sub_LFunction_re_le {m : ℕ} [NeZero m]
   have hzero : (χ ((0 : ℕ) : ZMod m)).re = 0 := by
     rw [Nat.cast_zero, χ.map_zero' (by omega), Complex.zero_re]
   have hfinite := abs_reciprocal_interval_le (fun i => (χ (i : ℕ)).re) hx hxy hb
-    (fun n hn hny => by rw [sum_range_succ_eq_zero_add_Icc, hzero, zero_add]; exact hprefix n hn hny)
+    (fun n hn hny => by
+      rw [sum_range_succ_eq_zero_add_Icc, hzero, zero_add]
+      exact hprefix n hn hny)
   have hdiff : P y - P x = ∑ i ∈ Finset.Ioc x y, (χ (i : ℕ)).re / (i : ℝ) := by
     dsimp only [P]
     rw [show Finset.Icc 1 y = Finset.Ioc 0 y by ext i; simp; omega,

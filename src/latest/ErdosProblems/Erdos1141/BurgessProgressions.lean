@@ -135,8 +135,8 @@ theorem eventually_twisted_squarefree_burgess {d : ℝ} (hd : 1 / 4 < d) :
     rcases hθ (n : ZMod h) with hz | hz | hz <;> norm_num [hz]
   have hf (n : ℕ) : |θ (n : ZMod h) * productChar s hs (n : ℕ)| ≤ 1 := by
     rw [abs_mul]
-    exact (mul_le_mul (hθabs n) (abs_productChar_le_one s hs _) (abs_nonneg _) (by norm_num)).trans_eq
-      (one_mul 1)
+    exact (mul_le_mul (hθabs n) (abs_productChar_le_one s hs _)
+      (abs_nonneg _) (by norm_num)).trans_eq (one_mul 1)
   have hprog (a : ℕ) : |∑ j ∈ Finset.range (H / h),
       θ (a + h * j : ℕ) * productChar s hs (a + h * j : ℕ)| ≤
       ((H / h : ℕ) : ℝ) * (q : ℝ) ^ (-η) :=

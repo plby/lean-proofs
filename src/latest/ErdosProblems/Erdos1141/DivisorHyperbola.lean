@@ -83,8 +83,7 @@ theorem abs_truncated_floor_error_le (f : ℕ → ℝ) (hf : ∀ n, |f n| ≤ 1)
       exact (mul_le_mul hfloor (hf d) (abs_nonneg _) (by norm_num)).trans_eq (one_mul 1)
     _ = _ := by simp
 
-theorem abs_hyperbola_tail_le (f : ℕ → ℝ) {X Y : ℕ} (hY : 0 < Y)
-    {b : ℝ} (hb : 0 ≤ b)
+theorem abs_hyperbola_tail_le (f : ℕ → ℝ) {X Y : ℕ} {b : ℝ} (hb : 0 ≤ b)
     (hprefix : ∀ n : ℕ, Y ≤ n →
       |∑ d ∈ Finset.Icc 1 n, f d| ≤ (n : ℝ) * b) :
     |∑ a ∈ Finset.Icc 1 X, ∑ d ∈ Finset.Ioc Y (X / a), f d| ≤
@@ -114,13 +113,16 @@ theorem abs_hyperbola_tail_le (f : ℕ → ℝ) {X Y : ℕ} (hY : 0 < Y)
     · rw [Finset.Ioc_eq_empty_of_le (by omega), Finset.sum_empty, abs_zero]
       positivity
   calc
-    _ ≤ ∑ a ∈ Finset.Icc 1 X, |∑ d ∈ Finset.Ioc Y (X / a), f d| := Finset.abs_sum_le_sum_abs _ _
+    _ ≤ ∑ a ∈ Finset.Icc 1 X, |∑ d ∈ Finset.Ioc Y (X / a), f d| :=
+      Finset.abs_sum_le_sum_abs _ _
     _ ≤ ∑ a ∈ Finset.Icc 1 X, 2 * (X : ℝ) * b * (a : ℝ)⁻¹ := Finset.sum_le_sum hterm
-    _ = (2 * (X : ℝ) * b) * ∑ a ∈ Finset.Icc 1 X, (a : ℝ)⁻¹ := (Finset.mul_sum _ _ _).symm
-    _ ≤ _ := mul_le_mul_of_nonneg_left (Burgess.sum_Icc_inv_natCast_le_one_add_log X) (by positivity)
+    _ = (2 * (X : ℝ) * b) * ∑ a ∈ Finset.Icc 1 X, (a : ℝ)⁻¹ :=
+      (Finset.mul_sum _ _ _).symm
+    _ ≤ _ := mul_le_mul_of_nonneg_left
+      (Burgess.sum_Icc_inv_natCast_le_one_add_log X) (by positivity)
 
 theorem abs_divisor_sum_sub_truncated_main_le (f : ℕ → ℝ) (hf : ∀ n, |f n| ≤ 1)
-    {X Y : ℕ} (hY : 0 < Y) (hYX : Y ≤ X) {b : ℝ} (hb : 0 ≤ b)
+    {X Y : ℕ} (hYX : Y ≤ X) {b : ℝ} (hb : 0 ≤ b)
     (hprefix : ∀ n : ℕ, Y ≤ n → |∑ d ∈ Finset.Icc 1 n, f d| ≤ (n : ℝ) * b) :
     |(∑ n ∈ Finset.Icc 1 X, ∑ d ∈ n.divisors, f d) -
         (X : ℝ) * ∑ d ∈ Finset.Icc 1 Y, f d / (d : ℝ)| ≤
@@ -134,6 +136,6 @@ theorem abs_divisor_sum_sub_truncated_main_le (f : ℕ → ℝ) (hf : ∀ n, |f 
         (∑ a ∈ Finset.Icc 1 X, ∑ d ∈ Finset.Ioc Y (X / a), f d) := by ring
   rw [heq]
   exact (abs_add_le _ _).trans (add_le_add (abs_truncated_floor_error_le f hf X Y)
-    (abs_hyperbola_tail_le f hY hb hprefix))
+    (abs_hyperbola_tail_le f hb hprefix))
 
 end Pollack17

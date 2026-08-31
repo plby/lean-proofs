@@ -23,7 +23,7 @@ theorem real_quadratic_of_changeLevel {m d : ℕ} [NeZero m] (hd : d ∣ m)
 
 theorem eventually_quadratic_burgess {d : ℝ} (hd : 1 / 4 < d) :
     ∃ σ : ℝ, 0 < σ ∧ ∀ᶠ m : ℕ in atTop,
-      ∀ (χ : DirichletCharacter ℂ m) (hχ : χ.IsQuadratic), χ ≠ 1 →
+      ∀ (χ : DirichletCharacter ℂ m) (_ : χ.IsQuadratic), χ ≠ 1 →
         ∀ M H : ℕ, (m : ℝ) ^ d ≤ H →
           |∑ i ∈ Finset.range H, (χ (M + i : ℕ)).re| ≤
             (H : ℝ) * (m : ℝ) ^ (-σ) := by
@@ -39,7 +39,9 @@ theorem eventually_quadratic_burgess {d : ℝ} (hd : 1 / 4 < d) :
   let σ : ℝ := min (κ * η) (min (d - c) (d - κ)) / 8
   have hσ : 0 < σ := by
     dsimp [σ]
-    exact div_pos (lt_min (mul_pos hκ hη) (lt_min (sub_pos.mpr hcd) (sub_pos.mpr hκd))) (by norm_num)
+    exact div_pos
+      (lt_min (mul_pos hκ hη) (lt_min (sub_pos.mpr hcd) (sub_pos.mpr hκd)))
+      (by norm_num)
   have hση : 2 * σ < κ * η := by
     have h := min_le_left (κ * η) (min (d - c) (d - κ))
     dsimp only [σ] at hσ ⊢
@@ -136,7 +138,7 @@ theorem eventually_quadratic_burgess {d : ℝ} (hd : 1 / 4 < d) :
         simpa only [one_mul, sub_eq_add_neg, Real.rpow_add hmR] using hsmall
       exact (hperiod'.trans hsm').trans
         (mul_le_mul_of_nonneg_right hH (Real.rpow_nonneg hmR.le _))
-  have hsieve := abs_changeLevel_sum_le hm0.ne' hD φ hφ M H (by positivity) hφbound
+  have hsieve := abs_changeLevel_sum_le hm0.ne' hD φ hφ M H hφbound
   have hlast : (2 : ℝ) ^ m.primeFactors.card * ((H : ℝ) * (m : ℝ) ^ (-(2 * σ))) ≤
       (H : ℝ) * (m : ℝ) ^ (-σ) := by
     calc

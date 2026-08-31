@@ -31,7 +31,8 @@ theorem eventually_productChar_moment_le (r : ℕ) (hr : 0 < r)
       ∀ V : ℕ, letI : NeZero (primeModulus s) := ⟨(primeModulus_pos s hs).ne'⟩
       (∑ x : ZMod (primeModulus s), naturalShiftSum (productChar s hs) V x ^ (2 * r)) ≤
         (primeModulus s : ℝ) ^ δ *
-          ((primeModulus s : ℝ) * (V : ℝ) ^ r + Real.sqrt (primeModulus s) * (V : ℝ) ^ (2 * r)) := by
+          ((primeModulus s : ℝ) * (V : ℝ) ^ r +
+            Real.sqrt (primeModulus s) * (V : ℝ) ^ (2 * r)) := by
   let n := 2 * r
   let C := Stepanov.simpleRootConstant n
   let b := C * 2 ^ (n - 1)

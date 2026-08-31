@@ -33,7 +33,7 @@ theorem abs_divisor_sum_sub_LFunction_main_le {m X Y R : ℕ} [NeZero m]
   have hf (n : ℕ) : |(χ (n : ℕ)).re| ≤ 1 := by
     rcases hχ (n : ℕ) with h | h | h <;> rw [h] <;> norm_num
   have hhyp := abs_divisor_sum_sub_truncated_main_le (fun n => (χ (n : ℕ)).re)
-    hf hY hYX hb hprefix
+    hf hYX hb hprefix
   have htail := abs_reciprocal_prefix_sub_LFunction_re_le hm χ hχ1 hY hYR hb
     (fun n hn _ => hprefix n hn)
   simp_rw [← divisorCoefficient_eq_sum χ] at hhyp

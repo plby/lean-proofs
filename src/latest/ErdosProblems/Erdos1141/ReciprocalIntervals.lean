@@ -41,7 +41,8 @@ theorem abs_reciprocal_interval_le (f : ℕ → ℝ) {x y : ℕ} (hx : 0 < x) (h
       _ ≤ ((x + 1 : ℕ) : ℝ)⁻¹ * ((x : ℝ) * b) :=
         mul_le_mul_of_nonneg_left (hprefix x le_rfl hxy) (by positivity)
       _ ≤ ((x + 1 : ℕ) : ℝ)⁻¹ * (((x + 1 : ℕ) : ℝ) * b) :=
-        mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right (by push_cast; linarith) hb) (by positivity)
+        mul_le_mul_of_nonneg_left
+          (mul_le_mul_of_nonneg_right (by push_cast; linarith) hb) (by positivity)
       _ = b := by field_simp
   have hterm (i : ℕ) (hi : i ∈ Finset.Ioc x (y - 1)) :
       |(((i + 1 : ℕ) : ℝ)⁻¹ - (i : ℝ)⁻¹) * S i| ≤ b * (i : ℝ)⁻¹ := by

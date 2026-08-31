@@ -106,7 +106,9 @@ theorem eventually_divisor_sum_asymptotic {c : ℝ} (hc : 1 / 4 < c) :
   have hbound (n : ℕ) (hn : Y ≤ n) :
       |∑ d ∈ Finset.Icc 1 n, (χ (d : ℕ)).re| ≤ (n : ℝ) * (m : ℝ) ^ (-σ) :=
     hpref χ hχ hχ1 n (hceil.1.trans (by exact_mod_cast hn))
-  have hcomp := abs_divisor_sum_sub_LFunction_main_le (by omega) χ hχ hχ1 hYpos hYX' hYR' hb hbound
-  exact (hcomp.trans (divisor_comparison_error_le_scales (by omega) hXpos hc0 hfloor.2 hceil.2)).trans herr
+  have hcomp := abs_divisor_sum_sub_LFunction_main_le
+    (by omega) χ hχ hχ1 hYpos hYX' hYR' hb hbound
+  exact (hcomp.trans (divisor_comparison_error_le_scales
+    (by omega) hXpos hc0 hfloor.2 hceil.2)).trans herr
 
 end Pollack17
