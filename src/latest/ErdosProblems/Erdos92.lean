@@ -32,7 +32,7 @@ def unitGraph (P : Finset ℝ²) : SimpleGraph P where
     simpa [dist_comm] using h⟩
   loopless := ⟨by
     intro x h
-    simpa using h⟩
+    simp at h⟩
 
 noncomputable instance (P : Finset ℝ²) : DecidableRel (unitGraph P).Adj := by
   classical
@@ -163,12 +163,13 @@ lemma core_of_dense {α : Type*} [Fintype α] (G : SimpleGraph α)
   · refine ⟨s, Finset.Subset.rfl, ?_, hall⟩
     by_contra hs
     rw [Finset.not_nonempty_iff_eq_empty.mp hs] at h
-    simp [edgeCount] at h
+    simp only [Finset.card_empty, mul_zero, edgeCount, SetLike.coe_sort_coe,
+      Finset.card_pos, SimpleGraph.edgeFinset_nonempty, ne_eq] at h
     apply h
     ext x y
     have hx : False := by simpa using x.property
     exact hx.elim
-  · push_neg at hall
+  · push Not at hall
     obtain ⟨v, hv, hvdeg⟩ := hall
     have hs' : s.erase v ⊂ s := Finset.erase_ssubset hv
     have h' : k * (s.erase v).card < edgeCount G (s.erase v) := by
@@ -224,7 +225,7 @@ lemma lower_f_of_unitDist {P : Finset ℝ²} {k : ℕ} (hk : 0 < k)
     ∃ A : Finset ℝ², A ⊆ P ∧ A.Nonempty ∧
       k ∈ possible_f_values A.card ∧ k ≤ f A.card := by
   classical
-  letI : DecidableEq P := Classical.decEq P
+  let _ : DecidableEq P := Classical.decEq P
   let G := unitGraph P
   have hG : k * Fintype.card P < edgeCount G Finset.univ := by
     rw [edgeCount_univ, show G.edgeFinset.card = Erdos.unitDist P by
