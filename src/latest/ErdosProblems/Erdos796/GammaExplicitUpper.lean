@@ -48,7 +48,7 @@ theorem tsum_shiftedPSeriesTerm_le {s : ℝ} (hs : 1 < s) :
   · exact shiftedPSeriesTerm_nonneg s
   · intro n
     rcases n with _ | n
-    · simp
+    · simp only [Finset.range_zero, Finset.sum_empty, one_div]
       positivity
     · let f : ℝ → ℝ := fun x => x ^ (-s)
       have hanti : AntitoneOn f

@@ -23,7 +23,7 @@ namespace BoxPruning
 open AdmissibleTriples
 
 theorem card_biUnion_le_sum_completeBox
-    {ι : Type*} [DecidableEq ι]
+    {ι : Type*}
     {n : ℕ} {A : Finset ℕ} (hA : Admissible n A)
     (I : Finset ι)
     (H : ι → Finset (ℕ × ℕ × ℕ))
@@ -39,6 +39,7 @@ theorem card_biUnion_le_sum_completeBox
         (4 * ((L i).card : ℝ) * ((M i).card : ℝ) * ((R i).card : ℝ)) /
           Tripartite.realFourthRoot
             (Nat.min (L i).card (Nat.min (M i).card (R i).card) : ℝ) := by
+  classical
   have hunionNat : (I.biUnion H).card ≤ ∑ i ∈ I, (H i).card :=
     Finset.card_biUnion_le
   have hunionReal : ((I.biUnion H).card : ℝ) ≤
@@ -57,10 +58,11 @@ theorem card_biUnion_le_sum_completeBox
 
 /-- A uniform per-box estimate gives the expected number-of-boxes factor. -/
 theorem card_biUnion_le_card_mul_of_uniform
-    {ι α : Type*} [DecidableEq ι] [DecidableEq α]
+    {ι α : Type*} [DecidableEq α]
     (I : Finset ι) (H : ι → Finset α) (C : ℝ)
     (hC : ∀ i ∈ I, ((H i).card : ℝ) ≤ C) :
     ((I.biUnion H).card : ℝ) ≤ (I.card : ℝ) * C := by
+  classical
   have hunionNat : (I.biUnion H).card ≤ ∑ i ∈ I, (H i).card :=
     Finset.card_biUnion_le
   have hunionReal : ((I.biUnion H).card : ℝ) ≤

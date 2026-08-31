@@ -515,6 +515,7 @@ theorem edgeCount_eq_card_of_subset_product
       symm
       exact Finset.card_eq_sum_card_fiberwise hmap
 
+omit [DecidableEq X] [DecidableEq Y] [DecidableEq Z] in
 /-- The ordered, supported form of the manuscript's unbalanced
 `K^{(3)}_{2,2,2}` lemma, with explicit absolute constant `4`. -/
 theorem card_le_four_mul_div_fourthRoot_ordered
@@ -525,9 +526,11 @@ theorem card_le_four_mul_div_fourthRoot_ordered
     (H.card : ℝ) ≤
       (4 * (L.card : ℝ) * (M.card : ℝ) * (R.card : ℝ)) /
         realFourthRoot (L.card : ℝ) := by
+  classical
   rw [← edgeCount_eq_card_of_subset_product hsub]
   exact edgeCount_le_four_mul_div_fourthRoot_ordered hH L M R hL hLM hMR
 
+omit [DecidableEq X] [DecidableEq Y] [DecidableEq Z] in
 /-- Fully symmetric unbalanced complete-box bound.  No ordering of the three
 positive part sizes is assumed; the denominator is the fourth root of their
 minimum.  The proof relabels the parts and applies the ordered estimate. -/
@@ -539,6 +542,7 @@ theorem card_le_four_mul_div_fourthRoot_min
     (H.card : ℝ) ≤
       (4 * (L.card : ℝ) * (M.card : ℝ) * (R.card : ℝ)) /
         realFourthRoot (Nat.min L.card (Nat.min M.card R.card) : ℝ) := by
+  classical
   by_cases hLM : L.card ≤ M.card
   · by_cases hLR : L.card ≤ R.card
     · by_cases hMR : M.card ≤ R.card

@@ -97,7 +97,7 @@ theorem card_semiprimeFiber_union_le_semiprimeCount
       ring
     have hpairle : qr.2 * qr.1 ≤ multipliedPrimePair s qr.1 qr.2 :=
       Nat.le_of_dvd (by
-        show 0 < s * qr.1 * qr.2
+        change 0 < s * qr.1 * qr.2
         exact Nat.mul_pos (Nat.mul_pos hspos hqpos) hrpos) hdiv
     apply Finset.mem_filter.mpr
     constructor

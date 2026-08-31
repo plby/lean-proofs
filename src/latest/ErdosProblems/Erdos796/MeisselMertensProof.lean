@@ -250,8 +250,7 @@ private theorem E₂p_abs_le_clean {x : ℝ} (hx : 2 ≤ x) :
 
 private theorem E₂p_bound_clean :
     Mertens.E₂p =O[atTop] (fun x => 1 / log x) := by
-  simp only [one_div, isBigO_iff, norm_eq_abs, norm_inv, eventually_atTop,
-    ge_iff_le]
+  simp only [one_div, isBigO_iff, norm_eq_abs, norm_inv, eventually_atTop]
   use log 4 + 6 + Mertens.E₁, 2
   intro x hx
   convert! E₂p_abs_le_clean hx using 1

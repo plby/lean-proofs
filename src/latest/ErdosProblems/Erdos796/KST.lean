@@ -4,7 +4,7 @@ import Mathlib.Data.Finset.Powerset
 import Mathlib.Data.Nat.Choose.Cast
 import Mathlib.Algebra.Order.Chebyshev
 import Mathlib.Data.Real.Basic
-import Mathlib.Data.Real.Sqrt
+import Mathlib.Analysis.Real.Sqrt
 import Mathlib.Tactic.Linarith
 
 /- Ported to Lean/Mathlib 4.33.0; imports and tactic elaboration adapted. -/

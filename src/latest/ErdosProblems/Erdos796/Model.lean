@@ -1,5 +1,5 @@
 import ErdosProblems.Erdos796.Core
-import Mathlib.Data.Nat.Lattice
+import Mathlib.Order.Lattice.Nat
 
 /- Ported to Lean/Mathlib 4.33.0; imports and tactic elaboration adapted. -/
 set_option autoImplicit true

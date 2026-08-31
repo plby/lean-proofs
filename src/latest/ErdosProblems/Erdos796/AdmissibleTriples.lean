@@ -44,8 +44,11 @@ theorem coordinates_pos_of_mem
   have hmem := hproducts p hp
   have hpos : 0 < tripleProduct p :=
     (mem_positiveIcc.mp (hA.1 hmem)).1
-  simp [tripleProduct] at hpos
-  exact ⟨hpos.1.1, hpos.1.2, hpos.2⟩
+  have hpair : 0 < p.1 * p.2.1 :=
+    pos_of_mul_pos_left hpos (Nat.zero_le _)
+  exact ⟨pos_of_mul_pos_left hpair (Nat.zero_le _),
+    pos_of_mul_pos_right hpair (Nat.zero_le _),
+    pos_of_mul_pos_right hpos (Nat.zero_le _)⟩
 
 /-- Injectivity turns distinct cube vertices into distinct elements of the
 admissible set. -/

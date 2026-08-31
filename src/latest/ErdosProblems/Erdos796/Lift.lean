@@ -489,7 +489,6 @@ theorem orientedCofactors_injective {n m : ℕ} {U : ℕ → Finset ℕ}
           _ = (rightLiftParameter b).1 * (rightLiftParameter s).2 := by rw [hc2]
           _ = (rightLiftParameter s).1 * (rightLiftParameter s).2 := by rw [hsp.2]
           _ = s.1.2 := (liftRepresentation_right_eq_mul s).symm
-
     · have hsp := liftRepresentation_primes_of_left_ne hU b s hne hs
       have hc1 := congrArg Prod.fst hcode
       have hc2 := congrArg Prod.snd hcode

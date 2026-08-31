@@ -21,10 +21,11 @@ namespace Erdos796
 open scoped BigOperators
 
 theorem card_inter_biUnion_le_card_mul
-    {ι α : Type*} [DecidableEq ι] [DecidableEq α]
+    {ι α : Type*} [DecidableEq α]
     (S : Finset ι) (F : ι → Finset α) (a : ι) (K : ℕ)
     (hpair : ∀ j ∈ S, (F a ∩ F j).card ≤ K) :
     (F a ∩ S.biUnion F).card ≤ S.card * K := by
+  classical
   have hsub : F a ∩ S.biUnion F ⊆ S.biUnion fun j => F a ∩ F j := by
     intro x hx
     have hx' := Finset.mem_inter.mp hx
@@ -44,10 +45,11 @@ theorem card_inter_biUnion_le_card_mul
 /-- Coarse finite Bonferroni inequality with a uniform pairwise-intersection
 bound. -/
 theorem sum_card_le_card_biUnion_add_sq_mul
-    {ι α : Type*} [DecidableEq ι] [DecidableEq α]
+    {ι α : Type*} [DecidableEq α]
     (S : Finset ι) (F : ι → Finset α) (K : ℕ)
     (hpair : ∀ i ∈ S, ∀ j ∈ S, i ≠ j → (F i ∩ F j).card ≤ K) :
     ∑ i ∈ S, (F i).card ≤ (S.biUnion F).card + S.card ^ 2 * K := by
+  classical
   induction S using Finset.induction_on with
   | empty => simp
   | @insert a S ha ih =>

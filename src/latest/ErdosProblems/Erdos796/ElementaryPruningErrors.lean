@@ -165,26 +165,27 @@ theorem primeCounting_sqrt_sq_negligible :
       field_simp
     have ht := hsum.congr' heq.symm
     simpa using! ht
-  apply squeeze_zero'
-  · filter_upwards [eventually_ge_atTop 2] with n hn
+  have hnonneg : ∀ᶠ n : ℕ in atTop,
+      0 ≤ ((Nat.primeCounting n.sqrt ^ 2 : ℕ) : ℝ) / secondOrderScale n := by
+    filter_upwards [eventually_ge_atTop 2] with n hn
     have hscale : 0 < secondOrderScale n := by
       unfold secondOrderScale
       have hlog : 0 < Real.log (n : ℝ) :=
         Real.log_pos (by exact_mod_cast (show 1 < n by omega))
       positivity
     positivity
-  · filter_upwards [eventually_ge_atTop 2] with n hn
+  have hle : ∀ᶠ n : ℕ in atTop,
+      ((Nat.primeCounting n.sqrt ^ 2 : ℕ) : ℝ) / secondOrderScale n ≤
+        ((2 * smallPrimeTriangle n + 1 : ℕ) : ℝ) / secondOrderScale n := by
+    filter_upwards [eventually_ge_atTop 2] with n hn
     have hscale : 0 < secondOrderScale n := by
       unfold secondOrderScale
       have hlog : 0 < Real.log (n : ℝ) :=
         Real.log_pos (by exact_mod_cast (show 1 < n by omega))
       positivity
-    apply (div_le_div_iff_of_pos_right hscale).mpr
-    have hcast : ((Nat.primeCounting n.sqrt ^ 2 : ℕ) : ℝ) ≤
-        ((2 * smallPrimeTriangle n + 1 : ℕ) : ℝ) := by
-      exact_mod_cast primeCounting_sqrt_sq_le_triangle n
-    exact hcast
-  · exact hupper
+    rw [div_le_div_iff_of_pos_right hscale]
+    exact_mod_cast primeCounting_sqrt_sq_le_triangle n
+  exact squeeze_zero' hnonneg hle hupper
 
 end ElementaryPruningErrors
 

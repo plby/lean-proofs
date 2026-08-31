@@ -146,7 +146,8 @@ private lemma primeLogNumerator_100_lt :
   have h83 := log_lower_from_pow_two 83 6 (by norm_num) (by norm_num)
   have h89 := log_lower_from_pow_two 89 6 (by norm_num) (by norm_num)
   have h97 := log_lower_from_pow_two 97 6 (by norm_num) (by norm_num)
-  norm_num at h2 h3 h5 h7 h11 h13 h17 h19 h23 h29 h31 h37 h41 h43 h47 h53 h59 h61 h67 h71 h73 h79 h83 h89 h97
+  norm_num at h2 h3 h5 h7 h11 h13 h17 h19 h23 h29 h31 h37 h41
+  norm_num at h43 h47 h53 h59 h61 h67 h71 h73 h79 h83 h89 h97
   linarith [Real.log_two_gt_d9]
 
 theorem finite_cutoff_100_lt :

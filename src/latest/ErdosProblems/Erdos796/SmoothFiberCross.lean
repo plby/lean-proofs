@@ -71,14 +71,18 @@ theorem strictOrder_eq_imp {a b c d : ℕ}
     (h : strictOrder a b = strictOrder c d) :
     (a = c ∧ b = d) ∨ (a = d ∧ b = c) := by
   by_cases hablt : a < b <;> by_cases hcdlt : c < d
-  · simp [strictOrder, hablt, hcdlt, Prod.ext_iff] at h
-    exact Or.inl h
-  · simp [strictOrder, hablt, hcdlt, Prod.ext_iff] at h
-    exact Or.inr h
-  · simp [strictOrder, hablt, hcdlt, Prod.ext_iff] at h
-    exact Or.inr ⟨h.2, h.1⟩
-  · simp [strictOrder, hablt, hcdlt, Prod.ext_iff] at h
-    exact Or.inl ⟨h.2, h.1⟩
+  · have h' : a = c ∧ b = d := by
+      simpa [strictOrder, hablt, hcdlt, Prod.ext_iff] using h
+    exact Or.inl h'
+  · have h' : a = d ∧ b = c := by
+      simpa [strictOrder, hablt, hcdlt, Prod.ext_iff] using h
+    exact Or.inr h'
+  · have h' : b = c ∧ a = d := by
+      simpa [strictOrder, hablt, hcdlt, Prod.ext_iff] using h
+    exact Or.inr ⟨h'.2, h'.1⟩
+  · have h' : b = d ∧ a = c := by
+      simpa [strictOrder, hablt, hcdlt, Prod.ext_iff] using h
+    exact Or.inl ⟨h'.2, h'.1⟩
 
 /-- The map from an ordered cofactor pair to its corresponding strict pair of
 members of `A`. -/
