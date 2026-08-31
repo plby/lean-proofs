@@ -53,7 +53,8 @@ theorem erdos_651_of_pohoata_zakharov
 the published subexponential conclusion and Erdős's proposed exponential
 lower bound cannot both hold for `f₃`. -/
 theorem not_erdos_651 :
-    ¬ ((Erdos651.HasSubexponentialUpperBound (Erdos651.erdosSzekeresNumber 3)) ∧ (Erdos651.HasExponentialLowerBound (Erdos651.erdosSzekeresNumber 3))) := by
+    ¬ (Erdos651.HasSubexponentialUpperBound (Erdos651.erdosSzekeresNumber 3) ∧
+      Erdos651.HasExponentialLowerBound (Erdos651.erdosSzekeresNumber 3)) := by
   rintro ⟨hPZ, hErdos⟩
   exact erdos_651_of_pohoata_zakharov hPZ hErdos
 
