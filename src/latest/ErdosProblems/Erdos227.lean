@@ -225,7 +225,7 @@ lemma carrier_succ_ratio (k : ℕ) (r : ℝ) :
   field_simp [ne_of_gt (radius_pos k)]
 
 lemma radius_succ_le_twice (k : ℕ) : radius (k + 1) ≤ 2 * radius k := by
-  simp only [radius, Nat.cast_add, Nat.cast_one, Nat.cast_ofNat]
+  simp only [radius, Nat.cast_add, Nat.cast_one]
   linarith
 
 lemma eventually_four_mul_le_radius (x : ℝ) :
@@ -461,7 +461,7 @@ lemma summable_coeff_mul_pow (z : ℂ) :
       have hn0 : n = 0 := by
         by_contra hn0
         exact hn (by simp [hn0])
-      simpa [hn0])
+      simp [hn0])
   · have hznorm : 0 < ‖z‖ := norm_pos_iff.mpr hz
     have hprod := summable_packetCoefficient_norm_prod z hznorm
     have hmajor :
@@ -492,9 +492,8 @@ theorem coeff_isTranscendental : IsTranscendentalSeries coeff := by
 lemma packetCoefficient_zero_zero (k : ℕ) : packetCoefficient k 0 = 0 := by
   have hindex := carrierIndex_ge_add_two k
   have h₀ : (0 : ℕ) ≠ carrierIndex k := by omega
-  have h₁ : (0 : ℕ) ≠ carrierIndex k + 1 := by omega
   have h₂ : (0 : ℕ) ≠ carrierIndex k - 1 := by omega
-  simp [packetCoefficient, h₀, h₁, h₂]
+  simp [packetCoefficient, h₀, h₂]
 
 lemma packetCoefficient_eq_zero_of_lt {k n : ℕ} (hnk : n < k) :
     packetCoefficient k n = 0 := by
@@ -519,9 +518,7 @@ lemma tsum_packetCoefficient_mul_pow_eq_packet (k : ℕ) (z : ℂ) :
   have hpred_lt : carrierIndex k - 1 < carrierIndex k := by omega
   have hpred_ne : carrierIndex k - 1 ≠ carrierIndex k := ne_of_lt hpred_lt
   have hpred_ne_succ : carrierIndex k - 1 ≠ carrierIndex k + 1 := by omega
-  have hself_ne_succ : carrierIndex k ≠ carrierIndex k + 1 := by omega
-  simp [packetSupport, packetCoefficient, packet, hpred_ne, hpred_ne_succ,
-    hself_ne_succ]
+  simp [packetSupport, packetCoefficient, packet, hpred_ne, hpred_ne_succ]
   ring
 
 lemma summable_packetCoefficient_prod (z : ℂ) :
@@ -680,7 +677,8 @@ lemma gap_pred_large {k : ℕ} (hk : 2 ≤ k) :
   have h := Nat.mul_le_mul (Nat.mul_le_mul h1 h2) h3
   have hpred : k - 1 + 2 = k + 1 := by omega
   rw [gap, hpred]
-  convert h using 1 <;> ring
+  convert h using 1
+  all_goals ring
 
 lemma gap_self_large (k : ℕ) : (2 * k + 3) * k ≤ gap k := by
   have h1 : 2 * k + 3 ≤ (k + 2) ^ 2 := by nlinarith [Nat.zero_le k]
@@ -690,7 +688,8 @@ lemma gap_self_large (k : ℕ) : (2 * k + 3) * k ≤ gap k := by
         Nat.pow_le_pow_right (by omega : 0 < k + 2) (by omega : 1 ≤ 4))
   have h := Nat.mul_le_mul h1 h2
   unfold gap
-  convert h using 1 <;> ring
+  convert h using 1
+  all_goals ring
 
 lemma gap_lower_distant_large {k : ℕ} (hk : 2 ≤ k) :
     k * k ≤ gap (k - 2) := by
@@ -707,7 +706,8 @@ lemma gap_upper_distant_large (k : ℕ) : (k + 2) * k ≤ gap (k + 1) := by
         Nat.pow_le_pow_right (by omega : 0 < k + 3) (by omega : 1 ≤ 4))
   have h := Nat.mul_le_mul h1 h2
   unfold gap
-  convert h using 1 <;> ring
+  convert h using 1
+  all_goals ring
 
 /-- The adjacent-ratio identity solved in the opposite direction. -/
 lemma carrier_pred_ratio {k : ℕ} (hk : 1 ≤ k) {r : ℝ} (hr : 0 < r) :
@@ -757,16 +757,19 @@ lemma carrier_succ_le_geometricError_of_le_midpoint {k : ℕ} {r : ℝ}
   have hdecay' :
       (((2 * k + 3 : ℕ) : ℝ) / ((2 * k + 4 : ℕ) : ℝ)) ^ gap k ≤
         geometricError k := by
-    convert hdecay using 1 <;> norm_num [geometricError] <;> ring
+    convert hdecay using 1
+    all_goals
+      norm_num [geometricError]
+    all_goals ring
   rw [carrier_succ_ratio]
   exact mul_le_mul_of_nonneg_left (hpow.trans hdecay') (carrier_nonneg hr0)
 
 lemma carrier_pred_le_geometricError_of_midpoint_le {k : ℕ} {r : ℝ}
-    (hk : 2 ≤ k) (hr : InCell k r) (hmiddle : 2 * (k : ℝ) + 3 ≤ 2 * r) :
+    (hk : 2 ≤ k) (hmiddle : 2 * (k : ℝ) + 3 ≤ 2 * r) :
     carrier (k - 1) r ≤ carrier k r * geometricError k := by
   have hrpos : 0 < r := by
     have hk0 : (0 : ℝ) ≤ k := Nat.cast_nonneg k
-    linarith [hr.1]
+    linarith
   have hbase0 : 0 ≤ radius (k - 1) / r :=
     div_nonneg (radius_pos _).le hrpos.le
   have hbase :
@@ -787,7 +790,10 @@ lemma carrier_pred_le_geometricError_of_midpoint_le {k : ℕ} {r : ℝ}
   have hdecay' :
       (((2 * k + 2 : ℕ) : ℝ) / ((2 * k + 3 : ℕ) : ℝ)) ^ gap (k - 1) ≤
         geometricError k := by
-    convert hdecay using 1 <;> norm_num [geometricError] <;> ring
+    convert hdecay using 1
+    all_goals
+      norm_num [geometricError]
+    all_goals ring
   rw [carrier_pred_ratio (by omega) hrpos]
   exact mul_le_mul_of_nonneg_left (hpow.trans hdecay') (carrier_nonneg hrpos.le)
 
@@ -802,7 +808,7 @@ lemma neighbor_carriers_le {k : ℕ} {r : ℝ} (hk : 2 ≤ k) (hr : InCell k r) 
       carrier_le_dominant hr
     have hnext := carrier_succ_le_geometricError_of_le_midpoint hr hleft
     nlinarith [geometricError_nonneg k]
-  · have hprev := carrier_pred_le_geometricError_of_midpoint_le hk hr hright
+  · have hprev := carrier_pred_le_geometricError_of_midpoint_le hk hright
     have hnext : carrier (k + 1) r ≤ carrier k r :=
       carrier_le_dominant hr
     nlinarith [geometricError_nonneg k]
@@ -889,7 +895,10 @@ lemma upper_adjacent_ratio_le_quarter {k i : ℕ} {r : ℝ} (hk : 2 ≤ k)
   have hdecay := pow_ratio_le_half_pow (m := k + 2) (D := gap i) (q := 2)
     (by omega) hD
   have hdecay' : ((k + 2 : ℝ) / (k + 3)) ^ gap i ≤ (1 / 4 : ℝ) := by
-    convert hdecay using 1 <;> norm_num <;> ring
+    convert hdecay using 1
+    all_goals
+      norm_num
+    all_goals ring
   rw [carrier_succ_ratio]
   exact mul_le_mul_of_nonneg_left (hpow.trans hdecay') (carrier_nonneg hr0)
 
@@ -913,7 +922,10 @@ lemma carrier_first_upper_distant_le {k : ℕ} {r : ℝ} (hk : 2 ≤ k)
     (by omega) (gap_upper_distant_large k)
   have hdecay' : ((k + 2 : ℝ) / (k + 3)) ^ gap (k + 1) ≤
       geometricError k := by
-    convert hdecay using 1 <;> norm_num [geometricError] <;> ring
+    convert hdecay using 1
+    all_goals
+      norm_num [geometricError]
+    all_goals ring
   rw [carrier_succ_ratio]
   exact (mul_le_mul_of_nonneg_left (hpow.trans hdecay')
     (carrier_nonneg hr0)).trans
@@ -1271,11 +1283,9 @@ lemma active_radialError_le {j k : ℕ} {r : ℝ} (hk : 2 ≤ k)
     apply radialError_le_of_close (R := radius k) (r := r) (K := k)
       (radius_pos _) hrpos hkpos
     · unfold radius
-      push_cast
       linarith
     · exact hKr
     · unfold radius
-      push_cast
       apply abs_le.2
       constructor <;> linarith [hr.1, hr.2]
   · subst j
@@ -1836,7 +1846,7 @@ lemma coeff_eq_zero_or_packetCoefficient (n : ℕ) :
   · obtain ⟨j, hj⟩ := h
     exact Or.inr ⟨j, coeff_eq_packetCoefficient_of_ne_zero hj⟩
   · left
-    push_neg at h
+    push Not at h
     unfold coeff
     exact Finset.sum_eq_zero fun j hj ↦ h j
 
@@ -1915,7 +1925,6 @@ lemma active_packetCoefficient_term_le {j k n : ℕ} {r : ℝ} (hk : 2 ≤ k)
       nlinarith [hr.2]
     · subst j
       unfold radius
-      push_cast
       nlinarith [hr.2]
     · subst j
       unfold radius
@@ -1930,7 +1939,6 @@ lemma active_packetCoefficient_term_le {j k n : ℕ} {r : ℝ} (hk : 2 ≤ k)
       nlinarith [hr.1]
     · subst j
       unfold radius
-      push_cast
       nlinarith [hr.1]
     · subst j
       unfold radius
