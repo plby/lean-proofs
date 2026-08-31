@@ -295,7 +295,8 @@ lemma small_totient_ratio_count (T : ℝ) (hT : 0 < T) (N : ℕ) :
       n ≠ 0 ∧ (Nat.totient n : ℝ) / n < Real.exp (-T))).card : ℝ) /
         N ≤ 2 / T := by
   by_cases hN : N = 0
-  · simp [hN]
+  · subst N
+    norm_num
     positivity
   have hNpos : (0 : ℝ) < N := by exact_mod_cast Nat.pos_of_ne_zero hN
   have hmarkov :
@@ -333,7 +334,8 @@ lemma large_tail_count (B N : ℕ) (hB : 1 ≤ B) (δ : ℝ) (hδ : 0 < δ) :
       δ / 2 ≤ largeReciprocalPrimeMass B n)).card : ℝ) / N ≤
         2 / ((B : ℝ) * δ) := by
   by_cases hN : N = 0
-  · simp [hN]
+  · subst N
+    norm_num
     positivity
   have hNpos : (0 : ℝ) < N := by exact_mod_cast Nat.pos_of_ne_zero hN
   have hmarkov :
@@ -643,12 +645,16 @@ lemma normalized_gap_lower_bound
       exact hfactor0 p (Nat.prime_of_mem_primeFactors (Finset.mem_sdiff.mp hp).1)
     · intro p hp
       exact hfactor1 p (Nat.prime_of_mem_primeFactors (Finset.mem_sdiff.mp hp).1)
-  have ha0 : 0 ≤ a := by simp [a]; positivity
+  have ha0 : 0 ≤ a := by
+    simp only [a]
+    positivity
   have ha1 : a ≤ 1 := by
     simp only [a]
     exact (div_le_one (by exact_mod_cast (show 0 < n by omega))).mpr
       (by exact_mod_cast Nat.totient_le n)
-  have hb0 : 0 ≤ b := by simp [b]; positivity
+  have hb0 : 0 ≤ b := by
+    simp only [b]
+    positivity
   have hAMR : A ⊆ M ∪ R := by
     intro p hp
     by_cases hpM : p ∈ M
@@ -938,7 +944,7 @@ theorem erdos_1064.variants.k2 : {n | φ n < φ (n - φ n)}.Infinite := by
     omega
 
 /-- The strengthened result with an arbitrary natural-valued error `f = o(n)`. -/
-theorem erdos_1064.variants.erdos_1064 (f : ℕ → ℕ)
+theorem erdos_1064.variants.general_function (f : ℕ → ℕ)
     (hf : (fun n ↦ (f n : ℝ)) =o[atTop] (fun n ↦ (n : ℝ))) :
     {n : ℕ | φ (n - φ n) + f n < φ n}.HasDensity 1 := by
   exact general_density_aux f hf
@@ -947,5 +953,3 @@ theorem erdos_1064.variants.erdos_1064 (f : ℕ → ℕ)
 end
 
 end Erdos1064
-
-alias _root_.Erdos1064.erdos_1064.variants.general_function := _root_.Erdos1064.erdos_1064.variants.erdos_1064
