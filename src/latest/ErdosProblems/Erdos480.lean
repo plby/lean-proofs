@@ -156,7 +156,7 @@ lemma path_suffix_two {f : ℕ → ℝ} {s t : Set ℕ} {c : ℚ} {x y : ℕ}
   obtain ⟨l, hlne, hls, hlchain, hlweight⟩ := hp
   refine ⟨l ++ [x, y], by simp [hlne], ?_, ?_, ?_⟩
   · intro z hz
-    simp at hz
+    simp only [List.mem_append, List.mem_cons, List.not_mem_nil, or_false] at hz
     rcases hz with hz | rfl | rfl
     · exact hst (hls z hz)
     · exact hx
@@ -260,7 +260,6 @@ theorem five_path (f : ℕ → ℝ) (a : ℕ) :
     · refine ⟨[a, a+1, a+2], by simp, by simp [Set.mem_Icc], ?_, ?_⟩
       · simpa [List.isChain_cons, A, B, C] using And.intro hAB hBC
       · norm_num [jumpWeight, Nat.dist_add_add_left, Nat.dist]
-
     · have hCB : C ≤ B := le_of_not_ge hBC
       by_cases hCD : C ≤ D
       · by_cases hDE : D ≤ E
@@ -569,7 +568,6 @@ theorem thirteen_path_from_end_min (f : ℕ → ℝ) (a x : ℕ)
           · exact hxz3
         norm_num at hedge ⊢
         linarith
-
       · have hpA := path_prefix_two hp5 (t := Set.Icc (x + 1) (x + 8))
           (fun w hw => by simp only [Set.mem_Icc] at hw ⊢; omega) hy'
           (by simp only [Set.mem_Icc] at hz' ⊢; omega)
@@ -780,8 +778,11 @@ lemma pathVariation_nonneg (f : ℕ → ℝ) (l : List ℕ) :
   induction l with
   | nil => simp [pathVariation]
   | cons a l ih =>
-      cases l <;> simp [pathVariation]
-      positivity
+      cases l with
+      | nil => simp only [pathVariation, Std.le_refl]
+      | cons b l =>
+          simp only [pathVariation]
+          positivity
 
 lemma pathVariation_le_one_of_up {f : ℕ → ℝ} {l : List ℕ}
     (hl : l ≠ []) (hmem : ∀ i ∈ l, f i ∈ Set.Icc 0 1)
