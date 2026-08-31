@@ -56,11 +56,12 @@ private theorem buchstabProduct_le_one {α : Type*}
 in `last` is contained in `Q`, then the residual tail of `P` after `Q` is a
 suffix of the residual tail after `last`. -/
 private theorem prefix_residual_isSuffix_of_chain {α : Type*}
-    [DecidableEq α] {P Q before suffix chain : List α} {last : α}
+    {P Q before suffix chain : List α} {last : α}
     (hPnodup : P.Nodup) (hQ : Q <+: P)
     (hchain : chain <+ Q) (hchainLast : ∃ init, chain = init ++ [last])
     (hP : P = before ++ last :: suffix) :
     ∃ residual, P = Q ++ residual ∧ residual <:+ suffix := by
+  classical
   obtain ⟨init, rfl⟩ := hchainLast
   have hlastQ : last ∈ Q := hchain.subset (by simp)
   have hbeforeNot : last ∉ before := by
@@ -95,13 +96,14 @@ private theorem prefix_residual_isSuffix_of_chain {α : Type*}
 /-- The terminal Buchstab factor is bounded by the full Euler product times
 the inverse Euler product of any prefix containing the selected chain. -/
 private theorem failureTerm_suffix_le_prefix_ratio {α : Type*}
-    [DecidableEq α] (x : α → ℝ) {P Q : List α}
+    (x : α → ℝ) {P Q : List α}
     (hx0 : ∀ a, 0 ≤ x a) (hx1 : ∀ a ∈ P, x a < 1)
     (hPnodup : P.Nodup) (hQ : Q <+: P)
     {t : List α × List α} (hstructure : FailureTermStructure P t)
     (hchain : t.1 <+ Q) :
     buchstabProduct x t.2 ≤
       buchstabProduct x P * (buchstabProduct x Q)⁻¹ := by
+  classical
   obtain ⟨_hsub, init, last, before, hselected, hremaining⟩ := hstructure
   obtain ⟨residual, hPQR, hresidual⟩ :=
     prefix_residual_isSuffix_of_chain hPnodup hQ hchain
@@ -192,7 +194,7 @@ private theorem failureChainMassAtDepth_le_prefix {α : Type*}
 prefix forced by stopping geometry at depth `r`; the only analytic premise
 is the genuine inverse Euler-product estimate on `Q`. -/
 theorem depthFailureMass_le_of_prefix_productRatio {α : Type*}
-    [DecidableEq α] (x : α → ℝ) (terms : List (List α × List α))
+    (x : α → ℝ) (terms : List (List α × List α))
     {P Q : List α} {A κ : ℝ} {r : ℕ}
     (hx0 : ∀ a, 0 ≤ x a) (hx1 : ∀ a ∈ P, x a < 1)
     (hPnodup : P.Nodup) (hQ : Q <+: P)
@@ -204,6 +206,7 @@ theorem depthFailureMass_le_of_prefix_productRatio {α : Type*}
       A * Real.rpow betaRatio (κ * r)) :
     depthFailureMass x terms r ≤
       buchstabProduct x P * betaDepthMajorant A κ r := by
+  classical
   let I : ℝ := (buchstabProduct x Q)⁻¹
   let L : ℝ := (Q.map x).sum
   have hQpos : 0 < buchstabProduct x Q :=
@@ -247,7 +250,7 @@ theorem depthFailureMass_le_of_prefix_productRatio {α : Type*}
 /-- Upper first-failure specialization of
 `depthFailureMass_le_of_prefix_productRatio`. -/
 theorem upper_depthFailureMass_le_of_prefix_productRatio {α : Type*}
-    [DecidableEq α] (stop : List α → Bool) (x : α → ℝ)
+    (stop : List α → Bool) (x : α → ℝ)
     (fuel : ℕ) (selected : List α) {P Q : List α}
     {A κ : ℝ} {r : ℕ}
     (hx0 : ∀ a, 0 ≤ x a) (hx1 : ∀ a ∈ P, x a < 1)
@@ -259,6 +262,7 @@ theorem upper_depthFailureMass_le_of_prefix_productRatio {α : Type*}
       A * Real.rpow betaRatio (κ * r)) :
     depthFailureMass x (upperFailureTerms stop fuel selected P) r ≤
       buchstabProduct x P * betaDepthMajorant A κ r := by
+  classical
   apply depthFailureMass_le_of_prefix_productRatio x _ hx0 hx1 hPnodup hQ
     (upper_failureChainsAtDepth_nodup stop fuel selected P hPnodup r)
   · intro t ht _hlen
@@ -270,7 +274,7 @@ theorem upper_depthFailureMass_le_of_prefix_productRatio {α : Type*}
 /-- Lower first-failure specialization of
 `depthFailureMass_le_of_prefix_productRatio`. -/
 theorem lower_depthFailureMass_le_of_prefix_productRatio {α : Type*}
-    [DecidableEq α] (stop : List α → Bool) (x : α → ℝ)
+    (stop : List α → Bool) (x : α → ℝ)
     (fuel : ℕ) (selected : List α) {P Q : List α}
     {A κ : ℝ} {r : ℕ}
     (hx0 : ∀ a, 0 ≤ x a) (hx1 : ∀ a ∈ P, x a < 1)
@@ -282,6 +286,7 @@ theorem lower_depthFailureMass_le_of_prefix_productRatio {α : Type*}
       A * Real.rpow betaRatio (κ * r)) :
     depthFailureMass x (lowerFailureTerms stop fuel selected P) r ≤
       buchstabProduct x P * betaDepthMajorant A κ r := by
+  classical
   apply depthFailureMass_le_of_prefix_productRatio x _ hx0 hx1 hPnodup hQ
     (lower_failureChainsAtDepth_nodup stop fuel selected P hPnodup r)
   · intro t ht _hlen
@@ -312,7 +317,7 @@ upper `HasDepthProductRatio` conclusion.  This is an adapter for the existing
 geometric summation theorem; callers supply cutoff prefixes and inverse Euler
 products, not the desired depth estimate itself. -/
 theorem upper_hasDepthProductRatio_of_prefixProductRatio {α : Type*}
-    [DecidableEq α] (stop : List α → Bool) (x : α → ℝ)
+    (stop : List α → Bool) (x : α → ℝ)
     (fuel : ℕ) (selected : List α) {P : List α}
     (cutoff : ℕ → List α) {V A κ : ℝ} {start : ℕ}
     (hx0 : ∀ a, 0 ≤ x a) (hx1 : ∀ a ∈ P, x a < 1)
@@ -329,6 +334,7 @@ theorem upper_hasDepthProductRatio_of_prefixProductRatio {α : Type*}
         A * Real.rpow betaRatio (κ * r)) :
     HasDepthProductRatio x (upperFailureTerms stop fuel selected P)
       V A κ start fuel := by
+  classical
   intro r hr
   split_ifs with hsr
   · rw [hV]
@@ -341,7 +347,7 @@ theorem upper_hasDepthProductRatio_of_prefixProductRatio {α : Type*}
 /-- Lower analogue of
 `upper_hasDepthProductRatio_of_prefixProductRatio`. -/
 theorem lower_hasDepthProductRatio_of_prefixProductRatio {α : Type*}
-    [DecidableEq α] (stop : List α → Bool) (x : α → ℝ)
+    (stop : List α → Bool) (x : α → ℝ)
     (fuel : ℕ) (selected : List α) {P : List α}
     (cutoff : ℕ → List α) {V A κ : ℝ} {start : ℕ}
     (hx0 : ∀ a, 0 ≤ x a) (hx1 : ∀ a ∈ P, x a < 1)
@@ -358,6 +364,7 @@ theorem lower_hasDepthProductRatio_of_prefixProductRatio {α : Type*}
         A * Real.rpow betaRatio (κ * r)) :
     HasDepthProductRatio x (lowerFailureTerms stop fuel selected P)
       V A κ start fuel := by
+  classical
   intro r hr
   split_ifs with hsr
   · rw [hV]
@@ -371,7 +378,7 @@ theorem lower_hasDepthProductRatio_of_prefixProductRatio {α : Type*}
 cutoff-prefix inverse Euler-product bounds.  Unlike the older endpoint, no
 `HasDepthProductRatio` argument appears in this statement. -/
 theorem rosserBoundaries_le_geometric_of_prefixProductRatio {α : Type*}
-    [DecidableEq α] (stop : List α → Bool) (x : α → ℝ)
+    (stop : List α → Bool) (x : α → ℝ)
     (fuel : ℕ) (selected : List α) {P : List α}
     (upperCutoff lowerCutoff : ℕ → List α) {A κ : ℝ} {start : ℕ}
     (hx0 : ∀ a, 0 ≤ x a) (hx1 : ∀ a ∈ P, x a < 1)
@@ -403,6 +410,7 @@ theorem rosserBoundaries_le_geometric_of_prefixProductRatio {α : Type*}
       rosserLowerBoundary stop x fuel selected P ≤
           buchstabProduct x P *
             ((4 * A / 3) * (1 / 4 : ℝ) ^ start) := by
+  classical
   apply rosserBoundaries_le_geometric_of_depthProductRatio
     stop x selected P
     (buchstabProduct_pos_of_lt_one x P hx1).le
@@ -418,7 +426,7 @@ theorem rosserBoundaries_le_geometric_of_prefixProductRatio {α : Type*}
 /-- The prefix product-ratio hypotheses give the usual multiplicative lower
 and upper estimates for the recursive Rosser main terms. -/
 theorem rosserMainTerms_bounds_of_prefixProductRatio {α : Type*}
-    [DecidableEq α] (stop : List α → Bool) (x : α → ℝ)
+    (stop : List α → Bool) (x : α → ℝ)
     (fuel : ℕ) (selected : List α) {P : List α}
     (upperCutoff lowerCutoff : ℕ → List α) {A κ : ℝ} {start : ℕ}
     (hx0 : ∀ a, 0 ≤ x a) (hx1 : ∀ a ∈ P, x a < 1)
@@ -449,6 +457,7 @@ theorem rosserMainTerms_bounds_of_prefixProductRatio {α : Type*}
         rosserLowerEval stop x fuel selected P ∧
       rosserUpperEval stop x fuel selected P ≤
         (1 + eta) * buchstabProduct x P := by
+  classical
   dsimp only
   obtain ⟨hupper, hlower⟩ :=
     rosserBoundaries_le_geometric_of_prefixProductRatio

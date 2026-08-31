@@ -18,7 +18,7 @@ namespace Erdos851
 /-- A large mean and nearly independent second moment force positive support
 on at least a `1-6η` proportion of a finite set. -/
 theorem one_sub_six_mul_le_positiveSupport
-    {ι : Type*} [DecidableEq ι] (S : Finset ι) (R : ι → ℕ)
+    {ι : Type*} (S : Finset ι) (R : ι → ℕ)
     {η μ X : ℝ}
     (hη : 0 < η) (hηsmall : η ≤ 1 / 6)
     (hμ : 0 < μ) (hlarge : 1 ≤ η * μ)
@@ -27,6 +27,7 @@ theorem one_sub_six_mul_le_positiveSupport
     (hsecond : (∑ i ∈ S, (R i : ℝ) ^ 2) ≤
       (1 + 2 * η) * μ ^ 2 * X + μ * X) :
     (1 - 6 * η) * X ≤ ((S.filter fun i ↦ 0 < R i).card : ℝ) := by
+  classical
   let L : ℝ := (1 - η) * μ * X
   let U : ℝ := (1 + 2 * η) * μ ^ 2 * X + μ * X
   have hL : 0 ≤ L := by

@@ -217,7 +217,8 @@ theorem eventually_roughSupport_of_betaCardinalEstimates
     (by simpa only [mu] using hmoments.1)
     (by simpa only [mu] using hmoments.2)
   dsimp [J, y, Y, mu] at hsupport ⊢
-  convert hsupport using 1 <;> ring
+  convert hsupport using 1
+  all_goals ring
 
 /-- Conditional source-faithful theorem.  Once the uniform beta-cardinality
 interface is filled, every `epsilon ∈ (0,1)` admits one fixed factor budget
@@ -271,7 +272,8 @@ theorem erdos_851_of_uniformBetaCardinalEstimates
           (theta * (((8 * S : ℕ) : ℝ) * Real.log (z : ℝ))) /
             (C * Real.log 2) :=
         (le_div_iff₀ hden).2 (by simpa using hlog)
-      convert hbase' using 1 <;> ring
+      convert hbase' using 1
+      all_goals ring
     exact hbase.trans (mul_le_mul_of_nonneg_left hJ htheta.le)
   have hmassX : ∀ᶠ X : ℕ in atTop,
       1 ≤ theta * ((logIndex X : ℝ) *

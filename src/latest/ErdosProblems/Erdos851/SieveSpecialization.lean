@@ -297,7 +297,7 @@ theorem card_translatedResidues {c d : ℕ} {A : Finset ℕ}
       rintro ⟨r, hr⟩
       exact (Nat.not_lt_zero r) (hA r hr)
     simp [hAempty, translatedResidues]
-  · letI : NeZero d := ⟨hd⟩
+  · let : NeZero d := ⟨hd⟩
     rw [translatedResidues]
     rw [Finset.card_image_of_injOn]
     · rw [Finset.card_image_of_injOn]
@@ -314,7 +314,7 @@ theorem translatedResidues_lt {c d : ℕ} (hd : 0 < d)
     {A : Finset ℕ} {r : ℕ} (hr : r ∈ translatedResidues c d A) :
     r < d := by
   classical
-  letI : NeZero d := ⟨hd.ne'⟩
+  let : NeZero d := ⟨hd.ne'⟩
   rw [translatedResidues, Finset.mem_image] at hr
   obtain ⟨x, _hx, rfl⟩ := hr
   exact ZMod.val_lt x
@@ -323,7 +323,7 @@ theorem mod_mem_translatedResidues_iff {c d t : ℕ} (hd : 0 < d)
     {A : Finset ℕ} (hA : ∀ r ∈ A, r < d) :
     t % d ∈ translatedResidues c d A ↔ (c + t) % d ∈ A := by
   classical
-  letI : NeZero d := ⟨hd.ne'⟩
+  let : NeZero d := ⟨hd.ne'⟩
   constructor
   · intro ht
     rw [translatedResidues, Finset.mem_image] at ht
@@ -357,7 +357,7 @@ theorem mod_mem_translatedResidues_iff {c d t : ℕ} (hd : 0 < d)
       have hz : ((r : ZMod d) - (c : ZMod d)) = (t : ZMod d) := by
         rw [hcastR]
         ring
-      simpa only [hz, ZMod.val_natCast]
+      simp only [hz, ZMod.val_natCast]
 
 /-- Translation by `X+1` identifies `(X,2X]` with an initial interval of
 length `X`, while rotating the selected residue classes. -/

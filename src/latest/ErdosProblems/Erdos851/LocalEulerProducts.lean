@@ -139,7 +139,8 @@ theorem pairShift_localFactor_eq {h p : ℕ} (hp : p.Prime) (hp2 : 2 < p) :
   have hpR1 : (1 : ℝ) < p := by exact_mod_cast hp.one_lt
   have hpm1 : (p : ℝ) - 1 ≠ 0 := (sub_pos.mpr hpR1).ne'
   simp only [pairShiftDensity, oneShiftDensity, pairDirectCorrection]
-  split_ifs <;> field_simp [hpR.ne', hpm1] <;> ring
+  split_ifs
+  all_goals field_simp [hpR.ne', hpm1] <;> ring
 
 /-- Exact finite-product form of the pair singular-series decomposition. -/
 theorem pairShift_localEulerProduct_eq (h : ℕ) {z y : ℕ} (hz : 2 ≤ z) :
@@ -173,7 +174,7 @@ theorem pairDirectCorrection_nonneg {h p : ℕ} (hp2 : 2 < p) :
       inv_lt_one_of_one_lt₀ (one_lt_pow₀ hpm1 (by norm_num))
     linarith
 
-theorem pairDirectCorrection_le_singularLocal {h p : ℕ} (hp2 : 2 < p) :
+theorem pairDirectCorrection_le_singularLocal {h p : ℕ} :
     pairDirectCorrection h p ≤
       (if p ∣ h then (p : ℝ) / ((p : ℝ) - 1) else 1) := by
   simp only [pairDirectCorrection]
@@ -194,9 +195,7 @@ theorem pairShift_localEulerProduct_le (h : ℕ) {z y : ℕ} (hz : 2 ≤ z) :
         have hp' := mem_sievePrimes.mp hp
         omega)
     · intro p hp
-      exact pairDirectCorrection_le_singularLocal (by
-        have hp' := mem_sievePrimes.mp hp
-        omega)
+      exact pairDirectCorrection_le_singularLocal
   · exact sq_nonneg _
 
 /-! ## Uniform second-order correction -/

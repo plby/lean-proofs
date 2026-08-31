@@ -17,9 +17,10 @@ namespace Erdos851
 
 /-- Cauchy--Schwarz applied only to the nonzero support of a function. -/
 theorem sq_sum_le_card_ne_zero_mul_sum_sq
-    {ι : Type*} [DecidableEq ι] (S : Finset ι) (f : ι → ℝ) :
+    {ι : Type*} (S : Finset ι) (f : ι → ℝ) :
     (∑ i ∈ S, f i) ^ 2 ≤
       ((S.filter fun i => f i ≠ 0).card : ℝ) * ∑ i ∈ S, f i ^ 2 := by
+  classical
   let T := S.filter fun i => f i ≠ 0
   have hsum : (∑ i ∈ T, f i) = ∑ i ∈ S, f i := by
     apply Finset.sum_subset (Finset.filter_subset _ _)
@@ -41,10 +42,11 @@ theorem sq_sum_le_card_ne_zero_mul_sum_sq
 /-- The support form of Cauchy--Schwarz for a natural-valued counting
 function. -/
 theorem sq_sum_natCast_le_card_pos_mul_sum_sq
-    {ι : Type*} [DecidableEq ι] (S : Finset ι) (R : ι → ℕ) :
+    {ι : Type*} (S : Finset ι) (R : ι → ℕ) :
     (∑ i ∈ S, (R i : ℝ)) ^ 2 ≤
       ((S.filter fun i => 0 < R i).card : ℝ) *
         ∑ i ∈ S, (R i : ℝ) ^ 2 := by
+  classical
   have hfilter :
       S.filter (fun i => (R i : ℝ) ≠ 0) = S.filter fun i => 0 < R i := by
     ext i
@@ -56,11 +58,12 @@ theorem sq_sum_natCast_le_card_pos_mul_sum_sq
 /-- Finite second-moment method.  A first moment at least `L` and a second
 moment at most `U` force `L² ≤ U` times the size of the positive support. -/
 theorem lower_sq_le_card_pos_mul_upper
-    {ι : Type*} [DecidableEq ι] (S : Finset ι) (R : ι → ℕ) {L U : ℝ}
+    {ι : Type*} (S : Finset ι) (R : ι → ℕ) {L U : ℝ}
     (hL : 0 ≤ L)
     (hfirst : L ≤ ∑ i ∈ S, (R i : ℝ))
     (hsecond : (∑ i ∈ S, (R i : ℝ) ^ 2) ≤ U) :
     L ^ 2 ≤ ((S.filter fun i => 0 < R i).card : ℝ) * U := by
+  classical
   calc
     L ^ 2 ≤ (∑ i ∈ S, (R i : ℝ)) ^ 2 :=
       pow_le_pow_left₀ hL hfirst 2
@@ -73,11 +76,12 @@ theorem lower_sq_le_card_pos_mul_upper
 /-- Division form of the finite second-moment method, also known as the
 support case of the Paley--Zygmund inequality. -/
 theorem lower_sq_div_upper_le_card_pos
-    {ι : Type*} [DecidableEq ι] (S : Finset ι) (R : ι → ℕ) {L U : ℝ}
+    {ι : Type*} (S : Finset ι) (R : ι → ℕ) {L U : ℝ}
     (hL : 0 ≤ L) (hU : 0 < U)
     (hfirst : L ≤ ∑ i ∈ S, (R i : ℝ))
     (hsecond : (∑ i ∈ S, (R i : ℝ) ^ 2) ≤ U) :
     L ^ 2 / U ≤ ((S.filter fun i => 0 < R i).card : ℝ) := by
+  classical
   rw [div_le_iff₀ hU]
   simpa [mul_comm] using
     lower_sq_le_card_pos_mul_upper S R hL hfirst hsecond

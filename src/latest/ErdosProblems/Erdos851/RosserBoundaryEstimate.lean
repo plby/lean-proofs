@@ -56,7 +56,7 @@ theorem stopping_failure_forces_depth
               y ^ ps.length * y ^ (beta + 1) :=
             Nat.mul_le_mul hps hpow
           _ = y ^ (ps.length + (beta + 1)) := by
-            simp [pow_add, mul_assoc]
+            simp [pow_add]
       have hlt : y ^ S < ps.prod * p ^ (beta + 1) := by
         rw [hD] at hfail
         simpa [rosserStoppingPredicate] using hfail
