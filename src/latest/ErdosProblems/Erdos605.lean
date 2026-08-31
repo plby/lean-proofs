@@ -427,7 +427,8 @@ lemma card_equalDistancePairs {n q : ℕ} (hfit : 3 * q ^ 3 ≤ n) :
     (equalDistancePairs hfit).card = q ^ 4 := by
   rw [equalDistancePairs, Finset.card_map, Finset.card_univ, card_incidence]
 
-lemma incidencePair_not_diag (t : Incidence q) : ¬(incidencePair t : Sym2 (GridIndex n q)).IsDiag := by
+lemma incidencePair_not_diag (t : Incidence q) :
+    ¬(incidencePair t : Sym2 (GridIndex n q)).IsDiag := by
   rw [incidencePair, Sym2.mk_isDiag_iff]
   intro h
   have hbad := Sum.inl.inj h
@@ -435,7 +436,8 @@ lemma incidencePair_not_diag (t : Incidence q) : ¬(incidencePair t : Sym2 (Grid
 
 lemma pairDistance_incidence {n q : ℕ} (hfit : 3 * q ^ 3 ≤ n) (t : Incidence q) :
     pairDistance (configuration hfit) ((incidenceEmbedding hfit) t) = Real.sqrt 2 := by
-  simp [pairDistance, configuration, incidenceEmbedding, incidencePair]
+  simp only [pairDistance, configuration, incidenceEmbedding, incidencePair, Sym2.map_mk,
+    Function.Embedding.coeFn_mk, Sym2.lift_mk, Equiv.symm_apply_apply]
   change dist (pointLocation (incidencePoint t)) (lineLocation (incidenceLine t)) = Real.sqrt 2
   exact incidence_distance t
 
