@@ -257,6 +257,7 @@ theorem erdos_370_iff :
 
 theorem erdos_370 :
     { n | maxPrimeFac n < √n ∧ maxPrimeFac (n + 1) < √(n + 1) }.Infinite := by
-  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using Erdos370.erdos_370_iff
+  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using
+    Erdos370.erdos_370_iff
 
 end Erdos370
