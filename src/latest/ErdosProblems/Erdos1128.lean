@@ -51,7 +51,7 @@ theorem omega1_mk : #Omega1 = Cardinal.aleph 1 := by
 
 theorem init_countable (x : Omega1) : Countable (Set.Iio x) := by
   rw [← Cardinal.mk_le_aleph0_iff, ← Cardinal.lt_aleph_one_iff]
-  exact Cardinal.mk_Iio_toType_ord_lt x
+  exact (Cardinal.mk_Iio_lt x (by simp [Omega1])).trans_eq omega1_mk
 
 noncomputable def rank (x : Omega1) : Set.Iio x → ℕ := by
   letI : Countable (Set.Iio x) := init_countable x
@@ -59,8 +59,8 @@ noncomputable def rank (x : Omega1) : Set.Iio x → ℕ := by
   exact Encodable.encode
 
 theorem rank_injective (x : Omega1) : Function.Injective (rank x) := by
-  letI : Countable (Set.Iio x) := init_countable x
-  letI : Encodable (Set.Iio x) := Encodable.ofCountable _
+  let _ : Countable (Set.Iio x) := init_countable x
+  let _ : Encodable (Set.Iio x) := Encodable.ofCountable _
   exact Encodable.encode_injective
 
 noncomputable def rankExt (z x : Omega1) : ℕ :=
@@ -71,7 +71,7 @@ theorem rankExt_injOn (z : Omega1) :
   intro x hx y hy hxy
   change x < z at hx
   change y < z at hy
-  simp [rankExt, hx, hy] at hxy
+  simp only [rankExt, hx, ↓reduceDIte, hy] at hxy
   exact congrArg Subtype.val (rank_injective z hxy)
 
 def ladder (z : Omega1) : Set Omega1 :=
@@ -368,7 +368,7 @@ theorem prefixSet_finite {z s : Omega1} (hs : s ∈ ladder z) :
   ladder_below_finite z s hs.1
 
 theorem prefixSet_ssubset {z s t : Omega1}
-    (hs : s ∈ ladder z) (ht : t ∈ ladder z) (hst : s < t) :
+    (hs : s ∈ ladder z) (hst : s < t) :
     prefixSet z s ⊂ prefixSet z t := by
   rw [Set.ssubset_iff_subset_ne]
   constructor
@@ -382,7 +382,7 @@ theorem prefixSet_ssubset {z s t : Omega1}
 theorem prefixCard_lt {z s t : Omega1}
     (hs : s ∈ ladder z) (ht : t ∈ ladder z) (hst : s < t) :
     prefixCard z s < prefixCard z t := by
-  exact Set.ncard_lt_ncard (prefixSet_ssubset hs ht hst)
+  exact Set.ncard_lt_ncard (prefixSet_ssubset hs hst)
     (prefixSet_finite ht)
 
 theorem bounded_prefix_finite (z : Omega1) (n : ℕ) :
@@ -437,7 +437,8 @@ theorem rhoSmall_finite : ∀ z : Omega1, ∀ n : ℕ, (rhoSmall z n).Finite := 
   intro x hx
   rcases hx with ⟨hxz, hrho⟩
   by_cases hEq : x = z
-  · exact Set.mem_union_left _ (by simpa [hEq])
+  · subst x
+    exact Set.mem_union_left _ (Set.mem_singleton z)
   · have hlt : x < z := lt_of_le_of_ne hxz hEq
     let s := step x z hlt
     have hsC : s ∈ ladder z := step_mem_ladder hlt
@@ -609,16 +610,18 @@ theorem oVal_le_iff {x y : Omega1} : oVal x ≤ oVal y ↔ x ≤ y := by
   simp [oVal]
 
 noncomputable def seqLimit (u : ℕ → Omega1) : Ordinal :=
-  Ordinal.lsub (fun n => oVal (u n))
+  ⨆ n, oVal (u n) + 1
 
 theorem seq_lt_limit (u : ℕ → Omega1) (n : ℕ) :
     oVal (u n) < seqLimit u := by
-  exact Ordinal.lt_lsub _ n
+  change oVal (u n) < ⨆ i, oVal (u i) + 1
+  exact Ordinal.lt_iSup_add_one (fun i : ℕ ↦ oVal (u i)) n
 
 theorem exists_seq_ge_of_lt_limit {u : ℕ → Omega1} {a : Ordinal}
     (h : a < seqLimit u) :
     ∃ n, a ≤ oVal (u n) := by
-  exact Ordinal.lt_lsub_iff.mp h
+  change a < ⨆ i, oVal (u i) + 1 at h
+  exact Ordinal.lt_iSup_add_one_iff.mp h
 
 theorem exists_seq_gt_of_lt_limit {u : ℕ → Omega1} (hu : StrictMono u)
     {a : Ordinal} (h : a < seqLimit u) :
@@ -1022,7 +1025,7 @@ def IsMonochromaticBox {A B C : Type*} (f : A → B → C → Fin 2)
 theorem infinite_set_of_mk_eq_aleph0 {α : Type*} {S : Set α}
     (hS : #S = Cardinal.aleph0) : S.Infinite := by
   rw [← Set.infinite_coe_iff, ← Cardinal.aleph0_le_mk_iff]
-  simpa [hS]
+  simp [hS]
 
 theorem not_erdos_1128 : ¬
     ∀ (A B C : Type) (_ : #A = aleph 1) (_ : #B = aleph 1)
@@ -1031,8 +1034,7 @@ theorem not_erdos_1128 : ¬
         #A₁ = aleph 0 ∧ #B₁ = aleph 0 ∧ #C₁ = aleph 0 ∧
         IsMonochromaticBox f A₁ B₁ C₁ := by
   intro h
-  ·
-    obtain ⟨A₁, B₁, C₁, hA, hB, hC, hmono⟩ :=
+  · obtain ⟨A₁, B₁, C₁, hA, hB, hC, hmono⟩ :=
       h Omega1 Omega1 Omega1 omega1_mk omega1_mk omega1_mk rhoColor
     exact no_infinite_monochromatic_box A₁ B₁ C₁
       (infinite_set_of_mk_eq_aleph0 (hA.trans Cardinal.aleph_zero))
