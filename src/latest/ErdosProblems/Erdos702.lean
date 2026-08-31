@@ -210,9 +210,10 @@ lemma card_biUnion_id_of_pairwiseDisjoint_uniform {α : Type*} [DecidableEq α]
       simpa using hcard A hA
     _ = 𝓜.card * r := by simp
 
-lemma card_le_one_of_uniform_zero {α : Type*} [DecidableEq α]
+lemma card_le_one_of_uniform_zero {α : Type*}
     {𝓕 : Finset (Finset α)} (hcard : ∀ A ∈ 𝓕, A.card = 0) :
     𝓕.card ≤ 1 := by
+  classical
   have hsub : 𝓕 ⊆ ({∅} : Finset (Finset α)) := by
     intro A hA
     have : A = ∅ := card_eq_zero.mp (hcard A hA)
@@ -2844,7 +2845,7 @@ lemma card_lt_twoStarBound_of_all_links_have_pair_core {n k : ℕ}
         ∑ _x : Fin n, Nat.choose (n - 3) (k - 3) :=
     sum_le_sum fun x _ => hdeg x
   rw [sum_point_degrees_eq_card_mul huniform] at hsumle
-  simp at hsumle
+  simp only [sum_const, card_univ, Fintype.card_fin, smul_eq_mul] at hsumle
   have hgap := choose_degree_gap (n := n) (k := k) (by omega) hnk
   have hmul : 𝓕.card * k < Nat.choose (n - 2) (k - 2) * k := by
     have : 𝓕.card * k ≤ n * Nat.choose (n - 3) (k - 3) := by
