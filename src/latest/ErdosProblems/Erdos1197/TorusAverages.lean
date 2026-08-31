@@ -105,7 +105,8 @@ lemma avgOverSubgroup_mem_annSubmodule_of_mem_span
         g ∈ Submodule.span ℂ (Set.range (UnitAddTorus.mFourier (d := d))) → Prop :=
     fun g _ => avgOverSubgroup (d := d) H g ∈ annSubmodule (d := d) H
   change p f hf
-  refine Submodule.span_induction (s := Set.range (UnitAddTorus.mFourier (d := d))) (p := p) ?_ ?_ ?_ ?_ hf
+  refine Submodule.span_induction
+    (s := Set.range (UnitAddTorus.mFourier (d := d))) (p := p) ?_ ?_ ?_ ?_ hf
   · intro g hg
     rcases hg with ⟨n, rfl⟩
     exact avgOverSubgroup_mem_annSubmodule_mFourier (d := d) H n
@@ -120,7 +121,8 @@ lemma avgOverSubgroup_mem_annSubmodule_of_mem_span
 lemma avgOverSubgroup_mem_closure_annSubmodule
     (H : ClosedAddSubgroup (UnitAddTorus d))
     (f : C(UnitAddTorus d, ℂ)) :
-    avgOverSubgroup (d := d) H f ∈ closure (annSubmodule (d := d) H : Set C(UnitAddTorus d, ℂ)) := by
+    avgOverSubgroup (d := d) H f ∈
+      closure (annSubmodule (d := d) H : Set C(UnitAddTorus d, ℂ)) := by
   have hf :
       f ∈ closure (Submodule.span ℂ (Set.range (UnitAddTorus.mFourier (d := d))) :
         Set C(UnitAddTorus d, ℂ)) := by

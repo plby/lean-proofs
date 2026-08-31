@@ -12,11 +12,14 @@ open MeasureTheory.Measure
 
 variable {d : Type*} [Fintype d]
 
-lemma integrable_translateFamily (H : ClosedAddSubgroup (UnitAddTorus d))
+lemma integrable_translateFamily {d : Type*} [Finite d]
+    (H : ClosedAddSubgroup (UnitAddTorus d))
     (f : C(UnitAddTorus d, ℂ)) :
+    letI : Fintype d := Fintype.ofFinite d
     Integrable
       (fun h : H => f.comp (torusTranslate (d := d) (h : UnitAddTorus d)))
       (addHaarMeasure (subgroupUnivPositiveCompact (α := H))) := by
+  let _ : Fintype d := Fintype.ofFinite d
   let μH : Measure H := addHaarMeasure (subgroupUnivPositiveCompact (α := H))
   have hcont :
       Continuous (fun h : H =>

@@ -16,7 +16,7 @@ lemma avgOverSubgroup_norm_apply_le
   let μH : Measure H := addHaarMeasure (subgroupUnivPositiveCompact (α := H))
   have hμ : μH Set.univ = 1 := by
     simpa [μH] using subgroup_univ_measure (d := d) H
-  haveI : IsFiniteMeasure μH := ⟨by simp [hμ]⟩
+  have _ : IsFiniteMeasure μH := ⟨by simp [hμ]⟩
   rw [avgOverSubgroup_apply]
   have hbound : ∀ᵐ h : H ∂μH, ‖f (y + h)‖ ≤ ‖f‖ := by
     exact Filter.Eventually.of_forall (fun h => f.norm_coe_le_norm (y + h))

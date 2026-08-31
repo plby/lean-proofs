@@ -39,7 +39,7 @@ lemma annSubmodule_le_sameValueSubmodule
   refine Submodule.span_le.2 ?_
   intro f hf
   rcases hf with ⟨n, hn, rfl⟩
-  show UnitAddTorus.mFourier n ∈ sameValueSubmodule (d := d) x
+  change UnitAddTorus.mFourier n ∈ sameValueSubmodule (d := d) x
   rw [mem_sameValueSubmodule_iff]
   calc
     UnitAddTorus.mFourier n x = 1 := hx n hn
@@ -106,13 +106,16 @@ lemma disjoint_xPlusH
     exact H.sub_mem hyH h.2
 
 lemma integral_const_subgroup
+    {d : Type*} [Finite d]
     (H : ClosedAddSubgroup (UnitAddTorus d))
     (c : ℂ) :
+    letI : Fintype d := Fintype.ofFinite d
     (∫ _h : H, c ∂(addHaarMeasure (subgroupUnivPositiveCompact (α := H)))) = c := by
+  let _ : Fintype d := Fintype.ofFinite d
   let μH : Measure H := addHaarMeasure (subgroupUnivPositiveCompact (α := H))
   have hμ : μH Set.univ = 1 := by
     simpa [μH] using subgroup_univ_measure (d := d) H
-  haveI : IsFiniteMeasure μH := ⟨by simp [hμ]⟩
+  have _ : IsFiniteMeasure μH := ⟨by simp [hμ]⟩
   rw [integral_const, Measure.real_def, hμ, ENNReal.toReal_one, one_smul]
 
 def ofRealContinuousMap (f : C(UnitAddTorus d, ℝ)) : C(UnitAddTorus d, ℂ) where
