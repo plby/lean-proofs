@@ -64,7 +64,6 @@ theorem core_contradiction_fin
     (hadd : ∀ ⦃i j k : Fin 18⦄, i.val < j.val → i.val + j.val + 1 = k.val →
       ¬ (¬ R i j ∧ ¬ R i k ∧ ¬ R j k)) : False := by
   have h := erdos895_cnf_unsatisfiable
-
     (R 0 1)
     (R 0 2)
     (R 0 3)
@@ -218,7 +217,7 @@ theorem core_contradiction_fin
     (R 15 16)
     (R 15 17)
     (R 16 17)
-  simpa (disch := omega) only [htri, hadd, or_false] using h
+  simp (disch := omega) only [htri, hadd, or_false] at h
 
 /-! ## From the propositional core back to graphs -/
 
