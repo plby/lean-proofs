@@ -163,7 +163,6 @@ lemma gap_div_tendsto :
   · funext n
     have hn : (A.seq n : ℝ) ≠ 0 := by exact_mod_cast (A.pos n).ne'
     field_simp
-    <;> ring
   · norm_num
 
 end NatSubdivision
@@ -215,7 +214,7 @@ lemma left_le_targetRight (A : NatSubdivision) {t : ℝ} (ht : 0 ≤ t) (j : ℕ
   nlinarith [mul_nonneg ht hgap.le]
 
 lemma pairwise_disjoint_targetIntervals (A : NatSubdivision) {t : ℝ}
-    (ht0 : 0 ≤ t) (ht1 : t ≤ 1) :
+    (ht1 : t ≤ 1) :
     Pairwise fun i j : ℕ ↦ Disjoint
       (Ico (targetLeft A i) (targetRight A t i))
       (Ico (targetLeft A j) (targetRight A t j)) := by
@@ -239,7 +238,7 @@ lemma pairwise_disjoint_targetIntervals (A : NatSubdivision) {t : ℝ}
     exact (aux hji).symm
 
 lemma fractionalPosition_lt_iff_mem_targetSet (A : NatSubdivision)
-    {x t : ℝ} (hx : (A.seq 0 : ℝ) ≤ x) (ht0 : 0 ≤ t) (ht1 : t ≤ 1) :
+    {x t : ℝ} (hx : (A.seq 0 : ℝ) ≤ x) (ht1 : t ≤ 1) :
     A.fractionalPosition x < t ↔ x ∈ targetSet A t := by
   rw [A.fractionalPosition_lt_iff hx]
   constructor
@@ -257,7 +256,7 @@ lemma fractionalPosition_lt_iff_mem_targetSet (A : NatSubdivision)
 cell containing `Z`.  It is kept as an explicit real expression so the
 asymptotic calculation does not depend on measure normalization details. -/
 def targetLength (A : NatSubdivision) (t Z : ℝ) : ℝ :=
-  if h : (A.seq 0 : ℝ) ≤ Z then
+  if _h : (A.seq 0 : ℝ) ≤ Z then
     let j := A.cellIndex Z
     t * ((A.seq j : ℝ) - A.seq 0) +
       min (Z - A.seq j)
@@ -418,7 +417,7 @@ lemma targetLength_div_tendsto (A : NatSubdivision) {t : ℝ}
   apply hsum.congr'
   filter_upwards [eventually_ne_atTop (0 : ℝ)] with Z hZ
   field_simp
-  <;> ring
+  all_goals ring
 
 /-! ## Metric Weyl lemma for integer frequencies -/
 
@@ -529,7 +528,7 @@ private lemma fourierSquareBad_eq (r : ℕ → ℤ) (h : ℤ) {ε : ℝ}
       {z | ε ^ 2 * (squareCutoff k : ℝ) ^ 2 ≤
         ‖fourierPartialSum r h (squareCutoff k) z‖ ^ 2} := by
   ext z
-  simp only [fourierSquareBad, Set.mem_setOf_eq]
+  simp only [fourierSquareBad, Set.mem_ofPred_eq]
   rw [norm_fourierAverage r h (squareCutoff_pos k) z]
   have hN : (0 : ℝ) < squareCutoff k := by exact_mod_cast squareCutoff_pos k
   constructor <;> intro hz
@@ -633,7 +632,7 @@ private theorem ae_fourierAverage_square_tendsto (r : ℕ → ℤ)
   rw [dist_zero_right]
   have hk' : ¬1 / (m + 1 : ℝ) ≤
       ‖fourierAverage r h (squareCutoff k) z‖ := by
-    simpa only [fourierSquareBad, Set.mem_setOf_eq] using hK k hk
+    simpa only [fourierSquareBad, Set.mem_ofPred_eq] using hK k hk
   exact (lt_of_not_ge hk').trans hm
 
 private lemma fourierPartialSum_norm_le (r : ℕ → ℤ) (h : ℤ)
@@ -841,7 +840,7 @@ private theorem ae_orbitCenteredAverage_tendsto (r : ℕ → ℕ)
     simp only [Erdos378.WeightedCircleEquidistribution.normalizedFourierAverage,
       Erdos378.WeightedCircleEquidistribution.totalWeight, s, w, x,
       Finset.sum_const, Finset.card_range, nsmul_eq_mul, mul_one,
-      NNReal.coe_natCast, one_mul, Complex.ofReal_natCast]
+      NNReal.coe_natCast, Complex.ofReal_natCast]
     rw [fourierAverage]
     congr 1
     apply Finset.sum_congr rfl
@@ -937,7 +936,7 @@ private theorem ae_nsmul_ne_zero :
       intro z hz
       obtain ⟨m, hm, hzm⟩ := (AddCircle.nsmul_eq_zero_iff hk).1 hz
       exact ⟨⟨m, hm⟩, by simpa using hzm⟩
-    letI : NullSingletonClass AddCircle.haarAddCircle :=
+    let _ : NullSingletonClass AddCircle.haarAddCircle :=
       ⟨haarAddCircle_singleton⟩
     simpa [hk] using
       hfin.measure_zero AddCircle.haarAddCircle
@@ -951,7 +950,6 @@ private lemma fract_mul_ne_zero_of_nsmul_ne_zero {γ : ℝ}
   have hcoe : ((γ * r : ℝ) : UnitCircle) = r • (γ : UnitCircle) := by
     rw [← AddCircle.coe_nsmul]
     congr 1
-    push_cast
     ring
   rw [← hcoe, ← AddCircle.coe_fract, hfract]
   simp
@@ -1261,7 +1259,7 @@ private lemma fullIntegerPoints_subset_sampleIntegerPoints
   have ht1 : (p : ℝ) / q ≤ 1 := by
     exact (div_le_one (by exact_mod_cast hq)).2 (by exact_mod_cast hpq.le)
   have hfrac : A.fractionalPosition (α * k) < (p : ℝ) / q :=
-    (fractionalPosition_lt_iff_mem_targetSet A hx0 ht0 ht1).2 <|
+    (fractionalPosition_lt_iff_mem_targetSet A hx0 ht1).2 <|
       Set.mem_iUnion.2 ⟨j, hxlow, hxupp⟩
   simp only [sampleIntegerPoints, Finset.mem_filter, Finset.mem_Ioc]
   exact ⟨⟨hkpos, hkN⟩, hfrac⟩
@@ -1274,7 +1272,6 @@ private def remainderIntegerPoints (A : NatSubdivision) (α : ℝ) (N : ℕ) :
 private lemma sample_sdiff_full_subset_remainder
     (A : NatSubdivision) {p q N : ℕ} {α : ℝ}
     (hα : 0 < α) (hp : 0 < p) (hpq : p < q)
-    (hZ : (A.seq 0 : ℝ) ≤ α * N)
     (hz : ∀ k : ℕ, 0 < k →
       k • (((α⁻¹ / q : ℝ)) : UnitCircle) ≠ 0) :
     sampleIntegerPoints A α ((p : ℝ) / q) N \
@@ -1292,7 +1289,7 @@ private lemma sample_sdiff_full_subset_remainder
   rcases hk.1 with ⟨⟨hkpos, hkN⟩, hfrac⟩
   by_cases hx0 : (A.seq 0 : ℝ) ≤ α * k
   · have htarget :=
-      (fractionalPosition_lt_iff_mem_targetSet A hx0 ht0 ht1).1 hfrac
+      (fractionalPosition_lt_iff_mem_targetSet A hx0 ht1).1 hfrac
     obtain ⟨j, hj⟩ := Set.mem_iUnion.1 htarget
     dsimp [targetLeft] at hj
     have hxN : α * (k : ℝ) ≤ α * N := by
@@ -1624,7 +1621,7 @@ private theorem rationalAnchored_tendsto (A : NatSubdivision)
     · filter_upwards [eventually_gt_atTop 0, heventZ] with N hN hZ
       have hsub : S N \ F N ⊆ R N := by
         simpa [S, F, R, t] using
-          sample_sdiff_full_subset_remainder A hα hp hpq hZ hz
+          sample_sdiff_full_subset_remainder A hα hp hpq hz
       have hcard : (S N \ F N).card ≤ (R N).card := Finset.card_mono hsub
       have hcardR : (((S N \ F N).card : ℕ) : ℝ) ≤ (R N).card := by
         exact_mod_cast hcard
@@ -1735,12 +1732,12 @@ private theorem quasiMeasurePreserving_inv_real :
       ((fun x : ℝ ↦ x⁻¹) '' (s ∩ Q n))
   have hP (n : ℕ) : volume ((fun x : ℝ ↦ x⁻¹) '' (s ∩ P n)) = 0 := by
     apply volume_inv_image_inter_Icc_eq_zero hs
-    simp only [P, mem_Icc, not_and_or]
+    simp only [mem_Icc, not_and_or]
     left
     exact not_le_of_gt (by positivity : (0 : ℝ) < 1 / (n + 1 : ℝ))
   have hQ (n : ℕ) : volume ((fun x : ℝ ↦ x⁻¹) '' (s ∩ Q n)) = 0 := by
     apply volume_inv_image_inter_Icc_eq_zero hs
-    simp only [Q, mem_Icc, not_and_or]
+    simp only [mem_Icc, not_and_or]
     right
     exact not_le_of_gt (neg_lt_zero.mpr (by positivity : (0 : ℝ) < 1 / (n + 1 : ℝ)))
   have hU : volume U = 0 := by
@@ -1752,7 +1749,7 @@ private theorem quasiMeasurePreserving_inv_real :
   apply measure_mono_null _ hU
   intro x hx
   by_cases hx0 : x = 0
-  · exact Or.inl (by simpa [hx0])
+  · exact Or.inl (by simp [hx0])
   · have hy : x⁻¹ ∈ s := hx
     obtain ⟨n, hn⟩ := exists_mem_invCompactCover (inv_ne_zero hx0)
     right
@@ -1829,7 +1826,7 @@ private lemma intervalCount_mono_right (u : ℕ → ℝ) (N : ℕ)
     {r t : ℝ} (hrt : r ≤ t) : intervalCount u N 0 r ≤ intervalCount u N 0 t := by
   apply Finset.card_le_card
   intro n hn
-  simp only [intervalCount, Finset.mem_filter] at hn ⊢
+  simp only [Finset.mem_filter] at hn ⊢
   exact ⟨hn.1, hn.2.1, hn.2.2.trans_le hrt⟩
 
 private lemma exists_nat_div_eq_rat {r : ℚ} (hr0 : 0 < r) (hr1 : r < 1) :
@@ -1929,8 +1926,7 @@ private theorem anchored_tendsto_all (u : ℕ → ℝ)
     Tendsto (fun N : ℕ ↦ (intervalCount u N 0 t : ℝ) / N)
       atTop (𝓝 t) := by
   rcases ht0.eq_or_lt with rfl | ht0'
-  · simpa [intervalCount] using
-      (tendsto_const_nhds : Tendsto (fun _ : ℕ ↦ (0 : ℝ)) atTop (𝓝 0))
+  · simp [intervalCount]
   rcases ht1.eq_or_lt with rfl | ht1'
   · have hcount : ∀ N, intervalCount u N 0 1 = N := by
       intro N
@@ -1970,7 +1966,7 @@ private lemma intervalCount_cast_eq_sub (u : ℕ → ℝ)
     exact Finset.cast_card_sdiff hsubset
   simpa only [D, T, S, intervalCount] using hcard
 
-private theorem uniformlyDistributed_of_rationalAnchored (A : NatSubdivision)
+private theorem uniformlyDistributed_of_rationalAnchored
     (u : ℕ → ℝ) (hu0 : ∀ n, 0 ≤ u n) (hu1 : ∀ n, u n < 1)
     (hrat : ∀ p q : ℕ, 0 < p → p < q →
       Tendsto
@@ -1998,7 +1994,7 @@ theorem erdos_492 (A : NatSubdivision) :
       IsUniformlyDistributed (sampledSequence A α) := by
   filter_upwards [ae_rationalAnchored_tendsto A] with α hrat
   intro hα
-  apply uniformlyDistributed_of_rationalAnchored A
+  apply uniformlyDistributed_of_rationalAnchored
   · exact fun n ↦ A.fractionalPosition_nonneg (α * (n + 1))
   · exact fun n ↦ A.fractionalPosition_lt_one (α * (n + 1))
   · exact hrat hα
