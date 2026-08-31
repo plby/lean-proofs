@@ -102,7 +102,8 @@ lemma kernel_le_potential_sub_succ {p q : ℝ} (hp : 1 ≤ p) (hq : 1 ≤ q) (m 
   have hYsq : Y ^ 2 = (x + 1) * (y + 1) := Real.sq_sqrt (by positivity)
   dsimp [kernel, kernelPotential, x, y, X, Y] at hbase hXsq hYsq ⊢
   norm_num [Nat.cast_add, hXsq, hYsq] at hbase ⊢
-  convert hbase using 1 <;> ring
+  ring_nf at hbase ⊢
+  exact hbase
 
 lemma kernel_nonneg {p q : ℝ} (hp : 1 ≤ p) (hq : 1 ≤ q) (m : ℕ) :
     0 ≤ kernel p q m := by
@@ -1095,7 +1096,9 @@ lemma phase_centered_eq {N k : ℕ} {b : ℕ → ℝ}
   have hτ : b k - (k : ℝ) ∈ Set.Ioo (0 : ℝ) 1 := by
     constructor <;> linarith [hb.1, hb.2]
   have h := phase_eq_sub_half_of_critical hk hhalf hτ hcrit
-  convert h using 1 <;> unfold centered <;> ring
+  unfold centered at h ⊢
+  ring_nf at h ⊢
+  exact h
 
 lemma indexed_points_strictMono {N : ℕ} {b : ℕ → ℝ}
     (hb : ∀ k, k < N → b k ∈ Set.Ioo (k : ℝ) ((k : ℝ) + 1))
@@ -1132,7 +1135,7 @@ lemma centered_le_radius {N : ℕ} {b : ℕ → ℝ}
   linarith [hbk.2]
 
 lemma phase_centered_eq_of_right_or_center {N k : ℕ} {b : ℕ → ℝ}
-    (hN : 0 < N) (hk : k < N) (hright : N ≤ 2 * k + 1)
+    (hk : k < N) (hright : N ≤ 2 * k + 1)
     (hb : ∀ j, j < N → b j ∈ Set.Ioo (j : ℝ) ((j : ℝ) + 1))
     (hcrit : ∀ j, j < N →
       1 / (b j - j) +
@@ -1177,9 +1180,9 @@ theorem canonical_gap_theorem {N : ℕ} (hN : 0 < N) {b : ℕ → ℝ}
   have h12 : centered N b (i + 1) < centered N b (i + 2) := by
     unfold centered
     linarith [indexed_points_strictMono hb hi2 (by omega : i + 1 < i + 2)]
-  have hphase1 := phase_centered_eq_of_right_or_center hN hi1
+  have hphase1 := phase_centered_eq_of_right_or_center hi1
     (by omega : N ≤ 2 * (i + 1) + 1) hb hcrit hsymm
-  have hphase2 := phase_centered_eq_of_right_or_center hN hi2
+  have hphase2 := phase_centered_eq_of_right_or_center hi2
     (by omega : N ≤ 2 * (i + 2) + 1) hb hcrit hsymm
   by_cases heven : N = 2 * (i + 1)
   · have hy0 : 0 < centered N b (i + 1) := by
@@ -1226,7 +1229,7 @@ theorem canonical_gap_theorem {N : ℕ} (hN : 0 < N) {b : ℕ → ℝ}
       ⟨centered_nonneg_of_right hb hsymm hi0 hNi, centered_le_radius hb hi0⟩
     have hzmem : centered N b (i + 2) ∈ Set.Icc 0 (radius N) :=
       ⟨centered_nonneg_of_right hb hsymm hi2 (by omega), centered_le_radius hb hi2⟩
-    have hphase0 := phase_centered_eq_of_right_or_center hN hi0 hNi hb hcrit hsymm
+    have hphase0 := phase_centered_eq_of_right_or_center hi0 hNi hb hcrit hsymm
     have hslope := (phase_convexOn hN).slope_mono_adjacent hxmem hzmem h01 h12
     rw [hphase0, hphase1, hphase2] at hslope
     have hden1 : centered N b (i + 1) - centered N b i =
@@ -1331,7 +1334,6 @@ lemma sum_range_left_part (k : ℕ) (τ : ℝ) :
     unfold posTerm
     congr 1
     rw [Nat.cast_sub (by omega : n ≤ k - 1)]
-    push_cast
     have hkcast : (k : ℝ) - ((k - 1 : ℕ) : ℝ) = 1 := by
       rw [Nat.cast_sub (by omega : 1 ≤ k)]
       norm_num
@@ -1395,7 +1397,7 @@ lemma eval_rootPolynomial_derivative {r : ℕ → ℝ} {s : Finset ℕ} {x : ℝ
   classical
   unfold rootPolynomial
   rw [derivative_prod_finset]
-  simp only [eval_finset_sum, eval_mul, derivative_X_sub_C, eval_one, mul_one,
+  simp only [eval_finsetSum, derivative_X_sub_C, mul_one,
     eval_prod, eval_sub, eval_X, eval_C]
   rw [Finset.mul_sum]
   apply Finset.sum_congr rfl
@@ -1415,7 +1417,7 @@ noncomputable def arithmeticProgressionPolynomial
 noncomputable def normalizePoint (a d : ℝ) (b : ℕ → ℝ) (k : ℕ) : ℝ :=
   (b k - a) / d
 
-lemma normalizePoint_mem_interval {N k : ℕ} {a d : ℝ} {b : ℕ → ℝ}
+lemma normalizePoint_mem_interval {k : ℕ} {a d : ℝ} {b : ℕ → ℝ}
     (hd : 0 < d) (hb : b k ∈ Set.Ioo (a + d * k) (a + d * (k + 1))) :
     normalizePoint a d b k ∈ Set.Ioo (k : ℝ) ((k : ℝ) + 1) := by
   unfold normalizePoint
@@ -1423,11 +1425,10 @@ lemma normalizePoint_mem_interval {N k : ℕ} {a d : ℝ} {b : ℕ → ℝ}
   · rw [lt_div_iff₀ hd]
     nlinarith [hb.1]
   · rw [div_lt_iff₀ hd]
-    push_cast at hb ⊢
     nlinarith [hb.2]
 
-lemma point_ne_progression_root {N k j : ℕ} {a d x : ℝ}
-    (hd : 0 < d) (hk : k < N)
+lemma point_ne_progression_root {k j : ℕ} {a d x : ℝ}
+    (hd : 0 < d)
     (hx : x ∈ Set.Ioo (a + d * k) (a + d * (k + 1))) :
     x ≠ a + d * j := by
   rcases le_or_gt j k with hjk | hkj
@@ -1446,7 +1447,7 @@ lemma point_ne_progression_root {N k j : ℕ} {a d x : ℝ}
 /-- A derivative zero of the factored arithmetic-progression polynomial gives
 the normalized reciprocal equation used in the analytic theorem. -/
 lemma normalized_reciprocalSum_eq_zero {N k : ℕ} {a d c : ℝ}
-    (hN : 0 < N) (hd : 0 < d) (hc : c ≠ 0) (hk : k < N)
+    (hd : 0 < d) (hc : c ≠ 0)
     {f : ℝ[X]} {b : ℕ → ℝ}
     (hf : f = C c * arithmeticProgressionPolynomial N a d)
     (hb : b k ∈ Set.Ioo (a + d * k) (a + d * (k + 1)))
@@ -1455,7 +1456,7 @@ lemma normalized_reciprocalSum_eq_zero {N k : ℕ} {a d c : ℝ}
   let r : ℕ → ℝ := fun j ↦ a + d * j
   have hne : ∀ j ∈ Finset.range (N + 1), b k ≠ r j := by
     intro j hj
-    exact point_ne_progression_root hd hk hb
+    exact point_ne_progression_root hd hb
   have hlog := eval_rootPolynomial_derivative (r := r) (x := b k) hne
   have hfroot : arithmeticProgressionPolynomial N a d =
       rootPolynomial r (Finset.range (N + 1)) := by rfl
@@ -1547,10 +1548,10 @@ theorem erdos_1114_full {N : ℕ} (hN : 0 < N) {a d c : ℝ}
   have hβinterval : ∀ k, k < N →
       β k ∈ Set.Ioo (k : ℝ) ((k : ℝ) + 1) := by
     intro k hk
-    exact normalizePoint_mem_interval (N := N) hd (hb k hk)
+    exact normalizePoint_mem_interval hd (hb k hk)
   have hβzero : ∀ k, k < N → reciprocalSum N (β k) = 0 := by
     intro k hk
-    exact normalized_reciprocalSum_eq_zero hN hd hc hk hf (hb k hk) (hderiv k hk)
+    exact normalized_reciprocalSum_eq_zero hd hc hf (hb k hk) (hderiv k hk)
   have hβsymm : ∀ k, k < N → β (N - 1 - k) = (N : ℝ) - β k :=
     canonical_symmetry_of_reciprocal_zeros hβinterval hβzero
   have hβcrit : ∀ k, k < N →
