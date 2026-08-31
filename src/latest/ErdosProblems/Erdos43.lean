@@ -343,7 +343,7 @@ private lemma halfShift_diff_disjoint {Q : ℕ} [NeZero Q]
     have ho₁p := hOpar o₁ ho₁
     have ho₂p := hOpar o₂ ho₂
     by_cases hd0 : d = 0
-    · simpa [hd0]
+    · simp [hd0]
     · have hdpos : 0 < d := Nat.pos_of_ne_zero hd0
       have hediff : e₁ - e₂ = 2 * d := by
         simp only [halfShift] at hde
@@ -445,7 +445,7 @@ private theorem exists_good_pair (q : ℕ) (hqprime : q.Prime) (hq : 3 ≤ q)
     have hqq9 : 9 ≤ q * q := by nlinarith
     simp only [Q, pow_two]
     omega
-  letI : NeZero Q := ⟨by omega⟩
+  let _ : NeZero Q := ⟨by omega⟩
   obtain ⟨S, hSsidon, hScard⟩ :
       ∃ S : Finset (ZMod Q), Erdos862.Sidon (S : Set (ZMod Q)) ∧ S.card = q := by
     simpa only [Q] using
@@ -580,8 +580,7 @@ theorem not_erdos_43 : ¬
       (A - A) ∩ (B - B) = {0} →
       ((A.card.choose 2 + B.card.choose 2 : ℕ) : ℝ) ≤ ((f N).choose 2 : ℝ) + C := by
   rintro ⟨C, hC⟩
-  ·
-    obtain ⟨m : ℕ, hm : C < m⟩ := exists_nat_gt C
+  · obtain ⟨m : ℕ, hm : C < m⟩ := exists_nat_gt C
     let M := 2 * m + 2
     have hM : 1 ≤ M := by simp [M]
     obtain ⟨N₁, hN₁⟩ := Erdos42.theorem_1_1_via_cayley M hM
@@ -652,8 +651,7 @@ theorem not_erdos_43_part_ii : ¬
       ((A.card.choose 2 + B.card.choose 2 : ℕ) : ℝ) ≤
         (1 - c + o N) * ((f N).choose 2 : ℝ) := by
   rintro ⟨c, hc, o, ho, hall⟩
-  ·
-    let η : ℝ := min (c / 8) (1 / 8)
+  · let η : ℝ := min (c / 8) (1 / 8)
     have hη : 0 < η := by
       dsimp only [η]
       exact lt_min (div_pos hc (by norm_num)) (by norm_num)
