@@ -58,7 +58,7 @@ def holesIcc (S : Finset ℕ) (a b : ℕ) : Finset ℕ := Icc a b \ S
   aesop
 
 lemma holesIcc_subset_holes {S : Finset ℕ} {M a b : ℕ}
-    (ha : a ≤ b) (hb : b ≤ M) : holesIcc S a b ⊆ holes S M := by
+    (_ha : a ≤ b) (hb : b ≤ M) : holesIcc S a b ⊆ holes S M := by
   intro x hx
   have hx' := mem_holesIcc.mp hx
   exact mem_holes.mpr ⟨hx'.2.1.trans hb, hx'.2.2⟩
@@ -141,7 +141,7 @@ def unstableHoles (A B : Finset ℕ) (M N : ℕ) : Finset ℕ :=
 /-- If a sum below the smaller diameter is absent, the two prefixes contain
 at least as many holes as there are candidate representations. -/
 lemma prefix_hole_count {A B : Finset ℕ} {M N x : ℕ}
-    (hA : A ⊆ Icc 0 M) (hB : B ⊆ Icc 0 N) (hxN : x ≤ N)
+    (_hA : A ⊆ Icc 0 M) (_hB : B ⊆ Icc 0 N) (_hxN : x ≤ N)
     (hx : x ∉ A + B) :
     x + 1 ≤ (holesIcc A 0 x).card + (holesIcc B 0 x).card := by
   let U := Icc 0 x
@@ -158,7 +158,7 @@ lemma prefix_hole_count {A B : Finset ℕ} {M N x : ℕ}
         rw [← heq]
         exact Finset.add_mem_add ha hbmem
       exact mem_union_right _ (mem_holesIcc.mpr ⟨by omega, hb'.2, hbB⟩)
-    · exact mem_union_left _ (by simpa [X, U, hb, ha])
+    · exact mem_union_left _ (by simp [X, U, hb, ha])
   have hX : X.image (fun b ↦ x - b) ⊆ holesIcc A 0 x := by
     intro a ha
     simp only [mem_image] at ha
@@ -204,7 +204,7 @@ lemma suffix_hole_count {A B : Finset ℕ} {M N z : ℕ}
         rw [← heq]
         exact Finset.add_mem_add ha hbmem
       exact mem_union_right _ (mem_holesIcc.mpr ⟨hb'.1, hb'.2, hbB⟩)
-    · exact mem_union_left _ (by simpa [X, U, hb, ha])
+    · exact mem_union_left _ (by simp [X, U, hb, ha])
   have hX : X.image (fun b ↦ z - b) ⊆ holesIcc A (z - N) M := by
     intro a ha
     simp only [mem_image] at ha
@@ -235,7 +235,7 @@ lemma suffix_hole_count {A B : Finset ℕ} {M N z : ℕ}
 /-- Proposition 4.1 of Bardaji--Grynkiewicz: if the larger-diameter set
 has at most `|B|-1` holes, the whole middle interval is in the sumset. -/
 lemma middle_interval_subset_sum {A B : Finset ℕ} {M N : ℕ}
-    (hMN : N ≤ M) (hA : A ⊆ Icc 0 M) (hB : B ⊆ Icc 0 N)
+    (hMN : N ≤ M) (_hA : A ⊆ Icc 0 M) (hB : B ⊆ Icc 0 N)
     (hhole : (holes A M).card + 1 ≤ B.card) :
     Icc N M ⊆ A + B := by
   intro x hx
@@ -256,7 +256,7 @@ lemma middle_interval_subset_sum {A B : Finset ℕ} {M N : ℕ}
         rw [← heq]
         exact Finset.add_mem_add ha hbmem
       exact mem_union_right _ (mem_holes.mpr ⟨hb'.2, hbB⟩)
-    · exact mem_union_left _ (by simpa [X, U, hb, ha])
+    · exact mem_union_left _ (by simp [X, U, hb, ha])
   have hX : X.image (fun b ↦ x - b) ⊆ holes A M := by
     intro a ha
     simp only [mem_image] at ha
@@ -666,7 +666,7 @@ lemma interval_between_stable_cuts {A B : Finset ℕ} {M N lo c : ℕ}
 The sets are normalized to have minima zero and maxima `M,N`. -/
 theorem normalized_long_interval {A B : Finset ℕ} {M N r : ℕ}
     (hMN : N ≤ M) (hA : A ⊆ Icc 0 M) (hB : B ⊆ Icc 0 N)
-    (hA0 : 0 ∈ A) (hAM : M ∈ A) (hB0 : 0 ∈ B) (hBN : N ∈ B)
+    (hA0 : 0 ∈ A) (hAM : M ∈ A) (_hB0 : 0 ∈ B) (_hBN : N ∈ B)
     (hdiam : M + 3 ≤ A.card + B.card)
     (hsumcard : (A + B).card + 1 = A.card + B.card + r)
     (hr : r + 3 ≤ B.card) :
@@ -903,8 +903,8 @@ lemma shiftedBy_subset_add {A B : Finset ℕ} {v : ℕ} (hvB : v ∈ B) :
   exact Finset.add_mem_add ha hvB
 
 lemma residueReps_disjoint_shiftedBy {A B : Finset ℕ} {u v : ℕ}
-    (hA : A ⊆ Icc 0 u) (huv : u ≤ v) (hv : 0 < v)
-    (hA0 : 0 ∈ A) (hB0 : 0 ∈ B) :
+    (hA : A ⊆ Icc 0 u) (_huv : u ≤ v) (hv : 0 < v)
+    (_hA0 : 0 ∈ A) (hB0 : 0 ∈ B) :
     Disjoint (residueReps (A + B) v) (shiftedBy A v) := by
   rw [Finset.disjoint_left]
   intro z hzR hzE
@@ -968,7 +968,7 @@ lemma erase_top_subset_Ico {S : Finset ℕ} {v : ℕ} (hS : S ⊆ Icc 0 v) :
   exact mem_Ico.mpr ⟨hxI.1, lt_of_le_of_ne hxI.2 hxne⟩
 
 lemma modImage_erase_top {S : Finset ℕ} {v : ℕ} (hv : 0 < v)
-    (h0 : 0 ∈ S) (hvS : v ∈ S) : modImage (S.erase v) v = modImage S v := by
+    (h0 : 0 ∈ S) (_hvS : v ∈ S) : modImage (S.erase v) v = modImage S v := by
   ext c
   constructor
   · intro hc
@@ -1288,7 +1288,7 @@ theorem ruzsa_normalized_diameter_bound
     (hgcd : (A ∪ B).gcd (fun n ↦ (n : ℤ)) = 1) :
     min (A.card + v)
       (A.card + B.card + min A.card B.card - 3) ≤ (A + B).card := by
-  letI : NeZero v := ⟨Nat.ne_of_gt hv⟩
+  let _ : NeZero v := ⟨Nat.ne_of_gt hv⟩
   let A₀ := modImage A v
   let B₀ := modImage B v
   let C₀ := A₀ + B₀
@@ -1572,7 +1572,7 @@ lemma normalizeNat_spec {S : Finset ℕ} {m d : ℕ}
     exact Nat.mul_div_cancel_left q hd
 
 lemma card_normalizeNat {S : Finset ℕ} {m d : ℕ}
-    (hd : 0 < d) (hmin : ∀ x ∈ S, m ≤ x) (hdiv : ∀ x ∈ S, d ∣ x - m) :
+    (_hd : 0 < d) (hmin : ∀ x ∈ S, m ≤ x) (hdiv : ∀ x ∈ S, d ∣ x - m) :
     (normalizeNat S m d).card = S.card := by
   apply card_image_iff.mpr
   intro x hx y hy hxy

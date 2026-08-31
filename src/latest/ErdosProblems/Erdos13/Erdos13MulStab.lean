@@ -277,8 +277,8 @@ lemma card_mulStab_dvd_card_mulStab (hs : s.Nonempty) (h : s.mulStab ⊆ t.mulSt
   obtain rfl | ht := t.eq_empty_or_nonempty
   · simp
   rw [← coe_subset, coe_mulStab hs, coe_mulStab ht, SetLike.coe_subset_coe] at h
-  letI : Fintype (stabilizer α s) := fintypeStabilizerOfMulStab hs
-  letI : Fintype (stabilizer α t) := fintypeStabilizerOfMulStab ht
+  let _ : Fintype (stabilizer α s) := fintypeStabilizerOfMulStab hs
+  let _ : Fintype (stabilizer α t) := fintypeStabilizerOfMulStab ht
   convert Subgroup.card_dvd_of_le h using 1
   · simp only [stabilizer_coe_finset, Nat.card_eq_fintype_card]
     change _ = #(s.mulStab.attach.map
@@ -415,4 +415,3 @@ lemma mulStab_quotient_commute_subgroup (s : Subgroup α) [DecidablePred (· ∈
     exact smul_mem_smul_finset ((mem_mulStab' ht).mp hct hbt)
 
 end Finset
-

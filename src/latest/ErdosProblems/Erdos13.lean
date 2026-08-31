@@ -152,7 +152,7 @@ lemma residue_subset (A : Finset ℕ) (r q : ℕ) : residue A r q ⊆ A := by
   exact (mem_residue.mp hx).1
 
 /-- Quotient by `q` is injective on a fixed residue class modulo a positive `q`. -/
-lemma div_injOn_residue {S : Finset ℕ} {r q : ℕ} (hq : 0 < q)
+lemma div_injOn_residue {S : Finset ℕ} {r q : ℕ} (_hq : 0 < q)
     (hS : ∀ x ∈ S, x % q = r % q) : Set.InjOn (fun x : ℕ ↦ x / q) S := by
   intro x hx y hy hxy
   change x / q = y / q at hxy
@@ -300,7 +300,7 @@ lemma dense_residue {U : Finset ℕ} {q D : ℕ} (hq : 0 < q) (a : ZMod q)
     (hcap : ∀ i : ZMod q, q * (zmodFiber U i).card < D)
     (hdense : D ≤ 2 * U.card) :
     2 * U.card ≤ q * ((zmodFiber (U + U) a).card + 1) := by
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let _ : NeZero q := ⟨Nat.ne_of_gt hq⟩
   let e : ZMod q ≃ ZMod q :=
     { toFun := fun i ↦ a - i
       invFun := fun i ↦ a - i
@@ -805,7 +805,7 @@ def firstBlock (A : Finset ℕ) (s : ℕ) : Finset ℕ :=
   simp [firstBlock]
 
 /-- Reduction modulo `s` is injective on `(s,2s]`. -/
-lemma zmod_cast_injOn_firstBlock {A : Finset ℕ} {s : ℕ} (hs : 0 < s) :
+lemma zmod_cast_injOn_firstBlock {A : Finset ℕ} {s : ℕ} (_hs : 0 < s) :
     Set.InjOn (fun x : ℕ ↦ (x : ZMod s)) (firstBlock A s) := by
   intro x hx y hy hxy
   have hxI := (mem_firstBlock.mp hx).2
@@ -834,7 +834,7 @@ occur. -/
 lemma two_mul_card_firstBlock_le {A : Finset ℕ} {s : ℕ}
     (hP : IsForbiddenTripleFree A) (hsA : s ∈ A) (hs : 0 < s) :
     2 * (firstBlock A s).card ≤ s := by
-  letI : NeZero s := ⟨Nat.ne_of_gt hs⟩
+  let _ : NeZero s := ⟨Nat.ne_of_gt hs⟩
   let R : Finset (ZMod s) := (firstBlock A s).image fun x : ℕ ↦ (x : ZMod s)
   let negR : Finset (ZMod s) := R.image fun r ↦ -r
   have hcardR : R.card = (firstBlock A s).card := by
@@ -1489,7 +1489,7 @@ lemma mediumPack_subset_even_interval {A : Finset ℕ} {N : ℕ}
       omega
 
 lemma mediumPack_disjoint_sumset {A O : Finset ℕ} {N : ℕ}
-    (hP : IsForbiddenTripleFree A) (hsub : A ⊆ Icc 1 N)
+    (hP : IsForbiddenTripleFree A) (_hsub : A ⊆ Icc 1 N)
     (hO : O ⊆ highThird A N) : Disjoint (mediumPack A N) (O + O) := by
   have hHigh : ∀ x ∈ highThird A N, x ∈ A ∧ 2 * N / 3 < x := by
     intro x hx
@@ -1582,7 +1582,7 @@ def quotientPart (S : Finset ℕ) (k : ℕ) : Finset ℕ :=
   · rintro ⟨z, hzS, hkz, hzx⟩
     exact ⟨z, ⟨hzS, hkz⟩, hzx⟩
 
-lemma card_quotientPart {S : Finset ℕ} {k : ℕ} (hk : 0 < k) :
+lemma card_quotientPart {S : Finset ℕ} {k : ℕ} (_hk : 0 < k) :
     (quotientPart S k).card = (S.filter fun z ↦ k ∣ z).card := by
   apply Finset.card_image_iff.mpr
   intro x hx y hy hxy
@@ -1662,7 +1662,7 @@ lemma exists_four_offset {q : ℕ} (hq : 2 ∣ q) :
   have hq4 : q % 4 < 4 := Nat.mod_lt _ (by omega)
   have hrel : q % 2 = (q % 4) % 2 := by
     exact (Nat.mod_mod_of_dvd q (by omega : 2 ∣ 4)).symm
-  interval_cases h : q % 4 <;> simp [h] at hrel
+  interval_cases h : q % 4 <;> simp at hrel
   · exact ⟨0, by omega, by rw [Nat.dvd_iff_mod_eq_zero, Nat.add_mod]; simp [h]⟩
   · omega
   · exact ⟨1, by omega, by rw [Nat.dvd_iff_mod_eq_zero, Nat.add_mod]; simp [h]⟩
@@ -1746,7 +1746,7 @@ lemma medium_done_of_long_AP {A O : Finset ℕ} {N q : ℕ}
     exact mem_Icc.mpr ⟨by omega, by omega⟩
   have hqQ : q ∈ Q := by
     apply mem_natAP.mpr
-    exact ⟨0, by change 0 < H.card - 1; omega, by simp⟩
+    exact ⟨0, by omega, by simp⟩
   have hqeven : 2 ∣ q := heven q (hQsub hqQ)
   have hQcard : Q.card = H.card - 1 := by
     simpa [Q] using card_natAP (a := q) (d := 2) (len := H.card - 1) (by omega)
@@ -2036,7 +2036,7 @@ lemma terminal_dense_of_not_strongBound {A : Finset ℕ} {N a C : ℕ}
 /-- Failure of the additive-constant target makes every terminal interval
 strictly denser than one third. -/
 lemma terminal_dense_of_not_coarseBound {A : Finset ℕ} {N a C : ℕ}
-    (ha : 0 < a) (haN : a ≤ N)
+    (_ha : 0 < a) (haN : a ≤ N)
     (hfail : ¬ CoarseBound C N A)
     (hind : CoarseBound C (N - a) (initialPart A N a)) :
     a < 3 * (terminalPart A N a).card := by
@@ -2057,7 +2057,7 @@ def divisibleInitial (A : Finset ℕ) (N k ell : ℕ) : Finset ℕ :=
     x ∈ divisibleInitial A N k ell ↔ x ∈ A ∧ k ∣ x ∧ ell * x ≤ N := by
   simp [divisibleInitial]
 
-lemma card_image_div_divisibleInitial {A : Finset ℕ} {N k ell : ℕ} (hk : 0 < k) :
+lemma card_image_div_divisibleInitial {A : Finset ℕ} {N k ell : ℕ} (_hk : 0 < k) :
     ((divisibleInitial A N k ell).image fun x ↦ x / k).card =
       (divisibleInitial A N k ell).card := by
   apply Finset.card_image_iff.mpr
@@ -2104,8 +2104,8 @@ lemma image_div_divisibleInitial_property {A : Finset ℕ} {N k ell : ℕ}
 
 /-- The induction estimate for multiples, corresponding to (M). -/
 lemma divisibleInitial_card_bound {A : Finset ℕ} {N k ell C : ℕ}
-    (hk : 0 < k) (hell : 0 < ell) (hP : IsForbiddenTripleFree A)
-    (hsub : A ⊆ Icc 1 N)
+    (hk : 0 < k) (_hell : 0 < ell) (_hP : IsForbiddenTripleFree A)
+    (_hsub : A ⊆ Icc 1 N)
     (hind : StrongBound C (N / (k * ell))
       ((divisibleInitial A N k ell).image fun x ↦ x / k)) :
     3 * (divisibleInitial A N k ell).card ≤ N / (k * ell) + 3 * C + 2 := by
@@ -2121,8 +2121,8 @@ lemma divisibleInitial_card_bound {A : Finset ℕ} {N k ell C : ℕ}
     omega
 
 lemma divisibleInitial_card_bound_coarse {A : Finset ℕ} {N k ell C : ℕ}
-    (hk : 0 < k) (hell : 0 < ell) (hP : IsForbiddenTripleFree A)
-    (hsub : A ⊆ Icc 1 N)
+    (hk : 0 < k) (_hell : 0 < ell) (_hP : IsForbiddenTripleFree A)
+    (_hsub : A ⊆ Icc 1 N)
     (hind : CoarseBound C (N / (k * ell))
       ((divisibleInitial A N k ell).image fun x ↦ x / k)) :
     3 * (divisibleInitial A N k ell).card ≤ N / (k * ell) + C := by
@@ -2734,7 +2734,8 @@ lemma modifiedHalfImage_has_low_divisor {A : Finset ℕ} {N z : ℕ}
     have hbeq : 2 * (b / 2) = b := Nat.mul_div_cancel' hbdiv
     refine ⟨a, ha, haN, ?_⟩
     have h6 : a ∣ 6 * b := hab.mul_left 6
-    convert h6 using 1 <;> omega
+    convert h6 using 1
+    all_goals omega
 
 /-- The divisible-by-four sums in the top-third self-sum. -/
 def highFourSums (A : Finset ℕ) (N : ℕ) : Finset ℕ :=
@@ -4163,7 +4164,7 @@ lemma halfCentralize_lowNonthree_has_divisor {A : Finset ℕ} {N z : ℕ}
   · exact hab
 
 lemma halfCentralized_lowNonthree_disjoint_thirdSum {A : Finset ℕ} {N : ℕ}
-    (hP : IsForbiddenTripleFree A) (hsub : A ⊆ Icc 1 N) :
+    (hP : IsForbiddenTripleFree A) (_hsub : A ⊆ Icc 1 N) :
     Disjoint ((lowNonthreeImage A N).image (halfCentralize N))
       (thirdSumQuotient A N) := by
   rw [Finset.disjoint_left]
@@ -4204,7 +4205,6 @@ lemma caseThree_step_nine_nonzero_low_nonthree_data
     intro z hz
     obtain ⟨j, hj, rfl⟩ := mem_natAP.mp hz
     apply (ZMod.natCast_eq_natCast_iff' _ t 3).mpr
-    change (q + 3 * j) % 3 = t % 3
     dsimp [t]
     omega
   have hFBadI : FBad ⊆ Icc (N / 3 + 1) (2 * N / 3) := by
@@ -4585,7 +4585,6 @@ lemma caseThree_step_six_data {A : Finset ℕ} {N q len : ℕ}
     have hObound : 12 * Oₗ.card ≤ N + 12 := by omega
     have hright : Oᵣ.card + H.card ≤ V.card := by omega
     omega
-
   · have hodd : q % 2 = 1 := by
       have := Nat.mod_lt q (by omega : 0 < 2)
       omega
@@ -7286,7 +7285,7 @@ noncomputable def tripleFinal (A : Finset ℕ) (N : ℕ) : Finset ℕ :=
   tripleBadExtra A N ∪ triplePrimary A N
 
 lemma card_lowHalf_add_middleSixth {A : Finset ℕ} {N : ℕ}
-    (hsub : A ⊆ Icc 1 N) :
+    (_hsub : A ⊆ Icc 1 N) :
     (lowHalf A N).card + (middleSixth A N).card =
       (lowTwoThirds A N).card := by
   have hdisj : Disjoint (lowHalf A N) (middleSixth A N) := by
@@ -8121,13 +8120,12 @@ private theorem bedert_bound : ∃ C : ℕ, ∀ N : ℕ, ∀ A ⊆ Icc 1 N,
       change CoarseBound 2000000000 N A
       by_cases hsmallN : N < 1000000000
       · have hcard := card_le_card hsub
-        simp at hcard
+        simp only [Nat.card_Icc, Nat.add_sub_cancel_right] at hcard
         change 3 * A.card ≤ N + 2000000000
         omega
       have hN : 1000000000 ≤ N := by omega
       have hN1000 : 1000 ≤ N := by omega
       by_contra hfail
-
       have hhalfPos : 0 < (N + 1) / 2 := by omega
       have hhalfLe : (N + 1) / 2 ≤ N := by omega
       have hhalfLt : N - (N + 1) / 2 < N := by omega
@@ -8139,7 +8137,6 @@ private theorem bedert_bound : ∃ C : ℕ, ∀ N : ℕ, ∀ A ⊆ Icc 1 N,
       have htail := terminal_dense_of_not_coarseBound
         hhalfPos hhalfLe hfail hindInitial
       rw [terminalPart_half_eq_upperHalf hsub] at htail
-
       have hind3 : CoarseBound 2000000000 (N / 3)
           ((divisibleInitial A N 3 1).image fun x ↦ x / 3) := by
         apply ih (N / 3) (by omega)
@@ -8156,7 +8153,6 @@ private theorem bedert_bound : ∃ C : ℕ, ∀ N : ℕ, ∀ A ⊆ Icc 1 N,
             (by omega) (by omega) hsub
         · exact image_div_divisibleInitial_property
             (A := A) (N := N) (k := 3) (ell := 2) (by omega) hP
-
       by_cases hcase1 : 2 * N + 12 ≤ 9 * (highThird A N).card
       · have hb := caseOne hP hsub hcase1
         apply hfail
@@ -8169,7 +8165,6 @@ private theorem bedert_bound : ∃ C : ℕ, ∀ N : ℕ, ∀ A ⊆ Icc 1 N,
         change 3 * A.card ≤ N + 2000000000
         omega
       have hcase3 : 6 * (highThird A N).card < N + 144 := by omega
-
       by_cases hzero : (upperHalf A N).card ≤
           3 * (upperHalfResidue A N 0).card
       · have hV0card : 0 < (upperHalfResidue A N 0).card := by
