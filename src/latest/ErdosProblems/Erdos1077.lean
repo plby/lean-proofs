@@ -138,7 +138,8 @@ lemma neighborFinset_counterexampleGraph {k : ℕ} {v : Fin (k ^ 4)}
   ext w
   rw [SimpleGraph.mem_neighborFinset, counterexampleGraph,
     SimpleGraph.between_adj]
-  simp [hv]
+  simp only [top_adj, ne_eq, SetLike.mem_coe, hv, Set.mem_compl_iff, true_and,
+    not_true_eq_false, false_and, or_false, mem_compl, and_iff_right_iff_imp]
   intro hw hvw
   subst w
   exact hw hv
@@ -223,7 +224,7 @@ lemma minDegree_pos_of_balanced_of_edge {V : Type*} [Fintype V]
 /-- If a graph is bipartite across `s` and its complement, then every
 nonempty `D`-balanced subgraph has at most `(D + 1) * |s|` vertices. -/
 lemma balanced_subgraph_vertex_bound {V : Type*} [Fintype V]
-    {G : SimpleGraph V} [DecidableRel G.Adj] (s : Finset V)
+    {G : SimpleGraph V} (s : Finset V)
     (hBip : G.IsBipartiteWith (s : Set V) (s : Set V)ᶜ)
     (H : G.Subgraph) [DecidableRel H.Adj] (D : ℝ) (hD : 0 ≤ D)
     (hBal : H.coe.IsBalanced D) (hEdge : H.edgeSet.Nonempty) :
