@@ -150,9 +150,10 @@ lemma weight_nonneg {x : ℕ} (hx : 2 ≤ x) : 0 ≤ weight x :=
 
 /-! ## Finite pigeonhole and asymmetric Ramsey estimates -/
 
-lemma exists_fiber_card_mul_ge {α β : Type*} [DecidableEq α]
+lemma exists_fiber_card_mul_ge {α β : Type*}
     [Fintype β] [DecidableEq β] [Nonempty β] (s : Finset α) (f : α → β) :
     ∃ b : β, Fintype.card β * #{a ∈ s | f a = b} ≥ #s := by
+  classical
   obtain ⟨b, -, hb⟩ := Finset.exists_max_image Finset.univ
     (fun b : β ↦ #{a ∈ s | f a = b}) Finset.univ_nonempty
   refine ⟨b, ?_⟩
@@ -165,10 +166,11 @@ lemma exists_fiber_card_mul_ge {α β : Type*} [DecidableEq α]
           (fun b : β ↦ #{a ∈ s | f a = b}) #{a ∈ s | f a = b} hb
 
 lemma exists_bool_pattern_constant_set {α γ : Type*}
-    [DecidableEq α] [DecidableEq γ] (s : Finset α) (u : Finset γ)
+    (s : Finset α) (u : Finset γ)
     (pattern : α → u → Bool) :
     ∃ (p : u → Bool) (t : Finset α),
       t ⊆ s ∧ 2 ^ #u * #t ≥ #s ∧ ∀ a ∈ t, ∀ x : u, pattern a x = p x := by
+  classical
   obtain ⟨p, hp⟩ := exists_fiber_card_mul_ge s pattern
   refine ⟨p, s.filter (pattern · = p), Finset.filter_subset _ _, ?_, ?_⟩
   · simpa using hp
@@ -194,7 +196,8 @@ lemma choose_le_exp_mul_div_pow (N m : ℕ) (hm : 1 ≤ m) :
       (mul_le_mul_of_nonneg_left
         (by simpa [div_pow, Real.exp_nat_mul] using h_factorial)
         (Nat.cast_nonneg _)) h_choose
-  convert h_binom_le using 1 <;> ring_nf
+  convert h_binom_le using 1
+  all_goals ring_nf
   norm_num [mul_assoc, mul_comm, mul_left_comm, ← Real.exp_nat_mul]
 
 /-- A coarse but uniform off-diagonal estimate, sufficient for the qualitative theorem. -/
@@ -742,7 +745,9 @@ lemma blockSpecs_sized (d L factor r : ℕ) (hL : 1 ≤ L) (hfactor : 0 < factor
               ring
             _ ≤ 2 ^ (L * m + L * m) := by
               exact Nat.pow_le_pow_right (by decide) (Nat.add_le_add_right hfdm (L * m))
-            _ = 2 ^ ((2 * L) * m) := by congr 1 <;> ring
+            _ = 2 ^ ((2 * L) * m) := by
+              congr 1
+              ring
         have hpow_succ : 2 ^ ((2 * L) * m + 1) = 2 ^ ((2 * L) * m) * 2 := by
           rw [pow_succ]
         omega
@@ -1201,7 +1206,7 @@ lemma ramseyNumber_spec_exact (k l : ℕ)
     (fun s hs ↦ h.1 s hs.isClique hs.card_eq),
     (fun s hs ↦ h.2 s hs.isIndepSet hs.card_eq)⟩
 
-lemma meta_ramsey_union {α : Type*} (q : ℕ) (G : SimpleGraph α) [DecidableEq α]
+lemma meta_ramsey_union {α : Type*} (q : ℕ) (G : SimpleGraph α)
     (M : SimpleGraph (Fin (Ramsey.ramseyNumber q q)))
     (red blue : Fin (Ramsey.ramseyNumber q q) → Finset α)
     (U : Finset α) (w : α → ℝ) (ε : ℝ)
@@ -1304,7 +1309,7 @@ theorem erdos_191 :
         ¬ C ≤ ∑ x ∈ S, weight x := by
       intro S hSU hmono hsum
       exact hnone ⟨S, hSU, hmono, hsum⟩
-    letI : DecidableRel G.Adj := Classical.decRel G.Adj
+    let _ : DecidableRel G.Adj := Classical.decRel G.Adj
     have hspecs : specs.length = d := by simp [specs]
     have hsamples : samples.length = d := by simp [samples, hspecs]
     have htargets : targets.length = d := by simp [targets, hspecs]
