@@ -573,8 +573,7 @@ lemma exists_finset_approx_of_tendsto_zero_divergent
   have hcross : x ≤ ∑ n ∈ range (N + 1), a (K + n) := Nat.find_spec hP
   have hbefore : ∑ n ∈ range N, a (K + n) < x := by
     by_cases hN0 : N = 0
-    · simp [hN0]
-      exact hx
+    · simpa [hN0] using hx
     · obtain ⟨n, hn⟩ := Nat.exists_eq_succ_of_ne_zero hN0
       rw [hn]
       exact lt_of_not_ge (Nat.find_min hP (by
