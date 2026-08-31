@@ -534,7 +534,7 @@ theorem kthPrimeFactorSet_eq_event
         (fun S => S.card = k - 1) \ {0} := by
   ext n
   simp only [kthPrimeFactorSet, IsKthSmallestPrimeFactor,
-    Set.mem_setOf_eq, Set.mem_diff, Set.mem_singleton_iff,
+    Set.mem_ofPred_eq, Set.mem_sdiff, Set.mem_singleton_iff,
     Erdos697.Cover.eventSet]
   constructor
   · rintro ⟨_, hpn, hcard⟩
@@ -1236,7 +1236,7 @@ def chunkBelow (ps : List ℕ) (p : ℕ) : List ℕ :=
 
 /-- Each explicit chunk is itself split once, keeping the reduction depth of
 the kernel evaluator independent of the longest prime chunk. -/
-def splitChunkRow (d p : ℕ) (ps : List ℕ) : List ℕ :=
+def splitChunkRow (_d p : ℕ) (ps : List ℕ) : List ℕ :=
   fastBucketRow (chunkBelow ps p)
 
 theorem splitChunkRow_agree (d p : ℕ) (ps : List ℕ) :
@@ -1736,7 +1736,7 @@ theorem coeff_eq_primePoly_coeff (r p : ℕ) :
 through the requested degree by a balanced tree, avoiding a deep reduction term. -/
 def coeffEB (r p : ℕ) : ℕ := (balancedRow r p).getD r 0
 
-theorem coeffEB_eq_coeff (r p : ℕ) (hr : r ≤ 19) (hp : p ≤ 1153) :
+theorem coeffEB_eq_coeff (r p : ℕ) (_hr : r ≤ 19) (hp : p ≤ 1153) :
     coeffEB r p = coeff r p := by
   rw [coeffEB, (balancedRow_agree r p) r le_rfl,
     balancedPoly_eq_primePoly_selected,
@@ -1919,7 +1919,8 @@ theorem consecutive_13_17 : ConsecutivePrimes 13 17 := by
 theorem consecutive_17_19 : ConsecutivePrimes 17 19 := by
   refine ⟨by norm_num, by norm_num, by norm_num, ?_⟩
   intro r hr h17 h19
-  interval_cases r <;> norm_num at hr
+  interval_cases r
+  norm_num at hr
 
 theorem consecutive_23_29 : ConsecutivePrimes 23 29 := by
   refine ⟨by norm_num, by norm_num, by norm_num, ?_⟩
@@ -1929,7 +1930,8 @@ theorem consecutive_23_29 : ConsecutivePrimes 23 29 := by
 theorem consecutive_29_31 : ConsecutivePrimes 29 31 := by
   refine ⟨by norm_num, by norm_num, by norm_num, ?_⟩
   intro r hr h29 h31
-  interval_cases r <;> norm_num at hr
+  interval_cases r
+  norm_num at hr
 
 theorem consecutive_31_37 : ConsecutivePrimes 31 37 := by
   refine ⟨by norm_num, by norm_num, by norm_num, ?_⟩
@@ -2009,7 +2011,8 @@ theorem consecutive_1129_1151 : ConsecutivePrimes 1129 1151 := by
 theorem consecutive_1151_1153 : ConsecutivePrimes 1151 1153 := by
   refine ⟨by norm_num, by norm_num, by norm_num, ?_⟩
   intro r hr h1151 h1153
-  interval_cases r <;> norm_num at hr
+  interval_cases r
+  norm_num at hr
 
 theorem valley_certificate_of_coeff (k a b c : ℕ) (hk : 2 ≤ k)
     (hab : ConsecutivePrimes a b) (hbc : ConsecutivePrimes b c)
