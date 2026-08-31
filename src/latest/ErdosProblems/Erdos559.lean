@@ -71,8 +71,9 @@ lemma edgeCount_eq_card_edgeFinset {V : Type*} [Fintype V] (H : SimpleGraph V)
   rw [edgeCount, Nat.card_eq_fintype_card, SimpleGraph.card_edgeSet]
 
 /-- There is a finite Ramsey host for every finite graph. -/
-lemma ramseyHost_exists {W : Type*} [Fintype W] (G : SimpleGraph W) :
+lemma ramseyHost_exists {W : Type*} [Finite W] (G : SimpleGraph W) :
     ∃ (N : ℕ) (H : SimpleGraph (Fin N)), IsRamseyFor H G := by
+  let _ : Fintype W := Fintype.ofFinite W
   let n := Fintype.card W
   obtain ⟨N, hN⟩ := Ramsey.ramseyProperty_exists n n
   refine ⟨N, ⊤, ?_⟩
@@ -671,8 +672,9 @@ lemma exists_factorial_margin (C : ℕ) :
 
 /-! ## Low-degree hosts and handshaking bounds -/
 
-lemma edgeCount_mono {V : Type*} [Fintype V] {G H : SimpleGraph V} (hGH : G ≤ H) :
+lemma edgeCount_mono {V : Type*} [Finite V] {G H : SimpleGraph V} (hGH : G ≤ H) :
     edgeCount G ≤ edgeCount H := by
+  let _ : Fintype V := Fintype.ofFinite V
   classical
   rw [edgeCount_eq_card_edgeFinset, edgeCount_eq_card_edgeFinset]
   exact Finset.card_le_card (SimpleGraph.edgeFinset_mono hGH)
@@ -680,8 +682,8 @@ lemma edgeCount_mono {V : Type*} [Fintype V] {G H : SimpleGraph V} (hGH : G ≤ 
 /-- Delete every edge having an endpoint whose degree in `H` is greater than `D`. -/
 def lowGraph {V : Type*} [Fintype V] (H : SimpleGraph V) (D : ℕ) : SimpleGraph V where
   Adj u v := H.Adj u v ∧ H.degree u ≤ D ∧ H.degree v ≤ D
-  symm.symm u v h := ⟨h.1.symm, h.2.2, h.2.1⟩
-  loopless.irrefl u h := h.1.ne rfl
+  symm.symm _u _v h := ⟨h.1.symm, h.2.2, h.2.1⟩
+  loopless.irrefl _u h := h.1.ne rfl
 
 lemma lowGraph_le {V : Type*} [Fintype V] (H : SimpleGraph V) (D : ℕ) :
     lowGraph H D ≤ H := fun _ _ h ↦ h.1
@@ -862,8 +864,8 @@ lemma card_componentRootFinset {V : Type*} [Fintype V]
 /-- Keep precisely the edges of `H` incident with `A`. -/
 def incidentGraph {V : Type*} (H : SimpleGraph V) (A : Set V) : SimpleGraph V where
   Adj u v := H.Adj u v ∧ (u ∈ A ∨ v ∈ A)
-  symm.symm u v h := ⟨h.1.symm, h.2.symm⟩
-  loopless.irrefl u h := h.1.ne rfl
+  symm.symm _u _v h := ⟨h.1.symm, h.2.symm⟩
+  loopless.irrefl _u h := h.1.ne rfl
 
 lemma incidentGraph_le {V : Type*} (H : SimpleGraph V) (A : Set V) :
     incidentGraph H A ≤ H := fun _ _ h ↦ h.1
@@ -1155,7 +1157,7 @@ lemma red_copy_forces_many_high {V : Type*} [Fintype V]
 
 /-! ## No sparse host is Ramsey for the constructed target -/
 
-theorem target_not_ramsey_of_edgeCount_le {V : Type*} [Fintype V]
+theorem target_not_ramsey_of_edgeCount_le {V : Type*} [Finite V]
     (C K : ℕ) (hK : 0 < K)
     (hmargin :
       let D := 16 * (C + 1)
@@ -1165,6 +1167,7 @@ theorem target_not_ramsey_of_edgeCount_le {V : Type*} [Fintype V]
     (hedges : edgeCount H ≤
       C * Fintype.card (Equiv.Perm (Fin (K + K)) × Fin (K + K))) :
     ¬ IsRamseyFor H (targetGraph K) := by
+  let _ : Fintype V := Fintype.ofFinite V
   let D := 16 * (C + 1)
   let Q := lowGraph H D
   let r := D ^ (K + K - 1) * (((K + K) * D) ^ K)
