@@ -288,13 +288,14 @@ def erdos_105 : Prop :=
     (∀ b ∈ B, b ∉ (lineThrough p q : Set R2))
 
 theorem not_erdos_105 : ¬(∀ (A B : Finset Erdos105.R2) (n : ℕ),
-Disjoint A B →
-A.card = n →
-B.card = n - 3 →
-(¬ ∃ ℓ : AffineSubspace ℝ Erdos105.R2, Erdos105.IsLine ℓ ∧ (A : Set Erdos105.R2) ⊆ (ℓ : Set Erdos105.R2)) →
-∃ (p q : Erdos105.R2),
-  p ∈ A ∧ q ∈ A ∧ p ≠ q ∧
-  (∀ b ∈ B, b ∉ (Erdos105.lineThrough p q : Set Erdos105.R2))) := by
+    Disjoint A B →
+    A.card = n →
+    B.card = n - 3 →
+    (¬ ∃ ℓ : AffineSubspace ℝ Erdos105.R2,
+      Erdos105.IsLine ℓ ∧ (A : Set Erdos105.R2) ⊆ (ℓ : Set Erdos105.R2)) →
+    ∃ (p q : Erdos105.R2),
+      p ∈ A ∧ q ∈ A ∧ p ≠ q ∧
+      (∀ b ∈ B, b ∉ (Erdos105.lineThrough p q : Set Erdos105.R2))) := by
   -- Apply the statement to the counterexample sets.
   by_contra h_contra
   -- Apply the Erdős problem 105 to the sets A0 and B0 with n=12.
