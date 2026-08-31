@@ -1267,6 +1267,7 @@ theorem erdos_846 : (False) ↔ ∀ᵉ (A : Set ℝ²) (ε > 0),
 theorem not_erdos_846 :
     ¬ (∀ᵉ (A : Set ℝ²) (ε > 0),
         A.Infinite → NonTrilinearFor A ε → WeaklyNonTrilinear A) := by
-  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using Erdos846.erdos_846
+  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using
+    Erdos846.erdos_846
 
 end Erdos846
