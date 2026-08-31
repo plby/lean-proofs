@@ -98,7 +98,7 @@ theorem exists_divisor_sum_factorial :
           · exact ⟨hapos, hadvd⟩
           · exact hEpos d hd
         · rw [Finset.sum_insert haE, hEsum]
-          simpa [hdecomp, add_comm]
+          simp [hdecomp, add_comm]
         · rw [Finset.card_insert_of_notMem haE, hEcard]
           omega
 

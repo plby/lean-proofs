@@ -33,7 +33,7 @@ private theorem residual_den_dvd_initialLcm (N : ℕ) :
   have hsub : (1 - UnitFractions.rec_sum B).den ∣
       (UnitFractions.rec_sum B).den := by
     have h := Rat.sub_den_dvd_lcm (1 : ℚ) (UnitFractions.rec_sum B)
-    simpa using h
+    simpa only [Rat.den_one, Nat.lcm_one_left] using h
   have hBlcm : B.lcm id ∣
       Erdos285.PrimePowers.initialLcm (harmonicEndpoint N) := by
     apply Finset.lcm_dvd
