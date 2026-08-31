@@ -174,7 +174,7 @@ lemma colorable_of_edgeMinimal {H : FiniteHypergraph} {r k : ℕ}
     refine ⟨c, ?_⟩
     intro e he
     rw [hEmpty] at he
-    simpa using he
+    simp at he
   obtain ⟨e, he⟩ := hne
   obtain ⟨v, hv⟩ : e.Nonempty := by
     have hcard := huniform e he
@@ -197,11 +197,11 @@ lemma colorable_of_edgeMinimal {H : FiniteHypergraph} {r k : ℕ}
         have hxv : x = v := by
           by_contra hxv
           exact h ⟨x, hx, hxv⟩
-        simpa [hxv]
+        simp [hxv]
       have : f.card ≤ 1 := by simpa using Finset.card_le_card hsub
       omega
     refine ⟨v, hvf, w, hwf, ?_⟩
-    simp only [if_pos rfl, if_neg hwv]
+    simp only [if_neg hwv]
     intro hEq
     have hval := congrArg Fin.val hEq
     simp only [fresh, old, Fin.castLE, Function.Embedding.coeFn_mk] at hval
@@ -283,7 +283,7 @@ lemma dot_toggle {d : ℕ} (x y : Code d) (i : Fin d) :
       have hz : (false : Bool) = 0 := by decide
       simp only [hz]
       have hs : (∑ j : Fin d, if j = i then x i else 0) = x i := by
-        simpa using (Fintype.sum_ite_eq i (fun _ : Fin d ↦ x i))
+        simp
       rw [hs]
       change dot x y + x i = dot x y + x i
       rfl
@@ -377,14 +377,14 @@ lemma evenColumns_eq {d : ℕ} {p : Finset (Code d)} :
       obtain ⟨y, z, hyz, rfl⟩ := Finset.card_eq_two.mp hcard
       have hy : pairLabel p y = false := (Finset.mem_filter.mp (hsub (by simp))).2
       have hz : pairLabel p z = false := (Finset.mem_filter.mp (hsub (by simp))).2
-      simp [Finset.sum_pair hyz, hy, hz]
+      rw [Finset.sum_pair hyz, hy, hz]
       decide
     · obtain ⟨hsub, hcard⟩ := htrue
       refine ⟨⟨hsub.trans (Finset.filter_subset _ _), hcard⟩, ?_⟩
       obtain ⟨y, z, hyz, rfl⟩ := Finset.card_eq_two.mp hcard
       have hy : pairLabel p y = true := (Finset.mem_filter.mp (hsub (by simp))).2
       have hz : pairLabel p z = true := (Finset.mem_filter.mp (hsub (by simp))).2
-      simp [Finset.sum_pair hyz, hy, hz]
+      rw [Finset.sum_pair hyz, hy, hz]
       decide
 
 lemma card_evenColumns_bound {d : ℕ} {p : Finset (Code d)} (hp : p ∈ pairs d) :
@@ -591,7 +591,7 @@ lemma construction_card_bound (d : ℕ) :
 
 /-! ## Every five-set is covered -/
 
-lemma three_points_same_bool {α : Type} [Fintype α] [DecidableEq α]
+lemma three_points_same_bool {α : Type} [Fintype α]
     (hcard : Fintype.card α = 3) (f : α → Bool) :
     ∃ x y : α, x ≠ y ∧ f x = f y := by
   by_contra h
@@ -603,9 +603,10 @@ lemma three_points_same_bool {α : Type} [Fintype α] [DecidableEq α]
   rw [hcard, Fintype.card_bool] at hle
   omega
 
-lemma pair_in_three_same_bool {α : Type} [Fintype α] [DecidableEq α]
+lemma pair_in_three_same_bool {α : Type}
     {s : Finset α} (hcard : s.card = 3) (f : α → Bool) :
     ∃ p ∈ s.powersetCard 2, (∑ x ∈ p, f x) = false := by
+  classical
   let g : ↥s → Bool := fun x ↦ f x
   have hsubcard : Fintype.card ↥s = 3 := by simpa using hcard
   obtain ⟨x, y, hxy, heq⟩ := three_points_same_bool hsubcard g
@@ -672,19 +673,19 @@ lemma side_edge_of_four {d : ℕ} {b : Bool} {S : Finset (Vertex d)}
     ∃ e ∈ constructionEdges d, e ⊆ S := by
   obtain ⟨s, hsub, hcard⟩ := Finset.exists_subset_card_eq hfour
   refine ⟨sideSet b s, ?_, ?_⟩
-  have hs : s ∈ fours d := Finset.mem_powersetCard.mpr
-    ⟨hsub.trans (by simp [codesOn]), hcard⟩
-  cases b
-  · apply Finset.mem_union.mpr
-    left
-    apply Finset.mem_union.mpr
-    left
-    exact Finset.mem_image.mpr ⟨s, hs, rfl⟩
-  · apply Finset.mem_union.mpr
-    left
-    apply Finset.mem_union.mpr
-    right
-    exact Finset.mem_image.mpr ⟨s, hs, rfl⟩
+  · have hs : s ∈ fours d := Finset.mem_powersetCard.mpr
+      ⟨hsub.trans (by simp [codesOn]), hcard⟩
+    cases b
+    · apply Finset.mem_union.mpr
+      left
+      apply Finset.mem_union.mpr
+      left
+      exact Finset.mem_image.mpr ⟨s, hs, rfl⟩
+    · apply Finset.mem_union.mpr
+      left
+      apply Finset.mem_union.mpr
+      right
+      exact Finset.mem_image.mpr ⟨s, hs, rfl⟩
   · intro v hv
     obtain ⟨x, hx, rfl⟩ := Finset.mem_image.mp hv
     exact mem_codesOn.mp (hsub hx)
