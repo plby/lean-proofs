@@ -176,12 +176,14 @@ lemma exists_projection_bracket {f : ℂ[X]} (hf : f.Monic)
   let wb' : ℂ := wb + u * (εb / 2 : ℝ)
   have hwa'E : wa' ∈ lemniscate f := by
     apply hballa
-    simp [wa', hu, abs_of_pos hεa]
-    exact hεa
+    calc
+      dist wa' wa = εa / 2 := by simp [wa', hu, abs_of_pos hεa]
+      _ < εa := half_lt_self hεa
   have hwb'E : wb' ∈ lemniscate f := by
     apply hballb
-    simp [wb', hu, abs_of_pos hεb]
-    exact hεb
+    calc
+      dist wb' wb = εb / 2 := by simp [wb', hu, abs_of_pos hεb]
+      _ < εb := half_lt_self hεb
   have hproj_wa' : projection u wa' = A := by
     dsimp [A]
     rw [← hwa_proj]
@@ -295,11 +297,18 @@ theorem pommerenke_centroid_closed_bound (f : ℂ[X]) (hf : f.Monic)
     have hdnorm : 0 < ‖d‖ := norm_pos_iff.mpr hd
     let u : ℂ := d / (‖d‖ : ℂ)
     have hu : ‖u‖ = 1 := by
-      simp [u, norm_div, hdnorm.ne', abs_of_pos hdnorm]
+      simp [u, hdnorm.ne']
     have hproj : projection u z - projection u (rootCentroid f) = ‖d‖ := by
       rw [show projection u z - projection u (rootCentroid f) =
           (conj u * d).re by simp [projection, d, mul_sub]]
-      simp [u, Complex.conj_mul', hdnorm.ne']
+      dsimp [u]
+      simp only [Complex.mul_re, Complex.conj_re, Complex.conj_im, neg_mul,
+        sub_neg_eq_add]
+      have hre : (d / (‖d‖ : ℂ)).re = d.re / ‖d‖ := by
+        exact Complex.div_ofReal_re d ‖d‖
+      have him : (d / (‖d‖ : ℂ)).im = d.im / ‖d‖ := by
+        exact Complex.div_ofReal_im d ‖d‖
+      rw [hre, him]
       have hs : d.re * d.re + d.im * d.im = ‖d‖ ^ 2 := by
         rw [← Complex.normSq_apply, Complex.normSq_eq_norm_sq]
       field_simp [hdnorm.ne']
