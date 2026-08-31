@@ -296,7 +296,7 @@ theorem erdos_310 :
       rw [Finset.nonempty_iff_ne_empty]
       intro hEmpty
       subst A
-      simp at hAcard
+      simp only [Finset.card_empty, Nat.cast_zero] at hAcard
       have : 0 < α * (N : ℝ) := by
         exact mul_pos hα (by exact_mod_cast (lt_of_lt_of_le Nat.zero_lt_one hN))
       linarith
