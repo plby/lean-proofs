@@ -377,17 +377,20 @@ lemma collision_reducedLength_mod_near {N b : ℕ} (hb : 0 < b)
     have hcy_cases : divCarry b y.1.val L = 0 ∨ divCarry b y.1.val L = 1 := by omega
     rcases hcx_cases with hcx0 | hcx1
     · rcases hcy_cases with hcy0 | hcy1
-      · simp [hcx0, hcy0]
+      · simp only [hcy0, CharP.cast_eq_zero, hcx0, sub_self, mul_zero, sub_zero,
+          gt_iff_lt]
         rw [abs_lt]
         constructor <;> omega
-      · simp [hcx0, hcy1]
+      · simp only [hcy1, Nat.cast_one, hcx0, CharP.cast_eq_zero, sub_zero, mul_one,
+          gt_iff_lt]
         rw [abs_lt]
         constructor <;> omega
     · rcases hcy_cases with hcy0 | hcy1
-      · simp [hcx1, hcy0]
+      · simp only [hcy0, CharP.cast_eq_zero, hcx1, Nat.cast_one, zero_sub,
+          Int.reduceNeg, mul_neg, mul_one, sub_neg_eq_add, gt_iff_lt]
         rw [abs_lt]
         constructor <;> omega
-      · simp [hcx1, hcy1]
+      · simp only [hcy1, Nat.cast_one, hcx1, sub_self, mul_zero, sub_zero, gt_iff_lt]
         rw [abs_lt]
         constructor <;> omega
   apply mod_near_end hb hqpos z
