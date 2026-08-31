@@ -374,7 +374,9 @@ lemma turan_bound_richAt (hk : 2 ≤ k) (hfree : (Hk k).Free G) (x : V) :
     (n := Fintype.card (G.neighborSet x)) (r := k - 1)
   calc
     2 * (k - 1) * #R.edgeFinset ≤
-        2 * (k - 1) * #(SimpleGraph.turanGraph (Fintype.card (G.neighborSet x)) (k - 1)).edgeFinset :=
+        2 * (k - 1) *
+          #(SimpleGraph.turanGraph
+            (Fintype.card (G.neighborSet x)) (k - 1)).edgeFinset :=
       Nat.mul_le_mul_left _ hT
     _ ≤ ((k - 1) - 1) * Fintype.card (G.neighborSet x) ^ 2 := hT'
     _ = (k - 2) * G.degree x ^ 2 := by
