@@ -7,9 +7,10 @@ namespace Erdos440Liminf
 
 /-! A generic finite nested-selection device. -/
 
-lemma exists_finset_extension {α : Type*} [DecidableEq α]
+lemma exists_finset_extension {α : Type*}
     {u s : Finset α} {m : ℕ} (hus : u ⊆ s) (hu : u.card ≤ m) (hm : m ≤ s.card) :
     ∃ v : Finset α, u ⊆ v ∧ v ⊆ s ∧ v.card = m := by
+  classical
   obtain ⟨w, hwsu, hwcard⟩ :=
     Finset.exists_subset_card_eq (s := s \ u) (n := m - u.card) (by
       rw [Finset.card_sdiff, Finset.inter_eq_left.2 hus]

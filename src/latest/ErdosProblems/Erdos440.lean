@@ -166,7 +166,11 @@ lemma reciprocal_edgeLcm_le_drop (A : IncreasingSequence) (i : ℕ) :
       field_simp
       unfold edgeLcm
       exact_mod_cast (by
-        simpa [mul_comm] using (Nat.gcd_mul_lcm (A i) (A (i + 1))).symm)
+        calc
+          A i * A (i + 1) = Nat.gcd (A i) (A (i + 1)) * Nat.lcm (A i) (A (i + 1)) :=
+            (Nat.gcd_mul_lcm (A i) (A (i + 1))).symm
+          _ = Nat.lcm (A i) (A (i + 1)) * Nat.gcd (A i) (A (i + 1)) :=
+            Nat.mul_comm _ _)
     _ ≤ ((A (i + 1) : ℝ) - A i) / ((A i : ℝ) * A (i + 1)) := by
       exact div_le_div_of_nonneg_right hgap (mul_nonneg hai.le haj.le)
     _ = (1 : ℝ) / A i - (1 : ℝ) / A (i + 1) := by
@@ -218,7 +222,10 @@ private lemma reciprocal_drop_rat {m n : ℕ} (hm : 0 < m) (h : m < n) :
   calc
     (1 : ℚ) / Nat.lcm m n = Nat.gcd m n / (m * n) := by
       field_simp
-      exact_mod_cast (by simpa [mul_comm] using (Nat.gcd_mul_lcm m n).symm)
+      exact_mod_cast (by
+        calc
+          m * n = Nat.gcd m n * Nat.lcm m n := (Nat.gcd_mul_lcm m n).symm
+          _ = Nat.lcm m n * Nat.gcd m n := Nat.mul_comm _ _)
     _ ≤ (n - m : ℕ) / (m * n) := by
       exact (div_le_div_iff_of_pos_right (by positivity : (0 : ℚ) < m * n)).2
         (by exact_mod_cast hgcd_le)

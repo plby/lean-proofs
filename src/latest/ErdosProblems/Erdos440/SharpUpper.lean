@@ -227,7 +227,7 @@ theorem sum_good_if_div (x j : ℕ) (D : ℝ) :
   rw [Nat.cast_sum, Finset.sum_div]
 
 /-- Exact finite Abel summation for the gap distribution of good edges. -/
-theorem countingFunction_abel (x : ℕ) (hx : 0 < x) :
+theorem countingFunction_abel (x : ℕ) :
     (A.countingFunction x : ℝ) = (A.partialGapSum x x : ℝ) / x +
       ∑ j ∈ Finset.Ico 1 x,
         (A.partialGapSum x j : ℝ) / ((j : ℝ) * (j + 1)) := by
@@ -284,7 +284,7 @@ theorem countingFunction_le_natSqrt_sum (x : ℕ) (hx : 0 < x) :
     (A.countingFunction x : ℝ) ≤ 1 +
       ∑ j ∈ Finset.Ico 1 x,
         ((Nat.sqrt (j * x) : ℕ) + j : ℝ) / ((j : ℝ) * (j + 1)) := by
-  rw [A.countingFunction_abel x hx]
+  rw [A.countingFunction_abel x]
   have hfirst : (A.partialGapSum x x : ℝ) / x ≤ 1 := by
     rw [div_le_one (by positivity : (0 : ℝ) < x)]
     exact_mod_cast A.partialGapSum_diagonal_le x
@@ -325,7 +325,8 @@ theorem sharpKernel_le_pseries (j : ℕ) :
         Real.sqrt (j + 1 : ℕ) * (j + 1 : ℕ) =
           ((j + 1 : ℕ) : ℝ) ^ (3 / 2 : ℝ) := by
       rw [Real.sqrt_eq_rpow]
-      convert (Real.rpow_add_one hj.ne' (1 / 2 : ℝ)).symm using 1 <;> norm_num
+      convert (Real.rpow_add_one hj.ne' (1 / 2 : ℝ)).symm using 1
+      norm_num
     rw [sharpKernel, ← hpow]
     exact one_div_le_one_div_of_le (mul_pos hsqrt hj) hden
 
@@ -353,7 +354,6 @@ theorem natSqrt_summand_le_kernel (x j : ℕ) (hj : 0 < j) :
     ((Nat.sqrt (j * x) : ℕ) + j : ℝ) / ((j : ℝ) * (j + 1)) ≤
         (Real.sqrt j * Real.sqrt x + j) / ((j : ℝ) * (j + 1)) := by
       apply div_le_div_of_nonneg_right _ hden
-      norm_num only [Nat.cast_add]
       simpa only [add_comm] using add_le_add_right hsqrt (j : ℝ)
     _ = Real.sqrt x * sharpKernel j + harmonicKernel j := by
       have hjr : (0 : ℝ) < j := by exact_mod_cast hj
