@@ -63,12 +63,13 @@ lemma JoinedByPathThree.symm {V : Type*} {G : SimpleGraph V} {u v : V}
 
 /-- Distinct natural labels bounded by `m` have at most the sum of the largest
 `s.card` possible values.  The integer form avoids truncated subtraction. -/
-lemma sum_injective_nat_le_top_values_int {α : Type*} [DecidableEq α]
+lemma sum_injective_nat_le_top_values_int {α : Type*}
     (s : Finset α) (f : α → ℕ) (m : ℕ)
     (hinj : Set.InjOn f (↑s : Set α))
     (hbound : ∀ x ∈ s, f x ≤ m) :
     ((∑ x ∈ s, f x : ℕ) : ℤ) ≤
       ∑ i ∈ Finset.range s.card, ((m : ℤ) - (i : ℤ)) := by
+  classical
   let t : Finset ℤ := s.image fun x ↦ (f x : ℤ)
   have ht_bound : ∀ z ∈ t, z ≤ (m : ℤ) := by
     intro z hz
@@ -94,10 +95,11 @@ lemma sum_injective_nat_le_top_values_int {α : Type*} [DecidableEq α]
 
 /-- An injective natural-valued labelling bounded by `m` has at most `m + 1`
 elements. -/
-lemma card_le_succ_of_injective_nat_le {α : Type*} [DecidableEq α]
+lemma card_le_succ_of_injective_nat_le {α : Type*}
     (s : Finset α) (f : α → ℕ) (m : ℕ)
     (hinj : Set.InjOn f (↑s : Set α))
     (hbound : ∀ x ∈ s, f x ≤ m) : s.card ≤ m + 1 := by
+  classical
   have himage : (s.image f).card = s.card := by
     apply Finset.card_image_of_injOn
     exact hinj
@@ -109,7 +111,7 @@ lemma card_le_succ_of_injective_nat_le {α : Type*} [DecidableEq α]
   simpa using Finset.card_le_card hsub
 
 /-- Bounding every summand bounds the sum by cardinality times the bound. -/
-lemma sum_le_card_mul {α : Type*} [DecidableEq α]
+lemma sum_le_card_mul {α : Type*}
     (s : Finset α) (f : α → ℕ) (m : ℕ)
     (hbound : ∀ x ∈ s, f x ≤ m) : ∑ x ∈ s, f x ≤ s.card * m := by
   calc
@@ -141,11 +143,11 @@ def neither : Finset V :=
 
 @[simp] lemma mem_leftOnly {w : V} :
     w ∈ leftOnly G u v ↔ G.Adj u w ∧ ¬G.Adj v w ∧ w ≠ v := by
-  simp [leftOnly, G.mem_neighborFinset, and_assoc, and_left_comm, and_comm]
+  simp [leftOnly, G.mem_neighborFinset, and_left_comm, and_comm]
 
 @[simp] lemma mem_rightOnly {w : V} :
     w ∈ rightOnly G u v ↔ G.Adj v w ∧ ¬G.Adj u w ∧ w ≠ u := by
-  simp [rightOnly, G.mem_neighborFinset, and_assoc, and_left_comm, and_comm]
+  simp [rightOnly, G.mem_neighborFinset, and_assoc, and_comm]
 
 @[simp] lemma mem_neither {w : V} :
     w ∈ neither G u v ↔ w ≠ u ∧ w ≠ v ∧ ¬G.Adj u w ∧ ¬G.Adj v w := by
@@ -182,7 +184,7 @@ lemma pairwise_disjoint_parts :
     intro w hwR hwD
     exact (mem_neither G u v).mp hwD |>.2.2.2 ((mem_rightOnly G u v).mp hwR).1
 
-lemma parts_union (huv : u ≠ v) :
+lemma parts_union :
     {u, v} ∪ (common G u v ∪ (leftOnly G u v ∪
       (rightOnly G u v ∪ neither G u v))) = univ := by
   ext w
@@ -223,7 +225,7 @@ lemma card_parts (huv : u ≠ v) :
       (common G u v ∪ (leftOnly G u v ∪ (rightOnly G u v ∪ neither G u v))) :=
     disjoint_sup_right.mpr ⟨huC,
       disjoint_sup_right.mpr ⟨huL, disjoint_sup_right.mpr ⟨huR, huD⟩⟩⟩
-  rw [← card_univ, ← parts_union G u v huv]
+  rw [← card_univ, ← parts_union G u v]
   rw [card_union_of_disjoint huRest, card_union_of_disjoint hCLRD,
     card_union_of_disjoint hLRD, card_union_of_disjoint hRD]
   simp [hu]
@@ -253,7 +255,7 @@ lemma sum_parts (huv : u ≠ v) (f : V → ℕ) :
     disjoint_sup_right.mpr ⟨huC,
       disjoint_sup_right.mpr ⟨huL, disjoint_sup_right.mpr ⟨huR, huD⟩⟩⟩
   change (∑ w ∈ (univ : Finset V), f w) = _
-  rw [← parts_union G u v huv, Finset.sum_union huRest, Finset.sum_union hCLRD,
+  rw [← parts_union G u v, Finset.sum_union huRest, Finset.sum_union hCLRD,
     Finset.sum_union hLRD, Finset.sum_union hRD]
   simp [huv]
   omega
@@ -339,10 +341,11 @@ private lemma choose_card_le_sum (s : Finset ℕ) : s.card.choose 2 ≤ ∑ x �
           exact Finset.mem_range.mpr (Finset.mem_filter.mp hy).2)
         _ = x := Finset.card_range x
 
-private lemma sum_injective_nat_defect {A : Type*} [DecidableEq A]
+private lemma sum_injective_nat_defect {A : Type*}
     (s : Finset A) (f : A → ℕ) (m : ℕ)
     (hinj : Set.InjOn f s) (hle : ∀ x ∈ s, f x ≤ m) :
     2 * (∑ x ∈ s, f x) + s.card * (s.card - 1) ≤ 2 * s.card * m := by
+  classical
   let g : A → ℕ := fun x ↦ m - f x
   have hginj : Set.InjOn g s := by
     intro x hx y hy hxy
@@ -370,7 +373,7 @@ private lemma sum_injective_nat_defect {A : Type*} [DecidableEq A]
 /-- A degree value attained at two distinct vertices and maximal among all
 degrees cannot exceed `n`.  This is the equal-endpoint counting core. -/
 lemma maximal_repeated_degree_le_half
-    {V : Type*} [Fintype V] [DecidableEq V]
+    {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {n Δ : ℕ}
     (hn : 2 ≤ n)
@@ -384,6 +387,7 @@ lemma maximal_repeated_degree_le_half
     (hdv : G.degree v = Δ)
     (hmax : ∀ w : V, G.degree w ≤ Δ) :
     Δ ≤ n := by
+  classical
   by_contra hle
   have hlarge : n + 1 ≤ Δ := by omega
   have huvdeg : G.degree u = G.degree v := hdu.trans hdv.symm
@@ -608,12 +612,13 @@ lemma maximal_repeated_degree_le_half
 their sum is bounded by the constant baseline `γ` plus every possible positive
 excess between `γ + 1` and `d`. -/
 lemma sum_le_baseline_add_all_excesses
-    {α : Type*} [DecidableEq α]
+    {α : Type*}
     (s : Finset α) (f : α → ℕ) (γ d : ℕ)
     (hbound : ∀ x ∈ s, f x ≤ d)
     (hinj : Set.InjOn f {x | x ∈ s ∧ γ < f x}) :
     (∑ x ∈ s, f x) ≤
       γ * s.card + ∑ k ∈ Finset.Ioc γ d, (k - γ) := by
+  classical
   let high : Finset α := s.filter fun x ↦ γ < f x
   have hsplit : (∑ x ∈ s, (f x - γ)) = ∑ x ∈ high, (f x - γ) := by
     symm
@@ -628,8 +633,8 @@ lemma sum_le_baseline_add_all_excesses
   have hhighInj : Set.InjOn f (↑high : Set α) := by
     intro x hx y hy hxy
     apply hinj
-    · simpa only [high, Finset.mem_coe, Finset.mem_filter, Set.mem_setOf_eq] using hx
-    · simpa only [high, Finset.mem_coe, Finset.mem_filter, Set.mem_setOf_eq] using hy
+    · simpa only [high, Finset.mem_coe, Finset.mem_filter, Set.mem_ofPred_eq] using hx
+    · simpa only [high, Finset.mem_coe, Finset.mem_filter, Set.mem_ofPred_eq] using hy
     · exact hxy
   have himage : high.image f ⊆ Finset.Ioc γ d := by
     intro k hk
@@ -711,7 +716,7 @@ lemma twice_sum_range_succ (r : ℕ) :
 /-- If the maximum degree is attained uniquely, the edge threshold forces it
 to be at most `n + 1`. -/
 lemma unique_max_degree_le
-    {V : Type*} [Fintype V] [DecidableEq V]
+    {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {n : ℕ}
     (hn : 2 ≤ n)
@@ -723,6 +728,7 @@ lemma unique_max_degree_le
     (hmax : ∀ w : V, G.degree w ≤ G.degree v)
     (huniq : ∀ w : V, G.degree w = G.degree v → w = v) :
     G.degree v ≤ n + 1 := by
+  classical
   by_contra hle
   let Δ := G.degree v
   have hlarge : n + 2 ≤ Δ := by omega
@@ -743,7 +749,7 @@ lemma unique_max_degree_le
   have hdTR : d = T + r := by omega
   let Nv := G.neighborFinset v
   have hNvcard : Nv.card = Δ := by
-    simpa [Nv, Δ] using G.card_neighborFinset_eq_degree v
+    simp [Nv, Δ]
   have houtsideCard : ((univ : Finset V) \ Nv).card = p + 1 := by
     rw [Finset.card_sdiff]
     simp only [inter_univ, Finset.card_univ, hcard, hNvcard]
@@ -861,12 +867,13 @@ lemma unique_max_degree_le
 /-- The slightly stronger monotone form of Erdős Problem 816: `n²+n+1`
 edges may be replaced by "at least `n²+n+1` edges". -/
 theorem erdos_816_of_at_least
-    {V : Type*} [Fintype V] [DecidableEq V]
+    {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     (n : ℕ) (hn : 2 ≤ n)
     (hcard : Fintype.card V = 2 * n + 1)
     (hedges : n ^ 2 + n + 1 ≤ G.edgeFinset.card) :
     ∃ u v : V, u ≠ v ∧ G.degree u = G.degree v ∧ JoinedByPathThree G u v := by
+  classical
   by_contra hcounterexample
   have hno : ∀ {u v : V}, G.degree u = G.degree v →
       ¬ JoinedByPathThree G u v := by
@@ -876,7 +883,7 @@ theorem erdos_816_of_at_least
       exact huv
     exact hcounterexample ⟨u, v, huv, hdegree, hpath⟩
   have hpos : 0 < Fintype.card V := by omega
-  letI : Nonempty V := Fintype.card_pos_iff.mp hpos
+  let _ : Nonempty V := Fintype.card_pos_iff.mp hpos
   obtain ⟨v, -, hmax⟩ :=
     Finset.exists_max_image (univ : Finset V) (fun w ↦ G.degree w) Finset.univ_nonempty
   have hmax' : ∀ w : V, G.degree w ≤ G.degree v := by
@@ -922,7 +929,6 @@ theorem erdos_816_of_at_least
     have hsplit := Finset.sum_erase_add (univ : Finset V) (fun w ↦ G.degree w)
       (Finset.mem_univ v)
     have hupper : ∑ w, G.degree w ≤ 2 * n * n + (n + 1) := by
-      change (∑ w ∈ (univ : Finset V), G.degree w) ≤ _
       rw [← hsplit]
       exact Nat.add_le_add hRsum hvle
     nlinarith only [hlower, hupper, hn]
@@ -931,12 +937,13 @@ theorem erdos_816_of_at_least
 necessary: for `n = 1`, the triangle has the required order and size but has
 no simple three-edge path. -/
 theorem erdos_816
-    {V : Type*} [Fintype V] [DecidableEq V]
+    {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     (n : ℕ) (hn : 2 ≤ n)
     (hcard : Fintype.card V = 2 * n + 1)
     (hedges : G.edgeFinset.card = n ^ 2 + n + 1) :
     ∃ u v : V, u ≠ v ∧ G.degree u = G.degree v ∧ JoinedByPathThree G u v := by
+  classical
   apply erdos_816_of_at_least G n hn hcard
   omega
 
