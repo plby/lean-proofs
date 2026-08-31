@@ -52,13 +52,14 @@ are pairwise disjoint.
 -/
 
 open Finset Fintype Filter
-open scoped BigOperators Classical
+open scoped BigOperators
 
 namespace Erdos641
 
 open SimpleGraph
 open Erdos182
 
+open scoped Classical in
 /-- A finite cycle, expressed as a connected `2`-regular graph. -/
 def IsCycleGraph {V : Type*} [Fintype V] (C : SimpleGraph V) : Prop :=
   C.Connected ∧ C.IsRegularOfDegree 2
@@ -100,6 +101,7 @@ def copySupPair {V W : Type*} {r : ℕ} {A : Fin r → SimpleGraph V}
         exact hab.elim (fun h ↦ ⟨i, h⟩) (fun h ↦ ⟨j, h⟩) }
   injective' := f.injective
 
+open scoped Classical in
 /-- Two edge-disjoint `2`-regular graphs on the same nonempty vertex set
 have a `4`-regular union. -/
 lemma isRegularOfDegree_four_sup {m : ℕ}
