@@ -27,7 +27,7 @@ theorem infinite_ramsey_on (t : ℕ) (c : Finset ℕ → Bool)
       refine ⟨c ∅, ?_⟩
       intro e he _
       have : e = ∅ := Finset.card_eq_zero.mp he
-      simpa [this]
+      simp [this]
   | succ t ih =>
       have hstep :
           ∀ R : Set ℕ, R.Infinite →
