@@ -184,7 +184,7 @@ theorem main_theorem (h_perucca : PeruccaClassificationStatement)
                   have h_subset : P_seq n ⊆ P (m_of_n n) := by
                     exact P_seq_spec n |>.2;
                   apply_rules [ Finset.card_le_card ];
-                  simp_all +decide [ Finset.subset_iff ];
+                  simp_all +decide only [not_exists, ge_iff_le, subset_iff, Prod.forall]
                   unfold distinctDistances'_euc; aesop;
                 exact_mod_cast h_bound.trans ( distinctDistances'_euc_bound _ <| Nat.succ_pos _ );
               refine le_trans h_bound ?_;
