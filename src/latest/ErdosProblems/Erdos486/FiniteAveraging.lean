@@ -62,7 +62,7 @@ theorem exists_mem_le_finsetAverage [Field 𝕜] [LinearOrder 𝕜]
     (s : Finset α) (hs : s.Nonempty) (f : α → 𝕜) :
     ∃ x ∈ s, f x ≤ finsetAverage s f := by
   by_contra h
-  push_neg at h
+  push Not at h
   have hsum :
       ∑ x ∈ s, finsetAverage s f < ∑ x ∈ s, f x :=
     Finset.sum_lt_sum (fun x hx ↦ (h x hx).le)

@@ -135,13 +135,14 @@ theorem fintypeAverage_pi_prod [Fintype κ] [DecidableEq κ]
 /-- Generic oracle-product lemma.  Distinct oracle indices read distinct
 coordinates of the four-colouring, so their uniform weighted average factors
 exactly. -/
-theorem expect_oracle_prod_embedding [Fintype κ] [DecidableEq κ]
+theorem expect_oracle_prod_embedding [Fintype κ]
     [Fintype ι] [DecidableEq ι]
     (oracle : κ ↪ ι) (weight : κ → Fin 4 → ℚ) :
     fintypeAverage
         (fun c : FourColoring ι ↦
           ∏ j, weight j (c (oracle j))) =
       ∏ j, (∑ colour : Fin 4, weight j colour) / 4 := by
+  classical
   let E := oracleColoringEquiv oracle
   calc
     fintypeAverage

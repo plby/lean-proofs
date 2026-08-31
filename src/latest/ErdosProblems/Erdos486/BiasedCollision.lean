@@ -152,8 +152,6 @@ private noncomputable def modCollisionEquiv (q p : ℕ)
     finChineseRemainderEquiv q p hqp
   refine (e.subtypeEquiv ?_).trans (functionGraphEquiv f)
   intro x
-  change ((x.val : ZMod p) = f (x.val : ZMod q)) ↔
-    (e x).2 = f (e x).1
   rfl
 
 /-- In one pair period, the collision graph has exactly `q` representatives. -/
@@ -201,9 +199,9 @@ theorem biasedCollision_pair_count {j : ℕ}
     (S : Finset (Fin (biasedK j))) (i : Fin (biasedK j)) (hi : i ∉ S) :
     (biasedModulus j S * skeletonPrime (biasedK j) i).count
       (IsBiasedCollision j S i) = biasedModulus j S := by
-  letI : NeZero (biasedModulus j S) :=
+  let _ : NeZero (biasedModulus j S) :=
     ⟨(biasedModulus_pos j S).ne'⟩
-  letI : NeZero (skeletonPrime (biasedK j) i) :=
+  let _ : NeZero (skeletonPrime (biasedK j) i) :=
     biasedPrimeNeZero (biasedK j) i
   simpa only [IsBiasedCollision] using!
     count_mod_collision_eq (biasedModulus j S)

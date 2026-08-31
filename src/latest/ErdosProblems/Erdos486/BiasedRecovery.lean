@@ -81,7 +81,7 @@ have exactly the previously defined footprint cardinality. -/
 theorem card_biasedCoveredNat_one_period (j : ℕ) (c : BiasedColoring j) :
     (biasedCoveredNatResidues j c (biasedPeriod j)).card =
       biasedFootprintCount j c := by
-  letI : NeZero (biasedPeriod j) := ⟨(biasedPeriod_pos j).ne'⟩
+  let _ : NeZero (biasedPeriod j) := ⟨(biasedPeriod_pos j).ne'⟩
   classical
   unfold biasedCoveredNatResidues
   unfold biasedFootprintCount

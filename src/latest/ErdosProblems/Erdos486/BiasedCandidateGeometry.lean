@@ -144,7 +144,7 @@ theorem exists_candidate_of_isBiasedCovered {j : ℕ} (hj : 400 ≤ j)
           (biasedCandidate j S (x.val : ZMod (biasedModulus j S))) = S := by
   rcases hcovered with ⟨m, hm, hx⟩
   let S := selectedPrimes j c m
-  letI : NeZero (biasedPeriod j) := ⟨(biasedPeriod_pos j).ne'⟩
+  let _ : NeZero (biasedPeriod j) := ⟨(biasedPeriod_pos j).ne'⟩
   have hx' :
       (x.val : ZMod (biasedModulus j S)) =
         (m : ZMod (biasedModulus j S)) := by

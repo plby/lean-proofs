@@ -202,7 +202,7 @@ theorem biasedFootprintRat_cast_real (j : ℕ) (c : BiasedColoring j) :
 
 theorem biasedFootprintCount_le_period (j : ℕ) (c : BiasedColoring j) :
     biasedFootprintCount j c ≤ biasedPeriod j := by
-  letI : NeZero (biasedPeriod j) := ⟨(biasedPeriod_pos j).ne'⟩
+  let _ : NeZero (biasedPeriod j) := ⟨(biasedPeriod_pos j).ne'⟩
   classical
   unfold biasedFootprintCount
   simpa using (Finset.card_filter_le
