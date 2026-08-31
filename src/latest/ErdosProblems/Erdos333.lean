@@ -83,7 +83,7 @@ lemma J_card (N : ℕ) (_ : 2 ≤ N) : (J N).card = N - N / 2 := by
   simp only [J]
   rw [Nat.card_Ioc]
 
-lemma J_card_eq_half (N : ℕ) (hN : Even N) (hN_pos : 0 < N) : (J N).card = N / 2 := by
+lemma J_card_eq_half (N : ℕ) (hN : Even N) : (J N).card = N / 2 := by
   exact (Nat.card_Ioc (N / 2) N).trans
     (Nat.sub_eq_of_eq_add ((Nat.two_mul_div_two_of_even hN).symm.trans (two_mul (N / 2))))
 
@@ -343,7 +343,7 @@ lemma C_card_lower_bound (N : ℕ) (hN : 8 ≤ N) (hN_even : Even N)
     rw [Finset.card_sdiff_of_subset h_sub]
   -- |J_N| = N/2
   have hN_pos : 0 < N := by omega
-  have h_J_card : (J N).card = N / 2 := J_card_eq_half N hN_even hN_pos
+  have h_J_card : (J N).card = N / 2 := J_card_eq_half N hN_even
   -- m² ≤ ε²N
   have h_m_sq_bound : ((m N) ^ 2 : ℝ) ≤ epsilon ^ 2 * N := by
     have hm := m_le_sqrt N
@@ -416,7 +416,7 @@ theorem exists_hard_set (N : ℕ) (hN : 8 ≤ N) (hN_even : Even N) :
     -- δ = 49/50, |J_N| = N/2
     -- δ * N/2 = 49N/100 = (1/2 - 1/100)N
     have hN_pos : 0 < N := by omega
-    have h_J_card : (J N).card = N / 2 := J_card_eq_half N hN_even hN_pos
+    have h_J_card : (J N).card = N / 2 := J_card_eq_half N hN_even
     calc (delta * (J N).card : ℝ)
         = delta * ((N / 2 : ℕ) : ℝ) := by rw [h_J_card]
       _ = (49 / 50) * ((N / 2 : ℕ) : ℝ) := by rw [delta_val]
@@ -432,7 +432,7 @@ theorem exists_hard_set (N : ℕ) (hN : 8 ≤ N) (hN_even : Even N) :
   -- J N is nonempty for N ≥ 8
   have hJ_nonempty : (J N).Nonempty := by
     have hN_pos : 0 < N := by omega
-    have h_J_card : (J N).card = N / 2 := J_card_eq_half N hN_even hN_pos
+    have h_J_card : (J N).card = N / 2 := J_card_eq_half N hN_even
     rw [← Finset.card_pos, h_J_card]
     omega
   have hU_ne : (𝓒 N).Nonempty → (J N).Nonempty := fun _ => hJ_nonempty
@@ -562,7 +562,7 @@ lemma A_dyadic_size_trivial_bound (n : ℕ) (hn : 3 ≤ n) :
   have hN_pos : 0 < 2 ^ n := Nat.pow_pos (by norm_num : 0 < 2)
   calc (A_dyadic n hn).card
       ≤ (J (2 ^ n)).card := Finset.card_le_card h_sub
-    _ = 2 ^ n / 2 := J_card_eq_half (2 ^ n) hN_even hN_pos
+    _ = 2 ^ n / 2 := J_card_eq_half (2 ^ n) hN_even
 
 /-- Key asymptotic fact: n / √(2^n) → 0 as n → ∞
     This follows from the fact that exponential growth dominates polynomial growth -/
