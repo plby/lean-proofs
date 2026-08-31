@@ -386,7 +386,7 @@ theorem ramification_homogeneous (κ : Type u) (T : Cardinal.{u})
     fun i => ULift.up (erCode c x (branchIndex i))
   have htLift : Cardinal.lift.{u + 1, u} (ℵ₀ : Cardinal.{u}) ≤
       Cardinal.lift.{u + 1, u} T := Cardinal.lift_le.2 hT
-  letI : Infinite (Set.Iio T.ord) := Cardinal.infinite_iff.2 (by
+  let _ : Infinite (Set.Iio T.ord) := Cardinal.infinite_iff.2 (by
     rw [Cardinal.mk_Iio_ordinal, Cardinal.card_ord]
     simpa using htLift)
   have hsmall : Cardinal.lift.{u + 1, u} #κ < #(Set.Iio T.ord) := by
@@ -578,7 +578,7 @@ theorem colorBranchCard_aleph0_le (Color : Type u) :
 theorem graph_ramsey (Color : Type u) (color : ColorEdge Color → Color) :
     ∃ (g : ColorIndex Color) (k : Color),
       ∀ e ∈ cliqueFamily Color g, color e = k := by
-  letI : Infinite (ColorVertex Color) :=
+  let _ : Infinite (ColorVertex Color) :=
     erVertex_infinite Color (colorBranchCard Color) (colorBranchCard_aleph0_le Color)
   let f₀ : ℕ ↪ ColorVertex Color := Infinite.natEmbedding _
   let defaultColor : Color := color (natEdge f₀ 0)
@@ -651,7 +651,7 @@ theorem erdos_603 (C : Cardinal.{u}) :
       rw [completeGraph_inter]
       exact completeGraph_encard_ne_two _
   · intro coloring
-    letI : Infinite (ColorVertex Color) :=
+    let _ : Infinite (ColorVertex Color) :=
       erVertex_infinite Color (colorBranchCard Color) (colorBranchCard_aleph0_le Color)
     let f₀ : I := Infinite.natEmbedding _
     obtain ⟨e₀, he₀⟩ := (completeGraph_range_infinite f₀).nonempty
