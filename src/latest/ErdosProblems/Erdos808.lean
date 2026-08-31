@@ -40,7 +40,7 @@ simple graph on the finite image of the embedding, but avoids repeatedly
 transporting a graph across a subtype equivalence.
 -/
 
-open Classical Filter
+open Filter
 open scoped BigOperators Real
 
 noncomputable section
@@ -149,7 +149,8 @@ lemma arsLine_injective_of_ne_zero {b c b' c' : ℝ}
   obtain ⟨t, ht⟩ := hv
   have ht0 := congrArg (fun z : ARSPoint => z 0) ht
   have ht1 := congrArg (fun z : ARSPoint => z 1) ht
-  simp [arsPoint] at ht0 ht1
+  simp only [Fin.isValue, arsPoint, PiLp.smul_apply, Matrix.cons_val_zero,
+    smul_eq_mul, mul_one, Matrix.cons_val_one, Matrix.cons_val_fin_one] at ht0 ht1
   have hcc : c = c' := by rw [← ht1, ht0, one_mul]
   have hbmem : arsPoint 0 (-b * c) ∈ arsLineSpace b' c' := by
     rw [← hell]
@@ -159,7 +160,9 @@ lemma arsLine_injective_of_ne_zero {b c b' c' : ℝ}
   obtain ⟨u, hu⟩ := hbmem
   have hu0 := congrArg (fun z : ARSPoint => z 0) hu
   have hu1 := congrArg (fun z : ARSPoint => z 1) hu
-  simp [arsPoint] at hu0 hu1
+  simp only [Fin.isValue, arsPoint, PiLp.smul_apply, Matrix.cons_val_zero,
+    smul_eq_mul, mul_one, neg_mul, vsub_eq_sub, PiLp.sub_apply, sub_self,
+    Matrix.cons_val_one, Matrix.cons_val_fin_one, sub_neg_eq_add] at hu0 hu1
   constructor
   · rw [hcc, hu0, zero_mul] at hu1
     exact mul_right_cancel₀ hc' (by linarith)
@@ -250,13 +253,14 @@ lemma edge_card_le_sum_mul_product_card {V : Type*} [Fintype V]
   rw [← hEcard]
   exact Finset.card_le_card hsub
 
+open Classical in
 /-- The `n²` lines indexed by ordered pairs of labels. -/
 noncomputable def arsLineSet {V : Type*} [Fintype V]
     (a : V → ℝ) : Finset ARSLine :=
   ((Finset.univ : Finset V).product Finset.univ).image
     (fun bc => arsLine (a bc.1) (a bc.2))
 
-lemma arsLine_pair_injective {V : Type*} [Fintype V]
+lemma arsLine_pair_injective {V : Type*}
     (a : V ↪ ℝ) (ha0 : ∀ v, a v ≠ 0) : Function.Injective
       (fun bc : V × V => arsLine (a bc.1) (a bc.2)) := by
   intro bc de h
@@ -267,6 +271,7 @@ lemma arsLine_pair_injective {V : Type*} [Fintype V]
 lemma arsLineSet_card {V : Type*} [Fintype V]
     (a : V ↪ ℝ) (ha0 : ∀ v, a v ≠ 0) :
     (arsLineSet a).card = (Fintype.card V) ^ 2 := by
+  classical
   rw [arsLineSet, Finset.card_image_of_injective _
     (arsLine_pair_injective a ha0)]
   simp [pow_two]
@@ -313,6 +318,7 @@ lemma triplePoint_mem {V : Type*} [Fintype V]
     refine ⟨t.1, t.2.2.1, ?_, rfl⟩
     exact (G.mem_neighborFinset _ _).mp t.2.2.2
 
+open Classical in
 lemma tripleLine_mem {V : Type*} [Fintype V]
     {G : SimpleGraph V} [DecidableRel G.Adj] (a : V → ℝ)
     (t : NeighborTriple G) : tripleLine a t ∈ arsLineSet a := by
@@ -325,6 +331,7 @@ lemma triplePoint_incident {V : Type*} [Fintype V]
     triplePoint a t ∈ (tripleLine a t : AffineSubspace ℝ ARSPoint) := by
   exact arsPoint_sum_product_mem_line _ _ _
 
+open Classical in
 /-- The finite type counted by `LineIncidences`. -/
 abbrev IncidenceType (P : Finset ARSPoint) (L : Finset ARSLine) :=
   ↥((P.product L).filter
@@ -332,8 +339,10 @@ abbrev IncidenceType (P : Finset ARSPoint) (L : Finset ARSLine) :=
 
 lemma IncidenceType_card (P : Finset ARSPoint) (L : Finset ARSLine) :
     Fintype.card (IncidenceType P L) = LineIncidences P L := by
+  classical
   simp [IncidenceType, LineIncidences]
 
+open Classical in
 noncomputable def neighborTripleIncidence {V : Type*} [Fintype V]
     (a : V → ℝ) (G : SimpleGraph V) [DecidableRel G.Adj] :
     NeighborTriple G → IncidenceType (sumProductPointSet a G) (arsLineSet a) :=
@@ -645,7 +654,8 @@ theorem erdos808_quantitative_nonzero :
       (le_max_left _ _)
   by_cases hmzero : m = 0
   · change m ^ ((3 : ℝ) / 2) ≤ K * n ^ ((7 : ℝ) / 4) * M
-    simp [hmzero]
+    simp only [hmzero, ne_eq, div_eq_zero_iff, OfNat.ofNat_ne_zero, or_self,
+      not_false_eq_true, Real.zero_rpow]
     positivity
   have hmpos : 0 < m := lt_of_le_of_ne hm0 (Ne.symm hmzero)
   have hmNat : 0 < G.edgeFinset.card := by
@@ -690,7 +700,6 @@ theorem erdos808_quantitative_nonzero :
       calc
         m ^ 2 ≤ 4 * m ^ 2 := by nlinarith [sq_nonneg m]
         _ ≤ 3 * A := hmain
-
         _ = 3 * C * M ^ ((4 : ℝ) / 3) * n ^ ((7 : ℝ) / 3) := by
           dsimp [A, T]
           calc
@@ -776,29 +785,35 @@ theorem erdos808_quantitative_nonzero :
             (Real.rpow_nonneg hn0 _) hK.le) hM0
       _ = K * n ^ ((7 : ℝ) / 4) * M := by ring
 
+open Classical in
 lemma edgeSums_induce_subset {V : Type*} [Fintype V]
     (a : V → ℝ) (G : SimpleGraph V) [DecidableRel G.Adj] (s : Set V) :
     edgeSums (fun x : s => a x) (G.induce s) ⊆ edgeSums a G := by
+  classical
   intro r hr
   rw [edgeSums, mem_edgeValues_iff] at hr
   obtain ⟨u, v, huv, rfl⟩ := hr
   rw [edgeSums, mem_edgeValues_iff]
   exact ⟨u.1, v.1, huv, rfl⟩
 
+open Classical in
 lemma edgeProducts_induce_subset {V : Type*} [Fintype V]
     (a : V → ℝ) (G : SimpleGraph V) [DecidableRel G.Adj] (s : Set V) :
     edgeProducts (fun x : s => a x) (G.induce s) ⊆ edgeProducts a G := by
+  classical
   intro r hr
   rw [edgeProducts, mem_edgeValues_iff] at hr
   obtain ⟨u, v, huv, rfl⟩ := hr
   rw [edgeProducts, mem_edgeValues_iff]
   exact ⟨u.1, v.1, huv, rfl⟩
 
+open Classical in
 lemma card_induced_max_le {V : Type*} [Fintype V]
     (a : V → ℝ) (G : SimpleGraph V) [DecidableRel G.Adj] (s : Set V) :
     max ((edgeSums (fun x : s => a x) (G.induce s)).card : ℝ)
         ((edgeProducts (fun x : s => a x) (G.induce s)).card : ℝ) ≤
       max ((edgeSums a G).card : ℝ) ((edgeProducts a G).card : ℝ) := by
+  classical
   apply max_le
   · have hsNat := Finset.card_le_card (edgeSums_induce_subset a G s)
     have hs : ((edgeSums (fun x : s => a x) (G.induce s)).card : ℝ) ≤
@@ -823,6 +838,7 @@ theorem erdos808_quantitative_bound :
           K * (Fintype.card V : ℝ) ^ ((7 : ℝ) / 4) *
             max ((edgeSums a G).card : ℝ)
               ((edgeProducts a G).card : ℝ) := by
+  classical
   obtain ⟨K, hK, hnonzero⟩ := erdos808_quantitative_nonzero
   let R : ℝ := (2 : ℝ) ^ ((3 : ℝ) / 2)
   let K₀ : ℝ := 2 + R * K
@@ -857,7 +873,8 @@ theorem erdos808_quantitative_bound :
   by_cases hsparse : m < 2 * n
   · by_cases hmzero : m = 0
     · change m ^ ((3 : ℝ) / 2) ≤ K₀ * n ^ ((7 : ℝ) / 4) * M
-      simp [hmzero]
+      simp only [hmzero, ne_eq, div_eq_zero_iff, OfNat.ofNat_ne_zero, or_self,
+        not_false_eq_true, Real.zero_rpow]
       positivity
     have hmpos : 0 < m := lt_of_le_of_ne hm0 (Ne.symm hmzero)
     have hmNat : 0 < G.edgeFinset.card := by
@@ -1321,6 +1338,7 @@ def counterGraph (q : ℕ) : SimpleGraph (CounterVertex q) where
       intro x h
       exact oriented_ne q x h.1⟩
 
+open Classical in
 instance counterGraph_decidableAdj (q : ℕ) :
     DecidableRel (counterGraph q).Adj := fun _ _ ↦ inferInstance
 
@@ -1731,7 +1749,9 @@ theorem not_erdos_808 : ¬ (∀ c : ℝ, 0 < c → ∀ ε : ℝ, 0 < ε →
     n₀ ≤ Fintype.card V →
     (Fintype.card V : ℝ) ^ (1 + c) ≤ (G.edgeFinset.card : ℝ) →
     (Fintype.card V : ℝ) ^ (1 + c - ε) ≤
-      Max.max ((Erdos808.edgeSums a G).card : ℝ) ((Erdos808.edgeProducts a G).card : ℝ)) := erdos808_disproved
+      Max.max ((Erdos808.edgeSums a G).card : ℝ)
+        ((Erdos808.edgeProducts a G).card : ℝ)) :=
+  erdos808_disproved
 
 #print axioms erdos808_quantitative_bound
 #print axioms not_erdos_808
