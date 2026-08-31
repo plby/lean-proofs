@@ -94,7 +94,7 @@ private theorem encodedFin_bijective (m : ℕ) :
   · intro x y hxy
     apply encodeWord_injective (by omega : 1 < 4)
     exact congrArg Fin.val hxy
-  · simp [Erdos171.card_word]
+  · simp
 
 private noncomputable def lineOptions {alpha iota : Type*} [Fintype iota]
     (l : Combinatorics.Line alpha iota) : List (Option alpha) :=

@@ -31,7 +31,7 @@ the target modulus. -/
 def badResidues (p q : ℕ) [NeZero p] : Finset (ZMod p) :=
   Finset.univ.filter fun z ↦ q ∣ z.val ∨ q ∣ p - z.val
 
-lemma card_badResidues_le (p q : ℕ) [NeZero p] (hq : 0 < q) :
+lemma card_badResidues_le (p q : ℕ) [NeZero p] :
     (badResidues p q).card ≤ 2 * (p / q + 1) := by
   let f : ZMod p → ℕ := fun z ↦ z.val
   let U : Finset ℕ := (Finset.range (p + 1)).filter fun k ↦ q ∣ k
@@ -47,8 +47,8 @@ lemma card_badResidues_le (p q : ℕ) [NeZero p] (hq : 0 < q) :
     · apply Finset.mem_union_right
       rw [Finset.mem_image]
       refine ⟨p - z.val, ?_, ?_⟩
-      simp only [U, Finset.mem_filter, Finset.mem_range]
-      · exact ⟨Nat.lt_succ_of_le (Nat.sub_le _ _), hz⟩
+      · simp only [U, Finset.mem_filter, Finset.mem_range]
+        exact ⟨Nat.lt_succ_of_le (Nat.sub_le _ _), hz⟩
       · dsimp [f]
         have hzle : z.val ≤ p := Nat.le_of_lt z.val_lt
         omega
@@ -84,9 +84,10 @@ def badDilations {p : ℕ} [NeZero p] (D : Finset (ZMod p)) (q : ℕ) :
     Finset.univ.filter fun lambda ↦ lambda * d ∈ badResidues p q
 
 private lemma card_biUnion_le_mul {alpha beta : Type*}
-    [DecidableEq alpha] [DecidableEq beta] (s : Finset alpha)
+    [DecidableEq beta] (s : Finset alpha)
     (t : alpha → Finset beta) (B : ℕ) (h : ∀ x ∈ s, (t x).card ≤ B) :
     (s.biUnion t).card ≤ s.card * B := by
+  classical
   induction s using Finset.induction_on with
   | empty => simp
   | @insert a s ha ih =>
@@ -99,9 +100,9 @@ private lemma card_biUnion_le_mul {alpha beta : Type*}
         _ = (insert a s).card * B := by simp [ha, Nat.succ_mul, Nat.add_comm]
 
 lemma card_badDilations_le {p : ℕ} [NeZero p] (hp : p.Prime) (D : Finset (ZMod p))
-    (q : ℕ) (hq : 0 < q) :
+    (q : ℕ) :
     (badDilations D q).card ≤ D.card * (2 * (p / q + 1)) := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let E := D.erase 0
   let t : ZMod p → Finset (ZMod p) := fun d ↦
     Finset.univ.filter fun lambda ↦ lambda * d ∈ badResidues p q
@@ -113,7 +114,7 @@ lemma card_badDilations_le {p : ℕ} [NeZero p] (hp : p.Prime) (D : Finset (ZMod
       · intro lambda hlambda
         exact (mem_filter.mp hlambda).2
       · exact (Equiv.mulRight₀ d hd0).injective.injOn
-    exact hpre.trans (card_badResidues_le p q hq)
+    exact hpre.trans (card_badResidues_le p q)
   calc
     (badDilations D q).card = (E.biUnion t).card := rfl
     _ ≤ E.card * (2 * (p / q + 1)) := card_biUnion_le_mul E t _ ht
@@ -126,14 +127,15 @@ lemma badDilations_card_lt {p : ℕ} [NeZero p] (hp : p.Prime) (D : Finset (ZMod
     (badDilations D (16 * (D.card + 1))).card < p := by
   let q := 16 * (D.card + 1)
   have hq : 0 < q := by simp [q]
-  have hcard := card_badDilations_le hp D q hq
+  have hcard := card_badDilations_le hp D q
   have hdiv : q * (p / q) ≤ p := by
     simpa [mul_comm] using Nat.div_mul_le_self p q
   have hmain : D.card * (2 * (p / q + 1)) < p := by
     have hscaled : 16 * (D.card * (p / q)) ≤ p := by
       calc
         16 * (D.card * (p / q)) ≤ 16 * ((D.card + 1) * (p / q)) := by
-          gcongr <;> omega
+          gcongr
+          omega
         _ = q * (p / q) := by simp [q]; ring
         _ ≤ p := hdiv
     have h8 : 8 * (D.card * (2 * (p / q + 1))) < 8 * p := by
@@ -151,7 +153,7 @@ lemma exists_good_dilation {p : ℕ} [NeZero p] (hp : p.Prime) (D : Finset (ZMod
   have hcard := badDilations_card_lt hp D hp_large
   have huniv : (Finset.univ : Finset (ZMod p)).card = p := by simp [ZMod.card]
   by_contra h
-  push_neg at h
+  push Not at h
   have hsub : (Finset.univ : Finset (ZMod p)) ⊆
       badDilations D (16 * (D.card + 1)) := by
     intro lambda _
@@ -160,8 +162,7 @@ lemma exists_good_dilation {p : ℕ} [NeZero p] (hp : p.Prime) (D : Finset (ZMod
   rw [huniv] at this
   omega
 
-private lemma eq_of_modEq_of_common_interval {p U V : ℕ} (hp : 0 < p)
-    (hmod : U ≡ V [MOD p])
+private lemma eq_of_modEq_of_common_interval {p U V : ℕ} (hmod : U ≡ V [MOD p])
     (hinterval : (U < p ∧ V < p) ∨
       (p ≤ U ∧ U < 2 * p ∧ p ≤ V ∧ V < 2 * p)) :
     U = V := by
@@ -204,15 +205,16 @@ private lemma modelMap_pair_eq_iff {p q : ℕ} [NeZero p]
       ((lambda * c).val + (lambda * d).val) q
 
 private lemma pairFreiman_of_same_half {p q : ℕ} [NeZero p]
-    (hp : p.Prime) (hq : 0 < q) (D A : Finset (ZMod p))
+    (D A : Finset (ZMod p))
     (lambda : ZMod p)
     (hgood : ∀ x ∈ D, x ≠ 0 → lambda * x ∉ badResidues p q)
     (hdiff : ∀ ⦃a b c d : ZMod p⦄, a ∈ A → b ∈ A → c ∈ A → d ∈ A →
       a + b - c - d ∈ D)
     (hhalf : (∀ x ∈ A, 2 * (lambda * x).val < p) ∨
-      (∀ x ∈ A, p ≤ 2 * (lambda * x).val)) :
+      (∀ x ∈ A, p ≤ 2 * (lambda * x).val)) : 0 < q →
     PairFreimanOn A (modelMap q lambda) := by
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  intro hq
+  let : NeZero q := ⟨Nat.ne_of_gt hq⟩
   intro a b c d ha hb hc hd
   let U := (lambda * a).val + (lambda * b).val
   let V := (lambda * c).val + (lambda * d).val
@@ -295,7 +297,7 @@ private lemma pairFreiman_of_same_half {p q : ℕ} [NeZero p]
         (U : ZMod p) = lambda * a + lambda * b := by simp [U]
         _ = lambda * c + lambda * d := by rw [← mul_add, hsource, mul_add]
         _ = (V : ZMod p) := by simp [V]
-    have hUV : U = V := eq_of_modEq_of_common_interval hp.pos hpmod hinterval
+    have hUV : U = V := eq_of_modEq_of_common_interval hpmod hinterval
     apply (modelMap_pair_eq_iff lambda a b c d).mpr
     change U ≡ V [MOD q]
     rw [hUV]
@@ -357,16 +359,16 @@ theorem exists_cyclic_model {p : ℕ} [NeZero p] (hp : p.Prime)
   by_cases hlarge : S.card ≤ 2 * L.card
   · refine ⟨lambda, L, ?_, hlarge, ?_⟩
     · exact filter_subset _ _
-    · apply pairFreiman_of_same_half hp hq D L lambda hgood
-        (hdiffA L (filter_subset _ _))
+    · apply pairFreiman_of_same_half D L lambda hgood
+        (hdiffA L (filter_subset _ _)) _ hq
       left
       intro x hx
       exact (mem_filter.mp hx).2
   · have hlargeH : S.card ≤ 2 * H.card := by omega
     refine ⟨lambda, H, ?_, hlargeH, ?_⟩
     · exact filter_subset _ _
-    · apply pairFreiman_of_same_half hp hq D H lambda hgood
-        (hdiffA H (filter_subset _ _))
+    · apply pairFreiman_of_same_half D H lambda hgood
+        (hdiffA H (filter_subset _ _)) _ hq
       right
       intro x hx
       exact (mem_filter.mp hx).2

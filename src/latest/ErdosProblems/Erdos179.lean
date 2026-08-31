@@ -89,7 +89,7 @@ lemma apCount_le_sq (k : ℕ) (A : Finset ℕ) : apCount k A ≤ #A ^ 2 := by
         nlinarith
     exact_mod_cast h
   · change #(apPairs (k + 2) A) ≤ #A ^ 2
-    exact (Finset.card_filter_le _ _).trans_eq (by simp [apPairs, pow_two])
+    exact (Finset.card_filter_le _ _).trans_eq (by simp [pow_two])
 
 /-- `ForcesLongAP s n k m` is the literal forcing property in Problem 179. -/
 def ForcesLongAP (s n k m : ℕ) : Prop :=
