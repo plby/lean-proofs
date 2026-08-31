@@ -1918,7 +1918,8 @@ lemma infinite_deletion_incomplete (D : Set ℕ) (hD : D.Infinite) :
     have hp₁pos := finalSeq_pos p₁
     have hp₂pos := finalSeq_pos p₂
     simp only [P]
-    rw [Finset.sum_insert (by simp; omega), Finset.sum_insert (by simp; omega), Finset.sum_singleton]
+    rw [Finset.sum_insert (by simp; omega),
+      Finset.sum_insert (by simp; omega), Finset.sum_singleton]
     omega
   rw [Finset.sum_union hPF, hsum] at hsumle
   have hrec := generated_recurrence finalB hi3
@@ -2019,7 +2020,8 @@ lemma prefix_at_perturbation_tendsto :
 lemma finalSeq_tendsto_atTop : Tendsto (fun n : ℕ => (finalSeq n : ℝ)) atTop atTop := by
   apply tendsto_atTop_mono' atTop
     (Eventually.of_forall fun (n : ℕ) => show (n : ℝ) ≤ (finalSeq n : ℝ) by
-      exact_mod_cast (strictMono_nat_lower finalSeq_strictMono (finalSeq_pos 0) n |>.trans' (by omega)))
+      exact_mod_cast
+        (strictMono_nat_lower finalSeq_strictMono (finalSeq_pos 0) n |>.trans' (by omega)))
   exact tendsto_natCast_atTop_atTop
 
 lemma values_at_perturbations_tendsto_atTop :
