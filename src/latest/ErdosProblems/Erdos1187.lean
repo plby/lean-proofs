@@ -149,7 +149,7 @@ theorem monochromatic_prime_ap
   classical
   obtain ⟨ι, instι, hmono⟩ :=
     Line.exists_mono_in_high_dimension (Fin k) κ
-  letI : Fintype ι := instι
+  let _ : Fintype ι := instι
   let N : ℕ := Fintype.card ι * k + 1
   obtain ⟨A, D, hD, hprime⟩ := GreenTao.green_tao N
   let cubeColor : (ι → Fin k) → κ := fun v =>
