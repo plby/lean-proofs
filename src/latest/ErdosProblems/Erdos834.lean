@@ -316,7 +316,7 @@ Bollobás's weighted two-families inequality.  This formulation includes an
 explicit finite ground set, which makes the induction constructive and avoids
 any appeal to a probability space.
 -/
-private theorem bollobas_two_families {ι α : Type*} [DecidableEq ι] [DecidableEq α]
+private theorem bollobas_two_families {ι α : Type*} [DecidableEq α]
     (I : Finset ι) (X : Finset α) (A B : ι → Finset α)
     (hAX : ∀ i ∈ I, A i ⊆ X) (hBX : ∀ i ∈ I, B i ⊆ X)
     (hdisj : ∀ i ∈ I, Disjoint (A i) (B i))
@@ -414,7 +414,7 @@ private theorem bollobas_two_families {ι α : Type*} [DecidableEq ι] [Decidabl
 
 /-- A deletion witness in a transversally critical three-graph has exactly two
 vertices and is disjoint from the exceptional edge. -/
-private lemma deletion_witness_exact {α : Type*} [Fintype α] [DecidableEq α]
+private lemma deletion_witness_exact {α : Type*} [DecidableEq α]
     (H : Hypergraph α) (hunif : IsUniform H 3)
     (hsmall : ∀ T : Finset α, T.card ≤ 2 → ¬Hits H T)
     (e T : Finset α) (he : e ∈ H) (hTcard : T.card ≤ 2)
