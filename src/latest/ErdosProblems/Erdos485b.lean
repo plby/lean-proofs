@@ -2109,4 +2109,5 @@ end Erdos485b
 
 alias _root_.Erdos485b.exists_complete_poly_with_sparse_square := _root_.Erdos485b.erdos_485
 
-alias _root_.Erdos485b.exists_complete_poly_with_sparse_square_improved := _root_.Erdos485b.erdos_485_improved
+alias _root_.Erdos485b.exists_complete_poly_with_sparse_square_improved :=
+  _root_.Erdos485b.erdos_485_improved
