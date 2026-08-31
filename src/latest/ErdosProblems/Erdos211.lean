@@ -37,12 +37,13 @@ two-extremes theorem, and finishes the rich-line alternative by counting
 collisions among lines joining a large collinear subset to outside points.
 -/
 
-open Classical
 open scoped Real
 
 noncomputable section
 
 namespace Erdos211
+
+attribute [local instance] Classical.propDecidable Classical.decEq
 
 /-- The real Euclidean plane. -/
 abbrev Point := EuclideanSpace ℝ (Fin 2)
