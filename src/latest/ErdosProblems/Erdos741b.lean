@@ -2562,4 +2562,5 @@ end Erdos741b
 
 alias _root_.Erdos741b.erdos741_upper_density := _root_.Erdos741b.erdos_741
 
-alias _root_.Erdos741b.erdos741_strict_density_counterexample := _root_.Erdos741b.not_erdos_741_natural_density
+alias _root_.Erdos741b.erdos741_strict_density_counterexample :=
+  _root_.Erdos741b.not_erdos_741_natural_density
