@@ -78,7 +78,7 @@ lemma target_tail_le (n : ℕ) :
   rw [show n + 2 + 1 = 3 + n by omega, pow_add]
   norm_num only [pow_succ, pow_zero, mul_one]
   rw [show (1 / 2 : ℝ) ^ n = 1 / (2 : ℝ) ^ n by
-    simpa using (one_div_pow (2 : ℝ) n)]
+    simp]
   rw [div_le_iff₀ hden]
   field_simp
   nlinarith
@@ -188,14 +188,14 @@ lemma principalPoly_coeff (n r : ℕ) (hr : r < n - 1) :
 @[simp] lemma denominatorPoly_coeff_zero (n : ℕ) :
     (denominatorPoly n).coeff 0 = 1 := by
   rw [Polynomial.coeff_zero_eq_eval_zero, denominatorPoly, Polynomial.eval_prod]
-  simp [denominatorPoly]
+  simp
 
 lemma principal_mul_denominator_coeff (n r : ℕ) (hr : r < n - 1) :
     (principalPoly n * denominatorPoly n).coeff r =
       (numeratorPoly n).coeff r := by
   rw [Polynomial.coeff_mul, Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk]
   rw [Finset.sum_range_succ]
-  simp only [Prod.fst, Prod.snd, Nat.sub_self, denominatorPoly_coeff_zero, mul_one]
+  simp only [Nat.sub_self, denominatorPoly_coeff_zero, mul_one]
   rw [principalPoly_coeff n r hr, principalCoeff_eq]
   have hsum :
       (∑ x ∈ Finset.range r,
@@ -362,7 +362,7 @@ lemma pole_injective : Function.Injective pole := by
     (pow_right_strictMono₀ (by norm_num : (1 : ℚ) < 2)).injective hp
   omega
 
-lemma poleRest_eval_ne_zero {n k : ℕ} (hk : k ∈ Finset.range n) :
+lemma poleRest_eval_ne_zero {n k : ℕ} :
     (poleRest n k).eval (pole k) ≠ 0 := by
   rw [poleRest, Polynomial.eval_prod]
   apply Finset.prod_ne_zero_iff.mpr
@@ -392,7 +392,7 @@ lemma simplePolePoly_eval (N : ℕ) {i : ℕ} (hi : i < N + 2) :
   rw [Finset.sum_eq_single i]
   · simp only [Polynomial.eval_mul, Polynomial.eval_C]
     rw [poleCoeff, div_mul_cancel₀]
-    exact poleRest_eval_ne_zero (Finset.mem_range.mpr hi)
+    exact poleRest_eval_ne_zero
   · intro k hk hki
     simp only [Polynomial.eval_mul, Polynomial.eval_C]
     rw [poleRest_eval_eq_zero (Finset.mem_range.mpr hi) hki.symm, mul_zero]
@@ -507,7 +507,7 @@ lemma denominatorPoly_coeff_scaled_integral : ∀ n r : ℕ,
           simp [denominatorPoly]
       | succ r =>
           refine ⟨0, ?_⟩
-          simp only [denominatorPoly, Finset.prod_range_zero, one_mul, Nat.cast_zero]
+          simp only [denominatorPoly, Finset.prod_range_zero]
           rw [Polynomial.coeff_one]
           simp
   | succ n ih =>
@@ -605,7 +605,7 @@ lemma poleCoeff_eq_eval_div (N : ℕ) {k : ℕ} (hk : k < N + 2) :
       (numeratorPoly (N + 2)).eval (pole k) /
         ((pole k) ^ (N + 1) * (poleRest (N + 2) k).eval (pole k)) := by
   rw [poleCoeff]
-  field_simp [poleRest_eval_ne_zero (Finset.mem_range.mpr hk), pole_ne_zero]
+  field_simp [poleRest_eval_ne_zero, pole_ne_zero]
   simpa [mul_comm] using residualPoly_eval_pole N hk
 
 /-- `∏_{r=1}^s (2^r-1)`. -/
@@ -624,7 +624,7 @@ lemma oddProduct_dvd_of_le {a b : ℕ} (hab : a ≤ b) : oddProduct a ∣ oddPro
       by_cases h : a ≤ b
       · exact dvd_mul_of_dvd_left (ih h) _
       · have ha : a = b + 1 := by omega
-        simpa [ha, oddProduct_succ]
+        simp [ha, oddProduct_succ]
 
 /-- The extra lower-half product used to clear the two overlapping odd
 denominators in every pole coefficient. -/
@@ -745,7 +745,8 @@ lemma poleFactor_eval_left {k l : ℕ} (hlk : l < k) :
   rw [poleFactor_eval_eq_ratio]
   have hpow : (2 : ℚ) ^ (k + 1) = (2 : ℚ) ^ (l + 1) * (2 : ℚ) ^ (k - l) := by
     rw [← pow_add]
-    congr 1 <;> omega
+    congr 1
+    omega
   rw [hpow]
   field_simp
 
@@ -756,7 +757,7 @@ lemma poleFactor_eval_right (k r : ℕ) :
   have hpow : (2 : ℚ) ^ (k + 1 + r + 1) =
       (2 : ℚ) ^ (k + 1) * (2 : ℚ) ^ (r + 1) := by
     rw [← pow_add]
-    congr 1 <;> omega
+    congr 1
   rw [hpow]
   field_simp
   ring
@@ -837,7 +838,7 @@ lemma scaled_poleCoeff_integral (N k : ℕ) (hk : k < N + 2) :
   have hprod := (RatIntegral.intCast 3).mul (hnum.mul hrest)
   convert hprod using 1
   rw [poleCoeff_eq_eval_div N hk]
-  field_simp [pole_ne_zero, poleRest_eval_ne_zero (Finset.mem_range.mpr hk)]
+  field_simp [pole_ne_zero, poleRest_eval_ne_zero]
   norm_num [show N + 2 - 1 = N + 1 by omega,
     show 2 + N - 1 = N + 1 by omega,
     show 2 + N = N + 2 by omega, pow_succ]
@@ -991,7 +992,6 @@ lemma pole_fraction_cast (k m : ℕ) :
   simp only [Polynomial.eval_sub, Polynomial.eval_one, Polynomial.eval_mul,
     Polynomial.eval_C, Polynomial.eval_X, Rat.cast_div, Rat.cast_one,
     Rat.cast_sub, Rat.cast_mul, Rat.cast_pow, Rat.cast_ofNat]
-  push_cast
   rw [show (8 / 3 : ℝ) * (2 : ℝ) ^ (k + 1) * (2 : ℝ) ^ m =
       (8 / 3 : ℝ) * (2 : ℝ) ^ (k + m + 1) by
         rw [mul_assoc, ← pow_add,
@@ -1009,7 +1009,6 @@ lemma kernel_partial_fraction_real (N t : ℕ) :
   apply Finset.sum_congr rfl
   intro k hk
   rw [div_eq_mul_inv]
-  push_cast
   rw [show (↑((poleFactor k).eval ((2 : ℚ) ^ (t + 1))) : ℝ)⁻¹ =
       shiftedTerm (k + (t + 1)) by
         simpa only [one_div, Rat.cast_inv] using pole_fraction_cast k (t + 1)]
@@ -1029,7 +1028,6 @@ lemma principalAt_eq_sum (N t : ℕ) :
   intro r hr
   have hrlt : r < N + 1 := Finset.mem_range.mp hr
   rw [principalPoly_coeff (N + 2) r (by omega)]
-  congr 1
   have hx : (2 : ℝ) ^ (t + 1) ≠ 0 := pow_ne_zero _ (by norm_num)
   have hpow : ((2 : ℝ) ^ (t + 1)) ^ (N + 1) =
       ((2 : ℝ) ^ (t + 1)) ^ r *
@@ -1281,7 +1279,7 @@ def kernelExponent (n m : ℕ) : ℕ :=
 
 lemma kernelExponent_add (n m s : ℕ) :
     kernelExponent n (m + s) = kernelExponent n m + n * s := by
-  simp [kernelExponent, add_assoc, Finset.sum_add_distrib, mul_comm]
+  simp [kernelExponent, add_assoc, Finset.sum_add_distrib]
   ring
 
 lemma numerator_product_abs_le_one {n m : ℕ} (hm : n ≤ m) :
@@ -1615,7 +1613,6 @@ lemma linear_form_eq_kernelTail (N : ℕ) :
   rw [← hA, ← hB]
   rw [principalConstantRat_cast]
   simp_rw [shiftPrefixRat_cast]
-  push_cast
   simp_rw [mul_sub]
   rw [Finset.sum_sub_distrib, ← Finset.sum_mul]
   ring
@@ -1695,13 +1692,13 @@ lemma commonMultiplier_le_pow_two (n : ℕ) :
     _ = 2 ^ (2 * n + triangular (n - 1) + triangular (overlapIndex n) +
           triangular n + 3 * n) := by
       simp only [← pow_add]
-      congr 1 <;> omega
+      congr 1
+      omega
 
 lemma kernelExponent_self (n : ℕ) :
     kernelExponent n n = triangular n + n * n := by
   rw [kernelExponent, triangular]
-  simp only [show ∀ k : ℕ, k + 1 + n = (k + 1) + n by omega,
-    Finset.sum_add_distrib]
+  simp only [Finset.sum_add_distrib]
   simp
 
 lemma scaleExponent_add_le_kernelExponent (N : ℕ) (hN : 14 ≤ N) :
