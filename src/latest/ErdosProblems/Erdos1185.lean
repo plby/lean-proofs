@@ -610,7 +610,7 @@ lemma blockPoint_injOn (P t L : ℕ) (e : ZMod P ≃ ZMod P)
     (hP : 0 < P) (hLP : L ≤ P) :
     Set.InjOn (blockPoint P e)
       (((Finset.range t).product (Finset.range L) : Finset (ℕ × ℕ)) : Set (ℕ × ℕ)) := by
-  letI : NeZero P := ⟨Nat.ne_of_gt hP⟩
+  let _ : NeZero P := ⟨Nat.ne_of_gt hP⟩
   intro a ha b hb hab
   have ha' : a.1 < t ∧ a.2 < L := by simpa using ha
   have hb' : b.1 < t ∧ b.2 < L := by simpa using hb
@@ -647,7 +647,7 @@ lemma card_blockFinset (P t L : ℕ) (e : ZMod P ≃ ZMod P)
 lemma blockFinset_subset_Icc (P t L : ℕ) (e : ZMod P ≃ ZMod P)
     (hP : 0 < P) :
     blockFinset P t L e ⊆ Finset.Icc 1 (t * P) := by
-  letI : NeZero P := ⟨Nat.ne_of_gt hP⟩
+  let _ : NeZero P := ⟨Nat.ne_of_gt hP⟩
   intro x hx
   rw [blockFinset, Finset.mem_image] at hx
   obtain ⟨uy, huy, rfl⟩ := hx
@@ -724,7 +724,7 @@ lemma no_three_ap_of_middlePhase
   have hPpos : 0 < P := by
     dsimp only [P, phasePeriod]
     positivity
-  letI : NeZero P := ⟨hPpos.ne'⟩
+  let _ : NeZero P := ⟨hPpos.ne'⟩
   change x ∈ blockFinset P t L (phaseEquiv Q p) at hx₀
   change x + d ∈ blockFinset P t L (phaseEquiv Q p) at hx₁
   change x + 2 * d ∈ blockFinset P t L (phaseEquiv Q p) at hx₂
@@ -745,8 +745,8 @@ lemma no_three_ap_of_middlePhase
   change phaseEquiv Q p X = (y₀ : ZMod P) at hlabel₀
   rw [hlabel₀] at hshear
   have hmod : Q * (p * d ^ 2) ≡ Q * rho [MOD P] := by
-    convert ((Nat.mod_modEq (p * d ^ 2) Q).symm.mul_left' Q) using 1 <;>
-      simp [P, rho, phasePeriod, pow_two]
+    convert ((Nat.mod_modEq (p * d ^ 2) Q).symm.mul_left' Q) using 1
+    simp [P, pow_two]
   have hcast :
       ((Q * (p * d ^ 2) : ℕ) : ZMod P) = ((Q * rho : ℕ) : ZMod P) :=
     (ZMod.natCast_eq_natCast_iff _ _ P).2 hmod
@@ -892,7 +892,7 @@ theorem finite_counterexample (m N₀ : ℕ) (hm : 1 ≤ m) :
     have hdens := block_density_bound_real (t := t) hP200
     norm_num at hdens ⊢
     nlinarith
-  · simpa [B, card_differenceSet]
+  · simp [B, card_differenceSet]
   · intro hap
     rcases hap with ⟨a, d, hd, hA, b₁, hb₁, b₂, hb₂, hdB⟩
     have ha₀ : a ∈ A := by
@@ -924,10 +924,9 @@ theorem not_erdos_1185 : ¬ (∀ δ : ℝ, 0 < δ → ∀ k : ℕ, 3 ≤ k →
     ∀ A B : Finset ℕ,
       A ⊆ Finset.Icc 1 N → B ⊆ Finset.Icc 1 N →
       δ * (N : ℝ) ≤ (A.card : ℝ) → m ≤ B.card →
-      Erdos1185.HasAPWithStepInDiff k A B) := by
+  Erdos1185.HasAPWithStepInDiff k A B) := by
   intro hstatement
-  ·
-    rcases hstatement (1 / 200) (by norm_num) 3 (by omega) with
+  · rcases hstatement (1 / 200) (by norm_num) 3 (by omega) with
       ⟨m, hm, N₀, hall⟩
     obtain ⟨N, A, B, hN, hA, hB, hcardA, hcardB, hno⟩ :=
       finite_counterexample m N₀ hm
