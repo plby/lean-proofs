@@ -77,7 +77,7 @@ private theorem exists_pair_abs_sub_le {k : ℕ} (hk : 1 ≤ k) (M : ℝ)
     apply (taggedIndexEquiv _).injective
     apply Fin.ext
     exact congrArg (fun z : ℝ ×ₗ ℕ ↦ (ofLex z).2) hij
-  letI : LinearOrder (TaggedIndex (k ^ 2 + 1)) := LinearOrder.lift' key key_injective
+  let _ : LinearOrder (TaggedIndex (k ^ 2 + 1)) := LinearOrder.lift' key key_injective
   have tagged_card : Fintype.card (TaggedIndex (k ^ 2 + 1)) = k ^ 2 + 1 :=
     (Fintype.card_congr (taggedIndexEquiv _)).trans (Fintype.card_fin _)
   let p := Finset.orderIsoOfFin
@@ -2099,7 +2099,7 @@ private theorem exists_exteriorParameter (k : ℕ) (P : Level (k + 1)) :
       ∀ x ∈ exteriorDomain P,
         k + 1 ≤ Exterior.rawLebesgue
           ⟨Exterior.closePairNode (exteriorCenter P) δ (exteriorFixedEmbedding P), hnode⟩ x := by
-  letI : Nonempty (ExteriorBackground k) := ⟨Sum.inl (firstBranch (k + 1))⟩
+  let _ : Nonempty (ExteriorBackground k) := ⟨Sum.inl (firstBranch (k + 1))⟩
   exact Exterior.exists_closePair_blowup (exteriorDomain P) (levelOpen P)
     (exteriorDomain_isCompact P) (exteriorDomain_nonempty P) (levelOpen_isOpen P)
     (exteriorFixedEmbedding P) (exteriorCenter P) (k + 1)
