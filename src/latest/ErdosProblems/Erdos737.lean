@@ -133,7 +133,7 @@ lemma hasEvenAlternatePath_of_evenPathCore {G : SimpleGraph V} {u v : V}
   have hcolor : c u = c v := by
     simpa [c, forestColor, F, D] using h.2
   refine ⟨p.map f, hp.map Function.injective_id, ?_, ?_⟩
-  · simpa [f] using (c.even_length_iff_congr p).mpr (by simpa [hcolor])
+  · simpa [f] using (c.even_length_iff_congr p).mpr (by simp [hcolor])
   · intro he
     have heF : s(u, v) ∈ p.edges := by
       simpa [f] using he
@@ -207,10 +207,10 @@ lemma mk_finset_le_max (A : Type u) :
     Cardinal.mk (Finset A) ≤ max (Cardinal.mk A) Cardinal.aleph0 := by
   cases finite_or_infinite A with
   | inl hfin =>
-      letI := hfin
+      let _ := hfin
       exact (Cardinal.lt_aleph0_iff_finite.mpr inferInstance).le.trans (le_max_right _ _)
   | inr hinf =>
-      letI := hinf
+      let _ := hinf
       rw [Cardinal.mk_finset_of_infinite]
       exact le_max_left _ _
 
@@ -420,7 +420,7 @@ lemma mem_witnessClosure_Iio_exists_Iic [LinearOrder V] {G : SimpleGraph V}
         have hSne : Nonempty S := by
           obtain ⟨z, hz⟩ := hsne
           exact ⟨⟨z, Finset.mem_union_left t hz⟩⟩
-        letI : Fintype S := Fintype.ofFinite S
+        let _ : Fintype S := Fintype.ofFinite S
         have hgen : ∀ z : S, ∃ b < a,
             (z : V) ∈ witnessClosure G (Iic b) := by
           intro z
@@ -539,8 +539,7 @@ lemma hasHalfExtension_of_infinite_earlierNeighbors
   refine ⟨a, X, Y, hinf, ?_, closureRank_not_mem_strict G a, ?_⟩
   · intro x hx
     exact hx.2.symm
-  · intro s hsne hsX
-    intro hfinite
+  · intro s hsne hsX hfinite
     let t : Finset V := hfinite.toFinset
     have htY : (t : Set V) ⊆ Y := by
       intro z hz
@@ -660,9 +659,9 @@ theorem nonempty_coloring_of_no_halfExtension :
         · have huncountable : Cardinal.aleph0 < Cardinal.mk W :=
             lt_of_not_ge hcount
           obtain ⟨r, hr, hord⟩ := Cardinal.exists_ord_eq W
-          letI : IsWellOrder W r := hr
-          letI : LinearOrder W := IsWellOrder.linearOrder r
-          letI : WellFoundedLT W := ⟨hr.wf⟩
+          let _ : IsWellOrder W r := hr
+          let _ : LinearOrder W := IsWellOrder.linearOrder r
+          let _ : WellFoundedLT W := ⟨hr.wf⟩
           have hord' : (Cardinal.mk W).ord = typeLT W := hord
           have hfiberColor (a : W) :
               Nonempty ((G.induce (rankFiber G a)).Coloring ℕ) := by
@@ -779,7 +778,7 @@ noncomputable def finEmbeddingIntoInfiniteSet (S : Set V) (hS : S.Infinite)
 /-- An injective `(n+1)`-term sample from an infinite set whose last term is
 the prescribed member `r`. -/
 noncomputable def finEmbeddingWithLast (S : Set V) (hS : S.Infinite)
-    (r : V) (hr : r ∈ S) (n : ℕ) : Fin (n + 1) ↪ V := by
+    (r : V) (n : ℕ) : Fin (n + 1) ↪ V := by
   let T : Set V := S \ {r}
   have hT : T.Infinite := hS.sdiff (Set.finite_singleton r)
   let e : Fin n ↪ T := finEmbeddingIntoInfiniteSet T hT n
@@ -803,7 +802,7 @@ noncomputable def finEmbeddingWithLast (S : Set V) (hS : S.Infinite)
 
 lemma finEmbeddingWithLast_mem (S : Set V) (hS : S.Infinite)
     (r : V) (hr : r ∈ S) (n : ℕ) (i : Fin (n + 1)) :
-    finEmbeddingWithLast S hS r hr n i ∈ S := by
+    finEmbeddingWithLast S hS r n i ∈ S := by
   change (if hi : i.val < n then
     ((finEmbeddingIntoInfiniteSet (S \ {r})
       (hS.sdiff (Set.finite_singleton r)) n ⟨i.val, hi⟩) : V)
@@ -815,8 +814,8 @@ lemma finEmbeddingWithLast_mem (S : Set V) (hS : S.Infinite)
 
 @[simp]
 lemma finEmbeddingWithLast_last (S : Set V) (hS : S.Infinite)
-    (r : V) (hr : r ∈ S) (n : ℕ) :
-    finEmbeddingWithLast S hS r hr n (Fin.last n) = r := by
+    (r : V) (n : ℕ) :
+    finEmbeddingWithLast S hS r n (Fin.last n) = r := by
   change (if hi : (Fin.last n).val < n then
     ((finEmbeddingIntoInfiniteSet (S \ {r})
       (hS.sdiff (Set.finite_singleton r)) n ⟨(Fin.last n).val, hi⟩) : V)
@@ -826,7 +825,7 @@ lemma finEmbeddingWithLast_last (S : Set V) (hS : S.Infinite)
 /-- A finite injective sample with prescribed distinct endpoints; all internal
 vertices avoid `A`. -/
 noncomputable def finEmbeddingWithEndsAvoid (S : Set V) (hS : S.Infinite)
-    (u r : V) (hu : u ∈ S) (hr : r ∈ S) (hur : u ≠ r)
+    (u r : V) (hur : u ≠ r)
     (A : Finset V) (n : ℕ) : Fin (n + 2) ↪ V := by
   let T : Set V := S \ ((A : Set V) ∪ {u, r})
   have hfinite : ((A : Set V) ∪ {u, r}).Finite :=
@@ -880,7 +879,7 @@ noncomputable def finEmbeddingWithEndsAvoid (S : Set V) (hS : S.Infinite)
 lemma finEmbeddingWithEndsAvoid_mem (S : Set V) (hS : S.Infinite)
     (u r : V) (hu : u ∈ S) (hr : r ∈ S) (hur : u ≠ r)
     (A : Finset V) (n : ℕ) (i : Fin (n + 2)) :
-    finEmbeddingWithEndsAvoid S hS u r hu hr hur A n i ∈ S := by
+    finEmbeddingWithEndsAvoid S hS u r hur A n i ∈ S := by
   change (if h0 : i.val = 0 then u else if hl : i.val = n + 1 then r else
     ((finEmbeddingIntoInfiniteSet
       (S \ ((A : Set V) ∪ {u, r}))
@@ -897,10 +896,10 @@ lemma finEmbeddingWithEndsAvoid_mem (S : Set V) (hS : S.Infinite)
       ⟨i.val - 1, by omega⟩).property.1
 
 lemma finEmbeddingWithEndsAvoid_internal_not_mem
-    (S : Set V) (hS : S.Infinite) (u r : V) (hu : u ∈ S) (hr : r ∈ S)
+    (S : Set V) (hS : S.Infinite) (u r : V)
     (hur : u ≠ r) (A : Finset V) (n : ℕ) (i : Fin (n + 2))
     (hi0 : i.val ≠ 0) (hil : i.val ≠ n + 1) :
-    finEmbeddingWithEndsAvoid S hS u r hu hr hur A n i ∉ A := by
+    finEmbeddingWithEndsAvoid S hS u r hur A n i ∉ A := by
   change (if h0 : i.val = 0 then u else if hl : i.val = n + 1 then r else
     ((finEmbeddingIntoInfiniteSet
       (S \ ((A : Set V) ∪ {u, r}))
@@ -916,16 +915,16 @@ lemma finEmbeddingWithEndsAvoid_internal_not_mem
 
 @[simp]
 lemma finEmbeddingWithEndsAvoid_first
-    (S : Set V) (hS : S.Infinite) (u r : V) (hu : u ∈ S) (hr : r ∈ S)
+    (S : Set V) (hS : S.Infinite) (u r : V)
     (hur : u ≠ r) (A : Finset V) (n : ℕ) :
-    finEmbeddingWithEndsAvoid S hS u r hu hr hur A n 0 = u := by
+    finEmbeddingWithEndsAvoid S hS u r hur A n 0 = u := by
   simp [finEmbeddingWithEndsAvoid]
 
 @[simp]
 lemma finEmbeddingWithEndsAvoid_last
-    (S : Set V) (hS : S.Infinite) (u r : V) (hu : u ∈ S) (hr : r ∈ S)
+    (S : Set V) (hS : S.Infinite) (u r : V)
     (hur : u ≠ r) (A : Finset V) (n : ℕ) :
-    finEmbeddingWithEndsAvoid S hS u r hu hr hur A n (Fin.last (n + 1)) = r := by
+    finEmbeddingWithEndsAvoid S hS u r hur A n (Fin.last (n + 1)) = r := by
   simp [finEmbeddingWithEndsAvoid]
 
 /-- The center and reservoir of a half-extension configuration give odd
@@ -938,7 +937,7 @@ lemma exists_center_path
     (hr : r ∈ X) (k : ℕ) (hk : 1 ≤ k) :
     ∃ p : G.Walk a r, p.IsPath ∧ p.length = 2 * k + 1 := by
   classical
-  let x : Fin (k + 1) ↪ V := finEmbeddingWithLast X hX r hr k
+  let x : Fin (k + 1) ↪ V := finEmbeddingWithLast X hX r k
   have hxX (i : Fin (k + 1)) : x i ∈ X :=
     finEmbeddingWithLast_mem X hX r hr k i
   let s : Finset V := Finset.univ.map x
@@ -1025,11 +1024,9 @@ lemma exists_center_path
   obtain ⟨p, hp, hplen, -⟩ := exists_path_of_fin_sequence f hadj
   have hstart : f 0 = a := by simp [f]
   have hend : f (Fin.last (2 * k + 1)) = r := by
-    have h0 : (Fin.last (2 * k + 1)).val ≠ 0 := by simp
-    have ho : (Fin.last (2 * k + 1)).val % 2 = 1 := by simp
     have hfapply : f (Fin.last (2 * k + 1)) =
         x ⟨(Fin.last (2 * k + 1)).val / 2, by omega⟩ := by
-      simp [f, h0, ho]
+      simp [f]
     have hidx :
         (⟨(Fin.last (2 * k + 1)).val / 2, by omega⟩ : Fin (k + 1)) =
           Fin.last k := by
@@ -1037,11 +1034,11 @@ lemma exists_center_path
       change (2 * k + 1) / 2 = k
       omega
     rw [hfapply, hidx]
-    exact finEmbeddingWithLast_last X hX r hr k
+    exact finEmbeddingWithLast_last X hX r k
   let p' : G.Walk a r := p.copy hstart hend
   refine ⟨p', ?_, ?_⟩
   · simpa [p'] using hp
-  · simpa [p', hplen]
+  · simp [p', hplen]
 
 /-- Between two distinct members of `X` there are arbitrarily long even
 simple alternating paths whose internal vertices avoid a prescribed finite
@@ -1057,7 +1054,7 @@ lemma exists_even_path_avoiding
       ∀ z ∈ p.support, z ∈ A → z = u := by
   classical
   let x : Fin (n + 2) ↪ V :=
-    finEmbeddingWithEndsAvoid X hX u r hu hr hur A n
+    finEmbeddingWithEndsAvoid X hX u r hur A n
   have hxX (i : Fin (n + 2)) : x i ∈ X :=
     finEmbeddingWithEndsAvoid_mem X hX u r hu hr hur A n i
   let s : Finset V := Finset.univ.map x
@@ -1142,9 +1139,9 @@ lemma exists_even_path_avoiding
       change (2 * (n + 1)) / 2 = n + 1
       omega
     rw [hfapply]
-    exact finEmbeddingWithEndsAvoid_last X hX u r hu hr hur A n
+    exact finEmbeddingWithEndsAvoid_last X hX u r hur A n
   let p' : G.Walk u r := p.copy hstart hend
-  refine ⟨p', by simpa [p'] using hp, by simpa [p', hplen], ?_⟩
+  refine ⟨p', by simpa [p'] using hp, by simp [p', hplen], ?_⟩
   intro z hz hza
   have hz' : z ∈ List.ofFn f := by
     simpa [p', hsupp] using hz
@@ -1161,15 +1158,15 @@ lemma exists_even_path_avoiding
     · calc
         z = x ix := hzx
         _ = x 0 := congrArg x (Fin.ext hi0)
-        _ = u := finEmbeddingWithEndsAvoid_first X hX u r hu hr hur A n
+        _ = u := finEmbeddingWithEndsAvoid_first X hX u r hur A n
     · by_cases hil : ix.val = n + 1
       · have : z = r := by
           calc z = x ix := hzx
                _ = x (Fin.last (n + 1)) := congrArg x (Fin.ext hil)
-               _ = r := finEmbeddingWithEndsAvoid_last X hX u r hu hr hur A n
+               _ = r := finEmbeddingWithEndsAvoid_last X hX u r hur A n
         exact (hrA (this ▸ hza)).elim
       · exact (finEmbeddingWithEndsAvoid_internal_not_mem
-          X hX u r hu hr hur A n ix hi0 hil (hzx ▸ hza)).elim
+          X hX u r hur A n ix hi0 hil (hzx ▸ hza)).elim
   · let iy : Fin (n + 1) := ⟨i.val / 2, by omega⟩
     have hfval : f i = y iy := by
       change (if he : i.val % 2 = 0 then x ⟨i.val / 2, by omega⟩
