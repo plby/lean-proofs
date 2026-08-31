@@ -4369,4 +4369,5 @@ end HajnalSzemeredi
 
 end Erdos914
 
-alias _root_.Erdos914.HajnalSzemeredi.hajnal_szemeredi_clique_cover := _root_.Erdos914.HajnalSzemeredi.erdos_914
+alias _root_.Erdos914.HajnalSzemeredi.hajnal_szemeredi_clique_cover :=
+  _root_.Erdos914.HajnalSzemeredi.erdos_914
