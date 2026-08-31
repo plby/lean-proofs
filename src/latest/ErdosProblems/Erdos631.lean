@@ -966,7 +966,7 @@ private lemma plane_five_choosable {P : PlaneExpr} (hP : P.Valid)
     · simpa [L', hx1, hx2] using hc
 
 /-- Thomassen's theorem: every finite planar graph is 5-choosable. -/
-theorem planar_isFiveChoosable {V : Type*} [Fintype V] (G : SimpleGraph V)
+theorem planar_isFiveChoosable {V : Type*} [Finite V] (G : SimpleGraph V)
     (hG : IsPlanar G) : Erdos753.IsKChoosable G 5 := by
   classical
   rcases hG with ⟨hG⟩
@@ -992,7 +992,7 @@ theorem planar_isFiveChoosable {V : Type*} [Fintype V] (G : SimpleGraph V)
     · exact (hcedge (hG.embed w, hG.embed v) he).symm)
   exact ⟨coloring, himage_mem⟩
 
-theorem planar_listChromaticNumber_le_five {V : Type*} [Fintype V]
+theorem planar_listChromaticNumber_le_five {V : Type*} [Finite V]
     (G : SimpleGraph V) (hG : IsPlanar G) :
     Erdos753.listChromaticNumber G ≤ 5 :=
   Erdos753.listChromaticNumber_le (planar_isFiveChoosable G hG)
