@@ -212,10 +212,12 @@ lemma card_badPerms_le (A : Finset (Finset V)) (m : ℕ)
       simp [pow_two]
       ring
 
+omit [DecidableEq V] in
 theorem exists_perm_avoiding_family (A : Finset (Finset V)) (m : ℕ)
     (hA : ∀ S ∈ A, S.card = m) (hm : m ≤ Fintype.card V)
     (hsmall : A.card ^ 2 < (Fintype.card V).choose m) :
     ∃ perm : Equiv.Perm V, ∀ S ∈ A, S.map perm.toEmbedding ∉ A := by
+  classical
   have hbadBound := card_badPerms_le A m hA
   have hfacpos : 0 < m.factorial * (Fintype.card V - m).factorial := by positivity
   have hbadlt : (badPerms A).card < Fintype.card (Equiv.Perm V) := by
@@ -506,9 +508,9 @@ lemma eventual_ramsey_lower_bound_beats_power
       (A * (m : ℝ) ^ (3 - s)) ^ q =
         A ^ q * ((m : ℝ) * (m : ℝ) ^ (2 * δ)) := by
     rw [Real.mul_rpow hA.le (Real.rpow_nonneg _ _)]
-    rw [← Real.rpow_mul hmpos.le]
-    rw [mul_comm (3 - s) q, hexponent, Real.rpow_add hmpos, Real.rpow_one]
-    positivity
+    · rw [← Real.rpow_mul hmpos.le]
+      rw [mul_comm (3 - s) q, hexponent, Real.rpow_add hmpos, Real.rpow_one]
+    · positivity
   have hone : 1 < c * (A ^ q * (m : ℝ) ^ (2 * δ)) := by
     calc
       1 = c * (1 / c) := by field_simp
