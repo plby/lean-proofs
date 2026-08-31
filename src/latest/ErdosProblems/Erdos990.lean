@@ -2748,7 +2748,8 @@ theorem erdos_990 : ¬ (∃ C : ℝ, 0 ≤ C ∧
         0 ≤ α → α ≤ β → β ≤ 2 * Real.pi →
           |(Erdos990.argumentCount θ α β : ℝ) - ((β - α) / (2 * Real.pi)) * d| ≤
             C * Real.sqrt
-              ((Erdos990.coeffSupportCardUpTo f d : ℝ) * Real.log (Erdos990.coefficientRatio f d))) := by
+              ((Erdos990.coeffSupportCardUpTo f d : ℝ) *
+                Real.log (Erdos990.coefficientRatio f d))) := by
   exact not_sparseErdosTuranEstimate_of_counterexamples exists_angularCounterexample
 
 #print axioms erdos_990
