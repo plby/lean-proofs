@@ -121,7 +121,8 @@ theorem semiprimeBlock_family_sum_discrepancy_le (P Q : Finset ℕ) (M N K T : �
         ((d * k).totient : ℝ)⁻¹ *
           ((∑ ψ : primitiveCharacters d, ‖finiteCenteredCharacterSum (S (d * k)) d ψ.1‖) +
             ∑ ψ : primitiveCharacters d, ‖∑ n ∈ S (d * k) with ¬n.Coprime (d * k), ψ.1 n‖) := by
-      simpa only [Finset.sum_add_distrib] using finiteResidueCount_family_sum_discrepancy_le S T a ha
+      simpa only [Finset.sum_add_distrib] using
+        finiteResidueCount_family_sum_discrepancy_le S T a ha
     _ ≤ ∑ d ∈ Finset.Ioc 0 T, ∑ k ∈ Finset.Ioc 0 (T / d),
         ((d * k).totient : ℝ)⁻¹ *
           (U d + (∑ p ∈ P with p ∣ d * k ∧ ¬p ∣ d, VQ d) +
