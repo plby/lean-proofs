@@ -27,15 +27,16 @@ import Mathlib
 
 namespace Erdos1092
 
-open Classical SimpleGraph Finset Asymptotics Filter
+open SimpleGraph Finset Asymptotics Filter
 
 /--
 Let `f r m` be maximal such that if every `m`-vertex subgraph of any finite
 graph can be made `r`-colourable by deleting at most `f r m` edges, then the
 ambient graph is `(r + 1)`-colourable.
 -/
-noncomputable def f (r m : ℕ) : ℕ :=
-  sSup {k : ℕ |
+noncomputable def f (r m : ℕ) : ℕ := by
+  classical
+  exact sSup {k : ℕ |
     ∀ (n : ℕ) (G : SimpleGraph (Fin n)),
       (∀ H : Subgraph G, Fintype.card H.verts = m →
         ∃ E : Finset (Sym2 H.verts),
@@ -47,6 +48,7 @@ noncomputable def f (r m : ℕ) : ℕ :=
 The witness refuting every candidate threshold is the complete graph on four
 vertices: it has no `m`-vertex subgraph, but it is not 3-colourable. -/
 lemma f_two_eq_zero_of_five_le {m : ℕ} (hm : 5 ≤ m) : f 2 m = 0 := by
+  classical
   have hset :
       {k : ℕ |
         ∀ (n : ℕ) (G : SimpleGraph (Fin n)),
