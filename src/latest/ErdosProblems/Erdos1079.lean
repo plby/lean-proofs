@@ -36,7 +36,7 @@ strict, which is Bondy's strengthening of the Bollobás--Thomason result.
 -/
 
 open Finset Fintype
-open scoped Classical SimpleGraph
+open scoped SimpleGraph
 
 namespace Erdos1079
 
@@ -202,7 +202,7 @@ lemma turan_split_le {n d q : ℕ} (hq : 2 ≤ q) (hd : d ≤ n) :
     #(SimpleGraph.turanGraph d (q - 1)).edgeFinset + d * (n - d) ≤
       #(SimpleGraph.turanGraph n q).edgeFinset := by
   let J := joinIndependent (W := Fin (n - d)) (SimpleGraph.turanGraph d (q - 1))
-  letI : Nontrivial (Fin (q + 1)) := Fin.nontrivial_iff_two_le.mpr (by omega)
+  let _ : Nontrivial (Fin (q + 1)) := Fin.nontrivial_iff_two_le.mpr (by omega)
   have hfree : (⊤ : SimpleGraph (Fin (q + 1))).Free J := by
     apply (SimpleGraph.cliqueFree_iff_top_free (G := J) (β := Fin (q + 1))).mp
     simpa [J] using turanJoin_cliqueFree (d := d) (b := n - d) hq
@@ -294,8 +294,8 @@ lemma maximumDegree_edge_bound {V : Type*} [Fintype V]
 lemma cliqueExtremal_split_le {n d r : ℕ} (hr : 4 ≤ r) (hd : d ≤ n) :
     cliqueExtremalNumber d (r - 1) + d * (n - d) ≤
       cliqueExtremalNumber n r := by
-  letI : Nontrivial (Fin (r - 1)) := Fin.nontrivial_iff_two_le.mpr (by omega)
-  letI : Nontrivial (Fin r) := Fin.nontrivial_iff_two_le.mpr (by omega)
+  let _ : Nontrivial (Fin (r - 1)) := Fin.nontrivial_iff_two_le.mpr (by omega)
+  let _ : Nontrivial (Fin r) := Fin.nontrivial_iff_two_le.mpr (by omega)
   unfold cliqueExtremalNumber
   rw [SimpleGraph.extremalNumber_top (n := d) (α := Fin (r - 1)),
     SimpleGraph.extremalNumber_top (n := n) (α := Fin r)]
@@ -308,6 +308,7 @@ lemma cliqueExtremal_split_le {n d r : ℕ} (hr : 4 ≤ r) (hd : d ≤ n) :
   rw [hcardr₁, hcardr]
   exact turan_split_le (q := r - 1) (by omega) hd
 
+open Classical in
 /-- At the non-strict Turán threshold, every chosen maximum-degree vertex has an extremal-size
 link. -/
 theorem maximumDegree_link_at_turan_threshold {n r : ℕ} (hr : 4 ≤ r) (hn : 1 ≤ n)
@@ -316,7 +317,7 @@ theorem maximumDegree_link_at_turan_threshold {n r : ℕ} (hr : 4 ≤ r) (hn : 1
     ∃ v : Fin n, G.degree v = G.maxDegree ∧
       cliqueExtremalNumber (G.degree v) (r - 1) ≤ linkEdgeCount G v := by
   classical
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
+  let _ : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
   obtain ⟨v, hv⟩ := G.exists_maximal_degree_vertex
   have hd : G.degree v ≤ n := by
     have := G.degree_lt_card_verts v
@@ -330,6 +331,7 @@ theorem maximumDegree_link_at_turan_threshold {n r : ℕ} (hr : 4 ≤ r) (hn : 1
   refine ⟨v, hv.symm, ?_⟩
   omega
 
+open Classical in
 /-- Bondy's strict-threshold strengthening: a maximum-degree vertex has a link strictly over the
 next Turán threshold. -/
 theorem maximumDegree_link_above_turan_threshold {n r : ℕ} (hr : 4 ≤ r) (hn : 1 ≤ n)
@@ -338,7 +340,7 @@ theorem maximumDegree_link_above_turan_threshold {n r : ℕ} (hr : 4 ≤ r) (hn 
     ∃ v : Fin n, G.degree v = G.maxDegree ∧
       cliqueExtremalNumber (G.degree v) (r - 1) < linkEdgeCount G v := by
   classical
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
+  let _ : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
   obtain ⟨v, hv⟩ := G.exists_maximal_degree_vertex
   have hd : G.degree v ≤ n := by
     have := G.degree_lt_card_verts v
@@ -365,7 +367,7 @@ lemma sq_le_four_mul_card_turanGraph_two_add_one (n : ℕ) :
 /-- The balanced complete bipartite graph is admissible for every `K_r` problem with `r ≥ 4`. -/
 lemma card_turanGraph_two_le_cliqueExtremalNumber {n r : ℕ} (hr : 4 ≤ r) :
     #(SimpleGraph.turanGraph n 2).edgeFinset ≤ cliqueExtremalNumber n r := by
-  letI : Nontrivial (Fin r) := Fin.nontrivial_iff_two_le.mpr (by omega)
+  let _ : Nontrivial (Fin r) := Fin.nontrivial_iff_two_le.mpr (by omega)
   have hcf : (SimpleGraph.turanGraph n 2).CliqueFree r :=
     (SimpleGraph.turanGraph_cliqueFree (n := n) (r := 2) (by omega)).mono (by omega)
   have hfree : (⊤ : SimpleGraph (Fin r)).Free (SimpleGraph.turanGraph n 2) := by
@@ -375,6 +377,7 @@ lemma card_turanGraph_two_le_cliqueExtremalNumber {n r : ℕ} (hr : 4 ≤ r) :
   simpa [cliqueExtremalNumber] using
     SimpleGraph.card_edgeFinset_le_extremalNumber hfree
 
+open Classical in
 /-- A graph at the `K_r` Turán threshold has maximum degree at least half its order. -/
 lemma card_le_twice_maxDegree_of_turan_threshold {n r : ℕ} (hr : 4 ≤ r) (hn : 2 ≤ n)
     (G : SimpleGraph (Fin n))
@@ -396,6 +399,7 @@ lemma card_le_twice_maxDegree_of_turan_threshold {n r : ℕ} (hr : 4 ≤ r) (hn 
   push Not at h
   nlinarith
 
+open Classical in
 /-- **Resolution of Erdős Problem 1079.**
 
 For `r ≥ 4`, every `n`-vertex graph at the `K_r` Turán threshold has a maximum-degree vertex
@@ -414,6 +418,7 @@ theorem erdos_problem_1079 {n r : ℕ} (hr : 4 ≤ r) (hn : 2 ≤ n)
   refine ⟨v, hv, ?_, hlink⟩
   simpa [← hv] using hlinear
 
+open Classical in
 /-- Bondy's strict version of the resolution: above the Turán threshold the same maximum-degree
 vertex has strictly more than `ex(d, K_{r-1})` edges in its neighbourhood. -/
 theorem erdos_1079 {n r : ℕ} (hr : 4 ≤ r) (hn : 2 ≤ n)
