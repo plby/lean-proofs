@@ -645,7 +645,8 @@ theorem formal_conjectures_erdos_124_corrected :
         ∀ i, c i ∈ ({0, 1} : Finset ℕ) ∧
         ∀ i, ((d i).digits (a i)).toFinset ⊆ {0, 1} ∧
         n = ∑ i, c i * a i) := by
-  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using Erdos124b.formal_conjectures_erdos_124_corrected_iff
+  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using
+    Erdos124b.formal_conjectures_erdos_124_corrected_iff
 
 end Erdos124b
 
