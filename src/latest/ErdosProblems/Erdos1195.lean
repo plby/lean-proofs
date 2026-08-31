@@ -133,9 +133,10 @@ lemma integerRatioFree_iff_positiveNatRatioFree {S : Set ℝ} (hS : S ⊆ Ioi 0)
 multiple arbitrarily close to zero.  This is the compact-group pigeonhole
 principle in the form used to choose the frequencies of the logarithmic
 combs. -/
-lemma exists_simultaneous_nsmul_dist_le {ι : Type*} [Fintype ι]
+lemma exists_simultaneous_nsmul_dist_le {ι : Type*} [Finite ι]
     (ξ : ι → UnitAddCircle) {δ : ℝ} (hδ : 0 < δ) :
     ∃ q : ℕ, 0 < q ∧ ∀ i, dist (q • ξ i) 0 ≤ δ := by
+  let _ : Fintype ι := Fintype.ofFinite ι
   let μ : Measure (ι → UnitAddCircle) := volume
   let B : Set (ι → UnitAddCircle) := Metric.closedBall 0 (δ / 2)
   have hB : 0 < μ B := by
@@ -336,7 +337,7 @@ lemma measureReal_logComb_lower {j q d : ℕ} (hq : 0 < q) (hd : 0 < d) :
     (2 : ℝ) ^ j * (2 * combWidth d * Real.log 2)
         = ∑ _r : Fin q,
             ((2 : ℝ) ^ j * (2 * combWidth d * Real.log 2 / q)) := by
-          simp [hq.ne', div_eq_mul_inv]
+          simp [div_eq_mul_inv]
           field_simp
     _ ≤ ∑ r : Fin q, volume.real (logTooth j q d r) := by
       gcongr with r
@@ -407,7 +408,7 @@ lemma logTooth_subset_globalLogComb {j q d r : ℕ}
           ((((q : ℝ) * logCoord x - 1 / 2 : ℝ)) : UnitAddCircle) -
             (((z : ℝ) : UnitAddCircle)) := by rw [hz, sub_zero]
       _ = ((((q : ℝ) * logCoord x - 1 / 2 - z : ℝ)) : UnitAddCircle) := rfl
-  rw [globalLogComb, mem_setOf_eq, logPhase, dist_eq_norm, ← AddCircle.coe_sub]
+  rw [globalLogComb, mem_ofPred_eq, logPhase, dist_eq_norm, ← AddCircle.coe_sub]
   change ‖((((q : ℝ) * logCoord x - 1 / 2 : ℝ)) : UnitAddCircle)‖ < combWidth d
   rw [hcoe]
   rw [(AddCircle.norm_coe_eq_abs_iff (1 : ℝ) one_ne_zero).2]
@@ -443,11 +444,11 @@ lemma mem_globalLogComb_of_mul_mem {q : ℕ} {a x y : ℝ}
   let s : UnitAddCircle := (((q : ℝ) * logCoord y : ℝ) : UnitAddCircle)
   have hphase : logPhase q (x * y) = logPhase q x + s := logPhase_mul hx hy
   have hmem : dist (logPhase q (x * y)) c < a := hxy
-  rw [globalLogComb, mem_setOf_eq]
+  rw [globalLogComb, mem_ofPred_eq]
   change dist (logPhase q x) c < 2 * a
   calc
     dist (logPhase q x) c = dist (logPhase q x + s) (c + s) := by
-      simpa using (dist_add_right (logPhase q x) c s).symm
+      exact (dist_add_right (logPhase q x) c s).symm
     _ ≤ dist (logPhase q x + s) c + dist c (c + s) := dist_triangle _ _ _
     _ = dist (logPhase q (x * y)) c + dist s 0 := by
       rw [← hphase]
@@ -592,7 +593,7 @@ lemma measurableSet_centralCells (q m L : ℕ) (a : ℝ) :
   exact MeasurableSet.iUnion fun r => measurableSet_centralLogCell q (m + r) a
 
 lemma logSegment_inter_globalLogComb_subset {q m L : ℕ} {a : ℝ}
-    (hq : 0 < q) (ha0 : 0 ≤ a) (ha : a < 1 / 2) :
+    (hq : 0 < q) (ha : a < 1 / 2) :
     logSegment q m L ∩ globalLogComb q a ⊆ centralCells q m L a := by
   intro x hx
   rcases hx with ⟨hxseg, hxphase⟩
@@ -618,7 +619,7 @@ lemma logSegment_inter_globalLogComb_subset {q m L : ℕ} {a : ℝ}
   let e : ℝ := (q : ℝ) * logCoord x - 1 / 2
   let z : ℤ := round e
   have hnear : |e - z| < a := by
-    rw [globalLogComb, mem_setOf_eq, logPhase, dist_eq_norm, ← AddCircle.coe_sub] at hxphase
+    rw [globalLogComb, mem_ofPred_eq, logPhase, dist_eq_norm, ← AddCircle.coe_sub] at hxphase
     change ‖((e : ℝ) : UnitAddCircle)‖ < a at hxphase
     rw [AddCircle.norm_eq] at hxphase
     simpa [e, z] using hxphase
@@ -640,7 +641,7 @@ lemma logSegment_inter_globalLogComb_subset {q m L : ℕ} {a : ℝ}
     have htM' : (q : ℝ) * logCoord x < (m + L : ℕ) :=
       by simpa [mul_comm] using (lt_div_iff₀ hq0).1 htM
     exact_mod_cast hzlt.trans htM'
-  have hz0 : 0 ≤ z := (Int.ofNat_nonneg m).trans hmz
+  have hz0 : 0 ≤ z := (Int.natCast_nonneg m).trans hmz
   let k : ℕ := z.toNat
   have hkz : (k : ℤ) = z := Int.toNat_of_nonneg hz0
   have hmk : m ≤ k := by
@@ -677,7 +678,7 @@ lemma volumeReal_Ioo {a b : ℝ} (hab : a ≤ b) :
   rw [Measure.real, Real.volume_Ioo, ENNReal.toReal_ofReal (sub_nonneg.2 hab)]
 
 lemma centralLogCell_subset_logCell {q k : ℕ} {a : ℝ}
-    (hq : 0 < q) (ha0 : 0 ≤ a) (ha : a ≤ 1 / 2) :
+    (hq : 0 < q) (ha : a ≤ 1 / 2) :
     centralLogCell q k a ⊆ logCell q k := by
   intro x hx
   rw [centralLogCell, mem_Ioo] at hx
@@ -692,12 +693,12 @@ lemma centralLogCell_subset_logCell {q k : ℕ} {a : ℝ}
       linarith))
 
 lemma centralCells_subset_logSegment {q m L : ℕ} {a : ℝ}
-    (hq : 0 < q) (ha0 : 0 ≤ a) (ha : a ≤ 1 / 2) :
+    (hq : 0 < q) (ha : a ≤ 1 / 2) :
     centralCells q m L a ⊆ logSegment q m L := by
   intro x hx
   rw [centralCells, mem_iUnion] at hx
   obtain ⟨r, hr⟩ := hx
-  have hcell := centralLogCell_subset_logCell hq ha0 ha hr
+  have hcell := centralLogCell_subset_logCell hq ha hr
   rw [logCell, mem_Ioo] at hcell
   rw [logSegment, mem_Ioo]
   have hq0 : (0 : ℝ) < q := by exact_mod_cast hq
@@ -744,7 +745,8 @@ lemma sum_measureReal_logCell {q m L : ℕ} (hq : 0 < q) :
       intro r hr
       rw [hcell]
       simp only [f, Nat.cast_add, Nat.cast_one]
-      congr 2 <;> ring
+      congr 2
+      all_goals ring
     _ = f L - f 0 := Finset.sum_range_sub f L
     _ = dyadicExp (((m + L : ℕ) : ℝ) / q) - dyadicExp ((m : ℝ) / q) := by
       simp [f]
@@ -753,8 +755,8 @@ lemma measureReal_logSegment_inter_globalLogComb_le {q m L : ℕ} {a : ℝ}
     (hq : 0 < q) (ha0 : 0 ≤ a) (ha : a < 1 / 2) :
     volume.real (logSegment q m L ∩ globalLogComb q a) ≤
       4 * a * volume.real (logSegment q m L) := by
-  have hsub := logSegment_inter_globalLogComb_subset (q := q) (m := m) (L := L) hq ha0 ha
-  have hcentSub := centralCells_subset_logSegment (q := q) (m := m) (L := L) hq ha0 ha.le
+  have hsub := logSegment_inter_globalLogComb_subset (q := q) (m := m) (L := L) hq ha
+  have hcentSub := centralCells_subset_logSegment (q := q) (m := m) (L := L) hq ha.le
   have hfinite : volume (centralCells q m L a) ≠ ∞ :=
     measure_ne_top_of_subset hcentSub <| by
       rw [logSegment, Real.volume_Ioo]
@@ -901,7 +903,8 @@ lemma measureReal_trimmedComb_lower
       (j := J + i) (q := q i) (d := d i) (Q := q j)
       (a := 2 * combWidth (d j)) (hq i) (hd i) (hq j)
       (halign i j j.property) (mul_nonneg (by norm_num) hwpos.le) hwlt
-    convert h using 1 <;> ring
+    convert h using 1
+    all_goals ring
   have hdomSum : Summable fun j : {j : ℕ // i < j} =>
       (8 * volume.real H) * combWidth (d j) := by
     have hwsub : Summable fun j : {j : ℕ // i < j} => combWidth (d j) :=
@@ -1261,7 +1264,7 @@ lemma iUnion_dyadicCell : (⋃ n, dyadicCell n) = Ici 1 := by
     (iUnion_Ico_map_succ_eq_Ici
       (f := fun n : ℕ => (2 : ℝ) ^ n)
       (fun n => by
-        show (2 : ℝ) ^ 0 ≤ (2 : ℝ) ^ n
+        change (2 : ℝ) ^ 0 ≤ (2 : ℝ) ^ n
         exact pow_le_pow_right₀ (by norm_num) (Nat.zero_le n))
       (not_bddAbove_iff.mpr fun b => by
         obtain ⟨n, hn⟩ := ((tendsto_pow_atTop_atTop_of_one_lt
@@ -1317,10 +1320,10 @@ lemma summable_dyadicTerm_of_integrable
     have hc0 : 0 ≤ c := by dsimp [c]; positivity
     have hconst : IntegrableOn (fun _x : ℝ => c) (dyadicCell n) := by
       apply integrableOn_const
-      unfold dyadicCell
-      rw [Real.volume_Ico]
-      exact ENNReal.ofReal_ne_top
-      exact enorm_ne_top
+      · unfold dyadicCell
+        rw [Real.volume_Ico]
+        exact ENNReal.ofReal_ne_top
+      · exact enorm_ne_top
     have htarget : IntegrableOn (fun x : ℝ => ‖F x / x ^ 2‖) (dyadicCell n) := by
       exact (hInt.mono_set (by
         intro x hx
