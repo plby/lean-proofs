@@ -103,20 +103,26 @@ private lemma left_midpoint_formula (X : NodeConfiguration 3) :
   rcases three_nodes_values X with ⟨h01, h12⟩
   have h02 : X 0 < X 2 := h01.trans h12
   have hL0 : 0 ≤ lagrangeBasis X 0 ((X 0 + X 1) / 2) := by
-    simp [lagrangeBasis,
-      show Finset.univ.erase (0 : Fin 3) = {1, 2} by decide]
+    simp only [lagrangeBasis, Fin.isValue,
+      show Finset.univ.erase (0 : Fin 3) = {1, 2} by decide,
+      prod_div_distrib, Finset.mem_singleton, Fin.reduceEq, not_false_eq_true,
+      Finset.prod_insert, Finset.prod_singleton]
     apply div_nonneg
     · exact mul_nonneg_of_nonpos_of_nonpos (by linarith) (by linarith)
     · exact mul_nonneg_of_nonpos_of_nonpos (by linarith) (by linarith)
   have hL1 : 0 ≤ lagrangeBasis X 1 ((X 0 + X 1) / 2) := by
-    simp [lagrangeBasis,
-      show Finset.univ.erase (1 : Fin 3) = {0, 2} by decide]
+    simp only [lagrangeBasis, Fin.isValue,
+      show Finset.univ.erase (1 : Fin 3) = {0, 2} by decide,
+      prod_div_distrib, Finset.mem_singleton, Fin.reduceEq, not_false_eq_true,
+      Finset.prod_insert, Finset.prod_singleton]
     exact div_nonneg_of_nonpos
       (mul_nonpos_of_nonneg_of_nonpos (by linarith) (by linarith))
       (mul_nonpos_of_nonneg_of_nonpos (by linarith) (by linarith))
   have hL2 : lagrangeBasis X 2 ((X 0 + X 1) / 2) ≤ 0 := by
-    simp [lagrangeBasis,
-      show Finset.univ.erase (2 : Fin 3) = {0, 1} by decide]
+    simp only [lagrangeBasis, Fin.isValue,
+      show Finset.univ.erase (2 : Fin 3) = {0, 1} by decide,
+      prod_div_distrib, Finset.mem_singleton, zero_ne_one, not_false_eq_true,
+      Finset.prod_insert, Finset.prod_singleton]
     exact div_nonpos_of_nonpos_of_nonneg
       (mul_nonpos_of_nonneg_of_nonpos (by linarith) (by linarith))
       (mul_nonneg (by linarith) (by linarith))
@@ -138,20 +144,26 @@ private lemma right_midpoint_formula (X : NodeConfiguration 3) :
   rcases three_nodes_values X with ⟨h01, h12⟩
   have h02 : X 0 < X 2 := h01.trans h12
   have hL0 : lagrangeBasis X 0 ((X 1 + X 2) / 2) ≤ 0 := by
-    simp [lagrangeBasis,
-      show Finset.univ.erase (0 : Fin 3) = {1, 2} by decide]
+    simp only [lagrangeBasis, Fin.isValue,
+      show Finset.univ.erase (0 : Fin 3) = {1, 2} by decide,
+      prod_div_distrib, Finset.mem_singleton, Fin.reduceEq, not_false_eq_true,
+      Finset.prod_insert, Finset.prod_singleton]
     exact div_nonpos_of_nonpos_of_nonneg
       (mul_nonpos_of_nonneg_of_nonpos (by linarith) (by linarith))
       (mul_nonneg_of_nonpos_of_nonpos (by linarith) (by linarith))
   have hL1 : 0 ≤ lagrangeBasis X 1 ((X 1 + X 2) / 2) := by
-    simp [lagrangeBasis,
-      show Finset.univ.erase (1 : Fin 3) = {0, 2} by decide]
+    simp only [lagrangeBasis, Fin.isValue,
+      show Finset.univ.erase (1 : Fin 3) = {0, 2} by decide,
+      prod_div_distrib, Finset.mem_singleton, Fin.reduceEq, not_false_eq_true,
+      Finset.prod_insert, Finset.prod_singleton]
     exact div_nonneg_of_nonpos
       (mul_nonpos_of_nonneg_of_nonpos (by linarith) (by linarith))
       (mul_nonpos_of_nonneg_of_nonpos (by linarith) (by linarith))
   have hL2 : 0 ≤ lagrangeBasis X 2 ((X 1 + X 2) / 2) := by
-    simp [lagrangeBasis,
-      show Finset.univ.erase (2 : Fin 3) = {0, 1} by decide]
+    simp only [lagrangeBasis, Fin.isValue,
+      show Finset.univ.erase (2 : Fin 3) = {0, 1} by decide,
+      prod_div_distrib, Finset.mem_singleton, zero_ne_one, not_false_eq_true,
+      Finset.prod_insert, Finset.prod_singleton]
     exact div_nonneg
       (mul_nonneg (by linarith) (by linarith))
       (mul_nonneg (by linarith) (by linarith))
