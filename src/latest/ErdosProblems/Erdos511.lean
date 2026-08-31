@@ -189,7 +189,7 @@ private lemma frequency_mul_centerHeight (k : ℕ) (j : Fin k) :
 private lemma cos_frequency_centerHeight (k : ℕ) (j : Fin k) :
     Real.cos (frequency k * centerHeight k j) = 1 := by
   rw [frequency_mul_centerHeight]
-  simpa using Real.cos_nat_mul_two_pi j.val
+  simp
 
 private lemma sin_frequency_centerHeight (k : ℕ) (j : Fin k) :
     Real.sin (frequency k * centerHeight k j) = 0 := by
@@ -244,12 +244,12 @@ private lemma frequency_mul_halfHeight (k : ℕ) :
 private lemma cos_frequency_center_add_halfHeight (k : ℕ) (j : Fin k) :
     Real.cos (frequency k * (centerHeight k j + halfHeight k)) = -1 := by
   rw [mul_add, frequency_mul_centerHeight, frequency_mul_halfHeight]
-  simpa using Real.cos_nat_mul_two_pi_add_pi j.val
+  simp
 
 private lemma cos_frequency_center_sub_halfHeight (k : ℕ) (j : Fin k) :
     Real.cos (frequency k * (centerHeight k j - halfHeight k)) = -1 := by
   rw [mul_sub, frequency_mul_centerHeight, frequency_mul_halfHeight]
-  simpa using Real.cos_nat_mul_two_pi_sub_pi j.val
+  simp
 
 private lemma target_norm_gt_one_on_horizontal_add
     (k : ℕ) (j : Fin k) (x : ℝ) :
@@ -527,7 +527,12 @@ private lemma target_norm_ge_one_add_verticalMargin
   have hsqrt := Real.sqrt_le_sqrt hsq
   rw [Real.sqrt_sq (norm_nonneg (target k (mkPoint x y)))] at hsqrt
   dsimp [verticalMargin]
-  convert hsqrt using 1 <;> ring
+  have hcollapse :
+      (1 : ℝ) + (Real.sqrt (1 + verticalExcess k) - 1) =
+        Real.sqrt (1 + verticalExcess k) := by
+    ring
+  rw [hcollapse]
+  exact hsqrt
 
 private def barrierMargin (k : ℕ) : ℝ :=
   min (targetEps k) (verticalMargin k)
@@ -692,10 +697,15 @@ private lemma coreSegment_subset_lemniscate
         ‖target k (mkPoint x (centerHeight k j))‖ +
           ‖p.eval (mkPoint x (centerHeight k j)) -
             target k (mkPoint x (centerHeight k j))‖ := by
-    convert norm_add_le
+    have htri := norm_add_le
       (target k (mkPoint x (centerHeight k j)))
       (p.eval (mkPoint x (centerHeight k j)) -
-        target k (mkPoint x (centerHeight k j))) using 1 <;> ring
+        target k (mkPoint x (centerHeight k j)))
+    rw [show target k (mkPoint x (centerHeight k j)) +
+      (p.eval (mkPoint x (centerHeight k j)) -
+        target k (mkPoint x (centerHeight k j))) =
+          p.eval (mkPoint x (centerHeight k j)) by ring] at htri
+    exact htri
   change ‖p.eval (mkPoint x (centerHeight k j))‖ < 1
   calc
     ‖p.eval (mkPoint x (centerHeight k j))‖ ≤
@@ -719,7 +729,7 @@ private lemma boxBoundary_disjoint_lemniscate
   have happ := happrox z (by simpa [Metric.mem_closedBall, dist_zero_right] using hball)
   have htarget := target_norm_ge_one_add_barrierMargin_on_boxGauge_eq_one k j hz
   have htri : ‖target k z‖ ≤ ‖target k z - p.eval z‖ + ‖p.eval z‖ := by
-    convert norm_add_le (target k z - p.eval z) (p.eval z) using 1 <;> ring
+    simpa only [sub_add_cancel] using norm_add_le (target k z - p.eval z) (p.eval z)
   have happ' : ‖target k z - p.eval z‖ < barrierMargin k / 2 := by
     simpa only [norm_sub_rev] using happ
   change ¬ ‖p.eval z‖ < 1
@@ -773,7 +783,6 @@ private lemma center_not_mem_other_openBox
   · have hsucc : j.val + 1 ≤ i.val := Nat.succ_le_iff.mpr hji
     have hsucc' : (j.val : ℝ) + 1 ≤ (i.val : ℝ) := by exact_mod_cast hsucc
     have hcast : (1 : ℝ) ≤ (i : ℝ) - (j : ℝ) := by
-      norm_num at hsucc' ⊢
       linarith
     have hsep : 2 * halfHeight k ≤ centerHeight k i - centerHeight k j := by
       calc
@@ -794,7 +803,6 @@ private lemma center_not_mem_other_openBox
   · have hsucc : i.val + 1 ≤ j.val := Nat.succ_le_iff.mpr hij'
     have hsucc' : (i.val : ℝ) + 1 ≤ (j.val : ℝ) := by exact_mod_cast hsucc
     have hcast : (1 : ℝ) ≤ (j : ℝ) - (i : ℝ) := by
-      norm_num at hsucc' ⊢
       linarith
     have hsep : 2 * halfHeight k ≤ centerHeight k j - centerHeight k i := by
       calc
