@@ -272,7 +272,7 @@ lemma momentMap_injective_of_polynomial_kernel
     rw [← hdouble]
     simp_rw [hkernel]
     simp only [mul_ite, mul_zero]
-    simp
+    simp only [Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
     rw [Finset.mul_sum]
     ring
   have hsum : ∑ a, f a ^ 2 = 0 := by
