@@ -176,7 +176,7 @@ theorem contain_single_even_of_positive_and_odd {A : Set ℕ}
         simp [f, hnNotEven]
       rw [herase] at hzero
       have hrec : (∑ n ∈ S.erase e, 1 / (n : ℝ)) = 1 / e := by
-        simp [f, heEven] at hzero
+        simp only [one_div, heEven, ↓reduceIte, f] at hzero
         have hzero' : (∑ n ∈ S.erase e, 1 / (n : ℝ)) + (-1 : ℝ) / e = 0 := by
           simpa [one_div] using hzero
         calc
@@ -192,7 +192,7 @@ theorem contain_single_even_of_positive_and_odd {A : Set ℕ}
         have hnA : n ∈ A := (hsub hn).1
         have hn0 : n ≠ 0 := (hsub hn).2
         have hnNotEven : ¬ Even n := fun hnEven ↦ heS ((hunique hnA hnEven) ▸ hn)
-        simp [f, hnNotEven]
+        simp only [hnNotEven, ↓reduceIte, one_div, inv_pos, Nat.cast_pos, gt_iff_lt, f]
         positivity
       exact ne_of_gt hpos
 
@@ -266,7 +266,7 @@ theorem densityCounterexample_not_P₁ : ¬ P₁ densityCounterexample := by
         apply Finset.sum_congr rfl
         intro n hn
         have hn2 : n ≠ 2 := (Finset.mem_erase.mp hn).1
-        simp [f, hn2]
+        simp only [hn2, ↓reduceIte, one_div, f]
       rw [herase] at hzero
       have hrec : (∑ n ∈ S.erase 2, 1 / (n : ℝ)) = 1 / 2 := by
         norm_num [f] at hzero ⊢
@@ -284,7 +284,7 @@ theorem densityCounterexample_not_P₁ : ¬ P₁ densityCounterexample := by
         have hnA : n ∈ densityCounterexample := (hsub hn).1
         have hn0 : n ≠ 0 := (hsub hn).2
         have hn2 : n ≠ 2 := fun hn' ↦ h2 (hn' ▸ hn)
-        simp [f, hn2]
+        simp only [hn2, ↓reduceIte, one_div, f]
         positivity
       exact ne_of_gt hpos
 
