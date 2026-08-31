@@ -2796,7 +2796,8 @@ theorem erdos_741.variants.erdos_741 :
         Set ℕ, 0 < upperDensity (A + A) → ∃ A₁ A₂,
         A = A₁ ∪ A₂ ∧ Disjoint A₁ A₂ ∧ 0 < upperDensity (A₁ + A₁)
         ∧ 0 < upperDensity (A₂ + A₂) := by
-  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using Erdos741.erdos_741.variants.erdos_741_iff
+  simpa only [iff_true, true_iff, iff_false, false_iff, Bool.false_eq_true, eq_self] using
+    Erdos741.erdos_741.variants.erdos_741_iff
 
 end Erdos741
 
