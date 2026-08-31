@@ -2026,4 +2026,5 @@ theorem not_erdos_990 :
 
 end Erdos990b
 
-alias _root_.Erdos990b.erdos990_no_absolute_constant_sparseErdosTuran := _root_.Erdos990b.not_erdos_990
+alias _root_.Erdos990b.erdos990_no_absolute_constant_sparseErdosTuran :=
+  _root_.Erdos990b.not_erdos_990
