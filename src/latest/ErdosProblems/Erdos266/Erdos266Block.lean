@@ -657,7 +657,7 @@ the diagonal construction.
 theorem inverse_matrix_rounding {d : ℕ} (A : Matrix (Fin d) (Fin d) ℝ)
     (hA : A.det ≠ 0) :
     ∃ ε : ℝ, 0 < ε ∧ ε ≤ 1 ∧
-      ∀ (M : ℕ) (hM : 1 ≤ M) (x : Fin d → ℝ),
+      ∀ (M : ℕ) (_hM : 1 ≤ M) (x : Fin d → ℝ),
         (∀ i, |x i| ≤ ε * M) →
         ∃ z : Fin d → ℤ,
           (∀ j, |z j| ≤ (M : ℝ)) ∧
@@ -691,7 +691,8 @@ theorem inverse_matrix_rounding {d : ℕ} (A : Matrix (Fin d) (Fin d) ℝ)
           exact Finset.sum_le_sum fun k _ => mul_le_mul_of_nonneg_left (hx k) (abs_nonneg _)
         _ = (∑ k, |B j k|) * (ε * M) := by rw [Finset.sum_mul]
         _ ≤ C * (ε * M) := by
-          exact mul_le_mul_of_nonneg_right (rowMass_le_entryMass B j) (mul_nonneg hε.le (by positivity))
+          exact mul_le_mul_of_nonneg_right (rowMass_le_entryMass B j)
+            (mul_nonneg hε.le (by positivity))
     have hyhalf : |y j| ≤ (M : ℝ) / 2 := by
       have hCε : C * ε ≤ (1 : ℝ) / 2 := by
         dsimp [ε]
@@ -751,7 +752,7 @@ def blockEpsilon (d : ℕ) : ℝ :=
 
 theorem blockEpsilon_spec (d : ℕ) :
     0 < blockEpsilon d ∧ blockEpsilon d ≤ 1 ∧
-      ∀ (M : ℕ) (hM : 1 ≤ M) (x : Fin d → ℝ),
+      ∀ (M : ℕ) (_hM : 1 ≤ M) (x : Fin d → ℝ),
         (∀ i, |x i| ≤ blockEpsilon d * M) →
         ∃ z : Fin d → ℤ,
           (∀ j, |z j| ≤ (M : ℝ)) ∧
@@ -966,7 +967,7 @@ theorem block_remainder_bound {d N M : ℕ} {C : Fin d → ℝ}
 theorem discrete_block_approximation_of_rounding {d N M : ℕ} {C : Fin d → ℝ}
     {eps : ℝ} (hlocal : LocalQuadraticEstimate C) (hN : 0 < N) (hM : 1 ≤ M)
     (hscale : 4 * d * M ≤ N) (heps : 0 < eps)
-    (hround : ∀ (M : ℕ) (hM : 1 ≤ M) (x : Fin d → ℝ),
+    (hround : ∀ (M : ℕ) (_hM : 1 ≤ M) (x : Fin d → ℝ),
       (∀ i, |x i| ≤ eps * M) →
       ∃ z : Fin d → ℤ, (∀ j, |z j| ≤ (M : ℝ)) ∧
         ∀ i, |(blockMatrix d).mulVec (fun j => (z j : ℝ)) i - x i| ≤

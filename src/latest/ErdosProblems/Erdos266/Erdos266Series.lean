@@ -141,7 +141,7 @@ lemma coordinateRadius_pos (ε : ℕ → ℝ) (dim : ℕ → ℕ)
     (pow_pos (by exact_mod_cast N_pos k) _)
 
 lemma coordinateRadius_le_inv_N (ε : ℕ → ℝ) (dim : ℕ → ℕ)
-    (hε0 : ∀ d, 0 ≤ ε d) (hε1 : ∀ d, ε d ≤ 1) (i k : ℕ) :
+    (_hε0 : ∀ d, 0 ≤ ε d) (hε1 : ∀ d, ε d ≤ 1) (i k : ℕ) :
     coordinateRadius ε dim i k ≤ (1 : ℝ) / N k := by
   have hN : (0 : ℝ) < N k := by exact_mod_cast N_pos k
   have hden : (0 : ℝ) < (N k : ℝ) ^ (i + 2) := pow_pos hN _
