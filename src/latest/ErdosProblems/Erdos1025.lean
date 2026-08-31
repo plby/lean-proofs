@@ -56,7 +56,7 @@ lemma card_vertices [DecidableEq α] (e : Pair α) : e.vertices.card = 2 :=
 
 /-- Construct an unordered pair from two distinct elements. -/
 def mk {x y : α} (h : x ≠ y) : Pair α :=
-  ⟨s(x, y), by simpa [Sym2.isDiag_iff_proj_eq] using h⟩
+  ⟨s(x, y), by simpa only [Sym2.mk_isDiag_iff] using h⟩
 
 @[simp]
 lemma vertices_mk [DecidableEq α] {x y : α} (h : x ≠ y) :
@@ -130,7 +130,7 @@ powerset. -/
 
 open Erdos202.ParkPham
 
-lemma sum_bernoulliMass_indicator_superset {V : Type*} [Fintype V] [DecidableEq V]
+lemma sum_bernoulliMass_indicator_superset {V : Type*} [DecidableEq V]
     (X T : Finset V) (hTX : T ⊆ X) {p : ℝ} (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
     (∑ W ∈ X.powerset,
         bernoulliMass X W p * (if T ⊆ W then (1 : ℝ) else 0)) = p ^ T.card := by
@@ -146,7 +146,7 @@ lemma sum_bernoulliMass_indicator_superset {V : Type*} [Fintype V] [DecidableEq 
           simp [Finset.mem_powerset.mp hW]
     _ = p ^ T.card := muP_upClosure_single X T hTX hp0 hp1
 
-lemma sum_bernoulliMass_contained_count {V : Type*} [Fintype V] [DecidableEq V]
+lemma sum_bernoulliMass_contained_count {V : Type*} [DecidableEq V]
     (X : Finset V) (A : Finset (Finset V)) {k : ℕ}
     (hAX : ∀ T ∈ A, T ⊆ X) (hcard : ∀ T ∈ A, T.card = k)
     {p : ℝ} (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
@@ -173,10 +173,11 @@ lemma sum_bernoulliMass_contained_count {V : Type*} [Fintype V] [DecidableEq V]
           rw [Finset.sum_congr rfl (fun T hT => by rw [hcard T hT])]
           simp [mul_comm]
 
-lemma sum_bernoulliMass_card {V : Type*} [Fintype V] [DecidableEq V]
+lemma sum_bernoulliMass_card {V : Type*}
     (X : Finset V) {p : ℝ} (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
     (∑ W ∈ X.powerset, bernoulliMass X W p * (W.card : ℝ)) =
       p * X.card := by
+  classical
   calc
     (∑ W ∈ X.powerset, bernoulliMass X W p * (W.card : ℝ)) =
         ∑ W ∈ X.powerset,
@@ -212,13 +213,14 @@ lemma sum_bernoulliMass_card {V : Type*} [Fintype V] [DecidableEq V]
             (by simpa using hv) hp0 hp1
     _ = p * X.card := by simp [mul_comm]
 
-lemma exists_ge_of_bernoulli_average_ge {V : Type*} [Fintype V] [DecidableEq V]
+lemma exists_ge_of_bernoulli_average_ge {V : Type*}
     (X : Finset V) {p a : ℝ} (hp0 : 0 ≤ p) (hp1 : p ≤ 1)
     (F : Finset V → ℝ)
     (havg : a ≤ ∑ W ∈ X.powerset, bernoulliMass X W p * F W) :
     ∃ W ∈ X.powerset, a ≤ F W := by
+  classical
   by_contra hnone
-  push_neg at hnone
+  push Not at hnone
   have hsum_lt :
       (∑ W ∈ X.powerset, bernoulliMass X W p * F W) <
         ∑ W ∈ X.powerset, bernoulliMass X W p * a := by
@@ -231,7 +233,7 @@ lemma exists_ge_of_bernoulli_average_ge {V : Type*} [Fintype V] [DecidableEq V]
         exact sum_bernoulliMass_eq_one X (by ring)
       have hposmass : ∃ W ∈ X.powerset, 0 < bernoulliMass X W p := by
         by_contra hz
-        push_neg at hz
+        push Not at hz
         have hallzero : ∀ W ∈ X.powerset, bernoulliMass X W p = 0 := by
           intro W hW
           exact le_antisymm (hz W hW) (bernoulliMass_nonneg hp0 hp1)
@@ -282,7 +284,7 @@ lemma tripleFamily_card_le_sq {α : Type*} [Fintype α] [DecidableEq α]
 
 /-- Bernoulli sampling followed by deleting one vertex from every surviving
 three-set.  This is the finite probabilistic core of Spencer's lower bound. -/
-lemma exists_threeSetFree_large {α : Type*} [Fintype α] [DecidableEq α]
+lemma exists_threeSetFree_large {α : Type*} [Fintype α]
     (A : Finset (Finset α))
     (hAcard : ∀ T ∈ A, T.card = 3)
     (hcount : A.card ≤ (Fintype.card α) ^ 2)
@@ -366,11 +368,11 @@ lemma exists_threeSetFree_large {α : Type*} [Fintype α] [DecidableEq α]
   have hYU : Y W ≤ (U.card : ℝ) := by
     by_cases hBW : B.card ≤ W.card
     · rw [show Y W = ((W.card - B.card : ℕ) : ℝ) by
-        simp only [Y, B]
+        simp only [Y]
         exact (Nat.cast_sub hBW).symm]
       exact_mod_cast hUcard_nat
     · have hnonpos : Y W ≤ 0 := by
-        simp only [Y, B]
+        simp only [Y]
         exact sub_nonpos.mpr (by exact_mod_cast Nat.le_of_not_ge hBW)
       exact hnonpos.trans (Nat.cast_nonneg U.card)
   refine ⟨U, ?_, hWY.trans hYU⟩
@@ -414,7 +416,7 @@ abbrev Padded (q s : ℕ) := (Fin q × Fin q) ⊕ Fin s
 lemma exists_outside_pair {α : Type*} [Fintype α] [DecidableEq α]
     (hcard : 3 ≤ Fintype.card α) (e : Pair α) : ∃ x : α, x ∉ e.vertices := by
   by_contra h
-  push_neg at h
+  push Not at h
   have hsub : (Finset.univ : Finset α) ⊆ e.vertices := by
     intro x hx
     exact h x
@@ -440,7 +442,7 @@ def fallbackSym {α : Type*} [Fintype α] [DecidableEq α]
 lemma fallbackSym_not_mem {α : Type*} [Fintype α] [DecidableEq α]
     (hcard : 3 ≤ Fintype.card α) (e : Pair α) :
     fallbackSym hcard e.1 ∉ e.vertices := by
-  simp only [fallbackSym, e.2, dite_true]
+  simp only [fallbackSym, e.2]
   exact thirdVertex_not_mem hcard e
 
 lemma fallbackSym_mk_not_mem {α : Type*} [Fintype α] [DecidableEq α]
@@ -572,7 +574,7 @@ lemma gridMap_avoids {q s : ℕ} (hcard : 3 ≤ Fintype.card (Padded q s)) :
   induction e using Sym2.ind with
   | h a b =>
       have hab : a ≠ b := by
-        rwa [Sym2.isDiag_iff_proj_eq] at he
+        rwa [Sym2.mk_isDiag_iff] at he
       simpa [gridMap, Pair.vertices, Sym2.toFinset_mk_eq] using
         gridValue_not_mem hcard hab
 
@@ -605,7 +607,7 @@ lemma gridMap_independent_card {q s : ℕ}
     intro p p' hp hp' hsnd hfst
     have hp_not_unique : ¬ UniqueFirst C p := (Finset.mem_filter.mp hp).2
     simp only [UniqueFirst] at hp_not_unique
-    push_neg at hp_not_unique
+    push Not at hp_not_unique
     obtain ⟨r, hrC, hrfst, hrne⟩ := hp_not_unique
     have hrsnd : r.2 ≠ p'.2 := by
       intro hrsnd
