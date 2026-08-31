@@ -39,7 +39,6 @@ bound to the rich-line estimate are provided by the checked theorem
 `RichLinesBound`.
 -/
 
-open Classical
 open scoped Real
 
 noncomputable section
@@ -53,8 +52,9 @@ abbrev Point := EuclideanSpace ℝ (Fin 2)
 abbrev Line := {ℓ : AffineSubspace ℝ Point // IsAffineLine ℓ}
 
 /-- The number of points of `P` lying on `ℓ`. -/
-noncomputable def richness (P : Finset Point) (ℓ : Line) : ℕ :=
-  (P.filter fun p ↦ p ∈ (ℓ : AffineSubspace ℝ Point)).card
+noncomputable def richness (P : Finset Point) (ℓ : Line) : ℕ := by
+  classical
+  exact (P.filter fun p ↦ p ∈ (ℓ : AffineSubspace ℝ Point)).card
 
 /-- **Erdős Problem 1069 (Szemerédi--Trotter).**
 
