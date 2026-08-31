@@ -237,7 +237,7 @@ lemma representedIntegers_eq_range_of_large_shape {N : ℕ}
   · intro hkFloor
     have hkRep : IsRepresentable N k := by
       by_cases hkZero : k = 0
-      · simpa [hkZero] using zero_isRepresentable N
+      · simp [hkZero]
       · have hkPos : 0 < k := Nat.pos_of_ne_zero hkZero
         have hkMem : k ∈ representedPositiveIntegers N := by
           rw [hshape]

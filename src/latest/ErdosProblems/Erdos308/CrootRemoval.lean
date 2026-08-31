@@ -136,7 +136,7 @@ lemma AvailableBelow.eliminationRemovalStep
 /-! ## Smooth-denominator facts -/
 
 lemma isSmooth_of_largestPrimePowerPart_le
-    {z : ℝ} {n : ℕ} (hz : 0 ≤ z) (hn : n ≠ 0)
+    {z : ℝ} {n : ℕ} (hn : n ≠ 0)
     (hmax : (largestPrimePowerPart n : ℝ) ≤ z) :
     UnitFractions.is_smooth z n := by
   intro q hqpp hqdiv
@@ -189,7 +189,7 @@ lemma sub_recSum_den_isSmooth {y : ℝ} (rho : ℚ) {A : Finset ℕ}
   · exact hsum q hq hqsum
 
 lemma largestPrimePowerPart_le_floor_of_isSmooth
-    {y : ℝ} {n : ℕ} (hy : 0 ≤ y)
+    {y : ℝ} {n : ℕ}
     (hsmooth : UnitFractions.is_smooth y n) :
     largestPrimePowerPart n ≤ ⌊y⌋₊ := by
   by_cases hn : 2 ≤ n
@@ -212,7 +212,6 @@ theorem croot_eliminationRemovalStep
     (hsurj : Erdos308.LargePrime.BoundedInverseSubsetSurjective
       s.primePowerMeasure
       (Erdos308.LargePrime.martinBlockBound x s.primePowerMeasure) M)
-    (halpha : 0 ≤ alpha)
     (hxi : (⌊alpha * (x : ℝ)⌋₊ : ℝ) < xi * x)
     (hqz : (s.primePowerMeasure : ℝ) ≤ z) :
     ∃ U : Finset ℕ,
@@ -239,7 +238,7 @@ theorem croot_eliminationRemovalStep
     have huUpper : u ≤ x := by exact_mod_cast (hUint u hu).2
     have hu0 : u ≠ 0 := by omega
     have huSmooth : UnitFractions.is_smooth z u := by
-      apply isSmooth_of_largestPrimePowerPart_le hz hu0
+      apply isSmooth_of_largestPrimePowerPart_le hu0
       rw [hUtag u hu]
       exact hqz
     exact ⟨huLower, huUpper, huSmooth⟩
@@ -290,7 +289,7 @@ lemma primePower_dvd_cofactor_lt_largest
   have hellden : ell ∣ t.den :=
     helldiv.trans (Nat.div_dvd_of_dvd hqspec.2.1)
   have hsmooth : UnitFractions.is_smooth (q : ℝ) t.den := by
-    apply isSmooth_of_largestPrimePowerPart_le (Nat.cast_nonneg q) t.den_ne_zero
+    apply isSmooth_of_largestPrimePowerPart_le t.den_ne_zero
     rw [hmax]
   have hellle : ell ≤ q := by exact_mod_cast hsmooth ell hellpp hellden
   have hellne : ell ≠ q := by
@@ -505,9 +504,9 @@ lemma initialResidual_den_isSmooth
   · intro n hn
     exact (mem_initialSmoothBlock.mp hn).2.2
 
-lemma initialState_measure_le_floor {k x : ℕ} {z : ℝ} (hz : 0 ≤ z) :
+lemma initialState_measure_le_floor {k x : ℕ} {z : ℝ} :
     (initialState k x z).primePowerMeasure ≤ ⌊z⌋₊ := by
-  apply largestPrimePowerPart_le_floor_of_isSmooth hz
+  apply largestPrimePowerPart_le_floor_of_isSmooth
   exact initialResidual_den_isSmooth
 
 def selectedResidual (k : ℕ) (S : Finset ℕ) : ℚ :=
@@ -540,9 +539,9 @@ lemma selectedResidual_den_isSmooth {k x : ℕ} {z : ℝ} {S : Finset ℕ}
     exact (mem_initialSmoothBlock.mp (hS hn)).2.2
 
 lemma selectedState_measure_le_floor {k x : ℕ} {z : ℝ} {S : Finset ℕ}
-    (hz : 0 ≤ z) (hS : S ⊆ fullSmoothBlock x z) :
+    (hS : S ⊆ fullSmoothBlock x z) :
     (selectedState k S).primePowerMeasure ≤ ⌊z⌋₊ := by
-  apply largestPrimePowerPart_le_floor_of_isSmooth hz
+  apply largestPrimePowerPart_le_floor_of_isSmooth
   exact selectedResidual_den_isSmooth hS
 
 theorem eventually_crootRemovalDescent_from :
@@ -569,7 +568,7 @@ theorem eventually_crootRemovalDescent_from :
     dsimp [z, proposition6MainCutoff]
     positivity
   have hbound : start.primePowerMeasure ≤ Q :=
-    selectedState_measure_le_floor hz (by simpa [z] using hSfull)
+    selectedState_measure_le_floor (by simpa [z] using hSfull)
   have hQz : (Q : ℝ) ≤ z := Nat.floor_le hz
   have halpha : 0 ≤ alpha := by
     dsimp [alpha, Erdos308.Numerics.crootIntervalRatio,
@@ -640,7 +639,7 @@ theorem eventually_crootRemovalDescent_from :
     have havail' : AvailableBelow (initialSmoothBlock alpha x z) s := by
       simpa [removalBase, alpha] using havail
     have hout := croot_eliminationRemovalStep hs havail' hdata hsurj
-      halpha hxi (by
+      hxi (by
         have hqQ : (s.primePowerMeasure : ℝ) ≤ Q := by exact_mod_cast hsQ
         exact hqQ.trans hQz)
     simpa [removalBase, alpha] using hout

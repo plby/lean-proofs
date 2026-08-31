@@ -183,10 +183,11 @@ lemma isPrimePow_dvd_lcm {ℓ a b : ℕ}
 
 /-- A prime power dividing the LCM of a nonzero finite family divides one of
 the family members. -/
-lemma isPrimePow_dvd_finsetLcm {ι : Type*} [DecidableEq ι]
+lemma isPrimePow_dvd_finsetLcm {ι : Type*}
     {s : Finset ι} {f : ι → ℕ} {ℓ : ℕ}
     (hℓ : IsPrimePow ℓ) (hf : ∀ i ∈ s, f i ≠ 0)
     (hdiv : ℓ ∣ s.lcm f) : ∃ i ∈ s, ℓ ∣ f i := by
+  classical
   induction s using Finset.induction_on with
   | empty =>
       simp only [Finset.lcm_empty] at hdiv

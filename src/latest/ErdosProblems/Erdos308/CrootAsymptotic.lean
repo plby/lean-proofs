@@ -259,7 +259,8 @@ lemma correctionScale_pow_five_le (x : ℕ) :
     (Nat.floor_le (Real.rpow_nonneg (Nat.cast_nonneg x) _)) 5
   have hp : ((x : ℝ) ^ ((5 : ℝ)⁻¹) : ℝ) ^ 5 = x := by
     convert Real.rpow_inv_natCast_pow (Nat.cast_nonneg x)
-      (by norm_num : (5 : ℕ) ≠ 0) using 1 <;> norm_num
+      (by norm_num : (5 : ℕ) ≠ 0) using 1
+    norm_num
   rw [hp] at h
   exact_mod_cast h
 
@@ -518,7 +519,8 @@ lemma cofactorHarmonic_div_sqrt_tendsto_zero :
     have hlogC : Real.log (cofactorBound x : ℝ) ≤
         Real.log (2 * Real.log (x : ℝ) ^ 30) := by
       by_cases hzero : cofactorBound x = 0
-      · simp [hzero]
+      · rw [hzero]
+        norm_num only [Nat.cast_zero, Real.log_zero]
         exact Real.log_nonneg (by
           have : (1 : ℝ) ≤ 2 * Real.log (x : ℝ) ^ 30 := by nlinarith
           exact this)
@@ -601,9 +603,9 @@ lemma isSmooth_iff_largestPrimePowerPart_le_floor {z : ℝ} {n : ℕ}
     (hz : 0 ≤ z) (hn : n ≠ 0) :
     UnitFractions.is_smooth z n ↔ largestPrimePowerPart n ≤ ⌊z⌋₊ := by
   constructor
-  · exact fun h ↦ largestPrimePowerPart_le_floor_of_isSmooth hz h
+  · exact fun h ↦ largestPrimePowerPart_le_floor_of_isSmooth h
   · intro h
-    apply isSmooth_of_largestPrimePowerPart_le hz hn
+    apply isSmooth_of_largestPrimePowerPart_le hn
     exact (by exact_mod_cast h : (largestPrimePowerPart n : ℝ) ≤ (⌊z⌋₊ : ℕ)).trans
       (Nat.floor_le hz)
 
@@ -762,7 +764,7 @@ lemma one_sub_log_removalRatio_lt_five :
   have hexp4 : (50 : ℝ) < Real.exp 4 := by
     have heq : Real.exp (4 : ℝ) = Real.exp 1 ^ (4 : ℕ) := by
       symm
-      simpa using Real.exp_one_pow 4
+      simp
     rw [heq]
     have h27 : (27 / 10 : ℝ) < Real.exp 1 := by
       linarith [Real.exp_one_gt_d9]

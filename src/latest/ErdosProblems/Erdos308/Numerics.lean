@@ -729,10 +729,13 @@ theorem eventually_exists_croot_candidate_family :
   have hsurj := hQsubset q ((le_max_right Qll Qsubset).trans hQq)
     (Erdos308.LargePrime.martinBlockBound x q) ((x : ℝ) / q) M
     (by simp [hMcard]) hBpos
-    (by convert hthreshold.1 using 1 <;> norm_num [Real.rpow_natCast])
+    (by
+      convert hthreshold.1 using 1
+      norm_num [Real.rpow_natCast])
     (by
       rw [hMcard]
-      convert hthreshold.2.1 using 1 <;> norm_num [Real.rpow_natCast])
+      convert hthreshold.2.1 using 1
+      norm_num [Real.rpow_natCast])
     hMsource
   exact ⟨M, hMcard, hM, hsurj⟩
 

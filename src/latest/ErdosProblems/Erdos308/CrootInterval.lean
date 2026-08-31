@@ -206,7 +206,7 @@ theorem eventually_large_target_representable :
   obtain ⟨out⟩ := hdata.2.2.2.2.2.1 k
   have hstartMeasure : (initialState k x z).primePowerMeasure ≤ mainCutoffNat x := by
     have hz : 0 ≤ z := by dsimp [z, proposition6MainCutoff]; positivity
-    simpa [z, mainCutoffNat_eq] using initialState_measure_le_floor (k := k) (x := x) hz
+    simpa [z, mainCutoffNat_eq] using initialState_measure_le_floor (k := k) (x := x)
   have hcard : out.removed.card ≤ deletionBudget x :=
     out.card_le.trans ((totalEliminationBudget_mono_local x hstartMeasure).trans hdata.2.2.1)
   have hremovedMass : reciprocalMass out.removed < 1 / 16 := by
