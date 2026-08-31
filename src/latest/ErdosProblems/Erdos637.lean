@@ -203,10 +203,11 @@ lemma rich_implies_sqrtDiverse {V : Type u} [Fintype V] [DecidableEq V]
 /-! ## Uniform finite sampling and elementary counting -/
 
 /-- At density `1 / 2`, every finset has the same Bernoulli weight. -/
-lemma bernoulliWeight_half {V : Type u} [Fintype V] [DecidableEq V]
+lemma bernoulliWeight_half {V : Type u} [Fintype V]
     (W : Finset V) :
     Erdos88.Probability.bernoulliWeight (1 / 2 : ℝ) W =
       (1 / 2 : ℝ) ^ Fintype.card V := by
+  classical
   rw [Erdos88.Probability.bernoulliWeight,
     Erdos202.ParkPham.bernoulliMass]
   have hcard : W.card ≤ Fintype.card V := by
@@ -301,7 +302,7 @@ lemma equal_degrees_equal_diff_sides {V : Type u} [Fintype V]
 
 /-- Flipping the `Q`-coordinates sends an equal-intersection configuration
 to a set with exactly `|Q|` points in `P ∪ Q`. -/
-lemma card_flip_inter_union {V : Type u} [Fintype V] [DecidableEq V]
+lemma card_flip_inter_union {V : Type u} [DecidableEq V]
     {W P Q : Finset V} (hPQ : Disjoint P Q)
     (heq : (W ∩ P).card = (W ∩ Q).card) :
     (((W ∆ Q) ∩ (P ∪ Q)).card) = Q.card := by
@@ -756,10 +757,11 @@ lemma collisionScore_largePart_le {V : Type u} [Fintype V] [DecidableEq V]
   · rw [largePart, if_neg h]
     exact le_add_of_nonneg_left (collisionScore_nonneg G _)
 
-lemma expectation_mono_half {V : Type u} [Fintype V] [DecidableEq V]
+lemma expectation_mono_half {V : Type u} [Fintype V]
     {f g : Finset V → ℝ} (hfg : ∀ W, f W ≤ g W) :
     Erdos88.Probability.expectation (1 / 2 : ℝ) f ≤
       Erdos88.Probability.expectation (1 / 2 : ℝ) g := by
+  classical
   unfold Erdos88.Probability.expectation
   apply Finset.sum_le_sum
   intro W _
@@ -789,9 +791,10 @@ lemma expectation_largePart_collisionScore_le {V : Type u} [Fintype V]
     _ ≤ 2 * A := by linarith
 
 lemma exists_le_of_expectation_half_le {V : Type u} [Fintype V]
-    [DecidableEq V] (f : Finset V → ℝ) {A : ℝ}
+    (f : Finset V → ℝ) {A : ℝ}
     (hE : Erdos88.Probability.expectation (1 / 2 : ℝ) f ≤ A) :
     ∃ W : Finset V, f W ≤ A := by
+  classical
   by_contra hnone
   push Not at hnone
   have hlt : A < Erdos88.Probability.expectation (1 / 2 : ℝ) f := by
@@ -866,9 +869,10 @@ lemma equalDegreePairs_card_le {V : Type u} [Fintype V] [DecidableEq V]
 
 /-- Finite Cauchy--Schwarz in the exact form needed for degree fibers. -/
 lemma card_sq_le_card_image_mul_card_eqPairs {X Y : Type*}
-    [DecidableEq X] [DecidableEq Y] (s : Finset X) (f : X → Y) :
+    [DecidableEq Y] (s : Finset X) (f : X → Y) :
     s.card ^ 2 ≤ (s.image f).card *
       ((s ×ˢ s).filter fun p ↦ f p.1 = f p.2).card := by
+  classical
   let t := s.image f
   let fiber : Y → Finset X := fun y ↦ s.filter fun x ↦ f x = y
   have hsum : s.card = ∑ y ∈ t, (fiber y).card := by
@@ -1024,7 +1028,7 @@ lemma numDistinctDegrees_induce_image {V : Type u} [Fintype V]
   intro v _
   exact degreeInto_induce_image v W
 
-lemma card_image_subtype_val {V : Type u} [Fintype V] [DecidableEq V]
+lemma card_image_subtype_val {V : Type u} [DecidableEq V]
     {U : Finset V} (W : Finset U) :
     (W.image Subtype.val).card = W.card := by
   rw [Finset.card_image_of_injective]
