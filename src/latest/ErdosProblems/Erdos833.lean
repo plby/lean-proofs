@@ -136,7 +136,7 @@ theorem finite_symmetric_local_lemma
             apply hfar i S hiS
             intro j hjS hjN
             have : j ∈ U := by simp [U, hjS, hjN]
-            simpa [hU] using this
+            simp [hU] at this
           calc
             2 * d * (A i ∩ avoid A S).card
                 ≤ 4 * d * (A i ∩ avoid A S).card := by
@@ -174,8 +174,9 @@ theorem finite_symmetric_local_lemma
               by_contra hjN
               exact hωAj (hωT j (by simp [T, hjS, hjN]))
             rw [Finset.mem_biUnion]
-            exact ⟨j, by simp [U, hjS, hjN], Finset.mem_inter.mpr ⟨by simpa using hωAj, by simpa using
-              (show ω ∈ avoid A T from (Finset.mem_sdiff.mp hω).1)⟩⟩
+            exact ⟨j, by simp [U, hjS, hjN], Finset.mem_inter.mpr
+              ⟨by simpa using hωAj, by simpa using
+                (show ω ∈ avoid A T from (Finset.mem_sdiff.mp hω).1)⟩⟩
           have hlost_card :
               lost.card ≤ ∑ j ∈ U, (A j ∩ avoid A T).card := by
             calc
@@ -316,14 +317,17 @@ noncomputable def monoEvent (e : Finset V) : Finset (V → Fin 2) :=
 def recolor (e : Finset V) (p : e → Fin 2) (c : V → Fin 2) : V → Fin 2 :=
   fun v ↦ if hv : v ∈ e then p ⟨v, hv⟩ else c v
 
+omit [Fintype V] in
 @[simp] lemma recolor_of_mem (e : Finset V) (p : e → Fin 2) (c : V → Fin 2)
     {v : V} (hv : v ∈ e) : recolor e p c v = p ⟨v, hv⟩ := by
   simp [recolor, hv]
 
+omit [Fintype V] in
 @[simp] lemma recolor_of_notMem (e : Finset V) (p : e → Fin 2) (c : V → Fin 2)
     {v : V} (hv : v ∉ e) : recolor e p c v = c v := by
   simp [recolor, hv]
 
+omit [Fintype V] in
 lemma monochromatic_recolor_iff_of_disjoint (e f : Finset V) (hdisj : Disjoint e f)
     (p : e → Fin 2) (c : V → Fin 2) :
     Monochromatic (recolor e p c) f ↔ Monochromatic c f := by
@@ -346,8 +350,7 @@ lemma recolor_mem_avoid_of_disjoint
     (hc : c ∈ avoid (fun j ↦ monoEvent (edge j)) S) :
     recolor e p c ∈ avoid (fun j ↦ monoEvent (edge j)) S := by
   rw [mem_avoid] at hc ⊢
-  intro j hjS
-  intro hbad
+  intro j hjS hbad
   apply hc j hjS
   rw [mem_monoEvent] at hbad ⊢
   exact (monochromatic_recolor_iff_of_disjoint e (edge j) (hdisj j hjS) p c).mp hbad
@@ -484,7 +487,7 @@ theorem erdos_lovasz_degree_bound
     rw [he₀card]
     omega
   let v₀ : V := he₀.choose
-  letI : Nonempty V := ⟨v₀⟩
+  let _ : Nonempty V := ⟨v₀⟩
   obtain ⟨vmax, _hvmax, hmax⟩ :=
     Finset.exists_max_image (Finset.univ : Finset V) (degree H) Finset.univ_nonempty
   let D := degree H vmax
@@ -498,7 +501,7 @@ theorem erdos_lovasz_degree_bound
       exact Finset.card_pos.mpr ⟨e₀, he₀mem⟩
     exact lt_of_lt_of_le hv₀pos (hdeg v₀)
   by_contra hbound
-  push_neg at hbound
+  push Not at hbound
   have hDsmall : 4 * r * D < 2 ^ (r - 1) := hbound vmax
   let E := {e // e ∈ H}
   let A : E → Finset (V → Fin 2) := fun e ↦ monoEvent e.1
@@ -678,14 +681,14 @@ theorem erdos_833 :
   · obtain ⟨v, hv⟩ := exists_degree_two_of_not_colorable H r hr hunif hnot2
     refine ⟨v, ?_⟩
     calc
-      (1 + (1 : ℝ) / 9) ^ r = ((10 : ℝ) / 9) ^ r := by congr 1 <;> norm_num
+      (1 + (1 : ℝ) / 9) ^ r = ((10 : ℝ) / 9) ^ r := by norm_num
       _ ≤ 2 := ten_ninth_pow_le_two hsmall
       _ ≤ degree H v := by exact_mod_cast hv
   · have hlarge : 7 ≤ r := by omega
     obtain ⟨v, hv⟩ := erdos_lovasz_degree_bound_real H r hr hunif hnot2
     refine ⟨v, ?_⟩
     calc
-      (1 + (1 : ℝ) / 9) ^ r = ((10 : ℝ) / 9) ^ r := by congr 1 <;> norm_num
+      (1 + (1 : ℝ) / 9) ^ r = ((10 : ℝ) / 9) ^ r := by norm_num
       _ ≤ (2 : ℝ) ^ (r - 1) / (4 * r) := ten_ninth_pow_le_erdos_bound hlarge
       _ ≤ degree H v := hv
 
