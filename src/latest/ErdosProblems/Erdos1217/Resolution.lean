@@ -377,8 +377,8 @@ private lemma exists_eventual_secondMoment_bound
       _ ≤ (M * l ^ 2) / l ^ 2 := ENNReal.div_le_div_right hnum _
       _ = M := by
         rw [ENNReal.mul_div_cancel_right]
-        exact pow_ne_zero _ hl0
-        exact ENNReal.pow_ne_top hltop
+        · exact pow_ne_zero _ hl0
+        · exact ENNReal.pow_ne_top hltop
 
 /-! ## Deterministic passage from a selected path to its chain -/
 
@@ -387,7 +387,7 @@ lemma visitedBelow_eq_filter_range_inter (A : Set ℕ) (X : ℕ) (ω : ℕ → �
       (positiveBelowNat X).filter (fun n ↦ n ∈ Set.range ω ∩ A) := by
   ext n
   simp only [mem_visitedBelow_iff, Finset.mem_filter, mem_positiveBelowNat_iff,
-    Set.mem_inter_iff, Set.mem_range, hitEvent, Set.mem_setOf_eq]
+    Set.mem_inter_iff, Set.mem_range, hitEvent, Set.mem_ofPred_eq]
   aesop
 
 lemma visitedCount_eq_chainCountNat_of_range
@@ -472,12 +472,12 @@ theorem exists_divisibility_chain_of_weightedRate_pos
   have hNbad : D.pathMeasure Nbad = 0 := by
     have hgood : {ω | IsStrictDivisibilityPath ω} ∈ ae D.pathMeasure := hpath
     rw [mem_ae_iff] at hgood
-    simpa only [Nbad, Set.compl_setOf, not_not] using hgood
+    simpa only [Nbad, Set.compl_ofPred, not_not] using hgood
   obtain ⟨ω, hωbad, hωrate, hωinf⟩ :=
     exists_infinite_path_with_limsup_visitedTermNat_ge_of_eventually_secondMoment
       A N₀ hM hsecond hmean hposNat hNbad
   have hω : IsStrictDivisibilityPath ω := by
-    simpa only [Nbad, Set.mem_setOf_eq, not_not] using hωbad
+    simpa only [Nbad, Set.mem_ofPred_eq, not_not] using hωbad
   have hinf : (hitTimes A ω).Infinite :=
     hitTimes_infinite_of_range_inter hωinf
   let d : ℕ → ℕ := fun i ↦ ω (hitIndex A ω i)

@@ -76,7 +76,7 @@ lemma inverseZeta_le_one {s : ℝ} (hs : 1 < s) : inverseZeta s ≤ 1 := by
   simpa [inverseZeta] using one_div_le_one_div_of_le (by norm_num : (0 : ℝ) < 1)
     (zetaSeries_ge_one hs)
 
-lemma analyticSeries_nonneg {s : ℝ} (hs : 1 < s) :
+lemma analyticSeries_nonneg {s : ℝ} :
     0 ≤ Erdos164.analyticSeries s := by
   rw [Erdos164.analyticSeries]
   exact tsum_nonneg fun q ↦
@@ -102,7 +102,7 @@ lemma inverseZeta_hasDerivAt {s : ℝ} (hs : 1 < s) :
 
 lemma inverseZeta_deriv_nonneg {s : ℝ} (hs : 1 < s) :
     0 ≤ Erdos164.analyticSeries s / Erdos164.zetaSeries s := by
-  exact div_nonneg (analyticSeries_nonneg hs) (zetaSeries_pos hs).le
+  exact div_nonneg analyticSeries_nonneg (zetaSeries_pos hs).le
 
 @[simp] lemma nuLambda_zero : nuLambda 0 = 0 := by simp [nuLambda]
 
@@ -218,8 +218,8 @@ lemma tendsto_inverseZeta_one_right :
     have hcont : ContinuousAt (fun s : ℝ ↦ s - 1) 1 :=
       continuousAt_id.sub (continuousAt_const : ContinuousAt (fun _ : ℝ ↦ (1 : ℝ)) 1)
     have h : Tendsto (fun s : ℝ ↦ s - 1) (nhds 1) (nhds (1 - 1)) := hcont.tendsto
-    convert h.mono_left (show nhdsWithin (1 : ℝ) (Ioi 1) ≤ nhds 1 from inf_le_left) using 1 <;>
-      norm_num
+    convert h.mono_left (show nhdsWithin (1 : ℝ) (Ioi 1) ≤ nhds 1 from inf_le_left) using 1
+    all_goals norm_num
   refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hright ?_ ?_
   · filter_upwards [self_mem_nhdsWithin] with s hs
     exact inverseZeta_nonneg hs
@@ -243,8 +243,8 @@ lemma inverseZeta_continuousWithinAt_one :
     have hcont : ContinuousAt (fun s : ℝ ↦ s - 1) 1 :=
       continuousAt_id.sub (continuousAt_const : ContinuousAt (fun _ : ℝ ↦ (1 : ℝ)) 1)
     have h : Tendsto (fun s : ℝ ↦ s - 1) (nhds 1) (nhds (1 - 1)) := hcont.tendsto
-    convert h.mono_left (show nhdsWithin (1 : ℝ) (Ici 1) ≤ nhds 1 from inf_le_left) using 1 <;>
-      norm_num
+    convert h.mono_left (show nhdsWithin (1 : ℝ) (Ici 1) ≤ nhds 1 from inf_le_left) using 1
+    all_goals norm_num
   refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hright ?_ ?_
   · filter_upwards [self_mem_nhdsWithin] with s hs
     rcases (show (1 : ℝ) ≤ s from hs).eq_or_lt with h | hs
@@ -376,7 +376,8 @@ lemma integral_incomingIntegrand {n : ℕ} (hn : 1 ≤ n) :
           continuous_neg).continuousAt.tendsto.mono_left inf_le_left) using 1 <;> simp
     have hinfty : Tendsto
         (fun s : ℝ ↦ inverseZeta s * Real.rpow (n : ℝ) (-s)) atTop (nhds 0) := by
-      convert tendsto_inverseZeta_atTop.mul (tendsto_rpowNeg_atTop hn2) using 1 <;> norm_num
+      convert tendsto_inverseZeta_atTop.mul (tendsto_rpowNeg_atTop hn2) using 1
+      all_goals norm_num
     have hparts := integral_Ioi_mul_deriv_eq_deriv_mul hu hv huv' hu'v hzero hinfty
     rw [nuLambda_of_two_le hn2]
     have hleft :
@@ -440,8 +441,10 @@ lemma incomingPiece_continuousOn {n : ℕ} (hn : 1 ≤ n) (q : {q : ℕ // 2 ≤
   have hq0 : (q.1 : ℝ) ≠ 0 := by exact_mod_cast (ne_of_gt (lt_of_lt_of_le Nat.zero_lt_two q.2))
   have hqpos : 0 < (q.1 : ℝ) := by exact_mod_cast (lt_of_lt_of_le Nat.zero_lt_two q.2)
   have hqcont := Real.continuous_const_rpow hq0
-  exact ((hinv.mul hncont.continuousAt).mul
-    (continuousAt_const.div hqcont.continuousAt (Real.rpow_pos_of_pos hqpos _).ne')).continuousWithinAt
+  exact
+    ((hinv.mul hncont.continuousAt).mul
+      (continuousAt_const.div hqcont.continuousAt
+        (Real.rpow_pos_of_pos hqpos _).ne')).continuousWithinAt
 
 lemma integral_incomingPiece {n : ℕ} (hn : 1 ≤ n) (q : {q : ℕ // 2 ≤ q}) :
     (∫ s in Ioi (1 : ℝ), incomingPiece n q s) = incomingWeight n q.1 := by
@@ -701,7 +704,8 @@ lemma integral_sub_one_mul_rpowNeg {n : ℕ} (hn : 2 ≤ n) :
         funext s
         ring
       rw [hdecomp]
-      convert (tendsto_const_nhds.mul hSB).add (tendsto_const_nhds.mul hB) using 1 <;> ring
+      convert (tendsto_const_nhds.mul hSB).add (tendsto_const_nhds.mul hB) using 1
+      all_goals ring
     exact haffine
   have hFTC := integral_Ioi_of_hasDerivAt_of_nonneg
     ((hderiv 1).continuousAt.continuousWithinAt)
@@ -792,7 +796,8 @@ lemma sqSharpModel_integrable_and_integral {n : ℕ} (hn : 2 ≤ n) :
       ring
     rw [hdecomp]
     convert ((tendsto_const_nhds.mul hS2B).add (tendsto_const_nhds.mul hSB)).add
-      (tendsto_const_nhds.mul hB) using 1 <;> ring
+      (tendsto_const_nhds.mul hB) using 1
+    all_goals ring
   have hint : IntegrableOn g (Ioi (1 : ℝ)) :=
     integrableOn_Ioi_deriv_of_nonneg ((hderiv 1).continuousAt.continuousWithinAt)
       (fun s hs ↦ hderiv s) hg_nonneg hFtop

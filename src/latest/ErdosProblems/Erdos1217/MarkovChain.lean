@@ -240,9 +240,9 @@ lemma transitionKernel_apply_singleton (n m : ℕ) :
 lemma transitionKernel_isStep {n : ℕ} (hn : 1 ≤ n) :
     D.transitionKernel n {m | IsStep n m} = 1 := by
   rw [transitionKernel_apply, PMF.toMeasure_apply_eq_one_iff]
-  intro m hm
-  exact D.nextPMF_support hn hm
-  exact (Set.to_countable {m | IsStep n m}).measurableSet
+  · intro m hm
+    exact D.nextPMF_support hn hm
+  · exact (Set.to_countable {m | IsStep n m}).measurableSet
 
 /-- The finite-time laws, equivalently obtained by repeatedly composing the
 transition kernel.  Keeping them as PMFs makes all countable recurrences literal

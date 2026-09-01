@@ -283,8 +283,8 @@ theorem primeHarmonic_two_pow_le (k : ℕ) :
   rw [abs_le] at hM
   have hlog2pos : 0 < Real.log (2 : ℝ) := Real.log_pos (by norm_num)
   have hlog2le : Real.log (2 : ℝ) ≤ 1 := by
-    convert Real.log_le_sub_one_of_pos (by norm_num : (0 : ℝ) < 2) using 1 <;>
-      norm_num
+    convert Real.log_le_sub_one_of_pos (by norm_num : (0 : ℝ) < 2) using 1
+    all_goals norm_num
   have hkpos : (0 : ℝ) < (k + 1 : ℕ) := by positivity
   have hinnerpos : 0 < Real.log (((2 ^ (k + 1) : ℕ) : ℝ)) := by
     apply Real.log_pos

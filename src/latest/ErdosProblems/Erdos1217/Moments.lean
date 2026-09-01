@@ -52,7 +52,7 @@ def hitEvent (n : ℕ) : Set (ℕ → ℕ) :=
 lemma measurableSet_hitEvent (n : ℕ) : MeasurableSet (hitEvent n) := by
   have hcoord (k : ℕ) : MeasurableSet {ω : ℕ → ℕ | ω k = n} :=
     (measurableSet_singleton n).preimage (measurable_pi_apply k)
-  simpa only [hitEvent, Set.mem_setOf_eq, Set.iUnion_setOf] using
+  simpa only [hitEvent, Set.mem_ofPred_eq, Set.iUnion_ofPred] using
     (MeasurableSet.iUnion hcoord)
 
 /-- States of `A ∩ [1,X)` visited by a path. -/
@@ -130,19 +130,19 @@ theorem lintegral_visitedCountENNReal
     funext ω
     exact visitedCountENNReal_eq_sum_indicator A X ω]
   rw [lintegral_finsetSum]
-  apply Finset.sum_congr rfl
-  intro n hn
-  have hfun : (fun a : ℕ → ℕ ↦ if a ∈ hitEvent n then (1 : ENNReal) else 0) =
-      (hitEvent n).indicator (fun _ ↦ (1 : ENNReal)) := by
-    funext a
-    simp only [Set.indicator_apply]
-  rw [hfun]
-  calc
-    (∫⁻ a, (hitEvent n).indicator (fun _ ↦ (1 : ENNReal)) a ∂mu) =
-        mu (hitEvent n) := by
-      change (∫⁻ a, (hitEvent n).indicator (1 : (ℕ → ℕ) → ENNReal) a ∂mu) = _
-      exact lintegral_indicator_one (μ := mu) (measurableSet_hitEvent n)
-    _ = v n := hhit n
+  · apply Finset.sum_congr rfl
+    intro n hn
+    have hfun : (fun a : ℕ → ℕ ↦ if a ∈ hitEvent n then (1 : ENNReal) else 0) =
+        (hitEvent n).indicator (fun _ ↦ (1 : ENNReal)) := by
+      funext a
+      simp only [Set.indicator_apply]
+    rw [hfun]
+    calc
+      (∫⁻ a, (hitEvent n).indicator (fun _ ↦ (1 : ENNReal)) a ∂mu) =
+          mu (hitEvent n) := by
+        change (∫⁻ a, (hitEvent n).indicator (1 : (ℕ → ℕ) → ENNReal) a ∂mu) = _
+        exact lintegral_indicator_one (μ := mu) (measurableSet_hitEvent n)
+      _ = v n := hhit n
   · intro n hn
     exact measurable_const.ite (measurableSet_hitEvent n) measurable_const
 
@@ -172,7 +172,7 @@ lemma card_sq_le_sum_two_mul_add_one (s : Finset ℕ) :
           omega
         have hsumEq : (∑ k ∈ s, (2 * k + 1)) =
             (∑ k ∈ s.erase m, (2 * k + 1)) + (2 * m + 1) := by
-          simpa only [Finset.sum_erase_add _ _ hm]
+          simp only [Finset.sum_erase_add _ _ hm]
         rw [hcardEq, hsumEq]
         calc
           ((s.erase m).card + 1) ^ 2 =
@@ -186,7 +186,7 @@ lemma card_sq_le_sum_two_mul_add_one (s : Finset ℕ) :
 def IsStrictDivisibilityPath (ω : ℕ → ℕ) : Prop :=
   (∀ k, 0 < ω k) ∧ (∀ k, ω k ∣ ω (k + 1) ∧ ω k < ω (k + 1))
 
-lemma IsStrictDivisibilityPath.strictMono { ω : ℕ → ℕ }
+lemma IsStrictDivisibilityPath.strictMono {ω : ℕ → ℕ}
     (hω : IsStrictDivisibilityPath ω) : StrictMono ω :=
   strictMono_nat_of_lt_succ fun k ↦ (hω.2 k).2
 
@@ -197,12 +197,11 @@ noncomputable def firstHitTime (ω : ℕ → ℕ) (n : ℕ) : ℕ :=
 
 lemma firstHitTime_spec {ω : ℕ → ℕ} {n : ℕ} (hn : ω ∈ hitEvent n) :
     ω (firstHitTime ω n) = n := by
-  have hex : ∃ k, ω k = n := by simpa only [hitEvent, Set.mem_setOf_eq] using hn
+  have hex : ∃ k, ω k = n := by simpa only [hitEvent, Set.mem_ofPred_eq] using hn
   rw [firstHitTime, dif_pos hex]
   exact Nat.find_spec hex
 
-lemma firstHitTime_injective_on { ω : ℕ → ℕ }
-    (hω : IsStrictDivisibilityPath ω) :
+lemma firstHitTime_injective_on {ω : ℕ → ℕ} :
     Set.InjOn (firstHitTime ω) {n | ω ∈ hitEvent n} := by
   intro m hm n hn hmn
   rw [← firstHitTime_spec hm, ← firstHitTime_spec hn]
@@ -210,7 +209,7 @@ lemma firstHitTime_injective_on { ω : ℕ → ℕ }
 
 /-- The prime-factor rank bounds the first hitting time along a strict
 divisibility path. -/
-lemma firstHitTime_le_cardFactors { ω : ℕ → ℕ }
+lemma firstHitTime_le_cardFactors {ω : ℕ → ℕ}
     (hω : IsStrictDivisibilityPath ω) {n : ℕ} (hn : ω ∈ hitEvent n) :
     firstHitTime ω n ≤ Ω n := by
   have hindex : ∀ j, j ≤ Ω (ω j) := by
@@ -237,13 +236,13 @@ lemma firstHitTime_le_cardFactors { ω : ℕ → ℕ }
 /-- The deterministic second-moment estimate: the square of the number of
 visited states is charged to the prime-factor rank of each visited state. -/
 theorem visitedCount_sq_le_sum_cardFactors (A : Set ℕ) (X : ℕ)
-    { ω : ℕ → ℕ } (hω : IsStrictDivisibilityPath ω) :
+    {ω : ℕ → ℕ} (hω : IsStrictDivisibilityPath ω) :
     (visitedCount A X ω) ^ 2 ≤
       ∑ n ∈ visitedBelow A X ω, (2 * Ω n + 1) := by
   let S := visitedBelow A X ω
   let T := S.image (firstHitTime ω)
   have hinj : Set.InjOn (firstHitTime ω) S := by
-    apply (firstHitTime_injective_on hω).mono
+    apply firstHitTime_injective_on.mono
     intro n hn
     exact (mem_visitedBelow_iff.mp hn).2.2.2
   have hcard : T.card = S.card := by
@@ -264,7 +263,7 @@ theorem visitedCount_sq_le_sum_cardFactors (A : Set ℕ) (X : ℕ)
 /-- The deterministic square bound with a fixed summation set and hit
 indicators, ready to integrate. -/
 theorem visitedCountENNReal_sq_le_sum_hitIndicators (A : Set ℕ) (X : ℕ)
-    { ω : ℕ → ℕ } (hω : IsStrictDivisibilityPath ω) :
+    {ω : ℕ → ℕ} (hω : IsStrictDivisibilityPath ω) :
     (visitedCountENNReal A X ω) ^ 2 ≤
       ∑ n ∈ (positiveBelowNat X).filter (fun n ↦ n ∈ A),
         if ω ∈ hitEvent n then ((2 * Ω n + 1 : ℕ) : ENNReal) else 0 := by
@@ -314,7 +313,7 @@ theorem lintegral_visitedCountENNReal_sq_le_omegaHitMoment
           funext a
           simp only [Set.indicator_apply]
         rw [hfun, lintegral_indicator (measurableSet_hitEvent n)]
-        simp only [setLIntegral_const, hhit n, ENNReal.coe_natCast]
+        simp only [setLIntegral_const, hhit n]
       · intro n hn
         exact measurable_const.ite (measurableSet_hitEvent n) measurable_const
 
