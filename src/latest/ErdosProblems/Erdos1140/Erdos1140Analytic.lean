@@ -153,7 +153,6 @@ lemma rpow_one_eighth_lt_two_mul_burgessDyadicShift (q : ℕ) :
   norm_num only [mul_pow]
   have hraw : (q : ℝ) < 256 * (burgessDyadicShift q : ℝ) ^ 8 := by
     exact_mod_cast lt_two_hundred_fifty_six_mul_burgessDyadicShift_pow_eight q
-  norm_num at hraw ⊢
   exact hraw
 
 lemma saving_pow_five_le_rpow_one_div_64 {q : ℕ} (hq : q ≠ 0) :
@@ -234,7 +233,7 @@ lemma singleton_burgess_bound
 /-- Uniform one-prime Burgess saving in the range needed by the reciprocal
 tail and smoothed-convolution estimates. -/
 theorem eventually_singleton_burgess_bound :
-    ∀ᶠ p : ℕ in atTop, ∀ (hp : p.Prime) (H M : ℕ),
+    ∀ᶠ p : ℕ in atTop, ∀ (_hp : p.Prime) (H M : ℕ),
       (p : ℝ) ^ ((63 : ℝ) / 128) ≤ H →
       (H : ℝ) ≤ 2 * Real.sqrt (p : ℝ) * saving p * Real.log (p : ℝ) →
       3 ≤ H → H < p →
@@ -286,7 +285,6 @@ theorem eventually_singleton_burgess_bound :
             (p : ℝ) ^ ((64 : ℝ)⁻¹) := by
         rw [(Real.rpow_mul_natCast hpRealPos.le _ 2).symm,
           ← Real.rpow_add hpRealPos]
-        congr 2
         norm_num
       _ ≤ (H : ℝ) ^ 2 * (p : ℝ) ^ ((64 : ℝ)⁻¹) := by gcongr
   have hfit :
@@ -405,7 +403,6 @@ theorem eventually_singleton_burgess_bound :
             burgessDenominatorLossExtra ({p} : Finset ℕ).card
               (saving p) (burgessDyadicShift p) := by
           simp [burgessDenominatorLossExtra]
-          push_cast
           ring
     have hsqNat :
         2 * H ^ 2 < p *
@@ -422,7 +419,7 @@ theorem eventually_singleton_burgess_bound :
 /-- Completion handles the intervals beyond the Burgess amplifier range,
 leaving a uniform relative saving for every sufficiently long interval. -/
 theorem eventually_singleton_interval_bound :
-    ∀ᶠ p : ℕ in atTop, ∀ (hp : p.Prime) (H M : ℕ),
+    ∀ᶠ p : ℕ in atTop, ∀ (_hp : p.Prime) (H M : ℕ),
       (p : ℝ) ^ ((63 : ℝ) / 128) ≤ H →
       3 ≤ H → H < p →
       |∑ i ∈ Finset.range H,
@@ -484,7 +481,7 @@ lemma attachedQuadraticCharacter_progression
   have hcop8 : Nat.Coprime k 8 := by
     rw [show 8 = 2 ^ 3 by norm_num, Nat.coprime_pow_right_iff (by omega) k 2]
     exact Nat.coprime_two_right.mpr hkodd
-  letI : Fact p.Prime := ⟨hp⟩
+  let _ : Fact p.Prime := ⟨hp⟩
   by_cases hcop : Nat.Coprime k (8 * p)
   · have hJ2 : jacobiSym (2 : ℤ) k = jacobiSym (2 : ℤ) a := by
       calc
@@ -541,7 +538,7 @@ lemma attachedQuadraticCharacter_progression
 attached to `2p` inherits the same uniform Burgess saving as the Legendre
 character modulo `p`. -/
 theorem eventually_attached_progression_bound :
-    ∀ᶠ p : ℕ in atTop, ∀ (hp : p.Prime) (H a : ℕ),
+    ∀ᶠ p : ℕ in atTop, ∀ (_hp : p.Prime) (H a : ℕ),
       Odd a → a < 8 →
       (p : ℝ) ^ ((63 : ℝ) / 128) ≤ H →
       3 ≤ H → H < p →
@@ -552,7 +549,7 @@ theorem eventually_attached_progression_bound :
   filter_upwards [eventually_singleton_interval_bound,
     eventually_ge_atTop (3 : ℕ)] with p hinterval hp3
   intro hp H a haodd ha8 hroot hH3 hHp
-  letI : Fact p.Prime := ⟨hp⟩
+  let _ : Fact p.Prime := ⟨hp⟩
   have hpodd : p ≠ 2 := by omega
   let M : ℕ := (((8 : ZMod p)⁻¹ * (a : ZMod p))).val
   have h8ne : (8 : ZMod p) ≠ 0 := by
@@ -635,7 +632,7 @@ lemma sum_range_eight_mul
 /-- A prefix made of complete blocks of eight has a power-saving character
 sum once its number of blocks is in the uniform Burgess range. -/
 theorem eventually_attached_complete_blocks_bound :
-    ∀ᶠ p : ℕ in atTop, ∀ (hp : p.Prime) (H : ℕ),
+    ∀ᶠ p : ℕ in atTop, ∀ (_hp : p.Prime) (H : ℕ),
       (p : ℝ) ^ ((63 : ℝ) / 128) ≤ H →
       3 ≤ H → H < p →
       |∑ k ∈ Finset.range (8 * H),
@@ -680,7 +677,7 @@ theorem eventually_attached_complete_blocks_bound :
 /-- The incomplete final block costs at most eight, so every sufficiently
 long prefix inherits the complete-block saving. -/
 theorem eventually_attached_prefix_bound :
-    ∀ᶠ p : ℕ in atTop, ∀ (hp : p.Prime) (N : ℕ),
+    ∀ᶠ p : ℕ in atTop, ∀ (_hp : p.Prime) (N : ℕ),
       (p : ℝ) ^ ((63 : ℝ) / 128) ≤ ((N / 8 : ℕ) : ℝ) →
       3 ≤ N / 8 → N / 8 < p →
       |∑ k ∈ Finset.range N,
@@ -734,7 +731,7 @@ noncomputable def prefixError (p : ℕ) : ℝ :=
 the threshold it uses the termwise bound; above it uses the preceding prefix
 estimate. -/
 theorem eventually_attached_prefix_uniform :
-    ∀ᶠ p : ℕ in atTop, ∀ (hp : p.Prime) (N : ℕ), N ≤ p →
+    ∀ᶠ p : ℕ in atTop, ∀ (_hp : p.Prime) (N : ℕ), N ≤ p →
       |∑ k ∈ Finset.range N,
         ((Erdos1141.attachedQuadraticCharacter (2 * p) (8 * p)
           (by exact ⟨1, by ring⟩) k : ℤ) : ℝ)| ≤
@@ -914,7 +911,7 @@ theorem eventually_attached_complex_weighted_prefix :
   intro hp y hyp hy
   let χ₀ := Erdos1141.attachedQuadraticCharacter (2 * p) (8 * p)
     (by exact ⟨1, by ring⟩)
-  letI : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
+  let _ : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
   let χ := χ₀.toDirichletCharacterComplex
   have hreal := hweighted hp y hyp hy
   have heq :
@@ -951,7 +948,7 @@ private lemma measurable_quadraticEulerCutoff_local (X : ℕ) :
     Measurable (quadraticEulerCutoff X) := by
   unfold quadraticEulerCutoff
   have hzero : MeasurableSet ({(0 : ℝ)} : Set ℝ) := measurableSet_singleton (0 : ℝ)
-  apply Measurable.ite (by simpa only [Set.setOf_eq_eq_singleton] using hzero)
+  apply Measurable.ite (by simpa only [Set.ofPred_eq_eq_singleton] using hzero)
     measurable_const
   have hdiv : Measurable (fun t : ℝ ↦ (X : ℝ) / t) :=
     measurable_const.div measurable_id
@@ -1068,7 +1065,7 @@ theorem eventually_attached_reciprocal_interval :
   intro hp x y hx hxy hyp
   let χ₀ := Erdos1141.attachedQuadraticCharacter (2 * p) (8 * p)
     (by exact ⟨1, by ring⟩)
-  letI : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
+  let _ : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
   let χ := χ₀.toDirichletCharacterComplex
   change ‖∑ n ∈ Finset.Ioc x y, χ (n : ZMod (8 * p)) / (n : ℂ)‖ ≤ _
   let A : ℝ → ℂ := fun t ↦
@@ -1210,7 +1207,8 @@ theorem eventually_attached_reciprocal_interval :
   have hlogx : 0 ≤ Real.log (x : ℝ) :=
     Real.log_nonneg (by exact_mod_cast hx : (1 : ℝ) ≤ x)
   have hlogyp : Real.log (y : ℝ) ≤ Real.log (p : ℝ) :=
-    Real.strictMonoOn_log.monotoneOn (by exact_mod_cast (Nat.pos_of_ne_zero (by omega)) : (0 : ℝ) < y)
+    Real.strictMonoOn_log.monotoneOn
+      (by exact_mod_cast (Nat.pos_of_ne_zero (by omega)) : (0 : ℝ) < y)
       (by exact_mod_cast hp.pos : (0 : ℝ) < p) (by exact_mod_cast hyp.le)
   have hJ : (0 : ℝ) < saving p := by exact_mod_cast saving_pos p
   have hD : 0 ≤ prefixError p := by dsimp [prefixError]; positivity
@@ -1278,7 +1276,7 @@ theorem eventually_attached_LFunction_tail :
   intro hp X hX hXp
   let χ₀ := Erdos1141.attachedQuadraticCharacter (2 * p) (8 * p)
     (by exact ⟨1, by ring⟩)
-  letI : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
+  let _ : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
   let χ := χ₀.toDirichletCharacterComplex
   change χ ≠ 1 → _
   intro hchi
@@ -1387,7 +1385,7 @@ lemma attached_zetaMul_prime_pow_eq
     χ.zetaMul (r ^ e) = if r = 2 ∨ Even e then 1 else 0 := by
   let χ₀ := Erdos1141.attachedQuadraticCharacter (2 * p) (8 * p)
     (by exact ⟨1, by ring⟩)
-  letI : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
+  let _ : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
   let χ := χ₀.toDirichletCharacterComplex
   change χ.zetaMul (r ^ e) = _
   rw [zetaMul_prime_pow_eq_geom χ hr]
@@ -1431,7 +1429,7 @@ lemma attached_zetaMul_nonzero_support
   classical
   let χ₀ := Erdos1141.attachedQuadraticCharacter (2 * p) (8 * p)
     (by exact ⟨1, by ring⟩)
-  letI : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
+  let _ : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
   let χ := χ₀.toDirichletCharacterComplex
   change χ.zetaMul n ≠ 0 → _
   intro hnonzero
@@ -1475,7 +1473,7 @@ lemma attached_zetaMul_nonzero_support
     have hrmem : r ∈ n.primeFactors :=
       Nat.mem_primeFactors.mpr ⟨hrp, hrn, hn.ne'⟩
     rcases hall r hrmem with hr2 | heven
-    · simpa [hr2]
+    · simp [hr2]
     · have hfac : n.factorization r = 2 * b.factorization r + 1 := by
         rw [← hab, Nat.factorization_mul (pow_ne_zero 2 hb.ne') ha.ne',
           Finsupp.add_apply, Nat.factorization_pow,
@@ -1512,7 +1510,7 @@ lemma attached_smoothed_sum_norm_le
   classical
   let χ₀ := Erdos1141.attachedQuadraticCharacter (2 * p) (8 * p)
     (by exact ⟨1, by ring⟩)
-  letI : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
+  let _ : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
   let χ := χ₀.toDirichletCharacterComplex
   let indices := Finset.Icc 1 X
   let roots := Finset.range (X.sqrt + 1)
@@ -1606,7 +1604,7 @@ theorem eventually_attached_swapped_remainder_bound :
   intro hp X hX hXp
   let χ₀ := Erdos1141.attachedQuadraticCharacter (2 * p) (8 * p)
     (by exact ⟨1, by ring⟩)
-  letI : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
+  let _ : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
   let χ := χ₀.toDirichletCharacterComplex
   change χ ≠ 1 → ‖quadraticZetaSwappedEulerRemainder χ X‖ ≤
     64 * (X : ℝ) / saving p +
@@ -1846,7 +1844,7 @@ theorem eventually_attached_comparison :
   intro hp X hX hXp
   let χ₀ := Erdos1141.attachedQuadraticCharacter (2 * p) (8 * p)
     (by exact ⟨1, by ring⟩)
-  letI : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
+  let _ : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
   let χ := χ₀.toDirichletCharacterComplex
   change χ ≠ 1 → _
   intro hchi
@@ -1942,7 +1940,7 @@ lemma attached_character_complex_ne_one
     χ₀.toDirichletCharacterComplex ≠ 1 := by
   let χ₀ := Erdos1141.attachedQuadraticCharacter (2 * p) (8 * p)
     (by exact ⟨1, by ring⟩)
-  letI : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
+  let _ : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
   let χ := χ₀.toDirichletCharacterComplex
   change χ ≠ 1
   intro hprincipal
@@ -1973,7 +1971,7 @@ lemma attached_character_complex_sq_eq_one
     χ₀.toDirichletCharacterComplex ^ 2 = 1 := by
   let χ₀ := Erdos1141.attachedQuadraticCharacter (2 * p) (8 * p)
     (by exact ⟨1, by ring⟩)
-  letI : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
+  let _ : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
   exact MulChar.isQuadratic_iff_sq_eq_one.mp
     χ₀.toDirichletCharacterComplex_isQuadratic
 
@@ -2304,7 +2302,7 @@ theorem eventually_sparse_and_error_lt_main :
   simpa [X] using hfinal
 
 theorem eventually_exists_attached_split_prime :
-    ∀ᶠ p : ℕ in atTop, ∀ hp : p.Prime,
+    ∀ᶠ p : ℕ in atTop, ∀ _hp : p.Prime,
       ∃ ell : ℕ, ell.Prime ∧ ell ≤ pollackCutoff p ∧
         Erdos1141.attachedQuadraticCharacter (2 * p) (8 * p)
           (by exact ⟨1, by ring⟩) ell = 1 := by
@@ -2321,7 +2319,7 @@ theorem eventually_exists_attached_split_prime :
   let X := pollackCutoff p
   let χ₀ := Erdos1141.attachedQuadraticCharacter (2 * p) (8 * p)
     (by exact ⟨1, by ring⟩)
-  letI : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
+  let _ : NeZero (8 * p) := ⟨mul_ne_zero (by norm_num) hp.ne_zero⟩
   let χ := χ₀.toDirichletCharacterComplex
   have hp2 : p ≠ 2 := by omega
   have hχne : χ ≠ 1 := by
@@ -2336,7 +2334,7 @@ theorem eventually_exists_attached_split_prime :
         attachedComparisonError p X := by
     simpa [X, χ, χ₀] using hcompare hp X hcut.1 hcut.2.1 hχne
   by_contra hno
-  push_neg at hno
+  push Not at hno
   have hnosplit : ∀ ell : ℕ, ell.Prime → ell ≤ X → χ₀ ell ≠ 1 := by
     intro ell hell hellX
     exact hno ell hell (by simpa [X] using hellX)
@@ -2413,7 +2411,7 @@ lemma attached_quadratic_character_spec
   have hJacobi : jacobiSym (d : ℤ) ell = 1 := by
     rw [Erdos1141.attachedQuadraticCharacter_apply_coprime hdvd hcop] at hχ
     exact hχ
-  letI : Fact ell.Prime := ⟨hell⟩
+  let _ : Fact ell.Prime := ⟨hell⟩
   have hsqInt : IsSquare ((d : ℤ) : ZMod ell) :=
     ZMod.isSquare_of_jacobiSym_eq_one (a := (d : ℤ)) (p := ell) hJacobi
   have hsq : IsSquare (d : ZMod ell) := by
