@@ -90,6 +90,7 @@ noncomputable def affineEnergy (ξ : ZMod p) (X Y : Finset (ZMod p)) : ℕ :=
   #{z ∈ (X ×ˢ Y) ×ˢ (X ×ˢ Y) |
     z.1.1 + ξ * z.1.2 = z.2.1 + ξ * z.2.2}
 
+omit [NeZero p] in
 lemma affineEnergy_eq_sum_sq (ξ : ZMod p) (X Y : Finset (ZMod p)) :
     affineEnergy ξ X Y =
       ∑ a ∈ affineImage ξ X Y,
@@ -102,6 +103,7 @@ lemma affineEnergy_eq_sum_sq (ξ : ZMod p) (X Y : Finset (ZMod p)) :
   · congr
     aesop (add simp [affineImage])
 
+omit [NeZero p] in
 lemma card_sq_le_card_affineImage_mul_energy (ξ : ZMod p) (X Y : Finset (ZMod p)) :
     (X.card * Y.card) ^ 2 ≤ (affineImage ξ X Y).card * affineEnergy ξ X Y := by
   classical
@@ -124,11 +126,11 @@ lemma card_sq_le_card_affineImage_mul_energy (ξ : ZMod p) (X Y : Finset (ZMod p
 
 noncomputable def nonzeroScalars (p : ℕ) [NeZero p] : Finset (ZMod p) := univ.erase 0
 
-@[simp] lemma card_nonzeroScalars (hp : p.Prime) : (nonzeroScalars p).card = p - 1 := by
+@[simp] lemma card_nonzeroScalars : (nonzeroScalars p).card = p - 1 := by
   classical
   rw [nonzeroScalars, card_erase_of_mem (mem_univ 0), card_univ, ZMod.card]
 
-lemma sum_card_filter_product {α β : Type*} [DecidableEq α] [DecidableEq β]
+lemma sum_card_filter_product {α β : Type*}
     (s : Finset α) (t : Finset β) (P : α → β → Prop) [DecidableRel P] :
     ∑ a ∈ s, #(t.filter (P a)) = #((s ×ˢ t).filter fun z ↦ P z.1 z.2) := by
   classical
@@ -141,7 +143,8 @@ lemma sum_card_filter_product {α β : Type*} [DecidableEq α] [DecidableEq β]
             (t.filter (P a)).map ⟨Prod.mk a, Prod.mk_right_injective a⟩ =
               (({a} ×ˢ t).filter fun z ↦ P z.1 z.2) := by
           ext ⟨x, y⟩
-          simp
+          simp only [mem_map, mem_filter, Function.Embedding.coeFn_mk, Prod.mk.injEq,
+            exists_eq_right_right, singleton_product]
           constructor
           · rintro ⟨⟨hy, hP⟩, hax⟩
             subst x
@@ -165,11 +168,12 @@ lemma sum_affineEnergy_eq_card (X Y : Finset (ZMod p)) :
     (fun ξ (w : (ZMod p × ZMod p) × (ZMod p × ZMod p)) ↦
       w.1.1 + ξ * w.1.2 = w.2.1 + ξ * w.2.2)
 
+omit [NeZero p] in
 lemma scalar_eq_of_affine_eq_of_ne (hp : p.Prime) {ξ η : ZMod p}
     {u v : ZMod p × ZMod p} (huv : u ≠ v)
     (hξ : u.1 + ξ * u.2 = v.1 + ξ * v.2)
     (hη : u.1 + η * u.2 = v.1 + η * v.2) : ξ = η := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hy : u.2 ≠ v.2 := by
     intro hy
     apply huv
@@ -246,7 +250,7 @@ lemma exists_good_scalar (hp : p.Prime) (X Y : Finset (ZMod p)) :
           (X.card * Y.card : ℚ) ^ 2 / (nonzeroScalars p).card := by
   classical
   have hGpos : 0 < (nonzeroScalars p).card := by
-    rw [card_nonzeroScalars hp]
+    rw [card_nonzeroScalars]
     exact Nat.sub_pos_of_lt hp.one_lt
   have hnat := sum_affineEnergy_le (p := p) hp X Y
   have hcast :
@@ -267,6 +271,7 @@ lemma exists_good_scalar (hp : p.Prime) (X Y : Finset (ZMod p)) :
         field_simp [Nat.ne_of_gt hGpos]
   exact exists_le_of_sum_le (card_pos.mp hGpos) hsum
 
+omit [NeZero p] in
 /-- Swapping the two `Y`-coordinates changes the slope from `ξ` to `-ξ`
 without changing the collision count. -/
 lemma affineEnergy_neg (ξ : ZMod p) (X Y : Finset (ZMod p)) :
@@ -304,7 +309,7 @@ lemma card_affineImage_large_of_good_energy (hp : p.Prime) (hp2 : 2 < p)
   let s : ℚ := (affineImage ξ X Y).card
   let e : ℚ := affineEnergy ξ X Y
   let r : ℚ := ((p - 1 : ℕ) : ℚ)
-  rw [card_nonzeroScalars hp] at henergy
+  rw [card_nonzeroScalars] at henergy
   have hrposN : 0 < p - 1 := Nat.sub_pos_of_lt hp.one_lt
   have hrpos : (0 : ℚ) < r := by
     dsimp [r]
@@ -372,7 +377,7 @@ noncomputable def fourfoldProductSum (X Y : Finset (ZMod p)) : Finset (ZMod p) :
 noncomputable def eightfoldProductSum (X Y : Finset (ZMod p)) : Finset (ZMod p) :=
   fourfoldProductSum X Y + fourfoldProductSum X Y
 
-lemma inter_negImage_nonempty_of_card_large (hp : p.Prime)
+lemma inter_negImage_nonempty_of_card_large
     (A : Finset (ZMod p)) (hA : p < 2 * A.card) :
     (A ∩ A.image fun z ↦ -z).Nonempty := by
   classical
@@ -395,11 +400,11 @@ theorem glibichuk_cover (hp : p.Prime) (hp2 : 2 < p)
     (hanti : IsAntisymmetric Y) :
     eightfoldProductSum X Y = univ := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   obtain ⟨ξ, hξ, hplus, hminus⟩ :=
     exists_opposite_large_affineImages (p := p) hp hp2 X Y hprod
   obtain ⟨z, hz⟩ :=
-    inter_negImage_nonempty_of_card_large (p := p) hp (affineImage ξ X Y) hplus
+    inter_negImage_nonempty_of_card_large (p := p) (affineImage ξ X Y) hplus
   have hz₁ : z ∈ affineImage ξ X Y := (mem_inter.mp hz).1
   obtain ⟨z', hz₂, hzz'⟩ := mem_image.mp (mem_inter.mp hz).2
   rw [affineImage] at hz₁ hz₂
@@ -487,7 +492,7 @@ lemma denomProduct_mul_primeRecipSum (hp : p.Prime)
     (hq_lt : ∀ i j, q i j < p) (hq_pos : ∀ i j, 0 < q i j) :
     (denomProduct q u : ZMod p) * primeRecipSum p q u = recipNumerator q u := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   rw [primeRecipSum, mul_sum]
   simp only [denomProduct, recipNumerator, Nat.cast_sum, Nat.cast_prod]
   apply sum_congr rfl
@@ -506,7 +511,6 @@ lemma primeRecipSum_cross (hp : p.Prime)
       recipNumerator q v * denomProduct q u := by
   have hu := denomProduct_mul_primeRecipSum hp q u hq_lt hq_pos
   have hv := denomProduct_mul_primeRecipSum hp q v hq_lt hq_pos
-  push_cast
   calc
     (recipNumerator q u : ZMod p) * denomProduct q v =
         ((denomProduct q u : ZMod p) * primeRecipSum p q u) * denomProduct q v := by rw [hu]
@@ -523,7 +527,7 @@ lemma denomProduct_le (q : Fin k → Fin L → ℕ) (u : Fin k → Fin L)
       prod_le_prod' fun i _ ↦ hq_le i (u i)
     _ = H ^ k := by simp
 
-lemma recipNumerator_le (hk : 0 < k) (q : Fin k → Fin L → ℕ)
+lemma recipNumerator_le (q : Fin k → Fin L → ℕ)
     (u : Fin k → Fin L) (hq_le : ∀ i j, q i j ≤ H) :
     recipNumerator q u ≤ k * H ^ (k - 1) := by
   classical
@@ -593,7 +597,7 @@ lemma numerator_cross_ne_of_ne
   classical
   have hcoord : ∃ i, u i ≠ v i := by
     by_contra h
-    push_neg at h
+    push Not at h
     exact huv (funext h)
   obtain ⟨i, hi⟩ := hcoord
   let r := q i (u i)
@@ -617,7 +621,7 @@ lemma numerator_mul_denom_le (hk : 0 < k)
   calc
     recipNumerator q u * denomProduct q v ≤
         (k * H ^ (k - 1)) * H ^ k :=
-      Nat.mul_le_mul (recipNumerator_le hk q u hq_le) (denomProduct_le q v hq_le)
+      Nat.mul_le_mul (recipNumerator_le q u hq_le) (denomProduct_le q v hq_le)
     _ = k * H ^ (2 * k - 1) := by
       rw [mul_assoc, ← pow_add]
       congr 2
@@ -762,21 +766,20 @@ lemma sum_productDenoms (hp : p.Prime) (q : Fin k → Fin L → ℕ)
     (List.map (fun n : ℕ ↦ ((n : ZMod p)⁻¹)) (productDenoms q u v)).sum =
       primeRecipSum p q u * primeRecipSum p q v := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   calc
     (List.map (fun n : ℕ ↦ ((n : ZMod p)⁻¹)) (productDenoms q u v)).sum =
         ∑ ij ∈ ((univ : Finset (Fin k)) ×ˢ univ),
           (((q ij.1 (u ij.1) * q ij.2 (v ij.2) : ℕ) : ZMod p)⁻¹) := by
-      simpa [productDenoms, List.map_map] using
-        (sum_map_toList ((univ : Finset (Fin k)) ×ˢ univ)
-          (fun ij ↦ (((q ij.1 (u ij.1) * q ij.2 (v ij.2) : ℕ) : ZMod p)⁻¹)))
+      rw [productDenoms, List.map_map, sum_map_toList]
+      simp only [Function.comp_apply]
     _ = ∑ i, ∑ j, ((q i (u i) : ZMod p)⁻¹) * ((q j (v j) : ZMod p)⁻¹) := by
       rw [sum_product]
       apply sum_congr rfl
       intro i _
       apply sum_congr rfl
       intro j _
-      simp only [Prod.fst, Prod.snd, Nat.cast_mul]
+      simp only [Nat.cast_mul]
       rw [mul_inv_rev, mul_comm]
     _ = primeRecipSum p q u * primeRecipSum p q v := by
       rw [primeRecipSum, primeRecipSum, Fintype.sum_mul_sum]
@@ -862,11 +865,13 @@ lemma eightfold_mem_exactlyRepresentable (hp : p.Prime) {ε : ℝ}
   have hFour : ∀ z ∈ (P + P) + (P + P),
       ExactlyRepresentable ε p (4 * k ^ 2) z := by
     have := exactlyRepresentable_add hTwo hTwo
-    convert this using 1 <;> ring
+    convert this using 1
+    all_goals ring
   have hEight : ∀ z ∈ ((P + P) + (P + P)) + ((P + P) + (P + P)),
       ExactlyRepresentable ε p (8 * k ^ 2) z := by
     have := exactlyRepresentable_add hFour hFour
-    convert this using 1 <;> ring
+    convert this using 1
+    all_goals ring
   simpa [eightfoldProductSum, fourfoldProductSum, P, B] using hEight
 
 end PrimeBlocks
@@ -908,14 +913,15 @@ lemma eventually_nat_const_mul_rpow_lt_rpow {a b c : ℝ} (hab : a < b) :
     ∀ᶠ n : ℕ in atTop, c * (n : ℝ) ^ a < (n : ℝ) ^ b :=
   tendsto_natCast_atTop_atTop.eventually (eventually_const_mul_rpow_lt_rpow hab)
 
-lemma eventually_primeCounting_ge_rpow {t : ℝ} (ht0 : 0 < t) (ht1 : t < 1) :
+lemma eventually_primeCounting_ge_rpow {t : ℝ} (ht1 : t < 1) :
     ∀ᶠ n : ℕ in atTop, (n : ℝ) ^ t ≤ Nat.primeCounting n := by
   have hlogReal := eventually_log_le_const_rpow (sub_pos.mpr ht1)
     (show 0 < log 2 / 2 by positivity)
   have hlog := tendsto_natCast_atTop_atTop.eventually hlogReal
   filter_upwards [eventually_ge_atTop 6, hlog] with n hn hlogn
   have hnpos : (0 : ℝ) < n := by exact_mod_cast (lt_of_lt_of_le (by norm_num : 0 < 6) hn)
-  have hlogpos : 0 < log (n : ℝ) := log_pos (by exact_mod_cast (lt_of_lt_of_le (by norm_num : 1 < 6) hn))
+  have hlogpos : 0 < log (n : ℝ) := log_pos (by
+    exact_mod_cast (lt_of_lt_of_le (by norm_num : 1 < 6) hn))
   have hsquare := sq_succ_le_two_pow n hn
   have hsquareR : ((n + 1 : ℕ) : ℝ) ^ 2 ≤ (2 : ℝ) ^ n := by exact_mod_cast hsquare
   have hnum : log ((n + 1 : ℕ) : ℝ) ≤ (n : ℝ) * log 2 / 2 := by
@@ -1019,7 +1025,9 @@ lemma eventually_self_lt_powFloor_pow {k : ℕ} {γ : ℝ}
     have hpowEq : (n : ℝ) ^ ((2 * k : ℕ) * γ) =
         ((n : ℝ) ^ γ) ^ (2 * k) := by
       calc
-        _ = (n : ℝ) ^ (γ * (2 * k : ℕ)) := by congr 1 <;> ring
+        _ = (n : ℝ) ^ (γ * (2 * k : ℕ)) := by
+          congr 1
+          ring
         _ = ((n : ℝ) ^ γ) ^ (((2 * k : ℕ) : ℝ)) :=
           Real.rpow_mul (x := (n : ℝ)) (by positivity) γ ((2 * k : ℕ) : ℝ)
         _ = ((n : ℝ) ^ γ) ^ (2 * k) := Real.rpow_natCast _ _
@@ -1040,7 +1048,7 @@ lemma eventually_prime_supply {k : ℕ} {δ γ t : ℝ}
     ∀ᶠ n : ℕ in atTop,
       k * powFloor γ n ≤ (Nat.primesLE (powFloor δ n)).card := by
   have hprimeAtH := (tendsto_powFloor_atTop hδ).eventually
-    (eventually_primeCounting_ge_rpow ht0 ht1)
+    (eventually_primeCounting_ge_rpow ht1)
   have hcmp := eventually_nat_const_mul_rpow_lt_rpow
     (c := (k : ℝ) * (2 : ℝ) ^ t) (a := γ) (b := δ * t) hmargin
   have hpowOne := ((tendsto_rpow_atTop hδ).comp tendsto_natCast_atTop_atTop).eventually_ge_atTop 1
@@ -1185,12 +1193,12 @@ lemma one_admissible {ε : ℝ} {p : ℕ} (hε : 0 < ε) (hp : p.Prime) :
 `a.val` times. -/
 lemma repeat_one_represents {ε : ℝ} {p : ℕ} (hε : 0 < ε) (hp : p.Prime)
     (a : ZMod p) : Represents ε p a (List.replicate a.val 1) := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   constructor
   · intro n hn
     rw [List.eq_of_mem_replicate hn]
     exact one_admissible hε hp
-  · simp [ZMod.natCast_zmod_val]
+  · simp
 
 /-- For parameters satisfying all the large-prime estimates, the prime blocks
 and Glibichuk's covering lemma give an exact representation by `8k²` terms. -/
@@ -1199,7 +1207,7 @@ lemma large_prime_representation {ε δ γ : ℝ} {k p : ℕ}
     (a : ZMod p) :
     ExactlyRepresentable ε p (8 * k ^ 2) a := by
   classical
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   rcases hpar with ⟨hp2, hHlt, hsmall, hHsq, hlarge, hsupply⟩
   have hcardDomain :
       Fintype.card (Fin k × Fin (powFloor γ p)) ≤
@@ -1247,7 +1255,7 @@ theorem erdos_1180 : (∀ ε : ℝ, 0 < ε → ∃ C : ℕ, ∀ p : ℕ, p.Prime
     hgrow ht0 ht1 hsupply
   refine ⟨max (8 * k ^ 2) P₀, ?_⟩
   intro p hp a
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   by_cases hlarge : P₀ ≤ p
   · obtain ⟨xs, hlen, hrep⟩ :=
       large_prime_representation hp hk (hP₀ p hlarge) a
