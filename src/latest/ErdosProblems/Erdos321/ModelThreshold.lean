@@ -179,7 +179,8 @@ theorem adaptiveNeumannModel_threshold_comparable
                 Real.log_pos (by exact_mod_cast (show 1 < t by omega))
               positivity
             have hdiv := (div_le_div_iff_of_pos_right hden).2 hit
-            convert hdiv using 1 <;> ring
+            convert hdiv using 1
+            all_goals ring
           dsimp [S] at hsplit ⊢
           nlinarith
 

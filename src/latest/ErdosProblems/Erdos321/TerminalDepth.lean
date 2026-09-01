@@ -47,7 +47,7 @@ theorem exists_terminalLogDepth
     exact (not_lt_of_ge hgeom) this
   have hexBound : ∃ k : ℕ, k ≤ m ∧ realIteratedLog k x < B := by
     by_contra hnone
-    push_neg at hnone
+    push Not at hnone
     apply hnotTower
     intro k hk
     exact hnone k hk

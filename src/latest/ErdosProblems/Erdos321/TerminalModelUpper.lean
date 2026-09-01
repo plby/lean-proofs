@@ -41,7 +41,7 @@ private theorem logLog_le_cast_nat_terminal {q : ℕ} (hq : 3 ≤ q) :
 /-- A terminal coordinate below `exp B` forces the corresponding natural leaf
 into one fixed finite range. -/
 theorem terminal_leaf_nat_bound
-    {B y : ℝ} {q : ℕ} (hB : 0 < B) (hq : 3 ≤ q)
+    {B y : ℝ} {q : ℕ} (hq : 3 ≤ q)
     (hypos : 0 < y) (hlogy : Real.log y < B)
     (hqcoord : Real.log (Real.log (q : ℝ)) ≤ y) :
     q ≤ ⌈Real.exp (Real.exp (Real.exp B))⌉₊ := by
@@ -134,10 +134,10 @@ theorem adaptiveNeumannModel_le_terminalProduct
       adaptiveNeumannModel A q ≤ K := by
     intro q hqA hqcoord
     have hq3 := hA.trans hqA
-    have hqbound := terminal_leaf_nat_bound hBpos hq3 hypos hlogy hqcoord
+    have hqbound := terminal_leaf_nat_bound hq3 hypos hlogy hqcoord
     exact model_le_terminalModelConstant (show 2 ≤ A by omega) hqbound
   have hrem := adaptiveNeumannRemainder_le_const_mul_term
-    hA hdata hB hK0 htower hnA (le_rfl) (by
+    hA hdata hB htower hnA (le_rfl) (by
       intro q hqA hqcoord
       apply hleaf q hqA
       simpa [y, x] using hqcoord)
@@ -232,10 +232,10 @@ theorem exists_uniform_iteratedLogProduct_upper :
       adaptiveNeumannModel A q ≤ K := by
     intro q hqA hqcoord
     have hq3 := hA.trans hqA
-    have hqbound := terminal_leaf_nat_bound hBpos hq3 hypos hlogy hqcoord
+    have hqbound := terminal_leaf_nat_bound hq3 hypos hlogy hqcoord
     exact model_le_terminalModelConstant (show 2 ≤ A by omega) hqbound
   have hrem := adaptiveNeumannRemainder_le_const_mul_term
-    hA hdata (show 4 ≤ B by norm_num [B]) hK0
+    hA hdata (show 4 ≤ B by norm_num [B])
     htower hnA (le_rfl) (by
       intro q hqA hqcoord
       apply hleaf q hqA

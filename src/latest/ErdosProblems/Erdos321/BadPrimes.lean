@@ -116,7 +116,7 @@ theorem bad_prime_dvd_some_factorialNumerator
     intro b hb
     exact Finset.mem_Icc.mp (hBsub (Finset.mem_powerset.mp hV hb))
   have hClear := reciprocalSubsetSum_sub_eq_factorialNumerator_div hUrange hVrange
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hpNotDvdFac : ¬ p ∣ t.factorial := by
     rw [hp.dvd_factorial]
     exact not_le_of_gt htp

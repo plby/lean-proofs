@@ -20,7 +20,7 @@ whole unexpanded depth-`d` remainder is at most `K` times the depth term. -/
 theorem adaptiveNeumannRemainder_le_const_mul_term
     {A : ℕ} {B K : ℝ}
     (hA : 3 ≤ A) (hdata : ∀ n, A ≤ n → AdaptiveUpperIterationData n)
-    (hB : 4 ≤ B) (hK0 : 0 ≤ K)
+    (hB : 4 ≤ B)
     {d n : ℕ} {x : ℝ}
     (htower : LogTowerAbove B d x)
     (hnA : A ≤ n)
@@ -93,6 +93,7 @@ theorem adaptiveNeumannRemainder_le_const_mul_term
         Real.log_pos (by exact_mod_cast (show 1 < q by omega))
       have hden : 0 < ((q : ℝ) + 1) * Real.log q := by positivity
       have hh := (div_le_div_iff_of_pos_right hden).2 (hpoint q hq)
-      convert hh using 1 <;> ring
+      convert hh using 1
+      all_goals ring
 
 end Erdos321

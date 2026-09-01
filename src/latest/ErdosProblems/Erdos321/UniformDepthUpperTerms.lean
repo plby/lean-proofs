@@ -199,7 +199,8 @@ theorem adaptiveNeumannTerm_uniform_upper
           Real.log_pos (by exact_mod_cast (show 1 < q by omega))
         have hden : 0 < ((q : ℝ) + 1) * Real.log q := by positivity
         have hh := (div_le_div_iff_of_pos_right hden).2 (hpoint q hq)
-        convert hh using 1 <;> ring
+        convert hh using 1
+        all_goals ring
       rw [adaptiveNeumannTerm_succ,
         safeAdaptiveEndpoint_eq_of_data hnData.cutoff]
       rw [upperCoordinateRetention, Finset.prod_range_succ]

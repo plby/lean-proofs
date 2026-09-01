@@ -20,7 +20,8 @@ private theorem tendsto_badErrorMajorant :
   change Tendsto
     (fun N : ℕ => 2 * (Real.log (N : ℝ) ^ 4 /
       ((N : ℝ) ^ (1 / 2 : ℝ)))) atTop (𝓝 0)
-  convert hreal.comp tendsto_natCast_atTop_atTop using 1 <;> rfl
+  convert hreal.comp tendsto_natCast_atTop_atTop using 1
+  all_goals rfl
 
 private theorem adaptive_badError_le_majorant {N : ℕ}
     (hdata : AdaptiveCutoffData N) :
@@ -133,7 +134,8 @@ private theorem tendsto_smoothErrorRemainder :
     (fun N : ℕ => 2 * (Real.log (N : ℝ) ^ 2 / (N : ℝ)) +
       6 * (Real.log (N : ℝ) ^ 2 / ((N : ℝ) ^ (1 / 2 : ℝ))))
       atTop (𝓝 0)
-  convert hreal.comp tendsto_natCast_atTop_atTop using 1 <;> rfl
+  convert hreal.comp tendsto_natCast_atTop_atTop using 1
+  all_goals rfl
 
 private theorem adaptive_smoothError_le {N : ℕ}
     (hdata : AdaptiveCutoffData N) (hlog : 32 ≤ Real.log N) :

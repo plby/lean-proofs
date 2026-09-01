@@ -14,7 +14,7 @@ theorem subsetSumCount_pos (A : Finset ℕ) : 0 < subsetSumCount A := by
   rw [subsetSumValues, Finset.mem_image]
   exact ⟨∅, by simp, by simp [reciprocalSubsetSum]⟩
 
- theorem harmonicSubsetSumCount_pos (N : ℕ) :
+theorem harmonicSubsetSumCount_pos (N : ℕ) :
     0 < harmonicSubsetSumCount N := subsetSumCount_pos _
 
 /-- Additive logarithmic form of the exact entropy recurrence. -/

@@ -38,7 +38,7 @@ theorem tendsto_adaptiveEndpoint_logLog_atTop :
   have hcomp := Real.tendsto_log_atTop.comp hlog1
   convert hcomp using 1
   funext N
-  simp [Function.comp_def]
+  simp
 
 /-- The logarithmic-coordinate midpoint also tends to infinity. -/
 theorem tendsto_midLogBlockStart_adaptive_atTop :

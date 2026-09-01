@@ -79,7 +79,7 @@ theorem subsetSumCount_union_le (A B : Finset ℕ) :
       (subsetSumValues B))
 
 /-- Iterated block version of union submultiplicativity. -/
-theorem subsetSumCount_biUnion_le_prod {ι : Type*} [DecidableEq ι]
+theorem subsetSumCount_biUnion_le_prod {ι : Type*}
     (P : Finset ι) (F : ι → Finset ℕ) :
     subsetSumCount (P.biUnion F) ≤ ∏ p ∈ P, subsetSumCount (F p) := by
   classical

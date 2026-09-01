@@ -137,7 +137,8 @@ theorem eventually_second_iteratedLog_factor_le_neumannModel
         Real.log_pos (by exact_mod_cast (show 1 < q by omega))
       positivity
     have hh := (div_le_div_iff_of_pos_right hden).2 (hpoint q hq)
-    convert hh using 1 <;> ring
+    convert hh using 1
+    all_goals ring
   have hsubset : Finset.Icc L T ⊆ Finset.Icc A T := by
     intro q hq
     have hLq := (Finset.mem_Icc.mp hq).1

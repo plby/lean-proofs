@@ -59,8 +59,10 @@ theorem exists_normalized_lower_recurrence_constant :
     have hlog0 : Real.log (N : ℝ) ≠ 0 := by linarith
     have ht0 : (t : ℝ) ≠ 0 := by exact_mod_cast (show t ≠ 0 by omega)
     have ht10 : (t : ℝ) + 1 ≠ 0 := by positivity
-    convert hterm using 1 <;> dsimp [quotientMainKernel] <;>
-      field_simp [hlog0, ht0, ht10] <;> ring
+    convert hterm using 1
+    all_goals
+      dsimp [quotientMainKernel]
+      field_simp [hlog0, ht0, ht10]
   have hCombined := hKernelSum.trans hRaw
   have hScale : 0 ≤ Real.log N / N := by positivity
   have hScaled := mul_le_mul_of_nonneg_left hCombined hScale
@@ -94,7 +96,8 @@ theorem exists_normalized_upper_recurrence_constant :
   intro N Q hUnique hQN hQ hN hEnd hUlog hLog hε
   have hNgt : 1 < N := by
     by_contra hn
-    interval_cases N <;> norm_num at hLog
+    interval_cases N
+    all_goals norm_num at hLog
   have hRaw := hRec hUnique hQN hQ hN hEnd
   let U := N / (Q + 1)
   have hKernelSum :
@@ -119,8 +122,10 @@ theorem exists_normalized_upper_recurrence_constant :
     have hlog0 : Real.log (N : ℝ) ≠ 0 := by linarith
     have ht0 : (t : ℝ) ≠ 0 := by exact_mod_cast (show t ≠ 0 by omega)
     have ht10 : (t : ℝ) + 1 ≠ 0 := by positivity
-    convert hterm using 1 <;> dsimp [quotientMainKernel] <;>
-      field_simp [hlog0, ht0, ht10] <;> ring
+    convert hterm using 1
+    all_goals
+      dsimp [quotientMainKernel]
+      field_simp [hlog0, ht0, ht10]
   have hCombined : harmonicEntropy N ≤
       (Real.log (N + 1) +
         (Real.log 4 * Q + 4 * Real.sqrt Q * Real.log Q +

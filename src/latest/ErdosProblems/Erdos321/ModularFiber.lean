@@ -29,7 +29,7 @@ theorem prime_fiber_collision_separates
       reciprocalSubsetSum TA + ((p : ℚ)⁻¹) * reciprocalSubsetSum V) :
     SA = TA ∧ U = V := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hNormInvOld (a : ℕ) (ha : a ∈ A) :
       padicNorm p ((a : ℚ)⁻¹) = 1 := by
     have hnorm : padicNorm p (a : ℚ) = 1 :=

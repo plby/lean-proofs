@@ -9,8 +9,8 @@ theorem quotient_kernel_sandwich
     (hη0 : 0 ≤ η) (hη : η ≤ 1 / 4)
     (hm : 0 < m) (hL : 0 < L)
     (hdlo : (1 - η) * m ≤ d) (hdhi : d ≤ (1 + η) * m)
-    (he0 : 0 ≤ e) (he : e ≤ η * m)
-    (hla : (1 - η) * L ≤ la) (hlapos : 0 < la)
+    (he : e ≤ η * m)
+    (hla : (1 - η) * L ≤ la)
     (hlb : lb ≤ L) (hlbpos : 0 < lb) :
     (1 - 2 * η) * (m / L) ≤ (d - e) / lb ∧
       (d + e) / la ≤ (1 + 4 * η) * (m / L) := by

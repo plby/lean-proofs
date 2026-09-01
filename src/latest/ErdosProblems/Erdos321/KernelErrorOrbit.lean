@@ -204,10 +204,10 @@ theorem adaptive_reverseOrbit_error_sum_bound
       have : 0 ≤ 2 * (C + 2) * orbitLogRatio x := by positivity
       linarith
   | cons y ys ih =>
-      have hstep : x ≤ adaptiveEndpoint y := (List.chain_cons.mp hchain).1
+      have hstep : x ≤ adaptiveEndpoint y := (List.isChain_cons_cons.mp hchain).1
       have hchainTail : List.IsChain
           (fun child parent => child ≤ adaptiveEndpoint parent) (y :: ys) :=
-        (List.chain_cons.mp hchain).2
+        (List.isChain_cons_cons.mp hchain).2
       have hlargeTail : ∀ n ∈ y :: ys, 64 ≤ n := by
         intro n hn
         exact hlarge n (by simp [hn])
@@ -235,7 +235,8 @@ theorem tendsto_orbitLogRatio :
   have hreal : Tendsto (fun x : ℝ => Real.log x / x) atTop (𝓝 0) :=
     Real.isLittleO_log_id_atTop.tendsto_div_nhds_zero
   change Tendsto (fun n : ℕ => Real.log (n : ℝ) / (n : ℝ)) atTop (𝓝 0)
-  convert hreal.comp tendsto_natCast_atTop_atTop using 1 <;> rfl
+  convert hreal.comp tendsto_natCast_atTop_atTop using 1
+  all_goals rfl
 
 /-- For every positive budget there is one terminal threshold which bounds the
 sum of `uniformKernelError` along every adaptive recursion chain, independent

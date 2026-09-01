@@ -291,7 +291,8 @@ theorem adaptiveNeumannTerm_uniform_lower
                       Real.log_pos (by exact_mod_cast (show 1 < q by omega))
                     positivity
                   have hh := (div_le_div_iff_of_pos_right hden).2 (hpoint q hq)
-                  convert hh using 1 <;> ring
+                  convert hh using 1
+                  all_goals ring
           _ ≤ ∑ q ∈ Finset.Icc A T,
               adaptiveNeumannTerm A d q /
                 (((q : ℝ) + 1) * Real.log q) := by

@@ -23,7 +23,8 @@ private theorem log_succ_difference_bounds {t : ℕ} (ht : 3 ≤ t) :
       nlinarith
     exact hrat.trans hlow
   · have hu := Real.log_le_sub_one_of_pos harg
-    convert hu using 1 <;> ring
+    convert hu using 1
+    all_goals ring
 
 /-- A logarithmic operator weight differs from its telescoping `log log`
 increment by at most `1/(t(t+1))`. -/

@@ -219,8 +219,8 @@ theorem quotientCoefficient_kernel_sandwich
         have hfirst : 0 ≤ r * (r + 1) / x := by positivity
         have hthird : 0 ≤ Real.log (2 * (r + 1)) / L := by positivity
         linarith
-  have hsand := quotient_kernel_sandwich hη0 hη hm hL hdlo hdhi e0 he
-    hlogCommon hlaPos hlb hlbPos
+  have hsand := quotient_kernel_sandwich hη0 hη hm hL hdlo hdhi he
+    hlogCommon hlb hlbPos
   have hmain : m / L = quotientMainKernel N t := by
     dsimp [m, L, x, r, quotientMainKernel]
     field_simp

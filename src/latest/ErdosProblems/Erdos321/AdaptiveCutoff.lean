@@ -47,7 +47,6 @@ private theorem adaptiveCutoffData_of_bounds {N : ℕ}
   have hL4 : 4 ≤ L := by
     apply Nat.le_floor
     dsimp [L, adaptiveLogScale]
-    norm_num
     linarith
   have hLpos : 0 < L := by omega
   have hLsqR : (L : ℝ) ^ 2 ≤ Real.log N ^ 2 := by

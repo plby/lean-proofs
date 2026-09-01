@@ -27,7 +27,8 @@ private theorem log_succ_sub_log_bounds {t : ℕ} (ht : 3 ≤ t) :
     exact hrat.trans hlow
   · rw [hdiff]
     have hu := Real.log_le_sub_one_of_pos harg
-    convert hu using 1 <;> ring
+    convert hu using 1
+    all_goals ring
 
 /-- One discrete logarithmic weight is within a factor two of the corresponding
 increment of `log log`. -/
