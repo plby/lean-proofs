@@ -188,8 +188,8 @@ theorem exists_critical_subgraph_le_of_vertex_deletions
         apply hK.ne
         apply Subgraph.verts_spanningCoe_injective
         apply Prod.ext
-        · simpa [hspan]
-        · simpa [heq]
+        · simp [hspan]
+        · simp [heq]
       have hKlt : K.spanningCoe < H := lt_of_le_of_ne hKle hKne
       have hKcol : K.spanningCoe.Colorable q := by
         by_contra hnot
@@ -256,7 +256,7 @@ theorem exists_critical_subgraph_le_of_vertex_deletions
 /-! ## The Kempe-chain lower bound -/
 
 theorem choose_le_card_of_color_pair_witness
-    {V : Type u} [Fintype V] [DecidableEq V]
+    {V : Type u}
     {q : ℕ} (F : Finset (Sym2 V)) (c : V → Fin q)
     (h : ∀ p : {p : Sym2 (Fin q) // ¬ p.IsDiag},
       ∃ e : Sym2 V, e ∈ F ∧ Sym2.map c e = p.1) :
@@ -418,7 +418,7 @@ theorem exists_kempe_neighbor_pair
 theorem kempe_edge_color_pair
     {V : Type u} {G : SimpleGraph V} {q : ℕ} {v : V}
     (c : (G.deleteIncidenceSet v).Coloring (Fin q))
-    (i j : Fin q) (hij : i ≠ j) {e : Sym2 V}
+    (i j : Fin q) {e : Sym2 V}
     (he : e ∈ (kempeGraph G v c i j).edgeSet) :
     Sym2.map c e = s(i, j) := by
   induction e using Sym2.ind with
@@ -431,8 +431,8 @@ theorem kempe_edge_color_pair
       rcases hxy.2.2.2.1 with hxi | hxj <;>
         rcases hxy.2.2.2.2 with hyi | hyj
       · exact (hcxy (hxi.trans hyi.symm)).elim
-      · simpa [hxi, hyj]
-      · simpa [hxj, hyi]
+      · simp [hxi, hyj]
+      · simp [hxj, hyi]
       · exact (hcxy (hxj.trans hyj.symm)).elim
 
 private def kempe_bool_coloring
@@ -453,7 +453,7 @@ private def kempe_bool_coloring
   · simp_all
 
 theorem exists_exceptional_edge_on_kempe_walk
-    {V : Type u} [DecidableEq V] {G : SimpleGraph V} {q : ℕ} {v : V}
+    {V : Type u} {G : SimpleGraph V} {q : ℕ} {v : V}
     (F : Finset (Sym2 V))
     (hincident : ∀ e ∈ F, v ∉ e)
     (bcol : (G.deleteEdges (F : Set (Sym2 V))).Coloring Bool)
@@ -480,7 +480,7 @@ theorem exists_exceptional_edge_on_kempe_walk
   have hp_avoids : ∀ e, e ∈ pG.edges → e ∉ (F : Set (Sym2 V)) := by
     intro e hep heF
     apply hnone
-    refine ⟨e, heF, kempe_edge_color_pair c i j hij ?_⟩
+    refine ⟨e, heF, kempe_edge_color_pair c i j ?_⟩
     exact p.edges_subset_edgeSet (hpG_edges ▸ hep)
   let pH := pG.toDeleteEdges (F : Set (Sym2 V)) hp_avoids
   have hpH_length : pH.length = p.length := by
@@ -500,7 +500,7 @@ theorem exists_exceptional_edge_on_kempe_walk
   exact (Nat.not_even_iff_odd.mpr (hpH_length.symm ▸ hpOdd)) hpEven
 
 theorem kempe_lower_bound
-    {V : Type u} [Fintype V] [DecidableEq V]
+    {V : Type u}
     {G : SimpleGraph V} {q : ℕ} {v : V}
     (F : Finset (Sym2 V))
     (hincident : ∀ e ∈ F, v ∉ e)
@@ -527,7 +527,7 @@ theorem kempe_lower_bound
       exact ⟨e, heF, hec⟩
 
 theorem exists_vertex_not_incident
-    {V : Type u} [Fintype V] [DecidableEq V]
+    {V : Type u} [Fintype V]
     (F : Finset (Sym2 V)) (hcard : 2 * F.card < Fintype.card V) :
     ∃ v : V, ∀ e ∈ F, v ∉ e := by
   classical
@@ -549,7 +549,7 @@ theorem exists_vertex_not_incident
   exact Finset.mem_biUnion.mpr ⟨e, heF, Sym2.mem_toFinset.mpr hve⟩
 
 theorem kempe_lower_bound_of_many_vertices
-    {V : Type u} [Fintype V] [DecidableEq V]
+    {V : Type u} [Fintype V]
     {G : SimpleGraph V} {q : ℕ}
     (F : Finset (Sym2 V))
     (hcard : 2 * F.card < Fintype.card V)
@@ -572,7 +572,7 @@ theorem deleteIncidenceSet_colorable_of_proper_subgraphs
     intro heq
     have hvtop : v ∈ (⊤ : G.Subgraph).verts := by simp
     have hvH : v ∈ H.verts := heq ▸ hvtop
-    simpa [H] using hvH
+    simp [H] at hvH
   obtain ⟨c⟩ := hproper H hHlt
   let zero : Fin q := ⟨0, hq⟩
   let C : V → Fin q := fun x ↦ if hx : x = v then zero else
@@ -590,7 +590,7 @@ theorem deleteIncidenceSet_colorable_of_proper_subgraphs
 every critical graph needs at least one deleted edge for every unordered pair
 of old colors. -/
 theorem critical_deletionNumber_lower
-    {V : Type u} [Fintype V] [DecidableEq V]
+    {V : Type u} [Fintype V]
     {G : SimpleGraph V} {q : ℕ} (hq : 3 ≤ q)
     (hsize : 2 * q.choose 2 - 1 ≤ Fintype.card V)
     (hcrit : IsCritical G (q + 1)) :
@@ -969,7 +969,8 @@ private lemma oddGraph_adj_iff_rel {q L : ℕ} (u v : OddVertex q L) :
     simp only [oddGraph_adj_p_p, oddGraph_adj_p_c, oddGraph_adj_c_p,
       oddGraph_adj_c_c, oddGraph_adj_p_x, oddGraph_adj_x_p,
       oddGraph_adj_c_x, oddGraph_adj_x_c, oddGraph_adj_x_x,
-      oddRel, ne_eq] <;> aesop <;> omega
+      oddRel, ne_eq] <;>
+    aesop (config := { warnOnNonterminal := false }) <;> omega
 
 namespace OddDelete
 
@@ -1106,7 +1107,7 @@ private lemma deleteCColorNat_ne_of_rel {q L : ℕ} (hL : Odd L)
     apply hne
     simp [Fin.ext hjk]
   case c.p j k =>
-    simp only [deleteCColorNat, rel, oddRel] at huv
+    simp only [rel, oddRel] at huv
     exact huv.symm
   case x.p s j =>
     simp only [deleteCColorNat]
@@ -1323,7 +1324,7 @@ noncomputable instance evenAdjDecidable (q t : ℕ) : DecidableRel (EvenAdj q t)
 private lemma evenAdj_symm (q t : ℕ) : Std.Symm (EvenAdj q t) := by
   constructor
   intro u v huv
-  cases u <;> cases v <;> simp_all [EvenAdj, ne_comm, eq_comm]
+  cases u <;> cases v <;> simp_all [EvenAdj, eq_comm]
 
 private lemma evenAdj_irrefl (q t : ℕ) : Std.Irrefl (EvenAdj q t) := by
   constructor
@@ -1628,14 +1629,15 @@ private def colorDeleteX {q t : ℕ} (cut : Fin t) : EvenVertex q t → ℕ
 private lemma colorDeleteX_bounded {q t : ℕ} (hq : 3 ≤ q) (cut : Fin t) :
     VertexBoundedNat (colorDeleteX (q := q) cut) := by
   intro v
-  cases v <;> simp [colorDeleteX] <;> (try split_ifs) <;> omega
+  cases v <;> simp only [colorDeleteX] <;> (try split_ifs) <;> omega
 
 private lemma colorDeleteX_proper {q t : ℕ} (hq : 3 ≤ q) (cut : Fin t) :
     VertexProperNat (colorDeleteX (q := q) cut) (x cut) := by
   have ht : 0 < t := Nat.zero_lt_of_lt cut.isLt
   rintro r s hrs hrc hsc heq
   cases r <;> cases s <;>
-    simp_all [EvenAdj, colorDeleteX] <;> (try split_ifs at *)
+    simp_all only [ne_eq, reduceCtorEq, not_false_eq_true, x.injEq,
+      EvenAdj, colorDeleteX] <;> (try split_ifs at *)
   all_goals omega
 
 private def colorDeleteY {q t : ℕ} (cut : Fin t) : EvenVertex q t → ℕ
@@ -1647,14 +1649,15 @@ private def colorDeleteY {q t : ℕ} (cut : Fin t) : EvenVertex q t → ℕ
 private lemma colorDeleteY_bounded {q t : ℕ} (hq : 3 ≤ q) (cut : Fin t) :
     VertexBoundedNat (colorDeleteY (q := q) cut) := by
   intro v
-  cases v <;> simp [colorDeleteY] <;> (try split_ifs) <;> omega
+  cases v <;> simp only [colorDeleteY] <;> (try split_ifs) <;> omega
 
 private lemma colorDeleteY_proper {q t : ℕ} (hq : 3 ≤ q) (cut : Fin t) :
     VertexProperNat (colorDeleteY (q := q) cut) (y cut) := by
   have ht : 0 < t := Nat.zero_lt_of_lt cut.isLt
   rintro r s hrs hrc hsc heq
   cases r <;> cases s <;>
-    simp_all [EvenAdj, colorDeleteY] <;> (try split_ifs at *)
+    simp_all only [ne_eq, reduceCtorEq, not_false_eq_true, y.injEq,
+      EvenAdj, colorDeleteY] <;> (try split_ifs at *)
   all_goals omega
 
 private def natToFinVertexColor {q t : ℕ} (c : EvenVertex q t → ℕ)
@@ -1733,7 +1736,7 @@ private lemma exceptional_disjoint (q t : ℕ) :
   refine Sym2.inductionOn ab ?_
   intro r s hi
   change s(z, b i) = s(a r, a s) at hi
-  simpa [Sym2.eq_iff] using hi
+  simp at hi
 
 lemma evenExceptionalFinset_card (q t : ℕ) (hq : 3 ≤ q) :
     (evenExceptionalFinset q t).card = q.choose 2 := by
@@ -1781,7 +1784,7 @@ private lemma mem_evenExceptionalFinset_iff {q t : ℕ}
       apply Finset.mem_union_left
       rw [aExceptionalEdges, Finset.mem_map]
       exact ⟨s(i, j), by
-        simp [SimpleGraph.mem_edgeFinset, mem_edgeSet, h], by
+        simp [h], by
         rw [Function.Embedding.sym2Map_apply, Sym2.map_mk]
         rfl⟩
     case b.z i =>
