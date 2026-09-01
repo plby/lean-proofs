@@ -2718,8 +2718,6 @@ open Filter Topology
 open Real goldenRatio
 open scoped BigOperators
 
-set_option maxHeartbeats 800000
-
 private theorem even_coefficient_period_sum
     (n : ℕ) (hn : 0 < n) (he : Even n) (j : ℕ) (r : ℝ) :
     (∑ x : Fin (2 * n),
@@ -2803,6 +2801,8 @@ theorem summable_fibLambertCoeff_mul_invPhi_pow (n : ℕ) :
   rw [Real.norm_eq_abs, abs_mul, abs_pow, abs_of_nonneg hr0]
   simpa [r] using mul_le_mul_of_nonneg_right hc (pow_nonneg hr0 m)
 
+set_option maxHeartbeats 800000 in
+-- Splitting the series into even and odd residue classes exceeds the default budget.
 /-- Closed form of the coefficient generating series for one selected index. -/
 theorem hasSum_fibLambertCoeff_mul_invPhi_pow
     (n : ℕ) (hn : 0 < n) :
@@ -2821,7 +2821,7 @@ theorem hasSum_fibLambertCoeff_mul_invPhi_pow
       (fibLambertCoeff n m : ℝ) * r ^ m) := by
     simpa [r] using summable_fibLambertCoeff_mul_invPhi_pow n
   by_cases he : Even n
-  · letI : NeZero (2 * n) := ⟨by omega⟩
+  · let _ : NeZero (2 * n) := ⟨by omega⟩
     have hprod : HasSum
         (fun p : ℕ × Fin (2 * n) =>
           (fibLambertCoeff n (p.1 * (2 * n) + p.2) : ℝ) *
@@ -2848,7 +2848,7 @@ theorem hasSum_fibLambertCoeff_mul_invPhi_pow
     rw [← hv]
     simpa [r] using hf.hasSum
   · have ho : Odd n := Nat.not_even_iff_odd.mp he
-    letI : NeZero (4 * n) := ⟨by omega⟩
+    let _ : NeZero (4 * n) := ⟨by omega⟩
     have hprod : HasSum
         (fun p : ℕ × Fin (4 * n) =>
           (fibLambertCoeff n (p.1 * (4 * n) + p.2) : ℝ) *
@@ -2975,8 +2975,8 @@ namespace Erdos267
 open Real goldenRatio
 open scoped BigOperators
 
-set_option maxHeartbeats 800000
-
+set_option maxHeartbeats 800000 in
+-- Bounding the double series requires a large nested summability elaboration.
 private theorem summable_double_fibLambertCoeff
     (n : ℕ → ℕ) (hpos : ∀ k, 0 < n k) (hmono : StrictMono n) :
     Summable (Function.uncurry fun k m : ℕ =>
@@ -3650,8 +3650,7 @@ theorem InScaledGoldenPair.norm_lower {q : ℕ} (hq : 0 < q)
     by_contra hz
     simp only [not_or, not_not] at hz
     rcases hz with ⟨rfl, rfl⟩
-    simp at hxAB
-    exact hx hxAB
+    exact hx (by simpa using hxAB)
   rw [hxAB, hyAB]
   exact inv_sq_le_abs_scaled_golden_mul_abs_conj A B q hq hAB
 
@@ -4910,8 +4909,11 @@ theorem twoWindowSieveBudget_eq
       2 * W *
         ∑ j ∈ laterPositionRange K H,
           (R / (n j / (n j).gcd p) + 1) := by
-  simp [twoWindowSieveBudget, twoWindowConditions, twoWindowModulus,
-    Finset.sum_product]
+  simp only [twoWindowSieveBudget, twoWindowConditions, Finset.product_eq_sprod,
+    Fintype.univ_bool, twoWindowModulus, Finset.sum_product, Finset.sum_const,
+    Finset.mem_singleton, Bool.true_eq_false, not_false_eq_true,
+    Finset.card_insert_of_notMem, Finset.card_singleton, Nat.reduceAdd,
+    smul_eq_mul, Finset.card_range]
   rw [Finset.mul_sum]
   apply Finset.sum_congr rfl
   intro j hj
@@ -7739,7 +7741,7 @@ open scoped BigOperators
 coherent center forms modulo a covered odd modulus, retains polynomially many
 candidates in one canonical-prime CRT period. -/
 theorem exists_period_with_polynomially_many_protected_centers
-    {ι : Type*} [DecidableEq ι]
+    {ι : Type*}
     (Q : Finset ℕ) (C : Finset ι) (side : ι → Bool)
     (a qmod : ι → ℕ) (step v : ℕ)
     (hQ3 : ∀ q ∈ Q, 3 ≤ q)
@@ -7834,7 +7836,7 @@ lemma card_replicatedGlobalCenterSafeResidues
 the same protected density is available in every positive number of full CRT
 periods, so endpoint costs can be made negligible. -/
 theorem exists_period_with_scaled_polynomially_many_protected_centers
-    {ι : Type*} [DecidableEq ι]
+    {ι : Type*}
     (Q : Finset ℕ) (C : Finset ι) (side : ι → Bool)
     (a qmod : ι → ℕ) (step v : ℕ)
     (hQ3 : ∀ q ∈ Q, 3 ≤ q)
@@ -8262,7 +8264,11 @@ theorem nearHalf_offCenter_budget_le
       Finset.sum_le_sum_of_subset hOsub
     _ = 2 * W * ∑ j ∈ laterPositionRange K H,
         ((R * (4 * W)) / n j + 1) := by
-      simp [twoWindowConditions, twoWindowModulus, Finset.sum_product]
+      simp only [twoWindowConditions, Finset.product_eq_sprod,
+        Fintype.univ_bool, twoWindowModulus, Finset.sum_product,
+        Finset.sum_const, Finset.mem_singleton, Bool.true_eq_false,
+        not_false_eq_true, Finset.card_insert_of_notMem,
+        Finset.card_singleton, Nat.reduceAdd, smul_eq_mul, Finset.card_range]
       rw [Finset.mul_sum]
       apply Finset.sum_congr rfl
       intro j hj
@@ -8278,8 +8284,8 @@ namespace Erdos267
 
 open scoped BigOperators
 
-set_option maxHeartbeats 1200000
-
+set_option maxHeartbeats 1200000 in
+-- The scaled CRT budget calculation exceeds the default heartbeat budget.
 /-- If the reciprocal-index density term is below the polynomial protected
 fraction, scaling the canonical CRT period eventually dominates all additive
 endpoint costs. -/
@@ -8540,8 +8546,12 @@ theorem partialCenter_offBudget_le
             exact Nat.mul_le_mul_left R (hgcd u)
       _ = 2 * W * ∑ j ∈ Finset.Ico G H,
           ((R * (4 * n K)) / n j + 1) := by
-            simp [Late, lateTwoWindowConditions, twoWindowModulus,
-              Finset.sum_product]
+            simp only [lateTwoWindowConditions, Finset.product_eq_sprod,
+              Fintype.univ_bool, twoWindowModulus, Finset.sum_product,
+              Finset.sum_const, Finset.mem_singleton, Bool.true_eq_false,
+              not_false_eq_true, Finset.card_insert_of_notMem,
+              Finset.card_singleton, Nat.reduceAdd, smul_eq_mul,
+              Finset.card_range, Late]
             rw [Finset.mul_sum]
             apply Finset.sum_congr rfl
             intro j hj
@@ -8559,8 +8569,8 @@ namespace Erdos267
 
 open scoped BigOperators
 
-set_option maxHeartbeats 1200000
-
+set_option maxHeartbeats 1200000 in
+-- The casted double-sum normalization exceeds the default heartbeat budget.
 lemma cast_sum_nat_div_add_one_le
     {α : Type*} (I : Finset α) (q : α → ℕ)
     (_hq : ∀ i ∈ I, 0 < q i) (A : ℕ) :
@@ -9025,7 +9035,7 @@ namespace Erdos267
 the same protected density is available in every positive number of full CRT
 periods, so endpoint costs can be made negligible. -/
 theorem exists_exact_period_with_scaled_polynomially_many_protected_centers
-    {ι : Type*} [DecidableEq ι]
+    {ι : Type*}
     (Q : Finset ℕ) (C : Finset ι) (side : ι → Bool)
     (a qmod : ι → ℕ) (step v : ℕ)
     (hQ3 : ∀ q ∈ Q, 3 ≤ q)
@@ -9287,8 +9297,8 @@ namespace Erdos267
 
 open scoped BigOperators
 
-set_option maxHeartbeats 1200000
-
+set_option maxHeartbeats 1200000 in
+-- The bounded protected-budget construction exceeds the default heartbeat budget.
 /-- A strengthened, quantitative version of F-086.  With the slightly stronger
 margin `8 D Z < 1`, the protected range can be chosen no larger than the base
 CRT period plus the explicit additive endpoint cost.  Exposing this upper bound
@@ -15215,10 +15225,10 @@ theorem card_pairwise_disjoint_complete_dyadic_tails_le
   classical
   cases isEmpty_or_nonempty ι with
   | inl hempty =>
-      letI := hempty
+      let _ := hempty
       simp
   | inr hnonempty =>
-      letI := hnonempty
+      let _ := hnonempty
       let M : ℕ := ∑ a : ι, m a
       have hM : 0 < M := by
         dsimp [M]
@@ -15733,10 +15743,10 @@ end Erdos267
 
 namespace Erdos267
 
-set_option maxHeartbeats 1200000
-
 open Real goldenRatio
 
+set_option maxHeartbeats 1200000 in
+-- Reindexing the covered configuration into its finite remainder and tails is expensive.
 /-- If a covered deletion configuration has one final complete tail with only
 finitely many remaining exceptional positions, then the original reciprocal-
 Fibonacci sum is irrational. -/
@@ -15749,7 +15759,7 @@ theorem irrational_of_covered_config_finite_remainder
     Irrational (∑' i : ℕ, (Nat.fib (n i) : ℝ)⁻¹) := by
   classical
   let C : Set ℕ := {i : ℕ | i ∉ Set.range k}
-  letI : Fintype C := hfinite.fintype
+  let _ : Fintype C := hfinite.fintype
   let getTail : Fin cfg.tails.length → EmbeddedCompleteDyadicTail n :=
     fun a => cfg.tails.get a
   let f : ℕ → ℝ := fun i => (Nat.fib (n i) : ℝ)⁻¹
@@ -17137,8 +17147,7 @@ theorem cyclicFourier_finset_ne_zero_of_maximal_period
     by_contra hrnot
     have hrzero : r = 0 := by omega
     subst r
-    simp at hr
-    exact hLpos.ne' hr
+    exact hLpos.ne' (by simpa using hr)
   have hterm : ∀ n ∈ S,
       cyclicFourier (fibLambertCoeff n) L ζ =
         if fibLambertPeriod n = q then
@@ -20025,8 +20034,8 @@ namespace Erdos267
 
 open scoped BigOperators
 
-set_option maxHeartbeats 1200000
-
+set_option maxHeartbeats 1200000 in
+-- The outside-block protected-budget construction exceeds the default budget.
 /-- A strengthened, quantitative version of F-086.  With the slightly stronger
 margin `8 D Z < 1`, the protected range can be chosen no larger than the base
 CRT period plus the explicit additive endpoint cost.  Exposing this upper bound
@@ -21344,8 +21353,8 @@ namespace Erdos267
 
 open Filter Topology Real goldenRatio
 
-set_option maxHeartbeats 1200000
-
+set_option maxHeartbeats 1200000 in
+-- Combining the pair-block estimates with the eventual bound is elaboration-heavy.
 /-- Once singleton/double-pair blocks are allowed, the old `large gcd or exact
 double` dichotomy sharpens to unconditional eventual large gcd. -/
 theorem eventually_two_eighthRoot_le_prefixGcd_of_pair
@@ -21717,14 +21726,18 @@ theorem lowGcdCompatible_budget_eq_component_sums
       apply Finset.sum_congr rfl
       intro j hj
       by_cases hg : (n j).gcd p ≤ W
-      · simp [F, hg, twoWindowModulus, twoWindowOffset,
-          add_assoc, add_comm, add_left_comm]
-        rw [Finset.sum_add_distrib]
+      · simp only [F, hg, twoWindowModulus, twoWindowOffset, add_assoc, add_comm,
+          add_left_comm, Fintype.univ_bool, Finset.mem_singleton,
+          Bool.true_eq_false, not_false_eq_true, Finset.sum_insert,
+          Finset.sum_singleton, Finset.sum_const, smul_eq_mul, mul_ite, mul_one,
+          mul_zero]
+        rw [Finset.sum_add_distrib, add_comm]
         congr 1
         · rw [← Finset.sum_filter]
-          simp
+          simp only [Bool.false_eq_true, ↓reduceIte, add_zero,
+            Finset.sum_const, smul_eq_mul]
         · rw [← Finset.sum_filter]
-          simp
+          simp only [↓reduceIte, Finset.sum_const, smul_eq_mul, add_comm]
       · simp [F, hg, twoWindowModulus]
 
 /-- Summed over all later positions and both window sides, the low-gcd main
@@ -21775,7 +21788,8 @@ theorem lowGcdCompatible_budget_cast_le
                     4 * ((W : ℝ) / (n j).gcd p) := by ring
                 _ ≤ 4 * W := mul_le_mul_of_nonneg_left hWg (by norm_num)
             exact add_le_add_right h4 _
-      · simp [hgW]
+      · simp only [hgW, Finset.sum_const, smul_add, nsmul_eq_mul, mul_one,
+          mul_ite, mul_zero]
         have hnj : (0 : ℝ) < n j := by exact_mod_cast hpos j
         positivity
     _ = 4 * (R : ℝ) * W *
@@ -22033,14 +22047,18 @@ theorem fourWidthGcdCompatible_budget_eq_component_sums
       apply Finset.sum_congr rfl
       intro j hj
       by_cases hg : (n j).gcd p ≤ 4 * W
-      · simp [F, hg, twoWindowModulus, twoWindowOffset,
-          add_assoc, add_comm, add_left_comm]
-        rw [Finset.sum_add_distrib]
+      · simp only [F, hg, twoWindowModulus, twoWindowOffset, add_assoc, add_comm,
+          add_left_comm, Fintype.univ_bool, Finset.mem_singleton,
+          Bool.true_eq_false, not_false_eq_true, Finset.sum_insert,
+          Finset.sum_singleton, Finset.sum_const, smul_eq_mul, mul_ite, mul_one,
+          mul_zero]
+        rw [Finset.sum_add_distrib, add_comm]
         congr 1
         · rw [← Finset.sum_filter]
-          simp
+          simp only [Bool.false_eq_true, ↓reduceIte, add_zero,
+            Finset.sum_const, smul_eq_mul]
         · rw [← Finset.sum_filter]
-          simp
+          simp only [↓reduceIte, Finset.sum_const, smul_eq_mul, add_comm]
       · simp [F, hg, twoWindowModulus]
 
 /-- The complete four-width family over both sides has a main term linear in
@@ -22090,7 +22108,8 @@ theorem fourWidthGcdCompatible_budget_cast_le
                     10 * ((W : ℝ) / (n j).gcd p) := by ring
                 _ ≤ 10 * W := mul_le_mul_of_nonneg_left hWg (by norm_num)
             exact add_le_add_right h10 _
-      · simp [hgW]
+      · simp only [hgW, Finset.sum_const, smul_add, nsmul_eq_mul, mul_one,
+          mul_ite, mul_zero]
         have hnj : (0 : ℝ) < n j := by exact_mod_cast hpos j
         positivity
     _ = 10 * (R : ℝ) * W *
@@ -22390,7 +22409,11 @@ theorem lateAlignedCenterEnvelope_budget_cast_le
             exact hpoint u
       _ = ({L, sR} : Finset ℕ).card * 2 *
           ∑ j ∈ Finset.Ico G H, upper j := by
-            simp [lateAlignedCenterEnvelope, Finset.sum_product]
+            simp only [lateAlignedCenterEnvelope, Finset.product_eq_sprod,
+              Fintype.univ_bool, Finset.sum_product, Finset.sum_const,
+              Finset.mem_singleton, Bool.true_eq_false, not_false_eq_true,
+              Finset.card_insert_of_notMem, Finset.card_singleton, Nat.reduceAdd,
+              smul_eq_mul]
             simp_rw [← mul_assoc]
             rw [← Finset.mul_sum]
       _ ≤ 4 * ∑ j ∈ Finset.Ico G H, upper j := by
@@ -22592,7 +22615,7 @@ theorem card_replicatedPowerTwoScaledGlobalCenterSafeResidues
 /-- The standard polynomial protected density survives replacing `t` by
 `2^e t` in both center congruence forms. -/
 theorem exists_exact_period_with_scaled_polynomially_many_powerTwo_centers
-    {ι : Type*} [DecidableEq ι]
+    {ι : Type*}
     (Q : Finset ℕ) (C : Finset ι) (side : ι → Bool)
     (a qmod : ι → ℕ) (step v e : ℕ)
     (hQ3 : ∀ q ∈ Q, 3 ≤ q)
@@ -23721,7 +23744,7 @@ lemma card_replicatedGlobalAffinePairSafeResidues
 /-- Scaled protected-candidate theorem for two arbitrary coherent affine
 forms. -/
 theorem exists_exact_period_with_scaled_polynomially_many_affinePair_centers
-    {ι : Type*} [DecidableEq ι]
+    {ι : Type*}
     (Q : Finset ℕ) (C : Finset ι) (side : ι → Bool)
     (offset qmod : ι → ℕ) (step a b c d : ℕ)
     (hQ3 : ∀ q ∈ Q, 3 ≤ q)
@@ -24458,7 +24481,7 @@ lemma card_replicatedGlobalReverseCenterSafeResidues
 /-- Complete scaled side-aware center protection.  Lower center moduli must be
 coprime to the target quotient; upper moduli need not be. -/
 theorem exists_exact_period_with_scaled_polynomially_many_reverse_centers
-    {ι : Type*} [DecidableEq ι]
+    {ι : Type*}
     (Qmods : Finset ℕ) (C : Finset ι) (side : ι → Bool)
     (offset qmod : ι → ℕ) (step targetQ scale root : ℕ)
     (hQ3 : ∀ q ∈ Qmods, 3 ≤ q)
@@ -24858,7 +24881,11 @@ theorem sparse_highGcd_budget_cast_le_of_gcd_le
         positivity)
     _ = 2 * (∑ j ∈ laterPositionRange K H,
         ((R : ℝ) * Z / n j + 1)) := by
-      simp [T, upper, Finset.sum_product]
+      simp only [Finset.product_eq_sprod, Fintype.univ_bool,
+        Finset.sum_product, Finset.sum_const, Finset.mem_singleton,
+        Bool.true_eq_false, not_false_eq_true, Finset.card_insert_of_notMem,
+        Finset.card_singleton, Nat.reduceAdd, smul_add, nsmul_eq_mul,
+        Nat.cast_ofNat, mul_one, T, upper]
       rw [Finset.mul_sum]
       apply Finset.sum_congr rfl
       intro j hj
@@ -25574,8 +25601,8 @@ namespace Erdos267
 
 open scoped BigOperators
 
-set_option maxHeartbeats 1200000
-
+set_option maxHeartbeats 1200000 in
+-- The reverse-window protected-budget construction exceeds the default budget.
 /-- A strict density margin yields a protected reverse-window search range
 bounded by one CRT period plus an explicit endpoint cost. -/
 theorem exists_bounded_reverseWindow_finsetBlock_protected_budget
@@ -26197,9 +26224,9 @@ end Erdos267
 
 namespace Erdos267
 
-set_option maxHeartbeats 3000000
-set_option maxRecDepth 10000
-
+set_option maxHeartbeats 3000000 in
+-- The logarithmic growth estimate uses deeply nested arithmetic normalization.
+set_option maxRecDepth 10000 in
 /-- A ratio-doubling block bounds a selected position by the binary logarithm
 of its selected value. -/
 theorem position_le_ratioBlock_mul_clog_target
@@ -27312,9 +27339,9 @@ namespace Erdos267
 
 open Filter Topology Real goldenRatio
 
-set_option maxHeartbeats 3000000
-set_option maxRecDepth 10000
-
+set_option maxHeartbeats 3000000 in
+-- The final reverse-window contradiction combines several large asymptotic estimates.
+set_option maxRecDepth 10000 in
 /-- No positive ratio-gap sequence of uniformly bounded selected two-adic
 order can have a fixed scaled-golden Lambert total. -/
 theorem boundedOrder_scaledGolden_contradiction
