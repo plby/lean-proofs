@@ -78,7 +78,7 @@ theorem padicBranchMap_bijective
       (padicBranchMap (p : ZMod (p ^ j)) q u b v) := by
     intro x y hxy
     exact (padicBranchMap_eq_iff hb q u v x y).mp hxy
-  letI : NeZero (p ^ j) := ⟨pow_ne_zero j (Nat.ne_of_gt hp0)⟩
+  let : NeZero (p ^ j) := ⟨pow_ne_zero j (Nat.ne_of_gt hp0)⟩
   exact ⟨hinj, Finite.injective_iff_surjective.mp hinj⟩
 
 /-- A natural number not divisible by the prime `p` remains a unit modulo

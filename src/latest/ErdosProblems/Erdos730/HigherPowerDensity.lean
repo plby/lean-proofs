@@ -91,7 +91,7 @@ theorem tendsto_higherPrimePowerPairs_scaled_card_div :
   have hXR : (X : ℝ) ≠ 0 := by exact_mod_cast hX.ne'
   have hC : (higherPowerBranchHeight : ℝ) ≠ 0 := by
     exact_mod_cast higherPowerBranchHeight_pos.ne'
-  simp only [Function.comp_apply, Nat.cast_mul, mul_zero]
+  simp only [Nat.cast_mul]
   field_simp
 
 /-- Four branches do not change either vanishing assertion. -/

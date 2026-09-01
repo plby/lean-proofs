@@ -424,7 +424,7 @@ theorem branchTestValue_eq_padicBranchMap
     calc
       _ = (((x / p ^ a : ℕ) : ℤ) : ZMod (p ^ r)) :=
         congrArg (fun z : ℤ ↦ (z : ZMod (p ^ r)))
-          (by simpa using (Int.natCast_ediv x (p ^ a)).symm)
+          (Int.natCast_ediv x (p ^ a)).symm
       _ = _ := Int.cast_natCast (R := ZMod (p ^ r)) _
   have hcquot :
       ((((branchValue L (x₀ % p ^ a) : ℕ) : ℤ) /
@@ -435,8 +435,7 @@ theorem branchTestValue_eq_padicBranchMap
       _ = (((branchValue L (x₀ % p ^ a) / p ^ a : ℕ) : ℤ) :
           ZMod (p ^ r)) :=
         congrArg (fun z : ℤ ↦ (z : ZMod (p ^ r)))
-          (by simpa using
-            (Int.natCast_ediv (branchValue L (x₀ % p ^ a)) (p ^ a)).symm)
+          (Int.natCast_ediv (branchValue L (x₀ % p ^ a)) (p ^ a)).symm
       _ = _ := Int.cast_natCast (R := ZMod (p ^ r)) _
   rw [hxquot, hcquot] at hcast
   have hquadratic :

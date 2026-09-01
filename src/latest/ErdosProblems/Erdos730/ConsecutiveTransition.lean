@@ -110,7 +110,8 @@ theorem lower_endpoint_decomposition
     n = q * ((c - 1) / 2) + (q - 1) / 2 := by
   rcases hq with ⟨r, rfl⟩
   rcases hc with ⟨s, rfl⟩
-  simp at h ⊢
+  simp only [add_tsub_cancel_right, ne_eq, OfNat.ofNat_ne_zero,
+    not_false_eq_true, mul_div_cancel_left₀] at h ⊢
   nlinarith [h]
 
 /-- The adjacent upper endpoint corresponding to equation (7). -/
@@ -120,7 +121,8 @@ theorem upper_endpoint_decomposition
     n + 1 = q * ((c - 1) / 2) + (q + 1) / 2 := by
   rcases hq with ⟨r, rfl⟩
   rcases hc with ⟨s, rfl⟩
-  simp at h ⊢
+  simp only [add_tsub_cancel_right, ne_eq, OfNat.ofNat_ne_zero,
+    not_false_eq_true, mul_div_cancel_left₀] at h ⊢
   have hhalf : (2 * r + 1 + 1) / 2 = r + 1 := by omega
   rw [hhalf]
   nlinarith [h]

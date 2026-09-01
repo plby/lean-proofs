@@ -1,3 +1,25 @@
+/- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
+/-
+This is a Lean formalization of a solution to Erdős Problem 730.
+https://www.erdosproblems.com/forum/thread/730
+
+Informal authors:
+- Liam Price
+- Tomodovodoo
+- Will Blair
+- GPT Pro
+
+Formal authors:
+- Will Blair
+- Codex
+- Claude Code
+
+URLs:
+- https://www.erdosproblems.com/forum/thread/730/proof-claims#proof-claim-58
+- https://github.com/williamjblair/lean-proofs/tree/03729c9cbb0b602f5a828bb850c85e84c5a6d460/ErdosProblems/Erdos730
+- https://github.com/williamjblair/lean-proofs/tree/5d10b4d91f257cfbe8c563cf927f543a868845e0/ErdosProblems/Erdos730
+- https://palomar-registry.org/entry.html?id=PALOMAR-2026-08-22-000001&version=1
+-/
 import ErdosProblems.Erdos730.Proof
 
 /-!

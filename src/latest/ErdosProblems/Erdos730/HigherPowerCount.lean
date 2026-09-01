@@ -106,7 +106,7 @@ theorem padicBranchAllowedCount_le
     (A : Finset (ZMod (p ^ r))) (hA : A.card = H ^ r) :
     padicBranchAllowedCount p r start N q u b v A ≤
       (N / p ^ r + 1) * H ^ r := by
-  letI : NeZero (p ^ r) := ⟨pow_ne_zero r hp.ne_zero⟩
+  let : NeZero (p ^ r) := ⟨pow_ne_zero r hp.ne_zero⟩
   unfold padicBranchAllowedCount
   calc
     intervalResidueCount (p ^ r) start N

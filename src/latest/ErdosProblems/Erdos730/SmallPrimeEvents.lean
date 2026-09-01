@@ -168,7 +168,7 @@ theorem prime_not_dvd_fixedDepthNaturalBeta
     {L : Branch} {x p a d r c₀ : ℕ}
     (hr : 1 ≤ r) (hlocal : LocalBranchObstruction L x p a d) :
     ¬p ∣ fixedDepthNaturalBeta p r L c₀ := by
-  letI : NeZero p := ⟨hlocal.1.ne_zero⟩
+  let : NeZero p := ⟨hlocal.1.ne_zero⟩
   let Q : ℕ := p ^ (2 * r)
   have hunitResidual :
       IsUnit (branchResidualCoefficient L : ZMod Q) := by
@@ -385,7 +385,6 @@ theorem higherPowerRho_le_two_thirds
   have hp0 : (0 : ℝ) < p := by positivity
   have hp3R : (3 : ℝ) ≤ p := by exact_mod_cast hp3
   rw [div_le_iff₀ (by positivity : (0 : ℝ) < 2 * p)]
-  push_cast
   norm_num
   linarith
 
@@ -490,7 +489,7 @@ theorem localSmallPrimeFiber_card_cast_le_fixedDepthRaw
   have hp3 : 3 ≤ p := by omega
   have hr : 1 ≤ r := by
     simpa only [hdepth] using (smallPrimeDepth_spec hp hX hpSmall).1
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   by_cases hempty : localHigherPowerFiber X L p 1 = ∅
   · rw [hempty]
     simp only [card_empty, Nat.cast_zero]
@@ -1055,7 +1054,9 @@ theorem normalizedSmallPrimeDepthTailWitnessCount_le_weightedMass
       by_cases hp2 : p = 2
       · subst p
         rw [localHigherPowerFiber_two_eq_empty]
-        simp
+        simp only [card_empty, CharP.cast_eq_zero, zero_div, Nat.cast_ofNat,
+          Nat.ofNat_pos, mul_nonneg_iff_of_pos_left, inv_pos,
+          mul_nonneg_iff_of_pos_right, ge_iff_le]
         positivity
       · have hfiber := localSmallPrimeFiber_normalized_le_uniform
             hX hpTail'.2.2.1 hp2 hpTail'.2.1

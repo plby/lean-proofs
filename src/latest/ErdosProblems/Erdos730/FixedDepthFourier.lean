@@ -270,7 +270,9 @@ theorem primePow_shift_mul_eq_zero
     calc
       p * p ^ (m - 1) = p ^ (m - 1) * p := by ac_rfl
       _ = p ^ ((m - 1) + 1) := (pow_succ p (m - 1)).symm
-      _ = p ^ m := by congr 1 <;> omega
+      _ = p ^ m := by
+        congr 1
+        all_goals omega
   rw [heq, ZMod.natCast_self]
 
 /-- If `p∤b`, then `b*p^(m-1)` is nonzero modulo `p^m`. -/
@@ -318,7 +320,9 @@ theorem card_primePow_mul_kernel
   have hq : p ^ m = p * d := by
     dsimp [d]
     calc
-      p ^ m = p ^ ((m - 1) + 1) := by congr 1 <;> omega
+      p ^ m = p ^ ((m - 1) + 1) := by
+        congr 1
+        all_goals omega
       _ = p ^ (m - 1) * p := pow_succ p (m - 1)
       _ = p * p ^ (m - 1) := by ac_rfl
   have hinj : Function.Injective (primePowKernelMap (p := p) (m := m) hm) := by
@@ -735,7 +739,9 @@ theorem norm_geometricPhaseSum_le_two_div
   apply div_le_div_of_nonneg_right _ (norm_nonneg _)
   calc
     ‖z ^ N - 1‖ ≤ ‖z ^ N‖ + ‖(1 : ℂ)‖ := norm_sub_le _ _
-    _ = 2 := by simp [norm_pow, hz] <;> norm_num
+    _ = 2 := by
+      simp [norm_pow, hz]
+      all_goals norm_num
 
 /-- Moving the start of a consecutive power interval only multiplies its
 sum by a unit-modulus scalar. -/
@@ -1035,7 +1041,8 @@ theorem norm_geometricPhaseSum_shiftedGrid_lower
   have hjR : (0 : ℝ) < 2 * j := by positivity
   rw [div_le_div_iff₀ hchordpos hjR]
   have hchord' : (4 : ℝ) * j / p ≤ ‖z - 1‖ := by
-    convert hchord using 1 <;> ring
+    convert hchord using 1
+    all_goals ring
   have hmul := (div_le_iff₀ hpR).mp hchord'
   nlinarith
 
@@ -1085,7 +1092,8 @@ theorem norm_geometricPhaseSum_shiftedGrid_upper
   rw [div_le_div_iff₀ hchordpos hsubR]
   have hchord' : (4 : ℝ) * (p - 1 - j : ℕ) / p ≤ ‖z - 1‖ := by
     dsimp [v] at hchord
-    convert hchord using 1 <;> ring
+    convert hchord using 1
+    all_goals ring
   have hmul := (div_le_iff₀ hpR).mp hchord'
   nlinarith
 
@@ -1407,8 +1415,8 @@ theorem stdAddChar_neg_natCast_as_realUnitPhase
     ZMod.stdAddChar (-(h : ZMod q)) =
       realUnitPhase (-2 * Real.pi * ((h : ℝ) / q)) := by
   rw [AddChar.map_neg_eq_conj, stdAddChar_natCast_as_realUnitPhase]
-  convert (realUnitPhase_neg (2 * Real.pi * ((h : ℝ) / q))).symm using 1 <;>
-    ring
+  convert (realUnitPhase_neg (2 * Real.pi * ((h : ℝ) / q))).symm using 1
+  all_goals ring
 
 theorem norm_geometricPhaseSum_realUnitPhase_neg (x : ℝ) (N : ℕ) :
     ‖geometricPhaseSum (realUnitPhase (-x)) N‖ =
@@ -1451,7 +1459,7 @@ theorem topDigitFactor_block_mass_le
           (realUnitPhase (2 * Real.pi * (theta + (b : ℝ) / p))) N‖ := by
     rw [norm_naturalDigitFourierFactor_interval E (a + p ^ d * b)
       ⟨0, Nat.succ_pos d⟩ M N hE]
-    simp only [Fin.val_zero, pow_zero, mul_one,
+    simp only [pow_zero, mul_one,
       stdAddChar_neg_natCast_as_realUnitPhase]
     calc
       ‖geometricPhaseSum
@@ -1464,8 +1472,8 @@ theorem topDigitFactor_block_mass_le
               ((p ^ (d + 1) : ℕ) : ℝ)))) N‖ := by
           convert norm_geometricPhaseSum_realUnitPhase_neg
             (2 * Real.pi * (((a + p ^ d * b : ℕ) : ℝ) /
-              ((p ^ (d + 1) : ℕ) : ℝ))) N using 1 <;>
-            ring
+              ((p ^ (d + 1) : ℕ) : ℝ))) N using 1
+          all_goals ring
       _ = ‖geometricPhaseSum
           (realUnitPhase (2 * Real.pi * (theta + (b : ℝ) / p))) N‖ := by
         congr 3
@@ -1688,7 +1696,6 @@ theorem residueClass_geometric_mass_le
     have hpR : (0 : ℝ) < p := by positivity
     have hqR : (0 : ℝ) < q := by positivity
     have hs0R : (s0 : ℝ) ≤ p := by exact_mod_cast hs0.le
-    push_cast
     field_simp [ne_of_gt hpR, ne_of_gt hqR]
     nlinarith
   rw [sum_residueClass_eq hs0]
@@ -1709,7 +1716,8 @@ theorem residueClass_geometric_mass_le
                 ((p * q : ℕ) : ℝ)))) N‖ := by
         convert norm_geometricPhaseSum_realUnitPhase_neg
           (2 * Real.pi * (((s0 + p * j : ℕ) : ℝ) /
-            ((p * q : ℕ) : ℝ))) N using 1 <;> ring
+            ((p * q : ℕ) : ℝ))) N using 1
+        all_goals ring
       _ = ‖geometricPhaseSum
           (realUnitPhase (2 * Real.pi * (theta + (j : ℝ) / q))) N‖ := by
         congr 3
@@ -1881,7 +1889,6 @@ theorem intervalPhaseSum_natural_eq_geometric
   rw [← AddChar.map_nsmul_eq_pow]
   congr 1
   simp only [nsmul_eq_mul]
-  push_cast
   ring
 
 theorem norm_fixedDepthIncompleteSum_le_completion
@@ -1896,7 +1903,7 @@ theorem norm_fixedDepthIncompleteSum_le_completion
         Real.sqrt ((p ^ (m + 1) : ℕ) : ℝ) *
           (((p ^ (m - 1) : ℕ) : ℝ) *
             (3 + Real.log (p ^ (m - 1)))) := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   let q : ℕ := p ^ (m - 1)
   have hmq : 1 ≤ m - 1 := by omega
   have hq2 : 2 ≤ q := by
@@ -1905,11 +1912,13 @@ theorem norm_fixedDepthIncompleteSum_le_completion
       _ = p ^ 1 := by simp
       _ ≤ p ^ (m - 1) := Nat.pow_le_pow_right hp.pos hmq
       _ = q := rfl
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   have hQ : p ^ m = p * q := by
     dsimp [q]
     calc
-      p ^ m = p ^ ((m - 1) + 1) := by congr 1 <;> omega
+      p ^ m = p ^ ((m - 1) + 1) := by
+        congr 1
+        all_goals omega
       _ = p ^ (m - 1) * p := pow_succ p (m - 1)
       _ = p * p ^ (m - 1) := by ac_rfl
   have hNQ : N ≤ p ^ m := by

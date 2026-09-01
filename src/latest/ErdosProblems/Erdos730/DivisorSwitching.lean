@@ -82,7 +82,7 @@ theorem top_ratio_and_square
   · exact (Nat.le_mul_of_pos_left _ (by norm_num : 0 < 130)).trans_lt h130L
 
 lemma cofactor_pos_of_exact_one {p c N : ℕ}
-    (hp : p.Prime) (h : ExactPrimePowerCofactor p 1 c N) : 0 < c := by
+    (_hp : p.Prime) (h : ExactPrimePowerCofactor p 1 c N) : 0 < c := by
   rcases h with ⟨_, hN, hpc⟩
   apply Nat.pos_of_ne_zero
   rintro rfl
@@ -317,11 +317,9 @@ theorem P_top_local_classification
     simpa [r] using hrdef
   have hrpos : 0 < r := by
     have hleft : 0 < (7 * d + 41 * c : ℕ) := by omega
-    push_cast at hleft
     nlinarith
   have hrlt : r < 4 := by
     have hhalf' : 2 * d + 1 ≤ p := by omega
-    push_cast at hhalf' hratio
     nlinarith
   have hcop := coprime_mod_left (P_branch_coprime_seven hbranch)
   have hcnot : c % 7 ≠ 0 := by
@@ -369,18 +367,15 @@ theorem Q_top_local_impossible
         (p : ℤ) * (7 * (c : ℤ) ^ 2 - 12 * (k : ℤ)) := by
     have htdecompZ : (t : ℤ) = d + p * k := by exact_mod_cast htdecomp
     rw [htdecompZ] at hclearZ
-    push_cast at hclearZ ⊢
     linear_combination hclearZ
   let r : ℤ := 7 * (c : ℤ) ^ 2 - 12 * (k : ℤ)
   have hrEq : (12 : ℤ) * d - 41 * c = (p : ℤ) * r := by
     simpa [r] using hrdef
   have hrnonneg : 0 ≤ r := by
-    push_cast at hratio
     have hlower : -(p : ℤ) < (12 : ℤ) * d - 41 * c := by nlinarith
     nlinarith
   have hrlt : r < 6 := by
     have hhalf' : 2 * d + 1 ≤ p := by omega
-    push_cast at hhalf' hratio
     nlinarith
   have hremod : r % 12 = r :=
     Int.emod_eq_of_lt hrnonneg (by omega)
@@ -428,20 +423,17 @@ theorem R_top_local_classification
         (p : ℤ) * (54 * (c : ℤ) ^ 2 - 14 * (k : ℤ)) := by
     have htdecompZ : (t : ℤ) = d + p * k := by exact_mod_cast htdecomp
     rw [htdecompZ] at hclearZ
-    push_cast at hclearZ ⊢
     linear_combination hclearZ
   let r : ℤ := 54 * (c : ℤ) ^ 2 - 14 * (k : ℤ)
   have hrEq :
       (14 : ℤ) * d + 7 - 129 * c = (p : ℤ) * r := by
     simpa [r] using hrdef
   have hrnonneg : 0 ≤ r := by
-    push_cast at hratio
     have hlower : -(p : ℤ) < (14 : ℤ) * d + 7 - 129 * c := by
       nlinarith
     nlinarith
   have hrlt : r < 7 := by
     have hhalf' : 2 * d + 1 ≤ p := by omega
-    push_cast at hhalf' hratio
     nlinarith
   have hremod : r % 14 = r :=
     Int.emod_eq_of_lt hrnonneg (by omega)
@@ -489,19 +481,16 @@ theorem S_top_local_impossible
         (p : ℤ) * (7 * (c : ℤ) ^ 2 - 12 * (k : ℤ)) := by
     have htdecompZ : (t : ℤ) = d + p * k := by exact_mod_cast htdecomp
     rw [htdecompZ] at hclearZ
-    push_cast at hclearZ ⊢
     linear_combination hclearZ
   let r : ℤ := 7 * (c : ℤ) ^ 2 - 12 * (k : ℤ)
   have hrEq :
       (12 : ℤ) * d + 43 * c + 6 = (p : ℤ) * r := by
     simpa [r] using hrdef
   have hrpos : 0 < r := by
-    push_cast at hcpos
     nlinarith
   have hrlt : r < 7 := by
     have hhalf' : 2 * d + 1 ≤ p := by omega
     have haux : 43 * c + 6 < p := by nlinarith
-    push_cast at hhalf' haux
     nlinarith
   have hremod : r % 12 = r :=
     Int.emod_eq_of_lt (by omega) (by omega)
@@ -911,8 +900,7 @@ theorem reciprocalPrimeAPSumReal_eq_count_div_add_integral
         ∫ u in (2 : ℝ)..x, f u * -(u ^ 2)⁻¹ :=
     intervalIntegral.integral_congr fun u _ => by rw [deriv_inv']; ring
   rw [int_deriv]
-  simp [b, Set.indicator_apply, Finset.sum_filter,
-    primeAPCountingReal, div_eq_mul_inv]
+  simp [b, Set.indicator_apply, primeAPCountingReal, div_eq_mul_inv]
   ring
 
 lemma integrableOn_primeAPCountingReal_div_sq

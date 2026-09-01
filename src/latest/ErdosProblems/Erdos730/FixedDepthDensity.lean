@@ -647,7 +647,8 @@ theorem two_mul_fixedDepthCompleteBlocks_normalized_discrepancy_le
       have htwo := mul_le_mul_of_nonneg_left
         (fixedDepthBlockCount_normalized_le hp hX hr hband)
         (by norm_num : (0 : ℝ) ≤ 2)
-      convert htwo using 1 <;> ring
+      convert htwo using 1
+      all_goals ring
     _ ≤ fixedDepthFourierErrorConstant r * fixedDepthFourierWeight r p :=
       fixedDepthBlockDiscrepancy_double_scaled_le hp hr
 

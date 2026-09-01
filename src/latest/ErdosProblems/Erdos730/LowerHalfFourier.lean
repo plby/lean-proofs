@@ -196,7 +196,7 @@ theorem dft_lowerHalfResidues_l1_le
     (∑ h : ZMod (p ^ d),
       ‖ZMod.dft (finsetIndicator (lowerHalfResidues p d)) h‖) ≤
       (p : ℝ) ^ d * (3 + Real.log p) ^ d := by
-  letI : NeZero p := ⟨by omega⟩
+  let : NeZero p := ⟨by omega⟩
   simp_rw [dft_lowerHalfResidues_eq_digitBoxFourierCoeff hp]
   exact digitBoxFourierCoeff_interval_l1_le (by omega)
     (lowerHalfDigitIntervals p d) (lowerHalfDigitIntervals_isInterval hp)
