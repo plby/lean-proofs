@@ -366,7 +366,7 @@ theorem rawLevel_finite_partition (n k : ℕ)
       choose ci ei hei using fun a ↦ ih (cp a)
       obtain ⟨i, hi⟩ := Finite.exists_infinite_fiber ci
       let H : Set ℕ := ci ⁻¹' {i}
-      haveI : Infinite H := hi
+      have : Infinite H := hi
       let h : ℕ ↪o ℕ := Nat.orderEmbeddingOfSet H
       let ep :
           Prod.Lex ((· < ·) : ℕ → ℕ → Prop) (@RawLevelLex n) ↪r
@@ -3676,7 +3676,7 @@ theorem restPos_level_lt {ka k j j' i i' : ℕ}
   split_ifs <;> omega
 
 theorem restPos_same_lt {ka k j i i' : ℕ}
-    (hi : i < i') (hi' : i' < 3) (hnot : ¬ (ka = k + 1 ∧ j = k)) :
+    (hi : i < i') (hnot : ¬ (ka = k + 1 ∧ j = k)) :
     restPos ka k j i < restPos ka k j i' := by
   simp [restPos, hnot]
   omega
@@ -3769,9 +3769,7 @@ theorem accLengths_realizationBlocksPrefix {N : Set ℕ} (hN : N.Infinite)
         have hleft :
             (accLengths 0 (realizationBlocksPrefix N ka k i n)).getLast? =
               some ((realizationBlocksPrefix N ka k i n).map List.length).sum := by
-          simpa [realizationBlocksPrefix] using
-            (getLast?_accLengths_cons (n := 0) (a := firstBlock N ka i)
-              (as := (List.range n).map (fun r ↦ restBlock N ka k (r + 1) i)))
+          simp [realizationBlocksPrefix]
         have hright :
             ((List.range (n + 1)).map (endpoint N ka i)).getLast? =
               some (endpoint N ka i n) := by
@@ -3779,8 +3777,8 @@ theorem accLengths_realizationBlocksPrefix {N : Set ℕ} (hN : N.Infinite)
         rw [hleft, hright] at hlast
         exact Option.some.inj hlast
       rw [realizationBlocksPrefix_succ, accLengths_append, hih]
-      simp only [List.map_append, List.map_singleton, List.sum_append, List.sum_singleton,
-        accLengths, List.append_nil, List.range_succ, List.map_append, List.map_singleton]
+      simp only [List.map_append, List.map_singleton, accLengths, List.range_succ,
+        List.map_append, List.map_singleton]
       rw [hsum, length_restBlock hk (by omega) hi]
       have hle : endpoint N ka i n ≤ endpoint N ka i (n + 1) :=
         (endpoint_strictMono_right hN ka i (by omega)).le
@@ -3833,13 +3831,12 @@ theorem realizationList_pairwise {N : Set ℕ} (hN : N.Infinite)
 
 theorem realizationBlocks_ne_nil {N : Set ℕ} (hN : N.Infinite)
     (hposN : ∀ x, x ∈ N → 0 < x)
-    {ka k i : ℕ} (hk : 0 < k) (hka : 0 < ka) (hi : i < 3) :
+    {ka k i : ℕ} (hk : 0 < k) (hi : i < 3) :
     ∀ b ∈ realizationBlocks N ka k i, b ≠ [] := by
   intro b hb
   simp only [realizationBlocks, List.mem_cons, List.mem_map, List.mem_range] at hb
   rcases hb with rfl | ⟨r, hr, rfl⟩
   · apply enumSlice_ne_nil
-    change 0 < endpoint N ka i 0
     apply hposN
     exact enumOf_mem hN _
   · exact restBlock_ne_nil hN hk (by omega) hi
@@ -3946,7 +3943,7 @@ theorem normalInteractionFrom_pairwise {N : Set ℕ} (hN : N.Infinite)
       have hqq := restBlock_pairwise hN ka k j q
       have hpqBlocks :
           ∀ x ∈ restBlock N ka k j p, ∀ y ∈ restBlock N ka k j q, x < y :=
-        restBlock_lt_of_pos_lt hN (restPos_same_lt hpq hq hnot)
+        restBlock_lt_of_pos_lt hN (restPos_same_lt hpq hnot)
       have htail := ih (j := j + 1) (by omega)
         (fun t h1 h2 ↦ hnormal t (by omega) (by omega))
       have hcurrent :
@@ -4030,9 +4027,7 @@ theorem length_realizationList {N : Set ℕ} (hN : N.Infinite)
       (accLengths 0 (realizationBlocks N ka k i)).getLast? =
         some (realizationList N ka k i).length := by
     rw [realizationBlocks_eq_restSeq]
-    simpa [realizationList, realizationBlocks_eq_restSeq] using
-      (getLast?_accLengths_cons (n := 0) (a := firstBlock N ka i)
-        (as := restSeq N ka k 1 (ka - 1) i))
+    simp [realizationList, realizationBlocks_eq_restSeq]
   have hright :
       (endpointList N ka i).getLast? = some (endpoint N ka i (ka - 1)) := by
     rw [endpointList, enumSlice, List.getLast?_map, List.getLast?_range]
@@ -4047,7 +4042,7 @@ noncomputable def oddScheme (N : Set ℕ) (k p q : ℕ) : List ℕ :=
       normalInteractionFrom N k k 1 (k - 1) p q
 
 theorem oddScheme_pairwise {N : Set ℕ} (hN : N.Infinite)
-    {k p q : ℕ} (hk : 0 < k) (hpq : p < q) (hq : q < 3) :
+    {k p q : ℕ} (hpq : p < q) (hq : q < 3) :
     (oddScheme N k p q).Pairwise (· < ·) := by
   have hp3 : p < 3 := hpq.trans hq
   let Dp := endpointList N k p
@@ -4137,12 +4132,12 @@ theorem oddFormBody {N : Set ℕ} (hN : N.Infinite)
     have hb' : b ∈ realizationBlocks N k k p := by
       rw [realizationBlocks_eq_restSeq]
       exact hb
-    exact realizationBlocks_ne_nil hN hposN hk hk (hpq.trans hq) b hb'
+    exact realizationBlocks_ne_nil hN hposN hk (hpq.trans hq) b hb'
   · intro b hb
     have hb' : b ∈ realizationBlocks N k k q := by
       rw [realizationBlocks_eq_restSeq]
       exact hb
-    exact realizationBlocks_ne_nil hN hposN hk hk hq b hb'
+    exact realizationBlocks_ne_nil hN hposN hk hq b hb'
   · simp [asp, restSeq]
     omega
   · simp [asq, restSeq]
@@ -4154,7 +4149,7 @@ theorem oddFormBody {N : Set ℕ} (hN : N.Infinite)
     rw [hpacc, hqacc]
     change _ = _ ++ _ ++ _ ++ _ ++ interact asp asq
     rw [interact_restSeq]
-  · exact oddScheme_pairwise hN hk hpq hq
+  · exact oddScheme_pairwise hN hpq hq
 
 /-! The canonicalization theorem above selected one scheme for each pair.
 For realization it is more convenient to run the identical Nash--Williams
@@ -4733,8 +4728,10 @@ theorem realizationList_even_right (N : Set ℕ) {k i : ℕ} (hk : 0 < k) :
     rw [hsplit]
     have hstart : 1 + (k - 2) = k - 1 := by omega
     rw [hstart]
-    simp [evenRightFirst, evenRightRest, hk1, restSeq_succ]
+    simp only [evenRightFirst, evenRightRest, if_neg hk1, restSeq_succ,
+      List.flatten_cons, List.flatten_append]
     rw [Nat.sub_add_cancel (show 1 ≤ k by omega)]
+    simp only [restSeq, List.range_zero, List.map_nil, List.flatten_nil, List.append_nil]
 
 @[simp] theorem length_evenRightRest {N : Set ℕ} {k i : ℕ} (hk : 0 < k) :
     (evenRightRest N k i).length = k - 1 := by
@@ -4810,7 +4807,7 @@ theorem interact_evenRight (N : Set ℕ) {k p q : ℕ} (hk : 0 < k) :
     have hsplit := restSeq_append N (k + 1) k 1 (k - 2) 2 p
     rw [show k - 2 + 2 = k by omega] at hsplit
     rw [hsplit, evenRightRest, if_neg hk1, interact_restSeq_append]
-    simp [evenInteraction, hk1, restSeq_succ]
+    simp only [evenInteraction, if_neg hk1, restSeq_succ]
     rw [show 1 + (k - 2) = k - 1 by omega,
       show k - 1 + 1 = k by omega]
     simp [interact, List.append_assoc]
@@ -4850,7 +4847,7 @@ theorem evenInteraction_pairwise {N : Set ℕ} (hN : N.Infinite)
           (restPos_level_lt (by omega) (by omega) hq hr) x hxt y hy
     have hPmQm : ∀ x ∈ Pm, ∀ y ∈ Qm, x < y := by
       exact restBlock_lt_of_pos_lt hN
-        (restPos_same_lt hpq hq (by simp only [not_and_or]; omega))
+        (restPos_same_lt hpq (by simp only [not_and_or]; omega))
     have hm_lt_k (r s : ℕ) (hr : r < 3) (hs : s < 3) :
         ∀ x ∈ restBlock N (k + 1) k (k - 1) r,
           ∀ y ∈ restBlock N (k + 1) k k s, x < y := by
@@ -4966,8 +4963,7 @@ theorem accLengths_evenRight_mem_endpointList {N : Set ℕ} (hN : N.Infinite)
             (k := k) (i := i) hN hk (by omega) hi
           simpa only [Nat.add_sub_cancel] using hlen
     rw [hblocks, accLengths_append] at hz
-    simp only [List.map_singleton, List.sum_singleton, Nat.zero_add,
-      accLengths, List.append_nil, List.mem_append, List.mem_singleton] at hz
+    simp only [Nat.zero_add, accLengths, List.mem_append, List.mem_singleton] at hz
     rcases hz with hz | hz
     · rw [haccP] at hz
       rcases List.mem_map.mp hz with ⟨r, hr, rfl⟩
@@ -5034,7 +5030,7 @@ theorem evenScheme_subset {N : Set ℕ} (hN : N.Infinite)
   let right := evenRightFirst N k q :: evenRightRest N k q
   have hzList : z ∈ evenScheme N k p q := by
     simpa only [Finset.mem_coe, List.mem_toFinset] using hz
-  simp only [evenScheme, left, right, List.mem_append] at hzList
+  simp only [evenScheme, List.mem_append] at hzList
   rcases hzList with (((hz | hz) | hz) | hz) | hz
   · rw [accLengths_evenLeft hN hk hp] at hz
     exact endpointList_subset hN (k + 1) p
@@ -5203,7 +5199,7 @@ theorem evenFormBody {N : Set ℕ} (hN : N.Infinite)
     have hb' : b ∈ realizationBlocks N (k + 1) k p := by
       rw [realizationBlocks_even_left]
       exact hb
-    exact realizationBlocks_ne_nil hN hposN hk (by omega) hp3 b hb'
+    exact realizationBlocks_ne_nil hN hposN hk hp3 b hb'
   · exact evenRight_blocks_ne_nil hN hposN hk hq
   · simp [asp, restSeq]
   · simpa [aq, asq] using length_evenRightBlocks (N := N) (k := k) (i := q) hk
@@ -5355,7 +5351,7 @@ def universalDiffFrom (m : ℕ → ℕ) (ss : List ℕ) (j i : ℕ) : ℕ :=
   m (universalStartAt ss j + i + 1) - m (universalStartAt ss j + i)
 
 def universalSlotSizeFrom (m : ℕ → ℕ) (k : ℕ) (ss : List ℕ) (p : ℕ) : ℕ :=
-  if hk : k = 0 then 0
+  if _hk : k = 0 then 0
   else
     let j := p / k
     let i := p % k
@@ -5395,7 +5391,7 @@ def universalDiff (m : ℕ → ℕ) (j i : ℕ) : ℕ :=
     m (universalStageStart m j + i)
 
 def universalSlotSize (m : ℕ → ℕ) (k p : ℕ) : ℕ :=
-  if hk : k = 0 then 0
+  if _hk : k = 0 then 0
   else
     let j := p / k
     let i := p % k
@@ -5608,7 +5604,6 @@ theorem universalB_lt_B_stage {m : ℕ → ℕ} (hm : StrictMono m)
 
 theorem universalB_lt_B_sameStage {m : ℕ → ℕ} (hm : StrictMono m)
     {k j i j' i' : ℕ} (hjk : j < k) (hij : i < j)
-    (hj'k : j' < k) (hi'j' : i' < j')
     (hslot : j * k + i < j' * k + i') :
     ∀ x ∈ universalB m k j i, ∀ y ∈ universalB m k j' i', x < y := by
   apply enumSlice_lt_enumSlice m hm
@@ -5771,10 +5766,10 @@ theorem sum_length_universalBSeq {m : ℕ → ℕ} (hm : StrictMono m)
   rw [List.length_flatten]
   simp only [universalBlocks, List.map_cons, List.sum_cons, length_universalA]
   rw [sum_length_universalBSeq hm]
-  simp only [length_intoInc, Nat.zero_add]
+  simp only [length_intoInc]
   have hle : m (universalStageStart m s.length) ≤
       m (universalStageStart m s.length + s.length) := hm.monotone (by omega)
-  simp only [Nat.add_zero, Nat.zero_add]
+  simp only [Nat.add_zero]
   rw [Nat.add_sub_of_le hle]
 
 theorem universalVertex_length_strictMono {m : ℕ → ℕ} (hm : StrictMono m)
@@ -5890,7 +5885,7 @@ noncomputable def universalVertexRangeRelIso (m : ℕ → ℕ) (hm : StrictMono 
 
 theorem universalSet_type {m : ℕ → ℕ} (hm : StrictMono m) :
     typeLT (universalSet m hm) = ω ^ ω := by
-  letI : IsWellOrder (universalSet m hm)
+  let : IsWellOrder (universalSet m hm)
       (fun a b ↦ LL a.1 b.1) := {
     wf := InvImage.wf Subtype.val incListLLIsWellOrder.wf
     trichotomous a b hab hba := by
@@ -6262,7 +6257,7 @@ theorem universalMergedAtoms_key_pairwise (m : ℕ → ℕ)
   simp only [UniversalAtom.KeyLE] at hle
   simp only [UniversalAtom.KeyLT]
   by_contra hnot
-  push_neg at hnot
+  push Not at hnot
   apply hkeyne
   apply Prod.ext <;> simp only
   · omega
@@ -6272,7 +6267,7 @@ theorem universalMergedAtoms_key_pairwise (m : ℕ → ℕ)
     {s t : List ℕ} (hlen : s.length < t.length) :
     (universalMergedAtoms m s t).head? =
       some (universalAAtom m false s.length) := by
-  simp [universalMergedAtoms, universalAtoms, List.cons_merge_cons,
+  simp [universalMergedAtoms, universalAtoms,
     UniversalAtom.KeyLE, universalAAtom, hlen]
 
 theorem universalMergedAtoms_ne_nil (m : ℕ → ℕ) (s t : List ℕ) :
@@ -6283,7 +6278,7 @@ theorem universalMergedAtoms_ne_nil (m : ℕ → ℕ) (s t : List ℕ) :
     (xs := universalAtoms m false s) (ys := universalAtoms m true t)
   have : universalAAtom m false s.length ∈ universalMergedAtoms m s t :=
     List.mem_merge_left _ (by simp [universalAtoms])
-  simpa [h] using this
+  simp [h] at this
 
 theorem universalRun_side {m : ℕ → ℕ} {s t : List ℕ}
     {r : List UniversalAtom} (hr : r ∈ universalAtomRuns m s t) :
@@ -6579,7 +6574,7 @@ theorem universalB_lt_A {m : ℕ → ℕ} (hm : StrictMono m)
 theorem universalAtoms_cases {m : ℕ → ℕ} {side : Bool}
     {s : List ℕ} {a : UniversalAtom} (ha : a ∈ universalAtoms m side s) :
     a = universalAAtom m side s.length ∨
-      ∃ i, ∃ hi : i < s.length,
+      ∃ i, ∃ _hi : i < s.length,
         a = universalBAtom m side s.length i
           ((intoInc (s.length + 1) s).getD i 0) := by
   simp only [universalAtoms, List.mem_cons] at ha
@@ -6639,7 +6634,7 @@ theorem universalAtom_data_lt {m : ℕ → ℕ} (hm : StrictMono m)
     rcases hab with hstage | ⟨hstage, hslot⟩
     · exact universalB_lt_B_stage hm hbase hi hstage
     · rw [← hstage] at hbase' hslot ⊢
-      exact universalB_lt_B_sameStage hm hbase hi hbase' hi' (by omega)
+      exact universalB_lt_B_sameStage hm hbase hi (by omega)
 
 theorem universalMergedAtoms_data_pairwise {m : ℕ → ℕ} (hm : StrictMono m)
     {s t : List ℕ} (hlen : s.length < t.length) :
@@ -6666,7 +6661,7 @@ theorem universalMergedAtoms_data_pairwise {m : ℕ → ℕ} (hm : StrictMono m)
 theorem enumSlice_succ (f : ℕ → ℕ) (start len : ℕ) :
     enumSlice f start (len + 1) =
       f start :: enumSlice f (start + 1) len := by
-  simp [enumSlice, List.range_succ_eq_map, Nat.add_assoc,
+  simp [enumSlice, List.range_succ_eq_map,
     Nat.add_comm, Nat.add_left_comm]
 
 theorem accLengths_universalBSeq {m : ℕ → ℕ} (hm : StrictMono m)
@@ -6738,8 +6733,7 @@ theorem accLengths_grouped_subset (n : ℕ)
             rw [show (accLengths n ((a :: as).map UniversalAtom.data)).getLast
                 (by simp [accLengths]) =
                 n + (((a :: as).map UniversalAtom.data).map List.length).sum by
-              simpa using getLast_accLengths_cons n a.data
-                (as.map UniversalAtom.data)] at hlast
+              simp] at hlast
             simpa [length_universalRunData, universalRunData,
               List.length_flatten, Function.comp_def] using hlast
       · right
@@ -6842,7 +6836,7 @@ theorem universalSideBlocks_interact (rs : List (List UniversalAtom))
   | nil => rfl
   | singleton r =>
       have hr : universalRunSide r = false := hhead _ (by simp)
-      simp [universalSideBlocks, hr, interact]
+      simp [universalSideBlocks, hr]
   | cons_cons r q rs ih =>
       have hr : universalRunSide r = false := hhead _ (by simp)
       simp only [List.map_cons, List.isChain_cons_cons] at hchain
@@ -7452,7 +7446,7 @@ theorem mem_headD_mem_flatten {α : Type*} {blocks : List (List α)} {z : α}
     (hz : z ∈ blocks.headD []) : z ∈ blocks.flatten := by
   cases blocks with
   | nil => simp at hz
-  | cons b bs => simp only [List.headD_cons, List.flatten_cons, List.mem_append]; exact Or.inl hz
+  | cons b bs => simp only [List.flatten_cons, List.mem_append]; exact Or.inl hz
 
 theorem mem_interact_mem_flatten {α : Type*} {as bs : List (List α)} {z : α}
     (hz : z ∈ interact as bs) : z ∈ as.flatten ∨ z ∈ bs.flatten := by
@@ -7468,7 +7462,7 @@ theorem mem_tail_flatten_mem_flatten {α : Type*} {blocks : List (List α)} {z :
   cases blocks with
   | nil => simp at hz
   | cons b bs =>
-      simp only [List.tail_cons, List.flatten_cons, List.mem_append]
+      simp only [List.flatten_cons, List.mem_append]
       exact Or.inr hz
 
 theorem universalScheme_mem_range {m : ℕ → ℕ} (hm : StrictMono m)
@@ -7537,7 +7531,6 @@ theorem universalPair_color_false
   have hsupport : (↑(universalScheme m s t).toFinset : Set ℕ) ⊆
       exactCanonSet color hcomm Set.infinite_univ := by
     intro z hz
-    change z ∈ exactCanonSet color hcomm Set.infinite_univ
     have hzList : z ∈ universalScheme m s t := by simpa using hz
     exact universalScheme_mem_range hm hlen hzList
   have hbound : ∀ z ∈ (universalScheme m s t).toFinset,
@@ -7631,7 +7624,7 @@ noncomputable def levelRedEmbedding
     preserves_level := ?_
     same_level_red := ?_ }
   · intro x y hlen
-    simpa [E, hlen]
+    simp [E, hlen]
   · intro x y hxy hlen
     change color (levelMap color hcomm htri x)
       (levelMap color hcomm htri y) = false
@@ -7717,7 +7710,7 @@ theorem larsonEmbedding_range_type
       ¬ (color x y = true ∧ color x z = true ∧ color y z = true))
     (level : LevelRedEmbedding color) :
     typeLT (Set.range (larsonEmbedding color hcomm htri level)) = ω ^ ω := by
-  letI : IsWellOrder (Set.range (larsonEmbedding color hcomm htri level))
+  let : IsWellOrder (Set.range (larsonEmbedding color hcomm htri level))
       (fun x y ↦ LL x.1 y.1) := {
     wf := InvImage.wf Subtype.val incListLLIsWellOrder.wf
     trichotomous a b hab hba := by
@@ -7889,7 +7882,7 @@ theorem erdos_590_of_levelRed
         simpa [color] using hc
       rw [hcompl.eq_compl]
       exact (blue.compl_adj _ _).2 ⟨hxy, hnot⟩
-    · letI : IsWellOrder S (fun x y ↦ x.1 < y.1) := {
+    · let : IsWellOrder S (fun x y ↦ x.1 < y.1) := {
         wf := InvImage.wf Subtype.val
           (inferInstance : IsWellOrder (ω ^ ω : Ordinal.{u}).ToType (· < ·)).wf
         trichotomous a b hab hba := by
