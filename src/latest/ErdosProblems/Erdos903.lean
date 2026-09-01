@@ -82,7 +82,7 @@ lemma unique_pair_count {v b : ℕ} {block : Fin b → Finset (Fin v)}
     ext j
     simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_singleton]
     exact ⟨fun hj ↦ huniq j hj, fun hji ↦ hji ▸ hi⟩
-  simpa [Finset.sum_boole, hfilter]
+  simp [hfilter]
 
 lemma partners_sum {v b : ℕ} {block : Fin b → Finset (Fin v)}
     (hpb : PairwiseBalanced block) (x : Fin v) :
@@ -107,7 +107,7 @@ lemma partners_sum {v b : ℕ} {block : Fin b → Finset (Fin v)}
                     (Finset.univ.filter fun y : Fin v ↦ y ∈ block i ∧ y ≠ x).card := by
                       rw [hfilter]
                 _ = ∑ y : Fin v, (if (y ∈ block i ∧ y ≠ x) then (1 : ℕ) else 0) := by
-                      simpa [Finset.sum_boole]
+                      simp
             · simp [hxi]
     _ = ∑ y : Fin v, ∑ i : Fin b,
           (if (x ∈ block i ∧ y ∈ block i ∧ y ≠ x) then (1 : ℕ) else 0) := by
@@ -126,8 +126,6 @@ lemma partners_sum {v b : ℕ} {block : Fin b → Finset (Fin v)}
             calc
               ∑ y : Fin v, (if y ≠ x then (1 : ℕ) else 0) =
                   (Finset.univ.filter fun y : Fin v ↦ y ≠ x).card := by
-                    change (∑ y ∈ (Finset.univ : Finset (Fin v)),
-                      if y ≠ x then (1 : ℕ) else 0) = _
                     exact Finset.sum_boole (R := ℕ) (fun y : Fin v ↦ y ≠ x) Finset.univ
               _ = (Finset.univ.erase x).card := by rw [hfilter]
               _ = v - 1 := by
@@ -141,7 +139,7 @@ lemma flags_sum {v b : ℕ} (block : Fin b → Finset (Fin v)) :
   rw [Finset.sum_comm]
   apply Finset.sum_congr rfl
   intro i _
-  simp [Finset.sum_boole]
+  simp
 
 /-- A point outside a block lies on at least as many blocks as that block has
 points: join it to every point of the block. -/
@@ -348,7 +346,7 @@ theorem stanton_kalbfleisch {v b : ℕ} {block : Fin b → Finset (Fin v)}
               · simp only [hxi, if_true]
                 apply Finset.sum_congr rfl
                 intro y hy
-                by_cases hyi : y ∈ block i <;> simp [hxi, hyi, and_assoc]
+                by_cases hyi : y ∈ block i <;> simp [hyi]
               · simp [hxi]
       _ = ∑ x ∈ O, ∑ y ∈ O, ∑ i ∈ I,
             if (x ∈ block i ∧ y ∈ block i ∧ x ≠ y) then (1 : ℕ) else 0 := by
@@ -405,8 +403,8 @@ theorem stanton_kalbfleisch {v b : ℕ} {block : Fin b → Finset (Fin v)}
     apply Finset.sum_congr rfl
     intro i hi
     cases hsi : s i with
-    | zero => simp [hsi]
-    | succ q => simp [hsi, pow_two]; ring
+    | zero => simp
+    | succ q => simp [pow_two]; ring
   have hcauchy : S ^ 2 ≤ I.card * ∑ i ∈ I, (s i) ^ 2 := by
     exact sq_sum_le_card_mul_sum_sq
   rw [hsquares] at hcauchy
@@ -512,7 +510,7 @@ lemma block_card_lt_points {v b : ℕ} {block : Fin b → Finset (Fin v)}
   have hkeq : (block i).card = v := by omega
   have hiuniv : block i = Finset.univ := by
     apply Finset.eq_of_subset_of_card_le (Finset.subset_univ _)
-    simpa [hkeq]
+    simp [hkeq]
   have hunivtwo : 1 < (Finset.univ : Finset (Fin b)).card := by
     simpa only [Finset.card_univ, Fintype.card_fin] using (show 1 < b by omega)
   obtain ⟨j, hj, hji⟩ := Finset.exists_mem_ne hunivtwo i
@@ -627,7 +625,7 @@ lemma block_card_le_order_add_one {p v b : ℕ} {block : Fin b → Finset (Fin v
           have hsub : block j ⊆ block i := by
             intro x hxj
             by_contra hxi
-            have hxO : x ∈ O := by simp [O, hxj, hxi]
+            have hxO : x ∈ O := by simp [O, hxi]
             have : x = z := by simpa [hOeq] using hxO
             exact hzj (this ▸ hxj)
           have heq : block i ∩ block j = block j := Finset.inter_eq_right.mpr hsub
@@ -639,7 +637,7 @@ lemma block_card_le_order_add_one {p v b : ℕ} {block : Fin b → Finset (Fin v
           have hxz : x ≠ z := (Finset.mem_erase.mp hx).1
           have hxA : x ∈ block i := by
             by_contra hxi
-            have hxO : x ∈ O := by simp [O, hxj, hxi]
+            have hxO : x ∈ O := by simp [O, hxi]
             have : x = z := by simpa [hOeq] using hxO
             exact hxz this
           exact Finset.mem_inter.mpr ⟨hxA, hxj⟩
@@ -698,8 +696,8 @@ lemma sum_indicator_mem_eq_card_inter {v : ℕ} (A B : Finset (Fin v)) :
   | empty => simp
   | @insert x A hx ih =>
       by_cases hxb : x ∈ B
-      · simp [hx, hxb, ih]
-      · simp [hx, hxb, ih]
+      · simp [hx, hxb]
+      · simp [hxb]
 
 lemma sum_degrees_on_block {v b : ℕ} {block : Fin b → Finset (Fin v)}
     (i : Fin b) :
@@ -820,9 +818,10 @@ lemma exists_degree_eq_order_add_one {p v b : ℕ} {block : Fin b → Finset (Fi
     have hlessQ : (b : ℚ) < v + p := by exact_mod_cast hless
     nlinarith
 
-lemma matrix_rank_add_le {m n : Type*} [Fintype m] [Fintype n]
+lemma matrix_rank_add_le {m n : Type*} [Finite m] [Fintype n]
     (A B : Matrix m n ℚ) : (A + B).rank ≤ A.rank + B.rank := by
   classical
+  let _ := Fintype.ofFinite m
   rw [Matrix.rank, Matrix.rank, Matrix.rank]
   have hrange : LinearMap.range (A + B).mulVecLin ≤
       LinearMap.range A.mulVecLin + LinearMap.range B.mulVecLin := by
@@ -913,8 +912,8 @@ lemma incidence_gram_apply {v b : ℕ} {block : Fin b → Finset (Fin v)}
     apply Finset.sum_congr rfl
     intro i _hi
     by_cases hxi : x ∈ block i
-    · simp only [hxi, if_true, mul_one]
-    · simp only [hxi, if_false, zero_mul]
+    · simp only [hxi, if_true]
+    · simp only [hxi, if_false]
   · simp only [Matrix.mul_apply, incidenceMatrix, Matrix.transpose_apply, hxy, if_false]
     have hcount := unique_pair_count hpb hxy
     norm_num [ite_mul, mul_ite]
@@ -1082,8 +1081,7 @@ lemma weighted_incidence_product {v b : ℕ} (block : Fin b → Finset (Fin v))
   rw [Matrix.mul_apply]
   simp_rw [Matrix.mul_apply, hinner]
   dsimp only [N, incidenceMatrix]
-  simp only [Matrix.transpose_apply, sub_mul, ite_mul, one_mul, zero_mul,
-    Finset.sum_sub_distrib]
+  simp only [sub_mul, ite_mul, zero_mul, Finset.sum_sub_distrib]
   have hinter :
       ∑ y : Fin v, (if y ∈ block i then w y else 0) *
           (if y ∈ block j then (1 : ℚ) else 0) =
@@ -1432,7 +1430,7 @@ lemma number_of_blocks_eq_points_of_minimal_block
         if j = i₀ then p + 1 else if j ∈ M then 1 else 0 := by
     by_cases hji : j = i₀
     · subst j
-      simp [hi₀card, hi₀M]
+      simp [hi₀card]
     · have hle := blocks_inter_card_le_one hpb (Ne.symm hji)
       by_cases hjM : j ∈ M
       · have hpos : 0 < (block i₀ ∩ block j).card :=
@@ -1479,11 +1477,7 @@ lemma number_of_blocks_eq_points_of_minimal_block
             _ = _ := by rw [herase]; omega
         _ = (p + 1) + (M.erase i₀).card := by
           congr 1
-          have hfilter : ((Finset.univ : Finset (Fin b)).erase i₀).filter
-              (fun j ↦ j ∈ M) = M.erase i₀ := by
-            ext j
-            simp [and_comm]
-          simpa [Finset.sum_boole, hfilter]
+          simp
         _ = M.card + p := by
           rw [Finset.card_erase_of_mem hi₀M]
           have hMpos : 0 < M.card := Finset.card_pos.mpr ⟨i₀, hi₀M⟩
