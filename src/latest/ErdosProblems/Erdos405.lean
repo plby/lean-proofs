@@ -106,7 +106,7 @@ theorem IsSolution.coprime (h : IsSolution p a k) : p.Coprime a := by
   have hp3 := h.three_le_p
   have hp_sub_one_ne : p - 1 ≠ 0 := by omega
   have hneg : (-1 : ZMod p) = 0 := by
-    simpa [ZMod.wilsons_lemma, ha0, hp_sub_one_ne, h.k_pos.ne'] using heq
+    simp [ZMod.wilsons_lemma, ha0, hp_sub_one_ne, h.k_pos.ne'] at heq
   exact one_ne_zero (neg_eq_zero.mp hneg)
 
 /-- Every prime factor of a nontrivial base is larger than `p`. -/
@@ -206,7 +206,6 @@ theorem IsSolution.odd_prime_dvd_k_of_dvd_pred (h : IsSolution p a k)
   have hqe_succ_dvd_fac : q ^ (e + 1) ∣ (p - 1).factorial := by
     rw [hfac_succ, pow_succ]
     exact Nat.mul_dvd_mul hqe_dvd_pred hq_dvd_smallfac
-
   have haq_mod_pred := h.pow_modEq_one_pred
   have haq_mod : a ^ (p - 1) ≡ 1 [MOD q] :=
     haq_mod_pred.of_dvd hqpred
@@ -248,7 +247,6 @@ theorem IsSolution.odd_prime_dvd_k_of_dvd_pred (h : IsSolution p a k)
     omega
   have hqe_succ_dvd_apow : q ^ (e + 1) ∣ a ^ (p - 1) - 1 :=
     (padicValNat_dvd_iff_le hapow_sub_ne).mpr hval_apow
-
   have hpk_sub_eq : p ^ k - 1 =
       (p - 1).factorial + (a ^ (p - 1) - 1) := by
     have hapow_pos : 0 < a ^ (p - 1) := pow_pos h.a_pos _
@@ -300,7 +298,7 @@ theorem IsSolution.exists_factorial_odd_prime_power_difference
   omega
 
 /-- If `p - 1` has no odd prime factor, it is a power of two. -/
-theorem pred_eq_two_pow_of_no_odd_prime_dvd (h : IsSolution p a k)
+theorem pred_eq_two_pow_of_no_odd_prime_dvd
     (hno : ∀ q : ℕ, q.Prime → Odd q → ¬ q ∣ p - 1) :
     ∃ t : ℕ, p - 1 = 2 ^ t := by
   rcases (p - 1).eq_two_pow_or_exists_odd_prime_and_dvd with hpow | hodd
@@ -312,7 +310,7 @@ theorem pred_eq_two_pow_of_no_odd_prime_dvd (h : IsSolution p a k)
 theorem IsSolution.eq_fermatNumber_of_no_odd_prime_dvd (h : IsSolution p a k)
     (hno : ∀ q : ℕ, q.Prime → Odd q → ¬ q ∣ p - 1) :
     ∃ m : ℕ, p = Nat.fermatNumber m := by
-  obtain ⟨t, ht⟩ := pred_eq_two_pow_of_no_odd_prime_dvd h hno
+  obtain ⟨t, ht⟩ := pred_eq_two_pow_of_no_odd_prime_dvd hno
   have hp_eq : p = 2 ^ t + 1 := by
     calc
       p = (p - 1) + 1 := (Nat.sub_add_cancel (by exact h.prime.one_le)).symm
@@ -613,7 +611,6 @@ theorem not_isSolution_seventeen_of_ne_one {a k : ℕ}
   have hT_dvd_fac : T ∣ Nat.factorial 16 := by
     refine ⟨u ^ 2 - v ^ 2, ?_⟩
     simpa [mul_comm] using hfactor.symm
-
   have htwo_not_dvd_a : ¬ 2 ∣ a := by
     intro h2a
     have hlt := h.lt_primeFactor_of_dvd_a (by norm_num : Nat.Prime 2) h2a
@@ -660,7 +657,6 @@ theorem not_isSolution_seventeen_of_ne_one {a k : ℕ}
   have hN_pos : 0 < N := by
     have hT_pos : 0 < T := by dsimp [T, u]; positivity
     exact Nat.pos_of_dvd_of_pos hN_dvd_T hT_pos
-
   have hprime_class : ∀ {q : ℕ}, q.Prime → q ∣ N → q = 5 ∨ q = 13 := by
     intro q hq hqN
     let _ : Fact q.Prime := ⟨hq⟩
@@ -694,7 +690,6 @@ theorem not_isSolution_seventeen_of_ne_one {a k : ℕ}
     all_goals try contradiction
     all_goals try norm_num at hqmod
     all_goals simp
-
   have hN_dvd_bound : N ∣ 5 ^ 3 * 13 := by
     rw [Nat.dvd_iff_prime_pow_dvd_dvd]
     intro q j hq hqjN
@@ -747,7 +742,6 @@ theorem IsSolution.eight_dvd_k_of_eq_fermatNumber (h : IsSolution p a k)
   let _ : Fact (Nat.Prime 17) := ⟨by norm_num⟩
   have hp257 : 257 ≤ Nat.fermatNumber m := by
     have hmono := Nat.fermatNumber_mono hm
-    norm_num at hmono ⊢
     exact hmono
   have h17_not_dvd_a : ¬ 17 ∣ a := by
     intro h17a
@@ -926,7 +920,7 @@ private theorem primitive_norm_three_pow_representation :
             refine ⟨if hneg then -(nagellBetaBar ^ r) else nagellBetaBar ^ r, ?_⟩
             rw [hzmul, hw, pow_succ']
             cases hneg <;> simp only [Bool.false_eq_true, if_false, if_true, mul_neg] <;>
-              rw [← mul_assoc, nagellBeta_mul_bar] <;> ring
+              rw [← mul_assoc, nagellBeta_mul_bar]
           rcases hzdiv with ⟨w, hw⟩
           have h3A : (3 : ℤ) ∣ A := by
             refine ⟨w.re, ?_⟩
@@ -968,7 +962,8 @@ private theorem primitive_norm_three_pow_representation :
           nlinarith
         have hzmul : (⟨A, B⟩ : ZsqrtNegTwo) =
             nagellBetaBar * (⟨C, D⟩ : ZsqrtNegTwo) := by
-          ext <;> simp [nagellBetaBar, hA, hB] <;> ring
+          ext <;> simp [nagellBetaBar, hA, hB]
+          all_goals ring
         have hthreeA_B_of_mixed (hneg : Bool) {r : ℕ}
             (hw : (⟨C, D⟩ : ZsqrtNegTwo) =
               if hneg then -(nagellBeta ^ (r + 1))
@@ -978,7 +973,7 @@ private theorem primitive_norm_three_pow_representation :
             refine ⟨if hneg then -(nagellBeta ^ r) else nagellBeta ^ r, ?_⟩
             rw [hzmul, hw, pow_succ']
             cases hneg <;> simp only [Bool.false_eq_true, if_false, if_true, mul_neg] <;>
-              rw [← mul_assoc, nagellBetaBar_mul_beta] <;> ring
+              rw [← mul_assoc, nagellBetaBar_mul_beta]
           rcases hzdiv with ⟨w, hw⟩
           have h3A : (3 : ℤ) ∣ A := by
             refine ⟨w.re, ?_⟩
@@ -1356,7 +1351,7 @@ private theorem exists_progression_root_mod_prime {r a b : ℕ}
   simp [z, ha0]
 
 private theorem progression_selected_product_dvd
-    {r a b m : ℕ} (hr : r.Prime) (hb : 0 < b) (c : ℕ) (hc : c < r)
+    {r a b m : ℕ} (hr : r.Prime) (c : ℕ) (hc : c < r)
     (hrc : r ∣ a * c + b) :
     r ^ (m / r) * arithmeticProgressionProduct a ((a * c + b) / r) (m / r) ∣
       arithmeticProgressionProduct a b m := by
@@ -1434,7 +1429,7 @@ private theorem padicValNat_factorial_le_arithmeticProgressionProduct
       have hselected_dvd :
           r ^ u * arithmeticProgressionProduct a B u ∣
             arithmeticProgressionProduct a b m := by
-        exact progression_selected_product_dvd hr hb c hc hrc
+        exact progression_selected_product_dvd hr c hc hrc
       have hBprod0 : arithmeticProgressionProduct a B u ≠ 0 :=
         arithmeticProgressionProduct_ne_zero hBpos
       have hprod0 : arithmeticProgressionProduct a b m ≠ 0 :=
@@ -1453,7 +1448,7 @@ private theorem padicValNat_factorial_le_arithmeticProgressionProduct
           (pow_padicValNat_dvd.trans hselected_dvd)
       calc
         padicValNat r m.factorial = padicValNat r (r * u).factorial := by
-          simpa [u] using (padicValNat_mul_div_factorial (p := r) m).symm
+          simp [u]
         _ = padicValNat r u.factorial + u := padicValNat_factorial_mul u
         _ ≤ padicValNat r (arithmeticProgressionProduct a B u) + u :=
           Nat.add_le_add_right hrec u
@@ -1476,7 +1471,8 @@ private theorem factorial_dvd_two_pow_mul_eight_progression (m : ℕ) :
   · have hr8 : ¬ r ∣ 8 := by
       intro hr8
       have hrpow : r ∣ 2 ^ 3 := by
-        convert hr8 using 1 <;> norm_num
+        convert hr8 using 1
+        all_goals norm_num
       have hr2dvd : r ∣ 2 := hr.dvd_of_dvd_pow hrpow
       rcases (Nat.dvd_prime Nat.prime_two).mp hr2dvd with hr1 | hr2'
       · exact hr.ne_one hr1
@@ -1735,7 +1731,7 @@ private theorem sixteen_mul_factorialVal_le_seventeen_mul_div
   have hvalfac : padicValNat r n.factorial = padicValNat r u.factorial + u := by
     calc
       padicValNat r n.factorial = padicValNat r (r * u).factorial := by
-        simpa [u] using (padicValNat_mul_div_factorial (p := r) n).symm
+        simp [u]
       _ = padicValNat r u.factorial + u := padicValNat_factorial_mul u
   have htail : 16 * padicValNat r u.factorial ≤ u := by
     by_cases hu0 : u = 0
@@ -2102,7 +2098,6 @@ theorem erdosOblath_eighth_large {X Y n : ℕ}
   rw [Real.log_pow] at hlog
   rw [Real.log_mul (by positivity) (by positivity), Real.log_pow, Real.log_pow] at hlog
   norm_num at hlog
-  push_cast at hlog
   have hreverse := erdosOblath_eight_log_inequality hn
   exact (not_lt_of_ge hreverse.le) hlog
 
@@ -2290,7 +2285,7 @@ private theorem modulusPrimeClassLayerProduct_pos (a n : ℕ) :
   exact Finset.prod_pos fun s hs ↦ primeClassPrimorial_pos _ _ _
 
 private theorem modulus_add_one_le_of_prime_mod_one {a r : ℕ}
-    (ha : 1 < a) (hr : r.Prime) (hrmod : r % a = 1) : a + 1 ≤ r := by
+    (hr : r.Prime) (hrmod : r % a = 1) : a + 1 ≤ r := by
   by_contra hlt
   have hrle : r ≤ a := by omega
   by_cases hra : r = a
@@ -2304,7 +2299,7 @@ private theorem prime_pow_divides_modulusPrimeClassLayerProduct
     {a r n : ℕ} (ha : 1 < a) (hr : r.Prime) (hrmod : r % a = 1) :
     r ^ (n / r) ∣ modulusPrimeClassLayerProduct a n := by
   let u := n / r
-  have hrmin : a + 1 ≤ r := modulus_add_one_le_of_prime_mod_one ha hr hrmod
+  have hrmin : a + 1 ≤ r := modulus_add_one_le_of_prime_mod_one hr hrmod
   have hu_bound : u ≤ n / (a + 1) := Nat.div_le_div_left hrmin (by omega)
   have hsubset : Finset.Icc 1 u ⊆ Finset.Icc 1 (n / (a + 1)) := by
     intro s hs
@@ -2336,11 +2331,11 @@ private theorem modulus_mul_factorialVal_le_succ_mul_div
     a * padicValNat r n.factorial ≤ (a + 1) * (n / r) := by
   let _ : Fact r.Prime := ⟨hr⟩
   let u := n / r
-  have hrmin : a + 1 ≤ r := modulus_add_one_le_of_prime_mod_one ha hr hrmod
+  have hrmin : a + 1 ≤ r := modulus_add_one_le_of_prime_mod_one hr hrmod
   have hvalfac : padicValNat r n.factorial = padicValNat r u.factorial + u := by
     calc
       padicValNat r n.factorial = padicValNat r (r * u).factorial := by
-        simpa [u] using (padicValNat_mul_div_factorial (p := r) n).symm
+        simp [u]
       _ = padicValNat r u.factorial + u := padicValNat_factorial_mul u
   have htail : a * padicValNat r u.factorial ≤ u := by
     by_cases hu0 : u = 0
@@ -2663,8 +2658,7 @@ private theorem primeCyclotomicFactor_dvd_prime_mul_factorialPrimeClassPart
       have hvalle := (padicValNat_dvd_iff_le hB0).mp hrj
       rw [padicValNat_primeCyclotomicFactor_eq_one hq hqodd hYX hcop hrB] at hvalle
       exact hvalle
-    exact (pow_dvd_pow q hjle).trans (by simpa using
-      (dvd_mul_right q (factorialPrimeClassPart n (2 * q) 1)))
+    exact (pow_dvd_pow q hjle).trans (by simp)
   · have hrjfac : r ^ j ∣ n.factorial := hrj.trans hfac
     have hjle : j ≤ n.factorial.factorization r := by
       rw [Nat.factorization_def n.factorial hr]
@@ -2685,7 +2679,7 @@ private theorem primeCyclotomicFactor_dvd_prime_mul_factorialPrimeClassPart
 
 private theorem oddPrimePowerDifference_factorial_power_bound
     {q X Y n : ℕ} (hq : q.Prime) (hqodd : Odd q)
-    (hX : 0 < X) (hY : 0 < Y) (hcop : X.Coprime Y)
+    (hX : 0 < X) (hcop : X.Coprime Y)
     (heq : X ^ q - Y ^ q = n.factorial) :
     n.factorial ^ (2 * ((2 * q) * (2 * q - 1))) ≤
       q ^ (3 * ((2 * q) * (2 * q - 1))) *
@@ -2961,7 +2955,7 @@ below.  In Problem 405 the divisibility `2q ∣ n` makes the only smaller
 positive range be the separately handled case `n = 2q`. -/
 theorem erdosOblath_odd_prime_large {q X Y n : ℕ}
     (hq : q.Prime) (hqodd : Odd q) (hq5 : 5 ≤ q)
-    (hX : 0 < X) (hY : 0 < Y) (hcop : X.Coprime Y) (hqn : 4 * q ≤ n) :
+    (hX : 0 < X) (hcop : X.Coprime Y) (hqn : 4 * q ≤ n) :
     X ^ q - Y ^ q ≠ n.factorial := by
   intro heq
   let a := 2 * q
@@ -2969,7 +2963,7 @@ theorem erdosOblath_odd_prime_large {q X Y n : ℕ}
   let E := modulusLayerExponent a n
   let B := a * (a + 1)
   have hbound := oddPrimePowerDifference_factorial_power_bound
-    hq hqodd hX hY hcop heq
+    hq hqodd hX hcop heq
   change n.factorial ^ (2 * A) ≤ q ^ (3 * A) * B ^ (3 * ((a + 1) * E)) at hbound
   have hcast : ((n.factorial ^ (2 * A) : ℕ) : ℝ) ≤
       ((q ^ (3 * A) * B ^ (3 * ((a + 1) * E)) : ℕ) : ℝ) := by
@@ -3010,7 +3004,7 @@ theorem erdosOblath_odd_prime_large {q X Y n : ℕ}
     simpa [a, A, E, B, Nat.cast_sub haone] using hreverse
   exact (not_lt_of_ge hlogle) hreverse'
 
-private theorem factorialPrimeClassPart_self_modulus_eq_one {a : ℕ} (ha : 1 < a) :
+private theorem factorialPrimeClassPart_self_modulus_eq_one {a : ℕ} :
     factorialPrimeClassPart a a 1 = 1 := by
   unfold factorialPrimeClassPart
   have hfilter : a.factorial.factorization.support.filter
@@ -3021,14 +3015,14 @@ private theorem factorialPrimeClassPart_self_modulus_eq_one {a : ℕ} (ha : 1 < 
     have hr : r.Prime := Nat.prime_of_mem_primeFactors hs.1
     have hrdvd : r ∣ a.factorial := Nat.dvd_of_mem_primeFactors hs.1
     have hrle : r ≤ a := (hr.dvd_factorial).mp hrdvd
-    have hrmin : a + 1 ≤ r := modulus_add_one_le_of_prime_mod_one ha hr hs.2
+    have hrmin : a + 1 ≤ r := modulus_add_one_le_of_prime_mod_one hr hs.2
     omega
   rw [hfilter]
   simp
 
 private theorem erdosOblath_odd_prime_boundary {q X Y : ℕ}
     (hq : q.Prime) (hqodd : Odd q)
-    (hX : 0 < X) (hY : 0 < Y) (hcop : X.Coprime Y) :
+    (hX : 0 < X) (hcop : X.Coprime Y) :
     X ^ q - Y ^ q ≠ (2 * q).factorial := by
   intro heq
   have hpowlt : Y ^ q < X ^ q := by
@@ -3047,10 +3041,7 @@ private theorem erdosOblath_odd_prime_boundary {q X Y : ℕ}
     exact dvd_mul_right _ _
   have hBdvd := primeCyclotomicFactor_dvd_prime_mul_factorialPrimeClassPart
     hq hqodd hYX hcop hBfac
-  have ha : 1 < 2 * q := by
-    have hq2 := hq.two_le
-    omega
-  rw [factorialPrimeClassPart_self_modulus_eq_one ha, mul_one] at hBdvd
+  rw [factorialPrimeClassPart_self_modulus_eq_one, mul_one] at hBdvd
   have hBle : primeCyclotomicFactor q X Y ≤ q := Nat.le_of_dvd hq.pos hBdvd
   have hsubsq := sub_sq_le_primeCyclotomicFactor hq hqodd hX (X := X) (Y := Y)
   have hfacsq : (2 * q).factorial ^ 2 ≤ q ^ 3 := by
@@ -3385,7 +3376,10 @@ private theorem primeClassPrimorial_six_pow_five_le (n : ℕ) :
           mul_pow _ _ _
         _ ≤ 24 ^ m * (24 ^ m) ^ 5 :=
           Nat.mul_le_mul (ih m hm_lt) (Nat.pow_le_pow_left (sixProgressionQuotient_le m) 5)
-        _ = 24 ^ (6 * m) := by rw [← pow_mul, ← pow_add]; congr 1 <;> omega
+        _ = 24 ^ (6 * m) := by
+          rw [← pow_mul, ← pow_add]
+          congr 1
+          omega
         _ ≤ 24 ^ n := Nat.pow_le_pow_right (by norm_num) h6m
 
 /-- The part of `n!` supported on primes `1 mod 6` that are at least `31`. -/
@@ -3439,7 +3433,7 @@ private theorem thirty_mul_factorialVal_le_thirtyone_mul_div
   have hvalfac : padicValNat r n.factorial = padicValNat r u.factorial + u := by
     calc
       padicValNat r n.factorial = padicValNat r (r * u).factorial := by
-        simpa [u] using (padicValNat_mul_div_factorial (p := r) n).symm
+        simp [u]
       _ = padicValNat r u.factorial + u := padicValNat_factorial_mul u
   have htail : 30 * padicValNat r u.factorial ≤ u := by
     by_cases hu0 : u = 0
@@ -3690,7 +3684,7 @@ private theorem factorialPrimeClassPart_six_pow_nine_hundred_le (n : ℕ) :
   calc
     factorialPrimeClassPart n 6 1 ^ 900 ≤
         (sixSmallPrimeClassPart n * sixLargePrimeClassPart n) ^ 900 :=
-      Nat.pow_le_pow_left hfactor 900
+      by gcongr
     _ = (sixSmallPrimeClassPart n ^ 36) ^ 25 *
         (sixLargePrimeClassPart n ^ 150) ^ 6 := by
       simp only [mul_pow, ← pow_mul]
@@ -3783,7 +3777,7 @@ private theorem erdosOblath_cubic_log_inequality {n : ℕ} (hn : 31 ≤ n) :
 
 /-- Erdős--Obláth's cubic obstruction above the explicit cutoff. -/
 theorem erdosOblath_cubic_large {X Y n : ℕ}
-    (hX : 0 < X) (hY : 0 < Y) (hcop : X.Coprime Y) (hn : 31 ≤ n) :
+    (hX : 0 < X) (hcop : X.Coprime Y) (hn : 31 ≤ n) :
     X ^ 3 - Y ^ 3 ≠ n.factorial := by
   intro heq
   let T := factorialPrimeClassPart n 6 1
@@ -3816,13 +3810,13 @@ theorem erdosOblath_cubic_large {X Y n : ℕ}
         Nat.mul_le_mul_left _ hsubsq
       _ = primeCyclotomicFactor 3 X Y ^ 3 := by ring
       _ ≤ (3 * T) ^ 3 := Nat.pow_le_pow_left hBle 3
-  have hT := factorialPrimeClassPart_six_pow_nine_hundred_le n
-  change T ^ 900 ≤ 2 ^ (1000 * n) * 24 ^ (186 * E) at hT
+  have hT : T ^ 900 ≤ 2 ^ (1000 * n) * 24 ^ (186 * E) := by
+    simpa only [T, E] using factorialPrimeClassPart_six_pow_nine_hundred_le n
   have hbound : n.factorial ^ 600 ≤
       3 ^ 900 * (2 ^ (1000 * n) * 24 ^ (186 * E)) := by
     calc
       n.factorial ^ 600 = (n.factorial ^ 2) ^ 300 := by rw [← pow_mul]
-      _ ≤ ((3 * T) ^ 3) ^ 300 := Nat.pow_le_pow_left hfacsq 300
+      _ ≤ ((3 * T) ^ 3) ^ 300 := by gcongr
       _ = 3 ^ 900 * T ^ 900 := by simp only [← pow_mul, mul_pow]
       _ ≤ 3 ^ 900 * (2 ^ (1000 * n) * 24 ^ (186 * E)) := Nat.mul_le_mul_left _ hT
   have hcast : (((n.factorial : ℕ) ^ 600 : ℕ) : ℝ) ≤
@@ -3879,11 +3873,11 @@ private theorem four_pow_le_factorial_of_twelve_le {n : ℕ} (hn : 12 ≤ n) :
 
 /-- The cubic obstruction in the exact divisibility range needed below. -/
 theorem erdosOblath_cubic {X Y n : ℕ}
-    (hX : 0 < X) (hY : 0 < Y) (hcop : X.Coprime Y)
+    (hX : 0 < X) (hcop : X.Coprime Y)
     (hnpos : 0 < n) (h6 : 6 ∣ n) :
     X ^ 3 - Y ^ 3 ≠ n.factorial := by
   by_cases hn31 : 31 ≤ n
-  · exact erdosOblath_cubic_large hX hY hcop hn31
+  · exact erdosOblath_cubic_large hX hcop hn31
   · intro heq
     let T := factorialPrimeClassPart n 6 1
     have hpowlt : Y ^ 3 < X ^ 3 := by
@@ -3918,7 +3912,7 @@ theorem erdosOblath_cubic {X Y n : ℕ}
     by_cases hn6 : n = 6
     · subst n
       exact (erdosOblath_odd_prime_boundary
-        (by norm_num : Nat.Prime 3) (by norm_num : Odd 3) hX hY hcop) heq
+        (by norm_num : Nat.Prime 3) (by norm_num : Odd 3) hX hcop) heq
     · have hn12 : 12 ≤ n := by
         rcases h6 with ⟨c, hc⟩
         have hcpos : 0 < c := by
@@ -4003,20 +3997,20 @@ theorem IsSolution.eq_exceptional {p a k : ℕ} (h : IsSolution p a k) :
     omega
   by_cases hodd : ∃ q : ℕ, q.Prime ∧ Odd q ∧ q ∣ p - 1
   · obtain ⟨q, hq, hqodd, hqpred⟩ := hodd
-    obtain ⟨X, Y, hX, hY, hcop, hdiff⟩ :=
+    obtain ⟨X, Y, hX, _, hcop, hdiff⟩ :=
       h.exists_factorial_odd_prime_power_difference ha1 hq hqodd hqpred
     have h2q : 2 * q ∣ p - 1 :=
       hqodd.coprime_two_left.mul_dvd_of_dvd_of_dvd h2pred hqpred
     by_cases hq3 : q = 3
     · subst q
       have h6 : 6 ∣ p - 1 := by simpa using h2q
-      exact ((erdosOblath_cubic hX hY hcop hpredpos h6) hdiff).elim
+      exact ((erdosOblath_cubic hX hcop hpredpos h6) hdiff).elim
     · have hq5 : 5 ≤ q := by
         have hq3le : 3 ≤ q := hq.odd_iff.mp hqodd
         rcases hqodd with ⟨s, hs⟩
         omega
       by_cases hboundary : p - 1 = 2 * q
-      · exact ((erdosOblath_odd_prime_boundary hq hqodd hX hY hcop)
+      · exact ((erdosOblath_odd_prime_boundary hq hqodd hX hcop)
           (by simpa [hboundary] using hdiff)).elim
       · rcases h2q with ⟨c, hc⟩
         have hcpos : 0 < c := by
@@ -4035,7 +4029,7 @@ theorem IsSolution.eq_exceptional {p a k : ℕ} (h : IsSolution p a k) :
             4 * q = (2 * q) * 2 := by ring
             _ ≤ (2 * q) * c := Nat.mul_le_mul_left _ hc2
             _ = p - 1 := hc.symm
-        exact ((erdosOblath_odd_prime_large hq hqodd hq5 hX hY hcop h4q) hdiff).elim
+        exact ((erdosOblath_odd_prime_large hq hqodd hq5 hX hcop h4q) hdiff).elim
   · have hno : ∀ q : ℕ, q.Prime → Odd q → ¬ q ∣ p - 1 := by
       intro q hq hqodd hqpred
       exact hodd ⟨q, hq, hqodd, hqpred⟩
@@ -4057,7 +4051,6 @@ theorem IsSolution.eq_exceptional {p a k : ℕ} (h : IsSolution p a k) :
       h.exists_factorial_eighth_power_difference hm3 hpm
     have hp257 : 257 ≤ Nat.fermatNumber m := by
       have hmono := Nat.fermatNumber_mono hm3
-      norm_num at hmono ⊢
       exact hmono
     have hn256 : 256 ≤ p - 1 := by rw [hpm]; omega
     exact ((erdosOblath_eighth_large hX hY hcop hn256) hdiff).elim
