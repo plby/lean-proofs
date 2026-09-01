@@ -68,12 +68,12 @@ private theorem kummer_relation_of_root
     (c : AdjoinRoot (X ^ l - C a))
     (hc : c ^ l = algebraMap K (AdjoinRoot (X ^ l - C a)) b) :
     ∃ j < l, ∃ z : K, b = a ^ j * z ^ l := by
-  letI : Fact (Irreducible (X ^ l - C a)) := ⟨hirr⟩
+  let : Fact (Irreducible (X ^ l - C a)) := ⟨hirr⟩
   have hf : X ^ l - C a ≠ 0 :=
     X_pow_sub_C_ne_zero (Nat.pos_of_ne_zero (NeZero.ne l)) a
   let pb := AdjoinRoot.powerBasis hf
   have hdim : pb.dim = l := by
-    simpa [pb, natDegree_X_pow_sub_C] using AdjoinRoot.powerBasis_dim hf
+    simp [pb]
   let B : Module.Basis (Fin l) K (AdjoinRoot (X ^ l - C a)) :=
     pb.basis.reindex (finCongr hdim)
   let η : rootsOfUnity l K := rootsOfUnity.mkOfPowEq ζ hζ.pow_eq_one
@@ -209,7 +209,7 @@ private theorem kummer_chebotarev_contradiction
     (hσβ : σ β = algebraMap K E ζ * β)
     (hsupport : ∀ m : ℕ, 1 ≤ m → ∀ p : ℕ,
       p.Prime → (p ∣ x ^ m - 1 ↔ p ∣ y ^ m - 1)) : False := by
-  letI : NeZero l := ⟨hl.ne_zero⟩
+  let : NeZero l := ⟨hl.ne_zero⟩
   let S : Set (Ideal (𝓞 K)) := {𝔭 | 𝔭.IsPrime ∧ Chebotarev.UnramifiedIn K E 𝔭 ∧
     Chebotarev.frobeniusClass K E 𝔭 = ConjClasses.mk σ}
   have hS : S.Infinite := Chebotarev.infinite_setOf_frobenius_class
@@ -225,7 +225,7 @@ private theorem kummer_chebotarev_contradiction
   change 𝔭.IsPrime ∧ Chebotarev.UnramifiedIn K E 𝔭 ∧
     Chebotarev.frobeniusClass K E 𝔭 = ConjClasses.mk σ at h𝔭S
   rcases h𝔭S with ⟨h𝔭prime, hunr, hclass⟩
-  letI : 𝔭.IsPrime := h𝔭prime
+  let : 𝔭.IsPrime := h𝔭prime
   have h𝔭ne : 𝔭 ≠ ⊥ := Chebotarev.UnramifiedIn.ne_bot K E hunr
   have hprodnot : ((l * x * y : ℕ) : 𝓞 K) ∉ 𝔭 := by
     intro h
@@ -246,10 +246,10 @@ private theorem kummer_chebotarev_contradiction
     simpa [Nat.cast_mul, mul_assoc] using this
   obtain ⟨𝔓, h𝔓prime, h𝔓lo, h𝔓ne⟩ :=
     Chebotarev.exists_prime_liesOver K E 𝔭 h𝔭ne
-  letI : 𝔓.IsPrime := h𝔓prime
-  letI : 𝔓.LiesOver 𝔭 := h𝔓lo
-  letI : 𝔓.IsMaximal := h𝔓prime.isMaximal h𝔓ne
-  letI : Finite (𝓞 E ⧸ 𝔓) :=
+  let : 𝔓.IsPrime := h𝔓prime
+  let : 𝔓.LiesOver 𝔭 := h𝔓lo
+  let : 𝔓.IsMaximal := h𝔓prime.isMaximal h𝔓ne
+  let : Finite (𝓞 E ⧸ 𝔓) :=
     Chebotarev.UnramifiedIn.finite_quotient K E hunr 𝔓 h𝔓lo
   let ρ : E ≃ₐ[K] E := arithFrobAt (𝓞 K) Gal(E/K) 𝔓
   have hρfrob : IsArithFrobAt (𝓞 K) ρ 𝔓 :=
@@ -340,7 +340,7 @@ private theorem kummer_chebotarev_contradiction
     rw [hn0, mul_zero] at hln
     omega
   let Q := 𝓞 E ⧸ 𝔓
-  letI : Field Q := Ideal.Quotient.field 𝔓
+  let : Field Q := Ideal.Quotient.field 𝔓
   let abar : Q := Ideal.Quotient.mk 𝔓 aI
   let bbar : Q := Ideal.Quotient.mk 𝔓 bI
   let zbar : Q := Ideal.Quotient.mk 𝔓 zI
@@ -414,9 +414,9 @@ private theorem support_kummer_relation
     (l : ℕ) (hl : l.Prime) :
     let K := CyclotomicField l ℚ
     ∃ j < l, ∃ z : K, (y : K) = (x : K) ^ j * z ^ l := by
-  letI : NeZero l := ⟨hl.ne_zero⟩
+  let : NeZero l := ⟨hl.ne_zero⟩
   let K := CyclotomicField l ℚ
-  letI : IsCyclotomicExtension {l} ℚ K :=
+  let : IsCyclotomicExtension {l} ℚ K :=
     CyclotomicField.isCyclotomicExtension l ℚ
   let ζ : K := IsCyclotomicExtension.zeta l ℚ K
   have hζ : IsPrimitiveRoot ζ l := IsCyclotomicExtension.zeta_spec l ℚ K
@@ -428,17 +428,17 @@ private theorem support_kummer_relation
   · obtain ⟨u, hu⟩ := ha
     by_cases hb : ∃ v : K, v ^ l = b
     · obtain ⟨v, hv⟩ := hb
-      exact ⟨0, hl.pos, v, by simp [a, b, hv]⟩
+      exact ⟨0, hl.pos, v, by simp [b, hv]⟩
     · have hirrb : Irreducible (X ^ l - C b) :=
         (X_pow_sub_C_irreducible_iff_of_prime hl).mpr fun v hv ↦ hb ⟨v, hv⟩
-      letI : Fact (Irreducible (X ^ l - C b)) := ⟨hirrb⟩
+      let : Fact (Irreducible (X ^ l - C b)) := ⟨hirrb⟩
       let E := AdjoinRoot (X ^ l - C b)
-      letI : FiniteDimensional K E :=
+      let : FiniteDimensional K E :=
         (AdjoinRoot.powerBasis hirrb.ne_zero).finite
-      letI : NumberField E := NumberField.of_module_finite K E
-      letI : IsSplittingField K E (X ^ l - C b) :=
+      let : NumberField E := NumberField.of_module_finite K E
+      let : IsSplittingField K E (X ^ l - C b) :=
         isSplittingField_AdjoinRoot_X_pow_sub_C hroots hirrb
-      letI : IsGalois K E :=
+      let : IsGalois K E :=
         isGalois_of_isSplittingField_X_pow_sub_C hroots hirrb E
       let η : rootsOfUnity l K := rootsOfUnity.mkOfPowEq ζ hζ.pow_eq_one
       let σ : E ≃ₐ[K] E := autAdjoinRootXPowSubC l b η
@@ -465,14 +465,14 @@ private theorem support_kummer_relation
         hsupport).elim
   · have hirra : Irreducible (X ^ l - C a) :=
       (X_pow_sub_C_irreducible_iff_of_prime hl).mpr fun u hu ↦ ha ⟨u, hu⟩
-    letI : Fact (Irreducible (X ^ l - C a)) := ⟨hirra⟩
+    let : Fact (Irreducible (X ^ l - C a)) := ⟨hirra⟩
     let A := AdjoinRoot (X ^ l - C a)
-    letI : FiniteDimensional K A :=
+    let : FiniteDimensional K A :=
       (AdjoinRoot.powerBasis hirra.ne_zero).finite
-    letI : NumberField A := NumberField.of_module_finite K A
-    letI : IsSplittingField K A (X ^ l - C a) :=
+    let : NumberField A := NumberField.of_module_finite K A
+    let : IsSplittingField K A (X ^ l - C a) :=
       isSplittingField_AdjoinRoot_X_pow_sub_C hroots hirra
-    letI : IsGalois K A :=
+    let : IsGalois K A :=
       isGalois_of_isSplittingField_X_pow_sub_C hroots hirra A
     by_cases hbA : ∃ c : A, c ^ l = algebraMap K A b
     · obtain ⟨c, hc⟩ := hbA
@@ -481,12 +481,12 @@ private theorem support_kummer_relation
     · have hirrbA : Irreducible
           (X ^ l - C (algebraMap K A b)) :=
         (X_pow_sub_C_irreducible_iff_of_prime hl).mpr fun c hc ↦ hbA ⟨c, hc⟩
-      letI : Fact (Irreducible (X ^ l - C (algebraMap K A b))) := ⟨hirrbA⟩
+      let : Fact (Irreducible (X ^ l - C (algebraMap K A b))) := ⟨hirrbA⟩
       let E := AdjoinRoot (X ^ l - C (algebraMap K A b))
-      letI : FiniteDimensional A E :=
+      let : FiniteDimensional A E :=
         (AdjoinRoot.powerBasis hirrbA.ne_zero).finite
-      letI : NumberField E := NumberField.of_module_finite A E
-      letI : IsScalarTower K A E := inferInstance
+      let : NumberField E := NumberField.of_module_finite A E
+      let : IsScalarTower K A E := inferInstance
       have hirrb : Irreducible (X ^ l - C b) :=
         (X_pow_sub_C_irreducible_iff_of_prime hl).mpr fun v hv ↦ hbA ⟨algebraMap K A v, by
           rw [← map_pow, hv]
@@ -506,7 +506,7 @@ private theorem support_kummer_relation
         · exact (hpoly (Polynomial.eq_of_monic_of_associated
             (monic_X_pow_sub_C a hl.ne_zero) (monic_X_pow_sub_C b hl.ne_zero)
             (hirra.associated_of_dvd hirrb h))).elim
-      letI : IsSplittingField A E
+      let : IsSplittingField A E
           ((X ^ l - C b).map (algebraMap K A)) := by
         simpa [map_sub, map_pow] using
           (isSplittingField_AdjoinRoot_X_pow_sub_C
@@ -514,14 +514,14 @@ private theorem support_kummer_relation
               ⟨algebraMap K A ζ, (mem_primitiveRoots hl.pos).mpr
                 (hζ.map_of_injective (algebraMap K A).injective)⟩)
             hirrbA)
-      letI : IsSplittingField K E ((X ^ l - C a) * (X ^ l - C b)) :=
+      let : IsSplittingField K E ((X ^ l - C a) * (X ^ l - C b)) :=
         Polynomial.IsSplittingField.mul (K := A) E (X ^ l - C a) (X ^ l - C b)
           hirra.ne_zero hirrb.ne_zero
       have hsepA : (X ^ l - C a).Separable :=
         separable_X_pow_sub_C_of_irreducible hroots a hirra
       have hsepB : (X ^ l - C b).Separable :=
         separable_X_pow_sub_C_of_irreducible hroots b hirrb
-      letI : IsGalois K E := IsGalois.of_separable_splitting_field
+      let : IsGalois K E := IsGalois.of_separable_splitting_field
         (hsepA.mul hsepB hcop)
       let ηA : rootsOfUnity l A := rootsOfUnity.mkOfPowEq (algebraMap K A ζ)
         (by rw [← map_pow, hζ.pow_eq_one, map_one])
@@ -582,9 +582,9 @@ private theorem support_valuation_modeq
     (l : ℕ) (hl : l.Prime) :
     ∃ j < l, ∀ r : ℕ, r.Prime →
       (padicValNat r y : ℤ) ≡ (j : ℤ) * padicValNat r x [ZMOD l] := by
-  letI : NeZero l := ⟨hl.ne_zero⟩
+  let : NeZero l := ⟨hl.ne_zero⟩
   let K := CyclotomicField l ℚ
-  letI : IsCyclotomicExtension {l} ℚ K :=
+  let : IsCyclotomicExtension {l} ℚ K :=
     CyclotomicField.isCyclotomicExtension l ℚ
   obtain ⟨j, hj, z, hzrel⟩ := support_kummer_relation hx hy hsupport l hl
   have hrel : algebraMap ℚ K (y : ℚ) =
@@ -603,7 +603,7 @@ private theorem support_valuation_modeq
   have hnormz : Algebra.norm ℚ z ≠ 0 := Algebra.norm_ne_zero_iff.mpr hz
   refine ⟨j, hj, ?_⟩
   intro r hr
-  letI : Fact r.Prime := ⟨hr⟩
+  let : Fact r.Prime := ⟨hr⟩
   have hv := congrArg (padicValRat r) hnorm
   have hval : ((l - 1 : ℕ) : ℤ) * padicValNat r y =
       ((l - 1 : ℕ) : ℤ) * ((j : ℤ) * padicValNat r x) +
@@ -651,7 +651,8 @@ private theorem valuation_minor_eq_zero
     Int.ModEq.rfl.mul hjr
   have hD0 : D ≡ 0 [ZMOD l] := by
     dsimp [D]
-    convert hmul1.sub hmul2 using 1 <;> ring
+    convert hmul1.sub hmul2 using 1
+    all_goals ring
   have hldiv : (l : ℤ) ∣ D := by
     have := Int.modEq_iff_dvd.mp hD0
     simpa using this
@@ -686,7 +687,7 @@ private theorem exists_other_prime_dvd_prime_power_geom_sum
       simpa [C, Nat.sub_add_cancel hu.le] using geom_sum_mul_add (u - 1) q
     omega
   by_cases hqC : q ∣ C
-  · letI : Fact q.Prime := ⟨hq⟩
+  · let : Fact q.Prime := ⟨hq⟩
     have hCzero : (C : ZMod q) = 0 := (ZMod.natCast_eq_zero_iff C q).2 hqC
     have hgeomZ := congrArg (Nat.castRingHom (ZMod q)) hgeom
     have huZ : (u : ZMod q) = 1 := by
@@ -767,11 +768,11 @@ private theorem exists_prime_orderOf_eq_prime_power
       orderOf (g : ZMod p) = q ^ k := by
   obtain ⟨p, hp, hpq, hpC⟩ :=
     exists_other_prime_dvd_prime_power_geom_sum hg hq hk
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hpqpow : ¬p ∣ q ^ k := by
     exact (hp.coprime_iff_not_dvd.mp
       (Nat.Coprime.pow_right k ((Nat.coprime_primes hp hq).2 hpq)))
-  letI : NeZero ((q ^ k : ℕ) : ZMod p) := NeZero.of_not_dvd (ZMod p) hpqpow
+  let : NeZero ((q ^ k : ℕ) : ZMod p) := NeZero.of_not_dvd (ZMod p) hpqpow
   have hzero :
       (↑(∑ i ∈ Finset.range q, (g ^ (q ^ (k - 1))) ^ i) : ZMod p) = 0 :=
     (ZMod.natCast_eq_zero_iff _ _).2 hpC
@@ -800,10 +801,10 @@ private theorem exists_positive_power_relation
   obtain ⟨s, hs, hsy⟩ := Nat.ne_one_iff_exists_prime_dvd.mp hy.ne'
   let A := padicValNat r x
   let B := padicValNat r y
-  letI : Fact r.Prime := ⟨hr⟩
+  let : Fact r.Prime := ⟨hr⟩
   have hA : 0 < A := one_le_padicValNat_of_dvd (by omega : x ≠ 0) hrx
   have hsyval : 0 < padicValNat s y := by
-    letI : Fact s.Prime := ⟨hs⟩
+    let : Fact s.Prime := ⟨hs⟩
     exact one_le_padicValNat_of_dvd (by omega : y ≠ 0) hsy
   have hminorRS := valuation_minor_eq_zero hx.le hy.le hsupport r s hr hs
   have hminorNat : padicValNat r x * padicValNat s y =
@@ -838,7 +839,7 @@ private theorem orderOf_zmod_eq_of_support
       p.Prime → (p ∣ x ^ m - 1 ↔ p ∣ y ^ m - 1))
     (hp : p.Prime) (hpx : ¬p ∣ x) (hpy : ¬p ∣ y) :
     orderOf (x : ZMod p) = orderOf (y : ZMod p) := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hx0 : (x : ZMod p) ≠ 0 := by
     simpa [ZMod.natCast_eq_zero_iff] using hpx
   have hy0 : (y : ZMod p) ≠ 0 := by
