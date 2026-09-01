@@ -174,8 +174,7 @@ def truncIter (n : ℕ) (A B : Finset ℕ) : ℕ → Finset ℕ
 lemma truncIter_subset_range (n : ℕ) (A B : Finset ℕ) (j : ℕ) :
     truncIter n A B j ⊆ range (n + 1) := by
   induction j with
-  | zero => simpa [subset_iff] using fun x (hx : x ∈ A.filter (· ≤ n)) =>
-      Nat.lt_succ_of_le (mem_filter.1 hx).2
+  | zero => simp [subset_iff]
   | succ j ih =>
       intro x hx
       obtain ⟨a, ha, b, hb, hab, hxn⟩ := mem_truncAdd.1 hx
@@ -200,33 +199,43 @@ prescribed finite domain. -/
 def relPreimage (r : ι → ι → Prop) [DecidableRel r] (S T : Finset ι) : Finset ι :=
   S.filter fun x => ∃ y ∈ T, r x y
 
+omit [DecidableEq ι] in
 @[simp] lemma mem_relImage {r : ι → ι → Prop} [DecidableRel r] {S T : Finset ι} {y : ι} :
     y ∈ relImage r S T ↔ y ∈ T ∧ ∃ x ∈ S, r x y := by
+  classical
   simp [relImage]
 
+omit [DecidableEq ι] in
 @[simp] lemma mem_relPreimage {r : ι → ι → Prop} [DecidableRel r]
     {S T : Finset ι} {x : ι} :
     x ∈ relPreimage r S T ↔ x ∈ S ∧ ∃ y ∈ T, r x y := by
+  classical
   simp [relPreimage]
 
+omit [DecidableEq ι] in
 lemma relImage_mono_left {r : ι → ι → Prop} [DecidableRel r]
     {S S' T : Finset ι} (h : S ⊆ S') : relImage r S T ⊆ relImage r S' T := by
+  classical
   intro y hy
   obtain ⟨hyT, x, hx, hxy⟩ := mem_relImage.1 hy
   exact mem_relImage.2 ⟨hyT, x, h hx, hxy⟩
 
+omit [DecidableEq ι] in
 lemma relPreimage_mono_right {r : ι → ι → Prop} [DecidableRel r]
     {S T T' : Finset ι} (h : T ⊆ T') : relPreimage r S T ⊆ relPreimage r S T' := by
+  classical
   intro x hx
   obtain ⟨hxS, y, hy, hxy⟩ := mem_relPreimage.1 hx
   exact mem_relPreimage.2 ⟨hxS, y, h hy, hxy⟩
 
+omit [DecidableEq ι] in
 /-- The layer-cake identity for a bounded natural-valued function on a
 finset: the sum of its values is the sum of the cardinalities of its strict
 superlevel sets. -/
 lemma sum_card_filter_lt_eq_sum (S : Finset ι) (d : ι → ℕ) (M : ℕ)
     (hd : ∀ x ∈ S, d x ≤ M) :
     (∑ j ∈ range M, #{x ∈ S | j < d x}) = ∑ x ∈ S, d x := by
+  classical
   change (∑ j ∈ range M, #(S.bipartiteAbove (fun j x => j < d x) j)) = _
   rw [sum_card_bipartiteAbove_eq_sum_card_bipartiteBelow]
   apply sum_congr rfl
@@ -240,6 +249,7 @@ lemma sum_card_filter_lt_eq_sum (S : Finset ι) (d : ι → ℕ) (M : ℕ)
     · exact fun h => ⟨h.trans_le (hd x hx), h⟩
   rw [hfilter, card_range]
 
+omit [DecidableEq ι] in
 /-- The level-two counting lemma in Petridis's weighted-separator proof.
 The two expansion assumptions come from minimality of a middle-layer
 separator.  The two degree assumptions are the numerical consequences of
@@ -256,6 +266,7 @@ lemma levelTwo_middle_card_eq
     (hU₀ : ∀ v ∈ U₀, (U₁.bipartiteAbove r₀₁ v).Nonempty)
     (hU₁ : ∀ u ∈ U₁, (U₂.bipartiteAbove r₁₂ u).Nonempty) :
     C * (#U₀ : ℝ) = #U₁ := by
+  classical
   let M := #U₀ + #U₁ + #U₂ + 1
   let din₁ : ι → ℕ := fun u => #(U₀.bipartiteBelow r₀₁ u)
   let din₂ : ι → ℕ := fun v => #(U₁.bipartiteBelow r₁₂ v)
@@ -268,7 +279,7 @@ lemma levelTwo_middle_card_eq
       _ ≤ #U₀ + #U₁ := Nat.le_add_left _ _
       _ ≤ M := by
         dsimp [M]
-        simpa [Nat.add_assoc] using Nat.le_add_right (#U₀ + #U₁) (#U₂ + 1)
+        simp [Nat.add_assoc]
   have hM1out : ∀ u ∈ U₁, dout₁ u ≤ M := by
     intro u hu
     calc
@@ -281,7 +292,7 @@ lemma levelTwo_middle_card_eq
       din₁ u ≤ #U₀ := Finset.card_le_card (filter_subset _ _)
       _ ≤ M := by
         dsimp [M]
-        simpa [Nat.add_assoc] using Nat.le_add_right #U₀ (#U₁ + #U₂ + 1)
+        simp [Nat.add_assoc]
   have hM2 : ∀ v ∈ U₂, din₂ v ≤ M := by
     intro v hv
     calc
@@ -289,7 +300,7 @@ lemma levelTwo_middle_card_eq
       _ ≤ #U₀ + #U₁ := Nat.le_add_left _ _
       _ ≤ M := by
         dsimp [M]
-        simpa [Nat.add_assoc] using Nat.le_add_right (#U₀ + #U₁) (#U₂ + 1)
+        simp [Nat.add_assoc]
   have hforward_threshold : ∀ j < M,
       C * (#{u ∈ U₁ | j < din₁ u} : ℝ) ≤ #{v ∈ U₂ | j < din₂ v} := by
     intro j hj
@@ -464,7 +475,7 @@ def atLayer (i : ℕ) (T : Finset ℕ) : Finset (ℕ × ℕ) :=
 
 @[simp] lemma mem_cutLayer {n i : ℕ} {S : Finset (ℕ × ℕ)} {x : ℕ} :
     x ∈ cutLayer n S i ↔ x ≤ n ∧ (i, x) ∈ S := by
-  simp [cutLayer, Nat.lt_succ_iff]
+  simp [cutLayer]
 
 @[simp] lemma mem_atLayer {i : ℕ} {T : Finset ℕ} {q : ℕ × ℕ} :
     q ∈ atLayer i T ↔ ∃ x ∈ T, (i, x) = q := by
@@ -497,7 +508,7 @@ lemma atLayer_subset_iff {i : ℕ} {T : Finset ℕ} {S : Finset (ℕ × ℕ)} :
 valid path.  Hence a separator avoided by the prefix and suffix must contain
 the square's middle vertex. -/
 lemma splice_middle_mem {n h j : ℕ} {X B : Finset ℕ} {S : Finset (ℕ × ℕ)}
-    (hj₀ : 0 < j) (hjh : j < h) (hsep : IsSeparator n h X B S)
+    (hj₀ : 0 < j) (hsep : IsSeparator n h X B S)
     {p₀ p₂ : ℕ → ℕ} (hp₀ : IsTruncPath n h X B p₀)
     (hp₂ : IsTruncPath n h X B p₂)
     {x x' v : ℕ} (hp₀x : p₀ (j - 1) = x) (hp₂v : p₂ (j + 1) = v)
@@ -510,8 +521,7 @@ lemma splice_middle_mem {n h j : ℕ} {X B : Finset ℕ} {S : Finset (ℕ × ℕ
   let p : ℕ → ℕ := fun i => if i < j then p₀ i else if i = j then x' else p₂ i
   have hp : IsTruncPath n h X B p := by
     refine ⟨?_, ?_, ?_⟩
-    · simp [p, hj₀]
-      exact hp₀.1
+    · simpa only [p, if_pos hj₀] using hp₀.1
     · intro i hi
       by_cases hij : i < j
       · simpa [p, hij] using hp₀.2.1 i hi
@@ -533,10 +543,8 @@ lemma splice_middle_mem {n h j : ℕ} {X B : Finset ℕ} {S : Finset (ℕ × ℕ
         simpa [hip, his] using hxx'
       by_cases hij : i = j
       · have hi_not : ¬i < j := by omega
-        have his_not : ¬i + 1 < j := by omega
-        have his_ne : i + 1 ≠ j := by omega
         have hip : p i = x' := by simp [p, hij]
-        have his : p (i + 1) = v := by simp [p, his_not, his_ne, hp₂v, hij]
+        have his : p (i + 1) = v := by simp [p, hp₂v, hij]
         simpa [hip, his] using hx'v
       · have hji : j < i := by omega
         have hi_not : ¬i < j := by omega
@@ -572,21 +580,21 @@ def suffixSet (n h : ℕ) (X B : Finset ℕ) (S : Finset (ℕ × ℕ)) (i : ℕ)
     x ∈ prefixSet n h X B S i ↔
       x ≤ n ∧ ∃ p, IsTruncPath n h X B p ∧ p i = x ∧
         ∀ t ≤ i, (t, p t) ∉ S := by
-  simp [prefixSet, Nat.lt_succ_iff]
+  simp [prefixSet]
 
 @[simp] lemma mem_suffixSet {n h : ℕ} {X B : Finset ℕ} {S : Finset (ℕ × ℕ)}
     {i x : ℕ} :
     x ∈ suffixSet n h X B S i ↔
       x ≤ n ∧ ∃ p, IsTruncPath n h X B p ∧ p i = x ∧
         ∀ t, i ≤ t → t ≤ h → (t, p t) ∉ S := by
-  simp [suffixSet, Nat.lt_succ_iff]
+  simp [suffixSet]
 
 /-- Inclusion-minimality of a separator makes every one of its vertices
 essential: after deleting that vertex there is a path which meets the old
 separator exactly there. -/
 lemma essential_path_of_erase_not_separator
     {n h j u : ℕ} {X B : Finset ℕ} {S : Finset (ℕ × ℕ)}
-    (hsep : IsSeparator n h X B S) (hju : (j, u) ∈ S)
+    (hsep : IsSeparator n h X B S)
     (hnot : ¬IsSeparator n h X B (S.erase (j, u))) :
     ∃ p, IsTruncPath n h X B p ∧ p j = u ∧
       ∀ i ≤ h, i ≠ j → (i, p i) ∉ S := by
@@ -812,7 +820,7 @@ lemma separatorRank_replacement_balance {A S D : Finset (ℕ × ℕ)} (hAS : A �
 lemma forwardReplacement_subset_grid
     {n h j : ℕ} {X B : Finset ℕ} {S : Finset (ℕ × ℕ)}
     (hjh : j < h) (hS : S ⊆ vertexGrid n h)
-    {Q : Finset ℕ} (hQ : Q ⊆ separatorMiddle n j S) :
+    {Q : Finset ℕ} :
     forwardReplacement n h j X B S Q ⊆ vertexGrid n h := by
   intro q hq
   rcases mem_union.1 hq with hq | hq
@@ -824,8 +832,8 @@ lemma forwardReplacement_subset_grid
 
 lemma backwardReplacement_subset_grid
     {n h j : ℕ} {X B : Finset ℕ} {S : Finset (ℕ × ℕ)}
-    (hj₀ : 0 < j) (hjh : j ≤ h) (hS : S ⊆ vertexGrid n h)
-    {Q : Finset ℕ} (hQ : Q ⊆ separatorMiddle n j S) :
+    (hjh : j ≤ h) (hS : S ⊆ vertexGrid n h)
+    {Q : Finset ℕ} :
     backwardReplacement n h j X B S Q ⊆ vertexGrid n h := by
   intro q hq
   rcases mem_union.1 hq with hq | hq
@@ -841,9 +849,9 @@ lemma backwardReplacement_subset_grid
 
 lemma separator_channel_down_degree
     {n h j : ℕ} {X B : Finset ℕ} {S : Finset (ℕ × ℕ)}
-    (hj₀ : 0 < j) (hjh : j < h) (hsep : IsSeparator n h X B S)
-    {u v : ℕ} (hu : u ∈ separatorMiddle n j S)
-    (hv : v ∈ separatorUpper n h j X B S) (huv : AddEdge n B u v) :
+    (hj₀ : 0 < j) (hsep : IsSeparator n h X B S)
+    {u v : ℕ} (hv : v ∈ separatorUpper n h j X B S)
+    (huv : AddEdge n B u v) :
     #((separatorLower n h j X B S).bipartiteBelow (AddEdge n B) u) ≤
       #((separatorMiddle n j S).bipartiteBelow (AddEdge n B) v) := by
   obtain ⟨b, hbB, hub, hvn⟩ := huv
@@ -862,7 +870,7 @@ lemma separator_channel_down_degree
     have hfxn : f x ≤ n := by omega
     have hxff : AddEdge n B x (f x) := ⟨b, hbB, rfl, hfxn⟩
     have hfxvEdge : AddEdge n B (f x) v := ⟨c, hcB, hfxv, hvn⟩
-    have hfxS : (j, f x) ∈ S := splice_middle_mem hj₀ hjh hsep hp₀ hp₂
+    have hfxS : (j, f x) ∈ S := splice_middle_mem hj₀ hsep hp₀ hp₂
       hp₀x hp₂v (fun i hi => hp₀avoid i (by omega))
       (fun i hji hih => hp₂avoid i (by omega) hih) hxff hfxvEdge
     exact (mem_bipartiteBelow (AddEdge n B)).2
@@ -872,9 +880,9 @@ lemma separator_channel_down_degree
 
 lemma separator_channel_up_degree
     {n h j : ℕ} {X B : Finset ℕ} {S : Finset (ℕ × ℕ)}
-    (hj₀ : 0 < j) (hjh : j < h) (hsep : IsSeparator n h X B S)
+    (hj₀ : 0 < j) (hsep : IsSeparator n h X B S)
     {v u : ℕ} (hv : v ∈ separatorLower n h j X B S)
-    (hu : u ∈ separatorMiddle n j S) (hvu : AddEdge n B v u) :
+    (hvu : AddEdge n B v u) :
     #((separatorUpper n h j X B S).bipartiteAbove (AddEdge n B) u) ≤
       #((separatorMiddle n j S).bipartiteAbove (AddEdge n B) v) := by
   obtain ⟨c, hcB, hvc, hun⟩ := hvu
@@ -901,7 +909,7 @@ lemma separator_channel_up_degree
       refine ⟨c, hcB, ?_, hwn⟩
       dsimp [f]
       omega
-    have hfwS : (j, f w) ∈ S := splice_middle_mem hj₀ hjh hsep hp₀ hp₂
+    have hfwS : (j, f w) ∈ S := splice_middle_mem hj₀ hsep hp₀ hp₂
       hp₀v hp₂w (fun i hi => hp₀avoid i (by omega))
       (fun i hji hih => hp₂avoid i (by omega) hih) hfv hfww
     exact (mem_bipartiteAbove (AddEdge n B)).2
@@ -926,14 +934,14 @@ lemma separatorLower_has_middle_neighbor
 
 lemma separatorMiddle_has_upper_neighbor
     {n h j : ℕ} {X B : Finset ℕ} {S : Finset (ℕ × ℕ)}
-    (hj₀ : 0 < j) (hjh : j < h) (hsep : IsSeparator n h X B S)
+    (hjh : j < h) (hsep : IsSeparator n h X B S)
     (herase : ∀ u ∈ separatorMiddle n j S,
       ¬IsSeparator n h X B (S.erase (j, u)))
     {u : ℕ} (hu : u ∈ separatorMiddle n j S) :
     ((separatorUpper n h j X B S).bipartiteAbove (AddEdge n B) u).Nonempty := by
   have hju : (j, u) ∈ S := (mem_cutLayer.1 hu).2
   obtain ⟨p, hp, hpju, havoid⟩ :=
-    essential_path_of_erase_not_separator hsep hju (herase u hu)
+    essential_path_of_erase_not_separator hsep (herase u hu)
   have hstep : AddEdge n B u (p (j + 1)) := by
     simpa [hpju] using hp.2.2 j hjh
   have hsucc : p (j + 1) ∈ suffixSet n h X B S (j + 1) := by
@@ -959,7 +967,7 @@ lemma separator_channel_forward_expansion
   let T := forwardReplacement n h j X B S Q
   have hA : atLayer j Q ⊆ S := atLayer_subset_iff.2 fun x hx =>
     (mem_cutLayer.1 (hQ hx)).2
-  have hTgrid : T ⊆ vertexGrid n h := forwardReplacement_subset_grid hjh hS hQ
+  have hTgrid : T ⊆ vertexGrid n h := forwardReplacement_subset_grid hjh hS
   have hTsep : IsSeparator n h X B T := forwardReplacement_isSeparator hjh hsep hQ
   have hbal := separatorWeight_replacement_balance hC.le h
     (A := atLayer j Q) (S := S) (D := atLayer (j + 1) I) hA
@@ -992,7 +1000,7 @@ lemma separator_channel_backward_expansion
   let T := backwardReplacement n h j X B S Q
   have hA : atLayer j Q ⊆ S := atLayer_subset_iff.2 fun x hx =>
     (mem_cutLayer.1 (hQ hx)).2
-  have hTgrid : T ⊆ vertexGrid n h := backwardReplacement_subset_grid hj₀ hjh hS hQ
+  have hTgrid : T ⊆ vertexGrid n h := backwardReplacement_subset_grid hjh hS
   have hTsep : IsSeparator n h X B T := backwardReplacement_isSeparator hj₀ hsep hQ
   have hbal := separatorWeight_replacement_balance hC.le h
     (A := atLayer j Q) (S := S) (D := atLayer (j - 1) P) hA
@@ -1059,19 +1067,19 @@ lemma minimum_separator_has_no_interior
     · exact hforward
     · exact hbackward
     · intro u hu v hv huv
-      exact separator_channel_down_degree hj₀ hjh hsep hu hv huv
+      exact separator_channel_down_degree hj₀ hsep hv huv
     · intro v hv u hu hvu
-      exact separator_channel_up_degree hj₀ hjh hsep hv hu hvu
+      exact separator_channel_up_degree hj₀ hsep hv hvu
     · intro v hv
       exact separatorLower_has_middle_neighbor hv
     · intro u hu
-      exact separatorMiddle_has_upper_neighbor hj₀ hjh hsep herase hu
+      exact separatorMiddle_has_upper_neighbor hjh hsep herase hu
   let U₀ := separatorLower n h j X B S
   let U₁ := separatorMiddle n j S
   let T := backwardReplacement n h j X B S U₁
   have hU₁sub : U₁ ⊆ separatorMiddle n j S := by simp [U₁]
   have hTgrid : T ⊆ vertexGrid n h :=
-    backwardReplacement_subset_grid hj₀ hjh.le hS hU₁sub
+    backwardReplacement_subset_grid hjh.le hS
   have hTsep : IsSeparator n h X B T :=
     backwardReplacement_isSeparator hj₀ hsep hU₁sub
   have hA : atLayer j U₁ ⊆ S := atLayer_subset_iff.2 fun x hx =>
@@ -1182,7 +1190,7 @@ lemma truncIter_avoiding_bottom_subset_top
     simp at himid
 
 lemma separator_eq_end_layers
-    {n h : ℕ} {S : Finset (ℕ × ℕ)} (hh : 0 < h)
+    {n h : ℕ} {S : Finset (ℕ × ℕ)}
     (hS : S ⊆ vertexGrid n h)
     (hinterior : ∀ j, 0 < j → j < h → separatorMiddle n j S = ∅) :
     S = atLayer 0 (cutLayer n S 0) ∪ atLayer h (cutLayer n S h) := by
@@ -1214,7 +1222,7 @@ lemma separatorWeight_eq_end_layers
     (hinterior : ∀ j, 0 < j → j < h → separatorMiddle n j S = ∅) :
     separatorWeight C h S =
       (#(cutLayer n S 0) : ℝ) * C ^ h + #(cutLayer n S h) := by
-  conv_lhs => rw [separator_eq_end_layers hh hS hinterior]
+  conv_lhs => rw [separator_eq_end_layers hS hinterior]
   have hdis : Disjoint (atLayer 0 (cutLayer n S 0))
       (atLayer h (cutLayer n S h)) := by
     rw [Finset.disjoint_left]
@@ -1335,7 +1343,7 @@ lemma mem_truncIter_of_mem_nsmul {B : Set ℕ} {k n x d : ℕ}
     x + d ∈ truncIter n {x} (basisFinset B n) k := by
   induction k generalizing d with
   | zero =>
-      simp only [zero_nsmul, Set.mem_singleton_iff] at hd
+      simp only [zero_nsmul] at hd
       subst d
       exact mem_filter.2 ⟨by simp, by omega⟩
   | succ k ih =>
@@ -1532,7 +1540,7 @@ def densityGain (p : ℝ) (k : ℕ) : ℝ :=
   p * expansionFactor p k
 
 lemma densityGain_mono {p q : ℝ} {k : ℕ}
-    (hp0 : 0 ≤ p) (hpq : p ≤ q) (hq1 : q ≤ 1) (hk : 0 < k) :
+    (hpq : p ≤ q) (hq1 : q ≤ 1) (hk : 0 < k) :
     densityGain p k ≤ densityGain q k := by
   have hkR : (0 : ℝ) < k := by exact_mod_cast hk
   have hk1 : (1 : ℝ) ≤ k := by exact_mod_cast hk
@@ -1669,7 +1677,7 @@ lemma interval_density_expansion_aux {A B : Set ℕ} {k : ℕ}
         rw [div_le_one (by positivity)]
         exact_mod_cast countOn_le_length A hleast.1
       have hgain : densityGain p k ≤ densityGain q k :=
-        densityGain_mono hp0 hpq hq1 hk
+        densityGain_mono hpq hq1 hk
       have hblockRaw := minPrefixBlock_expansion hBasis hk
         (leastPrefix_isMinBlock hleast)
       have hblock : densityGain q k * ((c - a + 1 : ℕ) : ℝ) ≤
@@ -1737,7 +1745,7 @@ theorem erdos_35 (A B : Set ℕ) (k : ℕ) (_hzero : 0 ∈ B)
     intro hk0
     subst k
     have htwo : 2 ∈ (0 • B : Set ℕ) := by rw [hBasis]; simp
-    simpa using htwo
+    simp at htwo
   let α := schnirelmannDensity A
   have hα0 : 0 ≤ α := schnirelmannDensity_nonneg
   have hα1 : α ≤ 1 := schnirelmannDensity_le_one
@@ -1763,7 +1771,7 @@ theorem erdos_35 (A B : Set ℕ) (k : ℕ) (_hzero : 0 ∈ B)
 lemma zero_not_basis_order_zero (B : Set ℕ) : ¬IsAdditiveBasisOfOrder B 0 := by
   intro h
   have htwo : 2 ∈ (0 • B : Set ℕ) := by rw [h]; simp
-  simpa using htwo
+  simp at htwo
 
 /-! ## The analytic comparison
 
