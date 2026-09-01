@@ -119,26 +119,26 @@ noncomputable def unitDistanceGraph {d : ℕ}
     exact h
   loopless.irrefl := by
     intro p h
-    simpa using h
+    simp at h
 
 noncomputable instance unitDistanceGraph.instDecidableRelAdj {d : ℕ}
     (P : Finset (EuclideanSpace ℝ (Fin d))) : DecidableRel (unitDistanceGraph P).Adj :=
   Classical.decRel _
 
-private def subtypeEmbedding { α : Type* } (P : Finset α) : {x // x ∈ P} ↪ α :=
+private def subtypeEmbedding {α : Type*} (P : Finset α) : {x // x ∈ P} ↪ α :=
   Function.Embedding.subtype _
 
-private def liftEmbedding { α : Type* } [DecidableEq α]
+private def liftEmbedding {α : Type*} [DecidableEq α]
     (P T : Finset α) (hTP : T ⊆ P) : {x // x ∈ T} ↪ {x // x ∈ P} where
   toFun x := ⟨x, hTP x.property⟩
-  inj' x y h :=
+  inj' _ _ h :=
     Subtype.ext (congrArg (fun z : {x // x ∈ P} ↦ (z : α)) h)
 
-private def liftFinset { α : Type* } [DecidableEq α]
+private def liftFinset {α : Type*} [DecidableEq α]
     (P T : Finset α) (hTP : T ⊆ P) : Finset {x // x ∈ P} :=
   T.attach.map (liftEmbedding P T hTP)
 
-@[simp] private lemma map_liftFinset { α : Type* } [DecidableEq α]
+@[simp] private lemma map_liftFinset {α : Type*} [DecidableEq α]
     (P T : Finset α) (hTP : T ⊆ P) :
     (liftFinset P T hTP).map (subtypeEmbedding P) = T := by
   unfold liftFinset
@@ -256,7 +256,7 @@ theorem finrank_vectorSpan_fin3_of_equidistant
 
 /-- Constant cross-distance makes the two affine direction spaces orthogonal. -/
 theorem vectorSpan_range_isOrtho_of_cross_dist_eq
-    { ι κ : Type* } [Nonempty ι] [Nonempty κ]
+    {ι κ : Type*} [Nonempty ι] [Nonempty κ]
     (f : ι → E) (g : κ → E) (radius : ℝ)
     (h : ∀ i j, dist (f i) (g j) = radius) :
     vectorSpan ℝ (Set.range f) ⟂ vectorSpan ℝ (Set.range g) := by
@@ -647,7 +647,7 @@ theorem extremalNumber_le_quadratic_of_minDegree
     · intro G _ hfree
       norm_num at ⊢
       by_cases hn : N ≤ n + 1
-      · letI : Nonempty (Fin (n + 1)) := Fin.pos_iff_nonempty.mp (by omega)
+      · let _ : Nonempty (Fin (n + 1)) := Fin.pos_iff_nonempty.mp (by omega)
         obtain ⟨v, hv⟩ := G.exists_minimal_degree_vertex
         have hdeg : (G.degree v : ℝ) < c * (n + 1) := by
           rw [← hv]
@@ -665,7 +665,6 @@ theorem extremalNumber_le_quadratic_of_minDegree
           _ ≤ ((N : ℝ) ^ 2 + c * n * (n + 1) / 2) + G.degree v :=
             add_le_add ih le_rfl
           _ ≤ (N : ℝ) ^ 2 + c * (n + 1) * (n + 1 + 1) / 2 := by
-            norm_num at hdeg ⊢
             nlinarith
       · have hnlt : n + 1 < N := by omega
         calc
@@ -694,7 +693,7 @@ theorem card_edgeFinset_le_quadratic_of_minDegree
     (extremalNumber_le_quadratic_of_minDegree H c hc N hmd (Fintype.card V))
 
 theorem exists_card_edgeFinset_le_completeEquipartite
-    (r t : ℕ) (hr : 0 < r) { δ : ℝ } (hδ : 0 < δ) :
+    (r t : ℕ) (hr : 0 < r) {δ : ℝ} (hδ : 0 < δ) :
     ∃ N : ℕ, ∀ (V : Type*) [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj],
       (completeEquipartiteGraph (r + 1) t).Free G →
       (#G.edgeFinset : ℝ) ≤ (N : ℝ) ^ 2 +
@@ -712,25 +711,25 @@ theorem exists_card_edgeFinset_le_completeEquipartite
     apply hfreeJ
     exact hN n hn (le_of_not_gt hlt)
 
-theorem exists_card_edgeFinset_le_K4_3 { δ : ℝ } (hδ : 0 < δ) :
+theorem exists_card_edgeFinset_le_K4_3 {δ : ℝ} (hδ : 0 < δ) :
     ∃ N : ℕ, ∀ (V : Type*) [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj],
       (completeEquipartiteGraph 4 3).Free G →
       (#G.edgeFinset : ℝ) ≤ (N : ℝ) ^ 2 +
         (2 / 3 + δ) * Fintype.card V * (Fintype.card V + 1) / 2 := by
   obtain ⟨N, hN⟩ := exists_card_edgeFinset_le_completeEquipartite 3 3 (by norm_num) hδ
   refine ⟨N, fun V _ G _ hfree ↦ ?_⟩
-  convert hN V G hfree using 1 <;> norm_num
+  convert hN V G hfree using 1 ; norm_num
 
-theorem exists_card_edgeFinset_le_K3_3 { δ : ℝ } (hδ : 0 < δ) :
+theorem exists_card_edgeFinset_le_K3_3 {δ : ℝ} (hδ : 0 < δ) :
     ∃ N : ℕ, ∀ (V : Type*) [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj],
       (completeEquipartiteGraph 3 3).Free G →
       (#G.edgeFinset : ℝ) ≤ (N : ℝ) ^ 2 +
         (1 / 2 + δ) * Fintype.card V * (Fintype.card V + 1) / 2 := by
   obtain ⟨N, hN⟩ := exists_card_edgeFinset_le_completeEquipartite 2 3 (by norm_num) hδ
   refine ⟨N, fun V _ G _ hfree ↦ ?_⟩
-  convert hN V G hfree using 1 <;> norm_num
+  convert hN V G hfree using 1 ; norm_num
 
-theorem exists_uniform_card_edgeFinset_le_K3_3 { η : ℝ } (hη : 0 < η) :
+theorem exists_uniform_card_edgeFinset_le_K3_3 {η : ℝ} (hη : 0 < η) :
     ∃ C : ℝ, 0 ≤ C ∧
       ∀ (V : Type*) [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj],
         (completeEquipartiteGraph 3 3).Free G →
@@ -749,7 +748,7 @@ theorem exists_uniform_card_edgeFinset_le_K3_3 { η : ℝ } (hη : 0 < η) :
   dsimp [C, c] at ⊢
   nlinarith
 
-theorem exists_uniform_card_edgeFinset_le_K4_3 { η : ℝ } (hη : 0 < η) :
+theorem exists_uniform_card_edgeFinset_le_K4_3 {η : ℝ} (hη : 0 < η) :
     ∃ C : ℝ, 0 ≤ C ∧
       ∀ (V : Type*) [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj],
         (completeEquipartiteGraph 4 3).Free G →
@@ -768,7 +767,7 @@ theorem exists_uniform_card_edgeFinset_le_K4_3 { η : ℝ } (hη : 0 < η) :
   dsimp [C, c] at ⊢
   nlinarith
 
-theorem eventually_card_edgeFinset_le_K4_3 { η : ℝ } (hη : 0 < η) :
+theorem eventually_card_edgeFinset_le_K4_3 {η : ℝ} (hη : 0 < η) :
     ∀ᶠ m in atTop, ∀ (V : Type*) [Fintype V], Fintype.card V = m →
       ∀ (G : SimpleGraph V) [DecidableRel G.Adj],
         (completeEquipartiteGraph 4 3).Free G →
@@ -821,7 +820,7 @@ lemma extremalTriangleCount_eq_TUnit (n : ℕ) :
 
 /-! ## The numerical local-to-global deduction -/
 
-lemma coefficient_bound { ε η : ℝ } (hε : 0 < ε) (hη : 0 ≤ η)
+lemma coefficient_bound {ε η : ℝ} (hε : 0 < ε) (hη : 0 ≤ η)
     (hη_small : η ≤ 1 / 100) (hηε : 100 * η ≤ ε) :
     (1 / 4 + η) * (1 / 3 + η) + η ≤
       3 * (1 - (1 / 4 + η)) * (1 / 27 + ε) := by
@@ -1214,7 +1213,8 @@ lemma sum_degrees_on_edge_le (e : Sym2 V) (he : e ∈ G.edgeFinset) :
     have hcard := card_union_add_card_inter (G.neighborFinset u) (G.neighborFinset v)
     rw [edgeCommonFinset_mk]
     rw [Sym2.toFinset_mk_eq]
-    simp [huv.ne]
+    simp only [mem_singleton, huv.ne, not_false_eq_true, sum_insert, sum_singleton,
+      ge_iff_le]
     change #(G.neighborFinset u) + #(G.neighborFinset v) ≤
       Fintype.card V + #(G.neighborFinset u ∩ G.neighborFinset v)
     omega
@@ -1328,8 +1328,8 @@ theorem extremalTriangleCount_epsilon :
         extremalTriangleCount n ≤ (1 / 27 + ε) * (n : ℝ) ^ 3 :=
   triangle_bound_of_edge_link_bounds extremalTriangleCount extremalEdgeCount
     extremalDegreeSquareSum extremal_degree_square_bound
-    (fun η hη ↦ eventually_extremal_edge_bound hη)
-    (fun η hη ↦ eventually_extremal_link_bound hη)
+    (fun _η hη ↦ eventually_extremal_edge_bound hη)
+    (fun _η hη ↦ eventually_extremal_link_bound hη)
 
 theorem TUnit_epsilon_bound :
     ∀ ε : ℝ, 0 < ε →
