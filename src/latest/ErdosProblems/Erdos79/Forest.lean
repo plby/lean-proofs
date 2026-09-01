@@ -15,19 +15,19 @@ variable {U V : Type} {T : _root_.SimpleGraph U} {G : _root_.SimpleGraph V}
 one less than the number of vertices of the tree. -/
 theorem isContained_of_isTree_of_card_sub_one_le_minDegree
     [Fintype U] [Fintype V] [Nonempty V]
-    [DecidableRel T.Adj] [DecidableRel G.Adj]
+    [DecidableRel G.Adj]
     (hT : T.IsTree) (hdeg : Fintype.card U - 1 ≤ G.minDegree) : T ⊑ G := by
   classical
   let P : ℕ → Prop := fun n ↦
-    ∀ (U : Type) [Fintype U] (T : _root_.SimpleGraph U) [DecidableRel T.Adj],
+    ∀ (U : Type) [Fintype U] (T : _root_.SimpleGraph U),
       Fintype.card U = n → T.IsTree →
         Fintype.card U - 1 ≤ G.minDegree → T ⊑ G
   suffices hP : P (Fintype.card U) by
     exact hP U T rfl hT hdeg
   apply Nat.strong_induction_on (p := P) (Fintype.card U)
-  intro n ih U _ T _ hn hT hdeg
+  intro n ih U _ T hn hT hdeg
   by_cases hU : Nontrivial U
-  · letI : Nontrivial U := hU
+  · let : Nontrivial U := hU
     obtain ⟨v, hv⟩ := hT.exists_vert_degree_one_of_nontrivial
     let U' := ({v}ᶜ : Set U)
     let T' : _root_.SimpleGraph U' := T.induce ({v}ᶜ : Set U)
@@ -39,7 +39,8 @@ theorem isContained_of_isTree_of_card_sub_one_le_minDegree
       simp [hn]
     have hlt : Fintype.card U' < n := by
       rw [hcardU']
-      have hnpos : 0 < n := by simpa [← hn] using Fintype.card_pos_iff.mpr (inferInstance : Nonempty U)
+      have hnpos : 0 < n := by
+        simpa [← hn] using Fintype.card_pos_iff.mpr (inferInstance : Nonempty U)
       omega
     have hdeg' : Fintype.card U' - 1 ≤ G.minDegree := by
       rw [hcardU']
@@ -84,14 +85,14 @@ theorem isContained_of_isTree_of_card_sub_one_le_minDegree
           simpa [hf_v, hf_ne y hy] using hxy
         apply hw_unused
         apply Finset.mem_image.mpr
-        exact ⟨⟨y, by simpa [U', hy]⟩, Finset.mem_univ _, hwy.symm⟩
+        exact ⟨⟨y, by simp [U', hy]⟩, Finset.mem_univ _, hwy.symm⟩
       · by_cases hy : y = v
         · subst y
           exfalso
           have : e ⟨x, by simpa [hx]⟩ = w := by simpa [hf_v, hf_ne x hx] using hxy
           apply hw_unused
           apply Finset.mem_image.mpr
-          exact ⟨⟨x, by simpa [U', hx]⟩, Finset.mem_univ _, this⟩
+          exact ⟨⟨x, by simp [U', hx]⟩, Finset.mem_univ _, this⟩
         · have heq : e ⟨x, by simpa [hx]⟩ = e ⟨y, by simpa [hy]⟩ := by
             simpa [hf_ne x hx, hf_ne y hy] using hxy
           exact congrArg Subtype.val (e.injective heq)
@@ -109,7 +110,7 @@ theorem isContained_of_isTree_of_card_sub_one_le_minDegree
         simpa [hf_v, hf_ne p hp_ne_v, p'] using hw_adj
       · have hT'xy : T'.Adj ⟨x, by simpa [hx]⟩ ⟨y, by simpa [hy]⟩ := hxy
         simpa [hf_ne x hx, hf_ne y hy] using e.toHom.map_adj hT'xy
-  · letI : Subsingleton U := not_nontrivial_iff_subsingleton.mp hU
+  · let : Subsingleton U := not_nontrivial_iff_subsingleton.mp hU
     exact ⟨{
       toHom := {
         toFun := fun _ ↦ Classical.choice (inferInstance : Nonempty V)
@@ -119,10 +120,11 @@ theorem isContained_of_isTree_of_card_sub_one_le_minDegree
 
 /-- Adjoining a vertex adjacent to an embedded clique produces a clique one vertex larger. -/
 theorem top_succ_isContained_of_copy_of_adj
-    {k : ℕ} [Fintype V] [DecidableRel G.Adj]
+    {k : ℕ}
     (v : V) (q : (⊤ : _root_.SimpleGraph (Fin k)).Copy G)
     (hq : ∀ i, G.Adj v (q i)) :
     (⊤ : _root_.SimpleGraph (Fin (k + 1))) ⊑ G := by
+  classical
   let f : Fin (k + 1) → V := Fin.cases v q
   have hf_inj : Function.Injective f := by
     intro i j hij
@@ -187,7 +189,7 @@ theorem ramseyAt_tree_completeCode (F : GraphCode) (hF : F.graph.IsTree) (s : �
       · exact Or.inl hred
       right
       have hNpos : 0 < N := by simp [N]
-      letI : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hNpos
+      let : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hNpos
       have hmindeg : ¬ F.vertexCount - 1 ≤ C.minDegree := by
         intro h
         apply hred
@@ -242,10 +244,10 @@ theorem ramseySizeLinear_of_isAcyclic (F : GraphCode) (hF : F.graph.IsAcyclic) :
   by_cases hF0 : F.vertexCount = 0
   · refine ⟨0, fun H hH C ↦ ?_⟩
     left
-    haveI : IsEmpty (Fin F.vertexCount) := by rw [hF0]; infer_instance
+    have : IsEmpty (Fin F.vertexCount) := by rw [hF0]; infer_instance
     exact SimpleGraph.IsContained.of_isEmpty
   · have hFpos : 0 < F.vertexCount := Nat.pos_of_ne_zero hF0
-    letI : Nonempty (Fin F.vertexCount) := Fin.pos_iff_nonempty.mp hFpos
+    let : Nonempty (Fin F.vertexCount) := Fin.pos_iff_nonempty.mp hFpos
     have htop : (⊤ : _root_.SimpleGraph (Fin F.vertexCount)).Connected :=
       _root_.SimpleGraph.connected_top
     obtain ⟨T, hFT, _hTtop, hT⟩ := htop.exists_isTree_le_of_le_of_isAcyclic le_top hF
@@ -258,7 +260,7 @@ theorem ramseySizeLinear_of_isAcyclic (F : GraphCode) (hF : F.graph.IsAcyclic) :
         omega
       intro C
       right
-      haveI : IsEmpty (Fin H.vertexCount) := by rw [hH0]; infer_instance
+      have : IsEmpty (Fin H.vertexCount) := by rw [hH0]; infer_instance
       exact SimpleGraph.IsContained.of_isEmpty
     · have hmpos : 0 < H.edgeCount := Nat.pos_of_ne_zero hm
       have hHK : IsContained H (completeCode H.vertexCount) := by

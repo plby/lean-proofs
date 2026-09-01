@@ -350,7 +350,9 @@ theorem firstMoment_parameters (C a b : ℕ) (hab : 5 * a < b) :
       _ = (k : ℝ) ^ (5 * s) := by rw [← pow_mul]
       _ = (((2 : ℝ) ^ t) ^ (5 * s)) := by rw [hkpow]; norm_cast
       _ = (2 : ℝ) ^ (t * (5 * s)) := by rw [← pow_mul]
-      _ = (2 : ℝ) ^ (5 * t * s) := by congr 1 <;> ring
+      _ = (2 : ℝ) ^ (5 * t * s) := by
+        congr 1
+        ring
   have hpowers : (2 : ℝ) ^ (5 * t * s + 2) ≤ (2 : ℝ) ^ r := by
     exact pow_le_pow_right₀ (by norm_num) hgap
   have hblue_real : (N : ℝ) ^ s * (1 - q) ^ Nat.choose s 2 ≤ 1 / 4 := by
@@ -400,7 +402,7 @@ theorem not_ramseySizeLinear_of_five_mul_vertexCount_lt_edgeCount (G : GraphCode
     rw [hs]
     nlinarith
   have hHNoIsolated : NoIsolated H := by
-    haveI : Nontrivial (Fin s) := Fin.nontrivial_iff_two_le.mpr (by omega)
+    have : Nontrivial (Fin s) := Fin.nontrivial_iff_two_le.mpr (by omega)
     change ∀ v : Fin s, ¬ (⊤ : SimpleGraph (Fin s)).IsIsolated v
     intro v
     apply ((⊤ : SimpleGraph (Fin s)).exists_adj_iff_not_isIsolated).mp
@@ -440,7 +442,7 @@ theorem not_ramseySizeLinear_of_five_mul_vertexCount_lt_edgeCount (G : GraphCode
       badRed (N := N) G.graph ∪ badBlue (N := N) (⊤ : SimpleGraph (Fin s)) ≠ Set.univ := by
     intro hall
     rw [hall] at hbadMeasure
-    simpa [μ] using hbadMeasure
+    simp [μ] at hbadMeasure
   obtain ⟨ω, hω⟩ := (Set.ne_univ_iff_exists_notMem _).mp hbadNeUniv
   let X : SimpleGraph (Fin N) := SimpleGraph.fromEdgeSet ω
   have hredFree : ¬ G.graph ⊑ X := by
