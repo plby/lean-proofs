@@ -11,8 +11,7 @@ namespace Erdos1211DensityNat
 
 noncomputable section
 
-open Classical
-
+open Classical in
 def harmonicPrefix (X : Set ℕ) (N : ℕ) : ℝ :=
   ∑ n ∈ Finset.Ico 1 N, if n ∈ X then (n : ℝ)⁻¹ else 0
 
@@ -22,10 +21,12 @@ def logRatio (X : Set ℕ) (N : ℕ) : ℝ :=
 def upperLogDensity (X : Set ℕ) : ℝ :=
   Filter.limsup (logRatio X) Filter.atTop
 
+open Classical in
 lemma harmonicPrefix_eq_sum_filter (X : Set ℕ) (N : ℕ) :
     harmonicPrefix X N =
       ∑ n ∈ (Finset.Ico 1 N).filter (fun n ↦ n ∈ X), (n : ℝ)⁻¹ := by
-  simp [harmonicPrefix, Finset.sum_filter]
+  classical
+  rw [harmonicPrefix, Finset.sum_filter]
 
 lemma harmonicPrefix_univ (N : ℕ) :
     harmonicPrefix Set.univ N = ((harmonic (N - 1) : ℚ) : ℝ) := by
@@ -50,10 +51,8 @@ lemma harmonicPrefix_mono {X Y : Set ℕ} (hXY : X ⊆ Y) (N : ℕ) :
   by_cases hiX : i ∈ X
   · have hiY : i ∈ Y := hXY hiX
     simp [hiX, hiY]
-  · simp [hiX]
-    split_ifs
-    · positivity
-    · exact le_rfl
+  · simp only [hiX, if_false]
+    positivity
 
 lemma log_natCast_nonneg (N : ℕ) : 0 ≤ Real.log (N : ℝ) := by
   cases N with
@@ -151,7 +150,7 @@ lemma isBoundedUnder_le_logRatio (X : Set ℕ) :
     IsBoundedUnder (· ≤ ·) atTop (logRatio X) := by
   have hu : ∀ᶠ N in atTop, logRatio Set.univ N ≤ 2 :=
     (logRatio_univ_tendsto_one.eventually (Iic_mem_nhds (show (1 : ℝ) < 2 by norm_num)))
-  apply isBoundedUnder_of_eventually_le
+  refine isBoundedUnder_of_eventually_le (a := 2) ?_
   filter_upwards [hu] with N hN
   exact (logRatio_mono (Set.subset_univ X) N).trans hN
 

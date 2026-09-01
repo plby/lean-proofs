@@ -230,7 +230,7 @@ lemma card_pivotExtended_lower
   | empty => simp [pivotExtended_empty]
   | @insert b P hbP ih =>
       have hb : 0 < b := hPpos b (Finset.mem_insert_self _ _)
-      letI : NeZero b := ⟨hb.ne'⟩
+      let : NeZero b := ⟨hb.ne'⟩
       have hIH := ih
         (fun a ha ↦ hPpos a (Finset.mem_insert_of_mem ha))
         (fun a ha ↦ hcover a (Finset.mem_insert_of_mem ha))
@@ -265,7 +265,7 @@ lemma phaseDiverse_of_rough_pool
     PhaseDiverse hp (C.image fun c : ℕ ↦ (c : ZMod p)) := by
   let R₀ := C.image fun c : ℕ ↦ (c : ZMod p)
   have hinj : Set.InjOn (fun c : ℕ ↦ (c : ZMod p)) C := by
-    apply natCast_zmod_injOn_of_subset_Ico_width
+    apply natCast_zmod_injOn_of_subset_Ico_width (b := p) (N := N)
     intro c hc
     have hcI := Finset.mem_Ico.mp (hC hc)
     exact Finset.mem_Ico.mpr ⟨hcI.1, by omega⟩
@@ -333,7 +333,6 @@ lemma boundedSubsetSum_quarter_modulus
     (hD : D ⊆ Finset.Ico N (2 * N))
     (hC : C ⊆ Finset.Ico N (2 * N))
     (hDcard : D.card = r) (hCcard : C.card = r)
-    (hroughD : ∀ d ∈ D, Erdos344.RoughUpTo Q d)
     (hroughC : ∀ c ∈ C, Erdos344.RoughUpTo Q c)
     (hrpos : 0 < r) (hhalf : 2 * k ≤ r)
     (hQr : 4 * N ≤ Q * r) (hQle : Q ≤ r)
@@ -343,12 +342,12 @@ lemma boundedSubsetSum_quarter_modulus
   let R₀ := C.image fun c : ℕ ↦ (c : ZMod p)
   let E := D.image fun d : ℕ ↦ (d : ZMod p)
   have hinjC : Set.InjOn (fun c : ℕ ↦ (c : ZMod p)) C := by
-    apply natCast_zmod_injOn_of_subset_Ico_width
+    apply natCast_zmod_injOn_of_subset_Ico_width (b := p) (N := N)
     intro c hc
     have hcI := Finset.mem_Ico.mp (hC hc)
     exact Finset.mem_Ico.mpr ⟨hcI.1, by omega⟩
   have hinjD : Set.InjOn (fun d : ℕ ↦ (d : ZMod p)) D := by
-    apply natCast_zmod_injOn_of_subset_Ico_width
+    apply natCast_zmod_injOn_of_subset_Ico_width (b := p) (N := N)
     intro d hd
     have hdI := Finset.mem_Ico.mp (hD hd)
     exact Finset.mem_Ico.mpr ⟨hdI.1, by omega⟩
@@ -1022,7 +1021,7 @@ theorem dense_shell_subsetSum_interval {N : ℕ} (hN : LargeEnough N)
           (fun u : ℕ ↦ (u : ZMod p))).card := by
       intro p hp
       have hpI := Finset.mem_Ico.mp (hPIco hp)
-      letI : NeZero p := ⟨by omega⟩
+      let : NeZero p := ⟨by omega⟩
       have hrle : r ≤ C.card := by rw [hCdata.1]; omega
       obtain ⟨D, hDC, hDcard⟩ := Finset.exists_subset_card_eq hrle
       let E := C \ D
@@ -1037,9 +1036,6 @@ theorem dense_shell_subsetSum_interval {N : ℕ} (hN : LargeEnough N)
       have hDIco : D ⊆ Finset.Ico N (2 * N) := hDC.trans hCIco
       have hEIco : E ⊆ Finset.Ico N (2 * N) :=
         Finset.sdiff_subset.trans hCIco
-      have hDrough : ∀ d ∈ D, Erdos344.RoughUpTo roughness d := by
-        intro d hd
-        exact hCrough d (hDC hd)
       have hErough : ∀ e ∈ E, Erdos344.RoughUpTo roughness e := by
         intro e he
         exact hCrough e (Finset.sdiff_subset he)
@@ -1048,7 +1044,7 @@ theorem dense_shell_subsetSum_interval {N : ℕ} (hN : LargeEnough N)
       have hquarter := Leaf.boundedSubsetSum_quarter_modulus
         (Q := roughness) (N := N) (r := r) (k := phaseCount)
         (p := p) (by omega) hpI.1 hpI.2 hDE hDIco hEIco hDcard hEcard
-        hDrough hErough hrpos hhalf hQr hQle hpMass
+        hErough hrpos hhalf hQr hQle hpMass
       simpa only [hDEunion, L, pivotCount_eq] using hquarter
     have hcardLeaf : L * (N / 4) ≤
         (Erdos344.pivotExtended (Erdos344.boundedSubsetSum C L) P).card :=

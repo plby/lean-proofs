@@ -209,7 +209,7 @@ lemma isBoundedUnder_le_logarithmicRatio (X : Set ℕ) :
   have hfactor : ∀ᶠ x : ℝ in atTop, ceilLogFactor x ≤ 2 :=
     ceilLogFactor_tendsto_one.eventually
       (Iic_mem_nhds (show (1 : ℝ) < 2 by norm_num))
-  apply isBoundedUnder_of_eventually_le
+  refine isBoundedUnder_of_eventually_le (a := 4) ?_
   filter_upwards [Filter.eventually_gt_atTop 1, hnatCeil, hfactor]
     with x hx hratio hfac
   rw [logarithmicRatio_eq_nat_mul_factor hx]

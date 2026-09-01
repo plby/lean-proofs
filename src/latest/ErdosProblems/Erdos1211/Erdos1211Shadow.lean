@@ -84,7 +84,7 @@ lemma bit_mergeRun_of_mem {S : Finset ℕ} {q r k : ℕ}
     bit (mergeRun S q r) k = bit S (q - 1) := by
   generalize hprev : bit S (q - 1) = c
   fin_cases c
-  · have hprev0 : bit S (q - 1) ≠ 1 := by simpa [hprev]
+  · have hprev0 : bit S (q - 1) ≠ 1 := by simp [hprev]
     have hk : k ∈ Finset.Ico q r := Finset.mem_Ico.mpr ⟨hkq, hkr⟩
     rw [mergeRun, if_neg hprev0]
     have hknot : k ∉ S \ Finset.Ico q r := by simp [hk]
@@ -118,7 +118,7 @@ lemma mergeRun_subset_range {S : Finset ℕ} {N q r : ℕ}
     exact hS hk.1
 
 lemma shadow_mergeRun_subset {S : Finset ℕ} {q r : ℕ}
-    (hq : 1 ≤ q) (hqr : q < r) (hshort : r ≤ 2 * (q - 1))
+    (hq : 1 ≤ q) (hshort : r ≤ 2 * (q - 1))
     (hleft : bit S (q - 1) ≠ bit S q)
     (hright : bit S (r - 1) ≠ bit S r)
     (hconst : ∀ k, q ≤ k → k < r → bit S k = bit S q) :
@@ -153,7 +153,7 @@ lemma shadow_mergeRun_subset {S : Finset ℕ} {q r : ℕ}
 
 lemma mergeRun_admissible {α : ℕ → Fin 2} {N : ℕ} {S : Finset ℕ}
     (hS : Admissible α N S) {q r : ℕ}
-    (hq : 1 ≤ q) (hqr : q < r) (hrN : r < N)
+    (hq : 1 ≤ q) (hrN : r < N)
     (hshort : r ≤ 2 * (q - 1))
     (hleft : bit S (q - 1) ≠ bit S q)
     (hright : bit S (r - 1) ≠ bit S r)
@@ -163,14 +163,12 @@ lemma mergeRun_admissible {α : ℕ → Fin 2} {N : ℕ} {S : Finset ℕ}
   · exact mergeRun_subset_range hS.1 hrN.le
   · intro n hn i hni
     exact hS.2 n hn i
-      (shadow_mergeRun_subset hq hqr hshort hleft hright hconst i hni)
+      (shadow_mergeRun_subset hq hshort hleft hright hconst i hni)
 
 lemma changes_mergeRun_subset {S : Finset ℕ} {N q r : ℕ}
-    (hq : 1 ≤ q) (hqr : q < r) (hrN : r < N)
-    (hleft : bit S (q - 1) ≠ bit S q)
+    (hq : 1 ≤ q) (hqr : q < r)
     (hright : bit S (r - 1) ≠ bit S r)
-    (hconst : ∀ k, q ≤ k → k < r → bit S k = bit S q) :
-    changes (mergeRun S q r) N ⊆ changes S N := by
+    : changes (mergeRun S q r) N ⊆ changes S N := by
   intro k hk
   rw [changes, Finset.mem_filter] at hk ⊢
   refine ⟨hk.1, ?_⟩
@@ -212,16 +210,15 @@ lemma changes_mergeRun_subset {S : Finset ℕ} {N q r : ℕ}
 lemma mergeRun_change_strict {S : Finset ℕ} {N q r : ℕ}
     (hq : 1 ≤ q) (hqr : q < r) (hrN : r < N)
     (hleft : bit S (q - 1) ≠ bit S q)
-    (hright : bit S (r - 1) ≠ bit S r)
-    (hconst : ∀ k, q ≤ k → k < r → bit S k = bit S q) :
+    (hright : bit S (r - 1) ≠ bit S r) :
     (changes (mergeRun S q r) N).card < (changes S N).card := by
-  have hsub := changes_mergeRun_subset hq hqr hrN hleft hright hconst
+  have hsub := changes_mergeRun_subset (N := N) hq hqr hright
   have hqold : q ∈ changes S N := by
     rw [changes, Finset.mem_filter]
     exact ⟨Finset.mem_Ico.mpr ⟨hq, hqr.trans hrN⟩, hleft⟩
   have hqnew : q ∉ changes (mergeRun S q r) N := by
     rw [changes, Finset.mem_filter]
-    push_neg
+    push Not
     intro _
     have hprev : q - 1 ∉ Finset.Ico q r := by simp only [Finset.mem_Ico]; omega
     rw [bit_mergeRun_of_not_mem hprev,
@@ -245,12 +242,12 @@ theorem exists_normal_admissible (α : ℕ → Fin 2) (N : ℕ) :
   have hshort : r ≤ 2 * (q - 1) := Nat.le_of_not_gt hnot
   let T := mergeRun S q r
   have hTad : Admissible α N T :=
-    mergeRun_admissible hSad hq hqr hrN hshort hleft hright hconst
+    mergeRun_admissible hSad hq hrN hshort hleft hright hconst
   have hTrange : T ⊆ Finset.range N := hTad.1
   have hTcand : T ∈ candidates α N := by
     exact Finset.mem_filter.mpr ⟨Finset.mem_powerset.mpr hTrange, hTad⟩
   have hle := hmin T hTcand
-  have hlt := mergeRun_change_strict hq hqr hrN hleft hright hconst
+  have hlt := mergeRun_change_strict hq hqr hrN hleft hright
   exact (Nat.not_lt_of_ge hle) hlt
 
 /-! ### A compatible infinite normalization -/

@@ -72,7 +72,7 @@ lemma tendsto_shellScale_atTop : Tendsto shellScale atTop atTop := by
     (f := fun n : ℕ ↦ 2 ^ n)
     (g := shellScale)
   · intro n
-    exact Nat.pow_le_pow_right (by norm_num) (by simp [shellScale])
+    exact Nat.pow_le_pow_right (by norm_num) (by simp)
   · exact tendsto_pow_atTop_atTop_of_one_lt (by norm_num : (1 : ℕ) < 2)
 
 lemma tendsto_blockStart_atTop : Tendsto blockStart atTop atTop := by

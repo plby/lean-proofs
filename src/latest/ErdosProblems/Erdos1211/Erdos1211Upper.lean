@@ -1,4 +1,4 @@
-import Mathlib.Data.Real.Sqrt
+import Mathlib.Analysis.Real.Sqrt
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.SpecificLimits.Normed
 import Mathlib.Tactic.FieldSimp
@@ -82,7 +82,8 @@ lemma threshold_square_le_next_same_color (n : ℕ) :
     threshold (n + 1) ^ 2 ≤ threshold (n + 2) := by
   rw [threshold, threshold, ← pow_mul]
   exact Nat.pow_le_pow_right (by norm_num) (by
-    simpa [mul_comm] using scale_two_mul_le_add_two n)
+    rw [mul_comm]
+    exact scale_two_mul_le_add_two n)
 
 lemma add_one_le_scale (n : ℕ) : n + 1 ≤ scale n := by
   induction n with
@@ -382,7 +383,7 @@ lemma tendsto_scale_ratio :
     tendsto_pow_atTop_nhds_zero_of_abs_lt_one abs_d_div_b_lt_one
   have hpow : Tendsto (fun n : ℕ ↦ (d / b) ^ (n + 1)) atTop (nhds 0) :=
     (tendsto_add_atTop_iff_nat 1).2 hpow₀
-  rw [show b⁻¹ = (1 - 0) / (b - d * 0) by simp [b_pos.ne']]
+  rw [show b⁻¹ = (1 - 0) / (b - d * 0) by simp]
   rw [funext scale_ratio_formula]
   exact (tendsto_const_nhds.sub hpow).div
     (tendsto_const_nhds.sub (tendsto_const_nhds.mul hpow)) (by simpa using b_pos.ne')
@@ -451,7 +452,6 @@ lemma twice_logWindowWidth (i j : ℕ) :
       (scale (i + 2 * j + 2) : ℤ) - scale (i + 2 * j) := by
   have hrec := scale_add_two (i + 2 * j)
   simp only [logWindowWidth]
-  push_cast at hrec ⊢
   omega
 
 lemma logWindowWidth_telescope (i K : ℕ) :
@@ -562,7 +562,7 @@ lemma pellColor_of_three_le {n : ℕ} (hn : 3 ≤ n) :
 lemma exists_large_mem_of_three_lt_sum {F : Finset ℕ}
     (hF : 3 < ∑ x ∈ F, x) : ∃ m ∈ F, 3 ≤ m := by
   by_contra hnot
-  push_neg at hnot
+  push Not at hnot
   have hsub : F ⊆ Finset.range 3 := by
     intro x hx
     exact Finset.mem_range.mpr (hnot x hx)
@@ -572,7 +572,7 @@ lemma exists_large_mem_of_three_lt_sum {F : Finset ℕ}
   omega
 
 lemma sum_le_max_square {F : Finset ℕ} {m : ℕ}
-    (hmF : m ∈ F) (hmax : ∀ x ∈ F, x ≤ m) {T : ℕ} (hmT : m ≤ T) :
+    (hmax : ∀ x ∈ F, x ≤ m) {T : ℕ} (hmT : m ≤ T) :
     ∑ x ∈ F, x ≤ T ^ 2 := by
   have hsumErase : ∑ x ∈ F.erase 0, x = ∑ x ∈ F, x := by
     by_cases h0 : 0 ∈ F
@@ -621,7 +621,7 @@ lemma finite_monochromatic_sum_mem_windowCover (i : Fin 2) {F : Finset ℕ}
       Finset.single_le_sum (f := fun x : ℕ ↦ x) (fun _ _ ↦ Nat.zero_le _) hMF
     exact hMk.trans_le hMsum
   have hsumUpper : s ≤ threshold (k + 1) ^ 2 := by
-    exact sum_le_max_square hMF hmax hMk'
+    exact sum_le_max_square hmax hMk'
   apply Or.inr
   refine ⟨j, ?_⟩
   rw [window, ← hk]
@@ -844,8 +844,6 @@ lemma harmonic_windowCover_le_components (i : Fin 2) (N : ℕ) :
         (∑ n ∈ fullWindows i (sameWindowIndex i N), (n : ℝ)⁻¹) +
         ∑ n ∈ currentWindowBelow i (sameWindowIndex i N) N, (n : ℝ)⁻¹ := by
   rw [Erdos1211DensityNat.harmonicPrefix_eq_sum_filter]
-  change (∑ n ∈ (Finset.Ico 1 N).filter (fun n ↦ n ∈ windowCover i),
-    (n : ℝ)⁻¹) ≤ _
   rw [show (Finset.Ico 1 N).filter (fun n ↦ n ∈ windowCover i) =
       coverBelow i N by rfl]
   have hsub :
@@ -961,7 +959,6 @@ lemma logRatio_windowCover_le_upperEnvelope (i : Fin 2) {N : ℕ}
     apply (div_le_iff₀ hlogN).2
     field_simp
     linarith
-
   · have hafterNat : threshold (k + 1) ^ 2 < N := Nat.lt_of_not_ge hinside
     have hafterLog : Real.log ((threshold (k + 1) ^ 2 : ℕ) : ℝ) <
         Real.log (N : ℝ) := by
