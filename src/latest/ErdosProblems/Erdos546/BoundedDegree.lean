@@ -30,11 +30,12 @@ private lemma sum_nonneg_of_nonneg {α : Type*} (s : Finset α) (w : α → ℚ)
 at most the average on the whole family.  The division-free form is useful
 over `ℕ` after casting. -/
 private lemma exists_subset_card_eq_mul_sum_le
-    {α : Type*} [DecidableEq α] (w : α → ℚ) (X : Finset α) (t : ℕ)
+    {α : Type*} (w : α → ℚ) (X : Finset α) (t : ℕ)
     (hw : ∀ x ∈ X, 0 ≤ w x) (ht : t ≤ X.card) :
     ∃ A ⊆ X, A.card = t ∧
       (X.card : ℚ) * (∑ x ∈ A, w x) ≤
         (t : ℚ) * (∑ x ∈ X, w x) := by
+  classical
   induction X using Finset.induction_on generalizing t with
   | empty =>
       have ht0 : t = 0 := by simpa using ht
@@ -88,8 +89,7 @@ private lemma exists_subset_card_eq_mul_sum_le
             have h2 := mul_le_mul_of_nonneg_left hAavg
               (show (0 : ℚ) ≤ (X.card : ℚ) + 1 by positivity)
             nlinarith
-      ·
-        obtain ⟨A, hAX, hAcard, hAavg⟩ := ih t hwX htX
+      · obtain ⟨A, hAX, hAcard, hAavg⟩ := ih t hwX htX
         refine ⟨A, hAX.trans (by simp), hAcard, ?_⟩
         simp only [Finset.card_insert_of_notMem ha, sum_insert ha]
         push_cast at hAavg havg ⊢
@@ -199,10 +199,11 @@ private lemma crossEdgeCount_mono {N : ℕ} (H : SimpleGraph (Fin N))
   exact Finset.card_le_card (H.interedges_mono hX hY)
 
 private lemma mul_crossEdgeCount_eq_sum_singleton_left {N L : ℕ}
-    (H : SimpleGraph (Fin N)) [DecidableRel H.Adj]
+    (H : SimpleGraph (Fin N))
     (X Y : Finset (Fin N)) :
     L * crossEdgeCount H X Y =
       ∑ x ∈ X, L * crossEdgeCount H {x} Y := by
+  classical
   rw [crossEdgeCount_eq_sum_left, Finset.mul_sum]
   apply Finset.sum_congr rfl
   intro x hx

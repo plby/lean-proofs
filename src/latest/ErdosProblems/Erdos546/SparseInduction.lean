@@ -74,7 +74,7 @@ private theorem foxSudakov_scale_pow_le {D Q : ℕ}
 hypothesis.  The output has both the requested density and the full
 `2^(8 D Q^2)` cardinality guarantee. -/
 theorem exists_squareSparse_of_local_sparse_pairs
-    {N n D Q : ℕ} (H : SimpleGraph (Fin N)) [DecidableRel H.Adj]
+    {N n D Q : ℕ} (H : SimpleGraph (Fin N))
     (hQ : 15 ≤ Q) (hD : 1 ≤ D)
     (hN : n * 2 ^ (8 * D * Q ^ 2) ≤ N)
     (hlocal : LocalSparsePairHypothesis n D Q H) :
@@ -102,7 +102,6 @@ theorem exists_squareSparse_of_local_sparse_pairs
   have hbpos : 0 < b := hnpos.trans_le hnb
   have hroot : K ^ (Q + 1) * b ≤ N := by
     simpa [b] using Nat.mul_div_le N (K ^ (Q + 1))
-
   have build : ∀ j : ℕ, ∀ U : Finset (Fin N),
       K ^ j * b ≤ U.card →
       ∃ S : Finset (Fin N), S ⊆ U ∧ S.card = 2 ^ j * b ∧
@@ -227,7 +226,6 @@ theorem exists_squareSparse_of_local_sparse_pairs
                 L * (2 ^ (j + 1) * b ^ 2) := by
                   rw [pow_succ]
                   ring
-
   obtain ⟨S, hSuniv, hScard, hSbound⟩ :=
     build (Q + 1) Finset.univ (by simpa using hroot)
   refine ⟨S, ?_, ?_⟩

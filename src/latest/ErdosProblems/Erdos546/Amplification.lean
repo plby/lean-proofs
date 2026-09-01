@@ -123,7 +123,7 @@ private theorem amplification_step_color
     G.induce (↑A : Set (Fin v))ᶜ
   let f := Fintype.card (↑((↑A : Set (Fin v))ᶜ) : Type)
   let F : SimpleGraph (Fin f) := F₀.overFin rfl
-  letI : DecidableRel F.Adj := Classical.decRel _
+  let : DecidableRel F.Adj := Classical.decRel _
   have hFdeg : F.maxDegree ≤ D := by
     calc
       F.maxDegree = F₀.maxDegree := by
@@ -132,7 +132,7 @@ private theorem amplification_step_color
   by_cases hfzero : f = 0
   · left
     apply isContained_of_monoPair_of_card_le_of_induce_isContained hpair hAX
-    letI : IsEmpty (↑((↑A : Set (Fin v))ᶜ) : Type) :=
+    let : IsEmpty (↑((↑A : Set (Fin v))ᶜ) : Type) :=
       Fintype.card_eq_zero_iff.mp (by simpa [f] using hfzero)
     exact IsContained.of_isEmpty
   have hfpos : 0 < f := Nat.pos_of_ne_zero hfzero
@@ -162,7 +162,7 @@ private theorem amplification_step_color
   let Hᵧ : SimpleGraph (↑Y : Set (Fin N)) := H.induce (↑Y : Set (Fin N))
   let J : SimpleGraph (Fin Y.card) :=
     Hᵧ.overFin (Fintype.card_coe Y)
-  letI : DecidableRel J.Adj := Classical.decRel _
+  let : DecidableRel J.Adj := Classical.decRel _
   by_cases hfree : ¬F ⊑ J
   · obtain ⟨S, hSsparse, hYS⟩ :=
       exists_squareSparse_of_boundedDegree_free F J hfpos

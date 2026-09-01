@@ -35,10 +35,11 @@ average.  This is the denominator-free form of
 
 The proof removes a point of maximum weight and uses strong induction.  In
 particular, it does not claim that an arbitrary subset has this property. -/
-theorem exists_balanced_subset {α : Type*} [DecidableEq α]
+theorem exists_balanced_subset {α : Type*}
     (U : Finset α) (w : α → ℕ) {s : ℕ} (hs : s ≤ U.card) :
     ∃ T : Finset α, T ⊆ U ∧ T.card = s ∧
       U.card * (∑ x ∈ T, w x) ≤ s * (∑ x ∈ U, w x) := by
+  classical
   refine Finset.strongInduction (p := fun U ↦ ∀ s, s ≤ U.card →
       ∃ T : Finset α, T ⊆ U ∧ T.card = s ∧
         U.card * (∑ x ∈ T, w x) ≤ s * (∑ x ∈ U, w x)) ?_ U s hs
@@ -125,7 +126,7 @@ they can be trimmed to size `s` so that the cross-edge count drops by the
 square of the cardinality ratio.  Arbitrary trimming does not satisfy this
 inequality. -/
 theorem exists_balanced_pair_trim {N a s : ℕ}
-    (H : SimpleGraph (Fin N)) [DecidableRel H.Adj]
+    (H : SimpleGraph (Fin N))
     (X Y : Finset (Fin N)) (hX : X.card = a) (hY : Y.card = a)
     (hsa : s ≤ a) :
     ∃ X' Y' : Finset (Fin N),
@@ -311,7 +312,7 @@ private theorem squareEdgeCount_eq_card_interedges {N : ℕ}
 /-- The block double sum is literally the internal ordered edge count of
 the union. -/
 theorem squareEdgeCount_biUnion_eq_familyEdgeCount {N : ℕ}
-    (H : SimpleGraph (Fin N)) [DecidableRel H.Adj]
+    (H : SimpleGraph (Fin N))
     (F : EqualBlockFamily (Fin N)) :
     squareEdgeCount H F.carrier = familyEdgeCount H F := by
   classical
@@ -333,7 +334,7 @@ theorem squareEdgeCount_biUnion_eq_familyEdgeCount {N : ℕ}
 
 /-- Exact diagonal/off-diagonal decomposition. -/
 theorem familyEdgeCount_eq_internal_add_cross {N : ℕ}
-    (H : SimpleGraph (Fin N)) [DecidableRel H.Adj]
+    (H : SimpleGraph (Fin N))
     (F : EqualBlockFamily (Fin N)) :
     familyEdgeCount H F =
       familyInternalEdgeCount H F + familyCrossEdgeCount H F := by
@@ -365,7 +366,7 @@ theorem familyEdgeCount_eq_internal_add_cross {N : ℕ}
 /-- Exact ordered-edge decomposition for the disjoint union of two
 nonempty sets. -/
 theorem squareEdgeCount_union {N : ℕ} (H : SimpleGraph (Fin N))
-    [DecidableRel H.Adj] (P Z : Finset (Fin N))
+    (P Z : Finset (Fin N))
     (hP : P.Nonempty) (hZ : Z.Nonempty) (hPZ : Disjoint P Z) :
     squareEdgeCount H (P ∪ Z) =
       squareEdgeCount H P + squareEdgeCount H Z +
@@ -399,7 +400,8 @@ theorem squareEdgeCount_union {N : ℕ} (H : SimpleGraph (Fin N))
     rw [Finset.disjoint_left] at hPZ
     exact hPZ hP.choose_spec hP.choose_spec
   rw [Finset.sum_product] at hcount
-  simp [hne] at hcount
+  simp only [mem_singleton, hne, not_false_eq_true, sum_insert,
+    sum_singleton] at hcount
   rw [hcount]
   have hPP : (Rel.interedges H.Adj P P).card = squareEdgeCount H P := by
     calc
@@ -431,9 +433,10 @@ def BlockFamilySparse {N : ℕ} (q : ℕ) (H : SimpleGraph (Fin N))
 /-- The exact family formulation is equivalent to `SquareSparse` on the
 carrier. -/
 theorem blockFamilySparse_iff_squareSparse {N q : ℕ}
-    (H : SimpleGraph (Fin N)) [DecidableRel H.Adj]
+    (H : SimpleGraph (Fin N))
     (F : EqualBlockFamily (Fin N)) :
     BlockFamilySparse q H F ↔ SquareSparse q H F.carrier := by
+  classical
   rw [BlockFamilySparse, SquareSparse,
     squareEdgeCount_biUnion_eq_familyEdgeCount, F.card_carrier]
 
@@ -450,10 +453,11 @@ structure SparseFamilyCertificate (N D Q : ℕ) (H : SimpleGraph (Fin N)) where
 /-- The certificate-to-subset bridge used by the later assembly.  The
 result has exactly the requested Sudakov loss and no density division. -/
 theorem squareSparse_of_sparseFamilyCertificate {N D Q : ℕ}
-    (H : SimpleGraph (Fin N)) [DecidableRel H.Adj]
+    (H : SimpleGraph (Fin N))
     (C : SparseFamilyCertificate N D Q H) :
     ∃ S : Finset (Fin N), SquareSparse Q H S ∧
       N ≤ 2 ^ (8 * D * Q ^ 2) * S.card := by
+  classical
   exact ⟨C.family.carrier,
     (blockFamilySparse_iff_squareSparse H C.family).mp C.sparse,
     C.cardinal_loss⟩
