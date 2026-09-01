@@ -376,7 +376,7 @@ private lemma continuousAt_perturbedSlope (n : ℕ) (k : Fin (degree n)) :
     by_cases hl : (l : ℕ) < t n
     · simpa [perturbedRoot, radialScale, hl] using
         (continuousAt_const : ContinuousAt (fun _ : ℝ ↦ (rootOfUnity n l : ℂ)) 1)
-    · simp [perturbedRoot, radialScale, hl]
+    · simp only [perturbedRoot, radialScale, hl, ↓reduceIte, rootOfUnity_coe]
       fun_prop
   have hfactor (l : Fin (degree n)) : ContinuousAt
       (fun δ : ℝ ↦ 1 - (rootOfUnity n k : ℂ) / perturbedRoot n δ l) 1 := by
@@ -1095,8 +1095,7 @@ private lemma exists_insideMinimum (n : ℕ) : ∃ c : ℝ, 0 < c ∧
     ∀ w ∈ closedBall (0 : ℂ) (1 / 2), c ≤ ‖modelBlock n w‖ := by
   apply exists_pos_lower_bound_on_compact (isCompact_closedBall (0 : ℂ) (1 / 2))
     (modelBlock n) (modelBlock_contDiff n).continuous.continuousOn
-  intro w hw
-  intro hz
+  intro w hw hz
   obtain ⟨k, hk⟩ := (modelBlock_eq_zero_iff n w).mp hz
   have hrootNorm : 1 ≤ ‖modelRoot n k‖ := by
     rw [norm_modelRoot]
@@ -1629,7 +1628,7 @@ private lemma exists_admissibleRadius (s : RadiusState) (n : ℕ) (hs : StateVal
       have h := eventually_const_mul_pow_gt (N := (n + 1 : ℝ)) hC hS
       filter_upwards [h] with R hR
       intro _
-      convert hR using 1 <;> ring
+      convert hR using 1 ; ring
   have hglobal : ∀ᶠ R : ℝ in atTop, n ≠ 0 →
       (n + 1 : ℝ) < ‖leadingCoefficient s n‖ * R ^ previousDegree n *
         derivativeMargin n * globalRadius n := by
@@ -1644,7 +1643,7 @@ private lemma exists_admissibleRadius (s : RadiusState) (n : ℕ) (hs : StateVal
       have h := eventually_const_mul_pow_gt (N := (n + 1 : ℝ)) hC hS
       filter_upwards [h] with R hR
       intro _
-      convert hR using 1 <;> ring
+      convert hR using 1 ; ring
   have hshell : ∀ᶠ R : ℝ in atTop, n ≠ 0 →
       4 * (n + 1 : ℝ) < ‖leadingCoefficient s n‖ * R ^ previousDegree n *
         escapeMinimum n := by
@@ -1658,7 +1657,7 @@ private lemma exists_admissibleRadius (s : RadiusState) (n : ℕ) (hs : StateVal
       have h := eventually_const_mul_pow_gt (N := 4 * (n + 1 : ℝ)) hC hS
       filter_upwards [h] with R hR
       intro _
-      convert hR using 1 <;> ring
+      convert hR using 1 ; ring
   have hgap : ∀ᶠ R : ℝ in atTop, n ≠ 0 →
       4 * (n + 1 : ℝ) < ‖leadingCoefficient s n‖ * R ^ previousDegree n *
         gapConstant n * insideMinimum (n + 1) := by
@@ -1673,7 +1672,7 @@ private lemma exists_admissibleRadius (s : RadiusState) (n : ℕ) (hs : StateVal
       have h := eventually_const_mul_pow_gt (N := 4 * (n + 1 : ℝ)) hC hS
       filter_upwards [h] with R hR
       intro _
-      convert hR using 1 <;> ring
+      convert hR using 1 ; ring
   exact (hRone.and (hinv.and (hdegree.and (hsep.and (htail.and
     (hlocal.and (hglobal.and (hshell.and hgap)))))))).exists
 
@@ -2224,7 +2223,7 @@ private lemma future_level_bound (n j : ℕ) (hnj : n < j) :
       abs_of_pos (radius_pos n)]
   rw [hcontrol] at h
   rw [pow_succ] at h
-  convert h using 1 <;> ring
+  convert h using 1 ; ring
 
 private lemma tailFiber_tsum (n j : ℕ) :
     (∑' k : Fin (degree j), tailRootMajorant n ⟨j, k⟩) =
@@ -2428,7 +2427,7 @@ private lemma deriv_correction (s : RadiusState) (n : ℕ) (x : ℝ) (w : ℂ)
     have hcoef :
         0 - (0 * id w - (x : ℂ) * previousRoot s n i * 1) / id w ^ 2 =
           (x : ℂ) * previousRoot s n i / w ^ 2 := by
-      simp only [id_eq, zero_mul, one_mul, zero_sub]
+      simp only [id_eq, zero_mul, zero_sub]
       ring
     have hderiv : deriv (fac i) w = (x : ℂ) * previousRoot s n i / w ^ 2 := by
       rw [show fac i = (fun y : ℂ ↦ 1 - (x : ℂ) * previousRoot s n i / y) by rfl]
@@ -2749,8 +2748,7 @@ private lemma fullNormalizedDerivative_close_ideal (n : ℕ) (k : Fin (t n)) {w 
         positivity [idealSlope_ne_zero n k]
       have htarget : ‖idealSlope n k‖ / (2 * (n + 2)) =
           4 * (‖idealSlope n k‖ / (8 * (n + 2))) := by
-        field_simp
-        <;> ring
+        field_simp ; ring
       rw [htarget]
       linarith
 
@@ -3156,7 +3154,7 @@ private lemma activeSlope_radial_close (n : ℕ) (k : Fin (t (n + 1))) :
     rw [heq, norm_mul, hc, mul_one]
     dsimp only [q, m, c] at hslope ⊢
     norm_num only [Nat.cast_add, Nat.cast_one] at hslope ⊢
-    convert hslope using 1 <;> ring
+    convert hslope using 1 ; ring
   rw [hfactor, norm_mul, norm_mul, norm_mul]
   rw [norm_pow c S, hc, one_pow, mul_one]
   have hRnorm : ‖(R : ℂ)‖ = R := by
@@ -3190,7 +3188,6 @@ private lemma activeSlope_radial_close_of_ne_zero (n : ℕ) (hn : n ≠ 0)
       activeMagnitude n / (n + 2) := by
   obtain ⟨q, rfl⟩ := Nat.exists_eq_succ_of_ne_zero hn
   have h := activeSlope_radial_close q k
-  norm_num only [Nat.cast_add, Nat.cast_one] at h ⊢
   convert h using 1
   simp only [Nat.succ_eq_add_one, Nat.cast_add, Nat.cast_one]
   congr 1
@@ -3252,8 +3249,7 @@ private lemma activeMagnitude_large (n : ℕ) (hn : n ≠ 0) :
         _ < (2 * degree n) / (8 * (n + 2)) := by
           gcongr
         _ = (degree n : ℝ) / (4 * (n + 2)) := by
-          field_simp
-          <;> ring
+          field_simp ; ring
     have h₂ : derivativeMargin n * affineRadius n <
         (degree n : ℝ) / (16 * (n + 2)) := by
       calc
@@ -3264,8 +3260,7 @@ private lemma activeMagnitude_large (n : ℕ) (hn : n ≠ 0) :
           exact mul_lt_mul_of_pos_left (affineRadius_lt_quarter n) (by
             positivity [degree_pos n])
         _ = (degree n : ℝ) / (16 * (n + 2)) := by
-          field_simp
-          <;> ring
+          field_simp ; ring
     calc
       X * derivativeMargin n * affineRadius n =
           X * (derivativeMargin n * affineRadius n) := by ring
@@ -3424,7 +3419,7 @@ private lemma localPoint_displacement_scaled_bound (n : ℕ) (hn : n ≠ 0)
         exact div_le_div_of_nonneg_left (by positivity) (by norm_num) hden
       _ ≤ (‖a‖ / (D / 2)) / (1 / 2) := by
         gcongr
-      _ = 4 * ‖a‖ / D := by field_simp <;> ring
+      _ = 4 * ‖a‖ / D := by field_simp ; ring
   have := mul_le_mul_of_nonneg_left hbound hD.le
   calc
     activeMagnitude n *
@@ -3470,7 +3465,9 @@ private lemma localPoint_scaled_displacement_error (n : ℕ) (hn : n ≠ 0)
   let u := radialUnit n k
   let d := localPoint n hn k a ha - c
   let q : ℝ := localError n
-  have hzero : ‖(0 : ℂ)‖ ≤ n + 1 := by simp; positivity
+  have hzero : ‖(0 : ℂ)‖ ≤ n + 1 := by
+    simp only [norm_zero]
+    positivity
   have hsec := localPoint_secant_error n hn k a 0 ha hzero
   rw [localPoint_zero n hn k hzero, sub_zero] at hsec
   have hdisp := localPoint_displacement_scaled_bound n hn k a ha
@@ -3501,8 +3498,7 @@ private lemma localPoint_scaled_displacement_error (n : ℕ) (hn : n ≠ 0)
         (by simpa only [D, d] using hdisp) (by positivity)
       _ = 2 * ‖a‖ / (n + 2) := by
         rw [hqeq]
-        field_simp
-        <;> ring
+        field_simp ; ring
   have hsecond : ‖a‖ * ‖c / u - (D : ℂ) / C‖ ≤ 2 * ‖a‖ / (n + 2) := by
     calc
       ‖a‖ * ‖c / u - (D : ℂ) / C‖ ≤ ‖a‖ * (2 / (n + 2)) :=
@@ -3801,10 +3797,8 @@ private lemma exists_radial_separating_stage (a b : ℂ) (hab : a ≠ b) (N : �
     have hnonnegQ : 0 ≤ 2 * Q / L := by positivity
     nlinarith [(Nat.cast_nonneg N : (0 : ℝ) ≤ N), norm_nonneg a, norm_nonneg b]
   have ha : ‖a‖ ≤ n + 1 := by
-    norm_num only [Nat.cast_add, Nat.cast_one]
     linarith
   have hb : ‖b‖ ≤ n + 1 := by
-    norm_num only [Nat.cast_add, Nat.cast_one]
     linarith
   refine ⟨n, hn, ha, hb, hN, ?_⟩
   intro k l
@@ -3884,10 +3878,12 @@ private lemma exists_radial_separating_stage (a b : ℂ) (hab : a ≠ b) (N : �
   exact localPoint_radial_order n hn k l a b hab ha hb hphase hcross herror hquadratic
 
 private lemma exists_between_finite_families {α β : Type*}
-    [Fintype α] [Nonempty α] [Fintype β] [Nonempty β]
+    [Finite α] [Nonempty α] [Finite β] [Nonempty β]
     (f : α → ℝ) (g : β → ℝ) (h : ∀ i j, f i < g j) :
     ∃ r : ℝ, (∀ i, f i < r) ∧ ∀ j, r < g j := by
   classical
+  let _ := Fintype.ofFinite α
+  let _ := Fintype.ofFinite β
   let sf := (Finset.univ : Finset α).image f
   let sg := (Finset.univ : Finset β).image g
   have hsf : sf.Nonempty := Finset.univ_nonempty.image f
@@ -3991,8 +3987,7 @@ private lemma fullNormalizedDerivative_close_general (n : ℕ) (k : Fin (degree 
         positivity [generalIdealSlope_ne_zero n k]
       have htarget : ‖generalIdealSlope n k‖ / (2 * (n + 2)) =
           4 * (‖generalIdealSlope n k‖ / (8 * (n + 2))) := by
-        field_simp
-        <;> ring
+        field_simp ; ring
       rw [htarget]
       linarith
 
@@ -4378,7 +4373,7 @@ private lemma scaledFunction_norm_gt_on_gap (n : ℕ) (hn : n ≠ 0) {z : ℂ}
       _ = ‖A‖ * (4 * radius n) ^ N * (1 / 2 : ℝ) ^ N *
           insideMinimum (n + 1) := by rw [hAeq]; ring
       _ ≤ ‖A‖ * ‖z‖ ^ N * (1 / 2 : ℝ) ^ N * insideMinimum (n + 1) := by
-        gcongr <;> positivity [insideMinimum_pos (n + 1)]
+        gcongr ; positivity [insideMinimum_pos (n + 1)]
       _ = ‖A‖ * R ^ N *
           ((‖z‖ / R) ^ N * (1 / 2 : ℝ) ^ N * insideMinimum (n + 1)) := by
         have hcancel : R ^ N * (‖z‖ / R) ^ N = ‖z‖ ^ N := by
@@ -4985,11 +4980,9 @@ theorem erdos_1116 :
     omega
   have haN : ‖a‖ ≤ N + 1 := by
     dsimp only [X] at hNX
-    norm_num only [Nat.cast_add, Nat.cast_one]
     nlinarith [norm_nonneg b]
   have hbN : ‖b‖ ≤ N + 1 := by
     dsimp only [X] at hNX
-    norm_num only [Nat.cast_add, Nat.cast_one]
     nlinarith [norm_nonneg a]
   let C := aPointCount constructedFunction (4 * radius N) b
   obtain ⟨K, hKR⟩ := exists_nat_gt (4 * R)
@@ -5005,7 +4998,7 @@ theorem erdos_1116 :
     exact (le_trans (le_max_right K (M * (C + 1) + 1))
       (le_max_right N (max K (M * (C + 1) + 1)))).trans_lt hthreshold
   let k₀ : Fin (t n) := ⟨0, lt_of_lt_of_le (by omega) (four_le_t n)⟩
-  letI : Nonempty (Fin (t n)) := ⟨k₀⟩
+  let _ : Nonempty (Fin (t n)) := ⟨k₀⟩
   obtain ⟨ρ, hρa, hρb⟩ := exists_between_finite_families
     (fun k : Fin (t n) ↦ ‖localPoint n hn k a ha‖)
     (fun l : Fin (t n) ↦ ‖localPoint n hn l b hb‖) horder
