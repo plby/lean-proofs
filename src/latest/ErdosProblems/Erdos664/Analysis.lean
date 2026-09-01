@@ -64,7 +64,7 @@ lemma transversal_error_lt {u q : ℕ} (hq : 1 ≤ q)
     simpa [div_eq_mul_inv, mul_comm, mul_left_comm, mul_assoc] using htmp
   have hlog2 : (32 : ℝ) * (u + 1) * Real.log x < a * x := by
     have hh := (lt_div_iff₀ hc).mp (by
-      convert hlog' using 1 <;> ring)
+      convert hlog' using 1)
     simpa [mul_comm, mul_left_comm, mul_assoc] using hh
   have hlog3 := mul_lt_mul_of_pos_right hlog2 hx
   have hlog0 : 0 ≤ Real.log x := Real.log_nonneg hx1
@@ -169,7 +169,7 @@ lemma selectedDegree_eq_filter {L P : Type*} [Fintype L] [DecidableEq P]
   simp only [selectedDegree, incidenceSet, selectedSet, Finset.mem_filter]
   congr 1
   ext l
-  simp [and_left_comm, and_assoc]
+  simp
 
 lemma fairMatrix_selectedSet_lower_tail {L P : Type*} [Fintype L] [Fintype P]
     [DecidableEq P] (A : L → Finset P) (l : L) :
@@ -234,7 +234,7 @@ lemma fairMatrix_exists_small_selectedDegree {L P : Type*} [Fintype L] [Fintype 
     (Finset.sum_le_sum fun p hp => fairMatrix_selectedDegree_lower_tail A p)
 
 lemma sum_card_inter_selected_eq_sum_selectedDegree
-    {L P : Type*} [Fintype L] [Fintype P] [DecidableEq P]
+    {L P : Type*} [Fintype L] [DecidableEq P]
     (A : L → Finset P) (ω : L → P → Bool) (T : Finset P) :
     ∑ l, #(T ∩ selectedSet A ω l) =
       ∑ p ∈ T, selectedDegree A ω p := by
@@ -270,7 +270,7 @@ lemma native_intersection_unbounded {F : Type*} [Field F] [Fintype F]
     calc
       (1 / 4 : ℝ) * (Fintype.card F + 1) * C.card =
           ∑ _p ∈ C, ((1 / 4 : ℝ) * (Fintype.card F + 1)) := by
-        simp [mul_assoc, mul_comm, mul_left_comm]
+        simp [mul_comm]
       _ ≤ ∑ p ∈ C, (selectedDegree A ω p : ℝ) := by
         apply Finset.sum_le_sum
         intro p hp

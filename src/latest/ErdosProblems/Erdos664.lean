@@ -40,8 +40,7 @@ theorem counterexampleAt (K : ℕ) : CounterexampleAt K := by
   have hQq : Q ≤ q := (le_max_left Q 2).trans hq
   have hq2 : 2 ≤ q := (le_max_right Q 2).trans hq
   have herr := hQ q hQq
-  letI : Fact (Nat.Prime q) := ⟨hprime⟩
-  letI : DecidableEq (ZMod q) := Classical.decEq (ZMod q)
+  let : Fact (Nat.Prime q) := ⟨hprime⟩
   let P := ZMod q × ZMod q
   let L := AffineLine (ZMod q)
   let A₀ : L → Finset P := affineLinePoints
@@ -59,8 +58,7 @@ theorem counterexampleAt (K : ℕ) : CounterexampleAt K := by
       μ.real E₁ ≤ ∑ l : L, Real.exp (-(#(A₀ l) : ℝ) / 50) := by
         exact fairMatrix_exists_small_selectedSet A₀
       _ = _ := by
-        simp [A₀, L, P, card_affineLinePoints, card_affineLineType, ZMod.card,
-          pow_two]
+        simp [A₀, L, P, card_affineLinePoints, ZMod.card, pow_two]
   have hE₂ : μ.real E₂ ≤
       ((q : ℝ) ^ 2 * Real.exp (-(q : ℝ) / 8)) := by
     have hinc (p : P) : #(incidenceSet A₀ p) = q + 1 := by
@@ -110,7 +108,7 @@ theorem counterexampleAt (K : ℕ) : CounterexampleAt K := by
       exact hn ⟨ω, hnot⟩
     have heq : (E₁ ∪ E₂) ∪ E₃ = Set.univ := Set.eq_univ_of_forall hall
     rw [heq] at hbad
-    simpa [μ] using hbad
+    simp [μ] at hbad
   have hgood₁ : ∀ l : L,
       (2 / 5 : ℝ) * #(A₀ l) < #(selectedSet A₀ ω l) := by
     intro l

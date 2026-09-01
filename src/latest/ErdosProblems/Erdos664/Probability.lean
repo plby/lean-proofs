@@ -70,13 +70,11 @@ noncomputable def affineLinePoints {F : Type*} [Field F] [Fintype F]
   | Sum.inr c => Finset.univ.image fun y => (c, y)
 
 @[simp] lemma mem_affineLinePoints_nonvertical {F : Type*} [Field F] [Fintype F]
-    [DecidableEq F]
     (a b x y : F) :
     (x, y) ∈ affineLinePoints (Sum.inl (a, b) : AffineLine F) ↔ y = a * x + b := by
   simp [affineLinePoints, eq_comm]
 
 @[simp] lemma mem_affineLinePoints_vertical {F : Type*} [Field F] [Fintype F]
-    [DecidableEq F]
     (c x y : F) :
     (x, y) ∈ affineLinePoints (Sum.inr c : AffineLine F) ↔ x = c := by
   simp [affineLinePoints, eq_comm]
@@ -142,15 +140,24 @@ noncomputable def affineLinesThrough {F : Type*} [Field F] [Fintype F]
   (Finset.univ.image fun a => Sum.inl (a, p.2 - a * p.1)) ∪ {Sum.inr p.1}
 
 @[simp] lemma mem_affineLinesThrough_iff {F : Type*} [Field F] [Fintype F]
-    [DecidableEq F]
     (p : F × F) (l : AffineLine F) :
     l ∈ affineLinesThrough p ↔ p ∈ affineLinePoints l := by
   rcases p with ⟨x, y⟩
   rcases l with (⟨a, b⟩ | c)
-  · simp [affineLinesThrough]
-    constructor <;> intro h
-    · linear_combination h
-    · linear_combination h
+  · rw [mem_affineLinePoints_nonvertical, affineLinesThrough, Finset.mem_union]
+    constructor
+    · intro h
+      rcases h with h | h
+      · obtain ⟨a', _, ha'⟩ := Finset.mem_image.mp h
+        simp only [Sum.inl.injEq, Prod.mk.injEq] at ha'
+        rcases ha' with ⟨rfl, hb⟩
+        linear_combination hb
+      · exact (Sum.inl_ne_inr (Finset.mem_singleton.mp h)).elim
+    · intro h
+      apply Or.inl
+      refine Finset.mem_image.mpr ⟨a, Finset.mem_univ _, ?_⟩
+      simp only [Sum.inl.injEq, Prod.mk.injEq, true_and]
+      linear_combination h
   · simp [affineLinesThrough, eq_comm]
 
 lemma card_affineLinesThrough {F : Type*} [Field F] [Fintype F]
@@ -179,17 +186,16 @@ noncomputable def incidenceSet {L P : Type*} [Fintype L] [DecidableEq P]
     (A : L → Finset P) (p : P) : Finset L :=
   Finset.univ.filter fun l => p ∈ A l
 
-lemma sum_card_inter_eq_sum_degrees {L P : Type*} [Fintype L] [Fintype P]
+lemma sum_card_inter_eq_sum_degrees {L P : Type*} [Fintype L]
     [DecidableEq P] (A : L → Finset P) (T : Finset P) :
     ∑ l, #(T ∩ A l) =
       ∑ p ∈ T, #(Finset.univ.filter fun l => p ∈ A l) := by
   classical
-  simp only [Finset.card_eq_sum_ones, Finset.sum_filter, Finset.mem_inter,
-    Finset.mem_univ, true_and]
+  simp only [Finset.card_eq_sum_ones, Finset.sum_filter]
   rw [Finset.sum_comm]
   apply Finset.sum_congr rfl
   intro p hp
-  simp [hp]
+  simp
 
 lemma incidenceSet_affineLinePoints {F : Type*} [Field F] [Fintype F]
     (p : F × F) :
@@ -254,7 +260,7 @@ lemma sparseAffineLines_many {F : Type*} [Field F] [Fintype F]
     dsimp [q] at hT ⊢
     nlinarith
   have hm : Fintype.card (AffineLine F) = q * (q + 1) := by
-    simp [q, card_affineLineType, pow_two]
+    simp [q]
     ring
   by_contra hSsmall
   change ¬Fintype.card (AffineLine F) ≤ 2 * S.card at hSsmall
@@ -268,7 +274,6 @@ lemma sparseAffineLines_many {F : Type*} [Field F] [Fintype F]
     exact_mod_cast hDs
   have hmr : (Fintype.card (AffineLine F) : ℝ) = q * (q + 1) := by
     exact_mod_cast hm
-  norm_num at hq
   nlinarith
 
 /-! ### Fair product measures and a reusable lower-tail estimate -/
@@ -387,7 +392,7 @@ lemma fairVector_subgaussian_rademacher {ι : Type*} [Fintype ι] (i : ι) :
     (μ := fairVectorMeasure ι) (X := rademacher i) (a := (-1 : ℝ)) (b := 1)
     (by fun_prop) (Filter.Eventually.of_forall fun ω => by
       simp only [rademacher]
-      split <;> norm_num) (fairVector_integral_rademacher i) using 1 <;> norm_num
+      split <;> norm_num) (fairVector_integral_rademacher i) using 1; norm_num
 
 lemma fairVector_sum_le_neg {ι : Type*} [Fintype ι] (s : Finset ι)
     (t : ℝ) (ht : 0 ≤ t) :
@@ -413,9 +418,9 @@ lemma fairVector_sum_le_neg {ι : Type*} [Fintype ι] (s : Finset ι)
     rw [show (∑ i ∈ s, X i ω) = -(∑ i ∈ s, rademacher i ω) by simp [X]]
     constructor <;> intro hω <;> linarith
   rw [hevent]
-  convert h using 1 <;> norm_num
+  convert h using 1; norm_num
 
-lemma sum_rademacher_eq_two_card_sub_card {ι : Type*} [Fintype ι]
+lemma sum_rademacher_eq_two_card_sub_card {ι : Type*}
     (s : Finset ι) (ω : ι → Bool) :
     ∑ i ∈ s, rademacher i ω =
       2 * (#(s.filter fun i => ω i = true) : ℝ) - s.card := by
@@ -531,7 +536,7 @@ lemma fairMatrix_subgaussian_rademacher {L P : Type*} [Fintype L] [Fintype P]
     (Filter.Eventually.of_forall fun ω => by
       simp only [matrixRademacher, rademacher]
       split <;> norm_num)
-    (fairMatrix_integral_rademacher p l) using 1 <;> norm_num
+    (fairMatrix_integral_rademacher p l) using 1; norm_num
 
 lemma fairMatrix_sum_le_neg {L P : Type*} [Fintype L] [Fintype P]
     (p : P) (s : Finset L) (t : ℝ) (ht : 0 ≤ t) :
@@ -559,7 +564,7 @@ lemma fairMatrix_sum_le_neg {L P : Type*} [Fintype L] [Fintype P]
       simp [X]]
     constructor <;> intro hω <;> linarith
   rw [hevent]
-  convert h using 1 <;> norm_num
+  convert h using 1; norm_num
 
 lemma fairMatrix_card_filter_lower_tail {L P : Type*} [Fintype L] [Fintype P]
     (p : P) (s : Finset L) :
@@ -627,7 +632,7 @@ lemma fairMatrix_affine_rowsHit_bound {F : Type*} [Field F] [Fintype F]
   let S := sparseAffineLines T u
   let a : ℝ := ((1 : ℝ) / 2) ^ (16 * u)
   let d₀ : AffineLine F → ℕ := fun l => #(T ∩ A l)
-  letI : DecidableEq (F × F) := Classical.decEq _
+  let : DecidableEq (F × F) := Classical.decEq _
   let d : AffineLine F → ℕ := fun l => #(T ∩ A l)
   have hsubset :
       {ω | rowsHit A T Finset.univ ω} ⊆ {ω | rowsHit A T S ω} := by
@@ -658,7 +663,7 @@ lemma fairMatrix_affine_rowsHit_bound {F : Type*} [Field F] [Fintype F]
         dsimp [a] at hexp ⊢
         linarith
     _ = Real.exp (-a * S.card) := by
-      simp only [Finset.prod_const, Finset.card_attach]
+      simp only [Finset.prod_const]
       rw [← Real.exp_nat_mul]
       congr 1
       ring
@@ -674,12 +679,12 @@ noncomputable def functionRangeFinset {P : Type*} [DecidableEq P] {s : ℕ}
     (f : Fin s → P) : Finset P :=
   Finset.univ.image f
 
-lemma card_functionRangeFinset_le {P : Type*} [Fintype P] {s : ℕ}
+lemma card_functionRangeFinset_le {P : Type*} [DecidableEq P] {s : ℕ}
     (f : Fin s → P) : #(functionRangeFinset f) ≤ s := by
   rw [functionRangeFinset]
   exact (Finset.card_image_le.trans_eq (by simp))
 
-lemma exists_subset_functionRangeFinset {P : Type*} [Fintype P] [Nonempty P]
+lemma exists_subset_functionRangeFinset {P : Type*} [DecidableEq P] [Nonempty P]
     (T : Finset P) {s : ℕ} (hT : T.card ≤ s) :
     ∃ f : Fin s → P, T ⊆ functionRangeFinset f := by
   have hcard : Fintype.card T ≤ s := by simpa using hT
@@ -715,7 +720,7 @@ lemma fairMatrix_affine_hasSmallTransversal_bound
       (Fintype.card (F × F) : ℝ) ^ (4 * Fintype.card F * u) *
         Real.exp (-(((1 : ℝ) / 2) ^ (16 * u)) *
           ((Fintype.card (AffineLine F) : ℝ) / 2)) := by
-  letI : DecidableEq (F × F) := Classical.decEq _
+  let : DecidableEq (F × F) := Classical.decEq _
   let s := 4 * Fintype.card F * u
   let A : AffineLine F → Finset (F × F) := affineLinePoints
   have hsubset :
@@ -750,7 +755,7 @@ lemma fairMatrix_affine_hasSmallTransversal_bound
     _ = (Fintype.card (F × F) : ℝ) ^ s *
           Real.exp (-(((1 : ℝ) / 2) ^ (16 * u)) *
             ((Fintype.card (AffineLine F) : ℝ) / 2)) := by
-      simp [Fintype.card_fun]
+      simp
     _ = _ := by rfl
 
 end Erdos664
