@@ -359,7 +359,7 @@ theorem erdos_703 :
     have hTeq : T n r = #fam := by
       simpa [T, admissible] using hfammax
     rw [hTeq]
-    convert hcardBound using 1 <;> ring
+    convert hcardBound using 1; ring
   · refine ⟨1, by norm_num, ?_⟩
     intro n r hrlow hrhigh
     have hcoef : 1 / 2 - ε ≤ 0 := by linarith

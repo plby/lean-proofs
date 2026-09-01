@@ -37,6 +37,7 @@ def weightedMean {n : ℕ} (w : Fin n → α → ℝ) (f : (Fin n → α) → �
 def finiteWeightMeasure (w : α → ℝ) : Measure α :=
   Measure.sum fun a ↦ ENNReal.ofReal (w a) • Measure.dirac a
 
+omit [Nonempty α] [MeasurableSingletonClass α] in
 lemma finiteWeightMeasure_isProbability (w : α → ℝ)
     (hw0 : ∀ a, 0 ≤ w a) (hw1 : ∑ a, w a = 1) :
     IsProbabilityMeasure (finiteWeightMeasure w) := by
@@ -44,6 +45,7 @@ lemma finiteWeightMeasure_isProbability (w : α → ℝ)
   apply HasSum.isProbabilityMeasure_sum_dirac hw0
   simpa [hw1] using hasSum_fintype w
 
+omit [Nonempty α] in
 lemma integral_finiteWeightMeasure (w : α → ℝ) (hw0 : ∀ a, 0 ≤ w a)
     (g : α → ℝ) :
     ∫ a, g a ∂finiteWeightMeasure w = ∑ a, w a * g a := by
@@ -57,7 +59,7 @@ lemma finite_weighted_hoeffding (w : α → ℝ) (g : α → ℝ) (lo hi lam : �
     ∑ a, w a * exp (lam * (g a - ∑ z, w z * g z)) ≤
       exp (((hi - lo) / 2) ^ 2 * lam ^ 2 / 2) := by
   let μ := finiteWeightMeasure w
-  letI : IsProbabilityMeasure μ := finiteWeightMeasure_isProbability w hw0 hw1
+  let : IsProbabilityMeasure μ := finiteWeightMeasure_isProbability w hw0 hw1
   have hmeas : AEMeasurable g μ := AEMeasurable.of_discrete
   have hmem : ∀ᵐ a ∂μ, g a ∈ Set.Icc lo hi := Filter.Eventually.of_forall hg
   have hsub := hasSubgaussianMGF_of_mem_Icc (μ := μ) hmeas hmem
@@ -101,12 +103,14 @@ lemma finite_weighted_hoeffding_of_pairwise (w : α → ℝ) (g : α → ℝ) (b
 
 /-! ## Finite product identities -/
 
+omit [Nonempty α] [MeasurableSpace α] [MeasurableSingletonClass α] in
 lemma sum_fin_succ_eq {n : ℕ} {β : Type*} [AddCommMonoid β]
     (F : (Fin (n + 1) → α) → β) :
     ∑ x, F x = ∑ a : α, ∑ y : Fin n → α, F (Fin.cons a y) := by
   rw [← (Fin.consEquiv (fun _ : Fin (n + 1) ↦ α)).sum_comp]
   exact Fintype.sum_prod_type _
 
+omit [Fintype α] [Nonempty α] [MeasurableSpace α] [MeasurableSingletonClass α] in
 @[simp] lemma productMass_cons {n : ℕ} (w : Fin (n + 1) → α → ℝ)
     (a : α) (y : Fin n → α) :
     productMass w (Fin.cons a y) =
@@ -118,6 +122,7 @@ def sectionAverage {n : ℕ} (w : Fin (n + 1) → α → ℝ)
     (f : (Fin (n + 1) → α) → ℝ) (y : Fin n → α) : ℝ :=
   ∑ a, w 0 a * f (Fin.cons a y)
 
+omit [Nonempty α] [MeasurableSpace α] [MeasurableSingletonClass α] in
 lemma weightedMean_succ {n : ℕ} (w : Fin (n + 1) → α → ℝ)
     (f : (Fin (n + 1) → α) → ℝ) :
     weightedMean w f =
@@ -131,6 +136,7 @@ lemma weightedMean_succ {n : ℕ} (w : Fin (n + 1) → α → ℝ)
   intro a _
   ring
 
+omit [Nonempty α] [MeasurableSpace α] [MeasurableSingletonClass α] in
 lemma sectionAverage_boundedDiff {n : ℕ} (w : Fin (n + 1) → α → ℝ)
     (f : (Fin (n + 1) → α) → ℝ) (b : Fin (n + 1) → ℝ)
     (hw0 : ∀ i a, 0 ≤ w i a) (hw1 : ∀ i, ∑ a, w i a = 1)
@@ -161,6 +167,7 @@ lemma sectionAverage_boundedDiff {n : ℕ} (w : Fin (n + 1) → α → ℝ)
               exact hxy j (fun h ↦ hj (congrArg (fun k : Fin n ↦ k.succ) h))
     _ = b i.succ := by rw [← Finset.sum_mul, hw1]; simp
 
+omit [Fintype α] [Nonempty α] [MeasurableSpace α] [MeasurableSingletonClass α] in
 lemma productMass_nonneg {n : ℕ} (w : Fin n → α → ℝ)
     (hw0 : ∀ i a, 0 ≤ w i a) (x : Fin n → α) :
     0 ≤ productMass w x := by
@@ -261,6 +268,7 @@ theorem expMomentBound (n : ℕ) (w : Fin n → α → ℝ)
               congr 1
               ring
 
+omit [Nonempty α] [MeasurableSpace α] [MeasurableSingletonClass α] in
 lemma sum_productMass_eq_one (n : ℕ) (w : Fin n → α → ℝ)
     (hw1 : ∀ i, ∑ a, w i a = 1) :
     ∑ x, productMass w x = 1 := by
@@ -277,16 +285,19 @@ lemma sum_productMass_eq_one (n : ℕ) (w : Fin n → α → ℝ)
 def eventMass {n : ℕ} (w : Fin n → α → ℝ) (E : Set (Fin n → α)) : ℝ :=
   ∑ x ∈ Finset.univ.filter (fun x ↦ x ∈ E), productMass w x
 
+omit [Nonempty α] [MeasurableSpace α] [MeasurableSingletonClass α] in
 lemma eventMass_univ {n : ℕ} (w : Fin n → α → ℝ)
     (hw1 : ∀ i, ∑ a, w i a = 1) :
     eventMass w Set.univ = 1 := by
   simp [eventMass, sum_productMass_eq_one n w hw1]
 
+omit [Nonempty α] [MeasurableSpace α] [MeasurableSingletonClass α] in
 lemma eventMass_nonneg {n : ℕ} (w : Fin n → α → ℝ)
     (hw0 : ∀ i a, 0 ≤ w i a) (E : Set (Fin n → α)) :
     0 ≤ eventMass w E := by
   exact Finset.sum_nonneg fun x _ ↦ productMass_nonneg w hw0 x
 
+omit [Nonempty α] [MeasurableSpace α] [MeasurableSingletonClass α] in
 lemma eventMass_mono {n : ℕ} (w : Fin n → α → ℝ)
     (hw0 : ∀ i a, 0 ≤ w i a) {E F : Set (Fin n → α)} (hEF : E ⊆ F) :
     eventMass w E ≤ eventMass w F := by
@@ -298,12 +309,14 @@ lemma eventMass_mono {n : ℕ} (w : Fin n → α → ℝ)
   · intro x _ _
     exact productMass_nonneg w hw0 x
 
+omit [Nonempty α] [MeasurableSpace α] [MeasurableSingletonClass α] in
 lemma eventMass_le_one {n : ℕ} (w : Fin n → α → ℝ)
     (hw0 : ∀ i a, 0 ≤ w i a) (hw1 : ∀ i, ∑ a, w i a = 1)
     (E : Set (Fin n → α)) : eventMass w E ≤ 1 := by
   rw [← eventMass_univ w hw1]
   exact eventMass_mono w hw0 (Set.subset_univ E)
 
+omit [Nonempty α] [MeasurableSpace α] [MeasurableSingletonClass α] in
 /-- The elementary union bound for the explicit finite product mass. -/
 lemma eventMass_union_le {n : ℕ} (w : Fin n → α → ℝ)
     (hw0 : ∀ i a, 0 ≤ w i a) (E F : Set (Fin n → α)) :
@@ -315,12 +328,14 @@ lemma eventMass_union_le {n : ℕ} (w : Fin n → α → ℝ)
   by_cases hxE : x ∈ E <;> by_cases hxF : x ∈ F <;>
     simp [hxE, hxF, productMass_nonneg w hw0 x]
 
+omit [Nonempty α] [MeasurableSpace α] [MeasurableSingletonClass α] in
 /-- Finite union bound, useful for turning one McDiarmid estimate into simultaneous
 control of polynomially many bad events. -/
-lemma eventMass_biUnion_le_sum {n : ℕ} {ι : Type*} [DecidableEq ι]
+lemma eventMass_biUnion_le_sum {n : ℕ} {ι : Type*}
     (w : Fin n → α → ℝ) (hw0 : ∀ i a, 0 ≤ w i a)
     (s : Finset ι) (E : ι → Set (Fin n → α)) :
     eventMass w (⋃ i ∈ s, E i) ≤ ∑ i ∈ s, eventMass w (E i) := by
+  classical
   induction s using Finset.induction_on with
   | empty => simp [eventMass]
   | @insert i s his ih =>
@@ -407,6 +422,7 @@ theorem mcdiarmid_upper_all (n : ℕ) (w : Fin n → α → ℝ)
       {x | weightedMean w f + t ≤ f x}
   · exact mcdiarmid_upper n w f b hw0 hw1 hb hbd t ht hpos
 
+omit [Nonempty α] [MeasurableSpace α] [MeasurableSingletonClass α] in
 @[simp] lemma weightedMean_neg {n : ℕ} (w : Fin n → α → ℝ)
     (f : (Fin n → α) → ℝ) :
     weightedMean w (fun x ↦ -f x) = -weightedMean w f := by
@@ -521,4 +537,3 @@ theorem bernoulli_mcdiarmid_two_sided (n : ℕ) (p : Fin n → ℝ)
 
 end
 end Erdos703McDiarmid
-

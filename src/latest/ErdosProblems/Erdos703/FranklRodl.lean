@@ -313,7 +313,7 @@ lemma fr_low_endpoint_bound {eta s : ℝ} {n r : ℕ}
   have hlow := Erdos703Endpoints.cross_low hmpos
     (Erdos703Endpoints.fairCubeMcDiarmid res.m')
     (Erdos703Endpoints.cubeMean_card res.m') res.F' res.G'
-    (eta / 2) (by positivity) (by linarith) hcross
+    (eta / 2) (by positivity) hcross
   have hterm1 :
       2 * Real.exp (-((eta / 2) ^ 2 * res.m') / 2) ≤
         4 * Real.exp (-((eta / 2) ^ 2 * res.m') / 4) := by
@@ -391,7 +391,7 @@ theorem cross_forbidden_intersection_large {eta : ℝ}
   have habsorb : Real.log 4 < eta ^ 2 * n / 128 := by
     nlinarith [mul_le_mul_of_nonneg_right hnN₀R heta2.le]
   by_contra hnot
-  push_neg at hnot
+  push Not at hnot
   have hp : c ^ n < Erdos703Iteration.density F * Erdos703Iteration.density G := by
     simpa [c, s] using hnot
   let res := Erdos703Iteration.fr_iterate hs0.le hs F G (le_refl r)
@@ -485,7 +485,7 @@ theorem forbidden_family_density_large {eta : ℝ}
   have hcpow : (1 - u) ^ n < (b ^ 2) ^ n :=
     pow_lt_pow_left₀ hcb (by linarith : 0 ≤ 1 - u) hn.ne'
   by_contra hnot
-  push_neg at hnot
+  push Not at hnot
   have hsq : b ^ n * b ^ n ≤
       Erdos703Iteration.density F * Erdos703Iteration.density F :=
     mul_le_mul hnot hnot (pow_nonneg hb0.le n)
@@ -498,7 +498,7 @@ theorem forbidden_family_density_large {eta : ℝ}
   linarith
 
 lemma density_lt_base_pow_of_card_lt {N n : ℕ} (hN : 1 ≤ N)
-    (hn : 0 < n) (hnN : n < N) {F : Erdos703Iteration.Family n}
+    (hnN : n < N) {F : Erdos703Iteration.Family n}
     (hproper : #F < 2 ^ n) :
     Erdos703Iteration.density F <
       (1 - 1 / (2 : ℝ) ^ (2 * N)) ^ n := by
@@ -523,7 +523,6 @@ lemma density_lt_base_pow_of_card_lt {N n : ℕ} (hN : 1 ≤ N)
   have hnu : (n : ℝ) * u < 1 / (2 : ℝ) ^ n := by
     dsimp [u]
     rw [mul_one_div]
-    change (n : ℝ) / (2 : ℝ) ^ (2 * N) < 1 / (2 : ℝ) ^ n
     have hcast : (n : ℝ) * (2 : ℝ) ^ n < (2 : ℝ) ^ (2 * N) := by
       exact_mod_cast hnatpow
     exact (div_lt_div_iff₀ (by positivity) (by positivity)).2 (by simpa using hcast)
@@ -620,7 +619,7 @@ theorem forbidden_family_density {eta : ℝ}
       simpa using mul_le_mul_of_nonneg_right hc (by positivity : (0 : ℝ) ≤ n))
     have hrn : r ≤ n := by exact_mod_cast hrnR.le
     have hproper := card_lt_cube_of_cross_avoids hrn havoid
-    have h := density_lt_base_pow_of_card_lt hM hn hnM' hproper
+    have h := density_lt_base_pow_of_card_lt hM hnM' hproper
     change Erdos703Iteration.density F < bSmall ^ n at h
     exact h.trans_le (pow_le_pow_left₀ hbSmall0.le (le_max_right _ _) n)
 

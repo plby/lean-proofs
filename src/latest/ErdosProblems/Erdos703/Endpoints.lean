@@ -68,8 +68,8 @@ lemma fair_weightedMean_support {n : ℕ} (f : Cube n → ℝ) :
     ext S
     simp
   rw [hpowerset]
-  simp [div_eq_mul_inv, inv_pow, mul_comm]
-  rw [Finset.sum_mul]
+  simp only [one_div, inv_pow, mul_comm]
+  rw [← Finset.sum_mul, div_eq_mul_inv]
 
 lemma card_filter_support {n : ℕ} (E : Family n) :
     #((Finset.univ : Finset (BoolCube n)).filter fun x ↦ boolSupport x ∈ E) = #E := by
@@ -131,7 +131,7 @@ lemma hamming_support_le_one_of_off_eq {n : ℕ} (i : Fin n) (x y : BoolCube n)
         rcases mem_symmDiff.mp hj with h | h
         · exact h.2 (hmem.mp h.1)
         · exact h.2 (hmem.mpr h.1)
-      simpa [hji]
+      simp [hji]
     _ = 1 := card_singleton i
 
 lemma fairWeight_nonneg {n : ℕ} : ∀ i : Fin n, ∀ b : Bool, 0 ≤ fairWeight n i b := by
@@ -145,7 +145,7 @@ lemma fairWeight_sum_one {n : ℕ} : ∀ i : Fin n, ∑ b : Bool, fairWeight n i
 
 /-- McDiarmid on the fair Boolean cube, transported through the characteristic-function
 equivalence between subsets of `Fin n` and Boolean words. -/
-noncomputable def fairCubeMcDiarmid (n : ℕ) : CubeMcDiarmid n where
+theorem fairCubeMcDiarmid (n : ℕ) : CubeMcDiarmid n where
   upper := by
     intro f hf a hmean u hu E hE
     let fb : BoolCube n → ℝ := fun x ↦ f (boolSupport x)
@@ -263,7 +263,7 @@ lemma fair_weightedMean_card_support (n : ℕ) :
           (if x i = true then 1 else 0)) = fairBias n i at hbit
       simpa only [fairBias] using hbit
     _ = (n : ℝ) / 2 := by
-      simp
+      simp only [one_div, sum_const, card_univ, Fintype.card_fin, nsmul_eq_mul]
       rw [div_eq_mul_inv]
 
 lemma cubeMean_card (n : ℕ) :
@@ -477,7 +477,7 @@ identity saying that a uniform random subset has expected cardinality `n/2`;
 it is kept explicit so that the only analytic input is `CubeMcDiarmid`. -/
 theorem cross_low {n : ℕ} (hn : 0 < n) (mc : CubeMcDiarmid n)
     (hcardMean : cubeMean (fun S : Cube n ↦ (#S : ℝ)) = (n : ℝ) / 2)
-    (A B : Family n) (κ : ℝ) (hκ0 : 0 < κ) (hκhalf : κ < 1 / 2)
+    (A B : Family n) (κ : ℝ) (hκ0 : 0 < κ)
     (hcross : ∀ S ∈ A, ∀ T ∈ B,
       (#(S ∩ T) : ℝ) < (1 / 2 - κ) * n) :
     density A * density B ≤
@@ -497,7 +497,7 @@ theorem cross_low {n : ℕ} (hn : 0 < n) (mc : CubeMcDiarmid n)
       intro S hS
       have hs := (mem_filter.mp hS).2
       dsimp [large] at hs
-      push_neg at hs
+      push Not at hs
       linarith
     have hh := h hevent
     calc
@@ -512,7 +512,7 @@ theorem cross_low {n : ℕ} (hn : 0 < n) (mc : CubeMcDiarmid n)
       intro S hS
       have hs := (mem_filter.mp hS).2
       dsimp [large] at hs
-      push_neg at hs
+      push Not at hs
       linarith
     have hh := h hevent
     calc
@@ -529,7 +529,7 @@ theorem cross_low {n : ℕ} (hn : 0 < n) (mc : CubeMcDiarmid n)
   · have hAupper : density A ≤ 2 * Real.exp (-(κ ^ 2 * n) / 2) := by
       have hstarlt : density Astar < density Alow := by
         rw [← hApart] at hAdense
-        push_neg at hAdense
+        push Not at hAdense
         linarith
       rw [← hApart]
       linarith
@@ -545,7 +545,7 @@ theorem cross_low {n : ℕ} (hn : 0 < n) (mc : CubeMcDiarmid n)
   · have hBupper : density B ≤ 2 * Real.exp (-(κ ^ 2 * n) / 2) := by
       have hstarlt : density Bstar < density Blow := by
         rw [← hBpart] at hBdense
-        push_neg at hBdense
+        push Not at hBdense
         linarith
       rw [← hBpart]
       linarith
@@ -570,7 +570,7 @@ theorem cross_low {n : ℕ} (hn : 0 < n) (mc : CubeMcDiarmid n)
       exact card_sdiff_add_card_inter S T
     have hEq : S ∩ cubeCompl T = S \ T := by
       ext i
-      simp [cubeCompl, and_assoc]
+      simp [cubeCompl]
     rw [hEq]
     have hcardDiffR : (#(S \ T) : ℝ) + #(S ∩ T) = #S := by exact_mod_cast hcardDiff
     linarith

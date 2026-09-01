@@ -266,7 +266,7 @@ lemma density_union_ge_right {m : ℕ} (F G : Family m) : density G ≤ density 
   exact show G ⊆ F ∪ G by intro x hx; simp [hx]
 
 lemma fr_density_algebra_aux {s x y : ℝ}
-    (hs0 : 0 ≤ s) (hs : s ≤ 1 / 10) (hx : 0 ≤ x) (hy : 0 ≤ y)
+    (hs0 : 0 ≤ s) (hs : s ≤ 1 / 10) (hy : 0 ≤ y)
     (hsmall : (1 + y) ^ 2 ≤ 1 + s)
     (hfail : (1 + x) * (1 - y) ≤ 1 + s) :
     1 - s - 2 * s ^ 2 ≤ (1 + y) * (1 - x) := by
@@ -295,7 +295,6 @@ lemma fr_bad_product_of_small_left
     {s f f0 f1 g gu gi : ℝ}
     (hs0 : 0 ≤ s) (hs : s ≤ 1 / 10)
     (hf : 0 < f) (hg : 0 < g)
-    (hf0 : 0 ≤ f0) (hf1 : 0 ≤ f1) (hgu : 0 ≤ gu) (hgi : 0 ≤ gi)
     (hfsum : f0 + f1 = 2 * f) (hgsum : gu + gi = 2 * g) (horder : gi ≤ gu)
     (hsmall : f1 ^ 2 ≤ (1 + s) * f ^ 2)
     (hfail : f0 * gu ≤ (1 + s) * f * g) :
@@ -332,7 +331,7 @@ lemma fr_bad_product_of_small_left
       have hscaled : ((1 + x) * (1 - y)) * (f * g) ≤ (1 + s) * (f * g) := by
         simpa [mul_assoc, mul_comm, mul_left_comm] using hfail
       exact le_of_mul_le_mul_right hscaled hfg
-    have haux := fr_density_algebra_aux hs0 hs hx hycase hsmall' hfail'
+    have haux := fr_density_algebra_aux hs0 hs hycase hsmall' hfail'
     rw [hf1_eq, hgi_eq]
     have hscaled := mul_le_mul_of_nonneg_right haux (le_of_lt hfg)
     nlinarith
@@ -355,7 +354,7 @@ lemma small_square_or_of_product
     (hprod : f1 * g1 ≤ c * f * g) :
     f1 ^ 2 ≤ c * f ^ 2 ∨ g1 ^ 2 ≤ c * g ^ 2 := by
   by_contra h
-  push_neg at h
+  push Not at h
   have hf1pos : 0 < f1 := by nlinarith [sq_nonneg f1]
   have hg1pos : 0 < g1 := by nlinarith [sq_nonneg g1]
   have hleft := mul_lt_mul_of_pos_right h.1 (sq_pos_of_pos hg1pos)
@@ -458,9 +457,6 @@ lemma fr_one_step {m a b : ℕ} {F G : Family (m + 1)} {s : ℝ}
         rw [← haeq] at havoid
         exact sectionOne_inter_avoids hab' havoid
       have hbad := fr_bad_product_of_small_left hs0 hs hfpos hgpos
-        (density_nonneg (sectionZero F)) (density_nonneg (sectionOne F))
-        (density_nonneg (sectionZero G ∪ sectionOne G))
-        (density_nonneg (sectionZero G ∩ sectionOne G))
         hfsum hgsum horder hsmallF (le_of_lt (lt_of_not_ge hgood))
       exact ⟨sectionOne F, sectionZero G ∩ sectionOne G, hwidenAvoid, hbad⟩
   · let fu := density (sectionZero F ∪ sectionOne F)
@@ -487,9 +483,6 @@ lemma fr_one_step {m a b : ℕ} {F G : Family (m + 1)} {s : ℝ}
         rw [← haeq] at hsymmetric
         exact sectionOne_inter_avoids hab' hsymmetric
       have hbad := fr_bad_product_of_small_left hs0 hs hgpos hfpos
-        (density_nonneg (sectionZero G)) (density_nonneg (sectionOne G))
-        (density_nonneg (sectionZero F ∪ sectionOne F))
-        (density_nonneg (sectionZero F ∩ sectionOne F))
         hgsum hfsum horder hsmallG (le_of_lt (lt_of_not_ge hgood))
       refine ⟨sectionOne G, sectionZero F ∩ sectionOne F, hwidenAvoid, ?_⟩
       nlinarith
@@ -593,8 +586,7 @@ noncomputable def fr_iterate {s : ℝ} (hs0 : 0 ≤ s) (hs : s ≤ 1 / 10) :
       rcases fr_one_step_data hs0 hs hak hab havoid with
         ⟨F1, G1, havoid1, hgain1⟩ | ⟨F1, G1, havoid1, hgain1⟩ |
           ⟨F1, G1, havoid1, hgain1⟩
-      ·
-        have hab1 : a - 1 ≤ b - 1 := Nat.sub_le_sub_right hab 1
+      · have hab1 : a - 1 ≤ b - 1 := Nat.sub_le_sub_right hab 1
         have hres := ih (a := a - 1) (b := b - 1) F1 G1 hab1 (by omega) havoid1
         exact
           { m' := hres.m', A := hres.A + 1, B := hres.B, d := hres.d + 1
@@ -619,8 +611,7 @@ noncomputable def fr_iterate {s : ℝ} (hs0 : 0 ≤ s) (hs : s ≤ 1 / 10) :
                         gcongr
                 _ ≤ density hres.F' * density hres.G' := by
                   simpa [mul_assoc] using hres.density_gain }
-      ·
-        have hres := ih (a := a) (b := b) F1 G1 hab hbk havoid1
+      · have hres := ih (a := a) (b := b) F1 G1 hab hbk havoid1
         exact
           { m' := hres.m', A := hres.A + 1, B := hres.B, d := hres.d
             a' := hres.a', b' := hres.b', F' := hres.F', G' := hres.G'
@@ -644,8 +635,7 @@ noncomputable def fr_iterate {s : ℝ} (hs0 : 0 ≤ s) (hs : s ≤ 1 / 10) :
                         gcongr
                 _ ≤ density hres.F' * density hres.G' := by
                   simpa [mul_assoc] using hres.density_gain }
-      ·
-        have hab1 : a - 1 ≤ b := (Nat.sub_le a 1).trans hab
+      · have hab1 : a - 1 ≤ b := (Nat.sub_le a 1).trans hab
         have hres := ih (a := a - 1) (b := b) F1 G1 hab1 hbk havoid1
         exact
           { m' := hres.m', A := hres.A, B := hres.B + 1, d := hres.d
