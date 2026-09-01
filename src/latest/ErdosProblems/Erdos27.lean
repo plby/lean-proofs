@@ -103,7 +103,7 @@ def Erdos27Question : Prop :=
 lemma uncovered_periodic (A : ResidueSystem) :
     ∀ z : ℤ, z ∈ A.uncovered ↔ z + A.period ∈ A.uncovered := by
   intro z
-  simp only [ResidueSystem.uncovered, Set.mem_setOf_eq]
+  simp only [ResidueSystem.uncovered, Set.mem_ofPred_eq]
   constructor <;> intro hz n hn
   · intro heq
     apply hz n hn
@@ -220,9 +220,10 @@ lemma roughPart_eq_one_smooth {Q d : ℕ} (hd : 0 < d)
   rw [← smallPart_mul_roughPart (Q := Q) hd.ne', hr, mul_one]
   exact hs
 
-lemma prime_dvd_finset_lcm {ι : Type*} [DecidableEq ι]
+lemma prime_dvd_finset_lcm {ι : Type*}
     (p : ℕ) (hp : p.Prime) (s : Finset ι) (f : ι → ℕ)
     (h : p ∣ s.lcm f) : ∃ i ∈ s, p ∣ f i := by
+  classical
   induction s using Finset.induction_on with
   | empty =>
       simp only [Finset.lcm_empty] at h
@@ -287,7 +288,7 @@ def castFiber {m n : ℕ} (hn : 0 < n) (h : m ∣ n) (a : ZMod m) : Finset (ZMod
 @[simp] lemma mem_castFiber {m n : ℕ} (hn : 0 < n) (h : m ∣ n)
     (a : ZMod m) (x : ZMod n) :
     x ∈ castFiber hn h a ↔ ZMod.castHom h (ZMod m) x = a := by
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   change x ∈ (Finset.univ.filter fun y : ZMod n =>
     ZMod.castHom h (ZMod m) y = a) ↔ _
   simp only [Finset.mem_filter, Finset.mem_univ, true_and]
@@ -295,8 +296,8 @@ def castFiber {m n : ℕ} (hn : 0 < n) (h : m ∣ n) (a : ZMod m) : Finset (ZMod
 /-- Every fibre of reduction `ZMod n → ZMod m` has `n / m` elements. -/
 lemma card_castFiber {m n : ℕ} (hm : 0 < m) (hn : 0 < n)
     (h : m ∣ n) (a : ZMod m) : (castFiber hn h a).card = n / m := by
-  letI : NeZero m := ⟨hm.ne'⟩
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   let f := (ZMod.castHom h (ZMod m)).toAddMonoidHom
   have hsurj : Function.Surjective f := ZMod.castHom_surjective h
   have heq : ∀ b : ZMod m,
@@ -334,8 +335,8 @@ cardinality. -/
 lemma card_preimage_cast {m n : ℕ} (hm : 0 < m) (hn : 0 < n)
     (h : m ∣ n) (S : Finset (ZMod m)) :
     (castPreimage hn h S).card = (n / m) * S.card := by
-  letI : NeZero m := ⟨hm.ne'⟩
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   let f := ZMod.castHom h (ZMod m)
   simp only [castPreimage]
   calc
@@ -353,17 +354,16 @@ lemma card_preimage_cast {m n : ℕ} (hm : 0 < m) (hn : 0 < n)
 lemma residueMeasure_finset_real {n : ℕ} (hn : 0 < n) (S : Finset (ZMod n)) :
     (Erdos277.residueMeasure n).real (S : Set (ZMod n)) =
       (S.card : ℝ) / n := by
-  letI : NeZero n := ⟨hn.ne'⟩
-  simp [Erdos277.residueMeasure, Measure.real, uniformOn_univ, ZMod.card,
-    Set.ncard_coe_finset]
+  let : NeZero n := ⟨hn.ne'⟩
+  simp [Erdos277.residueMeasure, Measure.real, uniformOn_univ, ZMod.card]
 
 lemma residueMeasure_preimage_cast_real {m n : ℕ} (hm : 0 < m) (hn : 0 < n)
     (h : m ∣ n) (S : Finset (ZMod m)) :
     (Erdos277.residueMeasure n).real
         {x | ZMod.castHom h (ZMod m) x ∈ S} =
       (Erdos277.residueMeasure m).real (S : Set (ZMod m)) := by
-  letI : NeZero m := ⟨hm.ne'⟩
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   let T := castPreimage hn h S
   have hTset : (T : Set (ZMod n)) =
       {x | ZMod.castHom h (ZMod m) x ∈ S} := by
@@ -393,9 +393,9 @@ lemma card_crt_left_mem_right_eq {m n : ℕ} (hm : 0 < m) (hn : 0 < n)
     (Finset.univ.filter fun x : ZMod (m * n) =>
       (ZMod.chineseRemainder hcop x).1 ∈ S ∧
         (ZMod.chineseRemainder hcop x).2 = a).card = S.card := by
-  letI : NeZero m := ⟨hm.ne'⟩
-  letI : NeZero n := ⟨hn.ne'⟩
-  letI : NeZero (m * n) := ⟨(Nat.mul_pos hm hn).ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
+  let : NeZero (m * n) := ⟨(Nat.mul_pos hm hn).ne'⟩
   let e := ZMod.chineseRemainder hcop
   let U := Finset.univ.filter fun x : ZMod (m * n) =>
     (e x).1 ∈ S ∧ (e x).2 = a
@@ -414,9 +414,10 @@ lemma card_crt_left_mem_right_eq {m n : ℕ} (hm : 0 < m) (hn : 0 < n)
       simp [hb]
     · simp
 
-lemma finset_lcm_coprime_right {ι : Type*} [DecidableEq ι]
+lemma finset_lcm_coprime_right {ι : Type*}
     (s : Finset ι) (f : ι → ℕ) (r : ℕ)
     (hcop : ∀ i ∈ s, (f i).Coprime r) : (s.lcm f).Coprime r := by
+  classical
   by_contra h
   obtain ⟨p, hp, hpl, hpr⟩ := Nat.Prime.not_coprime_iff_dvd.mp h
   obtain ⟨i, hi, hpi⟩ := prime_dvd_finset_lcm p hp s f hpl
@@ -432,9 +433,9 @@ lemma residueMeasure_crt_independent {m n : ℕ} (hm : 0 < m) (hn : 0 < n)
           (ZMod.chineseRemainder hcop x).2 = a} =
       (Erdos277.residueMeasure m).real (S : Set (ZMod m)) *
         (Erdos277.residueMeasure n).real ({a} : Set (ZMod n)) := by
-  letI : NeZero m := ⟨hm.ne'⟩
-  letI : NeZero n := ⟨hn.ne'⟩
-  letI : NeZero (m * n) := ⟨(Nat.mul_pos hm hn).ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
+  let : NeZero (m * n) := ⟨(Nat.mul_pos hm hn).ne'⟩
   let U := Finset.univ.filter fun x : ZMod (m * n) =>
     (ZMod.chineseRemainder hcop x).1 ∈ S ∧
       (ZMod.chineseRemainder hcop x).2 = a
@@ -556,9 +557,9 @@ lemma rough_residual_independent (Q : ℕ) (A : ResidueSystem)
     apply finset_lcm_coprime_right
     intro i hi
     exact (rough_support_disjoint_iff_coprime Q A i a).mp (hdis i hi)
-  letI : NeZero B := ⟨hB.ne'⟩
-  letI : NeZero r := ⟨hr.ne'⟩
-  letI : NeZero (roughPeriod Q A) := ⟨hR.ne'⟩
+  let : NeZero B := ⟨hB.ne'⟩
+  let : NeZero r := ⟨hr.ne'⟩
+  let : NeZero (roughPeriod Q A) := ⟨hR.ne'⟩
   let S : Finset (ZMod B) := Finset.univ.filter fun u =>
     ∀ i, (hi : i ∈ s) →
       ZMod.castHom (Finset.dvd_lcm hi) (ZMod (roughPart Q i)) u ≠
@@ -570,7 +571,6 @@ lemma rough_residual_independent (Q : ℕ) (A : ResidueSystem)
       not_exists, roughEvent, Set.mem_ofPred_eq]
     constructor
     · intro hy
-      change ZMod.castHom hBR (ZMod B) y ∈ S
       apply Finset.mem_filter.mpr
       refine ⟨Finset.mem_univ _, ?_⟩
       intro i hi
@@ -767,7 +767,7 @@ lemma fibre_residual_measure_lower (Q : ℕ) (A : ResidueSystem)
     (Erdos277.residueMeasure (roughPeriod Q A)).real
         (Erdos277.residual (activeIndices Q A h) (roughEvent Q A)) ≥
       fibreAlpha Q A h - fibreBeta Q A h := by
-  letI : NeZero (roughPeriod Q A) := ⟨(roughPeriod_pos Q A).ne'⟩
+  let : NeZero (roughPeriod Q A) := ⟨(roughPeriod_pos Q A).ne'⟩
   let l := (activeIndices Q A h).toList
   have hdensity := Erdos277.residualDensity_list (roughCylinder Q A)
     (Erdos277.residueMeasure (roughPeriod Q A))
@@ -835,7 +835,7 @@ lemma sum_fibreLoad (Q : ℕ) (A : ResidueSystem) :
     ∑ h : ZMod (smallPeriod Q A), fibreLoad Q A h =
       (smallPeriod Q A : ℝ) *
         ∑ i : ModIndex A, (((i : ℕ) : ℝ)⁻¹) := by
-  letI : NeZero (smallPeriod Q A) := ⟨(smallPeriod_pos Q A).ne'⟩
+  let : NeZero (smallPeriod Q A) := ⟨(smallPeriod_pos Q A).ne'⟩
   calc
     ∑ h : ZMod (smallPeriod Q A), fibreLoad Q A h =
         ∑ h : ZMod (smallPeriod Q A),
@@ -851,8 +851,6 @@ lemma sum_fibreLoad (Q : ℕ) (A : ResidueSystem) :
           ((activeFibers Q A i).card : ℝ) * roughWeight Q A i := by
       apply Finset.sum_congr rfl
       intro i _
-      change (∑ h ∈ (Finset.univ : Finset (ZMod (smallPeriod Q A))),
-        if active Q A h i then roughWeight Q A i else 0) = _
       rw [← Finset.sum_filter]
       simp [activeFibers, mul_comm]
     _ = ∑ i : ModIndex A,
@@ -937,7 +935,6 @@ lemma four_mul_card_highLoad_le (Q : ℕ) (A : ResidueSystem) {K N : ℕ}
   have hK : (0 : ℝ) < K + 1 := by positivity
   have hreal : (4 * H.card : ℕ) ≤ smallPeriod Q A := by
     exact_mod_cast (by
-      push_cast
       nlinarith [hlarge.trans (hsumsub.trans htotal)] :
         (4 : ℝ) * H.card ≤ smallPeriod Q A)
   exact hreal
@@ -1333,7 +1330,7 @@ to the standard arithmetic pair kernel. -/
 lemma sum_fibreBeta_le_pairKernel (Q : ℕ) (A : ResidueSystem) :
     ∑ h : ZMod (smallPeriod Q A), fibreBeta Q A h ≤
       (smallPeriod Q A : ℝ) * pairKernel Q A := by
-  letI : NeZero (smallPeriod Q A) := ⟨(smallPeriod_pos Q A).ne'⟩
+  let : NeZero (smallPeriod Q A) := ⟨(smallPeriod_pos Q A).ne'⟩
   have hrewrite :
       ∑ h : ZMod (smallPeriod Q A), fibreBeta Q A h =
         ∑ ij ∈ dependentPairs Q A,
@@ -1987,9 +1984,9 @@ lemma uncovered_nonempty_of_rough_residual (Q : ℕ) (A : ResidueSystem)
   have hM : 0 < M := smallPeriod_pos Q A
   have hR : 0 < R := roughPeriod_pos Q A
   have hcop : M.Coprime R := smallPeriod_coprime_roughPeriod Q A
-  letI : NeZero M := ⟨hM.ne'⟩
-  letI : NeZero R := ⟨hR.ne'⟩
-  letI : NeZero (M * R) := ⟨(Nat.mul_pos hM hR).ne'⟩
+  let : NeZero M := ⟨hM.ne'⟩
+  let : NeZero R := ⟨hR.ne'⟩
+  let : NeZero (M * R) := ⟨(Nat.mul_pos hM hR).ne'⟩
   let e := ZMod.chineseRemainder hcop
   let x : ZMod (M * R) := e.symm (h, y)
   let z : ℤ := x.val
@@ -2014,7 +2011,7 @@ lemma uncovered_nonempty_of_rough_residual (Q : ℕ) (A : ResidueSystem)
     rw [← smallPart_mul_roughPart (Q := Q) (A.modulus_pos n hn).ne']
     exact Nat.mul_dvd_mul hsM hrR
   have hzx : (z : ZMod (M * R)) = x := by
-    simpa [z] using ZMod.natCast_zmod_val x
+    simp [z]
   have hxn : ZMod.castHom hnMR (ZMod n) x = A.residue n := by
     rw [← hzx]
     simpa using heq
@@ -2066,7 +2063,7 @@ lemma exists_uncovered_at_fixed_ratio (K : ℕ) (hK : 1 ≤ K) :
   apply uncovered_nonempty_of_rough_residual Q A h
   by_contra hempty
   rw [Set.not_nonempty_iff_eq_empty.mp hempty] at hh
-  simpa using hh
+  simp at hh
 
 lemma uncoveredMod_nonempty_of_uncovered (A : ResidueSystem)
     (hne : A.uncovered.Nonempty) : A.uncoveredMod.Nonempty := by
