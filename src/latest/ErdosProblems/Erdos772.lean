@@ -79,7 +79,9 @@ noncomputable def guaranteedSizes (k n : ℕ) : Finset ℕ := by
 lemma guaranteedSizes_nonempty (k n : ℕ) : (guaranteedSizes k n).Nonempty := by
   classical
   refine ⟨0, ?_⟩
-  simp [guaranteedSizes, Guarantees]
+  rw [guaranteedSizes, Finset.mem_filter]
+  refine ⟨by simp, ?_⟩
+  rw [Guarantees]
   intro A hA hrep
   exact ⟨∅, by simp [IsSidon]⟩
 
@@ -96,12 +98,14 @@ section Counting
 
 variable {α : Type*} [Fintype α] [DecidableEq α]
 
+omit [Fintype α] [DecidableEq α] in
 /-- A generic bound for a filtered Cartesian product from uniform bounds on
 its fibers. -/
-lemma card_filter_product_le (s : Finset α) {β : Type*} [DecidableEq β]
+lemma card_filter_product_le (s : Finset α) {β : Type*}
     (t : Finset β) (R : α → β → Prop) [DecidableRel R] (k : ℕ)
     (h : ∀ x ∈ s, (t.filter (R x)).card ≤ k) :
     ((s.product t).filter (fun p => R p.1 p.2)).card ≤ s.card * k := by
+  classical
   induction s using Finset.induction_on with
   | empty => simp
   | @insert x s hx ih =>
@@ -142,8 +146,7 @@ lemma card_filter_product_le (s : Finset α) {β : Type*} [DecidableEq β]
             ((({x} : Finset α).product t).filter (fun p => R p.1 p.2)) =
               (t.filter (R x)).map ⟨Prod.mk x, Prod.mk_right_injective x⟩ := by
           ext p
-          simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_singleton,
-            Finset.mem_map]
+          simp only [Finset.mem_filter, Finset.mem_map]
           aesop
         rw [heq, Finset.card_map]
       rw [hfirst, Finset.card_insert_of_notMem hx, Nat.add_mul]
@@ -181,8 +184,7 @@ lemma card_diagonalRelations_le (a : α → ℕ) (k : ℕ)
           (fun p => a p.1 + a p.1 = a p.2.1 + a p.2.2)).card := by
       apply Finset.card_le_card
       intro p hp
-      simp only [diagonalRelations, Finset.mem_filter, Finset.mem_product,
-        Finset.mem_univ, true_and] at hp ⊢
+      simp only [diagonalRelations, Finset.mem_filter] at hp ⊢
       exact ⟨hp.1, hp.2.1⟩
     _ ≤ Fintype.card α * k := by
       apply card_filter_product_le Finset.univ
@@ -206,8 +208,7 @@ lemma card_fourRelations_le (a : α → ℕ) (k : ℕ)
           (fun p => a p.1.1 + a p.1.2 = a p.2.1 + a p.2.2)).card := by
       apply Finset.card_le_card
       intro p hp
-      simp only [fourRelations, Finset.mem_filter, Finset.mem_product,
-        Finset.mem_univ, true_and] at hp ⊢
+      simp only [fourRelations, Finset.mem_filter] at hp ⊢
       exact ⟨hp.1, hp.2.1⟩
     _ ≤ Fintype.card α ^ 2 * k := by
       have h := card_filter_product_le
@@ -299,7 +300,7 @@ lemma nontrivial_support_mem (a : α → ℕ) (hinj : Function.Injective a)
         omega
       exact hiu hiu'
     have hcard : ({i, u, v} : Finset α).card = 3 := by
-      simp [hiu, hiv, huv, Ne.symm]
+      simp [hiu, hiv, huv]
     right
     refine ⟨{i, u, v}, ?_, by simp⟩
     apply Finset.mem_image.mpr
@@ -323,7 +324,7 @@ lemma nontrivial_support_mem (a : α → ℕ) (hinj : Function.Injective a)
       apply Finset.mem_image.mpr
       refine ⟨((i, j), (u, v)), ?_, rfl⟩
       have hcard : ({i, j, u, v} : Finset α).card = 4 := by
-        simp [hij, hiu, hiv, hju, hjv, huv, Ne.symm]
+        simp [hij, hiu, hiv, hju, hjv, huv]
       simp [fourRelations, hsum, hcard]
 
 /-- Avoiding the bad supports is exactly the implication needed for the Sidon
@@ -358,10 +359,12 @@ section Alteration
 
 variable {α : Type*} [DecidableEq α]
 
+omit [DecidableEq α] in
 /-- Delete at most one vertex for every nonempty edge. -/
 lemma exists_edgeFree_subset (U : Finset α) (E : Finset (Finset α))
     (hne : ∀ e ∈ E, e.Nonempty) :
     ∃ S : Finset α, S ⊆ U ∧ EdgeFree E S ∧ U.card ≤ S.card + E.card := by
+  classical
   induction E using Finset.induction_on generalizing U with
   | empty =>
       exact ⟨U, Finset.Subset.rfl, by simp [EdgeFree]⟩
@@ -435,8 +438,9 @@ lemma card_colorings_containing (q : ℕ) (hq : 0 < q) (e : Finset α) :
       intro x hx
       have hx' := (Fintype.mem_piFinset.mp hf) x
       change f x ∈ (if x ∈ e then {z} else Finset.univ) at hx'
-      simp [hx, z] at hx'
-      have hval := congrArg Fin.val hx'
+      have hxz : f x = z := by
+        simpa only [hx, if_pos, Finset.mem_singleton] using hx'
+      have hval := congrArg Fin.val hxz
       simpa [zeroClass, z] using hval
   rw [heq, Fintype.card_piFinset]
   change (∏ x : α, (if x ∈ e then {z} else Finset.univ).card) = _
@@ -463,8 +467,7 @@ lemma sum_zeroClass_card (q : ℕ) (hq : 0 < q) :
         ∑ f : α → Fin q, ∑ x : α, if x ∈ zeroClass f then 1 else 0 := by
       apply Finset.sum_congr rfl
       intro f hf
-      simpa using
-        (Finset.sum_boole (R := ℕ) (fun x => x ∈ zeroClass f) Finset.univ).symm
+      simp
     _ = ∑ x : α, ∑ f : α → Fin q, if x ∈ zeroClass f then 1 else 0 := by
       rw [Finset.sum_comm]
     _ = ∑ x : α, q ^ (Fintype.card α - 1) := by
@@ -474,8 +477,7 @@ lemma sum_zeroClass_card (q : ℕ) (hq : 0 < q) :
         (∑ f : α → Fin q, if x ∈ zeroClass f then 1 else 0) =
             ((Finset.univ : Finset (α → Fin q)).filter
               (fun f => ({x} : Finset α) ⊆ zeroClass f)).card := by
-          simpa using Finset.sum_boole
-            (fun f : α → Fin q => ({x} : Finset α) ⊆ zeroClass f) Finset.univ
+          simp
         _ = q ^ (Fintype.card α - ({x} : Finset α).card) :=
           card_colorings_containing q hq {x}
         _ = q ^ (Fintype.card α - 1) := by simp
@@ -501,8 +503,7 @@ lemma sum_survivingEdges (q : ℕ) (hq : 0 < q) (E : Finset (Finset α))
         (∑ f : α → Fin q, if e ⊆ zeroClass f then 1 else 0) =
             ((Finset.univ : Finset (α → Fin q)).filter
               (fun f => e ⊆ zeroClass f)).card := by
-          simpa using Finset.sum_boole
-            (fun f : α → Fin q => e ⊆ zeroClass f) Finset.univ
+          simp
         _ = q ^ (Fintype.card α - e.card) := card_colorings_containing q hq e
     _ = E.card * q ^ (Fintype.card α - r) := by
       apply Finset.sum_const_nat
@@ -566,12 +567,14 @@ lemma exists_good_zeroClass (q : ℕ) (hq : 0 < q)
     exact hex f
   exact (lt_irrefl _ (hsum_eq ▸ hlt))
 
+omit [DecidableEq α] in
 /-- Averaging followed by deleting one vertex from every surviving edge. -/
 lemma exists_large_edgeFree (q : ℕ) (hq : 0 < q)
     (hn : 4 ≤ Fintype.card α) (E3 E4 : Finset (Finset α))
     (h3 : ∀ e ∈ E3, e.card = 3) (h4 : ∀ e ∈ E4, e.card = 4) :
     ∃ S : Finset α, EdgeFree E3 S ∧ EdgeFree E4 S ∧
       q ^ 3 * Fintype.card α ≤ q ^ 4 * S.card + q * E3.card + E4.card := by
+  classical
   obtain ⟨f, hf⟩ := exists_good_zeroClass q hq hn E3 E4 h3 h4
   let U := zeroClass f
   let F3 := E3.filter fun e => e ⊆ U
