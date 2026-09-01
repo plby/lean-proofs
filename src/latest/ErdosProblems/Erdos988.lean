@@ -70,7 +70,7 @@ abbrev S2 := Metric.sphere (0 : E3) 1
 /-- A fixed point of the unit two-sphere. -/
 def northPole : S2 :=
   ⟨EuclideanSpace.single (0 : Fin 3) 1, by
-    simp [Metric.mem_sphere, dist_zero_right]⟩
+    simp⟩
 
 instance : Nonempty S2 := ⟨northPole⟩
 
@@ -119,8 +119,18 @@ def normalizedArea (A : Set S2) : ℝ := (surfaceProbability A : ℝ)
 
 /-- A linear isometry of ambient three-space induces an equivalence of the sphere. -/
 noncomputable def sphereEquiv (e : E3 ≃ₗᵢ[ℝ] E3) : S2 ≃ S2 where
-  toFun x := ⟨e x, by simpa [Metric.mem_sphere] using x.property⟩
-  invFun x := ⟨e.symm x, by simpa [Metric.mem_sphere] using x.property⟩
+  toFun x := ⟨e x, by
+    change dist (e x) 0 = 1
+    rw [dist_zero_right, e.norm_map]
+    have hx := x.property
+    simp only [Metric.mem_sphere, dist_zero_right] at hx
+    exact hx⟩
+  invFun x := ⟨e.symm x, by
+    change dist (e.symm x) 0 = 1
+    rw [dist_zero_right, e.symm.norm_map]
+    have hx := x.property
+    simp only [Metric.mem_sphere, dist_zero_right] at hx
+    exact hx⟩
   left_inv x := Subtype.ext (e.symm_apply_apply x)
   right_inv x := Subtype.ext (e.apply_symm_apply x)
 
@@ -169,9 +179,19 @@ private lemma sphere_sector_preimage (e : E3 ≃ₗᵢ[ℝ] E3) (s : Set S2) :
   constructor
   · rintro ⟨t, ht, z, ⟨y, hys, rfl⟩, hxy⟩
     refine ⟨t, ht, e.symm y,
-      ⟨⟨e.symm y, by simpa [Metric.mem_sphere] using y.property⟩, ?_, rfl⟩, ?_⟩
+      ⟨⟨e.symm y, by
+        change dist (e.symm y) 0 = 1
+        rw [dist_zero_right, e.symm.norm_map]
+        have hy := y.property
+        simp only [Metric.mem_sphere, dist_zero_right] at hy
+        exact hy⟩, ?_, rfl⟩, ?_⟩
     · change sphereEquiv e
-        ⟨e.symm y, by simpa [Metric.mem_sphere] using y.property⟩ ∈ s
+        ⟨e.symm y, by
+          change dist (e.symm y) 0 = 1
+          rw [dist_zero_right, e.symm.norm_map]
+          have hy := y.property
+          simp only [Metric.mem_sphere, dist_zero_right] at hy
+          exact hy⟩ ∈ s
       simpa only [sphereEquiv, Equiv.coe_fn_mk, LinearIsometryEquiv.apply_symm_apply]
         using hys
     · apply e.injective
@@ -210,7 +230,7 @@ theorem surfaceProbability_measurePreserving (e : E3 ≃ₗᵢ[ℝ] E3) :
       intro h
       apply (volume : Measure E3).toSphere_ne_zero
       exact congrArg FiniteMeasure.toMeasure h)]
-  simp only [Measure.smul_apply, smul_eq_mul]
+  simp only [Measure.smul_apply]
   congr 1
   exact (rawSurface_measurePreserving e).measure_preimage hA.nullMeasurableSet
 
@@ -239,7 +259,9 @@ private lemma coordinateSquare_integral_eq (i j : Fin 3) :
 private lemma sum_coordinateSquare (x : S2) : ∑ i : Fin 3, ((x : E3) i) ^ 2 = 1 := by
   rw [← EuclideanSpace.real_norm_sq_eq]
   have hx : ‖(x : E3)‖ = 1 := by
-    simpa [Metric.mem_sphere, dist_zero_right] using x.property
+    have hx' := x.property
+    simp only [Metric.mem_sphere, dist_zero_right] at hx'
+    exact hx'
   rw [hx, one_pow]
 
 /-- The second moment of every unit coordinate on normalized `S²` is `1/3`. -/
@@ -273,7 +295,8 @@ private lemma integral_abs_mul_gaussian_real :
     _ = 2 * ((1 / (2 : ℝ)) * Real.Gamma ((1 + 1) / 2)) := by
       congr 1
       convert integral_rpow_mul_exp_neg_rpow (p := (2 : ℝ)) (q := (1 : ℝ))
-        two_pos (by norm_num) using 1 <;> simp [Real.rpow_one, Real.rpow_two]
+        two_pos (by norm_num) using 1
+      all_goals simp [Real.rpow_one]
     _ = 1 := by norm_num [Real.Gamma_one]
 
 private lemma integral_gaussian_real' :
@@ -300,7 +323,7 @@ private lemma integral_abs_coord_gaussian_E3 :
       rw [Fin.prod_univ_three]
       have h10 : (1 : Fin 3) ≠ 0 := by decide
       have h20 : (2 : Fin 3) ≠ 0 := by decide
-      simp only [if_pos rfl, if_neg h10, if_neg h20, if_true]
+      simp only [if_neg h10, if_neg h20, if_true]
       ring
     _ = ∏ i : Fin 3, ∫ x : ℝ, g i x := by
       exact integral_fintype_prod_volume_eq_prod g
@@ -371,8 +394,7 @@ private lemma integral_abs_coord_sphere_raw :
         have hxnorm : 0 < ‖x.1‖ := norm_pos_iff.mpr hx0
         simp only [angular, radial, homeomorphUnitSphereProd_apply_fst_coe,
           homeomorphUnitSphereProd_apply_snd_coe]
-        simp [PiLp.smul_apply, abs_mul, abs_inv, abs_of_pos hxnorm,
-          inv_mul_cancel₀ hxnorm.ne']
+        simp [PiLp.smul_apply, abs_mul, abs_inv, abs_of_pos hxnorm]
         field_simp [hxnorm.ne']
   have hamb := integral_abs_coord_gaussian_E3
   rw [hleft, hpolar, integral_prod_mul] at hamb
@@ -409,7 +431,7 @@ theorem coordinateAbs_integral :
     (∫ x : S2, |(x : E3) 0| ∂(volume : Measure E3).toSphere) = 1 / 2
   rw [integral_abs_coord_sphere_raw, sphere_raw_mass]
   field_simp [Real.pi_ne_zero]
-  <;> ring
+  all_goals ring
 
 private lemma northPole_inner (x : E3) : inner ℝ (northPole : E3) x = x 0 := by
   simp [northPole, EuclideanSpace.inner_single_left]
@@ -440,7 +462,7 @@ theorem innerAbs_integral (u : E3) :
   let w : E3 := ‖u‖⁻¹ • u
   have hnorm : 0 < ‖u‖ := norm_pos_iff.mpr hu
   have hw : ‖w‖ = 1 := by
-    simp [w, norm_smul, abs_of_pos hnorm, hnorm.ne']
+    simp [w, norm_smul, hnorm.ne']
   let e : E3 ≃ₗᵢ[ℝ] E3 := ((ℝ ∙ ((northPole : E3) - w))ᗮ).reflection
   have hew : e (northPole : E3) = w := by
     exact Submodule.reflection_sub (by simp [northPole, hw])
@@ -514,7 +536,9 @@ noncomputable def minimumDiscrepancy (n : ℕ) : ℝ :=
   sInf {d : ℝ | ∃ P : Finset S2, P.card = n ∧ d = sphericalCapDiscrepancy P}
 
 lemma sphere2_norm (x : S2) : ‖(x : E3)‖ = 1 := by
-  simpa [Metric.mem_sphere, dist_zero_right] using x.property
+  have hx := x.property
+  simp only [Metric.mem_sphere, dist_zero_right] at hx
+  exact hx
 
 lemma inner_mem_Icc (x u : S2) : inner ℝ (x : E3) (u : E3) ∈ Set.Icc (-1 : ℝ) 1 := by
   have h := abs_real_inner_le_norm (x : E3) (u : E3)
@@ -737,8 +761,8 @@ private lemma intervalIntegral_lowerIndicator_mul_lowerIndicator
       (if t ≤ a then (1 : ℝ) else 0) * (if t ≤ b then (1 : ℝ) else 0)) =
       {t : ℝ | t ≤ min a b}.indicator (fun _ ↦ (1 : ℝ)) := by
     funext t
-    simp only [Set.indicator, Set.mem_setOf_eq]
-    by_cases hta : t ≤ a <;> by_cases htb : t ≤ b <;> simp [hta, htb, le_min_iff]
+    simp only [Set.indicator, Set.mem_ofPred_eq]
+    by_cases hta : t ≤ a <;> by_cases htb : t ≤ b <;> simp [hta, htb]
   rw [hfun, intervalIntegral.integral_indicator hm]
   simp [add_comm]
 
@@ -751,10 +775,19 @@ private lemma intervalIntegral_lowerIndicator_mul_capMass
       (if t ≤ a then (1 : ℝ) else 0) * ((1 - t) / 2)) =
       {t : ℝ | t ≤ a}.indicator (fun t ↦ (1 - t) / 2) := by
     funext t
-    simp only [Set.indicator, Set.mem_setOf_eq]
+    simp only [Set.indicator, Set.mem_ofPred_eq]
     by_cases ht : t ≤ a <;> simp [ht]
   rw [hfun, intervalIntegral.integral_indicator ha,
     intervalIntegral_one_sub_div_two]
+
+private lemma antitone_lowerIndicator (a : ℝ) :
+    Antitone (fun t : ℝ ↦ if t ≤ a then (1 : ℝ) else 0) := by
+  intro s t hst
+  by_cases hs : s ≤ a
+  · by_cases ht : t ≤ a <;> simp [hs, ht]
+  · by_cases ht : t ≤ a
+    · exact (hs (hst.trans ht)).elim
+    · simp [hs, ht]
 
 /-- Exact covariance of two centered one-dimensional cap indicators. -/
 theorem intervalIntegral_centeredLowerIndicator_mul
@@ -768,24 +801,15 @@ theorem intervalIntegral_centeredLowerIndicator_mul
           (if t ≤ a then (1 : ℝ) else 0) * ((1 - t) / 2)) -
           (if t ≤ b then (1 : ℝ) else 0) * ((1 - t) / 2) +
           ((1 - t) / 2) ^ 2 by funext t; simp only [centeredLowerIndicator]; ring]
-  have qaanti : Antitone (fun t : ℝ ↦ if t ≤ a then (1 : ℝ) else 0) := by
-    intro s t hst
-    by_cases hsa : s ≤ a <;> by_cases hta : t ≤ a <;> simp [hsa, hta]
-    exact False.elim (hsa (hst.trans hta))
-  have qbanti : Antitone (fun t : ℝ ↦ if t ≤ b then (1 : ℝ) else 0) := by
-    intro s t hst
-    by_cases hsb : s ≤ b <;> by_cases htb : t ≤ b <;> simp [hsb, htb]
-    exact False.elim (hsb (hst.trans htb))
+  have qaanti := antitone_lowerIndicator a
+  have qbanti := antitone_lowerIndicator b
   have habInt : IntervalIntegrable (fun t : ℝ ↦
       (if t ≤ a then (1 : ℝ) else 0) * (if t ≤ b then (1 : ℝ) else 0))
       volume (-1) 1 := by
-    have hminanti : Antitone (fun t : ℝ ↦ if t ≤ min a b then (1 : ℝ) else 0) := by
-      intro s t hst
-      by_cases hs : s ≤ min a b <;> by_cases ht : t ≤ min a b <;> simp [hs, ht]
-      exact False.elim (hs (hst.trans ht))
+    have hminanti := antitone_lowerIndicator (min a b)
     apply hminanti.intervalIntegrable.congr
     intro t ht
-    by_cases hta : t ≤ a <;> by_cases htb : t ≤ b <;> simp [hta, htb, le_min_iff]
+    by_cases hta : t ≤ a <;> by_cases htb : t ≤ b <;> simp [hta, htb]
   have hpcont : Continuous (fun t : ℝ ↦ (1 - t) / 2) :=
     (continuous_const.sub continuous_id).div_const 2
   have haCapInt : IntervalIntegrable (fun t : ℝ ↦
@@ -823,9 +847,10 @@ lemma analyticCapError_eq_signedCapError (P : Finset S2) (u : S2) (t : ℝ) :
   classical
   unfold analyticCapError pointCapTerm centeredLowerIndicator signedCapError capArea
   simp only [Finset.sum_sub_distrib, Finset.sum_ite, Finset.sum_const,
-    nsmul_eq_mul, sphericalCap, Set.mem_setOf_eq]
-  push_cast
-  ring
+    nsmul_eq_mul, sphericalCap, Set.mem_ofPred_eq, mul_zero, add_zero,
+    mul_one]
+  rw [mul_comm ((1 - t) / 2) (P.card : ℝ)]
+  rfl
 
 /-- Integrability companion to `intervalIntegral_centeredLowerIndicator_mul`. -/
 theorem intervalIntegrable_centeredLowerIndicator_mul
@@ -833,21 +858,12 @@ theorem intervalIntegrable_centeredLowerIndicator_mul
     IntervalIntegrable
       (fun t ↦ centeredLowerIndicator a t * centeredLowerIndicator b t)
       volume (-1 : ℝ) 1 := by
-  have qaanti : Antitone (fun t : ℝ ↦ if t ≤ a then (1 : ℝ) else 0) := by
-    intro s t hst
-    by_cases hsa : s ≤ a <;> by_cases hta : t ≤ a <;> simp [hsa, hta]
-    exact False.elim (hsa (hst.trans hta))
-  have qbanti : Antitone (fun t : ℝ ↦ if t ≤ b then (1 : ℝ) else 0) := by
-    intro s t hst
-    by_cases hsb : s ≤ b <;> by_cases htb : t ≤ b <;> simp [hsb, htb]
-    exact False.elim (hsb (hst.trans htb))
+  have qaanti := antitone_lowerIndicator a
+  have qbanti := antitone_lowerIndicator b
   have habInt : IntervalIntegrable (fun t : ℝ ↦
       (if t ≤ a then (1 : ℝ) else 0) * (if t ≤ b then (1 : ℝ) else 0))
       volume (-1) 1 := by
-    have hminanti : Antitone (fun t : ℝ ↦ if t ≤ min a b then (1 : ℝ) else 0) := by
-      intro s t hst
-      by_cases hs : s ≤ min a b <;> by_cases ht : t ≤ min a b <;> simp [hs, ht]
-      exact False.elim (hs (hst.trans ht))
+    have hminanti := antitone_lowerIndicator (min a b)
     apply hminanti.intervalIntegrable.congr
     intro t ht
     by_cases hta : t ≤ a <;> by_cases htb : t ≤ b <;> simp [hta, htb]
@@ -1265,7 +1281,7 @@ theorem discrepancy_fourth_power_lower
   have hnR : (0 : ℝ) < n := by exact_mod_cast hn
   have hsqrt_n : 0 < Real.sqrt n := Real.sqrt_pos.2 hnR
   have hsqrt_n_sq : (Real.sqrt n) ^ 2 = (n : ℝ) := by
-    simpa using Real.sq_sqrt (le_of_lt hnR)
+    exact Real.sq_sqrt (le_of_lt hnR)
   have hsqrt2_sq : (Real.sqrt 2) ^ 2 = (2 : ℝ) := by norm_num
   have hmain :
       Real.sqrt 2 / (256 * (n : ℝ) * Real.sqrt n) ≤
@@ -1335,7 +1351,7 @@ private lemma sphere_coord_sq (x : S2) :
 /-- An explicit inverse lift for the Hopf map.  The exceptional branch is
 the south pole; elsewhere this is the standard affine chart on `ℂP¹`. -/
 noncomputable def welchSpinorLift (x : S2) : ℂ × ℂ :=
-  if h : (x : E3) 0 = -1 then
+  if (x : E3) 0 = -1 then
     (0, 1)
   else
     let s := Real.sqrt (((x : E3) 0 + 1) / 2)
@@ -1357,7 +1373,7 @@ lemma welchSpinorLift_spec (x : S2) :
     · ext j
       fin_cases j <;>
         simp [welchSpinorLift, ha, welchHopf, Matrix.cons_val_zero,
-          Matrix.cons_val_one, Matrix.cons_val_two, Matrix.cons_val_succ,
+          Matrix.cons_val_one, Matrix.cons_val_two,
           Matrix.vecHead, Matrix.vecTail, Function.comp_apply, hb, hc,
           Complex.normSq]
   · have ha_sq : (x : E3) 0 ^ 2 ≤ 1 := by
@@ -1383,9 +1399,10 @@ lemma welchSpinorLift_spec (x : S2) :
       ext j
       fin_cases j <;>
         simp [welchHopf, Matrix.cons_val_zero, Matrix.cons_val_one,
-          Matrix.cons_val_two, Matrix.cons_val_succ, Matrix.vecHead,
-          Matrix.vecTail, Function.comp_apply, Complex.normSq_apply] <;>
-        field_simp [hsne] <;> nlinarith
+          Matrix.cons_val_two, Matrix.vecHead, Matrix.vecTail,
+          Function.comp_apply, Complex.normSq_apply]
+      all_goals field_simp [hsne]
+      all_goals nlinarith
 
 private def welchMonomial {I : Type*} (z w : I → ℂ)
     (k r : ℕ) (i : I) : ℂ :=
@@ -1440,7 +1457,7 @@ lemma welch_sos_identity {I : Type*} [Fintype I]
   simp_rw [Complex.normSq_eq_conj_mul_self]
   simp_rw [mul_pow, ← map_pow, spinor_add_pow]
   simp_rw [map_sum, Finset.sum_mul_sum]
-  simp only [map_mul, map_natCast, map_sum, map_pow]
+  simp only [map_mul, map_natCast]
   rw [sum_four_comm (Finset.range (k + 1)) (Finset.range (k + 1))]
   apply Finset.sum_congr rfl
   intro r hr
@@ -1723,7 +1740,6 @@ lemma signedRingChoose_half_succ (r : ℕ) :
               (-(1 / 2 - (r + 1 : ℝ)) / ((r + 1 : ℝ) + 1)) by ring]
       rw [ih, chordCoeff_succ]
       field_simp
-      norm_num
       ring
 
 lemma hasSum_chordCoeff_mul_pow_of_lt_one {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1) :
@@ -1731,7 +1747,7 @@ lemma hasSum_chordCoeff_mul_pow_of_lt_one {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1
       (2 - 2 * Real.sqrt (1 - q)) := by
   have hy : (-q : ℝ) ∈ Metric.eball (0 : ℝ) (1 : ENNReal) := by
     rw [Metric.mem_eball, edist_dist]
-    simp [Real.dist_eq, abs_of_nonneg hq0, hq1]
+    simp [abs_of_nonneg hq0, hq1]
   have hbin :=
     (Real.one_add_rpow_hasFPowerSeriesOnBall_zero (a := (1 / 2 : ℝ))).hasSum_sub hy
   have htail := (hasSum_nat_add_iff' 1).mpr hbin
@@ -1932,7 +1948,7 @@ lemma finite_energy_tail_lower (power : ℕ → ℝ) {n M : ℕ} (hn : 0 < n)
       exact sum_le_sum fun r hr ↦
         mul_le_mul_of_nonneg_left (hgap r hr) (chordCoeff_pos r).le
 
-lemma energy_lower_of_finite_tails {energy : ℝ} {n : ℕ} (hn : 0 < n)
+lemma energy_lower_of_finite_tails {energy : ℝ} {n : ℕ}
     (henergy : ∀ M, 2 * n - 2 ≤ M →
       (n : ℝ) * (wallisCoeff (2 * n - 2) - wallisCoeff M) ≤ energy) :
     (n : ℝ) * wallisCoeff (2 * n - 2) ≤ energy := by
@@ -1941,7 +1957,8 @@ lemma energy_lower_of_finite_tails {energy : ℝ} {n : ℕ} (hn : 0 < n)
         (wallisCoeff (2 * n - 2) - wallisCoeff M)) atTop
       (nhds ((n : ℝ) * wallisCoeff (2 * n - 2))) := by
     convert (wallisCoeff_tendsto_zero.const_sub
-      (wallisCoeff (2 * n - 2))).const_mul (n : ℝ) using 1 <;> ring
+      (wallisCoeff (2 * n - 2))).const_mul (n : ℝ) using 1
+    all_goals ring
   apply le_of_tendsto hlim
   filter_upwards [eventually_ge_atTop (2 * n - 2)] with M hM
   exact henergy M hM
@@ -1973,7 +1990,7 @@ lemma hasSum_energyDeficit (P : Finset S2) :
 /-- The exact energy deficit is at least the first elementary Wallis tail. -/
 theorem energyDeficit_lower (P : Finset S2) (hn : 0 < P.card) :
     (P.card : ℝ) * wallisCoeff (2 * P.card - 2) ≤ energyDeficit P := by
-  apply energy_lower_of_finite_tails hn
+  apply energy_lower_of_finite_tails
   intro M hM
   calc
     (P.card : ℝ) *
