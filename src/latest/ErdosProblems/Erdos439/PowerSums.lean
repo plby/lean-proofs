@@ -1355,7 +1355,7 @@ theorem realGeomMajorant_neg (N : ℕ) (x : ℝ) :
 
 /-- The finite character used above is the ordinary real circle character
 at the corresponding rational frequency. -/
-theorem phase_eq_realFourier (T t : ℕ) (c : ℤ) (hT : 0 < T) :
+theorem phase_eq_realFourier (T t : ℕ) (c : ℤ) :
     phase T (-(t : ℤ)) c =
       ((Real.fourierChar (-(t : ℝ) * (c : ℝ) / T) : Circle) : ℂ) := by
   rw [Real.fourierChar_apply]
@@ -1366,13 +1366,13 @@ theorem phase_eq_realFourier (T t : ℕ) (c : ℤ) (hT : 0 < T) :
 
 /-- The complex-ratio majorant is bounded by the nearest-integer form. -/
 theorem unitGeomMajorant_le_realGeomMajorant
-    (T t N : ℕ) (c : ℤ) (hT : 0 < T) :
+    (T t N : ℕ) (c : ℤ) :
     unitGeomMajorant N (phase T (-(t : ℤ)) c) ≤
       realGeomMajorant N (-(t : ℝ) * (c : ℝ) / T) := by
   let x : ℝ := -(t : ℝ) * (c : ℝ) / T
   have hphase : phase T (-(t : ℤ)) c =
       ((Real.fourierChar x : Circle) : ℂ) := by
-    simpa only [x] using phase_eq_realFourier T t c hT
+    simpa only [x] using phase_eq_realFourier T t c
   by_cases hx : nearestIntegerDistance x = 0
   · rw [realGeomMajorant, if_pos hx]
     unfold unitGeomMajorant
@@ -1406,7 +1406,8 @@ theorem nearestIntegerDistance_le_add_abs_sub (x y : ℝ) :
         ‖((x - y : ℝ) : AddCircle (1 : ℝ))‖ +
           ‖(y : AddCircle (1 : ℝ))‖ := by
     convert norm_add_le (((x - y : ℝ) : AddCircle (1 : ℝ)))
-      ((y : ℝ) : AddCircle (1 : ℝ)) using 1 <;> simp
+      ((y : ℝ) : AddCircle (1 : ℝ)) using 1
+    all_goals simp
   rw [show nearestIntegerDistance x = ‖(x : AddCircle (1 : ℝ))‖ by
       rw [AddCircle.norm_eq]
       simp [nearestIntegerDistance],
@@ -2045,7 +2046,9 @@ theorem norm_geom_sum_le_unitGeomMajorant (N m : ℕ) (r : ℂ)
     ‖∑ n ∈ Finset.range m, r ^ n‖ ≤ unitGeomMajorant N r := by
   by_cases hr : r = 1
   · subst r
-    simp [unitGeomMajorant]
+    rw [unitGeomMajorant, if_pos rfl]
+    simp only [one_pow, Finset.sum_const, Finset.card_range, nsmul_eq_mul,
+      mul_one, RCLike.norm_natCast]
     exact_mod_cast hm
   · rw [unitGeomMajorant, if_neg hr]
     apply le_min
@@ -2188,7 +2191,7 @@ theorem shiftedProductSum_eq_recursiveProductSum
 /-- The complex terminal product majorant is bounded by its positive
 real-frequency version. -/
 theorem powerTerminalProductMajorant_le_realProductSum
-    (k L T t N p d : ℕ) (hT : 0 < normalizedPower k L T) :
+    (k L T t N p d : ℕ) :
     powerTerminalProductMajorant k L T t N (p : ℤ) d ≤
       shiftedProductSum N
         (fun v => realGeomMajorant N
@@ -2199,7 +2202,7 @@ theorem powerTerminalProductMajorant_le_realProductSum
       simp only [powerTerminalProductMajorant, shiftedProductSum]
       have hreal := unitGeomMajorant_le_realGeomMajorant
         (normalizedPower k L T) t N
-          (powerTerminalBase k L * (p : ℤ)) hT
+          (powerTerminalBase k L * (p : ℤ))
       calc
         unitGeomMajorant N
             (phase (normalizedPower k L T) (-(t : ℤ))
@@ -2228,7 +2231,7 @@ theorem powerTerminalProductMajorant_le_realProductSum
 /-- Dirichlet control of every terminal product in the rectangular box. -/
 theorem powerTerminalProductMajorant_le_rationalProductSum
     (k L T t N p d a b Q : ℕ)
-    (hT : 0 < normalizedPower k L T) (hb : 0 < b) (hp : 0 < p)
+    (hb : 0 < b) (hp : 0 < p)
     (hKN : 2 * (p * N ^ d) ≤ Q)
     (happrox :
       |((t : ℝ) * powerTerminalBaseNat k L /
@@ -2238,7 +2241,7 @@ theorem powerTerminalProductMajorant_le_rationalProductSum
       recursiveProductSum (Finset.Icc 1 N)
         (fun v => rationalGeomMajorant a b N v) d p := by
   refine (powerTerminalProductMajorant_le_realProductSum
-    k L T t N p d hT).trans ?_
+    k L T t N p d).trans ?_
   rw [shiftedProductSum_eq_recursiveProductSum,
     recursiveProductSum_eq_tupleSum,
     recursiveProductSum_eq_tupleSum]
@@ -2262,7 +2265,7 @@ theorem powerTerminalProductMajorant_le_rationalProductSum
 /-- A divisor bound uniform up to `N^d` turns the tuple sum into one
 rational harmonic sum. -/
 theorem recursiveRationalProductSum_le
-    (a b N d : ℕ) (D : ℝ) (hD : 0 ≤ D)
+    (a b N d : ℕ) (D : ℝ)
     (hdiv : ∀ n ∈ Finset.Icc 1 (N ^ d),
       ((n.divisors.card : ℕ) : ℝ) ^ d ≤ D) :
     recursiveProductSum (Finset.Icc 1 N)
@@ -2284,7 +2287,7 @@ theorem recursiveRationalProductSum_le
 approximation and a uniform divisor-fibre bound. -/
 theorem powerTerminalProductMajorant_le_explicit
     (k L T t N d a b Q : ℕ) (D : ℝ)
-    (hT : 0 < normalizedPower k L T) (hb : 0 < b)
+    (hb : 0 < b)
     (ha : a.Coprime b) (hQ : 2 * N ^ d ≤ Q)
     (happrox :
       |((t : ℝ) * powerTerminalBaseNat k L /
@@ -2297,9 +2300,9 @@ theorem powerTerminalProductMajorant_le_explicit
       D * (((N ^ d : ℕ) : ℝ) / b + 1) * N +
         D * (2 * (((N ^ d : ℕ) : ℝ) + b) * (1 + Real.log b)) := by
   refine (powerTerminalProductMajorant_le_rationalProductSum
-    k L T t N 1 d a b Q hT hb (by omega) (by simpa using hQ)
+    k L T t N 1 d a b Q hb (by omega) (by simpa using hQ)
       happrox).trans ?_
-  refine (recursiveRationalProductSum_le a b N d D hD hdiv).trans ?_
+  refine (recursiveRationalProductSum_le a b N d D hdiv).trans ?_
   have hrat := sum_rationalGeomMajorant_le a b N (N ^ d) hb ha
   calc
     D * ∑ n ∈ Finset.Icc 1 (N ^ d),
@@ -2422,7 +2425,7 @@ its argument rather than in its frequency. -/
 theorem sum_phase_range_eq_zero (T t : ℕ) (hT : 0 < T) (ht : t < T)
     (ht0 : t ≠ 0) :
     (∑ s ∈ Finset.range T, phase T (-(t : ℤ)) (s : ℤ)) = 0 := by
-  letI : NeZero T := ⟨hT.ne'⟩
+  let : NeZero T := ⟨hT.ne'⟩
   have htcast : (t : ZMod T) ≠ 0 := by
     rw [ne_eq, ZMod.natCast_eq_zero_iff]
     intro hdvd
@@ -2444,7 +2447,7 @@ that interval. -/
 theorem gap_mul_phase_eq_sum_valueInterval (k L n t T : ℕ) :
     (normalizedPowerGap k L n : ℂ) *
         phase T (-(t : ℤ)) (normalizedPower k L n : ℤ) =
-      ∑ s ∈ Finset.Ico (normalizedPower k L n)
+      ∑ _s ∈ Finset.Ico (normalizedPower k L n)
         (normalizedPower k L (n + 1)),
           phase T (-(t : ℤ)) (normalizedPower k L n : ℤ) := by
   have hmono : normalizedPower k L n ≤ normalizedPower k L (n + 1) :=
@@ -2679,7 +2682,6 @@ theorem norm_gapPhaseSum_le (k L N t : ℕ) (hN : 0 < N)
         _ = (2 * Real.pi * (t : ℝ) / (T : ℝ)) *
               (((b - a : ℕ) : ℝ) ^ 2) := by
           rw [Finset.sum_const, Nat.card_Ico]
-          push_cast
           ring
     _ = (2 * Real.pi * (t : ℝ) / (normalizedPower k L N : ℝ)) *
           gapSquareSum k L N := by
@@ -2704,8 +2706,7 @@ theorem transform_normalizedPowerWeight_eq (k L N t : ℕ) (hN : 0 < N) :
   apply Finset.sum_congr rfl
   intro n hn
   rw [Finset.sum_eq_single (normalizedPower k L n)]
-  · simp only [if_pos rfl]
-    push_cast
+  · simp only [ite_true]
     ring
   · intro s hs hne
     simp [hne.symm]
@@ -3055,7 +3056,7 @@ theorem hasNormalizedPowerFourierDecay_one :
   intro ε hε B
   let N := B + 1
   have hN : 0 < N := by simp [N]
-  letI : NeZero N := ⟨hN.ne'⟩
+  let : NeZero N := ⟨hN.ne'⟩
   refine ⟨1, N, Nat.zero_lt_one, hN, ?_, ?_⟩
   · simp [N]
   · intro t ht ht0
@@ -3178,7 +3179,7 @@ theorem hasMonochromaticPowerSum_of_model {α : Type*} [Fintype α]
   classical
   let U := interior T
   let induced : ℕ → α := fun u => color (model.step * u + model.offset)
-  letI : Nonempty α := ⟨induced 0⟩
+  let : Nonempty α := ⟨induced 0⟩
   obtain ⟨a, ha⟩ := exists_colorClass_card U induced
   let A := U.filter fun u => induced u = a
   have hAcard : U.card ≤ Fintype.card α * A.card := by
@@ -3243,7 +3244,7 @@ and colouring arguments have been discharged. -/
 def HasPowerFourierModels (k : ℕ) : Prop :=
   ∀ m : ℕ, 0 < m →
     ∃ (T : ℕ) (η : ℝ), 0 < T ∧ 0 ≤ η ∧
-      ∃ model : PowerFourierModel k T η,
+      ∃ _model : PowerFourierModel k T η,
         (m : ℝ) ^ 2 * ((T : ℝ) + η * T * interiorLength T) <
           (interiorLength T : ℝ) ^ 2
 
@@ -3288,12 +3289,12 @@ Fourier model. -/
 theorem powerResolution_of_fourierModels {k : ℕ}
     (hmodels : HasPowerFourierModels k) : PowerResolution k := by
   intro α _ color
-  letI := Fintype.ofFinite α
+  let _ := Fintype.ofFinite α
   let : Nonempty α := ⟨color 0⟩
   have hm : 0 < Fintype.card α := Fintype.card_pos
   obtain ⟨T, η, hT, hη, model, hsize⟩ :=
     hmodels (Fintype.card α) hm
-  letI : NeZero T := ⟨hT.ne'⟩
+  let : NeZero T := ⟨hT.ne'⟩
   exact hasMonochromaticPowerSum_of_model color k T η model hη hsize
 
 /-- The checked analytic-to-combinatorial bridge in its shortest public form. -/
