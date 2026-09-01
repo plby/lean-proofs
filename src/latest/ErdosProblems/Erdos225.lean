@@ -78,7 +78,8 @@ theorem natDegree_coeffPolynomial_le (n : ℕ) (c : ℕ → ℂ) :
   apply Polynomial.natDegree_sum_le_of_forall_le
   intro k hk
   apply (Polynomial.natDegree_mul_le).trans
-  simp
+  simp only [Polynomial.natDegree_C, Polynomial.natDegree_pow,
+    Polynomial.natDegree_X, mul_one, zero_add]
   exact Nat.le_of_lt_succ (Finset.mem_range.mp hk)
 
 theorem natDegree_coeffPolynomial_eq (n : ℕ) (c : ℕ → ℂ) (hcn : c n ≠ 0) :
@@ -411,7 +412,8 @@ theorem erdos_225_degree_one (c : ℕ → ℂ) (hc1 : c 1 ≠ 0)
   obtain ⟨θ0, hθ0, hθ0exp⟩ := exists_angle_Icc_of_norm_eq_one hnegα
   have hmax := hbound θ0 hθ0
   have hvalue : trigPolynomial 1 c θ0 = 2 * c 0 := by
-    simp [trigPolynomial, Finset.sum_range_succ]
+    rw [trigPolynomial]
+    norm_num [Finset.sum_range_succ]
     rw [← hθ0exp]
     simp [α]
     field_simp
@@ -535,7 +537,7 @@ theorem conjReflect_derivative_relation {N : ℕ} (hN : 0 < N)
     simp only [Polynomial.coeff_derivative]
     have hsub : N - 1 - 0 + 1 = N := by omega
     rw [hsub]
-    simp [Nat.sub_zero]
+    simp only [tsub_zero, map_mul, map_add, map_natCast, map_one]
     have hcast : (N : ℂ) = ((N - 1 : ℕ) : ℂ) + 1 := by
       exact_mod_cast (by omega : N = (N - 1 : ℕ) + 1)
     rw [hcast]
@@ -548,7 +550,7 @@ theorem conjReflect_derivative_relation {N : ℕ} (hN : 0 < N)
       rw [coeff_conjReflect_of_le N p (i + 1) hiN]
       rw [coeff_conjReflect_of_le (N - 1) p.derivative (i + 1) hi']
       simp only [Polynomial.coeff_derivative]
-      simp
+      simp only [map_mul, map_add, map_natCast, map_one]
       have hcast : (N : ℂ) =
           ((N - 1 - (i + 1) + 1 : ℕ) : ℂ) + (i + 1 : ℂ) := by
         exact_mod_cast
@@ -571,7 +573,7 @@ theorem conjReflect_derivative_relation {N : ℕ} (hN : 0 < N)
         simp only [Polynomial.coeff_sub, Polynomial.coeff_C_mul,
           Polynomial.coeff_X_mul, Polynomial.coeff_derivative]
         rw [coeff_conjReflect_of_le (i + 1) p (i + 1) (by omega)]
-        simp only [Nat.sub_self, map_mul, map_add, map_natCast]
+        simp only [Nat.sub_self]
         simp [Erdos1215.conjReflect, Polynomial.coeff_reflect, hrev,
           Polynomial.coeff_derivative, hcoeffsucc]
         ring
@@ -584,7 +586,7 @@ theorem conjReflect_derivative_relation {N : ℕ} (hN : 0 < N)
         simp [Erdos1215.conjReflect, Polynomial.coeff_reflect,
           Polynomial.revAt_eq_self_of_lt hlt,
           Polynomial.revAt_eq_self_of_lt (by omega : N - 1 < i + 1),
-          Polynomial.coeff_C_mul, Polynomial.coeff_X_mul,
+          Polynomial.coeff_X_mul,
           Polynomial.coeff_derivative, hcoeff, hcoeffsucc]
 
 theorem conjReflect_linear_factor {a : ℂ} (ha : ‖a‖ = 1) :
@@ -599,16 +601,13 @@ theorem conjReflect_linear_factor {a : ℂ} (ha : ‖a‖ = 1) :
     norm_num
   ext i
   rcases i with _ | _ | i
-  · simp [Erdos1215.conjReflect, Polynomial.coeff_reflect,
-      Polynomial.coeff_one, haunit]
-  · simp [Erdos1215.conjReflect, Polynomial.coeff_reflect,
-      Polynomial.coeff_one, haunit]
+  · simp [Erdos1215.conjReflect, Polynomial.coeff_one, haunit]
+  · simp [Erdos1215.conjReflect, Polynomial.coeff_one]
   · have hne : i + 1 + 1 ≠ 1 := by omega
-    simp [Erdos1215.conjReflect, Polynomial.coeff_reflect,
-      Polynomial.coeff_one,
-      Polynomial.revAt_eq_self_of_lt (by omega : 1 < i + 2), hne]
-    right
-    simp [Polynomial.coeff_X, hne]
+    dsimp [Erdos1215.conjReflect]
+    rw [Polynomial.coeff_reflect,
+      Polynomial.revAt_eq_self_of_lt (by omega : 1 < i + 2)]
+    simp [Polynomial.coeff_X]
 
 theorem conjReflect_prod_linear (m : Multiset ℂ)
     (hm : ∀ a ∈ m, ‖a‖ = 1) :
@@ -635,10 +634,7 @@ theorem conjReflect_prod_linear (m : Multiset ℂ)
                 ((m.map fun b => Polynomial.X - Polynomial.C b).map
                   Polynomial.natDegree).sum :=
               Polynomial.natDegree_multiset_prod_le _
-            _ ≤ (m.map fun b => Polynomial.X - Polynomial.C b).card := by
-              simpa using (Multiset.sum_le_card_nsmul
-                ((m.map fun b => Polynomial.X - Polynomial.C b).map
-                  Polynomial.natDegree) 1 (by simp))
+            _ ≤ (m.map fun b => Polynomial.X - Polynomial.C b).card := by simp
             _ = m.card := by simp)]
       rw [conjReflect_linear_factor ha, ih hm']
       simp
@@ -698,10 +694,7 @@ theorem conjReflect_eq_scalar_mul_of_roots_on_circle {p : Polynomial ℂ}
               ((m.map fun a => Polynomial.X - Polynomial.C a).map
                 Polynomial.natDegree).sum :=
             Polynomial.natDegree_multiset_prod_le _
-          _ ≤ (m.map fun a => Polynomial.X - Polynomial.C a).card := by
-            simpa using (Multiset.sum_le_card_nsmul
-              ((m.map fun a => Polynomial.X - Polynomial.C a).map
-                Polynomial.natDegree) 1 (by simp))
+          _ ≤ (m.map fun a => Polynomial.X - Polynomial.C a).card := by simp
           _ = m.card := by simp)]
     rw [conjReflect_prod_linear m hm]
     have hlc : p.leadingCoeff ≠ 0 :=
@@ -712,7 +705,7 @@ theorem conjReflect_eq_scalar_mul_of_roots_on_circle {p : Polynomial ℂ}
       field_simp
     dsimp [σ] at hlam
     simp only [Erdos1215.conjReflect, Polynomial.map_C,
-      Polynomial.reflect_C, zero_add, pow_zero, mul_one]
+      Polynomial.reflect_C, pow_zero, mul_one]
     rw [← mul_assoc, ← Polynomial.C_mul]
     rw [← hlam]
     rw [Polynomial.C_mul]
@@ -858,8 +851,7 @@ theorem norm_conjReflect_derivative_le_of_roots_in_disk
   have hqdeg_le : q.natDegree ≤ n := by
     dsimp [q, Erdos1215.conjReflect]
     exact (Polynomial.natDegree_reflect_le.trans
-      (by simpa [hdeg] using
-        (Polynomial.natDegree_map_le (p := p) (f := starRingEnd ℂ))))
+      (by simp [hdeg]))
   have hqcoeff : q.coeff n ≠ 0 := by
     rw [coeff_conjReflect_of_le n p n le_rfl]
     simpa using (map_ne_zero (starRingEnd ℂ)).mpr hcoeff0
@@ -868,8 +860,8 @@ theorem norm_conjReflect_derivative_le_of_roots_in_disk
   have hqderivdeg : q.derivative.natDegree = n - 1 := by
     rw [Polynomial.natDegree_derivative, hqdeg]
   have hrel := conjReflect_derivative_relation hn q hqdeg_le
-  rw [show Erdos1215.conjReflect n q = p by
-    simpa [q] using Erdos1215.conjReflect_conjReflect n p] at hrel
+  have hqq : Erdos1215.conjReflect n q = p := by simp [q]
+  rw [hqq] at hrel
   have heval := congrArg (fun r : Polynomial ℂ => r.eval z) hrel
   simp only [Polynomial.eval_sub, Polynomial.eval_mul, Polynomial.eval_C,
     Polynomial.eval_X] at heval
@@ -907,7 +899,7 @@ theorem exists_aligned_outer_scalar {n : ℕ} (hn : 0 < n)
     exact Complex.norm_exp_ofReal_mul_I d.arg
   have hdu : (‖d‖ : ℂ) * u = d := by
     dsimp [u]
-    simpa using Complex.norm_mul_exp_arg_mul_I d
+    simp
   let w : ℂ := (R : ℂ) * u / ((n : ℂ) * z ^ (n - 1))
   refine ⟨w, ?_, ?_⟩
   · dsimp [w]
@@ -1022,7 +1014,7 @@ theorem norm_derivative_add_conjReflect_derivative_le
     congr 1
     have hterm := Erdos1215.conjReflect_mul 0 n
       (Polynomial.C w) (Polynomial.X ^ n) (by simp) (by simp)
-    simpa [Erdos1215.conjReflect] using hterm
+    simp [Erdos1215.conjReflect]
   have hstarFderiv :
       (Erdos1215.conjReflect n F).derivative =
         (Erdos1215.conjReflect n p).derivative := by
@@ -1138,11 +1130,11 @@ theorem circleAverage_poisson_comp_eq_one
           apply Real.circleAverage_congr_sphere
           intro x hx
           simp [poissonKernel_eq_re_herglotzRieszKernel, H,
-            herglotzRieszKernel_def, Function.comp_def]
+            herglotzRieszKernel_def]
     _ = (Real.circleAverage H 0 1).re := hre
     _ = (H 0).re := by rw [hmean]
     _ = 1 := by
-      have hη0 : η ≠ 0 := norm_ne_zero_iff.mp (by simpa [hηnorm])
+      have hη0 : η ≠ 0 := norm_ne_zero_iff.mp (by simp [hηnorm])
       simp [H, hW0, hη0]
 
 theorem circleAverage_circleAverage_swap_of_continuous_circle
@@ -1225,7 +1217,7 @@ theorem littlewood_chord_circleAverage_le_strict
     intro θ φ hzero
     have heq : circleMap 0 1 φ = W (circleMap 0 1 θ) := sub_eq_zero.mp hzero
     have hnorm : ‖circleMap 0 1 φ‖ = 1 := by
-      simpa [Metric.mem_sphere] using (circleMap_mem_sphere' 0 1 φ)
+      simp
     rw [heq] at hnorm
     linarith [hWcircle_lt θ]
   have hFcont : Continuous (fun z : ℝ × ℝ ↦
@@ -1360,7 +1352,7 @@ theorem isRoot_conjReflect_imp_isRoot_star_inv
     (hz : (Erdos1215.conjReflect N r).IsRoot z) :
     r.IsRoot (star z)⁻¹ := by
   have hstarz0 : star z ≠ 0 := (map_ne_zero (starRingEnd ℂ)).mpr hz0
-  letI : Invertible (star z) := invertibleOfNonzero hstarz0
+  let : Invertible (star z) := invertibleOfNonzero hstarz0
   have hmapzero :
       ((Erdos1215.conjReflect N r).map (starRingEnd ℂ)).eval (star z) = 0 := by
     simpa using congrArg (starRingEnd ℂ) hz.eq_zero
@@ -1595,7 +1587,7 @@ theorem malikAuxiliary_zero
       (Erdos1215.conjReflect (n - 1) p.derivative).eval 0 ≠ 0 :=
     conjReflect_derivative_eval_ne_zero_on_open_disk hn hdeg
       (fun a ha => (hroots a ha).le) (by simp)
-  simp [malikAuxiliary, hden]
+  simp [malikAuxiliary]
 
 theorem malikAuxiliary_norm_le_norm_on_open_disk
     {p : Polynomial ℂ} {n : ℕ} (hn : 0 < n)
@@ -1641,7 +1633,7 @@ theorem diffContOnCl_radial_malikAuxiliary
           ((differentiableAt_const (c := (ρ : ℂ))).mul differentiableAt_id))
         (hden z hzcl) |>.differentiableWithinAt
   · unfold malikAuxiliary
-    fun_prop (disch := aesop)
+    fun_prop (disch := aesop (config := { warnOnNonterminal := false }))
 
 theorem radial_malikAuxiliary_norm_lt_one
     {p : Polynomial ℂ} {n : ℕ} (hn : 0 < n)
@@ -1793,8 +1785,7 @@ theorem circleAverage_malikAuxiliary_le_chord
   have hboundAll :
       ∀ k : ℕ, ∀ θ : ℝ,
         θ ∈ uIoc (0 : ℝ) (2 * Real.pi) → ‖F k θ‖ ≤ (2 : ℝ) := by
-    intro k
-    intro θ hθ
+    intro k θ hθ
     have hnorm :
         ‖malikAuxiliary n p ((ρ k : ℂ) * circleMap 0 1 θ)‖ < 1 := by
       apply hWrdisk k
