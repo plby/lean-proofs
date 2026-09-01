@@ -21,7 +21,7 @@ lemma exists_card_mul_value_ge_sum {T : Type*} [Fintype T] [Nonempty T]
     ∃ z ∈ (Finset.univ : Finset T),
       Fintype.card T * f z ≥ ∑ x : T, f x := by
   by_contra h
-  push_neg at h
+  push Not at h
   have hlt :
       ∑ z : T, Fintype.card T * f z <
         ∑ _z : T, ∑ x : T, f x := by

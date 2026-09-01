@@ -137,7 +137,6 @@ lemma TwoIntersecting.dualFamily {N k : ℕ}
 /-- Maximality by cardinality is preserved by reversed complementation. -/
 lemma maximal_dualFamily {N k : ℕ} (hN : N = 2 * k)
     {F : Finset (Finset (Fin N))}
-    (hunif : Uniform k F) (hinter : TwoIntersecting F)
     (hmax : ∀ G : Finset (Finset (Fin N)),
       Uniform k G → TwoIntersecting G → G.card ≤ F.card) :
     ∀ G : Finset (Finset (Fin N)),
@@ -149,7 +148,7 @@ lemma maximal_dualFamily {N k : ℕ} (hN : N = 2 * k)
 
 lemma reverseFin_lt_reverseFin {N : ℕ} {i j : Fin N} (hij : i < j) :
     reverseFin j < reverseFin i := by
-  simp only [Fin.lt_iff_val_lt_val, reverseFin_val]
+  simp only [Fin.lt_def, reverseFin_val]
   omega
 
 private lemma reverseFin_swap {N : ℕ} (i j x : Fin N) :
@@ -198,7 +197,7 @@ lemma LeftCompressed.dualFamily {N : ℕ} {F : Finset (Finset (Fin N))}
     · apply mem_dualFamily.mpr
       rw [dualSet_singletonLeftShift]
       exact hleft.shifted_mem (reverseFin_lt_reverseFin hij)
-        (mem_dualFamily.mp hA) (by simpa using hmove.2) (by simpa using hmove.1)
+        (mem_dualFamily.mp hA)
     · simpa [singletonLeftShift_eq_self hmove] using hA
   ext A
   constructor
@@ -247,9 +246,9 @@ lemma secondBlock_four_mul_two_mul (q : ℕ) :
     secondBlock (4 * q) (2 * q) = secondHalf q := by
   ext x
   by_cases hx : x.1 < 2 * q
-  · simp [secondBlock, secondHalf, firstHalf, hx]
+  · simp [secondBlock, secondHalf, firstHalf]
   · have hx' : 2 * q ≤ x.1 := by omega
-    simp [secondBlock, secondHalf, firstHalf, hx, hx']
+    simp [secondBlock, secondHalf, firstHalf, hx']
 
 /-- In the `4q`-point ground set, duality exchanges the two blocks and
 complements within them. -/
@@ -413,12 +412,12 @@ lemma exists_member_firstBlock_card_succ {q : ℕ}
   have hjSecond : j ∈ secondBlock (4 * q) (2 * q) :=
     (Finset.mem_inter.mp hj).2
   have hij : i < j := by
-    simp only [Fin.lt_iff_val_lt_val]
+    simp only [Fin.lt_def]
     simp only [mem_firstBlock] at hiFirst
     simp only [mem_secondBlock] at hjSecond
     omega
   let B := singletonLeftShift i j A
-  have hB : B ∈ F := hleft.shifted_mem hij hA hjA hiA
+  have hB : B ∈ F := hleft.shifted_mem hij hA
   refine ⟨B, hB, ?_⟩
   have hmove : j ∈ A ∧ i ∉ A := ⟨hjA, hiA⟩
   have hBform : B = insert i (A.erase j) := by
@@ -516,7 +515,7 @@ lemma middle_layer_absent {q : ℕ}
     (hblock A Aᶜ (hAfirst.trans hcompFirst.symm)
       (hAsecond.trans hcompSecond.symm)).mp hA
   have hcontra := hinter hA hAc
-  simpa using hcontra
+  simp at hcontra
 
 /-- A compressed, block-invariant uniform two-intersecting family lies in the
 standard strict-majority construction. -/
@@ -553,11 +552,11 @@ theorem extremal_subset_majority {q : ℕ} (hq : 2 ≤ q)
       ∀ G : Finset (Finset (Fin (4 * q))),
         Uniform (2 * q) G → TwoIntersecting G →
           G.card ≤ (dualFamily F).card :=
-    maximal_dualFamily hmiddle hunif hinter hmax
+    maximal_dualFamily hmiddle hmax
   have hprefix : PrefixInvariant F (2 * q) :=
-    prefixInvariant_two_mul hq hunif hinter hmax hleft
+    prefixInvariant_two_mul hunif hinter hmax hleft
   have hdualPrefix : PrefixInvariant (dualFamily F) (2 * q) :=
-    prefixInvariant_two_mul hq hdualUnif hdualInter hdualMax hleft.dualFamily
+    prefixInvariant_two_mul hdualUnif hdualInter hdualMax hleft.dualFamily
   have hsuffix : SuffixInvariant F (2 * q) :=
     suffixInvariant_of_dual_prefix hdualPrefix
   exact subset_majority_of_blockInvariant (by omega) hunif hinter hleft

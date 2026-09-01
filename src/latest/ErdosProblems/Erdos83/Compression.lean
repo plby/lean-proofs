@@ -290,7 +290,7 @@ theorem familyWeight_familyShift_lt
   classical
   have hmove : ∃ A ∈ 𝒻, familyShiftMember 𝒻 i j A ≠ A := by
     by_contra h
-    push_neg at h
+    push Not at h
     apply hne
     ext A
     simp only [familyShift, mem_image]
@@ -319,7 +319,7 @@ def LeftCompressed (𝒻 : Finset (Finset (Fin N))) : Prop :=
 again a member. -/
 theorem LeftCompressed.shifted_mem {𝒻 : Finset (Finset (Fin N))}
     (h : LeftCompressed 𝒻) {i j : Fin N} (hij : i < j)
-    {A : Finset (Fin N)} (hA : A ∈ 𝒻) (hj : j ∈ A) (hi : i ∉ A) :
+    {A : Finset (Fin N)} (hA : A ∈ 𝒻) :
     singletonLeftShift i j A ∈ 𝒻 := by
   classical
   by_contra hs

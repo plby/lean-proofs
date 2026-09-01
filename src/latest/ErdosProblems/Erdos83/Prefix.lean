@@ -130,7 +130,7 @@ def rightExchange {N : ℕ} (h i : Fin N) (A : Finset (Fin N)) :
 @[simp] lemma mem_rightExchange {N : ℕ} {h i x : Fin N}
     {A : Finset (Fin N)} :
     x ∈ rightExchange h i A ↔ x = h ∨ (x ∈ A ∧ x ≠ i) := by
-  simp [rightExchange, eq_comm, and_comm, and_left_comm]
+  simp [rightExchange, eq_comm, and_comm]
 
 lemma rightExchange_eq_transpose {N : ℕ} {h i : Fin N}
     {A : Finset (Fin N)} (hi : i ∈ A) (hh : h ∉ A) :
@@ -227,8 +227,7 @@ private lemma rightExchange_inter_tail {N ell : ℕ} (hN : ell < N)
     rightExchange (nextPoint hN) i A ∩ tailAfter N ell =
       insert (nextPoint hN) (A ∩ tailAfter N (ell + 1)) := by
   ext x
-  simp only [mem_inter, mem_rightExchange, mem_tailAfter, mem_insert,
-    nextPoint_val]
+  simp only [mem_inter, mem_rightExchange, mem_tailAfter, mem_insert]
   constructor
   · rintro ⟨rfl | ⟨hxA, hxi⟩, hxell⟩
     · exact Or.inl rfl
@@ -246,7 +245,7 @@ private lemma rightExchange_inter_tail {N ell : ℕ} (hN : ell < N)
       omega
 
 private lemma rightExchange_inter_prefix {N ell : ℕ} (hN : ell < N)
-    {A : Finset (Fin N)} {i : Fin N} (hiP : i ∈ «prefix» N ell) :
+    {A : Finset (Fin N)} {i : Fin N} :
     rightExchange (nextPoint hN) i A ∩ «prefix» N ell =
       (A ∩ «prefix» N ell).erase i := by
   ext x
@@ -254,7 +253,7 @@ private lemma rightExchange_inter_prefix {N ell : ℕ} (hN : ell < N)
   constructor
   · rintro ⟨rfl | ⟨hxA, hxi⟩, hxell⟩
     · exfalso
-      simpa using hxell
+      simp at hxell
     · exact ⟨hxi, hxA, hxell⟩
   · rintro ⟨hxi, hxA, hxell⟩
     exact ⟨Or.inr ⟨hxA, hxi⟩, hxell⟩
@@ -271,7 +270,7 @@ private lemma defect_exchange_not_mem
   apply hjMissing
   apply (hinv ?_ ?_).mp hiMem
   · ext x
-    simp only [mem_inter, mem_rightExchange, mem_tailAfter, nextPoint_val]
+    simp only [mem_inter, mem_rightExchange, mem_tailAfter]
     have hiVal : i.val < ell := mem_prefix.mp hiP
     have hjVal : j.val < ell := mem_prefix.mp hjP
     constructor
@@ -287,8 +286,8 @@ private lemma defect_exchange_not_mem
         intro hxi
         subst x
         omega
-  · rw [rightExchange_inter_prefix hN hiP,
-      rightExchange_inter_prefix hN hjP]
+  · rw [rightExchange_inter_prefix hN,
+      rightExchange_inter_prefix hN]
     have hiInter : i ∈ A ∩ «prefix» N ell := mem_inter.mpr ⟨hiA, hiP⟩
     have hjInter : j ∈ A ∩ «prefix» N ell := mem_inter.mpr ⟨hjA, hjP⟩
     rw [card_erase_of_mem hiInter, card_erase_of_mem hjInter]
@@ -385,8 +384,8 @@ private lemma defectLayer_eq_layerFromTails
           union_inter_tailAfter hBP' hCs
         rw [rightExchange_inter_tail hN hiP,
           rightExchange_inter_tail hN hjP, htfar, hXC]
-      · rw [rightExchange_inter_prefix hN hiP,
-          rightExchange_inter_prefix hN hjP, hprefixBC]
+      · rw [rightExchange_inter_prefix hN,
+          rightExchange_inter_prefix hN, hprefixBC]
         have hiBP : i ∈ B ∩ «prefix» N ell := mem_inter.mpr ⟨hiB, hiP⟩
         rw [card_erase_of_mem hiB, card_erase_of_mem hjXprefix,
           hBcard, hXcard]
@@ -469,7 +468,7 @@ private lemma exchangeLayer_disjoint_family
     · have hxFar := defectTails_subset_tailAfter hCP hxC
       simp only [mem_tailAfter] at hxFar ⊢
       omega
-  · rw [rightExchange_inter_prefix hN hjP,
+  · rw [rightExchange_inter_prefix hN,
       union_inter_prefix hBP]
     · rw [hBcard, card_erase_of_mem hjXP, hXcard]
     · intro x hx
@@ -714,51 +713,55 @@ private lemma defect_inter_card_three
     have hXYprefix :
         (X ∩ Y) ∩ «prefix» (4 * q) ell = PX ∩ PY := by
       ext z
-      simp [PX, PY, and_assoc, and_left_comm, and_comm]
+      simp [PX, PY, and_left_comm, and_comm]
     have hXYtail :
         (X ∩ Y) ∩ tailAfter (4 * q) ell = CX ∩ CY := by
       have hhXY : nextPoint hN ∉ X ∩ Y :=
         fun h ↦ hhX (mem_inter.mp h).1
       rw [inter_tail_eq_far_of_not_next hN hhXY]
       ext z
-      simp [CX, CY, and_assoc, and_left_comm, and_comm]
+      simp [CX, CY, and_left_comm, and_comm]
     have hXYsplit :=
       card_inter_prefix_add_card_inter_tailAfter (ell := ell) (X ∩ Y)
     rw [hXYprefix, hXYtail, hXYeq] at hXYsplit
     have hfarLe : (CX ∩ CY).card ≤ 2 := by omega
     have hZYle : (Z ∩ Y).card ≤ 2 := by
       by_cases hab : a + b ≤ ell
-      · simp [hab] at hPZinter
+      · have hPZinterZero : (PZ ∩ PY).card = 0 := by
+          simpa [hab] using hPZinter
         calc
           (Z ∩ Y).card =
               (PZ ∩ PY).card + (CX ∩ CY).card := hZYsplit.symm
-          _ = (CX ∩ CY).card := by rw [hPZinter]; simp
+          _ = (CX ∩ CY).card := by rw [hPZinterZero]; simp
           _ ≤ 2 := hfarLe
       · have hpLower := prefix_inter_card_lower_bound (N := 4 * q)
           (ell := ell) (a := a) (b := b) (by omega)
           hPXs hPYs hPXcard hPYcard
-        simp [hab] at hPZinter
+        have hPZinterOne : (PZ ∩ PY).card ≤ 1 := by
+          simpa [hab] using hPZinter
         have hpPos : 1 ≤ (PX ∩ PY).card := by omega
         have hfarLeOne : (CX ∩ CY).card ≤ 1 := by omega
         calc
           (Z ∩ Y).card =
               (PZ ∩ PY).card + (CX ∩ CY).card := hZYsplit.symm
-          _ ≤ 1 + 1 := Nat.add_le_add hPZinter hfarLeOne
+          _ ≤ 1 + 1 := Nat.add_le_add hPZinterOne hfarLeOne
           _ = 2 := rfl
     have hZYeq : (Z ∩ Y).card = 2 :=
       Nat.le_antisymm hZYle (hinter hZF hYF)
     have hfarPos : 0 < (CX ∩ CY).card := by
       by_cases hab : a + b ≤ ell
-      · simp [hab] at hPZinter
+      · have hPZinterZero : (PZ ∩ PY).card = 0 := by
+          simpa [hab] using hPZinter
         have hfarEq : (CX ∩ CY).card = 2 := by
           calc
             (CX ∩ CY).card = 0 + (CX ∩ CY).card := by omega
             _ = (PZ ∩ PY).card + (CX ∩ CY).card := by
-              simp [hPZinter]
+              simp [hPZinterZero]
             _ = (Z ∩ Y).card := hZYsplit
             _ = 2 := hZYeq
         exact hfarEq ▸ by decide
-      · simp [hab] at hPZinter
+      · have hPZinterOne : (PZ ∩ PY).card ≤ 1 := by
+          simpa [hab] using hPZinter
         have hsum :
             (PZ ∩ PY).card + (CX ∩ CY).card = 2 :=
           hZYsplit.trans hZYeq
@@ -775,7 +778,7 @@ private lemma defect_inter_card_three
     have hhz : nextPoint hN < z := by
       exact Fin.mk_lt_mk.mpr (by simpa using hzval)
     have hSF : S ∈ F :=
-      hleft.shifted_mem hhz hZF hzZ hhZ
+      hleft.shifted_mem hhz hZF
     have hshift :
         S = insert (nextPoint hN) (Z.erase z) := by
       change singletonLeftShift (nextPoint hN) z Z =
@@ -800,7 +803,6 @@ private lemma defect_inter_card_three
 
 private lemma two_le_inter_rightExchange_left
     {N : ℕ} {h i : Fin N} {X Y : Finset (Fin N)}
-    (hiX : i ∈ X) (hhX : h ∉ X) (hhY : h ∉ Y)
     (hthree : 3 ≤ (X ∩ Y).card) :
     2 ≤ (rightExchange h i X ∩ Y).card := by
   have hsub :
@@ -819,7 +821,7 @@ private lemma two_le_inter_rightExchange_left
 
 private lemma two_le_inter_rightExchange_both
     {N : ℕ} {h i j : Fin N} {X Y : Finset (Fin N)}
-    (hiX : i ∈ X) (hjY : j ∈ Y) (hhX : h ∉ X) (hhY : h ∉ Y)
+    (hhX : h ∉ X) (hhY : h ∉ Y)
     (hthree : 3 ≤ (X ∩ Y).card) :
     2 ≤ (rightExchange h i X ∩ rightExchange h j Y).card := by
   let R := ((X ∩ Y).erase i).erase j
@@ -889,7 +891,7 @@ private lemma twoIntersecting_noncentral_replacement
     (hell : ell < 2 * q)
     (hinv : PrefixInvariant F ell)
     (hinter : TwoIntersecting F) (hleft : LeftCompressed F)
-    (ha : 0 < a) (hb : 0 < b)
+    (ha : 0 < a)
     (hab : a + b = ell + 2) (hane : a ≠ b) :
     TwoIntersecting
       (replaceDefectLevel F
@@ -912,9 +914,7 @@ private lemma twoIntersecting_noncentral_replacement
           simpa [e] using hADj
         obtain ⟨X, hXD, i, hiP, hiX, rfl⟩ :=
           exchangeLayer_exists_source hinv ha hBE
-        exact two_le_inter_rightExchange_left hiX
-          (defect_not_mem_next (mem_defectLayer.mp hXD).1)
-          (defect_not_mem_next hBdef)
+        exact two_le_inter_rightExchange_left
           (defect_inter_card_three hell hinv hinter hleft
             hXD hADj (by omega))
       · exact exchange_cross_nondefect hinv ha hinter hBE hBF' hBdef
@@ -931,9 +931,7 @@ private lemma twoIntersecting_noncentral_replacement
           simpa [e] using hBDj
         obtain ⟨X, hXD, i, hiP, hiX, rfl⟩ :=
           exchangeLayer_exists_source hinv ha hAE
-        exact two_le_inter_rightExchange_left hiX
-          (defect_not_mem_next (mem_defectLayer.mp hXD).1)
-          (defect_not_mem_next hBdef)
+        exact two_le_inter_rightExchange_left
           (defect_inter_card_three hell hinv hinter hleft
             hXD hBDj (by omega))
       · exact exchange_cross_nondefect hinv ha hinter hAE hBF' hBdef
@@ -941,7 +939,7 @@ private lemma twoIntersecting_noncentral_replacement
         exchangeLayer_exists_source hinv ha hAE
       obtain ⟨Y, hYD, j, hjP, hjY, rfl⟩ :=
         exchangeLayer_exists_source hinv ha hBE
-      exact two_le_inter_rightExchange_both hiX hjY
+      exact two_le_inter_rightExchange_both
         (defect_not_mem_next (mem_defectLayer.mp hXD).1)
         (defect_not_mem_next (mem_defectLayer.mp hYD).1)
         (defect_inter_card_three hell hinv hinter hleft hXD hYD
@@ -1000,10 +998,10 @@ private lemma noncentral_defectLayer_empty
       (uniform_exchangeLayer hinv (by omega) hunif)
   have hH₁inter : TwoIntersecting H₁ :=
     twoIntersecting_noncentral_replacement hell hinv hinter hleft
-      (by omega) (by omega) hab hane
+      (by omega) hab hane
   have hH₂inter : TwoIntersecting H₂ :=
     twoIntersecting_noncentral_replacement hell hinv hinter hleft
-      (by omega) (by omega) (by omega) hane.symm
+      (by omega) (by omega) hane.symm
   have hH₁max := hmax H₁ hH₁unif hH₁inter
   have hH₂max := hmax H₂ hH₂unif hH₂inter
   have hH₁card := card_replaceDefectLevel
@@ -1088,7 +1086,7 @@ private lemma exists_incidence_ge_average_on {α : Type*} [DecidableEq α]
             exact hcard C hC
       _ = r * P.card := by simp [Nat.mul_comm]
   by_contra h
-  push_neg at h
+  push Not at h
   have hlt :
       ∑ z ∈ T, T.card * (P.filter fun C ↦ z ∈ C).card <
         ∑ _z ∈ T, r * P.card := by
@@ -1138,7 +1136,6 @@ private lemma card_exchangeFromTails
 
 private lemma card_defectLayer_from_tail_subfamily
     {N ell a : ℕ} {F : Finset (Finset (Fin N))} {hN : ell < N}
-    (hinv : PrefixInvariant F ell) (ha : 0 < a)
     {P : Finset (Finset (Fin N))}
     (hP : P ⊆ defectTails F ell a hN) :
     (layerFromTails N ell a P).card = Nat.choose ell a * P.card := by
@@ -1260,9 +1257,7 @@ private lemma twoIntersecting_central_replacement
           simpa [hwz] using hc
         · obtain ⟨X, hXD, x, hxP, hxX, rfl⟩ :=
             exchangeLayer_exists_source hinv hi hBE
-          exact two_le_inter_rightExchange_left hxX
-            (defect_not_mem_next (mem_defectLayer.mp hXD).1)
-            (defect_not_mem_next hAdef)
+          exact two_le_inter_rightExchange_left
             (defect_inter_card_three hell hinv hinter hleft
               hXD hADj (by omega))
       · exact exchange_cross_nondefect hinv hi hinter hBE hAF' hAdef
@@ -1332,9 +1327,7 @@ private lemma twoIntersecting_central_replacement
           simpa [hwz] using hc
         · obtain ⟨X, hXD, x, hxP, hxX, rfl⟩ :=
             exchangeLayer_exists_source hinv hi hAE
-          exact two_le_inter_rightExchange_left hxX
-            (defect_not_mem_next (mem_defectLayer.mp hXD).1)
-            (defect_not_mem_next hBdef)
+          exact two_le_inter_rightExchange_left
             (defect_inter_card_three hell hinv hinter hleft
               hXD hBDj (by omega))
       · exact exchange_cross_nondefect hinv hi hinter hAE hBF' hBdef
@@ -1447,7 +1440,7 @@ private lemma central_defectLayer_empty
     omega
   have hRcard : R.card = Nat.choose ell i * (P \ Q).card := by
     dsimp only [R]
-    exact card_defectLayer_from_tail_subfamily hinv (by omega)
+    exact card_defectLayer_from_tail_subfamily
       (fun C hC ↦ (mem_sdiff.mp hC).1)
   have hEcard : E.card = Nat.choose ell (i - 1) * Q.card := by
     dsimp only [E]
@@ -1532,7 +1525,7 @@ private lemma rightExchange_mem_exchangeLayer
     rw [card_erase_of_mem hiInter, hXcard]
   · ext x
     simp only [mem_union, mem_erase, mem_inter, mem_prefix, mem_insert,
-      mem_tailAfter, mem_rightExchange, nextPoint_val]
+      mem_tailAfter, mem_rightExchange]
     constructor
     · rintro (⟨hxi, hxX, hxlt⟩ | rfl | ⟨hxX, hxge⟩)
       · exact Or.inr ⟨hxX, hxi⟩
@@ -1597,8 +1590,7 @@ private lemma low_defectLayer_empty
             «prefix» (4 * q) ell)
         rw [card_prefix (by omega)] at hc
         exact hc
-      exact two_le_inter_rightExchange_left hiX hhX
-        (defect_not_mem_next hYdef)
+      exact two_le_inter_rightExchange_left
         (defect_inter_card_three hell hinv hinter hleft hXD hYDj
           (by omega))
     · exact exchange_cross_nondefect hinv (by omega) hinter
@@ -1677,7 +1669,7 @@ private lemma inter_prefix_succ_eq {N ell : ℕ} (hN : ell < N)
   by_cases hhA : nextPoint hN ∈ A
   · rw [if_pos hhA]
     ext x
-    simp only [mem_inter, mem_prefix, mem_insert, nextPoint_val]
+    simp only [mem_inter, mem_prefix, mem_insert]
     constructor
     · rintro ⟨hxA, hxlt⟩
       by_cases hxeq : x.val = ell
@@ -1708,7 +1700,7 @@ private lemma inter_tail_eq_at_next {N ell : ℕ} (hN : ell < N)
   by_cases hhA : nextPoint hN ∈ A
   · rw [if_pos hhA]
     ext x
-    simp only [mem_inter, mem_tailAfter, mem_insert, nextPoint_val]
+    simp only [mem_inter, mem_tailAfter, mem_insert]
     constructor
     · rintro ⟨hxA, hxge⟩
       by_cases hxeq : x.val = ell
@@ -1762,14 +1754,14 @@ private lemma cross_next_membership_iff
     apply (hinv ?_ ?_).mp hEnF
     · rw [rightExchange_inter_tail hN hiP,
         inter_tail_eq_at_next hN B, if_pos hB1, htail]
-    · rw [rightExchange_inter_prefix hN hiP,
+    · rw [rightExchange_inter_prefix hN,
         card_erase_of_mem hiAP]
       omega
   · intro hBF
     let L := singletonLeftShift i (nextPoint hN) B
     have hilt : i < nextPoint hN := by
       exact Fin.mk_lt_mk.mpr (mem_prefix.mp hiP)
-    have hLF : L ∈ F := hleft.shifted_mem hilt hBF hB1 hiB
+    have hLF : L ∈ F := hleft.shifted_mem hilt hBF
     have hLeq : L = insert i (B.erase (nextPoint hN)) := by
       dsimp only [L]
       rw [singletonLeftShift_eq_transpose ⟨hB1, hiB⟩,
@@ -1811,7 +1803,7 @@ private lemma cross_next_membership_iff
           · refine ⟨Or.inr ⟨?_, hxB⟩, hxlt⟩
             intro hxeq
             subst x
-            simpa using hxlt
+            simp at hxlt
       rw [hLpre, card_insert_of_notMem hiBP]
       omega
 
@@ -1864,7 +1856,7 @@ private lemma prefixInvariant_succ
         exact hcard
 
 private lemma prefixInvariant_upto
-    {q : ℕ} (hq : 2 ≤ q)
+    {q : ℕ}
     {F : Finset (Finset (Fin (4 * q)))}
     (hunif : Uniform (2 * q) F)
     (hinter : TwoIntersecting F)
@@ -1884,7 +1876,7 @@ private lemma prefixInvariant_upto
 /-- A maximum-cardinality left-compressed uniform two-intersecting family of
 `2q`-subsets is invariant under all permutations of the first `2q` points,
 expressed in the direct prefix-layer form used by the remainder of the proof. -/
-theorem prefixInvariant_two_mul {q : ℕ} (hq : 2 ≤ q)
+theorem prefixInvariant_two_mul {q : ℕ}
     {F : Finset (Finset (Fin (4 * q)))}
     (hunif : Uniform (2 * q) F)
     (hinter : TwoIntersecting F)
@@ -1892,6 +1884,6 @@ theorem prefixInvariant_two_mul {q : ℕ} (hq : 2 ≤ q)
       Uniform (2 * q) G → TwoIntersecting G → G.card ≤ F.card)
     (hleft : LeftCompressed F) :
     PrefixInvariant F (2 * q) := by
-  exact prefixInvariant_upto hq hunif hinter hmax hleft (2 * q) le_rfl
+  exact prefixInvariant_upto hunif hinter hmax hleft (2 * q) le_rfl
 
 end Erdos83

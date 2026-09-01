@@ -140,8 +140,9 @@ theorem card_uniformLayer (q a : ℕ) :
           intro x hx₁ hx₂
           have hxfirst := hP₁'.1 hx₁
           have hxsecond := hP₂'.1 hx₂
-          simp [secondHalf] at hxsecond
-          exact hxsecond hxfirst
+          have hxnotfirst : x ∉ firstHalf q := by
+            simpa [secondHalf] using hxsecond
+          exact hxnotfirst hxfirst
         have hAcard : A.card = 2 * q := by
           change (P.1 ∪ P.2).card = 2 * q
           rw [Finset.card_union_of_disjoint hdisj, hP₁'.2, hP₂'.2]
@@ -157,8 +158,9 @@ theorem card_uniformLayer (q a : ℕ) :
             · exact hx₁
             · have hxsecond := hP₂'.1 hx₂
               have hxfirst := (Finset.mem_inter.mp hx).2
-              simp [secondHalf] at hxsecond
-              exact (hxsecond hxfirst).elim
+              have hxnotfirst : x ∉ firstHalf q := by
+                simpa [secondHalf] using hxsecond
+              exact (hxnotfirst hxfirst).elim
           · intro hx
             exact Finset.mem_inter.mpr ⟨Finset.mem_union_left _ hx, hP₁'.1 hx⟩
         have hAsecond : A ∩ secondHalf q = P.2 := by
@@ -168,8 +170,9 @@ theorem card_uniformLayer (q a : ℕ) :
             rcases Finset.mem_union.mp (Finset.mem_inter.mp hx).1 with hx₁ | hx₂
             · have hxfirst := hP₁'.1 hx₁
               have hxsecond := (Finset.mem_inter.mp hx).2
-              simp [secondHalf] at hxsecond
-              exact (hxsecond hxfirst).elim
+              have hxnotfirst : x ∉ firstHalf q := by
+                simpa [secondHalf] using hxsecond
+              exact (hxnotfirst hxfirst).elim
             · exact hx₂
           · intro hx
             exact Finset.mem_inter.mpr ⟨Finset.mem_union_right _ hx, hP₂'.1 hx⟩
