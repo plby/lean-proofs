@@ -46,7 +46,7 @@ def countPartnerPrimes (n p : ℕ) : Finset ℕ :=
   (Finset.Ioc (fourthRoot n) (n / p)).filter Nat.Prime
 
 /-- Pairs whose products form the counted subfamily. -/
-def countPairs (n : ℕ) : Finset ((p : ℕ) × ℕ) :=
+def countPairs (n : ℕ) : Finset ((_ : ℕ) × ℕ) :=
   (countSmallPrimes n).sigma (countPartnerPrimes n)
 
 @[simp] lemma mem_countSmallPrimes {n p : ℕ} :
@@ -82,7 +82,7 @@ lemma ordered_prime_product_unique {p q r s : ℕ}
 
 /-- Multiplication is injective on the counted prime pairs. -/
 lemma countPairs_product_injective (n : ℕ) :
-    Set.InjOn (fun z : (p : ℕ) × ℕ => z.1 * z.2) (countPairs n : Set _) := by
+    Set.InjOn (fun z : (_ : ℕ) × ℕ => z.1 * z.2) (countPairs n : Set _) := by
   rintro ⟨p, q⟩ hpq ⟨r, s⟩ hrs heq
   simp only [countPairs, Finset.mem_coe, Finset.mem_sigma,
     mem_countSmallPrimes, mem_countPartnerPrimes] at hpq hrs
@@ -93,7 +93,7 @@ lemma countPairs_product_injective (n : ℕ) :
 
 /-- Products in `countPairs` lie in the prime-plus-squarefree-semiprime
 construction. -/
-lemma countPairs_product_mem_lowerBoundSet {n : ℕ} {z : (p : ℕ) × ℕ}
+lemma countPairs_product_mem_lowerBoundSet {n : ℕ} {z : (_ : ℕ) × ℕ}
     (hz : z ∈ countPairs n) : z.1 * z.2 ∈ lowerBoundSet n := by
   rcases z with ⟨p, q⟩
   simp only [countPairs, Finset.mem_sigma, mem_countSmallPrimes,
@@ -115,7 +115,7 @@ lemma countPairs_product_mem_lowerBoundSet {n : ℕ} {z : (p : ℕ) × ℕ}
 /-- The pair count is a lower bound for the construction's cardinality. -/
 lemma countPairs_card_le_lowerBoundSet_card (n : ℕ) :
     (countPairs n).card ≤ (lowerBoundSet n).card := by
-  let f : (p : ℕ) × ℕ → ℕ := fun z => z.1 * z.2
+  let f : (_ : ℕ) × ℕ → ℕ := fun z => z.1 * z.2
   have himage : (countPairs n).image f ⊆ lowerBoundSet n := by
     intro m hm
     rcases Finset.mem_image.mp hm with ⟨z, hz, rfl⟩

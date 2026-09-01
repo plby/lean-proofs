@@ -76,18 +76,22 @@ def rectangleCount (G : BipartiteGraph L R) : ℝ :=
       edgeIndicator G x y * edgeIndicator G x' y *
         edgeIndicator G x y' * edgeIndicator G x' y'
 
+omit [Fintype L] [Fintype R] in
 @[simp] lemma edgeIndicator_nonneg (G : BipartiteGraph L R) (x : L) (y : R) :
     0 ≤ edgeIndicator G x y := by
   by_cases h : G x y <;> simp [edgeIndicator, h]
 
+omit [Fintype L] [Fintype R] in
 @[simp] lemma edgeIndicator_sq (G : BipartiteGraph L R) (x : L) (y : R) :
     edgeIndicator G x y * edgeIndicator G x y = edgeIndicator G x y := by
   simp [edgeIndicator]
 
+omit [Fintype R] in
 lemma rightDegree_nonneg (G : BipartiteGraph L R) (y : R) :
     0 ≤ rightDegree G y := by
   exact Finset.sum_nonneg fun _ _ ↦ edgeIndicator_nonneg G _ _
 
+omit [Fintype L] in
 lemma codegree_nonneg (G : BipartiteGraph L R) (x x' : L) :
     0 ≤ codegree G x x' := by
   exact Finset.sum_nonneg fun _ _ ↦ mul_nonneg (edgeIndicator_nonneg G _ _)
@@ -130,6 +134,7 @@ lemma edgeCount_eq_sum_rightDegree (G : BipartiteGraph L R) :
 
 /-! The next two identities are the exact double-counting core of KST. -/
 
+omit [Fintype R] in
 private lemma rightDegree_sq (G : BipartiteGraph L R) (y : R) :
     (rightDegree G y) ^ 2 = rightDegree G y +
       ∑ x : L, ∑ x' : L, if x = x' then 0 else
@@ -174,6 +179,7 @@ lemma sum_rightDegree_sq (G : BipartiteGraph L R) :
   intro x' hx'
   by_cases h : x = x' <;> simp [h]
 
+omit [Fintype L] in
 private lemma codegree_sq (G : BipartiteGraph L R) (x x' : L) :
     (codegree G x x') ^ 2 = codegree G x x' +
       ∑ y : R, ∑ y' : R, if y = y' then 0 else
@@ -359,6 +365,7 @@ def NoRepeatedRectangle {Γ : Type w} [Fintype Γ]
 
 variable {Γ : Type w} [Fintype Γ]
 
+omit [Fintype L] [Fintype R] in
 private lemma sum_rectangleIndicator_le_one (G : Γ → BipartiteGraph L R)
     (hG : NoRepeatedRectangle G) (x x' : L) (y y' : R) :
     (∑ γ : Γ, rectangleIndicator (G γ) x x' y y') ≤ 1 := by

@@ -189,7 +189,8 @@ theorem scalePairCoreSum_eq_regroupedCoreSum (n : ℕ) :
           (fun ij : ℕ × ℕ ↦
             ∑ _c ∈ (coreScaleCoreSet n ij.1).filter
                 (fun c ↦ ij.2 ∈ rightIndexSet n ij.1 c),
-              2 * ((dyadicPrimeBlock ij.2).card : ℝ))) using 1 <;> simp]
+              2 * ((dyadicPrimeBlock ij.2).card : ℝ))) using 1
+      · simp]
   apply Finset.sum_congr rfl
   intro i hi
   simp_rw [Finset.sum_filter]

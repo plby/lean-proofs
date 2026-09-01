@@ -243,9 +243,8 @@ theorem edgeCount_eq_card_finiteGraphEdge {L R : Type*}
       simpa [ColoredGraph.edgeCount, ColoredGraph.edgeIndicator] using
         (Finset.sum_product (Finset.univ : Finset R) (Finset.univ : Finset L)
           (fun z : R × L ↦ if G z.2 z.1 then (1 : ℝ) else 0)).symm
-    _ = (s.card : ℝ) := by simpa [s] using
-      (Finset.sum_boole (R := ℝ) (fun z : R × L ↦ G z.2 z.1)
-        ((Finset.univ : Finset R).product (Finset.univ : Finset L)))
+    _ = (s.card : ℝ) := by
+      simp [s]
 
 /-- The finite type of all edges in the core-coloured graph of a block. -/
 def BlockGraphEdge (A : Finset ℕ) (i j : ℕ) :=
@@ -582,7 +581,7 @@ theorem card_le_exceptional_add_sum_squarefreeBlockBound
 /-- A positive squarefree integer with fewer than two prime factors is
 either `1` or prime. -/
 theorem eq_one_or_prime_of_squarefree_card_primeFactors_lt_two {a : ℕ}
-    (ha : 0 < a) (hsf : Squarefree a) (hcard : a.primeFactors.card < 2) :
+    (hsf : Squarefree a) (hcard : a.primeFactors.card < 2) :
     a = 1 ∨ a.Prime := by
   have hc : a.primeFactors.card = 0 ∨ a.primeFactors.card = 1 := by omega
   rcases hc with hc | hc
@@ -605,7 +604,7 @@ theorem exceptionalPart_card_le_one_add_primeCounting
     have hm := mem_exceptionalPart.1 ha
     have hIoc := Finset.mem_Ioc.1 (hA.1 hm.1)
     rcases eq_one_or_prime_of_squarefree_card_primeFactors_lt_two
-        hIoc.1 (hsf a hm.1) hm.2 with rfl | hp
+        (hsf a hm.1) hm.2 with rfl | hp
     · simp
     · simp [Nat.mem_primesLE, hp, hIoc.2]
   calc

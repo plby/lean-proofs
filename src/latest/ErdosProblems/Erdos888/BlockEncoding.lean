@@ -160,12 +160,13 @@ private theorem twice_sum_crossingIndicator [Fintype V] [DecidableEq V]
 least half of its edge objects.  In the equal-dyadic-scale application the
 edge object includes the core, so this statement captures half of the sum
 over all colours, not merely half of the distinct endpoint pairs. -/
-theorem exists_bipartition_half_crossing [Fintype V] [DecidableEq V]
+theorem exists_bipartition_half_crossing [Finite V]
     [DecidableEq E] (edges : Finset E) (left right : E → V)
     (hloop : ∀ e ∈ edges, left e ≠ right e) :
     ∃ χ : V → Bool,
       edges.card ≤ 2 * (crossingItems edges left right χ).card := by
   classical
+  let : Fintype V := Fintype.ofFinite V
   by_contra h
   push Not at h
   have hsum :
@@ -280,19 +281,19 @@ private theorem pairing_of_perm (f : Fin 4 → ℕ) (σ : Equiv.Perm (Fin 4))
       (hne (by decide)) (hne (by decide)) (hne (by decide))
       (hne (by decide)) (hne (by decide)) (hne (by decide)) with hp | hp | hp
   · left
-    simp [SamePartition, SamePair] at hp
+    simp only [SamePartition, SamePair] at hp
     rcases hp with hp | hp <;> rcases hp with ⟨hp, hq⟩ <;>
       rcases hp with hp | hp <;> rcases hq with hq | hq <;>
       rcases hp with ⟨hp₁, hp₂⟩ <;> rcases hq with ⟨hq₁, hq₂⟩ <;>
       simp_all [Nat.mul_comm]
   · right; left
-    simp [SamePartition, SamePair] at hp
+    simp only [SamePartition, SamePair] at hp
     rcases hp with hp | hp <;> rcases hp with ⟨hp, hq⟩ <;>
       rcases hp with hp | hp <;> rcases hq with hq | hq <;>
       rcases hp with ⟨hp₁, hp₂⟩ <;> rcases hq with ⟨hq₁, hq₂⟩ <;>
       simp_all [Nat.mul_comm]
   · right; right
-    simp [SamePartition, SamePair] at hp
+    simp only [SamePartition, SamePair] at hp
     rcases hp with hp | hp <;> rcases hp with ⟨hp, hq⟩ <;>
       rcases hp with hp | hp <;> rcases hq with hq | hq <;>
       rcases hp with ⟨hp₁, hp₂⟩ <;> rcases hq with ⟨hq₁, hq₂⟩ <;>

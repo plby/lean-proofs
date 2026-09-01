@@ -275,7 +275,8 @@ theorem eventually_rankinMoment_le_sixteenth :
     _ ≤ Real.exp (Real.log (n : ℝ) / 16) := Real.exp_monotone hSlog
     _ = (n : ℝ) ^ (1 / 16 : ℝ) := by
       rw [Real.rpow_def_of_pos (by exact_mod_cast (show 0 < n by omega))]
-      congr 1 <;> ring
+      congr 1
+      all_goals ring
 
 private theorem cast_prod_rpow (s : Finset ℕ) (a : ℝ) :
     ((∏ p ∈ s, p : ℕ) : ℝ) ^ a = ∏ p ∈ s, (p : ℝ) ^ a := by
