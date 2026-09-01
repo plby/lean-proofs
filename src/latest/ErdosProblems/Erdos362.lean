@@ -133,7 +133,7 @@ lemma minimalPart_subset {α : Type*} [DecidableEq α]
   intro A hA
   exact (mem_filter.mp hA).1
 
-lemma minimalPart_isAntichain {α : Type*} [Fintype α] [DecidableEq α]
+lemma minimalPart_isAntichain {α : Type*} [DecidableEq α]
     (𝒢 : Finset (Finset α)) :
     IsAntichain (· ⊆ ·) (minimalPart 𝒢 : Set (Finset α)) := by
   intro A hA B hB hAB hle
@@ -141,7 +141,7 @@ lemma minimalPart_isAntichain {α : Type*} [Fintype α] [DecidableEq α]
   have hBmin : ¬ ∃ C ∈ 𝒢, C ⊂ B := (mem_filter.mp hB).2
   exact hBmin ⟨A, hA𝒢, hle.ssubset_of_ne hAB⟩
 
-lemma nonminimalPart_isAntichain {α : Type*} [Fintype α] [DecidableEq α]
+lemma nonminimalPart_isAntichain {α : Type*} [DecidableEq α]
     (𝒢 : Finset (Finset α)) (h𝒢 : ThreeChainFree 𝒢) :
     IsAntichain (· ⊆ ·) ((𝒢 \ minimalPart 𝒢 : Finset (Finset α)) : Set (Finset α)) := by
   intro A hA B hB hAB hle
@@ -190,7 +190,7 @@ lemma sum_toggle {ι : Type*} [DecidableEq ι] (a : ι → ℤ) (S : Finset ι) 
   · simp only [toggle_of_mem hi, hi, if_pos]
     have h := sum_erase_add (s := S) (f := a) hi
     omega
-  · simp [toggle_of_not_mem hi, hi, add_comm]
+  · simp [hi, add_comm]
 
 lemma toggle_eq_of_equal_sums {ι : Type*} [DecidableEq ι]
     (a : ι → ℤ) (ha_pos : ∀ i, 0 < a i) (ha_inj : Function.Injective a)
@@ -248,7 +248,7 @@ def sectionSigmaEquiv {α β γ : Type*} [DecidableEq α]
   left_inv := by rintro ⟨c, b, hb⟩; simp only; subst c; rfl
   right_inv _ := rfl
 
-lemma sum_card_sections {α β γ : Type*} [Fintype α] [Fintype β] [Fintype γ]
+lemma sum_card_sections {α β γ : Type*} [Fintype β] [Fintype γ]
     [DecidableEq α] [DecidableEq β] [DecidableEq γ]
     (e : β ↪ γ × Finset α) :
     ∑ c : γ, (sectionFamily e c).card = Fintype.card β := by
@@ -294,10 +294,11 @@ def sumFiber {ι : Type*} [Fintype ι] [DecidableEq ι]
   ext x
   by_cases hi : Sum.inl i ∈ S <;> simp [toggle, hi]
 
-lemma sum_sumType {ι κ M : Type*} [DecidableEq ι] [DecidableEq κ]
+lemma sum_sumType {ι κ M : Type*}
     [AddCommMonoid M] (a : ι ⊕ κ → M) (S : Finset (ι ⊕ κ)) :
     ∑ x ∈ S, a x =
       (∑ i ∈ S.toLeft, a (Sum.inl i)) + ∑ j ∈ S.toRight, a (Sum.inr j) := by
+  classical
   conv_lhs => rw [← S.toLeft_disjSum_toRight]
   simp
 
@@ -393,11 +394,11 @@ lemma flipSection_threeChainFree {ι κ : Type*} [Fintype ι] [Fintype κ]
     simpa using this
   have hxex : ∃ x, x ∈ V ∧ x ∉ U := by
     by_contra h
-    push_neg at h
+    push Not at h
     exact hUV.not_subset h
   have hyex : ∃ y, y ∈ W ∧ y ∉ V := by
     by_contra h
-    push_neg at h
+    push Not at h
     exact hVW.not_subset h
   obtain ⟨x, hxV, hxU⟩ := hxex
   obtain ⟨y, hyW, hyV⟩ := hyex
@@ -474,9 +475,10 @@ theorem sarkozy_szemeredi_finite {ι κ : Type*} [Fintype ι] [Fintype κ]
         (2 * (Fintype.card κ).choose (Fintype.card κ / 2)) := by
       simp [Fintype.card_finset]
 
-lemma sum_pos_of_ssubset_of_pos {α : Type*} [DecidableEq α]
+lemma sum_pos_of_ssubset_of_pos {α : Type*}
     (a : α → ℕ) (ha : ∀ i, 0 < a i) {S T : Finset α} (hST : S ⊂ T) :
     ∑ i ∈ S, a i < ∑ i ∈ T, a i := by
+  classical
   have hne : T \ S ≠ ∅ := by
     simpa [sdiff_eq_empty_iff_subset] using hST.not_subset
   have hpos : 0 < ∑ i ∈ T \ S, a i := by
@@ -527,8 +529,8 @@ lemma indexedSubsetSumFiber_isDistanceThree {n : ℕ} (a : Fin n → ℕ)
     (mem_indexedSubsetSumFiber.mp hT).symm
   rw [← sum_sdiff (inter_subset_left : S ∩ T ⊆ S),
     ← sum_sdiff (inter_subset_right : S ∩ T ⊆ T)] at hsum
-  have hSdecomp : S \ (S ∩ T) = S \ T := by ext x; simp [and_assoc]
-  have hTdecomp : T \ (S ∩ T) = T \ S := by ext x; simp [and_assoc, and_left_comm]
+  have hSdecomp : S \ (S ∩ T) = S \ T := by ext x; simp
+  have hTdecomp : T \ (S ∩ T) = T \ S := by ext x; simp
   rw [hSdecomp, hTdecomp, hi, hj] at hsum
   simp only [sum_singleton] at hsum
   have hij : i = j := ha_inj (Nat.add_right_cancel hsum)
@@ -772,7 +774,6 @@ theorem map_indexedSubsetSumFiber_orderedEnumerate (A : Finset ℕ) (t : ℕ) :
         have hienum : orderedEnumerate A i = x := by
           change A.orderEmbOfFin rfl i = x
           rw [← Finset.coe_orderIsoOfFin_apply A rfl i]
-          change ((A.orderIsoOfFin rfl i : A) : ℕ) = x
           rw [show i = (A.orderIsoOfFin rfl).symm y from rfl,
             (A.orderIsoOfFin rfl).apply_symm_apply y]
         refine ⟨i, ?_, hienum⟩
@@ -828,7 +829,6 @@ theorem map_indexedFixedCardSubsetSumFiber_orderedEnumerate
         have hienum : orderedEnumerate A i = x := by
           change A.orderEmbOfFin rfl i = x
           rw [← Finset.coe_orderIsoOfFin_apply A rfl i]
-          change ((A.orderIsoOfFin rfl i : A) : ℕ) = x
           rw [show i = (A.orderIsoOfFin rfl).symm y from rfl,
             (A.orderIsoOfFin rfl).apply_symm_apply y]
         refine ⟨i, ?_, hienum⟩
@@ -945,7 +945,7 @@ def pairDataEquiv : Finset (Fin p × Bool) ≃ Finset (Fin p) × (Fin p → Bool
     apply Prod.ext
     · ext i
       by_cases hi : i ∈ d.1 <;> cases hq : d.2 i <;>
-        simp [singletonPairs, subsetOfPairData, upperBits, hi, hq]
+        simp [singletonPairs, subsetOfPairData, hi, hq]
     · apply funext
       intro i
       change decide ((i, true) ∈ subsetOfPairData p (d.1, d.2)) = d.2 i
@@ -983,7 +983,7 @@ lemma card_singletonCount (m : ℕ) :
   rw [Fintype.card_congr (singletonCountEquiv p m), Fintype.card_prod, Fintype.card_fun,
     Fintype.card_bool, Fintype.card_fin]
   congr 1
-  simpa using (@Fintype.card_finset_len (Fin p) _ m)
+  simp
 
 end PairEncoding
 
@@ -1152,8 +1152,7 @@ lemma orientationIn_sum {p : ℕ} {x : Fin (2 * p) → ℕ} {U : Finset (Fin p)}
       orientationWeight x (upperSingletonPairs S) := by
   classical
   rw [orientationWeight, ← orientationIn_map_val hU]
-  simpa using Finset.sum_map (orientationIn U S) ⟨Subtype.val, Subtype.val_injective⟩
-    (fun i : Fin p ↦ pairDiff x i)
+  simp
 
 lemma orientationIn_injective_on_status {p : ℕ} (U B : Finset (Fin p)) :
     Set.InjOn (orientationIn U)
@@ -1195,7 +1194,7 @@ lemma orientationIn_mem_orientationFiber {p : ℕ} {x : Fin (2 * p) → ℕ}
   rcases Finset.mem_filter.mp hSol with ⟨-, -, hwt⟩
   rw [orientationFiber, Finset.mem_filter]
   constructor
-  · exact Finset.mem_powerset.mpr (by intro i _; simpa using i.2)
+  · exact Finset.mem_powerset.mpr (by intro i _; simp)
   · rw [orientationIn_sum hU]
     rw [← hU, ← hB, ← subsetWeight_decomposition hx S]
     exact hwt
@@ -1297,7 +1296,7 @@ lemma orientationIn_statusBits {p : ℕ} (U B : Finset (Fin p)) (R : Finset U) :
   simp only [i.2, true_and]
   have hb : statusBits U B R i = decide (i ∈ R) := by simp [statusBits, i.2]
   rw [hb]
-  simp [i.2]
+  simp
 
 def statusOrientationEquiv {p : ℕ} (U B : Finset (Fin p)) (hUB : Disjoint U B) :
     {S : Finset (Fin p × Bool) // singletonPairs p S = U ∧ doublePairs S = B} ≃ Finset U where
@@ -1406,7 +1405,7 @@ lemma fixedCardStatusFiber_card_of_feasible {p l : ℕ} {U B : Finset (Fin p)}
           singletonPairs p S = U ∧ doublePairs S = B} :=
       card_filter_univ_eq_card_subtype _
     _ = Fintype.card (Finset U) := Fintype.card_congr (statusOrientationEquiv U B hUB)
-    _ = 2 ^ U.card := by simpa using (Fintype.card_finset (U : Type))
+    _ = 2 ^ U.card := by simp
 
 lemma fixedStatusFiber_feasible {p : ℕ} {x : Fin (2 * p) → ℕ} {l t : ℕ}
     {U B : Finset (Fin p)} (hne : (fixedStatusFiber x l t U B).Nonempty) :
@@ -1456,7 +1455,7 @@ lemma fixedPairFiber_card_eq_low_add_high {p : ℕ} (x : Fin (2 * p) → ℕ)
     (fun S : Finset (Fin p × Bool) ↦ (singletonPairs p S).card < q)]
   congr 2
   ext S
-  simp [lowPairFiber, highPairFiber]
+  simp [highPairFiber]
 
 lemma highPairFiber_card_eq_sum_status {p : ℕ} (x : Fin (2 * p) → ℕ)
     (l t q : ℕ) :
@@ -1534,9 +1533,9 @@ theorem fixedPairFiber_real_card_le_low_add {C D : ℝ} (hscalar : IndexedScalar
     ((fixedPairFiber x l t).card : ℝ) ≤
       (lowPairFiber x l t q).card + D * (2 * p).choose l := by
   rw [fixedPairFiber_card_eq_low_add_high]
-  push_cast
-  gcongr
-  exact highPairFiber_real_card_le hscalar hD hx l t q hq1 hscale
+  · push_cast
+    gcongr
+    exact highPairFiber_real_card_le hscalar hD hx l t q hq1 hscale
 
 def lowSingletonEquiv (p q : ℕ) :
     {S : Finset (Fin p × Bool) // (singletonPairs p S).card < q} ≃
@@ -1566,7 +1565,7 @@ lemma card_all_low_singletons (p q : ℕ) :
       card_filter_univ_eq_card_subtype _
     _ = Fintype.card ({U : Finset (Fin p) // U.card < q} × (Fin p → Bool)) :=
       Fintype.card_congr (lowSingletonEquiv p q)
-    _ = _ := by simp [Fintype.card_prod, Fintype.card_fun]
+    _ = _ := by simp [Fintype.card_prod]
 
 lemma lowPairFiber_card_le (p : ℕ) (x : Fin (2 * p) → ℕ) (l t q : ℕ) :
     (lowPairFiber x l t q).card ≤
@@ -1630,8 +1629,13 @@ lemma oddPairFiber_card_le_two_even {p : ℕ} (x : Fin (2 * p) → ℕ) (z l t :
     rcases a with ⟨⟨Sa, ba⟩, ha⟩
     rcases b with ⟨⟨Sb, bb⟩, hb⟩
     change (⟨Sa, ba⟩ : Finset (Fin p × Bool) × Bool) = ⟨Sb, bb⟩
-    cases hba : ba <;> cases hbb : bb <;> simp [f, hba, hbb] at hab ⊢
-    all_goals exact hab
+    cases hba : ba <;> cases hbb : bb
+    all_goals
+      simp only [f, hba, hbb, Bool.true_eq_false, ↓reduceDIte, Sum.inl.injEq,
+        Sum.inr.injEq, reduceCtorEq, Subtype.mk.injEq] at hab
+    all_goals
+      subst Sb
+      rfl
   simpa [Fintype.card_sum] using Fintype.card_le_of_injective f hf
 
 lemma oddPairFiber_real_card_le_of_even
@@ -1933,9 +1937,10 @@ theorem exists_fixed_reduction_numerics {C : ℝ} (hC : 0 < C) :
     exact high_scaled_central_cutoff_bound hC.le hK₀.le hcentral hp
 
 
-lemma sum_finsetCongr {A B M : Type*} [DecidableEq A] [DecidableEq B]
+lemma sum_finsetCongr {A B M : Type*}
     [AddCommMonoid M] (e : A ≃ B) (f : B → M) (S : Finset A) :
     ∑ y ∈ e.finsetCongr S, f y = ∑ x ∈ S, f (e x) := by
+  classical
   simp [Equiv.finsetCongr_apply]
 
 def sumFiberEquiv {A B : Type*} [Fintype A] [Fintype B]
@@ -2018,7 +2023,7 @@ theorem exists_indexedScalarBound : ∃ C > 0, IndexedScalarBound C := by
       simp
       omega
     rw [hempty]
-    simp
+    simp only [card_empty, CharP.cast_eq_zero, ge_iff_le]
     positivity
   · have hbase :
         (Finset.univ.powerset.filter fun R : Finset A ↦ b + ∑ i ∈ R, w i = t) =
@@ -2420,7 +2425,7 @@ theorem exists_subsetSumFiber_real_bound :
       have hxB : x ∈ B := by
         change x ∈ A.erase 0
         exact Finset.mem_erase.mpr ⟨by simpa using hx0, hx⟩
-      simpa [hBempty] using hxB
+      simp [hBempty] at hxB
     have hAcard : A.card = 1 := by
       have hle := card_le_card hAsub
       have hpos := hA.card_pos
@@ -2459,7 +2464,7 @@ theorem exists_fixedCardSubsetSumFiber_bound {C : ℝ} (hC : 0 < C)
         rw [pow_mul]
         norm_num
         field_simp
-        <;> ring
+        all_goals ring
   · by_cases hp0 : p = 0
     · have hcardA : A.card = 1 := by omega
       have hnat : (fixedCardSubsetSumFiber A l t).card ≤ 2 ^ A.card :=
