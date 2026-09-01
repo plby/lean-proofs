@@ -180,7 +180,7 @@ lemma choose_dyadicAnalyticCap_le_exp (A n i : ℕ) :
   let c := dyadicAnalyticCap A n i
   have hq : 0 < q := dyadicScale_pos i
   by_cases hc : c = 0
-  · simp [dyadicAnalyticExponent, q, c, hc]
+  · simp [dyadicAnalyticExponent, c, hc]
   · have hcpos : 0 < c := Nat.pos_of_ne_zero hc
     by_cases hlo : q ^ 2 ≤ n
     · change (((q + c).choose c : ℕ) : ℝ) ≤
@@ -301,7 +301,8 @@ lemma dyadicAnalyticExponent_le_low (A n i : ℕ)
   have hqR : (0 : ℝ) < q := by exact_mod_cast hq
   have hloR : (q : ℝ) ^ 2 ≤ n := by exact_mod_cast hlo
   by_cases hc : c = 0
-  · simp [dyadicAnalyticExponent, c, hc]
+  · rw [show dyadicAnalyticExponent A n i = 0 by
+      simp [dyadicAnalyticExponent, c, hc]]
     positivity
   · have hcR : (c : ℝ) ≤ (A : ℝ) * (n : ℝ) ^ 2 / q ^ 3 := by
       rw [show c = A * n ^ 2 / q ^ 3 by
@@ -369,7 +370,8 @@ lemma dyadicAnalyticExponent_le_high (A n i : ℕ) (hA : 1 ≤ A)
   have hq : 0 < q := dyadicScale_pos i
   have hqR : (0 : ℝ) < q := by exact_mod_cast hq
   by_cases hc : c = 0
-  · simp [dyadicAnalyticExponent, c, hc]
+  · rw [show dyadicAnalyticExponent A n i = 0 by
+      simp [dyadicAnalyticExponent, c, hc]]
     positivity
   · have hcpos : 0 < c := Nat.pos_of_ne_zero hc
     have hcEq : c = A * n / q := by

@@ -1,12 +1,12 @@
 import Util.IncidenceGeometry.SzemerediTrotter
 
-open Classical
 open scoped Real
 
 namespace Erdos733
 
 noncomputable section
 
+open Classical in
 /-- The global rich-line estimate used in the proof of Erdős Problem 733.
 
 The lower-order `n / k` term makes the estimate valid beyond the usual
@@ -241,6 +241,7 @@ private theorem globalRichLinesBound_of_ST
           (P.card : ℝ) / (k : ℝ)) := by
         exact mul_le_mul_of_nonneg_left (le_add_of_nonneg_right (by positivity)) hC.le
 
+open Classical in
 theorem globalRichLinesBound :
     ∃ C : ℝ, 0 < C ∧
       ∀ (P : Finset (EuclideanSpace ℝ (Fin 2))) (k : ℕ),

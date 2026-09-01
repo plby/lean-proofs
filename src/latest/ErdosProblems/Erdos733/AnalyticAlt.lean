@@ -94,7 +94,7 @@ lemma choose_dyadicAnalyticCapAlt_le_exp (A n i : ℕ) :
   let c := dyadicAnalyticCapAlt A n i
   have hq : 0 < q := dyadicScale_pos i
   by_cases hc : c = 0
-  · simp [dyadicAnalyticExponentAlt, q, c, hc]
+  · simp [dyadicAnalyticExponentAlt, c, hc]
   · have hcpos : 0 < c := Nat.pos_of_ne_zero hc
     by_cases hlo : q ^ 2 ≤ n
     · change (((q + c).choose c : ℕ) : ℝ) ≤
@@ -130,7 +130,8 @@ lemma dyadicAnalyticExponentAlt_le_low (A n i : ℕ)
   have hqR : (0 : ℝ) < q := by exact_mod_cast hq
   have hloR : (q : ℝ) ^ 2 ≤ n := by exact_mod_cast hlo
   by_cases hc : c = 0
-  · simp [dyadicAnalyticExponentAlt, c, hc]
+  · rw [show dyadicAnalyticExponentAlt A n i = 0 by
+      simp [dyadicAnalyticExponentAlt, c, hc]]
     positivity
   · have hcR : (c : ℝ) ≤ (A : ℝ) * (n : ℝ) ^ 2 / q ^ 3 := by
       rw [show c = A * n ^ 2 / q ^ 3 by
@@ -232,7 +233,8 @@ lemma dyadicAnalyticExponentAlt_le_high (A n i : ℕ)
   have hqR : (0 : ℝ) < q := by exact_mod_cast hq
   have hhiR : (n : ℝ) ≤ q ^ 2 := by exact_mod_cast hhi.le
   by_cases hc : c = 0
-  · simp [dyadicAnalyticExponentAlt, c, hc]
+  · rw [show dyadicAnalyticExponentAlt A n i = 0 by
+      simp [dyadicAnalyticExponentAlt, c, hc]]
     positivity
   · have hcpos : 0 < c := Nat.pos_of_ne_zero hc
     have hcRpos : (0 : ℝ) < c := by exact_mod_cast hcpos
@@ -321,9 +323,9 @@ lemma dyadicScale_add (a j : ℕ) :
 
 lemma dyadicScale_succ (i : ℕ) :
     dyadicScale (i + 1) = 2 * dyadicScale i := by
-  simp [dyadicScale, pow_succ, Nat.mul_assoc, Nat.mul_comm, Nat.mul_left_comm]
+  simp [dyadicScale, pow_succ, Nat.mul_comm]
 
-private lemma four_thirds_mul_sqrt_le_sqrt_two_mul (x : ℝ) (hx : 0 ≤ x) :
+private lemma four_thirds_mul_sqrt_le_sqrt_two_mul (x : ℝ) :
     (4 / 3 : ℝ) * Real.sqrt x ≤ Real.sqrt (2 * x) := by
   rw [Real.sqrt_mul (by norm_num : (0 : ℝ) ≤ 2)]
   have hs2 : (4 / 3 : ℝ) ≤ Real.sqrt 2 := by
@@ -335,9 +337,8 @@ private lemma sqrt_dyadicScale_growth (i : ℕ) :
     (4 / 3 : ℝ) * Real.sqrt (dyadicScale i) ≤
       Real.sqrt (dyadicScale (i + 1)) := by
   rw [dyadicScale_succ]
-  convert four_thirds_mul_sqrt_le_sqrt_two_mul (dyadicScale i : ℝ) (by
-    show (0 : ℝ) ≤ (dyadicScale i : ℝ)
-    exact_mod_cast (dyadicScale_pos i).le) using 1 <;> norm_num
+  convert four_thirds_mul_sqrt_le_sqrt_two_mul (dyadicScale i : ℝ) using 1
+  all_goals norm_num
 
 private lemma inv_sqrt_dyadicScale_decay (i : ℕ) :
     (Real.sqrt (dyadicScale (i + 1) : ℝ))⁻¹ ≤
@@ -484,7 +485,7 @@ lemma sum_high_inv_sqrt_dyadicScale (n a b : ℕ) (hn : 0 < n) :
           (inv_le_inv₀ hright hleft).2 hsqrt_sqrt
         exact hpoint.trans (htail.trans (by gcongr))
       · rw [Finset.sum_range_succ']
-        simp only [Nat.add_zero, if_neg ha, add_zero]
+        simp only [if_neg ha, add_zero]
         have htail := ih (a + 1)
         simpa only [Nat.add_assoc, Nat.add_left_comm, Nat.add_comm] using htail
 

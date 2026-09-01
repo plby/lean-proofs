@@ -48,7 +48,7 @@ theorem erdos_733 :
     cast_prod_dyadicAnalyticCap_le_exp_sqrt A (by omega : 1 ≤ A)
   refine ⟨C, hC, ?_⟩
   intro n
-  letI : Finite (compatibleSequences n) := by
+  let : Finite (compatibleSequences n) := by
     change Finite {X : List ℕ // LineCompatible n X}
     exact finite_compatibleSequences_of_bucket_bounds n
       (fun i : Fin n ↦ dyadicAnalyticCap A n i) (hcap n)

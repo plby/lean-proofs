@@ -17,8 +17,6 @@ resulting multiset.
 
 namespace Erdos733
 
-open Classical
-
 noncomputable section
 
 /-- The real Euclidean plane used in the incidence theorem. -/
@@ -27,6 +25,7 @@ abbrev Point := EuclideanSpace ℝ (Fin 2)
 /-- A nonempty affine subspace of real dimension one. -/
 abbrev Line := {ℓ : AffineSubspace ℝ Point // IsAffineLine ℓ}
 
+open Classical in
 /-- The number of points of `P` lying on `ℓ`. -/
 def lineCount (P : Finset Point) (ℓ : Line) : ℕ :=
   (P.filter fun p ↦ p ∈ (ℓ.1 : AffineSubspace ℝ Point)).card
@@ -57,20 +56,24 @@ def compatibleSequences (n : ℕ) : Set (List ℕ) :=
 @[simp]
 lemma lineSizeSequence_toMultiset (P : Finset Point) (L : Finset Line) :
     ((lineSizeSequence P L : List ℕ) : Multiset ℕ) = lineSizeMultiset P L := by
+  classical
   exact Multiset.sort_eq _ _
 
 lemma lineSizeSequence_sorted (P : Finset Point) (L : Finset Line) :
     (lineSizeSequence P L).Pairwise (· ≤ ·) := by
+  classical
   exact Multiset.pairwise_sort _ _
 
 lemma lineCount_le_card (P : Finset Point) (ℓ : Line) :
     lineCount P ℓ ≤ P.card := by
+  classical
   exact Finset.card_filter_le _ _
 
 lemma lineSizeMultiset_mem_bounds {P : Finset Point} {L : Finset Line}
     (hL : ∀ ℓ ∈ L, 2 ≤ lineCount P ℓ) {x : ℕ}
     (hx : x ∈ lineSizeMultiset P L) :
     2 ≤ x ∧ x ≤ P.card := by
+  classical
   rw [lineSizeMultiset, Multiset.mem_map] at hx
   obtain ⟨ℓ, hℓ, rfl⟩ := hx
   have hℓL : ℓ ∈ L := by simpa using hℓ
@@ -78,12 +81,14 @@ lemma lineSizeMultiset_mem_bounds {P : Finset Point} {L : Finset Line}
 
 lemma LineCompatible.sorted {n : ℕ} {X : List ℕ}
     (hX : LineCompatible n X) : X.Pairwise (· ≤ ·) := by
+  classical
   obtain ⟨P, _hP, L, _hL, rfl⟩ := hX
   exact lineSizeSequence_sorted P L
 
 lemma LineCompatible.mem_bounds {n : ℕ} {X : List ℕ}
     (hX : LineCompatible n X) {x : ℕ} (hx : x ∈ X) :
     2 ≤ x ∧ x ≤ n := by
+  classical
   obtain ⟨P, hP, L, hL, rfl⟩ := hX
   have hx' : x ∈ lineSizeMultiset P L := by
     rw [← lineSizeSequence_toMultiset]

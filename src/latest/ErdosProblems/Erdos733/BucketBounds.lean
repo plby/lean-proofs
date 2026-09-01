@@ -22,14 +22,13 @@ namespace Erdos733
 
 noncomputable section
 
-open Classical
-
 /-- Filtering the multiset of line sizes is the same as filtering the
 finset of distinct witnessing lines and then taking its cardinality. -/
 lemma card_dyadicBucket_lineSizeSequence
     (P : Finset Point) (L : Finset Line) (i : ℕ) :
     (dyadicBucket i (lineSizeSequence P L : Multiset ℕ)).card =
       (L.filter fun ℓ ↦ InDyadicBucket i (lineCount P ℓ)).card := by
+  classical
   rw [lineSizeSequence_toMultiset]
   rw [dyadicBucket, lineSizeMultiset, Multiset.filter_map, Multiset.card_map]
   rfl
@@ -40,6 +39,7 @@ lemma LineCompatible.dyadicBucket_eq_zero_of_lt_scale
     {n : ℕ} {X : List ℕ} (hX : LineCompatible n X) (i : ℕ)
     (hnq : n < dyadicScale i) :
     dyadicBucket i (X : Multiset ℕ) = 0 := by
+  classical
   rw [dyadicBucket, Multiset.filter_eq_nil]
   intro x hxX hxBucket
   have hxList : x ∈ X := Multiset.mem_coe.mp hxX
@@ -62,6 +62,7 @@ theorem exists_compatible_bucketBounds_of_globalRichLinesBound
         ∀ i : Fin n,
           (dyadicBucket i (X : Multiset ℕ)).card ≤
             dyadicAnalyticCap A n i := by
+  classical
   obtain ⟨C, hC, hrich⟩ := hglobal
   obtain ⟨A, hCA⟩ := exists_nat_gt (2 * C)
   have hApos : 0 < A := by
@@ -104,7 +105,8 @@ theorem exists_compatible_bucketBounds_of_globalRichLinesBound
           (n : ℝ) ^ 2 / (dyadicScale i : ℝ) ^ 3 := by
         apply (div_le_div_iff₀ hqR (pow_pos hqR 3)).2
         have hm := mul_le_mul_of_nonneg_right hbase hqR.le
-        convert hm using 1 <;> ring
+        convert hm using 1
+        ring
       have hpre : (B.card : ℝ) ≤
           2 * C * ((n : ℝ) ^ 2 / (dyadicScale i : ℝ) ^ 3) := by
         calc
@@ -116,14 +118,15 @@ theorem exists_compatible_bucketBounds_of_globalRichLinesBound
           _ = 2 * C * ((n : ℝ) ^ 2 / (dyadicScale i : ℝ) ^ 3) := by ring
       have hdiv : (B.card : ℝ) ≤
           (2 * C * (n : ℝ) ^ 2) / (dyadicScale i : ℝ) ^ 3 := by
-        convert hpre using 1 <;> ring
+        convert hpre using 1
+        ring
       have hmul := (le_div_iff₀ (pow_pos hqR 3)).mp hdiv
       have hmulA : (B.card : ℝ) * (dyadicScale i : ℝ) ^ 3 ≤
           (A : ℝ) * (n : ℝ) ^ 2 := by
         calc
           (B.card : ℝ) * (dyadicScale i : ℝ) ^ 3 ≤
               (2 * C) * (n : ℝ) ^ 2 := by
-            convert hmul using 1 <;> ring
+            exact hmul
           _ ≤ (A : ℝ) * (n : ℝ) ^ 2 :=
             mul_le_mul_of_nonneg_right hCA.le (sq_nonneg (n : ℝ))
       have hmulNat : B.card * dyadicScale i ^ 3 ≤ A * n ^ 2 := by
@@ -144,7 +147,8 @@ theorem exists_compatible_bucketBounds_of_globalRichLinesBound
           (n : ℝ) / (dyadicScale i : ℝ) := by
         apply (div_le_div_iff₀ (pow_pos hqR 3) hqR).2
         have hm := mul_le_mul_of_nonneg_right hbase hqR.le
-        convert hm using 1 <;> ring
+        convert hm using 1
+        ring
       have hpre : (B.card : ℝ) ≤
           2 * C * ((n : ℝ) / (dyadicScale i : ℝ)) := by
         calc
@@ -156,13 +160,14 @@ theorem exists_compatible_bucketBounds_of_globalRichLinesBound
           _ = 2 * C * ((n : ℝ) / (dyadicScale i : ℝ)) := by ring
       have hdiv : (B.card : ℝ) ≤
           (2 * C * (n : ℝ)) / (dyadicScale i : ℝ) := by
-        convert hpre using 1 <;> ring
+        convert hpre using 1
+        ring
       have hmul := (le_div_iff₀ hqR).mp hdiv
       have hmulA : (B.card : ℝ) * (dyadicScale i : ℝ) ≤
           (A : ℝ) * n := by
         calc
           (B.card : ℝ) * (dyadicScale i : ℝ) ≤ (2 * C) * n := by
-            convert hmul using 1 <;> ring
+            exact hmul
           _ ≤ (A : ℝ) * n :=
             mul_le_mul_of_nonneg_right hCA.le hnR
       have hmulNat : B.card * dyadicScale i ≤ A * n := by
@@ -180,6 +185,7 @@ theorem exists_compatible_bucketBounds :
         ∀ i : Fin n,
           (dyadicBucket i (X : Multiset ℕ)).card ≤
             dyadicAnalyticCap A n i := by
+  classical
   apply exists_compatible_bucketBounds_of_globalRichLinesBound
   simpa only [lineCount] using globalRichLinesBound
 

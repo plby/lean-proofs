@@ -77,7 +77,7 @@ theorem finite_compatibleSequences_of_bucket_bounds
     (hcap : ∀ (X : List ℕ), LineCompatible n X →
       ∀ i : Fin n, (dyadicBucket i (X : Multiset ℕ)).card ≤ cap i) :
     Finite {X : List ℕ // LineCompatible n X} := by
-  letI : Finite (CappedDyadicMultisets n cap) :=
+  let : Finite (CappedDyadicMultisets n cap) :=
     Finite.of_injective
       (encodeCappedDyadicMultiset (b := n) (cap := cap))
       encodeCappedDyadicMultiset_injective
@@ -92,7 +92,7 @@ theorem natCard_compatibleSequences_le_of_bucket_bounds
       ∀ i : Fin n, (dyadicBucket i (X : Multiset ℕ)).card ≤ cap i) :
     Nat.card {X : List ℕ // LineCompatible n X} ≤
       ∏ i : Fin n, (dyadicScale i + cap i).choose (cap i) := by
-  letI : Finite (CappedDyadicMultisets n cap) :=
+  let : Finite (CappedDyadicMultisets n cap) :=
     Finite.of_injective
       (encodeCappedDyadicMultiset (b := n) (cap := cap))
       encodeCappedDyadicMultiset_injective
