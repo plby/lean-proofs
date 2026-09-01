@@ -24,7 +24,8 @@ open SimpleGraph
 /-- Every sufficiently large odd cycle is forced on `4 * n - 3` vertices. -/
 theorem eventually_isRamseyOrder_odd_cycle :
     ∃ n₀ : ℕ, ∀ n : ℕ, n₀ ≤ n → Odd n → IsRamseyOrder n (4 * n - 3) := by
-  obtain ⟨n₁, hclean⟩ := exists_clean_profile_system profileRefinementError profileRefinementError_pos
+  obtain ⟨n₁, hclean⟩ :=
+    exists_clean_profile_system profileRefinementError profileRefinementError_pos
   obtain ⟨R₀, hrefine⟩ := exists_uniform_profile_refinements
   refine ⟨max n₁ (2 * max R₀ 4 + 1), ?_⟩
   intro n hn hodd c
