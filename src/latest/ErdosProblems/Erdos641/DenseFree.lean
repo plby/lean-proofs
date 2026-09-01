@@ -10,7 +10,7 @@ cylinders controlled by the PRS all-scales union bound.
 -/
 
 open Finset Fintype Filter
-open scoped BigOperators Classical
+open scoped BigOperators
 
 namespace Erdos641
 
@@ -18,6 +18,9 @@ open SimpleGraph
 open Erdos182
 
 noncomputable section
+
+open Classical in
+section
 
 /-- Regard `j + 1` as a layer index. -/
 def jssSuccessorLayer {n : ℕ}
@@ -145,10 +148,11 @@ theorem eventually_exists_jssOutcome_avoiding_dense :
     simpa using hxcut
   let z : Fin (prsBadCutoff n j) := ⟨x - 1, by
     rw [prsBadCutoff]
-    change x - 1 < 1000 * prsLayerSize n (j.val + 1)
     omega⟩
   apply hAvoid j z
   simpa [z, Nat.sub_add_cancel hx] using hxmem
+
+end
 
 end
 

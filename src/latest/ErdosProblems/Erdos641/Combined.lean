@@ -11,7 +11,7 @@ Their union therefore cannot cover the sample space.
 -/
 
 open Finset Fintype Filter
-open scoped BigOperators Classical
+open scoped BigOperators
 
 namespace Erdos641
 
@@ -19,6 +19,9 @@ open SimpleGraph
 open Erdos182
 
 noncomputable section
+
+open Classical in
+section
 
 /-- The demand family used at a shifted layer and a positive candidate-set
 size `z+1`. -/
@@ -395,6 +398,8 @@ theorem eventually_exists_regularFree_not_colorable (q : ℕ) (hq : 0 < q) :
     apply Finset.mem_union_right
     exact mem_chromaticBad_of_coloring hq hlayer hcolorCount ω hω C
   exact ⟨ω, hω, hregular, hnotColor⟩
+
+end
 
 end
 

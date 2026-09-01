@@ -12,7 +12,7 @@ exponentially small relative-cardinality bound.  The repetition parameter
 -/
 
 open Finset Fintype Filter
-open scoped BigOperators Classical
+open scoped BigOperators
 
 namespace Erdos641
 
@@ -20,6 +20,9 @@ open SimpleGraph
 open Erdos182
 
 noncomputable section
+
+open Classical in
+section
 
 /-- Number of later majority layers retained for one color. -/
 def chromaticRepetitions (q : ℕ) : ℕ := 20 * q ^ 2
@@ -383,6 +386,8 @@ lemma chromaticBad_ratio_lt_one_quarter {n q : ℕ} (hq : 0 < q)
       sum_exp_neg_succ_mul_half_le L 36 hhalf
     _ = 2 * Real.exp (-18) := by norm_num
     _ < 1 / 4 := hsmall
+
+end
 
 end
 

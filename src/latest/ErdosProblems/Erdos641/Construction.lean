@@ -11,7 +11,7 @@ its value is one uniformly available target in that later layer.
 -/
 
 open Finset Fintype Filter
-open scoped BigOperators Classical
+open scoped BigOperators
 
 namespace Erdos641
 
@@ -19,6 +19,9 @@ open SimpleGraph
 open Erdos182
 
 noncomputable section
+
+open Classical in
+section
 
 /-- Vertices in all active JSS layers. -/
 abbrev JSSVertex (n : ℕ) :=
@@ -209,6 +212,8 @@ lemma eventually_card_JSSVertex_le :
   filter_upwards [eventually_prsLayer_sum_le] with n hn
   rw [card_JSSVertex]
   exact hn
+
+end
 
 end
 

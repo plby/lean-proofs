@@ -11,7 +11,7 @@ such a prefix.
 -/
 
 open Finset Fintype Filter
-open scoped BigOperators Classical
+open scoped BigOperators
 
 namespace Erdos641
 
@@ -19,6 +19,9 @@ open SimpleGraph
 open Erdos182
 
 noncomputable section
+
+open Classical in
+section
 
 /-- Vertices strictly after layer `i`. -/
 def jssStrictTail (n : ℕ) (i : Fin (prsLayerCount n)) :
@@ -134,7 +137,7 @@ lemma card_layeredEdgesMeeting_le_sum_degree {V : Type*} [Fintype V]
 /-- Unpack a support-sensitive regular subgraph as a spanning coefficient
 graph on the ambient vertex type. -/
 lemma exists_supportedRegular_of_containsRegularSubgraph
-    {V : Type*} [Fintype V] [DecidableEq V]
+    {V : Type*} [Fintype V]
     {G : SimpleGraph V} {k : ℕ} (hk : 0 < k)
     (hcontains : ContainsRegularSubgraph G k) :
     ∃ K : SimpleGraph V, K ≤ G ∧ K.support.Nonempty ∧
@@ -444,7 +447,7 @@ lemma card_inside_le_induce_supportInter {n : ℕ} {ω : JSSOutcome n}
 
 /-- Handshaking for a graph that is 4-regular on its nonempty support. -/
 lemma card_edgeFinset_eq_two_mul_support {V : Type*} [Fintype V]
-    [DecidableEq V] (K : SimpleGraph V)
+    (K : SimpleGraph V)
     (hKreg : ∀ v ∈ K.support, K.degree v = 4) :
     K.edgeFinset.card = 2 * K.support.ncard := by
   classical
@@ -643,6 +646,8 @@ theorem isRegularSubgraphFree_four_of_avoids_dense {n : ℕ}
   obtain ⟨j, hj⟩ := denseJSSPrefixBad_of_containsRegularSubgraph
     hcount htailBound ω hω hcontains
   exact havoid j hj
+
+end
 
 end
 

@@ -11,7 +11,7 @@ analytic estimates from `Erdos182`.
 -/
 
 open Finset Fintype Filter
-open scoped BigOperators Classical
+open scoped BigOperators
 
 namespace Erdos641
 
@@ -19,6 +19,9 @@ open SimpleGraph
 open Erdos182
 
 noncomputable section
+
+open Classical in
+section
 
 /-- A proposed edge, consisting of a coordinate and one possible value of
 that coordinate. -/
@@ -239,7 +242,7 @@ lemma image_realizedCandidateJSSDemands {n : ℕ} (ω : JSSOutcome n)
             change jssTarget ω hω c ∈ s(a, b).toFinset
             rw [hct]
             simp
-        · simpa [d, jssDemandTarget] using (jssTarget_eq_outcome ω hω c).symm
+        · simp [d, jssDemandTarget]
       · change s(c.source, jssTarget ω hω c) = s(a, b)
         rw [hcs, hct]
     · let d : JSSDemand n := ⟨c, jssTargetIndex ω hω c⟩
@@ -257,7 +260,7 @@ lemma image_realizedCandidateJSSDemands {n : ℕ} (ω : JSSOutcome n)
             change jssTarget ω hω c ∈ s(a, b).toFinset
             rw [hcs]
             simp
-        · simpa [d, jssDemandTarget] using (jssTarget_eq_outcome ω hω c).symm
+        · simp [d, jssDemandTarget]
       · change s(c.source, jssTarget ω hω c) = s(a, b)
         rw [hct, hcs]
         exact Sym2.eq_swap
@@ -301,7 +304,7 @@ def candidateJSSDemandEdgeIn {n : ℕ} (S : Finset (JSSVertex n))
   let v : (S : Set (JSSVertex n)) :=
     ⟨jssDemandTarget d.1, (mem_candidateJSSDemands.mp d.2).2⟩
   refine ⟨s(u, v), ?_⟩
-  simp only [SimpleGraph.mem_edgeFinset, SimpleGraph.top_adj, ne_eq]
+  simp only [SimpleGraph.mem_edgeFinset]
   intro huv
   have hbad := congrArg (fun z : (S : Set (JSSVertex n)) ↦ z.1.1) huv
   exact (ne_of_lt d.1.coord.isLt) (by simpa [u, v, jssDemandTarget] using hbad)
@@ -405,6 +408,8 @@ lemma allowed_card_lower_of_mem_prefixJSSCoordinateDemands {n : ℕ}
     rw [← hec]
   rw [card_jssAllowed, htarget]
   exact hmono e.coord.targetLayer (by simpa [jssDemandTarget] using htPrefix)
+
+end
 
 end
 

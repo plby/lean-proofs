@@ -13,7 +13,7 @@ introduced.
 -/
 
 open Finset Fintype Filter
-open scoped BigOperators Classical
+open scoped BigOperators
 
 namespace Erdos641
 
@@ -21,6 +21,9 @@ open SimpleGraph
 open Erdos182
 
 noncomputable section
+
+open Classical in
+section
 
 /-- The ceiling of `b / q`, in the generic ordered-semiring notation used by
 Mathlib's floor/ceiling division API. -/
@@ -361,6 +364,8 @@ lemma mem_chromaticBad_of_coloring {n q R : ℕ} (hq : 0 < q)
         have hiMajor : major i = a := (Finset.mem_filter.mp hiL).2
         simp [A, hiMajor])
     · exact hJcard ▸ Finset.card_le_card hJheavy
+
+end
 
 end
 
