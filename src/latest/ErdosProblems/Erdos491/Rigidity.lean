@@ -28,7 +28,7 @@ theorem normalized_completely_additive_eq_zero {h : ℕ → ℝ}
     have heq : h p₀ - b * Real.log (p₀ : ℝ) = h p₀ / 2 := by
       dsimp [b]
       field_simp
-      <;> ring
+      ring
     rw [heq]
     positivity
   let ε : ℝ := b / 8

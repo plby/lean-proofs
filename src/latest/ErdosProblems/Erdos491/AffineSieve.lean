@@ -12,7 +12,7 @@ noncomputable def inverseResidues (q H : ℕ) : Finset (ZMod q) :=
 lemma inverseResidues_card {q H : ℕ} (hq : q.Prime) (hH : H < q) :
     (inverseResidues q H).card = H := by
   classical
-  letI : Fact q.Prime := ⟨hq⟩
+  let _ : Fact q.Prime := ⟨hq⟩
   rw [inverseResidues, Finset.card_image_of_injOn]
   · simp
   · intro a ha b hb heq
@@ -26,7 +26,7 @@ lemma mem_inverseResidues_iff {q H n : ℕ} (hq : q.Prime) (hH : H < q) :
     (n : ZMod q) ∈ inverseResidues q H ↔
       ∃ u : ℕ, 1 ≤ u ∧ u ≤ H ∧ q ∣ n * u + 1 := by
   classical
-  letI : Fact q.Prime := ⟨hq⟩
+  let _ : Fact q.Prime := ⟨hq⟩
   have hiff (u : ℕ) (hu1 : 1 ≤ u) (huH : u ≤ H) :
       -(u : ZMod q)⁻¹ = (n : ZMod q) ↔ q ∣ n * u + 1 := by
     have huq : u < q := huH.trans_lt hH
@@ -62,7 +62,8 @@ theorem affine_avoidance_second_moment (Q P : Finset ℕ) (H T : ℕ)
         (∑ q ∈ Q, (q : ℝ)) + (∑ q ∈ Q, (q : ℝ)) ^ 2 := by
   classical
   let q : {q // q ∈ Q} → ℕ := Subtype.val
-  letI (i : {q // q ∈ Q}) : NeZero (q i) := ⟨(hprime i i.property).ne_zero⟩
+  let _ : ∀ i : {q // q ∈ Q}, NeZero (q i) :=
+    fun i ↦ ⟨(hprime i i.property).ne_zero⟩
   let A (i : {q // q ∈ Q}) := inverseResidues (q i) H
   have hcard (i : {q // q ∈ Q}) : (A i).card = H :=
     inverseResidues_card (hprime i i.property) (hH i i.property)

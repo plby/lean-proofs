@@ -32,7 +32,7 @@ lemma affine_density_linear_bound (Q : Finset ℕ) (H : ℕ) {R : ℝ}
     _ = _ := (Finset.mul_sum _ _ _).symm
 
 lemma sieve_scalar_bound {P T S μ R H : ℝ}
-    (hμ : 0 < μ) (hH : 0 < H) (hS : 1 ≤ S) (hR : 0 ≤ R)
+    (hμ : 0 < μ) (hH : 0 < H) (hS : 1 ≤ S)
     (hlinear : S * H ≤ R ^ 2 * μ)
     (hvar : P * μ ^ 2 ≤ T * μ + S + S ^ 2) :
     P ≤ T / μ + 2 * R ^ 4 / H ^ 2 := by
@@ -67,7 +67,7 @@ theorem affine_avoidance_card_bound (Q P : Finset ℕ) {H T : ℕ} {R : ℝ}
     have hq1 : (1 : ℝ) ≤ q₀ := by exact_mod_cast (hprime q₀ hq₀).one_le
     exact hq1.trans hsingle
   have hR0 : 0 ≤ R := (Nat.cast_nonneg q₀).trans (hR q₀ hq₀)
-  apply sieve_scalar_bound hμ (Nat.cast_pos.mpr hH) hS hR0
+  apply sieve_scalar_bound hμ (Nat.cast_pos.mpr hH) hS
   · calc
       (∑ q ∈ Q, (q : ℝ)) * H ≤ (R * Q.card) * H :=
         mul_le_mul_of_nonneg_right hsum (Nat.cast_nonneg H)

@@ -206,7 +206,7 @@ lemma PosCompletelyAdditive.abs_le_natLog_two_mul
   intro n
   induction n using Nat.binaryRecFromOne with
   | zero => simp
-  | one => simpa [hf.one_eq_zero]
+  | one => simp [hf.one_eq_zero]
   | bit b n hn ih =>
       intro _
       have hnpos : 0 < n := Nat.pos_of_ne_zero hn
@@ -329,7 +329,6 @@ lemma dyadicValue_tail
         rw [← pow_add, Nat.add_sub_of_le hkl]
       rw [hpowers]
       field_simp
-      <;> ring
 
 /-- Every positive base has a dyadic limit, with Máté's uniform tail
 estimate. -/
@@ -435,9 +434,7 @@ lemma gridMultiplier_pos (n k t : ℕ) : 0 < gridMultiplier n k t := by
 lemma gridMultiplier_coprime (n k t : ℕ) :
     (gridMultiplier n k t).Coprime (n ^ (2 ^ k) - 1) := by
   unfold gridMultiplier
-  simpa [add_comm] using
-    (Nat.coprime_add_mul_left_left 1 (n ^ (2 ^ k) - 1)
-      (t / ((n ^ (2 ^ k) - 1) * 2 ^ k))).2 (by simp)
+  simp [add_comm]
 
 lemma gridExponent_pos (n k t : ℕ) : 0 < gridExponent n k t := by
   exact mul_pos (gridMultiplier_pos n k t) (pow_pos (by omega) k)
@@ -595,8 +592,6 @@ lemma tendsto_normalized_powers_of_dyadic_limit
   by_cases hn1 : n = 1
   · subst n
     have hf1 : f 1 = 0 := hf.one_eq_zero
-    have htail0 := htail 0
-    simp [dyadicValue, hf1] at htail0
     have hg0 : g = 0 := by
       have hMseq : ∀ k : ℕ, |g| ≤ 4 * M / (2 : ℝ) ^ k := by
         intro k

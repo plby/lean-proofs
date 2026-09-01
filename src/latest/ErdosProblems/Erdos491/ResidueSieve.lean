@@ -6,7 +6,7 @@ open scoped BigOperators
 
 namespace Erdos491
 
-lemma finite_gram_upper {ι κ : Type*} [DecidableEq ι] [DecidableEq κ]
+lemma finite_gram_upper {ι κ : Type*}
     (S : Finset ι) (J : Finset κ) (phi : κ → ι → ℝ) (diag weight : κ → ℝ)
     (hw : ∀ i ∈ J, 0 ≤ weight i)
     (hdiag : ∀ i ∈ J, (∑ n ∈ S, phi i n ^ 2) ≤ diag i)
@@ -14,6 +14,7 @@ lemma finite_gram_upper {ι κ : Type*} [DecidableEq ι] [DecidableEq κ]
       |∑ n ∈ S, phi i n * phi j n| ≤ weight i * weight j) :
     (∑ n ∈ S, (∑ i ∈ J, phi i n) ^ 2) ≤
       (∑ i ∈ J, diag i) + (∑ i ∈ J, weight i) ^ 2 := by
+  classical
   have hterm : ∀ i ∈ J, ∀ j ∈ J,
       (∑ n ∈ S, phi i n * phi j n) ≤
         (if i = j then diag i else 0) + weight i * weight j := by
@@ -47,13 +48,14 @@ lemma finite_gram_upper {ι κ : Type*} [DecidableEq ι] [DecidableEq κ]
         simp_rw [← Finset.mul_sum]
         rw [← Finset.sum_mul]
 
-theorem residue_second_moment {ι : Type*} [DecidableEq ι]
+theorem residue_second_moment {ι : Type*}
     (Q : Finset ι) (q : ι → ℕ) [∀ i, NeZero (q i)]
     (A : ∀ i, Finset (ZMod (q i))) (T : ℕ)
     (hcop : ∀ i ∈ Q, ∀ j ∈ Q, i ≠ j → (q i).Coprime (q j)) :
     (∑ n ∈ Finset.range T, (∑ i ∈ Q, centeredResidue (A i) n) ^ 2) ≤
       (T : ℝ) * (∑ i ∈ Q, ((A i).card : ℝ) / q i) +
         (∑ i ∈ Q, (q i : ℝ)) + (∑ i ∈ Q, (q i : ℝ)) ^ 2 := by
+  classical
   have h := finite_gram_upper (Finset.range T) Q
     (fun i n ↦ centeredResidue (A i) n)
     (fun i ↦ (T : ℝ) / q i * (A i).card + q i) (fun i ↦ (q i : ℝ))
@@ -68,7 +70,7 @@ theorem residue_second_moment {ι : Type*} [DecidableEq ι]
 
 /-- Every member of `P` misses every prescribed residue set. Its contribution
 to the second moment is therefore the square of the total excluded density. -/
-theorem residue_avoidance_bound {ι : Type*} [DecidableEq ι]
+theorem residue_avoidance_bound {ι : Type*}
     (Q : Finset ι) (q : ι → ℕ) [∀ i, NeZero (q i)]
     (A : ∀ i, Finset (ZMod (q i))) (T : ℕ) (P : Finset ℕ)
     (hP : P ⊆ Finset.range T)

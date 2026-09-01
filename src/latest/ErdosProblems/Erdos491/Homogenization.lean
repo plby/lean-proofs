@@ -32,7 +32,7 @@ lemma geometric_power_error
   have hadd : f (n ^ s - 1) = f (n - 1) + f G := by
     rw [← hmul]
     exact hf hGcop
-  have hgeom := Erdos491MateScratch.geom_estimate hf' hM
+  have hgeom := Erdos491MateScratch.geom_estimate hf'
     (fun n _ ↦ hgap n) n (s - 1) hn
   have heq : f (n ^ s) - (s : ℝ) * f n =
       (f (n ^ s) - f (n ^ s - 1)) + (f (n - 1) - f n) +
@@ -140,7 +140,7 @@ theorem uniform_approximation_le_two_mul
         div_le_div_of_nonneg_right hsum hk.le
       _ = 2 * M + (2 * M + B) / (2 : ℝ) ^ k := by
         field_simp
-        <;> ring
+        ring
   have ht : Tendsto (fun k : ℕ ↦ 2 * M + (2 * M + B) / (2 : ℝ) ^ k)
       atTop (𝓝 (2 * M)) := by
     simpa using tendsto_const_nhds.add

@@ -63,7 +63,6 @@ lemma geom_pred_mul (n s : ℕ) (hn : 1 ≤ n) (hs : 1 ≤ s) :
 lemma geom_coprime_pred (n s : ℕ) (hn : 1 ≤ n) (hs : 1 ≤ s)
     (hcop : s.Coprime (n - 1)) : (n - 1).Coprime (geom n (s - 1)) := by
   rw [Nat.Coprime, Nat.gcd_rec]
-  change Nat.gcd (geom n (s - 1) % (n - 1)) (n - 1) = 1
   have hmod := geom_modEq_succ n (s - 1) hn
   rw [Nat.sub_add_cancel hs] at hmod
   rw [hmod]
@@ -78,7 +77,6 @@ lemma value_one (hf : CoprimeAdditive f) : f 1 = 0 := by
   linarith
 
 lemma gap_telescoping
-    (hM : 0 ≤ M)
     (hgap : ∀ n : ℕ, 1 ≤ n → |f (n + 1) - f n| ≤ M)
     (a d : ℕ) (ha : 1 ≤ a) :
     |f (a + d) - f a| ≤ (d : ℝ) * M := by
@@ -97,7 +95,6 @@ lemma gap_telescoping
 
 lemma geom_estimate
     (hf : CoprimeAdditive f)
-    (hM : 0 ≤ M)
     (hgap : ∀ n : ℕ, 1 ≤ n → |f (n + 1) - f n| ≤ M)
     (n j : ℕ) (hn : 1 ≤ n) :
     |f (geom n j) - (j : ℝ) * f n| ≤ (j : ℝ) * M := by
@@ -131,8 +128,9 @@ lemma mate1
     |f (n ^ s) - (s : ℝ) * f n| ≤ 2 * (s : ℝ) * M := by
   by_cases hn1 : n = 1
   · subst n
-    simp [value_one hf]
-    positivity
+    rw [one_pow, value_one hf]
+    simp only [mul_zero, sub_zero, abs_zero]
+    exact mul_nonneg (mul_nonneg (by norm_num) (Nat.cast_nonneg s)) hM
   · have hn2 : 2 ≤ n := by omega
     let G := geom n (s - 1)
     have hGpos : 1 ≤ G := geom_pos n (s - 1)
@@ -148,7 +146,7 @@ lemma mate1
       exact hf hprepos hGpos hGcop
     have htop := hgap (n ^ s - 1) hpowpos
     have hbot := hgap (n - 1) hprepos
-    have hgeom := geom_estimate hf hM hgap n (s - 1) hn
+    have hgeom := geom_estimate hf hgap n (s - 1) hn
     have heq : f (n ^ s) - (s : ℝ) * f n =
         (f (n ^ s) - f (n ^ s - 1)) + (f (n - 1) - f n) +
           (f G - ((s - 1 : ℕ) : ℝ) * f n) := by
@@ -239,15 +237,14 @@ lemma power_coprime_pred (n i : ℕ) (hn : 1 ≤ n) (hi : 1 ≤ i) :
     exact hadj'.symm
   apply hadj.of_dvd_left
   obtain ⟨r, rfl⟩ := Nat.exists_eq_add_of_le hi
-  simp [Nat.pow_succ]
+  simp
 
 lemma value_bound
     (hf : CoprimeAdditive f)
-    (hM : 0 ≤ M)
     (hgap : ∀ n : ℕ, 1 ≤ n → |f (n + 1) - f n| ≤ M)
     (n : ℕ) (hn : 1 ≤ n) :
     |f n| ≤ ((n - 1 : ℕ) : ℝ) * M := by
-  have h := gap_telescoping hM hgap 1 (n - 1) (by omega)
+  have h := gap_telescoping hgap 1 (n - 1) (by omega)
   simpa [Nat.add_sub_of_le hn, value_one hf] using h
 
 lemma power_step
@@ -273,7 +270,7 @@ lemma power_step
   have hadd : f (n ^ (i + 1) - n) = f n + f (n ^ i - 1) := by
     rw [← hident]
     exact hf hnpos hpowip (power_coprime_pred n i hnpos hi)
-  have htop := gap_telescoping hM hgap (n ^ (i + 1) - n) n hbig
+  have htop := gap_telescoping hgap (n ^ (i + 1) - n) n hbig
   have htop' : |f (n ^ (i + 1)) - f (n ^ (i + 1) - n)| ≤ (n : ℝ) * M := by
     have hle : n ≤ n ^ (i + 1) := Nat.le_pow (by omega)
     rw [Nat.sub_add_cancel hle] at htop
@@ -284,7 +281,7 @@ lemma power_step
     have hp : 1 ≤ n ^ i := Nat.pow_pos hnpos
     rw [Nat.sub_add_cancel hp] at hbot
     exact hbot
-  have hnval := value_bound hf hM hgap n hnpos
+  have hnval := value_bound hf hgap n hnpos
   have heq : f (n ^ (i + 1)) - f (n ^ i) =
       (f (n ^ (i + 1)) - f (n ^ (i + 1) - n)) + f n +
         (f (n ^ i - 1) - f (n ^ i)) := by
@@ -338,18 +335,20 @@ lemma mate3
       4 * (Nat.dist t s : ℝ) * (n : ℝ) * M := by
   by_cases hn1 : n = 1
   · subst n
-    simp
+    simp only [one_pow, sub_self, abs_zero, Nat.cast_one, mul_one]
     positivity
   · have hn2 : 2 ≤ n := by omega
     rcases le_total s t with hst | hts
     · obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_le hst
       have h := power_telescoping hf hM hgap n s d hn2 hs
       rw [Nat.dist_eq_sub_of_le_right (Nat.le_add_right s d), Nat.add_sub_cancel_left]
-      convert h using 1 <;> ring
+      convert h using 1
+      all_goals ring
     · obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_le hts
       have h := power_telescoping hf hM hgap n t d hn2 ht
       rw [abs_sub_comm]
       rw [Nat.dist_eq_sub_of_le (Nat.le_add_right t d), Nat.add_sub_cancel_left]
-      convert h using 1 <;> ring
+      convert h using 1
+      all_goals ring
 
 end Erdos491MateScratch

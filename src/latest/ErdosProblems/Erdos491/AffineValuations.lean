@@ -13,7 +13,7 @@ private def affineResidue (a d : ℕ) : ℕ :=
 
 private lemma affine_dvd_modEq (a d t : ℕ) (hd : d ≠ 0) (h : a.Coprime d) :
     d ∣ a * (t + 1) + 1 ↔ t ≡ affineResidue a d [MOD d] := by
-  letI : NeZero d := ⟨hd⟩
+  let _ : NeZero d := ⟨hd⟩
   rw [← Nat.modEq_zero_iff_dvd, ← ZMod.natCast_eq_natCast_iff,
     ← ZMod.natCast_eq_natCast_iff]
   simp only [Nat.cast_add, Nat.cast_mul, Nat.cast_one, affineResidue,
@@ -84,7 +84,7 @@ lemma affineCount_le_one (a d N : ℕ) (hd : 0 < d)
 
 lemma coprime_affine (a m : ℕ) : a.Coprime (a * m + 1) := by
   rw [mul_comm a m, add_comm]
-  simpa using (Nat.coprime_add_mul_left_right a 1 m).mpr (Nat.coprime_one_right a)
+  simp
 
 lemma affineCount_eq_zero (a d N : ℕ) (h : ¬ a.Coprime d) :
     affineCount a d N = 0 := by

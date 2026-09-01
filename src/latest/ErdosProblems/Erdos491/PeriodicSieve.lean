@@ -92,7 +92,7 @@ lemma centeredResidue_mean_zero {q : ℕ} [NeZero q] (A : Finset (ZMod q)) :
     Finset.filter_mem_eq_inter, Finset.univ_inter, Finset.sum_const,
     Finset.card_univ, ZMod.card, nsmul_eq_mul]
   field_simp
-  <;> ring
+  ring
 
 lemma abs_centeredResidue_le_one {q : ℕ} [NeZero q]
     (A : Finset (ZMod q)) (z : ZMod q) : |centeredResidue A z| ≤ 1 := by
