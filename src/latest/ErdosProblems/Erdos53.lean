@@ -268,7 +268,7 @@ theorem exists_cube_blocks (A : Finset α) (m : ℕ) (hm : m ≠ 0)
     simpa [pow_succ, mul_comm] using Nat.mul_div_left m (pow_pos hmpos 2)
   have hmod : A.card % P.parts.card = 0 := by
     rw [hA, hPcard]
-    simpa [pow_succ] using Nat.mul_mod_right (m ^ 2) m
+    simp [pow_succ]
   have hlarge :
       {p ∈ P.parts | p.card = A.card / P.parts.card + 1}.card = 0 := by
     simpa [hmod] using hPeq.card_large_parts_eq_mod
@@ -993,14 +993,14 @@ lemma cast_natSumProdValues_mapsTo (B : Finset ℕ) :
     · exact Finset.map_subset_map.mpr hCB
     · simp only [Finset.sum_map]
       change ∑ x ∈ C, (x : ℤ) = (↑(∑ x ∈ C, x) : ℤ)
-      simpa using (Nat.cast_sum (R := ℤ) C id).symm
+      simp
   · obtain ⟨C, hCB, rfl⟩ := mem_subsetProducts_iff.mp hx
     apply Finset.mem_union_right
     refine mem_subsetProducts_iff.mpr ⟨C.map natCastEmbedding, ?_, ?_⟩
     · exact Finset.map_subset_map.mpr hCB
     · simp only [Finset.prod_map]
       change ∏ x ∈ C, (x : ℤ) = (↑(∏ x ∈ C, x) : ℤ)
-      simpa using (Nat.cast_prod (R := ℤ) id C).symm
+      simp
 
 lemma card_natSumProdValues_le_cast (B : Finset ℕ) :
     (natSumProdValues B).card ≤ (sumProdValues (B.map natCastEmbedding)).card := by
@@ -1014,15 +1014,15 @@ lemma natSumProdValues_subset_natAbs_image_neg (B : Finset ℕ) :
   rcases Finset.mem_union.mp hx with hx | hx
   · obtain ⟨C, hCB, rfl⟩ := Finset.mem_subsetSum_iff.mp hx
     refine Finset.mem_image.mpr ⟨-(∑ c ∈ C, c : ℤ), ?_, ?_⟩
-    apply Finset.mem_union_left
-    refine Finset.mem_subsetSum_iff.mpr ⟨C.map negNatCastEmbedding, ?_, ?_⟩
-    · exact Finset.map_subset_map.mpr hCB
-    · simp only [Finset.sum_map]
-      change ∑ x ∈ C, -(x : ℤ) = -∑ c ∈ C, (c : ℤ)
-      rw [Finset.sum_neg_distrib]
+    · apply Finset.mem_union_left
+      refine Finset.mem_subsetSum_iff.mpr ⟨C.map negNatCastEmbedding, ?_, ?_⟩
+      · exact Finset.map_subset_map.mpr hCB
+      · simp only [Finset.sum_map]
+        change ∑ x ∈ C, -(x : ℤ) = -∑ c ∈ C, (c : ℤ)
+        rw [Finset.sum_neg_distrib]
     · rw [Int.natAbs_neg]
       have hcast : (∑ c ∈ C, (c : ℤ)) = (↑(∑ c ∈ C, c) : ℤ) := by
-        simpa using (Nat.cast_sum (R := ℤ) C id).symm
+        simp
       rw [hcast, Int.natAbs_natCast]
   · obtain ⟨C, hCB, rfl⟩ := mem_subsetProducts_iff.mp hx
     let z : ℤ := ∏ c ∈ C.map negNatCastEmbedding, c
@@ -1180,7 +1180,7 @@ theorem integer_resolution_of_positive_naturals
       intro hz0
       subst z
       have hzA0 : (0 : ℤ) ∈ A0 := (Finset.mem_filter.mp hz).1
-      simpa [A0] using hzA0
+      simp [A0] at hzA0
     have hNB : N ≤ B.card := by omega
     have hnat := hN B hBpos hNB
     have hmap : B.map negNatCastEmbedding = Q := by
@@ -1540,14 +1540,17 @@ def charSum (A : Finset G) (ψ : AddChar G ℂ) : ℂ :=
 private def charSumNeg (A : Finset G) (ψ : AddChar G ℂ) : ℂ :=
   ∑ a : ↑A, ψ (-(a : G))
 
-@[simp] private lemma addChar_norm_eq_one (ψ : AddChar G ℂ) (a : G) :
+omit [Fintype G] in
+@[simp] private lemma addChar_norm_eq_one [Finite G] (ψ : AddChar G ℂ) (a : G) :
     ‖ψ a‖ = 1 := by
+  let _ := Fintype.ofFinite G
   refine (pow_eq_one_iff_of_nonneg (norm_nonneg _)
     (Fintype.card_pos (α := G)).ne').mp ?_
   rw [← norm_pow, ← AddChar.map_nsmul_eq_pow, card_nsmul_eq_zero,
     AddChar.map_zero_eq_one, norm_one]
 
-private lemma charSumNeg_eq_conj (A : Finset G) (ψ : AddChar G ℂ) :
+omit [Fintype G] in
+private lemma charSumNeg_eq_conj [Finite G] (A : Finset G) (ψ : AddChar G ℂ) :
     charSumNeg A ψ = star (charSum A ψ) := by
   rw [charSumNeg, charSum, star_sum]
   apply Finset.sum_congr rfl
@@ -1556,6 +1559,7 @@ private lemma charSumNeg_eq_conj (A : Finset G) (ψ : AddChar G ℂ) :
     ψ (-(a : G)) = (ψ (a : G))⁻¹ := AddChar.map_neg_eq_inv ψ (a : G)
     _ = star (ψ (a : G)) := Complex.inv_eq_conj (addChar_norm_eq_one ψ (a : G))
 
+omit [Fintype G] in
 private lemma charSum_pow (h : ℕ) (A : Finset G) (ψ : AddChar G ℂ) :
     charSum A ψ ^ h = ∑ x : Fin h → ↑A, ψ (subTupleSum x) := by
   rw [charSum, Fintype.sum_pow]
@@ -1572,6 +1576,7 @@ private lemma charSum_pow (h : ℕ) (A : Finset G) (ψ : AddChar G ℂ) :
           AddChar.map_add_eq_mul, ih]
   simpa using hmap Finset.univ
 
+omit [Fintype G] in
 private lemma charSumNeg_pow (h : ℕ) (A : Finset G) (ψ : AddChar G ℂ) :
     charSumNeg A ψ ^ h = ∑ x : Fin h → ↑A, ψ (-subTupleSum x) := by
   rw [charSumNeg, Fintype.sum_pow]
@@ -1647,6 +1652,7 @@ private def familyCharProdNeg {h : ℕ} (S : Fin h → Finset G)
     (ψ : AddChar G ℂ) : ℂ :=
   ∏ i, charSumNeg (S i) ψ
 
+omit [Fintype G] in
 private lemma familyCharProd_eq_sum {h : ℕ} (S : Fin h → Finset G)
     (ψ : AddChar G ℂ) :
     familyCharProd S ψ = ∑ x : ∀ i, ↑(S i), ψ (familyTupleSum S x) := by
@@ -1666,6 +1672,7 @@ private lemma familyCharProd_eq_sum {h : ℕ} (S : Fin h → Finset G)
           AddChar.map_add_eq_mul, ih]
   simpa using hmap Finset.univ
 
+omit [Fintype G] in
 private lemma familyCharProdNeg_eq_sum {h : ℕ} (S : Fin h → Finset G)
     (ψ : AddChar G ℂ) :
     familyCharProdNeg S ψ = ∑ x : ∀ i, ↑(S i), ψ (-familyTupleSum S x) := by
@@ -1730,7 +1737,8 @@ def rawPairRestrictedEnergy (h : ℕ) (A B : Finset G)
     (fun i ↦ pairPositionSet A B r s (.inl i))
     (fun i ↦ pairPositionSet A B r s (.inr i))
 
-private lemma norm_familyCharProd (h : ℕ) (A B : Finset G)
+omit [Fintype G] in
+private lemma norm_familyCharProd [Finite G] (h : ℕ) (A B : Finset G)
     (r s : Fin h ⊕ Fin h) (hrs : r ≠ s) (ψ : AddChar G ℂ) :
     ‖familyCharProd (fun i ↦ pairPositionSet A B r s (.inl i)) ψ *
         familyCharProdNeg (fun i ↦ pairPositionSet A B r s (.inr i)) ψ‖₊ =
@@ -1823,12 +1831,14 @@ private lemma mixedMoment_holder_nat {X : Type*} (S : Finset X) (f g : X → ℝ
       ((h : ℝ) - 1) / (h : ℝ) := by field_simp
   simpa only [← NNReal.rpow_mul, hmul, hinv, mul_comm (2 : ℝ) (h : ℝ)] using H
 
+omit [Fintype G] in
 /-- Root form of the arbitrary-position mixed-energy inequality. -/
-theorem rawPairRestrictedEnergy_rpow_le (h : ℕ) (A B : Finset G)
+theorem rawPairRestrictedEnergy_rpow_le [Finite G] (h : ℕ) (A B : Finset G)
     (r s : Fin h ⊕ Fin h) (hrs : r ≠ s) (hh : 1 < h) :
     (rawPairRestrictedEnergy h A B r s : ℝ≥0) ≤
       (rawHAddEnergy h B : ℝ≥0) ^ (1 / (h : ℝ)) *
-        (rawHAddEnergy h A : ℝ≥0) ^ (((h : ℝ) - 1) / (h : ℝ)) := by
+      (rawHAddEnergy h A : ℝ≥0) ^ (((h : ℝ) - 1) / (h : ℝ)) := by
+  let _ := Fintype.ofFinite G
   have hh2 : 2 ≤ h := hh
   have Hpair := card_mul_rawPairRestrictedEnergy_le_mixedMoment h A B r s hrs
   have Hhold := mixedMoment_holder_nat (Finset.univ : Finset (AddChar G ℂ))
@@ -1863,9 +1873,10 @@ theorem rawPairRestrictedEnergy_rpow_le (h : ℕ) (A B : Finset G)
   rw [← NNReal.rpow_add hc.ne', hsum, NNReal.rpow_one] at H'
   exact (mul_le_mul_iff_left₀ hc).mp (by simpa [mul_comm] using H')
 
+omit [Fintype G] in
 /-- Arbitrary-pair mixed-energy Hölder inequality.  Unlike
 `rawMixedEnergy_pow_le`, the selected positions may occur on the same side. -/
-theorem rawPairRestrictedEnergy_pow_le (h : ℕ) (A B : Finset G)
+theorem rawPairRestrictedEnergy_pow_le [Finite G] (h : ℕ) (A B : Finset G)
     (r s : Fin h ⊕ Fin h) (hrs : r ≠ s) (hh : 1 < h) :
     rawPairRestrictedEnergy h A B r s ^ h ≤
       rawHAddEnergy h B * rawHAddEnergy h A ^ (h - 1) := by
@@ -1991,12 +2002,12 @@ lemma prime_factorization_tuple_min_repeated
       ∑ z ∈ L, y z = ∑ i : Fin h, u i := by
         change (Finset.univ.image Sum.inl).sum y = _
         rw [Finset.sum_image Sum.inl_injective.injOn]
-        simp [y]
+        simp
       _ = ∑ i : Fin h, v i := hsum
       _ = ∑ z ∈ R, y z := by
         change _ = (Finset.univ.image Sum.inr).sum y
         rw [Finset.sum_image Sum.inr_injective.injOn]
-        simp [y]
+        simp
   obtain ⟨s, hsr, heq⟩ := prime_factorization_min_repeated
     L R hdisj hcover y hy p hp hsum' r hmin'
   exact ⟨r, s, Ne.symm hsr, heq.symm, hmin'⟩
@@ -2047,7 +2058,7 @@ lemma card_natEnergyPairs'_eq_hAddEnergy (h : ℕ) (A : Finset ℕ) :
       ((natEnergyPairs' h A).filter fun z ↦ s z.1 = a) =
         (T.filter fun u ↦ s u = a).product (T.filter fun v ↦ s v = a) := by
     ext z
-    simp only [natEnergyPairs', Finset.mem_filter, Finset.mem_product, and_assoc, T, s]
+    simp only [natEnergyPairs', Finset.mem_filter, and_assoc, T, s]
     aesop
   rw [hfiber]
   simp [sumFiberCount, T, s, pow_two]
@@ -2275,7 +2286,6 @@ theorem hAddEnergy_root_le_of_valuation_cell_bounds
       NNReal.rpow_pos (pos_iff_ne_zero.mpr hE)
     exact (mul_le_mul_iff_right₀ hpos).mp (by simpa [mul_comm] using H')
   refine Hroot.trans ?_
-  change (P.card : NNReal) * _ ≤ _
   gcongr
   exact_mod_cast card_offDiagPositionPairs_le h
 
@@ -2495,8 +2505,9 @@ lemma fourierPolyNeg_pow (N h : ℕ) [NeZero N] (A : Finset ℕ) (x : ZMod N) :
   intro t ht
   rw [addChar_prod_eq_map_sum]
   congr 2
-  simp [natTupleSum]
-  rw [Finset.sum_mul]
+  simp only [Finset.sum_neg_distrib, neg_inj]
+  change (∑ i, (t i : ZMod N) * x) = ((∑ i, t i : ℕ) : ZMod N) * x
+  rw [Nat.cast_sum, Finset.sum_mul]
 
 lemma sum_stdAddChar_mul (N : ℕ) [NeZero N] (b : ZMod N) :
     ∑ x : ZMod N, stdAddChar (b * x) = if b = 0 then (N : ℂ) else 0 := by
@@ -2614,7 +2625,6 @@ lemma coe_fourierNNMoment (N h : ℕ) [NeZero N] (A : Finset ℕ) :
   apply Finset.sum_congr rfl
   intro x hx
   rw [← mul_pow, Complex.mul_conj']
-  push_cast
   rw [← pow_mul]
 
 theorem rawEvenMoment_eq_modularEnergyPairs (N h : ℕ) [NeZero N]
@@ -2879,7 +2889,7 @@ lemma hAddEnergy_empty_of_pos (h : ℕ) (hh : 0 < h) :
     have hf' : f ∈ Fintype.piFinset (fun _ : Fin h ↦ (∅ : Finset ℕ)) := by
       simpa [orderedTuples] using hf
     have := Fintype.mem_piFinset.mp hf' ⟨0, hh⟩
-    simpa using this
+    simp at this
   simp [hAddEnergy, htuples]
 
 lemma hAddEnergy_singleton (h a : ℕ) : hAddEnergy h ({a} : Finset ℕ) = 1 := by
@@ -2895,7 +2905,7 @@ lemma hAddEnergy_singleton (h a : ℕ) : hAddEnergy h ({a} : Finset ℕ) = 1 := 
       exact congrFun hf i
   rw [hAddEnergy]
   simp only [htuples, Finset.image_singleton, Finset.sum_singleton, sumFiberCount,
-    Finset.filter_singleton, if_pos rfl, Finset.card_singleton, one_pow]
+    Finset.filter_singleton]
   simp only [if_true, Finset.card_singleton, one_pow]
 
 lemma hAddEnergy_root_le_card_of_card_le_one
@@ -2903,13 +2913,13 @@ lemma hAddEnergy_root_le_card_of_card_le_one
     (↑(hAddEnergy h B) : NNReal) ^ (1 / (h : ℝ)) ≤ (B.card : NNReal) := by
   obtain rfl | ⟨b, hb⟩ := B.eq_empty_or_nonempty
   · rw [hAddEnergy_empty_of_pos h hh]
-    simp [NNReal.zero_rpow (by positivity : (1 / (h : ℝ)) ≠ 0)] <;> omega
+    simp ; omega
   have hsingle : B = {b} := by
     ext x
     constructor
     · intro hx
       have hxb : x = b := Finset.card_le_one_iff.mp hB hx hb
-      simpa [hxb]
+      simp [hxb]
     · intro hxb
       have hxb' : x = b := Finset.mem_singleton.mp hxb
       subst x
