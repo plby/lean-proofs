@@ -120,18 +120,20 @@ def independentResidualList {Ω κ ι : Type*} [MeasurableSpace Ω]
   | [] => 1
   | a :: l => (1 - μ.real (C.event a)) * independentResidualList C μ l
 
-lemma residual_mono {Ω ι : Type*} [DecidableEq ι] {s t : Finset ι}
+lemma residual_mono {Ω ι : Type*} {s t : Finset ι}
     (E : ι → Set Ω) (hst : s ⊆ t) : residual t E ⊆ residual s E := by
+  classical
   intro x hx
   simp only [residual, mem_compl_iff, mem_iUnion, not_exists] at hx ⊢
   intro i hi
   exact hx i (hst hi)
 
-lemma residual_subset_union_bad {Ω κ ι : Type*} [DecidableEq ι] [DecidableEq κ]
+lemma residual_subset_union_bad {Ω κ ι : Type*} [DecidableEq κ]
     (C : CylinderFamily Ω κ ι) (a : ι) (s : Finset ι) :
     residual (s.filter fun i => Disjoint (C.support i) (C.support a)) C.event ⊆
       residual s C.event ∪
         ⋃ i ∈ s.filter (fun i => ¬Disjoint (C.support i) (C.support a)), C.event i := by
+  classical
   intro x hx
   by_cases hs : x ∈ residual s C.event
   · exact Or.inl hs
@@ -155,7 +157,7 @@ lemma independentResidualList_nonneg {Ω κ ι : Type*} [MeasurableSpace Ω]
   | cons a l ih =>
       simp only [independentResidualList]
       exact mul_nonneg
-        (sub_nonneg.mpr (by simpa using measureReal_le_one (μ := μ) (C.event a))) ih
+        (sub_nonneg.mpr (by simp)) ih
 
 lemma dependencyErrorList_nonneg {Ω κ ι : Type*} [MeasurableSpace Ω]
     [DecidableEq ι] [DecidableEq κ]
@@ -238,7 +240,7 @@ lemma residualDensity_list {Ω κ ι : Type*} [MeasurableSpace Ω]
             μ.real (residual l.toFinset C.event) :=
         measureReal_sdiff_add_inter (hmeas a)
       have hwa_le : μ.real (C.event a) ≤ 1 := by
-        simpa using measureReal_le_one (μ := μ) (C.event a)
+        simp
       have hprod_nonneg : 0 ≤ independentResidualList C μ l :=
         independentResidualList_nonneg C μ l
       have herror_nonneg : 0 ≤ dependencyErrorList C μ l :=
@@ -283,7 +285,7 @@ def PrimeCylinder.event {P : Finset ℕ} (C : PrimeCylinder P) : Set (PrimeSpace
 lemma measurableSet_primeCylinder_event {P : Finset ℕ} (hP : ∀ p ∈ P, Nat.Prime p)
     (C : PrimeCylinder P) :
     MeasurableSet C.event := by
-  letI (p : P) : NeZero (p : ℕ) := ⟨(hP p p.property).ne_zero⟩
+  let _ (p : P) : NeZero (p : ℕ) := ⟨(hP p p.property).ne_zero⟩
   exact Set.toFinite C.event |>.measurableSet
 
 /-- All coordinates used by cylinders in a finite index set. -/
@@ -342,19 +344,20 @@ lemma event_eq_preimage_coordinates {P : Finset ℕ} (C : PrimeCylinder P) :
 
 lemma coordinate_iIndep {P : Finset ℕ} (hP : ∀ p ∈ P, Nat.Prime p) :
     iIndepFun (fun (p : P) (x : PrimeSpace P) => x p) (primeMeasure P) := by
-  letI (p : P) : NeZero (p : ℕ) := ⟨(hP p p.property).ne_zero⟩
+  let _ (p : P) : NeZero (p : ℕ) := ⟨(hP p p.property).ne_zero⟩
   exact iIndepFun_pi (X := fun _ => id) (μ := fun p : P => residueMeasure p)
     (fun _ => aemeasurable_id)
 
 lemma residual_independent_primeCylinder {P : Finset ℕ} (hP : ∀ p ∈ P, Nat.Prime p)
-    {ι : Type*} [DecidableEq ι] (C : ι → PrimeCylinder P) (a : ι) (s : Finset ι)
+    {ι : Type*} (C : ι → PrimeCylinder P) (a : ι) (s : Finset ι)
     (hdis : ∀ i ∈ s, Disjoint (C i).support (C a).support) :
     (primeMeasure P).real
         (residual s (fun i => (C i).event) ∩ (C a).event) =
-      (primeMeasure P).real (residual s (fun i => (C i).event)) *
+        (primeMeasure P).real (residual s (fun i => (C i).event)) *
         (primeMeasure P).real (C a).event := by
-  letI (p : P) : NeZero (p : ℕ) := ⟨(hP p p.property).ne_zero⟩
-  letI : IsProbabilityMeasure (primeMeasure P) := by
+  classical
+  let _ (p : P) : NeZero (p : ℕ) := ⟨(hP p p.property).ne_zero⟩
+  let _ : IsProbabilityMeasure (primeMeasure P) := by
     unfold primeMeasure
     infer_instance
   let U := cylinderUnionSupport C s
@@ -383,13 +386,13 @@ lemma residual_independent_primeCylinder {P : Finset ℕ} (hP : ∀ p ∈ P, Nat
 
 lemma residueMeasure_singleton_real {p : ℕ} (hp : 0 < p) (z : ZMod p) :
     (residueMeasure p).real {z} = ((p : ℝ)⁻¹) := by
-  letI : NeZero p := ⟨hp.ne'⟩
-  simp [residueMeasure, Measure.real, uniformOn_univ, ZMod.card, ENNReal.div_eq_inv_mul]
+  let _ : NeZero p := ⟨hp.ne'⟩
+  simp [residueMeasure, Measure.real, uniformOn_univ, ZMod.card]
 
 lemma primeMeasure_eval_singleton_real {P : Finset ℕ} (hP : ∀ p ∈ P, Nat.Prime p)
     (p : P) (z : ZMod (p : ℕ)) :
     (primeMeasure P).real {x | x p = z} = (((p : ℕ) : ℝ)⁻¹) := by
-  letI (q : P) : NeZero (q : ℕ) := ⟨(hP q q.property).ne_zero⟩
+  let _ (q : P) : NeZero (q : ℕ) := ⟨(hP q q.property).ne_zero⟩
   have hmap := (measurePreserving_eval (fun q : P => residueMeasure q) p).map_eq
   have happ := congrArg (fun ν : Measure (ZMod (p : ℕ)) => ν {z}) hmap
   rw [Measure.map_apply (measurable_pi_apply p) (measurableSet_singleton z)] at happ
@@ -401,7 +404,7 @@ lemma primeMeasure_eval_singleton_real {P : Finset ℕ} (hP : ∀ p ∈ P, Nat.P
 lemma primeCylinder_event_measureReal {P : Finset ℕ} (hP : ∀ p ∈ P, Nat.Prime p)
     (C : PrimeCylinder P) :
     (primeMeasure P).real C.event = ∏ p ∈ C.support, ((((p : P) : ℕ) : ℝ)⁻¹) := by
-  letI (p : P) : NeZero (p : ℕ) := ⟨(hP p p.property).ne_zero⟩
+  let _ (p : P) : NeZero (p : ℕ) := ⟨(hP p p.property).ne_zero⟩
   let sets : (p : P) → Set (ZMod (p : ℕ)) := fun p => {C.value p}
   have hprod := (coordinate_iIndep hP).measure_inter_preimage_eq_mul C.support
     (sets := sets) (fun _ _ => measurableSet_singleton _)
@@ -629,10 +632,11 @@ lemma sum_supportWeight_powerset (P : Finset ℕ) :
   rw [abundancyProduct, ← Finset.prod_attach, hatt]
   simpa only [supportWeight, Finset.prod_const_one, mul_one, add_comm] using h.symm
 
-lemma sum_supportWeight_le_abundancy {P : Finset ℕ} {ι : Type*} [DecidableEq ι]
+lemma sum_supportWeight_le_abundancy {P : Finset ℕ} {ι : Type*}
     (I : Finset ι) (C : ι → PrimeCylinder P)
     (hinj : Set.InjOn (fun i => (C i).support) I) :
     ∑ i ∈ I, supportWeight (C i).support ≤ abundancyProduct P := by
+  classical
   let supports := I.image fun i => (C i).support
   have hsum : ∑ i ∈ I, supportWeight (C i).support =
       ∑ U ∈ supports, supportWeight U := by
@@ -700,11 +704,12 @@ lemma sum_supportWeight_powerset_containing_le {P : Finset ℕ} (p : P) :
     _ = ((((p : P) : ℕ) : ℝ)⁻¹) * abundancyProduct P := by
       rw [sum_supportWeight_powerset]
 
-lemma sum_supportWeight_containing_le {P : Finset ℕ} {ι : Type*} [DecidableEq ι]
+lemma sum_supportWeight_containing_le {P : Finset ℕ} {ι : Type*}
     (I : Finset ι) (C : ι → PrimeCylinder P)
     (hinj : Set.InjOn (fun i => (C i).support) I) (p : P) :
     ∑ i ∈ I.filter (fun i => p ∈ (C i).support), supportWeight (C i).support ≤
       ((((p : P) : ℕ) : ℝ)⁻¹) * abundancyProduct P := by
+  classical
   let J := I.filter fun i => p ∈ (C i).support
   let supports := J.image fun i => (C i).support
   have hsum : ∑ i ∈ J, supportWeight (C i).support =
@@ -747,12 +752,13 @@ lemma exp_neg_two_mul_le_one_sub {x : ℝ} (hx0 : 0 ≤ x) (hx2 : x ≤ 1 / 2) :
   have := (inv_le_inv₀ (Real.exp_pos (2 * x)) hposinv).2 hmain
   simpa [inv_inv] using this
 
-lemma dependent_weight_sum_le {P : Finset ℕ} {ι : Type*} [DecidableEq ι]
+lemma dependent_weight_sum_le {P : Finset ℕ} {ι : Type*}
     (C : ι → PrimeCylinder P) (a : ι) (I : Finset ι) :
     ∑ b ∈ I.filter (fun b => ¬Disjoint (C b).support (C a).support),
         supportWeight (C b).support ≤
       ∑ p ∈ (C a).support,
         ∑ b ∈ I.filter (fun b => p ∈ (C b).support), supportWeight (C b).support := by
+  classical
   rw [Finset.sum_filter]
   calc
     ∑ b ∈ I, (if (¬Disjoint (C b).support (C a).support)
@@ -959,13 +965,14 @@ lemma independentResidualList_eq_finset {Ω κ ι : Type*} [MeasurableSpace Ω]
         Finset.prod_insert (by simpa using hal), ih hlnodup]
 
 lemma independentResidualList_lower {P : Finset ℕ} (hP : ∀ p ∈ P, Nat.Prime p)
-    {ι : Type*} [DecidableEq ι] (C : ι → PrimeCylinder P)
+    {ι : Type*} (C : ι → PrimeCylinder P)
     (hinj : Function.Injective fun i => (C i).support)
     (hnonempty : ∀ i, (C i).support.Nonempty) (l : List ι) (hnodup : l.Nodup) :
     Real.exp (-2 * abundancyProduct P) ≤
       independentResidualList
         { event := fun i => (C i).event, support := fun i => (C i).support }
         (primeMeasure P) l := by
+  classical
   let CF : CylinderFamily (PrimeSpace P) P ι :=
     { event := fun i => (C i).event, support := fun i => (C i).support }
   let I := l.toFinset
@@ -1016,8 +1023,8 @@ lemma primeCylinder_residual_measureReal_pos {P : Finset ℕ}
         ∑ p ∈ (Finset.univ : Finset P), (((((p : P) : ℕ) : ℝ)⁻¹) ^ 2) <
           Real.exp (-2 * abundancyProduct P)) :
     0 < (primeMeasure P).real (residual l.toFinset fun i => (C i).event) := by
-  letI (p : P) : NeZero (p : ℕ) := ⟨(hP p p.property).ne_zero⟩
-  letI : IsProbabilityMeasure (primeMeasure P) := by
+  let _ (p : P) : NeZero (p : ℕ) := ⟨(hP p p.property).ne_zero⟩
+  let _ : IsProbabilityMeasure (primeMeasure P) := by
     unfold primeMeasure
     infer_instance
   let CF : CylinderFamily (PrimeSpace P) P ι :=
@@ -1046,7 +1053,7 @@ lemma primeCylinder_residual_nonempty {P : Finset ℕ}
   have hpos := primeCylinder_residual_measureReal_pos hP C hinj hnonempty l hnodup hsmall
   by_contra h
   rw [Set.not_nonempty_iff_eq_empty.mp h] at hpos
-  simpa using hpos
+  simp at hpos
 
 /-- If every selected prime is larger than `Q`, its inverse-square tail is at
 most `Q⁻¹` times its inverse tail. -/
