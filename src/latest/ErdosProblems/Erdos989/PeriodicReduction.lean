@@ -242,7 +242,8 @@ theorem sharpPeriodicQuarterRadius_of_universalSqrtLowerBound
       exact (Real.sqrt_eq_iff_eq_sq (by norm_num) (by norm_num)).2 (by norm_num)]
     ring
   rw [hsqrt_quarter] at hy
-  convert hy using 1 <;> ring
+  convert hy using 1
+  all_goals ring
 
 end
 

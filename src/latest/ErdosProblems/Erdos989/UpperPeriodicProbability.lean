@@ -88,7 +88,7 @@ theorem periodicDiskCount_eq_expected_of_periodActive_eq_empty
         (periodicSelection L q ω) center radius : ℝ) =
       periodExpectedDiskCount L q center radius := by
   classical
-  letI : MeasurableSpace (GridCandidate q) := ⊤
+  let : MeasurableSpace (GridCandidate q) := ⊤
   let ν : PeriodCell L → Measure (GridCandidate q) := fun _ ↦
     (PMF.uniformOfFintype (GridCandidate q)).toMeasure
   have hq : 0 < q := Nat.pos_of_ne_zero (NeZero.ne q)
@@ -137,7 +137,7 @@ theorem periodicDiskCount_tail_le
               (periodicSelection L q ω) center rho : ℝ) -
           periodExpectedDiskCount L q center rho|} ≤
       2 * Real.exp (-(50 / 3) * Real.log r) := by
-  letI : MeasurableSpace (GridCandidate q) := ⊤
+  let : MeasurableSpace (GridCandidate q) := ⊤
   let ν : PeriodCell L → Measure (GridCandidate q) := fun _ ↦
     (PMF.uniformOfFintype (GridCandidate q)).toMeasure
   let μ : Measure (PeriodCell L → GridCandidate q) := Measure.pi ν

@@ -156,9 +156,9 @@ theorem exists_periodic_assignment_good_on_centerNet {r : ℝ} (hr : 8 ≤ r) :
   let L := radiusPeriodLength r
   have hq : 0 < q := radiusGridSize_pos (by linarith)
   have hL : 0 < L := radiusPeriodLength_pos (by linarith)
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
-  letI : NeZero L := ⟨Nat.ne_of_gt hL⟩
-  letI : MeasurableSpace (GridCandidate q) := ⊤
+  let : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let : NeZero L := ⟨Nat.ne_of_gt hL⟩
+  let : MeasurableSpace (GridCandidate q) := ⊤
   let ν : PeriodCell L → Measure (GridCandidate q) := fun _ ↦
     (PMF.uniformOfFintype (GridCandidate q)).toMeasure
   let μ : Measure (PeriodCell L → GridCandidate q) := Measure.pi ν
@@ -198,8 +198,8 @@ theorem exists_admissible_with_centerNet_bounds {r : ℝ} (hr : 8 ≤ r) :
   let L := radiusPeriodLength r
   have hq : 0 < q := radiusGridSize_pos (by linarith)
   have hL : 0 < L := radiusPeriodLength_pos (by linarith)
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
-  letI : NeZero L := ⟨Nat.ne_of_gt hL⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let : NeZero L := ⟨Nat.ne_of_gt hL⟩
   obtain ⟨ω, hω⟩ := exists_periodic_assignment_good_on_centerNet hr
   refine ⟨ω, periodicPointSet_admissible hq ω, ?_⟩
   intro e
@@ -250,8 +250,8 @@ theorem exists_admissible_fixedRadius_sqrtLog {r : ℝ} (hr : 8 ≤ r) :
   let L := radiusPeriodLength r
   have hq : 0 < q := radiusGridSize_pos (by linarith)
   have hL : 0 < L := radiusPeriodLength_pos (by linarith)
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
-  letI : NeZero L := ⟨Nat.ne_of_gt hL⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let : NeZero L := ⟨Nat.ne_of_gt hL⟩
   obtain ⟨ω, hA, hnet⟩ := exists_admissible_with_centerNet_bounds hr
   let A := periodicPointSet L q ω
   refine ⟨A, hA, ?_⟩

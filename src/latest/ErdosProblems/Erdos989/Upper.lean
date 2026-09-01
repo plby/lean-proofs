@@ -36,7 +36,7 @@ variable [DecidableEq Cell] [DecidableEq Constraint]
 sets of coordinates in a finite product.  This is the counting form of
 independence used by `Erdos797.finite_local_lemma`. -/
 theorem coordinate_split_cardinality
-    {I Q : Type*} [Fintype I] [Fintype Q]
+    {I Q : Type*} [Finite I] [Finite Q]
     (p : I → Prop) (P : ({i // p i} → Q) → Prop)
     (R : ({i // ¬p i} → Q) → Prop) :
     Nat.card {x : I → Q // P (fun i ↦ x i) ∧ R (fun i ↦ x i)} *
@@ -44,6 +44,8 @@ theorem coordinate_split_cardinality
       Nat.card {x : I → Q // P (fun i ↦ x i)} *
         Nat.card {x : I → Q // R (fun i ↦ x i)} := by
   classical
+  let : Fintype I := Fintype.ofFinite I
+  let : Fintype Q := Fintype.ofFinite Q
   let A := {i // p i} → Q
   let B := {i // ¬p i} → Q
   let e : (I → Q) ≃ A × B :=
@@ -80,9 +82,11 @@ def supportUnion (c : Constraint → LocalConstraint Cell Candidate)
     (s : Finset Constraint) : Finset Cell :=
   s.biUnion fun k ↦ (c k).support
 
+omit [DecidableEq Constraint] in
 @[simp] theorem mem_supportUnion (c : Constraint → LocalConstraint Cell Candidate)
     (s : Finset Constraint) (i : Cell) :
     i ∈ supportUnion c s ↔ ∃ k ∈ s, i ∈ (c k).support := by
+  classical
   simp [supportUnion]
 
 /-- A finite assignment contains only the coordinates inspected by the chosen
@@ -103,6 +107,7 @@ def finiteBad (c : Constraint → LocalConstraint Cell Candidate)
     (s : Finset Constraint) (k : ↑s) (x : FiniteAssignment c s) : Prop :=
   ¬(c k.1).accepts (restrictFinite c s k x)
 
+omit [DecidableEq Constraint] in
 /-- Two finite assignments which agree on the support of a constraint either
 both trigger its bad event or both avoid it. -/
 theorem finiteBad_congr_on_support
@@ -112,6 +117,7 @@ theorem finiteBad_congr_on_support
       x ⟨i.1, mem_supportUnion c s i.1 |>.2 ⟨k.1, k.2, i.2⟩⟩ =
         y ⟨i.1, mem_supportUnion c s i.1 |>.2 ⟨k.1, k.2, i.2⟩⟩) :
     finiteBad c s k x ↔ finiteBad c s k y := by
+  classical
   unfold finiteBad
   have hres : restrictFinite c s k x = restrictFinite c s k y := by
     funext i
@@ -166,7 +172,7 @@ theorem finiteBad_independent_of_nonNeighbors
       finiteBad c s k x ↔ P (fun i ↦ x i) := by
     apply finiteBad_congr_on_support c s k x
     intro i
-    simp only [P, onlyP, p]
+    simp only [onlyP, p]
     rw [dif_pos i.2]
   have hav (x : FiniteAssignment c s) :
       (∀ j ∈ T, ¬finiteBad c s j x) ↔ R (fun i ↦ x i) := by
@@ -353,7 +359,7 @@ theorem finiteProduct_indicator_hoeffding
           ∑ i ∈ active,
             ∫ q, (if hit i q then (1 : ℝ) else 0) ∂ν i|} ≤
       2 * Real.exp (-t ^ 2 / (2 * ((active.card : ℝ) / 4))) := by
-  letI : MeasurableSpace Q := ⊤
+  let : MeasurableSpace Q := ⊤
   let ν : I → MeasureTheory.Measure Q := fun _ ↦
     (PMF.uniformOfFintype Q).toMeasure
   let μ : MeasureTheory.Measure (I → Q) := MeasureTheory.Measure.pi ν
@@ -365,7 +371,7 @@ theorem finiteProduct_indicator_hoeffding
     intro i
     dsimp [ν]
     infer_instance
-  letI (i : I) : MeasureTheory.IsProbabilityMeasure (ν i) := hν i
+  let (i : I) : MeasureTheory.IsProbabilityMeasure (ν i) := hν i
   have hcoord : ProbabilityTheory.iIndepFun (fun i ω ↦ ω i) μ := by
     exact ProbabilityTheory.iIndepFun_pi (fun _ ↦ aemeasurable_id)
   have hYmeas : ∀ i,
@@ -392,7 +398,8 @@ theorem finiteProduct_indicator_hoeffding
       split_ifs <;> norm_num
     have h := ProbabilityTheory.hasSubgaussianMGF_of_mem_Icc
       (μ := μ) (X := Y i) (a := (0 : ℝ)) (b := 1) hYi hb
-    convert h using 1 <;> norm_num [Z]
+    convert h using 1
+    all_goals norm_num [Z]
   have hsum := ProbabilityTheory.HasSubgaussianMGF.sum_of_iIndepFun hindepZ
     (c := fun _ ↦ (1 / 4 : ℝ≥0)) hsub
   have htail :=
@@ -421,7 +428,7 @@ theorem exists_avoiding_finite_events
     ∃ ω : Ω, ∀ e, ω ∉ bad e := by
   classical
   by_contra h
-  push_neg at h
+  push Not at h
   have hunion : (⋃ e, bad e) = Set.univ := by
     apply Set.eq_univ_of_forall
     intro ω

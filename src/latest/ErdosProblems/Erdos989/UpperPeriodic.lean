@@ -223,10 +223,9 @@ theorem selectedDiskCount_periodic_eq_sum_periodHit
     _ = ∑ i : PeriodCell L,
           if periodHit L q center radius i (ω i) then 1 else 0 := by
       symm
-      simpa using
-        (Finset.sum_boole (R := ℕ)
-          (fun i : PeriodCell L ↦ periodHit L q center radius i (ω i) = true)
-          Finset.univ)
+      exact Finset.sum_boole (R := ℕ)
+        (fun i : PeriodCell L ↦ periodHit L q center radius i (ω i) = true)
+        Finset.univ
 
 /-! ## Active residue classes and boundary cells -/
 
@@ -353,7 +352,7 @@ theorem card_periodActive_le_ncard_midpointBoundaryCells
   let B : Set PlaneCell :=
     {cell | IsMidpointBoundaryCell q center radius cell}
   have hBfinite : B.Finite := finite_midpointBoundaryCells hq center radius
-  letI : Fintype B := hBfinite.fintype
+  let : Fintype B := hBfinite.fintype
   let f : ↥(periodActive L q center radius) → B := fun i ↦
     ⟨activeBoundaryCell center radius i,
       activeBoundaryCell_isBoundary center radius i⟩
@@ -397,7 +396,7 @@ theorem periodicDiskCount_hoeffding
       2 * Real.exp
         (-t ^ 2 /
           (2 * (((periodActive L q center radius).card : ℝ) / 4))) := by
-  letI : MeasurableSpace (GridCandidate q) := ⊤
+  let : MeasurableSpace (GridCandidate q) := ⊤
   let ν : PeriodCell L → Measure (GridCandidate q) := fun _ ↦
     (PMF.uniformOfFintype (GridCandidate q)).toMeasure
   let μ : Measure (PeriodCell L → GridCandidate q) := Measure.pi ν
@@ -457,7 +456,7 @@ theorem integral_uniformOfFintype_boolIndicator
         ∂(PMF.uniformOfFintype Q).toMeasure =
       (((Finset.univ : Finset Q).filter fun u ↦ hit u = true).card : ℝ) /
         Fintype.card Q := by
-  letI : MeasurableSpace Q := ⊤
+  let : MeasurableSpace Q := ⊤
   rw [PMF.integral_eq_sum]
   simp only [PMF.uniformOfFintype_apply, ENNReal.toReal_inv,
     ENNReal.toReal_natCast, smul_eq_mul]
@@ -500,7 +499,7 @@ theorem exists_periodicSelection_with_finite_deviation_bounds
       |(selectedDiskCount (latticeLocation (midpointOffset q))
             (periodicSelection L q ω) (center e) (radius e) : ℝ) -
         periodExpectedDiskCount L q (center e) (radius e)| < threshold e := by
-  letI : MeasurableSpace (GridCandidate q) := ⊤
+  let : MeasurableSpace (GridCandidate q) := ⊤
   let ν : PeriodCell L → Measure (GridCandidate q) := fun _ ↦
     (PMF.uniformOfFintype (GridCandidate q)).toMeasure
   let μ : Measure (PeriodCell L → GridCandidate q) := Measure.pi ν
@@ -521,7 +520,7 @@ theorem exists_periodicSelection_with_finite_deviation_bounds
   obtain ⟨ω, hω⟩ := exists_avoiding_finite_events μ bad p hbad (by simpa [p] using hsum)
   refine ⟨ω, fun e ↦ ?_⟩
   have he := hω e
-  simpa only [bad, Set.mem_setOf_eq, not_le] using he
+  simpa only [bad, Set.mem_ofPred_eq, not_le] using he
 
 end
 

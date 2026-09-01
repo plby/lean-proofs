@@ -22,8 +22,9 @@ import Mathlib.Tactic.Linarith
 /-!
 # Compactness for global finite-alphabet selections
 
-This file proves an abstract globalization step that can be used once a finite construction
-has supplied the necessary finite-family estimates.  A local condition consists of a finite support and
+This file proves an abstract globalization step that can be used once a finite
+construction has supplied the necessary finite-family estimates. A local
+condition consists of a finite support and
 an arbitrary predicate on assignments to that support.  Since the candidate alphabet is finite
 and discrete, its satisfaction set in the full product space is closed.  Tychonoff compactness
 then turns finite satisfiability into one assignment satisfying every local condition.
@@ -369,7 +370,8 @@ theorem range_disk_error_eq_selectedDiskError {Candidate : Type v}
     {location : PlaneCell → Candidate → EuclideanPlane}
     {x : JitteredSelection Candidate} (hinj : Function.Injective (selectedPoint location x))
     (center : EuclideanPlane) (radius : ℝ) :
-    |(((Set.range (selectedPoint location x) ∩ Metric.closedBall center radius).ncard : ℕ) : ℝ) -
+    |(((Set.range (selectedPoint location x) ∩
+        Metric.closedBall center radius).ncard : ℕ) : ℝ) -
         Real.pi * radius ^ 2| = selectedDiskError location x center radius := by
   rw [range_inter_closedBall_eq_image_selectedIndices]
   rw [Set.ncard_image_of_injective _ hinj]

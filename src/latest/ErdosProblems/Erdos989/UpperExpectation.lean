@@ -85,11 +85,10 @@ theorem ncard_periodHitPairs_eq_sum_card
           if periodHit L q center radius p.1 p.2 then 1 else 0 := by
       rw [Set.ncard_eq_toFinset_card H hH, hH.toFinset_ofPred]
       symm
-      simpa using
-        (Finset.sum_boole (R := ℕ)
-          (fun p : PeriodCell L × GridCandidate q ↦
-            periodHit L q center radius p.1 p.2 = true)
-          Finset.univ)
+      exact Finset.sum_boole (R := ℕ)
+        (fun p : PeriodCell L × GridCandidate q ↦
+          periodHit L q center radius p.1 p.2 = true)
+        Finset.univ
     _ = ∑ i : PeriodCell L, ∑ u : GridCandidate q,
           if periodHit L q center radius i u then 1 else 0 := by
       rw [Fintype.sum_prod_type]
@@ -108,7 +107,7 @@ theorem periodExpectedDiskCount_eq_candidateMidpointHitSet
     periodExpectedDiskCount L q center radius =
       (((candidateMidpointHitSet q center radius).ncard : ℕ) : ℝ) /
         (q : ℝ) ^ 2 := by
-  letI : MeasurableSpace (GridCandidate q) := ⊤
+  let : MeasurableSpace (GridCandidate q) := ⊤
   let ν : PeriodCell L → Measure (GridCandidate q) := fun _ ↦
     (PMF.uniformOfFintype (GridCandidate q)).toMeasure
   have hpairs := ncard_candidateMidpointHitSet_eq_periodHitPairs

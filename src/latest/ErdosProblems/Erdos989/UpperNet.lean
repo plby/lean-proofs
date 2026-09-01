@@ -285,11 +285,13 @@ theorem exists_centerNetPoint_near_of_mem_fundamentalSquare
     nlinarith
   have ha_lt : x 0 < (a : ℝ) / q + 1 / q := by
     have hnext : (q : ℝ) * x 0 < (za : ℝ) + 1 := by
-      simpa [za] using ha_next
+      dsimp [za]
+      exact ha_next
     nlinarith
   have hb_lt : x 1 < (b : ℝ) / q + 1 / q := by
     have hnext : (q : ℝ) * x 1 < (zb : ℝ) + 1 := by
-      simpa [zb] using hb_next
+      dsimp [zb]
+      exact hb_next
     nlinarith
   have ha_abs : |x 0 - (a : ℝ) / q| ≤ 1 / q := by
     rw [abs_of_nonneg (sub_nonneg.mpr ha_le)]
@@ -405,7 +407,7 @@ theorem selectedDiskCount_periodTranslation
       Metric.closedBall (center + periodTranslation L k) radius}
   have hmap : ∀ cell, cell ∈ S → periodShiftCell L k cell ∈ T := by
     intro cell hcell
-    rw [Set.mem_setOf_eq, periodicPoint_periodShiftCell, Metric.mem_closedBall]
+    rw [Set.mem_ofPred_eq, periodicPoint_periodShiftCell, Metric.mem_closedBall]
     rw [dist_add_right]
     exact hcell
   have hinj : Function.Injective (periodShiftCell L k) := by
@@ -420,7 +422,7 @@ theorem selectedDiskCount_periodTranslation
       apply Prod.ext <;> simp [pre, periodShiftCell]
     refine ⟨pre, ?_, hpreShift⟩
     have hp := hcell
-    rw [Set.mem_setOf_eq, ← hpreShift, periodicPoint_periodShiftCell,
+    rw [Set.mem_ofPred_eq, ← hpreShift, periodicPoint_periodShiftCell,
       Metric.mem_closedBall, dist_add_right] at hp
     exact hp
   change T.ncard = S.ncard

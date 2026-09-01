@@ -314,7 +314,7 @@ theorem midpoint_grid_disk_quadrature
     |(((candidateMidpointHitSet q center radius).ncard : ℕ) : ℝ) / (q : ℝ) ^ 2 -
         Real.pi * radius ^ 2| ≤
       16 * radius / q + 16 / (q : ℝ) ^ 2 := by
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hq⟩
   have hqR : 0 < (q : ℝ) := by exact_mod_cast hq
   have hscaled : Real.sqrt 2 / 2 ≤ (q : ℝ) * radius := by
     rw [div_le_iff₀ (by positivity : 0 < (2 : ℝ) * q)] at hr
