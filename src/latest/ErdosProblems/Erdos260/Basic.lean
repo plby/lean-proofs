@@ -80,15 +80,14 @@ theorem dyadicBlockCount_positiveSupport (S : Set ℕ) (X : ℕ) :
     dyadicBlockCount (positiveSupport S) X = dyadicBlockCount S X := by
   classical
   unfold dyadicBlockCount
-  congr 1
-  ext n
-  simp only [Finset.mem_filter, Finset.mem_Ioc, positiveSupport,
-    Set.mem_setOf_eq]
+  apply congrArg (fun s : Finset ℕ => s.card)
+  apply Finset.filter_congr
+  intro n hn
+  simp only [positiveSupport, Set.mem_ofPred_eq]
   constructor
-  · rintro ⟨hIoc, hS, _⟩
-    exact ⟨hIoc, hS⟩
-  · rintro ⟨hIoc, hS⟩
-    exact ⟨hIoc, hS, lt_of_le_of_lt (Nat.zero_le X) hIoc.1⟩
+  · exact And.left
+  · intro hS
+    exact ⟨hS, lt_of_le_of_lt (Nat.zero_le X) (Finset.mem_Ioc.mp hn).1⟩
 
 /-- The dyadic scale `X = 2^L`. -/
 def dyadicScale (L : ℕ) : ℕ := 2 ^ L
@@ -106,15 +105,15 @@ def supportEnumerationOfInfinite (S : Set ℕ) (hInfinite : S.Infinite)
   a := Nat.nth fun n => n ∈ S
   strictMono := by
     apply Nat.nth_strictMono
-    simpa only [Set.setOf_mem_eq] using hInfinite
+    simpa only [Set.ofPred_mem_eq] using hInfinite
   positive := by
     intro k
     apply hPositive _
     apply Nat.nth_mem_of_infinite
-    simpa only [Set.setOf_mem_eq] using hInfinite
+    simpa only [Set.ofPred_mem_eq] using hInfinite
   range_eq := by
     apply Nat.range_nth_of_infinite
-    simpa only [Set.setOf_mem_eq] using hInfinite
+    simpa only [Set.ofPred_mem_eq] using hInfinite
 
 /-- Consecutive gap in a support enumeration. -/
 def supportGap {S : Set ℕ} (e : SupportEnumeration S) (k : ℕ) : ℕ :=
@@ -248,8 +247,7 @@ theorem span_firstPrefixAtLeast_ge (w : GapWord) (bound : ℕ)
     bound ≤ (w.firstPrefixAtLeast bound).span := by
   induction w generalizing bound with
   | nil =>
-      simp [firstPrefixAtLeast, GapWord.span] at hcross ⊢
-      exact hcross
+      simpa only [firstPrefixAtLeast] using hcross
   | cons g gs ih =>
       simp only [firstPrefixAtLeast]
       by_cases hbg : bound ≤ g

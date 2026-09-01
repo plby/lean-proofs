@@ -1458,7 +1458,7 @@ theorem lem_firstdeep_exists (context : FixedScaleContext) :
     exact h₁.trans_lt h₂
   have hlarge :
       ((F.system L).m : ℝ) * (Z0 : ℝ) < (F.system L).excess e := by
-    simpa only [Set.mem_setOf_eq] using he.2
+    simpa only [Set.mem_ofPred_eq] using he.2
   have hexcessLower :
       2 * context.structural.Caff * (L : ℝ) <
         (F.system L).excess e := hmassLower.trans hlarge
@@ -2929,7 +2929,9 @@ private theorem boundary_before_first_exterior (Q : ℕ) (hQ : 0 < Q) :
           have hg : 1 ≤ g := hpos g (by simp)
           have hnextNon :
               classifySlope ((line.transform Q g).slope Q) ≠ .exterior := by
-            have := hbefore 1 (by simp; exact List.length_pos_iff.mpr hgsNonempty)
+            have := hbefore 1 (by
+              simp only [List.length_cons, lt_add_iff_pos_left]
+              exact List.length_pos_iff.mpr hgsNonempty)
             simpa only [List.take_succ_cons, List.take_zero,
               AffineLine.transformWord] using this
           have hnextBoundary := boundary_transform_of_nonexterior Q g hQ hg
@@ -3450,7 +3452,7 @@ theorem lem_dichotomy (context : FixedScaleContext)
           (W.m : ℝ) * Z0 / 8) := by
       simpa only [hmEq] using hlossL
     have hlarge : (W.m : ℝ) * (Z0 : ℝ) < W.excess e := by
-      simpa only [Set.mem_setOf_eq, Nat.cast_mul] using he.2
+      simpa only [Set.mem_ofPred_eq, Nat.cast_mul] using he.2
     have hy : 0 < W.excess e := by
       have hnonneg : 0 ≤ (W.m : ℝ) * (Z0 : ℝ) := by positivity
       exact hnonneg.trans_lt hlarge

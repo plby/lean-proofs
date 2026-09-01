@@ -2560,7 +2560,7 @@ private theorem longExteriorPair_has_signature
       nlinarith
     exact hleft.trans_lt hright
   have hlarge : (W.m : ℝ) * Z0 < W.excess e := by
-    simpa only [Set.mem_setOf_eq] using he.1.2
+    simpa only [Set.mem_ofPred_eq] using he.1.2
   have hcontinuationCross :
       W.structural.Gamma * (L : ℝ) < (continuation.span : ℝ) := by
     have hstruct : W.structural = context.structural := by

@@ -238,9 +238,9 @@ theorem weightedSupportTerm_nonneg (S : Set ℕ) (n : ℕ) :
 theorem carryTailTerm_nonneg (R : RationalSupport) (N j : ℕ) :
     0 ≤ carryTailTerm R N j := by
   have hterm :
-      0 ≤ weightedSupportTerm R.S (j + (N + 1)) := by
+    0 ≤ weightedSupportTerm R.S (j + (N + 1)) := by
     by_cases hmem : j + (N + 1) ∈ R.S
-    · simp [weightedSupportTerm, hmem]
+    · simp only [weightedSupportTerm_eq_digit, Nat.cast_add, Nat.cast_one]
       positivity
     · simp [weightedSupportTerm, hmem]
   unfold carryTailTerm
@@ -572,7 +572,7 @@ theorem gapParams_exists (Q : ℕ) (hQ : 0 < Q) : Nonempty (GapParams Q) := by
 /-- Paper label: `lem:refinement-principle` (Section 3).  Every pair may use
 its own finite label set; the weights on that set form a nonnegative partition
 of unity. -/
-theorem lem_refinement_principle {ι : Type*} [DecidableEq ι]
+theorem lem_refinement_principle {ι : Type*}
     (E : Set WindowThreshold) (hE : MeasurableSet E)
     (weight : WindowThreshold → ℝ)
     (labels : WindowThreshold → Finset ι)
@@ -583,6 +583,7 @@ theorem lem_refinement_principle {ι : Type*} [DecidableEq ι]
     (∫⁻ e in E,
         ENNReal.ofReal (∑ i ∈ labels e, weight e * α e i)
         ∂windowThresholdMeasure) = mass E weight := by
+  classical
   unfold mass
   apply setLIntegral_congr_fun hE
   intro e he

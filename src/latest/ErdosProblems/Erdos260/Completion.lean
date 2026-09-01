@@ -187,7 +187,7 @@ private theorem measurableSet_longExteriorPair_section
     rw [heq]
     convert (hlargeSection.inter hinteriorSection.compl).inter hexists using 1
     ext T
-    simp only [Set.mem_setOf_eq, Set.mem_inter_iff, Set.mem_compl_iff]
+    simp only [Set.mem_ofPred_eq, Set.mem_inter_iff, Set.mem_compl_iff]
     aesop
   · have heq : {T : ℝ | LongExteriorPair W Z0 (k, T)} = ∅ := by
       ext T

@@ -1714,7 +1714,7 @@ theorem stableSegment_four_levels_lt_excess_sixteen
     have := mul_le_mul_of_nonneg_right hZ (Nat.cast_nonneg L)
     nlinarith
   have hexcess : (W.m : ℝ) * Z0 < W.excess e := by
-    simpa only [Set.mem_setOf_eq] using hlarge.2
+    simpa only [Set.mem_ofPred_eq] using hlarge.2
   nlinarith
 
 def StableSegmentAnchorGood (Q : ℕ) (W : WindowSystem) (Z0 : ℕ)
@@ -1946,7 +1946,7 @@ theorem lem_stable_segment (context : FixedScaleContext)
       refine ⟨?_, seed.2, ?_, ?_⟩
       · simpa only [hseedFirst] using hseed.1.1.1
       · simpa only [hseedFirst] using hseed.1.1.2
-      · simpa only [← hseedFirst, Prod.eta, Set.mem_setOf_eq] using
+      · simpa only [← hseedFirst, Prod.eta, Set.mem_ofPred_eq] using
           hseed.1.2
     let p := initialLongPrefix W k
     have hpMem : p ∈ initialPrefixes W Z0 := by
@@ -2815,7 +2815,7 @@ private theorem compositionAsSetEquiv_symm_length (n : ℕ) (hn : 0 < n)
     dsimp [d, compositionAsSetEquiv]
     change i ∈ ({i : Fin (n + 1) | i = 0 ∨ i = Fin.last n ∨
       ∃ j : Fin (n - 1), ∃ _hj : j ∈ s, i.val = j.val + 1} : Set _).toFinset ↔ _
-    simp only [Set.mem_toFinset, Set.mem_setOf_eq, Finset.mem_insert, Finset.mem_map]
+    simp only [Set.mem_toFinset, Set.mem_ofPred_eq, Finset.mem_insert, Finset.mem_map]
     constructor
     · rintro (rfl | rfl | ⟨j, hj, hv⟩)
       · exact Or.inl rfl
@@ -3153,8 +3153,8 @@ theorem lem_signature_entropy (B cBand : ℝ) (hB : 2 < B)
     exact hcodeMem sigma
   have hunivFinite : (Set.univ : Set source).Finite :=
     himageFinite.of_finite_image (Set.injOn_univ.mpr hcodeInjective)
-  letI : Finite source := Set.finite_univ_iff.mp hunivFinite
-  letI : Fintype source := Fintype.ofFinite source
+  let : Finite source := Set.finite_univ_iff.mp hunivFinite
+  let : Fintype source := Fintype.ofFinite source
   have hcardNat : source.ncard ≤ codes.card := by
     have hle := Fintype.card_le_of_injective
       (fun sigma : source ↦ (⟨code sigma, hcodeMem sigma⟩ : codes))
@@ -4522,7 +4522,7 @@ theorem lem_source_fibre (context : FixedScaleContext)
       rw [hSempty]
       constructor
       · exact Set.finite_empty
-      · simp
+      · simp only [Set.ncard_empty, CharP.cast_eq_zero]
         positivity
     simpa [S, W] using hemptyResult
 
@@ -5647,11 +5647,12 @@ theorem finset_geometric_tail_le
 objects being summed are bands, while `exponent` extracts their dyadic
 exponents. -/
 theorem finset_geometric_tail_le_of_inj
-    { α : Type* } [DecidableEq α] (s : Finset α) (exponent : α → ℕ)
+    {α : Type*} (s : Finset α) (exponent : α → ℕ)
     {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) (n : ℕ)
     (hinj : Set.InjOn exponent s)
     (hmin : ∀ a ∈ s, n ≤ exponent a) :
     (∑ a ∈ s, r ^ exponent a) ≤ r ^ n * (1 - r)⁻¹ := by
+  classical
   calc
     (∑ a ∈ s, r ^ exponent a) =
         ∑ i ∈ s.image exponent, r ^ i :=
@@ -6591,7 +6592,8 @@ theorem lintegral_anchorCharge_pairSet
       intro k hk
       exact hcharge k hk
     simp_rw [MeasureTheory.lintegral_finset]
-    simp
+    simp only [MeasurableSpace.measurableSet_top, Measure.count_singleton', mul_one,
+      lintegral_const, MeasurableSet.univ, Measure.restrict_apply, univ_inter]
     have hsumNonneg : 0 ≤ ∑ k ∈ W.anchors, charge k :=
       Finset.sum_nonneg fun k hk => hcharge k hk
     have hlength : 0 ≤ thresholdLength W := by
@@ -6691,7 +6693,7 @@ theorem interiorPairsMass_le_refinementAnchorCharge
   simpa [interiorPairsMass, ENNReal.toReal_ofReal hrightNonneg] using hto
 
 theorem finite_ncard_real_le_card_mul_of_bounded_fibres
-    {α β : Type*} [DecidableEq α] [DecidableEq β]
+    {α β : Type*}
     (s : Set α) (t : Set β) (hs : s.Finite) (ht : t.Finite)
     (f : α → β) (M : ℝ) (_hM : 0 ≤ M)
     (hmap : ∀ x ∈ s, f x ∈ t)

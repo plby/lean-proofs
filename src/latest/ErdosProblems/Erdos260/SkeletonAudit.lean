@@ -32,7 +32,7 @@ def auditUnitEnumeration : SupportEnumeration auditPositiveNaturals where
       simp [auditPositiveNaturals]
     · intro hn
       refine ⟨n - 1, ?_⟩
-      simp only [auditPositiveNaturals, Set.mem_setOf_eq] at hn
+      simp only [auditPositiveNaturals, Set.mem_ofPred_eq] at hn
       exact Nat.sub_add_cancel hn
 
 -- Appendix A (5)
