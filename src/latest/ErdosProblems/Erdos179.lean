@@ -194,7 +194,9 @@ lemma apFree_insert_nextPoint {k : ℕ} (hk : 3 ≤ k) {A : Finset ℕ}
     refine ⟨a, ?_, b, ?_, hab, ?_⟩
     · simpa [d] using hall 0 (by omega)
     · have := hall 1 (by omega)
-      convert this using 1 <;> simp only [d, one_mul] <;> omega
+      convert this using 1
+      all_goals simp only [d, one_mul]
+      all_goals omega
     · intro j hj
       exact hall j (by omega)
   obtain ⟨i, hi, hiA⟩ := hnot_old
@@ -332,7 +334,9 @@ lemma exists_popular_secondDiff {S : Finset ℕ} {M : ℕ} (hSM : S ⊆ range M)
     have hy := mem_range.mp (hSM hp.2.1)
     have hz := mem_range.mp (hSM hp.2.2)
     simp only [Q, Finset.mem_Icc, secondDiff]
-    constructor <;> norm_num at * <;> omega
+    constructor
+    · omega
+    · omega
   have hQ : Q.Nonempty := by
     refine ⟨0, ?_⟩
     simp [Q]
@@ -404,7 +408,7 @@ lemma mem_threeBlockSet {S : Finset ℕ} {M : ℕ} {q : ℤ} {a : ℕ} :
 
 lemma blockIndex_le_of_lt {M : ℕ} {q : ℤ}
     (hq : q ∈ Finset.Icc (-(2 * M : ℤ)) (2 * M : ℤ))
-    {i j x y : ℕ} (hi : i < 3) (hj : j < 3) (hx : x < M) (hy : y < M)
+    {i j x y : ℕ} (hi : i < 3) (hj : j < 3) (_hx : x < M) (hy : y < M)
     (hxy : x + blockOffset M q i < y + blockOffset M q j) : i ≤ j := by
   have hoff := thirdOffset_bounds hq
   interval_cases i <;> interval_cases j <;> simp [blockOffset] at hxy ⊢ <;> omega
@@ -1121,7 +1125,7 @@ lemma hasAP_four_of_model {p : ℕ} [NeZero p] {A : Finset ℕ}
     (hfour : ContainsFourAP
       ((R.image (CyclicModel.modelMap q lambda)).image ZMod.val)) :
     HasAP 4 A := by
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let _ : NeZero q := ⟨Nat.ne_of_gt hq⟩
   let phi := CyclicModel.modelMap q lambda
   obtain ⟨x, e, he, hxe⟩ := hfour
   have hv (i : ℕ) (hi : i < 4) : x + i * e ∈ (R.image phi).image ZMod.val :=
@@ -1187,17 +1191,23 @@ lemma hasAP_four_of_model {p : ℕ} [NeZero p] {A : Finset ℕ}
     intro i hi
     interval_cases i
     · simpa using ha0
-    · convert ha1 using 1 <;> omega
-    · convert ha2 using 1 <;> omega
-    · convert ha3 using 1 <;> omega
+    · convert ha1 using 1
+      all_goals omega
+    · convert ha2 using 1
+      all_goals omega
+    · convert ha3 using 1
+      all_goals omega
   · refine ⟨a3, ha3, a2, ha2, ?_, ?_⟩
     · omega
     · intro i hi
       interval_cases i
       · simpa using ha3
-      · convert ha2 using 1 <;> omega
-      · convert ha1 using 1 <;> omega
-      · convert ha0 using 1 <;> omega
+      · convert ha2 using 1
+        all_goals omega
+      · convert ha1 using 1
+        all_goals omega
+      · convert ha0 using 1
+        all_goals omega
 
 lemma eventually_many_threeAPs_force_four (hSz : FiniteSzemerediFour)
     {epsilon : ℝ} (hepsilon : 0 < epsilon) :
@@ -1228,7 +1238,7 @@ lemma eventually_many_threeAPs_force_four (hSz : FiniteSzemerediFour)
   let bound := max (2 * A.sup id + 1) (16 * (C ^ 4 * n) + 1)
   obtain ⟨p, hpbound, hpprime⟩ := Nat.exists_infinite_primes bound
   have hp0 : 0 < p := hpprime.pos
-  letI : NeZero p := ⟨hpprime.ne_zero⟩
+  let _ : NeZero p := ⟨hpprime.ne_zero⟩
   have hA2 : ∀ a ∈ A, 2 * a < p := by
     intro a ha
     have hasup : a ≤ A.sup id := by simpa using Finset.le_sup (f := id) ha
@@ -1252,7 +1262,7 @@ lemma eventually_many_threeAPs_force_four (hSz : FiniteSzemerediFour)
   let T := R.image phi
   let V := T.image ZMod.val
   have hqpos : 0 < q := by simp [q]
-  letI : NeZero q := ⟨Nat.ne_of_gt hqpos⟩
+  let _ : NeZero q := ⟨Nat.ne_of_gt hqpos⟩
   have hTcard_le : T.card ≤ q := by
     calc T.card ≤ (Finset.univ : Finset (ZMod q)).card := card_le_univ _
       _ = q := by simp [ZMod.card]
