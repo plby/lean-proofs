@@ -119,7 +119,7 @@ lemma unorderedDistanceProduct_eq_prod_lt [LinearOrder α] (A : Finset α) :
 conventional unordered distance product. -/
 theorem distanceProduct_eq_unorderedDistanceProduct_sq (A : Finset α) :
     distanceProduct A = unorderedDistanceProduct A ^ 2 := by
-  letI : LinearOrder α := WellOrderingRel.isWellOrder.linearOrder
+  let : LinearOrder α := WellOrderingRel.isWellOrder.linearOrder
   let lo := A.offDiag.filter fun p ↦ p.1 < p.2
   let hi := A.offDiag.filter fun p ↦ p.2 < p.1
   have hunion : lo ∪ hi = A.offDiag := by
@@ -142,7 +142,7 @@ theorem distanceProduct_eq_unorderedDistanceProduct_sq (A : Finset α) :
       (∏ p ∈ hi, dist p.1 p.2) = ∏ p ∈ lo, dist p.1 p.2 := by
     apply Finset.prod_equiv (Equiv.prodComm α α)
     · intro p
-      simp only [lo, hi, Finset.mem_filter, Equiv.prodComm_apply, Prod.swap_prod_mk,
+      simp only [lo, hi, Finset.mem_filter, Equiv.prodComm_apply,
         Finset.mem_offDiag]
       constructor <;> rintro ⟨⟨hp, hq, hpq⟩, hlt⟩
       · exact ⟨⟨hq, hp, Ne.symm hpq⟩, hlt⟩
@@ -318,7 +318,7 @@ analytic hypotheses below are the rotationally invariant identity
 `∫ x, log (dist x y) = log 2 - 1/2` and integrability of the logarithmic
 singularity. -/
 theorem IsLogFekete.orderedLogEnergy_le_sphere_constant_of_integral
-    [DecidableEq α] [MeasurableSpace α] {n : ℕ} {A : Finset α}
+    [MeasurableSpace α] {n : ℕ} {A : Finset α}
     (hA : IsLogFekete n A) (μ : MeasureTheory.Measure α)
     [MeasureTheory.IsProbabilityMeasure μ]
     (hlogIntegrable : ∀ y : α,
@@ -328,6 +328,7 @@ theorem IsLogFekete.orderedLogEnergy_le_sphere_constant_of_integral
     (hnull : ∀ S : Finset α, μ (S : Set α) = 0) :
     orderedLogEnergy A ≤
       (n : ℝ) * ((n : ℝ) - 1) * (1 / 2 - Real.log 2) := by
+  classical
   apply hA.orderedLogEnergy_le_sphere_constant
   intro p hp
   let S := A.erase p

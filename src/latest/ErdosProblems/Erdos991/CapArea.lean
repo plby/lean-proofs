@@ -68,7 +68,7 @@ lemma coneSectionArea_nonneg {t : ℝ} (ht0 : 0 ≤ t) (ht1 : t ≤ 1) (s : ℝ)
     exact mul_nonneg Real.pi_pos.le (by nlinarith)
   · positivity
 
-lemma coneSectionArea_integrable {t : ℝ} (ht0 : 0 ≤ t) (ht1 : t ≤ 1) :
+lemma coneSectionArea_integrable {t : ℝ} :
     Integrable (coneSectionArea t) := by
   let f : ℝ → ℝ := fun s ↦ Real.pi * (s ^ 2 * (1 - t ^ 2) / t ^ 2)
   let g : ℝ → ℝ := fun s ↦ Real.pi * (1 - s ^ 2)
@@ -83,7 +83,7 @@ lemma coneSectionArea_integrable {t : ℝ} (ht0 : 0 ≤ t) (ht1 : t ≤ 1) :
   have hgind : Integrable ((Set.Ico t 1).indicator g) := hg.integrable_indicator measurableSet_Ico
   apply (hfind.add hgind).congr
   filter_upwards [] with s
-  simp only [coneSectionArea, Set.indicator, Set.mem_Ico]
+  simp only [coneSectionArea, Set.mem_Ico]
   by_cases hst : 0 ≤ s ∧ s < t
   · have hnot : ¬ (t ≤ s ∧ s < 1) := fun h ↦ (not_lt_of_ge h.1) hst.2
     simp [hst, hnot, f, g]
@@ -331,7 +331,7 @@ lemma coordinateCone_section_volume {t s : ℝ} (ht0 : 0 < t) (ht1 : t ≤ 1) :
           (WithLp.toLp 2) ⁻¹' Metric.closedBall (0 : E2)
             (Real.sqrt (s ^ 2 * (1 - t ^ 2) / t ^ 2)) := by
         ext z
-        simp only [Set.mem_preimage, coordinateCone, Set.mem_setOf_eq,
+        simp only [Set.mem_preimage, coordinateCone, Set.mem_ofPred_eq,
           Metric.mem_closedBall, dist_zero_right]
         simpa only [splitNorm, Prod.fst, Prod.snd] using
           (small_height_iff ht0 ht1 hspos hsmall.2 (norm_nonneg _))
@@ -345,7 +345,7 @@ lemma coordinateCone_section_volume {t s : ℝ} (ht0 : 0 < t) (ht1 : t ≤ 1) :
         have hset : (Prod.mk s) ⁻¹' coordinateCone t =
             (WithLp.toLp 2) ⁻¹' Metric.ball (0 : E2) (Real.sqrt (1 - s ^ 2)) := by
           ext z
-          simp only [Set.mem_preimage, coordinateCone, Set.mem_setOf_eq,
+          simp only [Set.mem_preimage, coordinateCone, Set.mem_ofPred_eq,
             Metric.mem_ball, dist_zero_right]
           simpa only [splitNorm, Prod.fst, Prod.snd] using
             (large_height_iff ht0 hlarge.1 hlarge.2 (norm_nonneg _))
@@ -388,7 +388,7 @@ lemma volume_coordinateCone {t : ℝ} (ht0 : 0 < t) (ht1 : t ≤ 1) :
     Measure.prod_apply (measurableSet_coordinateCone t)]
   simp_rw [coordinateCone_section_volume ht0 ht1]
   rw [← ofReal_integral_eq_lintegral_ofReal
-    (coneSectionArea_integrable ht0.le ht1)
+    coneSectionArea_integrable
     (Filter.Eventually.of_forall (coneSectionArea_nonneg ht0.le ht1)),
     integral_coneSectionArea ht0 ht1]
 
@@ -518,7 +518,7 @@ lemma coordinateCone_zero_section_volume (s : ℝ) :
           (Metric.ball (0 : E2) 1 \ {(0 : E2)}) := by
       ext z
       simp only [Set.mem_preimage, coordinateCone, Set.mem_ofPred_eq, zero_mul,
-        le_refl, and_true, Set.mem_diff, Metric.mem_ball, dist_zero_right,
+        le_refl, and_true, Set.mem_sdiff, Metric.mem_ball, dist_zero_right,
         Set.mem_singleton_iff]
       rw [splitNorm]
       norm_num only [Prod.fst, Prod.snd, zero_pow, zero_add]
@@ -540,7 +540,7 @@ lemma coordinateCone_zero_section_volume (s : ℝ) :
           (WithLp.toLp 2) ⁻¹' Metric.ball (0 : E2) (Real.sqrt (1 - s ^ 2)) := by
         ext z
         simp only [Set.mem_preimage, coordinateCone, Set.mem_ofPred_eq, zero_mul,
-          zero_le, and_true, Metric.mem_ball, dist_zero_right]
+          Metric.mem_ball, dist_zero_right]
         let r := ‖WithLp.toLp 2 z‖
         have hr : 0 ≤ r := norm_nonneg _
         have hsum : 0 ≤ s ^ 2 + r ^ 2 := by positivity
@@ -571,7 +571,7 @@ lemma coordinateCone_zero_section_volume (s : ℝ) :
     · have hsec : (Prod.mk s) ⁻¹' coordinateCone 0 = ∅ := by
         ext z
         simp only [Set.mem_preimage, coordinateCone, Set.mem_ofPred_eq,
-          Set.mem_empty_iff_false, zero_mul, zero_le, and_true]
+          Set.mem_empty_iff_false, zero_mul]
         constructor
         · intro h
           have hR0 : 0 ≤ splitNorm (s, z) := Real.sqrt_nonneg _
@@ -639,7 +639,9 @@ def localSphericalLevel (u : S2) (t : ℝ) : Set S2 :=
   {x | inner ℝ (x : E3) (u : E3) = t}
 
 lemma S2_norm (x : S2) : ‖(x : E3)‖ = 1 := by
-  simpa [Metric.mem_sphere, dist_zero_right] using x.property
+  calc
+    ‖(x : E3)‖ = dist (x : E3) 0 := (dist_zero_right _).symm
+    _ = 1 := x.property
 
 lemma measurableSet_localSphericalCap (u : S2) (t : ℝ) :
     MeasurableSet (localSphericalCap u t) := by
@@ -677,7 +679,7 @@ lemma radialSector_localSphericalCap (u : S2) (t : ℝ) :
     have hr1 : r < 1 := hy.2.1
     let x0 : E3 := r⁻¹ • y
     have hxnorm : ‖x0‖ = 1 := by
-      simp [x0, norm_smul, abs_inv, abs_of_pos hr0, r, hr0.ne']
+      simp [x0, norm_smul, r, hr0.ne']
     let x : S2 := ⟨x0, by simpa [Metric.mem_sphere, dist_zero_right] using hxnorm⟩
     have hcap : x ∈ localSphericalCap u t := by
       change t ≤ inner ℝ x0 (u : E3)
@@ -740,7 +742,7 @@ lemma rawSurface_localSphericalLevel (u : S2) (t : ℝ) :
     radialSector_localSphericalLevel, volume_ambientBoundary (S2_norm u), mul_zero]
 
 def negS2 (u : S2) : S2 :=
-  ⟨-(u : E3), by simpa [Metric.mem_sphere, dist_zero_right, S2_norm u]⟩
+  ⟨-(u : E3), by simp [S2_norm u]⟩
 
 lemma localCaps_union (u : S2) (t : ℝ) :
     localSphericalCap u t ∪ localSphericalCap (negS2 u) (-t) = Set.univ := by
