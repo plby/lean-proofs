@@ -46,7 +46,8 @@ def divisorTuplePairCondition (c : BoundedGaps.engelsmaTuple → ℕ) (n : ℕ)
 
 /-- The square Selberg weight formed from affine divisor conditions. -/
 def squareDivisorWeight (c : BoundedGaps.engelsmaTuple → ℕ)
-    (D : Finset (BoundedGaps.engelsmaTuple → ℕ)) (coeff : (BoundedGaps.engelsmaTuple → ℕ) → ℝ) (n : ℕ) : ℝ :=
+    (D : Finset (BoundedGaps.engelsmaTuple → ℕ))
+    (coeff : (BoundedGaps.engelsmaTuple → ℕ) → ℝ) (n : ℕ) : ℝ :=
   (∑ d ∈ D.filter (divisorTupleCondition c n), coeff d) ^ 2
 
 /-- Restriction to the universally admissible class `n ≡ 0 (mod W)`.
@@ -169,7 +170,8 @@ noncomputable def pairCrtResidue
       (BoundedGaps.Maynard.divisorTupleLcm BoundedGaps.engelsmaTuple d e))
     (BoundedGaps.Maynard.preSievedModulusList BoundedGaps.engelsmaTuple.attach.toList)
     (BoundedGaps.Maynard.preSievedModulusList_pairwise W
-      (BoundedGaps.Maynard.divisorTupleLcm BoundedGaps.engelsmaTuple d e) BoundedGaps.engelsmaTuple.attach.toList
+      (BoundedGaps.Maynard.divisorTupleLcm BoundedGaps.engelsmaTuple d e)
+      BoundedGaps.engelsmaTuple.attach.toList
       (BoundedGaps.Maynard.isMaynardDivisorTuple_pair_lcm_compatible
         hd he hcross))
 
@@ -443,7 +445,8 @@ theorem abs_compatiblePairErrorSum_le_coefficientMass
     (hD : ∀ d ∈ D,
       BoundedGaps.Maynard.IsMaynardDivisorTuple BoundedGaps.engelsmaTuple R W d) :
     |compatiblePairErrorSum c D W N coeff| ≤
-      BoundedGaps.Maynard.compatibleDivisorPairCoefficientMass BoundedGaps.engelsmaTuple D coeff := by
+      BoundedGaps.Maynard.compatibleDivisorPairCoefficientMass
+        BoundedGaps.engelsmaTuple D coeff := by
   classical
   unfold compatiblePairErrorSum
     BoundedGaps.Maynard.compatibleDivisorPairCoefficientMass
@@ -569,9 +572,12 @@ theorem affinePrimePair_of_eventually_positive
 /-! ## The concrete Engelsma weight: coverage and the first moment -/
 
 def coefficientCoverageBound (c : BoundedGaps.engelsmaTuple → ℕ) : ℕ :=
-  (∑ i : BoundedGaps.engelsmaTuple, c i) + ∑ i : BoundedGaps.engelsmaTuple, ∑ j : BoundedGaps.engelsmaTuple, Nat.dist (c i) (c j)
+  (∑ i : BoundedGaps.engelsmaTuple, c i) +
+    ∑ i : BoundedGaps.engelsmaTuple,
+      ∑ j : BoundedGaps.engelsmaTuple, Nat.dist (c i) (c j)
 
-theorem coefficient_le_coverageBound (c : BoundedGaps.engelsmaTuple → ℕ) (i : BoundedGaps.engelsmaTuple) :
+theorem coefficient_le_coverageBound
+    (c : BoundedGaps.engelsmaTuple → ℕ) (i : BoundedGaps.engelsmaTuple) :
     c i ≤ coefficientCoverageBound c := by
   unfold coefficientCoverageBound
   exact (Finset.single_le_sum (fun _ _ ↦ Nat.zero_le _) (Finset.mem_univ i)).trans
@@ -594,16 +600,17 @@ theorem coefficient_dist_le_coverageBound
         ∑ k ∈ (Finset.univ : Finset BoundedGaps.engelsmaTuple), Nat.dist (c a) (c k) := by
     exact Finset.single_le_sum
       (s := (Finset.univ : Finset BoundedGaps.engelsmaTuple))
-      (f := fun a : BoundedGaps.engelsmaTuple ↦ ∑ k ∈ (Finset.univ : Finset BoundedGaps.engelsmaTuple),
-        Nat.dist (c a) (c k))
+      (f := fun a : BoundedGaps.engelsmaTuple ↦
+        ∑ k ∈ (Finset.univ : Finset BoundedGaps.engelsmaTuple), Nat.dist (c a) (c k))
       (fun _ _ ↦ Nat.zero_le _) (Finset.mem_univ i)
   calc
     Nat.dist (c i) (c j) ≤
         ∑ k ∈ (Finset.univ : Finset BoundedGaps.engelsmaTuple), Nat.dist (c i) (c k) := hinner
     _ ≤ ∑ a ∈ (Finset.univ : Finset BoundedGaps.engelsmaTuple),
         ∑ k ∈ (Finset.univ : Finset BoundedGaps.engelsmaTuple), Nat.dist (c a) (c k) := houter
-    _ = ∑ a : BoundedGaps.engelsmaTuple, ∑ k : BoundedGaps.engelsmaTuple, Nat.dist (c a) (c k) := by
-      simp only [Finset.sum_const_zero, Finset.sum_attach]
+    _ = ∑ a : BoundedGaps.engelsmaTuple,
+        ∑ k : BoundedGaps.engelsmaTuple, Nat.dist (c a) (c k) := by
+      rfl
 
 theorem coefficient_coverages_of_cutoff
     {c : BoundedGaps.engelsmaTuple → ℕ} (hc : ∀ i, 0 < c i) (hinj : Function.Injective c)

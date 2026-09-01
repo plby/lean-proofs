@@ -44,7 +44,7 @@ theorem prime_inv_le_two_mul_primeLogTerm (n : ℕ) :
     Set.indicator {p : ℕ | p.Prime} (fun p ↦ (1 : ℝ) / p) n ≤
       2 * primeLogTerm n := by
   by_cases hn : n.Prime
-  · simp only [Set.indicator_apply, Set.mem_setOf_eq, hn, if_true, primeLogTerm]
+  · simp only [Set.indicator_apply, Set.mem_ofPred_eq, hn, if_true, primeLogTerm]
     have hnpos : (0 : ℝ) < n := by exact_mod_cast hn.pos
     have hlog := Real.one_sub_inv_le_log_of_pos
       (show (0 : ℝ) < 1 + 1 / (n : ℝ) by positivity)
@@ -53,7 +53,7 @@ theorem prime_inv_le_two_mul_primeLogTerm (n : ℕ) :
       field_simp
       nlinarith [show (1 : ℝ) ≤ n by exact_mod_cast hn.one_le]
     exact hcalc.trans (mul_le_mul_of_nonneg_left hlog (by norm_num))
-  · simp only [Set.indicator_apply, Set.mem_setOf_eq, hn, if_false, primeLogTerm]
+  · simp only [Set.indicator_apply, Set.mem_ofPred_eq, hn, if_false, primeLogTerm]
     norm_num
 
 theorem primeLogTerm_not_summable : ¬ Summable primeLogTerm := by
@@ -122,7 +122,7 @@ theorem exists_primeLog_block (B : ℕ) {t ε : ℝ} (ht : 0 < t) (hε : 0 < ε)
   have hNpred : N ≤ M - 1 := by omega
   have hpred : (∑ n ∈ Ico N (M - 1), primeLogTerm n) < t := by
     have hnot := Nat.find_min H (show M - 1 < M by omega)
-    push_neg at hnot
+    push Not at hnot
     exact hnot hNpred
   have hsplit : (∑ n ∈ Ico N M, primeLogTerm n) =
       (∑ n ∈ Ico N (M - 1), primeLogTerm n) +
@@ -130,7 +130,8 @@ theorem exists_primeLog_block (B : ℕ) {t ε : ℝ} (ht : 0 < t) (hε : 0 < ε)
     calc
       (∑ n ∈ Ico N M, primeLogTerm n) =
           ∑ n ∈ Ico N ((M - 1) + 1), primeLogTerm n := by
-            congr 3 <;> omega
+            congr 3
+            omega
       _ = _ := sum_Ico_succ_top hNpred primeLogTerm
   refine ⟨N, M, hBN, hNM, hspec.2, ?_⟩
   rw [hsplit]

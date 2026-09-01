@@ -48,14 +48,16 @@ theorem abs_log_nat_div_succ_le_inv {p : ℕ} (hp : 0 < p) :
     rw [Real.log_div hsuccR.ne' hpR.ne']
     ring
   rw [hid]
-  convert hlog using 1 <;> field_simp <;> ring
+  convert hlog using 1
+  field_simp
+  ring
 
 /-- The elementary consequence of the affine-prime theorem used in Pollack's
 closure argument.  It supplies a uniformly nontrivial, but arbitrarily small,
 positive logarithmic quotient while avoiding a prescribed modulus. -/
 theorem exists_small_sigma_log_pair_of_affine
     (haffine : AffinePrimePairProperty 105)
-    (Q : ℕ) (hQ : 0 < Q) { ε : ℝ } (hε : 0 < ε) :
+    (Q : ℕ) (hQ : 0 < Q) {ε : ℝ} (hε : 0 < ε) :
     ∃ m n : ℕ,
       0 < m ∧ 0 < n ∧ Nat.Coprime (m * n) Q ∧
       σ 1 m = σ 1 n ∧
@@ -188,7 +190,6 @@ theorem exists_small_sigma_log_pair_of_affine
         Real.log_mul hqR hAaR, Real.log_mul hpR hAbR,
         Real.log_div hcbR hAbR, Real.log_div hcaR hAaR,
         Real.log_div hqR hq1R, Real.log_div hpR hp1R]
-      norm_cast at hq_add hp_add
       rw [hq_add, hp_add]
       norm_num only [Nat.cast_mul]
       rw [Real.log_mul hcbSigmaR hxR,

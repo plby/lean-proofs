@@ -18,7 +18,7 @@ from translated primes to the primitive affine forms `c i * n - 1`.
 
 namespace Erdos823
 
-open Filter Finset
+open Filter Finset BoundedGaps.Maynard
 open scoped BigOperators
 
 noncomputable section
@@ -50,9 +50,9 @@ theorem affinePrimeProgressionCount_eq_primeVariableProgressionCount
         Nat.sub_lt_sub_right hleft hmul_upper⟩
     · have hmul : a * n ≡ a * r [MOD a * q] := hnmod.mul_left' a
       have hshift : a * r ≡ a * r + a * q [MOD a * q] := by
-        simpa [add_comm, mul_comm] using
-          (Nat.ModEq.modulus_mul_add (m := a * q) (a := 1)
-            (b := a * r)).symm
+        convert (Nat.ModEq.modulus_mul_add (m := a * q) (a := 1)
+          (b := a * r)).symm using 1
+        simp [add_comm]
       have hright : 1 ≤ a * r + a * q := by
         have haq : 0 < a * q := mul_pos ha hq
         omega
@@ -101,8 +101,8 @@ theorem affinePrimeProgressionCount_eq_primeVariableProgressionCount
         apply Nat.ModEq.mul_left_cancel' ha.ne'
         simpa [hmuln, mul_add] using hplus
       exact hcancel.trans (by
-        simpa [add_comm, mul_comm] using
-          (Nat.ModEq.modulus_mul_add (m := q) (a := 1) (b := r)))
+        convert Nat.ModEq.modulus_mul_add (m := q) (a := 1) (b := r) using 1
+        simp [add_comm])
     refine ⟨n, Finset.mem_filter.mpr ⟨hnrange, hnmod, ?_⟩, ?_⟩
     · simpa [hmuln] using hmprime
     · omega
@@ -353,10 +353,8 @@ theorem affinePrimeProgressionCount_eq_zero_of_coordinate_ne_one
 
 def affineCompatiblePairRestrictedMainOuter
     (c : BoundedGaps.engelsmaTuple → ℕ)
-    (D : Finset (BoundedGaps.engelsmaTuple → ℕ)) (R W N : ℕ)
-    (coeff : (BoundedGaps.engelsmaTuple → ℕ) → ℝ)
-    (hD : ∀ d ∈ D, BoundedGaps.Maynard.IsMaynardDivisorTuple
-      BoundedGaps.engelsmaTuple R W d) : ℝ :=
+    (D : Finset (BoundedGaps.engelsmaTuple → ℕ)) (W N : ℕ)
+    (coeff : (BoundedGaps.engelsmaTuple → ℕ) → ℝ) : ℝ :=
   ∑ d : D,
     ∑ e : D.filter (fun e : BoundedGaps.engelsmaTuple → ℕ ↦
       BoundedGaps.Maynard.IsCrossCoordinateCoprime
@@ -401,7 +399,7 @@ theorem affineCompatiblePrimeWeightedPairSum_eq_main_add_error
       BoundedGaps.engelsmaTuple R W d)
     (hRN : R + 1 ≤ N) :
     affineCompatiblePrimeWeightedPairSum c D W N coeff =
-      affineCompatiblePairRestrictedMainOuter c D R W N coeff hD +
+      affineCompatiblePairRestrictedMainOuter c D W N coeff +
         affineCompatiblePairRestrictedErrorOuter c D R W N coeff hD := by
   classical
   unfold affineCompatiblePrimeWeightedPairSum
@@ -428,7 +426,7 @@ theorem affineCompatiblePrimeWeightedPairSum_eq_main_add_error
   apply Finset.sum_congr rfl
   intro i hi
   by_cases hred : d.1 i = 1 ∧ e.1 i = 1
-  · simp [hred]
+  · rw [if_pos hred, if_pos hred]
     rw [affinePrimeProgressionCount_decomposition]
     ring
   · have hzero := affinePrimeProgressionCount_eq_zero_of_coordinate_ne_one
@@ -437,13 +435,11 @@ theorem affineCompatiblePrimeWeightedPairSum_eq_main_add_error
 
 theorem affineCompatiblePairRestrictedMainOuter_eq_coordinate_sum
     {c : BoundedGaps.engelsmaTuple → ℕ}
-    {D : Finset (BoundedGaps.engelsmaTuple → ℕ)} {R W N : ℕ}
+    {D : Finset (BoundedGaps.engelsmaTuple → ℕ)} {W N : ℕ}
     {coeff : (BoundedGaps.engelsmaTuple → ℕ) → ℝ}
     (hc : ∀ i, 0 < c i)
-    (hcover : CoefficientPrimesCovered c W)
-    (hD : ∀ d ∈ D, BoundedGaps.Maynard.IsMaynardDivisorTuple
-      BoundedGaps.engelsmaTuple R W d) :
-    affineCompatiblePairRestrictedMainOuter c D R W N coeff hD =
+    (hcover : CoefficientPrimesCovered c W) :
+    affineCompatiblePairRestrictedMainOuter c D W N coeff =
       ∑ i : BoundedGaps.engelsmaTuple,
         (affinePrimeIntervalCount (c i) N / c i) *
           BoundedGaps.Maynard.restrictedMainArithmeticCoefficient
@@ -461,7 +457,7 @@ theorem affineCompatiblePairRestrictedMainOuter_eq_coordinate_sum
         (coeff d.1 * coeff e.1)
     else 0
   have hleft :
-      affineCompatiblePairRestrictedMainOuter c D R W N coeff hD =
+      affineCompatiblePairRestrictedMainOuter c D W N coeff =
         ∑ d : D,
           ∑ e : D.filter (fun e : BoundedGaps.engelsmaTuple → ℕ ↦
             BoundedGaps.Maynard.IsCrossCoordinateCoprime
@@ -536,10 +532,8 @@ theorem affineConcreteRestrictedMainOuter_eq_affineMaynardS2Main
       (BoundedGaps.Maynard.engelsmaMaynardModulus N)) :
     affineCompatiblePairRestrictedMainOuter c
       (affineMaynardSupport alpha N)
-      (BoundedGaps.Maynard.engelsmaMaynardRadius alpha N)
       (BoundedGaps.Maynard.engelsmaMaynardModulus N) N
-      (affineMaynardCoefficient alpha N)
-      (affineMaynardS2SupportProof alpha N) =
+      (affineMaynardCoefficient alpha N) =
         affineMaynardS2Main c alpha N := by
   rw [affineCompatiblePairRestrictedMainOuter_eq_coordinate_sum
     hc hcover]
@@ -1145,7 +1139,7 @@ theorem tendsto_affineMaynardS2Main_sub_goodComplementMain_div_scale_zero
     have hprime := tendsto_affinePrimeIntervalFactor_of_pnt
       (hc i) halpha hpnt
     have hkernel :=
-      BoundedGaps.Maynard.tendsto_normalizedEngelsmaS2CoordinateOneKernel_sub_complementOuterMoment_zero
+      tendsto_normalizedEngelsmaS2CoordinateOneKernel_sub_complementOuterMoment_zero
         halpha i
     simpa [mul_assoc] using ((hprime.mul hkernel).mul hratio)
   have hsum : Tendsto (fun N : ℕ ↦
@@ -1445,7 +1439,7 @@ theorem affineDivisorPairCrtResidue_coprime
       (Nat.modEq_zero_iff_dvd.mp hrW) (c i))
       (dvd_mul_of_dvd_right hWq (c i))
   have hcopSucc : Nat.Coprime s (s + 1) := by
-    simpa [Nat.add_comm] using Nat.coprime_one_right s
+    exact Nat.coprime_self_add_right.mpr (Nat.coprime_one_right s)
   have hcopW : Nat.Coprime s W :=
     hcopSucc.coprime_dvd_right hWtotal
   have hcopProd : Nat.Coprime s

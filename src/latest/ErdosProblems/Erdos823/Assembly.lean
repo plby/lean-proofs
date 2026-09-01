@@ -121,7 +121,7 @@ theorem sigmaAccumSeq_log_lower
 
 private theorem exists_accum_reaches
     (haffine : AffinePrimePairProperty 105) {t ε : ℝ}
-    (ht : 0 ≤ t) (hε : 0 < ε) :
+    (hε : 0 < ε) :
     ∃ j : ℕ, t ≤
       Real.log (((sigmaAccumSeq haffine ε hε j).m : ℝ) /
         (sigmaAccumSeq haffine ε hε j).n) := by
@@ -144,7 +144,7 @@ theorem exists_sigma_log_approx_of_affine
   let H : ∃ j : ℕ, t ≤
       Real.log (((sigmaAccumSeq haffine ε hε j).m : ℝ) /
         (sigmaAccumSeq haffine ε hε j).n) :=
-    exists_accum_reaches haffine ht.le hε
+    exists_accum_reaches haffine hε
   let J := Nat.find H
   have hJ := Nat.find_spec H
   change t ≤ Real.log (((sigmaAccumSeq haffine ε hε J).m : ℝ) /
@@ -167,7 +167,6 @@ theorem exists_sigma_log_approx_of_affine
     ((sigmaAccumSeq haffine ε hε (J - 1)).block haffine ε hε).log_upper
   let s := sigmaAccumSeq haffine ε hε J
   refine ⟨s.m, s.n, s.m_pos, s.n_pos, s.sigma_eq, hJ, ?_⟩
-  change Real.log ((s.m : ℝ) / (s.n : ℝ)) < t + ε
   change Real.log (((sigmaAccumSeq haffine ε hε J).m : ℝ) /
       (sigmaAccumSeq haffine ε hε J).n) < t + ε
   rw [hstep]
@@ -177,7 +176,7 @@ theorem exists_sigma_log_approx_of_affine
 ordinary quotient approximation. -/
 theorem sigma_quotient_approx_of_affine
     (haffine : AffinePrimePairProperty 105)
-    { α ε : ℝ } (hα : 1 ≤ α) (hε : 0 < ε) :
+    {α ε : ℝ} (hα : 1 ≤ α) (hε : 0 < ε) :
     ∃ m n : ℕ,
       0 < m ∧ 0 < n ∧ σ 1 m = σ 1 n ∧
       |(m : ℝ) / (n : ℝ) - α| < ε := by
