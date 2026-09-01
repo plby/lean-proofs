@@ -505,8 +505,7 @@ def pairGap : Fin 3 → ℕ
 
 lemma tripleRoot_pairHigh (G : ℕ) (t : Fin 3) (j : Fin G) :
     tripleRoot G j (pairHigh t) = pairBase G t j + pairGap t := by
-  fin_cases t <;> simp [tripleRoot, pairBase, pairLow, pairHigh, pairGap] <;>
-    omega
+  fin_cases t <;> simp [tripleRoot, pairBase, pairLow, pairHigh, pairGap]
 
 lemma pairGap_pos (t : Fin 3) : 0 < pairGap t := by
   fin_cases t <;> simp [pairGap]
@@ -516,7 +515,8 @@ lemma pairGap_le_four (t : Fin 3) : pairGap t ≤ 4 := by
 
 lemma pairBase_lower {G : ℕ} (t : Fin 3) (j : Fin G) :
     6 * G + 1 ≤ pairBase G t j := by
-  fin_cases t <;> simp [pairBase, tripleRoot, pairLow] <;> omega
+  fin_cases t <;> simp [pairBase, tripleRoot, pairLow]
+  all_goals omega
 
 lemma pairBase_upper {G : ℕ} (t : Fin 3) (j : Fin G) :
     pairBase G t j < 2 * (6 * G + 1) := by
@@ -543,18 +543,18 @@ lemma pairCode_injective (G : ℕ) (t : Fin 3) :
   have hj : j.val = j'.val := by
     rcases lt_trichotomy j.val j'.val with hjj | hjj | hjj
     · fin_cases t <;>
-        simp only [pairCode, pairBase, tripleRoot, pairLow, pairGap,
-          Prod.fst, Prod.snd] at h <;> nlinarith
+        simp only [pairCode, pairBase, tripleRoot, pairLow, pairGap] at h <;>
+          nlinarith
     · exact hjj
     · fin_cases t <;>
-        simp only [pairCode, pairBase, tripleRoot, pairLow, pairGap,
-          Prod.fst, Prod.snd] at h <;> nlinarith
+        simp only [pairCode, pairBase, tripleRoot, pairLow, pairGap] at h <;>
+          nlinarith
   have hjFin : j = j' := Fin.ext hj
   subst j'
   have hk : k.val = k'.val := by
     fin_cases t <;>
-      simp only [pairCode, pairBase, tripleRoot, pairLow, pairGap,
-        Prod.fst, Prod.snd] at h <;> nlinarith
+      simp only [pairCode, pairBase, tripleRoot, pairLow, pairGap] at h <;>
+        nlinarith
   exact Prod.ext rfl (Fin.ext hk)
 
 /-- The positive and negative square shifts arising from indexed roots. -/
@@ -598,7 +598,7 @@ lemma pairCode_mem_multifoldSumset {G : ℕ} {V : Finset (Fin G × Fin 3)}
     rw [tripleRoot_pairHigh]
     simp only [pairBase]
     push_cast
-    simp only [pairCode, Prod.fst, Prod.snd]
+    simp only [pairCode]
     simp only [pairBase]
     push_cast
     ring
@@ -785,7 +785,7 @@ lemma tripleRoot_injective (G : ℕ) :
   rintro ⟨j, r⟩ ⟨j', r'⟩ h
   have hr := r.isLt
   have hr' := r'.isLt
-  simp only [tripleRoot, Prod.fst, Prod.snd] at h
+  simp only [tripleRoot] at h
   have hj : j.val = j'.val := by omega
   have hrv : r.val = r'.val := by omega
   exact Prod.ext (Fin.ext hj) (Fin.ext hrv)
@@ -795,7 +795,7 @@ lemma tripleRoot_lower {G : ℕ} (p : Fin G × Fin 3) :
   simp only [tripleRoot]
   omega
 
-lemma tripleRoot_upper {G : ℕ} (hG : 0 < G) (p : Fin G × Fin 3) :
+lemma tripleRoot_upper {G : ℕ} (p : Fin G × Fin 3) :
     tripleRoot G p.1 p.2 < 2 * (6 * G + 1) := by
   have hj := p.1.isLt
   have hr := p.2.isLt
@@ -1246,8 +1246,7 @@ lemma indexedSquareValues_biUnion_subset {G L : ℕ}
   obtain ⟨i, _, hqi⟩ := Finset.mem_biUnion.mp hq
   exact indexedSquareValues_mono (hU i) hqi
 
-lemma sum_indexedSquareValues_le {G : ℕ} (hG : 0 < G)
-    (U : Finset (Fin G × Fin 3)) :
+lemma sum_indexedSquareValues_le {G : ℕ} (U : Finset (Fin G × Fin 3)) :
     ∑ q ∈ indexedSquareValues U, q ≤
       U.card * (2 * (6 * G + 1)) ^ 2 := by
   calc
@@ -1256,9 +1255,9 @@ lemma sum_indexedSquareValues_le {G : ℕ} (hG : 0 < G)
       apply Finset.sum_le_card_nsmul
       intro q hq
       obtain ⟨p, hp, rfl⟩ := Finset.mem_image.mp hq
-      exact Nat.pow_le_pow_left (Nat.le_of_lt (tripleRoot_upper hG p)) 2
+      exact Nat.pow_le_pow_left (Nat.le_of_lt (tripleRoot_upper p)) 2
     _ = U.card * (2 * (6 * G + 1)) ^ 2 := by
-      simp [nsmul_eq_mul]
+      simp
 
 lemma card_biUnion_indexedSquareValues_le {G L c : ℕ}
     (U : Fin L → Finset (Fin G × Fin 3))
@@ -1345,7 +1344,7 @@ lemma exists_lev_cover_from_rich_chunks (H L : ℕ)
       calc
         ∑ q ∈ E i, q ≤
             (U i).card * (2 * (6 * (24 * 2 ^ H) + 1)) ^ 2 :=
-          sum_indexedSquareValues_le (by positivity) (U i)
+          sum_indexedSquareValues_le (U i)
         _ ≤ Q := by
           dsimp [Q]
           exact Nat.mul_le_mul_right _ (hU i).2.1
@@ -1379,7 +1378,7 @@ lemma exists_lev_cover_from_rich_chunks (H L : ℕ)
         apply Finset.sum_le_card_nsmul
         intro q hq
         obtain ⟨p, hp, rfl⟩ := Finset.mem_image.mp (hCD hq)
-        have hpRoot := tripleRoot_upper (by positivity : 0 < 24 * 2 ^ H) p
+        have hpRoot := tripleRoot_upper p
         simpa [nsmul_eq_mul] using
           Nat.pow_le_pow_left (Nat.le_of_lt hpRoot) 2
       _ ≤ L * Q := by
@@ -1442,7 +1441,7 @@ lemma dense_indexedSquareValues_cover (H L : ℕ)
         obtain ⟨p, hp, rfl⟩ := Finset.mem_image.mp (hCD hq)
         dsimp [M, X, G]
         exact Nat.pow_le_pow_left
-          (Nat.le_of_lt (tripleRoot_upper (by positivity) p)) 2
+          (Nat.le_of_lt (tripleRoot_upper p)) 2
       _ = C.card * M := by simp
       _ ≤ (L * c) * M := Nat.mul_le_mul_right M hCcard
       _ = L * Q := by simp [Q]; ring
@@ -1452,7 +1451,7 @@ lemma dense_indexedSquareValues_cover (H L : ℕ)
     intro q hq
     have hqD : q ∈ indexedSquareValues D := (Finset.mem_sdiff.mp hq).1
     obtain ⟨p, hp, rfl⟩ := Finset.mem_image.mp hqD
-    have hroot := tripleRoot_upper (by positivity : 0 < 24 * 2 ^ H) p
+    have hroot := tripleRoot_upper p
     have hsq : (tripleRoot (24 * 2 ^ H) p.1 p.2) ^ 2 ≤
         (2 * (6 * (24 * 2 ^ H) + 1)) ^ 2 :=
       Nat.pow_le_pow_left (Nat.le_of_lt hroot) 2
@@ -1740,7 +1739,7 @@ lemma ramseyBlockLo_succ_le_hi (k : ℕ) :
     unfold ramseyChunkBound ramseyRootFloor ramseyGroupCount
     rw [hHsucc, hsSucc']
     rw [hHsucc, hsSucc'] at hQraw
-    convert hQraw using 1 <;> omega
+    exact hQraw
   have hupper : ramseyBlockLo (k + 1) ≤
       192000000000000 * (H + 3) ^ 2 * T := by
     calc
@@ -2199,7 +2198,7 @@ lemma exists_large_colourClass (block : Finset ℕ) (colour : ℕ → Fin 2) :
     intro q hred hblue
     have h0 : colour q = (0 : Fin 2) := (Finset.mem_filter.mp hred).2
     have h1 : colour q = (1 : Fin 2) := (Finset.mem_filter.mp hblue).2
-    simpa [h0] using h1
+    simp [h0] at h1
   have hcard : red.card + blue.card = block.card := by
     rw [← Finset.card_union_of_disjoint hdisjoint, hunion]
   by_cases hred : block.card ≤ 2 * red.card
