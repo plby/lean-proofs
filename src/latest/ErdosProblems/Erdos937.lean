@@ -112,10 +112,8 @@ private lemma reduces73_inv {q : ℚ} {x : F73} (hq : Reduces73 q x) (hx0 : x �
   have hb0 : b ≠ 0 := by intro h; subst b; simp at hb
   refine ⟨b, a, ha, ?_, ?_⟩
   · rw [hq]
-    push_cast
     field_simp [ha0, hb0]
   · rw [hx]
-    push_cast
     field_simp [ha, hb]
 
 private lemma reduces73_div {q r : ℚ} {x y : F73}
@@ -264,11 +262,13 @@ private lemma shortStart_reduces73 :
     Reduces73 shortStart.1 48 ∧ Reduces73 shortStart.2 17 := by
   constructor
   · refine ⟨21443383536, 511225, by decide, ?_, ?_⟩
-    simp [shortStart, Rat.divInt_eq_div]
-    field_simp [show (511225 : F73) ≠ 0 by decide] <;> decide
+    · simp [shortStart, Rat.divInt_eq_div]
+    · field_simp [show (511225 : F73) ≠ 0 by decide]
+      all_goals decide
   · refine ⟨-2752977651830784, 365525875, by decide, ?_, ?_⟩
-    simp [shortStart, Rat.divInt_eq_div]
-    field_simp [show (365525875 : F73) ≠ 0 by decide] <;> decide
+    · simp [shortStart, Rat.divInt_eq_div]
+    · field_simp [show (365525875 : F73) ≠ 0 by decide]
+      all_goals decide
 
 private def orbitX73 (n : ℕ) : F73 := 48 / 25 ^ n
 private def orbitY73 (n : ℕ) : F73 := 17 / 125 ^ n
@@ -299,10 +299,12 @@ private lemma orbit_sample_reduces73 (k : ℕ) :
   constructor
   · apply reduces73_right h.1
     simp only [orbitX73, pow_add, pow_mul, h25, one_pow, mul_one]
-    field_simp [show (25 : F73) ≠ 0 by decide] <;> decide
+    field_simp [show (25 : F73) ≠ 0 by decide]
+    all_goals decide
   · apply reduces73_right h.2
     simp only [orbitY73, pow_add, pow_mul, h125, one_pow, mul_one]
-    field_simp [show (125 : F73) ≠ 0 by decide] <;> decide
+    field_simp [show (125 : F73) ≠ 0 by decide]
+    all_goals decide
 
 lemma orbit_sample_old_ratio_reduces73 (k : ℕ) :
     Reduces73 (bbcX (orbit (57 + 72 * k)) / bbcY (orbit (57 + 72 * k))) 2 := by
@@ -311,7 +313,8 @@ lemma orbit_sample_old_ratio_reduces73 (k : ℕ) :
     (reduces73_sub h.1 (reduces73_int 17808)) (reduces73_int 36) (by decide)
   have hX : Reduces73 (bbcX (orbit (57 + 72 * k))) 24 := by
     apply reduces73_right (by simpa [bbcX] using hXraw)
-    field_simp [show (36 : F73) ≠ 0 by decide] <;> decide
+    field_simp [show (36 : F73) ≠ 0 by decide]
+    all_goals decide
   have hYraw := reduces73_div
     (reduces73_add
       (reduces73_add
@@ -322,10 +325,12 @@ lemma orbit_sample_old_ratio_reduces73 (k : ℕ) :
   have hY : Reduces73 (bbcY (orbit (57 + 72 * k))) 12 := by
     apply reduces73_right (by simpa [bbcY] using hYraw)
     field_simp [show (108 : F73) ≠ 0 by decide,
-      show (2 : F73) ≠ 0 by decide] <;> decide
+      show (2 : F73) ≠ 0 by decide]
+    all_goals decide
   have hr := reduces73_div hX hY (by decide)
   apply reduces73_right hr
-  field_simp [show (12 : F73) ≠ 0 by decide] <;> decide
+  field_simp [show (12 : F73) ≠ 0 by decide]
+  all_goals decide
 
 private lemma quarticX_num_congr_5329 {P : ℚ × ℚ}
     (h : Reduces73 (bbcX P / bbcY P) 2) :
@@ -875,7 +880,6 @@ private lemma goodParam_mem {a b c : ℤ}
   · have hv := forward_progression_values hD hF
     rw [show apProgression (a, b) =
       (squareNat (apX a b), apStep a b) by simp [apProgression, hD]]
-    simp only [Prod.fst, Prod.snd]
     unfold IsCoprimePowerfulAP4
     rw [← hv.1, ← hv.2.1, ← hv.2.2]
     exact ⟨hdpos, pX, pY, pZ, pF, hXY, hXZ, hXF, hYZ, hYF, hZF⟩
@@ -883,7 +887,6 @@ private lemma goodParam_mem {a b c : ℤ}
     have hv := reverse_progression_values hD' hF
     rw [show apProgression (a, b) =
       (fourthNat a b, apStep a b) by simp [apProgression, hD]]
-    simp only [Prod.fst, Prod.snd]
     unfold IsCoprimePowerfulAP4
     rw [← hv.1, ← hv.2.1, ← hv.2.2]
     exact ⟨hdpos, pF, pZ, pY, pX, hZF.symm, hYF.symm, hXF.symm,
@@ -990,12 +993,18 @@ private lemma progression_fiber_finite (x : ℕ × ℕ) :
       omega
   have haYabs : a.natAbs ≤ (apY a b).natAbs := by
     rw [apY_natAbs]
-    exact le_trans (Nat.le_mul_self a.natAbs) (by
-      simpa [pow_two] using Nat.le_add_right (a.natAbs ^ 2) (b.natAbs ^ 2))
+    calc
+      a.natAbs ≤ a.natAbs * a.natAbs := Nat.le_mul_self a.natAbs
+      _ = a.natAbs ^ 2 := (pow_two a.natAbs).symm
+      _ ≤ a.natAbs ^ 2 + b.natAbs ^ 2 :=
+        Nat.le_add_right (a.natAbs ^ 2) (b.natAbs ^ 2)
   have hbYabs : b.natAbs ≤ (apY a b).natAbs := by
     rw [apY_natAbs]
-    exact le_trans (Nat.le_mul_self b.natAbs) (by
-      simpa [pow_two] using Nat.le_add_left (b.natAbs ^ 2) (a.natAbs ^ 2))
+    calc
+      b.natAbs ≤ b.natAbs * b.natAbs := Nat.le_mul_self b.natAbs
+      _ = b.natAbs ^ 2 := (pow_two b.natAbs).symm
+      _ ≤ a.natAbs ^ 2 + b.natAbs ^ 2 :=
+        Nat.le_add_left (b.natAbs ^ 2) (a.natAbs ^ 2)
   have hYsq : (apY a b).natAbs ≤ squareNat (apY a b) := by
     simpa [squareNat, pow_two] using Nat.le_mul_self (apY a b).natAbs
   have haM : a.natAbs ≤ M := haYabs.trans (hYsq.trans hyBound)

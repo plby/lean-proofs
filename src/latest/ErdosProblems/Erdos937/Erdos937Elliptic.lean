@@ -148,15 +148,14 @@ lemma shortDouble_onCurve {P : ℚ × ℚ} (hP : ShortOnCurve P) (hy : P.2 ≠ 0
   convert hadd using 1
   case e'_2 => rfl
   case e'_4 =>
-    simp [shortDouble, shortCurve, shortA, shortB, WeierstrassCurve.toAffine,
-      WeierstrassCurve.Affine.addX, WeierstrassCurve.Affine.addY,
-      WeierstrassCurve.Affine.negAddY, WeierstrassCurve.Affine.negY]
+    dsimp [shortDouble, shortCurve, shortA, shortB, WeierstrassCurve.toAffine]
+    simp only [zero_mul, mul_zero, add_zero, sub_zero, sub_neg_eq_add]
     rw [hm]
     ring
   case e'_5 =>
-    simp [shortDouble, shortCurve, shortA, shortB, WeierstrassCurve.toAffine,
-      WeierstrassCurve.Affine.addX, WeierstrassCurve.Affine.addY,
-      WeierstrassCurve.Affine.negAddY, WeierstrassCurve.Affine.negY]
+    dsimp [shortDouble, shortCurve, shortA, shortB, WeierstrassCurve.toAffine,
+      WeierstrassCurve.Affine.addY]
+    simp only [zero_mul, mul_zero, add_zero, sub_zero, sub_neg_eq_add]
     rw [hm]
     ring
 
@@ -175,12 +174,12 @@ lemma shortAdd_onCurve {P Q : ℚ × ℚ} (hP : ShortOnCurve P) (hQ : ShortOnCur
   convert hadd using 1
   case e'_2 => rfl
   case e'_4 =>
-    simp [shortAdd, shortCurve, shortA, shortB, WeierstrassCurve.toAffine,
-      WeierstrassCurve.Affine.addX, WeierstrassCurve.Affine.addY,
-      WeierstrassCurve.Affine.negAddY, WeierstrassCurve.Affine.negY]
+    dsimp [shortAdd, shortCurve, shortA, shortB, WeierstrassCurve.toAffine]
     rw [hm]
+    ring
   case e'_5 =>
-    simp [shortAdd, shortCurve, shortA, shortB, WeierstrassCurve.toAffine,
+    dsimp [shortAdd, shortCurve, shortA, shortB, WeierstrassCurve.toAffine]
+    simp only [
       WeierstrassCurve.Affine.addX, WeierstrassCurve.Affine.addY,
       WeierstrassCurve.Affine.negAddY, WeierstrassCurve.Affine.negY]
     rw [hm]
@@ -416,7 +415,7 @@ private lemma tailPolynomial_eval (which : ℕ) (z : ℚ) :
        | 2 => fourTail shortA shortB z
        | _ => fiveTail shortA shortB z) := by
   rcases which with _ | which
-  · simp [tailPolynomial, curveTail, shortA, shortB, Polynomial.eval₂_pow]
+  · simp [tailPolynomial, curveTail, shortA, shortB]
   rcases which with _ | which
   · simp [tailPolynomial, threeTail, shortA, shortB, Polynomial.eval₂_pow]
   rcases which with _ | which
@@ -655,7 +654,7 @@ private lemma fiveMap_fst_padicVal {P : ℚ × ℚ} (hv : padicValRat 5 P.1 < 0)
     simp at hv0
     omega
   have h50 := fivePoly_ne_zero hv
-  simp only [fiveMap, Prod.fst]
+  simp only [fiveMap]
   rw [padicValRat.div hphi0 (pow_ne_zero _ h50), fivePhi_padicVal hv,
     padicValRat.pow, fivePoly_padicVal hv]
   ring
@@ -672,7 +671,7 @@ lemma fiveMap_onCurve {P : ℚ × ℚ} (hP : ShortOnCurve P)
   have h50 := fivePoly_ne_zero hv
   have hc : P.2 ^ 2 = curvePoly P.1 := by
     simpa [ShortOnCurve, curvePoly] using hP
-  simp only [ShortOnCurve, fiveMap, Prod.fst, Prod.snd]
+  simp only [ShortOnCurve, fiveMap]
   field_simp [h50]
   rw [hc, five_curve_polynomial_identity]
   ring
@@ -686,7 +685,7 @@ lemma shortStart_onCurve : ShortOnCurve shortStart := by
   norm_num [ShortOnCurve, shortStart, shortA, shortB, Rat.divInt_eq_div]
 
 lemma shortStart_fst_padicVal : padicValRat 5 shortStart.1 = -2 := by
-  simp only [shortStart, Prod.fst, padicValRat_def]
+  simp only [shortStart, padicValRat_def]
   rw [Rat.divInt_eq_div]
   rw [Rat.num_div_eq_of_coprime (by norm_num) (by norm_num)]
   have hdenrat : (((21443383536 : ℤ) : ℚ) / ((511225 : ℤ) : ℚ)).den = 511225 := by
@@ -707,7 +706,7 @@ lemma shortStart_fst_padicVal : padicValRat 5 shortStart.1 = -2 := by
   omega
 
 lemma shortStart_snd_padicVal : padicValRat 5 shortStart.2 = -3 := by
-  simp only [shortStart, Prod.snd, padicValRat_def]
+  simp only [shortStart, padicValRat_def]
   rw [Rat.divInt_eq_div]
   rw [Rat.num_div_eq_of_coprime (by norm_num) (by norm_num)]
   have hdenrat : (((-2752977651830784 : ℤ) : ℚ) /
@@ -790,7 +789,7 @@ def BBCOnCurve (P : ℚ × ℚ) : Prop :=
 
 lemma short_to_BBC {P : ℚ × ℚ} (hP : ShortOnCurve P) :
     BBCOnCurve (bbcX P, bbcY P) := by
-  simp only [ShortOnCurve, bbcX, bbcY, BBCOnCurve, Prod.fst, Prod.snd] at hP ⊢
+  simp only [ShortOnCurve, bbcX, bbcY, BBCOnCurve] at hP ⊢
   norm_num [shortA, shortB] at hP
   field_simp
   ring_nf at hP ⊢
@@ -806,7 +805,7 @@ lemma BBC_to_quartic {P : ℚ × ℚ} (hP : ShortOnCurve P) (hy : bbcY P ≠ 0) 
     quarticX P ^ 4 - 8 * quarticX P ^ 3 + 2 * quarticX P ^ 2 +
       8 * quarticX P + 1 = 73 * quarticY P ^ 2 := by
   have he := short_to_BBC hP
-  simp only [BBCOnCurve, Prod.fst, Prod.snd] at he
+  simp only [BBCOnCurve] at he
   have he0 :
       bbcY P ^ 2 - 128 * bbcX P * bbcY P - 3360 * bbcY P -
         (bbcX P ^ 3 - 2612 * bbcX P ^ 2 + 149568 * bbcX P) = 0 :=
