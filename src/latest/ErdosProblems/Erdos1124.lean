@@ -165,7 +165,7 @@ noncomputable def equidecompOfBijOn {A B : Set Plane} (f : Plane → Plane)
     intro x hx
     obtain ⟨v, hv, hfx⟩ := hS x hx
     refine ⟨Multiplicative.ofAdd v, Finset.mem_map.mpr ⟨v, hv, rfl⟩, ?_⟩
-    simpa [hfx]
+    simp [hfx]
 
 @[simp] lemma equidecompOfBijOn_source {A B : Set Plane} (f : Plane → Plane)
     (hf : BijOn f A B) (S : Finset Plane)
