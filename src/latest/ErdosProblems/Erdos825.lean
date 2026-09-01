@@ -175,7 +175,7 @@ lemma listSubsetSum_perm_iff {A B : List ℕ} (hAB : A.Perm B) {x : ℕ} :
   exact ⟨ListSubsetSum.perm hAB, ListSubsetSum.perm hAB.symm⟩
 
 lemma RepresentsTranslate.refl (A : List ℕ) : RepresentsTranslate A A := by
-  exact ⟨0, by simpa using fun x (hx : ListSubsetSum A x) => hx⟩
+  exact ⟨0, by simp⟩
 
 lemma RepresentsTranslate.to_nil (A : List ℕ) : RepresentsTranslate A [] := by
   exact ⟨A.sum, fun x hx => by
@@ -475,7 +475,7 @@ lemma exists_frequent_lt {D : List ℕ} {H q : ℕ} (hH : 0 < H)
       (Finset.range H).card • q = H * q := by simp
       _ ≤ small.length := by simpa [small] using hcard
       _ = ∑ a ∈ s, (small : Multiset ℕ).count a := by
-        simpa [s] using (Multiset.toFinset_sum_count_eq (small : Multiset ℕ)).symm
+        simp [s]
   obtain ⟨μ, hμ, hfreq⟩ :=
     Finset.exists_le_sum_fiber_of_maps_to_of_nsmul_le_sum
       (M := ℕ) (s := s) (t := Finset.range H) (f := fun a : ℕ => a)
@@ -1291,8 +1291,7 @@ lemma le_two_pow_clog (μ : ℕ) : μ ≤ 2 ^ Nat.clog 2 μ := by
 
 lemma getElem_binaryWeights {m i : ℕ} (hi : i < (binaryWeights m).length) :
     (binaryWeights m)[i] = 2 ^ i := by
-  simpa [binaryWeights_eq_map_range] using congrArg (fun j : ℕ => 2 ^ j)
-    (List.getElem_range (by simpa [binaryWeights_eq_map_range] using hi))
+  simp [binaryWeights_eq_map_range]
 
 lemma sum_binaryWeights (m : ℕ) : (binaryWeights m).sum = 2 ^ m - 1 := by
   induction m with
@@ -1499,7 +1498,7 @@ lemma zipDiffs_represents {A B : List ℕ}
         simpa using hle (i + 1) hi'
       have htail := ih hlenTail hleTail
       have hperm : (a :: A ++ b :: B).Perm ([a, b] ++ (A ++ B)) := by
-        simpa [List.append_assoc] using (List.perm_middle (l₁ := A) (l₂ := B)).symm.cons a
+        simp
       exact ((representsTranslate_pair_diff hab).append htail).perm_left hperm.symm
 
 lemma zipDiffs_dvd {A B : List ℕ} {μ w : ℕ}
@@ -1633,9 +1632,9 @@ lemma sq_le_sum_zipDiffs_take_drop {C : List ℕ} (hC : C.Sorted (· < ·))
     have hiC : i < C.length := hiS.trans_le (by omega)
     have hisC : i + s < C.length := by omega
     have hgap := sortedLT_getElem_add_le hC hiC hisC (by omega)
-    have hAi : A[i] = C[i] := by simp [A, hiS]
+    have hAi : A[i] = C[i] := by simp [A]
     have hBi : B[i] = C[i + s] := by
-      simp [B, hiS, Nat.add_comm]
+      simp [B, Nat.add_comm]
     rw [hAi, hBi]
     omega
   have hterm : ∀ d ∈ zipDiffs A B, s ≤ d := by
@@ -1920,7 +1919,7 @@ lemma weakDenseBlock_of_parameters
         have hlastMem : (a :: A).getLast (by simp) ∈ a :: A :=
           List.getLast_mem (l := a :: A) (by simp)
         have hlastP : (a :: A).getLast (by simp) ∈ P :=
-          hmemP₁ _ (by simpa [hP₁eq] using hlastMem)
+          hmemP₁ _ (by simp [hP₁eq])
         have haBound := (hblock a haP).2.1
         have hlastBound := (hblock _ hlastP).2.2
         omega
@@ -2148,7 +2147,7 @@ lemma weakDenseBlock_of_parameters
           rw [List.length_drop, hlenC, two_mul, Nat.add_sub_cancel_left]
         have htakeDropEq : (C.drop s).take s = C.drop s := by
           exact (List.take_eq_self_iff _).2 (by rw [hdropLen])
-        simpa [Low, High, htakeDropEq] using htakeDrop
+        simp [Low, High, htakeDropEq]
       have hepsRep : RepresentsTranslate C eps := by
         rw [← hCsplit]
         exact zipDiffs_represents hlenLH hleLH
@@ -2186,7 +2185,7 @@ lemma weakDenseBlock_of_parameters
           htauRep.append hepsRep
         exact (hselectRep.trans hforward).perm_right List.perm_append_comm
       have hLsplit : P₁ ++ P₂ = L := by
-        simpa [P₁, P₂] using List.take_append_drop k L
+        simp [P₁, P₂]
       have hsourceRep : RepresentsTranslate L
           (List.replicate qTotal μ ++ (eps ++ ts)) := by
         rw [← hLsplit]
@@ -2289,8 +2288,7 @@ lemma dense_card_inequalities {t : ℕ} {P : Finset ℕ}
     rw [hthreshold] at hcard
     have hle : 2 * (denseG t * denseM t) ≤
         4 * b + 2 * denseG t * denseM t := by
-      simpa [Nat.mul_assoc] using
-        (Nat.le_add_left (2 * denseG t * denseM t) (4 * b))
+      simp [Nat.mul_assoc]
     simpa [Nat.mul_assoc] using hle.trans_lt hcard
   have hhalf : denseG t * denseM t ≤ P.card / 2 := by
     apply (Nat.le_div_iff_mul_le (by norm_num : 0 < 2)).2
@@ -2474,7 +2472,8 @@ lemma choose_two_erase_ge_two_pow {t p : ℕ} {P : Finset ℕ}
     have hpw := Nat.pow_le_pow_right (by norm_num : 0 < 2) htexp
     change 2 ^ t ≤ (2 ^ (3 * (t / 4))) ^ 2
     rw [← pow_mul]
-    convert hpw using 1 <;> ring
+    convert hpw using 1
+    all_goals ring
   have hlarge : 8 * y + 4 < P.card := by
     exact (le_max_right (denseCardThreshold t + 1)
       (8 * 2 ^ (3 * (t / 4)) + 4)).trans_lt hcard
@@ -2739,11 +2738,9 @@ lemma productLayerList_factorTwo {P : Finset ℕ} {x r : ℕ}
     change L[i + 1] ∈ (productLayer P r).sort (· ≤ ·) at hm
     exact (Finset.mem_sort (· ≤ ·)).mp hm
   have hsortedLe : L.Pairwise (· ≤ ·) := by
-    simpa [L, productLayerList] using
-      (Finset.pairwise_sort (productLayer P r) (· ≤ ·))
+    simp [L, productLayerList]
   have hnodup : L.Nodup := by
-    simpa [L, productLayerList] using
-      (Finset.sort_nodup (productLayer P r) (· ≤ ·))
+    simp [L, productLayerList]
   have hsorted : L.Pairwise (· < ·) :=
     hsortedLe.sortedLE.sortedLT_of_nodup hnodup |>.pairwise
   have h01 : L[i] < L[i + 1] :=
@@ -2764,7 +2761,7 @@ lemma productLayerList_factorTwo {P : Finset ℕ} {x r : ℕ}
   have hle : L[i + 1] ≤ c := by
     rcases hij.eq_or_lt with heq | hlt
     · subst j
-      simpa [hcj]
+      simp [hcj]
     · have hbc := (List.pairwise_iff_getElem.mp hsorted) (i + 1) j hi1 hj hlt
       simpa [hcj] using hbc.le
   exact hle.trans_lt hc2
@@ -4024,9 +4021,7 @@ lemma SeededSlow.append_of_bounded {A : Type*} {w : A → ℝ}
           · rw [weightedSlowExtension_append]
             refine ⟨hslow.2, ?_⟩
             apply weightedSlowExtension_of_bounded hw
-            · change w a + w b + (rest.map w).sum ≤
-                w a + w b + (rest.map w).sum
-              exact le_rfl
+            · exact le_rfl
             · intro c hc
               simpa only [List.map_cons, List.sum_cons, add_assoc] using
                 hbound c hc
@@ -4144,12 +4139,15 @@ lemma conormalBlockFold_properties {A : Type*} (w : A → ℝ)
                   simp [next, conormalBlockStep, massCurrent, hn]
                 rw [happ] at this
                 have hlen := congrArg List.length this
-                simp at hlen
+                have hcurrentNil : current = [] := by
+                  apply List.eq_nil_of_length_eq_zero
+                  simp only [List.length_append, List.length_singleton] at hlen
+                  omega
                 have hcne : current ≠ [] := by
                   intro hzero
                   rw [hzero] at hc
                   simp [flattenIndexedBlocks] at hc
-                exact (hcne hlen).elim
+                exact (hcne hcurrentNil).elim
               exact (hBupper a ha).trans hfit
         · rw [hreset]
           simpa [flattenIndexedBlocks] using ⟨hBlen, hBslow⟩
@@ -4185,15 +4183,13 @@ lemma conormalBlockFold_properties {A : Type*} (w : A → ℝ)
             simp [next, conormalBlockStep, massCurrent, hfit]
           rw [hnextEq]
           rw [hnextEq, flattenIndexedBlocks_append] at hmassRec
-          simp [indexedBlocksUpper, indexedBlockMass, flattenIndexedBlocks,
-            massCurrent] at hmassRec ⊢
+          simp [indexedBlocksUpper, flattenIndexedBlocks] at hmassRec ⊢
           linarith [hBu0]
         · have hnextEq : next = [B] := by
             simp [next, conormalBlockStep, massCurrent, hfit]
           rw [hnextEq]
           rw [hnextEq] at hmassRec
-          simp [indexedBlocksUpper, indexedBlockMass, flattenIndexedBlocks,
-            massCurrent] at hmassRec ⊢
+          simp [indexedBlocksUpper, flattenIndexedBlocks] at hmassRec ⊢
           have hlt : massCurrent < u B.1 := lt_of_not_ge hfit
           have hlt' : ((flattenIndexedBlocks current).map w).sum < u B.1 := by
             simpa [massCurrent] using hlt
@@ -4576,7 +4572,7 @@ lemma complement_block_mem_core {p z : ℕ} {P : Finset ℕ} {qs : List ℕ}
 
 lemma sum_complement_block_le_core {t p : ℕ} {P : Finset ℕ}
     {qs : List ℕ} (ht : 12 ≤ t) (hblock : PrimeBlock (2 ^ t) P)
-    (hp : p ∈ P) (hcard : 4 ≤ P.card)
+    (hcard : 4 ≤ P.card)
     (hqsNodup : qs.Nodup) (hqs : ∀ q ∈ qs, 0 < q ∧ 4 < q) :
     (complementList ((∏ q ∈ P, q) * qs.prod)
         (P.sort (fun a b ↦ a ≥ b))).sum ≤ (coreExtension p P qs).sum := by
@@ -4662,7 +4658,7 @@ lemma mem_richDyadicIndices {S : Finset ℕ} {T t : ℕ} :
     t ∈ richDyadicIndices S T ↔
       t < S.sum id + 1 ∧ T ≤ t ∧
         richCardThreshold t < (dyadicPrimePart S t).card := by
-  simp [richDyadicIndices, and_assoc]
+  simp [richDyadicIndices]
 
 /-- Rich blocks, ordered from the largest scale down to the smallest. -/
 def richDyadicBlocks (S : Finset ℕ) (T : ℕ) : List (ℕ × List ℕ) :=
@@ -4699,9 +4695,7 @@ lemma richDyadicBlocks_seededSlow {S : Finset ℕ} {T : ℕ}
   apply seededSlow_dyadic_primeBlock (dyadicPrimePart_primeBlock hprime)
   simpa using richDyadicBlocks_length_two hB
 
-lemma richDyadicBlocks_weight_nonneg {S : Finset ℕ} {T : ℕ}
-    {B : ℕ × List ℕ} (hB : B ∈ richDyadicBlocks S T)
-    {p : ℕ} (hp : p ∈ B.2) :
+lemma richDyadicBlocks_weight_nonneg (p : ℕ) :
     0 ≤ primeReciprocalWeight p := by
   simp [primeReciprocalWeight]
 
@@ -4717,10 +4711,11 @@ lemma richDyadicBlocks_weight_le_upper {S : Finset ℕ} {T : ℕ}
   exact (inv_le_inv₀ (by exact_mod_cast hppos) (by exact_mod_cast hxpos)).2
     (by exact_mod_cast hpLower)
 
-lemma sum_map_finset_sort {A M : Type*} [DecidableEq A] [AddCommMonoid M]
+lemma sum_map_finset_sort {A M : Type*} [AddCommMonoid M]
     (s : Finset A) (r : A → A → Prop) [DecidableRel r]
     [IsTrans A r] [Std.Antisymm r] [Std.Total r] (f : A → M) :
     ((s.sort r).map f).sum = ∑ a ∈ s, f a := by
+  classical
   rw [← List.sum_toFinset f (Finset.sort_nodup s r), Finset.sort_toFinset]
 
 lemma indexedBlocksMass_richDyadicBlocks (S : Finset ℕ) (T : ℕ) :
@@ -5247,7 +5242,7 @@ lemma selectedRichBlocks_properties {S : Finset ℕ} {T : ℕ}
     dyadicReciprocalUpper Bs
     (fun B hB ↦ richDyadicBlocks_length_two hB)
     (fun B hB ↦ richDyadicBlocks_seededSlow hprime hB)
-    (fun B hB p hp ↦ richDyadicBlocks_weight_nonneg hB hp)
+    (fun _ _ p _ ↦ richDyadicBlocks_weight_nonneg p)
     (fun B hB p hp ↦ richDyadicBlocks_weight_le_upper hprime hB hp)
   exact ⟨h.2.1, h.2.2.2⟩
 
@@ -5488,8 +5483,7 @@ lemma primeReciprocalMass_gt_of_exp_lt_abundancy {n : ℕ} (hn : 0 < n)
   have := (Real.exp_lt_exp).mp hexp
   linarith
 
-lemma rich_mass_gt_one_add_scanLoss {n T : ℕ} (hn : 0 < n)
-    (hrough : Rough (2 ^ T) n)
+lemma rich_mass_gt_one_add_scanLoss {n T : ℕ} (hrough : Rough (2 ^ T) n)
     (hmass : roughMassTarget < primeReciprocalMass n) :
     1 + indexedBlocksUpper dyadicReciprocalUpper
         (richDyadicBlocks n.primeFactors T) <
@@ -5508,22 +5502,21 @@ lemma rich_mass_gt_one_add_scanLoss {n T : ℕ} (hn : 0 < n)
   dsimp [roughMassTarget, thinMassBudget, scanLossBudget] at hmass
   linarith
 
-lemma selectedRichBlocks_mass_gt_one {n T : ℕ} (hn : 0 < n)
-    (hrough : Rough (2 ^ T) n)
+lemma selectedRichBlocks_mass_gt_one {n T : ℕ} (hrough : Rough (2 ^ T) n)
     (hmass : roughMassTarget < primeReciprocalMass n) :
     1 < indexedBlocksMass primeReciprocalWeight
       (selectedRichBlocks n.primeFactors T) := by
   let Bs := richDyadicBlocks n.primeFactors T
   have hprime : ∀ p ∈ n.primeFactors, p.Prime := fun p hp ↦
     Nat.prime_of_mem_primeFactors hp
-  have hlarge := rich_mass_gt_one_add_scanLoss hn hrough hmass
+  have hlarge := rich_mass_gt_one_add_scanLoss hrough hmass
   apply conormalBlockScan_mass_gt_one primeReciprocalWeight dyadicReciprocalUpper Bs
   · intro B hB
     exact richDyadicBlocks_length_two hB
   · intro B hB
     exact richDyadicBlocks_seededSlow hprime hB
-  · intro B hB p hp
-    exact richDyadicBlocks_weight_nonneg hB hp
+  · intro _ _ p _
+    exact richDyadicBlocks_weight_nonneg p
   · intro B hB p hp
     exact richDyadicBlocks_weight_le_upper hprime hB hp
   · simpa [Bs, selectedRichBlocks] using hlarge
@@ -5538,7 +5531,7 @@ lemma rough_pseudoperfect_of_mass {n : ℕ} (hn : 0 < n)
   have hprime : ∀ q ∈ n.primeFactors, q.Prime := fun q hq ↦
     Nat.prime_of_mem_primeFactors hq
   have hmassCs : 1 < indexedBlocksMass primeReciprocalWeight Cs := by
-    simpa [Cs] using selectedRichBlocks_mass_gt_one hn hrough hmass
+    simpa [Cs] using selectedRichBlocks_mass_gt_one hrough hmass
   have hCsne : Cs ≠ [] := by
     intro hnil
     rw [hnil] at hmassCs
@@ -5713,7 +5706,7 @@ lemma rough_pseudoperfect_of_mass {n : ℕ} (hn : 0 < n)
     exact hseeded.complement_tail hN hPLlen hposAll hdivAll
   have hcompLe :
       (complementList N (P.sort (fun a b ↦ a ≥ b))).sum ≤ core.sum := by
-    exact sum_complement_block_le_core hu12 hblock hp hPcard hqsNodup hqsLarge
+    exact sum_complement_block_le_core hu12 hblock hPcard hqsNodup hqsLarge
   have htailSlow : SlowExtension (F + core.sum) tail :=
     htailSlow0.mono_start (hcompLe.trans (Nat.le_add_left _ _))
   have hslow : SlowExtension F (core ++ tail) := by
