@@ -355,7 +355,7 @@ every resolvent with pole in that complement is a uniform limit of polynomial re
 lemma resolvent_mem_uniformClosure_of_connected_compl {K : Set ℂ} [CompactSpace K] [Nonempty K]
     (hconn : IsConnected (Kᶜ)) {a : ℂ} (ha : a ∉ K) :
     resolventOn K a ha ∈ polynomialUniformClosure K := by
-  letI : ConnectedSpace (Kᶜ : Set ℂ) := Subtype.connectedSpace hconn
+  let : ConnectedSpace (Kᶜ : Set ℂ) := Subtype.connectedSpace hconn
   have hKcompact : IsCompact K := isCompact_iff_compactSpace.mpr inferInstance
   obtain ⟨R, hR⟩ := hKcompact.isBounded.subset_ball (0 : ℂ)
   obtain ⟨z₀⟩ := ‹Nonempty K›
@@ -488,7 +488,7 @@ lemma isCompact_spiralApproximationSet (k : ℕ) : IsCompact (spiralApproximatio
   (isCompact_closedBall 0 1).union (isCompact_spiralSet k 1)
 
 instance instNonemptySpiralApproximationSet (k : ℕ) : Nonempty (spiralApproximationSet k) :=
-  ⟨⟨0, by left; simp [spiralApproximationSet]⟩⟩
+  ⟨⟨0, by left; simp⟩⟩
 
 lemma norm_bounds_of_mem_spiralApproximationSet {k : ℕ} {z : ℂ}
     (hz : z ∈ spiralApproximationSet k) :
@@ -525,7 +525,7 @@ lemma oppositeSpiralPoint_ne_spiralPoint (k : ℕ) {r : ℝ} (hr : r ≠ 0) :
   exact Complex.exp_ne_zero _ hzero
 
 lemma oppositeSpiralPoint_not_mem_approximationSet (k : ℕ) {r : ℝ}
-    (hr₁ : 1 < r) (hr₂ : r < 4) :
+    (hr₁ : 1 < r) (_hr₂ : r < 4) :
     oppositeSpiralPoint k r ∉ spiralApproximationSet k := by
   intro hmem
   rcases hmem with hdisk | hspiral
@@ -547,15 +547,11 @@ lemma joinedIn_oppositeSpiral (k : ℕ) :
       (oppositeSpiralPoint k (3 / 2)) (oppositeSpiralPoint k (7 / 2)) := by
   let g : ℝ → ℂ := fun t ↦ oppositeSpiralPoint k (3 / 2 + 2 * t)
   refine JoinedIn.ofLine (f := g) (by dsimp [g, oppositeSpiralPoint]; fun_prop) ?_ ?_ ?_
-  · congr 1
-    norm_num [g]
-  · congr 1
-    norm_num [g]
+  · norm_num [g]
+  · norm_num [g]
   · rintro z ⟨t, ht, rfl⟩
     exact oppositeSpiralPoint_not_mem_approximationSet k (by
-      change 1 < 3 / 2 + 2 * t
       linarith [ht.1]) (by
-      change 3 / 2 + 2 * t < 4
       linarith [ht.2])
 
 lemma joinedIn_radius_three_halves_to_opposite (k : ℕ) {a : ℂ}
@@ -589,7 +585,7 @@ lemma resolvent_mem_spiralApproximationSet_of_norm_eq_three_halves (k : ℕ) {a 
       · linarith
       · linarith [hlarge.1]) ∈
       polynomialUniformClosure (spiralApproximationSet k) := by
-  letI : CompactSpace (spiralApproximationSet k) :=
+  let : CompactSpace (spiralApproximationSet k) :=
     isCompact_iff_compactSpace.mp (isCompact_spiralApproximationSet k)
   have haK : a ∉ spiralApproximationSet k := by
     intro haK
@@ -666,7 +662,7 @@ lemma separatorRational_mem_uniformClosure (k : ℕ) {N : ℕ} (hN : N ≠ 0) :
     letI : CompactSpace (spiralApproximationSet k) :=
       isCompact_iff_compactSpace.mp (isCompact_spiralApproximationSet k)
     separatorRationalOn k N hN ∈ polynomialUniformClosure (spiralApproximationSet k) := by
-  letI : CompactSpace (spiralApproximationSet k) :=
+  let : CompactSpace (spiralApproximationSet k) :=
     isCompact_iff_compactSpace.mp (isCompact_spiralApproximationSet k)
   have hroots : ∀ a ∈ (separatorDenominator N).roots,
       a ∉ spiralApproximationSet k := by
@@ -762,7 +758,8 @@ lemma separatorRational_sub_one_norm_le (k : ℕ) {N : ℕ} (hN : 0 < N)
       have hcinv : C⁻¹ = (2 / 3 : ℝ) ^ N := by
         dsimp [C]
         rw [← inv_pow]
-        congr 1 <;> norm_num
+        congr 1
+        all_goals norm_num
       rw [div_eq_mul_inv, hcinv]
       have h3A : 3 * A ≤ 3 := by nlinarith
       exact mul_le_mul_of_nonneg_right h3A
@@ -820,7 +817,7 @@ lemma separatorRational_sub_target_norm_le (k : ℕ) {N : ℕ} (hN : 0 < N) :
       isCompact_iff_compactSpace.mp (isCompact_spiralApproximationSet k)
     ‖separatorRationalOn k N hN.ne' - spiralTargetOn k‖ ≤
       4 * (3 / 4 : ℝ) ^ N := by
-  letI : CompactSpace (spiralApproximationSet k) :=
+  let : CompactSpace (spiralApproximationSet k) :=
     isCompact_iff_compactSpace.mp (isCompact_spiralApproximationSet k)
   rw [ContinuousMap.norm_le _ (by positivity)]
   intro z
@@ -834,7 +831,7 @@ lemma spiralTarget_mem_uniformClosure (k : ℕ) :
     letI : CompactSpace (spiralApproximationSet k) :=
       isCompact_iff_compactSpace.mp (isCompact_spiralApproximationSet k)
     spiralTargetOn k ∈ polynomialUniformClosure (spiralApproximationSet k) := by
-  letI : CompactSpace (spiralApproximationSet k) :=
+  let : CompactSpace (spiralApproximationSet k) :=
     isCompact_iff_compactSpace.mp (isCompact_spiralApproximationSet k)
   let F : ℕ → C(spiralApproximationSet k, ℂ) := fun n ↦
     separatorRationalOn k (n + 1) (Nat.succ_ne_zero n)
@@ -866,7 +863,7 @@ theorem exists_barrierPolynomial (k : ℕ) {ε : ℝ} (hε : 0 < ε) :
       P.eval 0 = 1 ∧
       (∀ z : ℂ, ‖z‖ ≤ 1 → ‖P.eval z - 1‖ < ε) ∧
       (∀ z ∈ spiralSet k 1, ‖P.eval z‖ < ε) := by
-  letI : CompactSpace (spiralApproximationSet k) :=
+  let : CompactSpace (spiralApproximationSet k) :=
     isCompact_iff_compactSpace.mp (isCompact_spiralApproximationSet k)
   let δ : ℝ := min (ε / 8) (1 / 8)
   have hδp : 0 < δ := lt_min (by positivity) (by norm_num)
@@ -883,7 +880,7 @@ theorem exists_barrierPolynomial (k : ℕ) {ε : ℝ} (hε : 0 < ε) :
     exact lt_of_le_of_lt (by simpa using hzle) hq
   let z₀ : spiralApproximationSet k := ⟨0, by
     left
-    simp [spiralApproximationSet]⟩
+    simp⟩
   have htarget0 : spiralTargetOn k z₀ = 1 :=
     spiralTargetOn_eq_one z₀ (by simp [z₀])
   have hq0 : ‖q.eval 0 - 1‖ < δ := by
@@ -918,7 +915,6 @@ theorem exists_barrierPolynomial (k : ℕ) {ε : ℝ} (hε : 0 < ε) :
     have hprod : ‖(q.eval 0)⁻¹‖ * ‖q.eval z - q.eval 0‖ < 2 * (2 * δ) :=
       mul_lt_mul_of_le_of_lt_of_nonneg_of_pos hinv.le hdiff (norm_nonneg _) (by norm_num)
     nlinarith
-
   · intro z hz
     let z' : spiralApproximationSet k := ⟨z, Or.inr hz⟩
     have hlarge : 2 ≤ ‖z‖ := by
@@ -985,8 +981,8 @@ lemma isCompact_labyrinthGate (k i : ℕ) (T : ℝ) :
   have hhalf : IsClosed
       {z : ℂ | ((-1 : ℝ) ^ i) * z.re ≤ T * gateRadius k i / 2} :=
     isClosed_le (continuous_const.mul Complex.continuous_re) continuous_const
-  simpa only [labyrinthGate, Metric.sphere, dist_zero_right, Set.mem_setOf_eq,
-    Set.setOf_and] using
+  simpa only [labyrinthGate, Metric.sphere, dist_zero_right, Set.mem_ofPred_eq,
+    Set.ofPred_and] using
       (isCompact_sphere (0 : ℂ) (T * gateRadius k i)).inter_right hhalf
 
 lemma isCompact_labyrinthSet (k : ℕ) (T : ℝ) : IsCompact (labyrinthSet k T) := by
@@ -1013,7 +1009,7 @@ lemma isCompact_labyrinthApproximationSet (k : ℕ) :
 
 instance instNonemptyLabyrinthApproximationSet (k : ℕ) :
     Nonempty (labyrinthApproximationSet k) :=
-  ⟨⟨0, by left; simp [labyrinthApproximationSet]⟩⟩
+  ⟨⟨0, by left; simp⟩⟩
 
 lemma norm_bounds_of_mem_labyrinthApproximationSet {k : ℕ} {z : ℂ}
     (hz : z ∈ labyrinthApproximationSet k) :
@@ -1063,14 +1059,16 @@ lemma mazePoint_not_mem_labyrinthApproximationSet (k : ℕ) {r : ℝ}
     subst r
     simp only [one_mul] at hiGate
     rw [mazePoint_gateRadius] at hiGate
-    simp only [labyrinthGate, Complex.ofReal_re, one_mul] at hiGate
+    simp only [labyrinthGate, one_mul] at hiGate
     have hsignsq : ((-1 : ℝ) ^ i) * ((-1 : ℝ) ^ i) = 1 := by
       rw [← pow_add, ← two_mul, pow_mul]
       norm_num
     have hsignre : (((-1 : ℂ) ^ i).re) = (-1 : ℝ) ^ i := by
       have hpow : (-1 : ℂ) ^ i = (((-1 : ℝ) ^ i : ℝ) : ℂ) := by
         calc
-          (-1 : ℂ) ^ i = (((-1 : ℝ) : ℂ) ^ i) := by congr 2 <;> norm_num
+          (-1 : ℂ) ^ i = (((-1 : ℝ) : ℂ) ^ i) := by
+            congr 2
+            all_goals norm_num
           _ = (((-1 : ℝ) ^ i : ℝ) : ℂ) := (Complex.ofReal_pow (-1) i).symm
       rw [hpow]
       exact Complex.ofReal_re _
@@ -1095,9 +1093,7 @@ lemma joinedIn_mazePoint (k : ℕ) :
   · norm_num [g]
   · rintro z ⟨t, ht, rfl⟩
     exact mazePoint_not_mem_labyrinthApproximationSet k (by
-      change 1 < 3 / 2 + 2 * t
       linarith [ht.1]) (by
-      change 3 / 2 + 2 * t < 4
       linarith [ht.2])
 
 lemma joinedIn_radius_three_halves_to_mazePoint (k : ℕ) {a : ℂ}
@@ -1130,7 +1126,7 @@ lemma resolvent_mem_labyrinthApproximationSet_of_norm_eq_three_halves (k : ℕ) 
       · linarith
       · linarith [hlarge.1]) ∈
       polynomialUniformClosure (labyrinthApproximationSet k) := by
-  letI : CompactSpace (labyrinthApproximationSet k) :=
+  let : CompactSpace (labyrinthApproximationSet k) :=
     isCompact_iff_compactSpace.mp (isCompact_labyrinthApproximationSet k)
   have haK : a ∉ labyrinthApproximationSet k := by
     intro haK
@@ -1182,7 +1178,7 @@ lemma labyrinthSeparatorRational_mem_uniformClosure (k : ℕ) {N : ℕ} (hN : N 
       isCompact_iff_compactSpace.mp (isCompact_labyrinthApproximationSet k)
     labyrinthSeparatorRationalOn k N hN ∈
       polynomialUniformClosure (labyrinthApproximationSet k) := by
-  letI : CompactSpace (labyrinthApproximationSet k) :=
+  let : CompactSpace (labyrinthApproximationSet k) :=
     isCompact_iff_compactSpace.mp (isCompact_labyrinthApproximationSet k)
   have hroots : ∀ a ∈ (separatorDenominator N).roots,
       a ∉ labyrinthApproximationSet k := by
@@ -1261,7 +1257,8 @@ lemma labyrinthSeparatorRational_sub_one_norm_le (k : ℕ) {N : ℕ} (hN : 0 < N
       have hcinv : C⁻¹ = (2 / 3 : ℝ) ^ N := by
         dsimp [C]
         rw [← inv_pow]
-        congr 1 <;> norm_num
+        congr 1
+        all_goals norm_num
       rw [div_eq_mul_inv, hcinv]
       have h3A : 3 * A ≤ 3 := by nlinarith
       exact mul_le_mul_of_nonneg_right h3A
@@ -1318,7 +1315,7 @@ lemma labyrinthSeparatorRational_sub_target_norm_le (k : ℕ) {N : ℕ} (hN : 0 
       isCompact_iff_compactSpace.mp (isCompact_labyrinthApproximationSet k)
     ‖labyrinthSeparatorRationalOn k N hN.ne' - labyrinthTargetOn k‖ ≤
       4 * (3 / 4 : ℝ) ^ N := by
-  letI : CompactSpace (labyrinthApproximationSet k) :=
+  let : CompactSpace (labyrinthApproximationSet k) :=
     isCompact_iff_compactSpace.mp (isCompact_labyrinthApproximationSet k)
   rw [ContinuousMap.norm_le _ (by positivity)]
   intro z
@@ -1332,7 +1329,7 @@ lemma labyrinthTarget_mem_uniformClosure (k : ℕ) :
     letI : CompactSpace (labyrinthApproximationSet k) :=
       isCompact_iff_compactSpace.mp (isCompact_labyrinthApproximationSet k)
     labyrinthTargetOn k ∈ polynomialUniformClosure (labyrinthApproximationSet k) := by
-  letI : CompactSpace (labyrinthApproximationSet k) :=
+  let : CompactSpace (labyrinthApproximationSet k) :=
     isCompact_iff_compactSpace.mp (isCompact_labyrinthApproximationSet k)
   let F : ℕ → C(labyrinthApproximationSet k, ℂ) := fun n ↦
     labyrinthSeparatorRationalOn k (n + 1) (Nat.succ_ne_zero n)
@@ -1365,7 +1362,7 @@ theorem exists_labyrinthPolynomial (k : ℕ) {ε : ℝ} (hε : 0 < ε) :
       P.eval 0 = 1 ∧
       (∀ z : ℂ, ‖z‖ ≤ 1 → ‖P.eval z - 1‖ < ε) ∧
       (∀ z ∈ labyrinthSet k 1, ‖P.eval z‖ < ε) := by
-  letI : CompactSpace (labyrinthApproximationSet k) :=
+  let : CompactSpace (labyrinthApproximationSet k) :=
     isCompact_iff_compactSpace.mp (isCompact_labyrinthApproximationSet k)
   let δ : ℝ := min (ε / 8) (1 / 8)
   have hδp : 0 < δ := lt_min (by positivity) (by norm_num)
@@ -1382,7 +1379,7 @@ theorem exists_labyrinthPolynomial (k : ℕ) {ε : ℝ} (hε : 0 < ε) :
     exact lt_of_le_of_lt (by simpa using hzle) hq
   let z₀ : labyrinthApproximationSet k := ⟨0, by
     left
-    simp [labyrinthApproximationSet]⟩
+    simp⟩
   have htarget0 : labyrinthTargetOn k z₀ = 1 :=
     labyrinthTargetOn_eq_one z₀ (by simp [z₀])
   have hq0 : ‖q.eval 0 - 1‖ < δ := by
@@ -1731,7 +1728,7 @@ noncomputable def stageA (Q : Polynomial ℂ) : ℝ :=
   4 * (Q.natDegree + 1 : ℝ)
 
 lemma stageA_pos (Q : Polynomial ℂ) : 0 < stageA Q := by
-  simp [stageA]
+  simp only [stageA]
   positivity
 
 lemma stage_degree_div_A_le (Q : Polynomial ℂ) :
@@ -1760,20 +1757,23 @@ lemma tendsto_stage_wall_bound (Q : Polynomial ℂ) :
     tendsto_pow_atTop_nhds_zero_of_lt_one hb0 hb1
   have hconst := hpow.const_mul (polynomialBound Q * (3 : ℝ) ^ Q.natDegree)
   convert hconst using 1
-  funext q
-  simp only [b, exponentialScale]
-  have hleft : Real.exp ((q : ℝ) / stageA Q) ^ Q.natDegree =
-      Real.exp ((Q.natDegree : ℝ) * ((q : ℝ) / stageA Q)) := by
-    rw [Real.exp_nat_mul]
-  have hright : Real.exp ((Q.natDegree : ℝ) / stageA Q) ^ q =
-      Real.exp ((q : ℝ) * ((Q.natDegree : ℝ) / stageA Q)) := by
-    rw [Real.exp_nat_mul]
-  rw [mul_pow, hleft]
-  simp_rw [div_pow]
-  rw [one_pow, hright]
-  have hfour : (4 : ℝ) ^ q ≠ 0 := pow_ne_zero _ (by norm_num)
-  field_simp [hfour]
-  congr 2 <;> field_simp [stageA_pos Q |>.ne'] <;> ring
+  · funext q
+    simp only [b, exponentialScale]
+    have hleft : Real.exp ((q : ℝ) / stageA Q) ^ Q.natDegree =
+        Real.exp ((Q.natDegree : ℝ) * ((q : ℝ) / stageA Q)) := by
+      rw [Real.exp_nat_mul]
+    have hright : Real.exp ((Q.natDegree : ℝ) / stageA Q) ^ q =
+        Real.exp ((q : ℝ) * ((Q.natDegree : ℝ) / stageA Q)) := by
+      rw [Real.exp_nat_mul]
+    rw [mul_pow, hleft]
+    simp_rw [div_pow]
+    rw [one_pow, hright]
+    have hfour : (4 : ℝ) ^ q ≠ 0 := pow_ne_zero _ (by norm_num)
+    field_simp [hfour]
+  · congr 2
+    all_goals
+      field_simp [stageA_pos Q |>.ne']
+      ring
 
 noncomputable def stageGrowthConstant (Q p : Polynomial ℂ) : ℝ :=
   Real.log (polynomialBound Q) + Q.natDegree +
@@ -1972,7 +1972,7 @@ lemma stageActivation_near_bound (Q : Polynomial ℂ) (n q : ℕ) :
 /-- All numerical requirements at one inductive step can be met by a sufficiently large integer
 multiplicity. -/
 lemma exists_stage_exponent (φ : ℝ → ℝ) (hφ : Tendsto φ atTop atTop)
-    (Q : Polynomial ℂ) (n : ℕ) {lastT : ℝ} (hlastT : 0 ≤ lastT) :
+    (Q : Polynomial ℂ) (n : ℕ) {lastT : ℝ} (_hlastT : 0 ≤ lastT) :
     ∃ q : ℕ, 0 < q ∧
       Real.exp 1 < exponentialScale (stageA Q) q ∧
       3 * lastT < exponentialScale (stageA Q) q ∧
@@ -2288,7 +2288,6 @@ lemma nextProductStage_growth (φ : ℝ → ℝ) (hφ : Tendsto φ atTop atTop)
     simp only [← Real.exp_nat_mul, ← Real.exp_add]
     congr 1
     simp only [E]
-    push_cast
     ring
   have hlQ : 0 ≤ Real.log (polynomialBound prev.Q) :=
     Real.log_nonneg (one_le_polynomialBound prev.Q)
@@ -2845,7 +2844,7 @@ lemma counterexampleFunction_wall (φ : ℝ → ℝ) (hφ : Tendsto φ atTop atT
             ∏ i ∈ Finset.range k, (1 + d i) := by
       apply Finset.prod_congr rfl
       intro i hi
-      simp [d, sub_eq_add_neg, add_assoc, add_left_comm, add_comm]
+      simp [d, sub_eq_add_neg, add_left_comm, add_comm]
     have htail :
         ‖∏ i ∈ Finset.range k,
             (constructionFactor φ hφ (n + 1 + i)).eval z‖ ≤ Real.exp (1 / 4) := by
@@ -2988,7 +2987,7 @@ lemma maximumModulus_le_of_forall_sphere {f : ℂ → ℂ} {r B : ℝ}
     (hr : 0 ≤ r) (hB : ∀ z : ℂ, ‖z‖ = r → ‖f z‖ ≤ B) :
     maximumModulus f r ≤ B := by
   let z : {z : ℂ // ‖z‖ = r} := ⟨(r : ℂ), by simp [abs_of_nonneg hr]⟩
-  letI : Nonempty {z : ℂ // ‖z‖ = r} := ⟨z⟩
+  let : Nonempty {z : ℂ // ‖z‖ = r} := ⟨z⟩
   unfold maximumModulus
   exact ciSup_le fun z ↦ hB z z.property
 
