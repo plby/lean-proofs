@@ -332,7 +332,10 @@ lemma lacunary_shell_card_le {A : Set ℕ} (hA : IsLacunary A) :
     have hsEq : s = sN \ sP := by
       ext a
       simp only [s, sN, sP, Finset.mem_filter, Finset.mem_Ioc, Finset.mem_sdiff]
-      by_cases ha : a ∈ A <;> simp [ha] <;> omega
+      by_cases ha : a ∈ A
+      · simp [ha]
+        omega
+      · simp [ha]
     have hcard : s.card + countIn A P = countIn A N := by
       rw [countIn, countIn, hsEq]
       exact Finset.card_sdiff_add_card_eq_card hsPsub
@@ -346,7 +349,10 @@ lemma lacunary_shell_card_le {A : Set ℕ} (hA : IsLacunary A) :
         rw [Nat.count_eq_card_filter_range, countIn]
         congr 1
         ext a
-        by_cases ha : a ∈ A <;> simp [ha] <;> omega
+        by_cases ha : a ∈ A
+        · simp [ha]
+          omega
+        · simp [ha]
       rw [hcount] at h
       exact Nat.lt_of_succ_le (by simpa [positivePart] using h)
     have hlast : Nat.nth (· ∈ positivePart A) (countIn A P + K * j) ≤ N := by
@@ -988,7 +994,7 @@ lemma root_re_eq_cos (N : ℕ) (r : ℤ) (d : ℕ) :
   rw [omegaPrim37]
   rw [← Complex.exp_int_mul]
   rw [Complex.exp_re]
-  simp [omegaPrim37]
+  simp
   ring_nf
 
 lemma sum_cos_eq_zero (N : ℕ) (hN : 0 < N) (r : ℤ)
@@ -1026,8 +1032,11 @@ theorem cosineCoefficient_sq_sum
         2 * Real.cos (angle i d) * Real.cos (angle j d) =
           Real.cos (2 * Real.pi * ((r i + r j : ℤ) : ℝ) * (d : ℝ) / (N : ℝ)) +
           Real.cos (2 * Real.pi * ((r i - r j : ℤ) : ℝ) * (d : ℝ) / (N : ℝ)) := by
-      convert two_mul_cos_mul_cos (angle i d) (angle j d) using 1 <;>
-        simp only [angle] <;> push_cast <;> ring
+      convert two_mul_cos_mul_cos (angle i d) (angle j d) using 1
+      all_goals
+        simp only [angle]
+        push_cast
+        ring
     have hplus :
         ∑ d ∈ range N,
           Real.cos (2 * Real.pi * ((r i + r j : ℤ) : ℝ) * (d : ℝ) / (N : ℝ)) = 0 :=
@@ -1338,7 +1347,7 @@ lemma centeredGaussianPDF_le_peak (v : ℝ≥0) (x : ℝ) :
 
 /-- The mass of a nonempty-variance centered real Gaussian on an interval of
 length `W` is at most `W / √(2πv)`. -/
-lemma centeredGaussian_Ioc_le {v : ℝ≥0} (hv : v ≠ 0) (a W : ℝ) (hW : 0 ≤ W) :
+lemma centeredGaussian_Ioc_le {v : ℝ≥0} (hv : v ≠ 0) (a W : ℝ) :
     ProbabilityTheory.gaussianReal 0 v (Set.Ioc a (a + W))
       ≤ ENNReal.ofReal (W / √(2 * π * (v : ℝ))) := by
   rw [ProbabilityTheory.gaussianReal_apply 0 hv]
@@ -1349,7 +1358,7 @@ lemma centeredGaussian_Ioc_le {v : ℝ≥0} (hv : v ≠ 0) (a W : ℝ) (hW : 0 �
       MeasureTheory.setLIntegral_mono measurable_const
         (fun x _hx ↦ centeredGaussianPDF_le_peak v x)
     _ = ENNReal.ofReal (√(2 * π * (v : ℝ)))⁻¹ * ENNReal.ofReal W := by
-      simp [Real.volume_Ioc, hW]
+      simp [Real.volume_Ioc]
     _ = ENNReal.ofReal (W / √(2 * π * (v : ℝ))) := by
       rw [← ENNReal.ofReal_mul (by positivity : 0 ≤ (√(2 * π * (v : ℝ)))⁻¹)]
       congr 1
@@ -1379,7 +1388,7 @@ lemma stdGaussian_map_inner (v : EuclideanSpace ℝ I) :
 /-- The probability that a standard Gaussian linear score belongs to an interval of
 length `W` has the usual density-peak upper bound. -/
 lemma stdGaussian_inner_Ioc_le (v : EuclideanSpace ℝ I) (hv : v ≠ 0)
-    (a W : ℝ) (hW : 0 ≤ W) :
+    (a W : ℝ) :
     stdGaussian (EuclideanSpace ℝ I)
         {w | ⟪v, w⟫ ∈ Set.Ioc a (a + W)} ≤
       ENNReal.ofReal (W / √(2 * π * ‖v‖ ^ 2)) := by
@@ -1391,7 +1400,7 @@ lemma stdGaussian_inner_Ioc_le (v : EuclideanSpace ℝ I) (hv : v ≠ 0)
   change stdGaussian (EuclideanSpace ℝ I)
       ((innerSL ℝ v) ⁻¹' Set.Ioc a (a + W)) ≤ _
   rw [← Measure.map_apply (by fun_prop) measurableSet_Ioc, stdGaussian_map_inner]
-  have hbound := Erdos37.centeredGaussian_Ioc_le hsigma2 a W hW
+  have hbound := Erdos37.centeredGaussian_Ioc_le hsigma2 a W
   dsimp only [sigma2] at hbound
   exact hbound
 
@@ -1407,7 +1416,7 @@ lemma stdGaussian_inner_eq_zero (v : EuclideanSpace ℝ I) (hv : v ≠ 0) (a : �
   change stdGaussian (EuclideanSpace ℝ I) ((innerSL ℝ v) ⁻¹' {a}) = 0
   rw [← Measure.map_apply (by fun_prop) (measurableSet_singleton a),
     stdGaussian_map_inner]
-  letI : NullSingletonClass (gaussianReal 0 sigma2) :=
+  let : NullSingletonClass (gaussianReal 0 sigma2) :=
     nullSingletonClass_gaussianReal hsigma2
   exact measure_singleton a
 
@@ -1419,7 +1428,7 @@ lemma stdGaussian_two_scores_eq_zero (u v : EuclideanSpace ℝ I)
   have hzero := stdGaussian_inner_eq_zero (u - v) huv 0
   rw [show {w | ⟪u, w⟫ = ⟪v, w⟫} = {w | ⟪u - v, w⟫ = 0} by
     ext w
-    simp only [Set.mem_setOf_eq, inner_sub_left]
+    simp only [Set.mem_ofPred_eq, inner_sub_left]
     constructor
     · intro h
       rw [h, sub_self]
@@ -1429,7 +1438,7 @@ lemma stdGaussian_two_scores_eq_zero (u v : EuclideanSpace ℝ I)
 /-- If every off-diagonal difference in a finite family of deterministic score
 vectors is nonzero, a standard Gaussian coefficient vector gives all their
 linear scores distinct almost surely. -/
-lemma stdGaussian_finite_score_ties_null {J : Type*} [Fintype J]
+lemma stdGaussian_finite_score_ties_null {J : Type*} [Finite J]
     (v : J → EuclideanSpace ℝ I)
     (hdiff : ∀ i j, i ≠ j → v i - v j ≠ 0) :
     stdGaussian (EuclideanSpace ℝ I)
@@ -1447,7 +1456,7 @@ lemma stdGaussian_finite_score_ties_null {J : Type*} [Fintype J]
 
 /-- Pairwise distinct vectors satisfy the difference-vector hypothesis in the
 preceding finite-union lemma. -/
-lemma stdGaussian_finite_pairwise_score_ties_null {J : Type*} [Fintype J]
+lemma stdGaussian_finite_pairwise_score_ties_null {J : Type*} [Finite J]
     (v : J → EuclideanSpace ℝ I)
     (hv : ∀ i j, i ≠ j → v i ≠ v j) :
     stdGaussian (EuclideanSpace ℝ I)
@@ -1993,7 +2002,11 @@ lemma exists_dirichlet_approxGood (E : Finset ℕ) (N Q : ℕ) (hQ : 0 < Q) :
     let e : ↥E := ⟨h, hh⟩
     obtain ⟨z, hz⟩ := hu e
     refine ⟨z, ?_⟩
-    convert hz using 1 <;> push_cast <;> dsimp [α, e] <;> ring
+    convert hz using 1
+    all_goals
+      push_cast
+      dsimp [α, e]
+      ring
 
 /-- Among the first `k` positive multiples of a nonzero natural `u`, one is
 outside any set having fewer than `k` members. -/
@@ -2685,7 +2698,7 @@ noncomputable def natBandFinset {ι : Type*} [Fintype ι]
     {L N : ℕ} {r : ι → ℕ} {U V : ι → ℝ} {a b : ℝ} {x : ℕ} :
     x ∈ natBandFinset L N r U V a b ↔
       x < L ∧ a ≤ natScore N r U V x ∧ natScore N r U V x ≤ b := by
-  simp [natBandFinset, and_assoc]
+  simp [natBandFinset]
 
 /-- Adding good shifts to a score band can only reach the band expanded by
 the deterministic translation bound.  The interval doubles because both
@@ -2993,7 +3006,7 @@ lemma integral_finiteEventCount {J Ω : Type*} [Fintype J] [MeasurableSpace Ω]
     (hR : ∀ j, MeasurableSet {ω | R j ω}) :
     ∫ ω, finiteEventCount R ω ∂μ = ∑ j, μ.real {ω | R j ω} := by
   unfold finiteEventCount
-  rw [integral_finset_sum]
+  rw [integral_finsetSum]
   · exact Finset.sum_congr rfl fun j _ => integral_indicator_one (hR j)
   · exact fun j _ => (integrable_const 1).indicator (hR j)
 
@@ -3115,7 +3128,7 @@ end ProbabilisticRealization
 
 section CentralRankSelection
 
-variable {X : Type*} [Fintype X] [DecidableEq X]
+variable {X : Type*} [Fintype X]
 
 /-- Number of scores at least as large as the score of `y`. -/
 def upperScoreCount (s : X → ℝ) (y : X) : ℕ :=
@@ -3163,12 +3176,10 @@ lemma upperScoreCount_injective (s : X → ℝ) (hs : Function.Injective s) :
   · exact hs heq
   · exact False.elim ((upperScoreCount_lt_of_score_lt s hgt).ne hab)
 
-omit [DecidableEq X] in
 lemma upperScoreCount_pos (s : X → ℝ) (y : X) : 0 < upperScoreCount s y := by
   rw [upperScoreCount, Finset.card_pos]
   exact ⟨y, by simp⟩
 
-omit [DecidableEq X] in
 lemma upperScoreCount_le_card (s : X → ℝ) (y : X) :
     upperScoreCount s y ≤ Fintype.card X := by
   rw [upperScoreCount, ← Finset.card_univ]
@@ -3360,12 +3371,8 @@ lemma finiteEventCount_closeScoreEvent_eq_card
       ((closeScorePairs (score ω) W).card : ℝ) := by
   classical
   unfold finiteEventCount closeScoreEvent closeScorePairs
-  simp only [Set.indicator_apply, Set.mem_ofPred_eq, Finset.univ_product_univ]
-  simpa using
-    (Finset.sum_boole (R := ℝ)
-      (fun p : X × X ↦
-        0 < score ω p.2 - score ω p.1 ∧ score ω p.2 - score ω p.1 ≤ W)
-      (Finset.univ : Finset (X × X)))
+  simp only [Set.indicator_apply, Set.mem_ofPred_eq]
+  simp
 
 end CloseScoreEventBridge
 
@@ -3382,7 +3389,7 @@ lemma stdGaussian_inner_Ioc_real_le {I : Type*} [Fintype I]
     (stdGaussian (EuclideanSpace ℝ I)).real
         {w | ⟪v, w⟫ ∈ Set.Ioc a (a + W)} ≤
       W / √(2 * Real.pi * ‖v‖ ^ 2) := by
-  have h := stdGaussian_inner_Ioc_le v hv a W hW
+  have h := stdGaussian_inner_Ioc_le v hv a W
   calc
     (stdGaussian (EuclideanSpace ℝ I)).real
           {w | ⟪v, w⟫ ∈ Set.Ioc a (a + W)} =
@@ -3689,7 +3696,7 @@ theorem exists_niveau_score_realization
         (fun x : ZMod N ↦ inner ℝ (scoreVector N (m ^ 6) r x) w) := by
   have hmpos : 0 < m := by omega
   have hkpos : 0 < m ^ 6 := pow_pos hmpos 6
-  letI : NeZero (m ^ 6) := ⟨hkpos.ne'⟩
+  let : NeZero (m ^ 6) := ⟨hkpos.ne'⟩
   let B : ℝ := (7 / (m : ℝ)) * (N : ℝ) ^ 2
   have hB : 0 < B := by
     dsimp [B]
@@ -3873,8 +3880,7 @@ theorem exists_unrotated_finiteNiveauWitness
           CharacterRecursion.ApproxGood N
             ((1 : ℝ) / (256 * ((m ^ 6 : ℕ) : ℝ))) (r j) 0 := by
         refine ⟨0, ?_⟩
-        simpa using (show (0 : ℝ) ≤
-          (1 : ℝ) / (256 * ((m ^ 6 : ℕ) : ℝ)) by positivity)
+        simp
       have hempty : (Finset.univ.filter fun j ↦
           ¬ CharacterRecursion.ApproxGood N
             ((1 : ℝ) / (256 * ((m ^ 6 : ℕ) : ℝ))) (r j) 0) = ∅ := by
@@ -4013,7 +4019,7 @@ theorem exists_eventually_rotated_finiteNiveauWitness_of_lacunary
   have hNcharN : Nchar ≤ N := by omega
   have hN8 : 8 ≤ N := by omega
   have hNpos : 0 < N := by omega
-  letI : NeZero N := ⟨Nat.ne_of_gt hNpos⟩
+  let : NeZero N := ⟨Nat.ne_of_gt hNpos⟩
   obtain ⟨r, hfirst, hrinj, hrange, hbad, hsub, hadd⟩ := hfamily N hNcharN
   refine exists_rotated_finiteNiveauWitness N m hm hN8 hN4 r
     ?_ hsub hadd ((Finset.Icc 1 N).filter fun h ↦ h ∈ A) ?_
@@ -4496,7 +4502,7 @@ lemma countIn_endpoint_le_old_add_current
         exact ⟨hySum, Finset.mem_Ioc.mpr ⟨hy0, hyN⟩⟩
       dsimp [current]
       rw [Finset.mem_map]
-      exact ⟨y, hyWindow, by simpa [hxy]⟩
+      exact ⟨y, hyWindow, by simp [hxy]⟩
   have hcard := Finset.card_le_card hsub
   have holdSet : (old : Set ℕ) =
       (A + Set.Icc 0 P) ∩ Set.Icc 1 T := by
@@ -6300,8 +6306,8 @@ lemma buffer_div_bound (j : ℕ) :
     min_eq_left (stageAlpha_lt hδ j).le
   have hden : (1 : ℝ) - δ ≠ 0 := (sub_pos.mpr hδ).ne'
   rw [hmin] at hb
-  convert hb using 1 <;>
-    simp only [stageAlpha, deficit, growthFactor, Nat.cast_pow, Nat.cast_ofNat]
+  convert hb using 1
+  all_goals simp only [stageAlpha, deficit, growthFactor, Nat.cast_pow, Nat.cast_ofNat]
   field_simp
   ring
 
@@ -6345,7 +6351,8 @@ lemma pivot_mul_pow_le_length (j : ℕ) :
   have hP' : (R : ℝ) + (L : ℝ) ≤ 2 * ((N : ℝ) / (Q : ℝ)) := by
     linarith
   have hP : (R : ℝ) + (L : ℝ) ≤ 2 * (N : ℝ) / (Q : ℝ) := by
-    convert hP' using 1 <;> ring
+    convert hP' using 1
+    all_goals ring
   have hPH : ((R + L) * H : ℕ) ≤ N := by
     have hH : (H : ℝ) = (Q : ℝ) / 2 := by
       rw [hQ]
@@ -6488,7 +6495,7 @@ lemma exponent_div_succ_quotient_tendsto_zero :
       tendsto_natCast_atTop_atTop.comp hq
     convert hcast.inv_tendsto_atTop using 1
     ext j
-    simp [Function.comp_def, one_div]
+    simp [one_div]
   convert hlog.add hinv using 1
   · ext j
     simp only [exponentSeq, q, Nat.cast_add, Nat.cast_one, add_div,
@@ -6565,7 +6572,8 @@ lemma oldBound_ratio_le (K j : ℕ) :
         (2 * (d : ℝ)) / ((q : ℝ) + 1) := by
       rw [div_le_div_iff₀ hq (by positivity : (0 : ℝ) < (q : ℝ) + 1)]
       nlinarith
-    convert hcross using 1 <;> ring
+    convert hcross using 1
+    all_goals ring
   have hdPfinal : (d : ℝ) * (P : ℝ) / (T : ℝ) ≤
       2 * ((d : ℝ) / ((q : ℝ) + 1)) := hdPdiv.trans hqrel
   have hnum :
@@ -6631,8 +6639,8 @@ lemma oldBound_ratio_tendsto_zero (K : ℕ) :
         4 * (K : ℝ) * ((d j : ℝ) / (q j + 1 : ℕ)))
       atTop (nhds 0) := by
     convert (tendsto_const_nhds.mul hqinv).add
-      ((tendsto_const_nhds.mul tendsto_const_nhds).mul hd) using 1 <;>
-      norm_num
+      ((tendsto_const_nhds.mul tendsto_const_nhds).mul hd) using 1
+    all_goals norm_num
   apply squeeze_zero
   · intro j
     positivity
@@ -6649,20 +6657,23 @@ lemma deficit_tendsto_zero :
       (1 - δ) * (1 / 2 : ℝ) ^ (j + 2)) atTop (nhds 0) :=
     by
       convert (tendsto_const_nhds : Tendsto (fun _ : ℕ ↦ (1 - δ : ℝ)) atTop
-        (nhds (1 - δ))).mul hp using 1 <;> norm_num
+        (nhds (1 - δ))).mul hp using 1
+      all_goals norm_num
   convert hmul using 1
   ext j
-  simp [deficit, div_eq_mul_inv, Nat.cast_pow]
+  simp [deficit, div_eq_mul_inv]
 
 lemma stageAlpha_tendsto :
     Tendsto (stageAlpha δ) atTop (nhds δ) := by
   change Tendsto (fun j ↦ δ - deficit δ j) atTop (nhds δ)
-  convert tendsto_const_nhds.sub (deficit_tendsto_zero δ) using 1 <;> norm_num
+  convert tendsto_const_nhds.sub (deficit_tendsto_zero δ) using 1
+  all_goals norm_num
 
 lemma stageExpansion_tendsto :
     Tendsto (stageExpansion δ) atTop (nhds 0) := by
   change Tendsto (fun j ↦ 2 * deficit δ j) atTop (nhds 0)
-  convert (deficit_tendsto_zero δ).const_mul 2 using 1 <;> norm_num
+  convert (deficit_tendsto_zero δ).const_mul 2 using 1
+  all_goals norm_num
 
 lemma stage_current_nonneg {δ : ℝ} (hδpos : 0 < δ) (hδ : δ < 1) (j : ℕ) :
     0 ≤ stageAlpha δ j + stageExpansion δ j := by
