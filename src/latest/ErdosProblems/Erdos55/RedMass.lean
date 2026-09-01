@@ -49,8 +49,7 @@ theorem dyadicCount_mono {A : Set ℕ} (hA : A.Infinite) :
   refine ⟨ha.1, ha.2.trans ?_⟩
   exact Nat.pow_le_pow_right (by omega) hkl
 
-theorem card_dyadicShell {A : Set ℕ} (hA : A.Infinite) {k : ℕ}
-    (hk : 1 ≤ k) :
+theorem card_dyadicShell {A : Set ℕ} (hA : A.Infinite) {k : ℕ} :
     (dyadicShell A k).card = dyadicCount A k - dyadicCount A (k - 1) := by
   classical
   apply Finset.card_sdiff_of_subset
@@ -157,8 +156,7 @@ private theorem rankPrefix_pow_subset {A : Set ℕ} (hA : A.Infinite)
   rw [mem_rankPrefix_iff hA] at ha ⊢
   exact ⟨ha.1, ha.2.trans (Nat.pow_le_pow_right (by omega) hkl)⟩
 
-theorem dyadicShell_mass_le {A : Set ℕ} (hA : A.Infinite) {k : ℕ}
-    (hk : 1 ≤ k) :
+theorem dyadicShell_mass_le {A : Set ℕ} (hA : A.Infinite) {k : ℕ} :
     (∑ a ∈ dyadicShell A k, (a : ℝ)) ≤
       (2 : ℝ) ^ k * ((dyadicShell A k).card : ℝ) := by
   have ha : ∀ a ∈ dyadicShell A k, (a : ℝ) ≤ (2 : ℝ) ^ k := by
@@ -208,7 +206,7 @@ theorem redMass_le_shells {A : Set ℕ} (hA : A.Infinite)
         rw [add_comm]
         exact Finset.sum_sdiff hsub
       rw [hdecomp, Finset.sum_Icc_succ_top (by omega)]
-      have hshell := dyadicShell_mass_le hA (A := A) (k := j + 1) (by omega)
+      have hshell := dyadicShell_mass_le hA (A := A) (k := j + 1)
       linarith
 
 /-- A finite tail of powers of `1/2`, after restoring the leading power,
@@ -230,7 +228,8 @@ theorem sum_pow_div_pow_le_two (k i : ℕ) :
       mul_le_mul_of_nonneg_left hgeom (by positivity)
     _ = 2 := by
       rw [one_div, inv_pow]
-      field_simp <;> norm_num
+      field_simp
+      all_goals norm_num
 
 /-- Exchange the order of summation over the finite triangle
 `2 ≤ k ≤ j ≤ i`. -/
@@ -372,7 +371,7 @@ theorem sum_redCost_le_harmonic {A : Set ℕ} (hA : A.Infinite)
     have hk1 : 1 ≤ k := by
       have hk2 := (Finset.mem_Icc.mp hk).1
       omega
-    rw [card_dyadicShell hA hk1, Nat.cast_sub]
+    rw [card_dyadicShell hA, Nat.cast_sub]
     exact dyadicCount_mono hA (Nat.sub_le k 1)
   have hinc (k : ℕ) :
       0 ≤ (dyadicCount A k : ℝ) - dyadicCount A (k - 1) := by

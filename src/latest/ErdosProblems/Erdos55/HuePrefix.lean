@@ -61,7 +61,6 @@ theorem mem_rankPrefix_iff {A : Set ℕ} (hA : A.Infinite) {N a : ℕ} :
     let k := rankIn A a
     have hklt : k < prefixLength A N := by
       exact (Nat.lt_nth_iff_count_lt (p := fun n ↦ n ∈ A) hA).mpr (by
-        change Nat.nth (fun n ↦ n ∈ A) k < N + 1
         rw [show Nat.nth (fun n ↦ n ∈ A) k = a by
           simpa [k] using nth_rankIn haA]
         omega)
@@ -89,7 +88,6 @@ theorem mem_rankHuePrefix_iff {A : Set ℕ} (hA : A.Infinite)
     let k := rankIn A a
     have hklt : k < prefixLength A N := by
       exact (Nat.lt_nth_iff_count_lt (p := fun n ↦ n ∈ A) hA).mpr (by
-        change Nat.nth (fun n ↦ n ∈ A) k < N + 1
         rw [show Nat.nth (fun n ↦ n ∈ A) k = a by
           simpa [k] using nth_rankIn haA]
         omega)
@@ -111,12 +109,12 @@ theorem sum_rankHuePrefix {A : Set ℕ} (hA : A.Infinite) (h s N : ℕ) :
   rw [rankHuePrefix, Finset.sum_image (enumeration_injective hA).injOn]
 
 theorem huePrefix_sum_balance {A : Set ℕ} (hA : A.Infinite)
-    {h s N : ℕ} (hh : 0 < h) (hs : s < h) :
+    {h s N : ℕ} (hh : 0 < h) :
     h * (∑ a ∈ rankHuePrefix A h s N, a) ≤
       (∑ a ∈ rankPrefix A N, a) + 2 * h * N := by
   classical
   rw [sum_rankHuePrefix hA, sum_rankPrefix hA]
-  apply mul_sum_residueIndices_le_of_monotone (enumeration A) hh hs
+  apply mul_sum_residueIndices_le_of_monotone (enumeration A) hh
   · exact enumeration_monotone hA
   · intro k hk
     have hnthlt : enumeration A k < N + 1 := by
@@ -140,7 +138,7 @@ theorem sum_exp_rankHuePrefix {A : Set ℕ} (hA : A.Infinite)
   rw [rankHuePrefix, Finset.sum_image (enumeration_injective hA).injOn]
 
 theorem huePrefix_exp_balance {A : Set ℕ} (hA : A.Infinite)
-    {h s N q : ℕ} (hh : 0 < h) (hs : s < h) (hq : 0 < q) :
+    {h s N q : ℕ} (hh : 0 < h) (hq : 0 < q) :
     (h : ℝ) * (∑ a ∈ rankHuePrefix A h s N,
         Real.exp (-(a : ℝ) / q)) ≤
       (∑ a ∈ rankPrefix A N, Real.exp (-(a : ℝ) / q)) + h := by
@@ -155,7 +153,7 @@ theorem huePrefix_exp_balance {A : Set ℕ} (hA : A.Infinite)
     · exact neg_le_neg (by exact_mod_cast henum)
     · positivity
   have hbase := natCast_mul_sum_residueIndices_le_of_antitone
-    (m := prefixLength A N) w hh hs hw (fun k ↦ Real.exp_pos _ |>.le)
+    (m := prefixLength A N) (s := s) w hh hw (fun k ↦ Real.exp_pos _ |>.le)
   have hwzero : w 0 ≤ 1 := by
     apply Real.exp_le_one_iff.mpr
     exact div_nonpos_of_nonpos_of_nonneg

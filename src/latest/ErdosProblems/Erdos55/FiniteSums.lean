@@ -250,7 +250,7 @@ theorem coversInterval_add_finset {s t : Finset ℕ} {L U : ℕ}
   have hlfin : l.toFinset = t := Finset.sort_toFinset t (· ≤ ·)
   have hlsum : l.sum = ∑ x ∈ t, x := by
     have hnodup : l.Nodup := by
-      simpa [l] using Finset.sort_nodup t (· ≤ ·)
+      simp [l]
     calc
       l.sum = ∑ x ∈ l.toFinset, x := by
         simpa using (List.sum_toFinset (fun x : ℕ ↦ x) hnodup).symm

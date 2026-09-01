@@ -65,8 +65,8 @@ private theorem nextAlignedIndex_injectiveOn {m h s : ℕ} (hh : 0 < h) :
       _ = k₂ := Nat.mod_add_div k₂ h
   exact Prod.ext hk hmod
 
-private theorem lt_nextAlignedIndex {h k t : ℕ} (hh : 0 < h)
-    (ht : t < h) : k < nextAlignedIndex h k t := by
+private theorem lt_nextAlignedIndex {h k t : ℕ} (hh : 0 < h) :
+    k < nextAlignedIndex h k t := by
   calc
     k = k % h + h * (k / h) := (Nat.mod_add_div k h).symm
     _ < h + h * (k / h) := Nat.add_lt_add_right (Nat.mod_lt k hh) _
@@ -88,7 +88,7 @@ private theorem nextAlignedIndex_lt {m h k t : ℕ} (hk : k < m) (ht : t < h) :
 factor `2` in the endpoint term comes from charging a selected rank to the
 next aligned block of `h` ranks. -/
 theorem mul_sum_residueIndices_le_of_monotone
-    (a : ℕ → ℕ) {m h s X : ℕ} (hh : 0 < h) (hs : s < h)
+    (a : ℕ → ℕ) {m h s X : ℕ} (hh : 0 < h)
     (ha : Monotone a) (hX : ∀ k < m, a k ≤ X) :
     h * (∑ k ∈ residueIndices m h s, a k) ≤
       (∑ k ∈ Finset.range m, a k) + 2 * h * X := by
@@ -107,9 +107,7 @@ theorem mul_sum_residueIndices_le_of_monotone
       have hpD : p ∈ D := (Finset.mem_filter.mp hp).1
       have hpParts : p.1 ∈ residueIndices m h s ∧ p.2 ∈ Finset.range h := by
         simpa [D, residuePairs] using hpD
-      have hpt : p.2 < h := by
-        exact Finset.mem_range.mp hpParts.2
-      exact ha (Nat.le_of_lt (lt_nextAlignedIndex hh hpt))
+      exact ha (Nat.le_of_lt (lt_nextAlignedIndex hh))
     have hgoodInj : Set.InjOn f good := hinj.mono (Finset.filter_subset _ _)
     have himage : good.image f ⊆ Finset.range m := by
       intro z hz
@@ -228,7 +226,7 @@ private theorem previousAlignedIndex_le {h k t : ℕ} (hh : 0 < h)
 /-- Decreasing nonnegative real weights have at most their average mass in
 one hue, apart from the first aligned block. -/
 theorem natCast_mul_sum_residueIndices_le_of_antitone
-    (w : ℕ → ℝ) {m h s : ℕ} (hh : 0 < h) (hs : s < h)
+    (w : ℕ → ℝ) {m h s : ℕ} (hh : 0 < h)
     (hw : Antitone w) (hw0 : ∀ k, 0 ≤ w k) :
     (h : ℝ) * (∑ k ∈ residueIndices m h s, w k) ≤
       (∑ k ∈ Finset.range m, w k) + (h : ℝ) * w 0 := by

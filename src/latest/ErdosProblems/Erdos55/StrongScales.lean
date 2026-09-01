@@ -40,7 +40,7 @@ theorem redStrong_imp_cost {A : Set ℕ} (hA : A.Infinite)
     (h : ℝ) / 2 < redCost A j := by
   rcases hstrong with ⟨s, hs, hsum⟩
   have hbal := huePrefix_sum_balance hA (h := h) (s := s)
-    (N := 2 ^ j) hh hs
+    (N := 2 ^ j) hh
   let H : ℕ := ∑ a ∈ rankHuePrefix A h s (2 ^ j), a
   let T : ℕ := ∑ a ∈ rankPrefix A (2 ^ j), a
   have hbalR : (h : ℝ) * H ≤ T + 2 * h * (2 ^ j : ℕ) := by
@@ -276,7 +276,7 @@ private theorem sum_subset_Icc_lower_of_three_quarters
 
 theorem sum_blueMass_le_of_quadratic {A : Set ℕ} (hA : A.Infinite)
     (hApos : IsPositiveNatSet A) {K i : ℕ} {β : ℝ}
-    (hi : 1 ≤ i) (hKi : K ≤ i) (hβ : 0 ≤ β)
+    (hi : 1 ≤ i) (hKi : K ≤ i)
     (hquad : ∀ k, K ≤ k →
       (dyadicCount A k : ℝ) ≤ β * (k : ℝ) ^ 2) :
     (∑ j ∈ Finset.Icc 1 i, blueMass A j) ≤ 128 * β * (i : ℝ) ^ 2 := by
@@ -304,7 +304,7 @@ theorem sum_blueMass_le_of_quadratic {A : Set ℕ} (hA : A.Infinite)
 blue-strong. -/
 theorem eventually_blueStrong_card_lt_three_quarters_of_quadratic
     {A : Set ℕ} (hA : A.Infinite) (hApos : IsPositiveNatSet A)
-    {h K : ℕ} (hh : 0 < h) (hK : 1 ≤ K) {β : ℝ} (hβ : 0 ≤ β)
+    {h K : ℕ} (hh : 0 < h) (hK : 1 ≤ K) {β : ℝ}
     (hβsmall : 8192 * β ≤ h)
     (hquad : ∀ k, K ≤ k →
       (dyadicCount A k : ℝ) ≤ β * (k : ℝ) ^ 2) :
@@ -356,7 +356,7 @@ theorem eventually_blueStrong_card_lt_three_quarters_of_quadratic
     intro j _ _
     unfold blueMass
     positivity
-  have hmassAll := sum_blueMass_le_of_quadratic hA hApos hi1 hKi hβ hquad
+  have hmassAll := sum_blueMass_le_of_quadratic hA hApos hi1 hKi hquad
   have hhR : (0 : ℝ) < h := by exact_mod_cast hh
   have hmassDiv : (∑ j ∈ S, blueMass A j) / h ≤ (i : ℝ) ^ 2 / 64 := by
     have hsmall : 128 * β / (h : ℝ) ≤ 1 / 64 := by

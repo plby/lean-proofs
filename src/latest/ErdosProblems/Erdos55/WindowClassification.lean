@@ -88,14 +88,13 @@ theorem sparseWeakSequence_window_gap {P : ℕ → Prop}
   exact (le_max_left _ _).trans_lt
     (sparseWeakSequence_succ_gt hunbounded A h n)
 
-theorem sum_mem_currentBlueOptions {A : Set ℕ} (hA : A.Infinite)
-    {h s j : ℕ} {T : Finset ℕ}
+theorem sum_mem_currentBlueOptions {A : Set ℕ} {h s j : ℕ} {T : Finset ℕ}
     (hT : T ⊆ blueHueWindow A h s j)
     (hsum : ∑ a ∈ T, a ≤ j * 2 ^ j) :
     (∑ a ∈ T, a) ∈ currentBlueOptions A h s j := by
   classical
   by_cases hz : (∑ a ∈ T, a) = 0
-  · simpa [currentBlueOptions, hz]
+  · simp [currentBlueOptions, hz]
   · apply Finset.mem_insert_of_mem
     unfold blueHueRepresented
     apply Finset.mem_filter.mpr
@@ -152,7 +151,7 @@ theorem sum_mem_blueHuePossible {A : Set ℕ} (hA : A.Infinite)
   apply Finset.mem_image₂.mpr
   refine ⟨∑ a ∈ TE, a, ?_, ∑ a ∈ TB, a, ?_, hsumSplit.symm⟩
   · exact mem_subsetSumValues.mpr ⟨TE, hTE, rfl⟩
-  · apply sum_mem_currentBlueOptions hA hTB
+  · apply sum_mem_currentBlueOptions hTB
     have hpart : ∑ a ∈ TB, a ≤ ∑ a ∈ T, a := by
       apply Finset.sum_le_sum_of_subset_of_nonneg Finset.sdiff_subset
       intro a _ _
@@ -160,7 +159,7 @@ theorem sum_mem_blueHuePossible {A : Set ℕ} (hA : A.Infinite)
     exact hpart.trans hsum
 
 theorem sum_mem_bluePossible {A : Set ℕ} (hA : A.Infinite)
-    {h : ℕ} (hh : 0 < h) {J : ℕ → ℕ} (hJ : StrictMono J) {n : ℕ}
+    {h : ℕ} {J : ℕ → ℕ} (hJ : StrictMono J) {n : ℕ}
     (hgap : J n * 2 ^ J n < J (n + 1)) {T : Finset ℕ}
     (hTA : ∀ a ∈ T, a ∈ A)
     (hThue : ∃ s < h, ∀ a ∈ T, hueIn A h a = s)

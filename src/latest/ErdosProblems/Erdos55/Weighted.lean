@@ -90,7 +90,7 @@ theorem card_subsetSums_Icc_le_weightedProduct (S : Finset ℕ) {m q : ℕ}
 
 /-- The product in CFP Lemma 3.4 is at most the exponential of the sum of
 its weights. -/
-theorem weightedProduct_le_exp_sum (S : Finset ℕ) {m q : ℕ} (hq : 0 < q) :
+theorem weightedProduct_le_exp_sum (S : Finset ℕ) {m q : ℕ} :
     Real.exp ((m : ℝ) / q) *
         ∏ a ∈ S, (1 + Real.exp (-(a : ℝ) / q)) ≤
       Real.exp ((m : ℝ) / q + ∑ a ∈ S, Real.exp (-(a : ℝ) / q)) := by
@@ -111,6 +111,6 @@ theorem card_subsetSums_Icc_le_exp (S : Finset ℕ) {m q : ℕ} (hq : 0 < q) :
     (((subsetSumValues S).filter fun n ↦ 1 ≤ n ∧ n ≤ m).card : ℝ) ≤
       Real.exp ((m : ℝ) / q + ∑ a ∈ S, Real.exp (-(a : ℝ) / q)) :=
   (card_subsetSums_Icc_le_weightedProduct S hq).trans
-    (weightedProduct_le_exp_sum S hq)
+    (weightedProduct_le_exp_sum S)
 
 end Erdos55

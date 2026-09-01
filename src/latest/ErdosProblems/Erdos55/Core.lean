@@ -30,7 +30,7 @@ namespace PositiveNatSet
 
 instance : SetLike PositiveNatSet ℕ where
   coe A := A.1
-  coe_injective A B h := Subtype.ext h
+  coe_injective _ _ h := Subtype.ext h
 
 /-- Package a set and a proof that all its members are positive. -/
 @[coe]
@@ -114,7 +114,7 @@ theorem IsFiniteSubsetSum.mono {A B : Set ℕ} (hAB : A ⊆ B) {n : ℕ}
 theorem finite_finiteSubsetSums {A : Set ℕ} (hA : A.Finite) :
     (finiteSubsetSums A).Finite := by
   classical
-  letI := hA.fintype
+  let := hA.fintype
   apply (Set.finite_range (fun s : Finset A ↦ ∑ a ∈ s, (a : ℕ))).subset
   rintro n ⟨s, rfl⟩
   exact ⟨s, rfl⟩

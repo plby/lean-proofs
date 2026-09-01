@@ -60,9 +60,9 @@ theorem encodeHueBit_lt {h hue : ℕ} (hhue : hue < h) (bit : Bool) :
     encodeHueBit h hue bit < 2 * h := by
   cases bit <;> simp [encodeHueBit] at * <;> omega
 
-theorem encodeHueBit_mod {h hue : ℕ} (hh : 0 < h) (hhue : hue < h)
+theorem encodeHueBit_mod {h hue : ℕ} (hhue : hue < h)
     (bit : Bool) : encodeHueBit h hue bit % h = hue := by
-  cases bit <;> simp [encodeHueBit, Nat.add_mod, Nat.mod_eq_of_lt hhue]
+  cases bit <;> simp [encodeHueBit, Nat.mod_eq_of_lt hhue]
 
 theorem encodeHueBit_eq_iff {h hue₁ hue₂ : ℕ} (hh : 0 < h)
     (hhue₁ : hue₁ < h) (hhue₂ : hue₂ < h) (bit₁ bit₂ : Bool) :
@@ -72,7 +72,7 @@ theorem encodeHueBit_eq_iff {h hue₁ hue₂ : ℕ} (hh : 0 < h)
   · intro heq
     have hhue : hue₁ = hue₂ := by
       have := congrArg (fun n ↦ n % h) heq
-      simpa [encodeHueBit_mod hh hhue₁, encodeHueBit_mod hh hhue₂] using this
+      simpa [encodeHueBit_mod hhue₁, encodeHueBit_mod hhue₂] using this
     subst hue₂
     refine ⟨rfl, ?_⟩
     cases bit₁ <;> cases bit₂ <;> simp [encodeHueBit] at heq ⊢ <;> omega

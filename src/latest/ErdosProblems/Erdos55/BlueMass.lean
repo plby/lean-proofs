@@ -91,7 +91,9 @@ theorem sum_blueWeight_le (a i : ℕ) (ha : 0 < a) :
       ring
     _ ≤ (16 / (a : ℝ)) * (2 * a) := by
       exact mul_le_mul_of_nonneg_left hpowSum (by positivity)
-    _ = 32 := by field_simp <;> norm_num
+    _ = 32 := by
+      field_simp
+      all_goals norm_num
 
 noncomputable def blueWindow (A : Set ℕ) (j : ℕ) : Finset ℕ :=
   rankPrefix A (j * 2 ^ j) \ rankPrefix A (2 ^ j)

@@ -64,7 +64,7 @@ private theorem two_pow_pred_cyclicLogScale_lt {x : ℕ} (hx : 2 ≤ x) :
   exact_mod_cast hpowexp.trans_lt hexplog
 
 theorem r_cyclic_collision_supply_of_bounds {r x : ℕ}
-    (hr : 1 ≤ r) (h : Erdos54.CyclicGrowthParameterBounds x)
+    (h : Erdos54.CyclicGrowthParameterBounds x)
     (hexp : 2 ^ 32 * r ^ 2 * Erdos54.cyclicLogScale x ^ 3 <
       2 ^ Erdos54.cyclicLogScale x) :
     2 * (1280 * r * Erdos54.cyclicTupleLength x) ^ 2 <
@@ -104,7 +104,9 @@ theorem r_cyclic_collision_supply_of_bounds {r x : ℕ}
       _ = 2 ^ 31 * r ^ 2 * u ^ 3 := by ring
   have hpow_eq : 2 ^ u = 2 * 2 ^ (u - 1) := by
     calc
-      2 ^ u = 2 ^ ((u - 1) + 1) := by congr 2 <;> omega
+      2 ^ u = 2 ^ ((u - 1) + 1) := by
+        congr 2
+        omega
       _ = 2 * 2 ^ (u - 1) := by rw [pow_succ]; ring
   have hpred : 2 ^ 31 * r ^ 2 * u ^ 3 < 2 ^ (u - 1) := by
     have hscaled : 2 * (2 ^ 31 * r ^ 2 * u ^ 3) < 2 * 2 ^ (u - 1) := by
@@ -126,7 +128,7 @@ theorem r_cyclic_collision_supply_of_bounds {r x : ℕ}
 
 /-- For each fixed number of colors, rough numbers eventually supply a
 collision-free enlarged sample. -/
-theorem eventually_r_cyclic_collision_supply (r : ℕ) (hr : 1 ≤ r) :
+theorem eventually_r_cyclic_collision_supply (r : ℕ) :
     ∀ᶠ x : ℕ in atTop,
       2 * (1280 * r * Erdos54.cyclicTupleLength x) ^ 2 <
         (Erdos54.roughNumbers x).card := by
@@ -134,7 +136,7 @@ theorem eventually_r_cyclic_collision_supply (r : ℕ) (hr : 1 ≤ r) :
   have hexpX := Erdos54.tendsto_cyclicLogScale.eventually hexpU
   filter_upwards [Erdos54.eventually_cyclicGrowthParameterBounds, hexpX]
       with x hp hexp
-  exact r_cyclic_collision_supply_of_bounds hr hp (by
+  exact r_cyclic_collision_supply_of_bounds hp (by
     simpa [Nat.mul_assoc] using hexp)
 
 /-- Finite union-bound packaging for the sample of length `1280*r*q`. -/
@@ -250,7 +252,7 @@ theorem eventually_exists_rRobustBlock (r : ℕ) (hr : 1 ≤ r) :
   have hcoord := Erdos54.tendsto_cyclicLogScale.eventually
     (eventually_ge_atTop (2 ^ (4 * (7680 * r + 3))))
   filter_upwards [Erdos54.eventually_cyclicGrowthParameterBounds,
-    eventually_r_cyclic_collision_supply r hr,
+    eventually_r_cyclic_collision_supply r,
     eventually_ge_atTop 200, Erdos54.eventually_seventeen_le_roughCutoff,
     hcoord] with x hp hcollision hx hcut hlarge
   have hcollision' :

@@ -39,7 +39,7 @@ theorem eventually_weakScales_card_gt_eighth_of_quadratic
       hA hApos hh hK hβ hredSmall hquad
   obtain ⟨IB, hKIB, hblue⟩ :=
     eventually_blueStrong_card_lt_three_quarters_of_quadratic
-      hA hApos hh hK hβ hβsmall hquad
+      hA hApos hh hK hβsmall hquad
   refine ⟨max IR IB, hKIR.trans (le_max_left _ _), ?_⟩
   intro i hi
   have hri := hred i ((le_max_left IR IB).trans hi)

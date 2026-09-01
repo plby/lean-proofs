@@ -67,7 +67,10 @@ theorem card_earlierHuePrefix_le_exponent {A : Set ℕ} (hA : A.Infinite)
         have hself : J n ≤ 2 ^ J n := Nat.le_of_lt (J n).lt_two_pow_self
         calc
           J n * 2 ^ J n ≤ 2 ^ J n * 2 ^ J n := Nat.mul_le_mul_right _ hself
-          _ = 2 ^ (2 * J n) := by rw [← pow_add]; congr 1 <;> omega
+          _ = 2 ^ (2 * J n) := by
+            rw [← pow_add]
+            congr 1
+            omega
       calc
         (earlierHuePrefix A h s J (n + 1)).card ≤
             (rankPrefix A (J n * 2 ^ J n)).card := by
@@ -76,7 +79,7 @@ theorem card_earlierHuePrefix_le_exponent {A : Set ℕ} (hA : A.Infinite)
         _ ≤ (rankPrefix A (2 ^ (2 * J n))).card := by
           exact Finset.card_le_card (rankPrefix_mono hA hscale)
         _ = earlierExponent A J (n + 1) := by
-          simp [earlierExponent, dyadicCount, card_rankPrefix]
+          simp [earlierExponent, dyadicCount]
 
 theorem card_subsetSumValues_le_two_pow (S : Finset ℕ) :
     (subsetSumValues S).card ≤ 2 ^ S.card := by
@@ -221,7 +224,9 @@ theorem targetInterval_card_eq {j : ℕ} (hj : 8 ≤ j) :
         2 ^ (j - 1) * (2 * j) - 2 ^ (j - 1) * (j + 8) := by ring
     _ = 2 ^ (j - 1) * (2 * j - (j + 8)) := by
       rw [Nat.mul_sub_left_distrib]
-    _ = 2 ^ (j - 1) * (j - 8) := by congr 1 <;> omega
+    _ = 2 ^ (j - 1) * (j - 8) := by
+      congr 1
+      omega
 
 theorem scale_lt_sixteen_mul_target_card {j : ℕ} (hj : 16 < j) :
     j * 2 ^ j < 16 * (targetInterval j).card := by

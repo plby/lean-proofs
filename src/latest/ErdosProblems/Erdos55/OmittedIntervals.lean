@@ -153,7 +153,7 @@ theorem exists_omitted_at_sparseWeakSequence {A : Set ℕ} (hA : A.Infinite)
   | true =>
       apply hmBlue
       rw [← hsumV]
-      apply sum_mem_bluePossible hA hh hJ
+      apply sum_mem_bluePossible hA hJ
         (sparseWeakSequence_window_gap hunbounded A h n) hVA
       · exact ⟨s, hs, hVhue⟩
       · intro a ha

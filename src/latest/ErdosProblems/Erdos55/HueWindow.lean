@@ -29,7 +29,7 @@ theorem sum_residueIndices_all (w : ℕ → ℝ) (m : ℕ) {h : ℕ} (hh : 0 < h
   apply Finset.sum_congr rfl
   intro k hk
   rw [Finset.sum_eq_single (k % h)]
-  · simp [Nat.mod_lt k hh]
+  · simp
   · intro s hs hne
     simp only [ite_eq_right_iff]
     exact fun heq ↦ (hne heq.symm).elim
@@ -51,11 +51,10 @@ theorem sum_residueIndices_lower_of_antitone
     have hall := sum_residueIndices_all w m hh
     rw [← Finset.sum_erase_add _ _ hsrange] at hall
     simpa [P, T, O, add_comm] using hall.symm
-  have hupper (t : ℕ) (ht : t ∈ O) :
+  have hupper (t : ℕ) :
       (h : ℝ) * P t ≤ T + (h : ℝ) * w 0 := by
-    have htrange : t ∈ Finset.range h := (Finset.mem_erase.mp ht).2
     simpa [P, T] using natCast_mul_sum_residueIndices_le_of_antitone
-      w hh (Finset.mem_range.mp htrange) hw hw0
+      (s := t) w hh hw hw0
   have hsumUpper :
       (h : ℝ) * (∑ t ∈ O, P t) ≤
         ((O.card : ℝ) * (T + (h : ℝ) * w 0)) := by
@@ -63,7 +62,7 @@ theorem sum_residueIndices_lower_of_antitone
     calc
       (∑ t ∈ O, (h : ℝ) * P t) ≤
           ∑ _t ∈ O, (T + (h : ℝ) * w 0) :=
-        Finset.sum_le_sum hupper
+        Finset.sum_le_sum fun t _ ↦ hupper t
       _ = (O.card : ℝ) * (T + (h : ℝ) * w 0) := by
         simp only [Finset.sum_const, nsmul_eq_mul]
   have hcard : O.card = h - 1 := by simp [O, hsrange]
@@ -90,7 +89,7 @@ private theorem rankHuePrefix_mono {A : Set ℕ} (hA : A.Infinite)
   exact ⟨ha.1, ha.2.1.trans hMN, ha.2.2⟩
 
 theorem blueHueWindow_subset_blueWindow {A : Set ℕ} (hA : A.Infinite)
-    {h s j : ℕ} (hj : 1 ≤ j) :
+    {h s j : ℕ} :
     blueHueWindow A h s j ⊆ blueWindow A j := by
   intro a ha
   have ha' := Finset.mem_sdiff.mp ha
@@ -129,7 +128,7 @@ theorem blueHueWindow_exp_balance {A : Set ℕ} (hA : A.Infinite)
     dsimp only [L, U]
     exact Nat.le_mul_of_pos_left (2 ^ j) hj
   have hupper : (h : ℝ) * PU ≤ TU + h := by
-    simpa [PU, TU, U] using huePrefix_exp_balance hA hh hs hq
+    simpa [PU, TU, U] using huePrefix_exp_balance hA hh hq
   let w : ℕ → ℝ := fun k ↦ Real.exp (-(enumeration A k : ℝ) / q)
   have hw : Antitone w := by
     intro x y hxy
