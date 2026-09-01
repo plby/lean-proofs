@@ -83,7 +83,6 @@ private lemma certificate_nonneg (j : ℕ) : 0 ≤ certificate j := by
     have hj35 : j ≠ 35 := by omega
     have hj36 : j ≠ 36 := by omega
     have hj58 : j ≠ 58 := by omega
-    simp [certificate, hj1, hj2, hj3, hj4, hj6, hj10, hj15, hj16,
-      hj22, hj28, hj35, hj36, hj58]
+    simp [certificate]
 
 end Erdos542

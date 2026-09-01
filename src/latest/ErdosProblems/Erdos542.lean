@@ -305,7 +305,8 @@ lemma certificate_eq_support_sum (x : ℕ) :
       ∑ j ∈ certificateSupport, if x = j then certificate j else 0 := by
   classical
   by_cases hx : x ∈ certificateSupport
-  · simp [certificateSupport] at hx
+  · rw [certificateSupport] at hx
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hx
     rcases hx with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;>
       norm_num [certificateSupport, Erdos542.certificate]
   · have hx' := hx
@@ -357,7 +358,7 @@ lemma certificateSum_cast_eq_bands (q : ℕ) :
     have hkIcc := Finset.mem_Icc.mp hk.1
     exact (div_eq_iff_mem_band (by omega) hjpos).1 hk.2
   · intro k hk
-    simp [div_eq_mul_inv]
+    simp
   · intro k hk
     have hkband := hk
     rw [Finset.mem_Ioc] at hkband
@@ -377,7 +378,8 @@ lemma certificateSum_cast_eq_bands (q : ℕ) :
 
 lemma certificate_nonneg_on_support {j : ℕ} (hj : j ∈ certificateSupport) :
     0 ≤ (certificate j : ℝ) := by
-  simp [certificateSupport] at hj
+  rw [certificateSupport] at hj
+  simp only [Finset.mem_insert, Finset.mem_singleton] at hj
   rcases hj with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;>
     norm_num [Erdos542.certificate]
 
@@ -711,8 +713,7 @@ lemma certificate_scaled_coeff (x : ℕ) :
     have hx35 : x ≠ 35 := by omega
     have hx36 : x ≠ 36 := by omega
     have hx58 : x ≠ 58 := by omega
-    simp [certificateNumerator, certificateDenominator, certificate,
-      hx1, hx2, hx3, hx4, hx6, hx10, hx15, hx16, hx22, hx28, hx35, hx36, hx58]
+    simp [certificateNumerator, certificateDenominator, certificate]
 
 lemma scaledCertificateTerm_cast (q k : ℕ) (hq : q ≤ 779)
     (hkpos : 0 < k) (hkle : k ≤ q) :
@@ -853,7 +854,7 @@ lemma multiples_subset (n a : ℕ) : multiples n a ⊆ Finset.Icc 1 n := by
   intro m hm
   exact (Finset.mem_filter.mp hm).1
 
-lemma multiples_disjoint {n a b : ℕ} (hab : a ≠ b) (hlcm : n < Nat.lcm a b) :
+lemma multiples_disjoint {n a b : ℕ} (hlcm : n < Nat.lcm a b) :
     Disjoint (multiples n a) (multiples n b) := by
   rw [Finset.disjoint_left]
   intro m hma hmb
@@ -953,7 +954,7 @@ lemma reciprocalSumRat_le_certificateSum
       symm
       apply Finset.sum_biUnion
       intro a ha b hb hab
-      exact multiples_disjoint hab (hA.2 a ha b hb hab)
+      exact multiples_disjoint (hA.2 a ha b hb hab)
     _ ≤ ∑ m ∈ Finset.Icc 1 n, certificate (n / m) / (m : ℚ) := by
       apply Finset.sum_le_sum_of_subset_of_nonneg
       · rw [Finset.biUnion_subset_iff_forall_subset]
@@ -992,7 +993,7 @@ lemma reciprocalSumRat_le_covered
       symm
       apply Finset.sum_biUnion
       intro a ha b hb hab
-      exact multiples_disjoint hab (hA.2 a ha b hb hab)
+      exact multiples_disjoint (hA.2 a ha b hb hab)
 
 def exceptionPair : ℕ → ℕ × ℕ
   | 13 => (2, 3)
@@ -1012,7 +1013,8 @@ lemma exceptionPair_data : ∀ n ∈ certificateExceptions,
       certificateSum n - (31 : ℚ) / 30 ≤ certificate (n / x) / (x : ℚ) ∧
       certificateSum n - (31 : ℚ) / 30 ≤ certificate (n / y) / (y : ℚ) := by
   intro n hn
-  simp [certificateExceptions] at hn
+  rw [certificateExceptions] at hn
+  simp only [Finset.mem_insert, Finset.mem_singleton] at hn
   rcases hn with rfl | rfl | rfl | rfl | rfl | rfl | rfl <;>
     norm_num [exceptionPair, certificateSum, certificate, sum_Icc_succ_top]
 
@@ -1025,7 +1027,7 @@ lemma one_mem_forces_singleton
   · intro ha
     by_contra hne
     have hlcm := hA.2 1 h1 a ha (Ne.symm hne)
-    simp [Nat.lcm_comm] at hlcm
+    norm_num [Nat.lcm_comm] at hlcm
     exact (not_lt_of_ge (hA.1 a ha).2) hlcm
   · rintro rfl
     exact h1
@@ -1037,7 +1039,7 @@ lemma exception_pair_not_both_covered
     x ∉ covered n A ∨ y ∉ covered n A := by
   classical
   by_contra h
-  push_neg at h
+  push Not at h
   rw [covered] at h
   rcases Finset.mem_biUnion.mp h.1 with ⟨a, haA, hax⟩
   rcases Finset.mem_biUnion.mp h.2 with ⟨b, hbA, hby⟩
@@ -1629,9 +1631,8 @@ lemma minimalThreshold_lcm_gt_of_lt {n a b : ℕ}
     have hprod := Nat.gcd_mul_lcm a b
     have hcancel : Nat.lcm a b = g * q₁ * q₂ := by
       apply Nat.eq_of_mul_eq_mul_left hgpos
-      change g * Nat.lcm a b = g * (g * q₁ * q₂)
       calc
-        g * Nat.lcm a b = a * b := by simpa [g] using hprod
+        g * Nat.lcm a b = a * b := hprod
         _ = (g * q₁) * (g * q₂) := by rw [haeq, hbeq]
         _ = g * (g * q₁ * q₂) := by ring
     exact hcancel
@@ -1700,7 +1701,7 @@ lemma uncovered_power_bound {n b : ℕ}
         have hnotT := uncovered_not_threshold hb
         have hbp : b * p ≤ n := by
           rw [thresholdSet, Finset.mem_filter] at hnotT
-          push_neg at hnotT
+          push Not at hnotT
           exact hnotT hbParts.1
         have hbSq : b ^ 2 ≤ n * c := by
           have hmul := Nat.mul_le_mul_left c hbp
@@ -1882,8 +1883,8 @@ lemma highOmega_density_le_geometric (C : ℝ)
       _ = (32 * Real.exp A / z ^ K) * (N : ℝ) := by ring
   have hlogz : (1 : ℝ) / 21 ≤ Real.log z := by
     dsimp [z]
-    convert Real.one_sub_inv_le_log_of_pos (show (0 : ℝ) < 21 / 20 by norm_num) using 1 <;>
-      norm_num
+    convert Real.one_sub_inv_le_log_of_pos (show (0 : ℝ) < 21 / 20 by norm_num) using 1
+    all_goals norm_num
   have hAexp :
       A - (K : ℝ) * Real.log z ≤
         -(149 : ℝ) / 21000 * t + (11 : ℝ) / 200 * C := by
