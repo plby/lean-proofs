@@ -22,7 +22,7 @@ open Erdos88.Fourier
 
 /-- A fixed-cardinality Boolean slice is nonempty whenever its requested
 weight is at most the number of coordinates. -/
-def boolSliceNonempty {I : Type*} [Fintype I] [DecidableEq I]
+theorem boolSliceNonempty {I : Type*} [Fintype I] [DecidableEq I]
     {m : ℕ} (hm : m ≤ Fintype.card I) : Nonempty (BoolSlice I m) := by
   classical
   obtain ⟨S, _hS, hcard⟩ := Finset.exists_subset_card_eq
@@ -121,7 +121,7 @@ theorem adaptivePrefix_expectation {n m q : ℕ}
       (prefixWeight
         (AdaptiveTree.answerEquiv (canonicalDFSTree n) omega.1) q : ℝ)) =
       (m : ℝ) / (n.choose 2 : ℝ) * (min q (n.choose 2) : ℕ) := by
-  letI : Nonempty (Fin (n.choose 2)) :=
+  let : Nonempty (Fin (n.choose 2)) :=
     Fin.pos_iff_nonempty.mp (lt_of_lt_of_le hmpos hm)
   let E := (canonicalDFSTree n).sliceEquiv m
   let a : Fin (n.choose 2) → ℝ := prefixCoefficients q
@@ -157,7 +157,7 @@ theorem adaptivePrefix_two_sided_probability {n m q : ℕ}
           (AdaptiveTree.answerEquiv (canonicalDFSTree n) omega.1) q : ℝ) -
         (m : ℝ) / (n.choose 2 : ℝ) * (min q (n.choose 2) : ℕ)|) ≤
       2 * Real.exp (-t ^ 2 / (32 * m)) := by
-  letI : Nonempty (Fin (n.choose 2)) :=
+  let : Nonempty (Fin (n.choose 2)) :=
     Fin.pos_iff_nonempty.mp (lt_of_lt_of_le hmpos hm)
   let E := (canonicalDFSTree n).sliceEquiv m
   let a : Fin (n.choose 2) → ℝ := prefixCoefficients q
@@ -180,7 +180,8 @@ theorem adaptivePrefix_two_sided_probability {n m q : ℕ}
     have h' : uniformProbability P ≤
         2 * Real.exp (-t ^ 2 / (2 * (m : ℝ) * (4 : ℝ) ^ 2)) := by
       simpa [P, center] using h
-    convert h' using 1 <;> ring
+    convert h' using 1
+    all_goals ring
   calc
     uniformProbability (fun omega : BoolSlice (Fin (n.choose 2)) m ↦
         t ≤ |(prefixWeight

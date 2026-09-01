@@ -123,7 +123,7 @@ theorem fixedPathProbability_nonneg (c a : ℝ) (n : ℕ) :
     0 ≤ fixedPathProbability c a n := by
   classical
   by_cases h : edgeBudget c n ≤ n.choose 2
-  · letI : Nonempty (Erdos88.Fourier.BoolSlice
+  · let : Nonempty (Erdos88.Fourier.BoolSlice
         (Fin (n.choose 2)) (edgeBudget c n)) :=
       boolSliceNonempty (by simpa using h)
     simpa [fixedPathProbability, h] using
@@ -137,7 +137,7 @@ theorem fixedPathProbability_le_one (c a : ℝ) (n : ℕ) :
     fixedPathProbability c a n ≤ 1 := by
   classical
   by_cases h : edgeBudget c n ≤ n.choose 2
-  · letI : Nonempty (Erdos88.Fourier.BoolSlice
+  · let : Nonempty (Erdos88.Fourier.BoolSlice
         (Fin (n.choose 2)) (edgeBudget c n)) :=
       boolSliceNonempty (by simpa using h)
     simpa [fixedPathProbability, h] using
@@ -151,7 +151,7 @@ theorem fixedPathProbability_mono_fraction {c a b : ℝ} (hab : a ≤ b) (n : �
     fixedPathProbability c b n ≤ fixedPathProbability c a n := by
   classical
   by_cases h : edgeBudget c n ≤ n.choose 2
-  · letI : Nonempty (Erdos88.Fourier.BoolSlice
+  · let : Nonempty (Erdos88.Fourier.BoolSlice
         (Fin (n.choose 2)) (edgeBudget c n)) :=
       boolSliceNonempty (by simpa using h)
     simp only [fixedPathProbability, h, dite_true]
@@ -341,7 +341,8 @@ theorem WHP_of_DFS_parameters {c A s D L U : ℝ}
       Tendsto (fun _ : ℕ ↦ (1 : ℝ)) atTop (𝓝 1)).sub hsumLim
     have h' : Tendsto (fun n : ℕ ↦ 1 - ((hi n + roots n : ℕ) : ℝ) / n)
         atTop (𝓝 (1 - U - s)) := by
-      convert h using 1 <;> ring
+      convert h using 1
+      all_goals ring
     apply h'.congr'
     filter_upwards [hsumN, eventually_ge_atTop 1] with n hsum hn
     have hle : hi n + roots n ≤ n := hsum.le
@@ -381,7 +382,8 @@ theorem WHP_of_DFS_parameters {c A s D L U : ℝ}
           ((q n : ℝ) / (n : ℝ) ^ 2) /
           ((N n : ℝ) / (n : ℝ) ^ 2))
         atTop (𝓝 (2 * c * A)) := by
-      convert hraw' using 1 <;> ring
+      convert hraw' using 1
+      all_goals ring
     apply hraw''.congr'
     filter_upwards [hqN, eventually_ge_atTop 2] with n hqn hn
     have hn0 : (n : ℝ) ≠ 0 := by positivity
@@ -472,7 +474,7 @@ theorem WHP_of_DFS_parameters {c A s D L U : ℝ}
     filter_upwards [hqN, hkmlo, hsumN, hrectN, hcenterWindow,
       hmPos, hmN, eventually_ge_atTop 2]
       with n hqn hkmn hsum hrect hwindow hmpos hmn hn
-    letI : Nonempty (Erdos88.Fourier.BoolSlice (Fin (N n)) (m n)) :=
+    let : Nonempty (Erdos88.Fourier.BoolSlice (Fin (N n)) (m n)) :=
       boolSliceNonempty (by simpa using hmn)
     let X : Erdos88.Fourier.BoolSlice (Fin (N n)) (m n) → ℕ :=
       fun omega ↦ prefixWeight
@@ -486,7 +488,7 @@ theorem WHP_of_DFS_parameters {c A s D L U : ℝ}
       have hp := canonicalGraph_hasPath_of_prefix_window
         (n := n) (q := q n) (k := km n + 1)
         (lo := lo n) (hi := hi n) (rootCap := roots n)
-        (by simpa [N] using hqn) (by omega)
+        (by simpa [N] using hqn)
         (fun r hr ↦ choose_root_le_rootCap hA.le hs.le hroot n r hr)
         hsum (by simpa using hrect) omega.1 hw.1 hw.2
       simpa [Good, HasLongPath, km] using hp
@@ -535,7 +537,8 @@ theorem WHP_of_DFS_parameters {c A s D L U : ℝ}
         simpa [Bad, X, center, N] using h
       change Erdos88.Concentration.uniformProbability Bad ≤
         2 * Real.exp (-((tau * n) ^ 2 / (32 * (m n : ℝ))))
-      convert h' using 1 <;> ring
+      convert h' using 1
+      all_goals ring
     have hfailProb :
         Erdos88.Concentration.uniformProbability (fun omega ↦ ¬Good omega) ≤
           Erdos88.Concentration.uniformProbability Bad :=
@@ -550,8 +553,8 @@ theorem WHP_of_DFS_parameters {c A s D L U : ℝ}
     Filter.Eventually.of_forall (fixedPathProbability_le_one c D)
   have hlowerLimit : Tendsto (fun n : ℕ ↦ 1 - tail n) atTop (𝓝 1) := by
     convert (tendsto_const_nhds :
-      Tendsto (fun _ : ℕ ↦ (1 : ℝ)) atTop (𝓝 1)).sub htail using 1 <;>
-      ring
+      Tendsto (fun _ : ℕ ↦ (1 : ℝ)) atTop (𝓝 1)).sub htail using 1
+    all_goals ring
   exact tendsto_of_tendsto_of_tendsto_of_le_of_le' hlowerLimit
     tendsto_const_nhds hlowerProbability hupperProbability
 
@@ -637,8 +640,7 @@ theorem exists_positive_WHP (c : ℝ) (hc : 1 / 2 < c) :
         dsimp [s]
         rw [show 17 * ((B - 1) / (16 * B * (C + 1))) / 16 =
           17 * (B - 1) / (16 * (16 * B * (C + 1))) by
-            field_simp
-            <;> ring]
+            field_simp]
         rw [div_lt_div_iff₀
           (by positivity : 0 < 16 * (16 * B * (C + 1)))
           (by positivity : 0 < B)]
@@ -797,7 +799,7 @@ theorem densePart_WHP (c : Density) : WHP (c : ℝ) (densePart c) := by
 
 private theorem coe_density_tendsto_atTop :
     Tendsto ((↑) : Density → ℝ) atTop atTop := by
-  show Filter.map ((↑) : Density → ℝ) atTop ≤ atTop
+  change Filter.map ((↑) : Density → ℝ) atTop ≤ atTop
   rw [Filter.map_val_Ioi_atTop]
 
 theorem denseLevel_tendsto_atTop : Tendsto denseLevel atTop atTop := by
@@ -902,7 +904,7 @@ theorem erdos900Fraction_tendsto_atTop :
 private theorem coe_density_tendsto_atHalf :
     Tendsto ((↑) : Density → ℝ) densityAtHalf (𝓝 (1 / 2 : ℝ)) := by
   unfold densityAtHalf
-  show Filter.map ((↑) : Density → ℝ)
+  change Filter.map ((↑) : Density → ℝ)
       (Filter.comap ((↑) : Density → ℝ) (𝓝[>] (1 / 2 : ℝ))) ≤
     𝓝 (1 / 2 : ℝ)
   exact Filter.map_comap_le.trans nhdsWithin_le_nhds

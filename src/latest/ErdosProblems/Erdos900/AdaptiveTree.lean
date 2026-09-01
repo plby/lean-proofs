@@ -73,7 +73,7 @@ theorem boolWeight_eq_sum {n : ℕ} (x : Fin n → Bool) :
     Erdos88.Fourier.boolWeight x = ∑ i, if x i then 1 else 0 := by
   classical
   rw [Erdos88.Fourier.boolWeight, Finset.card_eq_sum_ones]
-  simp only [Finset.sum_filter, Finset.mem_univ, if_true]
+  simp only [Finset.sum_filter]
 
 /-- Adaptive exposure merely reorders the input bits, even though the order
 may depend on bits already read.  In particular it preserves Hamming weight. -/
