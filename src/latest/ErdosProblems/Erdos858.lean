@@ -266,7 +266,7 @@ lemma parent_rough {n : ℕ} (hn : 1 < n) : RoughLE (parent n) n := by
       simp at heq
       omega
     · rw [ht1] at heq
-      simp at heq
+      rw [mul_one] at heq
       exact (ne_of_lt hd.2.1) heq
   exact Or.inr ⟨t, ht, heq.symm, by simpa [d, t] using hd.2.2.2⟩
 
@@ -764,7 +764,7 @@ lemma child_factorization {N n m : ℕ} (hmN : m ≤ N)
     · exact hmin.trans_le (Nat.minFac_le_of_dvd hpprime.two_le
         (Nat.dvd_of_mem_primeFactorsList hp_mem))
     · simpa [hpqt, mul_assoc] using hmt
-  · simp [hl] at hlen
+  · simp at hlen
 
 lemma prime_extension_is_child {n p : ℕ} (hn : 0 < n)
     (hp : p.Prime) (hnp : n < p) : parent (n * p) = n := by
@@ -785,7 +785,7 @@ lemma prime_extension_is_child {n p : ℕ} (hn : 0 < n)
     simpa [hnk, mul_assoc] using hd.2.2.1
   rcases hp.eq_one_or_self_of_dvd k hkdvd with hk | hk
   · rw [hk] at hnk
-    simp at hnk
+    rw [mul_one] at hnk
     exact (ne_of_lt hnd) hnk
   · rw [hk] at hnk
     exact (ne_of_lt hd.2.1) hnk.symm
@@ -830,7 +830,7 @@ lemma two_prime_extension_is_child {n p q : ℕ} (hn : 0 < n)
       simp at hnk
       omega
     · rw [hk1] at hnk
-      simp at hnk
+      rw [mul_one] at hnk
       exact (ne_of_lt hnd) hnk
   let r := k.minFac
   have hrprime : r.Prime := Nat.minFac_prime hkgt.ne'
@@ -951,7 +951,7 @@ lemma inflow_eq_sum_children (N n : ℕ) :
   simp [inflow, children, Finset.sum_filter]
 
 lemma ordered_prime_product_injective {p q r s : ℕ}
-    (hp : p.Prime) (hq : q.Prime) (hr : r.Prime) (hs : s.Prime)
+    (hp : p.Prime) (hr : r.Prime) (hs : s.Prime)
     (hpq : p ≤ q) (hrs : r ≤ s) (hprod : p * q = r * s) :
     p = r ∧ q = s := by
   have hpdvd : p ∣ r * s := by rw [← hprod]; exact dvd_mul_right p q
@@ -1081,7 +1081,7 @@ lemma sum_twoPrimeChildSet {N n : ℕ} (hn : 0 < n) :
     have hrs_data := (Finset.mem_filter.mp hrs).2
     obtain ⟨hp, hq, hnp, hpqle, hboundpq⟩ := hpq_data
     obtain ⟨hr, hs, hnr, hrsle, hboundrs⟩ := hrs_data
-    obtain ⟨hpr, hqs⟩ := ordered_prime_product_injective hp hq hr hs hpqle hrsle hprod
+    obtain ⟨hpr, hqs⟩ := ordered_prime_product_injective hp hr hs hpqle hrsle hprod
     exact Prod.ext hpr hqs
 
 lemma inflow_eq_local_formula {N n : ℕ} (hn : 0 < n) (hscale : N < n ^ 4) :
@@ -1279,7 +1279,7 @@ noncomputable def innerPrimeMass (N n p : ℕ) : ℝ :=
   ∑ q ∈ (Finset.range (N + 1)).filter
     (fun q ↦ q.Prime ∧ p ≤ q ∧ n * p * q ≤ N), (q : ℝ)⁻¹
 
-lemma twoPrimeChildMass_eq_iterated (N : ℕ) {n : ℕ} (hn : 0 < n) :
+lemma twoPrimeChildMass_eq_iterated (N n : ℕ) :
     twoPrimeChildMass N n =
       ∑ p ∈ outerPrimeIndices N n, (p : ℝ)⁻¹ * innerPrimeMass N n p := by
   classical
@@ -1292,10 +1292,10 @@ lemma twoPrimeChildMass_eq_iterated (N : ℕ) {n : ℕ} (hn : 0 < n) :
     apply Finset.sum_congr rfl
     intro q hqN
     by_cases hq : q.Prime ∧ p ≤ q ∧ n * p * q ≤ N
-    · simp only [hp, hq, and_self, if_true, Nat.cast_mul, mul_inv]
+    · simp only [hq, and_self, if_true, mul_inv]
     · have hfalse : ¬(p.Prime ∧ q.Prime ∧ n < p ∧ p ≤ q ∧ n * p * q ≤ N) := by
         tauto
-      simp [hq, hfalse]
+      simp [hq]
   · have hfalse (q : ℕ) :
         ¬(p.Prime ∧ q.Prime ∧ n < p ∧ p ≤ q ∧ n * p * q ≤ N) := by
         tauto
@@ -1430,11 +1430,11 @@ lemma innerPrimeMass_eq_zero_of_lt {N n p : ℕ} (hN : N < n * p * p) :
     exact Nat.mul_le_mul_left (n * p) hpq
   omega
 
-lemma twoPrimeChildMass_eq_effective_iterated (N : ℕ) {n : ℕ} (hn : 0 < n) :
+lemma twoPrimeChildMass_eq_effective_iterated (N n : ℕ) :
     twoPrimeChildMass N n =
       ∑ p ∈ effectiveOuterPrimeIndices N n,
         (p : ℝ)⁻¹ * innerPrimeMass N n p := by
-  rw [twoPrimeChildMass_eq_iterated N hn]
+  rw [twoPrimeChildMass_eq_iterated N n]
   classical
   rw [effectiveOuterPrimeIndices, Finset.sum_filter]
   apply Finset.sum_congr rfl
@@ -1493,7 +1493,7 @@ lemma partial_summation_uniform_error (a : ℕ → ℝ)
     (hA : ∀ t ∈ Set.Icc (k : ℝ) x, HasDerivAt A (A' t) t)
     (hf' : ContinuousOn f' (Set.Icc (k : ℝ) x))
     (hA' : ContinuousOn A' (Set.Icc (k : ℝ) x))
-    (hfx : f x = 0) (hfk : 0 ≤ f k) (hη : 0 ≤ η)
+    (hfx : f x = 0)
     (hfnonpos : ∀ t ∈ Set.Icc (k : ℝ) x, f' t ≤ 0)
     (herr : ∀ t ∈ Set.Icc (k : ℝ) x,
       |summatory a k t - A t| ≤ η) :
@@ -1637,7 +1637,7 @@ lemma outerKernel_eq_innerLog {X n t : ℝ} (hX : X ≠ 0)
     outerKernel X n t =
       Real.log (Real.log (X / (n * t))) - Real.log (Real.log t) := by
   rw [outerKernel, Real.log_div hX (mul_ne_zero hn ht), Real.log_mul hn ht]
-  congr 2 <;> ring
+  congr 2; ring
 
 lemma hasDerivAt_outerKernel {X n t : ℝ} (ht : 1 < t)
     (hinner : 0 < Real.log X - Real.log n - Real.log t) :
@@ -1930,7 +1930,7 @@ lemma outerEndpoint_geometry {N n : ℕ} (hn : 1 < n)
     rw [← hBsq] at hdiv
     calc
       Real.log (N : ℝ) - Real.log (n : ℝ) = Real.log (B ^ 2) := hdiv.symm
-      _ = 2 * Real.log B := by simpa using hpow
+      _ = 2 * Real.log B := by simp [Real.log_pow]
   refine ⟨hNone, hnB_lt, ?_⟩
   simp only [logCoord]
   have hlogN : Real.log (N : ℝ) ≠ 0 := (Real.log_pos hNone).ne'
@@ -1941,7 +1941,7 @@ lemma effectiveOuter_reciprocal_sum_le_three {N n : ℕ} (hn : 1 < n)
     (hendpoint : ((n + 1 : ℕ) : ℝ) ≤ outerEndpoint N n)
     (hu : logCoord (N : ℝ) (n : ℝ) ∈
       Set.Icc ((1 : ℝ) / 4) (1 / 3))
-    {X ε : ℝ} (hε0 : 0 ≤ ε) (hε1 : ε ≤ 1)
+    {X ε : ℝ} (hε1 : ε ≤ 1)
     (hM : ∀ x : ℝ, X ≤ x → |primeReciprocalError x| ≤ ε)
     (hXn : X ≤ (n : ℝ)) :
     (∑ p ∈ effectiveOuterPrimeIndices N n, (p : ℝ)⁻¹) ≤ 3 := by
@@ -2260,11 +2260,11 @@ theorem harmonic_log_riemann {f : ℝ → ℝ} (hf : Continuous f) :
             _ < δ := hinvδ))
       _ = (ε / 8) * (a (k + 1) - a k) := by
         rw [abs_of_nonneg (sub_nonneg.mpr horder)]
-  have ha0 : a 0 = 0 := by simp [a, logCoord, hlogpos.ne']
+  have ha0 : a 0 = 0 := by simp [a, logCoord]
   have hNpos : 0 < N := by omega
   have haNmem : a N ∈ Set.Icc (0 : ℝ) 2 := by
     have hc := (logCoord_cells_in_unit_two hN3 (k := N - 1) (by omega)).2
-    convert hc using 1 <;> simp only [a] <;> congr 2 <;> norm_num <;> omega
+    convert hc using 1; simp only [a]; congr 2; norm_num; omega
   have hsumint :
       ∑ k ∈ Finset.range N, ∫ x in a k..a (k + 1), f x =
         ∫ x in a 0..a N, f x := by
@@ -2462,7 +2462,7 @@ lemma outerKernel_succ_bounds {N n : ℕ} (hn : 1 < n)
 the uniform Mertens remainder. -/
 lemma outerPrime_abel_error {N n : ℕ} (hn : 1 < n)
     (hendpoint : ((n + 1 : ℕ) : ℝ) ≤ outerEndpoint N n)
-    {X ε : ℝ} (hε : 0 ≤ ε)
+    {X ε : ℝ}
     (hM : ∀ x : ℝ, X ≤ x → |primeReciprocalError x| ≤ ε)
     (hXn : X ≤ (n : ℝ)) :
     |(∑ p ∈ effectiveOuterPrimeIndices N n,
@@ -2517,34 +2517,11 @@ lemma outerPrime_abel_error {N n : ℕ} (hn : 1 < n)
       rw [← hBsq] at hdiv
       calc
         Real.log (N : ℝ) - Real.log (n : ℝ) = Real.log (B ^ 2) := hdiv.symm
-        _ = 2 * Real.log B := by simpa using hpow
+        _ = 2 * Real.log B := by simp [Real.log_pow]
     simp only [outerKernel]
     rw [show Real.log (N : ℝ) - Real.log (n : ℝ) - Real.log B =
         Real.log B by linarith]
     ring
-  have hkernelK : 0 ≤ outerKernel (N : ℝ) (n : ℝ) (k : ℝ) := by
-    have hk1 : 1 < (k : ℝ) := hnR.trans hnk
-    have hlogk : 0 < Real.log (k : ℝ) := Real.log_pos hk1
-    have hlogBmono : Real.log (k : ℝ) ≤ Real.log B :=
-      Real.strictMonoOn_log.monotoneOn
-        (show (k : ℝ) ∈ Set.Ioi 0 by exact zero_lt_one.trans hk1)
-        (show B ∈ Set.Ioi 0 by exact hBpos) hendpoint
-    have hlogeq : Real.log (N : ℝ) - Real.log (n : ℝ) = 2 * Real.log B := by
-      have hdiv := Real.log_div (ne_of_gt hNR) (by positivity : (n : ℝ) ≠ 0)
-      have hpow := Real.log_pow B 2
-      rw [← hBsq] at hdiv
-      calc
-        Real.log (N : ℝ) - Real.log (n : ℝ) = Real.log (B ^ 2) := hdiv.symm
-        _ = 2 * Real.log B := by simpa using hpow
-    have harg : Real.log (k : ℝ) ≤
-        Real.log (N : ℝ) - Real.log (n : ℝ) - Real.log (k : ℝ) := by
-      linarith
-    have hargpos : 0 < Real.log (N : ℝ) - Real.log (n : ℝ) - Real.log (k : ℝ) :=
-      hlogk.trans_le harg
-    exact sub_nonneg.mpr (Real.strictMonoOn_log.monotoneOn
-      (show Real.log (k : ℝ) ∈ Set.Ioi 0 by exact hlogk)
-      (show Real.log (N : ℝ) - Real.log (n : ℝ) - Real.log (k : ℝ) ∈
-        Set.Ioi 0 by exact hargpos) harg)
   have hcontF' : ContinuousOn (outerKernelDeriv (N : ℝ) (n : ℝ))
       (Set.Icc (k : ℝ) B) := by
     intro t ht
@@ -2586,7 +2563,7 @@ lemma outerPrime_abel_error {N n : ℕ} (hn : 1 < n)
       (hnR.trans hnk |>.trans_le ht.1) (hinner t ht))
     (fun t ht ↦ hasDerivAt_logLogIncrement
       (hnR.trans hnk |>.trans_le ht.1))
-    hcontF' hcontA' hkernelB hkernelK (mul_nonneg (by norm_num) hε)
+    hcontF' hcontA' hkernelB
     (fun t ht ↦ outerKernelDeriv_nonpos
       (hnR.trans hnk |>.trans_le ht.1) (hinner t ht)) herr
   rw [effectiveOuter_sum_eq_summatory (N := N) (n := n) (by omega)]
@@ -2772,7 +2749,7 @@ lemma twoPrimeChildMass_profile_error {N n : ℕ} (hn : 1 < n)
   have hMle : ∀ x : ℝ, X ≤ x → |primeReciprocalError x| ≤ ε :=
     fun x hx ↦ (hM x hx).le
   have hsumrec : (∑ p ∈ E, (p : ℝ)⁻¹) ≤ 3 := by
-    exact effectiveOuter_reciprocal_sum_le_three hn hendpoint hu hε0 hε1 hMle hXn
+    exact effectiveOuter_reciprocal_sum_le_three hn hendpoint hu hε1 hMle hXn
   have hlocal : ∀ p ∈ E,
       |(p : ℝ)⁻¹ * innerPrimeMass N n p -
         ((p : ℝ)⁻¹ * outerKernel (N : ℝ) (n : ℝ) p + ((p : ℝ) ^ 2)⁻¹)| ≤
@@ -2811,7 +2788,7 @@ lemma twoPrimeChildMass_profile_error {N n : ℕ} (hn : 1 < n)
       _ ≤ (p : ℝ)⁻¹ * (2 * ε) :=
         mul_le_mul_of_nonneg_left hi.le hpinv
   have hmass : |twoPrimeChildMass N n - (S + D)| ≤ 6 * ε := by
-    rw [twoPrimeChildMass_eq_effective_iterated N (by omega)]
+    rw [twoPrimeChildMass_eq_effective_iterated N n]
     change |(∑ p ∈ E, (p : ℝ)⁻¹ * innerPrimeMass N n p) - (S + D)| ≤ _
     have heq :
         (∑ p ∈ E, (p : ℝ)⁻¹ * innerPrimeMass N n p) - (S + D) =
@@ -2841,7 +2818,7 @@ lemma twoPrimeChildMass_profile_error {N n : ℕ} (hn : 1 < n)
     exact Finset.sum_nonneg fun p hp ↦ by positivity
   have hD : D ≤ (n : ℝ)⁻¹ := effectiveOuter_square_sum_le (N := N) (n := n) (by omega)
   have habel : |S - (I + B)| ≤ 2 * ε := by
-    have h := outerPrime_abel_error hn hendpoint hε0 hMle hXn
+    have h := outerPrime_abel_error hn hendpoint hMle hXn
     have hk := (outerKernel_succ_bounds hn hendpoint hu).2
     calc
       |S - (I + B)| ≤ (2 * ε) * outerKernel (N : ℝ) (n : ℝ) (n + 1 : ℕ) := h
@@ -2883,7 +2860,7 @@ lemma twoPrimeChildMass_profile_error {N n : ℕ} (hn : 1 < n)
         |twoPrimeChildMass N n - (S + D)| + |(S + D) - twoPrimeProfile u| := htri
     _ ≤ 6 * ε + (|S - (I + B)| + |(I + B) - (twoPrimeProfile u - D)|) := by
       apply add_le_add hmass
-      convert htri2 using 1 <;> ring
+      convert htri2 using 1; ring
     _ ≤ 6 * ε + (2 * ε +
         (4 * (n : ℝ)⁻¹ + (n : ℝ)⁻¹ + (n : ℝ)⁻¹)) := by
       gcongr
@@ -2920,7 +2897,6 @@ lemma twoPrimeProfile_nonneg {u : ℝ}
   · exact le_rfl
 
 lemma profileIntegrand_anti_param {u v x : ℝ}
-    (hu : u ∈ Set.Icc ((1 : ℝ) / 4) (1 / 3))
     (hv : v ∈ Set.Icc ((1 : ℝ) / 4) (1 / 3)) (huv : u ≤ v)
     (hx : x ∈ Set.Icc v ((1 - v) / 2)) :
     x⁻¹ * Real.log ((1 - v - x) / x) ≤
@@ -2966,7 +2942,7 @@ lemma twoPrimeProfile_antitoneOn :
         apply ContinuousOn.intervalIntegrable
         simpa [Set.uIcc_of_le hvb] using hcontUsub
       exact intervalIntegral.integral_mono_on hvb hIntV hIntUsub (fun x hx ↦
-          profileIntegrand_anti_param hu hv huv hx)
+          profileIntegrand_anti_param hv huv hx)
     have h₂ :
         (∫ x in v..(1 - v) / 2, x⁻¹ * Real.log ((1 - u - x) / x)) ≤
           ∫ x in u..(1 - u) / 2, x⁻¹ * Real.log ((1 - u - x) / x) := by
@@ -3491,7 +3467,7 @@ lemma sq_le_of_logCoord_le_half {N n : ℕ} (hN : 1 < N) (hn : 0 < n)
     nlinarith
   have hexp := Real.exp_le_exp.mpr hlogs
   have hpow : Real.log ((n : ℝ) ^ 2) = 2 * Real.log (n : ℝ) := by
-    simpa using Real.log_pow (n : ℝ) 2
+    simp [Real.log_pow]
   rw [← hpow, Real.exp_log (by positivity : 0 < (n : ℝ) ^ 2),
     Real.exp_log hNR] at hexp
   exact_mod_cast hexp
@@ -3508,7 +3484,7 @@ lemma lt_fourth_of_quarter_lt_logCoord {N n : ℕ} (hN : 1 < N) (hn : 0 < n)
     nlinarith
   have hexp := Real.exp_lt_exp.mpr hlogs
   have hpow : Real.log ((n : ℝ) ^ 4) = 4 * Real.log (n : ℝ) := by
-    simpa using Real.log_pow (n : ℝ) 4
+    simp [Real.log_pow]
   rw [← hpow, Real.exp_log hNR,
     Real.exp_log (by positivity : 0 < (n : ℝ) ^ 4)] at hexp
   exact_mod_cast hexp
@@ -3525,7 +3501,7 @@ lemma le_cube_of_third_le_logCoord {N n : ℕ} (hN : 1 < N) (hn : 0 < n)
     nlinarith
   have hexp := Real.exp_le_exp.mpr hlogs
   have hpow : Real.log ((n : ℝ) ^ 3) = 3 * Real.log (n : ℝ) := by
-    simpa using Real.log_pow (n : ℝ) 3
+    simp [Real.log_pow]
   rw [← hpow, Real.exp_log hNR,
     Real.exp_log (by positivity : 0 < (n : ℝ) ^ 3)] at hexp
   exact_mod_cast hexp
@@ -3564,14 +3540,14 @@ lemma inflow_eq_zero_of_half_lt_logCoord {N n : ℕ} (hN : 1 < N)
     nlinarith
   have hexp := Real.exp_lt_exp.mpr hlogs
   have hpow : Real.log ((n : ℝ) ^ 2) = 2 * Real.log (n : ℝ) := by
-    simpa using Real.log_pow (n : ℝ) 2
+    simp [Real.log_pow]
   rw [← hpow, Real.exp_log hNR,
     Real.exp_log (by positivity : 0 < (n : ℝ) ^ 2)] at hexp
   have hnat : N < n ^ 2 := by exact_mod_cast hexp
   simpa [pow_two] using hnat
 
 lemma outerEndpoint_ge_succ_of_logCoord_gap {N n : ℕ} {ρ : ℝ}
-    (hN : 1 < N) (hn : 0 < n) (hρ : 0 < ρ)
+    (hN : 1 < N) (hn : 0 < n)
     (hu : logCoord (N : ℝ) (n : ℝ) ≤ (1 : ℝ) / 3 - ρ)
     (hlarge : Real.log 4 ≤ 3 * ρ * Real.log (N : ℝ)) :
     ((n + 1 : ℕ) : ℝ) ≤ outerEndpoint N n := by
@@ -3586,7 +3562,7 @@ lemma outerEndpoint_ge_succ_of_logCoord_gap {N n : ℕ} {ρ : ℝ}
   have hlogs : Real.log 4 + 3 * Real.log (n : ℝ) ≤ Real.log (N : ℝ) := by
     nlinarith
   have hpow : Real.log ((n : ℝ) ^ 3) = 3 * Real.log (n : ℝ) := by
-    simpa using Real.log_pow (n : ℝ) 3
+    simp [Real.log_pow]
   have hprod : Real.log (4 * (n : ℝ) ^ 3) =
       Real.log 4 + 3 * Real.log (n : ℝ) := by
     rw [Real.log_mul (by norm_num : (4 : ℝ) ≠ 0) (by positivity), hpow]
@@ -3607,7 +3583,7 @@ lemma outerEndpoint_ge_succ_of_logCoord_gap {N n : ℕ} {ρ : ℝ}
 noncomputable def outerPrimeMass (N n : ℕ) : ℝ :=
   ∑ p ∈ outerPrimeIndices N n, (p : ℝ)⁻¹
 
-lemma outerPrimeIndices_eq_Ioc {N n : ℕ} (hnN : n ≤ N) :
+lemma outerPrimeIndices_eq_Ioc {N n : ℕ} :
     outerPrimeIndices N n = (Finset.Ioc n N).filter Nat.Prime := by
   classical
   ext p
@@ -3620,7 +3596,7 @@ lemma outerPrimeIndices_eq_Ioc {N n : ℕ} (hnN : n ≤ N) :
 
 lemma outerPrimeMass_eq_sub {N n : ℕ} (hnN : n ≤ N) :
     outerPrimeMass N n = primeReciprocalNat N - primeReciprocalNat n := by
-  rw [outerPrimeMass, outerPrimeIndices_eq_Ioc hnN]
+  rw [outerPrimeMass, outerPrimeIndices_eq_Ioc]
   exact primeReciprocal_Ioc_eq_sub hnN
 
 lemma primeChildMass_le_outerPrimeMass {N n : ℕ} :
@@ -3647,9 +3623,9 @@ lemma innerPrimeMass_le_outerPrimeMass {N n p : ℕ}
   · intro q hq hnot
     positivity
 
-lemma twoPrimeChildMass_le_outerPrimeMass_sq {N n : ℕ} (hn : 0 < n) :
+lemma twoPrimeChildMass_le_outerPrimeMass_sq {N n : ℕ} :
     twoPrimeChildMass N n ≤ (outerPrimeMass N n) ^ 2 := by
-  rw [twoPrimeChildMass_eq_iterated N hn]
+  rw [twoPrimeChildMass_eq_iterated N n]
   have hmass0 : 0 ≤ outerPrimeMass N n := by
     exact Finset.sum_nonneg fun p hp ↦ by positivity
   calc
@@ -3700,14 +3676,13 @@ lemma outerPrimeMass_le_four {N n : ℕ} (hN : 1 < N) (hn : 1 < n)
 lemma local_divergence_abs_le_twenty_one {N n : ℕ} (hN : 1 < N) (hn : 1 < n)
     (hnN : n ≤ N)
     (huq : (1 : ℝ) / 4 < logCoord (N : ℝ) (n : ℝ))
-    (huh : logCoord (N : ℝ) (n : ℝ) ≤ (1 : ℝ) / 2)
     {X : ℝ} (hM : ∀ x : ℝ, X ≤ x → |primeReciprocalError x| ≤ 1)
     (hXn : X ≤ (n : ℝ)) :
     |divergence N n| ≤ 21 * weight n := by
   have hscale := lt_fourth_of_quarter_lt_logCoord hN (by omega) huq
   have hP := primeChildMass_le_outerPrimeMass (N := N) (n := n)
   have hO := outerPrimeMass_le_four hN hn hnN huq.le hM hXn
-  have hQ := twoPrimeChildMass_le_outerPrimeMass_sq (N := N) (n := n) (by omega)
+  have hQ := twoPrimeChildMass_le_outerPrimeMass_sq (N := N) (n := n)
   have hP0 : 0 ≤ primeChildMass N n := Finset.sum_nonneg fun p hp ↦ by positivity
   have hQ0 : 0 ≤ twoPrimeChildMass N n := Finset.sum_nonneg fun p hp ↦ by positivity
   have hO0 : 0 ≤ outerPrimeMass N n := Finset.sum_nonneg fun p hp ↦ by positivity
@@ -3791,7 +3766,7 @@ lemma base_beta_le_of_logCoord_le_beta {N n : ℕ} (hN : 1 < N) (hn : 1 < n)
 
 lemma low_divergence_nonpos {N n : ℕ} (hN : 1 < N) (hn : 1 < n)
     (hu : logCoord (N : ℝ) (n : ℝ) ≤ beta)
-    {X ε : ℝ} (hε : 0 < ε)
+    {X ε : ℝ}
     (hmargin : 2 * ε < Real.log ((1 - beta) / beta) - 1)
     (hM : ∀ x : ℝ, X ≤ x → |primeReciprocalError x| < ε)
     (hXn : X ≤ (n : ℝ)) :
@@ -4024,7 +3999,7 @@ lemma junctionBump_le_one {ρ u : ℝ} (hρ : 0 < ρ) : junctionBump ρ u ≤ 1 
     linarith
   · norm_num
 
-lemma junctionBump_eq_one {ρ u : ℝ} (hρ : 0 < ρ)
+lemma junctionBump_eq_one {ρ u : ℝ}
     (hu : |u - (1 : ℝ) / 3| ≤ ρ) : junctionBump ρ u = 1 := by
   have hz : max (|u - (1 : ℝ) / 3| - ρ) 0 = 0 := by
     rw [max_eq_right]
@@ -4152,7 +4127,7 @@ lemma positive_pointwise_comparison {N n J : ℕ} {X η ρ : ℝ}
   have hw : 0 ≤ weight n := by unfold weight; positivity
   have hb0 : 0 ≤ junctionBump ρ u := junctionBump_nonneg ρ u
   by_cases hub : u ≤ beta
-  · have hd := low_divergence_nonpos hN hn hub hη hmargin hM hXn
+  · have hd := low_divergence_nonpos hN hn hub hmargin hM hXn
     have hf : frontierDensity u = 0 := frontierDensity_eq_zero (hub.trans beta_lt_alphaTwo.le)
     rw [max_eq_right hd, hf, mul_zero, sub_zero, abs_zero]
     exact mul_nonneg hw (by positivity)
@@ -4160,7 +4135,7 @@ lemma positive_pointwise_comparison {N n J : ℕ} {X η ρ : ℝ}
     have huq : (1 : ℝ) / 4 < u := beta_bounds.1.trans hbu
     by_cases hleft : u < (1 : ℝ) / 3 - ρ
     · have hut : u < (1 : ℝ) / 3 := by linarith
-      have hep := outerEndpoint_ge_succ_of_logCoord_gap hN hnpos hρ hleft.le hlarge
+      have hep := outerEndpoint_ge_succ_of_logCoord_gap hN hnpos hleft.le hlarge
       have herr := local_divergence_profile_error_lower hN hn hlogN hlogn huq hut hep
         hη.le hη1 hM hXn
       have htarget := weighted_frontierDensity_eq_max (n := n)
@@ -4194,12 +4169,12 @@ lemma positive_pointwise_comparison {N n J : ℕ} {X η ρ : ℝ}
           rw [divergence_eq_weight_of_half_le_logCoord hN hnpos huh',
             frontierDensity_eq_one huh']
           rw [max_eq_left hw]
-          simp
+          simp only [mul_one, sub_self, abs_zero, ge_iff_le]
           exact mul_nonneg hw (add_nonneg (by positivity) (mul_nonneg (by norm_num) hb0))
       · have hut' : u < (1 : ℝ) / 3 := lt_of_not_ge hut
         have hbandlo : (1 : ℝ) / 3 - ρ ≤ u := le_of_not_gt hleft
         have hbump : junctionBump ρ u = 1 := by
-          apply junctionBump_eq_one hρ
+          apply junctionBump_eq_one
           rw [abs_of_nonpos (sub_nonpos.mpr hut'.le)]
           linarith
         have hmd0 := max_divergence_nonneg N n
@@ -4239,7 +4214,7 @@ lemma raw_pointwise_comparison {N n J : ℕ} {X η ρ : ℝ}
   have hb0 : 0 ≤ junctionBump ρ u := junctionBump_nonneg ρ u
   by_cases hleft : u < (1 : ℝ) / 3 - ρ
   · have hut : u < (1 : ℝ) / 3 := by linarith
-    have hep := outerEndpoint_ge_succ_of_logCoord_gap hN hnpos hρ hleft.le hlarge
+    have hep := outerEndpoint_ge_succ_of_logCoord_gap hN hnpos hleft.le hlarge
     have herr := local_divergence_profile_error_lower hN hn hlogN hlogn huq hut hep
       hη.le hη1 hM hXn
     have htarget := weighted_frontierDensity_eq_max (n := n)
@@ -4268,19 +4243,19 @@ lemma raw_pointwise_comparison {N n J : ℕ} {X η ρ : ℝ}
       · have huh' : (1 : ℝ) / 2 ≤ u := le_of_not_ge huh
         rw [divergence_eq_weight_of_half_le_logCoord hN hnpos huh',
           frontierDensity_eq_one huh']
-        simp
+        simp only [mul_one, sub_self, abs_zero, ge_iff_le]
         exact mul_nonneg hw (by positivity)
     · have hut' : u < (1 : ℝ) / 3 := lt_of_not_ge hut
       have hbandlo : (1 : ℝ) / 3 - ρ ≤ u := le_of_not_gt hleft
       have hbump : junctionBump ρ u = 1 := by
-        apply junctionBump_eq_one hρ
+        apply junctionBump_eq_one
         rw [abs_of_nonpos (sub_nonpos.mpr hut'.le)]
         linarith
       have hM1 : ∀ x : ℝ, X ≤ x → |primeReciprocalError x| ≤ 1 := by
         intro x hx
         exact (hM x hx).le.trans hη1
       have hdabs := local_divergence_abs_le_twenty_one hN hn
-        (Finset.mem_Icc.mp hnN).2 huq (hut'.le.trans (by norm_num)) hM1 hXn
+        (Finset.mem_Icc.mp hnN).2 huq hM1 hXn
       have ht0 : 0 ≤ weight n * frontierDensity u :=
         mul_nonneg hw (frontierDensity_nonneg u)
       have htw : weight n * frontierDensity u ≤ weight n := by
@@ -4402,7 +4377,7 @@ lemma positive_normalized_error_bound {N J : ℕ} {X η ρ : ℝ}
         apply Finset.sum_le_sum
         intro n hn
         by_cases hnj : n < J
-        · simp only [hnj, if_true, add_zero]
+        · simp only [hnj, if_true]
           exact le_add_of_nonneg_right (by
             dsimp [L]
             exact mul_nonneg (by unfold weight; positivity)
