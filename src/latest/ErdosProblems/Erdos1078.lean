@@ -121,10 +121,11 @@ def EdgeMinimalWithoutTransversal {I : Type u} {V : Type v} (G : SimpleGraph V)
 
 /-- Every finite counterexample has an edge-minimal spanning counterexample. -/
 lemma exists_edgeMinimal_le {I : Type u} {V : Type v}
-    [Fintype V] [DecidableEq V] (G : SimpleGraph V) (color : V → I)
+    [Finite V] (G : SimpleGraph V) (color : V → I)
     (hG : ¬HasIndependentTransversal G color) :
     ∃ H : SimpleGraph V, H ≤ G ∧ EdgeMinimalWithoutTransversal H color := by
   classical
+  let _ := Fintype.ofFinite V
   let candidates : Finset (SimpleGraph V) :=
     Finset.univ.filter fun H ↦ H ≤ G ∧ ¬HasIndependentTransversal H color
   have hcandidates : candidates.Nonempty := by
@@ -187,25 +188,27 @@ lemma isIndependentTransversal_extendPartial {I : Type u} {V : Type v}
 
 /-- In a graph with no full transversal, a vertex in the missing color must
 meet the fixed partial transversal. -/
-lemma exists_adj_partial {I : Type u} {V : Type v} [DecidableEq I]
+lemma exists_adj_partial {I : Type u} {V : Type v}
     {G : SimpleGraph V} {color : V → I} {root : I} {x : V}
     {f : {i : I // i ≠ root} → V}
     (hf : IsPartialTransversalExcept G color root f)
     (hxcolor : color x = root) (hno : ¬HasIndependentTransversal G color) :
     ∃ i, G.Adj x (f i) := by
+  classical
   by_contra h
-  push_neg at h
+  push Not at h
   exact hno ⟨extendPartial root x f,
     isIndependentTransversal_extendPartial hf hxcolor h⟩
 
 /-- A transversal created by deleting one edge from a counterexample has to
 contain both endpoints of that edge. -/
 lemma deletedEdge_endpoints {I : Type u} {V : Type v}
-    [DecidableEq I] {G : SimpleGraph V} {color : V → I} {x y : V}
-    (hno : ¬HasIndependentTransversal G color) (hxy : G.Adj x y)
+    {G : SimpleGraph V} {color : V → I} {x y : V}
+    (hno : ¬HasIndependentTransversal G color)
     {g : I → V}
     (hg : IsIndependentTransversal (G.deleteEdges {s(x, y)}) color g) :
     g (color x) = x ∧ g (color y) = y := by
+  classical
   have hpair : ∃ i j, i ≠ j ∧ G.Adj (g i) (g j) := by
     by_contra h
     apply hno
@@ -244,12 +247,13 @@ lemma deletedEdge_endpoints {I : Type u} {V : Type v}
 /-- Every other vertex of a transversal in `G - xy` avoids both endpoints
 already in `G`. -/
 lemma deletedTransversal_avoids_endpoints {I : Type u} {V : Type v}
-    [DecidableEq I] {G : SimpleGraph V} {color : V → I} {x y : V}
+    {G : SimpleGraph V} {color : V → I} {x y : V}
     (hxy : G.Adj x y) {g : I → V}
     (hg : IsIndependentTransversal (G.deleteEdges {s(x, y)}) color g)
     (hend : g (color x) = x ∧ g (color y) = y)
     {i : I} (hix : i ≠ color x) (hiy : i ≠ color y) :
     ¬G.Adj x (g i) ∧ ¬G.Adj y (g i) := by
+  classical
   have hxyne : x ≠ y := hxy.ne
   constructor
   · intro hadj
@@ -284,13 +288,13 @@ lemma deletedTransversal_avoids_endpoints {I : Type u} {V : Type v}
 /-- Two selected vertices whose colors are different from both endpoint
 colors are already nonadjacent before the edge deletion. -/
 lemma deletedTransversal_other_pair {I : Type u} {V : Type v}
-    [DecidableEq I] {G : SimpleGraph V} {color : V → I} {x y : V}
+    {G : SimpleGraph V} {color : V → I} {x y : V}
     {g : I → V}
     (hg : IsIndependentTransversal (G.deleteEdges {s(x, y)}) color g)
     {i j : I} (hij : i ≠ j)
-    (hix : i ≠ color x) (hiy : i ≠ color y)
-    (hjx : j ≠ color x) (hjy : j ≠ color y) :
+    (hix : i ≠ color x) (hiy : i ≠ color y) :
     ¬G.Adj (g i) (g j) := by
+  classical
   intro hadj
   have hne : s(g i, g j) ≠ s(x, y) := by
     intro heq
@@ -366,8 +370,8 @@ def reducedGraph {I : Type u} {V : Type v} [Fintype V] [DecidableEq V]
     SimpleGraph (SurvivingVertices G x y) where
   Adj z w := G.Adj z.1 w.1 ∧
     mergedColor color root b hrootb z.1 ≠ mergedColor color root b hrootb w.1
-  symm.symm z w h := ⟨h.1.symm, h.2.symm⟩
-  loopless.irrefl z h := G.loopless.irrefl z.1 h.1
+  symm.symm _ _ h := ⟨h.1.symm, h.2.symm⟩
+  loopless.irrefl _ h := G.loopless.irrefl _ h.1
 
 lemma reducedGraph_isPartite {I : Type u} {V : Type v}
     [Fintype V] [DecidableEq V] [DecidableEq I]
@@ -490,7 +494,7 @@ lemma hasIndependentTransversal_of_reduced {I : Type u} {V : Type v}
 /-- Rooted form of Haxell's domination certificate.  The supplied partial
 transversal meets every color except `root`. -/
 theorem rooted_domination_certificate {I : Type u} {V : Type v}
-    [Fintype I] [DecidableEq I] [Fintype V] [DecidableEq V]
+    [Finite I] [Finite V]
     (G : SimpleGraph V) (color : V → I) (root : I)
     (hpart : IsPartite G color) (hroot : ∃ x, color x = root)
     (f : {i : I // i ≠ root} → V)
@@ -499,6 +503,8 @@ theorem rooted_domination_certificate {I : Type u} {V : Type v}
     ∃ (S : Finset I) (D : Finset V),
       root ∈ S ∧ D.card ≤ 2 * (S.card - 1) ∧ DominatesColors G color D S := by
   classical
+  let _ := Fintype.ofFinite I
+  let _ := Fintype.ofFinite V
   obtain ⟨F, hFG, hFmin⟩ := exists_edgeMinimal_le G color hno
   have hFpart : IsPartite F color := fun _ _ h ↦ hpart (hFG h)
   have hfF : IsPartialTransversalExcept F color root f := hf.mono hFG
@@ -511,7 +517,7 @@ theorem rooted_domination_certificate {I : Type u} {V : Type v}
     exact j.2.symm
   have hxy : F.Adj x y := by simpa [y] using hxj
   obtain ⟨g, hg⟩ := hFmin.2 hxy
-  have hend := deletedEdge_endpoints hFmin.1 hxy hg
+  have hend := deletedEdge_endpoints hFmin.1 hg
   have hend' : g root = x ∧ g (color y) = y := by
     simpa [hxcolor] using hend
   let root' : ReducedColor I (color y) := ⟨root, hrootb⟩
@@ -559,8 +565,7 @@ theorem rooted_domination_certificate {I : Type u} {V : Type v}
           exact heq
         intro hadj
         exact deletedTransversal_other_pair hg hikold
-          (by simpa [hxcolor] using hiroot) i.1.2
-          (by simpa [hxcolor] using hkroot) k.1.2 hadj.1
+          (by simpa [hxcolor] using hiroot) i.1.2 hadj.1
     have hKpart : IsPartite K c' := by
       exact reducedGraph_isPartite F color root (color y) hrootb x y
     have hKno : ¬HasIndependentTransversal K c' := by
@@ -645,16 +650,19 @@ theorem rooted_domination_certificate {I : Type u} {V : Type v}
         exact (mem_neighbors F x z).mp hzx
       · refine ⟨y, by simp, hFG ?_⟩
         exact (mem_neighbors F y z).mp hzy
-termination_by Fintype.card I
+termination_by Nat.card I
 decreasing_by
+  classical
+  let _ := Fintype.ofFinite I
   have hcardpos : 0 < Fintype.card I := Fintype.card_pos_iff.mpr ⟨root⟩
-  simpa [ReducedColor] using Nat.sub_lt hcardpos (by omega : 0 < 1)
+  simpa [Nat.card_eq_fintype_card, ReducedColor] using
+    Nat.sub_lt hcardpos (by omega : 0 < 1)
 
 /-- Haxell's domination certificate: if a finite vertex-partitioned graph has
 no independent transversal, some nonempty collection of colors is totally
 dominated by at most twice one less than its number of colors. -/
 theorem domination_certificate {I : Type u} {V : Type v}
-    [Fintype I] [DecidableEq I] [Fintype V] [DecidableEq V]
+    [Finite I] [Finite V]
     (G : SimpleGraph V) (color : V → I)
     (hpart : IsPartite G color) (hsurj : ∀ i, ∃ x, color x = i)
     (hno : ¬HasIndependentTransversal G color) :
@@ -665,7 +673,7 @@ theorem domination_certificate {I : Type u} {V : Type v}
   have hFpart : IsPartite F color := fun _ _ h ↦ hpart (hFG h)
   have hedge : ∃ x y, F.Adj x y := by
     by_contra h
-    push_neg at h
+    push Not at h
     choose q hq using hsurj
     apply hFmin.1
     refine ⟨q, hq, ?_⟩
@@ -673,7 +681,7 @@ theorem domination_certificate {I : Type u} {V : Type v}
     exact h (q i) (q j)
   obtain ⟨x, y, hxy⟩ := hedge
   obtain ⟨g, hg⟩ := hFmin.2 hxy
-  have hend := deletedEdge_endpoints hFmin.1 hxy hg
+  have hend := deletedEdge_endpoints hFmin.1 hg
   let root := color x
   let f : {i : I // i ≠ root} → V := fun i ↦ g i.1
   have hf : IsPartialTransversalExcept F color root f := by
@@ -695,8 +703,7 @@ theorem domination_certificate {I : Type u} {V : Type v}
         · have hav := deletedTransversal_avoids_endpoints hxy hg hend
             i.2 hiy
           simpa [f, hjy, hend.2, F.adj_comm] using hav.2
-        · simpa [f] using deletedTransversal_other_pair hg hijold
-            i.2 hiy j.2 hjy
+        · simpa [f] using deletedTransversal_other_pair hg hijold i.2 hiy
   obtain ⟨S, D, hrootS, hDcard, hdom⟩ :=
     rooted_domination_certificate F color root hFpart
       ⟨x, rfl⟩ f hf hFmin.1
@@ -708,7 +715,7 @@ theorem domination_certificate {I : Type u} {V : Type v}
 /-- Counting the vertices in dominated color classes by the neighborhoods of
 their dominators. -/
 lemma card_colors_mul_le_sum_degree {I : Type u} {V : Type v}
-    [Fintype I] [DecidableEq I] [Fintype V] [DecidableEq V]
+    [DecidableEq I] [Fintype V]
     (G : SimpleGraph V) (color : V → I) (n : ℕ)
     (hsize : ∀ i, (Finset.univ.filter fun x ↦ color x = i).card = n)
     {S : Finset I} {D : Finset V} (hdom : DominatesColors G color D S) :
@@ -743,9 +750,9 @@ lemma card_colors_mul_le_sum_degree {I : Type u} {V : Type v}
 independent transversal below the `r / (2(r-1))` maximum-degree threshold. -/
 theorem hasIndependentTransversal_of_degree_bound
     {I : Type u} {V : Type v}
-    [Fintype I] [DecidableEq I] [Fintype V] [DecidableEq V]
+    [Fintype I] [DecidableEq I] [Fintype V]
     (G : SimpleGraph V) (color : V → I) (n : ℕ)
-    (hI : 2 ≤ Fintype.card I) (hn : 0 < n)
+    (_hI : 2 ≤ Fintype.card I) (hn : 0 < n)
     (hpart : IsPartite G color)
     (hsize : ∀ i, (Finset.univ.filter fun x ↦ color x = i).card = n)
     (hdegree : ∀ x, 2 * (Fintype.card I - 1) * graphDegree G x < Fintype.card I * n) :
@@ -815,8 +822,8 @@ and such a pair is an edge exactly when it is absent from `G`. -/
 def multipartiteComplement {r n : ℕ} (G : SimpleGraph (Fin r × Fin n)) :
     SimpleGraph (Fin r × Fin n) where
   Adj x y := x.1 ≠ y.1 ∧ ¬G.Adj x y
-  symm.symm x y h := ⟨h.1.symm, fun hyx ↦ h.2 hyx.symm⟩
-  loopless.irrefl x h := h.1 rfl
+  symm.symm _ _ h := ⟨h.1.symm, fun hyx ↦ h.2 hyx.symm⟩
+  loopless.irrefl _ h := h.1 rfl
 
 lemma multipartiteComplement_isPartite {r n : ℕ}
     (G : SimpleGraph (Fin r × Fin n)) :
@@ -853,7 +860,8 @@ lemma colorFiber_card (r n : ℕ) (i : Fin r) :
         ({i} : Finset (Fin r)) ×ˢ (Finset.univ : Finset (Fin n)) := by
     ext x
     rcases x with ⟨j, a⟩
-    simp
+    simp only [mem_filter, mem_univ, true_and, singleton_product, mem_map,
+      Function.Embedding.coeFn_mk, Prod.mk.injEq, exists_eq_right]
     exact eq_comm
   rw [heq, card_product]
   simp
