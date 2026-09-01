@@ -18,9 +18,9 @@ attribute [local instance] Classical.propDecidable
 def scaleDenominators (t : ℕ) (B : Finset ℕ) : Finset ℕ :=
   B.image fun n ↦ t * n
 
-@[simp] lemma mem_scaleDenominators {t n : ℕ} {B : Finset ℕ}
-    (ht : 0 < t) : n ∈ scaleDenominators t B ↔ ∃ b ∈ B, t * b = n := by
-  simp [scaleDenominators, and_assoc]
+@[simp] lemma mem_scaleDenominators {t n : ℕ} {B : Finset ℕ} :
+    n ∈ scaleDenominators t B ↔ ∃ b ∈ B, t * b = n := by
+  simp [scaleDenominators]
 
 lemma rec_sum_scaleDenominators {t : ℕ} (ht : 0 < t) (B : Finset ℕ) :
     UnitFractions.rec_sum (scaleDenominators t B) =
@@ -85,11 +85,11 @@ theorem represents_of_glued_subsums
   let A := {t} ∪ D ∪ C
   have hDN : ∀ n ∈ D, n ≤ N / 1000 := by
     intro n hn
-    obtain ⟨b, hb, rfl⟩ := (mem_scaleDenominators (B := B) htpos).mp hn
+    obtain ⟨b, hb, rfl⟩ := (mem_scaleDenominators (B := B)).mp hn
     exact (Nat.mul_le_mul_left t (hBbounds b (hBX hb)).2).trans htX
   have hDt : ∀ n ∈ D, t < n := by
     intro n hn
-    obtain ⟨b, hb, rfl⟩ := (mem_scaleDenominators (B := B) htpos).mp hn
+    obtain ⟨b, hb, rfl⟩ := (mem_scaleDenominators (B := B)).mp hn
     nlinarith [hBbounds b (hBX hb)]
   have hCt : ∀ n ∈ C, t < n := by
     intro n hn

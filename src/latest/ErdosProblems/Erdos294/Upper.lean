@@ -40,7 +40,7 @@ def primeQuotients (A : Finset ℕ) (t : ℕ) : Finset ℕ :=
       ∃ n ∈ A, t ∣ n ∧ n / t = r := by
   simp [primeQuotients, and_assoc]
 
-lemma div_injective_on_multiples {t a b : ℕ} (ht : 0 < t)
+lemma div_injective_on_multiples {t a b : ℕ}
     (ha : t ∣ a) (hb : t ∣ b) (hdiv : a / t = b / t) : a = b := by
   calc
     a = a / t * t := (Nat.div_mul_cancel ha).symm
@@ -82,7 +82,7 @@ lemma prime_sq_not_dvd_lcm {N t : ℕ} {A : Finset ℕ}
 /-- Finite prime obstruction.  The numerical hypothesis is exactly the one
 needed after bounding the LCM of all possible quotients `n / t`. -/
 theorem not_represents_of_prime
-    {N t : ℕ} (ht : t.Prime) (htN : t ≤ N) (hNtSq : N < t ^ 2)
+    {N t : ℕ} (ht : t.Prime) (hNtSq : N < t ^ 2)
     (hsmall : (N / t) * initialLcm (N / t) < t) :
     ¬ Erdos294.Represents N t := by
   rintro ⟨htpos, A, htA, hbounds, hsum⟩
@@ -96,7 +96,6 @@ theorem not_represents_of_prime
   let B : Finset ℕ := primeQuotients A t
   let L : ℕ := B.lcm id
   let s : ℕ := ∑ r ∈ B, L / r
-
   have htD : t ∣ D := by
     exact Finset.dvd_lcm htA
   have hD_eq : D = t * d := by
@@ -119,7 +118,6 @@ theorem not_represents_of_prime
     refine ⟨a, ?_⟩
     rw [pow_two, hD_eq, ha]
     ring
-
   have hBsub : B ⊆ Finset.Icc 1 (N / t) := by
     intro r hr
     obtain ⟨n, hnA, htn, rfl⟩ := mem_primeQuotients.mp hr
@@ -163,7 +161,6 @@ theorem not_represents_of_prime
   have hBcard : B.card ≤ N / t := by
     have := Finset.card_le_card hBsub
     simpa using this
-
   have hspos : 0 < s := by
     have hterm : 0 < L / 1 := by simpa using hLpos
     dsimp [s]
@@ -179,7 +176,6 @@ theorem not_represents_of_prime
       _ ≤ (N / t) * initialLcm (N / t) :=
         Nat.mul_le_mul hBcard hLle
   have hst : s < t := hsle.trans_lt hsmall
-
   have hscaled : scaledNumerator A A = D := by
     have hrec := rec_sum_eq_scaledNumerator_div hA0 (fun _ h ↦ h)
     rw [hsum] at hrec
@@ -209,7 +205,7 @@ theorem not_represents_of_prime
         ∑ r ∈ B, d / r := by
     have hinj : Set.InjOn (fun n ↦ n / t) ↑(A.filter fun n ↦ t ∣ n) := by
       intro a ha b hb hab
-      exact div_injective_on_multiples ht0
+      exact div_injective_on_multiples
         (Finset.mem_filter.mp ha).2 (Finset.mem_filter.mp hb).2 hab
     calc
       (∑ n ∈ A.filter (fun n ↦ t ∣ n), D / n) =
@@ -401,7 +397,7 @@ theorem eventually_firstForbidden_le_upper :
     exact hqL.trans_lt (hlogSqrtN.trans hmtR)
   have hsmall : q * initialLcm q < t := by exact_mod_cast hsmallR
   have hnrep : ¬ Erdos294.Represents N t :=
-    not_represents_of_prime ht htN hNtSq (by simpa [q] using hsmall)
+    not_represents_of_prime ht hNtSq (by simpa [q] using hsmall)
   have hfirst : Erdos294.firstForbidden N ≤ t :=
     Nat.find_min' (Erdos294.exists_positive_not_represents N)
       ⟨ht.one_le, hnrep⟩
@@ -409,7 +405,8 @@ theorem eventually_firstForbidden_le_upper :
     (Erdos294.firstForbidden N : ℝ) ≤ (t : ℝ) := by exact_mod_cast hfirst
     _ ≤ C * Erdos294.upperProfile N := by
       dsimp [C, Erdos294.upperProfile, x]
-      convert htUpper using 1 <;> ring
+      convert htUpper using 1
+      all_goals ring
 
 end
 

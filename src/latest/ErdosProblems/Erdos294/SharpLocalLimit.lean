@@ -35,7 +35,7 @@ theorem eventually_prescribed_exactReciprocalMass :
   intro p z hpLower hpUpper hmean
   let I := sharpGoodSet N
   let Q := activeLcm I
-  letI : NeZero Q := ⟨activeLcm_ne_zero I⟩
+  let _ : NeZero Q := ⟨activeLcm_ne_zero I⟩
   have hI : I ⊆ goodDenominators N (sharpM N) (sharpS N) := by
     simp [I, sharpGoodSet]
   have hIcc : I ⊆ Icc (sharpM N) N :=

@@ -41,7 +41,7 @@ lemma eventually_goodSet_subset_oldHigh_union_initial :
   · exact mem_union_left _ (mem_inter.mpr ⟨hn,
       mem_Icc.mpr ⟨hlow, (mem_goodDenominators.mp hn).2.1⟩⟩)
   · exact mem_union_right _ (mem_Ico.mpr ⟨by
-      simpa [goodSet, sourceGoodDenominators] using hpos n hn, Nat.lt_of_not_ge hlow⟩)
+      exact (hpos n hn).le, Nat.lt_of_not_ge hlow⟩)
 
 /-- At most the first `N/100` source denominators are discarded. -/
 theorem eventually_sharpGoodSet_card_ge :

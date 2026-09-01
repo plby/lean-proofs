@@ -111,7 +111,7 @@ lemma central_cubic_power_bound
     {x m h a : ℝ} (hx : 1 ≤ x)
     (hm : x ^ ((19 : ℝ) / 20) ≤ m)
     (hh : 0 ≤ h) (hH : h ≤ x ^ ((3 : ℝ) / 5))
-    (ha0 : 0 ≤ a) (ha : a ≤ x) :
+    (ha : a ≤ x) :
     2 * a * (2 * Real.pi * h / m) ^ 3 ≤
       16 * Real.pi ^ 3 * x ^ (-((1 : ℝ) / 20)) := by
   have hx0 : 0 ≤ x := zero_le_one.trans hx
@@ -265,7 +265,7 @@ private theorem eventually_central_budgets :
         norm_num
       _ ≤ (Erdos297.M N : ℝ) := hMlower
   · exact (central_cubic_power_bound hx hMlower (Nat.cast_nonneg _)
-      hcut (Nat.cast_nonneg _) hcard).trans hsmall
+      hcut hcard).trans hsmall
 
 private theorem eventually_intermediate_budget :
     ∀ᶠ N : ℕ in atTop,
@@ -311,7 +311,7 @@ private theorem eventually_intermediate_budget :
 def prescribedMajorBlock (N : ℕ) (p : ℕ → ℝ) (z : ℕ) : ℂ :=
   let A := goodSet N
   let Q := activeLcm A
-  letI : NeZero Q := ⟨activeLcm_ne_zero A⟩
+  let _ : NeZero Q := ⟨activeLcm_ne_zero A⟩
   MajorArc.fourierBlock (majorFrequencies Q (Erdos297.M N)) A
     (fun n ↦ (Q / n : ZMod Q)) p (z : ZMod Q)
 
@@ -331,7 +331,7 @@ theorem eventually_prescribed_majorArc_lower :
   intro p z hpLower hpUpper hmean
   let A := goodSet N
   let Q := activeLcm A
-  letI : NeZero Q := ⟨activeLcm_ne_zero A⟩
+  let _ : NeZero Q := ⟨activeLcm_ne_zero A⟩
   have hAinterval : A ⊆ Icc (Erdos297.M N) N := by
     simpa [A, goodSet, sourceGoodDenominators] using
       sourceGoodDenominators_subset_Icc N
@@ -369,7 +369,7 @@ theorem eventually_prescribed_majorArc_lower :
 def prescribedMinorBlock (N : ℕ) (p : ℕ → ℝ) (z : ℕ) : ℂ :=
   let A := goodSet N
   let Q := activeLcm A
-  letI : NeZero Q := ⟨activeLcm_ne_zero A⟩
+  let _ : NeZero Q := ⟨activeLcm_ne_zero A⟩
   MajorArc.fourierBlock (minorFrequencies Q (Erdos297.M N)) A
     (fun n ↦ (Q / n : ZMod Q)) p (z : ZMod Q)
 
@@ -389,7 +389,7 @@ theorem eventually_prescribed_minorArc_bound :
   intro p z hpLower hpUpper
   let A : Finset ℕ := goodSet N
   let Q : ℕ := activeLcm A
-  letI : NeZero Q := ⟨activeLcm_ne_zero A⟩
+  let _ : NeZero Q := ⟨activeLcm_ne_zero A⟩
   let H : Finset (ZMod Q) := minorFrequencies Q (Erdos297.M N)
   let key : ZMod Q → Finset ℕ := fun h ↦
     goodModuliOn (activePrimePowers A) A h.valMinAbs (KSafe N)
@@ -457,10 +457,7 @@ theorem eventually_prescribed_minorArc_bound :
     exact active_minor_sum_le_powerset hM.1 hAsub key f decay
       (fun s ↦ by positivity)
       (fun h hh ↦ by
-        simpa [key, goodModuliOn] using
-          (Finset.filter_subset (activePrimePowers A)
-            (fun q ↦ (farSet A h.valMinAbs (KSafe N) q).card <
-              minorThreshold N)))
+        simp [key, goodModuliOn])
       hproper hnear hpoint
   have hscalar :
       ∑ D ∈ (activePrimePowers A).powerset.erase (activePrimePowers A),
@@ -499,9 +496,9 @@ theorem eventually_prescribed_exactReciprocalMass :
   intro p z hpLower hpUpper hmean
   let I := goodSet N
   let Q := activeLcm I
-  letI : NeZero Q := ⟨activeLcm_ne_zero I⟩
+  let _ : NeZero Q := ⟨activeLcm_ne_zero I⟩
   have hI : I ⊆ goodDenominators N (Erdos297.M N) (S N) := by
-    simpa [I, goodSet]
+    simp [I, goodSet]
   have hIcc : I ⊆ Icc (Erdos297.M N) N :=
     hI.trans (goodDenominators_subset_Icc N (Erdos297.M N) (S N))
   have hIpos : ∀ n ∈ I, 0 < n := fun n hn ↦

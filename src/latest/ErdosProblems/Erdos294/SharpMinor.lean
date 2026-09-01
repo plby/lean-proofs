@@ -24,7 +24,7 @@ attribute [local instance] Classical.propDecidable
 def prescribedMinorBlock (N : ℕ) (p : ℕ → ℝ) (z : ℕ) : ℂ :=
   let A := sharpGoodSet N
   let Q := activeLcm A
-  letI : NeZero Q := ⟨activeLcm_ne_zero A⟩
+  let _ : NeZero Q := ⟨activeLcm_ne_zero A⟩
   MajorArc.fourierBlock (minorFrequencies Q (sharpM N)) A
     (fun n ↦ (Q / n : ZMod Q)) p (z : ZMod Q)
 
@@ -42,7 +42,7 @@ theorem eventually_prescribed_minorArc_bound :
   intro p z hpLower hpUpper
   let A : Finset ℕ := sharpGoodSet N
   let Q : ℕ := activeLcm A
-  letI : NeZero Q := ⟨activeLcm_ne_zero A⟩
+  let _ : NeZero Q := ⟨activeLcm_ne_zero A⟩
   let H : Finset (ZMod Q) := minorFrequencies Q (sharpM N)
   let key : ZMod Q → Finset ℕ := fun h ↦
     goodModuliOn (activePrimePowers A) A h.valMinAbs (KSafe N)
@@ -111,10 +111,7 @@ theorem eventually_prescribed_minorArc_bound :
     exact active_minor_sum_le_powerset hM.1 hAsub key f decay
       (fun s ↦ by positivity)
       (fun h hh ↦ by
-        simpa [key, goodModuliOn] using
-          (Finset.filter_subset (activePrimePowers A)
-            (fun q ↦ (farSet A h.valMinAbs (KSafe N) q).card <
-              minorThreshold N)))
+        simp [key, goodModuliOn])
       hproper hnear hpoint
   have hscalar :
       ∑ D ∈ (activePrimePowers A).powerset.erase (activePrimePowers A),

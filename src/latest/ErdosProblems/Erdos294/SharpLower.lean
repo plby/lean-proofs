@@ -127,7 +127,8 @@ theorem eventually_represents_of_three_le_of_le_profile :
   have hexpN : Real.exp (2 * logScale N) = (N : ℝ) ^ 2 := by
     calc
       Real.exp (2 * logScale N) = Real.exp (logScale N) ^ 2 := by
-        convert Real.exp_nat_mul (logScale N) 2 using 1 <;> norm_num
+        convert Real.exp_nat_mul (logScale N) 2 using 1
+        all_goals norm_num
       _ = (N : ℝ) ^ 2 := by rw [logScale, Real.exp_log hNpos]
   have hNtwoQ : (N : ℝ) ^ 2 ≤ (Q : ℝ) := by
     calc

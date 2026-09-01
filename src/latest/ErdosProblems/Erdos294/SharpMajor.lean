@@ -86,7 +86,7 @@ lemma eventually_central_budgets :
         norm_num
       _ ≤ (sharpM N : ℝ) := hMlower
   · exact (central_cubic_power_bound hx hMlower (Nat.cast_nonneg _)
-      hcut (Nat.cast_nonneg _) hcard).trans hsmall
+      hcut hcard).trans hsmall
 
 lemma eventually_intermediate_budget :
     ∀ᶠ N : ℕ in atTop,
@@ -124,7 +124,7 @@ lemma eventually_intermediate_budget :
 def prescribedMajorBlock (N : ℕ) (p : ℕ → ℝ) (z : ℕ) : ℂ :=
   let A := sharpGoodSet N
   let Q := activeLcm A
-  letI : NeZero Q := ⟨activeLcm_ne_zero A⟩
+  let _ : NeZero Q := ⟨activeLcm_ne_zero A⟩
   MajorArc.fourierBlock (majorFrequencies Q (sharpM N)) A
     (fun n ↦ (Q / n : ZMod Q)) p (z : ZMod Q)
 
@@ -141,7 +141,7 @@ theorem eventually_prescribed_majorArc_lower :
   intro p z hpLower hpUpper hmean
   let A := sharpGoodSet N
   let Q := activeLcm A
-  letI : NeZero Q := ⟨activeLcm_ne_zero A⟩
+  let _ : NeZero Q := ⟨activeLcm_ne_zero A⟩
   have hHM : centralCutoff N ≤ sharpM N / 2 := by
     have hreal := hcentral.1
     have hpi : (2 : ℝ) ≤ 2 * Real.pi := by nlinarith [Real.pi_gt_three]

@@ -118,8 +118,8 @@ lemma eventually_outerScale_bounds :
         rfl
       _ ≤ 5 * logLogLogScale N := by
         have hlog24 : Real.log 24 ≤ 23 := by
-          convert Real.log_le_sub_one_of_pos (by norm_num : (0 : ℝ) < 24) using 1 <;>
-            norm_num
+          convert Real.log_le_sub_one_of_pos (by norm_num : (0 : ℝ) < 24) using 1
+          all_goals norm_num
         linarith
   exact ⟨hfloorLower, hfloorUpper, hlogX, hloglogX⟩
 
