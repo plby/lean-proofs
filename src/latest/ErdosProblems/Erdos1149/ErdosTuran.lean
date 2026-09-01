@@ -250,7 +250,6 @@ theorem hasSum_forwardCoeff (δ x : ℝ) :
     change b₂Coeff h * (fourier h (δ : UnitAddCircle) - 1) / (2 * δ) *
       fourier h (x : UnitAddCircle) = _
     rw [fourier_coe_add]
-    push_cast
     ring
   rw [heq]
   exact_mod_cast hd
@@ -270,7 +269,6 @@ theorem hasSum_backwardCoeff (δ x : ℝ) :
         fourier h ((-δ : ℝ) : UnitAddCircle) * fourier h (x : UnitAddCircle) := by
       simpa only [sub_eq_add_neg] using fourier_coe_add h x (-δ)
     rw [hadd]
-    push_cast
     ring
   rw [heq]
   exact_mod_cast hd

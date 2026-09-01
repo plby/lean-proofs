@@ -141,7 +141,7 @@ noncomputable def envelopeConstant (A C : ℝ) : ℕ → ℝ
   | 0 => C
   | r + 1 => Real.sqrt (2 * A + 2 * envelopeConstant A C r)
 
-lemma envelopeConstant_nonneg {A C : ℝ} (hA : 0 ≤ A) (hC : 0 ≤ C) :
+lemma envelopeConstant_nonneg {A C : ℝ} (_hA : 0 ≤ A) (hC : 0 ≤ C) :
     ∀ r, 0 ≤ envelopeConstant A C r := by
   intro r
   induction r with
@@ -407,7 +407,7 @@ noncomputable def IsLargeMonomialScale
 theorem exists_largeMonomialScale_threshold
     {ρ cRatio cU : ℝ} {R : ℕ}
     (hρ0 : 0 < ρ) (hρ1 : ρ < 1)
-    (hcRatio : 0 < cRatio) (hcU : 0 < cU) (hR : 0 < R) :
+    (hcRatio : 0 < cRatio) (hR : 0 < R) :
     ∃ X0 : ℕ, ∀ X ≥ X0, IsLargeMonomialScale ρ cRatio cU R X := by
   let τ := terminalScaleExponent ρ
   let σ := roundingLossExponent ρ
@@ -527,7 +527,7 @@ retains the same coefficient in the lower and upper derivative estimates. -/
 theorem monomialParameters_leaf_bounds
     {ρ cRatio cL cU Dlow Dup : ℝ} {R X r : ℕ}
     (hρ0 : 0 < ρ) (hρ1 : ρ < 1)
-    (hcRatio : 0 < cRatio) (hcL : 0 < cL) (hcU : 0 < cU)
+    (hcRatio : 0 < cRatio) (hcL : 0 < cL)
     (hr2 : 2 ≤ r) (hrR : r ≤ R)
     (hlarge : IsLargeMonomialScale ρ cRatio cU R X)
     (hDup : 0 < Dup)
@@ -751,7 +751,7 @@ Combined with the boundary conclusion of `monomialParameters_leaf_bounds`,
 it ensures that all `r` differencing translations stay inside one further
 dyadic block. -/
 theorem exists_monomialTranslation_threshold
-    {ρ cL : ℝ} {R : ℕ} (hρ : 0 < ρ) (hcL : 0 < cL) :
+    {ρ cL : ℝ} {R : ℕ} (hρ : 0 < ρ) :
     ∃ X0 : ℕ, ∀ X ≥ X0,
       2 * Real.sqrt (cL⁻¹) * R ≤
         (X : ℝ) ^ roundingLossExponent ρ := by

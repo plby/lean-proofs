@@ -227,7 +227,7 @@ theorem iteratedRealPositiveDifference_bounds_on_Icc
       have hslope : g' c * h = g (x + h) - g x := by
         rw [hcSlope, show x + h - x = h by ring]
         exact div_mul_cancel₀ _ hh0
-      simp only [iteratedRealPositiveDifference_cons, g, List.prod_cons]
+      simp only [iteratedRealPositiveDifference_cons, List.prod_cons]
       constructor <;> nlinarith
 
 /-- Localized bounds for a unit increment.  The interval budget includes
@@ -491,7 +491,7 @@ def pairBase (a b : ℝ) : ℝ := min a b
 theorem pairOrientation_ne_zero (a b : ℝ) : pairOrientation a b ≠ 0 := by
   intro h
   have := congrArg abs h
-  simpa using this
+  simp at this
 
 @[simp] theorem pairStep_nonneg (a b : ℝ) : 0 ≤ pairStep a b :=
   abs_nonneg _
@@ -507,7 +507,8 @@ theorem realPairDifference_eq_orientation_mul
     simp only [realPairDifference, pairStep, pairBase, min_eq_right h,
       one_mul, realPositiveDifference]
     rw [abs_of_nonneg (sub_nonneg.mpr h)]
-    congr 1 <;> ring
+    congr 1
+    ring
   · have hab : a ≤ b := le_of_not_ge h
     rw [show pairOrientation a b = -1 by simp [pairOrientation, h]]
     simp only [realPairDifference, pairStep, pairBase, min_eq_left hab,
@@ -565,7 +566,7 @@ theorem historyOrientation_ne_zero (hs : List (ℝ × ℝ)) :
     historyOrientation hs ≠ 0 := by
   intro h
   have := congrArg abs h
-  simpa using this
+  simp at this
 
 theorem historyOrientation_eq_one_or_neg_one (hs : List (ℝ × ℝ)) :
     historyOrientation hs = 1 ∨ historyOrientation hs = -1 := by
@@ -589,7 +590,7 @@ theorem iteratedRealPairDifference_eq_normalForm
               (x + historyBase hs) := by
           rw [iteratedRealPairDifference_cons, ih, ih]
           simp only [realPairDifference, g]
-          congr 1 <;> ring
+          ring_nf
         _ = historyOrientation hs * pairOrientation a b *
               realPositiveDifference g (pairStep a b)
                 (x + historyBase hs + pairBase a b) := by

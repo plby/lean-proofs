@@ -1182,7 +1182,9 @@ lemma monomialEnvelopeBoundConstant_nonneg (cL : ℝ) (R : ℕ) :
   unfold monomialEnvelopeBoundConstant
   apply Finset.sum_nonneg
   intro r hr
-  apply AnalyticParameters.envelopeConstant_nonneg <;> positivity
+  apply AnalyticParameters.envelopeConstant_nonneg
+  · positivity
+  · positivity
 
 lemma envelopeConstant_le_monomialEnvelopeBoundConstant
     {cL : ℝ} {R r : ℕ} (hrR : r ≤ R) :
@@ -1192,7 +1194,9 @@ lemma envelopeConstant_le_monomialEnvelopeBoundConstant
   unfold monomialEnvelopeBoundConstant
   apply Finset.single_le_sum
   · intro j hj
-    apply AnalyticParameters.envelopeConstant_nonneg <;> positivity
+    apply AnalyticParameters.envelopeConstant_nonneg
+    · positivity
+    · positivity
   · simp only [Finset.mem_range]
     omega
 
@@ -1251,7 +1255,7 @@ theorem norm_monomial_phase_sum_range_le_large
       cL * (X : ℝ) ^ (ρ - 3) ≤ Dlow ∧
       cRatio * Dup ≤ Dlow ∧ Dlow ≤ Dup at hderiv
   have hparam := AnalyticParameters.monomialParameters_leaf_bounds
-    hρ.1 hρ.2 hcRatio hcL hcU hr2 hrR hlarge hderiv.1 hderiv.2.1
+    hρ.1 hρ.2 hcRatio hcL hr2 hrR hlarge hderiv.1 hderiv.2.1
       hderiv.2.2.1 hderiv.2.2.2.1 hderiv.2.2.2.2
   change 0 < K ∧ 0 < d ∧
       (K : ℝ) ^ r * (d : ℝ) ^ r * Dup ≤ 1 / 2 ∧
@@ -1346,9 +1350,10 @@ def MonomialRangeExponentialPowerSaving (γ A eta C : ℝ) : Prop :=
 positive powers and polynomially growing positive coefficients. -/
 theorem exists_monomialRangeExponentialPowerSaving
     {γ A : ℝ} (hγ : 0 < γ)
-    (hγint : γ ∉ Set.range ((↑) : ℤ → ℝ)) (hA : 0 ≤ A) :
+    (hγint : γ ∉ Set.range ((↑) : ℤ → ℝ)) : 0 ≤ A →
     ∃ eta C : ℝ, 0 < eta ∧ eta < 1 ∧ 0 ≤ C ∧
       MonomialRangeExponentialPowerSaving γ A eta C := by
+  intro hA
   let S : ℕ := ⌈A⌉₊
   let R : ℕ := S + ⌊γ⌋₊ + 2
   let ρ := monomialFractionalExponent γ
@@ -1365,9 +1370,9 @@ theorem exists_monomialRangeExponentialPowerSaving
   have hR0 : 0 < R := by omega
   obtain ⟨Xlarge, hXlarge⟩ :=
     AnalyticParameters.exists_largeMonomialScale_threshold hρ.1 hρ.2
-      hcRatio hcU hR0
+      hcRatio hR0
   obtain ⟨Xtrans, hXtrans⟩ :=
-    AnalyticParameters.exists_monomialTranslation_threshold hρ.1 hcL
+    AnalyticParameters.exists_monomialTranslation_threshold hρ.1
       (R := R)
   let X0 : ℕ := max 2 (max Xlarge Xtrans)
   have heta0 : 0 < eta := by
@@ -1482,8 +1487,7 @@ lemma norm_sum_phase_int_mul_eq_natAbs
       ‖∑ n ∈ s, HigherDerivative.phase
         ((h.natAbs : ℝ) * a * ((m n : ℕ) : ℝ) ^ γ)‖ := by
   have hnabs : (h.natAbs : ℝ) = |(h : ℝ)| := by
-    have hz := congrArg (fun z : ℤ => (z : ℝ)) (Int.natCast_natAbs h)
-    simpa using hz
+    simp
   by_cases hh : 0 ≤ h
   · have hhR : (0 : ℝ) ≤ h := by exact_mod_cast hh
     have heq : (h.natAbs : ℝ) = (h : ℝ) := by

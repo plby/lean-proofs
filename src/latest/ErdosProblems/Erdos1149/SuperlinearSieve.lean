@@ -1220,7 +1220,8 @@ theorem powerFloorGCD_largePrime_sqrt_prefixRatio_le
     intro P hP
     obtain ⟨p, hp, rfl⟩ := Finset.mem_image.mp hP
     dsimp only [scaledDyadicBase]
-    simpa using Nat.le_mul_of_pos_right N.sqrt (by positivity : 0 < 2 ^ Nat.log 2 ((p - 1) / N.sqrt))
+    simpa using Nat.le_mul_of_pos_right N.sqrt
+      (by positivity : 0 < 2 ^ Nat.log 2 ((p - 1) / N.sqrt))
   have hterm : ∀ P ∈ keys,
       prefixRatio (primeWindowEvent (powerFloorGCD α) P (2 * P)) N ≤
         (((N.sqrt + 1 : ℕ) : ℝ)⁻¹ +

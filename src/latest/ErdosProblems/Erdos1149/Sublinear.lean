@@ -27,7 +27,7 @@ def powerBlockStart (α : ℝ) (m : ℕ) : ℕ :=
 lemma powerBlockStart_zero {α : ℝ} (hα : 0 < α) : powerBlockStart α 0 = 0 := by
   simp [powerBlockStart, Real.zero_rpow (inv_ne_zero (ne_of_gt hα))]
 
-lemma floor_rpow_eq_iff_mem_powerBlock { α : ℝ }
+lemma floor_rpow_eq_iff_mem_powerBlock {α : ℝ}
     (hα : 0 < α) (n m : ℕ) :
     ⌊(n : ℝ) ^ α⌋₊ = m ↔
       powerBlockStart α m ≤ n ∧ n < powerBlockStart α (m + 1) := by
@@ -364,7 +364,7 @@ lemma smoothPowerBlockWeight_mono {α : ℝ} (hα : 0 < α) (hαone : α < 1) :
   have hslope := (convexOn_rpow hbeta).slope_mono_adjacent
     (x := (m : ℝ)) (y := (m + 1 : ℕ)) (z := (m + 2 : ℕ))
     (by simp) (by
-      show (0 : ℝ) ≤ (m + 2 : ℕ)
+      change (0 : ℝ) ≤ (m + 2 : ℕ)
       exact_mod_cast (Nat.zero_le (m + 2))) (by norm_num) (by norm_num)
   unfold smoothPowerBlockWeight
   norm_num at hslope ⊢
@@ -443,7 +443,7 @@ lemma smoothPowerBlockWeight_le_deriv {α : ℝ}
   have hslope := (convexOn_rpow hbeta).slope_le_of_hasDerivAt
     (x := (N : ℝ)) (y := ((N + 1 : ℕ) : ℝ))
     (by simp) (by
-      show (0 : ℝ) ≤ (N + 1 : ℕ)
+      change (0 : ℝ) ≤ (N + 1 : ℕ)
       exact_mod_cast Nat.zero_le (N + 1)) (by norm_num)
     (Real.hasDerivAt_rpow_const (Or.inr hbeta))
   unfold smoothPowerBlockWeight
@@ -998,7 +998,7 @@ lemma prefixCount_powerFloorGCD_block_succ {α : ℝ}
         coprimePowerBlockCount α m := by
   classical
   let P : ℕ → Prop := exactOneEvent (powerFloorGCD α)
-  letI : DecidablePred P := Classical.decPred P
+  let : DecidablePred P := Classical.decPred P
   have hmono := powerBlockStart_mono hα (Nat.le_succ m)
   have hmono' : powerBlockStart α m ≤ powerBlockStart α (m + 1) := by
     simpa only [Nat.succ_eq_add_one] using hmono

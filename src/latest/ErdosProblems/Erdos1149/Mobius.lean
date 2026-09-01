@@ -61,7 +61,7 @@ theorem gcd_divisors_eq_filter_range {n m : ℕ} (hn : 0 < n) :
       (Finset.range (n + 1)).filter (fun d ↦ d ∣ n ∧ d ∣ m) := by
   ext d
   have hg : Nat.gcd n m ≠ 0 := (Nat.gcd_pos_of_pos_left m hn).ne'
-  simp only [Nat.mem_divisors, hg, and_true, Finset.mem_filter,
+  simp only [Nat.mem_divisors, Finset.mem_filter,
     Finset.mem_range, Nat.dvd_gcd_iff]
   exact ⟨fun h ↦ ⟨Nat.lt_succ_of_le (Nat.le_of_dvd hn h.1.1), h.1⟩,
     fun h ↦ ⟨h.2, hg⟩⟩
@@ -72,7 +72,7 @@ theorem gcd_divisors_eq_divisors_filter {g Q : ℕ} (hQ : Q ≠ 0) :
   ext d
   have hg : Nat.gcd g Q ≠ 0 :=
     (Nat.gcd_pos_of_pos_right g (Nat.pos_of_ne_zero hQ)).ne'
-  simp only [Nat.mem_divisors, hg, hQ, and_true, Finset.mem_filter,
+  simp only [Nat.mem_divisors, Finset.mem_filter,
     Nat.dvd_gcd_iff]
   aesop
 
