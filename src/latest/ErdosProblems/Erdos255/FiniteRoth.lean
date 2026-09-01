@@ -128,7 +128,7 @@ private lemma sum_Ico_id (a h : ℕ) :
           rw [Finset.sum_add_distrib]
     _ = h * a + h * (h - 1) / 2 := by simp [Finset.sum_range_id, Nat.mul_comm]
 
-private lemma sum_cast_ite_mem_Ico (Q a b : ℕ) (ha : a ≤ b) (hb : b ≤ Q) :
+private lemma sum_cast_ite_mem_Ico (Q a b : ℕ) (hb : b ≤ Q) :
     ∑ A ∈ Finset.range Q, (A : ℝ) * (if A ∈ Finset.Ico a b then (1 : ℝ) else 0) =
       ∑ A ∈ Finset.Ico a b, (A : ℝ) := by
   simp_rw [mul_ite, mul_one, mul_zero]
@@ -152,7 +152,6 @@ private lemma haar_moment_nat (q d i : ℕ) (hd : d ≤ q + 1) (hi : i < 2 ^ d) 
     ∑ A ∈ Finset.range (2 ^ (q + 2)), (A : ℝ) * haar q d i A =
       -(halfSize q d : ℝ) ^ 2 := by
   let h := halfSize q d
-  have hlo_mid : 2 * i * h ≤ (2 * i + 1) * h := block_lo_le_mid q d i
   have hmid_hi : (2 * i + 1) * h ≤ 2 * (i + 1) * h := block_mid_le_hi q d i
   have hend : 2 * (i + 1) * h ≤ 2 ^ (q + 2) := blocks_end q d i hd hi
   have hleft_end : 2 * i * h + h = (2 * i + 1) * h := by ring
@@ -174,11 +173,8 @@ private lemma haar_moment_nat (q d i : ℕ) (hd : d ≤ q + 1) (hi : i < 2 ^ d) 
       convert sum_Ico_cast ((2 * i + 1) * h) h using 1 <;> push_cast <;> ring
     rw [hleft, hright]
     dsimp [h]
-    push_cast
     ring
-  · simpa [h] using hmid_hi
   · simpa [h] using hend
-  · simpa [h] using hlo_mid
   · simpa [h] using hmid_hi.trans hend
 
 private lemma halfSize_relation (q d e : ℕ) (hde : d < e) (he : e ≤ q + 1) :
@@ -188,7 +184,7 @@ private lemma halfSize_relation (q d e : ℕ) (hde : d < e) (he : e ≤ q + 1) :
   rw [hexp, pow_add, pow_add]
   ring
 
-private lemma no_cross_aligned (h p j k : ℕ) (hh : 0 < h) :
+private lemma no_cross_aligned (h p j k : ℕ) :
     2 * (j + 1) * h ≤ k * (2 * p * h) ∨
       k * (2 * p * h) ≤ 2 * j * h := by
   by_cases hj : j < k * p
@@ -242,15 +238,15 @@ private lemma haar_coarse_constant_on_fine
   have cross_lo :
       2 * (j + 1) * h ≤ 2 * i * halfSize q d ∨
         2 * i * halfSize q d ≤ 2 * j * h := by
-    simpa [hrel, mul_assoc] using no_cross_aligned h p j (2 * i) hh
+    simpa [hrel, mul_assoc] using no_cross_aligned h p j (2 * i)
   have cross_mid :
       2 * (j + 1) * h ≤ (2 * i + 1) * halfSize q d ∨
         (2 * i + 1) * halfSize q d ≤ 2 * j * h := by
-    simpa [hrel, mul_assoc] using no_cross_aligned h p j (2 * i + 1) hh
+    simpa [hrel, mul_assoc] using no_cross_aligned h p j (2 * i + 1)
   have cross_hi :
       2 * (j + 1) * h ≤ 2 * (i + 1) * halfSize q d ∨
         2 * (i + 1) * halfSize q d ≤ 2 * j * h := by
-    simpa [hrel, mul_assoc] using no_cross_aligned h p j (2 * (i + 1)) hh
+    simpa [hrel, mul_assoc] using no_cross_aligned h p j (2 * (i + 1))
   have c_lo := comparison_constant_on_block cross_lo hA hs_mem
   have c_mid := comparison_constant_on_block cross_mid hA hs_mem
   have c_hi := comparison_constant_on_block cross_hi hA hs_mem
@@ -902,7 +898,7 @@ Erdős Problem 255.  `gridCount y q A C` counts the first `2^q` points in
 the anchored rectangle `[0,A/Q) × [0,C/Q)`, where `Q=2^(q+2)` and the second
 coordinate of point `n` is `n/2^q`. -/
 theorem finite_roth_grid (y : ℕ → ℝ) (lam B : ℝ) (q : ℕ)
-    (hlam : 0 ≤ lam) (hB0 : 0 ≤ B)
+    (hB0 : 0 ≤ B)
     (hB : ∀ A C, A < 2 ^ (q + 2) → C < 2 ^ (q + 2) →
       abs (gridDiscrepancy y lam q A C) ≤ B) :
     ((q + 2 : ℕ) : ℝ) * lam ^ 2 ≤

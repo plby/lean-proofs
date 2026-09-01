@@ -103,7 +103,8 @@ private lemma gridCount_eq_prefixCount (y : ℕ → ℝ)
       intro n hn
       simp only [time_lt_iff]
       have hyn := (hy n).1
-      split_ifs <;> simp_all <;> linarith
+      split_ifs <;> simp_all
+      linarith
     _ = ∑ n ∈ range (timeCut C), if n < timeCut C then
         (if y n < (A : ℝ) / (2 ^ (q + 2) : ℕ) then (1 : ℝ) else 0) else 0 := by
       symm
@@ -167,11 +168,11 @@ theorem no_uniform_star_discrepancy (y : ℕ → ℝ)
   · exact ⟨0, 0, by simp, by simpa [starDisc, prefixCount] using hBneg⟩
   have hB0 : 0 ≤ B := le_of_not_gt hBneg
   by_contra hlarge
-  push_neg at hlarge
+  push Not at hlarge
   obtain ⟨q, hq⟩ := exists_nat_gt (4096 * (B + 1) ^ 2)
   let M : ℝ := (2 ^ q : ℕ)
   have hMpos : 0 < M := by dsimp [M]; positivity
-  have hroth := finite_roth_grid y M (B + 1) q hMpos.le (by linarith)
+  have hroth := finite_roth_grid y M (B + 1) q (by linarith)
     (fun A C hA hC ↦ gridDiscrepancy_abs_le y hy B hlarge q A C hA hC)
   have hcancel : ((q + 2 : ℕ) : ℝ) ≤ 4096 * (B + 1) ^ 2 := by
     apply (mul_le_mul_iff_of_pos_right (sq_pos_of_pos hMpos)).mp

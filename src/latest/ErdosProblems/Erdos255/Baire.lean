@@ -54,7 +54,7 @@ private lemma threshold_continuous (z : ℕ → ℝ) (n : ℕ) :
       have hne : (x : ℝ) ≠ z n := by
         intro h
         exact x.property.2 ⟨n, h.symm⟩
-      simp only [s, mem_compl_iff, mem_setOf_eq]
+      simp only [s, mem_compl_iff, Set.mem_ofPred_eq]
       constructor
       · intro h
         exact lt_of_le_of_ne (not_lt.mp h) hne
@@ -78,8 +78,10 @@ private lemma prefixCount_continuous (z : ℕ → ℝ) (N : ℕ) :
       simpa [prefixCount] using
         (continuous_const : Continuous (fun _ : regularDomain z ↦ (0 : ℝ)))
   | succ N ih =>
-      convert ih.add (threshold_continuous z N) using 1 <;>
-        ext x <;> simp [prefixCount, Nat.count_succ]
+      convert ih.add (threshold_continuous z N) using 1
+      all_goals
+        ext x
+        simp [prefixCount, Nat.count_succ]
 
 private lemma discrepancy_continuous (z : ℕ → ℝ) (N : ℕ) :
     Continuous (fun x : regularDomain z ↦ discrepancy z N (x : ℝ)) := by
@@ -132,8 +134,10 @@ private lemma prefixCount_continuousWithinAt_Iic (z : ℕ → ℝ) (N : ℕ) (x 
       simpa [prefixCount] using
         (continuousWithinAt_const : ContinuousWithinAt (fun _ : ℝ ↦ (0 : ℝ)) (Iic x) x)
   | succ N ih =>
-      convert ih.add (threshold_continuousWithinAt_Iic (z N) x) using 1 <;>
-        ext y <;> simp [prefixCount, Nat.count_succ]
+      convert ih.add (threshold_continuousWithinAt_Iic (z N) x) using 1
+      all_goals
+        ext y
+        simp [prefixCount, Nat.count_succ]
 
 private lemma discrepancy_continuousWithinAt_Iic (z : ℕ → ℝ) (N : ℕ) (x : ℝ) :
     ContinuousWithinAt (discrepancy z N) (Iic x) x := by
@@ -182,8 +186,7 @@ private lemma count_Ico_add_count_lt (z : ℕ → ℝ) {a b : ℝ} (hab : a ≤ 
         · have hale : a ≤ z N := le_of_not_gt ha
           simp [ha, hb, hale]
           omega
-        · have hp : ¬ (a ≤ z N ∧ z N < b) := fun h ↦ hb h.2
-          simp [ha, hb, hp]
+        · simp [ha, hb]
           omega
 
 private lemma count_comp_nth_of_infinite
@@ -224,10 +227,10 @@ def NoUniformStarDiscrepancy : Prop :=
 
 private lemma local_uniform_impossible
     (hstar : NoUniformStarDiscrepancy) (z : ℕ → ℝ)
-    {a b C : ℝ} (hab : a < b) (hC : 0 ≤ C)
+    {a b C : ℝ} (hab : a < b)
     (hbound : ∀ N x, x ∈ Icc a b → |discrepancy z N x| ≤ C) : False := by
   let p : ℕ → Prop := fun n ↦ a ≤ z n ∧ z n < b
-  letI : DecidablePred p := Classical.decPred p
+  classical
   have hpinf : {n | p n}.Infinite := by
     by_contra hp
     have hpfin : {n | p n}.Finite := Set.not_infinite.mp hp
@@ -247,7 +250,7 @@ private lemma local_uniform_impossible
       have hc' : Nat.count p N + prefixCount z N a = prefixCount z N b := by
         have hcnt : Nat.count p N =
             @Nat.count (fun n ↦ a ≤ z n ∧ z n < b) (fun _ ↦ instDecidableAnd) N :=
-          @natCount_congr p (fun n ↦ a ≤ z n ∧ z n < b) this
+          @natCount_congr p (fun n ↦ a ≤ z n ∧ z n < b) (fun _ ↦ instDecidableAnd)
             (fun _ ↦ instDecidableAnd) (fun _ ↦ Iff.rfl) N
         rw [hcnt]
         exact hc
@@ -289,7 +292,7 @@ private lemma local_uniform_impossible
     have hc' : Nat.count p T + prefixCount z T a = prefixCount z T b := by
       have hcnt : Nat.count p T =
           @Nat.count (fun n ↦ a ≤ z n ∧ z n < b) (fun _ ↦ instDecidableAnd) T :=
-        @natCount_congr p (fun n ↦ a ≤ z n ∧ z n < b) this
+        @natCount_congr p (fun n ↦ a ≤ z n ∧ z n < b) (fun _ ↦ instDecidableAnd)
           (fun _ ↦ instDecidableAnd) (fun _ ↦ Iff.rfl) T
       rw [hcnt]
       exact hc
@@ -365,10 +368,10 @@ theorem exists_unbounded_prefix_discrepancy
     ∃ x ∈ Ioo (0 : ℝ) 1,
       ¬ BddAbove (Set.range (fun N ↦ |discrepancy z N x|)) := by
   by_contra h
-  push_neg at h
-  letI : BaireSpace (regularDomain z) :=
+  push Not at h
+  let _ : BaireSpace (regularDomain z) :=
     (regularDomain_isGδ z).baireSpace_of_t2Space_locallyCompactSpace
-  letI : Nonempty (regularDomain z) := (regularDomain_nonempty z).to_subtype
+  let _ : Nonempty (regularDomain z) := (regularDomain_nonempty z).to_subtype
   have hcover : ⋃ m : ℕ, boundedLayer z m = Set.univ := by
     ext x
     simp only [mem_iUnion, mem_univ, iff_true]
@@ -421,7 +424,7 @@ theorem exists_unbounded_prefix_discrepancy
     · have hyr := hy.2
       dsimp [d] at hyr
       linarith [hxB]
-  exact local_uniform_impossible hstar z hcd (Nat.cast_nonneg m) hlocal
+  exact local_uniform_impossible hstar z hcd hlocal
 
 theorem unbounded_endpoint_of_no_uniform
     (hstar : NoUniformStarDiscrepancy) (z : ℕ → ℝ) :
@@ -431,7 +434,7 @@ theorem unbounded_endpoint_of_no_uniform
   refine ⟨x, ⟨hx.1.le, hx.2.le⟩, ?_⟩
   intro C
   by_contra h
-  push_neg at h
+  push Not at h
   apply hub
   refine ⟨C, ?_⟩
   rintro _ ⟨N, rfl⟩
