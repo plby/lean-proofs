@@ -64,6 +64,8 @@ open Filter MeasureTheory ProbabilityTheory Set
 
 namespace Erdos1165
 
+open HLOZStructuralPastAdditiveRecurrence
+
 /-- The probability answer follows formally from the almost-sure planar limsup theorem. -/
 theorem erdos_1165_of_hloz
     (hHLOZ : ∀ᵐ s ∂simpleRandomWalk, HLOZConclusion s)
@@ -90,7 +92,7 @@ theorem erdos_1165 (r : ℕ) (hr : 3 ≤ r) :
       (fun delta _hdelta ↦
         AsymmetricCoarseRadialCompletionFamily.eventually_nonempty_asymmetricPairSourceData
           delta)
-      HLOZStructuralPastAdditiveRecurrence.simpleRandomWalk_ae_eventually_favoriteCount_le_three_of_lowerDeviation
+      simpleRandomWalk_ae_eventually_favoriteCount_le_three_of_lowerDeviation
       r hr
 
 end Erdos1165
