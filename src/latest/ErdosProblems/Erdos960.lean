@@ -147,7 +147,7 @@ lemma hasOrdinaryClique_iff_not_cliqueFree (A : Finset Point) (r : ℕ) :
       obtain ⟨p', hp', rfl⟩ := hp
       obtain ⟨q', hq', rfl⟩ := hq
       rw [ordinaryGraph_adj]
-      apply hpair p'.1 (by simpa using hp') q'.1 (by simpa using hq')
+      apply hpair p'.1 (by simp) q'.1 (by simp)
       intro hpq'
       apply hpq
       exact Subtype.ext hpq'
@@ -337,7 +337,7 @@ lemma sin_cyclicAngle_eq_zero_iff {M i : ℕ} (hM : 0 < M) :
   · rintro ⟨d, rfl⟩
     have hM0 : (M : ℝ) ≠ 0 := by positivity
     rw [cyclicAngle, Nat.cast_mul]
-    convert Real.sin_nat_mul_pi d using 2 <;> field_simp
+    convert Real.sin_nat_mul_pi d using 2 ; field_simp
 
 lemma cyclicAngle_pos {M i : ℕ} (hM : 0 < M) (hi : 0 < i) : 0 < cyclicAngle M i := by
   simp only [cyclicAngle]
@@ -564,14 +564,14 @@ def baseNat (m : ℕ) (x : Fin 6 × Fin m) : ℕ := x.1.val + 1 + 7 * x.2.val
 lemma baseNat_pos (m : ℕ) (x : Fin 6 × Fin m) : 0 < baseNat m x := by
   simp [baseNat]
 
-lemma baseNat_lt_modulus {m : ℕ} (hm : 0 < m) (x : Fin 6 × Fin m) :
+lemma baseNat_lt_modulus {m : ℕ} (x : Fin 6 × Fin m) :
     baseNat m x < modulus m := by
   have hc := x.1.isLt
   have ha := x.2.isLt
   simp only [baseNat, modulus]
   omega
 
-lemma baseNat_injective {m : ℕ} (hm : 0 < m) : Function.Injective (baseNat m) := by
+lemma baseNat_injective {m : ℕ} : Function.Injective (baseNat m) := by
   intro x y h
   apply Prod.ext
   · apply Fin.ext
@@ -589,13 +589,13 @@ lemma baseNat_injective {m : ℕ} (hm : 0 < m) : Function.Injective (baseNat m) 
     simp only [baseNat] at h
     omega
 
-def baseEmbedding (m : ℕ) (hm : 0 < m) : Fin 6 × Fin m ↪ ZMod (modulus m) where
+def baseEmbedding (m : ℕ) (_hm : 0 < m) : Fin 6 × Fin m ↪ ZMod (modulus m) where
   toFun x := (baseNat m x : ZMod (modulus m))
   inj' := by
     intro x y h
-    apply baseNat_injective hm
+    apply baseNat_injective
     exact (ZMod.natCast_eq_natCast_iff _ _ _).mp h |>.eq_of_lt_of_lt
-      (baseNat_lt_modulus hm x) (baseNat_lt_modulus hm y)
+      (baseNat_lt_modulus x) (baseNat_lt_modulus y)
 
 def baseIndices (m : ℕ) (hm : 0 < m) : Finset (ZMod (modulus m)) :=
   Finset.univ.map (baseEmbedding m hm)
@@ -661,16 +661,16 @@ lemma baseIndices_ne_zero {m : ℕ} (hm : 0 < m) {z : ZMod (modulus m)}
     (hz : z ∈ baseIndices m hm) : z ≠ 0 := by
   simp only [baseIndices, Finset.mem_map] at hz
   obtain ⟨x, _, rfl⟩ := hz
-  exact natCast_ne_zero_of_pos_of_lt (baseNat_pos m x) (baseNat_lt_modulus hm x)
+  exact natCast_ne_zero_of_pos_of_lt (baseNat_pos m x) (baseNat_lt_modulus x)
 
 lemma val_baseEmbedding {m : ℕ} (hm : 0 < m) (x : Fin 6 × Fin m) :
     ((baseEmbedding m hm x : ZMod (modulus m))).val = baseNat m x := by
   change ((baseNat m x : ZMod (modulus m))).val = baseNat m x
-  rw [ZMod.val_natCast, Nat.mod_eq_of_lt (baseNat_lt_modulus hm x)]
+  rw [ZMod.val_natCast, Nat.mod_eq_of_lt (baseNat_lt_modulus x)]
 
 lemma mem_baseIndices_iff {m : ℕ} (hm : 0 < m) (z : ZMod (modulus m)) :
     z ∈ baseIndices m hm ↔ ¬ 7 ∣ z.val := by
-  letI : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
+  let _ : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
   constructor
   · intro hz hdvd
     simp only [baseIndices, Finset.mem_map] at hz
@@ -706,7 +706,7 @@ def residueSeven (m : ℕ) : ZMod (modulus m) →+ ZMod 7 :=
 
 lemma residueSeven_apply (m : ℕ) (hm : 0 < m) (z : ZMod (modulus m)) :
     residueSeven m z = (z.val : ZMod 7) := by
-  letI : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
+  let _ : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
   change (ZMod.cast z : ZMod 7) = (z.val : ZMod 7)
   exact ZMod.cast_eq_val z
 
@@ -736,12 +736,12 @@ lemma sameBaseSide_third (a b : ZMod 7) (ha : a ≠ 0) (hb : b ≠ 0)
     intro h
     apply ha
     apply ZMod.val_injective 7
-    simpa [h]
+    simp [h]
   have hb0 : b.val ≠ 0 := by
     intro h
     apply hb
     apply ZMod.val_injective 7
-    simpa [h]
+    simp [h]
   simpa only [ZMod.natCast_zmod_val] using
     table ⟨a.val, ZMod.val_lt a⟩ ⟨b.val, ZMod.val_lt b⟩ ha0 hb0 hsame
 
@@ -761,7 +761,7 @@ lemma disjoint_base_extra {m s : ℕ} (hm : 12 ≤ m) (hs : s ≤ 5) :
   obtain ⟨a, _, ha⟩ := hzextra
   have heq : baseNat m x = extraNat m (Fin.castLE hs a) :=
     ((ZMod.natCast_eq_natCast_iff _ _ _).mp ha |>.eq_of_lt_of_lt
-      (extraNat_lt_modulus hm _) (baseNat_lt_modulus (by omega) x)).symm
+      (extraNat_lt_modulus hm _) (baseNat_lt_modulus x)).symm
   have hdvd := extraNat_dvd_seven (m := m) (Fin.castLE hs a)
   simp only [baseNat] at heq
   have hc := x.1.isLt
@@ -790,7 +790,7 @@ def construction (m s : ℕ) (hm : 12 ≤ m) (hs : s ≤ 5) : Finset Point :=
 
 lemma card_construction (m s : ℕ) (hm : 12 ≤ m) (hs : s ≤ 5) :
     (construction m s hm hs).card = 6 * m + s := by
-  letI : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
+  let _ : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
   rw [construction, card_pointSet (constructionIndices_ne_zero hm hs),
     card_constructionIndices]
 
@@ -832,7 +832,7 @@ lemma neg_nonzero_ne_self_mod_seven (a : ZMod 7) (ha : a ≠ 0) :
     intro h
     apply ha
     apply ZMod.val_injective 7
-    simpa [h]
+    simp [h]
   simpa only [ZMod.natCast_zmod_val] using table ⟨a.val, ZMod.val_lt a⟩ ha0
 
 lemma base_extra_third {m s : ℕ} (hm : 12 ≤ m) (hs : s ≤ 5)
@@ -880,13 +880,19 @@ lemma extraEmbedding_eq_coeff {m s : ℕ} (hm : 12 ≤ m) (hs : s ≤ 5)
   · simp [extraEmbedding, extraNat, extraCoeffVal, hc, hav]
   · simp [extraEmbedding, extraNat, extraCoeffVal, hc, hav]
     ring
-  · simp [extraEmbedding, extraNat, extraCoeffVal, hc, hav]
+  · simp only [extraEmbedding, extraNat, Nat.succ_eq_add_one, Nat.reduceAdd,
+      Function.Embedding.coeFn_mk, hc, Fin.reduceFinMk, Matrix.cons_val, extraCoeffVal, hav,
+      OfNat.ofNat_ne_zero, ↓reduceIte, OfNat.ofNat_ne_one, Int.reduceNeg, Int.cast_neg,
+      Int.cast_ofNat, mul_neg]
     rw [Nat.cast_sub hM21]
     simp
     ring
   · simp [extraEmbedding, extraNat, extraCoeffVal, hc, hav]
     ring
-  · simp [extraEmbedding, extraNat, extraCoeffVal, hc, hav]
+  · simp only [extraEmbedding, extraNat, Nat.succ_eq_add_one, Nat.reduceAdd,
+      Function.Embedding.coeFn_mk, hc, Fin.reduceFinMk, Matrix.cons_val, extraCoeffVal, hav,
+      OfNat.ofNat_ne_zero, ↓reduceIte, OfNat.ofNat_ne_one, Nat.reduceEqDiff,
+      Nat.succ_ne_self, Int.reduceNeg, Int.cast_neg, Int.cast_ofNat, mul_neg]
     rw [Nat.cast_sub hM28]
     simp
     ring
@@ -987,7 +993,7 @@ lemma sameIndexSide_not_ordinary {m s : ℕ} (hm : 12 ≤ m) (hs : s ≤ 5)
     (hsame : indexLeft m s hm hs i ↔ indexLeft m s hm hs j) :
     ¬ OrdinaryPair (construction m s hm hs) (zmodPoint (modulus m) i)
       (zmodPoint (modulus m) j) := by
-  letI : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
+  let _ : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
   have hI0 := constructionIndices_ne_zero hm hs
   rw [constructionIndices, Finset.mem_union] at hi hj
   rw [construction]
@@ -1135,7 +1141,7 @@ theorem construction_no_ordinaryClique {m s r : ℕ} (hm : 12 ≤ m) (hs : s ≤
 theorem construction_noKCollinear {m s k : ℕ} (hm : 12 ≤ m) (hs : s ≤ 5)
     (hk : 4 ≤ k) : NoKCollinear (construction m s hm hs) k := by
   apply noKCollinear_of_no_four hk
-  letI : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
+  let _ : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
   exact pointSet_no_four_collinear (constructionIndices_ne_zero hm hs)
 
 /-! ## Counting the three opposite pairs of cosets -/
@@ -1173,8 +1179,7 @@ def thirdIndex (m : ℕ) (hm : 0 < m) (x : Fin 3 × Fin m) (b : Fin m) :
 lemma residueSeven_baseEmbedding {m : ℕ} (hm : 0 < m) (x : Fin 6 × Fin m) :
     residueSeven m (baseEmbedding m hm x) = (x.1.val + 1 : ZMod 7) := by
   rw [residueSeven_apply m hm, val_baseEmbedding]
-  simp [baseNat]
-  change (7 : ZMod 7) * (x.2.val : ZMod 7) = 0
+  simp only [baseNat, Nat.cast_add, Nat.cast_one, Nat.cast_mul, Nat.cast_ofNat]
   rw [show (7 : ZMod 7) = 0 by decide]
   simp
 
@@ -1253,7 +1258,7 @@ lemma ordinaryPair_left_right_of_good {m s : ℕ} (hm : 12 ≤ m) (hs : s ≤ 5)
     OrdinaryPair (construction m s hm hs)
       (zmodPoint (modulus m) (leftIndex m (by omega) x))
       (zmodPoint (modulus m) (rightIndex m (by omega) x.1 b)) := by
-  letI : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
+  let _ : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
   rw [construction]
   apply ordinaryPair_zmodPoint_of_neg_add_not_mem (constructionIndices_ne_zero hm hs)
   · exact Finset.mem_union_left _ (leftIndex_mem_base (by omega) x)
@@ -1282,7 +1287,7 @@ def rightVertex {m s : ℕ} (hm : 12 ≤ m) (hs : s ≤ 5) (c : Fin 3) (b : Fin 
 
 lemma leftVertex_injective {m s : ℕ} (hm : 12 ≤ m) (hs : s ≤ 5) :
     Function.Injective (leftVertex hm hs) := by
-  letI : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
+  let _ : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
   intro x y h
   have hi : leftIndex m (by omega) x = leftIndex m (by omega) y := by
     apply zmodPoint_injective_of_ne_zero
@@ -1296,7 +1301,7 @@ lemma leftVertex_injective {m s : ℕ} (hm : 12 ≤ m) (hs : s ≤ 5) :
 
 lemma rightVertex_injective {m s : ℕ} (hm : 12 ≤ m) (hs : s ≤ 5) (c : Fin 3) :
     Function.Injective (rightVertex hm hs c) := by
-  letI : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
+  let _ : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
   intro a b h
   have hi : rightIndex m (by omega) c a = rightIndex m (by omega) c b := by
     apply zmodPoint_injective_of_ne_zero
@@ -1320,7 +1325,7 @@ lemma card_selectedLeftVertices {m s : ℕ} (hm : 12 ≤ m) (hs : s ≤ 5) :
 lemma constructionIndex_leftVertex {m s : ℕ} (hm : 12 ≤ m) (hs : s ≤ 5)
     (x : Fin 3 × Fin m) :
     constructionIndex hm hs (leftVertex hm hs x) = leftIndex m (by omega) x := by
-  letI : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
+  let _ : NeZero (modulus m) := ⟨by simp [modulus]; omega⟩
   apply zmodPoint_injective_of_ne_zero
   · exact constructionIndices_ne_zero hm hs _ (constructionIndex_mem hm hs _)
   · exact baseIndices_ne_zero (by omega) (leftIndex_mem_base (by omega) x)
