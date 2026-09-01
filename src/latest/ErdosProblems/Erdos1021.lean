@@ -37,7 +37,7 @@ are in `tex/1021.tex`.
 
 open Filter
 open Asymptotics
-open scoped BigOperators Classical SimpleGraph
+open scoped BigOperators SimpleGraph
 
 namespace Erdos1021
 
@@ -69,7 +69,7 @@ def cliqueSubdivision (k : ℕ) : SimpleGraph (CliqueSubdivisionVertex k) where
   symm := by
     constructor
     intro x y h
-    cases x <;> cases y <;> simpa using h
+    cases x <;> cases y <;> simp_all
   loopless := by
     constructor
     intro x
@@ -309,7 +309,11 @@ theorem natCast_pow_le_janzerAlpha_room
 
 section FiniteHost
 
-variable {V : Type*} [Fintype V] [DecidableEq V]
+noncomputable section
+
+variable {V : Type*} [Fintype V]
+
+noncomputable local instance : DecidableEq V := Classical.decEq V
 
 /-- The common-neighbour finset of two vertices. -/
 def commonNeighbors (G : SimpleGraph V) [DecidableRel G.Adj] (u v : V) : Finset V :=
@@ -336,6 +340,7 @@ def pairCommonNeighbors (G : SimpleGraph V) [DecidableRel G.Adj]
     {k : ℕ} (branch : Fin k → V) (p : CliquePair k) (x : V) :
     x ∈ pairCommonNeighbors G branch p ↔
       ∀ i ∈ (p.1 : Finset (Fin k)), G.Adj (branch i) x := by
+  classical
   simp [pairCommonNeighbors]
 
 theorem pairCommonNeighbors_eq_commonNeighbors (G : SimpleGraph V)
@@ -343,7 +348,7 @@ theorem pairCommonNeighbors_eq_commonNeighbors (G : SimpleGraph V)
     {i j : Fin k} (hp : (p.1 : Finset (Fin k)) = {i, j}) :
     pairCommonNeighbors G branch p = commonNeighbors G (branch i) (branch j) := by
   ext x
-  simp [pairCommonNeighbors, commonNeighbors, hp, and_comm]
+  simp [pairCommonNeighbors, commonNeighbors, hp]
 
 /-- If the common-neighbour sets belonging to distinct branch pairs are
 nonempty, pairwise disjoint, and avoid the branch vertices, choosing one
@@ -635,11 +640,14 @@ def neighborsIn (G : SimpleGraph V) [DecidableRel G.Adj]
     (U : Finset V) (x : V) : Finset V :=
   U.filter fun u ↦ G.Adj u x
 
+omit [Fintype V] in
 @[simp] theorem mem_neighborsIn (G : SimpleGraph V) [DecidableRel G.Adj]
     (U : Finset V) (x u : V) :
     u ∈ neighborsIn G U x ↔ u ∈ U ∧ G.Adj u x := by
+  classical
   simp [neighborsIn]
 
+open Classical in
 /-- Ordered light pairs inside `N(x) ∩ U`, retaining the subtype witnesses so
 that Turán's theorem applies without a cardinality transport. -/
 noncomputable def localLightPairs (G : SimpleGraph V) [DecidableRel G.Adj]
@@ -647,6 +655,7 @@ noncomputable def localLightPairs (G : SimpleGraph V) [DecidableRel G.Adj]
     Finset (↥(neighborsIn G U x) × ↥(neighborsIn G U x)) :=
   Finset.univ.filter fun e ↦ IsLight G r e.1.1 e.2.1
 
+open Classical in
 /-- Turán applied in one common neighbourhood.  A nonedge of the induced
 heavy graph is exactly a light pair because `x` witnesses positive codegree. -/
 theorem sq_neighborsIn_card_le_localLightPairs
@@ -700,21 +709,26 @@ theorem sq_neighborsIn_card_le_localLightPairs
   rw [hScard] at ht
   simpa [S, K] using ht
 
+open Classical in
 /-- Ordered light pairs contained in `U`. -/
 noncomputable def lightPairsOn (G : SimpleGraph V) [DecidableRel G.Adj]
     (r : ℕ) (U : Finset V) : Finset (↥U × ↥U) :=
   Finset.univ.filter fun e ↦ IsLight G r e.1.1 e.2.1
 
+open Classical in
 /-- Light neighbours of `u` that lie in `U`. -/
 noncomputable def lightNeighborsOn (G : SimpleGraph V) [DecidableRel G.Adj]
     (r : ℕ) (U : Finset V) (u : V) : Finset V :=
   U.filter fun v ↦ IsLight G r u v
 
+open Classical in
 @[simp] theorem mem_lightNeighborsOn (G : SimpleGraph V)
     [DecidableRel G.Adj] (r : ℕ) (U : Finset V) (u v : V) :
     v ∈ lightNeighborsOn G r U u ↔ v ∈ U ∧ IsLight G r u v := by
+  classical
   simp [lightNeighborsOn]
 
+open Classical in
 /-- Both orientations are retained, so the sum of the restricted light
 degrees is exactly the cardinality of `lightPairsOn`. -/
 theorem sum_lightNeighborsOn_card (G : SimpleGraph V)
@@ -993,7 +1007,7 @@ theorem edge_count_le_deleteEdgesMeeting_add_degree_sum
     Finset.card_sdiff_add_card_eq_card hM
   have hdelete :
       (G.deleteEdges (M : Set (Sym2 V))).edgeFinset = G.edgeFinset \ M := by
-    simpa using G.edgeFinset_deleteEdges M
+    simp
   rw [hdelete]
   omega
 
@@ -1020,6 +1034,7 @@ def goodCenters (k : ℕ) (G : SimpleGraph V) [DecidableRel G.Adj]
 @[simp] theorem mem_goodCenters (k : ℕ) (G : SimpleGraph V)
     [DecidableRel G.Adj] (U : Finset V) (x : V) :
     x ∈ goodCenters k G U ↔ 2 * (k - 1) ≤ (neighborsIn G U x).card := by
+  classical
   simp [goodCenters]
 
 /-- Janzer's many-light-pairs estimate in a division-free ordered-pair form. -/
@@ -1302,6 +1317,7 @@ theorem card_le_safe_add_forbidden (G : SimpleGraph V)
   dsimp only [safeBranchCandidates]
   omega
 
+omit [Fintype V] in
 theorem fin_snoc_injective {i : ℕ} {branch : Fin i → V} {u : V}
     (hbranch : Function.Injective branch) (hu : ∀ j, branch j ≠ u) :
     Function.Injective (Fin.snoc branch u) := by
@@ -1314,8 +1330,9 @@ theorem fin_snoc_injective {i : ℕ} {branch : Fin i → V} {u : V}
     · exact (hu b (by simpa using hab.symm)).elim
     · rfl
 
+omit [Fintype V] in
 theorem fin_snoc_pairwise {i : ℕ} {R : V → V → Prop}
-    (hsymm : Symmetric R) {branch : Fin i → V} {u : V}
+    (hsymm : ∀ a b, R a b → R b a) {branch : Fin i → V} {u : V}
     (hold : ∀ a b, a ≠ b → R (branch a) (branch b))
     (hnew : ∀ a, R (branch a) u) :
     ∀ a b, a ≠ b →
@@ -1327,12 +1344,13 @@ theorem fin_snoc_pairwise {i : ℕ} {R : V → V → Prop}
     · simpa using hold a b (by
         intro hab'
         apply hab
-        simpa [hab'])
+        simp [hab'])
     · simpa using hnew a
   · rcases Fin.eq_castSucc_or_eq_last b with ⟨b, rfl⟩ | rfl
-    · simpa using hsymm (hnew b)
+    · simpa using hsymm (branch b) u (hnew b)
     · exact (hab rfl).elim
 
+omit [Fintype V] in
 theorem fin_snoc_noTriple {i : ℕ} (G : SimpleGraph V)
     {branch : Fin i → V} {u : V}
     (hold : HasNoTripleCommonNeighbor G branch)
@@ -1741,8 +1759,7 @@ theorem cliqueSubdivision_isContained_of_greedyBounds
       hleft.trans_le (by simpa [Q, N] using hs)
     by_contra hn
     have hz : s.candidates.card = 0 := Nat.eq_zero_of_not_pos hn
-    have : 0 < 0 := by simpa [hz] using hprodpos
-    omega
+    simp [hz] at hprodpos
   have hSafepos : 0 < Safe.card := by omega
   have hfinish := s.finish G (Finset.card_pos.mp hSafepos)
   rw [Nat.sub_add_cancel (by omega : 1 ≤ k)] at hfinish
@@ -1863,7 +1880,7 @@ ambient vertices are discarded before applying the local theorem, so its
 scale is measured using the number of vertices actually used by `H`. -/
 theorem cliqueSubdivision_isContained_of_supportAlmostRegular
     {k K δ : ℕ} (hk : 3 ≤ k) (G H : SimpleGraph V)
-    [DecidableRel G.Adj] [DecidableRel H.Adj]
+    [DecidableRel H.Adj]
     (hHG : H ≤ G) (hedge : H.edgeFinset.Nonempty)
     (hmin : ∀ v ∈ H.support, δ ≤ H.degree v)
     (hmax : ∀ v ∈ H.support, H.degree v ≤ K * δ)
@@ -1874,7 +1891,7 @@ theorem cliqueSubdivision_isContained_of_supportAlmostRegular
   let S := H.support
   let J := H.induce S
   have hS : S.Nonempty := Erdos182.support_nonempty_of_edgeFinset_nonempty hedge
-  letI : Nonempty S := hS.to_subtype
+  let : Nonempty S := hS.to_subtype
   have hJmin : ∀ v : S, δ ≤ J.degree v := by
     intro v
     rw [show J.degree v = H.degree v by
@@ -1908,23 +1925,25 @@ def denseForcingConstant (k : ℕ) : ℕ :=
   4 * regularizationParts ^ 2 *
     (localEmbeddingScale k regularizationLoss + 1)
 
-theorem denseForcingConstant_pos {k : ℕ} (hk : 3 ≤ k) :
+theorem denseForcingConstant_pos {k : ℕ} :
     0 < denseForcingConstant k := by
   dsimp [denseForcingConstant, regularizationLoss, regularizationParts]
   positivity
 
+omit [Fintype V] in
 /-- The global finite form of Janzer's theorem.  The proof is the
 Erdős--Simonovits density regularization: either deleting the high-degree
 vertices leaves a dense bounded-maximum-degree graph, or an equipartition
 finds a smaller graph with no loss in normalized density. -/
 theorem cliqueSubdivision_isContained_of_denseSupport
-    {k : ℕ} (hk : 3 ≤ k) (G : SimpleGraph V)
+    {k : ℕ} [Finite V] (hk : 3 ≤ k) (G : SimpleGraph V)
     (hedge : G.edgeSet.Nonempty)
     (hdense : (denseForcingConstant k : ℝ) *
       (G.support.ncard : ℝ) ^ (1 + janzerAlpha k) ≤
         (G.edgeSet.ncard : ℝ)) :
     cliqueSubdivision k ⊑ G := by
   classical
+  let : Fintype V := Fintype.ofFinite V
   let M := regularizationParts
   let K := regularizationLoss
   let L := localEmbeddingScale k K
@@ -1932,7 +1951,7 @@ theorem cliqueSubdivision_isContained_of_denseSupport
   generalize hn : G.support.ncard = n at hdense
   induction n using Nat.strong_induction_on generalizing G with
   | h n ih =>
-      letI : DecidableRel G.Adj := Classical.decRel G.Adj
+      let : DecidableRel G.Adj := Classical.decRel G.Adj
       let e := G.edgeFinset.card
       have hedgeFin : G.edgeFinset.Nonempty := by
         simpa [SimpleGraph.edgeFinset] using hedge
@@ -2091,7 +2110,7 @@ theorem cliqueSubdivision_isContained_of_denseSupport
             _ ≤ 2 * R.edgeFinset.card := heR
         obtain ⟨H, instH, hHR, hHedge, _hHdense, hHmin⟩ :=
           Erdos182.exists_minDegree_core R q hRnonempty hqdense
-        letI : DecidableRel H.Adj := instH
+        let : DecidableRel H.Adj := instH
         have hHG : H ≤ G := hHR.trans hRG
         have hmin : ∀ v ∈ H.support, q / 2 ≤ H.degree v := by
           intro v hv
@@ -2288,6 +2307,7 @@ theorem edge_card_le_janzer_power
     exact (mul_le_mul_of_nonneg_left hpow (by positivity)).trans hstrict.le
   exact hfree (cliqueSubdivision_isContained_of_denseSupport hk G hedge hdense)
 
+end
 end FiniteHost
 
 /-! ## Extremal-number and asymptotic packaging -/
