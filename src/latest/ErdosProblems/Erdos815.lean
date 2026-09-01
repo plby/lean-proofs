@@ -39,7 +39,7 @@ proof are documented in `tex/815.tex`.
 
 namespace Erdos815
 
-open Classical Finset Set SimpleGraph
+open Finset Set SimpleGraph
 
 attribute [local instance] Classical.decEq Classical.propDecidable
 
@@ -229,7 +229,7 @@ theorem avoidingValue_avoid20 {i j : ℕ} (hij : i ≠ j) :
 
 section ParentGraph
 
-variable {V : Type*} [Fintype V]
+variable {V : Type*}
 
 /-- The undirected graph associated to a rooted parent map. -/
 def parentGraph (root : V) (parent : V → V) : SimpleGraph V :=
@@ -245,7 +245,6 @@ lemma parentGraph_adj (root : V) (parent : V → V) (v w : V) :
 variable (root : V) (parent : V → V) (height : V → ℕ)
 
 lemma parentGraph_adj_parent
-    (hroot : parent root = root)
     (hdesc : ∀ v, v ≠ root → height (parent v) < height v)
     {v : V} (hv : v ≠ root) :
     (parentGraph root parent).Adj v (parent v) := by
@@ -254,7 +253,6 @@ lemma parentGraph_adj_parent
     Or.inl ⟨hv, rfl⟩⟩
 
 lemma parentGraph_reachable_root
-    (hroot : parent root = root)
     (hdesc : ∀ v, v ≠ root → height (parent v) < height v) :
     ∀ v, (parentGraph root parent).Reachable v root := by
   intro v
@@ -264,31 +262,28 @@ lemma parentGraph_reachable_root
       · subst v
         exact .rfl
       · exact
-          (parentGraph_adj_parent root parent height hroot hdesc hv).reachable.trans
+          (parentGraph_adj_parent root parent height hdesc hv).reachable.trans
             (ih (height (parent v)) (by
               simpa [← hvh] using hdesc v hv) (parent v) rfl)
 
 lemma parentGraph_connected
-    (hroot : parent root = root)
     (hdesc : ∀ v, v ≠ root → height (parent v) < height v) :
     (parentGraph root parent).Connected := by
   rw [connected_iff_exists_forall_reachable]
   exact ⟨root, fun v ↦
-    (parentGraph_reachable_root root parent height hroot hdesc v).symm⟩
+    (parentGraph_reachable_root root parent height hdesc v).symm⟩
 
 /-- Each nonroot vertex determines its parent edge. -/
 noncomputable def parentEdge
-    (hroot : parent root = root)
     (hdesc : ∀ v, v ≠ root → height (parent v) < height v) :
     {v : V // v ≠ root} → (parentGraph root parent).edgeSet :=
   fun v ↦ ⟨s(v.1, parent v.1), by
     rw [mem_edgeSet]
-    exact parentGraph_adj_parent root parent height hroot hdesc v.2⟩
+    exact parentGraph_adj_parent root parent height hdesc v.2⟩
 
 lemma parentEdge_injective
-    (hroot : parent root = root)
     (hdesc : ∀ v, v ≠ root → height (parent v) < height v) :
-    Function.Injective (parentEdge root parent height hroot hdesc) := by
+    Function.Injective (parentEdge root parent height hdesc) := by
   intro v w hvw
   have he : s(v.1, parent v.1) = s(w.1, parent w.1) :=
     congrArg Subtype.val hvw
@@ -305,9 +300,8 @@ lemma parentEdge_injective
     exact Nat.lt_asymm hcycle hwlt
 
 lemma parentEdge_surjective
-    (hroot : parent root = root)
     (hdesc : ∀ v, v ≠ root → height (parent v) < height v) :
-    Function.Surjective (parentEdge root parent height hroot hdesc) := by
+    Function.Surjective (parentEdge root parent height hdesc) := by
   rintro ⟨e, he⟩
   induction e using Sym2.inductionOn with
   | _ v w =>
@@ -322,16 +316,16 @@ lemma parentEdge_surjective
         exact Sym2.eq_swap
 
 noncomputable def parentEdgeEquiv
-    (hroot : parent root = root)
     (hdesc : ∀ v, v ≠ root → height (parent v) < height v) :
     {v : V // v ≠ root} ≃ (parentGraph root parent).edgeSet :=
-  Equiv.ofBijective (parentEdge root parent height hroot hdesc)
-    ⟨parentEdge_injective root parent height hroot hdesc,
-      parentEdge_surjective root parent height hroot hdesc⟩
+  Equiv.ofBijective (parentEdge root parent height hdesc)
+    ⟨parentEdge_injective root parent height hdesc,
+      parentEdge_surjective root parent height hdesc⟩
 
-lemma natCard_ne_root (root : V) :
+lemma natCard_ne_root [Finite V] (root : V) :
     Nat.card {v : V // v ≠ root} + 1 = Nat.card V := by
   classical
+  let : Fintype V := Fintype.ofFinite V
   rw [Nat.card_eq_fintype_card, Nat.card_eq_fintype_card]
   let e : {v : V // v ≠ root} ≃ ↥(({root} : Finset V)ᶜ) :=
     { toFun := fun v ↦ ⟨v, Finset.mem_compl.mpr (by
@@ -343,20 +337,20 @@ lemma natCard_ne_root (root : V) :
       right_inv := fun _ ↦ rfl }
   rw [Fintype.card_congr e, Fintype.card_coe]
   rw [Finset.card_compl, Finset.card_singleton]
-  letI : Nonempty V := ⟨root⟩
+  let : Nonempty V := ⟨root⟩
   exact Nat.sub_add_cancel Fintype.card_pos
 
 lemma parentGraph_isTree
-    (hroot : parent root = root)
+    [Finite V]
     (hdesc : ∀ v, v ≠ root → height (parent v) < height v) :
     (parentGraph root parent).IsTree := by
   rw [isTree_iff_connected_and_card]
-  refine ⟨parentGraph_connected root parent height hroot hdesc, ?_⟩
-  rw [Nat.card_congr (parentEdgeEquiv root parent height hroot hdesc).symm]
+  refine ⟨parentGraph_connected root parent height hdesc, ?_⟩
+  rw [Nat.card_congr (parentEdgeEquiv root parent height hdesc).symm]
   exact natCard_ne_root root
 
 lemma parentGraph_neighborFinset_terminal
-    (hroot : parent root = root)
+    [Fintype V]
     (hdesc : ∀ v, v ≠ root → height (parent v) < height v)
     {v : V} (hv : v ≠ root)
     (hterminal : ∀ w, w ≠ root → parent w ≠ v) :
@@ -369,7 +363,7 @@ lemma parentGraph_neighborFinset_terminal
     · exact h.2.symm
     · exact False.elim (hterminal w h.1 h.2)
   · rintro rfl
-    exact parentGraph_adj_parent root parent height hroot hdesc hv
+    exact parentGraph_adj_parent root parent height hdesc hv
 
 lemma parentGraph_adj_height_step
     (hstep : ∀ v, v ≠ root → height (parent v) + 1 = height v)
@@ -482,7 +476,7 @@ def treeGraph (m : ℕ) : SimpleGraph (TreeVertex m) :=
 
 theorem treeGraph_isTree (m : ℕ) : (treeGraph m).IsTree :=
   parentGraph_isTree (treeRoot m) treeParent treeHeight
-    (treeParent_root m) treeHeight_parent_lt
+    treeHeight_parent_lt
 
 def treeAnchor {m : ℕ} : TreeVertex m → Fin (m + 2)
   | Sum.inl i => i
@@ -515,7 +509,9 @@ def armChild {m : ℕ} (i : Fin (m + 2))
     (hnlast : l.val + 1 < avoidingValue i.val) (b : Bool) :
     treeParent (armChild i c l bits hnlast b) =
       Sum.inr ⟨i, c, ⟨l, bits⟩⟩ := by
-  simp [armChild, treeParent]
+  simp only [treeParent, armChild, Nat.add_eq_zero_iff, one_ne_zero, and_false,
+    ↓reduceDIte, Nat.add_one_sub_one, Fin.eta, Sum.inr.injEq, Sigma.mk.injEq,
+    heq_eq_eq, Prod.mk.injEq, true_and]
   funext j
   have hj :
       (⟨j.val, by omega⟩ : Fin (l.val + 1)) = j.castSucc :=
@@ -568,7 +564,7 @@ lemma treeGraph_neighborFinset_leaf {m : ℕ} {v : TreeVertex m}
     (hv : IsArmLeaf v) :
     (treeGraph m).neighborFinset v = {treeParent v} :=
   parentGraph_neighborFinset_terminal (treeRoot m) treeParent treeHeight
-    (treeParent_root m) treeHeight_parent_lt (isArmLeaf_ne_root hv)
+    treeHeight_parent_lt (isArmLeaf_ne_root hv)
     (isArmLeaf_has_no_child hv)
 
 lemma treeGraph_degree_leaf {m : ℕ} {v : TreeVertex m}
@@ -794,7 +790,7 @@ lemma treeGraph_dist_anchor_arm_le {m : ℕ} (i : Fin (m + 2))
         have hadj : (treeGraph m).Adj (Sum.inl i) node := by
           have ha :=
             parentGraph_adj_parent (treeRoot m) treeParent treeHeight
-              (treeParent_root m) treeHeight_parent_lt hnode
+              treeHeight_parent_lt hnode
           rw [hp] at ha
           exact ha.symm
         have hd : (treeGraph m).dist (Sum.inl i) node = 1 :=
@@ -813,7 +809,7 @@ lemma treeGraph_dist_anchor_arm_le {m : ℕ} (i : Fin (m + 2))
         have hadj : (treeGraph m).Adj pnode node := by
           have ha :=
             parentGraph_adj_parent (treeRoot m) treeParent treeHeight
-              (treeParent_root m) treeHeight_parent_lt hnode
+              treeHeight_parent_lt hnode
           rw [hp] at ha
           exact ha.symm
         have hdist : (treeGraph m).dist pnode node = 1 :=
@@ -873,7 +869,7 @@ lemma treeGraph_dist_spine_le {m : ℕ} (i j : Fin (m + 2))
         have hadj : (treeGraph m).Adj (Sum.inl jp) (Sum.inl j) := by
           have ha :=
             parentGraph_adj_parent (treeRoot m) treeParent treeHeight
-              (treeParent_root m) treeHeight_parent_lt hjroot
+              treeHeight_parent_lt hjroot
           rw [hp] at ha
           exact ha.symm
         have hdist :
@@ -1129,18 +1125,18 @@ lemma treeGraph_degree_arm_ge_three {m : ℕ}
   have hctroot : ct ≠ treeRoot m := by simp [ct, armChild, treeRoot]
   have hvp : (treeGraph m).Adj v p :=
     parentGraph_adj_parent (treeRoot m) treeParent treeHeight
-      (treeParent_root m) treeHeight_parent_lt hvroot
+      treeHeight_parent_lt hvroot
   have hvcf : (treeGraph m).Adj v cf := by
     have h :=
       parentGraph_adj_parent (treeRoot m) treeParent treeHeight
-        (treeParent_root m) treeHeight_parent_lt hcfroot
+        treeHeight_parent_lt hcfroot
     rw [show treeParent cf = v by
       simp [cf, v, treeParent_armChild]] at h
     exact h.symm
   have hvct : (treeGraph m).Adj v ct := by
     have h :=
       parentGraph_adj_parent (treeRoot m) treeParent treeHeight
-        (treeParent_root m) treeHeight_parent_lt hctroot
+        treeHeight_parent_lt hctroot
     rw [show treeParent ct = v by
       simp [ct, v, treeParent_armChild]] at h
     exact h.symm
@@ -1226,8 +1222,8 @@ lemma treeGraph_degree_spine_ge_three {m : ℕ} (i : Fin (m + 2)) :
     have h0 := treeGraph_adj_spine_armRoot i c0
     have h1 := treeGraph_adj_spine_armRoot i c1
     apply three_le_degree_of_three_neighbors hj h0 h1
-    · simp [j, armRoot]
-    · simp [j, armRoot]
+    · simp [armRoot]
+    · simp [armRoot]
     · intro h
       have heq : c0 = c1 := by
         simpa [armRoot] using h
@@ -1244,8 +1240,8 @@ lemma treeGraph_degree_spine_ge_three {m : ℕ} (i : Fin (m + 2)) :
       have h0 := treeGraph_adj_spine_armRoot i c0
       have h1 := treeGraph_adj_spine_armRoot i c1
       apply three_le_degree_of_three_neighbors hj h0 h1
-      · simp [j, armRoot]
-      · simp [j, armRoot]
+      · simp [armRoot]
+      · simp [armRoot]
       · intro h
         have heq : c0 = c1 := by
           simpa [armRoot] using h
@@ -1265,8 +1261,8 @@ lemma treeGraph_degree_spine_ge_three {m : ℕ} (i : Fin (m + 2)) :
         have heq := congrArg treeHeight h
         simp only [treeHeight] at heq
         omega
-      · simp [jp, armRoot]
-      · simp [js, armRoot]
+      · simp [armRoot]
+      · simp [armRoot]
 
 /-- Every non-leaf vertex of the NPS tree has at least three neighbors. -/
 lemma treeGraph_lower_degree_le {m : ℕ} (v : TreeVertex m) :
@@ -1552,12 +1548,12 @@ theorem twoApexAugmentation_minDegree_le_two
         exact ⟨hx, hyS, by simpa [H] using hxy⟩
       · exact hv₀
     exact hvH
-  haveI : Nonempty V := hT.connected.nonempty
+  have : Nonempty V := hT.connected.nonempty
   let v : V := Classical.arbitrary V
   have hvpos : 0 < T.degree v := by
     rcases hdegree v with hv | hv <;> omega
   obtain ⟨w, hvw⟩ := (T.degree_pos_iff_exists_adj v).mp hvpos
-  letI : Nontrivial V := nontrivial_of_ne v w (T.ne_of_adj hvw)
+  let : Nontrivial V := nontrivial_of_ne v w (T.ne_of_adj hvw)
   obtain ⟨leaf, hleaf⟩ := hT.exists_vert_degree_one_of_nontrivial
   have hapex : ∀ i : Fin 2, Sum.inr i ∈ s := by
     intro i
@@ -1642,15 +1638,15 @@ theorem twoApexAugmentation_delete_apexEdge_colorable_two
       {s(Sum.inr (0 : Fin 2), Sum.inr (1 : Fin 2))}).Colorable 2 := by
   refine ⟨SimpleGraph.Coloring.mk (twoApexColor color) ?_⟩
   rintro (v | i) (w | j) hadj
-  rw [SimpleGraph.deleteEdges_adj] at hadj
+  all_goals rw [SimpleGraph.deleteEdges_adj] at hadj
   · exact hproper hadj.1
   · have hv := hleaf v hadj.1
-    simpa [twoApexColor, hv]
+    simp [twoApexColor, hv]
   · have hw := hleaf w hadj.1
-    simpa [twoApexColor, hw]
+    simp [twoApexColor, hw]
   · exfalso
     apply hadj.2
-    fin_cases i <;> fin_cases j <;> simp_all [Sym2.eq_iff]
+    fin_cases i <;> fin_cases j <;> simp_all
 
 theorem twoApexAugmentation_first_apex_neighbor_is_leaf
     {V : Type*} [Fintype V] (T : SimpleGraph V) :
@@ -1719,7 +1715,7 @@ lemma exists_complementary_path_of_mem_cycle_edges
       have hmem' : s(x, y) ∈ cr.tail.edges := by
         simpa [p, q, Walk.edges_reverse] using hmem
       rw [← cr.cons_tail_eq hcr.not_nil] at hcr
-      have hhead : s(x, y) = s(x, cr.snd) := by simpa [hsnd]
+      have hhead : s(x, y) = s(x, cr.snd) := by simp [hsnd]
       exact ((Walk.cons_isCycle_iff _ _).mp hcr).2 (hhead ▸ hmem')
   · have hxyTail : s(x, y) ∈ cr.tail.edges := by
       rw [← cr.cons_tail_eq hcr.not_nil, Walk.edges_cons,
@@ -1758,7 +1754,7 @@ lemma exists_complementary_path_of_mem_cycle_edges
       have hcrrev := hcr.reverse
       rw [← cr.reverse.cons_tail_eq hcrrev.not_nil] at hcrrev
       have hhead : s(x, y) = s(x, cr.reverse.snd) := by
-        simpa [hsndRev]
+        simp [hsndRev]
       exact ((Walk.cons_isCycle_iff _ _).mp hcrrev).2 (hhead ▸ hmem')
 
 /-- A 23-cycle whose distinguished-edge deletion is bipartite contains a
@@ -2050,7 +2046,7 @@ theorem arbitraryCounterexamples_to_fin
         DegreeThreeCritical G ∧ ¬ cycleGraph 23 ⊑ G := by
   intro N
   obtain ⟨V, inst, G, hcard, hG, hfree⟩ := hcounter N
-  letI : Fintype V := inst
+  let : Fintype V := inst
   refine ⟨Fintype.card V, hcard, ?_⟩
   exact finiteCounterexample_to_fin G hG hfree
 
@@ -2060,10 +2056,9 @@ theorem erdos815_of_fin_counterexamples
         DegreeThreeCritical G ∧ ¬ cycleGraph 23 ⊑ G) :
     ¬ Erdos815Statement := by
   intro hstatement
-  ·
-    obtain ⟨N, hN⟩ := hstatement 23 (by omega)
-    obtain ⟨n, hn, G, hG, hfree⟩ := hcounter N
-    exact (hfree (hN n hn G hG)).elim
+  obtain ⟨N, hN⟩ := hstatement 23 (by omega)
+  obtain ⟨n, hn, G, hG, hfree⟩ := hcounter N
+  exact (hfree (hN n hn G hG)).elim
 
 theorem erdos815_of_arbitrary_counterexamples
     (hcounter : ∀ N : ℕ,
