@@ -7,7 +7,7 @@ import Mathlib.Topology.Algebra.GroupWithZero
 namespace Erdos1123
 
 open Filter
-open scoped Topology Classical
+open scoped Topology
 
 variable {α β : Type*}
 
@@ -18,17 +18,20 @@ structure Coupling (W : WeightSequence α) (V : WeightSequence β) where
   matching : ∀ p ∈ algebra, Tendsto (fun n => W.mass p.1 n - V.mass p.2 n) atTop (𝓝 0)
 
 /-- The simultaneous membership pattern in a finite family of sets. -/
-noncomputable def jointLabel {ι : Type*} (a : ι → Set α) (x : α) : ι → Bool :=
-  fun i => decide (x ∈ a i)
+noncomputable def jointLabel {ι : Type*} (a : ι → Set α) (x : α) : ι → Bool := by
+  classical
+  exact fun i => decide (x ∈ a i)
 
 namespace Coupling
 
 variable {W : WeightSequence α} {V : WeightSequence β} (C : Coupling W V)
 
-theorem pattern_matching {ι : Type*} [Fintype ι] (p : ι → C.algebra) (σ : ι → Bool) :
+theorem pattern_matching {ι : Type*} [Finite ι] (p : ι → C.algebra) (σ : ι → Bool) :
     Tendsto (fun n =>
       W.profile (jointLabel (fun i => (p i).val.1)) n σ -
       V.profile (jointLabel (fun i => (p i).val.2)) n σ) atTop (𝓝 0) := by
+  classical
+  let _ := Fintype.ofFinite ι
   let q : Set α × Set β := ⨅ i, if σ i then (p i).val else (p i).valᶜ
   have hq : q ∈ C.algebra := by
     apply C.algebra.iInf_mem

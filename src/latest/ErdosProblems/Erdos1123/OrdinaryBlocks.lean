@@ -6,7 +6,7 @@ import ErdosProblems.Erdos1123.BlockBackAndForth
 namespace Erdos1123
 
 open Filter
-open scoped Topology Classical
+open scoped Topology
 
 def dyadicCut (n : ℕ) : ℕ := 2 ^ n
 
@@ -48,10 +48,12 @@ theorem ordinary_mass_cumulative (A : Set ℕ) (n : ℕ) :
   rw [ordinary_mass, cumulative_eq_sum_filter]
   simp
 
-theorem ordinaryBlocks_null_iff (A : Set ℕ) : ordinaryBlocks.IsNull A ↔ ordinaryWeights.IsNull A := by
+theorem ordinaryBlocks_null_iff (A : Set ℕ) :
+    ordinaryBlocks.IsNull A ↔ ordinaryWeights.IsNull A := by
   have h := geometricBlocks_null_iff (fun _ => 1) (fun n => (n : ℝ)) dyadicCut
     (fun _ => zero_le_one) Nat.cast_nonneg dyadicCut_strictMono
-    (fun _ _ h => Nat.cast_le.mpr h) tendsto_natCast_atTop_atTop dyadicCut_cast_pos dyadicCut_double A
+    (fun _ _ h => Nat.cast_le.mpr h) tendsto_natCast_atTop_atTop
+    dyadicCut_cast_pos dyadicCut_double A
   change ordinaryBlocks.IsNull A ↔ Tendsto (ordinaryWeights.mass A) atTop (𝓝 0)
   rw [funext (ordinary_mass_cumulative A)]
   exact h

@@ -6,7 +6,7 @@ import ErdosProblems.Erdos1123.Diagonal
 namespace Erdos1123
 
 open Filter
-open scoped Topology Classical
+open scoped Topology
 
 variable {α β : Type*} {W : WeightSequence α} {V : WeightSequence β}
 
@@ -18,6 +18,7 @@ theorem Coupling.exists_matching_intersections (C : Coupling W V) [Countable C.a
     (hAtom : ∀ n x, x ∈ V.support n → V.weight n x ≤ δ n) (A : Set α) :
     ∃ B : Set β, ∀ p : C.algebra,
       Tendsto (fun n => W.mass (p.val.1 ∩ A) n - V.mass (p.val.2 ∩ B) n) atTop (𝓝 0) := by
+  classical
   obtain ⟨p, hp⟩ := exists_surjective_nat C.algebra
   let f (k : ℕ) : α → (Fin k → Bool) := jointLabel (fun i => (p i.val).val.1)
   let g (k : ℕ) : β → (Fin k → Bool) := jointLabel (fun i => (p i.val).val.2)

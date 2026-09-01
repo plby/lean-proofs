@@ -26,7 +26,8 @@ def symm : Coupling V W where
     simpa only [neg_sub, neg_zero, Prod.swap] using (C.matching p.swap hp).neg
 
 instance symm_countable [Countable C.algebra] : Countable C.symm.algebra := by
-  apply Function.Injective.countable (f := fun p : C.symm.algebra => (⟨p.val.swap, p.property⟩ : C.algebra))
+  apply Function.Injective.countable
+    (f := fun p : C.symm.algebra => (⟨p.val.swap, p.property⟩ : C.algebra))
   intro p q hpq
   apply Subtype.ext
   exact Prod.swap_injective (congrArg Subtype.val hpq)

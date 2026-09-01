@@ -9,12 +9,11 @@ import Mathlib.Algebra.BigOperators.Ring.Finset
 namespace Erdos1123
 namespace WeightSequence
 
-open scoped Classical
-
 variable {α β ι : Type*}
 
 theorem mass_finset (W : WeightSequence α) (n : ℕ) (s : Finset α)
     (hs : s ⊆ W.support n) : W.mass (s : Set α) n = ∑ x ∈ s, W.weight n x := by
+  classical
   unfold mass
   simp only [Finset.mem_coe]
   rw [← Finset.sum_filter]
@@ -24,25 +23,31 @@ theorem mass_finset (W : WeightSequence α) (n : ℕ) (s : Finset α)
   exact ⟨And.right, fun hx => ⟨hs hx, hx⟩⟩
 
 /-- The mass distribution of a finite labeling. -/
-noncomputable def profile (W : WeightSequence α) (f : α → ι) (n : ℕ) (i : ι) : ℝ :=
-  W.mass {x | f x = i} n
+noncomputable def profile (W : WeightSequence α) (f : α → ι) (n : ℕ) (i : ι) : ℝ := by
+  classical
+  exact W.mass {x | f x = i} n
 
 /-- Total variation without the conventional factor `1/2`. -/
 noncomputable def profileDistance [Fintype ι] (W : WeightSequence α) (V : WeightSequence β)
-    (f : α → ι) (g : β → ι) (n : ℕ) : ℝ :=
-  ∑ i, |W.profile f n i - V.profile g n i|
+    (f : α → ι) (g : β → ι) (n : ℕ) : ℝ := by
+  classical
+  exact ∑ i, |W.profile f n i - V.profile g n i|
 
+open Classical in
 theorem profile_eq_sum (W : WeightSequence α) (f : α → ι) (n : ℕ) (i : ι) :
     W.profile f n i = ∑ x ∈ (W.support n).filter (fun x => f x = i), W.weight n x := by
+  classical
   simp [profile, mass, ← Finset.sum_filter]
 
 /-- Append the membership bit of a new set to an old finite labeling. -/
-noncomputable def splitLabel (f : α → ι) (A : Set α) (x : α) : ι × Bool :=
-  (f x, decide (x ∈ A))
+noncomputable def splitLabel (f : α → ι) (A : Set α) (x : α) : ι × Bool := by
+  classical
+  exact (f x, decide (x ∈ A))
 
 theorem profile_split_true (W : WeightSequence α) (f : α → ι) (A : Set α)
     (n : ℕ) (i : ι) :
     W.profile (splitLabel f A) n (i, true) = W.mass ({x | f x = i} ∩ A) n := by
+  classical
   apply W.mass_congr
   intro x _
   simp [splitLabel, Prod.mk.injEq]
@@ -51,6 +56,7 @@ theorem profile_split_false (W : WeightSequence α) (f : α → ι) (A : Set α)
     (n : ℕ) (i : ι) :
     W.profile (splitLabel f A) n (i, false) =
       W.profile f n i - W.mass ({x | f x = i} ∩ A) n := by
+  classical
   have h : W.profile (splitLabel f A) n (i, false) =
       W.mass ({x | f x = i} \ A) n := by
     apply W.mass_congr
@@ -61,10 +67,12 @@ theorem profile_split_false (W : WeightSequence α) (f : α → ι) (A : Set α)
   unfold profile
   linarith
 
+open Classical in
 /-- Independently chosen subsets of distinct label fibers do not interfere. -/
 theorem fiber_inter_union {g : β → ι} {s : Finset β} (u : ι → Finset β)
     (hu : ∀ i, u i ⊆ s.filter (fun x => g x = i)) (i : ι) :
     {x | g x = i} ∩ (⋃ j, (u j : Set β)) = (u i : Set β) := by
+  classical
   ext x
   constructor
   · rintro ⟨hx, hxU⟩
@@ -75,9 +83,11 @@ theorem fiber_inter_union {g : β → ι} {s : Finset β} (u : ι → Finset β)
   · intro hx
     exact ⟨(Finset.mem_filter.mp (hu i hx)).2, Set.mem_iUnion.mpr ⟨i, hx⟩⟩
 
+open Classical in
 theorem mass_preimage_eq_sum [Fintype ι] (W : WeightSequence α) (f : α → ι)
     (C : Set ι) (n : ℕ) :
     W.mass (f ⁻¹' C) n = ∑ i ∈ Finset.univ.filter (· ∈ C), W.profile f n i := by
+  classical
   unfold profile mass
   rw [Finset.sum_comm]
   apply Finset.sum_congr rfl
@@ -88,6 +98,7 @@ theorem mass_preimage_eq_sum [Fintype ι] (W : WeightSequence α) (f : α → ι
 theorem abs_mass_preimage_sub_le [Fintype ι] (W : WeightSequence α)
     (V : WeightSequence β) (f : α → ι) (g : β → ι) (C : Set ι) (n : ℕ) :
     |W.mass (f ⁻¹' C) n - V.mass (g ⁻¹' C) n| ≤ W.profileDistance V f g n := by
+  classical
   rw [W.mass_preimage_eq_sum, V.mass_preimage_eq_sum, ← Finset.sum_sub_distrib]
   apply (Finset.abs_sum_le_sum_abs _ _).trans
   apply Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _)
@@ -101,6 +112,7 @@ theorem exists_profile_refinement [Fintype ι] (W : WeightSequence α)
     {δ : ℝ} (hδ : 0 ≤ δ) (hAtom : ∀ x ∈ V.support n, V.weight n x ≤ δ) :
     ∃ B : Set β, W.profileDistance V (splitLabel f A) (splitLabel g B) n ≤
       2 * W.profileDistance V f g n + 2 * (Fintype.card ι : ℝ) * δ := by
+  classical
   have hex (i : ι) := exists_subset_two_errors
     ((V.support n).filter (fun x => g x = i)) (V.weight n) hδ
     (W.mass_nonneg ({x | f x = i} ∩ A) n)

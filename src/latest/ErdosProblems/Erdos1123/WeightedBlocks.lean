@@ -9,22 +9,27 @@ import Mathlib.Tactic.FieldSimp
 namespace Erdos1123
 
 open Filter
-open scoped Topology Classical
+open scoped Topology
 
 /-- The weighted count of a set in `1, ..., n`. -/
-noncomputable def cumulative (w : ℕ → ℝ) (A : Set ℕ) (n : ℕ) : ℝ :=
-  ∑ x ∈ Finset.Ioc 0 n, if x ∈ A then w x else 0
+noncomputable def cumulative (w : ℕ → ℝ) (A : Set ℕ) (n : ℕ) : ℝ := by
+  classical
+  exact ∑ x ∈ Finset.Ioc 0 n, if x ∈ A then w x else 0
 
+open Classical in
 theorem cumulative_eq_sum_filter (w : ℕ → ℝ) (A : Set ℕ) (n : ℕ) :
     cumulative w A n = ∑ x ∈ (Finset.Icc 1 n).filter (· ∈ A), w x := by
+  classical
   have hI : Finset.Ioc 0 n = Finset.Icc 1 n := by
     ext x
     simp only [Finset.mem_Ioc, Finset.mem_Icc]
     omega
-  simp only [cumulative, hI, Finset.sum_filter]
+  simp only [cumulative, hI]
+  rw [Finset.sum_filter]
 
 theorem cumulative_nonneg {w : ℕ → ℝ} (hw : ∀ x, 0 ≤ w x) (A : Set ℕ) (n : ℕ) :
     0 ≤ cumulative w A n := by
+  classical
   apply Finset.sum_nonneg
   intro x _
   split_ifs
@@ -33,6 +38,7 @@ theorem cumulative_nonneg {w : ℕ → ℝ} (hw : ∀ x, 0 ≤ w x) (A : Set ℕ
 
 theorem cumulative_mono {w : ℕ → ℝ} (hw : ∀ x, 0 ≤ w x) (A : Set ℕ) :
     Monotone (cumulative w A) := by
+  classical
   intro n m hnm
   apply Finset.sum_le_sum_of_subset_of_nonneg
   · intro x hx
@@ -42,9 +48,11 @@ theorem cumulative_mono {w : ℕ → ℝ} (hw : ∀ x, 0 ≤ w x) (A : Set ℕ) 
     · exact hw x
     · exact le_rfl
 
+open Classical in
 theorem cumulative_increment (w : ℕ → ℝ) (A : Set ℕ) {n m : ℕ} (hnm : n ≤ m) :
     cumulative w A m - cumulative w A n =
       ∑ x ∈ Finset.Ioc n m, if x ∈ A then w x else 0 := by
+  classical
   have h := Finset.sum_Ioc_consecutive (fun x => if x ∈ A then w x else 0) (Nat.zero_le n) hnm
   unfold cumulative
   linarith
@@ -62,6 +70,7 @@ theorem geometricBlocks_mass (w D : ℕ → ℝ) (b : ℕ → ℕ)
     (A : Set ℕ) (n : ℕ) :
     (geometricBlocks w D b hw hD).mass A n =
       (cumulative w A (b (n + 1)) - cumulative w A (b n)) / D (b n) := by
+  classical
   rw [cumulative_increment w A (hb (Nat.le_succ n))]
   simp only [WeightSequence.mass, geometricBlocks, Finset.sum_div, ite_div, zero_div]
 

@@ -39,7 +39,8 @@ theorem ratio_zero_of_increment_ratio_zero (a d : ℕ → ℝ)
     have hBound := increments_upper_bound a d (ε / 2) N hIncrement
     have hconst : Tendsto (fun n => a N / d n) atTop (𝓝 0) :=
       hdTop.const_div_atTop (a N)
-    filter_upwards [hconst.eventually (gt_mem_nhds (half_pos hε)), eventually_ge_atTop N] with n hn hNn
+    filter_upwards [hconst.eventually (gt_mem_nhds (half_pos hε)),
+      eventually_ge_atTop N] with n hn hNn
     have hc := (div_lt_iff₀ (hd n)).mp hn
     have hb := hBound n hNn
     have hprod : 0 ≤ (ε / 2) * d N := mul_nonneg (half_pos hε).le (hd N).le

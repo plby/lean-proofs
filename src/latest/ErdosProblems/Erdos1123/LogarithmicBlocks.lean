@@ -6,7 +6,7 @@ import Mathlib.NumberTheory.Harmonic.Bounds
 namespace Erdos1123
 
 open Filter
-open scoped Topology Classical
+open scoped Topology
 
 def logarithmicCut (n : ℕ) : ℕ := 2 ^ (2 ^ n)
 
@@ -83,7 +83,8 @@ noncomputable def logarithmicBlockStructure : BlockStructure logarithmicBlocks w
     (nat_log_tendsto_atTop.comp logarithmicCut_strictMono.tendsto_atTop).const_div_atTop 1
   weight_le n x _ := div_le_div_of_nonneg_right (nat_inv_le_one x) (logarithmicCut_log_pos n).le
   normalized := by
-    have hδ := (nat_log_tendsto_atTop.comp logarithmicCut_strictMono.tendsto_atTop).const_div_atTop 1
+    have hδ :=
+      (nat_log_tendsto_atTop.comp logarithmicCut_strictMono.tendsto_atTop).const_div_atTop 1
     apply tendsto_of_tendsto_of_tendsto_of_le_of_le
       (g := fun n => 1 - 1 / Real.log (logarithmicCut n))
       (h := fun n => 1 + 1 / Real.log (logarithmicCut n))

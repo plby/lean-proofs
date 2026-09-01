@@ -14,7 +14,7 @@ Sets are subsets of `ℕ`; the density statistics use the positive integers
 namespace Erdos1123
 
 open Filter
-open scoped Topology symmDiff Classical
+open scoped Topology symmDiff
 
 /-- CH, with no additional hypotheses hidden in the definition. -/
 def ContinuumHypothesis : Prop := Cardinal.continuum.{0} = Cardinal.aleph 1
@@ -46,12 +46,14 @@ noncomputable def LogDensityZero (A : Set ℕ) : Prop := by
     (∑ x ∈ (Finset.Icc 1 n).filter (· ∈ A), (x : ℝ)⁻¹) / Real.log n)
     atTop (𝓝 0)
 
+open Classical in
 theorem ordinary_mass (A : Set ℕ) (n : ℕ) :
     ordinaryWeights.mass A n =
       ((Finset.Icc 1 n).filter (· ∈ A)).card / (n : ℝ) := by
   classical
   simp [WeightSequence.mass, ordinaryWeights, ← Finset.sum_filter, div_eq_mul_inv]
 
+open Classical in
 theorem logarithmic_mass (A : Set ℕ) (n : ℕ) :
     logarithmicWeights.mass A n =
       (∑ x ∈ (Finset.Icc 1 n).filter (· ∈ A), (x : ℝ)⁻¹) / Real.log n := by
