@@ -174,12 +174,12 @@ lemma circleAverage_kernel_mul_log {r : ℝ} {z : ℂ} (hr0 : 0 ≤ r) (hr1 : r 
       Real.log ‖(r : ℂ) - z‖ := by
   apply circleAverage_re_herglotzRieszKernel_mul_log
   · simpa [mem_sphere_iff_norm] using hz
-  · simp [mem_ball_iff_norm, abs_of_nonneg hr0, hr1]
+  · simp [abs_of_nonneg hr0, hr1]
 
 lemma circleAverage_kernel {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) :
     circleAverage (kernel r) 0 1 = 1 := by
   have hw : (r : ℂ) ∈ ball 0 1 := by
-    simp [mem_ball_iff_norm, abs_of_nonneg hr0, hr1]
+    simp [abs_of_nonneg hr0, hr1]
   have hf : InnerProductSpace.HarmonicContOnCl (fun _ : ℂ ↦ (1 : ℝ)) (ball 0 1) :=
     InnerProductSpace.harmonicContOnCl_const
   change circleAverage (fun z ↦ kernel r z) 0 1 = 1
@@ -193,7 +193,7 @@ lemma circleAverage_kernel {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) :
 lemma continuousOn_kernel {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) :
     ContinuousOn (kernel r) (sphere 0 |(1 : ℝ)|) := by
   have hw : (r : ℂ) ∈ ball 0 1 := by
-    simp [mem_ball_iff_norm, abs_of_nonneg hr0, hr1]
+    simp [abs_of_nonneg hr0, hr1]
   exact Complex.continuous_re.comp_continuousOn
     (continuousOn_herglotzRieszKernel_sphere hw)
 
@@ -274,7 +274,7 @@ lemma circleAverage_weight_mul_logBoundary {n : ℕ} {r h : ℝ} (ρ : Fin n →
 lemma weight_nonneg_on_unitSphere {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1)
     {z : ℂ} (hz : z ∈ sphere 0 1) : 0 ≤ weight r z := by
   have hw : (r : ℂ) ∈ ball 0 1 := by
-    simp [mem_ball_iff_norm, abs_of_nonneg hr0, hr1]
+    simp [abs_of_nonneg hr0, hr1]
   have := le_re_herglotzRieszKernel (w := (r : ℂ)) hz hw
   simpa [weight, kernel, kernelLower, herglotzRieszKernel_def, abs_of_nonneg hr0] using this
 
@@ -370,11 +370,13 @@ lemma tendsto_weighted_log_quadratic (t : ℝ) :
   have hq : HasDerivAt (fun r : ℝ ↦ 1 - 2 * r * t + r ^ 2) (-2 * t) 0 := by
     have hone : HasDerivAt (fun _ : ℝ ↦ (1 : ℝ)) 0 0 := hasDerivAt_const 0 1
     have hid : HasDerivAt (fun r : ℝ ↦ r) 1 0 := hasDerivAt_id' 0
-    convert! (hone.sub ((hid.const_mul 2).mul_const t)).add (hid.pow 2) using 1 <;> ring
+    convert! (hone.sub ((hid.const_mul 2).mul_const t)).add (hid.pow 2) using 1
+    all_goals ring
   have hlog : HasDerivAt
       (fun r : ℝ ↦ Real.log (1 - 2 * r * t + r ^ 2)) (-2 * t) 0 := by
     have hne : (1 - 2 * (0 : ℝ) * t + 0 ^ 2) ≠ 0 := by norm_num
-    convert! (Real.hasDerivAt_log hne).comp 0 hq using 1 <;> norm_num
+    convert! (Real.hasDerivAt_log hne).comp 0 hq using 1
+    all_goals norm_num
   have hslope : Tendsto
       (fun r : ℝ ↦ r⁻¹ * Real.log (1 - 2 * r * t + r ^ 2))
       (nhdsWithin 0 ({0}ᶜ : Set ℝ)) (nhds (-2 * t)) := by
@@ -390,7 +392,8 @@ lemma tendsto_weighted_log_quadratic (t : ℝ) :
   have hbase : Tendsto
       (fun r : ℝ ↦ Real.log (1 - 2 * r * t + r ^ 2) / (2 * r))
       (nhdsWithin 0 ({0}ᶜ : Set ℝ)) (nhds (-t)) := by
-    convert hhalf.congr' heq using 1 <;> ring
+    convert hhalf.congr' heq using 1
+    all_goals ring
   have hbaseR := hbase.mono_left (nhdsGT_le_nhdsNE (0 : ℝ))
   have hfac0 : Tendsto (fun r : ℝ ↦ -(1 + r)) (nhds 0) (nhds (-1)) := by
     have hc : ContinuousAt (fun r : ℝ ↦ -(1 + r)) 0 := by fun_prop
@@ -409,7 +412,8 @@ lemma tendsto_weighted_log_quadratic (t : ℝ) :
     rw [quadratic]
     ring
   have htarget := hout.congr' hevent
-  convert htarget using 1 <;> ring
+  convert htarget using 1
+  all_goals ring
 
 theorem weighted_jensen {n : ℕ} (hn : 0 < n) {h : ℝ} (hh : 0 < h) (ρ : Fin n → ℂ)
     (hρ : ∀ i, ‖ρ i‖ = 1)
