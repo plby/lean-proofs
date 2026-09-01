@@ -131,9 +131,8 @@ lemma intPoint_injective : Function.Injective intPoint := by
 lemma dist_intPoint_sq (x y : ℤ × ℤ) :
     dist (intPoint x) (intPoint y) ^ 2 = (intSqDist x y : ℝ) := by
   rw [dist_eq_norm, EuclideanSpace.norm_eq, Real.sq_sqrt]
-  norm_num [intPoint, intSqDist, Fin.sum_univ_two]
-  ring_nf
-  positivity
+  · norm_num [intPoint, intSqDist, Fin.sum_univ_two]
+  · positivity
 
 lemma dist_intPoint_eq_iff {a b c d : ℤ × ℤ} :
     dist (intPoint a) (intPoint b) = dist (intPoint c) (intPoint d) ↔
@@ -179,7 +178,7 @@ lemma hasPhi45_iff_badQuads_eq_empty {S : Finset Plane} :
       simp only [distanceCount] at hlt ⊢
       omega
     have : Q ∈ badQuads S := mem_badQuads.mpr ⟨hQS, hQcard, hle⟩
-    simpa [h] using this
+    simp [h] at this
 
 /-- The integer interval `0, ..., N-1`. -/
 noncomputable def intRange (N : ℕ) : Finset ℤ :=
@@ -278,7 +277,7 @@ lemma hasPhi45_image_of_parallelogramFree_of_no_otherBad
   · exact hpara Q hQS hQcard hQP
   · have hmem : Q ∈ otherBadIntQuads S :=
       mem_otherBadIntQuads.mpr ⟨hQS, hQcard, by simpa [hQR] using hR.2.2, hQP⟩
-    simpa [hbad] using hmem
+    simp [hbad] at hmem
 
 /-! ## A finite deletion lemma -/
 
@@ -358,7 +357,7 @@ end Deletion
 
 section FiniteAveraging
 
-variable {Ω : Type*} [DecidableEq Ω]
+variable {Ω : Type*}
 
 /-- If the sum of integer scores is at least `L` times the number of
 outcomes, some outcome has score at least `L`. -/
@@ -366,8 +365,9 @@ lemma exists_score_ge_average {outcomes : Finset Ω} (hout : outcomes.Nonempty)
     (score : Ω → ℤ) (L : ℤ)
     (hsum : (outcomes.card : ℤ) * L ≤ ∑ ω ∈ outcomes, score ω) :
     ∃ ω ∈ outcomes, L ≤ score ω := by
+  classical
   by_contra h
-  push_neg at h
+  push Not at h
   obtain ⟨ω₀, hω₀⟩ := hout
   have hlt : (∑ ω ∈ outcomes, score ω) < ∑ _ω ∈ outcomes, L := by
     apply Finset.sum_lt_sum
@@ -713,8 +713,7 @@ lemma normalizedFourPoly_totalDegree_le {F : Type*} [Field F]
     MvPolynomial.C (t * (t - 1)) * MvPolynomial.X 1 ^ 2
   have hpow (i : Fin 2) :
       (MvPolynomial.X i ^ 2 : MvPolynomial (Fin 2) F).totalDegree ≤ 2 := by
-    simpa using MvPolynomial.totalDegree_pow
-      (MvPolynomial.X i : MvPolynomial (Fin 2) F) 2
+    simp
   have hxy :
       (MvPolynomial.X 0 * MvPolynomial.X 1 :
         MvPolynomial (Fin 2) F).totalDegree ≤ 2 := by
@@ -1393,7 +1392,7 @@ lemma exists_large_clean_parabola {p N : ℕ} [Fact p.Prime]
 
 lemma average_inequality_of_bad_bound
     {K D N p H : ℕ} [Fact p.Prime]
-    (hD : 1 ≤ D) (hDK : 32 * K ≤ D ^ 3) (hN : 1 ≤ N)
+    (hDK : 32 * K ≤ D ^ 3)
     (hpLower : D * N < p) (hpUpper : p ≤ 2 * (D * N))
     (hH : H ≤ K * N ^ 5) :
     Fintype.card (ParabolaOutcome p) * (N / (4 * D)) + 8 * p * H ≤
@@ -1453,7 +1452,7 @@ lemma average_inequality_of_bad_bound
           (2 * p * (N / (4 * D))) * G := by ring
       _ ≤ N ^ 2 * G := Nat.mul_le_mul_right G hmain
   have hloss' : 2 * (8 * p * H) ≤ N ^ 2 * G := by
-    convert hloss using 1 <;> ring
+    convert hloss using 1; ring
   apply Nat.le_of_mul_le_mul_left (c := 2) _ (by decide)
   calc
     2 * (p * G * (N / (4 * D)) + 8 * p * H) =
@@ -1475,13 +1474,13 @@ lemma exists_grid_subset_of_bad_bound {K N : ℕ} (hN : 1 ≤ N)
   have hDN0 : D * N ≠ 0 := Nat.mul_ne_zero (by omega) (by omega)
   obtain ⟨p, hpprime, hpLower, hpUpper⟩ :=
     Nat.exists_prime_lt_and_le_two_mul (D * N) hDN0
-  letI : Fact p.Prime := ⟨hpprime⟩
+  let : Fact p.Prime := ⟨hpprime⟩
   have hp : 0 < p := hpprime.pos
   have hp2 : 2 < p := by
     have h32 : 32 ≤ D * N := by
       calc
         32 = 32 * 1 * 1 := by ring
-        _ ≤ 32 * (K + 1) * N := by gcongr <;> omega
+        _ ≤ 32 * (K + 1) * N := by gcongr; omega
         _ = D * N := by rfl
     exact (by omega : 2 < 32).trans (h32.trans_lt hpLower)
   have hNp : N ≤ p := by
@@ -1509,7 +1508,7 @@ lemma exists_grid_subset_of_bad_bound {K N : ℕ} (hN : 1 ≤ N)
       Fintype.card (ParabolaOutcome p) * (N / (4 * D)) + 8 * p * H.card ≤
         (intGrid N).card *
           Fintype.card (Matrix.GeneralLinearGroup (Fin 2) (ZMod p)) :=
-    average_inequality_of_bad_bound hD hDK hN hpLower hpUpper hbad
+    average_inequality_of_bad_bound hDK hpLower hpUpper hbad
   obtain ⟨o, hcard, hsubset, hpara, hnone⟩ :=
     exists_large_clean_parabola (p := p) (N := N) hp hp2 hNp H hHsub hHcard
       (N / (4 * D)) havg
@@ -1553,7 +1552,7 @@ lemma isSumTwoSquares_mul_iff_of_coprime {m n : ℕ} (hm : m ≠ 0) (hn : n ≠ 
         rw [hpf]
         exact Finset.mem_union_left _ hqm
       have he := h q hqp hqmod
-      letI : Fact q.Prime := ⟨hq⟩
+      let : Fact q.Prime := ⟨hq⟩
       have hnqd : ¬ q ∣ n := by
         intro hqn
         exact hq.ne_one (Nat.eq_one_of_dvd_coprimes hcop
@@ -1569,7 +1568,7 @@ lemma isSumTwoSquares_mul_iff_of_coprime {m n : ℕ} (hm : m ≠ 0) (hn : n ≠ 
         rw [hpf]
         exact Finset.mem_union_right _ hqn
       have he := h q hqp hqmod
-      letI : Fact q.Prime := ⟨hq⟩
+      let : Fact q.Prime := ⟨hq⟩
       have hmqd : ¬ q ∣ m := by
         intro hqm
         exact hq.ne_one (Nat.eq_one_of_dvd_coprimes hcop hqm
@@ -1583,7 +1582,7 @@ lemma isSumTwoSquares_mul_iff_of_coprime {m n : ℕ} (hm : m ≠ 0) (hn : n ≠ 
     rw [hpf] at hqmn
     rcases Finset.mem_union.mp hqmn with hqm | hqn
     · have hq : q.Prime := Nat.prime_of_mem_primeFactors hqm
-      letI : Fact q.Prime := ⟨hq⟩
+      let : Fact q.Prime := ⟨hq⟩
       rw [padicValNat.mul hm hn]
       have hem := hmrep q hqm hqmod
       have hnqd : ¬ q ∣ n := by
@@ -1596,7 +1595,7 @@ lemma isSumTwoSquares_mul_iff_of_coprime {m n : ℕ} (hm : m ≠ 0) (hn : n ≠ 
       rw [hnval, add_zero]
       exact hem
     · have hq : q.Prime := Nat.prime_of_mem_primeFactors hqn
-      letI : Fact q.Prime := ⟨hq⟩
+      let : Fact q.Prime := ⟨hq⟩
       rw [padicValNat.mul hm hn]
       have hen := hnrep q hqn hqmod
       have hmqd : ¬ q ∣ m := by
@@ -1669,7 +1668,7 @@ lemma isSumTwoSquares_prime_pow_iff {p j : ℕ} (hp : p.Prime) :
   by_cases hj : j = 0
   · subst j
     simp
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   rw [Nat.primeFactors_pow p hj]
   simp [hp]
   tauto
@@ -1849,7 +1848,6 @@ lemma equidistant_mem_encodedAxis {a b c : ℤ × ℤ} (hab : a ≠ b)
   fin_cases i <;>
     simp [AffineMap.lineMap_apply, intPoint, axisFirst, axisSecond, rot90Int,
       v, w] at ht1 ht2 ⊢ <;>
-    norm_num at ht1 ht2 ⊢ <;>
     linarith
 
 noncomputable def expandedIntRange (N : ℕ) : Finset ℤ :=
@@ -1897,7 +1895,7 @@ lemma axisSecond_mem_expanded {N : ℕ} {a b : ℤ × ℤ}
   rw [mem_expandedIntGrid]
   rw [mem_intGrid] at ha hb
   simp only [axisSecond, axisFirst, rot90Int, Prod.fst_add, Prod.snd_add,
-    Prod.fst_sub, Prod.snd_sub, Prod.fst_neg, Prod.snd_neg]
+    Prod.fst_sub, Prod.snd_sub]
   omega
 
 lemma two_smul_mem_expanded {N : ℕ} {c : ℤ × ℤ}
@@ -2743,8 +2741,7 @@ lemma intPoint_add_rot90_mem_lineThrough {m n u : ℤ × ℤ}
   have ht2 := congrArg Prod.snd ht
   ext i
   fin_cases i <;>
-    simp [intPoint, rot90Int, v, w] at ht1 ht2 ⊢ <;>
-    norm_num at ht1 ht2 ⊢ <;> linarith
+    simp [intPoint, rot90Int, v, w] at ht1 ht2 ⊢ <;> linarith
 
 lemma intPoint_second_add_rot90_mem_lineThrough {m n u : ℤ × ℤ}
     (hmn : m ≠ n) (horth : intDot (n - m) u = 0) :
@@ -3340,11 +3337,11 @@ lemma radiusCopy_card_le_orderedUnitPair (N : ℕ) (a b : GridPoint N)
     N ^ 2 * Nat.card (SphereNeighbor N a b) ≤
       ((scaledExpandedPlaneGrid N a b).offDiag.filter fun q =>
         dist q.1 q.2 = 1).card := by
-  letI : Fintype {q : Plane × Plane //
+  let : Fintype {q : Plane × Plane //
       q ∈ (scaledExpandedPlaneGrid N a b).offDiag} :=
     Fintype.ofFinset (scaledExpandedPlaneGrid N a b).offDiag
       (fun _ => Iff.rfl)
-  letI : Finite (OrderedUnitPair (scaledExpandedPlaneGrid N a b)) :=
+  let : Finite (OrderedUnitPair (scaledExpandedPlaneGrid N a b)) :=
     Finite.of_injective
       (fun q : OrderedUnitPair (scaledExpandedPlaneGrid N a b) =>
         (⟨q.1, q.2.1⟩ : {q : Plane × Plane //
@@ -3538,8 +3535,8 @@ noncomputable def extensionFiberEquivSphere {N : ℕ} {t : IsoscelesTriple N}
     ExtensionFiber N t i e ≃ SphereNeighbor N (t.1 i) z.1 where
   toFun y := ⟨y.1, y.2.1, y.2.2.trans z.2.2.symm⟩
   invFun y := ⟨y.1, y.2.1, y.2.2.trans z.2.2⟩
-  left_inv y := Subtype.ext rfl
-  right_inv y := Subtype.ext rfl
+  left_inv _ := Subtype.ext rfl
+  right_inv _ := Subtype.ext rfl
 
 lemma extensionFiber_cube_bound (C : ℝ)
     (hCnonneg : 0 ≤ C)
@@ -3626,7 +3623,7 @@ lemma exists_extensionFour_grid_bound :
       Real.one_le_rpow (by nlinarith [hNone]) (by norm_num)
     have hlog' : Real.log (4 * N + 1 : ℕ) ≤
         3 * ((4 * N + 1 : ℕ) : ℝ) ^ ((1 : ℝ) / 3) := by
-      convert hlogRaw using 1 <;> ring
+      convert hlogRaw using 1; ring
     nlinarith
   have hsplit :
       (5 * (N : ℝ)) ^ ((1 : ℝ) / 3) =
@@ -4100,7 +4097,7 @@ lemma chiFour_LSeries_term_eq_zero_of_not_odd (s : ℝ) {n : ℕ}
   · rw [chiFourComplex_eq_zero_of_not_odd hn]
     simp
 
-lemma chiFour_LSeries_eq_beta {s : ℝ} (hs : 1 < s) :
+lemma chiFour_LSeries_eq_beta (s : ℝ) :
     LSeries (fun n => chiFourComplex n) (s : ℂ) =
       ((∑' k : ℕ, (-1 : ℝ) ^ k * betaTerm s k) : ℝ) := by
   unfold LSeries
@@ -4122,7 +4119,7 @@ lemma chiFour_LSeries_eq_beta {s : ℝ} (hs : 1 < s) :
           intro n
           by_cases hn : Odd n
           · simp [Set.indicator, hn]
-          · simp only [Set.indicator, Set.mem_setOf_eq, hn, if_false]
+          · simp only [Set.indicator, Set.mem_ofPred_eq, hn, if_false]
             exact (chiFour_LSeries_term_eq_zero_of_not_odd s hn).symm
     _ = ∑' k : ℕ,
         LSeries.term (fun m => chiFourComplex m) (s : ℂ)
@@ -4145,7 +4142,7 @@ lemma norm_chiFour_LSeries_le_one {s : ℝ} (hs : 1 < s) :
   have hb : b ∈ Set.Icc (0 : ℝ) 1 := by
     simpa [b] using beta_tsum_mem_Icc hs
   have hL : LSeries (fun n => chiFourComplex n) (s : ℂ) = (b : ℂ) := by
-    simpa [b] using chiFour_LSeries_eq_beta hs
+    simpa [b] using chiFour_LSeries_eq_beta s
   rw [hL, Complex.norm_real, Real.norm_of_nonneg hb.1]
   exact hb.2
 
@@ -4192,7 +4189,7 @@ lemma zetaReal_tsum_le {s : ℝ} (hs : 1 < s) :
   calc
     zetaRealTerm s 0 + (∑' n : ℕ, zetaRealTerm s (n + 1)) =
         1 + (∑' n : ℕ, f (n + 1 + 1 : ℕ)) := by
-      congr 1 <;> simp [zetaRealTerm, f]
+      congr 1; simp [zetaRealTerm]
     _ ≤ 1 + 1 / (s - 1) := by
       simpa [add_comm] using add_le_add_left htail 1
 
@@ -4245,20 +4242,20 @@ lemma complex_nat_cpow_neg_real (s : ℝ) (p : ℕ) :
   rw [← Complex.ofReal_natCast, ← Complex.ofReal_neg]
   exact (Complex.ofReal_cpow (Nat.cast_nonneg p) (-s)).symm
 
-lemma norm_complexZetaFactor (s : ℝ) {p : ℕ} (hp : p.Prime) :
+lemma norm_complexZetaFactor (s : ℝ) (p : ℕ) :
     ‖complexZetaFactor s p‖ = |realZetaFactor s p| := by
   rw [complexZetaFactor, complex_nat_cpow_neg_real]
   rw [← Complex.ofReal_one, ← Complex.ofReal_sub, ← Complex.ofReal_inv,
     Complex.norm_real, Real.norm_eq_abs]
   rfl
 
-lemma chiFourComplex_prime_of_mod_one {p : ℕ} (hp : p.Prime)
+lemma chiFourComplex_prime_of_mod_one {p : ℕ}
     (hmod : p % 4 = 1) : chiFourComplex p = 1 := by
   rw [chiFourComplex_apply_nat, ZMod.χ₄_nat_eq_if_mod_four]
   have hodd : p % 2 = 1 := by omega
   simp [hodd, hmod]
 
-lemma chiFourComplex_prime_of_mod_three {p : ℕ} (hp : p.Prime)
+lemma chiFourComplex_prime_of_mod_three {p : ℕ}
     (hmod : p % 4 = 3) : chiFourComplex p = -1 := by
   rw [chiFourComplex_apply_nat, ZMod.χ₄_nat_eq_if_mod_four]
   have hodd : p % 2 = 1 := by omega
@@ -4324,10 +4321,10 @@ lemma combinedFactor_of_mod_one {s : ℝ} (hs : 1 ≤ s) {p : ℕ}
     combinedFactor s p = (realZetaFactor s p) ^ 2 := by
   have hpos := realZetaFactor_pos hs hp
   rw [combinedFactor, complexChiFactor,
-    chiFourComplex_prime_of_mod_one hp hmod]
+    chiFourComplex_prime_of_mod_one hmod]
   simp only [one_mul]
   change ‖complexZetaFactor s p‖ * ‖complexZetaFactor s p‖ = _
-  rw [norm_complexZetaFactor s hp, abs_of_pos hpos]
+  rw [norm_complexZetaFactor s p, abs_of_pos hpos]
   ring
 
 lemma combinedFactor_two {s : ℝ} (hs : 1 ≤ s) :
@@ -4338,7 +4335,7 @@ lemma combinedFactor_two {s : ℝ} (hs : 1 ≤ s) :
     chiFourComplex_prime_two
   rw [combinedFactor, complexChiFactor, hchi]
   simp only [zero_mul, sub_zero, inv_one, norm_one, mul_one]
-  rw [norm_complexZetaFactor s hp, abs_of_pos hpos]
+  rw [norm_complexZetaFactor s 2, abs_of_pos hpos]
 
 lemma combinedFactor_of_mod_three {s : ℝ} (hs : 1 ≤ s) {p : ℕ}
     (hp : p.Prime) (hmod : p % 4 = 3) :
@@ -4349,8 +4346,8 @@ lemma combinedFactor_of_mod_three {s : ℝ} (hs : 1 ≤ s) {p : ℕ}
   have hca : 0 < 1 + a := by dsimp [a]; linarith
   have hsq : 0 < 1 - a ^ 2 := by nlinarith
   rw [combinedFactor, complexChiFactor,
-    chiFourComplex_prime_of_mod_three hp hmod,
-    complex_nat_cpow_neg_real, norm_complexZetaFactor s hp]
+    chiFourComplex_prime_of_mod_three hmod,
+    complex_nat_cpow_neg_real, norm_complexZetaFactor s p]
   change |realZetaFactor s p| * ‖(1 - (-1 : ℂ) * (a : ℂ))⁻¹‖ = _
   rw [abs_of_pos (realZetaFactor_pos hs hp)]
   rw [neg_one_mul, sub_neg_eq_add, ← Complex.ofReal_one,
@@ -4751,7 +4748,7 @@ lemma realZetaFactor_prod_le_zeta {s : ℝ} (hs : 1 < s) (N : ℕ) :
         by_cases hp : p.Prime
         · rw [if_pos hp]
           change (1 : ℝ) ≤ ‖complexZetaFactor s p‖
-          rw [norm_complexZetaFactor s hp,
+          rw [norm_complexZetaFactor s p,
             abs_of_pos (realZetaFactor_pos (le_of_lt hs) hp)]
           exact realZetaFactor_one_le (le_of_lt hs) hp
         · simp [hp]
@@ -4765,7 +4762,7 @@ lemma realZetaFactor_prod_le_zeta {s : ℝ} (hs : 1 < s) (N : ℕ) :
         ∏ p ∈ N.primesBelow, ‖complexZetaFactor s p‖ := by
       apply Finset.prod_congr rfl
       intro p hp
-      rw [norm_complexZetaFactor s (Nat.prime_of_mem_primesBelow hp),
+      rw [norm_complexZetaFactor s p,
         abs_of_pos (realZetaFactor_pos (le_of_lt hs)
           (Nat.prime_of_mem_primesBelow hp))]
     _ ≤ ‖riemannZeta (s : ℂ)‖ := hnormProd
@@ -4831,7 +4828,7 @@ lemma badFactor_prod_le_two (N : ℕ) :
     _ ≤ ‖riemannZeta ((2 : ℝ) : ℂ)‖ :=
       realZetaFactor_prod_le_zeta (by norm_num) (N + 1)
     _ ≤ 2 := by
-      convert norm_riemannZeta_real_le (s := (2 : ℝ)) (by norm_num) using 1 <;>
+      convert norm_riemannZeta_real_le (s := (2 : ℝ)) (by norm_num) using 1;
         norm_num [div_eq_mul_inv]
 
 lemma exists_sumTwoSquares_eulerProduct_le_sqrt_log :
@@ -4938,8 +4935,8 @@ lemma intSqDist_toNat_isSumTwoSquares (x y : ℤ × ℤ) :
   simp only [Nat.cast_add, Nat.cast_pow, Int.natCast_natAbs]
   simp [intSqDist, sq_abs]
 
-lemma intSqDist_grid_pos {N : ℕ} {x y : ℤ × ℤ}
-    (hx : x ∈ intGrid N) (hy : y ∈ intGrid N) (hxy : x ≠ y) :
+lemma intSqDist_grid_pos {x y : ℤ × ℤ}
+    (hxy : x ≠ y) :
     0 < intSqDist x y := by
   exact lt_of_le_of_ne (intSqDist_nonneg x y)
     (Ne.symm ((intSqDist_eq_zero_iff x y).not.mpr hxy))
@@ -4969,7 +4966,7 @@ lemma squaredDistanceNat_mem_sumTwoSquares {N : ℕ} {d : ℝ}
     intro h
     apply hne
     rw [← hxe, ← hye, h]
-  have hpos := intSqDist_grid_pos hx hy hxy
+  have hpos := intSqDist_grid_pos hxy
   have hle := intSqDist_grid_le hx hy
   have htoPos : 1 ≤ (intSqDist x y).toNat := by
     have : 0 < (intSqDist x y).toNat := by

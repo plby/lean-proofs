@@ -83,14 +83,14 @@ lemma combinedFactor_split {s : ℝ} (hs : 1 ≤ s) {p : ℕ}
     combinedFactor s p = (realZetaFactor s p) ^ 2 := by
   rw [combinedFactor, complexChiFactor, chi_split h, one_mul]
   change ‖complexZetaFactor s p‖ * ‖complexZetaFactor s p‖ = _
-  rw [norm_complexZetaFactor s hp, abs_of_pos (realZetaFactor_pos hs hp)]
+  rw [norm_complexZetaFactor s p, abs_of_pos (realZetaFactor_pos hs hp)]
   ring
 
 lemma combinedFactor_two {s : ℝ} (hs : 1 ≤ s) :
     combinedFactor s 2 = realZetaFactor s 2 := by
   rw [combinedFactor, complexChiFactor, chi_two]
   simp only [zero_mul, sub_zero, inv_one, norm_one, mul_one]
-  rw [norm_complexZetaFactor s Nat.prime_two,
+  rw [norm_complexZetaFactor s 2,
     abs_of_pos (realZetaFactor_pos hs Nat.prime_two)]
 
 lemma combinedFactor_inert {s : ℝ} (hs : 1 ≤ s) {p : ℕ}
@@ -102,7 +102,7 @@ lemma combinedFactor_inert {s : ℝ} (hs : 1 ≤ s) {p : ℕ}
   have hca : 0 < 1 + a := by dsimp [a]; linarith
   have hsq : 0 < 1 - a ^ 2 := by dsimp [a]; nlinarith
   rw [combinedFactor, complexChiFactor, chi_inert h,
-    complex_nat_cpow_neg_real, norm_complexZetaFactor s hp]
+    complex_nat_cpow_neg_real, norm_complexZetaFactor s p]
   change |realZetaFactor s p| * ‖(1 - (-1 : ℂ) * (a : ℂ))⁻¹‖ = _
   rw [abs_of_pos (realZetaFactor_pos hs hp)]
   rw [neg_one_mul, sub_neg_eq_add, ← Complex.ofReal_one,
