@@ -411,7 +411,7 @@ lemma exists_le_average_bound {Omega : Type*} [Fintype Omega] [Nonempty Omega]
 lemma exists_sample_small_badWitnessCountAt (n m c : ℕ) (hn : 0 < n)
     (hm : m = c * n) :
     ∃ sigma : SampleAt n m, badWitnessCountAt sigma ≤ budgetAt c := by
-  letI : Nonempty (SampleAt n m) := ⟨fun _ ↦ ⟨0, hn⟩⟩
+  let : Nonempty (SampleAt n m) := ⟨fun _ ↦ ⟨0, hn⟩⟩
   exact exists_le_average_bound (badWitnessCountAt (n := n) (m := m))
     (budgetAt c) (sum_badWitnessCountAt_le_scaled n m c hn hm)
 
@@ -692,5 +692,4 @@ theorem exists_NR_carrier :
     kept_noBergeFour sigma keep hkeep⟩
 
 end Erdos1006NR5
-
 

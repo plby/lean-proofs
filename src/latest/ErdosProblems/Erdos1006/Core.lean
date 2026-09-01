@@ -97,11 +97,11 @@ theorem exists_topologicalOrder {V : Type*} (D : Digraph V)
     (hacyc : DirectedAcyclic D) :
     ∃ lt : V → V → Prop, TopologicalOrder D lt := by
   let tc : V → V → Prop := Relation.TransGen D
-  letI : IsStrictOrder V tc := {
+  let : IsStrictOrder V tc := {
     irrefl := hacyc
     trans := fun _ _ _ ↦ Relation.TransGen.trans
   }
-  letI : PartialOrder V := partialOrderOfSO tc
+  let : PartialOrder V := partialOrderOfSO tc
   obtain ⟨le, hle, hext⟩ := extend_partialOrder ((· ≤ ·) : V → V → Prop)
   let lt : V → V → Prop := fun a b ↦ le a b ∧ a ≠ b
   refine ⟨lt, ?_, ?_⟩

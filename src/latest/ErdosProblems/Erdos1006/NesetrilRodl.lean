@@ -16,15 +16,16 @@ import Mathlib.Tactic
 
 namespace Erdos1006
 
-open scoped Classical BigOperators
+open scoped BigOperators
 
 section FiniteUnionBound
 
-variable {R I A : Type*} [Fintype R] [Fintype I] [Fintype A]
-  [DecidableEq R] [DecidableEq I] [DecidableEq A]
+variable {R I A : Type*}
 
-private def badLabelings (good : R → I → A) (r : R) : Finset (I → A) :=
-  Finset.univ.filter fun label ↦ ∀ i, label i ≠ good r i
+private noncomputable def badLabelings [Fintype I] [Fintype A]
+    (good : R → I → A) (r : R) : Finset (I → A) := by
+  classical
+  exact Finset.univ.filter fun label ↦ ∀ i, label i ≠ good r i
 
 private def avoidEquiv (good : R → I → A) (r : R) :
     {label : I → A // ∀ i, label i ≠ good r i} ≃
@@ -34,13 +35,17 @@ private def avoidEquiv (good : R → I → A) (r : R) :
   left_inv _ := rfl
   right_inv _ := rfl
 
-private lemma card_ne (a : A) :
+open Classical in
+private lemma card_ne [Fintype A] (a : A) :
     Fintype.card {x : A // x ≠ a} = Fintype.card A - 1 := by
+  classical
   rw [Fintype.card_subtype_compl (fun x : A ↦ x = a)]
   simp
 
-private lemma card_badLabelings (good : R → I → A) (r : R) :
+private lemma card_badLabelings [Fintype I] [Fintype A]
+    (good : R → I → A) (r : R) :
     (badLabelings good r).card = (Fintype.card A - 1) ^ Fintype.card I := by
+  classical
   rw [← Fintype.card_coe]
   let e₁ : {label : I → A // label ∈ badLabelings good r} ≃
       {label : I → A // ∀ i, label i ≠ good r i} :=
@@ -55,6 +60,7 @@ private lemma card_badLabelings (good : R → I → A) (r : R) :
 argument.  There are too few labelings avoiding the prescribed label in
 every coordinate for even one row to cover all labelings. -/
 theorem exists_labeling_hits_every_row (good : R → I → A)
+    [Fintype R] [Fintype I] [Fintype A]
     (hcard : Fintype.card R * (Fintype.card A - 1) ^ Fintype.card I <
       Fintype.card A ^ Fintype.card I) :
     ∃ label : I → A, ∀ r : R, ∃ i : I, label i = good r i := by
@@ -187,9 +193,9 @@ private theorem exists_increasing_perm (f : Fin 5 → X)
     ∃ p : Equiv.Perm (Fin 5),
       ∀ a b : Fin 5, a < b → lt (f (p a)) (f (p b)) := by
   classical
-  letI : IsStrictTotalOrder X lt := hlt
-  letI : DecidableRel lt := Classical.decRel lt
-  letI : LinearOrder X := linearOrderOfSTO lt
+  let : IsStrictTotalOrder X lt := hlt
+  let : DecidableRel lt := Classical.decRel lt
+  let : LinearOrder X := linearOrderOfSTO lt
   let s : Finset X := Finset.univ.image f
   have hs : s.card = 5 := by
     rw [show s = Finset.univ.image f from rfl,
@@ -247,9 +253,9 @@ private lemma exists_rank_extending_order {X : Type*} [Fintype X]
     (lt : X → X → Prop) (hlt : IsStrictTotalOrder X lt) :
     ∃ r : Rank X, ∀ {x y}, rankLt r x y ↔ lt x y := by
   classical
-  letI : IsStrictTotalOrder X lt := hlt
-  letI : DecidableRel lt := Classical.decRel lt
-  letI : LinearOrder X := linearOrderOfSTO lt
+  let : IsStrictTotalOrder X lt := hlt
+  let : DecidableRel lt := Classical.decRel lt
+  let : LinearOrder X := linearOrderOfSTO lt
   have hcard : (Finset.univ : Finset X).card = Fintype.card X := by simp
   let sorted : Fin (Fintype.card X) ≃o (Finset.univ : Finset X) :=
     Finset.univ.orderIsoOfFin hcard
@@ -270,7 +276,7 @@ construction.  Given sufficiently many injective carrier blocks, a finite
 union bound chooses the local `C₅` labels so every vertex order sees one
 local cycle monotonically. -/
 theorem exists_pastedC5_everyOrder {X I : Type*} [Fintype X] [Fintype I]
-    [DecidableEq X] [DecidableEq I]
+    [DecidableEq X]
     (block : I → Fin 5 → X) (hblock : ∀ i, Function.Injective (block i))
     (hcard : Fintype.card (Rank X) * 119 ^ Fintype.card I <
       120 ^ Fintype.card I) :
