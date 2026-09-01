@@ -47,7 +47,7 @@ theorem exists_nonnegative_linearIndependent_support
       simpa [g', hpos] using congrArg Neg.neg hg
   have hi₀pos : 0 < g' i₀ := by
     by_cases hpos : 0 < g i₀
-    · simpa [g', hpos]
+    · simp [g', hpos]
     · have hneg : g i₀ < 0 := lt_of_le_of_ne (le_of_not_gt hpos) hi₀
       simp [g', hpos, hneg]
   let P : Finset ↥(nzSupport b) := Finset.univ.filter fun i ↦ 0 < g' i
@@ -75,13 +75,13 @@ theorem exists_nonnegative_linearIndependent_support
         apply Finset.sum_subset (Finset.subset_univ _)
         intro i _hi hi
         have hbi : b i = 0 := not_ne_iff.mp (mt (mem_nzSupport b i).mpr hi)
-        simp [gFull, hi, hbi]
+        simp [gFull, hbi]
       _ = ∑ i : ↥(nzSupport b), g' i • w i.1 := by
         rw [← (nzSupport b).sum_attach]
         apply Finset.sum_congr rfl
         intro i hi
         have hbi : b i.1 ≠ 0 := (mem_nzSupport b i.1).mp i.2
-        simp [gFull, i.2, hbi]
+        simp [gFull, hbi]
       _ = 0 := hg'sum
   let b' : ι → ℚ := fun i ↦ b i - t * gFull i
   have hb' : ∀ i, 0 ≤ b' i := by
@@ -102,7 +102,7 @@ theorem exists_nonnegative_linearIndependent_support
         have : 0 ≤ b i - t * g' ii := sub_nonneg.mpr (htg.trans (hb i))
         simpa [b', gFull, hi, hbi0, ii] using this
     · have hbi : b i = 0 := not_ne_iff.mp (mt (mem_nzSupport b i).mpr hi)
-      simp [b', gFull, hi, hbi]
+      simp [b', gFull, hbi]
   have hb'sum : (∑ i, b' i • w i) = ∑ i, b i • w i := by
     simp only [b', sub_smul, mul_smul, Finset.sum_sub_distrib,
       ← Finset.smul_sum, hgFull, smul_zero, sub_zero]
@@ -110,7 +110,7 @@ theorem exists_nonnegative_linearIndependent_support
     intro i hi'
     by_contra hi
     have hbi : b i = 0 := not_ne_iff.mp (mt (mem_nzSupport b i).mpr hi)
-    have hzero : b' i = 0 := by simp [b', gFull, hi, hbi]
+    have hzero : b' i = 0 := by simp [b', gFull, hbi]
     exact (mem_nzSupport b' i).mp hi' hzero
   have hiMinZero : b' iMin.1 = 0 := by
     have ht : t = b iMin.1 / g' iMin := htEq.symm
@@ -181,7 +181,7 @@ lemma castVec_injective {d : ℕ} :
 independent integer vectors are extended using only standard basis vectors,
 so a columnwise integral bound is preserved. -/
 theorem coefficient_le_of_integral_linearIndependent
-    {d : ℕ} {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {d : ℕ} {ι : Type*} [Fintype ι]
     (w : ι → Fin d → ℤ) (v : Fin d → ℤ) (a : ι → ℚ) (i₀ : ι)
     (hli : LinearIndependent ℚ (fun i ↦ castVec (w i)))
     (hrel : castVec v = ∑ i, a i • castVec (w i))
@@ -212,7 +212,7 @@ theorem coefficient_le_of_integral_linearIndependent
   let basis : Module.Basis (hs.extend hst) ℚ (Fin d → ℚ) :=
     Module.Basis.extendLe hs hst ht
   let I := hs.extend hst
-  letI : Fintype I := Fintype.ofFinite I
+  let : Fintype I := Fintype.ofFinite I
   have hIntegral (i : I) :
       ∃ z : Fin d → ℤ, castVec z = basis i := by
     have hi : basis i ∈ t := by
@@ -353,4 +353,3 @@ theorem coefficient_le_of_integral_linearIndependent
     _ ≤ ((d.factorial * ∏ j, B j : ℕ) : ℚ) := by exact_mod_cast hAvdet
 
 end Erdos245Scratch
-

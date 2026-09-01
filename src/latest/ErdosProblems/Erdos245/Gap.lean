@@ -21,7 +21,7 @@ lemma exists_doubling_gap_of_eventually_three
       2 * enumerate S i < enumerate S (i + 1) := by
   intro s
   by_contra hgap
-  push_neg at hgap
+  push Not at hgap
   have hnogap : ∀ i ≥ s,
       enumerate S (i + 1) ≤ 2 * enumerate S i := by
     intro i hi
@@ -98,7 +98,7 @@ lemma exists_doubling_gap_of_eventually_three
   have hypos : ∀ j ≤ n, 0 ≤ Q.eval (y j) := by
     intro j hj
     rw [hy j hj]
-    exact Int.ofNat_nonneg _
+    exact Int.natCast_nonneg _
   have hynogap : ∀ j < n,
       Q.eval (y (j + 1)) ≤ 2 * Q.eval (y j) := by
     intro j hj
@@ -153,4 +153,3 @@ lemma exists_doubling_gap_of_eventually_three
   omega
 
 end Erdos245Scratch
-

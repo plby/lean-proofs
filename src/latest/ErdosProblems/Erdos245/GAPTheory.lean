@@ -41,7 +41,7 @@ def gapEvalLinear (Q : GeneralizedAP) :
   simp only [gapEvalLinear, LinearMap.coe_mk, AddHom.coe_mk, homParam_zero,
     homParam_succ, castVec_apply, eval, Int.cast_add, Int.cast_sum,
     Int.cast_mul, Int.cast_natCast, Int.cast_one, mul_one]
-  apply congrArg ((Q.base : ℚ) + .)
+  apply congrArg ((Q.base : ℚ) + ·)
   apply Finset.sum_congr rfl
   intro i _hi
   ring
@@ -81,7 +81,7 @@ lemma natAbs_chainGenInt_homParam_le
   · exact natAbs_homParam_le Q (x 0) j
   · refine Fin.cases ?_ (fun q ↦ ?_) j
     · simp [chainGenInt, homParam]
-    · simp only [chainGenInt, Pi.smul_apply, smul_eq_mul, homParam_succ]
+    · simp only [chainGenInt]
       rw [Fin.cases_succ]
       change
         (((x (r + 1) q : ℕ) : ℤ) -
@@ -174,4 +174,3 @@ lemma gap_chain_diameter_bound
         (Q.eval (x 0) : ℚ) := by rw [prod_chainBounds]
 
 end Erdos245Scratch
-

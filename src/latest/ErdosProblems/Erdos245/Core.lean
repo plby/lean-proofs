@@ -28,7 +28,7 @@ theorem erdos_245 :
   · intro _htrue A hA hdenReal
     let S := A ∩ Ici 1
     have hS : S.Infinite := by
-      have hdiff : (A \ {0}).Infinite := hA.diff (Set.finite_singleton 0)
+      have hdiff : (A \ {0}).Infinite := hA.sdiff (Set.finite_singleton 0)
       have heq : A \ {0} = S := by
         ext n
         simp [S, Nat.one_le_iff_ne_zero]
