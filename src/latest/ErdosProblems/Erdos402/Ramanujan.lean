@@ -81,9 +81,10 @@ lemma unitSum_prod {R S : Type*} [CommRing R] [CommRing S]
       rw [← Finset.sum_mul]
       rfl
 
-lemma unitSum_field {F : Type*} [Field F] [Fintype F] [Fintype Fˣ]
+lemma unitSum_field {F : Type*} [Field F] [Finite F] [Fintype Fˣ]
     {ψ : AddChar F ℂ} (hψ : ψ.IsPrimitive) : unitSum ψ = -1 := by
   classical
+  let _ := Fintype.ofFinite F
   have hnontrivial : ψ ≠ 1 := by
     simpa only [AddChar.mulShift_one] using hψ (a := 1) one_ne_zero
   have hfull : ∑ a : F, ψ a = 0 := AddChar.sum_eq_zero_of_ne_one hnontrivial
