@@ -297,9 +297,10 @@ lemma top_four_isContained_of_pairwise_adj {V : Type*} {G : SimpleGraph V}
   intro i j hij
   exact hadj i j (by simpa using hij)
 
-lemma HasTarget.of_four_clique {V : Type*} [DecidableEq V] {G : SimpleGraph V}
+lemma HasTarget.of_four_clique {V : Type*} {G : SimpleGraph V}
     {a b c d : V} (hab : G.Adj a b) (hac : G.Adj a c) (had : G.Adj a d)
     (hbc : G.Adj b c) (hbd : G.Adj b d) (hcd : G.Adj c d) : HasTarget G := by
+  classical
   apply Or.inl
   rw [← SimpleGraph.not_cliqueFree_iff_top_isContained 4]
   apply SimpleGraph.IsNClique.not_cliqueFree (s := {a, b, c, d})
@@ -339,7 +340,7 @@ lemma edgeCountOn_erase {V : Type*} [Fintype V] [DecidableEq V]
   rw [edgeCountOn_eq_card_edgeFinset, edgeCountOn_eq_card_edgeFinset]
   simpa only [xu] using hi.symm.trans (hd.trans hr)
 
-lemma degree_induce_eq_card_filter {V : Type*} [Fintype V] [DecidableEq V]
+lemma degree_induce_eq_card_filter {V : Type*}
     (G : SimpleGraph V) [DecidableRel G.Adj] (U : Finset V)
     {x : V} (hx : x ∈ U) :
     (G.induce (U : Set V)).degree ⟨x, hx⟩ = #(U.filter (G.Adj x)) := by
@@ -471,8 +472,8 @@ lemma not_isAcyclic_tree_insert_two_neighbors {V : Type*} [DecidableEq V]
   simpa [hval] using y.2
 
 /-- Two external universal vertices turn any cycle in `C` into a bipyramid. -/
-lemma hasTarget_of_not_isAcyclic_two_apices {V : Type*} [Fintype V] [DecidableEq V]
-    (G : SimpleGraph V) [DecidableRel G.Adj] (C : Finset V) (north south : V)
+lemma hasTarget_of_not_isAcyclic_two_apices {V : Type*}
+    (G : SimpleGraph V) (C : Finset V) (north south : V)
     (hacyc : ¬(G.induce (C : Set V)).IsAcyclic)
     (hnC : north ∉ C) (hsC : south ∉ C) (hns : north ≠ south)
     (hun : ∀ z ∈ C, G.Adj north z ∧ G.Adj south z) : HasTarget G := by
@@ -491,20 +492,22 @@ lemma hasTarget_of_not_isAcyclic_two_apices {V : Type*} [Fintype V] [DecidableEq
     rintro ⟨i, hi⟩
     apply hnC
     have : north = (f i).1 := hi.symm
-    simpa [this] using (f i).2
+    rw [this]
+    exact (f i).2
   have hsrange : south ∉ Set.range fG := by
     rintro ⟨i, hi⟩
     apply hsC
     have : south = (f i).1 := hi.symm
-    simpa [this] using (f i).2
+    rw [this]
+    exact (f i).2
   refine Or.inr ⟨l, hl, bipyramid_isContained_of_cycle_copy fG north south hns
     hnrange hsrange ?_⟩
   intro i
   exact hun (f i).1 (f i).2
 
 /-- In the induction, two neighbours on each side immediately give a bipyramid. -/
-lemma hasTarget_of_two_neighbors_on_both_sides {V : Type*} [Fintype V]
-    [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj]
+lemma hasTarget_of_two_neighbors_on_both_sides {V : Type*}
+    (G : SimpleGraph V) [DecidableRel G.Adj]
     (A B : Finset V) (x : V)
     (hT : (G.induce (A : Set V)).IsTree)
     (hdisj : Disjoint (A : Set V) (B : Set V))
@@ -544,13 +547,14 @@ lemma hasTarget_of_two_neighbors_on_both_sides {V : Type*} [Fintype V]
     · exact ⟨(hcross z hzA north hnB).symm, (hcross z hzA south hsB).symm⟩
 
 /-- Adding a new vertex with exactly one neighbour to a finite tree again gives a tree. -/
-lemma isTree_induce_insert_of_one_neighbor {V : Type*} [Fintype V]
+lemma isTree_induce_insert_of_one_neighbor {V : Type*} [Finite V]
     [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj]
     (A : Finset V) (x u : V) (hT : (G.induce (A : Set V)).IsTree)
     (hxA : x ∉ A) (hu : u ∈ A) (hxu : G.Adj x u)
     (hone : #(A.filter (G.Adj x)) = 1) :
     (G.induce ((insert x A : Finset V) : Set V)).IsTree := by
   classical
+  let : Fintype V := Fintype.ofFinite V
   let C : Finset V := insert x A
   let HC := G.induce (C : Set V)
   let inc : G.induce (A : Set V) →g HC :=
@@ -614,8 +618,8 @@ lemma isTree_induce_insert_of_one_neighbor {V : Type*} [Fintype V]
   simpa [HC] using hE
 
 /-- A centre joined to every vertex of an independent set is a tree. -/
-lemma isTree_induce_star {V : Type*} [Fintype V] [DecidableEq V]
-    (G : SimpleGraph V) [DecidableRel G.Adj] (B : Finset V) (u : V)
+lemma isTree_induce_star {V : Type*} [Finite V] [DecidableEq V]
+    (G : SimpleGraph V) (B : Finset V) (u : V)
     (huB : u ∉ B)
     (hB : ∀ b₁ ∈ B, ∀ b₂ ∈ B, ¬G.Adj b₁ b₂)
     (hu : ∀ b ∈ B, G.Adj u b) :
@@ -624,8 +628,8 @@ lemma isTree_induce_star {V : Type*} [Fintype V] [DecidableEq V]
   induction B using Finset.induction_on with
   | empty =>
       have hsingle : (G.induce (({u} : Finset V) : Set V)).IsTree := by
-        letI : Nonempty (({u} : Finset V) : Set V) := ⟨⟨u, by simp⟩⟩
-        letI : Subsingleton (({u} : Finset V) : Set V) := ⟨by
+        let : Nonempty (({u} : Finset V) : Set V) := ⟨⟨u, by simp⟩⟩
+        let : Subsingleton (({u} : Finset V) : Set V) := ⟨by
           intro a b
           apply Subtype.ext
           have ha : a.1 = u := by simpa using a.2
@@ -671,8 +675,8 @@ lemma isTree_induce_star {V : Type*} [Fintype V] [DecidableEq V]
       exact hleaf
 
 /-- The rearranged exceptional configuration is the broom-shaped tree used in the proof. -/
-lemma isTree_induce_broom {V : Type*} [Fintype V] [DecidableEq V]
-    (G : SimpleGraph V) [DecidableRel G.Adj] (B : Finset V) (u x p : V)
+lemma isTree_induce_broom {V : Type*} [Finite V] [DecidableEq V]
+    (G : SimpleGraph V) (B : Finset V) (u x p : V)
     (huB : u ∉ B) (hxB : x ∉ B) (hxu : x ≠ u) (hp : p ∈ B)
     (hB : ∀ b₁ ∈ B, ∀ b₂ ∈ B, ¬G.Adj b₁ b₂)
     (hu : ∀ b ∈ B, G.Adj u b)
@@ -723,7 +727,7 @@ lemma tree_center_of_independent_erase {V : Type*} [DecidableEq V]
     exact hno p.penultimate.1 hpA z hz hadj
 
 /-- The extension step in Simonovits's sharp induction. -/
-lemma extend_balanced_tree_join {V : Type*} [Fintype V] [DecidableEq V]
+lemma extend_balanced_tree_join {V : Type*} [Finite V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj]
     (U A B : Finset V) (x : V) (hxU : x ∉ U)
     (hjoin : IsBalancedTreeJoinOn G U A B)
@@ -809,7 +813,7 @@ lemma extend_balanced_tree_join {V : Type*} [Fintype V] [DecidableEq V]
       have hy : y.1 = x ∨ y.1 ∈ B := by simpa using y.2
       have hz : z.1 = x ∨ z.1 ∈ B := by simpa using z.2
       rcases hy with hy | hy <;> rcases hz with hz | hz
-      · exact G.loopless.irrefl x (by simpa [hy, hz] using hadj)
+      · simp [hy, hz] at hadj
       · exact hxBnone z hz (by simpa [hy] using hadj)
       · exact hxBnone y hy (by simpa [hz] using hadj.symm)
       · exact hBno y hy z hz hadj
@@ -897,7 +901,7 @@ lemma extend_balanced_tree_join {V : Type*} [Fintype V] [DecidableEq V]
         (Finset.mem_filter.mp hzS).2
         (hcross y (Finset.mem_of_mem_erase hy) p hpB).symm
         (hcross z (Finset.mem_of_mem_erase hz) p hpB).symm hyz)
-    · push_neg at hedge
+    · push Not at hedge
       have hBno : ∀ b₁ ∈ B, ∀ b₂ ∈ B, ¬G.Adj b₁ b₂ := by
         intro b₁ hb₁ b₂ hb₂ hadj
         have h : (G.induce (B : Set V)).Adj ⟨b₁, hb₁⟩ ⟨b₂, hb₂⟩ := hadj
@@ -969,11 +973,12 @@ lemma extend_balanced_tree_join {V : Type*} [Fintype V] [DecidableEq V]
         omega
 
 /-- Adding a missing chord to a spanning tree creates a cycle. -/
-lemma not_isAcyclic_of_tree_le_extra_edge {V : Type*} [DecidableEq V]
+lemma not_isAcyclic_of_tree_le_extra_edge {V : Type*}
     (H G : SimpleGraph V) (A : Finset V) (hHG : H ≤ G)
     (hT : (H.induce (A : Set V)).IsTree) {u v : V}
     (hu : u ∈ A) (hv : v ∈ A) (hGuv : G.Adj u v) (hHuv : ¬H.Adj u v) :
     ¬(G.induce (A : Set V)).IsAcyclic := by
+  classical
   let uA : (A : Set V) := ⟨u, hu⟩
   let vA : (A : Set V) := ⟨v, hv⟩
   intro hacyc
@@ -990,8 +995,8 @@ lemma not_isAcyclic_of_tree_le_extra_edge {V : Type*} [DecidableEq V]
   · exact hHuv hadj
 
 /-- One additional edge over a balanced tree join forces one of the two target graphs. -/
-lemma augment_balanced_tree_join {V : Type*} [Fintype V] [DecidableEq V]
-    (H G : SimpleGraph V) [DecidableRel H.Adj] [DecidableRel G.Adj]
+lemma augment_balanced_tree_join {V : Type*}
+    (H G : SimpleGraph V)
     (U A B : Finset V) (hU4 : 4 ≤ U.card) (hHG : H ≤ G)
     (hjoin : IsBalancedTreeJoinOn H U A B)
     {u v : V} (huU : u ∈ U) (hvU : v ∈ U)
@@ -1079,8 +1084,8 @@ lemma augment_balanced_tree_join {V : Type*} [Fintype V] [DecidableEq V]
         (hHG he)
 
 /-- Keep any prescribed number of the edges induced on `U`, and discard all other edges. -/
-lemma exists_subgraph_edgeCountOn_eq {V : Type*} [Fintype V] [DecidableEq V]
-    (G : SimpleGraph V) [DecidableRel G.Adj] (U : Finset V) {m : ℕ}
+lemma exists_subgraph_edgeCountOn_eq {V : Type*} [Fintype V]
+    (G : SimpleGraph V) (U : Finset V) {m : ℕ}
     (hm : m ≤ edgeCountOn G U) :
     ∃ H : SimpleGraph V, H ≤ G ∧ edgeCountOn H U = m := by
   classical
@@ -1141,7 +1146,7 @@ lemma exists_subgraph_edgeCountOn_eq {V : Type*} [Fintype V] [DecidableEq V]
       _ = m := hKcard
 
 /-- If `H ≤ G` and `G` has more edges on `U`, one of those induced edges is absent from `H`. -/
-lemma exists_extra_adj_on {V : Type*} [Fintype V] [DecidableEq V]
+lemma exists_extra_adj_on {V : Type*} [Fintype V]
     {H G : SimpleGraph V} (U : Finset V) (hHG : H ≤ G)
     (hlt : edgeCountOn H U < edgeCountOn G U) :
     ∃ u ∈ U, ∃ v ∈ U, G.Adj u v ∧ ¬H.Adj u v := by
@@ -1224,14 +1229,14 @@ lemma twice_lowerThreshold_lt (n : ℕ) (hn : 0 < n) :
     nlinarith
 
 /-- At the one-edge-lower extremal value there is a vertex of at most the induction degree. -/
-lemma exists_degree_le_stepDegree {V : Type*} [Fintype V] [DecidableEq V]
+lemma exists_degree_le_stepDegree {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj] (U : Finset V) (hU : U.Nonempty)
     (hcard : edgeCountOn G U = lowerThreshold U.card) :
     ∃ (x : V) (hx : x ∈ U),
       (G.induce (U : Set V)).degree ⟨x, hx⟩ ≤ stepDegree U.card := by
   classical
   let H := G.induce (U : Set V)
-  letI : Nonempty (U : Set V) := Set.nonempty_coe_sort.mpr (by simpa using hU)
+  let : Nonempty (U : Set V) := Set.nonempty_coe_sort.mpr (by simpa using hU)
   obtain ⟨x, hx⟩ := H.exists_minimal_degree_vertex
   by_cases hle : H.degree x ≤ stepDegree U.card
   · exact ⟨x.1, x.2, hle⟩
@@ -1256,13 +1261,14 @@ lemma exists_degree_le_stepDegree {V : Type*} [Fintype V] [DecidableEq V]
 
 /-- The simultaneous sharp induction.  Its first component classifies every target-free graph at
 the one-edge-lower bound; its second component is Simonovits's forcing theorem. -/
-theorem sharp_simonovits_induction {V : Type*} [Fintype V] [DecidableEq V]
+theorem sharp_simonovits_induction {V : Type*} [Fintype V]
     (U : Finset V) (hU : U.Nonempty) :
     (∀ (G : SimpleGraph V) [DecidableRel G.Adj],
       edgeCountOn G U = lowerThreshold U.card →
         HasTarget G ∨ ∃ A B, IsBalancedTreeJoinOn G U A B) ∧
     (∀ (G : SimpleGraph V) [DecidableRel G.Adj],
       lowerThreshold U.card + 1 ≤ edgeCountOn G U → HasTarget G) := by
+  classical
   induction hn : U.card using Nat.strong_induction_on generalizing U with
   | h n ih =>
     have hnpos : 0 < n := by
@@ -1348,7 +1354,7 @@ theorem sharp_simonovits_induction {V : Type*} [Fintype V] [DecidableEq V]
     by_cases hn4 : 4 ≤ n
     · have hm : lowerThreshold n ≤ edgeCountOn G U := by omega
       obtain ⟨H, hHG, hHcard⟩ := exists_subgraph_edgeCountOn_eq G U hm
-      letI : DecidableRel H.Adj := Classical.decRel H.Adj
+      let : DecidableRel H.Adj := Classical.decRel H.Adj
       rcases hp H hHcard with htarget | ⟨A, B, hjoin⟩
       · exact htarget.mono hHG
       · have hlt : edgeCountOn H U < edgeCountOn G U := by omega
@@ -1371,7 +1377,7 @@ theorem sharp_simonovits_induction {V : Type*} [Fintype V] [DecidableEq V]
 
 /-- Simonovits's stronger resolution of Erdős Problem 1019: at the stated threshold, the host
 contains either `K₄` or a bipyramid over a cycle. -/
-theorem erdos_1019_sharp {V : Type*} [Fintype V] [DecidableEq V]
+theorem erdos_1019_sharp {V : Type*} [Fintype V]
     [Nonempty V] (G : SimpleGraph V) [DecidableRel G.Adj]
     (hE : #G.edgeFinset = problemThreshold (Fintype.card V)) :
     HasTarget G := by
@@ -1390,7 +1396,7 @@ theorem erdos_1019_sharp {V : Type*} [Fintype V] [DecidableEq V]
 /-- Erdős Problem 1019, in its original saturated-planar formulation.  The returned structure
 contains a finite graph on more than three vertices, its `3v-6` edge certificate, an explicit
 spherical-triangulation model (`K₄` or a bipyramid), and a copy inside `G`. -/
-theorem erdos_1019 {V : Type*} [Fintype V] [DecidableEq V]
+theorem erdos_1019 {V : Type*} [Fintype V]
     [Nonempty V] (G : SimpleGraph V) [DecidableRel G.Adj]
     (hE : #G.edgeFinset = problemThreshold (Fintype.card V)) :
     ContainsSaturatedPlanarBeyondTriangle G :=
