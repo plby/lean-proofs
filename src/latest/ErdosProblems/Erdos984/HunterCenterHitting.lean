@@ -55,7 +55,7 @@ lemma volume_hunterGroupMissSet
     if i.1 = y then Aᶜ else Set.univ
   have hset : hunterGroupMissSet D theta P y = Set.univ.pi B := by
     ext center
-    simp only [hunterGroupMissSet, Set.mem_setOf_eq, Set.mem_pi,
+    simp only [hunterGroupMissSet, Set.mem_ofPred_eq, Set.mem_pi,
       Set.mem_univ, forall_const, B]
     constructor
     · intro h i
@@ -71,9 +71,8 @@ lemma volume_hunterGroupMissSet
   rw [hset, MeasureTheory.volume_pi_pi]
   simp_rw [B]
   rw [Fintype.prod_prod_type]
-  simp only [Finset.prod_const, Finset.card_univ, Fintype.card_fin]
   rw [Finset.prod_eq_single y]
-  · simp [A, volume_unitAddTorus_univ (D := Fin D)]
+  · simp [A]
   · intro z _hz hzy
     simp [hzy, volume_unitAddTorus_univ (D := Fin D)]
   · simp
@@ -83,7 +82,7 @@ samples with probability at most `exp (-pL)`. -/
 lemma volume_pi_groupMiss_le_exp
     {D : Type*} [Fintype D] {Y L : ℕ}
     (A : Set (UnitAddTorus D)) (hA : MeasurableSet A)
-    {p : ℝ} (hp0 : 0 ≤ p) (hp : p ≤ volume.real A) (y : Fin Y) :
+    {p : ℝ} (hp : p ≤ volume.real A) (y : Fin Y) :
     volume {center : (Fin Y × Fin L) → UnitAddTorus D |
         ∀ l, center (y, l) ∉ A} ≤
       ENNReal.ofReal (Real.exp (-p * L)) := by
@@ -94,7 +93,7 @@ lemma volume_pi_groupMiss_le_exp
     have hset : {center : (Fin Y × Fin L) → UnitAddTorus D |
         ∀ l, center (y, l) ∉ A} = Set.univ.pi B := by
       ext center
-      simp only [Set.mem_setOf_eq, Set.mem_pi, Set.mem_univ,
+      simp only [Set.mem_ofPred_eq, Set.mem_pi, Set.mem_univ,
         forall_const, B]
       constructor
       · intro h i
@@ -110,14 +109,13 @@ lemma volume_pi_groupMiss_le_exp
     rw [hset, MeasureTheory.volume_pi_pi]
     simp_rw [B]
     rw [Fintype.prod_prod_type]
-    simp only [Finset.prod_const, Finset.card_univ, Fintype.card_fin]
     rw [Finset.prod_eq_single y]
-    · simp [volume_unitAddTorus_univ (D := D)]
+    · simp
     · intro z _hz hzy
       simp [hzy, volume_unitAddTorus_univ (D := D)]
     · simp
   rw [hvolume]
-  letI : IsProbabilityMeasure (volume : Measure (UnitAddTorus D)) :=
+  let : IsProbabilityMeasure (volume : Measure (UnitAddTorus D)) :=
     ⟨volume_unitAddTorus_univ⟩
   have hprob := probReal_add_probReal_compl
     (μ := (volume : Measure (UnitAddTorus D))) hA
@@ -133,7 +131,6 @@ lemma volume_pi_groupMiss_le_exp
       _ = Real.exp (-p * L) := by
         rw [← Real.exp_nat_mul]
         congr 1
-        push_cast
         ring
   rw [← ENNReal.ofReal_toReal (measure_ne_top volume Aᶜ),
     ← ENNReal.ofReal_pow ENNReal.toReal_nonneg]
@@ -158,7 +155,7 @@ lemma volume_hunterGroupMissSet_le
         (Y := hunterY D) (L := hunterGroupSize D)
         (hunterOrbitPositiveSet D theta P.start P.step)
         (measurableSet_hunterOrbitPositiveSet D theta P.start P.step)
-        hp0 hp y)
+        hp y)
   have hexponent : p * hunterGroupSize D = (D : ℝ) ^ (9 * D) := by
     dsimp [p, hunterGroupSize]
     rw [inv_mul_eq_div, div_eq_iff (by positivity)]

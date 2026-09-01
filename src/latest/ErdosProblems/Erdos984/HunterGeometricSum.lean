@@ -64,7 +64,7 @@ lemma four_mul_norm_le_norm_fourier_sub_one (y : UnitAddCircle) :
       rw [Complex.norm_exp_I_mul_ofReal_sub_one]
       rw [show (2 * Real.pi * centeredCircleLift y : ℝ) / 2 =
           Real.pi * centeredCircleLift y by ring]
-      simp [Real.norm_eq_abs, abs_mul]
+      simp [Real.norm_eq_abs]
     _ = ‖fourier 1 y - 1‖ := by
       congr 2
       calc

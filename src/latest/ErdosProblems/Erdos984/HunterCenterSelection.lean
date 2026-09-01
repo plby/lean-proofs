@@ -75,7 +75,7 @@ lemma exists_hunter_center_groups
       ∀ (P : BoundedAP (hunterN D) (hunterX D)) (y : Fin (hunterY D)),
         ∃ l : Fin (hunterGroupSize D),
           center (y, l) ∈ hunterOrbitPositiveSet D theta P.start P.step := by
-  letI : Nonempty (Fin D) := ⟨⟨0, by omega⟩⟩
+  let : Nonempty (Fin D) := ⟨⟨0, by omega⟩⟩
   let I := Fin (hunterY D) × Fin (hunterGroupSize D)
   let U : Set (I → UnitAddTorus (Fin D)) :=
     torusCenterSeparationBadSet (D := Fin D) (ι := I) (hunterRho D)

@@ -31,7 +31,6 @@ lemma decode_kernelDigitToHunterFrequency (D : ℕ) (hD : 0 < D)
   change ((q.val + (hunterFrequencyBound D - hunterKernelPower D) : ℕ) : ℤ) -
       hunterFrequencyBound D = (q.val : ℤ) - hunterKernelPower D
   rw [Nat.cast_add, Nat.cast_sub hk]
-  push_cast
   ring
 
 def kernelTupleToHunterFrequency (D : ℕ) (hD : 0 < D)
@@ -127,8 +126,6 @@ lemma finrank_resonant_lt_rankWitness
   change ‖d • integerCharacter
     (kernelFrequency (hunterKernelPower D) (qdigits r)) theta‖ ≤ _
   rw [← map_nsmul]
-  change ‖integerCharacter
-    (kernelFrequency (hunterKernelPower D) (qdigits r)) (d • theta)‖ ≤ _
   exact (mem_hunterResonantDigits_iff D theta d (qdigits r)).mp (q r).2
 
 /-- The resonant digit set has the cardinality of a box in fewer than

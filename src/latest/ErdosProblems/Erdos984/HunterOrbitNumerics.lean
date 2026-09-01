@@ -107,7 +107,9 @@ lemma hunter_fourD_add_one_le_fiveD (D : ℕ) (hD : 2 ≤ D) :
     calc
       2 ≤ D := hD
       _ ≤ D ^ D := by
-        rw [show D ^ D = D ^ ((D - 1) + 1) by congr 1 <;> omega, pow_succ]
+        rw [show D ^ D = D ^ ((D - 1) + 1) by
+          congr 1
+          omega, pow_succ]
         exact Nat.le_mul_of_pos_left D (pow_pos hDpos _)
   calc
     D ^ (4 * D) + 1 ≤ 2 * D ^ (4 * D) := by omega

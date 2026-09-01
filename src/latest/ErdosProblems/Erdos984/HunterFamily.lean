@@ -45,7 +45,7 @@ lemma hunterDimension_spec (N : ℕ) :
     400 ≤ hunterDimension N ∧ N ≤ hunterN (hunterDimension N) := by
   exact Nat.find_spec (exists_hunterDimension N)
 
-lemma hunterDimension_gt_of_hunterN_lt {E N : ℕ} (hE : 400 ≤ E)
+lemma hunterDimension_gt_of_hunterN_lt {E N : ℕ}
     (hEN : hunterN E < N) : E < hunterDimension N := by
   by_contra hnot
   have hdimE : hunterDimension N ≤ E := by omega
@@ -58,7 +58,7 @@ lemma hunterDimension_gt_of_hunterN_lt {E N : ℕ} (hE : 400 ≤ E)
 lemma hunterN_dimension_pred_lt {N : ℕ} (hN : hunterN 400 < N) :
     hunterN (hunterDimension N - 1) < N := by
   have hdim : 400 < hunterDimension N :=
-    hunterDimension_gt_of_hunterN_lt (E := 400) (by norm_num) hN
+    hunterDimension_gt_of_hunterN_lt (E := 400) hN
   by_contra hnot
   have hcandidate :
       400 ≤ hunterDimension N - 1 ∧
@@ -170,7 +170,7 @@ lemma hunterFamily_eventually_subpower (ε : ℝ) (hε : 0 < ε) :
   have hEN : hunterN E < N := by omega
   have hE400 : 400 ≤ E := by dsimp [E]; omega
   have hdimE : E < hunterDimension N :=
-    hunterDimension_gt_of_hunterN_lt hE400 hEN
+    hunterDimension_gt_of_hunterN_lt hEN
   have h400N : hunterN 400 < N :=
     lt_of_le_of_lt (hunterN_mono (by norm_num) hE400) hEN
   have hprevious : hunterN (hunterDimension N - 1) < N :=

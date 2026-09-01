@@ -17,10 +17,11 @@ noncomputable section
 /-- A linearly independent finite family of coordinate vectors has a
 nonsingular square coordinate minor. -/
 lemma exists_ne_zero_coordinate_minor
-    {R D : Type*} [Fintype R] [DecidableEq R] [Fintype D]
+    {R D : Type*} [Fintype R] [DecidableEq R] [Finite D]
     (v : R → D → ℝ) (hv : LinearIndependent ℝ v) :
     ∃ σ : R → D, (Matrix.of fun r c ↦ v r (σ c)).det ≠ 0 := by
   classical
+  let _ := Fintype.ofFinite D
   let A : Matrix R D ℝ := Matrix.of v
   have hrow : LinearIndependent ℝ A.row := by
     change LinearIndependent ℝ v
@@ -70,7 +71,7 @@ lemma exists_ne_zero_coordinate_minor
 /-- A nonsingular coordinate minor makes restriction to those coordinates
 injective on the span of the given family. -/
 lemma coordinate_restriction_injOn_span
-    {R D : Type*} [Fintype R] [DecidableEq R] [Fintype D]
+    {R D : Type*} [Fintype R] [DecidableEq R]
     (v : R → D → ℝ) (σ : R → D)
     (hdet : (Matrix.of fun r c ↦ v r (σ c)).det ≠ 0) :
     Set.InjOn (fun w : D → ℝ ↦ fun r ↦ w (σ r))
@@ -112,13 +113,14 @@ lemma coordinate_restriction_injOn_span
 its real span has dimension `m`.  The proof chooses a nonsingular
 coordinate minor of a basis and projects to those coordinates. -/
 lemma finite_box_card_le_pow_finrank
-    {D Q : Type*} [Fintype D] [Fintype Q] [Nonempty Q]
-    [DecidableEq Q] (decode : Q → ℤ) (hdecode : Function.Injective decode)
+    {D Q : Type*} [Finite D] [Fintype Q] [Nonempty Q]
+    (decode : Q → ℤ) (hdecode : Function.Injective decode)
     (S : Finset (D → Q)) :
     S.card ≤ Fintype.card Q ^
       Module.finrank ℝ (Submodule.span ℝ
         (Set.range fun q : ↑S ↦ fun j ↦ (decode (q.1 j) : ℝ))) := by
   classical
+  let _ := Fintype.ofFinite D
   let v : ↑S → D → ℝ := fun q j ↦ (decode (q.1 j) : ℝ)
   let m := Module.finrank ℝ (Submodule.span ℝ (Set.range v))
   obtain ⟨f, hfmem, hfspan, hfind⟩ :=

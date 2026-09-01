@@ -62,7 +62,10 @@ lemma integral_normSq_hunterOrbitKernelSum_le
           ∑ q ∈ (Finset.univ.filter fun q : Q ↦ q ∉ R), f q := by
     rw [← Finset.sum_filter_add_sum_filter_not
       (Finset.univ : Finset Q) (fun q ↦ q ∈ R) f]
-    congr 2 <;> ext q <;> simp
+    congr 2
+    all_goals
+      ext q
+      simp
   have hres : ∑ q ∈ R, f q ≤
       (R.card : ℝ) * (hunterKernelMean D ^ 2 * (hunterX D : ℝ) ^ 2) := by
     calc

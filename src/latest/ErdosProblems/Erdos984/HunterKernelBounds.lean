@@ -141,7 +141,7 @@ lemma torusCosineKernel_re_le_exp_of_lt_norm
   classical
   have hex : ∃ j : D, rho < ‖x j‖ := by
     by_contra h
-    push_neg at h
+    push Not at h
     have hall : ‖x‖ ≤ rho := by
       rw [pi_norm_le_iff_of_nonempty]
       exact h
