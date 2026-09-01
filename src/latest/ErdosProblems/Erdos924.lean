@@ -409,20 +409,20 @@ theorem extend_injective (hab : a ≠ b) (e : E) : Function.Injective (D.extend 
         ReplacementVertex.left.injEq] at hxy
       exact Subtype.ext_iff.mp ((D.left e).injective hxy)
     · by_cases hyb : A.part y = b
-      · simp [extend, hxa, hya, hyb, hab.symm] at hxy
+      · simp [extend, hxa, hyb, hab.symm] at hxy
       · simp [extend, hxa, hya, hyb] at hxy
   · by_cases hxb : A.part x = b
     · by_cases hya : A.part y = a
-      · simp [extend, hxa, hxb, hya, hab.symm] at hxy
+      · simp [extend, hxb, hya, hab.symm] at hxy
       · by_cases hyb : A.part y = b
         · simp only [extend_of_part_eq_right D hab e hxb,
             extend_of_part_eq_right D hab e hyb, ReplacementVertex.right.injEq] at hxy
           exact Subtype.ext_iff.mp ((D.right e).injective hxy)
-        · simp [extend, hxa, hxb, hya, hyb, hab.symm] at hxy
+        · simp [extend, hxb, hya, hyb, hab.symm] at hxy
     · by_cases hya : A.part y = a
       · simp [extend, hxa, hxb, hya] at hxy
       · by_cases hyb : A.part y = b
-        · simp [extend, hxa, hxb, hya, hyb, hab.symm] at hxy
+        · simp [extend, hxa, hxb, hyb, hab.symm] at hxy
         · simp only [extend_of_part_ne D e hxa hxb, extend_of_part_ne D e hya hyb,
             ReplacementVertex.tagged.injEq] at hxy
           exact Subtype.ext_iff.mp hxy.1
@@ -433,7 +433,7 @@ theorem extend_part (hab : a ≠ b) [Fintype L] [Fintype R] [Fintype E]
   by_cases hxa : A.part x = a
   · simp [hxa]
   · by_cases hxb : A.part x = b
-    · simp [extend, hxa, hxb, hab.symm]
+    · simp [extend, hxb, hab.symm]
     · simp [extend, hxa, hxb]
 
 theorem extend_adj_iff (hab : a ≠ b) (e : E) {x y : A.V} :
@@ -448,7 +448,7 @@ theorem extend_adj_iff (hab : a ≠ b) (e : E) {x y : A.V} :
     · by_cases hyb : A.part y = b
       · simpa [extend, hxa, hxb, hya, hyb, hab.symm, ReplacementAdj] using
           D.induced e (⟨x, hxa⟩ : Row A a) (⟨y, hyb⟩ : Row A b)
-      · simp [extend, hxa, hxb, hya, hyb, hab.symm, ReplacementAdj,
+      · simp [extend, hxa, hya, hyb, ReplacementAdj,
           SimpleGraph.adj_comm]
   · by_cases hxb : A.part x = b
     · by_cases hya : A.part y = a
@@ -459,16 +459,14 @@ theorem extend_adj_iff (hab : a ≠ b) (e : E) {x y : A.V} :
       · by_cases hyb : A.part y = b
         · have hsource : ¬A.graph.Adj x y := fun h ↦
             A.part_ne_of_adj h (hxb.trans hyb.symm)
-          simp [extend, hxa, hxb, hya, hyb, hab.symm, hsource, ReplacementAdj]
-        · simp [extend, hxa, hxb, hya, hyb, hab.symm, ReplacementAdj,
+          simp [extend, hxb, hyb, hab.symm, hsource, ReplacementAdj]
+        · simp [extend, hxb, hya, hyb, hab.symm, ReplacementAdj,
             SimpleGraph.adj_comm]
     · by_cases hya : A.part y = a
       · have hyb : A.part y ≠ b := fun h ↦ hab (hya.symm.trans h)
-        simp [extend, hxa, hxb, hya, hyb, ReplacementAdj,
-          SimpleGraph.adj_comm]
+        simp [extend, hxa, hxb, hya, ReplacementAdj]
       · by_cases hyb : A.part y = b
-        · simp [extend, hxa, hxb, hya, hyb, hab.symm, ReplacementAdj,
-            SimpleGraph.adj_comm]
+        · simp [extend, hxa, hxb, hyb, hab.symm, ReplacementAdj]
         · simp [extend, hxa, hxb, hya, hyb, ReplacementAdj]
 
 /-- Each selected bipartite copy extends to an induced partite embedding of `A`. -/
@@ -827,13 +825,16 @@ private lemma lineInducedEmbedding_mapEdge_eq_wordEdge (G : BipartiteRel L R)
   · exact lineRight_edge G line e
 
 /-- Product form of the finite induced bipartite Ramsey theorem. -/
-theorem exists_product_host {L R : Type} [Fintype L] [Fintype R]
+theorem exists_product_host {L R : Type} [Finite L] [Finite R]
     (G : BipartiteRel L R) (k : ℕ) (hk : 0 < k) :
     ∃ (ι : Type) (_ : Fintype ι),
       ∀ C : (G.power ι).EdgeLabeling (Fin k),
         HasMonochromaticInducedCopy G (G.power ι) C := by
+  classical
+  let _ := Fintype.ofFinite L
+  let _ := Fintype.ofFinite R
   by_cases hne : Nonempty G.Edge
-  · letI : Nonempty G.Edge := hne
+  · let _ : Nonempty G.Edge := hne
     obtain ⟨ι, instι, hHJ⟩ :=
       Combinatorics.Line.exists_mono_in_high_dimension G.Edge (Fin k)
     refine ⟨ι, instι, ?_⟩
@@ -844,7 +845,7 @@ theorem exists_product_host {L R : Type} [Fintype L] [Fintype R]
     intro e
     rw [lineInducedEmbedding_mapEdge_eq_wordEdge]
     exact hc e
-  · haveI : IsEmpty G.Edge := not_nonempty_iff.mp hne
+  · have _ : IsEmpty G.Edge := not_nonempty_iff.mp hne
     let fL : L ↪ (Unit → L) :=
       ⟨fun x _ => x, fun x y h => congrFun h ()⟩
     let fR : R ↪ (Unit → R) :=
@@ -879,12 +880,12 @@ theorem exists_twoRow_extensionStep
   let G : BipartiteRel (PartiteGraph.Row A a) (PartiteGraph.Row A b) :=
     ⟨fun x y ↦ A.graph.Adj x.1 y.1⟩
   obtain ⟨ι, instι, hhost⟩ := BipartiteRel.exists_product_host G k hk
-  letI : Fintype ι := instι
+  let _ : Fintype ι := instι
   let H := G.power ι
   let E := {p : (PartiteGraph.Row A a ↪ (ι → PartiteGraph.Row A a)) ×
       (PartiteGraph.Row A b ↪ (ι → PartiteGraph.Row A b)) //
       ∀ x y, H.Rel (p.1 x) (p.2 y) ↔ G.Rel x y}
-  letI : Fintype E := inferInstance
+  let _ : Fintype E := inferInstance
   let D : PartiteGraph.TwoRowData A a b
       (ι → PartiteGraph.Row A a) (ι → PartiteGraph.Row A b) E :=
     { rel := H.Rel
