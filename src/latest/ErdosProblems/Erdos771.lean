@@ -190,17 +190,14 @@ lemma lcmUpto_cutoff_le {X : ℕ} (hX : 1 ≤ X) :
   exact Nat.findGreatest_spec (P := fun r => Nat.lcmUpto r ≤ X)
     (m := 0) (Nat.zero_le X) (by simpa [Nat.lcmUpto] using hX)
 
-lemma cutoff_next_lcm_gt {X : ℕ} (hX : 1 ≤ X) :
+lemma cutoff_next_lcm_gt {X : ℕ} :
     X < Nat.lcmUpto (lcmCutoff X + 1) := by
   by_contra hnot
   have hnext : Nat.lcmUpto (lcmCutoff X + 1) ≤ X := Nat.le_of_not_gt hnot
   by_cases hcut : lcmCutoff X < X
   · have hs : lcmCutoff X + 1 ≤ X := Nat.succ_le_of_lt hcut
     have hle := Nat.le_findGreatest (P := fun r => Nat.lcmUpto r ≤ X) hs hnext
-    have hle' : lcmCutoff X + 1 ≤ lcmCutoff X := by
-      simpa [lcmCutoff] using hle
-    omega
-
+    exact (Nat.not_succ_le_self (lcmCutoff X)) hle
   · have heq : lcmCutoff X = X := by
       exact Nat.le_antisymm (lcmCutoff_le X) (Nat.le_of_not_gt hcut)
     have hdvd : X + 1 ∣ Nat.lcmUpto (X + 1) :=
@@ -238,7 +235,7 @@ lemma cutoff_succ_not_dvd {X : ℕ} (hX : 1 ≤ X) :
       Nat.lcmUpto (lcmCutoff X) :=
     Nat.le_of_dvd (Nat.lcmUpto_pos _) hnext_dvd
   exact (Nat.not_lt_of_ge (hle.trans (lcmUpto_cutoff_le hX)))
-    (cutoff_next_lcm_gt hX)
+    cutoff_next_lcm_gt
 
 lemma leastNondivisor_lcmCutoff {X : ℕ} (hX : 1 ≤ X) :
     leastNondivisor (Nat.lcmUpto (lcmCutoff X)) (Nat.lcmUpto_pos _) =
@@ -286,7 +283,7 @@ lemma primePower_socle_is_nsmul {p a i : ℕ} (hp : p.Prime) (ha : 0 < a)
     ∃ k : ℕ, k • u = (i * p ^ (a - 1) : ZMod (p ^ a)) := by
   let N := p ^ a
   have hNpos : 0 < N := pow_pos hp.pos a
-  letI : NeZero N := ⟨hNpos.ne'⟩
+  let : NeZero N := ⟨hNpos.ne'⟩
   have huval : 0 < u.val := Nat.pos_of_ne_zero (ZMod.val_ne_zero u |>.mpr hu)
   let g := Nat.gcd u.val N
   have hgpos : 0 < g := Nat.gcd_pos_of_pos_right u.val hNpos
@@ -341,7 +338,7 @@ lemma nsmul_mem_of_expansion_eq_zero {m : ℕ} [NeZero m] {D : Finset (ZMod m)}
     have hmem : x ∈ Erdos54.translate D a \ D :=
       Finset.mem_sdiff.mpr ⟨hx, hxD⟩
     rw [hempty] at hmem
-    simpa using hmem
+    simp at hmem
   intro k
   induction k with
   | zero => simpa using hzero
@@ -399,7 +396,7 @@ lemma primePower_target_mem_cyclicSubsetSums {p a i : ℕ}
     (hnonzero : ∀ x ∈ s, (x : ZMod (p ^ a)) ≠ 0) :
     (i * p ^ (a - 1) : ZMod (p ^ a)) ∈
       Erdos54.cyclicSubsetSumResiduesList (p ^ a) s := by
-  letI : NeZero (p ^ a) := ⟨(pow_pos hp.pos a).ne'⟩
+  let : NeZero (p ^ a) := ⟨(pow_pos hp.pos a).ne'⟩
   let z : ZMod (p ^ a) := i * p ^ (a - 1)
   by_contra hnot
   have hmul : ∀ x ∈ s, ∃ k : ℕ, k • (x : ZMod (p ^ a)) = z := by
@@ -429,7 +426,7 @@ lemma exists_subset_sum_mod_primePower {p a i : ℕ} (hp : p.Prime) (ha : 0 < a)
     (hnondiv : ∀ x ∈ S, ¬p ^ a ∣ x) :
     ∃ u ∈ S.subsetSum,
       (u : ZMod (p ^ a)) = (i * p ^ (a - 1) : ZMod (p ^ a)) := by
-  letI : NeZero (p ^ a) := ⟨(pow_pos hp.pos a).ne'⟩
+  let : NeZero (p ^ a) := ⟨(pow_pos hp.pos a).ne'⟩
   obtain ⟨T, hTS, hTcard⟩ := Finset.exists_subset_card_eq hcard
   let l := T.toList
   have hllen : l.length = p ^ a - 1 := by simpa [l] using hTcard
@@ -478,7 +475,7 @@ lemma multiplesUpTo_avoids {n q m : ℕ} (hqm : ¬q ∣ m) :
 
 /-- Erdős--Graham's elementary lower construction for a fixed target. -/
 lemma admissible_of_bounded_prime_nondivisors {n k Q : ℕ}
-    (hQ : 0 < Q) (hk : k ≤ n / Q)
+    (hk : k ≤ n / Q)
     (hprime : ∀ m : ℕ, 0 < m → m ≤ n * (n + 1) / 2 →
       ∃ p : ℕ, p.Prime ∧ p ≤ Q ∧ ¬p ∣ m) :
     AdmissibleCard n k := by
@@ -611,7 +608,7 @@ lemma eventually_exists_prime_nondivisor (c : ℝ) (hc : 2 < c) :
   filter_upwards [htheta, eventually_gt_atTop 1] with n hnTheta hn
   intro m hm hmBound
   by_contra hnone
-  push_neg at hnone
+  push Not at hnone
   have hprimdiv : primorial (primeCutoff c n) ∣ m :=
     primorial_dvd_of_primes_dvd fun p hp hpQ => hnone p hp hpQ
   have hprimle : primorial (primeCutoff c n) ≤ m :=
@@ -644,12 +641,9 @@ lemma eventually_exists_prime_nondivisor (c : ℝ) (hc : 2 < c) :
 
 lemma eventually_erdosF_lower (c : ℝ) (hc : 2 < c) :
     ∀ᶠ n : ℕ in atTop, n / primeCutoff c n ≤ erdosF n := by
-  filter_upwards
-    [eventually_exists_prime_nondivisor c hc,
-     (primeCutoff_tendsto_atTop (show 0 < c by linarith)).eventually
-       (eventually_gt_atTop 0)] with n hprime hQ
+  filter_upwards [eventually_exists_prime_nondivisor c hc] with n hprime
   have hadm : AdmissibleCard n (n / primeCutoff c n) :=
-    admissible_of_bounded_prime_nondivisors hQ le_rfl hprime
+    admissible_of_bounded_prime_nondivisors le_rfl hprime
   exact (admissibleCard_iff_le_erdosF (Nat.div_le_self _ _)).mp hadm
 
 lemma real_div_sub_natDiv_lt_one {n q : ℕ} (hq : 0 < q) :
@@ -855,11 +849,10 @@ lemma coefficientIntegral_eq (A : Finset ℕ) (M : ℕ) :
         congr 1
         push_cast
         ring
-      · simp only [Int.subNatNat_eq_coe, sub_eq_zero, Int.natCast_inj]
+      · simp only [sub_eq_zero, Int.natCast_inj]
     rw [Finset.sum_congr rfl hterm]
     rw [Finset.sum_boole (fun T : Finset ℕ => ∑ a ∈ T, a = M) A.powerset]
-    simp only [Nat.cast_ofNat, Complex.ofReal_div, Complex.ofReal_natCast,
-      Complex.ofReal_pow]
+    simp only [Complex.ofReal_natCast]
     rw [div_eq_mul_inv, mul_comm]
     congr 1
     rw [zpow_neg, zpow_natCast]
@@ -926,7 +919,8 @@ lemma coefficient_integrand_centered (A : Finset ℕ) (M : ℕ) (t : ℝ) :
         Complex.exp (((Real.pi * (a : ℝ) * t : ℝ) : ℂ) * Complex.I) *
           (Real.cos (Real.pi * (a : ℝ) * t) : ℂ) := by
     intro a ha
-    convert bernoulliFactor_centered (Real.pi * (a : ℝ) * t) using 1 <;> ring
+    convert bernoulliFactor_centered (Real.pi * (a : ℝ) * t) using 1
+    all_goals ring
   rw [Finset.prod_congr rfl hfactor]
   rw [Finset.prod_mul_distrib, ← Complex.exp_sum]
   unfold coefficientPhase
@@ -973,7 +967,8 @@ one-sided form used below. -/
 lemma circleDist_sub_abs_sub_le (x y : ℝ) :
     circleDist y - |x - y| ≤ circleDist x := by
   have htri : circleDist y ≤ circleDist x + circleDist (y - x) := by
-    convert circleDist_add_le x (y - x) using 1 <;> ring
+    convert circleDist_add_le x (y - x) using 1
+    all_goals ring
   have hpert : circleDist (y - x) ≤ |x - y| := by
     simpa [abs_sub_comm] using circleDist_le_abs (y - x)
   linarith
@@ -1004,7 +999,6 @@ lemma centeredModOne_mul (a : ℕ) (t : ℝ) :
   constructor
   · exact abs_sub_round _
   · refine ⟨round ((a : ℝ) * t), ?_⟩
-    push_cast
     ring
 
 lemma norm_bernoulliProduct_le_exp_circleEnergy (A : Finset ℕ) (t : ℝ) :
@@ -1022,7 +1016,8 @@ lemma norm_bernoulliProduct_le_exp_circleEnergy (A : Finset ℕ) (t : ℝ) :
               (((2 * Real.pi * (a : ℝ) * t : ℝ) : ℂ) * Complex.I)) / 2 =
               Complex.exp (((Real.pi * (a : ℝ) * t : ℝ) : ℂ) * Complex.I) *
                 (Real.cos (Real.pi * (a : ℝ) * t) : ℂ) by
-            convert bernoulliFactor_centered (Real.pi * (a : ℝ) * t) using 1 <;> ring]
+            convert bernoulliFactor_centered (Real.pi * (a : ℝ) * t) using 1
+            all_goals ring]
           rw [norm_mul, Complex.norm_exp]
           norm_num [Complex.mul_re, Complex.norm_real, Real.norm_eq_abs]
           have harg : (Real.pi : ℂ) * (a : ℂ) * (t : ℂ) =
@@ -1059,11 +1054,12 @@ lemma norm_coefficient_integrand_le_exp_circleEnergy
   rw [hphase, one_mul]
   exact norm_bernoulliProduct_le_exp_circleEnergy A t
 
-lemma norm_prod_sub_prod_le_sum {ι : Type*} [DecidableEq ι]
+lemma norm_prod_sub_prod_le_sum {ι : Type*}
     (s : Finset ι) (u v : ι → ℂ)
     (hu : ∀ i ∈ s, ‖u i‖ ≤ 1) (hv : ∀ i ∈ s, ‖v i‖ ≤ 1) :
     ‖(∏ i ∈ s, u i) - ∏ i ∈ s, v i‖ ≤
       ∑ i ∈ s, ‖u i - v i‖ := by
+  classical
   induction s using Finset.induction_on with
   | empty => simp
   | @insert a s ha ih =>
@@ -1106,7 +1102,6 @@ lemma norm_cos_sub_gaussian_quadratic_le (y : ℝ) :
   have hpoly : P z + P (-z) = 2 * (1 - (y ^ 2 / 2 : ℝ) : ℂ) := by
     dsimp [P, z]
     norm_num [Finset.sum_range_succ, div_pow]
-    push_cast
     simp only [mul_pow, Complex.I_sq]
     ring
   have hcos : 2 * (Real.cos y : ℂ) = Complex.exp z + Complex.exp (-z) := by
@@ -1284,7 +1279,6 @@ lemma card_cube_le_sixteen_mul_varianceMass {A : Finset ℕ}
     have hdoubleR : (2 : ℝ) * (A.card * (A.card + 1) / 2 : ℕ) =
         (A.card : ℝ) * (A.card + 1) := by exact_mod_cast hdouble
     dsimp [k]
-    push_cast at hdoubleR
     linarith
   have htri : k * (k + 1) / 2 ≤ U := by
     rw [← htriCast]
@@ -1312,7 +1306,8 @@ lemma card_cube_le_sixteen_mul_varianceMass {A : Finset ℕ}
       apply le_of_mul_le_mul_left (a := k) (by nlinarith) hkpos
   rw [varianceMass_eq_quarter_sum]
   dsimp [k, Q] at hcubic ⊢
-  convert hcubic using 1 <;> ring
+  convert hcubic using 1
+  all_goals ring
 
 lemma one_sub_sum_le_prod_one_sub {u : ℕ → ℝ} (A : Finset ℕ)
     (hu0 : ∀ a ∈ A, 0 ≤ u a) (hu1 : ∀ a ∈ A, u a ≤ 1) :
@@ -1485,7 +1480,8 @@ lemma integral_lower_of_core_and_outer {f : ℝ → ℝ} (hf : Continuous f)
         (by constructor <;> linarith [ht.1, ht.2])
         (by rw [abs_of_nonpos (by linarith [ht.2])]; linarith [ht.2]))
     simp only [intervalIntegral.integral_const] at hmono
-    convert hmono using 1 <;> ring
+    convert hmono using 1
+    all_goals ring
   have hmiddle : 2 * rho * c ≤
       ∫ t : ℝ in (-rho)..rho, f t := by
     have hmono := intervalIntegral.integral_mono_on
@@ -1495,7 +1491,8 @@ lemma integral_lower_of_core_and_outer {f : ℝ → ℝ} (hf : Continuous f)
         rw [abs_le]
         exact ⟨ht.1, ht.2⟩))
     simp only [intervalIntegral.integral_const] at hmono
-    convert hmono using 1 <;> ring
+    convert hmono using 1
+    all_goals ring
   have hright : -(error * (1 / 2 - rho)) ≤
       ∫ t : ℝ in rho..(1 / 2 : ℝ), f t := by
     have hmono := intervalIntegral.integral_mono_on hrho
@@ -1504,7 +1501,8 @@ lemma integral_lower_of_core_and_outer {f : ℝ → ℝ} (hf : Continuous f)
         (by constructor <;> linarith [ht.1, ht.2])
         (by rw [abs_of_nonneg (by linarith [ht.1])]; exact ht.1))
     simp only [intervalIntegral.integral_const] at hmono
-    convert hmono using 1 <;> ring
+    convert hmono using 1
+    all_goals ring
   have hadd1 := intervalIntegral.integral_add_adjacent_intervals
     (μ := MeasureTheory.volume)
     (hfi (-1 / 2) (-rho)) (hfi (-rho) rho)
@@ -1940,7 +1938,7 @@ lemma exists_reduced_rational_approx {u : ℝ} {Q : ℕ} (hQ : 0 < Q)
 /- The large-denominator grid uses deliberately generous constants.  Keeping
 these floor-sensitive estimates separate makes the analytic theorem below
 readable. -/
-lemma largeGrid_bad_count {n x q : ℕ} (hq : 0 < q) (hqQ : q ≤ 1000 * n) :
+lemma largeGrid_bad_count {n x q : ℕ} (hqQ : q ≤ 1000 * n) :
     let K := (q * x) / (64 * 1001 * (n + 1))
     (2 * K) * ((n + 1) / q + 1) ≤ x / 2 := by
   dsimp only
@@ -2128,7 +2126,7 @@ lemma circleEnergy_minorArc_lower {A : Finset ℕ} {n x h : ℕ}
     let K := (q * x) / (64 * 1001 * (n + 1))
     have hq1000 : q ≤ 1000 * n := by simpa [Q] using hqQ
     have hbad : (2 * K) * ((n + 1) / q + 1) ≤ x / 2 :=
-      largeGrid_bad_count hq hq1000
+      largeGrid_bad_count hq1000
     have hlargeEnergy := circleEnergy_ge_of_few_near_grid hq hpq hA hcard
       hbad happrox' hγ0
     have hmargin : γ + (n : ℝ) * δ ≤ (K : ℝ) / q := by
@@ -2216,9 +2214,10 @@ lemma mem_subsetSum_of_sparse {A : Finset ℕ} {n x h M : ℕ}
 /-- A standard cardinality estimate for a finite map with uniformly bounded
 fibers. -/
 lemma card_le_image_card_mul_of_fiber_bound {α β : Type*}
-    [DecidableEq α] [DecidableEq β] (S : Finset α) (f : α → β) (D : ℕ)
+    [DecidableEq β] (S : Finset α) (f : α → β) (D : ℕ)
     (hfiber : ∀ b ∈ S.image f, (S.filter fun a => f a = b).card ≤ D) :
     S.card ≤ (S.image f).card * D := by
+  classical
   rw [Finset.card_eq_sum_card_fiberwise (t := S.image f) (f := f) (by
     intro a ha
     exact Finset.mem_coe.mpr
@@ -2254,8 +2253,7 @@ lemma CoversMultiples.shrink {D : Finset ℕ} {q L U L' U' : ℕ}
 def quotientPart (q : ℕ) (D : Finset ℕ) : Finset ℕ :=
   D.image fun d => d / q
 
-lemma image_mul_quotientPart {D : Finset ℕ} {q : ℕ} (hq : 0 < q)
-    (hdiv : ∀ d ∈ D, q ∣ d) :
+lemma image_mul_quotientPart {D : Finset ℕ} {q : ℕ} (hdiv : ∀ d ∈ D, q ∣ d) :
     (quotientPart q D).image (fun d => q * d) = D := by
   ext d
   constructor
@@ -2268,8 +2266,7 @@ lemma image_mul_quotientPart {D : Finset ℕ} {q : ℕ} (hq : 0 < q)
     refine ⟨d / q, Finset.mem_image.mpr ⟨d, hd, rfl⟩, ?_⟩
     exact Nat.mul_div_cancel' (hdiv d hd)
 
-lemma card_quotientPart {D : Finset ℕ} {q : ℕ} (hq : 0 < q)
-    (hdiv : ∀ d ∈ D, q ∣ d) :
+lemma card_quotientPart {D : Finset ℕ} {q : ℕ} (hdiv : ∀ d ∈ D, q ∣ d) :
     (quotientPart q D).card = D.card := by
   rw [quotientPart]
   apply Finset.card_image_iff.mpr
@@ -2295,7 +2292,7 @@ lemma mem_subsetSum_of_quotientPart {D : Finset ℕ} {q x : ℕ}
     (hq : 0 < q) (hdiv : ∀ d ∈ D, q ∣ d)
     (hx : x ∈ (quotientPart q D).subsetSum) :
     q * x ∈ D.subsetSum := by
-  rw [← image_mul_quotientPart hq hdiv,
+  rw [← image_mul_quotientPart hdiv,
     Erdos469.subsetSum_image_mul_left hq]
   exact Finset.mem_image.mpr ⟨x, hx, rfl⟩
 
@@ -2362,7 +2359,7 @@ lemma exists_bounded_residue_correction {C : Finset ℕ} {k r n M : ℕ}
 cost of moving the lower endpoint by at most `k*n`. -/
 lemma CoversMultiples.adjust_residue_block {A D C : Finset ℕ}
     {n k r L U : ℕ} (hk : 0 < k) (hr : r < k)
-    (hA : A ⊆ Finset.Icc 1 n) (hD : D ⊆ A) (hC : C ⊆ A)
+    (hA : A ⊆ Finset.Icc 1 n) (hC : C ⊆ A)
     (hdisj : Disjoint D C) (hCcard : C.card = k)
     (hres : ∀ c ∈ C, c % k = r)
     (hcover : CoversMultiples D k L U) :
@@ -2484,7 +2481,7 @@ lemma exists_stable_progression {A D : Finset ℕ} {n k L U : ℕ}
               Nat.modEq_zero_iff_dvd.mpr hdvdR
             exact Nat.modEq_zero_iff_dvd.mp (hmodD.trans hrzero)
         have hAdjust : CoversMultiples (D ∪ C) d (L + k * n) U :=
-          hcover.adjust_residue_block hk hrk hA hDA hCA hdisj hCcard hCres
+          hcover.adjust_residue_block hk hrk hA hCA hdisj hCcard hCres
         obtain ⟨q, E, hqpos, hqd, hDE, hEA, hEcard, hEdiv,
             hEstable, hEcover⟩ :=
           ih d hdlt hdpos (Finset.union_subset hDA hCA) hUnionDiv hAdjust
@@ -2538,8 +2535,7 @@ lemma extractionDivisor_pos {S : Finset ℕ} {n h : ℕ} (hn : 1 ≤ n) :
 lemma extractionDivisor_le (S : Finset ℕ) (n h : ℕ) :
     extractionDivisor S n h ≤ n := Nat.findGreatest_le n
 
-lemma quotient_filter_divisible_card {S : Finset ℕ} {k q : ℕ}
-    (hk : 0 < k) :
+lemma quotient_filter_divisible_card {S : Finset ℕ} {k q : ℕ} :
     ((quotientPart k (divisiblePart S k)).filter fun b => q ∣ b).card =
       (divisiblePart S (k * q)).card := by
   let D := divisiblePart S k
@@ -2550,7 +2546,7 @@ lemma quotient_filter_divisible_card {S : Finset ℕ} {k q : ℕ}
   rw [Finset.card_image_iff.mpr]
   · congr 1
     ext a
-    simp only [Finset.mem_filter, divisiblePart, D]
+    simp only [Finset.mem_filter, divisiblePart]
     constructor
     · rintro ⟨⟨haS, hka⟩, hqa⟩
       exact ⟨haS, (Nat.dvd_div_iff_mul_dvd hka).mp hqa⟩
@@ -2568,7 +2564,7 @@ lemma quotient_filter_divisible_card {S : Finset ℕ} {k q : ℕ}
         (hDdiv b (Finset.mem_filter.mp hb).1)
 
 lemma extractionDivisor_sparse {S : Finset ℕ} {n h : ℕ}
-    (hn : 1 ≤ n) (hhpos : 0 < h)
+    (hn : 1 ≤ n)
     (hS : S ⊆ Finset.Icc 1 n)
     (hbudget : h * Nat.log 2 n + h ≤ S.card) :
     let k := extractionDivisor S n h
@@ -2584,7 +2580,7 @@ lemma extractionDivisor_sparse {S : Finset ℕ} {n h : ℕ}
   have hlogle : Nat.log 2 k ≤ Nat.log 2 n := Nat.log_mono_right hkle
   have hDcard : D.card + h * Nat.log 2 k =
       B.card + h * Nat.log 2 k := by
-    rw [card_quotientPart hkpos]
+    rw [card_quotientPart]
     intro d hd
     exact (Finset.mem_filter.mp hd).2
   intro q hq
@@ -2604,7 +2600,7 @@ lemma extractionDivisor_sparse {S : Finset ℕ} {n h : ℕ}
       omega
     omega
   have hCcard : Bq.card = (divisiblePart S (k * q)).card := by
-    simpa [Bq, B, D] using quotient_filter_divisible_card (S := S) hkpos
+    simpa [Bq, B, D] using quotient_filter_divisible_card (S := S)
   have hkqle : k * q ≤ n := by
     have hCnonempty : (divisiblePart S (k * q)).Nonempty := by
       apply Finset.card_pos.mp
@@ -2659,7 +2655,7 @@ lemma exists_sparse_seed_progression {S : Finset ℕ} {n h : ℕ}
   have hDdiv : ∀ d ∈ D, k ∣ d := by
     intro d hd
     exact (Finset.mem_filter.mp hd).2
-  have hBcard : B.card = D.card := card_quotientPart hkpos hDdiv
+  have hBcard : B.card = D.card := card_quotientPart hDdiv
   have hgood := extractionDivisor_spec (S := S) (h := h) hn
   have hlogle : Nat.log 2 k ≤ Nat.log 2 n := Nat.log_mono_right hkle
   have hDlower : S.card - h * Nat.log 2 n ≤ D.card := by
@@ -2679,7 +2675,7 @@ lemma exists_sparse_seed_progression {S : Finset ℕ} {n h : ℕ}
     quotientPart_subset_Icc hkpos (hDS.trans hS) hDdiv
   have hSparse : ∀ q : ℕ, 2 ≤ q →
       h ≤ (B.filter fun b => ¬q ∣ b).card := by
-    exact extractionDivisor_sparse hn hhpos hS (by omega)
+    exact extractionDivisor_sparse hn hS (by omega)
   have hBupper : B.card ≤ S.card := by
     rw [hBcard]
     exact Finset.card_le_card hDS
@@ -2725,7 +2721,7 @@ lemma exists_sparse_seed_progression {S : Finset ℕ} {n h : ℕ}
 /-! ## Extending a progression through all remaining multiples -/
 
 lemma CoversMultiples.insert {D : Finset ℕ} {a q L U : ℕ}
-    (hq : 0 < q) (hLU : L ≤ U) (hqU : q ∣ U) (hqa : q ∣ a)
+    (hLU : L ≤ U) (hqU : q ∣ U) (hqa : q ∣ a)
     (haD : a ∉ D) (ha : a ≤ U - L + q)
     (hcover : CoversMultiples D q L U) :
     CoversMultiples (insert a D) q L (U + a) := by
@@ -2752,7 +2748,7 @@ lemma CoversMultiples.insert {D : Finset ℕ} {a q L U : ℕ}
       · exact fun haT => haD (hTD haT)
 
 lemma CoversMultiples.add_list {D : Finset ℕ} {l : List ℕ}
-    {q L U W : ℕ} (hq : 0 < q) (hLU : L ≤ U) (hqU : q ∣ U)
+    {q L U W : ℕ} (hLU : L ≤ U) (hqU : q ∣ U)
     (hnodup : l.Nodup) (hdisj : Disjoint l.toFinset D)
     (hTdiv : ∀ a ∈ l, q ∣ a) (hbound : ∀ a ∈ l, a ≤ W)
     (hW : W ≤ U - L + q) (hcover : CoversMultiples D q L U) :
@@ -2765,7 +2761,7 @@ lemma CoversMultiples.add_list {D : Finset ℕ} {l : List ℕ}
       have haD : a ∉ D := by
         intro haD
         exact (Finset.disjoint_left.mp hdisj (by simp) haD)
-      have hstep := hcover.insert hq hLU hqU (hTdiv a (by simp))
+      have hstep := hcover.insert hLU hqU (hTdiv a (by simp))
         haD ((hbound a (by simp)).trans hW)
       have hdisjTail : Disjoint l.toFinset (Insert.insert a D) := by
         rw [Finset.disjoint_insert_right]
@@ -2782,12 +2778,12 @@ lemma CoversMultiples.add_list {D : Finset ℕ} {l : List ℕ}
         Nat.add_left_comm, Finset.insert_union, Finset.union_insert] using htail
 
 lemma CoversMultiples.add_finset {D T : Finset ℕ} {q L U W : ℕ}
-    (hq : 0 < q) (hLU : L ≤ U) (hqU : q ∣ U)
+    (hLU : L ≤ U) (hqU : q ∣ U)
     (hdisj : Disjoint T D) (hTdiv : ∀ a ∈ T, q ∣ a)
     (hbound : ∀ a ∈ T, a ≤ W) (hW : W ≤ U - L + q)
     (hcover : CoversMultiples D q L U) :
     CoversMultiples (D ∪ T) q L (U + ∑ a ∈ T, a) := by
-  have h := CoversMultiples.add_list (l := T.toList) hq hLU hqU
+  have h := CoversMultiples.add_list (l := T.toList) hLU hqU
     T.nodup_toList (by simpa using hdisj)
     (fun a ha => hTdiv a (by simpa using ha))
     (fun a ha => hbound a (by simpa using ha)) hW hcover
@@ -2855,7 +2851,7 @@ lemma exists_long_multiples {A S : Finset ℕ} {n h : ℕ}
     intro a ha
     have haA := (Finset.mem_filter.mp (Finset.sdiff_subset ha)).1
     exact (Finset.mem_Icc.mp (hA haA)).2
-  have hext := hstableCover.add_finset hqpos hLU hqU hdisj hTdiv
+  have hext := hstableCover.add_finset hLU hqU hdisj hTdiv
     hTbound hnWidth
   have hUnion : E ∪ T = G := by
     exact Finset.union_sdiff_of_subset hEG
@@ -2871,7 +2867,7 @@ lemma exists_long_multiples {A S : Finset ℕ} {n h : ℕ}
         _ = ∑ d ∈ Q.image (fun b => k * b), d :=
           (Finset.sum_image (f := fun x : ℕ => x)
             (g := fun b : ℕ => k * b) hinj).symm
-        _ = ∑ d ∈ D, d := by rw [image_mul_quotientPart hkpos hDdiv]
+        _ = ∑ d ∈ D, d := by rw [image_mul_quotientPart hDdiv]
     have hcsum : c ≤ ∑ b ∈ quotientPart k D, b := Nat.div_le_self _ _
     calc
       k * c ≤ k * (∑ b ∈ quotientPart k D, b) :=
@@ -2917,7 +2913,7 @@ lemma divisiblePart_sum_lower {A : Finset ℕ} {q : ℕ} (hq : 0 < q)
   have hGdiv : ∀ g ∈ G, q ∣ g := by
     intro g hg
     exact (Finset.mem_filter.mp hg).2
-  have hBcard : B.card = G.card := card_quotientPart hq hGdiv
+  have hBcard : B.card = G.card := card_quotientPart hGdiv
   have hBpos : ∀ b ∈ B, 1 ≤ b := by
     intro b hb
     obtain ⟨g, hg, rfl⟩ := Finset.mem_image.mp hb
@@ -2936,7 +2932,7 @@ lemma divisiblePart_sum_lower {A : Finset ℕ} {q : ℕ} (hq : 0 < q)
       _ = ∑ g ∈ B.image (fun b => q * b), g :=
         (Finset.sum_image (f := fun x : ℕ => x)
           (g := fun b : ℕ => q * b) hinj).symm
-      _ = ∑ g ∈ G, g := by rw [image_mul_quotientPart hq hGdiv]
+      _ = ∑ g ∈ G, g := by rw [image_mul_quotientPart hGdiv]
   calc
     q * (G.card * (G.card + 1) / 2) =
         q * (B.card * (B.card + 1) / 2) := by rw [hBcard]
@@ -3289,14 +3285,13 @@ lemma log_afUpperEndpoint_div_log_tendsto_two :
         Real.log (2000 : ℝ) + 2 * Real.log (B : ℝ) +
           Real.log (X : ℝ) := by
       have hBposR : (0 : ℝ) < B := by
-        exact_mod_cast (show 0 < B by simpa [B] using binaryScale_pos n)
+        exact_mod_cast (show 0 < B by simp [B])
       have hXposR : (0 : ℝ) < X := by exact_mod_cast hXpos
       have hleft : Real.log ((n ^ 2 : ℕ) : ℝ) =
           2 * Real.log (n : ℝ) := by
         push_cast
         rw [Real.log_pow]
         norm_num
-
       have htwoDX : (((2 * D * X : ℕ) : ℝ)) =
           (2000 : ℝ) * (B : ℝ) ^ 2 * (X : ℝ) := by
         dsimp [D]
@@ -3394,7 +3389,7 @@ lemma afTargetNondivisor_ratio_tendsto_two :
         dsimp [L]
         exact Real.log_pos (by exact_mod_cast hXtwo)
       have hnext : afUpperEndpoint n < Nat.lcmUpto (s n) := by
-        simpa [s, r] using cutoff_next_lcm_gt hX
+        simpa [s, r] using cutoff_next_lcm_gt (X := afUpperEndpoint n)
       have hlogNext : L n < Chebyshev.psi (s n : ℝ) := by
         rw [Chebyshev.psi_eq_log_lcmUpto]
         exact Real.log_lt_log (by exact_mod_cast hX) (by exact_mod_cast hnext)
@@ -3634,7 +3629,6 @@ lemma af_seed_decay {n x : ℕ}
       (n : ℝ) / (128 * C ^ 2 * B ^ 36) =
           ((n : ℝ) / (2 * B ^ 20)) *
             ((1 : ℝ) / (8 * C * B ^ 8)) ^ 2 := by
-              push_cast
               field_simp
               ring
       _ ≤ (h : ℝ) * ((1 : ℝ) / (8 * C * B ^ 8)) ^ 2 := by
@@ -3858,7 +3852,8 @@ lemma af_upper_numeric {n s aCard : ℕ}
         _ ≤ t * t := Nat.mul_le_mul hut hut
         _ ≤ t * (t + 1) := Nat.mul_le_mul_left t (Nat.le_succ t)
     apply (Nat.le_div_iff_mul_le (by omega : 0 < 2)).2
-    convert hfour using 1 <;> ring
+    convert hfour using 1
+    all_goals ring
   have htwoPow : 2 * B ^ 38 ≤ n := by
     change B ^ 38 ≤ n / 2 at hpow
     simpa [Nat.mul_comm] using
@@ -4113,7 +4108,7 @@ lemma afTarget_mem_subsetSum {n : ℕ} {A : Finset ℕ}
     simpa [X, s] using af_target_margin
       (show 200000 < binaryScale n by omega) hpow hsB
   have hnext : X < Nat.lcmUpto (lcmCutoff X + 1) :=
-    cutoff_next_lcm_gt (by simpa [X] using hX)
+    cutoff_next_lcm_gt (X := X)
   have hnextUpper : Nat.lcmUpto (lcmCutoff X + 1) ≤ s * m := by
     simpa [s, m, X, afTargetNondivisor, afTarget] using
       lcmUpto_succ_le_mul (lcmCutoff X)
@@ -4236,9 +4231,8 @@ lemma eventually_erdosF_lt_afCardThreshold :
       eventually_afTargetNondivisor_le_three_binaryScale]
       with n hn hB hpow hX hsB
   change binaryScale n ^ 38 ≤ n / 2 at hpow
-  apply erdosF_lt_of_all_large_represent (Nat.lcmUpto_pos _)
-  intro A hA hcard
-  exact afTarget_mem_subsetSum hn (by omega) hpow hX hsB hA hcard
+  exact erdosF_lt_of_all_large_represent (Nat.lcmUpto_pos _)
+    (fun A hA hcard => afTarget_mem_subsetSum hn (by omega) hpow hX hsB hA hcard)
 
 lemma natDiv_afTargetNondivisor_ratio_tendsto_half :
     Tendsto (fun n : ℕ =>
@@ -4265,7 +4259,8 @@ lemma natDiv_afTargetNondivisor_ratio_tendsto_half :
     have hinv' : Tendsto (fun n =>
         ((s n : ℝ) / Real.log (n : ℝ))⁻¹)
         atTop (𝓝 (1 / 2 : ℝ)) := by
-      convert hinv using 1 <;> norm_num
+      convert hinv using 1
+      all_goals norm_num
     apply hinv'.congr'
     filter_upwards
       [eventually_gt_atTop 1,
