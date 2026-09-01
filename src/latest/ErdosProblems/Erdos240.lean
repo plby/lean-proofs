@@ -1814,7 +1814,9 @@ theorem problem240_of_normalizedConcreteSourceComponents
 /-- Erdős Problem 240: there is an infinite set of primes whose positive
 smooth numbers, in increasing order, have consecutive gaps tending to
 infinity. -/
-theorem erdos_240 : (∃ P : Set ℕ, P.Infinite ∧ Erdos240.IsPrimeSet P ∧ Erdos240.HasDivergentGaps P) :=
+theorem erdos_240 :
+    ∃ P : Set ℕ,
+      P.Infinite ∧ Erdos240.IsPrimeSet P ∧ Erdos240.HasDivergentGaps P :=
   problem240_of_normalizedConcreteSourceComponents
     BakerSourceFinalAssemblyIndependent.hasNormalizedConcreteSourceComponents
 
