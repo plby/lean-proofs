@@ -60,7 +60,7 @@ def edgeCount {α : Type u} [Fintype α] (G : SimpleGraph α) : ℕ :=
 /-- A clique containing at least as many vertices as the target contains a copy
 of the target. -/
 lemma hasCopy_of_clique {α : Type u} {β : Type v}
-    [Fintype α] [Fintype β] (H : SimpleGraph α) (G : SimpleGraph β)
+    [Fintype α] (H : SimpleGraph α) (G : SimpleGraph β)
     {Q : Finset β} (hQ : G.IsClique Q) (hcard : Fintype.card α ≤ Q.card) :
     HasCopy H G := by
   classical
@@ -123,15 +123,14 @@ theorem sparse_target_embedding {α : Type u} {β : Type v}
       cases isEmpty_or_nonempty α with
       | inl hα => exact SimpleGraph.IsContained.of_isEmpty
       | inr hα =>
-          letI := hα
+          let _ := hα
           by_contra hno
           obtain ⟨v, hv⟩ := H.exists_minimal_degree_vertex
           let A : Type u := {x : α // x ≠ v}
           let H' : SimpleGraph A := H.induce {v}ᶜ
           have hpos : 0 < Fintype.card α := Fintype.card_pos
           have hAcard : Fintype.card A < Fintype.card α := by
-            simp [A]
-            exact hpos
+            simpa [A] using hpos
           have hedges : edgeCount H' ≤ edgeCount H := by
             exact Finite.card_le_of_embedding (SimpleGraph.Copy.induce H {v}ᶜ).mapEdgeSet
           have hsmall :
@@ -191,7 +190,7 @@ theorem sparse_target_embedding {α : Type u} {β : Type v}
               _ ≤ 2 * edgeCount H := hdegree
           have hcandidate : ∃ z ∈ unused, ∀ x : A, H.Adj v x → G.Adj z (f x) := by
             by_contra hn
-            push_neg at hn
+            push Not at hn
             have hsub : unused ⊆ bad := by
               intro z hz
               obtain ⟨x, hvx, hzx⟩ := hn z hz
@@ -278,7 +277,7 @@ lemma exists_independent_core {α : Type u} [Fintype α] (H : SimpleGraph α)
     highVertices H ⊆ W ∧ H.IsIndepSet W
   have hC : C.Nonempty := by
     refine ⟨highVertices H, ?_⟩
-    simp only [C, mem_filter, mem_powerset, mem_univ, subset_univ, true_and]
+    simp only [C, mem_filter, mem_powerset, subset_univ, true_and]
     exact ⟨Subset.rfl, highVertices_independent H hH⟩
   obtain ⟨W, hWmax⟩ := C.exists_maximalFor card hC
   have hWmem : W ∈ C := hWmax.1
@@ -298,7 +297,7 @@ lemma exists_independent_core {α : Type u} [Fintype α] (H : SimpleGraph α)
     · exact hn a ha hab'.symm
     · exact hWprops.2 ha hb hab hab'
   have hin : insert x W ∈ C := by
-    simp only [C, mem_filter, mem_powerset, mem_univ, subset_univ, true_and]
+    simp only [C, mem_filter, mem_powerset, subset_univ, true_and]
     exact ⟨hWprops.1.trans (subset_insert _ _), hind⟩
   have hle : W.card ≤ (insert x W).card := by
     rw [card_insert_of_notMem hx]
@@ -315,7 +314,7 @@ def outsideNeighbors {α : Type u} [Fintype α]
 
 /-- Every outside vertex has at most one outside neighbour. -/
 lemma outsideNeighbors_card_le_one {α : Type u} [Fintype α]
-    (H : SimpleGraph α) (hH : NoAdjacentHighDegree H) (W : Finset α)
+    (H : SimpleGraph α) (W : Finset α)
     (hhigh : highVertices H ⊆ W)
     (hdom : ∀ x ∉ W, ∃ w ∈ W, H.Adj x w)
     {x : α} (hx : x ∉ W) : (outsideNeighbors H W x).card ≤ 1 := by
@@ -425,7 +424,7 @@ def outsideMate {α : Type u} [Fintype α] (H : SimpleGraph α)
     else x
 
 lemma outsideMate_eq_of_adj {α : Type u} [Fintype α]
-    (H : SimpleGraph α) (hH : NoAdjacentHighDegree H) (W : Finset α)
+    (H : SimpleGraph α) (W : Finset α)
     (hhigh : highVertices H ⊆ W)
     (hdom : ∀ x ∉ W, ∃ w ∈ W, H.Adj x w)
     (x y : Outside W) (hxy : H.Adj x y) : outsideMate H W x = y := by
@@ -436,7 +435,7 @@ lemma outsideMate_eq_of_adj {α : Type u} [Fintype α]
   rw [outsideMate, dif_pos hne]
   apply Subtype.ext
   exact (card_le_one.mp
-    (outsideNeighbors_card_le_one H hH W hhigh hdom x.property))
+    (outsideNeighbors_card_le_one H W hhigh hdom x.property))
       hne.choose hne.choose_spec y hymem
 
 /-- The connector recording the (at most two) core neighbours of an outside
@@ -473,14 +472,14 @@ lemma connectorGraph_adj_inner {α : Type u} [Fintype α]
   classical
   rw [connectorGraph, SimpleGraph.fromEdgeSet_adj]
   refine ⟨?_, hne⟩
-  show s(coreAnchor H W hdom x, secondAnchor H W hdom x) ∈
+  change s(coreAnchor H W hdom x, secondAnchor H W hdom x) ∈
     connectorFinset H W hdom
   apply mem_union.mpr
   left
   exact mem_image.mpr ⟨x, mem_univ _, rfl⟩
 
 lemma connectorGraph_adj_cross {α : Type u} [Fintype α]
-    (H : SimpleGraph α) (hH : NoAdjacentHighDegree H) (W : Finset α)
+    (H : SimpleGraph α) (W : Finset α)
     (hhigh : highVertices H ⊆ W)
     (hdom : ∀ x ∉ W, ∃ w ∈ W, H.Adj x w) (x y : Outside W)
     (hxy : H.Adj x y)
@@ -491,8 +490,8 @@ lemma connectorGraph_adj_cross {α : Type u} [Fintype α]
   rw [connectorGraph, SimpleGraph.fromEdgeSet_adj]
   refine ⟨?_, hne⟩
   have hm : outsideMate H W x = y :=
-    outsideMate_eq_of_adj H hH W hhigh hdom x y hxy
-  show s(coreAnchor H W hdom x, coreAnchor H W hdom y) ∈
+    outsideMate_eq_of_adj H W hhigh hdom x y hxy
+  change s(coreAnchor H W hdom x, coreAnchor H W hdom y) ∈
     connectorFinset H W hdom
   apply mem_union.mpr
   right
@@ -553,7 +552,7 @@ def commonNeighbors {β : Type v} [Fintype β]
   classical
   exact G.neighborFinset a ∩ G.neighborFinset b
 
-lemma mem_commonNeighbors {β : Type v} [Fintype β] [DecidableEq β]
+lemma mem_commonNeighbors {β : Type v} [Fintype β]
     (G : SimpleGraph β) (a b z : β) :
     z ∈ commonNeighbors G a b ↔ G.Adj a z ∧ G.Adj b z := by
   classical
@@ -581,12 +580,12 @@ lemma auxiliaryGraph_adj_iff {N n : ℕ} (G : SimpleGraph (Fin N))
 /-- Six-`n` vertices of degree at least six-`n` produce an auxiliary graph
 with no independent triple. -/
 lemma auxiliary_noIndependentTriple {n : ℕ} (G : SimpleGraph (Fin (12 * n)))
-    (U : Finset (Fin (12 * n))) (hUcard : U.card = 6 * n)
+    (U : Finset (Fin (12 * n)))
     (hdense : by classical exact ∀ u ∈ U, 6 * n ≤ G.degree u) :
     NoIndependentTriple (auxiliaryGraph G n U) := by
   classical
-  letI : DecidableEq (Fin (12 * n)) := Classical.decEq _
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let _ : DecidableEq (Fin (12 * n)) := Classical.decEq _
+  let _ : DecidableRel G.Adj := Classical.decRel _
   intro a b c hab hac hbc
   by_contra hn
   push Not at hn
@@ -682,7 +681,7 @@ structure PartialEmbedding {α : Type u} {β : Type v}
   agrees : ∀ w : W, toFun w = φ w
 
 lemma initialPartialEmbedding {α : Type u} {β : Type v}
-    [Fintype α] [DecidableEq α] [Nonempty β]
+    [DecidableEq α] [Nonempty β]
     (H : SimpleGraph α) (G : SimpleGraph β) (W : Finset α)
     (hWind : H.IsIndepSet W) (φ : W → β) (hφ : Function.Injective φ) :
     Nonempty (PartialEmbedding H G W W φ) := by
@@ -770,7 +769,7 @@ lemma extensionPool_card_ge {α : Type u} [Fintype α] (H : SimpleGraph α)
     exact (hφ.common hcore).trans hc
 
 lemma pair_extensionPool_card_ge {α : Type u} [Fintype α]
-    (H : SimpleGraph α) (hH : NoAdjacentHighDegree H)
+    (H : SimpleGraph α)
     {n : ℕ} (G : SimpleGraph (Fin (12 * n))) (W : Finset α)
     (hhigh : highVertices H ⊆ W)
     (hdom : ∀ x ∉ W, ∃ w ∈ W, H.Adj x w)
@@ -819,33 +818,31 @@ lemma pair_extensionPool_card_ge {α : Type u} [Fintype α]
         have hw := coreNeighbor_eq_anchor_of_outside_adj H W hhigh hdom y x hxy.symm w hyw
         simpa [b] using hw ▸ hzb
     have hc := card_le_card hsub
-    have hcore := connectorGraph_adj_cross H hH W hhigh hdom x y hxy hab
+    have hcore := connectorGraph_adj_cross H W hhigh hdom x y hxy hab
     exact (hφ.common hcore).trans hc
 
 lemma outsideCount_add_card {α : Type u} [Fintype α] (W : Finset α) :
     outsideCount W + W.card = Fintype.card α := by
   classical
-  have hc := Fintype.card_subtype_compl (fun x : α ↦ x ∈ W)
   have hc' : Fintype.card (Outside W) = Fintype.card α - W.card := by
-    simpa using hc
-  have hle : W.card ≤ Fintype.card α := by
-    simpa using card_le_card (subset_univ W)
+    simp
+  have hle : W.card ≤ Fintype.card α := Finset.card_le_univ W
   rw [outsideCount, Nat.card_eq_fintype_card, hc']
   omega
 
 /-- Embed the connector graph in the common-neighbour auxiliary graph. -/
 lemma exists_corePlacement {n : ℕ} (H : SimpleGraph (Fin n))
-    (hH : NoAdjacentHighDegree H) (G : SimpleGraph (Fin (12 * n)))
+    (G : SimpleGraph (Fin (12 * n)))
     (U : Finset (Fin (12 * n))) (hUcard : U.card = 6 * n)
     (hdense : by classical exact ∀ u ∈ U, 6 * n ≤ G.degree u)
-    (W : Finset (Fin n)) (hhigh : highVertices H ⊆ W)
+    (W : Finset (Fin n))
     (hdom : ∀ x ∉ W, ∃ w ∈ W, H.Adj x w) :
     ∃ φ : W → Fin (12 * n), CorePlacement H G W hdom φ := by
   classical
   let K := connectorGraph H W hdom
   let T := auxiliaryGraph G n U
   have htriple : NoIndependentTriple T := by
-    exact auxiliary_noIndependentTriple G U hUcard hdense
+    exact auxiliary_noIndependentTriple G U hdense
   have hedge := edgeCount_connectorGraph_le H W hdom
   have hout := outsideCount_add_card W
   have hsmall : 2 * edgeCount K + Fintype.card W ≤ Fintype.card U := by
@@ -935,7 +932,7 @@ lemma extend_singleton {α : Type u} [Fintype α] [DecidableEq α]
     simp [f, hwx, p.agrees]
 
 lemma extend_pair {α : Type u} [Fintype α] [DecidableEq α]
-    (H : SimpleGraph α) (hH : NoAdjacentHighDegree H)
+    (H : SimpleGraph α)
     {n : ℕ} (G : SimpleGraph (Fin (12 * n)))
     (W S : Finset α) (hhigh : highVertices H ⊆ W)
     (hdom : ∀ x ∉ W, ∃ w ∈ W, H.Adj x w)
@@ -976,11 +973,11 @@ lemma extend_pair {α : Type u} [Fintype α] [DecidableEq α]
   · intro a ha haW b hbW hab
     simp only [mem_insert] at ha ⊢
     rcases ha with rfl | rfl | ha
-    · have hm₁ := outsideMate_eq_of_adj H hH W hhigh hdom x y hxy
-      have hm₂ := outsideMate_eq_of_adj H hH W hhigh hdom x ⟨b, hbW⟩ hab
+    · have hm₁ := outsideMate_eq_of_adj H W hhigh hdom x y hxy
+      have hm₂ := outsideMate_eq_of_adj H W hhigh hdom x ⟨b, hbW⟩ hab
       exact Or.inr (Or.inl (congrArg Subtype.val (hm₂.symm.trans hm₁)))
-    · have hm₁ := outsideMate_eq_of_adj H hH W hhigh hdom y x hxy.symm
-      have hm₂ := outsideMate_eq_of_adj H hH W hhigh hdom y ⟨b, hbW⟩ hab
+    · have hm₁ := outsideMate_eq_of_adj H W hhigh hdom y x hxy.symm
+      have hm₂ := outsideMate_eq_of_adj H W hhigh hdom y ⟨b, hbW⟩ hab
       exact Or.inl (congrArg Subtype.val (hm₂.symm.trans hm₁))
     · exact Or.inr (Or.inr (p.outside_closed ha haW hbW hab))
   · intro a ha b hb hab
@@ -1071,9 +1068,9 @@ theorem oneColorRamsey {n : ℕ} (H : SimpleGraph (Fin n))
   · subst n
     left
     exact SimpleGraph.IsContained.of_isEmpty
-  letI : Nonempty (Fin (12 * n)) := ⟨⟨0, by omega⟩⟩
+  let _ : Nonempty (Fin (12 * n)) := ⟨⟨0, by omega⟩⟩
   obtain ⟨W, hhigh, hWind, hdom⟩ := exists_independent_core H hH
-  obtain ⟨φ, hφ⟩ := exists_corePlacement H hH G U hUcard hdense W hhigh hdom
+  obtain ⟨φ, hφ⟩ := exists_corePlacement H G U hUcard hdense W hdom
   by_cases hblue : HasCopy H Gᶜ
   · exact Or.inr hblue
   left
@@ -1081,7 +1078,7 @@ theorem oneColorRamsey {n : ℕ} (H : SimpleGraph (Fin n))
     Nonempty (PartialEmbedding H G W S φ)
   have hC : C.Nonempty := by
     refine ⟨W, ?_⟩
-    simp only [C, mem_filter, mem_powerset, mem_univ, subset_univ, true_and]
+    simp only [C, mem_filter, mem_powerset, subset_univ, true_and]
     exact initialPartialEmbedding H G W hWind φ hφ.injective
   obtain ⟨S, hSmax⟩ := C.exists_maximalFor card hC
   have hSmem : S ∈ C := hSmax.1
@@ -1113,7 +1110,7 @@ theorem oneColorRamsey {n : ℕ} (H : SimpleGraph (Fin n))
         exact hxS (p.outside_closed hy yo.property hxW hxy.symm)
       let P := (extensionPool H G W φ xo) ∩ (extensionPool H G W φ yo)
       have hP : 2 * n ≤ P.card := by
-        exact pair_extensionPool_card_ge H hH G W hhigh hdom φ hφ xo yo hxy
+        exact pair_extensionPool_card_ge H G W hhigh hdom φ hφ xo yo hxy
       let A : Finset (Fin (12 * n)) := P \ used
       have hpairsize : S.card + 2 ≤ n := by
         have hxins : x ∉ insert (yo : Fin n) S := by simp [hxS, hxyne]
@@ -1128,10 +1125,10 @@ theorem oneColorRamsey {n : ℕ} (H : SimpleGraph (Fin n))
         exists_edge_of_no_compl_copy H G hblue A hA
       have hz := mem_sdiff.mp hzA
       have ht := mem_sdiff.mp htA
-      have hnew := extend_pair H hH G W S hhigh hdom φ p xo yo hxS hyS hxy
+      have hnew := extend_pair H G W S hhigh hdom φ p xo yo hxS hyS hxy
         z t hz.1 ht.1 hz.2 ht.2 hzt
       have hnewmem : insert x (insert (yo : Fin n) S) ∈ C := by
-        simp only [C, mem_filter, mem_powerset, mem_univ, subset_univ, true_and]
+        simp only [C, mem_filter, mem_powerset, subset_univ, true_and]
         exact hnew
       have hforward : S.card ≤ (insert x (insert (yo : Fin n) S)).card := by
         rw [card_insert_of_notMem (by simp [hxS, hxyne]), card_insert_of_notMem hyS]
@@ -1152,7 +1149,7 @@ theorem oneColorRamsey {n : ℕ} (H : SimpleGraph (Fin n))
       have hz := mem_sdiff.mp hzA
       have hnew := extend_singleton H G W S φ p xo hxS hmate z hz.1 hz.2
       have hnewmem : insert x S ∈ C := by
-        simp only [C, mem_filter, mem_powerset, mem_univ, subset_univ, true_and]
+        simp only [C, mem_filter, mem_powerset, subset_univ, true_and]
         exact hnew
       have hforward : S.card ≤ (insert x S).card := by
         rw [card_insert_of_notMem hxS]
@@ -1211,7 +1208,7 @@ theorem erdos_800 (n : ℕ) (H : SimpleGraph (Fin n))
         simp
       omega
     obtain ⟨U, hUB, hUcard⟩ := exists_subset_card_eq hBcard
-    letI : DecidableRel Gᶜ.Adj := Classical.decRel _
+    let _ : DecidableRel Gᶜ.Adj := Classical.decRel _
     have hdense : (by classical exact ∀ u ∈ U, 6 * n ≤ Gᶜ.degree u) := by
       intro u hu
       have huB := hUB hu
