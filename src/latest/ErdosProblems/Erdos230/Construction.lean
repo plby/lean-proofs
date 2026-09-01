@@ -207,8 +207,10 @@ lemma summable_norm_integerChirpCoefficient {m : ℕ} (hm : 2 ≤ m)
         outsideRight (constructionScale m) (constructionMargin m)
           (constructionDegree m) := by
       funext j
-      convert norm_integerChirpCoefficient_degree_add_one hm theta j using 1 <;>
-        push_cast <;> ring
+      convert norm_integerChirpCoefficient_degree_add_one hm theta j using 1
+      all_goals
+        push_cast
+        ring
     rw [heq]
     exact summable_outsideRight (constructionScale_pos hm)
       (two_margin_le_degree hm)
@@ -344,7 +346,7 @@ lemma periodicPoint_pow_eq_e (theta : ℝ) (k : ℕ) :
   push_cast
   ring
 
-lemma baseCoefficient_mul_periodicPoint_pow {m : ℕ} (hm : 2 ≤ m)
+lemma baseCoefficient_mul_periodicPoint_pow {m : ℕ}
     (theta : ℝ) (k : Fin (constructionDegree m + 1)) :
     baseCoefficient m k * periodicPoint theta ^ k.1 =
       integerChirpCoefficient m theta k.1 := by
@@ -355,8 +357,7 @@ lemma baseCoefficient_mul_periodicPoint_pow {m : ℕ} (hm : 2 ≤ m)
   push_cast
   ring
 
-lemma normalizedZerothValue_baseCoefficient {m : ℕ} (hm : 2 ≤ m)
-    (theta : ℝ) :
+lemma normalizedZerothValue_baseCoefficient {m : ℕ} (theta : ℝ) :
     normalizedZerothValue (baseCoefficient m) theta =
       ∑ k ∈ Finset.range (constructionDegree m + 1),
         integerChirpCoefficient m theta k := by
@@ -365,7 +366,7 @@ lemma normalizedZerothValue_baseCoefficient {m : ℕ} (hm : 2 ≤ m)
   intro k hk
   have hk' : k < constructionDegree m + 1 := Finset.mem_range.mp hk
   rw [dif_pos hk']
-  exact baseCoefficient_mul_periodicPoint_pow hm theta ⟨k, hk'⟩
+  exact baseCoefficient_mul_periodicPoint_pow theta ⟨k, hk'⟩
 
 lemma summable_rightIntegerChirp {m : ℕ} (hm : 2 ≤ m) (theta : ℝ) :
     Summable (fun j : ℕ => integerChirpCoefficient m theta
@@ -425,7 +426,7 @@ lemma norm_base_sub_full_lt_one {m : ℕ} (hm : 2 ≤ m) (theta : ℝ) :
       (∑' j : ℕ, right j) + (∑' j : ℕ, left j) =
         constructionFullValue m theta := by
     rw [constructionFullValue_eq_tsum hm theta,
-      normalizedZerothValue_baseCoefficient hm theta,
+      normalizedZerothValue_baseCoefficient theta,
       Finset.sum_range_succ', hfull']
     rw [← hsplit']
     simp only [f, right, left]

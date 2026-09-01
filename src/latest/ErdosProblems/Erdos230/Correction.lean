@@ -326,11 +326,16 @@ lemma complex_rademacher_tail_weighted {ι κ : Type*} [Fintype ι]
         _ ≤ (coinProduct ι).real (A ∪ B ∪ D) + (coinProduct ι).real E :=
           measureReal_union_le (A ∪ B ∪ D) E
         _ ≤ ((coinProduct ι).real (A ∪ B) + (coinProduct ι).real D) +
-            (coinProduct ι).real E := by gcongr; exact measureReal_union_le (A ∪ B) D
+            (coinProduct ι).real E := by
+          gcongr
+          exact measureReal_union_le (A ∪ B) D
         _ ≤ ((coinProduct ι).real A + (coinProduct ι).real B) +
-            (coinProduct ι).real D + (coinProduct ι).real E := by gcongr; exact measureReal_union_le A B
+            (coinProduct ι).real D + (coinProduct ι).real E := by
+          gcongr
+          exact measureReal_union_le A B
     _ ≤ 4 * Real.exp (-(R / 2) ^ 2 / (2 * ∑ i, v i)) := by
-      have hA := weighted_re_tail C v hC g (le_of_lt (half_pos hR))
+      have hA :=
+        weighted_re_tail C v hC g (le_of_lt (half_pos hR))
       have hB := weighted_neg_re_tail C v hC g (le_of_lt (half_pos hR))
       have hD := weighted_im_tail C v hC g (le_of_lt (half_pos hR))
       have hE := weighted_neg_im_tail C v hC g (le_of_lt (half_pos hR))
@@ -539,3 +544,4 @@ lemma exists_unit_rounding_grid_of_defect_eq_zero {ι κ : Type*} [Fintype ι]
   simp
 
 end Correction
+end Erdos230

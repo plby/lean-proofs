@@ -232,7 +232,7 @@ lemma gaussianTail_nat_eq_integral_tailKernel (s : ℝ) (j : ℕ) :
   filter_upwards with x
   by_cases hxj : x ∈ Ioi (j : ℝ)
   · have hx0 : x ∈ Ioi (0 : ℝ) := by
-      show 0 < x
+      change 0 < x
       exact lt_of_le_of_lt (Nat.cast_nonneg j) hxj
     simp [indicator_of_mem hxj, indicator_of_mem hx0]
   · simp [indicator_apply, hxj]
@@ -318,6 +318,7 @@ lemma gaussianTail_antitone {s : ℝ} (hs : 0 < s) : Antitone (gaussianTail s) :
 theorem summable_gaussianTail_nat {s : ℝ} (hs : 0 < s) :
     Summable (fun j : ℕ => gaussianTail s j) := by
   apply summable_of_sum_range_le (fun j => gaussianTail_nonneg hs j)
+    (c := s + 1)
   intro m
   calc
     (∑ j ∈ Finset.range m, gaussianTail s j) ≤
@@ -467,6 +468,7 @@ lemma outsideRight_le_scaled_tail {s : ℝ} (hs : 0 < s) {K n : ℕ}
 theorem summable_outsideLeft {s : ℝ} (hs : 0 < s) {K n : ℕ} (hKn : 2 * K ≤ n) :
     Summable (outsideLeft s K n) := by
   apply summable_of_sum_range_le (fun j => chi_nonneg hs hKn _)
+    (c := 2 * cutoffExp s K * (2 * s + 1))
   intro m
   calc
     (∑ j ∈ Finset.range m, outsideLeft s K n j) ≤
@@ -484,6 +486,7 @@ theorem summable_outsideLeft {s : ℝ} (hs : 0 < s) {K n : ℕ} (hKn : 2 * K ≤
 theorem summable_outsideRight {s : ℝ} (hs : 0 < s) {K n : ℕ} (hKn : 2 * K ≤ n) :
     Summable (outsideRight s K n) := by
   apply summable_of_sum_range_le (fun j => chi_nonneg hs hKn _)
+    (c := 2 * cutoffExp s K * (2 * s + 1))
   intro m
   calc
     (∑ j ∈ Finset.range m, outsideRight s K n j) ≤
@@ -648,6 +651,7 @@ lemma outsideRight_sq_le {s : ℝ} (hs : 0 < s) {K n : ℕ} (hKn : 2 * K ≤ n)
 theorem summable_outsideLeft_sq {s : ℝ} (hs : 0 < s) {K n : ℕ} (hKn : 2 * K ≤ n) :
     Summable (fun j : ℕ => outsideLeft s K n j ^ 2) := by
   apply summable_of_sum_range_le (fun j => sq_nonneg (outsideLeft s K n j))
+    (c := gaussianTail s K * (s + 1))
   intro m
   calc
     (∑ j ∈ Finset.range m, outsideLeft s K n j ^ 2) ≤
@@ -664,6 +668,7 @@ theorem summable_outsideLeft_sq {s : ℝ} (hs : 0 < s) {K n : ℕ} (hKn : 2 * K 
 theorem summable_outsideRight_sq {s : ℝ} (hs : 0 < s) {K n : ℕ}
     (hKn : 2 * K ≤ n) : Summable (fun j : ℕ => outsideRight s K n j ^ 2) := by
   apply summable_of_sum_range_le (fun j => sq_nonneg (outsideRight s K n j))
+    (c := gaussianTail s K * (s + 1))
   intro m
   calc
     (∑ j ∈ Finset.range m, outsideRight s K n j ^ 2) ≤

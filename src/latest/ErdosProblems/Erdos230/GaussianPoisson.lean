@@ -150,7 +150,6 @@ theorem summable_chi_int (s : ℝ) (K n : ℕ)
     funext j
     simp only [Erdos230.GaussianCutoff.outsideRight]
     congr 2
-    norm_cast
     omega
   have hright : Summable (fun j : ℕ =>
       Erdos230.GaussianCutoff.chi s K n (j : ℝ)) :=
@@ -237,7 +236,7 @@ theorem tsum_gaussianChirpAtom_eq_tsum_thetaAliasAtom
   have ha : 0 < (thetaA n s).re := by
     have heq : (thetaA n s).re = 1 / s ^ 2 := by
       simp only [thetaA, Complex.div_re]
-      simp only [pow_two, Complex.mul_re, Complex.mul_im,
+      simp only [pow_two,
         Complex.ofReal_re, Complex.ofReal_im]
       norm_num [Complex.normSq]
     rw [heq]
@@ -319,7 +318,7 @@ theorem norm_one_sub_I_mul (r : ℝ) :
   norm_num [Complex.normSq]
   ring
 
-theorem norm_thetaA (n s : ℝ) (hn : 0 < n) (hs : 0 < s) :
+theorem norm_thetaA (n s : ℝ) (hs : 0 < s) :
     ‖thetaA n s‖ =
       Real.sqrt (1 + (s ^ 2 / n) ^ 2) / s ^ 2 := by
   rw [thetaA, norm_div, norm_one_sub_I_mul]
@@ -327,7 +326,7 @@ theorem norm_thetaA (n s : ℝ) (hn : 0 < n) (hs : 0 < s) :
     rw [Complex.norm_real, Real.norm_of_nonneg]
     positivity]
 
-theorem thetaA_cpow_half (n s : ℝ) (hn : 0 < n) (hs : 0 < s) :
+theorem thetaA_cpow_half (n s : ℝ) (hs : 0 < s) :
     thetaA n s ^ (1 / 2 : ℂ) =
       (s : ℂ)⁻¹ * (1 - Complex.I * (s ^ 2 / n)) ^ (1 / 2 : ℂ) := by
   let z : ℂ := 1 - Complex.I * ((s ^ 2 / n : ℝ) : ℂ)
@@ -381,11 +380,12 @@ theorem thetaAliasAtom_eq_aliasAtom
         (Complex.exp (-π * y ^ 2 / s ^ 2) / z ^ (1 / 2 : ℂ)) *
           Complex.exp
             (-π / thetaA n s * ((h : ℂ) + Complex.I * thetaB s θ y) ^ 2) := by
-      rw [thetaAliasAtom, thetaA_cpow_half n s hn hs]
+      rw [thetaAliasAtom, thetaA_cpow_half n s hs]
       simp only [z]
       field_simp [hs.ne', hzpow]
       push_cast
-      congr 2 <;> ring
+      congr 2
+      all_goals ring
     _ = 1 / z ^ (1 / 2 : ℂ) * Complex.exp
         (-π * y ^ 2 / s ^ 2 -
           π / thetaA n s * ((h : ℂ) + Complex.I * thetaB s θ y) ^ 2) := by
@@ -500,7 +500,7 @@ theorem pairwise_disjoint_aliasInterval (n K θ : ℝ)
         have hcast : (h : ℝ) + 1 ≤ (j : ℝ) := by exact_mod_cast hhj
         nlinarith)).symm
   · apply Set.Ioc_disjoint_Ioc_of_le
-    simp only [aliasInterval, aliasCenter]
+    simp only [aliasCenter]
     have hcast : (j : ℝ) + 1 ≤ (h : ℝ) := by exact_mod_cast hjh
     nlinarith
 
