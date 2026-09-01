@@ -1002,13 +1002,12 @@ private lemma gaussianScalar_bounds {x τ : ℝ}
 
 private lemma phaseZ_norm (x : ℝ) :
     ‖((2 * Real.pi * x : ℝ) : ℂ) * Complex.I‖ = |2 * Real.pi * x| := by
-  simp [norm_mul]
+  simp
 
 private lemma e_eq_exp_phaseZ (x : ℝ) :
     e x = Complex.exp (((2 * Real.pi * x : ℝ) : ℂ) * Complex.I) := by
   simp [e]
   congr 1
-  push_cast
   ring
 
 private lemma bernoulliFactor_taylor {x τ : ℝ}
@@ -1196,7 +1195,7 @@ private lemma bernoulliProd_sub_lcm_mul
 
 private lemma rec_sum_cast_real (A : Finset ℕ) :
     (rec_sum A : ℝ) = A.sum (fun n => (1 : ℝ) / n) := by
-  simp [rec_sum, Rat.cast_sum, Rat.cast_div]
+  simp [rec_sum, Rat.cast_sum]
 
 private lemma bernoulliProd_re_nonneg_of_small
     {A : Finset ℕ} {τ d : ℝ} {h : ℤ}
@@ -1283,7 +1282,7 @@ private lemma bernoulliProd_re_nonneg_of_small
 
 private lemma abs_le_half_of_mem_major_arc_one
     {A : Finset ℕ} {K : ℝ} {h : ℤ}
-    (hA0 : 0 ∉ A) (hK : 0 ≤ K) (hKlcm : K < (lcmA A : ℝ))
+    (hA0 : 0 ∉ A) (_hK : 0 ≤ K) (hKlcm : K < (lcmA A : ℝ))
     (hh : h ∈ major_arc A 1 K) : |(h : ℝ)| ≤ K / 2 := by
   classical
   rw [major_arc, Finset.mem_filter] at hh
@@ -1451,7 +1450,7 @@ private lemma weighted_major_arc_bound
     (hK : 0 ≤ K) (hKM : K ≤ M) (hKlcm : K < (lcmA A : ℝ))
     (hLower : ∀ n ∈ A, M ≤ (n : ℝ))
     (hUpper : ∀ n ∈ A, n ≤ N)
-    (hρ : 0 ≤ ρ) (hρa : ρ ≤ τ * (1 - τ))
+    (_hρ : 0 ≤ ρ) (hρa : ρ ≤ τ * (1 - τ))
     (hphase : 2 * Real.pi * H / M ≤ 1)
     (hsmall :
       Real.exp (A.card * (8 * (2 * Real.pi * H / M) ^ 3)) - 1 ≤ 1)
@@ -1646,7 +1645,7 @@ private lemma weighted_major_arc_bound_recip
     (hK : 0 ≤ K) (hKM : K ≤ M) (hKlcm : K < (lcmA A : ℝ))
     (hLower : ∀ n ∈ A, M ≤ (n : ℝ))
     (hUpper : ∀ n ∈ A, n ≤ N)
-    (hρ : 0 ≤ ρ) (hρa : ρ ≤ τ * (1 - τ))
+    (_hρ : 0 ≤ ρ) (hρa : ρ ≤ τ * (1 - τ))
     (hphase : 2 * Real.pi * H / M ≤ 1)
     (hsmall :
       Real.exp (A.card * (8 * (2 * Real.pi * H / M) ^ 3)) - 1 ≤ 1)
@@ -1809,7 +1808,7 @@ private lemma bernoulliProd_powerset (A : Finset ℕ) (τ : ℝ) (h : ℤ) :
       intro B hB
       have hBA := Finset.mem_powerset.mp hB
       rw [Finset.prod_mul_distrib, heprod B hBA]
-      simp only [Finset.prod_const, nsmul_eq_mul]
+      simp only [Finset.prod_const]
       dsimp [subsetWeight]
       push_cast
       ring
@@ -1858,11 +1857,11 @@ private lemma integerReciprocalMassC_eq
   split_ifs <;> rfl
 
 private lemma subsetWeight_eq_finiteHoeffding
-    {A B : Finset ℕ} {τ : ℝ} (hBA : B ⊆ A) :
+    {A B : Finset ℕ} {τ : ℝ} (_hBA : B ⊆ A) :
     subsetWeight A τ B =
       Erdos297.WeightedFourier.subsetWeight A (fun _ => τ) B := by
   simp [subsetWeight, Erdos297.WeightedFourier.subsetWeight,
-    Finset.prod_const, hBA]
+    Finset.prod_const]
 
 private lemma character_sum_eq_lcm_indicator
     {A B : Finset ℕ} (hA0 : 0 ∉ A) (hBA : B ⊆ A) :
@@ -2248,7 +2247,7 @@ private lemma weighted_circle_core
     ∃ B : Finset ℕ, B ⊆ A ∧ rec_sum B = 1 := by
   classical
   by_contra hnone
-  push_neg at hnone
+  push Not at hnone
   have hAvoid : AvoidsOne A := fun B hBA hsum => hnone B hBA hsum
   have hmajor : -(1 / 8 : ℝ) ≤
       (major_arc A 1 K).sum (fun h => (bernoulliProd A τ h).re) :=
@@ -2778,8 +2777,7 @@ private lemma top_interval_rec_sum_succ {N m : ℕ}
     have := (Finset.mem_Ioc.mp h).2
     omega
   rw [hcut, hset]
-  simp only [rec_sum, Rat.cast_sum, Rat.cast_div, Rat.cast_one,
-    Rat.cast_natCast, one_div]
+  simp only [rec_sum, Rat.cast_sum, one_div]
   rw [Finset.sum_insert hnot]
   all_goals simp_all
 
@@ -2841,8 +2839,9 @@ private lemma log_ratio_succ_le_top_rec_sum {a N : ℕ}
       rw [Real.log_div] <;> positivity
     _ = ∑ k ∈ Finset.Ico a N,
         (Real.log (k + 2 : ℕ) - Real.log (k + 1 : ℕ)) := by
-      convert (Finset.sum_Ico_sub (fun k : ℕ ↦ Real.log (k + 1)) haN).symm using 1 <;>
-        norm_num <;> ring
+      convert (Finset.sum_Ico_sub (fun k : ℕ ↦ Real.log (k + 1)) haN).symm using 1
+      all_goals norm_num
+      all_goals ring_nf
     _ ≤ ∑ k ∈ Finset.Ico a N, (((k + 1 : ℕ) : ℝ))⁻¹ := by
       apply Finset.sum_le_sum
       intro k hk
@@ -3597,7 +3596,8 @@ private lemma eventually_major_scale_bounds {eta delta : ℝ}
   have hH25 : majorScale N * (N : ℝ) ^ (2 / 5 : ℝ) = (N : ℝ) := by
     dsimp [majorScale]
     rw [← Real.rpow_add hNpos]
-    convert Real.rpow_one (N : ℝ) using 2 <;> norm_num
+    convert Real.rpow_one (N : ℝ) using 2
+    all_goals norm_num
   have hphase : 2 * Real.pi * majorScale N / circleM eta N ≤ 1 := by
     rw [div_le_one hMpos]
     have haH : a * majorScale N ≤ (N : ℝ) := by
@@ -3620,7 +3620,9 @@ private lemma eventually_major_scale_bounds {eta delta : ℝ}
     rw [← Real.rpow_natCast, ← Real.rpow_mul hNpos.le]
     calc
       (N : ℝ) ^ ((2 / 5 : ℝ) * (3 : ℕ)) =
-          (N : ℝ) ^ (1 + 1 / 5 : ℝ) := by congr 1 <;> norm_num
+          (N : ℝ) ^ (1 + 1 / 5 : ℝ) := by
+            congr 1
+            all_goals norm_num
       _ = (N : ℝ) * (N : ℝ) ^ (1 / 5 : ℝ) := by
         rw [Real.rpow_add hNpos, Real.rpow_one]
   have hsmallBase :
@@ -3643,12 +3645,15 @@ private lemma eventually_major_scale_bounds {eta delta : ℝ}
   have hpowSquare : ((N : ℝ) ^ (1 / 10 : ℝ)) ^ 2 =
       (N : ℝ) ^ (1 / 5 : ℝ) := by
     rw [← Real.rpow_natCast, ← Real.rpow_mul hNpos.le]
-    congr 1 <;> norm_num
+    congr 1
+    all_goals norm_num
   have hlogSq : Real.log (N : ℝ) ^ 2 ≤
       400 * (N : ℝ) ^ (1 / 10 : ℝ) := by
     nlinarith [sq_nonneg (20 * (N : ℝ) ^ (1 / 20 : ℝ) - Real.log (N : ℝ)),
       show ((N : ℝ) ^ (1 / 20 : ℝ)) ^ 2 = (N : ℝ) ^ (1 / 10 : ℝ) by
-        rw [← Real.rpow_natCast, ← Real.rpow_mul hNpos.le]; congr 1 <;> norm_num]
+        rw [← Real.rpow_natCast, ← Real.rpow_mul hNpos.le]
+        congr 1
+        all_goals norm_num]
   have hgrowth : 6 * Real.log (N : ℝ) ^ 2 ≤
       b * (N : ℝ) ^ (1 / 5 : ℝ) := by
     have hbpow : 2400 ≤ b * (N : ℝ) ^ (1 / 10 : ℝ) := by
@@ -3672,7 +3677,9 @@ private lemma eventually_major_scale_bounds {eta delta : ℝ}
       rw [← Real.rpow_natCast, ← Real.rpow_mul hNpos.le]
       calc
         (N : ℝ) ^ ((3 / 5 : ℝ) * (2 : ℕ)) =
-            (N : ℝ) ^ (1 + 1 / 5 : ℝ) := by congr 1 <;> norm_num
+            (N : ℝ) ^ (1 + 1 / 5 : ℝ) := by
+              congr 1
+              all_goals norm_num
         _ = (N : ℝ) * (N : ℝ) ^ (1 / 5 : ℝ) := by
           rw [Real.rpow_add hNpos, Real.rpow_one]
     rw [hHsq]
