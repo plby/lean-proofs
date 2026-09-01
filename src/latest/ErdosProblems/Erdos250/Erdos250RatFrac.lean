@@ -28,9 +28,11 @@ def A (s : Finset ι) (r : ι → K) (P : K[X]) (i : ι) : K :=
 def numerator (s : Finset ι) (r : ι → K) (P : K[X]) : K[X] :=
   ∑ i ∈ s, (C (A s r P i) * lin r i + C (B s r P i)) * rest s r i
 
+omit [DecidableEq ι] in
 @[simp] lemma eval_lin (r : ι → K) (i : ι) (x : K) :
     (lin r i).eval x = x - r i := by simp [lin]
 
+omit [DecidableEq ι] in
 @[simp] lemma derivative_lin (r : ι → K) (i : ι) :
     (lin r i).derivative = 1 := by simp [lin]
 
@@ -127,8 +129,10 @@ lemma natDegree_rest {s : Finset ι} {r : ι → K} {i : ι} :
   · intro k hk
     exact (Polynomial.monic_X_sub_C (r k)).pow 2
 
+omit [DecidableEq ι] in
 lemma natDegree_den {s : Finset ι} {r : ι → K} :
     (den s r).natDegree = 2 * s.card := by
+  classical
   rw [den, Polynomial.natDegree_prod_of_monic]
   · simp [lin, Nat.mul_comm]
   · intro k hk
@@ -216,9 +220,11 @@ def U (s : Finset ι) (c r : ι → K) (P : K[X]) (i : ι) : K :=
 def numerator (s : Finset ι) (c r : ι → K) (P : K[X]) : K[X] :=
   ∑ i ∈ s, (C (U s c r P i) * lin c r i + C (V s c r P i)) * rest s c r i
 
+omit [DecidableEq ι] in
 @[simp] lemma eval_lin (c r : ι → K) (i : ι) (x : K) :
     (lin c r i).eval x = c i * (x - r i) := by simp [lin]
 
+omit [DecidableEq ι] in
 @[simp] lemma derivative_lin (c r : ι → K) (i : ι) :
     (lin c r i).derivative = C (c i) := by simp [lin]
 
@@ -412,7 +418,7 @@ lemma leadingCoeff_rest {s : Finset ι} {c r : ι → K}
   intro j hj
   rw [Polynomial.leadingCoeff_pow]
   have hcj : c j ≠ 0 := hc j (Finset.mem_of_mem_erase hj)
-  simp [lin, DoublePartialFraction.lin, Polynomial.leadingCoeff_mul, hcj]
+  simp [lin, DoublePartialFraction.lin, Polynomial.leadingCoeff_mul]
 
 lemma coeff_affine_mul_rest_top {s : Finset ι} {c r : ι → K} {P : K[X]}
     (hc : ∀ i ∈ s, c i ≠ 0) {i : ι} (hi : i ∈ s) :
@@ -628,7 +634,7 @@ lemma natDegree_P_lt (n : ℕ) :
       _ = n := by simp
   rw [P]
   refine Polynomial.natDegree_mul_le.trans_lt ?_
-  simp only [Polynomial.natDegree_pow, natDegree_X, one_mul]
+  simp only [Polynomial.natDegree_pow, natDegree_X]
   simp only [Finset.card_range]
   omega
 
@@ -645,7 +651,7 @@ lemma natDegree_P_lt_gap (n : ℕ) :
       _ = n := by simp
   rw [P]
   refine Polynomial.natDegree_mul_le.trans_lt ?_
-  simp only [Polynomial.natDegree_pow, natDegree_X, one_mul, Finset.card_range]
+  simp only [Polynomial.natDegree_pow, natDegree_X, Finset.card_range]
   omega
 
 /-- Degree gap at infinity cancels the simple-pole part. -/
@@ -723,7 +729,7 @@ lemma eval_derivative_prod_div {s : Finset ℕ} (f : ℕ → ℚ[X]) (x : ℚ)
     exact hf j (Finset.mem_of_mem_erase hj)
   field_simp [hf i hi, hrest]
 
-lemma numeratorFactor_eval_root_ne_zero {n k i : ℕ} (hi : i < n) :
+lemma numeratorFactor_eval_root_ne_zero {n k i : ℕ} (_hi : i < n) :
     (numeratorFactor n i).eval (root k) ≠ 0 := by
   simp only [numeratorFactor, eval_sub, eval_one, eval_mul, eval_C, eval_X]
   rw [root, ← pow_add]
@@ -741,7 +747,7 @@ lemma logDeriv_P (n k : ℕ) :
     · by_cases hn : n = 0
       · simp [hn]
       · simp only [derivative_pow, derivative_X, eval_mul, eval_C, eval_pow, eval_X,
-          eval_one, mul_one]
+          mul_one]
         field_simp [root_ne_zero]
         rw [← pow_succ, Nat.sub_add_cancel (Nat.one_le_iff_ne_zero.mpr hn)]
     · rw [eval_derivative_prod_div (fun i ↦ numeratorFactor n i) (root k)
@@ -781,8 +787,7 @@ lemma logDeriv_G (n k : ℕ) :
   change (poleFactor j ^ 2).derivative.eval (root k) /
       (poleFactor j ^ 2).eval (root k) = _
   rw [eval_pow, poleFactor_eval]
-  simp only [derivative_pow, Nat.cast_ofNat, eval_mul, eval_C, eval_natCast,
-    eval_one]
+  simp only [derivative_pow, Nat.cast_ofNat, eval_mul, eval_C]
   have hpderiv : (poleFactor j).derivative = C (scale j) := by
     exact Scaled.derivative_lin scale root j
   rw [hpderiv, eval_C]
@@ -890,7 +895,7 @@ lemma upper_pole_log_term (k j : ℕ) (hj : k < j) :
         (1 - 1 / (2 : ℚ) ^ (j - k)) := by rw [hscale, hratio]
     _ = -2 / oddFactorQ (j - k) := by
       simp only [oddFactorQ]
-      field_simp [hone] <;> ring
+      field_simp [hone]
 
 lemma sum_range_reverse (n k : ℕ) (F : ℕ → ℚ) :
     ∑ i ∈ Finset.range n, F (n + k - i) =
@@ -995,7 +1000,7 @@ theorem rawLogDeriv_eq_targetLogDeriv (n k : ℕ) (hkn : k ≤ n) :
               rw [mul_add, Finset.mul_sum, Finset.mul_sum]
       _ = (∑ j ∈ Finset.range k, 2 * high (k - j)) +
           (∑ j ∈ Finset.Icc (k + 1) n, -2 * low (j - k)) := by
-              apply congrArg₂ (.+.)
+              apply congrArg₂ (· + ·)
               · apply Finset.sum_congr rfl
                 intro j hj
                 simpa [high, mul_div_assoc] using

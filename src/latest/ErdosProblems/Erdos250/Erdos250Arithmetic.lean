@@ -170,7 +170,7 @@ theorem gauss2_mul_denProd_eq_highProd (n k : ℕ) :
                   2 ^ (k + 1) *
                     ((gauss2 (n + (k + 1)) (k + 1) * denProd (k + 1))) := by
                       rw [denProd_succ]
-                      congr 1 <;> ring
+                      ring
             _ = highProd (n + 1) k * oddFactor (k + 1) +
                   2 ^ (k + 1) * highProd n (k + 1) := by
                     rw [ih (n + 1), hn]
@@ -336,7 +336,10 @@ lemma long_odd_denominator_dvd {n k a d : ℕ}
     have hhigh := high_oddFactor_dvd_gauss2_mul_denProd hkn hr hrk
       (gauss2_mul_denProd_eq_highProd n k)
     have hlow := oddFactor_dvd_denProd hd (hdk.trans hkn)
-    convert Nat.mul_dvd_mul hhigh hlow using 1 <;> simp [pow_two] <;> ac_rfl
+    convert Nat.mul_dvd_mul hhigh hlow using 1
+    all_goals
+      simp [pow_two]
+      ac_rfl
 
 lemma oddScale_mul_hTwo_integral {n k : ℕ} (hkn : k ≤ n) :
     RatIntegral
@@ -442,7 +445,11 @@ lemma oddScale_mul_logDeriv_mul_hOne_integral {n k : ℕ} (hkn : k ≤ n) :
   have hconst : RatIntegral (((n : ℚ) * ((scale : ℕ) : ℚ)) * hOne k) := by
     have h := oddScale_mul_hOne_integral hkn
     have hm := RatIntegral.natCast_mul n h
-    convert hm using 1 <;> dsimp [scale, G] <;> push_cast <;> ring
+    convert hm using 1
+    all_goals
+      dsimp [scale, G]
+      push_cast
+      ring
   have hlong : RatIntegral
       (((scale : ℕ) : ℚ) *
         (∑ a ∈ Finset.Icc (k + 1) (n + k),
@@ -463,7 +470,11 @@ lemma oddScale_mul_logDeriv_mul_hOne_integral {n k : ℕ} (hkn : k ≤ n) :
       (((scale : ℕ) : ℚ) *
         (∑ a ∈ Finset.Icc 1 k, ((2 ^ a : ℕ) : ℚ) / (oddFactor a : ℕ)) * hOne k) := by
     have hmul := (RatIntegral.intCast (G : ℤ)).mul hlow₁base
-    convert hmul using 1 <;> simp only [scale, G, hOne] <;> push_cast <;> ring
+    convert hmul using 1
+    all_goals
+      simp only [scale, G, hOne]
+      push_cast
+      ring
   have hlow₂base : RatIntegral
       (((denProd n ^ 2 : ℕ) : ℚ) *
         (∑ a ∈ Finset.Icc 1 (n - k), (1 : ℚ) / (oddFactor a : ℕ)) *
@@ -479,10 +490,18 @@ lemma oddScale_mul_logDeriv_mul_hOne_integral {n k : ℕ} (hkn : k ≤ n) :
       (((scale : ℕ) : ℚ) *
         (∑ a ∈ Finset.Icc 1 (n - k), (1 : ℚ) / (oddFactor a : ℕ)) * hOne k) := by
     have hmul := (RatIntegral.intCast (G : ℤ)).mul hlow₂base
-    convert hmul using 1 <;> simp only [scale, G, hOne] <;> push_cast <;> ring
+    convert hmul using 1
+    all_goals
+      simp only [scale, G, hOne]
+      push_cast
+      ring
   have hall := ((hconst.add hlong).sub (RatIntegral.natCast_mul 2 hlow₁)).add
     (RatIntegral.natCast_mul 2 hlow₂)
-  convert hall using 1 <;> simp only [scale, G, logDerivCoeff] <;> push_cast <;> ring
+  convert hall using 1
+  all_goals
+    simp only [scale, G, logDerivCoeff]
+    push_cast
+    ring
 
 lemma oddScale_mul_aBracket_integral {n k : ℕ} (hkn : k ≤ n) :
     RatIntegral
@@ -490,7 +509,8 @@ lemma oddScale_mul_aBracket_integral {n k : ℕ} (hkn : k ≤ n) :
         (hTwo k - logDerivCoeff n k * hOne k)) := by
   have h₂ := oddScale_mul_hTwo_integral hkn
   have h₁ := oddScale_mul_logDeriv_mul_hOne_integral hkn
-  convert h₂.sub h₁ using 1 <;> ring
+  convert h₂.sub h₁ using 1
+  all_goals ring
 
 lemma E_mul_cCoeff_aBracket_integral {n k : ℕ} (hkn : k ≤ n) :
     RatIntegral

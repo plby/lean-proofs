@@ -5,7 +5,7 @@ open scoped BigOperators
 
 namespace DoublePartialFraction.OldRational
 
-lemma oddFactorQ_eq_arithmetic_cast (d : ℕ) (hd : 1 ≤ d) :
+lemma oddFactorQ_eq_arithmetic_cast (d : ℕ) (_hd : 1 ≤ d) :
     oddFactorQ d = (Erdos250Arithmetic.oddFactor d : ℕ) := by
   rw [oddFactorQ, Erdos250Arithmetic.oddFactor, Nat.cast_sub]
   · norm_num

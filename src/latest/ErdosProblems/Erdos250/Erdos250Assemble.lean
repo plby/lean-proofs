@@ -195,7 +195,7 @@ lemma coeffA_eq_cast (n : ℕ) : coeffA n = ((coeffAQ n : ℚ) : ℝ) := by
   intro j hj
   rw [q_zpow_neg_eq_root_cast, cast_hOne_eq_eta, cast_hTwo_eq_theta]
 
-lemma cast_oddFactor_eq_oddFactorQ {d : ℕ} (hd : 1 ≤ d) :
+lemma cast_oddFactor_eq_oddFactorQ {d : ℕ} (_hd : 1 ≤ d) :
     ((Erdos250Arithmetic.oddFactor d : ℕ) : ℚ) =
       DoublePartialFraction.OldRational.oddFactorQ d := by
   rw [Erdos250Arithmetic.oddFactor,

@@ -27,7 +27,8 @@ lemma q_le_one : q ≤ 1 := by norm_num [q]
 lemma q_ne_zero : q ≠ 0 := ne_of_gt q_pos
 
 lemma q_pow_succ_le (m : ℕ) : q ^ (m + 1) ≤ q := by
-  simpa [pow_succ] using mul_le_of_le_one_left (le_of_lt q_pos) (pow_le_one₀ (le_of_lt q_pos) q_le_one)
+  simpa [pow_succ] using
+    mul_le_of_le_one_left (le_of_lt q_pos) (pow_le_one₀ (le_of_lt q_pos) q_le_one)
 
 lemma half_le_one_sub_q_pow_succ (m : ℕ) : (1 / 2 : ℝ) ≤ 1 - q ^ (m + 1) := by
   have := q_pow_succ_le m

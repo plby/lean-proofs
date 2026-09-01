@@ -38,7 +38,6 @@ lemma numerator_prod_closed (n k : ℕ) :
           rw [he]
           simp only [Erdos250Arithmetic.oddFactor]
           have hp : 1 ≤ 2 ^ (k + (n - i)) := one_le_pow₀ (by omega)
-          push_cast
           rw [Nat.cast_sub hp]
           norm_num only [Nat.cast_pow, Nat.cast_ofNat]
           ring
@@ -51,7 +50,8 @@ lemma numerator_prod_closed (n k : ℕ) :
     _ = _ := by simp only [Erdos250Arithmetic.highProd, Nat.cast_prod]
 
 lemma denProd_add (a b : ℕ) :
-    Erdos250Arithmetic.denProd (a + b) = Erdos250Arithmetic.denProd a * Erdos250Arithmetic.highProd a b := by
+    Erdos250Arithmetic.denProd (a + b) =
+      Erdos250Arithmetic.denProd a * Erdos250Arithmetic.highProd a b := by
   induction b with
   | zero => simp [Erdos250Arithmetic.denProd, Erdos250Arithmetic.highProd]
   | succ b ih =>

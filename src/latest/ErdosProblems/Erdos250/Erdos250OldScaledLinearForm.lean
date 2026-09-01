@@ -31,7 +31,8 @@ lemma E_cast_le (n : ℕ) :
       gcongr
     _ = (2 : ℝ) ^ (n ^ 2 / 4 + 2 * tri n) := by
       rw [← pow_mul, ← pow_add]
-      congr 2 <;> omega
+      congr 2
+      all_goals omega
 
 lemma abs_cast_lambda (n : ℕ) :
     |((VNormalization.lambda n : ℚ) : ℝ)| =
@@ -115,7 +116,8 @@ lemma scaled_abs_le {n : ℕ} (hn : 1 ≤ n) :
                 (((tri n : ℕ) : ℤ) - ((n ^ 2 + 2 * n + 1 : ℕ) : ℤ))) *
               (2 : ℝ) ^ (-((n * (n + 1) : ℕ) : ℤ))) by ring]
       rw [← zpow_add₀ (by norm_num : (2 : ℝ) ≠ 0)]
-      congr 2 <;> ring
+      congr 2
+      all_goals ring
     _ ≤ ((4 : ℝ) / 3) ^ (2 * n + 3) *
           (2 : ℝ) ^ (-((halfSquare n : ℕ) : ℤ)) := by
       exact mul_le_mul_of_nonneg_left
