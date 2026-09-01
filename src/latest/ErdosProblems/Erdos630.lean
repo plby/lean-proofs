@@ -48,14 +48,15 @@ below are in `tex/630.tex`.
 
 open Finset
 open scoped SimpleGraph
-open scoped Classical
 open scoped unitInterval
 
 namespace Erdos630
 
 universe u
 
-variable {V : Type u} [Fintype V]
+variable {V : Type u}
+
+noncomputable local instance : DecidableEq V := Classical.decEq V
 
 /-! ## The finite plane-embedding interface -/
 
@@ -121,7 +122,7 @@ lemma edge_le_twice_endpoints {G : SimpleGraph V} {F : Finset G.edgeSet}
     (M : PlaneMap G F) (hG : G.IsBipartite) :
     F.card ≤ 2 * (F.biUnion fun e => e.1.toFinset).card := by
   classical
-  letI : Fintype M.Face := M.instFintypeFace
+  let : Fintype M.Face := M.instFintypeFace
   have heven (q : M.Face) : Even (M.boundary q).length :=
     (SimpleGraph.two_colorable_iff_forall_loop_even.mp hG) _ (M.boundary q)
   have hface (q : M.Face) :
@@ -177,6 +178,7 @@ lemma arc_ne {u v : V} (h : O.Arc u v) : u ≠ v :=
   (O.arc_adj h).ne
 
 lemma arc_or_arc_symm {u v : V} (h : G.Adj u v) : O.Arc u v ∨ O.Arc v u := by
+  classical
   let e : G.edgeSet := ⟨s(u, v), h⟩
   have ht := O.tail_mem e
   change O.tail e ∈ s(u, v).toFinset at ht
@@ -200,7 +202,9 @@ lemma tail_edgeOfArc {u v : V} (h : O.Arc u v) : O.tail (O.edgeOfArc h) = u := b
 
 /-- Out-neighbours inside a finite active vertex set. -/
 noncomputable def outNeighbors (U : Finset V) (v : V) : Finset V :=
-  U.filter (O.Arc v)
+  by
+    classical
+    exact U.filter (O.Arc v)
 
 @[simp]
 lemma mem_outNeighbors {U : Finset V} {v w : V} :
@@ -245,11 +249,14 @@ end TwoOrientation
 
 /-- The endpoint slots available to an edge. -/
 noncomputable def edgeSlots {G : SimpleGraph V} (e : G.edgeSet) : Finset (V × Fin 2) :=
-  e.1.toFinset ×ˢ Finset.univ
+  by
+    classical
+    exact e.1.toFinset ×ˢ Finset.univ
 
 lemma biUnion_edgeSlots {G : SimpleGraph V} (F : Finset G.edgeSet) :
     F.biUnion edgeSlots =
       (F.biUnion fun e => e.1.toFinset) ×ˢ (Finset.univ : Finset (Fin 2)) := by
+  classical
   ext x
   simp [edgeSlots]
 
@@ -282,7 +289,9 @@ variable {G : SimpleGraph V}
 
 /-- Vertices in the second bipartition class not yet absorbed by `S`. -/
 noncomputable def residual (O : TwoOrientation G) (B S : Finset V) : Finset V :=
-  B.filter fun b => ∀ a ∈ S, ¬ O.Arc b a
+  by
+    classical
+    exact B.filter fun b => ∀ a ∈ S, ¬ O.Arc b a
 
 /-- `S` has no arc to a second-part vertex that is not absorbed by `S`. -/
 def Admissible (O : TwoOrientation G) (B S : Finset V) : Prop :=
@@ -431,7 +440,7 @@ theorem exists_list_coloring_on
           by_contra h
           have hKempty : K = ∅ := Finset.not_nonempty_iff_eq_empty.mp h
           obtain ⟨k, hkK, -⟩ := hK.absorbs hu₀X (by simp [hKempty])
-          simpa [hKempty] using hkK
+          simp [hKempty] at hkK
         let U' : Finset V := U \ K
         let L' : V → Finset ℕ := fun v => (L v).erase c
         have hKsubU : K ⊆ U := by
@@ -492,18 +501,19 @@ theorem exists_list_coloring_on
         refine ⟨fun _ => 0, ?_, ?_⟩
         · intro v hv
           exfalso
-          simpa [hUempty] using hv
+          simp [hUempty] at hv
         · intro u hu
           exfalso
-          simpa [hUempty] using hu
+          simp [hUempty] at hu
 
 /-! ## Erdős Problem 630 -/
 
 /-- A finite planar bipartite graph is 3-choosable. -/
 theorem isKChoosable_three_of_planar_bipartite
-    (G : SimpleGraph V) (hplanar : IsPlanar G) (hbipartite : G.IsBipartite) :
+    [Finite V] (G : SimpleGraph V) (hplanar : IsPlanar G) (hbipartite : G.IsBipartite) :
     Erdos753.IsKChoosable G 3 := by
   classical
+  let : Fintype V := Fintype.ofFinite V
   intro L hL
   let O : TwoOrientation G := hplanar.twoOrientation hbipartite
   have hkernels : ∀ X : Finset V, ∃ K : Finset V, IsKernel O X K :=
@@ -523,7 +533,7 @@ theorem isKChoosable_three_of_planar_bipartite
 /-- **Erdős Problem 630 (Alon--Tarsi).**  Every finite planar bipartite
 simple graph has list chromatic number at most three. -/
 theorem erdos_630 (G : SimpleGraph V) (hplanar : IsPlanar G)
-    (hbipartite : G.IsBipartite) :
+    [Finite V] (hbipartite : G.IsBipartite) :
     Erdos753.listChromaticNumber G ≤ 3 :=
   Erdos753.listChromaticNumber_le
     (isKChoosable_three_of_planar_bipartite G hplanar hbipartite)
