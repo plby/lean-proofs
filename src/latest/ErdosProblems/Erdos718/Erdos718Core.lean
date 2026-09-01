@@ -31,10 +31,12 @@ open SimpleGraph
 
 /- Compatibility names used by elaborated order/algebra tactics in this development. -/
 namespace Prod
+@[instance_reducible]
 def «instLE_.lake» {α β : Type*} [LE α] [LE β] : LE (α × β) := inferInstance
 end Prod
 
 namespace Nat
+@[instance_reducible]
 def «instPartialOrder_.lake» : PartialOrder Nat := Nat.instPartialOrder
 end Nat
 
@@ -851,6 +853,7 @@ theorem abLinkage_of_isKConnected
 
 /-! ### Assembling a clique subdivision from a linked dense core -/
 
+omit [Fintype V] [DecidableEq V] in
 private lemma walkInteriorSet_cons_concat_subset {G : SimpleGraph V}
     {a x y b : V} {hax : G.Adj a x} {p : G.Walk x y}
     {hyb : G.Adj y b} :
@@ -873,6 +876,7 @@ private def induceInclusion {G : SimpleGraph V} (S : Set V) :
     intro u v huv
     exact huv
 
+omit [Fintype V] [DecidableEq V] in
 @[simp] private lemma induceInclusion_apply {G : SimpleGraph V}
     (S : Set V) (x : S) :
     induceInclusion (G := G) S x = (x : V) := rfl
@@ -930,6 +934,7 @@ def CliqueSubdivision.liftInduce {G : SimpleGraph V} {S : Set V} {r : ℕ}
     subst y'
     exact (Set.disjoint_left.mp (s.interior_pairwise hee')) hye hye'
 
+omit [Fintype V] [DecidableEq V] in
 theorem ContainsCliqueSubdivision.liftInduce {G : SimpleGraph V}
     {S : Set V} {r : ℕ}
     (hS : ContainsCliqueSubdivision (G.induce S) r) :
@@ -948,6 +953,7 @@ private def privateTerminal {r : ℕ}
     apply neighbor.injective
     exact congrArg Subtype.val h
 
+omit [Fintype V] [DecidableEq V] in
 @[simp] private lemma privateTerminal_apply {r : ℕ}
     (branch : Fin r ↪ V)
     (neighbor : Sum (CliqueEdge r) (CliqueEdge r) ↪ V)
@@ -956,6 +962,7 @@ private def privateTerminal {r : ℕ}
     ((privateTerminal branch neighbor hprivate z :
       {v : V // v ∉ Set.range branch}) : V) = neighbor z := rfl
 
+omit [Fintype V] [DecidableEq V] in
 /-- Distinct private neighbors and a linkage in the graph left after deleting
 the branch vertices assemble to a subdivision of `K_r`. -/
 theorem subdivision_of_linked_private_neighbors {G : SimpleGraph V} {r : ℕ}
@@ -1071,6 +1078,7 @@ private def terminalSource {r : ℕ} :
   | .inl e => e.1.1
   | .inr e => e.1.2
 
+omit [Fintype V] [DecidableEq V] in
 /-- Minimum degree at least `r^2` supplies globally distinct private
 neighbors, one at each end of every prospective clique edge. -/
 theorem exists_private_neighbors {G : SimpleGraph V} [G.LocallyFinite]
@@ -1165,8 +1173,8 @@ theorem conditional_core_assembly {G : SimpleGraph V}
     simpa using hrcard
   obtain ⟨branch : Fin r ↪ V⟩ :=
     Function.Embedding.nonempty_of_card_le (α := Fin r) (β := V) hcardfin
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
-  letI : G.LocallyFinite := fun _ => inferInstance
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : G.LocallyFinite := fun _ => inferInstance
   have hdegree : ∀ v, r * r ≤ G.degree v :=
     hconn.degree_ge
   obtain ⟨neighbor, hprivate, hadj_left, hadj_right⟩ :=
@@ -1589,7 +1597,7 @@ end MaderPrototype
 namespace MaderPrototype
 
 lemma MoreThanQConnectedOn.isKConnected_induce
-    {V : Type*} [Fintype V] [DecidableEq V]
+    {V : Type*} [DecidableEq V]
     (G : SimpleGraph V) (q : ℕ) (S : Finset V)
     (h : MoreThanQConnectedOn G q S) :
     Erdos718.IsKConnected (G.induce (S : Set V)) q := by
@@ -1681,14 +1689,17 @@ lemma isKConnected_induce_congr_pred (G : SimpleGraph V) (k : ℕ)
   subst dq
   rfl
 
+omit [Fintype V] [DecidableEq V] in
 lemma ncard_edgeSet_induce_congr (G : SimpleGraph V) {A B : Set V}
     (hAB : A = B) :
     (G.induce A).edgeSet.ncard = (G.induce B).edgeSet.ncard := by
   subst B
   rfl
 
+omit [DecidableEq V] in
 lemma card_edgeFinset_eq_ncard_edgeSet (G : SimpleGraph V)
     [DecidableRel G.Adj] : #G.edgeFinset = G.edgeSet.ncard := by
+  classical
   simpa only [SimpleGraph.edgeFinset] using
     (Set.ncard_eq_toFinset_card' G.edgeSet).symm
 
@@ -1733,10 +1744,12 @@ lemma edgesOn_le_edgesOn_sdiff_add (G : SimpleGraph V) [DecidableRel G.Adj]
         rw [Nat.add_mul, one_mul]
         omega
 
+omit [DecidableEq V] in
 lemma edgeFinset_le_delete_add (G : SimpleGraph V) [DecidableRel G.Adj]
     (B : Finset V) :
     #G.edgeFinset ≤ (G.induce {v : V | v ∉ B}).edgeSet.ncard +
       #B * Fintype.card V := by
+  classical
   have h := edgesOn_le_edgesOn_sdiff_add G (Finset.univ : Finset V) B
   rw [edgesOn_univ, edgesOn_eq_induce] at h
   have hset : ((Finset.univ \ B : Finset V) : Set V) = {v : V | v ∉ B} := by
