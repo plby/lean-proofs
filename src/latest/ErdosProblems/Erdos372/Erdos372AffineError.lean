@@ -125,7 +125,8 @@ theorem affinePrimeProgressionIntervalDiscrepancy_le_global_max
         progressionDiscrepancy (A * N) (A * q)
           ((A * a + 1) % (A * q)) := by
       rw [hreduce, hreduce]
-      congr 2 <;> simp [mul_assoc, mul_comm, mul_left_comm]
+      congr 2
+      all_goals simp [mul_comm, mul_left_comm]
     _ ≤ _ := add_le_add
       (progressionDiscrepancy_le_max hAq hres)
       (progressionDiscrepancy_le_max hAq hres)
@@ -433,7 +434,7 @@ theorem PrimeLevelWitness.sum_tauPow_mul_affineMaxDiscrepancy
       have hAqle : A₀ * q ≤ x + 1 :=
         (Nat.mul_le_mul_left A₀ hqData.2).trans hsize
       have htriv := maxProgressionDiscrepancy_le_three_mul_div hAqpos hAqle
-      have hphi := totient_mul_of_primeFactors_subset hA₀ hqpos (hAsub q hq)
+      have hphi := totient_mul_of_primeFactors_subset hA₀ (hAsub q hq)
       rw [hphi] at htriv
       have hphiPos : (0 : ℝ) < Nat.totient q := by
         exact_mod_cast (Nat.totient_pos.mpr hqpos)

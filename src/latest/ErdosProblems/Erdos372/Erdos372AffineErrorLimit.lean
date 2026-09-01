@@ -313,7 +313,9 @@ theorem eventually_affineTupleMaynardS2TauErrorEnvelope_le_log_ratio
     · have hAone : 1 ≤ A h := hApos h
       calc
         N = 1 * N := by ring
-        _ ≤ 2 * A h * N := by gcongr <;> omega
+        _ ≤ 2 * A h * N := by
+          gcongr
+          all_goals omega
     · calc
         2 * A h * N + 1 ≤ 2 * (c * N) + 1 := by
           simpa [mul_assoc] using

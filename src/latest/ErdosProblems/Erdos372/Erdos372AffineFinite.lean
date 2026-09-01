@@ -82,7 +82,7 @@ theorem preSievedAffineSquareDivisorWeight_eq_pair_indicator
 
 theorem exists_affine_residue {A m : ℕ} (hm : 0 < m)
     (hA : A.Coprime m) : ∃ r : ℕ, m ∣ A * r + 1 := by
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   let u : (ZMod m)ˣ := ZMod.unitOfCoprime A hA
   let z : ZMod m := -((u⁻¹ : (ZMod m)ˣ) : ZMod m)
   refine ⟨z.val, ?_⟩
@@ -118,7 +118,7 @@ theorem affine_modEq_residue_iff {A m n : ℕ} (hm : 0 < m)
     have hsumr : A * r + 1 ≡ 0 [MOD m] := Nat.modEq_zero_iff_dvd.mpr hr
     have hmul : A * n ≡ A * r [MOD m] :=
       Nat.ModEq.add_right_cancel' 1 (hsumn.trans hsumr.symm)
-    letI : NeZero m := ⟨hm.ne'⟩
+    let : NeZero m := ⟨hm.ne'⟩
     let u : (ZMod m)ˣ := ZMod.unitOfCoprime A hA
     apply (ZMod.natCast_eq_natCast_iff n r m).mp
     have heq : (u : ZMod m) * (n : ZMod m) =
@@ -349,10 +349,7 @@ theorem abs_affineCompatibleDivisorPairErrorSum_le_coefficientMass
 theorem sieveWeightSum_preSievedAffine_eq_main_add_error
     {H : Finset ℕ} {A : H → ℕ} {D : Finset (H → ℕ)}
     {R W N : ℕ} {lambda : (H → ℕ) → ℝ}
-    (hApos : ∀ h, 0 < A h)
-    (hAprimes : CoversCoefficientPrimes A W)
     (hcoverage : CoversAffineDifferencePrimes A W)
-    (hW : 0 < W)
     (hD : ∀ d ∈ D, IsMaynardDivisorTuple H R W d) :
     sieveWeightSum N (preSievedAffineSquareDivisorWeight A D lambda W) =
       compatibleDivisorPairMainSum H D W N lambda +

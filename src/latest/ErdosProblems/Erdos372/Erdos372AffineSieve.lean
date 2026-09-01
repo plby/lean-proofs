@@ -77,7 +77,7 @@ theorem eventually_affineTupleMaynardS1_eq_main_add_error
   have hD := tupleMaynardS2SupportProof H alpha N
   have hfinite := sieveWeightSum_preSievedAffine_eq_main_add_error
     (N := N) (lambda := tupleMaynardCoefficient H alpha F N)
-    hApos hcover.1 hcover.2 (primorial_pos _) hD
+    hcover.2 hD
   change sieveWeightSum N (affineTupleMaynardWeight H A alpha F N) = _
   rw [show tupleMaynardS1Main H alpha F N =
       compatibleDivisorPairMainSum H (tupleMaynardSupport H alpha N)

@@ -154,7 +154,7 @@ theorem tendsto_affinePrimeIntervalFactor
   have hAreal : (A : ℝ) ≠ 0 := by exact_mod_cast hA.ne'
   have hNreal : (N : ℝ) ≠ 0 := by exact_mod_cast (show N ≠ 0 by omega)
   unfold affinePrimeIntervalCount
-  simp only [mul_comm, mul_left_comm, mul_assoc]
+  simp only [mul_comm, mul_left_comm]
   push_cast
   have hlogAN' : Real.log ((A : ℝ) * (N : ℝ)) ≠ 0 := by
     simpa [Nat.cast_mul] using hlogAN
@@ -177,9 +177,7 @@ def affineTupleMaynardS2Main
     (H : Finset ℕ) (A : H → ℕ) (alpha : ℝ)
     (F : (H → ℝ) → ℝ) (N : ℕ) : ℝ :=
   affineRestrictedS2Main H A (tupleMaynardSupport H alpha N)
-    (maynardRadius alpha N) (maynardModulus N) N
-    (tupleMaynardCoefficient H alpha F N)
-    (tupleMaynardS2SupportProof H alpha N)
+    (maynardModulus N) N (tupleMaynardCoefficient H alpha F N)
 
 def affineTupleMaynardS2Error
     (H : Finset ℕ) (A : H → ℕ) (alpha : ℝ)

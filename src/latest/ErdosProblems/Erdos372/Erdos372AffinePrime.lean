@@ -27,7 +27,7 @@ theorem affinePrimeCount_eq_indicator_sum {H : Finset ℕ}
     (affinePrimeCount A n : ℝ) =
       ∑ h : H, if (A h * n + 1).Prime then 1 else 0 := by
   unfold affinePrimeCount
-  simpa using (Finset.sum_boole (fun h : H => (A h * n + 1).Prime) Finset.univ).symm
+  simp
 
 def affinePrimeWeightedPairInnerSum
     (H : Finset ℕ) (A : H → ℕ) (W N : ℕ)
@@ -203,8 +203,7 @@ theorem affinePrimeProgressionCount_eq_zero_of_coordinate_ne_one
 
 def affineRestrictedS2Main
     (H : Finset ℕ) (A : H → ℕ) (D : Finset (H → ℕ))
-    (R W N : ℕ) (lambda : (H → ℕ) → ℝ)
-    (hD : ∀ d ∈ D, IsMaynardDivisorTuple H R W d) : ℝ :=
+    (W N : ℕ) (lambda : (H → ℕ) → ℝ) : ℝ :=
   ∑ d : D, ∑ e : D.filter
       (fun e : H → ℕ => IsCrossCoordinateCoprime H d.1 e),
     ∑ h : H,
@@ -241,7 +240,7 @@ theorem affineCompatiblePrimeWeightedPairSum_eq_main_add_error
     (hW : 0 < W) (hD : ∀ d ∈ D, IsMaynardDivisorTuple H R W d)
     (hRN : R ≤ N) :
     affineCompatiblePrimeWeightedPairSum H A D W N lambda =
-      affineRestrictedS2Main H A D R W N lambda hD +
+      affineRestrictedS2Main H A D W N lambda +
         affineRestrictedS2Error H A D R W N lambda hD := by
   classical
   unfold affineCompatiblePrimeWeightedPairSum affineRestrictedS2Main
@@ -269,7 +268,7 @@ theorem affineCompatiblePrimeWeightedPairSum_eq_main_add_error
     simp [hc, hz]
 
 theorem totient_mul_of_primeFactors_subset
-    {A q : ℕ} (hA : 0 < A) (hq : 0 < q)
+    {A q : ℕ} (hA : 0 < A)
     (hsub : A.primeFactors ⊆ q.primeFactors) :
     Nat.totient (A * q) = A * Nat.totient q := by
   induction A using Nat.strong_induction_on with
@@ -356,7 +355,7 @@ theorem affineRestrictedS2Main_eq_shift_sum
     {R W N : ℕ} {lambda : (H → ℕ) → ℝ}
     (hApos : ∀ h, 0 < A h) (hAprimes : CoversCoefficientPrimes A W)
     (hW : 0 < W) (hD : ∀ d ∈ D, IsMaynardDivisorTuple H R W d) :
-    affineRestrictedS2Main H A D R W N lambda hD =
+    affineRestrictedS2Main H A D W N lambda =
       ∑ h : H, affinePrimeIntervalCount N (A h) *
         restrictedMainArithmeticCoefficient H D W lambda h := by
   classical
@@ -416,7 +415,7 @@ theorem affineRestrictedS2Main_eq_shift_sum
         (divisorPairModulus H W d.1 e.1).primeFactors :=
       (hAprimes h).trans
         (Nat.primeFactors_mono hWdvd hqpos.ne')
-    have hphi := totient_mul_of_primeFactors_subset (hApos h) hqpos hsub
+    have hphi := totient_mul_of_primeFactors_subset (hApos h) hsub
     simp [term, hc, hphi]
     field_simp [show (A h : ℝ) ≠ 0 by exact_mod_cast (hApos h).ne']
   · simp [term, hc]
