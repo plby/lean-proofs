@@ -166,11 +166,11 @@ theorem cochromPartable_induce_add_compl {V : Type*} (G : SimpleGraph V)
       change color v = Fin.castAdd l i at hv
       have huS : u ∈ S := by
         by_contra huS
-        simp [color, huS] at hu
+        simp only [color, dif_neg huS] at hu
         exact hcross i _ hu.symm
       have hvS : v ∈ S := by
         by_contra hvS
-        simp [color, hvS] at hv
+        simp only [color, dif_neg hvS] at hv
         exact hcross i _ hv.symm
       have hcu : c ⟨u, huS⟩ = i := by
         simpa [color, huS] using hu
@@ -183,11 +183,11 @@ theorem cochromPartable_induce_add_compl {V : Type*} (G : SimpleGraph V)
       change color v = Fin.castAdd l i at hv
       have huS : u ∈ S := by
         by_contra huS
-        simp [color, huS] at hu
+        simp only [color, dif_neg huS] at hu
         exact hcross i _ hu.symm
       have hvS : v ∈ S := by
         by_contra hvS
-        simp [color, hvS] at hv
+        simp only [color, dif_neg hvS] at hv
         exact hcross i _ hv.symm
       have hcu : c ⟨u, huS⟩ = i := by
         simpa [color, huS] using hu
@@ -202,11 +202,11 @@ theorem cochromPartable_induce_add_compl {V : Type*} (G : SimpleGraph V)
       change color v = Fin.natAdd k i at hv
       have huS : u ∉ S := by
         intro huS
-        simp [color, huS] at hu
+        simp only [color, dif_pos huS] at hu
         exact hcross _ i hu
       have hvS : v ∉ S := by
         intro hvS
-        simp [color, hvS] at hv
+        simp only [color, dif_pos hvS] at hv
         exact hcross _ i hv
       have hdu : d ⟨u, huS⟩ = i := by
         simpa [color, huS] using hu
@@ -219,11 +219,11 @@ theorem cochromPartable_induce_add_compl {V : Type*} (G : SimpleGraph V)
       change color v = Fin.natAdd k i at hv
       have huS : u ∉ S := by
         intro huS
-        simp [color, huS] at hu
+        simp only [color, dif_pos huS] at hu
         exact hcross _ i hu
       have hvS : v ∉ S := by
         intro hvS
-        simp [color, hvS] at hv
+        simp only [color, dif_pos hvS] at hv
         exact hcross _ i hv
       have hdu : d ⟨u, huS⟩ = i := by
         simpa [color, huS] using hu
@@ -241,13 +241,14 @@ theorem cochromaticNat_le_add_of_induce_compl {V : Type*} [Finite V]
 
 /-- The usual finite `d`-core decomposition.  A maximum-cardinality induced
 subgraph of minimum degree at least `d` has a `d`-degenerate complement. -/
-theorem exists_core_colorable_compl {V : Type*} [Fintype V]
-    (G : SimpleGraph V) [DecidableEq V] [DecidableRel G.Adj]
+theorem exists_core_colorable_compl {V : Type*} [Finite V]
+    (G : SimpleGraph V) [DecidableRel G.Adj]
     (d : ℕ) (hd : 0 < d) :
     ∃ S : Finset V,
       (∀ v ∈ S, d ≤ (S.filter fun w ↦ G.Adj v w).card) ∧
       (G.induce (Set.compl (↑S : Set V))).Colorable d := by
   classical
+  let : Fintype V := Fintype.ofFinite V
   let cores : Finset (Finset V) :=
     (Finset.univ : Finset (Finset V)).filter fun S : Finset V ↦
       ∀ v ∈ S, d ≤ (S.filter fun w ↦ G.Adj v w).card
@@ -264,7 +265,7 @@ theorem exists_core_colorable_compl {V : Type*} [Fintype V]
   apply colorable_of_degenerate H d hd
   intro T hTne
   by_contra hnone
-  push_neg at hnone
+  push Not at hnone
   let e : (Set.compl (↑S : Set V)) ↪ V := Function.Embedding.subtype _
   let U : Finset V := T.map e
   have hUne : U.Nonempty := by
@@ -380,7 +381,7 @@ lemma exists_large_fiber {X Y : Type*} [Fintype Y] [DecidableEq Y] [Nonempty Y]
     ∃ y : Y, q ≤ (S.filter fun x ↦ f x = y).card := by
   classical
   by_contra h
-  push_neg at h
+  push Not at h
   have hle : S.card ≤ (q - 1) * Fintype.card Y := by
     simpa using Finset.card_le_mul_card_image_of_maps_to
       (s := S) (t := (Finset.univ : Finset Y)) (f := f)
@@ -393,10 +394,11 @@ lemma exists_large_fiber {X Y : Type*} [Fintype Y] [DecidableEq Y] [Nonempty Y]
   rw [Nat.mul_comm (Fintype.card Y) q] at hbad
   exact (not_le_of_gt hlt) hbad
 
-lemma card_filter_subtype_finset {X : Type*} [DecidableEq X]
+lemma card_filter_subtype_finset {X : Type*}
     (I : Finset X) (P : X → Prop) [DecidablePred P] :
     (I.attach.filter (fun x : {x // x ∈ I} ↦ P x.1)).card =
       (I.filter P).card := by
+  classical
   let e : {x // x ∈ I} ↪ X := Function.Embedding.subtype (fun x ↦ x ∈ I)
   have hmap :
       (I.attach.filter (fun x : {x // x ∈ I} ↦ P x.1)).map e =
@@ -407,12 +409,13 @@ lemma card_filter_subtype_finset {X : Type*} [DecidableEq X]
 
 section SparseCounting
 
-variable {V : Type*} [Fintype V] [DecidableEq V]
+variable {V : Type*} [Fintype V]
 variable (G : SimpleGraph V) [DecidableRel G.Adj]
 
 lemma sum_card_neighbors_le_sum_degrees (A I : Finset V) :
     ∑ x ∈ A, (I.filter fun i ↦ G.Adj x i).card ≤
       ∑ i ∈ I, G.degree i := by
+  classical
   change (∑ x ∈ A, (I.bipartiteAbove G.Adj x).card) ≤ _
   rw [Finset.sum_card_bipartiteAbove_eq_sum_card_bipartiteBelow G.Adj]
   apply Finset.sum_le_sum
@@ -432,6 +435,7 @@ lemma four_mul_card_highDegree_lt (K : ℕ)
     (hsparse : K * G.edgeFinset.card < Fintype.card V ^ 2) :
     4 * ((Finset.univ : Finset V).filter
       fun v ↦ 8 * Fintype.card V ≤ K * G.degree v).card < Fintype.card V := by
+  classical
   let D := (Finset.univ : Finset V).filter
     fun v ↦ 8 * Fintype.card V ≤ K * G.degree v
   have hpoint : ∀ v ∈ D, 8 * Fintype.card V ≤ K * G.degree v := by
@@ -486,7 +490,6 @@ theorem sparse_ramsey_of_numerical (K b a r : ℕ)
   have hDL : L.card + D.card = N := by
     simpa [L, N, Nat.add_comm] using
       (Finset.card_sdiff_add_card_eq_card (Finset.subset_univ D))
-
   let family : Finset (Finset V) :=
     L.powerset.filter fun I : Finset V ↦ G.IsIndepSet I
   have hfamily : family.Nonempty := by
@@ -500,7 +503,6 @@ theorem sparse_ramsey_of_numerical (K b a r : ℕ)
   by_cases haI : a ≤ I.card
   · exact Or.inr (haI.trans hIind.card_le_indepNum)
   have hIlt : I.card < a := by omega
-
   let A := L \ I
   have hAI : A.card + I.card = L.card := by
     simpa [A] using Finset.card_sdiff_add_card_eq_card hIL
@@ -508,7 +510,6 @@ theorem sparse_ramsey_of_numerical (K b a r : ℕ)
     exact Finset.sdiff_subset
   have hAdisjI : Disjoint A I := by
     exact Finset.sdiff_disjoint
-
   let q : V → ℕ := fun x ↦ (I.filter fun i ↦ G.Adj x i).card
   have hlow (i : V) (hiI : i ∈ I) : K * G.degree i ≤ 8 * N := by
     have hiL := hIL hiI
@@ -532,7 +533,6 @@ theorem sparse_ramsey_of_numerical (K b a r : ℕ)
       _ = K * (b * (8 * N)) := by ring
   have hsumq' : ∑ x ∈ A, q x ≤ b * (8 * N) :=
     Nat.le_of_mul_le_mul_left hKsumq hK
-
   let B := A.filter fun x ↦ r ≤ q x
   let Z := A.filter fun x ↦ q x < r
   have hBsubA : B ⊆ A := Finset.filter_subset _ _
@@ -563,7 +563,6 @@ theorem sparse_ramsey_of_numerical (K b a r : ℕ)
   have hDBI : 8 * (D.card + B.card + I.card) < 5 * N := by
     nlinarith [hD, hB, hI]
   have hZlarge : N < 8 * Z.card := by nlinarith
-
   let pattern : V → SmallFinsets {i // i ∈ I} r := fun x ↦
     if hx : q x < r then
       ⟨I.attach.filter
@@ -583,7 +582,7 @@ theorem sparse_ramsey_of_numerical (K b a r : ℕ)
         Ramsey.ramseyNumber a r) ≤ N := by
       simpa [Nat.mul_assoc] using hnum
     omega
-  letI : Nonempty (SmallFinsets {i // i ∈ I} r) :=
+  let : Nonempty (SmallFinsets {i // i ∈ I} r) :=
     ⟨⟨∅, by simpa using hrPos⟩⟩
   obtain ⟨p, hp⟩ := exists_large_fiber Z pattern
     (Ramsey.ramseyNumber a r) (Ramsey.ramseyNumber_pos haPos hrPos) hpigeon
@@ -731,7 +730,7 @@ theorem natCast_choose_le_three_mul_div_pow (n k : ℕ) :
     _ = (Real.exp 1 * (n : ℝ) / (k : ℝ)) ^ k := by
       simp only [div_pow]
       field_simp
-      <;> ring
+      all_goals ring
     _ ≤ (3 * (n : ℝ) / (k : ℝ)) ^ k := by
       gcongr
 
@@ -968,7 +967,9 @@ def isolateCount : ℕ :=
 def finiteDegree (v : V) : ℕ :=
   (Finset.univ.filter fun w ↦ G.Adj v w).card
 
+omit [DecidableEq V] in
 lemma finiteDegree_eq_degree (v : V) : finiteDegree G v = G.degree v := by
+  classical
   rw [finiteDegree, ← neighborFinset_eq_filter, card_neighborFinset_eq_degree]
 
 /-- Number of connected components. -/
@@ -987,8 +988,10 @@ def EmbedsOrientable (g : ℕ) : Prop :=
     2 * componentCount G + G.edgeFinset.card ≤
       Fintype.card V + faceCount G R + 2 * g
 
+omit [DecidableEq V] in
 lemma RotationSystem.order_length_eq_finiteDegree (R : RotationSystem G) (v : V) :
     (R.order v).length = finiteDegree G v := by
+  classical
   rw [finiteDegree, ← List.toFinset_card_of_nodup (R.nodup_order v)]
   congr 1
   ext w
@@ -1051,8 +1054,10 @@ lemma three_mul_cycleType_card_le (R : RotationSystem G)
     simpa [pow_two] using this
   exact R.facePerm_sq_ne_of_two_le_length hlen d hfix
 
+omit [DecidableEq V] in
 lemma isolateCount_eq_zero_of_two_le_length (R : RotationSystem G)
     (hlen : ∀ v, 2 ≤ (R.order v).length) : isolateCount G = 0 := by
+  classical
   rw [isolateCount, Finset.card_eq_zero, Finset.filter_eq_empty_iff]
   intro v _ hv
   cases horder : R.order v with
@@ -1135,16 +1140,17 @@ noncomputable def degreeCount {V : Type u} [Finite V]
   exact Nat.card (G.neighborSet v)
 
 lemma edgeCount_eq_card_edgeFinset {V : Type u} [Fintype V]
-    (G : SimpleGraph V) [DecidableEq V] [DecidableRel G.Adj] :
+    (G : SimpleGraph V) [DecidableRel G.Adj] :
     edgeCount G = G.edgeFinset.card := by
+  classical
   rw [edgeCount, Nat.card_eq_fintype_card, G.dart_card_eq_twice_card_edges]
   omega
 
 lemma edgeCount_comap_le {V W : Type u} [Finite V] [Finite W]
     (G : SimpleGraph V) (f : W ↪ V) : edgeCount (G.comap f) ≤ edgeCount G := by
   classical
-  letI : Fintype V := Fintype.ofFinite V
-  letI : Fintype W := Fintype.ofFinite W
+  let : Fintype V := Fintype.ofFinite V
+  let : Fintype W := Fintype.ofFinite W
   let ι : (G.comap f).Dart → G.Dart := fun d ↦
     ⟨(f d.fst, f d.snd), d.adj⟩
   have hι : Function.Injective ι := by
@@ -1157,10 +1163,11 @@ lemma edgeCount_comap_le {V W : Type u} [Finite V] [Finite W]
   rw [edgeCount]
   exact Nat.div_le_div_right (Nat.card_le_card_of_injective ι hι)
 
-lemma edgeCount_induce_le {V : Type u} [Fintype V]
+lemma edgeCount_induce_le {V : Type u} [Finite V]
     (G : SimpleGraph V) (S : Set V) :
     edgeCount (G.induce S) ≤ edgeCount G := by
   classical
+  let : Fintype V := Fintype.ofFinite V
   let f : (G.induce S).Dart → G.Dart := fun d ↦
     ⟨((d.fst : V), (d.snd : V)), d.adj⟩
   have hf : Function.Injective f := by
@@ -1175,11 +1182,12 @@ lemma edgeCount_induce_le {V : Type u} [Fintype V]
   rw [edgeCount]
   exact Nat.div_le_div_right (Nat.card_le_card_of_injective f hf)
 
-lemma degree_comap_finset {V : Type u} [Fintype V] [DecidableEq V]
+lemma degree_comap_finset {V : Type u}
     (G : SimpleGraph V) [DecidableRel G.Adj] (S : Finset V)
     (v : ↑S) :
     (G.comap (Function.Embedding.subtype fun x ↦ x ∈ S)).degree v =
       (S.filter fun w ↦ G.Adj v w).card := by
+  classical
   rw [← card_neighborFinset_eq_degree]
   apply Finset.card_bij
     (s := (G.comap (Function.Embedding.subtype fun x ↦ x ∈ S)).neighborFinset v)
@@ -1198,7 +1206,7 @@ lemma degree_comap_finset {V : Type u} [Fintype V] [DecidableEq V]
         (Finset.mem_filter.mp hw).2
 
 /-- A homogeneous vertex set is one cochromatic colour class. -/
-lemma cochromaticNat_le_one_add_induce_compl {V : Type u} [Fintype V]
+lemma cochromaticNat_le_one_add_induce_compl {V : Type u} [Finite V]
     (G : SimpleGraph V) (T : Finset V)
     (hT : G.IsClique T ∨ G.IsIndepSet T) :
     cochromaticNat G ≤
@@ -1419,7 +1427,7 @@ def edgeScaleCost (q i : ℕ) : ℕ :=
   2080 * (2 ^ q / 2 ^ (i / 2))
 
 lemma edgeScale_active_den (q i : ℕ)
-    (hq : 2 * 2080 ^ 2 ≤ q) (hi : i < q)
+    (hq : 2 * 2080 ^ 2 ≤ q)
     (hactive : edgeScaleThreshold q i < 32 * q * 2 ^ q) :
     2 * edgeScaleDen i ≤ q := by
   have hs : 0 < 2 ^ q := pow_pos (by omega) _
@@ -1441,13 +1449,16 @@ lemma edgeScale_active_den (q i : ℕ)
     have hu : (2080 * x) ^ 2 < q ^ 2 := by
       nlinarith
     omega
-  convert hbound using 1 <;> simp [edgeScaleDen, x] <;> ring
+  convert hbound using 1
+  all_goals
+    simp [edgeScaleDen, x]
+    ring
 
 lemma edgeScaleB_pos (q i : ℕ)
-    (hq : 2 * 2080 ^ 2 ≤ q) (hi : i < q)
+    (hq : 2 * 2080 ^ 2 ≤ q)
     (hactive : edgeScaleThreshold q i < 32 * q * 2 ^ q) :
     0 < edgeScaleB q i := by
-  have hd := edgeScale_active_den q i hq hi hactive
+  have hd := edgeScale_active_den q i hq hactive
   apply Nat.div_pos
   · omega
   · unfold edgeScaleDen
@@ -1510,7 +1521,7 @@ lemma edgeScale_room (q i : ℕ)
 
 theorem edgeScale_homogeneous (q i : ℕ)
     (hq : 2 * 2080 ^ 2 ≤ q) (hexp : 64 * q ^ 2 ≤ 2 ^ q)
-    (hi : i < q) {W : Type u} [Fintype W] (H : SimpleGraph W)
+    {W : Type u} [Fintype W] (H : SimpleGraph W)
     (hlow : edgeScaleThreshold q i < Fintype.card W)
     (hcard : Fintype.card W ≤ 32 * q * 2 ^ q)
     (hedge : edgeCount H ≤ (2 ^ q) ^ 2) :
@@ -1529,7 +1540,7 @@ theorem edgeScale_homogeneous (q i : ℕ)
     exact hp
   have hb : 0 < b := by
     dsimp [b]
-    exact edgeScaleB_pos q i hq hi hactive
+    exact edgeScaleB_pos q i hq hactive
   have hroom : 8 * (K * b) ≤ Fintype.card W := by
     exact (edgeScale_room q i hexp hactive).trans (Nat.le_of_lt hlow)
   have hpatterns : ∀ l < K * b,
@@ -1544,7 +1555,7 @@ theorem edgeScale_homogeneous (q i : ℕ)
       nlinarith
     exact (sparse_pattern_product_le K b l hK hb hl).trans
       (hpat.trans (hscale.trans (Nat.le_of_lt hlow)))
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   have hedgeFin : H.edgeFinset.card ≤ (2 ^ q) ^ 2 := by
     rw [← edgeCount_eq_card_edgeFinset]
     exact hedge
@@ -1570,7 +1581,7 @@ theorem edgeScale_homogeneous (q i : ℕ)
       (by omega) hb rfl rfl hroom hpatterns hsparse
 
 lemma edgeScale_charge (q i k : ℕ)
-    (hq : 2 * 2080 ^ 2 ≤ q) (hi : i < q)
+    (hq : 2 * 2080 ^ 2 ≤ q)
     (hactive : edgeScaleThreshold q i < 32 * q * 2 ^ q)
     (hk : edgeScaleA q i * k ≤ edgeScaleThreshold q (i + 1)) :
     q * k ≤ edgeScaleCost q i := by
@@ -1579,9 +1590,9 @@ lemma edgeScale_charge (q i k : ℕ)
   let b := edgeScaleB q i
   have hdenpos : 0 < den := by simp [den, edgeScaleDen]
   have hden : 2 * den ≤ q := by
-    simpa [den] using edgeScale_active_den q i hq hi hactive
+    simpa [den] using edgeScale_active_den q i hq hactive
   have hbpos : 0 < b := by
-    simpa [b] using edgeScaleB_pos q i hq hi hactive
+    simpa [b] using edgeScaleB_pos q i hq hactive
   have hdecomp : q % den + den * b = q := by
     simpa [b, den, edgeScaleB] using Nat.mod_add_div q den
   have hrem : q % den < den := Nat.mod_lt _ hdenpos
@@ -1640,14 +1651,14 @@ theorem exists_edgeScale_remainder (q : ℕ)
       (edgeScaleThreshold q) (edgeScaleA q) (edgeScaleCost q)
       (by
         intro i hi hactive
-        exact Nat.mul_pos (by simp [edgeScaleK, edgeScaleA])
-          (edgeScaleB_pos q i hq hi hactive))
+        exact Nat.mul_pos (by simp [edgeScaleK])
+          (edgeScaleB_pos q i hq hactive))
       (by
-        intro i hi _hactive W _ H hlow hcard hedge
-        exact edgeScale_homogeneous q i hq hexp hi H hlow hcard hedge)
+        intro i _hi _hactive W _ H hlow hcard hedge
+        exact edgeScale_homogeneous q i hq hexp H hlow hcard hedge)
       (by
-        intro i hi hactive k hk
-        exact edgeScale_charge q i k hq hi hactive hk)
+        intro i _hi hactive k hk
+        exact edgeScale_charge q i k hq hactive hk)
       G hcard (hcard.trans htop) hedge
   have hsum : ∑ i ∈ Finset.range q, edgeScaleCost q i ≤ 8320 * 2 ^ q := by
     calc
@@ -1738,7 +1749,7 @@ asymptotic conversion. -/
 theorem edge_power_cochromatic_bound (q : ℕ)
     (hq : 2 * 2080 ^ 2 ≤ q) (hexp : 64 * q ^ 2 ≤ 2 ^ q)
     (hhalf : q * 2 ^ (q / 2) ≤ 2 ^ q)
-    {V : Type u} [Fintype V] (G : SimpleGraph V)
+    {V : Type u} [Finite V] (G : SimpleGraph V)
     (hedge : edgeCount G ≤ (2 ^ q) ^ 2) :
     q * cochromaticNat G ≤ 8450 * 2 ^ q := by
   classical
@@ -1830,9 +1841,10 @@ lemma sixty_four_mul_sq_le_two_pow (q : ℕ) (hq : 512 ≤ q) :
     64 * q ^ 2 ≤ 2 ^ q := by
   induction q, hq using Nat.le_induction with
   | base =>
-      calc
-        64 * 512 ^ 2 = 2 ^ 24 := by norm_num
-        _ ≤ 2 ^ 512 := Nat.pow_le_pow_right (by omega) (by omega)
+      rw [show 64 * 512 ^ 2 = 2 ^ 24 by norm_num,
+        show 512 = 24 + 488 by omega, pow_add]
+      have h : 1 ≤ (2 : ℕ) ^ 488 := one_le_pow₀ (by omega)
+      simpa only [Nat.mul_one] using Nat.mul_le_mul_left (2 ^ 24) h
   | succ q hq ih =>
       have hsquare : (q + 1) ^ 2 ≤ 2 * q ^ 2 := by nlinarith
       calc
@@ -1866,7 +1878,7 @@ lemma mul_two_pow_half_le_two_pow_of_quadratic (q : ℕ)
 
 theorem edge_power_cochromatic_bound_of_large (q : ℕ)
     (hq : 2 * 2080 ^ 2 ≤ q)
-    {V : Type u} [Fintype V] (G : SimpleGraph V)
+    {V : Type u} [Finite V] (G : SimpleGraph V)
     (hedge : edgeCount G ≤ (2 ^ q) ^ 2) :
     q * cochromaticNat G ≤ 8450 * 2 ^ q := by
   have hexp := sixty_four_mul_sq_le_two_pow q (by omega)
@@ -1960,11 +1972,12 @@ theorem edge_card_le_of_embedsOnOrientableSurface
     omega
   rwa [hedge]
 
-lemma degree_induce_finset {V : Type u} [Fintype V] [DecidableEq V]
+lemma degree_induce_finset {V : Type u}
     (G : SimpleGraph V) [DecidableRel G.Adj] (S : Finset V)
     (v : ↑S) :
     (G.comap (Function.Embedding.subtype fun x ↦ x ∈ S)).degree v =
       (S.filter fun w ↦ G.Adj v w).card := by
+  classical
   rw [← card_neighborFinset_eq_degree]
   apply Finset.card_bij
     (s := (G.comap (Function.Embedding.subtype fun x ↦ x ∈ S)).neighborFinset v)
@@ -2080,7 +2093,7 @@ theorem exists_embedded_large_cochromatic_of_two_le (m : ℕ) (hm : 2 ≤ m) :
   classical
   obtain ⟨S, H, _hsub, hlarge⟩ :=
     erdos_760_explicit (Fin m) (⊤ : SimpleGraph (Fin m)) m (by simp) hm
-  letI : Fintype S := Fintype.ofFinite S
+  let : Fintype S := Fintype.ofFinite S
   let n := Fintype.card S
   let e : S ≃ Fin n := Fintype.equivFin S
   let G : SimpleGraph (Fin n) := H.comap e.symm
