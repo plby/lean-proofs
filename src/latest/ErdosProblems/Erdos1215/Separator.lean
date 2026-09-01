@@ -17,7 +17,7 @@ theorem exists_small_peak
     ∃ p : ℂ[X], p.eval 0 = 1 ∧ ∀ z ∈ K, ‖p.eval z‖ < (1 : ℝ) / 2 := by
   let L : Set ℂ := insert 0 K
   have hLcompact : IsCompact L := hKcompact.insert 0
-  letI : CompactSpace L := isCompact_iff_compactSpace.mp hLcompact
+  let : CompactSpace L := isCompact_iff_compactSpace.mp hLcompact
   let Z : C(L, ℂ) := Polynomial.toContinuousMapOnAlgHom L X
   let S : Subalgebra ℂ C(L, ℂ) := (polynomialFunctions L).topologicalClosure
   have hZpoly : Z ∈ polynomialFunctions L := by
@@ -25,8 +25,8 @@ theorem exists_small_peak
     rw [polynomialFunctions_coe]
     exact ⟨X, rfl⟩
   let x : S := ⟨Z, Subalgebra.le_topologicalClosure _ hZpoly⟩
-  letI : IsClosed (S : Set C(L, ℂ)) := Subalgebra.isClosed_topologicalClosure _
-  letI : CompleteSpace S :=
+  let : IsClosed (S : Set C(L, ℂ)) := Subalgebra.isClosed_topologicalClosure _
+  let : CompleteSpace S :=
     (Subalgebra.isClosed_topologicalClosure (polynomialFunctions L)).completeSpace_coe
   have hspecZ : spectrum ℂ Z = L := by
     rw [ContinuousMap.spectrum_eq_range]
@@ -59,7 +59,7 @@ theorem exists_small_peak
   let u : Sˣ := hyunit.unit
   let e : S := (↑u⁻¹ : S)
   have he_mul : y * e = 1 := by
-    simpa [u, e, hyunit.unit_spec] using u.mul_inv
+    simp [u, e]
   have heq (z : L) : q.eval (z : ℂ) * (e : C(L, ℂ)) z = 1 := by
     have hz := congrArg (fun f : S ↦ ((f : C(L, ℂ)) z)) he_mul
     simpa [y, x, Z] using hz
@@ -110,7 +110,9 @@ theorem exists_small_peak
     have htri : (1 : ℝ) ≤ ‖p.eval 0 - 1‖ + ‖p.eval 0‖ := by
       calc
         (1 : ℝ) = ‖(1 : ℂ)‖ := by norm_num
-        _ = ‖-(p.eval 0 - 1) + p.eval 0‖ := by congr 1 <;> ring
+        _ = ‖-(p.eval 0 - 1) + p.eval 0‖ := by
+          congr 1
+          all_goals ring
         _ ≤ ‖-(p.eval 0 - 1)‖ + ‖p.eval 0‖ := norm_add_le _ _
         _ = ‖p.eval 0 - 1‖ + ‖p.eval 0‖ := by rw [norm_neg]
     linarith

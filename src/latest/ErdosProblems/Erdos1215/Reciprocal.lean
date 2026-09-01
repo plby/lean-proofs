@@ -21,12 +21,12 @@ lemma norm_conjReflect_eval_of_norm_eq_one (p : ℂ[X]) {z : ℂ} (hz : ‖z‖ 
     ‖(conjReflect p.natDegree p).eval z‖ = ‖p.eval z‖ := by
   have hz0 : star z ≠ 0 := by
     simpa using (norm_ne_zero_iff.mp (by simp [hz] : ‖star z‖ ≠ 0))
-  letI : Invertible (star z) := invertibleOfNonzero hz0
+  let : Invertible (star z) := invertibleOfNonzero hz0
   have h := eval₂_reflect_mul_pow (RingHom.id ℂ) (star z) p.natDegree
     (p.map (starRingEnd ℂ)) (natDegree_map_le.trans le_rfl)
   have hinv : (star z)⁻¹ = z := by
     rw [inv_eq_iff_eq_inv]
-    simpa [Complex.inv_def, Complex.normSq_eq_norm_sq, hz]
+    simp [Complex.inv_def, Complex.normSq_eq_norm_sq, hz]
   rw [invOf_eq_inv, hinv] at h
   have hn := congrArg norm h
   simpa [conjReflect, norm_mul, norm_pow, hz] using hn
@@ -177,7 +177,7 @@ lemma isRoot_conj_inv_of_conjReflect_eq_neg {P : ℂ[X]} {N : ℕ}
     (hdeg : P.natDegree ≤ N) (hself : conjReflect N P = -P) {z : ℂ}
     (hz0 : z ≠ 0) (hz : P.IsRoot z) : P.IsRoot (star z)⁻¹ := by
   have hstarz0 : star z ≠ 0 := (map_ne_zero (starRingEnd ℂ)).mpr hz0
-  letI : Invertible (star z) := invertibleOfNonzero hstarz0
+  let : Invertible (star z) := invertibleOfNonzero hstarz0
   have hmapzero : (P.map (starRingEnd ℂ)).eval (star z) = 0 := by
     simpa using congrArg (starRingEnd ℂ) hz.eq_zero
   have hreflect : (conjReflect N P).eval (star z)⁻¹ = 0 := by

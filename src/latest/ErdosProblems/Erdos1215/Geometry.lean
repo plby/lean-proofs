@@ -39,12 +39,12 @@ def circleHitSet (γ : ℝ → ℂ) (r : ℝ) : Set ℝ :=
 def firstCircleHit (γ : ℝ → ℂ) (r : ℝ) : ℝ :=
   sInf (circleHitSet γ r)
 
-lemma continuousOn_norm { γ : ℝ → ℂ }
+lemma continuousOn_norm {γ : ℝ → ℂ}
     (hγ : ContinuousOn γ (Icc 0 1)) :
     ContinuousOn (fun t ↦ ‖γ t‖) (Icc 0 1) :=
   hγ.norm
 
-lemma circleHitSet_isCompact { γ : ℝ → ℂ } {r : ℝ}
+lemma circleHitSet_isCompact {γ : ℝ → ℂ} {r : ℝ}
     (hγ : ContinuousOn γ (Icc 0 1)) :
     IsCompact (circleHitSet γ r) := by
   apply isCompact_Icc.of_isClosed_subset
@@ -53,7 +53,7 @@ lemma circleHitSet_isCompact { γ : ℝ → ℂ } {r : ℝ}
   · intro t ht
     exact ht.1
 
-lemma circleHitSet_nonempty { γ : ℝ → ℂ } {r : ℝ}
+lemma circleHitSet_nonempty {γ : ℝ → ℂ} {r : ℝ}
     (hγ : IsUnitPath γ) (hr0 : 0 ≤ r) (hr1 : r ≤ 1) :
     (circleHitSet γ r).Nonempty := by
   rcases hγ with ⟨hγcont, hγ0, hγ1⟩
@@ -63,30 +63,30 @@ lemma circleHitSet_nonempty { γ : ℝ → ℂ } {r : ℝ}
     (intermediate_value_Icc (show (0 : ℝ) ≤ 1 by norm_num) hγcont.norm) hrange
   exact ⟨t, ht, htr⟩
 
-lemma firstCircleHit_mem { γ : ℝ → ℂ } {r : ℝ}
+lemma firstCircleHit_mem {γ : ℝ → ℂ} {r : ℝ}
     (hγ : IsUnitPath γ) (hr0 : 0 ≤ r) (hr1 : r ≤ 1) :
     firstCircleHit γ r ∈ circleHitSet γ r := by
   exact (circleHitSet_isCompact hγ.1).sInf_mem
     (circleHitSet_nonempty hγ hr0 hr1)
 
-lemma firstCircleHit_le_of_mem { γ : ℝ → ℂ } {r t : ℝ}
+lemma firstCircleHit_le_of_mem {γ : ℝ → ℂ} {r t : ℝ}
     (hγ : IsUnitPath γ) (hr0 : 0 ≤ r) (hr1 : r ≤ 1)
     (ht : t ∈ circleHitSet γ r) :
     firstCircleHit γ r ≤ t := by
   exact (circleHitSet_isCompact hγ.1).isLeast_sInf
     (circleHitSet_nonempty hγ hr0 hr1) |>.2 ht
 
-lemma firstCircleHit_mem_Icc { γ : ℝ → ℂ } {r : ℝ}
+lemma firstCircleHit_mem_Icc {γ : ℝ → ℂ} {r : ℝ}
     (hγ : IsUnitPath γ) (hr0 : 0 ≤ r) (hr1 : r ≤ 1) :
     firstCircleHit γ r ∈ Icc (0 : ℝ) 1 :=
   (firstCircleHit_mem hγ hr0 hr1).1
 
-lemma norm_firstCircleHit { γ : ℝ → ℂ } {r : ℝ}
+lemma norm_firstCircleHit {γ : ℝ → ℂ} {r : ℝ}
     (hγ : IsUnitPath γ) (hr0 : 0 ≤ r) (hr1 : r ≤ 1) :
     ‖γ (firstCircleHit γ r)‖ = r :=
   (firstCircleHit_mem hγ hr0 hr1).2
 
-lemma firstCircleHit_pos { γ : ℝ → ℂ } {r : ℝ}
+lemma firstCircleHit_pos {γ : ℝ → ℂ} {r : ℝ}
     (hγ : IsUnitPath γ) (hr0 : 0 < r) (hr1 : r ≤ 1) :
     0 < firstCircleHit γ r := by
   have ht := firstCircleHit_mem_Icc hγ hr0.le hr1
@@ -96,7 +96,7 @@ lemma firstCircleHit_pos { γ : ℝ → ℂ } {r : ℝ}
   rw [← hzero, hγ.2.1, norm_zero] at hnorm
   linarith
 
-lemma firstCircleHit_lt { γ : ℝ → ℂ } {r s : ℝ}
+lemma firstCircleHit_lt {γ : ℝ → ℂ} {r s : ℝ}
     (hγ : IsUnitPath γ) (hr0 : 0 ≤ r) (hrs : r < s) (hs1 : s ≤ 1) :
     firstCircleHit γ r < firstCircleHit γ s := by
   have hs0 : 0 ≤ s := hr0.trans (le_of_lt hrs)
@@ -133,7 +133,7 @@ def alternatingWalls (r : ℕ → ℝ) (m : ℕ) : Set ℂ :=
 def AvoidsAlternatingWallsAfterStart (γ : ℝ → ℂ) (r : ℕ → ℝ) (m : ℕ) : Prop :=
   ∀ t ∈ Ioc (0 : ℝ) 1, γ t ∉ alternatingWalls r m
 
-lemma not_mem_alternatingWall_of_avoids { γ : ℝ → ℂ } {r : ℕ → ℝ} {m j : ℕ}
+lemma not_mem_alternatingWall_of_avoids {γ : ℝ → ℂ} {r : ℕ → ℝ} {m j : ℕ}
     (havoid : AvoidsAlternatingWallsAfterStart γ r m) (hj : j ≤ m)
     {t : ℝ} (ht : t ∈ Ioc (0 : ℝ) 1) :
     γ t ∉ alternatingWall r j := by
@@ -142,7 +142,7 @@ lemma not_mem_alternatingWall_of_avoids { γ : ℝ → ℂ } {r : ℕ → ℝ} {
     simp only [alternatingWalls, mem_iUnion]
     exact ⟨j, ⟨hj, hwall⟩⟩)
 
-lemma firstHit_gate { γ : ℝ → ℂ } {r : ℕ → ℝ} {m j : ℕ}
+lemma firstHit_gate {γ : ℝ → ℂ} {r : ℕ → ℝ} {m j : ℕ}
     (hγ : IsUnitPath γ) (havoid : AvoidsAlternatingWallsAfterStart γ r m)
     (hj : j ≤ m) (hr0 : 0 < r j) (hr1 : r j ≤ 1) :
     if Even j then r j / 2 < (γ (firstCircleHit γ (r j))).re
@@ -155,7 +155,7 @@ lemma firstHit_gate { γ : ℝ → ℂ } {r : ℕ → ℝ} {m j : ℕ}
   simp only [alternatingWall, mem_ofPred_eq, hnorm, true_and] at hnot
   split_ifs at hnot ⊢ <;> linarith
 
-lemma successive_firstHit_dist_gt { γ : ℝ → ℂ } {r : ℕ → ℝ} {m j : ℕ} {q : ℝ}
+lemma successive_firstHit_dist_gt {γ : ℝ → ℂ} {r : ℕ → ℝ} {m j : ℕ} {q : ℝ}
     (hγ : IsUnitPath γ) (havoid : AvoidsAlternatingWallsAfterStart γ r m)
     (hj : j < m) (hr0 : ∀ k ≤ m, 0 < r k) (hr1 : ∀ k ≤ m, r k ≤ 1)
     (hq : ∀ k ≤ m, q < r k) :
@@ -179,7 +179,7 @@ lemma successive_firstHit_dist_gt { γ : ℝ → ℂ } {r : ℕ → ℝ} {m j : 
 
 /-- Generic alternating-wall lower bound.  If every wall radius is larger than `q`, each of the
 `m` successive gate changes costs more than `q` in chord distance. -/
-theorem alternatingWalls_geometricPathELength_gt { γ : ℝ → ℂ } {r : ℕ → ℝ}
+theorem alternatingWalls_geometricPathELength_gt {γ : ℝ → ℂ} {r : ℕ → ℝ}
     {m : ℕ} {q : ℝ} (hm : 0 < m) (hq0 : 0 ≤ q)
     (hγ : IsUnitPath γ) (havoid : AvoidsAlternatingWallsAfterStart γ r m)
     (hr0 : ∀ j ≤ m, 0 < r j) (hr1 : ∀ j ≤ m, r j ≤ 1)
@@ -244,7 +244,7 @@ lemma standardWallRadius_strictMonoOn (m : ℕ) :
     ((div_lt_div_iff_of_pos_right hden).2 (Nat.cast_lt.2 (by omega))) ((1 : ℝ) / 2)
 
 /-- The concrete `m + 1`-wall labyrinth forces more than `m / 2` total variation. -/
-theorem standardAlternatingWalls_geometricPathELength_gt { γ : ℝ → ℂ } {m : ℕ}
+theorem standardAlternatingWalls_geometricPathELength_gt {γ : ℝ → ℂ} {m : ℕ}
     (hm : 0 < m) (hγ : IsUnitPath γ)
     (havoid : AvoidsAlternatingWallsAfterStart γ (standardWallRadius m) m) :
     ENNReal.ofReal ((m : ℝ) / 2) < GeometricPathELength γ := by
@@ -273,7 +273,7 @@ lemma lt_wallCount_half (L : ℝ) : L < (wallCount L : ℝ) / 2 := by
 /-- Fully explicit geometric layer: the alternating walls determined by `L` force every
 endpoint-correct unit path avoiding them after time zero to have extended variation greater than
 `L`.  No rectifiability assumption is needed; infinite variation is handled by `ℝ≥0∞`. -/
-theorem explicit_labyrinth_forces_long_path {L : ℝ} (hL : 0 ≤ L) { γ : ℝ → ℂ }
+theorem explicit_labyrinth_forces_long_path {L : ℝ} (hL : 0 ≤ L) {γ : ℝ → ℂ}
     (hγ : IsUnitPath γ)
     (havoid : AvoidsAlternatingWallsAfterStart γ
       (standardWallRadius (wallCount L)) (wallCount L)) :
