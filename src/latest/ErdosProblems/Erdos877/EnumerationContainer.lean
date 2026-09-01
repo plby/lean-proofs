@@ -86,13 +86,13 @@ end FiniteContainer
 
 section CoverCounting
 
-variable {V : Type*} [Fintype V] [DecidableEq V]
+variable {V : Type*}
 
 /-- A cover with codegree at most `D` covers at most `D` edges per cover
 member.  This elementary union bound is the bridge between the weighted
 container output and the Schur-edge count. -/
 theorem card_le_cover_card_mul_of_degree_le
-    {H C : Erdos565.Hypergraph V} {D : ℕ}
+    {H C : Erdos565.Hypergraph V} {D : ℕ} [DecidableEq V]
     (hcover : ContainerA.Covers C H)
     (hdegree : ∀ c ∈ C, H.degree c ≤ D) :
     H.card ≤ C.card * D := by
@@ -120,6 +120,7 @@ theorem cover_card_mul_cube_le_pWeight
     (hlo : ∀ c ∈ C, 2 ≤ c.card)
     (hhi : ∀ c ∈ C, c.card ≤ 3) :
     (C.card : ℝ) * p ^ 3 ≤ C.pWeight p := by
+  classical
   rw [Erdos565.Hypergraph.pWeight, Erdos565.Hypergraph.weight]
   calc
     (C.card : ℝ) * p ^ 3 = ∑ _c ∈ C, p ^ 3 := by simp
@@ -140,6 +141,7 @@ have codegree at most `D`.  The division-free form is convenient downstream.
 -/
 theorem sq_mul_card_le_of_weighted_cover
     {H C : Erdos565.Hypergraph V} {X : Finset V} {p : ℝ} {D : ℕ}
+    [DecidableEq V]
     (hp : 0 < p) (hp1 : p ≤ 1)
     (hcover : ContainerA.Covers C H)
     (hlo : ∀ c ∈ C, 2 ≤ c.card)

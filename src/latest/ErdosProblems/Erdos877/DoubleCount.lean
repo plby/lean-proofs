@@ -58,10 +58,9 @@ noncomputable def countingGoodDeletions (n : ℕ) (A : Finset ℕ) : Finset (Fin
   classical
   simp [countingGoodDeletions, and_assoc]
 
-theorem countingGoodDeletions_eq (n : ℕ) (A : Finset ℕ)
-    (hA : MaximalSumFreeIn (interval n) A) :
+theorem countingGoodDeletions_eq (n : ℕ) (A : Finset ℕ) :
     countingGoodDeletions n A =
-      goodDeletionsWith (deletionDenom + 1) n A hA := by
+      goodDeletionsWith (deletionDenom + 1) n A := by
   rfl
 
 /-- The finite incidence set of a large maximal set and one of its good
@@ -269,12 +268,12 @@ theorem concrete_large_double_count (n : ℕ)
       deletionDenom ^ (n / (10 * (deletionDenom + 1))) / 20 ≤
           A.card.choose (A.card / (deletionDenom + 1)) / 20 :=
         Nat.div_le_div_right (hpow.trans hchoose)
-      _ ≤ (goodDeletionsWith (deletionDenom + 1) n A hdata.1).card := by
+      _ ≤ (goodDeletionsWith (deletionDenom + 1) n A).card := by
         simpa [deletionSizeWith] using
           goodDeletionsWith_card_lower (q := deletionDenom + 1) (d := 10)
             hdata.1 (by omega : 0 < deletionDenom + 1) hdata.2 hqA
       _ = (countingGoodDeletions n A).card := by
-        rw [countingGoodDeletions_eq n A hdata.1]
+        rw [countingGoodDeletions_eq n A]
   · intro p hp
     rcases p with ⟨A, B⟩
     have hgood := (mem_countingGoodDeletions.mp

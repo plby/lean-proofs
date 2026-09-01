@@ -136,7 +136,7 @@ theorem not_addable_of_witness_survives {A B : Finset ℕ} {i : ℕ × ℕ}
   rcases hw.2.2 with hsum | hdiff | hdouble
   · exact hx.sumFree_insert
       (Finset.mem_insert_of_mem hi1s) (Finset.mem_insert_of_mem hi2s)
-      (by simpa [hsum] using Finset.mem_insert_self x (A \ B))
+      (by simp [hsum])
   · exact hx.sumFree_insert
       (Finset.mem_insert_self x (A \ B)) (Finset.mem_insert_of_mem hi2s)
       (by simpa [hdiff] using Finset.mem_insert_of_mem hi1s)
@@ -150,7 +150,7 @@ theorem not_addable_of_witness_survives {A B : Finset ℕ} {i : ℕ × ℕ}
 /-- Every addable point after deleting `B` is either a deleted point or an
 omitted point whose fixed witness was hit. -/
 theorem addableSet_subset_union_hitSet {n : ℕ} {A B : Finset ℕ}
-    (hA : MaximalSumFreeIn (interval n) A) (hBA : B ⊆ A) :
+    (hA : MaximalSumFreeIn (interval n) A) :
     addableSet (interval n) (A \ B) ⊆ B ∪ hitSet n A hA B := by
   classical
   intro x hx
@@ -171,12 +171,12 @@ theorem addableSet_subset_union_hitSet {n : ℕ} {A B : Finset ℕ}
 /-- Deterministic deletion bound: addable points are controlled by deleted
 points and selected witnesses hit by the deletion. -/
 theorem addable_card_le_card_add_hitCount {n : ℕ} {A B : Finset ℕ}
-    (hA : MaximalSumFreeIn (interval n) A) (hBA : B ⊆ A) :
+    (hA : MaximalSumFreeIn (interval n) A) :
     (addableSet (interval n) (A \ B)).card ≤ B.card + hitCount n A hA B := by
   classical
   calc
     (addableSet (interval n) (A \ B)).card ≤ (B ∪ hitSet n A hA B).card :=
-      Finset.card_le_card (addableSet_subset_union_hitSet hA hBA)
+      Finset.card_le_card (addableSet_subset_union_hitSet hA)
     _ ≤ B.card + (hitSet n A hA B).card := Finset.card_union_le _ _
     _ = B.card + hitCount n A hA B := rfl
 
@@ -287,7 +287,7 @@ theorem sum_addable_card_le {n k : ℕ} {A : Finset ℕ}
         ∑ B ∈ kSubsets A k, (B.card + hitCount n A hA B) := by
       apply Finset.sum_le_sum
       intro B hB
-      exact addable_card_le_card_add_hitCount hA (mem_kSubsets.mp hB).1
+      exact addable_card_le_card_add_hitCount hA
     _ = (∑ B ∈ kSubsets A k, B.card) +
         ∑ B ∈ kSubsets A k, hitCount n A hA B := by
       rw [Finset.sum_add_distrib]
@@ -368,14 +368,12 @@ def deletionSize (A : Finset ℕ) : ℕ := A.card / deletionDenom
 
 /-- Uniform deletions for which the number of addable points obeys the
 cross-multiplied estimate `2^21 h ≤ 2n`. -/
-noncomputable def goodDeletions (n : ℕ) (A : Finset ℕ)
-    (hA : MaximalSumFreeIn (interval n) A) : Finset (Finset ℕ) :=
+noncomputable def goodDeletions (n : ℕ) (A : Finset ℕ) : Finset (Finset ℕ) :=
   (kSubsets A (deletionSize A)).filter fun B ↦
     deletionDenom * (addableSet (interval n) (A \ B)).card ≤ 2 * n
 
-@[simp] theorem mem_goodDeletions {n : ℕ} {A B : Finset ℕ}
-    {hA : MaximalSumFreeIn (interval n) A} :
-    B ∈ goodDeletions n A hA ↔
+@[simp] theorem mem_goodDeletions {n : ℕ} {A B : Finset ℕ} :
+    B ∈ goodDeletions n A ↔
       B ⊆ A ∧ B.card = deletionSize A ∧
         deletionDenom * (addableSet (interval n) (A \ B)).card ≤ 2 * n := by
   classical
@@ -387,11 +385,11 @@ at least `1/10` and contains at least `2^21` elements. -/
 theorem goodDeletions_card_lower {n : ℕ} {A : Finset ℕ}
     (hA : MaximalSumFreeIn (interval n) A)
     (hdense : n ≤ 10 * A.card) (hlarge : deletionDenom ≤ A.card) :
-    A.card.choose (deletionSize A) / 20 ≤ (goodDeletions n A hA).card := by
+    A.card.choose (deletionSize A) / 20 ≤ (goodDeletions n A).card := by
   classical
   let k := deletionSize A
   let F := kSubsets A k
-  let good := goodDeletions n A hA
+  let good := goodDeletions n A
   let bad := F.filter fun B ↦
     2 * n < deletionDenom * (addableSet (interval n) (A \ B)).card
   let C := A.card.choose k
@@ -484,8 +482,7 @@ the published normalization and in the detailed write-up. -/
 def deletionSizeWith (q : ℕ) (A : Finset ℕ) : ℕ := A.card / q
 
 /-- Good uniform deletions for an arbitrary denominator. -/
-noncomputable def goodDeletionsWith (q n : ℕ) (A : Finset ℕ)
-    (hA : MaximalSumFreeIn (interval n) A) : Finset (Finset ℕ) :=
+noncomputable def goodDeletionsWith (q n : ℕ) (A : Finset ℕ) : Finset (Finset ℕ) :=
   (kSubsets A (deletionSizeWith q A)).filter fun B ↦
     q * (addableSet (interval n) (A \ B)).card ≤ 2 * n
 
@@ -495,11 +492,11 @@ theorem goodDeletionsWith_card_lower {n q d : ℕ} {A : Finset ℕ}
     (hA : MaximalSumFreeIn (interval n) A) (hq : 0 < q)
     (hdense : n ≤ d * A.card) (hlarge : q ≤ A.card) :
     A.card.choose (deletionSizeWith q A) / (2 * d) ≤
-      (goodDeletionsWith q n A hA).card := by
+      (goodDeletionsWith q n A).card := by
   classical
   let k := deletionSizeWith q A
   let F := kSubsets A k
-  let good := goodDeletionsWith q n A hA
+  let good := goodDeletionsWith q n A
   let bad := F.filter fun B ↦
     2 * n < q * (addableSet (interval n) (A \ B)).card
   let C := A.card.choose k
@@ -592,9 +589,8 @@ theorem deletionDenom877_pos : 0 < deletionDenom877 := by
 def deletionSize877 (A : Finset ℕ) : ℕ :=
   deletionSizeWith deletionDenom877 A
 
-noncomputable def goodDeletions877 (n : ℕ) (A : Finset ℕ)
-    (hA : MaximalSumFreeIn (interval n) A) : Finset (Finset ℕ) :=
-  goodDeletionsWith deletionDenom877 n A hA
+noncomputable def goodDeletions877 (n : ℕ) (A : Finset ℕ) : Finset (Finset ℕ) :=
+  goodDeletionsWith deletionDenom877 n A
 
 /-- The exact `β = 1/2^23` good-deletion statement: at density at least
 `1/11`, at least one twenty-second of the uniform layer is good. -/
@@ -602,7 +598,7 @@ theorem goodDeletions877_card_lower {n : ℕ} {A : Finset ℕ}
     (hA : MaximalSumFreeIn (interval n) A)
     (hdense : n ≤ 11 * A.card) (hlarge : deletionDenom877 ≤ A.card) :
     A.card.choose (deletionSize877 A) / 22 ≤
-      (goodDeletions877 n A hA).card := by
+      (goodDeletions877 n A).card := by
   simpa [deletionSize877, goodDeletions877] using
     goodDeletionsWith_card_lower hA deletionDenom877_pos hdense hlarge
 

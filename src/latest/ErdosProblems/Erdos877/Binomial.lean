@@ -8,7 +8,7 @@ variable {α : Type*}
 
 /-- The number of `k`-element subsets of a finite set is the corresponding
 binomial coefficient. -/
-theorem powersetCard_card [DecidableEq α] (L : Finset α) (k : ℕ) :
+theorem powersetCard_card (L : Finset α) (k : ℕ) :
     (L.powersetCard k).card = L.card.choose k := by
   exact Finset.card_powersetCard _ _
 
@@ -159,7 +159,7 @@ theorem pred_pow_div_le_choose (m D : ℕ) (hD : 1 ≤ D) :
   exact_mod_cast hq
 
 /-- Finset-cardinality form of `pred_pow_div_le_choose`. -/
-theorem pred_pow_div_le_powersetCard_card [DecidableEq α] (L : Finset α) (D : ℕ)
+theorem pred_pow_div_le_powersetCard_card (L : Finset α) (D : ℕ)
     (hD : 1 ≤ D) :
     (D - 1) ^ (L.card / D) ≤ (L.powersetCard (L.card / D)).card := by
   rw [powersetCard_card]
