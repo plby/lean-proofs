@@ -447,14 +447,14 @@ end OscGauss
 section Cutoff
 
 /-- The bump function used as a cutoff: it is `1` on `[-1/2,1/2]` and vanishes off `(-1,1)`. -/
-noncomputable def bumpHalf : ContDiffBump (0:ℝ) := ⟨1/2, 1, by norm_num, by norm_num⟩
+noncomputable def bumpHalf : ContDiffBump (0:ℝ) := ⟨1 / 2, 1, by norm_num, by norm_num⟩
 
 /-- A smooth cutoff, equal to `1` on `[-1/2,1/2]` and supported in `[-1,1]`. -/
 noncomputable def cutoff (u : ℝ) : ℝ := bumpHalf u
 
 theorem cutoff_smooth : ContDiff ℝ (⊤ : ℕ∞) cutoff := bumpHalf.contDiff
 
-theorem cutoff_one {u : ℝ} (h : |u| ≤ 1/2) : cutoff u = 1 := by
+theorem cutoff_one {u : ℝ} (h : |u| ≤ 1 / 2) : cutoff u = 1 := by
   apply bumpHalf.one_of_mem_closedBall
   simpa [Real.dist_eq, bumpHalf] using h
 
@@ -479,7 +479,7 @@ theorem bounded_of_supp {f : ℝ → ℂ} (hf : Continuous f) {A : ℝ}
       exact ⟨by linarith [neg_abs_le u], by linarith [le_abs_self u]⟩
     exact le_trans (hM u hu) (le_max_left _ _)
   · rw [h0 u (le_of_lt (not_le.1 h))]
-    simpa using le_max_right M 0
+    simp
 
 /-- Multiplying by the cutoff makes a function that is smooth on `(-2,2)` globally smooth. -/
 theorem contDiff_cutoff_mul {F : ℝ → ℝ} (hF : ∀ u : ℝ, |u| < 2 → ContDiffAt ℝ (⊤:ℕ∞) F u) :
@@ -491,7 +491,7 @@ theorem contDiff_cutoff_mul {F : ℝ → ℝ} (hF : ∀ u : ℝ, |u| < 2 → Con
   · have hev : (fun v => cutoff v * F v) =ᶠ[nhds u] fun _ => (0:ℝ) := by
       have hset : {v : ℝ | 1 < |v|} ∈ nhds u := by
         refine IsOpen.mem_nhds (isOpen_lt continuous_const continuous_abs) ?_
-        simp only [Set.mem_setOf_eq]
+        simp only [Set.mem_ofPred_eq]
         linarith [not_lt.1 h]
       filter_upwards [hset] with v hv
       simp [cutoff_zero hv.le]

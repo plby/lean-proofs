@@ -78,7 +78,7 @@ theorem chiB_zero_of_cos_nonneg {t : ℝ} (h : 0 ≤ Real.cos t) : chiB t = 0 :=
   nlinarith [abs_nonneg (2 * Real.cos (t/2)), sq_abs (2 * Real.cos (t/2))]
 
 /-- Near every zero of `sin` the two cutoffs already add up to `1`. -/
-theorem psi_zero_of_sin_small {t : ℝ} (h : |Real.sin t| ≤ 1/4) : psi t = 0 := by
+theorem psi_zero_of_sin_small {t : ℝ} (h : |Real.sin t| ≤ 1 / 4) : psi t = 0 := by
   set p := |Real.sin (t/2)| with hp
   set q := |Real.cos (t/2)| with hq
   have hp0 : 0 ≤ p := abs_nonneg _
@@ -149,7 +149,7 @@ theorem deriv' (h : NSFun a W) {a' : ℝ} (h1 : 0 < a') (h2 : a' < a) : NSFun a'
     have hset : {s : ℝ | |Real.sin s| < a} ∈ nhds t := by
       refine IsOpen.mem_nhds (isOpen_lt (continuous_abs.comp Real.continuous_sin)
         continuous_const) ?_
-      simp only [Set.mem_setOf_eq]
+      simp only [Set.mem_ofPred_eq]
       linarith
     filter_upwards [hset] with s hs using h.zero_near s hs.le
   rw [Filter.EventuallyEq.deriv_eq hev]
@@ -165,7 +165,7 @@ theorem div_sin (h : NSFun a W) : NSFun a (fun t => W t / Real.sin t) := by
         have hset : {s : ℝ | |Real.sin s| < a} ∈ nhds t := by
           refine IsOpen.mem_nhds (isOpen_lt (continuous_abs.comp Real.continuous_sin)
             continuous_const) ?_
-          simp only [Set.mem_setOf_eq, hs, abs_zero]
+          simp only [Set.mem_ofPred_eq, hs, abs_zero]
           exact h.apos
         filter_upwards [hset] with s hsm
         rw [h.zero_near s hsm.le]
@@ -224,7 +224,7 @@ theorem hasDerivAt_osc (y : ℝ) (t : ℝ) :
     (fun x : ℝ ↦ Complex.exp (Complex.I * (y : ℂ) * (Real.cos x : ℂ)))
     (Complex.exp (Complex.I * (y : ℂ) * (Real.cos t : ℂ)) *
       (Complex.I * (y : ℂ) * (-Real.sin t : ℂ))) t
-  convert h3 using 1 <;> try rfl
+  convert h3 using 1 ; try rfl
   push_cast
   ring
 

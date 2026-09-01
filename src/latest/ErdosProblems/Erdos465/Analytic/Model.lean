@@ -73,7 +73,7 @@ theorem integrable (h : CSFun W) (b : ℂ) :
     intro x hx
     have hx' : 1 < |x| := by
       rw [Set.mem_Icc] at hx
-      push_neg at hx
+      push Not at hx
       rcases lt_or_ge x (-1) with h1 | h1
       · rw [abs_of_neg (by linarith)]; linarith
       · have := hx h1
@@ -150,7 +150,8 @@ theorem deriv_mul_id {V : ℝ → ℝ} (h : CSFun V) (u : ℝ) :
 noncomputable def Pfun2 (u : ℝ) : ℝ :=
   (2 + sroot u) / (8 * (1 + sroot u) * (4 * sroot u + 4 - u^2))
 
-theorem Pfun2_denom_pos {u : ℝ} (h : |u| < 2) : 0 < 8 * (1 + sroot u) * (4 * sroot u + 4 - u^2) := by
+theorem Pfun2_denom_pos {u : ℝ} (h : |u| < 2) :
+    0 < 8 * (1 + sroot u) * (4 * sroot u + 4 - u^2) := by
   have h1 : 0 < sroot u := sroot_pos h
   have h3 : 0 < 4 * sroot u + 4 - u^2 := Pfun_denom_pos h
   positivity
@@ -207,7 +208,7 @@ theorem csfun_cutoff : CSFun cutoff :=
 theorem Gfun_eq (u : ℝ) : Gfun u = cutoff u + u^2 * Hfun u := by
   by_cases hu : 1 ≤ |u|
   · simp [Gfun, Hfun, cutoff_zero hu]
-  · push_neg at hu
+  · push Not at hu
     have h2 : |u| < 2 := by linarith
     have := amp_sub_one h2
     simp only [Gfun, Hfun]
@@ -216,7 +217,7 @@ theorem Gfun_eq (u : ℝ) : Gfun u = cutoff u + u^2 * Hfun u := by
 theorem Hfun_eq (u : ℝ) : Hfun u = (1/8) * cutoff u + u^2 * H2fun u := by
   by_cases hu : 1 ≤ |u|
   · simp [Hfun, H2fun, cutoff_zero hu]
-  · push_neg at hu
+  · push Not at hu
     have h2 : |u| < 2 := by linarith
     have := Pfun_sub_eighth h2
     simp only [Hfun, H2fun]

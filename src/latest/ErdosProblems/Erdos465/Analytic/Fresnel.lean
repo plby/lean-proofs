@@ -47,7 +47,7 @@ theorem TailFun.bounded {a : ℝ} {k : ℕ} {c : ℝ} {h : ℝ → ℝ} (H : Tai
     have := hM u hmem
     simp only [Real.norm_eq_abs] at this
     exact le_trans this (le_trans (le_max_left M 0) (le_max_left _ _))
-  · push_neg at hu
+  · push Not at hu
     rw [H.far u hu]
     have h1 : (1:ℝ) ≤ |u| ^ k := one_le_pow₀ hu.le
     have : |c / u ^ k| = |c| / |u| ^ k := by
@@ -74,7 +74,7 @@ theorem TailFun.integrable {a : ℝ} {k : ℕ} {c : ℝ} {h : ℝ → ℝ} (H : 
       mul_le_mul_of_nonneg_left h2 hMc
     have := hM u
     linarith [abs_nonneg c]
-  · push_neg at hu
+  · push Not at hu
     have hupos : (0:ℝ) < |u| := by linarith
     have hu2 : (1:ℝ) ≤ u ^ 2 := by nlinarith [sq_abs u]
     have habs : |h u| = |c| / |u| ^ k := by rw [H.far u hu, abs_div, abs_pow]
@@ -117,7 +117,7 @@ theorem TailFun.tdiv {a : ℝ} {k : ℕ} {c : ℝ} {h : ℝ → ℝ} (H : TailFu
           IsOpen.mem_nhds (isOpen_lt continuous_abs continuous_const) hu
         filter_upwards [hset] with v hv using hzero v hv.le
       exact contDiffAt_const.congr_of_eventuallyEq hev
-    · push_neg at hu
+    · push Not at hu
       have hune : u ≠ 0 := by
         intro h0
         rw [h0] at hu
@@ -206,7 +206,7 @@ theorem tail_ibp {b : ℂ} (hb : 0 < b.re) {a : ℝ} {k : ℕ} {c : ℝ} {h : �
     · simp [hv, Q776.tdiv, H.zero_near 0 (by simpa using H.apos.le)]
     · have hne : (u:ℂ) ≠ 0 := Complex.ofReal_ne_zero.2 hu
       have hdef : Q776.tdiv h u = h u / u := rfl
-      show (u:ℂ) * ((Q776.tdiv h u : ℝ) : ℂ) = (h u : ℂ)
+      change (u:ℂ) * ((Q776.tdiv h u : ℝ) : ℂ) = (h u : ℂ)
       rw [hdef]
       push_cast
       field_simp
@@ -346,7 +346,7 @@ theorem fresnel_pos {b : ℂ} (hb : 0 < b.re) :
   have hsplit : fresnelI b
       = (∫ u : ℝ, Complex.exp (-b * (u:ℂ)^2))
         - ∫ u : ℝ, Complex.exp (-b * (u:ℂ)^2) * (tail0 u : ℂ) := by
-    show (∫ u : ℝ, Complex.exp (-b * (u:ℂ)^2) * (cutoff u : ℂ)) = _
+    change (∫ u : ℝ, Complex.exp (-b * (u:ℂ)^2) * (cutoff u : ℂ)) = _
     rw [← MeasureTheory.integral_sub hP hPt]
     refine MeasureTheory.integral_congr_ae (Filter.Eventually.of_forall fun u => ?_)
     have hc : (cutoff u : ℂ) = 1 - (tail0 u : ℂ) := by
@@ -368,7 +368,8 @@ theorem continuous_fresnelI : Continuous fresnelI := by
     (bound := fun u : ℝ => 2 * C * (1 + u^2)⁻¹) ?_ ?_
     (integrable_inv_one_add_sq.const_mul _) ?_
   · exact Filter.Eventually.of_forall fun b =>
-      ((continuous_cgauss b).mul (Complex.continuous_ofReal.comp cutoff_continuous)).aestronglyMeasurable
+      ((continuous_cgauss b).mul
+        (Complex.continuous_ofReal.comp cutoff_continuous)).aestronglyMeasurable
   · have hnb : ∀ᶠ b : ℂ in nhds b₀, ‖b‖ ≤ ‖b₀‖ + 1 := by
       have : ∀ᶠ b : ℂ in nhds b₀, ‖b - b₀‖ < 1 := by
         have := Metric.ball_mem_nhds b₀ (by norm_num : (0:ℝ) < 1)
@@ -401,7 +402,7 @@ theorem continuous_fresnelI : Continuous fresnelI := by
             rw [norm_mul]
             exact mul_le_mul hgauss hcut (norm_nonneg _) hC0.le
         _ ≤ 2 * C * (1 + u^2)⁻¹ := by nlinarith
-    · push_neg at hu
+    · push Not at hu
       have : cutoff u = 0 := cutoff_zero hu.le
       rw [this]
       simp only [Complex.ofReal_zero, mul_zero, norm_zero]

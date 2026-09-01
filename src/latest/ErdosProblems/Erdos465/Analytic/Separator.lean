@@ -88,7 +88,7 @@ private lemma re_div_one_sub_of_norm_one {z : ℂ} (hz : ‖z‖ = 1) (hne : z �
   rw [Complex.div_re]
   have hnorm : Complex.normSq (1 - z) = 2 * (1 - z.re) := by
     rw [Complex.normSq_apply, Complex.sub_re, Complex.sub_im]
-    simp only [Complex.one_re, Complex.one_im, sub_zero]
+    simp only [Complex.one_re, Complex.one_im]
     rw [Complex.normSq_apply] at hnormsq
     nlinarith [sq_nonneg (1 - z.re)]
   have hre : z.re ≠ 1 := by
@@ -113,7 +113,7 @@ private lemma toCircle_ne_one_of_norm_pos {x : AddCircle (1 : ℝ)} (hx : 0 < �
     apply Subtype.ext
     simpa using h
   have hx0 : x = 0 := AddCircle.injective_toCircle one_ne_zero hcircle
-  simpa [hx0] using hx
+  simp [hx0] at hx
 
 private lemma exists_fejer_re_bound {δ : ℝ} (hδ : 0 < δ) (hδhalf : δ < 1 / 2) :
     ∃ m : ℕ, 1 ≤ m ∧ ∀ x : AddCircle (1 : ℝ), δ ≤ ‖x‖ →
@@ -378,7 +378,7 @@ theorem exists_fourierSeparator {δ : ℝ} (hδ : 0 < δ) (hδhalf : δ < 1 / 2)
       simp [ContinuousMap.evalCLM_apply, smul_eq_mul]
     rw [hSeval]
     rw [sum_range_succ_shift]
-    simp [smul_eq_mul, div_eq_mul_inv, mul_comm]
+    simp [div_eq_mul_inv, mul_comm]
   have hpoly :
       (∑ i : I, (expMonoCoefficient m i : ℂ) * z ^ expMonoFrequency i) = S x - 1 := by
     rw [exp_monomial_expansion m M hm z]

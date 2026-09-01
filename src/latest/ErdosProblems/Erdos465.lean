@@ -175,7 +175,7 @@ lemma N_le_of_forall_card_le {X δ : ℝ} {m : ℕ}
 /-- A translate of the neighbors of one point inside a fixed distance is itself an admissible
 configuration in the fixed disk. -/
 lemma short_neighbors_card_le_N {X δ R : ℝ} {P : Finset Plane}
-    (hδ : 0 < δ) (hP : Admissible X δ P) {p : Plane} (hp : p ∈ P) :
+    (hδ : 0 < δ) (hP : Admissible X δ P) {p : Plane} :
     (P.filter fun q ↦ ‖p - q‖ < R).card ≤ N R δ := by
   classical
   let Q : Finset Plane := (P.filter fun q ↦ ‖p - q‖ < R).image fun q ↦ q - p
@@ -198,7 +198,7 @@ lemma short_neighbors_card_le_N {X δ R : ℝ} {P : Finset Plane}
       have hqs : q ≠ s := by
         intro h
         apply hab
-        simpa [h]
+        simp [h]
       have := hP.2 hq.1 hs.1 hqs
       simpa [sub_sub_sub_cancel_right] using this
   rw [← hcard]
@@ -231,7 +231,7 @@ lemma circleKernel_eq_besselJ0 (t : ℝ) : circleKernel t = Q776.besselJ0 t := b
     norm_num
     exact hpoint u)]
   rw [intervalIntegral.integral_comp_sub_right G (Real.pi / 2)]
-  convert Q776.periodic_shift hG (-Real.pi / 2) using 1 <;> ring
+  convert Q776.periodic_shift hG (-Real.pi / 2) using 1 ; ring
 
 /-- A one-term consequence of the checked two-term stationary-phase expansion. -/
 lemma circleKernel_asymptotic_bound :
@@ -576,8 +576,7 @@ lemma circleAverage_cos_projection (t : ℝ) (y : ℂ) :
   rw [Real.circleAverage_def]
   congr 1
   apply intervalIntegral.integral_congr
-  intro θ
-  intro hθ
+  intro θ hθ
   have hy : y = circleMap 0 ‖y‖ (Complex.arg y) := by
     rw [circleMap_zero, ← Complex.norm_mul_exp_arg_mul_I y]
     norm_num
@@ -706,7 +705,7 @@ lemma FourierSeparator.row_energy_upper {δ X R A : ℝ} (S : FourierSeparator �
     (hR : 1 ≤ R) (hA : 0 < A)
     (htail : ∀ r : ℝ, R ≤ r → δ ≤ distToInt r → S.kernel r ≤ -A / Real.sqrt r)
     {P : Finset Plane} (hP : Admissible X δ P) (hX : 1 ≤ X)
-    (hδ : 0 < δ) {p : Plane} (hp : p ∈ P) (hlarge : N R δ < P.card) :
+    (hδ : 0 < δ) {p : Plane} (hp : p ∈ P) :
     (∑ q ∈ P, S.kernel ‖p - q‖) ≤
       (N R δ : ℝ) * S.totalWeight -
         ((P.card : ℝ) - N R δ) * (A / Real.sqrt (2 * X)) := by
@@ -714,7 +713,7 @@ lemma FourierSeparator.row_energy_upper {δ X R A : ℝ} (S : FourierSeparator �
   let T := P.filter fun q ↦ ‖p - q‖ < R
   let L := P.filter fun q ↦ ¬ ‖p - q‖ < R
   have hTcard : T.card ≤ N R δ := by
-    simpa [T] using short_neighbors_card_le_N hδ hP hp
+    simpa [T] using short_neighbors_card_le_N hδ hP
   have hpartition : T.card + L.card = P.card := by
     dsimp [T, L]
     exact P.card_filter_add_card_filter_not (fun q ↦ ‖p - q‖ < R)
@@ -803,10 +802,9 @@ theorem configuration_card_le_sqrt {δ : ℝ} (hδ : 0 < δ) (hδhalf : δ < 1 /
     have hratio : 0 ≤ S.totalWeight * Real.sqrt 2 / A := by
       exact div_nonneg (mul_nonneg hW hsqrtTwo.le) hA.le
     have hfactor : 1 ≤ 1 + S.totalWeight * Real.sqrt 2 / A := by linarith
-    have hM : (M : ℝ) ≤ (M : ℝ) + 1 := by linarith
     calc
       (P.card : ℝ) ≤ M := hcardR
-      _ ≤ ((M : ℝ) + 1) * 1 := by simpa using hM
+      _ ≤ ((M : ℝ) + 1) * 1 := by simp
       _ ≤ ((M : ℝ) + 1) *
           (1 + S.totalWeight * Real.sqrt 2 / A) :=
         mul_le_mul_of_nonneg_left hfactor (by positivity)
@@ -816,7 +814,7 @@ theorem configuration_card_le_sqrt {δ : ℝ} (hδ : 0 < δ) (hδhalf : δ < 1 /
   · have hlarge : M < P.card := Nat.lt_of_not_ge hsmall
     have henergy := S.kernel_energy_nonneg P
     have hrow (p : Plane) (hp : p ∈ P) :=
-      S.row_energy_upper hR hA htail hP hX hδ hp hlarge
+      S.row_energy_upper hR hA htail hP hX hδ hp
     have hsumUpper :
         (∑ p ∈ P, ∑ q ∈ P, S.kernel ‖p - q‖) ≤
           (P.card : ℝ) *
@@ -865,7 +863,6 @@ theorem configuration_card_le_sqrt {δ : ℝ} (hδ : 0 < δ) (hδhalf : δ < 1 /
         _ = (M : ℝ) +
             (M : ℝ) * (S.totalWeight * Real.sqrt 2 / A) * Real.sqrt X := by
           field_simp
-          <;> ring
     calc
       (P.card : ℝ) ≤ (M : ℝ) +
           (M : ℝ) * (S.totalWeight * Real.sqrt 2 / A) * Real.sqrt X := htargetBase

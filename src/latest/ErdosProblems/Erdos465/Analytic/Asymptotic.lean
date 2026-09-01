@@ -34,7 +34,7 @@ noncomputable def besselJ0 (y : ℝ) : ℝ :=
 /-! ## Periodicity bookkeeping -/
 
 theorem periodic_shift {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
-    {F : ℝ → E} (hp : Function.Periodic F (2*π)) (a : ℝ) :
+    {F : ℝ → E} (hp : Function.Periodic F (2 * π)) (a : ℝ) :
     (∫ t in a..(a + 2*π), F t) = ∫ t in (-π)..π, F t := by
   have h := hp.intervalIntegral_add_eq a (-π)
   rw [h]; ring_nf
@@ -157,7 +157,7 @@ theorem AA_restrict (y : ℝ) : AA y = ∫ t in (-(π/2))..(π/2), osc y t * (ch
   ring
 
 /-- The exact Jacobian identity of the change of variables `u = 2 sin (t/2)`. -/
-theorem cos_half_mul_amp {t : ℝ} (ht : |t| ≤ π/2) :
+theorem cos_half_mul_amp {t : ℝ} (ht : |t| ≤ π / 2) :
     Real.cos (t/2) * amp (2 * Real.sin (t/2)) = 1 := by
   have habs : |t/2| ≤ π/4 := by rw [abs_div, abs_of_nonneg (by norm_num : (0:ℝ) ≤ 2)]; linarith
   have hc : 0 < Real.cos (t/2) := by
@@ -183,7 +183,7 @@ theorem AA_eq (y : ℝ) : AA y = Complex.exp (Complex.I * y) * Iof (Complex.I * 
     intro x _
     have h := ((Real.hasDerivAt_sin (x/2)).comp x ((hasDerivAt_id x).div_const 2)).const_mul (2:ℝ)
     simpa using h.congr_deriv (by ring)
-  have hcv := intervalIntegral.integral_comp_smul_deriv (a := -(π/2)) (b := π/2)
+  have hcv := intervalIntegral.integral_deriv_smul_comp (a := -(π/2)) (b := π/2)
     (f := fun t : ℝ => 2 * Real.sin (t/2)) (f' := fun t : ℝ => Real.cos (t/2)) (g := g)
     hderiv (Real.continuous_cos.comp (continuous_id.div_const 2)).continuousOn hgc
   have hsq : Real.sin (π/4) = Real.sqrt 2 / 2 := Real.sin_pi_div_four
@@ -256,7 +256,7 @@ theorem cpow_half_mul_I {A : ℝ} (hA : 0 < A) (s : ℝ) (hs : s = 1 ∨ s = -1)
       ring
   have hlog : Complex.log ((A:ℂ) * (s * Complex.I))
       = (Real.log A : ℂ) + (s * π/2 : ℝ) * Complex.I := by
-    show (Real.log ‖(A:ℂ) * (s * Complex.I)‖ : ℂ)
+    change (Real.log ‖(A:ℂ) * (s * Complex.I)‖ : ℂ)
       + (((A:ℂ) * (s*Complex.I)).arg : ℝ) * Complex.I = _
     rw [hnorm, harg]
   rw [hlog]
