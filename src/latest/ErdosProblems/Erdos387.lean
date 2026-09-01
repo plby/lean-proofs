@@ -444,10 +444,9 @@ theorem erdos_387_of_counterexamples
     (h : ∀ c : ℝ, 0 < c → ∃ n k : ℕ, IsCounterexample c n k) :
     ¬ ∃ c : ℝ, UniversalNearDivisor c := by
   rintro ⟨c, hc, hall⟩
-  ·
-    obtain ⟨n, k, hk, hkn, hbad⟩ := h c hc
-    obtain ⟨d, hd, hdvd⟩ := hall n k hk hkn
-    exact hbad d hd hdvd
+  obtain ⟨n, k, hk, hkn, hbad⟩ := h c hc
+  obtain ⟨d, hd, hdvd⟩ := hall n k hk hkn
+  exact hbad d hd hdvd
 
 /-- The Archimedean reduction used in the qualitative BNPZ argument:
 counterexamples for every integer weight `B ≥ 2` rule out every real
