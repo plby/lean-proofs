@@ -92,7 +92,7 @@ theorem eventually_concreteRemovalDescent :
     dsimp [z, Erdos285.proposition6MainCutoff]
     positivity
   have hbound : start.primePowerMeasure ≤ Q := by
-    exact Erdos285.initialResidualApproximationState_measure_le_floor hz hr
+    exact Erdos285.initialResidualApproximationState_measure_le_floor hr
   have hQz : (Q : ℝ) ≤ z := Nat.floor_le hz
   have hxi : (⌊a * (x : ℝ)⌋₊ : ℝ) < ((3 : ℝ) / 4) * x := by
     have hfloor : (⌊a * (x : ℝ)⌋₊ : ℝ) ≤ a * x :=
@@ -130,7 +130,7 @@ theorem eventually_concreteRemovalDescent :
   exact ⟨Erdos285.lemma12RemovalDescent a ((3 : ℝ) / 4) z
     (Erdos285.initialSmoothBlock a x z) x y Q start rfl
     (by exact Finset.Subset.rfl)
-    (by intro n hn _; exact hn) hbound hQz ha hxi hdata⟩
+    (by intro n hn _; exact hn) hbound hQz hxi hdata⟩
 
 /-- Uniform approximation certificates for every smooth target in
 `[1/3,1)`.  The requested cardinality is the cardinality of the full initial
@@ -173,8 +173,7 @@ theorem eventually_approximationCertificate :
         (Erdos285.proposition6MainCutoff x)).primePowerMeasure ≤
           Erdos285.mainCutoffNat x := by
     rw [Erdos285.mainCutoffNat_eq]
-    exact Erdos285.initialResidualApproximationState_measure_le_floor
-      (Erdos285.proposition6MainCutoff_nonneg x) hrsmooth
+    exact Erdos285.initialResidualApproximationState_measure_le_floor hrsmooth
   have hbudget' : Erdos285.totalEliminationBudget x
       (Erdos285.initialResidualApproximationState r alpha x
         (Erdos285.proposition6MainCutoff x)).primePowerMeasure ≤

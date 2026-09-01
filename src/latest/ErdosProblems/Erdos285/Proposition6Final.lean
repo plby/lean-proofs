@@ -78,13 +78,10 @@ theorem eventually_martinApproximationCertificate :
       t - ((initialSmoothBlock alpha x z).card + correction) ≤ D := by
     simpa [x, alpha, z, correction, D, X, Proposition4.martinScore,
       Proposition4.martinInitialBlock, initialBlockAt] using hdeficit
-  have hz : 0 ≤ z := by
-    dsimp [z, proposition6MainCutoff]
-    positivity
   have hstartMeasure :
       (initialResidualApproximationState (1 : ℚ) alpha x z).primePowerMeasure ≤
         ⌊z⌋₊ :=
-    initialResidualApproximationState_one_measure_le_floor hz
+    initialResidualApproximationState_one_measure_le_floor
   have hbudget : totalEliminationBudget x
       (initialResidualApproximationState (1 : ℚ) alpha x z).primePowerMeasure ≤ D := by
     exact (totalEliminationBudget_mono x hstartMeasure).trans (by

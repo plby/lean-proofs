@@ -34,7 +34,7 @@ lemma zero_mem_admissibleScales {s M : ℕ → ℕ} (hs0 : s 0 = 0) (t : ℕ) :
   simp [admissibleScales, hs0]
 
 /-- The largest admissible scale.  The harmless value `0` is used only when
-the admissible set is empty; all applications have `s 0 = 0`.-/
+    the admissible set is empty; all applications have `s 0 = 0`. -/
 def lastBelow (s M : ℕ → ℕ) (t : ℕ) : ℕ :=
   if h : (admissibleScales s M t).Nonempty then
     (admissibleScales s M t).max' h

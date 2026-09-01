@@ -236,9 +236,10 @@ lemma centeredInverse_ne_zero {n h m : ℕ} (hn : n ≠ 0)
   exact hh hz'
 
 lemma card_le_card_image_mul_of_fiber_bound {A B : Type*}
-    [DecidableEq A] [DecidableEq B] (S : Finset A) (f : A → B) (D : ℕ)
+    [DecidableEq B] (S : Finset A) (f : A → B) (D : ℕ)
     (hfiber : ∀ b ∈ S.image f, (S.filter fun a ↦ f a = b).card ≤ D) :
     S.card ≤ (S.image f).card * D := by
+  classical
   rw [Finset.card_eq_sum_card_fiberwise (t := S.image f) (f := f) (by
     intro a ha
     exact Finset.mem_coe.mpr (Finset.mem_image.mpr ⟨a, Finset.mem_coe.mp ha, rfl⟩))]
@@ -497,7 +498,7 @@ theorem martin_inverse_dispersion (k : ℕ) (hk : 0 < k) :
     constructor
     · by_contra hnot
       have hzInt : (quotientIndex n h m : ℤ) ≤ -A - 1 := by omega
-      have hfloorlt : X < (A : ℝ) + 1 := by simpa [A] using Int.lt_floor_add_one X
+      have hfloorlt : X < (A : ℝ) + 1 := by simp [A]
       have hzReal : (quotientIndex n h m : ℝ) ≤ (-A - 1 : ℤ) := by exact_mod_cast hzInt
       push_cast at hzReal
       linarith
@@ -506,7 +507,7 @@ theorem martin_inverse_dispersion (k : ℕ) (hk : 0 < k) :
       have hfloorle : (A : ℝ) ≤ X := by simpa [A] using Int.floor_le X
       have hzReal : ((A + 1 : ℤ) : ℝ) ≤ quotientIndex n h m := by exact_mod_cast hzInt
       push_cast at hzReal
-      have hfloorlt : X < (A : ℝ) + 1 := by simpa [A] using Int.lt_floor_add_one X
+      have hfloorlt : X < (A : ℝ) + 1 := by simp [A]
       linarith
   have hZcard : (Zs.card : ℝ) < (5 / 2 : ℝ) * X := by
     have hcardle := Finset.card_le_card hZsubset

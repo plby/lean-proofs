@@ -137,8 +137,8 @@ theorem max_denominator_lower_bound {k : ℕ} {n : Fin (k + 1) → ℕ}
 theorem lower_bound_of_isLeast (f : ℕ → ℕ) (S : Set ℕ)
     (h : ∀ k ∈ S,
       IsLeast
-        { n (Fin.last k) | (n : Fin k.succ → ℕ) (_ : StrictMono n)
-          (_ : 0 ∉ Set.range n) (_ : 1 = ∑ i, (1 : ℝ) / n i) }
+        {n (Fin.last k) | (n : Fin k.succ → ℕ) (_ : StrictMono n)
+          (_ : 0 ∉ Set.range n) (_ : 1 = ∑ i, (1 : ℝ) / n i)}
         (f k)) :
     ∀ k ∈ S, Real.exp 1 / (Real.exp 1 - 1) * (k + 1 : ℕ) ≤ (f k : ℝ) + 1 := by
   intro k hk
@@ -151,10 +151,10 @@ from the leading constant, eventually and uniformly for represented indices. -/
 theorem eventually_lower_bound_of_isLeast (f : ℕ → ℕ) (S : Set ℕ)
     (h : ∀ k ∈ S,
       IsLeast
-        { n (Fin.last k) | (n : Fin k.succ → ℕ) (_ : StrictMono n)
-          (_ : 0 ∉ Set.range n) (_ : 1 = ∑ i, (1 : ℝ) / n i) }
+        {n (Fin.last k) | (n : Fin k.succ → ℕ) (_ : StrictMono n)
+          (_ : 0 ∉ Set.range n) (_ : 1 = ∑ i, (1 : ℝ) / n i)}
         (f k))
-    { ε : ℝ} (hε : 0 < ε) :
+    {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ k in atTop, k ∈ S →
       (Real.exp 1 / (Real.exp 1 - 1) - ε) * (k + 1 : ℕ) ≤ f k := by
   obtain ⟨M : ℕ, hM⟩ := exists_nat_gt (1 / ε)

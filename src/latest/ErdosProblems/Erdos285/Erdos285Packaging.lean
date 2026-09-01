@@ -32,12 +32,12 @@ theorem erdos_285_of_uniform_ratio
     (uniform_ratio :
       ∀ᵉ (f : ℕ → ℕ)
       (S : Set ℕ)
-      (hS : S = {k | ∃ (n : Fin k.succ → ℕ), StrictMono n ∧ 0 ∉ Set.range n ∧
+      (_hS : S = {k | ∃ (n : Fin k.succ → ℕ), StrictMono n ∧ 0 ∉ Set.range n ∧
         1 = ∑ i, (1 : ℝ) / n i })
-      (h : ∀ k ∈ S,
+      (_h : ∀ k ∈ S,
         IsLeast
-          { n (Fin.last k) | (n : Fin k.succ → ℕ) (_ : StrictMono n) (_ : 0 ∉ Set.range n)
-            (_ : 1 = ∑ i, (1 : ℝ) / n i) }
+          {n (Fin.last k) | (n : Fin k.succ → ℕ) (_ : StrictMono n) (_ : 0 ∉ Set.range n)
+            (_ : 1 = ∑ i, (1 : ℝ) / n i)}
           (f k)),
       Tendsto
         (fun k : ℕ ↦
@@ -47,12 +47,12 @@ theorem erdos_285_of_uniform_ratio
         atTop (nhds 1)) :
     ∀ᵉ (f : ℕ → ℕ)
     (S : Set ℕ)
-    (hS : S = {k | ∃ (n : Fin k.succ → ℕ), StrictMono n ∧ 0 ∉ Set.range n ∧
+    (_hS : S = {k | ∃ (n : Fin k.succ → ℕ), StrictMono n ∧ 0 ∉ Set.range n ∧
       1 = ∑ i, (1 : ℝ) / n i })
-    (h : ∀ k ∈ S,
+    (_h : ∀ k ∈ S,
       IsLeast
-        { n (Fin.last k) | (n : Fin k.succ → ℕ) (_ : StrictMono n) (_ : 0 ∉ Set.range n)
-          (_ : 1 = ∑ i, (1 : ℝ) / n i) }
+        {n (Fin.last k) | (n : Fin k.succ → ℕ) (_ : StrictMono n) (_ : 0 ∉ Set.range n)
+          (_ : 1 = ∑ i, (1 : ℝ) / n i)}
         (f k)),
     ∃ (o : ℕ → ℝ) (_ : o =o[atTop] (1 : ℕ → ℝ)),
       ∀ k ∈ S, f k = (1 + o k) * rexp 1 / (rexp 1 - 1) * (k + 1) := by

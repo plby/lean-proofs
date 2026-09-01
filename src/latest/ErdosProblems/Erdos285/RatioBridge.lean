@@ -32,8 +32,8 @@ theorem minimalLastDenominator_le_cutoff_of_upperWitness
       0 ∉ Set.range n ∧ 1 = ∑ i, (1 : ℝ) / n i })
     (h : ∀ k ∈ S,
       IsLeast
-        { n (Fin.last k) | (n : Fin k.succ → ℕ) (_ : StrictMono n)
-          (_ : 0 ∉ Set.range n) (_ : 1 = ∑ i, (1 : ℝ) / n i) }
+        {n (Fin.last k) | (n : Fin k.succ → ℕ) (_ : StrictMono n)
+          (_ : 0 ∉ Set.range n) (_ : 1 = ∑ i, (1 : ℝ) / n i)}
         (f k))
     {k x : ℕ} {A : Finset ℕ} (hA : UpperWitness 1 k.succ x A) :
     k ∈ S ∧ f k ≤ x := by
@@ -47,8 +47,8 @@ theorem minimalLastDenominator_le_cutoff_of_upperWitness
     exact ⟨n, hn⟩
   refine ⟨hkS, ?_⟩
   have hnLastMem : n (Fin.last k) ∈
-      { m (Fin.last k) | (m : Fin k.succ → ℕ) (_ : StrictMono m)
-        (_ : 0 ∉ Set.range m) (_ : 1 = ∑ i, (1 : ℝ) / m i) } := by
+      {m (Fin.last k) | (m : Fin k.succ → ℕ) (_ : StrictMono m)
+        (_ : 0 ∉ Set.range m) (_ : 1 = ∑ i, (1 : ℝ) / m i)} := by
     exact ⟨n, hn.1, hn.2.1, hn.2.2, rfl⟩
   have hfLast : f k ≤ n (Fin.last k) := (h k hkS).2 hnLastMem
   have hnLastA : n (Fin.last k) ∈ A := by
@@ -69,8 +69,8 @@ theorem uniform_ratio_of_eventually_upperWitness
       0 ∉ Set.range n ∧ 1 = ∑ i, (1 : ℝ) / n i })
     (h : ∀ k ∈ S,
       IsLeast
-        { n (Fin.last k) | (n : Fin k.succ → ℕ) (_ : StrictMono n)
-          (_ : 0 ∉ Set.range n) (_ : 1 = ∑ i, (1 : ℝ) / n i) }
+        {n (Fin.last k) | (n : Fin k.succ → ℕ) (_ : StrictMono n)
+          (_ : 0 ∉ Set.range n) (_ : 1 = ∑ i, (1 : ℝ) / n i)}
         (f k))
     (cutoff : ℕ → ℕ)
     (hupper : ∀ᶠ k in atTop,
@@ -93,7 +93,6 @@ theorem uniform_ratio_of_eventually_upperWitness
     filter_upwards [hupper] with k hk
     rcases hk with ⟨A, hA⟩
     exact minimalLastDenominator_le_cutoff_of_upperWitness f S hS h hA
-
   have hinv : Tendsto (fun k : ℕ ↦ (1 : ℝ) / (k + 1 : ℕ)) atTop (nhds 0) := by
     simpa only [Nat.cast_add, Nat.cast_one] using
       (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ))
@@ -103,7 +102,6 @@ theorem uniform_ratio_of_eventually_upperWitness
         atTop (nhds 0) := by
       simpa using (tendsto_const_nhds.mul hinv)
     simpa using (tendsto_const_nhds.sub hz)
-
   have hcutoffC : Tendsto
       (fun k : ℕ ↦ (cutoff k : ℝ) /
         (C * (k + 1 : ℕ))) atTop (nhds 1) := by
@@ -117,7 +115,6 @@ theorem uniform_ratio_of_eventually_upperWitness
         (fun k : ℕ ↦ (cutoff k : ℝ) / (C * (k + 1 : ℕ))) atTop
         (nhds (C / C)) := hdiv.congr' (Eventually.of_forall heq)
     simpa [hCne] using hdiv'
-
   apply tendsto_of_tendsto_of_tendsto_of_le_of_le' hlower hcutoffC
   · filter_upwards [hbounds] with k hk
     rw [if_pos hk.1]

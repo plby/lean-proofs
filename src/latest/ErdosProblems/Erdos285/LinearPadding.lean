@@ -122,7 +122,10 @@ lemma secondarySplit_card {A : Finset ℕ} {n : ℕ} (hn : 0 < n)
     have := hmax _ (Finset.mem_of_mem_erase h)
     nlinarith
   have hne : 9 * n ≠ 18 * n := by nlinarith
-  simp [secondarySplit, h9, h18, hne, Finset.card_erase_of_mem h6A]
+  have h9' : 9 * n ∉ insert (18 * n) (A.erase (6 * n)) := by
+    simpa [hne] using h9
+  rw [secondarySplit, Finset.card_insert_of_notMem h9',
+    Finset.card_insert_of_notMem h18, Finset.card_erase_of_mem h6A]
   have : 0 < A.card := Finset.card_pos.mpr ⟨6 * n, h6A⟩
   omega
 

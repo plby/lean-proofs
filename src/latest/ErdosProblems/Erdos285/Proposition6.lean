@@ -425,7 +425,7 @@ lemma AvailableBelow.eliminationRemovalStep
 
 /-- A largest-exact-prime-power bound implies `UnitFractions.is_smooth`. -/
 lemma isSmooth_of_largestPrimePowerPart_le
-    {z : ℝ} {n : ℕ} (hz : 0 ≤ z) (hn : n ≠ 0)
+    {z : ℝ} {n : ℕ} (hn : n ≠ 0)
     (hmax : (PrimePowers.largestPrimePowerPart n : ℝ) ≤ z) :
     UnitFractions.is_smooth z n := by
   intro q hqpp hqdiv
@@ -471,8 +471,7 @@ lemma recSum_den_isSmooth {y : ℝ} {A : Finset ℕ}
 /-- Smoothness bounds the largest exact prime-power part by the natural floor
 of the smoothness parameter. -/
 lemma largestPrimePowerPart_le_floor_of_isSmooth
-    {y : ℝ} {n : ℕ} (hy : 0 ≤ y)
-    (hsmooth : UnitFractions.is_smooth y n) :
+    {y : ℝ} {n : ℕ} (hsmooth : UnitFractions.is_smooth y n) :
     PrimePowers.largestPrimePowerPart n ≤ ⌊y⌋₊ := by
   by_cases hn : 2 ≤ n
   · have hmem := PrimePowers.largestPrimePowerPart_mem hn
@@ -551,7 +550,6 @@ theorem lemma12_eliminationRemovalStep
     (hdata : Lemma12.CandidateData xi x s.primePowerMeasure (-s.residual) M)
     (hsurj : Lemma12.BoundedInverseSubsetSurjective s.primePowerMeasure
       (Lemma12.martinBlockBound x s.primePowerMeasure) M)
-    (halpha : 0 ≤ alpha)
     (hxi : (⌊alpha * (x : ℝ)⌋₊ : ℝ) < xi * x)
     (hqz : (s.primePowerMeasure : ℝ) ≤ z) :
     ∃ U : Finset ℕ,
@@ -567,7 +565,6 @@ theorem lemma12_eliminationRemovalStep
   have hqspec :=
     (PrimePowers.mem_primePowerParts (-s.residual).den_ne_zero).mp hdata.q_part
   have hqpos : 0 < s.primePowerMeasure := hqspec.1.pos
-  have hz : 0 ≤ z := (by exact_mod_cast hqpos.le : (0 : ℝ) ≤ s.primePowerMeasure).trans hqz
   have hUbase : U ⊆ initialSmoothBlock alpha x z := by
     intro u hu
     apply mem_initialSmoothBlock.mpr
@@ -577,7 +574,7 @@ theorem lemma12_eliminationRemovalStep
     have huUpper : u ≤ x := by exact_mod_cast (hUint u hu).2
     have hu0 : u ≠ 0 := by omega
     have huSmooth : UnitFractions.is_smooth z u := by
-      apply isSmooth_of_largestPrimePowerPart_le hz hu0
+      apply isSmooth_of_largestPrimePowerPart_le hu0
       rw [hUtag u hu]
       exact hqz
     exact ⟨huLower, huUpper, huSmooth⟩
@@ -635,7 +632,7 @@ lemma primePower_dvd_cofactor_lt_largest
   have hℓden : ℓ ∣ t.den :=
     hℓdiv.trans (Nat.div_dvd_of_dvd hqspec.2.1)
   have hsmooth : UnitFractions.is_smooth (q : ℝ) t.den := by
-    apply isSmooth_of_largestPrimePowerPart_le (Nat.cast_nonneg q) t.den_ne_zero
+    apply isSmooth_of_largestPrimePowerPart_le t.den_ne_zero
     rw [hmax]
   have hℓle : ℓ ≤ q := by
     exact_mod_cast hsmooth ℓ hℓpp hℓden
@@ -981,7 +978,6 @@ noncomputable def lemma12RemovalDescent
     (hcoh : start.Coherent) (havail : AvailableBelow base start)
     (hbound : start.primePowerMeasure ≤ measureBound)
     (hboundZ : (measureBound : ℝ) ≤ z)
-    (halpha : 0 ≤ alpha)
     (hxi : (⌊alpha * (x : ℝ)⌋₊ : ℝ) < xi * x)
     (hdata : ∀ s : ResidualApproximationState r, s.Coherent →
       AvailableBelow base s → s.primePowerMeasure ≤ measureBound →
@@ -995,7 +991,7 @@ noncomputable def lemma12RemovalDescent
         exact hcast.trans hboundZ
       obtain ⟨M, hMdata, hMsurj⟩ := hdata s hs ha hsBound hy
       subst base
-      exact lemma12_eliminationRemovalStep hs ha hMdata hMsurj halpha hxi hqz)
+      exact lemma12_eliminationRemovalStep hs ha hMdata hMsurj hxi hqz)
 
 /-! ## Exact padding and certificate assembly -/
 
@@ -1029,18 +1025,17 @@ lemma initialResidual_den_isSmooth
 /-- Consequently the starting descent measure is at most the natural smooth
 cutoff. -/
 lemma initialResidualApproximationState_measure_le_floor
-    {r : ℚ} {alpha z : ℝ} {x : ℕ} (hz : 0 ≤ z)
-    (hr : UnitFractions.is_smooth z r.den) :
+    {r : ℚ} {alpha z : ℝ} {x : ℕ} (hr : UnitFractions.is_smooth z r.den) :
     (initialResidualApproximationState r alpha x z).primePowerMeasure ≤ ⌊z⌋₊ := by
-  apply largestPrimePowerPart_le_floor_of_isSmooth hz
+  apply largestPrimePowerPart_le_floor_of_isSmooth
   exact initialResidual_den_isSmooth hr
 
 /-- Specialization of the starting-measure bound to the target rational `1`. -/
 lemma initialResidualApproximationState_one_measure_le_floor
-    {alpha z : ℝ} {x : ℕ} (hz : 0 ≤ z) :
+    {alpha z : ℝ} {x : ℕ} :
     (initialResidualApproximationState (1 : ℚ) alpha x z).primePowerMeasure ≤
       ⌊z⌋₊ := by
-  apply initialResidualApproximationState_measure_le_floor hz
+  apply initialResidualApproximationState_measure_le_floor
   intro q hq hqdiv
   have hqone : q = 1 := Nat.dvd_one.mp (by simpa using hqdiv)
   exact (hq.ne_one hqone).elim
@@ -1069,7 +1064,7 @@ theorem eventually_concreteRemovalDescent_one :
     dsimp [z, proposition6MainCutoff]
     positivity
   have hbound : start.primePowerMeasure ≤ Q := by
-    exact initialResidualApproximationState_one_measure_le_floor hz
+    exact initialResidualApproximationState_one_measure_le_floor
   have hQz : (Q : ℝ) ≤ z := by
     exact Nat.floor_le hz
   have hxi : (⌊alpha * (x : ℝ)⌋₊ : ℝ) < ((3 : ℝ) / 4) * x := by
@@ -1110,7 +1105,7 @@ theorem eventually_concreteRemovalDescent_one :
   exact ⟨lemma12RemovalDescent alpha ((3 : ℝ) / 4) z
     (initialSmoothBlock alpha x z) x y Q start rfl
     (by exact Finset.Subset.rfl)
-    (by intro n hn _; exact hn) hbound hQz halpha hxi hdata⟩
+    (by intro n hn _; exact hn) hbound hQz hxi hdata⟩
 
 /--
 Turn a completed Lemma 12 removal descent into a Proposition 6 certificate.
@@ -1252,11 +1247,9 @@ theorem exists_approximationCertificate_of_removalDescent
     hlowerPositive.trans hlowerX
   have hpositiveQ : (0 : ℚ) < completed.residual := by
     exact_mod_cast hpositiveR
-  have hrootNonneg : 0 ≤ (x : ℝ) ^ ((5 : ℝ)⁻¹) :=
-    Real.rpow_nonneg (Nat.cast_nonneg x) _
   have hfinalSmooth : UnitFractions.is_smooth
       ((x : ℝ) ^ ((5 : ℝ)⁻¹)) out.final.residual.den := by
-    apply isSmooth_of_largestPrimePowerPart_le hrootNonneg out.final.residual.den_ne_zero
+    apply isSmooth_of_largestPrimePowerPart_le out.final.residual.den_ne_zero
     exact (by exact_mod_cast out.measure_le :
       (out.final.primePowerMeasure : ℝ) ≤ y) |>.trans hyRoot
   have hreservoirScaleLeRoot : proposition6ReservoirScale beta x ≤
@@ -1549,11 +1542,9 @@ theorem exists_approximationCertificate_of_removalDescent_trim
     hlowerPositive.trans hlower
   have hpositiveQ : (0 : ℚ) < completed.residual := by
     exact_mod_cast hpositiveR
-  have hrootNonneg : 0 ≤ (x : ℝ) ^ ((5 : ℝ)⁻¹) :=
-    Real.rpow_nonneg (Nat.cast_nonneg x) _
   have hfinalSmooth : UnitFractions.is_smooth
       ((x : ℝ) ^ ((5 : ℝ)⁻¹)) out.final.residual.den := by
-    apply isSmooth_of_largestPrimePowerPart_le hrootNonneg out.final.residual.den_ne_zero
+    apply isSmooth_of_largestPrimePowerPart_le out.final.residual.den_ne_zero
     exact (by exact_mod_cast out.measure_le :
       (out.final.primePowerMeasure : ℝ) ≤ y) |>.trans hyRoot
   have hdiscardZero : ∀ n ∈ discard, n ≠ 0 := by

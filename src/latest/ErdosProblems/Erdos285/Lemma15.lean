@@ -72,8 +72,8 @@ lemma largestPrimePowerPart_mul_eq_left {q m : ℕ} (hq : IsPrimePow q)
   have hm0 : m ≠ 0 := by
     intro hm0
     subst m
-    simp at hcop
-    exact hq.ne_one hcop
+    have hq1 : q = 1 := by simpa using hcop
+    exact hq.ne_one hq1
   have hmul : Nat.lcm q m = q * m := hcop.lcm_eq_mul
   have hle : largestPrimePowerPart (q * m) ≤ q := by
     rw [← hmul]

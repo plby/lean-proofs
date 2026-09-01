@@ -35,7 +35,6 @@ private lemma sum_primeIndicator_Icc (n : ℕ) :
     ∑ k ∈ Icc 0 n, primeIndicator k = (Nat.primeCounting n : ℝ) := by
   rw [Nat.primeCounting, Nat.primeCounting', Nat.count_eq_card_filter_range]
   rw [Nat.range_succ_eq_Icc_zero]
-  push_cast
   calc
     ∑ k ∈ Icc 0 n, primeIndicator k =
         ∑ k ∈ Icc 0 n, if k.Prime then (1 : ℝ) else 0 := by
@@ -445,7 +444,7 @@ lemma nonsmooth_mem_multiples_biUnion {α : ℝ} {x n : ℕ}
     (hns : ¬ UnitFractions.is_smooth (smoothCutoff x : ℝ) n) :
     n ∈ (obstructingPrimePowers α x).biUnion (multiplesInReservoir α x) := by
   rw [UnitFractions.is_smooth] at hns
-  push_neg at hns
+  push Not at hns
   obtain ⟨q, hq⟩ := hns
   have hqle : q ≤ n := Nat.le_of_dvd (Nat.pos_of_ne_zero hn0) hq.2.1
   have hnupper : n ≤ ⌊α * x⌋₊ := (mem_reservoirInterval.mp hn).2
@@ -471,7 +470,6 @@ private lemma Ico_filter_dvd_card_real_le (a b q : ℕ) (hq : 0 < q) (hab : a �
     rw [heqQ]
     have hbceil := Int.ceil_lt_add_one ((b : ℚ) / q)
     have haceil := Int.le_ceil ((a : ℚ) / q)
-    push_cast at hbceil haceil ⊢
     have hdiv : ((b - a : ℕ) : ℚ) / q = (b : ℚ) / q - (a : ℚ) / q := by
       rw [Nat.cast_sub hab]
       ring
@@ -496,10 +494,10 @@ lemma multiplesInReservoir_card_le (α : ℝ) (x q : ℕ) (hq : q ≠ 0) :
   let hi := ⌊α * x⌋₊
   by_cases hlohi : lo ≤ hi
   · have hcard : (reservoirInterval α x).card = hi + 1 - lo := by
-      simp [reservoirInterval, lo, hi, hlohi]
+      simp [reservoirInterval, lo, hi]
     have heq : multiplesInReservoir α x q = (Ico lo (hi + 1)).filter (q ∣ ·) := by
       ext n
-      simp [multiplesInReservoir, reservoirInterval, lo, hi, hlohi]
+      simp [multiplesInReservoir, reservoirInterval, lo, hi]
     rw [heq, hcard]
     exact Ico_filter_dvd_card_real_le lo (hi + 1) q (Nat.pos_of_ne_zero hq) (by omega)
   · have hempty : reservoirInterval α x = ∅ := by
@@ -544,7 +542,7 @@ lemma obstructing_union_card_le (α : ℝ) (x : ℕ) :
     _ = _ := by
       rw [Finset.sum_add_distrib]
       simp only [div_eq_mul_inv, Finset.mul_sum, Finset.sum_const, nsmul_eq_mul,
-        mul_one, Nat.cast_id]
+        mul_one]
 
 end
 

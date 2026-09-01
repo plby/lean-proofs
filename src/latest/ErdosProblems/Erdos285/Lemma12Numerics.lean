@@ -623,10 +623,12 @@ theorem eventually_exists_martin_candidate_family {ξ : ℝ}
     (Erdos285.Lemma12.martinBlockBound x q)
     ((x : ℝ) / q) M (by simp [hMcard]) hBpos
     (by
-      convert hthreshold.1 using 1 <;> norm_num [Real.rpow_natCast])
+      convert hthreshold.1 using 1
+      all_goals norm_num [Real.rpow_natCast])
     (by
       rw [hMcard]
-      convert hthreshold.2.1 using 1 <;> norm_num [Real.rpow_natCast])
+      convert hthreshold.2.1 using 1
+      all_goals norm_num [Real.rpow_natCast])
     hMsource
   refine ⟨M, hMcard, hM, ?_, hMsource, ?_, ?_, ?_, hsurj⟩
   · simpa [q] using htq

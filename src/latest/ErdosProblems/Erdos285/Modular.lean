@@ -31,10 +31,11 @@ def centeredInverse (n h m : ℕ) : ℤ :=
 
 /-- A finite fiber-counting lemma used in the pigeonhole part of Martin's
 inverse-dispersion argument. -/
-theorem card_le_card_mul_of_fiber_bound {α β : Type*} [DecidableEq α]
+theorem card_le_card_mul_of_fiber_bound {α β : Type*}
     [Fintype β] [DecidableEq β] (S : Finset α) (bucket : α → β) (D : ℕ)
     (hfiber : ∀ b : β, (S.filter fun x ↦ bucket x = b).card ≤ D) :
     S.card ≤ Fintype.card β * D := by
+  classical
   rw [card_eq_sum_card_fiberwise (t := univ) (f := bucket) (by simp)]
   calc
     ∑ b ∈ (univ : Finset β), (S.filter fun x ↦ bucket x = b).card
