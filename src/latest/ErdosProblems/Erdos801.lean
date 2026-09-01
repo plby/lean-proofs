@@ -190,7 +190,7 @@ theorem filter_trianglesInside_subset_eq
 /-- Triangles through `v` are in bijection with edges among the neighbors of
 `v`; only the inequality needed later is recorded. -/
 theorem card_triangles_through_le_neighbor_edges
-    (G : SimpleGraph V) [DecidableRel G.Adj] (Y : Finset V) {v : V} (hvY : v ∈ Y) :
+    (G : SimpleGraph V) [DecidableRel G.Adj] (Y : Finset V) {v : V} :
     ((trianglesInside G Y).filter (fun T ↦ v ∈ T)).card ≤
       (edgesInside G (G.neighborFinset v ∩ Y)).card := by
   classical
@@ -273,7 +273,7 @@ theorem three_mul_card_trianglesInside_le
         ∑ v ∈ Y, (edgesInside G (G.neighborFinset v ∩ Y)).card := by
       apply Finset.sum_le_sum
       intro v hv
-      exact card_triangles_through_le_neighbor_edges G Y hv
+      exact card_triangles_through_le_neighbor_edges G Y
     _ ≤ ∑ _v ∈ Y, B := by
       apply Finset.sum_le_sum
       intro v hv
@@ -282,6 +282,7 @@ theorem three_mul_card_trianglesInside_le
 
 /-! ## Uniform-subset double counting -/
 
+omit [Fintype V] in
 /-- Double-count incidences between an `r`-uniform family and the `k`-subsets
 containing one of its members. -/
 theorem sum_card_uniformFamily_inside
@@ -334,6 +335,7 @@ lemma exists_card_mul_ge_card_mul_of_nonempty
     _ ≤ ∑ y ∈ s, f y := by
       exact Finset.sum_le_sum fun y hy ↦ hmin y hy
 
+omit [Fintype V] in
 /-- A lower-average consequence of uniform-subset double counting. -/
 theorem exists_subset_uniformFamily_many
     (X : Finset V) (F : Finset (Finset V)) (r k : ℕ)
@@ -353,6 +355,7 @@ theorem exists_subset_uniformFamily_many
   rw [sum_card_uniformFamily_inside X F r k hFX hFr hrk] at hAv
   exact hAv
 
+omit [Fintype V] in
 /-- An upper-average consequence of uniform-subset double counting. -/
 theorem exists_subset_uniformFamily_few
     (X : Finset V) (F : Finset (Finset V)) (r k : ℕ)
@@ -372,6 +375,7 @@ theorem exists_subset_uniformFamily_few
   rw [sum_card_uniformFamily_inside X F r k hFX hFr hrk] at hAv
   exact hAv
 
+omit [Fintype V] in
 /-- Lower-average uniform sampling in falling-factorial form.  This is the
 division-free form used for edge-density estimates. -/
 theorem exists_subset_uniformFamily_many_descFactorial
@@ -409,6 +413,7 @@ theorem exists_subset_uniformFamily_many_descFactorial
         ring
   exact Nat.le_of_mul_le_mul_left hcancel hcpos
 
+omit [Fintype V] in
 /-- Upper-average uniform sampling in falling-factorial form. -/
 theorem exists_subset_uniformFamily_few_descFactorial
     (X : Finset V) (F : Finset (Finset V)) (r k : ℕ)
@@ -535,6 +540,7 @@ theorem exists_triangleFree_subset
   ext e
   simp [edgesInside]
 
+omit [DecidableEq V] in
 /-- A finite Markov inequality for graph degrees: if four times the edge count
 is at most `|V| D`, at least half the vertices have degree at most `D`. -/
 theorem exists_lowDegree_core
@@ -575,6 +581,7 @@ theorem exists_lowDegree_core
   intro v hv
   simpa [Y] using hv
 
+omit [DecidableEq V] in
 /-- The induced degree is bounded by the ambient degree. -/
 theorem degree_induce_le
     (G : SimpleGraph V) [DecidableRel G.Adj] (S : Finset V) (v : S) :
@@ -595,9 +602,10 @@ theorem card_edgesInside_eq_induce
     (edgesInside G S).card = (G.induce (S : Set V)).edgeFinset.card := by
   simpa [edgesInside] using G.card_filter_edgeFinset_toFinset_subset S
 
+omit [Fintype V] [DecidableEq V] in
 /-- Passing to an induced subgraph cannot increase the independence number. -/
 theorem indepNum_induce_le
-    (G : SimpleGraph V) (S : Finset V) :
+    [Finite V] (G : SimpleGraph V) (S : Finset V) :
     (G.induce (S : Set V)).indepNum ≤ G.indepNum := by
   classical
   obtain ⟨I, hI⟩ :=
@@ -737,6 +745,7 @@ lemma half_log_mul_two_pow_half_log_le {D : ℕ} (hD : D ≠ 0) :
     _ ≤ 2 ^ k := Nat.pow_le_pow_right (by omega) hdouble
     _ ≤ D := Nat.pow_log_le_self 2 hD
 
+omit [Fintype V] [DecidableEq V] in
 /-- The sum of the cardinalities of all subsets of a finite set. -/
 lemma sum_card_powerset (A : Finset V) :
     ∑ X ∈ A.powerset, X.card = A.card * 2 ^ (A.card - 1) := by
@@ -790,12 +799,14 @@ def availableNeighbors (G : SimpleGraph V) [DecidableRel G.Adj]
       G.Adj v u ∧ ∀ w ∈ S, ¬ G.Adj u w := by
   simp [availableNeighbors, SimpleGraph.mem_neighborFinset]
 
+omit [Fintype V] [DecidableEq V] in
 lemma not_adj_of_mem_independent
     {G : SimpleGraph V} {I : Finset V} (hI : G.IsIndepSet (I : Set V))
     {u w : V} (hu : u ∈ I) (hw : w ∈ I) : ¬ G.Adj u w := by
   intro huw
   exact hI hu hw huw.ne huw
 
+omit [Fintype V] [DecidableEq V] in
 lemma isIndepSet_mono_finset
     {G : SimpleGraph V} {I J : Finset V} (hI : G.IsIndepSet (I : Set V))
     (hJI : J ⊆ I) : G.IsIndepSet (J : Set V) := by
@@ -807,6 +818,7 @@ lemma outsidePart_isIndepSet
     G.IsIndepSet (outsidePart G v I : Set V) := by
   exact isIndepSet_mono_finset hI (Finset.sdiff_subset)
 
+omit [Fintype V] in
 lemma insert_vertex_isIndepSet
     {G : SimpleGraph V} {v : V} {S : Finset V}
     (hS : G.IsIndepSet (S : Set V))
@@ -1237,6 +1249,7 @@ theorem independentFinsets_card_mul_le_four_sum_alonScore
     _ = 4 * ∑ I ∈ independentFinsets G, alonScore G D v I := by
       rw [hsum]
 
+omit [DecidableEq V] in
 /-- A fully explicit form of the logarithmic independence bound for finite
 triangle-free graphs of bounded maximum degree. -/
 theorem triangleFree_card_mul_scale_le
@@ -1275,6 +1288,7 @@ theorem triangleFree_card_mul_scale_le
       _ = F.card * (8 * D * G.indepNum) := by ring
   exact Nat.le_of_mul_le_mul_left hprod hFpos
 
+omit [DecidableEq V] in
 /-- The convenient half-logarithmic specialization. -/
 theorem triangleFree_card_mul_half_log_le
     {G : SimpleGraph V} [DecidableRel G.Adj] (htriangle : G.CliqueFree 3)
@@ -1355,7 +1369,6 @@ theorem exists_dense_small_set_of_parameters
   have hm2pos : 0 < m.descFactorial 2 := Nat.descFactorial_pos.mpr h2m
   have hn2pos : 0 < n.descFactorial 2 :=
     Nat.descFactorial_pos.mpr (h2m.trans hmn)
-
   /- A failure of the conclusion first forces the whole graph to be sparse. -/
   obtain ⟨S₀, hS₀, hsamp₀⟩ :=
     exists_subset_edges_many_descFactorial G (Finset.univ : Finset V) m h2m (by
@@ -1376,14 +1389,15 @@ theorem exists_dense_small_set_of_parameters
         exact Nat.mul_lt_mul_of_pos_left
           (Nat.mul_lt_mul_of_pos_right hS₀small hn2pos) (by norm_num)
       _ ≤ (n * D₀) * m.descFactorial 2 := by
-        convert hglobal using 1 <;> simp [n] <;> ring
+        convert hglobal using 1
+        all_goals simp [n]
+        all_goals ring
   have hsparse : 4 * G.edgeFinset.card ≤ n * D₀ :=
     (Nat.lt_of_mul_lt_mul_right hsparseMul).le
   obtain ⟨Y, hYlarge, hYdeg⟩ := exists_lowDegree_core G hD₀ (by
     simpa [n] using hsparse)
   have hYn : Y.card ≤ n := by simpa [n] using Finset.card_le_card (Finset.subset_univ Y)
   have hhalfY : n / 2 ≤ Y.card := by omega
-
   /- Otherwise an overfull neighborhood, sampled down to `m` vertices when
   necessary, would itself be the required witness. -/
   have hlocal : ∀ v ∈ Y,
@@ -1418,13 +1432,11 @@ theorem exists_dense_small_set_of_parameters
               (Nat.descFactorial_pos.mpr (h2m.trans (hmN.trans hNdeg)))
           _ ≤ B * m.descFactorial 2 := hneighborhood
       exact (Nat.lt_of_mul_lt_mul_right hmul).le
-
   have htriangleCount : 3 * (trianglesInside G Y).card ≤ n * B := by
     calc
       3 * (trianglesInside G Y).card ≤ Y.card * B :=
         three_mul_card_trianglesInside_le G Y B hlocal
       _ ≤ n * B := Nat.mul_le_mul_right B hYn
-
   /- Sample a medium-sized set and delete one vertex from every surviving
   triangle. -/
   have hkY : k ≤ Y.card := by omega
@@ -1458,7 +1470,6 @@ theorem exists_dense_small_set_of_parameters
   obtain ⟨U', hU'U, hU'card, hU'free⟩ := exists_triangleFree_subset G U
   have hkU' : k ≤ 2 * U'.card := by omega
   have hmU' : m ≤ U'.card := by omega
-
   /- The triangle-free logarithmic estimate forces many edges in `U'`. -/
   have hmanyU' : E₀ ≤ (edgesInside G U').card := by
     by_contra! hfewEdges
@@ -1477,7 +1488,8 @@ theorem exists_dense_small_set_of_parameters
           _ = 2 * (U'.card * D) := by ring
       have hlt' : 4 * (edgesInside G U').card < U'.card * D := by
         apply Nat.lt_of_mul_lt_mul_left (a := 2)
-        convert hlt using 1 <;> ring
+        convert hlt using 1
+        all_goals ring
       rw [hcardH]
       simpa using hlt'.le
     obtain ⟨Z, hZlarge, hZdeg⟩ := exists_lowDegree_core H hD hedgeH
@@ -1512,7 +1524,6 @@ theorem exists_dense_small_set_of_parameters
         _ ≤ 4 * (8 * D * m) := Nat.mul_le_mul_left 4 hZbound
         _ = 32 * D * m := by ring
     omega
-
   obtain ⟨S, hS, hsampFinal⟩ :=
     exists_subset_edges_many_descFactorial G U' m h2m hmU'
   have hScard : S.card ≤ m := (Finset.mem_powersetCard.mp hS).2.le
@@ -1537,7 +1548,7 @@ theorem exists_dense_small_set_of_parameters
 /-- An explicit natural-number version of Problem 801.  The constant is very
 far from optimal; its only purpose is to make every rounding step transparent. -/
 theorem erdos_801_explicit_decidable
-    {n : ℕ} (hnlarge : 2 ^ 2048 ≤ n)
+    {n : ℕ} (hnlarge : 2 ^ (2 ^ 11) ≤ n)
     (G : SimpleGraph (Fin n)) [DecidableRel G.Adj]
     (halpha : G.indepNum ≤ Nat.sqrt n) :
     ∃ S : Finset (Fin n), S.card ≤ Nat.sqrt n ∧
@@ -1557,7 +1568,10 @@ theorem erdos_801_explicit_decidable
     exact ((Nat.pow_pos (by norm_num : 0 < 2)).trans_le hnlarge).ne'
   have hq : 2048 ≤ q := by
     dsimp [q]
-    exact Nat.le_log_of_pow_le (by norm_num) hnlarge
+    have hq' : 2 ^ 11 ≤ Nat.log 2 n :=
+      Nat.le_log_of_pow_le (Nat.succ_lt_succ (Nat.zero_lt_succ 0)) hnlarge
+    norm_num at hq'
+    exact hq'
   have hL : 2 ≤ L := by
     apply (Nat.le_div_iff_mul_le (by norm_num : 0 < 1024)).2
     simpa [L] using hq
@@ -1575,36 +1589,43 @@ theorem erdos_801_explicit_decidable
       _ ≤ 2 ^ L := Nat.pow_le_pow_right (by norm_num) (by omega)
       _ = p := rfl
   have hqP : q ≤ 2048 * p := hqL.trans (Nat.mul_le_mul_left 2048 hLp)
-  have hp1024 : p ^ 1024 ≤ n := by
-    change (2 ^ L) ^ 1024 ≤ n
-    rw [← Nat.pow_mul]
-    calc
-      2 ^ (L * 1024) ≤ 2 ^ q :=
-        Nat.pow_le_pow_right (by norm_num) (by simpa [Nat.mul_comm] using h1024L)
-      _ ≤ n := Nat.pow_log_le_self 2 hnpos
-  have hp512m : p ^ 512 ≤ m := by
+  have hp256sq_m : p ^ 256 * p ^ 256 ≤ m := by
     apply Nat.le_sqrt.mpr
-    change p ^ 512 * p ^ 512 ≤ n
-    simpa [m, ← Nat.pow_add] using hp1024
+    calc
+      (p ^ 256 * p ^ 256) * (p ^ 256 * p ^ 256) =
+          (2 ^ (L * 256) * 2 ^ (L * 256)) *
+            (2 ^ (L * 256) * 2 ^ (L * 256)) := by
+        rw [show p = 2 ^ L from rfl, ← Nat.pow_mul]
+      _ = 2 ^ (L * 256 + L * 256) * 2 ^ (L * 256 + L * 256) := by
+        rw [Nat.pow_add]
+      _ = 2 ^ ((L * 256 + L * 256) + (L * 256 + L * 256)) := by
+        rw [Nat.pow_add]
+        ring
+      _ ≤ 2 ^ q := Nat.pow_le_pow_right (by norm_num) (by omega)
+      _ ≤ n := Nat.pow_log_le_self 2 hnpos
   have hdom : 2 ^ 24 * q ^ 3 * p ^ 2 ≤ m := by
     have hqcube : q ^ 3 ≤ (2048 * p) ^ 3 := Nat.pow_le_pow_left hqP 3
-    have hconst : 2 ^ 57 ≤ p ^ 507 := by
+    have hconst : 2 ^ 57 ≤ p ^ 251 := by
       calc
-        2 ^ 57 ≤ 2 ^ 507 := Nat.pow_le_pow_right (by norm_num) (by norm_num)
-        _ ≤ p ^ 507 := Nat.pow_le_pow_left hp2 507
+        2 ^ 57 ≤ p ^ 57 := Nat.pow_le_pow_left hp2 57
+        _ ≤ p ^ 251 := Nat.pow_le_pow_right (by positivity) (by norm_num)
     calc
       2 ^ 24 * q ^ 3 * p ^ 2 ≤
           2 ^ 24 * (2048 * p) ^ 3 * p ^ 2 := by gcongr
       _ = 2 ^ 57 * p ^ 5 := by ring
-      _ ≤ p ^ 507 * p ^ 5 := Nat.mul_le_mul_right (p ^ 5) hconst
-      _ = p ^ 512 := by rw [← Nat.pow_add]
-      _ ≤ m := hp512m
+      _ ≤ p ^ 251 * p ^ 5 := Nat.mul_le_mul_right (p ^ 5) hconst
+      _ = p ^ 256 := by rw [← Nat.pow_add]
+      _ ≤ p ^ 256 * p ^ 256 := by
+        simpa using Nat.mul_le_mul_left (p ^ 256) (Nat.one_le_pow 256 p (by omega))
+      _ ≤ m := hp256sq_m
   have hm4 : 4 ≤ m := by
     calc
       4 = 2 ^ 2 := by norm_num
       _ ≤ p ^ 2 := Nat.pow_le_pow_left hp2 2
-      _ ≤ p ^ 512 := Nat.pow_le_pow_right (by positivity) (by norm_num)
-      _ ≤ m := hp512m
+      _ ≤ p ^ 256 := Nat.pow_le_pow_right (by positivity) (by norm_num)
+      _ ≤ p ^ 256 * p ^ 256 := by
+        simpa using Nat.mul_le_mul_left (p ^ 256) (Nat.one_le_pow 256 p (by omega))
+      _ ≤ m := hp256sq_m
   have hm2 : 2 ≤ m := hm4.trans' (by norm_num)
   have hmSq : m ^ 2 ≤ n := by simpa [m] using Nat.sqrt_le' n
   have hnup : n ≤ 2 * m ^ 2 := by
@@ -1627,7 +1648,6 @@ theorem erdos_801_explicit_decidable
     simpa [W, Nat.mul_comm] using Nat.div_mul_le_self (m * L) 4096
   have hWle : W ≤ m * L := (Nat.div_le_self _ _)
   have hLq : L ≤ q := (Nat.div_le_self _ _)
-
   have h2m : 2 ≤ m := hm2
   have h3k : 3 ≤ k := by
     calc
@@ -1781,9 +1801,11 @@ theorem erdos_801_explicit_decidable
   have hm4096 : 4096 ≤ m := by
     calc
       4096 = 2 ^ 12 := by norm_num
-      _ ≤ 2 ^ 512 := Nat.pow_le_pow_right (by norm_num) (by norm_num)
-      _ ≤ p ^ 512 := Nat.pow_le_pow_left hp2 512
-      _ ≤ m := hp512m
+      _ ≤ p ^ 12 := Nat.pow_le_pow_left hp2 12
+      _ ≤ p ^ 256 := Nat.pow_le_pow_right (by positivity) (by norm_num)
+      _ ≤ p ^ 256 * p ^ 256 := by
+        simpa using Nat.mul_le_mul_left (p ^ 256) (Nat.one_le_pow 256 p (by omega))
+      _ ≤ m := hp256sq_m
   have hmLlarge : 4096 ≤ m * L :=
     hm4096.trans (by simpa using Nat.mul_le_mul_left m (show 1 ≤ L by omega))
   have hWpos : 1 ≤ W := by
@@ -1805,13 +1827,13 @@ theorem erdos_801_explicit_decidable
 
 /-- The explicit result without an auxiliary decidability parameter. -/
 theorem erdos_801_explicit
-    {n : ℕ} (hnlarge : 2 ^ 2048 ≤ n)
+    {n : ℕ} (hnlarge : 2 ^ (2 ^ 11) ≤ n)
     (G : SimpleGraph (Fin n))
     (halpha : G.indepNum ≤ Nat.sqrt n) :
     ∃ S : Finset (Fin n), S.card ≤ Nat.sqrt n ∧
       Nat.sqrt n * Nat.log 2 n ≤ 2 ^ 24 * edgeCountInside G S := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   simpa [edgeCountInside] using erdos_801_explicit_decidable hnlarge G halpha
 
 /-- Resolution of Erdős Problem 801, with `≫` expressed by explicit
@@ -1821,7 +1843,7 @@ theorem erdos_801 :
       G.indepNum ≤ Nat.sqrt n →
         ∃ S : Finset (Fin n), S.card ≤ Nat.sqrt n ∧
           Nat.sqrt n * Nat.log 2 n ≤ C * edgeCountInside G S := by
-  refine ⟨2 ^ 24, 2 ^ 2048, by positivity, ?_⟩
+  refine ⟨2 ^ 24, 2 ^ (2 ^ 11), by positivity, ?_⟩
   intro n hn G halpha
   exact erdos_801_explicit hn G halpha
 
