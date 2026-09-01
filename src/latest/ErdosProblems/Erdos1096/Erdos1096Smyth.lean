@@ -24,7 +24,7 @@ private lemma diskMobius_norm_le_one {c z : ℂ} (hc : ‖c‖ < 1) (hz : ‖z�
   rw [Complex.normSq_sub, Complex.normSq_sub]
   simp only [Complex.normSq_one, Complex.normSq_mul, Complex.normSq_conj,
     Complex.mul_re, Complex.one_re, Complex.one_im, Complex.conj_re,
-    Complex.conj_im, mul_one, zero_mul, sub_zero]
+    Complex.conj_im, zero_mul, sub_zero]
   have hc2 : ‖c‖ ^ 2 < 1 := by
     nlinarith [mul_pos (sub_pos.mpr hc) (add_pos_of_nonneg_of_pos (norm_nonneg c) zero_lt_one)]
   have hz2 : ‖z‖ ^ 2 ≤ 1 := by
@@ -46,7 +46,7 @@ private lemma diskMobius_norm_eq_one {c z : ℂ} (hc : ‖c‖ < 1) (hz : ‖z�
     ← Complex.normSq_eq_norm_sq, ← Complex.normSq_eq_norm_sq]
   simp only [Complex.normSq_sub, Complex.normSq_mul, Complex.normSq_conj,
     Complex.normSq_one, Complex.mul_re, Complex.one_re, Complex.one_im,
-    Complex.conj_re, Complex.conj_im, mul_one, zero_mul, sub_zero]
+    Complex.conj_re, Complex.conj_im, zero_mul, sub_zero]
   rw [Complex.normSq_eq_norm_sq, Complex.normSq_eq_norm_sq, hz]
   ring
 
@@ -417,7 +417,7 @@ private lemma reciprocal_pisot_not_lt
   have hp0neC : (p.coeff 0 : ℂ) ≠ 0 := by exact_mod_cast hp0ne
   have hrecipC : P.reverse = C (p.coeff 0 : ℂ) * P := by
     have hm := congrArg (fun r : ℤ[X] ↦ r.map (algebraMap ℤ ℂ)) hrecip
-    simp only [Polynomial.map_sub, Polynomial.map_mul, map_C, map_zero] at hm
+    simp only [Polynomial.map_sub, Polynomial.map_mul, map_C] at hm
     rw [map_reverse_of_injective (algebraMap ℤ ℂ)
       (Int.cast_injective : Function.Injective (algebraMap ℤ ℂ))] at hm
     have hm' : C (p.coeff 0 : ℂ) * P - P.reverse = 0 := by
@@ -432,7 +432,7 @@ private lemma reciprocal_pisot_not_lt
     exact hp0neC this
   have hinv_root {z : ℂ} (hz : z ∈ roots) : z⁻¹ ∈ roots := by
     have hz0 := hroot_ne_zero hz
-    letI : Invertible z := invertibleOfNonzero hz0
+    let : Invertible z := invertibleOfNonzero hz0
     have hzroot : P.eval z = 0 := (mem_roots hPne).mp hz
     have hr : P.reverse.eval z⁻¹ = 0 := by
       have := (eval₂_reverse_eq_zero_iff (RingHom.id ℂ) z P).2 hzroot
@@ -587,7 +587,7 @@ private lemma nonreciprocal_pisot_not_lt
     exact mul_inv_cancel₀ (ne_of_gt (lt_trans zero_lt_one hθ1))
   have hPrev_eval (z : ℂ) : P.reverse.eval z = (-θc) * (z - c) * RP.eval z := by
     rw [hPrev_factor]
-    simp only [eval_mul, eval_sub, eval_one, eval_C, eval_X, eval_C_mul]
+    simp only [eval_mul, eval_sub, eval_one, eval_C, eval_X]
     rw [show 1 - θc * z = (-θc) * (z - c) by
       calc
         1 - θc * z = θc * c - θc * z := by rw [hcθ]
@@ -698,7 +698,7 @@ private lemma nonreciprocal_pisot_not_lt
         intro hz0
         rw [hz0, norm_zero] at hznorm
         norm_num at hznorm
-      letI : Invertible z := invertibleOfNonzero hz0
+      let : Invertible z := invertibleOfNonzero hz0
       have hrev := eval₂_reverse_mul_pow (RingHom.id ℂ) z P
       have hrevnorm : ‖P.reverse.eval z⁻¹‖ = ‖P.eval z‖ := by
         simpa [hznorm] using congrArg norm hrev

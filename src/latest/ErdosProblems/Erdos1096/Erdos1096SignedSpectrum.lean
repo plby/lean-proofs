@@ -61,7 +61,7 @@ lemma eval₂_reversedPolynomial (q : ℝ) (s : ℕ → ℤ) (n : ℕ) :
   intro i hi
   have hi' : i ≤ n := by simpa using hi
   rw [Polynomial.ofFn_coeff_eq_val_of_lt _ (by omega)]
-  simp only [Nat.add_sub_cancel, Nat.succ_sub_succ_eq_sub]
+  simp only [Nat.succ_sub_succ_eq_sub]
   simp [Nat.sub_sub_self hi']
 
 lemma reversedPolynomial_eval_mem_signedSpectrum {q : ℝ} {s : ℕ → ℤ}
@@ -194,13 +194,11 @@ lemma exists_lazy_signed_expansion {q : ℝ} (hq1 : 1 < q) (hq2 : q ≤ 2)
     intro n
     by_cases hP : n ∈ P
     · simp [a, hP]
-    · simp [a, hP]
-      exact pow_nonneg (by linarith) _
+    · simpa [a, hP] using pow_nonneg (by linarith : 0 ≤ q⁻¹) (n + 1)
   have hb_le : ∀ n, b n ≤ q⁻¹ ^ (n + 1) := by
     intro n
     by_cases hP : n ∈ P
-    · simp [b, hP]
-      exact pow_nonneg (by linarith) _
+    · simpa [b, hP] using pow_nonneg (by linarith : 0 ≤ q⁻¹) (n + 1)
     · simp [b, hP]
   have hasum : Summable a := Summable.of_nonneg_of_le ha0 ha_le hgeom
   have hbsum : Summable b := Summable.of_nonneg_of_le hb0 hb_le hgeom
@@ -237,8 +235,8 @@ lemma exists_lazy_signed_expansion {q : ℝ} (hq1 : 1 < q) (hq2 : q ≤ 2)
     | zero => simp [c]
     | succ i =>
         by_cases hP : i ∈ P
-        · simp [c, hP]
-          positivity
+        · simpa [c, hP] using
+            pow_nonneg (by linarith : 0 ≤ q⁻¹) (i + 1)
         · simp [c, hP, Real.norm_eq_abs, abs_of_pos (by linarith : 0 < q)]
   have hctsum : (∑' i, (c i : ℝ) * q⁻¹ ^ i) = -(∑' n, b n) := by
     have hsplit := hcsum.sum_add_tsum_nat_add 1
@@ -262,8 +260,9 @@ lemma exists_lazy_signed_expansion {q : ℝ} (hq1 : 1 < q) (hq2 : q ≤ 2)
     cases i with
     | zero => norm_num [base, c, s, expansionSignedDigits, lazySignedDigits]
     | succ i =>
-        by_cases hP : i ∈ P <;>
-          simp [base, c, s, expansionSignedDigits, lazySignedDigits, hP] <;> ring
+        by_cases hP : i ∈ P
+        all_goals simp [base, c, s, expansionSignedDigits, lazySignedDigits, hP]
+        all_goals ring
   have hsExp : SignedExpansion q s := by
     rw [SignedExpansion]
     convert hbase.add hc using 1
@@ -292,7 +291,7 @@ lemma exists_positive_term_with_nonpositive_tails {a : ℕ → ℝ}
     have hc := h.comp (tendsto_add_atTop_nat 1)
     convert hc using 1
     funext n
-    simp [S, Function.comp_apply, Nat.add_comm]
+    simp [S, Function.comp_apply]
   have hS0 : 0 < S 0 := by simpa [S] using ha0
   obtain ⟨N, hN⟩ := (Metric.tendsto_atTop.mp hStend) (S 0 / 2) (by linarith)
   have hlate : ∀ k, N ≤ k → S k < S 0 := by
@@ -455,8 +454,7 @@ lemma signed_expansion_coefficient_eq_one_of_remove_mass_lt {q : ℝ} (hq : 1 < 
     intro n
     by_cases hn : n ∈ P ∧ n ≠ j
     · simp [g, hn]
-    · simp [g, hn]
-      exact pow_nonneg (by linarith) _
+    · simpa [g, hn] using pow_nonneg (by linarith : 0 ≤ q⁻¹) (n + 1)
   have hg0 : ∀ n, 0 ≤ g n := by
     intro n
     simp only [g]
@@ -605,8 +603,8 @@ lemma exists_lazy_expansion_for_separator {q : ℝ} (hq1 : 1 < q) (hq2 : q < 2)
         apply tsum_congr
         intro n
         by_cases hn : n ∈ P K
-        · simp [mass, PK, weight, hn]
-        · simp [mass, PK, weight, hn]
+        · simp [PK, weight, hn]
+        · simp [PK, weight, hn]
   obtain ⟨s, hs, hs0, hsExp, hsP, hsPc⟩ :=
     exists_lazy_signed_expansion hq1 hq2.le PK hPKmass
   have hmassStep : K ≠ 0 → mass K ≤ mass (K - 1) + weight (K - 1) := by
@@ -913,8 +911,8 @@ lemma summable_binary_digit_series {p : ℝ} (hp : 1 < p)
     (fun i ↦ ?_)
     ((summable_geometric_of_lt_one hp0 hp1).mul_left p⁻¹)
   rcases hd i with hi | hi
-  · simp [hi]
-    positivity
+  · simp only [hi, Nat.cast_zero, zero_mul]
+    exact mul_nonneg hp0 (pow_nonneg hp0 i)
   · simp [hi, pow_succ, mul_comm]
 
 lemma tsum_expansionSignedDigits {p : ℝ} (hp : 1 < p)
@@ -926,10 +924,10 @@ lemma tsum_expansionSignedDigits {p : ℝ} (hp : 1 < p)
   have hsum : Summable (fun i ↦ (s i : ℝ) * p⁻¹ ^ i) :=
     summable_signed_series (q := p) hp hs
   have hsplit := hsum.sum_add_tsum_nat_add 1
-  convert hsplit.symm using 1 <;>
-    simp only [Finset.sum_range_one, s, expansionSignedDigits, Int.cast_negSucc,
-      Int.cast_zero, pow_zero, mul_one, zero_add, Nat.zero_add, Int.cast_natCast] <;>
-    norm_num
+  convert hsplit.symm using 1
+  all_goals simp only [Finset.sum_range_one, s, expansionSignedDigits,
+    pow_zero, mul_one, Int.cast_natCast]
+  all_goals norm_num
 
 lemma exists_one_digit_of_tendsto_one {q : ℝ} {d : ℕ → ℕ}
     (hd : ∀ i, d i = 0 ∨ d i = 1)
@@ -1038,7 +1036,7 @@ lemma integral_of_no_signedSpectrum_accumulation {q : ℝ}
         rintro _ ⟨n, rfl⟩
         exact (abs_le.mp (hfabs n)))
   let g : ℕ → Set.range f := fun n ↦ ⟨f n, Set.mem_range_self n⟩
-  letI : Finite (Set.range f) := hfinite
+  let : Finite (Set.range f) := hfinite
   obtain ⟨m, n, hmn, heq⟩ := Finite.exists_ne_map_eq_of_infinite g
   have heq' : f m = f n := congr_arg Subtype.val heq
   have pair_integral : ∀ {a b : ℕ}, a < b → f a = f b → IsIntegral ℤ q := by
@@ -1055,7 +1053,7 @@ lemma integral_of_no_signedSpectrum_accumulation {q : ℝ}
       have hsub := Polynomial.natDegree_sub_le_of_le hbdeg hadeg
       simpa [p] using Polynomial.natDegree_neg_le_of_le hsub
     have hpcoeff : p.coeff b = 1 := by
-      simp [p, reversedPolynomial_coeff, hab.le, not_le.mpr hab,
+      simp [p, reversedPolynomial_coeff, not_le.mpr hab,
         s, expansionSignedDigits]
     have hpmonic : p.Monic :=
       Polynomial.monic_of_natDegree_le_of_coeff_eq_one b hpdeg hpcoeff
@@ -1108,7 +1106,7 @@ lemma finite_reversed_tail_range_at_conjugate {q : ℝ}
   have hchoose : ∀ y : Set.range fq, fq (chooseIndex y) = y := by
     intro y
     exact Classical.choose_spec y.property
-  letI : Finite (Set.range fq) := hqfinite
+  let : Finite (Set.range fq) := hqfinite
   let F : Set.range fq → ℂ := fun y ↦ fz (chooseIndex y)
   have hFrange : (Set.range F).Finite := Set.finite_range F
   apply hFrange.subset

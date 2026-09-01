@@ -31,7 +31,7 @@ lemma unit_separator_prefix {p : ℂ} (hpNorm : ‖p‖ = 1) (hpNe : p ≠ 1) :
       apply Complex.ext
       · simpa using hre
       · simpa using him)
-  refine ⟨by simp [w]; linarith, fun k ↦ ?_⟩
+  refine ⟨by simp; linarith, fun k ↦ ?_⟩
   have htel : ∑ i ∈ Finset.range k, (1 - p) * p⁻¹ ^ (i + 1) = p⁻¹ ^ k - 1 := by
     induction k with
     | zero => simp
@@ -53,7 +53,7 @@ lemma unit_separator_prefix {p : ℂ} (hpNorm : ‖p‖ = 1) (hpNe : p ≠ 1) :
   rw [hreSum, htel]
   calc
     (p⁻¹ ^ k - 1).re ≤ ‖p⁻¹ ^ k‖ - 1 := by
-      simp only [map_sub, Complex.sub_re, Complex.one_re]
+      simp only [Complex.sub_re, Complex.one_re]
       exact sub_le_sub_right (Complex.re_le_norm _) 1
     _ = 0 := by rw [norm_pow, norm_inv, hpNorm]; norm_num
     _ < (1 - p).re := by simp; linarith
@@ -73,7 +73,7 @@ lemma unit_separator_term_ne_zero {p : ℂ} (hpNorm : ‖p‖ = 1) (hpNe : p ≠
     · simp only [Complex.conj_im, Complex.neg_im]
   have hconjp : conj p = p⁻¹ := (Complex.inv_eq_conj hpNorm).symm
   have hconjz : conj z = (1 - p⁻¹) * p ^ (n + 1) := by
-    simp [z, map_mul, hconjp, Complex.conj_inv, hp0]
+    simp [z, map_mul, hconjp]
   have hzsum : (1 - p) * p⁻¹ ^ (n + 1) + (1 - p⁻¹) * p ^ (n + 1) = 0 := by
     change z + (1 - p⁻¹) * p ^ (n + 1) = 0
     rw [← hconjz, hzconj, add_neg_cancel]
@@ -172,8 +172,8 @@ lemma exists_tail_pair_same_norm_and_im_sign {S : ℕ → ℂ} {s : ℕ → ℤ}
   let R : Set ℝ := Set.range fun n ↦ ‖S n‖
   let color : A → R × Bool := fun i ↦
     (⟨‖S i.1‖, Set.mem_range_self i.1⟩, decide (0 ≤ (S i.1).im))
-  letI : Infinite A := hA.to_subtype
-  letI : Finite R := hnorm
+  let : Infinite A := hA.to_subtype
+  let : Finite R := hnorm
   obtain ⟨i, j, hij, hc⟩ := Finite.exists_ne_map_eq_of_infinite color
   have hij' : i.1 ≠ j.1 := by
     intro h
@@ -215,7 +215,7 @@ lemma unitWeightedPartialSum_re_converges {p w : ℂ} {s : ℕ → ℤ} {K : ℕ
     have hnonpos := hstep (K + n + 1) (by omega)
     dsimp only [x, S]
     rw [show K + (n + 1) = (K + n) + 1 by omega, hrec]
-    simp only [map_add, Complex.add_re]
+    simp only [Complex.add_re]
     linarith)
   have hxbdd : BddBelow (Set.range x) := by
     refine ⟨-C, ?_⟩
@@ -223,7 +223,7 @@ lemma unitWeightedPartialSum_re_converges {p w : ℂ} {s : ℕ → ℤ} {K : ℕ
     have hre : |(S (K + n)).re| ≤ C := by
       exact (RCLike.norm_re_le_norm _).trans (hnorm (K + n))
     exact (abs_le.mp hre).1
-  exact Real.tendsto_of_bddBelow_antitone hxbdd hxanti
+  exact ⟨⨅ i, x i, tendsto_atTop_ciInf hxanti hxbdd⟩
 
 lemma unitWeightedPartialSum_vertical_lattice_approx {p w : ℂ} {s : ℕ → ℤ}
     {r t : ℕ} {δ : ℝ} (hp : ‖p‖ = 1) (hw : w ≠ 0)
@@ -289,7 +289,7 @@ lemma unitWeightedPartialSum_vertical_lattice_approx {p w : ℂ} {s : ℕ → �
         simpa only [Complex.reCLM_apply] using
           (map_sum (Complex.reCLM : ℂ →L[ℝ] ℝ) v I)
       rw [hsum] at hre
-      simp only [map_sub, Complex.sub_re] at hre
+      simp only [Complex.sub_re] at hre
       have hneg : ∑ i ∈ I, -(v i).re = -(∑ i ∈ I, (v i).re) := by
         rw [Finset.sum_neg_distrib]
       rw [hneg, ← hre]
@@ -491,7 +491,9 @@ lemma unitWeightedPartialSum_norm_range_infinite {p w : ℂ} {s : ℕ → ℤ} {
       calc
         δ * (2 * B) ≤ (c / (16 * B)) * (2 * B) :=
           mul_le_mul_of_nonneg_right hδc (by positivity)
-        _ = c / 8 := by field_simp [ne_of_gt hB] <;> norm_num
+        _ = c / 8 := by
+          field_simp [ne_of_gt hB]
+          all_goals norm_num
     exact (mul_le_mul_of_nonneg_left hHbound hδ.le).trans hδB
   have hkabs : |c * (k : ℝ)| < c := by
     have htri : |c * (k : ℝ)| ≤ |(S t).im - (S r).im| +
@@ -569,7 +571,6 @@ lemma exists_unit_conjugate_expansion_with_infinite_radii {q : ℝ} {p : ℂ}
   have htermRe (i : ℕ) :
       ((s i : ℂ) * (w * p⁻¹ ^ i)).re =
         (s i : ℝ) * (w * p⁻¹ ^ i).re := by
-    norm_cast
     simp
   have hstep : ∀ i, K < i → ((s i : ℂ) * (w * p⁻¹ ^ i)).re ≤ 0 := by
     intro i hi

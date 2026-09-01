@@ -94,12 +94,14 @@ private lemma abs_sub_lt_of_floor_eq {x y L ε : ℝ} (hε : 0 < ε)
   constructor
   · have haux : (y - L) / ε - (x - L) / ε < 1 := by linarith
     have hdiv : (y - x) / ε < 1 := by
-      convert haux using 1 <;> ring
+      convert haux using 1
+      all_goals ring
     have := (div_lt_iff₀ hε).mp hdiv
     linarith
   · have haux : (x - L) / ε - (y - L) / ε < 1 := by linarith
     have hdiv : (x - y) / ε < 1 := by
-      convert haux using 1 <;> ring
+      convert haux using 1
+      all_goals ring
     simpa using (div_lt_iff₀ hε).mp hdiv
 
 /-- Akiyama--Komornik's finite sumset pigeonhole lemma in the special form
@@ -225,7 +227,7 @@ lemma smallSpectrumDifferences_of_cube_accumulation {q : ℝ}
       (by linarith [hBbounds e]) hfloorB
   have hdistinct : A d ≠ A e ∨ B d ≠ B e := by
     by_contra hnot
-    push_neg at hnot
+    push Not at hnot
     apply hde
     apply Subtype.ext
     have hdrel := hAdiffB d
