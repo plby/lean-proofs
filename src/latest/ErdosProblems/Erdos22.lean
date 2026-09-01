@@ -125,7 +125,7 @@ lemma oneSidedExtension_cliqueFree_four {W : Type*} [Nonempty W]
       | inr v =>
           exfalso
           have H := hadj j i hji
-          simpa [hj, hi] using H
+          simp [hj, hi] at H
     fin_cases i
     · rcases hold 1 (by decide) with ⟨v, hv⟩
       rcases hold 2 (by decide) with ⟨w, hw⟩
@@ -163,7 +163,7 @@ lemma oneSidedExtension_cliqueFree_four {W : Type*} [Nonempty W]
     have hginj : Function.Injective g := by
       intro i j hij
       apply f.injective
-      simpa [hg i, hg j, hij]
+      simp [hg i, hg j, hij]
     let e : (⊤ : SimpleGraph (Fin 4)) ↪g G :=
       { toFun := g
         inj' := hginj
@@ -193,8 +193,10 @@ private lemma card_le_leftPart_add {A B : Type*} [Fintype A] [Fintype B]
     | ⟨.inr b, _⟩ => .inr b
   have hf : Function.Injective f := by
     rintro ⟨x, hx⟩ ⟨y, hy⟩ hxy
-    rcases x with a | b <;> rcases y with a' | b' <;>
-      simp [f] at hxy ⊢
+    rcases x with a | b <;> rcases y with a' | b'
+    all_goals
+      simp only [f, Subtype.mk.injEq, Sum.inl.injEq, Sum.inr.injEq,
+        Sum.inl_ne_inr, Sum.inr_ne_inl] at hxy ⊢
     · exact congrArg Subtype.val hxy
     · exact hxy
   have H := Fintype.card_le_of_injective f hf
@@ -212,11 +214,12 @@ private lemma leftPart_independent {A B : Type*} [Fintype A]
   have hb' : Sum.inl b ∈ s := (Finset.mem_filter.mp hb).2
   exact hs ha' hb' (by simpa using hab) ((hleft a b).mpr hadj)
 
-lemma indepNum_le_left_add {A B : Type*} [Fintype A] [Fintype B]
+lemma indepNum_le_left_add {A B : Type*} [Finite A] [Fintype B]
     (H : SimpleGraph (A ⊕ B)) (G : SimpleGraph A)
     (hleft : ∀ a b, H.Adj (.inl a) (.inl b) ↔ G.Adj a b) :
     H.indepNum ≤ G.indepNum + Fintype.card B := by
   classical
+  let _ := Fintype.ofFinite A
   rcases H.exists_isNIndepSet_indepNum with ⟨s, hs⟩
   rw [← hs.card_eq]
   calc
@@ -224,16 +227,19 @@ lemma indepNum_le_left_add {A B : Type*} [Fintype A] [Fintype B]
     _ ≤ G.indepNum + Fintype.card B :=
       Nat.add_le_add_right (leftPart_independent H G hleft s hs.isIndepSet).card_le_indepNum _
 
-lemma oneSidedExtension_indepNum_le {W : Type*} [Fintype W]
+lemma oneSidedExtension_indepNum_le {W : Type*} [Finite W]
     (G : SimpleGraph (Bool × W)) (t : ℕ) :
     (oneSidedExtension G t).indepNum ≤ G.indepNum + t := by
+  classical
+  let _ := Fintype.ofFinite W
   simpa using indepNum_le_left_add (oneSidedExtension G t) G
     (fun _ _ ↦ oneSidedExtension_adj_inl_inl G t _ _)
 
-lemma uniformBlowup_indepNum_le {V : Type*} [Fintype V]
+lemma uniformBlowup_indepNum_le {V : Type*} [Finite V]
     (G : SimpleGraph V) (q : ℕ) :
     (uniformBlowup G q).indepNum ≤ q * G.indepNum := by
   classical
+  let _ := Fintype.ofFinite V
   rcases (uniformBlowup G q).exists_isNIndepSet_indepNum with ⟨s, hs⟩
   have himage : G.IsIndepSet (s.image Prod.fst) := by
     have hs' := hs.isIndepSet
@@ -263,9 +269,11 @@ lemma uniformBlowup_indepNum_le {V : Type*} [Fintype V]
       Finset.card_le_mul_card_image s q hfiber
     _ ≤ q * G.indepNum := Nat.mul_le_mul_left q himage.card_le_indepNum
 
-lemma paddedBlowup_indepNum_le {V : Type*} [Fintype V]
+lemma paddedBlowup_indepNum_le {V : Type*} [Finite V]
     (G : SimpleGraph V) (q r : ℕ) :
     (paddedBlowup G q r).indepNum ≤ q * G.indepNum + r := by
+  classical
+  let _ := Fintype.ofFinite V
   calc
     (paddedBlowup G q r).indepNum ≤ (uniformBlowup G q).indepNum + r := by
       simpa [paddedBlowup] using indepNum_le_left_add
@@ -287,7 +295,7 @@ lemma uniformBlowup_cliqueFree_four {V : Type*} (G : SimpleGraph V) (q : ℕ)
     intro i j hij
     by_contra hne
     have H := hadj i j hne
-    exact G.loopless.irrefl (f i).1 (by simpa [hij] using H)
+    simp [hij] at H
   let e : (⊤ : SimpleGraph (Fin 4)) ↪g G :=
     { toFun := fun i ↦ (f i).1
       inj' := hproj
@@ -318,7 +326,7 @@ lemma sum_cliqueFree_four {A B : Type*} (G : SimpleGraph A) (H : SimpleGraph B)
     have hginj : Function.Injective g := by
       intro i j hij
       apply f.injective
-      simpa [hg i, hg j, hij]
+      simp [hg i, hg j, hij]
     let e : (⊤ : SimpleGraph (Fin 4)) ↪g G :=
       { toFun := g
         inj' := hginj
@@ -341,7 +349,7 @@ lemma sum_cliqueFree_four {A B : Type*} (G : SimpleGraph A) (H : SimpleGraph B)
     have hginj : Function.Injective g := by
       intro i j hij
       apply f.injective
-      simpa [hg i, hg j, hij]
+      simp [hg i, hg j, hij]
     let e : (⊤ : SimpleGraph (Fin 4)) ↪g H :=
       { toFun := g
         inj' := hginj
@@ -376,10 +384,11 @@ private def uniformBlowupDartEquiv {V : Type*} (G : SimpleGraph V) (q : ℕ) :
   left_inv := by rintro ⟨⟨⟨v, i⟩, ⟨w, j⟩⟩, h⟩; rfl
   right_inv := by rintro ⟨⟨⟨v, w⟩, h⟩, ⟨i, j⟩⟩; rfl
 
-lemma uniformBlowup_edgeCard {V : Type*} [Fintype V]
+lemma uniformBlowup_edgeCard {V : Type*} [Finite V]
     (G : SimpleGraph V) (q : ℕ) :
     Nat.card (uniformBlowup G q).edgeSet = q ^ 2 * Nat.card G.edgeSet := by
   classical
+  let _ := Fintype.ofFinite V
   have hc := Fintype.card_congr (uniformBlowupDartEquiv G q)
   have hblow := (uniformBlowup G q).dart_card_eq_twice_card_edges
   have hbase := G.dart_card_eq_twice_card_edges
@@ -393,10 +402,11 @@ lemma uniformBlowup_edgeCard {V : Type*} [Fintype V]
           2 * Nat.card G.edgeSet * (q * q) := hc
       _ = 2 * (q ^ 2 * Nat.card G.edgeSet) := by rw [pow_two]; ac_rfl
 
-lemma paddedBlowup_edgeCard {V : Type*} [Fintype V]
+lemma paddedBlowup_edgeCard {V : Type*} [Finite V]
     (G : SimpleGraph V) (q r : ℕ) :
     Nat.card (paddedBlowup G q r).edgeSet = q ^ 2 * Nat.card G.edgeSet := by
   classical
+  let _ := Fintype.ofFinite V
   calc
     Nat.card (paddedBlowup G q r).edgeSet =
         Nat.card (uniformBlowup G q).edgeSet +
@@ -410,7 +420,7 @@ private lemma sym2_map_inl_ne_cross {A B : Type*} (e : Sym2 A) (a : A) (b : B) :
     Sym2.map Sum.inl e ≠ s(Sum.inr b, Sum.inl a) := by
   induction e using Sym2.inductionOn with
   | _ x y =>
-      rw [Sym2.map_pair_eq]
+      rw [Sym2.map_mk]
       intro H
       rw [Sym2.eq_iff] at H
       simp at H
@@ -644,7 +654,7 @@ lemma exists_strictSeed (ε : ℝ) (hε : 0 < ε) : Nonempty (StrictSeed ε) := 
   let instW : Fintype W := inferInstance
   have hWcard : @Fintype.card W instW = M := by simp [instW, W, M, copyCard]
   have hMpos : 0 < M := hLpos.trans_le hMlower
-  letI : Nonempty W := Fintype.card_pos_iff.mp (by simpa [hWcard] using hMpos)
+  let _ : Nonempty W := Fintype.card_pos_iff.mp (by simpa [hWcard] using hMpos)
   have hfreeH : H.CliqueFree 4 := by
     apply oneSidedExtension_cliqueFree_four G t hfreeRaw
     intro u v w
@@ -789,7 +799,7 @@ lemma eventual_graphs (ε : ℝ) (hε : 0 < ε) :
       ∃ G : SimpleGraph (Fin n), G.CliqueFree 4 ∧
         (G.indepNum : ℝ) ≤ ε * n ∧ (n : ℝ) ^ 2 / 8 ≤ G.edgeFinset.card := by
   rcases exists_strictSeed ε hε with ⟨S⟩
-  letI : Fintype S.Vertex := S.fintypeVertex
+  let _ : Fintype S.Vertex := S.fintypeVertex
   let m : ℕ := Fintype.card S.Vertex
   have hm : 0 < m := S.card_pos
   obtain ⟨N, hN⟩ := exists_nat_gt (2 * (m : ℝ) / ε)
@@ -818,11 +828,11 @@ lemma eventual_graphs (ε : ℝ) (hε : 0 < ε) :
     simpa [Nat.mul_comm] using hdecomp
   let e : A ≃ Fin n := Fintype.equivFinOfCardEq hcardA
   let Gfin : SimpleGraph (Fin n) := P.map e.toEmbedding
-  letI : DecidableRel Gfin.Adj := fun _ _ ↦ Classical.propDecidable _
+  let _ : DecidableRel Gfin.Adj := fun _ _ ↦ Classical.propDecidable _
   have hnpos : 0 < n := by
     rw [← hdecomp]
     positivity
-  letI : Nonempty A := Fintype.card_pos_iff.mp (by simpa [hcardA] using hnpos)
+  let _ : Nonempty A := Fintype.card_pos_iff.mp (by simpa [hcardA] using hnpos)
   have hfreeP : P.CliqueFree 4 := paddedBlowup_cliqueFree_four S.graph q r S.cliqueFree
   have hfreeFin : Gfin.CliqueFree 4 := by
     simpa [Gfin] using
