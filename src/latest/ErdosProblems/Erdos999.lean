@@ -409,7 +409,6 @@ lemma largeValueRadius_le (f : ℕ → ℕ) {q : ℕ} (hq : 0 < q) :
       div_le_div_of_nonneg_right (min_le_right _ _) (by positivity)
     _ = ((Nat.totient q : ℝ))⁻¹ / 2 := by
       field_simp
-      <;> norm_num [hq.ne', hφ.ne']
 
 lemma tendsto_largeValueRadius_zero (f : ℕ → ℕ) :
     Tendsto (largeValueRadius f) atTop (𝓝 0) := by
@@ -495,7 +494,7 @@ lemma normalizedWeight_eq_ofReal_largeValueNumerator
           min ((f q : ℝ) / 2) ((q : ℝ) / (2 * Nat.totient q)) / q =
         min (((Nat.totient q : ℝ) * (f q : ℝ) / q) / 2) (1 / 2) := by
     rw [mul_min_of_nonneg _ _ hφR.le, ← min_div_div_right hqR.le]
-    congr 1 <;> field_simp [hqR.ne', hφR.ne'] <;> ring
+    congr 1 <;> field_simp [hqR.ne', hφR.ne']
   rw [hreal]
   simp only [normalizedWeight, ENNReal.ofReal_min,
     ENNReal.ofReal_mul (by positivity : (0 : ℝ) ≤ Nat.totient q),
@@ -557,7 +556,7 @@ lemma largeValueNumerator_eq_zero_iff (f : ℕ → ℕ) {q : ℕ} (hq : 0 < q) :
     linarith
   · intro hf
     rw [hf]
-    simp
+    simp only [CharP.cast_eq_zero, zero_div, inf_eq_left]
     positivity
 
 lemma one_half_le_largeValueNumerator (f : ℕ → ℕ) {q : ℕ}
@@ -710,7 +709,7 @@ lemma exists_real_partial_sum_between_one_three_halves
       · intro s
         exact s.exists_nat_subset_range
     rw [hvtop] at hle
-    simpa using hle
+    simp at hle
   let k := Nat.find hex
   have hk : 1 ≤ ∑ i ∈ Finset.range k, v i := Nat.find_spec hex
   have hk0 : k ≠ 0 := by
@@ -912,7 +911,7 @@ lemma limsup_largeValueLayer_eq_addWellApproximable (f : ℕ → ℕ) :
   rw [← Nat.cofinite_eq_atTop, cofinite.limsup_set_eq,
     cofinite.blimsup_set_eq]
   ext x
-  simp only [mem_setOf_eq]
+  simp only [Set.mem_ofPred_eq]
   let S : Set ℕ := {q | 0 < q ∧
     x ∈ approxAddOrderOf UnitAddCircle q (largeValueRadius f q)}
   have hzero : 0 ∉ S := by simp [S]
@@ -983,7 +982,7 @@ theorem largeValuePairOverlap_of_pairCountBound
   simpa [largeValueLayer, largeValueRadius, normalizedRealWeight] using
     volumeReal_approxAddOrderOf_inter_le_of_pairCount hiq hjq
       (largeValueNumerator_nonneg f (i + 1))
-      (largeValueNumerator_nonneg f (j + 1)) hK
+      (largeValueNumerator_nonneg f (j + 1))
       (hcount f i j hi hj hij)
 
 /-- The complete measure-theoretic deduction of the hard direction from the
@@ -1025,7 +1024,7 @@ theorem hardDirection_of_largeValuePairOverlap
       (fun n ↦ measurableSet_largeValueLayer f (n + 3)) w hw0 hwle
       hsumShift c C hc hC hsingle hsingleUpper hpairShift
   have hsub : limsup A atTop ⊆ limsup (largeValueLayer f) atTop := by
-    simpa [A] using limsup_nat_add_subset (largeValueLayer f) 3
+    simp [A]
   have hlarge : volume (limsup (largeValueLayer f) atTop) ≠ 0 := by
     intro hzero
     exact hshift (le_zero_iff.mp ((measure_mono hsub).trans_eq hzero))

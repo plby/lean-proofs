@@ -209,10 +209,10 @@ theorem first_modEq_of_mem_congruenceFiber {g a b : ℕ}
   have hmul : b * (x.1 : ℕ) ≡ b * (y.1 : ℕ) [MOD a] := by
     calc
       b * (x.1 : ℕ) ≡ b * (x.1 : ℕ) + a * (y.2 : ℕ) [MOD a] := by
-        simpa using (hzeroY.add_left (b * (x.1 : ℕ))).symm
+        simp
       _ ≡ b * (y.1 : ℕ) + a * (x.2 : ℕ) [MOD a] := heqA
       _ ≡ b * (y.1 : ℕ) [MOD a] := by
-        simpa using hzeroX.add_left (b * (y.1 : ℕ))
+        simp
   exact hmul.cancel_left_of_coprime hab.gcd_eq_one
 
 /-- Two members of the same fibre have second coordinates congruent modulo
@@ -251,21 +251,21 @@ theorem second_modEq_of_mem_congruenceFiber {g a b : ℕ}
   have hmul : a * (x.2 : ℕ) ≡ a * (y.2 : ℕ) [MOD b] := by
     calc
       a * (x.2 : ℕ) ≡ b * (y.1 : ℕ) + a * (x.2 : ℕ) [MOD b] := by
-        simpa [Nat.add_comm] using (hzeroY.add_right (a * (x.2 : ℕ))).symm
+        simp
       _ ≡ b * (x.1 : ℕ) + a * (y.2 : ℕ) [MOD b] := heqB.symm
       _ ≡ a * (y.2 : ℕ) [MOD b] := by
-        simpa using hzeroX.add_right (a * (y.2 : ℕ))
+        simp
   exact hmul.cancel_left_of_coprime hab.symm.gcd_eq_one
 
 private def firstBlock {g a b : ℕ} (ha : 0 < a)
     (c : ℤ) (z : ↑(congruenceFiber g a b c)) : Fin g :=
   ⟨(z.1.1 : ℕ) / a, (Nat.div_lt_iff_lt_mul ha).2 (by
-    simpa [Nat.mul_comm] using z.1.1.isLt)⟩
+    simp)⟩
 
 private def secondBlock {g a b : ℕ} (hb : 0 < b)
     (c : ℤ) (z : ↑(congruenceFiber g a b c)) : Fin g :=
   ⟨(z.1.2 : ℕ) / b, (Nat.div_lt_iff_lt_mul hb).2 (by
-    simpa [Nat.mul_comm] using z.1.2.isLt)⟩
+    simp)⟩
 
 private lemma block_sum_modEq {g a b : ℕ} (ha : 0 < a) (hb : 0 < b)
     (hab : a.Coprime b) {c : ℤ}
@@ -370,14 +370,14 @@ private noncomputable def congruenceFiberPrimePowerImage {g a b : ℕ}
     ((firstBlock ha c z : ℕ) : ZMod ((p : ℕ) ^ g.factorization p))
 
 private lemma congruenceFiberPrimeImage_card_le {g a b : ℕ}
-    (hg : 0 < g) (ha : 0 < a) (hb : 0 < b) (hab : a.Coprime b)
+    (ha : 0 < a) (hb : 0 < b) (hab : a.Coprime b)
     (c : ℤ) (p : g.primeFactors) :
     (congruenceFiberPrimeImage (b := b) ha c p).card ≤
       if (p : ℕ) ∣ a * b then (p : ℕ) - 1
       else if (p : ℕ) ∣ c.natAbs then (p : ℕ) - 1 else (p : ℕ) - 2 := by
   classical
   let hp : Nat.Prime (p : ℕ) := Nat.prime_of_mem_primeFactors p.2
-  letI : Fact (Nat.Prime (p : ℕ)) := ⟨hp⟩
+  let : Fact (Nat.Prime (p : ℕ)) := ⟨hp⟩
   have hpg : (p : ℕ) ∣ g := Nat.dvd_of_mem_primeFactors p.2
   by_cases hne : (congruenceFiber g a b c).Nonempty
   · let z₀ : ↑(congruenceFiber g a b c) := ⟨hne.choose, hne.choose_spec⟩
@@ -394,12 +394,10 @@ private lemma congruenceFiberPrimeImage_card_le {g a b : ℕ}
         exact fun h ↦ hpna ((ZMod.natCast_eq_zero_iff a (p : ℕ)).mp h)
       have hrel := first_affine_eq (p := (p : ℕ)) ha hab z z₀
       have hAzero : ((z.1.1 : ℕ) : ZMod (p : ℕ)) = 0 := by
-        change ((z.1.1 : ℕ) : ZMod (p : ℕ)) = 0
         change ((firstBlock ha c z : ℕ) : ZMod (p : ℕ)) = rootA at htz
         rw [htz] at hrel
         change ((z.1.1 : ℕ) : ZMod (p : ℕ)) + a * t₀ =
           A₀ + a * rootA at hrel
-        change ((z.1.1 : ℕ) : ZMod (p : ℕ)) = 0
         dsimp only [rootA] at hrel
         field_simp [ha0] at hrel
         linear_combination hrel
@@ -423,7 +421,6 @@ private lemma congruenceFiberPrimeImage_card_le {g a b : ℕ}
           B₀ + b * (secondBlock hb c z : ℕ) at hrelB
         change rootB + (secondBlock hb c z₀ : ℕ) =
           t₀ + (secondBlock hb c z : ℕ) at hrelBlock
-        change ((z.1.2 : ℕ) : ZMod (p : ℕ)) = 0
         dsimp only [rootB] at hrelBlock
         field_simp [hb0] at hrelBlock
         linear_combination hrelB - hrelBlock
@@ -525,7 +522,7 @@ private lemma congruenceFiberPrimePowerImage_card_le {g a b : ℕ}
   have he : 0 < g.factorization p := hp.factorization_pos_of_dvd hg.ne' hpg
   have hp0 : 0 < (p : ℕ) := hp.pos
   have hpow0 : (p : ℕ) ^ g.factorization p ≠ 0 := pow_ne_zero _ hp.ne_zero
-  letI : NeZero ((p : ℕ) ^ g.factorization p) := ⟨hpow0⟩
+  let : NeZero ((p : ℕ) ^ g.factorization p) := ⟨hpow0⟩
   have hpPow : (p : ℕ) ∣ (p : ℕ) ^ g.factorization p := dvd_pow_self _ he.ne'
   let project :
       ↑(congruenceFiberPrimePowerImage (b := b) ha c p) →
@@ -683,7 +680,7 @@ theorem congruenceFiberCount_le_localProduct {g a b : ℕ}
           exact Nat.zero_le _
         · intro p _
           exact Nat.mul_le_mul_left _
-            (congruenceFiberPrimeImage_card_le hg ha hb hab c p)
+            (congruenceFiberPrimeImage_card_le ha hb hab c p)
       _ = ∏ p ∈ g.primeFactors,
           p ^ (g.factorization p - 1) *
             (if p ∣ a * b then p - 1
@@ -701,7 +698,7 @@ theorem congruenceFiberCount_le_localProduct {g a b : ℕ}
 
 /-- A congruence fibre has at most `g` elements before any local coprimality
 density is used. -/
-theorem congruenceFiberCount_le_g {g a b : ℕ} (hg : 0 < g) (ha : 0 < a)
+theorem congruenceFiberCount_le_g {g a b : ℕ} (ha : 0 < a)
     (hab : a.Coprime b) (c : ℤ) :
     congruenceFiberCount g a b c ≤ g := by
   classical

@@ -242,7 +242,6 @@ theorem exists_internalGap_min_lower :
       _ = L * ((q : ℝ) ^ 2 / 4) := by
         dsimp [c]
         field_simp [hK.ne', hphi.ne']
-        <;> ring
       _ ≤ L * D ^ 2 := mul_le_mul_of_nonneg_left hDsq hL.le
   exact hfrac.trans (weighted_gap_sum_lower L d hL hd)
 
@@ -275,14 +274,12 @@ private lemma volumeReal_internalGapInterval {q : ℕ} (hq : 0 < q)
   ring
 
 private lemma internalGapInterval_upper_le_left_of_lt
-    {q : ℕ} (hq : 0 < q) {L : ℝ} (hL : 0 ≤ L)
+    {q : ℕ} (hq : 0 < q) {L : ℝ}
     {i j : Fin (q.totient - 1)} (hij : i < j) :
     ((Erdos220.reducedResidue q (Erdos220.gapLeftIndex q i) : ℕ) / (q : ℝ)) +
         min L (Erdos220.internalGap q i : ℝ) / (2 * q) ≤
       (Erdos220.reducedResidue q (Erdos220.gapLeftIndex q j) : ℕ) / (q : ℝ) := by
   have hqR : (0 : ℝ) < q := by exact_mod_cast hq
-  have hmin : min L (Erdos220.internalGap q i : ℝ) ≤
-      Erdos220.internalGap q i := min_le_right _ _
   have hgap : Erdos220.reducedResidue q (Erdos220.gapLeftIndex q i) +
       Erdos220.internalGap q i =
       Erdos220.reducedResidue q (Erdos220.gapRightIndex q i) :=
@@ -305,24 +302,23 @@ private lemma internalGapInterval_upper_le_left_of_lt
   have hhalf : min L (Erdos220.internalGap q i : ℝ) / 2 ≤
       Erdos220.internalGap q i := by
     have hgap0 : (0 : ℝ) ≤ Erdos220.internalGap q i := by positivity
-    nlinarith [min_le_right L (Erdos220.internalGap q i : ℝ),
-      le_min hL hgap0]
+    nlinarith [min_le_right L (Erdos220.internalGap q i : ℝ)]
   rw [show min L (Erdos220.internalGap q i : ℝ) / (2 * q) =
       (min L (Erdos220.internalGap q i : ℝ) / 2) / q by ring,
     ← add_div, div_le_div_iff_of_pos_right hqR]
   nlinarith
 
 private lemma pairwise_disjoint_internalGapInterval {q : ℕ} (hq : 0 < q)
-    {L : ℝ} (hL : 0 ≤ L) :
+    {L : ℝ} :
     Pairwise (fun i j ↦
       Disjoint (internalGapInterval q L i) (internalGapInterval q L j)) := by
   intro i j hij
   rw [Set.disjoint_left]
   intro x hxi hxj
   rcases lt_or_gt_of_ne hij with hijlt | hjilt
-  · have hsep := internalGapInterval_upper_le_left_of_lt hq hL hijlt
+  · have hsep := internalGapInterval_upper_le_left_of_lt (L := L) hq hijlt
     exact (not_lt_of_ge (hxi.2.trans hsep)) hxj.1
-  · have hsep := internalGapInterval_upper_le_left_of_lt hq hL hjilt
+  · have hsep := internalGapInterval_upper_le_left_of_lt (L := L) hq hjilt
     exact (not_lt_of_ge (hxj.2.trans hsep)) hxi.1
 
 private lemma internalGapInterval_subset_preimage_layer
@@ -430,7 +426,7 @@ theorem exists_largeValueLayer_lower_of_four_le :
       ∑ k : Fin (q.totient - 1),
         min L (Erdos220.internalGap q k : ℝ) / (2 * q) := by
     rw [measureReal_iUnion_fintype
-      (pairwise_disjoint_internalGapInterval hqpos hL.le)
+      (pairwise_disjoint_internalGapInterval hqpos)
       (fun k ↦ measurableSet_internalGapInterval q L k)
       (h' := fun k ↦ by simp [internalGapInterval, Real.volume_Ioc])]
     apply Finset.sum_congr rfl

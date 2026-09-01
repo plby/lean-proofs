@@ -208,7 +208,7 @@ densities immediately gives the desired product bound for the overlap
 measure. -/
 theorem volumeReal_approxAddOrderOf_inter_le_of_pairCount
     {q r : ℕ} (hq : 0 < q) (hr : 0 < r) {L M K : ℝ}
-    (hL : 0 ≤ L) (hM : 0 ≤ M) (hK : 0 ≤ K)
+    (hL : 0 ≤ L) (hM : 0 ≤ M)
     (hcount : (overlapPairCount q r L M : ℝ) ≤
       K * (q.totient : ℝ) * (r.totient : ℝ) *
         max (L / q) (M / r)) :

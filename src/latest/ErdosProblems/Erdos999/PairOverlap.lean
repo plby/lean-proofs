@@ -466,7 +466,8 @@ theorem overlapPairCount_mul_le
           (L / (g * a : ℕ) + M / (g * b : ℕ)) := by
     dsimp only [X]
     push_cast
-    field_simp <;> ring
+    field_simp
+    all_goals ring
   have hsum :
       L / (g * a : ℕ) + M / (g * b : ℕ) ≤
         2 * max (L / (g * a : ℕ)) (M / (g * b : ℕ)) := by

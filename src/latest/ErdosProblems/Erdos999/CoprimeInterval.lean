@@ -868,7 +868,7 @@ private lemma subset_weight_term_eq (T : Finset ℕ) (c : ℕ)
         intro p hp
         rw [Nat.cast_sub (hT p hp).one_le, Nat.cast_one]
         simp [one_div]
-  · push_neg at hall
+  · push Not at hall
     obtain ⟨p, hpT, hpnot⟩ := hall
     have hdnot : ¬(∏ p ∈ T, p) ∣ c := by
       intro hd
@@ -1326,7 +1326,8 @@ private lemma weighted_subset_count_decomp (Q K M : ℕ) (S : Finset ℕ)
       have hz := subset_coprime_count_eq_zero Q K S T hQ hS hT hdisj hKd
       change a * _ ≤ _
       rw [hz]
-      simp [a, d, hsmallT, hlargeM, hdK, Nat.cast_prod, one_div]
+      simp only [CharP.cast_eq_zero, mul_zero, one_div, Nat.cast_prod,
+        Nat.cast_pow, Nat.cast_ofNat]
       positivity
 
 private lemma error_mul_threshold_le (Q K : ℕ) (hQ : 0 < Q) :
