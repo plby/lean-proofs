@@ -590,7 +590,7 @@ theorem jointReduced_iff_coordinates {r k : ℕ} (h : Fin r → ℕ)
       ∀ i : Fin k,
         primeProductCRT k a i ∈
           locallyAllowedResidues (p := primeModulus k i) h := by
-  letI (i : Fin k) : Fact (Nat.Prime (primeModulus k i)) :=
+  let _ (i : Fin k) : Fact (Nat.Prime (primeModulus k i)) :=
     ⟨nthPrime_prime i⟩
   have hunit (x : ZMod (primeProduct k)) :
       IsUnit x ↔ ∀ i, primeProductCRT k x i ≠ 0 := by
@@ -974,7 +974,7 @@ theorem card_localAvoidingData (p r : ℕ) [NeZero p] :
     _ = ∏ _i : Fin (r + 1), Fintype.card (NonzeroZMod p) :=
       Fintype.card_pi
     _ = (p - 1) ^ (r + 1) := by
-      simp [card_nonzeroZMod]
+      simp
 
 theorem sum_allowed_local_counts (p r : ℕ) [NeZero p] :
     (∑ h : Fin r → ZMod p,
@@ -1140,7 +1140,7 @@ theorem boxMean_singularSeriesSegment_period (r ℓ : ℕ) :
       rw [← Fin.prod_univ_eq_prod_range]
       apply Finset.prod_congr rfl
       intro i hi
-      letI : NeZero (nthPrime i) := ⟨(nthPrime_prime i).ne_zero⟩
+      let _ : NeZero (nthPrime i) := ⟨(nthPrime_prime i).ne_zero⟩
       apply localFactor_val_eq_of_cast_eq
       intro j
       exact (finiteShiftCRTEquiv_apply r ℓ x i j).symm
@@ -1189,7 +1189,7 @@ theorem positiveShiftSeries_periodic {r ℓ : ℕ} :
   intro h g hmod
   apply singularSeriesSegment_periodic
   intro i
-  simpa [Nat.add_mod, hmod i]
+  simp [Nat.add_mod, hmod i]
 
 theorem boxMean_positiveShiftSeries_period (r ℓ : ℕ) :
     Wikipedia.SzemeredisTheorem.boxMean
@@ -1437,7 +1437,7 @@ theorem card_shiftBox (r m : ℕ) : (shiftBox r m).card = m ^ r := by
   classical
   unfold shiftBox
   rw [Fintype.card_piFinset]
-  simp [card_Icc_one]
+  simp
 
 theorem singularSeriesSegment_nonneg {r a b : ℕ}
     (h : Fin r → ℕ) : 0 ≤ singularSeriesSegment a b h := by
@@ -1691,7 +1691,7 @@ theorem genericLocalFactor_bounds {r p : ℕ}
       _ ≤ ((n : ℝ) ^ 2 * x ^ 2) * 2 ^ n := by
         exact mul_le_mul_of_nonneg_left hdenInv (by positivity)
       _ = (n : ℝ) ^ 2 * 2 ^ n / (p : ℝ) ^ 2 := by
-        simp [x, div_pow]
+        simp [x]
         ring
 
 /-- The elementary lower bound for the zero-indexed prime sequence. -/
@@ -1739,7 +1739,7 @@ theorem tendsto_reciprocalSquareTail_zero :
 
 /-- If every factor lies in `[0,1]`, the error of their product is at most
 the sum of their individual errors. -/
-theorem one_sub_prod_le_sum_one_sub {α : Type*} [DecidableEq α]
+theorem one_sub_prod_le_sum_one_sub {α : Type*}
     (s : Finset α) (f : α → ℝ)
     (hf0 : ∀ i ∈ s, 0 ≤ f i) (hf1 : ∀ i ∈ s, f i ≤ 1) :
     1 - ∏ i ∈ s, f i ≤ ∑ i ∈ s, (1 - f i) := by
@@ -2015,7 +2015,7 @@ theorem exists_collisionEdge_dvd {r p : ℕ} (h : Fin r → ℕ)
     (hν : localMultiplicity p h < r + 1) :
     ∃ e ∈ collisionEdges r, p ∣ collisionDifference h e := by
   by_contra hnone
-  push_neg at hnone
+  push Not at hnone
   have hzero : ∀ i, h i % p ≠ 0 := by
     intro i hi
     let e : Fin (r + 1) × Fin (r + 1) := (0, i.succ)
@@ -2334,10 +2334,11 @@ theorem singularSeriesSegment_eq_generic_mul_collision {r a b : ℕ}
   exact localFactor_eq_generic_mul_collision
     (ha.trans_le (nthPrime_strictMono.monotone (Finset.mem_Ico.mp hi).1)) h
 
-theorem one_le_product_factor {α : Type*} [DecidableEq α]
+theorem one_le_product_factor {α : Type*}
     (s : Finset α) (f : α → ℝ) {a : α} (ha : a ∈ s)
     (hf : ∀ i ∈ s, 1 ≤ f i) :
     f a ≤ ∏ i ∈ s, f i := by
+  classical
   calc
     f a = f a * 1 := by ring
     _ ≤ f a * ∏ i ∈ s.erase a, f i := by
@@ -2416,10 +2417,11 @@ theorem collisionSeriesSegment_le_edgeWeights {r a b : ℕ}
       · simp [hd]
       · simp [hd]
 
-theorem prod_le_sum_pow_card {α : Type*} [DecidableEq α]
+theorem prod_le_sum_pow_card {α : Type*}
     (s : Finset α) (hs : s.Nonempty) (z : α → ℝ)
     (hz : ∀ i ∈ s, 0 ≤ z i) :
     (∏ i ∈ s, z i) ≤ ∑ i ∈ s, (z i) ^ s.card := by
+  classical
   obtain ⟨a, ha, hmax⟩ := Finset.exists_max_image s z hs
   calc
     (∏ i ∈ s, z i) ≤ ∏ _i ∈ s, z a := by
@@ -2437,7 +2439,7 @@ theorem divisorWeightPower_one_pow (A : ℝ) (E a b n : ℕ) :
   apply Finset.prod_congr rfl
   intro i hi
   by_cases hd : nthPrime i ∣ n
-  · simp [hd, pow_mul]
+  · simp [hd]
   · simp [hd]
 
 theorem collisionSeriesSegment_le_edgeWeightSum {r a b : ℕ}
@@ -2520,7 +2522,7 @@ theorem card_collisionFiber_le {r m n : ℕ}
     have heNe : e.1 ≠ e.2 := ne_of_lt heLt
     have hbase : augmentedShift H.1 e.1 = augmentedShift G.1 e.1 := by
       cases e1 : e.1 using Fin.cases with
-      | zero => simp [e1]
+      | zero => simp
       | succ q =>
           have hqj : q ≠ j := by
             intro hqj
@@ -2570,7 +2572,7 @@ theorem card_collisionFiber_le {r m n : ℕ}
       (Fintype.card_coe _).symm
     _ ≤ Fintype.card (Bool × (Fin s → Fin m)) :=
       Fintype.card_le_of_injective encode hencode
-    _ = 2 * m ^ s := by simp [Fintype.card_fun]
+    _ = 2 * m ^ s := by simp
     _ = 2 * m ^ (s + 1 - 1) := by simp
 
 theorem sum_distinct_edgeWeight_le {r m : ℕ}
@@ -2643,11 +2645,12 @@ theorem one_le_divisorWeightPower {A : ℝ} (hA : 0 ≤ A)
     exact le_add_of_nonneg_right (div_nonneg hA hp0.le)
   · rw [if_neg hd]
 
-theorem prod_sub_one_le_sum_pow_sub_one {α : Type*} [DecidableEq α]
+theorem prod_sub_one_le_sum_pow_sub_one {α : Type*}
     (s : Finset α) (hs : s.Nonempty) (z : α → ℝ)
     (hz : ∀ i ∈ s, 1 ≤ z i) :
     (∏ i ∈ s, z i) - 1 ≤
       ∑ i ∈ s, ((z i) ^ s.card - 1) := by
+  classical
   obtain ⟨a, ha, hmax⟩ := Finset.exists_max_image s z hs
   have hprod : (∏ i ∈ s, z i) ≤ (z a) ^ s.card := by
     calc
@@ -2817,7 +2820,7 @@ theorem sum_collisionSeriesSegment_sub_one_le_pow {r a b m : ℕ}
   simpa only [mul_assoc] using h
 
 theorem abs_mul_sub_one_le {G C : ℝ}
-    (hG0 : 0 ≤ G) (hG1 : G ≤ 1) (hC : 1 ≤ C) :
+    (_hG0 : 0 ≤ G) (hG1 : G ≤ 1) (hC : 1 ≤ C) :
     |G * C - 1| ≤ (1 - G) * C + (C - 1) := by
   have h1 : 0 ≤ C - 1 := sub_nonneg.mpr hC
   have h2 : 0 ≤ (1 - G) * C :=
@@ -2943,7 +2946,7 @@ theorem sum_abs_singularSeriesSegment_sub_one_le {r a b m : ℕ}
       rw [abs_of_nonpos (sub_nonpos.mpr hG.2)]
       ring
     rw [hsum]
-    simp only [Nat.cast_ofNat, pow_zero, one_mul]
+    simp only [pow_zero, one_mul]
     unfold singularTailError collisionTailError
     have hedge0 : collisionEdges 0 = ∅ := by
       ext e
@@ -3772,7 +3775,6 @@ theorem cyclicBrunAverage_le_void {k m L : ℕ} (hL : Odd L) :
     exact_mod_cast Nat.totient_pos.mpr (primeProduct_pos k)
   apply (div_le_div_iff_of_pos_right hφ).2
   unfold cyclicVoidStarts
-  push_cast
   rw [Finset.card_filter]
   push_cast
   apply Finset.sum_le_sum
@@ -3786,7 +3788,6 @@ theorem cyclicVoid_le_brunAverage {k m L : ℕ} (hL : Even L) :
     exact_mod_cast Nat.totient_pos.mpr (primeProduct_pos k)
   apply (div_le_div_iff_of_pos_right hφ).2
   unfold cyclicVoidStarts
-  push_cast
   rw [Finset.card_filter]
   push_cast
   apply Finset.sum_le_sum
@@ -4156,8 +4157,8 @@ theorem tendsto_inv_totient_primeProduct_zero :
       (fun k ↦ ((primeProduct k).totient : ℝ)⁻¹) by
     funext k
     simp [one_div]]
-  convert tendsto_inv_atTop_zero.comp hcast using 1 <;>
-    simp [Function.comp_def]
+  convert tendsto_inv_atTop_zero.comp hcast using 1
+  all_goals simp [Function.comp_def]
 
 theorem eventually_one_lt_primeProduct :
     ∀ᶠ k : ℕ in atTop, 1 < primeProduct k := by
@@ -4199,7 +4200,7 @@ theorem internalShortGaps_zero (N : ℕ) :
     have hab := h.1.1
     omega
   · intro h
-    simpa using h
+    simp at h
 
 @[simp] theorem gapCDF_zero (k : ℕ) : gapCDF k 0 = 0 := by
   unfold gapCDF normalizedThreshold
@@ -4229,7 +4230,8 @@ theorem tendsto_gapCDF_sub_cyclicGapCDF_zero (c : ℝ) :
     · exact hbound
     · exact tendsto_inv_totient_primeProduct_zero
   apply (tendsto_zero_iff_abs_tendsto_zero d).2
-  convert habs using 1 <;> simp [Function.comp_def]
+  convert habs using 1
+  all_goals simp [Function.comp_def]
 
 theorem tendsto_cyclicGapCDF (c : ℝ) (hc : 0 < c) :
     Tendsto
