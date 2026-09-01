@@ -47,7 +47,6 @@ lemma sum_fin_consecutive_sub {m : ℕ} (x : Fin (m + 1) → ℝ) :
 /-- The standard mesh-times-length estimate for a finite partition. -/
 lemma gapEnergy_le_mesh_mul_length {alpha : ℝ} (halpha : 1 ≤ alpha)
     {m : ℕ} (x : Fin (m + 1) → ℝ) (hx : Monotone x) {g : ℝ}
-    (hg : 0 ≤ g)
     (hmesh : ∀ i : Fin m,
       x ⟨i.1 + 1, by omega⟩ - x ⟨i.1, by omega⟩ ≤ g) :
     gapEnergy alpha x ≤ g ^ (alpha - 1) *
@@ -67,7 +66,9 @@ lemma gapEnergy_le_mesh_mul_length {alpha : ℝ} (halpha : 1 ≤ alpha)
             Real.rpow_le_rpow hd (hmesh i) hexp
           have hfactor : d ^ alpha = d ^ (alpha - 1) * d := by
             calc
-              d ^ alpha = d ^ ((alpha - 1) + 1) := by congr 1 <;> ring
+              d ^ alpha = d ^ ((alpha - 1) + 1) := by
+                congr 1
+                ring
               _ = d ^ (alpha - 1) * d := by
                 rw [Real.rpow_add' hd (by linarith), Real.rpow_one]
           rw [hfactor]

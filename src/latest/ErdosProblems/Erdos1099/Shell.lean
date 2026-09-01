@@ -151,7 +151,6 @@ lemma exists_shellDivisor_log_below {t r : ℕ} (hrt : triangular r ≤ t)
 at most `2 * 2⁻ʳ`. -/
 lemma shellDivisors_log_mesh {t r a b : ℕ} (hrt : triangular r ≤ t)
     (ha : a ∈ shellDivisors t r) (hb : b ∈ shellDivisors t r)
-    (hab : a < b)
     (hadj : ∀ d ∈ shellDivisors t r, ¬ (a < d ∧ d < b)) :
     Real.log (b : ℝ) - Real.log (a : ℝ) ≤ 2 * Net.dyadic r := by
   by_contra hgap
@@ -224,7 +223,7 @@ lemma exp_sub_one_le_exp_mul {x C : ℝ} (hx0 : 0 ≤ x) (hxC : x ≤ C) :
   exact hfirst.trans (mul_le_mul_of_nonneg_right (Real.exp_le_exp.mpr hxC) hx0)
 
 lemma gap_le_of_rpow_le {alpha x C : ℝ} (halpha : 1 ≤ alpha)
-    (hx0 : 0 ≤ x) (hC : 1 ≤ C) (hxpow : x ^ alpha ≤ C) : x ≤ C := by
+    (hC : 1 ≤ C) (hxpow : x ^ alpha ≤ C) : x ≤ C := by
   by_cases hx1 : x ≤ 1
   · exact hx1.trans hC
   · have hone : 1 ≤ x := le_of_not_ge hx1
@@ -263,7 +262,7 @@ lemma listRelativeEnergy_le_exp_mul_listLogEnergy {alpha C : ℝ}
             have he : x ^ alpha + listLogEnergy alpha (b :: l) ≤ C := by
               simpa only [listLogEnergy] using henergy
             linarith
-          have hxC : x ≤ C := gap_le_of_rpow_le halpha hx0 hC hxpow
+          have hxC : x ≤ C := gap_le_of_rpow_le halpha hC hxpow
           have htailC : listLogEnergy alpha (b :: l) ≤ C := by
             have he : x ^ alpha + listLogEnergy alpha (b :: l) ≤ C := by
               simpa only [listLogEnergy] using henergy
@@ -465,7 +464,7 @@ def append {k a b c : ℕ} (p : LogDivisorChain k a b)
     simp only [Option.mem_some_iff] at hx hy
     subst x
     subst y
-    simpa [p.last_eq, q.head_eq])
+    simp [p.last_eq, q.head_eq])
   head_eq := by
     rw [List.head_append_of_ne_nil p.ne_nil]
     exact p.head_eq
@@ -618,7 +617,7 @@ theorem exists_shell_chain {alpha : ℝ} (halpha : 1 ≤ alpha)
       Real.log (d ⟨i.1 + 1, by omega⟩ : ℝ) -
           Real.log (d ⟨i.1, by omega⟩ : ℝ) ≤ 2 * Net.dyadic r := by
     intro i
-    apply shellDivisors_log_mesh hrt (hdmem _) (hdmem _) (hstrict (by simp))
+    apply shellDivisors_log_mesh hrt (hdmem _) (hdmem _)
     intro z hz hzbetween
     let iz : Fin (m + 1) := e.symm ⟨z, hz⟩
     have hi : (⟨i.1, by omega⟩ : Fin (m + 1)) < iz := by
@@ -637,8 +636,7 @@ theorem exists_shell_chain {alpha : ℝ} (halpha : 1 ≤ alpha)
   refine ⟨m, d, ⟨hstrict, hfirst, hlast, fun i ↦
     shellDivisors_dvd hrk hrt htk (hdmem i)⟩, ?_⟩
   have henergy := gapEnergy_le_mesh_mul_length halpha
-    (fun i ↦ Real.log (d i : ℝ)) hmonoLog
-      (mul_nonneg (by norm_num) (Net.dyadic_nonneg r)) hmesh
+    (fun i ↦ Real.log (d i : ℝ)) hmonoLog hmesh
   calc
     gapEnergy alpha (fun i ↦ Real.log (d i : ℝ)) ≤
         (2 * Net.dyadic r) ^ (alpha - 1) *
@@ -764,8 +762,7 @@ theorem exists_tail_blocks {alpha : ℝ} (halpha : 1 ≤ alpha)
       refine ⟨c, ?_⟩
       rw [LogDivisorChain.energy_append (by linarith : alpha ≠ 0),
         Finset.sum_range_succ]
-      ·
-        have hq' : listLogEnergy alpha q.values ≤ shellMajorantTerm alpha j := by
+      · have hq' : listLogEnergy alpha q.values ≤ shellMajorantTerm alpha j := by
           calc
             listLogEnergy alpha q.values ≤
                 (((3 + j : ℕ) : ℝ) + 1) *
@@ -826,7 +823,6 @@ lemma cap_log_gap_lt_one (k : ℕ) :
         Real.log ((2 ^ triangular k : ℕ) : ℝ) < 1 := by
   rw [log_generatorProduct, log_pow_two]
   have := Net.sum_delta_lt_one k
-  push_cast
   linarith
 
 /-- Consequently the cap's relative gap is less than `2`. -/
@@ -880,14 +876,12 @@ theorem exists_cap_chain {alpha : ℝ} (halpha : 1 ≤ alpha) (k : ℕ) :
     (cap_log_gap_lt_one k).le
   change listLogEnergy alpha [2 ^ triangular k, generatorProduct k] ≤ 1
   simp only [listLogEnergy, add_zero]
-  change (Real.log (generatorProduct k : ℝ) -
-      Real.log ((2 ^ triangular k : ℕ) : ℝ)) ^ alpha ≤ 1
   simpa using Real.rpow_le_one hgap0 hgap1 (by linarith : 0 ≤ alpha)
 
 def shellMajorant (alpha : ℝ) : ℝ :=
   ∑' n : ℕ, shellMajorantTerm alpha n
 
-lemma shellMajorantTerm_nonneg {alpha : ℝ} (halpha : 1 ≤ alpha) (n : ℕ) :
+lemma shellMajorantTerm_nonneg {alpha : ℝ} (n : ℕ) :
     0 ≤ shellMajorantTerm alpha n := by
   unfold shellMajorantTerm
   exact mul_nonneg
@@ -938,16 +932,16 @@ lemma summable_shellMajorantTerm {alpha : ℝ} (halpha : 1 < alpha) :
   have hmul := hsum.mul_left ((1 / 4 : ℝ) ^ (alpha - 1) * Real.log 2)
   simpa only [q, ← shellMajorantTerm_eq_geometric] using hmul
 
-lemma shellMajorant_nonneg {alpha : ℝ} (halpha : 1 ≤ alpha) :
+lemma shellMajorant_nonneg {alpha : ℝ} :
     0 ≤ shellMajorant alpha := by
   unfold shellMajorant
-  exact tsum_nonneg fun n ↦ shellMajorantTerm_nonneg halpha n
+  exact tsum_nonneg fun n ↦ shellMajorantTerm_nonneg n
 
 lemma sum_shellMajorantTerm_le {alpha : ℝ} (halpha : 1 < alpha) (j : ℕ) :
     (∑ n ∈ Finset.range j, shellMajorantTerm alpha n) ≤ shellMajorant alpha := by
   unfold shellMajorant
   exact (summable_shellMajorantTerm halpha).sum_le_tsum (Finset.range j)
-    (fun n _ ↦ shellMajorantTerm_nonneg halpha.le n)
+    (fun n _ ↦ shellMajorantTerm_nonneg n)
 
 /-- A lower chain followed by the cap, uniformly bounded independently of
 `k`. -/
@@ -978,7 +972,11 @@ theorem reflect_lower_chain {alpha : ℝ} (halpha : 1 ≤ alpha)
   obtain ⟨p, hp⟩ := exists_lower_chain halpha hk
   have hleft : voseNumber k / 2 ^ triangular k = generatorProduct k := by
     rw [voseNumber]
-    simpa [Nat.mul_comm] using Nat.mul_div_left (generatorProduct k) (2 ^ triangular k)
+    calc
+      (2 ^ triangular k * generatorProduct k) / 2 ^ triangular k =
+          (generatorProduct k * 2 ^ triangular k) / 2 ^ triangular k := by
+            rw [Nat.mul_comm]
+      _ = generatorProduct k := Nat.mul_div_left _ (H := by positivity)
   have hright : voseNumber k / 1 = voseNumber k := by simp
   let c : LogDivisorChain k (generatorProduct k) (voseNumber k) :=
     LogDivisorChain.recast hleft hright p.reflect
@@ -1012,10 +1010,10 @@ def globalLogBound (alpha : ℝ) : ℝ :=
 def globalRelativeBound (alpha : ℝ) : ℝ :=
   (Real.exp (globalLogBound alpha)) ^ alpha * globalLogBound alpha
 
-lemma one_le_globalLogBound {alpha : ℝ} (halpha : 1 < alpha) :
+lemma one_le_globalLogBound {alpha : ℝ} :
     1 ≤ globalLogBound alpha := by
   have hlog : 0 ≤ Real.log 2 := Real.log_nonneg (by norm_num)
-  have hshell : 0 ≤ shellMajorant alpha := shellMajorant_nonneg halpha.le
+  have hshell : 0 ≤ shellMajorant alpha := shellMajorant_nonneg
   have hdy : 0 ≤ 2 * Net.dyadic 0 :=
     mul_nonneg (by norm_num) (Net.dyadic_nonneg 0)
   have hpow : 0 ≤ (2 * Net.dyadic 0) ^ (alpha - 1) :=
@@ -1026,11 +1024,11 @@ lemma one_le_globalLogBound {alpha : ℝ} (halpha : 1 < alpha) :
   unfold globalLogBound
   linarith
 
-lemma globalRelativeBound_nonneg {alpha : ℝ} (halpha : 1 < alpha) :
+lemma globalRelativeBound_nonneg {alpha : ℝ} :
     0 ≤ globalRelativeBound alpha := by
   unfold globalRelativeBound
   exact mul_nonneg (Real.rpow_nonneg (Real.exp_pos _).le _)
-    (le_trans (by norm_num) (one_le_globalLogBound halpha))
+    (le_trans (by norm_num) one_le_globalLogBound)
 
 /-- Final construction-side estimate: for every `k ≥ 3` there is a finite
 increasing divisor chain from `1` to `voseNumber k` whose relative-gap
@@ -1046,7 +1044,7 @@ theorem exists_global_relativeDivisorChain {alpha : ℝ} (halpha : 1 < alpha)
   obtain ⟨c, hc⟩ := exists_global_logDivisorChain halpha hk
   refine ⟨c, ?_⟩
   have hconvert := listRelativeEnergy_le_exp_mul_listLogEnergy
-    halpha.le (one_le_globalLogBound halpha) c.values
+    halpha.le one_le_globalLogBound c.values
     (fun d hd ↦ c.all_pos hd) c.isChain (by simpa [globalLogBound] using hc)
   calc
     listRelativeEnergy alpha c.values
@@ -1094,7 +1092,7 @@ theorem hAlpha_voseNumber_le_globalRelativeBound {alpha : ℝ}
     have helast : e ⟨m, by omega⟩ =
         ⟨c.values.length - 1, by omega⟩ := by
       apply Fin.ext
-      simp only [e, Fin.coe_cast, m]
+      simp only [e, Fin.val_cast, m]
     change c.values.get (e ⟨m, by omega⟩) = voseNumber k
     rw [helast]
     exact hh

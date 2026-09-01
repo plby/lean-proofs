@@ -66,7 +66,7 @@ theorem erdos_1099 (α : ℝ) (hα : 1 < α) :
       Filter.liminf (hAlpha α) atTop ≤ C := by
   let C := globalRelativeBound α
   have hC : 0 ≤ C := by
-    simpa [C] using globalRelativeBound_nonneg hα
+    simpa [C] using (globalRelativeBound_nonneg : 0 ≤ globalRelativeBound α)
   have hu : Tendsto (fun k : ℕ ↦ voseNumber (k + 3)) atTop atTop :=
     voseNumber_tendsto_atTop.comp (tendsto_add_atTop_nat 3)
   have hbound : ∀ k : ℕ, hAlpha α (voseNumber (k + 3)) ≤ C := by

@@ -43,9 +43,10 @@ lemma delta_le_dyadic (i : ℕ) : delta i ≤ dyadic i := by
 lemma delta_zero : delta 0 = Real.log 2 := by norm_num [delta, dyadic]
 
 /-- The elementary first-order part of the expansion of a finite product. -/
-lemma one_add_sum_le_prod_one_add {ι : Type*} [DecidableEq ι]
+lemma one_add_sum_le_prod_one_add {ι : Type*}
     (s : Finset ι) (f : ι → ℝ) (hf : ∀ i ∈ s, 0 ≤ f i) :
     1 + ∑ i ∈ s, f i ≤ ∏ i ∈ s, (1 + f i) := by
+  classical
   induction s using Finset.induction_on with
   | empty => simp
   | @insert a s ha ih =>
@@ -185,7 +186,7 @@ lemma exists_finset_sum_net_aux (i n : ℕ) {x : ℝ}
         · intro j hj
           simp only [Finset.mem_insert] at hj
           rcases hj with rfl | hj
-          · simp [hir]
+          · simp
           · have hj' := hSsub hj
             simp only [Finset.mem_Icc] at hj' ⊢
             omega

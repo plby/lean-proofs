@@ -169,7 +169,6 @@ lemma log_selectedDivisor {t : ℕ} {E : Finset ℕ}
   rw [selectedProduct, Nat.cast_prod,
     Real.log_prod (fun i hi ↦ by exact_mod_cast generator_ne_zero i)]
   simp_rw [log_generator]
-  push_cast
   simp only [Finset.sum_add_distrib]
   rw [← Finset.sum_mul]
   have hcast : (∑ i ∈ E, (i : ℝ)) = (indexSum E : ℝ) := by
