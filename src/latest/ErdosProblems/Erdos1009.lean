@@ -234,7 +234,7 @@ lemma card_residual_add_three_mul {V : Type*} [Fintype V] [DecidableEq V]
 
 /-! ## Exact edge restriction and Mantel's theorem -/
 
-lemma edgeSet_from_edgeFinset {V : Type*} [DecidableEq V]
+lemma edgeSet_from_edgeFinset {V : Type*}
     (s : Finset (Sym2 V)) (hloop : ∀ e ∈ s, ¬e.IsDiag) :
     (SimpleGraph.fromEdgeSet (s : Set (Sym2 V))).edgeSet = (s : Set (Sym2 V)) := by
   ext e
@@ -242,11 +242,12 @@ lemma edgeSet_from_edgeFinset {V : Type*} [DecidableEq V]
   exact ⟨fun h ↦ h.1, fun he ↦ ⟨he, hloop e he⟩⟩
 
 /-- Restrict a finite graph to any prescribed smaller number of edges. -/
-lemma exists_spanning_subgraph_card {V : Type*} [Fintype V] [DecidableEq V]
+lemma exists_spanning_subgraph_card {V : Type*} [Finite V]
     (G : SimpleGraph V) (m : ℕ) (hm : m ≤ G.edgeSet.ncard) :
     ∃ H : SimpleGraph V, H ≤ G ∧ H.edgeSet.ncard = m := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : Fintype V := Fintype.ofFinite V
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   have hm' : m ≤ G.edgeFinset.card := by
     exact hm.trans_eq (Set.ncard_eq_toFinset_card' G.edgeSet)
   obtain ⟨s, hsG, hscard⟩ := Finset.exists_subset_card_eq hm'
@@ -265,9 +266,10 @@ lemma exists_spanning_subgraph_card {V : Type*} [Fintype V] [DecidableEq V]
 
 /-- Mantel's theorem in the exact natural-number form used below. -/
 lemma card_edgeFinset_le_quarter_of_cliqueFree_three
-    {V : Type*} [Fintype V] [DecidableEq V]
+    {V : Type*} [Fintype V]
     {H : SimpleGraph V} [DecidableRel H.Adj] (hH : H.CliqueFree 3) :
     H.edgeFinset.card ≤ Fintype.card V ^ 2 / 4 := by
+  classical
   let n := Fintype.card V
   have heq : (n ^ 2 - (n % 2) ^ 2) / 4 + (n % 2).choose 2 = n ^ 2 / 4 := by
     rcases Nat.even_or_odd n with ⟨j, hj⟩ | ⟨j, hj⟩
@@ -316,7 +318,7 @@ lemma exists_cut_internalEdges_le_defect
   have hSB : Disjoint (S : Set V) (B : Set V) := by
     rw [Set.disjoint_left]
     intro x hxS hxB
-    simpa [B, hxS] using hxB
+    simp [B, hxS] at hxB
   have hSind : H.IsIndepSet (S : Set V) := by
     simpa [S] using H.isIndepSet_neighborSet_of_triangleFree hH v
   have hinsideS : (H.insideEdgeFinset S).card = 0 := by
@@ -453,8 +455,8 @@ lemma maximumCut_spec {V : Type*} [Fintype V] [DecidableEq V]
   exact (Finset.exists_max_image (Finset.univ : Finset (Finset V))
     (fun T ↦ (G.cutEdgeFinset T).card) Finset.univ_nonempty).choose_spec.2 S (by simp)
 
-private lemma cut_toggle_deleteIncidenceSet {V : Type*} [Fintype V]
-    [DecidableEq V] (G : SimpleGraph V) [DecidableRel G.Adj]
+private lemma cut_toggle_deleteIncidenceSet {V : Type*}
+    [DecidableEq V] (G : SimpleGraph V)
     (S : Finset V) (v : V) :
     (G.between (S : Set V) (S : Set V)ᶜ).deleteIncidenceSet v =
       (G.between (toggle S v : Set V) (toggle S v : Set V)ᶜ).deleteIncidenceSet v := by
@@ -482,17 +484,26 @@ private lemma degree_cut_add_degree_toggle {V : Type*} [Fintype V]
     ext w
     simp only [Finset.mem_union, SimpleGraph.mem_neighborFinset,
       SimpleGraph.between_adj, Finset.mem_coe, Set.mem_compl_iff, mem_toggle]
-    by_cases hv : v ∈ S <;> by_cases hw : w ∈ S <;> simp_all
+    by_cases hv : v ∈ S <;> by_cases hw : w ∈ S <;>
+      simp_all only [ne_eq, not_true_eq_false, not_false_eq_true, true_and, and_true,
+        false_and, and_false, or_true, false_or, or_false, true_iff, false_iff,
+        iff_false, Decidable.not_not]
     all_goals
-      intro hadj heq
-      subst w
-      exact G.loopless.irrefl v hadj
+      constructor
+      · tauto
+      · intro hadj
+        first
+        | exact Or.inl hadj
+        | exact ⟨hadj, (G.ne_of_adj hadj).symm⟩
   · rw [Finset.disjoint_left]
     intro w hw hw'
     rw [SimpleGraph.mem_neighborFinset] at hw hw'
     simp only [SimpleGraph.between_adj, Finset.mem_coe, Set.mem_compl_iff,
       mem_toggle] at hw hw'
-    by_cases hv : v ∈ S <;> by_cases hws : w ∈ S <;> simp_all
+    by_cases hv : v ∈ S <;> by_cases hws : w ∈ S <;>
+      simp_all only [ne_eq, not_true_eq_false, not_false_eq_true, true_and, and_true,
+        false_and, and_false, or_true, false_or, or_false, true_iff, false_iff,
+        iff_false, Decidable.not_not]
 
 /-- At a maximum cut, a vertex has at least as many cross-neighbors as
 same-side neighbors. -/
@@ -675,7 +686,7 @@ lemma maximumCut_insideDegree_le_otherSide {V : Type*} [Fintype V]
         rw [← SimpleGraph.card_neighborFinset_eq_degree, Finset.card_eq_zero]
         ext w
         simp [SimpleGraph.insideGraph_adj, hvA]
-      simp [A, B, hz]
+      simp [A, hz]
   · by_cases hvB : v ∈ B
     · have hs := hKB v hvB
       exact (by omega : (G.insideGraph B).degree v ≤ K.degree v) |>.trans
@@ -684,7 +695,7 @@ lemma maximumCut_insideDegree_le_otherSide {V : Type*} [Fintype V]
         rw [← SimpleGraph.card_neighborFinset_eq_degree, Finset.card_eq_zero]
         ext w
         simp [SimpleGraph.insideGraph_adj, hvB]
-      simpa [A, B, hz]
+      simp [A, B, hz]
 
 lemma insideEdges_sup_le {V : Type*} [Fintype V] [DecidableEq V]
     (G H : SimpleGraph V) [DecidableRel G.Adj] [DecidableRel H.Adj]
@@ -817,7 +828,7 @@ instance EdgeConflict.instSymm {V : Type*} : Std.Symm (@EdgeConflict V) where
     exact ⟨v, hvf, hve⟩⟩
 
 instance EdgeConflict.instIrrefl {V : Type*} : Std.Irrefl (@EdgeConflict V) where
-  irrefl e he := he.1 rfl
+  irrefl _ he := he.1 rfl
 
 private lemma card_conflicts_lt_incidence_sum {V : Type*} [DecidableEq V]
     (F : Finset (Sym2 V)) {x y : V} (hxy : x ≠ y) (heF : s(x, y) ∈ F) :
@@ -1232,7 +1243,7 @@ lemma exists_retained_edgeColoring {V : Type*} [Fintype V] [DecidableEq V]
 /-! ## Averaging two cyclic relabelings -/
 
 private lemma exists_average_bipartiteAbove_mul_card_le
-    {α β : Type*} [DecidableEq α] [DecidableEq β]
+    {α β : Type*}
     (r : α → β → Prop) [∀ a b, Decidable (r a b)]
     (s : Finset α) (t : Finset β) (hs : s.Nonempty) (m : ℕ)
     (hm : ∀ b ∈ t, (s.bipartiteBelow r b).card ≤ m) :
@@ -1262,15 +1273,15 @@ private lemma exists_average_bipartiteAbove_mul_card_le
       (∑ b ∈ t, (s.bipartiteBelow r b).card) * s.card ≤
         (∑ _b ∈ t, m) * s.card := Nat.mul_le_mul_right _ hsum
   have hconstS : ∑ _a ∈ s, t.card * m = s.card * (t.card * m) := by
-    simp only [Finset.sum_const_nat, nsmul_eq_mul]
+    simp only [Finset.sum_const_nat]
   have hconstT : ∑ _b ∈ t, m = t.card * m := by
-    simp only [Finset.sum_const_nat, nsmul_eq_mul]
+    simp only [Finset.sum_const_nat]
   rw [hconstS] at hstrict'
   rw [hconstT] at hright
   nlinarith
 
 private lemma card_filter_mem_le_of_injective
-    {α β : Type*} [DecidableEq α] [DecidableEq β]
+    {α β : Type*} [DecidableEq β]
     (f : α → β) (hf : Function.Injective f) (s : Finset α) (t : Finset β) :
     (s.filter fun x ↦ f x ∈ t).card ≤ t.card := by
   let emb : α ↪ β := ⟨f, hf⟩
@@ -1764,7 +1775,7 @@ the original triangles are edge-disjoint, at most one triangle is lost per
 deleted edge. -/
 lemma restrict_packing_to_subgraph {V : Type*} [Fintype V] [DecidableEq V]
     (G K : SimpleGraph V) [DecidableRel G.Adj] [DecidableRel K.Adj]
-    (hGK : G ≤ K) (P : TriangleFamilyOn V) (hP : IsTrianglePacking K P) :
+    (P : TriangleFamilyOn V) (hP : IsTrianglePacking K P) :
     ∃ Q : TriangleFamilyOn V, IsTrianglePacking G Q ∧
       P.card ≤ Q.card + (K.edgeFinset \ G.edgeFinset).card := by
   classical
@@ -1880,7 +1891,7 @@ private lemma card_completeCut_edgeFinset {V : Type*} [Fintype V]
   have hdisj : Disjoint (A : Set V) ((Aᶜ : Finset V) : Set V) := by
     rw [Set.disjoint_left]
     intro x hxA hxB
-    simpa [hxA] using hxB
+    simp [hxA] at hxB
   have hdeg (b : V) (hb : b ∈ Aᶜ) : C.degree b = A.card := by
     rw [← SimpleGraph.card_neighborFinset_eq_degree]
     congr 1
@@ -1979,7 +1990,7 @@ private lemma part_card_lower
 
 private lemma total_loss_le
     (C n q sA sB lossA lossB collision eA eB a b : ℕ)
-    (hn : 0 < n) (ha : n ≤ 8 * a) (hb : n ≤ 8 * b)
+    (ha : n ≤ 8 * a) (hb : n ≤ 8 * b)
     (hq : sA + sB = q) (heA : eA ≤ sA) (heB : eB ≤ sB)
     (hlossA : lossA * b ^ 2 ≤ 128 * sA ^ 2)
     (hlossB : lossB * a ^ 2 ≤ 128 * sB ^ 2)
@@ -2039,9 +2050,10 @@ private lemma total_loss_le
     exact Nat.lt_of_mul_lt_mul_right (by simpa [mul_assoc] using hstrict)
   omega
 
-private lemma edgeFinset_mono {V : Type*} [Fintype V] [DecidableEq V]
+private lemma edgeFinset_mono {V : Type*} [Fintype V]
     {G H : SimpleGraph V} [DecidableRel G.Adj] [DecidableRel H.Adj]
     (hGH : G ≤ H) : G.edgeFinset ⊆ H.edgeFinset := by
+  classical
   intro e he
   induction e using Sym2.inductionOn with
   | _ u v =>
@@ -2087,7 +2099,7 @@ private theorem exists_packing_exact_nat
   have hP₀ : IsTrianglePacking G P₀ := maximumTrianglePacking_isPacking G
   by_cases hlarge : 16384 * C ≤ n
   · have hn : 0 < n := by nlinarith
-    letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
+    let : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
     by_cases hdone : k ≤ P₀.card
     · exact ⟨P₀, hP₀, by omega⟩
     · have hp_lt_k : P₀.card < k := by omega
@@ -2178,8 +2190,8 @@ private theorem exists_packing_exact_nat
           (by simpa [mul_comm] using hIeq) hI_small
       have ha_pos : 0 < a := by omega
       have hb_pos : 0 < b := by omega
-      letI : NeZero A.card := ⟨by simpa [a] using ha_pos.ne'⟩
-      letI : NeZero B.card := ⟨by simpa [b] using hb_pos.ne'⟩
+      let : NeZero A.card := ⟨by simpa [a] using ha_pos.ne'⟩
+      let : NeZero B.card := ⟨by simpa [b] using hb_pos.ne'⟩
       have hmaxA : ∀ v, JA.degree v ≤ b := by
         intro v
         simpa [JA, a, b, A, B] using
@@ -2192,7 +2204,9 @@ private theorem exists_packing_exact_nat
       have hsBq : sB ≤ q := by omega
       have hnC : 10240 * C * n ≤ n ^ 2 := by
         calc
-          10240 * C * n ≤ 16384 * C * n := by gcongr <;> omega
+          10240 * C * n ≤ 16384 * C * n := by
+            gcongr
+            omega
           _ ≤ n * n := Nat.mul_le_mul_right n hlarge
           _ = n ^ 2 := by ring
       have hna : n ^ 2 ≤ 64 * a ^ 2 := by
@@ -2293,7 +2307,7 @@ private theorem exists_packing_exact_nat
         simpa [collision, a, b] using hcollision
       have hloss_total : lossA + lossB + collision ≤ 210000 * C ^ 2 :=
         total_loss_le C n q sA sB lossA lossB collision EA.card EB.card a b
-          hn ha_lower hb_lower rfl (by omega) (by omega) hlossA hlossB
+          ha_lower hb_lower rfl (by omega) (by omega) hlossA hlossB
           hcollision' hq_Cn
       have hcross : ∀ x ∈ A, ∀ y ∈ B, K.Adj x y := by
         intro x hx y hy
@@ -2303,12 +2317,12 @@ private theorem exists_packing_exact_nat
         K A B (by
           rw [Finset.disjoint_left]
           intro x hxA hxB
-          simpa [B, hxA] using hxB) EA EB hEA hEB hintA hintB hEAK hEBK hcross
+          simp [B, hxA] at hxB) EA EB hEA hEB hintA hintB hEAK hEBK hcross
         colorA colorB (by simpa [EA] using hcolorA)
           (by simpa [EB] using hcolorB) shift
       have hGK : G ≤ K := by simpa [K] using le_cutCompletion G A
       obtain ⟨Q, hQ, hrestrict⟩ :=
-        restrict_packing_to_subgraph G K hGK Pplus hPplus
+        restrict_packing_to_subgraph G K Pplus hPplus
       have hGedgeSub : G.edgeFinset ⊆ K.edgeFinset := edgeFinset_mono hGK
       have hmissing : (K.edgeFinset \ G.edgeFinset).card = M := by
         rw [Finset.card_sdiff_of_subset hGedgeSub]
