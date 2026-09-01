@@ -54,11 +54,13 @@ are in `tex/1031.tex`.
 -/
 
 open Fintype
-open scoped Classical SimpleGraph
+open scoped SimpleGraph
 
 namespace Erdos1031
 
 open SimpleGraph
+
+attribute [local instance] Classical.propDecidable
 
 /-- The order of a largest trivial (complete or empty) induced subgraph. -/
 noncomputable def homNum {V : Type*} (G : SimpleGraph V) : ℕ :=
@@ -117,9 +119,10 @@ lemma homNum_induce_le {V : Type*} [Finite V]
     homNum (G.induce S) ≤ homNum G := by
   exact max_le_max (G.cliqueNum_induce_le S) (indepNum_induce_le G S)
 
-lemma edgeCountOn_eq_card_edgeFinset {V : Type*} [Fintype V]
+lemma edgeCountOn_eq_card_edgeFinset {V : Type*} [Finite V]
     (G : SimpleGraph V) (S : Finset V) [DecidableRel G.Adj] :
     edgeCountOn G S = (G.induce (S : Set V)).edgeFinset.card := by
+  let _ : Fintype V := Fintype.ofFinite V
   rw [edgeCountOn, Nat.card_eq_fintype_card, SimpleGraph.card_edgeSet]
 
 /-! ## A finite asymmetric Ramsey bound -/
@@ -170,7 +173,7 @@ lemma ramseyBound_recurrence {a b : ℕ} (ha : 2 ≤ a) (hb : 2 ≤ b) :
 
 /-- Finset form of the asymmetric Erdős--Szekeres Ramsey bound. -/
 theorem exists_clique_or_indep_of_ramseyBound_le
-    {V : Type*} [Fintype V] (G : SimpleGraph V)
+    {V : Type*} (G : SimpleGraph V)
     (S : Finset V) (a b : ℕ) (ha : 1 ≤ a) (hb : 1 ≤ b)
     (hcard : ramseyBound a b ≤ S.card) :
     (∃ T : Finset V, T ⊆ S ∧ G.IsNClique a T) ∨
@@ -241,7 +244,7 @@ theorem exists_clique_or_indep_of_ramseyBound_le
 /-- Numerical consequence of the asymmetric Ramsey bound, stated directly
 in terms of clique and independence numbers. -/
 lemma ramseyBound_le_card_imp_le_homNum
-    {V : Type*} [Fintype V] (G : SimpleGraph V)
+    {V : Type*} [Finite V] (G : SimpleGraph V)
     (S : Finset V) (a b : ℕ) (ha : 1 ≤ a) (hb : 1 ≤ b)
     (hcard : ramseyBound a b ≤ S.card) :
     a ≤ homNum G ∨ b ≤ homNum G := by
@@ -278,7 +281,7 @@ of a greedy induced embedding while retaining at least a quarter of every
 later candidate set. -/
 lemma exists_good_candidate_of_not_hasRecipPair
     {V : Type*} [Fintype V] (G : SimpleGraph V)
-    {r k q : ℕ} (hr : 1 ≤ r) (hk : 1 ≤ k) (hq : 1 ≤ q)
+    {r k q : ℕ} (hk : 1 ≤ k) (hq : 1 ≤ q)
     (S : Finset V) (H : SimpleGraph (Fin k))
     (W : Fin k → Finset V) (hWS : ∀ j, W j ⊆ S)
     (hWdisj : ∀ i j, i ≠ j → Disjoint (W i) (W j))
@@ -432,7 +435,7 @@ lemma exists_partial_induced_embedding_of_not_hasRecipPair
             _ = k * r ^ (k - i) * q := by simp [Nat.mul_assoc]
         exact hkq.trans (hsmall.trans (by simpa [W] using h))
       obtain ⟨x, hxW, hgood⟩ :=
-        exists_good_candidate_of_not_hasRecipPair G hr hk hq S H W hWS hWdisj
+        exists_good_candidate_of_not_hasRecipPair G hk hq S H W hWS hWdisj
           hWiLarge hWq hno
       have hxblock : x ∈ blocks ii := (mem_greedyCandidates ..).mp hxW |>.1
       have hxrel : ∀ r : Fin i,
@@ -591,7 +594,7 @@ lemma card_edgesInside {V : Type*} [Fintype V] (G : SimpleGraph V)
 between the two sides. -/
 lemma card_edgesInside_union_le
     {V : Type*} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
-    (C D : Finset V) (hCD : Disjoint C D) :
+    (C D : Finset V) :
     (edgesInside G (C ∪ D)).card ≤ (G.interedges C D).card +
       (edgesInside G C ∪ edgesInside G D).card := by
   classical
@@ -639,12 +642,13 @@ lemma card_edgesInside_union_le
       Nat.add_le_add_right hX _
 
 lemma edgeCountOn_union_le
-    {V : Type*} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
-    (C D : Finset V) (hCD : Disjoint C D) :
+    {V : Type*} [Finite V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (C D : Finset V) :
     edgeCountOn G (C ∪ D) ≤ edgeCountOn G C + edgeCountOn G D +
       (G.interedges C D).card := by
+  let _ : Fintype V := Fintype.ofFinite V
   rw [← card_edgesInside G, ← card_edgesInside G, ← card_edgesInside G]
-  have h := card_edgesInside_union_le G C D hCD
+  have h := card_edgesInside_union_le G C D
   have hu := Finset.card_union_le (edgesInside G C) (edgesInside G D)
   omega
 
@@ -682,14 +686,15 @@ lemma recipSparsePair_interedges
 least `2q` vertices contains a `q`-set whose total cross-edge count is at
 most twice the average bound. -/
 lemma exists_subset_card_eq_recip_interedges_le
-    {V : Type*} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    {V : Type*} [Finite V] (G : SimpleGraph V) [DecidableRel G.Adj]
     {r q : ℕ} {U B : Finset V} (hU : U.Nonempty)
     (havg : r * (G.interedges U B).card < U.card * B.card)
     (hB : 2 * q ≤ B.card) :
     ∃ B' : Finset V, B' ⊆ B ∧ B'.card = q ∧
       r * (G.interedges U B').card ≤ 2 * U.card * q := by
   classical
-  letI : Std.Symm G.Adj := G.symm
+  let _ : Fintype V := Fintype.ofFinite V
+  let _ : Std.Symm G.Adj := G.symm
   let good : Finset V := B.filter fun b ↦ r * degreeInto G b U ≤ 2 * U.card
   have hgood : q ≤ good.card := by
     by_contra hsmall
@@ -759,19 +764,20 @@ lemma HasSparseBlockWitness.mono
   exact ⟨U, hUS.trans hST, hcard, hedge⟩
 
 lemma edgeCountOn_le_choose_card
-    {V : Type*} [Fintype V] (G : SimpleGraph V) (S : Finset V) :
+    {V : Type*} [Finite V] (G : SimpleGraph V) (S : Finset V) :
     edgeCountOn G S ≤ Nat.choose S.card 2 := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let _ : Fintype V := Fintype.ofFinite V
+  let _ : DecidableRel G.Adj := Classical.decRel _
   rw [edgeCountOn_eq_card_edgeFinset]
   simpa using (G.induce (S : Set V)).card_edgeFinset_le_card_choose_two
 
 lemma isRecipSparsePair_compl_of_dense
-    {V : Type*} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj] {r : ℕ}
+    {V : Type*} [Fintype V] (G : SimpleGraph V) {r : ℕ}
     {A B : Finset V} (hAB : Disjoint A B)
     (h : IsRecipDensePair G r A B) :
     IsRecipSparsePair Gᶜ r A B := by
-  letI : DecidableEq V := Classical.decEq V
+  classical
   intro x hx
   have hx' := h x hx
   convert hx' using 1
@@ -788,13 +794,13 @@ exactly `q`-vertex piece of the right side, and the edge recurrence is
 absorbed by the square slack in `HasSparseBlockWitness`. -/
 lemma HasSparseBlockWitness.succ_of_sparsePair
     {V : Type*} [Fintype V] (G : SimpleGraph V)
-    {r a q : ℕ} (hr : 1 ≤ r) (ha : 1 ≤ a) (hq : 1 ≤ q)
+    {r a q : ℕ} (ha : 1 ≤ a) (hq : 1 ≤ q)
     {A B : Finset V} (hW : HasSparseBlockWitness G r a q A)
     (hpair : IsRecipSparsePair G r A B) (hAB : Disjoint A B)
     (hBcard : 2 * q ≤ B.card) :
     HasSparseBlockWitness G r (a + 1) q (A ∪ B) := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let _ : DecidableRel G.Adj := Classical.decRel _
   obtain ⟨U, hUA, hUcard, hUedge⟩ := hW
   have hUne : U.Nonempty := by
     exact Finset.card_pos.mp (by rw [hUcard]; positivity)
@@ -808,7 +814,7 @@ lemma HasSparseBlockWitness.succ_of_sparsePair
       (hB'B.trans (Finset.subset_union_right))
   · rw [Finset.card_union_of_disjoint hUB', hUcard, hB'card]
     ring
-  · have hdecomp := edgeCountOn_union_le G U B' hUB'
+  · have hdecomp := edgeCountOn_union_le G U B'
     have hB'edge : edgeCountOn G B' ≤ Nat.choose q 2 := by
       simpa [hB'card] using edgeCountOn_le_choose_card G B'
     have hcast :
@@ -876,7 +882,7 @@ theorem sparse_or_compl_sparse_blocks_of_induced_free
     HasSparseBlockWitness G r a q S ∨
       HasSparseBlockWitness Gᶜ r b q S := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let _ : DecidableRel G.Adj := Classical.decRel _
   induction hsum : a + b using Nat.strong_induction_on generalizing a b S with
   | h n ih =>
       by_cases ha1 : a = 1
@@ -932,12 +938,13 @@ theorem sparse_or_compl_sparse_blocks_of_induced_free
           calc
             pairFactor r k ^ ((a - 1) + b - 2) * (2 * q) = childQ := by
               dsimp [childQ]
-              congr 2 <;> omega
+              congr 2
+              all_goals omega
             _ ≤ A.card := hAcard
         rcases ih (a - 1 + b) hsmall (a := a - 1) (b := b)
             (by omega) hb A hArec rfl with hAW | hAcW
         · left
-          have hext := hAW.succ_of_sparsePair G hr (by omega) hq hsparse hAB
+          have hext := hAW.succ_of_sparsePair G (by omega) hq hsparse hAB
             (hchild_ge.trans hBcard)
           simpa [Nat.sub_add_cancel ha] using
             hext.mono (Finset.union_subset hAS hBS)
@@ -947,7 +954,8 @@ theorem sparse_or_compl_sparse_blocks_of_induced_free
           calc
             pairFactor r k ^ (a + (b - 1) - 2) * (2 * q) = childQ := by
               dsimp [childQ]
-              congr 2 <;> omega
+              congr 2
+              all_goals omega
             _ ≤ A.card := hAcard
         rcases ih (a + (b - 1)) hsmall (a := a) (b := b - 1)
             ha (by omega) A hArec rfl with hAW | hAcW
@@ -955,7 +963,7 @@ theorem sparse_or_compl_sparse_blocks_of_induced_free
         · right
           have hcompPair : IsRecipSparsePair Gᶜ r A B :=
             isRecipSparsePair_compl_of_dense G hAB hdense
-          have hext := hAcW.succ_of_sparsePair Gᶜ hr (by omega) hq hcompPair hAB
+          have hext := hAcW.succ_of_sparsePair Gᶜ (by omega) hq hcompPair hAB
             (hchild_ge.trans hBcard)
           simpa [Nat.sub_add_cancel hb] using
             hext.mono (Finset.union_subset hAS hBS)
@@ -968,17 +976,18 @@ def smallSubsets {V : Type*} [DecidableEq V]
   X.powerset.filter fun T ↦ T.card ≤ X.card / w
 
 /-- A weighted form of the binomial theorem, indexed by subsets. -/
-lemma sum_powerset_pow_card_sub {V : Type*} [DecidableEq V]
+lemma sum_powerset_pow_card_sub {V : Type*}
     (X : Finset V) (w : ℕ) :
     ∑ T ∈ X.powerset, w ^ (X.card - T.card) = (w + 1) ^ X.card := by
+  classical
   calc
     ∑ T ∈ X.powerset, w ^ (X.card - T.card) =
         ∑ m ∈ Finset.range (X.card + 1),
           X.card.choose m * w ^ (X.card - m) := by
       convert
         (Finset.sum_powerset_apply_card (α := ℕ)
-          (fun m ↦ w ^ (X.card - m)) (x := X)) using 1 <;>
-        simp [nsmul_eq_mul]
+          (fun m ↦ w ^ (X.card - m)) (x := X)) using 1
+      all_goals simp
     _ = (w + 1) ^ X.card := by
       simpa [mul_comm, add_comm] using (add_pow 1 w X.card).symm
 
@@ -1069,8 +1078,8 @@ lemma homNum_ge_of_maxDegree
         N * w ^ (x - x / w)) :
     K ≤ homNum G := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : Std.Symm G.Adj := G.symm
+  let _ : DecidableRel G.Adj := Classical.decRel _
+  let _ : Std.Symm G.Adj := G.symm
   by_contra hnot
   have hhom : homNum G < K := Nat.lt_of_not_ge hnot
   obtain ⟨X, hXmax⟩ := G.maximumIndepSet_exists
@@ -1088,7 +1097,7 @@ lemma homNum_ge_of_maxDegree
       simp [SimpleGraph.isIndepSet_iff]
     have := hXmax.maximum {v} hsingle
     have hXempty : X = ∅ := Finset.card_eq_zero.mp (by simpa [x] using hx0)
-    exact (by simpa [hXempty] using this)
+    simp [hXempty] at this
   let Y : Finset V := Finset.univ \ X
   have hXY : X.card + Y.card = Fintype.card V := by
     dsimp [Y]
@@ -1271,7 +1280,7 @@ theorem homNum_ge_of_sparse
         Fintype.card V * w ^ (x - x / w)) :
     K ≤ homNum G := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let _ : DecidableRel G.Adj := Classical.decRel _
   have hVpos : 0 < Fintype.card V := by omega
   obtain ⟨L, hLcard, hLdegree⟩ :=
     exists_large_lowDegreeSet G hVpos (D := 100 * w) (by
@@ -1481,14 +1490,18 @@ lemma fixed_entropy_binomial :
     hunit.trans Real.exp_one_lt_three.le
   have hmul := mul_le_mul_of_nonneg_left hthree
     (show 0 ≤ (1024 : ℝ) ^ 1024 by positivity)
-  have heq : (1025 : ℝ) ^ 1024 =
+  have heq : ((1024 : ℝ) + 1) ^ 1024 =
       1024 ^ 1024 * (1 + (1024 : ℝ)⁻¹) ^ 1024 := by
-    rw [show (1025 : ℝ) = 1024 * (1 + (1024 : ℝ)⁻¹) by norm_num,
+    rw [show (1024 : ℝ) + 1 = 1024 * (1 + (1024 : ℝ)⁻¹) by norm_num,
       mul_pow]
-  have hreal : (1025 : ℝ) ^ 1024 ≤ 3 * 1024 ^ 1024 := by
+  have hreal : ((1024 : ℝ) + 1) ^ 1024 ≤ 3 * 1024 ^ 1024 := by
     rw [heq]
     simpa [mul_comm] using hmul
-  exact_mod_cast hreal
+  apply (Nat.cast_le (α := ℝ)).mp
+  rw [Nat.cast_pow, Nat.cast_add, Nat.cast_one, Nat.cast_mul, Nat.cast_pow]
+  norm_num only [Nat.cast_ofNat]
+  rw [show (1025 : ℝ) = 1024 + 1 by norm_num]
+  exact hreal
 
 /-- Fixed constants used in the final quantitative argument. -/
 def entropyBase : ℕ := 9 * 1024 * (1024 + 1)
@@ -1531,7 +1544,7 @@ theorem homNum_of_fixed_sparseBlockWitness
     (hW : HasSparseBlockWitness G sparseScale sparseScale (entropyBase ^ t) S) :
     1024 * t ≤ homNum G := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let _ : DecidableRel G.Adj := Classical.decRel _
   obtain ⟨U, _hUS, hUcard, hUedges⟩ := hW
   let F : SimpleGraph U := G.induce (U : Set V)
   have htq : t ≤ entropyBase ^ t := by
