@@ -134,7 +134,7 @@ theorem badInnerRegion_productDensity_integral_le
   have hleft : IntegrableOn
       (largeProductDensity : (ι → ℝ) → ℝ)
       (BoundedGaps.Maynard.maynardCubeOf ι \ largeInnerGoodRegion ι) :=
-    (productDensity_integrableOn_cube ι).mono_set Set.diff_subset
+    (productDensity_integrableOn_cube ι).mono_set Set.sdiff_subset
   have hright : IntegrableOn (fun t : ι → ℝ =>
       ((7 : ℝ) / 6) *
         (largeCoordinateSum t * largeProductDensity t))
@@ -146,7 +146,7 @@ theorem badInnerRegion_productDensity_integral_le
           (BoundedGaps.Maynard.maynardCubeOf ι) :=
         (coordinateSum_mul_productDensity_integrableOn_cube ι).const_mul
           ((7 : ℝ) / 6)
-      exact hfull.mono_set Set.diff_subset
+      exact hfull.mono_set Set.sdiff_subset
   have hmeas : MeasurableSet
       (BoundedGaps.Maynard.maynardCubeOf ι \ largeInnerGoodRegion ι) :=
     (MeasurableSet.pi Set.countable_univ
@@ -180,7 +180,7 @@ theorem badInnerRegion_productDensity_integral_le
                 exact Finset.sum_nonneg fun i hi =>
                   (ht i (Set.mem_univ i)).1)
                 (largeProductDensity_nonneg t)))
-      · exact Filter.Eventually.of_forall fun t ht => Set.diff_subset ht
+      · exact Filter.Eventually.of_forall fun t ht => Set.sdiff_subset ht
     _ = ((7 : ℝ) / 6) * (Fintype.card ι : ℝ) *
         largeFirstMoment * largeBaseMass ^ (Fintype.card ι - 1) := by
       rw [integral_const_mul,

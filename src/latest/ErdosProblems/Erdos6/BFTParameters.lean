@@ -109,7 +109,7 @@ theorem exists_four_prime_shifts_in_residue_of_excess_pos
       ((BoundedGaps.primeShiftCount largePowerTuple n : ℝ) - 3) * w n := by
     simpa only [← BoundedGaps.Maynard.sieveExcess_eq_sum] using hpos
   by_contra hnone
-  push_neg at hnone
+  push Not at hnone
   have hterm : ∀ n ∈ Finset.Ico N (2 * N),
       ((BoundedGaps.primeShiftCount largePowerTuple n : ℝ) - 3) * w n ≤ 0 := by
     intro n hn

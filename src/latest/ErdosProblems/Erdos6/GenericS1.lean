@@ -406,7 +406,7 @@ theorem tendsto_tupleMaynardS1ExplicitEnvelope
         (Real.rpow_natCast _ 4).symm
       _ = Real.rpow (N : ℝ) (alpha * 4) :=
         (Real.rpow_mul hNpos.le alpha 4).symm
-      _ = _ := by congr 1 <;> ring
+      _ = _ := by congr 1; ring
   have hlogpow : Real.log (N : ℝ) ^ m =
       Real.rpow (Real.log (N : ℝ)) (m : ℝ) :=
     (Real.rpow_natCast _ m).symm
@@ -572,7 +572,7 @@ theorem eventually_abs_normalized_tupleMaynardS1Cross_le
         (8 * (phiW / W) * Lnat) ^ Fintype.card H at h
     calc
       _ ≤ _ := h
-      _ = C := by unfold C A <;> ring
+      _ = C := by unfold C A; ring
   have hW : 0 < W := by
     unfold W maynardModulus
     exact_mod_cast primorial_pos
@@ -645,7 +645,7 @@ theorem tendsto_normalized_tupleMaynardS1Cross_zero
   apply squeeze_zero' (Eventually.of_forall fun N => abs_nonneg _) ?_ henvelope
   filter_upwards [eventually_abs_normalized_tupleMaynardS1Cross_le
     H halpha F hB hF] with N hN
-  exact hN.trans_eq (by unfold C <;> ring)
+  exact hN.trans_eq (by unfold C; ring)
 
 theorem tendsto_normalizedLargeTupleS1Main
     {alpha : ℝ} (halpha : 0 < alpha) :

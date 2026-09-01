@@ -55,7 +55,7 @@ theorem continuous_largeContinuousProduct :
       (fun i hi => continuous_largeContinuousG.comp
         (continuous_const.mul (continuous_apply i))))
 
-theorem continuous_reindex {ι κ : Type*} [Fintype ι] [Fintype κ]
+theorem continuous_reindex {ι κ : Type*}
     (e : ι ≃ κ) : Continuous (fun t : ι → ℝ => fun j => t (e.symm j)) := by
   exact continuous_pi fun j => continuous_apply (e.symm j)
 

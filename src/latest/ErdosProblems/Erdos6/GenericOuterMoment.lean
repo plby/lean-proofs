@@ -11,7 +11,7 @@ This is the outer-`g` analogue of `GenericMoment`.
 
 namespace Erdos6.Maynard
 
-open Filter Set
+open BoundedGaps.Maynard Filter Set
 open scoped BigOperators
 
 noncomputable section
@@ -63,7 +63,7 @@ theorem tendsto_normalizedTupleOuterInnerGridStepMass
       (nhds (BoundedGaps.Maynard.simplexInnerGridVolume H mesh)) := by
   let I := BoundedGaps.Maynard.fractionalSimplexInnerGridIndex H mesh
   have hlim :=
-    BoundedGaps.Maynard.tendsto_finite_linear_combination_normalizedMaynardS2OuterSquarefreeTupleShellMass
+    tendsto_finite_linear_combination_normalizedMaynardS2OuterSquarefreeTupleShellMass
       halpha I (fun _ => (1 : ℝ))
       (fun j => BoundedGaps.Maynard.fractionalGridLower mesh j)
       (fun j => BoundedGaps.Maynard.fractionalGridUpper mesh j)
@@ -87,7 +87,7 @@ theorem tendsto_normalizedTupleOuterBoundaryGridStepMass
       (nhds (BoundedGaps.Maynard.simplexBoundaryGridVolume H mesh)) := by
   let I := BoundedGaps.Maynard.fractionalSimplexBoundaryGridIndex H mesh
   have hlim :=
-    BoundedGaps.Maynard.tendsto_finite_linear_combination_normalizedMaynardS2OuterSquarefreeTupleShellMass
+    tendsto_finite_linear_combination_normalizedMaynardS2OuterSquarefreeTupleShellMass
       halpha I (fun _ => (1 : ℝ))
       (fun j => BoundedGaps.Maynard.fractionalGridLower mesh j)
       (fun j => BoundedGaps.Maynard.fractionalGridUpper mesh j)
@@ -181,7 +181,7 @@ theorem tendsto_normalizedTupleOuterStepMoment
       atTop (nhds (BoundedGaps.Maynard.finiteSimplexInnerGridWeightedSum f mesh)) := by
   let I := BoundedGaps.Maynard.fractionalSimplexInnerGridIndex H mesh
   have hlim :=
-    BoundedGaps.Maynard.tendsto_finite_linear_combination_normalizedMaynardS2OuterSquarefreeTupleShellMass
+    tendsto_finite_linear_combination_normalizedMaynardS2OuterSquarefreeTupleShellMass
       halpha I (fun j => f (BoundedGaps.Maynard.fractionalGridLower mesh j))
       (fun j => BoundedGaps.Maynard.fractionalGridLower mesh j)
       (fun j => BoundedGaps.Maynard.fractionalGridUpper mesh j)
@@ -227,7 +227,6 @@ theorem normalizedTupleOuterCell_sub_step_le
     {H : Finset ℕ} {alpha epsilon : ℝ} {mesh N : ℕ}
     {f : (H → ℝ) → ℝ}
     (hscale : 0 < tupleNaturalScale H alpha N)
-    (hepsilon : 0 ≤ epsilon)
     (hosc : ∀ j ∈ BoundedGaps.Maynard.fractionalSimplexInnerGridIndex H mesh,
       ∀ u ∈ BoundedGaps.Maynard.engelsmaFractionalTupleShell H alpha
         (BoundedGaps.Maynard.fractionalGridLower mesh j)
@@ -259,7 +258,8 @@ theorem normalizedTupleOuterCell_sub_step_le
                 (BoundedGaps.Maynard.fractionalGridLower mesh j)
                 (BoundedGaps.Maynard.fractionalGridUpper mesh j) N,
               f (tupleNormalizedLogPoint H alpha N u) *
-                BoundedGaps.Maynard.outerTupleWeight H (BoundedGaps.Maynard.engelsmaMaynardModulus N) u) -
+                BoundedGaps.Maynard.outerTupleWeight H
+                  (BoundedGaps.Maynard.engelsmaMaynardModulus N) u) -
             f (BoundedGaps.Maynard.fractionalGridLower mesh j) *
               tupleOuterFractionalTupleShellMass H alpha
                 (BoundedGaps.Maynard.fractionalGridLower mesh j)
@@ -283,14 +283,17 @@ theorem normalizedTupleOuterCell_sub_step_le
                 (BoundedGaps.Maynard.fractionalGridLower mesh j)
                 (BoundedGaps.Maynard.fractionalGridUpper mesh j) N,
               |f (tupleNormalizedLogPoint H alpha N u) *
-                  BoundedGaps.Maynard.outerTupleWeight H (BoundedGaps.Maynard.engelsmaMaynardModulus N) u -
+                  BoundedGaps.Maynard.outerTupleWeight H
+                    (BoundedGaps.Maynard.engelsmaMaynardModulus N) u -
                 f (BoundedGaps.Maynard.fractionalGridLower mesh j) *
-                  BoundedGaps.Maynard.outerTupleWeight H (BoundedGaps.Maynard.engelsmaMaynardModulus N) u| :=
+                  BoundedGaps.Maynard.outerTupleWeight H
+                    (BoundedGaps.Maynard.engelsmaMaynardModulus N) u| :=
             Finset.abs_sum_le_sum_abs _ _
           _ ≤ ∑ u ∈ BoundedGaps.Maynard.engelsmaFractionalTupleShell H alpha
                 (BoundedGaps.Maynard.fractionalGridLower mesh j)
                 (BoundedGaps.Maynard.fractionalGridUpper mesh j) N,
-              epsilon * BoundedGaps.Maynard.outerTupleWeight H (BoundedGaps.Maynard.engelsmaMaynardModulus N) u := by
+              epsilon * BoundedGaps.Maynard.outerTupleWeight H
+                (BoundedGaps.Maynard.engelsmaMaynardModulus N) u := by
             apply Finset.sum_le_sum
             intro u hu
             rw [← sub_mul, abs_mul, abs_of_nonneg
@@ -687,7 +690,7 @@ theorem tendsto_normalizedTupleOuterWeightedMoment
         (BoundedGaps.Maynard.engelsmaMaynardModulus N) u
     · exact hscaleN.le
   have hcellStepRaw := normalizedTupleOuterCell_sub_step_le
-    hscaleN he20.le (fun j hj u hu => (hoscN j hj u hu).le)
+    hscaleN (fun j hj u hu => (hoscN j hj u hu).le)
   have hcellStep : |cell - step| < epsilon / 10 := by
     dsimp [cell, step]
     apply lt_of_le_of_lt hcellStepRaw

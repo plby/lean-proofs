@@ -88,9 +88,10 @@ theorem tupleRestrictedMainCoefficient_eq_invTotient_mul_GKernel
     BoundedGaps.Maynard.restrictedMainArithmeticCoefficient
   rw [BoundedGaps.Maynard.restrictedDivisorPairModulusTotientSum_eq_invTotient_mul]
   · congr 1
-    apply BoundedGaps.Maynard.compatibleDivisorPairRestrictedTotientKernel_eq_commonDivisorS2TupleSum
-    intro d hd
-    exact tupleMaynardS2SupportProof H alpha N d hd
+    · apply
+        BoundedGaps.Maynard.compatibleDivisorPairRestrictedTotientKernel_eq_commonDivisorS2TupleSum
+      · intro d hd
+        exact tupleMaynardS2SupportProof H alpha N d hd
   · intro d hd
     exact tupleMaynardS2SupportProof H alpha N d hd
 
@@ -104,8 +105,8 @@ theorem tupleRestrictedGKernel_eq_quadratic_sub_cross
   rw [BoundedGaps.Maynard.compatibleRestrictedS2SubtypeSum_eq_membershipSum]
   rw [BoundedGaps.Maynard.compatibleRestrictedS2_eq_unrestricted_sub_incompatible]
   rw [BoundedGaps.Maynard.unrestrictedRestrictedS2_eq_quadraticTransform]
-  intro d hd
-  exact tupleMaynardS2SupportProof H alpha N d hd
+  · intro d hd
+    exact tupleMaynardS2SupportProof H alpha N d hd
 
 theorem tupleRestrictedQuadratic_eq_yDiagonal
     (H : Finset ℕ) (alpha : ℝ) (F : (H → ℝ) → ℝ)

@@ -131,7 +131,7 @@ theorem eventually_largeCoordinateFiberSquareDiagonal_normalized_gt
       atTop (nhds 0) := by
     have he : Tendsto (fun N : ℕ => 2 * eta N + eta N ^ 2)
         atTop (nhds 0) := by
-      convert (heta.const_mul 2).add (heta.pow 2) using 1 <;> norm_num
+      convert (heta.const_mul 2).add (heta.pow 2) using 1; norm_num
     simpa using he.mul hB
   have hbracket : Tendsto (fun N : ℕ =>
       largeShortMass ^ 2 * A N - (2 * eta N + eta N ^ 2) * B N)

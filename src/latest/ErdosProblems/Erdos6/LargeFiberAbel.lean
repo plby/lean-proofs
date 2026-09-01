@@ -10,7 +10,7 @@ the tuple, the distinguished coordinate, and the outer divisor tuple.
 
 namespace Erdos6.Maynard
 
-open Filter MeasureTheory Set
+open BoundedGaps.Maynard Filter MeasureTheory Set
 open scoped ArithmeticFunction.Moebius BigOperators Interval
 
 noncomputable section
@@ -60,7 +60,9 @@ theorem exists_uniform_largeFiberAbel_bound :
                 Real.log R), largeFiberProfile x)| ≤
           2 * largeFiberAbelEnvelope K C D R m r := by
   obtain ⟨K, C, hK, hC, hcum⟩ :=
-    BoundedGaps.Maynard.exists_uniform_abs_abelCumulative_maynardS2CoordinateFiberCoefficient_sub_density_log_le_logarithmic
+    (
+exists_uniform_abs_abelCumulative_maynardS2CoordinateFiberCoefficient_sub_density_log_le_logarithmic
+    )
   refine ⟨K, C, hK, hC, ?_⟩
   intro H D R m r hr hD hlogR hQ
   let Q := BoundedGaps.Maynard.maynardS2CoordinateFiberEndpoint R

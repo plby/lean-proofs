@@ -166,7 +166,6 @@ theorem normalizedTupleCell_sub_step_le
     {H : Finset ℕ} {alpha epsilon : ℝ} {mesh N : ℕ}
     {f : (H → ℝ) → ℝ}
     (hscale : 0 < tupleNaturalScale H alpha N)
-    (hepsilon : 0 ≤ epsilon)
     (hosc : ∀ j ∈ BoundedGaps.Maynard.fractionalSimplexInnerGridIndex H mesh,
       ∀ u ∈ BoundedGaps.Maynard.engelsmaFractionalTupleShell H alpha
         (BoundedGaps.Maynard.fractionalGridLower mesh j)
@@ -606,7 +605,7 @@ theorem tendsto_normalizedTupleWeightedMoment
       positivity
     · exact hscaleN.le
   have hcellStepRaw := normalizedTupleCell_sub_step_le
-    hscaleN he20.le (fun j hj u hu => (hoscN j hj u hu).le)
+    hscaleN (fun j hj u hu => (hoscN j hj u hu).le)
   have hcellStep : |cell - step| < epsilon / 10 := by
     dsimp [cell, step]
     apply lt_of_le_of_lt hcellStepRaw

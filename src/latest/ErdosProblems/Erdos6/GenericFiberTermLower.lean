@@ -25,9 +25,11 @@ theorem tupleOffFace_logProduct_eq_coordinateSum
         (fun h : tupleOffFace H m => Real.log (u h) / Real.log R) := by
   have hpos : ∀ h : tupleOffFace H m, 0 < u h := by
     intro h
+    have huBox :=
+      (BoundedGaps.Maynard.isMaynardDivisorTuple_of_mem_support hu).mem_maynardDivisorTupleBox
     exact zero_lt_one.trans_le
       ((BoundedGaps.Maynard.mem_maynardDivisorTupleBox_iff.mp
-        (BoundedGaps.Maynard.isMaynardDivisorTuple_of_mem_support hu).mem_maynardDivisorTupleBox) h).1
+        huBox) h).1
   rw [maynardS2OffCoordinateProduct_extension]
   have hsum :=
     BoundedGaps.Maynard.sum_normalizedDivisorLogTuple_eq_log_product_div

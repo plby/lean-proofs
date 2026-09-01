@@ -89,7 +89,7 @@ private theorem no_prime_between_adjacent_filtered_shifts
   omega
 
 private theorem consecutive_prime_indices_of_no_prime_between
-    {x y r s : ℕ} (hx : x.Prime) (hy : y.Prime) (hxy : x < y)
+    {x y r s : ℕ} (hxy : x < y)
     (hr : Nat.nth Nat.Prime r = x) (hs : Nat.nth Nat.Prime s = y)
     (hbetween : ∀ z : ℕ, x < z → z < y → ¬z.Prime) :
     s = r + 1 := by
@@ -178,11 +178,11 @@ theorem consecutive_power_quadruple_of_isolated_translate
   have hr2 : Nat.nth Nat.Prime r2 = n + q2 := Nat.nth_count hp2
   have hr3 : Nat.nth Nat.Prime r3 = n + q3 := Nat.nth_count hp3
   have hr01 : r1 = r0 + 1 :=
-    consecutive_prime_indices_of_no_prime_between hp0 hp1 (by omega) hr0 hr1 hno01
+    consecutive_prime_indices_of_no_prime_between (by omega) hr0 hr1 hno01
   have hr12 : r2 = r1 + 1 :=
-    consecutive_prime_indices_of_no_prime_between hp1 hp2 (by omega) hr1 hr2 hno12
+    consecutive_prime_indices_of_no_prime_between (by omega) hr1 hr2 hno12
   have hr23 : r3 = r2 + 1 :=
-    consecutive_prime_indices_of_no_prime_between hp2 hp3 (by omega) hr2 hr3 hno23
+    consecutive_prime_indices_of_no_prime_between (by omega) hr2 hr3 hno23
   have hqH : ∀ i : Fin cardP, q i ∈ largePowerTuple := by
     intro i
     have hi := hqmem i
