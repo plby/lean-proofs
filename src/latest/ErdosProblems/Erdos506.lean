@@ -1508,20 +1508,20 @@ def dualHeight (t : ℝ) (p : Point) (x : ℝ) : ℝ :=
 
 noncomputable def sortByKey {α β : Type*} [DecidableEq α] [LinearOrder β]
     (s : Finset α) (key : α → β) (hinj : Function.Injective key) : List α := by
-  letI : LinearOrder α := LinearOrder.lift' key hinj
+  let : LinearOrder α := LinearOrder.lift' key hinj
   exact s.sort
 
 lemma sortByKey_pairwise {α β : Type*} [DecidableEq α] [LinearOrder β]
     (s : Finset α) (key : α → β) (hinj : Function.Injective key) :
     (sortByKey s key hinj).Pairwise fun x y ↦ key x ≤ key y := by
-  letI : LinearOrder α := LinearOrder.lift' key hinj
+  let : LinearOrder α := LinearOrder.lift' key hinj
   change (s.sort (fun x y ↦ key x ≤ key y)).Pairwise (fun x y ↦ key x ≤ key y)
   exact Finset.pairwise_sort s _
 
 lemma sortByKey_perm {α β : Type*} [DecidableEq α] [LinearOrder β]
     (s : Finset α) (key : α → β) (hinj : Function.Injective key) :
     (sortByKey s key hinj).Perm s.toList := by
-  letI : LinearOrder α := LinearOrder.lift' key hinj
+  let : LinearOrder α := LinearOrder.lift' key hinj
   exact Finset.sort_perm_toList s _
 
 lemma sortByKey_eq_of_pairwise_perm {α β : Type*} [DecidableEq α] [LinearOrder β]
@@ -1560,11 +1560,13 @@ lemma descentBoundary_le_one {α : Type*} (f : α → ℝ) (l₁ l₂ : List α)
     descentBoundary f l₁ l₂ ≤ 1 := by
   unfold descentBoundary
   cases h₁ : l₁.getLast? with
-  | none => simp [h₁]
+  | none => simp
   | some x =>
       cases h₂ : l₂.head? with
-      | none => simp [h₁, h₂]
-      | some y => simp only [h₁, h₂]; split_ifs <;> omega
+      | none => simp
+      | some y =>
+          change (if f y < f x then 1 else 0) ≤ 1
+          split_ifs <;> omega
 
 lemma descentCount_eq_length_sub_one_of_pairwise_gt
     {α : Type*} {f : α → ℝ} {l : List α}
@@ -1636,7 +1638,7 @@ lemma descentCount_reverse_block_add_bound
 lemma chain_telescope_sum {ε : Type*} (r before after : ε → ℕ)
     (hlocal : ∀ e, r e + after e ≤ before e + 3) (x : ε) :
     ∀ xs : List ε,
-      List.Chain (fun e e' ↦ after e = before e') x xs →
+      List.IsChain (fun e e' ↦ after e = before e') (x :: xs) →
       (r x :: xs.map r).sum + after (xs.getLast?.getD x) ≤
         before x + 3 * (xs.length + 1) := by
   intro xs
@@ -1647,7 +1649,7 @@ lemma chain_telescope_sum {ε : Type*} (r before after : ε → ℕ)
   | cons y ys ih =>
       intro hchain
       change List.IsChain (fun e e' ↦ after e = before e') (x :: y :: ys) at hchain
-      rw [List.chain_cons] at hchain
+      rw [List.isChain_cons_cons] at hchain
       have htail := ih y hchain.2
       have hhead := hlocal x
       rw [hchain.1] at hhead
@@ -1744,8 +1746,8 @@ lemma list_partition_three_of_pairwise {α : Type*} {h : α → ℝ}
           simpa [hfilterlt] using hi
         have hxl : ¬ h x < y := by linarith
         have hxg : ¬ y < h x := by linarith
-        simp only [List.filter_cons, hxl, hx, hxg, lt_irrefl, decide_false, decide_true,
-          if_false, if_true, hfilterlt, List.nil_append, List.cons_append]
+        simp only [List.filter_cons, hx, lt_irrefl, decide_false, decide_true,
+          if_true, hfilterlt]
         exact congrArg (List.cons x) hitail
       · have hgt : ∀ z ∈ l, y < h z := by
           intro z hz
@@ -1766,7 +1768,7 @@ lemma list_partition_three_of_pairwise {α : Type*} {h : α → ℝ}
           rw [List.filter_eq_self]
           intro z hz
           simpa using hgt z hz
-        simp [List.filter_cons, hx, ne_of_gt hx, not_lt_of_ge hx.le,
+        simp [hx, ne_of_gt hx, not_lt_of_ge hx.le,
           hfilterlt, hfiltereq, hfiltergt]
 
 lemma beforeTieOrder_pairwise_height_le {α : Type*} [Fintype α] [DecidableEq α]
@@ -1984,7 +1986,7 @@ lemma exists_sweepSlope_injOn (P : Finset Point) :
   obtain ⟨t, ht⟩ : ∃ t : ℝ, t ∉ badSweepParameters P := by
     apply Finset.exists_not_mem_of_card_lt_enatCard
     rw [ENat.card_eq_top.mpr (inferInstance : Infinite ℝ)]
-    exact ENat.coe_lt_top _
+    exact ENat.natCast_lt_top _
   refine ⟨t, fun a ha b hb hab ↦ ?_⟩
   by_contra hne
   have habP : (a, b) ∈ distinctPairs P :=
@@ -2216,11 +2218,12 @@ lemma orderedOverlap_le {ι α : Type*} [DecidableEq ι] [DecidableEq α]
 /-- Two-term inclusion--exclusion when all pairwise intersections have a
 uniform cardinality bound. -/
 lemma two_mul_sum_card_le_two_mul_union_add_pair_bound
-    {ι α : Type*} [DecidableEq ι] [DecidableEq α]
+    {ι α : Type*} [DecidableEq α]
     (I : Finset ι) (F : ι → Finset α) (q : ℕ)
     (hinter : ∀ i ∈ I, ∀ j ∈ I, i ≠ j → (F i ∩ F j).card ≤ q) :
     2 * ∑ i ∈ I, (F i).card ≤
       2 * (I.biUnion F).card + I.card * (I.card - 1) * q := by
+  classical
   exact (two_mul_sum_card_le_two_mul_union_add_ordered_overlap I F).trans
     (Nat.add_le_add_left (orderedOverlap_le I F q hinter) _)
 
@@ -2253,7 +2256,7 @@ lemma lineBlock_mem_connectingLines {P : Finset Point} {a b : Point}
   mem_connectingLines.mpr ⟨a, ha, b, hb, hab, rfl⟩
 
 lemma lineBlock_ne_of_noncollinear {P : Finset Point} {p q r : Point}
-    (hp : p ∈ P) (hq : q ∈ P) (hr : r ∈ P)
+    (_hp : p ∈ P) (_hq : q ∈ P) (hr : r ∈ P)
     (hnc : Noncollinear p q r) :
     lineBlock P p q ≠ lineBlock P p r := by
   intro h
@@ -2283,10 +2286,10 @@ lemma two_le_pointDegree_of_not_contained
       exact collinear_left _ _
   have hexq : ∃ q ∈ P, q ≠ p := by
     by_contra h
-    push_neg at h
+    push Not at h
     have hsub : P ⊆ {p} := by
       intro q hq
-      simpa [h q hq]
+      simp [h q hq]
     have := Finset.card_le_card hsub
     simp at this
     omega
@@ -2295,7 +2298,7 @@ lemma two_le_pointDegree_of_not_contained
   have hpq' : p ≠ q := Ne.symm hq'
   have hex : ∃ r ∈ P, Noncollinear p q r := by
     by_contra h
-    push_neg at h
+    push Not at h
     apply hP
     refine ⟨p, q, hpq', fun r hr ↦ ?_⟩
     simpa [Noncollinear, Collinear] using not_ne_iff.mp (h r hr)
@@ -2345,7 +2348,7 @@ lemma crossLines_subset_connectingLines
 
 lemma card_crossLines_on_common_line
     {P A : Finset Point} {a b p : Point}
-    (hAP : A ⊆ P) (hp : p ∈ P) (hab : a ≠ b)
+    (hAP : A ⊆ P) (_hp : p ∈ P) (hab : a ≠ b)
     (hA : ∀ x ∈ A, Collinear a b x)
     (hoff : Noncollinear a b p) :
     (crossLines P A p).card = A.card := by
@@ -2364,7 +2367,7 @@ lemma card_crossLines_on_common_line
 lemma card_inter_crossLines_le_one
     {P A : Finset Point} {p q : Point}
     (hAP : A ⊆ P) (hp : p ∈ P) (hq : q ∈ P)
-    (hpA : p ∉ A) (hqA : q ∉ A) (hpq : p ≠ q) :
+    (hpA : p ∉ A) (_hqA : q ∉ A) (hpq : p ≠ q) :
     (crossLines P A p ∩ crossLines P A q).card ≤ 1 := by
   classical
   apply Finset.card_le_one.mpr
@@ -2664,7 +2667,7 @@ lemma kellyMoser_six_of_lineDefect
         have hdecomp := P.sum_erase_add (fun q ↦ pointDegree P q) hp
         have hcarderase := Finset.card_erase_of_mem hp
         omega
-      · push_neg at hex
+      · push Not at hex
         have hall : ∀ p ∈ P, 18 ≤ pointDegree P p := by
           intro p hp
           have := hex p hp
@@ -2725,7 +2728,7 @@ lemma pointInversion_involutive {p x : Point} (hpx : x ≠ p) :
       distSq p (pointInversion p x) =
           ((x.1 - p.1) / distSq p x) ^ 2 +
             ((x.2 - p.2) / distSq p x) ^ 2 := by
-              simp only [distSq, pointInversion, Prod.fst, Prod.snd]
+              simp only [distSq, pointInversion]
               ring
       _ = ((x.1 - p.1) ^ 2 + (x.2 - p.2) ^ 2) /
           (distSq p x) ^ 2 := by ring
@@ -2735,13 +2738,13 @@ lemma pointInversion_involutive {p x : Point} (hpx : x ≠ p) :
   · change p.1 + ((pointInversion p x).1 - p.1) /
         distSq p (pointInversion p x) = x.1
     rw [hdval]
-    simp only [pointInversion, Prod.fst]
+    simp only [pointInversion]
     field_simp [hd]
     ring
   · change p.2 + ((pointInversion p x).2 - p.2) /
         distSq p (pointInversion p x) = x.2
     rw [hdval]
-    simp only [pointInversion, Prod.snd]
+    simp only [pointInversion]
     field_simp [hd]
     ring
 
@@ -2825,7 +2828,7 @@ lemma collinear_iff_centered_affine_one
       linarith
     have hnormal : A ≠ 0 ∨ B ≠ 0 := by
       by_contra h
-      push_neg at h
+      push Not at h
       rw [h.1, h.2] at ha
       norm_num at ha
     rw [Collinear, det]
@@ -2857,8 +2860,7 @@ lemma inversionLine_iff_onCircle
         (2 * p.2 + C.v) * ((pointInversion p x).2 - p.2) = 0 ↔
       OnCircle C x := by
   have hd := distSq_ne_zero hxp
-  simp only [pointInversion, sub_eq_add_neg, OnCircle, normSq, distSq,
-    Prod.fst, Prod.snd] at hpC hd ⊢
+  simp only [pointInversion, sub_eq_add_neg, OnCircle, normSq, distSq] at hpC hd ⊢
   field_simp [hd]
   constructor <;> intro h <;> nlinarith [sq_nonneg (x.1 - p.1), sq_nonneg (x.2 - p.2)]
 
@@ -2895,7 +2897,7 @@ lemma collinear_center_inversions_iff
       Collinear p x y := by
   have hdx := distSq_ne_zero hxp
   have hdy := distSq_ne_zero hyp
-  simp only [Collinear, det, pointInversion, Prod.fst, Prod.snd]
+  simp only [Collinear, det, pointInversion]
   field_simp [hdx, hdy]
   constructor <;> intro h <;> nlinarith
 
@@ -3755,7 +3757,7 @@ lemma event_order_chain_aux {P : Finset Point} {t a : ℝ}
         dualEventCoord t a L < dualEventCoord t a M) →
       (∀ K : {K // K ∈ connectingLines P}, K ∈ x :: xs ∨
         dualEventCoord t a K ≤ dualEventCoord t a x) →
-      List.Chain
+      List.IsChain
         (fun L M ↦
           afterTieOrder
               (sweptPointHeight t a (dualEventCoord t a L))
@@ -3763,12 +3765,12 @@ lemma event_order_chain_aux {P : Finset Point} {t a : ℝ}
             beforeTieOrder
               (sweptPointHeight t a (dualEventCoord t a M))
               (sweptPointSlope t a) (sweptPointSlope_injective ht hden))
-        x xs := by
+        (x :: xs) := by
   intro xs
   induction xs generalizing x with
   | nil =>
       intro _ _
-      simp [List.Chain]
+      simp
   | cons y ys ih =>
       intro hpair hcover
       rw [List.pairwise_cons] at hpair
@@ -3807,8 +3809,7 @@ lemma event_order_chain_aux {P : Finset Point} {t a : ℝ}
             · exact False.elim (hmem hcurrent)
           · exact hle.trans hxy.le
       have hchainTail := ih y hpair.2 hcoverTail
-      change List.IsChain _ (x :: y :: ys)
-      rw [List.chain_cons]
+      rw [List.isChain_cons_cons]
       exact ⟨hrel, hchainTail⟩
 
 lemma connectingLines_nonempty_of_not_contained {P : Finset Point}
@@ -3874,7 +3875,7 @@ lemma sum_line_card_le_card_add_three_mul_lines
         rwa [horder] at hmem
       have hchainOrders := event_order_chain_aux ht hden x xs hpair
         (fun K ↦ Or.inl (hmemall K))
-      have hchain : List.Chain (fun L M ↦ afterD L = beforeD M) x xs := by
+      have hchain : List.IsChain (fun L M ↦ afterD L = beforeD M) (x :: xs) := by
         refine List.IsChain.imp (p := hchainOrders) ?_
         intro L M hLM
         exact congrArg (descentCount f) hLM
@@ -3893,7 +3894,7 @@ lemma sum_line_card_le_card_add_three_mul_lines
         simpa using h
       let z : {L // L ∈ connectingLines P} := xs.getLast?.getD x
       have hlast : (x :: xs).getLast (by simp) = z := by
-        have hopt := List.getLast?_eq_getLast (l := x :: xs) (by simp)
+        have hopt := List.getLast?_eq_some_getLast (l := x :: xs) (by simp)
         have hget := congrArg (fun o ↦ o.getD x) hopt
         rw [List.getLast?_cons] at hget
         simp only [Option.getD_some] at hget
@@ -4030,7 +4031,7 @@ lemma seventeen_mul_card_sub_fifteen_le_three_mul_lines
         have hdecomp := P.sum_erase_add (fun q ↦ pointDegree P q) hp
         have hcarderase := Finset.card_erase_of_mem hp
         omega
-      · push_neg at hex
+      · push Not at hex
         have hall : ∀ p ∈ P, 18 ≤ pointDegree P p := by
           intro p hp
           have := hex p hp
@@ -4043,7 +4044,6 @@ lemma seventeen_mul_card_sub_fifteen_le_three_mul_lines
             intro p hp
             exact hall p hp
     omega
-
 /-- Connecting lines containing two or three inverted points, with membership
 in the ambient connecting-line family retained in their subtype. -/
 noncomputable def lowLineSubtypes (P : Finset Point) :
@@ -4754,7 +4754,6 @@ lemma inverted_connectingLine_card_le {P : Finset Point} {p : Point}
     rw [Finset.card_insert_of_notMem hpInv, hInvCard] at hcardSub
     have hmax := hgeneric.2 C
     omega
-
 lemma invertedPoints_not_containedInLine {P : Finset Point} {p : Point}
     (hcard : 3 ≤ P.card) (hpP : p ∈ P)
     (hPline : ¬ ContainedInLine P) (hPcircle : ¬ ContainedInCircle P) :
@@ -5139,7 +5138,6 @@ lemma correctedBound_le_of_large_line_estimate
       nlinarith
     rw [correctedBound]
     omega
-
   · have hmn : n - 1 = m + 2 := by omega
     have hmlarge : 391 ≤ m := by omega
     have hmdiv : m / 2 ≤ m := Nat.div_le_self m 2
@@ -5156,7 +5154,6 @@ lemma correctedBound_le_of_large_line_estimate
       nlinarith
     rw [correctedBound]
     omega
-
   · have hmn : n - 1 = m + 3 := by omega
     have hmlarge : 390 ≤ m := by omega
     have hmdiv : m / 2 ≤ m := Nat.div_le_self m 2
@@ -5453,11 +5450,11 @@ lemma correctedBound_le_determined_of_not_generic
         (circleTrace P C).card ≤ P.card - 6 := by
       intro hc
       exact hgeneric ⟨hlines, hc⟩
-    push_neg at hcircles
+    push Not at hcircles
     obtain ⟨C, hlarge⟩ := hcircles
     exact correctedBound_le_determined_of_large_circleTrace
       hN hPcircle hlarge
-  · push_neg at hlines
+  · push Not at hlines
     obtain ⟨L, hL, hlarge⟩ := hlines
     exact correctedBound_le_determined_of_large_connectingLine
       hN hPline hL hlarge
