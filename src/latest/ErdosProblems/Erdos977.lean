@@ -124,7 +124,7 @@ theorem isRoot_cyclotomic_two_of_prime_dvd_cyclotomicValue {n p : ℕ}
     (hp : p.Prime) (hpd : p ∣ cyclotomicValue n) :
     Polynomial.IsRoot (Polynomial.cyclotomic n (ZMod p))
       (Nat.castRingHom (ZMod p) 2) := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hcast : (Nat.castRingHom (ZMod p)) 2 =
       (Int.castRingHom (ZMod p)) (2 : ℤ) := by norm_num
   rw [Polynomial.IsRoot.def, ← Polynomial.map_cyclotomic_int n (ZMod p),
@@ -138,7 +138,7 @@ divisor of `Φₙ(2)` is congruent to `1` modulo `n`. -/
 theorem index_dvd_prime_sub_one_of_prime_dvd_cyclotomicValue {n p : ℕ}
     (hn : 0 < n) (hp : p.Prime) (hpd : p ∣ cyclotomicValue n)
     (hpn : ¬p ∣ n) : n ∣ p - 1 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hroot := isRoot_cyclotomic_two_of_prime_dvd_cyclotomicValue hp hpd
   have hcoprime : (2 : ℕ).Coprime p :=
     Polynomial.coprime_of_root_cyclotomic hn hroot
@@ -147,7 +147,7 @@ theorem index_dvd_prime_sub_one_of_prime_dvd_cyclotomicValue {n p : ℕ}
       (hp.coprime_iff_not_dvd.mp hcoprime.symm)
   have horder : orderOf (2 : ZMod p) ∣ p - 1 :=
     ZMod.orderOf_dvd_card_sub_one htwo
-  letI : NeZero (n : ZMod p) := NeZero.of_not_dvd (ZMod p) hpn
+  let : NeZero (n : ZMod p) := NeZero.of_not_dvd (ZMod p) hpn
   have hnorder : n = orderOf (2 : ZMod p) :=
     (Polynomial.isRoot_cyclotomic_iff.mp hroot).eq_orderOf
   rwa [hnorder]
@@ -159,7 +159,7 @@ and the single possible index-dividing prime. -/
 theorem index_eq_prime_pow_mul_orderOf_two {n p : ℕ}
     (hn : 0 < n) (hp : p.Prime) (hpd : p ∣ cyclotomicValue n) :
     ∃ k : ℕ, n = p ^ k * orderOf (2 : ZMod p) := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   obtain ⟨k, m, hpm, hnm⟩ :=
     Nat.exists_eq_pow_mul_and_not_dvd hn.ne' p hp.ne_one
   have hm : 0 < m := by
@@ -167,7 +167,7 @@ theorem index_eq_prime_pow_mul_orderOf_two {n p : ℕ}
     intro hm
     rw [hm, mul_zero] at hnm
     omega
-  letI : NeZero (m : ZMod p) := NeZero.of_not_dvd (ZMod p) hpm
+  let : NeZero (m : ZMod p) := NeZero.of_not_dvd (ZMod p) hpm
   have hroot := isRoot_cyclotomic_two_of_prime_dvd_cyclotomicValue hp hpd
   rw [hnm] at hroot
   have hprimitive : IsPrimitiveRoot (2 : ZMod p) m :=
@@ -178,7 +178,7 @@ theorem index_eq_prime_pow_mul_orderOf_two {n p : ℕ}
 divides `p - 1`. -/
 theorem orderOf_two_dvd_prime_sub_one {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) :
     orderOf (2 : ZMod p) ∣ p - 1 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have htwo : (2 : ZMod p) ≠ 0 := by
     intro h
     apply hp2
@@ -189,7 +189,7 @@ theorem orderOf_two_dvd_prime_sub_one {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) :
 /-- `p`-adic valuation is monotone under divisibility away from zero. -/
 theorem padicValNat_mono_dvd {p a b : ℕ} (hp : p.Prime) (hb : b ≠ 0)
     (hab : a ∣ b) : padicValNat p a ≤ padicValNat p b := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   rw [← padicValNat_dvd_iff_le hb]
   exact (pow_padicValNat_dvd (p := p) (n := a)).trans hab
 
@@ -210,7 +210,7 @@ theorem cyclotomicValue_padicVal_le_fermat_add_index {n p : ℕ}
     (hn : 0 < n) (hp : p.Prime) (hpd : p ∣ cyclotomicValue n) :
     padicValNat p (cyclotomicValue n) ≤
       padicValNat p (mersenne (p - 1)) + padicValNat p n := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hpodd : Odd p := prime_dvd_cyclotomicValue_odd hn hp hpd
   have hp2 : p ≠ 2 := by
     intro h
@@ -233,7 +233,7 @@ theorem cyclotomicValue_padicVal_le_fermat_add_index {n p : ℕ}
     exact (not_le_of_gt hmlt) (Nat.le_of_dvd hmpos hpm)
   have hp_mersenne_m : p ∣ mersenne m := by
     have hz : ((2 ^ m : ℕ) : ZMod p) = (1 : ZMod p) := by
-      simpa [m] using pow_orderOf_eq_one (2 : ZMod p)
+      simp [m]
     have hz' : ((1 : ℕ) : ZMod p) = ((2 ^ m : ℕ) : ZMod p) := by
       simpa only [Nat.cast_one] using hz.symm
     have hmod : 1 ≡ 2 ^ m [MOD p] :=
@@ -332,7 +332,7 @@ theorem card_primeFactors_cyclotomicValue_le_of_greatestPrimeFactor_le_mul
     by_cases hpn : p ∣ n
     · have heq :=
         prime_dvd_cyclotomicValue_and_index_eq_greatestPrimeFactor hn hp hpd hpn
-      exact Finset.mem_union_left ordinary (by simpa [exceptional, heq])
+      exact Finset.mem_union_left ordinary (by simp [exceptional, heq])
     · have hidx : n ∣ p - 1 :=
         index_dvd_prime_sub_one_of_prime_dvd_cyclotomicValue
           (lt_trans zero_lt_one hn) hp hpd hpn
@@ -382,7 +382,7 @@ theorem cyclotomicValue_log_le_card_mul_of_factor_term_le {n : ℕ} {E : ℝ}
 at most the logarithm of the index itself. -/
 theorem padicValNat_mul_log_le_log {n p : ℕ} (hn : 0 < n) (hp : p.Prime) :
     (padicValNat p n : ℝ) * Real.log (p : ℝ) ≤ Real.log (n : ℝ) := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hdvd : p ^ padicValNat p n ∣ n := pow_padicValNat_dvd
   have hpowNat : p ^ padicValNat p n ≤ n := Nat.le_of_dvd hn hdvd
   have hpow : (p : ℝ) ^ padicValNat p n ≤ (n : ℝ) := by
@@ -895,7 +895,7 @@ theorem cyclotomic_nextCoeff_eq_neg_moebius (n : ℕ) :
   rw [← hinv]
   simp only [g]
   rw [Finset.sum_eq_single (n, 1)]
-  · simp only [Prod.fst, Prod.snd, pow_one]
+  · simp only [pow_one]
     rw [show (1 : Polynomial ℤ) = Polynomial.C 1 by simp,
       Polynomial.nextCoeff_X_sub_C]
     simp
@@ -1073,10 +1073,8 @@ theorem prod_cyclotomicRootWeight {n : ℕ} (hn : 0 < n) :
     rw [← Polynomial.map_cyclotomic_int n ℂ, Polynomial.eval_map]
     simp
   rw [hcast, Complex.normSq_intCast] at hnorm
-  have hpos : 0 ≤ (Polynomial.cyclotomic n ℤ).eval 2 :=
-    (Polynomial.cyclotomic_pos' n (by norm_num : (1 : ℤ) < 2)).le
   rw [← hnorm]
-  simp [cyclotomicValue, pow_two, Int.natAbs_of_nonneg hpos]
+  simp [cyclotomicValue, pow_two]
 
 /-- A quantitative lower bound for `Φₙ(2)`: its square is at least a
 power of two whose exponent is one quarter of `φ(n)`. -/
@@ -1756,8 +1754,8 @@ theorem norm_fwdDiff_iter_of_forall_norm_le
     ‖(((-1 : ℤ) ^ (n - j) * n.choose j : ℤ) : T)‖ *
         ‖f (x + j • 1)‖ ≤ 1 * B := by
       gcongr
-      exact IsUltrametricDist.norm_intCast_le_one T _
-      exact hf _
+      · exact IsUltrametricDist.norm_intCast_le_one T _
+      · exact hf _
     _ = B := one_mul B
 
 /-- The Mahler estimate also covers the coefficients below the binomial
@@ -1797,7 +1795,7 @@ theorem norm_det_perturbed_evaluation_le
     (herr : ∀ i j, ‖A i j - f i (x j)‖ ≤ q ^ M) :
     ‖Matrix.det A‖ ≤
       q ^ ((∑ a ∈ range N, a) - ∑ i, k i) := by
-  letI : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
+  let : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
   let e : Fin N → ℕ → T := fun i n =>
     if h : n ∈ Set.range x then
       A i (Function.invFun x n) - f i n
@@ -1847,7 +1845,7 @@ theorem sum_range_le_sum_sum_weight {N M E : ℕ} (hE : N ≤ E)
   let s : Finset (Fin N) := univ.filter fun i => (p i).isLeft
   have hwinj : Set.InjOn (fun i => w (p i)) s := by
     intro i hi j hj hij
-    simp only [s, mem_filter, mem_univ, true_and] at hi hj
+    simp only [s] at hi hj
     cases hpi : p i with
     | inl ai =>
         cases hpj : p j with
@@ -1890,7 +1888,7 @@ theorem sum_range_le_sum_sum_weight {N M E : ℕ} (hE : N ≤ E)
         simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hi
         cases hpi : p i with
         | inl ai => simp [hpi] at hi
-        | inr ai => simp [w, hpi]
+        | inr ai => simp [w]
       _ = (univ.filter (fun i => ¬(p i).isLeft)).card * E := by simp
       _ = (N - s.card) * E := by rw [hcard]
   rw [← sum_range_add_sum_Ico (fun a => a) hsle]
@@ -2249,13 +2247,13 @@ theorem padicInt_root_factor_eq_of_yamadaGridValue_eq
       mul_comm s (p - 1), pow_mul, pow_mul, mul_pow, hw₂, hw₃]
     simp
   have hw₆c : ‖w₂ * w₃ - (6 : ℤ_[p])‖ < 1 := by
-    convert padicInt_norm_mul_sub_mul_lt_one hw₂c hw₃c using 1 <;> norm_num
+    convert padicInt_norm_mul_sub_mul_lt_one hw₂c hw₃c using 1; norm_num
   have hclose (r s : ℕ) :
       ‖(w₂ * w₃) ^ r * w₃ ^ s -
         ((6 ^ r * 3 ^ s : ℕ) : ℤ_[p])‖ < 1 := by
     have hr := padicInt_norm_pow_sub_pow_lt_one (n := r) hw₆c
     have hs := padicInt_norm_pow_sub_pow_lt_one (n := s) hw₃c
-    convert padicInt_norm_mul_sub_mul_lt_one hr hs using 1 <;> norm_num
+    convert padicInt_norm_mul_sub_mul_lt_one hr hs using 1; norm_num
   have hnat :
       ‖((6 ^ r₁ * 3 ^ s₁ : ℕ) : ℤ_[p]) -
         ((6 ^ r₂ * 3 ^ s₂ : ℕ) : ℤ_[p])‖ < 1 := by
@@ -2699,10 +2697,13 @@ multiplicatively independent already on nonnegative exponents. -/
 theorem six_pow_mul_three_pow_injective :
     Function.Injective (fun z : ℕ × ℕ => 6 ^ z.1 * 3 ^ z.2) := by
   intro a b hab
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  let : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   have h2 := congrArg (padicValNat 2) hab
-  simp [padicValNat.mul, padicValNat.pow,
-    padicValNat.eq_zero_of_not_dvd] at h2
+  simp only [ne_eq, Nat.pow_eq_zero, OfNat.ofNat_ne_zero, false_and,
+    not_false_eq_true, padicValNat.mul, padicValNat.pow, Nat.reduceDvd,
+    padicValNat.eq_zero_of_not_dvd, mul_zero, add_zero,
+    mul_eq_mul_right_iff, padicValNat.eq_zero_iff, OfNat.ofNat_ne_one,
+    not_true_eq_false, or_self, or_false] at h2
   have hr : a.1 = b.1 := by omega
   change 6 ^ a.1 * 3 ^ a.2 = 6 ^ b.1 * 3 ^ b.2 at hab
   rw [hr] at hab
@@ -2723,7 +2724,7 @@ theorem exists_large_yamadaGridValue_fiber {p R S L : ℕ}
     ∃ c : ZMod p,
       L ≤ (Finset.univ.filter fun z : Fin R × Fin S =>
         yamadaGridValue p R S z = c).card := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   have harea' : Fintype.card (ZMod p) * L ≤
       Fintype.card (Fin R × Fin S) := by
     simpa [ZMod.card, Fintype.card_prod, Fintype.card_fin] using harea
@@ -2741,7 +2742,7 @@ theorem orderOf_two_dvd_coordinate_difference_of_grid_collision
       (6 : ZMod p) ^ r₂ * (3 : ZMod p) ^ s₂) :
     ∃ d : ℕ, 0 < d ∧ (d = r₁ - r₂ ∨ d = r₂ - r₁) ∧
       orderOf (2 : ZMod p) ∣ d := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have h3 : (3 : ZMod p) ≠ 0 := by
     intro h
     apply hp3
@@ -2753,8 +2754,7 @@ theorem orderOf_two_dvd_coordinate_difference_of_grid_collision
     exact (Nat.prime_dvd_prime_iff_eq hp Nat.prime_two).mp
       ((CharP.cast_eq_zero_iff (ZMod p) p 2).mp h)
   rcases lt_trichotomy r₁ r₂ with hlt | heq | hgt
-  ·
-    let d := r₂ - r₁
+  · let d := r₂ - r₁
     have hd : 0 < d := Nat.sub_pos_of_lt hlt
     have hr : r₂ = r₁ + d := by omega
     have hs : s₁ = s₂ + d := by omega
@@ -2779,8 +2779,7 @@ theorem orderOf_two_dvd_coordinate_difference_of_grid_collision
     apply hne
     apply Prod.ext heq
     omega
-  ·
-    let d := r₁ - r₂
+  · let d := r₁ - r₂
     have hd : 0 < d := Nat.sub_pos_of_lt hgt
     have hr : r₁ = r₂ + d := by omega
     have hs : s₂ = s₁ + d := by omega
@@ -2930,7 +2929,7 @@ theorem fermat_quotient_padicVal_eq_orderOf {p : ℕ} (hp : p.Prime)
     (hp2 : p ≠ 2) :
     padicValNat p (mersenne (p - 1)) =
       padicValNat p (mersenne (orderOf (2 : ZMod p))) := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let d := orderOf (2 : ZMod p)
   have hdp : d ∣ p - 1 := orderOf_two_dvd_prime_sub_one hp hp2
   have hp1pos : 0 < p - 1 := Nat.sub_pos_of_lt hp.one_lt
@@ -2945,7 +2944,7 @@ theorem fermat_quotient_padicVal_eq_orderOf {p : ℕ} (hp : p.Prime)
     exact (not_le_of_gt hq_lt_p) (Nat.le_of_dvd hqpos hpdq)
   have hpd_mersenne : p ∣ mersenne d := by
     have hz : ((2 ^ d : ℕ) : ZMod p) = (1 : ZMod p) := by
-      simpa [d] using pow_orderOf_eq_one (2 : ZMod p)
+      simp [d]
     have hz' : ((1 : ℕ) : ZMod p) = ((2 ^ d : ℕ) : ZMod p) := by
       simpa only [Nat.cast_one] using hz.symm
     have hmod : 1 ≡ 2 ^ d [MOD p] :=
@@ -3045,7 +3044,7 @@ theorem yamada_fermat_quotient_bound_small {p : ℕ} (hp : p.Prime)
   linarith
 
 theorem coeff_prod_of_natDegree_le_varying
-    {ι R : Type*} [CommSemiring R] [DecidableEq ι]
+    {ι R : Type*} [CommSemiring R]
     (s : Finset ι) (f : ι → R[X]) (d : ι → ℕ)
     (hdeg : ∀ i ∈ s, (f i).natDegree ≤ d i) :
     (∏ i ∈ s, f i).coeff (∑ i ∈ s, d i) =
@@ -3130,7 +3129,7 @@ theorem geometric_shift_det_ne_zero {n : ℕ}
       rw [Matrix.mul_apply]
       rw [Finset.sum_eq_single j]
       · simp only [Matrix.transpose_apply, Matrix.vandermonde_apply,
-          Matrix.diagonal_apply, if_pos, mul_one]
+          Matrix.diagonal_apply, if_pos]
         rw [hlead]
         dsimp only [nodes]
         rw [Nat.mul_comm i.1 (ell j)]
@@ -3296,10 +3295,11 @@ theorem polynomial_geometric_translate_zero
 
 
 theorem exists_det_submatrix_ne_zero
-    {N : ℕ} {C : Type*} [Fintype C]
+    {N : ℕ} {C : Type*} [Finite C]
     (A : Matrix (Fin N) C ℚ) (hA : LinearIndependent ℚ A.row) :
     ∃ c : Fin N → C, (A.submatrix id c).det ≠ 0 := by
   classical
+  let _ : Fintype C := Fintype.ofFinite C
   have hrank : A.rank = N := by
     simpa using hA.rank_matrix
   have hex := Submodule.exists_fun_fin_finrank_span_eq ℚ (Set.range A.col)
@@ -3357,11 +3357,11 @@ theorem linearIndependent_choose_geometric_rows
     simp only [Finset.sum_apply, Pi.smul_apply, smul_eq_mul, Pi.zero_apply] at hz
     rw [Fintype.sum_prod_type] at hz
     rw [Finset.sum_comm] at hz
-    simpa [P, Polynomial.eval_finset_sum, Polynomial.eval_mul, mul_assoc,
+    simpa [P, Polynomial.eval_finsetSum, Polynomial.eval_mul, mul_assoc,
       Finset.sum_mul] using hz
   have hPzero : ∀ l, P l = 0 := by
     by_contra hn
-    push_neg at hn
+    push Not at hn
     exact polynomial_geometric_translate_zero P hPdeg hn q d hq hq1 x y hx hy hm hzero
   have hcoeff : ∀ l : Fin L, ∀ n : Fin K, g (n, l) = 0 := by
     intro l n
@@ -3373,7 +3373,7 @@ theorem linearIndependent_choose_geometric_rows
         have heval := congrArg (fun Q : ℚ[X] => Q.eval (a : ℚ)) (hPzero l)
         have hsum :
             (∑ k : Fin K, g (k, l) * (Nat.choose a k.1 : ℚ)) = 0 := by
-          simpa [P, Polynomial.eval_finset_sum, Polynomial.eval_mul,
+          simpa [P, Polynomial.eval_finsetSum, Polynomial.eval_mul,
             chooseMulPoly_eval, Ring.choose_natCast] using heval
         have hsingle :
             (∑ k : Fin K, g (k, l) * (Nat.choose a k.1 : ℚ)) =
@@ -3400,7 +3400,7 @@ theorem exists_yamada_seed
     ∃ a₁ a₂ : Fin H × Fin H, a₁ ≠ a₂ ∧
       yamadaGridValue p H H a₁ = yamadaGridValue p H H a₂ := by
   classical
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   have hlt : Fintype.card (ZMod p) < Fintype.card (Fin H × Fin H) := by
     simpa [ZMod.card, Fintype.card_prod, Fintype.card_fin] using hcard
   have hninj := Fintype.not_injective_of_card_lt (yamadaGridValue p H H) hlt
@@ -3451,7 +3451,7 @@ theorem yamada_seed_progression
         6 ^ (i.1 * a₁.1.1 + (3 - i.1) * a₂.1.1) *
             3 ^ (i.1 * a₁.2.1 + (3 - i.1) * a₂.2.1) =
           Y₁ ^ i.1 * Y₂ ^ (3 - i.1) := by
-      simp only [Y₁, Y₂, pow_add, ← pow_mul]
+      simp only [Y₁, Y₂, pow_add]
       ring
     rw [hmonoNat]
     have hrat : ((Y₁ ^ i.1 * Y₂ ^ (3 - i.1) : ℕ) : ℚ) =
@@ -3568,7 +3568,7 @@ theorem exists_nonsingular_yamada_interpolation
         have hmono : (6 : ZMod p) ^ ar t * (3 : ZMod p) ^ as t =
             ((6 : ZMod p) ^ a₁.1.1 * (3 : ZMod p) ^ a₁.2.1) ^ t.1 *
               ((6 : ZMod p) ^ a₂.1.1 * (3 : ZMod p) ^ a₂.2.1) ^ (3 - t.1) := by
-          simp only [ar, as, pow_add, ← pow_mul]
+          simp only [ar, as, pow_add]
           ring
         rw [hmono]
         have hval : (6 : ZMod p) ^ a₁.1.1 * (3 : ZMod p) ^ a₁.2.1 =
@@ -3673,7 +3673,7 @@ theorem yamada_exponent (K : ℕ) :
     exact Nat.mul_div_cancel_left _ (by norm_num)
   rw [hsum]
   have hle : 2 * K * (K - 1) ≤ 2 * K * (K * 4 - 1) := by
-    gcongr <;> omega
+    gcongr; omega
   rw [Nat.sub_eq_iff_eq_add hle]
   have hfour : 1 ≤ K * 4 := by omega
   nlinarith [Nat.sub_add_cancel hKone, Nat.sub_add_cancel hfour]
@@ -3731,10 +3731,10 @@ theorem yamadaIntegerMatrix_natAbs_det_le
       apply Finset.sum_congr rfl
       intro σ hσ
       rcases Int.units_eq_one_or (Equiv.Perm.sign σ) with hsign | hsign
-      · simp [hsign]
+      · simp only [hsign, one_smul]
         exact map_prod Int.natAbsHom
           (fun i => yamadaIntegerMatrix K r s (σ i) i) Finset.univ
-      · simp [hsign]
+      · simp only [hsign, Units.neg_smul, one_smul, Int.natAbs_neg]
         exact map_prod Int.natAbsHom
           (fun i => yamadaIntegerMatrix K r s (σ i) i) Finset.univ
     _ ≤ ∑ _σ : Equiv.Perm (Fin (K * 4)), B := by
@@ -3781,7 +3781,7 @@ theorem fermat_quotient_lt_or_order_lt_of_parameters
     padicValNat p (mersenne (p - 1)) < K * 4 ∨
       orderOf (2 : ZMod p) < R := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   rcases exists_nonsingular_yamada_interpolation hp hp2 hp3 (by omega)
       hseed harea with horder | ⟨r, s, hr, hs, hfiber, hdetQ⟩
   · exact Or.inr horder
@@ -3926,12 +3926,12 @@ theorem large_prime_parameters {p : ℕ} (hp : p.Prime)
     exact Nat.div_mul_le_self p (h * h)
   have hqupper : p < (q + 1) * (h * h) := by
     apply (Nat.div_lt_iff_lt_mul (by positivity : 0 < h * h)).mp
-    simpa [q] using Nat.lt_succ_self (p / (h * h))
+    simp [q]
   have humul : u * h ≤ p := by
     exact Nat.div_mul_le_self p h
   have huupper : p < (u + 1) * h := by
     apply (Nat.div_lt_iff_lt_mul hhpos).mp
-    simpa [u] using Nat.lt_succ_self (p / h)
+    simp [u]
   have hhleu : h ≤ u := by
     apply (Nat.le_div_iff_mul_le hhpos).2
     simpa [u, mul_comm] using hhhp
