@@ -28,11 +28,11 @@ theorem measurableSet_missedPointWithVisits (x : Point) (n k : ℕ) :
 
 private theorem constant_observable {tau : StepPath → ℕ}
     (htau : IsFiniteStoppingTime tau) (x y : Point) :
-    IsMeasurableAtStopping tau {w | x = y} := by
+    IsMeasurableAtStopping tau {_w | x = y} := by
   intro t
   by_cases h : x = y
-  · simpa only [h, Set.setOf_true, Set.univ_inter] using htau.measurableSet_eq t
-  · simp only [h, Set.setOf_false, Set.empty_inter, MeasurableSet.empty]
+  · simpa only [h, Set.ofPred_true, Set.univ_inter] using htau.measurableSet_eq t
+  · simp only [h, Set.ofPred_false, Set.empty_inter, MeasurableSet.empty]
 
 private theorem origin_return_stage {n k : ℕ} (hk : 2 ≤ k) {w : StepPath}
     (hcount : k ≤ localTime (trajectory w) n 0) :
@@ -50,7 +50,7 @@ private theorem origin_return_clock_lt {n k : ℕ} (hk : 2 ≤ k) {w : StepPath}
     (hstage : w ∈ returnLadderStage (fun _ ↦ 0) (fun _ ↦ 0) (n + 1) (k - 1)) :
     returnLadder (fun _ ↦ 0) (fun _ ↦ 0) (n + 1) (k - 1) w < n + 1 := by
   obtain ⟨j, hj⟩ := Nat.exists_eq_succ_of_ne_zero (by omega : k - 1 ≠ 0)
-  simpa only [hj, returnLadderStage, Set.mem_setOf_eq] using hstage
+  simpa only [hj, returnLadderStage, Set.mem_ofPred_eq] using hstage
 
 private noncomputable def missedPointCertificate (x : Point) (n k : ℕ)
     (hx : x ≠ 0) (hk : 2 ≤ k) :

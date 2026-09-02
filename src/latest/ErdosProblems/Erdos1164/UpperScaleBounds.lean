@@ -13,16 +13,18 @@ noncomputable def upperClockSplit (t n : ℕ) : ℕ :=
   ⌈100 * (t : ℝ) * Real.log ((n + 2 : ℕ) : ℝ)⌉₊ + 1
 
 theorem upperClockSplit_ge_two {t : ℕ} (ht : 1 ≤ t) (n : ℕ) : 2 ≤ upperClockSplit t n := by
-  have hlog : 0 < Real.log ((n + 2 : ℕ) : ℝ) := Real.log_pos (by exact_mod_cast (by omega : 1 < n + 2))
+  have hlog : 0 < Real.log ((n + 2 : ℕ) : ℝ) :=
+    Real.log_pos (by exact_mod_cast (by omega : 1 < n + 2))
   have htpos : (0 : ℝ) < t := by exact_mod_cast (by omega : 0 < t)
   have hceil : 1 ≤ ⌈100 * (t : ℝ) * Real.log ((n + 2 : ℕ) : ℝ)⌉₊ :=
     Nat.one_le_ceil_iff.mpr (by positivity)
   unfold upperClockSplit
   omega
 
-theorem upperClockSplit_tail_exponent {t : ℕ} (ht : 1 ≤ t) (n : ℕ) :
+theorem upperClockSplit_tail_exponent {t : ℕ} (_ht : 1 ≤ t) (n : ℕ) :
     -((upperClockSplit t n - 1 : ℕ) : ℝ) / (100 * Real.log ((n + 2 : ℕ) : ℝ)) ≤ -(t : ℝ) := by
-  have hlog : 0 < Real.log ((n + 2 : ℕ) : ℝ) := Real.log_pos (by exact_mod_cast (by omega : 1 < n + 2))
+  have hlog : 0 < Real.log ((n + 2 : ℕ) : ℝ) :=
+    Real.log_pos (by exact_mod_cast (by omega : 1 < n + 2))
   have hceil := Nat.le_ceil (100 * (t : ℝ) * Real.log ((n + 2 : ℕ) : ℝ))
   simp only [upperClockSplit, Nat.add_sub_cancel]
   apply (div_le_iff₀ (by positivity : 0 < 100 * Real.log ((n + 2 : ℕ) : ℝ))).mpr
@@ -43,13 +45,15 @@ theorem upperClockSplit_le {t n : ℕ} (ht : 1 ≤ t) (hn : 2 ≤ n)
     exact Real.log_nonneg (by exact_mod_cast (by omega : 1 ≤ n + 2))
   have hceil := Nat.ceil_lt_add_one
     (by positivity : 0 ≤ 100 * (t : ℝ) * Real.log ((n + 2 : ℕ) : ℝ))
-  have hlogs := mul_le_mul_of_nonneg_left (log_time_add_two_le hn) (by positivity : (0 : ℝ) ≤ 100 * t)
+  have hlogs := mul_le_mul_of_nonneg_left (log_time_add_two_le hn)
+    (by positivity : (0 : ℝ) ≤ 100 * t)
   have hprod : 1 ≤ (t : ℝ) * Real.log (n : ℝ) := one_le_mul_of_one_le_of_one_le htR hlog
   unfold upperClockSplit
   rw [Nat.cast_add, Nat.cast_one]
   nlinarith
 
-theorem floor_scale_bounds {b : ℝ} (hb : 0 < b) {n : ℕ} (hscale : 2 ≤ b * sqrtLogTime n) :
+theorem floor_scale_bounds {b : ℝ} (_hb : 0 < b) {n : ℕ}
+    (hscale : 2 ≤ b * sqrtLogTime n) :
     b * sqrtLogTime n / 2 ≤ (⌊b * sqrtLogTime n⌋₊ : ℝ) ∧
       (⌊b * sqrtLogTime n⌋₊ : ℝ) ≤ b * sqrtLogTime n := by
   have hfloor := Nat.lt_floor_add_one (b * sqrtLogTime n)
@@ -93,9 +97,11 @@ theorem dyadic_cover_cost_product {b : ℝ} (hb : 0 < b) {n : ℕ} (hn : 1 ≤ n
   have hprod : (potentialSlope * v / 2) * v ≤
       (targetVisitCost (2 ^ j) : ℝ) * (harmonic (2 ^ j) : ℝ) :=
     mul_le_mul hell' hH hv (by positivity)
-  have hmult := mul_le_mul_of_nonneg_left hprod (show 0 ≤ coveringGain / 2 by exact div_nonneg coveringGain_pos.le (by norm_num))
+  have hmult := mul_le_mul_of_nonneg_left hprod
+    (show 0 ≤ coveringGain / 2 by exact div_nonneg coveringGain_pos.le (by norm_num))
   have hsqmult := mul_le_mul_of_nonneg_left hsq
-    (show 0 ≤ potentialSlope * coveringGain / 4 by exact div_nonneg (mul_nonneg potentialSlope_pos.le coveringGain_pos.le) (by norm_num))
+    (show 0 ≤ potentialSlope * coveringGain / 4 by
+      exact div_nonneg (mul_nonneg potentialSlope_pos.le coveringGain_pos.le) (by norm_num))
   have heq : (potentialSlope * coveringGain / 4) *
       (b * sqrtLogTime n * Real.log 2 / 2) ^ 2 =
       potentialSlope * coveringGain * b ^ 2 * Real.log 2 ^ 2 * Real.log (n : ℝ) / 16 := by

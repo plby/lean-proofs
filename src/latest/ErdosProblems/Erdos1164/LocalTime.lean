@@ -31,7 +31,9 @@ theorem originVisits_le_localTime (s : WalkPath) (n : ℕ) :
 theorem measurable_originVisits (n : ℕ) :
     Measurable fun s : WalkPath ↦ originVisits s n := by
   cases n with
-  | zero => simpa only [originVisits_zero] using (measurable_const : Measurable fun _ : WalkPath ↦ (0 : ℕ))
+  | zero =>
+      simpa only [originVisits_zero] using
+        (measurable_const : Measurable fun _ : WalkPath ↦ (0 : ℕ))
   | succ n =>
     simp only [originVisits_succ_eq_localTime]
     exact Erdos1165.HLOZGapCandidateMeasurability.measurable_localTime_fixed n 0

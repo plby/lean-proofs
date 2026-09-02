@@ -29,7 +29,7 @@ private theorem outer_radius_large {m : ℕ} (hm : 4 ≤ m) : 8 ≤ m ^ 8 :=
   (by norm_num : 8 ≤ 4 ^ 8).trans (Nat.pow_le_pow_left hm 8)
 
 private theorem origin_mem_outer_disc (m : ℕ) : (0 : Point) ∈ closedDisc (m ^ 8) := by
-  simp [mem_closedDisc_iff_radiusSqInt_le, radiusSqInt]
+  simp [radiusSqInt]
 
 private theorem origin_inner_quarter (m : ℕ) :
     euclideanRadius (0 : Point) ≤ ((m ^ 8 : ℕ) : ℝ) / 4 := by
@@ -135,7 +135,8 @@ order at most the reciprocal logarithmic scale. -/
 theorem target_excursion_probability_upper {m : ℕ} (hm : LargeTargetScale m) (i : Fin m) :
     PointBeforeReturn.pointBeforeReturnProbability (separatedTarget m i) ≤
       1 / (2 * spatialLogScale m) := by
-  rw [PointBeforeReturn.pointBeforeReturnProbability_eq (separatedTarget_ne_zero (by have := hm.1; omega) i)]
+  rw [PointBeforeReturn.pointBeforeReturnProbability_eq
+    (separatedTarget_ne_zero (by have := hm.1; omega) i)]
   have hpot := (separatedTarget_potential hm.1 i).1
   change 2 * spatialLogScale m - potentialError ≤ _ at hpot
   have hs := hm.2

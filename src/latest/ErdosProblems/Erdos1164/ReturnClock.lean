@@ -196,7 +196,8 @@ theorem originVisits_lower_tail {N k : ℕ} (hN : 2 ≤ N)
     (Nat.div_lt_iff_lt_mul (by omega : 0 < k + 1)).mp (Nat.lt_succ_self t)
   have hsquare : N ≤ (t + 2) ^ 2 := by nlinarith
   have hlogN : 0 < Real.log (N : ℝ) := Real.log_pos (by exact_mod_cast (by omega : 1 < N))
-  have hlogt : 0 < Real.log ((t + 2 : ℕ) : ℝ) := Real.log_pos (by exact_mod_cast (by omega : 1 < t + 2))
+  have hlogt : 0 < Real.log ((t + 2 : ℕ) : ℝ) :=
+    Real.log_pos (by exact_mod_cast (by omega : 1 < t + 2))
   have hlogs : Real.log (N : ℝ) ≤ 2 * Real.log ((t + 2 : ℕ) : ℝ) := by
     have h := Real.log_le_log (by positivity : (0 : ℝ) < N)
       (show (N : ℝ) ≤ (((t + 2 : ℕ) : ℝ) ^ 2) by exact_mod_cast hsquare)

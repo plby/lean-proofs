@@ -51,14 +51,18 @@ theorem separatedTarget_mem_disc (m : ℕ) (i : Fin m) :
   have hr := (separatedTarget_radius_bounds m i).2
   have hc : separatedTarget m i ∈ closedDisc (2 * m ^ 2) :=
     mem_closedDisc_of_euclideanRadius_le (by exact_mod_cast hr)
-  simpa only [mem_closedDisc_iff_radiusSqInt_le, radiusSqInt, latticeDisc, Set.mem_ofPred_eq] using hc
+  simpa only [mem_closedDisc_iff_radiusSqInt_le, radiusSqInt, latticeDisc,
+    Set.mem_ofPred_eq] using hc
 
 theorem separatedTarget_distance_lower {m : ℕ} (hm : 1 ≤ m)
     {i j : Fin m} (hij : i ≠ j) :
     (m : ℝ) ≤ euclideanRadius (separatedTarget m i - separatedTarget m j) := by
   have heq : separatedTarget m i - separatedTarget m j =
       ((m : ℤ) * ((i : ℕ) - (j : ℕ)), 0) := by
-    ext <;> simp [separatedTarget] <;> ring
+    ext
+    · simp [separatedTarget]
+      ring
+    · simp [separatedTarget]
   rw [heq, euclideanRadius_axis, Int.cast_mul, Int.cast_sub, Int.cast_natCast,
     Int.cast_natCast, Int.cast_natCast, abs_mul, abs_of_nonneg (by positivity : (0 : ℝ) ≤ m)]
   have hidx : (1 : ℝ) ≤ |((i : ℕ) : ℝ) - (j : ℕ)| := by

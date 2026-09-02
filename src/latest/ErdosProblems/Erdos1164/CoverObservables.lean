@@ -52,7 +52,7 @@ theorem stopped_indicator_observable {τ : StepPath → ℕ} (hτ : IsFiniteStop
         (if 0 = a then Aᶜ ∩ {w | τ w = n} else ∅) := by
     classical
     ext w
-    by_cases hw : w ∈ A <;> simp [hw, and_comm, and_left_comm, and_assoc]
+    by_cases hw : w ∈ A <;> simp [hw, and_comm]
   rw [he]
   have hc := isMeasurableAtStopping_compl hτ hA
   have hempty : MeasurableSet[incrementFiltration n] (∅ : Set StepPath) :=
@@ -62,7 +62,8 @@ theorem stopped_indicator_observable {τ : StepPath → ℕ} (hτ : IsFiniteStop
 
 theorem coverExtension_observable (v : ℕ → Point) (N k : ℕ) :
     IsMeasurableAtStopping (prefixCoverClock v N k) (coverExtension v N k) :=
-  stopping_comparison_observable (prefixCoverClock_stopping v N k) (pointHitClock_stopping 0 (v k) N)
+  stopping_comparison_observable (prefixCoverClock_stopping v N k)
+    (pointHitClock_stopping 0 (v k) N)
 
 /-- Deterministic-time origin local time uses only the available increments. -/
 theorem measurable_originVisits_filtration (n : ℕ) :
@@ -82,7 +83,8 @@ theorem measurable_originVisits_filtration (n : ℕ) :
     (measurable_trajectory_at_incrementFiltration j).mono (incrementFiltration.mono hjn) le_rfl
   exact Measurable.ite (measurableSet_eq_fun hm measurable_const) measurable_const measurable_const
 
-theorem originVisits_at_stopping_observable {τ : StepPath → ℕ} (hτ : IsFiniteStoppingTime τ) (a : ℕ) :
+theorem originVisits_at_stopping_observable {τ : StepPath → ℕ}
+    (hτ : IsFiniteStoppingTime τ) (a : ℕ) :
     IsMeasurableAtStopping τ {w | originVisits (trajectory w) (τ w) = a} := by
   intro n
   have he : {w | originVisits (trajectory w) (τ w) = a} ∩ {w | τ w = n} =
@@ -113,12 +115,14 @@ theorem coverRecordCount_observable (v : ℕ → Point) (N k : ℕ) (a : ℕ) :
     have hind (b : ℕ) : IsMeasurableAtStopping (prefixCoverClock v N (k + 1))
         {w | (coverExtension v N k).indicator (fun _ ↦ (1 : ℕ)) w = b} :=
       IsMeasurableAtStopping.mono_time
-        (stopped_indicator_observable (prefixCoverClock_stopping v N k) (coverExtension_observable v N k) b) hs hmono
+        (stopped_indicator_observable (prefixCoverClock_stopping v N k)
+          (coverExtension_observable v N k) b) hs hmono
     have h := isMeasurableAtStopping_binary_fiber hprev hind (fun b c : ℕ ↦ b + c) a
     simpa only [coverRecordCount_succ, Set.indicator_apply] using h
 
 /-- Time, origin visits, record count, and location at a partial cover. -/
-noncomputable def coverState (v : ℕ → Point) (N k : ℕ) (w : StepPath) : ℕ × ℕ × ℕ × Point :=
+noncomputable def coverState (v : ℕ → Point) (N k : ℕ) (w : StepPath) :
+    ℕ × ℕ × ℕ × Point :=
   (prefixCoverClock v N k w, originVisits (trajectory w) (prefixCoverClock v N k w),
     coverRecordCount v N k w, trajectory w (prefixCoverClock v N k w))
 

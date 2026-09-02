@@ -7,7 +7,7 @@ open scoped Topology
 
 namespace Erdos1164
 
-private theorem dyadic_small_budget {a : ℝ} (ha : 0 < a) {n : ℕ} (hn : 1 ≤ n)
+private theorem dyadic_small_budget {a : ℝ} (_ha : 0 < a) {n : ℕ} (hn : 1 ≤ n)
     (hscale : 3 ≤ a * sqrtLogTime n) :
     (discReturnBudget (2 ^ ⌈a * sqrtLogTime n⌉₊) : ℝ) ≤
       5000 * a ^ 2 * Real.log (n : ℝ) := by
@@ -25,7 +25,7 @@ private theorem dyadic_small_budget {a : ℝ} (ha : 0 < a) {n : ℕ} (hn : 1 ≤
   nlinarith
 
 private theorem budget_square_condition {n B : ℕ} {C : ℝ}
-    (hlog : 1 ≤ Real.log (n : ℝ)) (hC : 0 ≤ C)
+    (hlog : 1 ≤ Real.log (n : ℝ)) (_hC : 0 ≤ C)
     (hB : (B : ℝ) ≤ C * Real.log (n : ℝ))
     (hg : (C + 1) ^ 2 * Real.log (n : ℝ) ^ 2 ≤ (n : ℝ)) :
     (B + 1) ^ 2 ≤ n := by
@@ -38,7 +38,7 @@ private theorem budget_square_condition {n B : ℕ} {C : ℝ}
   rw [mul_pow] at hs
   exact_mod_cast hs.trans hg
 
-private theorem dyadic_error_small {a ε : ℝ} (ha : 0 < a) (hε : 0 < ε) {n : ℕ}
+private theorem dyadic_error_small {a ε : ℝ} (_ha : 0 < a) (hε : 0 < ε) {n : ℕ}
     (hscale : 16 / ε ≤ a * sqrtLogTime n) :
     4 / (((2 ^ ⌈a * sqrtLogTime n⌉₊ + 2 : ℕ) : ℝ) ^ 3) ≤ ε / 4 := by
   let j := ⌈a * sqrtLogTime n⌉₊

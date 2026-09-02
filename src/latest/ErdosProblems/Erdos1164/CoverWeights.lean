@@ -64,11 +64,13 @@ theorem coverWeight_of_alive {v : ℕ → Point} {N ell k : ℕ} {w : StepPath}
     coverWeight v N ell k w = ENNReal.ofReal
       (Real.exp (-(originVisits (trajectory w) (prefixCoverClock v N k w) : ℝ) / (ell : ℝ))) *
         ENNReal.ofReal recordAmplification ^ coverRecordCount v N k w := by
-  simp only [coverWeight, discountedHitAt, Set.indicator_apply, Set.mem_ofPred_eq, h, if_true, trajectoryFrom_origin]
+  simp only [coverWeight, discountedHitAt, Set.indicator_apply, Set.mem_ofPred_eq,
+    h, if_true, trajectoryFrom_origin]
 
 theorem coverWeight_of_dead {v : ℕ → Point} {N ell k : ℕ} {w : StepPath}
     (h : ¬prefixCoverClock v N k w < N) : coverWeight v N ell k w = 0 := by
-  simp only [coverWeight, discountedHitAt, Set.indicator_apply, Set.mem_ofPred_eq, h, if_false, zero_mul]
+  simp only [coverWeight, discountedHitAt, Set.indicator_apply, Set.mem_ofPred_eq,
+    h, if_false, zero_mul]
 
 theorem coverWeight_zero (v : ℕ → Point) {N : ℕ} (hN : 0 < N) (ell : ℕ) (w : StepPath) :
     coverWeight v N ell 0 w = 1 := by

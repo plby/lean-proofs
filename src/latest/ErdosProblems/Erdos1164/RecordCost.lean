@@ -49,6 +49,7 @@ theorem measurable_recordCostWeight {n : ℕ} {A : Set Ω} (hA : MeasurableSet A
   exact (measurable_of_countable (fun k : ℕ ↦ q ^ k)).comp
     (measurable_leftRecordCount (fun i ↦ t (p i)) (fun i ↦ ht (p i)))
 
+omit [MeasurableSpace Ω] in
 private theorem sum_recordCostWeight {n : ℕ} {A : Set Ω} {c : Ω → ℝ}
     (t : Fin n → Ω → ℝ) (q : ℝ) (hq : 0 ≤ q)
     (hinj : ∀ w ∈ A, Function.Injective (fun i ↦ t i w)) (w : Ω) :
@@ -127,7 +128,8 @@ theorem record_cost_lower_tail {n : ℕ} (μ : Measure Ω)
       (ENNReal.ofReal (Real.exp (-u)) * μ B) ≤ 1 :=
     (mul_le_mul' hprod hint).trans hmain
   have hex : Real.exp ((1 - 1 / q) * (harmonic n : ℝ) - u) =
-      Real.exp ((1 - 1 / q) * (harmonic n : ℝ)) * Real.exp (-u) := Real.exp_sub _ _ |>.trans (by rw [Real.exp_neg]; rfl)
+      Real.exp ((1 - 1 / q) * (harmonic n : ℝ)) * Real.exp (-u) :=
+    Real.exp_sub _ _ |>.trans (by rw [Real.exp_neg]; rfl)
   rw [← mul_assoc, ← ENNReal.ofReal_mul (by positivity), ← hex] at hbound
   have hzero : ENNReal.ofReal (Real.exp ((1 - 1 / q) * (harmonic n : ℝ) - u)) ≠ 0 := by positivity
   have hfin : ENNReal.ofReal (Real.exp ((1 - 1 / q) * (harmonic n : ℝ) - u)) ≠ ⊤ := by finiteness

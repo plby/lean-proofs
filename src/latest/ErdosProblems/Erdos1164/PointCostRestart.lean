@@ -44,7 +44,8 @@ theorem measurableSet_firstOriginBeforePointAt (x y : Point) (n : ℕ) :
   incrementFiltration.le n _ (measurableSet_firstOriginBeforePointAt_filtration x y n)
 
 theorem firstOriginBeforePointAt_pairwise (x y : Point) :
-    Pairwise fun n m ↦ Disjoint (firstOriginBeforePointAt x y n) (firstOriginBeforePointAt x y m) := by
+    Pairwise fun n m ↦
+      Disjoint (firstOriginBeforePointAt x y n) (firstOriginBeforePointAt x y m) := by
   intro n m hnm
   rw [Set.disjoint_left]
   intro w hn hm
@@ -126,7 +127,8 @@ theorem beforePointVisits_race_product (x y : Point) (k : ℕ) :
     shiftSteps n ⁻¹' beforePointVisits 0 y k
   have hd : Pairwise fun n m ↦ Disjoint (pieces n) (pieces m) := by
     intro n m hnm
-    exact (firstOriginBeforePointAt_pairwise x y hnm).mono Set.inter_subset_left Set.inter_subset_left
+    exact (firstOriginBeforePointAt_pairwise x y hnm).mono
+      Set.inter_subset_left Set.inter_subset_left
   have hm : ∀ n, MeasurableSet (pieces n) := fun n ↦
     (measurableSet_firstOriginBeforePointAt x y n).inter
       ((measurableSet_beforePointVisits 0 y k).preimage (measurable_shiftSteps n))
@@ -134,7 +136,8 @@ theorem beforePointVisits_race_product (x y : Point) (k : ℕ) :
     Set.iUnion_subset fun n ↦ origin_restart_cost_subset x y k n
   calc
     fairSteps (hitBeforePoint x 0 y) * fairSteps (beforePointVisits 0 y k) =
-        (∑' n, fairSteps (firstOriginBeforePointAt x y n)) * fairSteps (beforePointVisits 0 y k) := by
+        (∑' n, fairSteps (firstOriginBeforePointAt x y n)) *
+          fairSteps (beforePointVisits 0 y k) := by
       rw [← measure_iUnion (firstOriginBeforePointAt_pairwise x y)
         (measurableSet_firstOriginBeforePointAt x y), firstOriginBeforePointAt_union]
     _ = ∑' n, fairSteps (pieces n) := by

@@ -19,7 +19,8 @@ theorem targetVisitCost_lower (m : ℕ) : spatialLogScale m / 2 ≤ (targetVisit
     (Nat.lt_floor_add_one (spatialLogScale m / 2)).le
 
 private theorem target_floor_cost_small {m : ℕ} (hm : LargeTargetScale m) (i : Fin m) :
-    (⌊spatialLogScale m / 2⌋₊ : ℝ) * pointBeforeReturnProbability (separatedTarget m i) ≤ 1 / 4 := by
+    (⌊spatialLogScale m / 2⌋₊ : ℝ) *
+      pointBeforeReturnProbability (separatedTarget m i) ≤ 1 / 4 := by
   have hs := hm.2
   have he := potentialError_pos
   have ht : 0 < spatialLogScale m := by linarith
@@ -32,7 +33,8 @@ private theorem target_floor_cost_small {m : ℕ} (hm : LargeTargetScale m) (i :
 
 /-- Starting at the origin, the logarithmic cost is paid with probability at least one half. -/
 theorem selected_cost_from_origin {m : ℕ} (hm : LargeTargetScale m) (i : Fin m) :
-    (1 / 2 : ℝ) ≤ fairSteps.real (beforePointVisits 0 (separatedTarget m i) (targetVisitCost m)) := by
+    (1 / 2 : ℝ) ≤ fairSteps.real
+      (beforePointVisits 0 (separatedTarget m i) (targetVisitCost m)) := by
   have h := beforePointVisits_origin_lower (separatedTarget m i)
     (separatedTarget_ne_zero (by have := hm.1; omega) i) ⌊spatialLogScale m / 2⌋₊
   have hp := target_floor_cost_small hm i
@@ -54,7 +56,8 @@ theorem selected_cost_from_target {m : ℕ} (hm : LargeTargetScale m)
 /-- Uniform form covering the initial point and every possible prior target. -/
 theorem selected_cost_uniform {m : ℕ} (hm : LargeTargetScale m) (j : Fin m)
     {x : Point} (hx : x = 0 ∨ ∃ i : Fin m, i ≠ j ∧ x = separatedTarget m i) :
-    (1 / 256 : ℝ) ≤ fairSteps.real (beforePointVisits x (separatedTarget m j) (targetVisitCost m)) := by
+    (1 / 256 : ℝ) ≤ fairSteps.real
+      (beforePointVisits x (separatedTarget m j) (targetVisitCost m)) := by
   rcases hx with rfl | ⟨i, hij, rfl⟩
   · exact (by norm_num : (1 / 256 : ℝ) ≤ 1 / 2).trans (selected_cost_from_origin hm j)
   · exact selected_cost_from_target hm hij

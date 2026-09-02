@@ -64,7 +64,8 @@ theorem originReturnClock_avoids_point {N r : ℕ} {y : Point} (hy : y ≠ 0)
   induction r with
   | zero =>
     intro j hj
-    have hj0 : j = 0 := by simpa only [originReturnClock, returnLadder_zero] using Nat.eq_zero_of_le_zero hj
+    have hj0 : j = 0 := by
+      simpa only [originReturnClock, returnLadder_zero] using Nat.eq_zero_of_le_zero hj
     rw [hj0, trajectory_zero]
     exact Ne.symm hy
   | succ r ih =>
@@ -118,7 +119,8 @@ private theorem shifted_bad_gap_measure (N r t : ℕ) (y : Point) :
   rw [h]
   have hq : ENNReal.ofReal (noReturnProbability t) = fairSteps (avoidsPair 0 t) := by
     exact ENNReal.ofReal_toReal (by finiteness)
-  have hp : ENNReal.ofReal (pointBeforeReturnProbability y) = fairSteps (pointBeforePositiveReturn y) := by
+  have hp : ENNReal.ofReal (pointBeforeReturnProbability y) =
+      fairSteps (pointBeforePositiveReturn y) := by
     exact ENNReal.ofReal_toReal (by finiteness)
   rw [hq, hp]
   exact measure_union_le _ _
@@ -160,7 +162,8 @@ theorem noReturnProbability_tendsto_zero : Tendsto noReturnProbability atTop (�
 /-- At least `k+1` origin visits occur before hitting `y` with probability at
 least `1-k*p_y`. This is sufficient in place of the exact geometric law. -/
 theorem beforePointVisits_origin_lower (y : Point) (hy : y ≠ 0) (k : ℕ) :
-    1 - (k : ℝ) * pointBeforeReturnProbability y ≤ fairSteps.real (beforePointVisits 0 y (k + 1)) := by
+    1 - (k : ℝ) * pointBeforeReturnProbability y ≤
+      fairSteps.real (beforePointVisits 0 y (k + 1)) := by
   have hfinite (t : ℕ) : fairSteps.real (beforePointVisits 0 y (k + 1))ᶜ ≤
       (k : ℝ) * (noReturnProbability t + pointBeforeReturnProbability y) := by
     have h := ENNReal.toReal_mono (by finiteness) (beforePointVisits_compl_le y hy k t)
@@ -171,8 +174,8 @@ theorem beforePointVisits_origin_lower (y : Point) (hy : y ≠ 0) (k : ℕ) :
   have hlim : Tendsto (fun t : ℕ ↦ (k : ℝ) *
       (noReturnProbability t + pointBeforeReturnProbability y)) atTop
         (𝓝 ((k : ℝ) * pointBeforeReturnProbability y)) := by
-    simpa only [zero_add] using
-      (noReturnProbability_tendsto_zero.add_const (pointBeforeReturnProbability y)).const_mul (k : ℝ)
+    simpa only [zero_add] using (noReturnProbability_tendsto_zero.add_const
+      (pointBeforeReturnProbability y)).const_mul (k : ℝ)
   have hle := ge_of_tendsto hlim (Eventually.of_forall hfinite)
   have hcompl := measureReal_compl (μ := fairSteps) (measurableSet_beforePointVisits 0 y (k + 1))
   rw [hcompl] at hle

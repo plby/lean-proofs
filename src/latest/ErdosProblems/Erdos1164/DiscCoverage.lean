@@ -54,7 +54,8 @@ theorem discEscape_le_pointBeforeReturn {r : ℕ} {x : Point}
     Real.log_nonneg (by exact_mod_cast pointBeforeReturnLogScale_pos x)
   apply le_trans _ (pointBeforeReturnProbability_lower_log hx0)
   unfold discEscape
-  apply one_div_le_one_div_of_le (by linarith : 0 < 4 + 2 * Real.log (pointBeforeReturnLogScale x : ℝ))
+  apply one_div_le_one_div_of_le
+    (by linarith : 0 < 4 + 2 * Real.log (pointBeforeReturnLogScale x : ℝ))
   linarith
 
 /-- The walk has accumulated many origin visits but has not covered the disc. -/

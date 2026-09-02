@@ -66,8 +66,10 @@ hitting time, not an auxiliary independent variable. -/
 noncomputable def selectedHitRank (m N : ℕ) (i : Fin m) (w : StepPath) : ℝ :=
   pointHitClock 0 (separatedTarget m i) N w
 
-theorem measurable_selectedHitRank (m N : ℕ) (i : Fin m) : Measurable (selectedHitRank m N i) :=
-  (measurable_of_countable (fun k : ℕ ↦ (k : ℝ))).comp (measurable_pointHitClock 0 (separatedTarget m i) N)
+theorem measurable_selectedHitRank (m N : ℕ) (i : Fin m) :
+    Measurable (selectedHitRank m N i) :=
+  (measurable_of_countable (fun k : ℕ ↦ (k : ℝ))).comp
+    (measurable_pointHitClock 0 (separatedTarget m i) N)
 
 theorem selectedHitRank_injective {m N : ℕ} (hm : 1 ≤ m) {w : StepPath}
     (hw : w ∈ selectedCovered m N) : Function.Injective (fun i ↦ selectedHitRank m N i w) := by

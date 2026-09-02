@@ -4,7 +4,7 @@ import ErdosProblems.Erdos1164.PermutationRecords
 /-! # Capped clocks for covering successive deterministic targets -/
 
 open MeasureTheory Set
-open scoped BigOperators Classical
+open scoped BigOperators
 
 namespace Erdos1164
 
@@ -97,16 +97,19 @@ def coverExtension (v : ℕ → Point) (N k : ℕ) : Set StepPath :=
   {w | prefixCoverClock v N k w < pointHitClock 0 (v k) N w}
 
 /-- Number of genuine cover-clock extensions among the first `k` targets. -/
-noncomputable def coverRecordCount (v : ℕ → Point) (N k : ℕ) (w : StepPath) : ℕ :=
-  ∑ i ∈ Finset.range k, if w ∈ coverExtension v N i then 1 else 0
+noncomputable def coverRecordCount (v : ℕ → Point) (N k : ℕ) (w : StepPath) : ℕ := by
+  classical
+  exact ∑ i ∈ Finset.range k, if w ∈ coverExtension v N i then 1 else 0
 
 @[simp] theorem coverRecordCount_zero (v : ℕ → Point) (N : ℕ) (w : StepPath) :
-    coverRecordCount v N 0 w = 0 := by simp [coverRecordCount]
+    coverRecordCount v N 0 w = 0 := by
+  classical
+  simp [coverRecordCount]
 
+open Classical in
 theorem coverRecordCount_succ (v : ℕ → Point) (N k : ℕ) (w : StepPath) :
     coverRecordCount v N (k + 1) w = coverRecordCount v N k w +
       (if w ∈ coverExtension v N k then 1 else 0) := by
-  classical
   exact Finset.sum_range_succ _ _
 
 theorem measurableSet_coverExtension (v : ℕ → Point) (N k : ℕ) :
@@ -122,7 +125,8 @@ theorem measurable_coverRecordCount (v : ℕ → Point) (N k : ℕ) :
 
 /-- Cover-clock extensions coincide with left records of the first-hit times. -/
 theorem coverExtension_iff_record {v : ℕ → Point} {N k : ℕ} (hN : 0 < N) (w : StepPath) :
-    w ∈ coverExtension v N k ↔ ∀ i < k, pointHitClock 0 (v i) N w < pointHitClock 0 (v k) N w :=
+    w ∈ coverExtension v N k ↔
+      ∀ i < k, pointHitClock 0 (v i) N w < pointHitClock 0 (v k) N w :=
   prefixCoverClock_lt_iff (pointHitClock_pos 0 (v k) hN w) w
 
 theorem coverRecordCount_eq_leftRecordCount (v : ℕ → Point) {N M : ℕ}
@@ -133,7 +137,8 @@ theorem coverRecordCount_eq_leftRecordCount (v : ℕ → Point) {N M : ℕ}
   unfold coverRecordCount leftRecordCount
   have hterm (i : Fin M) :
       (if ∀ j : Fin M, j < i →
-          (pointHitClock 0 (v (j : ℕ)) N w : ℝ) < pointHitClock 0 (v (i : ℕ)) N w then 1 else 0 : ℕ) =
+          (pointHitClock 0 (v (j : ℕ)) N w : ℝ) <
+            pointHitClock 0 (v (i : ℕ)) N w then 1 else 0 : ℕ) =
       (if w ∈ coverExtension v N (i : ℕ) then 1 else 0) := by
     apply if_congr _ rfl rfl
     rw [coverExtension_iff_record hN]

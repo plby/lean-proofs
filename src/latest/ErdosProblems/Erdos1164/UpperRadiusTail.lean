@@ -56,7 +56,8 @@ theorem radius_upper_tail {m n K : ℕ} (hm : LargeTargetScale m) (hK : 2 ≤ K)
           trajectory ⁻¹' {s : WalkPath | K ≤ originVisits s (n + 1)}) := measure_mono hsub
     _ ≤ fairSteps (selectedCovered m (n + 1) ∩
         {w | normalizedOriginCost m (n + 1) w ≤ (K : ℝ) / (targetVisitCost m : ℝ)}) +
-          fairSteps (trajectory ⁻¹' {s : WalkPath | K ≤ originVisits s (n + 1)}) := measure_union_le _ _
+          fairSteps (trajectory ⁻¹' {s : WalkPath | K ≤ originVisits s (n + 1)}) :=
+      measure_union_le _ _
     _ ≤ _ := add_le_add hcost (by simpa only [Nat.add_assoc] using hclock)
 
 end Erdos1164
