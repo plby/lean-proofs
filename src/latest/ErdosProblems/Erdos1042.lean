@@ -148,7 +148,7 @@ lemma regularizedDistanceProduct_zero {K : Set ℂ} {m : ℕ}
     (z : Fin m → K) :
     regularizedDistanceProduct 0 z =
       mutualDistanceProduct (fun i ↦ (z i : ℂ)) := by
-  simp [regularizedDistanceProduct, mutualDistanceProduct, max_eq_left]
+  simp [regularizedDistanceProduct, mutualDistanceProduct]
 
 lemma continuous_regularizedDistanceProduct {K : Set ℂ} {m : ℕ} :
     Continuous (fun p : ℝ × (Fin m → K) ↦
@@ -161,13 +161,13 @@ lemma exists_pos_regularization_of_zero_lt
     (hzero : ∀ z : Fin m → K, regularizedDistanceProduct 0 z < 1) :
     ∃ ε : ℝ, 0 < ε ∧ ∀ z : Fin m → K,
       regularizedDistanceProduct ε z < 1 := by
-  letI : CompactSpace K := isCompact_iff_compactSpace.mp hK
+  let hKcompact : CompactSpace K := isCompact_iff_compactSpace.mp hK
   cases isEmpty_or_nonempty (Fin m → K) with
   | inl hempty =>
-      letI := hempty
+      let hempty' := hempty
       exact ⟨1, zero_lt_one, fun z ↦ isEmptyElim z⟩
   | inr hnonempty =>
-    letI := hnonempty
+    let hnonempty' := hnonempty
     let M : ℝ → ℝ := fun ε ↦
       sSup ((fun z : Fin m → K ↦ regularizedDistanceProduct ε z) '' Set.univ)
     have hMcont : Continuous M := by
@@ -248,7 +248,7 @@ lemma integrable_regularizedLog_prod {K : Set ℂ} (hK : IsCompact K)
     MeasureTheory.Integrable
       (fun p : K × K ↦ regularizedLog ε (p.1 : ℂ) (p.2 : ℂ))
       ((μ : Measure K).prod (μ : Measure K)) := by
-  letI : CompactSpace K := isCompact_iff_compactSpace.mp hK
+  let hKcompact : CompactSpace K := isCompact_iff_compactSpace.mp hK
   apply Continuous.integrable_of_hasCompactSupport
   · exact continuous_regularizedLog hε |>.comp
       (continuous_subtype_val.comp continuous_fst |>.prodMk
@@ -256,21 +256,21 @@ lemma integrable_regularizedLog_prod {K : Set ℂ} (hK : IsCompact K)
   · exact HasCompactSupport.of_compactSpace _
 
 lemma regularizedEnergy_neg_of_products_lt_one
-    {K : Set ℂ} (hK : IsCompact K) {m : ℕ} (hm : 2 ≤ m)
+    {K : Set ℂ} (hK : IsCompact K) {m : ℕ} (_hm : 2 ≤ m)
     {ε : ℝ} (hε : 0 < ε)
     (hprod : ∀ z : Fin m → K, regularizedDistanceProduct ε z < 1)
     (μ : MeasureTheory.ProbabilityMeasure K) :
     regularizedEnergy ε μ < 0 := by
-  letI : CompactSpace K := isCompact_iff_compactSpace.mp hK
+  let hKcompact : CompactSpace K := isCompact_iff_compactSpace.mp hK
   let π : Measure (Fin m → K) := Measure.pi fun _ ↦ (μ : Measure K)
   let e : (Fin m → K) → ℝ := fun z ↦
     ∑ i : Fin m, ∑ j ∈ Finset.Ioi i,
       regularizedLog ε (z i : ℂ) (z j : ℂ)
   have hecont : Continuous e := by
     dsimp [e]
-    apply continuous_finset_sum
+    apply continuous_finsetSum
     intro i _
-    apply continuous_finset_sum
+    apply continuous_finsetSum
     intro j _
     exact (continuous_regularizedLog hε).comp
       ((continuous_subtype_val.comp (continuous_apply i)).prodMk
@@ -356,7 +356,7 @@ lemma exists_mem_support_regularizedPotential_neg
     (μ : ProbabilityMeasure K) :
     ∃ x : K, x ∈ (μ : Measure K).support ∧
       regularizedPotential ε μ x < 0 := by
-  letI : CompactSpace K := isCompact_iff_compactSpace.mp hK
+  let hKcompact : CompactSpace K := isCompact_iff_compactSpace.mp hK
   let kernel : K × K → ℝ := fun p ↦
     regularizedLog ε (p.1 : ℂ) (p.2 : ℂ)
   have hkernel : Integrable kernel ((μ : Measure K).prod (μ : Measure K)) := by
@@ -369,7 +369,7 @@ lemma exists_mem_support_regularizedPotential_neg
     rw [← MeasureTheory.integral_prod kernel hkernel]
     exact henergy
   by_contra h
-  push_neg at h
+  push Not at h
   have hsupport : ∀ᵐ x : K ∂(μ : Measure K),
       x ∈ (μ : Measure K).support := Measure.support_mem_ae
   have hae : ∀ᵐ x : K ∂(μ : Measure K),
@@ -384,7 +384,7 @@ lemma exists_ball_regularizedLog_lt_add
     {ε a : ℝ} (hε : 0 < ε) (ha : 0 < a) (x : ℂ) :
     ∃ r : ℝ, 0 < r ∧ ∀ w ∈ ball x r, ∀ y : K,
       regularizedLog ε w (y : ℂ) < regularizedLog ε x (y : ℂ) + a := by
-  letI : CompactSpace K := isCompact_iff_compactSpace.mp hK
+  let hKcompact : CompactSpace K := isCompact_iff_compactSpace.mp hK
   let D : ℂ → ℝ := fun w ↦
     sSup ((fun y : K ↦ regularizedLog ε w (y : ℂ) -
       regularizedLog ε x (y : ℂ)) '' Set.univ)
@@ -423,7 +423,7 @@ lemma exists_ball_regularizedLog_lt_add
 /-- The uniform empirical probability measure of a nonempty indexed family. -/
 noncomputable def empiricalProbability {K : Set ℂ} {n : ℕ} (hn : 0 < n)
     (z : Fin n → K) : ProbabilityMeasure K := by
-  letI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+  let hnnonempty : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
   let ν : ProbabilityMeasure (Fin n) :=
     ⟨ProbabilityTheory.uniformOn (Set.univ : Set (Fin n)), inferInstance⟩
   exact ν.map (measurable_of_finite z).aemeasurable
@@ -432,7 +432,7 @@ lemma integral_empiricalProbability {K : Set ℂ} {n : ℕ} (hn : 0 < n)
     (z : Fin n → K) {f : K → ℝ} (hf : Continuous f) :
     (∫ x, f x ∂(empiricalProbability hn z : Measure K)) =
       (∑ i, f (z i)) / n := by
-  letI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+  let hnnonempty : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
   change (∫ x, f x ∂Measure.map z
     (ProbabilityTheory.uniformOn (Set.univ : Set (Fin n)))) = _
   rw [MeasureTheory.integral_map (measurable_of_finite z).aemeasurable (by
@@ -443,8 +443,9 @@ lemma integral_empiricalProbability {K : Set ℂ} {n : ℕ} (hn : 0 < n)
     · exact continuous_of_discreteTopology
     · exact HasCompactSupport.of_compactSpace _
   rw [MeasureTheory.integral_fintype hint]
-  simp [ProbabilityTheory.uniformOn_univ, MeasureTheory.measureReal_def,
-    ENNReal.toReal_div, hn.ne']
+  simp only [MeasureTheory.measureReal_def, ProbabilityTheory.uniformOn_univ,
+    MeasurableSpace.measurableSet_top, Measure.count_singleton', Fintype.card_fin,
+    one_div, ENNReal.toReal_inv, ENNReal.toReal_natCast, smul_eq_mul]
   rw [← Finset.mul_sum]
   simp [div_eq_mul_inv, mul_comm]
 
@@ -452,7 +453,7 @@ lemma empiricalProbability_apply {K : Set ℂ} {n : ℕ} (hn : 0 < n)
     (z : Fin n → K) {A : Set K} (hA : MeasurableSet A) :
     (empiricalProbability hn z : Measure K) A =
       ((z ⁻¹' A).ncard : ℝ≥0∞) / n := by
-  letI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+  let hnnonempty : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
   change Measure.map z (ProbabilityTheory.uniformOn (Set.univ : Set (Fin n))) A = _
   rw [Measure.map_apply (measurable_of_finite z) hA,
     ProbabilityTheory.uniformOn_univ,
@@ -821,13 +822,21 @@ lemma branch_index_eq {n : ℕ} (hn : n > 0) {w : ℂ} (hw : w ≠ 0)
       Complex.exp (Complex.I * ((Complex.arg w + 2 * Real.pi * k) / n)) =
         Complex.exp (Complex.I * ((Complex.arg w + 2 * Real.pi * l) / n)) := by
     unfold branch at h
-    simp +zetaDelta at *
+    simp +zetaDelta only [one_div, Real.rpow_eq_pow, Complex.ofReal_div,
+      Complex.ofReal_add, Complex.ofReal_mul, Complex.ofReal_ofNat,
+      Complex.ofReal_natCast, mul_eq_mul_left_iff, Complex.ofReal_eq_zero] at h ⊢
     refine h.resolve_right ?_
     exact ne_of_gt (Real.rpow_pos_of_pos (norm_pos_iff.mpr hw) ((n : ℝ)⁻¹))
   rw [Complex.exp_eq_exp_iff_exists_int] at h_exp_eq
   obtain ⟨m, hm⟩ := h_exp_eq
   rw [Complex.ext_iff] at hm
-  simp_all +decide
+  simp_all +decide only [gt_iff_lt, ne_eq, Complex.mul_re, Complex.I_re,
+    Complex.div_natCast_re, Complex.add_re, Complex.ofReal_re,
+    Complex.re_ofNat, Complex.im_ofNat, Complex.ofReal_im, mul_zero,
+    sub_zero, Complex.natCast_re, Complex.mul_im, zero_mul, add_zero,
+    Complex.natCast_im, Complex.I_im, Complex.div_natCast_im, Complex.add_im,
+    zero_div, sub_self, Complex.intCast_re, mul_one, Complex.intCast_im,
+    one_mul, zero_add, true_and]
   have hkl : k = l + m * n := by
     exact_mod_cast
       (by
@@ -860,10 +869,10 @@ lemma openModelSet_subset_S (n : ℕ) (r : ℝ) :
   change ‖Model.f n r z‖ ≤ 1
   exact le_of_lt hz
 
-lemma branch_mem_openModelSet {n : ℕ} (hn : 0 < n) {r : ℝ} (hr : 1 < r)
+lemma branch_mem_openModelSet {n : ℕ} (hn : 0 < n) {r : ℝ}
     (k : ℕ) {w : ℂ} (hw : w ∈ ball (r ^ n : ℂ) 1) :
     Model.branch n k w ∈ openModelSet n r := by
-  rw [openModelSet, Set.mem_setOf_eq, Model.f, Model.branch_pow hn]
+  rw [openModelSet, Set.mem_ofPred_eq, Model.f, Model.branch_pow hn]
   simpa [Complex.dist_eq] using hw
 
 lemma openModel_cover {n : ℕ} (hn : 0 < n) {r : ℝ} (hr : 1 < r) :
@@ -873,7 +882,7 @@ lemma openModel_cover {n : ℕ} (hn : 0 < n) {r : ℝ} (hr : 1 < r) :
   obtain ⟨k, hk, hzk⟩ := Set.mem_iUnion₂.mp (Model.S_subset_union_components hn hr hzS)
   exact Set.mem_iUnion₂.mpr ⟨k, hk, hzk, hz⟩
 
-lemma openModelComponent_eq_image_ball {n : ℕ} (hn : 0 < n) {r : ℝ} (hr : 1 < r)
+lemma openModelComponent_eq_image_ball {n : ℕ} (hn : 0 < n) {r : ℝ}
     (k : ℕ) :
     openModelComponent n r k =
       Model.branch n k '' ball (r ^ n : ℂ) 1 := by
@@ -881,14 +890,14 @@ lemma openModelComponent_eq_image_ball {n : ℕ} (hn : 0 < n) {r : ℝ} (hr : 1 
   constructor
   · rintro ⟨⟨w, hw, rfl⟩, hz⟩
     refine ⟨w, ?_, rfl⟩
-    rw [openModelSet, Set.mem_setOf_eq, Model.f, Model.branch_pow hn] at hz
+    rw [openModelSet, Set.mem_ofPred_eq, Model.f, Model.branch_pow hn] at hz
     simpa [Complex.dist_eq] using hz
   · rintro ⟨w, hw, rfl⟩
-    exact ⟨⟨w, ball_subset_closedBall hw, rfl⟩, branch_mem_openModelSet hn hr k hw⟩
+    exact ⟨⟨w, ball_subset_closedBall hw, rfl⟩, branch_mem_openModelSet hn k hw⟩
 
 lemma openModelComponent_connected {n : ℕ} (hn : 0 < n) {r : ℝ} (hr : 1 < r)
     (k : ℕ) : IsConnected (openModelComponent n r k) := by
-  rw [openModelComponent_eq_image_ball hn hr]
+  rw [openModelComponent_eq_image_ball hn]
   have hball : (ball (r ^ n : ℂ) 1).Nonempty :=
     ⟨(r ^ n : ℂ), mem_ball_self (by positivity)⟩
   refine ((convex_ball (r ^ n : ℂ) 1).isConnected hball).image
@@ -950,7 +959,7 @@ lemma openModelComponentSubtype_connected {n : ℕ} (hn : 0 < n) {r : ℝ}
   have he : Continuous e := by
     exact Continuous.subtype_mk continuous_subtype_val
       (fun z : openModelComponent n r k ↦ z.2.2)
-  letI : ConnectedSpace (openModelComponent n r k) :=
+  let hconnected : ConnectedSpace (openModelComponent n r k) :=
     Subtype.connectedSpace (openModelComponent_connected hn hr k)
   rw [← himage]
   exact (isConnected_univ : IsConnected (Set.univ :
@@ -1014,7 +1023,7 @@ lemma modelPolynomial_monic {n : ℕ} (hn : 0 < n) (r : ℝ) :
     (modelPolynomial n r).Monic := by
   exact monic_X_pow_sub_C _ hn.ne'
 
-lemma modelPolynomial_natDegree {n : ℕ} (hn : 0 < n) (r : ℝ) :
+lemma modelPolynomial_natDegree {n : ℕ} (r : ℝ) :
     (modelPolynomial n r).natDegree = n := by
   exact natDegree_X_pow_sub_C
 
@@ -1025,7 +1034,7 @@ lemma roots_modelPolynomial {n : ℕ} (hn : 0 < n) {r : ℝ} (hr : 1 < r) :
   · intro w hw
     obtain ⟨k, -, rfl⟩ := Finset.mem_image.mp hw
     simp [modelPolynomial, modelRoots_pow hn]
-  · rw [modelPolynomial_natDegree hn]
+  · rw [modelPolynomial_natDegree r]
     rw [Finset.card_image_of_injective _ (modelRoots_injective hn hr)]
     simp
   · exact (modelPolynomial_monic hn r).ne_zero
@@ -1187,7 +1196,7 @@ lemma unitModelComponentSubtype_connected {n : ℕ} (hn : 0 < n) (k : ℕ) :
   have he : Continuous e := by
     exact Continuous.subtype_mk continuous_subtype_val
       (fun z : unitModelComponent n k ↦ unitModelComponent_subset hn k z.2)
-  letI : ConnectedSpace (unitModelComponent n k) :=
+  let hconnected : ConnectedSpace (unitModelComponent n k) :=
     Subtype.connectedSpace (unitModelComponent_connected hn k)
   rw [← himage]
   exact (isConnected_univ : IsConnected (Set.univ :
@@ -1218,7 +1227,7 @@ lemma roots_modelPolynomial_one {n : ℕ} (hn : 0 < n) :
   · intro w hw
     obtain ⟨k, -, rfl⟩ := Finset.mem_image.mp hw
     simp [modelPolynomial, modelRoots_pow hn]
-  · rw [modelPolynomial_natDegree hn]
+  · rw [modelPolynomial_natDegree (1 : ℝ)]
     rw [Finset.card_image_of_injective _ (modelRoots_one_injective hn)]
     simp
   · exact (modelPolynomial_monic hn 1).ne_zero
@@ -1251,7 +1260,7 @@ lemma componentCount_modelRoots_one {n : ℕ} (hn : 0 < n) :
 
 /-! ### Every component contains a root -/
 
-lemma unitLemniscate_isBounded (p : Polynomial ℂ) (hp : p.Monic)
+lemma unitLemniscate_isBounded (p : Polynomial ℂ) (_hp : p.Monic)
     (hpdeg : 1 ≤ p.natDegree) : Bornology.IsBounded (unitLemniscate p) := by
   have hgrowth : ∃ R : ℝ, ∀ z : ℂ, R < ‖z‖ → 1 < ‖p.eval z‖ := by
     have htendsto :
@@ -1272,7 +1281,6 @@ lemma unitLemniscate_isBounded (p : Polynomial ℂ) (hp : p.Monic)
 lemma frontier_maximal_open_preconnected_subset_compl
     {S : Set ℂ} (hS : IsOpen S) {U : Set ℂ}
     (hU : IsPreconnected U) (hUopen : IsOpen U) (hUS : U ⊆ S)
-    (hUne : U.Nonempty)
     (hUmax : ∀ V : Set ℂ, IsPreconnected V → IsOpen V → U ⊆ V → V ⊆ S → V = U) :
     frontier U ⊆ Sᶜ := by
   contrapose! hUmax
@@ -1333,7 +1341,7 @@ theorem component_contains_root (p : Polynomial ℂ) (hp : p.Monic)
   have hnoRoot : ∀ z ∈ U, ¬p.IsRoot z := by aesop
   have hfront : frontier U ⊆ (unitLemniscate p)ᶜ :=
     frontier_maximal_open_preconnected_subset_compl
-      (isOpen_unitLemniscate p) hU hUopen hUS hUne hUmax
+      (isOpen_unitLemniscate p) hU hUopen hUS hUmax
   have hne : ∀ z ∈ closure U, p.eval z ≠ 0 :=
     eval_ne_zero_on_closure_of_no_root hnoRoot hfront
   have hmax : ∀ z ∈ closure U, ‖(p.eval z)⁻¹‖ ≤ 1 := by
@@ -1456,7 +1464,7 @@ lemma eventually_component_gap_of_tendsto_empirical
       (componentCount (rootPolynomial fun i ↦ ((z k i : K) : ℂ)) : ℝ) ≤
         (1 - c) * n k := by
   classical
-  letI : CompactSpace K := isCompact_iff_compactSpace.mp hK
+  let hKcompact : CompactSpace K := isCompact_iff_compactSpace.mp hK
   obtain ⟨x, hxsupp, hxpot⟩ :=
     exists_mem_support_regularizedPotential_neg hK hm hε hprod μ
   let a : ℝ := -regularizedPotential ε μ x / 4
@@ -1501,7 +1509,7 @@ lemma eventually_component_gap_of_tendsto_empirical
   have hn_event : ∀ᶠ k in atTop, N ≤ n k := hn_top (eventually_ge_atTop N)
   refine ⟨c, hc, ?_⟩
   filter_upwards [hpot_event, hmass_event, hn_event] with k hkpot hkmass hkn
-  letI : Nonempty (Fin (n k)) := ⟨⟨0, hn k⟩⟩
+  let hnonempty : Nonempty (Fin (n k)) := ⟨⟨0, hn k⟩⟩
   let A : Finset (Fin (n k)) :=
     Finset.univ.filter fun i ↦ ((z k i : K) : ℂ) ∈ ball (x : ℂ) r
   have hAcard : b.toReal * n k < (A.card : ℝ) := by
@@ -1624,7 +1632,7 @@ theorem hasUniformComponentGap_of_transfiniteDiameter_lt_one
     refine ⟨N, fun k hk ↦ ?_⟩
     have hklarge := hnlarge k
     omega
-  letI : CompactSpace K := isCompact_iff_compactSpace.mp hK
+  let hKcompact : CompactSpace K := isCompact_iff_compactSpace.mp hK
   obtain ⟨μ, φ, hφmono, hμ⟩ := CompactSpace.tendsto_subseq
     (fun k ↦ empiricalProbability (hn k) (zK k))
   have hφtop : Tendsto φ atTop atTop := hφmono.tendsto_atTop
@@ -1658,7 +1666,7 @@ def capacityOneSet : Set ℂ := sphere (0 : ℂ) 1 ∪ {(2 : ℂ)}
 
 lemma mem_capacityOneSet_iff {z : ℂ} :
     z ∈ capacityOneSet ↔ ‖z‖ = 1 ∨ z = 2 := by
-  simpa [capacityOneSet, or_comm]
+  simp [capacityOneSet, or_comm]
 
 lemma capacityOneSet_isClosed : IsClosed capacityOneSet :=
   Metric.isClosed_sphere.union isClosed_singleton
@@ -1708,7 +1716,11 @@ lemma norm_vandermonde_term_le {n : ℕ} (z : Fin n → ℂ)
       rcases mem_capacityOneSet_iff.mp (hz (σ i)) with h | h
       · exact h
       · exact (hout ⟨i, h⟩).elim
-    simp [hone]
+    have hprod : ∏ i : Fin n, ‖z (σ i)‖ ^ (i : ℕ) = 1 := by
+      apply Finset.prod_eq_one
+      intro i hi
+      rw [hone i, one_pow]
+    rw [hprod]
     exact one_le_pow₀ (by norm_num)
 
 lemma norm_det_vandermonde_capacityOneSet_le {n : ℕ} (z : Fin n → ℂ)
@@ -1734,10 +1746,10 @@ lemma norm_det_vandermonde_capacityOneSet_le {n : ℕ} (z : Fin n → ℂ)
     rw [hdet, norm_zero]
     positivity
 
-lemma norm_modelRoots_one {n : ℕ} (hn : 0 < n) (i : Fin n) :
-    ‖modelRoots n 1 i‖ = 1 := by
-  simp [modelRoots, Model.branch]
-  rw [Complex.norm_exp]
+lemma norm_modelRoots_one {n : ℕ} (i : Fin n) :
+  ‖modelRoots n 1 i‖ = 1 := by
+  simp only [modelRoots, Model.branch]
+  rw [norm_mul, Complex.norm_exp]
   norm_num
 
 lemma prod_offdiag_modelRoots_one {n : ℕ} (hn : 0 < n) (i : Fin n) :
@@ -1758,7 +1770,7 @@ lemma prod_offdiag_modelRoots_one {n : ℕ} (hn : 0 < n) (i : Fin n) :
   simp only [modelPolynomial, Polynomial.derivative_sub, Polynomial.derivative_X_pow,
     Polynomial.derivative_C, sub_zero, Polynomial.eval_mul, Polynomial.eval_C,
     Polynomial.eval_pow, Polynomial.eval_X, norm_mul, norm_natCast, norm_pow,
-    norm_modelRoots_one hn i, one_pow, mul_one] at hnorm
+    norm_modelRoots_one i, one_pow, mul_one] at hnorm
   change (n : ℝ) = (normHom : ℂ →*₀ ℝ)
     (Multiset.map (fun x ↦ modelRoots n 1 i - x)
       ((Finset.univ.erase i).image (modelRoots n 1)).val).prod at hnorm
@@ -1829,7 +1841,7 @@ lemma one_le_feketeDiameter_capacityOneSet {n : ℕ} (hn : 2 ≤ n) :
       {r : ℝ | ∃ z : Fin n → ℂ, (∀ i, z i ∈ capacityOneSet) ∧
         r = feketeValue z} from ⟨modelRoots n 1, fun i ↦
           mem_capacityOneSet_iff.mpr (Or.inl
-            (norm_modelRoots_one (by omega) i)), rfl⟩)
+            (norm_modelRoots_one i)), rfl⟩)
   exact one_le_feketeValue_modelRoots_one hn
 
 /-- A convenient explicit upper envelope for the Fekete diameters of
@@ -1885,7 +1897,7 @@ lemma tendsto_capacityOneUpper : Tendsto capacityOneUpper atTop (𝓝 1) := by
   have hnp : (n : ℝ) + -1 ≠ 0 := by
     simpa [sub_eq_add_neg] using hnm1
   field_simp [hn0, hnm1, hnp]
-  <;> ring
+  ring
 
 theorem capacityOneSet_hasTransfiniteDiameter :
     HasTransfiniteDiameter capacityOneSet 1 := by
@@ -1932,7 +1944,7 @@ theorem capacityOneSet_hasInfinitelyManyMaximalLemniscates :
   refine ⟨n, le_max_left N 1, hn, modelRoots n 1, ?_, ?_⟩
   · intro i
     rw [mem_capacityOneSet_iff]
-    exact Or.inl (norm_modelRoots_one hn i)
+    exact Or.inl (norm_modelRoots_one i)
   · exact componentCount_modelRoots_one hn
 
 /-! ### The sharp connected-set conclusion -/
@@ -1951,7 +1963,9 @@ lemma mutualDistanceProduct_lastCases {n : ℕ} (z : Fin n → ℂ) (w : ℂ) :
       ext j
       refine Fin.lastCases ?_ (fun k ↦ ?_) j
       · simp
-      · simp
+      · simp only [Finset.mem_Ioi, Fin.castSucc_lt_castSucc_iff,
+          Fin.finsetImage_castSucc_Ioi, Fin.castSucc_lt_last, Finset.Ioo_insert_right,
+          Finset.mem_Ioc, iff_self_and]
         exact fun _ ↦ Fin.le_last _
     rw [hs, Finset.prod_insert]
     · rw [Finset.prod_image (Fin.castSucc_injective n).injOn]
@@ -1978,7 +1992,7 @@ lemma exists_abs_eval_ge_inv_two_pow_of_monic {m : ℕ} (hm : 2 ≤ m)
     (P : ℝ[X]) (hP : P.Monic) (hdeg : P.natDegree = m) :
     ∃ x ∈ Icc (-1 : ℝ) 1, ((2 : ℝ) ^ (m - 1))⁻¹ ≤ |P.eval x| := by
   by_contra h
-  push_neg at h
+  push Not at h
   let A : ℝ := (2 : ℝ) ^ (m - 1)
   let Q : ℝ[X] := Polynomial.C A * P
   have hA : 0 < A := by positivity
@@ -2033,9 +2047,7 @@ lemma exists_interval_fekete_configuration (n : ℕ) (hn : 2 ≤ n) :
       have hPmonic : P.Monic := by
         simpa [P] using Polynomial.monic_prod_X_sub_C x Finset.univ
       have hPdeg : P.natDegree = m := by
-        simpa [P] using
-          (Polynomial.natDegree_finsetProd_X_sub_C_eq_card
-            (Finset.univ : Finset (Fin m)) x)
+        simp [P]
       obtain ⟨y, hyI, hy⟩ :=
         exists_abs_eval_ge_inv_two_pow_of_monic hm P hPmonic hPdeg
       let x' : Fin (m + 1) → ℝ := Fin.lastCases y x
@@ -2277,7 +2289,7 @@ theorem dist_le_four_mul_transfiniteDiameter {K : Set ℂ} (hK : IsCompact K)
   linarith
 
 lemma segment_subset_unitLemniscate_of_pairwise_norm_le_one
-    {n : ℕ} (hn : 0 < n) (z : Fin n → ℂ)
+    {n : ℕ} (z : Fin n → ℂ)
     (hp : ∀ i j, ‖z i - z j‖ ≤ 1) (i₀ i : Fin n) :
     segment ℝ (z i₀) (z i) ⊆ unitLemniscate (rootPolynomial z) := by
   intro w hw
@@ -2342,7 +2354,7 @@ theorem componentCount_eq_one_of_pairwise_norm_le_one {n : ℕ} (hn : 0 < n)
     (z : Fin n → ℂ) (hp : ∀ i j, ‖z i - z j‖ ≤ 1) :
     componentCount (rootPolynomial z) = 1 := by
   let i₀ : Fin n := ⟨0, hn⟩
-  letI : Nonempty (Fin n) := ⟨i₀⟩
+  let hnonempty : Nonempty (Fin n) := ⟨i₀⟩
   let B : Set ℂ := ⋃ i : Fin n, segment ℝ (z i₀) (z i)
   have hBconn : IsConnected B := by
     dsimp [B]
@@ -2357,15 +2369,15 @@ theorem componentCount_eq_one_of_pairwise_norm_le_one {n : ℕ} (hn : 0 < n)
     intro w hw
     simp only [B, mem_iUnion] at hw
     obtain ⟨i, hi⟩ := hw
-    exact segment_subset_unitLemniscate_of_pairwise_norm_le_one hn z hp i₀ i hi
+    exact segment_subset_unitLemniscate_of_pairwise_norm_le_one z hp i₀ i hi
   have hroots : ∀ i ∈ (Finset.univ : Finset (Fin n)), z i ∈ B := by
     intro i hi
     exact mem_iUnion.mpr ⟨i, right_mem_segment ℝ _ _⟩
   have hupper := componentCount_le_sub_card_add_one hn z Finset.univ
     Finset.univ_nonempty hBconn hBsub hroots
-  haveI : Finite (ConnectedComponents (unitLemniscate (rootPolynomial z))) :=
+  have hfinite : Finite (ConnectedComponents (unitLemniscate (rootPolynomial z))) :=
     Finite.of_surjective (indexedRootComponent z) (indexedRootComponent_surjective hn z)
-  haveI : Nonempty (ConnectedComponents (unitLemniscate (rootPolynomial z))) :=
+  have hnonempty : Nonempty (ConnectedComponents (unitLemniscate (rootPolynomial z))) :=
     ⟨indexedRootComponent z i₀⟩
   have hpos : 0 < componentCount (rootPolynomial z) := by
     exact Nat.card_pos
