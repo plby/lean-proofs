@@ -29,7 +29,7 @@ def oddBudget (L : ℕ) : ℝ :=
 `(log L)^(-η) (log log L)^m` is eventually smaller than the rough density
 provided `η > 1`. -/
 theorem eventually_const_mul_log_rpow_neg_mul_loglog_rpow_le_roughDensity
-    {C D η m : ℝ} (hC : 0 ≤ C) (hD : 0 < D) (hη : 1 < η) :
+    {C D η m : ℝ} (_hC : 0 ≤ C) (hD : 0 < D) (hη : 1 < η) :
     ∀ᶠ L : ℕ in atTop,
       C * log (L : ℝ) ^ (-η) * log (log (L : ℝ)) ^ m ≤
         Erdos327.roughDensity L / D := by

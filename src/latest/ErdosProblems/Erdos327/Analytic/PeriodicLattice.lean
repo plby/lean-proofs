@@ -123,7 +123,7 @@ def zmodFiberIco (d a X : ℕ) (r : ZMod d) : Finset ℕ :=
 theorem card_zmodFiberIco_le
     {d : ℕ} (hd : 0 < d) (a X : ℕ) (r : ZMod d) :
     (zmodFiberIco d a X r).card ≤ X / d + 1 := by
-  letI : NeZero d := ⟨hd.ne'⟩
+  let hdNeZero : NeZero d := ⟨hd.ne'⟩
   have hset :
       zmodFiberIco d a X r = residueClassIco d a X r.val := by
     ext n

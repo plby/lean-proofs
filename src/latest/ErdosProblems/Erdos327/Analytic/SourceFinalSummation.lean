@@ -69,7 +69,7 @@ theorem sum_sourceSupportedEulerBlockMain_eq_four_ranges
   · rw [sourceSupportedEulerBlockMain, if_pos (by simpa [X] using hnear)]
     by_cases hXL : X < L
     · have hnLX : ¬L ≤ X := by omega
-      simp [hjdom, X, Y, hXL, hnLX, hnear]
+      simp [hjdom, X, hXL, hnLX, hnear]
     · have hLX : L ≤ X := Nat.le_of_not_gt hXL
       have hntrans : ¬X < L := by omega
       by_cases hY0 : Y = 0
@@ -102,7 +102,7 @@ theorem sum_sourceSupportedEulerBlockMain_eq_four_ranges
       intro h
       exact hnear h.2
     rw [sourceSupportedEulerBlockMain, if_neg (by simpa [X] using hnear)]
-    simp [hjdom, X, Y, hnLX, hntransition]
+    simp [hjdom, X, hnLX, hntransition]
 
 theorem sourceBulkIndexSet_mono_start
     {L N J₀ J M : ℕ} {K : ℝ}

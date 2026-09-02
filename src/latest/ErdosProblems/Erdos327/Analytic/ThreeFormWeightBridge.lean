@@ -49,7 +49,7 @@ theorem sourceIntegerWeight_eq_const_of_oddRough
   by_cases hpL : p < L
   · have hpu : ¬p ∣ u := hu p hpData.1 hp2 hpL
     have hpsum : ¬p ∣ u + v := hsum p hpData.1 hp2 hpL
-    simp [sourceQU, sourceQV, sourceQSum, hpL, hpu, hpsum]
+    simp [sourceQV, hpu, hpsum]
   · simp [sourceQU, sourceQV, sourceQSum, hpL]
 
 /-- Full source multiplicity weights are pointwise bounded by the finite

@@ -113,7 +113,7 @@ theorem erdos327SecondConclusion_of_analytic_source
       hScard hSourceBad
     linarith
   refine ⟨B, hBsubset, hBadm, ?_⟩
-  convert hBcard using 1 <;> ring
+  convert hBcard using 1; ring
 
 /-- The exact analytic interface for the paper's construction.
 
@@ -138,7 +138,7 @@ theorem evenEndpointConclusion_of_analytic_sets
             ArithmeticFunction.cardFactors)).card : ℝ) ≤
               (N : ℝ) * ρ / 32) :
     EvenEndpointConclusion := by
-  apply evenEndpointConclusion_of_witnesses hρ
+  apply evenEndpointConclusion_of_witnesses (N₀ := N₀) hρ
   intro N hN
   rcases hwit N hN with
     ⟨S, O, hS, hO, hodd, hScard, hSourceBad, hOcard, hMixed⟩
@@ -204,7 +204,7 @@ theorem erdos327FullConclusion_of_analytic_sets
               (N : ℝ) * ρ / 32) :
     Erdos327FullConclusion := by
   refine ⟨erdos327Conclusion_of_analytic_sets hρ hwit, ?_⟩
-  apply erdos327SecondConclusion_of_analytic_source hρ
+  apply erdos327SecondConclusion_of_analytic_source (N₀ := N₀) hρ
   intro N hN
   rcases hwit N hN with
     ⟨S, O, hS, _hO, _hodd, hScard, hSourceBad,

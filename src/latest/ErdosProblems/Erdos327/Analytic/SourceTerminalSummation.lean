@@ -168,7 +168,7 @@ theorem sourceScheduledNormalizedBlockMain_le_terminal_profile
       scheduledLogLoss j ^ (5 / 2 : ℝ) ≤
         scheduledLogLossConstant ^ (5 / 2 : ℝ) *
           log (((j + 1 : ℕ) : ℝ)) ^ (5 : ℝ) := by
-    convert hloss using 1 <;> norm_num
+    convert hloss using 1; norm_num
   have hlogL : 0 < log (L : ℝ) :=
     log_pos (by exact_mod_cast (show 1 < L by omega))
   have hA0 :
@@ -485,7 +485,7 @@ theorem sum_sourceEulerMain_terminal_le_log_rpow
               f j := by
       apply sum_le_sum
       intro j hj
-      simp only [s, sourceTerminalIndexSet, mem_filter] at hj
+      simp only [sourceTerminalIndexSet, mem_filter] at hj
       rcases hj.2 with ⟨hdom, hLX, hLY, hterminal⟩
       have hj1 : 1 ≤ j := hJ.trans (mem_Ico.mp hj.1).1
       have hY2 : 2 ≤ 2 * N / dyadicScale j ^ 2 := by omega

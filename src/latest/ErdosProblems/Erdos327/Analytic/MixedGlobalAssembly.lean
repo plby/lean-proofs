@@ -173,7 +173,7 @@ instance mixedScheduledGoodIndexDecidable (L N j : ℕ) :
 
 /-- Indices on which the weighted box argument is valid but the explicit
 residual Mertens envelope may be unavailable. -/
-def mixedScheduledResidualAvailable (L j : ℕ) : Prop :=
+def mixedScheduledResidualAvailable (_L j : ℕ) : Prop :=
   mixedClampedSieveCutoff j ≤ dyadicScale j
 
 instance mixedScheduledResidualAvailableDecidable (L j : ℕ) :

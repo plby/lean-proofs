@@ -1595,8 +1595,7 @@ theorem eventually_sum_mixedTransitionBoundary_le
             (N : ℝ) * (Erdos327.roughDensity L / (16 * D))) :=
       mul_le_mul_of_nonneg_right (by exact_mod_cast hcard) htarget0
     _ = (N : ℝ) * Erdos327.roughDensity L / (2 * D) := by
-      field_simp [hD.ne']
-      <;> ring
+      field_simp [hD.ne']; ring
 
 /-- Complete boundary estimate with an arbitrary positive density
 denominator.  The transition is uniform in `N`; after fixing `L`, the
@@ -1631,8 +1630,7 @@ theorem eventually_sum_mixedCanonicalBoundaryBlock_le
         (Erdos327.roughDensity L / (2 * D)) * (N : ℝ) :=
       add_le_add (htransition N M) (hresidual M)
     _ = (N : ℝ) * Erdos327.roughDensity L / D := by
-      field_simp [hD.ne']
-      <;> ring
+      field_simp [hD.ne']; ring
 
 /-- The concrete allocation used in the final five-part mixed budget. -/
 theorem eventually_sum_mixedCanonicalBoundaryBlock_le_roughDensity

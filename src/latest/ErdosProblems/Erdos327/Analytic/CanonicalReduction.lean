@@ -58,7 +58,7 @@ theorem erdos327Conclusion_of_canonical_estimates
     Erdos327Conclusion := by
   have hρ : 0 < roughDensity L / 2 := by
     positivity [roughDensity_pos hL]
-  apply erdos327Conclusion_of_analytic_sets hρ
+  refine erdos327Conclusion_of_analytic_sets (N₀ := N₀) hρ ?_
   intro N hN
   let S := Analytic.regularSource L Ab Kb N
   let O := Analytic.regularOddHost L Ao Ko N
@@ -81,7 +81,7 @@ theorem erdos327Conclusion_of_canonical_estimates
   have hrough' :
       (N : ℝ) / 4 * roughDensity L ≤
         ((Analytic.roughSourceInterval L N).card : ℝ) := by
-    convert hrough using 1 <;> unfold roughDensity <;> ring
+    convert hrough using 1; unfold roughDensity; ring
   have hScard :
       (N : ℝ) * (roughDensity L / 2) / 4 ≤ (S.card : ℝ) := by
     nlinarith
@@ -138,7 +138,7 @@ theorem erdos327SecondConclusion_of_canonical_estimates
     Erdos327SecondConclusion := by
   have hρ : 0 < roughDensity L / 2 := by
     positivity [roughDensity_pos hL]
-  apply erdos327SecondConclusion_of_analytic_source hρ
+  refine erdos327SecondConclusion_of_analytic_source (N₀ := N₀) hρ ?_
   intro N hN
   let S := Analytic.regularSource L Ab Kb N
   have hmod := hmodulus N hN
@@ -159,7 +159,7 @@ theorem erdos327SecondConclusion_of_canonical_estimates
   have hrough' :
       (N : ℝ) / 4 * roughDensity L ≤
         ((Analytic.roughSourceInterval L N).card : ℝ) := by
-    convert hrough using 1 <;> unfold roughDensity <;> ring
+    convert hrough using 1; unfold roughDensity; ring
   have hScard :
       (N : ℝ) * (roughDensity L / 2) / 4 ≤ (S.card : ℝ) := by
     nlinarith
@@ -167,7 +167,7 @@ theorem erdos327SecondConclusion_of_canonical_estimates
     Analytic.regularSource_subset_upto L Ab Kb N hN2,
     hScard, ?_⟩
   dsimp [S]
-  convert hSourceBad using 1 <;> ring
+  convert hSourceBad using 1; ring
 
 /-- All four canonical estimates prove both asymptotic conclusions of the
 problem. -/

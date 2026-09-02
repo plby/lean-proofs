@@ -52,7 +52,7 @@ theorem finalArithmeticThreshold_spec
 /-- Any fixed nonnegative constant is eventually at most `N` times a
 fixed positive density. -/
 theorem exists_nat_forall_const_le_nat_mul
-    {ρ C : ℝ} (hρ : 0 < ρ) (hC : 0 ≤ C) :
+    {ρ C : ℝ} (hρ : 0 < ρ) (_hC : 0 ≤ C) :
     ∃ N₀ : ℕ, ∀ N ≥ N₀, C ≤ (N : ℝ) * ρ := by
   obtain ⟨N₀, hN₀⟩ := exists_nat_ge (C / ρ)
   refine ⟨N₀, fun N hN ↦ ?_⟩

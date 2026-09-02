@@ -98,9 +98,12 @@ theorem deriv_Gamma_one_eq_integral_log_log {s : ℝ} (hs : 1 < s) :
       exact integrableOn_Ioi_rpow_of_lt (by linarith) zero_lt_one
     _ = _ := by field_simp
 
-/-- An integral representation of the Euler–Mascheroni constant, valid for any `s > 1`. -/
+/-- An integral representation of the Euler–Mascheroni constant, valid for
+any `s > 1`. -/
 lemma eulerMascheroniConstant_eq_neg_integral_log_log {s : ℝ} (hs : 1 < s) :
-    Real.eulerMascheroniConstant = -((s - 1) * (∫ t in Ioi 1, log (log t) * t ^ (-s)) + log (s - 1)) := by
-  rw [eulerMascheroniConstant_eq_neg_deriv, deriv_Gamma_one_eq_integral_log_log hs]
+    Real.eulerMascheroniConstant =
+      -((s - 1) * (∫ t in Ioi 1, log (log t) * t ^ (-s)) + log (s - 1)) := by
+  rw [eulerMascheroniConstant_eq_neg_deriv,
+    deriv_Gamma_one_eq_integral_log_log hs]
 
 end Erdos327.Mertens

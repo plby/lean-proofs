@@ -285,7 +285,7 @@ theorem sourceScheduledNormalizedBlockMain_le_bulk_profile
       scheduledLogLoss j ^ (5 / 2 : ℝ) ≤
         scheduledLogLossConstant ^ (5 / 2 : ℝ) *
           log (((j + 1 : ℕ) : ℝ)) ^ (5 : ℝ) := by
-    convert hloss using 1 <;> norm_num
+    convert hloss using 1; norm_num
   have hprofile0 :
       0 ≤ sourceBulkRawConstant K * ((N : ℝ) / log L) := by
     exact mul_nonneg (sourceBulkRawConstant_pos K).le

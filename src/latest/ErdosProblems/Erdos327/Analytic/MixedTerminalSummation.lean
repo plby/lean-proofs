@@ -804,7 +804,7 @@ theorem mixedScheduled_not_good_boundary
   have hX : 2 ≤ dyadicScale j :=
     hz.trans (sieveCutoff_le_dyadicScale j)
   by_contra hboundary
-  push_neg at hboundary
+  push Not at hboundary
   apply hnotgood
   exact ⟨hz, hboundary.1,
     sieveCutoff_le_dyadicScale j, hboundary.2⟩

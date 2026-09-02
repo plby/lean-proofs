@@ -143,7 +143,7 @@ theorem cross_pairwise_zero_iff_origin {p : ℕ} (hp : p.Prime)
     ((x.1 = 0 ∧ x.2 = 0) ∨
       (x.1 = 0 ∧ 2 * x.1 + x.2 = 0) ∨
       (x.2 = 0 ∧ 2 * x.1 + x.2 = 0)) ↔ x = (0, 0) := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let hpFact : Fact p.Prime := ⟨hp⟩
   have htwo : (2 : ZMod p) ≠ 0 := by
     intro hzero
     change ((2 : ℕ) : ZMod p) = 0 at hzero

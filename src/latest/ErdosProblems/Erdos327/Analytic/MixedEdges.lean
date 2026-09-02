@@ -135,7 +135,7 @@ theorem regularMixedEdge_coordinates
     exact hbSourceData.2.2.1 p hp hpL (hpr.trans hr)
   have htDvd : t ∣ b := by
     rw [hbtuw]
-    simpa [mul_assoc] using dvd_mul_right t (u * (2 * u + w))
+    simp [mul_assoc]
   have huDvd : u ∣ b := by
     rw [hbtuw]
     exact ⟨t * (2 * u + w), by ring⟩

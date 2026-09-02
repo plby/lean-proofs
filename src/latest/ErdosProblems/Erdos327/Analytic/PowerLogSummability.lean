@@ -18,7 +18,7 @@ noncomputable section
 /-- A negative power beyond `-1` remains summable after multiplication by
 any nonnegative real power of a logarithm. -/
 theorem summable_nat_add_one_rpow_mul_log_rpow
-    {p m : ℝ} (hp : p < -1) (hm : 0 ≤ m) :
+    {p m : ℝ} (hp : p < -1) (_hm : 0 ≤ m) :
     Summable (fun n : ℕ ↦
       (((n + 1 : ℕ) : ℝ) ^ p) *
         log (((n + 1 : ℕ) : ℝ)) ^ m) := by

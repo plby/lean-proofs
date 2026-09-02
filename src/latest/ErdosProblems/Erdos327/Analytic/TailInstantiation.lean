@@ -163,7 +163,6 @@ theorem irregularOddHost_le_one_sixty_fourth
         (2 * unrestrictedCenteredTailConstant
           oddAnatomySlope oddTailBase *
           oddTailBase ^ (-Ko)) := by
-      push_cast
       ring
     _ ≤ (N : ℝ) * (Erdos327.roughDensity L / 64) := by
       gcongr

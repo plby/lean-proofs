@@ -258,7 +258,7 @@ theorem sourceCanonicalBudgetExponent_lt_three_halves :
 dyadic index in the source regularity budget. -/
 theorem sourceScheduledBudget_le_rpow
     {L j : ℕ} {K : ℝ}
-    (hL : 3 ≤ L) (hnear : L ≤ 8 * dyadicScale j) :
+    (hL : 3 ≤ L) (_hnear : L ≤ 8 * dyadicScale j) :
     sourceDyadicBudget L (dyadicScale j)
         sourceAnatomySlope K ≤
       sourceBudgetConstant K *
@@ -523,7 +523,7 @@ theorem sourceDyadicResidualMoment_le_normalized
       hL hLX hLY hY
       (q := (1 / 4 : ℝ)) (by norm_num) (by norm_num)
   unfold sourceDyadicResidualMoment
-  convert h using 1 <;> norm_num
+  convert h using 1; norm_num
 
 /-- Fully normalized envelope for a source Euler block in the main
 residual regime `L ≤ min(X,Y)`. -/

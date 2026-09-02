@@ -686,7 +686,7 @@ theorem div_le_card_residueClassIco
 theorem card_zmodFiberIco_lower_real
     {d : ℕ} (hd : 0 < d) (a X : ℕ) (r : ZMod d) :
     (X : ℝ) / d - 1 ≤ (zmodFiberIco d a X r).card := by
-  letI : NeZero d := ⟨hd.ne'⟩
+  let hdNeZero : NeZero d := ⟨hd.ne'⟩
   have hset :
       zmodFiberIco d a X r = residueClassIco d a X r.val := by
     ext n
@@ -1111,9 +1111,9 @@ theorem abs_subsetLossBoxSum_sub_main_le
           ∏ p : T, localLossMean ell p| ≤
       (3 : ℝ) ^ T.card *
         (9 * (X : ℝ) + subsetModulus T) := by
-  letI : NeZero (subsetModulus T) :=
+  let hmodulusNeZero : NeZero (subsetModulus T) :=
     ⟨(subsetModulus_pos hprime T).ne'⟩
-  letI : ∀ p : T, NeZero ((((p : T) : P) : ℕ)) :=
+  let hprimeNeZero : ∀ p : T, NeZero ((((p : T) : P) : ℕ)) :=
     fun p ↦ inferInstance
   have hproduct0 :
       ∀ r : ZMod (subsetModulus T) × ZMod (subsetModulus T),

@@ -292,7 +292,7 @@ theorem roughSourceInterval_card_lower
   have hlower' :
       (len : ℝ) * ρ - D.totient ≤
         (roughSourceInterval L N).card := by
-    convert hlower using 1 <;> dsimp [ρ] <;> ring
+    convert hlower using 1; dsimp [ρ]; ring
   calc
     (N : ℝ) / 4 *
           ((roughPrimeModulus L).totient : ℝ) / roughPrimeModulus L =

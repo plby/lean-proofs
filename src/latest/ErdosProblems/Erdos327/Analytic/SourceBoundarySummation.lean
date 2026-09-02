@@ -334,7 +334,7 @@ theorem sourceScheduledIndexProfile_le
       scheduledLogLoss j ^ (5 / 2 : ℝ) ≤
         scheduledLogLossConstant ^ (5 / 2 : ℝ) *
           log (((j + 1 : ℕ) : ℝ)) ^ (5 : ℝ) := by
-    convert hloss using 1 <;> norm_num
+    convert hloss using 1; norm_num
   have hindex0 :
       0 ≤ (3 : ℝ) ^ sourceCanonicalBudgetExponent *
         (((j + 1 : ℕ) : ℝ) ^
