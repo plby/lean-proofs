@@ -2,12 +2,12 @@ import Util.IncidenceGeometry.RichLinesBound
 import Util.IncidenceGeometry.SzemerediTrotter
 import ErdosProblems.Erdos652.Circles
 
-open Classical
 open scoped Real
 noncomputable section
 
 namespace Erdos652
 
+open Classical in
 /-- The total number of incidences between a planar point set and all lines
 containing at least two of its points is `O(m²)`.  We retain the actual finite
 line family because it will receive the perpendicular bisectors of bad arcs. -/

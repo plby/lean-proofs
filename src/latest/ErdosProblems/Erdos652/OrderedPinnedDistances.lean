@@ -1,18 +1,19 @@
 import ErdosProblems.Erdos652.PinnedDistanceLowerBound
 import ErdosProblems.Erdos652.LowPointsArithmetic
 
-open Classical
 open scoped Real
 noncomputable section
 
 namespace Erdos652
 
+open Classical in
 /-- The number of distinct nonzero pinned distances determined by `p` in
 the finite point set `S`.  If `p ∈ S`, erasing `p` is exactly the exclusion
 `j ≠ i` in the statement of Problem 652. -/
 def pinnedDistanceCount (p : Point) (S : Finset Point) : ℕ :=
   (distanceRadii p (S.erase p)).card
 
+open Classical in
 /-- Points whose pinned-distance count is below `C * sqrt |S|`. -/
 def lowPinnedDistancePoints (S : Finset Point) (C : ℝ) : Finset Point :=
   S.filter fun p => (pinnedDistanceCount p S : ℝ) < C * Real.sqrt S.card

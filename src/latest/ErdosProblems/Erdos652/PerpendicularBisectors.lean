@@ -3,7 +3,6 @@ import Util.IncidenceGeometry.CircleLineNoThreePoints
 import Util.IncidenceGeometry.IsAffineLine
 import Mathlib.Geometry.Euclidean.PerpBisector
 
-open Classical
 open scoped Real
 noncomputable section
 
@@ -15,7 +14,7 @@ lemma perpBisector_isAffineLine {x y : Point} (hxy : x ≠ y) :
     IsAffineLine (AffineSubspace.perpBisector x y) := by
   constructor
   · exact AffineSubspace.perpBisector_nonempty
-  · haveI : Fact (Module.finrank ℝ Point = 2) := ⟨by simp [Point]⟩
+  · have hfinrank : Fact (Module.finrank ℝ Point = 2) := ⟨by simp [Point]⟩
     have hv : (y -ᵥ x : Point) ≠ 0 := vsub_ne_zero.mpr hxy.symm
     rw [AffineSubspace.direction_perpBisector]
     exact Submodule.finrank_orthogonal_span_singleton
@@ -93,7 +92,6 @@ lemma affineLine_circle_no_three
     AffineSubspace.ext_of_direction_eq hdir ⟨u,
       subset_affineSpan ℝ _ (by simp), hu⟩
   have hwline : w ∈ line[ℝ, u, v] := by
-    change w ∈ affineSpan ℝ ({u, v} : Set Point)
     rwa [heq]
   exact CircleLineNoThreePoints huv
     (subset_affineSpan ℝ _ (by simp))

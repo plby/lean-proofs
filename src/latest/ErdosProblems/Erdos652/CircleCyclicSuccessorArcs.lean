@@ -8,7 +8,6 @@ The upstream construction is stated for unit circles.  This file transports it
 through the affine similarity `x ↦ r⁻¹ • (x - c)`.
 -/
 
-open Classical
 noncomputable section
 
 namespace Erdos652
@@ -65,6 +64,7 @@ lemma circleCyclicSuccessorArcs
                 (∀ x y,
                   (Sym2.mk x.1 (succ x).1 : Sym2 Point) =
                     Sym2.mk y.1 (succ y).1 → x = y) := by
+  classical
   let n := normalizeCircle c r
   let d := denormalizeCircle c r
   have hr0 : r ≠ 0 := ne_of_gt hr
@@ -130,7 +130,7 @@ lemma circleCyclicSuccessorArcs
       have hz : dist (γ₀ (e x) t) 0 = 1 := hcircle t
       calc
         dist (c + r • γ₀ (e x) t) c = dist (r • γ₀ (e x) t) 0 := by
-          simpa using (dist_add_left (r • γ₀ (e x) t) 0 c)
+          simp
         _ = ‖r‖ * dist (γ₀ (e x) t) 0 := by
           simpa using (dist_smul₀ r (γ₀ (e x) t) 0)
         _ = r := by rw [hz, Real.norm_eq_abs, abs_of_pos hr, mul_one]
@@ -165,7 +165,7 @@ lemma circleCyclicSuccessorArcs
         interior₀ (e x) ∩ interior₀ (e y) := by
       rw [(harc₀ (e x)).2.2.2.2.2.2, (harc₀ (e y)).2.2.2.2.2.2]
       exact ⟨⟨s, rfl⟩, ⟨t, hγeq.symm⟩⟩
-    simpa [hempty] using hmem
+    simp [hempty] at hmem
   · intro x y hxy
     apply e.injective
     apply hunique₀

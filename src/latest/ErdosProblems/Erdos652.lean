@@ -38,7 +38,7 @@ Mathialagan's pinned bipartite distance theorem proves that its infimum tends
 to infinity.  The detailed mathematical reconstruction is in `tex/652.tex`.
 -/
 
-open Classical Filter
+open Filter
 open scoped Real Topology
 noncomputable section
 

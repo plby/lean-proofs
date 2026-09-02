@@ -1,6 +1,5 @@
 import Util.IncidenceGeometry.Basic
 
-open Classical
 open scoped Real
 noncomputable section
 
@@ -9,7 +8,7 @@ namespace Erdos652
 /-- Quotient a finite family of non-loop arcs by its unordered endpoint pair.
 If every pair occurs at most `M` times, at least `|A|/M` edges remain. -/
 lemma endpointPairMultiplicitySimpleGraph
-    {ι V : Type*} [DecidableEq ι] [DecidableEq V]
+    {ι V : Type*} [DecidableEq V]
     (A : Finset ι) (endpoint : ι → Sym2 V) (M : ℕ) (hM : 1 ≤ M)
     (h_nondiag : ∀ i ∈ A, ¬ (endpoint i).IsDiag)
     (h_multiplicity : ∀ e ∈ A.image endpoint,
@@ -20,7 +19,7 @@ lemma endpointPairMultiplicitySimpleGraph
   classical
   let E : Finset (Sym2 V) := A.image endpoint
   let G : SimpleGraph V := SimpleGraph.fromEdgeSet (E : Set (Sym2 V))
-  haveI : Fintype G.edgeSet := by
+  have hGfin : Fintype G.edgeSet := by
     dsimp [G]
     infer_instance
   have h_edgeFinset : G.edgeFinset = E := by
@@ -53,7 +52,7 @@ lemma endpointPairMultiplicitySimpleGraph
       A.card = ∑ e ∈ E, (A.filter (fun i => endpoint i = e)).card := hcard_sum
       _ ≤ ∑ _e ∈ E, M := hsum_le
       _ = M * E.card := by simp [Finset.sum_const, Nat.mul_comm]
-  refine ⟨G, inferInstance, ?_, h_edgeFinset⟩
+  refine ⟨G, hGfin, ?_, h_edgeFinset⟩
   have hreal : (A.card : ℝ) ≤ M * (E.card : ℝ) := by exact_mod_cast hcard_le
   have hMreal : (0 : ℝ) < M := by exact_mod_cast hM
   rw [h_edgeFinset]

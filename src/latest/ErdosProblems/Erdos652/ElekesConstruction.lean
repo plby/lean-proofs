@@ -1,7 +1,6 @@
 import ErdosProblems.Erdos652.OrderedPinnedDistances
 import Mathlib.Data.Fin.VecNotation
 
-open Classical
 open scoped Real
 noncomputable section
 
@@ -23,14 +22,15 @@ lemma dist_xyPoint_sq (x y a b : ℝ) :
   rw [hnorm]
   norm_num
 
+open Classical in
 /-- The `k` distinguished pins on the horizontal axis. -/
 def elekesCenters (k : ℕ) : Finset Point :=
   (Finset.Icc 1 k : Finset ℕ).image fun (a : ℕ) => xyPoint (a : ℝ) 0
 
-lemma elekesCenters_card {k : ℕ} (hk : 1 ≤ k) :
+lemma elekesCenters_card {k : ℕ} (_hk : 1 ≤ k) :
     (elekesCenters k).card = k := by
   rw [elekesCenters, Finset.card_image_iff.mpr]
-  · simp [hk]
+  · simp
   · intro a ha b hb hab
     have h0 := congrArg (fun p : Point => p 0) hab
     simp only [xyPoint_apply_zero] at h0
@@ -77,13 +77,14 @@ lemma elekesGridPoint_injective {k s : ℕ} :
   have huc : u.2 = v.2 := by exact_mod_cast hcReal
   exact Prod.ext hui huc
 
+open Classical in
 /-- Elekes's circle grid. -/
 def elekesGrid (k s : ℕ) : Finset Point :=
   (elekesParameters k s).image (elekesGridPoint s)
 
-lemma elekesParameters_card {k s : ℕ} (hk : 1 ≤ k) (hs : 1 ≤ s) :
+lemma elekesParameters_card {k s : ℕ} (_hk : 1 ≤ k) (_hs : 1 ≤ s) :
     (elekesParameters k s).card = k * s ^ 2 := by
-  simp [elekesParameters, hk, hs, Nat.mul_pos hk hs]
+  simp [elekesParameters]
   ring
 
 lemma elekesGrid_card {k s : ℕ} (hk : 1 ≤ k) (hs : 1 ≤ s) :
@@ -103,7 +104,7 @@ lemma elekesCenters_disjoint_grid {k s : ℕ} :
   linarith
 
 lemma card_image_le_card_image_of_eq_imp
-    {α β γ : Type*} [DecidableEq α] [DecidableEq β] [DecidableEq γ]
+    {α β γ : Type*} [DecidableEq β] [DecidableEq γ]
     (S : Finset α) (f : α → β) (g : α → γ)
     (h : ∀ x ∈ S, ∀ y ∈ S, g x = g y → f x = f y) :
     (S.image f).card ≤ (S.image g).card := by
@@ -172,14 +173,13 @@ lemma elekesGrid_distance_eq_of_code_eq
     rw [elekesGridPoint, elekesGridPoint, dist_xyPoint_sq, dist_xyPoint_sq]
     simp only [zero_sub, neg_sq]
     rw [Real.sq_sqrt huRad, Real.sq_sqrt hvRad]
-    norm_num
     nlinarith
   have hdu0 : 0 ≤ dist (xyPoint a 0) (elekesGridPoint s u) := dist_nonneg
   have hdv0 : 0 ≤ dist (xyPoint a 0) (elekesGridPoint s v) := dist_nonneg
   nlinarith
 
 lemma elekesGrid_distanceRadii_card_le
-    {k s a : ℕ} (hk : 1 ≤ k) (hs : 1 ≤ s)
+    {k s a : ℕ} (_hk : 1 ≤ k) (_hs : 1 ≤ s)
     (ha : a ∈ Finset.Icc 1 k) :
     (distanceRadii (xyPoint a 0) (elekesGrid k s)).card ≤ 3 * k * s := by
   let f : ℕ × ℕ → ℝ := fun u => dist (xyPoint a 0) (elekesGridPoint s u)
@@ -203,9 +203,7 @@ lemma elekesGrid_distanceRadii_card_le
       rcases Finset.mem_image.mp hz with ⟨u, hu, rfl⟩
       exact elekesCode_mem_Icc ha hu
     _ = 3 * k * s := by
-      have hpos : 0 < 3 * k * s :=
-        Nat.mul_pos (Nat.mul_pos (by norm_num) hk) hs
-      simp [hpos]
+      simp
 
 lemma distanceRadii_union_card_le (p : Point) (A B : Finset Point) :
     (distanceRadii p (A ∪ B)).card ≤

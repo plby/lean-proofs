@@ -2,7 +2,6 @@ import ErdosProblems.Erdos652.PinnedCircles
 import ErdosProblems.Erdos652.CircleCyclicSuccessorArcs
 import ErdosProblems.Erdos652.CircleArcDrawingAssembly
 
-open Classical
 open scoped BigOperators Real
 noncomputable section
 
@@ -14,7 +13,7 @@ general circle drawing assembly, together with the incidence lower bound. -/
 lemma retainedCircleArcFamily
     (P Q : Finset Point) (t : ℕ) (hPQ : Disjoint P Q)
     (ht : ∀ p ∈ P, (distanceRadii p Q).card ≤ t) :
-    ∃ (ι : Type) (instF : Fintype ι) (instD : DecidableEq ι)
+    ∃ (ι : Type) (_instF : Fintype ι) (_instD : DecidableEq ι)
       (A : Finset ι) (endpoint : ι → Sym2 Q)
       (center : ι → circleKeys P Q)
       (arcStart arcEnd : ι → Q)
@@ -104,7 +103,6 @@ lemma retainedCircleArcFamily
           (fun r => 3 ≤ (Q.filter fun q => dist p q = r).card),
         (Q.filter fun q => dist p q = r).card := by
     dsimp [A, ι]
-    change Fintype.card (Sigma fun a : Retained => {x : Point // x ∈ S a}) = _
     rw [Fintype.card_sigma]
     simp only [Fintype.card_coe]
     rw [Fintype.sum_sigma]

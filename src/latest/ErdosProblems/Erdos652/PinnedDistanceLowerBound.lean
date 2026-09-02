@@ -5,7 +5,6 @@ import ErdosProblems.Erdos652.EndpointPairMultiplicitySimpleGraph
 import Util.IncidenceGeometry.CrossingLemma
 import Util.IncidenceGeometry.PolygonalReplacementForGeometricArcs
 
-open Classical
 open scoped BigOperators Real
 noncomputable section
 
@@ -52,6 +51,7 @@ theorem pinnedDistanceLowerBound :
         8 ≤ P.card → P.card ^ 3 ≤ Q.card →
           (∀ p ∈ P, (distanceRadii p Q).card ≤ t) →
             ε * Real.sqrt ((P.card : ℝ) * (Q.card : ℝ)) ≤ t := by
+  classical
   obtain ⟨C, hC, hlines⟩ := twoRichLineIncidences
   let ε : ℝ := 1 / (160 * (C + 1))
   have hC1 : 0 < C + 1 := by linarith
@@ -112,8 +112,8 @@ theorem pinnedDistanceLowerBound :
       h_endpoints_distinct, h_endpoints_on_circle, h_arc_param,
       h_carrier_circle, h_no_vertex, h_same_disjoint, h_same_unique,
       h_radius⟩
-  letI : Fintype ι := instF
-  letI : DecidableEq ι := instD
+  let instF' : Fintype ι := instF
+  let instD' : DecidableEq ι := instD
   let B : Finset ι := A.filter (fun i =>
     2 ≤ (A.filter (fun j => endpoint j = endpoint i)).card)
   let Good : Finset ι := A \ B
@@ -203,7 +203,7 @@ theorem pinnedDistanceLowerBound :
   obtain ⟨G, hGfin, hGedgeLower, hGedge⟩ :=
     endpointPairMultiplicitySimpleGraph Good endpoint 1 (by omega)
       hGoodNondiag hGoodMultiplicity
-  letI : Fintype G.edgeSet := hGfin
+  let hGfin' : Fintype G.edgeSet := hGfin
   have hEdgesGood : (Good.card : ℝ) ≤ (G.edgeFinset.card : ℝ) := by
     simpa using hGedgeLower
   obtain ⟨D, hDlocal⟩ := circleRetainedArcDrawingAssembly Q (circleKeys P Q)

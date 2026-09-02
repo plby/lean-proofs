@@ -1,19 +1,21 @@
 import ErdosProblems.Erdos652.Circles
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 
-open Classical
 open scoped BigOperators Real
 noncomputable section
 
 namespace Erdos652
 
+open Classical in
 /-- The radii determined from `p` by the points of `Q`. -/
 def distanceRadii (p : Point) (Q : Finset Point) : Finset ℝ := Q.image (dist p)
 
+open Classical in
 /-- The points of `Q` on the circle keyed by `a`. -/
 def pointsOnCircle (Q : Finset Point) (a : CircleKey) : Finset Point :=
   Q.filter fun q => q ∈ circle a
 
+open Classical in
 /-- All center-radius circles obtained from centers in `P` and points in `Q`. -/
 def circleKeys (P Q : Finset Point) : Finset CircleKey :=
   P.biUnion fun p => (distanceRadii p Q).image fun r => (p, r)
@@ -82,10 +84,13 @@ lemma circleKey_radius_pos {P Q : Finset Point} (hPQ : Disjoint P Q)
     _ = a.2 := hrq
 
 lemma pointsOnCircle_subset (Q : Finset Point) (a : CircleKey) :
-    pointsOnCircle Q a ⊆ Q := Finset.filter_subset _ _
+    pointsOnCircle Q a ⊆ Q := by
+  classical
+  exact Finset.filter_subset _ _
 
 lemma pointsOnCircle_on_circle (Q : Finset Point) (a : CircleKey) :
     (↑(pointsOnCircle Q a) : Set Point) ⊆ circle a := by
+  classical
   intro q hq
   exact (Finset.mem_filter.mp hq).2
 
@@ -153,6 +158,6 @@ lemma retained_circle_incidence_lower (P Q : Finset Point) (t : ℕ)
           (fun r => 3 ≤ (Q.filter fun q => dist p q = r).card),
         (Q.filter fun q => dist p q = r).card) + 2 * P.card * t := by
       simp_rw [Finset.sum_add_distrib]
-      simp [Nat.mul_assoc, Nat.mul_comm, Nat.mul_left_comm]
+      simp [Nat.mul_assoc, Nat.mul_comm]
 
 end Erdos652

@@ -7,7 +7,6 @@ The radius is kept as part of the key.  This lets us count the circles even
 when two different centers happen to determine the same numerical radius.
 -/
 
-open Classical
 noncomputable section
 
 namespace Erdos652
@@ -40,7 +39,7 @@ lemma circle_intersection_atMostTwo {a b : CircleKey} (hab : a ≠ b) :
         _ = dist x b.1 := by rw [hc]
         _ = b.2 := hb
     simp [hempty]
-  · simpa [circle, Set.setOf_and] using
+  · simpa [circle, Set.ofPred_and] using
       (TwoCirclesIntersectionsAtMostTwo a.1 b.1 hc a.2 b.2)
 
 end Erdos652

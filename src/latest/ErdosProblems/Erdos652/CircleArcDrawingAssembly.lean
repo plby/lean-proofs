@@ -1,7 +1,6 @@
 import Util.IncidenceGeometry.GeometricArcDrawing
 import ErdosProblems.Erdos652.Circles
 
-open Classical
 open scoped BigOperators
 open scoped Real
 noncomputable section
@@ -19,10 +18,10 @@ lemma circleRetainedArcDrawingAssembly
     (carrier arcInterior : ι → Set (EuclideanSpace ℝ (Fin 2)))
     (γ : ι → Set.Icc (0 : ℝ) 1 → EuclideanSpace ℝ (Fin 2))
     (h_endpoint_eq : ∀ i ∈ A, endpoint i = Sym2.mk (arcStart i) (arcEnd i))
-    (h_endpoints_distinct : ∀ i ∈ A,
+    (_h_endpoints_distinct : ∀ i ∈ A,
       (arcStart i : EuclideanSpace ℝ (Fin 2)) ≠
         (arcEnd i : EuclideanSpace ℝ (Fin 2)))
-    (h_endpoints_on_circle : ∀ i ∈ A,
+    (_h_endpoints_on_circle : ∀ i ∈ A,
       (arcStart i : EuclideanSpace ℝ (Fin 2)) ∈
           circle (center i : CircleKey) ∧
         (arcEnd i : EuclideanSpace ℝ (Fin 2)) ∈
@@ -57,7 +56,7 @@ lemma circleRetainedArcDrawingAssembly
 -- BODY
   classical
   intro G hGfin hGedge
-  letI : Fintype G.edgeSet := hGfin
+  let hGfin' : Fintype G.edgeSet := hGfin
   have h_rep_exists :
       ∀ e : G.edgeFinset, ∃ i ∈ A, endpoint i = e.1 := by
     intro e
@@ -409,7 +408,7 @@ lemma circleRetainedArcDrawingAssembly
       (rep e₂) (rep_mem e₂) hc (rep_ne_of_edge_ne he)
     have hpBoth : p ∈ arcInterior (rep e₁) ∩ arcInterior (rep e₂) :=
       ⟨hp₁, hp₂⟩
-    simpa [hdisj] using hpBoth
+    simp [hdisj] at hpBoth
   have centers_distinct_of_local_pair :
       ∀ {e₁ e₂ : G.edgeFinset} {p : EuclideanSpace ℝ (Fin 2)},
         e₁ ≠ e₂ →

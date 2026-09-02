@@ -2,17 +2,17 @@ import ErdosProblems.Erdos652.PerpendicularBisectors
 import ErdosProblems.Erdos652.PinnedCircles
 import Util.IncidenceGeometry.LineIncidences
 
-open Classical
 open scoped BigOperators Real
 noncomputable section
 
 namespace Erdos652
 
+open Classical in
 /-- Arcs whose unordered endpoint pair occurs at least twice are controlled by
 incidences of their centers with the corresponding perpendicular bisectors. -/
 lemma repeatedEndpointArcCard_le
     (P Q : Finset Point) (t : ℕ)
-    {ι : Type} [Fintype ι] [DecidableEq ι]
+    {ι : Type} [Finite ι]
     (A : Finset ι) (endpoint : ι → Sym2 Q)
     (center : ι → circleKeys P Q)
     (arcStart arcEnd : ι → Q)
@@ -44,7 +44,6 @@ lemma repeatedEndpointArcCard_le
     (A.filter (fun i =>
       2 ≤ (A.filter (fun j => endpoint j = endpoint i)).card)).card ≤
       2 * t * LineIncidences P L := by
-  classical
   let B : Finset ι := A.filter (fun i =>
     2 ≤ (A.filter (fun j => endpoint j = endpoint i)).card)
   let Bad := {i : ι // i ∈ B}
@@ -173,7 +172,7 @@ lemma repeatedEndpointArcCard_le
     have hd := h_same_center_disjoint i.1 (hBadA i) j.1 (hBadA j) hc (by
       intro h
       exact hij (Subtype.ext h))
-    simpa [hd] using hboth
+    simp [hd] at hboth
   have keyLineFiber_card_le_two
       (S : Finset Bad) (k : circleKeys P Q)
       (ℓ : {ℓ : AffineSubspace ℝ Point // IsAffineLine ℓ})
