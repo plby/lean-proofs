@@ -20,8 +20,7 @@ lemma test_logWeightedCount_succ_eq_thetaAP (q a N : ℕ) :
   rw [Finset.sum_filter]
   apply Finset.sum_congr
   · ext n
-    simp only [Finset.mem_filter, Finset.mem_range, Finset.mem_Iic,
-      Nat.floor_natCast, test_primeResiduePred]
+    simp only [Finset.mem_range, Finset.mem_Iic, Nat.floor_natCast]
     omega
   · intro n hn
     by_cases h : test_primeResiduePred q a n

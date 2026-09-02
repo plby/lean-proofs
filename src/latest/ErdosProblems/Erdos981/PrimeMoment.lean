@@ -76,7 +76,7 @@ lemma test_primeQuadraticDenominatorSum_eq_residue_sum
   have hnoncop : ∀ p ∈ Finset.range (x + 1), p.Prime → ¬p.Coprime q →
       quadraticDenominatorTerm k p = 0 := by
     intro p hpRange hpPrime hpcop
-    rw [quadraticDenominatorTerm_eq_attached hk]
+    rw [quadraticDenominatorTerm_eq_attached]
     exact (attachedQuadraticCharacter k q (dvd_refl q)).map_non_coprime hpcop
   rw [test_primeQuadraticDenominatorSum]
   calc
@@ -120,8 +120,8 @@ lemma test_primeQuadraticDenominatorSum_eq_residue_sum
               have hmod : Nat.ModEq q p a := by
                 change p % q = a % q
                 rw [hpa, Nat.mod_eq_of_lt haq]
-              rw [quadraticDenominatorTerm_eq_attached hk,
-                quadraticDenominatorTerm_eq_attached hk]
+              rw [quadraticDenominatorTerm_eq_attached,
+                quadraticDenominatorTerm_eq_attached]
               exact_mod_cast
                 (attachedQuadraticCharacter k q (dvd_refl q)).periodic hmod
         _ = (quadraticDenominatorTerm k a : ℝ) *
@@ -139,7 +139,7 @@ lemma test_sum_quadraticDenominatorTerm_coprimeResidues_eq_zero
   have hnoncop : ∀ a ∈ Finset.range q, ¬a.Coprime q →
       quadraticDenominatorTerm k a = 0 := by
     intro a ha hcop
-    rw [quadraticDenominatorTerm_eq_attached hk]
+    rw [quadraticDenominatorTerm_eq_attached]
     exact (attachedQuadraticCharacter k q (dvd_refl q)).map_non_coprime hcop
   calc
     ∑ a ∈ BoundedGaps.Maynard.coprimeResidues q,
@@ -272,8 +272,8 @@ lemma test_oddPrimeMoment_eq_tuple_sum (r N x : ℕ) :
       · simp [hpPrime]
     _ = _ := by rw [Finset.sum_comm]
 
-lemma test_primeQuadraticDenominatorSum_le_primeCount_of_square
-    {k : ℕ} (hk : IsSquare k) (x : ℕ) :
+lemma test_primeQuadraticDenominatorSum_le_primeCount
+    (k x : ℕ) :
     test_primeQuadraticDenominatorSum k x ≤
       BoundedGaps.Maynard.primeCountTotal x := by
   classical
@@ -337,7 +337,7 @@ lemma test_oddPrimeMoment_le (r N x : ℕ) :
     · calc
         test_primeQuadraticDenominatorSum k x ≤
             BoundedGaps.Maynard.primeCountTotal x :=
-          test_primeQuadraticDenominatorSum_le_primeCount_of_square hksq x
+          test_primeQuadraticDenominatorSum_le_primeCount k x
         _ ≤ (BoundedGaps.Maynard.primeCountTotal x : ℝ) + (Q : ℝ) * E := by
           exact le_add_of_nonneg_right (mul_nonneg (by positivity) hE)
         _ = _ := by simp [hksq]
@@ -395,7 +395,7 @@ lemma test_oddPrimeBad_card_mul_le_moment
   calc
     ((test_oddPrimeBad ε N x).card : ℝ) * (ε * (N : ℝ)) ^ 20 =
       ∑ _p ∈ test_oddPrimeBad ε N x, (ε * (N : ℝ)) ^ 20 := by
-        simp [mul_comm]
+        simp
     _ ≤ ∑ p ∈ test_oddPrimeBad ε N x,
         (legendrePartialSum p N : ℝ) ^ 20 := by
       apply Finset.sum_le_sum
@@ -419,7 +419,7 @@ lemma test_oddPrimeBad_card_mul_le_moment
     _ = _ := by norm_num
 
 lemma test_oddPrimeMoment_twentieth_le
-    {N : ℕ} (hN : 1 ≤ N) (hdiag :
+    {N : ℕ} (hdiag :
       ((squareTuplePairs 10 N).card : ℝ) ≤ (N : ℝ) ^ 17) (x : ℕ) :
     test_oddPrimeMoment 10 N x ≤
       (BoundedGaps.Maynard.primeCountTotal x : ℝ) * (N : ℝ) ^ 17 +
@@ -473,7 +473,7 @@ lemma test_exists_squareTuplePairs_ten_card_le :
       rfl
     _ ≤ (N : ℝ) ^ 2 * ((N : ℝ) ^ 10 * (N : ℝ) ^ 5) := by
       exact mul_le_mul_of_nonneg_right (pow_le_pow_left₀ (by
-        show 0 ≤ (N : ℝ) ^ (1 / 8 : ℝ)
+        change 0 ≤ (N : ℝ) ^ (1 / 8 : ℝ)
         exact Real.rpow_nonneg (by positivity) _) henv 2) (by positivity)
     _ = (N : ℝ) ^ 17 := by ring
 
@@ -533,7 +533,7 @@ lemma test_exists_uniform_oddPrimeBad_bound {ε : ℝ} (hε : 0 < ε) :
             · intro q hq hnot
               exact BoundedGaps.Maynard.maxProgressionDiscrepancy_nonneg (2 * x) q
       _ ≤ _ := hdist (2 * x) (by omega)
-  have hmoment := test_oddPrimeMoment_twentieth_le hN1 (hdiag N hNdiag) (2 * x)
+  have hmoment := test_oddPrimeMoment_twentieth_le (hdiag N hNdiag) (2 * x)
   have hmarkov2 := test_oddPrimeBad_card_mul_le_moment hε.le N (2 * x)
   have hbadsub : test_oddPrimeBad ε N x ⊆ test_oddPrimeBad ε N (2 * x) := by
     intro p hp

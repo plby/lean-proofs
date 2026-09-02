@@ -240,7 +240,8 @@ lemma exists_coprime_jacobiSym_eq_neg_one_of_squarefree
       simp [ha8', Nat.odd_iff.mp haOdd]
     refine ⟨a, ?_, haOdd, ?_⟩
     · rw [← hdecomp]
-      convert Nat.Coprime.mul_right ha8cop haecop using 1 <;> omega
+      convert Nat.Coprime.mul_right ha8cop haecop using 1
+      all_goals omega
     · have haj2' : jacobiSym ((2 : ℕ) : ℤ) a = -1 := by
         norm_num
         exact haj2
@@ -250,7 +251,7 @@ lemma exists_coprime_jacobiSym_eq_neg_one_of_squarefree
     have hq4 : Nat.Coprime q 4 := by
       simpa using hqOdd.coprime_two_right.pow_right 2
     have hq4e : Nat.Coprime q (4 * e) := Nat.Coprime.mul_right hq4 hqecop
-    letI : Fact q.Prime := ⟨hq⟩
+    let : Fact q.Prime := ⟨hq⟩
     have hchar : ringChar (ZMod q) ≠ 2 := by
       rw [ZMod.ringChar_zmod_n]
       exact hq2
@@ -317,7 +318,6 @@ lemma exists_coprime_jacobiSym_eq_neg_one_of_not_isSquare
     intro hd1
     apply hksq
     refine ⟨s, ?_⟩
-    change k = s * s
     simpa [d, s, hd1, pow_two] using
       (Erdos888.squarePart_decomposition k).symm
   have hd1 : 1 < d := by omega
@@ -329,7 +329,8 @@ lemma exists_coprime_jacobiSym_eq_neg_one_of_not_isSquare
     Nat.forall_exists_prime_gt_and_modEq k h4d hb4d
   have hk2 : 2 ≤ k := by
     by_contra h
-    interval_cases k <;> simp_all
+    interval_cases k
+    all_goals simp_all
   have ha2 : 2 < a := hk2.trans_lt hka
   have haOdd : Odd a :=
     Nat.odd_iff.mpr (haPrime.eq_two_or_odd.resolve_left (by omega))
@@ -374,7 +375,7 @@ noncomputable def attachedQuadraticDirichletCharacter (k : ℕ) (hk : 0 < k) :
 nonprincipal. -/
 lemma attachedQuadraticDirichletCharacter_ne_one {k : ℕ} (hk : 0 < k)
     (hksq : ¬ IsSquare k) : attachedQuadraticDirichletCharacter k hk ≠ 1 := by
-  letI : NeZero (4 * k) := ⟨by positivity⟩
+  let : NeZero (4 * k) := ⟨by positivity⟩
   obtain ⟨a, hacop, _haOdd, hja⟩ :=
     exists_coprime_jacobiSym_eq_neg_one_of_not_isSquare hk hksq
   intro hprincipal
@@ -394,7 +395,7 @@ this is exactly the integer-valued attached character of period `4k`. -/
 def quadraticDenominatorTerm (k m : ℕ) : ℤ :=
   if Odd m then jacobiSym (k : ℤ) m else 0
 
-lemma quadraticDenominatorTerm_eq_attached {k m : ℕ} (hk : 0 < k) :
+lemma quadraticDenominatorTerm_eq_attached {k m : ℕ} :
     quadraticDenominatorTerm k m =
       attachedQuadraticCharacter k (4 * k) (dvd_refl (4 * k)) m := by
   by_cases hmOdd : Odd m
@@ -410,7 +411,7 @@ lemma quadraticDenominatorTerm_eq_attached {k m : ℕ} (hk : 0 < k) :
           Nat.coprime_iff_gcd_eq_one] using hnotk
       have hm0 : m ≠ 0 := by
         rintro rfl
-        simpa using hmOdd
+        simp at hmOdd
       have hjzero : jacobiSym (k : ℤ) m = 0 :=
         jacobiSym.eq_zero_iff.mpr ⟨hm0, hmgcd⟩
       simp [quadraticDenominatorTerm, attachedQuadraticCharacter,
@@ -443,7 +444,7 @@ period. -/
 lemma sum_quadraticDenominatorTerm_period_eq_zero {k : ℕ} (hk : 0 < k)
     (hksq : ¬ IsSquare k) :
     ∑ m ∈ Finset.range (4 * k), quadraticDenominatorTerm k m = 0 := by
-  letI : NeZero (4 * k) := ⟨by positivity⟩
+  let : NeZero (4 * k) := ⟨by positivity⟩
   apply Int.cast_injective (α := ℂ)
   push_cast
   calc
@@ -455,21 +456,21 @@ lemma sum_quadraticDenominatorTerm_period_eq_zero {k : ℕ} (hk : 0 < k)
       intro m _hm
       rw [attachedQuadraticDirichletCharacter,
         QuadraticCharacterMod.toDirichletCharacterComplex_apply_nat]
-      exact_mod_cast quadraticDenominatorTerm_eq_attached hk
+      exact_mod_cast quadraticDenominatorTerm_eq_attached
     _ = ∑ a : ZMod (4 * k), attachedQuadraticDirichletCharacter k hk a :=
       sum_range_dirichletCharacter (4 * k) _
     _ = 0 := MulChar.sum_eq_zero_of_ne_one
       (attachedQuadraticDirichletCharacter_ne_one hk hksq)
 
-lemma quadraticDenominatorTerm_add_period (k t n : ℕ) (hk : 0 < k) :
+lemma quadraticDenominatorTerm_add_period (k t n : ℕ) :
     quadraticDenominatorTerm k (t * (4 * k) + n) =
       quadraticDenominatorTerm k n := by
-  rw [quadraticDenominatorTerm_eq_attached hk,
-    quadraticDenominatorTerm_eq_attached hk]
+  rw [quadraticDenominatorTerm_eq_attached,
+    quadraticDenominatorTerm_eq_attached]
   apply (attachedQuadraticCharacter k (4 * k) (dvd_refl (4 * k))).periodic
   simp [Nat.ModEq]
 
-lemma sum_quadraticDenominatorTerm_mul_period (k t : ℕ) (hk : 0 < k) :
+lemma sum_quadraticDenominatorTerm_mul_period (k t : ℕ) :
     (∑ m ∈ Finset.range (t * (4 * k)), quadraticDenominatorTerm k m) =
       t • ∑ m ∈ Finset.range (4 * k), quadraticDenominatorTerm k m := by
   induction t with
@@ -479,7 +480,7 @@ lemma sum_quadraticDenominatorTerm_mul_period (k t : ℕ) (hk : 0 < k) :
       congr 1
       apply Finset.sum_congr rfl
       intro n _hn
-      exact quadraticDenominatorTerm_add_period k t n hk
+      exact quadraticDenominatorTerm_add_period k t n
 
 lemma quadraticDenominatorTerm_le_one (k m : ℕ) :
     quadraticDenominatorTerm k m ≤ 1 := by
@@ -501,7 +502,7 @@ lemma sum_quadraticDenominatorTerm_lt_period {k : ℕ} (hk : 0 < k)
   have hblock :
       (∑ m ∈ Finset.range (x / (4 * k) * (4 * k)),
           quadraticDenominatorTerm k m) = 0 := by
-    rw [sum_quadraticDenominatorTerm_mul_period k _ hk,
+    rw [sum_quadraticDenominatorTerm_mul_period k _,
       sum_quadraticDenominatorTerm_period_eq_zero hk hksq, nsmul_zero]
   rw [hblock, zero_add]
   calc
@@ -510,7 +511,7 @@ lemma sum_quadraticDenominatorTerm_lt_period {k : ℕ} (hk : 0 < k)
         ∑ m ∈ Finset.range (x % (4 * k)), quadraticDenominatorTerm k m := by
       apply Finset.sum_congr rfl
       intro m _hm
-      exact quadraticDenominatorTerm_add_period k (x / (4 * k)) m hk
+      exact quadraticDenominatorTerm_add_period k (x / (4 * k)) m
     _ ≤ ∑ _m ∈ Finset.range (x % (4 * k)), (1 : ℤ) := by
       exact Finset.sum_le_sum fun m _hm ↦ quadraticDenominatorTerm_le_one k m
     _ < 4 * k := by
@@ -742,18 +743,20 @@ lemma sum_randomMul_eq_indicator_square {M k : ℕ}
       exact fun h => hsquare ((model_even_iff_isSquare hbound).mp h)
     rw [if_neg hsquare, if_neg hnotEven]
 
-lemma primeFactorsBounded_finset_prod {ι : Type*} [DecidableEq ι]
+lemma primeFactorsBounded_finset_prod {ι : Type*}
     {M : ℕ} {s : Finset ι} {g : ι → ℕ}
     (hgpos : ∀ i ∈ s, 0 < g i) (hgle : ∀ i ∈ s, g i ≤ M) :
     PrimeFactorsBounded (∏ i ∈ s, g i) M := by
+  classical
   intro q hq hqdvd
   obtain ⟨i, hi, hqidvd⟩ := (_root_.Prime.dvd_finsetProd_iff hq.prime g).mp hqdvd
   exact (Nat.le_of_dvd (hgpos i hi) hqidvd).trans (hgle i hi)
 
-lemma randomMul_finset_prod {ι : Type*} [DecidableEq ι]
+lemma randomMul_finset_prod {ι : Type*}
     (M : ℕ) (ω : SignPattern M) (s : Finset ι) (g : ι → ℕ)
     (hg : ∀ i ∈ s, g i ≠ 0) :
     randomMul M ω (∏ i ∈ s, g i) = ∏ i ∈ s, randomMul M ω (g i) := by
+  classical
   induction s using Finset.induction_on with
   | empty => simp
   | @insert a s ha ih =>
@@ -765,12 +768,13 @@ lemma randomMul_finset_prod {ι : Type*} [DecidableEq ι]
       rw [Finset.prod_insert ha, randomMul_mul M ω hga hprod,
         ih hgs, Finset.prod_insert ha]
 
-lemma sum_randomMul_finset_product {ι : Type*} [DecidableEq ι]
+lemma sum_randomMul_finset_product {ι : Type*}
     {M : ℕ} {s : Finset ι} {g : ι → ℕ}
     (hgpos : ∀ i ∈ s, 0 < g i) (hgle : ∀ i ∈ s, g i ≤ M) :
     ∑ ω : SignPattern M, ∏ i ∈ s, randomMul M ω (g i) =
       if IsSquare (∏ i ∈ s, g i)
       then (Fintype.card (SignPattern M) : ℤ) else 0 := by
+  classical
   calc
     (∑ ω : SignPattern M, ∏ i ∈ s, randomMul M ω (g i)) =
         ∑ ω : SignPattern M, randomMul M ω (∏ i ∈ s, g i) := by
@@ -1024,11 +1028,11 @@ def tupleProductFiber (r N u : ℕ) : Finset (Fin r → ℕ) :=
 
 lemma tupleProduct_pos_of_mem {r N : ℕ} {a : Fin r → ℕ}
     (ha : a ∈ tupleBox r N) : 0 < tupleProduct a :=
-  Erdos444.tupleProduct_pos ha fun m hm => (Finset.mem_Icc.mp hm).1
+  Erdos444.tupleProduct_pos ha fun _m hm => (Finset.mem_Icc.mp hm).1
 
 lemma tupleProduct_le_pow_of_mem {r N : ℕ} {a : Fin r → ℕ}
     (ha : a ∈ tupleBox r N) : tupleProduct a ≤ N ^ r :=
-  Erdos444.tupleProduct_le_pow ha fun m hm => (Finset.mem_Icc.mp hm).2
+  Erdos444.tupleProduct_le_pow ha fun _m hm => (Finset.mem_Icc.mp hm).2
 
 lemma tupleProductFiber_card_le_divisors_pow
     (r N u : ℕ) (hu : 0 < u) :
@@ -1040,8 +1044,6 @@ lemma tupleProductFiber_card_le_divisors_pow
       apply Finset.card_le_card
       intro a ha
       rw [tupleProductFiber, Finset.mem_filter] at ha
-      change a ∈ (Erdos444.orderedTuples (Finset.Icc 1 N) r).filter
-        (fun a => Erdos444.tupleProduct a ∣ u)
       rw [Finset.mem_filter]
       exact ⟨ha.1, ha.2.symm ▸ dvd_rfl⟩
     _ ≤ Erdos444.divisorCount (Set.univ : Set ℕ) u ^ r :=
@@ -1177,11 +1179,13 @@ lemma exists_squareTuplePairs_card_le (r : ℕ) (hr : 0 < r) :
         _ ≤ Erdos439.PowerDecay.divisorSubpowerEnvelope N ^ 2 := by
           rw [pow_two]
           exact mul_le_mul huenv hvenv (by positivity)
-            (by simp [Erdos439.PowerDecay.divisorSubpowerEnvelope]; positivity)
+            (by
+              unfold Erdos439.PowerDecay.divisorSubpowerEnvelope
+              exact Real.rpow_nonneg (by positivity) _)
     _ = ((Erdos822.collisionPairs
           (Finset.Icc 1 (N ^ r)) squarefreePart).card : ℝ) *
           Erdos439.PowerDecay.divisorSubpowerEnvelope N ^ 2 := by
-      simp [mul_comm]
+      simp
     _ ≤ ((N ^ r : ℕ) * Nat.sqrt (N ^ r) : ℕ) *
           Erdos439.PowerDecay.divisorSubpowerEnvelope N ^ 2 := by
       gcongr
@@ -1249,7 +1253,6 @@ lemma legendrePartialSum_evenMoment_eq (m r N : ℕ) :
   intro ab hab
   rw [show (tupleProduct ab.1 * tupleProduct ab.2 : ℤ) =
       (tupleProduct ab.1 : ℤ) * (tupleProduct ab.2 : ℤ) by
-    push_cast
     rfl]
   rw [jacobiSym.mul_left]
 
@@ -1406,7 +1409,7 @@ lemma exists_squareTuplePairs_ten_card_le :
       rfl
     _ ≤ (N : ℝ) ^ 2 * ((N : ℝ) ^ 10 * (N : ℝ) ^ 5) := by
       exact mul_le_mul_of_nonneg_right (pow_le_pow_left₀ (by
-        show 0 ≤ (N : ℝ) ^ (1 / 8 : ℝ)
+        change 0 ≤ (N : ℝ) ^ (1 / 8 : ℝ)
         exact Real.rpow_nonneg (by positivity) _) henv 2) (by
           positivity)
     _ = (N : ℝ) ^ 17 := by ring
@@ -1419,7 +1422,8 @@ lemma sum_odd_legendrePartialSum_twentiethMoment_le (N x : ℕ) :
   norm_num at h ⊢
   rw [tupleBox_card] at h
   norm_num at h
-  convert h using 1 <;> ring
+  convert h using 1
+  all_goals ring
 
 /-- Odd moduli below `x` at which the one-sided character sum at time `N`
 violates the desired strict inequality.  This superset of the bad primes is
@@ -1436,7 +1440,7 @@ lemma oddBadModuli_card_mul_le_moment {ε : ℝ} (hε : 0 ≤ ε) (N x : ℕ) :
   calc
     ((oddBadModuli ε N x).card : ℝ) * (ε * (N : ℝ)) ^ 20 =
         ∑ _m ∈ oddBadModuli ε N x, (ε * (N : ℝ)) ^ 20 := by
-      simp [mul_comm]
+      simp
     _ ≤ ∑ m ∈ oddBadModuli ε N x,
         ((legendrePartialSum m N : ℝ) ^ 20) := by
       apply Finset.sum_le_sum
@@ -1509,8 +1513,8 @@ lemma jacobiSym_le_one (a : ℤ) (p : ℕ) : jacobiSym a p ≤ 1 := by
 lemma sum_jacobiSym_range_eq_zero {p : ℕ} (hp : p.Prime) (hpodd : Odd p) :
     ∑ n ∈ range p, jacobiSym (n : ℤ) p = 0 := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   have hpne2 : p ≠ 2 := hpodd.ne_two_of_dvd_nat (dvd_refl p)
   have hchar : ringChar (ZMod p) ≠ 2 := by
     rw [ZMod.ringChar_zmod_n]
@@ -1527,7 +1531,7 @@ lemma sum_jacobiSym_range_eq_zero {p : ℕ} (hp : p.Prime) (hpodd : Odd p) :
         cases p with
         | zero => exact Fin.elim0 n
         | succ p =>
-            simp only [ZMod.finEquiv, RingEquiv.toEquiv_eq_coe, RingEquiv.refl_apply]
+            simp only [ZMod.finEquiv, RingEquiv.toEquiv_eq_coe]
             apply Fin.ext
             change n.val % (p + 1) = n.val
             exact Nat.mod_eq_of_lt n.isLt
@@ -1553,7 +1557,6 @@ lemma sum_jacobiSym_one_to_prime_eq_zero {p : ℕ} (hp : p.Prime) (hpodd : Odd p
 lemma jacobiSym_add_mul_period (p t n : ℕ) :
     jacobiSym (t * p + n + 1 : ℤ) p = jacobiSym (n + 1 : ℤ) p := by
   apply jacobiSym.mod_left'
-  push_cast
   simp [Int.add_emod, add_assoc]
 
 lemma legendrePartialSum_mul_period (p t : ℕ) :

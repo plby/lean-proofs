@@ -26,7 +26,7 @@ lemma test_eventualThreshold_last_failure {ε : ℝ} (hε : 0 < ε)
   have hex : ∃ N : ℕ, F - 1 ≤ N ∧
       ε * (N : ℝ) ≤ (legendrePartialSum p N : ℝ) := by
     by_contra hn
-    push_neg at hn
+    push Not at hn
     apply hnot
     refine ⟨hFm1, ?_⟩
     intro N hN
@@ -66,8 +66,7 @@ lemma test_threshold_sub_truncated_nonneg {ε : ℝ} (hε : 0 < ε)
   linarith
 
 lemma test_threshold_sub_truncated_le_of_lt {ε : ℝ} (hε : 0 < ε)
-    {p M : ℕ} (hp : p.Prime) (hpodd : Odd p)
-    (hM : M < eventualThreshold ε p - 1) :
+    {p M : ℕ} (hp : p.Prime) (hpodd : Odd p) :
     (eventualThreshold ε p : ℝ) - truncatedThreshold ε p M ≤
       ((eventualThreshold ε p - 1 : ℕ) : ℝ) + 1 := by
   have hT : 1 ≤ truncatedThreshold ε p M := one_le_truncatedThreshold ε p M
@@ -115,7 +114,7 @@ lemma test_threshold_tail_sum_le_fibers {ε : ℝ} (hε : 0 < ε)
       calc
         ((eventualThreshold ε p : ℝ) - truncatedThreshold ε p M) ≤
             (((eventualThreshold ε p - 1 : ℕ) : ℝ) + 1) :=
-          test_threshold_sub_truncated_le_of_lt hε hp hpodd hlate
+          test_threshold_sub_truncated_le_of_lt hε hp hpodd
         _ = ((((eventualThreshold ε p - 1) + 1 : ℕ) : ℝ)) := by norm_num
         _ ≤ ∑ N ∈ Finset.Icc (M + 1) B,
               if eventualThreshold ε p = N + 1 then ((N + 1 : ℕ) : ℝ) else 0 := by
@@ -221,7 +220,8 @@ lemma test_eventually_two_add_const_mul_sqrt_mul_log_le_threeFifths_rpow
     have hquot : C / (2 * (C + 1)) ≤ (1 / 2 : ℝ) := by
       rw [div_le_iff₀ hden]
       nlinarith
-    convert hquot using 1 <;> ring
+    convert hquot using 1
+    all_goals ring
   have hmain : C * (Real.sqrt x * Real.log x) ≤
       (1 / 2 : ℝ) * x ^ (3 / 5 : ℝ) := by
     calc
@@ -317,7 +317,7 @@ lemma test_sum_Icc_weighted_inv_cube_le {M B : ℕ} (hM : 1 ≤ M) :
   · have hempty : Finset.Icc (M + 1) B = ∅ := by
       exact Finset.Icc_eq_empty hMB
     rw [hempty]
-    simp
+    simp only [Nat.cast_add, Nat.cast_one, sum_empty, ge_iff_le]
     positivity
 
 lemma test_sum_Icc_weighted_pow_twenty_le (A B : ℕ) :
@@ -705,7 +705,10 @@ lemma test_blockBadPrimes_simplified_bound {ε : ℝ} (hε : 0 < ε)
     have hrhs : (6 : ℝ) ^ 600 * ((x : ℝ) ^ 2 / (H : ℝ) ^ 300) *
           (A : ℝ) ^ 300 =
         ((6 : ℝ) ^ 600 * (x : ℝ) ^ 2 * (A : ℝ) ^ 300) /
-          (H : ℝ) ^ 300 := by ring
+          (H : ℝ) ^ 300 := by
+      have hmuldiv (a b c d : ℝ) : a * (b / c) * d = a * b * d / c := by
+        ring
+      exact hmuldiv _ _ _ _
     rw [hrhs, le_div_iff₀ hH300]
     have hx2 : 0 ≤ (x : ℝ) ^ 2 := sq_nonneg _
     calc
@@ -715,7 +718,10 @@ lemma test_blockBadPrimes_simplified_bound {ε : ℝ} (hε : 0 < ε)
         exact mul_le_mul_of_nonneg_left hHApow
           (mul_nonneg (pow_nonneg (by norm_num) 300) hx2)
       _ = ((3 : ℝ) ^ 300 * (2 : ℝ) ^ 300) *
-          ((x : ℝ) ^ 2 * (A : ℝ) ^ 300) := by ring
+          ((x : ℝ) ^ 2 * (A : ℝ) ^ 300) := by
+        have hreorder (a b c d : ℝ) : a * b * (c * d) = (a * c) * (b * d) := by
+          ring
+        exact hreorder _ _ _ _
       _ ≤ (6 : ℝ) ^ 600 * ((x : ℝ) ^ 2 * (A : ℝ) ^ 300) := by
         have hcoeff : (3 : ℝ) ^ 300 * (2 : ℝ) ^ 300 ≤ (6 : ℝ) ^ 600 := by
           calc
@@ -727,7 +733,8 @@ lemma test_blockBadPrimes_simplified_bound {ε : ℝ} (hε : 0 < ε)
                 (by norm_num) (by norm_num)
         exact mul_le_mul_of_nonneg_right hcoeff
           (mul_nonneg hx2 (pow_nonneg (by positivity) 300))
-      _ = (6 : ℝ) ^ 600 * (x : ℝ) ^ 2 * (A : ℝ) ^ 300 := by ring
+      _ = (6 : ℝ) ^ 600 * (x : ℝ) ^ 2 * (A : ℝ) ^ 300 :=
+        (mul_assoc _ _ _).symm
   have hfirst : (3 : ℝ) ^ 600 ≤ (6 : ℝ) ^ 600 := by
     exact pow_le_pow_left₀ (by norm_num) (by norm_num) 600
   have hsum : (3 : ℝ) ^ 600 +
@@ -737,7 +744,7 @@ lemma test_blockBadPrimes_simplified_bound {ε : ℝ} (hε : 0 < ε)
       _ ≤ (6 : ℝ) ^ 600 +
           (6 : ℝ) ^ 600 * ((x : ℝ) ^ 2 / (H : ℝ) ^ 300) :=
         add_le_add hfirst hsecond
-      _ = _ := by ring
+      _ = _ := by rw [mul_add, mul_one]
   let fac : ℝ := ((2 * K + 2 : ℕ) : ℝ) * (ε / 3)⁻¹ ^ 600 *
     Real.rpow ((3 * B : ℕ) : ℝ) (1 / 2 : ℝ)
   have hfac : 0 ≤ fac := by
@@ -751,8 +758,11 @@ lemma test_blockBadPrimes_simplified_bound {ε : ℝ} (hε : 0 < ε)
         (1 + (x : ℝ) ^ 2 / (H : ℝ) ^ 300)) :=
       mul_le_mul_of_nonneg_left hsum hfac
     _ = _ := by
-      dsimp [fac]
-      ring
+      have hreorder (a b c d e : ℝ) :
+          (a * b * c) * (d * e) = a * b * d * c * e := by
+        ring
+      dsimp only [fac]
+      exact hreorder _ _ _ _ _
 
 lemma test_largeFiberSum_bound {ε : ℝ} (hε : 0 < ε)
     {K A₀ H B x : ℕ} (hH : 1 ≤ H) (hHA₀ : 2 * A₀ ≤ H)
@@ -820,9 +830,7 @@ lemma test_largeFiberSum_bound {ε : ℝ} (hε : 0 < ε)
             ((test_blockBadPrimes ε (2 ^ j) x).card : ℝ) := hlarge
     _ ≤ ((B + 1 : ℕ) : ℝ) * ((H : ℝ) * D) :=
       mul_le_mul_of_nonneg_left hsum (by positivity)
-    _ = _ := by
-      dsimp [D]
-      ring
+    _ = _ := (mul_assoc _ _ _).symm
 
 noncomputable def test_lowerPowerCutoff (x : ℕ) : ℕ :=
   Nat.floor (Real.rpow (x : ℝ) (1 / 100 : ℝ))
@@ -969,7 +977,7 @@ lemma test_exceptional_regular_disjoint (P₀ x : ℕ) :
   have hr := (Finset.mem_filter.mp hpR).2
   omega
 
-lemma test_regular_threshold_le_upperCutoff {ε : ℝ} (hε : 0 < ε)
+lemma test_regular_threshold_le_upperCutoff {ε : ℝ}
     {P₀ x p : ℕ}
     (hPV : ∀ q ≥ P₀, q.Prime → Odd q →
       (eventualThreshold ε q : ℝ) ≤ (q : ℝ) ^ (3 / 5 : ℝ))
@@ -1027,7 +1035,7 @@ lemma test_thresholdTail_nonneg {ε : ℝ} (hε : 0 < ε) (M x : ℕ) :
 noncomputable def test_exceptionalTailConstant (ε : ℝ) (P₀ : ℕ) : ℝ :=
   ∑ p ∈ oddPrimesBelow P₀, (eventualThreshold ε p : ℝ)
 
-lemma test_exceptionalTail_bound {ε : ℝ} (hε : 0 < ε) (P₀ M x : ℕ) :
+lemma test_exceptionalTail_bound {ε : ℝ} (P₀ M x : ℕ) :
     (∑ p ∈ test_exceptionalOddPrimes P₀ x,
       ((eventualThreshold ε p : ℝ) - truncatedThreshold ε p M)) ≤
       test_exceptionalTailConstant ε P₀ := by
@@ -1068,7 +1076,7 @@ lemma test_regularTail_le_fiberSum {ε : ℝ} (hε : 0 < ε)
   have hupper : ∀ p ∈ test_regularOddPrimes P₀ x,
       eventualThreshold ε p ≤ test_upperPowerCutoff x + 1 := by
     intro p hp
-    have hle := test_regular_threshold_le_upperCutoff hε hPV hp
+    have hle := test_regular_threshold_le_upperCutoff hPV hp
     exact hle.trans (by omega)
   have htail := test_threshold_tail_sum_le_fibers hε
     (M := M) (B := test_upperPowerCutoff x)
@@ -1466,7 +1474,7 @@ lemma test_tendsto_large_envelope_normalized_zero
             apply (div_le_iff₀ hxpos).2
             simpa using mul_le_mul_of_nonneg_left hxone
               (by positivity : (0 : ℝ) ≤ (2 : ℝ) ^ 300)
-      linarith
+      exact add_le_add_right hsmall 1
     have hbase : (((3 * test_upperPowerCutoff x : ℕ) : ℝ)) ≤
         3 * Real.rpow (x : ℝ) (3 / 5 : ℝ) := by
       push_cast
@@ -1581,7 +1589,12 @@ lemma test_tendsto_large_envelope_normalized_zero
                 4 * D * (1 + (2 : ℝ) ^ 300) *
                   (Real.rpow (x : ℝ) (3 / 5 : ℝ) *
                     Real.rpow (x : ℝ) (1 / 100 : ℝ) *
-                      Real.rpow (x : ℝ) (3 / 10 : ℝ)) := by ring
+                      Real.rpow (x : ℝ) (3 / 10 : ℝ)) := by
+              have hreorder (a b c d q : ℝ) :
+                  (2 * a) * b * d * (2 * c) * (1 + q) =
+                    4 * d * (1 + q) * (a * b * c) := by
+                ring
+              exact hreorder _ _ _ _ _
             _ = 4 * D * (1 + (2 : ℝ) ^ 300) *
                 Real.rpow (x : ℝ) (91 / 100 : ℝ) := by rw [hpowcombine]
     have hscale : 0 < test_pntScale x := by
@@ -1615,7 +1628,7 @@ lemma test_tendsto_large_envelope_normalized_zero
           A * Real.rpow (x : ℝ) (91 / 100 : ℝ) *
                 Real.rpow (x : ℝ) (9 / 100 : ℝ) =
               A * (Real.rpow (x : ℝ) (91 / 100 : ℝ) *
-                Real.rpow (x : ℝ) (9 / 100 : ℝ)) := by ring
+                Real.rpow (x : ℝ) (9 / 100 : ℝ)) := mul_assoc _ _ _
           _ = A * (x : ℝ) := by rw [hpowOne]
 
 theorem test_uniformlyNegligibleThresholdTail {ε : ℝ} (hε : 0 < ε) :
@@ -1771,7 +1784,7 @@ theorem test_uniformlyNegligibleThresholdTail {ε : ℝ} (hε : 0 < ε) :
               ((N + 1 : ℕ) : ℝ) *
                 (test_thresholdFiber ε (oddPrimesBelow x) N).card) := hsplit
         _ ≤ _ := add_le_add (add_le_add hprimeRange hallRange) hlargeRange
-    have hexc := test_exceptionalTail_bound hε P₀ M x
+    have hexc := test_exceptionalTail_bound (ε := ε) P₀ M x
     have htailBound : test_thresholdTail ε M x ≤
         test_exceptionalTailConstant ε P₀ +
           ((ε ^ 20)⁻¹ *
@@ -1842,8 +1855,13 @@ theorem test_uniformlyNegligibleThresholdTail {ε : ℝ} (hε : 0 < ε) :
               ((BoundedGaps.Maynard.primeCountTotal (2 * x) : ℝ) *
                 (2 / (M : ℝ))) / test_pntScale x) +
           PE x + AF x + AP x + LG x := by
-            dsimp [E, PE, AF, AP, LG, L, H, B]
-            ring
+            have hdistrib (a u b c d e f s : ℝ) :
+                (a + (u * (b + c) + u * (d + 4 * e) + f)) / s =
+                  a / s + u * b / s + u * (c / s) + u * (d / s) +
+                    (4 * u) * (e / s) + f / s := by
+              ring
+            dsimp only [E, PE, AF, AP, LG, L, H, B]
+            exact hdistrib _ _ _ _ _ _ _ _
     calc
       test_thresholdTail ε M x / test_pntScale x ≤
           E x +
@@ -1853,7 +1871,17 @@ theorem test_uniformlyNegligibleThresholdTail {ε : ℝ} (hε : 0 < ε) :
             PE x + AF x + AP x + LG x := hnormalized
       _ ≤ E x + (ε ^ 20)⁻¹ * (6 / (M : ℝ)) +
             PE x + AF x + AP x + LG x := by gcongr
-      _ < δ := by linarith
+      _ < δ := by
+        calc
+          E x + (ε ^ 20)⁻¹ * (6 / (M : ℝ)) + PE x + AF x + AP x + LG x <
+              δ / 6 + δ / 6 + δ / 6 + δ / 6 + δ / 6 + δ / 6 :=
+            add_lt_add
+              (add_lt_add
+                (add_lt_add
+                  (add_lt_add (add_lt_add hEs hmainSmall) hPEs) hAFs)
+                hAPs)
+              hLGs
+          _ = δ := by ring
   · have hεgt : 1 < ε := lt_of_not_ge hε1
     refine ⟨0, ?_⟩
     intro M _hM

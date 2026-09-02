@@ -43,7 +43,7 @@ noncomputable def test_primeQuadraticDirichletCharacter
     (p : ℕ) (hp : p.Prime) (n : ℕ) :
     test_primeQuadraticDirichletCharacter p hp (n : ZMod p) =
       (jacobiSym (n : ℤ) p : ℂ) := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   exact QuadraticCharacterMod.toDirichletCharacterComplex_apply_nat
     (n := n) (test_primeQuadraticCharacterMod p hp)
 
@@ -62,8 +62,8 @@ lemma test_primeQuadraticDirichletCharacter_eq_quadraticChar
 lemma test_primeQuadraticDirichletCharacter_ne_one
     {p : ℕ} (hp : p.Prime) (hpodd : Odd p) :
     test_primeQuadraticDirichletCharacter p hp ≠ 1 := by
-  letI : Fact p.Prime := ⟨hp⟩
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   rw [test_primeQuadraticDirichletCharacter_eq_quadraticChar]
   exact (MulChar.ringHomComp_ne_one_iff
       (f := Int.castRingHom ℂ) Int.cast_injective).mpr
@@ -87,7 +87,7 @@ lemma test_sum_primeQuadraticCharacter_Ioc_eq
     (∑ n ∈ Finset.Ioc (0 : ℤ) (N : ℤ),
         test_primeQuadraticDirichletCharacter p hp (n : ZMod p)) =
       (legendrePartialSum p N : ℂ) := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   calc
     (∑ n ∈ Finset.Ioc (0 : ℤ) (N : ℤ),
         test_primeQuadraticDirichletCharacter p hp (n : ZMod p)) =
@@ -124,7 +124,7 @@ lemma test_norm_legendrePartialSum_lt_sqrt_mul_log
     {p : ℕ} (hp : p.Prime) (hpodd : Odd p) (N : ℕ) :
     ‖(legendrePartialSum p N : ℂ)‖ <
       Real.sqrt (p : ℝ) * Real.log (p : ℝ) := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   have h := BoundedGaps.Maynard.norm_sum_dirichletCharacter_Ioc_lt_sqrt_mul_log
     hp.one_lt (test_primeQuadraticDirichletCharacter p hp)
       (test_primeQuadraticDirichletCharacter_isPrimitive hp hpodd) 0 N
@@ -192,7 +192,8 @@ lemma test_eventually_two_add_const_mul_sqrt_mul_log_le_fourFifths_rpow
     have hquot : C / (2 * (C + 1)) ≤ (1 / 2 : ℝ) := by
       rw [div_le_iff₀ hden]
       nlinarith
-    convert hquot using 1 <;> ring
+    convert hquot using 1
+    all_goals ring
   have hmain : C * (Real.sqrt x * Real.log x) ≤
       (1 / 2 : ℝ) * x ^ (4 / 5 : ℝ) := by
     calc
@@ -488,7 +489,8 @@ lemma test_exists_endpointBadPrimes_largeSieve_bound
     _ ≤ (((N : ℝ) ^ r + (x : ℝ) ^ 2) *
         ∑ k ∈ Finset.Icc 1 (N ^ r),
           ‖(test_productMultiplicity r N k : ℂ)‖ ^ 2) := by
-      convert hLS using 1 <;> simp
+      convert hLS using 1
+      all_goals simp
     _ ≤ ((N : ℝ) ^ r + (x : ℝ) ^ 2) *
         Erdos439.PowerDecay.divisorSubpowerEnvelope N * (N : ℝ) ^ r := by
       rw [mul_assoc]
