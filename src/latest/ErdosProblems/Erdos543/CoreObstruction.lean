@@ -196,7 +196,7 @@ lemma card_nonzeroTarget {p : ℕ} [Fact p.Prime] :
 
 instance nonemptyNonzeroTarget (p : ℕ) [Fact p.Prime] :
     Nonempty (NonzeroTarget p) := by
-  letI : NeZero p := ⟨(Fact.out : p.Prime).ne_zero⟩
+  let : NeZero p := ⟨(Fact.out : p.Prime).ne_zero⟩
   exact ⟨⟨1, one_ne_zero⟩⟩
 
 /-- A finite subset of the range of a tuple can be lifted to a set of
@@ -236,7 +236,7 @@ lemma not_mem_missEvent_of_range_complete {p k : ℕ} [Fact p.Prime]
     (a : Fin k → ZMod p) (hcomplete : Model.SubsetSumComplete (tupleRange a))
     (x : NonzeroTarget p) : a ∉ missEvent x := by
   rw [mem_missEvent_iff]
-  push_neg
+  push Not
   obtain ⟨T, hTa, hsum⟩ := hcomplete x
   obtain ⟨S, hSsum⟩ := exists_indexSet_sum_eq_of_subset_range a T hTa
   have hSne : S.Nonempty := by
@@ -276,8 +276,7 @@ lemma prob_iidCompleteEvent_eq {p k : ℕ} [Fact p.Prime] :
     rw [IIDTransfer.iidGoodCount]
     congr 1
     ext a
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and,
-      Set.mem_ofPred_eq]
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and]
     change Model.SubsetSumComplete (tupleRange a) ↔
       Model.SubsetSumComplete (IIDTransfer.tupleRange a)
     rw [show tupleRange a = IIDTransfer.tupleRange a by
@@ -468,9 +467,7 @@ lemma tendsto_poissonRelativeError_zero {g : ℕ → ℝ}
   filter_upwards [] with N
   rw [poissonRelativeError]
   rw [show (2 * m : ℝ) * collisionParameter g N =
-      2 * ((m : ℝ) * collisionParameter g N) by
-    push_cast
-    ring]
+      2 * ((m : ℝ) * collisionParameter g N) by ring]
   ring
 
 lemma tendsto_commonPoissonError_zero {g : ℕ → ℝ}
@@ -488,7 +485,6 @@ theorem targetSet_poisson_relative_error_at
     {g : ℕ → ℝ} {N m : ℕ} [Fact N.Prime]
     (B : Finset (ZMod N))
     (hcard : B.card = m) (hm : 0 < m)
-    (hNq : (N : ℝ) ≤ (2 : ℝ) ^ cutoffSize g N)
     (hk : 0 < cutoffSize g N)
     (hRk : momentRadius N ≤ cutoffSize g N)
     (hRM : momentRadius N ≤ 2 ^ cutoffSize g N - 1)
@@ -525,11 +521,9 @@ theorem targetSet_poisson_relative_error_at
     intro j hj
     by_cases hj0 : j = 0
     · subst j
-      have hsamp : Fintype.card (Fin (cutoffSize g N) → ZMod N) ≠ 0 := by
-        simp [ZMod.card, hN.ne']
       have hzero : factorialMoment
           (Erdos543.targetSubsetEventCount (k := cutoffSize g N) B) 0 = 1 := by
-        simp [factorialMoment, FiniteProbability.expect, hsamp]
+        simp [factorialMoment, FiniteProbability.expect]
       rw [hzero]
       norm_num
       positivity
@@ -561,9 +555,7 @@ theorem targetSet_poisson_relative_error_at
       rw [poissonRelativeError,
         show (2 * m : ℝ) * collisionParameter g N =
           (m : ℝ) * collisionParameter g N +
-            (m : ℝ) * collisionParameter g N by
-          push_cast
-          ring,
+          (m : ℝ) * collisionParameter g N by ring,
         Real.exp_add]
       ring
 
@@ -593,7 +585,7 @@ theorem eventually_targetSet_poisson_relative_error
       eventually_two_mul_poissonCutoff_add_one_le_momentRadius,
       hsmall] with N hcoeff hk hRk hRM hfac horder hsmallN
   intro hp
-  letI : Fact N.Prime := ⟨hp⟩
+  let : Fact N.Prime := ⟨hp⟩
   intro B hcard hNq
   have htrunc : (m : ℝ) * collisionParameter g N ≤
       (poissonCutoff N + 1 : ℕ) := by
@@ -610,7 +602,7 @@ theorem eventually_targetSet_poisson_relative_error
       _ ≤ (poissonCutoff N : ℝ) :=
         mul_le_of_le_one_left (Nat.cast_nonneg _) hmratio
       _ ≤ (poissonCutoff N + 1 : ℕ) := by norm_num
-  exact targetSet_poisson_relative_error_at B hcard hm hNq hk hRk hRM hfac
+  exact targetSet_poisson_relative_error_at B hcard hm hk hRk hRM hfac
     (fun j hjpos hj ↦ hcoeff j m hjpos hj hm hNq) horder htrunc
 
 /-! ## The second-moment consequence -/
@@ -709,8 +701,8 @@ theorem eventually_not_halfComplete_at_primes
   filter_upwards [hone, htwo, hdeltaSmall, hdenomLarge, hcollisionSmall]
       with N honeN htwoN hdeltaN hdenomN hcollisionN
   intro hp
-  letI : Fact N.Prime := ⟨hp⟩
-  letI : NeZero N := ⟨hp.ne_zero⟩
+  let : Fact N.Prime := ⟨hp⟩
+  let : NeZero N := ⟨hp.ne_zero⟩
   let k : ℕ := cutoffSize g N
   by_cases hcube : N ≤ 2 ^ k
   · have hNq : (N : ℝ) ≤ (2 : ℝ) ^ k := by

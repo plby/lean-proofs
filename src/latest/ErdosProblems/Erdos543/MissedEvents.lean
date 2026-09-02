@@ -24,12 +24,14 @@ noncomputable def missedCount (E : ι → Set Ω) (ω : Ω) : ℕ := by
   classical
   exact (Finset.univ.filter fun i => ω ∈ E i).card
 
+omit [Fintype Ω] [DecidableEq ι] in
 /-- The missed count, cast to `ℝ`, is the sum of the event indicators. -/
 theorem cast_missedCount_eq_sum_indicator (E : ι → Set Ω) (ω : Ω) :
     (missedCount E ω : ℝ) = ∑ i, indicator (E i) ω := by
   classical
   simp [missedCount, indicator]
 
+omit [DecidableEq ι] in
 /-- Exact first-moment formula for the missed count. -/
 theorem expect_missedCount (E : ι → Set Ω) :
     expect (fun ω => (missedCount E ω : ℝ)) = ∑ i, prob (E i) := by
@@ -154,6 +156,7 @@ theorem sum_orderedPairs_const [Nonempty ι] (c : ℝ) :
   push_cast [Nat.cast_sub Fintype.card_pos]
   ring
 
+omit [DecidableEq ι] in
 /-- Variance upper bound obtained from uniform absolute errors for singleton
 and distinct-pair probabilities. -/
 theorem variance_missedCount_le_of_errors [Nonempty Ω] [Nonempty ι]
@@ -165,6 +168,7 @@ theorem variance_missedCount_le_of_errors [Nonempty Ω] [Nonempty ι]
       (Fintype.card ι : ℝ) * (q + ε₁) +
         orderedPairCount ι * (q ^ 2 + ε₂) -
           ((Fintype.card ι : ℝ) * (q - ε₁)) ^ 2 := by
+  classical
   let S : ℝ := ∑ i, prob (E i)
   let P : ℝ :=
     ∑ i, ∑ j ∈ (Finset.univ : Finset ι).erase i, prob (E i ∩ E j)
@@ -213,6 +217,7 @@ theorem variance_missedCount_le_of_errors [Nonempty Ω] [Nonempty ι]
   change S + P - S ^ 2 ≤ _
   linarith
 
+omit [DecidableEq ι] in
 /-- Quantitative second-moment bound for the event that none of the missed
 events occurs.  The denominator is the square of the guaranteed first
 moment. -/
@@ -226,6 +231,7 @@ theorem prob_no_missed_le_of_errors [Nonempty Ω] [Nonempty ι]
           orderedPairCount ι * (q ^ 2 + ε₂) -
             ((Fintype.card ι : ℝ) * (q - ε₁)) ^ 2) /
         ((Fintype.card ι : ℝ) * (q - ε₁)) ^ 2 := by
+  classical
   let μ : ℝ := expect fun ω => (missedCount E ω : ℝ)
   let L : ℝ := (Fintype.card ι : ℝ) * (q - ε₁)
   let B : ℝ := (Fintype.card ι : ℝ) * (q + ε₁) +

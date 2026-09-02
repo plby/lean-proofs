@@ -131,10 +131,11 @@ actual columns can be selected to form a linearly independent family.  The
 proof first chooses a basis from the finite set of all columns and then takes
 the first `s` members of that basis. -/
 theorem exists_cols_linearIndependent_of_le_rank
-    {K m n : Type*} [Field K] [Fintype m] [Fintype n]
+    {K m n : Type*} [Field K] [Finite m] [Fintype n]
     (M : Matrix m n K) {s : ℕ} (hs : s ≤ M.rank) :
     ∃ cols : Fin s → n, LinearIndependent K (fun j ↦ M.col (cols j)) := by
   classical
+  let _ : Fintype m := Fintype.ofFinite m
   obtain ⟨f, hf_mem, _hf_span, hf_li⟩ :=
     Submodule.exists_fun_fin_finrank_span_eq K (Set.range M.col)
   have hrank : Module.finrank K (Submodule.span K (Set.range M.col)) = M.rank :=
@@ -156,11 +157,12 @@ theorem exists_cols_linearIndependent_of_le_rank
 extraction: every size at most the rank is witnessed by a nonsingular square
 minor of that size. -/
 theorem exists_minor_det_ne_zero_of_le_rank
-    {K m n : Type*} [Field K] [Fintype m] [Fintype n]
+    {K m n : Type*} [Field K] [Finite m] [Fintype n]
     (M : Matrix m n K) {s : ℕ} (hs : s ≤ M.rank) :
     ∃ rows : Fin s → m, ∃ cols : Fin s → n,
       (M.submatrix rows cols).det ≠ 0 := by
   classical
+  let _ : Fintype m := Fintype.ofFinite m
   obtain ⟨cols, hcols⟩ := exists_cols_linearIndependent_of_le_rank M hs
   let B : Matrix m (Fin s) K := M.submatrix id cols
   have hBcols : LinearIndependent K B.col := by

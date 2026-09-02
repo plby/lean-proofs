@@ -43,11 +43,12 @@ noncomputable def matricesWithColumns (Γ : Finset (Fin r → α)) :
   exact (Fintype.piFinset (fun _ : Fin k ↦ Γ)).map
     matrixColumnsEquiv.symm.toEmbedding
 
-@[simp] lemma mem_matricesWithColumns [DecidableEq α]
+@[simp] lemma mem_matricesWithColumns
     {Γ : Finset (Fin r → α)} {M : Matrix (Fin r) (Fin k) α} :
     M ∈ matricesWithColumns Γ ↔ ∀ j, (fun i ↦ M i j) ∈ Γ := by
   classical
-  simp [matricesWithColumns, matrixColumnsEquiv]
+  simp only [matricesWithColumns, matrixColumnsEquiv, mem_map_equiv,
+    Equiv.symm_symm, Fintype.mem_piFinset]
   change (∀ j, (fun i ↦ M i j) ∈ Γ) ↔ ∀ j, (fun i ↦ M i j) ∈ Γ
   rfl
 

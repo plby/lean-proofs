@@ -47,7 +47,7 @@ theorem card_ne_zero [Nonempty Ω] : (Fintype.card Ω : ℝ) ≠ 0 :=
   simp [prob]
 
 @[simp] theorem prob_univ [Nonempty Ω] : prob (Set.univ : Set Ω) = 1 := by
-  simp [prob, card_ne_zero]
+  simp [prob]
 
 theorem prob_nonneg (E : Set Ω) : 0 ≤ prob E := by
   exact div_nonneg (Nat.cast_nonneg _) (Nat.cast_nonneg _)
@@ -69,25 +69,31 @@ theorem prob_mono {E F : Set Ω} (hEF : E ⊆ F) : prob E ≤ prob F := by
     exact ⟨hω.1, hEF hω.2⟩
   exact_mod_cast Finset.card_le_card hsub
 
+omit [Fintype Ω] in
 @[simp] theorem indicator_of_mem {E : Set Ω} {ω : Ω} (hω : ω ∈ E) :
     indicator E ω = 1 := by
   simp [indicator, hω]
 
+omit [Fintype Ω] in
 @[simp] theorem indicator_of_not_mem {E : Set Ω} {ω : Ω} (hω : ω ∉ E) :
     indicator E ω = 0 := by
   simp [indicator, hω]
 
+omit [Fintype Ω] in
 theorem indicator_nonneg (E : Set Ω) (ω : Ω) : 0 ≤ indicator E ω := by
   by_cases hω : ω ∈ E <;> simp [indicator, hω]
 
+omit [Fintype Ω] in
 theorem indicator_le_one (E : Set Ω) (ω : Ω) : indicator E ω ≤ 1 := by
   by_cases hω : ω ∈ E <;> simp [indicator, hω]
 
+omit [Fintype Ω] in
 @[simp] theorem indicator_inter (E F : Set Ω) (ω : Ω) :
     indicator (E ∩ F) ω = indicator E ω * indicator F ω := by
   by_cases hE : ω ∈ E <;> by_cases hF : ω ∈ F <;>
     simp [indicator, hE, hF]
 
+omit [Fintype Ω] in
 @[simp] theorem indicator_compl (E : Set Ω) (ω : Ω) :
     indicator Eᶜ ω = 1 - indicator E ω := by
   by_cases hE : ω ∈ E <;> simp [indicator, hE]
@@ -97,7 +103,7 @@ theorem indicator_le_one (E : Set Ω) (ω : Ω) : indicator E ω ≤ 1 := by
 
 @[simp] theorem expect_const [Nonempty Ω] (c : ℝ) :
     expect (fun _ : Ω => c) = c := by
-  simp [expect, card_ne_zero]
+  simp [expect]
 
 theorem expect_add (X Y : Ω → ℝ) :
     expect (fun ω => X ω + Y ω) = expect X + expect Y := by
@@ -199,7 +205,7 @@ theorem prob_abs_sub_expect_ge_le (X : Ω → ℝ) {t : ℝ} (ht : 0 < t) :
   have hevents : {ω | t ^ 2 ≤ (X ω - expect X) ^ 2} =
       {ω | t ≤ |X ω - expect X|} := by
     ext ω
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     rw [← sq_abs (X ω - expect X)]
     constructor <;> intro h <;> nlinarith [abs_nonneg (X ω - expect X)]
   simpa [variance, hevents] using hmarkov
@@ -217,8 +223,8 @@ theorem prob_eq_zero_le_variance_div_expect_sq (U : Ω → ℕ)
   apply le_trans (prob_mono (E := {ω | U ω = 0})
     (F := {ω | μ ≤ |(U ω : ℝ) - μ|}) ?_) hcheb
   intro ω hω
-  simp only [Set.mem_setOf_eq] at hω ⊢
-  simpa [hω, μ, abs_of_nonneg hU.le]
+  simp only [Set.mem_ofPred_eq] at hω ⊢
+  simp [hω, μ, abs_of_nonneg hU.le]
 
 /-! ## Bonferroni bounds from factorial moments -/
 

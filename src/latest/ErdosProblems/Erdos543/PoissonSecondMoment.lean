@@ -17,7 +17,7 @@ open FiniteProbability MissedEvents
 
 noncomputable section
 
-variable {Ω ι : Type*} [Fintype Ω] [Fintype ι] [DecidableEq ι]
+variable {Ω ι : Type*} [Fintype Ω] [Fintype ι]
 
 /-- Relative singleton and pair errors of size at most `δ` imply a clean
 second-moment estimate.  The constants are deliberately coarse and uniform:

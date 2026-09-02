@@ -74,6 +74,7 @@ def matrixSystemEvent (M : Matrix (Fin r) (Fin k) (ZMod p))
     (y : Fin r → ZMod p) : Set (Fin k → ZMod p) :=
   {x | M.mulVec x = y}
 
+omit [Fact (Nat.Prime p)] in
 @[simp] theorem mem_matrixSystemEvent
     (M : Matrix (Fin r) (Fin k) (ZMod p)) (y : Fin r → ZMod p)
     (x : Fin k → ZMod p) :

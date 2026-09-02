@@ -73,6 +73,7 @@ def SubsetsInjective (B : Finset (ZMod p))
     (ι : Fin r ↪ TargetSubsetEvent k B) : Prop :=
   Function.Injective (fun i ↦ (ι i).1)
 
+omit [Fact (Nat.Prime p)] in
 /-- Repeating one subset in an injective tuple of pairs forces the two targets
 to be different. -/
 lemma targets_ne_of_repeated_subset (B : Finset (ZMod p))
@@ -135,6 +136,7 @@ def mergeTargetSubsetEmbedding (B : Finset (ZMod p))
   toFun i := (x.1 i, x.2 i)
   inj' := fun _ _ h ↦ x.1.injective (congrArg Prod.fst h)
 
+omit [Fact (Nat.Prime p)] in
 lemma mergeTargetSubsetEmbedding_subsetsInjective (B : Finset (ZMod p))
     (x : (Fin r ↪ NonemptyIndexSet k) × (Fin r → TargetIn B)) :
     SubsetsInjective B (mergeTargetSubsetEmbedding B x) := by
@@ -334,7 +336,7 @@ theorem sum_jointEventCount_eq_sum_rank_strata
   congr 1
   apply congrArg Finset.card
   ext x
-  simp [s, compatiblePatternTargetsOfRank, and_comm]
+  simp [s, compatiblePatternTargetsOfRank]
 
 /-! ## The exact factorial-moment identity and a rank-stratum bound -/
 
@@ -373,7 +375,7 @@ theorem card_compatiblePatternTargetsOfRank_le
       exact hx.2
     · exact Finset.mem_univ _
   refine (Finset.card_le_card hsubset).trans_eq ?_
-  simp [ambient, Fintype.card_fun]
+  simp [ambient]
 
 /-- Rank-stability converts the exact modular expansion into the rational
 rank-stratum upper bound used with `LowRankCount`. -/
@@ -700,7 +702,7 @@ lemma rankDeficientPatternCount_eq_lowerRankPatternCount (hr : 0 < r) :
 
 /-- The actual rational-rank pattern counts satisfy the coarse pointwise
 majorant used for the full-rank deficit. -/
-theorem incidencePatternCount_le_trivial_envelope (hr : 0 < r) :
+theorem incidencePatternCount_le_trivial_envelope :
     ∀ d ∈ Finset.Ico 1 r,
       incidencePatternCount r k d ≤
         2 ^ (r * r) * (2 ^ k) ^ d := by
@@ -767,7 +769,7 @@ theorem abs_factorialMoment_targetSubsetEventCount_sub_leading_le_explicit
   have hL := rankDeficientPatternCount_eq_lowerRankPatternCount
     (r := r) (k := k) hr
   have hT := incidencePatternCount_le_trivial_envelope
-    (r := r) (k := k) hr
+    (r := r) (k := k)
   have hC := consistentRankCount_le_incidence_moment_envelope
     (p := p) (r := r) (k := k) B hprime
   have hbound := abs_rankStratifiedMoment_sub_leading_le_explicit
