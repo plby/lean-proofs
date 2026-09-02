@@ -32,9 +32,10 @@ import Mathlib
 
 namespace Erdos764
 
-open scoped BigOperators Classical
+open scoped BigOperators
 open Finset Nat Asymptotics Filter
 
+open Classical in
 noncomputable def indicator (A : Set ℕ) (n : ℕ) : ℕ :=
   if n ∈ A then 1 else 0
 
@@ -47,9 +48,11 @@ noncomputable def tripleConv (A : Set ℕ) (n : ℕ) : ℕ :=
 noncomputable def summatory (A : Set ℕ) (N : ℕ) : ℕ :=
   ∑ n ∈ range (N + 1), tripleConv A n
 
+open Classical in
 noncomputable def countingFunction (A : Set ℕ) (N : ℕ) : ℕ :=
   #((range (N + 1)).filter (fun n ↦ n ∈ A))
 
+open Classical in
 noncomputable def tripleReps (A : Set ℕ) (n : ℕ) :
     Finset (Σ _p : ℕ × ℕ, ℕ × ℕ) :=
   (Finset.HasAntidiagonal.antidiagonal n).sigma fun p ↦
@@ -58,6 +61,7 @@ noncomputable def tripleReps (A : Set ℕ) (n : ℕ) :
 
 lemma tripleConv_eq_card_tripleReps (A : Set ℕ) (n : ℕ) :
     tripleConv A n = #(tripleReps A n) := by
+  classical
   simp only [tripleConv, addConv, indicator, tripleReps, Finset.card_sigma]
   apply Finset.sum_congr rfl
   intro p hp
@@ -81,6 +85,7 @@ lemma summatory_eq_card_summatoryReps (A : Set ℕ) (N : ℕ) :
   intro n hn
   exact tripleConv_eq_card_tripleReps A n
 
+open Classical in
 noncomputable def membersUpTo (A : Set ℕ) (N : ℕ) : Finset ℕ :=
   (range (N + 1)).filter (fun n ↦ n ∈ A)
 
@@ -94,6 +99,7 @@ def forgetSums : (Σ _n : ℕ, Σ _p : ℕ × ℕ, ℕ × ℕ) → ((ℕ × ℕ)
 lemma forgetSums_mapsTo (A : Set ℕ) (N : ℕ) :
     Set.MapsTo forgetSums (summatoryReps A N : Set _)
       (boundedTriples A N : Set _) := by
+  classical
   intro x hx
   rcases x with ⟨n, ⟨p, q⟩⟩
   simp only [summatoryReps, Finset.mem_coe, Finset.mem_sigma] at hx
@@ -122,6 +128,7 @@ lemma forgetSums_mapsTo (A : Set ℕ) (N : ℕ) :
 
 lemma forgetSums_injOn (A : Set ℕ) (N : ℕ) :
     Set.InjOn forgetSums (summatoryReps A N : Set _) := by
+  classical
   intro x hx y hy hxy
   rcases x with ⟨n, ⟨p, q⟩⟩
   rcases y with ⟨n', ⟨p', q'⟩⟩
@@ -230,7 +237,9 @@ lemma summable_nat_mul_pow_pred {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) :
     Summable (fun n : ℕ ↦ (n : ℝ) * r ^ (n - 1)) := by
   rw [← summable_nat_add_iff 1]
   have h1 : Summable (fun n : ℕ ↦ (n : ℝ) * r ^ n) := by
-    simpa using (summable_pow_mul_geometric_of_norm_lt_one (R := ℝ) 1 (by simpa [abs_of_nonneg hr0]))
+    simpa using
+      (summable_pow_mul_geometric_of_norm_lt_one (R := ℝ) 1
+        (by simpa [abs_of_nonneg hr0]))
   have h2 : Summable (fun n : ℕ ↦ r ^ n) := summable_geometric_of_lt_one hr0 hr1
   simpa only [Nat.add_sub_cancel, Nat.cast_add, Nat.cast_one, add_mul, one_mul] using h1.add h2
 
@@ -381,7 +390,6 @@ lemma bounded_error_generating_identity (A : Set ℕ) (P : ℕ → ℂ) (c : ℂ
           apply tsum_congr
           intro n
           rw [hP]
-          push_cast
           ring
     _ = (∑' n : ℕ, P n * z ^ n) + ∑' n : ℕ, c * (n : ℂ) * z ^ n := by
           rw [Summable.tsum_add (summable_bounded_mul_pow hC hz) (summable_linear_mul_pow c hz)]
@@ -403,7 +411,7 @@ lemma F_cube_eq_main_add_error (A : Set ℕ) (P : ℕ → ℂ) (c : ℂ)
   have hz1 : 1 - z ≠ 0 := by
     intro h
     have : z = 1 := (sub_eq_zero.mp h).symm
-    simpa [this] using hz
+    simp [this] at hz
   have h := bounded_error_generating_identity A P c hC hP hz
   field_simp [hz1] at h ⊢
   linear_combination h
@@ -434,13 +442,13 @@ lemma differentiated_bounded_error_identity (A : Set ℕ) (P : ℕ → ℂ) (c :
       have hwone : w = 1 := (sub_eq_zero.mp h).symm
       simp [hwone] at hw
     rw [F_cube_eq_main_add_error A P c hC hP hw]
-    simp only [Pi.sub_apply, Function.id_def]
+    simp only [Pi.sub_apply]
     field_simp [hw1]
     ring
   have hsame := hright.congr_of_eventuallyEq heq
   have hderiv := hleft.unique hsame
   dsimp [Fderiv, Ederiv] at hderiv ⊢
-  simp only [Pi.sub_apply, Function.id_def, zero_sub] at hderiv
+  simp only [zero_sub] at hderiv
   field_simp [hz1] at hderiv ⊢
   linear_combination hderiv
 
@@ -579,7 +587,6 @@ lemma radius_pow_ge_half {X : ℝ} (hX : 1 ≤ X) {n : ℕ}
   have hBernoulli := one_add_mul_le_pow (a := -X⁻¹) (by linarith) n
   have hrw : 1 + -X⁻¹ = radius X := by simp only [radius, sub_eq_add_neg]
   rw [hrw] at hBernoulli
-  push_cast at hBernoulli
   nlinarith
 
 /-- The form used for the powers of `x = r²`. -/
@@ -644,7 +651,7 @@ lemma cube_upper_of_gf
 
 /-- A lower cubic bound. Constants are deliberately coarse to make later arithmetic robust. -/
 lemma cube_lower_of_gf
-    {X c C F E : ℝ} (hX : 2 ≤ X) (hc : 0 < c) (hC : 0 ≤ C)
+    {X c C F E : ℝ} (hX : 2 ≤ X) (hc : 0 < c)
     (hlarge : 16 * C ≤ c * X)
     (hE : |E| ≤ C * (1 - (radius X) ^ 2)⁻¹)
     (hgf : F ^ 3 = c * (radius X) ^ 2 * (1 - (radius X) ^ 2)⁻¹
@@ -819,7 +826,7 @@ lemma summatoryC_eq_remainderC_add_main (A : Set ℕ) (c : ℝ) (N : ℕ) :
     summatoryC (tripleCoeff A) N =
       remainderC A c N + (c : ℂ) * (N : ℂ) := by
   rw [summatoryC_tripleCoeff_eq_natCast_summatory]
-  simp only [remainderC, remainder, Nat.cast_ofNat, Nat.cast_sum]
+  simp only [remainderC, remainder]
   push_cast
   ring
 
@@ -850,20 +857,20 @@ lemma F_cube_eq_main_add_error_of_isBigO
     (A : Set ℕ) (c : ℝ)
     (hO : remainder A c =O[Filter.atTop] (fun _ : ℕ ↦ (1 : ℝ)))
     {z : ℂ} (hz : ‖z‖ < 1) :
-    ∃ C : ℝ, F A z ^ 3 =
+    F A z ^ 3 =
       (c : ℂ) * z / (1 - z) + (1 - z) * E (remainderC A c) z := by
   obtain ⟨C, hC⟩ := uniform_remainder_bound_of_isBigO_one A c hO
-  exact ⟨C, F_cube_eq_main_add_error_of_uniform_remainder_bound A c C hC hz⟩
+  exact F_cube_eq_main_add_error_of_uniform_remainder_bound A c C hC hz
 
 lemma differentiated_identity_of_isBigO
     (A : Set ℕ) (c : ℝ)
     (hO : remainder A c =O[Filter.atTop] (fun _ : ℕ ↦ (1 : ℝ)))
     {z : ℂ} (hz : ‖z‖ < 1) :
-    ∃ C : ℝ, 3 * F A z ^ 2 * Fderiv A z =
+    3 * F A z ^ 2 * Fderiv A z =
       (c : ℂ) / (1 - z) ^ 2 - E (remainderC A c) z +
         (1 - z) * Ederiv (remainderC A c) z := by
   obtain ⟨C, hC⟩ := uniform_remainder_bound_of_isBigO_one A c hO
-  exact ⟨C, differentiated_identity_of_uniform_remainder_bound A c C hC hz⟩
+  exact differentiated_identity_of_uniform_remainder_bound A c C hC hz
 
 lemma summatory_lower_of_remainder_bound (A : Set ℕ) (c C : ℝ)
     (hrem : ∀ N : ℕ, |remainder A c N| ≤ C) (N : ℕ) :
@@ -900,7 +907,7 @@ lemma scaled_cube_div_four (K t : ℕ) :
     (4 * K * t) ^ 3 / 4 = 16 * K ^ 3 * t ^ 3 := by
   have hpoly : (4 * K * t) ^ 3 = 4 * (16 * K ^ 3 * t ^ 3) := by ring
   rw [hpoly]
-  simpa [mul_comm] using Nat.mul_div_left (16 * K ^ 3 * t ^ 3) 4
+  simp [mul_comm]
 
 lemma exists_eventual_countingFunction_scaled_lower (A : Set ℕ) (c C : ℝ)
     (hc : 0 < c) (hrem : ∀ N : ℕ, |remainder A c N| ≤ C) :
@@ -933,6 +940,7 @@ lemma exists_eventual_countingFunction_scaled_lower (A : Set ℕ) (c C : ℝ)
   push_cast at hprod ⊢
   nlinarith
 
+open Classical in
 noncomputable def positiveCountingFunction (A : Set ℕ) (N : ℕ) : ℕ :=
   #((Finset.Icc 1 N).filter (fun n ↦ n ∈ A))
 
@@ -1099,7 +1107,7 @@ lemma sum_coeff_mul_coeff_le_circleAverage_of_nonneg
 
 section MonomialSums
 
-variable {I J : Type*} [DecidableEq I] [DecidableEq J]
+variable {I J : Type*}
 
 noncomputable def monomialSum (s : Finset I) (e : I → ℕ) (w : I → ℝ) : ℝ[X] :=
   ∑ i ∈ s, monomial (e i) (w i)
@@ -1324,7 +1332,7 @@ def partialPoly (u : ℕ → ℂ) (N : ℕ) : ℂ[X] :=
 
 lemma eval_partialPoly (u : ℕ → ℂ) (N : ℕ) (z : ℂ) :
     (partialPoly u N).eval z = ∑ n ∈ Finset.range N, u n * z ^ n := by
-  simp [partialPoly, Polynomial.eval_finsetSum, mul_comm]
+  simp [partialPoly, Polynomial.eval_finsetSum]
 
 lemma coeff_partialPoly (u : ℕ → ℂ) (N n : ℕ) :
     (partialPoly u N).coeff n = if n < N then u n else 0 := by
@@ -1482,7 +1490,7 @@ lemma norm_partial_hardySum_le_tsum {u : ℕ → ℂ} (hu : Summable (fun n ↦ 
   calc
     ‖∑ n ∈ Finset.range N, u n * z ^ n‖ ≤
         ∑ n ∈ Finset.range N, ‖u n * z ^ n‖ := norm_sum_le _ _
-    _ = ∑ n ∈ Finset.range N, ‖u n‖ := by simp [norm_mul, norm_pow, hznorm]
+    _ = ∑ n ∈ Finset.range N, ‖u n‖ := by simp [norm_pow, hznorm]
     _ ≤ ∑' n, ‖u n‖ := hu.sum_le_tsum (Finset.range N) (fun n hn ↦ norm_nonneg _)
 
 lemma norm_hardySum_le_tsum {u : ℕ → ℂ} (hu : Summable (fun n ↦ ‖u n‖))
@@ -1493,7 +1501,7 @@ lemma norm_hardySum_le_tsum {u : ℕ → ℂ} (hu : Summable (fun n ↦ ‖u n�
     simpa [norm_mul, norm_pow, hznorm] using hu
   calc
     ‖hardySum u z‖ ≤ ∑' n, ‖u n * z ^ n‖ := norm_tsum_le_tsum_norm hs
-    _ = ∑' n, ‖u n‖ := by congr 1; funext n; simp [norm_mul, norm_pow, hznorm]
+    _ = ∑' n, ‖u n‖ := by congr 1; funext n; simp [norm_pow, hznorm]
 
 lemma uniform_partial_inner {u v : ℕ → ℂ}
     (hu : Summable (fun n ↦ ‖u n‖)) (hv : Summable (fun n ↦ ‖v n‖)) :
@@ -1557,7 +1565,7 @@ lemma summable_re_mul_conj {u v : ℕ → ℂ}
   intro n
   calc
     ‖(u n * conj (v n)).re‖ ≤ ‖u n * conj (v n)‖ := Complex.abs_re_le_norm _
-    _ = ‖u n‖ * ‖v n‖ := by simp [norm_mul]
+    _ = ‖u n‖ * ‖v n‖ := by simp
     _ ≤ ‖u n‖ * Bv := mul_le_mul_of_nonneg_left (hv_le n) (norm_nonneg (u n))
     _ = Bv * ‖u n‖ := mul_comm _ _
 
@@ -1792,7 +1800,7 @@ noncomputable def ederivHardyCoeff (P : ℕ → ℂ) (r : ℝ) (n : ℕ) : ℂ :
   ((n + 1 : ℕ) : ℂ) * P (n + 1) * (r : ℂ) ^ n
 
 lemma summable_norm_ederivHardyCoeff
-    (P : ℕ → ℂ) {C r : ℝ} (hC0 : 0 ≤ C) (hP : ∀ n, ‖P n‖ ≤ C)
+    (P : ℕ → ℂ) {C r : ℝ} (hP : ∀ n, ‖P n‖ ≤ C)
     (hr0 : 0 ≤ r) (hr1 : r < 1) :
     Summable (fun n ↦ ‖ederivHardyCoeff P r n‖) := by
   have hrabs : |r| < 1 := by simpa [abs_of_nonneg hr0] using hr1
@@ -1834,7 +1842,8 @@ lemma norm_ederivHardyCoeff_sq_le
     _ ≤ ((n : ℝ) + 1) ^ 2 * C ^ 2 * (r ^ 2) ^ n := by
       gcongr
     _ ≤ ((n : ℝ) + 2) * ((n : ℝ) + 1) * C ^ 2 * (r ^ 2) ^ n := by
-      gcongr <;> nlinarith
+      gcongr
+      nlinarith
     _ = 2 * C ^ 2 * (((n + 2).choose 2 : ℕ) : ℝ) * (r ^ 2) ^ n := by
       rw [← hchoose]
       ring
@@ -1845,7 +1854,7 @@ lemma circleAverage_hardy_ederiv_sq_le
     circleAverage (fun z ↦ ‖Hardy.hardySum (ederivHardyCoeff P r) z‖ ^ 2) 0 1 ≤
       2 * C ^ 2 / (1 - r ^ 2) ^ 3 := by
   rw [Hardy.infinite_norm_parseval
-    (summable_norm_ederivHardyCoeff P hC0 hP hr0 hr1)]
+    (summable_norm_ederivHardyCoeff P hP hr0 hr1)]
   let g : ℕ → ℝ := fun n ↦
     2 * C ^ 2 * (((n + 2).choose 2 : ℕ) : ℝ) * (r ^ 2) ^ n
   have hrabs : |r ^ 2| < 1 := by
@@ -2065,13 +2074,14 @@ lemma radial_F_and_deriv_bounds (A : Set ℕ) (c C : ℝ)
   have hnum : c * ((t : ℝ) ^ 9) ^ 2 / 8 ≤ 3 * FF ^ 2 * FF' :=
     differentiated_numerator_lower hX1 hc hC0 hlarge hE hE' hdiff
   have hnum' : c * (t : ℝ) ^ 18 / 8 ≤ 3 * FF ^ 2 * FF' := by
-    convert hnum using 1 <;> ring
+    convert hnum using 1
+    ring
   have hderiv : c * (t : ℝ) ^ 12 / (24 * κ ^ 2) ≤ FF' :=
     derivative_lower_of_square_upper ht0 hc hκ hFF0 hFFupper hnum'
   exact ⟨hFFupper, hderiv⟩
 
 lemma exists_large_natural_parameter (c C a b : ℝ) (K T : ℕ)
-    (hc : 0 < c) (ha : 0 < a) :
+    (hc : 0 < c) :
     ∃ t : ℕ, T ≤ t ∧ 2 ≤ t ∧
       16 * C ≤ c * (t : ℝ) ^ 9 ∧
       64 * (K : ℝ) ^ 3 * (t : ℝ) ^ 3 ≤ (t : ℝ) ^ 9 ∧
@@ -2152,6 +2162,7 @@ lemma half_nat_le_sum_range_radius_sq
       linarith)
   simpa using h
 
+open Classical in
 lemma half_positiveCountingFunction_le_weighted_sum
     (A : Set ℕ) {X : ℝ} (hX : 1 ≤ X) {s : ℕ}
     (hbudget : 4 * (s : ℝ) ≤ X) :
@@ -2212,8 +2223,7 @@ lemma hardySum_convC {u v : ℕ → ℂ}
   simpa only [hardySum, E] using tsum_mul_tsum_eq_E_conv huz hvz
 
 lemma hardySum_const_mul (c : ℂ) {u : ℕ → ℂ}
-    (hu : Summable (fun n ↦ ‖u n‖)) (z : ℂ) :
-    hardySum (fun n ↦ c * u n) z = c * hardySum u z := by
+    (z : ℂ) : hardySum (fun n ↦ c * u n) z = c * hardySum u z := by
   unfold hardySum
   calc
     ∑' n, (c * u n) * z ^ n = ∑' n, c * (u n * z ^ n) := by
@@ -2299,8 +2309,7 @@ lemma ederivHardyCoeff_indicator_re_nonneg
   by_cases hn : n + 1 ∈ A
   · simp only [Upper.ederivHardyCoeff, indicatorC, Set.indicator_of_mem hn, mul_one]
     rw [Complex.mul_re, realCast_pow_re]
-    simp only [Complex.mul_re, Complex.natCast_re, Complex.natCast_im,
-      Complex.ofReal_re, Complex.ofReal_im, mul_zero, zero_mul, sub_zero]
+    simp only [Complex.natCast_re, Complex.natCast_im, zero_mul, sub_zero]
     exact mul_nonneg (Nat.cast_nonneg _) (pow_nonneg hr0 n)
   · simp [Upper.ederivHardyCoeff, indicatorC, hn]
 
@@ -2384,7 +2393,7 @@ lemma summable_norm_uCoeff (A : Set ℕ) {r : ℝ} (m : ℕ)
     Summable (fun n ↦ ‖uCoeff A r m n‖) := by
   have hF := summable_norm_radialFCoeff A hr0 hr1
   have hD := Upper.summable_norm_ederivHardyCoeff (indicatorC A)
-    (C := 1) (r := r) (by norm_num) (norm_indicator_le_one A) hr0 hr1
+    (C := 1) (r := r) (norm_indicator_le_one A) hr0 hr1
   have hK := summable_norm_radialDirichletCoeff m r
   have hconv := Hardy.summable_norm_convC_of_summable_norm
     (Hardy.summable_norm_convC_of_summable_norm hF hD) hK
@@ -2457,14 +2466,13 @@ lemma hardySum_uCoeff (A : Set ℕ) {r : ℝ} (m : ℕ)
         (Upper.dirichletPolynomial m).eval ((r : ℂ) * z) := by
   have hF := summable_norm_radialFCoeff A hr0 hr1
   have hD := Upper.summable_norm_ederivHardyCoeff (indicatorC A)
-    (C := 1) (r := r) (by norm_num) (norm_indicator_le_one A) hr0 hr1
+    (C := 1) (r := r) (norm_indicator_le_one A) hr0 hr1
   have hK := summable_norm_radialDirichletCoeff m r
   have hFD := Hardy.summable_norm_convC_of_summable_norm hF hD
-  have hFDK := Hardy.summable_norm_convC_of_summable_norm hFD hK
   change Hardy.hardySum (fun n ↦ 3 *
     convC (convC (radialFCoeff A r) (Upper.ederivHardyCoeff (indicatorC A) r))
       (radialDirichletCoeff m r) n) z = _
-  rw [Hardy.hardySum_const_mul 3 hFDK]
+  rw [Hardy.hardySum_const_mul 3]
   rw [Hardy.hardySum_convC hFD hK hz, Hardy.hardySum_convC hF hD hz]
   rw [hardySum_radialFCoeff, hardySum_ederivHardyCoeff A hr0 hr1 hz,
     hardySum_radialDirichletCoeff]
@@ -2515,7 +2523,7 @@ lemma circleAverage_hardy_inner_le_kernelAverage
     simpa [s] using hcont'
   have hFbase := summable_norm_radialFCoeff A hr0 hr1
   have hDbase := Upper.summable_norm_ederivHardyCoeff (indicatorC A)
-    (C := 1) (r := r) (by norm_num) (norm_indicator_le_one A) hr0 hr1
+    (C := 1) (r := r) (norm_indicator_le_one A) hr0 hr1
   have hKbase := summable_norm_radialDirichletCoeff m r
   have hFcont : ContinuousOn (fun z ↦ F A ((r : ℂ) * z)) s := by
     refine ((Hardy.continuousOn_hardySum hFbase).mono
@@ -2573,7 +2581,7 @@ no limiting interchange remains in clients of this lemma. -/
 lemma circleAverage_poly_le_hardy_of_coeff_minorant
     (P Q : ℝ[X]) {u v : ℕ → ℂ}
     (hu : Summable (fun n ↦ ‖u n‖)) (hv : Summable (fun n ↦ ‖v n‖))
-    (hP0 : ∀ n, 0 ≤ P.coeff n) (hQ0 : ∀ n, 0 ≤ Q.coeff n)
+    (hQ0 : ∀ n, 0 ≤ Q.coeff n)
     (huim : ∀ n, (u n).im = 0) (hvim : ∀ n, (v n).im = 0)
     (hu0 : ∀ n, 0 ≤ (u n).re) (hv0 : ∀ n, 0 ≤ (v n).re)
     (hPu : ∀ n, P.coeff n ≤ (u n).re)
@@ -2643,19 +2651,6 @@ lemma selected_b_eq_d_le_hardy
     (fun x ↦ 3 * wa x.1.1 * wd x.1.2 * wj x.2)
   let Q := monomialSum (bFull.product ellFull)
     (fun x ↦ x.1 + x.2) (fun x ↦ wb x.1 * wl x.2)
-  have hP0 : ∀ n, 0 ≤ P.coeff n := by
-    intro n
-    rw [show P = monomialSum ((aFull.product dFull).product jFull)
-      (fun x ↦ x.1.1 + (x.1.2 - 1) + x.2)
-      (fun x ↦ 3 * wa x.1.1 * wd x.1.2 * wj x.2) from rfl,
-      coeff_monomialSum]
-    apply Finset.sum_nonneg
-    intro x hx
-    rcases Finset.mem_filter.mp hx with ⟨hx, -⟩
-    rcases Finset.mem_product.mp hx with ⟨had, hj⟩
-    rcases Finset.mem_product.mp had with ⟨ha, hd⟩
-    exact mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) (hwa _ ha))
-      (hwd _ hd)) (hwj _ hj)
   have hQ0 : ∀ n, 0 ≤ Q.coeff n := by
     intro n
     rw [show Q = monomialSum (bFull.product ellFull)
@@ -2670,7 +2665,7 @@ lemma selected_b_eq_d_le_hardy
     aFull dFull jFull bFull ellFull aSel dSel jSel wa wd wj wb wl
     haSub hdSub hjSub hdB hell haPos hdPos hwa hwd hwj hwb hwl
   exact hfinite.trans (circleAverage_poly_le_hardy_of_coeff_minorant P Q hu hv
-    hP0 hQ0 huim hvim hu0 hv0 (by simpa only [P] using hPu)
+    hQ0 huim hvim hu0 hv0 (by simpa only [P] using hPu)
       (by simpa only [Q] using hQv))
 
 /-- Packaged lower bound for the actual infinite kernel integral.  Thus the
@@ -2743,7 +2738,7 @@ lemma E_eq_hardySum (P : ℕ → ℂ) (r : ℝ) (z : ℂ) :
     E P ((r : ℂ) * z) = Hardy.hardySum (eHardyCoeff P r) z := by
   apply tsum_congr
   intro n
-  simp only [E, Hardy.hardySum, eHardyCoeff]
+  simp only [eHardyCoeff]
   rw [mul_pow]
   ring
 
@@ -2775,7 +2770,7 @@ lemma Ederiv_eq_hardySum (P : ℕ → ℂ) {C r : ℝ}
   rw [← hshift]
   apply tsum_congr
   intro n
-  simp only [Hardy.hardySum, Upper.ederivHardyCoeff]
+  simp only [Upper.ederivHardyCoeff]
   push_cast
   rw [mul_pow]
   ring
@@ -2968,7 +2963,7 @@ lemma circleAverage_derivative_error_le
           Hardy.hardySum (Upper.ederivHardyCoeff P r) z‖ *
         ‖(Upper.dirichletPolynomial m).eval ((r : ℂ) * z)‖ ^ 2) 0 1 ≤
       lam * (2 * C ^ 2 / (1 - r ^ 2) ^ 3) + lam⁻¹ * m := by
-  have hs := Upper.summable_norm_ederivHardyCoeff P hC0 hP hr0 hr1
+  have hs := Upper.summable_norm_ederivHardyCoeff P hP hr0 hr1
   have hEcont : ContinuousOn (Hardy.hardySum (Upper.ederivHardyCoeff P r))
       (Metric.sphere 0 1) :=
     (Hardy.continuousOn_hardySum hs).mono Metric.sphere_subset_closedBall
@@ -3148,9 +3143,9 @@ theorem kernelAverage_le
   have hsH0 := summable_norm_eHardyCoeff (indicatorC A)
     (C := 1) (r := r) (norm_indicator_le_one A) hr0 hr1
   have hsH1 := Upper.summable_norm_ederivHardyCoeff (indicatorC A)
-    (C := 1) (r := r) (by norm_num) (norm_indicator_le_one A) hr0 hr1
+    (C := 1) (r := r) (norm_indicator_le_one A) hr0 hr1
   have hsE0 := summable_norm_eHardyCoeff P hP hr0 hr1
-  have hsE1 := Upper.summable_norm_ederivHardyCoeff P hC0 hP hr0 hr1
+  have hsE1 := Upper.summable_norm_ederivHardyCoeff P hP hr0 hr1
   have hH0cont : ContinuousOn H0 s :=
     (Hardy.continuousOn_hardySum hsH0).mono Metric.sphere_subset_closedBall
   have hH1cont : ContinuousOn H1 s :=
@@ -3203,7 +3198,7 @@ theorem kernelAverage_le
     have hnorm :
         3 * ‖F A ((r : ℂ) * z)‖ ^ 2 * ‖Fderiv A ((r : ℂ) * z)‖ =
           ‖3 * F A ((r : ℂ) * z) ^ 2 * Fderiv A ((r : ℂ) * z)‖ := by
-      simp [norm_mul, norm_pow]
+      simp [norm_pow]
     dsimp only [T, D, M, E0, E1]
     rw [hnorm, hdgf, hE, hE']
   rw [hrewrite]
@@ -3342,7 +3337,7 @@ end KernelUpper
 
 namespace FourierLower
 
-open scoped BigOperators Classical Real ComplexConjugate Polynomial
+open scoped BigOperators Real ComplexConjugate Polynomial
 open Finset Complex MeasureTheory Set Filter
 
 noncomputable def uTermAlt (A : Set ℕ) (r : ℝ) (m : ℕ)
@@ -3530,6 +3525,7 @@ lemma summable_fderivReal_term_alt (A : Set ℕ) {x : ℝ}
     · simp [indicator, hd]
     · simp [indicator, hd, mul_nonneg (Nat.cast_nonneg d) (pow_nonneg hx0 (d - 1))]
 
+open Classical in
 /-- A positive infinite radial derivative has a finite positive-index cutoff
 carrying at least half of its mass. -/
 lemma exists_finite_derivative_cutoff_alt
@@ -3600,6 +3596,7 @@ lemma triple_product_sum_factor_alt
     _ = _ := by
       rw [← Finset.sum_mul, ← Finset.mul_sum]
 
+open Classical in
 /-- The selected-frequency argument specialized to radial coefficients and a
 finite derivative cutoff. -/
 lemma concrete_selected_lower_alt
@@ -3703,7 +3700,8 @@ lemma scaled_specialized_upper_power_le {x k c C : ℝ}
               x ^ 12 * (32 * k ^ 3 * x ^ 3)) =
         1024 * c * k ^ 6 * x ^ 15 + 32 * C * k ^ 3 * x ^ 12 +
           (2 * C ^ 2 + 32 * k ^ 3) * x ^ 15 := by
-    field_simp [hx0] <;> ring
+    field_simp [hx0]
+    ring
   rw [hid]
   have hkpow : k ^ 3 ≤ k ^ 6 := pow_le_pow_right₀ hk (by omega)
   have hxpow : x ^ 12 ≤ x ^ 15 := pow_le_pow_right₀ hx (by omega)
@@ -3746,13 +3744,14 @@ lemma scaled_selected_lower_power_coarse
     calc
       c * k ^ 3 / (8 * κ ^ 2) * x ^ 16 =
           (c * k ^ 3 * x ^ 15 / κ ^ 2) * (x / 8) := by
-            field_simp [ne_of_gt hκ] <;> ring
+            field_simp [ne_of_gt hκ]
       _ ≤ (c * k ^ 3 * x ^ 15 / κ ^ 2) * ((x - 1) / 4) := by
         apply mul_le_mul_of_nonneg_left _ hscale
         linarith
       _ = 3 * (c * x ^ 12 / (48 * κ ^ 2)) * ((x - 1) / 2) *
           (8 * k ^ 3 * x ^ 3) := by
-            field_simp [ne_of_gt hκ] <;> ring
+            field_simp [ne_of_gt hκ]
+            ring
   exact halg.trans (hbase.trans hJ)
 
 /-- Negative resolution of Erdős Problem 764: the summatory ordered
@@ -3775,7 +3774,7 @@ theorem not_erdos_764 :
   have hb : 0 ≤ b := by dsimp [b]; positivity
   obtain ⟨T, hT⟩ := eventually_atTop.1 hcountEv
   obtain ⟨t, htT, ht, hlarge, hbudget64, htfinal⟩ :=
-    exists_large_natural_parameter c C a b K T hc ha
+    exists_large_natural_parameter c C a b K T hc
   have hcount0 := hT t htT
   let s : ℕ := 16 * K ^ 3 * t ^ 3
   let m : ℕ := 32 * K ^ 3 * t ^ 3
@@ -3802,7 +3801,11 @@ theorem not_erdos_764 :
     have : 2 * s = m := by simp [s, m]; ring
     exact this.le
   have hbudget : 4 * (s : ℝ) ≤ (t : ℝ) ^ 9 := by
-    convert hbudget64 using 1 <;> dsimp [s] <;> push_cast <;> ring
+    calc
+      4 * (s : ℝ) = 64 * (K : ℝ) ^ 3 * (t : ℝ) ^ 3 := by
+        norm_num [s]
+        ring
+      _ ≤ (t : ℝ) ^ 9 := hbudget64
   have hkernelLower :=
     FourierLower.concrete_selected_lower_alt A hX1.le
       (s := s) (N := N) (m := m) hm hbudget hcut
