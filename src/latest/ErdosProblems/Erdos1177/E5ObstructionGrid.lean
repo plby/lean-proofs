@@ -40,7 +40,7 @@ theorem exists_disjoint_finite_obstruction_grid
         (⟨(D k r : Set (Set W))⟩ : Hypergraph W).ProperColoring c) := by
   -- Apply `exists_disjoint_finite_obstruction_sequence` to obtain `E : ℕ → Finset (Set W)`.
   obtain ⟨E, hE⟩ := exists_disjoint_finite_obstruction_sequence H htri huc hS;
-  refine' ⟨ fun k r => E ( Nat.pair k r ), _, _, _ ⟩ <;> simp_all +decide;
+  refine' ⟨ fun k r => E ( Nat.pair k r ), _, _, _ ⟩ <;> simp_all +decide only [not_exists];
   · exact fun k r e he => hE.1 _ _ he;
   · intro k r x hx; specialize hE; have := hE.2.2 ( Nat.pair k r ) ( fun w => Fin.castLE ( by linarith [ Nat.left_le_pair k r ] ) ( x w ) ) ; simp_all +decide [ Hypergraph.ProperColoring ] ;
 
@@ -60,9 +60,11 @@ theorem exists_disjoint_countable_obstruction_rows
         (⟨A k⟩ : Hypergraph W).ProperColoring c) := by
   obtain ⟨ D, hD₁, hD₂, hD₃ ⟩ := exists_disjoint_finite_obstruction_grid H htri huc hS;
   refine' ⟨ fun k => ⋃ r, ( D k r : Set ( Set W ) ), _, _, _ ⟩;
-  · simp +zetaDelta at *;
+  · simp +zetaDelta only [Set.countable_iUnion_iff, Set.iUnion_subset_iff, Set.mem_iUnion, SetLike.mem_coe,
+    forall_exists_index] at *;
     exact fun k => ⟨ fun i => Set.to_countable _, fun i => fun e he => hD₁ k i e he |>.1, fun e i he => hD₁ k i e he |>.2 ⟩;
-  · intro k l hkl; simp_all +decide [ Set.disjoint_left ] ;
+  · intro k l hkl; simp_all +decide only [Set.mem_iUnion, SetLike.mem_coe, Set.iUnion_exists, Set.disjoint_iUnion_right,
+    Set.disjoint_iUnion_left] ;
     intro a e r he ha f s hf; specialize hD₂ ( show k = l → ¬r = s from by tauto ) ; simp_all +decide [ finiteEdgeSupport ] ;
     exact hD₂ _ he ha _ hf;
   · intro k hk
@@ -83,7 +85,9 @@ theorem exists_disjoint_countable_unbounded_chromatic_family
       (∀ r k, 0 < k → ¬ ∃ c : W → Fin k,
         (⟨A r⟩ : Hypergraph W).ProperColoring c) := by
   obtain ⟨ D, hD₁, hD₂, hD₃ ⟩ := exists_disjoint_finite_obstruction_grid H htri huc hS;
-  refine' ⟨ fun r ↦ ⋃ k, ( D k r : Set ( Set W ) ), _, _, _ ⟩ <;> simp_all +decide [ Set.subset_def ];
+  refine' ⟨ fun r ↦ ⋃ k, ( D k r : Set ( Set W ) ), _, _, _ ⟩ <;> simp_all +decide only [Set.countable_iUnion_iff, Set.iUnion_subset_iff, Set.mem_iUnion,
+    SetLike.mem_coe, forall_exists_index, ne_eq, Set.iUnion_exists, Set.disjoint_iUnion_right,
+    Set.disjoint_iUnion_left, not_exists];
   · exact fun r => ⟨ fun i => Set.to_countable _, fun e k he => hD₁ k r e he |>.1, fun e k he x hx => hD₁ k r e he |>.2 x hx ⟩;
   · intro r s hrs i k hi j l hj; specialize @hD₂ l r k s; simp_all +decide [ Set.disjoint_left ] ;
     exact fun x hx₁ hx₂ => hD₂ ( Set.mem_iUnion₂.mpr ⟨ j, hj, hx₁ ⟩ ) ( Set.mem_iUnion₂.mpr ⟨ i, hi, hx₂ ⟩ );

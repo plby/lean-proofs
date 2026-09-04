@@ -743,7 +743,7 @@ lemma zero_lt_aleph0_succ : 0 < Order.succ (ℵ₀ : Cardinal) :=
 noncomputable def singletonCollapsePoset (x : X) (y : Y) (hκ : 1 < κ) :
     CollapsePoset X Y κ :=
   { f := CPFun.singleton x y,
-    Hc := by simp [CPFun.mk_dom_singleton]; exact hκ }
+    Hc := by simp only [dom_singleton, mk_fintype, Fintype.card_unique, Nat.cast_one]; exact hκ }
 
 lemma singletonCollapsePoset_principalOpen' {x : X} {y : Y} {hκ : 1 < κ} :
     CollapsePoset.principalOpen (singletonCollapsePoset x y hκ) = {g : X → Y | g x = y} := by

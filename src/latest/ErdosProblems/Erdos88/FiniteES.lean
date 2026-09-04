@@ -1001,7 +1001,7 @@ theorem finite_erdos_szemeredi_of_pattern_bound
     HasHomogeneousSet G h := by
   classical
   intro hfree
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   let D := lowDegreeSet G k
   have hDhalf : n < 2 * D.card := card_lowDegreeSet_gt_half G hedges
   obtain ⟨L, hLD, hL, hmax⟩ := exists_maximum_independent_subset G D

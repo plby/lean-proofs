@@ -138,7 +138,7 @@ theorem primitiveNegativeDirichletMass_band_le_shells
       apply Finset.sum_congr rfl
       intro a ha
       rw [Finset.sum_comm]
-      ring
+      ring_nf
     _ = _ := by rfl
 
 /-- Integral form of the shell decomposition. -/

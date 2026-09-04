@@ -253,7 +253,7 @@ theorem exists_generator_norm_natAbs_eq_cardQuot
     (I : Ideal S) (hI : I.IsPrincipal) :
     ∃ z : S, I = Ideal.span ({z} : Set S) ∧
       (Algebra.norm ℤ z).natAbs = I.cardQuot := by
-  letI : I.IsPrincipal := hI
+  let : I.IsPrincipal := hI
   obtain ⟨z, hz⟩ := Submodule.IsPrincipal.principal I
   have hzIdeal : I = Ideal.span ({z} : Set S) := by
     rw [← Ideal.submodule_span_eq]

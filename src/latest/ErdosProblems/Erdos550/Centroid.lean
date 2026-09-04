@@ -109,8 +109,8 @@ theorem branchSize_sum_neighbors [DecidableRel G.Adj] (hG : G.IsTree) (z : V) :
           obtain ⟨ q, hq ⟩ := h_dist;
           rw [ ← hq, SimpleGraph.dist_comm ];
           exact SimpleGraph.dist_le q;
-        cases p <;> simp_all +decide [ SimpleGraph.dist_comm ];
-        exact Nat.le_sub_one_of_lt ( lt_of_le_of_lt h_dist ( by linarith ) );
+        rw [SimpleGraph.Walk.length_tail, hp] at h_dist
+        simpa only [SimpleGraph.dist_comm] using h_dist
       refine' Finset.mem_filter.mpr ⟨ Finset.mem_univ _, lt_of_le_of_lt h_dist ( Nat.sub_lt _ _ ) ⟩ <;> simp_all +decide [ SimpleGraph.dist_comm ];
       grind +suggestions
     have h_unique : ∀ w' ∈ G.neighborFinset z, v ∈ branch G z w' → w' = w := by

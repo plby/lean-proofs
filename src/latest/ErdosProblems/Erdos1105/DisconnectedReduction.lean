@@ -40,7 +40,7 @@ theorem disconnected_high_colors_reduction {V C : Type*} [Fintype V] [Fintype C]
     k < Fintype.card V ∧ ∃ Q, IsFullRepresentative c Q ∧ ∃ x, Q.IsIsolated x := by
   classical
   have hV : Nonempty V := Fintype.card_pos_iff.mp (by omega)
-  letI := hV
+  let := hV
   have hnlarge : k < Fintype.card V := by
     by_contra! hsmall
     have heq : Fintype.card V = k := by omega

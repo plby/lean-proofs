@@ -816,7 +816,7 @@ theorem six_le_incident_triangles_of_vertex_card_eq_one
       ProjectiveDuality.orientationDet]
   let pick : OtherLineChoice (ProjectiveBoundaryExtraction.Line B) :=
     ProjectiveBoundaryExtraction.otherLineChoiceOfPair pa pb hab
-  letI : Nonempty (ProjectiveBoundaryExtraction.Line B) := ⟨p⟩
+  let : Nonempty (ProjectiveBoundaryExtraction.Line B) := ⟨p⟩
   apply ConcretePolarLineBelt.six_le_incident_triangles_of_all_incident_triangular
     B ha hb hc hncol pick p
   intro f hf
@@ -848,7 +848,7 @@ theorem six_le_incident_triangles_of_affineSpan_ne_top
       ProjectiveDuality.orientationDet]
   let pick : OtherLineChoice (ProjectiveBoundaryExtraction.Line B) :=
     ProjectiveBoundaryExtraction.otherLineChoiceOfPair pa pb hab
-  letI : Nonempty (ProjectiveBoundaryExtraction.Line B) := ⟨p⟩
+  let : Nonempty (ProjectiveBoundaryExtraction.Line B) := ⟨p⟩
   apply ConcretePolarLineBelt.six_le_incident_triangles_of_all_incident_triangular
     B ha hb hc hncol pick p
   intro f hf
@@ -890,7 +890,7 @@ theorem six_le_incident_triangles_of_affineSpan_eq_top
     intro s t hst
     apply hvertex
     exact hullVertexTriangleFace_injective B p hst
-  letI : Nonempty B := ⟨p⟩
+  let : Nonempty B := ⟨p⟩
   have hanti : ∀ s t, face s ≠
       SignVectorArrangement.antipodalStrictFace (face t) := by
     intro s t

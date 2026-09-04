@@ -785,7 +785,7 @@ theorem abs_meanMod_le_of_abs_le
     (F : (ι → ℕ) → ℝ) (B : ℝ)
     (hF : ∀ x, |F x| ≤ B) :
     |meanMod D F| ≤ B := by
-  letI : NeZero D := ⟨hD.ne'⟩
+  let : NeZero D := ⟨hD.ne'⟩
   rw [meanMod_eq_mean_zmodVector]
   apply abs_le.mpr
   constructor

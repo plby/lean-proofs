@@ -39,7 +39,7 @@ private theorem morrisSaxtonArbitrarilyLarge_of_eventual_extremal_upper
   intro N
   obtain ⟨a, B, hm, htriangle, hC6, hedges⟩ :=
     LowerConstruction.infinitely_often (max (N + 1) Nupper)
-  letI : DecidableRel B.Adj := Classical.decRel _
+  let : DecidableRel B.Adj := Classical.decRel _
   let m := fnvVertices a
   have hm_lower : max (N + 1) Nupper ≤ m := by simpa [m] using hm
   have hm_pos_nat : 0 < m := by omega

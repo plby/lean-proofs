@@ -444,13 +444,13 @@ theorem lm311_expansion_product_mono
         = (d : ℝ) / (960 * 1024) * (x / Real.log x ^ 2) := by
           dsimp [x]
           field_simp
-          <;> ring
+          <;> ring_nf
     _ ≤ (d : ℝ) / (960 * 1024) * (y / Real.log y ^ 2) := hscaled
     _ = (1 / 1024) /
           Real.log (15 * (b : ℝ) / ((1 / 64) * (d : ℝ))) ^ 2 * (b : ℝ) := by
           dsimp [y]
           field_simp
-          <;> ring
+          <;> ring_nf
 
 /-- One quarter of the exact LM expansion, rounded down.  One quarter is
 used for certified growth; the remaining three quarters absorb the finite

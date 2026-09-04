@@ -78,7 +78,7 @@ theorem mem_digitSet_lt {p : ℕ} [NeZero p]
     {d : ℕ} (hd : d ∈ digitSet S) : d < p ^ 2 := by
   classical
   rcases Finset.mem_image.mp hd with ⟨z, _hz, rfl⟩
-  haveI : NeZero (p ^ 2) := ⟨pow_ne_zero _ (Nat.ne_of_gt hp0)⟩
+  have : NeZero (p ^ 2) := ⟨pow_ne_zero _ (Nat.ne_of_gt hp0)⟩
   exact z.val_lt
 
 private theorem value_add_eq_of_carry {p : ℕ} (hp0 : 0 < p)
@@ -88,8 +88,8 @@ private theorem value_add_eq_of_carry {p : ℕ} (hp0 : 0 < p)
     (hhigh : high S a + high S b + (e : F p) = (h : F p))
     (hu : u.val = r + p * h) :
     value S a + value S b = u := by
-  haveI : NeZero p := ⟨Nat.ne_of_gt hp0⟩
-  haveI : NeZero (p ^ 2) := ⟨pow_ne_zero _ (Nat.ne_of_gt hp0)⟩
+  have : NeZero p := ⟨Nat.ne_of_gt hp0⟩
+  have : NeZero (p ^ 2) := ⟨pow_ne_zero _ (Nat.ne_of_gt hp0)⟩
   have hm : (high S a).val + (high S b).val + e ≡ h [MOD p] := by
     rw [← ZMod.natCast_eq_natCast_iff]
     simpa only [Nat.cast_add, ZMod.natCast_zmod_val] using hhigh
@@ -117,10 +117,10 @@ private theorem value_add_eq_of_carry {p : ℕ} (hp0 : 0 < p)
 theorem exists_value_add_eq {p : ℕ} (hp : p.Prime) (S : CoefficientSystem p)
     (u : ZMod (p ^ 2)) :
     ∃ a b : Parameter p, value S a + value S b = u := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hp0 : 0 < p := hp.pos
-  haveI : NeZero p := ⟨hp.ne_zero⟩
-  haveI : NeZero (p ^ 2) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  have : NeZero p := ⟨hp.ne_zero⟩
+  have : NeZero (p ^ 2) := ⟨pow_ne_zero _ hp.ne_zero⟩
   let r := u.val % p
   let h := u.val / p
   have hr : r < p := Nat.mod_lt _ hp0
@@ -178,8 +178,8 @@ private theorem raw_modEq_of_value_add_eq {p : ℕ} (hp : p.Prime)
     (hab : value S a + value S b = u) :
     a.2.2.val + p * (high S a).val +
         (b.2.2.val + p * (high S b).val) ≡ u.val [MOD p ^ 2] := by
-  haveI : NeZero p := ⟨hp.ne_zero⟩
-  haveI : NeZero (p ^ 2) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  have : NeZero p := ⟨hp.ne_zero⟩
+  have : NeZero (p ^ 2) := ⟨pow_ne_zero _ hp.ne_zero⟩
   apply (ZMod.natCast_eq_natCast_iff _ _ _).mp
   calc
     ((a.2.2.val + p * (high S a).val +
@@ -193,8 +193,8 @@ private theorem low_equation_of_value_add_eq {p : ℕ} (hp : p.Prime)
     (S : CoefficientSystem p) {a b : Parameter p} {u : ZMod (p ^ 2)}
     (hab : value S a + value S b = u) :
     a.2.2 + b.2.2 = ((u.val % p : ℕ) : F p) := by
-  letI : Fact p.Prime := ⟨hp⟩
-  haveI : NeZero p := ⟨hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
+  have : NeZero p := ⟨hp.ne_zero⟩
   have hm2 := raw_modEq_of_value_add_eq hp S hab
   have hm2' : a.2.2.val + p * (high S a).val +
       (b.2.2.val + p * (high S b).val) ≡ u.val [MOD p * p] := by
@@ -213,8 +213,8 @@ private theorem low_val_add_eq {p : ℕ} (hp : p.Prime)
     (S : CoefficientSystem p) {a b : Parameter p} {u : ZMod (p ^ 2)}
     (hab : value S a + value S b = u) :
     a.2.2.val + b.2.2.val = u.val % p + p * (carry a b).val := by
-  letI : Fact p.Prime := ⟨hp⟩
-  haveI : NeZero p := ⟨hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
+  have : NeZero p := ⟨hp.ne_zero⟩
   have hfield := low_equation_of_value_add_eq hp S hab
   have hr : u.val % p < p := Nat.mod_lt _ hp.pos
   have hval : (a.2.2 + b.2.2).val = u.val % p := by
@@ -236,8 +236,8 @@ private theorem high_equation_of_value_add_eq {p : ℕ} (hp : p.Prime)
     (hab : value S a + value S b = u) :
     high S a + high S b + ((carry a b).val : F p) =
       ((u.val / p : ℕ) : F p) := by
-  letI : Fact p.Prime := ⟨hp⟩
-  haveI : NeZero p := ⟨hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
+  have : NeZero p := ⟨hp.ne_zero⟩
   have hm2 := raw_modEq_of_value_add_eq hp S hab
   have hlow := low_val_add_eq hp S hab
   let r := u.val % p
@@ -288,7 +288,7 @@ theorem tagged_slice_card_le_two {p : ℕ} [NeZero p] (hp : p.Prime)
     (S : CoefficientSystem p) (u : ZMod (p ^ 2)) (t : SliceTag) :
     ((taggedRepresentations S u).filter fun ab ↦ sliceTag ab = t).card ≤ 2 := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let r : F p := (u.val % p : ℕ)
   let v : F p := (u.val / p : ℕ) - shift p t.1.2 -
     shift p t.2.1.2 - t.2.2.val
@@ -346,7 +346,7 @@ theorem taggedRepresentations_card_le {p : ℕ} [NeZero p] (hp : p.Prime)
     (S : CoefficientSystem p) (u : ZMod (p ^ 2)) :
     (taggedRepresentations S u).card ≤ 144 := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   calc
     (taggedRepresentations S u).card =
         ∑ t : SliceTag,

@@ -51,7 +51,7 @@ theorem exists_coloring_card_le_two_add_twice_excess
       Nonempty (G.Coloring (Fin t)) := by
   classical
   obtain ⟨T, hTG, hTtree⟩ := hG.exists_isTree_le
-  letI : DecidableRel T.Adj := Classical.decRel _
+  let : DecidableRel T.Adj := Classical.decRel _
   let E : Finset (Sym2 V) := G.edgeFinset \ T.edgeFinset
   let X : Finset V := edgeEndpoints E
   have hTedge : T.edgeFinset ⊆ G.edgeFinset :=
@@ -139,7 +139,7 @@ theorem ramseyAt_path_connected_excess
     RamseyAt (pathCode k) H N := by
   classical
   intro C
-  letI : DecidableRel H.graph.Adj := Classical.decRel _
+  let : DecidableRel H.graph.Adj := Classical.decRel _
   have h := pathGraph_isContained_or_compl_of_connected_excess
     hk H.graph hH C (by
       simpa [GraphCode.edgeCount_eq_card_edgeFinset] using hcard)

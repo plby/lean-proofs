@@ -134,7 +134,7 @@ theorem eventuallyExactlyZ_of_cyclic_bound_auto_patch
   let H : AddSubgroup G := Rψ.topologicalClosure
   have hRH : Rψ ≤ H := AddSubgroup.le_topologicalClosure Rψ
   let φ : ℤ →+ H := (AddSubgroup.inclusion hRH).comp ψ.rangeRestrict
-  letI : CompactSpace H :=
+  let : CompactSpace H :=
     isCompact_iff_compactSpace.mp
       (AddSubgroup.isClosed_topologicalClosure Rψ).isCompact
   have hφdense : DenseRange φ := by

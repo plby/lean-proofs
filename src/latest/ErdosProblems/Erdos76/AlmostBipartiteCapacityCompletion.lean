@@ -130,7 +130,7 @@ lemma missingEdgeCount_induce_eq_card_sideEdgeFinset_compl
     congrArg (fun H : SimpleGraph S ↦ Nat.card H.edgeSet) hgraph
   have hsideNat : Nat.card (Gᶜ.induce (S : Set α)).edgeSet =
       (sideEdgeFinset Gᶜ S).card := by
-    letI : DecidableRel Gᶜ.Adj := Classical.decRel _
+    let : DecidableRel Gᶜ.Adj := Classical.decRel _
     rw [Nat.card_eq_fintype_card, SimpleGraph.card_edgeSet]
     exact (card_sideEdgeFinset Gᶜ S).symm
   unfold missingEdgeCount

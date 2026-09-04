@@ -44,7 +44,7 @@ theorem tendsto_coefficientMassBound_affine (q A D : ℝ) :
   convert! h₁.add h₂ using 1
   · funext m
     ring
-  · ring
+  · ring_nf
 
 theorem tendsto_index_add_one_div_two_pow :
     Tendsto (fun k : ℕ ↦ ((k : ℝ) + 1) / 2 ^ k) atTop (𝓝 0) := by
@@ -56,7 +56,7 @@ theorem tendsto_index_add_one_div_two_pow :
   · funext k
     simp only [div_pow, one_pow]
     ring
-  · ring
+  · ring_nf
 
 theorem tendsto_scale_tail :
     Tendsto (fun m ↦ ((fluctuationScale m : ℝ) + 1) / 2 ^ fluctuationScale m)

@@ -52,7 +52,7 @@ theorem crtFinEquiv_apply (q : ι → ℕ)
     (hcop : Pairwise (Function.onFun Nat.Coprime q))
     (r : Fin (∏ i, q i)) (i : ι) :
     crtFinEquiv q hq hcop r i = (r.val : ZMod (q i)) := by
-  letI : NeZero (∏ i, q i) := ⟨Finset.prod_ne_zero_iff.mpr fun i _ => Nat.ne_of_gt (hq i)⟩
+  let : NeZero (∏ i, q i) := ⟨Finset.prod_ne_zero_iff.mpr fun i _ => Nat.ne_of_gt (hq i)⟩
   change (ZMod.prodEquivPi q hcop (ZMod.finEquiv (∏ i, q i) r)) i = _
   rw [zmod_finEquiv_apply]
   simp [ZMod.prodEquivPi, Ideal.quotientInfRingEquivPiQuotient]

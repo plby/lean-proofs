@@ -23,7 +23,7 @@ theorem mul_log_one_add_le_log_one_add_mul
   have h' : c * Real.log (1 + x) ≤
       Real.log ((1 - c) * 1 + c * (1 + x)) := by
     simpa only [Real.log_one, smul_eq_mul, mul_zero, zero_add] using h
-  convert h' using 1; ring
+  convert h' using 1; ring_nf
 
 theorem integral_largeFiberProfile_interval {B : ℝ} (hB : 0 ≤ B) :
     (∫ x : ℝ in (0 : ℝ)..B, largeFiberProfile x) =

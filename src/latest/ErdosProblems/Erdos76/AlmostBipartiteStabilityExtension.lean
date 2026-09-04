@@ -1475,7 +1475,7 @@ private lemma almostCompleteFractionalDecomposition_fintype_forExtension
     ∃ w : Finset β → ℝ, IsFractionalDecomposition G w := by
   let e : β ≃ Fin (Fintype.card β) := Fintype.equivFinOfCardEq rfl
   let H : SimpleGraph (Fin (Fintype.card β)) := G.map e.toEmbedding
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   have hmissH : missingEdgeCount H ≤ Fintype.card β - 4 := by
     have hc : Hᶜ = Gᶜ.map e.toEmbedding := compl_map_equiv G e
     have hedge : Hᶜ.edgeFinset = (Gᶜ.map e.toEmbedding).edgeFinset := by
@@ -2966,7 +2966,7 @@ private lemma exists_claim45_residual_and_integral_packing
   let P := P₁ ∪ P₂
   let D := familyPairFinset P
   let K := R.deleteEdges (D : Set (Sym2 α))
-  letI : DecidableRel K.Adj := Classical.decRel _
+  let : DecidableRel K.Adj := Classical.decRel _
   have htri : ∀ t ∈ P, R.IsNClique 3 t := by
     intro t ht
     rcases mem_union.mp ht with ht | ht

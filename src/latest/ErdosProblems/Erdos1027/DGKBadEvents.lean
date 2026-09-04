@@ -53,7 +53,7 @@ lemma expect_indicator_lightEdge_le
     (𝔼 w : DGKPriorities.Outcome V N, indicator (LightEdge d w e)) ≤
       (2 : ℚ) ^ (1 - (e.card : ℤ)) / ((d : ℚ) + 1) := by
   classical
-  haveI : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
+  have : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
   have hecard : 0 < e.card := Nat.pos_of_dvd_of_pos hdiv hN
   have he : e.Nonempty := Finset.card_pos.mp hecard
   rw [show (𝔼 w : DGKPriorities.Outcome V N, indicator (LightEdge d w e)) =
@@ -81,7 +81,7 @@ theorem expect_indicator_hasLightEdge_le
     (𝔼 w : DGKPriorities.Outcome V N, indicator (HasLightEdge H d w)) ≤
       DGKWeight.qWeightQ H / ((d : ℚ) + 1) := by
   classical
-  haveI : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
+  have : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
   calc
     (𝔼 w : DGKPriorities.Outcome V N, indicator (HasLightEdge H d w)) ≤
         ∑ e ∈ H,
@@ -156,7 +156,7 @@ theorem expect_colourStatistic
     (𝔼 w : DGKPriorities.Outcome V N, f (initialColour w)) =
       𝔼 χ : V → Bool, f χ := by
   classical
-  haveI : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
+  have : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
   let e := Equiv.arrowProdEquivProdArrow V
     (fun _ : V ↦ Bool) (fun _ : V ↦ Fin N)
   calc

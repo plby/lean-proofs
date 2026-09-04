@@ -236,7 +236,7 @@ theorem exists_selected_handle_of_fullCore_crossEdge
       refine ⟨x, ha₁, y, hb₂, p, ?_, by simp [p], by simp [p], ?_⟩
       · simp [p, SimpleGraph.Walk.cons_isPath_iff, hxyne]
       · intro z hz
-        simp [p] at hz
+        simp only [Finset.union_assoc, Finset.mem_union] at hz
         rcases hz with rfl | rfl
         · exact Finset.mem_union_left _ hx
         · exact Finset.mem_union_right _ hy
@@ -247,7 +247,7 @@ theorem exists_selected_handle_of_fullCore_crossEdge
       · simp [p, SimpleGraph.Walk.cons_isPath_iff, hxyne, hxb,
           hby.ne.symm]
       · intro z hz
-        simp [p] at hz
+        simp only [Finset.union_assoc, Finset.mem_union] at hz
         rcases hz with rfl | rfl | rfl
         · exact Finset.mem_union_left _ hx
         · exact Finset.mem_union_right _ hy
@@ -259,7 +259,7 @@ theorem exists_selected_handle_of_fullCore_crossEdge
       refine ⟨a, ha₁, y, hb₂, p, ?_, by simp [p], by simp [p], ?_⟩
       · simp [p, SimpleGraph.Walk.cons_isPath_iff, hax.ne, hay, hxyne]
       · intro z hz
-        simp [p] at hz
+        simp only [Finset.union_assoc, Finset.mem_union] at hz
         rcases hz with rfl | rfl | rfl
         · exact Finset.mem_union_left _ (Finset.mem_union_left _ ha₁)
         · exact Finset.mem_union_left _ hx
@@ -271,7 +271,7 @@ theorem exists_selected_handle_of_fullCore_crossEdge
       · simp [p, SimpleGraph.Walk.cons_isPath_iff, hax.ne, hay, hab', hxyne, hxb,
           hby.ne.symm]
       · intro z hz
-        simp [p] at hz
+        simp only [Finset.union_assoc, Finset.mem_union] at hz
         rcases hz with rfl | rfl | rfl | rfl
         · exact Finset.mem_union_left _ (Finset.mem_union_left _ ha₁)
         · exact Finset.mem_union_left _ hx
@@ -311,7 +311,7 @@ theorem exists_selected_handle_of_hubAnchors
       refine ⟨p, ?_, by simp [p], by simp [p], ?_⟩
       · simp [p, SimpleGraph.Walk.cons_isPath_iff, hxyne]
       · intro z hz
-        simp [p] at hz
+        simp only [or_self, or_self_left] at hz
         rcases hz with rfl | rfl <;> simp
     · let p : G.Walk x b := SimpleGraph.Walk.cons hxy
         (SimpleGraph.Walk.cons hby.symm SimpleGraph.Walk.nil)
@@ -319,7 +319,7 @@ theorem exists_selected_handle_of_hubAnchors
       · simp [p, SimpleGraph.Walk.cons_isPath_iff, hxyne, hxb,
           hby.ne.symm]
       · intro z hz
-        simp [p] at hz
+        simp only [or_self_left] at hz
         rcases hz with rfl | rfl | rfl <;> simp
   · rcases hb.2 with hbyEq | hby
     · subst b
@@ -328,7 +328,7 @@ theorem exists_selected_handle_of_hubAnchors
       refine ⟨p, ?_, by simp [p], by simp [p], ?_⟩
       · simp [p, SimpleGraph.Walk.cons_isPath_iff, hax.ne, hay, hxyne]
       · intro z hz
-        simp [p] at hz
+        simp only [or_self] at hz
         rcases hz with rfl | rfl | rfl <;> simp
     · let p : G.Walk a b :=
         SimpleGraph.Walk.cons hax (SimpleGraph.Walk.cons hxy
@@ -411,7 +411,8 @@ theorem exists_homogeneous_oriented_crossMatching
       exact hedge.symm
   let color₁ : V × V → Bool := fun e => decide (left₀ e ∈ A₁)
   have hhalf₀ : (Finset.univ : Finset Bool).card * (M₀.card / 2) ≤ M₀.card := by
-    simp
+    simp only [univ_bool, Finset.mem_singleton, Bool.true_eq_false, not_false_eq_true,
+    Finset.card_insert_of_notMem, Finset.card_singleton, Nat.reduceAdd]
     exact Nat.mul_div_le M₀.card 2
   obtain ⟨c₁, _hc₁, hc₁card⟩ :=
     Finset.exists_le_card_fiber_of_mul_le_card_of_maps_to
@@ -422,7 +423,8 @@ theorem exists_homogeneous_oriented_crossMatching
     simpa [M₁] using hc₁card
   let color₂ : V × V → Bool := fun e => decide (right₀ e ∈ A₂)
   have hhalf₁ : (Finset.univ : Finset Bool).card * (M₁.card / 2) ≤ M₁.card := by
-    simp
+    simp only [univ_bool, Finset.mem_singleton, Bool.true_eq_false, not_false_eq_true,
+    Finset.card_insert_of_notMem, Finset.card_singleton, Nat.reduceAdd]
     exact Nat.mul_div_le M₁.card 2
   obtain ⟨c₂, _hc₂, hc₂card⟩ :=
     Finset.exists_le_card_fiber_of_mul_le_card_of_maps_to
@@ -2967,7 +2969,7 @@ theorem exists_cycle_length_between_of_dense_bfsPair
   let q : ℕ := 8 * (D + 1)
   have hKsupport : K.support.Nonempty := by
     exact Erdos182.support_nonempty_of_edgeFinset_nonempty hE
-  letI : Nonempty K.support := hKsupport.to_subtype
+  let : Nonempty K.support := hKsupport.to_subtype
   have hpath : ∃ a b : K.support, ∃ p : J.Walk a b,
       p.IsPath ∧ q ≤ p.length := by
     by_contra hno
@@ -3056,21 +3058,21 @@ theorem exists_medium_cycle_of_edge_density
   classical
   obtain ⟨H, instH, hHs, hHG, _hHedges, hHmin⟩ :=
     Erdos182.exists_induced_minDegree_core G (8 * δ) hE hdense
-  letI : DecidableRel H.Adj := instH
+  let : DecidableRel H.Adj := instH
   let J : SimpleGraph H.support := H.induce H.support
-  letI : Nonempty H.support := hHs.to_subtype
+  let : Nonempty H.support := hHs.to_subtype
   have hJmin : 4 * δ ≤ J.minDegree := by
     dsimp [J]
     omega
   obtain ⟨B, instB, hBJ, hBbip, hBdeg⟩ :=
     exists_bipartite_subgraph_twice_degree J hJmin
-  letI : DecidableRel B.Adj := instB
+  let : DecidableRel B.Adj := instB
   have hδpos : 0 < δ := by omega
   obtain ⟨c, instC, hCconn, hCbip, hCdeg, _hcB, _hcJ⟩ :=
     Erdos752.exists_connected_bipartite_component_of_le B
       (by positivity : 0 < 4 * δ) hBJ hBbip hBdeg
-  letI : DecidableRel c.toSimpleGraph.Adj := instC
-  letI : Nonempty c := c.nonempty_supp.to_subtype
+  let : DecidableRel c.toSimpleGraph.Adj := instC
+  let : Nonempty c := c.nonempty_supp.to_subtype
   let root : c := Classical.choice inferInstance
   have hcV : Fintype.card c ≤ Fintype.card V := by
     apply Fintype.card_le_of_injective (fun x : c => x.1.1)
@@ -6030,7 +6032,7 @@ theorem unbroken_alternatingScaffold_selected_count_of_hybrid_lift_at_scale
   let BJ : J → Finset V := fun i => B i.1
   let DJ : J → Finset V := fun i => D i.1
   by_cases hJ : Nonempty J
-  · letI : Nonempty J := hJ
+  · let : Nonempty J := hJ
     let I : J → Finset V := fun i =>
       Classical.choose
         (exists_large_indep_sdiff_of_not_hasThreeDisjointAdjPairFamily
@@ -6083,7 +6085,7 @@ theorem unbroken_alternatingScaffold_selected_count_of_hybrid_lift_at_scale
   · have hcard : Fintype.card J = 0 :=
       Fintype.card_eq_zero_iff.mpr (not_nonempty_iff.mp hJ)
     simp [J] at hcard
-    simp [hcard]
+    simp only [card_subtype_compl, gt_iff_lt]
     exact hn
 
 /-- An eighth-degree polynomial is below `2^(4r)` from a concrete constant
@@ -6627,13 +6629,13 @@ theorem exists_path_joining_disjoint_major_paths_fin
           hxy, hzx.symm, hzyNe]
       · simp [q]
       · intro w hw
-        simp [q] at hw
+        simp only [Finset.mem_union] at hw
         rcases hw with rfl | rfl | rfl
         · exact Or.inl (Finset.mem_union_left _ hx)
         · exact Or.inr hzD
         · exact Or.inl (Finset.mem_union_left _ hy)
       · intro w hw
-        simp [q] at hw
+        simp only [IsEmpty.exists_iff, Finset.mem_singleton, false_or] at hw
         rcases hw with rfl | rfl | rfl
         · exact Or.inl rfl
         · exact Or.inr (Or.inr (Or.inr (by simp)))
@@ -7506,7 +7508,7 @@ theorem exists_grouped_repeated_visit_route_scheme
                 IsCanonicalScaffoldMate G (hscaffold c) w (x j.1) ∨
                 IsCanonicalScaffoldMate G (hscaffold c) w (y j.1)) →
               w ∈ (route i).support → w = x i.1 ∨ w = y i.1 := by
-    letI : Nonempty (HubRequestFiber hub c) := hc
+    let : Nonempty (HubRequestFiber hub c) := hc
     apply exists_repeated_visit_route_scheme_fintype
       G (hscaffold c) (hrob c) (hmajorD c) (htheta c hc)
         (fun j : HubRequestFiber hub c => x j.1)
@@ -10128,7 +10130,7 @@ theorem eventually_exists_one_extra_component_seed_family
     simpa [regionBound] using hi.le
   classical
   by_cases hJne : Nonempty J
-  · letI : Nonempty J := hJne
+  · let : Nonempty J := hJne
     let I : J → Finset V := fun i =>
       trimOneFinset (shrinkFinset (AJ i ∪ BJ i) tau)
     let deltaJ : ℕ :=
@@ -10236,7 +10238,7 @@ theorem eventually_exists_one_extra_component_seed_family
     exact hcov.trans (by
       gcongr)
   · have hJempty : IsEmpty J := ⟨fun i => hJne ⟨i⟩⟩
-    letI : IsEmpty J := hJempty
+    let : IsEmpty J := hJempty
     have hJcard : Fintype.card J = 0 := Fintype.card_eq_zero
     let I : J → Finset V := fun i =>
       trimOneFinset (shrinkFinset (AJ i ∪ BJ i) tau)
@@ -11292,7 +11294,7 @@ theorem hasThreeDisjointAdjPairFamily_of_scaled_internal_degree
     HasThreeDisjointAdjPairFamily G B := by
   classical
   let H : SimpleGraph B := G.induce (B : Set V)
-  letI : Nonempty B := hBne.to_subtype
+  let : Nonempty B := hBne.to_subtype
   have hpoint : ∀ v : B, 5 ≤ H.degree v := by
     intro v
     have hv := hdeg v v.2
@@ -11543,7 +11545,7 @@ theorem exists_global_exceptional_set_meeting_short_path_handles_of_cycleFree_de
     intro i j hij
     let K := {a : κ // src a = i ∧ dst a = j}
     by_cases hK : Nonempty K
-    · letI : Nonempty K := hK
+    · let : Nonempty K := hK
       obtain ⟨x, hx⟩ | ⟨x, hx⟩ :=
         exists_common_attachment_of_cycleFree_short_path_handles_between_dense_robust_sets
           G hk (hrob i) (hrob j) (hregions i j hij) (hmatch i)
@@ -16849,11 +16851,11 @@ theorem denseCounterexample_false_of_data
   obtain ⟨RF, hRFne, hRFblocks, hRFdisj, hRFanti, hRFcard,
     hRFdeg, hRFleft⟩ := hwitness
   let ι := {B // B ∈ RF}
-  letI : DecidableEq ι := Classical.decEq ι
+  let : DecidableEq ι := Classical.decEq ι
   let B : ι → Finset V := fun i => i.1
   let U : Finset V := (Finset.univ : Finset ι).biUnion B
   let L : Finset V := Finset.univ \ U
-  letI : Nonempty ι := by
+  let : Nonempty ι := by
     obtain ⟨C, hC⟩ := hRFne
     exact ⟨⟨C, hC⟩⟩
   have hBne : ∀ i, (B i).Nonempty := by
@@ -17186,7 +17188,7 @@ theorem denseCounterexampleExcludedAt_of_stable_family
   unfold FinalAbsorptionBoundsAt at hbounds
   unfold DenseCounterexampleExcludedAt
   intro n hn hnk G hmin hfree hcycle
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
   obtain ⟨hk, hsqrt, hscale, ht, hprune, hall⟩ := hbounds
   obtain ⟨hsep, hroom, hmatch⟩ := hall n hn hnk
   have hfamily : DenseStableWitness G k n :=

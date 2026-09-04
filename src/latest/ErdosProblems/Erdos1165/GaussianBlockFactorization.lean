@@ -54,7 +54,7 @@ lemma gaussianBoxPathWeight_nonneg (l : ℕ)
 private lemma sum_gaussianPathWeight_zero_of_mem
     {R : ℕ} {x : ℤ} (hx : x ∈ gaussianBox R) :
     (∑ p : GaussianBoxPath R 0 x, gaussianBoxPathWeight l p) = 1 := by
-  letI : Unique (GaussianBoxPath R 0 x) := {
+  let : Unique (GaussianBoxPath R 0 x) := {
     default := ⟨(), hx⟩
     uniq := fun p ↦ Subtype.ext (by cases p.1; rfl) }
   rw [Fintype.sum_unique]
@@ -63,7 +63,7 @@ private lemma sum_gaussianPathWeight_zero_of_mem
 private lemma sum_gaussianPathWeight_zero_of_not_mem
     {R : ℕ} {x : ℤ} (hx : x ∉ gaussianBox R) :
     (∑ p : GaussianBoxPath R 0 x, gaussianBoxPathWeight l p) = 0 := by
-  letI : IsEmpty (GaussianBoxPath R 0 x) := ⟨fun p ↦ hx p.2⟩
+  let : IsEmpty (GaussianBoxPath R 0 x) := ⟨fun p ↦ hx p.2⟩
   exact Fintype.sum_empty _
 
 /-- The recursive box partition is exactly the sum of the Gaussian weights
@@ -176,7 +176,7 @@ lemma exp_neg_gaussianConnectorCost_eq {l R : ℕ} (hl : 0 < l) :
       (2 * Real.sqrt (2 * Real.pi) * (l : ℝ))⁻¹ := by
     rw [Real.exp_neg, Real.exp_log hden]
   rw [hlog, div_eq_mul_inv]
-  congr 1 <;> ring
+  congr 1 <;> ring_nf
 
 lemma gaussianConnectorFloor_le {l R : ℕ} {x : ℤ}
     (hl : 0 < l) (hx : x ∈ gaussianBox R) :
@@ -302,7 +302,7 @@ theorem exp_neg_gaussianBlockTotalCost_le
             (show b.start + b.steps ≤ b.start + b.steps from le_rfl)
             (hscale b (by simp))
           convert hb0 using 1 <;>
-            simp only [gaussianBlockSpectralCost, Nat.cast_add] <;> ring
+            simp only [gaussianBlockSpectralCost, Nat.cast_add] <;> ring_nf
       | cons c bs =>
           rw [gaussianBlockTotalCost, gaussianBlockProductLower]
           have hb0 := gaussianBoxPartition_ge_exp
@@ -311,7 +311,7 @@ theorem exp_neg_gaussianBlockTotalCost_le
           have hb : Real.exp (-gaussianBlockSpectralCost b) ≤
               gaussianBoxPartition b.start b.steps b.radius 0 := by
             convert hb0 using 1 <;>
-              simp only [gaussianBlockSpectralCost, Nat.cast_add] <;> ring
+              simp only [gaussianBlockSpectralCost, Nat.cast_add] <;> ring_nf
           have hc := ih
             (fun d hd ↦ hstart d (by simp [hd]))
             (fun d hd ↦ hscale d (by simp [hd]))

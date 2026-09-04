@@ -70,7 +70,7 @@ theorem largestPrimeStoppedBudget_le_caichExponent
             Real.exp (-c * (ell : ℝ) ^ q)) by ring,
         ← Real.exp_add]
       congr 1
-      ring
+      ring_nf
 
 /-- Caich's choice `10 < 2*K*eta` makes the exact stopped-Hoeffding budget
 summable, including the finite test-point union. -/

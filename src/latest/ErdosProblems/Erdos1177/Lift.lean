@@ -106,7 +106,7 @@ theorem liftHG_isTripleSystem :
       a ≠ b ∧ a ≠ c ∧ b ≠ c ∧ e = {a, b, c} := by
   intro e he
   obtain ⟨σ, τ, x, y, z, hpre, h_edge⟩ := (Set.mem_setOf.mp he);
-  refine' ⟨ ( σ, x ), ( σ, y ), ( τ, z ), _, _, _, h_edge.2 ⟩ <;> simp_all +decide ;
+  refine' ⟨ ( σ, x ), ( σ, y ), ( τ, z ), _, _, _, h_edge.2 ⟩ <;> simp_all +decide only [ne_eq, Prod.mk.injEq, not_and, true_and] ;
   · intro h; simp_all +decide ;
     exact absurd h_edge.1 ( by exact fun h => by have := τ.seq ⟨ σ.pos, hpre.1 ⟩ |>.2; aesop );
   · rintro rfl; exact absurd hpre.1 (lt_irrefl _)

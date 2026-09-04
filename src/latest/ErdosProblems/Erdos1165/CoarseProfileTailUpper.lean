@@ -1341,7 +1341,7 @@ theorem tsum_specifiedPrefixKeyMass_eq_endpointRows
   unfold recursiveProfileEndpointRow
   apply Finset.sum_congr rfl
   intro chain _
-  letI (j : Fin code.1.returnCount) : Countable
+  let (j : Fin code.1.returnCount) : Countable
       (RecursiveProfileGapCode n (k + 1) y
         (profileRefinementTrees code.1.returnCount
           (profileSegmentValues profile.1 (k + 1)).tail chain j)
@@ -1380,17 +1380,17 @@ theorem eventually_tsum_specifiedPrefixKeyMass_le_coreEnvelope :
   let E := {e : Fin code.1.returnCount →
       ProfileCycleMiddlePoint n (k + 1) y //
       ∀ j, (e j).1 = code.1.skeleton.2.1 j}
-  letI : Subsingleton E := ⟨by
+  let : Subsingleton E := ⟨by
     intro left right
     apply Subtype.ext
     funext j
     apply Subtype.ext
     exact (left.2 j).trans (right.2 j).symm⟩
   rcases isEmpty_or_nonempty E with hE | hE
-  · letI : IsEmpty E := hE
+  · let : IsEmpty E := hE
     rw [tsum_specifiedPrefixKeyMass_eq_endpointRows hkTwo code pref]
     simp
-  · letI : Unique E :=
+  · let : Unique E :=
       { default := Classical.choice hE
         uniq := fun value ↦ Subsingleton.elim value (Classical.choice hE) }
     let F : Finset (Profile n) :=

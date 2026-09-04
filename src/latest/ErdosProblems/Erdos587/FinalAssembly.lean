@@ -1641,7 +1641,7 @@ theorem exists_quadratic_value_in_rectangle_of_reduced_period :
   let q' := q / r
   let A' := A / r
   let B' := B / r
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   let Cshift : ℕ := (((C : ZMod q) - (X : ZMod q))).val
   let x₀ := Cshift % r
   let C' := Cshift / r
@@ -1663,7 +1663,7 @@ theorem exists_quadratic_value_in_rectangle_of_reduced_period :
     simpa only [A', B', q', r] using
       coprime_reduced_quadratic_coefficients A B q hq
   obtain ⟨v, hv, z', hz'⟩ := hQ₀ hq'pos.ne' hcop (C := C')
-  letI : NeZero q' := ⟨hq'pos.ne'⟩
+  let : NeZero q' := ⟨hq'pos.ne'⟩
   have hperiod' : q' ≤ Hz + 1 := by
     simpa only [q', r] using hperiod
   obtain ⟨w, hZw, hwZ, hwz⟩ :=
@@ -1741,7 +1741,7 @@ theorem exists_rank_two_congruence_reduced_period :
   intro a₀ b₀ a b X Hx Z Hz t hb hcop
   dsimp only
   intro hperiod hbound
-  letI : NeZero b := ⟨hb.ne'⟩
+  let : NeZero b := ⟨hb.ne'⟩
   let u : (ZMod b)ˣ := ZMod.unitOfCoprime a hcop
   let A : ℕ := (((u⁻¹ : (ZMod b)ˣ) : ZMod b) * a₀).val
   let B : ℕ := (((u⁻¹ : (ZMod b)ˣ) : ZMod b) * b₀).val
@@ -1881,7 +1881,7 @@ theorem rank_two_balanced_locator_of_reduced_period :
     exact Nat.div_pos
       (Nat.le_of_dvd hq₂ (Nat.gcd_dvd_right q₁ q₂)) hd
   have hab : a.Coprime b := Nat.coprime_div_gcd_div_gcd hd
-  letI : NeZero b := ⟨hb.ne'⟩
+  let : NeZero b := ⟨hb.ne'⟩
   let v : (ZMod b)ˣ := (ZMod.unitOfCoprime a hab)⁻¹
   have hρ :
       (((v : ZMod b) * (p * d : ZMod b)).val.gcd

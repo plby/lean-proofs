@@ -33,7 +33,7 @@ theorem quadraticRootsZMod_subset_pair_of_mem
     {p : ℕ} [NeZero p] (hp : p.Prime) {u v a : ZMod p}
     (ha : a ∈ quadraticRootsZMod p u v) :
     quadraticRootsZMod p u v ⊆ ({a, v - a} : Finset (ZMod p)) := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   intro b hb
   have ha' : a ^ 2 + u = v * a := mem_quadraticRootsZMod_iff.mp ha
   have hb' : b ^ 2 + u = v * b := mem_quadraticRootsZMod_iff.mp hb

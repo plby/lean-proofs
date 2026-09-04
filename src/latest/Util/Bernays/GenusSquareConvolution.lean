@@ -38,7 +38,7 @@ theorem genusLocalAF_square {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
       genusLocalAF hD ψ * genusLocalAF hD ψ =
         genusIdealAF hD ψ * squareSupportAF (fun p => discriminantCharacter _ hD.ne p = -1) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ
   let f := genusLocalAF hD ψ
   let a := genusIdealAF hD ψ

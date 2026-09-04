@@ -87,7 +87,7 @@ lemma homeoUnitCubeOfConvexCompact {V : Type*}
     [NormedAddCommGroup V] [NormedSpace ℝ V] [FiniteDimensional ℝ V]
     (s : Set V) (hcvx : Convex ℝ s) (hcmpct : IsCompact s) (hne : s.Nonempty)
     : ∃ k, Nonempty (s ≃ₜ Set.Icc (0 : Fin k → ℝ) 1) := by
-  haveI := hne.coe_sort
+  have := hne.coe_sort
   obtain ⟨p, hp⟩ := hne
   let W := affineSpan ℝ s
   let q : W := ⟨p, mem_affineSpan ℝ hp⟩
@@ -119,4 +119,3 @@ lemma homeoUnitCubeOfConvexCompact {V : Type*}
   obtain ⟨e₃⟩ := @unitCubeHomeoUnitBall k
   obtain ⟨e₄⟩ := homeoOfFinrankEq (Module.finrank_fin_fun ℝ (n := k)).symm
   exact ⟨k, ⟨(e.symm.trans e₂).trans (e₄.trans e₃.symm)⟩⟩
-

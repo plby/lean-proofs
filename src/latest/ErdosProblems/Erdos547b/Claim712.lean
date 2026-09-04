@@ -110,7 +110,7 @@ private theorem tree_embedding_respecting_semibipartition_aux
         simpa [f, hx u, hx x] using hw
   | succ n ih =>
       have hlarge : 1 < Fintype.card V := by omega
-      letI : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp hlarge
+      let : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp hlarge
       obtain ⟨x, hx⟩ :=
         @IsTree.exists_vert_degree_one_of_nontrivial V T _ (inferInstance) _ hT
       obtain ⟨p, hxp, hpuniq⟩ := degree_eq_one_iff_existsUnique_adj.mp hx
@@ -263,7 +263,7 @@ theorem independent_side_card_lt_of_no_leaves
       have h0 := Finset.card_pos.mpr hU₀
       have h1 := Finset.card_pos.mpr hU₁
       omega
-    letI : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp htwo
+    let : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp htwo
     let H : SimpleGraph V := T.between (U₁ : Set V) (U₀ : Set V)
     have hdeg (x : V) (hx : x ∈ U₁) : H.degree x = T.degree x := by
       rw [← H.card_neighborFinset_eq_degree, ← T.card_neighborFinset_eq_degree]
@@ -1486,7 +1486,7 @@ theorem claim712_no_biheavy_of_sparse_balanced
     exists_claim712_reservoir_side_avoiding_strong G X Aₓ v₀ n t s q
       hXcard hAₓX hAₓinternal hAₓt hAₓs hXminusAₓ hscale
   have hcrossYX : (G.interedges Y X).card < (b + 1) * (t + 1) := by
-    letI : Std.Symm G.Adj := G.symm
+    let : Std.Symm G.Adj := G.symm
     rw [show (G.interedges Y X).card = (G.interedges X Y).card by
       exact (@Rel.card_interedges_comm W G.Adj _ _ X Y).symm]
     exact hcross

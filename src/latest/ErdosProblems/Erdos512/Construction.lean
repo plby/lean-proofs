@@ -64,7 +64,7 @@ theorem Frec_closed (α : ℂ) (f h : ℕ → AddCircle (1 : ℝ) → ℂ) (m : 
   · simp +decide [ Frec, prodexp ];
   · simp_all +decide [ Finset.sum_range_succ, Frec ];
     simp +decide [ mul_add, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _, prodexp ];
-    exact Finset.sum_congr rfl fun i hi => by rw [ ← Complex.exp_add ] ; rw [ Finset.sum_Ioc_succ_top ( by linarith [ Finset.mem_range.mp hi ] ) ] ; ring;
+    exact Finset.sum_congr rfl fun i hi => by rw [ ← Complex.exp_add ] ; rw [ Finset.sum_Ioc_succ_top ( by linarith [ Finset.mem_range.mp hi ] ) ] ; ring_nf;
 
 /-
 Calculus inequality `exp(-t/4) + t/5 ≤ 1` for `t ∈ [0,1]`.
@@ -170,7 +170,7 @@ theorem geom_sum_quarter_Ico (j m : ℕ) :
     ∑ i ∈ Finset.Ico j (m + 1), (1 / 4 : ℝ) ^ i ≤ (4 / 3) * (1 / 4 : ℝ) ^ j := by
   classical
   by_cases h : j ≤ m;
-  · rw [ geom_sum_Ico ] <;> ring <;> norm_num;
+  · rw [ geom_sum_Ico ] <;> ring_nf <;> norm_num;
     linarith;
   · rw [ Finset.Ico_eq_empty ] <;> norm_num ; linarith
 
@@ -196,7 +196,7 @@ theorem re_coeff_ge {f h : ℕ → AddCircle (1 : ℝ) → ℂ} {B : ℝ} (hB : 
       norm_num [ D ];
       norm_num [ show ( 1 / 4 : ℂ ) ^ j = ( 1 / 4 : ℝ ) ^ j by norm_num [ Complex.ext_iff, pow_succ ] ];
       norm_cast;
-    · unfold fourierCoeff; simp +decide [ mul_sub ] ; ring;
+    · unfold fourierCoeff; simp +decide [ mul_sub ] ; ring_nf;
       rw [ MeasureTheory.integral_add ];
       · rw [ MeasureTheory.integral_neg ] ; ring;
       · refine' Continuous.integrable_of_hasCompactSupport _ _;
@@ -218,7 +218,7 @@ theorem re_coeff_ge {f h : ℕ → AddCircle (1 : ℝ) → ℂ} {B : ℝ} (hB : 
         apply_rules [ norm_fourierCoeff_mul_le ];
         exact Continuous.sub ( prodexp_continuous hhc i m ) continuous_const;
       refine le_trans h_bound ?_;
-      refine' le_trans ( mul_le_mul ( hf2 i ) ( L2nrm_prodexp_sub_one_le hB hhc hhre hh2 i m ) ( by exact L2nrm_nonneg _ ) ( by positivity ) ) _ ; ring ; norm_num;
+      refine' le_trans ( mul_le_mul ( hf2 i ) ( L2nrm_prodexp_sub_one_le hB hhc hhre hh2 i m ) ( by exact L2nrm_nonneg _ ) ( by positivity ) ) _ ; ring_nf ; norm_num;
       norm_num [ pow_mul' ];
     convert norm_sum_le _ _ |> le_trans <| Finset.sum_le_sum hD_bound using 1 <;> try rfl
     rw [ Finset.sum_Ico_eq_sub _ ( by linarith ) ];
@@ -336,7 +336,7 @@ theorem coAnalytic_sub_one {G : AddCircle (1 : ℝ) → ℂ} (hGc : Continuous G
     {p : ℤ} (hp : 0 < p) : fourierCoeff (fun x => G x - 1) p = 0 := by
   classical
   unfold fourierCoeff at *; simp_all +decide [  ] ;
-  convert hG p hp using 1 ; ring;
+  convert hG p hp using 1 ; ring_nf;
   convert integral_add _ _ using 1;
   · rw [ MeasureTheory.integral_neg, show ( ∫ a : AddCircle 1, ( starRingEnd ℂ ) ↑ ( p • a ).toCircle ∂AddCircle.haarAddCircle ) = 0 from ?_ ] ; norm_num [ fourierCoeff ];
     convert integral_fourier ( -p ) using 1 ; norm_num [ hp.ne' ];

@@ -388,7 +388,7 @@ theorem involution_coset_gap_identity (q : ℕ) (hq : 0 < q) :
         (∑ a : (ZMod q)ˣ,
           abstractCosetGap q (unitResidue q) (involutionSubgroup q) a) =
       q * q.totient := by
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hq⟩
   have hv : Function.Injective (unitResidue q) := by
     intro a b hab
     apply Units.ext

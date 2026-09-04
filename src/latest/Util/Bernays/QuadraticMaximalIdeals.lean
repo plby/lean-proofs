@@ -28,8 +28,8 @@ theorem quadraticMaximal_ne_bot (d b : ℤ) (P : Ideal (QuadraticAlgebra ℤ d b
 theorem exists_natPrime_under_quadraticMaximal {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     (P : Ideal (QuadraticAlgebra ℤ d b)) (hP : P.IsMaximal) :
     ∃ q : ℕ, q.Prime ∧ P.under ℤ = Ideal.span ({(q : ℤ)} : Set ℤ) := by
-  letI := quadraticOrderIsDomain hD
-  letI : P.IsMaximal := hP
+  let := quadraticOrderIsDomain hD
+  let : P.IsMaximal := hP
   obtain ⟨a, ha⟩ := IsPrincipalIdealRing.principal (P.under ℤ)
   have ha₀ : a ≠ 0 := by
     intro hz
@@ -85,7 +85,7 @@ theorem rootIdeal_isUnit {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     letI := quadraticOrderIsDomain hD
     IsUnit ((rootIdeal d b q r hr : Ideal (QuadraticAlgebra ℤ d b)) :
       FractionalIdeal (QuadraticAlgebra ℤ d b)⁰ (FractionRing (QuadraticAlgebra ℤ d b))) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   have hs := quadratic_conjugate_root (d : ZMod q) (b : ZMod q) r hr
   have hrs := quadratic_roots_distinct (d : ZMod q) (b : ZMod q) r hr hmod
   have hq₀ : ((q : ℤ) : QuadraticAlgebra ℤ d b) ≠ 0 := by

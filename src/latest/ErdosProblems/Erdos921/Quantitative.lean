@@ -68,7 +68,7 @@ lemma disjoint_cyclicSucc_of_stable {N : ℕ} [NeZero N]
 lemma extraPositions_card {r d : ℕ} (hr : 0 < r)
     (S : StableSet (2 * r + d) r) :
     (extraPositions S.1).card = d := by
-  letI : NeZero (2 * r + d) := ⟨by omega⟩
+  let : NeZero (2 * r + d) := ⟨by omega⟩
   have hdisj : Disjoint S.1 (cyclicSucc S.1) :=
     disjoint_cyclicSucc_of_stable S.2.2
   have hunion : (S.1 ∪ cyclicSucc S.1).card = 2 * r := by
@@ -183,7 +183,7 @@ def pointedStableCode {r d : ℕ} (hr : 0 < r) :
 
 lemma pointedStableCode_injective {r d : ℕ} (hr : 0 < r) :
     Function.Injective (pointedStableCode (d := d) hr) := by
-  letI : NeZero (2 * r + d) := ⟨by omega⟩
+  let : NeZero (2 * r + d) := ⟨by omega⟩
   intro p q hpq
   have hs : p.2.1 = q.2.1 := congrArg Prod.fst hpq
   have he : extraPositions p.1.1 = extraPositions q.1.1 := by

@@ -24,7 +24,7 @@ theorem quadraticNorm_natAbs_le {d b : ℤ} (z : QuadraticAlgebra ℤ d b) {R : 
 
 theorem residueGrid_injective {Q : ℕ} (hQ : 0 < Q) {r s : ZMod Q} {i j : ℕ}
     (h : r.val + Q * i = s.val + Q * j) : r = s ∧ i = j := by
-  letI : NeZero Q := ⟨hQ.ne'⟩
+  let : NeZero Q := ⟨hQ.ne'⟩
   have hm := congrArg (fun n : ℕ => n % Q) h
   simp only [Nat.add_mul_mod_self_left, Nat.mod_eq_of_lt (ZMod.val_lt r),
     Nat.mod_eq_of_lt (ZMod.val_lt s)] at hm
@@ -83,7 +83,7 @@ theorem affineBoxPoint_norm_le {d b : ℤ} (c : QuadraticAlgebra ℤ d b)
     (r : ZMod Q × ZMod Q) (i j : Fin L) :
     (affineBoxPoint c μ Q L r i j).norm.natAbs ≤
       (1 + b.natAbs + d.natAbs) * (2 * μ + 1) ^ 2 * Q ^ 2 * L ^ 2 := by
-  letI : NeZero Q := ⟨hQ.ne'⟩
+  let : NeZero Q := ⟨hQ.ne'⟩
   have hr₁ := ZMod.val_lt r.1
   have hr₂ := ZMod.val_lt r.2
   have hi := i.isLt

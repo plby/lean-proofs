@@ -79,7 +79,8 @@ theorem exp_mul_truncated_suffix_le_full_suffix
       have hzero : ((w + 2 - w - 2 : ℕ) : ℝ) ^ (w + 2 - p) = 0 := by
         simp [Nat.sub_sub, hq.ne']
       rw [hzero]
-      simp
+      simp only [add_tsub_cancel_left, Nat.add_one_sub_one, Nat.cast_one, one_pow, mul_one, mul_zero, Nat.cast_add,
+    Nat.cast_ofNat, ge_iff_le]
       positivity
   · have hratio := firstCrossing_suffix_ratio_le hlt hpN
     have hdenA : (0 : ℝ) < (N - w - 1 : ℕ) := by

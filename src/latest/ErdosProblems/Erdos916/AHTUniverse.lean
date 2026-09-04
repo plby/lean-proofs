@@ -39,7 +39,7 @@ theorem degreeThreeFalseTwinPrinciple_of_typeZero
   let e : V ≃ Fin (Fintype.card V) := Fintype.equivFin V
   let H : SimpleGraph (Fin (Fintype.card V)) := G.map e
   let φ : G ≃g H := SimpleGraph.Iso.map e G
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   have hcardH : 4 ≤ Fintype.card (Fin (Fintype.card V)) := by
     simpa using hcard
   have hdegH (x : Fin (Fintype.card V)) : 3 ≤ H.degree x := by

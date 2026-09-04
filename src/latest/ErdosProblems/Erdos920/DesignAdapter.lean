@@ -312,7 +312,7 @@ theorem poor_edges_le_real
       |(orderedEdges (Incidence q t) A B : ℝ) - (d : ℝ) / N * X| ≤
         Real.sqrt (((d : ℝ) - c) * X) := by
     dsimp [N, X]
-    convert hmix using 1 <;> ring
+    convert hmix using 1 <;> ring_nf
   have hupper :
       (orderedEdges (Incidence q t) A B : ℝ) - (d : ℝ) / N * X ≤
         Real.sqrt (((d : ℝ) - c) * X) := by

@@ -19,7 +19,7 @@ def completeColourGraph (col : U → Fin 2) : SimpleGraph U where
 theorem completeColourGraph_connected (col : U → Fin 2) (hcol : Function.Surjective col) :
     (completeColourGraph col).Connected := by
   obtain ⟨u₀, _hu₀⟩ := hcol 0
-  letI : Nonempty U := ⟨u₀⟩
+  let : Nonempty U := ⟨u₀⟩
   constructor
   intro u v
   by_cases huv : col u ≠ col v

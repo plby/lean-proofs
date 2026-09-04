@@ -207,7 +207,7 @@ lemma ncard_ideals_abs
       exact Subtype.ext hIJ
     simpa [s] using (Set.Finite.preimage hinj hs)
   have hfinite : (idealsAbsNorm K B).Finite := hfinite_aux.subset hsubset
-  letI : Fintype ↑(idealsAbsNorm K B) := hfinite.fintype
+  let : Fintype ↑(idealsAbsNorm K B) := hfinite.fintype
   let f : ClassGroup (NumberField.RingOfIntegers K) → ↑(idealsAbsNorm K B) := fun C =>
     let I := Classical.choose (hrep C)
     ⟨I, (Classical.choose_spec (hrep C)).2⟩
@@ -335,7 +335,7 @@ lemma summable_zeta_summand
           Finset.sum (Finset.Icc 1 n) countEq := by
     intro n
     let A : Type _ := {I : NonzeroIntegersIdeal K // absNormNat I ≤ n}
-    letI : Finite A := hfinite_le n
+    let : Finite A := hfinite_le n
     let toNorm : A → ↥(Finset.Icc 1 n) := fun I =>
       ⟨absNormNat I.1, by
         refine Finset.mem_Icc.mpr ?_
@@ -499,7 +499,7 @@ lemma summable_zeta_summand
     {I : NonzeroIntegersIdeal K // absNormNat I = n}
   have hfiber_finite : ∀ n : ℕ, Finite (fiber n) := by
     intro n
-    letI : Fintype {I : NonzeroIntegersIdeal K // absNormNat I = n} :=
+    let : Fintype {I : NonzeroIntegersIdeal K // absNormNat I = n} :=
       (hfinite_eq n).fintype
     exact Finite.of_injective
       (fun I : fiber n =>
@@ -517,13 +517,13 @@ lemma summable_zeta_summand
     refine (summable_sigma_of_nonneg hnonneg).2 ?_
     constructor
     · intro n
-      letI : Finite (fiber n) := hfiber_finite n
+      let : Finite (fiber n) := hfiber_finite n
       exact Summable.of_finite
     · have hfiber_tsum :
         ∀ n : ℕ, (∑' I : fiber n, sigmaTerm ⟨n, I⟩) =
           countEq n * ((((n : ℕ) : ℝ)⁻¹) ^ (2 : ℕ)) := by
           intro n
-          letI := Fintype.ofFinite (fiber n)
+          let := Fintype.ofFinite (fiber n)
           calc
             ∑' I : fiber n, sigmaTerm ⟨n, I⟩
                 = ∑ I : fiber n, sigmaTerm ⟨n, I⟩ := by
@@ -744,7 +744,7 @@ lemma zeta_tsum_count
   have hfiberFinite :
       ∀ n : ℕ, Finite {I : NonzeroIntegersIdeal K // normFun I = n} := by
     intro n
-    letI : Fintype {J : Ideal (NumberField.RingOfIntegers K) // Ideal.absNorm J = n} :=
+    let : Fintype {J : Ideal (NumberField.RingOfIntegers K) // Ideal.absNorm J = n} :=
       (Ideal.finite_setOf_absNorm_eq (S := NumberField.RingOfIntegers K) n).fintype
     refine Finite.of_injective
       (fun I : {I : NonzeroIntegersIdeal K // normFun I = n} =>
@@ -766,8 +766,8 @@ lemma zeta_tsum_count
             ((n : ℝ)⁻¹) ^ (2 : ℕ))
           (fiberSum n) := by
     intro n
-    haveI : Finite {I : NonzeroIntegersIdeal K // normFun I = n} := hfiberFinite n
-    letI : Fintype {I : NonzeroIntegersIdeal K // normFun I = n} := Fintype.ofFinite _
+    have : Finite {I : NonzeroIntegersIdeal K // normFun I = n} := hfiberFinite n
+    let : Fintype {I : NonzeroIntegersIdeal K // normFun I = n} := Fintype.ofFinite _
     convert hasSum_fintype
       (fun _ : {I : NonzeroIntegersIdeal K // normFun I = n} =>
         ((n : ℝ)⁻¹) ^ (2 : ℕ)) using 1
@@ -823,7 +823,7 @@ lemma prime_abs_pow
         simpa [p0, Ideal.under] using hspan
   refine ⟨p, Ideal.inertiaDeg' (Ideal.span ({(p : ℤ)} : Set ℤ))
     (P : Ideal (NumberField.RingOfIntegers K)), hpprime, ?_⟩
-  letI : P.LiesOver (Ideal.span ({(p : ℤ)} : Set ℤ)) := hover
+  let : P.LiesOver (Ideal.span ({(p : ℤ)} : Set ℤ)) := hover
   simpa using Ideal.absNorm_eq_pow_inertiaDeg' (R := NumberField.RingOfIntegers K) P hpprime
 
 lemma ideal_factors_self
@@ -844,7 +844,7 @@ lemma factor_abs_pow
     (hP : P ∈ UniqueFactorizationMonoid.factors
       (I : Ideal (NumberField.RingOfIntegers K))) :
     ∃ p k : ℕ, Nat.Prime p ∧ Ideal.absNorm P = p ^ k := by
-  letI : P.IsPrime :=
+  let : P.IsPrime :=
     Ideal.isPrime_of_prime (UniqueFactorizationMonoid.prime_of_factor P hP)
   exact prime_abs_pow P
     (Prime.ne_zero (UniqueFactorizationMonoid.prime_of_factor P hP))
@@ -940,7 +940,7 @@ lemma ideal_count_zero
     idealNormCount K 0 = 0 := by
   classical
   rw [idealNormCount]
-  letI : IsEmpty {I : NonzeroIntegersIdeal K //
+  let : IsEmpty {I : NonzeroIntegersIdeal K //
       Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers K)) = 0} := by
     refine ⟨?_⟩
     intro I
@@ -1367,7 +1367,7 @@ lemma lies_abs_pow
         simpa [q, p0, Ideal.under] using hspan
   have hoverq' : P.LiesOver (Ideal.span ({(q : ℤ)} : Set ℤ)) := by
     simpa [rationalPrimeIdeal] using hoverq
-  letI : P.LiesOver (Ideal.span ({(q : ℤ)} : Set ℤ)) := hoverq'
+  let : P.LiesOver (Ideal.span ({(q : ℤ)} : Set ℤ)) := hoverq'
   have hqnorm :
       Ideal.absNorm P = q ^ Ideal.inertiaDeg' (rationalPrimeIdeal q)
         (P : Ideal (NumberField.RingOfIntegers K)) := by
@@ -1433,9 +1433,9 @@ lemma weighted_subtype_multichoose
   have hinjInflateFin : Function.Injective inflateFin := by
     intro a b h
     exact hinjInflate <| (Sym.map_injective e.injective k) h
-  letI : Finite {a : α → ℕ // ∑ x, a x * w x = k} :=
+  let : Finite {a : α → ℕ // ∑ x, a x * w x = k} :=
     Finite.of_injective inflateFin hinjInflateFin
-  letI : Fintype {a : α → ℕ // ∑ x, a x * w x = k} := Fintype.ofFinite _
+  let : Fintype {a : α → ℕ // ∑ x, a x * w x = k} := Fintype.ofFinite _
   calc
     Nat.card {a : α → ℕ // ∑ x, a x * w x = k} =
         Fintype.card {a : α → ℕ // ∑ x, a x * w x = k} := by
@@ -1457,7 +1457,7 @@ lemma ideal_count_multichoose
   classical
   let pI : Ideal ℤ := rationalPrimeIdeal p
   have hpI0 : pI ≠ ⊥ := rational_ne_bot hp
-  letI : pI.IsMaximal := rational_ideal_maximal hp
+  let : pI.IsMaximal := rational_ideal_maximal hp
   let α := ↥(IsDedekindDomain.primesOverFinset pI (NumberField.RingOfIntegers K))
   have hαcard : Fintype.card α ≤ Module.finrank ℚ K := by
     rw [show Fintype.card α = (IsDedekindDomain.primesOverFinset pI (NumberField.RingOfIntegers
@@ -1480,7 +1480,7 @@ lemma ideal_count_multichoose
     have hxover' : (x.1 : Ideal (NumberField.RingOfIntegers K)).LiesOver
         (Ideal.span ({(p : ℤ)} : Set ℤ)) := by
       simpa [pI, rationalPrimeIdeal] using hxover
-    letI : (x.1 : Ideal (NumberField.RingOfIntegers K)).LiesOver
+    let : (x.1 : Ideal (NumberField.RingOfIntegers K)).LiesOver
         (Ideal.span ({(p : ℤ)} : Set ℤ)) := hxover'
     simpa [w, pI, rationalPrimeIdeal] using
       Ideal.absNorm_eq_pow_inertiaDeg' (R := NumberField.RingOfIntegers K)
@@ -1505,7 +1505,7 @@ lemma ideal_count_multichoose
           (I.1 : Ideal (NumberField.RingOfIntegers K))),
         P ∈ IsDedekindDomain.primesOverFinset pI (NumberField.RingOfIntegers K) := by
     intro I P hP
-    letI : P.IsPrime :=
+    let : P.IsPrime :=
       Ideal.isPrime_of_prime (UniqueFactorizationMonoid.prime_of_factor P hP)
     have hP0 : P ≠ ⊥ :=
       Prime.ne_zero (UniqueFactorizationMonoid.prime_of_factor P hP)
@@ -1616,8 +1616,8 @@ lemma ideal_count_multichoose
       apply Subtype.ext
       funext x
       exact Fin.ext_iff.mp (congrFun hab x)
-  letI : Finite target := htargetFinite
-  letI : Fintype target := Fintype.ofFinite target
+  let : Finite target := htargetFinite
+  let : Fintype target := Fintype.ofFinite target
   have hcountVec_inj : Function.Injective countVec := by
     intro I J hIJ
     have hs : factorsOver I = factorsOver J := by
@@ -1644,8 +1644,8 @@ lemma ideal_count_multichoose
               rw [hfactors]
       _ = (J.1 : Ideal (NumberField.RingOfIntegers K)) := by
               exact ideal_factors_self J.1
-  letI : Finite (idealsAbs K (p ^ k)) := Finite.of_injective countVec hcountVec_inj
-  letI : Fintype (idealsAbs K (p ^ k)) := Fintype.ofFinite _
+  let : Finite (idealsAbs K (p ^ k)) := Finite.of_injective countVec hcountVec_inj
+  let : Fintype (idealsAbs K (p ^ k)) := Fintype.ofFinite _
   calc
     idealNormCount K (p ^ k) = Nat.card (idealsAbs K (p ^ k)) := by
           rfl

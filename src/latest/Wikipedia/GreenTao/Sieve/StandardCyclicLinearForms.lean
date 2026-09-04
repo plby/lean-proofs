@@ -313,7 +313,7 @@ theorem hasStandardCyclicMajorantLinearForms :
     filter_upwards
         [hRtwo, hfinite, hcompleteClose, hbaselineClose] with
       M hRM hfiniteM hcompleteM hbaselineM
-    letI : NeZero (Nseq M) := ⟨Nat.succ_ne_zero M⟩
+    let : NeZero (Nseq M) := ⟨Nat.succ_ne_zero M⟩
     have hinterior :
         ∀ tu ∈
             SmoothSieveCutoff.selectedCFZPairedFourierBox e

@@ -82,8 +82,8 @@ private lemma FractionalCoveredSizeAtMost.relabel
     (hG : FractionalCoveredSizeAtMost G q) (φ : α ≃ β) :
     FractionalCoveredSizeAtMost (G.map φ.toEmbedding) q := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.map φ.toEmbedding).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.map φ.toEmbedding).Adj := Classical.decRel _
   intro wR wB hwR hwB
   let uR : Finset α → ℝ := relabelWeight φ.symm wR
   let uB : Finset α → ℝ := relabelWeight φ.symm wB

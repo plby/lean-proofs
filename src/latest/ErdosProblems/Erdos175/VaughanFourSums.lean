@@ -120,7 +120,7 @@ theorem bLow_add_bHigh (M K : ℕ) :
 lemma abs_muLow_le_one (M m : ℕ) : |muLow M m| ≤ (1 : ℝ) := by
   unfold muLow
   by_cases hm : m ≤ M
-  · simp [hm]
+  · simp only [ArithmeticFunction.coe_mk, if_pos hm]
     exact_mod_cast ArithmeticFunction.abs_moebius_le_one (n := m)
   · simp [hm]
 

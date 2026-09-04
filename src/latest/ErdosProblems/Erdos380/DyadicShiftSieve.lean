@@ -51,7 +51,7 @@ theorem dyadicResidueSurvivors_card_le_uniform {P k H : ℕ}
     ((residueClassSurvivors vanish m₀ N).card : ℝ) ≤
       ((N : ℝ) + N) / (((H : ℝ) / (40 * k * Real.log P)) ^ k) := by
   classical
-  letI : ∀ q : dyadicPrimes P, NeZero q.1 :=
+  let : ∀ q : dyadicPrimes P, NeZero q.1 :=
     fun q => ⟨(Finset.mem_filter.mp q.2).2.ne_zero⟩
   have hPR : (0 : ℝ) < P := by exact_mod_cast (by omega : 0 < P)
   have hkR : (0 : ℝ) < k := by exact_mod_cast hk

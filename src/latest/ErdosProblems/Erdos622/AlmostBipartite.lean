@@ -393,8 +393,8 @@ theorem eventually_minimumCoverOn_randomMatching_count_le
   have hscaled := (tendsto_sqrtCoverThreshold hL).eventually hrandom
   filter_upwards [hscaled] with n hn
   intro W instF instD G A C hC hsize
-  letI : Fintype W := instF
-  letI : DecidableEq W := instD
+  let : Fintype W := instF
+  let : DecidableEq W := instD
   have hCind := hC.induce G
   have hcoverCard : (restrictedPart A C).card = C.card :=
     card_restrictedPart_of_subset hC.1.1
@@ -424,8 +424,8 @@ theorem eventually_minimumCoverOn_ambient_randomMatching_count_le
   have hscaled := (tendsto_sqrtCoverThreshold hL).eventually hrandom
   filter_upwards [hscaled] with n hn
   intro W instF instD G A C hC hsize
-  letI : Fintype W := instF
-  letI : DecidableEq W := instD
+  let : Fintype W := instF
+  let : DecidableEq W := instD
   exact hn W (internalGraph G A) C hC.internalGraph hsize
 
 /-- Move exactly the excess vertices from the larger side of a cut to obtain
@@ -900,8 +900,8 @@ theorem eventually_minimumCoverOn_ambient_linearForest_count_le
       [eventually_minimumCoverOn_ambient_randomMatching_count_le
         hL heps hepsHalf hdelta] with n hn
   intro W instF instD G A C hC hsize k hk
-  letI : Fintype W := instF
-  letI : DecidableEq W := instD
+  let : Fintype W := instF
+  let : DecidableEq W := instD
   have hsub :
       ((Finset.univ : Finset W).powerset.filter fun S ↦
           ¬ ContainsLinearForestWith (internalGraph G A) S k) ⊆
@@ -1650,7 +1650,7 @@ theorem uniformCaseDensityBound_almostBipartite_of_sample_bounds
     SamplingSuitable.eventually_not_suitable_almostBipartiteCount_le hρ hdelta,
     hdeterministic] with n hnGood hnBad hnDet
   intro G
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
   intro hreg hab
   obtain ⟨A, B, hAB, hgoodCount⟩ := hnGood G hreg hab
   have hgoodCount' :
@@ -1842,7 +1842,7 @@ theorem exists_finite_inner_windows_of_compact
   have hUopen (x : K) : IsOpen (U x) := by
     exact (isOpen_lt ha.restrict continuous_const).inter
       (isOpen_lt continuous_const hb.restrict)
-  letI : CompactSpace K := isCompact_iff_compactSpace.mp hK
+  let : CompactSpace K := isCompact_iff_compactSpace.mp hK
   have hUcover : (Set.univ : Set K) ⊆ ⋃ x, U x := by
     intro x hx
     simp only [Set.mem_iUnion]

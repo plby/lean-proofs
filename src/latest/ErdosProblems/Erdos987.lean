@@ -383,7 +383,7 @@ theorem Circle.l2_averaging_bound {C' : ℝ} (w : ℕ → Circle) (k₀ K n : �
                     norm_sum_le _ _
               _ = n := by simp [Circle.norm_coe]
           _ ≤ _ := by simp; nlinarith
-      simp; apply pow_le_pow_left₀ (by positivity)
+      simp only [add_zero]; apply pow_le_pow_left₀ (by positivity)
       replace h : (∃ l ≥ k₀, k = k' + l) ∨ (∃ l ≥ k₀, k' = k + l) := by
         have : k' + k₀ ≤ k ∨ k + k₀ ≤ k' := by omega
         rcases this with _ | _
@@ -1705,7 +1705,7 @@ measurable with respect to `apssvShortSigma r`. Direct from `le_iSup_of_le` with
 the bundled index `⟨c, hc⟩`. -/
 lemma apssv_eta_coord_apssvShortSigma_measurable (r : ℕ) (c : List Bool) (hc : c.length < r) :
     @Measurable _ _ (apssvShortSigma r) _ (fun η : List Bool → Bool => η c) := by
-  letI : MeasurableSpace (List Bool → Bool) := apssvShortSigma r
+  let : MeasurableSpace (List Bool → Bool) := apssvShortSigma r
   refine Measurable.of_comap_le ?_
   exact le_iSup_of_le (⟨c, hc⟩ : {c : List Bool // c.length < r}) le_rfl
 
@@ -1715,7 +1715,7 @@ coordinate `apssvWordPrefix w i`, whose length `i` is `< r` (by
 `apssvWordPrefix_length`). -/
 lemma apssvJ_apssvShortSigma_measurable (r : ℕ) (w : Fin r → Bool) :
     @Measurable _ _ (apssvShortSigma r) _ (fun η : List Bool → Bool => apssvJ η r w) := by
-  letI : MeasurableSpace (List Bool → Bool) := apssvShortSigma r
+  let : MeasurableSpace (List Bool → Bool) := apssvShortSigma r
   unfold apssvJ
   refine Finset.measurable_sum _ fun i _ => ?_
   by_cases h : i < r
@@ -1736,7 +1736,7 @@ with the (continuous) ℕ-cast and the (continuous) `e ∘ (· * k / 2^r)` map. 
 lemma apssvBlockSum_c_apssvShortSigma_measurable (r : ℕ) (w : Fin r → Bool) (k : ℕ) :
     @Measurable _ _ (apssvShortSigma r) _
       (fun η : List Bool → Bool => e ((k : ℝ) * apssvJ η r w / (2 : ℝ) ^ r)) := by
-  letI : MeasurableSpace (List Bool → Bool) := apssvShortSigma r
+  let : MeasurableSpace (List Bool → Bool) := apssvShortSigma r
   have h_natCast_real : Measurable ((↑) : ℕ → ℝ) := measurable_of_countable _
   have h_J : Measurable (fun η : List Bool → Bool => apssvJ η r w) :=
     apssvJ_apssvShortSigma_measurable r w
@@ -1774,7 +1774,7 @@ lemma apssvLongSigma_le (r : ℕ) :
 measurable with respect to `apssvLongSigma r`. -/
 lemma apssv_eta_coord_apssvLongSigma_measurable (r : ℕ) (c : List Bool) (hc : r ≤ c.length) :
     @Measurable _ _ (apssvLongSigma r) _ (fun η : List Bool → Bool => η c) := by
-  letI : MeasurableSpace (List Bool → Bool) := apssvLongSigma r
+  let : MeasurableSpace (List Bool → Bool) := apssvLongSigma r
   refine Measurable.of_comap_le ?_
   exact le_iSup_of_le (⟨c, hc⟩ : {c : List Bool // r ≤ c.length}) le_rfl
 
@@ -1783,7 +1783,7 @@ lemma apssv_eta_coord_apssvLongSigma_measurable (r : ℕ) (c : List Bool) (hc : 
 (by `apssvWordPrefix_length` and `apssvPrefix_length`). -/
 lemma apssvT_apssvLongSigma_measurable {r : ℕ} (w : Fin r → Bool) (P : ℕ) :
     @Measurable _ _ (apssvLongSigma r) _ (fun η : List Bool → Bool => apssvT η w P) := by
-  letI : MeasurableSpace (List Bool → Bool) := apssvLongSigma r
+  let : MeasurableSpace (List Bool → Bool) := apssvLongSigma r
   -- η ↦ apssvT η w P = apssvT_factored P ∘ (η ↦ ℓ ↦ η (apssvWordPrefix w r ++ apssvPrefix P ℓ)).
   have h_eq : (fun η : List Bool → Bool => apssvT η w P) =
       apssvT_factored P ∘
@@ -1805,7 +1805,7 @@ lemma apssvT_apssvLongSigma_measurable {r : ℕ} (w : Fin r → Bool) (P : ℕ) 
 lemma apssvBlockSum_Y_apssvLongSigma_measurable {r : ℕ} (w : Fin r → Bool) (P k : ℕ) :
     @Measurable _ _ (apssvLongSigma r) _
       (fun η : List Bool → Bool => e ((k : ℝ) * apssvT η w P / (2 : ℝ) ^ r)) := by
-  letI : MeasurableSpace (List Bool → Bool) := apssvLongSigma r
+  let : MeasurableSpace (List Bool → Bool) := apssvLongSigma r
   have h_T : Measurable (fun η : List Bool → Bool => apssvT η w P) :=
     apssvT_apssvLongSigma_measurable w P
   have h_outer : Measurable (fun t : ℝ => e ((k : ℝ) * t / (2 : ℝ) ^ r)) := by
@@ -2730,7 +2730,7 @@ lemma apssvT_e_neg_under_flip {r : ℕ} (w : Fin r → Bool) (P q : ℕ) (hq : 1
     have h_dvd_succ : 2 ^ (ℓ₀ + 1) ∣ q := by
       rw [hq'_eq, hn, pow_succ]
       exact ⟨n, by ring⟩
-    haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+    have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
     exact pow_succ_padicValNat_not_dvd (p := 2) hq_ne h_dvd_succ
   -- Step B: apply pointwise T-shift.
   have h_T_shift := apssvT_flipAt_eq w P ℓ₀ η
@@ -5159,7 +5159,7 @@ lemma iIndepFun_condExpKernel_of_indep_of_indep
       condExpKernel μ m ω' (f' i) = μ (f' i) :=
     fun i hi => condExpKernel_apply_eq_of_indep hm hm' h_indep (h_f'_meas_m' i hi)
   have h_inter_meas_m' : MeasurableSet[m'] (⋂ i ∈ s, f' i) := by
-    haveI : MeasurableSpace Ω := m'
+    have : MeasurableSpace Ω := m'
     exact MeasurableSet.biInter s.countable_toSet (fun i hi => h_f'_meas_m' i hi)
   have h_inter : ∀ᵐ ω' ∂(μ.trim hm),
       condExpKernel μ m ω' (⋂ i ∈ s, f' i) = μ (⋂ i ∈ s, f' i) :=
@@ -5294,8 +5294,8 @@ theorem Kernel.iIndepFun.iIndepSets_apply_ae_seed
       exact MeasurableSpace.measurableSet_generateFrom (hf_mem i hi)
     exact h S hf_meas
   -- Step 4: take countable intersection over (S, ψ).
-  haveI : ∀ i, Countable ↥(s' i) := fun i => (hs'_countable i).to_subtype
-  haveI : Countable (Finset ι) := by infer_instance
+  have : ∀ i, Countable ↥(s' i) := fun i => (hs'_countable i).to_subtype
+  have : Countable (Finset ι) := by infer_instance
   have h_joint : ∀ᵐ ω' ∂ν,
       ∀ (S : Finset ι) (ψ : ∀ i, ↥(s' i)),
       κ ω' (⋂ i ∈ S, (ψ i : Set Ω)) = ∏ i ∈ S, κ ω' ((ψ i : Set Ω)) := by
@@ -5396,8 +5396,8 @@ theorem Kernel.iIndepFun.iIndepFun_apply_ae
       fun i hi => hπ_meas i (f i) (hf_mem i hi)
     exact h S hf_meas
   -- Step 4: take countable intersection over (S, ψ : ∀ i, ↥(π i)).
-  haveI : ∀ i, Countable ↥(π i) := fun i => (hπ_countable i).to_subtype
-  haveI : Countable (Finset ι) := by infer_instance
+  have : ∀ i, Countable ↥(π i) := fun i => (hπ_countable i).to_subtype
+  have : Countable (Finset ι) := by infer_instance
   have h_joint : ∀ᵐ ω' ∂ν,
       ∀ (S : Finset ι) (ψ : ∀ i, ↥(π i)),
       κ ω' (⋂ i ∈ S, (ψ i : Set Ω)) = ∏ i ∈ S, κ ω' ((ψ i : Set Ω)) := by
@@ -5757,7 +5757,7 @@ lemma apssv_per_w_HasCondSubgaussianMGF (P k : ℕ) {r : ℕ} (w : Fin r → Boo
     -- (Helper 2 applied to Re(Y_w), Im(Y_w) — fixed integrands, no z parameter),
     -- then apply Hoeffding to κ(ω').
     -- κ(ω') is a probability measure (condExpKernel is Markov).
-    haveI h_κ_prob : MeasureTheory.IsProbabilityMeasure
+    have h_κ_prob : MeasureTheory.IsProbabilityMeasure
         (ProbabilityTheory.condExpKernel apssvEtaMeasure (apssvShortSigma r) ω') :=
       ProbabilityTheory.IsMarkovKernel.isProbabilityMeasure
         (κ := ProbabilityTheory.condExpKernel apssvEtaMeasure (apssvShortSigma r)) ω'
@@ -6034,7 +6034,7 @@ lemma apssv_per_w_HasCondSubgaussianMGF_param (P k : ℕ) {r : ℕ} (w : Fin r �
     set a : ℝ := c - (H : ℝ) with ha_def
     set b : ℝ := c + (H : ℝ) with hb_def
     have h_b_sub_a : b - a = 2 * (H : ℝ) := by show (c + (H : ℝ)) - (c - (H : ℝ)) = _; ring
-    haveI h_κ_prob : MeasureTheory.IsProbabilityMeasure
+    have h_κ_prob : MeasureTheory.IsProbabilityMeasure
         (ProbabilityTheory.condExpKernel apssvEtaMeasure (apssvShortSigma r) ω') :=
       ProbabilityTheory.IsMarkovKernel.isProbabilityMeasure
         (κ := ProbabilityTheory.condExpKernel apssvEtaMeasure (apssvShortSigma r)) ω'
@@ -6459,7 +6459,7 @@ lemma apssvBlockSum_centered_summand_HasCondSubgaussianMGF_sum (P r k : ℕ) :
       e ((k : ℝ) * apssvJ ω' r w / (2 : ℝ) ^ r) with hZ_def
     have h_Z_norm : ∀ w, ‖Z w‖ = 1 := fun w => norm_e _
     -- κ(ω') is a probability measure.
-    haveI h_κ_prob : MeasureTheory.IsProbabilityMeasure
+    have h_κ_prob : MeasureTheory.IsProbabilityMeasure
         (ProbabilityTheory.condExpKernel apssvEtaMeasure (apssvShortSigma r) ω') :=
       ProbabilityTheory.IsMarkovKernel.isProbabilityMeasure
         (κ := ProbabilityTheory.condExpKernel apssvEtaMeasure (apssvShortSigma r)) ω'
@@ -6907,7 +6907,7 @@ lemma apssvBlockSum_centered_summand_im_HasCondSubgaussianMGF_sum (P r k : ℕ) 
     set Z : (Fin r → Bool) → ℂ := fun w =>
       e ((k : ℝ) * apssvJ ω' r w / (2 : ℝ) ^ r) with hZ_def
     have h_Z_norm : ∀ w, ‖Z w‖ = 1 := fun w => norm_e _
-    haveI h_κ_prob : MeasureTheory.IsProbabilityMeasure
+    have h_κ_prob : MeasureTheory.IsProbabilityMeasure
         (ProbabilityTheory.condExpKernel apssvEtaMeasure (apssvShortSigma r) ω') :=
       ProbabilityTheory.IsMarkovKernel.isProbabilityMeasure
         (κ := ProbabilityTheory.condExpKernel apssvEtaMeasure (apssvShortSigma r)) ω'
@@ -7338,7 +7338,7 @@ lemma apssvBlockSum_centered_summand_HasCondSubgaussianMGF_sum_linear (P r k : �
     set Z : (Fin r → Bool) → ℂ := fun w =>
       e ((k : ℝ) * apssvJ ω' r w / (2 : ℝ) ^ r) with hZ_def
     have h_Z_norm : ∀ w, ‖Z w‖ = 1 := fun w => norm_e _
-    haveI h_κ_prob : MeasureTheory.IsProbabilityMeasure
+    have h_κ_prob : MeasureTheory.IsProbabilityMeasure
         (ProbabilityTheory.condExpKernel apssvEtaMeasure (apssvShortSigma r) ω') :=
       ProbabilityTheory.IsMarkovKernel.isProbabilityMeasure
         (κ := ProbabilityTheory.condExpKernel apssvEtaMeasure (apssvShortSigma r)) ω'
@@ -7772,7 +7772,7 @@ lemma apssvBlockSum_centered_summand_im_HasCondSubgaussianMGF_sum_linear (P r k 
     set Z : (Fin r → Bool) → ℂ := fun w =>
       e ((k : ℝ) * apssvJ ω' r w / (2 : ℝ) ^ r) with hZ_def
     have h_Z_norm : ∀ w, ‖Z w‖ = 1 := fun w => norm_e _
-    haveI h_κ_prob : MeasureTheory.IsProbabilityMeasure
+    have h_κ_prob : MeasureTheory.IsProbabilityMeasure
         (ProbabilityTheory.condExpKernel apssvEtaMeasure (apssvShortSigma r) ω') :=
       ProbabilityTheory.IsMarkovKernel.isProbabilityMeasure
         (κ := ProbabilityTheory.condExpKernel apssvEtaMeasure (apssvShortSigma r)) ω'

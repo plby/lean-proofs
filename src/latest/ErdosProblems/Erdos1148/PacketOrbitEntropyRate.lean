@@ -22,7 +22,7 @@ theorem exists_packet_orbit_entropy_linear_bound {σ : ℝ} (hσpos : 0 < σ) (h
   refine ⟨C, hC, ?_⟩
   intro d hd hns base P κ m₀ hκ hm₀ hq hbad
   let μ := normalizedDiscriminantPacket hd hns
-  letI : IsProbabilityMeasure μ := normalizedDiscriminantPacket_isProbability hd hns base
+  let : IsProbabilityMeasure μ := normalizedDiscriminantPacket_isProbability hd hns base
   let n := packetObservationTime (d : ℝ)
   let m := μ.real (goodOrbitSet P κ n)
   have hmm₀ : m₀ ≤ m := hbad.trans (goodOrbitSet_mass_lower P μ

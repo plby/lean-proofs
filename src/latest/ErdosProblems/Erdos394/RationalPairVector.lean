@@ -104,7 +104,7 @@ theorem rational_lattice_vector_forces_compatible_label
     (hpL : ¬p ∣ L) :
     (a p, b p) ∈ compatibleRatioLabels K A B := by
   have hp : p.Prime := hprime p hpP
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hpF : p ∉ F := by
     intro hpFin
     have hfac := forced_pair_lattice_coordinates_factor P F a b hFP hprime x

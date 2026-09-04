@@ -100,7 +100,7 @@ theorem exists_eighth_mul_sqrt_le_quarter_floor (a : ℝ) (ha : 0 < a) :
   obtain ⟨N, hN⟩ := exists_half_mul_sqrt_le_floor (a / 4) ha4
   refine ⟨N, ?_⟩
   intro n hn
-  convert hN n hn using 1 <;> ring
+  convert hN n hn using 1 <;> ring_nf
 
 /-- The corresponding floor never exceeds its unrounded square-root scale. -/
 lemma floor_mul_sqrt_le (a : ℝ) (ha : 0 ≤ a) (n : ℕ) :

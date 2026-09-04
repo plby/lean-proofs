@@ -214,9 +214,11 @@ theorem null_blocker_compactness
     choose ρ hρ₁ hρ₂ using h_cube_pushforward;
     exact ⟨ fun i => ⟨ ρ i, hρ₁ i ⟩, fun i S => by simp +decide [ hρ₂ i S ] ⟩;
   obtain ⟨Z, φ, hZ, hφ⟩ := hε₀.2 (Finset.image e Finset.univ) ρ (fun i => {E.image e | E ∈ C i}) ε hε₁ hε₂ (by
-  simp +zetaDelta at *;
+  simp +zetaDelta only [Set.mem_ofPred_eq, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂,
+    image_nonempty] at *;
   exact fun i E hE => ⟨ hC i E hE |>.1, by rw [ Finset.card_image_of_injective _ e.injective ] ; exact hC i E hE |>.2, Finset.image_subset_image <| Finset.subset_univ _ ⟩) (by
-  simp +decide [ cdens ];
+  simp +decide only [mem_image, mem_univ, true_and, tsub_le_iff_right, forall_exists_index,
+    forall_apply_eq_imp_iff];
   intro x; specialize hN1 x; simp +decide [ dens ] at hN1 ⊢;
   convert! hN1 using 1;
   exact congr_arg₂ _ ( congr_arg₂ _ ( Finset.sum_congr rfl fun i _ => by simpa using! hρ i { x } ) rfl ) rfl) (by

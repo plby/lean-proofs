@@ -51,7 +51,7 @@ theorem cube_neighborFinset (d : ℕ) (v : CubeVertex d) :
     (cubeGraph d).neighborFinset v =
       Finset.univ.image (fun i ↦ Function.update v i (v i + 1)) := by
   ext w
-  simp [cubeGraph]
+  simp only [mem_neighborFinset, Finset.mem_image, Finset.mem_univ, true_and]
   constructor <;> intro h <;> simp_all +decide [hammingDist]
   · obtain ⟨i, hi⟩ := Finset.card_eq_one.mp h
     use i
@@ -990,7 +990,7 @@ lemma ambientEdgeCount_eq_mul {d : ℕ} (hd : 0 < d) :
   calc
     (2 ^ d * (2 ^ d - 1)) / 2 =
         (2 ^ (d - 1) * 2 * (2 ^ d - 1)) / 2 := by rw [hpow]
-    _ = 2 * (2 ^ (d - 1) * (2 ^ d - 1)) / 2 := by ring
+    _ = 2 * (2 ^ (d - 1) * (2 ^ d - 1)) / 2 := by ring_nf
     _ = _ := by simp
 
 lemma ambientEdgeCount_div_two_eq {d : ℕ} (hd : 2 ≤ d) :
@@ -1001,7 +1001,7 @@ lemma ambientEdgeCount_div_two_eq {d : ℕ} (hd : 2 ≤ d) :
   calc
     (2 ^ (d - 1) * (2 ^ d - 1)) / 2 =
         (2 ^ (d - 2) * 2 * (2 ^ d - 1)) / 2 := by rw [hpow]
-    _ = 2 * (2 ^ (d - 2) * (2 ^ d - 1)) / 2 := by ring
+    _ = 2 * (2 ^ (d - 2) * (2 ^ d - 1)) / 2 := by ring_nf
     _ = _ := by simp
 
 lemma comparisonLayer_conditions {d : ℕ} (hd : 8 ≤ d) :
@@ -1943,7 +1943,7 @@ theorem connected_exists_covering_closedWalk :
         apply Finset.eq_univ_of_card
         simpa using (hcard.trans hn).symm
       · have hn2 : 2 ≤ n := by omega
-        letI : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp (by omega)
+        let : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp (by omega)
         obtain ⟨v, hvconn⟩ :=
           hconn.exists_connected_induce_compl_singleton_of_finite_nontrivial
         obtain ⟨z, hzv⟩ := exists_ne v
@@ -2285,7 +2285,7 @@ theorem natCard_CopyWalkCode (G : SimpleGraph V) [Fintype V] [DecidableEq V]
       (2 ^ d) ^ Fintype.card G.ConnectedComponent *
         d ^ (2 * (Fintype.card V - Fintype.card G.ConnectedComponent)) := by
   classical
-  letI : Fintype (CopyWalkCode G d) := by
+  let : Fintype (CopyWalkCode G d) := by
     unfold CopyWalkCode
     exact Pi.instFintype
   rw [Nat.card_eq_fintype_card]
@@ -2319,7 +2319,7 @@ theorem natCard_copy_le_cube_walk_bound {V : Type*} [Fintype V]
       (2 ^ d) ^ Fintype.card G.ConnectedComponent *
         d ^ (2 * (Fintype.card V - Fintype.card G.ConnectedComponent)) := by
   classical
-  letI : Finite (CopyWalkCode G d) := copyWalkCode_finite G d
+  let : Finite (CopyWalkCode G d) := copyWalkCode_finite G d
   rw [← natCard_CopyWalkCode G d]
   exact Nat.card_le_card_of_injective (copyWalkCode G d)
     (copyWalkCode_injective G d)
@@ -2844,7 +2844,7 @@ theorem card_perms_containing_edge_set_le (d : ℕ)
   let A : Finset (Equiv.Perm (CubeVertex d)) :=
     (Finset.univ : Finset (Equiv.Perm (CubeVertex d))).filter fun σ =>
       F ⊆ cubePattern d σ⁻¹
-  letI : Fintype (SimpleGraph.Copy H (cubeGraph d)) := Fintype.ofFinite _
+  let : Fintype (SimpleGraph.Copy H (cubeGraph d)) := Fintype.ofFinite _
   let φ : A → SimpleGraph.Copy H (cubeGraph d) := fun a =>
     permutationCopyOfSubset d F a.1 (by
       have ha := a.2
@@ -3175,7 +3175,7 @@ theorem natCard_SharpCopyCode {V : Type*} [Fintype V]
       (2 ^ d) ^ Nat.card G.ConnectedComponent *
         d ^ (Fintype.card V - Nat.card G.ConnectedComponent) := by
   classical
-  letI : Fintype (SharpCopyCode G d) := by
+  let : Fintype (SharpCopyCode G d) := by
     exact Pi.instFintype
   rw [Nat.card_eq_fintype_card]
   unfold SharpCopyCode
@@ -3208,7 +3208,7 @@ theorem natCard_copy_le_cube_tree_bound {V : Type*} [Fintype V]
       (2 ^ d) ^ Nat.card G.ConnectedComponent *
         d ^ (Fintype.card V - Nat.card G.ConnectedComponent) := by
   classical
-  letI : Finite (SharpCopyCode G d) := sharpCopyCode_finite G d
+  let : Finite (SharpCopyCode G d) := sharpCopyCode_finite G d
   rw [← natCard_SharpCopyCode G d]
   exact Nat.card_le_card_of_injective (sharpCopyCode G d)
     (sharpCopyCode_injective G d)
@@ -4929,7 +4929,7 @@ theorem natCard_CoreIsolatedCode_le (d : ℕ)
         ((2 ^ d - (edgeSupport (overlapCore F)).card) * d) ^
           (isolatedEdges F).card := by
   classical
-  letI : Fintype (CoreIsolatedCode d F) := by
+  let : Fintype (CoreIsolatedCode d F) := by
     unfold CoreIsolatedCode
     exact Sigma.instFintype
   rw [Nat.card_eq_fintype_card]
@@ -4979,7 +4979,7 @@ theorem card_perms_containing_edge_set_le_core_isolated (d : ℕ)
     ⟨a.1, (Finset.mem_filter.mp a.2).2⟩
   let φ : A → CoreIsolatedCode d F := fun a =>
     coreIsolatedCode d F hF (toEvent a)
-  letI : Fintype (CoreIsolatedCode d F) := by
+  let : Fintype (CoreIsolatedCode d F) := by
     unfold CoreIsolatedCode
     exact Sigma.instFintype
   have hfiber (z : CoreIsolatedCode d F) :
@@ -5383,7 +5383,7 @@ theorem sharpIsolatedWeight_le_universal (d : ℕ) {a : ℝ}
     unfold sharpIsolatedWeight
     dsimp [v] at hzero
     rw [hzero]
-    simp
+    simp only [Nat.cast_mul, CharP.cast_eq_zero, div_zero, mul_zero, ge_iff_le]
     positivity
 
 end Erdos578
@@ -6251,7 +6251,7 @@ theorem coreDecay_tendsto_zero : Tendsto coreDecay atTop (nhds 0) := by
     push_cast
     rw [pow_add, div_eq_mul_inv, div_pow]
     ring
-  · ring
+  · ring_nf
 
 theorem cutoff_lt_two_pow_eventually :
     ∀ᶠ d : ℕ in atTop, d ^ 4 < 2 ^ d := by
@@ -6431,11 +6431,11 @@ theorem comparisonExcess_tendsto_one :
   have hnum : Tendsto (fun d => 1 - z0 d + 4 * z1 d)
       atTop (nhds 1) := by
     convert (tendsto_const_nhds.sub hz0).add (tendsto_const_nhds.mul hz1) using 1 <;>
-      ring
+      ring_nf
   have hden : Tendsto (fun d => 1 - z0 d - 8 * z1 d)
       atTop (nhds 1) := by
     convert (tendsto_const_nhds.sub hz0).sub (tendsto_const_nhds.mul hz1) using 1 <;>
-      ring
+      ring_nf
   have hquot := hnum.div hden (by norm_num : (1 : ℝ) ≠ 0)
   have heq :
       ((fun d => 1 - z0 d + 4 * z1 d) /
@@ -6487,14 +6487,14 @@ theorem backgroundCorrectionNumerator_tendsto_zero :
   have hsmall2 : Tendsto
       (fun d : ℕ => ((d : ℝ) ^ 2 / ((2 ^ d : ℕ) : ℝ)) *
         (1 / ((2 ^ d : ℕ) : ℝ))) atTop (nhds 0) := by
-    convert h2.mul h0 using 1 <;> ring
+    convert h2.mul h0 using 1 <;> ring_nf
   have hsmall3 : Tendsto
       (fun d : ℕ => ((d : ℝ) ^ 3 / ((2 ^ d : ℕ) : ℝ)) *
         (1 / ((2 ^ d : ℕ) : ℝ))) atTop (nhds 0) := by
-    convert h3.mul h0 using 1 <;> ring
+    convert h3.mul h0 using 1 <;> ring_nf
   unfold backgroundCorrectionNumerator
   convert ((h2.sub hsmall2).add (h3.const_mul 8)).sub
-      (hsmall3.const_mul 4) using 1 <;> ring
+      (hsmall3.const_mul 4) using 1 <;> ring_nf
 
 theorem backgroundCorrectionDenominator_tendsto_one :
     Tendsto backgroundCorrectionDenominator atTop (nhds 1) := by
@@ -6506,7 +6506,7 @@ theorem backgroundCorrectionDenominator_tendsto_one :
   convert (hone.sub h0).mul ((hone.sub h0).sub (h1.const_mul 4)) using 1
   · funext d
     ring
-  · ring
+  · ring_nf
 
 theorem normalize_background_factor (x y : ℝ) (hx : x ≠ 0) :
     x * (x - 1 + 4 * y) / ((x - 1) * (x - 1 - 4 * y)) =
@@ -6600,7 +6600,7 @@ theorem comparisonExcess_rate_tendsto_zero :
     convert (hone.sub h0).sub (h1.const_mul 8) using 1
     · funext d
       ring
-    · ring
+    · ring_nf
   have hlim := (h3.const_mul 12).div hD (by norm_num : (1 : ℝ) ≠ 0)
   have heq : (fun d : ℕ => 12 *
       ((d : ℝ) ^ 3 / (((2 ^ d : ℕ) : ℝ))) / D d) =ᶠ[atTop]
@@ -6641,7 +6641,7 @@ theorem cutoffFactor_tendsto_one :
   have hden : Tendsto
       (fun d : ℕ => 1 - (d : ℝ) ^ 4 / (((2 ^ d : ℕ) : ℝ)))
       atTop (nhds 1) := by
-    convert tendsto_const_nhds.sub h4 using 1 <;> ring
+    convert tendsto_const_nhds.sub h4 using 1 <;> ring_nf
   have hone : Tendsto (fun _d : ℕ => (1 : ℝ)) atTop (nhds 1) :=
     tendsto_const_nhds
   let R : ℕ → ℝ := fun d =>
@@ -6679,7 +6679,7 @@ theorem cutoffCorrectionNumerator_tendsto_zero :
   have h6 := polynomial_div_two_pow_tendsto_zero 6
   have h10 := polynomial_div_two_pow_tendsto_zero 10
   unfold cutoffCorrectionNumerator
-  convert (h6.const_mul 2).sub (h10.mul h0) using 1 <;> ring
+  convert (h6.const_mul 2).sub (h10.mul h0) using 1 <;> ring_nf
 
 theorem cutoffCorrectionDenominator_tendsto_one :
     Tendsto cutoffCorrectionDenominator atTop (nhds 1) := by
@@ -6687,7 +6687,7 @@ theorem cutoffCorrectionDenominator_tendsto_one :
   have hone : Tendsto (fun _d : ℕ => (1 : ℝ)) atTop (nhds 1) :=
     tendsto_const_nhds
   unfold cutoffCorrectionDenominator
-  convert (hone.sub h4).pow 2 using 1 <;> ring
+  convert (hone.sub h4).pow 2 using 1 <;> ring_nf
 
 theorem cutoffFactor_rate_tendsto_zero :
     Tendsto (fun d : ℕ => (d : ℝ) ^ 2 * (cutoffFactor d - 1))
@@ -6745,7 +6745,7 @@ theorem isolatedSmallLambda_sub_main_tendsto_zero :
   · funext d
     unfold isolatedSmallLambda cutoffFactor
     ring
-  · ring
+  · ring_nf
 
 theorem isolatedSmallLambda_sub_background_tendsto_zero :
     Tendsto (fun d : ℕ =>
@@ -6753,7 +6753,7 @@ theorem isolatedSmallLambda_sub_background_tendsto_zero :
         comparisonBackgroundExponent d) atTop (nhds 0) := by
   have h := isolatedSmallLambda_sub_main_tendsto_zero.sub
     comparisonBackgroundExponent_sub_main_tendsto_zero
-  convert h using 1 <;> ring
+  convert h using 1 <;> ring_nf
 
 end Erdos578
 
@@ -6922,7 +6922,7 @@ theorem leadingOverlapTerm_tendsto_one :
   have hcore : Tendsto (fun d : ℕ => 1 + 4 * coreDecay d)
       atTop (nhds 1) := by
     convert tendsto_const_nhds.add (coreDecay_tendsto_zero.const_mul 4) using 1 <;>
-      ring
+      ring_nf
   have hexp : Tendsto (fun d : ℕ =>
       Real.exp (isolatedSmallLambda d (comparisonExcess d) (d ^ 4) -
         comparisonBackgroundExponent d)) atTop (nhds 1) := by
@@ -6933,7 +6933,7 @@ theorem leadingOverlapTerm_tendsto_one :
       rfl
     · norm_num
   unfold leadingOverlapTerm
-  convert hcore.mul hexp using 1 <;> ring
+  convert hcore.mul hexp using 1 <;> ring_nf
 
 theorem momentUpperBound_tendsto_one :
     Tendsto momentUpperBound atTop (nhds 1) := by
@@ -7139,7 +7139,7 @@ theorem erdos_578 : Tendsto successProbability atTop (nhds 1) := by
   have honeMinusLow : Tendsto (fun d : ℕ => 1 - lowEdgeProbability d)
       atTop (nhds 1) := by
     convert tendsto_const_nhds.sub lowEdgeProbability_tendsto_zero using 1 <;>
-      ring
+      ring_nf
   have hlowerLimit := fixedSuccessProbability_comparison_tendsto_one.mul
     honeMinusLow
   have hlower : ∀ᶠ d : ℕ in atTop,

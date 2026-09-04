@@ -232,7 +232,7 @@ lemma shiftedA11Factor_mul_connected_le_tailStirling
   rw [hsegment]
   unfold shiftedA11Factor
   rw [← Real.exp_add]
-  convert ha11 using 1 <;> ring
+  convert ha11 using 1 <;> ring_nf
 
 /-- Pointwise A.11 comparison for a member of the injective multiblock
 family, including the exact centered prefix. -/

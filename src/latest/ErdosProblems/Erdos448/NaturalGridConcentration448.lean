@@ -522,7 +522,7 @@ lemma exp_decay_log_gridScale {K j : ℕ} (hK : 0 < K) :
     Real.log_pow]
   rw [mul_add, Real.exp_add, ← Real.exp_nat_mul]
   congr 1
-  ring
+  ring_nf
 
 lemma decayRatio_nonneg : 0 ≤ Real.exp (naturalDecayExponent * Real.log 3) :=
   (Real.exp_pos _).le

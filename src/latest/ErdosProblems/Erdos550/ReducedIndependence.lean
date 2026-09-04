@@ -46,7 +46,8 @@ lemma exists_reg_clique {ι : Type*} [Fintype ι] [DecidableEq ι]
   -- By contradiction, assume that $Rg$ is $(q+1)$-clique-free.
   by_contra h_contra
   have h_clique_free : (induce (↑I) Rg).CliqueFree (q + 1) := by
-    intro s hs; contrapose! h_contra; use Finset.image Subtype.val s; simp_all +decide [ SimpleGraph.isNClique_iff ] ;
+    intro s hs; contrapose! h_contra; use Finset.image Subtype.val s; simp_all +decide only [SetLike.coe_sort_coe, mem_image, Subtype.exists, exists_and_right, exists_eq_right,
+    ne_eq, forall_exists_index] ;
     exact ⟨ Finset.image_subset_iff.mpr fun x hx => x.2, by rw [ Finset.card_image_of_injective _ Subtype.coe_injective, hs.2 ], fun a ha ha' b hb hb' hab => by simpa [ hab ] using! hs.1 ha' hb' <| by aesop ⟩;
   contrapose! h;
   convert! SimpleGraph.CliqueFree.card_edgeFinset_le h_clique_free using 1;
@@ -100,12 +101,13 @@ lemma turan_lt_induce_of_few_irregular {ι : Type*} [Fintype ι] [DecidableEq ι
   have h_edge_count : ((induce (↑𝒜) Rg).edgeFinset.card + (induce (↑𝒜) Rg)ᶜ.edgeFinset.card) = (Nat.choose (Finset.card 𝒜) 2) := by
     rw [ ← Finset.card_union_of_disjoint ];
     · have h_card_edges : (induce (𝒜 : Set ι) Rg).edgeFinset ∪ (induce (𝒜 : Set ι) Rg)ᶜ.edgeFinset = (⊤ : SimpleGraph {x // x ∈ 𝒜}).edgeFinset := by
-        ext ⟨x, y⟩; simp [SimpleGraph.compl_adj];
+        ext ⟨x, y⟩; simp only [SetLike.coe_sort_coe, mem_union, mem_edgeFinset, mem_edgeSet, comap_adj, compl_adj, ne_eq,
+    edgeFinset_top, Set.toFinset_compl, mem_compl, Set.mem_toFinset, Sym2.mem_diagSet, Sym2.mk_isDiag_iff];
         by_cases h : x = y <;> simp +decide [ h ];
         exact em _;
       rw [ h_card_edges, SimpleGraph.card_edgeFinset_top_eq_card_choose_two ];
       rw [ Fintype.card_coe ];
-    · simp +decide [ Finset.disjoint_left, SimpleGraph.edgeFinset ];
+    · simp +decide only [SetLike.coe_sort_coe, disjoint_edgeFinset];
       rintro ⟨ ⟨ u, hu ⟩, ⟨ v, hv ⟩ ⟩ ; simp +decide [ SimpleGraph.compl_adj ] ; aesop;
   cases k : Finset.card 𝒜 <;> simp_all +decide [ Nat.choose_two_right ] ; omega
 

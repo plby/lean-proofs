@@ -39,11 +39,11 @@ noncomputable def idealClassAreaConstant (d b : ℤ) (F : Ideal (QuadraticAlgebr
 theorem idealClassAreaConstant_pos {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     (F : Ideal (QuadraticAlgebra ℤ d b)) (hF : F ≠ ⊥) :
     0 < idealClassAreaConstant d b F := by
-  letI := quadraticOrderIsDomain hD
-  letI : Finite (QuadraticAlgebra ℤ d b ⧸ F) := Ring.HasFiniteQuotients.finiteQuotient hF
-  letI := finite_quadraticOrder_units hD
-  letI := quadraticIdealLattice_discrete hD ⊤
-  letI := quadraticIdealLattice_full hD ⊤ top_ne_bot
+  let := quadraticOrderIsDomain hD
+  let : Finite (QuadraticAlgebra ℤ d b ⧸ F) := Ring.HasFiniteQuotients.finiteQuotient hF
+  let := finite_quadraticOrder_units hD
+  let := quadraticIdealLattice_discrete hD ⊤
+  let := quadraticIdealLattice_full hD ⊤ top_ne_bot
   have hU : (0 : ℝ) < Nat.card (QuadraticAlgebra ℤ d b ⧸ F)ˣ := by exact_mod_cast Nat.card_pos
   have hu : (0 : ℝ) < Nat.card (QuadraticAlgebra ℤ d b)ˣ := by exact_mod_cast Nat.card_pos
   have hnorm : (0 : ℝ) < F.cardQuot := by
@@ -58,13 +58,13 @@ theorem idealClassArea_error {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
       |(Nat.card (RestrictedIdealClassBall (QuadraticAlgebra ℤ d b) C N
         (fun J => IsCoprime (J : Ideal (QuadraticAlgebra ℤ d b)) F)) : ℝ) -
           idealClassAreaConstant d b F * N| ≤ K * (Real.sqrt (N : ℝ) + 1) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C
   let O := QuadraticAlgebra ℤ d b
-  letI : Finite (O ⧸ F) := Ring.HasFiniteQuotients.finiteQuotient hF₀
-  letI := finite_quadraticOrder_units hD
-  letI := quadraticIdealLattice_discrete hD ⊤
-  letI := quadraticIdealLattice_full hD ⊤ top_ne_bot
+  let : Finite (O ⧸ F) := Ring.HasFiniteQuotients.finiteQuotient hF₀
+  let := finite_quadraticOrder_units hD
+  let := quadraticIdealLattice_discrete hD ⊤
+  let := quadraticIdealLattice_full hD ⊤ top_ne_bot
   obtain ⟨I, hIC, hIF⟩ := InvertibleIdeal.exists_coprime_representative C⁻¹ F hF₀
   obtain ⟨K, hK, hbound⟩ := coprimeQuadraticBall_error hD (I : Ideal O) F I.ne_bot hF₀ hIF
   have hu : (0 : ℝ) < Nat.card Oˣ := by exact_mod_cast Nat.card_pos (α := Oˣ)

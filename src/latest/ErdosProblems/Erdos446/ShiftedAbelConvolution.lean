@@ -95,7 +95,7 @@ theorem shifted_choose_power_le (t p e : ℕ)
               (p - 1 : ℕ) ^ (e + 1) =
             ((Nat.choose (t + e + 1) (p + e + 1) : ℝ) *
               (p - 1 : ℕ)) * ((p - 1 : ℕ) : ℝ) ^ e := by
-          ring
+          ring_nf
         _ ≤ (N * Nat.choose (t + e) (p + e)) *
               ((p - 1 : ℕ) : ℝ) ^ e :=
           mul_le_mul_of_nonneg_right hstep (pow_nonneg hpOneNonneg e)

@@ -34,15 +34,27 @@ lemma plancherel_dft (q : ℕ) [NeZero q] (Φ : ZMod q → ℂ) :
       have h_fubini : ‖∑ a : ZMod q, Φ a * ZMod.stdAddChar (-(k * a))‖ ^ 2 = (∑ a : ZMod q, Φ a * ZMod.stdAddChar (-(k * a))) * (∑ b : ZMod q, starRingEnd ℂ (Φ b) * ZMod.stdAddChar (k * b)) := by
         have h_fubini : ∀ z : ℂ, ‖z‖ ^ 2 = z * starRingEnd ℂ z := by
           norm_num [ Complex.mul_conj, Complex.normSq_eq_norm_sq ];
-        convert! h_fubini _ using 2;
-        simp +decide [ ZMod.stdAddChar ];
-        simp +decide [ ZMod.toCircle, Complex.ext_iff ];
-        simp +decide [ AddCircle.toCircle_addChar ];
-        simp +decide [ ZMod.toAddCircle, AddCircle.toCircle_neg ];
-        rw [ Finset.sum_add_distrib ];
+        rw [h_fubini]
+        congr 1
+        rw [map_sum]
+        apply Finset.sum_congr rfl
+        intro b hb
+        rw [map_mul]
+        congr 1
+        rw [ZMod.stdAddChar_apply, ZMod.stdAddChar_apply]
+        rw [AddChar.map_neg_eq_inv]
+        rw [Circle.coe_inv_eq_conj]
+        simp
       exact h_fubini.trans ( by rw [ Finset.sum_mul ] ; exact Finset.sum_congr rfl fun _ _ => by rw [ Finset.mul_sum ] ; exact Finset.sum_congr rfl fun _ _ => by ring );
-    simp_all +decide [ mul_assoc, Finset.mul_sum _ _ _ ];
-    exact Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_comm );
+    simp_all +decide only [Complex.ofReal_sum, Complex.ofReal_pow];
+    refine Finset.sum_comm.trans (Finset.sum_congr rfl fun _ _ => ?_)
+    rw [Finset.sum_comm]
+    apply Finset.sum_congr rfl
+    intro b hb
+    rw [Finset.mul_sum]
+    apply Finset.sum_congr rfl
+    intro k hk
+    ring
   -- By orthogonality of the additive characters, we have:
   have h_orthogonality : ∀ a b : ZMod q, ∑ k : ZMod q, ZMod.stdAddChar (-(k * a)) * ZMod.stdAddChar (k * b) = if a = b then q else 0 := by
     intro a b; split_ifs with h; simp_all +decide [ ← ZMod.stdAddChar.map_add_eq_mul ] ;
@@ -69,9 +81,12 @@ lemma gauss_norm (q : ℕ) [NeZero q] (χ : DirichletCharacter ℂ q)
     intro k; rw [ DirichletCharacter.IsPrimitive.fourierTransform_eq_inv_mul_gaussSum hχ k ] ;
   -- By definition of $gaussSum$, we know that $‖χ⁻¹ (-k) * gaussSum χ ZMod.stdAddChar‖^2 = ‖gaussSum χ ZMod.stdAddChar‖^2$ if $-k$ is a unit, and $0$ otherwise.
   have h_gauss_sum_unit : ∀ k : ZMod q, ‖χ⁻¹ (-k) * gaussSum χ ZMod.stdAddChar‖ ^ 2 = if IsUnit (-k) then ‖gaussSum χ ZMod.stdAddChar‖ ^ 2 else 0 := by
-    intro k; split_ifs <;> simp_all +decide [ IsUnit ] ;
-    · obtain ⟨ u, hu ⟩ := ‹_›; simp +decide [ ← hu, DirichletCharacter ] ;
-    · exact Or.inl <| MulChar.map_nonunit _ <| by rintro ⟨ u, hu ⟩ ; exact ‹∀ x : ( ZMod q ) ˣ, ¬ ( x : ZMod q ) = -k› u <| by aesop;
+    intro k
+    split_ifs with hk
+    · obtain ⟨u, hu⟩ := hk
+      simp [← hu, DirichletCharacter]
+    · have hz : χ⁻¹ (-k) = 0 := MulChar.map_nonunit _ hk
+      simp [hz]
   -- By definition of $gaussSum$, we know that $‖χ a‖^2 = if IsUnit a then 1 else 0$.
   have h_gauss_sum_norm : ∀ a : ZMod q, ‖χ a‖ ^ 2 = if IsUnit a then 1 else 0 := by
     intro a; split_ifs <;> simp_all +decide [ DirichletCharacter ] ;
@@ -157,7 +172,7 @@ lemma orthogonality_sum (q : ℕ) [NeZero q] (w : ZMod q → ℂ) :
     intro χ
     have h_expand : ‖∑ b : ZMod q, χ⁻¹ b * w b‖ ^ 2 = (∑ b : ZMod q, χ⁻¹ b * w b) * (∑ b' : ZMod q, χ b' * starRingEnd ℂ (w b')) := by
       have h_expand : starRingEnd ℂ (∑ b : ZMod q, χ⁻¹ b * w b) = ∑ b : ZMod q, χ b * starRingEnd ℂ (w b) := by
-        rw [ map_sum ] ; congr ; ext x ; by_cases hx : IsUnit x <;> simp_all +decide ;
+        rw [ map_sum ] ; congr ; ext x ; by_cases hx : IsUnit x <;> simp_all +decide only [map_mul, mul_eq_mul_right_iff, map_eq_zero] ;
         · -- Since χ is a Dirichlet character, χ(x) is a root of unity, so its conjugate is its inverse.
           have h_root_of_unity : χ x * starRingEnd ℂ (χ x) = 1 := by
             rw [ Complex.mul_conj, Complex.normSq_eq_norm_sq ];
@@ -178,7 +193,7 @@ lemma orthogonality_sum (q : ℕ) [NeZero q] (w : ZMod q → ℂ) :
     generalize_proofs at *;
     · obtain ⟨ u, rfl ⟩ := hb
       obtain ⟨ u', rfl ⟩ := hb'
-      simp +decide;
+      simp +decide only [Units.isUnit, true_and];
       convert! DirichletCharacter.sum_char_inv_mul_char_eq ℂ ( show IsUnit ( u' : ZMod q ) from Units.isUnit _ ) u using 1;
       · refine' Finset.sum_bij ( fun χ _ => χ⁻¹ ) _ _ _ _ <;> simp +decide [ mul_comm ];
         · exact fun b => ⟨ b⁻¹, inv_inv b ⟩;
@@ -194,13 +209,14 @@ lemma orthogonality_sum (q : ℕ) [NeZero q] (w : ZMod q → ℂ) :
   generalize_proofs at *;
   convert! congr_arg Complex.re h_sum using 1;
   · rw [ ← Finset.sum_congr rfl fun _ _ => h_expand _ ] ; norm_cast;
-  · rw [ Finset.sum_congr rfl fun x hx => Finset.sum_eq_single x ( fun y hy => ?_ ) ( ?_ ) ] <;> simp +decide;
+  · rw [ Finset.sum_congr rfl fun x hx => Finset.sum_eq_single x ( fun y hy => ?_ ) ( ?_ ) ] <;> simp +decide only [and_true, and_self, ite_mul, zero_mul, Complex.re_sum];
     · rw [ ← Finset.sum_subset ( Finset.subset_univ ( Finset.image ( fun x : ( ZMod q ) ˣ => ( x : ZMod q ) ) Finset.univ ) ) ] <;> norm_num [ Complex.mul_conj, Complex.normSq_eq_norm_sq ];
       · rw [ Finset.sum_image ] <;> norm_num [ Complex.mul_conj, Complex.normSq_eq_norm_sq ];
         · norm_num [ Complex.normSq, Complex.sq_norm, Finset.mul_sum _ _ _ ] ; ring_nf;
         · exact fun x y h => Units.ext h;
       · intro x hx; split_ifs <;> simp_all +decide [ IsUnit ] ;
     · lia
+    · exact fun h => (h hx).elim
 
 /-
 **Per-modulus bound.**  `(q/φ(q)) ∑_{χ prim} ‖T(χ)‖² ≤ ∑_{b unit} ‖S(val b/q)‖²`.
@@ -245,7 +261,7 @@ lemma units_sum_eq_coprime (q : ℕ) [NeZero q] (f : ℝ → ℝ) :
       = ∑ m ∈ coprimeRes q, f ((m : ℝ) / q) := by
   have h_reindex : Finset.image (fun b : (ZMod q)ˣ => (b : ZMod q).val) (Finset.univ : Finset (ZMod q)ˣ) = coprimeRes q := by
     ext m;
-    simp +zetaDelta at *;
+    simp +zetaDelta only [mem_image, mem_univ, true_and] at *;
     constructor;
     · rintro ⟨ a, rfl ⟩ ; exact Finset.mem_filter.mpr ⟨ Finset.mem_range.mpr ( ZMod.val_lt _ ), ZMod.val_coe_unit_coprime _ ⟩ ;
     · intro hm
@@ -280,11 +296,30 @@ lemma farey_spacing_nat (Q q q' m m' : ℕ) (hq1 : 1 ≤ q) (hqQ : q ≤ Q)
       exact Nat.dvd_antisymm h_eq.left h_eq.right;
     simp_all +decide [ Int.subNatNat_eq_coe ];
     nlinarith [ show k = 0 by nlinarith ];
-  field_simp;
-  rw [ abs_div, div_le_div_iff₀ ] <;> norm_cast at * <;> simp_all +decide [ mul_comm ];
-  · exact le_trans ( by norm_cast; nlinarith ) ( mul_le_mul_of_nonneg_right h_mul ( sq_nonneg _ ) );
-  · nlinarith;
-  · exact ⟨ hq1, hq'1 ⟩
+  have hqpos : (0 : ℝ) < q := by exact_mod_cast Nat.zero_lt_of_lt hq1
+  have hq'pos : (0 : ℝ) < q' := by exact_mod_cast Nat.zero_lt_of_lt hq'1
+  have hQpos : (0 : ℝ) < Q := by
+    exact_mod_cast lt_of_lt_of_le (Nat.zero_lt_of_lt hq1) hqQ
+  have hrewrite :
+      (m : ℝ) / q - (m' : ℝ) / q' - (k : ℝ) =
+        ((m : ℝ) * q' - (m' : ℝ) * q - (k : ℝ) * (q * q')) /
+          ((q : ℝ) * q') := by
+    field_simp
+  rw [hrewrite, abs_div, abs_of_pos (mul_pos hqpos hq'pos)]
+  apply (div_le_div_iff₀ (sq_pos_of_pos hQpos) (mul_pos hqpos hq'pos)).2
+  have hdenQ : (q : ℝ) * q' ≤ (Q : ℝ) ^ 2 := by
+    have hqQreal : (q : ℝ) ≤ Q := by exact_mod_cast hqQ
+    have hq'Qreal : (q' : ℝ) ≤ Q := by exact_mod_cast hq'Q
+    calc
+      (q : ℝ) * q' ≤ (Q : ℝ) * Q :=
+        mul_le_mul hqQreal hq'Qreal hq'pos.le hQpos.le
+      _ = (Q : ℝ) ^ 2 := by ring
+  calc
+    (1 : ℝ) * ((q : ℝ) * q') ≤ (Q : ℝ) ^ 2 := by simpa using hdenQ
+    _ ≤ |(m : ℝ) * q' - (m' : ℝ) * q - (k : ℝ) * (q * q')| *
+        (Q : ℝ) ^ 2 := by
+          simpa only [one_mul] using
+            mul_le_mul_of_nonneg_right h_mul (sq_nonneg (Q : ℝ))
 
 /-
 **Farey sum bound.**  Summing `‖S‖²` over all reduced fractions with
@@ -301,12 +336,30 @@ lemma farey_sum_bound (N Q : ℕ) (hQ : 1 ≤ Q) (a : ℕ → ℂ) :
     · ring;
     · positivity;
     · exact div_le_self zero_le_one ( mod_cast Nat.one_le_pow _ _ hQ );
-    · simp +zetaDelta at *;
-      exact fun a ha₁ ha₂ ha₃ => ⟨ by positivity, by rw [ div_lt_one ( by positivity ) ] ; exact_mod_cast Finset.mem_range.mp ( Finset.mem_filter.mp ha₃ |>.1 ) ⟩;
-    · simp +zetaDelta at *;
-      intro a ha₁ ha₂ ha₃ b hb₁ hb₂ hb₃ hab k; convert! farey_spacing_nat Q a.fst b.fst a.snd b.snd ha₁ ha₂ hb₁ hb₂ ( Finset.mem_range.mp ( Finset.mem_filter.mp ha₃ |>.1 ) ) ( Finset.mem_range.mp ( Finset.mem_filter.mp hb₃ |>.1 ) ) ( Finset.mem_filter.mp ha₃ |>.2 ) ( Finset.mem_filter.mp hb₃ |>.2 ) ?_ k using 1 ;
-      · ring;
-      · exact not_and_or.mp fun h => hab <| by cases a; cases b; aesop;
+    · intro i
+      have hi : i.val ∈ (Finset.Icc 1 Q).sigma (fun q => coprimeRes q) := i.property
+      rcases Finset.mem_sigma.mp hi with ⟨hiq, him⟩
+      have hm_lt : i.val.2 < i.val.1 :=
+        Finset.mem_range.mp (Finset.mem_filter.mp him).1
+      have hqpos : (0 : ℝ) < i.val.1 := by
+        exact_mod_cast Nat.zero_lt_of_lt (Finset.mem_Icc.mp hiq).1
+      exact ⟨by positivity, by
+        rw [div_lt_one hqpos]
+        exact_mod_cast hm_lt⟩
+    · intro i i' hii' k
+      have hi : i.val ∈ (Finset.Icc 1 Q).sigma (fun q => coprimeRes q) := i.property
+      have hi' : i'.val ∈ (Finset.Icc 1 Q).sigma (fun q => coprimeRes q) := i'.property
+      rcases Finset.mem_sigma.mp hi with ⟨hiq, him⟩
+      rcases Finset.mem_sigma.mp hi' with ⟨hiq', him'⟩
+      have hne : i.val.1 ≠ i'.val.1 ∨ i.val.2 ≠ i'.val.2 :=
+        not_and_or.mp fun h => hii' <| by cases i; cases i'; aesop
+      simpa only [one_div] using
+        farey_spacing_nat Q i.val.1 i'.val.1 i.val.2 i'.val.2
+          (Finset.mem_Icc.mp hiq).1 (Finset.mem_Icc.mp hiq).2
+          (Finset.mem_Icc.mp hiq').1 (Finset.mem_Icc.mp hiq').2
+          (Finset.mem_range.mp (Finset.mem_filter.mp him).1)
+          (Finset.mem_range.mp (Finset.mem_filter.mp him').1)
+          (Finset.mem_filter.mp him).2 (Finset.mem_filter.mp him').2 hne k
   convert! h_apply using 1;
   · convert! Finset.sum_sigma' ( Finset.Icc 1 Q ) ( fun q => coprimeRes q ) fun q m => ‖S N a ( m / q : ℝ )‖ ^ 2 using 1;
     refine' Finset.sum_bij ( fun x hx => x.val ) _ _ _ _ <;> aesop;

@@ -109,7 +109,7 @@ theorem dimensional_adjoin_pow
     (n : ℕ) (hn : 0 < n) (S : Set E) (hS : S.Finite)
     (hpow : ∀ x ∈ S, x ^ n ∈ (⊥ : IntermediateField K E)) :
     FiniteDimensional K (IntermediateField.adjoin K S) := by
-  letI : Fintype S := hS.fintype
+  let : Fintype S := hS.fintype
   apply IntermediateField.finiteDimensional_adjoin
   intro x hx
   have hxbase := hpow x hx
@@ -127,7 +127,7 @@ theorem finrank_kummer_card
     (n : ℕ) (hn : 0 < n) (B : PCSubgro K n) :
     Module.finrank K (kummerField K Ω n hn B) ≤ n ^ B.card := by
   classical
-  letI : Fintype B.carrier := B.finite_carrier.fintype
+  let : Fintype B.carrier := B.finite_carrier.fintype
   let roots : Finset Ω := Finset.univ.image fun b : B.carrier ↦
     kummerRoot K Ω n hn b.1
   have hpow : ∀ x ∈ roots, x ^ n ∈ (⊥ : IntermediateField K Ω) := by
@@ -169,10 +169,10 @@ theorem dimensional_kummer_field
     (K Ω : Type u) [Field K] [Field Ω] [Algebra K Ω] [IsAlgClosure K Ω]
     (n : ℕ) (hn : 0 < n) (B : PCSubgro K n) :
     FiniteDimensional K (kummerField K Ω n hn B) := by
-  letI : Fintype B.carrier := B.finite_carrier.fintype
+  let : Fintype B.carrier := B.finite_carrier.fintype
   let roots : Set Ω :=
     Set.range fun b : B.carrier ↦ kummerRoot K Ω n hn b.1
-  letI : Fintype roots :=
+  let : Fintype roots :=
     (Set.finite_range fun b : B.carrier ↦ kummerRoot K Ω n hn b.1).fintype
   dsimp [kummerField]
   apply IntermediateField.finiteDimensional_adjoin

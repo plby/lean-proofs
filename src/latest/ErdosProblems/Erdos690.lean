@@ -1258,7 +1258,7 @@ theorem fourChunkRow_agree (d p : ℕ) (a b c e : List ℕ) :
   rw [(((splitChunkRow_agree d p a).mul (splitChunkRow_agree d p b)).mul
     ((splitChunkRow_agree d p c).mul (splitChunkRow_agree d p e))) r hr]
   simp only [primePoly_append]
-  ring
+  ring_nf
 
 /-- The final source interval has five (the last one singleton) chunks. -/
 def fiveChunkRow (d p : ℕ) (a b c e f : List ℕ) : List ℕ :=

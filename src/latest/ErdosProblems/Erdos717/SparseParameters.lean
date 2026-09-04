@@ -147,7 +147,7 @@ theorem sparse_dense_step_canonical
     have hn0 : n = 0 := Nat.eq_zero_of_not_pos hn
     simp [hn0] at this
   have hmle : h ≤ n * n := by
-    letI : DecidableRel H.Adj := Classical.decRel H.Adj
+    let : DecidableRel H.Adj := Classical.decRel H.Adj
     have hedges := H.card_edgeFinset_le_card_choose_two
     rw [Erdos718.MaderPrototype.card_edgeFinset_eq_ncard_edgeSet] at hedges
     change h ≤ n.choose 2 at hedges

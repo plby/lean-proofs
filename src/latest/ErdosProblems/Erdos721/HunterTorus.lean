@@ -134,14 +134,14 @@ Haar volume. -/
 theorem measurePreserving_of_continuous_surjective {D m : ℕ}
     (f : Torus D →+ Torus m) (hf : Continuous f)
     (hsurj : Surjective f) : MeasurePreserving f := by
-  letI : IsProbabilityMeasure (volume : Measure (Torus D)) :=
+  let : IsProbabilityMeasure (volume : Measure (Torus D)) :=
     probabilityVolume D
-  letI : IsProbabilityMeasure (volume : Measure (Torus m)) :=
+  let : IsProbabilityMeasure (volume : Measure (Torus m)) :=
     probabilityVolume m
-  letI : IsProbabilityMeasure (Measure.map f
+  let : IsProbabilityMeasure (Measure.map f
       (volume : Measure (Torus D))) :=
     Measure.isProbabilityMeasure_map hf.measurable.aemeasurable
-  letI : (Measure.map f (volume : Measure (Torus D))).IsAddHaarMeasure :=
+  let : (Measure.map f (volume : Measure (Torus D))).IsAddHaarMeasure :=
     Measure.isAddHaarMeasure_map_of_isFiniteMeasure
       (volume : Measure (Torus D)) f hf hsurj
   refine ⟨hf.measurable, ?_⟩

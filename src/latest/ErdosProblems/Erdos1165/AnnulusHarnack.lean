@@ -283,7 +283,7 @@ theorem stoppedExpectation_path_le
         _ = (4 : ℝ) ^ (L + 1) *
             stoppedExpectation D (n + (L + 1)) f x := by
           rw [pow_succ]
-          ring
+          ring_nf
 
 /-! ## Exit masses and a uniform boundary comparison -/
 
@@ -532,7 +532,7 @@ lemma sum_endpointProbability_even_diff {x : Point} (n : ℕ) :
   | zero => simp
   | succ n ih =>
       rw [Finset.sum_range_succ, ih]
-      ring
+      ring_nf
 
 theorem hasSum_endpointProbability_even_diff_of_ne_zero {x : Point}
     (hx : x ≠ 0) :
@@ -603,7 +603,7 @@ lemma sum_sub_direction_eq_sum_neighbor (f : Point → ℝ) (x : Point) :
   rcases x with ⟨a, b⟩
   rw [Fin.sum_univ_four, Fin.sum_univ_four]
   simp [neighbor, directionVector]
-  ring
+  ring_nf
 
 /-- **Exact potential-kernel harmonicity.**  The paired planar potential
 kernel satisfies the discrete mean-value property at every point other than
@@ -827,7 +827,7 @@ theorem abs_planarPotentialKernel_sub_le_via_evenAnchors {x y : Point}
         |(planarPotentialKernel y - planarPotentialKernel (evenAnchor y)) +
           (planarPotentialKernel (evenAnchor y) -
             planarPotentialKernel (evenAnchor x)) +
-          (planarPotentialKernel (evenAnchor x) - planarPotentialKernel x)| := by ring
+          (planarPotentialKernel (evenAnchor x) - planarPotentialKernel x)| := by ring_nf
     _ ≤ |planarPotentialKernel y - planarPotentialKernel (evenAnchor y)| +
         |planarPotentialKernel (evenAnchor y) -
           planarPotentialKernel (evenAnchor x)| +

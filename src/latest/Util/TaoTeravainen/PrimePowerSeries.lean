@@ -746,7 +746,8 @@ theorem sum_samePrimePowerDensity_le
     intro pa hpa
     by_cases hsmall : pa.1 ≤ Erdos248.tinyCutoff K
     · by_cases hdvd : pa.1 ∣ k
-      · simp [hsmall, hdvd, not_lt_of_ge hsmall]
+      · rw [if_pos ⟨hsmall, hdvd⟩, if_neg (not_lt_of_ge hsmall)]
+        simp only [add_zero]
         apply Finset.sum_congr rfl
         intro qb hqb
         by_cases heq : pa.1 = qb.1
@@ -756,13 +757,16 @@ theorem sum_samePrimePowerDensity_le
         · simp [heq]
       · simp [hsmall, hdvd, not_lt_of_ge hsmall]
     · have hlarge : Erdos248.tinyCutoff K < pa.1 := by omega
-      simp [hsmall, hlarge]
+      have hnotActive : ¬ (pa.1 ≤ Erdos248.tinyCutoff K ∧ pa.1 ∣ k) :=
+        fun h ↦ hsmall h.1
+      rw [if_neg hnotActive, if_pos hlarge]
+      simp only [zero_add]
       apply Finset.sum_congr rfl
       intro qb hqb
       by_cases heq : pa.1 = qb.1
       · have hqlarge : Erdos248.tinyCutoff K < qb.1 := heq ▸ hlarge
         have hqnotSmall : ¬ qb.1 ≤ Erdos248.tinyCutoff K := by omega
-        simp [heq, hsmall, hlarge, hqlarge, hqnotSmall]
+        simp [heq, hqlarge]
       · simp [heq]
   rw [hdecomp]
   exact add_le_add hsmall hlarge

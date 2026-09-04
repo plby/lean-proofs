@@ -28,7 +28,7 @@ lemma PolygonalReplacementResidualPieceSkeletonParameterBounds {V : Type u} [Fin
     induction l with
     | nil => simp at ha
     | cons b bs ih =>
-        simp at ha
+        simp only [List.mem_cons] at ha
         rcases ha with rfl | ha
         · exact ⟨0, by simp, by simp⟩
         · rcases ih ha with ⟨n, hn, hget⟩

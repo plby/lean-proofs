@@ -60,9 +60,9 @@ lemma not_isAcyclic_of_even_degree_of_edge
   have hu : u ∈ c.supp := by rfl
   have hv : v ∈ c.supp := c.mem_supp_of_adj_mem_supp hu huv
   have huvne : u ≠ v := G.ne_of_adj huv
-  letI : Fintype c := Fintype.ofFinite _
-  letI : DecidableRel c.toSimpleGraph.Adj := Classical.decRel _
-  letI : Nontrivial c :=
+  let : Fintype c := Fintype.ofFinite _
+  let : DecidableRel c.toSimpleGraph.Adj := Classical.decRel _
+  let : Nontrivial c :=
     ⟨⟨⟨u, hu⟩, ⟨v, hv⟩, by
       intro h
       apply huvne
@@ -220,7 +220,7 @@ theorem exists_cycleDecomposition_of_even_degree
   · obtain ⟨u, v, huv⟩ := SimpleGraph.ne_bot_iff_exists_adj.mp hG
     obtain ⟨w, p, hp⟩ := exists_isCycle_of_even_degree_of_edge heven huv
     let H : SimpleGraph V := p.toSubgraph.spanningCoe
-    letI : DecidableRel H.Adj := Classical.decRel _
+    let : DecidableRel H.Adj := Classical.decRel _
     have hHG : H ≤ G := walkSpanningCoe_le p
     have hHcycles : H.IsCycles := hp.isCycles_spanningCoe_toSubgraph
     let R : SimpleGraph V := G \ H

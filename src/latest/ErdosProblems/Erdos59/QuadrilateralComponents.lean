@@ -115,7 +115,7 @@ theorem quadrilateralConnected_eq_of_not_edgeInQuadrilateral
       exact hxy.symm
     · intro x y z hxy hyz
       exact hxy.trans hyz
-  letI : IsEquiv (GraphEdge G) sameSide := sameSide_equiv.isEquiv
+  let : IsEquiv (GraphEdge G) sameSide := sameSide_equiv.isEquiv
   have hstep : SharesQuadrilateral G ≤ sameSide := by
     intro x y hxy
     constructor

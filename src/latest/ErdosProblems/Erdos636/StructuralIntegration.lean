@@ -303,9 +303,9 @@ theorem halfSupportPersists_failure_probability_lt_half
   let E : Erdos88.Fourier.BoolSlice U1 ell ≃
       HalfSample.Slice U1 ell :=
     Erdos88.Fourier.boolSliceEquivFinsetLen U1 ell
-  letI : Nonempty (Erdos88.Fourier.BoolSlice U1 ell) :=
+  let : Nonempty (Erdos88.Fourier.BoolSlice U1 ell) :=
     ⟨E.symm (Classical.choice (HalfSample.sliceNonempty hcard))⟩
-  letI : Nonempty (HalfSample.Slice U1 ell) :=
+  let : Nonempty (HalfSample.Slice U1 ell) :=
     HalfSample.sliceNonempty hcard
   have hell : ell ≤ Fintype.card U1 := by
     rw [hcard]
@@ -775,7 +775,7 @@ theorem exists_fixedAmbient_selectedSlice
     dsimp only [QE, fixedStructuralEdgeCoefficient]
     positivity
   classical
-  letI : LinearOrder V :=
+  let : LinearOrder V :=
     LinearOrder.lift' (Fintype.equivFin V) (Fintype.equivFin V).injective
   let m : ℕ := Fintype.card V
   have hmPos : 0 < m := by dsimp only [m]; exact Fintype.card_pos
@@ -877,7 +877,7 @@ theorem exists_fixedAmbient_selectedSlice
         field_simp [hmReal.ne']
       _ ≤ (2 * ell : ℕ) / (m : ℝ) *
           supportDiffCard G Finset.univ p.1 p.2 := hscaled
-  letI : Nonempty (Erdos88.Fourier.BoolSlice V (2 * ell)) := by
+  let : Nonempty (Erdos88.Fourier.BoolSlice V (2 * ell)) := by
     have hsle : 2 * ell ≤ Fintype.card V := by
       simpa only [m] using hfixedNow.two_parameter_le
     obtain ⟨S, _hSsub, hScard⟩ :=
@@ -1008,7 +1008,7 @@ theorem nonempty_structuralWitness_of_fixedAmbient_numerical
     positivity
   have hepsLe : eps ≤ 1 := heps1.le
   classical
-  letI : LinearOrder V :=
+  let : LinearOrder V :=
     LinearOrder.lift' (Fintype.equivFin V) (Fintype.equivFin V).injective
   let m : ℕ := Fintype.card V
   have hfixedNow := hnum.fixed

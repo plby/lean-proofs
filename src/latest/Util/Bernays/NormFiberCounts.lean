@@ -16,7 +16,7 @@ theorem natCard_bounded_eq_sum_fibers {X : Type*} (f : X → ℕ)
       ∑ n ∈ Finset.Icc 1 N, Nat.card {x : X // f x = n} := by
   classical
   let S := {n : ℕ // n ∈ Finset.Icc 1 N}
-  letI : Fintype S := by dsimp only [S]; infer_instance
+  let : Fintype S := by dsimp only [S]; infer_instance
   let e : {x : X // f x ≤ N} ≃ Σ n : S, {x : X // f x = n.1} :=
     { toFun := fun x => ⟨⟨f x.1, Finset.mem_Icc.mpr ⟨hf x.1, x.2⟩⟩, ⟨x.1, rfl⟩⟩
       invFun := fun x => ⟨x.2.1, x.2.2.le.trans (Finset.mem_Icc.mp x.1.2).2⟩
@@ -26,7 +26,7 @@ theorem natCard_bounded_eq_sum_fibers {X : Type*} (f : X → ℕ)
         change f x = n at hx
         subst n
         rfl }
-  letI (n : S) : Finite {x : X // f x = n.1} := by
+  let (n : S) : Finite {x : X // f x = n.1} := by
     let g : {x : X // f x = n.1} → {x : X // f x ≤ N} :=
       fun x => ⟨x.1, x.2.le.trans (Finset.mem_Icc.mp n.2).2⟩
     exact Finite.of_injective g (fun x y h =>
@@ -57,14 +57,14 @@ theorem idealClassNormCount_cumsum {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       (∑ n ∈ Finset.Icc 1 N, idealClassNormCount C F n) =
         Nat.card (RestrictedIdealClassBall (QuadraticAlgebra ℤ d b) C N
           (fun J => IsCoprime (J : Ideal (QuadraticAlgebra ℤ d b)) F)) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C F N
   let O := QuadraticAlgebra ℤ d b
-  letI := finite_idealClassBall hD C N
-  letI : Finite (RestrictedIdealClassBall O C N (fun J => IsCoprime (J : Ideal O) F)) := by
+  let := finite_idealClassBall hD C N
+  let : Finite (RestrictedIdealClassBall O C N (fun J => IsCoprime (J : Ideal O) F)) := by
     dsimp only [RestrictedIdealClassBall]
     infer_instance
-  letI : Finite {I : CoprimeIdealsInClass O C F // (I.1 : Ideal O).cardQuot ≤ N} :=
+  let : Finite {I : CoprimeIdealsInClass O C F // (I.1 : Ideal O).cardQuot ≤ N} :=
     Finite.of_equiv _ (boundedCoprimeClassEquiv C F N).symm
   exact (natCard_bounded_eq_sum_fibers
     (fun I : CoprimeIdealsInClass O C F => (I.1 : Ideal O).cardQuot)

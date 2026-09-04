@@ -145,7 +145,7 @@ theorem sum_mem_dilate_of_card_le_of_zero_mem (P : Erdos186.GAP d r)
             ∑ i, ((m - S.card : ℕ) : ℤ) *
               ((z i : ℤ) * P.steps i j)) := by
                 rw [hoffset]
-                ring
+                ring_nf
     _ = ∑ x ∈ S, x j := by rw [hpadzero, add_zero, hreprcoord]
 
 /-- All subset sums of a set in a zero-containing GAP lie in one fixed

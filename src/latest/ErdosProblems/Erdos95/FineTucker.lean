@@ -2170,7 +2170,7 @@ noncomputable def equatorRidgeEquivLowerTop (d r : ℕ) :
     ext v
     simp [equatorRidgeToLowerTop, lowerTopToEquatorRidge,
       Finset.map_map]
-    exact fun hv ↦ R.2 v hv
+    exact R.2 v
   right_inv T := by
     apply Subtype.ext
     ext v

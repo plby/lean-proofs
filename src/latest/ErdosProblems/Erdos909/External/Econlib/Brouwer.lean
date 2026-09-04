@@ -207,7 +207,7 @@ theorem fixedPointUnitCube
   choose xk hxk using fun p k ↦ (hx0 p k).2
   let u : Ultrafilter ℕ := Ultrafilter.of Filter.atTop
   have hu_atTop : ↑u ≤ (Filter.atTop : Filter ℕ) := Ultrafilter.of_le Filter.atTop
-  haveI : CompactSpace (Set.Icc (0 : Fin n → ℝ) 1) :=
+  have : CompactSpace (Set.Icc (0 : Fin n → ℝ) 1) :=
     isCompact_iff_compactSpace.mp isCompact_Icc
   obtain ⟨x_star, -, h_tendsto_x0⟩ :=
     isCompact_univ.ultrafilter_le_nhds (u.map x0) (by simp)
@@ -246,4 +246,3 @@ theorem brouwerFixedPoint {V : Type*}
   use (toContinuousMap e.symm) y
   let e' := EquivLike.toEquiv e
   exact (e'.apply_eq_iff_eq_symm_apply).1 hy
-

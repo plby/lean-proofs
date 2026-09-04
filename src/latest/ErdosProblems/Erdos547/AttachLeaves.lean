@@ -47,7 +47,7 @@ def attachLeavesOldCopy (T : SimpleGraph U) (parent : L → U) : T.Copy (attachL
 theorem attachLeaves_connected (T : SimpleGraph U) (parent : L → U) (hT : T.Connected) :
     (attachLeaves T parent).Connected := by
   obtain ⟨r⟩ := hT.nonempty
-  letI : Nonempty (U ⊕ L) := ⟨Sum.inl r⟩
+  let : Nonempty (U ⊕ L) := ⟨Sum.inl r⟩
   have hreach (x : U ⊕ L) : (attachLeaves T parent).Reachable x (Sum.inl r) := by
     cases x with
     | inl u => exact (hT u r).map (attachLeavesOldHom T parent)

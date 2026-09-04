@@ -259,11 +259,11 @@ def RunningEdgeAssembly : List (Set I) → Prop
 /-- The empty exact restriction belongs to the constructive class. -/
 theorem edgeRestriction_empty_constructible :
     Constructible (K.edgeRestriction ∅) := by
-  letI : IsEmpty (K.EdgeSupport ∅) := ⟨by
+  let : IsEmpty (K.EdgeSupport ∅) := ⟨by
     intro x
     rcases x.2 with ⟨e, he, hxe⟩
     exact he⟩
-  letI : Fintype (K.EdgeSupport ∅) := Fintype.ofFinite _
+  let : Fintype (K.EdgeSupport ∅) := Fintype.ofFinite _
   exact Constructible.ofIso
     (Constructible.ofEdgeless (K.EdgeSupport ∅))
     (edgelessIsoEdgeRestrictionEmpty K)

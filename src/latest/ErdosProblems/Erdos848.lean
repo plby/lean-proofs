@@ -223,7 +223,7 @@ lemma prime_sq_divides_implies_one_mod_four (p n : ℕ) (hp : Nat.Prime p) (hp2 
   have hp_dvd : p ∣ n ^ 2 + 1 := by
     have hp_div_p2 : p ∣ p ^ 2 := by simp [pow_two]
     exact Nat.dvd_trans hp_div_p2 hdiv
-  haveI : Fact p.Prime := ⟨hp⟩
+  have : Fact p.Prime := ⟨hp⟩
   have h0 : ((n ^ 2 + 1 : ℕ) : ZMod p) = 0 :=
     (ZMod.natCast_eq_zero_iff (n ^ 2 + 1) p).2 hp_dvd
   have hsq : (n : ZMod p) ^ 2 = (-1 : ZMod p) := by
@@ -247,7 +247,7 @@ lemma two_roots_mod_p_squared (p : ℕ) (hp : Nat.Prime p) (hmod : p % 4 = 1) :
     have h_quad_res : ∃ x : ℕ, x ^ 2 ≡ -1 [ZMOD p ^ 2] := by
       have h_hensel : ∀ {p : ℕ}, Nat.Prime p → p % 4 = 1 → ∃ x : ℕ, x ^ 2 ≡ -1 [ZMOD p] := by
         intro p hp hmod
-        haveI := Fact.mk hp
+        have := Fact.mk hp
         norm_num [← ZMod.intCast_eq_intCast_iff]
         obtain ⟨x, hx⟩ := ZMod.exists_sq_eq_neg_one_iff (p := p)
         exact Exists.elim (hx (by rw [hmod]; decide)) fun x hx =>
@@ -284,61 +284,91 @@ lemma two_roots_mod_p_squared (p : ℕ) (hp : Nat.Prime p) (hmod : p % 4 = 1) :
     refine ⟨x, ?_⟩
     erw [← ZMod.intCast_eq_intCast_iff] at hx
     simpa using hx
-  refine' ⟨r₁, -r₁, _, _, _, _⟩ <;> simp_all +decide [sq]
-  · rw [eq_neg_iff_add_eq_zero]
-    by_contra h_contra
+  refine ⟨r₁, -r₁, ?_, hr₁, ?_, ?_⟩
+  · intro hneg
+    have h_contra : r₁ + r₁ = 0 :=
+      eq_neg_iff_add_eq_zero.mp hneg
     have h_r1_zero : r₁ = 0 := by
-      have h_r1_zero : (2 : ℕ) * r₁.val ≡ 0 [MOD p ^ 2] := by
-        simp_all +decide [← ZMod.natCast_eq_natCast_iff]
-        grind
-      have h_r1_zero : p ^ 2 ∣ r₁.val := by
-        exact
-          (Nat.Coprime.dvd_of_dvd_mul_left
-              (show Nat.Coprime (p ^ 2) 2 from by
-                exact
-                  Nat.Coprime.pow_left 2 <|
-                    hp.coprime_iff_not_dvd.mpr fun h => by
-                      have := Nat.le_of_dvd (by decide) h
-                      interval_cases p <;> trivial)
-              <| Nat.dvd_of_mod_eq_zero h_r1_zero)
-      haveI := Fact.mk hp
-      rw [← ZMod.natCast_eq_zero_iff] at h_r1_zero
-      aesop
+      have hp_not_dvd_two : ¬p ∣ 2 := by
+        intro hdiv
+        have hp_le : p ≤ 2 := Nat.le_of_dvd (by norm_num) hdiv
+        have hp_ge : 2 ≤ p := hp.two_le
+        have hp_two : p = 2 := by omega
+        subst p
+        norm_num at hmod
+      have htwo_unit : IsUnit (2 : ZMod (p ^ 2)) :=
+        (ZMod.isUnit_natCast_iff_not_dvd_pow hp (by norm_num)).mpr
+          hp_not_dvd_two
+      have hmul : (2 : ZMod (p ^ 2)) * r₁ = 0 := by
+        calc
+          (2 : ZMod (p ^ 2)) * r₁ = r₁ + r₁ := by ring
+          _ = 0 := h_contra
+      apply htwo_unit.mul_left_cancel
+      simpa using hmul
     norm_num [h_r1_zero] at hr₁
     rcases p with (_ | _ | _ | p) <;>
       (cases hr₁; all_goals contradiction)
+  · calc
+      (-r₁) ^ 2 = r₁ ^ 2 := by ring
+      _ = -1 := hr₁
   · have h_solutions : ∀ r : ZMod (p ^ 2), r ^ 2 = -1 → r = r₁ ∨ r = -r₁ := by
       intro r hr
       have h_eq : (r - r₁) * (r + r₁) = 0 := by grind
       have h_coprime :
           Nat.gcd (p ^ 2) (r - r₁).val = 1 ∨ Nat.gcd (p ^ 2) (r + r₁).val = 1 := by
         have h_coprime : ¬(p ∣ (r - r₁).val ∧ p ∣ (r + r₁).val) := by
-          haveI := Fact.mk hp
-          simp_all +decide [← ZMod.natCast_eq_zero_iff]
-          intro h
-          haveI := Fact.mk hp
-          simp_all +decide [sub_eq_iff_eq_add, add_eq_zero_iff_eq_neg]
-          rw [eq_neg_iff_add_eq_zero]
-          have := congr_arg (fun x : ZMod (p ^ 2) => x.val) hr₁
-          norm_num [ZMod.val_add, ZMod.val_mul] at this ⊢
-          replace this := congr_arg (· % p) this
-          norm_num [Nat.add_mod, Nat.mul_mod, Nat.pow_mod] at this
-          simp_all +decide [← sq, ← ZMod.natCast_eq_natCast_iff']
-          intro H
-          rw [← two_mul] at H
-          replace H := congr_arg (fun x : ZMod p => x ^ 2) H
-          simp_all +decide [mul_pow]
-          rcases p with (_ | _ | _ | p) <;> cases H <;> contradiction
+          rintro ⟨hminus, hplus⟩
+          letI : Fact p.Prime := ⟨hp⟩
+          have hp_dvd_sq : p ∣ p ^ 2 := dvd_pow_self p (by norm_num)
+          have hminus0 : ((r - r₁).val : ZMod p) = 0 :=
+            (ZMod.natCast_eq_zero_iff _ _).mpr hminus
+          have hplus0 : ((r + r₁).val : ZMod p) = 0 :=
+            (ZMod.natCast_eq_zero_iff _ _).mpr hplus
+          have hminusCast : (ZMod.cast (r - r₁) : ZMod p) = 0 := by
+            simpa using hminus0
+          have hplusCast : (ZMod.cast (r + r₁) : ZMod p) = 0 := by
+            simpa using hplus0
+          rw [ZMod.cast_sub hp_dvd_sq] at hminusCast
+          rw [ZMod.cast_add hp_dvd_sq] at hplusCast
+          have hrequal : (ZMod.cast r : ZMod p) = ZMod.cast r₁ :=
+            sub_eq_zero.mp hminusCast
+          have hrneg : (ZMod.cast r : ZMod p) = -ZMod.cast r₁ :=
+            eq_neg_iff_add_eq_zero.mpr hplusCast
+          have hr₁neg : (ZMod.cast r₁ : ZMod p) = -ZMod.cast r₁ :=
+            hrequal.symm.trans hrneg
+          have hp_not_dvd_two : ¬p ∣ 2 := by
+            intro hdiv
+            have hp_le : p ≤ 2 := Nat.le_of_dvd (by norm_num) hdiv
+            have hp_ge : 2 ≤ p := hp.two_le
+            have hp_two : p = 2 := by omega
+            subst p
+            norm_num at hmod
+          have htwo_unit : IsUnit (2 : ZMod p) :=
+            (ZMod.isUnit_iff_coprime 2 p).mpr
+              (hp.coprime_iff_not_dvd.mpr hp_not_dvd_two).symm
+          have hmul : (2 : ZMod p) * ZMod.cast r₁ = 0 := by
+            calc
+              (2 : ZMod p) * ZMod.cast r₁ =
+                  ZMod.cast r₁ + ZMod.cast r₁ := by ring
+              _ = 0 := eq_neg_iff_add_eq_zero.mp hr₁neg
+          have hr₁zero : (ZMod.cast r₁ : ZMod p) = 0 := by
+            apply htwo_unit.mul_left_cancel
+            simpa using hmul
+          have hr₁root : (ZMod.cast r₁ : ZMod p) ^ 2 = -1 := by
+            have hmap := congrArg (ZMod.castHom hp_dvd_sq (ZMod p)) hr₁
+            simpa using hmap
+          rw [hr₁zero] at hr₁root
+          norm_num at hr₁root
         simp_all +decide [Nat.Prime.coprime_iff_not_dvd]
         tauto
       have h_div : (p ^ 2 : ℕ) ∣ (r - r₁).val ∨ (p ^ 2 : ℕ) ∣ (r + r₁).val := by
         have h_div : (p ^ 2 : ℕ) ∣ ((r - r₁).val * (r + r₁).val) := by
-          haveI := Fact.mk hp
+          have := Fact.mk hp
           simp_all +decide [← ZMod.natCast_eq_zero_iff]
         cases h_coprime with
         | inl hc => exact Or.inr (Nat.Coprime.dvd_of_dvd_mul_left hc h_div)
         | inr hc => exact Or.inl (Nat.Coprime.dvd_of_dvd_mul_right hc h_div)
-      haveI := Fact.mk hp
+      have := Fact.mk hp
       simp_all +decide [← ZMod.natCast_eq_zero_iff, sub_eq_iff_eq_add, add_eq_zero_iff_eq_neg]
     simpa only [sq] using h_solutions
 
@@ -468,7 +498,7 @@ lemma card_filter_modEq_and_modEq_le (N m n a b : ℕ) (hcop : Nat.Coprime m n) 
       (Finset.range N).filter (fun x => x ≡ a [MOD m] ∧ x ≡ b [MOD n]) ⊆
         (Finset.range N).filter (fun x => x ≡ Nat.chineseRemainder hcop a b [MOD m * n]) := by
     intro x hx
-    simp [Finset.mem_filter, Finset.mem_range] at hx ⊢
+    simp only [Finset.mem_filter, Finset.mem_range] at hx ⊢
     refine ⟨hx.1, ?_⟩
     exact Nat.chineseRemainder_modEq_unique (co := hcop) hx.2.1 hx.2.2
   have hcard :
@@ -1968,13 +1998,13 @@ lemma off_count_modEq25_le (N p b t : ℕ) (hp : Nat.Prime p) (hb : ¬ p ∣ b) 
   let rZ : ZMod (p ^ 2) := -((b : ZMod (p ^ 2))⁻¹)
   let r : ℕ := rZ.val
   have hrZ : (r : ZMod (p ^ 2)) = rZ := by
-    haveI : NeZero (p ^ 2) := ⟨hp0⟩
+    have : NeZero (p ^ 2) := ⟨hp0⟩
     simp [r, rZ]
   have hsubset :
       (Finset.range N).filter (fun a => a ≡ t [MOD 25] ∧ p ^ 2 ∣ b * a + 1) ⊆
         (Finset.range N).filter (fun a => a ≡ t [MOD 25] ∧ a ≡ r [MOD p ^ 2]) := by
     intro a ha
-    simp [Finset.mem_filter, Finset.mem_range] at ha ⊢
+    simp only [mem_filter, mem_range] at ha ⊢
     refine ⟨ha.1, ha.2.1, ?_⟩
     have hdiv : p ^ 2 ∣ b * a + 1 := ha.2.2
     have hEq : (a : ZMod (p ^ 2)) = -((b : ZMod (p ^ 2))⁻¹) := by
@@ -2034,7 +2064,7 @@ lemma off_count_modEq100_le (N p b t25 t4 : ℕ) (hp : Nat.Prime p) (hb : ¬ p �
       (Finset.range N).filter (fun a => a ≡ t25 [MOD 25] ∧ a ≡ t4 [MOD 4] ∧ p ^ 2 ∣ b * a + 1) ⊆
         (Finset.range N).filter (fun a => a ≡ Nat.chineseRemainder hcop25_4 t25 t4 [MOD 100] ∧ p ^ 2 ∣ b * a + 1) := by
     intro a ha
-    simp [Finset.mem_filter, Finset.mem_range] at ha ⊢
+    simp only [mem_filter, mem_range] at ha ⊢
     refine ⟨ha.1, ?_, ha.2.2.2⟩
     exact Nat.chineseRemainder_modEq_unique (co := hcop25_4) ha.2.1 ha.2.2.1
   have hcard :
@@ -2048,13 +2078,13 @@ lemma off_count_modEq100_le (N p b t25 t4 : ℕ) (hp : Nat.Prime p) (hb : ¬ p �
   let rZ : ZMod (p ^ 2) := -((b : ZMod (p ^ 2))⁻¹)
   let r : ℕ := rZ.val
   have hrZ : (r : ZMod (p ^ 2)) = rZ := by
-    haveI : NeZero (p ^ 2) := ⟨hp0⟩
+    have : NeZero (p ^ 2) := ⟨hp0⟩
     simp [r, rZ]
   have hsubset2 :
       (Finset.range N).filter (fun a => a ≡ Nat.chineseRemainder hcop25_4 t25 t4 [MOD 100] ∧ p ^ 2 ∣ b * a + 1) ⊆
         (Finset.range N).filter (fun a => a ≡ Nat.chineseRemainder hcop25_4 t25 t4 [MOD 100] ∧ a ≡ r [MOD p ^ 2]) := by
     intro a ha
-    simp [Finset.mem_filter, Finset.mem_range] at ha ⊢
+    simp only [mem_filter, mem_range] at ha ⊢
     refine ⟨ha.1, ha.2.1, ?_⟩
     have hdiv : p ^ 2 ∣ b * a + 1 := ha.2.2
     have hEq : (a : ZMod (p ^ 2)) = -((b : ZMod (p ^ 2))⁻¹) := by
@@ -2150,7 +2180,8 @@ lemma diag_count_modEq25_le (N p t : ℕ) (hp : Nat.Prime p) (hmod : p % 4 = 1) 
     (Finset.range N).filter (fun n => n ≡ t [MOD 25] ∧ n ≡ r₂.val [MOD p ^ 2])
   have hsubset : S ⊆ S₁ ∪ S₂ := by
     intro n hn
-    simp [S, S₁, S₂, Finset.mem_filter, Finset.mem_range] at hn ⊢
+    simp only [S, S₁, S₂, Finset.mem_filter, Finset.mem_range,
+      Finset.mem_union] at hn ⊢
     have hdiv : (p ^ 2 : ℕ) ∣ n ^ 2 + 1 := hn.2.2
     have h0 : ((n ^ 2 + 1 : ℕ) : ZMod (p ^ 2)) = 0 :=
       (ZMod.natCast_eq_zero_iff (n ^ 2 + 1) (p ^ 2)).2 hdiv
@@ -2163,7 +2194,7 @@ lemma diag_count_modEq25_le (N p t : ℕ) (hp : Nat.Prime p) (hmod : p % 4 = 1) 
     | inl hn1 =>
         refine Or.inl ?_
         refine ⟨hn.1, hn.2.1, ?_⟩
-        haveI : NeZero (p ^ 2) := ⟨pow_ne_zero 2 hp.ne_zero⟩
+        have : NeZero (p ^ 2) := ⟨pow_ne_zero 2 hp.ne_zero⟩
         have hcast : (n : ZMod (p ^ 2)) = (r₁.val : ZMod (p ^ 2)) := by
           calc
             (n : ZMod (p ^ 2)) = r₁ := hn1
@@ -2172,7 +2203,7 @@ lemma diag_count_modEq25_le (N p t : ℕ) (hp : Nat.Prime p) (hmod : p % 4 = 1) 
     | inr hn2 =>
         refine Or.inr ?_
         refine ⟨hn.1, hn.2.1, ?_⟩
-        haveI : NeZero (p ^ 2) := ⟨pow_ne_zero 2 hp.ne_zero⟩
+        have : NeZero (p ^ 2) := ⟨pow_ne_zero 2 hp.ne_zero⟩
         have hcast : (n : ZMod (p ^ 2)) = (r₂.val : ZMod (p ^ 2)) := by
           calc
             (n : ZMod (p ^ 2)) = r₂ := hn2
@@ -2207,7 +2238,8 @@ lemma diag_count_modEq50_le (N p t : ℕ) (hp : Nat.Prime p) (hmod : p % 4 = 1) 
     (Finset.range N).filter (fun n => n ≡ t [MOD 50] ∧ n ≡ r₂.val [MOD p ^ 2])
   have hsubset : S ⊆ S₁ ∪ S₂ := by
     intro n hn
-    simp [S, S₁, S₂, Finset.mem_filter, Finset.mem_range] at hn ⊢
+    simp only [S, S₁, S₂, Finset.mem_filter, Finset.mem_range,
+      Finset.mem_union] at hn ⊢
     have hdiv : (p ^ 2 : ℕ) ∣ n ^ 2 + 1 := hn.2.2
     have h0 : ((n ^ 2 + 1 : ℕ) : ZMod (p ^ 2)) = 0 :=
       (ZMod.natCast_eq_zero_iff (n ^ 2 + 1) (p ^ 2)).2 hdiv
@@ -2220,7 +2252,7 @@ lemma diag_count_modEq50_le (N p t : ℕ) (hp : Nat.Prime p) (hmod : p % 4 = 1) 
     | inl hn1 =>
         refine Or.inl ?_
         refine ⟨hn.1, hn.2.1, ?_⟩
-        haveI : NeZero (p ^ 2) := ⟨pow_ne_zero 2 hp.ne_zero⟩
+        have : NeZero (p ^ 2) := ⟨pow_ne_zero 2 hp.ne_zero⟩
         have hcast : (n : ZMod (p ^ 2)) = (r₁.val : ZMod (p ^ 2)) := by
           calc
             (n : ZMod (p ^ 2)) = r₁ := hn1
@@ -2229,7 +2261,7 @@ lemma diag_count_modEq50_le (N p t : ℕ) (hp : Nat.Prime p) (hmod : p % 4 = 1) 
     | inr hn2 =>
         refine Or.inr ?_
         refine ⟨hn.1, hn.2.1, ?_⟩
-        haveI : NeZero (p ^ 2) := ⟨pow_ne_zero 2 hp.ne_zero⟩
+        have : NeZero (p ^ 2) := ⟨pow_ne_zero 2 hp.ne_zero⟩
         have hcast : (n : ZMod (p ^ 2)) = (r₂.val : ZMod (p ^ 2)) := by
           calc
             (n : ZMod (p ^ 2)) = r₂ := hn2
@@ -2257,7 +2289,7 @@ lemma diag_count_mod25_ne_7_18_le (N p : ℕ) (hp : Nat.Prime p) (hmod : p % 4 =
       S ⊆ residues25.biUnion (fun t =>
         (Finset.range N).filter (fun n => n ≡ t [MOD 25] ∧ (p ^ 2 : ℕ) ∣ n ^ 2 + 1)) := by
     intro n hn
-    simp [S, Finset.mem_filter, Finset.mem_range] at hn
+    simp only [S, Finset.mem_filter, Finset.mem_range] at hn
     set t : ℕ := n % 25
     have ht : t ∈ residues25 := by
       have htlt : t < 25 := Nat.mod_lt n (by decide : 0 < 25)
@@ -2314,7 +2346,7 @@ lemma diag_count_mod50odd_ne_7_18_le (N p : ℕ) (hp : Nat.Prime p) (hmod : p % 
       S ⊆ residues50odd.biUnion (fun t =>
         (Finset.range N).filter (fun n => n ≡ t [MOD 50] ∧ (p ^ 2 : ℕ) ∣ n ^ 2 + 1)) := by
     intro n hn
-    simp [S, Finset.mem_filter, Finset.mem_range] at hn
+    simp only [S, Finset.mem_filter, Finset.mem_range] at hn
     set t : ℕ := n % 50
     have ht : t ∈ residues50odd := by
       have htlt : t < 50 := Nat.mod_lt n (by decide : 0 < 50)

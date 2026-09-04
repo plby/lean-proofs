@@ -62,7 +62,7 @@ theorem parameterLattice_isLattice {v : Triple} {n : ℕ} [Fact (0 < n)]
     (hv : tripleNorm v = n) {q : hurwitzOrder} (hq : q ≠ 0) :
     Submodule.IsLattice ℚ (parameterLattice hv q) where
   fg := by
-    letI := parameterLattice_finite hv hq
+    let := parameterLattice_finite hv hq
     exact Module.Finite.iff_fg.mp inferInstance
   span_eq_top := by
     apply top_unique
@@ -77,7 +77,7 @@ theorem parameterLattice_isLattice {v : Triple} {n : ℕ} [Fact (0 < n)]
 theorem parameterLattice_finrank {v : Triple} {n : ℕ} [Fact (0 < n)]
     (hv : tripleNorm v = n) {q : hurwitzOrder} (hq : q ≠ 0) :
     Module.finrank ℤ (parameterLattice hv q) = 2 := by
-  letI := parameterLattice_isLattice hv hq
+  let := parameterLattice_isLattice hv hq
   apply Module.finrank_eq_of_rank_eq
   rw [Submodule.IsLattice.rank' ℚ]
   exact QuadraticAlgebra.rank_eq_two _ _

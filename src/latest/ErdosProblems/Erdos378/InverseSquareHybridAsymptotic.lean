@@ -178,7 +178,7 @@ theorem tendsto_largeFrequencyMomentBound_zero (C : ℕ) :
     convert hqInv.const_mul (1 / 256 : ℝ) using 1
     · funext M
       ring
-    · ring
+    · ring_nf
   have hinactive : Tendsto (fun M : ℕ ↦
       inverseSquareTerminalConstant * logarithmicSafety M ^ 64 /
         (32 * (baseShift M : ℝ))) atTop (nhds 0) := by
@@ -186,7 +186,7 @@ theorem tendsto_largeFrequencyMomentBound_zero (C : ℕ) :
       (inverseSquareTerminalConstant / 32) using 1
     · funext M
       ring
-    · ring
+    · ring_nf
   have hratio : Tendsto (fun M : ℕ ↦
       logarithmicSafety M ^ 32 / (M : ℝ)) atTop (nhds 0) := by
     have hmajor := tendsto_safety_pow_forty_div_baseShift

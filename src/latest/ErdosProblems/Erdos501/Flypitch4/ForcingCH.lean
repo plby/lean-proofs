@@ -971,7 +971,7 @@ noncomputable def π_af :
     ⟨{g : (pSet_aleph1 : PSet.{u}).Type → (PSet.powerset PSet.omega : PSet.{u}).Type |
         g η' = S'},
      by
-       haveI : TopologicalSpace
+       have : TopologicalSpace
          ((pSet_aleph1 : PSet.{u}).Type → (PSet.powerset PSet.omega : PSet.{u}).Type) :=
          collapseSpace _ _
        exact isRegular_setOf⟩

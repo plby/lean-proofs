@@ -348,7 +348,7 @@ theorem linked_liftContractSeparation_of_mem_strictRight
   classical
   let t := liftContractSeparation hab s
   intro I inst terminal hrange
-  letI : Fintype I := inst
+  let : Fintype I := inst
   let terminalV : Sum I I ↪ V :=
     terminal.trans (Function.Embedding.subtype (t.right : Set V))
   have hterminalSep : Set.range terminalV ⊆ (t.separator : Set V) := by

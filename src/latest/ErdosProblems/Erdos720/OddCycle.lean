@@ -32,7 +32,7 @@ lemma tripartite_connector_two_edge_closes (m height q : ℕ) (hm : 1 ≤ m)
   obtain ⟨Z, ⟨C⟩⟩ := exists_bipartite_connector m height q hm hh hq hcap G hnoHole
   let E : {v // v ∈ Z} → Fin (2 * m - 1) → Prop :=
     fun v z => R.Adj (Sum.inl v.1) (Sum.inr z)
-  letI : DecidableRel E := fun _ _ => Classical.propDecidable _
+  let : DecidableRel E := fun _ _ => Classical.propDecidable _
   have hleftCard : m ≤ C.leftLeaves.card := by rw [C.card_left]; exact hleaves
   have hrightCard : m ≤ C.rightLeaves.card := by rw [C.card_right]; exact hleaves
   have hnoL : ∀ A : Finset {v // v ∈ Z}, A ⊆ C.leftLeaves → A.card = m →

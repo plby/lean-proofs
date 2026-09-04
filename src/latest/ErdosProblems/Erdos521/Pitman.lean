@@ -54,9 +54,17 @@ theorem transformed_step (p m : Site) (h : m ≤ p) (d : Direction) :
 theorem decoded_transformedDirection (p m : Site) (h : m ≤ p) (d : Direction) :
     decodedDirection (p + step d) (updatedMinimum p m d) (transformedDirection p m d) = d := by
   rcases h with ⟨hx, hy⟩
-  fin_cases d <;>
-    simp [decodedDirection, transformedDirection, step, updatedMinimum, min_def] <;>
-    (try split_ifs) <;> (try simp_all [Fin.ext_iff]) <;> omega
+  fin_cases d
+  · simp [decodedDirection, transformedDirection, updatedMinimum, step] at *
+    omega
+  · by_cases hxm : p.1 = m.1
+    · simp [decodedDirection, transformedDirection, updatedMinimum, step, hxm] at *
+    · simp [decodedDirection, transformedDirection, updatedMinimum, step, hxm] at *
+  · simp [decodedDirection, transformedDirection, updatedMinimum, step] at *
+    omega
+  · by_cases hym : p.2 = m.2
+    · simp [decodedDirection, transformedDirection, updatedMinimum, step, hym] at *
+    · simp [decodedDirection, transformedDirection, updatedMinimum, step, hym] at *
 
 structure State where
   position : Site

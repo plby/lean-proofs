@@ -62,7 +62,7 @@ theorem exists_supported_finite_obstruction_avoid_countable
           constructor <;> intro h;
           · grind;
           · use Set.Finite.toFinset (finite_finiteEdgeSupport H htri D (fun e he => h.left e he |>.1));
-            simp_all +decide [ Set.subset_def ];
+            simp_all +decide only [Set.Finite.coe_toFinset, Set.Finite.mem_toFinset, not_exists];
             exact ⟨ fun e he x hx => Set.mem_iUnion₂.2 ⟨ e, he, hx ⟩, fun x hx => by rcases Set.mem_iUnion₂.1 hx with ⟨ e, he, hx ⟩ ; exact h.1 e he |>.2 hx ⟩
 
 /-
@@ -100,7 +100,7 @@ theorem exists_disjoint_finite_obstruction_sequence
                 refine' ⟨ fun n => Nat.recOn n ∅ fun n ih => ih ∪ ( E n ih : Set W ), _, _, _ ⟩ <;> simp +decide;
                 intro n; induction n <;> simp_all +decide [ Set.countable_empty, Set.countable_union ] ;
                 exact Set.to_countable _;
-              refine' ⟨ fun n => E n ( U n ), fun n => D n ( U n ), _, _, _ ⟩ <;> simp_all +decide [ Set.disjoint_left ];
+              refine' ⟨ fun n => E n ( U n ), fun n => D n ( U n ), _, _, _ ⟩ <;> simp_all +decide only [Finset.disjoint_coe];
               · exact fun n e he => hED n ( U n ) ( hU.1 n ) |>.1 e he |>.1;
               · refine' fun n => ⟨ hED n ( U n ) ( hU.1 n ) |>.2.1, fun m mn => _ ⟩;
                 intro x hx₁ hx₂; have := hED n ( U n ) ( hU.1 n ) |>.2.2.1 hx₂; simp_all +decide [ Set.subset_def ] ;
@@ -127,7 +127,8 @@ theorem exists_countable_edge_subhypergraph_unbounded_finite_chromatic
       ∀ k : ℕ, 0 < k →
         ¬ ∃ c : W → Fin k, (⟨A⟩ : Hypergraph W).ProperColoring c := by
           obtain ⟨D, hD⟩ := exists_disjoint_finite_obstruction_sequence H htri huc hS;
-          refine' ⟨ ⋃ n, D n, Set.countable_iUnion fun n => Finset.countable_toSet _, _, _, _ ⟩ <;> simp_all +decide [ Set.subset_def ];
+          refine' ⟨ ⋃ n, D n, Set.countable_iUnion fun n => Finset.countable_toSet _, _, _, _ ⟩ <;> simp_all +decide only [Set.iUnion_subset_iff, Set.mem_iUnion, SetLike.mem_coe, forall_exists_index,
+    not_exists];
           · exact fun e n he => hD.1 n e he |>.1;
           · exact fun e n he x hx => hD.1 n e he |>.2 x hx;
           · intro k hk x hx; specialize hD; have := hD.2.2 ( k - 1 ) ( fun w => Fin.castLE ( by omega ) ( x w ) ) ; simp_all +decide [ Hypergraph.ProperColoring ] ;
@@ -167,7 +168,8 @@ theorem exists_countable_supported_unbounded_chromatic_avoid
       ∀ k : ℕ, 0 < k →
         ¬ ∃ c : W → Fin k, (⟨A⟩ : Hypergraph W).ProperColoring c := by
           obtain ⟨ D, hD₁, hD₂, hD₃ ⟩ := exists_disjoint_finite_obstruction_sequence_avoid_edges H htri huc hS hB;
-          refine' ⟨ ⋃ n, D n, ⋃ n, finiteEdgeSupport ( D n ), _, _, _, _, _ ⟩ <;> simp_all +decide [ Set.subset_def ];
+          refine' ⟨ ⋃ n, D n, ⋃ n, finiteEdgeSupport ( D n ), _, _, _, _, _ ⟩ <;> simp_all +decide only [Set.countable_iUnion_iff, Set.iUnion_subset_iff, not_exists, Set.mem_iUnion,
+    SetLike.mem_coe, forall_exists_index];
           · exact fun n => Set.to_countable _;
           · exact fun n => countable_finiteEdgeSupport H htri ( D n ) fun e he => hD₁ n e he |>.1;
           · exact fun e n he => hD₁ n e he |>.1;

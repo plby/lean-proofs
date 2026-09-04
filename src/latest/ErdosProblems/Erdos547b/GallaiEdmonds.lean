@@ -30,7 +30,7 @@ def IsMaximumMatching (M : G.Subgraph) : Prop :=
 theorem card_verts_eq_two_mul_card_edges {M : G.Subgraph} (hM : M.IsMatching) :
     M.verts.ncard = 2 * M.coe.edgeSet.ncard := by
   classical
-  letI : Fintype M.verts := Fintype.ofFinite _
+  let : Fintype M.verts := Fintype.ofFinite _
   have hdeg (v : M.verts) : M.coe.degree v = 1 := by
     rw [SimpleGraph.degree_eq_one_iff_existsUnique_adj]
     obtain ⟨w, hvw, huniq⟩ := hM v.property
@@ -120,7 +120,7 @@ theorem IsMatching.isNearPerfectMatching_of_odd_of_card_le_succ {M : G.Subgraph}
   have hsum : M.verts.ncard + M.vertsᶜ.ncard = Fintype.card V := by
     simpa [Nat.card_eq_fintype_card] using Set.ncard_add_ncard_compl M.verts
   have heven : Even M.verts.ncard := by
-    letI : Fintype M.verts := Fintype.ofFinite _
+    let : Fintype M.verts := Fintype.ofFinite _
     rw [Set.ncard_eq_toFinset_card']
     exact hM.even_card
   rcases hodd with ⟨a, ha⟩
@@ -140,7 +140,7 @@ theorem IsFactorCritical.odd_card [Nonempty V]
   let x : V := Classical.choice inferInstance
   obtain ⟨M, hM⟩ := hG x
   have heven : Even M.verts.ncard := by
-    letI : Fintype M.verts := Fintype.ofFinite _
+    let : Fintype M.verts := Fintype.ofFinite _
     rw [Set.ncard_eq_toFinset_card']
     exact hM.1.even_card
   have hsum : M.verts.ncard + M.vertsᶜ.ncard = Fintype.card V := by

@@ -317,7 +317,7 @@ theorem exists_threshold_wTrickedPrimeWeight_le_sieveMajorant
       eventually_sieveExponent_half_mul_log_le_log_sieveLevel hk
     ] with N hWB hNone hRtwo hRbelow hlogLower
     intro hN
-    letI : NeZero N := ⟨hN.ne'⟩
+    let : NeZero N := ⟨hN.ne'⟩
     exact
       wTrickedPrimeWeight_le_sieveMajorant_of_add_le
         χ hk hNone hW hWB hRtwo hRbelow hlogLower
@@ -345,7 +345,7 @@ theorem exists_threshold_wTrickedPrimeWeight_le_cyclicMajorant
     eventually_atTop.1 (eventually_two_le_sieveLevel hk)
   refine ⟨max N₀ N₁, ?_⟩
   intro N hNlarge hNpos
-  letI : NeZero N := ⟨hNpos.ne'⟩
+  let : NeZero N := ⟨hNpos.ne'⟩
   apply
     wTrickedPrimeWeight_le_cyclicMajorant_of_le_localized
       χ

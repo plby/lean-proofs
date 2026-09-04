@@ -450,7 +450,7 @@ lemma PolygonalReplacementTubeChains {V : Type*} [Fintype V]
                             (controlDisks.intersectionRadius x))) := by
     intro i
     exact Classical.choose_spec (chain_exists i)
-  letI : Fintype residualPieceData.pieceIndex :=
+  let : Fintype residualPieceData.pieceIndex :=
     residualPieceData.pieceIndex_fintype
   let pieceEquiv :
       residualPieceData.pieceIndex ≃

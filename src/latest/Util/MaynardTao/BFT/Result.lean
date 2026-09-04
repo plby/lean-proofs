@@ -24,13 +24,13 @@ theorem consecutive_primes :
         (∀ j, j < m → (Nat.nth Nat.Prime (r + j) : ℤ) ≡ a [ZMOD (q : ℤ)]) ∧
         Nat.nth Nat.Prime (r + m - 1) - Nat.nth Nat.Prime r ≤ q * C := by
   intro m hm
-  letI P : Sieve.Parameters := Sieve.parametersOfLength m hm
+  let P : Sieve.Parameters := Sieve.parametersOfLength m hm
   let K := Sieve.largeK
   let C := 2 ^ K
   have hC : 0 < C := pow_pos (by norm_num) K
   refine ⟨C, hC, ?_⟩
   intro q hq a ha N
-  letI T : Sieve.ShiftTuple := {
+  let T : Sieve.ShiftTuple := {
     shifts := powerTuple K q
     card_shifts := powerTuple_card K hq }
   let H := Sieve.largePowerTuple

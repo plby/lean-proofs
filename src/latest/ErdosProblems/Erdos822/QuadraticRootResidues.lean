@@ -53,7 +53,7 @@ two-root bound. -/
 theorem quadraticRootResidues_card_le_two_of_prime
     {p : ℕ} (hp : p.Prime) (u v : ℕ) :
     (quadraticRootResidues p u v).card ≤ 2 := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   have hinj := natCast_injOn_quadraticRootResidues (p := p) (u := u) (v := v)
   have hsubset :
       (quadraticRootResidues p u v).image (fun t : ℕ => (t : ZMod p)) ⊆

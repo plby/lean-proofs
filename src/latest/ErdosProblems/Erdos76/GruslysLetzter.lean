@@ -880,7 +880,7 @@ private lemma almostCompleteFractionalDecomposition_fintype
     ∃ w : Finset β → ℝ, IsFractionalDecomposition G w := by
   let e : β ≃ Fin (Fintype.card β) := Fintype.equivFinOfCardEq rfl
   let H : SimpleGraph (Fin (Fintype.card β)) := G.map e.toEmbedding
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   have hmissH : missingEdgeCount H ≤ Fintype.card β - 4 := by
     have hc : Hᶜ = Gᶜ.map e.toEmbedding := compl_map_equiv G e
     have hedge : Hᶜ.edgeFinset = (Gᶜ.map e.toEmbedding).edgeFinset := by
@@ -1362,9 +1362,9 @@ theorem exists_maximal_fractionalInternalCrossPacking
         fractionalSize G u ≤ fractionalSize G w := by
   classical
   by_cases hcross : (internalCrossTriangles G s).Nonempty
-  · letI : Nonempty (InternalCrossTriangleIndex G s) :=
+  · let : Nonempty (InternalCrossTriangleIndex G s) :=
       ⟨⟨hcross.choose, hcross.choose_spec⟩⟩
-    letI : Nonempty (LPDuality.EdgeIndex G) := by
+    let : Nonempty (LPDuality.EdgeIndex G) := by
       obtain ⟨e, _he⟩ := internalCrossIncidenceMatrix_exists_one G s
         (Classical.arbitrary (InternalCrossTriangleIndex G s))
       exact ⟨e⟩
@@ -1412,7 +1412,7 @@ theorem exists_maximal_fractionalInternalCrossPacking
       _ = ∑ t, x t := hxy.symm
       _ = fractionalSize G (internalCrossWeight G s x) :=
         (fractionalSize_internalCrossWeight G s x).symm
-  · letI : IsEmpty (InternalCrossTriangleIndex G s) :=
+  · let : IsEmpty (InternalCrossTriangleIndex G s) :=
       ⟨fun t ↦ hcross ⟨t.val, t.property⟩⟩
     refine ⟨fun _ ↦ 0, ⟨isFractionalPacking_zero G, by simp⟩, ?_⟩
     intro u hu
@@ -4855,21 +4855,24 @@ lemma twoCliqueStars_no_singleton_card_le_maximal
   · by_cases hB0 : B.card = 0
     · have hzero := hmax (fun _t : Finset α ↦ (0 : ℝ))
           ⟨isFractionalPacking_zero G, by simp⟩
-      simp [hA0, hB0, fractionalSize] at hzero ⊢
-      exact hzero
+      have hsize_nonneg : 0 ≤ fractionalSize G weight := by
+        simpa only [fractionalSize_zero] using hzero
+      calc
+        ((A.card + B.card : ℕ) : ℝ) = 0 := by
+          simp only [hA0, hB0, add_zero, Nat.cast_zero]
+        _ ≤ 2 * fractionalSize G weight :=
+          mul_nonneg (by norm_num) hsize_nonneg
     · have hB2 : 2 ≤ B.card := by omega
       have hred := uniformCliqueStar_card_le_maximal
         hmax hB2 hB hBs hwside hwB
       push_cast
-      simp [hA0]
-      exact hred
+      simpa only [hA0, Nat.cast_zero, zero_add] using hred
   · have hA2 : 2 ≤ A.card := by omega
     by_cases hB0 : B.card = 0
     · have hred := uniformCliqueStar_card_le_maximal
         hmax hA2 hA hAs hzside hzA
       push_cast
-      simp [hB0]
-      exact hred
+      simpa only [hB0, Nat.cast_zero, add_zero] using hred
     · have hB2 : 2 ≤ B.card := by omega
       exact twoUniformCliqueStars_card_le_maximal hmax hA2 hB2
         hA hB hAB hAs hBs hzside hwside hzw hzA hwB

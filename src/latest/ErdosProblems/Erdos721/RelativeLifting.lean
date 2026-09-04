@@ -99,7 +99,7 @@ lemma wLpNorm_mu_mono_of_subset
         field_simp
         rfl
       · simp only [mu_apply, hxC, if_false, mul_zero]
-        by_cases hxD : x ∈ D <;> simp [hxD]
+        by_cases hxD : x ∈ D <;> simp only [rpow_natCast, zero_mul, mul_ite, mul_one, mul_zero, ite_mul]
         positivity
     _ = ((D.card : ℝ) / C.card) ^ ((p : ℝ)⁻¹) *
         (∑ i, (↑(μ D i) : ℝ) * |f i| ^ (p : ℝ)) ^ ((p : ℝ)⁻¹) := by

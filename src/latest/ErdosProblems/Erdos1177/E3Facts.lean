@@ -60,7 +60,7 @@ theorem deltaRho_le (hρ : ℵ₀ ≤ ρ) : deltaRho ρ ≤ ρ :=
 /-- `δ(ρ)` is regular: `(δ(ρ).ord).cof = δ(ρ)`. -/
 theorem deltaRho_regular (hρ : ℵ₀ ≤ ρ) : (deltaRho ρ).ord.cof = deltaRho ρ := by
   set δ := deltaRho ρ with hδdef
-  haveI hwo : IsWellOrder δ.ord.ToType (· < ·) := inferInstance
+  have hwo : IsWellOrder δ.ord.ToType (· < ·) := inferInstance
   refine le_antisymm (Ordinal.cof_ord_le δ) ?_
   by_contra hcon
   push_neg at hcon

@@ -351,7 +351,7 @@ theorem one_le_rowPotential_of_near_boundary
         unfold rowPotential signedRowPotential entropyWeight
         rw [← exp_add, ← exp_add]
         dsimp only [base, z, Q]
-        congr 1 <;> ring
+        congr 1 <;> ring_nf
 
 /-! ## Accumulated score and the half-coordinate conclusion -/
 
@@ -639,7 +639,7 @@ principle used by the Erdős 228 construction. -/
 theorem partialColoringPrinciple (I : Type u) (J : Type v)
     [Fintype I] [Fintype J] [DecidableEq I] :
     Erdos228.Discrepancy.PartialColoringPrinciple I J := by
-  letI : DecidableEq J := Classical.decEq J
+  let : DecidableEq J := Classical.decEq J
   intro v x₀ c hx₀ hc hentropy
   apply hasPartialColoring_of_approximate v x₀ c
   intro epsilon hepsilon

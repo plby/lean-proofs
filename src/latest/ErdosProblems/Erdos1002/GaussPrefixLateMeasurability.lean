@@ -229,7 +229,7 @@ def gaussPrefixFrozenLebesgueDensity (b : ℕ) (x : ℝ) : ℝ :=
 theorem measurable_gaussPrefixFrozenLebesgueDensity_prefix (b : ℕ) :
     @Measurable ℝ ℝ (gaussPrefixMeasurableSpace b) (borel ℝ)
       (gaussPrefixFrozenLebesgueDensity b) := by
-  letI : MeasurableSpace (PositiveDigitWord b) := ⊤
+  let : MeasurableSpace (PositiveDigitWord b) := ⊤
   let G : PositiveDigitWord b → ℝ := fun w ↦
     gaussLebesguePrefixWeight (gaussPrefixRepresentative w.1)
   have hselected :
@@ -1328,7 +1328,7 @@ theorem measurable_gaussPrefixAffineFrozenCompactCharacter_prefix
     @Measurable ℝ ℂ (gaussPrefixMeasurableSpace m) (borel ℂ)
       (gaussPrefixAffineFrozenCompactCharacter
         N lower upper k h F m goodWords) := by
-  letI : MeasurableSpace (PositiveDigitWord m) := ⊤
+  let : MeasurableSpace (PositiveDigitWord m) := ⊤
   let G : PositiveDigitWord m → ℂ := fun w ↦
     if w ∈ goodWords then
       oscillatoryPhase
@@ -1477,7 +1477,7 @@ theorem measurable_gaussPrefixFrozenMixedPrefixCharacter_prefix
     @Measurable ℝ ℂ (gaussPrefixMeasurableSpace m) (borel ℂ)
       (gaussPrefixFrozenMixedPrefixCharacter
         N B k h F m goodWords) := by
-  letI : MeasurableSpace (PositiveDigitWord m) := ⊤
+  let : MeasurableSpace (PositiveDigitWord m) := ⊤
   let G : PositiveDigitWord m → ℂ := fun w ↦
     if w ∈ goodWords then
       gaussPrefixMarkedMixedPrefixCharacter N B k h F m

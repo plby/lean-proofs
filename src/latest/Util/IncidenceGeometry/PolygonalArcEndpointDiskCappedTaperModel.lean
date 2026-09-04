@@ -134,8 +134,7 @@ lemma PolygonalArcEndpointDiskCappedTaperModel (a K : ℝ) (ha : 0 < a) (hK : 0 
     refine ⟨WithLp.toLp 2 (fun i : Fin 2 => if i = 0 then a / 2 else -y0), ?_⟩
     dsimp [R]
     have hx : 0 < a / 2 := by positivity
-    simp [hx, hy0_pos]
-    exact ⟨hpoint_disk, hy0_lt_Khalf⟩
+    simp [hx, hpoint_disk, hy0_pos, hy0_lt_Khalf]
   refine ⟨hC_open, hL_open, hR_open, hL_conv.isConnected hL_nonempty,
     hR_conv.isConnected hR_nonempty, ?_, ?_, ?_, ?_⟩
   · rw [Set.disjoint_left]

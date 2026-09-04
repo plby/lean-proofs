@@ -762,7 +762,7 @@ theorem conditionedCountVector_weighted_claim121_lower
     obtain ⟨hleft, hsigma, hlower⟩ :=
       hclaim (fun j ↦ (ell j).val) f (hnear ell hell)
         (by simpa only [P, Gc, cc, y, F, dvec, f] using hcoeff ell hell)
-    letI := hleft
+    let := hleft
     have hsigmaEq : sigma =
         countVectorClaim121Scale D G c O hbucket ell := by
       rfl

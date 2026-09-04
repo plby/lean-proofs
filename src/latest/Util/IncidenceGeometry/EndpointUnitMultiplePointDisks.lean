@@ -118,8 +118,8 @@ lemma EndpointUnitMultiplePointDisks {ι : Type*} [Fintype ι]
     have hz_ball : z ∈ Metric.ball (0 : EuclideanSpace ℝ (Fin 2)) 1 := hz_triple.1
     rcases hz_triple.2 with
       ⟨i0, _j0, _k0, _hij0, _hik0, _hjk0, _hzi0, _hzj0, _hzk0⟩
-    letI : Nonempty ι := ⟨i0⟩
-    letI : Nonempty {w : EuclideanSpace ℝ (Fin 2) // w ∈ T} := ⟨⟨z, hz⟩⟩
+    let : Nonempty ι := ⟨i0⟩
+    let : Nonempty {w : EuclideanSpace ℝ (Fin 2) // w ∈ T} := ⟨⟨z, hz⟩⟩
     have segment_closed :
         ∀ i, IsClosed (segment ℝ (a i) (b i)) := by
       intro i

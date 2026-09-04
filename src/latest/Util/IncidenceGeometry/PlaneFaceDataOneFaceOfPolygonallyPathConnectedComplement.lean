@@ -60,6 +60,6 @@ lemma PlaneFaceDataOneFaceOfPolygonallyPathConnectedComplement {V : Type*}
     have hpF : p ∈ A.faceSet F := by
       simpa [hFaceFull F] using hpCompl
     exact hUnique F hpF
-  letI : Fintype A.Face := A.faceFintype
-  haveI : Unique A.Face := { default := F₀, uniq := hAllEq }
+  let : Fintype A.Face := A.faceFintype
+  have : Unique A.Face := { default := F₀, uniq := hAllEq }
   simp

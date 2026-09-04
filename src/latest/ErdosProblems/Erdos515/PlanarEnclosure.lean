@@ -56,7 +56,7 @@ theorem exists_jordan_enclosure_of_continuousOn
     exact familyChain_le
   have hdraw : Graph.IsDrawing H segmentDrawing :=
     (familyOverlay_isDrawing (c := c) (N := N) hr).mono hHle
-  letI : H.Finite := by
+  let : H.Finite := by
     dsimp only [H]
     exact familyChain_finite
   have hpoly : ∀ g ∈ E(H), IsPolygonal (Graph.edgeArc segmentDrawing g) := by

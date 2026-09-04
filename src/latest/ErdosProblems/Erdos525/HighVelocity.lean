@@ -66,7 +66,7 @@ lemma highVelocity_scaled_outerError_tendsto_zero
     have hfirst : Tendsto (fun n : ℕ ↦
         (2 * localMeshHalfWidth n) * (2 * growingVelocityCutoff n))
         atTop (nhds 0) := by
-      convert hhT.const_mul 4 using 1 <;> ring
+      convert hhT.const_mul 4 using 1 <;> ring_nf
     simpa using (hfirst.add huDiv).add hr
   have hden : Tendsto (fun n : ℕ ↦ V / 2 - phaseBoundaryRadius n)
       atTop (nhds (V / 2)) := by
@@ -1012,7 +1012,7 @@ theorem highVelocitySmallMinimum_eventually_lt
   have hE : Tendsto E atTop (nhds 0) := by
     have h := growingVelocityCutoff_cube_mul_densityError_tendsto_zero.const_mul
       (648 * Real.pi ^ 2 * (u + 2))
-    convert h using 1 <;> simp [E] <;> ring
+    convert h using 1 <;> simp [E] <;> ring_nf
   have hrem := (hE.add uniformProbability_highMeshAcceleration_tendsto_zero).add
     uniformProbability_highMeshVelocity_growing_tendsto_zero
   have hrem' : Tendsto (fun n : ℕ ↦

@@ -1450,7 +1450,7 @@ theorem card_leafVertices_core_le [Nontrivial V]
       simp [Erdos547b.ZhaoLemma710.leafVertices, hzero x]
     rw [hempty]
     simp
-  · letI : Nontrivial S := not_subsingleton_iff_nontrivial.mp hsub
+  · let : Nontrivial S := not_subsingleton_iff_nontrivial.mp hsub
     have hcore := Erdos547b.ZhaoLemma710.branchExcess_add_two_eq_card_leaves
       (core T O) (core_isTree T E O hT hpart)
     have horig := Erdos547b.ZhaoLemma710.branchExcess_add_two_eq_card_leaves T hT
@@ -2376,7 +2376,7 @@ theorem EC3Witness.contains_of_manyLeaves_or_nearIdeal
     T ⊑ G ∨ ∃ U₁ U₂,
       Erdos547b.ZhaoLemma77.IsNearIdealPartition (s + q) n T U₁ U₂ := by
   classical
-  letI : DecidableRel T.Adj := fun a b ↦ Classical.propDecidable (T.Adj a b)
+  let : DecidableRel T.Adj := fun a b ↦ Classical.propDecidable (T.Adj a b)
   let c : T.Coloring (Fin 2) := Classical.choice hT.isBipartite
   let C₀ := Erdos547b.EC1Scratch.colorClassFinset c 0
   let C₁ := Erdos547b.EC1Scratch.colorClassFinset c 1
@@ -4368,7 +4368,7 @@ theorem exists_hamiltonian_path_of_connected_degree_le_two
     (hT : T.Connected) (hdeg : ∀ z, T.degree z ≤ 2) :
     ∃ (u w : S) (p : T.Walk u w), p.IsHamiltonian := by
   classical
-  letI : Nonempty S := hT.nonempty
+  let : Nonempty S := hT.nonempty
   obtain ⟨u, w, p, hp, hmax⟩ :=
     SimpleGraph.Walk.exists_isPath_forall_isPath_length_le_length T
   refine ⟨u, w, p, hp.isHamiltonian_of_mem ?_⟩
@@ -5045,7 +5045,7 @@ theorem odd_path_exception_of_tree
     T ⊑ G := by
   classical
   have htwo : 2 ≤ Fintype.card S := by rw [hcard]; omega
-  letI : Nontrivial S := Fintype.one_lt_card_iff_nontrivial.mp htwo
+  let : Nontrivial S := Fintype.one_lt_card_iff_nontrivial.mp htwo
   obtain ⟨u, w, p, hp⟩ :=
     exists_hamiltonian_path_of_leafVertices_le_two T hT hleaves
   exact odd_path_exception_of_hamiltonian T G n l hcard hodd hn hl hlarge
@@ -5132,7 +5132,7 @@ theorem EC3Witness.contains_every_exact_tree
     T ⊑ G := by
   classical
   have hn : 2 ≤ n := by omega
-  letI : Nontrivial A := Fintype.one_lt_card_iff_nontrivial.mp (by omega)
+  let : Nontrivial A := Fintype.one_lt_card_iff_nontrivial.mp (by omega)
   rcases h.contains_or_nearIdeal_or_atMostTwoLeaves hscale hsource hrpos
       T hT hcardT with hcopy | hnear | hpath
   · exact hcopy

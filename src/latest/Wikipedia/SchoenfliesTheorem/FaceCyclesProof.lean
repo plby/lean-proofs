@@ -845,7 +845,7 @@ theorem IsDrawing.hasFaceCycles_union [G.Finite] (h : IsDrawing G drawing)
     (hint : ∀ y ∈ G.walkVertices a D', y ≠ a → y ≠ b → y ∉ V(B))
     (hnew : ∀ g ∈ D', g ∉ E(B)) :
     HasFaceCycles (B.union (G.pathGraphOf a D')) drawing := by
-  haveI : B.Finite := Finite.of_le hBG
+  have : B.Finite := Finite.of_le hBG
   have hB : IsDrawing B drawing := h.mono hBG
   have hne : D' ≠ [] := hpath.ne_nil hab
   have hPG : G.pathGraphOf a D' ≤ G := pathGraphOf_le hpath.isWalk
@@ -973,4 +973,3 @@ theorem face_cycles [G.Finite] (hobl : CrosscutSplitsRegion) (h : IsDrawing G dr
   · rw [heq]; exact hmot
 
 end Graph
-

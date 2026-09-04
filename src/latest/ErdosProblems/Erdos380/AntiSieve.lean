@@ -713,7 +713,7 @@ lemma residueVectorOfNat_crtSelectorNat
     residueVectorOfNat modulus (crtSelectorNat modulus hcoprime i) j =
       (Pi.single i (1 : ZMod (modulus i)) : residueVectors modulus) j := by
   classical
-  letI : NeZero (∏ i, modulus i) := ⟨by
+  let : NeZero (∏ i, modulus i) := ⟨by
     exact Finset.prod_ne_zero_iff.mpr fun i _ => NeZero.ne (modulus i)⟩
   let e := ZMod.prodEquivPi modulus hcoprime
   let b : ZMod (∏ i, modulus i) :=
@@ -1824,7 +1824,7 @@ lemma residueClassSurvivors_zero_eq_primeDivisibilitySurvivors
         (fun _q => {(0 : ZMod _ )}) m0 N =
       primeDivisibilitySurvivors Q m0 N := by
   classical
-  letI : ∀ q : Q, NeZero q.1 := fun q => ⟨(hprime q.1 q.2).ne_zero⟩
+  let : ∀ q : Q, NeZero q.1 := fun q => ⟨(hprime q.1 q.2).ne_zero⟩
   ext n
   simp only [residueClassSurvivors, primeDivisibilitySurvivors,
     Finset.mem_filter, Finset.mem_Ioc, Finset.mem_singleton]
@@ -1856,7 +1856,7 @@ theorem primeDivisibilitySurvivors_card_le_trimmed_largerSieve
         (((∑ q ∈ (Finset.univ : Finset Q) \ L,
             (1 : ℝ) / q.1) / k) ^ k) := by
   classical
-  letI : ∀ q : Q, NeZero q.1 := fun q => ⟨(hprime q.1 q.2).ne_zero⟩
+  let : ∀ q : Q, NeZero q.1 := fun q => ⟨(hprime q.1 q.2).ne_zero⟩
   have hcoprime : Pairwise (Nat.Coprime on fun q : Q => q.1) := by
     intro q r hqr
     exact (Nat.coprime_primes (hprime q.1 q.2) (hprime r.1 r.2)).mpr

@@ -611,7 +611,7 @@ theorem charFun_gaussianQuadraticCenteredLaw {n : ℕ}
     congr 1
     dsimp only [g]
     unfold quadraticPolynomial
-    ring
+    ring_nf
 
 /-- After normalization, scalar division of the law corresponds exactly to
 rescaling the Fourier variable in Lemma 11.1's Gaussian characteristic
@@ -661,7 +661,7 @@ lemma charFun_finiteUniformLaw_eq_finiteCharacteristic
   intro x _hx
   congr 1
   push_cast
-  ring
+  ring_nf
 
 /-- The normalized characteristic-function bridge needed in Claim 12.1:
 Lemma 11.1 compares the finite product-slice law directly with the actual
@@ -824,11 +824,11 @@ lemma fourierError_productSliceLaw_div_normalizedLaw_le
             (2 / (eps * sigma)) ^ 4 +
           (6 * scale n (3 / 4 + 4 * delta)) *
             (2 / (eps * sigma))) := by
-  letI : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
+  let : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
     unfold gaussianQuadraticCenteredLaw
     exact Measure.isProbabilityMeasure_map
       ((continuous_quadraticPolynomial 0 f F).sub continuous_const).aemeasurable
-  letI : IsProbabilityMeasure
+  let : IsProbabilityMeasure
       ((gaussianQuadraticCenteredLaw f F).map (fun x ↦ x / sigma)) :=
     Measure.isProbabilityMeasure_map (by fun_prop)
   apply fourierError_le_of_pointwise_polynomial _ _ heps hsigma
@@ -863,11 +863,11 @@ lemma fourierError_productSliceLaw_div_normalizedLaw_le_of_characteristic
             (2 / (eps * sigma)) ^ 4 +
           (6 * scale n (3 / 4 + 4 * delta)) *
             (2 / (eps * sigma))) := by
-  letI : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
+  let : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
     unfold gaussianQuadraticCenteredLaw
     exact Measure.isProbabilityMeasure_map
       ((continuous_quadraticPolynomial 0 f F).sub continuous_const).aemeasurable
-  letI : IsProbabilityMeasure
+  let : IsProbabilityMeasure
       ((gaussianQuadraticCenteredLaw f F).map (fun x ↦ x / sigma)) :=
     Measure.isProbabilityMeasure_map (by fun_prop)
   apply fourierError_le_of_pointwise_polynomial _ _ heps hsigma
@@ -1043,7 +1043,7 @@ theorem eventually_ksssLemma111_fourierError_le_scale
   obtain ⟨hleft, _hmean, _hvariance, hpoint⟩ :=
     h111N m P ell (-BooleanSlices.trace F) f F hpart hbalanced hcoeff
   refine ⟨hleft, ?_⟩
-  letI := hleft
+  let := hleft
   intro sigma hsigmaLower
   have hnR : (0 : ℝ) < n := by exact_mod_cast (show 0 < n by omega)
   have hsigma : 0 < sigma :=

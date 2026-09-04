@@ -696,7 +696,7 @@ lemma sourcePrimeMinorantSum_eq_modes (k : ℕ) :
           ← Finset.sum_add_distrib, Finset.mul_sum]
         apply Finset.sum_congr rfl
         intro p hp
-        ring
+        ring_nf
     _ = _ := by
       have h1 := sourcePrimeMode_re 1 k
       have h2 := sourcePrimeMode_re 2 k

@@ -1026,7 +1026,7 @@ theorem scaledAmplificationClosedForm_le_structural_quarter
             rw [k_rpow_one_sub_sigma_mul_rpow_sigma P]
   have hs : (initialSupportBound P : ℝ) ≤ Real.exp (H P / 6) := by
     convert initialSupportBound_le_exp_sixth P hreq using 1 <;>
-      unfold H <;> ring
+      unfold H <;> ring_nf
   have hHexp : H P ≤ Real.exp (H P) := by
     have h := Real.add_one_le_exp (H P)
     nlinarith [H_pos P]

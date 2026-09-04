@@ -186,13 +186,11 @@ theorem coordinateAverage_filter (A : α → Finset β)
   | cons x xs ih =>
       rw [coordinateAverage_cons]
       by_cases hx : x ∈ S
-      · simp only [List.filter_cons]
-        simp [hx, coordinateAverage_cons]
+      · rw [List.filter_cons_of_pos (by simpa using hx), coordinateAverage_cons]
         apply Finset.expect_congr rfl
         intro z hz
         exact ih (Function.update f x z)
-      · simp only [List.filter_cons]
-        simp [hx]
+      · rw [List.filter_cons_of_neg (by simpa using hx)]
         calc
           (𝔼 z ∈ A x,
               coordinateAverage A xs (Function.update f x z) payoff) =

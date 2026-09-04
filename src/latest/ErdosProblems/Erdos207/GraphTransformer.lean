@@ -351,12 +351,12 @@ lemma mem_transformerSourceMatchingTriples_iff
     true_and]
   constructor
   · rintro ⟨x, hx⟩
-    letI : Fintype (incidentMatching G heven x).edgeSet := Fintype.ofFinite _
+    let : Fintype (incidentMatching G heven x).edgeSet := Fintype.ofFinite _
     obtain ⟨p, hp, rfl⟩ := Finset.mem_image.mp hx
     exact ⟨x, p, rfl⟩
   · rintro ⟨x, p, rfl⟩
     refine ⟨x, ?_⟩
-    letI : Fintype (incidentMatching G heven x).edgeSet := Fintype.ofFinite _
+    let : Fintype (incidentMatching G heven x).edgeSet := Fintype.ofFinite _
     exact Finset.mem_image.mpr ⟨p, mem_univ p, rfl⟩
 
 @[simp]
@@ -374,12 +374,12 @@ lemma mem_transformerTargetMatchingTriples_iff
     true_and]
   constructor
   · rintro ⟨x, hx⟩
-    letI : Fintype (incidentMatching G heven x).edgeSet := Fintype.ofFinite _
+    let : Fintype (incidentMatching G heven x).edgeSet := Fintype.ofFinite _
     obtain ⟨p, hp, rfl⟩ := Finset.mem_image.mp hx
     exact ⟨x, p, rfl⟩
   · rintro ⟨x, p, rfl⟩
     refine ⟨x, ?_⟩
-    letI : Fintype (incidentMatching G heven x).edgeSet := Fintype.ofFinite _
+    let : Fintype (incidentMatching G heven x).edgeSet := Fintype.ofFinite _
     exact Finset.mem_image.mpr ⟨p, mem_univ p, rfl⟩
 
 /-- Every neighbor belongs to a unique matching edge in its incident
@@ -596,8 +596,10 @@ lemma target_mem_targetEdgeTriple_iff
   let e' := phi.edgeEquiv e
   constructor
   · intro hy
-    simp [transformerTargetEdgeTriple, tripleOfThree] at hy
-    rcases hy with hy | hy
+    have hyout :
+        y = (phi.edgeEquiv e).1.out.1 ∨ y = (phi.edgeEquiv e).1.out.2 := by
+      simpa [transformerTargetEdgeTriple, tripleOfThree] using hy
+    rcases hyout with hy | hy
     · subst y
       exact Sym2.out_fst_mem e'.1
     · subst y

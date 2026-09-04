@@ -1124,7 +1124,8 @@ noncomputable def IsOddCycleSubgraph.toCopyData
   unfold IsOddCycleSubgraph.toCopyData
   simp only [SimpleGraph.Copy.comp_apply]
   ext v
-  simp
+  simp only [SimpleGraph.Copy.coe_comp, SimpleGraph.Copy.coe_mk, RelHom.coeFn_mk, RelIso.coe_fn_toEquiv,
+    EquivLike.range_comp, mem_range, Subtype.exists]
   constructor
   · rintro ⟨a, b, rfl⟩
     exact b

@@ -152,7 +152,7 @@ theorem exists_halfSubset_ge_half_total_and_not_bad
     (hbad : HalfSample.sliceProbability hcard Bad < (1 : ℝ) / 2) :
     ∃ omega : HalfSample.Slice U1 ell,
       (∑ u, a u) / 2 ≤ HalfSample.sliceSum a omega ∧ ¬ Bad omega := by
-  letI : Nonempty (HalfSample.Slice U1 ell) := HalfSample.sliceNonempty hcard
+  let : Nonempty (HalfSample.Slice U1 ell) := HalfSample.sliceNonempty hcard
   have hgood :=
     HalfSample.one_half_le_sliceProbability_ge_half_total hcard a
   by_contra hnone

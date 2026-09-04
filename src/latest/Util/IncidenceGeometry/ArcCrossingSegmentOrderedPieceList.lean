@@ -185,7 +185,8 @@ lemma ArcCrossingSegmentOrderedPieceList
         | nil =>
             simp at htailHead
         | cons t ts =>
-            simp at htailHead
+            change some t = some tailFirst at htailHead
+            have htailFirst_eq : t = tailFirst := Option.some.inj htailHead
             subst tailFirst
             refine
               ⟨prefPiece :: detPiece :: t :: ts, prefPiece, tailLast, by simp, ?_,

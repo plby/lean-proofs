@@ -130,7 +130,7 @@ theorem exists_holderDensity_gaussianQuadratic_of_relative_robustRankThree
       a lam hs hmod
   have hdensDiagonal : Erdos88.Esseen.HasContinuousDensity
       (diagonalCenteredLaw a lam) p := by
-    letI : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
+    let : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
       diagonalCenteredLaw_isProbabilityMeasure a lam
     have h := hasContinuousDensity_inverseFourierDensityCandidate
       (diagonalCenteredLaw a lam) (by
@@ -302,11 +302,11 @@ theorem exists_sign_productSlice_lower_of_raw_fourier_and_gaussianUpper
     smallBall_productSlice_ge_of_normalized_gaussianSmallBallRatio
       P ell f hsigma hB hK hR (sigma * (s * x)) hratioRaw (by
         simpa only [mu, law, eps] using hfourier)
-  letI : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
+  let : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
     unfold gaussianQuadraticCenteredLaw
     exact Measure.isProbabilityMeasure_map
       ((continuous_quadraticPolynomial 0 f F).sub continuous_const).aemeasurable
-  letI : IsProbabilityMeasure law := by
+  let : IsProbabilityMeasure law := by
     dsimp only [law]
     exact Measure.isProbabilityMeasure_map (by fun_prop)
   have hconc : Erdos88.Esseen.concentration law eps ≤
@@ -601,11 +601,11 @@ theorem productSlice_lower_positive_of_gaussianUpper_at_sign
     smallBall_productSlice_ge_of_normalized_gaussianSmallBallRatio
       P ell f hsigma hB hK hR (sigma * (s * x)) hratioRaw (by
         simpa only [mu, law, eps] using hfourier)
-  letI : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
+  let : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
     unfold gaussianQuadraticCenteredLaw
     exact Measure.isProbabilityMeasure_map
       ((continuous_quadraticPolynomial 0 f F).sub continuous_const).aemeasurable
-  letI : IsProbabilityMeasure law := by
+  let : IsProbabilityMeasure law := by
     dsimp only [law]
     exact Measure.isProbabilityMeasure_map (by fun_prop)
   have hconc : Erdos88.Esseen.concentration law eps ≤
@@ -708,11 +708,11 @@ theorem productSlice_lower_positive_of_gaussianHolder_at_sign
     dsimp only [C₀]
     exact Erdos88.Esseen.relativeEsseenConstant_nonneg
   have hRpos : 0 < R := lt_of_lt_of_le (by norm_num) hR
-  letI : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
+  let : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
     unfold gaussianQuadraticCenteredLaw
     exact Measure.isProbabilityMeasure_map
       ((continuous_quadraticPolynomial 0 f F).sub continuous_const).aemeasurable
-  letI : IsProbabilityMeasure law := by
+  let : IsProbabilityMeasure law := by
     dsimp only [law]
     exact Measure.isProbabilityMeasure_map (by fun_prop)
   have hratioDensity : Erdos88.Esseen.DensityRatioOn p (s * x) eps R 2 := by
@@ -1066,7 +1066,7 @@ theorem exists_eventual_productSlice_claim121_lower_uniform
   intro K P G hbucket hpart hRamsey
   have hnOne : 1 ≤ n := (le_max_right Nrob 1).trans hn
   have hnpos : 0 < n := by omega
-  letI : NeZero n := ⟨by omega⟩
+  let : NeZero n := ⟨by omega⟩
   have hnR : (0 : ℝ) < n := by exact_mod_cast hnpos
   have hNrob : Nrob ≤ n := (le_max_left Nrob 1).trans hn
   let F := bucketCenteredAdjacency P.bucket hbucket.choose G
@@ -1082,7 +1082,7 @@ theorem exists_eventual_productSlice_claim121_lower_uniform
   let sigma := Real.sqrt (2 * frobeniusSq F + vectorSqNorm f)
   obtain ⟨hleft, hraw⟩ :=
     hfourierN P ell G f hbucket hpart hbalanced hcoeff hRamsey
-  letI := hleft
+  let := hleft
   have hFbound : frobeniusSq F ≤ (n : ℝ) ^ 2 := by
     have hrawBound := frobeniusSq_le F 1 (by norm_num) hcoeff.2.2.1
     simpa only [one_pow, mul_one] using hrawBound
@@ -1299,7 +1299,7 @@ theorem exists_fixedWindow_eventual_productSlice_claim121_lower_uniform
   intro K P G hbucket hpart hRamsey
   have hnOne : 1 ≤ n := (le_max_right Nrob 1).trans hn
   have hnpos : 0 < n := by omega
-  letI : NeZero n := ⟨by omega⟩
+  let : NeZero n := ⟨by omega⟩
   have hnR : (0 : ℝ) < n := by exact_mod_cast hnpos
   have hNrob : Nrob ≤ n := (le_max_left Nrob 1).trans hn
   let F := bucketCenteredAdjacency P.bucket hbucket.choose G
@@ -1315,7 +1315,7 @@ theorem exists_fixedWindow_eventual_productSlice_claim121_lower_uniform
   let sigma := Real.sqrt (2 * frobeniusSq F + vectorSqNorm f)
   obtain ⟨hleft, hraw⟩ :=
     hfourierN P ell G f hbucket hpart hbalanced hcoeff hRamsey
-  letI := hleft
+  let := hleft
   have hFbound : frobeniusSq F ≤ (n : ℝ) ^ 2 := by
     have hrawBound := frobeniusSq_le F 1 (by norm_num) hcoeff.2.2.1
     simpa only [one_pow, mul_one] using hrawBound
@@ -1403,7 +1403,7 @@ theorem exists_fixedWindow_eventual_productSlice_claim121_lower_uniform
         ← Real.rpow_neg hnR.le]
       simp only [scale, Real.rpow_eq_pow]
       congr 1
-      ring
+      ring_nf
     calc
       L * ((R + 1) * (B0 / sigma)) ^ (1 / 4 : ℝ) ≤
           L * (A / (n : ℝ)) ^ (1 / 4 : ℝ) :=

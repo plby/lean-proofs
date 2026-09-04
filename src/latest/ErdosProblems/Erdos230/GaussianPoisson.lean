@@ -401,7 +401,7 @@ theorem thetaAliasAtom_eq_aliasAtom
                     ((h : ℂ) + Complex.I * thetaB s θ y) ^ 2)) := by ring
         _ = _ := by
           rw [← Complex.exp_add]
-          ring
+          ring_nf
     _ = 1 / z ^ (1 / 2 : ℂ) * Complex.exp
         (-π * Complex.I * aliasCenter n θ h ^ 2 / n +
           π * Complex.I * (y - aliasCenter n θ h) ^ 2 /

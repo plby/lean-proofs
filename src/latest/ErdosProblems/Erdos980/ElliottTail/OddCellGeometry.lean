@@ -52,7 +52,7 @@ theorem generatorCongruenceCell_inter_generatorNormRegion_finite
       exact ⟨z, hz, rfl⟩
     · rintro ⟨z, hz, rfl⟩
       exact ⟨scaledIdealLatticeChart J m z, ⟨z, hz, rfl⟩, rfl⟩
-  letI : DiscreteTopology
+  let : DiscreteTopology
       (Submodule.span ℤ (Set.range (Pi.basisFun ℝ (index K)))) :=
     inferInstance
   have hLdiscrete : IsDiscrete L := by

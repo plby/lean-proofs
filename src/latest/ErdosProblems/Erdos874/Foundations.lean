@@ -50,9 +50,7 @@ lemma mem_restrictedSumset {r : ℕ} {A : Finset ℤ} {z : ℤ} :
 /-- The empty layer consists exactly of the empty sum. -/
 @[simp] lemma restrictedSumset_zero (A : Finset ℤ) :
     restrictedSumset 0 A = {0} := by
-  ext z
-  simp [mem_restrictedSumset]
-  constructor <;> intro h <;> exact h.symm
+  simp [restrictedSumset]
 
 /-- There are no restricted `r`-sums once `r` exceeds the size of `A`. -/
 lemma restrictedSumset_eq_empty_of_card_lt {r : ℕ} {A : Finset ℤ}

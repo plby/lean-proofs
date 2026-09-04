@@ -114,7 +114,7 @@ lemma uniformExpectation_signedSliceFamilyDecode {K : ℕ}
     Concentration.uniformExpectation
         (fun σ ↦ g (signedSliceFamilyDecode I plus minus hcount e σ)) =
       Concentration.uniformExpectation g := by
-  letI : Nonempty (SignedSliceFamilyPoint I plus minus) :=
+  let : Nonempty (SignedSliceFamilyPoint I plus minus) :=
     signedSliceFamilyPoint_nonempty I plus minus hcount
   exact uniformExpectation_comp_of_card_fiber
     (signedSliceFamilyDecode I plus minus hcount e)
@@ -133,7 +133,7 @@ lemma uniformProbability_signedSliceFamilyDecode {K : ℕ}
     Concentration.uniformProbability
         (fun σ ↦ Q (signedSliceFamilyDecode I plus minus hcount e σ)) =
       Concentration.uniformProbability Q := by
-  letI : Nonempty (SignedSliceFamilyPoint I plus minus) :=
+  let : Nonempty (SignedSliceFamilyPoint I plus minus) :=
     signedSliceFamilyPoint_nonempty I plus minus hcount
   exact uniformProbability_comp_of_card_fiber
     (signedSliceFamilyDecode I plus minus hcount e)
@@ -240,7 +240,7 @@ theorem signedSliceFamily_two_sided_probability {K : ℕ}
       2 * Real.exp
         (-t ^ 2 / (2 *
           (∑ k : Fin K, ((plus k + minus k : ℕ) : ℝ)) * a ^ 2)) := by
-  letI : Nonempty (SignedSliceFamilyPoint I plus minus) :=
+  let : Nonempty (SignedSliceFamilyPoint I plus minus) :=
     signedSliceFamilyPoint_nonempty I plus minus hcount
   let decode : SignedSliceFamilySampler I →
       SignedSliceFamilyPoint I plus minus :=
@@ -537,9 +537,9 @@ theorem booleanSliceFamilyLinear_two_sided_probability {K : ℕ}
     intro k
     dsimp only [minus]
     rw [Nat.add_sub_of_le (hell k)]
-  letI : Nonempty (SignedSliceFamilyPoint I ell minus) :=
+  let : Nonempty (SignedSliceFamilyPoint I ell minus) :=
     signedSliceFamilyPoint_nonempty I ell minus hcount
-  letI : Nonempty (BooleanSliceFamilyPoint I ell) :=
+  let : Nonempty (BooleanSliceFamilyPoint I ell) :=
     booleanSliceFamilyPoint_nonempty I ell hell
   let E := fullSignedSliceFamilyEquiv I ell hell
   let fs : SignedSliceFamilyPoint I ell minus → ℝ :=
@@ -695,7 +695,7 @@ theorem balancedBooleanSliceFamilyLinear_two_sided_probability {K : ℕ}
   let hell : ∀ k, ell k ≤ (I k).card := fun k ↦ by
     have := hbal k
     omega
-  letI : Nonempty (BooleanSliceFamilyPoint I ell) :=
+  let : Nonempty (BooleanSliceFamilyPoint I ell) :=
     booleanSliceFamilyPoint_nonempty I ell hell
   have htail := booleanSliceFamilyLinear_two_sided_probability
     I ell hell e c C t hL hC ht hc

@@ -476,7 +476,7 @@ private lemma endpointUnitDiskChordDiameterOriented
         exact hε_lt_one_sub
     · apply PiLp.ext
       intro k
-      simp [v, AffineMap.lineMap_apply_module]
+      simp only [AffineMap.lineMap_lineMap_left, AffineMap.lineMap_apply_one_sub]
       have hden : 1 - t ≠ 0 := by linarith
       apply (mul_left_cancel₀ hden)
       field_simp [hden]
@@ -787,7 +787,7 @@ lemma EndpointUnitDiskLocalReplacement {ι : Type*} [Fintype ι]
       simp [← hzu]
     linarith
   by_cases hκsmall : Fintype.card κ ≤ 1
-  · haveI : Subsingleton κ := Fintype.card_le_one_iff_subsingleton.mp hκsmall
+  · have : Subsingleton κ := Fintype.card_le_one_iff_subsingleton.mp hκsmall
     have hstraight :
         ∀ i : κ,
           ∃ Γ : PolygonalArc,
@@ -911,7 +911,7 @@ lemma EndpointUnitDiskLocalReplacement {ι : Type*} [Fintype ι]
       by_contra hnot
       have hle0 : Fintype.card κ ≤ 0 := Nat.le_of_not_gt hnot
       exact hκsmall (hle0.trans (Nat.zero_le 1))
-    letI : Nonempty κ := hκ_nonempty
+    let : Nonempty κ := hκ_nonempty
     let margin : κ → ℝ := fun i => min (α i) (β i)
     have hmargin_pos : ∀ i : κ, 0 < margin i := by
       intro i
@@ -1725,7 +1725,7 @@ lemma EndpointUnitDiskLocalReplacement {ι : Type*} [Fintype ι]
             v i = toWorld (point (β i) (m i * β i))
       · refine ⟨by simp [Ξ, hforward], by simp [Ξ, hforward], ?_, ?_⟩
         · intro p hp
-          simp [Ξ, hforward] at hp
+          simp only [Metric.mem_closedBall] at hp
           rcases hp with ⟨n, hn, hpseg⟩
           have hn_cases : n = 0 ∨ n = 1 ∨ n = 2 ∨ n = 3 := by
             omega
@@ -1748,7 +1748,7 @@ lemma EndpointUnitDiskLocalReplacement {ι : Type*} [Fintype ι]
           · exact (convex_closedBall z r).segment_subset hR_closed (hv_closed i)
               (by simpa [hforward.2] using hpseg)
         · intro p hp
-          simp [Ξ, hforward] at hp
+          simp only [Metric.mem_ball] at hp
           rcases hp with ⟨⟨n, hn, hpseg⟩, hpnot⟩
           have hn_cases : n = 0 ∨ n = 1 ∨ n = 2 ∨ n = 3 := by
             omega
@@ -1779,7 +1779,7 @@ lemma EndpointUnitDiskLocalReplacement {ι : Type*} [Fintype ι]
             exact huv_open_ball i hpopen
       · refine ⟨by simp [Ξ, hforward], by simp [Ξ, hforward], ?_, ?_⟩
         · intro p hp
-          simp [Ξ, hforward] at hp
+          simp only [Metric.mem_closedBall] at hp
           rcases hp with ⟨n, hn, hpseg⟩
           have hn_cases : n = 0 ∨ n = 1 ∨ n = 2 ∨ n = 3 := by
             omega
@@ -1802,7 +1802,7 @@ lemma EndpointUnitDiskLocalReplacement {ι : Type*} [Fintype ι]
           · exact (convex_closedBall z r).segment_subset hL_closed (hv_closed i)
               (by simpa using hpseg)
         · intro p hp
-          simp [Ξ, hforward] at hp
+          simp only [Metric.mem_ball] at hp
           rcases hp with ⟨⟨n, hn, hpseg⟩, hpnot⟩
           have hn_cases : n = 0 ∨ n = 1 ∨ n = 2 ∨ n = 3 := by
             omega

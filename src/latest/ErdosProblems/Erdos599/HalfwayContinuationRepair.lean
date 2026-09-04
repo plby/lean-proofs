@@ -58,7 +58,7 @@ theorem mk_vertexSet_le_of_mk_paths_le
     (hkappa : aleph0 <= kappa) (hpaths : #W.paths <= kappa) :
     #W.vertexSet <= kappa := by
   by_cases hnonempty : W.paths.Nonempty
-  · letI : Nonempty W.paths := hnonempty.to_subtype
+  · let : Nonempty W.paths := hnonempty.to_subtype
     have heq : W.vertexSet = ⋃ p : W.paths, p.1.support := by
       ext x
       simp only [LinkageBlueprint.vertexSet, DWeb.vertexSet,

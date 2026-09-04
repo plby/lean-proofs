@@ -41,7 +41,7 @@ theorem twoConnected_of_vertexTwoConnected_minDegree {j : ℕ} (hj : 0 < j)
     (hconn : Critical.VertexTwoConnected G)
     (hdegree : ∀ v : V, 2 * j + 1 ≤ G.degree v) :
     TwoConnected G := by
-  letI : Nonempty V := hconn.1.nonempty
+  let : Nonempty V := hconn.1.nonempty
   refine ⟨card_three_le_of_minDegree' G hj hdegree, hconn.1, ?_⟩
   intro v
   let e : {w : V // w ≠ v} ≃ ({v}ᶜ : Set V) :=

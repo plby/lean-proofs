@@ -63,7 +63,7 @@ theorem prime_shifts_admissible {k : ℕ} (h : Fin k → ℕ)
     ∀ p : ℕ, p.Prime → ∃ b : ZMod p, ∀ i, b + (h i : ZMod p) ≠ 0 := by
   classical
   intro p hp
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   by_cases hpk : p ≤ k
   · refine ⟨0, ?_⟩
     intro i hi

@@ -55,7 +55,7 @@ lemma diagonalHalfVoidLimit (v : ℝ) :
       atTop (𝓝 (Real.exp (-2 * rate * v))) := by
   have hmass := halfScaledExhaustedBlockMass_tendsto v
   exact Real.continuous_exp.continuousAt.tendsto.comp (by
-    convert hmass.neg using 1 <;> ring)
+    convert hmass.neg using 1 <;> ring_nf)
 
 theorem centeredTail_liminf_ge
     (u : ℝ) (hu : 0 < u) {a : ℝ}

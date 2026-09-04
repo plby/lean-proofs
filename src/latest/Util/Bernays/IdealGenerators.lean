@@ -29,12 +29,12 @@ theorem exists_generator_mod_mul (I : InvertibleIdeal R) (F : Ideal R) (hF : F �
   let A := R ⧸ F
   let M := (I : Ideal R)
   let T := TensorProduct R A M
-  letI : Nontrivial A := (Ideal.Quotient.nontrivial_iff (R := R) (I := F)).mpr htop
-  letI : Finite A := Ring.HasFiniteQuotients.finiteQuotient hF
-  letI : IsArtinianRing A := isArtinian_of_finite
-  letI : Module.Invertible R M := Erdos1081.moduleInvertibleIdealOfIsUnit (I : Ideal R) I.2
-  letI : Module.Invertible A T := inferInstance
-  letI : Module.Free A T := inferInstance
+  let : Nontrivial A := (Ideal.Quotient.nontrivial_iff (R := R) (I := F)).mpr htop
+  let : Finite A := Ring.HasFiniteQuotients.finiteQuotient hF
+  let : IsArtinianRing A := isArtinian_of_finite
+  let : Module.Invertible R M := Erdos1081.moduleInvertibleIdealOfIsUnit (I : Ideal R) I.2
+  let : Module.Invertible A T := inferInstance
+  let : Module.Free A T := inferInstance
   let e : T ≃ₗ[A] A := (Module.Invertible.free_iff_linearEquiv.mp
     (inferInstance : Module.Free A T)).some
   obtain ⟨x, hx⟩ := TensorProduct.mk_surjective R M A Ideal.Quotient.mk_surjective (e.symm 1)

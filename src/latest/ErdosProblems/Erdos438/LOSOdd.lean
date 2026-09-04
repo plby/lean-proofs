@@ -49,7 +49,9 @@ def parameterTriangle {R : Type*} [CommRing R] (r s : R) : Fin 3 → R
 theorem parameterTriangle_isRelHom {R : Type*} [CommRing R] (r s : R) :
     RelHom K3Rel (fun x y : R => IsSquare (x + y)) (parameterTriangle r s) := by
   intro i j hij
-  fin_cases i <;> fin_cases j <;> simp_all [K3Rel, parameterTriangle]
+  fin_cases i <;> fin_cases j <;> simp_all only [K3Rel, Fin.mk_one, Fin.isValue,
+    parameterTriangle_one, Fin.reduceFinMk, parameterTriangle_two, Fin.zero_eta,
+    parameterTriangle_zero, neg_mul, ne_eq, not_true_eq_false]
   · exact ⟨r, by ring⟩
   · exact ⟨s, by ring⟩
   · exact ⟨r, by ring⟩
@@ -110,8 +112,8 @@ theorem isSquare_primePower_of_reduction
     (hx0 : primePowerReduction p k hk x ≠ 0)
     (hxsq : IsSquare (primePowerReduction p k hk x)) :
     IsSquare x := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
   have hredval :
       primePowerReduction p k hk x = (x.val : ZMod p) := by
     unfold primePowerReduction
@@ -179,8 +181,8 @@ theorem card_primePowerReduction_fiber
     {p k : ℕ} [NeZero (p ^ k)] (hp : p.Prime) (hk : 0 < k) (a : ZMod p) :
     ((Finset.univ : Finset (ZMod (p ^ k))).filter fun x =>
       primePowerReduction p k hk x = a).card = p ^ (k - 1) := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
   change ((Finset.univ : Finset (ZMod (p ^ k))).filter fun x =>
       (primePowerReduction p k hk).toAddMonoidHom x = a).card = _
   rw [card_fiber_surjective_addMonoidHom
@@ -196,8 +198,8 @@ theorem card_primePowerReduction_fiber
 theorem primePowerReduction_ne_zero_iff_isUnit
     {p k : ℕ} (hp : p.Prime) (hk : 0 < k) (x : ZMod (p ^ k)) :
     primePowerReduction p k hk x ≠ 0 ↔ IsUnit x := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
   have hredval :
       primePowerReduction p k hk x = (x.val : ZMod p) := by
     unfold primePowerReduction
@@ -238,8 +240,8 @@ theorem isSquare_primePower_unit_iff_reduction
     {p k : ℕ} (hp : p.Prime) (hpodd : p ≠ 2) (hk : 0 < k)
     (x : (ZMod (p ^ k))ˣ) :
     IsSquare x ↔ IsSquare (primePowerReduction p k hk (x : ZMod (p ^ k))) := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
   rw [isSquare_unit_iff_coe]
   constructor
   · exact fun h => h.map (primePowerReduction p k hk).toMonoidHom
@@ -280,9 +282,9 @@ theorem isSquare_mul_iff_square_iff_square_primePowerUnits
     {p k : ℕ} (hp : p.Prime) (hpodd : p ≠ 2) (hk : 0 < k)
     (a b : (ZMod (p ^ k))ˣ) :
     IsSquare (a * b) ↔ (IsSquare a ↔ IsSquare b) := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
-  letI : Fact p.Prime := ⟨hp⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
   simp_rw [isSquare_primePower_unit_iff_reduction hp hpodd hk]
   simp only [Units.val_mul]
   rw [map_mul]
@@ -297,8 +299,8 @@ representatives avoids any character-sum calculation. -/
 theorem exists_square_add_one_nonsquare
     {p : ℕ} (hp : p.Prime) (hpodd : p ≠ 2) :
     ∃ a : ZMod p, a ≠ 0 ∧ IsSquare a ∧ ¬IsSquare (1 + a) := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : Fact p.Prime := ⟨hp⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
   obtain ⟨x, hx⟩ := FiniteField.exists_nonsquare
     ((ZMod.ringChar_zmod_n p).substr hpodd)
   by_contra hnone
@@ -543,7 +545,7 @@ theorem broadFamily_rootedMultiplicity_eq_card
   classical
   simp only [rootedMultiplicity, broadFamily, broadParams]
   rw [Multiset.filter_map, Multiset.card_map]
-  simp [Function.comp_def, and_comm]
+  simp only [Function.comp_apply, ne_eq, Finset.filter_val, Multiset.filter_filter]
   rw [Fintype.card_subtype]
   congr 1
   ext rs
@@ -822,8 +824,8 @@ theorem HasPositiveTriangleCover.mul {m n : ℕ}
     (hcop : m.Coprime n) : HasPositiveTriangleCover (m * n) := by
   rcases hm with ⟨hm0, Dm, hDm, Fm, hFmU, hFmR⟩
   rcases hn with ⟨hn0, Dn, hDn, Fn, hFnU, hFnR⟩
-  letI : NeZero m := ⟨hm0⟩
-  letI : NeZero n := ⟨hn0⟩
+  let : NeZero m := ⟨hm0⟩
+  let : NeZero n := ⟨hn0⟩
   refine ⟨mul_ne_zero hm0 hn0, 2 * Dm * Dn, by positivity,
     crtAggregate hcop Fm Fn, crtAggregate_uniform hcop hFmU hFnU,
     crtAggregate_isRelCover hcop hFmR hFnR⟩
@@ -1104,7 +1106,7 @@ end Prime3
 
 theorem threePower_hasPositiveTriangleCover {k : ℕ} (hk : 0 < k) :
     HasPositiveTriangleCover (3 ^ k) := by
-  letI : NeZero (3 ^ k) := ⟨pow_ne_zero _ (by norm_num)⟩
+  let : NeZero (3 ^ k) := ⟨pow_ne_zero _ (by norm_num)⟩
   obtain ⟨F, hFU, hFR⟩ := Prime3.power_three_uniform_triangle_cover hk (by
     intro w hw
     have hred : primePowerReduction 3 k hk w = 1 := by
@@ -1489,9 +1491,9 @@ theorem isSquare_unit_primePower_iff_reduction
     {p k : ℕ} (hp : p.Prime) (hpodd : p ≠ 2) (hk : 0 < k)
     (u : (ZMod (p ^ k))ˣ) :
     IsSquare u ↔ IsSquare (primePowerReductionUnit p k hk u) := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
-  letI : Fact p.Prime := ⟨hp⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
   constructor
   · exact fun h => h.map (primePowerReductionUnit p k hk)
   · intro h
@@ -1506,9 +1508,9 @@ theorem isSquare_unit_primePower_mul_iff
     {p k : ℕ} (hp : p.Prime) (hpodd : p ≠ 2) (hk : 0 < k)
     (a b : (ZMod (p ^ k))ˣ) :
     IsSquare (a * b) ↔ (IsSquare a ↔ IsSquare b) := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
-  letI : Fact p.Prime := ⟨hp⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
   rw [isSquare_unit_primePower_iff_reduction hp hpodd hk,
     isSquare_unit_primePower_iff_reduction hp hpodd hk,
     isSquare_unit_primePower_iff_reduction hp hpodd hk, map_mul]
@@ -1537,8 +1539,8 @@ theorem isSquare_unit_inv_mul_iff_not
 theorem exists_unit_sq_ne_one_neg_one
     {p : ℕ} (hp : p.Prime) (hp7 : 7 ≤ p) :
     ∃ w : (ZMod p)ˣ, w ^ 2 ≠ 1 ∧ w ^ 2 ≠ -1 := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : Fact p.Prime := ⟨hp⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
   classical
   let bad : Finset (ZMod p)ˣ := Finset.univ.filter fun w => w ^ 2 = 1 ∨ w ^ 2 = -1
   have hbadcard : bad.card ≤ 4 := by
@@ -1592,8 +1594,8 @@ theorem exists_unit_sq_ne_one_neg_one
 theorem isUnit_primePower_of_reduction_ne_zero
     {p k : ℕ} (hp : p.Prime) (hk : 0 < k) (x : ZMod (p ^ k))
     (hx : primePowerReduction p k hk x ≠ 0) : IsUnit x := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
   rw [← ZMod.natCast_zmod_val x, ZMod.isUnit_natCast_iff_not_dvd_pow hp hk]
   intro hdiv
   apply hx
@@ -1604,8 +1606,8 @@ theorem isUnit_primePower_of_reduction_ne_zero
 theorem exists_nonzero_square_with_square_one_add
     {p : ℕ} (hp : p.Prime) (hp7 : 7 ≤ p) :
     ∃ a : ZMod p, a ≠ 0 ∧ 1 + a ≠ 0 ∧ IsSquare a ∧ IsSquare (1 + a) := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : Fact p.Prime := ⟨hp⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
   rcases exists_unit_sq_ne_one_neg_one hp hp7 with ⟨w, hw1, hwm1⟩
   let wr : ZMod p := w
   let x : ZMod p := (wr - wr⁻¹) / 2
@@ -1979,7 +1981,7 @@ theorem primePower_orbitSix_NQQ_N
     (ht2 : IsSquare (tau 2)) (hc : ¬IsSquare c) :
     UnitSupplement (orbitSixCover tau c) 6 ∧
       IsRelCover K3Rel (SquareSumRel (p ^ k)) (orbitSixCover tau c) := by
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
   refine ⟨orbitSixCover_unitSupplement tau c ?_ ?_ ?_ ?_,
     orbitSixCover_isRelCover tau htau c hcval⟩
   · intro x
@@ -2001,7 +2003,7 @@ theorem primePower_orbitThree_QQQ_N
     (ht2 : IsSquare (tau 2)) (hc : ¬IsSquare c) :
     UnitSupplement (orbitThreeCover tau c) 3 ∧
       IsRelCover K3Rel (SquareSumRel (p ^ k)) (orbitThreeCover tau c) := by
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
   refine ⟨orbitThreeCover_unitSupplement tau c ?_ ?_ ?_ ?_,
     orbitThreeCover_isRelCover tau htau c hcval⟩
   · intro x
@@ -2023,7 +2025,7 @@ theorem primePower_orbitSix_QNN_Q
     (ht2 : ¬IsSquare (tau 2)) (hc : IsSquare c) :
     UnitSupplement (orbitSixCover tau c) 6 ∧
       IsRelCover K3Rel (SquareSumRel (p ^ k)) (orbitSixCover tau c) := by
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
   refine ⟨orbitSixCover_unitSupplement_alt tau c ?_ ?_ ?_ ?_,
     orbitSixCover_isRelCover tau htau c hcval⟩
   · intro x
@@ -2045,7 +2047,7 @@ theorem primePower_orbitThree_NNN_Q
     (ht2 : ¬IsSquare (tau 2)) (hc : IsSquare c) :
     UnitSupplement (orbitThreeCover tau c) 3 ∧
       IsRelCover K3Rel (SquareSumRel (p ^ k)) (orbitThreeCover tau c) := by
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
   refine ⟨orbitThreeCover_unitSupplement_alt tau c ?_ ?_ ?_ ?_,
     orbitThreeCover_isRelCover tau htau c hcval⟩
   · intro x
@@ -2063,8 +2065,8 @@ theorem exists_primePower_unitSupplement_of_two_nonsquare
     ∃ (F : Multiset (Fin 3 → ZMod (p ^ k))) (D : ℕ),
       0 < D ∧ UnitSupplement F D ∧
         IsRelCover K3Rel (SquareSumRel (p ^ k)) F := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : Fact p.Prime := ⟨hp⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hpodd : p ≠ 2 := by omega
   rcases exists_nonzero_square_with_square_one_add hp hp7 with
     ⟨a, ha0, h1a0, haSq, h1aSq⟩
@@ -2137,8 +2139,8 @@ theorem exists_primePower_unitSupplement_of_two_square
     ∃ (F : Multiset (Fin 3 → ZMod (p ^ k))) (D : ℕ),
       0 < D ∧ UnitSupplement F D ∧
         IsRelCover K3Rel (SquareSumRel (p ^ k)) F := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : Fact p.Prime := ⟨hp⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hpodd : p ≠ 2 := by omega
   rcases exists_square_add_one_nonsquare hp hpodd with ⟨a, ha0, haSq, h1aNSq⟩
   have h1a0 : 1 + a ≠ 0 := by
@@ -2235,7 +2237,7 @@ supplement so that their two incidence profiles add to a constant profile. -/
 theorem largePrimePower_hasPositiveTriangleCover
     {p k : ℕ} (hp : p.Prime) (hp7 : 7 ≤ p) (hk : 0 < k) :
     HasPositiveTriangleCover (p ^ k) := by
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero _ hp.ne_zero⟩
   obtain ⟨H, D, hD, hHU, hHR⟩ :=
     exists_primePower_unitSupplement hp hp7 hk
   let phi := Fintype.card (ZMod (p ^ k))ˣ

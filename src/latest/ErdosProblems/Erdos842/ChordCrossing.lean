@@ -120,7 +120,8 @@ lemma even_bool_changes_three (p : Fin 3 → Bool) :
     OddTransversal.cast_card_filter_eq_sum_indicator]
   simp only [Fin.sum_univ_succ]
   cases h0 : p 0 <;> cases h1 : p 1 <;> cases h2 : p 2 <;>
-    simp [h0, h1, h2] <;> decide
+    simp only [Fin.isValue, zero_add, ne_eq, ite_not, Fin.succ_zero_eq_one, Fin.reduceAdd, Fin.succ_one_eq_two,
+    Finset.univ_eq_empty, Finset.sum_empty, add_zero] <;> decide +revert
 
 /-- A fixed chord crosses an even number (necessarily zero or two) of the
 three sides of any triangle. -/

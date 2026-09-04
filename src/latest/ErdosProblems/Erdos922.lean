@@ -73,7 +73,7 @@ theorem hasLargeIndependentSets_iff_onFinsets {V : Type u} [Finite V]
   classical
   refine ⟨HasLargeIndependentSets.onFinsets, ?_⟩
   intro h H
-  letI : Fintype H.verts := Fintype.ofFinite H.verts
+  let : Fintype H.verts := Fintype.ofFinite H.verts
   let S : Finset V := H.verts.toFinset
   obtain ⟨I, hIS, hI, hcard⟩ := h S
   let J : Finset H.verts := I.subtype (fun v ↦ v ∈ H.verts)
@@ -2185,7 +2185,7 @@ theorem exists_nonadjacent_commonNeighbors_sameColor
     ∃ u v : CommonNeighbor G x y, u.1 ≠ v.1 ∧ ¬ G.Adj u.1 v.1 ∧
       C (some u.toDeletedPair) = C (some v.toDeletedPair) := by
   classical
-  letI : Fintype (CommonNeighbor G x y) := Fintype.ofFinite _
+  let : Fintype (CommonNeighbor G x y) := Fintype.ofFinite _
   let color : CommonNeighbor G x y → α := fun z ↦ C (some z.toDeletedPair)
   have hcard' : Fintype.card α < Fintype.card (CommonNeighbor G x y) := by
     simpa only [Nat.card_eq_fintype_card] using hcard
@@ -2286,7 +2286,7 @@ theorem exists_mem_all_maximum_independent_subset
     ∃ q ∈ U, ∀ I : Finset V, I ⊆ U → G.IsIndepSet I →
       I.card = alphaOn G U → q ∈ I := by
   classical
-  letI : Fintype U := Fintype.ofFinite U
+  let : Fintype U := Fintype.ofFinite U
   have hcardU : Fintype.card U = U.card := Fintype.card_coe U
   have hindep : (G.induce (U : Set V)).indepNum = alphaOn G U :=
     indepNum_induce_finset_eq_alphaOn G U
@@ -2615,7 +2615,8 @@ theorem pairIdentify_eq_outside
     simp [pairIdentify, hzv, outsideFourToIdentified] at hvu
     exact (a.2.2.2.1 hvu.symm).elim
   · have hza := congrArg (fun q : IdentifiedPair x y v => q.1.1) h
-    simp [pairIdentify, hzv, outsideFourToIdentified] at hza
+    rw [pairIdentify, dif_neg hzv] at hza
+    change z.1 = a.1 at hza
     exact hza
 
 theorem outside_mem_S_of_mem_pairWitnessLift
@@ -2980,7 +2981,7 @@ theorem chi_sub_two_lt_commonNeighbors
     intro hinj
     have := hinj hcucv
     exact huv (congrArg Subtype.val this)
-  letI : Fintype (CommonNeighbor G x y) := Fintype.ofFinite _
+  let : Fintype (CommonNeighbor G x y) := Fintype.ofFinite _
   have hlt := Fintype.card_lt_of_surjective_not_injective color hsurj hnotinj
   simpa [α, Nat.card_eq_fintype_card] using hlt
 
@@ -3546,7 +3547,7 @@ theorem commonNeighbors_isClique_of_orderMinimalCounterexample
   have hcommon := chi_sub_two_lt_commonNeighbors
     hmin hxy hxu hyu hxv hyv huv huvNA
   have hAcard : A.card = Nat.card (CommonNeighbor G x y) := by
-    letI : Fintype (CommonNeighbor G x y) := Fintype.ofFinite _
+    let : Fintype (CommonNeighbor G x y) := Fintype.ofFinite _
     let e : CommonNeighbor G x y ≃ {z : V // z ∈ A} := {
       toFun := fun z => ⟨z.1, (mem_commonNeighborFinset).mpr z.2⟩
       invFun := fun z => ⟨z.1, (mem_commonNeighborFinset).mp z.2⟩
@@ -4396,7 +4397,7 @@ theorem exists_spanning_cycle_of_induced_cycle_iso
     ∃ (v : C) (c : (G.induce C).Walk v v),
       c.IsCycle ∧ c.length = n ∧ ∀ w : C, w ∈ c.support := by
   classical
-  letI : Fintype C := Fintype.ofEquiv (Fin n) e.symm.toEquiv
+  let : Fintype C := Fintype.ofEquiv (Fin n) e.symm.toEquiv
   have hcopy : SimpleGraph.cycleGraph n ⊑ G.induce C := ⟨e.symm.toCopy⟩
   obtain ⟨v, c, hc, hcn⟩ :=
     (SimpleGraph.cycleGraph_isContained_iff (by omega)).mp hcopy
@@ -5180,7 +5181,7 @@ theorem noInducedDiamond_of_orderMinimal
     (hmin : Erdos922FullB.IsOrderMinimalCounterexample G) :
     Erdos922Recolor.NoInducedDiamond G := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   intro a b c d hab hac had hbc hbd hcd hAB hAC hBC hAD hBD hCD
   have hclique := Erdos922Diamond.commonNeighbors_isClique_of_orderMinimalCounterexample
     hmin a b hAB
@@ -5385,7 +5386,7 @@ theorem erdos_922 {V : Type u} [Finite V] (G : SimpleGraph V) (k : ℕ)
     (hG : HasLargeIndependentSets G k) :
     G.chromaticNumber ≤ ((k + 2 : ℕ) : ℕ∞) := by
   classical
-  letI := Fintype.ofFinite V
+  let := Fintype.ofFinite V
   exact Erdos922Assembly.erdos_922_of_noOrderMinimalCounterexample
     Erdos922Assembly.noOrderMinimalCounterexample G k hG
 

@@ -338,7 +338,7 @@ theorem vonMangoldt_le_log_of_le {n m : ℕ} (hn : 1 ≤ n) (hm : m ≤ n) :
     ArithmeticFunction.vonMangoldt_le_log
   by_cases hm0 : m = 0
   · subst m
-    simp
+    simp only [ArithmeticFunction.map_zero, ge_iff_le]
     exact Real.log_nonneg (by exact_mod_cast hn)
   · exact hΛ.trans <| Real.log_le_log
       (by exact_mod_cast Nat.pos_of_ne_zero hm0) (by exact_mod_cast hm)

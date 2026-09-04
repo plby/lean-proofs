@@ -943,7 +943,7 @@ theorem sum_inv_factorial_Icc_le (L K : ℕ) :
       _ ≤ 2 / (2 : ℝ) ^ L := sub_le_self _ (by positivity)
   · have hK : K < L + 1 := by omega
     rw [Finset.Icc_eq_empty (by omega : ¬ L + 1 ≤ K)]
-    simp
+    simp only [one_div, sum_empty, ge_iff_le]
     positivity
 
 theorem badCoordinateWeight_le (j d L : ℕ) (hd : 0 < d)
@@ -1157,7 +1157,7 @@ theorem badFordCoordinateWeight_le {M K : ℕ} (hM : 2 ≤ M)
         omega
       · simp
     rw [show M * (M + i.val) = L by rfl, hempty]
-    simp
+    simp only [sum_empty, Nat.ofNat_pos, div_pos_iff_of_pos_left, pow_pos, mul_nonneg_iff_of_pos_left, ge_iff_le]
     positivity
 
 theorem fordCapExponent_lower {M i : ℕ} (hM : 1 ≤ M) :

@@ -53,7 +53,8 @@ theorem Kmult2_iso_Kbip (g : Fin 2 → ℕ) : Nonempty (Kmult 2 g ≃g Kbip (g 0
   refine' ⟨ _, _ ⟩;
   refine' Equiv.ofBijective ( fun x => match x with | ⟨ 0, x ⟩ => Sum.inl x | ⟨ 1, x ⟩ => Sum.inr x ) ⟨ fun x y h => _, fun x => _ ⟩;
   all_goals norm_num [ Kbip, Kmult ];
-  · rcases x with ⟨ i, x ⟩ ; rcases y with ⟨ j, y ⟩ ; fin_cases i <;> fin_cases j <;> simp +decide at h ⊢; all_goals exact h;
+  · rcases x with ⟨ i, x ⟩ ; rcases y with ⟨ j, y ⟩ ; fin_cases i <;> fin_cases j <;> simp +decide only [Fin.mk_one, Fin.isValue, Sigma.mk.injEq, heq_eq_eq, true_and,
+    Fin.zero_eta] at h ⊢; all_goals exact h;
   · cases x <;> aesop;
   · intro a b; rcases a with ⟨ i, a ⟩ ; rcases b with ⟨ j, b ⟩ ; fin_cases i <;> fin_cases j <;> simp +decide ;
 
@@ -110,7 +111,7 @@ theorem profile_to_A1 (q : ℕ) (hq : 2 ≤ q) (ε : ℝ) (hε : 0 < ε) :
         have hblue_eq : ((Grᶜ.neighborFinset x ∩ W i).card : ℝ) = (W i).card - ((commonRedNbhd Gr {x} (W i)).card : ℝ) := by
           rw [ eq_sub_iff_add_eq', ← Nat.cast_add ];
           rw [ ← Finset.card_union_of_disjoint ];
-          · congr with v ; simp +decide [ SimpleGraph.compl_adj ];
+          · congr with v ; simp +decide only [mem_union, mem_inter, mem_neighborFinset, compl_adj, ne_eq];
             by_cases hv : v ∈ W i <;> simp +decide [ hv, commonRedNbhd ];
             exact Classical.or_iff_not_imp_left.2 fun h => ⟨ by rintro rfl; exact Finset.disjoint_left.mp ( hdisjXW i ) hx hv, h ⟩;
           · simp +decide [ Finset.disjoint_left, commonRedNbhd ];
@@ -159,7 +160,7 @@ theorem exists_ramsey (s t : ℕ) :
   · exact ⟨ 0, fun { V } _ _ G _ h => Or.inl ⟨ ∅, by simp +decide ⟩ ⟩;
   · induction' t with t ih';
     · exact ⟨ 0, fun { V } _ _ G _ h => Or.inr ⟨ ∅, by simp +decide ⟩ ⟩;
-    · obtain ⟨ N₁, hN₁ ⟩ := ih ( t + 1 ) ; obtain ⟨ N₂, hN₂ ⟩ := ih' ; use N₁ + N₂ + 1 ; intros V _ _ G _ hV ; by_cases h : ∃ v : V, ( Finset.card ( Finset.filter ( fun w => G.Adj v w ) Finset.univ ) ) ≥ N₁ <;> simp_all +decide [  ] ;
+    · obtain ⟨ N₁, hN₁ ⟩ := ih ( t + 1 ) ; obtain ⟨ N₂, hN₂ ⟩ := ih' ; use N₁ + N₂ + 1 ; intros V _ _ G _ hV ; by_cases h : ∃ v : V, ( Finset.card ( Finset.filter ( fun w => G.Adj v w ) Finset.univ ) ) ≥ N₁ <;> simp_all +decide only [Order.add_one_le_iff, isClique_compl] ;
       · obtain ⟨ v, hv ⟩ := h; specialize hN₁ ( G.induce { w | G.Adj v w } ) ; simp_all +decide [ Fintype.card_subtype ] ;
         rcases hN₁ with ( ⟨ K, hK₁, hK₂ ⟩ | ⟨ K, hK₁, hK₂ ⟩ );
         · refine Or.inl ⟨ Finset.image ( fun x : { x // G.Adj v x } => x.val ) K ∪ { v }, ?_, ?_ ⟩ <;> simp_all +decide [ SimpleGraph.IsClique, Finset.card_image_of_injective, Function.Injective ];
@@ -169,7 +170,7 @@ theorem exists_ramsey (s t : ℕ) :
           · rwa [ Finset.card_image_of_injective _ Subtype.coe_injective ];
       · obtain ⟨ v, hv ⟩ : ∃ v : V, ( Finset.card ( Finset.filter ( fun w => w ≠ v ∧ ¬G.Adj v w ) Finset.univ ) ) ≥ N₂ := by
           have h_card : ∀ v : V, (Finset.card (Finset.filter (fun w => w ≠ v ∧ ¬G.Adj v w) Finset.univ)) = (Fintype.card V - 1) - (Finset.card (Finset.filter (fun w => G.Adj v w) Finset.univ)) := by
-            intro v; rw [ show ( Finset.univ.filter fun w => w ≠ v ∧ ¬G.Adj v w ) = Finset.univ \ ( { v } ∪ Finset.filter ( fun w => G.Adj v w ) Finset.univ ) by ext w; by_cases hw : w = v <;> aesop ] ; simp +decide [ Finset.card_sdiff, Finset.card_univ ] ;
+            intro v; rw [ show ( Finset.univ.filter fun w => w ≠ v ∧ ¬G.Adj v w ) = Finset.univ \ ( { v } ∪ Finset.filter ( fun w => G.Adj v w ) Finset.univ ) by ext w; by_cases hw : w = v <;> aesop ] ; simp +decide only [singleton_union] ;
             rw [ Nat.sub_sub, add_comm ];
           exact ⟨ Classical.choose ( Finset.card_pos.mp ( pos_of_gt hV ) ), by rw [ h_card ] ; exact le_tsub_of_add_le_left <| le_tsub_of_add_le_left <| by linarith [ h ( Classical.choose ( Finset.card_pos.mp ( pos_of_gt hV ) ) ) ] ⟩;
         specialize hN₂ (G.induce {w : V | w ≠ v ∧ ¬G.Adj v w})
@@ -241,14 +242,15 @@ theorem ramsey_induce_witness {α β : Type} [Fintype α] [Fintype β]
   · obtain ⟨ f, hf ⟩ := h ( SimpleGraph.comap ( fun x : Fin ( ramsey J L ) => ( e x : V ) ) Gr );
     · refine' Or.inl ⟨ _, _ ⟩;
       use fun x => ⟨ e ( f x ), hS' ( e ( f x ) |>.2 ) ⟩;
-      all_goals simp_all +decide [ Function.Injective ];
+      all_goals simp_all +decide only [SetLike.coe_sort_coe, RelHom.coeFn_mk, comap_adj];
       · intro a b hab; have := f.map_rel' hab; aesop;
       · exact hf;
     · right;
       refine' ‹L ⊑ ( SimpleGraph.comap ( fun x => ( e x : V ) ) Gr ) ᶜ›.trans _;
       refine' ⟨ _, _ ⟩;
       use fun x => ⟨ e x, hS' ( e x |>.2 ) ⟩;
-      all_goals simp +decide [ Function.Injective ];
+      all_goals simp +decide only [compl_adj, ne_eq, comap_adj, SetLike.coe_sort_coe, Subtype.mk.injEq, SetLike.coe_eq_coe,
+    EmbeddingLike.apply_eq_iff_eq, and_imp];
       exact fun { a b } hab h => ⟨ hab, h ⟩
 
 /-- Partition bound: every reservoir vertex is `v` itself, a red neighbour of `v`,

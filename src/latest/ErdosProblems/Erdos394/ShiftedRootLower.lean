@@ -23,7 +23,7 @@ theorem mem_shiftedRootBoxHitTupleSet_iff
     h ∈ shiftedRootBoxHitTupleSet P K j a hprime ↔
       ∀ p : ↥P, localShiftedBlockHit p.val K j a (h p) := by
   classical
-  letI (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
+  let (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
   unfold shiftedRootBoxHitTupleSet
   rw [Fintype.mem_piFinset]
   constructor

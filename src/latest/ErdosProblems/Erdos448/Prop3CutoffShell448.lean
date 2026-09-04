@@ -897,7 +897,7 @@ theorem interiorCutoffShellSum_le
       (a : ℝ) ^ (-(3 : ℝ) / 4) *
         ((J - a : ℕ) : ℝ) ^ (-(1 : ℝ) / 2))]
     convert ConvolutionExtra448.convolution_three_quarters_half_le_twelve J hJ using 1 <;>
-      ring
+      ring_nf
   have hlongConv :
       (∑ j ∈ Finset.range (J - 1),
         ((j + 1 : ℕ) : ℝ) ^ (-(1 : ℝ) / 2) *
@@ -906,7 +906,7 @@ theorem interiorCutoffShellSum_le
       (a : ℝ) ^ (-(1 : ℝ) / 2) *
         ((J - a : ℕ) : ℝ) ^ (-(1 : ℝ) / 2))]
     convert ConvolutionExtra448.convolution_half_half_le_eight J hJ using 1 <;>
-      ring
+      ring_nf
   calc
     interiorCutoffShellSum x q k =
       ∑ j ∈ Finset.range (J - 1),

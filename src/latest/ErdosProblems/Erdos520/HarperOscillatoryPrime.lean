@@ -632,7 +632,7 @@ theorem exists_mediumThetaError :
     have := abs_add_le (Chebyshev.theta x - Chebyshev.psi x)
       (Chebyshev.psi x - x)
     rw [abs_sub_comm (Chebyshev.theta x) (Chebyshev.psi x)] at this
-    convert! this using 1 <;> ring
+    convert! this using 1 <;> ring_nf
   have hsqrtpos : 0 < Real.sqrt x := Real.sqrt_pos.2 hxpos
   calc
     |thetaError x| ≤

@@ -81,7 +81,7 @@ theorem locallyCountablyColorableBelow_of_minimalBad
 /-- A graph on a countable carrier has a proper colouring by natural numbers. -/
 theorem countablyColorable_of_countable (G : _root_.SimpleGraph V) [Countable V] :
     CountablyColorable G := by
-  letI : Encodable V := Encodable.ofCountable V
+  let : Encodable V := Encodable.ofCountable V
   apply Nonempty.intro
   apply _root_.SimpleGraph.Coloring.mk Encodable.encode
   intro x y hxy heq

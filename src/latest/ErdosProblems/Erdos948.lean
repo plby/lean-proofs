@@ -250,12 +250,13 @@ lemma packet (f : ℕ → ℕ) (a : ℕ → ℤ) (hmono : StrictMono a)
   -- Set v := y.toNat.bitIndices.min' (nonempty since y.toNat > 0 so bitIndices nonempty).
   obtain ⟨v, hv⟩ : ∃ v, v ∈ (∑ i ∈ I, a i).toNat.bitIndices ∧ ∀ e ∈ (∑ i ∈ I, a i).toNat.bitIndices, v ≤ e := by
     have h_bitIndices_nonempty : (∑ i ∈ I, a i).toNat.bitIndices ≠ [] := by
-      intro h; simp_all +decide ;
+      intro h
       have h_bitIndices_nonempty : ∀ {m : ℕ}, 0 < m → m.bitIndices ≠ [] := by
-        intro m hm; induction' m using Nat.strong_induction_on with m ih; rcases m with ( _ | _ | m ) <;> simp_all +decide [ Nat.bitIndices ] ;
-        rw [ binaryRec ] ; simp +decide;
-        cases Nat.mod_two_eq_zero_or_one ( m + 1 + 1 ) <;> simp +decide [ * ];
-        exact ih _ ( by omega ) ( by omega );
+        intro m hm hnil
+        have hsum := Nat.sum_map_two_pow_bitIndices m
+        rw [hnil] at hsum
+        simp only [List.map_nil, List.sum_nil] at hsum
+        exact (Nat.ne_of_gt hm) hsum.symm
       exact h_bitIndices_nonempty ( by linarith [ Int.toNat_of_nonneg hI_pos.le ] ) h;
     exact ⟨ Nat.find <| List.length_pos_iff_exists_mem.mp <| List.length_pos_iff.mpr h_bitIndices_nonempty, Nat.find_spec <| List.length_pos_iff_exists_mem.mp <| List.length_pos_iff.mpr h_bitIndices_nonempty, fun e he => Nat.find_min' _ he ⟩;
   refine' ⟨ I, v, hI_nonempty, _, hI_pos, hv.1, _, _ ⟩;

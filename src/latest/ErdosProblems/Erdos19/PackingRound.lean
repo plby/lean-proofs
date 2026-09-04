@@ -60,7 +60,7 @@ theorem exists_matching_packing_round
     change 2 * q + 2 * Z.card + 7 * (A \ M.verts).ncard + Aᶜ.ncard + 1 ≤ _
     omega
   let R₀ := R \ U
-  letI : DecidableRel R₀.Adj := fun x y ↦ Classical.propDecidable (R₀.Adj x y)
+  let : DecidableRel R₀.Adj := fun x y ↦ Classical.propDecidable (R₀.Adj x y)
   have hd₀ : ∀ v ∈ A,
       2 * q + 2 * Z.card + 7 * (A \ M₀.verts).ncard + Aᶜ.ncard + 1 ≤ R₀.degree v := by
     intro v hv

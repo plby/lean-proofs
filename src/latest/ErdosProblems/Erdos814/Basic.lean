@@ -253,7 +253,7 @@ lemma degreeOn_eq_degree_induce
   unfold SimpleGraph.degree degreeOn
   refine Finset.card_bij (fun x _ ↦ (x : V)) ?_ ?_ ?_
   · intro x hx
-    simp [SimpleGraph.mem_neighborFinset] at hx ⊢
+    simp only [mem_inter, mem_neighborFinset, SetLike.coe_mem, and_true] at hx ⊢
     exact hx
   · intro x _ y _ hxy
     exact Subtype.ext hxy
@@ -269,7 +269,7 @@ lemma hasMinDegreeOn_iff_induce_minDegree
   constructor
   · rintro ⟨hA, hdeg⟩
     refine ⟨hA, ?_⟩
-    letI : Nonempty (↑A : Set V) := hA.to_subtype
+    let : Nonempty (↑A : Set V) := hA.to_subtype
     apply SimpleGraph.le_minDegree_of_forall_le_degree
     intro v
     rw [← degreeOn_eq_degree_induce G v.property]

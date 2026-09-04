@@ -83,8 +83,8 @@ theorem hasAveragingSamplingConclusion_of_sideConditions
     (hside : W.SamplingSideConditions) :
     W.HasAveragingSamplingConclusion := by
   classical
-  letI : Fintype W.V := W.fintypeV
-  letI : LinearOrder W.V := LinearOrder.lift' (Fintype.equivFin W.V)
+  let : Fintype W.V := W.fintypeV
+  let : LinearOrder W.V := LinearOrder.lift' (Fintype.equivFin W.V)
     (Fintype.equivFin W.V).injective
   let D : W.V → W.V → Prop := W.D.arc
   have htfree : TransitiveTournamentFree D (t + 1) := by

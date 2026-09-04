@@ -634,7 +634,7 @@ theorem sum_indexedCoverDensity
   rw [Fintype.sum_sum_type, Fintype.sum_sum_type,
     Fintype.sum_prod_type]
   simp only [indexedCoverDensity, Fin.sum_univ_four]
-  simp
+  simp only [Finset.univ_eq_attach, one_div, ↓reduceIte, Fin.isValue, one_ne_zero, Fin.reduceEq, add_right_inj]
   apply Finset.sum_congr rfl
   intro a _
   ring
@@ -698,7 +698,7 @@ theorem markedUnitFiber_eq_residue
         1 / (q.1 : ℝ)) q) =
       PrimeWindow.residueOddsMass M U m (g : ZMod m).val := by
   classical
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   let P := coprimePrimes L U m
   let E := ((Finset.univ : Finset ↑P).filter (fun q ↦ M < q.1)).filter
     (fun q ↦ ZMod.unitOfCoprime q.1
@@ -766,7 +766,7 @@ theorem hitProb_le_residueBound
       PrimeWindow.residueOddsMass L U m (g : ZMod m).val ≤ M) :
     hitProb L U m {b} K ≤ (2 : ℝ) ^ K * M := by
   classical
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   let P := coprimePrimes L U m
   let p : ↑P → ℝ := fun q ↦ 1 / (q.1 : ℝ)
   let f : ↑P → (ZMod m)ˣ := fun q ↦
@@ -803,7 +803,7 @@ theorem markedHitProb_le_residueBound
       PrimeWindow.residueOddsMass M U m (g : ZMod m).val ≤ D) :
     markedHitProb L M U m {b} K ≤ (2 : ℝ) ^ K * D := by
   classical
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   let P := coprimePrimes L U m
   let p : ↑P → ℝ := fun q ↦ 1 / (q.1 : ℝ)
   let f : ↑P → (ZMod m)ˣ := fun q ↦

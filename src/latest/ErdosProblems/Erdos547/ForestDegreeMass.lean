@@ -15,7 +15,7 @@ theorem degreeMass_forest_le (hT : T.IsAcyclic) (S : Finset U) :
     degreeMass T S ≤ 2 * S.card := by
   classical
   by_cases hS : S.Nonempty
-  · letI : Nonempty ↥(S : Set U) := hS.to_set.to_subtype
+  · let : Nonempty ↥(S : Set U) := hS.to_set.to_subtype
     let G := T.induce (S : Set U)
     have htop := SimpleGraph.connected_top (V := ↥(S : Set U))
     obtain ⟨F, hGF, _, hF⟩ := htop.exists_isTree_le_of_le_of_isAcyclic

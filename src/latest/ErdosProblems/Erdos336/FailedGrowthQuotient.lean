@@ -38,7 +38,7 @@ lemma card_exactPower_image_mul_card_subgroup
     (exactPowerFinset C t + addSubgroupFinset K).card =
       (ExactPower (cyclicQuotientHom K '' C) t).ncard *
         (addSubgroupFinset K).card := by
-  letI : NeZero (Nat.card (G ⧸ K)) :=
+  let : NeZero (Nat.card (G ⧸ K)) :=
     ⟨Nat.card_ne_zero.mpr ⟨inferInstance, inferInstance⟩⟩
   rw [card_add_subgroup_eq_cyclicQuotient_image_mul]
   rw [image_exactPowerFinset]
@@ -69,7 +69,7 @@ theorem failed_growth_cyclic_quotient_highPower_data
   let m := Nat.card (G ⧸ K)
   let f := cyclicQuotientHom K
   have hm : 0 < m := Nat.card_pos
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   have hf : Function.Surjective f := cyclicQuotientHom_surjective K
   have hzS : (exactPowerFinset C t).Nonempty := by
     refine ⟨0, ?_⟩

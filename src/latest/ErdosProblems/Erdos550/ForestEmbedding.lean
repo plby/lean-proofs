@@ -43,7 +43,7 @@ theorem exists_free_neighbor {V : Type*} [Fintype V] [DecidableEq V]
     ∃ w, J.Adj (f' b) w ∧ ∀ x, x ≠ a → f' x ≠ w := by
   obtain ⟨w, hw⟩ : ∃ w ∈ J.neighborFinset (f' b), w ∉ Finset.image f' (Finset.univ.erase a) := by
     have h_card : (J.neighborFinset (f' b)).card > (Finset.image f' (Finset.univ.erase a)).card - 1 := by
-      rw [ Finset.card_image_of_injective _ hinj ] ; simp_all +decide [ SimpleGraph.degree, SimpleGraph.neighborFinset ];
+      rw [ Finset.card_image_of_injective _ hinj ] ; simp_all +decide only [card_neighborFinset_eq_degree, mem_univ, card_erase_of_mem, card_univ, gt_iff_lt];
       rcases n : Fintype.card α with ( _ | _ | n ) <;> simp_all +arith +decide;
       · exact absurd n ( Nat.ne_of_gt ( Fintype.card_pos_iff.mpr ⟨ a ⟩ ) );
       · rw [ Fintype.card_eq_one_iff ] at n ; aesop;

@@ -27,7 +27,7 @@ lemma PolygonalPathCarrierConnected (γ : PolygonalPath) : IsConnected γ.carrie
             subst target
             simpa using (isConnected_singleton : IsConnected ({a} : Set E))
         | cons b rest =>
-            simp at hhead
+            have hsource : a = source := Option.some.inj hhead
             subst source
             have htail_ne : (b :: rest) ≠ [] := by simp
             have htail_head : (b :: rest).head? = some b := by simp

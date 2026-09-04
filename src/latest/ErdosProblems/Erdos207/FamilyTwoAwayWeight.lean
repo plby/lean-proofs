@@ -195,7 +195,7 @@ theorem extensionWeight_familyTwoAway_le_enlargedRoot
   · have hzero : Fintype.card (ActiveFamilyTwoAwayWitness G U H) = 0 :=
       Fintype.card_eq_zero
     simp [hzero]
-  · letI : Nonempty (ActiveFamilyTwoAwayWitness G U H) := not_isEmpty_iff.mp hactive
+  · let : Nonempty (ActiveFamilyTwoAwayWitness G U H) := not_isEmpty_iff.mp hactive
     let z : ActiveFamilyTwoAwayWitness G U H := Classical.choice inferInstance
     have hUnotH : U ∉ H := by
       intro hUH

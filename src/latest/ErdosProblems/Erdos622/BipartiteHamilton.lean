@@ -853,7 +853,7 @@ theorem exists_hamiltonian_path_of_balanced_bipartite
         exact (Set.disjoint_left.mp hAB'.disjoint) hzA hzB
       rw [← Finset.card_univ, ← hcover',
         Finset.card_union_of_disjoint hdisj']
-    haveI : Nontrivial s := Fintype.one_lt_card_iff_nontrivial.mp (by
+    have : Nontrivial s := Fintype.one_lt_card_iff_nontrivial.mp (by
       rw [hsCard, hcard']
       omega)
     obtain ⟨x₀⟩ := Fintype.card_pos_iff.mp (by

@@ -484,7 +484,7 @@ theorem exists_low_degree_unitNeighbor_outside_adjacent_pair
         hr₂.2.2.1, hr₂.2.2.1.symm, hr₂.2.2.2, hr₂.2.2.2.symm,
         hr₀r₁, hr₀r₁.symm, hr₀r₂, hr₀r₂.symm, hr₁r₂, hr₁r₂.symm]
   let R : Fin 5 → Fin 5 → Prop := fun i j ↦ dist (x i) (x j) = 1
-  letI : DecidableRel R := fun _ _ ↦ inferInstance
+  let : DecidableRel R := fun _ _ ↦ inferInstance
   have hR01 : R 0 1 := by simpa [R, x] using hs₀s₁
   have hRsymm : ∀ i j, R i j ↔ R j i := by
     intro i j

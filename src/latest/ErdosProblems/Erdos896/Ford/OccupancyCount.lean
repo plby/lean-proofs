@@ -19,7 +19,7 @@ theorem surjective_rotatePlacement_good (v : ℕ) (hv : 0 < v) :
     Function.Surjective
       (fun p : {f : Fin v → Fin v // Good f} × Fin v ↦
         rotatePlacement (-p.2) p.1) := by
-  letI : NeZero v := ⟨Nat.ne_of_gt hv⟩
+  let : NeZero v := ⟨Nat.ne_of_gt hv⟩
   intro f
   obtain ⟨r, hr⟩ := exists_rotatePlacement_good hv f
   refine ⟨⟨⟨rotatePlacement r f, hr⟩, r⟩, ?_⟩

@@ -25,8 +25,8 @@ theorem weightedIdealNormCoeff_cumsum {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     ∀ (w : ClassGroup (QuadraticAlgebra ℤ d b) → ℂ) (N : ℕ),
       (∑ n ∈ Finset.Icc 1 N, weightedIdealNormCoeff hD F w n) =
         weightedIdealClassCount hD F w N := by
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
   intro w N
   unfold weightedIdealNormCoeff weightedIdealClassCount
   rw [Finset.sum_comm]
@@ -42,8 +42,8 @@ theorem weightedIdealNormCoeff_norm_cumsum_le {d b : ℤ} (hD : b ^ 2 + 4 * d < 
       (∑ n ∈ Finset.Icc 1 N, ‖weightedIdealNormCoeff hD F w n‖) ≤
         ∑ C, ‖w C‖ * (Nat.card (RestrictedIdealClassBall (QuadraticAlgebra ℤ d b) C N
           (fun J => IsCoprime (J : Ideal (QuadraticAlgebra ℤ d b)) F)) : ℝ) := by
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
   intro w N
   calc
     _ ≤ ∑ n ∈ Finset.Icc 1 N, ∑ C, ‖w C‖ * (idealClassNormCount C F n : ℝ) := by
@@ -62,14 +62,14 @@ theorem weightedIdealNormCoeff_summable {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     letI := quadraticOrderIsDomain hD
     ∀ (w : ClassGroup (QuadraticAlgebra ℤ d b) → ℂ) (s : ℂ), 1 < s.re →
       LSeriesSummable (weightedIdealNormCoeff hD F w) s := by
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
   intro w s hs
   obtain ⟨B, _, hB⟩ := exists_uniform_natCard_idealClassBall_le hD
   have hle (C : ClassGroup (QuadraticAlgebra ℤ d b)) (N : ℕ) :
       Nat.card (RestrictedIdealClassBall (QuadraticAlgebra ℤ d b) C N
         (fun J => IsCoprime (J : Ideal (QuadraticAlgebra ℤ d b)) F)) ≤ B * N := by
-    letI := finite_idealClassBall hD C N
+    let := finite_idealClassBall hD C N
     exact (Nat.card_le_card_of_injective Subtype.val Subtype.val_injective).trans (hB C N)
   have hsum (N : ℕ) : (∑ n ∈ Finset.Icc 1 N, ‖weightedIdealNormCoeff hD F w n‖) ≤
       (∑ C, ‖w C‖ * B) * N := by
@@ -97,7 +97,7 @@ theorem classCharacterLSeries_continuation {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
         (∀ s : ℂ, (1 / 2 : ℝ) < s.re → DifferentiableAt ℂ G s) ∧
         (∀ s : ℂ, 1 < s.re → G s =
           LSeries (weightedIdealNormCoeff hD F (fun C => ψ (Additive.ofMul C))) s) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ hψ
   let a := weightedIdealNormCoeff hD F (fun C => ψ (Additive.ofMul C))
   have hO : (fun N : ℕ => ∑ n ∈ Finset.Icc 1 N, a n)

@@ -429,7 +429,7 @@ theorem norm_realExponentialPhase_sub_le (u v : ℝ) :
     ring
   rw [hid, norm_mul, Complex.norm_exp_ofReal_mul_I, one_mul]
   convert (Real.norm_exp_I_mul_ofReal_sub_one_le (x := u - v)) using 1 <;>
-    try { push_cast; ring }
+    try { push_cast; ring_nf }
   rw [Real.norm_eq_abs]
 
 /-- The logarithm changes by at most relative interval length. -/
@@ -852,7 +852,7 @@ theorem norm_dyadicRestrictedShortAverage_sub_sub_perron_le
       ‖(dyadicRestrictedShortAverage S f X x H₁ -
           dyadicRestrictedPerronAverage S f X x H₁ T) -
         (dyadicRestrictedShortAverage S f X x H₂ -
-          dyadicRestrictedPerronAverage S f X x H₂ T)‖ := by ring
+          dyadicRestrictedPerronAverage S f X x H₂ T)‖ := by ring_nf
     _ ≤ ‖dyadicRestrictedShortAverage S f X x H₁ -
           dyadicRestrictedPerronAverage S f X x H₁ T‖ +
         ‖dyadicRestrictedShortAverage S f X x H₂ -

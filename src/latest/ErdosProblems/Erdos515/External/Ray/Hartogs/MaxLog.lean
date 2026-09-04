@@ -79,9 +79,9 @@ theorem LipschitzOnWith.log (b : ℝ) : LipschitzOnWith (-b).exp.toNNReal Real.l
     have e : y⁻¹ * (x - y) = x / y - 1 := by field_simp [yp.ne']
     rw [e]
     have e1 := Real.add_one_le_exp (x / y - 1)
-    simp at e1; exact e1
+    linarith
   intro x xs y ys
-  simp at xs ys ⊢
+  simp only [Real.coe_toNNReal'] at xs ys ⊢
   rw [max_eq_left (Real.exp_pos _).le]
   simp_rw [Real.dist_eq]
   by_cases xy : x ≥ y; · exact half x y ys xy

@@ -662,7 +662,7 @@ lemma cubeCount_le_pow {d k : ℕ} (u : Fin d → TorusAction.Torus k)
     (E : Set (TorusAction.Torus k)) (N : ℕ) (x : TorusAction.Torus k) :
     TorusAction.cubeCount u E N x ≤ N ^ d := by
   classical
-  letI := TorusAction.torusAddAction u
+  let := TorusAction.torusAddAction u
   unfold TorusAction.cubeCount
   calc
     (∑ a : Fin d → Fin N,

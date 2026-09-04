@@ -692,7 +692,7 @@ lemma integral_sub_one_mul_rpowNeg {n : ℕ} (hn : 2 ≤ n) :
       Real.rpow_def_of_pos (by positivity : 0 < (n : ℝ))]
     congr 1
     dsimp only [L]
-    ring
+    ring_nf
   have hFtop : Tendsto F atTop (nhds 0) := by
     have haffine : Tendsto
         (fun s : ℝ ↦ -((s - 1) / L + 1 / L ^ 2) * Real.rpow (n : ℝ) (-s))
@@ -705,7 +705,7 @@ lemma integral_sub_one_mul_rpowNeg {n : ℕ} (hn : 2 ≤ n) :
         ring
       rw [hdecomp]
       convert (tendsto_const_nhds.mul hSB).add (tendsto_const_nhds.mul hB) using 1
-      all_goals ring
+      all_goals ring_nf
     exact haffine
   have hFTC := integral_Ioi_of_hasDerivAt_of_nonneg
     ((hderiv 1).continuousAt.continuousWithinAt)
@@ -776,7 +776,7 @@ lemma sqSharpModel_integrable_and_integral {n : ℕ} (hn : 2 ≤ n) :
       Real.rpow_def_of_pos (by positivity : 0 < (n : ℝ))]
     congr 1
     dsimp only [L]
-    ring
+    ring_nf
   have hS2B : Tendsto (fun s : ℝ ↦ s ^ 2 * Real.rpow (n : ℝ) (-s)) atTop (nhds 0) := by
     have h := tendsto_rpow_mul_exp_neg_mul_atTop_nhds_zero 2 L hL
     apply h.congr'
@@ -785,7 +785,7 @@ lemma sqSharpModel_integrable_and_integral {n : ℕ} (hn : 2 ≤ n) :
       Real.rpow_def_of_pos (by positivity : 0 < (n : ℝ))]
     congr 1
     dsimp only [L]
-    ring
+    ring_nf
   have hFtop : Tendsto F atTop (nhds 0) := by
     have hdecomp : F = fun s ↦
         (-1 / L) * (s ^ 2 * Real.rpow (n : ℝ) (-s)) +
@@ -797,7 +797,7 @@ lemma sqSharpModel_integrable_and_integral {n : ℕ} (hn : 2 ≤ n) :
     rw [hdecomp]
     convert ((tendsto_const_nhds.mul hS2B).add (tendsto_const_nhds.mul hSB)).add
       (tendsto_const_nhds.mul hB) using 1
-    all_goals ring
+    all_goals ring_nf
   have hint : IntegrableOn g (Ioi (1 : ℝ)) :=
     integrableOn_Ioi_deriv_of_nonneg ((hderiv 1).continuousAt.continuousWithinAt)
       (fun s hs ↦ hderiv s) hg_nonneg hFtop

@@ -313,7 +313,7 @@ theorem exists_addable_hits_many
     obtain ⟨c, hc⟩ := hbad
     obtain ⟨j, -⟩ := hdense c (mem_badColourings.mp hc).1
     exact Fin.pos_iff_nonempty.mpr ⟨j⟩
-  letI : Nonempty (Fin m) := Fin.pos_iff_nonempty.mp hm
+  let : Nonempty (Fin m) := Fin.pos_iff_nonempty.mp hm
   have hupper :
       (2 * A * m) * (∑ j, ∑ x ∈ X j, incidence j x) < m * (L * B.card) := by
     rw [Finset.mul_sum]

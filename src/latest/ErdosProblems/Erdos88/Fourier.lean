@@ -1108,7 +1108,7 @@ lemma pairedSlicePartition_le
               Nat.choose (r + 2 * (m + 1)) s := by
           push_cast
           rw [pow_succ]
-          ring
+          ring_nf
 
 /-- Exponential form of the exact recurrence bound. -/
 lemma pairedSlicePartition_le_exp
@@ -1346,10 +1346,9 @@ lemma pairAssignmentPartition_eq (m r s : ℕ) (z : ℝ) :
               exact hhead b
             _ = _ := by
               rw [Fintype.sum_prod_type]
+              simp only [Fintype.univ_bool, Finset.mem_singleton, Bool.true_eq_false, not_false_eq_true, Finset.sum_insert,
+    Finset.sum_singleton]
               simp [pairPatternSingleton, pairPatternWeight, lowerTerm]
-              have h21 : 1 < s ↔ 2 ≤ s := by omega
-              have h10 : 0 < s ↔ 1 ≤ s := by omega
-              simp_rw [h21, h10]
               split_ifs <;> ring
         _ = pairedSlicePartition m r s z +
               2 * z * lowerTerm 1 (fun t ↦ pairedSlicePartition m r t z) s +

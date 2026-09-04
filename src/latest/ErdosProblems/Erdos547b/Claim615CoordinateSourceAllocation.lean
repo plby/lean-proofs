@@ -165,9 +165,9 @@ theorem exists_sourceAllocation_average
         (branchMass P (majorResidualBranches P S)) (Fintype.card K1) small)
       (fun _ ↦ averageBranchCapacity (branchMass P (minorBranches P))
         (Fintype.card Kb) small)) := by
-  letI : Nonempty K0 := Fintype.card_pos_iff.mp hK0
-  letI : Nonempty K1 := Fintype.card_pos_iff.mp hK1
-  letI : Nonempty Kb := Fintype.card_pos_iff.mp hKb
+  let : Nonempty K0 := Fintype.card_pos_iff.mp hK0
+  let : Nonempty K1 := Fintype.card_pos_iff.mp hK1
+  let : Nonempty Kb := Fintype.card_pos_iff.mp hKb
   apply exists_sourceAllocation P S K0 K1 Kb
   · simpa only [averageBranchCapacity, Finset.sum_const, Nat.nsmul_eq_mul,
       Finset.card_univ, Fintype.card_coe] using

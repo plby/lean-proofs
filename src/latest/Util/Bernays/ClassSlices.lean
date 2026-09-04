@@ -25,7 +25,7 @@ theorem classSliceValues_subset_genusSliceValues {d b : ℤ} (hD : b ^ 2 + 4 * d
     ∀ (C : ClassGroup (QuadraticAlgebra ℤ d b)) (m : ℕ),
       m ∈ Nat.factoredNumbers (discriminantLevel (b ^ 2 + 4 * d)).primeFactors →
       ∀ N : ℕ, classSliceValues hD C m N ⊆ genusSliceValues hD C m N := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C m hm N n hn
   obtain ⟨hnN, hnc, I, hIn, hIC⟩ := Finset.mem_filter.mp hn
   obtain ⟨J, K, hJK, hJ, hK⟩ := exists_coprime_norm_factors hD I m n
@@ -48,7 +48,7 @@ theorem genusSlice_sdiff_classSlice_subset_exceptional {d b : ℤ} (hD : b ^ 2 +
     ∀ (C : ClassGroup (QuadraticAlgebra ℤ d b)) (m N : ℕ),
       genusSliceValues hD C m N \ classSliceValues hD C m N ⊆ squareExceptionalValues hD
         (Nat.card (classSquareSubgroup : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b)))) N := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C m N n hn
   obtain ⟨hng, hnot⟩ := Finset.mem_sdiff.mp hn
   obtain ⟨hngood, hngen⟩ := Finset.mem_filter.mp hng
@@ -83,7 +83,7 @@ theorem classSlice_genus_count_error_limit {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) 
       Tendsto (fun N : ℕ =>
         (((genusSliceValues hD C m N).card : ℝ) - (classSliceValues hD C m N).card) / scale N)
         atTop (𝓝 0) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C m hm
   let k := Nat.card (classSquareSubgroup : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b)))
   have heq (N : ℕ) : ((genusSliceValues hD C m N).card : ℝ) - (classSliceValues hD C m N).card =
@@ -107,7 +107,7 @@ theorem classSliceValues_card_limit {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       m ∈ Nat.factoredNumbers (discriminantLevel (b ^ 2 + 4 * d)).primeFactors →
       Tendsto (fun N : ℕ => ((classSliceValues hD C m N).card : ℝ) / scale N)
         atTop (𝓝 (goodClassConstant hD * (normGenusSet hD m).card)) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C m hm
   have h := (genusSliceValues_card_limit hD C m).sub (classSlice_genus_count_error_limit hD C m hm)
   rw [sub_zero] at h

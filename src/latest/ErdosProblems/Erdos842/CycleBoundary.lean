@@ -26,7 +26,7 @@ def finZero {m : ℕ} (hm : 0 < m) : Fin m := ⟨0, hm⟩
 theorem finCyclePred_val_of_ne_zero {m : ℕ} (hm : 0 < m) (v : Fin m)
     (hv : v ≠ finZero hm) :
     (finCyclePred hm v).val = v.val - 1 := by
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   have hv' : v ≠ (0 : Fin m) := by
     simpa [finZero] using hv
   simp only [finCyclePred, Equiv.subRight_apply]
@@ -162,7 +162,7 @@ theorem prefixCount_zero_and_pred {m : ℕ} (hm : 0 < m) (used : Finset (Fin m))
     split <;> simp
   · have hpred : finCyclePred (by omega : 0 < k + 1)
         (finZero (by omega : 0 < k + 1)) = Fin.last k := by
-      letI : NeZero (k + 1) := ⟨by omega⟩
+      let : NeZero (k + 1) := ⟨by omega⟩
       ext
       simp [finCyclePred, finZero, Fin.last]
     rw [hpred]
@@ -284,7 +284,7 @@ theorem cycleBoundary_selection_not_base {m : ℕ} (hm : 0 < m)
 canonical predecessor. -/
 theorem finCyclePred_transitive {m : ℕ} (hm : 0 < m) (u v : Fin m) :
     ∃ k : ℕ, (finCyclePred hm ^ k) u = v := by
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   refine ⟨(u - v).val, ?_⟩
   have hpow : ∀ k : ℕ, (finCyclePred hm ^ k) u = u - Fin.ofNat m k := by
     intro k

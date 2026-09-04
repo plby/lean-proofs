@@ -177,7 +177,7 @@ theorem card_commonZeroFinsetZMod_mul
       (((ψ.coefficientMinor φ i j : ℤ) : ZMod p)) ≠ 0) :
     p ^ 2 * (commonZeroFinsetZMod p ψ φ).card =
       p ^ Fintype.card ι := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let L := pairLinearMapZMod p ψ φ
   have hsurj : Function.Surjective L :=
     pairLinearMapZMod_surjective_of_minor_ne_zero ψ φ hdet
@@ -235,7 +235,7 @@ theorem card_zeroFinsetZMod_mul
     {i : ι} (hi : (ψ.coefficient i : ZMod p) ≠ 0) :
     p * (ψ.zeroFinsetZMod p).card =
       p ^ Fintype.card ι := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let L := ψ.linearMapZMod p
   have hsurj : Function.Surjective L :=
     ψ.linearMapZMod_surjective_of_coefficient_ne_zero hi

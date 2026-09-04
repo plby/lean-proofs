@@ -38,7 +38,7 @@ theorem norm_primitiveKernel_le_upper_positive_far
       ‖primitiveHighZeroRealBandKernelSumAt q psi x 0 (1 / 16) T‖ +
       ‖primitiveLowZeroRealBandKernelSumAt q psi x 0 (1 / 16) T‖ +
       ‖primitiveFarZeroKernelSumAt q psi x (1 / 16) 0 T‖ := by
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   rw [primitiveZeroKernelSumAt_eq hq,
     dirichletNontrivialZeroKernelSum_eq_firstBand_add_far psi.1 x (1 / 16) T,
     ← primitiveTwoSidedZeroRealBandKernelSumAt_eq hq,

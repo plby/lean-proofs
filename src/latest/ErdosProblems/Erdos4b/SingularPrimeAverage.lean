@@ -44,7 +44,7 @@ theorem crossAffinePrimeResidue_lt
     (hc : IsUnit ((m : ZMod p) *
       ((ba.1.1 : ZMod p) - ba.2.1))) :
     crossAffinePrimeResidue m p ba hc < p := by
-  letI : NeZero p := ⟨hp0.ne'⟩
+  let : NeZero p := ⟨hp0.ne'⟩
   unfold crossAffinePrimeResidue
   exact ZMod.val_lt _
 
@@ -68,7 +68,7 @@ theorem prime_dvd_crossAffineDifference_iff_modEq
       ((ba.1.1 : ZMod p) - ba.2.1))) :
     (p : ℤ) ∣ crossAffineDifference m q ba ↔
       q ≡ crossAffinePrimeResidue m p ba hc [MOD p] := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let c : ZMod p := (m : ZMod p) * ((ba.1.1 : ZMod p) - ba.2.1)
   let u : (ZMod p)ˣ := hc.unit
   let a := crossAffinePrimeResidue m p ba hc
@@ -113,7 +113,7 @@ theorem preSieved_crossAffineCoefficient_isUnit
     (hpm : ¬p ∣ m) {ba : ↥(preSievedShifts K w) ×
       ↥(preSievedShifts K w)} (hba : ba.1 ≠ ba.2) :
     IsUnit ((m : ZMod p) * ((ba.1.1 : ZMod p) - ba.2.1)) := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   rw [isUnit_iff_ne_zero]
   apply mul_ne_zero
   · intro hm

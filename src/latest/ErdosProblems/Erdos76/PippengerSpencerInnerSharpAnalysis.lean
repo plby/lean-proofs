@@ -132,7 +132,9 @@ lemma sum_natCast_mul_pred_mul_choose_mul_pow (a : ℕ) (c : ℝ) :
             (((j + 2) : ℕ) : ℝ) * ((((j + 2) : ℕ) : ℝ) - 1) *
               ((n + 2).choose (j + 2) : ℝ) * c ^ (j + 2) := by
         rw [sum_range_succ', sum_range_succ']
-        simp
+        simp only [Nat.cast_add, Nat.cast_one, add_sub_cancel_right, zero_add, sub_self, mul_zero,
+    Nat.choose_one_right, Nat.cast_ofNat, zero_mul, pow_one, add_zero, CharP.cast_eq_zero, zero_sub, mul_neg, mul_one,
+    neg_zero, Nat.choose_zero_right, pow_zero]
         apply sum_congr rfl
         intro j _
         push_cast

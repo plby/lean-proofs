@@ -54,7 +54,7 @@ theorem coprimeQuadraticBall_eq_sum_cosets {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
       apply Subtype.ext
       change (c u : O) + (y.1 - (c u : O)) = y.1
       abel
-  letI (u : (O ⧸ F)ˣ) : Finite (quadraticIdealCosetBall (F * I) (c u) T) :=
+  let (u : (O ⧸ F)ˣ) : Finite (quadraticIdealCosetBall (F * I) (c u) T) :=
     finite_quadraticIdealCosetBall hD (F * I) (c u) T
   rw [← Nat.card_congr (Equiv.ofBijective f hf), Nat.card_sigma]
 

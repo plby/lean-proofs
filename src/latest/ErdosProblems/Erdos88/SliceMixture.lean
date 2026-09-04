@@ -46,7 +46,7 @@ noncomputable def toWeighted (C : FiniteUniformCoupling A B) :
   weight := C.jointWeight
   weight_nonneg := C.jointWeight_nonneg
   left_sum a := by
-    letI : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
+    let : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
     have hleft := C.left_uniform_real (fun x : A ↦ if x = a then 1 else 0)
     rw [Fintype.expect_eq_sum_div_card,
       Fintype.expect_eq_sum_div_card] at hleft
@@ -66,7 +66,7 @@ noncomputable def toWeighted (C : FiniteUniformCoupling A B) :
       by_cases h : C.left ω = a <;> simp [h]]
     simpa [Finset.sum_ite] using hleft
   right_sum b := by
-    letI : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
+    let : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
     have hright := C.right_uniform_real (fun y : B ↦ if y = b then 1 else 0)
     rw [Fintype.expect_eq_sum_div_card,
       Fintype.expect_eq_sum_div_card] at hright
@@ -245,7 +245,7 @@ lemma indexMass_nonneg (E : J → Prop) :
   unfold indexMass
   apply Finset.sum_nonneg
   intro j hj
-  by_cases hE : E j <;> simp [hE]
+  by_cases hE : E j <;> simp only [Fintype.card_sigma, Nat.cast_sum]
   positivity
 
 lemma indexMass_add_compl (E : J → Prop) :
@@ -1105,7 +1105,7 @@ lemma ksss_countTail_sum_le {n m : ℕ} {d : ℝ}
             Real.log n ^ 2 := by rw [scale_mul hn]
       _ = scale n (1 - d) * Real.log n ^ 2 := by
         congr 1
-        ring
+        ring_nf
   have hratio : Real.log n ^ 2 ≤
       2 * ksssSliceMargin n d ^ 2 / (s : ℝ) := by
     apply (le_div_iff₀ (by exact_mod_cast hs)).2

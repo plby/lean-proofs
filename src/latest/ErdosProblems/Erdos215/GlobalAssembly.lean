@@ -113,7 +113,7 @@ theorem global_rational_classes (selector : RichSelectorTheorem) :
       ∀ L : OrientedFrame, HitsRationalClass S L := by
   let D := decomposition
   obtain ⟨B⟩ := exists_globalBlockFamily D selector
-  letI : IsWellOrder D.Index D.lt := D.isWellOrder
+  let : IsWellOrder D.Index D.lt := D.isWellOrder
   refine ⟨B.result, ?_, ?_⟩
   · apply B.result_partial
     intro i j

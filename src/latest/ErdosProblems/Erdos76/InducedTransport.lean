@@ -124,8 +124,8 @@ lemma fractionalSize_extendInducedWeight (G : SimpleGraph α) (S : Finset α)
     fractionalSize G (extendInducedWeight S w) =
       fractionalSize (G.induce (S : Set α)) w := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.induce (S : Set α)).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.induce (S : Set α)).Adj := Classical.decRel _
   unfold fractionalSize
   symm
   apply Finset.sum_bij_ne_zero
@@ -162,8 +162,8 @@ lemma fractionalEdgeLoad_extendInducedWeight (G : SimpleGraph α) (S : Finset α
         ((inducedEmbedding S).sym2Map p) =
       fractionalEdgeLoad (G.induce (S : Set α)) w p := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.induce (S : Set α)).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.induce (S : Set α)).Adj := Classical.decRel _
   unfold fractionalEdgeLoad
   symm
   apply Finset.sum_bij_ne_zero
@@ -204,7 +204,7 @@ private lemma edgeLoad_extendInducedWeight_eq_zero_of_not_subset
     (a b : α) (ha : a ∉ S) :
     fractionalEdgeLoad G (extendInducedWeight S w) s(a, b) = 0 := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
   unfold fractionalEdgeLoad
   apply Finset.sum_eq_zero
   intro t ht
@@ -219,8 +219,8 @@ lemma IsFractionalPacking.extendInduced {G : SimpleGraph α} {S : Finset α}
     {w : Finset S → ℝ} (hw : IsFractionalPacking (G.induce (S : Set α)) w) :
     IsFractionalPacking G (extendInducedWeight S w) := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.induce (S : Set α)).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.induce (S : Set α)).Adj := Classical.decRel _
   constructor
   · intro t ht
     by_cases hsub : t ⊆ S

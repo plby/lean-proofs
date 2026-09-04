@@ -925,7 +925,10 @@ theorem summable_lowSieveMain :
     intro k
     let q := AdaptiveShifts.baseShift k
     by_cases hq0 : q = 0
-    · simp [lowSieveBlockSize, q, hq0]
+    · have hblock : lowSieveBlockSize k = 0 := by
+        simp [lowSieveBlockSize, q, hq0]
+      rw [hblock]
+      norm_num
       positivity
     have hq : 1 ≤ q := Nat.one_le_iff_ne_zero.mpr hq0
     have hqR : (0 : ℝ) < q := by exact_mod_cast (Nat.zero_lt_of_lt hq)

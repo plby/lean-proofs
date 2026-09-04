@@ -2401,7 +2401,6 @@ lemma directPatterns_produce (N n : ℕ) (c : Fin 2) (f : PatternFamily 4)
   have hc₂ := hp (2 : Fin 4)
   have hc₃ := hp (3 : Fin 4)
   rw [hdesired] at hc₀ hc₁ hc₂ hc₃
-  simp [directDesired] at hc₀ hc₁ hc₂ hc₃
   specialize hdata i
   dsimp only at hdata
   rcases hdata with
@@ -2485,7 +2484,6 @@ lemma reflectedPatterns_produce (N n : ℕ) (c : Fin 2) (f : PatternFamily 4)
   have hc₂ := hp (2 : Fin 4)
   have hc₃ := hp (3 : Fin 4)
   rw [hdesired] at hc₀ hc₁ hc₂ hc₃
-  simp [reflectedDesired] at hc₀ hc₁ hc₂ hc₃
   specialize hdata i
   dsimp only at hdata
   rcases hdata with
@@ -2792,16 +2790,16 @@ lemma smallReflectedFamily_produces_below
   refine ⟨?_, hx₀, ?_, hx₁, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · convert hy₀ using 1 <;> ring
   · convert hy₁ using 1 <;> ring
-  · convert hord₀ using 1 <;> ring
+  · convert hord₀ using 1 <;> ring_nf
   · rw [show L + d * (4 * i.1 + 1) = (L + d * (4 * i.1)) + d by ring]
     have hy : L + d * (4 * i.1) + d ≤ 4 * N := by omega
     omega
-  · convert hrat₀ using 1 <;> ring
-  · convert hord₁ using 1 <;> ring
+  · convert hrat₀ using 1 <;> ring_nf
+  · convert hord₁ using 1 <;> ring_nf
   · rw [show L + d * (4 * i.1 + 3) = (L + d * (4 * i.1 + 2)) + d by ring]
     have hy : L + d * (4 * i.1 + 2) + d ≤ 4 * N := by omega
     omega
-  · convert hrat₁ using 1 <;> ring
+  · convert hrat₁ using 1 <;> ring_nf
 
 lemma largeReflectedFamily_produces_above
     (N n M d L : ℕ) (c : Fin 2) (hd : 2 * M ≤ d)
@@ -2864,10 +2862,10 @@ lemma largeReflectedFamily_produces_below
   · convert hy₁ using 1 <;> ring
   · have hy : L + 2 * i.1 + d ≤ 4 * N := by omega
     omega
-  · convert hord₁ using 1 <;> ring
+  · convert hord₁ using 1 <;> ring_nf
   · have hy : L + 2 * i.1 + d + 1 ≤ 4 * N := by omega
     omega
-  · convert hrat₁ using 1 <;> ring
+  · convert hrat₁ using 1 <;> ring_nf
 
 lemma direct_of_Q {N x : ℕ} (h : x ∈ Q N) : x ∈ directReservoir N :=
   Or.inl (Or.inl (Or.inr h))

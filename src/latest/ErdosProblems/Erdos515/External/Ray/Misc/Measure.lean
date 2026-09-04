@@ -272,7 +272,9 @@ public theorem mean_squeeze {f : X → ℝ} {s : Set X} {b : ℝ} (sn : NiceVolu
     have i1 : ∫ x in t, f x ≤ vt * m := by
       have fm := setIntegral_mono_on (μ := volume) (f := f) (g := fun _ ↦ m) (s := t)
         (fi.mono ts (le_refl _)) (integrableOn_const tf.ne_top) tm ?_
-      simp at fm; exact fm
+      simp only [integral_const, MeasurableSet.univ, measureReal_restrict_apply,
+        Set.univ_inter, smul_eq_mul] at fm
+      exact fm
       intro y yt
       rw [← ht] at yt; simp at ht yt
       specialize he y yt.left yt.right

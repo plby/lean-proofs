@@ -293,7 +293,7 @@ theorem mader_degree_three_count
   · have hTpos : 0 < T.card := Finset.card_pos.mpr (Finset.nonempty_iff_ne_empty.mpr hT)
     have hForest : H.edgeFinset.card + 1 ≤ T.card := by
       obtain ⟨z, hz⟩ := Finset.card_pos.mp hTpos
-      letI : Nonempty {v : V // v ∈ T} := ⟨⟨z, hz⟩⟩
+      let : Nonempty {v : V // v ∈ T} := ⟨⟨z, hz⟩⟩
       obtain ⟨F, hHF, -, hFtree⟩ :=
         (SimpleGraph.connected_top (V := {v : V // v ∈ T})).exists_isTree_le_of_le_of_isAcyclic
           (G := ⊤) (H := H) le_top hHacyc

@@ -44,7 +44,7 @@ structure SplitCompletionData (start n : ℕ) where
 
 noncomputable instance splitCompletionDataCountable (start n : ℕ) :
     Countable (SplitCompletionData start n) := by
-  letI : Countable (XProfileScanSignatureData n) := inferInstance
+  let : Countable (XProfileScanSignatureData n) := inferInstance
   exact (show Function.Injective
       (fun data : SplitCompletionData start n ↦
         (⟨data.returnCount,

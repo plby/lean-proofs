@@ -20,7 +20,7 @@ dichotomy, stated without installing a local-ring instance. -/
 private lemma isUnit_of_castHom_ne_zero {p a : ℕ} (hp : p.Prime) (ha : 0 < a)
     (z : ZMod (p ^ a))
     (hz : ZMod.castHom (dvd_pow_self p ha.ne') (ZMod p) z ≠ 0) : IsUnit z := by
-  letI : NeZero (p ^ a) := ⟨pow_ne_zero a hp.ne_zero⟩
+  let : NeZero (p ^ a) := ⟨pow_ne_zero a hp.ne_zero⟩
   rw [← ZMod.natCast_zmod_val z]
   rw [ZMod.isUnit_natCast_iff_not_dvd_pow hp ha]
   intro hpz
@@ -36,7 +36,7 @@ theorem root_eq_or_eq_neg {d : ℕ} (c : PrimaryComponent d)
     x.1 = y.1 ∨ x.1 = -y.1 := by
   have hpq : c.p ∣ c.q := dvd_pow_self c.p c.exp_pos.ne'
   let red : ZMod c.q →+* ZMod c.p := ZMod.castHom hpq (ZMod c.p)
-  letI : Fact c.p.Prime := ⟨c.prime⟩
+  let : Fact c.p.Prime := ⟨c.prime⟩
   have hxroot : red x.1 ^ 2 = -1 := by
     rw [← map_pow, x.property]
     simp
@@ -118,7 +118,7 @@ are reconstructed globally. -/
 theorem eq_of_reduce_eq {d : ℕ} (C : CompleteComponents d) (hd : d ≠ 0)
     (x y : ZMod d)
     (h : ∀ c ∈ C.components, c.reduce x = c.reduce y) : x = y := by
-  letI : NeZero d := ⟨hd⟩
+  let : NeZero d := ⟨hd⟩
   have hlocal : ∀ c ∈ C.components, x.val ≡ y.val [MOD c.q] := by
     intro c hc
     apply (ZMod.natCast_eq_natCast_iff x.val y.val c.q).mp

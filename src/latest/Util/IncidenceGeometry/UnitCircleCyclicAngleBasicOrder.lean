@@ -77,8 +77,8 @@ lemma UnitCircleCyclicAngleBasicOrder
   have hn3 : 3 ≤ n := by
     simpa [hnS] using hcard
   have hnpos : 0 < n := by omega
-  haveI : NeZero n := ⟨Nat.ne_of_gt hnpos⟩
-  letI : LinearOrder A := LinearOrder.lift' θ hθ_inj
+  have : NeZero n := ⟨Nat.ne_of_gt hnpos⟩
+  let : LinearOrder A := LinearOrder.lift' θ hθ_inj
   let e : Fin n ≃o A := Fintype.orderIsoFinOfCardEq A rfl
   let shift : Equiv.Perm (Fin n) :=
     { toFun := fun i => i + 1
@@ -273,7 +273,7 @@ lemma UnitCircleCyclicAngleBasicOrder
       simp [startAngle, endAngle, hwrap]
       linarith
   have hθ_mono : Monotone (fun i : Fin n => θ (e i)) := hθ_strict.monotone
-  haveI : Fact (0 < 2 * Real.pi) := ⟨Real.two_pi_pos⟩
+  have : Fact (0 < 2 * Real.pi) := ⟨Real.two_pi_pos⟩
   have hangle_open :
       ∀ (x : A) (t : ℝ), 0 < t → t < 1 →
         startAngle x < (1 - t) * startAngle x + t * endAngle x ∧

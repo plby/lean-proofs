@@ -90,7 +90,7 @@ theorem compact_removal_of_cyclic_bound
     exact div_lt_self hδpos this
   obtain ⟨N, hNpos, hreturn, hnet⟩ :=
     exists_initial_orbit_net_and_return φ hdense hηpos 0
-  haveI : NeZero N := ⟨Nat.ne_of_gt hNpos⟩
+  have : NeZero N := ⟨Nat.ne_of_gt hNpos⟩
   have hreturnNorm : ‖φ (N : ℤ)‖ < η := by
     simpa [dist_eq_norm] using hreturn
   have hnetNorm : ∀ z : K, ∃ r : ℕ, r < N ∧ ‖φ (r : ℤ) - z‖ < η := by

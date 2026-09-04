@@ -183,7 +183,7 @@ theorem exists_sparse_maximizer [Nonempty V] (A : V → V → ℝ)
     (continuous_quadratic A).continuousOn
   let Maxima := {p : V → ℝ // p ∈ stdSimplex ℝ V ∧
     ∀ q ∈ stdSimplex ℝ V, quadratic A q ≤ quadratic A p}
-  haveI : Nonempty Maxima := ⟨⟨p₀, hp₀, hm₀⟩⟩
+  have : Nonempty Maxima := ⟨⟨p₀, hp₀, hm₀⟩⟩
   let p : Maxima := Function.argmin (fun q : Maxima ↦ (support q.val).card)
   refine ⟨p.val, p.property.1, p.property.2,
     fun i hi ↦ row_eq_quadratic_at_max hA p.property.1 p.property.2 hi, ?_⟩

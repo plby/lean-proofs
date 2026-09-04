@@ -1091,7 +1091,7 @@ theorem tau_mul_prime_le_two_mul {N P : ℕ}
         ((N.factorization P + 1 : ℕ) : ℝ)) := by
     simp [up, down, g, modifyFactorization_apply]
     push_cast
-    ring
+    ring_nf
   rw [hsum, hfrom] at hlog
   have hratioPos : 0 < ((N.factorization P + 2 : ℕ) : ℝ) /
       ((N.factorization P + 1 : ℕ) : ℝ) := by positivity

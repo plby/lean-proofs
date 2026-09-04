@@ -144,7 +144,7 @@ theorem exists_nat_primitiveEndpointMass_le_card_mul_error_add_zeroKernelMass :
     exists_nat_norm_twistedChebyshevSum_le_error_add_zeroKernel
   refine ⟨K, hK, ?_⟩
   intro q hq T hT x hx hTx
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   apply primitiveEndpointMass_le_card_mul_error_add_zeroKernelMass hq
   intro psi
   exact hpoint q hq psi T hT x hx hTx

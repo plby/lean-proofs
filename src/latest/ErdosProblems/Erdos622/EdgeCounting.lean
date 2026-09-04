@@ -181,7 +181,7 @@ theorem sum_degreeInto_self (G : SimpleGraph V) [DecidableRel G.Adj]
     ∑ v ∈ S, degreeInto G v S = 2 * (edgesInside G S).card := by
   classical
   let K : SimpleGraph V := (G.induce (S : Set V)).spanningCoe
-  letI : DecidableRel K.Adj := Classical.decRel _
+  let : DecidableRel K.Adj := Classical.decRel _
   have hneighbor (v : V) : K.neighborFinset v =
       if v ∈ S then G.neighborFinset v ∩ S else ∅ := by
     ext w

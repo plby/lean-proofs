@@ -55,7 +55,7 @@ theorem mem_invNatBallBasis_iff {D : Set X} {U : Set X} :
 is countable. -/
 theorem invNatBallBasis_countable {D : Set X} (hD : D.Countable) :
     (invNatBallBasis D).Countable := by
-  letI : Countable D := hD.to_subtype
+  let : Countable D := hD.to_subtype
   apply (countable_range fun p : D × ℕ ↦
     ball (p.1 : X) (invNatRadius p.2)).mono
   rintro U ⟨c, hc, n, rfl⟩
@@ -371,7 +371,7 @@ theorem exists_affineSphere_image_eq_image_relativeSphere
     AffineSubspace.mk' (p : P) ((ℝ ∙ ((c : P) -ᵥ o))ᗮ)
   have hpH : (p : P) ∈ H := by
     exact AffineSubspace.self_mem_mk' _ _
-  letI : Nonempty H := ⟨⟨p, hpH⟩⟩
+  let : Nonempty H := ⟨⟨p, hpH⟩⟩
   let q : H := EuclideanGeometry.orthogonalProjection H o
   let s : Sphere H := ⟨q, dist (⟨p, hpH⟩ : H) q⟩
   have hproj : EuclideanGeometry.orthogonalProjection H (c : P) = q := by

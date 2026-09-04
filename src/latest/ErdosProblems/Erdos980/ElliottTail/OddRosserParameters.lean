@@ -429,7 +429,7 @@ private theorem list_prod_mono_of_nonneg
 theorem normSieveDegree_pos
     (K : Type*) [Field K] [NumberField K] :
     0 < normSieveDegree K := by
-  letI := Fintype.ofFinite (index K)
+  let := Fintype.ofFinite (index K)
   rw [normSieveDegree, Nat.card_eq_fintype_card,
     ← Module.finrank_eq_card_basis (stdBasis K), mixedEmbedding.finrank]
   exact Module.finrank_pos
@@ -565,16 +565,16 @@ theorem coordinateRootCount_pos
     (hcop : p.Coprime (Ideal.absNorm (J : Ideal (RingOfIntegers K)))) :
     0 < (coordinateAlgebraNormResidueSystem K J).rootCount K p := by
   classical
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : Fintype (index K) := Fintype.ofFinite _
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : Fintype (index K) := Fintype.ofFinite _
   have hindex : Nonempty (index K) := by
     rw [← Fintype.card_pos_iff]
     simpa [normSieveDegree, Nat.card_eq_fintype_card] using
       normSieveDegree_pos K
-  letI : Nonempty (index K) := hindex
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Nonempty (index K) := hindex
+  let : Fact p.Prime := ⟨hp⟩
   let e := fixedIdealCoordinateQuotientEquiv K J p hp hcop
-  letI : Nontrivial (RingOfIntegers K ⧸ rationalModulusIdeal K p) :=
+  let : Nontrivial (RingOfIntegers K ⧸ rationalModulusIdeal K p) :=
     e.symm.nontrivial
   let k : index K → ZMod p := e.symm 0
   rw [(coordinateAlgebraNormResidueSystem K J).rootCount_eq K p]
@@ -684,7 +684,7 @@ private theorem coordinateRootCount_eq_natCard
       Nat.card {k : index K → ZMod p //
         coordinateAlgebraNormMod K J p k = 0} := by
   classical
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   rw [(coordinateAlgebraNormResidueSystem K J).rootCount_eq K p]
   exact (Nat.subtype_card _ (by
     intro x
@@ -730,7 +730,7 @@ theorem rationalPrime_unitRatio_pos
     (p : ℕ) (hp : p.Prime) :
     0 < (Nat.card ((RingOfIntegers K ⧸ rationalModulusIdeal K p)ˣ) : ℝ) /
       Nat.card (RingOfIntegers K ⧸ rationalModulusIdeal K p) := by
-  letI : Finite (RingOfIntegers K ⧸ rationalModulusIdeal K p) :=
+  let : Finite (RingOfIntegers K ⧸ rationalModulusIdeal K p) :=
     (Ideal.absNorm_ne_zero_iff (rationalModulusIdeal K p)).mp (by
       rw [rationalModulusIdeal, Ideal.absNorm_span_natCast]
       exact pow_ne_zero _ hp.ne_zero)

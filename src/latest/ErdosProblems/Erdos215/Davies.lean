@@ -119,7 +119,7 @@ theorem hull_min {s t : Set U} (hst : s ⊆ t) (ht : sk.Closed t) : sk.Hull s �
 
 theorem countable_step {s : Set U} (hs : s.Countable) : (sk.Step s).Countable := by
   classical
-  letI : Countable s := hs.to_subtype
+  let : Countable s := hs.to_subtype
   let values : ℕ × List s → U := fun p ↦ sk p.1 (p.2.map Subtype.val)
   have liftList : ∀ (xs : List U), (∀ x ∈ xs, x ∈ s) →
       ∃ ys : List s, ys.map Subtype.val = xs := by

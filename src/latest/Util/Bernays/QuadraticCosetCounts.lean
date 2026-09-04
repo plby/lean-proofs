@@ -46,7 +46,7 @@ def quadraticIdealCosetBall {d b : ℤ} (I : Ideal (QuadraticAlgebra ℤ d b))
 theorem finite_quadraticIdealCosetBall {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     (I : Ideal (QuadraticAlgebra ℤ d b)) (a : QuadraticAlgebra ℤ d b) (N : ℕ) :
     Finite (quadraticIdealCosetBall I a N) := by
-  letI := finite_quadraticNormBall hD N
+  let := finite_quadraticNormBall hD N
   let e : quadraticIdealCosetBall I a N → QuadraticNormBall d b N := fun z => ⟨a + z.1, z.2⟩
   apply Finite.of_injective e
   intro z w hzw
@@ -71,8 +71,8 @@ theorem quadraticIdealCosetBall_error {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
       |(Nat.card (quadraticIdealCosetBall I a N) : ℝ) -
         (4 * Real.pi / ((I.cardQuot : ℝ) * ZLattice.covolume (quadraticIdealLattice d b ⊤))) * N| ≤
           K * (Real.sqrt (N : ℝ) + 1) := by
-  letI := quadraticIdealLattice_discrete hD I
-  letI := quadraticIdealLattice_full hD I hI
+  let := quadraticIdealLattice_discrete hD I
+  let := quadraticIdealLattice_full hD I hI
   obtain ⟨K, hK, hbound⟩ := latticeCosetBall_error (quadraticIdealLattice d b I)
   refine ⟨2 * K, by positivity, ?_⟩
   intro a N

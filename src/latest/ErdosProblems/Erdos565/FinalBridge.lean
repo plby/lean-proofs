@@ -679,7 +679,7 @@ theorem badForColoringOn_flatten
   have hflatPos : 0 < (flattenFinset S W).card := by
     rw [card_flattenFinset]
     exact Finset.card_pos.mpr hW
-  letI : Nonempty (↑(flattenFinset S W) : Set V) := by
+  let : Nonempty (↑(flattenFinset S W) : Set V) := by
     rw [← Fintype.card_pos_iff]
     simpa using hflatPos
   intro i hi
@@ -830,8 +830,8 @@ theorem state_start {k : ℕ} (hk : 2 ≤ k)
       (↑(Finset.univ : Finset (Fin (Numeric.hostOrder 2 k))) :
         Set (Fin (Numeric.hostOrder 2 k))) ↪g H :=
     SimpleGraph.Embedding.induce (G := H) _
-  letI : Nonempty (Fin (Numeric.hostOrder 2 k)) := Fin.pos_iff_nonempty.mp hNpos
-  letI : Nonempty
+  let : Nonempty (Fin (Numeric.hostOrder 2 k)) := Fin.pos_iff_nonempty.mp hNpos
+  let : Nonempty
       (↑(Finset.univ : Finset (Fin (Numeric.hostOrder 2 k))) :
         Set (Fin (Numeric.hostOrder 2 k))) :=
     ⟨⟨Classical.choice inferInstance, by simp⟩⟩

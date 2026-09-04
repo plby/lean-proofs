@@ -193,7 +193,11 @@ theorem boxMoment_eq_cubeMean
   induction n with
   | zero =>
       intro F
-      simp [boxMoment, cubeMean, mean]
+      rw [boxMoment_zero]
+      unfold cubeMean mean
+      apply Fintype.expect_equiv (Equiv.ofUnique _ _)
+      intro x
+      rw [Fintype.prod_unique]
       exact congrArg F (Subsingleton.elim _ _)
   | succ n ih =>
       intro F

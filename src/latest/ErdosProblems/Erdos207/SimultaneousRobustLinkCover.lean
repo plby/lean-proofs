@@ -105,7 +105,7 @@ theorem exists_reservoirLinkCover_of_twoSidedRobustSample
   classical
   let sampled : ↥K.left → ↥K.right → Prop :=
     fun a b ↦ r a b ∧ (a, b) ∈ R
-  letI : DecidableRel sampled := by
+  let : DecidableRel sampled := by
     intro a b
     exact Classical.propDecidable _
   have hmatching : ∀ (deleted : ↥K.left → ↥K.right → Prop)

@@ -419,7 +419,7 @@ private theorem fact72_part1_oriented_aux {V W : Type*}
       have hcardSlarge : 1 < Fintype.card s := by
         have hparts' := partCard_zero_add_one c'
         omega
-      letI : Nontrivial s := Fintype.one_lt_card_iff_nontrivial.mp hcardSlarge
+      let : Nontrivial s := Fintype.one_lt_card_iff_nontrivial.mp hcardSlarge
       have hcardA' : Coloring.partCard c' 0 ≤ A.card := hpart0.symm ▸ hcardA
       have hcardB' : Coloring.partCard c' 0 ≤ B.card := hpart0.symm ▸ hcardB
       have hcrossA' : ∀ a ∈ A, Coloring.partCard c' 0 ≤ degreeInto G a B := by
@@ -776,7 +776,7 @@ private theorem dense_cut_oriented {W : Type*} [Fintype W] [DecidableEq W] {m t 
   have ht2 : 2 ≤ t := by
     have htpos : 0 < t := by simpa using Fintype.card_pos_iff.mpr hT.connected.nonempty
     omega
-  letI : Nontrivial (Fin t) := Fin.nontrivial_iff_two_le.mpr ht2
+  let : Nontrivial (Fin t) := Fin.nontrivial_iff_two_le.mpr ht2
   let c : T.Coloring (Fin 2) := Classical.choice hT.isBipartite
   let p := min (Coloring.partCard c 0) (Coloring.partCard c 1)
   let q := max (Coloring.partCard c 0) (Coloring.partCard c 1)
@@ -899,7 +899,7 @@ theorem zhaoDenseCutEmbeddingProperty : ZhaoDenseCutEmbeddingProperty := by
   classical
   refine ⟨(1 : ℚ) / 10000, by norm_num, by norm_num, 5, ?_⟩
   intro n hn G hlarge hEC
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
   rcases hEC with ⟨X, Y, ⟨hXY, hXYunion, hXcard, hYcard⟩, hdense⟩
   let m := n - 1
   let L : Finset (Fin (2 * n - 2)) :=

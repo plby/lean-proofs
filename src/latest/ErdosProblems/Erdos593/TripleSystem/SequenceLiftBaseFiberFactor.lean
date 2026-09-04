@@ -63,10 +63,10 @@ theorem exists_fintype_baseFiberLetterSubgraphFactor
           Nonempty (Erdos593.SimpleGraph.NonInducedFactor J G)))) := by
   classical
   let K := baseLetterSubgraph G (baseLetter '' baseFiber S q)
-  letI : Finite K.verts := by
+  let : Finite K.verts := by
     dsimp [K]
     exact baseFiberLetterSubgraph_finite hS q
-  letI : Fintype K.verts := Fintype.ofFinite K.verts
+  let : Fintype K.verts := Fintype.ofFinite K.verts
   refine Exists.intro (K.verts : Type u) ?_
   apply Exists.intro (inferInstance : Fintype K.verts)
   apply Exists.intro K.coe

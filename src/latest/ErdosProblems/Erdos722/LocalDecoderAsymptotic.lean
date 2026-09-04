@@ -682,7 +682,7 @@ theorem eventually_exists_separatedCliqueExtensions_of_power_bound
       simp at he
     · intro J hJ
       simp [separatedFreeEdges, Reserve.localDegree]
-  · letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
+  · let : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
     obtain ⟨e₀, he₀⟩ := Finset.nonempty_iff_ne_empty.mpr hroots
     apply exists_separatedCliqueExtensions_of_finite_bounds
       hr hrv roots roots huniform huniform e₀ he₀
@@ -737,7 +737,7 @@ theorem eventually_exists_separatedCliqueExtensions_of_two_power_bounds
       simp at he
     · intro J hJ
       simp [separatedFreeEdges, Reserve.localDegree]
-  · letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
+  · let : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
     obtain ⟨e₀, he₀⟩ := Finset.nonempty_iff_ne_empty.mpr hroots
     apply exists_separatedCliqueExtensions_of_finite_bounds
       hr hrv roots forbidden hrootsUniform hforbiddenUniform e₀ he₀

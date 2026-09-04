@@ -180,7 +180,7 @@ set of vertices. -/
     refine ⟨x - z, ?_⟩
     rw [C.rebaseCopy_apply]
     congr 1
-    letI : NeZero C.length :=
+    let : NeZero C.length :=
       ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt C.three_le)⟩
     abel
 
@@ -259,7 +259,7 @@ lemma rimWalkFrom_getVert (C : LongestOddCycle G) (x : Fin C.length)
     C.copy (x + ⟨i % C.length,
       Nat.mod_lt _ (Nat.zero_lt_of_lt C.three_le)⟩)
   congr 1
-  letI : NeZero C.length :=
+  let : NeZero C.length :=
     ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt C.three_le)⟩
   let a : Fin C.length := ⟨i % C.length,
     Nat.mod_lt _ (Nat.zero_lt_of_lt C.three_le)⟩
@@ -308,7 +308,7 @@ lemma rimWalkFrom_support (C : LongestOddCycle G) (x : Fin C.length) :
     have hget : (C.rimWalkFrom x).getVert d = C.copy z := by
       rw [C.rimWalkFrom_getVert x d hdlt.le]
       congr 1
-      letI : NeZero C.length :=
+      let : NeZero C.length :=
         ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt C.three_le)⟩
       have hz : (⟨d % C.length, Nat.mod_lt _
           (Nat.zero_lt_of_lt C.three_le)⟩ : Fin C.length) = z - x := by
@@ -335,7 +335,7 @@ theorem chordArc_cycleAtLength [Finite V] (C : LongestOddCycle G)
   have hpEnd : (C.rimWalkFrom x).getVert d = C.copy y := by
     rw [C.rimWalkFrom_getVert x d hdlt.le]
     congr 1
-    letI : NeZero C.length :=
+    let : NeZero C.length :=
       ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt C.three_le)⟩
     have hz : (⟨d % C.length, Nat.mod_lt _
         (Nat.zero_lt_of_lt C.three_le)⟩ : Fin C.length) = y - x := by

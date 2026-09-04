@@ -178,7 +178,7 @@ private lemma local_product_gain {β : Type*} [Fintype β] [DecidableEq β] :
   have hpa := differentStableProb_ge_half (α := α)
   have hpb := differentStableProb_ge_half (α := β)
   by_cases hα : IsEmpty α
-  · letI : IsEmpty α := hα
+  · let : IsEmpty α := hα
     have hcardα : Fintype.card α = 0 := Fintype.card_eq_zero
     have hca_one : ca = 1 := by
       simp [ca, hcardα, degreeInfluence, centralProb]
@@ -193,7 +193,7 @@ private lemma local_product_gain {β : Type*} [Fintype β] [DecidableEq β] :
     nlinarith
   · have hcardα : 1 ≤ Fintype.card α := Fintype.card_pos_iff.mpr (not_isEmpty_iff.mp hα)
     by_cases hβ : IsEmpty β
-    · letI : IsEmpty β := hβ
+    · let : IsEmpty β := hβ
       have hcardβ : Fintype.card β = 0 := Fintype.card_eq_zero
       have hcb_one : cb = 1 := by
         simp [cb, hcardβ, degreeInfluence, centralProb]

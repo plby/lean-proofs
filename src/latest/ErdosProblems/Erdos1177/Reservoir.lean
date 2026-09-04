@@ -89,7 +89,7 @@ theorem Hypergraph.sigma_hasChromatic {J : Type u} {W : J → Type u}
     have hcolorable_j : (H j).ColorableBy θ := by
       obtain ⟨ c, hc ⟩ := hcolorable;
       use fun w => c ⟨j, w⟩;
-      intro e he; specialize hc ( Sigma.mk j '' e ) ; simp_all +decide [ Set.image ] ;
+      intro e he; specialize hc ( Sigma.mk j '' e ) ; simp_all +decide only [ne_eq] ;
       exact hc ⟨ j, e, he, by aesop ⟩
     exact (hchr j).right θ hj hcolorable_j
 

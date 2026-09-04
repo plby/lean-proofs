@@ -76,7 +76,7 @@ lemma centeredGaussianDensity_eq {sigma : ℝ} (hsigma : 0 < sigma)
   rw [inv_mul_eq_div]
   congr 1
   field_simp [hsigma.ne']
-  ring
+  ring_nf
 
 lemma one_le_sqrt_two_pi : (1 : ℝ) ≤ Real.sqrt (2 * Real.pi) := by
   rw [Real.one_le_sqrt]
@@ -360,10 +360,10 @@ lemma smallBall_graphCenteredLaw_le_of_fourierL1 {n : ℕ}
     Esseen.smallBall (graphCenteredLaw G e₀ c) B x ≤
       (∑' k : ℤ, Esseen.kernelCellWeight k) *
         (2 * B + B * eta) / sigma := by
-  letI : IsProbabilityMeasure (graphCenteredLaw G e₀ c) := by
+  let : IsProbabilityMeasure (graphCenteredLaw G e₀ c) := by
     unfold graphCenteredLaw
     infer_instance
-  letI : IsProbabilityMeasure (centeredGaussianLaw sigma) := by
+  let : IsProbabilityMeasure (centeredGaussianLaw sigma) := by
     unfold centeredGaussianLaw
     infer_instance
   have herr : Esseen.fourierError (graphCenteredLaw G e₀ c)
@@ -412,10 +412,10 @@ lemma smallBall_graphCenteredLaw_lower_of_fourierL1 {n : ℕ}
         (Real.exp (-((M + 1) ^ 2) / 2) / 12 -
           Esseen.relativeEsseenConstant * (2 / R + eta)) ≤
       Esseen.smallBall (graphCenteredLaw G e₀ c) (30000 * eps) x := by
-  letI : IsProbabilityMeasure (graphCenteredLaw G e₀ c) := by
+  let : IsProbabilityMeasure (graphCenteredLaw G e₀ c) := by
     unfold graphCenteredLaw
     infer_instance
-  letI : IsProbabilityMeasure (centeredGaussianLaw sigma) := by
+  let : IsProbabilityMeasure (centeredGaussianLaw sigma) := by
     unfold centeredGaussianLaw
     infer_instance
   have herr : Esseen.fourierError (graphCenteredLaw G e₀ c)
@@ -470,10 +470,10 @@ lemma graphGaussianError_intervalIntegrable {n : ℕ}
     IntervalIntegrable (fun t ↦
       ‖GraphQuadratic.centeredGraphCharacteristic G e₀ c t -
         GaussianQuadratic.standardNormalChar (sigma * t)‖) volume a b := by
-  letI : IsProbabilityMeasure (graphCenteredLaw G e₀ c) := by
+  let : IsProbabilityMeasure (graphCenteredLaw G e₀ c) := by
     unfold graphCenteredLaw
     infer_instance
-  letI : IsProbabilityMeasure (centeredGaussianLaw sigma) := by
+  let : IsProbabilityMeasure (centeredGaussianLaw sigma) := by
     unfold centeredGaussianLaw
     infer_instance
   have hc : Continuous (fun t ↦
@@ -595,7 +595,7 @@ theorem eventually_frequencyBands_unstructured_of_slice
     with n hn hdensityN hsliceN h72N hlargeN hoverlapN
       hlinearGapN hcutoffGapN hgaussianN
   intro G _instAdj e₀ c hG hc hLCD
-  letI : DecidableRel G.Adj := fun _ _ ↦ Classical.propDecidable _
+  let : DecidableRel G.Adj := fun _ _ ↦ Classical.propDecidable _
   have hnpos : 0 < n := by omega
   have hnR : (0 : ℝ) < n := by exact_mod_cast hnpos
   have hnOne : 1 ≤ n := hnpos

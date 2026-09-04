@@ -498,8 +498,15 @@ theorem taylor_blockLinearChange {blocks coords : ℕ}
   have hhom : taylor.comp (blockLinearChange T) = F := by
     apply MvPolynomial.algHom_ext
     intro x
-    simp [F, taylor, blockLinearChange, blockLinearForm,
-      outerBlockLinearChange, outerBlockLinearForm]
+    simp only [taylor, blockLinearChange, AlgHom.coe_comp,
+      MvPolynomial.coe_eval₂AlgHom, MvPolynomial.algebraMap_eq,
+      Function.comp_apply, MvPolynomial.eval₂_X, blockLinearForm,
+      MvPolynomial.eval₂_sum, MvPolynomial.eval₂_mul, MvPolynomial.eval₂_C,
+      MvPolynomial.algebraMap_apply, outerBlockLinearChange,
+      AlgHom.coe_restrictScalars', MvPolynomial.mapAlgHom_apply, map_add,
+      MvPolynomial.map_C, RingHom.coe_coe, MvPolynomial.eval₂AlgHom_X,
+      map_sum, MvPolynomial.C_mul, MvPolynomial.map_X,
+      MvPolynomial.eval₂_add, outerBlockLinearForm, F]
     rw [← Finset.sum_add_distrib]
     apply Finset.sum_congr rfl
     intro j hj

@@ -199,7 +199,7 @@ lemma localConflictNeighbor_card_le {V : Type*} [Fintype V] [DecidableEq V]
     Nat.card (LocalConflictNeighbor G x y) ≤
       4 * (pairCommonFinset G y).card := by
   classical
-  letI : Fintype (LocalConflictNeighbor G x y) := Fintype.ofFinite _
+  let : Fintype (LocalConflictNeighbor G x y) := Fintype.ofFinite _
   let s := pairCommonFinset G y
   have hrepr : ∀ z : LocalConflictNeighbor G x y,
       ∃ r : Fin 4 × {v // v ∈ s}, conflictDecoder x (r.1, r.2.1) = z.1.1 := by

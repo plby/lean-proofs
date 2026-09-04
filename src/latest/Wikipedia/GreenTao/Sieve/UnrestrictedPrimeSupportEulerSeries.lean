@@ -289,7 +289,7 @@ theorem norm_pairedFourierPrimeLocalFactor_sub_one_le_rpow_add_sq
             (-(Real.log (R : ℝ))⁻¹ - 1) +
         (4 : ℝ) ^ Fintype.card κ /
           (p : ℝ) ^ 2 := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   let firstOrder : ℂ :=
     pairedFourierFirstOrderLocalModel
       R (p : ℕ) t u
@@ -441,7 +441,7 @@ theorem
             (-(Real.log (R : ℝ))⁻¹ - 1) +
         (4 : ℝ) ^ Fintype.card κ /
           (p : ℝ) ^ 2 := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   let firstOrder : ℂ :=
     pairedFourierFirstOrderLocalModel
       R (p : ℕ) t u
@@ -612,7 +612,7 @@ theorem summable_norm_pairedPrimeLocalFactor_sub_one
     summable_norm_pairedFourierPrimeLocalFactor_sub_one_of_eventually_good
       hR d.t d.u B
   intro p hp
-  letI : NeZero d.N := d.N_neZero
+  let : NeZero d.N := d.N_neZero
   have hlarge :
       exceptionalPrimeBound
           (fun q : CFZFormIndex k => cfzAffineForm q) <

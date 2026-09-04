@@ -87,7 +87,7 @@ theorem exists_nonseedComponent_rooted_two_colouring
         parent a = some b ∨ parent b = some a) ∧
       (∀ a b, parent a = some b → col a ≠ col b) := by
   have := IsTree.exists_rooted_edge_structure (c.1.toSimpleGraph) (nonseedComponent_isTree T hT S c);
-  obtain ⟨ parent, rank, h₁, h₂, h₃ ⟩ := this; use parent, rank; simp_all +decide [ SimpleGraph.adj_comm ] ;
+  obtain ⟨ parent, rank, h₁, h₂, h₃ ⟩ := this; use parent, rank; simp_all +decide only [Subtype.forall, ConnectedComponent.mem_supp_iff, ne_eq, exists_and_left] ;
   refine' ⟨ _, _ ⟩;
   · intro a ha b hb hab; specialize h₂ a ha b hb hab; exact (by
     convert! component_toSimpleGraph_adj_original T S c h₂ using 1);

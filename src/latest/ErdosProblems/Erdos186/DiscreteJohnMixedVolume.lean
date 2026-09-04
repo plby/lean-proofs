@@ -176,10 +176,10 @@ theorem exists_mixedRadius_integralCrosspolytope
         simpa [aJ, vJ, q] using shrunkenStep_mem_body C hpoints i.1
     | inr x =>
         simpa [aJ, vJ] using (hpoints (compPoint x)).mp (hcompPoint_mem x)
-  letI : Finite J := Module.Finite.finite_basis (bBasis.reindex eSum.symm)
-  letI : Finite Comp :=
+  let : Finite J := Module.Finite.finite_basis (bBasis.reindex eSum.symm)
+  let : Finite Comp :=
     Finite.of_injective (fun x : Comp ↦ (Sum.inr x : J)) Sum.inr_injective
-  letI : Fintype Comp := Fintype.ofFinite Comp
+  let : Fintype Comp := Fintype.ofFinite Comp
   have hcardJ : Fintype.card J = d := by
     rw [← Module.finrank_eq_card_basis (bBasis.reindex eSum.symm)]
     simp
@@ -236,7 +236,7 @@ theorem mixedRadius_product_volume_le
         (∏ i, (((max 1 (C.radii i / factor)) : ℕ) : ℝ)) *
         ENNReal.ofReal ((2 : ℝ) ^ d / (d.factorial : ℝ)) ≤
       MeasureTheory.volume K := by
-  letI : Nonempty (Fin d) := ⟨⟨0, hd⟩⟩
+  let : Nonempty (Fin d) := ⟨⟨0, hd⟩⟩
   obtain ⟨a, v, hv, hgen, hprod⟩ :=
     exists_mixedRadius_integralCrosspolytope C hpoints hrank
   rw [hprod]

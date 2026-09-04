@@ -72,8 +72,8 @@ lemma fractionalSize_relabel (G : SimpleGraph α) (e : α ≃ β)
     (w : Finset α → ℝ) :
     fractionalSize (G.map e.toEmbedding) (relabelWeight e w) = fractionalSize G w := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
   unfold fractionalSize
   symm
   apply Finset.sum_equiv e.finsetCongr
@@ -116,8 +116,8 @@ lemma fractionalEdgeLoad_relabel (G : SimpleGraph α) (e : α ≃ β)
         (e.toEmbedding.sym2Map p) =
       fractionalEdgeLoad G w p := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
   unfold fractionalEdgeLoad
   symm
   apply Finset.sum_equiv e.finsetCongr
@@ -142,8 +142,8 @@ lemma IsFractionalPacking.relabel {G : SimpleGraph α} {w : Finset α → ℝ}
     (hw : IsFractionalPacking G w) (e : α ≃ β) :
     IsFractionalPacking (G.map e.toEmbedding) (relabelWeight e w) := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
   constructor
   · intro t ht
     have ht' := SimpleGraph.mem_cliqueFinset_iff.mp ht

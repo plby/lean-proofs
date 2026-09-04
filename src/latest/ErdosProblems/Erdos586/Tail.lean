@@ -177,7 +177,7 @@ theorem logPowerTail_sum_le_P9 {n : ℕ} :
   have hsum' : (∑ j ∈ Finset.range n,
         logPowerTail ((10000 + j + 1 : ℕ) : ℝ)) ≤
       P9Quotient 10000 - P9Quotient (10000 + (n : ℝ)) := by
-    convert hsum using 1 <;> push_cast <;> ring
+    convert hsum using 1 <;> push_cast <;> ring_nf
   calc
     (∑ j ∈ Finset.range n,
         logPowerTail ((10000 + j + 1 : ℕ) : ℝ)) ≤
@@ -198,7 +198,7 @@ theorem invMulLog_sum_le {n : ℕ} :
     (a := (10000 : ℝ)) (b := (10000 + (n : ℝ))) (by norm_num)
       (by have hn : (0 : ℝ) ≤ n := Nat.cast_nonneg n; linarith)
   rw [hInt] at hsum
-  convert hsum using 1 <;> push_cast <;> ring
+  convert hsum using 1 <;> push_cast <;> ring_nf
 
 lemma primeAt_prime (r : ℕ) : Nat.Prime (primeAt r) := by
   exact Nat.prime_nth_prime _

@@ -119,7 +119,7 @@ theorem card_localPairCongruenceSet_nonzero_nonzero {p A B : ℕ} [NeZero p]
     (hp : p.Prime) (hApos : 0 < A) (hAlt : A < p) (hB : B ≠ 0) :
     (localPairCongruenceSet p A B).card = p := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let s := localPairCongruenceSet p A B
   have hA : A ≠ 0 := Nat.ne_of_gt hApos
   have hAz : (A : ZMod p) ≠ 0 :=
@@ -267,7 +267,7 @@ theorem card_localExactPairSet_nonzero_nonzero {p A B : ℕ} [NeZero p]
     (hBpos : 0 < B) (hBlt : B < p) :
     (localExactPairSet p A B).card = p - 1 := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let s := localExactPairSet p A B
   let u := nonzeroZModFinset p
   have hA : A ≠ 0 := Nat.ne_of_gt hApos

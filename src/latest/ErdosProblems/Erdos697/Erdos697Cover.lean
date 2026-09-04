@@ -129,7 +129,7 @@ theorem eventSet_hasDensity
   let q' : Option I → ℕ := fun o => o.elim a q
   let Good' : Finset (Option I) → Prop := fun T =>
     none ∈ T ∧ Good T.eraseNone
-  letI (o : Option I) : NeZero (q' o) := ⟨by
+  let (o : Option I) : NeZero (q' o) := ⟨by
     cases o with
     | none => simpa [q'] using ha.ne'
     | some i => simpa [q'] using (hq i).ne'⟩
@@ -150,7 +150,7 @@ theorem eventSet_hasDensity
         | some j =>
             exact hpair (by intro h; apply hxy; simpa using h)
   let Q : ℕ := ∏ o, q' o
-  letI : NeZero Q := ⟨by
+  let : NeZero Q := ⟨by
     dsimp [Q]
     exact Finset.prod_ne_zero_iff.mpr fun o _ => NeZero.ne (q' o)⟩
   have hnone (n : ℕ) :
@@ -209,7 +209,7 @@ theorem set_hasDensity
     none ∈ T ∧
       (Kmax < T.eraseNone.card ∨
         WeightedSubset.hitsSet f B T.eraseNone)
-  letI (o : Option I) : NeZero (q' o) := ⟨by
+  let (o : Option I) : NeZero (q' o) := ⟨by
     cases o with
     | none => simpa [q'] using ha.ne'
     | some i => simpa [q'] using (hq i).ne'⟩
@@ -230,7 +230,7 @@ theorem set_hasDensity
         | some j =>
             exact hpair (by intro h; apply hxy; simpa using h)
   let Q : ℕ := ∏ o, q' o
-  letI : NeZero Q := ⟨by
+  let : NeZero Q := ⟨by
     dsimp [Q]
     exact Finset.prod_ne_zero_iff.mpr fun o _ => NeZero.ne (q' o)⟩
   have hnone (n : ℕ) :

@@ -48,7 +48,7 @@ theorem natRep_of_groupRep_periodic_of_large
     (hn : k * g ≤ n)
     (hrep : GroupRepExactly E k (n : ZMod g)) :
     RepresentsExactly (PeriodicLift E) k n := by
-  letI : NeZero g := ⟨Nat.ne_of_gt hg⟩
+  let : NeZero g := ⟨Nat.ne_of_gt hg⟩
   obtain ⟨ys, hlen, hymem, hysum⟩ := hrep
   have hysne : ys ≠ [] := by
     intro he
@@ -147,7 +147,7 @@ theorem not_eventuallyExactly_periodic_of_missing
     ¬ EventuallyExactly (PeriodicLift E) k := by
   rintro ⟨N, hN⟩
   obtain ⟨y, hy⟩ := hmiss
-  letI : NeZero g := ⟨Nat.ne_of_gt hg⟩
+  let : NeZero g := ⟨Nat.ne_of_gt hg⟩
   let t : ℕ := N + 1
   let n : ℕ := y.val + t * g
   have hNn : N ≤ n := by

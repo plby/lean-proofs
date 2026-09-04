@@ -60,7 +60,7 @@ lemma presentLowerWeightException_probability_le_selected
   let E := presentLowerWeightExceptions H delta
   let P := fun Z T ↦ Z ∉ E ∧ (completionWeight (H \ T) Z : ℝ) <
     r * (completionWeight H Z : ℝ)
-  letI : ∀ Z, DecidablePred (P Z) := fun _ ↦ Classical.decPred _
+  let : ∀ Z, DecidablePred (P Z) := fun _ ↦ Classical.decPred _
   have hLow := powersetCard_exception_probability_le_markov
     H E k (eLow + 1) eta (Finset.filter_subset _ _) hk (by omega)
       (presentLowerWeightExceptions_card_le_of_spread H delta eta hspread)

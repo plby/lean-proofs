@@ -11,7 +11,7 @@ theorem bad_sphere_local_card_le_factor (n e : ℤ) (base : SpherePair ℤ n e)
     (Nat.card (BadLocalSphereOrbit n e p) : ℝ) ≤
       (16 * (((spherePairDiscriminant n e).natAbs.factorization p : ℝ) + 1) ^ 2) *
         (p : ℝ) ^ (pairSquareContent (-n) (-(2 * e))).factorization p := by
-  letI : Fact p.1.Prime := ⟨Nat.prime_of_mem_primeFactors (Finset.mem_of_mem_erase p.2)⟩
+  let : Fact p.1.Prime := ⟨Nat.prime_of_mem_primeFactors (Finset.mem_of_mem_erase p.2)⟩
   have h := card_padicSpherePairOrbits_le p.1 (Finset.ne_of_mem_erase p.2)
     (mapSpherePair (Int.castRingHom (PadicInt p.1)) base) hn hnd
   rw [← pairSquareContent_factorization] at h
@@ -79,8 +79,8 @@ theorem exists_sphere_pair_orbit_bound_all {ε : ℝ} (hε : 0 < ε) :
   intro n e hn hnd
   by_cases hp : Nonempty (SpherePair ℤ n e)
   · exact hbound n e (Classical.choice hp) hn hnd
-  · letI : IsEmpty (SpherePair ℤ n e) := not_nonempty_iff.mp hp
-    haveI : IsEmpty (SpherePairOrbits ℤ n e) := inferInstance
+  · let : IsEmpty (SpherePair ℤ n e) := not_nonempty_iff.mp hp
+    have : IsEmpty (SpherePairOrbits ℤ n e) := inferInstance
     simp only [Nat.card_of_isEmpty, Nat.cast_zero]
     positivity
 

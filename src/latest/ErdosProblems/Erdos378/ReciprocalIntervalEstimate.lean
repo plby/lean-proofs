@@ -432,7 +432,7 @@ theorem norm_log_weighted_reciprocalProductInterval_le
     have hempty : Finset.Ioc (x / t) (y / t) = ∅ := by
       exact Finset.Ioc_eq_empty (by simpa only [a, b] using hab)
     rw [hempty]
-    simp
+    simp only [Complex.natCast_log, Finset.sum_empty, norm_zero, ge_iff_le]
     have hy1 : 1 ≤ y := by omega
     have hlog : 0 ≤ Real.log (y : ℝ) :=
       Real.log_nonneg (by exact_mod_cast hy1)

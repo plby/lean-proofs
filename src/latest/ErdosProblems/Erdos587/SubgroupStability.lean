@@ -36,11 +36,11 @@ theorem subgroupIndexPotential_lt_of_strict {φ : ∀ i, α → G i} {D B : Fins
     subgroupIndexPotential φ B < subgroupIndexPotential φ D := by
   have hmono (i : ι) : (generatedSubgroup (φ i) B).index ≤
       (generatedSubgroup (φ i) D).index := by
-    letI := hfinite i
+    let := hfinite i
     exact AddSubgroup.index_antitone (generatedSubgroup_mono (φ i) hDB)
   obtain ⟨i, hi⟩ := hstrict
   have hlt : (generatedSubgroup (φ i) B).index < (generatedSubgroup (φ i) D).index := by
-    letI := hfinite i
+    let := hfinite i
     exact AddSubgroup.index_strictAnti (lt_of_le_of_ne (generatedSubgroup_mono (φ i) hDB) hi)
   exact Finset.sum_lt_sum (fun j _hj => hmono j) ⟨i, Finset.mem_univ i, hlt⟩
 

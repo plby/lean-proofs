@@ -51,7 +51,7 @@ theorem kmult_contained_of_sets (Gr : SimpleGraph V) (k : ℕ) (m : Fin k → �
       have h_equiv : ∀ i, Nonempty (Fin (m i) ≃ S i) := by
         exact fun i => ⟨ Fintype.equivOfCardEq <| by simp +decide [ hcard i ] ⟩;
       exact ⟨ fun i x => ( h_equiv i ).some x |>.1, fun i => fun x y hxy => by simpa using! ( h_equiv i ).some.injective ( Subtype.ext hxy ), fun i x _ => ( h_equiv i ).some x |>.2 ⟩;
-    refine' ⟨ fun ⟨ i, x ⟩ => f i x, _, _ ⟩ <;> simp_all +decide [ Function.Injective ];
+    refine' ⟨ fun ⟨ i, x ⟩ => f i x, _, _ ⟩ <;> simp_all +decide only [ne_eq, mem_univ, forall_const];
     · rintro ⟨ i, x ⟩ ⟨ j, y ⟩ h; have := hdisj i j; simp_all +decide [ Finset.disjoint_left ] ;
       grind;
     · exact fun i j hij x y => hcross i j hij _ ( hf.2 i x ) _ ( hf.2 j y );
@@ -90,10 +90,11 @@ theorem exists_cross_complete_sets [DecidableEq V] (Gr : SimpleGraph V)
     refine' ⟨ Fin.snoc S' F, _, _, _, _ ⟩;
     · intro i; refine' Fin.lastCases _ _ i <;> simp +decide [ * ] ;
     · intro i; refine' Fin.lastCases _ _ i <;> simp +decide [ * ] ;
-    · intro i j hij; cases i using Fin.lastCases <;> cases j using Fin.lastCases <;> simp +decide [ *, Fin.snoc ] at hij ⊢;
-      · exact Finset.disjoint_left.mpr fun x hx₁ hx₂ => Finset.disjoint_left.mp ( hdisj _ _ hij ) ( hF.1 hx₁ ) ( hS'.2.1 _ hx₂ );
-      · exact Disjoint.mono ( hS'.2.1 _ ) hF.1 ( hdisj _ _ ( ne_of_lt ( Fin.castSucc_lt_last _ ) ) );
-      · exact hS'.2.2.1 _ _ hij;
+    · intro i j hij; cases i using Fin.lastCases <;> cases j using Fin.lastCases <;> simp +decide only [Fin.snoc_castSucc, Fin.snoc_last] at hij ⊢;
+      · exact (hij rfl).elim;
+      · exact Disjoint.mono hF.1 (hS'.2.1 _) (hdisj _ _ hij);
+      · exact Disjoint.mono (hS'.2.1 _) hF.1 (hdisj _ _ hij);
+      · exact hS'.2.2.1 _ _ (by simpa [Fin.ext_iff] using! hij);
     · intro i j hij x hx y hy;
       by_cases hi : i.val < k <;> by_cases hj : j.val < k <;> simp +decide [ Fin.snoc, * ] at hx hy ⊢;
       · exact hS'.2.2.2 _ _ ( by simpa [ Fin.ext_iff ] using! hij ) _ hx _ hy;
@@ -150,10 +151,11 @@ theorem exists_cross_complete_sets_ordered [DecidableEq V] (Gr : SimpleGraph V)
     refine' ⟨ Fin.snoc S' F, _, _, _, _ ⟩;
     · intro i; refine' Fin.lastCases _ _ i <;> simp +decide [ * ] ;
     · intro i; refine' Fin.lastCases _ _ i <;> simp +decide [ * ] ;
-    · intro i j hij; induction i using Fin.lastCases <;> induction j using Fin.lastCases <;> simp +decide [ *, Fin.snoc ] at hij ⊢;
-      · exact Disjoint.mono hF.1 ( hS'.2.1 _ ) ( hdisj _ _ hij );
-      · exact Disjoint.mono ( hS'.2.1 _ ) hF.1 ( hdisj _ _ ( ne_of_lt ( Fin.castSucc_lt_last _ ) ) );
-      · exact hS'.2.2.1 _ _ hij;
+    · intro i j hij; induction i using Fin.lastCases <;> induction j using Fin.lastCases <;> simp +decide only [Fin.snoc_castSucc, Fin.snoc_last] at hij ⊢;
+      · exact (hij rfl).elim;
+      · exact Disjoint.mono hF.1 (hS'.2.1 _) (hdisj _ _ hij);
+      · exact Disjoint.mono (hS'.2.1 _) hF.1 (hdisj _ _ hij);
+      · exact hS'.2.2.1 _ _ (by simpa [Fin.ext_iff] using! hij);
     · intro i j hij;
       simp +zetaDelta at *;
       cases i using Fin.lastCases <;> cases j using Fin.lastCases <;> simp +decide [ * ] at hij ⊢;

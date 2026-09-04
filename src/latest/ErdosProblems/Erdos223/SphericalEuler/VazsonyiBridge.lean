@@ -30,9 +30,9 @@ theorem diameterPairCount_add_two_le_of_connected_planar_bound
   have hV : Nonempty V := by
     obtain ⟨x, hx, -⟩ := hA.exists_dist_eq_one
     exact ⟨⟨x, hx⟩⟩
-  letI : Nonempty V := hV
+  let : Nonempty V := hV
   have hH : Nonempty (V ⊕ V) := ⟨Sum.inl (Classical.choice hV)⟩
-  letI : Nonempty (V ⊕ V) := hH
+  let : Nonempty (V ⊕ V) := hH
   have hdraw := isDrawing_planeDoubleCoverGraph hA hmin hz havoid
   have hbound := H.edge_add_four_le_of_connected_drawing_bound
     (planePos hA hmin z hz) (planeEdgeDrawing hA hmin hz havoid)

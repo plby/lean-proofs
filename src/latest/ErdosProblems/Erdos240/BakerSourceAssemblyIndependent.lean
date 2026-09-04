@@ -459,7 +459,7 @@ theorem VDPLContradictionCertificate.false
     {ι : Type u} [Fintype ι] [Nonempty ι] {P : VDPLParameters ι}
     (certificate : VDPLContradictionCertificate P) : False := by
   rcases certificate with ⟨chain, κ, inst, ⟨endpoint⟩⟩
-  letI : Fintype κ := inst
+  let : Fintype κ := inst
   exact endpoint.false
 
 /-- The raw rational-prime data before installing the source's finite lower
@@ -788,7 +788,7 @@ theorem normalizedConcreteSourceChains_of_components
   intro p c d N hp hpFresh hN hc hd hdne hform
   dsimp only
   intro hsmall
-  letI : Nonempty (Fin (Fintype.card ι)) := finCardNonempty ι
+  let : Nonempty (Fin (Fintype.card ι)) := finCardNonempty ι
   let oldFin := fun j : Fin (Fintype.card ι) ↦
     old ((Fintype.equivFin ι).symm j)
   let oldPrimeFin : ∀ j, (oldFin j).Prime := fun j ↦
@@ -874,7 +874,7 @@ theorem smallFormContradiction_of_concreteSourceChains
   obtain ⟨C, hC, hconstruct⟩ := hsource ι old oldPrime oldInjective
   refine ⟨C, hC, ?_⟩
   intro p c d N hp hpFresh hN hc hd hdne hform hsmall
-  letI : Nonempty (Fin (Fintype.card ι)) :=
+  let : Nonempty (Fin (Fintype.card ι)) :=
     ⟨⟨0, Fintype.card_pos⟩⟩
   obtain ⟨data⟩ := hconstruct c d N hp hpFresh hN hc hd hdne hform hsmall
   exact data.false

@@ -44,11 +44,11 @@ theorem diracCircumferencePrinciple :
     E767EGConditional.DiracCircumferencePrinciple.{u} := by
   intro W _ _ H _ c hc hcard hpre hdelete hcycle
   have hcard3 : 3 ≤ Fintype.card W := by omega
-  letI : Nonempty W := Fintype.card_pos_iff.mp (by omega)
+  let : Nonempty W := Fintype.card_pos_iff.mp (by omega)
   have hconn : H.Connected := ⟨hpre⟩
   have hdelconn : ∀ w : W, (H.induce ({w}ᶜ : Set W)).Connected := by
     intro w
-    letI : Nonempty ({w}ᶜ : Set W) := Fintype.card_pos_iff.mp (by
+    let : Nonempty ({w}ᶜ : Set W) := Fintype.card_pos_iff.mp (by
       rw [Fintype.card_compl_set, Set.card_singleton]
       omega)
     exact ⟨hdelete w⟩

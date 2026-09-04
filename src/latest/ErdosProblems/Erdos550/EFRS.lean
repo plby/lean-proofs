@@ -37,7 +37,7 @@ theorem chromaticNumber_Kbip (a b : ℕ) (ha : 1 ≤ a) (hb : 1 ≤ b) :
     aesop;
   refine' le_antisymm ( h_colorable.chromaticNumber_le ) _;
   refine' le_ciInf fun n => _;
-  by_cases hn : (Kbip a b).Colorable n <;> simp_all +decide;
+  by_cases hn : (Kbip a b).Colorable n <;> simp_all +decide only [Set.mem_ofPred_eq, le_iInf_iff, Nat.ofNat_le_cast];
   rcases n with ( _ | _ | n ) <;> simp_all +decide [ SimpleGraph.Colorable ];
   · obtain ⟨ f ⟩ := hn;
     exact Fin.elim0 ( f ( Sum.inl ⟨ 0, ha ⟩ ) );
@@ -184,7 +184,7 @@ theorem not_ramseyGood_of_lt {V : Type*} [Fintype V]
   -- Then Gᶜ = ⊥ (compl_top).
   intro hN_mem
   apply absurd (hN_mem ⊤);
-  simp +decide [ Erdos550.Kbip_not_contained_bot ha hb ];
+  simp +decide only [compl_top, emptyGraph_eq_bot, not_or, not_nonempty_iff];
   constructor;
   rintro ⟨ f, hf ⟩;
   exact absurd ( Fintype.card_le_of_injective f hf ) ( by simpa using! hN )

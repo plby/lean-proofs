@@ -208,7 +208,7 @@ theorem extensionWeight_aggregatePairFamily_exactBank_le_quadratic
         (ActiveAggregatePairFamilyTwoAwayWitness G P A) = 0 :=
       Fintype.card_eq_zero
     simp [hzero]
-  · letI : Nonempty (ActiveAggregatePairFamilyTwoAwayWitness G P A) :=
+  · let : Nonempty (ActiveAggregatePairFamilyTwoAwayWitness G P A) :=
       not_isEmpty_iff.mp hactive
     let z : ActiveAggregatePairFamilyTwoAwayWitness G P A :=
       Classical.choice inferInstance

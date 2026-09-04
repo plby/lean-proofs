@@ -92,11 +92,11 @@ lemma PolygonalReplacementPerEdgeCutSequence {V : Type u} [Fintype V]
       _ = edgeParam e (center b) := by rw [hcenter]
       _ = b.1.1 := by
         simpa [center] using intersectionCenterParam_eq (x := b.1) (e := e) b.2
-  haveI : IsTrans Cut r := ⟨by intro a b c hab hbc; exact le_trans hab hbc⟩
-  haveI : Std.Antisymm r := ⟨by
+  have : IsTrans Cut r := ⟨by intro a b c hab hbc; exact le_trans hab hbc⟩
+  have : Std.Antisymm r := ⟨by
     intro a b hab hba
     exact center_eq_to_cut_eq (le_antisymm hab hba)⟩
-  haveI : Std.Total r := ⟨by intro a b; exact le_total (center a) (center b)⟩
+  have : Std.Total r := ⟨by intro a b; exact le_total (center a) (center b)⟩
   let cuts : List Cut := (Finset.univ : Finset Cut).sort r
   have cuts_nodup : cuts.Nodup := by
     simpa [cuts] using Finset.sort_nodup (Finset.univ : Finset Cut) r

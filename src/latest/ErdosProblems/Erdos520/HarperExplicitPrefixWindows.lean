@@ -728,7 +728,7 @@ theorem abs_harperScheduledVerticalCumulativeDrift_sub_log_two_le_of_errors
               ((∑ i ∈ Finset.Iic k, diagonal i) -
                 ∑ i ∈ Finset.Iic k, reciprocal i) +
               ((∑ i ∈ Finset.Iic k, reciprocal i) -
-                ((k.val + 1 : ℕ) : ℝ) * Real.log 2)| := by ring
+                ((k.val + 1 : ℕ) : ℝ) * Real.log 2)| := by ring_nf
         _ ≤ _ := (abs_add_three _ _ _)
     _ ≤ _ := by
       linarith

@@ -72,7 +72,7 @@ theorem isAcc_iSup {o : Ordinal.{u}} {α : Iio o} (ho : IsSuccLimit o)
   have next_gt (i : Iio o) : i < next i := by
     change i.1 < succ i.1
     exact (partial_lt_iff _ _).mp (lt_succ i.1)
-  letI : Nonempty (Iio o) := ⟨α⟩
+  let : Nonempty (Iio o) := ⟨α⟩
   rw [isAcc_iff]
   constructor
   · have flt := hf (next α) (next (next α)) (next_gt (next α))

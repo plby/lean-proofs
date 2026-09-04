@@ -77,7 +77,7 @@ theorem pairedFourierPrimeLocalFactor_wTricked_eq_one_of_small
         (fun q =>
           wTrickedAffineForm (primorial w) b (forms q))
         t u p = 1 := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   rw [pairedFourierPrimeLocalFactor]
   exact
     pairedFourierLocalFactor_wTricked_primorial_eq_one
@@ -99,7 +99,7 @@ theorem primeArithmeticZetaRatio_wTricked_eq_inv_of_small
           wTrickedAffineForm (primorial w) b (forms q))
         t u p =
       (cutoffZetaEulerLocalFactor R t u p)⁻¹ := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   rw [primePairedFourierArithmeticToZetaLocalRatio,
     pairedFourierArithmeticToZetaLocalRatio,
     pairedFourierLocalFactor_wTricked_primorial_eq_one
@@ -179,7 +179,7 @@ theorem primeArithmeticFirstOrderRatio_wTricked_eq_inv_of_small
         t u p =
       (pairedFourierFirstOrderLocalModel
         R (p : ℕ) t u)⁻¹ := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   rw [primePairedFourierArithmeticToFirstOrderLocalRatio,
     pairedFourierLocalRatio,
     pairedFourierLocalFactor_wTricked_primorial_eq_one

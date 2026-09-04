@@ -174,8 +174,8 @@ theorem exists_baseFiberSupportTailOverlapCoherent_order_of_incidenceAcyclic
         (∀ e, e ∈ S → baseNode e ∈ nodes) ∧
         baseFiberSupportTailOverlapCoherent S nodes := by
   classical
-  letI : Fintype (activeBaseNodeIndex S) := activeBaseNodeIndexFintype hS
-  letI : Fintype (activeBaseFiberSupportPointIndex S) :=
+  let : Fintype (activeBaseNodeIndex S) := activeBaseNodeIndexFintype hS
+  let : Fintype (activeBaseFiberSupportPointIndex S) :=
     activeBaseFiberSupportPointIndexFintype hS
   have hG :
       (SimpleGraph.bipartiteIncidenceGraph

@@ -20,7 +20,7 @@ theorem summable_fullClassCoefficients {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     Summable (fun m : Nat.factoredNumbers (discriminantLevel (b ^ 2 + 4 * d)).primeFactors =>
       goodClassConstant hD * (normGenusSet hD m.val).card / m.val) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   obtain ⟨B, hB, hbound⟩ := exists_classSlice_dilation_bound hD
   have hs : Summable (fun m : Nat.factoredNumbers
       (discriminantLevel (b ^ 2 + 4 * d)).primeFactors => B / Real.sqrt (m.val : ℝ)) := by
@@ -33,7 +33,7 @@ theorem summable_fullClassCoefficients {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
 
 theorem fullClassConstant_pos {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     0 < fullClassConstant hD := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   let m₁ : Nat.factoredNumbers (discriminantLevel (b ^ 2 + 4 * d)).primeFactors :=
     ⟨1, Nat.mem_factoredNumbers'.mpr (fun p hp hp₁ => (hp.not_dvd_one hp₁).elim)⟩
   have hpos : 0 < goodClassConstant hD * (normGenusSet hD m₁.val).card / m₁.val := by
@@ -50,7 +50,7 @@ theorem classSlice_tsum_limit {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
         (discriminantLevel (b ^ 2 + 4 * d)).primeFactors,
         ((classSliceValues hD C m.val (N / m.val)).card : ℝ) / scale N)
       atTop (𝓝 (fullClassConstant hD)) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C
   obtain ⟨B, hB, hbound⟩ := exists_classSlice_dilation_bound hD
   have hs : Summable (fun m : Nat.factoredNumbers

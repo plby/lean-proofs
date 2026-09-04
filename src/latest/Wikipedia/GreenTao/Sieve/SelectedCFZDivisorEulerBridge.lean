@@ -79,7 +79,7 @@ theorem selectedCFZAffinePairedDivisibilityDensity_eq_prod
           (fun q : SelectedCFZFormIndex e =>
             wTrickedAffineForm W b (cfzAffineForm q.1))
           (pairedPrimeSupport z p) := by
-  letI : NeZero (pairedDivisorLcm z) :=
+  let : NeZero (pairedDivisorLcm z) :=
     ⟨(squarefree_pairedDivisorLcm hz).ne_zero⟩
   rw [selectedCFZAffinePairedDivisibilityDensity_eq]
   exact
@@ -214,7 +214,7 @@ theorem selectedCFZWTrickedPairedFourierPrimeFactor_eq_supportSum
             Finset (SelectedCFZFormIndex e)).powerset,
         selectedCFZPrimeLocalSupportTerm
           (W := W) (b := b) R e t u p s := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   unfold selectedCFZWTrickedPairedFourierPrimeFactor
     pairedFourierPrimeLocalFactor pairedFourierLocalFactor
     selectedCFZPrimeLocalSupportTerm
@@ -258,7 +258,7 @@ theorem selectedCFZWTrickedPairedFourierPrimeFactor_eq_one_of_dvd
     (p : Nat.Primes) (hpW : (p : ℕ) ∣ W) :
     selectedCFZWTrickedPairedFourierPrimeFactor
         (W := W) (b := b) R e t u p = 1 := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   unfold selectedCFZWTrickedPairedFourierPrimeFactor
     pairedFourierPrimeLocalFactor
   exact
@@ -285,7 +285,7 @@ theorem
           R (p : ℕ) t u‖ ≤
       (4 : ℝ) ^ Fintype.card (SelectedCFZFormIndex e) /
         (p : ℝ) ^ 2 := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   unfold selectedCFZWTrickedPairedFourierPrimeFactor
     pairedFourierPrimeLocalFactor
   exact

@@ -1331,7 +1331,7 @@ lemma directionFunctional_pos {d : ℕ} {A : Finset (Point d)}
     (hmin : ∀ v : {z // z ∈ A}, 2 ≤ (diameterGraph A).degree v)
     (x : {z // z ∈ A}) (i : NeighborIndex A x) :
     0 < directionFunctional A x (direction i) := by
-  letI : Nontrivial (NeighborIndex A x) := neighborIndex_nontrivial hmin x
+  let : Nontrivial (NeighborIndex A x) := neighborIndex_nontrivial hmin x
   have hsum : (∑ _j : NeighborIndex A x, (1 / 2 : ℝ)) ≤
       ∑ j : NeighborIndex A x, inner ℝ (direction j) (direction i) :=
     Finset.sum_le_sum fun j _ ↦ direction_inner_ge_half hA j i
@@ -1381,7 +1381,7 @@ theorem arc_pairwise_interior_disjoint {d : ℕ} {A : Finset (Point d)}
     {x : {z // z ∈ A}} {i j : NeighborIndex A x} (hij : i ≠ j)
     {t s : ℝ} (ht : 0 < t) (hs : 0 < s) :
     arc A x i t ≠ arc A x j s := by
-  letI : Nontrivial (NeighborIndex A x) := neighborIndex_nontrivial hmin x
+  let : Nontrivial (NeighborIndex A x) := neighborIndex_nontrivial hmin x
   exact canonicalSphericalRadialArc_pairwise
     (directionFunctional A x) (fun k : NeighborIndex A x ↦ direction k)
     (directionFunctional_pos hA hmin x)
@@ -1392,7 +1392,7 @@ theorem arc_injective {d : ℕ} {A : Finset (Point d)}
     (hmin : ∀ v : {z // z ∈ A}, 2 ≤ (diameterGraph A).degree v)
     {x : {z // z ∈ A}} (i : NeighborIndex A x) :
     Function.Injective (arc A x i) := by
-  letI : Nontrivial (NeighborIndex A x) := neighborIndex_nontrivial hmin x
+  let : Nontrivial (NeighborIndex A x) := neighborIndex_nontrivial hmin x
   let phi := directionFunctional A x
   let u := fun k : NeighborIndex A x ↦ direction k
   let p := positiveSectionFamily phi u
@@ -1413,7 +1413,7 @@ theorem arc_mem_diameterConeRegion {d : ℕ} {A : Finset (Point d)}
     {x : {z // z ∈ A}} (i : NeighborIndex A x)
     {t : ℝ} (ht0 : 0 ≤ t) (ht1 : t ≤ 1) :
     arc A x i t ∈ diameterConeRegion (↑A : Set (Point d)) (x : Point d) := by
-  letI : Nontrivial (NeighborIndex A x) := neighborIndex_nontrivial hmin x
+  let : Nontrivial (NeighborIndex A x) := neighborIndex_nontrivial hmin x
   let C := PointedCone.hull ℝ
     (diameterDirections (↑A : Set (Point d)) (x : Point d))
   have huC : ∀ k : NeighborIndex A x, direction k ∈ C := by
@@ -1444,7 +1444,7 @@ theorem continuous_arc {d : ℕ} {A : Finset (Point d)}
     (hmin : ∀ v : {z // z ∈ A}, 2 ≤ (diameterGraph A).degree v)
     {x : {z // z ∈ A}} (i : NeighborIndex A x) :
     Continuous (arc A x i) := by
-  letI : Nontrivial (NeighborIndex A x) := neighborIndex_nontrivial hmin x
+  let : Nontrivial (NeighborIndex A x) := neighborIndex_nontrivial hmin x
   let phi := directionFunctional A x
   let u := fun k : NeighborIndex A x ↦ direction k
   let p := positiveSectionFamily phi u

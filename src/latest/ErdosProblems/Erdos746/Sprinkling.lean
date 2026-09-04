@@ -244,7 +244,7 @@ theorem graphProcessHitCountFrom_le_pred {n : ℕ}
       (graphAfterHistory base (hist ++ tail))
     simp only [Fintype.card_fin, hn0] at hbound ⊢
     omega
-  · letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp (Nat.pos_of_ne_zero hn0)
+  · let : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp (Nat.pos_of_ne_zero hn0)
     have hbound := PathMax.maxPathLength_lt_card
       (graphAfterHistory base (hist ++ tail))
     simp only [Fintype.card_fin] at hbound

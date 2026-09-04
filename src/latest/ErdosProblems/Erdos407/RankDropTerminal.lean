@@ -152,7 +152,7 @@ theorem exists_growingBy_nonexceptional_sCodimOneSpaces
     exact (finite_exceptionalSpaces L).preimage
       (f := fun W : sCodimOneApproximationSpaces L c => W.1)
       Subtype.val_injective.injOn
-  letI : Infinite (sCodimOneApproximationSpaces L c) := hinfinite.to_subtype
+  let : Infinite (sCodimOneApproximationSpaces L c) := hinfinite.to_subtype
   have hnonexceptional :
       ((Set.univ : Set (sCodimOneApproximationSpaces L c)) \ E).Infinite :=
     Set.infinite_univ.sdiff hE
@@ -281,7 +281,7 @@ theorem exists_logSeparated_nonexceptional_sCodimOneSpaces_all
     exact (finite_exceptionalSpaces L).preimage
       (f := fun W : sCodimOneApproximationSpaces L c => W.1)
       Subtype.val_injective.injOn
-  letI : Infinite (sCodimOneApproximationSpaces L c) := hinfinite.to_subtype
+  let : Infinite (sCodimOneApproximationSpaces L c) := hinfinite.to_subtype
   have hnonexceptional :
       ((Set.univ : Set (sCodimOneApproximationSpaces L c)) \ E).Infinite :=
     Set.infinite_univ.sdiff hE

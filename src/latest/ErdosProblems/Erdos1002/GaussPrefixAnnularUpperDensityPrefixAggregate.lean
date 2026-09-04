@@ -376,7 +376,7 @@ theorem
     · funext N
       dsimp only [upper]
       ring
-    · ring
+    · ring_nf
   have hcard :=
     eventually_nestedPairCount_contractedAnnularUpperRetained_le_ambient_pow
       eta rho hgrid k hr htime mode hmode

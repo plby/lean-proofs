@@ -23,7 +23,7 @@ lemma seed_card_le_normalizedCosetFiber_of_closureModulus_eq_one
         (E + A.subsetSum) u).card := by
   classical
   let H := AddSubgroup.closure (R : Set (ZMod b))
-  letI : Fintype H :=
+  let : Fintype H :=
     Fintype.ofInjective (fun h : H ↦ h.1) Subtype.val_injective
   let f : ZMod b → H := fun e ↦
     ⟨e - u, (mem_closure_iff_modulus_dvd_val hb R (e - u)).2 (by

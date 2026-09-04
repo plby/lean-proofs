@@ -24,7 +24,7 @@ lemma tendsto_quartic_scaled_decay :
       atTop (nhds 0) := by
   have h4 := (tendsto_pow_mul_exp_neg_scaled 4 (by norm_num : (0 : ℝ) < 1 / 20)).const_mul 4
   have h1 := (tendsto_pow_mul_exp_neg_scaled 1 (by norm_num : (0 : ℝ) < 1 / 20)).const_mul 21
-  convert h4.add h1 using 1 <;> norm_num <;> ring
+  convert h4.add h1 using 1 <;> norm_num <;> ring_nf
 
 /-- The medium-PNT decay beats the full primary-cell exponential. -/
 lemma eventually_medium_cell_decay {c C : ℝ} (hc : 0 < c) (hC : 0 ≤ C) :
@@ -45,7 +45,7 @@ lemma eventually_medium_cell_decay {c C : ℝ} (hc : 0 < c) (hC : 0 ≤ C) :
     have := mul_le_mul_of_nonneg_right ht he.le
     have hcancel : Real.exp (-t / 20) * Real.exp (t / 20) = 1 := by
       rw [← Real.exp_add]
-      convert Real.exp_zero using 1 <;> ring
+      convert Real.exp_zero using 1 <;> ring_nf
     calc
       4 * t ^ 4 + 21 * t =
           (4 * t ^ 4 + 21 * t) *
@@ -87,7 +87,7 @@ lemma eventually_sqrt_cell_decay (C : ℝ) (hC : 0 ≤ C) :
       atTop (nhds 0) := by
     have h4 := (Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 4).const_mul 4
     have h1 := (Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1).const_mul 23
-    convert h4.add h1 using 1 <;> norm_num <;> ring
+    convert h4.add h1 using 1 <;> norm_num <;> ring_nf
   have hmain : ∀ᶠ t : ℝ in atTop,
       4 * t ^ 4 + 23 * t ≤ Real.exp t / 4 := by
     have hnorm := NormedAddGroup.tendsto_nhds_zero.mp hpolyLim (1 / 4) (by norm_num)
@@ -96,7 +96,7 @@ lemma eventually_sqrt_cell_decay (C : ℝ) (hC : 0 ≤ C) :
     · have hm := mul_le_mul_of_nonneg_right ht.le (Real.exp_pos t).le
       have hcancel : Real.exp (-t) * Real.exp t = 1 := by
         rw [← Real.exp_add]
-        convert Real.exp_zero using 1 <;> ring
+        convert Real.exp_zero using 1 <;> ring_nf
       calc
         4 * t ^ 4 + 23 * t =
             (4 * t ^ 4 + 23 * t) * (Real.exp (-t) * Real.exp t) := by

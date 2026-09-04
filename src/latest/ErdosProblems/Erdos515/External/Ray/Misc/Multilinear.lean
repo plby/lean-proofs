@@ -62,7 +62,7 @@ theorem fstCmmap_norm [NormedRing A] [NormedAlgebra 𝕜 A] [NormOneClass A] [No
     intro z; simp only [Finset.univ_unique, Fin.default_eq_zero, Finset.prod_singleton, one_mul]
     have e : z = (fun _ ↦ ((z 0).1, (z 0).2)) := by apply funext; intro i; rw [Fin.eq_zero i]
     rw [e]
-    rw [fstCmmap_apply]; simp; exact norm_fst_le (z 0)
+    rw [fstCmmap_apply]; simp only [Fin.isValue, Prod.mk.eta, ge_iff_le]; exact norm_fst_le (z 0)
   · have lo := (fstCmmap 𝕜 A B).unit_le_opNorm (m := fun _ ↦ (1, 1)) ?_
     rw [fstCmmap_apply, norm_one] at lo; assumption
     rw [pi_norm_le_iff_of_nonneg]; intro i; simp only [Prod.norm_def, norm_one]
@@ -75,7 +75,7 @@ theorem sndCmmap_norm [NormedRing A] [NormedAlgebra 𝕜 A] [NormOneClass A] [No
     intro z; simp only [Finset.univ_unique, Fin.default_eq_zero, Finset.prod_singleton, one_mul]
     have e : z = (fun _ ↦ ((z 0).1, (z 0).2)) := by apply funext; intro i; rw [Fin.eq_zero i]
     rw [e]
-    rw [sndCmmap_apply]; simp; exact norm_snd_le (z 0)
+    rw [sndCmmap_apply]; simp only [Fin.isValue, Prod.mk.eta, ge_iff_le]; exact norm_snd_le (z 0)
   · have lo := (sndCmmap 𝕜 A B).unit_le_opNorm (m := fun _ ↦ (1, 1)) ?_
     rw [sndCmmap_apply, norm_one] at lo; assumption
     rw [pi_norm_le_iff_of_nonneg]; intro i; simp only [Prod.norm_def, norm_one]
@@ -231,8 +231,14 @@ public theorem termCmmap_norm (𝕜 : Type) [NontriviallyNormedField 𝕜] [Norm
     generalize ht : termCmmap 𝕜 n k x = t; rw [ht] at nh
     have tn := smulCmmap_norm (if n < k then fstCmmap 𝕜 𝕜 𝕜 else sndCmmap 𝕜 𝕜 𝕜) t
     by_cases nk : n < k
-    · simp [nk] at tn ⊢; rw [fstCmmap_norm] at tn; simp at tn; exact _root_.trans tn nh
-    · simp [nk] at tn ⊢; rw [sndCmmap_norm] at tn; simp at tn; exact _root_.trans tn nh
+    · simp only [if_pos nk] at tn ⊢
+      rw [fstCmmap_norm] at tn
+      simp only [one_mul] at tn
+      exact _root_.trans tn nh
+    · simp only [if_neg nk] at tn ⊢
+      rw [sndCmmap_norm] at tn
+      simp only [one_mul] at tn
+      exact _root_.trans tn nh
 
 /-- `conj` as a `ContinuousLinearMap`. This is `starₗᵢ ℂ`, but with a simpler type. -/
 public def conjCLM : ℂ →L[ℝ] ℂ where

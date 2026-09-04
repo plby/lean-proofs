@@ -313,7 +313,7 @@ theorem coordinateCandidate_subset_internal_cleaned
         (ZhaoLemma59HierarchicalRegular.HierarchicalSegmentForest.rawCandidate
           F rootGroup rootRaw interiorRaw i a)
         (interiorRaw i b) := by
-  letI : DecidableRel (F.segments.tree i).Adj := Classical.decRel _
+  let : DecidableRel (F.segments.tree i).Adj := Classical.decRel _
   intro z hz
   rw [cleanedSide]
   refine Finset.mem_sdiff.mpr ⟨(Finset.mem_sdiff.mp hz).1, ?_⟩

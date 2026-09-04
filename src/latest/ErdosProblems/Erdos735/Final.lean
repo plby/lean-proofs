@@ -43,7 +43,7 @@ theorem isFailedFano_of_reducedMagic
   let S := ReducedCore.setup hAcard hB hred
   apply S.isFailedFano_of_projectiveLeviPathExtraction
   intro hnot
-  letI := S.lineNonempty
+  let := S.lineNonempty
   exact ConcreteProjectiveLeviPathExtraction.projectiveLeviPathExtraction_of_occupied
     S.hred S.ha S.hb S.hd S.hncol S.hAcard hnot
     (ConcreteStage4BeltCoverage.occupiedStarts_eq_univ
@@ -63,4 +63,3 @@ theorem erdos_735 (P : Finset Point) :
   · exact isMagic_of_classified_all
 
 end Erdos735
-

@@ -37,7 +37,7 @@ theorem exists_principalMean_lower_bound {δ : ℝ} (hδ : 0 < δ) :
   obtain ⟨D, hD, hbound⟩ := exists_card_divisors_le_rpow hδ
   refine ⟨D⁻¹, inv_pos.mpr hD, ?_⟩
   intro q hq
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   have hqR : (0 : ℝ) < q := by exact_mod_cast Nat.pos_of_ne_zero hq
   have hmul : 1 ≤ (D * (q : ℝ) ^ δ) * principalCharacterMean q :=
     (one_le_divisorCount_mul_principalMean q).trans

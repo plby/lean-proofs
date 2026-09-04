@@ -82,16 +82,16 @@ private theorem primePowerQuotient_unit_ratio
     (Nat.card ((RingOfIntegers K ⧸ P ^ n)ˣ) : ℝ) /
         Nat.card (RingOfIntegers K ⧸ P ^ n) =
       1 - (Ideal.absNorm P : ℝ)⁻¹ := by
-  letI : P.IsPrime := hP
-  letI : P.IsMaximal :=
+  let : P.IsPrime := hP
+  let : P.IsMaximal :=
     Ring.DimensionLEOne.maximalOfPrime hP₀ hP
   have hPn₀ : P ^ n ≠ ⊥ := by
     exact pow_ne_zero n hP₀
-  letI : Finite (RingOfIntegers K ⧸ P ^ n) :=
+  let : Finite (RingOfIntegers K ⧸ P ^ n) :=
     (Ideal.absNorm_ne_zero_iff (P ^ n)).mp (fun h ↦ hPn₀ (Ideal.absNorm_eq_zero_iff.mp h))
-  letI : Finite (RingOfIntegers K ⧸ P) :=
+  let : Finite (RingOfIntegers K ⧸ P) :=
     (Ideal.absNorm_ne_zero_iff P).mp (fun h ↦ hP₀ (Ideal.absNorm_eq_zero_iff.mp h))
-  letI : Field (RingOfIntegers K ⧸ P) := Ideal.Quotient.field P
+  let : Field (RingOfIntegers K ⧸ P) := Ideal.Quotient.field P
   let f : (RingOfIntegers K ⧸ P ^ n) →+* (RingOfIntegers K ⧸ P) :=
     Ideal.Quotient.factor (Ideal.pow_le_self hn)
   have hf : Function.Surjective f := Ideal.Quotient.factor_surjective _
@@ -159,16 +159,16 @@ theorem idealQuotient_unitRatio_eq_prod_factors
   have hn (P : F) : Multiset.count (P : Ideal (RingOfIntegers K))
       (UniqueFactorizationMonoid.factors I) ≠ 0 :=
     Multiset.count_ne_zero.mpr (hmem P)
-  letI (P : F) : (P : Ideal (RingOfIntegers K)).IsPrime :=
+  let (P : F) : (P : Ideal (RingOfIntegers K)).IsPrime :=
     Ideal.isPrime_of_prime (hPprime P)
-  letI (P : F) : Finite (C P) :=
+  let (P : F) : Finite (C P) :=
     (Ideal.absNorm_ne_zero_iff
       ((P : Ideal (RingOfIntegers K)) ^
         Multiset.count (P : Ideal (RingOfIntegers K))
           (UniqueFactorizationMonoid.factors I))).mp (by
       intro hz
       exact pow_ne_zero _ (hP₀ P) (Ideal.absNorm_eq_zero_iff.mp hz))
-  letI : Finite (RingOfIntegers K ⧸ I) :=
+  let : Finite (RingOfIntegers K ⧸ I) :=
     (Ideal.absNorm_ne_zero_iff I).mp (by
       intro hz
       exact hI (Ideal.absNorm_eq_zero_iff.mp hz))
@@ -323,8 +323,8 @@ private lemma primeIdealsBelow_subset_rationalPrimeIdealFactorsBelow
       rationalPrimeIdealFactorsBelow K w := by
   intro P hP
   rw [PrimeIdealMertens.mem_primeIdealsBelow] at hP
-  letI : P.IsPrime := hP.1
-  letI : P.IsMaximal :=
+  let : P.IsPrime := hP.1
+  let : P.IsMaximal :=
     Ring.DimensionLEOne.maximalOfPrime hP.2.1 hP.1
   obtain ⟨p, n, hn, hpP, hp, hnorm⟩ :=
     Ideal.exists_prime_and_absNorm_eq_pow P
@@ -444,7 +444,7 @@ theorem one_sub_badResidueDensity_eq_unitRatio
     rw [hXcard]
     omega
   have hcard : Nat.card X = Nat.card R := Nat.card_congr e
-  haveI : Nonempty X := ⟨e.symm 0⟩
+  have : Nonempty X := ⟨e.symm 0⟩
   have hXpos : (0 : ℝ) < Nat.card X := by
     exact_mod_cast (Nat.card_pos : 0 < Nat.card X)
   rw [← hcard]
@@ -481,7 +481,7 @@ theorem one_sub_coordinateNormResidueDensity_eq_unitRatio
         (d : ℝ) ^ Nat.card (NumberField.mixedEmbedding.index K) =
       (Nat.card Rˣ : ℝ) / Nat.card R := by
   classical
-  letI := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
+  let := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
   have hcard : Nat.card (NumberField.mixedEmbedding.index K → ZMod d) =
       d ^ Nat.card (NumberField.mixedEmbedding.index K) := by
     rw [Nat.card_eq_fintype_card, Fintype.card_pi]
@@ -508,7 +508,7 @@ private lemma mixedEmbedding_index_natCard
     (K : Type*) [Field K] [NumberField K] :
     Nat.card (NumberField.mixedEmbedding.index K) =
       Module.finrank ℤ (RingOfIntegers K) := by
-  letI := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
+  let := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
   rw [Nat.card_eq_fintype_card,
     ← Module.finrank_eq_card_basis (NumberField.mixedEmbedding.stdBasis K),
     NumberField.mixedEmbedding.finrank, ← RingOfIntegers.rank]
@@ -548,7 +548,7 @@ private theorem fixedIdealCoordinateQuotientMap_injective
       Ideal.Quotient.mk (rationalModulusIdeal K p)
         (RayNormPrimeSieve.generatorOfCoordinate K J k)) := by
   classical
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   intro k₁ k₂ hk
   let a₁ := RayNormPrimeSieve.generatorOfCoordinate K J k₁
   let a₂ := RayNormPrimeSieve.generatorOfCoordinate K J k₂
@@ -702,7 +702,7 @@ private theorem prime_dvd_absNorm_span_iff_nonunit_mod
       rw [rationalModulusIdeal, Ideal.span_le]
       intro x hx
       simpa only [Set.mem_singleton_iff] using hx ▸ hpP
-    letI : P.IsMaximal := hPmax
+    let : P.IsMaximal := hPmax
     let f : (RingOfIntegers K ⧸ rationalModulusIdeal K p) →+*
         (RingOfIntegers K ⧸ P) := Ideal.Quotient.factor hmodP
     have hzero : f (Ideal.Quotient.mk (rationalModulusIdeal K p) a) = 0 := by
@@ -714,7 +714,7 @@ private theorem prime_dvd_absNorm_span_iff_nonunit_mod
     obtain ⟨M, hMmax, haM⟩ := exists_max_ideal_of_mem_nonunits hnonunit
     let P : Ideal (RingOfIntegers K) :=
       M.comap (Ideal.Quotient.mk (rationalModulusIdeal K p))
-    letI : M.IsMaximal := hMmax
+    let : M.IsMaximal := hMmax
     have hPmax : P.IsMaximal := by
       exact Ideal.comap_isMaximal_of_surjective
         (Ideal.Quotient.mk (rationalModulusIdeal K p))
@@ -725,7 +725,7 @@ private theorem prime_dvd_absNorm_span_iff_nonunit_mod
       change Ideal.Quotient.mk (rationalModulusIdeal K p) x ∈ M
       rw [Ideal.Quotient.eq_zero_iff_mem.mpr hx]
       exact M.zero_mem
-    letI : P.IsMaximal := hPmax
+    let : P.IsMaximal := hPmax
     obtain ⟨q, n, hn, _hqP, hq, hPnorm⟩ :=
       Ideal.exists_prime_and_absNorm_eq_pow P
     have hPnormDiv : Ideal.absNorm P ∣ p ^ Module.finrank ℤ (RingOfIntegers K) := by
@@ -781,8 +781,8 @@ theorem one_sub_fixedIdeal_coordinateNormResidueDensity_eq_unitRatio
         (p : ℝ) ^ Nat.card (NumberField.mixedEmbedding.index K) =
       (Nat.card ((RingOfIntegers K ⧸ rationalModulusIdeal K p)ˣ) : ℝ) /
         Nat.card (RingOfIntegers K ⧸ rationalModulusIdeal K p) := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : Finite (RingOfIntegers K ⧸ rationalModulusIdeal K p) :=
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : Finite (RingOfIntegers K ⧸ rationalModulusIdeal K p) :=
     rationalPrimeQuotientFinite K p hp
   exact one_sub_coordinateNormResidueDensity_eq_unitRatio K
     (fixedIdealCoordinateQuotientEquiv K J p hp hcop)

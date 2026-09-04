@@ -52,6 +52,6 @@ theorem exists_dyadic_power_pool_comparison : ∃ d₀ : ℕ, ∀ d ≥ d₀,
     convert h using 1
     rw [pow_add]
     norm_num
-    ring
+    ring_nf
 
 end Erdos380

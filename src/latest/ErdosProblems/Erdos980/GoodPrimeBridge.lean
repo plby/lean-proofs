@@ -267,10 +267,10 @@ theorem rootDifference_mem_of_splits {p : ℕ} (hp : p.Prime)
     (hsplit : (finiteFieldPatternPolynomial p k r).Splits)
     (x : KummerRoot k r) : rootDifference hk σ x ∈ P := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
-  letI : P.IsMaximal := hPprime.isMaximal hP0
-  letI : Field (𝓞 (KummerField k r) ⧸ P) := Ideal.Quotient.field P
-  letI : P.LiesOver
+  let : Fact p.Prime := ⟨hp⟩
+  let : P.IsMaximal := hPprime.isMaximal hP0
+  let : Field (𝓞 (KummerField k r) ⧸ P) := Ideal.Quotient.field P
+  let : P.LiesOver
       (NaturalChebotarev.SplitTransfer.rationalIdeal p) := hlo
   have hp_mem_base :
       (p : 𝓞 ℚ) ∈ NaturalChebotarev.SplitTransfer.rationalIdeal p := by
@@ -283,7 +283,7 @@ theorem rootDifference_mem_of_splits {p : ℕ} (hp : p.Prime)
     rw [← map_natCast (Ideal.Quotient.mk P),
       Ideal.Quotient.eq_zero_iff_mem]
     exact hp_mem
-  letI : CharP (𝓞 (KummerField k r) ⧸ P) p :=
+  let : CharP (𝓞 (KummerField k r) ⧸ P) p :=
     (CharP.charP_iff_prime_eq_zero hp).2 hp_zero
   let i : ZMod p →+* (𝓞 (KummerField k r) ⧸ P) :=
     ZMod.castHom dvd_rfl _
@@ -351,13 +351,13 @@ theorem isCompletelySplit_of_splits_of_not_mem_bad {p : ℕ}
       (NaturalChebotarev.SplitTransfer.rationalIdeal p) := by
     by_contra h
     exact hnotram ⟨hp, h⟩
-  letI : (NaturalChebotarev.SplitTransfer.rationalIdeal p).IsPrime :=
+  let : (NaturalChebotarev.SplitTransfer.rationalIdeal p).IsPrime :=
     NaturalChebotarev.SplitTransfer.rationalIdeal_isPrime hp
   obtain ⟨P, hPprime, hlo, hP0⟩ :=
     exists_prime_liesOver ℚ (KummerField k r)
       (NaturalChebotarev.SplitTransfer.rationalIdeal p) hunr.ne_bot
-  letI : P.IsPrime := hPprime
-  letI : Finite (𝓞 (KummerField k r) ⧸ P) :=
+  let : P.IsPrime := hPprime
+  let : Finite (𝓞 (KummerField k r) ⧸ P) :=
     hunr.finite_quotient ℚ (KummerField k r) P hlo
   let σ : Gal(KummerField k r / ℚ) :=
     arithFrobAt (𝓞 ℚ) Gal(KummerField k r / ℚ) P
@@ -393,19 +393,19 @@ theorem finiteFieldPatternPolynomial_splits_of_isCompletelySplit {p : ℕ}
       (KummerField k r) p) :
     (finiteFieldPatternPolynomial p k r).Splits := by
   classical
-  letI : Fact p.Prime := ⟨hsplit.1⟩
-  letI : (NaturalChebotarev.SplitTransfer.rationalIdeal p).IsPrime :=
+  let : Fact p.Prime := ⟨hsplit.1⟩
+  let : (NaturalChebotarev.SplitTransfer.rationalIdeal p).IsPrime :=
     NaturalChebotarev.SplitTransfer.rationalIdeal_isPrime hsplit.1
   obtain ⟨P, hPprime, hlo, hP0⟩ :=
     exists_prime_liesOver ℚ (KummerField k r)
       (NaturalChebotarev.SplitTransfer.rationalIdeal p)
       hsplit.2.1.ne_bot
-  letI : P.IsPrime := hPprime
-  letI : P.IsMaximal := hPprime.isMaximal hP0
-  letI : Field (𝓞 (KummerField k r) ⧸ P) := Ideal.Quotient.field P
-  letI : Finite (𝓞 (KummerField k r) ⧸ P) :=
+  let : P.IsPrime := hPprime
+  let : P.IsMaximal := hPprime.isMaximal hP0
+  let : Field (𝓞 (KummerField k r) ⧸ P) := Ideal.Quotient.field P
+  let : Finite (𝓞 (KummerField k r) ⧸ P) :=
     hsplit.2.1.finite_quotient ℚ (KummerField k r) P hlo
-  letI : P.LiesOver
+  let : P.LiesOver
       (NaturalChebotarev.SplitTransfer.rationalIdeal p) := hlo
   have hp_mem_base :
       (p : 𝓞 ℚ) ∈ NaturalChebotarev.SplitTransfer.rationalIdeal p := by
@@ -418,7 +418,7 @@ theorem finiteFieldPatternPolynomial_splits_of_isCompletelySplit {p : ℕ}
     rw [← map_natCast (Ideal.Quotient.mk P),
       Ideal.Quotient.eq_zero_iff_mem]
     exact hp_mem
-  letI : CharP (𝓞 (KummerField k r) ⧸ P) p :=
+  let : CharP (𝓞 (KummerField k r) ⧸ P) p :=
     (CharP.charP_iff_prime_eq_zero hsplit.1).2 hp_zero
   let i : ZMod p →+* (𝓞 (KummerField k r) ⧸ P) :=
     ZMod.castHom dvd_rfl _
@@ -508,8 +508,8 @@ theorem patternBadPrimes_finite (hk : k ≠ 0) (j : ℕ) :
 theorem exists_isPrimitiveRoot_zmod_of_eligible
     {p : ℕ} (hk : 2 ≤ k) (helig : Eligible k p) :
     ∃ ζ : ZMod p, IsPrimitiveRoot ζ k := by
-  letI : Fact p.Prime := ⟨helig.1⟩
-  letI : IsCyclic (ZMod p)ˣ := ZMod.isCyclic_units_prime helig.1
+  let : Fact p.Prime := ⟨helig.1⟩
+  let : IsCyclic (ZMod p)ˣ := ZMod.isCyclic_units_prime helig.1
   obtain ⟨u, hu⟩ := IsCyclic.exists_ofOrder_eq_natCard
     (α := (ZMod p)ˣ)
   have hcard : Nat.card (ZMod p)ˣ = p - 1 := by
@@ -535,8 +535,8 @@ theorem eligible_of_finiteFieldPatternPolynomial_splits
     (hsplit : (finiteFieldPatternPolynomial p k r).Splits) :
     Eligible k p := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
-  letI : NeZero (k : ZMod p) := ⟨by
+  let : Fact p.Prime := ⟨hp⟩
+  let : NeZero (k : ZMod p) := ⟨by
     intro hkzero
     exact hpk ((ZMod.natCast_eq_zero_iff k p).mp hkzero)⟩
   have hcyclo0 : Polynomial.cyclotomic k (ZMod p) ≠ 0 :=
@@ -578,7 +578,7 @@ theorem kthPowerResiduePattern_iff_leastKthPowerNonresidue
     KthPowerResiduePattern k j p ↔
       leastKthPowerNonresidue k p = rationalPrime j := by
   classical
-  letI : Fact p.Prime := ⟨helig.1⟩
+  let : Fact p.Prime := ⟨helig.1⟩
   constructor
   · rintro ⟨hfirst, hjnon⟩
     have hjzero : (rationalPrime j : ZMod p) ≠ 0 := by
@@ -637,7 +637,7 @@ theorem finiteFieldPatternPolynomial_exact_splits_iff
         ¬ (finiteFieldPatternPolynomial p k (j + 1)).Splits) ↔
       KthPowerResiduePattern k j p := by
   classical
-  letI : Fact p.Prime := ⟨helig.1⟩
+  let : Fact p.Prime := ⟨helig.1⟩
   obtain ⟨ζ, hζ⟩ := exists_isPrimitiveRoot_zmod_of_eligible hk helig
   have hj := finiteFieldPatternPolynomial_splits_iff
     (p := p) (by omega) hζ j
@@ -956,7 +956,7 @@ theorem isCompletelySplit_kummer_zero_iff_eligible
     exact eligible_of_finiteFieldPatternPolynomial_splits
       hsplit.1 (by omega) (hpk hsplit.1) hlocal
   · intro helig
-    letI : Fact p.Prime := ⟨helig.1⟩
+    let : Fact p.Prime := ⟨helig.1⟩
     obtain ⟨ζ, hζ⟩ := exists_isPrimitiveRoot_zmod_of_eligible hk helig
     have hlocal : (finiteFieldPatternPolynomial p k 0).Splits :=
       (finiteFieldPatternPolynomial_splits_iff

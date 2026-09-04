@@ -568,7 +568,7 @@ degree `ell - 1`. -/
 theorem inertiaDegIn_eq_sub_one_of_prime_modEq {q : ℕ}
     (hqprime : q.Prime) (hqmod : q % ell = inertResidue ell) :
     (Ideal.span {(q : ℤ)}).inertiaDegIn (𝓞 K) = ell - 1 := by
-  letI : Fact q.Prime := ⟨hqprime⟩
+  let : Fact q.Prime := ⟨hqprime⟩
   rw [IsCyclotomicExtension.Rat.inertiaDegIn_eq_of_not_dvd q K
     (hqprime.coprime_iff_not_dvd.mp (coprime_ell_of_modEq ell hqmod))]
   exact zmod_order_eq_sub_one_of_modEq ell hqmod
@@ -576,7 +576,7 @@ theorem inertiaDegIn_eq_sub_one_of_prime_modEq {q : ℕ}
 theorem ramificationIdxIn_eq_one_of_prime_modEq {q : ℕ}
     (hqprime : q.Prime) (hqmod : q % ell = inertResidue ell) :
     (Ideal.span {(q : ℤ)}).ramificationIdxIn (𝓞 K) = 1 := by
-  letI : Fact q.Prime := ⟨hqprime⟩
+  let : Fact q.Prime := ⟨hqprime⟩
   exact IsCyclotomicExtension.Rat.ramificationIdxIn_eq_of_not_dvd q K
     (hqprime.coprime_iff_not_dvd.mp (coprime_ell_of_modEq ell hqmod))
 
@@ -584,12 +584,12 @@ theorem ramificationIdxIn_eq_one_of_prime_modEq {q : ℕ}
 theorem ncard_primesOver_eq_one_of_prime_modEq {q : ℕ}
     (hqprime : q.Prime) (hqmod : q % ell = inertResidue ell) :
     ((Ideal.span {(q : ℤ)}).primesOver (𝓞 K)).ncard = 1 := by
-  letI : IsGalois ℚ K := IsCyclotomicExtension.isGalois {ell} ℚ K
-  letI : Fact q.Prime := ⟨hqprime⟩
+  let : IsGalois ℚ K := IsCyclotomicExtension.isGalois {ell} ℚ K
+  let : Fact q.Prime := ⟨hqprime⟩
   let p : Ideal ℤ := Ideal.span {(q : ℤ)}
-  haveI hpmax : p.IsMaximal := by
+  have hpmax : p.IsMaximal := by
     simpa [p] using Int.ideal_span_isMaximal_of_prime q
-  haveI : p.IsPrime := hpmax.isPrime
+  have : p.IsPrime := hpmax.isPrime
   have hfund := Ideal.ncard_primesOver_mul_ramificationIdxIn_mul_inertiaDegIn
     p (𝓞 K) Gal(K/ℚ)
   have hram : p.ramificationIdxIn (𝓞 K) = 1 := by
@@ -612,10 +612,10 @@ prime in the prime-conductor cyclotomic field. -/
 theorem span_nat_isPrime_of_prime_modEq {q : ℕ}
     (hqprime : q.Prime) (hqmod : q % ell = inertResidue ell) :
     (Ideal.span {(q : 𝓞 K)}).IsPrime := by
-  letI : IsGalois ℚ K := IsCyclotomicExtension.isGalois {ell} ℚ K
-  letI : Fact q.Prime := ⟨hqprime⟩
+  let : IsGalois ℚ K := IsCyclotomicExtension.isGalois {ell} ℚ K
+  let : Fact q.Prime := ⟨hqprime⟩
   let p : Ideal ℤ := Ideal.span {(q : ℤ)}
-  haveI hpmax : p.IsMaximal := by
+  have hpmax : p.IsMaximal := by
     simpa [p] using Int.ideal_span_isMaximal_of_prime q
   have hpne : p ≠ ⊥ := by
     simpa [p, Ideal.span_singleton_eq_bot] using hqprime.ne_zero
@@ -625,8 +625,8 @@ theorem span_nat_isPrime_of_prime_modEq {q : ℕ}
   have hPmem : P ∈ p.primesOver (𝓞 K) := by
     rw [show p.primesOver (𝓞 K) = {P} by simpa [p] using hPset]
     simp
-  haveI hPprime : P.IsPrime := hPmem.1
-  haveI hPlies : P.LiesOver p := hPmem.2
+  have hPprime : P.IsPrime := hPmem.1
+  have hPlies : P.LiesOver p := hPmem.2
   have hqNotDvd : ¬ q ∣ ell :=
     hqprime.coprime_iff_not_dvd.mp (coprime_ell_of_modEq ell hqmod)
   have hramP : P.ramificationIdx ℤ = 1 := by
@@ -651,8 +651,8 @@ theorem span_nat_isPrime_of_prime_modEq {q : ℕ}
 theorem span_nat_liesOver_of_prime_modEq {q : ℕ}
     (hqprime : q.Prime) (hqmod : q % ell = inertResidue ell) :
     (Ideal.span {(q : 𝓞 K)}).LiesOver (Ideal.span {(q : ℤ)}) := by
-  letI : Fact q.Prime := ⟨hqprime⟩
-  letI : (Ideal.span {(q : ℤ)}).IsMaximal :=
+  let : Fact q.Prime := ⟨hqprime⟩
+  let : (Ideal.span {(q : ℤ)}).IsMaximal :=
     Int.ideal_span_isMaximal_of_prime q
   have hprime := span_nat_isPrime_of_prime_modEq ell (K := K) hqprime hqmod
   rw [Ideal.liesOver_iff_dvd_map hprime.ne_top]
@@ -661,11 +661,11 @@ theorem span_nat_liesOver_of_prime_modEq {q : ℕ}
 theorem span_nat_inertiaDeg_of_prime_modEq {q : ℕ}
     (hqprime : q.Prime) (hqmod : q % ell = inertResidue ell) :
     (Ideal.span {(q : 𝓞 K)}).inertiaDeg ℤ = ell - 1 := by
-  letI : Fact q.Prime := ⟨hqprime⟩
+  let : Fact q.Prime := ⟨hqprime⟩
   let P : Ideal (𝓞 K) := Ideal.span {(q : 𝓞 K)}
-  haveI : P.IsPrime := by
+  have : P.IsPrime := by
     simpa [P] using span_nat_isPrime_of_prime_modEq ell (K := K) hqprime hqmod
-  haveI : P.LiesOver (Ideal.span {(q : ℤ)}) := by
+  have : P.LiesOver (Ideal.span {(q : ℤ)}) := by
     simpa [P] using span_nat_liesOver_of_prime_modEq ell (K := K) hqprime hqmod
   simpa [P, zmod_order_eq_sub_one_of_modEq ell hqmod] using
     (IsCyclotomicExtension.Rat.inertiaDeg_eq_of_not_dvd q K P
@@ -676,30 +676,30 @@ theorem quotient_units_isCyclic_of_prime_modEq {q : ℕ}
     (hqprime : q.Prime) (hqmod : q % ell = inertResidue ell) :
     IsCyclic ((𝓞 K ⧸ Ideal.span {(q : 𝓞 K)})ˣ) := by
   let P : Ideal (𝓞 K) := Ideal.span {(q : 𝓞 K)}
-  haveI hPprime : P.IsPrime := by
+  have hPprime : P.IsPrime := by
     simpa [P] using span_nat_isPrime_of_prime_modEq ell (K := K) hqprime hqmod
   have hPne : P ≠ ⊥ := by
     simpa [P, Ideal.span_singleton_eq_bot] using
       (Nat.cast_ne_zero.mpr hqprime.ne_zero : (q : 𝓞 K) ≠ 0)
-  letI : P.IsMaximal := hPprime.isMaximal hPne
-  letI : Field (𝓞 K ⧸ P) := Ideal.Quotient.field P
+  let : P.IsMaximal := hPprime.isMaximal hPne
+  let : Field (𝓞 K ⧸ P) := Ideal.Quotient.field P
   infer_instance
 
 theorem quotient_natCard_eq_pow_of_prime_modEq {q : ℕ}
     (hqprime : q.Prime) (hqmod : q % ell = inertResidue ell) :
     Nat.card (𝓞 K ⧸ Ideal.span {(q : 𝓞 K)}) = q ^ (ell - 1) := by
-  letI : Fact q.Prime := ⟨hqprime⟩
+  let : Fact q.Prime := ⟨hqprime⟩
   let p : Ideal ℤ := Ideal.span {(q : ℤ)}
   let P : Ideal (𝓞 K) := Ideal.span {(q : 𝓞 K)}
-  haveI hpmax : p.IsMaximal := by
+  have hpmax : p.IsMaximal := by
     simpa [p] using Int.ideal_span_isMaximal_of_prime q
-  haveI hPprime : P.IsPrime := by
+  have hPprime : P.IsPrime := by
     simpa [P] using span_nat_isPrime_of_prime_modEq ell (K := K) hqprime hqmod
   have hPne : P ≠ ⊥ := by
     simpa [P, Ideal.span_singleton_eq_bot] using
       (Nat.cast_ne_zero.mpr hqprime.ne_zero : (q : 𝓞 K) ≠ 0)
-  haveI hPmax : P.IsMaximal := hPprime.isMaximal hPne
-  haveI hPlies : P.LiesOver p := by
+  have hPmax : P.IsMaximal := hPprime.isMaximal hPne
+  have hPlies : P.LiesOver p := by
     simpa [p, P] using span_nat_liesOver_of_prime_modEq ell (K := K) hqprime hqmod
   calc
     Nat.card (𝓞 K ⧸ Ideal.span {(q : 𝓞 K)}) = Submodule.cardQuot P := by
@@ -716,13 +716,13 @@ theorem quotient_units_natCard_eq_pow_sub_one_of_prime_modEq {q : ℕ}
     (hqprime : q.Prime) (hqmod : q % ell = inertResidue ell) :
     Nat.card ((𝓞 K ⧸ Ideal.span {(q : 𝓞 K)})ˣ) = q ^ (ell - 1) - 1 := by
   let P : Ideal (𝓞 K) := Ideal.span {(q : 𝓞 K)}
-  haveI hPprime : P.IsPrime := by
+  have hPprime : P.IsPrime := by
     simpa [P] using span_nat_isPrime_of_prime_modEq ell (K := K) hqprime hqmod
   have hPne : P ≠ ⊥ := by
     simpa [P, Ideal.span_singleton_eq_bot] using
       (Nat.cast_ne_zero.mpr hqprime.ne_zero : (q : 𝓞 K) ≠ 0)
-  letI : P.IsMaximal := hPprime.isMaximal hPne
-  letI : Field (𝓞 K ⧸ P) := Ideal.Quotient.field P
+  let : P.IsMaximal := hPprime.isMaximal hPne
+  let : Field (𝓞 K ⧸ P) := Ideal.Quotient.field P
   rw [Nat.card_units,
     quotient_natCard_eq_pow_of_prime_modEq ell (K := K) hqprime hqmod]
 
@@ -742,13 +742,13 @@ theorem natCard_powerClass_quotient_units_of_prime_modEq {q : ℕ}
     Nat.card (NumberFieldLargerSieve.PowerClass
       ((𝓞 K ⧸ Ideal.span {(q : 𝓞 K)})ˣ) ell) = ell := by
   let P : Ideal (𝓞 K) := Ideal.span {(q : 𝓞 K)}
-  haveI hPprime : P.IsPrime := by
+  have hPprime : P.IsPrime := by
     simpa [P] using span_nat_isPrime_of_prime_modEq ell (K := K) hqprime hqmod
   have hPne : P ≠ ⊥ := by
     simpa [P, Ideal.span_singleton_eq_bot] using
       (Nat.cast_ne_zero.mpr hqprime.ne_zero : (q : 𝓞 K) ≠ 0)
-  letI : P.IsMaximal := hPprime.isMaximal hPne
-  letI : Field (𝓞 K ⧸ P) := Ideal.Quotient.field P
+  let : P.IsMaximal := hPprime.isMaximal hPne
+  let : Field (𝓞 K ⧸ P) := Ideal.Quotient.field P
   apply NumberFieldLargerSieve.natCard_powerClass_eq
   exact ell_dvd_quotient_units_natCard_of_prime_modEq ell (K := K) hqprime hqmod
 

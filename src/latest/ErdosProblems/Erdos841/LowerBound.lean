@@ -711,7 +711,8 @@ lemma realPell_primeProductHeightMajorant_le_control
     have hcommon0 := BoundedUnits.commonBoundedUnitLogBound_nonneg hB
     by_cases hJ0 : J = 0
     · subst J
-      simp
+      simp only [Nat.cast_add, Nat.cast_mul, Nat.cast_ofNat, Nat.cast_one, CharP.cast_eq_zero, Real.log_zero,
+    mul_zero, add_zero, ge_iff_le]
       positivity
     · have hlogJ : 0 ≤ Real.log (J : ℝ) :=
         Real.log_nonneg (by exact_mod_cast (show 1 ≤ J by omega))
@@ -1191,9 +1192,9 @@ theorem realPell_uniform_logarithmic_form_lower
       |realPellApproximation γ₁ γ₂ γ₃ x₁ x₂ x₃ β₁₂ β₁₃ - 1| ≤
         2 * (J : ℝ) / (Real.sqrt γ₁ * x₁) ^ 2 := by
   let K := realPellField γ₁ γ₂ γ₃
-  letI : Algebra ℚ K := K.algebra'
-  letI : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
-  letI : NumberField.IsTotallyReal K := realPellFieldIsTotallyReal hγ₁ hγ₂ hγ₃
+  let : Algebra ℚ K := K.algebra'
+  let : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
+  let : NumberField.IsTotallyReal K := realPellFieldIsTotallyReal hγ₁ hγ₂ hγ₃
   let ratio : Kˣ :=
     Units.mk0 (β₁₃ : K) (Int.cast_ne_zero.mpr hβ₁₃) /
       Units.mk0 (β₁₂ : K) (Int.cast_ne_zero.mpr hβ₁₂)
@@ -1217,8 +1218,8 @@ theorem realPell_uniform_logarithmic_form_lower
   obtain ⟨S, U, hS, ι, hι, basis, e, q, hB, ζ, a,
       hSdef, hU, hgapNe, hgapAbs, hpow, he, hcoordE, hSJ,
       hindex, hdecomp, ha, hPheight, hWheight, hbasis, hMbasis, hdich⟩ := hdata
-  letI : Fintype S := hS.fintype
-  letI : Fintype ι := hι.fintype
+  let : Fintype S := hS.fintype
+  let : Fintype ι := hι.fintype
   let I := (BoundedUnits.boundedUnitSubgroup hB).index
   let P : Kˣ := test_numberFieldPrimeClassBoundedSupportedUnitProduct hB S e
   let QP : ℝ := ((Fintype.card S : ℝ) * (J ^ 16 : ℝ)) *

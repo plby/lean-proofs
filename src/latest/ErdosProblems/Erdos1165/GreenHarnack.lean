@@ -485,8 +485,14 @@ theorem latticeAnnulus_subset_coordinateBox (r R : ℕ) :
 theorem zero_not_mem_latticeAnnulus {r R : ℕ} (hr : 0 < r) :
     (0 : Point) ∉ latticeAnnulus r R := by
   rw [mem_latticeAnnulus_iff_radiusSqInt]
-  simp [radiusSqInt]
-  positivity
+  simp only [not_and, not_le]
+  intro h
+  have hzero : radiusSqInt (0 : Point) = 0 := by
+    simp [radiusSqInt]
+  rw [hzero] at h
+  have hrZ : (0 : ℤ) < (r : ℤ) := by exact_mod_cast hr
+  have hrsq : (0 : ℤ) < (r : ℤ) ^ 2 := by positivity
+  exact (not_le_of_gt hrsq h).elim
 
 /-! ## Exact two-boundary potential representation -/
 
@@ -681,7 +687,7 @@ theorem abs_potential_sub_twoBoundaryExitMixture_le
       rw [stoppedExpectation_add, stoppedExpectation_const,
         stoppedExpectation_const_mul,
         stoppedExpectation_interiorIndicator_eq_planarKilledMass]
-    · ring
+    · ring_nf
   have hleft : Tendsto
       (fun n ↦ stoppedExpectation D n
         (fun z ↦ -(ε + K * (if z ∈ D then 1 else 0))) x)

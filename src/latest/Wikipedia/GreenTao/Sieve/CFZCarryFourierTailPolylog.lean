@@ -705,12 +705,12 @@ theorem
     hlogTop.eventually (eventually_ge_atTop 1)
   apply squeeze_zero'
   · exact Filter.Eventually.of_forall fun R => by
-      letI : NeZero (Nseq R) := ⟨hN R⟩
+      let : NeZero (Nseq R) := ⟨hN R⟩
       exact
         χ.selectedCFZCarryScaledFourierTailNorm_nonneg
           (N := Nseq R) R (primorial (wseq R)) (bseq R) e _
   · filter_upwards [hRtwo, hlogOne] with R hR hlogR
-    letI : NeZero (Nseq R) := ⟨hN R⟩
+    let : NeZero (Nseq R) := ⟨hN R⟩
     simpa [C, E, m] using
       χ.selectedCFZCarryScaledFourierTailNorm_sqrt_log_le_const_div_log
         (N := Nseq R) hk (hbound R) (hcoprime R) e hR hlogR

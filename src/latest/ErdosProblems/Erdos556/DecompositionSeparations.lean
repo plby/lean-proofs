@@ -30,12 +30,12 @@ theorem exists_small_separation_of_not_twoConnected {V : Type*} [Fintype V]
       have hn : 0 < Fintype.card ({v}ᶜ : Set V) := by
         rw [Fintype.card_compl_set, Set.card_singleton]
         omega
-      letI : Nonempty ({v}ᶜ : Set V) := Fintype.card_pos_iff.mp hn
+      let : Nonempty ({v}ᶜ : Set V) := Fintype.card_pos_iff.mp hn
       exact hv ⟨hp⟩
     · refine ⟨∅, by simp, ?_⟩
       rw [Finset.coe_empty, Set.compl_empty]
       intro hp
-      letI : Nonempty V := Fintype.card_pos_iff.mp (by omega)
+      let : Nonempty V := Fintype.card_pos_iff.mp (by omega)
       exact hc ⟨(G.induceUnivIso.preconnected_iff).mp hp⟩
   obtain ⟨S, hS, hdisc⟩ := hex
   obtain ⟨A, B, hA, hB, hAB, hAS, hBS, hcover, hcross⟩ :=

@@ -221,7 +221,7 @@ theorem targetInterval_card_eq {j : ℕ} (hj : 8 ≤ j) :
   rw [hp]
   calc
     j * (2 * 2 ^ (j - 1)) - 2 ^ (j - 1) * (j + 8) =
-        2 ^ (j - 1) * (2 * j) - 2 ^ (j - 1) * (j + 8) := by ring
+        2 ^ (j - 1) * (2 * j) - 2 ^ (j - 1) * (j + 8) := by ring_nf
     _ = 2 ^ (j - 1) * (2 * j - (j + 8)) := by
       rw [Nat.mul_sub_left_distrib]
     _ = 2 ^ (j - 1) * (j - 8) := by

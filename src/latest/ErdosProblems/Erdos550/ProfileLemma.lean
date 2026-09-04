@@ -70,7 +70,8 @@ theorem induce_degree_eq {V : Type*} [Fintype V] [DecidableEq V]
   use fun a ha => a.val;
   · aesop;
   · grind;
-  · simp +decide [ SimpleGraph.neighborFinset ];
+  · simp +decide only [mem_inter, mem_neighborFinset, SetLike.coe_sort_coe, comap_adj, exists_prop,
+    Subtype.exists, exists_and_right, exists_eq_right, and_imp];
     exact fun b hb hb' => ⟨ hb', hb ⟩
 
 /-
@@ -179,7 +180,7 @@ theorem tree_embed_from_allocation
         · grind;
         · exact False.elim ( Finset.disjoint_left.mp ( hWdisj _ _ h ) ( hf_mem _ _ ) ( huv.symm ▸ hf_mem _ _ ) );
     · intro a b hab;
-      by_cases ha : a = z <;> by_cases hb : b = z <;> simp +decide [ ha, hb ] at hab ⊢;
+      by_cases ha : a = z <;> by_cases hb : b = z <;> simp +decide only [ne_eq] at hab ⊢;
       · exact hf_root _ _ ( hnbr_root _ hab );
       · exact SimpleGraph.Adj.symm ( hf_root ( home a ) ⟨ a, ha, rfl ⟩ ( hnbr_root a ( by simpa [ SimpleGraph.adj_comm ] using! hab ) ) );
       · cases' hedge_parent a b hab ha hb with h h;

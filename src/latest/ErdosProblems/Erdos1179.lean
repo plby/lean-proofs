@@ -2566,8 +2566,8 @@ lemma card_injective_add_noninjective {k : ℕ} :
         Nat.card {a : Fin k → G // ¬ Function.Injective a} =
       Fintype.card G ^ k := by
   classical
-  letI : Fintype (InjectiveTuples G k) := Fintype.ofFinite _
-  letI : Fintype {a : Fin k → G // ¬ Function.Injective a} := Fintype.ofFinite _
+  let : Fintype (InjectiveTuples G k) := Fintype.ofFinite _
+  let : Fintype {a : Fin k → G // ¬ Function.Injective a} := Fintype.ofFinite _
   have hle : Fintype.card (InjectiveTuples G k) ≤
       Fintype.card (Fin k → G) := Fintype.card_subtype_le _
   have hc := Fintype.card_subtype_compl (fun a : Fin k → G ↦ Function.Injective a)
@@ -2909,7 +2909,7 @@ lemma hallOverheadRatio_tendsto_zero :
     dsimp [U]
     convert (((hMinv.const_mul 32).add (hQinv.const_mul 8)).add
       (hallRounds_div_hallM_tendsto_zero.const_mul 8)).add
-        (hallRounds_div_hallQ_tendsto_zero.const_mul 2) using 1 <;> ring
+        (hallRounds_div_hallQ_tendsto_zero.const_mul 2) using 1 <;> ring_nf
   apply squeeze_zero' (Eventually.of_forall fun _ ↦ by positivity) _ hU
   filter_upwards [hallM_pos_eventually, hallQ_one_lt_eventually] with N hM hQ
   have hM' : (0 : ℝ) < hallM N := by exact_mod_cast hM
@@ -3451,7 +3451,7 @@ theorem finite_subset_success_lower_bound {ε : ℝ} (hε0 : 0 < ε) (hε1 : ε 
       _ = subsetFailureBound ε N := by
         unfold subsetFailureBound
         rw [hcard]
-  letI : Nonempty (KSubsets G k) :=
+  let : Nonempty (KSubsets G k) :=
     Fintype.card_pos_iff.mp (card_KSubsets_pos hkG)
   rw [uniformProbability_not] at hsetFailure'
   unfold subsetSuccessProbability
@@ -3488,7 +3488,7 @@ lemma subsetSuccessProbability_le_one_of_card {G : Type*}
     [AddCommGroup G] [Fintype G] {ε : ℝ} {k : ℕ}
     (hk : k ≤ Fintype.card G) :
     subsetSuccessProbability (G := G) ε k ≤ 1 := by
-  letI : Nonempty (KSubsets G k) :=
+  let : Nonempty (KSubsets G k) :=
     Fintype.card_pos_iff.mp (card_KSubsets_pos hk)
   unfold subsetSuccessProbability uniformProbability
   exact Erdos807.FiniteUniform.probability_le_one _

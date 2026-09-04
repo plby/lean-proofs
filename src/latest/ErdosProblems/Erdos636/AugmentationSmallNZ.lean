@@ -88,15 +88,15 @@ theorem uniformProbability_innerDegreeBad_le
       innerLinearFailure nD K deviation := by
   classical
   have hfeasible : nD ≤ Fintype.card D1 := by simp [hhalf]; omega
-  letI : Nonempty D1 := by
+  let : Nonempty D1 := by
     have : 0 < D1.card := by omega
     obtain ⟨v, hv⟩ := Finset.card_pos.mp this
     exact ⟨⟨v, hv⟩⟩
-  letI : Nonempty
+  let : Nonempty
       (Erdos88.BooleanSlices.BooleanSlicePoint D1 nD) :=
     SliceMoments.nonempty_booleanSlicePoint D1 nD (by simpa using hfeasible)
   let E := AugmentationGraphPartial.boolSliceEquivBooleanSlicePoint D1 nD
-  letI : Nonempty (BoolSlice D1 nD) := E.nonempty_congr.mpr inferInstance
+  let : Nonempty (BoolSlice D1 nD) := E.nonempty_congr.mpr inferInstance
   let q : D1 -> Real := fun u => incidence G x u.1
   have hqbound : ∀ u, |q u| ≤ (K : Real) := by
     intro u
@@ -401,11 +401,11 @@ theorem uniformProbability_oneStateValue_collision_le
   have hD1pos : 0 < Fintype.card D1 := by
     simp only [Fintype.card_coe, hhalf]
     omega
-  letI : Nonempty
+  let : Nonempty
       (Erdos88.BooleanSlices.BooleanSlicePoint D1 nD) :=
     SliceMoments.nonempty_booleanSlicePoint D1 nD (by omega)
   let E := AugmentationGraphPartial.boolSliceEquivBooleanSlicePoint D1 nD
-  letI : Nonempty (BoolSlice D1 nD) := E.nonempty_congr.mpr inferInstance
+  let : Nonempty (BoolSlice D1 nD) := E.nonempty_congr.mpr inferInstance
   let a : D1 -> Int := fun u =>
     AugmentationGraphFullIdentity.reservoirIncidence G D1 y u -
       AugmentationGraphFullIdentity.reservoirIncidence G D1 x u
@@ -571,13 +571,13 @@ theorem one_third_le_layerProbability_innerWindowGood_oneState
       (fun D => AugmentationGraphFull.innerWindowGood
         G W U0 M (nS + 1) L (center D) radius D) := by
   classical
-  letI : LinearOrder (Finset V) := AugmentationGraphPartial.cellLinearOrder
+  let : LinearOrder (Finset V) := AugmentationGraphPartial.cellLinearOrder
   have hnD : nD ≤ D1.card := by omega
-  letI : Nonempty
+  let : Nonempty
       (Erdos88.BooleanSlices.BooleanSlicePoint D1 nD) :=
     SliceMoments.nonempty_booleanSlicePoint D1 nD hnD
   let BS := AugmentationGraphPartial.boolSliceEquivBooleanSlicePoint D1 nD
-  letI : Nonempty (BoolSlice D1 nD) := BS.nonempty_congr.mpr inferInstance
+  let : Nonempty (BoolSlice D1 nD) := BS.nonempty_congr.mpr inferInstance
   let value : Finset V -> BoolSlice D1 nD -> Nat := fun x omega =>
     oneStateValue G W U0
       (AugmentationGraphPartial.sampleFinset D1 nD omega) state x
@@ -1109,11 +1109,11 @@ theorem uniformProbability_oneStateValue_collision_le_general
   have hD1pos : 0 < Fintype.card D1 := by
     simp only [Fintype.card_coe, hhalf]
     omega
-  letI : Nonempty
+  let : Nonempty
       (Erdos88.BooleanSlices.BooleanSlicePoint D1 nD) :=
     SliceMoments.nonempty_booleanSlicePoint D1 nD (by omega)
   let E := AugmentationGraphPartial.boolSliceEquivBooleanSlicePoint D1 nD
-  letI : Nonempty (BoolSlice D1 nD) := E.nonempty_congr.mpr inferInstance
+  let : Nonempty (BoolSlice D1 nD) := E.nonempty_congr.mpr inferInstance
   let a : D1 -> Int := fun u =>
     AugmentationGraphFullIdentity.reservoirIncidence G D1 y u -
       AugmentationGraphFullIdentity.reservoirIncidence G D1 x u

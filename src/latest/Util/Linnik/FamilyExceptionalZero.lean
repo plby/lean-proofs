@@ -32,7 +32,7 @@ theorem upperHighZeroIndex_eq_of_lifts_eq
   rcases j with ⟨⟨q', hqmem'⟩, ⟨chi', hchiPrim'⟩, ⟨rho', hrhoMem'⟩⟩
   dsimp only at hq hrho heq hchi
   subst q'
-  letI : NeZero q := ⟨by have h := (Finset.mem_Ioc.mp hqmem).1; omega⟩
+  let : NeZero q := ⟨by have h := (Finset.mem_Ioc.mp hqmem).1; omega⟩
   have hchar : chi = chi' := by
     exact not_ne_iff.mp ((goldfeldCharactersDistinct_same_level_iff chi chi').not.mp hchi)
   subst chi'
@@ -136,7 +136,7 @@ theorem exists_family_exceptional_width :
     exact ⟨hsquare, him, by simp only [upperHighZeroWeight, horder, Nat.cast_one]⟩
   · intro i j hi hj
     let d := Nat.lcm i.1.val j.1.val
-    letI : NeZero d := ⟨Nat.lcm_ne_zero (NeZero.ne i.1.val) (NeZero.ne j.1.val)⟩
+    let : NeZero d := ⟨Nat.lcm_ne_zero (NeZero.ne i.1.val) (NeZero.ne j.1.val)⟩
     have hn₁ := hnear i j hi Mu (by omega) (le_max_right _ _)
     have hn₂ := hnear j i hj Mu (by omega) (le_max_right _ _)
     rw [Nat.lcm_comm j.1.val i.1.val] at hn₂

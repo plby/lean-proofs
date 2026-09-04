@@ -524,8 +524,8 @@ private theorem quadratic_alg_sq
     (ha : ∀ r : K, r ^ 2 ≠ a) (hb : ∀ r : K, r ^ 2 ≠ b)
     (hab : a = b * u ^ 2) :
     Nonempty (QuadraticAlgebra K a 0 ≃ₐ[K] QuadraticAlgebra K b 0) := by
-  letI : Fact (∀ r : K, r ^ 2 ≠ a + 0 * r) := ⟨by simpa using ha⟩
-  letI : Fact (∀ r : K, r ^ 2 ≠ b + 0 * r) := ⟨by simpa using hb⟩
+  let : Fact (∀ r : K, r ^ 2 ≠ a + 0 * r) := ⟨by simpa using ha⟩
+  let : Fact (∀ r : K, r ^ 2 ≠ b + 0 * r) := ⟨by simpa using hb⟩
   let φ : QuadraticAlgebra K a 0 →ₐ[K] QuadraticAlgebra K b 0 :=
     QuadraticAlgebra.lift ⟨u • QuadraticAlgebra.omega, by
       rw [smul_mul_smul, QuadraticAlgebra.omega_mul_omega_eq_add]
@@ -660,7 +660,7 @@ theorem padic_quadratic_classification
     rintro ⟨r, hr⟩
     have h := (X_pow_sub_C_irreducible_iff_of_prime Nat.prime_two).1 hirr r
     exact h (by simpa [pow_two] using hr.symm)
-  letI : Fact (∀ r : ℚ_[2], r ^ 2 ≠ d + 0 * r) := ⟨by
+  let : Fact (∀ r : ℚ_[2], r ^ 2 ≠ d + 0 * r) := ⟨by
     intro r hr
     apply hdnsq
     exact ⟨r, by simpa [pow_two] using hr.symm⟩⟩

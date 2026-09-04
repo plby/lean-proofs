@@ -458,12 +458,12 @@ lemma exists_counterexample (c : ℝ) (hc : 0 < c) (N : ℕ) :
       (1 / 8 - c) * n ^ 2 ≤ G.edgeFinset.card ∧
       G.CliqueFree 4 ∧ G.indepNum < (n : ℝ) / Real.log n := by
   rcases exists_raw_counterexample c hc N with ⟨W⟩
-  letI : Fintype W.Vertex := W.fintypeVertex
+  let : Fintype W.Vertex := W.fintypeVertex
   let n : ℕ := Fintype.card W.Vertex
   let e : W.Vertex ≃ Fin n := Fintype.equivFin W.Vertex
   let Gfin : SimpleGraph (Fin n) := W.graph.map e.toEmbedding
-  letI : DecidableRel Gfin.Adj := fun _ _ ↦ Classical.propDecidable _
-  letI : Nonempty W.Vertex := Fintype.card_pos_iff.mp W.card_pos
+  let : DecidableRel Gfin.Adj := fun _ _ ↦ Classical.propDecidable _
+  let : Nonempty W.Vertex := Fintype.card_pos_iff.mp W.card_pos
   have hedgeEq : Gfin.edgeFinset.card = Nat.card W.graph.edgeSet := by
     calc
       Gfin.edgeFinset.card = W.graph.edgeFinset.card := by

@@ -38,7 +38,7 @@ theorem primeGenus_split {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) (s : SplitPrime d 
     letI := quadraticOrderIsDomain hD
     primeGenus hD s.1 = genusMap (s.idealClass hD) := by
   classical
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   have hex : ∃ t : SplitPrime d b, t.1 = s.1 := ⟨s, rfl⟩
   have heq : hex.choose = s := Subtype.ext hex.choose_spec
   simp only [primeGenus, dif_pos hex, heq]
@@ -57,14 +57,14 @@ theorem genusValue_one {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
 theorem genusValue_mul {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) {m n : ℕ} (hm : 0 < m) (hn : 0 < n) :
     letI := quadraticOrderIsDomain hD
     genusValue hD (m * n) = genusValue hD m * genusValue hD n := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   rw [genusValue, Nat.factorization_mul hm.ne' hn.ne']
   exact Finsupp.prod_add_index' (fun _ => pow_zero _) (fun _ _ _ => pow_add _ _ _)
 
 theorem genusValue_primePower {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) {p : ℕ} (hp : p.Prime) (e : ℕ) :
     letI := quadraticOrderIsDomain hD
     genusValue hD (p ^ e) = primeGenus hD p ^ e := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   rw [genusValue, hp.factorization_pow, Finsupp.prod_single_index]
   exact pow_zero _
 
@@ -74,7 +74,7 @@ theorem genusValue_goodMaximal_norm {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       (P : Ideal (QuadraticAlgebra ℤ d b)).IsMaximal →
       IsCoprime (P : Ideal (QuadraticAlgebra ℤ d b)) (quadraticBadIdeal d b) →
       genusValue hD (P : Ideal (QuadraticAlgebra ℤ d b)).cardQuot = genusMap P.idealClass := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro P hP hPF
   obtain ⟨q, hq, _, h | ⟨s, hs, ε, rfl⟩⟩ := goodMaximal_prime_description hD P hP hPF
   · rw [h.2.1, h.2.2, map_one, genusValue_primePower hD hq, genusGroup_sq]
@@ -92,7 +92,7 @@ theorem genusValue_goodIdeal_norm {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ I : InvertibleIdeal (QuadraticAlgebra ℤ d b),
       IsCoprime (I : Ideal (QuadraticAlgebra ℤ d b)) (quadraticBadIdeal d b) →
       genusValue hD (I : Ideal (QuadraticAlgebra ℤ d b)).cardQuot = genusMap I.idealClass := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I hIF
   obtain ⟨l, hl, hP⟩ := goodQuadraticIdeal_factorization hD I hIF
   rw [← hl]

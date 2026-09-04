@@ -384,7 +384,8 @@ private lemma edgeFinset_duplication :
       | inl x =>
           cases y with
           | inl y =>
-              simp [duplication, Sym2.eq_iff, G.adj_comm]
+              simp only [duplication_adj_old_old, Sym2.eq, Sym2.rel_iff', Prod.mk.injEq, Sum.inl.injEq, Prod.swap_prod_mk,
+    reduceCtorEq, false_and, and_false, or_self, exists_false, or_false]
               constructor
               · intro hxy
                 exact ⟨x, y, hxy, Or.inl ⟨rfl, rfl⟩⟩

@@ -136,7 +136,7 @@ of the full residue space. -/
 theorem congruenceModule_index_le {m n : ℕ}
     (A : Fin m → Fin n → ℤ) (q : Fin m → ℕ) (hq : ∀ j, 0 < q j) :
     (congruenceModule A q).toAddSubgroup.index ≤ ∏ j, q j := by
-  letI (j : Fin m) : NeZero (q j) := ⟨(hq j).ne'⟩
+  let (j : Fin m) : NeZero (q j) := ⟨(hq j).ne'⟩
   change (congruenceMap A q).toAddMonoidHom.ker.index ≤ _
   rw [AddSubgroup.index_ker]
   calc
@@ -154,7 +154,7 @@ theorem congruenceModule_index_le {m n : ℕ}
 theorem congruenceModule_index_ne_zero {m n : ℕ}
     (A : Fin m → Fin n → ℤ) (q : Fin m → ℕ) (hq : ∀ j, 0 < q j) :
     (congruenceModule A q).toAddSubgroup.index ≠ 0 := by
-  letI (j : Fin m) : NeZero (q j) := ⟨(hq j).ne'⟩
+  let (j : Fin m) : NeZero (q j) := ⟨(hq j).ne'⟩
   change (congruenceMap A q).toAddMonoidHom.ker.index ≠ 0
   rw [AddSubgroup.index_ker]
   have hrange : Finite (congruenceMap A q).toAddMonoidHom.range := inferInstance

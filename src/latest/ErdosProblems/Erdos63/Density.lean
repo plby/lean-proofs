@@ -220,7 +220,7 @@ theorem exists_induced_core_avgDegreeAtLeast [Fintype V] [Nonempty V]
     have hcard := Finset.card_erase_add_one x.2
     omega
   refine ⟨S, hSne, hSavg, ?_⟩
-  letI : Nonempty (↑S : Set V) :=
+  let : Nonempty (↑S : Set V) :=
     ⟨⟨hSne.choose, hSne.choose_spec⟩⟩
   exact K.le_minDegree_of_forall_le_degree (d / 2) hdegree
 

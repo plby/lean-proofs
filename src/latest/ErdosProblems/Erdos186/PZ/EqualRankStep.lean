@@ -172,7 +172,7 @@ theorem CenteredDiscreteJohnCertificate.rank_pos_of_two_le_restriction_card
   have houterCard : J.certificate.outer.carrier.card = 1 := by
     rw [GAP.card_carrier_eq_volume _ J.certificate.outer_proper,
       DiscreteJohn.Certificate.outer, DiscreteJohn.symmetricGAP_volume]
-    letI : IsEmpty (Fin J.rank) := ⟨fun i ↦ by
+    let : IsEmpty (Fin J.rank) := ⟨fun i ↦ by
       have hi := i.isLt
       omega⟩
     simp

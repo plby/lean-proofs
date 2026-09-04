@@ -333,7 +333,7 @@ theorem highVelocitySmallMinimum_eventually_lt
   have hE : Tendsto E atTop (𝓝 0) := by
     have h := growingVelocityCutoff_cube_mul_quantitativePhaseDensityError_tendsto_zero.const_mul
       (648 * Real.pi ^ 2 * (u + 2))
-    convert h using 1 <;> simp [E] <;> ring
+    convert h using 1 <;> simp [E] <;> ring_nf
   have hrem := hE.add uniformProbability_highMeshVelocity_growing_tendsto_zero
   have hrem' : Tendsto (fun n : ℕ ↦
       E n + uniformProbability (HasHighMeshVelocity n (growingVelocityCutoff n)))

@@ -95,7 +95,7 @@ theorem projectiveDiagonal_reachable_root {n : ℕ} (hn : 2 ≤ n) (hnEven : n %
 
 theorem projectiveDiagonal_connected {n : ℕ} (hn : 2 ≤ n) (hnEven : n % 2 = 0) :
     (projectiveDiagonalGraph hn).Connected := by
-  letI : Nonempty (Fin n × Fin n) := ⟨projectiveRoot hn⟩
+  let : Nonempty (Fin n × Fin n) := ⟨projectiveRoot hn⟩
   refine ⟨fun u v => ?_⟩
   exact (projectiveDiagonal_reachable_root hn hnEven u).trans
     (projectiveDiagonal_reachable_root hn hnEven v).symm

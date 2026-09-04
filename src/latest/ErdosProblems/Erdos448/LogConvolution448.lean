@@ -47,7 +47,7 @@ lemma sum_range_succ_rpow_neg_le (a : ℝ) (ha0 : 0 ≤ a) (ha1 : a < 1)
     _ = ((N : ℝ) ^ (1 - a) - 1) / (1 - a) := by
       rw [integral_rpow]
       · norm_num
-        ring
+        ring_nf
       · left
         linarith
 

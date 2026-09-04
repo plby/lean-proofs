@@ -17,7 +17,7 @@ theorem genusLocalAF_apply {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       if 0 < n ∧ ParityAdmissible (fun p => discriminantCharacter _ hD.ne p = -1) n ∧
         n.Coprime (discriminantLevel (b ^ 2 + 4 * d))
       then ψ (Additive.ofMul (genusValue hD n)) else 0 := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ n
   by_cases hn : n = 0
   · subst n
@@ -34,7 +34,7 @@ theorem genusLocalAF_norm {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ n : ℕ, ‖genusLocalAF hD ψ n‖ =
       if 0 < n ∧ ParityAdmissible (fun p => discriminantCharacter _ hD.ne p = -1) n ∧
         n.Coprime (discriminantLevel (b ^ 2 + 4 * d)) then 1 else 0 := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ n
   rw [genusLocalAF_apply]
   split_ifs
@@ -45,7 +45,7 @@ theorem genusLocalAF_summable {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
     ∀ s : ℂ, 1 < s.re → LSeriesSummable (genusLocalAF hD ψ) s := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ s hs
   apply LSeriesSummable_of_le_const_mul_rpow hs
   refine ⟨1, fun n _ => ?_⟩
@@ -57,7 +57,7 @@ theorem genusIdealAF_summable {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
     ∀ s : ℂ, 1 < s.re → LSeriesSummable (genusIdealAF hD ψ) s := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ s hs
   rw [genusIdealAF_eq_coeff]
   exact weightedIdealNormCoeff_summable hD (quadraticBadIdeal d b) _ s hs
@@ -68,7 +68,7 @@ theorem genusLocalLSeries_square {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ s : ℂ, 1 < s.re →
       LSeries (genusLocalAF hD ψ) s ^ 2 = LSeries (genusIdealAF hD ψ) s *
         LSeries (squareSupportAF (fun p => discriminantCharacter _ hD.ne p = -1)) s := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ s hs
   rw [pow_two, ← ArithmeticFunction.LSeries_mul' (genusLocalAF_summable hD ψ s hs)
     (genusLocalAF_summable hD ψ s hs), genusLocalAF_square,
@@ -81,7 +81,7 @@ theorem genusLocalLSeries_square_continuation {d b : ℤ} (hD : b ^ 2 + 4 * d < 
       ∃ F : ℂ → ℂ,
         (∀ s : ℂ, (1 / 2 : ℝ) < s.re → DifferentiableAt ℂ F s) ∧
         (∀ s : ℂ, 1 < s.re → F s = LSeries (genusLocalAF hD ψ) s ^ 2) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ hψ
   obtain ⟨G, hG, hGeq⟩ := genusIdealLSeries_continuation hD ψ hψ
   let H := squareSupportAF (fun p => discriminantCharacter _ hD.ne p = -1)

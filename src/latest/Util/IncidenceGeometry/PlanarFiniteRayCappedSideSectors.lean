@@ -263,7 +263,7 @@ lemma PlanarFiniteRayCappedSideSectors
     · exact ⟨by simpa [w] using hz0, by simp [w]; nlinarith [hdeltaSq],
         by simp [w, hdelta], by simp [w, hdeltaK]⟩
     · rw [EuclideanSpace.dist_eq, Fin.sum_univ_two]
-      simp [w, hz1, Real.dist_eq, Real.sqrt_sq_eq_abs, abs_of_pos hdelta]
+      simp only [Fin.isValue]
       exact hdeltaEps
   have hGclosureRight : germModel ⊆ closure rightModel := by
     intro z hzG
@@ -296,7 +296,7 @@ lemma PlanarFiniteRayCappedSideSectors
     · exact ⟨by simpa [w] using hz0, by simp [w]; nlinarith [hdeltaSq],
         by simp [w]; nlinarith, by simp [w, hdelta]⟩
     · rw [EuclideanSpace.dist_eq, Fin.sum_univ_two]
-      simp [w, hz1, Real.dist_eq, Real.sqrt_sq_eq_abs, abs_of_pos hdelta]
+      simp only [Fin.isValue]
       exact hdeltaEps
   have hzeroClosureGerm :
       (0 : EuclideanSpace ℝ (Fin 2)) ∈ closure germModel := by
@@ -319,7 +319,7 @@ lemma PlanarFiniteRayCappedSideSectors
       · simpa [z] using hta
       · simp [z]
     · rw [EuclideanSpace.dist_eq, Fin.sum_univ_two]
-      simp [z, Real.dist_eq, Real.sqrt_sq_eq_abs, abs_of_pos ht]
+      simp only [Fin.isValue, PiLp.zero_apply, dist_zero, Real.norm_eq_abs, sq_abs]
       exact htepsilon
   have hchartContinuous : Continuous chart := by
     dsimp [chart]

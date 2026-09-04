@@ -41,9 +41,9 @@ lemma thinning_bad_probability_le
   let BottomDiagnostic :
       (Sigma fun _F : Finset α ↦ Finset α) → Prop :=
     fun p ↦ Diagnostic (thinningExtendToDelete p)
-  letI topMissDecidable : DecidablePred TopMiss :=
+  let topMissDecidable : DecidablePred TopMiss :=
     fun p ↦ Classical.propDecidable (TopMiss p)
-  letI bottomDiagnosticDecidable : DecidablePred BottomDiagnostic :=
+  let bottomDiagnosticDecidable : DecidablePred BottomDiagnostic :=
     fun p ↦ Classical.propDecidable (BottomDiagnostic p)
   have hbad :
       finsetProbability (K.powersetCard M) Bad =

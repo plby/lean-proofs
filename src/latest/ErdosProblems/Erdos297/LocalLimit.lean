@@ -186,7 +186,7 @@ theorem residueMass_le_exact_add_offLattice
           Int.natAbs ((∑ i ∈ B, (step i : ℤ)) - (target : ℤ)) := by
         simpa only [Nat.cast_sum] using hfar
       simp [heq, hmod, hfar', hw]
-    · simp [heq, hmod]
+    · simp only [Nat.cast_sum, ge_iff_le]
       split_ifs <;> positivity
 
 /-- The integer off-lattice event is the ordinary real tail of the cleared
@@ -724,7 +724,7 @@ theorem eventually_local_limit_normalizedLogistic_of_minorArc
     hminor] with N hM hp hmean htail hmajor hminorN
   let I := Erdos297.LogisticNormalization.goodSet N
   let p := Erdos297.LogisticNormalization.normalizedLogisticProbability lam N
-  letI : NeZero (activeLcm I) := ⟨activeLcm_ne_zero I⟩
+  let : NeZero (activeLcm I) := ⟨activeLcm_ne_zero I⟩
   have hI : I ⊆ goodDenominators N (M N) (S N) := by
     simpa [I, Erdos297.LogisticNormalization.goodSet]
   have hIcc : I ⊆ Icc (M N) N := by

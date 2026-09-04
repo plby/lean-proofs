@@ -112,7 +112,7 @@ theorem exists_boundedMultiRootedFamilyEmbeddings_of_finite_bounds
   classical
   let ambientEmbedding : Fin v ↪ Fin n :=
     Classical.choice (inferInstance : Nonempty (Fin v ↪ Fin n))
-  letI : Nonempty (Fin n) :=
+  let : Nonempty (Fin n) :=
     ⟨ambientEmbedding ⟨0, by
       have hrootCard := Finset.card_le_univ P.root
       have : 0 < P.root.card := Finset.card_pos.mpr hrootNonempty
@@ -327,7 +327,7 @@ theorem exists_trackedBoundedMultiRootedFamilyEmbeddings_of_finite_bounds
   classical
   let ambientEmbedding : Fin v ↪ Fin n :=
     Classical.choice (inferInstance : Nonempty (Fin v ↪ Fin n))
-  letI : Nonempty (Fin n) :=
+  let : Nonempty (Fin n) :=
     ⟨ambientEmbedding ⟨0, by
       have hrootCard := Finset.card_le_univ P.root
       have : 0 < P.root.card := Finset.card_pos.mpr hrootNonempty

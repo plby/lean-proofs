@@ -86,7 +86,7 @@ theorem edgeColorable_of_support_at_most_eighth {V : Type*} [Fintype V]
   let B := H.largePart.vertexSupport
   by_cases hBzero : B.ncard = 0
   · have hBempty : B = ∅ := (Set.ncard_eq_zero (Set.toFinite B)).mp hBzero
-    haveI : Nonempty V := Fintype.card_pos_iff.mp hn
+    have : Nonempty V := Fintype.card_pos_iff.mp hn
     apply H.edgeColorable_of_edge_ncard_le_two hlinear
     intro e
     by_contra he

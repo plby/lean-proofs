@@ -1645,7 +1645,7 @@ theorem exists_pivot_internal_normalization
     simpa using hm
   have hσzero : σ 0 = 0 := hσfix 0 h0A
   let H1 := H.comap σ
-  letI : DecidableRel H1.Adj := by
+  let : DecidableRel H1.Adj := by
     dsimp only [H1]
     exact SimpleGraph.instDecidableComapAdj σ H
   have hroot1 : RootRow H1 d := by
@@ -1861,7 +1861,7 @@ theorem exists_historical_root_parameters
       ∀ q, CochromaticColorable H q ↔ CochromaticColorable G q := by
   classical
   let O := D12Normalization.orientAtZero G
-  letI : DecidableRel O.Adj := Classical.decRel _
+  let : DecidableRel O.Adj := Classical.decRel _
   have hnoO : HasNoHomogeneousFour O := by
     dsimp only [O, D12Normalization.orientAtZero]
     split
@@ -1870,7 +1870,7 @@ theorem exists_historical_root_parameters
   obtain ⟨σ, _, hrow⟩ :=
     D12Normalization.exists_root_neighbor_normalization O
   let H0 := O.comap σ
-  letI : DecidableRel H0.Adj := by
+  let : DecidableRel H0.Adj := by
     dsimp only [H0]
     exact SimpleGraph.instDecidableComapAdj σ O
   let d := D12Normalization.degree12 O 0
@@ -1893,7 +1893,7 @@ theorem exists_historical_root_parameters
     obtain ⟨H1, r, hr, hroot1, hin1, hno1, htrans1⟩ :=
       exists_pivot_internal_normalization H0 6 3 (by omega) (by omega)
         (by omega) hroot0 hno0
-    letI : DecidableRel H1.Adj := Classical.decRel _
+    let : DecidableRel H1.Adj := Classical.decRel _
     obtain ⟨H2, s, hs, hroot2, hin2, hout2, hno2, htrans2⟩ :=
       exists_row_one_outside_normalization H1 6 r (by omega) (by omega)
         hroot1 hin1 hno1
@@ -1907,7 +1907,7 @@ theorem exists_historical_root_parameters
     obtain ⟨H1, r, hr, hroot1, hin1, hno1, htrans1⟩ :=
       exists_pivot_internal_normalization H0 7 3 (by omega) (by omega)
         (by omega) hroot0 hno0
-    letI : DecidableRel H1.Adj := Classical.decRel _
+    let : DecidableRel H1.Adj := Classical.decRel _
     obtain ⟨H2, s, hs, hroot2, hin2, hout2, hno2, htrans2⟩ :=
       exists_row_one_outside_normalization H1 7 r (by omega) (by omega)
         hroot1 hin1 hno1
@@ -1969,7 +1969,7 @@ theorem exists_oriented_root_normalization (G : SimpleGraph (Fin 12)) :
         CochromaticColorable G k := by
   classical
   let H := D12Normalization.orientAtZero G
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   obtain ⟨σ, _, hrow⟩ := D12Normalization.exists_root_neighbor_normalization H
   refine ⟨σ, D12Normalization.orientAtZero_degree G,
     D12Normalization.orientAtZero_degree_le G, hrow, ?_⟩
@@ -2174,49 +2174,49 @@ private theorem graphEdge_edgeIndex12_row3 (G : SimpleGraph (Fin 12)) (j : Fin 1
 private theorem graphEdge_edgeIndex12_row4 (G : SimpleGraph (Fin 12)) (j : Fin 12)
     (hij : (4 : Fin 12) ≠ j) :
     graphEdge G (edgeIndex12 4 j.val) ↔ G.Adj 4 j := by
-  fin_cases j <;> simp_all [graphEdge, edgeIndex12]
+  fin_cases j <;> simp_all only [Fin.isValue, Fin.mk_one, Fin.reduceFinMk, Fin.zero_eta]
   all_goals exact G.adj_comm _ _
 
 private theorem graphEdge_edgeIndex12_row5 (G : SimpleGraph (Fin 12)) (j : Fin 12)
     (hij : (5 : Fin 12) ≠ j) :
     graphEdge G (edgeIndex12 5 j.val) ↔ G.Adj 5 j := by
-  fin_cases j <;> simp_all [graphEdge, edgeIndex12]
+  fin_cases j <;> simp_all only [Fin.isValue, Fin.mk_one, Fin.reduceFinMk, Fin.zero_eta]
   all_goals exact G.adj_comm _ _
 
 private theorem graphEdge_edgeIndex12_row6 (G : SimpleGraph (Fin 12)) (j : Fin 12)
     (hij : (6 : Fin 12) ≠ j) :
     graphEdge G (edgeIndex12 6 j.val) ↔ G.Adj 6 j := by
-  fin_cases j <;> simp_all [graphEdge, edgeIndex12]
+  fin_cases j <;> simp_all only [Fin.isValue, Fin.mk_one, Fin.reduceFinMk, Fin.zero_eta]
   all_goals exact G.adj_comm _ _
 
 private theorem graphEdge_edgeIndex12_row7 (G : SimpleGraph (Fin 12)) (j : Fin 12)
     (hij : (7 : Fin 12) ≠ j) :
     graphEdge G (edgeIndex12 7 j.val) ↔ G.Adj 7 j := by
-  fin_cases j <;> simp_all [graphEdge, edgeIndex12]
+  fin_cases j <;> simp_all only [Fin.isValue, Fin.mk_one, Fin.reduceFinMk, Fin.zero_eta]
   all_goals exact G.adj_comm _ _
 
 private theorem graphEdge_edgeIndex12_row8 (G : SimpleGraph (Fin 12)) (j : Fin 12)
     (hij : (8 : Fin 12) ≠ j) :
     graphEdge G (edgeIndex12 8 j.val) ↔ G.Adj 8 j := by
-  fin_cases j <;> simp_all [graphEdge, edgeIndex12]
+  fin_cases j <;> simp_all only [Fin.isValue, Fin.mk_one, Fin.reduceFinMk, Fin.zero_eta]
   all_goals exact G.adj_comm _ _
 
 private theorem graphEdge_edgeIndex12_row9 (G : SimpleGraph (Fin 12)) (j : Fin 12)
     (hij : (9 : Fin 12) ≠ j) :
     graphEdge G (edgeIndex12 9 j.val) ↔ G.Adj 9 j := by
-  fin_cases j <;> simp_all [graphEdge, edgeIndex12]
+  fin_cases j <;> simp_all only [Fin.isValue, Fin.mk_one, Fin.reduceFinMk, Fin.zero_eta]
   all_goals exact G.adj_comm _ _
 
 private theorem graphEdge_edgeIndex12_row10 (G : SimpleGraph (Fin 12)) (j : Fin 12)
     (hij : (10 : Fin 12) ≠ j) :
     graphEdge G (edgeIndex12 10 j.val) ↔ G.Adj 10 j := by
-  fin_cases j <;> simp_all [graphEdge, edgeIndex12]
+  fin_cases j <;> simp_all only [Fin.isValue, Fin.mk_one, Fin.reduceFinMk, Fin.zero_eta]
   all_goals exact G.adj_comm _ _
 
 private theorem graphEdge_edgeIndex12_row11 (G : SimpleGraph (Fin 12)) (j : Fin 12)
     (hij : (11 : Fin 12) ≠ j) :
     graphEdge G (edgeIndex12 11 j.val) ↔ G.Adj 11 j := by
-  fin_cases j <;> simp_all [graphEdge, edgeIndex12]
+  fin_cases j <;> simp_all only [Fin.isValue, Fin.mk_one, Fin.reduceFinMk, Fin.zero_eta]
   all_goals exact G.adj_comm _ _
 
 theorem graphEdge_edgeIndex12 (G : SimpleGraph (Fin 12)) (i j : Fin 12)
@@ -2732,7 +2732,7 @@ theorem colorable_four_of_no_homogeneous_four
   obtain ⟨H, hparameters, hnoH, htransport⟩ :=
     exists_historical_root_parameters G hno
   apply (htransport 4).mp
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   rcases hparameters with hd6 | hd7 | hd8 | hd9 | hd10 | hd11
   · obtain ⟨r, hr, s, hs, hroot, hinside, houtside⟩ := hd6
     interval_cases r

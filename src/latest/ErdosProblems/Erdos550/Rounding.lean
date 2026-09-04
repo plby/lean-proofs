@@ -220,11 +220,17 @@ lemma Ycard_ae_le {a : ℕ}
       obtain ⟨ T, hT ⟩ := Finset.exists_subset_card_eq h;
       exact ⟨ T, by rw [ hT.2, Nat.succ_eq_add_one, Nat.sub_add_cancel ( Nat.pos_of_ne_zero ha ) ], fun x hx i => hS x ( hT.1 hx ) i ( Set.mem_univ i ) ⟩;
     by_cases h_finite : Set.Finite {x : X | compatCount A ω x = q};
-    · have h_s_encard : ∑' x : X, (if compatCount A ω x = q then 1 else 0) = ∑ x ∈ h_finite.toFinset, (1 : ℝ≥0∞) := by
+    · have hsum : ∑' x : X, (if compatCount A ω x = q then 1 else 0) = ∑ x ∈ h_finite.toFinset, (1 : ℝ≥0∞) := by
         rw [ tsum_eq_sum ];
         exacts [ Finset.sum_congr rfl fun x hx => if_pos <| h_finite.mem_toFinset.mp hx, fun x hx => if_neg <| fun hx' => hx <| h_finite.mem_toFinset.mpr hx' ];
-      simp_all +decide [ Ycard ];
-      exact_mod_cast ‹∀ S : Finset X, ( ∀ x ∈ S, compatCount A ω x = q ) → #S ≤ a - 1› _ fun x hx => h_finite.mem_toFinset.mp hx;
+      have hcard : h_finite.toFinset.card ≤ a - 1 :=
+        h_s_encard _ fun x hx => h_finite.mem_toFinset.mp hx
+      calc
+        Ycard A ω = (h_finite.toFinset.card : ℝ≥0∞) := by
+          unfold Ycard
+          rw [hsum]
+          simp
+        _ ≤ ((a : ℕ) - 1 : ℕ) := by exact_mod_cast hcard
     · contrapose! h_s_encard;
       obtain ⟨ S, hS ⟩ := Set.Infinite.exists_subset_card_eq h_finite ( a - 1 + 1 );
       exact ⟨ S, fun x hx => hS.1 hx, by rw [ hS.2 ] ; exact Nat.lt_succ_self _ ⟩
@@ -258,7 +264,7 @@ lemma Ucard_dichotomy {a : ℕ} (ω : ∀ i, Ω i) :
     rcases exists_lt_of_lt_ciSup h.1 with ⟨ s, hs ⟩ ; exact ⟨ s, by exact_mod_cast hs ⟩;
   refine' h.2.not_ge _;
   refine' le_trans _ ( le_ciSup _ s );
-  · simp +zetaDelta at *;
+  · simp +zetaDelta only [sum_boole, Nat.cast_le] at *;
     exact Nat.le_of_pred_lt hs;
   · exact OrderTop.bddAbove _
 
@@ -306,13 +312,30 @@ lemma exists_good_outcome {a : ℕ} (hq : 2 ≤ q) (ha : 1 ≤ a)
   · have h_finite : ∑' x : X, (if compatCount A ω x ≤ q - 2 then 1 else 0 : ℝ≥0∞) ≤ (a - 1 : ℕ) := by
       exact hω.1;
     contrapose! h_finite;
-    rw [ ENNReal.tsum_eq_iSup_sum ];
-    refine' lt_of_lt_of_le _ ( le_ciSup _ ( h_finite.exists_subset_card_eq ( a - 1 + 1 ) |> Classical.choose ) );
-    · have := Classical.choose_spec ( h_finite.exists_subset_card_eq ( a - 1 + 1 ) );
-      simp_all +decide [ Set.subset_def ];
-      rw [ ENNReal.sub_lt_iff_lt_right ] <;> norm_cast;
-      exact Nat.lt_succ_self a;
-    · simp +zetaDelta at *;
+    obtain ⟨S, hSsub, hScard⟩ := h_finite.exists_subset_card_eq (a - 1 + 1)
+    rw [ENNReal.tsum_eq_iSup_sum]
+    have hbdd : BddAbove (Set.range fun T : Finset X ↦
+        ∑ x ∈ T, (if compatCount A ω x ≤ q - 2 then 1 else 0 : ℝ≥0∞)) := by
+      refine ⟨⊤, ?_⟩
+      rintro _ ⟨T, rfl⟩
+      exact le_top
+    refine lt_of_lt_of_le ?_ (le_ciSup hbdd S)
+    have hsum :
+        (∑ x ∈ S, if compatCount A ω x ≤ q - 2 then 1 else 0 : ℝ≥0∞) =
+          (a : ℝ≥0∞) := by
+      calc
+        (∑ x ∈ S, if compatCount A ω x ≤ q - 2 then 1 else 0 : ℝ≥0∞) =
+            ∑ x ∈ S, (1 : ℝ≥0∞) := by
+          apply Finset.sum_congr rfl
+          intro x hx
+          have hxgood : compatCount A ω x ≤ q - 2 := hSsub (by simpa using hx)
+          simp [hxgood]
+        _ = (S.card : ℝ≥0∞) := by simp
+        _ = (a : ℝ≥0∞) := by
+          norm_cast
+          omega
+    rw [hsum]
+    exact_mod_cast (show a - 1 < a by omega)
   · have h_card : (Set.ncard {x | compatCount A ω x ≤ q - 2}) ≤ Ucard A ω := by
       by_cases h : Set.Finite { x : X | compatCount A ω x ≤ q - 2 } <;> simp_all +decide [ Ucard ];
       · rw [ tsum_eq_sum ];

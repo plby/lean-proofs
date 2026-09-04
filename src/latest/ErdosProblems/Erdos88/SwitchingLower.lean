@@ -1032,7 +1032,7 @@ lemma requiredPrivateCount_centered_of_row_good
         (FiniteES.vertexDegree G (p i).1 : ℝ)) / 2 -
           ((switchingPrivateNeighbors G p i S₀).card : ℝ) / 2)| ≤
       rowRadius := by
-    convert hrow using 1 <;> ring
+    convert hrow using 1 <;> ring_nf
   have hreal := abs_requiredTarget_sub_half_le hlabel hrow'
   exact abs_sub_natHalf_le_of_abs_sub_realHalf_le hreal
 
@@ -1786,7 +1786,7 @@ lemma sum_degreeInto_comm {V : Type*} [Fintype V] [DecidableEq V]
       AKSGraph.degreeInto G v S =
         ∑ w ∈ S, if G.Adj v w then 1 else 0 := by
     rw [AKSGraph.degreeInto]
-    simp
+    simp only [Finset.sum_boole, Nat.cast_id]
     congr 1
     ext x
     simp [and_comm]
@@ -2048,7 +2048,7 @@ lemma conditional_bulk_of_outsideConditionalMean_close
     exact (outsideConditionalMeanPolynomial_eq_conditionalMeanPolynomial
       G N O hON).symm
   calc
-    |x - M| = |(x - E) + (E - M)| := by ring
+    |x - M| = |(x - E) + (E - M)| := by ring_nf
     _ ≤ |x - E| + |E - M| := abs_add_le _ _
     _ = |x - E| +
         |outsideConditionalMeanPolynomial G N O - E| := by
@@ -3649,7 +3649,7 @@ lemma abs_natCast_sub_realHalf_le_of_dist_le
   calc
     |(x : ℝ) - (b : ℝ) / 2| =
         |((x : ℝ) - ((b / 2 : ℕ) : ℝ)) +
-          (((b / 2 : ℕ) : ℝ) - (b : ℝ) / 2)| := by ring
+          (((b / 2 : ℕ) : ℝ) - (b : ℝ) / 2)| := by ring_nf
     _ ≤ |(x : ℝ) - ((b / 2 : ℕ) : ℝ)| +
         |((b / 2 : ℕ) : ℝ) - (b : ℝ) / 2| := abs_add_le _ _
     _ ≤ (D : ℝ) + 1 / 2 := by
@@ -3842,7 +3842,7 @@ lemma card_outside_states_containing_switchingTuple_and_mean_close_ge_of_firstEx
               (Probability.edgePolynomial G)| =
           |(outsideConditionalMeanPolynomial G N U - X O) +
             (X O - Probability.expectation (1 / 2 : ℝ)
-              (Probability.edgePolynomial G))| := by ring
+              (Probability.edgePolynomial G))| := by ring_nf
         _ ≤ |outsideConditionalMeanPolynomial G N U - X O| +
             |X O - Probability.expectation (1 / 2 : ℝ)
               (Probability.edgePolynomial G)| := abs_add_le _ _
@@ -3921,8 +3921,7 @@ lemma expectation_half_disjoint_union_fubini
       intro S
       congr 1
       ext v
-      simp [E, eUnion, Finset.sumEquiv,
-        BoundedWindow.subtypeSubsetImage]
+      simp only [SetLike.coe_sort_coe, Finset.mem_union]
       constructor
       · rintro ⟨hvA | hvB, hvS⟩
         · exact Or.inl ⟨hvA, by simpa using hvS⟩
@@ -4272,8 +4271,7 @@ lemma variance_half_disjoint_union_conditional_le
       intro S
       congr 1
       ext v
-      simp [E, eUnion, Finset.sumEquiv,
-        BoundedWindow.subtypeSubsetImage]
+      simp only [SetLike.coe_sort_coe, Finset.mem_union]
       constructor
       · rintro ⟨hvA | hvB, hvS⟩
         · exact Or.inl ⟨hvA, by simpa using hvS⟩
@@ -6167,7 +6165,7 @@ theorem exists_canonical_goodTuple_state_lower_of_data
     (fun i ↦ (hgeometry i).2.2.2)
     (by
       intro O hO v hv
-      letI : Nonempty (RawTupleIndex (switchingLabels Bwin) a) :=
+      let : Nonempty (RawTupleIndex (switchingLabels Bwin) a) :=
         Fintype.card_pos_iff.mp (by simpa only [s] using hspos)
       let i₀ := Classical.choice
         (inferInstance : Nonempty (RawTupleIndex (switchingLabels Bwin) a))
@@ -6416,7 +6414,7 @@ theorem exists_uniform_canonical_goodTuple_state_lower_of_data
       intro O hO v hv
       cases isEmpty_or_nonempty (RawTupleIndex (switchingLabels Bwin) a) with
       | inl hI =>
-          letI : IsEmpty (RawTupleIndex (switchingLabels Bwin) a) := hI
+          let : IsEmpty (RawTupleIndex (switchingLabels Bwin) a) := hI
           have : False := by
             change v ∈ Finset.univ.biUnion
               (switchingPrivateBlocksFin G p S₀) at hv
@@ -6424,7 +6422,7 @@ theorem exists_uniform_canonical_goodTuple_state_lower_of_data
             simpa using hv
           exact this.elim
       | inr hI =>
-          letI : Nonempty (RawTupleIndex (switchingLabels Bwin) a) := hI
+          let : Nonempty (RawTupleIndex (switchingLabels Bwin) a) := hI
           let i₀ := Classical.choice
             (inferInstance : Nonempty (RawTupleIndex (switchingLabels Bwin) a))
           exact switchingPrivateCoefficient_le_of_linear_block G p S₀ O i₀

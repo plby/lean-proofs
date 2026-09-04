@@ -341,7 +341,8 @@ noncomputable def booleanSlicePointSubsetEquiv
     apply Subtype.ext
     have hSI := (Erdos88.BooleanSlices.mem_booleanSlice.mp S.2).1
     ext i
-    simp [Erdos88.BooleanSlices.finsetLift]
+    simp only [SetLike.coe_sort_coe, Finset.mem_map, Finset.mem_map_equiv, Equiv.symm_symm, Finset.mem_map_mk,
+    Function.Embedding.subtype_apply, Subtype.exists, exists_and_right, exists_eq_right]
     intro hi
     exact hSI hi
   right_inv T := by
@@ -682,7 +683,7 @@ lemma norm_productSliceConditional_le_of_perturbed
               (Fin.cons S0 tail)).1) t‖ ≤ B := by
   classical
   let H := inducedOverFin G (P.fiber 0)
-  letI : DecidableRel H.Adj := fun _ _ ↦ Classical.propDecidable _
+  let : DecidableRel H.Adj := fun _ _ ↦ Classical.propDecidable _
   let E := booleanSlicePointSubsetEquiv (P.fiber 0) (ell 0)
     (inducedOverFinIso G (P.fiber 0)).toEquiv
   let X : Erdos88.BooleanSlices.BooleanSlicePoint (P.fiber 0) (ell 0) → ℝ :=
@@ -695,7 +696,7 @@ lemma norm_productSliceConditional_le_of_perturbed
   let Y : Erdos88.BooleanSlices.BooleanSlicePoint
       (Finset.univ : Finset (Fin (P.fiber 0).card)) (ell 0) → ℝ :=
     fun S ↦ Erdos88.Probability.perturbedEdgePolynomial H e0 coeff S.1
-  letI : Nonempty (Erdos88.BooleanSlices.BooleanSlicePoint
+  let : Nonempty (Erdos88.BooleanSlices.BooleanSlicePoint
       (Finset.univ : Finset (Fin (P.fiber 0).card)) (ell 0)) :=
     Nonempty.map E inferInstance
   have hchar : Erdos88.BooleanSlices.finiteCharacteristic X t =
@@ -751,10 +752,10 @@ theorem exists_productSliceConditional_lemma81_bound
   intro e0 coeff
   let E := booleanSlicePointSubsetEquiv (P.fiber 0) (ell 0)
     (inducedOverFinIso G (P.fiber 0)).toEquiv
-  letI : Nonempty (Erdos88.BooleanSlices.BooleanSlicePoint
+  let : Nonempty (Erdos88.BooleanSlices.BooleanSlicePoint
       (Finset.univ : Finset (Fin (P.fiber 0).card)) (ell 0)) :=
     Nonempty.map E inferInstance
-  letI : DecidableRel (inducedOverFin G (P.fiber 0)).Adj :=
+  let : DecidableRel (inducedOverFin G (P.fiber 0)).Adj :=
     fun _ _ ↦ Classical.propDecidable _
   exact hlemma81 (P.fiber 0).card hN
     (inducedOverFin G (P.fiber 0)) hRamsey

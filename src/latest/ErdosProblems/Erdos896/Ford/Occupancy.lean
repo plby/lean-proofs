@@ -129,7 +129,7 @@ def rotatePlacement {v : ℕ} (r : Fin v) (f : Fin v → Fin v) : Fin v → Fin 
 /-- Rotating box labels rotates the occupancy list by the same cut. -/
 theorem occupancyList_rotatePlacement {v : ℕ} (r : Fin v) (f : Fin v → Fin v) :
     occupancyList (rotatePlacement r f) = (occupancyList f).rotate r.val := by
-  letI : NeZero v := ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt r.isLt)⟩
+  let : NeZero v := ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt r.isLt)⟩
   apply List.ext_get
   · simp
   · intro j hj₁ hj₂

@@ -79,7 +79,7 @@ theorem exists_complete_coloring_of_matching_core (D : ℕ) (hD : 0 < D)
       · obtain ⟨x, y, hxy, hlow⟩ := exists_edge_with_low_other_neighbors G D hD hdegree hcore hG
         let removed : Finset (Sym2 V) := {s(x, y)}
         let H := G.deleteEdges (removed : Set (Sym2 V))
-        letI : DecidableRel H.Adj := fun u v ↦ Classical.propDecidable (H.Adj u v)
+        let : DecidableRel H.Adj := fun u v ↦ Classical.propDecidable (H.Adj u v)
         have hHG : H ≤ G := G.deleteEdges_le _
         have hHdegree : ∀ v, H.degree v ≤ D := fun v ↦
           (H.degree_le_of_le hHG).trans (hdegree v)

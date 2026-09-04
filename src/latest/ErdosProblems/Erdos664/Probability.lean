@@ -477,7 +477,7 @@ lemma fairVector_card_filter_lower_tail {ι : Type*} [Fintype ι]
   by_cases hs : s.card = 0
   · simp [hs]
   · field_simp
-    ring
+    ring_nf
 
 /-! ### Random subfamilies of a finite incidence structure -/
 
@@ -584,7 +584,7 @@ lemma fairMatrix_card_filter_lower_tail {L P : Type*} [Fintype L] [Fintype P]
   by_cases hs : s.card = 0
   · simp [hs]
   · field_simp
-    ring
+    ring_nf
 
 def rowsHit {L P : Type*} (A : L → Finset P) (T : Finset P)
     (S : Finset L) (ω : L → P → Bool) : Prop :=

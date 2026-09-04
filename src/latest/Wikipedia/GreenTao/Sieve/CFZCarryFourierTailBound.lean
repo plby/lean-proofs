@@ -155,9 +155,9 @@ theorem selectedCFZCarryBlockEulerAverage_le_one
     FiniteBox (fun _ : CFZVariable k =>
       N / pairedDivisorLcm z)
   rcases isEmpty_or_nonempty α with hα | hα
-  · letI : IsEmpty α := hα
+  · let : IsEmpty α := hα
     simp [mean]
-  · letI : Nonempty α := hα
+  · let : Nonempty α := hα
     exact mean_le_of_le_const fun a =>
       selectedCFZCarryEulerProductAtBlock_le_one W b e z a
 
@@ -331,9 +331,9 @@ theorem selectedCFZCarryBlockEulerAverage_le_inv_lcm
     FiniteBox (fun _ : CFZVariable k =>
       N / pairedDivisorLcm z)
   rcases isEmpty_or_nonempty α with hα | hα
-  · letI : IsEmpty α := hα
+  · let : IsEmpty α := hα
     simp [mean]
-  · letI : Nonempty α := hα
+  · let : Nonempty α := hα
     exact mean_le_of_le_const fun a =>
       selectedCFZCarryEulerProductAtBlock_le_inv_lcm
         (N := N) hk hWb e z hz hlarge a
@@ -1137,11 +1137,11 @@ theorem
         (χ.tendsto_selectedCFZPairedFourierAbsoluteTail_sqrt_log e))
   apply squeeze_zero'
   · exact Filter.Eventually.of_forall fun R => by
-      letI : NeZero (Nseq R) := ⟨hN R⟩
+      let : NeZero (Nseq R) := ⟨hN R⟩
       exact χ.selectedCFZCarryScaledFourierTailNorm_nonneg
         (N := Nseq R) R (primorial (wseq R)) (bseq R) e _
   · filter_upwards [hMass] with R hR
-    letI : NeZero (Nseq R) := ⟨hN R⟩
+    let : NeZero (Nseq R) := ⟨hN R⟩
     calc
       χ.selectedCFZCarryScaledFourierTailNorm
           (N := Nseq R) R (primorial (wseq R)) (bseq R) e

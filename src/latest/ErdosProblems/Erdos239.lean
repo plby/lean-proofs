@@ -553,7 +553,7 @@ theorem tendsto_normalizedAvoidance_sub_mean_mul_euler {f : ℕ → ℝ}
         have hNR : (N : ℝ) ≠ 0 := by exact_mod_cast hNpos
         push_cast
         field_simp [hpR, hQR, hNR]
-        ring
+        ring_nf
       have hcomb0 : Tendsto (fun N : ℕ =>
           ((normalizedAvoidance (completeCompanion f) P (p * N) -
               meanUpTo (completeCompanion f) ((∏ q ∈ P, q) * (p * N)) *

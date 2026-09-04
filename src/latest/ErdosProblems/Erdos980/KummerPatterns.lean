@@ -123,21 +123,21 @@ theorem unramifiedIn_tower_descend
     [IsGalois ℚ L] [IsGalois ℚ M]
     (p : Ideal (𝓞 ℚ)) (hunr : UnramifiedIn ℚ M p) :
     UnramifiedIn ℚ L p := by
-  haveI : IsScalarTower (𝓞 ℚ) (𝓞 L) (𝓞 M) := inferInstance
+  have : IsScalarTower (𝓞 ℚ) (𝓞 L) (𝓞 M) := inferInstance
   refine ⟨hunr.1, fun Q hQmax hQlo => ?_⟩
-  haveI := hQmax
-  haveI := hQlo
-  haveI hQp : Q.IsPrime := hQmax.isPrime
+  have := hQmax
+  have := hQlo
+  have hQp : Q.IsPrime := hQmax.isPrime
   have hQbot : Q ≠ ⊥ := Ideal.ne_bot_of_liesOver_of_ne_bot hunr.1 Q
   obtain ⟨P, _, hPp, hPcomap⟩ :=
     Ideal.exists_ideal_over_prime_of_isIntegral (S := 𝓞 M) Q ⊥ (by simp)
-  haveI := hPp
-  haveI hPloQ : P.LiesOver Q := ⟨hPcomap.symm⟩
+  have := hPp
+  have hPloQ : P.LiesOver Q := ⟨hPcomap.symm⟩
   have hPbot : P ≠ ⊥ := Ideal.ne_bot_of_liesOver_of_ne_bot hQbot P
-  haveI hPmax : P.IsMaximal := hPp.isMaximal hPbot
+  have hPmax : P.IsMaximal := hPp.isMaximal hPbot
   have hQunder : Ideal.under (𝓞 L) P = Q := hPloQ.over.symm
   have hpunder : Ideal.under (𝓞 ℚ) Q = p := hQlo.over.symm
-  haveI hPlop : P.LiesOver p :=
+  have hPlop : P.LiesOver p :=
     ⟨by rw [← hpunder, ← hQunder, Ideal.under_under]⟩
   have hunderP : Ideal.under (𝓞 ℚ) P = p := hPlop.over.symm
   have hP1 : (Ideal.under (𝓞 ℚ) P).ramificationIdx' P = 1 := by
@@ -167,25 +167,25 @@ theorem isCompletelySplit_tower_descend
     [IsGalois ℚ L] [IsGalois ℚ M]
     {p : ℕ} (hsplit : IsCompletelySplit M p) :
     IsCompletelySplit L p := by
-  haveI hpprime : (rationalIdeal p).IsPrime :=
+  have hpprime : (rationalIdeal p).IsPrime :=
     rationalIdeal_isPrime hsplit.1
   have hpbot : rationalIdeal p ≠ ⊥ :=
     UnramifiedIn.ne_bot ℚ M hsplit.2.1
-  haveI hpmax : (rationalIdeal p).IsMaximal := hpprime.isMaximal hpbot
+  have hpmax : (rationalIdeal p).IsMaximal := hpprime.isMaximal hpbot
   have hunrL : UnramifiedIn ℚ L (rationalIdeal p) :=
     unramifiedIn_tower_descend L M (rationalIdeal p) hsplit.2.1
   obtain ⟨Q, hQprime, hQlo, hQbot⟩ :=
     exists_prime_liesOver ℚ L (rationalIdeal p)
       (UnramifiedIn.ne_bot ℚ L hunrL)
-  haveI hqprime : Q.IsPrime := hQprime
-  haveI hQlies : Q.LiesOver (rationalIdeal p) := hQlo
+  have hqprime : Q.IsPrime := hQprime
+  have hQlies : Q.LiesOver (rationalIdeal p) := hQlo
   have hqmax : Q.IsMaximal := hQprime.isMaximal hQbot
-  haveI hqmaxI : Q.IsMaximal := hqmax
+  have hqmaxI : Q.IsMaximal := hqmax
   obtain ⟨P, hPprime, hPlo, hPbot⟩ :=
     exists_prime_liesOver L M Q hQbot
-  haveI hpprime : P.IsPrime := hPprime
-  haveI hPliesQ : P.LiesOver Q := hPlo
-  haveI hPliesp : P.LiesOver (rationalIdeal p) :=
+  have hpprime : P.IsPrime := hPprime
+  have hPliesQ : P.LiesOver Q := hPlo
+  have hPliesp : P.LiesOver (rationalIdeal p) :=
     Ideal.LiesOver.trans P Q (rationalIdeal p)
   have htop : residueDegree M P = 1 :=
     residueDegree_eq_one_of_isCompletelySplit M hsplit
@@ -214,9 +214,9 @@ theorem isCompletelySplit_kummer_succ_descend
     (hsplit : IsCompletelySplit (KummerField k (j + 1)) p) :
     IsCompletelySplit (KummerField k j) p := by
   let e := kummerFieldEmbedding hk j
-  letI : Algebra (KummerField k j) (KummerField k (j + 1)) :=
+  let : Algebra (KummerField k j) (KummerField k (j + 1)) :=
     e.toRingHom.toAlgebra
-  letI : IsScalarTower ℚ (KummerField k j) (KummerField k (j + 1)) :=
+  let : IsScalarTower ℚ (KummerField k j) (KummerField k (j + 1)) :=
     IsScalarTower.of_algebraMap_eq fun x => (e.commutes x).symm
   exact isCompletelySplit_tower_descend
     (KummerField k j) (KummerField k (j + 1)) hsplit
@@ -242,15 +242,15 @@ theorem kummerDegree_monotone {k : ℕ} (hk : k ≠ 0) :
 /-- At level zero only the roots of unity have been adjoined. -/
 theorem kummerDegree_zero {k : ℕ} (hk : 0 < k) :
     kummerDegree k 0 = Nat.totient k := by
-  haveI : NeZero k := ⟨hk.ne'⟩
-  haveI : NeZero (k : ℚ) := ⟨by exact_mod_cast hk.ne'⟩
+  have : NeZero k := ⟨hk.ne'⟩
+  have : NeZero (k : ℚ) := ⟨by exact_mod_cast hk.ne'⟩
   change Module.finrank ℚ ((kummerFieldPolynomial k 0).SplittingField) =
     Nat.totient k
   have hp : kummerFieldPolynomial k 0 = Polynomial.cyclotomic k ℚ := by
     simp [kummerFieldPolynomial]
   rw [hp]
   change Module.finrank ℚ (CyclotomicField k ℚ) = Nat.totient k
-  haveI : IsCyclotomicExtension {k} ℚ (CyclotomicField k ℚ) :=
+  have : IsCyclotomicExtension {k} ℚ (CyclotomicField k ℚ) :=
     CyclotomicField.isCyclotomicExtension k ℚ
   exact IsCyclotomicExtension.finrank _
     (Polynomial.cyclotomic.irreducible_rat hk)
@@ -481,7 +481,7 @@ private lemma quadraticAdjoinRoot_exists_eq_pair
     (x : AdjoinRoot (quadraticAdjoinPolynomial d)) :
     ∃ u v : K, x = algebraMap K _ u +
       algebraMap K _ v * AdjoinRoot.root (quadraticAdjoinPolynomial d) := by
-  letI : Nontrivial (AdjoinRoot (quadraticAdjoinPolynomial d)) :=
+  let : Nontrivial (AdjoinRoot (quadraticAdjoinPolynomial d)) :=
     AdjoinRoot.nontrivial _
       (by simp [quadraticAdjoinPolynomial, Polynomial.degree_X_pow_sub_C])
   let pb : PowerBasis K (AdjoinRoot (quadraticAdjoinPolynomial d)) :=
@@ -514,7 +514,7 @@ private lemma quadraticAdjoinRoot_coeff_eq_zero
       algebraMap K _ b * AdjoinRoot.root (quadraticAdjoinPolynomial d) =
         algebraMap K _ c) : b = 0 := by
   have hm : (X ^ 2 - C d).Monic := monic_X_pow_sub_C _ (by norm_num)
-  letI : Nontrivial (AdjoinRoot (quadraticAdjoinPolynomial d)) :=
+  let : Nontrivial (AdjoinRoot (quadraticAdjoinPolynomial d)) :=
     AdjoinRoot.nontrivial _
       (by simp [quadraticAdjoinPolynomial, Polynomial.degree_X_pow_sub_C])
   let ar := AdjoinRoot.isAdjoinRootMonic (X ^ 2 - C d) hm
@@ -539,7 +539,7 @@ theorem isSquare_quadraticAdjoinRoot_iff
     {K : Type*} [Field K] [NeZero (2 : K)] (d a : K) (_hd : d ≠ 0) :
     IsSquare (algebraMap K (AdjoinRoot (quadraticAdjoinPolynomial d)) a) ↔
       IsSquare a ∨ ∃ v : K, a = v ^ 2 * d := by
-  letI : Nontrivial (AdjoinRoot (quadraticAdjoinPolynomial d)) :=
+  let : Nontrivial (AdjoinRoot (quadraticAdjoinPolynomial d)) :=
     AdjoinRoot.nontrivial _
       (by simp [quadraticAdjoinPolynomial, Polynomial.degree_X_pow_sub_C])
   constructor
@@ -880,7 +880,7 @@ lemma quadraticRangeTower_eq_rootField (r : ℕ) :
 instance quadraticRangeTower_isSplittingField (r : ℕ) :
     Polynomial.IsSplittingField ℚ (QuadraticRangeTower r)
       (kummerFieldPolynomial 2 r) := by
-  letI : Polynomial.IsSplittingField ℚ (QuadraticRootField r)
+  let : Polynomial.IsSplittingField ℚ (QuadraticRootField r)
       (kummerFieldPolynomial 2 r) :=
     IntermediateField.adjoin_rootSet_isSplittingField
       (kummerFieldPolynomial_two_map_splits_real r)

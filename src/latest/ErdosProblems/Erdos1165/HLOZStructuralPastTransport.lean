@@ -66,7 +66,7 @@ theorem latticeDistance_sub_right (x y z : Point) :
   rcases y with ⟨y₁, y₂⟩
   rcases z with ⟨z₁, z₂⟩
   simp only [latticeDistance, Prod.fst_sub, Prod.snd_sub]
-  congr 1 <;> ring
+  congr 1 <;> ring_nf
 
 theorem gapScaleOf_sub_right (m : ℕ) (x y z : Point) :
     gapScaleOf m (x - z) (y - z) = gapScaleOf m x y := by

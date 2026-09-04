@@ -256,7 +256,7 @@ lemma degreeInto_insert (G : SimpleGraph V) (u v : V) (S : Finset V)
 lemma sum_degreeInto (G : SimpleGraph V) (S : Finset V) :
     ∑ v ∈ S, degreeInto G v S = 2 * edgeCount G S := by
   let K : SimpleGraph V := (G.induce (↑S : Set V)).spanningCoe
-  letI : DecidableRel K.Adj := Classical.decRel _
+  let : DecidableRel K.Adj := Classical.decRel _
   have hneighbor (v : V) : K.neighborFinset v =
       if v ∈ S then G.neighborFinset v ∩ S else ∅ := by
     ext w

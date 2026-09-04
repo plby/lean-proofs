@@ -382,7 +382,7 @@ theorem nonempty_alignedResidueWitnesses_of_boundedCosetBlocks
     Nonempty (AlignedResidueWitnesses q (∑ i, layer i) (Nat.card S)
       (q / Nat.card S) (∑ i, loss i) (Finset.univ.biUnion T)) := by
   dsimp only
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let S := blockSumSubgroup H
   let h := Nat.card S
   let d := q / h

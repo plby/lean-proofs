@@ -932,11 +932,11 @@ theorem
   apply tendsto_iff_norm_sub_tendsto_zero.2
   apply squeeze_zero'
   · exact Filter.Eventually.of_forall fun n => by
-      letI : NeZero (Nseq n) := ⟨hN n⟩
+      let : NeZero (Nseq n) := ⟨hN n⟩
       exact norm_nonneg _
   · filter_upwards [hRtwo, hδnonneg, hinterior] with
       n hRn hδn hinteriorn
-    letI : NeZero (Nseq n) := ⟨hN n⟩
+    let : NeZero (Nseq n) := ⟨hN n⟩
     exact
       χ.norm_selectedCFZCanonicalEulerFourierMainTerm_sub_one_le_of_interior
         (N := Nseq n) hk (hbound n) (hcoprime n) e hRn

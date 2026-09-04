@@ -54,11 +54,11 @@ theorem linearIndependent_thirteenthRootMonomials
     apply IsIntegral.of_pow (by norm_num : 0 < 13)
     rw [hbeta i]
     exact isIntegral_algebraMap
-  letI : Algebra ℚ F := IntermediateField.algebra' F
-  letI : Module ℚ F := Algebra.toModule
-  letI : Algebra.IsAlgebraic ℚ F :=
+  let : Algebra ℚ F := IntermediateField.algebra' F
+  let : Module ℚ F := Algebra.toModule
+  let : Algebra.IsAlgebraic ℚ F :=
     IntermediateField.isAlgebraic_adjoin hIntegral
-  letI : Algebra ℚ (AlgebraicClosure ℚ) :=
+  let : Algebra ℚ (AlgebraicClosure ℚ) :=
     AlgebraicClosure.instAlgebra ℚ
   let phi : F →ₐ[ℚ] AlgebraicClosure ℚ := IsAlgClosed.lift
   let betaF : ι → F := fun i ↦

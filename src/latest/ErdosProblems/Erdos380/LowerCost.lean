@@ -143,6 +143,6 @@ theorem lowerSingletonCost_tendsto (ε : ℝ) :
   · funext N
     dsimp [lowerSingletonCost]
     ring
-  · ring
+  · ring_nf
 
 end Erdos380

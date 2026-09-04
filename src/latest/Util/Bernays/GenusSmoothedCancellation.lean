@@ -30,7 +30,7 @@ theorem genusLocal_smoothed_cancellation {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ φ : W21,
       Tendsto (fun δ : ℝ => ‖smoothedSeries (genusLocalAF hD ψ) φ δ‖ / Real.sqrt δ)
         (𝓝[>] 0) (𝓝 0) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ hψ φ
   obtain ⟨F, hF, heq, hne⟩ := genusLocalLSeries_continuation_nonzero hD ψ hψ
   obtain ⟨C, hC, hcount⟩ := genusLocalAF_logCountBound hD

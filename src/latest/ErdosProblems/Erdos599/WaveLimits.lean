@@ -694,8 +694,8 @@ theorem terminalFrontier_waveChainUpper_of_setLiminf
     (c : Set G.Wave) (hcne : c.Nonempty) (hc : IsChain (· ≤ ·) c) :
     setLiminf (fun W : c ↦ G.terminalFrontier W.1) ⊆
       G.terminalFrontier (G.waveChainUpper c hcne hc) := by
-  letI : Nonempty c := ⟨⟨hcne.choose, hcne.choose_spec⟩⟩
-  letI : IsDirectedOrder c := hc.directedOn.isDirectedOrder
+  let : Nonempty c := ⟨⟨hcne.choose, hcne.choose_spec⟩⟩
+  let : IsDirectedOrder c := hc.directedOn.isDirectedOrder
   intro x hx
   obtain ⟨U₀, hxlate⟩ := (mem_setLiminf _ _).mp hx
   have hxU₀ : x ∈ G.terminalFrontier U₀.1 := hxlate U₀ le_rfl
@@ -746,8 +746,8 @@ theorem isWave_waveChainUpper (c : Set G.Wave) (hcne : c.Nonempty)
   refine ⟨G.isWarp_waveChainUpper c hcne hc, ?_, ?_⟩
   · rw [G.initialSet_waveChainUpper c hcne hc]
     exact (G.waveChainBase c hcne).property.2.1
-  · letI : Nonempty c := ⟨⟨hcne.choose, hcne.choose_spec⟩⟩
-    letI : IsDirectedOrder c := hc.directedOn.isDirectedOrder
+  · let : Nonempty c := ⟨⟨hcne.choose, hcne.choose_spec⟩⟩
+    let : IsDirectedOrder c := hc.directedOn.isDirectedOrder
     exact G.limit_terminalFrontier_separates
       (fun W : c ↦ W.1.1) (G.waveChainUpper c hcne hc)
       (fun W ↦ W.1.property) (fun {_ _} hij ↦ hij)

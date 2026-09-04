@@ -84,7 +84,7 @@ theorem erdos_916_of_falseTwinPrinciple
     omega
   obtain ⟨S, H, hS4, hHG, hcircuit⟩ :=
     exists_is23Circuit_subgraph_with_card G hcard hdense
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   exact hasWheelWitness_of_circuit_subgraph
     hcore G S H hS4 hHG hcircuit
 

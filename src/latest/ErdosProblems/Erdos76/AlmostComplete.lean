@@ -853,7 +853,7 @@ theorem weightedReduction_of_deficitRows {r m : ℕ} (hr : 0 < r)
       IsCapacityPacking (⊤ : SimpleGraph A) c w ∧
         capacityUncoveredWeight (⊤ : SimpleGraph A) c w ≤ a ∧
           IsHalfBounded (⊤ : SimpleGraph A) w := by
-  letI : Nonempty (Fin r) := Fin.pos_iff_nonempty.mp hr
+  let : Nonempty (Fin r) := Fin.pos_iff_nonempty.mp hr
   let H : Fin r → SimpleGraph A := fun j ↦ graphOfDeficitRow (S j)
   have hex : ∀ j, ∃ w : Finset A → ℝ,
       IsFractionalPacking (H j) w ∧ fractionalUncoveredWeight (H j) w ≤ a ∧
@@ -878,7 +878,7 @@ theorem weightedDecomposition_of_deficitRows {r m : ℕ} (hr : 0 < r)
       ∃ w : Finset A → ℝ, IsFractionalDecomposition H w) :
     ∃ w : Finset A → ℝ,
       IsCapacityDecomposition (⊤ : SimpleGraph A) c w := by
-  letI : Nonempty (Fin r) := Fin.pos_iff_nonempty.mp hr
+  let : Nonempty (Fin r) := Fin.pos_iff_nonempty.mp hr
   let H : Fin r → SimpleGraph A := fun j ↦ graphOfDeficitRow (S j)
   have hex : ∀ j, ∃ w : Finset A → ℝ, IsFractionalDecomposition (H j) w := by
     intro j

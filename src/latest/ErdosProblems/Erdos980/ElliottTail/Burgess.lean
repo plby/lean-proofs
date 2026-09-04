@@ -25,7 +25,7 @@ open scoped BigOperators Classical
 theorem dirichletCharacter_isPrimitive_of_prime_of_ne_one
     {p : ℕ} (hp : p.Prime) (chi : DirichletCharacter ℂ p) (hchi : chi ≠ 1) :
     chi.IsPrimitive := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   rcases (Nat.dvd_prime hp).mp chi.conductor_dvd_level with hcond | hcond
   · exfalso
     apply hchi
@@ -39,14 +39,14 @@ theorem exists_exactOrder_powerDetectingCharacter {k p : ℕ} (hk : 2 ≤ k)
     ∃ chi : DirichletCharacter ℂ p,
       chi ≠ 1 ∧ orderOf chi = k ∧ chi.IsPrimitive ∧
         ∀ b : ZMod p, IsUnit b → chi (b ^ k) = 1 := by
-  letI : Fact p.Prime := ⟨hp.1⟩
-  letI : IsCyclic (ZMod p)ˣ := ZMod.isCyclic_units_prime hp.1
-  letI : IsCyclic (DirichletCharacter ℂ p) :=
+  let : Fact p.Prime := ⟨hp.1⟩
+  let : IsCyclic (ZMod p)ˣ := ZMod.isCyclic_units_prime hp.1
+  let : IsCyclic (DirichletCharacter ℂ p) :=
     (MulChar.mulEquiv_units (ZMod p) ℂ).some.isCyclic.mpr inferInstance
   let H : Subgroup (ZMod p)ˣ := (powMonoidHom k : (ZMod p)ˣ →* (ZMod p)ˣ).range
   let X : Subgroup (DirichletCharacter ℂ p) :=
     (MulChar.subgroupOrderIsoSubgroupMulChar (ZMod p) ℂ H).ofDual
-  letI : IsCyclic X := Subgroup.isCyclic X
+  let : IsCyclic X := Subgroup.isCyclic X
   have hdiv : k ∣ Nat.card (ZMod p)ˣ := by
     rw [Nat.card_eq_fintype_card, ZMod.card_units]
     exact dvd_prime_sub_one_of_eligible hp
@@ -125,7 +125,7 @@ theorem leastKthPowerNonresidue_lt_one_add_sqrt_mul_log
       1 + Real.sqrt (p : ℝ) * Real.log (p : ℝ) := by
   let L := leastKthPowerNonresidue k p
   obtain ⟨chi, hchi, hprimitive, hpow⟩ := exists_powerDetectingCharacter hk hp
-  letI : NeZero p := ⟨hp.1.ne_zero⟩
+  let : NeZero p := ⟨hp.1.ne_zero⟩
   have hp1 : 1 < p := hp.1.one_lt
   have hsum :
       (∑ n ∈ Finset.Ioc (0 : ℤ) (L - 1 : ℕ), chi (n : ZMod p)) =

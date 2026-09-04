@@ -154,7 +154,7 @@ theorem exists_private_assignment (H : Hypergraph W) (hts : H.IsTripleSystem) (n
     (hroot : ∀ i j, IsDeltaRoot H (3 * n ^ 2 + 1) ({a i, b j} : Set W)) :
     ∃ P : Fin n × Fin n → W, Function.Injective P ∧ (∀ p, P p ∉ Core) ∧
       ∀ p, ({a p.1, b p.2, P p} : Set W) ∈ H.edges := by
-  rcases n with ( _ | n ) <;> simp_all +decide [ Set.InjOn ];
+  rcases n with ( _ | n ) <;> simp_all +decide only [IsEmpty.forall_iff, and_self, and_true, Prod.forall];
   · exact ⟨ fun _ => by aesop, by aesop_cat ⟩;
   · have hkey : ∀ s : Finset (Fin (n + 1) × Fin (n + 1)), ∃ P : Fin (n + 1) × Fin (n + 1) → W, Set.InjOn P s ∧ (∀ p ∈ s, P p ∉ Core) ∧ (∀ p ∈ s, ({a p.1, b p.2, P p} : Set W) ∈ H.edges) := by
       intro s
@@ -163,10 +163,11 @@ theorem exists_private_assignment (H : Hypergraph W) (hts : H.IsTripleSystem) (n
       · obtain ⟨ P, hP₁, hP₂, hP₃ ⟩ := ‹_›;
         -- Let's choose a new vertex $w$ for $p$ that is not in $Core$ and not in the image of $P$ on $s$.
         obtain ⟨w, hw⟩ : ∃ w : W, w ∉ Core ∧ w ∉ Set.image P s ∧ ({a p.1, b p.2, w} : Set W) ∈ H.edges := by
-          have := deltaRoot_extend H ( 3 * ( n + 1 ) ^ 2 + 1 ) { a p.1, b p.2 } ( Core ∪ P '' s ) ( hroot p.1 p.2 ) ?_ ?_ <;> simp_all +decide [ Set.subset_def ];
+          have := deltaRoot_extend H ( 3 * ( n + 1 ) ^ 2 + 1 ) { a p.1, b p.2 } ( Core ∪ P '' s ) ( hroot p.1 p.2 ) ?_ ?_ <;> simp_all +decide only [Nat.cast_add, Nat.cast_mul, Nat.cast_ofNat, Nat.cast_pow, Nat.cast_one,
+    Set.mem_image, SetLike.mem_coe, Prod.exists, not_exists, not_and];
           · obtain ⟨ e, he₁, he₂, he₃ ⟩ := this; simp_all +decide [ Set.Subset.antisymm_iff, Set.subset_def ] ;
             obtain ⟨w, hw⟩ : ∃ w : W, w ∈ e ∧ w ≠ a p.1 ∧ w ≠ b p.2 := by
-              have := hts e he₁; simp_all +decide [ Set.ncard_eq_toFinset_card' ] ;
+              have := hts e he₁; simp_all +decide only [ne_eq] ;
               contrapose! this;
               rw [ show e = { a p.1, b p.2 } from Set.ext fun x => by by_cases hx : x = a p.1 <;> specialize this x <;> aesop ] ; simp +decide [ Set.ncard_pair, hab ];
             refine' ⟨ w, _, _, _ ⟩;
@@ -262,7 +263,8 @@ theorem rootDS_card_lt (H : Hypergraph W) (t : ℕ) (f : Set W)
     D.card < t := by
   contrapose! hf;
   use D;
-  simp_all +decide [ IsRootDS ];
+  simp_all +decide only [SetLike.coe_sort_coe, mk_fintype, Fintype.card_coe, Nat.cast_le, SetLike.mem_coe,
+    ne_eq];
   exact fun x hx => hD.1 x hx |>.1
 
 open Classical in
@@ -406,7 +408,7 @@ theorem DCloseStep_card_le (H : Hypergraph W) (hts : H.IsTripleSystem) (t : ℕ)
   generalize_proofs at *; (
   -- It suffices to show that $|A| \leq |X|^2 \cdot \aleph_0$.
   suffices hA_card : #(A) ≤ #(X × X) * Cardinal.aleph0 by
-    by_cases hX : Infinite X <;> simp_all +decide [ Cardinal.mk_prod, Cardinal.mul_eq_max ];
+    by_cases hX : Infinite X <;> simp_all +decide only [ge_iff_le];
     · refine' le_trans ( Cardinal.mk_union_le _ _ ) _ ; aesop;
     · refine' le_trans ( Cardinal.mk_union_le _ _ ) _;
       refine' add_le_add le_rfl _;
@@ -450,7 +452,7 @@ theorem DClosed_biUnion_lt {σ : Type u} [LinearOrder σ] (H : Hypergraph W) (t 
     (M : σ → Set W) (hmono : Monotone M) (hcl : ∀ b, DClosed H t (M b)) (a : σ) :
     DClosed H t (⋃ b ∈ {b : σ | b < a}, M b) := by
   intro x hx y hy hxy;
-  simp_all +decide [ Set.subset_def ];
+  simp_all +decide only [Set.mem_ofPred_eq];
   obtain ⟨ i, hi, hx ⟩ := hx; obtain ⟨ j, hj, hy ⟩ := hy; use fun z hz => ⟨ Max.max i j, max_lt hi hj, hcl ( Max.max i j ) _ ( hmono ( le_max_left _ _ ) hx ) _ ( hmono ( le_max_right _ _ ) hy ) hxy hz ⟩ ;
 
 /-! ### Part B: Claim 2.2 and the colourability ingredients -/
@@ -519,7 +521,7 @@ theorem E'_colorable (H : Hypergraph W) (hts : H.IsTripleSystem) (n : ℕ)
   exact ULift ℕ;
   exact Cardinal.mk_le_aleph0;
   exact fun x => ⟨ c x ⟩;
-  intro e he; obtain ⟨ u, v, huv, huv', huv'' ⟩ := he.2; simp_all +decide [ rootsGraph ] ;
+  intro e he; obtain ⟨ u, v, huv, huv', huv'' ⟩ := he.2; simp_all +decide only [ne_eq, ULift.up.injEq] ;
   exact ⟨ u, huv' ( Set.mem_insert _ _ ), v, huv' ( Set.mem_insert_of_mem _ ( Set.mem_singleton _ ) ), hc u v huv ( Or.inl huv'' ) ⟩
 
 /-- The triple system induced by `H` on a subset `S`, living on the subtype `↑S`. -/
@@ -596,7 +598,7 @@ theorem tripleSystem_colorable_of_le_aleph0 (H : Hypergraph W)
     cases' Cardinal.le_mk_iff_exists_set.mp h with S hS;
     cases' Cardinal.eq.1 hS.symm with f hf;
     use fun w => (f w).val.down;
-    intro e he; have := hts e he; rw [ Set.ncard_eq_three ] at this; obtain ⟨ a, b, c, hab, hac, hbc, rfl ⟩ := this; use a, by simp +decide, b, by simp +decide; ; simp +decide [ hab ] ;
+    intro e he; have := hts e he; rw [ Set.ncard_eq_three ] at this; obtain ⟨ a, b, c, hab, hac, hbc, rfl ⟩ := this; use a, by simp +decide, b, by simp +decide; ; simp +decide only [ne_eq, ULift.down_inj] ;
     exact fun h => hab <| f.injective <| Subtype.ext h;
   exact hgCountColorable_iff H |>.1 ⟨ c, hc ⟩
 
@@ -704,7 +706,7 @@ theorem rows_step {V : Type*} (n t q : ℕ) (ht : 1 ≤ t) (hn : 1 ≤ n)
   have hBad : (D ∪ I ∪ C).card < q := by
     grind +qlia;
   obtain ⟨ z, hz ⟩ := Finset.exists_of_ssubset ( Finset.ssubset_iff_subset_ne.mpr ⟨ Finset.subset_univ ( D ∪ I ∪ C ), by aesop_cat ⟩ );
-  simp +zetaDelta at *;
+  simp +zetaDelta only [ne_eq] at *;
   exact ⟨ z, hz.1, hz.2.1, fun x hx => ⟨ fun k l => Ne.symm ( hz.2.2 x hx k l |>.1 ), fun k l => hz.2.2 x hx k l |>.2 ⟩ ⟩
 
 open Classical in
@@ -841,7 +843,7 @@ theorem exists_delta_filtration (H : Hypergraph W) (hts : H.IsTripleSystem) (t :
     apply claim22_abstract H hts t (⋃ b ∈ {b | b < rank z}, M b) (DClosed_biUnion_lt H t M hM_mono hM_DClosed (rank z)) x y z (by
     exact Set.mem_iUnion₂.mpr ⟨ rank x, hxz, hrank x |>.1 ⟩) (by
     exact Set.mem_iUnion₂.mpr ⟨ rank y, hyz, hrank y |>.1 ⟩) (by
-    simp +zetaDelta at *;
+    simp +zetaDelta only [Set.mem_ofPred_eq, Set.mem_iUnion, exists_prop, not_exists, not_and] at *;
     exact fun x hx => hrank z |>.2 x hx) hxy (by
     exact fun h => hxz.ne <| h ▸ rfl) (by
     exact fun h => by have := hrank z; aesop;) e he hx hy hz hnr
@@ -869,7 +871,7 @@ theorem delta_root_contra (H : Hypergraph W) (t : ℕ) (ht : 0 < t) (u w : W) (h
       · rw [ Set.image_eq_range ];
         rw [ Cardinal.mk_range_eq ];
         · simp +decide [ Cardinal.mk_coe_finset, hScard ];
-        · intro x y; simp +decide [ Finset.ext_iff, Set.ext_iff ] ;
+        · intro x y; simp +decide only [SetLike.coe_sort_coe] ;
           intro h; specialize h x; aesop;
     · aesop_cat;
     · grind;
@@ -900,7 +902,7 @@ theorem Ess_adj {Idx : Type u} [LinearOrder Idx] (H : Hypergraph W)
   obtain ⟨i, hi⟩ : ∃ i : Idx, (rank p = i ∧ rank q = i ∧ rank r ≠ i) ∨ (rank p = i ∧ rank r = i ∧ rank q ≠ i) ∨ (rank q = i ∧ rank r = i ∧ rank p ≠ i) := by
     contrapose! hne; simp_all +decide ;
     grind +splitImp;
-  rcases hi with ( ⟨ hp, hq, hr ⟩ | ⟨ hp, hr, hq ⟩ | ⟨ hq, hr, hp ⟩ ) <;> simp_all +decide [ layerGraph ];
+  rcases hi with ( ⟨ hp, hq, hr ⟩ | ⟨ hp, hr, hq ⟩ | ⟨ hq, hr, hp ⟩ ) <;> simp_all +decide only [↓existsAndEq, true_and, exists_and_left];
   · grind +splitImp;
   · refine' Or.inl ( Or.inl ⟨ q, lt_of_le_of_ne h_no_max hq, _, _ ⟩ );
     · convert! heE using 1 ; ext ; simp +decide [ *, or_comm, or_left_comm, or_assoc ];
@@ -957,8 +959,8 @@ theorem hasK3nn_step (H : Hypergraph W) (hts : H.IsTripleSystem) (n : ℕ)
       {e | e ∈ H.edges ∧ hasRoot H (3 * n ^ 2 + 1) e} huc hE'col
   obtain ⟨Idx, instLO, instWF, rank, hlevel, hclaim⟩ :=
     exists_delta_filtration H hts (3 * n ^ 2 + 1) hbig
-  letI := instLO
-  letI := instWF
+  let := instLO
+  let := instWF
   -- level colourings
   have hlc : ∀ a : Idx, ∃ d : W → ℕ, ∀ e ∈ H.edges, e ⊆ {v | rank v = a} →
       ∃ u ∈ e, ∃ w ∈ e, d u ≠ d w :=

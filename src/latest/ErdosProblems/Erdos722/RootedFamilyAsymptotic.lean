@@ -1379,7 +1379,7 @@ theorem eventually_exists_boundedRootedFamilyEmbeddings_of_power_bound
       simp at hQ
     · intro J hJ
       simp [Reserve.localDegree]
-  · letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
+  · let : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
     obtain ⟨Q₀, hQ₀⟩ := Finset.nonempty_iff_ne_empty.mpr hroots
     apply exists_boundedRootedFamilyEmbeddings_of_finite_bounds
       P roots forbidden hrootsUniform hrootNonempty (by omega)
@@ -1476,7 +1476,7 @@ theorem eventually_exists_boundedMultiRootedFamilyEmbeddings_of_power_bound
       · simp
       · intro J hJ
         simp [Reserve.localDegree]
-    · letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
+    · let : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
       obtain ⟨Q₀, hQ₀⟩ := Finset.nonempty_iff_ne_empty.mpr hroots
       apply exists_boundedMultiRootedFamilyEmbeddings_of_finite_bounds
         P roots forbidden hrootsUniform hrootNonempty (by omega)
@@ -1575,7 +1575,7 @@ theorem eventually_exists_boundedMultiRootedFamilyEmbeddings_of_two_power_bounds
       · simp
       · intro J hJ
         simp [Reserve.localDegree]
-    · letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
+    · let : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
       obtain ⟨Q₀, hQ₀⟩ := Finset.nonempty_iff_ne_empty.mpr hroots
       apply exists_boundedMultiRootedFamilyEmbeddings_of_finite_bounds
         P roots forbidden hrootsUniform hrootNonempty (by omega)

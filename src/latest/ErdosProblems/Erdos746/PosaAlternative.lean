@@ -117,7 +117,7 @@ theorem posa_boosterEdgeFinset_bound {G : SimpleGraph V} {k : ℕ}
     (hexpand : G.IsTwoExpanderUpTo k) :
     (k + 1) ^ 2 ≤ 2 * (Erdos746.PathMax.boosterEdgeFinset G).card := by
   classical
-  letI : Nonempty V := hconn.nonempty
+  let : Nonempty V := hconn.nonempty
   obtain ⟨a, b, p, hpLong⟩ := Erdos746.PathMax.exists_isLongestPath G
   have hp : p.IsPath := hpLong.isPath
   have hmax : ∀ (u v : V) (r : G.Walk u v), r.IsPath → r.length ≤ p.length :=

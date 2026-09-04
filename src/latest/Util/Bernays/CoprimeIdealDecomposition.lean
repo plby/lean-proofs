@@ -49,7 +49,7 @@ theorem exists_coprime_norm_factors {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       ∃ J K : InvertibleIdeal (QuadraticAlgebra ℤ d b), J * K = I ∧
         (J : Ideal (QuadraticAlgebra ℤ d b)).cardQuot = m ∧
         (K : Ideal (QuadraticAlgebra ℤ d b)).cardQuot = n := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I m n hmn hnorm
   let O := QuadraticAlgebra ℤ d b
   have hmnpos : 0 < m * n := hnorm ▸ I.cardQuot_pos

@@ -521,7 +521,7 @@ theorem boundingSieve_abs_rem_le_nuClasses
   rw [affineNu_squarefree hsq]
   have h := abs_card_divisibleCandidates_sub_density
     (a := a) (b := b) (X := X) hd
-  convert h using 1 <;> ring
+  convert h using 1 <;> ring_nf
 
 theorem nuClasses_le_card_pow_primeFactors
     {ι : Type*} [Fintype ι] [DecidableEq ι]

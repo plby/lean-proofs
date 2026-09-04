@@ -284,8 +284,8 @@ theorem exists_cycle_of_nonempty_of_forall_two_le_degree
   have hqCwC : qC ≠ wC := by
     intro h
     exact hqw.ne (congrArg Subtype.val h)
-  letI : Nontrivial C := ⟨⟨qC, wC, hqCwC⟩⟩
-  letI : DecidableRel C.toSimpleGraph.Adj := fun a b =>
+  let : Nontrivial C := ⟨⟨qC, wC, hqCwC⟩⟩
+  let : DecidableRel C.toSimpleGraph.Adj := fun a b =>
     inferInstanceAs (Decidable (H.Adj a.1 b.1))
   have htree : C.toSimpleGraph.IsTree :=
     hacyc.isTree_connectedComponent C

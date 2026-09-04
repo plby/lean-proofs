@@ -323,8 +323,8 @@ theorem derivative_lineRestriction {ι : Type*} [Fintype ι]
     (lineRestriction Q x v).derivative =
       lineRestriction (constantDirectionalDerivative v Q) x v := by
   let φ : MvPolynomial ι ℝ →ₐ[ℝ] Polynomial ℝ := lineSubstitution x v
-  letI : Algebra (MvPolynomial ι ℝ) (Polynomial ℝ) := φ.toRingHom.toAlgebra
-  letI : IsScalarTower ℝ (MvPolynomial ι ℝ) (Polynomial ℝ) :=
+  let : Algebra (MvPolynomial ι ℝ) (Polynomial ℝ) := φ.toRingHom.toAlgebra
+  let : IsScalarTower ℝ (MvPolynomial ι ℝ) (Polynomial ℝ) :=
     IsScalarTower.of_algHom φ
   let D₁ : Derivation ℝ (MvPolynomial ι ℝ) (Polynomial ℝ) :=
     { toFun := fun F => (φ F).derivative
@@ -385,8 +385,8 @@ theorem lineRestriction_rulingDerivative (p q : PlanePoint) (Q : Poly3) :
         (lineRestriction Q (linePoint p q 0) (lineDirection p q)).derivative := by
   let φ : Poly3 →ₐ[ℝ] Polynomial ℝ :=
     lineSubstitution (linePoint p q 0) (lineDirection p q)
-  letI : Algebra Poly3 (Polynomial ℝ) := φ.toRingHom.toAlgebra
-  letI : IsScalarTower ℝ Poly3 (Polynomial ℝ) := IsScalarTower.of_algHom φ
+  let : Algebra Poly3 (Polynomial ℝ) := φ.toRingHom.toAlgebra
+  let : IsScalarTower ℝ Poly3 (Polynomial ℝ) := IsScalarTower.of_algHom φ
   let D₁ : Derivation ℝ Poly3 (Polynomial ℝ) :=
     { toFun := fun F => φ (rulingDerivative p F)
       map_add' := fun F G => by simp [rulingDerivative_add]

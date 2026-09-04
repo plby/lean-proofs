@@ -213,7 +213,7 @@ theorem norm_primePairedFourierArithmeticToZetaLocalRatio_sub_one_le
       complexArithmeticZetaRatioErrorConstant
           (Fintype.card κ) /
         (p : ℝ) ^ 2 := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   have hexceptional :
       exceptionalPrimeBound forms < (p : ℕ) :=
     (Nat.le_max_left
@@ -493,7 +493,7 @@ theorem cutoffZetaEulerLocalFactor_mul_primeArithmeticZetaRatio
           R forms t u p =
       pairedFourierPrimeLocalFactor
         R forms t u p := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   have hzeta :
       fourierZetaSystemEulerLocalFactor
           R (p : ℕ) t u ≠ 0 :=
@@ -580,7 +580,7 @@ theorem tprod_primePairedFourierArithmeticToZetaLocalRatio_ne_zero
         primePairedFourierArithmeticToZetaLocalRatio
           R forms t u p ≠ 0 := by
     intro p
-    letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+    let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
     rw [primePairedFourierArithmeticToZetaLocalRatio,
       pairedFourierArithmeticToZetaLocalRatio]
     exact div_ne_zero

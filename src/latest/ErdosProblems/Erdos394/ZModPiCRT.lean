@@ -42,7 +42,7 @@ theorem zmodPiLinear_surjective (P : Finset ℕ)
   let k := Nat.chineseRemainderOfFinset a s Finset.univ hs hpair
   refine ⟨(k : ℤ), ?_⟩
   funext p
-  letI : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
+  let : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
   change ((k : ℤ) : ZMod p.val) = y p
   rw [show ((k : ℤ) : ZMod p.val) = ((k : ℕ) : ZMod p.val) by norm_num,
     ← ZMod.natCast_zmod_val (y p)]

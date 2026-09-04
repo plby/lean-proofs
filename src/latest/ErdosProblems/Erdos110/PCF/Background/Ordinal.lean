@@ -124,7 +124,7 @@ theorem not_exists_ssubset_chain_lift {α : Type u} {S : Set α} {ℓ : Ordinal.
     have xmemS : x ∈ S := hf.1 i (((exists_of_ssubset this).choose_spec).1)
     exact ⟨x, xmemS⟩
   intro i j
-  simp
+  simp only [Subtype.mk.injEq]
   intro h
   generalize_proofs _ pfi pfj at h
   have spec := Classical.choose_spec pfi

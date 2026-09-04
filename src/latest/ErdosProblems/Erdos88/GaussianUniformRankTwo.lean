@@ -322,7 +322,7 @@ theorem smallBall_diagonalCenteredLaw_le_of_modulus_le_threeEnvelope
     {eps : ℝ} (heps : 0 ≤ eps) (x : ℝ) :
     Erdos88.Esseen.smallBall (diagonalCenteredLaw a lam) eps x ≤
       eps * threeSpectralMass / (2 * Real.pi * Real.sqrt s) := by
-  letI : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
+  let : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
     diagonalCenteredLaw_isProbabilityMeasure a lam
   let phi := diagonalCenteredCharProduct a lam
   let p := inverseFourierDensityCandidate (charFun (diagonalCenteredLaw a lam))

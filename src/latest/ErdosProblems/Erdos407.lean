@@ -185,7 +185,7 @@ theorem Rep.encode_injective : Function.Injective Rep.encode := by
   have hi := congrArg (fun u : ℚˣ => (u : ℚ))
     (congrFun (congrArg Subtype.val hrs) i)
   fin_cases i <;>
-    simp [Rep.encode, Rep.encodeUnits, Rep.encodeNat] at hi ⊢ <;>
+    simp only [Fin.mk_one, Fin.isValue, Fin.reduceFinMk, Fin.zero_eta] at hi ⊢ <;>
     exact_mod_cast hi
 
 private def coeff407 (n : ℕ) : Fin 3 → ℚ := fun _ => (n : ℚ)⁻¹

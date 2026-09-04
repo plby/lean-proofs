@@ -502,7 +502,7 @@ theorem tilingLazyOverflow_shifted_prefixedInsertion_iff
     rw [tilingInsertionLazyLocalTime_at_dominoPoint t x r q b y hb]
     by_cases horigin : origin = y
     · subst y
-      simp [shiftedDominoBoundaryExtra, hb]
+      simp only [↓reduceIte]
       exact (Nat.add_comm _ _).le
     · simp [horigin]
   · rintro ⟨b, hb⟩

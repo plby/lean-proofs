@@ -162,7 +162,7 @@ theorem mk_vertexSet_le_of_mk_family_le
     (hW : #W ≤ kappa) :
     #(Gamma.vertexSet W) ≤ kappa := by
   by_cases hnonempty : W.Nonempty
-  · letI : Nonempty W := hnonempty.to_subtype
+  · let : Nonempty W := hnonempty.to_subtype
     have heq : Gamma.vertexSet W = ⋃ p : W, p.1.support := by
       ext x
       simp only [DWeb.vertexSet, Set.mem_ofPred_eq, Set.mem_iUnion]

@@ -107,7 +107,7 @@ No odd cycle of length `≤ 3` (i.e. `NoShortOddCycle (graph κ) 1`).
 -/
 theorem noShortOddCycle_one : NoShortOddCycle (graph κ) 1 := by
   intro m hm₁ hm₂ hm₃;
-  interval_cases m ; simp_all +decide;
+  interval_cases m ; simp_all +decide only [not_exists, not_and, not_forall];
   intro x hx_inj
   by_contra h_contra
   push_neg at h_contra;
@@ -157,7 +157,7 @@ theorem exists_ub (hreg : κ.IsRegular) {θ : Cardinal.{u}} (hθ : θ < κ)
         use Ordinal.lsub (fun w : (Quotient.out θ) => (b w).toOrd);
         refine' ⟨ _, _ ⟩;
         · convert! Ordinal.lsub_lt_ord_lift _ _;
-          · simp +decide [ Cardinal.mk_out ];
+          · simp +decide only [mk_out, Cardinal.lift_id];
             exact hθ.trans_le hreg.cof_eq.ge;
           · grind +suggestions;
         · rintro v ⟨ w, rfl ⟩;

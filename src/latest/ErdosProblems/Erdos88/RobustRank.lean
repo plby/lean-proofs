@@ -666,7 +666,7 @@ private lemma corner_eq_schur_of_snoc_det_eq_zero
     rw [← hblock, Matrix.det_submatrix_equiv_self]
     exact hext
   have hunit : IsUnit K.det := isUnit_iff_ne_zero.mpr hcore
-  letI : Invertible K := Matrix.invertibleOfIsUnitDet K hunit
+  let : Invertible K := Matrix.invertibleOfIsUnitDet K hunit
   have hschur : (D - C * ⅟K * B).det = 0 := by
     rw [Matrix.det_fromBlocks₁₁ K B C D] at hdetblock
     exact (mul_eq_zero.mp hdetblock).resolve_left hcore
@@ -704,9 +704,9 @@ private lemma det_ne_zero_of_entrywise_sq_le
     ∃ τ : ℝ, 0 < τ ∧ ∀ B : Matrix (Fin k) (Fin k) ℝ,
       (∀ i j, (A i j - B i j) ^ 2 ≤ τ) → B.det ≠ 0 := by
   classical
-  letI rowPseudoMetric : PseudoMetricSpace (Fin k → ℝ) :=
+  let rowPseudoMetric : PseudoMetricSpace (Fin k → ℝ) :=
     pseudoMetricSpacePi
-  letI matrixPseudoMetric : PseudoMetricSpace (Matrix (Fin k) (Fin k) ℝ) :=
+  let matrixPseudoMetric : PseudoMetricSpace (Matrix (Fin k) (Fin k) ℝ) :=
     pseudoMetricSpacePi
   have hopen : IsOpen {M : Matrix (Fin k) (Fin k) ℝ | M.det ≠ 0} := by
     exact isClosed_singleton.isOpen_compl.preimage continuous_id.matrix_det

@@ -209,7 +209,7 @@ theorem primeGraph_tail_card_mul_exp_le {H : ℕ} (b : Fin H → ℂ) (h : ℕ) 
       t ≤ ‖primeGraphSum b h s z - primeGraphMean b h s‖).card : ℝ) * Real.exp r ≤
         primeGraphModulus H := by
   classical
-  letI : NeZero (∏ p : PrimeGraphIndex H, p.1) :=
+  let : NeZero (∏ p : PrimeGraphIndex H, p.1) :=
     ⟨show primeGraphModulus H ≠ 0 from NeZero.ne _⟩
   let R : ℝ≥0 := ⟨primeGraphRadius B δ, primeGraphRadius_nonneg hδ⟩
   have hbound : ∀ p : PrimeGraphIndex H, ∀ _ : p ∈ Finset.univ, ∀ z,

@@ -29,7 +29,7 @@ theorem greedyKernel_probability_new_triangle
       if T ∈ S.available then (S.available.card : ℝ≥0)⁻¹ else 0 := by
   classical
   by_cases hnonempty : S.available.Nonempty
-  · letI : Nonempty S.available :=
+  · let : Nonempty S.available :=
       ⟨⟨hnonempty.choose, hnonempty.choose_spec⟩⟩
     let next : S.available → GreedyStateOn V :=
       fun U ↦ greedyStep F S U.1

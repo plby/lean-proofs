@@ -83,7 +83,7 @@ theorem neighbourhood_subset_iUnion_edgeStar (H : Hypergraph W)
     (center : H.edges) :
     {f | (edgeIntersectionGraph H).Adj center f} ⊆
       ⋃ x ∈ center.1, edgeStar H x := by
-  intro f hf; simp_all +decide [ Set.mem_iUnion ] ;
+  intro f hf; simp_all +decide only [Set.mem_iUnion, exists_prop] ;
   exact Exists.elim ( edgeIntersectionGraph_neighbour_star_cover H center f hf ) fun x hx => ⟨ x, hx.1, by unfold edgeStar; aesop ⟩
 
 /-
@@ -176,7 +176,7 @@ theorem neighbourhood_three_clique_cover
   obtain ⟨a, b, c, h_distinct, h_eq⟩ : ∃ a b c : W, a ≠ b ∧ a ≠ c ∧ b ≠ c ∧ center.1 = {a, b, c} := by
     have := htri center.val center.prop; simp_all +decide [ Set.ncard_eq_three ] ;
   use a, b, c;
-  simp_all +decide [ Set.subset_def, mem_edgeStar_iff ];
+  simp_all +decide only [ne_eq, Subtype.forall, Subtype.mk.injEq];
   refine' ⟨ _, _, _, _ ⟩;
   · intro e he hadj; have := edgeIntersectionGraph_neighbour_star_cover H center ⟨ e, he ⟩ hadj; aesop;
   · exact fun e he f hf hea hfa hef => edgeIntersectionGraph_adj_of_common_vertex H ( by aesop ) hea hfa;
@@ -196,7 +196,7 @@ theorem neighbourhood_eq_iUnion_neighbourStar (H : Hypergraph W)
     {leaf | (edgeIntersectionGraph H).Adj center leaf} =
       ⋃ x ∈ center.1, neighbourStar H center x := by
   ext leaf
-  simp [neighbourStar];
+  simp only [Set.mem_ofPred_eq, Set.mem_iUnion, exists_prop];
   exact fun h => by obtain ⟨ x, hx ⟩ := edgeIntersectionGraph_neighbour_star_cover H center leaf h; exact ⟨ x, hx.1, hx.2 ⟩ ;
 
 /-

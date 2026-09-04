@@ -22,14 +22,14 @@ theorem mem_normGenusSet {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) (m : ℕ) :
     ∀ g : GenusGroup (QuadraticAlgebra ℤ d b),
       g ∈ normGenusSet hD m ↔ ∃ J : InvertibleIdeal (QuadraticAlgebra ℤ d b),
         (J : Ideal (QuadraticAlgebra ℤ d b)).cardQuot = m ∧ genusMap J.idealClass = g := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro g
   simp only [normGenusSet, Finset.mem_filter, Finset.mem_univ, true_and]
 
 theorem normGenusSet_one {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     normGenusSet hD 1 = {1} := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   ext g
   rw [mem_normGenusSet, Finset.mem_singleton]
   constructor
@@ -51,7 +51,7 @@ theorem remainderGenusSet_card {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     ∀ C : ClassGroup (QuadraticAlgebra ℤ d b), ∀ m : ℕ,
       (remainderGenusSet hD C m).card = (normGenusSet hD m).card := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C m
   apply Finset.card_image_of_injective
   intro g h heq
@@ -63,7 +63,7 @@ theorem mem_remainderGenusSet {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       g ∈ remainderGenusSet hD C m ↔ ∃ J : InvertibleIdeal (QuadraticAlgebra ℤ d b),
         (J : Ideal (QuadraticAlgebra ℤ d b)).cardQuot = m ∧
           genusMap (C * J.idealClass⁻¹) = g := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C m g
   rw [remainderGenusSet, Finset.mem_image]
   constructor

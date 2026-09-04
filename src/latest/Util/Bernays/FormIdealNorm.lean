@@ -11,7 +11,7 @@ namespace BinQuadForm
 theorem formIdeal_isUnit {f : BinQuadForm} (hf : f.PosDef) (hprim : f.Primitive) :
     letI := hf.orderIsDomain
     IsUnit (f.formIdeal : FractionalIdeal f.Order⁰ (FractionRing f.Order)) := by
-  letI := hf.orderIsDomain
+  let := hf.orderIsDomain
   have ha : (f.a : f.Order) ≠ 0 := by
     intro h
     have hr := congrArg QuadraticAlgebra.re h
@@ -60,7 +60,7 @@ noncomputable def formIdealBasis {f : BinQuadForm} (ha : f.a ≠ 0) :
 
 theorem formIdeal_cardQuot {f : BinQuadForm} (hf : f.PosDef) :
     f.formIdeal.cardQuot = f.a.natAbs := by
-  letI := hf.orderIsDomain
+  let := hf.orderIsDomain
   rw [Erdos1081.cardQuot_eq_natAbs_det_basis_change
     (QuadraticAlgebra.basis (-f.a * f.c) f.b) f.formIdeal (formIdealBasis hf.1.ne')]
   congr 1

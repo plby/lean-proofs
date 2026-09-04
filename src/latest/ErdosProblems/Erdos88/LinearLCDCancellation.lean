@@ -1861,7 +1861,7 @@ theorem graphEffectiveLinear_restrict_sq_lower {n : ℕ}
     a ^ 2 * (I.card : ℝ) ^ 3 ≤
       ∑ i : I, graphEffectiveLinear G c i.1 ^ 2 := by
   classical
-  letI (i : Fin n) : Fintype ↑(G.neighborSet i) :=
+  let (i : Fin n) : Fintype ↑(G.neighborSet i) :=
     Subtype.fintype (Membership.mem (G.neighborSet i))
   let d : I → ℝ := fun i ↦ graphEffectiveLinear G c i.1
   have hd : ∀ i, 0 ≤ d i := by
@@ -2522,7 +2522,7 @@ theorem graphEffectiveLinear_restrict_norm_upper
     RLCD.euclidNorm (RLCD.restrict (graphEffectiveLinear G c) I) ≤
       Real.sqrt I.card * ((H + 1 / 2) * n) := by
   classical
-  letI (i : Fin n) : Fintype ↑(G.neighborSet i) :=
+  let (i : Fin n) : Fintype ↑(G.neighborSet i) :=
     Subtype.fintype (Membership.mem (G.neighborSet i))
   have hu : 0 ≤ (H + 1 / 2) * (n : ℝ) := by positivity
   have hpoint (i : I) :

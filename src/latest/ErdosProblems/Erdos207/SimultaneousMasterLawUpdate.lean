@@ -48,7 +48,7 @@ lemma IsIntermediateLinkState.covers_internal_of_sides
     (hright : ∀ o, (K o).right ⊆ U) :
     ∀ u v : V, G.Adj u v → u ∉ U → v ∉ U →
       (coveredGraph R).Adj u v := by
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   intro u v huv hu hv
   by_contra hcovered
   let o : {x : V // x ∉ U} := ⟨u, hu⟩
@@ -87,7 +87,7 @@ theorem FiniteLaw.SupportedOn.jointBind_masterCoverStep
     (fun omega _hstate ↦ hlink omega)
   intro z hz
   have hz' := hjoint z hz
-  letI : DecidableRel (G z.1).Adj := Classical.decRel (G z.1).Adj
+  let : DecidableRel (G z.1).Adj := Classical.decRel (G z.1).Adj
   exact hz'.2.isMasterCoverStep hz'.1.1 hz'.1.2.1 hz'.1.2.2
 
 /-- The conditional C4 link law closes the strong-distribution update once

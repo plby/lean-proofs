@@ -191,7 +191,7 @@ theorem adaptive_mgf_le_one {n : ℕ} (A : AdaptiveRademacherTree n) (t : ℝ) :
         _ = 1 := by
               rw [← Real.exp_add]
               convert! Real.exp_zero using 1
-              ring
+              ring_nf
 
 theorem adaptive_oneSidedTail_average_le {n : ℕ}
     (A : AdaptiveRademacherTree n) {u T sigma : ℝ}

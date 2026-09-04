@@ -326,10 +326,10 @@ theorem moore_bound {d r : ℕ} (hmin : d + 1 ≤ G.minDegree)
     d ^ r ≤ Fintype.card V := by
   classical
   by_cases hV : IsEmpty V
-  · letI : IsEmpty V := hV
+  · let : IsEmpty V := hV
     have hzero : G.minDegree = 0 := by simp [SimpleGraph.minDegree]
     simp [hzero] at hmin
-  · letI : Nonempty V := not_isEmpty_iff.mp hV
+  · let : Nonempty V := not_isEmpty_iff.mp hV
     let root : V := Classical.choice inferInstance
     exact (pow_le_card_rootedPath (G := G) (root := root) hmin hgirth le_rfl).trans
       (hgirth.card_rootedPath_le_card_vertices (root := root))
@@ -341,10 +341,10 @@ theorem moore_bound_strict {d r : ℕ} (hr : 0 < r)
     d ^ r < Fintype.card V := by
   classical
   by_cases hV : IsEmpty V
-  · letI : IsEmpty V := hV
+  · let : IsEmpty V := hV
     have hzero : G.minDegree = 0 := by simp [SimpleGraph.minDegree]
     simp [hzero] at hmin
-  · letI : Nonempty V := not_isEmpty_iff.mp hV
+  · let : Nonempty V := not_isEmpty_iff.mp hV
     let root : V := Classical.choice inferInstance
     exact (pow_le_card_rootedPath (G := G) (root := root) hmin hgirth le_rfl).trans_lt
       (hgirth.card_rootedPath_lt_card_vertices (root := root) hr)
@@ -398,7 +398,7 @@ theorem small_set_expansion {d r : ℕ} (hr : 0 < r)
   by_contra hnot
   have hboundary : #(externalBoundary G X) ≤ 2 * #X := by omega
   let S : Finset V := closedNeighborhood G X
-  letI : Fintype (↥S) :=
+  let : Fintype (↥S) :=
     Subtype.fintype (fun x : V ↦ x ∈ (↑S : Set V))
   let H : SimpleGraph (↥S) := G.induce (↑S : Set V)
   let e : ↥X ↪ ↥S :=
@@ -464,9 +464,9 @@ theorem small_set_expansion {d r : ℕ} (hr : 0 < r)
     omega
   obtain ⟨K, instK, hKsupport, hKH, _hedges, hKmin⟩ :=
     Erdos182.exists_induced_minDegree_core H (2 * (d + 1)) hHE hcoreDense
-  letI : DecidableRel K.Adj := instK
+  let : DecidableRel K.Adj := instK
   let J : SimpleGraph K.support := K.induce K.support
-  letI : Nonempty K.support := hKsupport.to_subtype
+  let : Nonempty K.support := hKsupport.to_subtype
   have hJmin : d + 1 ≤ J.minDegree := by
     dsimp [J]
     omega

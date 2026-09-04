@@ -197,7 +197,7 @@ lemma exists_cycle_connectivity_le_length {k : ℕ} (hk : 3 ≤ k)
     ∃ (z : V) (c : G.Walk z z), c.IsCycle ∧ k ≤ c.length := by
   have hcard : 0 < Fintype.card V :=
     lt_of_lt_of_le (by omega : 0 < k) (card_connectivity_le (G := G) hconn)
-  letI : Nonempty V := Fintype.card_pos_iff.mp hcard
+  let : Nonempty V := Fintype.card_pos_iff.mp hcard
   obtain ⟨a, b, p, hp⟩ := Erdos622.LongestCycle.exists_isLongestPath (G := G)
   have hbdeg : 2 ≤ G.degree b := by
     have := connectivity_sub_one_le_degree (G := G) hconn b

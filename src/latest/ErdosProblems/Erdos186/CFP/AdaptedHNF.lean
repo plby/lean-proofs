@@ -714,11 +714,14 @@ theorem centeredBasisGAP_proper {d : ℕ} {Gamma : Sublattice d}
     exact hnm
   funext i
   apply Fin.ext
-  have hi := congrArg (fun z : Gamma ↦ b.repr z i) hsub
-  simp at hi
   classical
-  simp [Finsupp.single_apply] at hi
-  exact hi
+  have hi := congrArg (fun z : Gamma ↦ b.repr z i) hsub
+  have hi' :
+      ((n i : ℕ) : ℤ) - (radius i : ℤ) =
+        ((m i : ℕ) : ℤ) - (radius i : ℤ) := by
+    simpa [map_sum, map_smul, Finsupp.sum_apply, Finsupp.single_apply] using hi
+  have hi'' : ((n i : ℕ) : ℤ) = ((m i : ℕ) : ℤ) := by omega
+  exact_mod_cast hi''
 
 /-- The centered basis box is homogeneous. -/
 theorem centeredBasisGAP_homogeneous {d : ℕ} {Gamma : Sublattice d}

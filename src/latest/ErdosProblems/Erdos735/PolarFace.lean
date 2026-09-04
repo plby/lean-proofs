@@ -339,7 +339,7 @@ theorem edgeFeasible_faceEdgeCode_iff_extreme
       have hsigned : signed (s i) (n i ⬝ᵥ y) = 0 :=
         (mul_eq_zero.mp hpolar).resolve_left
           (inv_ne_zero (polarDenom_ne_zero hx i))
-      cases hsi : s i <;> simp [signed, hsi] at hsigned ⊢
+      cases hsi : s i <;> simp only [ne_eq, faceEdgeCode_support] at hsigned ⊢
       · exact hsigned
       · exact hsigned
 

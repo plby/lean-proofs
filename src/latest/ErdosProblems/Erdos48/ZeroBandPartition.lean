@@ -304,7 +304,7 @@ theorem primitiveTwoSidedZeroRealBandKernelSumAt_eq_high_add_low
           x etaLo etaHi T +
         primitiveLowZeroRealBandKernelSumAt q psi
           x etaLo etaHi T := by
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   rw [primitiveTwoSidedZeroRealBandKernelSumAt_eq hq,
     primitiveHighZeroRealBandKernelSumAt_eq hq,
     primitiveLowZeroRealBandKernelSumAt,

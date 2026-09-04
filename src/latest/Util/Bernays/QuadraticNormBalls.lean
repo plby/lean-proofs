@@ -83,7 +83,7 @@ theorem quadraticNorm_unit {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
 
 theorem finite_quadraticOrder_units {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     Finite (QuadraticAlgebra ℤ d b)ˣ := by
-  letI := finite_quadraticNormBall hD 1
+  let := finite_quadraticNormBall hD 1
   let f : (QuadraticAlgebra ℤ d b)ˣ → QuadraticNormBall d b 1 := fun u =>
     ⟨u, by rw [quadraticNorm_unit hD, Int.natAbs_one]⟩
   apply Finite.of_injective f

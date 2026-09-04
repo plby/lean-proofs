@@ -258,7 +258,7 @@ theorem contactRank_lt_of_mem_shortcutEdges
       (Y := Y) (kappa := kappa) Q X I J)
     {x y : V} (hxy : (x, y) ∈ C.shortcutEdges) :
     C.contactRank x < C.contactRank y := by
-  letI : Nonempty J := C.index_nonempty
+  let : Nonempty J := C.index_nonempty
   obtain ⟨i, hpair⟩ := C.mem_shortcutEdges_eq hxy
   have hx : x = C.point (C.source i) := congrArg Prod.fst hpair
   have hy : y = C.point (C.target i) := congrArg Prod.snd hpair

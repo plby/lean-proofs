@@ -120,7 +120,7 @@ theorem diagonalAPSimplex_mem_simplexFinset
     (p : DiagonalAPParameter r N A) :
     diagonalAPSimplex r N A p ∈
       (apSetHypergraph (r + 2) N A).simplexFinset := by
-  letI : ∀ _ : Fin (r + 2), Fintype (ZMod N) :=
+  let : ∀ _ : Fin (r + 2), Fintype (ZMod N) :=
     fun _ => inferInstance
   rw [SimplexHypergraph.mem_simplexFinset]
   intro j

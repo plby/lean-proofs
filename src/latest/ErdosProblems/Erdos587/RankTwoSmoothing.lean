@@ -890,7 +890,7 @@ theorem exists_rank_two_congruence_smoothed_of_reduced_weyl
       ∃ z : ℕ, Z ≤ z ∧ z < Z + L ∧
         (q₂ : ℤ) ∣
           (a : ℤ) * z ^ 2 + (b : ℤ) * z - (q₁ : ℤ) * x - t := by
-  letI : NeZero q₂ := ⟨hq₂.ne'⟩
+  let : NeZero q₂ := ⟨hq₂.ne'⟩
   let u : (ZMod q₂)ˣ := ZMod.unitOfCoprime q₁ hcop
   let A : ℕ := (((u⁻¹ : (ZMod q₂)ˣ) : ZMod q₂) * a).val
   let B : ℕ := (((u⁻¹ : (ZMod q₂)ˣ) : ZMod q₂) * b).val
@@ -1033,7 +1033,7 @@ theorem exists_rank_two_congruence_smoothed_of_aggregate_bounds
       ∃ z : ℕ, Z ≤ z ∧ z < Z + L ∧
         (q₂ : ℤ) ∣
           (a : ℤ) * z ^ 2 + (b : ℤ) * z - (q₁ : ℤ) * x - t := by
-  letI : NeZero q₂ := ⟨hq₂.ne'⟩
+  let : NeZero q₂ := ⟨hq₂.ne'⟩
   let u : (ZMod q₂)ˣ := ZMod.unitOfCoprime q₁ hcop
   let A : ℕ := (((u⁻¹ : (ZMod q₂)ˣ) : ZMod q₂) * a).val
   let B : ℕ := (((u⁻¹ : (ZMod q₂)ˣ) : ZMod q₂) * b).val
@@ -1127,7 +1127,7 @@ theorem exists_rank_two_congruence_smoothed
           (a : ℤ) * z ^ 2 + (b : ℤ) * z - (q₁ : ℤ) * x - t := by
   apply exists_rank_two_congruence_smoothed_of_split_bounds
     hq₂ hcop hU hL hMhalf hsupport
-  · letI : NeZero q₂ := ⟨hq₂.ne'⟩
+  · let : NeZero q₂ := ⟨hq₂.ne'⟩
     dsimp only
     rw [gcd_val_unit_mul_nat q₂ a]
     simpa only using hlow

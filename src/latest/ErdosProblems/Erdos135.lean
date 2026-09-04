@@ -4548,7 +4548,7 @@ lemma realZetaFactor_one_le_exp_mul {s : ℝ} (hs : 1 ≤ s) {p : ℕ}
       Real.rpow_add hpR, Real.rpow_neg_one,
       Real.rpow_def_of_pos hpR]
     congr 1
-    ring
+    ring_nf
   have hexp : 1 - Real.exp (-u) ≤ u := by
     linarith [Real.one_sub_le_exp_neg u]
   have hxy : x - y ≤ x * u := by

@@ -113,7 +113,7 @@ instance normFiber_finite (n : ℕ) : Finite (normFiber K n) := by
         ⟨x.1.exponent, by
           simp only [Finset.mem_Icc]
           exact ⟨x.1.exponent_pos, x.1.exponent_le_norm.trans_eq x.2⟩⟩⟩
-  letI : Finite {𝔭 : Ideal (𝓞 K) // Ideal.absNorm 𝔭 ≤ n} :=
+  let : Finite {𝔭 : Ideal (𝓞 K) // Ideal.absNorm 𝔭 ≤ n} :=
     (Ideal.finite_setOf_absNorm_le (S := 𝓞 K) n).to_subtype
   exact Finite.of_injective f fun x y h ↦ by
     apply Subtype.ext
@@ -145,7 +145,7 @@ theorem idealMangoldt_pos_iff (n : ℕ) :
   constructor
   · intro h
     by_contra hf
-    haveI : IsEmpty (normFiber K n) := not_nonempty_iff.mp hf
+    have : IsEmpty (normFiber K n) := not_nonempty_iff.mp hf
     simpa [idealMangoldt] using h
   · rintro ⟨x⟩
     rw [idealMangoldt]

@@ -65,7 +65,7 @@ theorem full_tuple_total_moment_bounds (h : Fin k → ℕ) (hh : Function.Inject
     simpa only [hc] using hb
   · apply secondMoment_le ell h sources Y μ q hα (by positivity) hμ0 hμ
     intro p hp p' hp' hne n hn m hm hqn hqm
-    letI : Fact p.Prime := ⟨(hs p hp).1⟩
+    let : Fact p.Prime := ⟨(hs p hp).1⟩
     have hinj := natCast_shifts_injective h hh (hs p hp).2
     have hc := full_tuple_anchored_union_card h hh (hs p hp).1 (hs p' hp').1
       (Ne.symm hne) hinj hqn hqm

@@ -65,7 +65,7 @@ theorem exists_many_high_degree_of_many_interedges
     ∃ L₀ ⊆ L, L₀.card = a ∧
       ∀ C ∈ L₀, a ≤ Erdos547EC2.degreeInto R C V₂ := by
   classical
-  letI : Std.Symm R.Adj := ⟨fun _ _ h ↦ h.symm⟩
+  let : Std.Symm R.Adj := ⟨fun _ _ h ↦ h.symm⟩
   let H := L.filter fun C ↦ a ≤ Erdos547EC2.degreeInto R C V₂
   by_cases ha0 : a = 0
   · subst a
@@ -189,7 +189,7 @@ theorem zhaoClaim618
         (fun e c ↦ density A (endpoint e c)) eta).card ≤ q) :
     ((R'.interedges L₁ V₂).card : ℝ) < 16 * rho₁ * (k : ℝ) ^ 2 := by
   classical
-  letI : Std.Symm R.Adj := ⟨fun _ _ h ↦ h.symm⟩
+  let : Std.Symm R.Adj := ⟨fun _ _ h ↦ h.symm⟩
   have hscale : ((2 * a * k : ℕ) : ℝ) ≤ 16 * rho₁ * (k : ℝ) ^ 2 := by
     push_cast
     calc

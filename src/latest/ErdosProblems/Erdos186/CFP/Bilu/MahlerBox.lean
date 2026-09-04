@@ -219,7 +219,7 @@ theorem centeredBasisGAP_volume_mul_minkowskiFactor_le {n : ℕ}
         ENNReal.ofReal ((2 : ℝ) ^ n / (n.factorial : ℝ)) ≤
       ENNReal.ofReal ((3 : ℝ) ^ n) *
         MeasureTheory.volume {y | p y ≤ 1} := by
-  letI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+  let : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
   have hprod :
       ((centeredBasisGAP b radius).volume : ℝ) ≤
         (3 : ℝ) ^ n * (∏ i, successiveMinimum p i)⁻¹ := by
@@ -360,7 +360,7 @@ theorem unitBall_volume_le_constant_mul_canonicalGAP_volume {n : ℕ}
     MeasureTheory.volume.real {y | p y ≤ 1} ≤
       (8 : ℝ) ^ n * (n : ℝ) ^ n * (∏ i : Fin n, mahlerFactor i) *
         ((centeredBasisGAP b (innerRadius p)).volume : ℝ) := by
-  letI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+  let : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
   let N : ℝ := (n : ℝ) ^ n
   let F : ℝ := ∏ i : Fin n, mahlerFactor i
   let Lambda : ℝ := ∏ i : Fin n, successiveMinimum p i

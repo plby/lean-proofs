@@ -88,7 +88,7 @@ theorem sparse_dense_step
       (Nat.mul_le_mul_left 16 hIcard).trans ha
     omega
   let H : SimpleGraph V := sparseCore G D b
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
   have hHG : H ≤ G := by
     simpa [H, W, I, P, sparseCore, sparseLowPatternSet] using
       G.spanningCoe_induce_le (W : Set V)

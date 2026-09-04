@@ -183,7 +183,7 @@ theorem L_isTripleSystem : (D.L).IsTripleSystem := by
   · rw [ Set.ncard_image_of_injective, Set.ncard_singleton ];
     · exact D.edgeBase_ncard e ▸ rfl;
     · exact fun x y hxy => by have := D.copy_inj a; have := @this ( X, η, x ) ( X, η, y ) ; aesop;
-  · simp +decide [ Set.disjoint_left ];
+  · simp +decide only [Set.disjoint_singleton_right, Set.mem_image, not_exists, not_and];
     intro s hs h_eq
     have h_level : (D.copy a X η s).1 = a := by
       exact D.copy_lev a X η s
@@ -220,17 +220,19 @@ theorem L_linear : (D.L).Linear := by
   obtain ⟨a₂, X₂, η₂, e₂, hX₂, rfl⟩ := D.mem_edgeSetL.mp ht₂;
   by_cases h_cases : a₁ < a₂;
   · have h_level : ∀ p ∈ (fun s => D.copy a₁ X₁ η₁ s) '' D.edgeBase e₁ ∪ {D.phi a₁ X₁ e₁}, p.1 < a₂ := by
-      simp +zetaDelta at *;
+      simp +zetaDelta only [Set.union_singleton, Set.mem_insert_iff, Set.mem_image, forall_eq_or_imp,
+    forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at *;
       exact ⟨ lt_trans ( D.phi_level_lt hX₁ ) h_cases, fun x hx => lt_of_le_of_lt ( by simp +decide [ D.copy_lev ] ) h_cases ⟩;
     intro p hp q hq; have := h_level p hp.1; have := h_level q hq.1; simp_all +decide [ D.copy_lev ] ;
     grind +suggestions;
   · by_cases h_cases : a₂ < a₁;
     · have h_inter : ∀ p ∈ (fun s => D.copy a₂ X₂ η₂ s) '' D.edgeBase e₂ ∪ {D.phi a₂ X₂ e₂}, p.1 < a₁ := by
-        simp [D.copy_lev];
+        simp only [Set.union_singleton, Set.mem_insert_iff, Set.mem_image, forall_eq_or_imp, forall_exists_index,
+    and_imp, forall_apply_eq_imp_iff₂];
         exact ⟨ lt_of_lt_of_le ( D.phi_level_lt hX₂ ) h_cases.le, fun _ _ => h_cases ⟩;
       intro p hp q hq; have := h_inter p hp.2; have := h_inter q hq.2; simp_all +decide [ D.copy_lev ] ;
       rcases hp.1 with ( rfl | ⟨ x, hx, rfl ⟩ ) <;> rcases hq.1 with ( rfl | ⟨ y, hy, rfl ⟩ ) <;> simp_all +decide [ D.copy_lev ];
-    · cases lt_or_eq_of_le ( le_of_not_gt h_cases ) <;> simp_all +decide;
+    · cases lt_or_eq_of_le ( le_of_not_gt h_cases ) <;> simp_all +decide only [Set.union_singleton];
       by_cases h_cases : X₁.val = X₂.val ∧ η₁ = η₂;
       · have h_base_inter : (D.copy a₁ X₁ η₁ '' D.edgeBase e₁ ∩ D.copy a₁ X₁ η₁ '' D.edgeBase e₂).Subsingleton := by
           have h_base_inter : (D.edgeBase e₁ ∩ D.edgeBase e₂).Subsingleton := by
@@ -275,7 +277,7 @@ theorem L_colorable : (D.L).ColorableBy (Order.succ μ) := by
     intro t ht
     obtain ⟨a, X, η, e, hX, rfl⟩ := D.mem_edgeSetL.mp ht;
     obtain ⟨ s, hs ⟩ := Set.nonempty_of_ncard_ne_zero ( by rw [ D.edgeBase_ncard e ] ; norm_num );
-    refine' ⟨ _, Or.inl ⟨ s, hs, rfl ⟩, _, Or.inr rfl, _ ⟩ ; simp +decide [ c ];
+    refine' ⟨ _, Or.inl ⟨ s, hs, rfl ⟩, _, Or.inr rfl, _ ⟩ ; simp +decide only [ne_eq];
     convert! X.2.2.2.2 ( D.lbl e ) _ ( D.phi_mem a X e hX ) using 1;
     rw [ D.copy_lev ] ; aesop;
   refine' ⟨ _, _ ⟩;

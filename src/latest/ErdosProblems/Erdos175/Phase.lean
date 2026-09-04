@@ -70,7 +70,7 @@ lemma e_int (n : ℤ) : e n = 1 := by
   rw [e]
   convert Complex.exp_int_mul_two_pi_mul_I n using 1
   push_cast
-  ring
+  ring_nf
 
 /-- Translation by an integer does not change the additive character. -/
 lemma e_add_int (t : ℝ) (n : ℤ) : e (t + n) = e t := by

@@ -163,7 +163,7 @@ theorem exists_shellLabeling
     ∃ label : ShellLabeling Y S K,
       ∀ r : R, ∃ b : Fin Y,
         label b (chosen r b) = wanted r b := by
-  letI : NeZero K := ⟨hK.ne'⟩
+  let : NeZero K := ⟨hK.ne'⟩
   have hbad : labelingMeasure Y S K
       (someLabelMissEvent chosen wanted) < 1 :=
     (labelingMeasure_someLabelMissEvent_le chosen wanted).trans_lt hsmall

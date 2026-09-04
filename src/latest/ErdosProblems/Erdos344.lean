@@ -619,7 +619,7 @@ lemma exists_generator_modulus {d : ℕ} (hd : 0 < d)
     ∃ q : ℕ, 0 < q ∧ q ∣ d ∧
       (∀ x : ZMod d, x ∈ K → q ∣ x.val) ∧
       (∀ i : ℕ, (i * q : ZMod d) ∈ K) := by
-  letI : NeZero d := ⟨hd.ne'⟩
+  let : NeZero d := ⟨hd.ne'⟩
   let V := Finset.univ.filter fun x : ZMod d ↦ x ∈ K ∧ x ≠ 0
   by_cases hV : V.Nonempty
   · obtain ⟨g, hgV, hgmin⟩ := Finset.exists_min_image V ZMod.val hV
@@ -745,7 +745,7 @@ lemma natCard_subgroup_of_generator_modulus
     (hHdiv : ∀ x : ZMod d, x ∈ H → q ∣ x.val)
     (hmult : ∀ i : ℕ, (i * q : ZMod d) ∈ H) :
     Nat.card H = d / q := by
-  letI : NeZero d := ⟨hd.ne'⟩
+  let : NeZero d := ⟨hd.ne'⟩
   rw [subgroup_eq_zmultiples_of_generator_modulus H hHdiv hmult,
     Nat.card_zmultiples, ZMod.addOrderOf_coe q hd.ne']
   have hgcd : d.gcd q = q := by
@@ -959,7 +959,7 @@ theorem listSubsetSums_mod_eq_univ_of_divisor_diverse
     intro x _
     rw [← ZMod.natCast_zmod_val x]
     simpa [hd1] using hmultK x.val
-  letI : NeZero d := ⟨hdpos.ne'⟩
+  let : NeZero d := ⟨hdpos.ne'⟩
   let f : ZMod q →+ ZMod d :=
     (ZMod.castHom hdq (ZMod d)).toAddMonoidHom
   have hfsurj : Function.Surjective f := by
@@ -1209,7 +1209,7 @@ noncomputable def liftFinsetToClosure
     {G : Type*} [AddCommGroup G] [Fintype G] [DecidableEq G]
     {X : Finset G} {x : AddSubgroup.closure (X : Set G)} :
     x ∈ liftFinsetToClosure X ↔ x.1 ∈ X := by
-  letI : Fintype (AddSubgroup.closure (X : Set G)) :=
+  let : Fintype (AddSubgroup.closure (X : Set G)) :=
     Fintype.ofInjective (fun x : AddSubgroup.closure (X : Set G) => x.1)
       Subtype.val_injective
   simp [liftFinsetToClosure]
@@ -1219,7 +1219,7 @@ lemma card_liftFinsetToClosure
     (X : Finset G) : (liftFinsetToClosure X).card = X.card := by
   classical
   let H := AddSubgroup.closure (X : Set G)
-  letI : Fintype H :=
+  let : Fintype H :=
     Fintype.ofInjective (fun x : H => x.1) Subtype.val_injective
   have himage : (liftFinsetToClosure X).image (fun x : H => x.1) = X := by
     ext x
@@ -1243,7 +1243,7 @@ lemma closure_liftFinsetToClosure_eq_top
       Finset (AddSubgroup.closure (X : Set G))) :
         Set (AddSubgroup.closure (X : Set G))) = ⊤ := by
   let H := AddSubgroup.closure (X : Set G)
-  letI : Fintype H :=
+  let : Fintype H :=
     Fintype.ofInjective (fun x : H => x.1) Subtype.val_injective
   have hset : ((liftFinsetToClosure X : Finset H) : Set H) =
       H.subtype ⁻¹' (X : Set G) := by
@@ -1265,7 +1265,7 @@ noncomputable def normalizedCosetFiber
     {G : Type*} [AddCommGroup G] [Fintype G] [DecidableEq G]
     {H : AddSubgroup G} {S : Finset G} {u : G} {h : H} :
     h ∈ normalizedCosetFiber H S u ↔ u + h.1 ∈ S := by
-  letI : Fintype H :=
+  let : Fintype H :=
     Fintype.ofInjective (fun x : H => x.1) Subtype.val_injective
   simp [normalizedCosetFiber]
 
@@ -1303,7 +1303,7 @@ lemma exists_translationNew_large_of_normalizedCosetFiber
     ∃ x ∈ X, X.card ≤ 16 * (Erdos360.translationNew S x).card := by
   classical
   let H := AddSubgroup.closure (X : Set G)
-  letI : Fintype H :=
+  let : Fintype H :=
     Fintype.ofInjective (fun x : H => x.1) Subtype.val_injective
   let XH : Finset H := liftFinsetToClosure X
   let U : Finset H := normalizedCosetFiber H S u
@@ -1406,7 +1406,7 @@ noncomputable def elementsInSubgroup
     {G : Type*} [AddCommGroup G] [Fintype G] [DecidableEq G]
     {H : AddSubgroup G} {A : Finset G} {h : H} :
     h ∈ elementsInSubgroup H A ↔ h.1 ∈ A := by
-  letI : Fintype H :=
+  let : Fintype H :=
     Fintype.ofInjective (fun h : H => h.1) Subtype.val_injective
   simp [elementsInSubgroup]
 
@@ -1442,7 +1442,7 @@ lemma subsetSum_fiber_lower
     (elementsInSubgroup H A).subsetSum.card ≤
       (normalizedCosetFiber H A.subsetSum u).card := by
   classical
-  letI : Fintype H :=
+  let : Fintype H :=
     Fintype.ofInjective (fun h : H => h.1) Subtype.val_injective
   obtain ⟨h₀, hh₀⟩ := hU
   have hy : u + h₀.1 ∈ A.subsetSum :=
@@ -1508,7 +1508,7 @@ lemma seededSubsetSum_fiber_lower
     (elementsInSubgroup H A).subsetSum.card ≤
       (normalizedCosetFiber H (E + A.subsetSum) u).card := by
   classical
-  letI : Fintype H :=
+  let : Fintype H :=
     Fintype.ofInjective (fun h : H => h.1) Subtype.val_injective
   obtain ⟨h₀, hh₀⟩ := hU
   have hsum : u + h₀.1 ∈ E + A.subsetSum :=
@@ -1605,7 +1605,7 @@ lemma card_elementsInSubgroup_of_subset
     (H : AddSubgroup G) (A : Finset G) (hAH : (A : Set G) ⊆ H) :
     (elementsInSubgroup H A).card = A.card := by
   classical
-  letI : Fintype H :=
+  let : Fintype H :=
     Fintype.ofInjective (fun h : H => h.1) Subtype.val_injective
   have himage : (elementsInSubgroup H A).image (fun h : H => h.1) = A := by
     ext x
@@ -1626,7 +1626,7 @@ modulus times the number of remaining residues is at most `b`. -/
 lemma closureModulus_mul_card_le {b : ℕ} [NeZero b] (hb : 0 < b)
     (R : Finset (ZMod b)) : closureModulus hb R * R.card ≤ b := by
   let H := AddSubgroup.closure (R : Set (ZMod b))
-  letI : Fintype H :=
+  let : Fintype H :=
     Fintype.ofInjective (fun h : H => h.1) Subtype.val_injective
   have hRcard : R.card ≤ Fintype.card H := by
     rw [← card_elementsInSubgroup_of_subset H R
@@ -1680,7 +1680,7 @@ lemma normalizedCosetFiber_nonempty_of_diverse_used
   classical
   let q := closureModulus hb R
   have hq : 0 < q := closureModulus_pos hb R
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let U := R₀ \ R
   let f : ZMod b →+ ZMod q :=
     (ZMod.castHom (closureModulus_dvd hb R) (ZMod q)).toAddMonoidHom
@@ -1756,7 +1756,7 @@ lemma card_le_four_mul_card_of_all_coset_fibers_large
       (H : Set G).ncard ≤ 4 * (normalizedCosetFiber H S u).card) :
     Fintype.card G ≤ 4 * S.card := by
   classical
-  letI : Fintype H :=
+  let : Fintype H :=
     Fintype.ofInjective (fun h : H => h.1) Subtype.val_injective
   let I : Finset (Σ _u : G, H) :=
     (Finset.univ : Finset G).sigma fun u => normalizedCosetFiber H S u
@@ -1877,7 +1877,7 @@ lemma exists_internal_growth_of_modularGrowthPhase
   classical
   dsimp only
   let H := AddSubgroup.closure (R : Set (ZMod b))
-  letI : Fintype H :=
+  let : Fintype H :=
     Fintype.ofInjective (fun h : H => h.1) Subtype.val_injective
   let T := (elementsInSubgroup H (R₀ \ R)).subsetSum
   let X := liftFinsetToClosure R
@@ -2375,7 +2375,7 @@ lemma modularInternalCard_le
     modularInternalCard R₀ R ≤ b := by
   classical
   let H := AddSubgroup.closure (R : Set (ZMod b))
-  letI : Fintype H :=
+  let : Fintype H :=
     Fintype.ofInjective (fun h : H => h.1) Subtype.val_injective
   calc
     modularInternalCard R₀ R =
@@ -5191,7 +5191,7 @@ lemma card_pivotExtended_lower
   | empty => simp [pivotExtended_empty]
   | @insert b P hbP ih =>
       have hb : 0 < b := hPpos b (Finset.mem_insert_self _ _)
-      letI : NeZero b := ⟨hb.ne'⟩
+      let : NeZero b := ⟨hb.ne'⟩
       have hposP : ∀ a ∈ P, 0 < a := by
         intro a ha
         exact hPpos a (Finset.mem_insert_of_mem ha)
@@ -7239,7 +7239,7 @@ lemma boundedSubsetSum_quarter_modulus
     p ≤ 4 * ((boundedSubsetSum C k).image
       (fun u : ℕ ↦ (u : ZMod p))).card := by
   classical
-  letI : NeZero p := ⟨hp.ne'⟩
+  let : NeZero p := ⟨hp.ne'⟩
   let R₀ := C.image fun c : ℕ ↦ (c : ZMod p)
   have hinj := natCast_zmod_injOn_of_lt hClt
   have hRcard : R₀.card = C.card :=
@@ -7334,7 +7334,7 @@ lemma pivot_modular_cover_of_split
     p ≤ 4 * ((boundedSubsetSum (D ∪ U) k).image
       (fun u : ℕ ↦ (u : ZMod p))).card := by
   classical
-  letI : NeZero p := ⟨hp.ne'⟩
+  let : NeZero p := ⟨hp.ne'⟩
   let R₀ := (D ∪ U).image fun z : ℕ ↦ (z : ZMod p)
   have hDcard : D.card ≤ R₀.card := by
     apply card_core_le_card_image_zmod
@@ -7577,7 +7577,7 @@ theorem exists_residue_stabilization {A : Set ℕ} (hAinf : A.Infinite)
       (∀ a ∈ A \ (↑F : Set ℕ), q ∣ a) ∧
       (∀ i < d / q, ∃ u ∈ subsetSums (↑F : Set ℕ),
         (u : ZMod d) = (i * q : ZMod d)) := by
-  letI : NeZero d := ⟨hd.ne'⟩
+  let : NeZero d := ⟨hd.ne'⟩
   let K := AddAction.stabilizer (ZMod d) (residueSubsetSums A d)
   obtain ⟨q, hqpos, hqd, hKdiv, hmultK⟩ := exists_generator_modulus hd K
   let n₀ := (residueSupport A d).sup id + 1
@@ -7648,7 +7648,7 @@ lemma subsetSum_le_sum {F : Finset ℕ} {u : ℕ}
 lemma exists_eq_add_mul_of_zmod_eq {u r d : ℕ} (_hd : 0 < d) (hr : r < d)
     (h : (u : ZMod d) = (r : ZMod d)) :
     ∃ z : ℕ, u = r + d * z := by
-  letI : NeZero d := ⟨_hd.ne'⟩
+  let : NeZero d := ⟨_hd.ne'⟩
   have hmod : u % d = r := by
     have := (ZMod.natCast_eq_natCast_iff' u r d).mp h
     simpa [Nat.mod_eq_of_lt hr] using this
@@ -7757,7 +7757,7 @@ lemma coprime_AP_residues {q M r : ℕ}
     (_hq : 0 < q) (hM : 0 < M) (hr : 0 < r) (hcop : M.Coprime r) :
     ∀ i < M, ∃ t < M, ∃ z ≤ r,
       t * (q * r) = i * q + (q * M) * z := by
-  letI : NeZero M := ⟨hM.ne'⟩
+  let : NeZero M := ⟨hM.ne'⟩
   let ur : (ZMod M)ˣ := ZMod.unitOfCoprime r hcop.symm
   intro i hi
   let x : ZMod M := (i : ZMod M) * (ur⁻¹ : (ZMod M)ˣ)

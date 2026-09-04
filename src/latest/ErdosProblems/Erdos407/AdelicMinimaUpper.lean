@@ -685,7 +685,7 @@ theorem exists_upperAdaptedBasisCertificate
     (hL : IsNonsingularFamily L) {Q : ℕ} (hQ : 1 ≤ Q)
     (c : LocalConstants n) :
     Nonempty (UpperAdaptedBasisCertificate L Q c (upperConstant L)) := by
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   let rf : Fin 2 → Fin n → ℝ := fun u i ↦
     exponentRadius (Q : ℝ) c
       (Erdos407.PadicSubspace.FinitePlaceLattice.finitePlace u) i

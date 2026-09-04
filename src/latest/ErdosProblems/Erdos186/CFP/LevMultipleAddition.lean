@@ -443,7 +443,7 @@ lemma modImage_not_subset_addStab_of_gcd_one {S : Finset ℕ} {v : ℕ}
   have hHpos : 0 < C.addStab.card :=
     card_pos.mpr ⟨0, zero_mem_addStab hC⟩
   have hv : 0 < v := hHpos.trans_le (Nat.le_of_lt hproper)
-  letI : NeZero v := ⟨Nat.ne_of_gt hv⟩
+  let : NeZero v := ⟨Nat.ne_of_gt hv⟩
   intro hsub
   let K : AddSubgroup (ZMod v) :=
     AddAction.stabilizer (ZMod v) (C : Set (ZMod v))
@@ -569,7 +569,7 @@ theorem lev1997_increment_normalized {A : Finset ℕ}
           (As.map fun B ↦ (modImage B L).card).sum -
           (As.length + 1) + 1) ≤
       (listSumset As + A).card := by
-  letI : NeZero L := ⟨Nat.ne_of_gt hL⟩
+  let : NeZero L := ⟨Nat.ne_of_gt hL⟩
   let T := listSumset As
   let X := modImage A L
   let Xs := As.map fun B ↦ modImage B L

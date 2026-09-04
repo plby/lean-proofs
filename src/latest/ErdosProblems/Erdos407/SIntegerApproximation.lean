@@ -324,7 +324,7 @@ theorem simultaneousApproximation_real (qInf q₂ q₃ : ℚ) :
   rw [simultaneousApproximation]
   push_cast
   convert h using 1
-  ring
+  ring_nf
 
 theorem simultaneousApproximation_two (qInf q₂ q₃ : ℚ) :
     padicNorm 2 (simultaneousApproximation qInf q₂ q₃ - q₂) ≤ 1 := by

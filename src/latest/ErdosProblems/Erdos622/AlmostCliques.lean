@@ -1047,7 +1047,7 @@ theorem card_familyBadSamples_le [Nonempty V]
       intro C hC
       by_cases hCempty : C = ∅
       · subst C
-        simp [bad, sampleIntersectionCount, not_le_of_gt ht]
+        simp only [neg_mul]
         positivity
       · have hCpos : (0 : ℝ) < C.card := by
           exact_mod_cast (Finset.card_pos.mpr
@@ -1137,7 +1137,7 @@ theorem eventually_internalBadSamples_density_lt :
     (show (0 : ℝ) < 1 / 128 by norm_num)
   filter_upwards [eventually_ge_atTop 1, hevent] with n hn hdec
   intro G A B
-  letI : Nonempty (Fin (2 * n)) := Fin.pos_iff_nonempty.mp (by omega)
+  let : Nonempty (Fin (2 * n)) := Fin.pos_iff_nonempty.mp (by omega)
   have ht : (0 : ℝ) < (n : ℝ) / 100 := by positivity
   have hcard := card_familyBadSamples_le (internalTestFamily G A B) ht
   change ((internalBadSamples G A B ((n : ℝ) / 100)).card : ℝ) ≤ _ at hcard

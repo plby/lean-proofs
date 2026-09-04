@@ -2616,7 +2616,7 @@ private lemma h_chain_per_greedy_stage_failure_bound
     have hpc_lt_q : past_cutoff < q := by
       by_cases hk_zero : k = 0
       · rw [hpc_def]
-        simp [hk_zero]
+        simp only [dite_eq_ite]
         exact Nat.lt_of_le_of_lt (Nat.zero_le _) (Nat.lt_of_le_of_lt (Nat.zero_le _) hq_prime.one_lt)
       · -- k ≥ 1: past_cutoff ≤ ⌊exp(y_k^{A-1})⌋₊.
         have hk_pos : 1 ≤ k := Nat.one_le_iff_ne_zero.mpr hk_zero
@@ -2874,7 +2874,7 @@ private lemma h_chain_per_greedy_stage_failure_bound
       injection hd with h_eq
       rw [← h_eq]
       apply Nat.le_floor
-      simp
+      simp only [Nat.cast_one]
       exact hy_target_ge_1
     · -- k ≥ 1: extract admissibility constraint.
       have hk_pos : 1 ≤ k := Nat.one_le_iff_ne_zero.mpr hk_zero

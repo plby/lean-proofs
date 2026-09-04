@@ -92,7 +92,7 @@ theorem baseFiber_edgeImage_ncard_eq_baseFiberIndex_card
     (baseFiber f.edgeImage q).ncard =
       @Fintype.card (baseFiberIndex f q) (baseFiberIndexFintype f q) := by
   classical
-  letI : Fintype (baseFiberIndex f q) := baseFiberIndexFintype f q
+  let : Fintype (baseFiberIndex f q) := baseFiberIndexFintype f q
   calc
     (baseFiber f.edgeImage q).ncard = Nat.card (baseFiberIndex f q) :=
       ncard_baseFiber_edgeImage_eq_natCard_baseFiberIndex f q
@@ -109,7 +109,7 @@ theorem finiteLinear_baseLetter_image_ncard_eq_baseFiberIndex_card
     (baseLetter '' baseFiber f.edgeImage q).ncard =
       @Fintype.card (baseFiberIndex f q) (baseFiberIndexFintype f q) := by
   classical
-  letI : Fintype (baseFiberIndex f q) := baseFiberIndexFintype f q
+  let : Fintype (baseFiberIndex f q) := baseFiberIndexFintype f q
   have hlin : ((system G).edgeRestriction f.edgeImage).Linear :=
     f.imageEdgeRestriction_linear hF hlinear
   calc

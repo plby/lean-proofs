@@ -76,8 +76,8 @@ theorem measure_next_le
       apply ENNReal.tsum_le_tsum
       intro row
       let rowData := data.row row
-      letI := rowData.history_countable
-      letI := rowData.index_countable
+      let := rowData.history_countable
+      let := rowData.index_countable
       exact (FirstStripLowTransitionData.ofMeshCreation hm rowData.candidate
         rowData.creation le_rfl).factor.measure_next_le
           (data.rowPrevious_measurable row) (data.rowNext_measurable row)

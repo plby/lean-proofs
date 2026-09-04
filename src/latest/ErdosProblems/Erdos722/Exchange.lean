@@ -323,7 +323,7 @@ theorem exists_baseExchange (q r : ℕ) (hq : 0 < q) (hrq : r ≤ q) :
     Nonempty (BaseExchange q r) := by
   obtain ⟨p, hp, hqp, _hpq, hbase⟩ :=
     exists_zmod_base_exchange q r hq hrq
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let host := transversalHost (I := Fin q) (F := ZMod p) r
   let positive := polynomialBlocks (zmodNodes q p) r
   let negative := shiftedPolynomialBlocks (zmodNodes q p)
@@ -373,8 +373,8 @@ theorem exists_initialPartialExchange (q r : ℕ)
     (hq : 0 < q) (hrq : r ≤ q) :
     Nonempty (PartialExchange q r ∅) := by
   obtain ⟨B⟩ := exists_baseExchange q r hq hrq
-  letI : DecidableEq B.V := B.decEq
-  letI : Fintype B.V := B.fintype
+  let : DecidableEq B.V := B.decEq
+  let : Fintype B.V := B.fintype
   have hpluscard : B.plus.card = q :=
     B.positive_decomp.1 B.plus B.plus_mem
   let f : Fin q ↪ B.V :=
@@ -410,7 +410,7 @@ theorem TradeData.exists_negative_containing
     {q r : ℕ} (T : TradeData q r)
     {e : Finset T.V} (hehost : e ∈ T.host) :
     ∃ Q ∈ T.negative, e ⊆ Q := by
-  letI : DecidableEq T.V := T.decEq
+  let : DecidableEq T.V := T.decEq
   have hcard := T.negative_decomp.2.2 e hehost
   obtain ⟨Q, hQ⟩ := Finset.card_eq_one.mp hcard
   refine ⟨Q, ?_, ?_⟩
@@ -423,7 +423,7 @@ theorem TradeData.exists_positive_containing
     {q r : ℕ} (T : TradeData q r)
     {e : Finset T.V} (hehost : e ∈ T.host) :
     ∃ Q ∈ T.positive, e ⊆ Q := by
-  letI : DecidableEq T.V := T.decEq
+  let : DecidableEq T.V := T.decEq
   have hcard := T.positive_decomp.2.2 e hehost
   obtain ⟨Q, hQ⟩ := Finset.card_eq_one.mp hcard
   refine ⟨Q, ?_, ?_⟩
@@ -558,10 +558,10 @@ theorem exists_isolatedExtension
     (hroot : root ∈ T.positive) (hesub : e ⊆ root)
     (hecard : e.card = r) :
     Nonempty (IsolatedExtension T root e) := by
-  letI : DecidableEq T.V := T.decEq
-  letI : Fintype T.V := T.fintype
-  letI : DecidableEq B.V := B.decEq
-  letI : Fintype B.V := B.fintype
+  let : DecidableEq T.V := T.decEq
+  let : Fintype T.V := T.fintype
+  let : DecidableEq B.V := B.decEq
+  let : Fintype B.V := B.fintype
   have hehost : e ∈ T.host :=
     T.positive_decomp.2.1 root hroot
       (Finset.mem_powersetCard.mpr ⟨hesub, hecard⟩)
@@ -960,15 +960,15 @@ theorem exists_partialExchange_insert_with_trace_and_bound
     (e : RootEdge q r) (he : e ∉ done) :
     ∃ Q : PartialExchange q r (insert e done),
       Q.SpecialTraceIsolated e ∧ Q.SpecialPositiveInterBounded e := by
-  letI : DecidableEq P.V := P.decEq
-  letI : Fintype P.V := P.fintype
+  let : DecidableEq P.V := P.decEq
+  let : Fintype P.V := P.fintype
   let root := mappedRoot P.rootEmbedding
   let edge := mappedRootEdge P.rootEmbedding e.1
   obtain ⟨X⟩ := exists_isolatedExtension hqr P.toTradeData B
     P.root_mem (mappedRootEdge_subset_mappedRoot P.rootEmbedding e.1)
     (by simp [edge])
-  letI : DecidableEq X.data.V := X.data.decEq
-  letI : Fintype X.data.V := X.data.fintype
+  let : DecidableEq X.data.V := X.data.decEq
+  let : Fintype X.data.V := X.data.fintype
   let old := X.oldEmbedding
   let newRoot := root.map old
   have hSpecialInterOld : X.special ∩

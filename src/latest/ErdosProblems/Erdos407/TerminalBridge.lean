@@ -194,7 +194,7 @@ private theorem fixedRatioSet_finite (hU : AffineU23Finiteness)
   classical
   let S := FiniteCover.solutions SubspaceApplication.U23.group (ratioCoeff I b)
   have hS : S.Finite := hU _ (ratioCoeff I b) (ratioCoeff_ne_zero I b)
-  letI : Fintype S := hS.fintype
+  let : Fintype S := hS.fintype
   let f : S × {i // i ∈ I.erase b} → ℚ :=
     fun zi ↦ ((((zi.1.1 zi.2 : SubspaceApplication.U23.group) : ℚˣ) : ℚ))
   refine (Set.finite_range f).subset ?_
@@ -209,7 +209,7 @@ private theorem fixedRatioSet_finite_upTo_five
   let S := FiniteCover.solutions SubspaceApplication.U23.group (ratioCoeff I b)
   have hS : S.Finite :=
     hU _ (ratioCoeff I b) (ratioIndex_card_le_five hb) (ratioCoeff_ne_zero I b)
-  letI : Fintype S := hS.fintype
+  let : Fintype S := hS.fintype
   let f : S × {i // i ∈ I.erase b} → ℚ :=
     fun zi ↦ ((((zi.1.1 zi.2 : SubspaceApplication.U23.group) : ℚˣ) : ℚ))
   refine (Set.finite_range f).subset ?_

@@ -61,7 +61,7 @@ theorem delegliseD_bound
     subst q
     exact (Nat.coprime_self s).mp cop
   by_cases hmod : h % 3 = 2
-  · simp [hmod]
+  · simp only [if_pos hmod]
     have h_ge5 : 5 ≤ h := by omega
     have target_sep : 12 ≤ A ^ 2 + 3 * B ^ 2 := by
       by_cases hA : A = 0
@@ -127,7 +127,7 @@ theorem delegliseD_bound
       exact_mod_cast cast_goal_add
     omega
   · have hres : h % 3 = 0 ∨ h % 3 = 1 := by omega
-    simp [hmod]
+    simp only [if_neg hmod]
     have target_sep : 4 ≤ A ^ 2 + 3 * B ^ 2 := by
       by_cases hB : B = 0
       · have heq := hB0 hB

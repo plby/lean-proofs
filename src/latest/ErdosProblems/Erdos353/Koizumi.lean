@@ -228,7 +228,7 @@ lemma twistAt_volume (O : EuclideanSpace ℝ (Fin 2)) (ang : ℝ → ℝ)
       · rw [ Set.mem_sub ] at hy ; aesop;
     convert det_two _ using 1;
     simp_all +decide [ EuclideanSpace.norm_eq ];
-    norm_num [ EuclideanSpace.inner_single_right ] ; ring;
+    norm_num [ EuclideanSpace.inner_single_right ] ; ring_nf;
     rw [ Real.cos_sq_add_sin_sq ];
   -- Apply lintegral_abs_det_fderiv_eq_addHaar_image to h := (fun w => rot (ang ‖w‖) w) on T'.
   have h_volume_eq : volume ((fun w => rot (ang ‖w‖) w) '' T') = volume T' := by
@@ -251,9 +251,9 @@ lemma twistAt_volume (O : EuclideanSpace ℝ (Fin 2)) (ang : ℝ → ℝ)
 lemma volume_ball_half (A : EuclideanSpace ℝ (Fin 2)) {ε : ℝ} (hε : 0 ≤ ε) :
     volume (Metric.ball A (ε / 2)) * 4 = volume (Metric.ball A ε) := by
   classical
-  convert congr_arg ( fun x : ENNReal => x * 4 ) ( MeasureTheory.Measure.addHaar_ball ( μ := MeasureTheory.MeasureSpace.volume ) ( x := A ) ( show 0 ≤ ε / 2 by positivity ) ) using 1 ; ring;
-  convert MeasureTheory.Measure.addHaar_ball ( μ := MeasureTheory.MeasureSpace.volume ) ( x := A ) ( show 0 ≤ ε by positivity ) using 1 ; norm_num ; ring;
-  rw [ ← ENNReal.toReal_eq_toReal_iff' ] <;> norm_num ; ring;
+  convert congr_arg ( fun x : ENNReal => x * 4 ) ( MeasureTheory.Measure.addHaar_ball ( μ := MeasureTheory.MeasureSpace.volume ) ( x := A ) ( show 0 ≤ ε / 2 by positivity ) ) using 1 ; ring_nf;
+  convert MeasureTheory.Measure.addHaar_ball ( μ := MeasureTheory.MeasureSpace.volume ) ( x := A ) ( show 0 ≤ ε by positivity ) using 1 ; norm_num ; ring_nf;
+  rw [ ← ENNReal.toReal_eq_toReal_iff' ] <;> norm_num ; ring_nf;
   · rw [ ENNReal.toReal_ofReal ( by positivity ), ENNReal.toReal_ofReal ( by positivity ), ENNReal.toReal_ofReal ( by positivity ) ] ; ring;
   · exact ENNReal.mul_ne_top ( ENNReal.mul_ne_top ( ENNReal.ofReal_ne_top ) ( ENNReal.ofReal_ne_top ) ) ( by norm_num );
   · exact ENNReal.mul_ne_top ( ENNReal.ofReal_ne_top ) ( ENNReal.ofReal_ne_top )
@@ -294,7 +294,7 @@ lemma matching (S : Set (EuclideanSpace ℝ (Fin 2))) (hS : MeasurableSet S)
     rw [ ENNReal.mul_div_cancel_right ] <;> norm_num
   have h_eighth : volume (Metric.ball A ε \ S) ≥ volume (Metric.ball A ε) / 8 := by
     simp_all +decide [ div_eq_mul_inv, mul_comm, mul_left_comm ];
-    convert ( mul_le_mul_right h_half ( 1 / 2 : ENNReal ) ) using 1 <;> ring;
+    convert ( mul_le_mul_right h_half ( 1 / 2 : ENNReal ) ) using 1 <;> ring_nf;
     · rw [ show ( 8⁻¹ : ENNReal ) = 4⁻¹ * ( 1 / 2 ) by
             rw [ ← ENNReal.toReal_eq_toReal_iff' ] <;> norm_num;
             norm_num [ ENNReal.mul_eq_top ] ] ; ring;
@@ -377,14 +377,14 @@ lemma dist_twistAt_phi_le (O p : EuclideanSpace ℝ (Fin 2)) (hp : Real.sqrt 2 <
   have hdist : dist (twistAt O (fun t => Real.arcsin (2 / t^2)) p) p = ‖rot a v - v‖ := by
     unfold twistAt; simp +decide [ dist_eq_norm, EuclideanSpace.norm_eq ] ;
     simp +zetaDelta at *;
-    norm_num [ EuclideanSpace.norm_eq ] ; ring
+    norm_num [ EuclideanSpace.norm_eq ] ; ring_nf
   have hnorm : ‖rot a v - v‖^2 = 2 * (1 - Real.cos a) * r^2 := by
     -- By definition of `rot`, we have `rot a v = !₂[Real.cos a * v 0 - Real.sin a * v 1, Real.sin a * v 0 + Real.cos a * v 1]`.
     have hrot : rot a v = !₂[Real.cos a * v 0 - Real.sin a * v 1, Real.sin a * v 0 + Real.cos a * v 1] := by
       rfl;
     rw [ hrot, EuclideanSpace.norm_eq ];
     simp +zetaDelta at *;
-    rw [ Real.sq_sqrt <| by positivity ] ; rw [ EuclideanSpace.norm_eq ] ; norm_num ; ring;
+    rw [ Real.sq_sqrt <| by positivity ] ; rw [ EuclideanSpace.norm_eq ] ; norm_num ; ring_nf;
     rw [ Real.sq_sqrt ] <;> try nlinarith [ sq_nonneg ( p.ofLp 0 - O.ofLp 0 ), sq_nonneg ( p.ofLp 1 - O.ofLp 1 ) ];
     rw [ Real.sin_sq, Real.cos_arcsin ] ; ring;
   -- Since $r > \sqrt{2}$, we have $0 < 2 / r^2 < 1$, so $\sin a = 2 / r^2$ and $\cos a \in [0, 1]$.
@@ -451,7 +451,7 @@ lemma avgAt_right (O p : EuclideanSpace ℝ (Fin 2)) (hp : 2 < ‖p - O‖) :
       rw [ inv_mul_eq_div, div_le_iff₀ ] <;> nlinarith [ Real.mul_self_sqrt ( add_nonneg ( sq_nonneg ( p.ofLp 0 - O.ofLp 0 ) ) ( sq_nonneg ( p.ofLp 1 - O.ofLp 1 ) ) ) ];
   · refine Or.inr <| Or.inr ?_;
     unfold avgAt; norm_num [ EuclideanSpace.norm_eq ] at *;
-    norm_num [ rot, inner ] ; ring;
+    norm_num [ rot, inner ] ; ring_nf;
     rw [ Real.sin_sq, Real.cos_sq ] ; ring
 /-
 `arcsin (4/t²)` is differentiable at any `r` with `2 < r`.
@@ -472,7 +472,7 @@ lemma dist_avgAt_chi_le (O p : EuclideanSpace ℝ (Fin 2)) (hp : 2 < ‖p - O‖
   set a := Real.arcsin (4 / r ^ 2)
   have h_avg : avgAt O (fun t => Real.arcsin (4 / t ^ 2)) p - p = (1 / 2 : ℝ) • (rot a v - v) := by
     unfold avgAt;
-    ext i ; norm_num ; ring!;
+    ext i ; norm_num ; ring_nf!;
     norm_num [ div_eq_inv_mul ] ; ring!;
   -- Then ‖rot a v - v‖² = 2(1 - cos a)r². Since r² > 4, 0 < 4/r² ≤ 1, sin a = 4/r², cos a ∈ [0,1], 1 - cos a ≤ 1 - cos²a = sin²a = 16/r⁴.
   have h_norm_sq : ‖rot a v - v‖ ^ 2 ≤ 2 * (1 - Real.cos a) * r ^ 2 := by
@@ -551,8 +551,8 @@ lemma avg_chi_det_ge {x : EuclideanSpace ℝ (Fin 2)} (hx : 100 < ‖x‖) :
   convert ( show ( 4 : ℝ ) / 5 ≤ ( 1 / 2 ) * ( 1 + Real.cos ( Real.arcsin ( 4 / ‖x‖ ^ 2 ) ) ) - ( 1 / 4 ) * ( deriv ( fun t => Real.arcsin ( 4 / t ^ 2 ) ) ‖x‖ ) * ‖x‖ * Real.sin ( Real.arcsin ( 4 / ‖x‖ ^ 2 ) ) from ?_ ) using 1;
   · rw [ det_two ];
     simp_all +decide [ EuclideanSpace.norm_eq, Fin.sum_univ_two ];
-    norm_num [ EuclideanSpace.inner_single_left, EuclideanSpace.inner_single_right ] ; ring;
-    rw [ Real.sin_sq, Real.cos_arcsin ] ; ring;
+    norm_num [ EuclideanSpace.inner_single_left, EuclideanSpace.inner_single_right ] ; ring_nf;
+    rw [ Real.sin_sq, Real.cos_arcsin ] ; ring_nf;
     grind;
   · refine' le_trans _ ( sub_le_sub_left ( mul_nonpos_of_nonpos_of_nonneg _ _ ) _ );
     · linarith [ cos_chi_ge hx ];
@@ -573,11 +573,11 @@ lemma avg_chi_inj :
         intros w hw
         have h_norm_sq : ‖w + rot (Real.arcsin (4 / ‖w‖ ^ 2)) w‖ ^ 2 = 2 * ‖w‖ ^ 2 * (1 + Real.cos (Real.arcsin (4 / ‖w‖ ^ 2))) := by
           norm_num [ EuclideanSpace.norm_eq, rot ];
-          rw [ Real.sq_sqrt <| by positivity ] ; ring;
+          rw [ Real.sq_sqrt <| by positivity ] ; ring_nf;
           rw [ Real.sin_sq, Real.sq_sqrt <| by positivity ] ; ring;
-        rw [ norm_smul, Real.norm_of_nonneg ] <;> norm_num [ h_norm_sq ] ; ring;
+        rw [ norm_smul, Real.norm_of_nonneg ] <;> norm_num [ h_norm_sq ] ; ring_nf;
         rw [ show ( -16 + ‖w‖ ^ 4 : ℝ ) = ( ‖w‖ ^ 2 ) ^ 2 * ( 1 - 16 / ‖w‖ ^ 4 ) by nlinarith [ show 0 < ‖w‖ ^ 4 by positivity, div_mul_cancel₀ 16 ( show ( ‖w‖ ^ 4 : ℝ ) ≠ 0 by positivity ) ], Real.sqrt_mul ( by positivity ), Real.sqrt_sq ( by positivity ) ] ; ring_nf at * ; norm_num at *;
-        rw [ h_norm_sq, Real.cos_arcsin ] ; ring;
+        rw [ h_norm_sq, Real.cos_arcsin ] ; ring_nf;
       rw [← h_norm_sq w₁ hw₁, ← h_norm_sq w₂ hw₂]
       exact congrArg (fun z : EuclideanSpace ℝ (Fin 2) => ‖z‖ ^ 2) h_eq
     have h_sqrt_eq : Real.sqrt (‖w₁‖^4 - 16) = Real.sqrt (‖w₂‖^4 - 16) := by
@@ -679,7 +679,7 @@ lemma matching_ge (S : Set (EuclideanSpace ℝ (Fin 2))) (hS : MeasurableSet S)
   have hT_measure_le : volume (Metric.ball A (ε / 2) \ S) ≤ volume (Metric.ball A ε \ S) := by
     exact MeasureTheory.measure_mono ( Set.sdiff_subset_sdiff ( Metric.ball_subset_ball ( by linarith ) ) le_rfl )
   have hT_measure_le' : volume (Metric.ball A (ε / 2)) = volume (Metric.ball A ε) / 4 := by
-    rw [ ← volume_ball_half A hε.le ] ; ring; norm_num;
+    rw [ ← volume_ball_half A hε.le ] ; ring_nf; norm_num;
     rw [ ENNReal.mul_div_cancel_right ] <;> norm_num
   have h_contradiction : volume (Metric.ball A ε \ S) ≥ (4 / 5) * (volume (Metric.ball A ε) / 4 - volume (Metric.ball A ε \ S)) := by
     refine' le_trans _ ( hT_image_measure.trans ( MeasureTheory.measure_mono hT_image_subset ) );
@@ -820,7 +820,7 @@ lemma dist_twistAt_psi_le {R : ℝ} (hR : 2 ≤ R) (O p : EuclideanSpace ℝ (Fi
     -- Using the fact that `rot a v - v` has norm squared `2 * (1 - cos a) * r^2`
     have h_norm_sq : ‖rot (psi R ‖p - O‖) (p - O) - (p - O)‖^2 = 2 * (1 - Real.cos (psi R ‖p - O‖)) * ‖p - O‖^2 := by
       norm_num [ EuclideanSpace.norm_eq, rot ];
-      rw [ Real.sq_sqrt <| by positivity, Real.sq_sqrt <| by positivity ] ; ring;
+      rw [ Real.sq_sqrt <| by positivity, Real.sq_sqrt <| by positivity ] ; ring_nf;
       rw [ Real.sin_sq ] ; ring;
     -- Using the fact that `sin a ≤ (4/3)*(2/r^2) = 8/(3r^2)` and `1 - cos a ≤ 1 - cos²a = sin²a`.
     have h_sin_a : Real.sin (psi R ‖p - O‖) ≤ 8 / (3 * ‖p - O‖^2) := by
@@ -866,9 +866,9 @@ lemma trapezoid_geom_raw {R : ℝ} (hR : 2 ≤ R) (O p : EuclideanSpace ℝ (Fin
     · unfold conAt twistAt;
       norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ];
       exact congrArg Real.sqrt ( by nlinarith [ Real.sin_sq_add_cos_sq ( psi R ( Real.sqrt ( ( p.ofLp 0 - O.ofLp 0 ) ^ 2 + ( p.ofLp 1 - O.ofLp 1 ) ^ 2 ) ) ) ] );
-    · unfold conAt; norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ] ; ring;
-      unfold twistAt; norm_num [ rot_apply0, rot_apply1 ] ; ring;
-      rw [ Real.sin_sq, Real.cos_sq ] ; ring;
+    · unfold conAt; norm_num [ dist_eq_norm, EuclideanSpace.norm_eq ] ; ring_nf;
+      unfold twistAt; norm_num [ rot_apply0, rot_apply1 ] ; ring_nf;
+      rw [ Real.sin_sq, Real.cos_sq ] ; ring_nf;
     · unfold twistAt;
       unfold rot; intro h; have := congr_arg ( fun x => x 0 ) h; have := congr_arg ( fun x => x 1 ) h; norm_num at *;
       -- Since $\sin(\psi_R(\|p - O\|)) \neq 0$, we can divide both sides of the equation by $\sin(\psi_R(\|p - O\|))$.

@@ -79,7 +79,7 @@ theorem exists_boundedRootedFamilyEmbeddings_of_finite_bounds
   classical
   let ambientEmbedding : Fin v ↪ Fin n :=
     Classical.choice (inferInstance : Nonempty (Fin v ↪ Fin n))
-  letI : Nonempty (Fin n) :=
+  let : Nonempty (Fin n) :=
     ⟨ambientEmbedding ⟨0, by
       have hv : 0 < v := by
         have hrootCard := Finset.card_le_univ P.root

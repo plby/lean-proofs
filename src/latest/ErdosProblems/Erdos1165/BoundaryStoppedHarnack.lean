@@ -425,7 +425,7 @@ theorem abs_infiniteGreen_toReal_sub_boundaryReference_le_of_subset_coordinateBo
       simp only [envelope, stoppedExpectation_add,
         stoppedExpectation_const, stoppedExpectation_const_mul,
         stoppedExpectation_interiorIndicator_eq_planarKilledMass]
-    · ring
+    · ring_nf
   have hnegativeEnvelope : Tendsto
       (fun N ↦ stoppedExpectation D (N + 1) (fun z ↦ -envelope z) x)
       atTop (nhds (-epsilon)) := by

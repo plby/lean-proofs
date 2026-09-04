@@ -73,7 +73,7 @@ theorem measure_biUnion_ball_le_lintegral
     have hDcount : D.Countable :=
       hDdisj.countable_of_isOpen (fun _ _ ↦ isOpen_ball)
         (fun i hi ↦ nonempty_ball.mpr ((hDB hi).2.1))
-    letI : Countable D := hDcount.to_subtype
+    let : Countable D := hDcount.to_subtype
     calc
       l * volume (⋃ i ∈ truncatedBalls B k, ball i.1 i.2) ≤
           l * volume (⋃ i ∈ D, ball i.1 (4 * i.2)) := by
@@ -320,7 +320,7 @@ private lemma normalized_denominator_eq (ρ t : ℝ) :
     1 + ρ ^ 2 - 2 * ρ * Real.cos t =
       (1 - ρ) ^ 2 + 4 * ρ * Real.sin (t / 2) ^ 2 := by
   rw [show t = 2 * (t / 2) by ring, Real.cos_two_mul_eq_one_sub]
-  ring
+  ring_nf
 
 /-- On the principal angular interval the disk Poisson kernel is bounded by a fixed multiple of
 the real Cauchy kernel.  The constant `256` is deliberately non-optimal, which keeps the two

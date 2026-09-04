@@ -66,7 +66,7 @@ theorem eventually_smallPresieve_cubic_decay {a C : ℝ} (ha : 0 < a) (hC : 0 �
       Real.exp ((a / 4) * Real.sqrt (Real.log (x : ℝ))) *
       Real.exp (-(a / 2) * Real.sqrt (Real.log (x : ℝ))) = 1 := by
     rw [← Real.exp_add, ← Real.exp_add]
-    convert Real.exp_zero using 1 <;> ring
+    convert Real.exp_zero using 1 <;> ring_nf
   have hh := mul_le_mul_of_nonneg_right hmul (Real.exp_pos
     (-(a / 2) * Real.sqrt (Real.log (x : ℝ)))).le
   rw [hexp] at hh

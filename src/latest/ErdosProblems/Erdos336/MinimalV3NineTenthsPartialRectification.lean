@@ -66,7 +66,7 @@ theorem minimalV3_counterexample_nine_tenths_partial_rectification
     linarith
   obtain ⟨m, hm, π, hπ, hmorder, B, hBA, hdense, α, hα⟩ :=
     fourier_nine_tenths_short_quotient_interval A k hk hF hlarge
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   refine ⟨m, hm, π, hπ, ?_, B, ?_, ?_, α, ?_⟩
   · rw [hmorder]
     omega

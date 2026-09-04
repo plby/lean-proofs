@@ -115,7 +115,7 @@ theorem integral_normSq_lemma14MellinSegment_eq_log
       rw [lemma14MellinSegment_eq_logSpatialTransform g hexp A B]
       congr 2
       rw [Real.log_exp]
-      ring]
+      ring_nf]
     rw [Complex.normSq_mul]
     have hsq : Complex.normSq (Real.exp (-y) : ℂ) = Real.exp (-2 * y) := by
       rw [Complex.normSq_ofReal]
@@ -342,7 +342,7 @@ theorem intervalIntegral_normSq_logSpatialTransform_le_universal
     _ ≤ lemma14FourierCauchyConstant
           (lemma14PositiveLogCutoff 1 (-Real.log 3 - 2) 2 (by norm_num)) *
         Real.pi * ∫ t in A..B, Complex.normSq (g' t) := by
-      convert hfixed using 1 <;> ring
+      convert hfixed using 1 <;> ring_nf
     _ = lemma14UniversalFourierCauchyConstant * Real.pi *
         ∫ t in A..B, Complex.normSq (g t) := by
       unfold lemma14UniversalFourierCauchyConstant lemma14UniversalLogCutoff
@@ -487,7 +487,7 @@ theorem integral_normSq_mul_safePerronRatioIncrement_le_div
         Complex.normSq (F t * safePerronRatioIncrement u t)) ≤
       ((2 + u) / T) ^ 2 * ∫ t in A..B, Complex.normSq (F t) := by
   rcases hu.eq_or_lt with rfl | hu
-  · simp [safePerronRatioIncrement, perronRatioIncrement]
+  · simp only [map_mul, add_zero]
     exact mul_nonneg (sq_nonneg _) (intervalIntegral.integral_nonneg_of_forall
       hAB (fun t ↦ Complex.normSq_nonneg _))
   · simpa only [safePerronRatioIncrement_eq_of_nonneg hu.le] using
@@ -538,7 +538,7 @@ theorem integral_normSq_mul_safePerronRatioIncrement_le_weighted
   have hnum : 0 ≤ 2 + u := by linarith
   have hratioNonneg : 0 ≤ (2 + u) / |t| := div_nonneg hnum habs.le
   rcases hu.eq_or_lt with rfl | hu
-  · simp [safePerronRatioIncrement, perronRatioIncrement]
+  · simp only [map_mul, add_zero, ge_iff_le]
     exact mul_nonneg (sq_nonneg _) (Complex.normSq_nonneg _)
   · rw [safePerronRatioIncrement_eq_of_nonneg hu.le,
       Complex.normSq_mul]
@@ -2242,7 +2242,7 @@ theorem intervalIntegral_realSafeSmoothedMellinSegment_eq_swap
         (x : ℂ) ^ ((1 : ℂ) + (t : ℂ) * Complex.I) *
           ∫ u in C..D, perronRatioIncrement u t := by
   have hxC : (x : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hx.ne'
-  letI : NeZero (x : ℂ) := ⟨hxC⟩
+  let : NeZero (x : ℂ) := ⟨hxC⟩
   let H : ℝ → ℝ → ℂ := fun t u ↦ F t *
     (x : ℂ) ^ ((1 : ℂ) + (t : ℂ) * Complex.I) *
       safePerronRatioIncrement u t
@@ -2306,8 +2306,8 @@ theorem perronKernelSegmentOn_eq_realSourceSmoothed
     F hF hx (by positivity : 0 ≤ h / x) hleftOrder A B
   have hrightSwap := intervalIntegral_realSafeSmoothedMellinSegment_eq_swap
     F hF hxh (le_refl 0) (by positivity : 0 ≤ 2 * h / (x + h)) A B
-  letI : NeZero (x : ℂ) := ⟨Complex.ofReal_ne_zero.mpr hx.ne'⟩
-  letI : NeZero ((x + h : ℝ) : ℂ) :=
+  let : NeZero (x : ℂ) := ⟨Complex.ofReal_ne_zero.mpr hx.ne'⟩
+  let : NeZero ((x + h : ℝ) : ℂ) :=
     ⟨Complex.ofReal_ne_zero.mpr hxh.ne'⟩
   let L : ℝ → ℂ := fun t ↦ F t *
     (x : ℂ) ^ ((1 : ℂ) + (t : ℂ) * Complex.I) *

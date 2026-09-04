@@ -64,7 +64,7 @@ theorem minimal_connected_hull_degree [Fintype U] [DecidableRel T.Adj]
     intro he
     have hh : v = w := congrArg Subtype.val he
     exact hvW (hh.symm ▸ hw)
-  letI : Nontrivial ↥(H : Set U) := nontrivial_of_ne z y hzy
+  let : Nontrivial ↥(H : Set U) := nontrivial_of_ne z y hzy
   have hpos : 0 < degreeIn T H v := by
     rw [degreeIn_eq_induce_degree T H z]
     exact hH.preconnected.degree_pos_of_nontrivial z

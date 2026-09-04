@@ -3947,7 +3947,7 @@ lemma conditionedCountVectorWindowProbability_le_of_claim121
           B * scale (Fintype.card D.Covered) (-6 / 5 : ℝ)) := by
   obtain ⟨hleft, hsigma, hupper⟩ :=
     hclaim (fun j ↦ (ell j).val) hbalanced
-  letI := hleft
+  let := hleft
   let Gc := D.finCoveredGraph G
   let cc := D.conditionedCoveredCoefficient G cvec O
   let E := GraphQuadratic.graphSliceConstant Gc

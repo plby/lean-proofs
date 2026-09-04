@@ -285,8 +285,8 @@ lemma sphereProbability_le_of_toSphere_le (hh : 0 < h)
       ENNReal.ofReal c *
         (volume : Measure (EuclideanSpace ℝ (Fin h))).toSphere Set.univ) :
     (sphereProbability h hh A : ℝ) ≤ c := by
-  letI : Nonempty (Fin h) := ⟨⟨0, hh⟩⟩
-  letI : Nonempty (Sphere h) := sphereNonempty h hh
+  let : Nonempty (Fin h) := ⟨⟨0, hh⟩⟩
+  let : Nonempty (Sphere h) := sphereNonempty h hh
   let M := sphereFiniteMeasure h
   let P := sphereProbability h hh
   have Hnn : M A ≤ Real.toNNReal c * M Set.univ := by
@@ -334,8 +334,8 @@ lemma sphereProbability_neg_preimage (hh : 0 < h) (A : Set (Sphere h))
     (hA : MeasurableSet A) :
     sphereProbability h hh ((fun y : Sphere h ↦ -y) ⁻¹' A) =
       sphereProbability h hh A := by
-  letI : Nonempty (Fin h) := ⟨⟨0, hh⟩⟩
-  letI : Nonempty (Sphere h) := sphereNonempty h hh
+  let : Nonempty (Fin h) := ⟨⟨0, hh⟩⟩
+  let : Nonempty (Sphere h) := sphereNonempty h hh
   let M := sphereFiniteMeasure h
   let P := sphereProbability h hh
   let negS : Sphere h → Sphere h := fun y ↦ -y
@@ -1079,8 +1079,8 @@ lemma sphereProbability_le_isodiametric (hh : 0 < h)
     (A : Set (Sphere h)) (hA : MeasurableSet A) (d : ℝ) (hd1 : 1 ≤ d)
     (hdiam : ∀ x ∈ A, ∀ y ∈ A, dist x y ≤ d) :
     (sphereProbability h hh A : ℝ) ≤ (d / 2) ^ h := by
-  letI : Nonempty (Fin h) := ⟨⟨0, hh⟩⟩
-  letI : Nonempty (Sphere h) := sphereNonempty h hh
+  let : Nonempty (Fin h) := ⟨⟨0, hh⟩⟩
+  let : Nonempty (Sphere h) := sphereNonempty h hh
   let M := sphereFiniteMeasure h
   let P := sphereProbability h hh
   have hc : 0 ≤ (d / 2) ^ h := pow_nonneg (by linarith) _

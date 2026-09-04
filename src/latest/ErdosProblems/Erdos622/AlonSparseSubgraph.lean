@@ -2096,7 +2096,7 @@ theorem eventually_exists_alon_sparse_subgraph :
   filter_upwards [AlonScalar.eventually_alon_scalar_conditions] with D hscalar
   rcases hscalar with ⟨hD, hlog, hloglog, hmeanD, hsD, hcutoff⟩
   intro W _ G hregular
-  letI : DecidableEq W := Classical.decEq W
+  let : DecidableEq W := Classical.decEq W
   have hlog' : 12 ≤ alonLogDegree D := by
     simpa [alonLogDegree] using hlog
   have hloglog' : 0 < Real.log (alonLogDegree D) := by

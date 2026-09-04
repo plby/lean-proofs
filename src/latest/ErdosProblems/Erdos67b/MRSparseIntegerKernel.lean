@@ -242,7 +242,7 @@ theorem mrIntegerLogSum_eq_logarithmic (a : ℝ) (N : ℕ) :
   rw [Real.fourierChar_apply]
   congr 1
   congr 1
-  ring
+  ring_nf
 
 theorem mrLogarithmicIntegerKernel_norm_neg (N : ℕ) (t : ℝ) :
     ‖logarithmicDirichletPolynomial (Finset.Icc 1 N) (fun _ ↦ 1) (-t)‖ =

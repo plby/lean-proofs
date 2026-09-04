@@ -25,7 +25,7 @@ theorem lattice_family_class_count {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
         (I : Ideal (QuadraticAlgebra ℤ d b)) * J = Ideal.span {z x} → A J) →
       Nat.card X ≤ Nat.card (QuadraticAlgebra ℤ d b)ˣ *
         Nat.card (RestrictedIdealClassBall (QuadraticAlgebra ℤ d b) I.idealClass⁻¹ N A) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I N A z hinj hz₀ hzI hzN hA
   let O := QuadraticAlgebra ℤ d b
   let Y := RestrictedIdealClassBall O I.idealClass⁻¹ N A
@@ -56,9 +56,9 @@ theorem lattice_family_class_count {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     have heq : J x = J y := congrArg (fun t : Y => t.1.1) h
     apply Ideal.span_singleton_eq_span_singleton.mp
     rw [← hJideal x, ← hJideal y, heq]
-  letI := finite_quadraticOrder_units hD
-  letI := finite_idealClassBall hD I.idealClass⁻¹ N
-  letI : Finite Y := by
+  let := finite_quadraticOrder_units hD
+  let := finite_idealClassBall hD I.idealClass⁻¹ N
+  let : Finite Y := by
     dsimp only [Y, RestrictedIdealClassBall]
     infer_instance
   exact natCard_le_units_mul_of_associate_fibers z hinj f hassoc

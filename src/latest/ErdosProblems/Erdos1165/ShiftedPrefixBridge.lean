@@ -383,11 +383,14 @@ theorem shiftedInput_eq_segmentPath (ω : StepPath) (n : ℕ) (hn : 0 < n) :
   cases n with
   | zero => omega
   | succ n =>
-      simp [shiftedInput, finitePathList, pathPrefix, segmentPath, List.ofFn_succ]
+      simp only [add_tsub_cancel_right]
+      unfold shiftedInput finitePathList pathPrefix segmentPath
+      rw [List.ofFn_succ]
+      simp only [List.drop_succ_cons, List.drop_zero]
       congr 1
       funext j
       congr 1
-      omega
+      simp only [Fin.val_succ, Nat.add_comm]
 
 theorem shifted_fixedFiber_input {i : ℕ} (ω : StepPath) (n : ℕ) (hn : 0 < n)
     (r : Fin i → RetainedBlock .shifted) (q : Fin (i + 1) → ℕ)

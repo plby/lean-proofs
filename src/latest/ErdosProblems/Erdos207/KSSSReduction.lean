@@ -54,7 +54,7 @@ theorem highGirthSteiner_of_absorberCompatibleCoverDown
       IsTriangleDecomposition (SimpleGraph.completeGraph V) S ∧
       GirthGreaterOn q S := by
   obtain ⟨hpacking, hdisjoint, hcomplete, hsupport, hdiv, hcompatible⟩ := hP
-  letI : DecidableRel L.Adj := Classical.decRel L.Adj
+  let : DecidableRel L.Adj := Classical.decRel L.Adj
   obtain ⟨C, hCB, hC⟩ := hA.2 L hsupport hdiv
   refine ⟨P ∪ C, ?_, hcompatible C hCB hC⟩
   rw [← hcomplete]

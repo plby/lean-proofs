@@ -64,7 +64,7 @@ theorem normalizedSecondMomentScalar_of_uniform
       M * (d - density) * s = M * s * (d - density) := by ring
       _ = M * s * d - M * s * density := by
         rw [Nat.mul_sub_left_distrib]
-      _ = M * d * s - density * s * M := by ring
+      _ = M * d * s - density * s * M := by ring_nf
       _ ≤ M * d * s - density * s * u :=
         Nat.sub_le_sub_left hdu (M * d * s)
   exact hleft.trans_lt (hmiddle.trans_le (Nat.pow_le_pow_left hsubLower 2))

@@ -3814,7 +3814,7 @@ theorem not_erdos_764 :
         FderivReal A (radius ((t : ℝ) ^ 9) ^ 2) / 2 := by
     calc
       c * (t : ℝ) ^ 12 / (48 * κ ^ 2) =
-          (c * (t : ℝ) ^ 12 / (24 * κ ^ 2)) / 2 := by ring
+          (c * (t : ℝ) ^ 12 / (24 * κ ^ 2)) / 2 := by ring_nf
       _ ≤ FderivReal A (radius ((t : ℝ) ^ 9) ^ 2) / 2 := by
         exact div_le_div_of_nonneg_right (by simpa [κ] using hD) (by norm_num)
   have hSA :

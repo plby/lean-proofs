@@ -603,7 +603,7 @@ lemma FiniteWeightedCoupling.left_mass
       · simp only [hPa, if_false, Finset.sum_const_zero]
     _ = ((Finset.univ.filter P).card : ℝ) / Fintype.card A := by
       rw [Finset.sum_ite]
-      simp [Finset.sum_const, nsmul_eq_mul]
+      simp only [one_div, Finset.sum_const, nsmul_eq_mul, Finset.sum_const_zero, add_zero]
       rw [Finset.card_filter]
       rw [div_eq_mul_inv]
 
@@ -624,7 +624,7 @@ lemma FiniteWeightedCoupling.right_mass
       · simp only [hPb, if_false, Finset.sum_const_zero]
     _ = ((Finset.univ.filter P).card : ℝ) / Fintype.card B := by
       rw [Finset.sum_ite]
-      simp [Finset.sum_const, nsmul_eq_mul]
+      simp only [one_div, Finset.sum_const, nsmul_eq_mul, Finset.sum_const_zero, add_zero]
       rw [Finset.card_filter]
       rw [div_eq_mul_inv]
 
@@ -914,9 +914,9 @@ lemma productSliceSharedPermutationCoupling_isClose_of_forall
       productSlicePoint_nonempty P ell' hell'
     (productSliceSharedPermutationCoupling P ell ell' hell hell' e).IsClose
       X Y r 0 := by
-  letI : Nonempty (ProductSlicePoint P ell) :=
+  let : Nonempty (ProductSlicePoint P ell) :=
     productSlicePoint_nonempty P ell hell
-  letI : Nonempty (ProductSlicePoint P ell') :=
+  let : Nonempty (ProductSlicePoint P ell') :=
     productSlicePoint_nonempty P ell' hell'
   let C := productSliceSharedPermutationCoupling P ell ell' hell hell' e
   unfold FiniteUniformCoupling.IsClose FiniteUniformCoupling.probability
@@ -949,7 +949,7 @@ lemma productSliceCubeCoupling_isClose
       productSlicePoint_nonempty P ell hell
     (productSliceCubeCoupling P ell hell e).IsClose X Y r
       (countVectorMass P (fun j ↦ ¬ good j)) := by
-  letI : Nonempty (ProductSlicePoint P ell) :=
+  let : Nonempty (ProductSlicePoint P ell) :=
     productSlicePoint_nonempty P ell hell
   let D := fun j : BucketCountVector P ↦
     ProductSlicePoint P (fun k ↦ (j k).val)
@@ -996,7 +996,7 @@ lemma perturbedEdge_productSliceCubeCoupling_isClose {n m : ℕ}
       ((d : ℝ) * ((R + 1) * n))
       (countVectorMass P (fun j ↦
         ¬ ∑ k, Nat.dist (ell k) (j k).val ≤ d)) := by
-  letI : Nonempty (ProductSlicePoint P ell) :=
+  let : Nonempty (ProductSlicePoint P ell) :=
     productSlicePoint_nonempty P ell hell
   apply productSliceCubeCoupling_isClose P ell hell e
     (fun S ↦ perturbedEdgePolynomial G e₀ c S.1)
@@ -1050,7 +1050,7 @@ lemma perturbedEdge_productSliceCubeCoupling_isClose_real {n m : ℕ}
       (d * ((R + 1) * n))
       (countVectorMass P (fun j ↦
         ¬ ∑ k, (Nat.dist (ell k) (j k).val : ℝ) ≤ d)) := by
-  letI : Nonempty (ProductSlicePoint P ell) :=
+  let : Nonempty (ProductSlicePoint P ell) :=
     productSlicePoint_nonempty P ell hell
   apply productSliceCubeCoupling_isClose P ell hell e
     (fun S ↦ perturbedEdgePolynomial G e₀ c S.1)
@@ -1235,7 +1235,7 @@ lemma perturbedEdge_productSlice_centered_window_lower {n m : ℕ}
           |perturbedEdgePolynomial G e₀ c S.1 -
             expectation (1 / 2 : ℝ) (perturbedEdgePolynomial G e₀ c)| <
               t + ((m : ℝ) * (A + W)) * ((R + 1) * n)) := by
-  letI : Nonempty (ProductSlicePoint P ell) :=
+  let : Nonempty (ProductSlicePoint P ell) :=
     productSlicePoint_nonempty P ell hell
   let C := productSliceCubeCoupling P ell hell e
   let q := countVectorMass P (fun j ↦
@@ -1519,7 +1519,7 @@ lemma partialProductSlice_centered_window_lower {n m : ℕ}
     refine Fin.lastCases ?_ (fun j ↦ ?_) k
     · simpa only [ellExt, extendLastCount_last] using Nat.le_of_lt_succ h.isLt
     · simpa only [ellExt, extendLastCount_castSucc] using hell j
-  letI : (h : J) → Nonempty (D h) := fun h ↦
+  let : (h : J) → Nonempty (D h) := fun h ↦
     productSlicePoint_nonempty P (ellExt h) (hellExt h)
   let C : (h : J) → FiniteWeightedCoupling (Finset (Fin n)) (D h) := fun h ↦
     FiniteWeightedCoupling.swap
@@ -1607,13 +1607,13 @@ lemma prescribedProductSlice_centered_window_lower {n m : ℕ}
           expectation (1 / 2 : ℝ) (perturbedEdgePolynomial G e₀ c)| <
             t + (((m + 1 : ℕ) : ℝ) * (max A B + W)) *
               ((R + 1) * n)) := by
-  letI : Nonempty (PrescribedProductSlicePoint P ell) :=
+  let : Nonempty (PrescribedProductSlicePoint P ell) :=
     prescribedProductSlicePoint_nonempty P ell hell
   let D := fun h : Fin ((P.fiber (Fin.last m)).card + 1) ↦
     ProductSlicePoint P (extendLastCount ell h.val)
   have hsigma : Nonempty (Sigma D) :=
     Nonempty.map (partialProductSliceEquiv P ell).symm inferInstance
-  letI : Nonempty (Sigma D) := hsigma
+  let : Nonempty (Sigma D) := hsigma
   have h := partialProductSlice_centered_window_lower
     P ell hell e G e₀ c R hR hc A B W t hB hW ht hellCenter
   rw [← uniformProbability_comp_equiv (partialProductSliceEquiv P ell)
@@ -1786,9 +1786,9 @@ lemma prescribedFamilySlice_centered_window_lower {n m : ℕ}
     simpa only [P, prescribedFamilyPartition_fiber_castSucc W hdisj k] using hell k
   let e : ∀ k, Fin (P.fiber k).card ≃ ↑(P.fiber k) := fun k ↦ by
     simpa only [Fintype.card_coe] using (Fintype.equivFin ↑(P.fiber k)).symm
-  letI : Nonempty (PrescribedProductSlicePoint P ell) :=
+  let : Nonempty (PrescribedProductSlicePoint P ell) :=
     prescribedProductSlicePoint_nonempty P ell hellP
-  letI : Nonempty (PrescribedFamilySlicePoint W ell) :=
+  let : Nonempty (PrescribedFamilySlicePoint W ell) :=
     prescribedFamilySlicePoint_nonempty W hdisj ell hell
   have hcenterP : ∀ k,
       |(ell k : ℝ) - ((P.fiber k.castSucc).card : ℝ) / 2| ≤ A := by
@@ -1872,7 +1872,7 @@ lemma card_prescribedFamilySlice_centered_window_lower {n m : ℕ}
       ((∑ k : Fin m, binomialTailBound (W k) D) +
         binomialTailBound outside D) -
       binomialTailBound outside B
-  letI : Nonempty (PrescribedFamilySlicePoint W ell) :=
+  let : Nonempty (PrescribedFamilySlicePoint W ell) :=
     prescribedFamilySlicePoint_nonempty W hdisj ell hell
   let P := fun S : PrescribedFamilySlicePoint W ell ↦
     |perturbedEdgePolynomial G e₀ c S.1 -

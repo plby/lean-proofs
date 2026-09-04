@@ -246,7 +246,7 @@ lemma tendsto_full_rawLogPartition_sum_div {lam : ℝ} (hlam : 0 < lam) :
     simp only [rawLogPartition]
     congr 2
     congr 1
-    ring
+    ring_nf
   have hlim := h.congr' heq.symm
   convert hlim using 1
   congr 1

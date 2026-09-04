@@ -399,7 +399,7 @@ theorem evenSymmetricMass_le_center_mul_exp {n d : ℕ}
           congr 1
           norm_num only [Nat.cast_add, Nat.cast_mul, Nat.cast_one]
           field_simp
-          ring
+          ring_nf
 
 /-- The product coefficient is bounded by a Gaussian at the larger of its
 two diagonal offsets. -/

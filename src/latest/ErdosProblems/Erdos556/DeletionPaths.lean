@@ -47,7 +47,7 @@ theorem exists_short_path_avoiding {V : Type*} [Fintype V] [DecidableEq V]
   let U := (S : Set V)ᶜ
   let u' : U := ⟨u, hu⟩
   let v' : U := ⟨v, hv⟩
-  letI : Nonempty U := ⟨u'⟩
+  let : Nonempty U := ⟨u'⟩
   have hc : (G.induce U).Connected := ⟨hconn S hS⟩
   have hmin (w : U) : d ≤ (G.induce U).degree w := by
     have h := degree_le_induce_compl_degree_add_card G S w

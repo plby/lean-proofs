@@ -145,7 +145,7 @@ theorem realEdgeLimit_not_containsDirectedCycle
         (C.stage (stageOf n)).realPart.edges :=
     Classical.choose_spec (Set.mem_iUnion.1 (hQ ⟨n, rfl⟩))
   let i₀ : Fin Q.length := ⟨0, Q.positive⟩
-  letI : Nonempty I := ⟨stageOf i₀⟩
+  let : Nonempty I := ⟨stageOf i₀⟩
   obtain ⟨j, hj⟩ := Finite.exists_le stageOf
   have hQj : Q.EdgeSet ⊆ (C.stage j).edgeSet := by
     rintro e ⟨n, rfl⟩

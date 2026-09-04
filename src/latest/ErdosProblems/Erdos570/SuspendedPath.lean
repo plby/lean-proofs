@@ -352,7 +352,7 @@ theorem shortenSuspendedGraph_edgeCount_le
     G.induce ((suspendedInterior p : Set V)ᶜ) ⊔
       SimpleGraph.edge (suspendedLeft hp) (suspendedRight hp)
   change Nat.card S.edgeSet + t ≤ G.edgeFinset.card
-  letI : DecidableRel S.Adj := inferInstance
+  let : DecidableRel S.Adj := inferInstance
   rw [Nat.card_eq_fintype_card, SimpleGraph.card_edgeSet]
   let R : Set V := (suspendedInterior p : Set V)ᶜ
   let E : Finset (Sym2 V) :=

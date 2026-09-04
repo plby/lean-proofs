@@ -300,7 +300,7 @@ theorem sum_norm_highZeroPositiveRealBandKernelSum_le
       apply Finset.sum_le_sum
       intro psi hpsi
       have hq : 1 < q := (Finset.mem_Ioc.mp hqMem).1
-      letI : NeZero q := ⟨by omega⟩
+      let : NeZero q := ⟨by omega⟩
       rw [primitiveHighZeroPositiveRealBandKernelSumAt_eq hq]
       simpa only [primitiveHighZeroMassAt_eq hq, C] using
         norm_highZeroPositiveRealBandKernelSum_le hq psi.1 psi.2
@@ -347,7 +347,7 @@ theorem sum_norm_highZeroRealBandKernelSum_le
       apply Finset.sum_le_sum
       intro psi hpsi
       have hq : 1 < q := (Finset.mem_Ioc.mp hqMem).1
-      letI : NeZero q := ⟨by omega⟩
+      let : NeZero q := ⟨by omega⟩
       rw [primitiveHighZeroRealBandKernelSumAt_eq hq]
       simpa only [primitiveHighZeroMassAt_eq hq, C] using
         norm_highZeroRealBandKernelSum_le hq psi.1 psi.2

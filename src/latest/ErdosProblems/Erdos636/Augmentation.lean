@@ -535,7 +535,7 @@ theorem exists_injective_subfamily_card_sq_le
         (X.card + 2 * (valueCollisionGraph X f).edgeFinset.card) := by
   classical
   let H := valueCollisionGraph X f
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   obtain ⟨S, hSind, hbound⟩ :=
     exists_indepSet_card_sq_le_card_mul_card_add_twice_edges H
   let Y : Finset A := S.image Subtype.val
@@ -992,7 +992,7 @@ theorem finProbability_boolSliceDeletion_eq_layerProbability
       NestedUniform.layerProbability U d event := by
   let eventB : Erdos88.BooleanSlices.BooleanSlicePoint U d → Prop :=
     fun D ↦ event D.1
-  letI : DecidablePred eventB := Classical.decPred eventB
+  let : DecidablePred eventB := Classical.decPred eventB
   calc
     Erdos88.Fourier.finProbability (Erdos88.Fourier.BoolSlice U d)
         (fun omega ↦ event (boolSliceDeletion U d omega)) =

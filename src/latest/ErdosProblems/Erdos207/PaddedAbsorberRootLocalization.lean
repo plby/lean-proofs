@@ -140,7 +140,7 @@ lemma highGirthRoot_localized_of_forbidden
         a ∈ mappedHighGirthOriginalRootCandidates f y := by
   let coreDecidableEq : DecidableEq (CycleCoverAbsorberVertex V) :=
     inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex V) :=
+  let : LinearOrder (CycleCoverAbsorberVertex V) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex V)) _ coreDecidableEq
   have hraw := sphereRoot_localized_of_forbidden

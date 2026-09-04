@@ -67,7 +67,7 @@ theorem inertUnitResidueCount_le_fullCoordinateResidues
       inertTensorModulus Q ^ Nat.card (NumberField.mixedEmbedding.index K) := by
   let hprime : ∀ q ∈ Q, q.Prime :=
     fun q hq ↦ inertAuxiliaryPrimes_prime ell (hQ hq)
-  letI : NeZero (inertTensorModulus Q) := ⟨by
+  let : NeZero (inertTensorModulus Q) := ⟨by
     unfold inertTensorModulus
     exact Finset.prod_ne_zero_iff.mpr fun q _ ↦ (hprime q.1 q.2).ne_zero⟩
   have hcard := Nat.card_le_card_of_injective

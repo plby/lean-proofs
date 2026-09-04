@@ -184,7 +184,7 @@ lemma path_sum_telescope (F : X → 𝕜) (n : ℕ) (g : BitDirection d) (x : X)
     simp only [← vadd_assoc]
     congr 1
     rw [add_nsmul]
-    abel
+    abel_nf
     rfl
   · simp
 

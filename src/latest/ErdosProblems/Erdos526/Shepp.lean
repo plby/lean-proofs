@@ -360,7 +360,7 @@ lemma qMissStateRegion_eq_qxMiss_union {ι : Type*}
         apply (mem_centerStateRegion_iff (a n)
           (fun i ↦ (p i : Circle)) ∅ z).2
         intro i
-        simp
+        simp only [Finset.notMem_empty, iff_false]
         intro hpi
         have hxz' : (x : Circle) ∈ arc z (a n) := by
           simpa only [arc, Metric.mem_ball, dist_comm] using hx
@@ -2537,7 +2537,7 @@ theorem exists_decreasingRearrangement
     cases x
     cases y
     congr
-  letI : LinearOrder P := LinearOrder.lift' key hkey
+  let : LinearOrder P := LinearOrder.lift' key hkey
   have hvalue_of_le {i j : P} (hij : i ≤ j) : a j.val ≤ a i.val := by
     change key i ≤ key j at hij
     rw [Prod.Lex.toLex_le_toLex] at hij
@@ -2546,7 +2546,7 @@ theorem exists_decreasingRearrangement
     rcases hij with hlt | heq
     · exact hlt.le
     · exact heq.1.ge
-  letI : LocallyFiniteOrder P := LocallyFiniteOrder.ofFiniteIcc fun i j ↦ by
+  let : LocallyFiniteOrder P := LocallyFiniteOrder.ofFiniteIcc fun i j ↦ by
     have hfinite := finite_superlevel_of_tendsto_zero halim j.property
     have hpre : ((fun x : P ↦ x.val) ⁻¹'
         {n : ℕ | a j.val ≤ a n}).Finite :=
@@ -2564,13 +2564,13 @@ theorem exists_decreasingRearrangement
     exact hvalue_of_le hx
   have hpositive : {n : ℕ | 0 < a n}.Infinite :=
     infinite_positiveSupport_of_not_summable ha₀ hdiv
-  letI : Infinite {n : ℕ // 0 < a n} := Set.infinite_coe_iff.mpr hpositive
+  let : Infinite {n : ℕ // 0 < a n} := Set.infinite_coe_iff.mpr hpositive
   let pEquiv : P ≃ {n : ℕ // 0 < a n} := {
     toFun i := ⟨i.val, i.property⟩
     invFun i := ⟨i.val, i.property⟩
     left_inv i := by cases i; rfl
     right_inv i := by cases i; rfl }
-  letI : Infinite P := Infinite.of_injective pEquiv.symm pEquiv.symm.injective
+  let : Infinite P := Infinite.of_injective pEquiv.symm pEquiv.symm.injective
   let q : P := Classical.choice (inferInstance : Nonempty P)
   have hIic : (Set.Iic q).Finite := hIic_finite q
   let s : Finset P := hIic.toFinset
@@ -2578,7 +2578,7 @@ theorem exists_decreasingRearrangement
     refine ⟨q, ?_⟩
     simp only [s, Set.Finite.mem_toFinset, Set.mem_Iic, le_refl]
   let botP : P := s.min' hs
-  letI : OrderBot P := {
+  let : OrderBot P := {
     bot := botP
     bot_le x := by
       change botP ≤ x
@@ -2588,7 +2588,7 @@ theorem exists_decreasingRearrangement
       · exact (s.min'_le q (by
           simp only [s, Set.Finite.mem_toFinset, Set.mem_Iic, le_refl])).trans
           (le_of_not_ge hx) }
-  letI : NoMaxOrder P := ⟨fun x ↦ by
+  let : NoMaxOrder P := ⟨fun x ↦ by
     by_contra hmax
     push_neg at hmax
     have hall : ∀ y : P, y ≤ x := hmax
@@ -2597,8 +2597,8 @@ theorem exists_decreasingRearrangement
       Set.eq_univ_of_forall fun y ↦ hall y
     rw [huniv] at hicc
     exact Set.infinite_univ hicc⟩
-  letI : SuccOrder P := LinearLocallyFiniteOrder.succOrder P
-  letI : PredOrder P := LinearLocallyFiniteOrder.predOrder P
+  let : SuccOrder P := LinearLocallyFiniteOrder.succOrder P
+  let : PredOrder P := LinearLocallyFiniteOrder.predOrder P
   let o : P ≃o ℕ := orderIsoNatOfLinearSuccPredArch
   let e : ℕ ≃ {n : ℕ // 0 < a n} := o.symm.toEquiv.trans pEquiv
   let b : ℕ → ℝ := fun k ↦ a (o.symm k).val

@@ -239,9 +239,9 @@ theorem largeOrderDegenerateRamsey : LargeOrderDegenerateRamsey := by
   let f : Fin N ↪ Fin (256 * C * n) :=
     Fin.castLEEmb (by dsimp [N]; nlinarith [Nat.mul_le_mul_left C hAlinear])
   intro Gbig
-  letI : DecidableRel Gbig.Adj := Classical.decRel _
+  let : DecidableRel Gbig.Adj := Classical.decRel _
   let G : SimpleGraph (Fin N) := Gbig.comap f
-  letI : DecidableRel G.Adj := fun x y => inferInstance
+  let : DecidableRel G.Adj := fun x y => inferInstance
   have hNcard : Fintype.card (Fin N) = C * a ^ 8 := by simp [N]
   obtain ⟨hostColor, A, hAcard, hAmoment⟩ :=
     hhost (a ^ 8) hmpos (Fin N) hNcard G
@@ -251,7 +251,7 @@ theorem largeOrderDegenerateRamsey : LargeOrderDegenerateRamsey := by
       (fun _ : Fin D => HostDirections.unionExcept A j) (A j) ≤ ε := by
     simpa [oldθ] using hAmoment
   let Gc := HostNested.colorGraph G hostColor
-  letI : DecidableRel Gc.Adj := HostNested.colorGraph_decidableAdj G hostColor
+  let : DecidableRel Gc.Adj := HostNested.colorGraph_decidableAdj G hostColor
   -- The remaining hypotheses are target-dependent but all numerical bounds
   -- are uniform in `H` and `n`.
   classical
@@ -270,7 +270,7 @@ theorem largeOrderDegenerateRamsey : LargeOrderDegenerateRamsey := by
   let color : P → Fin r := fun p => ⟨(TargetParts.colorOf p).1, by simpa [r] using (TargetParts.colorOf p).2⟩
   let q : P → ℝ := TargetWeights.mass L Q
   let threshold : P → ℕ := TargetWeights.threshold L Q τ
-  letI := TargetParts.vertexOrder layer c
+  let := TargetParts.vertexOrder layer c
   let R₀ := a ^ 5
   let R := Rcoef * R₀
   let M := a ^ 6
@@ -306,7 +306,7 @@ theorem largeOrderDegenerateRamsey : LargeOrderDegenerateRamsey := by
       · intro k hk
         by_cases hk0 : k = 0
         · subst k
-          simp
+          simp only [CharP.cast_eq_zero, pow_zero, one_mul, zero_mul, Nat.cast_add, Nat.cast_one]
           positivity
         · rw [show Λ k = (lam : ℝ) * a ^ (8 * k - 5) by simp [Λ, hk0]]
           have hkpos : 0 < k := Nat.pos_of_ne_zero hk0

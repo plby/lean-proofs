@@ -54,7 +54,7 @@ action. -/
 lemma freeAction_of_free (hu : Free u) :
     letI := torusAddAction u
     FreeAction (d := d) (X := Torus k) := by
-  letI := torusAddAction u
+  let := torusAddAction u
   intro x m n h
   apply hu
   exact add_right_cancel h
@@ -73,7 +73,7 @@ lemma neg_cube_vadd_blockAnchor (M : ℕ) [NeZero M] :
     ∀ (i : BlockIndex (d := d) (X := Torus k)) (q : Fin d → Fin M),
     (-Flow.cubeIndex q) +ᵥ blockAnchor u M i =
       blockPoint (d := d) M i (reverseOffset (d := d) (M := M) q) := by
-  letI := torusAddAction u
+  let := torusAddAction u
   intro i q
   rw [blockAnchor, blockPoint, ← add_vadd]
   rw [neg_cubeIndex_add_topCoordinate]
@@ -86,10 +86,10 @@ lemma card_pointsInBlock_eq_cubeCount (hu : Free u) (E : Set (Torus k))
     ∀ i : BlockIndex (d := d) (X := Torus k),
     (pointsInBlock (d := d) E M i).card =
       cubeCount u E M (blockAnchor u M i) := by
-  letI := torusAddAction u
+  let := torusAddAction u
   intro i
   classical
-  letI : DecidableEq (Fin d → Fin M) := Fintype.decidablePiFintype
+  let : DecidableEq (Fin d → Fin M) := Fintype.decidablePiFintype
   rw [pointsInBlock, Finset.card_subtype, Finset.card_filter]
   have hblocks : blockPoints (d := d) M i =
       Finset.univ.image (blockPoint (d := d) M i) := by
@@ -120,7 +120,7 @@ theorem room_of_cubeDensity_error (hu : Free u) (E : Set (Torus k))
     letI := torusAddAction u
     D * (b * M ^ (d - 1)) ≤
       (pointsInBlock (d := d) E M i).card := by
-  letI := torusAddAction u
+  let := torusAddAction u
   rw [card_pointsInBlock_eq_cubeCount u hu E M i]
   apply RoomBounds.capacity_le_count_of_density_error hd
     (NeZero.pos M) (count := cubeCount u E M (blockAnchor u M i))
@@ -139,7 +139,7 @@ theorem uniform_room_of_cubeDensity_error (hu : Free u) (E : Set (Torus k))
     ∀ i : BlockIndex (d := d) (X := Torus k),
       D * (b * M ^ (d - 1)) ≤
         (pointsInBlock (d := d) E M i).card := by
-  letI := torusAddAction u
+  let := torusAddAction u
   intro i
   exact room_of_cubeDensity_error u hu E M i mu error D b hd
     (hdensity _) herror hcapacity

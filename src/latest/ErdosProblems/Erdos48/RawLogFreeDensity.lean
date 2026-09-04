@@ -108,7 +108,7 @@ theorem exists_raw_logFreeDensity_parameters :
     · have hqData := Finset.mem_Ioc.mp hqMem
       have hq1 : 1 < q := hqData.1
       have hqQ : q ≤ Q := hqData.2
-      letI : NeZero q := ⟨by omega⟩
+      let : NeZero q := ⟨by omega⟩
       obtain ⟨S, order, hSsub, hsep, hcover, hYN, horder⟩ :=
         hselection Q hQ (T : ℝ) eta hT0 heta hetaSmall hglobal
           q hq1 hqQ psi.1 psi.2

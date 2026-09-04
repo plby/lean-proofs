@@ -118,7 +118,7 @@ theorem pairEquationLinear_surjective
       · simp [hboth, ha0]
       · by_cases hb0 : b p.val = 0
         · simp [hboth, ha0, hb0]
-        · letI : Fact p.val.Prime := ⟨hprime p.val p.property⟩
+        · let : Fact p.val.Prime := ⟨hprime p.val p.property⟩
           have hapos : 0 < a p.val := Nat.pos_of_ne_zero ha0
           have hap : a p.val < p.val := (ha p.val p.property).trans (hKp p.val p.property)
           have hane : ((a p.val : ℕ) : ZMod p.val) ≠ 0 :=
@@ -179,11 +179,11 @@ theorem globalPairLattice_index
     (hKp : ∀ p ∈ P, K < p) :
     Nat.card ((Fin 2 → ℤ) ⧸ globalPairLattice P a b) =
       primeProduct P * pairBothZeroProduct P a b := by
-  letI : ∀ p : {p // p ∈ P}, NeZero p.val :=
+  let : ∀ p : {p // p ∈ P}, NeZero p.val :=
     fun p ↦ ⟨(hprime p.val p.property).ne_zero⟩
-  letI : ∀ p : {p // p ∈ bothZeroLabelPrimes P a b}, NeZero p.val :=
+  let : ∀ p : {p // p ∈ bothZeroLabelPrimes P a b}, NeZero p.val :=
     fun p ↦ ⟨(hprime p.val (Finset.mem_filter.mp p.property).1).ne_zero⟩
-  letI : Finite (PairEquationSpace P a b) := inferInstance
+  let : Finite (PairEquationSpace P a b) := inferInstance
   let f := globalPairEquationLinear P a b
   have hf : Function.Surjective f :=
     globalPairEquationLinear_surjective P a b hprime ha hb hKp

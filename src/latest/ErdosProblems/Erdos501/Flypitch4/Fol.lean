@@ -1198,19 +1198,19 @@ noncomputable def not_and_self {Γ : Set (formula L)} {f : formula L} (H : Γ �
 
 noncomputable def prf_symm {Γ : Set (formula L)} {s t : term L} (H : Γ ⊢ s ≃ t) : Γ ⊢ t ≃ s := by
   apply prf_subst (&0 ≃ lift_term s 1) H
-  · simp [subst_formula_equal, lift_term1_subst_term, subst_term_var0]; exact prf.ref _ _
+  · simp only [subst_formula, subst_term_var_eq, lift_term_def, lift_term_at_zero, lift_term1_subst_term]; exact prf.ref _ _
   · simp [subst_formula_equal, lift_term1_subst_term, subst_term_var0]
 
 noncomputable def prf_trans {Γ : Set (formula L)} {t₁ t₂ t₃ : term L}
     (H : Γ ⊢ t₁ ≃ t₂) (H' : Γ ⊢ t₂ ≃ t₃) : Γ ⊢ t₁ ≃ t₃ := by
   apply prf_subst (lift_term t₁ 1 ≃ &0) H'
-  · simp [subst_formula_equal, lift_term1_subst_term, subst_term_var0]; exact H
+  · simp only [subst_formula, lift_term1_subst_term, subst_term_var_eq, lift_term_def, lift_term_at_zero]; exact H
   · simp [subst_formula_equal, lift_term1_subst_term, subst_term_var0]
 
 noncomputable def prf_congr {Γ : Set (formula L)} {t₁ t₂ : term L} (s : term L)
     (H : Γ ⊢ t₁ ≃ t₂) : Γ ⊢ subst_term s t₁ 0 ≃ subst_term s t₂ 0 := by
   apply prf_subst (lift_term (subst_term s t₁ 0) 1 ≃ s) H
-  · simp [subst_formula_equal, lift_term1_subst_term]; exact prf.ref _ _
+  · simp only [subst_formula, lift_term1_subst_term]; exact prf.ref _ _
   · simp [subst_formula_equal, lift_term1_subst_term]
 
 noncomputable def app_congr {Γ : Set (formula L)} {t₁ t₂ : term L} (s : preterm L 1)
@@ -1222,7 +1222,8 @@ noncomputable def app_congr {Γ : Set (formula L)} {t₁ t₂ : term L} (s : pre
 noncomputable def apprel_congr {Γ : Set (formula L)} {t₁ t₂ : term L} (f : @preformula L 1)
     (H : Γ ⊢ t₁ ≃ t₂) (H₂ : Γ ⊢ preformula.apprel f t₁) : Γ ⊢ preformula.apprel f t₂ := by
   apply prf_subst (preformula.apprel (lift_formula f 1) (&0)) H
-  · simp; exact H₂
+  · simp only [subst_formula, Nat.reduceAdd, lift_formula1_subst, subst_term_var_eq, lift_term_def,
+    lift_term_at_zero]; exact H₂
   · simp
 
 noncomputable def imp_trans {Γ : Set (formula L)} {f₁ f₂ f₃ : formula L}
@@ -1659,13 +1660,16 @@ namespace bounded_preterm
 @[ext] protected theorem eq {n} : ∀ {l} {t₁ t₂ : bounded_preterm L n l},
     t₁.fst = t₂.fst → t₁ = t₂
   | _, bd_var k, bd_var k', h => by
-      simp [bounded_preterm.fst] at h
-      congr 1; exact Fin.ext h
+      change preterm.var k.1 = preterm.var k'.1 at h
+      injection h with hval
+      exact congrArg bd_var (Fin.ext hval)
   | _, bd_var _, bd_func _, h => by simp [bounded_preterm.fst] at h
   | _, bd_var _, bd_app _ _, h => by simp [bounded_preterm.fst] at h
   | _, bd_func _, bd_var _, h => by simp [bounded_preterm.fst] at h
   | _, bd_func f, bd_func f', h => by
-      simp [bounded_preterm.fst] at h; exact congrArg bd_func h
+      change preterm.func f = preterm.func f' at h
+      simp only [preterm.func.injEq] at h
+      exact congrArg bd_func h
   | _, bd_func _, bd_app _ _, h => by simp [bounded_preterm.fst] at h
   | _, bd_app _ _, bd_var _, h => by simp [bounded_preterm.fst] at h
   | _, bd_app _ _, bd_func _, h => by simp [bounded_preterm.fst] at h
@@ -2293,7 +2297,7 @@ lemma lift_bounded_formula_irrel : ∀ {n l} (f : bounded_preformula L n l) (n')
       simp [bounded_preformula.fst, lift_bounded_formula_irrel f₁ n' h,
             lift_bounded_formula_irrel f₂ n' h]
   | _, _, bd_all f, n', m, h => by
-      simp [bounded_preformula.fst]
+      simp only [bounded_preformula.fst, lift_formula_at, preformula.all.injEq]
       exact lift_bounded_formula_irrel f n' (Nat.succ_le_succ h)
 
 lemma lift_sentence_irrel (f : sentence L) : lift_formula f.fst 1 = f.fst :=
@@ -2313,7 +2317,7 @@ lemma lift_sentence_irrel (f : sentence L) : lift_formula f.fst 1 = f.fst :=
       simp [bounded_preformula.fst, subst_bounded_formula_irrel f₁ s h,
             subst_bounded_formula_irrel f₂ s h]
   | _, _, bd_all f, n', s, h => by
-      simp [bounded_preformula.fst]
+      simp only [bounded_preformula.fst, subst_formula, preformula.all.injEq]
       exact subst_bounded_formula_irrel f s (Nat.succ_le_succ h)
 
 lemma subst_sentence_irrel (f : sentence L) (n : ℕ) (s : term L) :
@@ -2413,9 +2417,13 @@ lemma realize_bounded_formula_irrel' {S : Structure L} {n n'} {v₁ : DVec S n} 
       simp [realize_bounded_formula, realize_bounded_term_irrel' h t₁ t₁' hf.1,
             realize_bounded_term_irrel' h t₂ t₂' hf.2]
     | _ => simp [bounded_preformula.fst] at hf
-  | bd_rel =>
+  | bd_rel R =>
     cases f' with
-    | bd_rel => simp [bounded_preformula.fst] at hf; subst hf; exact Iff.rfl
+    | bd_rel R' =>
+      change preformula.rel R = preformula.rel R' at hf
+      simp only [preformula.rel.injEq] at hf
+      subst R'
+      exact Iff.rfl
     | _ => simp [bounded_preformula.fst] at hf
   | bd_apprel f t ih =>
     cases f' with

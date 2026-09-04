@@ -54,7 +54,7 @@ theorem primitiveHighZeroMassAt_mono_width
     primitiveHighZeroMassAt q psi etaSmall T ≤
       primitiveHighZeroMassAt q psi etaLarge T := by
   by_cases hq : 1 < q
-  · letI : NeZero q := ⟨by omega⟩
+  · let : NeZero q := ⟨by omega⟩
     rw [primitiveHighZeroMassAt_eq hq, primitiveHighZeroMassAt_eq hq]
     exact highZeroRectangleMass_mono_width hq psi.1 psi.2 heta hetaLarge hT
   · simp only [primitiveHighZeroMassAt, dif_neg hq]

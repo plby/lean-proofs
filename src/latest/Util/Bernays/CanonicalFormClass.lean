@@ -28,8 +28,8 @@ theorem represented_pos_iff_canonicalClass_norm {f : BinQuadForm}
       ∃ J : Bernays.InvertibleIdeal (Bernays.DiscriminantOrder f.discr),
         J.idealClass * f.canonicalClass hf hp = 1 ∧
           (J : Ideal (Bernays.DiscriminantOrder f.discr)).cardQuot = n := by
-  letI := hf.orderIsDomain
-  letI := hf.discriminantOrderIsDomain
+  let := hf.orderIsDomain
+  let := hf.discriminantOrderIsDomain
   let I : Bernays.InvertibleIdeal f.Order := ⟨f.formIdeal, formIdeal_isUnit hf hp⟩
   let e := f.orderEquivDiscriminant
   rw [represented_pos_iff_idealClass_norm hf hp hn]

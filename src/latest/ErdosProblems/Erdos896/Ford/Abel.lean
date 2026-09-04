@@ -254,7 +254,7 @@ private theorem two_mul_add_three_pow_le_exp_four
       mul_le_mul_of_nonneg_left hpow (by norm_num)
     _ = 2 * (Real.exp (3 / s * n) * s ^ n) := by
       rw [mul_pow, ← Real.exp_nat_mul]
-      ring
+      ring_nf
     _ ≤ 2 * (Real.exp 3 * s ^ n) := by gcongr
     _ ≤ Real.exp 4 * s ^ n := by
       rw [show (4 : ℝ) = 1 + 3 by norm_num, Real.exp_add]

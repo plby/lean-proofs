@@ -67,10 +67,10 @@ lemma card_boundedSum (T : ℕ) :
     Fintype.card {d : Fin 3 →₀ ℕ // d.sum (fun _ e => e) ≤ T} =
       (T + 3).choose 3 := by
   classical
-  letI (n : {n : ℕ // n ≤ T}) :
+  let (n : {n : ℕ // n ≤ T}) :
       Fintype {d : Fin 3 →₀ ℕ // d.sum (fun _ e => e) = n.1} :=
     exactSumFintype n.1
-  letI : Fintype (Σ n : {n : ℕ // n ≤ T},
+  let : Fintype (Σ n : {n : ℕ // n ≤ T},
       {d : Fin 3 →₀ ℕ // d.sum (fun _ e => e) = n.1}) :=
     @Sigma.instFintype _ _ (fun n => exactSumFintype n.1) inferInstance
   rw [← Fintype.card_congr (boundedSumEquiv T)]
@@ -82,7 +82,7 @@ lemma card_boundedSum (T : ℕ) :
 lemma finrank_restrictTotalDegree_fin_three (T : ℕ) :
     Module.finrank ℝ (MvPolynomial.restrictTotalDegree (Fin 3) ℝ T) =
       (T + 3).choose 3 := by
-  letI : Fintype {n : Fin 3 →₀ ℕ | n.sum (fun _ e => e) ≤ T} :=
+  let : Fintype {n : Fin 3 →₀ ℕ | n.sum (fun _ e => e) ≤ T} :=
     boundedSumFintype T
   unfold MvPolynomial.restrictTotalDegree
   rw [Module.finrank_eq_card_basis
@@ -631,4 +631,3 @@ lemma card_le_of_lines_in_two_surfaces
     _ ≤ a * b * (2 * (a * b) + a + b + 2) := hmid
 
 end Erdos95.Hilbert
-

@@ -192,7 +192,7 @@ private lemma cycleVertex_injective (h3 : 3 ≤ r) (hrt : r ≤ t) :
 of length `2*r`. -/
 theorem cycleGraph_isContained_oneSubdivisionClique (h3 : 3 ≤ r) (hrt : r ≤ t) :
     SimpleGraph.cycleGraph (2 * r) ⊑ oneSubdivisionClique t := by
-  haveI : NeZero (2 * r) := ⟨by omega⟩
+  have : NeZero (2 * r) := ⟨by omega⟩
   let f : SimpleGraph.cycleGraph (2 * r) →g oneSubdivisionClique t :=
     ⟨cycleVertex h3 hrt, by
       intro x y hxy

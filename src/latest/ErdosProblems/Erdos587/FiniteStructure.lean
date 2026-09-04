@@ -107,7 +107,7 @@ theorem exists_finite_homogeneous_structure (b : ℕ) :
     have hz : P.rank = 0 := by omega
     have hle := (Finset.card_le_card ((Finset.subset_insert 0 B).trans hBP)).trans
       P.card_carrier_le_box
-    letI : IsEmpty (Fin P.rank) := ⟨fun i => by have hi := i.isLt; omega⟩
+    let : IsEmpty (Fin P.rank) := ⟨fun i => by have hi := i.isLt; omega⟩
     change B.card ≤ P.boxCard at hle
     simp [GeneralizedAP.boxCard] at hle
     omega

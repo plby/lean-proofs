@@ -502,7 +502,7 @@ lemma unitWeightedPartialSum_norm_range_infinite {p w : ℂ} {s : ℕ → ℤ} {
         |c * (k : ℝ)| = |((S t).im - (S r).im) -
             ((S t).im - (S r).im - c * k)| := by ring_nf
         _ = |((S t).im - (S r).im) +
-            (-((S t).im - (S r).im - c * k))| := by ring
+            (-((S t).im - (S r).im - c * k))| := by ring_nf
         _ ≤ |(S t).im - (S r).im| +
             |-((S t).im - (S r).im - c * k)| := abs_add_le _ _
         _ = _ := by rw [abs_neg]

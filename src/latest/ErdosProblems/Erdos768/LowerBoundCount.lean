@@ -197,7 +197,7 @@ lemma cleanLayer_card_pos :
     ∀ᶠ r : ℕ in atTop, ∀ j ∈ Finset.Icc 1 r,
       Real.exp ((alphaParam / 2) * r) ≤ ((primeLayer r j).card : ℝ) := by
         convert! layer_card_ge_exp ( alphaParam / 2 ) ( by exact div_pos ( Real.log_pos one_lt_two ) zero_lt_two ) using 2 ; ring_nf;
-  filter_upwards [ h, h' ] with r hr₁ hr₂ j hj₁; specialize hr₂ j hj₁; simp_all +decide [ cleanLayer ] ;
+  filter_upwards [ h, h' ] with r hr₁ hr₂ j hj₁; specialize hr₂ j hj₁; simp_all +decide only [card_pos] ;
   contrapose! hr₁;
   exact hr₂.trans ( mod_cast Finset.card_le_card <| Finset.subset_iff.mpr fun x hx => by rw [ Finset.ext_iff ] at hr₁; specialize hr₁ x; aesop )
 
@@ -273,7 +273,7 @@ lemma cleanLayer_dirichlet_fourier :
   intro i hi p hp j hj ψ hψ
   have h₁ : ‖∑ q ∈ primeLayer r j, (ψ q : ℂ)‖ ≤ ((primeLayer r j).card : ℝ) / (20 * r) := by
     have h₁ : p ∈ Finset.Icc 1 ⌊Real.exp (vParam r)⌋₊ ∧ Nat.Prime p := by
-      simp_all +decide [ cleanLayer, primeLayer ];
+      simp_all +decide only [mem_Icc];
       refine' le_trans hp.1.1.2 _;
       refine' Nat.floor_mono <| Real.exp_le_exp.mpr _;
       exact sub_le_self _ ( mul_nonneg ( sub_nonneg.mpr <| Nat.cast_le.mpr hi.2 ) hr₄ );
@@ -292,7 +292,7 @@ lemma cleanLayer_dirichlet_fourier :
     rw [ ← Finset.sum_sdiff ( show primeLayer r j ∩ badSet r ⊆ primeLayer r j from Finset.inter_subset_left ) ];
     simp +decide [ cleanLayer ];
   have h₄ : ((cleanLayer r j).card : ℝ) ≥ ((primeLayer r j).card : ℝ) - (badSet r).card := by
-    simp +decide [ cleanLayer ];
+    simp +decide only [ge_iff_le, tsub_le_iff_right];
     exact_mod_cast by rw [ Finset.card_sdiff_add_card ] ; exact Finset.card_le_card fun x hx => by aesop;
   have h₅ : 2 * (10 * r + 1) * (badSet r).card ≤ (primeLayer r j).card := by
     have h₅ : 2 * (10 * r + 1) * (badSet r).card ≤ Real.exp ((α / 2) * r) * Real.exp ((α / 4) * r) := by
@@ -336,11 +336,11 @@ lemma cleanLayer_addChar_fourier :
         cases h_interval_disjoint <;> simp_all +decide; all_goals linarith [ Real.exp_le_exp.mpr ‹_› ]
       exact ⟨hq_prime, hq_ne_p⟩;
     obtain ⟨ψ, hψ1, hψval⟩ : ∃ ψ : DirichletCharacter ℂ p, ψ ≠ 1 ∧ ∀ a : (ZMod p)ˣ, ψ (a : ZMod p) = χ (Additive.ofMul a) := by
-      haveI := Fact.mk h_p_prime; exact dirichlet_of_addChar χ hχ |> fun ⟨ ψ, hψ1, hψval ⟩ => ⟨ ψ, hψ1, fun a => hψval a ▸ rfl ⟩ ;
+      have := Fact.mk h_p_prime; exact dirichlet_of_addChar χ hχ |> fun ⟨ ψ, hψ1, hψval ⟩ => ⟨ ψ, hψ1, fun a => hψval a ▸ rfl ⟩ ;
     convert! hN₁ r ( by linarith ) i hi p hp j hj hij ψ hψ1 using 1;
     refine' congr_arg Norm.norm ( Finset.sum_congr rfl fun q hq => _ );
     have h_unit : IsUnit ((q : ℕ) : ZMod p) := by
-      haveI := Fact.mk h_p_prime; exact IsUnit.mk0 _ ( by rw [ Ne.eq_def, ZMod.natCast_eq_zero_iff ] ; exact fun h => h_q_prime q hq |>.2 <| by have := Nat.prime_dvd_prime_iff_eq h_p_prime ( h_q_prime q hq |>.1 ) ; tauto ) ;
+      have := Fact.mk h_p_prime; exact IsUnit.mk0 _ ( by rw [ Ne.eq_def, ZMod.natCast_eq_zero_iff ] ; exact fun h => h_q_prime q hq |>.2 <| by have := Nat.prime_dvd_prime_iff_eq h_p_prime ( h_q_prime q hq |>.1 ) ; tauto ) ;
     convert! hψval ( h_unit.unit ) |> Eq.symm using 1;
     unfold unitOf; aesop;
   exact h_combined.mono fun r hr i hi p hp j hj hij χ hχ => by convert! hr i hi p hp j hj hij χ hχ using 1 ; ring;
@@ -434,7 +434,7 @@ lemma subProd_le_good :
   refine' Filter.Eventually.of_forall fun r => Nat.cast_le.mpr _;
   refine Finset.card_le_card ?_;
   intro s hs;
-  simp_all +decide [ Finset.mem_filter ];
+  simp_all +decide only [mem_filter, Fintype.mem_piFinset];
   -- By definition of `LF`, we know that each `s k` is prime.
   have h_prime : ∀ k, Nat.Prime (s k) := by
     intro k; specialize hs; have := hs.1 k; simp_all +decide [ LF, cleanLayer, primeLayer ] ;
@@ -459,7 +459,7 @@ lemma good_ge_prod_sub_bad (r : ℕ) :
   rw_mod_cast [ ← Fintype.card_piFinset ];
   have h_complement : (Fintype.piFinset (LF r)).filter (fun s => ¬subProdGoodP r s) ⊆ Finset.biUnion Finset.univ (fun i => (Fintype.piFinset (LF r)).filter (badForI r i)) := by
     unfold subProdGoodP badForI; simp +contextual [ Finset.subset_iff ] ;
-  have := Finset.card_mono h_complement; simp_all +decide [ Finset.filter_not, Finset.card_sdiff ] ;
+  have := Finset.card_mono h_complement; simp_all +decide only [Fintype.card_piFinset, ge_iff_le] ;
   exact this.trans ( add_le_add ( Finset.card_biUnion_le ) ( by rw [ Finset.inter_eq_left.mpr ( Finset.filter_subset _ _ ) ] ) ) |> le_trans <| by simp +decide [ add_comm ] ;
 
 /-
@@ -482,7 +482,7 @@ lemma prod_mod_eq_one_iff_sum_zero {p : ℕ} [Fact p.Prime] {α : Type*}
       convert! congr_arg ( fun x : Additive ( ( ZMod p ) ˣ ) => x.toMul ) h using 1;
     have h_mod : (∏ x ∈ J, (g x : ZMod p)) = 1 := by
       convert! congr_arg ( fun x : ( ZMod p ) ˣ => ( x : ZMod p ) ) h_unit using 1;
-      simp +decide [ unitOf ];
+      simp +decide only [Units.coe_prod];
       refine' Finset.prod_congr rfl fun x hx => _ ; aesop;
     rw [ ← ZMod.val_natCast, Nat.cast_prod, h_mod, ZMod.val_one ]
 
@@ -500,14 +500,15 @@ lemma badForI_count_eq {r : ℕ} (i : Fin r) (p : ℕ) [Fact p.Prime]
           (fun t => ∀ J : Finset {k : Fin r // k ≠ i}, J.Nonempty →
             ∑ k' ∈ J, Additive.ofMul (unitOf p (t k')) ≠ 0)).card := by
   refine' Finset.card_bij ( fun s hs => fun k => s k ) _ _ _;
-  · simp +zetaDelta at *;
+  · simp +zetaDelta only [mem_filter, Fintype.mem_piFinset, ne_eq, Subtype.forall, and_imp] at *;
     intro a ha hbad hap; refine' ⟨ fun k hk => ha k, _ ⟩ ; intro J hJ; contrapose! hbad; simp_all +decide [ badForI ] ;
     use J.image Subtype.val; simp_all +decide [ Finset.prod_image ] ;
     convert! prod_mod_eq_one_iff_sum_zero J ( fun k' => a k'.1 ) ( fun k' hk' => ?_ ) |>.2 hbad using 1;
     exact isUnit_iff_ne_zero.mpr ( hcop _ k'.2 _ ( ha _ ) );
   · simp +contextual [ funext_iff, Finset.mem_filter ];
     grind;
-  · intro t ht; use fun k => if h : k = i then p else t ⟨ k, h ⟩ ; simp_all +decide [ Finset.mem_filter, Fintype.mem_piFinset ] ;
+  · intro t ht; use fun k => if h : k = i then p else t ⟨ k, h ⟩ ; simp_all +decide only [ne_eq, Subtype.coe_eta, dite_eq_ite, mem_filter, Fintype.mem_piFinset, ↓reduceDIte,
+    and_true, exists_prop] ;
     refine' ⟨ ⟨ _, _ ⟩, _ ⟩;
     · aesop;
     · intro J hJ₁ hJ₂; simp_all +decide ;
@@ -565,7 +566,7 @@ lemma badForI_perp_bound :
   intro i p hp;
   have hp2 : (p : ℝ) ≤ Real.exp (vParam r) := (hr₂ i p hp).2
   have hpprime : Nat.Prime p := (hr₂ i p hp).1
-  haveI : Fact p.Prime := ⟨hpprime⟩
+  have : Fact p.Prime := ⟨hpprime⟩
   have hp_ge2 : 2 ≤ p := hpprime.two_le
   have hpr : ((p : ℝ) - 1) * (r : ℝ) ^ 10 ≤ 2 ^ (r - 1) := by
     have := exp_vParam_mul r ( by linarith );
@@ -599,7 +600,8 @@ lemma badForI_perp_bound :
   · intro k' χ hχ;
     convert! hr₃ ( i.val + 1 ) ( Finset.mem_Icc.mpr ⟨ by linarith [ Fin.is_lt i ], by linarith [ Fin.is_lt i ] ⟩ ) p hp ( k'.val + 1 ) ( Finset.mem_Icc.mpr ⟨ by linarith [ Fin.is_lt k'.val ], by linarith [ Fin.is_lt k'.val ] ⟩ ) ( by simpa [ Fin.ext_iff ] using! k'.2 ) χ hχ using 1;
   · rw [ mul_one_div, div_le_iff₀ ] <;> norm_cast <;> norm_num [ Finset.filter_ne' ]; all_goals linarith;
-  · simp +decide [ Fintype.card_subtype_compl, Fintype.card_fin, ZMod.card_units_eq_totient, Nat.totient_prime hpprime ];
+  · simp +decide only [ne_eq, Fintype.card_subtype_compl, Fintype.card_fin, Fintype.card_unique,
+    Fintype.card_additive, ZMod.card_units_eq_totient];
     rw [ le_div_iff₀ ] <;> norm_num [ hpprime.pos ];
     · refine le_trans ?_ hpr;
       rw [ mul_comm ] ; gcongr;
@@ -835,7 +837,7 @@ lemma clean_ge_primeLayer_log_sum :
         have h_card_bound : ∀ᶠ r : ℕ in atTop, ∀ j ∈ Finset.Icc 1 r, ((cleanLayer r j).card : ℝ) ≥ ((primeLayer r j).card : ℝ) - Real.exp ((alphaParam / 4) * r) := by
           have h_card_bound : ∀ᶠ r : ℕ in atTop, ∀ j ∈ Finset.Icc 1 r, ((cleanLayer r j).card : ℝ) ≥ ((primeLayer r j).card : ℝ) - ((badSet r).card : ℝ) := by
             refine' Filter.Eventually.of_forall fun r j hj => _;
-            simp +decide [ cleanLayer ];
+            simp +decide only [ge_iff_le, tsub_le_iff_right];
             exact_mod_cast le_trans ( Finset.card_le_card ( show primeLayer r j ⊆ primeLayer r j \ badSet r ∪ badSet r from fun x hx => by by_cases hx' : x ∈ badSet r <;> aesop ) ) ( Finset.card_union_le _ _ );
           filter_upwards [ h_card_bound, badSet_card_small ( alphaParam / 4 ) ( by exact div_pos ( Real.log_pos one_lt_two ) zero_lt_four ) ] with r hr₁ hr₂ using fun j hj => le_trans ( sub_le_sub_left hr₂ _ ) ( hr₁ j hj );
         have h_card_bound : ∀ᶠ r : ℕ in atTop, ∀ j ∈ Finset.Icc 1 r, ((primeLayer r j).card : ℝ) ≥ Real.exp ((3 * alphaParam / 4) * r) := by
@@ -848,7 +850,7 @@ lemma clean_ge_primeLayer_log_sum :
           filter_upwards [ h_card_bound ] with r hr using hr.trans_eq ( by rw [ Real.exp_sub, Real.exp_log ( by positivity ) ] ; ring );
         filter_upwards [ ‹∀ᶠ r : ℕ in atTop, ∀ j ∈ Icc 1 r, ↑ ( # ( cleanLayer r j ) ) ≥ ↑ ( # ( primeLayer r j ) ) - Real.exp ( alphaParam / 4 * ↑r ) ›, ‹∀ᶠ r : ℕ in atTop, ∀ j ∈ Icc 1 r, ↑ ( # ( primeLayer r j ) ) ≥ Real.exp ( 3 * alphaParam / 4 * ↑r ) ›, h_card_bound ] with r hr₁ hr₂ hr₃ using fun j hj => by linarith [ hr₁ j hj, hr₂ j hj, hr₃ ] ;
       filter_upwards [ h_log_bound ] with r hr j hj;
-      by_cases h : ( primeLayer r j ).card = 0 <;> simp_all +decide [ div_eq_mul_inv ];
+      by_cases h : ( primeLayer r j ).card = 0 <;> simp_all +decide only [ge_iff_le, tsub_le_iff_right];
       · exact Real.log_natCast_nonneg _;
       · have h_log_bound : Real.log ((cleanLayer r j).card : ℝ) ≥ Real.log ((primeLayer r j).card : ℝ) - 2 * ((primeLayer r j).card - (cleanLayer r j).card : ℝ) / ((primeLayer r j).card : ℝ) := by
           have h_log_bound : Real.log ((cleanLayer r j).card / (primeLayer r j).card : ℝ) ≥ -2 * (1 - (cleanLayer r j).card / (primeLayer r j).card : ℝ) := by

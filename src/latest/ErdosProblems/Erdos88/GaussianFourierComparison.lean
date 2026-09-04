@@ -393,7 +393,7 @@ lemma continuous_gaussianQuadraticCharacteristic_centered
     {n : ℕ} (f : Fin n → ℝ) (F : Matrix (Fin n) (Fin n) ℝ) :
     Continuous (Erdos88.BooleanSlices.gaussianQuadraticCharacteristic
       (-Erdos88.BooleanSlices.trace F) f F) := by
-  letI : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
+  let : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
     unfold gaussianQuadraticCenteredLaw
     exact Measure.isProbabilityMeasure_map
       ((continuous_quadraticPolynomial 0 f F).sub

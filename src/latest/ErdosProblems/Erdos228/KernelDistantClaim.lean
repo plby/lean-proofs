@@ -418,7 +418,7 @@ private lemma sum_left_endpointVariation_le {n : ℕ} (hn : 0 < n)
       apply Finset.not_nonempty_iff_eq_empty.mp
       simpa [s] using hs
     rw [hs0]
-    simp
+    simp only [Finset.sum_sub_distrib, Finset.sum_empty, sub_self, ge_iff_le]
     positivity
 
 private lemma sum_right_endpointVariation_le {n : ℕ} (hn : 0 < n)
@@ -475,7 +475,7 @@ private lemma sum_right_endpointVariation_le {n : ℕ} (hn : 0 < n)
       apply Finset.not_nonempty_iff_eq_empty.mp
       simpa [s] using hs
     rw [hs0]
-    simp
+    simp only [Finset.sum_sub_distrib, Finset.sum_empty, sub_self, ge_iff_le]
     positivity
 
 private lemma sum_left_abs_principalIntegral_le {n : ℕ} (hn : 0 < n)

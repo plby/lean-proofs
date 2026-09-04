@@ -55,10 +55,10 @@ theorem radical_generator_cyclic
     (ha : alpha ^ (finrank K L) = algebraMap K L a)
     (halpha : IntermediateField.adjoin K {alpha} = ⊤) :
     IsGalois K L ∧ IsCyclic Gal(L/K) := by
-  letI : NeZero (finrank K L) := NeZero.of_pos finrank_pos
+  let : NeZero (finrank K L) := NeZero.of_pos finrank_pos
   have hirr : Irreducible (X ^ (finrank K L) - C a) :=
     irreducible_X_pow_sub_C_of_root_adjoin_eq_top ha halpha
-  letI : IsSplittingField K L (X ^ (finrank K L) - C a) :=
+  let : IsSplittingField K L (X ^ (finrank K L) - C a) :=
     isSplittingField_X_pow_sub_C_of_root_adjoin_eq_top hK ha halpha
   exact ⟨isGalois_of_isSplittingField_X_pow_sub_C hK hirr L,
     isCyclic_of_isSplittingField_X_pow_sub_C hK hirr L⟩

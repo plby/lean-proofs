@@ -258,7 +258,7 @@ theorem carry_lift (p k : ℕ) (hp : 1 < p) (S : Finset (FFVec p k)) :
       B.card ≤ 2 ^ k * S.card ∧
       (intSumGraph (p ^ k) B).indepNum ≤ (groupSumGraph S).indepNum := by
   classical
-  letI : NeZero p := ⟨by omega⟩
+  let : NeZero p := ⟨by omega⟩
   refine ⟨carryPalette p k S, carryPalette_subset_range hp S,
     carryPalette_card_le hp S, ?_⟩
   obtain ⟨A, hA⟩ :=

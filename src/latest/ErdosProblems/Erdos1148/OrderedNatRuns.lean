@@ -10,8 +10,8 @@ theorem exists_ordered_maximalNatRuns (V : Finset ℕ) :
       l.Pairwise (fun p q => p.2 < q.1) := by
   classical
   let r : (ℕ × ℕ) → (ℕ × ℕ) → Prop := fun p q => p.1 ≤ q.1
-  letI : Std.Total r := ⟨fun p q => Nat.le_total p.1 q.1⟩
-  letI : IsTrans (ℕ × ℕ) r := ⟨fun _ _ _ h₁ h₂ => h₁.trans h₂⟩
+  let : Std.Total r := ⟨fun p q => Nat.le_total p.1 q.1⟩
+  let : IsTrans (ℕ × ℕ) r := ⟨fun _ _ _ h₁ h₂ => h₁.trans h₂⟩
   let l := (maximalNatRuns V).toList.mergeSort (r · ·)
   have hperm : l.Perm (maximalNatRuns V).toList := List.mergeSort_perm _ _
   have hmem (p : ℕ × ℕ) : p ∈ l ↔ p ∈ maximalNatRuns V := by

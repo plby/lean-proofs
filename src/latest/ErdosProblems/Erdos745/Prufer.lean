@@ -229,7 +229,7 @@ theorem walk_support_subset {G : SimpleGraph V} {S : Finset V}
 theorem connected_induce_of_supported {G : SimpleGraph V} {S : Finset V}
     (hG : SupportedOn G S) (hc : ConnectedOn G S) (hne : S.Nonempty) :
     (G.induce (S : Set V)).Connected := by
-  letI : Nonempty (S : Set V) := ⟨⟨hne.choose, hne.choose_spec⟩⟩
+  let : Nonempty (S : Set V) := ⟨⟨hne.choose, hne.choose_spec⟩⟩
   refine ⟨?_⟩
   intro u v
   obtain ⟨p⟩ := hc u.val u.property v.val v.property

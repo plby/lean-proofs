@@ -202,7 +202,7 @@ theorem residualRootEnum_zero
     (P : ZhaoResidualForestPartition T hT r m)
     (hpos : 0 < P.roots.card) :
     (residualRootEnum T hT r m P ⟨0, hpos⟩).1 = r := by
-  letI : LinearOrder V := rootDistanceLinearOrder T r
+  let : LinearOrder V := rootDistanceLinearOrder T r
   let e : Fin P.roots.card ≃o P.roots := P.roots.orderIsoOfFin rfl
   have hle : e ⟨0, hpos⟩ ≤ ⟨r, P.globalRoot_mem⟩ := by
     have hfin : (⟨0, hpos⟩ : Fin P.roots.card) ≤
@@ -238,7 +238,7 @@ theorem residualRootIndex_lt_of_dist_lt
     (hxy : T.dist r x < T.dist r y) :
     (residualRootIndex T hT r m P x hx).val <
       (residualRootIndex T hT r m P y hy).val := by
-  letI : LinearOrder V := rootDistanceLinearOrder T r
+  let : LinearOrder V := rootDistanceLinearOrder T r
   let e : Fin P.roots.card ≃o P.roots := P.roots.orderIsoOfFin rfl
   have hsub : (⟨x, hx⟩ : P.roots) < ⟨y, hy⟩ := by
     exact lt_rootDistanceLinearOrder_of_dist_lt T r hxy

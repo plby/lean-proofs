@@ -217,7 +217,7 @@ theorem exists_kLinkedSubgraph_of_contractConditionTwo
     C.exists_outside_degree_le_sixteen_mul hk hmin F hcond hnoiso
   let N := insert v (C.G.neighborFinset v)
   let NS : Set C.V := (N : Set C.V)
-  letI fintypeNS : Fintype NS := Subtype.fintype fun x => x ∈ NS
+  let fintypeNS : Fintype NS := Subtype.fintype fun x => x ∈ NS
   have hvN : v ∈ N := by simp [N]
   have hNcard : N.card ≤ 16 * k + 1 := by
     have hvnot : v ∉ C.G.neighborFinset v := by simp

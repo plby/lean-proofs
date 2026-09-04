@@ -262,7 +262,7 @@ theorem inert_no_root (A B : ℤ) (p : ℕ) [Fact p.Prime]
     (hroot : ∀ r : ZMod p,
       r ^ 2 ≠ (A : ZMod p) + (B : ZMod p) * r) :
     (span {(p : QOrd A B)}).IsPrime := by
-  letI : Fact (∀ r : ZMod p,
+  let : Fact (∀ r : ZMod p,
       r ^ 2 ≠ (A : ZMod p) + (B : ZMod p) * r) := ⟨hroot⟩
   have hmax : (RingHom.ker (reduceMod A B p)).IsMaximal :=
     RingHom.ker_isMaximal_of_surjective _ (reduceMod_surjective A B p)
@@ -378,14 +378,14 @@ theorem two_splits_eight (k : ℤ) :
       rootIdeal (2 * k) 1 2 0 ≠ rootIdeal (2 * k) 1 2 1 ∧
       rootIdeal (2 * k) 1 2 0 * rootIdeal (2 * k) 1 2 1 =
         span {(2 : QOrd (2 * k) 1)} := by
-  letI : Fact (Nat.Prime 2) := ⟨by norm_num⟩
+  let : Fact (Nat.Prime 2) := ⟨by norm_num⟩
   simpa using splits_at_root (2 * k) 1 2 0
     ⟨-k, by ring⟩ ⟨0, -1, by ring⟩
 
 /-- Theorem 94(ii), in the half-integral normal form for `m = 8k + 5`. -/
 theorem two_inert_eight (k : ℤ) :
     (span {(2 : QOrd (2 * k + 1) 1)}).IsPrime := by
-  letI : Fact (Nat.Prime 2) := ⟨by norm_num⟩
+  let : Fact (Nat.Prime 2) := ⟨by norm_num⟩
   apply inert_no_root (2 * k + 1) 1 2
   intro r
   have htwo : (2 : ZMod 2) = 0 := by decide
@@ -404,7 +404,7 @@ theorem ramifies_four_add (k : ℤ) :
     (rootIdeal (4 * k + 2) 0 2 0).IsPrime ∧
       rootIdeal (4 * k + 2) 0 2 0 * rootIdeal (4 * k + 2) 0 2 0 =
         span {(2 : QOrd (4 * k + 2) 0)} := by
-  letI : Fact (Nat.Prime 2) := ⟨by norm_num⟩
+  let : Fact (Nat.Prime 2) := ⟨by norm_num⟩
   apply ramifies_at_root (4 * k + 2) 0 2 0
   · exact ⟨2 * k + 1, by ring⟩
   · exact ⟨0, by ring⟩
@@ -418,7 +418,7 @@ theorem ramifies_four_three (k : ℤ) :
     (rootIdeal (4 * k + 3) 0 2 (-1)).IsPrime ∧
       rootIdeal (4 * k + 3) 0 2 (-1) * rootIdeal (4 * k + 3) 0 2 (-1) =
         span {(2 : QOrd (4 * k + 3) 0)} := by
-  letI : Fact (Nat.Prime 2) := ⟨by norm_num⟩
+  let : Fact (Nat.Prime 2) := ⟨by norm_num⟩
   apply ramifies_at_root (4 * k + 3) 0 2 (-1)
   · exact ⟨2 * k + 1, by ring⟩
   · exact ⟨1, by ring⟩

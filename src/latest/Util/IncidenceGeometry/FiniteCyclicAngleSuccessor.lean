@@ -51,8 +51,8 @@ lemma FiniteCyclicAngleSuccessor {ι : Type*} [Fintype ι] [Nonempty ι]
                   clockwiseTurn i (clockwiseNext i)) := by
   let n := Fintype.card ι
   have hnpos : 0 < n := Fintype.card_pos_iff.mpr inferInstance
-  haveI : NeZero n := ⟨Nat.ne_of_gt hnpos⟩
-  letI : LinearOrder ι := LinearOrder.lift' (fun i => -θ i) (by
+  have : NeZero n := ⟨Nat.ne_of_gt hnpos⟩
+  let : LinearOrder ι := LinearOrder.lift' (fun i => -θ i) (by
     intro a b h
     apply hθ_inj
     linarith)

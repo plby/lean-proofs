@@ -474,10 +474,7 @@ theorem finiteTestCombination_smul_coeff
       a • finiteTestCombination q c := by
   classical
   ext x
-  simp [finiteTestCombination, Finset.mul_sum]
-  apply Fintype.sum_congr
-  intro t
-  ring
+  simp [finiteTestCombination, Finset.mul_sum, mul_assoc]
 
 /-- Pairing distributes across a finite linear combination of tests. -/
 theorem finitePairing_finiteTestCombination

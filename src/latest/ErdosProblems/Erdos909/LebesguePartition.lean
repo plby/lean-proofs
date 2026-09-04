@@ -230,7 +230,7 @@ theorem finite_closed_cover_separator_multiplicity
          (C a ∩ upperFace i).Nonempty)) :
     ∃ x, n + 1 ≤ Nat.card {a : I // x ∈ C a} := by
   classical
-  letI := Fintype.ofFinite I
+  let := Fintype.ofFinite I
   let hits : I → Fin n → Prop := fun a i ↦
     (C a ∩ lowerFace i.succ).Nonempty
   let H : I → Finset (Fin n) := fun a ↦ Finset.univ.filter (hits a)

@@ -45,9 +45,9 @@ lemma TriangleBoundaryMultiplicityEqualsOccurrenceNcard
     intro x hx
     exact ⟨hsegmentCarrier p ((openSegment_subset_segment ℝ p.1 (R.successor p).1) hx.1),
       Or.inr ((openSegment_subset_segment ℝ b z) hx.2)⟩
-  haveI : ∀ p : V, Fintype (A0 p) := fun p => (hA0fin p).fintype
-  haveI : ∀ p : V, Fintype (A1 p) := fun p => (hA1fin p).fintype
-  haveI : ∀ p : V, Fintype (A2 p) := fun p => (hA2fin p).fintype
+  have : ∀ p : V, Fintype (A0 p) := fun p => (hA0fin p).fintype
+  have : ∀ p : V, Fintype (A1 p) := fun p => (hA1fin p).fintype
+  have : ∀ p : V, Fintype (A2 p) := fun p => (hA2fin p).fintype
   let TaggedFiber : V → Type :=
     fun p => (A0 p) ⊕ ((A1 p) ⊕ (A2 p))
   let encode : (Sigma TaggedFiber) → V × Fin 3 × EuclideanSpace ℝ (Fin 2) :=
@@ -79,7 +79,7 @@ lemma TriangleBoundaryMultiplicityEqualsOccurrenceNcard
       · rcases y₂ with ⟨p₂, x₂ | x₂ | x₂⟩
         · cases x₁
           cases x₂
-          simp [encode, TaggedFiber] at henc ⊢
+          simp only [Sigma.mk.injEq] at henc ⊢
           rcases henc with ⟨rfl, rfl⟩
           simp
         · simp [encode, TaggedFiber] at henc
@@ -88,7 +88,7 @@ lemma TriangleBoundaryMultiplicityEqualsOccurrenceNcard
         · simp [encode, TaggedFiber] at henc
         · cases x₁
           cases x₂
-          simp [encode, TaggedFiber] at henc ⊢
+          simp only [Sigma.mk.injEq] at henc ⊢
           rcases henc with ⟨rfl, rfl⟩
           simp
         · simp [encode, TaggedFiber] at henc
@@ -97,12 +97,15 @@ lemma TriangleBoundaryMultiplicityEqualsOccurrenceNcard
         · simp [encode, TaggedFiber] at henc
         · cases x₁
           cases x₂
-          simp [encode, TaggedFiber] at henc ⊢
+          simp only [Sigma.mk.injEq] at henc ⊢
           rcases henc with ⟨rfl, rfl⟩
           simp
     · intro q hq
       rcases q with ⟨p, i, x⟩
-      simp [Occ, TriangleBoundaryCyclicIntersectionOccurrenceSet] at hq
+      change x ∈ openSegment ℝ p.1 (R.successor p).1 ∧
+        ((i = (0 : Fin 3) ∧ x ∈ openSegment ℝ z a) ∨
+          (i = (1 : Fin 3) ∧ x ∈ openSegment ℝ a b) ∨
+            (i = (2 : Fin 3) ∧ x ∈ openSegment ℝ b z)) at hq
       rcases hq with ⟨hpseg, (⟨hi, hx⟩ | ⟨hi, hx⟩ | ⟨hi, hx⟩)⟩
       · subst i
         refine ⟨⟨p, Sum.inl ⟨x, ?_⟩⟩, by simp, ?_⟩

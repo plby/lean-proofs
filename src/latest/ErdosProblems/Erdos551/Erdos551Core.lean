@@ -520,7 +520,8 @@ theorem exists_rotated_isPath_from_of_adj_endpoint_mem_support
       unfold q s
       rw [Walk.isPath_def, Walk.support_append]
       simp only [Walk.support_append, Walk.support_reverse]
-      simp
+      simp only [Walk.support_cons, Walk.support_nil, List.tail_reverse, List.cons_append, List.nil_append,
+    List.tail_cons]
       have hrev : r'.support.reverse = v :: r'.support.dropLast.reverse := by
         rw [← r'.dropLast_support_concat]
         simp
@@ -575,7 +576,8 @@ theorem exists_rotated_isPath_from_at_index
   unfold q s
   rw [Walk.isPath_def, Walk.support_append]
   simp only [Walk.support_append, Walk.support_reverse]
-  simp
+  simp only [Walk.support_cons, Walk.support_nil, List.tail_reverse, List.cons_append, List.nil_append,
+    List.tail_cons]
   have hrev : r'.support.reverse = v :: r'.support.dropLast.reverse := by
     rw [← r'.dropLast_support_concat]
     simp
@@ -589,9 +591,7 @@ theorem exists_rotated_isPath_from_at_index
   · simp [q, s, a, r', Nat.min_eq_left hi.le, Nat.min_eq_left hi1]
     omega
   · ext z
-    simp [q, s, a, r', Walk.support_append, Walk.support_reverse,
-      Walk.support_take, Walk.drop_support_eq_support_drop_min,
-      Nat.min_eq_left hi.le, Nat.min_eq_left hi1]
+    simp only [List.mem_toFinset]
     rw [← List.mem_append, List.take_append_drop]
 
 /-- Every indexed rotated endpoint of a path that is longest from its
@@ -2870,7 +2870,7 @@ theorem exists_member_containing_induced_component_of_pairwiseAnticomplete
   classical
   let H : SimpleGraph S := G.induce (S : Set V)
   let e : H ↪g G := SimpleGraph.Embedding.induce (G := G) (S : Set V)
-  letI : Nonempty c := c.nonempty_supp.to_subtype
+  let : Nonempty c := c.nonempty_supp.to_subtype
   let z₀ : c := Classical.choice inferInstance
   have hz₀U : z₀.1.1 ∈ F.biUnion id := hS z₀.1.property
   rcases Finset.mem_biUnion.mp hz₀U with ⟨A, hA, hz₀A⟩
@@ -3688,7 +3688,7 @@ theorem card_le_two_mul_pred_of_indepSetFree_of_components_card_le_two
   classical
   by_cases hL : L.Nonempty
   · let H : SimpleGraph L := G.induce (L : Set V)
-    letI : Nonempty L := hL.to_subtype
+    let : Nonempty L := hL.to_subtype
     obtain ⟨F, hnonempty, hdisj, hanti, hcover, hcard⟩ :=
       completeStablePartition_of_component_card_le H (k := 3) (by
         intro c
@@ -3791,7 +3791,7 @@ theorem component_card_lt_or_three_mul_sub_two_lt_two_mul_card
     have hkcard : k ≤ c.supp.ncard := by omega
     have hupper : 2 * c.supp.ncard ≤ 3 * k - 2 := by omega
     let C : SimpleGraph c := c.toSimpleGraph
-    letI : Nonempty c := c.nonempty_supp.to_subtype
+    let : Nonempty c := c.nonempty_supp.to_subtype
     have hCmin : k - 1 ≤ C.minDegree := by
       apply C.le_minDegree_of_forall_le_degree
       intro v
@@ -3829,7 +3829,7 @@ theorem denseCounterexampleExcludedAt_of_completeStablePartitions
   intro n hn hnk G hmin hfree hcycle
   obtain ⟨F, hnonempty, hdisj, hanti, hcover, hcard⟩ :=
     hstable n hn hnk G hmin hfree hcycle
-  letI : Nonempty (Fin ((k - 1) * (n - 1) + 1)) :=
+  let : Nonempty (Fin ((k - 1) * (n - 1) + 1)) :=
     Fin.pos_iff_nonempty.mp (by omega)
   exact false_of_anticomplete_partition_at_extremal_order G hfree hnonempty hdisj
     hanti hcover hcard
@@ -4046,9 +4046,9 @@ theorem card_edgeFinset_lt_mul_card_of_no_long_path
       _ ≤ 2 * G.edgeFinset.card := Nat.mul_le_mul_left 2 hdense
   obtain ⟨H, instH, hHsupport, hHG, _hedge, hHmin⟩ :=
     Erdos182.exists_induced_minDegree_core G (2 * D) hE hcoreDense
-  letI : DecidableRel H.Adj := instH
+  let : DecidableRel H.Adj := instH
   let K : SimpleGraph H.support := H.induce H.support
-  letI : Nonempty H.support := hHsupport.to_subtype
+  let : Nonempty H.support := hHsupport.to_subtype
   have hDmin : D ≤ K.minDegree := by
     dsimp [K]
     omega
@@ -4725,8 +4725,8 @@ theorem exists_separated_bfs_core_in_finset
       ∀ a ∈ H, ∀ b ∈ S \ D, ¬ G.Adj a b := by
   classical
   let J : SimpleGraph S := G.induce (S : Set V)
-  letI : Nonempty S := hS.to_subtype
-  letI : DecidableEq S := Classical.decEq S
+  let : Nonempty S := hS.to_subtype
+  let : DecidableEq S := Classical.decEq S
   let root : S := Classical.choice inferInstance
   obtain ⟨j, parity, Hs, Ds, _hj, _hHeq, _hDeq, hHDs, hHsne,
       _hpair, _hlarge, hcharge, hanti⟩ :=
@@ -4808,8 +4808,8 @@ theorem exists_separated_bfs_core_in_finset_with_witness
       ∀ a ∈ H, ∀ b ∈ S \ D, ¬ G.Adj a b := by
   classical
   let J : SimpleGraph S := G.induce (S : Set V)
-  letI : Nonempty S := hS.to_subtype
-  letI : DecidableEq S := Classical.decEq S
+  let : Nonempty S := hS.to_subtype
+  let : DecidableEq S := Classical.decEq S
   let root : S := Classical.choice inferInstance
   obtain ⟨j, parity, Hs, Ds, hj, hHeq, hDeq, hHDs, hHsne,
       _hpair, _hlarge, hcharge, hanti⟩ :=
@@ -4864,12 +4864,12 @@ theorem exists_separated_component_bfs_core_in_finset_with_witness
       ∀ a ∈ H, ∀ b ∈ S \ D, ¬ G.Adj a b := by
   classical
   let J : SimpleGraph S := G.induce (S : Set V)
-  letI : Nonempty S := hS.to_subtype
+  let : Nonempty S := hS.to_subtype
   let rootS : S := Classical.choice inferInstance
   let c : J.ConnectedComponent := J.connectedComponentMk rootS
   let K : SimpleGraph c := c.toSimpleGraph
-  letI : Nonempty c := c.nonempty_supp.to_subtype
-  letI : DecidableRel K.Adj := Classical.decRel _
+  let : Nonempty c := c.nonempty_supp.to_subtype
+  let : DecidableRel K.Adj := Classical.decRel _
   let root : c :=
     ⟨rootS, SimpleGraph.ConnectedComponent.connectedComponentMk_mem⟩
   obtain ⟨j, parity, Hc, Dc, hj, hHeq, hDeq, hHDc, hHcne,
@@ -5912,7 +5912,7 @@ theorem exists_bipartite_subgraph_twice_degree
   classical
   obtain ⟨c, hc⟩ := Erdos182.PRSEntry.exists_cutGraph_forall_degree G
   let H := Erdos182.PRSEntry.cutGraph G c
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
   refine ⟨H, inferInstance, Erdos182.PRSEntry.cutGraph_le G c,
     (Erdos182.PRSEntry.cutGraph_isBipartiteWith G c).isBipartite, ?_⟩
   intro v
@@ -5944,12 +5944,12 @@ theorem exists_dense_bfs_pair_of_minDegree
   classical
   obtain ⟨H, instH, hHG, hHbip, hHdeg⟩ :=
     exists_bipartite_subgraph_twice_degree G hmin
-  letI : DecidableRel H.Adj := instH
+  let : DecidableRel H.Adj := instH
   obtain ⟨c, instC, hconn, hCbip, hCdeg, _hinjH, _hinjG⟩ :=
     Erdos752.exists_connected_bipartite_component_of_le H (by positivity)
       hHG hHbip hHdeg
-  letI : DecidableRel c.toSimpleGraph.Adj := instC
-  letI : Nonempty c := c.nonempty_supp.to_subtype
+  let : DecidableRel c.toSimpleGraph.Adj := instC
+  let : Nonempty c := c.nonempty_supp.to_subtype
   let root : c := Classical.choice inferInstance
   have hdegree : ∀ v : c, 2 * d ≤ c.toSimpleGraph.degree v := by
     intro v
@@ -6633,7 +6633,7 @@ theorem exists_local_robustPairSet_of_induced_drc
     ∃ U : Finset V, τ ≤ U.card ∧ U ⊆ S ∧ RobustPairSet G U S θ := by
   classical
   let H : SimpleGraph S := G.induce (S : Set V)
-  letI : Nonempty S := hS.to_subtype
+  let : Nonempty S := hS.to_subtype
   obtain ⟨U, hUcard, hrob⟩ :=
     exists_robustPairSet_univ_of_drc H ht hτpos hη hρ
       (by simpa [H] using hdensity)
@@ -8439,7 +8439,7 @@ theorem IsCyclicAlternatingScaffold.rotate
   classical
   rcases hscaffold with
     ⟨hq, a, b, hA, hB, ha, hb, hAB, hab, hba⟩
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hq⟩
   let e : Equiv.Perm (Fin q) := finCycle t
   let a' : Fin q → V := fun i => a (e i)
   let b' : Fin q → V := fun i => b (e i)
@@ -8503,7 +8503,7 @@ theorem exists_cyclicAlternatingScaffold_data_starting_at
   rcases hcanonical : cyclicAlternatingScaffoldData G hscaffold with
     ⟨hq, a₀, b₀, hA, hB, ha₀, hb₀, hAB, hab₀, hba₀⟩
   obtain ⟨t, _ht, hat⟩ := Finset.mem_image.mp (hA ▸ hxA)
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hq⟩
   let e : Equiv.Perm (Fin q) := finCycle t
   let a : Fin q → V := fun i => a₀ (e i)
   let b : Fin q → V := fun i => b₀ (e i)
@@ -10681,7 +10681,7 @@ theorem hasThreeDisjointAdjPairFamily_of_induce_minDegree
     HasThreeDisjointAdjPairFamily G S := by
   classical
   let H : SimpleGraph S := G.induce (S : Set V)
-  letI : Nonempty S := hS.to_subtype
+  let : Nonempty S := hS.to_subtype
   obtain ⟨M, hM, hMcard⟩ :=
     exists_three_disjointAdjPairFamily_of_five_le_minDegree H
       (by simpa [H] using hδ)
@@ -15248,7 +15248,7 @@ theorem SimpleGraph.IsTree.exists_closed_walk_length_twice_card_sub_one
         ∀ v : α, v ∈ w.support
   refine Fintype.induction_subsingleton_or_nontrivial (P := P) V ?_ ?_ T hT
   · intro α _ hsub K hK
-    letI : Nonempty α := hK.connected.nonempty
+    let : Nonempty α := hK.connected.nonempty
     let r : α := Classical.choice inferInstance
     refine ⟨r, Walk.nil, ?_, ?_⟩
     · have hcard : Fintype.card α = 1 :=
@@ -15323,8 +15323,8 @@ theorem SimpleGraph.IsTree.exists_closed_walk_length_twice_card_sub_one_fresh_ro
       ∀ j : Fin (w.length - 1), w.getVert (j.val + 1) ≠ r := by
   classical
   rcases subsingleton_or_nontrivial V with hsub | hnontriv
-  · letI : Subsingleton V := hsub
-    letI : Nonempty V := hT.connected.nonempty
+  · let : Subsingleton V := hsub
+    let : Nonempty V := hT.connected.nonempty
     let r : V := Classical.choice inferInstance
     refine ⟨r, Walk.nil, ?_, ?_, ?_⟩
     · have hcard : Fintype.card V = 1 :=
@@ -15334,7 +15334,7 @@ theorem SimpleGraph.IsTree.exists_closed_walk_length_twice_card_sub_one_fresh_ro
       simpa [Subsingleton.elim v r]
     · intro j
       exact j.elim0
-  · letI : Nontrivial V := hnontriv
+  · let : Nontrivial V := hnontriv
     obtain ⟨v, hvdeg⟩ := hT.exists_vert_degree_one_of_nontrivial
     obtain ⟨u, hvu, _huniq⟩ :=
       degree_eq_one_iff_existsUnique_adj.mp hvdeg
@@ -15485,7 +15485,7 @@ theorem SimpleGraph.IsTree.exists_closed_walk_length_twice_sub_one_of_le_card
   refine Fintype.induction_subsingleton_or_nontrivial (P := P) V ?_ ?_
     T hT t ht htV
   · intro α _ hsub K hK t ht htcard
-    letI : Nonempty α := hK.connected.nonempty
+    let : Nonempty α := hK.connected.nonempty
     let r : α := Classical.choice inferInstance
     have hcard : Fintype.card α = 1 :=
       Fintype.card_eq_one_iff.mpr ⟨r, fun x => hsub.elim x r⟩
@@ -15544,7 +15544,7 @@ theorem SimpleGraph.IsTree.exists_closed_walk_length_twice_sub_one_fresh_root_of
   refine Fintype.induction_subsingleton_or_nontrivial (P := P) V ?_ ?_
     T hT t ht htV
   · intro α _ hsub K hK t ht htcard
-    letI : Nonempty α := hK.connected.nonempty
+    let : Nonempty α := hK.connected.nonempty
     let r : α := Classical.choice inferInstance
     have hcard : Fintype.card α = 1 :=
       Fintype.card_eq_one_iff.mpr ⟨r, fun x => hsub.elim x r⟩
@@ -17439,7 +17439,7 @@ theorem cycleGraph_isContained_of_closed_largeCrossMatching_walk_fresh_root_leng
     (hlen : ℓ + (∑ j : Fin (w.length - 1), 2 * (r j + 1)) +
       w.length = k) :
     cycleGraph k ⊑ G := by
-  letI : IsEmpty {j : Fin (w.length - 1) //
+  let : IsEmpty {j : Fin (w.length - 1) //
       w.getVert (j.val + 1) = u} :=
     ⟨fun j => (hwfresh j.1 j.2).elim⟩
   apply cycleGraph_isContained_of_closed_largeCrossMatching_walk_lengths_residual
@@ -17579,7 +17579,7 @@ theorem cycleGraph_isContained_of_connected_largeCrossMatching_balanced_of_card_
   · intro i
     by_cases hi : i = u
     · subst i
-      letI : IsEmpty {j : Fin (w.length - 1) //
+      let : IsEmpty {j : Fin (w.length - 1) //
           w.getVert (j.val + 1) = u} :=
         ⟨fun j => (hwfresh j.1 j.2).elim⟩
       simpa using hFirstθ
@@ -18269,7 +18269,7 @@ theorem exists_short_odd_closed_walk_of_connected_not_isBipartite
     ∃ u : V, ∃ w : H.Walk u u,
       Odd w.length ∧ w.length < 2 * Fintype.card V := by
   classical
-  letI : Nonempty V := hconn.nonempty
+  let : Nonempty V := hconn.nonempty
   let r : V := Classical.choice hconn.nonempty
   let p : ∀ v : V, H.Walk r v := fun v => (hconn r v).some.bypass
   have hp : ∀ v : V, (p v).IsPath := fun v => Walk.bypass_isPath _
@@ -18305,7 +18305,7 @@ theorem exists_short_supported_odd_closed_walk_of_connected_not_isBipartite
     ∃ u : V, ∃ w : H.Walk u u,
       Odd w.length ∧ w.length < 2 * w.support.toFinset.card := by
   classical
-  letI : Nonempty V := hconn.nonempty
+  let : Nonempty V := hconn.nonempty
   let r : V := Classical.choice hconn.nonempty
   let p : ∀ v : V, H.Walk r v := fun v => (hconn r v).some.bypass
   have hp : ∀ v : V, (p v).IsPath := fun v => Walk.bypass_isPath _
@@ -18394,7 +18394,7 @@ theorem exists_spanning_isPath_of_connected_degree_le_two
     ∃ u v : V, ∃ p : H.Walk u v, p.IsPath ∧
       p.support.toFinset = Finset.univ := by
   classical
-  letI : Nonempty V := hconn.nonempty
+  let : Nonempty V := hconn.nonempty
   obtain ⟨u, v, p, hp, hmax⟩ := exists_maximal_isPath H
   refine ⟨u, v, p, hp, ?_⟩
   by_contra hproper
@@ -19056,7 +19056,7 @@ theorem cycleGraph_isContained_of_connected_nonbipartite_largeCrossMatching
     (hθ : 6 * Fintype.card ι +
       2 * (k / Fintype.card ι + 1) ≤ θ) :
     cycleGraph k ⊑ G := by
-  letI : Nonempty ι := hconn.nonempty
+  let : Nonempty ι := hconn.nonempty
   obtain ⟨u, w, hwOdd, hwlt, hspan⟩ :=
     exists_bounded_odd_spanning_closed_walk_of_connected_not_isBipartite
       H hconn hnotbip
@@ -19170,7 +19170,7 @@ theorem cycleGraph_isContained_of_odd_hamiltonian_largeCrossMatching
     (hθ : 3 * Fintype.card ι +
       2 * (k / Fintype.card ι + 1) ≤ θ) :
     cycleGraph k ⊑ G := by
-  letI : Nonempty ι := ⟨u⟩
+  let : Nonempty ι := ⟨u⟩
   have hwpos : 0 < w.length := by
     exact Nat.pos_of_ne_zero fun hwzero => by
       rw [hwzero] at hwOdd
@@ -20046,7 +20046,7 @@ theorem cycleGraph_isContained_of_two_path_handles_and_disjoint_paths
   have hrdisj : ∀ i j : Fin 4, i ≠ j →
       (r i).support.Disjoint (r j).support := by
     intro i j hij
-    fin_cases i <;> fin_cases j <;> simp_all [r, A, B, W]
+    fin_cases i <;> fin_cases j <;> simp_all only [Fin.mk_one, Fin.isValue, Fin.zero_eta, Fin.reduceFinMk]
     all_goals first
       | exact hph.symm
       | exact hpq.symm
@@ -20096,7 +20096,7 @@ theorem cycleGraph_isContained_of_two_twoEdge_handles_and_disjoint_paths
       (r i).support.Disjoint (r j).support := by
     intro i j hij
     fin_cases i <;> fin_cases j <;>
-      simp_all [r, A, B, W, List.disjoint_cons_left, List.disjoint_cons_right]
+      simp_all only [Fin.mk_one, Fin.isValue, Fin.reduceFinMk, Fin.zero_eta]
     all_goals first | exact hpq.symm | exact Ne.symm hxy
   have hcross : ∀ i : Fin 3, G.Adj (B i.castSucc) (A i.succ) := by
     intro i
@@ -21360,7 +21360,7 @@ theorem exists_global_exceptional_set_meeting_short_path_handles_of_cycleFree_ro
     intro i j hij
     let K := {a : κ // src a = i ∧ dst a = j}
     by_cases hK : Nonempty K
-    · letI : Nonempty K := hK
+    · let : Nonempty K := hK
       obtain ⟨x, hx⟩ | ⟨x, hx⟩ :=
         exists_common_attachment_of_cycleFree_short_path_handles_between_robustPairSets
           G hk (hrob i) (hrob j) hfree (hUn i) (hregions i j hij)
@@ -21679,7 +21679,7 @@ theorem exists_exceptional_set_separating_leftover_of_unique_short_components
   let H : SimpleGraph L := G.induce (L : Set V)
   let κ := {c : H.ConnectedComponent //
     Nonempty (CrossSeedAttachmentInComponent G U L c)}
-  letI : Fintype κ := Fintype.ofFinite κ
+  let : Fintype κ := Fintype.ofFinite κ
   let data : ∀ q : κ, CrossSeedAttachmentInComponent G U L q.1 :=
     fun q => Classical.choice q.2
   let pathH : ∀ q : κ, H.Walk (data q).x (data q).y :=
@@ -22216,7 +22216,7 @@ theorem exists_exceptional_set_separating_leftover_of_canonical_short_components
   let H : SimpleGraph L := G.induce (L : Set V)
   let κ := {c : H.ConnectedComponent //
     Nonempty (CrossSeedAttachmentInComponent G U L c)}
-  letI : Fintype κ := Fintype.ofFinite κ
+  let : Fintype κ := Fintype.ofFinite κ
   let data : ∀ q : κ, CrossSeedAttachmentInComponent G U L q.1 :=
     fun q => Classical.choice q.2
   let pathH : ∀ q : κ, H.Walk (data q).x (data q).y :=
@@ -25462,7 +25462,7 @@ theorem exists_localized_selected_path_or_sub_four_mul_card_lt
     obtain ⟨i, hi⟩ := hmemne A hA
     exact ⟨i, Finset.mem_biUnion.mpr ⟨A, hA, hi⟩⟩
   let ρ := {i : ι // i ∈ L}
-  letI : Nonempty ρ := hLne.to_subtype
+  let : Nonempty ρ := hLne.to_subtype
   let J : ρ → Finset V := fun i => I i.1
   obtain ⟨M, hM, hmax⟩ := exists_maximal_selectedCrossEdgeSystem G J
   by_cases hpath : ∃ u v : ρ, ∃ p : (SelectedCrossEdgeGraph M).Walk u v,
@@ -25561,7 +25561,7 @@ theorem exists_localized_selected_system_path_or_sub_four_mul_card_lt
     obtain ⟨i, hi⟩ := hmemne A hA
     exact ⟨i, Finset.mem_biUnion.mpr ⟨A, hA, hi⟩⟩
   let ρ := {i : ι // i ∈ L}
-  letI : Nonempty ρ := hLne.to_subtype
+  let : Nonempty ρ := hLne.to_subtype
   let J : ρ → Finset V := fun i => I i.1
   obtain ⟨M, hM, hmax⟩ := exists_maximal_selectedCrossEdgeSystem G J
   by_cases hpath : ∃ u v : ρ,
@@ -27974,7 +27974,7 @@ theorem cycleGraph_isContained_of_induced_drc
     cycleGraph k ⊑ G := by
   classical
   let H : SimpleGraph S := G.induce (S : Set V)
-  letI : Nonempty S := hS.to_subtype
+  let : Nonempty S := hS.to_subtype
   have hcopy : cycleGraph k ⊑ H := by
     apply cycleGraph_isContained_of_drc_univ H hk ht hτpos hη hρ
     · simpa [H] using hdensity
@@ -27999,7 +27999,7 @@ theorem induced_minDegree_lt_of_robustPairSet_of_cycleFree
     (G.induce (U : Set V)).minDegree < k - 2 := by
   classical
   let H : SimpleGraph U := G.induce (U : Set V)
-  letI : Nonempty U := hU.to_subtype
+  let : Nonempty U := hU.to_subtype
   by_contra hnot
   have hmin : k - 2 ≤ H.minDegree := by
     simpa [H] using (Nat.le_of_not_gt hnot)
@@ -28040,7 +28040,7 @@ theorem induced_edgeFinset_card_lt_mul_of_robustPairSet_of_cycleFree
     (G.induce (U : Set V)).edgeFinset.card < (k - 2) * U.card := by
   classical
   let H : SimpleGraph U := G.induce (U : Set V)
-  letI : Nonempty U := hU.to_subtype
+  let : Nonempty U := hU.to_subtype
   have hno : ¬ ∃ u v : U, ∃ p : H.Walk u v,
       p.IsPath ∧ k - 2 ≤ p.length := by
     rintro ⟨u, v, p, hp, hplen⟩
@@ -29255,7 +29255,7 @@ theorem exists_bfsLayer_containing_connected_embedding_of_parityBfsLayerUnion
     ∃ i : ℕ, i ≤ j ∧ i % 2 = parity ∧
       ∀ z : W, G.dist root (e z) = i := by
   classical
-  letI : Nonempty W := hHconn.nonempty
+  let : Nonempty W := hHconn.nonempty
   let z₀ : W := Classical.choice inferInstance
   let q₀ : G.Walk (e z₀) (e z₀) := Walk.nil
   have hq₀supp : ∀ z ∈ q₀.support,
@@ -29323,7 +29323,7 @@ theorem exists_bfsLayer_containing_induced_parity_component
     calc
       G.dist root x.1.1 = i := hi _ q.start_mem_support
       _ = G.dist root y.1.1 := (hi _ q.end_mem_support).symm
-  letI : Nonempty c := c.nonempty_supp.to_subtype
+  let : Nonempty c := c.nonempty_supp.to_subtype
   let z₀ : c := Classical.choice inferInstance
   let p₀ :
       (G.induce ((parityBfsLayerUnion G root j parity : Finset V) : Set V)).Walk z₀.1 z₀.1 :=
@@ -30197,7 +30197,7 @@ theorem exists_minDegree_core_with_short_dense_support_of_second_component_bfs_c
               2 * (inducedEdgeFinsetOn (H.induce H.support) S).card := by
   classical
   let J : SimpleGraph H₁ := G.induce (H₁ : Set V)
-  letI : Nonempty H₁ := hH₁ne.to_subtype
+  let : Nonempty H₁ := hH₁ne.to_subtype
   have hedge : (inducedEdgeFinsetOn G H₁).card = J.edgeFinset.card := by
     simpa [J] using card_inducedEdgeFinsetOn_eq_card_induce_finset G H₁
   have hJdense : d * Fintype.card H₁ ≤ 2 * J.edgeFinset.card := by
@@ -32724,7 +32724,7 @@ theorem exists_path_and_cycle_interval_of_dense_component_bfs_core
         p.length + 1 ≤ ℓ ∧ ℓ ≤ p.length + 2 * j := by
   classical
   let K : SimpleGraph H := G.induce (H : Set V)
-  letI : Nonempty H := hHne.to_subtype
+  let : Nonempty H := hHne.to_subtype
   have hedge :
       (inducedEdgeFinsetOn G H).card = K.edgeFinset.card := by
     simpa [K] using card_inducedEdgeFinsetOn_eq_card_induce_finset G H
@@ -32980,7 +32980,7 @@ theorem exists_localRobustHub_in_finset_of_large_indepSetFree_cycleFree
     have hdpos : 0 < d + 1 := by omega
     have : 0 < 16 * ((n - 1) * (d + 1)) := by positivity
     omega
-  letI : Nonempty S := (Finset.card_pos.mp hSpos).to_subtype
+  let : Nonempty S := (Finset.card_pos.mp hSpos).to_subtype
   let J : SimpleGraph S := G.induce (S : Set V)
   have hJfree : J.IndepSetFree n := by
     simpa [J] using Erdos551.IndepSetFree.induce hfree S
@@ -33000,7 +33000,7 @@ theorem exists_localRobustHub_in_finset_of_large_indepSetFree_cycleFree
     exists_short_dense_minDegree_core_of_large_indepSetFree_cycleFree
       J hn hd hJfree hJsize hk hroomJ hcycleJ
   let C : SimpleGraph H.support := H.induce H.support
-  letI : Nonempty H.support := hne.to_subtype
+  let : Nonempty H.support := hne.to_subtype
   let x : H.support := Classical.choice inferInstance
   obtain ⟨T, hT, hδT, hTle, hmass⟩ := hshort x
   change d ≤ 2 * C.minDegree at hmin
@@ -34902,7 +34902,7 @@ theorem cycleGraph_isContained_of_mixed_alternatingScaffold_cycle
     cycleGraph k ⊑ G := by
   let vDec : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := vDec
+  let : DecidableEq V := vDec
   let shortCost : ℕ :=
     ∑ i ∈ (Finset.univ : Finset (Fin (m + 1))) \ S,
       (if a i = b i then 0 else 2)
@@ -35496,7 +35496,7 @@ theorem unbroken_alternatingScaffold_selected_count_of_hybrid_lift
   let BJ : J → Finset V := fun i => B i.1
   let DJ : J → Finset V := fun i => D i.1
   by_cases hJ : Nonempty J
-  · letI : Nonempty J := hJ
+  · let : Nonempty J := hJ
     let I : J → Finset V := fun i =>
       Classical.choose
         (exists_large_indep_sdiff_of_not_hasThreeDisjointAdjPairFamily
@@ -35552,7 +35552,7 @@ theorem unbroken_alternatingScaffold_selected_count_of_hybrid_lift
   · have hcard : Fintype.card J = 0 :=
       Fintype.card_eq_zero_iff.mpr (not_nonempty_iff.mp hJ)
     simp [J] at hcard
-    simp [hcard]
+    simp only [card_subtype_compl, gt_iff_lt]
     positivity
 
 /-- Parity-unbroken alternating cores satisfy a selected-transversal count
@@ -35604,7 +35604,7 @@ theorem unbroken_alternatingScaffold_selected_count_or_heavy_repeated_attachment
   let R : Finset V := RepeatedAttachmentFinset G AJ
   let S : J → Finset V := fun i => AJ i \ R
   by_cases hJ : Nonempty J
-  · letI : Nonempty J := hJ
+  · let : Nonempty J := hJ
     by_cases hretain : ∀ i : J, σ ≤ (S i).card
     · let I : J → Finset V := fun i =>
         Classical.choose
@@ -36437,7 +36437,7 @@ theorem not_cycleGraph_isContained_pruned_hubInteraction_of_three_mul_add_two_mu
   · intro i j
     by_cases hj : j = 0
     · subst j
-      simp [route]
+      simp only [Order.add_one_le_iff]
       exact hθ i
     · simp [route, hj]
       have := hθ i
@@ -36606,9 +36606,9 @@ theorem exists_forbidden_near_third_pruned_hubInteraction_cycle
   · intro i j
     by_cases hj : j = 0
     · subst j
-      simp [route]
+      simp only [Order.add_one_le_iff]
       exact (by have := hθ i; omega)
-    · simp [route, hj]
+    · simp only [Order.add_one_le_iff]
       exact (by have := hθ i; omega)
   · rw [hsum]
     dsimp [m]

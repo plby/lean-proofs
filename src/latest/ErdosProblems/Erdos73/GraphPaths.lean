@@ -2381,8 +2381,9 @@ theorem appendWithEq_vertexSet_subset (P Q : GraphPath G)
     (P.appendWithEq Q h hpath).vertexSet ⊆ P.vertexSet ∪ Q.vertexSet := by
   classical
   intro v hv
-  simp [appendWithEq, vertexSet,
-    _root_.SimpleGraph.Walk.mem_support_append_iff] at hv ⊢
+  simp only [vertexSet, appendWithEq, Finset.mem_union, List.mem_toFinset,
+    _root_.SimpleGraph.Walk.mem_support_append_iff,
+    _root_.SimpleGraph.Walk.support_copy] at hv ⊢
   exact hv
 
 /-- The left constituent path is contained in a concatenation. -/
@@ -2530,9 +2531,7 @@ theorem appendWithEq_edgeSet_subset (P Q : GraphPath G)
     (hpath : (P.walk.append (Q.walk.copy h.symm rfl)).IsPath) :
     (P.appendWithEq Q h hpath).edgeSet ⊆ P.edgeSet ∪ Q.edgeSet := by
   classical
-  intro e he
-  simp [appendWithEq, edgeSet, _root_.SimpleGraph.Walk.edges_append] at he ⊢
-  exact he
+  simp [edgeSet, appendWithEq]
 
 /-- If two simple paths meet only at the endpoint where they are glued, then
 their concatenation is again a simple path. -/
@@ -2886,4 +2885,3 @@ end GraphPath
 end SimpleGraph
 
 end Erdos73Infrastructure
-

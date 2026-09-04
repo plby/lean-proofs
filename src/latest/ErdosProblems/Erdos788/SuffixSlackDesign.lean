@@ -274,7 +274,7 @@ noncomputable def chosenAffineBlock (ell m : ℕ) :
 
 theorem chosenAffineBlock_coordCard (ell m : ℕ) :
     (chosenAffineBlock ell m).coordCard = ell * blockPrime ell m := by
-  letI : Fact (blockPrime ell m).Prime := ⟨blockPrime_prime ell m⟩
+  let : Fact (blockPrime ell m).Prime := ⟨blockPrime_prime ell m⟩
   exact card_affineBlock_coord ell (blockPrime ell m) m
     (ell_le_blockPrime ell m) (blockSize_le_blockPrime_sq ell m)
 
@@ -308,21 +308,21 @@ noncomputable def prependRow (i : Fin (m + t)) :
 
 theorem prependRow_of_lt (i : Fin (m + t)) (hi : i.val < m) :
     prependRow B D i = (B.row ⟨i.val, hi⟩).map Embedding.inl := by
-  letI := B.instDecidableEqCoord
-  letI := D.instDecidableEqCoord
+  let := B.instDecidableEqCoord
+  let := D.instDecidableEqCoord
   simp [prependRow, hi]
 
 theorem prependRow_of_ge (i : Fin (m + t)) (hi : m ≤ i.val) :
     prependRow B D i =
       (D.row ⟨i.val - m, by omega⟩).map Embedding.inr := by
-  letI := B.instDecidableEqCoord
-  letI := D.instDecidableEqCoord
+  let := B.instDecidableEqCoord
+  let := D.instDecidableEqCoord
   simp [prependRow, Nat.not_lt.mpr hi]
 
 theorem card_prependRow (i : Fin (m + t)) :
     (prependRow B D i).card = ell := by
-  letI := B.instDecidableEqCoord
-  letI := D.instDecidableEqCoord
+  let := B.instDecidableEqCoord
+  let := D.instDecidableEqCoord
   by_cases hi : i.val < m
   · rw [prependRow_of_lt B D i hi, Finset.card_map, B.row_card]
   · rw [prependRow_of_ge B D i (Nat.le_of_not_gt hi), Finset.card_map,
@@ -334,8 +334,8 @@ theorem prepend_suffix_slack (hblock : m - 1 ≤ t) (i : Fin (m + t)) :
     (∑ j ∈ Finset.range i.val,
       overlapCost (prependRow B D i) (prependRow B D (priorIndex i j))) ≤
       m + t - 1 - i.val := by
-  letI := B.instDecidableEqCoord
-  letI := D.instDecidableEqCoord
+  let := B.instDecidableEqCoord
+  let := D.instDecidableEqCoord
   by_cases hi : i.val < m
   · have hunit : ∀ j ∈ Finset.range i.val,
         overlapCost (prependRow B D i) (prependRow B D (priorIndex i j)) ≤ 1 := by
@@ -436,8 +436,8 @@ theorem prepend_coordCard (hblock : m - 1 ≤ t) :
   change Fintype.card (B.Coord ⊕ D.Coord) =
     @Fintype.card B.Coord B.instFintypeCoord +
       @Fintype.card D.Coord D.instFintypeCoord
-  letI := B.instFintypeCoord
-  letI := D.instFintypeCoord
+  let := B.instFintypeCoord
+  let := D.instFintypeCoord
   exact Fintype.card_sum
 
 end Prepend

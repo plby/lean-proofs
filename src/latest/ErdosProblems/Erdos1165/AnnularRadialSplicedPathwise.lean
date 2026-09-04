@@ -1122,7 +1122,7 @@ private theorem scanRadialLabels_zero_cons_eq
   change labels.foldl (radialLabelVisit k)
       (radialLabelVisit k ⟨true, 0⟩
         (⟨0, by omega⟩ : Fin (n + 2))) = _
-  simp [radialLabelVisit, hne]
+  simp only [Fin.zero_eta]
   change labels.foldl (radialLabelVisit k) ⟨true, 0⟩ =
     labels.foldl (radialLabelVisit k) ⟨true, 0⟩
   rfl

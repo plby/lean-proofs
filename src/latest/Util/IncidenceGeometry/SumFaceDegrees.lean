@@ -9,7 +9,7 @@ lemma SumFaceDegrees {V : Type*} [Fintype V] (G : SimpleGraph V)
     ((@Finset.univ A.Face A.faceFintype).sum A.faceDegree) =
       2 * G.edgeFinset.card := by
   classical
-  letI := A.faceFintype
+  let := A.faceFintype
   have _ : D.crossingSet.card = 0 := hD
   have hfaces :
       ((@Finset.univ A.Face A.faceFintype).sum

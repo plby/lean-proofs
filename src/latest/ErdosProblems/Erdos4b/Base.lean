@@ -8096,7 +8096,7 @@ theorem pinnedRestrictedPairSum_eq_main_add_error
   intro e he
   by_cases hr : BoundedGaps.Maynard.IsCrossCoordinateCoprime
       (primorialShifts K) d e ∧ d h = 1 ∧ e h = 1
-  · simp [hr]
+  · simp only [hr, true_and, if_true]
     unfold pinnedPairCountError pinnedPairExpectedCount
     simp only [Finset.univ_eq_attach]
     ring
@@ -8639,11 +8639,15 @@ theorem totient_pinnedPairOffModulus
     (Finset.univ.erase h) l hpair]
   have hlh : l h = 1 := by
     simp [l, BoundedGaps.Maynard.divisorTupleLcm, hdh, heh]
-  have hdecomp := Finset.prod_erase_mul
-    (s := (Finset.univ : Finset H))
-    (f := fun j => Nat.totient (l j)) (Finset.mem_univ h)
-  simp [hlh] at hdecomp
-  exact hdecomp
+  calc
+    (∏ j ∈ (Finset.univ : Finset H).erase h, Nat.totient (l j)) =
+        (∏ j ∈ (Finset.univ : Finset H).erase h, Nat.totient (l j)) *
+          Nat.totient (l h) := by simp [hlh]
+    _ = ∏ j : H, Nat.totient (l j) :=
+      Finset.prod_erase_mul (s := (Finset.univ : Finset H))
+        (f := fun j => Nat.totient (l j)) (Finset.mem_univ h)
+    _ = ∏ j : H, Nat.totient
+        (BoundedGaps.Maynard.divisorTupleLcm H d e j) := rfl
 
 /-- The exact error of one compatible pinned pair is bounded by the two
 endpoint progression discrepancies. -/

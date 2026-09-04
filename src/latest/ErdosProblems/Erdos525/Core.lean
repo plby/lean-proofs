@@ -1673,7 +1673,10 @@ lemma phaseWalk_position_re (n : ℕ) (ε : SignVector (2 * n))
     phaseWalk n ε points r 0 / Real.sqrt (2 * n + 1 : ℝ) =
       (rescaledCenteredEval n ε (points r)).re := by
   unfold phaseWalk phaseStep rescaledCenteredEval centeredEval
-  simp [Complex.mul_re, exp_centeredFrequency_div_re]
+  simp only [neg_mul, Fin.isValue, Matrix.cons_val_zero, Complex.ofReal_div, Complex.ofReal_natCast,
+    Complex.mul_re, Complex.inv_re, Complex.ofReal_re, Complex.normSq_ofReal, div_self_mul_self', Complex.re_sum,
+    exp_centeredFrequency_div_re, Complex.ofReal_im, exp_centeredFrequency_div_im, zero_mul, sub_zero, Complex.inv_im,
+    neg_zero, zero_div, Complex.im_sum, Complex.mul_im, add_zero]
   have hsqrt : Real.sqrt (2 * n + 1 : ℝ) ≠ 0 := by positivity
   field_simp [hsqrt]
   ring_nf
@@ -1687,7 +1690,10 @@ lemma phaseWalk_position_im (n : ℕ) (ε : SignVector (2 * n))
     phaseWalk n ε points r 1 / Real.sqrt (2 * n + 1 : ℝ) =
       (rescaledCenteredEval n ε (points r)).im := by
   unfold phaseWalk phaseStep rescaledCenteredEval centeredEval
-  simp [Complex.mul_im, exp_centeredFrequency_div_im]
+  simp only [neg_mul, Fin.isValue, Matrix.cons_val_one, Matrix.cons_val_zero, Complex.ofReal_div,
+    Complex.ofReal_natCast, Complex.mul_im, Complex.inv_re, Complex.ofReal_re, Complex.normSq_ofReal,
+    div_self_mul_self', Complex.im_sum, exp_centeredFrequency_div_im, Complex.ofReal_im, exp_centeredFrequency_div_re,
+    zero_mul, add_zero, Complex.inv_im, neg_zero, zero_div, Complex.re_sum, Complex.mul_re, sub_zero]
   have hsqrt : Real.sqrt (2 * n + 1 : ℝ) ≠ 0 := by positivity
   field_simp [hsqrt]
   ring_nf
@@ -1704,8 +1710,12 @@ lemma phaseWalk_velocity_re (n : ℕ) (ε : SignVector (2 * n))
   · subst n
     simp [phaseWalk, phaseStep, rescaledCenteredVelocity, centeredFrequency]
   unfold phaseWalk phaseStep rescaledCenteredVelocity
-  simp [Complex.mul_re, Complex.mul_im, exp_centeredFrequency_div_re,
-    exp_centeredFrequency_div_im]
+  simp only [neg_mul, Fin.isValue, Matrix.cons_val, mul_neg, sum_neg_distrib, Complex.ofReal_div,
+    Complex.ofReal_natCast, Complex.mul_re, Complex.inv_re, Complex.ofReal_re, Complex.normSq_ofReal,
+    div_self_mul_self', Complex.re_sum, Complex.div_natCast_re, Complex.I_re, mul_zero, Complex.div_natCast_im,
+    Complex.ofReal_im, zero_div, Complex.I_im, mul_one, sub_self, Complex.mul_im, add_zero, zero_mul,
+    exp_centeredFrequency_div_re, exp_centeredFrequency_div_im, zero_sub, Complex.inv_im, neg_zero, Complex.im_sum,
+    zero_add, sub_zero]
   have hn' : (n : ℝ) ≠ 0 := by exact_mod_cast hn
   have hsqrt : Real.sqrt (2 * n + 1 : ℝ) ≠ 0 := by positivity
   field_simp [hn', hsqrt]
@@ -1725,8 +1735,11 @@ lemma phaseWalk_velocity_im (n : ℕ) (ε : SignVector (2 * n))
   · subst n
     simp [phaseWalk, phaseStep, rescaledCenteredVelocity, centeredFrequency]
   unfold phaseWalk phaseStep rescaledCenteredVelocity
-  simp [Complex.mul_re, Complex.mul_im, exp_centeredFrequency_div_re,
-    exp_centeredFrequency_div_im]
+  simp only [neg_mul, Fin.isValue, Matrix.cons_val, Complex.ofReal_div, Complex.ofReal_natCast, Complex.mul_im,
+    Complex.inv_re, Complex.ofReal_re, Complex.normSq_ofReal, div_self_mul_self', Complex.im_sum, Complex.mul_re,
+    Complex.div_natCast_re, Complex.I_re, mul_zero, Complex.div_natCast_im, Complex.ofReal_im, zero_div, Complex.I_im,
+    mul_one, sub_self, add_zero, zero_mul, exp_centeredFrequency_div_im, exp_centeredFrequency_div_re, zero_add,
+    Complex.inv_im, neg_zero, Complex.re_sum, zero_sub, sum_neg_distrib, mul_neg]
   have hn' : (n : ℝ) ≠ 0 := by exact_mod_cast hn
   have hsqrt : Real.sqrt (2 * n + 1 : ℝ) ≠ 0 := by positivity
   field_simp [hn', hsqrt]
@@ -1912,7 +1925,7 @@ lemma abs_cos_sub_exp_neg_half_sq_le_fourth
   have hexp0 := Real.abs_exp_sub_one_sub_id_le hy
   have hexp :
       |Real.exp (-(x ^ 2) / 2) - (1 - x ^ 2 / 2)| ≤ x ^ 4 / 4 := by
-    convert hexp0 using 1 <;> ring
+    convert hexp0 using 1 <;> ring_nf
   have htriangle :
       |Real.cos x - Real.exp (-(x ^ 2) / 2)| ≤
         |Real.cos x - (1 - x ^ 2 / 2)| +
@@ -2570,7 +2583,7 @@ lemma uniformChooseMoment_localMinimumCount (n k : ℕ) (u : ℝ) :
   intro s _hs
   unfold uniformExpectation uniformProbability
   congr 1
-  simp
+  simp only [sum_boole, Nat.cast_inj]
   apply congrArg Finset.card
   ext ε
   simp
@@ -2779,7 +2792,7 @@ lemma forwardDifference_nat_mul_eq_sum
       rw [Finset.sum_range_succ, ← ih]
       unfold forwardDifference
       push_cast
-      ring
+      ring_nf
 
 /-- Local polynomial rigidity for finite differences.  If the `k`th
 base-step difference vanishes throughout the progression window needed by
@@ -4466,7 +4479,7 @@ lemma IsSmooth.exists_large_multipleWave
         2 * distanceToInteger x := by
     have h := distanceToInteger_nsmul_le 2 x
     convert h using 1 <;>
-      dsimp [x] <;> push_cast <;> ring
+      dsimp [x] <;> push_cast <;> ring_nf
   have hupper :
       distanceToInteger (q₀ * t / (Real.pi * n)) ≤
         4000 * ε / L := by
@@ -4486,7 +4499,7 @@ lemma IsSmooth.norm_complexWave_reflection_lower
   have hsep := hsmooth.circleExp_separation (p := 1)
     (by norm_num) (by omega)
   rw [norm_complexWave_sub_complexWave n hn (-t) t 1]
-  convert hsep using 1 <;> push_cast <;> ring
+  convert hsep using 1 <;> push_cast <;> ring_nf
 
 lemma IsSpread.norm_complexWave_sub_lower
     (n : ℕ) (hn : 0 < n) (lam : ℝ) (points : Fin m → ℝ)
@@ -5203,12 +5216,12 @@ lemma sum_sq_norm_iteratedVariableDoubleTwist_range_le
           dsimp [g, Y]
           congr 2
           push_cast
-          ring
+          ring_nf
         have hg2 : g (v + 2 * h) = X ^ 2 := by
           dsimp [g, X]
           congr 2
           push_cast
-          ring
+          ring_nf
         have hg0 : g v = Z ^ 2 := by rfl
         rw [hg2, hg1, hg0]
         change N ^ 2 ≤ 12 * (X ^ 2 + Y ^ 2 + Z ^ 2)
@@ -8646,7 +8659,7 @@ lemma exists_variableReflectedSteps
               complexWave n (reflectedModeTime points b) (h : ℤ)‖ := by
           convert four_mul_distance_le_norm_complexWave_sub
             n hn (reflectedModeTime points b) (reflectedModeTime points a) (h : ℤ)
-              using 1 <;> simp [x] <;> ring
+              using 1 <;> simp [x] <;> ring_nf
   choose step hstep using hex
   refine ⟨step, ?_, ?_⟩
   · intro b hba
@@ -9254,7 +9267,7 @@ lemma phaseProjection_eq_re_complexPhaseProjection
   intro r _
   rw [Fin.sum_univ_four]
   simp [centeredIndex_cast, weightedComplexWave, Complex.mul_re, Complex.mul_im]
-  ring
+  ring_nf
 
 lemma ofReal_phaseProjection_eq_realComplexPhaseProjection
     (n : ℕ) (points : Fin m → ℝ) (u : PhaseCoordinate m)
@@ -9714,7 +9727,7 @@ lemma iteratedForwardDifference_scaledPhase_eq_centered_multiple_on_goodBlock
     have h := iteratedForwardDifference_scaledPhase_eq_centered_on_goodBlock
       n hn points u t q₀ k η hη hgap s W hs a ha hgood
         (v + w * q₀) hfitw hsmall
-    convert h using 1 <;> dsimp [j] <;> push_cast <;> ring
+    convert h using 1 <;> dsimp [j] <;> push_cast <;> ring_nf
   have hprop := iteratedForwardDifference_nat_mul_eq_centered_of_base
     (q₀ : ℤ) ell (2 * k) (scaledRealPhaseProjection n points u t) j hbase
   convert hprop using 1 <;> dsimp [j] <;> push_cast <;> ring
@@ -9767,7 +9780,7 @@ lemma iteratedForwardDifference_scaledPhase_eq_centered_multiple_on_goodBlock_po
       iteratedForwardDifference_scaledPhase_eq_centered_on_goodBlock_pow_gap
         n hn points u t q₀ k η hη hgap s W hs a ha hgood
           (v + w * q₀) hfitw hsmall
-    convert h using 1 <;> dsimp [j] <;> push_cast <;> ring
+    convert h using 1 <;> dsimp [j] <;> push_cast <;> ring_nf
   have hprop := iteratedForwardDifference_nat_mul_eq_centered_of_base
     (q₀ : ℤ) ell (2 * k) (scaledRealPhaseProjection n points u t) j hbase
   convert hprop using 1 <;> dsimp [j] <;> push_cast <;> ring
@@ -10125,7 +10138,7 @@ lemma sum_sq_iteratedOrdinaryRealPhase_goodBlock_le
           ∑ r ∈ Finset.range W, (f (j + r)) ^ 2 ≤
             phaseLatticeEnergy n points u t := by
         convert hres using 1 <;>
-          simp [f, j] <;> push_cast <;> ring
+          simp [f, j] <;> push_cast <;> ring_nf
       have hfac : 0 ≤ (Real.pi / |t|) ^ 2 * (4 : ℝ) ^ (2 * k) := by
         positivity
       simpa only [mul_assoc] using mul_le_mul_of_nonneg_left hsum hfac
@@ -10226,7 +10239,7 @@ lemma sum_sq_iteratedOrdinaryRealPhase_multiple_goodBlock_le_of_unwrap
           ∑ r ∈ Finset.range W, (f (j + r)) ^ 2 ≤
             phaseLatticeEnergy n points u t := by
         convert hres using 1 <;>
-          simp [f, j] <;> push_cast <;> ring
+          simp [f, j] <;> push_cast <;> ring_nf
       have hfac : 0 ≤ (Real.pi / |t|) ^ 2 * (4 : ℝ) ^ (2 * k) := by
         positivity
       simpa only [mul_assoc] using mul_le_mul_of_nonneg_left hsum hfac
@@ -10380,7 +10393,7 @@ lemma goodBlock_reflectedVelocity_l2_bound_multiple_of_average
         (Real.pi / |t|) ^ 2 * (4 : ℝ) ^ (2 * k) *
           phaseLatticeEnergy n points u t := by
     convert haverage using 1 <;>
-      simp [f, j, q] <;> push_cast <;> ring
+      simp [f, j, q] <;> push_cast <;> ring_nf
   have hsum := hsubset.trans hordinary
   have hupper := mul_le_mul_of_nonneg_left hsum
     (by positivity : 0 ≤ 2 * (36 : ℝ) ^ twists.length)
@@ -10561,7 +10574,7 @@ lemma goodBlock_variableAffinePosition_l2_bound_multiple_of_average
         (Real.pi / |t|) ^ 2 * (4 : ℝ) ^ (2 * k) *
           phaseLatticeEnergy n points u t := by
     convert haverage using 1 <;>
-      simp [f, j, q] <;> push_cast <;> ring
+      simp [f, j, q] <;> push_cast <;> ring_nf
   have hsum := hsubset.trans hordinary
   have hfac : 0 ≤ (2 + 4 * (J + 1) ^ 2) *
       (36 : ℝ) ^ twists.length := by positivity
@@ -11179,7 +11192,7 @@ lemma goodBlock_reflectedVelocity_l2_bound
         (Real.pi / |t|) ^ 2 * (4 : ℝ) ^ (2 * k) *
           phaseLatticeEnergy n points u t := by
     convert hordinary0 using 1 <;>
-      simp [f, j] <;> push_cast <;> ring
+      simp [f, j] <;> push_cast <;> ring_nf
   have hsum := hsubset.trans hordinary
   have hfac : 0 ≤ 2 * (36 : ℝ) ^ twists.length := by positivity
   have hupper := mul_le_mul_of_nonneg_left hsum hfac
@@ -11269,7 +11282,7 @@ lemma goodBlock_variableAffinePosition_l2_bound
         (Real.pi / |t|) ^ 2 * (4 : ℝ) ^ (2 * k) *
           phaseLatticeEnergy n points u t := by
     convert hordinary0 using 1 <;>
-      simp [f, j] <;> push_cast <;> ring
+      simp [f, j] <;> push_cast <;> ring_nf
   have hsum := hsubset.trans hordinary
   have hfac : 0 ≤ (2 + 4 * (J + 1) ^ 2) *
       (36 : ℝ) ^ twists.length := by positivity
@@ -11539,7 +11552,7 @@ lemma goodBlock_reflectedCoefficient_bounds
     have hv : q + 2 * k * q₀ < W := by omega
     have hb := norm_iteratedOrdinaryRealPhase_le_on_goodBlock
       n hn points u t ht q₀ k η hη hdirichlet s W hs a ha hgood q hv hsmall
-    convert hb using 1 <;> simp [j, M, ordinaryGoodBlockBound] <;> push_cast <;> ring
+    convert hb using 1 <;> simp [j, M, ordinaryGoodBlockBound] <;> push_cast <;> ring_nf
   have hwindow1 : ∀ q : ℕ, q ≤ variableTwistSpan twists →
       ‖iteratedDoubleTwist (q₀ : ℤ) (List.replicate k 1)
         (realComplexPhaseProjection n points u) ((j + 1) + q)‖ ≤ M := by
@@ -11549,7 +11562,7 @@ lemma goodBlock_reflectedCoefficient_bounds
     have hv : (1 + q) + 2 * k * q₀ < W := by omega
     have hb := norm_iteratedOrdinaryRealPhase_le_on_goodBlock
       n hn points u t ht q₀ k η hη hdirichlet s W hs a ha hgood (1 + q) hv hsmall
-    convert hb using 1 <;> simp [j, M, ordinaryGoodBlockBound] <;> push_cast <;> ring
+    convert hb using 1 <;> simp [j, M, ordinaryGoodBlockBound] <;> push_cast <;> ring_nf
   constructor
   · exact reflectedVelocityCoeff_mul_dirichletGap_le
       n hn points u q₀ k step target δ M hδ hM hsep j hwindow hwindow1
@@ -11627,7 +11640,7 @@ lemma goodBlock_reflectedPositionCoeff_bound
     have hb := norm_iteratedOrdinaryRealPhase_le_on_goodBlock
       n hn points u t ht q₀ k η hη hdirichlet s W hs a ha hgood q hv hsmall
     convert hb using 1 <;>
-      simp [j, M, ordinaryGoodBlockBound] <;> push_cast <;> ring
+      simp [j, M, ordinaryGoodBlockBound] <;> push_cast <;> ring_nf
   simpa [twists, j, M] using
     reflectedPositionCoeff_mul_dirichletGap_le_at
       n hn points u q₀ k step target δ M hδ hM hsep j hwindow
@@ -11821,12 +11834,12 @@ lemma reflectedVelocityCoeff_energy_bound_variable
     have hq' : q ≤ 2 * n := by omega
     have hbound := norm_realComplexPhaseProjection_leftIndex_le_sqrt_energy
       n points u q hq'
-    convert hbound using 1 <;> simp [f, M] <;> push_cast <;> ring
+    convert hbound using 1 <;> simp [f, M] <;> push_cast <;> ring_nf
   · intro q hq
     have hq' : q + 1 ≤ 2 * n := by omega
     have hbound := norm_realComplexPhaseProjection_leftIndex_le_sqrt_energy
       n points u (q + 1) hq'
-    convert hbound using 1 <;> simp [f, M] <;> push_cast <;> ring
+    convert hbound using 1 <;> simp [f, M] <;> push_cast <;> ring_nf
 
 /-- Reflected position extraction with separately chosen dilation steps. -/
 lemma reflectedPositionCoeff_energy_bound_variable
@@ -11932,7 +11945,7 @@ lemma reflectedVelocityCoeff_energy_bound_at
       omega
     have hbound := norm_realComplexPhaseProjection_leftIndex_le_sqrt_energy
       n points u (q * h) hq'
-    convert hbound using 1 <;> simp [f, M] <;> push_cast <;> ring
+    convert hbound using 1 <;> simp [f, M] <;> push_cast <;> ring_nf
   · intro q hq
     have hq' : q * h + 1 ≤ 2 * n := by
       have hlen : twists.length = 2 * m - 1 := by
@@ -11942,7 +11955,7 @@ lemma reflectedVelocityCoeff_energy_bound_at
       omega
     have hbound := norm_realComplexPhaseProjection_leftIndex_le_sqrt_energy
       n points u (q * h + 1) hq'
-    convert hbound using 1 <;> simp [f, M] <;> push_cast <;> ring
+    convert hbound using 1 <;> simp [f, M] <;> push_cast <;> ring_nf
 
 /-- Position-coefficient extraction at a dilated integer step. -/
 lemma reflectedPositionCoeff_energy_bound_at
@@ -12054,7 +12067,7 @@ lemma reflectedVelocityCoeff_energy_bound
       omega
     have hbound := norm_realComplexPhaseProjection_leftIndex_le_sqrt_energy
       n points u q hq'
-    convert hbound using 1 <;> simp [f, M] <;> ring
+    convert hbound using 1 <;> simp [f, M] <;> ring_nf
   · intro q hq
     have hq' : q + 1 ≤ 2 * n := by
       have hlen : twists.length = 2 * m - 1 := by
@@ -12063,7 +12076,7 @@ lemma reflectedVelocityCoeff_energy_bound
       omega
     have hbound := norm_realComplexPhaseProjection_leftIndex_le_sqrt_energy
       n points u (q + 1) hq'
-    convert hbound using 1 <;> simp [f, M] <;> ring
+    convert hbound using 1 <;> simp [f, M] <;> ring_nf
 
 /-- Companion estimate for a reflected position coefficient.  The second
 term is controlled by the already-extracted velocity coefficient. -/
@@ -15735,7 +15748,7 @@ lemma volume_real_phase_ball (m : ℕ) (hm : 0 < m) (R : ℝ) (hR : 0 ≤ R) :
     intro h
     have := congrArg (fun z : PhaseEuclidean m ↦ z i) h
     simpa [x, i] using this
-  letI : Nontrivial (PhaseEuclidean m) := ⟨⟨x, 0, hx⟩⟩
+  let : Nontrivial (PhaseEuclidean m) := ⟨⟨x, 0, hx⟩⟩
   have hdim : Module.finrank ℝ (PhaseEuclidean m) = 2 * (2 * m) := by
     rw [finrank_phaseEuclidean]
     omega
@@ -15906,7 +15919,7 @@ lemma localCLTMajorBound_tendsto_zero (m : ℕ) :
   have hpower : Tendsto (fun n : ℕ ↦ C * rigidityPower n (-3 / 4))
       atTop (𝓝 0) := by
     convert (tendsto_rigidityPower_neg_zero
-      (by norm_num : (0 : ℝ) < 3 / 4)).const_mul C using 1 <;> ring
+      (by norm_num : (0 : ℝ) < 3 / 4)).const_mul C using 1 <;> ring_nf
   apply squeeze_zero'
   · exact Eventually.of_forall fun n ↦ by
       unfold localCLTMajorBound localCLTMajorRadius rigidityPower
@@ -16126,7 +16139,7 @@ lemma volume_real_phase_closedBall_test
     intro h
     have := congrArg (fun z : PhaseEuclidean m ↦ z i) h
     simpa [x, i] using this
-  letI : Nontrivial (PhaseEuclidean m) := ⟨⟨x, 0, hx⟩⟩
+  let : Nontrivial (PhaseEuclidean m) := ⟨⟨x, 0, hx⟩⟩
   have hdim : Module.finrank ℝ (PhaseEuclidean m) = 2 * (2 * m) := by
     rw [finrank_phaseEuclidean]
     omega
@@ -16476,7 +16489,7 @@ theorem eventually_smoothingTail_setIntegral_le_test (m : ℕ) :
 lemma localCLTSmoothingScale_sq_test (n : ℕ) (hn : 0 < n) :
     localCLTSmoothingScaleTest n ^ 2 = rigidityPower n (-4) := by
   unfold localCLTSmoothingScaleTest
-  convert rigidityPower_nat_pow hn (-2) 2 using 1 <;> ring
+  convert rigidityPower_nat_pow hn (-2) 2 using 1 <;> ring_nf
 
 lemma localCLTHighRadius_sq_test (m n : ℕ) (hn : 0 < n) :
     localCLTHighRadiusTest m n ^ 2 =
@@ -17145,7 +17158,7 @@ lemma normalizedPhaseCharFun_integral_le_of_covariance
         calc
           _ ≤ 1 * Real.exp (-(gamma / Real.pi ^ 2 * ‖u‖ ^ 2)) :=
             mul_le_mul hweight hchar (norm_nonneg _) zero_le_one
-          _ = _ := by congr 1 <;> ring
+          _ = _ := by congr 1 <;> ring_nf
       _ ≤ ∫ u, g u := setIntegral_le_integral hg
         (Eventually.of_forall fun u ↦ by dsimp [g]; positivity)
   have htail : (∫ u in Bᶜ, f u) ≤
@@ -17255,7 +17268,7 @@ lemma norm_phaseFourierIntegral_covariance_le
               (norm_normalizedPhaseCovarianceGaussian_le_fixedGaussian
                 n points hcov u)
               (norm_nonneg _) zero_le_one
-          _ = Real.exp (-(1 / 24) * ‖u‖ ^ 2) := by congr 1 <;> ring
+          _ = Real.exp (-(1 / 24) * ‖u‖ ^ 2) := by congr 1 <;> ring_nf
 
 lemma phaseGaussianSmoothedMassReal_le_of_fourierError
     (n m : ℕ) (points : Fin m → ℝ)
@@ -17781,7 +17794,7 @@ lemma phaseCovarianceApproxBound_tendsto_zero (m : ℕ) :
   have hinv : Tendsto (fun n : ℕ ↦ 1 / (6 * (n : ℝ))) atTop (𝓝 0) := by
     have h : Tendsto (fun n : ℕ ↦ ((n : ℝ))⁻¹) atTop (𝓝 0) :=
       tendsto_inv_atTop_zero.comp tendsto_natCast_atTop_atTop
-    convert h.const_mul (1 / 6 : ℝ) using 1 <;> ring
+    convert h.const_mul (1 / 6 : ℝ) using 1 <;> ring_nf
   apply squeeze_zero'
   · exact Eventually.of_forall fun n ↦ phaseCovarianceApproxBound_nonneg m n
   · filter_upwards [Nat.eventually_pos] with n hn
@@ -18124,10 +18137,13 @@ lemma phaseLimitingCovarianceForm_half_eq_sum (u : PhaseCoordinate m) :
     phasePositionCoeff phaseVelocityCoeff Complex.normSq
   simp only [Fin.sum_univ_four]
   ring_nf
-  simp [Finset.sum_add_distrib]
+  simp only [Fin.isValue, MonoidWithZeroHom.coe_mk, ZeroHom.coe_mk, Complex.sub_re, Complex.ofReal_re,
+    Complex.mul_re, Complex.I_re, mul_zero, Complex.ofReal_im, Complex.I_im, mul_one, sub_self, sub_zero,
+    Complex.sub_im, Complex.mul_im, add_zero, zero_sub, even_two, Even.neg_pow, one_div, Complex.add_re, zero_mul,
+    zero_add, Complex.add_im, one_mul, zero_ne_one, or_false, ↓reduceIte, one_ne_zero, or_true, Fin.reduceEq, or_self]
   rw [add_mul, add_mul]
   simp_rw [Finset.sum_mul]
-  ring
+  ring_nf
 
 lemma phaseLimitingFrequencyWeight_pos (sigma : ℝ) (c : Fin 4) :
     0 < phaseLimitingFrequencyWeight sigma c := by
@@ -18380,7 +18396,7 @@ lemma phaseLimitingFourierBlock_zero
   rw [← Real.exp_add, ← Real.exp_add, ← Real.exp_add]
   rw [show (4 * Real.pi) * (12 * Real.pi) = 48 * Real.pi ^ 2 by ring]
   congr 1
-  ring
+  ring_nf
 
 /-- Fourier inversion at zero smoothing gives the explicit limiting
 Gaussian density, including the full `(2π)^(4m)` normalization. -/
@@ -20087,7 +20103,7 @@ theorem hasPhaseCovarianceLower_of_individualDilation_l2
           ‖f ((-n : ℤ) + z)‖ ^ 2 ≤ E := by
     have hbase := sum_sq_norm_realComplexPhaseProjection_left_le
       n (2 * H + variableTwistSpan twists) points u hwindow
-    convert hbase using 1 <;> simp [f, E] <;> push_cast <;> ring
+    convert hbase using 1 <;> simp [f, E] <;> push_cast <;> ring_nf
   have hvel0 := mul_sq_velocity_gap_div_le_isolation_energy
     n hn (reflectedModeTime points target) A B twists f (-n : ℤ) H
       delta hdelta.le
@@ -20694,7 +20710,8 @@ lemma integrable_complex_exp_neg_normSq :
   apply h.congr
   filter_upwards [] with a
   rw [Complex.norm_exp]
-  simp [Complex.normSq_eq_norm_sq]
+  simp only [neg_mul, one_mul, inner_zero_left, Complex.ofReal_zero, mul_zero, add_zero, Complex.neg_re,
+    Real.exp_eq_exp, neg_inj]
   rw [pow_two, Complex.mul_re]
   simp
   ring
@@ -20787,7 +20804,9 @@ lemma integrable_complex_exp_neg_three_normSq :
   apply h.congr
   filter_upwards [] with b
   rw [Complex.norm_exp]
-  simp [Complex.normSq_eq_norm_sq]
+  simp only [neg_mul, inner_zero_left, Complex.ofReal_zero, mul_zero, add_zero, Complex.neg_re, Complex.mul_re,
+    Complex.re_ofNat, Complex.im_ofNat, zero_mul, sub_zero, Real.exp_eq_exp, neg_inj, mul_eq_mul_left_iff,
+    OfNat.ofNat_ne_zero, or_false]
   rw [pow_two, Complex.mul_re]
   simp
   ring
@@ -21080,7 +21099,7 @@ lemma blockPositionGaussianError_tendsto_one
         (u / n) ^ 2)) atTop (nhds 0) := by
     have h := (((localMeshHalfWidth_tendsto_zero.mul_const velocityUpper).pow 2).add
       (huDiv.pow 2)).neg
-    convert h using 1 <;> ring
+    convert h using 1 <;> ring_nf
   have h := Real.continuous_exp.continuousAt.tendsto.comp hinside
   convert h using 1 <;> simp [Function.comp_def]
 
@@ -22148,7 +22167,7 @@ lemma scaled_localMeshHalfWidth_tendsto_pi :
     unfold localMeshHalfWidth localMeshSize
     push_cast
     ring
-  · ring
+  · ring_nf
 
 lemma blockOuterPerturbationError_scaled_tendsto_zero
     (u velocityLower velocityUpper : ℝ) (hvelLower : 0 < velocityLower) :
@@ -22536,7 +22555,7 @@ theorem truncatedBlockFactorMass_tendsto
       (widthFactor * velocityUpper)
     convert h using 1
     funext n
-    ring
+    ring_nf
   have hlower : Tendsto lower atTop (nhds L) := by
     simpa [lower] using herror.mul
       (tendsto_const_nhds : Tendsto (fun _ : ℕ ↦ L) atTop (nhds L))
@@ -22941,7 +22960,7 @@ lemma scaled_phaseBoundaryGaussianTail_tendsto_zero (m : ℕ) :
       pow_ne_zero _ (rigidityPower_pos hn 2).ne'
     field_simp [hne]
   rw [hbase]
-  ring
+  ring_nf
 
 lemma continuousAt_blockVelocityMass (velocityLower velocityUpper : ℝ) :
     ContinuousAt (fun p : ℝ × ℝ ↦ blockVelocityMass p.1 p.2)
@@ -23459,7 +23478,7 @@ lemma uniformChooseMoment_truncatedLocalMinimumCount
   intro s _hs
   unfold uniformExpectation uniformProbability
   congr 1
-  simp
+  simp only [sum_boole, Nat.cast_inj]
   apply congrArg Finset.card
   ext e
   simp
@@ -23553,7 +23572,7 @@ lemma uniformChooseMoment_halfTruncatedLocalMinimumCount
   intro s _hs
   unfold uniformExpectation uniformProbability
   congr 1
-  simp
+  simp only [sum_boole, Nat.cast_inj]
   apply congrArg Finset.card
   ext e
   simp
@@ -24028,7 +24047,7 @@ noncomputable def modularDifference
 lemma modularSum_injective_right
     (M : ℕ) (hM : 0 < M) (a : Fin M) :
     Function.Injective (modularSum M hM a) := by
-  letI : NeZero M := ⟨hM.ne'⟩
+  let : NeZero M := ⟨hM.ne'⟩
   intro b c hbc
   apply (ZMod.finEquiv M).injective
   apply add_left_cancel (a := ZMod.finEquiv M a)
@@ -24038,7 +24057,7 @@ lemma modularSum_injective_right
 lemma modularDifference_injective_right
     (M : ℕ) (hM : 0 < M) (a : Fin M) :
     Function.Injective (modularDifference M hM a) := by
-  letI : NeZero M := ⟨hM.ne'⟩
+  let : NeZero M := ⟨hM.ne'⟩
   intro b c hbc
   apply (ZMod.finEquiv M).injective
   have h := congrArg (ZMod.finEquiv M) hbc
@@ -24050,14 +24069,14 @@ lemma modularDifference_injective_right
 lemma modularSum_val
     (M : ℕ) (hM : 0 < M) (a b : Fin M) :
     (modularSum M hM a b : ℕ) = ((a : ℕ) + (b : ℕ)) % M := by
-  letI : NeZero M := ⟨hM.ne'⟩
+  let : NeZero M := ⟨hM.ne'⟩
   simpa [modularSum] using Fin.val_add a b
 
 lemma modularDifference_val
     (M : ℕ) (hM : 0 < M) (a b : Fin M) :
     (modularDifference M hM a b : ℕ) =
       (M - (b : ℕ) + (a : ℕ)) % M := by
-  letI : NeZero M := ⟨hM.ne'⟩
+  let : NeZero M := ⟨hM.ne'⟩
   simpa [modularDifference] using Fin.val_sub a b
 
 lemma distanceToInteger_nat_div_eq_mod
@@ -25047,7 +25066,7 @@ theorem allHalfLocalSiteSets_ratio_tendsto_factorial
           (halfLocalMeshSize n : ℝ) ^ k *
         ((halfLocalMeshSize n : ℝ) / (localMeshSize n : ℝ)) ^ k)
       atTop (𝓝 (((1 / 2 : ℝ) ^ k) / (k.factorial : ℝ))) := by
-    convert hmul using 1 <;> ring
+    convert hmul using 1 <;> ring_nf
   apply Tendsto.congr' _ hmul'
   filter_upwards [eventually_ge_atTop 1] with n hn
   have hhalf : halfLocalMeshSize n ≠ 0 := by
@@ -25374,7 +25393,7 @@ theorem goodTruncatedChooseContribution_tendsto
       (𝓝 (A * (k.factorial : ℝ)⁻¹)) := by
     dsimp [reference]
     convert tendsto_const_nhds.mul
-      (goodLocalSiteSets_ratio_tendsto_factorial k hk) using 1 <;> ring
+      (goodLocalSiteSets_ratio_tendsto_factorial k hk) using 1 <;> ring_nf
   have hdiff : Tendsto (fun n : ℕ ↦
       goodTruncatedChooseContribution n k u velocityLower velocityUpper -
         reference n) atTop (𝓝 0) := by
@@ -25414,7 +25433,7 @@ theorem halfGoodTruncatedChooseContribution_tendsto
       (𝓝 (A * (((1 / 2 : ℝ) ^ k) / (k.factorial : ℝ)))) := by
     dsimp [reference]
     convert tendsto_const_nhds.mul
-      (halfGoodLocalSiteSets_ratio_tendsto_factorial k hk) using 1 <;> ring
+      (halfGoodLocalSiteSets_ratio_tendsto_factorial k hk) using 1 <;> ring_nf
   have hdiff : Tendsto (fun n : ℕ ↦
       halfGoodTruncatedChooseContribution n k u velocityLower velocityUpper -
         reference n) atTop (𝓝 0) := by
@@ -25680,7 +25699,8 @@ lemma rademacherLinear_abs_tail_of_sum_sq_le_one
     simp only [ha, zero_mul, Finset.sum_const_zero, abs_zero]
     have hnot : ¬t ≤ 0 := not_le.mpr ht
     rw [uniformProbability]
-    simp [hnot]
+    simp only [filter_const, Fintype.card_pi, Fintype.card_bool, prod_const, card_univ, Fintype.card_fin,
+    Nat.cast_pow, Nat.cast_ofNat, ge_iff_le]
     positivity
   · have hSpos : 0 < S := lt_of_le_of_ne hS0 (Ne.symm hSz)
     have hSle : S ≤ 1 := by simpa [S] using hsum
@@ -27706,7 +27726,7 @@ theorem localMeshSize_mul_highMeshAcceleration_tendsto_zero :
     simpa [pow_two] using this
   · convert scaled_highMeshAcceleration_upper_tendsto_zero using 1
     funext n
-    ring
+    ring_nf
 
 /-- The global high-acceleration exception remains negligible after summing
 over any fixed number of mesh indices. -/

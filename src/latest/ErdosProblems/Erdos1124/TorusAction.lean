@@ -118,7 +118,7 @@ lemma cubeAverage_signedIndicator {d k : ℕ} (u : Fin d → Torus k)
     letI := torusAddAction u
     Flow.cubeAverage (d := d) (signedIndicator A B) n x =
       cubeDensity u A n x - cubeDensity u B n x := by
-  letI := torusAddAction u
+  let := torusAddAction u
   rw [Flow.cubeAverage, Flow.cubeSum]
   simp only [signedIndicator, Finset.sum_sub_distrib]
   unfold cubeDensity cubeCount
@@ -133,7 +133,7 @@ lemma abs_cubeAverage_signedIndicator_le {d k : ℕ} (u : Fin d → Torus k)
     (hB : |cubeDensity u B n x - mean| ≤ error) :
     letI := torusAddAction u
     |Flow.cubeAverage (d := d) (signedIndicator A B) n x| ≤ 2 * error := by
-  letI := torusAddAction u
+  let := torusAddAction u
   rw [cubeAverage_signedIndicator]
   have hid : cubeDensity u A n x - cubeDensity u B n x =
       (cubeDensity u A n x - mean) - (cubeDensity u B n x - mean) := by ring

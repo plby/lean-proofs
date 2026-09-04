@@ -1502,7 +1502,7 @@ theorem exists_mixedResidualComponent_of_seed
     (hqX : q ∉ S.xPart) (hqY : q ∉ S.yPart) (hqZ : q ∉ S.zPart)
     (hqNotLeft : q.1 ∉ S.ambientLeftCarrier) :
     Nonempty S.MixedResidualComponent := by
-  letI : DecidableRel (deleteVertex G center).Adj := fun p r ↦
+  let : DecidableRel (deleteVertex G center).Adj := fun p r ↦
     inferInstanceAs (Decidable (G.Adj p.1 r.1))
   let K : Finset {v : V // v ≠ center} := S.aSet ∪ S.bSet
   let C : (deleteVertex G center).ComponentCompl (K : Set _) :=

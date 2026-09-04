@@ -116,7 +116,7 @@ theorem mrFinite_symmetricKernel_sum_le
     _ = ((∑ s ∈ S, ∑ t ∈ S, b s ^ 2 * K s t) +
         (∑ s ∈ S, ∑ t ∈ S, b t ^ 2 * K s t)) / 2 := by
       simp only [add_mul, div_eq_mul_inv, Finset.sum_add_distrib, Finset.sum_mul]
-      ring
+      ring_nf
     _ = ∑ s ∈ S, ∑ t ∈ S, b s ^ 2 * K s t := by rw [hswap]; ring
     _ ≤ ∑ s ∈ S, b s ^ 2 * D := by
       apply Finset.sum_le_sum

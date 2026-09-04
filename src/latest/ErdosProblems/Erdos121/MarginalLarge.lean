@@ -440,7 +440,7 @@ lemma sum_k5LargeChoice_output_eq_le {U n : ℕ}
       simpa [k5IncidentChoiceWeight_of_output a₀ ha₀, d]
     · have hnone : ∀ a : I, d * k5IncidentChoiceProduct a ≠ n := by
         simpa only [not_exists] using hex
-      simp [hnone]
+      simp only [ge_iff_le]
       positivity
   have hnon := sum_k5NonincidentChoiceWeight_le hU hprime σ t v
   exact mul_le_mul hincident hnon

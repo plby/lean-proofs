@@ -57,7 +57,7 @@ lemma exists_active_degree_cell {W : Type*} [Fintype W] [DecidableEq W]
       (degreeBin A i).card * 2 ^ (i.val + 1) +
           (degreeBin A j).card * 2 ^ (j.val + 1) ≤
         4 * degreeBinCount (W := W) * cellCount A i j := by
-  letI : Nonempty (ActiveDegreeBin A) := activeDegreeBin_nonempty A hedge
+  let : Nonempty (ActiveDegreeBin A) := activeDegreeBin_nonempty A hedge
   have hrow (i : ActiveDegreeBin A) :
       (degreeBin A i.1).card * 2 ^ (i.1.val + 1) ≤
         2 * ∑ j : ActiveDegreeBin A, cellCount A i.1 j.1 := by
@@ -101,7 +101,7 @@ lemma exists_dense_active_degree_cell
         4 * degreeBinCount (W := W) * cellCount A i j := by
   classical
   let L := degreeBinCount (W := W)
-  letI : Nonempty (Fin L) :=
+  let : Nonempty (Fin L) :=
     ⟨⟨0, by dsimp [L, degreeBinCount]; omega⟩⟩
   let w : Fin L → ℕ := fun i ↦
     (degreeBin A i).card * 2 ^ (i.val + 1)

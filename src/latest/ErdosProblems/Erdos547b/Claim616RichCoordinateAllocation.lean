@@ -111,15 +111,15 @@ theorem exists_richSourceSegmentAllocation
       (fun _ : RemainingMinEdge D C ↦ base1)
       (fun _ : ReservedEdge D ↦ baseb) base0) := by
   classical
-  letI : Nonempty (Fin C.card) := by
+  let : Nonempty (Fin C.card) := by
     rw [H.cluster_card]
     exact ⟨⟨0, hrhoK⟩⟩
-  letI : Nonempty (Fin D.Mout.edgeSet.toFinite.toFinset.card) :=
+  let : Nonempty (Fin D.Mout.edgeSet.toFinite.toFinset.card) :=
     ⟨⟨0, hMout⟩⟩
-  letI : Nonempty (RemainingMinEdge D C) := by
+  let : Nonempty (RemainingMinEdge D C) := by
     obtain ⟨e, he⟩ := Finset.card_pos.mp hMone
     exact ⟨⟨e, he⟩⟩
-  letI : Nonempty (ReservedEdge D) := by
+  let : Nonempty (ReservedEdge D) := by
     obtain ⟨e, he⟩ := Finset.card_pos.mp hMb
     exact ⟨⟨e, he⟩⟩
   apply exists_sourceSegmentAllocation hT P optional S

@@ -218,7 +218,7 @@ private theorem freeEnergyKernel_eq_scaledGlue {lam x : ℝ} (hlam : 0 < lam)
   · have hxpos : 0 < x := lt_of_le_of_ne hx (Ne.symm hx0)
     have hquot : 0 < x / lam := div_pos hxpos hlam
     simp [freeEnergyKernel, hx0, scaledGlue, expNegInvGlue, not_le.mpr hquot]
-    ring
+    ring_nf
 
 /-- The endpoint extension of the moment kernel is continuous on `[0,1]`.
 The exponential decay at zero is supplied by `expNegInvGlue`. -/

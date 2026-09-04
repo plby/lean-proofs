@@ -127,7 +127,7 @@ theorem root_liouville_convolution (n : ℕ) [NeZero n] :
     ((allRootCoefficient_multiplicative n).natCast.mul (restrictedLiouville_multiplicative n)) _
     (realNegativeQuadraticCharacter n).isMultiplicative_toArithmeticFunction).mpr
   intro p k hp
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   by_cases hcop : p.Coprime (2 * n)
   · exact root_liouville_good_prime_pow hcop k
   · exact root_liouville_bad_prime_pow hcop k

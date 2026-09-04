@@ -259,7 +259,7 @@ theorem permutationProduct_exp_moment_bound :
                   ∑ k : Fin K, (L k.succ : ℝ)) *
                     a ^ 2 * lam ^ 2 / 2) := by
               congr 1
-              ring
+              ring_nf
 
 /-- One-sided lower-tail bound for a prefix statistic on a product of
 independent permutation buckets. -/
@@ -320,7 +320,7 @@ theorem permutationProduct_lower_tail {K : ℕ} {N L : Fin K → ℕ}
       congr 1
       dsimp [lam, V]
       field_simp
-      ring
+      ring_nf
 
 /-- Two-sided Azuma--Hoeffding bound on a product of independent uniform
 permutation buckets. -/

@@ -69,13 +69,15 @@ Classifying ordered coprime pairs by `max(a,b)` gives
 `2·Φ(m) = P(m) + 1` for `m ≥ 1`.
 -/
 theorem two_mul_Phi_eq (m : ℕ) (hm : 1 ≤ m) : 2 * Phi m = Pcard m + 1 := by
-  induction hm <;> simp_all +decide [ Finset.sum_range_succ, Phi, Pcard ];
+  induction hm <;> simp_all +decide only [Nat.succ_eq_add_one];
   rename_i k hk ih;
+  unfold Pcard Phi at ih ⊢
   rw [ show Finset.filter ( fun p : ℕ × ℕ => Nat.Coprime p.1 p.2 ) ( Finset.Icc 1 ( k + 1 ) ×ˢ Finset.Icc 1 ( k + 1 ) ) = Finset.filter ( fun p : ℕ × ℕ => Nat.Coprime p.1 p.2 ) ( Finset.Icc 1 k ×ˢ Finset.Icc 1 k ) ∪ Finset.filter ( fun p : ℕ × ℕ => Nat.Coprime p.1 p.2 ) ( Finset.image ( fun x => ( k + 1, x ) ) ( Finset.Icc 1 ( k + 1 ) ) ) ∪ Finset.filter ( fun p : ℕ × ℕ => Nat.Coprime p.1 p.2 ) ( Finset.image ( fun x => ( x, k + 1 ) ) ( Finset.Icc 1 k ) ) from ?_, Finset.card_union_of_disjoint, Finset.card_union_of_disjoint ];
   · simp_all +decide [ Finset.filter_image, Nat.coprime_comm ];
     rw [ Finset.card_image_of_injective, Finset.card_image_of_injective ] <;> norm_num [ Function.Injective ];
     rw [ show # ( Finset.filter ( fun a => Nat.Coprime a ( k + 1 ) ) ( Finset.Icc 1 ( k + 1 ) ) ) = Nat.totient ( k + 1 ) from ?_, show # ( Finset.filter ( fun a => Nat.Coprime a ( k + 1 ) ) ( Finset.Icc 1 k ) ) = Nat.totient ( k + 1 ) from ?_ ];
-    · grind;
+    · rw [show k + 2 = (k + 1) + 1 by omega, Finset.sum_range_succ]
+      omega
     · congr 1 with x ; simp +decide [ Nat.coprime_comm ];
       grind;
     · congr 1 with x ; simp +decide [ Nat.coprime_comm ];
@@ -96,14 +98,14 @@ theorem Pcard_ge (m : ℕ) :
   have h_subset : N ≤ ∑ p ∈ (Finset.Icc 2 m).filter Nat.Prime, ((Finset.Icc 1 m).filter (fun a => p ∣ a)).card ^ 2 := by
     have h_subset : N ≤ Finset.card (Finset.biUnion ((Finset.Icc 2 m).filter Nat.Prime) (fun p => Finset.image (fun (a, b) => (a, b)) (Finset.filter (fun a => p ∣ a) (Finset.Icc 1 m) ×ˢ Finset.filter (fun b => p ∣ b) (Finset.Icc 1 m)))) := by
       refine Finset.card_mono ?_;
-      intro p hp; simp_all +decide [ Nat.coprime_iff_gcd_eq_one ] ;
-      exact ⟨ Nat.minFac ( Nat.gcd p.1 p.2 ), ⟨ ⟨ Nat.Prime.two_le ( Nat.minFac_prime hp.2 ), Nat.le_trans ( Nat.minFac_le ( Nat.gcd_pos_of_pos_left _ hp.1.1.1 ) ) ( Nat.le_trans ( Nat.le_of_dvd hp.1.1.1 ( Nat.gcd_dvd_left _ _ ) ) hp.1.1.2 ) ⟩, Nat.minFac_prime hp.2 ⟩, Nat.dvd_trans ( Nat.minFac_dvd _ ) ( Nat.gcd_dvd_left _ _ ), Nat.dvd_trans ( Nat.minFac_dvd _ ) ( Nat.gcd_dvd_right _ _ ) ⟩;
+      intro p hp; simp_all +decide only [Prod.mk.eta, image_id', mem_biUnion, mem_filter, mem_Icc, mem_product] ;
+      exact ⟨ Nat.minFac ( Nat.gcd p.1 p.2 ), ⟨ ⟨ Nat.Prime.two_le ( Nat.minFac_prime hp.2 ), Nat.le_trans ( Nat.minFac_le ( Nat.gcd_pos_of_pos_left _ hp.1.1.1 ) ) ( Nat.le_trans ( Nat.le_of_dvd hp.1.1.1 ( Nat.gcd_dvd_left _ _ ) ) hp.1.1.2 ) ⟩, Nat.minFac_prime hp.2 ⟩, ⟨ True.intro, Nat.dvd_trans ( Nat.minFac_dvd _ ) ( Nat.gcd_dvd_left _ _ ) ⟩, True.intro, Nat.dvd_trans ( Nat.minFac_dvd _ ) ( Nat.gcd_dvd_right _ _ ) ⟩;
     refine le_trans h_subset <| le_trans ( Finset.card_biUnion_le ) ?_;
     norm_num [ sq ];
   -- For each prime $p$, $|S_p| = \lfloor m/p \rfloor^2$ (since the conditions on $a$ and $b$ are independent — $S_p$ is a product).
   have h_card_Sp : ∀ p ∈ (Finset.Icc 2 m).filter Nat.Prime, ((Finset.Icc 1 m).filter (fun a => p ∣ a)).card = m / p := by
     intro p hp; rw [ show Finset.filter ( fun a => p ∣ a ) ( Finset.Icc 1 m ) = Finset.image ( fun a => p * a ) ( Finset.Icc 1 ( m / p ) ) from ?_ ] ; rw [ Finset.card_image_of_injective _ fun a b h => mul_left_cancel₀ ( Nat.Prime.ne_zero <| Finset.mem_filter.mp hp |>.2 ) h ] ; simp +decide;
-    ext a; simp [Finset.mem_image];
+    ext a; simp only [mem_filter, mem_Icc, mem_image];
     exact ⟨ fun h => ⟨ a / p, ⟨ Nat.div_pos ( Nat.le_of_dvd h.1.1 h.2 ) ( Nat.Prime.pos ( Finset.mem_filter.mp hp |>.2 ) ), Nat.div_le_div_right h.1.2 ⟩, Nat.mul_div_cancel' h.2 ⟩, by rintro ⟨ k, ⟨ hk₁, hk₂ ⟩, rfl ⟩ ; exact ⟨ ⟨ by nlinarith [ Finset.mem_Icc.mp ( Finset.mem_filter.mp hp |>.1 ) ], by nlinarith [ Finset.mem_Icc.mp ( Finset.mem_filter.mp hp |>.1 ), Nat.div_mul_le_self m p ] ⟩, by simp +decide ⟩ ⟩;
   convert! Nat.add_le_add_left h_subset ( Pcard m ) using 1;
   · rw [ show Pcard m = Finset.card ( Finset.filter ( fun p : ℕ × ℕ => Nat.Coprime p.1 p.2 ) ( Finset.Icc 1 m ×ˢ Finset.Icc 1 m ) ) from rfl ] ; rw [ Finset.card_filter_add_card_filter_not ] ; aesop;
@@ -118,7 +120,8 @@ theorem prime_recip_sq_bound (m : ℕ) :
   have h_split_sum : ∀ m : ℕ, (∑ p ∈ ((Finset.Icc 2 m).filter Nat.Prime), (1 / (p : ℝ)) ^ 2) ≤ 1 / 4 + ∑ p ∈ ((Finset.Icc 3 m).filter (fun p => Nat.Prime p ∧ p % 2 = 1)), (1 / (p : ℝ)) ^ 2 := by
     intro m
     have h_split : ((Finset.Icc 2 m).filter Nat.Prime) ⊆ {2} ∪ ((Finset.Icc 3 m).filter (fun p => Nat.Prime p ∧ p % 2 = 1)) := by
-      intro p hp; rcases p with ( _ | _ | _ | p ) <;> simp_all +arith +decide;
+      intro p hp; rcases p with ( _ | _ | _ | p ) <;> simp_all +arith +decide only [singleton_union, mem_insert, Nat.reduceEqDiff, mem_filter, mem_Icc,
+    le_add_iff_nonneg_left, zero_le, Order.add_one_le_iff, true_and, false_or];
       exact hp.2.eq_two_or_odd.resolve_left ( by linarith );
     refine le_trans ( Finset.sum_le_sum_of_subset_of_nonneg h_split fun _ _ _ => sq_nonneg _ ) ?_ ; norm_num [ Finset.sum_union ];
   -- Bound the odd tail. Write odd j = 2k+3 (k ≥ 0). Peel the first 6 terms (k = 0..5, i.e. j = 3,5,7,9,11,13) exactly and telescope the rest:
@@ -126,7 +129,8 @@ theorem prime_recip_sq_bound (m : ℕ) :
     intros m
     have h_odd_tail_bound : (∑ p ∈ ((Finset.Icc 3 m).filter (fun p => Nat.Prime p ∧ p % 2 = 1)), (1 / (p : ℝ)) ^ 2) ≤ (∑ k ∈ Finset.range 6, (1 / ((2 * k + 3) : ℝ)) ^ 2) + (∑ k ∈ Finset.Ico 6 (m / 2 + 1), (1 / ((2 * k + 3) : ℝ)) ^ 2) := by
       have h_odd_tail_bound : ((Finset.Icc 3 m).filter (fun p => Nat.Prime p ∧ p % 2 = 1)) ⊆ Finset.image (fun k => 2 * k + 3) (Finset.range (m / 2 + 1)) := by
-        intro p hp; simp_all +decide;
+        intro p hp; simp_all +decide only [mem_image, mem_range, Order.lt_add_one_iff];
+        rw [Finset.mem_filter, Finset.mem_Icc] at hp
         exact ⟨ p / 2 - 1, by omega, by omega ⟩;
       refine le_trans ( Finset.sum_le_sum_of_subset_of_nonneg h_odd_tail_bound fun _ _ _ => sq_nonneg _ ) ?_;
       rcases n : m / 2 with ( _ | _ | _ | _ | _ | _ | k ) <;> norm_num [ Finset.sum_range_succ, Finset.sum_Ico_eq_sub _ ] at *;
@@ -203,9 +207,10 @@ theorem residue_interval_count (M : ℕ) (hM : 1 ≤ M) (c : ℤ) (A B : ℝ) (h
       obtain ⟨hqI, hqM⟩ := hq
       have hq_div : ∃ k : ℤ, q = c + M * k := by
         exact ⟨ hqM.choose, eq_add_of_sub_eq' hqM.choose_spec ⟩;
-      rcases hq_div with ⟨ k, rfl ⟩ ; simp_all +decide [ Int.floor_lt, Int.lt_ceil ];
-      exact ⟨ k, ⟨ by rw [ div_lt_iff₀ ( by positivity ) ] ; linarith [ hqI.1 ], by rw [ lt_div_iff₀ ( by positivity ) ] ; linarith [ hqI.2 ] ⟩, Or.inl rfl ⟩;
-    · simp +zetaDelta at *;
+      rcases hq_div with ⟨ k, rfl ⟩ ; simp_all +decide only [coe_image, coe_Ioo, Set.mem_image, Set.mem_Ioo, add_right_inj, mul_eq_mul_left_iff,
+    Int.natCast_eq_zero];
+      exact ⟨ k, ⟨ by rw [ Int.floor_lt ]; rw [ div_lt_iff₀ ( by positivity ) ] ; norm_num at *; linarith [ hqI.1 ], by rw [ Int.lt_ceil ]; rw [ lt_div_iff₀ ( by positivity ) ] ; norm_num at *; linarith [ hqI.2 ] ⟩, Or.inl rfl ⟩;
+    · simp +zetaDelta only [coe_image, coe_Ioo, Set.mem_image, Set.mem_Ioo, forall_exists_index, and_imp] at *;
       rintro x hx₁ hx₂ rfl; exact ⟨ ⟨ by rw [ Int.floor_lt ] at hx₁; rw [ div_lt_iff₀ ( by positivity ) ] at hx₁; norm_num at *; linarith, by rw [ Int.lt_ceil ] at hx₂; rw [ lt_div_iff₀ ( by positivity ) ] at hx₂; norm_num at *; linarith ⟩, by norm_num ⟩ ;
   -- Therefore, the cardinality of $S$ is equal to the cardinality of the interval $(⌊α⌋, ⌈β⌉)$.
   have h_card : Set.ncard S = (⌈(B - c) / (M : ℝ)⌉ - ⌊(A - c) / (M : ℝ)⌋ - 1 : ℤ).toNat := by
@@ -238,16 +243,41 @@ theorem residue_class_of_conditions (d s : ℕ) (hd : 1 ≤ d) (h : ℤ)
     use d * u * e';
     exact ⟨ ⟨ u * e', by ring ⟩, ⟨ -v * e', by linear_combination' h * e' * d - he' ⟩ ⟩;
   use c;
-  intro q; constructor <;> intro hq <;> simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ;
-  · obtain ⟨ k, hk ⟩ := hq.2; obtain ⟨ m, hm ⟩ := hc.2; simp_all +decide [ sub_eq_iff_eq_add ] ;
+  intro q
+  constructor
+  · rintro ⟨hdq, hsq⟩
+    norm_num only [Nat.cast_mul] at hsq ⊢
+    obtain ⟨k, hk⟩ := hsq
+    obtain ⟨m, hm⟩ := hc.2
+    have hdc : (d : ℤ) ∣ q - c := dvd_sub hdq hc.1
     -- Since $h$ and $s$ are coprime, $s$ must divide $k - m$.
     have h_div : (s : ℤ) ∣ (q - c) / d := by
-      have h_div : (s : ℤ) ∣ (h * ((q - c) / d)) := by
-        exact ⟨ k - m, by cases lt_or_ge 0 h <;> nlinarith [ Int.ediv_mul_cancel ( show ( d : ℤ ) ∣ q - c from by rw [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ; aesop ) ] ⟩;
-      exact hcop.symm.dvd_of_dvd_mul_left h_div;
-    convert! mul_dvd_mul h_div ( dvd_refl ( d : ℤ ) ) using 1 ; rw [ Int.ediv_mul_cancel ] ; simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ;
-  · obtain ⟨ k, hk ⟩ := hq; simp_all +decide [ sub_eq_iff_eq_add ] ;
-    convert! dvd_add ( dvd_mul_right ( s * d : ℤ ) ( h * k ) ) hc.2 using 1 ; ring
+      have h_div : (s : ℤ) ∣ h * ((q - c) / d) := by
+        refine ⟨k - m, ?_⟩
+        cases lt_or_ge 0 h <;> nlinarith [Int.ediv_mul_cancel hdc]
+      exact hcop.symm.dvd_of_dvd_mul_left h_div
+    obtain ⟨t, ht⟩ := h_div
+    refine ⟨t, ?_⟩
+    calc
+      q - c = ((q - c) / d) * d := (Int.ediv_mul_cancel hdc).symm
+      _ = (s * t) * d := by rw [ht]
+      _ = (s * d) * t := by ring
+  · intro hq
+    norm_num only [Nat.cast_mul] at hq ⊢
+    obtain ⟨k, hk⟩ := hq
+    rw [sub_eq_iff_eq_add] at hk
+    constructor
+    · rw [hk]
+      apply dvd_add
+      · exact ⟨s * k, by ring⟩
+      · exact hc.1
+    · obtain ⟨m, hm⟩ := hc.2
+      refine ⟨h * k + m, ?_⟩
+      rw [hk]
+      calc
+        h * (s * d * k + c) - e = s * d * (h * k) + (h * c - e) := by ring
+        _ = s * d * (h * k) + s * d * m := by rw [hm]
+        _ = s * d * (h * k + m) := by ring
 
 /-- **Per-`d` count.** For `d ∈ e.divisors`, the number of `q ∈ (A,B)` with `d ∣ q` and
 `(s*d) ∣ (h*q - e)` is within `1` of `(B - A)/(s*d)`. -/
@@ -293,35 +323,60 @@ theorem prim_prog_lower (h : ℤ) (s : ℕ) (hs : 1 ≤ s) (hcop : IsCoprime h (
         have hg_divisors : (∑ d ∈ e.divisors, (ArithmeticFunction.moebius d : ℝ) * (if (d : ℤ) ∣ g then 1 else 0)) = if g = 1 then 1 else 0 := by
           have hg_divisors : ∑ d ∈ Nat.divisors g, (ArithmeticFunction.moebius d : ℝ) = if g = 1 then 1 else 0 := by
             have hg_divisors : ∑ d ∈ Nat.divisors g, (ArithmeticFunction.moebius d : ℝ) = (ArithmeticFunction.moebius * ArithmeticFunction.zeta) g := by
-              simp +decide [ ArithmeticFunction.moebius, ArithmeticFunction.zeta ];
-              rw [ Nat.sum_divisorsAntidiagonal fun x y => if y = 0 then 0 else if Squarefree x then ( -1 : ℝ ) ^ cardFactors x else 0 ];
-              exact Finset.sum_congr rfl fun x hx => by rw [ if_neg ( Nat.ne_of_gt ( Nat.div_pos ( Nat.le_of_dvd ( Nat.pos_of_ne_zero ( by aesop ) ) ( Nat.dvd_of_mem_divisors hx ) ) ( Nat.pos_of_mem_divisors hx ) ) ) ] ;
+              have h_int :
+                  ∑ d ∈ Nat.divisors g, ArithmeticFunction.moebius d =
+                    (ArithmeticFunction.moebius *
+                      (ArithmeticFunction.zeta : ArithmeticFunction ℤ)) g :=
+                ArithmeticFunction.coe_mul_zeta_apply.symm
+              exact_mod_cast h_int
             generalize_proofs at *; (
             rw [ hg_divisors, ArithmeticFunction.moebius_mul_coe_zeta ] ; aesop;)
           generalize_proofs at *; (
           rw [ ← hg_divisors, ← Finset.sum_subset ( show Nat.divisors g ⊆ Nat.divisors e from ?_ ) ];
           · exact Finset.sum_congr rfl fun x hx => by rw [ if_pos ( mod_cast Nat.dvd_of_mem_divisors hx ) ] ; ring;
-          · simp +contextual [ Nat.mem_divisors ];
+          · simp +contextual only [Nat.mem_divisors, ne_eq, not_and, Decidable.not_not, mul_ite, mul_one, mul_zero,
+    ite_eq_right_iff, Int.cast_eq_zero, and_imp];
             exact fun x hx₁ hx₂ hx₃ hx₄ => absurd ( hx₃ <| Int.natCast_dvd_natCast.mp hx₄ ) ( by aesop ) ;
           · exact fun x hx => Nat.mem_divisors.mpr ⟨ dvd_trans ( Nat.dvd_of_mem_divisors hx ) ( mod_cast hg_div_e ), by linarith ⟩)
         have h_indicator : (∑ d ∈ e.divisors, (ArithmeticFunction.moebius d : ℝ) * (if A < (q : ℝ) ∧ (q : ℝ) < B ∧ (d : ℤ) ∣ q ∧ ((s * d : ℕ) : ℤ) ∣ (h * q - e) then 1 else 0)) = (∑ d ∈ e.divisors, (ArithmeticFunction.moebius d : ℝ) * (if (d : ℤ) ∣ g then 1 else 0)) := by
-          refine' Finset.sum_congr rfl fun x hx => _ ; simp_all +decide [ Int.natCast_dvd_natCast ] ;
+          refine' Finset.sum_congr rfl fun x hx => _ ; simp_all +decide only [Nat.cast_mul, mul_ite, mul_one, mul_zero] ;
           split_ifs <;> simp_all +decide;
           · rename_i h₁ h₂;
-            exact False.elim <| h₂ <| Nat.dvd_gcd ( Int.natCast_dvd.mp <| by exact Int.dvd_div_of_mul_dvd <| by simpa [ mul_comm ] using! h₁.2 ) ( Int.natCast_dvd.mp h₁.1 );
+            have hxdiv : (x : ℤ) ∣ (h * q - e) / s := by
+              apply Int.dvd_div_of_mul_dvd
+              simpa [Nat.cast_mul, mul_comm] using h₁.2
+            exact False.elim <| h₂ <|
+              Int.natCast_dvd_natCast.mpr (Int.dvd_gcd hxdiv h₁.1)
           · rename_i h₁ h₂; contrapose! h₁; simp_all +decide;
-            exact ⟨ Int.dvd_trans ( Int.natCast_dvd_natCast.mpr h₂ ) ( Int.gcd_dvd_right _ _ ), by convert! mul_dvd_mul_left ( s : ℤ ) ( Int.natCast_dvd_natCast.mpr h₂ |> Int.dvd_trans <| Int.gcd_dvd_left _ _ ) using 1; rw [ Int.mul_ediv_cancel' hq.2.2 ] ⟩
+            refine ⟨h₂.trans (Int.gcd_dvd_right _ _), ?_⟩
+            have hxdiv : (x : ℤ) ∣ (h * q - e) / s :=
+              h₂.trans (Int.gcd_dvd_left _ _)
+            have hmul := mul_dvd_mul_left (s : ℤ) hxdiv
+            simpa only [Nat.cast_mul, Int.mul_ediv_cancel' hq.2.2] using hmul
         simp_all +decide [ Int.isCoprime_iff_gcd_eq_one ];
-      · rw [ Finset.sum_eq_zero ] <;> simp_all +decide;
-        exact fun x hx₁ hx₂ hx₃ hx₄ hx₅ hx₆ => False.elim <| hq hx₃ hx₄ <| dvd_of_mul_right_dvd hx₆;
+      · have hright : ¬(A < (q : ℝ) ∧ (q : ℝ) < B ∧
+            (s : ℤ) ∣ (h * q - e) ∧ IsCoprime ((h * q - e) / s) q) := by
+          intro hr
+          exact hq ⟨hr.1, hr.2.1, hr.2.2.1⟩
+        rw [if_neg hright]
+        apply Finset.sum_eq_zero
+        intro x hx
+        have hleft : ¬(A < (q : ℝ) ∧ (q : ℝ) < B ∧ (x : ℤ) ∣ q ∧
+            ((s * x : ℕ) : ℤ) ∣ (h * q - e)) := by
+          intro hl
+          apply hq
+          refine ⟨hl.1, hl.2.1, ?_⟩
+          exact dvd_of_mul_right_dvd (by simpa [Nat.cast_mul] using hl.2.2.2)
+        rw [if_neg hleft]
+        simp
     -- Apply the sum indicator equality to rewrite the left-hand side of the equation.
     have h_sum_rewrite : ∑ d ∈ e.divisors, (ArithmeticFunction.moebius d : ℝ) * (Set.ncard {q : ℤ | A < (q : ℝ) ∧ (q : ℝ) < B ∧ (d : ℤ) ∣ q ∧ ((s * d : ℕ) : ℤ) ∣ (h * q - e)}) = ∑ q ∈ Finset.Icc (Int.floor A + 1) (Int.ceil B - 1), (∑ d ∈ e.divisors, (ArithmeticFunction.moebius d : ℝ) * (if A < (q : ℝ) ∧ (q : ℝ) < B ∧ (d : ℤ) ∣ q ∧ ((s * d : ℕ) : ℤ) ∣ (h * q - e) then 1 else 0)) := by
       rw [ Finset.sum_comm, Finset.sum_congr rfl ];
-      intro d hd; rw [ ← Finset.mul_sum _ _ _ ] ; norm_cast; simp +decide;
+      intro d hd; rw [ ← Finset.mul_sum _ _ _ ] ; norm_cast; simp +decide only [Nat.cast_mul, sum_boole, Nat.cast_id, mul_eq_mul_left_iff, Nat.cast_inj];
       rw [ ← Set.ncard_coe_finset ] ; norm_num [ Set.ncard_eq_toFinset_card' ];
       exact Or.inl ( congr_arg _ ( by ext; exact ⟨ fun hx => ⟨ ⟨ Int.floor_lt.mpr hx.1, Int.lt_ceil.mpr hx.2.1 ⟩, hx ⟩, fun hx => hx.2 ⟩ ) );
     rw [ h_sum_rewrite, Finset.sum_congr rfl fun q hq => h_sum_indicator q ];
-    simp +zetaDelta at *;
+    simp +zetaDelta only [sum_boole, Nat.cast_inj] at *;
     rw [ ← Set.ncard_coe_finset ] ; congr ; ext ; simp +decide [ Int.floor_lt, Int.lt_ceil ] ;
     tauto;
   -- Applying the bound from `Nd_count_bound` to each term in the sum.
@@ -331,8 +386,9 @@ theorem prim_prog_lower (h : ℤ) (s : ℕ) (hs : 1 ≤ s) (hcop : IsCoprime h (
       have h_bound : |((Set.ncard {q : ℤ | A < (q : ℝ) ∧ (q : ℝ) < B ∧ (d : ℤ) ∣ q ∧ ((s * d : ℕ) : ℤ) ∣ (h * q - e)}) : ℝ) - ((B - A) / (s * d))| ≤ 1 := by
         convert! Nd_count_bound d s ( Nat.pos_of_mem_divisors hd ) hs h hcop e ( Int.natCast_dvd_natCast.mpr ( Nat.dvd_of_mem_divisors hd ) ) A B hAB using 1;
         norm_cast;
-      simp_all +decide [ ← mul_sub, abs_mul ];
-      exact le_trans ( mul_le_of_le_one_left ( abs_nonneg _ ) ( by exact_mod_cast ArithmeticFunction.abs_moebius_le_one ) ) h_bound;
+      simp_all +decide only [Nat.cast_mul, ge_iff_le];
+      rw [← mul_sub, abs_mul]
+      exact le_trans ( mul_le_of_le_one_left ( abs_nonneg _ ) ( by exact_mod_cast (ArithmeticFunction.abs_moebius_le_one (n := d)) ) ) h_bound;
     simpa only [ ← Finset.sum_sub_distrib ] using! le_trans ( Finset.abs_sum_le_sum_abs _ _ ) ( le_trans ( Finset.sum_le_sum h_bound ) ( by norm_num ) );
   -- Applying the identity from `moebius_div_sum_eq_totient_div`.
   have h_identity : ∑ d ∈ e.divisors, (ArithmeticFunction.moebius d : ℝ) * ((B - A) / (s * d)) = (B - A) / s * (Nat.totient e : ℝ) / e := by
@@ -366,35 +422,68 @@ theorem prim_prog_upper (h : ℤ) (s : ℕ) (hs : 1 ≤ s) (hcop : IsCoprime h (
         have h_sum_div : ∑ d ∈ e.divisors, (ArithmeticFunction.moebius d : ℝ) * (if (d : ℤ) ∣ q ∧ ((s * d : ℕ) : ℤ) ∣ (h * q - e) then 1 else 0) = ∑ d ∈ Nat.divisors d, (ArithmeticFunction.moebius d : ℝ) := by
           rw [ ← Finset.sum_subset ( show Nat.divisors d ⊆ Nat.divisors e from fun x hx => Nat.mem_divisors.mpr ⟨ dvd_trans ( Nat.dvd_of_mem_divisors hx ) hd_div_e, by aesop ⟩ ) ];
           · refine' Finset.sum_congr rfl fun x hx => _;
-            simp +zetaDelta at *;
+            simp +zetaDelta only [Nat.cast_mul, mul_ite, mul_one, mul_zero, ite_eq_left_iff, not_and] at *;
             intro hx'; contrapose! hx'; simp_all +decide [ Nat.dvd_gcd_iff ] ;
             exact ⟨ Int.natCast_dvd.mpr hx.1.2, by convert! mul_dvd_mul_left ( s : ℤ ) ( Int.natCast_dvd.mpr hx.1.1 ) using 1; rw [ Int.mul_ediv_cancel' hq.2.2 ] ⟩;
-          · intro x hx hx'; split_ifs <;> simp_all +decide [ Nat.dvd_gcd_iff ] ;
-            have := hx' ( Int.natAbs_dvd_natAbs.mpr <| show ( x : ℤ ) ∣ ( h * q - e ) / s from ?_ ) ( Int.natAbs_dvd_natAbs.mpr <| show ( x : ℤ ) ∣ q from ?_ ) ; aesop;
-            · exact Int.dvd_div_of_mul_dvd ( by simpa only [ mul_comm ] using! ‹ ( x : ℤ ) ∣ q ∧ ( s : ℤ ) * x ∣ h * q - e ›.2 );
-            · tauto;
+          · intro x hx hx'
+            split_ifs with hcond
+            · exfalso
+              apply hx'
+              apply Nat.mem_divisors.mpr
+              constructor
+              · apply Nat.dvd_gcd
+                · apply Int.natCast_dvd.mp
+                  apply Int.dvd_div_of_mul_dvd
+                  simpa [Nat.cast_mul, mul_comm] using hcond.2
+                · exact Int.natCast_dvd.mp hcond.1
+              · exact Nat.ne_of_gt (Nat.pos_of_dvd_of_pos hd_div_e he)
+            · simp
         -- Since $d \mid e$, we can rewrite the sum as $\sum_{d \mid e} \mu(d) \cdot \mathbf{1}_{d \mid \gcd((h * q - e) / s, q)}$ and use the fact that $\sum_{d \mid n} \mu(d) = 0$ for $n > 1$.
         have h_sum_zero : ∑ d ∈ Nat.divisors d, (ArithmeticFunction.moebius d : ℝ) = if d = 1 then 1 else 0 := by
           have h_sum_zero : ∑ d ∈ Nat.divisors d, (ArithmeticFunction.moebius d : ℝ) = (ArithmeticFunction.moebius * ArithmeticFunction.zeta) d := by
-            simp +decide [ ArithmeticFunction.moebius, ArithmeticFunction.zeta ];
-            rw [ Nat.sum_divisorsAntidiagonal fun x y => if y = 0 then 0 else if Squarefree x then ( -1 : ℝ ) ^ cardFactors x else 0 ];
-            exact Finset.sum_congr rfl fun x hx => by rw [ if_neg ( Nat.ne_of_gt ( Nat.div_pos ( Nat.le_of_dvd ( Nat.pos_of_ne_zero ( by aesop ) ) ( Nat.dvd_of_mem_divisors hx ) ) ( Nat.pos_of_mem_divisors hx ) ) ) ] ;
+            have h_int :
+                ∑ x ∈ Nat.divisors d, ArithmeticFunction.moebius x =
+                  (ArithmeticFunction.moebius *
+                    (ArithmeticFunction.zeta : ArithmeticFunction ℤ)) d :=
+              ArithmeticFunction.coe_mul_zeta_apply.symm
+            exact_mod_cast h_int
           convert! h_sum_zero using 1;
           erw [ ArithmeticFunction.moebius_mul_coe_zeta ] ; aesop;
         simp_all +decide [ Int.isCoprime_iff_gcd_eq_one ];
         norm_num [ Int.gcd, Int.natAbs_abs ];
-      · rw [ Finset.sum_eq_zero ] ; aesop;
-        intro x hx; split_ifs <;> simp_all +decide;
-        exact False.elim <| hq <| dvd_of_mul_right_dvd <| by tauto;
+      · have hleft : ¬(A < (q : ℝ) ∧ (q : ℝ) < B ∧
+            (s : ℤ) ∣ (h * q - e) ∧ IsCoprime ((h * q - e) / s) q) := by
+          intro hl
+          exact hq ⟨hl.1, hl.2.1, hl.2.2.1⟩
+        rw [if_neg hleft]
+        symm
+        apply Finset.sum_eq_zero
+        intro x hx
+        have hright : ¬(A < (q : ℝ) ∧ (q : ℝ) < B ∧ (x : ℤ) ∣ q ∧
+            ((s * x : ℕ) : ℤ) ∣ (h * q - e)) := by
+          intro hr
+          apply hq
+          refine ⟨hr.1, hr.2.1, ?_⟩
+          exact dvd_of_mul_right_dvd (by simpa [Nat.cast_mul] using hr.2.2.2)
+        rw [if_neg hright]
+        simp
     convert! congr_arg ( fun x : ℝ => x ) ( Finset.sum_congr rfl fun q hq => h_moebius q ) using 1;
     any_goals exact Finset.Ico ⌊A⌋ ⌈B⌉;
-    · simp +zetaDelta at *;
+    · simp +zetaDelta only [sum_boole, Nat.cast_inj] at *;
       rw [ ← Set.ncard_coe_finset ] ; congr ; ext ; simp +decide [ Int.lt_ceil ];
       exact fun _ _ _ _ => ⟨ Int.le_of_lt_add_one <| Int.floor_lt.2 <| by norm_num; linarith, by assumption ⟩;
     · rw [ Finset.sum_comm, Finset.sum_congr rfl ];
-      simp +decide [ Finset.sum_ite ];
-      intro x hx he; rw [ mul_comm ] ; rw [ ← Set.ncard_coe_finset ] ; congr; ext; simp +decide [ Int.lt_ceil ] ;
-      exact fun _ _ _ _ => ⟨ Int.le_of_lt_add_one <| Int.floor_lt.2 <| by norm_num; linarith, by linarith ⟩;
+      simp +decide only [Nat.mem_divisors, ne_eq, Nat.cast_mul, mul_ite, mul_one, mul_zero, and_imp];
+      intro x hx he
+      rw [← Finset.sum_filter, Finset.sum_const, nsmul_eq_mul]
+      rw [mul_comm]
+      congr 1
+      rw [← Set.ncard_coe_finset]
+      congr
+      ext
+      simp +decide [Int.lt_ceil]
+      exact fun _ _ _ _ =>
+        ⟨Int.le_of_lt_add_one (Int.floor_lt.2 (by norm_num; linarith)), by linarith⟩
   -- By Nd_count_bound, we have $|N_d - (B-A)/(s*d)| \le 1$ for each $d \mid e$.
   have h_bound : ∀ d ∈ e.divisors, |((Set.ncard {q : ℤ | A < q ∧ q < B ∧ (d : ℤ) ∣ q ∧ ((s * d : ℕ) : ℤ) ∣ (h * q - e)}) : ℝ) - (B - A) / (s * d)| ≤ 1 := by
     intro d hd;
@@ -403,8 +492,9 @@ theorem prim_prog_upper (h : ℤ) (s : ℕ) (hs : 1 ≤ s) (hcop : IsCoprime h (
   -- Applying the bound from `h_bound` to each term in the sum, we get:
   have h_sum_bound : |∑ d ∈ e.divisors, (ArithmeticFunction.moebius d : ℝ) * ((Set.ncard {q : ℤ | A < q ∧ q < B ∧ (d : ℤ) ∣ q ∧ ((s * d : ℕ) : ℤ) ∣ (h * q - e)}) : ℝ) - ∑ d ∈ e.divisors, (ArithmeticFunction.moebius d : ℝ) * ((B - A) / (s * d))| ≤ (e.divisors.card : ℝ) := by
     have h_sum_bound : ∀ d ∈ e.divisors, |(ArithmeticFunction.moebius d : ℝ) * ((Set.ncard {q : ℤ | A < q ∧ q < B ∧ (d : ℤ) ∣ q ∧ ((s * d : ℕ) : ℤ) ∣ (h * q - e)}) : ℝ) - (ArithmeticFunction.moebius d : ℝ) * ((B - A) / (s * d))| ≤ 1 := by
-      intro d hd; specialize h_bound d hd; simp_all +decide [ ← mul_sub, abs_mul ] ;
-      exact le_trans ( mul_le_of_le_one_left ( abs_nonneg _ ) ( by exact_mod_cast ArithmeticFunction.abs_moebius_le_one ) ) h_bound;
+      intro d hd; specialize h_bound d hd; simp_all +decide only [Nat.cast_mul] ;
+      rw [← mul_sub, abs_mul]
+      exact le_trans ( mul_le_of_le_one_left ( abs_nonneg _ ) ( by exact_mod_cast (ArithmeticFunction.abs_moebius_le_one (n := d)) ) ) h_bound;
     simpa only [ ← Finset.sum_sub_distrib ] using! le_trans ( Finset.abs_sum_le_sum_abs _ _ ) ( le_trans ( Finset.sum_le_sum h_sum_bound ) ( by norm_num ) );
   -- By moebius_div_sum_eq_totient_div, we have $\sum_{d \mid e} \mu(d) \cdot \frac{1}{d} = \frac{\phi(e)}{e}$.
   have h_identity : ∑ d ∈ e.divisors, (ArithmeticFunction.moebius d : ℝ) * (1 / (d : ℝ)) = (Nat.totient e : ℝ) / e := by
@@ -421,8 +511,14 @@ The set of order-`n` Farey fractions is finite.
 theorem farey_finite (n : ℕ) : {q : ℚ | IsFarey n q}.Finite := by
   refine' Set.Finite.subset ( Set.toFinite ( Set.image ( fun p : ℤ × ℕ => ( p.1 : ℚ ) / p.2 ) ( Set.Icc ( -n : ℤ ) n ×ˢ Set.Icc ( 1 : ℕ ) n ) ) ) fun q hq => _;
   use (q.num, q.den);
-  simp_all +decide [ IsFarey ];
-  exact ⟨ ⟨ ⟨ by linarith [ q.num_nonneg.mpr hq.1 ], q.pos ⟩, by linarith [ show q.num ≤ q.den from by simpa [ Rat.le_iff ] using! hq.2.1 ] ⟩, q.num_div_den ⟩
+  simp_all +decide only [Set.Icc_prod_Icc, Set.mem_Icc, Prod.mk_le_mk];
+  have hnum_den : q.num ≤ (q.den : ℤ) := by
+    simpa [Rat.le_iff] using hq.2.1
+  have hden_n : q.den ≤ n := hq.2.2
+  have hnum_n : q.num ≤ (n : ℤ) :=
+    hnum_den.trans (by exact_mod_cast hden_n)
+  exact ⟨⟨⟨by linarith [q.num_nonneg.mpr hq.1], q.pos⟩, ⟨hnum_n, hden_n⟩⟩,
+    q.num_div_den⟩
 
 /-- The set of order-`n` Farey fractions strictly between `x` and `y` is finite. -/
 theorem fareyBetween_finite (n : ℕ) (x y : ℚ) :
@@ -471,9 +567,13 @@ The mediant is strictly greater than the smaller fraction.
 theorem lt_mediant {x y : ℚ} (hxy : x < y) : x < mediant x y := by
   rw [ mediant ];
   rw [ lt_div_iff₀ ( by positivity ) ];
-  simp +decide [ mul_add ];
+  simp +decide only [Nat.cast_add, Int.cast_add];
   rw [ ← Rat.mul_den_eq_num ];
-  exact mul_lt_mul_of_pos_right hxy ( Nat.cast_pos.mpr y.pos )
+  have hscaled : x * (y.den : ℚ) < y * (y.den : ℚ) :=
+    mul_lt_mul_of_pos_right hxy (Nat.cast_pos.mpr y.pos)
+  rw [Rat.mul_den_eq_num] at hscaled
+  rw [mul_add]
+  simpa [add_comm] using add_lt_add_left hscaled (x * (x.den : ℚ))
 
 /-
 The mediant is strictly less than the larger fraction.
@@ -505,9 +605,13 @@ The mediant of two fractions `≤ 1` is `≤ 1`.
 -/
 theorem mediant_le_one {x y : ℚ} (hx : x ≤ 1) (hy : y ≤ 1) : mediant x y ≤ 1 := by
   apply div_le_one_of_le₀;
-  · have := Rat.num_div_den x; ( have := Rat.num_div_den y; simp_all +decide [ Rat.le_iff ] );
+  · have := Rat.num_div_den x; ( have := Rat.num_div_den y; simp_all +decide only [Int.cast_add, Nat.cast_add, ge_iff_le] );
     norm_cast at *;
-    erw [ Rat.num_natCast ] ; norm_num ; linarith;
+    have hx_num : x.num ≤ (x.den : ℤ) := by
+      simpa [Rat.le_iff] using hx
+    have hy_num : y.num ≤ (y.den : ℤ) := by
+      simpa [Rat.le_iff] using hy
+    simpa only [Nat.cast_add] using add_le_add hx_num hy_num
   · positivity
 
 /-
@@ -575,14 +679,37 @@ theorem farey_neighbor_det {Q : ℕ} {x y : ℚ}
             have h_contra : Int.gcd (x.den * y.num - x.num * y.den) y.den = 1 := by
               have h_coprime : Int.gcd (x.num : ℤ) x.den = 1 ∧ Int.gcd (y.num : ℤ) y.den = 1 := by
                 exact ⟨ x.reduced, y.reduced ⟩;
-              simp_all +decide [ Int.gcd_eq_natAbs ];
+              simp_all +decide only [dvd_mul_left, Int.gcd_sub_right_left_of_dvd];
               refine' Nat.Coprime.symm <| Nat.coprime_of_dvd' _;
-              intro k hk hk₁ hk₂; have := Nat.dvd_gcd ( show k ∣ y.num.natAbs from ?_ ) hk₁; simp_all +decide [ Nat.Coprime, Nat.Coprime.gcd_eq_one ] ;
-              rw [ ← Int.natCast_dvd ] at *;
-              haveI := Fact.mk hk; simp_all +decide [ ← ZMod.intCast_zmod_eq_zero_iff_dvd ] ;
-              replace hpq := congr_arg ( ( ↑ ) : ℤ → ZMod k ) hpq.1 ; simp_all +decide;
-              replace h_eq := congr_arg ( ( ↑ ) : ℤ → ZMod k ) h_eq ; simp_all +decide;
-              grind;
+              intro k hk hk₁ hk₂
+              have hk_yden : k ∣ y.den := by simpa using hk₁
+              have hy_gcd : Nat.gcd y.num.natAbs y.den = 1 := by
+                simpa [Int.gcd_def] using h_coprime.2
+              have hnum (hky : k ∣ y.num.natAbs) : k ∣ 1 := by
+                have hkgcd := Nat.dvd_gcd hky hk_yden
+                simpa [hy_gcd] using hkgcd
+              have hkprod : k ∣ x.den * y.num.natAbs := by
+                simpa [Int.natAbs_mul] using hk₂
+              rcases hk.dvd_mul.mp hkprod with hk_xden | hk_ynum
+              · have hk_yden_z : (k : ℤ) ∣ (y.den : ℤ) :=
+                  Int.natCast_dvd_natCast.mpr hk_yden
+                have heq : y.num * q = (y.den : ℤ) * p := sub_eq_zero.mp h_eq
+                have hk_yq_z : (k : ℤ) ∣ y.num * q := by
+                  rw [heq]
+                  exact dvd_mul_of_dvd_left hk_yden_z p
+                have hk_yq : k ∣ y.num.natAbs * q.natAbs := by
+                  simpa [Int.natAbs_mul] using Int.natCast_dvd.mp hk_yq_z
+                rcases hk.dvd_mul.mp hk_yq with hk_ynum | hk_q
+                · exact hnum hk_ynum
+                · have hk_xden_z : (k : ℤ) ∣ (x.den : ℤ) :=
+                    Int.natCast_dvd_natCast.mpr hk_xden
+                  have hk_q_z : (k : ℤ) ∣ q := Int.natCast_dvd.mpr hk_q
+                  have hk_one_z : (k : ℤ) ∣ 1 := by
+                    rw [← hpq.1]
+                    exact dvd_sub (dvd_mul_of_dvd_left hk_xden_z p)
+                      (dvd_mul_of_dvd_right hk_q_z x.num)
+                  simpa using Int.natCast_dvd.mp hk_one_z
+              · exact hnum hk_ynum
             exact Int.dvd_coe_gcd ( dvd_refl _ ) ‹_› |> fun h => h.trans ( by simp +decide [ h_contra ] );
           exact False.elim <| hgap <| by linarith [ Int.le_of_dvd ( by linarith ) h_contra ] ;
         · grind;
@@ -602,7 +729,8 @@ theorem farey_gap_between (Q : ℕ) (hQ : 1 ≤ Q) (x w : ℚ) (hx0 : 0 ≤ x) (
   -- The set `F := {f : ℚ | IsFarey Q f}` is finite (`farey_finite Q`).
   have h_finite : Set.Finite {f : ℚ | IsFarey Q f} := by
     refine Set.Finite.subset ( Set.toFinite ( Finset.image ( fun p : ℤ × ℕ => ( p.1 : ℚ ) / p.2 ) ( Finset.Icc ( -Q : ℤ ) Q ×ˢ Finset.Icc 1 Q ) ) ) ?_;
-    intro f hf; obtain ⟨ hf₀, hf₁, hf₂ ⟩ := hf; simp_all +decide [ IsFarey ] ;
+    intro f hf; obtain ⟨ hf₀, hf₁, hf₂ ⟩ := hf; simp_all +decide only [coe_image, coe_product, coe_Icc, Set.Icc_prod_Icc, Set.mem_image, Set.mem_Icc,
+    Prod.exists, Prod.mk_le_mk] ;
     use f.num, f.den;
     exact ⟨ ⟨ ⟨ by linarith [ show ( f.num : ℤ ) ≥ 0 by exact_mod_cast Rat.num_nonneg.mpr hf₀ ], by linarith [ f.pos ] ⟩, by linarith [ show ( f.num : ℤ ) ≤ Q by exact_mod_cast ( by nlinarith [ show ( f.num : ℚ ) ≤ f.den by exact_mod_cast ( by nlinarith [ Rat.num_div_den f, mul_div_cancel₀ ( f.num : ℚ ) ( Nat.cast_ne_zero.mpr f.pos.ne' ) ] : ( f.num : ℚ ) ≤ f.den ), ( by norm_cast : ( f.den : ℚ ) ≤ Q ) ] : ( f.num : ℚ ) ≤ Q ) ], hf₂ ⟩, f.num_div_den ⟩;
   -- Let `gL := SL.max'` (greatest element `≤ x`) and `gR := SR.min'` (least element `≥ w`).
@@ -683,7 +811,8 @@ theorem badlyOrdered_construction (n m : ℕ) (hm : 1 ≤ m) (hn : 4 * m ≤ n) 
     · rw [ div_le_iff₀ ] <;> linarith [ show ( m : ℚ ) ≥ 1 by norm_cast ]
     · rw [ div_eq_mul_inv ]
       erw [ Rat.mul_den ] ; norm_num
-      norm_cast ; simp_all +decide
+      norm_cast ; simp_all +decide only [Int.subNat_eq_zero_iff, mul_eq_one, OfNat.ofNat_ne_one, false_and, ↓reduceIte,
+    Nat.cast_mul, Nat.cast_ofNat]
       norm_num [ Int.subNatNat_eq_coe, Rat.mul_den, Rat.mul_num ]
       exact le_trans ( Nat.div_le_self _ _ ) ( by omega )
   · rw [ div_lt_div_iff₀ ] <;> nlinarith [ ( by norm_cast : ( 1 : ℚ ) ≤ m ) ]
@@ -889,8 +1018,13 @@ theorem Sfun_eq_on_Icc {m : ℕ} (hm : 1 ≤ m) {x : ℝ}
     have h_ceil : ⌈x⌉₊ = m + 1 := by
       exact Nat.ceil_eq_iff ( by positivity ) |>.2 ⟨ by norm_num; contrapose! hx; linarith, by norm_num; contrapose! hx; linarith ⟩;
     unfold Sfun Afun Phi;
-    simp_all +decide [ sub_mul, Finset.sum_div _ _ _ ];
-    exact Finset.sum_congr rfl fun i hi => by by_cases hi0 : i = 0 <;> simp +decide [ div_eq_mul_inv, mul_assoc, mul_comm, hi0 ] ;
+    simp_all +decide only [Nat.cast_sum];
+    rw [Finset.sum_div, ← Finset.sum_sub_distrib]
+    exact Finset.sum_congr rfl fun i hi => by
+      by_cases hi0 : i = 0
+      · subst i
+        norm_num
+      · field_simp
 
 /-
 `S(m+1) - S(m) = Φ(m) / (m(m+1))` for `m ≥ 1`.
@@ -1035,8 +1169,11 @@ theorem Ffun_unit_le_succ2 {m : ℕ} {x : ℝ}
       unfold Sfun;
       intro x hx₁ hx₂; rcases eq_or_lt_of_le hx₁ with rfl | hx₁' <;> norm_num [ Finset.sum_range_succ' ] ;
       rw [ show ⌈x⌉₊ = 1 by exact Nat.ceil_eq_iff ( by positivity ) |>.2 ⟨ by norm_num; linarith, by norm_num; linarith ⟩ ] ; norm_num;
-    simp_all +decide [ Ffun ];
-    rw [ Sfun_two ] ; linarith;
+    subst m
+    simp only [Ffun]
+    norm_num at hx1 hx2 ⊢
+    rw [h_Sfun_zero x hx1 hx2, Sfun_two]
+    linarith
   · -- For $1 \leq m \leq 6$, we can check each case individually.
     by_cases hm_cases : m ≤ 6;
     · rw [ Ffun, Ffun, Sfun_eq_on_Icc, Sfun ];
@@ -1079,8 +1216,10 @@ theorem Ffun_step_le {x : ℝ} (hx : 1 ≤ x) : Ffun x ≤ Ffun (x + 1) := by
           · norm_num; linarith;
           · norm_num; linarith;
       exact ⟨ by rw [ ← hFfun_def.1, Ffun ], by rw [ ← hFfun_def.2, Ffun ] ⟩;
-    simp_all +decide [ Afun, Phi ];
-    rcases hm₁ with ( rfl | rfl | rfl | rfl | rfl | rfl ) <;> norm_num [ Finset.sum_range_succ, Nat.totient_prime ] at *;
+    simp_all +decide only [ge_iff_le];
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hm₁
+    rcases hm₁ with ( rfl | rfl | rfl | rfl | rfl | rfl ) <;>
+      norm_num [Finset.sum_range_succ, Nat.totient_prime, Phi, Afun] at *;
     all_goals norm_num [ show Nat.totient 4 = 2 by rfl, show Nat.totient 6 = 2 by rfl ] at *;
     all_goals field_simp;
     all_goals nlinarith [ sq_nonneg ( x - 2 ) ]
@@ -1178,12 +1317,46 @@ theorem harmonic_le_one_add_log (N : ℕ) :
 theorem divisor_sum_le (N : ℕ) :
     ∑ e ∈ Finset.Icc 1 N, (e.divisors.card : ℝ) ≤ (N : ℝ) * (1 + Real.log N) := by
   have h_sum_divisors : ∑ e ∈ Finset.Icc 1 N, (Nat.divisors e).card = ∑ d ∈ Finset.Icc 1 N, (N / d : ℕ) := by
-    erw [ Finset.sum_Ico_eq_sum_range, Finset.sum_Ico_eq_sum_range ];
-    induction N <;> simp_all +decide [ Nat.succ_div, Finset.sum_range_succ ];
-    simp_all +decide [ Finset.sum_add_distrib, Nat.add_comm 1 _, Nat.div_eq_of_lt ];
-    rw [ ← Nat.cons_self_properDivisors ] <;> simp +arith +decide [ Nat.properDivisors ];
-    rw [ Finset.card_filter, Finset.card_filter ];
-    rw [ Finset.sum_Ico_eq_sum_range ] ; norm_num [ add_comm, add_left_comm ];
+    have hcard : ∀ e ∈ Finset.Icc 1 N,
+        (Nat.divisors e).card =
+          ∑ d ∈ Finset.Icc 1 N, if d ∣ e then 1 else 0 := by
+      intro e he
+      have he_bounds : 1 ≤ e ∧ e ≤ N := Finset.mem_Icc.mp he
+      have hfin : Nat.divisors e =
+          (Finset.Icc 1 N).filter fun d => d ∣ e := by
+        ext d
+        simp only [Nat.mem_divisors, Finset.mem_filter, Finset.mem_Icc]
+        constructor
+        · rintro ⟨hde, he0⟩
+          have hd0 : d ≠ 0 := by
+            intro hd
+            subst d
+            simp_all
+          exact ⟨⟨Nat.one_le_iff_ne_zero.mpr hd0,
+            (Nat.le_of_dvd (Nat.zero_lt_of_ne_zero he0) hde).trans he_bounds.2⟩, hde⟩
+        · rintro ⟨⟨hd1, hdN⟩, hde⟩
+          exact ⟨hde, Nat.ne_of_gt he_bounds.1⟩
+      rw [hfin, Finset.card_filter]
+    have hinner : ∀ d ∈ Finset.Icc 1 N,
+        (∑ e ∈ Finset.Icc 1 N, if d ∣ e then 1 else 0) = N / d := by
+      intro d hd
+      rw [← Finset.card_filter]
+      have hinterval : Finset.Icc 1 N = Finset.Ioc 0 N := by
+        ext e
+        simp
+        omega
+      rw [hinterval]
+      exact Nat.Ioc_filter_dvd_card_eq_div N d
+    calc
+      ∑ e ∈ Finset.Icc 1 N, (Nat.divisors e).card =
+          ∑ e ∈ Finset.Icc 1 N, ∑ d ∈ Finset.Icc 1 N,
+            if d ∣ e then 1 else 0 :=
+        Finset.sum_congr rfl hcard
+      _ = ∑ d ∈ Finset.Icc 1 N, ∑ e ∈ Finset.Icc 1 N,
+            if d ∣ e then 1 else 0 := by
+        rw [Finset.sum_comm]
+      _ = ∑ d ∈ Finset.Icc 1 N, (N / d : ℕ) :=
+        Finset.sum_congr rfl hinner
   rw_mod_cast [ h_sum_divisors ];
   refine' le_trans _ ( mul_le_mul_of_nonneg_left ( harmonic_le_one_add_log N ) ( Nat.cast_nonneg _ ) );
   push_cast [ Finset.mul_sum _ _ _ ];
@@ -1205,24 +1378,43 @@ theorem coprime_count_lower (q : ℕ) (hq : 1 ≤ q) (A B : ℝ) (hAB : A ≤ B)
       · have h_coprime_indicator : (if IsCoprime p q then 1 else 0 : ℝ) = ∑ d ∈ Nat.divisors (Int.gcd p q), (ArithmeticFunction.moebius d : ℝ) := by
           have h_coprime_indicator : ∑ d ∈ Nat.divisors (Int.gcd p q), (ArithmeticFunction.moebius d : ℝ) = if Int.gcd p q = 1 then 1 else 0 := by
             have h_coprime_indicator : ∑ d ∈ Nat.divisors (Int.gcd p q), (ArithmeticFunction.moebius d : ℝ) = (ArithmeticFunction.moebius * ArithmeticFunction.zeta) (Int.gcd p q) := by
-              simp +decide [ zeta ];
-              rw [ Nat.sum_divisorsAntidiagonal fun x y => if y = 0 then 0 else ( moebius x : ℝ ) ];
-              exact Finset.sum_congr rfl fun x hx => by rw [ if_neg ( Nat.ne_of_gt ( Nat.div_pos ( Nat.le_of_dvd ( Nat.pos_of_ne_zero ( by aesop ) ) ( Nat.dvd_of_mem_divisors hx ) ) ( Nat.pos_of_mem_divisors hx ) ) ) ] ;
+              have h_int :
+                  ∑ d ∈ Nat.divisors (Int.gcd p q), ArithmeticFunction.moebius d =
+                    (ArithmeticFunction.moebius *
+                      (ArithmeticFunction.zeta : ArithmeticFunction ℤ)) (Int.gcd p q) :=
+                ArithmeticFunction.coe_mul_zeta_apply.symm
+              exact_mod_cast h_int
             aesop;
           simp_all +decide [ Int.isCoprime_iff_gcd_eq_one ];
-        simp_all +decide [ Finset.sum_ite ];
-        refine' Finset.sum_bij ( fun x hx => x ) _ _ _ _ <;> simp_all +decide [ Int.gcd_eq_natAbs ];
-        · exact fun a ha₁ ha₂ => ⟨ ⟨ Nat.dvd_trans ha₁ ( Nat.gcd_dvd_right _ _ ), by linarith ⟩, Int.natCast_dvd.mpr ( Nat.dvd_trans ha₁ ( Nat.gcd_dvd_left _ _ ) ) ⟩;
-        · exact fun b hb₁ hb₂ hb₃ => Nat.dvd_gcd ( Int.natAbs_dvd_natAbs.mpr hb₃ ) hb₁;
+        simp only [hp.1, hp.2, true_and]
+        rw [h_coprime_indicator]
+        simp only [mul_ite, mul_one, mul_zero]
+        rw [← Finset.sum_subset (show Nat.divisors (Int.gcd p q) ⊆ q.divisors from by
+          intro a ha
+          apply Nat.mem_divisors.mpr
+          exact ⟨Nat.dvd_trans (Nat.dvd_of_mem_divisors ha)
+            (Nat.gcd_dvd_right p.natAbs q), Nat.ne_of_gt hq⟩)]
+        · exact Finset.sum_congr rfl fun a ha => by
+            rw [if_pos]
+            exact Int.natCast_dvd.mpr <| Nat.dvd_trans
+              (Nat.dvd_of_mem_divisors ha) (Nat.gcd_dvd_left p.natAbs q)
+        · intro b hbq hbnot
+          rw [if_neg]
+          intro hbp
+          apply hbnot
+          apply Nat.mem_divisors.mpr
+          exact ⟨Nat.dvd_gcd (Int.natCast_dvd.mp hbp)
+            (Nat.dvd_of_mem_divisors hbq),
+            Nat.gcd_ne_zero_right (Nat.ne_of_gt hq)⟩
       · rw [ Finset.sum_eq_zero ] <;> aesop;
     have h_coprime_count : ∑ p ∈ Finset.Icc (Int.floor A) (Int.ceil B), (if A < (p : ℝ) ∧ (p : ℝ) < B ∧ IsCoprime p q then 1 else 0) = ∑ d ∈ q.divisors, (ArithmeticFunction.moebius d : ℝ) * ∑ p ∈ Finset.Icc (Int.floor A) (Int.ceil B), (if A < (p : ℝ) ∧ (p : ℝ) < B ∧ (d : ℤ) ∣ p then 1 else 0) := by
       rw [ Finset.sum_congr rfl fun p hp => h_coprime_count p, Finset.sum_comm, Finset.sum_congr rfl fun d hd => Finset.mul_sum _ _ _ ];
     convert! h_coprime_count using 1;
-    · simp +zetaDelta at *;
+    · simp +zetaDelta only [sum_boole, Nat.cast_inj] at *;
       rw [ ← Set.ncard_coe_finset ] ; congr ; ext ; simp +decide;
       exact fun _ _ _ => ⟨ Int.le_of_lt_add_one <| Int.floor_lt.2 <| by norm_num; linarith, Int.le_of_lt_add_one <| by rw [ ← @Int.cast_lt ℝ ] ; push_cast; linarith [ Int.le_ceil B ] ⟩;
     · refine' Finset.sum_congr rfl fun d hd => _;
-      simp +zetaDelta at *;
+      simp +zetaDelta only [sum_boole, mul_eq_mul_left_iff, Nat.cast_inj, Int.cast_eq_zero] at *;
       rw [ ← Set.ncard_coe_finset ] ; norm_num;
       exact Or.inl ( congr_arg _ ( by ext; exact ⟨ fun h => ⟨ ⟨ Int.le_of_lt_add_one ( by rw [ ← @Int.cast_lt ℝ ] ; push_cast; linarith [ h.1, Int.floor_le A ] ), Int.le_of_lt_add_one ( by rw [ ← @Int.cast_lt ℝ ] ; push_cast; linarith [ h.2.1, Int.le_ceil B ] ) ⟩, h ⟩, fun h => h.2 ⟩ ) );
   -- Applying the bound from `h_residue_interval_count` to each term in the sum.
@@ -1249,33 +1441,95 @@ theorem density_bridge (n : ℕ) (x y : ℚ) (hx : 0 ≤ x) (hy : y ≤ 1) :
   rw_mod_cast [ Erdos1005.betweenCount ];
   have h_biUnion : ∀ q ∈ Finset.Icc 1 n, ({p : ℤ | (x : ℝ) * q < p ∧ p < (y : ℝ) * q ∧ IsCoprime p q} : Set ℤ).ncard ≤ ({r : ℚ | r.den = q ∧ IsFarey n r ∧ x < r ∧ r < y} : Set ℚ).ncard := by
     intro q hq
+    obtain ⟨hq_one, hq_n⟩ := Finset.mem_Icc.mp hq
+    have hq_pos : 0 < q := lt_of_lt_of_le Nat.zero_lt_one hq_one
+    have hq_int_pos : (0 : ℤ) < q := by exact_mod_cast hq_pos
     have h_image : Set.image (fun p : ℤ => (p : ℚ) / q) {p : ℤ | (x : ℝ) * q < p ∧ p < (y : ℝ) * q ∧ IsCoprime p q} ⊆ {r : ℚ | r.den = q ∧ IsFarey n r ∧ x < r ∧ r < y} := by
-      intro r hr; obtain ⟨ p, hp, rfl ⟩ := hr; simp_all +decide [ IsFarey ] ;
+      intro r hr; obtain ⟨ p, hp, rfl ⟩ := hr
+      simp only [Set.mem_ofPred_eq] at hp ⊢
+      have hp_gcd : p.natAbs.gcd q = 1 := by
+        simpa [Int.gcd_def] using
+          (Int.isCoprime_iff_gcd_eq_one.mp hp.2.2)
       have h_den : (p / q : ℚ).den = q := by
-        rw [ div_eq_mul_inv, Rat.mul_den ] ; norm_num [ hp.2.2 ];
-        simp_all +decide [ Int.sign_eq_one_of_pos ( by norm_cast; linarith : 0 < ( q : ℤ ) ) ];
-        split_ifs <;> simp_all +decide [ Int.isCoprime_iff_gcd_eq_one ];
-        simp_all +decide [ Int.gcd ];
-      simp_all +decide [ le_div_iff₀, div_le_iff₀, show q > 0 by linarith ];
-      norm_cast at *;
-      exact ⟨ ⟨ by exact_mod_cast ( by nlinarith [ ( by norm_cast; linarith : ( 1 : ℚ ) ≤ q ) ] : ( 0 : ℚ ) ≤ p ), by exact_mod_cast ( by nlinarith [ ( by norm_cast; linarith : ( 1 : ℚ ) ≤ q ) ] : ( p : ℚ ) ≤ q ) ⟩, by rw [ Rat.divInt_eq_div ] ; rw [ lt_div_iff₀ ] <;> norm_cast at * <;> linarith, by rw [ Rat.divInt_eq_div ] ; rw [ div_lt_iff₀ ] <;> norm_cast at * <;> linarith ⟩;
+        rw [div_eq_mul_inv, Rat.mul_den]
+        norm_num [hp.2.2]
+        simp [Int.sign_eq_one_of_pos hq_int_pos, Nat.ne_of_gt hq_pos, hp_gcd]
+      have hx_real : (0 : ℝ) ≤ x := by exact_mod_cast hx
+      have hy_real : (y : ℝ) ≤ 1 := by exact_mod_cast hy
+      have hp_nonneg : (0 : ℤ) ≤ p := by
+        exact_mod_cast (le_trans (mul_nonneg hx_real (Nat.cast_nonneg q)) (le_of_lt hp.1))
+      have hp_le_q : p ≤ (q : ℤ) := by
+        have hp_lt_q : (p : ℝ) < q :=
+          lt_of_lt_of_le hp.2.1 (by
+            simpa using mul_le_mul_of_nonneg_right hy_real (Nat.cast_nonneg q))
+        exact_mod_cast le_of_lt hp_lt_q
+      have hr_nonneg : (0 : ℚ) ≤ (p : ℚ) / q :=
+        div_nonneg (by exact_mod_cast hp_nonneg) (by positivity)
+      have hr_le_one : (p : ℚ) / q ≤ 1 := by
+        rw [div_le_iff₀ (by positivity)]
+        have hp_le_q_rat : (p : ℚ) ≤ (q : ℚ) := by exact_mod_cast hp_le_q
+        simpa using hp_le_q_rat
+      refine ⟨h_den, ⟨hr_nonneg, hr_le_one, ?_⟩, ?_, ?_⟩
+      · simpa [h_den] using hq_n
+      · rw [lt_div_iff₀ (by positivity)]
+        exact_mod_cast hp.1
+      · rw [div_lt_iff₀ (by positivity)]
+        exact_mod_cast hp.2.1
     have h_card_image : Set.ncard (Set.image (fun p : ℤ => (p : ℚ) / q) {p : ℤ | (x : ℝ) * q < p ∧ p < (y : ℝ) * q ∧ IsCoprime p q}) ≤ Set.ncard {r : ℚ | r.den = q ∧ IsFarey n r ∧ x < r ∧ r < y} := by
       apply_rules [ Set.ncard_le_ncard ];
       exact Set.Finite.subset ( fareyBetween_finite n x y ) fun r hr => ⟨ hr.2.1, hr.2.2.1, hr.2.2.2 ⟩;
-    rwa [ Set.ncard_image_of_injective _ fun a b h => by simpa [ div_eq_iff, show q ≠ 0 by linarith [ Finset.mem_Icc.mp hq ] ] using h ] at h_card_image;
+    rwa [ Set.ncard_image_of_injective _ fun a b h => by
+      simpa [div_eq_iff, Nat.ne_of_gt hq_pos] using h ] at h_card_image;
   convert! Finset.sum_le_sum h_biUnion using 1;
   · norm_cast;
   · have h_card_biUnion : ∀ {S : Finset ℕ} (hS : ∀ q ∈ S, 1 ≤ q ∧ q ≤ n), ({r : ℚ | ∃ q ∈ S, r.den = q ∧ IsFarey n r ∧ x < r ∧ r < y}.ncard = ∑ q ∈ S, ({r : ℚ | r.den = q ∧ IsFarey n r ∧ x < r ∧ r < y}.ncard)) := by
-      intros S hS;
-      induction S using Finset.induction <;> simp_all +decide [ Set.ncard_eq_toFinset_card' ];
-      rw [ ← ‹ { r : ℚ | r.den ∈ _ ∧ IsFarey n r ∧ x < r ∧ r < y }.ncard = ∑ q ∈ _, _ ›, ← @Set.ncard_union_eq ];
-      · exact congr_arg _ ( by ext; aesop );
-      · grind +splitImp;
-      · exact Set.Finite.subset ( farey_finite n ) fun x hx => hx.2.1;
-      · exact Set.Finite.subset ( farey_finite n ) fun x hx => hx.2.1;
+      intro S
+      induction S using Finset.induction_on with
+      | empty =>
+          intro hS
+          simp
+      | @insert a S ha ih =>
+          intro hS
+          have hS_tail : ∀ q ∈ S, 1 ≤ q ∧ q ≤ n := by
+            intro q hq
+            exact hS q (Finset.mem_insert_of_mem hq)
+          let A : Set ℚ :=
+            {r | r.den = a ∧ IsFarey n r ∧ x < r ∧ r < y}
+          let U : Set ℚ :=
+            {r | ∃ q ∈ S, r.den = q ∧ IsFarey n r ∧ x < r ∧ r < y}
+          have hsplit :
+              {r : ℚ | ∃ q ∈ insert a S,
+                r.den = q ∧ IsFarey n r ∧ x < r ∧ r < y} = A ∪ U := by
+            ext r
+            simp only [A, U, Set.mem_ofPred_eq, Set.mem_union, Finset.mem_insert]
+            aesop
+          have hdisj : Disjoint A U := by
+            rw [Set.disjoint_left]
+            intro r hrA hrU
+            rcases hrU with ⟨q, hqS, hden, hfarey, hxr, hry⟩
+            apply ha
+            have haq : a = q := hrA.1.symm.trans hden
+            simpa [haq] using hqS
+          have hfinA : A.Finite :=
+            Set.Finite.subset (farey_finite n) fun r hr => hr.2.1
+          have hfinU : U.Finite :=
+            Set.Finite.subset (farey_finite n) fun r hr => by
+              rcases hr with ⟨q, hqS, hden, hfarey, hxr, hry⟩
+              exact hfarey
+          calc
+            {r : ℚ | ∃ q ∈ insert a S,
+                r.den = q ∧ IsFarey n r ∧ x < r ∧ r < y}.ncard =
+                (A ∪ U).ncard := congr_arg Set.ncard hsplit
+            _ = A.ncard + U.ncard := Set.ncard_union_eq hdisj hfinA hfinU
+            _ = A.ncard + ∑ q ∈ S,
+                {r : ℚ | r.den = q ∧ IsFarey n r ∧ x < r ∧ r < y}.ncard := by
+              rw [ih hS_tail]
+            _ = ∑ q ∈ insert a S,
+                {r : ℚ | r.den = q ∧ IsFarey n r ∧ x < r ∧ r < y}.ncard := by
+              rw [Finset.sum_insert ha]
     convert! h_card_biUnion fun q hq => Finset.mem_Icc.mp hq using 2;
-    ext; simp [IsFarey];
-    exact fun _ _ _ _ _ => ⟨ Rat.pos _, by assumption ⟩
+    ext; simp only [Set.mem_ofPred_eq, ↓existsAndEq, mem_Icc, true_and, iff_and_self, and_imp];
+    exact fun hFarey _ _ => ⟨Rat.pos _, hFarey.2.2⟩
 
 /-
 `betweenCount n x y ≥ (y-x)·Φ(n) - ∑_{q≤n} τ(q) ≥ (y-x)·n(n+1)/4 - n·(1+log n)`.
@@ -1411,8 +1665,9 @@ theorem left_count_bridge (x z : ℚ) (hx0 : 0 ≤ x) (hxz : x < z) (hz1 : z ≤
                                                                                                                                           exact Int.le_of_lt_add_one ( by rw [ ← @Int.cast_lt ℝ ] ; push_cast; linarith [ hd.2.1 ] ) ⟩ ;)))) ≤ (betweenCount n x z : ℕ) := by
                                                                                                                                         rw [ ← Set.ncard_coe_finset ];
                                                                                                                                         apply Set.ncard_le_ncard;
-                                                                                                                                        · simp +zetaDelta at *;
-                                                                                                                                          exact fun e he₁ he₂ => fun d hd => h_image_subset e he₁ he₂ d hd;
+                                                                                                                                        · simp +zetaDelta only [coe_biUnion, coe_Icc, Set.mem_Icc, coe_image, Set.Finite.coe_toFinset,
+    Set.iUnion_subset_iff, Set.image_subset_iff, Set.preimage_ofPred_eq, and_imp] at *;
+                                                                                                                                          exact fun e he₁ he₂ => fun d hd => h_image_subset e (Finset.mem_Icc.mpr ⟨he₁, he₂⟩) d hd;
                                                                                                                                         · exact fareyBetween_finite n x z
   generalize_proofs at *;
   rw [ Finset.card_biUnion ] at h_image_subset;
@@ -1456,16 +1711,29 @@ theorem left_count_main (x z : ℚ) (hx0 : 0 ≤ x) (hxz : x < z) (hz1 : z ≤ 1
       (betweenCount n x z : ℝ) := by
         refine' le_trans _ ( left_count_bridge x z hx0 hxz hz1 n _ );
         simpa only [ ← Finset.sum_sub_distrib ] using! Finset.sum_le_sum fun e he => h_prime_lower_bound e ( Finset.mem_Icc.mp he |>.1 ) ( Finset.mem_Icc.mp he |>.2 );
-  by_cases h : ⌈ ( n + 1 : ℝ ) / x.den * ( z.num * x.den - x.num * z.den ) ⌉₊ = 0 <;> simp_all +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm ];
-  · contrapose! h;
-    refine' mul_pos ( inv_pos.mpr ( Nat.cast_pos.mpr x.pos ) ) ( mul_pos _ ( Nat.cast_add_one_pos _ ) );
-    rw [ Rat.lt_iff ] at hxz ; norm_cast at *;
-    linarith;
+  by_cases h : ⌈ ( n + 1 : ℝ ) / x.den * ( z.num * x.den - x.num * z.den ) ⌉₊ = 0 <;> simp_all +decide only [Int.cast_sub, Int.cast_mul, Int.cast_natCast, tsub_le_iff_right, ge_iff_le];
+  · exfalso
+    apply (Nat.ne_of_gt ?_) h
+    apply Nat.ceil_pos.mpr
+    refine mul_pos (div_pos (by positivity) (Nat.cast_pos.mpr x.pos)) ?_
+    rw [Rat.lt_iff] at hxz
+    norm_cast at *
+    linarith
   · convert! h_sum_lower_bound using 1;
+    have harg :
+        ((n : ℝ) + 1) / (x.den : ℝ) *
+            ((z.num : ℝ) * (x.den : ℝ) - (x.num : ℝ) * (z.den : ℝ)) =
+          (x.den : ℝ)⁻¹ *
+            (((z.num : ℝ) * (x.den : ℝ) - (x.num : ℝ) * (z.den : ℝ)) *
+              ((n : ℝ) + 1)) := by
+      ring
+    rw [harg]
     rw [ show Sfun ( ( x.den : ℝ ) ⁻¹ * ( ( z.num * x.den - x.num * z.den ) * ( n + 1 ) ) ) = ∑ e ∈ Finset.range ⌈ ( x.den : ℝ ) ⁻¹ * ( ( z.num * x.den - x.num * z.den ) * ( n + 1 ) ) ⌉₊, ( 1 - ( e : ℝ ) / ( ( x.den : ℝ ) ⁻¹ * ( ( z.num * x.den - x.num * z.den ) * ( n + 1 ) ) ) ) * ( Nat.totient e / e ) from rfl ] ; simp +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, Finset.mul_sum _ _ _ ] ;
     erw [ Finset.sum_Ico_eq_sub _ ] <;> norm_num [ Finset.sum_range_succ' ];
     cases k : ⌈ ( x.den : ℝ ) ⁻¹ * ( ( z.num * x.den - x.num * z.den ) * ( n + 1 ) ) ⌉₊ <;> simp_all +decide [ Finset.sum_range_succ' ] ; ring_nf;
-    grind
+    refine Finset.sum_congr rfl ?_
+    intro i hi
+    field_simp <;> ring
 
 /-
 The count over `(x,w)` is at least the sum of the counts over `(x,z)` and
@@ -1516,7 +1784,7 @@ theorem betweenCount_reflect (n : ℕ) (z w : ℚ) :
   use fun q hq => 1 - q;
   · simp +contextual [ IsFarey ];
   · grind;
-  · simp +zetaDelta at *;
+  · simp +zetaDelta only [Set.mem_ofPred_eq, exists_prop, and_imp] at *;
     intro b hb hb' hb''; use 1 - b; simp_all +decide [ IsFarey ] ;
     grind +splitImp
 
@@ -1598,13 +1866,14 @@ theorem left_count_bridge_upper (x z : ℚ) (hxz : x < z) (n : ℕ) :
   -- By definition of `Bset`, we can partition it into subsets based on the value of `e`.
   have h_partition : Bset = ⋃ e ∈ Finset.Icc 1 (⌈((n + 1) / x.den * ((z.num * x.den - x.num * z.den) : ℤ) : ℝ)⌉₊ - 1), {r ∈ Bset | (z.num * r.den - z.den * r.num : ℤ).toNat = e} := by
     ext r
-    simp [hBset_def];
-    intro hr hxz hz1
+    simp only [Int.cast_sub, Int.cast_mul, Int.cast_natCast, mem_Icc, Set.mem_iUnion, Set.mem_ofPred_eq,
+    exists_and_left, exists_prop, ↓existsAndEq, Int.toNat_le, tsub_le_iff_right, and_true, iff_self_and];
+    intro hr
     have h_e : 1 ≤ (z.num * r.den - z.den * r.num : ℤ).toNat := by
       grind +suggestions
     have h_e_le : (z.num * r.den - z.den * r.num : ℤ) < ((n + 1) / x.den * ((z.num * x.den - x.num * z.den) : ℤ) : ℝ) := by
       rw [ div_mul_eq_mul_div, lt_div_iff₀ ] <;> norm_cast at * <;> simp_all +decide [ Rat.lt_iff ];
-      · nlinarith [ hr.2.2, show ( r.den : ℤ ) ≤ n from mod_cast hr.2.2 ];
+      · nlinarith [ hr.2.2, show ( r.den : ℤ ) ≤ n from mod_cast hr.1.2.2 ];
       · exact x.pos
     generalize_proofs at *;
     rw [ Nat.cast_sub ] <;> norm_num;
@@ -1683,11 +1952,20 @@ theorem left_count_upper (x z : ℚ) (hxz : x < z) (n : ℕ) :
     · exact Int.isCoprime_iff_gcd_eq_one.mpr ( by simpa [ Int.gcd, Int.natAbs_abs ] using! z.reduced );
     · linarith [ Finset.mem_Icc.mp he ];
     · rw [ div_le_iff₀ ] <;> norm_cast;
-      · rw [ ← @Int.cast_le ℝ ] at * ; simp_all +decide [ mul_comm, mul_left_comm, div_eq_mul_inv ];
-        rw [ Nat.le_sub_iff_add_le ] at he;
-        · contrapose! he;
-          exact fun _ => Nat.lt_succ_of_le <| Nat.ceil_le.mpr <| by rw [ inv_mul_le_iff₀ <| Nat.cast_pos.mpr x.pos ] ; linarith;
-        · omega;
+      · have he_upper := (Finset.mem_Icc.mp he).2
+        rw [Nat.le_sub_iff_add_le] at he_upper
+        · have he_lt :
+              (e : ℝ) <
+                (n + 1) / x.den *
+                  (z.num * x.den - x.num * z.den : ℤ) :=
+            Nat.lt_ceil.mp (by omega)
+          rw [div_mul_eq_mul_div,
+            lt_div_iff₀ (Nat.cast_pos.mpr x.pos)] at he_lt
+          norm_cast at he_lt
+          rw [Nat.mul_comm e x.den] at he_lt
+          linarith
+        · have he_lower := (Finset.mem_Icc.mp he).1
+          omega
       · rw [ Rat.lt_iff ] at hxz ; aesop;
   convert! Finset.sum_le_sum h_upper_bound using 1;
   norm_num [ Finset.sum_add_distrib, Finset.mul_sum _ _ _, Finset.sum_div, Sfun, errTerm ];
@@ -1790,8 +2068,9 @@ theorem caseA_count (n : ℕ) (x z : ℚ) (hx0 : 0 ≤ x) (helemR1 : elemR x ≤
     -- By definition of `elemR`, we have `elemR x = (x.num + 1) / (x.den - 1)`.
     have h_elemR : (elemR x : ℝ) = (x.num + 1) / (x.den - 1) := by
       unfold elemR; norm_num;
-    simp_all +decide [ Rat.cast_def ];
-    rw [ div_sub_div, mul_div, div_add', le_div_iff₀ ] <;> try nlinarith [ ( by norm_cast : ( 2 : ℝ ) ≤ x.den ), ( by norm_cast : ( 2 : ℝ ) ≤ z.den ) ];
+    simp_all +decide only [ge_iff_le];
+    rw [Rat.cast_def]
+    rw [ div_sub_div, mul_div, le_div_iff₀ ] <;> try nlinarith [ ( by norm_cast : ( 2 : ℝ ) ≤ x.den ), ( by norm_cast : ( 2 : ℝ ) ≤ z.den ) ];
     norm_cast at *;
     norm_num [ Int.subNatNat_eq_coe ] at * ; nlinarith [ mul_le_mul_of_nonneg_left hmuL ( show 0 ≤ z.den by positivity ) ];
   -- By `Sfun_ge_int`, `Sfun argL ≥ Sfun u.toNat` and `Sfun argR ≥ Sfun v.toNat`.
@@ -2030,9 +2309,13 @@ theorem errTerm_le_Kmax {n Q : ℕ} (x z : ℚ)
             ≤ Kmax n Q) :
     errTerm x z n ≤ (Kmax n Q : ℝ) * (1 + Real.log (Kmax n Q)) := by
   refine' le_trans ( errTerm_le x z n ) _;
-  by_cases h : ⌈ ( n + 1 : ℝ ) / x.den * ( z.num * x.den - x.num * z.den ) ⌉₊ = 0 <;> simp_all +decide [ mul_add ];
-  · rw [ Nat.ceil_eq_zero.mpr h ] ; norm_num;
-    exact add_nonneg ( Nat.cast_nonneg _ ) ( mul_nonneg ( Nat.cast_nonneg _ ) ( Real.log_nonneg ( mod_cast Nat.one_le_iff_ne_zero.mpr ( by unfold Kmax; positivity ) ) ) );
+  by_cases h : ⌈ ( n + 1 : ℝ ) / x.den * ( z.num * x.den - x.num * z.den ) ⌉₊ = 0 <;> simp_all +decide only [Int.cast_sub, Int.cast_mul, Int.cast_natCast];
+  · norm_num
+    have hK : (1 : ℝ) ≤ Kmax n Q := by
+      exact_mod_cast (show 1 ≤ Kmax n Q by unfold Kmax; omega)
+    exact mul_nonneg
+      (show (0 : ℝ) ≤ (Kmax n Q : ℝ) by positivity)
+      (add_nonneg (show (0 : ℝ) ≤ 1 by norm_num) (Real.log_nonneg hK))
   · gcongr; all_goals exact Nat.ceil_le.mpr hM
 
 /-
@@ -2105,8 +2388,12 @@ theorem largeb_caseI {n Q : ℕ} {x : ℚ} (h : ∃ y, BadlyOrdered n x y)
     convert! ceil_le_Kmax _ hargX_le_4Q using 1;
     norm_num [ hargX_def ];
   have := left_count_main x ( elemR x ) ( le_of_lt hx0 ) hxz ( le_of_lt hz1 ) n;
-  simp_all +decide [ errTerm ];
-  rw [ show ( elemR x |> Rat.den : ℝ ) + ( elemR x |> Rat.num : ℝ ) = ( elemR x |> Rat.num : ℝ ) * x.den - x.num * ( elemR x |> Rat.den : ℝ ) by exact mod_cast hdet.symm ] at * ; linarith [ show ( 0 :ℝ ) ≤ Kmax n Q * ( 1 + Real.log ( Kmax n Q ) ) by exact mul_nonneg ( Nat.cast_nonneg _ ) ( add_nonneg zero_le_one ( Real.log_nonneg ( mod_cast Nat.one_le_iff_ne_zero.mpr <| by unfold Kmax; positivity ) ) ) ] ;
+  simp_all +decide only [tsub_le_iff_right, ge_iff_le];
+  push_cast at this
+  rw [ show ( elemR x |> Rat.den : ℝ ) + ( elemR x |> Rat.num : ℝ ) = ( elemR x |> Rat.num : ℝ ) * x.den - x.num * ( elemR x |> Rat.den : ℝ ) by exact mod_cast hdet.symm ] at this
+  simp only [errTerm, Int.cast_sub, Int.cast_mul, Int.cast_natCast] at herrTerm_le_Kmax
+  norm_num only [Int.cast_natCast] at hmain_ge_n_div_4
+  linarith [ show ( 0 :ℝ ) ≤ Kmax n Q * ( 1 + Real.log ( Kmax n Q ) ) by exact mul_nonneg ( Nat.cast_nonneg _ ) ( add_nonneg zero_le_one ( Real.log_nonneg ( mod_cast Nat.one_le_iff_ne_zero.mpr <| by unfold Kmax; positivity ) ) ) ] ;
 
 /-
 **Large-`b`, Case II.** Some order-`Q` Farey fraction `z` lies strictly inside the
@@ -2142,8 +2429,9 @@ theorem largeb_caseII {n Q : ℕ} {x : ℚ} (h : ∃ y, BadlyOrdered n x y)
     apply errTerm_le_Kmax;
     refine' ceil_le_Kmax _ _;
     have h_det : ((n : ℝ) + 1) / (1 - elemR x).den * ((1 - z).num * (1 - elemR x).den - (1 - elemR x).num * (1 - z).den : ℤ) = (n + 1) * z.den * ((elemR x : ℝ) - z) := by
-      have := det_real_eq ( 1 - elemR x ) ( 1 - z ) ; simp_all +decide [ mul_assoc, mul_comm, mul_left_comm ] ;
-      rw [ ← mul_assoc, mul_div_cancel₀ _ ( Nat.cast_ne_zero.mpr <| Rat.den_nz _ ) ];
+      have := det_real_eq ( 1 - elemR x ) ( 1 - z ) ; simp_all +decide only [Rat.ofNat_sub_den, Int.cast_sub, Int.cast_mul, Int.cast_natCast] ;
+      norm_num
+      field_simp
     have h_det_bound : (elemR x : ℝ) - z < 2 / x.den := by
       have h_det_bound : (elemR x : ℝ) - x < 2 / x.den := by
         have := badly_left_facts h
@@ -2325,10 +2613,15 @@ theorem largeb_caseIIIb {n Q : ℕ} {x gL gR : ℚ} (h : ∃ y, BadlyOrdered n x
     have h2 : ((n + 1) : ℝ) * (gL.den : ℝ) * ((elemR x : ℝ) - (gL : ℝ)) ≤ (n + 1) / (gR.den : ℝ) := by
       have h2 : ((elemR x : ℝ) - (gL : ℝ)) ≤ 1 / ((gL.den : ℝ) * (gR.den : ℝ)) := by
         have h2 : ((gR : ℝ) - (gL : ℝ)) = 1 / (gL.den * gR.den : ℝ) := by
-          rw [ eq_div_iff ] <;> norm_cast at * <;> simp_all +decide;
-          rw [ Rat.sub_def' ];
-          simp +decide [ mul_comm, Rat.mkRat_eq_div ];
-          rw [ mul_div_cancel₀ _ ( by norm_cast; aesop ) ] ; norm_cast ; linarith;
+          rw [eq_div_iff]
+          · norm_cast
+            rw [Rat.sub_def']
+            simp +decide [mul_comm, Rat.mkRat_eq_div]
+            rw [mul_div_cancel₀ _ (by norm_cast; aesop)]
+            norm_cast
+            linarith
+          · norm_cast
+            positivity
         exact h2 ▸ sub_le_sub_right ( mod_cast hRgR.le ) _;
       convert! mul_le_mul_of_nonneg_left h2 ( show ( 0 : ℝ ) ≤ ( n + 1 ) * gL.den by positivity ) using 1 ; ring_nf;
       norm_num [ hgLF.2.2, hgRF.2.2 ];

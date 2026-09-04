@@ -33,10 +33,10 @@ noncomputable def squareExceptionalValues {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) (
 
 theorem squareExceptionalValues_div_scale_tendsto_zero {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) (k : ℕ) :
     Tendsto (fun N : ℕ => ((squareExceptionalValues hD k N).card : ℝ) / scale N) atTop (𝓝 0) := by
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
   let G := ClassGroup (QuadraticAlgebra ℤ d b)
-  letI : Fintype (Subgroup (classSquareSubgroup : Subgroup G)) := Fintype.ofFinite _
+  let : Fintype (Subgroup (classSquareSubgroup : Subgroup G)) := Fintype.ofFinite _
   apply finiteUnion_card_div_tendsto_zero _ (fun N => scale N)
     (fun N => div_nonneg (Nat.cast_nonneg N) (Real.sqrt_nonneg _))
   intro H
@@ -52,10 +52,10 @@ theorem mem_squareExceptionalValues {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       H ≠ ⊤ → ∀ k N n : ℕ,
       n ∈ fewPrimeFactorValues (fun p : ℕ => discriminantCharacter (b ^ 2 + 4 * d) hD.ne p = -1)
         (squareBadPrime hD H) k N → n ∈ squareExceptionalValues hD k N := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro H hH k N n hn
-  letI := quadraticOrderClassGroupFintype hD
-  letI : Fintype (Subgroup (classSquareSubgroup : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b)))) :=
+  let := quadraticOrderClassGroupFintype hD
+  let : Fintype (Subgroup (classSquareSubgroup : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b)))) :=
     Fintype.ofFinite _
   unfold squareExceptionalValues
   exact Finset.mem_biUnion.mpr ⟨H, Finset.mem_univ _, by simpa only [if_neg hH] using hn⟩
@@ -74,7 +74,7 @@ theorem missing_same_genus_mem_exceptional {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) 
         localValues (fun p : ℕ => discriminantCharacter (b ^ 2 + 4 * d) hD.ne p = -1) N →
       (I : Ideal (QuadraticAlgebra ℤ d b)).cardQuot ∈ squareExceptionalValues hD
         (Nat.card (classSquareSubgroup : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b)))) N := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I hIF C hIC hmiss N hIN
   obtain ⟨k, P, hPI, hP⟩ := exists_goodMaximal_tuple hD I hIF
   have hclass : (∏ i, (P i).idealClass) = I.idealClass := by

@@ -212,7 +212,7 @@ theorem Reduced.notInProperCoset_residue {d : ℕ}
       ((A.image (rectangularResidue v) : Finset (RectangularQuotient v)) :
         Set (RectangularQuotient v)) := by
   classical
-  letI (i : Fin d) : NeZero (v i) := ⟨Nat.ne_of_gt (hv i)⟩
+  let (i : Fin d) : NeZero (v i) := ⟨Nat.ne_of_gt (hv i)⟩
   intro H hH a hcontained
   by_cases hproper : ∃ i, 1 < v i
   · obtain ⟨x, hx, hxout⟩ := hA v ⟨hv, hproper⟩ H hH a
@@ -229,9 +229,9 @@ theorem Reduced.notInProperCoset_residue {d : ℕ}
       funext i
       have hi : Fintype.card (ZMod (v i)) ≤ 1 := by
         rw [ZMod.card, hvone i]
-      letI : Subsingleton (ZMod (v i)) := ⟨Fintype.card_le_one_iff.mp hi⟩
+      let : Subsingleton (ZMod (v i)) := ⟨Fintype.card_le_one_iff.mp hi⟩
       exact Subsingleton.elim _ _
-    letI : Subsingleton (RectangularQuotient v) := hsubsingleton
+    let : Subsingleton (RectangularQuotient v) := hsubsingleton
     exact hH (Subsingleton.elim H ⊤)
 
 /-- Reduction is invariant under translation. -/
@@ -1503,7 +1503,7 @@ theorem reduced_block_residue_complete {d : ℕ} (v : Fin d → ℕ)
     RectangularResidueComplete v
       (iteratedSumset A (∏ j, v j)) := by
   classical
-  letI (i : Fin d) : NeZero (v i) := ⟨Nat.ne_of_gt (hv i)⟩
+  let (i : Fin d) : NeZero (v i) := ⟨Nat.ne_of_gt (hv i)⟩
   have hcard : Fintype.card (RectangularQuotient v) = ∏ j, v j := by
     simp [Fintype.card_pi, ZMod.card]
   let AQ : ℕ → Finset (RectangularQuotient v) :=

@@ -208,8 +208,8 @@ lemma total_edge_card (G : SimpleGraph V) :
     (G.edgeFinset.card : ℝ) + Gᶜ.edgeFinset.card =
       (Fintype.card V : ℝ) * ((Fintype.card V : ℝ) - 1) / 2 := by
   classical
-  letI : DecidableRel (⊤ : SimpleGraph V).Adj := Classical.decRel _
-  letI : DecidableRel Gᶜ.Adj := Classical.decRel _
+  let : DecidableRel (⊤ : SimpleGraph V).Adj := Classical.decRel _
+  let : DecidableRel Gᶜ.Adj := Classical.decRel _
   have h := edge_partition_card G ⊤
   have hfilter : ∀ H : SimpleGraph V,
       H.edgeFinset.filter (fun e ↦ e ∈ (⊤ : SimpleGraph V).edgeFinset) = H.edgeFinset := by
@@ -236,7 +236,7 @@ theorem explicit_fractional_bound (G : SimpleGraph V) :
         (Fintype.card V : ℝ) ^ 2 / 12 - (Fintype.card V : ℝ) / 2 ≤
           fractionalSize G wR + fractionalSize Gᶜ wB := by
   classical
-  letI : DecidableRel Gᶜ.Adj := Classical.decRel _
+  let : DecidableRel Gᶜ.Adj := Classical.decRel _
   obtain ⟨wR, zR, hwR, hzR₀, hzR₁, heqR⟩ :=
     LPDuality.exists_fractional_triangle_packing_edge_cover G
   obtain ⟨wB, zB, hwB, hzB₀, hzB₁, heqB⟩ :=

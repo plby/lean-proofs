@@ -523,7 +523,7 @@ private lemma sum_left_le {n : ℕ} (hn : 4096 ≤ n)
       dsimp [eta, turningPoint] at hbranch hside
       linarith
     rw [hempty]
-    simp
+    simp only [Finset.sum_empty, one_div, mul_inv_rev, ge_iff_le]
     have hsineta : 0 < Real.sin (eta n) :=
       Real.sin_pos_of_pos_of_lt_pi (eta_pos hn0)
         ((eta_le_pi_div_two hn).trans_lt (by linarith [Real.pi_pos]))
@@ -593,7 +593,7 @@ private lemma sum_right_le {n : ℕ} (hn : 4096 ≤ n)
       dsimp [eta, turningPoint] at hbranch hside
       linarith
     rw [hempty]
-    simp
+    simp only [Finset.sum_empty, one_div, mul_inv_rev, ge_iff_le]
     have hsineta : 0 < Real.sin (eta n) :=
       Real.sin_pos_of_pos_of_lt_pi (eta_pos hn0)
         ((eta_le_pi_div_two hn).trans_lt (by linarith [Real.pi_pos]))

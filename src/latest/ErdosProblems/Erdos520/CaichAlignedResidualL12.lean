@@ -1014,7 +1014,7 @@ theorem selectedAlignedHarperSafeL12Moment_nonneg
   classical
   unfold selectedAlignedHarperSafeL12Moment
   split_ifs with hi
-  · letI := Classical.decPred
+  · let := Classical.decPred
       (selectedAlignedHarperNear hK hHarper m ell i)
     unfold selectedAlignedHarperL12FirstMoment
     apply caichScheduledL12FirstMoment_nonneg
@@ -1123,7 +1123,7 @@ theorem summable_measureReal_selectedAlignedHarperL12_failure
       by_cases hi : i ∈ tests ell
       · rw [if_pos hi]
         dsimp only [value]
-        letI := Classical.decPred
+        let := Classical.decPred
           (selectedAlignedHarperNear hK hHarper m ell i)
         unfold selectedAlignedHarperL12
         exact caichScheduledL12_nonneg

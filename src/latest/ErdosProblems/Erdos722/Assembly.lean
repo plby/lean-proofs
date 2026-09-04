@@ -353,7 +353,7 @@ theorem eventually_exists_prunedGenerator_specialCandidateRotationCover
   filter_upwards [hfailure, hunion] with n hfailure hunion
   intro hn omegaSample D htyp hDK hmass u sigma hu
   let Request := RootRequest E.v n E.pattern.root
-  letI : Fintype Request := Fintype.ofInjective RootRequest.map (by
+  let : Fintype Request := Fintype.ofInjective RootRequest.map (by
     intro a b hab
     cases a with
     | mk amap ainj =>
@@ -363,7 +363,7 @@ theorem eventually_exists_prunedGenerator_specialCandidateRotationCover
         cases hab
         rfl)
   let Task := Request × (Erdos722.Exchange.RootEdge q r → Fin u)
-  letI : DecidableEq Task := Classical.decEq Task
+  let : DecidableEq Task := Classical.decEq Task
   let good (task : Task) : Prop :=
     ∀ e, requestedRootEdge E task.1 e ∈
       D.rotatedKstar sigma (task.2 e)

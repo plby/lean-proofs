@@ -55,7 +55,7 @@ theorem basis_square_cells_pack_in_zono
       exact hsum.symm
     rw [hgexpand, hfexpand]
     module
-  letI : VAddInvariantMeasure (span ℤ (Set.range b))
+  let : VAddInvariantMeasure (span ℤ (Set.range b))
       (Fin 2 → ℝ) volume :=
     ⟨fun c s _ ↦ measure_preimage_add volume (c : Fin 2 → ℝ) s⟩
   exact fundamentalDomain_finset_card_mul_measure_le

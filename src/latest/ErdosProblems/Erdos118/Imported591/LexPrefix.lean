@@ -252,7 +252,7 @@ theorem typeLT_le_one_of_subsingleton (X : Type*) [LinearOrder X]
     [WellFoundedLT X] [Subsingleton X] : typeLT X ≤ 1 := by
   classical
   by_cases hX : Nonempty X
-  · letI : Nonempty X := hX
+  · let : Nonempty X := hX
     have hUnique : Nonempty (Unique X) := by
       exact ⟨{ default := Classical.choice hX,
                 uniq := fun x ↦ Subsingleton.elim x _ }⟩
@@ -260,7 +260,7 @@ theorem typeLT_le_one_of_subsingleton (X : Type*) [LinearOrder X]
       (Ordinal.type_eq_one_iff_unique
         (r := ((· < ·) : X → X → Prop))).2 hUnique
     exact hEq.le
-  · letI : IsEmpty X := not_nonempty_iff.mp hX
+  · let : IsEmpty X := not_nonempty_iff.mp hX
     have hEq : typeLT X = 0 := Ordinal.type_eq_zero_of_empty _
     rw [hEq]
     exact zero_le
@@ -419,7 +419,7 @@ theorem exists_large_child_above {n k j : ℕ} (W : Set (RawLevel n))
   have hp' : p.length < n := by
     apply lt_of_le_of_ne hp
     intro hpn
-    letI : Subsingleton (Fiber W p) :=
+    let : Subsingleton (Fiber W p) :=
       fiber_subsingleton_of_length_eq W p hpn
     have hle := typeLT_le_one_of_subsingleton (Fiber W p)
     have hpow : 1 < ω ^ (k : Ordinal) := by
@@ -508,7 +508,7 @@ theorem exists_maximal_prefix {n k : ℕ} (W : Set (RawLevel n))
           exact lt_of_not_ge (fun ha ↦ hchild ⟨a, ha⟩)
         have hle : typeLT (Fiber W p) ≤ ω ^ (k : Ordinal) := by
           by_cases hpn : p.length = n
-          · letI : Subsingleton (Fiber W p) :=
+          · let : Subsingleton (Fiber W p) :=
               fiber_subsingleton_of_length_eq W p hpn
             exact (typeLT_le_one_of_subsingleton (Fiber W p)).trans
               (Order.one_le_iff_pos.mpr hbeta0)

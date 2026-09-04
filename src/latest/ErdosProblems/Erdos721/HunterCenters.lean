@@ -54,13 +54,13 @@ lemma missEvent_eq {Y S D : ℕ} (b : Fin Y) (F : Set (Torus D)) :
 lemma volume_missEvent {Y S D : ℕ} (b : Fin Y) (F : Set (Torus D))
     (hF : MeasurableSet F) :
     volume (missEvent (S := S) b F) = (1 - volume F) ^ S := by
-  letI : IsProbabilityMeasure (volume : Measure (Torus D)) :=
+  let : IsProbabilityMeasure (volume : Measure (Torus D)) :=
     HunterTorus.probabilityVolume D
-  letI : IsProbabilityMeasure
+  let : IsProbabilityMeasure
       (volume : Measure (Fin S → Torus D)) := by
     rw [volume_pi]
     exact probabilityMeasurePi
-  letI : IsProbabilityMeasure
+  let : IsProbabilityMeasure
       (volume : Measure (CenterFamily Y S D)) := by
     rw [volume_pi]
     exact probabilityMeasurePi
@@ -128,13 +128,13 @@ theorem exists_centerFamily_hits {R : Type*} [Fintype R]
   have hproper : someMissEvent (Y := Y) (S := S) F ≠ Set.univ := by
     intro h
     rw [h] at hbad
-    letI : IsProbabilityMeasure (volume : Measure (Torus D)) :=
+    let : IsProbabilityMeasure (volume : Measure (Torus D)) :=
       HunterTorus.probabilityVolume D
-    letI : IsProbabilityMeasure
+    let : IsProbabilityMeasure
         (volume : Measure (Fin S → Torus D)) := by
       rw [volume_pi]
       exact probabilityMeasurePi
-    letI : IsProbabilityMeasure
+    let : IsProbabilityMeasure
         (volume : Measure (CenterFamily Y S D)) := by
       rw [volume_pi]
       exact probabilityMeasurePi

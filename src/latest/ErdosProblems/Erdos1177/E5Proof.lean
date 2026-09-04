@@ -175,7 +175,7 @@ A more elementary criterion for the injectivity field of `Loose7Witness`.
 theorem sum_elim_injective_of_disjoint
     {x y : Fin 7 → W} (hx : Function.Injective x) (hy : Function.Injective y)
     (hxy : ∀ i j, x i ≠ y j) : Function.Injective (Sum.elim x y) := by
-  intro a b; cases a <;> cases b <;> simp_all +decide [ hx.eq_iff, hy.eq_iff ] ;
+  intro a b; cases a <;> cases b <;> simp_all +decide only [Sum.elim_inr, Sum.elim_inl, reduceCtorEq, imp_false] ;
   exact Ne.symm ( hxy _ _ )
 
 /-
@@ -215,7 +215,7 @@ theorem colorable_edgesMeeting (H : Hypergraph W) (htri : H.IsTripleSystem)
     {S : Set W} (hS : S.Countable) :
     (⟨edgesMeeting H S⟩ : Hypergraph W).ColorableBy ℵ₀ := by
   classical
-  letI : Countable S := hS.to_subtype
+  let : Countable S := hS.to_subtype
   let c : W → S ⊕ Unit := fun w =>
     if hw : w ∈ S then Sum.inl ⟨w, hw⟩ else Sum.inr ()
   apply colorableBy_aleph0_of_countable (T := S ⊕ Unit)
@@ -306,7 +306,7 @@ theorem looseCycle7_embeds_of_cleanEdgeCycle (H : Hypergraph W)
             obtain ⟨p, hp⟩ : ∃ p, p ∈ edge i \ {core i, core (i + 1)} := by
               exact Set.nonempty_of_ncard_ne_zero ( h_card_core.symm ▸ by decide )
             use p
-            simp [hp];
+            simp only [ne_eq, Fin.isValue];
             exact ⟨ hp.1, by rintro rfl; exact hp.2 ( by simp +decide ), by rintro rfl; exact hp.2 ( by simp +decide ) ⟩;
           exact ⟨ fun i => Classical.choose ( hp_exists i ), fun i => Classical.choose_spec ( hp_exists i ) ⟩;
         refine' ⟨ p, hp, _, _ ⟩;
@@ -365,7 +365,7 @@ theorem exists_finite_edge_matching_avoid_countable (H : Hypergraph W)
             apply exists_edge_disjoint_countable H htri huc;
             refine' Set.Countable.union hS _;
             exact Set.countable_iUnion fun i => Set.Finite.countable <| Set.finite_coe_iff.mp <| by have := htri ( es i ) ( hes.1 i |>.1 ) ; exact Set.finite_of_ncard_pos ( by linarith ) ;
-          refine' ⟨ Fin.cons e es, _, _ ⟩ <;> simp_all +decide [ Fin.forall_fin_succ, Set.subset_def ];
+          refine' ⟨ Fin.cons e es, _, _ ⟩ <;> simp_all +decide only [ne_eq];
           · exact fun i x hx => hes.1 i |>.2 x hx;
           · exact ⟨ fun i hi => Set.disjoint_left.mpr fun x hx hx' => he.2 x hx |>.2 i hx', fun i => Set.disjoint_left.mpr fun x hx hx' => he.2 x hx' |>.2 i hx ⟩
 
@@ -605,7 +605,7 @@ theorem exists_finite_edges_cover_shadow_on (H : Hypergraph W)
   set pairs := {p : W × W | p.1 ∈ s ∧ p.2 ∈ s ∧ (shadowGraph H).Adj p.1 p.2} with hpairs_def;
   -- By definition of pairs, for each pair (a, b) in pairs, there exists an edge e in H.edges such that a ∈ e and b ∈ e.
   have h_pairs_edges : ∀ p ∈ pairs, ∃ e ∈ H.edges, p.1 ∈ e ∧ p.2 ∈ e := by
-    simp +zetaDelta at *;
+    simp +zetaDelta only [Prod.forall] at *;
     intro a b ha hb hab; rcases hab with ⟨ hab, ⟨ e, he, ha, hb ⟩ ⟩ ; use e; aesop;
   choose! f hf₁ hf₂ hf₃ using h_pairs_edges;
   -- Since pairs is finite, the image of f over pairs is also finite.

@@ -1819,7 +1819,8 @@ theorem split_adjacent_eval
           source.bridge = .entered source.start first q parent word_eq ∧
         parent.1 = source.bridge.1 := by
   unfold paddedPreludeSplit
-  simp [ht0, hnotOuter]
+  simp only [Nat.add_one_sub_one, Lean.Elab.WF.paramLet, exists_and_right, Subtype.exists, exists_eq_right,
+    List.append_left_eq_self, List.ofFn_eq_nil_iff, Sigma.exists]
   constructor
   · refine ⟨?_, ?_⟩
     · constructor

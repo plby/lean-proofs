@@ -308,7 +308,7 @@ theorem not_mem_before_of_mem_layer {i : D.Index} {a : Code}
     (ha : a ∈ D.layer i) : a ∉ D.before i := by
   intro hb
   rcases hb with ⟨j, hji, hj⟩
-  letI : IsWellOrder D.Index D.lt := D.isWellOrder
+  let : IsWellOrder D.Index D.lt := D.isWellOrder
   have hne : j ≠ i := by
     intro h
     subst j
@@ -1980,7 +1980,7 @@ theorem blockFamily_hitsAllFrames
 theorem blockFamily_strong
     (B : BlockFamily D.Index D.lt (terminalLayer D)) :
     ∃ S : Set Point, IsPartialSteinhaus S ∧ HitsEveryLattice S := by
-  letI : IsWellOrder D.Index D.lt := D.isWellOrder
+  let : IsWellOrder D.Index D.lt := D.isWellOrder
   refine ⟨B.result, ?_, hitsEveryLattice_of_hitsAllFrames (blockFamily_hitsAllFrames D B)⟩
   apply B.result_partial
   intro i j

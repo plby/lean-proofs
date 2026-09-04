@@ -1034,7 +1034,7 @@ lemma summable_linkPathWeight {r : ℕ} [NeZero r] {s : ℝ} (hs : 1 < s) :
         rcases q with ⟨hq⟩
         congr
       have htoUnit : Function.Injective toUnit := fun p q _ ↦ hpathEq p q
-      letI : Finite (LinkPath r 0 b a) := Finite.of_injective toUnit htoUnit
+      let : Finite (LinkPath r 0 b a) := Finite.of_injective toUnit htoUnit
       exact Summable.of_finite
   | succ k ih =>
       intro b a
@@ -1071,7 +1071,7 @@ lemma tsum_linkPathWeight_eq_pathWeight {r : ℕ} [NeZero r]
             rcases p with ⟨hp'⟩
             congr
           exact (hp hpp0).elim
-      · haveI : IsEmpty (PLift (b = a)) :=
+      · have : IsEmpty (PLift (b = a)) :=
           ⟨fun p ↦ hba p.down⟩
         rw [pathWeight_zero, if_neg hba]
         have hfun :

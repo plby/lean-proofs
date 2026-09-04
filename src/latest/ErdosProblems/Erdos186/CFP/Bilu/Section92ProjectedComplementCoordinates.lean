@@ -245,34 +245,56 @@ theorem projectedIntegralCoordinates_eq :
   intro i
   rcases i with i | i
   · fin_cases i
-    simp [projectedIntegralCoordinates, reducedIntegralRealLinear,
-      PrimitiveIntegralQuotient.complementCoordinates,
-      PrimitiveIntegralQuotient.complementProjection,
-      PrimitiveIntegralQuotient.complementCoordinateEquiv,
-      fullRealFamily, primitiveReal]
-    change S.primitiveReal ∈ S.projectedSpaceᗮ
-    change S.primitiveReal ∈ (ℝ ∙ S.primitiveReal)ᗮᗮ
-    rw [Submodule.orthogonal_orthogonal]
-    exact Submodule.mem_span_singleton_self S.primitiveReal
-  · simp [projectedIntegralCoordinates, reducedIntegralRealLinear,
-      PrimitiveIntegralQuotient.complementCoordinates,
-      PrimitiveIntegralQuotient.complementProjection,
-      PrimitiveIntegralQuotient.complementCoordinateEquiv,
-      projectedComplementFamily, complementReal]
+    simp only [Fin.zero_eta, Fin.isValue, fullIntegralBasis_inl, projectedIntegralCoordinates_apply,
+    LinearMap.coe_comp, Function.comp_apply, reducedIntegralRealLinear_apply]
+    have hreal :
+        integralReal (S.quotient.primitiveBasis 0 : IntegralPoint n) =
+          S.primitiveReal := by
+      rfl
+    have hproj :
+        S.projectedSpace.orthogonalProjectionOnto S.primitiveReal = 0 := by
+      apply Submodule.orthogonalProjectionOnto_eq_zero_iff.mpr
+      change S.primitiveReal ∈ (ℝ ∙ S.primitiveReal)ᗮᗮ
+      rw [Submodule.orthogonal_orthogonal]
+      exact Submodule.mem_span_singleton_self S.primitiveReal
+    have hcoord :
+        S.quotient.complementCoordinates
+            (S.quotient.primitiveBasis 0 : IntegralPoint n) = 0 := by
+      change S.quotient.complementCoordinateEquiv
+          (((primitiveDirection S.short.vector).prodEquivOfIsCompl
+            S.quotient.complement S.quotient.isCompl).symm
+              (S.quotient.primitiveBasis 0 : IntegralPoint n)).2 = 0
+      rw [Submodule.prodEquivOfIsCompl_symm_apply_left]
+      simp
+    rw [hreal, hproj, hcoord]
+    simp
+  · simp only [fullIntegralBasis_inr, projectedIntegralCoordinates_apply, LinearMap.coe_comp, Function.comp_apply,
+    reducedIntegralRealLinear_apply]
     have hleft :
-        integralRealLinear
+        integralReal
             (S.quotient.complementBasis i : IntegralPoint n) =
           S.complementReal i := by
       ext j
       rfl
+    have hcoord :
+        S.quotient.complementCoordinates
+            (S.quotient.complementBasis i : IntegralPoint n) =
+          Pi.single i 1 := by
+      change S.quotient.complementCoordinateEquiv
+          (((primitiveDirection S.short.vector).prodEquivOfIsCompl
+            S.quotient.complement S.quotient.isCompl).symm
+              (S.quotient.complementBasis i : IntegralPoint n)).2 =
+        Pi.single i 1
+      rw [Submodule.prodEquivOfIsCompl_symm_apply_right]
+      ext j
+      simp [PrimitiveIntegralQuotient.complementCoordinateEquiv,
+        Basis.equivFun_self, Pi.single_apply, eq_comm]
     rw [hleft]
     change S.projectedComplementEquiv (S.projectedComplementFamily i) = _
     rw [S.projectedComplementEquiv_projectedComplementFamily i]
+    rw [hcoord]
     ext j
-    by_cases hji : j = i
-    · subst j
-      simp [Pi.single_apply, integralRealLinear, integralReal]
-    · simp [Pi.single_apply, integralRealLinear, integralReal, hji]
+    simp [Pi.single_apply, integralEmbed]
 
 /-- Pointwise coordinate form of the quotient compatibility.  This is the
 key identity used to transport all old integral lifts to the reduced unit

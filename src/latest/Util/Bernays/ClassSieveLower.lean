@@ -50,7 +50,7 @@ theorem classSieve_lower {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
         (∏ s ∈ S, (s.1 - 1) ^ 2) * L ^ 2 ≤ Nat.card (QuadraticAlgebra ℤ d b)ˣ *
           Nat.card (ClassSieveBall I.idealClass⁻¹
             (classSieveScale d b (classSieveMultiplier I M) * (splitSieveModulus S) ^ 2 * L ^ 2) M S) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I M hM c hc S hS L hrL hiL
   let O := QuadraticAlgebra ℤ d b
   let μ := classSieveMultiplier I M
@@ -58,9 +58,9 @@ theorem classSieve_lower {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
   let N := classSieveScale d b μ * Q ^ 2 * L ^ 2
   have hμ : 0 < μ := Nat.mul_pos hM I.cardQuot_pos
   have hQ : 0 < Q := splitSieveModulus_pos S
-  letI : NeZero Q := ⟨hQ.ne'⟩
+  let : NeZero Q := ⟨hQ.ne'⟩
   let X := AffineAllowedResiduePairs S (c : O) (μ : ℤ) × Fin L × Fin L
-  letI : Finite X := by
+  let : Finite X := by
     dsimp only [X, AffineAllowedResiduePairs]
     infer_instance
   let z : X → O := fun x => affineBoxPoint (c : O) μ Q L x.1.1 x.2.1 x.2.2

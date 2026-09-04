@@ -185,7 +185,7 @@ theorem addEar [G.Finite]
     (hnew : ∀ g ∈ D', g ∉ E(B)) :
     Nonempty (WeightedFaces (B.union (G.pathGraphOf a D')) drawing) := by
   classical
-  haveI : B.Finite := Finite.of_le hBG
+  have : B.Finite := Finite.of_le hBG
   let B' := B.union (G.pathGraphOf a D')
   let P := edgesCover drawing D'
   have hne : D' ≠ [] := hpath.ne_nil hab

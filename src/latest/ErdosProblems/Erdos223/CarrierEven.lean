@@ -580,7 +580,7 @@ theorem exists_evenCircleCarrier_of_cross_unit_triples_with_completion
   intro i q hq
   have hvorth (k : Fin p) (hki : k ≠ i) :
       q -ᵥ C.center ∈ (triplePlane x k).directionᗮ := by
-    letI : Nonempty (triplePlane x k) :=
+    let : Nonempty (triplePlane x k) :=
       ⟨⟨x k 0, mem_affineSpan ℝ ⟨0, rfl⟩⟩⟩
     have hproj : ↑((S k).orthogonalProjectionSpan q) = C.center := by
       calc

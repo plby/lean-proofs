@@ -59,7 +59,7 @@ theorem translatedSites_common_point_unique (h : Fin k → ℕ)
     (hinj : Function.Injective (fun i => (h i : ZMod p)))
     (hq : q ∈ translatedSites h p n) (hq' : q' ∈ translatedSites h p n)
     (hr : q ∈ translatedSites h p' n') (hr' : q' ∈ translatedSites h p' n') : q = q' := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hres := translatedSites_same_source_residue h hq hq'
   obtain ⟨i, hi⟩ := (mem_translatedSites h p' n' q).mp hr
   obtain ⟨j, hj⟩ := (mem_translatedSites h p' n' q').mp hr'

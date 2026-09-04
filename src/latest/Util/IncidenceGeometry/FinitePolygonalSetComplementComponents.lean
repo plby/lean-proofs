@@ -131,7 +131,7 @@ lemma FinitePolygonalSetComplementComponents (K : FinitePolygonalSet) :
   rcases finite_carrier_components with ⟨comps, hcomp_mem, hcomp_cover⟩
   let Face : Type := {C : Set (EuclideanSpace ℝ (Fin 2)) // C ∈ comps}
   let faceSet : Face → Set (EuclideanSpace ℝ (Fin 2)) := fun F => F.1
-  haveI : Fintype Face := by
+  have : Fintype Face := by
     dsimp [Face]
     infer_instance
   refine ⟨Face, inferInstance, faceSet, ?_, ?_, ?_⟩

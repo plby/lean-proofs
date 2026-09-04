@@ -74,7 +74,7 @@ theorem product_residue_sum
   let f : ZMod (modulus ell) → ℝ := fun x =>
     ∏ l, g l (ZMod.castHom (local_dvd_modulus ell l) (ZMod (ell l)) x)
   have hM : 0 < modulus ell := Finset.prod_pos (fun l _ => (Fact.out : (ell l).Prime).pos)
-  letI : NeZero (modulus ell) := ⟨hM.ne'⟩
+  let : NeZero (modulus ell) := ⟨hM.ne'⟩
   have hn : ∀ n : ℕ, (∏ l, g l (n : ZMod (ell l))) = f (n : ZMod (modulus ell)) := by
     intro n
     simp only [f, map_natCast]

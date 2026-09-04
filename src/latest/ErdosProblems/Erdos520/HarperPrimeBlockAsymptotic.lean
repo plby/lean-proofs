@@ -459,7 +459,7 @@ theorem abs_freshReciprocalSum_square_sub_log_two_le_of_thetaError
         |reciprocalPrimeKernel ↑(A ^ 2) * thetaError ↑(A ^ 2) -
           reciprocalPrimeKernel ↑A * thetaError ↑A -
           ∫ x in (A : ℝ)..↑(A ^ 2),
-            reciprocalPrimeKernelDeriv x * thetaError x| := by ring
+            reciprocalPrimeKernelDeriv x * thetaError x| := by ring_nf
       _ ≤ |reciprocalPrimeKernel ↑(A ^ 2) * thetaError ↑(A ^ 2) -
           reciprocalPrimeKernel ↑A * thetaError ↑A| +
           |∫ x in (A : ℝ)..↑(A ^ 2),

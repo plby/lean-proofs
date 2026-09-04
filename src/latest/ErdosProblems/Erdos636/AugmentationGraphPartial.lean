@@ -141,7 +141,7 @@ lemma uniformProbability_sampleFinset_eq_layerProbability
         (fun omega : BoolSlice U₀ s ↦ event (sampleFinset U₀ s omega)) =
       NestedUniform.layerProbability U₀ s event := by
   classical
-  letI : Nonempty {D // D ∈ NestedUniform.layer U₀ s} :=
+  let : Nonempty {D // D ∈ NestedUniform.layer U₀ s} :=
     ⟨booleanSlicePointEquivLayer U₀ s
       (Classical.choice (inferInstance : Nonempty
         (Erdos88.BooleanSlices.BooleanSlicePoint U₀ s)))⟩
@@ -404,7 +404,7 @@ theorem uniformExpectation_sliceSum [Nonempty I]
     (V := I) ell
   let f : Erdos88.BooleanSlices.BooleanSlicePoint
       (Finset.univ : Finset I) ell → ℝ := fun D ↦ ∑ i ∈ D.1, a i
-  letI : Nonempty
+  let : Nonempty
       (Erdos88.BooleanSlices.BooleanSlicePoint
         (Finset.univ : Finset I) ell) :=
     SliceMoments.nonempty_booleanSlicePoint Finset.univ ell (by simpa using hell)
@@ -473,7 +473,7 @@ theorem boolSlice_sum_two_sided_probability
   let minus : Fin 1 → ℕ := fun _ ↦ 0
   let E := SlicePersistence.boolSliceEquivOneBucketSigned
     (V := I) ell hell
-  letI : Nonempty
+  let : Nonempty
       (Erdos88.BooleanSlices.ProductSignedSlicePoint P plus minus) :=
     ⟨E (Classical.choice (inferInstance : Nonempty (BoolSlice I ell)))⟩
   let e : ∀ k : Fin 1, Fin (P.fiber k).card ≃ ↑(P.fiber k) :=
@@ -572,15 +572,15 @@ theorem three_fourths_le_layerProbability_partialGood_thresholds
         degreeDev tS tX tCollision) := by
   classical
   have hU₀pos : 0 < U₀.card := by omega
-  letI : Nonempty U₀ := by
+  let : Nonempty U₀ := by
     obtain ⟨u, hu⟩ := Finset.card_pos.mp hU₀pos
     exact ⟨⟨u, hu⟩⟩
-  letI : LinearOrder (Finset V) := cellLinearOrder
-  letI : Nonempty
+  let : LinearOrder (Finset V) := cellLinearOrder
+  let : Nonempty
       (Erdos88.BooleanSlices.BooleanSlicePoint U₀ (2 * nD)) :=
     SliceMoments.nonempty_booleanSlicePoint U₀ (2 * nD) hfeasible
   let E := boolSliceEquivBooleanSlicePoint U₀ (2 * nD)
-  letI : Nonempty (BoolSlice U₀ (2 * nD)) :=
+  let : Nonempty (BoolSlice U₀ (2 * nD)) :=
     E.nonempty_congr.mpr inferInstance
   obtain ⟨S₀, X₀, hS₀M, hX₀M, hS₀card, hX₀card, hdisjoint⟩ :=
     exists_two_disjoint_subsets_card_eq M s₀ hfamilies

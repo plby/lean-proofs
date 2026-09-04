@@ -20,11 +20,13 @@ theorem squarefree_of_two_representations {p q a b : ℕ}
   intro x
   by_cases hxp : x = p
   · rw [heq, Nat.factorization_mul hq.ne_zero hb0, hq.factorization]
-    simp [hxp, hpq]
-    exact Squarefree.natFactorization_le_one p hb
+    simp only [Finsupp.coe_add, Pi.add_apply]
+    simpa [Finsupp.single_apply, hxp, hpq] using
+      Squarefree.natFactorization_le_one p hb
   · rw [Nat.factorization_mul hp.ne_zero ha0, hp.factorization]
-    simp [hxp]
-    exact Squarefree.natFactorization_le_one x ha
+    simp only [Finsupp.coe_add, Pi.add_apply]
+    simpa [Finsupp.single_apply, hxp] using
+      Squarefree.natFactorization_le_one x ha
 
 /-- On a squarefree candidate family, a nonsquarefree target has at most one
 prime-times-member representation. -/

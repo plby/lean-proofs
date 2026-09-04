@@ -131,7 +131,7 @@ theorem uniformVanishing_to_tendsto_uniformly_on {f : ℕ → ℂ → G} {s : Se
   rcases GS (e / 4) (by linarith) with ⟨M, HM⟩; clear GS G h
   set A := N ∪ M \ N
   have AM : M ⊆ A := subset_union_sdiff _ _
-  simp at HM
+  simp only [gt_iff_lt] at HM
   specialize HM A AM
   rw [dist_comm] at HM
   calc dist g (N.sum fun n ↦ f n z)

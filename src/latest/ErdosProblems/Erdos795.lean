@@ -3988,15 +3988,25 @@ lemma induced_edge_card_erase
     exact G.card_filter_edgeFinset_toFinset_subset (s.erase x)
   have hdiff : F' = F \ G.incidenceFinset x := by
     ext e
-    simp [F', F, G.incidenceFinset_eq_filter, Finset.subset_iff]
+    simp only [F, F', Finset.mem_filter, Finset.mem_sdiff,
+      SimpleGraph.mem_incidenceFinset]
     constructor
     · rintro ⟨he, hall⟩
-      refine ⟨⟨he, fun y hy ↦ (hall hy).2⟩, ?_⟩
-      intro _ hxe
-      exact (hall hxe).1 rfl
+      refine ⟨⟨he, fun y hy ↦ (Finset.mem_erase.mp (hall hy)).2⟩, ?_⟩
+      intro hinc
+      have heSet : e ∈ G.edgeSet := G.mem_edgeFinset.mp he
+      have hxmem : x ∈ e :=
+        (G.edge_mem_incidenceSet_iff (e := ⟨e, heSet⟩)).mp hinc
+      have hxerase : x ∈ s.erase x := hall (Sym2.mem_toFinset.mpr hxmem)
+      exact (Finset.mem_erase.mp hxerase).1 rfl
     · rintro ⟨⟨he, hall⟩, hxnot⟩
-      exact ⟨he, fun y hy ↦
-        ⟨fun hyx ↦ hxnot he (hyx ▸ hy), hall hy⟩⟩
+      refine ⟨he, fun y hy ↦ Finset.mem_erase.mpr ⟨?_, hall hy⟩⟩
+      intro hyx
+      subst y
+      have heSet : e ∈ G.edgeSet := G.mem_edgeFinset.mp he
+      apply hxnot
+      exact (G.edge_mem_incidenceSet_iff (e := ⟨e, heSet⟩)).mpr
+        (Sym2.mem_toFinset.mp hy)
   let H : SimpleGraph (↑s : Set V) := G.induce (↑s : Set V)
   let ι : (↑s : Set V) ↪ V := Function.Embedding.subtype _
   have hinc :
@@ -4028,7 +4038,7 @@ lemma exists_min_degree_two_induced
   let Good : Finset V → Prop := fun s ↦
     s.card + q ≤ (G.induce (↑s : Set V)).edgeFinset.card
   let P : ℕ → Prop := fun k ↦ ∃ s : Finset V, s.card = k ∧ Good s
-  letI : DecidablePred P := Classical.decPred P
+  let : DecidablePred P := Classical.decPred P
   have hP : ∃ k, P k := by
     refine ⟨Fintype.card V, Finset.univ, Finset.card_univ, ?_⟩
     dsimp [Good]
@@ -4104,7 +4114,7 @@ lemma moore_excess_le
     apply hno x.1 (c.map ι)
     · exact hc.map Subtype.val_injective
     · simpa using hlen
-  letI : Nonempty (↑s : Set V) := hsne.to_subtype
+  let : Nonempty (↑s : Set V) := hsne.to_subtype
   have hcardS : Fintype.card (↑s : Set V) = s.card := by
     change Fintype.card ↑s = s.card
     exact Fintype.card_coe s
@@ -5850,7 +5860,7 @@ lemma trimmedProductGraph_card_add_loose
     (trimmedProductGraph N A D).edgeFinset.card +
         (looseEdges N A D).card =
       (residualProductGraph N A D).edgeFinset.card := by
-  letI : Fintype ((residualProductGraph N A D).deleteEdges
+  let : Fintype ((residualProductGraph N A D).deleteEdges
       (↑(looseEdges N A D) : Set (Sym2 ℕ))).edgeSet := by
     apply Set.Finite.fintype
     rw [SimpleGraph.edgeSet_deleteEdges]

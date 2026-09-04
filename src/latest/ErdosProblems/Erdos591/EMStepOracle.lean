@@ -155,8 +155,8 @@ theorem stepOracle_of_k4_core
         intro b hb
         rw [← d.2.2] at hb
         exact (Finset.mem_filter.mp hb).1
-      letI : IsEmpty (FixedReindex.Cell F s) := not_nonempty_iff.mp hempty
-      haveI : IsEmpty (FixedReindex.MCell F M s) := inferInstance
+      let : IsEmpty (FixedReindex.Cell F s) := not_nonempty_iff.mp hempty
+      have : IsEmpty (FixedReindex.MCell F M s) := inferInstance
       rw [Ordinal.type_eq_zero_of_empty, Ordinal.type_eq_zero_of_empty]
   let g : B ↪o B := FixedReindex.fixedReindex F M hlarge
   have hgfix : ∀ b ∈ F, g b = b := by

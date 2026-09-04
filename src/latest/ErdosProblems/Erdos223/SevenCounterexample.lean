@@ -151,7 +151,7 @@ lemma cross_disjoint_left (e : {x // x ∈ B} ≃ Fin m) :
   obtain ⟨x, y, _hxy, hx, hy⟩ := hlocal
   have hv := congrArg Prod.fst hx
   have hw := congrArg Prod.fst hy
-  simp [leftEmbedding] at hv hw
+  simp only [SimpleGraph.emptyGraph_eq_bot, SimpleGraph.bot_adj] at hv hw
   exact (SimpleGraph.completeEquipartiteGraph_adj.mp hcross) (hv.symm.trans hw)
 
 lemma cross_disjoint_right (e : {x // x ∈ B} ≃ Fin m) :
@@ -164,7 +164,7 @@ lemma cross_disjoint_right (e : {x // x ∈ B} ≃ Fin m) :
   obtain ⟨x, y, _hxy, hx, hy⟩ := hlocal
   have hv := congrArg Prod.fst hx
   have hw := congrArg Prod.fst hy
-  simp [rightEmbedding] at hv hw
+  simp only [SimpleGraph.emptyGraph_eq_bot, SimpleGraph.bot_adj] at hv hw
   exact (SimpleGraph.completeEquipartiteGraph_adj.mp hcross) (hv.symm.trans hw)
 
 lemma left_disjoint_right (e : {x // x ∈ B} ≃ Fin m) :
@@ -265,7 +265,7 @@ lemma card_edgeFinset_d7SourceGraph (e : {x // x ∈ B} ≃ Fin m) (hm : 2 ≤ m
       (baseGraph e).edgeFinset ∪ {s(u, v)} := by
     ext q
     simp only [SimpleGraph.mem_edgeFinset]
-    simp [d7SourceGraph, u, v]
+    simp only [Finset.union_singleton, Finset.mem_insert, SimpleGraph.mem_edgeFinset]
     constructor
     · rintro (hbase | ⟨hq, _⟩)
       · exact Or.inr hbase

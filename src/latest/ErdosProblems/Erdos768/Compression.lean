@@ -94,7 +94,7 @@ theorem valuation_bit (Q m D : ℕ) (hQ : Squarefree Q) (hm : m ≠ 0)
     (∀ q ∈ Q.primeFactors, (D.factorization q) - ((Nat.gcd D m).factorization q) ≤ 1) ∧
       D = Nat.gcd D m * ∏ q ∈ Q.primeFactors, q ^ ((D.factorization q) - ((Nat.gcd D m).factorization q)) := by
   refine' ⟨ fun q hq => _, _ ⟩;
-  · have := Nat.factorization_le_iff_dvd ( by aesop ) ( by aesop ) |>.2 hD ; simp_all +decide [ Nat.factorization_mul ] ;
+  · have := Nat.factorization_le_iff_dvd ( by aesop ) ( by aesop ) |>.2 hD ; simp_all +decide only [tsub_le_iff_right, ge_iff_le] ;
     replace := this q; simp_all +decide [ Nat.factorization_gcd ] ;
     have := hQ.natFactorization_le_one q; omega;
   · refine' Nat.factorization_inj _ _ _;
@@ -151,7 +151,7 @@ theorem Siter_subset (n r i : ℕ) : Siter n (topR n r) i ⊆ topR n r := by
 -/
 theorem topR_subset (n r : ℕ) : topR n r ⊆ n.primeFactors := by
   intro z hz
-  simp [topR] at hz;
+  simp only [topR, List.mem_toFinset] at hz
   exact Finset.mem_sort ( α := ℕ ) ( fun x1 x2 => x2 ≤ x1 ) |>.1 ( List.mem_of_mem_take hz )
 
 /-
@@ -233,9 +233,11 @@ theorem qi_strictAnti (n r i : ℕ) (hr1 : 1 ≤ r) (hrn : r ≤ omegaCount n) (
   have h_max_lt : ∀ {S T : Finset ℕ}, S ⊆ T.erase (T.max.getD 0) → S.Nonempty → S.max.getD 0 < T.max.getD 0 := by
     intro S T hST hS_nonempty
     have h_max_lt : ∀ x ∈ S, x < T.max.getD 0 := by
-      intro x hx; have := hST hx; simp_all +decide [ Finset.subset_iff ] ;
-      have := Finset.le_max ( hST hx |>.2 ) ; cases h : T.max <;> simp_all +decide ;
-      exact lt_of_le_of_ne this ( hST hx |>.1 );
+      intro x hx
+      have hxErase := Finset.mem_erase.mp (hST hx)
+      have hxle := Finset.le_max hxErase.2
+      cases h : T.max <;> simp_all +decide
+      exact lt_of_le_of_ne hxle hxErase.1
     obtain ⟨ x, hx ⟩ := Finset.max_of_nonempty hS_nonempty;
     exact hx.symm ▸ h_max_lt x ( Finset.mem_of_max hx );
   apply h_max_lt h_subset;
@@ -303,8 +305,11 @@ theorem qi_injOn_Esel (n r : ℕ) (hr1 : 1 ≤ r) (hrn : r ≤ omegaCount n) :
 theorem Esel_card (n r : ℕ) : (Esel n r).card = hr r := by
   -- The cardinality of the union of $I_{\text{zero}}$ and $[h_r, h_r+h_+)$ is $h_r - h_+ + h_+ = h_r$.
   have h_union_card : (Izero n r).card + (Finset.Ico (hr r) (hr r + hplus n r)).card = hr r := by
-    simp +arith +decide [ Izero, Iplus, hplus ];
-    rw [ add_comm, Finset.card_filter_add_card_filter_not ] ; aesop;
+    simp +arith +decide only [Nat.card_Ico, add_tsub_cancel_left]
+    unfold Izero hplus Iplus
+    simpa [add_comm] using
+      (Finset.card_filter_add_card_filter_not (s := Finset.range (hr r))
+        (fun i => rowPos n r i))
   rw [ ← h_union_card, show Esel n r = Izero n r ∪ Finset.Ico ( hr r ) ( hr r + hplus n r ) from rfl, Finset.card_union_of_disjoint ];
   exact Finset.disjoint_left.mpr fun x hx₁ hx₂ => by linarith [ Finset.mem_Ico.mp hx₂, Finset.mem_range.mp ( Finset.mem_filter.mp hx₁ |>.1 ) ] ;
 
@@ -334,7 +339,7 @@ theorem Qr_omega (n r : ℕ) (hr1 : 1 ≤ r) (hrn : r ≤ omegaCount n) :
     · rw [ Finset.prod_image ];
       · rfl;
       · exact qi_injOn_Esel n r hr1 hrn;
-    · simp +zetaDelta at *;
+    · simp +zetaDelta only [mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at *;
       exact fun x hx => qi_prime n r x hr1 hrn ( Esel_lt_sr n r x hx );
   convert! congr_arg Finset.card h_prime_factors using 1;
   rw [ Finset.card_image_of_injOn ( qi_injOn_Esel n r hr1 hrn ), Esel_card ]
@@ -364,8 +369,10 @@ The selection sets are antitone in the step index.
 -/
 theorem Siter_antitone (n r k l : ℕ) (hkl : k ≤ l) :
     Siter n (topR n r) l ⊆ Siter n (topR n r) k := by
-  induction hkl <;> simp_all +decide [ Siter ];
-  exact Finset.Subset.trans ( step_subset _ _ ) ‹_›
+  induction l, hkl using Nat.le_induction with
+  | base => exact Finset.Subset.rfl
+  | succ l _ ih =>
+      exact Finset.Subset.trans (step_subset n (Siter n (topR n r) l)) ih
 
 /-
 `q_j ∈ S_j` for `j < s_r`.
@@ -447,12 +454,13 @@ The prime factors of `Q_r(n)` are exactly `{q_j : j ∈ E}`.
 -/
 theorem Qr_primeFactors (n r : ℕ) (hr1 : 1 ≤ r) (hrn : r ≤ omegaCount n) :
     (Qr n r).primeFactors = (Esel n r).image (qi n r) := by
-  have h_image : Qr n r = ∏ j ∈ Esel n r, qi n r j := by
-    rfl;
-  have h_prime_factors : ∀ {S : Finset ℕ}, (∀ j ∈ S, (qi n r j).Prime) → (∏ j ∈ S, qi n r j).primeFactors = S.image (fun j => qi n r j) := by
-    intros S hS; induction S using Finset.induction <;> simp_all +decide ;
-    rw [ Nat.primeFactors_mul, ‹ ( ∏ j ∈ _, qi n r j |> Nat.primeFactors ) = _ › ] <;> simp_all +decide [ Nat.Prime.ne_zero, Finset.prod_eq_zero_iff ];
-  exact h_image.symm ▸ h_prime_factors fun j hj => qi_prime n r j hr1 hrn ( Esel_lt_sr n r j hj )
+  convert! Nat.primeFactors_prod _ using 1
+  · rw [Finset.prod_image]
+    · rfl
+    · exact qi_injOn_Esel n r hr1 hrn
+  · simp +zetaDelta only [Finset.mem_image, forall_exists_index, and_imp,
+      forall_apply_eq_imp_iff₂] at *
+    exact fun j hj => qi_prime n r j hr1 hrn (Esel_lt_sr n r j hj)
 
 /-
 `n = m * Q_r(n)` when `m = n / Q_r(n)`.
@@ -495,8 +503,14 @@ theorem zero_row_recovery (n r m i : ℕ) (hn : n ∈ Acal) (hr2 : 2 ≤ r) (hrn
     · exact this.2.symm;
     · exact qi_injOn_Esel n r ( by linarith ) ( by linarith );
   convert! h_val.symm using 2;
-  refine' Finset.prod_subset _ _ <;> intro k hk <;> simp_all +decide;
-  exact fun h => Or.inr <| epsv_zero_of_ge n r ( n / Qr n r ) i k hn hr2 hrn hn0 hi hzero hk h
+  apply Finset.prod_subset
+  · exact Finset.filter_subset _ _
+  · intro k hkE hkFilter
+    have hki : ¬ k < i := fun hki =>
+      hkFilter (Finset.mem_filter.mpr ⟨hkE, hki⟩)
+    have hik : i ≤ k := Nat.not_lt.mp hki
+    rw [epsv_zero_of_ge n r m i k hn hr2 hrn hn0 hi hzero hkE hik,
+      pow_zero]
 
 /-! ### Positive rows and the common suffix product `P` -/
 
@@ -584,13 +598,25 @@ theorem epsv_one_of_F (n r m i f : ℕ) (hn : n ∈ Acal) (hr2 : 2 ≤ r) (hrn :
         exact Nat.factorization_eq_zero_of_not_dvd fun h => Finset.mem_filter.mp hf |>.2 h;
       linarith [ vn_eq n r m f ( by linarith ) ( by linarith ) hn0 hm ( by
         exact Finset.mem_union_right _ ( Finset.mem_Ico.mpr ⟨ by linarith [ Finset.mem_Ico.mp ( Finset.mem_filter.mp hf |>.1 ) ], by linarith [ Finset.mem_Ico.mp ( Finset.mem_filter.mp hf |>.1 ) ] ⟩ ) ) ];
-    refine' le_antisymm h_factorization_Dwit_le ( Nat.pos_of_ne_zero _ );
-    simp_all +decide [ Nat.factorization_eq_zero_iff ];
-    exact ⟨ qi_prime n r f ( by linarith ) ( by linarith ) ( by
-      exact Esel_lt_sr n r f ( Finset.mem_union_right _ ( Finset.mem_Ico.mpr ⟨ by linarith [ Finset.mem_Ico.mp ( Finset.mem_filter.mp hf |>.1 ) ], by linarith [ Finset.mem_Ico.mp ( Finset.mem_filter.mp hf |>.1 ), hplus_le_hr n r ] ⟩ ) ) ), by
-      exact Nat.ne_of_gt ( Nat.pos_of_dvd_of_pos ( Dwit_spec n ( qi n r i ) hn ( qi_prime n r i ( by linarith ) ( by linarith ) ( by
-        exact lt_of_lt_of_le ( Finset.mem_range.mp ( Finset.mem_filter.mp hi |>.1 ) ) ( Nat.div_le_self _ _ ) ) ) ( qi_dvd n r i ( by linarith ) ( by linarith ) ( by
-        exact lt_of_lt_of_le ( Finset.mem_range.mp ( Finset.mem_filter.mp hi |>.1 ) ) ( Nat.div_le_self _ _ ) ) ) hn0 |>.1 ) ( Nat.pos_of_ne_zero hn0 ) ) ⟩;
+    apply le_antisymm h_factorization_Dwit_le
+    apply (qi_prime n r f (by linarith) (by linarith) (by
+      exact Esel_lt_sr n r f (Finset.mem_union_right _
+        (Finset.mem_Ico.mpr ⟨by
+          linarith [Finset.mem_Ico.mp (Finset.mem_filter.mp hf).1], by
+          linarith [Finset.mem_Ico.mp (Finset.mem_filter.mp hf).1,
+            hplus_le_hr n r]⟩)))).factorization_pos_of_dvd
+    · exact Nat.ne_of_gt (Nat.pos_of_dvd_of_pos
+        (Dwit_spec n (qi n r i) hn
+          (qi_prime n r i (by linarith) (by linarith) (by
+            exact lt_of_lt_of_le
+              (Finset.mem_range.mp (Finset.mem_filter.mp hi).1)
+              (Nat.div_le_self _ _)))
+          (qi_dvd n r i (by linarith) (by linarith) (by
+            exact lt_of_lt_of_le
+              (Finset.mem_range.mp (Finset.mem_filter.mp hi).1)
+              (Nat.div_le_self _ _))) hn0).1
+        (Nat.pos_of_ne_zero hn0))
+    · exact h_factorization_Dwit
   simp_all +decide [ Fsel ];
   exact Nat.factorization_eq_zero_of_not_dvd ( fun h => hf.2 <| Nat.dvd_trans h <| Nat.gcd_dvd_right _ _ )
 
@@ -655,17 +681,19 @@ theorem qi_dvd_Dwit_sub_one (n r i : ℕ) (hn : n ∈ Acal) (hr1 : 1 ≤ r) (hrn
 theorem kappa_recovery (n r i : ℕ) (hn : n ∈ Acal) (hr1 : 1 ≤ r) (hrn : r ≤ omegaCount n)
     (hn0 : n ≠ 0) (hi : i < sr r) :
     qi n r i = ((Dwit n (qi n r i) - 1).primeFactors.sort (· ≤ ·)).getD (kappav n r i) 0 := by
-  by_cases h : ( ( Dwit n ( qi n r i ) - 1 ).primeFactors.sort fun x1 x2 => x1 ≤ x2 ).idxOf ( qi n r i ) < ( ( Dwit n ( qi n r i ) - 1 ).primeFactors.sort fun x1 x2 => x1 ≤ x2 ).length <;> simp_all +decide;
-  · convert! List.getElem_idxOf _ |> Eq.symm using 1;
-    convert! List.getD_eq_getElem _ _ _ using 1;
-    · aesop;
-    · infer_instance;
-  · contrapose! h;
-    convert! List.idxOf_lt_length_iff.mpr _ using 1;
-    · norm_num;
-    · infer_instance;
-    · convert! Finset.mem_sort ( α := ℕ ) ( · ≤ · ) |>.2 _ using 1;
-      exact Nat.mem_primeFactors.mpr ⟨ qi_prime n r i hr1 hrn hi, Nat.dvd_of_mod_eq_zero ( by rw [ Nat.mod_eq_zero_of_dvd ] ; exact qi_dvd_Dwit_sub_one n r i hn hr1 hrn hn0 hi ), Nat.sub_ne_zero_of_lt ( by linarith [ Dwit_spec n ( qi n r i ) hn ( qi_prime n r i hr1 hrn hi ) ( qi_dvd n r i hr1 hrn hi ) hn0 ] ) ⟩
+  have hmemFactors : qi n r i ∈ (Dwit n (qi n r i) - 1).primeFactors := by
+    exact Nat.mem_primeFactors.mpr ⟨qi_prime n r i hr1 hrn hi,
+      qi_dvd_Dwit_sub_one n r i hn hr1 hrn hn0 hi,
+      Nat.sub_ne_zero_of_lt (Dwit_spec n (qi n r i) hn
+        (qi_prime n r i hr1 hrn hi) (qi_dvd n r i hr1 hrn hi) hn0).2.1⟩
+  have hmem : qi n r i ∈
+      (Dwit n (qi n r i) - 1).primeFactors.sort (· ≤ ·) :=
+    (Finset.mem_sort (α := ℕ) (· ≤ ·)).2 hmemFactors
+  have hidx : ((Dwit n (qi n r i) - 1).primeFactors.sort (· ≤ ·)).idxOf
+      (qi n r i) < ((Dwit n (qi n r i) - 1).primeFactors.sort (· ≤ ·)).length :=
+    List.idxOf_lt_length_iff.mpr hmem
+  rw [kappav, List.getD_eq_getElem _ 0 hidx]
+  exact (List.getElem_idxOf hidx).symm
 
 /-
 `P ≥ 1`.
@@ -828,12 +856,12 @@ theorem Cval_eq_Iplus (n n' r m : ℕ) (hr1 : 1 ≤ r) (_hrn : r ≤ omegaCount 
     (_hr2 : 2 ≤ r) (i : ℕ) (hi : i ∈ Iplus n r) : Cval n r m i = Cval n' r m i := by
   apply congr_arg₂ _ (ha i (by
   exact Finset.mem_range.mp ( Finset.mem_filter.mp hi |>.1 ))) (Finset.prod_bij (fun k hk => k) (by
-  simp_all +decide;
+  simp_all +decide only [mem_sdiff, and_imp];
   intro k hk hk'; rw [ Esel_congr n n' r hIp ] at *; simp_all +decide [ Fsel ] ;
   intro hk'' hk'''; specialize hqi k hk hk'; simp_all +decide [ bvec ] ;
   exact hk' ( by linarith [ show hplus n r = hplus n' r from by rw [ show hplus n r = ( Iplus n r ).card from rfl, show hplus n' r = ( Iplus n' r ).card from rfl, hIp ] ] )) (by
   grind) (by
-  simp +zetaDelta at *;
+  simp +zetaDelta only [mem_sdiff, exists_prop, exists_eq_right, and_imp] at *;
   intro k hk hk'; rw [ Esel_congr n n' r hIp ] at *; simp_all +decide [ Fsel ] ;
   contrapose! hb;
   use k; simp_all +decide [ bvec ] ;
@@ -1092,23 +1120,48 @@ The encoding is injective on the fiber.
 -/
 theorem encRec_injOn (x : ℝ) (t r m : ℕ) (hr2 : 2 ≤ r) (hrt : r ≤ t) :
     Set.InjOn (encRec x r m) (fixedFiber x t r m) := by
-  -- By definition of `fixedFiber`, if `encRec x r m n = encRec x r m n'`, then `n` and `n'` must satisfy the same conditions.
   intro n hn n' hn' h_eq
-  have h_eq_conditions : n ∈ Acal ∧ n' ∈ Acal ∧ omegaCount n = t ∧ omegaCount n' = t ∧ n / Qr n r = m ∧ n' / Qr n' r = m := by
-    unfold fixedFiber at hn hn'; aesop;
-  apply fiber_inj n n' r m t;
-  all_goals simp_all +decide [ encRec ];
-  all_goals norm_num [ funext_iff ] at *;
-  any_goals intro i hi; exact h_eq.2.2.1 ⟨ i, hi ⟩;
-  · exact Nat.ne_of_gt ( Finset.mem_Icc.mp ( Finset.mem_filter.mp hn |>.1 ) |>.1 );
-  · exact Nat.ne_of_gt ( Finset.mem_Icc.mp ( Finset.mem_filter.mp hn' |>.1 ) |>.1 );
-  · exact fun j hj => h_eq.2.1 ⟨ j, hj ⟩;
-  · intro i k hi hk;
-    have := h_eq.2.2.2.1 ⟨ i, hi ⟩ ⟨ k, by
-      exact Esel_lt_sr n r k hk ⟩
-    generalize_proofs at *;
-    grind +suggestions;
-  · exact fun i hi => h_eq.2.2.2.2 ⟨ i, hi ⟩
+  rcases Finset.mem_filter.mp hn with ⟨hnIcc, hnA, hnt, hnm⟩
+  rcases Finset.mem_filter.mp hn' with ⟨hnIcc', hnA', hnt', hnm'⟩
+  have hn0 : n ≠ 0 := Nat.ne_of_gt (Finset.mem_Icc.mp hnIcc).1
+  have hn0' : n' ≠ 0 := Nat.ne_of_gt (Finset.mem_Icc.mp hnIcc').1
+  simp only [encRec] at h_eq
+  have hIp : Iplus n r = Iplus n' r :=
+    congrArg (fun z => z.1) h_eq
+  have hbfun : (fun j : Fin (sr r) => bvec n r m j) =
+      (fun j : Fin (sr r) => bvec n' r m j) :=
+    congrArg (fun z => z.2.1) h_eq
+  have hafun : (fun i : Fin (hr r) => avec n r m i) =
+      (fun i : Fin (hr r) => avec n' r m i) :=
+    congrArg (fun z => z.2.2.1) h_eq
+  have hefun :
+      (fun i : Fin (hr r) => fun k : Fin (sr r) =>
+        if (k : ℕ) ∈ Esel n r then epsv n r m i k else 0) =
+      (fun i : Fin (hr r) => fun k : Fin (sr r) =>
+        if (k : ℕ) ∈ Esel n' r then epsv n' r m i k else 0) :=
+    congrArg (fun z => z.2.2.2.1) h_eq
+  have hkapfun : (fun i : Fin (hr r) => kappav n r i) =
+      (fun i : Fin (hr r) => kappav n' r i) :=
+    congrArg (fun z => z.2.2.2.2) h_eq
+  have hb : ∀ j, j < sr r → bvec n r m j = bvec n' r m j := by
+    intro j hj
+    exact congrFun hbfun ⟨j, hj⟩
+  have ha : ∀ i, i < hr r → avec n r m i = avec n' r m i := by
+    intro i hi
+    exact congrFun hafun ⟨i, hi⟩
+  have hEsel : Esel n r = Esel n' r := Esel_congr n n' r hIp
+  have he : ∀ i k, i < hr r → k ∈ Esel n r →
+      epsv n r m i k = epsv n' r m i k := by
+    intro i k hi hk
+    have hk' : k ∈ Esel n' r := by rw [← hEsel]; exact hk
+    have hcomponent := congrFun (congrFun hefun ⟨i, hi⟩)
+      ⟨k, Esel_lt_sr n r k hk⟩
+    simpa [hk, hk'] using hcomponent
+  have hkap : ∀ i, i < hr r → kappav n r i = kappav n' r i := by
+    intro i hi
+    exact congrFun hkapfun ⟨i, hi⟩
+  exact fiber_inj n n' r m t hnA hnA' hr2 hnt hnt' hrt hn0 hn0'
+    hnm.symm hnm'.symm hIp hb ha he hkap
 
 /-
 **Fixed-prefix fiber bound, combinatorial form (Prop 8.5 pre-analysis).**
@@ -1168,7 +1221,7 @@ theorem pnth_le_qi (n r j : ℕ) (hr1 : 1 ≤ r) (hrn : r ≤ omegaCount n) (hj 
   have hq_mem_take : qi n r j ∈ L.take r := by
     unfold topR at hq_subset_topR; aesop;
   obtain ⟨ k, hk ⟩ := List.mem_iff_get.mp hq_mem_take;
-  have := List.pairwise_iff_get.mp hL_sorted; simp_all +decide ;
+  have := List.pairwise_iff_get.mp hL_sorted; simp_all +decide only [ge_iff_le] ;
   by_cases hk_lt_r : k.val < r - 1;
   · specialize this ⟨ k, by
       grind +revert ⟩ ⟨ r - 1, by
@@ -1213,7 +1266,11 @@ theorem Qcanon_squarefree (n : ℕ) : Squarefree (Qcanon n) := by
     · -- Since `omegaCount n ≠ 0`, `pnth n 1` is a prime factor of `n`.
       have h_prime : ∃ p, p ∈ n.primeFactors ∧ pnth n 1 = p := by
         unfold pnth;
-        rcases x : n.primeFactors.sort ( · ≥ · ) with ( _ | ⟨ p, _ | ⟨ q, l ⟩ ⟩ ) <;> simp_all +decide;
+        rcases x : n.primeFactors.sort ( · ≥ · ) with ( _ | ⟨ p, _ | ⟨ q, l ⟩ ⟩ ) <;> simp_all +decide only [↓existsAndEq, tsub_self, List.getD_eq_getElem?_getD, List.length_cons,
+    Order.lt_add_one_iff, zero_le, getElem?_pos, List.getElem_cons_zero, Option.getD_some,
+    Nat.mem_primeFactors, ne_eq, and_true, List.length_nil, zero_add, Order.lt_one_iff,
+    lt_self_iff_false, not_false_eq_true, getElem?_neg, Option.getD_none, isUnit_iff_eq_one,
+    IsUnit.dvd, true_and];
         · replace x := congr_arg List.length x ; simp_all +decide;
         · replace x := congr_arg List.toFinset x; rw [ Finset.ext_iff ] at x; specialize x p; aesop;
         · replace x := congr_arg List.toFinset x; rw [ Finset.ext_iff ] at x; specialize x p; aesop;
@@ -1274,8 +1331,20 @@ theorem hr_div_log_tendsto :
   have h_hr_log : Filter.Tendsto (fun t : ℕ => (hr t : ℝ) / (Nat.log 2 t / 2)) Filter.atTop (nhds 1) := by
     -- We'll use the fact that `hr t` is approximately `Nat.log 2 t / 2`.
     have hr_approx : ∀ t : ℕ, t ≥ 2 → (hr t : ℝ) ≥ (Nat.log 2 t / 2 : ℝ) ∧ (hr t : ℝ) ≤ (Nat.log 2 t / 2 : ℝ) + 1 := by
-      intro t ht; rw [ div_add_one, ge_iff_le, div_le_iff₀ ] <;> norm_cast ; simp +arith +decide [ hr ] ;
-      unfold sr; rw [ le_div_iff₀ ] <;> norm_cast ; omega;
+      intro t _
+      have hlow : Nat.log 2 t ≤ 2 * hr t := by
+        unfold hr sr
+        omega
+      have hupp : 2 * hr t ≤ Nat.log 2 t + 2 := by
+        unfold hr sr
+        omega
+      constructor
+      · have hlowR : (Nat.log 2 t : ℝ) ≤ 2 * (hr t : ℝ) := by
+          exact_mod_cast hlow
+        linarith
+      · have huppR : 2 * (hr t : ℝ) ≤ (Nat.log 2 t : ℝ) + 2 := by
+          exact_mod_cast hupp
+        linarith
     generalize_proofs at *;
     -- Using the approximation, we can bound the ratio.
     have hr_bound : ∀ t : ℕ, t ≥ 2 → |(hr t : ℝ) / (Nat.log 2 t / 2) - 1| ≤ 2 / (Nat.log 2 t) := by
@@ -1340,8 +1409,8 @@ theorem sum_inv_hr_le (ε : ℝ) (hε : 0 < ε) :
       · filter_upwards [ Filter.eventually_gt_atTop 1 ] with t ht ; norm_num [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, ne_of_gt ( zero_lt_one.trans_le ( Nat.one_le_cast.mpr ht.le ) ) ];
         exact Or.inl <| Or.inl <| by ring;
     have := h_lim.eventually ( gt_mem_nhds <| show 2 * Real.log 2 / ( 1 - δ ) < 2 * Real.log 2 + ε / 2 from hδ_lt.2 );
-    simp +zetaDelta at *;
-    obtain ⟨ T, hT ⟩ := this; use T + 2; intros t ht; specialize hT t ( by linarith ) ; rw [ div_lt_iff₀ ] at hT;
+    simp +zetaDelta only [ge_iff_le, one_div] at *;
+    obtain ⟨ T, hT ⟩ := Filter.eventually_atTop.mp this; use T + 2; intros t ht; specialize hT t ( by linarith ) ; rw [ div_lt_iff₀ ] at hT;
     · exact le_trans ( h_sum_L_bound' t ( by linarith ) ) ( by simpa only [ mul_div_assoc ] using! hT.le );
     · exact div_pos ( Nat.cast_pos.mpr ( by linarith ) ) ( Real.log_pos ( Nat.one_lt_cast.mpr ( by linarith ) ) );
   -- Show that eventually `∑_{r∈S} 1/(hr r) ≤ (ε/2) t/log t`.
@@ -1393,8 +1462,21 @@ theorem sum_inv_hr_le (ε : ℝ) (hε : 0 < ε) :
           convert! this.div_const δ using 2 <;> norm_num [ div_eq_mul_inv, mul_assoc, mul_comm δ, hδ_pos.ne' ];
         simpa [ Real.exp_neg ] using! Real.tendsto_pow_mul_exp_neg_atTop_nhds_zero 1;
       convert! h_factor.const_mul ( 4 * ( 2 ^ 2 ) ^ ( 1 - δ ) ) using 2 <;> ring_nf;
-      by_cases h : ‹_› = 0 <;> simp +decide [ h, mul_assoc, mul_comm, mul_left_comm ];
-      rw [ ← mul_assoc, ← Real.rpow_neg ( by positivity ), ← Real.rpow_neg_one, ← Real.rpow_add ( by positivity ) ] ; ring_nf;
+      rename_i t
+      by_cases h : t = 0
+      · simp [h]
+      · have hxpos : 0 < (t : ℝ) := by
+          exact_mod_cast Nat.pos_of_ne_zero h
+        have hpow : (t : ℝ) ^ (1 - δ) * (t : ℝ)⁻¹ =
+            ((t : ℝ) ^ δ)⁻¹ := by
+          rw [← Real.rpow_neg (le_of_lt hxpos), ← Real.rpow_neg_one,
+            ← Real.rpow_add hxpos]
+          congr 1
+          ring
+        calc
+          _ = 4 ^ (1 - δ) * Real.log (t : ℝ) *
+              ((t : ℝ) ^ (1 - δ) * (t : ℝ)⁻¹) * 4 := by ring
+          _ = _ := by rw [hpow]
     have := h_lim_zero.eventually ( gt_mem_nhds <| show 0 < ε / 2 by positivity );
     obtain ⟨ T, hT ⟩ := Filter.eventually_atTop.mp this;
     refine' ⟨ T + 2, fun t ht => le_trans ( h_bound_S t ( by linarith ) ) ( le_trans ( h_exp_bound t ( by linarith ) ) _ ) ⟩;
@@ -1402,9 +1484,11 @@ theorem sum_inv_hr_le (ε : ℝ) (hε : 0 < ε) :
     rw [ div_lt_iff₀ ( div_pos ( Nat.cast_pos.mpr ( by linarith ) ) ( Real.log_pos ( Nat.one_lt_cast.mpr ( by linarith ) ) ) ) ] at this;
     rw [ mul_div_assoc ];
     exact le_trans ( mul_le_mul_of_nonneg_left ( Real.rpow_le_rpow ( by positivity ) ( h_log_bound t ( by linarith ) ) ( by linarith ) ) ( by positivity ) ) this.le;
-  obtain ⟨ T₁, hT₁ ⟩ := h_sum_L; obtain ⟨ T₂, hT₂ ⟩ := h_sum_S; use Max.max T₁ T₂; intro t ht; specialize hT₁ t ( le_trans ( le_max_left _ _ ) ht ) ; specialize hT₂ t ( le_trans ( le_max_right _ _ ) ht ) ; simp_all +decide [ Finset.sum_filter ] ;
+  obtain ⟨ T₁, hT₁ ⟩ := h_sum_L; obtain ⟨ T₂, hT₂ ⟩ := h_sum_S; use Max.max T₁ T₂; intro t ht; specialize hT₁ t ( le_trans ( le_max_left _ _ ) ht ) ; specialize hT₂ t ( le_trans ( le_max_right _ _ ) ht ) ; simp_all +decide only [one_div] ;
   convert! add_le_add hT₁ hT₂ using 1 <;> ring_nf;
-  simpa only [ ← Finset.sum_add_distrib ] using! Finset.sum_congr rfl fun x hx => by split_ifs <;> linarith;
+  simpa only [not_le] using
+    (Finset.sum_filter_add_sum_filter_not (Finset.Icc 2 t)
+      (fun r => K t ≤ hr r) (fun r => (hr r : ℝ)⁻¹)).symm
 
 /-! ### The weighted-prefix bound (Proposition 9.2) -/
 
@@ -1517,24 +1601,66 @@ theorem weighted_prefix (η : ℝ) (hη : 0 < η) :
       simpa using! h_log_div_t_zero.const_mul _ |> fun h => h.eventually ( ge_mem_nhds <| by linarith );
     obtain ⟨T₀, hT₀⟩ : ∃ T₀ : ℕ, ∀ t : ℕ, T₀ ≤ t → (∑ r ∈ Finset.Icc 2 t, (1 : ℝ) / (hr r)) ≤ (2 * Real.log 2 + ε) * t / Real.log t := by
       convert! sum_inv_hr_le ε hε_pos using 1;
-    refine' ⟨ Max.max ( Max.max T₀ T₁ ) 3, fun n hn hn' => _ ⟩ ; simp_all +decide [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm ];
+    refine ⟨Max.max (Max.max T₀ T₁) 3, ?_⟩
+    intro n hn hn'
+    have hnT₀ : T₀ ≤ omegaCount n :=
+      le_trans (Nat.le_max_left T₀ T₁)
+        (le_trans (Nat.le_max_left (Max.max T₀ T₁) 3) hn')
+    have hnT₁ : T₁ ≤ omegaCount n :=
+      le_trans (Nat.le_max_right T₀ T₁)
+        (le_trans (Nat.le_max_left (Max.max T₀ T₁) 3) hn')
+    have hn3 : 3 ≤ omegaCount n :=
+      le_trans (Nat.le_max_right (Max.max T₀ T₁) 3) hn'
+    have hn2 : 2 ≤ omegaCount n := le_trans (by norm_num) hn3
+    have homega_pos : 0 < (omegaCount n : ℝ) := by
+      exact_mod_cast lt_of_lt_of_le (by norm_num : 0 < 3) hn3
+    have hlog_pos : 0 < Real.log (omegaCount n : ℝ) := by
+      apply Real.log_pos
+      exact_mod_cast lt_of_lt_of_le (by norm_num : 1 < 3) hn3
+    have hη_lt : η < 1 := lt_of_not_ge hη1
+    have hden_pos : 0 < 1 + ∑ r ∈ Finset.Icc 2 (omegaCount n),
+        (1 : ℝ) / (hr r) :=
+      add_pos_of_pos_of_nonneg zero_lt_one <|
+        Finset.sum_nonneg fun _ _ => by positivity
+    have hfactor_nonneg :
+        0 ≤ (1 - η) / (2 * Real.log 2) * Real.log (omegaCount n) /
+          (omegaCount n : ℝ) := by
+      exact le_of_lt <| div_pos
+        (mul_pos (div_pos (sub_pos.mpr hη_lt)
+          (mul_pos two_pos (Real.log_pos one_lt_two))) hlog_pos) homega_pos
+    have hweighted :
+        (1 - η) / (2 * Real.log 2) * Real.log (omegaCount n) /
+            (omegaCount n : ℝ) *
+          (1 + ∑ r ∈ Finset.Icc 2 (omegaCount n), (1 : ℝ) / (hr r)) ≤ 1 := by
+      have hsum := hT₀ (omegaCount n) hnT₀
+      have hsmall := hT₁ (omegaCount n) hnT₁
+      have hmul := mul_le_mul_of_nonneg_left (add_le_add_left hsum 1) hfactor_nonneg
+      calc
+        _ ≤ (1 - η) / (2 * Real.log 2) * Real.log (omegaCount n) /
+              (omegaCount n : ℝ) *
+            (1 + (2 * Real.log 2 + ε) * (omegaCount n : ℝ) /
+              Real.log (omegaCount n)) := by simpa [add_comm] using hmul
+        _ = (1 - η) / (2 * Real.log 2) *
+              (Real.log (omegaCount n) / (omegaCount n : ℝ)) + κ := by
+          rw [hκ_def]
+          field_simp
+        _ ≤ 1 := by linarith
+    have hrad_nonneg : 0 ≤ Real.log (rad n : ℝ) := by
+      apply Real.log_nonneg
+      exact_mod_cast Nat.one_le_iff_ne_zero.mpr <| by
+        unfold rad
+        exact Finset.prod_ne_zero_iff.mpr fun p hp =>
+          Nat.ne_of_gt (Nat.pos_of_mem_primeFactors hp)
     -- Using the bounds from `hT₀` and `hT₁`, we can simplify the expression.
-    have h_simplify : (1 - η) / (2 * Real.log 2) * Real.log (rad n) * Real.log (omegaCount n) / (omegaCount n) ≤ Real.log (rad n) / (1 + ∑ r ∈ Finset.Icc 2 (omegaCount n), (1 : ℝ) / (hr r)) := by
-      have h_simplify : (1 - η) / (2 * Real.log 2) * Real.log (omegaCount n) / (omegaCount n) * (1 + ∑ r ∈ Finset.Icc 2 (omegaCount n), (1 : ℝ) / (hr r)) ≤ 1 := by
-        have := hT₁ ( omegaCount n ) hn'.2.1; have := hT₀ ( omegaCount n ) hn'.1; norm_num at *;
-        field_simp at *;
-        rw [ div_le_iff₀ ( by norm_cast; linarith ) ] at *;
-        rw [ le_div_iff₀ ( Real.log_pos <| by norm_cast; linarith ) ] at this;
-        nlinarith [ show 0 ≤ ( 1 - η ) * Real.log ( omegaCount n ) by exact mul_nonneg ( sub_nonneg.2 hη1.le ) ( Real.log_nonneg ( by norm_cast; linarith ) ) ];
-      rw [ le_div_iff₀ ];
-      · convert! mul_le_mul_of_nonneg_right h_simplify ( Real.log_nonneg <| show ( rad n : ℝ ) ≥ 1 from mod_cast Nat.one_le_iff_ne_zero.mpr <| by
-                                                                            exact Finset.prod_ne_zero_iff.mpr fun p hp => Nat.ne_of_gt <| Nat.pos_of_mem_primeFactors hp ) using 1 ; ring;
-        ring;
-      · exact add_pos_of_pos_of_nonneg zero_lt_one <| Finset.sum_nonneg fun _ _ => by positivity;
-    convert! h_simplify.trans _ using 1;
-    · unfold rad; norm_num [ Finset.prod_natCast ] ; ring;
-    · refine' le_trans _ ( log_Qcanon_ge_score n ( by linarith ) );
-      have := W_le_M_sum n ( by linarith );
-      rwa [ div_le_iff₀ ( add_pos_of_pos_of_nonneg zero_lt_one <| Finset.sum_nonneg fun _ _ => by positivity ) ]
+    have h_simplify :
+        (1 - η) / (2 * Real.log 2) * Real.log (rad n) *
+            Real.log (omegaCount n) / (omegaCount n) ≤
+          Real.log (rad n) /
+            (1 + ∑ r ∈ Finset.Icc 2 (omegaCount n), (1 : ℝ) / (hr r)) := by
+      rw [le_div_iff₀ hden_pos]
+      convert mul_le_mul_of_nonneg_right hweighted hrad_nonneg using 1 <;> ring
+    refine h_simplify.trans ?_
+    refine le_trans ((div_le_iff₀ hden_pos).2 (W_le_M_sum n hn2)) ?_
+    exact log_Qcanon_ge_score n hn2
 
 end Erdos768Comp

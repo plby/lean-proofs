@@ -38,7 +38,7 @@ lemma presentLowerWeightException_probability_le
   let Fail : Edge n → Finset (Edge n) → Prop := fun Z T ↦
     (completionWeight (H \ T) Z : ℝ) <
       r * (completionWeight H Z : ℝ)
-  letI : ∀ Z, DecidablePred (Fail Z) := fun _ ↦ Classical.decPred _
+  let : ∀ Z, DecidablePred (Fail Z) := fun _ ↦ Classical.decPred _
   have hEH : E ⊆ H := Finset.filter_subset _ _
   have hLow := powersetCard_exception_probability_le H E hEH htH hH
     hcollision (by simpa only [E] using hLowThreshold)

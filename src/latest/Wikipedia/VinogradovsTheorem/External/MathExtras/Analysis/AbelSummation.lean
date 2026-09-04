@@ -220,7 +220,8 @@ theorem abel_norm_bound_monotone_decreasing
     subst hMN'
     have hAp_zero : Apart M = 0 := by
       simp [hApart_def]
-    simp [hAp_zero]
+    rw [hAp_zero]
+    simp only [norm_zero, zero_mul, Ioc_eq_empty_of_le (Nat.sub_le M 1), sum_empty, add_zero]
     exact mul_nonneg hA_nonneg (hb_nonneg _)
   · -- M < N: substantive case.
     have hApN : ‖Apart N‖ ≤ A := hA N (Finset.mem_Ioc.mpr ⟨hMN', le_rfl⟩)

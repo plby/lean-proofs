@@ -376,7 +376,7 @@ lemma root_mem_highGirthOriginalRootCandidates_of_adj
     x ∈ highGirthOriginalRootCandidates V v := by
   let coreDecidableEq : DecidableEq (CycleCoverAbsorberVertex V) :=
     inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex V) :=
+  let : LinearOrder (CycleCoverAbsorberVertex V) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex V)) _ coreDecidableEq
   change ((sphereTransformOutGraph (CycleCoverAbsorberVertex V) hq ⊔
@@ -479,7 +479,7 @@ lemma card_mappedHighGirthPairOriginalRootCandidates_le_six
     (mappedHighGirthPairOriginalRootCandidates f u v).card ≤ 6 := by
   let coreDecidableEq : DecidableEq (CycleCoverAbsorberVertex V) :=
     inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex V) :=
+  let : LinearOrder (CycleCoverAbsorberVertex V) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex V)) _ coreDecidableEq
   let A := mappedHighGirthPairOriginalRootCandidates f u v
@@ -504,7 +504,7 @@ lemma root_mem_mappedHighGirthPairCandidates_of_bank
     x ∈ mappedHighGirthPairOriginalRootCandidates f u v := by
   let coreDecidableEq : DecidableEq (CycleCoverAbsorberVertex V) :=
     inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex V) :=
+  let : LinearOrder (CycleCoverAbsorberVertex V) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex V)) _ coreDecidableEq
   apply mem_filter.mpr
@@ -527,7 +527,7 @@ lemma root_mem_mappedHighGirthPairCandidates_of_forbidden
     x ∈ mappedHighGirthPairOriginalRootCandidates f u v := by
   let coreDecidableEq : DecidableEq (CycleCoverAbsorberVertex V) :=
     inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex V) :=
+  let : LinearOrder (CycleCoverAbsorberVertex V) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex V)) _ coreDecidableEq
   apply mem_filter.mpr

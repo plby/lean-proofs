@@ -135,8 +135,8 @@ lemma FiniteAnchorListPolygonalScreening
                     | nil =>
                         simp at hys_head
                     | cons y ys' =>
-                        simp at hys_head ⊢
-                        exact hys_head
+                        simp only [List.getElem_cons_zero] at hys_head ⊢
+                        simpa using hys_head
                   refine ⟨a :: ys, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
                   · simp [hys_len]
                   · simp
@@ -144,7 +144,7 @@ lemma FiniteAnchorListPolygonalScreening
                     | nil =>
                         simp at hys_len
                     | cons y ys' =>
-                        simp at hys_last ⊢
+                        simp only [List.getLast?_cons_cons] at hys_last ⊢
                         exact hys_last
                   · intro i hxi hai
                     cases i with

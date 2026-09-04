@@ -242,9 +242,13 @@ theorem two_odd_lengths_of_routes [Finite V]
       else a₁ + R₂.length
     apply ncard_oddCycleLengths_ge_of_injective (G := G) f
     · intro i j hij
-      fin_cases i <;> fin_cases j <;> simp [f] at hij ⊢
-      · exact (hne hij).elim
-      · exact (hne hij.symm).elim
+      fin_cases i <;> fin_cases j <;> simp only [Fin.mk_one, Fin.isValue, Fin.zero_eta, one_ne_zero, zero_ne_one] at hij ⊢
+      · have hsum : a₁ + R₁.length = a₁ + R₂.length := by
+          simpa [f] using hij
+        exact (hne (Nat.add_left_cancel hsum)).elim
+      · have hsum : a₁ + R₁.length = a₁ + R₂.length := by
+          simpa [f] using hij.symm
+        exact (hne (Nat.add_left_cancel hsum)).elim
     · intro i
       fin_cases i <;> simp [f, ho₁, ho₂]
     · intro i
@@ -255,9 +259,13 @@ theorem two_odd_lengths_of_routes [Finite V]
       else a₂ + R₂.length
     apply ncard_oddCycleLengths_ge_of_injective (G := G) f
     · intro i j hij
-      fin_cases i <;> fin_cases j <;> simp [f] at hij ⊢
-      · exact (hne hij).elim
-      · exact (hne hij.symm).elim
+      fin_cases i <;> fin_cases j <;> simp only [Fin.mk_one, Fin.isValue, Fin.zero_eta, one_ne_zero, zero_ne_one] at hij ⊢
+      · have hsum : a₂ + R₁.length = a₂ + R₂.length := by
+          simpa [f] using hij
+        exact (hne (Nat.add_left_cancel hsum)).elim
+      · have hsum : a₂ + R₁.length = a₂ + R₂.length := by
+          simpa [f] using hij.symm
+        exact (hne (Nat.add_left_cancel hsum)).elim
     · intro i
       fin_cases i <;> simp [f, ho₁, ho₂]
     · intro i
@@ -872,7 +880,7 @@ private theorem two_odd_lengths_of_cycle_ne_longest [Finite V]
     ⟨C.base, C.cycle, C.isCycle, rfl⟩
   apply ncard_oddCycleLengths_ge_of_injective (G := G) f
   · intro i j hij
-    fin_cases i <;> fin_cases j <;> simp [f] at hij ⊢
+    fin_cases i <;> fin_cases j <;> simp only [Fin.mk_one, Fin.isValue, Fin.zero_eta, one_ne_zero, zero_ne_one] at hij ⊢
     · exact (hne hij.symm).elim
     · exact (hne hij).elim
   · intro i

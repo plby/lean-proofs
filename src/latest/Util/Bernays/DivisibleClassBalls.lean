@@ -50,9 +50,9 @@ theorem natCard_divisibleIdealClassBall_le {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) 
         ∀ P : InvertibleIdeal (QuadraticAlgebra ℤ d b),
           Nat.card (DivisibleIdealClassBall (QuadraticAlgebra ℤ d b) C N P) ≤
             B * (N / (P : Ideal (QuadraticAlgebra ℤ d b)).cardQuot) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro B hB C N P
-  letI := finite_idealClassBall hD (P.idealClass⁻¹ * C)
+  let := finite_idealClassBall hD (P.idealClass⁻¹ * C)
     (N / (P : Ideal (QuadraticAlgebra ℤ d b)).cardQuot)
   exact (Nat.card_le_card_of_injective (divisibleClassBallEmbedding C N P)
     (divisibleClassBallEmbedding C N P).injective).trans (hB _ _)

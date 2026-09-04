@@ -1256,18 +1256,17 @@ private theorem supportHasseDerivative_add_single {n : ℕ}
     (P : MvPolynomial (Fin n) ℚ) :
     supportHasseDerivative (0 : Fin n →₀ ℕ) P = P := by
   classical
-  apply MvPolynomial.ext
-  intro K
-  unfold supportHasseDerivative
-  simp [hasseMultiplier]
-  have hs :
-      (∑ J ∈ P.support.attach,
+  unfold supportHasseDerivative hasseMultiplier
+  simp only [Finsupp.support_zero, Finset.prod_empty, Nat.cast_one,
+    one_mul, tsub_zero, Finset.univ_eq_attach]
+  calc
+    (∑ J ∈ P.support.attach,
         MvPolynomial.monomial J.1 (MvPolynomial.coeff J.1 P)) =
-      ∑ J ∈ P.support,
-        MvPolynomial.monomial J (MvPolynomial.coeff J P) :=
-    Finset.sum_attach P.support
-      (fun J ↦ MvPolynomial.monomial J (MvPolynomial.coeff J P))
-  rw [hs, MvPolynomial.support_sum_monomial_coeff]
+        ∑ J ∈ P.support,
+          MvPolynomial.monomial J (MvPolynomial.coeff J P) :=
+      Finset.sum_attach P.support
+        (fun J ↦ MvPolynomial.monomial J (MvPolynomial.coeff J P))
+    _ = P := MvPolynomial.support_sum_monomial_coeff P
 
 private theorem pderiv_comm_local {n : ℕ} (i j : Fin n)
     (Q : MvPolynomial (Fin n) ℚ) :
@@ -1530,7 +1529,7 @@ theorem multiDerivative_eq_factorial_smul_supportHasse {n : ℕ}
               supportHasseDerivative (multiIndexFinsupp u) P := by
             rw [smul_smul, hfac, ← hupdate, hindex]
             push_cast
-            ring
+            ring_nf
 
 private theorem multiDerivative_pderiv_local {n : ℕ} (u : MultiIndex n)
     (i : Fin n) (P : MvPolynomial (Fin n) ℚ) :

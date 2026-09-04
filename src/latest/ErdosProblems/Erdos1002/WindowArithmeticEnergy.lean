@@ -558,7 +558,7 @@ theorem windowModeDecayEnergy_le_separated
       rfl
     · by_cases hrn : r ∣ n
       · have hdnot : ¬ d * r ≤ P := fun hdr ↦ hadm ⟨hdr, hrn⟩
-        simp [hdnot, hrn]
+        simp only [mul_ite, mul_zero, ge_iff_le]
         exact mul_nonneg
           (mul_nonneg windowCauchyDConstant_nonneg
             (reciprocalDivisorSum_nonneg n))

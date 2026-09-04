@@ -2064,7 +2064,7 @@ theorem formHeight_primitiveNormalForm_eq_log_boxHeight {m : ℕ}
     {z : IntVector (m + 1)} (hz : Primitive.IsPrimitive z) :
     GeneralizedRoth.formHeight (primitiveNormalForm z) =
       Real.log (PadicSubspace.boxHeight z : ℝ) := by
-  letI : NeZero (m + 1) := ⟨Nat.succ_ne_zero m⟩
+  let : NeZero (m + 1) := ⟨Nat.succ_ne_zero m⟩
   exact logHeight_intCast_eq_log_boxHeight_of_primitive hz
 
 theorem logHeight₁_intCast_coordinate_le_log_boxHeight {n : ℕ}
@@ -2303,7 +2303,7 @@ theorem realFormDet_mul_exp_neg_normalHeight_le_selectedCofactors {m : ℕ}
         (SubspaceHeights.cofactorVector
           (rationalLocalEvaluationRowMatrix L v x) (i v)) := by
   classical
-  letI : NeZero (m + 1) := ⟨by omega⟩
+  let : NeZero (m + 1) := ⟨by omega⟩
   let b : RatVector (m + 1) :=
     SubspaceHeights.cofactorVector (rationalRowMatrix x)
   have hrow : LinearIndependent ℚ (rationalRowMatrix x).row := by
@@ -3481,7 +3481,7 @@ theorem exists_fastGrowing_sCodimOneSpaces {n : ℕ} {L : LocalForms n}
       (∀ i : Fin m,
         A * sCodimOneScale (W i.castSucc) < sCodimOneScale (W i.succ)) ∧
       Function.Injective W := by
-  letI : Infinite (sCodimOneApproximationSpaces L c) := hinfinite.to_subtype
+  let : Infinite (sCodimOneApproximationSpaces L c) := hinfinite.to_subtype
   obtain ⟨x, hx₀, hxgrow, hxinj⟩ := HeightBoxes.exists_fastGrowing
     (X := (Set.univ : Set (sCodimOneApproximationSpaces L c)))
     (h := (sCodimOneScale : sCodimOneApproximationSpaces L c → ℕ))
@@ -3510,7 +3510,7 @@ theorem exists_fastGrowing_nonexceptional_sCodimOneSpaces
     exact (finite_exceptionalSpaces L).preimage
       (f := fun W : sCodimOneApproximationSpaces L c ↦ W.1)
       Subtype.val_injective.injOn
-  letI : Infinite (sCodimOneApproximationSpaces L c) := hinfinite.to_subtype
+  let : Infinite (sCodimOneApproximationSpaces L c) := hinfinite.to_subtype
   have hnonexceptional :
       ((Set.univ : Set (sCodimOneApproximationSpaces L c)) \ E).Infinite :=
     Set.infinite_univ.sdiff hE
@@ -3575,7 +3575,7 @@ theorem exists_fastGrowing_codimOneSpaces {n : ℕ} {L : LocalForms n}
       (∀ i : Fin m,
         A * codimOneScale (W i.castSucc) < codimOneScale (W i.succ)) ∧
       Function.Injective W := by
-  letI : Infinite (codimOneApproximationSpaces L c) := hinfinite.to_subtype
+  let : Infinite (codimOneApproximationSpaces L c) := hinfinite.to_subtype
   obtain ⟨x, hx₀, hxgrow, hxinj⟩ := HeightBoxes.exists_fastGrowing
     (X := (Set.univ : Set (codimOneApproximationSpaces L c)))
     (h := (codimOneScale : codimOneApproximationSpaces L c → ℕ))
@@ -3605,7 +3605,7 @@ theorem exists_fastGrowing_nonexceptional_codimOneSpaces
     exact (finite_exceptionalSpaces L).preimage
       (f := fun W : codimOneApproximationSpaces L c ↦ W.1)
       Subtype.val_injective.injOn
-  letI : Infinite (codimOneApproximationSpaces L c) := hinfinite.to_subtype
+  let : Infinite (codimOneApproximationSpaces L c) := hinfinite.to_subtype
   have hnonexceptional :
       ((Set.univ : Set (codimOneApproximationSpaces L c)) \ E).Infinite :=
     Set.infinite_univ.sdiff hE
@@ -3638,7 +3638,7 @@ theorem finiteHyperplaneCover_of_finite_properSubspaces {n : ℕ}
     (hcover : ∀ x ∈ X, ∃ W ∈ C, PadicSubspace.intCastVec x ∈ W) :
     PadicSubspace.HasFiniteHyperplaneCover X := by
   classical
-  letI : Fintype C := hC.fintype
+  let : Fintype C := hC.fintype
   choose f hf hW _hker using fun W : C ↦
     GeneralPosition.properSubspace_le_kernel W.1 (hproper W.1 W.2)
   let normals : Finset (RatVector n) :=

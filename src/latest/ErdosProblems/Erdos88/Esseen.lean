@@ -168,7 +168,7 @@ lemma charFun_finiteUniformLaw_sub_const
   rw [hfun, Fourier.finCharFun_add_const]
   congr 1
   push_cast
-  ring
+  ring_nf
 
 /-- Translating both a finite random variable and the center of its window
 does not change its small-ball probability. -/
@@ -599,7 +599,7 @@ lemma ofReal_kernelAverage_eq_kernelFourierAverage
     {eps : ℝ} (heps : eps ≠ 0) (x : ℝ) :
     (kernelAverage mu eps x : ℂ) = kernelFourierAverage mu eps x := by
   rw [kernelAverage, kernelFourierAverage, ← integral_complex_ofReal]
-  letI : IsFiniteMeasure (volume.restrict (uIoc (-2 : ℝ) 2)) := by
+  let : IsFiniteMeasure (volume.restrict (uIoc (-2 : ℝ) 2)) := by
     rw [uIoc_of_le (by norm_num : (-2 : ℝ) ≤ 2)]
     infer_instance
   let f : ℝ → ℝ → ℂ := fun t y ↦
@@ -1618,11 +1618,11 @@ lemma smallBall_le_mul_smallBall_of_densityRatio
   have huShift : (∫ s in (-eps)..eps, f (s + u)) =
       ∫ y in (u - eps)..(u + eps), f y := by
     convert intervalIntegral.integral_comp_add_right
-      (f := f) (a := -eps) (b := eps) u using 1 <;> ring
+      (f := f) (a := -eps) (b := eps) u using 1 <;> ring_nf
   have hvShift : (∫ s in (-eps)..eps, f (s + v)) =
       ∫ y in (v - eps)..(v + eps), f y := by
     convert intervalIntegral.integral_comp_add_right
-      (f := f) (a := -eps) (b := eps) v using 1 <;> ring
+      (f := f) (a := -eps) (b := eps) v using 1 <;> ring_nf
   rw [hdens.smallBall_eq_integral eps u heps.le,
     hdens.smallBall_eq_integral eps v heps.le, ← huShift, ← hvShift,
     ← intervalIntegral.integral_const_mul]
@@ -1696,7 +1696,7 @@ lemma three_le_smoothingKernel_of_abs_le_quarter
       _ = |u| / 96 := by ring
   have htri' : |u| ≤ |u - Real.sin u| + |Real.sin u| := by
     calc
-      |u| = |(u - Real.sin u) + Real.sin u| := by ring
+      |u| = |(u - Real.sin u) + Real.sin u| := by ring_nf
       _ ≤ |u - Real.sin u| + |Real.sin u| := abs_add_le _ _
   have hsin : (95 / 96 : ℝ) * |u| ≤ |Real.sin u| := by
     linarith [Real.abs_sub_sin_le u]
@@ -2047,7 +2047,7 @@ lemma integrable_reverseEsseenDoubleIntegrand_prod
     (mu : Measure ℝ) [IsFiniteMeasure mu] (eps x : ℝ) :
     Integrable (Function.uncurry (reverseEsseenDoubleIntegrand eps x))
       ((volume.restrict (uIoc (-2 : ℝ) 2)).prod mu) := by
-  letI : IsFiniteMeasure (volume.restrict (uIoc (-2 : ℝ) 2)) := by
+  let : IsFiniteMeasure (volume.restrict (uIoc (-2 : ℝ) 2)) := by
     rw [uIoc_of_le (by norm_num : (-2 : ℝ) ≤ 2)]
     infer_instance
   have hconst : Integrable (fun _ : ℝ × ℝ ↦ (16 : ℝ))
@@ -2062,7 +2062,7 @@ lemma integrable_reverseEsseenTripleIntegrand_prod
     (mu : Measure ℝ) [IsFiniteMeasure mu] (eps x t : ℝ) :
     Integrable (Function.uncurry (reverseEsseenTripleIntegrand eps x t))
       ((volume.restrict (uIoc (-2 : ℝ) 2)).prod mu) := by
-  letI : IsFiniteMeasure (volume.restrict (uIoc (-2 : ℝ) 2)) := by
+  let : IsFiniteMeasure (volume.restrict (uIoc (-2 : ℝ) 2)) := by
     rw [uIoc_of_le (by norm_num : (-2 : ℝ) ≤ 2)]
     infer_instance
   have hcont : Continuous
@@ -2103,7 +2103,7 @@ lemma ofReal_reverseEsseenBaseAverage_eq_fourier
       reverseEsseenBaseFourierAverage mu eps x := by
   let F : ℝ → ℝ → ℝ → ℂ := reverseEsseenTripleIntegrand eps x
   let H : ℝ → ℝ → ℂ := reverseEsseenDoubleIntegrand eps x
-  letI : IsFiniteMeasure (volume.restrict (uIoc (-2 : ℝ) 2)) := by
+  let : IsFiniteMeasure (volume.restrict (uIoc (-2 : ℝ) 2)) := by
     rw [uIoc_of_le (by norm_num : (-2 : ℝ) ≤ 2)]
     infer_instance
   have hFnorm : ∀ t s y, ‖F t s y‖ ≤ 4 := by
@@ -2221,7 +2221,7 @@ lemma integral_shifted_charFunDiff_le
       fun s ↦ g (c * s + d) := by
     funext s
     dsimp only [g, c, d]
-    congr 2 <;> field_simp [heps.ne'] <;> ring
+    congr 2 <;> field_simp [heps.ne'] <;> ring_nf
   have hlower : -(2 / eps) ≤ -(t + 2) / (4 * eps) := by
     apply (le_div_iff₀ (mul_pos (by norm_num) heps)).2
     have hscale : -(2 / eps) * (4 * eps) = (-8 : ℝ) := by
@@ -2538,19 +2538,19 @@ lemma smallBall_four_mul_le_concentration
   have hA : mu.real A ≤ concentration mu eps := by
     dsimp [A]
     convert smallBall_le_concentration mu eps (x - 3 * eps) using 1 <;>
-      simp only [smallBall] <;> ring
+      simp only [smallBall] <;> ring_nf
   have hB : mu.real B ≤ concentration mu eps := by
     dsimp [B]
     convert smallBall_le_concentration mu eps (x - eps) using 1 <;>
-      simp only [smallBall] <;> ring
+      simp only [smallBall] <;> ring_nf
   have hC : mu.real C ≤ concentration mu eps := by
     dsimp [C]
     convert smallBall_le_concentration mu eps (x + eps) using 1 <;>
-      simp only [smallBall] <;> ring
+      simp only [smallBall] <;> ring_nf
   have hD : mu.real D ≤ concentration mu eps := by
     dsimp [D]
     convert smallBall_le_concentration mu eps (x + 3 * eps) using 1 <;>
-      simp only [smallBall] <;> ring
+      simp only [smallBall] <;> ring_nf
   rw [smallBall]
   linarith
 

@@ -99,7 +99,7 @@ theorem extensionWeight_pairFamily_exactBank_le_constant
   · have hzero : Fintype.card
         (ActivePairFamilyTwoAwayWitness G U P A) = 0 := Fintype.card_eq_zero
     simp [hzero]
-  · letI : Nonempty (ActivePairFamilyTwoAwayWitness G U P A) :=
+  · let : Nonempty (ActivePairFamilyTwoAwayWitness G U P A) :=
       not_isEmpty_iff.mp hactive
     let z : ActivePairFamilyTwoAwayWitness G U P A :=
       Classical.choice inferInstance

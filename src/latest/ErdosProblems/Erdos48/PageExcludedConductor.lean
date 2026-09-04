@@ -201,7 +201,7 @@ theorem exists_pageBand_excludedConductor_with_selection :
       ∃ z : PrimitiveRealZero,
         z.modulus = q ∧ z.beta = rho.re ∧
           InPageWindow Q cPage z := by
-    letI : NeZero q := ⟨by omega⟩
+    let : NeZero q := ⟨by omega⟩
     have hrhoData :=
       (mem_highZeroRectangle_iff hq psi.1 psi.2 heta1
         (by positivity : (0 : ℝ) ≤ T) rho).mp hrho

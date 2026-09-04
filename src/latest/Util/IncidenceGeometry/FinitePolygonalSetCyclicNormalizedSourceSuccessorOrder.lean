@@ -21,7 +21,7 @@ lemma FinitePolygonalSetCyclicNormalizedSourceSuccessorOrder
           p.1 ≠ (successor p).1) := by
   classical
   let α := {p : EuclideanSpace ℝ (Fin 2) // p ∈ K.points}
-  letI : Fintype α := Fintype.ofList sourceOccurrenceList hsource_covers
+  let : Fintype α := Fintype.ofList sourceOccurrenceList hsource_covers
   have hlen_two : 2 ≤ sourceOccurrenceList.length := by
     have hpoints_two : 1 < K.points.card := by
       have htwo := FinitePolygonalSetCarrierEqSimpleClosedCurvePointsTwo J K hKJ

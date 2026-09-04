@@ -42,7 +42,7 @@ theorem dens_uniform_commonRedNbhd {V : Type} [Fintype V] [DecidableEq V]
         {w : {w // w ∈ W} | ∀ x ∈ T, Gr.Adj x w.val}).toReal)
       = ((commonRedNbhd Gr T W).card : ℝ) / (W.card : ℝ) := by
   convert! Set.indicator_apply ( fun w : { w // w ∈ W } => ∀ x ∈ T, Gr.Adj x ( w : V ) ) ( fun _ => 1 / ( Fintype.card { w // w ∈ W } : ENNReal ) ) using 1;
-  simp +decide [ Set.indicator ];
+  simp +decide only [PMF.toMeasure_apply_fintype, univ_eq_attach, Fintype.card_coe, one_div, Subtype.forall];
   rw [ Finset.sum_ite ] ; norm_num;
   rw [ commonRedNbhd ];
   rw [ ← Finset.card_image_of_injective _ Subtype.coe_injective ] ; congr ; ext ; aesop
@@ -113,7 +113,8 @@ theorem null_blocker_compactness_graph
       use Finset.filter (fun x => x.val ∈ Z) (Finset.univ : Finset { x // x ∈ Xs });
       refine' ⟨ _, _ ⟩;
       · convert! hZ₂ using 1;
-        refine' Finset.card_bij ( fun y hy => y ) _ _ _ <;> simp +decide [  ];
+        refine' Finset.card_bij ( fun y hy => y ) _ _ _ <;> simp +decide only [univ_eq_attach, mem_filter, mem_attach, true_and, exists_prop, Subtype.exists,
+    exists_and_left, exists_eq_right_right];
         exact fun x hx => ⟨ hx, hZ₁ hx ⟩;
       · use fun ⟨ v, hv ⟩ => x v;
         grind +splitIndPred;
@@ -125,7 +126,8 @@ theorem null_blocker_compactness_graph
         intro i E hE;
         obtain ⟨ y, hy₁, hy₂, hy₃ ⟩ := hx i ( Finset.subtype ( fun x => x ∈ Xs ) E ) ( by
           convert! hE using 1;
-          ext; simp [Finset.mem_image];
+          ext; simp only [mem_image, mem_subtype, Subtype.exists, exists_and_left, exists_prop, exists_eq_right_right,
+    and_iff_left_iff_imp];
           exact fun h => hCrank i E hE |>.2.2 h );
         grind
 

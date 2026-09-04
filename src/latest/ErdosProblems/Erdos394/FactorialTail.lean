@@ -79,7 +79,7 @@ theorem one_half_pow_le_exp_neg_twentyfour {L : ℝ} {n : ℕ}
           norm_num [one_div]
         _ = Real.exp ((n : ℝ) * (-Real.log 2)) :=
           (Real.exp_nat_mul (-Real.log 2) n).symm
-        _ = Real.exp (-(n : ℝ) * Real.log 2) := by ring
+        _ = Real.exp (-(n : ℝ) * Real.log 2) := by ring_nf
     _ ≤ Real.exp (-24 * L) := Real.exp_le_exp.mpr hexp
 
 /-- Combined explicit factorial-tail estimate. -/

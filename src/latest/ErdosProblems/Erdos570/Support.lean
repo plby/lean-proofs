@@ -84,7 +84,7 @@ theorem deleteVertexCode_edgeCount (H : GraphCode)
     (v : Fin H.vertexCount) [DecidableRel H.graph.Adj] :
     (deleteVertexCode H v).edgeCount = H.edgeCount - H.graph.degree v := by
   classical
-  letI : DecidableRel (deleteVertexCode H v).graph.Adj := Classical.decRel _
+  let : DecidableRel (deleteVertexCode H v).graph.Adj := Classical.decRel _
   rw [(deleteVertexCode H v).edgeCount_eq_card_edgeFinset,
     H.edgeCount_eq_card_edgeFinset]
   rw [← (deleteVertexCodeIso H v).card_edgeFinset_eq]
@@ -134,7 +134,7 @@ def supportCodeIso (H : GraphCode) :
         Nat.card (H.graph.induce H.graph.support).edgeSet := by
       exact (Nat.card_congr (supportCodeIso H).mapEdgeSet).symm
     _ = Nat.card H.graph.edgeSet := by
-      letI : DecidableRel H.graph.Adj := Classical.decRel H.graph.Adj
+      let : DecidableRel H.graph.Adj := Classical.decRel H.graph.Adj
       rw [Nat.card_eq_fintype_card, Nat.card_eq_fintype_card,
         SimpleGraph.card_edgeSet, SimpleGraph.card_edgeSet]
       exact H.graph.card_edgeFinset_induce_support

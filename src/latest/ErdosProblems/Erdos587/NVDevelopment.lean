@@ -1828,7 +1828,7 @@ theorem exists_weighted_residuePairCount_polylog_bound :
   intro hq hD hnX hqD
   by_cases hn0 : n = 0
   · subst n
-    simp
+    simp only [Order.lt_one_iff, Finset.Icc_eq_empty_of_lt, Finset.sum_empty, Nat.cast_mul, Nat.cast_ofNat]
     have hDleX₀ : D ≤ X := by
       dsimp [D]
       exact (Nat.sqrt_le_self (Nat.sqrt X)).trans (Nat.sqrt_le_self X)
@@ -2476,7 +2476,7 @@ theorem exists_weighted_twistedResiduePairCount_polylog_bound :
   intro haq hq hD hnX hqD
   by_cases hn0 : n = 0
   · subst n
-    simp
+    simp only [Order.lt_one_iff, Finset.Icc_eq_empty_of_lt, Finset.sum_empty, Nat.cast_mul, Nat.cast_ofNat]
     have hDleX₀ : D ≤ X := by
       dsimp [D]
       exact (Nat.sqrt_le_self (Nat.sqrt X)).trans (Nat.sqrt_le_self X)
@@ -3029,7 +3029,7 @@ lemma quadraticChar_four_correlation_le_zero_of_repeated
         quadraticCharReal ((x + b) * (x + c)) +
           if x + a = 0 then 1 else 0 := by
     convert quadraticCharReal_square_mul_le
-      (x + a) ((x + b) * (x + c)) using 1 <;> ring
+      (x + a) ((x + b) * (x + c)) using 1 <;> ring_nf
   have hpair :
       (∑ x : F, quadraticCharReal ((x + b) * (x + c))) = -1 := by
     simpa only [sub_neg_eq_add] using
@@ -3578,13 +3578,13 @@ lemma pointCount_quarticWeierstrassCurve_eq_add_two
     (hAB : A ≠ B) (hAC : A ≠ C) (hBC : B ≠ C) :
     HasseWeil.pointCount (quarticWeierstrassCurve A B C).toAffine =
       Fintype.card (normalizedQuarticPoints A B C) + 2 := by
-  letI : (quarticWeierstrassCurve A B C).toAffine.IsElliptic :=
+  let : (quarticWeierstrassCurve A B C).toAffine.IsElliptic :=
     quarticWeierstrassCurve_isElliptic h2 hA hB hC hAB hAC hBC
-  letI : Fintype {uz : F × F //
+  let : Fintype {uz : F × F //
       (quarticWeierstrassCurve A B C).toAffine.Equation uz.1 uz.2} := by
     classical
     infer_instance
-  letI : Fintype (WithZero {uz : F × F //
+  let : Fintype (WithZero {uz : F × F //
       (quarticWeierstrassCurve A B C).toAffine.Equation uz.1 uz.2}) :=
     inferInstanceAs (Fintype (Option {uz : F × F //
       (quarticWeierstrassCurve A B C).toAffine.Equation uz.1 uz.2}))
@@ -3612,7 +3612,7 @@ lemma hasse_normalizedQuartic
     |((Fintype.card (normalizedQuarticPoints A B C) : ℝ) + 2) -
         (Fintype.card F : ℝ) - 1| ≤
       2 * Real.sqrt (Fintype.card F : ℝ) := by
-  letI : (quarticWeierstrassCurve A B C).toAffine.IsElliptic :=
+  let : (quarticWeierstrassCurve A B C).toAffine.IsElliptic :=
     quarticWeierstrassCurve_isElliptic h2 hA hB hC hAB hAC hBC
   have hh := HasseWeil.WeilPairing.hasse_bound
     (quarticWeierstrassCurve A B C)
@@ -3694,7 +3694,7 @@ lemma quarticAffinePointCount_hasse
   have hh := hasse_normalizedQuartic h2 hA hB hC hAB hAC hBC
   have he := Fintype.card_congr (shiftQuarticPointEquiv v)
   rw [quarticAffinePointCount_eq_card_subtype, he]
-  convert hh using 1 <;> ring
+  convert hh using 1 <;> ring_nf
 
 /-- Arithmetic consequence of Hasse's bound for the smooth projective
 completion of a squarefree monic quartic.  Such a completion has two points
@@ -3711,7 +3711,7 @@ lemma quadraticChar_four_correlation_le_three_sqrt_of_hasse
   have hhasse' :
       |(∑ x : F, quadraticCharReal (∏ i : Fin 4, (x + v i))) + 1| ≤
         2 * Real.sqrt (Fintype.card F) := by
-    convert hhasse using 1 <;> ring
+    convert hhasse using 1 <;> ring_nf
   have hsqrt : 1 ≤ Real.sqrt (Fintype.card F) := by
     have hcard : (1 : ℝ) ≤ Fintype.card F := by
       exact_mod_cast Fintype.card_pos
@@ -4212,7 +4212,7 @@ lemma ratioCollision_card_eq_intervalAllCollisions
         (zmodNatInterval p M H ×ˢ zmodPositiveInterval p U)).filter
       fun ab ↦ ab.1.2⁻¹ * ab.1.1 = ab.2.2⁻¹ * ab.2.1).card =
       (burgessIntervalAllCollisions p M H U).card := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   symm
   apply Finset.card_bij (fun ab _ ↦ burgessCollisionCast p M ab)
   · intro ab hab
@@ -5081,7 +5081,7 @@ lemma sum_quadraticPrimeFactorProduct_powerset_eq_pow_iff
   constructor
   · intro hsum p hpq
     have hp : p.Prime := Nat.prime_of_mem_primeFactors hpq
-    letI : Fact p.Prime := ⟨hp⟩
+    let : Fact p.Prime := ⟨hp⟩
     by_contra hsq
     have hneg : primeQuadraticCharReal p n = -1 :=
       (primeQuadraticCharReal_eq_neg_one_iff_not_isSquare hp).mpr hsq
@@ -5093,7 +5093,7 @@ lemma sum_quadraticPrimeFactorProduct_powerset_eq_pow_iff
     apply sum_quadraticPrimeFactorProduct_powerset_eq_pow
     intro p hpq
     have hp : p.Prime := Nat.prime_of_mem_primeFactors hpq
-    letI : Fact p.Prime := ⟨hp⟩
+    let : Fact p.Prime := ⟨hp⟩
     have hnonzero := natCast_zmod_prime_ne_zero_of_coprime hp
       (Nat.dvd_of_mem_primeFactors hpq) hnq
     exact (primeQuadraticCharReal_eq_one_iff_isSquare hp hnonzero).mpr
@@ -5178,7 +5178,7 @@ lemma sum_quadraticPrimeFactorProduct_eq_squarefreeSquareIndicator
     push_neg at hnotlocal
     obtain ⟨p, hpq, hpnot⟩ := hnotlocal
     have hp : p.Prime := Nat.prime_of_mem_primeFactors hpq
-    letI : Fact p.Prime := ⟨hp⟩
+    let : Fact p.Prime := ⟨hp⟩
     apply sum_quadraticPrimeFactorProduct_powerset_eq_zero hpq
     exact (primeQuadraticCharReal_eq_neg_one_iff_not_isSquare hp).mpr hpnot
 
@@ -5312,7 +5312,7 @@ lemma sum_quadraticPrimeFactorProduct_eq_zero_of_not_isSquare
   push_neg at hnotlocal
   obtain ⟨p, hpq, hpnot⟩ := hnotlocal
   have hp : p.Prime := Nat.prime_of_mem_primeFactors hpq
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   apply sum_quadraticPrimeFactorProduct_powerset_eq_zero hpq
   exact (primeQuadraticCharReal_eq_neg_one_iff_not_isSquare hp).mpr hpnot
 
@@ -5415,7 +5415,7 @@ lemma quadraticPrimeFactorProduct_mul
   simp only [quadraticPrimeFactorProduct, ← Finset.prod_mul_distrib]
   apply Finset.prod_congr rfl
   intro p hp
-  letI : Fact p.Prime := ⟨hs p hp⟩
+  let : Fact p.Prime := ⟨hs p hp⟩
   exact primeQuadraticCharReal_mul (hs p hp)
 
 lemma abs_primeQuadraticCharReal_le_one
@@ -5436,7 +5436,7 @@ lemma abs_quadraticPrimeFactorProduct_le_one
       · intro p hp
         positivity
       · intro p hp
-        letI : Fact p.Prime := ⟨hs p hp⟩
+        let : Fact p.Prime := ⟨hs p hp⟩
         exact abs_primeQuadraticCharReal_le_one (hs p hp)
     _ = 1 := by simp
 
@@ -5456,7 +5456,7 @@ lemma quadraticPrimeFactorProduct_eq_of_modEq
   rw [quadraticPrimeFactorProduct, quadraticPrimeFactorProduct]
   apply Finset.prod_congr rfl
   intro p hp
-  letI : Fact p.Prime := ⟨hs p hp⟩
+  let : Fact p.Prime := ⟨hs p hp⟩
   apply primeQuadraticCharReal_eq_of_modEq (hs p hp)
   exact hab.of_dvd (dvd_primeSetModulus hp)
 
@@ -5529,7 +5529,7 @@ lemma quadraticPrimeSetCharReal_natCast (s : Finset ℕ)
   rw [← Finset.prod_attach s (fun p ↦ primeQuadraticCharReal p n)]
   apply Finset.prod_congr rfl
   intro p hp
-  letI : Fact (p : ℕ).Prime := ⟨hs p p.property⟩
+  let : Fact (p : ℕ).Prime := ⟨hs p p.property⟩
   rw [localQuadraticCharReal, primeQuadraticCharReal_of_prime (hs p p.property),
     primeSetCRTEqv_natCast_apply]
 
@@ -5542,7 +5542,7 @@ lemma quadraticPrimeSetCharReal_prod (s : Finset ℕ)
   rw [Finset.prod_comm]
   apply Fintype.prod_congr
   intro p
-  letI : Fact (p : ℕ).Prime := ⟨hs p p.property⟩
+  let : Fact (p : ℕ).Prime := ⟨hs p p.property⟩
   simpa [localQuadraticCharReal] using
     (quadraticCharReal_prod
       (F := ZMod (p : ℕ)) (ι := ι)
@@ -5592,7 +5592,7 @@ lemma sum_quadraticPrimeSetCharReal_eq_zero
       obtain ⟨p, hp⟩ := hne
       apply Finset.prod_eq_zero (Finset.mem_univ (⟨p, hp⟩ : s))
       let ps : s := ⟨p, hp⟩
-      letI : Fact p.Prime := ⟨hs p hp⟩
+      let : Fact p.Prime := ⟨hs p hp⟩
       have hchar : ringChar (ZMod p) ≠ 2 :=
         (ZMod.ringChar_zmod_n p).substr (hodd p hp)
       have hz := quadraticChar_sum_zero (F := ZMod p) hchar
@@ -5608,7 +5608,7 @@ lemma norm_localQuadraticGaussSum_le_sqrt
     (ψ : AddChar (ZMod p) ℂ) :
     ‖∑ x : ZMod p, (localQuadraticCharReal p hp x : ℂ) * ψ x‖ ≤
       Real.sqrt p := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let χ : MulChar (ZMod p) ℂ :=
     (quadraticChar (ZMod p)).ringHomComp (Int.castRingHom ℂ)
   have hchar : ringChar (ZMod p) ≠ 2 :=
@@ -5662,7 +5662,8 @@ lemma primeSet_addChar_eq_prod_local
     funext p
     simp
   rw [← hy]
-  simp [primeSetLocalAddChar, map_sum]
+  simp only [Finset.univ_eq_attach, map_sum, Finset.sum_apply, Finset.sum_pi_single, Finset.mem_attach,
+    ↓reduceIte]
   rw [Finset.mul_sum]
   exact addChar_map_sum_eq_prod ZMod.stdAddChar
     (fun p : s ↦ h * (primeSetCRTEqv s hs).symm (Pi.single p (y p)))
@@ -5902,9 +5903,9 @@ lemma abs_sum_quadraticPrimeFactorProduct_le_completion
     |∑ i ∈ Finset.range H, quadraticPrimeFactorProduct s (M + i)| ≤
       (Real.log (primeSetModulus s) + 1) *
         Real.sqrt (primeSetModulus s) := by
-  letI : NeZero (primeSetModulus s) :=
+  let : NeZero (primeSetModulus s) :=
     ⟨(primeSetModulus_pos s hs).ne'⟩
-  letI : (p : s) → NeZero (p : ℕ) := fun p ↦
+  let : (p : s) → NeZero (p : ℕ) := fun p ↦
     ⟨(hs p p.property).ne_zero⟩
   have hbound := norm_quadraticPrimeSetShortCharSum_le
     s hs hodd ((M : ℤ) - 1) H hH
@@ -6030,9 +6031,9 @@ lemma abs_sum_quadraticPrimeFactorProduct_le_completion_long
     (hodd : ∀ p ∈ s, p ≠ 2) (hne : s.Nonempty) (M H : ℕ) :
     |∑ i ∈ Finset.range H, quadraticPrimeFactorProduct s (M + i)| ≤
       Real.log (primeSetModulus s) * Real.sqrt (primeSetModulus s) := by
-  letI : NeZero (primeSetModulus s) :=
+  let : NeZero (primeSetModulus s) :=
     ⟨(primeSetModulus_pos s hs).ne'⟩
-  letI : (p : s) → NeZero (p : ℕ) := fun p ↦
+  let : (p : s) → NeZero (p : ℕ) := fun p ↦
     ⟨(hs p p.property).ne_zero⟩
   have hbound := norm_quadraticPrimeSetShortCharSum_le_long
     s hs hodd hne ((M : ℤ) - 1) H
@@ -6095,7 +6096,7 @@ lemma abs_quadraticChar_four_correlation_le_three_sqrt_of_hasse
   have hhasse' :
       |(∑ x : F, quadraticCharReal (∏ i : Fin 4, (x + v i))) + 1| ≤
         2 * Real.sqrt (Fintype.card F) := by
-    convert hhasse using 1 <;> ring
+    convert hhasse using 1 <;> ring_nf
   have hsqrt : 1 ≤ Real.sqrt (Fintype.card F) := by
     have hcard : (1 : ℝ) ≤ Fintype.card F := by
       exact_mod_cast Fintype.card_pos
@@ -6252,7 +6253,7 @@ lemma abs_localQuadraticChar_four_correlation_le
         (∏ i : Fin 4, (x + v i))| ≤
       localQuadraticQuarticBound p v := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   rw [localQuadraticQuarticBound]
   have htrivial :
       |∑ x : ZMod p, localQuadraticCharReal p hp
@@ -7135,15 +7136,15 @@ lemma quadraticPrimeSetCharReal_mul
     quadraticPrimeSetCharReal, ← Finset.prod_mul_distrib]
   apply Finset.prod_congr rfl
   intro p hp
-  letI : Fact (p : ℕ).Prime := ⟨hs p p.property⟩
+  let : Fact (p : ℕ).Prime := ⟨hs p p.property⟩
   simp [localQuadraticCharReal, quadraticCharReal, map_mul]
 
 lemma primeSetCRTEqv_unit_ne_zero
     (s : Finset ℕ) (hs : ∀ p ∈ s, p.Prime)
     (u : (ZMod (primeSetModulus s))ˣ) (p : s) :
     primeSetCRTEqv s hs (u : ZMod (primeSetModulus s)) p ≠ 0 := by
-  letI : NeZero (p : ℕ) := ⟨(hs p p.property).ne_zero⟩
-  letI : Fact (p : ℕ).Prime := ⟨hs p p.property⟩
+  let : NeZero (p : ℕ) := ⟨(hs p p.property).ne_zero⟩
+  let : Fact (p : ℕ).Prime := ⟨hs p p.property⟩
   have hu : IsUnit
       (primeSetCRTEqv s hs (u : ZMod (primeSetModulus s))) :=
     u.isUnit.map (primeSetCRTEqv s hs).toMonoidHom
@@ -7160,7 +7161,7 @@ lemma abs_quadraticPrimeSetCharReal_unit
         ∏ _p : s, (1 : ℝ) := by
       apply Fintype.prod_congr
       intro p
-      letI : Fact (p : ℕ).Prime := ⟨hs p p.property⟩
+      let : Fact (p : ℕ).Prime := ⟨hs p p.property⟩
       simpa [localQuadraticCharReal] using
         abs_quadraticCharReal_of_ne_zero
           (primeSetCRTEqv_unit_ne_zero s hs u p)
@@ -7911,9 +7912,9 @@ lemma burgessPrimeSet_amplified_fourth_bound
             quadraticPrimeSetQuarticBound s hs
               (fun i ↦ (v i : ZMod (primeSetModulus s))))) +
           ((2 : ℝ) * (U * V) ^ 2) ^ 4) := by
-  letI : NeZero (primeSetModulus s) :=
+  let : NeZero (primeSetModulus s) :=
     ⟨(primeSetModulus_pos s hs).ne'⟩
-  letI (p : s) : NeZero (p : ℕ) := ⟨(hs p p.property).ne_zero⟩
+  let (p : s) : NeZero (p : ℕ) := ⟨(hs p p.property).ne_zero⟩
   let B : ℝ := ∑ x : ZMod (primeSetModulus s),
     (burgessUnitRatioWeight
       (zmodNatInterval (primeSetModulus s) M H)
@@ -8322,7 +8323,7 @@ lemma card_filter_range_modEq_bounds (H d v : ℕ) (hd : 0 < d) :
 lemma card_filter_range_dvd_add_bounds (M H d : ℕ) (hd : 0 < d) :
     H / d ≤ ((Finset.range H).filter fun i ↦ d ∣ M + i).card ∧
       ((Finset.range H).filter fun i ↦ d ∣ M + i).card ≤ H / d + 1 := by
-  letI : NeZero d := ⟨hd.ne'⟩
+  let : NeZero d := ⟨hd.ne'⟩
   let v : ℕ := (-(M : ZMod d)).val
   have hv : (v : ZMod d) = -(M : ZMod d) := ZMod.natCast_zmod_val _
   have hequiv (i : ℕ) : d ∣ M + i ↔ i ≡ v [MOD d] := by
@@ -8481,7 +8482,7 @@ lemma exists_divisible_sum_factorization
       (∑ i ∈ Finset.range H,
         if d ∣ M + i then f (M + i) else 0) =
         f d * ∑ j ∈ Finset.range L, f (K + j) := by
-  letI : NeZero d := ⟨hd.ne'⟩
+  let : NeZero d := ⟨hd.ne'⟩
   let a : ℕ := (-(M : ZMod d)).val
   let K : ℕ := (M + a) / d
   let L : ℕ := residueClassLength H d a
@@ -8812,7 +8813,7 @@ lemma restrictedQuadraticPrimeFactorProduct_eq_alternating
         have hpt : p ∈ t := by
           rwa [primeFactors_primeSetModulus t
             (fun p hp ↦ hs p (hts hp))] at hpqmem
-        letI : Fact p.Prime := ⟨hpprime⟩
+        let : Fact p.Prime := ⟨hpprime⟩
         rw [quadraticPrimeFactorProduct, Finset.prod_eq_zero hpt]
         rw [primeQuadraticCharReal_of_prime hpprime]
         change (((quadraticChar (ZMod p)) (n : ZMod p) : ℤ) : ℝ) = 0
@@ -9778,9 +9779,9 @@ lemma burgessCoprime_amplified_fourth_bound
               (fun i ↦ (v i : ZMod (primeSetModulus s))))) +
           ((2 : ℝ) * (primeSetCoprimeDenominators s U).card * V *
             (U * V)) ^ 4) := by
-  letI : NeZero (primeSetModulus s) :=
+  let : NeZero (primeSetModulus s) :=
     ⟨(primeSetModulus_pos s hs).ne'⟩
-  letI (p : s) : NeZero (p : ℕ) := ⟨(hs p p.property).ne_zero⟩
+  let (p : s) : NeZero (p : ℕ) := ⟨(hs p p.property).ne_zero⟩
   let B : ℝ := ∑ x : ZMod (primeSetModulus s),
     (burgessUnitRatioWeight
       (zmodNatInterval (primeSetModulus s) M H)
@@ -12921,7 +12922,7 @@ lemma card_filter_range_modEq_le (H p v : ℕ) (hp : 0 < p) :
 /-- Shifted divisibility form of `card_filter_range_modEq_le`. -/
 lemma card_filter_range_dvd_add_le (M H p : ℕ) (hp : 0 < p) :
     ((Finset.range H).filter fun i ↦ p ∣ M + i).card ≤ H / p + 1 := by
-  letI : NeZero p := ⟨hp.ne'⟩
+  let : NeZero p := ⟨hp.ne'⟩
   let v : ℕ := (-(M : ZMod p)).val
   have hv : (v : ZMod p) = -(M : ZMod p) := ZMod.natCast_zmod_val _
   have hequiv (i : ℕ) : p ∣ M + i ↔ i ≡ v [MOD p] := by
@@ -13444,7 +13445,7 @@ lemma exists_quadratic_root_zmod_mul_of_linear_primeFactors
     ∃ z : ZMod (q₁ * q₂),
       (A : ZMod (q₁ * q₂)) * z ^ 2 +
         (B : ZMod (q₁ * q₂)) * z + C = x := by
-  letI : NeZero q₁ := ⟨hq₁⟩
+  let : NeZero q₁ := ⟨hq₁⟩
   obtain ⟨z₁, hz₁⟩ := hroot₁
   have hz₁' : (x : ℤ) ≡
       (A : ℤ) * (z₁.val : ℤ) ^ 2 + (B : ℤ) * z₁.val + C
@@ -13459,7 +13460,7 @@ lemma exists_quadratic_root_zmod_mul_of_linear_primeFactors
     (fun p hp ↦ (hB p hp).isCoprime)
   obtain ⟨z, hz⟩ :=
     exists_quadratic_modEq_mul_of_coprime hqcop hz₁' hz₂
-  letI : NeZero (q₁ * q₂) := ⟨Nat.mul_ne_zero hq₁ hq₂⟩
+  let : NeZero (q₁ * q₂) := ⟨Nat.mul_ne_zero hq₁ hq₂⟩
   refine ⟨(z : ZMod (q₁ * q₂)), ?_⟩
   have hzcast : ((x : ℤ) : ZMod (q₁ * q₂)) =
       (((A : ℤ) * z ^ 2 + (B : ℤ) * z + C : ℤ) : ZMod (q₁ * q₂)) := by
@@ -13604,7 +13605,7 @@ lemma exists_square_modEq_of_coprime_square_primeSet
     have hpdvd : p ∣ primeSetModulus q.primeFactors := dvd_primeSetModulus hp
     exact (hcop.of_dvd_right hpdvd).isCoprime
   · intro p hp
-    letI : NeZero p := ⟨(hprime p hp).ne_zero⟩
+    let : NeZero p := ⟨(hprime p hp).ne_zero⟩
     have hpmem : p ∈ (primeSetModulus q.primeFactors).primeFactors := by
       simpa [primeFactors_primeSetModulus q.primeFactors hprime] using hp
     obtain ⟨r, hr⟩ := hlocalRad p hpmem
@@ -13626,7 +13627,7 @@ lemma isSquare_zmod_of_coprime_square_primeSet
     IsSquare (n : ZMod q) := by
   obtain ⟨z, hz⟩ := exists_square_modEq_of_coprime_square_primeSet
     hq hodd hcop hsq
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   refine ⟨(z : ZMod q), ?_⟩
   have hz' : ((z ^ 2 : ℤ) : ZMod q) = ((n : ℤ) : ZMod q) := by
     rw [ZMod.intCast_eq_intCast_iff]
@@ -13732,7 +13733,7 @@ lemma exists_quadratic_root_in_short_interval_of_burgess
     push_cast
     ring
   refine ⟨x, hxH, ?_⟩
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   apply exists_quadratic_root_of_discriminant_square_zmod h2Acop
   rwa [← hdisc]
 
@@ -13777,7 +13778,7 @@ lemma exists_quadratic_root_in_short_interval_of_completion_or_coprime_burgess
     push_cast
     ring
   refine ⟨x, hxH, ?_⟩
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   apply exists_quadratic_root_of_discriminant_square_zmod h2Acop
   rwa [← hdisc]
 
@@ -13820,7 +13821,7 @@ theorem exists_quadraticRootAnalyticThreshold :
     push_cast
     ring
   refine ⟨x, hxH, ?_⟩
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   apply exists_quadratic_root_of_discriminant_square_zmod h2Acop
   rwa [← hdisc]
 
@@ -13830,7 +13831,7 @@ Burgess theorem. -/
 lemma exists_mul_modEq_of_coprime
     {q D R : ℕ} (hq : 0 < q) (hR : R.Coprime q) :
     ∃ M : ℕ, D ≡ R * M [MOD q] := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let u : (ZMod q)ˣ := ZMod.unitOfCoprime R hR
   let m : ZMod q := ((u⁻¹ : (ZMod q)ˣ) : ZMod q) * D
   refine ⟨m.val, ?_⟩
@@ -13851,7 +13852,7 @@ lemma exists_small_linear_normalized_solution
     {a q : ℕ} {t : ℤ} (hq : 0 < q) (haq : a.Coprime q) :
     ∃ x < q,
       (a : ℤ) * (x : ℤ) + t ≡ 0 [ZMOD (q : ℤ)] := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let u : (ZMod q)ˣ := ZMod.unitOfCoprime a haq
   let y : ZMod q := -(t : ZMod q)
   let v : ZMod q := (u⁻¹ : (ZMod q)ˣ) * y
@@ -13887,7 +13888,7 @@ theorem exists_quadraticRootOddUniformThreshold :
   obtain ⟨Q₀, hQ₀⟩ := exists_quadraticRootAnalyticThreshold
   refine ⟨Q₀, ?_⟩
   intro q A B C hq hodd h2Acop
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   let disc : ZMod q :=
     (B : ZMod q) ^ 2 - (4 : ZMod q) * A * C
   let D : ℕ := disc.val
@@ -13934,7 +13935,7 @@ theorem exists_quadraticRootOddUniformThreshold :
       exact Nat.coprime_of_mul_modEq_one 1 (by simpa using hxNat)
     have hxsqRad : IsSquare
         ((D + (4 * A) * x : ℕ) : ZMod radical) := by
-      letI : NeZero radical := ⟨hradPos.ne'⟩
+      let : NeZero radical := ⟨hradPos.ne'⟩
       have hxZ : ((D + (4 * A) * x : ℕ) : ZMod radical) = 1 := by
         have hz := (ZMod.natCast_eq_natCast_iff
           (D + (4 * A) * x) 1 radical).2 hxNat
@@ -14198,7 +14199,7 @@ theorem exists_quadraticRootOddAllUniformThreshold :
     simpa only [A', B', q', r] using
       coprime_reduced_quadratic_coefficients A B q hq
   obtain ⟨y, hy, z', hz'⟩ := hQ₀ hq'pos.ne' hodd' hcop (C := C')
-  letI : NeZero q' := ⟨hq'pos.ne'⟩
+  let : NeZero q' := ⟨hq'pos.ne'⟩
   let zint : ℤ := z'.val
   have hred : (y : ℤ) ≡
       (A' : ℤ) * zint ^ 2 + (B' : ℤ) * zint + C'
@@ -14227,7 +14228,7 @@ theorem exists_quadraticRootOddAllUniformThreshold :
     dsimp only [x]
     have hx₀ : x₀ ≤ r := (Nat.mod_lt C hrpos).le
     nlinarith
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   let z : ZMod q := zint
   refine ⟨x, hx, z, ?_⟩
   have hzcastInt : ((x : ℤ) : ZMod q) =
@@ -14321,7 +14322,7 @@ lemma exists_quadratic_modEq_two_pow_of_odd_even
     simpa only [q] using hAcop2.pow_right e
   obtain ⟨w, hw⟩ := exists_square_modEq_two_pow_of_modEq_eight e hu
   have hq : q ≠ 0 := by positivity
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   let au : (ZMod q)ˣ := ZMod.unitOfCoprime A hAcop
   let z : ZMod q := ((au⁻¹ : (ZMod q)ˣ) : ZMod q) * (w - b)
   have hAz : (A : ZMod q) * z = (w - b : ℤ) := by
@@ -14446,7 +14447,7 @@ lemma scaledByInvEightVal_modEq
     let u : (ZMod q)ˣ := ZMod.unitOfCoprime 8 h8
     let a' : ℕ := (((u⁻¹ : (ZMod q)ˣ) : ZMod q) * a).val
     8 * a' ≡ a [MOD q] := by
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   dsimp only
   rw [← ZMod.natCast_eq_natCast_iff]
   rw [Nat.cast_mul, ZMod.natCast_zmod_val]
@@ -14547,7 +14548,7 @@ theorem exists_primitiveQuadraticRootUniformThreshold :
     Nat.le_of_dvd hqoddpos (hradDvd.trans hunitDvd)
   have hy : y ≤ Q₀ + Nat.sqrt qodd :=
     hyRaw.trans (Nat.add_le_add_left (Nat.sqrt_le_sqrt hradLe) Q₀)
-  letI : NeZero qodd := ⟨hqoddpos.ne'⟩
+  let : NeZero qodd := ⟨hqoddpos.ne'⟩
   have hAval : (A' : ZMod qodd) =
       ((u⁻¹ : (ZMod qodd)ˣ) : ZMod qodd) * A := by
     exact ZMod.natCast_zmod_val _
@@ -14595,7 +14596,7 @@ theorem exists_primitiveQuadraticRootUniformThreshold :
   have hx : x ≤ 7 + 8 * (Q₀ + Nat.sqrt qodd) := by
     dsimp only [x]
     omega
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   let zq : ZMod q := z
   refine ⟨x, by simpa only [qodd] using hx, zq, ?_⟩
   have hz' : (x : ℤ) ≡
@@ -14646,7 +14647,7 @@ theorem exists_quadraticRootAllUniformThreshold :
     simpa only [A', B', q', r] using
       coprime_reduced_quadratic_coefficients A B q hq
   obtain ⟨y, hy, z', hz'⟩ := hQ₀ hq'pos.ne' hcop (C := C')
-  letI : NeZero q' := ⟨hq'pos.ne'⟩
+  let : NeZero q' := ⟨hq'pos.ne'⟩
   let zint : ℤ := z'.val
   have hred : (y : ℤ) ≡
       (A' : ℤ) * zint ^ 2 + (B' : ℤ) * zint + C'
@@ -14675,7 +14676,7 @@ theorem exists_quadraticRootAllUniformThreshold :
     dsimp only [x]
     have hx₀ : x₀ ≤ r := (Nat.mod_lt C hrpos).le
     nlinarith
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   let z : ZMod q := zint
   refine ⟨x, hx, z, ?_⟩
   have hzcastInt : ((x : ℤ) : ZMod q) =
@@ -14727,7 +14728,7 @@ theorem exists_quadraticRootAllUniformInterval :
   obtain ⟨Q₀, hQ₀⟩ := exists_quadraticRootAllUniformThreshold
   refine ⟨Q₀, ?_⟩
   intro q A B C X hq
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   let C' : ℕ := (((C : ZMod q) - (X : ZMod q))).val
   obtain ⟨y, hy, z, hz⟩ := hQ₀ (q := q) (A := A) (B := B) (C := C') hq
   refine ⟨y, hy, z, ?_⟩
@@ -14747,7 +14748,7 @@ lemma exists_quadratic_value_in_rectangle_of_long_variable
       (A : ZMod q) * z ^ 2 + (B : ZMod q) * z + C = X + y) :
     ∃ y ≤ Hx, ∃ w : ℕ, Z ≤ w ∧ w ≤ Z + Hz ∧
       (A : ZMod q) * w ^ 2 + (B : ZMod q) * w + C = X + y := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   obtain ⟨y, hy, z, hz⟩ := hroot
   obtain ⟨w, hZw, hwZ, hw⟩ :=
     exists_nat_modEq_mem_interval hq z.val_lt hHz (Z := Z)
@@ -14781,7 +14782,7 @@ theorem exists_rank_two_congruence_long_variable :
   intro a b q₁ q₂ X Hx Z Hz t hq₂ hcop hHz
   dsimp only
   intro hbound
-  letI : NeZero q₂ := ⟨hq₂.ne'⟩
+  let : NeZero q₂ := ⟨hq₂.ne'⟩
   let u : (ZMod q₂)ˣ := ZMod.unitOfCoprime q₁ hcop
   let A : ℕ := (((u⁻¹ : (ZMod q₂)ˣ) : ZMod q₂) * a).val
   let B : ℕ := (((u⁻¹ : (ZMod q₂)ˣ) : ZMod q₂) * b).val
@@ -14869,7 +14870,7 @@ lemma exists_quadratic_root_in_residue_interval_of_completion_or_coprime_burgess
       hq₁ hodd h2Acop hD hH hE hDM hdom hcases
   obtain ⟨z, hz⟩ := exists_quadratic_root_zmod_mul_of_linear_primeFactors
     hq₁ hq₂ hqcop ⟨z₁, hz₁⟩ hA₂ hB₂
-  letI : NeZero (q₁ * q₂) := ⟨Nat.mul_ne_zero hq₁ hq₂⟩
+  let : NeZero (q₁ * q₂) := ⟨Nat.mul_ne_zero hq₁ hq₂⟩
   have hred : (y : ℤ) ≡
       (A' : ℤ) * (z.val : ℤ) ^ 2 + (B' : ℤ) * z.val + C'
         [ZMOD ((q₁ * q₂ : ℕ) : ℤ)] := by
@@ -14914,7 +14915,7 @@ theorem exists_quadraticRootResidueAnalyticThreshold :
     hQ₀ hq₁ hodd h2Acop hD hrad hH hroot hDM
   obtain ⟨z, hz⟩ := exists_quadratic_root_zmod_mul_of_linear_primeFactors
     hq₁ hq₂ hqcop ⟨z₁, hz₁⟩ hA₂ hB₂
-  letI : NeZero (q₁ * q₂) := ⟨Nat.mul_ne_zero hq₁ hq₂⟩
+  let : NeZero (q₁ * q₂) := ⟨Nat.mul_ne_zero hq₁ hq₂⟩
   have hred : (y : ℤ) ≡
       (A' : ℤ) * (z.val : ℤ) ^ 2 + (B' : ℤ) * z.val + C'
         [ZMOD ((q₁ * q₂ : ℕ) : ℤ)] := by
@@ -14934,7 +14935,7 @@ lemma scaledByInverseVal_modEq
     let u : (ZMod q)ˣ := ZMod.unitOfCoprime a ha
     let c' : ℕ := (((u⁻¹ : (ZMod q)ˣ) : ZMod q) * c).val
     a * c' ≡ c [MOD q] := by
-  letI : NeZero q := ⟨hq⟩
+  let : NeZero q := ⟨hq⟩
   dsimp only
   rw [← ZMod.natCast_eq_natCast_iff]
   rw [Nat.cast_mul, ZMod.natCast_zmod_val]
@@ -15023,7 +15024,7 @@ theorem exists_quadratic_step_uniform :
   let r := (A.gcd B).gcd q
   let q' := q / r
   obtain ⟨x, hx, z, hz⟩ := hQ₀ hqpos.ne' (A := A) (B := B) (C := C)
-  letI : NeZero q := ⟨hqpos.ne'⟩
+  let : NeZero q := ⟨hqpos.ne'⟩
   have hAval : (A : ZMod q) =
       ((u⁻¹ : (ZMod q)ˣ) : ZMod q) * (p * k) := ZMod.natCast_zmod_val _
   have hBval : (B : ZMod q) =
@@ -17012,7 +17013,7 @@ lemma nvFinsetListSum_snoc_fibers_subset {d : ℕ}
   induction hrel with
   | nil =>
       intro v hv
-      simp [nvFinsetListSum] at hv ⊢
+      simp only [nvFinsetListSum_nil, List.sum_nil, Finset.mem_singleton] at hv ⊢
       subst v
       funext i
       refine Fin.lastCases ?_ (fun j => ?_) i <;> simp
@@ -17036,7 +17037,7 @@ lemma nvFinsetListSum_snoc_rows_subset {d : ℕ}
   induction hrel with
   | nil =>
       intro z hz
-      simp [nvFinsetListSum] at hz ⊢
+      simp only [nvFinsetListSum_nil, List.sum_nil, Finset.mem_singleton] at hz ⊢
       subst z
       funext i
       refine Fin.lastCases ?_ (fun j => ?_) i <;> simp
@@ -19345,7 +19346,7 @@ lemma exists_large_disjoint_edge_sources
   · subst s
     exact ⟨∅, by simp⟩
   · obtain ⟨a, ha⟩ := Finset.nonempty_iff_ne_empty.mpr hs
-    letI : Nonempty α := ⟨a⟩
+    let : Nonempty α := ⟨a⟩
     let bad : Finset α := {a, g a, Function.invFun g a}
     let r := s \ bad
     have hra : a ∉ r := by simp [r, bad]
@@ -21031,7 +21032,7 @@ theorem exists_large_same_boundedStepPattern
         ∀ i ∈ I, (Sps.get i).2 = p := by
   let p0 : BoundedStepPattern Q q := fun i =>
     ⟨0, Finset.mem_Icc.mpr ⟨by omega, by omega⟩⟩
-  letI : Nonempty (BoundedStepPattern Q q) := ⟨p0⟩
+  let : Nonempty (BoundedStepPattern Q q) := ⟨p0⟩
   let f : Fin Sps.length → BoundedStepPattern Q q := fun i => (Sps.get i).2
   obtain ⟨p, hp⟩ :=
     Fintype.exists_le_card_fiber_of_mul_le_card f (n := h) (by
@@ -21892,7 +21893,7 @@ theorem exists_large_same_uniformStandardPattern
   obtain ⟨Sps, hSps⟩ := exists_uniformStandardPatternOutputs hchunks hSs
   let p0 : UniformBoundedStepPattern P D q := fun i =>
     ⟨0, Finset.mem_Icc.mpr ⟨by omega, by omega⟩⟩
-  letI : Nonempty (UniformBoundedStepPattern P D q) := ⟨p0⟩
+  let : Nonempty (UniformBoundedStepPattern P D q) := ⟨p0⟩
   let f : Fin Sps.length → UniformBoundedStepPattern P D q :=
     fun i => (Sps.get i).2
   have hmul : Fintype.card (UniformBoundedStepPattern P D q) * h ≤
@@ -21995,7 +21996,7 @@ lemma carrier_subset_singleton_add_dilate (P : GeneralizedAP) {n : ℕ}
     (P.dilate n).eval y, (P.dilate n).mem_carrier_iff.mpr ⟨y, rfl⟩, ?_⟩
   simp only [eval, dilate]
   dsimp only [y]
-  ring
+  ring_nf
   rfl
 
 /-- For a zero-based GAP, carrier dilations are monotone in the dilation
@@ -25199,7 +25200,7 @@ lemma volume_body_rank_zero (X : ConvexProgression) (hrank : X.rank = 0) :
     rw [hx]
     exact X.body_zero
   rw [hbody]
-  letI : IsEmpty (Fin X.rank) :=
+  let : IsEmpty (Fin X.rank) :=
     ⟨fun i => Fin.elim0 (Fin.cast hrank i)⟩
   rw [Measure.volume_pi_eq_dirac]
   simp
@@ -25219,7 +25220,7 @@ lemma exists_of_rank_eq_zero_with_volume (X : ConvexProgression)
           MeasureTheory.volume X.body := by
   obtain ⟨D, hscale, henergy⟩ := exists_of_rank_eq_zero X hrank
   refine ⟨D, hscale, henergy, ?_⟩
-  letI : IsEmpty (Fin X.rank) :=
+  let : IsEmpty (Fin X.rank) :=
     ⟨fun i => Fin.elim0 (Fin.cast hrank i)⟩
   have hcard : D.roundedCard = 1 := by
     simp [roundedCard]
@@ -27017,7 +27018,7 @@ theorem exists_large_proper_GAP_in_fourfoldDifference
   let M : ℕ := 2 * D.card
   have hMpos : 0 < M := by dsimp [M]; omega
   have hMtwo : 1 < M := by dsimp [M]; omega
-  letI : NeZero M := ⟨hMpos.ne'⟩
+  let : NeZero M := ⟨hMpos.ne'⟩
   let q := freimanModelDensity K
   have hqpos : 1 ≤ q := by
     dsimp [q]
@@ -29967,7 +29968,7 @@ lemma exists_subset_sum_dvd_or_large_common_divisor
         B ⊆ A ∧ 1 < d ∧ d ∣ q ∧
         A.card + 1 ≤ q + B.card ∧ ∀ b ∈ B, d ∣ b := by
   classical
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let L := A.toList
   by_cases hall : listSubsetSums
       (L.map fun a : ℕ => (a : ZMod q)) = Finset.univ

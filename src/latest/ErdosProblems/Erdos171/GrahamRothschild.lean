@@ -216,8 +216,8 @@ theorem exists_firstBlockCanonical (α : Type) [Finite α] (P : Type) [Finite P]
       ∀ C : Line α I → Bool,
         ∃ U : Subspace (P ⊕ Fin m) α I, IsFirstBlockCanonical C U := by
   classical
-  letI := Fintype.ofFinite α
-  letI := Fintype.ofFinite P
+  let := Fintype.ofFinite α
+  let := Fintype.ofFinite P
   intro m
   induction m generalizing P with
   | zero =>
@@ -235,9 +235,9 @@ theorem exists_firstBlockCanonical (α : Type) [Finite α] (P : Type) [Finite P]
       let pattern := {q : Line α (P ⊕ Fin (m + 1)) // Specializable q}
       obtain ⟨B, instB, hB⟩ :=
         Line.exists_mono_in_high_dimension (α ⊕ P) (pattern → Bool)
-      letI : Fintype B := instB
+      let : Fintype B := instB
       obtain ⟨I, instI, hI⟩ := ih (P := P ⊕ B)
-      letI : Fintype I := instI
+      let : Fintype I := instI
       refine ⟨I, instI, fun C => ?_⟩
       obtain ⟨V, hV⟩ := hI C
       let D : (B → α ⊕ P) → pattern → Bool := fun x q =>
@@ -459,7 +459,7 @@ theorem exists_mono_lines_fintype (α : Type) [Finite α] [Nonempty α] (d : ℕ
   classical
   obtain ⟨I, instI, hI⟩ := exists_firstBlockCanonical α Empty (2 * d)
   refine ⟨I, instI, fun C => ?_⟩
-  letI : Fintype I := instI
+  let : Fintype I := instI
   obtain ⟨V, hV⟩ := hI C
   let a₀ : α := Classical.arbitrary α
   let blockColor : Fin (2 * d) → Bool := fun i =>
@@ -507,7 +507,7 @@ theorem exists_mono_lines_fin (α : Type) [Finite α] [Nonempty α] (d : ℕ) :
         ∀ q : Line α (Fin d), C (U.lineMap q) = c := by
   classical
   obtain ⟨I, instI, hI⟩ := exists_mono_lines_fintype α d
-  letI : Fintype I := instI
+  let : Fintype I := instI
   let e : I ≃ Fin (Fintype.card I) := Fintype.equivFin I
   refine ⟨Fintype.card I, fun C => ?_⟩
   let D : Line α I → Bool := fun q => C (lineReindex e q)

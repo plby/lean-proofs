@@ -59,7 +59,7 @@ theorem commonResidueIntervalMass_eq_quadratic (k R : ℕ) (p : α → ℕ)
       intro e _he
       dsimp only [T, assignmentPairIntervalCount]
       rw [← Finset.sum_filter, Finset.sum_const, nsmul_eq_mul]
-      ring
+      ring_nf
 
 theorem commonResidueIntervalMass_error {k R W : ℕ} (hk : 2 ≤ k) (hR : 1 < R)
     (hW : 0 < W) {p : α → ℕ} (hp : ∀ q, (p q).Prime) (hinj : Function.Injective p)

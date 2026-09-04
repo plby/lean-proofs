@@ -229,7 +229,7 @@ theorem independentBits_probability_activeBlocks_card_le_le_exp
   have hbase0 : 0 ≤ 1 - (q : ℝ) / 2 := by linarith
   have hbase :
       1 - (q : ℝ) / 2 ≤ Real.exp (-(q : ℝ) / 2) := by
-    convert Real.one_sub_le_exp_neg ((q : ℝ) / 2) using 1 <;> ring
+    convert Real.one_sub_le_exp_neg ((q : ℝ) / 2) using 1 <;> ring_nf
   have hpow :
       (1 - (q : ℝ) / 2) ^ S.card ≤
         Real.exp (-((q : ℝ) * S.card) / 2) := by

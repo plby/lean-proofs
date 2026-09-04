@@ -308,7 +308,6 @@ lemma EndpointRectangularWireReplacement {ι : Type*} [Fintype ι]
         constructor
         · linarith [hRx i]
         constructor <;> linarith
-      simp [Γ] at hp
       rcases hp with ⟨n, hn, hpseg⟩
       have hn_cases : n = 0 ∨ n = 1 := by
         have hn' : n + 1 < 3 := by simpa using hn
@@ -416,8 +415,17 @@ lemma EndpointRectangularWireReplacement {ι : Type*} [Fintype ι]
         constructor
         · nlinarith [hε, hx, hb_lt_one]
         exact hy_bounds
-      simp [Γ] at hp
-      rcases hp with ⟨hpcarrier, hpneL, hpneR⟩
+      rcases hp with ⟨hpcarrier, hpnotEnds⟩
+      have hpneL : p ≠ L i := by
+        intro hpL
+        apply hpnotEnds
+        subst p
+        simp
+      have hpneR : p ≠ R i := by
+        intro hpR
+        apply hpnotEnds
+        subst p
+        simp
       rcases hpcarrier with ⟨n, hn, hpseg⟩
       have hn_cases : n = 0 ∨ n = 1 := by
         have hn' : n + 1 < 3 := by simpa using hn

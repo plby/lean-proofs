@@ -420,7 +420,7 @@ theorem stabilityStatement_of_small_positive_loss {ε : ℝ}
     DiracStability.StabilityStatement ε 21 := by
   refine ⟨hεpos, ?_⟩
   intro W _ _ H _ hCard hDegree
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
   have hDegree' : ∀ v : W,
       (1 / 2 - ε) * (Fintype.card W : ℝ) ≤ H.degree v := by
     intro v

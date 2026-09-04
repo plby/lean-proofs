@@ -209,7 +209,7 @@ private lemma endpoint_germ_subset_closure_left (a K : ℝ) (ha : 0 < a) (hK : 0
     · simp [hδ_K]
   · rw [EuclideanSpace.dist_eq]
     rw [Fin.sum_univ_two]
-    simp [y, hz1, Real.dist_eq]
+    simp only [Fin.isValue]
     rw [Real.sqrt_sq_eq_abs, abs_of_pos hδ_pos]
     exact hδ_eps
 private lemma endpoint_germ_subset_closure_right (a K : ℝ) (ha : 0 < a) (hK : 0 < K) :
@@ -260,7 +260,7 @@ private lemma endpoint_germ_subset_closure_right (a K : ℝ) (ha : 0 < a) (hK : 
     · simp [hδ_pos]
   · rw [EuclideanSpace.dist_eq]
     rw [Fin.sum_univ_two]
-    simp [y, hz1, Real.dist_eq, abs_of_pos hδ_pos]
+    simp only [Fin.isValue]
     rw [Real.sqrt_sq_eq_abs, abs_of_pos hδ_pos]
     exact hδ_eps
 

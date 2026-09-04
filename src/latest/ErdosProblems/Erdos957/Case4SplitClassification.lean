@@ -814,10 +814,7 @@ lemma CommonPairedCase4Rows.current_secondary_association_eq_side_iff
               ActualCase24Rows.TwoExtremeCommonPairFrame.frame,
               ActualCase24Rows.case4PairEdgeBase, hside]
       rw [hcoord]
-      simp [hside, ActualCase24Rows.case4SourceIsRight,
-        cyclicSideAssociation, commonPairHorizontalAssociation_left,
-        Erdos957Case24Bridge.Case4.sideSource,
-        Erdos957Cases24.Case2.uPrev, Erdos957Cases24.point]
+      simp only [Fin.isValue, tsub_le_iff_right, zero_add]
       constructor <;> intro h <;> linarith
 
 private lemma dist_gt_two_of_residual_nonpos_of_right_shallow

@@ -336,7 +336,7 @@ theorem monoidHom_fiber_card_mul_range
     [DecidableEq K] (f : H →* K) {y : K} (hy : y ∈ f.range) :
     Fintype.card {x : H // f x = y} * Nat.card f.range = Fintype.card H := by
   classical
-  letI : Fintype f.range := Fintype.ofFinite _
+  let : Fintype f.range := Fintype.ofFinite _
   let y' : f.range := ⟨y, hy⟩
   have h := surjectiveMonoidHom_fiber_card_mul f.rangeRestrict
     f.rangeRestrict_surjective y'
@@ -432,7 +432,7 @@ theorem squareClassConstraint_card_mul
         Nat.card (G ⧸ (classSquareSubgroup : Subgroup G)) =
       (Fintype.card G) ^ k := by
   classical
-  letI : Fintype (G ⧸ (classSquareSubgroup : Subgroup G)) := Fintype.ofFinite _
+  let : Fintype (G ⧸ (classSquareSubgroup : Subgroup G)) := Fintype.ofFinite _
   change (Finset.univ.filter fun x : Fin k → G ↦ tupleSquareClassHom x =
       (QuotientGroup.mk' (classSquareSubgroup : Subgroup G)) c).card * _ = _
   rw [Nat.card_eq_fintype_card]
@@ -2120,7 +2120,7 @@ theorem specialOrientedSplitUnit_coe
       FractionalIdeal (Zsqrtd (-(p : ℤ) ^ 3))⁰
         (FractionRing (Zsqrtd (-(p : ℤ) ^ 3)))) =
       specialOrientedSplitIdeal p q h b := by
-  letI : NeZero q := ⟨hq.ne_zero⟩
+  let : NeZero q := ⟨hq.ne_zero⟩
   exact orientedSplitIdealUnit_coe (-(p : ℤ) ^ 3) q
     (specialSplitRoot p q h) (specialSplitRoot_sq p q h)
     (specialSplitRoot_coprime_two_val Fact.out hq hq2 hqp h) b
@@ -2133,7 +2133,7 @@ theorem specialOrientedSplitUnit_class
         (specialOrientedSplitUnit p q hq hq2 hqp h b) =
       if b then (specialSplitPrimeClass p q hq hq2 hqp h)⁻¹
       else specialSplitPrimeClass p q hq hq2 hqp h := by
-  letI : NeZero q := ⟨hq.ne_zero⟩
+  let : NeZero q := ⟨hq.ne_zero⟩
   exact orientedSplitIdeal_class (-(p : ℤ) ^ 3) q
     (specialSplitRoot p q h) (specialSplitRoot_sq p q h)
     (specialSplitRoot_coprime_two_val Fact.out hq hq2 hqp h) b
@@ -2152,9 +2152,9 @@ theorem exists_specialForm_representation_of_signedClassProduct
         (hallowed i)) = 1) :
     ∃ x y : ℕ, ∏ i, q i = x ^ 2 + p ^ 3 * y ^ 2 := by
   let d : ℤ := -(p : ℤ) ^ 3
-  letI : Module.Free ℤ (Zsqrtd d) :=
+  let : Module.Free ℤ (Zsqrtd d) :=
     Module.Free.of_basis (zsqrtdBasis d)
-  letI : Module.Finite ℤ (Zsqrtd d) :=
+  let : Module.Finite ℤ (Zsqrtd d) :=
     Module.Finite.of_basis (zsqrtdBasis d)
   let J : Fin k → Ideal (Zsqrtd d) := fun i =>
     specialOrientedSplitIdeal p (q i) (hallowed i) (sigma i)
@@ -2175,7 +2175,7 @@ theorem exists_specialForm_representation_of_signedClassProduct
     exact (Nat.coprime_primes (hqprime i) (hqprime j)).2 (hinj.ne hij)
   have hcard : ∀ i, (J i).cardQuot = q i := by
     intro i
-    letI : NeZero (q i) := ⟨(hqprime i).ne_zero⟩
+    let : NeZero (q i) := ⟨(hqprime i).ne_zero⟩
     exact orientedSplitIdeal_cardQuot d (q i)
       (specialSplitRoot p (q i) (hallowed i))
       (specialSplitRoot_sq p (q i) (hallowed i)) (sigma i)
@@ -2554,7 +2554,7 @@ theorem pairNonresidueResidues_spec {p q a : ℕ}
   have hp0 : p ≠ 0 := (Fact.out : p.Prime).ne_zero
   have hq0 : q ≠ 0 := (Fact.out : q.Prime).ne_zero
   have hpq0 : p * q ≠ 0 := Nat.mul_ne_zero hp0 hq0
-  letI : NeZero (p * q) := ⟨hpq0⟩
+  let : NeZero (p * q) := ⟨hpq0⟩
   let e := crtUnitsEquiv hpq
   let f := pairNonresidueEmbedding hpq
   rw [pairNonresidueResidues] at ha
@@ -3560,7 +3560,7 @@ theorem eventually_specialLocalLogMass_lower
     {p : ℕ} (hp : p.Prime) (hp4 : p % 4 = 3) :
     ∀ᶠ Q : ℕ in atTop,
       (1 / 8 : ℝ) * (Q : ℝ) ≤ specialLocalLogMass p Q := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hp2 : p ≠ 2 := by omega
   let C : ℝ := squareUnitThetaSum p 2
   have hC : ∀ᶠ Q : ℕ in atTop, 8 * C ≤ (Q : ℝ) :=
@@ -3820,8 +3820,13 @@ private theorem thetaAP_nat_eq_thetaProgressionSum
   rw [Nat.primesLE_eq_filter_Icc_one]
   apply Finset.sum_congr
   · ext l
-    simp [Nat.mod_eq_of_lt ha, and_left_comm, and_comm]
-    exact fun _ _ hl => hl.one_le
+    simp only [Nat.floor_natCast, mem_filter, Finset.mem_Iic, Finset.mem_Icc]
+    constructor
+    · rintro ⟨hlQ, hlprime, hlmod⟩
+      exact ⟨⟨⟨hlprime.one_le, hlQ⟩, hlprime⟩,
+        by simpa [Nat.mod_eq_of_lt ha] using hlmod⟩
+    · rintro ⟨⟨⟨_, hlQ⟩, hlprime⟩, hlmod⟩
+      exact ⟨hlQ, hlprime, by simpa [Nat.mod_eq_of_lt ha] using hlmod⟩
   · intro l hl
     rfl
 
@@ -3952,7 +3957,7 @@ theorem exists_eventually_specialLocalLogMass_sharp_lower
       (1 / 2 : ℝ) * (Q : ℝ) -
           K * (Q : ℝ) / Real.log (Q : ℝ) ^ 3 - C ≤
         specialLocalLogMass p Q := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hp2 : p ≠ 2 := by omega
   obtain ⟨K, htheta⟩ :=
     exists_eventually_squareUnitThetaSum_sharp_lower (p := p) hp2
@@ -5410,7 +5415,7 @@ theorem partial_sum_inv_mul_log_sq_le1081 (N : ℕ) :
   · have hempty : Finset.Icc 3 N = ∅ := by
       exact Finset.Icc_eq_empty (by omega)
     rw [hempty]
-    simp
+    simp only [one_div, mul_inv_rev, sum_empty, inv_nonneg, ge_iff_le]
     positivity
 
 theorem exists_eventually_specialAllowedPrimeLog_sharp_lower
@@ -5419,7 +5424,7 @@ theorem exists_eventually_specialAllowedPrimeLog_sharp_lower
       (1 / 2 : ℝ) * (Q : ℝ) -
           K * (Q : ℝ) / Real.log (Q : ℝ) ^ 3 - C ≤
         specialAllowedPrimeLog p Q := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hp2 : p ≠ 2 := by omega
   obtain ⟨K, htheta⟩ :=
     exists_eventually_squareUnitThetaSum_sharp_lower (p := p) hp2
@@ -7437,8 +7442,8 @@ theorem eventually_geometricEndpoint_specialPairSum_le_landauScale
       intro h
       subst q
       norm_num at hq4
-    letI : Fact p.Prime := ⟨hpprime⟩
-    letI : Fact q.Prime := ⟨hqprime⟩
+    let : Fact p.Prime := ⟨hpprime⟩
+    let : Fact q.Prime := ⟨hqprime⟩
     exact eventually_geometricEndpoint_specialPairCount_le_landauScale_mul
       ((Nat.coprime_primes hpprime hqprime).2 hqp.symm)
       hp4 hq4 hp2 hq2 heta

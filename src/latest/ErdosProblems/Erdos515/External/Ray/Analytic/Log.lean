@@ -40,7 +40,7 @@ public theorem AnalyticOnNhd.exists_log (fa : AnalyticOnNhd ℂ f (ball c r))
     ∃ g : ℂ → ℂ, AnalyticOnNhd ℂ g (ball c r) ∧ g c = Complex.log (f c) ∧
       ∀ z ∈ ball c r, f z = exp (g z) := by
   by_cases r0 : r ≤ 0
-  · simp [Metric.ball_eq_empty.mpr r0]
+  · simp only [Metric.mem_ball]
     exact ⟨fun z ↦ Complex.log (f z), rfl⟩
   simp only [not_le] at r0
   set p : (ℂ → ℂ) → ℂ → Prop := fun g z ↦ AnalyticAt ℂ g z ∧ f z = exp (g z)

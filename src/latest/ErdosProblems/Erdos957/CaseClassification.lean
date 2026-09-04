@@ -3030,7 +3030,7 @@ lemma outgoing_edge_terminal_height_abs_lt_one_tenth
                 (unitDirection (L.lift.angle b.1)) 1 *
                   (unitDirection (L.lift.angle b.1 + L.lift.turn b)) 0)
         ring
-      _ = _ := by rw [det_unitDirection]; ring
+      _ = _ := by rw [det_unitDirection]; ring_nf
   rw [hy, abs_mul, abs_neg, abs_of_pos (L.edgeScale_pos a),
     abs_of_nonneg hsinNonneg]
   have hprod : L.edgeScale a * Real.sin (L.lift.turn b) < 2 / 45 := by

@@ -169,11 +169,11 @@ theorem degree_ge {n : ℕ} (W : Witness G n) (v : Carrier G W) :
 /-- The critical induced graph is connected. -/
 theorem connected {n : ℕ} (W : Witness G n) : (H G W).Connected := by
   classical
-  letI : Fintype (Carrier G W) := instSub W.S
+  let : Fintype (Carrier G W) := instSub W.S
   by_contra hnot
   have hnonempty : Nonempty (Carrier G W) := by
     by_contra hempty
-    letI : IsEmpty (Carrier G W) := ⟨fun x => hempty ⟨x⟩⟩
+    let : IsEmpty (Carrier G W) := ⟨fun x => hempty ⟨x⟩⟩
     exact W.not_colorable
       (SimpleGraph.Colorable.of_isEmpty (G := H G W) n)
   have hcol_component :

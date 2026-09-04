@@ -400,7 +400,7 @@ theorem markIndex_lt_of_dist_lt (F : OrderedBranchForest r b)
     (hxy : (F.branches.tree x.1).dist (F.branches.root x.1) x.2 <
       (F.branches.tree y.1).dist (F.branches.root y.1) y.2) :
     (markIndex F special x hx).val < (markIndex F special y hy).val := by
-  letI : LinearOrder (BranchVertex F) := markLinearOrder F
+  let : LinearOrder (BranchVertex F) := markLinearOrder F
   let e : Fin #(marks F special) ≃o {z // z ∈ marks F special} :=
     (marks F special).orderIsoOfFin rfl
   have hsub : (⟨x, hx⟩ : {z // z ∈ marks F special}) < ⟨y, hy⟩ := by

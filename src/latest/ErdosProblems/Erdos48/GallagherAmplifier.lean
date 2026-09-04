@@ -90,7 +90,7 @@ theorem sum_invTotient_gaussWeighted_eq_positiveFactorPairs
           ∑ psi : primitiveCharacters q.1,
             F (Nat.dvd_of_mem_divisors q.2) psi := by
     have hmpos : 0 < m := (Finset.mem_Ioc.mp hm).1
-    letI : NeZero m := ⟨hmpos.ne'⟩
+    let : NeZero m := ⟨hmpos.ne'⟩
     rw [gaussWeightedAllCharacterMass, dif_neg hmpos.ne']
     rw [sum_characters_eq_sum_divisor_primitive hmpos]
     rw [Finset.mul_sum]
@@ -138,9 +138,9 @@ theorem inducedGaussPrimitiveMass_eq_mul
       (q : ℝ) * primitiveTwistSquareMass q s c := by
   classical
   have hqr : q * r ≠ 0 := Nat.mul_ne_zero hq.ne' hr.ne'
-  letI : NeZero q := ⟨hq.ne'⟩
-  letI : NeZero r := ⟨hr.ne'⟩
-  letI : NeZero (q * r) := ⟨hqr⟩
+  let : NeZero q := ⟨hq.ne'⟩
+  let : NeZero r := ⟨hr.ne'⟩
+  let : NeZero (q * r) := ⟨hqr⟩
   rw [inducedGaussPrimitiveMass, dif_neg hqr]
   unfold primitiveTwistSquareMass
   rw [Finset.mul_sum]

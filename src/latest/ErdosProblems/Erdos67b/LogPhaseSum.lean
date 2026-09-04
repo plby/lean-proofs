@@ -176,7 +176,7 @@ theorem integral_logPhase (a b t : ℝ) :
   have hreal : (-1 : ℝ) < (-(Complex.I * (t : ℂ))).re := by simp
   change (∫ x : ℝ in a..b, (x : ℂ) ^ (-(Complex.I * (t : ℂ)))) = _
   rw [integral_cpow (Or.inl hreal)]
-  congr 1 <;> ring
+  congr 1 <;> ring_nf
 
 private theorem abs_le_norm_one_sub_I_mul (t : ℝ) :
     |t| ≤ ‖(1 : ℂ) - Complex.I * (t : ℂ)‖ := by

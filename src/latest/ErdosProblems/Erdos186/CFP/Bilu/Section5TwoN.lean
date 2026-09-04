@@ -215,7 +215,7 @@ Theorem 5.6. -/
 theorem finrank_direction_affineSpan_lt_of_card_le {rank : ℕ}
     (S : Finset V) (hS : S.Nonempty) (hcard : S.card ≤ rank) :
     finrank ℝ (affineSpan ℝ (S : Set V)).direction < rank := by
-  letI : Nonempty {x // x ∈ S} := hS.to_subtype
+  let : Nonempty {x // x ∈ S} := hS.to_subtype
   have hrange :
       Set.range (fun x : {x // x ∈ S} ↦ (x : V)) = (S : Set V) := by
     ext x

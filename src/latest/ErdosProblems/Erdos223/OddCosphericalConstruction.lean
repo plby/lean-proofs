@@ -146,7 +146,7 @@ private lemma one_sub_two_rad_sq_pos {δ : ℝ} (hδ0 : 0 ≤ δ)
   have hhalf := cos_half_pos hδ0 hδ
   have hdouble := Real.cos_two_mul (δ / 2)
   have hdouble' : Real.cos δ = 2 * Real.cos (δ / 2) ^ 2 - 1 := by
-    convert hdouble using 1 <;> ring
+    convert hdouble using 1 <;> ring_nf
   have hne : 2 * Real.cos (δ / 2) ≠ 0 := by positivity
   unfold rad
   field_simp [hne]
@@ -294,7 +294,7 @@ private lemma outer_eq_ht_mul_ctr_div_rad {δ : ℝ}
   have hh := (ht_pos hδ0 hδ).ne'
   have hdouble := Real.cos_two_mul (δ / 2)
   have hdouble' : Real.cos δ = 2 * Real.cos (δ / 2) ^ 2 - 1 := by
-    convert hdouble using 1 <;> ring
+    convert hdouble using 1 <;> ring_nf
   unfold ctr rad
   field_simp [hr, hh, cos_half_pos hδ0 hδ |>.ne']
   nlinarith [hdouble']
@@ -619,7 +619,7 @@ lemma diameter_identity {k : ℕ} {δ : ℝ} (hk : 3 ≤ k) (hδ0 : 0 < δ)
   have hc := base_cos_half_pos hk hδ0 hδ
   have htwo := Real.cos_two_mul (δ / 2)
   have hcos : Real.cos δ = 2 * Real.cos (δ / 2) ^ 2 - 1 := by
-    convert htwo using 1 <;> ring
+    convert htwo using 1 <;> ring_nf
   unfold rad
   field_simp [hc.ne']
   nlinarith

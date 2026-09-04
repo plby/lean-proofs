@@ -375,8 +375,9 @@ lemma inSet_mem {n : Nat} {T : Tournament n} {v x : Fin n}
   simp only [inSet, Finset.mem_filter, Finset.mem_erase, Finset.mem_univ, and_true] at h
   have hfalse : T.arc v x = false := Bool.eq_false_of_not_eq_true h.2
   have hrev := T.arc_reverse h.1
-  simp [hfalse] at hrev
-  exact ⟨hrev, h.1⟩
+  have htrue : T.arc x v = true := by
+    simpa [hfalse] using hrev
+  exact ⟨htrue, h.1⟩
 
 lemma outSet_card_le_seven (T : Tournament 14)
     (hfree : ¬ HasTransitiveTournament T 5) (v : Fin 14) :

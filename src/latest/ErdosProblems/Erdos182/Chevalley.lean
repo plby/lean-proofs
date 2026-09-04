@@ -113,7 +113,7 @@ private noncomputable def incidencePolynomial (v : V) :
 private theorem totalDegree_incidencePolynomial_le (hp : p.Prime) (v : V) :
     (incidencePolynomial (G := G) p v).totalDegree ≤ p - 1 := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   apply totalDegree_finsetSum_le
   intro e _
   split_ifs
@@ -132,7 +132,7 @@ theorem exists_nonempty_edgeSubset_degree_dvd_prime
     ∃ F : Finset G.edgeFinset,
       F.Nonempty ∧ ∀ v : V, p ∣ edgeSubsetDegree G F v := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let f : V → MvPolynomial G.edgeFinset (ZMod p) := incidencePolynomial (G := G) p
   have hdegree : (∑ v : V, (f v).totalDegree) < Fintype.card G.edgeFinset := by
     calc

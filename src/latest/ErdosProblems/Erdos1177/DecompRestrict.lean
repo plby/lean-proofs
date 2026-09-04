@@ -94,7 +94,7 @@ theorem FTS.restrict_linear {F : FTS} (S : Finset {e : Finset F.V // e ∈ F.edg
     rw [ Finset.card_map ];
   · obtain ⟨ e₁, he₁, rfl ⟩ := FTS.mem_restrict_edges.mp hs₁;
     convert! e₁.2 using 1;
-    ext; simp [Finset.mem_map, Finset.mem_subtype];
+    ext; simp only [Finset.subtype_map, Subtype.exists, exists_and_right, Finset.mem_filter, and_iff_left_iff_imp];
     exact fun h => ⟨ e₁.1, ⟨ e₁.2, he₁ ⟩, h ⟩
 
 /-

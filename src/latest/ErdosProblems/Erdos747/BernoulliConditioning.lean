@@ -565,7 +565,7 @@ lemma labelRestriction_probability_eq {α : Type*}
   have hK : 0 < s.card := Finset.card_pos.mpr hs
   let b0 : Fin s.card := ⟨0, hK⟩
   let B := {x : ↥s // x ∉ Y} → Fin s.card
-  letI : Nonempty B :=
+  let : Nonempty B :=
     ⟨fun _ ↦ b0⟩
   let E : LabelSample s ≃ ((↥Y → Fin s.card) × B) :=
     piSplitEquiv (β := Fin s.card) Y

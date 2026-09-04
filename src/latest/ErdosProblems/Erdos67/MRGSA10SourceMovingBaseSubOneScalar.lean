@@ -112,7 +112,7 @@ theorem gsA10SourceMaximumModulusSqrtScalar_moving_base_sub_one_le
           (C0 + (-(1 / 200 : ℝ)) * Real.log LZ) := by gcongr
       _ = (2 * Real.exp C0) * LZ ^ (-(1 / 200 : ℝ)) := by
         rw [Real.exp_add, Real.rpow_def_of_pos hLZpos]
-        ring
+        ring_nf
   have hsqrtInv : 1 / Real.sqrt LZ ≤
       LZ ^ (-(1 / 200 : ℝ)) := by
     have hhalf : 1 / Real.sqrt LZ = LZ ^ (-(1 / 2 : ℝ)) := by

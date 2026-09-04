@@ -42,10 +42,10 @@ noncomputable def splitAt (m n : ℕ) :
 
 theorem splitAt_measurePreserving (m n : ℕ) :
     MeasurePreserving (splitAt m n) volume volume := by
-  letI : MeasurableSpace (Fin (m + n + 1) → ℝ) := MeasurableSpace.pi
-  letI : MeasurableSpace (Fin (m + n) → ℝ) := MeasurableSpace.pi
-  letI : MeasurableSpace (Fin m → ℝ) := MeasurableSpace.pi
-  letI : MeasurableSpace (Fin n → ℝ) := MeasurableSpace.pi
+  let : MeasurableSpace (Fin (m + n + 1) → ℝ) := MeasurableSpace.pi
+  let : MeasurableSpace (Fin (m + n) → ℝ) := MeasurableSpace.pi
+  let : MeasurableSpace (Fin m → ℝ) := MeasurableSpace.pi
+  let : MeasurableSpace (Fin n → ℝ) := MeasurableSpace.pi
   have h₁ := volume_preserving_piFinSuccAbove
     (fun _ : Fin (m + n + 1) ↦ ℝ) ⟨m, by omega⟩
   have hprod := (MeasurePreserving.id (volume : Measure ℝ)).prod
@@ -75,10 +75,10 @@ noncomputable def splitAtFubini (m n : ℕ) :
 
 theorem splitAtFubini_measurePreserving (m n : ℕ) :
     MeasurePreserving (splitAtFubini m n) volume volume := by
-  letI : MeasurableSpace (Fin (m + n + 1) → ℝ) := MeasurableSpace.pi
-  letI : MeasurableSpace (Fin (m + n) → ℝ) := MeasurableSpace.pi
-  letI : MeasurableSpace (Fin m → ℝ) := MeasurableSpace.pi
-  letI : MeasurableSpace (Fin n → ℝ) := MeasurableSpace.pi
+  let : MeasurableSpace (Fin (m + n + 1) → ℝ) := MeasurableSpace.pi
+  let : MeasurableSpace (Fin (m + n) → ℝ) := MeasurableSpace.pi
+  let : MeasurableSpace (Fin m → ℝ) := MeasurableSpace.pi
+  let : MeasurableSpace (Fin n → ℝ) := MeasurableSpace.pi
   exact volume_preserving_prodAssoc.symm.comp (splitAt_measurePreserving m n)
 
 @[simp]

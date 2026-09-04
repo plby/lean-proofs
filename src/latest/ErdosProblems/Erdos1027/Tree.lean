@@ -26,7 +26,7 @@ lemma residual_min_at_leaf {C n r : ℕ} (hn : r + 2 ≤ n)
     have hAX := (hedges A hAF).1
     have heq : A ∩ (Partial.mk (α := α) ∅ ∅).uncolored X = A := by
       ext x
-      simp [Partial.uncolored, Partial.colored]
+      simp only [Finset.mem_inter, and_iff_left_iff_imp]
       exact fun hx => hAX hx
     rw [heq, (hedges A hAF).2]
     omega
@@ -220,7 +220,7 @@ lemma bounded_uncolored_leaf {C n r : ℕ} (hn : r + 2 ≤ n)
       obtain ⟨A, hAF, hlive, hsmall⟩ := hrep
       have heq : A ∩ (Partial.mk (α := α) ∅ ∅).uncolored X = A := by
         ext x
-        simp [Partial.uncolored, Partial.colored]
+        simp only [Finset.mem_inter, and_iff_left_iff_imp]
         exact fun hx => (hedges A hAF).1 hx
       rw [heq, (hedges A hAF).2] at hsmall
       omega
@@ -451,7 +451,7 @@ theorem NatBudgetResolution (C n r : ℕ) (hC : 0 < C) (hn : r + 2 ≤ n)
     2 ^ X.card ≤
       2 ^ (C * 2 ^ (r + 3) * (r + 2) + 1) * (goodSets X F).card := by
   let β := {x // x ∈ X}
-  letI : LinearOrder β := (Fintype.equivFin β).linearOrder
+  let : LinearOrder β := (Fintype.equivFin β).linearOrder
   let F' : Hypergraph β := restrictHypergraph X F
   have hedges' : ∀ A ∈ F', A ⊆ (Finset.univ : Finset β) ∧ A.card = n := by
     intro A hA

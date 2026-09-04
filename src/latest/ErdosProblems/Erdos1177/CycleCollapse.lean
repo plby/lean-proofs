@@ -145,7 +145,7 @@ theorem rising_base {F : FTS} {f : F.V → Node A κ × α}
       exact ⟨ by simpa using! liftEdge_fst_mem ( hset ▸ Set.mem_image_of_mem f hu ), by simpa using! liftEdge_fst_mem ( hset ▸ Set.mem_image_of_mem f hw ) ⟩;
     cases h_eq.1 <;> cases h_eq.2 <;> simp_all +decide [ Node.pre ];
     exact absurd hpre.choose ( not_lt_of_gt hpre'.1 );
-  have := ( τ'.seq ⟨ σ'.pos, hpre'.1 ⟩ ) |>.2; simp_all +decide [ SimpleGraph.mem_edgeSet ] ;
+  have := ( τ'.seq ⟨ σ'.pos, hpre'.1 ⟩ ) |>.2; simp_all +decide only [ne_eq, Set.mem_image, SetLike.mem_coe] ;
   exact ⟨ a, b, this.ne, by aesop ⟩
 
 /-- Sym2-level version of `seqAt_eq_of_comparable`. -/
@@ -187,7 +187,7 @@ theorem seqAt_const_along {m : ℕ} (g : ZMod m → Node A κ)
   · rfl;
   · convert! ih ( fun j hj => hpre j ( Nat.le_succ_of_le hj ) ) using 1;
     convert! Node.seqAt_Sym2_eq_of_comparable _ _ _ using 1;
-    convert! hcomp ( start + n ) |> fun h => h.symm using 1 ; push_cast ; ring;
+    convert! hcomp ( start + n ) |> fun h => h.symm using 1 ; push_cast ; ring_nf;
     simp +decide [ add_comm, Node.comparable ];
     grind
 
@@ -251,7 +251,7 @@ theorem cycle_collapse {F : FTS} (hlin : F.Linear) (f : F.V → Node A κ × α)
     (hfe : ∀ e ∈ F.edges, (f '' (↑e : Set F.V)) ∈ (liftHG A κ).edges)
     (c : BergeCycle F) (i j : ZMod c.m) :
     (f (c.v i)).1 = (f (c.v j)).1 := by
-  haveI : NeZero c.m := ⟨by have := c.hm; omega⟩
+  have : NeZero c.m := ⟨by have := c.hm; omega⟩
   -- Step 1: minimal node
   obtain ⟨j0, -, hj0min⟩ := Finset.exists_min_image Finset.univ
     (fun t => (f (c.v t)).1.pos) ⟨i, Finset.mem_univ i⟩
@@ -372,7 +372,7 @@ theorem exists_bridge_incidence {F : FTS} (hlin : F.Linear) (f : F.V → Node A 
   obtain ⟨w, hw, hfw⟩ := hmem
   refine ⟨w, hw, hw, ?_⟩
   rintro ⟨c, i, hei, hvi⟩
-  haveI : Fact (1 < c.m) := ⟨by have := c.hm; omega⟩
+  have : Fact (1 < c.m) := ⟨by have := c.hm; omega⟩
   -- the other displayed vertex `w'` of the Berge cycle at edge `ed`
   have hcc := cycle_collapse hlin f hf hfe c i (i + 1)
   have hvne : c.v i ≠ c.v (i + 1) := by
@@ -438,7 +438,7 @@ theorem lift_bergeCycle_graphCycle {F : FTS} (hlin : F.Linear) (f : F.V → Node
   have h_contra' : (0 : ZMod c.m) = 1 := by
     linear_combination' h_contra
   have h_contra'' : ¬(0 : ZMod c.m) = 1 := by
-    haveI : Fact (1 < c.m) := ⟨by linarith [c.hm]⟩; exact zero_ne_one;
+    have : Fact (1 < c.m) := ⟨by linarith [c.hm]⟩; exact zero_ne_one;
   exact h_contra'' h_contra') h_nodes
 
 /-- **A lift embedding yields a bridge selector.**  If a finite linear triple

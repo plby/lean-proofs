@@ -54,7 +54,7 @@ theorem exists_perfect_matching_using_reservoir {V : Type*} [Fintype V] [Decidab
       obtain ⟨u, hu⟩ := (Set.ncard_pos (Set.toFinite M.vertsᶜ)).mp (show 0 < M.vertsᶜ.ncard by omega)
       obtain ⟨v, hv, hvu⟩ := Set.exists_ne_of_one_lt_ncard (show 1 < M.vertsᶜ.ncard by omega) u
       let Q := R.deleteEdges M.edgeSet
-      letI : DecidableRel Q.Adj := fun x y ↦ Classical.propDecidable (Q.Adj x y)
+      let : DecidableRel Q.Adj := fun x y ↦ Classical.propDecidable (Q.Adj x y)
       have hQG : Q ≤ G := (R.deleteEdges_le M.edgeSet).trans hRG
       have hdis : Disjoint M.edgeSet Q.edgeSet := by
         rw [edgeSet_deleteEdges]

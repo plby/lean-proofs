@@ -26,7 +26,7 @@ lemma centeredCoordinateCharFactor_eq_charFun (a lam t : ℝ) :
 
 lemma continuous_centeredCoordinateCharFactor (a lam : ℝ) :
     Continuous (centeredCoordinateCharFactor a lam) := by
-  letI : IsFiniteMeasure (centeredCoordinateLaw a lam) :=
+  let : IsFiniteMeasure (centeredCoordinateLaw a lam) :=
     Measure.isFiniteMeasure_map standardGaussian _
   have hfun : centeredCoordinateCharFactor a lam =
       charFun (centeredCoordinateLaw a lam) := by

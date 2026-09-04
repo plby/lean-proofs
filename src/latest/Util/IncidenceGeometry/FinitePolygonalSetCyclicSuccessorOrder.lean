@@ -51,7 +51,7 @@ lemma FinitePolygonalSetCyclicSuccessorOrder
       hpieceStream_consecutive, hpieceStream_cyclic,
       hretained_source_unique, hsource_separation_all,
       hsame_elementary_intersections_listed⟩
-  letI : Fintype PieceIndex := pieceIndex_fintype
+  let : Fintype PieceIndex := pieceIndex_fintype
   rcases
     FinitePolygonalSetCyclicArcCarrierInteriorBasics
       J K successor pieceArc pieceSegmentIndex pieceSource pieceTarget

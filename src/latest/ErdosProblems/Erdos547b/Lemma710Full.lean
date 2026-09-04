@@ -1832,7 +1832,7 @@ private theorem exists_vertex_card_neighbors_inter_le_one
     (R : Finset A) (hR : R.Nonempty)
     (hacyclic : (F.induce (↑R : Set A)).IsAcyclic) :
     ∃ x ∈ R, (F.neighborFinset x ∩ R).card ≤ 1 := by
-  letI : Nonempty (↑R : Set A) := Set.nonempty_coe_sort.mpr (by simpa using hR)
+  let : Nonempty (↑R : Set A) := Set.nonempty_coe_sort.mpr (by simpa using hR)
   obtain ⟨x, hx⟩ := IsAcyclic.exists_neighborFinset_card_le_one hacyclic
   refine ⟨x, x.property, ?_⟩
   have heq := F.map_neighborFinset_induce x
@@ -3207,7 +3207,7 @@ theorem exceptionalCenter_special
     IsSpecialTwoPathCenter D.forest
       (ExceptionalIndex.sourceVertex D (.center i)) := by
   classical
-  letI : DecidableRel D.forest.Adj := Classical.decRel _
+  let : DecidableRel D.forest.Adj := Classical.decRel _
   let P := D.exceptionalPath i
   let c : {v : V // v ∉ D.deleted} := ExceptionalIndex.sourceVertex D (.center i)
   have hcval : (c : V) = P.center := rfl
@@ -3281,7 +3281,7 @@ theorem exceptionalCenters_special
     (D : SurgeryData T U₁ U₂ z l k) :
     ∀ c ∈ exceptionalCenters D, IsSpecialTwoPathCenter D.forest c := by
   classical
-  letI : DecidableRel D.forest.Adj := Classical.decRel _
+  let : DecidableRel D.forest.Adj := Classical.decRel _
   intro c hc
   obtain ⟨i, -, rfl⟩ := Finset.mem_image.mp hc
   exact exceptionalCenter_special D i
@@ -3294,7 +3294,7 @@ theorem protectedTwoPathSet_exceptionalCenters_eq_sourceSet
         (ExceptionalIndex.sourceVertex D .root) (exceptionalCenters D) =
       ExceptionalIndex.sourceSet D := by
   classical
-  letI : DecidableRel D.forest.Adj := Classical.decRel _
+  let : DecidableRel D.forest.Adj := Classical.decRel _
   ext x
   constructor
   · intro hx
@@ -3355,7 +3355,7 @@ theorem forest_sourceSet_boundary_sparse
       (D.forest.neighborFinset x ∩ ExceptionalIndex.sourceSet D).card ≤ 1 ∨
         D.forest.degree x ≤ 2 := by
   classical
-  letI : DecidableRel D.forest.Adj := Classical.decRel _
+  let : DecidableRel D.forest.Adj := Classical.decRel _
   intro x hx
   have heq := protectedTwoPathSet_exceptionalCenters_eq_sourceSet D
   have hx' : x ∉ protectedTwoPathSet D.forest
@@ -4678,7 +4678,7 @@ theorem zhao_lemma_7_10
   by_cases hsub : Subsingleton V
   · exact zhao_lemma_7_10_of_subsingleton T G U₁ U₂ X Y z a
       hsub hTU hz ha
-  · letI : Nontrivial V := not_subsingleton_iff_nontrivial.mp hsub
+  · let : Nontrivial V := not_subsingleton_iff_nontrivial.mp hsub
     let W₃ := Classical.choice
       (Erdos547b.ZhaoLemma710Alt.zhao_proposition_7_11_part_three
         T U₁ U₂ z l hT hTU hTUcover hz hleaves hU₁ hU₂)

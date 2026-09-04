@@ -542,7 +542,7 @@ theorem coord_local_quadratic (p : ℕ) (hp : 1 ≤ p) (X : ℕ) (n : ℤ)
       |coord p ((X : ℝ) + n) - coord p X +
           (coord p X * logSum p X) * n| ≤
         (KT / (X : ℝ) ^ (p + 2)) * |(n : ℝ)| ^ 2 := by
-    convert hTaylor using 1 <;> ring
+    convert hTaylor using 1 <;> ring_nf
   have hMismatch :
       |coord p X * logSum p X - (p : ℝ) / (X : ℝ) ^ (p + 1)| ≤
         KM / (X : ℝ) ^ (p + 2) := by

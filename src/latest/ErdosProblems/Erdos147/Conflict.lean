@@ -704,8 +704,8 @@ lemma card_conflictClosedWalk_le
     (Nat.card (ConflictClosedWalk B C) : ℝ) ≤ 144 *
       (Nat.card (LeftBadSplit B C) +
         Nat.card (LeftBadSplit (fun r l ↦ B l r) (swapConflict C))) := by
-  letI : Fintype (LeftBadSplit B C) := Fintype.ofFinite _
-  letI : Fintype (LeftBadSplit (fun r l ↦ B l r) (swapConflict C)) := Fintype.ofFinite _
+  let : Fintype (LeftBadSplit B C) := Fintype.ofFinite _
+  let : Fintype (LeftBadSplit (fun r l ↦ B l r) (swapConflict C)) := Fintype.ofFinite _
   have hcard := Nat.card_le_card_of_injective (encodeConflictClosedWalk B C hCsymm)
     (encodeConflictClosedWalk_injective B C hCsymm)
   have hcard' : Nat.card (ConflictClosedWalk B C) ≤ 144 *
@@ -803,8 +803,8 @@ lemma card_leftBadSplit_le_low_add_high
     intro z w hzw
     apply Subtype.ext
     rw [← hdecode z, ← hdecode w, hzw]
-  letI : Fintype (LeftLowCode B q) := inferInstance
-  letI : Fintype (LeftHighCode B C q) := inferInstance
+  let : Fintype (LeftLowCode B q) := inferInstance
+  let : Fintype (LeftHighCode B C q) := inferInstance
   have hcard := Nat.card_le_card_of_injective encode hinj
   have hcard' : Nat.card (LeftBadSplit B C) ≤
       Nat.card (LeftLowCode B q) + Nat.card (LeftHighCode B C q) := by

@@ -1419,12 +1419,12 @@ theorem
     hRseq.eventually (eventually_ge_atTop 2)
   apply squeeze_zero'
   · exact Filter.Eventually.of_forall fun n => by
-      letI : NeZero (Nseq n) := ⟨hN n⟩
+      let : NeZero (Nseq n) := ⟨hN n⟩
       exact
         χ.selectedCFZCanonicalEulerCompletionScaledTailNorm_nonneg
           (N := Nseq n) (wseq n) (bseq n) (Rseq n) e _
   · filter_upwards [hRtwo] with n hRn
-    letI : NeZero (Nseq n) := ⟨hN n⟩
+    let : NeZero (Nseq n) := ⟨hN n⟩
     simpa only [E, K] using
       χ.selectedCFZCanonicalEulerCompletionScaledTailNorm_sqrt_log_le
         (N := Nseq n) hk (hbound n) (hcoprime n) e hRn
@@ -1471,12 +1471,12 @@ theorem
     hRseq.eventually (eventually_ge_atTop 2)
   apply squeeze_zero'
   · exact Filter.Eventually.of_forall fun n => by
-      letI : NeZero (Nseq n) := ⟨hN n⟩
+      let : NeZero (Nseq n) := ⟨hN n⟩
       exact
         χ.selectedCFZCanonicalCompleteEulerScaledTailNorm_nonneg
           (N := Nseq n) (wseq n) (bseq n) (Rseq n) e _
   · filter_upwards [hRtwo] with n hRn
-    letI : NeZero (Nseq n) := ⟨hN n⟩
+    let : NeZero (Nseq n) := ⟨hN n⟩
     simpa only [E, K] using
       χ.selectedCFZCanonicalCompleteEulerScaledTailNorm_sqrt_log_le
         (N := Nseq n) hk (hbound n) (hcoprime n) e hRn

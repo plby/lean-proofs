@@ -876,7 +876,8 @@ lemma one_add_two_shiftNu_le_harmonic_mul
       localNu shifts p = 1 ∨ localNu shifts p = 2 := by omega
   rcases hcases with hzero | hone | htwo
   · rw [hzero]
-    simp
+    simp only [CharP.cast_eq_zero, zero_div, mul_zero, add_zero, sub_zero, mul_one, le_add_iff_nonneg_right,
+    ge_iff_le]
     positivity
   · rw [hone]
     have hpTwoR : (2 : ℝ) ≤ p := by exact_mod_cast hp2
@@ -3072,7 +3073,7 @@ theorem paritySmallExceptionalGaps_upper
         (evenShortDistances H).card * E := by
       rw [Finset.sum_add_distrib, Finset.mul_sum]
       simp only [Finset.sum_const, nsmul_eq_mul]
-      ring
+      ring_nf
     _ ≤ (X : ℝ) * (2 * FullShiftSieve.roughEulerMass z ^ 2) *
           (8 * H : ℕ) + 4 * (H : ℝ) * E := by
       have hmainNonneg : 0 ≤

@@ -90,7 +90,7 @@ theorem closedBall_subset_normalizedHomogeneousUnitBall
   rw [Metric.mem_closedBall, dist_zero_right] at hx
   have hrank : (0 : ℝ) < X.1 := by exact_mod_cast X.2.rank_pos
   have hradius : (0 : ℝ) < ((X.1 : ℝ) + 1)⁻¹ := by positivity
-  haveI : Nonempty (Fin X.1) := ⟨⟨0, X.2.rank_pos⟩⟩
+  have : Nonempty (Fin X.1) := ⟨⟨0, X.2.rank_pos⟩⟩
   have hheadNorm : ‖homogeneousHeadReal x‖ ≤ ‖x‖ := by
     rw [pi_norm_le_iff_of_nonempty]
     intro i

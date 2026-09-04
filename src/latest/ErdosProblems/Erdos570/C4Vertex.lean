@@ -51,7 +51,7 @@ theorem ramseyAt_c4_of_deletable_vertex
   have hQat : RamseyAt (cycleCode 4) Q (oddBudget B 1 (m - d)) :=
     ramseyAt_of_graphRamseyNumber_le hQram
   intro C
-  letI : DecidableRel C.Adj := Classical.decRel _
+  let : DecidableRel C.Adj := Classical.decRel _
   by_cases hred : (cycleCode 4).graph ⊑ C
   · exact Or.inl hred
   by_cases hblue : H.graph ⊑ Cᶜ

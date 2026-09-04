@@ -105,7 +105,7 @@ theorem norm_state_algebraicRate_le_qInvPow {oldRank : ℕ}
           ((∑ r, (P.LiZero r : ℝ) * ‖oldLog P r‖) +
             (P.LlastZero : ℝ) * ‖lastLog P‖) := by
       rw [mul_add, Finset.mul_sum]
-      ring
+      ring_nf
 
 /-- Canonical algebraic exponential majorant retaining the level factor
 `q ^ (-J)`.  This is the shared scaled state majorant used by the row-error

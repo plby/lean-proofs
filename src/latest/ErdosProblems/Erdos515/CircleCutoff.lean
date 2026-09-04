@@ -94,7 +94,7 @@ theorem lintegral_threePeriodCutoff_le {q : ℂ → ℂ} {R C : ℝ}
     simpa only [v, angularInterval] using hC
   have hperiod :
       (∫ x in (-2 * Real.pi)..0, v x) = ∫ x in (0 : ℝ)..2 * Real.pi, v x := by
-    convert hv_periodic.intervalIntegral_add_eq (-2 * Real.pi) 0 using 1 <;> ring
+    convert hv_periodic.intervalIntegral_add_eq (-2 * Real.pi) 0 using 1 <;> ring_nf
   have hthree :
       (∫ x in (-2 * Real.pi)..4 * Real.pi, v x) =
         3 * ∫ x in (0 : ℝ)..2 * Real.pi, v x := by
@@ -103,9 +103,9 @@ theorem lintegral_threePeriodCutoff_le {q : ℂ → ℂ} {R C : ℝ}
     have hperiod' :
         (∫ x in (-2 * Real.pi)..(-2 * Real.pi + 2 * Real.pi), v x) =
           ∫ x in (0 : ℝ)..2 * Real.pi, v x := by
-      convert hperiod using 1 <;> ring
+      convert hperiod using 1 <;> ring_nf
     rw [hperiod'] at hmany
-    convert hmany using 1 <;> norm_num <;> ring
+    convert hmany using 1 <;> norm_num <;> ring_nf
   have hthree_le : (∫ x in threePeriodInterval, v x) ≤ 3 * C := by
     rw [threePeriodInterval, ← intervalIntegral.integral_of_le
       (by linarith [Real.pi_pos] : (-2 * Real.pi : ℝ) ≤ 4 * Real.pi)]

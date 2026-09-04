@@ -55,7 +55,7 @@ theorem sourceGainReverseClass_good_weight_le
       ((source_weight_power_ratio_le (W.terminalSize : ℝ≥0) C _ f (a - 1) hn hexp).trans
         (mul_le_mul_of_nonneg_right (source_two_family_coefficient_le ell q s r 1 f
           hs hr (by omega) hf w z' z hw) zero_le))
-  · haveI : IsEmpty (sourceGainReverseClass W F G T a H Q b) := ⟨fun u ↦ hne ⟨u.1, u.2⟩⟩
+  · have : IsEmpty (sourceGainReverseClass W F G T a H Q b) := ⟨fun u ↦ hne ⟨u.1, u.2⟩⟩
     simp only [Fintype.sum_empty, zero_le]
 
 end

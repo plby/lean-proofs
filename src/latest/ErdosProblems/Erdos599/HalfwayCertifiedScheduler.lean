@@ -387,7 +387,7 @@ theorem fullyExtends_intermediateLimitOfPrior
     (prior a).FullyExtends
       (intermediateLimitOfPrior E length hlength hBtarget hterminalB hstableB
         o hoLength ho prior hcoherent) := by
-  letI : Nonempty o.ToType :=
+  let : Nonempty o.ToType :=
     ⟨Ordinal.ToType.mk ⟨0, Ordinal.natCast_lt_of_isSuccLimit ho 0⟩⟩
   let C := priorRealExtensionChain prior hcoherent
   let H := priorChainNoNewPredecessors prior hcoherent

@@ -122,7 +122,9 @@ theorem cauchy_dist {f g : ℂ → E} {c : ℂ} {r : ℝ≥0} {d : ℝ≥0} (n :
     dist (cauchyPowerSeries f c r n fun _ ↦ w) (cauchyPowerSeries g c r n fun _ ↦ w) ≤
       ‖w‖ ^ n * r⁻¹ ^ n * d := by
   rw [dist_eq_norm, cauchy_sub n w rp cf cg]
-  refine cauchy_bound rp ?_; intro z zr; simp at h zr; refine h z zr
+  refine cauchy_bound rp ?_
+  intro z hz
+  simpa only [Pi.sub_apply] using h z hz
 
 variable [CompleteSpace E]
 
@@ -212,12 +214,13 @@ public theorem uniform_analytic_lim {I : Type} [Lattice I] [Nonempty I] {f : I �
   generalize d4 : (1 - a) * (e / 4) = d
   have dp : d > 0 := by rw [← d4]; bound
   rcases Filter.eventually_atTop.mp (Metric.tendstoUniformlyOn_iff.mp u d dp) with ⟨n, hn'⟩
-  set hn := hn' n; simp at hn; clear hn' u
+  have hn := hn' n le_rfl
+  clear hn' u
   have dfg : dist (f n (c + y)) (g (c + y)) ≤ d := by
     apply le_of_lt; rw [dist_comm]
     refine hn (c + y) ?_
     apply cb
-    simp; exact yr.le
+    simp only [Metric.mem_closedBall, dist_self_add_left]; exact yr.le
   set hs := (hpf n).hasSum yb
   rw [HasSum, SummationFilter.unconditional_filter, Metric.tendsto_atTop] at hs
   rcases hs d dp with ⟨N, NM⟩; clear hs

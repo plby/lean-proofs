@@ -43,8 +43,9 @@ theorem ascendingSlopeAwareSievePrimes_prod (a b z Y : ℕ) :
     _ = ∏ p ∈ slopeAwareSievePrimes a b z Y, p := by
       congr 1
       ext p
-      simp [slopeAwareSievePrimes, Erdos387.mem_sievePrimes,
-        Erdos851.mem_sievePrimes]
+      simp only [Bool.decide_or, decide_not, toFinset_filter, Bool.or_eq_true, Bool.not_eq_eq_eq_not, Bool.not_true,
+    decide_eq_false_iff_not, Finset.mem_filter, mem_toFinset, Erdos851.mem_ascendingSievePrimes,
+    mem_slopeAwareSievePrimes_iff]
       intro _hslope
       constructor <;> intro h
       · exact ⟨h.2.2, h.1, by omega⟩
@@ -63,8 +64,7 @@ theorem mem_ascendingSlopeAwareSievePrimes_iff
     {a b z Y p : ℕ} :
     p ∈ ascendingSlopeAwareSievePrimes a b z Y ↔
       p ∈ slopeAwareSievePrimes a b z Y := by
-  simp [ascendingSlopeAwareSievePrimes, slopeAwareSievePrimes,
-    Erdos387.mem_sievePrimes, Erdos851.mem_sievePrimes]
+  simp only [mem_slopeAwareSievePrimes_iff]
   intro _hslope
   constructor <;> intro h
   · exact ⟨h.2.2, h.1, by omega⟩

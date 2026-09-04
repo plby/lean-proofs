@@ -866,12 +866,12 @@ lemma eightfold_mem_exactlyRepresentable (hp : p.Prime) {ε : ℝ}
       ExactlyRepresentable ε p (4 * k ^ 2) z := by
     have := exactlyRepresentable_add hTwo hTwo
     convert this using 1
-    all_goals ring
+    all_goals ring_nf
   have hEight : ∀ z ∈ ((P + P) + (P + P)) + ((P + P) + (P + P)),
       ExactlyRepresentable ε p (8 * k ^ 2) z := by
     have := exactlyRepresentable_add hFour hFour
     convert this using 1
-    all_goals ring
+    all_goals ring_nf
   simpa [eightfoldProductSum, fourfoldProductSum, P, B] using hEight
 
 end PrimeBlocks

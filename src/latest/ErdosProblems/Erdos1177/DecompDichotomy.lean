@@ -47,7 +47,7 @@ theorem chain_shortcut {α : Type*} {R : α → α → Prop} (L : List α)
     (hij : i < j) (hR : R (L.get ⟨i, hi⟩) (L.get ⟨j, hj⟩)) :
     ∃ L' : List α, L'.head? = L.head? ∧ L'.getLast? = L.getLast? ∧
       List.IsChain R L' ∧ L'.length = i + 1 + (L.length - j) := by
-  refine' ⟨ L.take ( i + 1 ) ++ L.drop j, _, _, _, _ ⟩ <;> simp_all +decide [ List.isChain_append ];
+  refine' ⟨ L.take ( i + 1 ) ++ L.drop j, _, _, _, _ ⟩ <;> simp_all +decide only [List.getLast?_append, List.head?_append, List.head?_drop];
   · cases L <;> simp_all +decide [ List.take ];
     contradiction;
   · rw [ List.getLast?_drop ];
@@ -171,7 +171,7 @@ theorem cycle_data_of_ereach (hlin : F.Linear) (w : F.V)
   -- Set `m := L.length`, `haveI : NeZero m := ⟨by omega⟩`.
   obtain ⟨L, hhead, hlast, hchain, h2, hnodup, hnochord⟩ := exists_minimal_chain w e0 f hne hreach
   set m := L.length
-  haveI : NeZero m := ⟨by omega⟩;
+  have : NeZero m := ⟨by omega⟩;
   -- Define `g : ZMod m → _ := fun i => L.get ⟨i.val, ZMod.val_lt i⟩`.
   set g : ZMod m → {e : Finset F.V // e ∈ F.edges} := fun i => L.get ⟨i.val, ZMod.val_lt i⟩
   have hg0 : g 0 = e0 := by
@@ -179,7 +179,7 @@ theorem cycle_data_of_ereach (hlin : F.Linear) (w : F.V)
   have g_last : g (0 - 1) = f := by
     convert! hlast using 1;
     rw [ List.getLast?_eq_getElem? ];
-    simp +zetaDelta at *;
+    simp +zetaDelta only [zero_sub] at *;
     rcases L with ( _ | ⟨ _, _ | L ⟩ ) <;> norm_num at *
   have hg_inj : Function.Injective g := by
     intro i j hij; have := List.nodup_iff_injective_get.mp hnodup; simp_all +decide ;
@@ -241,7 +241,7 @@ theorem cycle_data_of_ereach (hlin : F.Linear) (w : F.V)
           exact lt_of_le_of_lt ( Nat.sub_le _ _ ) ( ZMod.val_lt i )⟩).1 := by
           convert! hv_prev i using 1;
           congr! 2;
-          simp +zetaDelta at *;
+          simp +zetaDelta only [Fin.mk.injEq] at *;
           rw [ zmod_val_sub_one ];
           rintro rfl; simp_all +decide;
           specialize huniq 0 w ; simp_all +decide [ ZMod.val ];

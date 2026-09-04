@@ -918,7 +918,7 @@ theorem exists_aligned_outer_scalar {n : ℕ} (hn : 0 < n)
       ‖d - (R : ℂ) * u‖ =
           ‖((‖d‖ : ℂ) - (R : ℂ)) * u‖ := by
         nth_rw 1 [← hdu]
-        ring
+        ring_nf
       _ = ‖(‖d‖ : ℂ) - (R : ℂ)‖ := by rw [norm_mul, hu, mul_one]
       _ = |‖d‖ - R| := by
         have hcast :

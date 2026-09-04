@@ -22,7 +22,8 @@ lemma continuous_stableHorocycle : Continuous stableHorocycle := by
   intro i
   apply continuous_pi
   intro j
-  fin_cases i <;> fin_cases j <;> simp [stableHorocycle] <;> fun_prop
+  fin_cases i <;> fin_cases j <;> simp only [Fin.mk_one, Fin.isValue, Fin.zero_eta, Matrix.of_apply, Matrix.cons_val',
+    Matrix.cons_val_zero, Matrix.cons_val_fin_one, Matrix.cons_val_one] <;> fun_prop
 
 lemma continuous_unstableHorocycle : Continuous unstableHorocycle := by
   apply Continuous.subtype_mk
@@ -30,7 +31,8 @@ lemma continuous_unstableHorocycle : Continuous unstableHorocycle := by
   intro i
   apply continuous_pi
   intro j
-  fin_cases i <;> fin_cases j <;> simp [unstableHorocycle] <;> fun_prop
+  fin_cases i <;> fin_cases j <;> simp only [Fin.mk_one, Fin.isValue, Fin.zero_eta, Matrix.of_apply, Matrix.cons_val',
+    Matrix.cons_val_zero, Matrix.cons_val_fin_one, Matrix.cons_val_one] <;> fun_prop
 
 lemma diagonal_conjugate_stableHorocycle (r t : ℝ) :
     diagonalFlow (-t) * stableHorocycle r * diagonalFlow t =

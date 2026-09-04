@@ -109,10 +109,10 @@ theorem unbounded_powerCycleExponents_of_finitePowerTail {V : Type u}
   intro lower
   obtain ⟨d, hd, htail⟩ := hfinite lower
   obtain ⟨G', hG'finite, hG'color⟩ := exists_finite_subgraph_not_colorable G hG d
-  letI : Fintype G'.verts := hG'finite.fintype
-  letI : DecidableRel G'.coe.Adj := Classical.decRel G'.coe.Adj
+  let : Fintype G'.verts := hG'finite.fintype
+  let : DecidableRel G'.coe.Adj := Classical.decRel G'.coe.Adj
   obtain ⟨S, hS, hdegree⟩ := exists_induced_core G'.coe hd hG'color
-  letI : Nonempty (S : Set G'.verts) := hS.to_subtype
+  let : Nonempty (S : Set G'.verts) := hS.to_subtype
   let H := G'.coe.induce (S : Set G'.verts)
   have havg : AvgDegreeAtLeast H d :=
     induced_core_average_degree G'.coe S hdegree

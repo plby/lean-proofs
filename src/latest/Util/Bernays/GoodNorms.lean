@@ -29,14 +29,14 @@ theorem principal_nat_cardQuot {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) {n : ℕ} (h
     letI := quadraticOrderIsDomain hD
     (InvertibleIdeal.principal (n : QuadraticAlgebra ℤ d b) (quadratic_natCast_ne_zero hn) :
       Ideal (QuadraticAlgebra ℤ d b)).cardQuot = n ^ 2 := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   rw [InvertibleIdeal.coe_principal, Erdos1081.cardQuot_span_singleton_eq_norm_natAbs,
     algebraNorm_quadraticOrder, QuadraticAlgebra.norm_natCast, Int.natAbs_pow, Int.natAbs_natCast]
 
 theorem parityAdmissible_mul (S : ℕ → Prop) {m n : ℕ} (hm : 0 < m) (hn : 0 < n)
     (hSm : ParityAdmissible S m) (hSn : ParityAdmissible S n) : ParityAdmissible S (m * n) := by
   intro p hp hSp
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   rw [padicValNat.mul hm.ne' hn.ne']
   exact (hSm p hp hSp).add (hSn p hp hSp)
 
@@ -46,9 +46,9 @@ theorem exists_ideal_primePower_norm {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       ParityAdmissible (fun q : ℕ => discriminantCharacter (b ^ 2 + 4 * d) hD.ne q = -1) (p ^ e) →
       ∃ I : InvertibleIdeal (QuadraticAlgebra ℤ d b),
         (I : Ideal (QuadraticAlgebra ℤ d b)).cardQuot = p ^ e := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro p e hp he hcop hlocal
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hpcop : p.Coprime (discriminantLevel (b ^ 2 + 4 * d)) :=
     hcop.of_dvd_left (dvd_pow_self p he.ne')
   by_cases hχp : discriminantCharacter (b ^ 2 + 4 * d) hD.ne p = -1
@@ -76,7 +76,7 @@ theorem exists_ideal_norm_of_local {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       ParityAdmissible (fun p : ℕ => discriminantCharacter (b ^ 2 + 4 * d) hD.ne p = -1) n →
       ∃ I : InvertibleIdeal (QuadraticAlgebra ℤ d b),
         (I : Ideal (QuadraticAlgebra ℤ d b)).cardQuot = n := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   apply Nat.recOnPosPrimePosCoprime
   · intro p e hp he _ hc hl
     exact exists_ideal_primePower_norm hD p e hp he hc hl
@@ -97,7 +97,7 @@ theorem local_of_goodMaximal_norm {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       IsCoprime (P : Ideal (QuadraticAlgebra ℤ d b)) (quadraticBadIdeal d b) →
       ParityAdmissible (fun q : ℕ => discriminantCharacter (b ^ 2 + 4 * d) hD.ne q = -1)
         (P : Ideal (QuadraticAlgebra ℤ d b)).cardQuot := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro P hP hPF
   obtain ⟨q, hq, hc, h | ⟨s, hs, ε, rfl⟩⟩ := goodMaximal_prime_description hD P hP hPF
   · rw [h.2.1]
@@ -114,7 +114,7 @@ theorem local_of_goodIdeal_norm {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       IsCoprime (I : Ideal (QuadraticAlgebra ℤ d b)) (quadraticBadIdeal d b) →
       ParityAdmissible (fun q : ℕ => discriminantCharacter (b ^ 2 + 4 * d) hD.ne q = -1)
         (I : Ideal (QuadraticAlgebra ℤ d b)).cardQuot := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I hIF
   obtain ⟨l, hl, hP⟩ := goodQuadraticIdeal_factorization hD I hIF
   rw [← hl]

@@ -39,9 +39,10 @@ lemma lagrangeBasis_eq_prod {n : ℕ} (X : NodeConfiguration n)
     (k : Fin n) (x : ℝ) :
     lagrangeBasis X k x =
       ∏ i ∈ Finset.univ.erase k, (x - X i) / (X k - X i) := by
-  simp [lagrangeBasis, Lagrange.basis, Lagrange.basisDivisor,
-    Polynomial.eval_prod, div_eq_mul_inv, Finset.prod_mul_distrib]
-  rw [mul_comm]
+  rw [lagrangeBasis, Lagrange.basis, Polynomial.eval_prod]
+  apply Finset.prod_congr rfl
+  intro i hi
+  simp [Lagrange.basisDivisor, div_eq_mul_inv, mul_comm]
 
 /-- The Lebesgue function `x ↦ ∑ k, |l_k(x)|`. -/
 noncomputable def lebesgueFunction {n : ℕ} (X : NodeConfiguration n)
@@ -642,7 +643,7 @@ lemma logPotential_add_mul_I_eq_sum {n : ℕ} (X : NodeConfiguration n)
       Complex.mul_re, Complex.mul_im, Complex.ofReal_re, Complex.I_re,
       Complex.I_im, Complex.ofReal_im, mul_zero, zero_mul, sub_zero,
       add_zero, zero_add, mul_one, Complex.add_im, Complex.sub_im]
-    ring
+    ring_nf
   unfold logPotential
   simp_rw [hs]
   rw [← Finset.sum_div]
@@ -1343,7 +1344,7 @@ lemma integrable_heightDrop_product {eta : ℝ} (heta : 0 < eta) :
   let μ := volume.restrict (Set.uIoc eta (2 * eta))
   have huIoc : Set.uIoc eta (2 * eta) = Set.Ioc eta (2 * eta) :=
     Set.uIoc_of_le (by linarith)
-  letI : IsFiniteMeasure μ := by
+  let : IsFiniteMeasure μ := by
     dsimp only [μ]
     rw [huIoc]
     infer_instance
@@ -1587,7 +1588,7 @@ private lemma intervalIntegral_log_abs_tan_sub (a : ℝ) :
       have hnz := hnumAnalytic.preimage_zero_mem_codiscrete
         (x := Real.arctan a + Real.pi / 2) (by
           rw [← sin_sub_mul_sqrt a]
-          simp
+          simp only [add_sub_cancel_left, Real.sin_pi_div_two, mul_one, ne_eq]
           positivity)
       have hcz := (Real.analyticOnNhd_cos (s := Set.univ)).preimage_zero_mem_codiscrete
         (x := 0) (by simp)
@@ -3458,7 +3459,7 @@ lemma tendsto_uniformInteriorError (eta M : ℝ) :
     convert hlogTwo.add (hlogdiv.const_mul 10) using 1
     · funext n
       ring
-    · ring
+    · ring_nf
   have hpow4 : Tendsto (fun n : ℕ ↦ ((n : ℝ))⁻¹ ^ 4) atTop (𝓝 0) := by
     simpa using hinv.pow 4
   have hpow5 : Tendsto (fun n : ℕ ↦ ((n : ℝ))⁻¹ ^ 5) atTop (𝓝 0) := by
@@ -3470,20 +3471,20 @@ lemma tendsto_uniformInteriorError (eta M : ℝ) :
     convert hpow4.const_mul logSquareConstant using 1
     · funext n
       simp [div_eq_mul_inv, inv_pow]
-    · ring
+    · ring_nf
   have hterm5 : Tendsto
       (fun n : ℕ ↦ 1 / (2 * (n : ℝ) ^ 5)) atTop (𝓝 0) := by
     convert hpow5.const_mul (1 / 2 : ℝ) using 1
     · funext n
       simp [div_eq_mul_inv, inv_pow]
       ring
-    · ring
+    · ring_nf
   have hterm9 : Tendsto
       (fun n : ℕ ↦ 2 * M / (n : ℝ) ^ 9) atTop (𝓝 0) := by
     convert hpow9.const_mul (2 * M) using 1
     · funext n
       simp [div_eq_mul_inv, inv_pow]
-    · ring
+    · ring_nf
   have hsecond := (hterm4.add hterm5).add hterm9
   unfold uniformInteriorError
   simpa only [zero_add, mul_zero] using
@@ -3644,7 +3645,7 @@ lemma tendsto_uniformAffineError_div_mesoscopicHeight (gap M : ℝ) :
     convert hlogTwoSqrt.add (hlogSqrt.const_mul 10) using 1
     · funext n
       ring
-    · ring
+    · ring_nf
   have hpow3 : Tendsto (fun n : ℕ ↦ ((n : ℝ))⁻¹ ^ 3) atTop (𝓝 0) := by
     simpa using hinv.pow 3
   have hpow4 : Tendsto (fun n : ℕ ↦ ((n : ℝ))⁻¹ ^ 4) atTop (𝓝 0) := by
@@ -3662,26 +3663,26 @@ lemma tendsto_uniformAffineError_div_mesoscopicHeight (gap M : ℝ) :
       convert hinv.const_mul (densityHeightCoefficient gap M) using 1
       · funext n
         simp [div_eq_mul_inv]
-      · ring
+      · ring_nf
     have h3 : Tendsto (fun n : ℕ ↦
         logSquareConstant / (n : ℝ) ^ 3) atTop (𝓝 0) := by
       convert hpow3.const_mul logSquareConstant using 1
       · funext n
         simp [div_eq_mul_inv, inv_pow]
-      · ring
+      · ring_nf
     have h4 : Tendsto (fun n : ℕ ↦
         1 / (2 * (n : ℝ) ^ 4)) atTop (𝓝 0) := by
       convert hpow4.const_mul (1 / 2 : ℝ) using 1
       · funext n
         simp [div_eq_mul_inv, inv_pow]
         ring
-      · ring
+      · ring_nf
     have h8 : Tendsto (fun n : ℕ ↦
         2 * M / (n : ℝ) ^ 8) atTop (𝓝 0) := by
       convert hpow8.const_mul (2 * M) using 1
       · funext n
         simp [div_eq_mul_inv, inv_pow]
-      · ring
+      · ring_nf
     have hs := (h3.add h4).add h8
     simpa only [zero_add, mul_zero] using hC.add (hs.const_mul (1 / Real.pi))
   have hrhs : Tendsto (fun n : ℕ ↦
@@ -4500,7 +4501,7 @@ Haar integral. -/
 lemma norm_coeff_le_of_unitCircle_bound (p : ℂ[X]) {M : ℝ}
     (hbound : ∀ z : ℂ, ‖z‖ = 1 → ‖p.eval z‖ ≤ M) (k : ℕ) :
     ‖p.coeff k‖ ≤ M := by
-  letI : Fact (0 < 2 * Real.pi) := ⟨Real.two_pi_pos⟩
+  let : Fact (0 < 2 * Real.pi) := ⟨Real.two_pi_pos⟩
   rw [← Polynomial.fourierCoeff_toAddCircle_natCast p k]
   unfold fourierCoeff
   have hnorm : ∀ t : AddCircle (2 * Real.pi),

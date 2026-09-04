@@ -109,7 +109,8 @@ lemma sum_boolSign_eq (f : Fin N → Bool) :
   calc
     (∑ i : Fin N, ((2 * if f i = true then (1 : ℤ) else 0) - 1)) =
         2 * (∑ i : Fin N, if f i = true then (1 : ℤ) else 0) - N := by
-      simp [Finset.sum_sub_distrib]
+      simp only [mul_ite, mul_one, mul_zero, Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ,
+    Fintype.card_fin, Int.nsmul_eq_mul, Finset.sum_boole, sub_left_inj]
       rw [← Finset.sum_boole (R := ℤ) (fun i : Fin N ↦ f i = true) Finset.univ,
         Finset.mul_sum]
       apply Finset.sum_congr rfl

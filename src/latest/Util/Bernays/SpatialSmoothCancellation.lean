@@ -66,7 +66,7 @@ theorem genusLocal_spatial_smooth_cancellation {d b : ℤ} (hD : b ^ 2 + 4 * d <
       Tendsto (fun δ : ℝ =>
         ‖∑' n : ℕ, genusLocalAF hD ψ n * Ψ ((n : ℝ) / Real.exp (1 / δ))‖ /
           (Real.exp (1 / δ) * Real.sqrt δ)) (𝓝[>] 0) (𝓝 0) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ hψ Ψ hΨ hsupp hplus
   obtain ⟨C, hC, hcount⟩ := genusLocalAF_logCountBound hD
   exact spatial_smooth_cancellation_of_smoothed (genusLocalAF_norm_le_one hD ψ) hC.le (hcount ψ)

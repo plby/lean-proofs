@@ -784,7 +784,7 @@ theorem outer_chain (h : IsPlaneChain Γ drawing G n) (hout : OuterOnPairs Γ dr
       ¬ Bornology.IsBounded (face (chainUnion Γ 0 n) drawing x) := by
   have hext := h.mem_exterior_chain hout
   refine ⟨hext, fun hb => ?_⟩
-  haveI : (chainUnion Γ 0 n).Finite := h.block_finite (i := 0) (m := n) (by omega)
+  have : (chainUnion Γ 0 n).Finite := h.block_finite (i := 0) (m := n) (by omega)
   exact h.not_encloses hout hdesc n 0 (by omega)
     (encloses_of_isBounded_face (h.block_isDrawing (by omega)) (h.block_polygonal (by omega))
       (h.block_isTwoConnected (by omega)) hext hb)

@@ -168,8 +168,8 @@ theorem card_higherPrimePowerIndex_le (N : ℕ) :
     (higherPrimePowerIndex K N).card ≤
       Nat.card (IdealsToSqrt K N) * (Nat.log 2 N + 1) := by
   classical
-  letI : Finite (IdealsToSqrt K N) := by
-    letI : Finite {I : Ideal (𝓞 K) // Ideal.absNorm I ≤ Nat.sqrt N} :=
+  let : Finite (IdealsToSqrt K N) := by
+    let : Finite {I : Ideal (𝓞 K) // Ideal.absNorm I ≤ Nat.sqrt N} :=
       (Ideal.finite_setOfPred_absNorm_le (S := 𝓞 K) (Nat.sqrt N)).to_subtype
     apply Finite.of_injective
       (f := fun I : IdealsToSqrt K N ↦

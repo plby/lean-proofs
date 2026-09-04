@@ -205,7 +205,7 @@ theorem count_badIntersections_le [Nonempty V]
       intro C hC
       by_cases hCempty : C = ∅
       · subst C
-        simp [bad, intersectionCount, not_le_of_gt ht]
+        simp only [neg_mul]
         positivity
       · have hCpos : (0 : ℝ) < C.card := by
           exact_mod_cast (Finset.card_pos.mpr (Finset.nonempty_iff_ne_empty.mpr hCempty))
@@ -309,7 +309,7 @@ theorem eventually_degreeBadSamples_density_lt
     hc (show 0 < ε / 4 by positivity)
   filter_upwards [eventually_ge_atTop 1, hevent] with n hn hdec
   intro G _
-  letI : Nonempty (Fin (2 * n)) :=
+  let : Nonempty (Fin (2 * n)) :=
     Fin.pos_iff_nonempty.mp (by omega)
   have ht : 0 < δ * (2 * n : ℝ) := mul_pos hδ (by positivity)
   have hcard := card_degreeBadSamples_le G ht
@@ -874,7 +874,7 @@ theorem eventually_profileBadSamples_density_lt
   have hevent := Concentration.eventually_linear_mul_exp_neg_lt hc hdenom
   filter_upwards [eventually_ge_atTop 1, hevent] with n hn hdec
   intro L hL
-  letI : Nonempty (Fin (2 * n)) :=
+  let : Nonempty (Fin (2 * n)) :=
     Fin.pos_iff_nonempty.mp (by omega)
   have ht : 0 < δ * (2 * n : ℝ) := mul_pos hδ (by positivity)
   have hcard := card_profileBadSamples_le L ht

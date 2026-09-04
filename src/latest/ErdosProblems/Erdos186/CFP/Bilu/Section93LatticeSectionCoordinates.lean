@@ -37,13 +37,13 @@ theorem nonempty_integralBasis
     Nonempty (Basis (Fin (finrank ℝ L)) ℤ (integralPoints L)) := by
   classical
   obtain ⟨s, P, hSat⟩ := exists_saturatedPresentation L hproper hspan
-  letI hdiscRow : DiscreteTopology P.rowLattice := by
+  let hdiscRow : DiscreteTopology P.rowLattice := by
     change DiscreteTopology (Submodule.span ℤ (Set.range P.rowBasis))
     infer_instance
-  letI : DiscreteTopology (integralPoints L) := hSat ▸ hdiscRow
-  letI : IsZLattice ℝ (integralPoints L) := ⟨hspan⟩
-  letI : Module.Free ℤ (integralPoints L) := ZLattice.module_free ℝ _
-  letI : Module.Finite ℤ (integralPoints L) := ZLattice.module_finite ℝ _
+  let : DiscreteTopology (integralPoints L) := hSat ▸ hdiscRow
+  let : IsZLattice ℝ (integralPoints L) := ⟨hspan⟩
+  let : Module.Free ℤ (integralPoints L) := ZLattice.module_free ℝ _
+  let : Module.Finite ℤ (integralPoints L) := ZLattice.module_finite ℝ _
   exact ⟨(Module.Free.chooseBasis ℤ (integralPoints L)).reindex
     (Fintype.equivOfCardEq (by
       rw [← finrank_eq_card_chooseBasisIndex, ZLattice.rank ℝ,
@@ -68,7 +68,7 @@ noncomputable def realBasis
   classical
   letI : DiscreteTopology (integralPoints L) := by
     obtain ⟨s, P, hSat⟩ := exists_saturatedPresentation L hproper hspan
-    letI hdiscRow : DiscreteTopology P.rowLattice := by
+    let hdiscRow : DiscreteTopology P.rowLattice := by
       change DiscreteTopology (Submodule.span ℤ (Set.range P.rowBasis))
       infer_instance
     exact hSat ▸ hdiscRow
@@ -84,13 +84,13 @@ noncomputable def realBasis
     (i : Fin (finrank ℝ L)) :
     realBasis L hproper hspan i = integralBasis L hproper hspan i := by
   classical
-  letI : DiscreteTopology (integralPoints L) := by
+  let : DiscreteTopology (integralPoints L) := by
     obtain ⟨s, P, hSat⟩ := exists_saturatedPresentation L hproper hspan
-    letI hdiscRow : DiscreteTopology P.rowLattice := by
+    let hdiscRow : DiscreteTopology P.rowLattice := by
       change DiscreteTopology (Submodule.span ℤ (Set.range P.rowBasis))
       infer_instance
     exact hSat ▸ hdiscRow
-  letI : IsZLattice ℝ (integralPoints L) := ⟨hspan⟩
+  let : IsZLattice ℝ (integralPoints L) := ⟨hspan⟩
   exact (integralBasis L hproper hspan).ofZLatticeBasis_apply ℝ
     (integralPoints L) i
 
@@ -128,13 +128,13 @@ theorem integralReal_coordinateIntegralEmbedding
     integralReal (coordinateIntegralEmbedding L hproper hspan z) =
       coordinateEmbedding L hproper hspan (integralEmbed z) := by
   classical
-  letI : DiscreteTopology (integralPoints L) := by
+  let : DiscreteTopology (integralPoints L) := by
     obtain ⟨s, P, hSat⟩ := exists_saturatedPresentation L hproper hspan
-    letI hdiscRow : DiscreteTopology P.rowLattice := by
+    let hdiscRow : DiscreteTopology P.rowLattice := by
       change DiscreteTopology (Submodule.span ℤ (Set.range P.rowBasis))
       infer_instance
     exact hSat ▸ hdiscRow
-  letI : IsZLattice ℝ (integralPoints L) := ⟨hspan⟩
+  let : IsZLattice ℝ (integralPoints L) := ⟨hspan⟩
   let q : integralPoints L :=
     (integralBasis L hproper hspan).equivFun.symm z
   have hqambient :
@@ -158,12 +158,13 @@ theorem integralReal_coordinateIntegralEmbedding
       (((integralBasis L hproper hspan).equivFun q) i : ℝ) by
     exact (integralBasis L hproper hspan).ofZLatticeBasis_repr_apply
       ℝ (integralPoints L) q i]
-  simp [q, integralEmbed]
-  rw [Finset.sum_eq_single i]
-  · simp
-  · intro j _hj hji
-    simp [Finsupp.single_apply, hji]
-  · simp
+  change ((((integralBasis L hproper hspan).repr q) i : ℤ) : ℝ) =
+    (z i : ℝ)
+  congr 1
+  change ((integralBasis L hproper hspan).equivFun q) i = z i
+  exact congrFun (by
+    simpa only [q] using
+      (integralBasis L hproper hspan).equivFun.apply_symm_apply z) i
 
 /-- Pull a seminorm on the ambient space back through the full section
 lattice coordinates. -/

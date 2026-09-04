@@ -58,7 +58,7 @@ theorem baseFiber_finiteLiftGenerated_of_linear
   obtain ⟨inst, hfactor, hiso⟩ :=
     exists_fintype_baseFiberLetterSubgraphFactorExpansionIso_of_linear
       hS q hlinear
-  letI : Fintype
+  let : Fintype
       (baseLetterSubgraph G (baseLetter '' baseFiber S q)).verts := inst
   rcases hfactor with ⟨factor⟩
   rcases hiso with ⟨iso⟩

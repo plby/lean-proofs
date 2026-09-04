@@ -106,7 +106,7 @@ theorem vertexSet_countable (Q : FiniteColouredOccurrenceWord W Y) :
 theorem forwardEdges_finite (Q : FiniteColouredOccurrenceWord W Y) :
     Q.forwardEdges.Finite := by
   classical
-  letI : Fintype Q.ForwardIndex := by
+  let : Fintype Q.ForwardIndex := by
     unfold ForwardIndex
     infer_instance
   exact Set.finite_range _
@@ -114,7 +114,7 @@ theorem forwardEdges_finite (Q : FiniteColouredOccurrenceWord W Y) :
 theorem backwardEdges_finite (Q : FiniteColouredOccurrenceWord W Y) :
     Q.backwardEdges.Finite := by
   classical
-  letI : Fintype Q.BackwardIndex := by
+  let : Fintype Q.BackwardIndex := by
     unfold BackwardIndex
     infer_instance
   exact Set.finite_range _
@@ -199,10 +199,10 @@ private theorem edgeBalance_difference_eq_sum
         (propInt (x = Q.vertex i.castSucc) -
           propInt (x = Q.vertex i.succ)) := by
   classical
-  letI forwardFintype : Fintype Q.ForwardIndex := by
+  let forwardFintype : Fintype Q.ForwardIndex := by
     unfold ForwardIndex
     infer_instance
-  letI backwardFintype : Fintype Q.BackwardIndex := by
+  let backwardFintype : Fintype Q.BackwardIndex := by
     unfold BackwardIndex
     infer_instance
   let contribution : Fin Q.length → Int := fun i ↦

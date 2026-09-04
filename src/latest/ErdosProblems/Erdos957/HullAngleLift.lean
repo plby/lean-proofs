@@ -163,7 +163,7 @@ theorem radial_complexCross_eq_orientedTurn (p q C : Point) :
 
 theorem cyclicSucc_val_local {n : ℕ} (i : Fin n) :
     (cyclicSucc i).val = (i.val + 1) % n := by
-  letI : NeZero n := i.neZero
+  let : NeZero n := i.neZero
   change (finRotate n i).val = _
   rw [finRotate_apply, Fin.val_add, Fin.val_one']
   nth_rw 1 [← Nat.mod_eq_of_lt i.isLt]
@@ -407,7 +407,7 @@ theorem radialLift_gap_eq_ccwAngleDiff {n : ℕ} (hn : 0 < n)
     radialLift hn C v (i.val + 1) - radialLift hn C v i =
       ccwAngleDiff (pointComplexEquiv (v i - C))
         (pointComplexEquiv (v (cyclicSucc i) - C)) := by
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   by_cases hi : i.val + 1 < n
   · have hsval : (cyclicSucc i).val = i.val + 1 := by
       rw [cyclicSucc_val, Nat.mod_eq_of_lt hi]

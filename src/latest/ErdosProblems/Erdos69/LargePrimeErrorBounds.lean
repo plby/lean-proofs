@@ -109,7 +109,7 @@ theorem tendsto_retainedCharacteristic_norm {q : ℝ} (hq : 0 < q) :
     convert! hε.const_mul (2 * Real.pi) using 1
     · funext m
       ring
-    · ring
+    · ring_nf
   have hlim := (tendsto_smallCharacteristic_norm hq).add he
   simp only [add_zero] at hlim
   apply squeeze_zero' (Filter.Eventually.of_forall (fun m ↦ norm_nonneg _)) _ hlim

@@ -11,12 +11,12 @@ theorem exists_natPrime_under_specialMaximal
     (P : Ideal (Zsqrtd (-(p : ℤ) ^ 3))) (hP : P.IsMaximal) :
     ∃ q : ℕ, q.Prime ∧
       P.under ℤ = Ideal.span ({(q : ℤ)} : Set ℤ) := by
-  letI : Module.Free ℤ (Zsqrtd (-(p : ℤ) ^ 3)) :=
+  let : Module.Free ℤ (Zsqrtd (-(p : ℤ) ^ 3)) :=
     Module.Free.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Module.Finite ℤ (Zsqrtd (-(p : ℤ) ^ 3)) :=
+  let : Module.Finite ℤ (Zsqrtd (-(p : ℤ) ^ 3)) :=
     Module.Finite.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Ring.HasFiniteQuotients (Zsqrtd (-(p : ℤ) ^ 3)) := inferInstance
-  letI : P.IsMaximal := hP
+  let : Ring.HasFiniteQuotients (Zsqrtd (-(p : ℤ) ^ 3)) := inferInstance
+  let : P.IsMaximal := hP
   obtain ⟨a, ha⟩ := IsPrincipalIdealRing.principal (P.under ℤ)
   have ha0 : a ≠ 0 := by
     intro haz
@@ -76,13 +76,13 @@ theorem specialMaximal_isPrincipal_or_eq_orientedSplit
       ∃ q : ℕ, ∃ hq : q.Prime, ∃ hq2 : q ≠ 2, ∃ hqp : q ≠ p,
         ∃ h : ¬ IsQuadraticObstruction (p ^ 3) q, ∃ b : Bool,
           P = specialOrientedSplitIdeal p q h b := by
-  letI : Module.Free ℤ (Zsqrtd (-(p : ℤ) ^ 3)) :=
+  let : Module.Free ℤ (Zsqrtd (-(p : ℤ) ^ 3)) :=
     Module.Free.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Module.Finite ℤ (Zsqrtd (-(p : ℤ) ^ 3)) :=
+  let : Module.Finite ℤ (Zsqrtd (-(p : ℤ) ^ 3)) :=
     Module.Finite.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
   obtain ⟨q, hq, hunder⟩ := exists_natPrime_under_specialMaximal P hP
-  letI : Fact q.Prime := ⟨hq⟩
-  letI : NeZero q := ⟨hq.ne_zero⟩
+  let : Fact q.Prime := ⟨hq⟩
+  let : NeZero q := ⟨hq.ne_zero⟩
   have hqP : Zsqrtd.ofInt (q : ℤ) ∈ P := by
     change (q : ℤ) ∈ P.under ℤ
     rw [hunder]
@@ -436,7 +436,7 @@ theorem specialOrientedIntegralUnitIdeal_cardQuot
     ((specialOrientedIntegralUnitIdeal p q hq hq2 hqp h b :
       IntegralUnitIdeal (Zsqrtd (-(p : ℤ) ^ 3))) :
         Ideal (Zsqrtd (-(p : ℤ) ^ 3))).cardQuot = q := by
-  letI : NeZero q := ⟨hq.ne_zero⟩
+  let : NeZero q := ⟨hq.ne_zero⟩
   exact orientedSplitIdeal_cardQuot (-(p : ℤ) ^ 3) q
     (specialSplitRoot p q h) (specialSplitRoot_sq p q h) b
 
@@ -447,8 +447,8 @@ theorem specialOrientedIntegralUnitIdeal_isMaximal
     (((specialOrientedIntegralUnitIdeal p q hq hq2 hqp h b :
       IntegralUnitIdeal (Zsqrtd (-(p : ℤ) ^ 3))) :
         Ideal (Zsqrtd (-(p : ℤ) ^ 3)))).IsMaximal := by
-  letI : Fact q.Prime := ⟨hq⟩
-  letI : NeZero q := ⟨hq.ne_zero⟩
+  let : Fact q.Prime := ⟨hq⟩
+  let : NeZero q := ⟨hq.ne_zero⟩
   cases b
   · rw [show ((specialOrientedIntegralUnitIdeal p q hq hq2 hqp h false :
         IntegralUnitIdeal (Zsqrtd (-(p : ℤ) ^ 3))) :
@@ -493,11 +493,11 @@ theorem exists_specialSplitPrimeClass_not_mem_of_idealClass_not_mem
   let O := Zsqrtd (-(p : ℤ) ^ 3)
   let F : Ideal O := Ideal.span
     ({Zsqrtd.ofInt ((2 * p : ℕ) : ℤ)} : Set O)
-  letI : Module.Free ℤ O :=
+  let : Module.Free ℤ O :=
     Module.Free.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Module.Finite ℤ O :=
+  let : Module.Finite ℤ O :=
     Module.Finite.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Ring.HasFiniteQuotients O := inferInstance
+  let : Ring.HasFiniteQuotients O := inferInstance
   suffices ∀ n : ℕ, ∀ I : IntegralUnitIdeal O,
       (I : Ideal O).cardQuot = n →
       IntegralUnitIdeal.idealClass I ∉ H →
@@ -712,13 +712,13 @@ noncomputable def finiteSpecialNormBall {p K : ℕ} (hp : 1 ≤ p) :
     apply Zsqrtd.ext
     · exact congrArg (fun x : A × A ↦ x.1.1) hzw
     · exact congrArg (fun x : A × A ↦ x.2.1) hzw
-  letI : Fintype A := Fintype.ofFinset (Finset.Icc (-(s : ℤ)) (s : ℤ))
+  let : Fintype A := Fintype.ofFinset (Finset.Icc (-(s : ℤ)) (s : ℤ))
     (fun a ↦ Iff.rfl)
   exact Finite.of_injective f hf
 
 theorem natCard_specialNormBall_le {p K : ℕ} (hp : 1 ≤ p) (hK : 1 ≤ K) :
     Nat.card (SpecialNormBall p K) ≤ 9 * K := by
-  letI : Finite (SpecialNormBall p K) := finiteSpecialNormBall hp
+  let : Finite (SpecialNormBall p K) := finiteSpecialNormBall hp
   let s := K.sqrt
   let A := {a : ℤ // a ∈ Finset.Icc (-(s : ℤ)) (s : ℤ)}
   let f : SpecialNormBall p K → A × A := fun z ↦ by
@@ -764,7 +764,7 @@ theorem natCard_specialNormBall_le {p K : ℕ} (hp : 1 ≤ p) (hK : 1 ≤ K) :
     apply Zsqrtd.ext
     · exact congrArg (fun x : A × A ↦ x.1.1) hzw
     · exact congrArg (fun x : A × A ↦ x.2.1) hzw
-  letI : Fintype A := Fintype.ofFinset (Finset.Icc (-(s : ℤ)) (s : ℤ))
+  let : Fintype A := Fintype.ofFinset (Finset.Icc (-(s : ℤ)) (s : ℤ))
     (fun a ↦ Iff.rfl)
   have hcard := Nat.card_le_card_of_injective f hf
   have hcardA : Nat.card A = 2 * s + 1 := by
@@ -798,11 +798,11 @@ noncomputable def finiteSpecialClassBall
     (C : ClassGroup (Zsqrtd (-(p : ℤ) ^ 3))) :
     Finite (SpecialClassBall p N C) := by
   let O := Zsqrtd (-(p : ℤ) ^ 3)
-  letI : Module.Free ℤ O :=
+  let : Module.Free ℤ O :=
     Module.Free.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Module.Finite ℤ O :=
+  let : Module.Finite ℤ O :=
     Module.Finite.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Ring.HasFiniteQuotients O := inferInstance
+  let : Ring.HasFiniteQuotients O := inferInstance
   let a : O := N.factorial
   have ha : a ≠ 0 := by
     intro hzero
@@ -813,7 +813,7 @@ noncomputable def finiteSpecialClassBall
     have : N.factorial = 0 := by exact_mod_cast hz
     exact Nat.factorial_ne_zero N this
   let T := {J : Ideal O // a ∈ J}
-  letI : Finite T :=
+  let : Finite T :=
     (Ring.HasFiniteQuotients.finite_setOfPred_mem a ha).to_subtype
   let f : SpecialClassBall p N C → T := fun I ↦ by
     have hIne : (I.1 : Ideal O) ≠ ⊥ := by
@@ -849,11 +849,11 @@ theorem exists_natCard_specialClassBall_le
     ∃ B : ℕ, 0 < B ∧ ∀ N : ℕ, 0 < N →
       Nat.card (SpecialClassBall p N C) ≤ B * N := by
   let O := Zsqrtd (-(p : ℤ) ^ 3)
-  letI : Module.Free ℤ O :=
+  let : Module.Free ℤ O :=
     Module.Free.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Module.Finite ℤ O :=
+  let : Module.Finite ℤ O :=
     Module.Finite.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Ring.HasFiniteQuotients O := inferInstance
+  let : Ring.HasFiniteQuotients O := inferInstance
   obtain ⟨J, hJclass⟩ :=
     (IntegralUnitIdeal.idealClass_surjective
       (S := O) (C⁻¹ : ClassGroup O))
@@ -949,7 +949,7 @@ theorem exists_natCard_specialClassBall_le
       _ ≤ m ^ 2 * N := Nat.mul_le_mul_left _ I.2.2
   let f : SpecialClassBall p N C → SpecialNormBall p (m ^ 2 * N) :=
     fun I ↦ ⟨z I, hnormBound I⟩
-  letI : Finite (SpecialNormBall p (m ^ 2 * N)) :=
+  let : Finite (SpecialNormBall p (m ^ 2 * N)) :=
     finiteSpecialNormBall (Fact.out : Nat.Prime p).one_le
   have hf : Function.Injective f := by
     intro I K hIK
@@ -975,7 +975,7 @@ theorem exists_uniform_natCard_specialClassBall_le
     ∃ B : ℕ, 0 < B ∧
       ∀ (C : ClassGroup (Zsqrtd (-(p : ℤ) ^ 3))) (N : ℕ), 0 < N →
         Nat.card (SpecialClassBall p N C) ≤ B * N := by
-  letI : Fintype (ClassGroup (Zsqrtd (-(p : ℤ) ^ 3))) :=
+  let : Fintype (ClassGroup (Zsqrtd (-(p : ℤ) ^ 3))) :=
     zsqrtdClassGroupFintype (-(p : ℤ) ^ 3)
       (specialDiscriminant_neg p Fact.out)
   choose B hBpos hB using fun C :
@@ -1013,11 +1013,11 @@ theorem natCard_specialDivisibleClassBall_le
       0 < M → Nat.card (SpecialClassBall p M D) ≤ B * M) :
     Nat.card (SpecialDivisibleClassBall p N C P) ≤ B * (N / q) := by
   let O := Zsqrtd (-(p : ℤ) ^ 3)
-  letI : Module.Free ℤ O :=
+  let : Module.Free ℤ O :=
     Module.Free.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Module.Finite ℤ O :=
+  let : Module.Finite ℤ O :=
     Module.Finite.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Ring.HasFiniteQuotients O := inferInstance
+  let : Ring.HasFiniteQuotients O := inferInstance
   have hPne : (P : Ideal O) ≠ ⊥ := by
     intro hzero
     have hz : (((P : Ideal O) :
@@ -1070,7 +1070,7 @@ theorem natCard_specialDivisibleClassBall_le
       SpecialClassBall p (N / q)
         ((IntegralUnitIdeal.idealClass P)⁻¹ * C) :=
     fun I ↦ ⟨J I, hJclass I, hJcard I⟩
-  letI : Finite (SpecialClassBall p (N / q)
+  let : Finite (SpecialClassBall p (N / q)
       ((IntegralUnitIdeal.idealClass P)⁻¹ * C)) :=
     finiteSpecialClassBall _
   have hf : Function.Injective f := by
@@ -1263,14 +1263,14 @@ theorem exists_coprime_inverse_integralUnitIdeal
   · let A := S ⧸ F
     let M := (I : Ideal S)
     let T := TensorProduct S A M
-    letI : Nontrivial A :=
+    let : Nontrivial A :=
       (Ideal.Quotient.nontrivial_iff (R := S) (I := F)).mpr hFtop
-    letI : Finite A := Ring.HasFiniteQuotients.finiteQuotient hFne
-    letI : IsArtinianRing A := isArtinian_of_finite
-    letI : Module.Invertible S M :=
+    let : Finite A := Ring.HasFiniteQuotients.finiteQuotient hFne
+    let : IsArtinianRing A := isArtinian_of_finite
+    let : Module.Invertible S M :=
       moduleInvertibleIdealOfIsUnit (I : Ideal S) I.2
-    letI : Module.Invertible A T := inferInstance
-    letI : Module.Free A T := inferInstance
+    let : Module.Invertible A T := inferInstance
+    let : Module.Free A T := inferInstance
     let e : T ≃ₗ[A] A :=
       (Module.Invertible.free_iff_linearEquiv.mp (inferInstance : Module.Free A T)).some
     obtain ⟨x, hx⟩ := TensorProduct.mk_surjective S M A
@@ -1419,11 +1419,11 @@ theorem exists_specialCoprimeClassBall_lower
         (Ideal.span ({Zsqrtd.ofInt (m : ℤ)} :
           Set (Zsqrtd (-(p : ℤ) ^ 3))))) := by
   let O := Zsqrtd (-(p : ℤ) ^ 3)
-  letI : Module.Free ℤ O :=
+  let : Module.Free ℤ O :=
     Module.Free.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Module.Finite ℤ O :=
+  let : Module.Finite ℤ O :=
     Module.Finite.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Ring.HasFiniteQuotients O := inferInstance
+  let : Ring.HasFiniteQuotients O := inferInstance
   let F : Ideal O := Ideal.span ({Zsqrtd.ofInt (m : ℤ)} : Set O)
   have hmO : (Zsqrtd.ofInt (m : ℤ) : O) ≠ 0 := by
     intro hz
@@ -1498,9 +1498,9 @@ theorem exists_specialCoprimeClassBall_lower
   let f : Fin L × Fin L →
       SpecialCoprimeClassBall p (K * L ^ 2) C F := fun x ↦
     ⟨⟨Q x * I, hQIclass x, hQIcard x⟩, hQIcop x⟩
-  letI : Finite (SpecialClassBall p (K * L ^ 2) C) :=
+  let : Finite (SpecialClassBall p (K * L ^ 2) C) :=
     finiteSpecialClassBall C
-  letI : Finite (SpecialCoprimeClassBall p (K * L ^ 2) C F) :=
+  let : Finite (SpecialCoprimeClassBall p (K * L ^ 2) C F) :=
     Finite.of_injective Subtype.val Subtype.val_injective
   have hf : Function.Injective f := by
     intro x y hxy
@@ -1567,8 +1567,8 @@ theorem natCard_specialCoprimeClassBall_le_sum_divisible
     intro I K hIK
     apply Subtype.ext
     exact congrArg (fun V : Target ↦ V.2.2.1) hIK
-  letI : Finite (SpecialClassBall p N C) := finiteSpecialClassBall C
-  letI (t : {s : SpecialSplitPrimeData p // s ∈ T}) (c : Bool) :
+  let : Finite (SpecialClassBall p N C) := finiteSpecialClassBall C
+  let (t : {s : SpecialSplitPrimeData p // s ∈ T}) (c : Bool) :
       Finite (SpecialDivisibleClassBall p N C
         (t.1.integralUnitIdeal c)) :=
     Finite.of_injective Subtype.val Subtype.val_injective

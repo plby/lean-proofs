@@ -598,8 +598,7 @@ private theorem exists_map_unitDisc_injOn_norm_deriv_gt515
       rw [Complex.UnitDisc.deriv_shift515_comp, (hdg x hx).deriv]
       simp only [G, norm_mul, norm_div, norm_pow, Complex.UnitDisc.coe_neg, map_neg,
         neg_mul, neg_neg, norm_ofNat]
-      simp [hf₀, ← sub_eq_add_neg, Complex.UnitDisc.norm_one_sub_conj_mul_self515,
-        hsq, abs_of_pos hsone, abs_of_pos (sub_pos.mpr c.sq_norm_lt_one)]
+      simp only [mul_neg, neg_neg]
       rw [← hsq]
       field_simp [hspos.ne']
       ring
@@ -677,7 +676,7 @@ theorem exists_riemannMap_to_unitDisk
       lift K to Set U using hKU
       rw [← Subtype.isCompact_iff] at hKc
       exact (φ.exists_superset_of_isCompact hKc).imp fun n hn ↦ by gcongr
-  letI : (uniformity (ℂ →ᵤ[𝔖] ℂ)).IsCountablyGenerated := hcnt
+  let : (uniformity (ℂ →ᵤ[𝔖] ℂ)).IsCountablyGenerated := hcnt
   let F : (ℂ →ᵤ[𝔖] ℂ) → (ℂ → ℂ) := fun f ↦ UniformOnFun.toFun _ f
   have hF : ∀ {f : ℂ →ᵤ[𝔖] ℂ} {s},
       TendstoLocallyUniformlyOn F (F f) (nhdsWithin f s) U := by

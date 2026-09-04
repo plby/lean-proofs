@@ -43,12 +43,16 @@ theorem discBoundary_nonempty_of_nonneg {R : ℝ} (hR : 0 ≤ R) :
   · rw [disc]
     change latticeDistance 0 z ≤ R
     unfold latticeDistance squaredDistance z m
-    simp
+    simp only [Prod.fst_zero, zero_sub, Int.cast_neg, Int.cast_natCast, even_two, Even.neg_pow, Prod.snd_zero,
+    sub_self, Int.cast_zero, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero, Nat.cast_nonneg,
+    Real.sqrt_sq]
     exact hmle
   · rw [disc]
     change ¬latticeDistance 0 w ≤ R
     unfold latticeDistance squaredDistance w m
-    simp [Real.sqrt_sq_eq_abs]
+    simp only [Prod.fst_zero, Nat.cast_add, Nat.cast_one, zero_sub, neg_add_rev, Int.reduceNeg, Int.cast_add,
+    Int.cast_neg, Int.cast_one, Int.cast_natCast, Prod.snd_zero, sub_self, Int.cast_zero, ne_eq, OfNat.ofNat_ne_zero,
+    not_false_eq_true, zero_pow, add_zero, not_le]
     have habs : |-1 + -(m : ℝ)| = (m : ℝ) + 1 := by
       rw [abs_of_nonpos (by
         have hm0 : (0 : ℝ) ≤ m := by positivity

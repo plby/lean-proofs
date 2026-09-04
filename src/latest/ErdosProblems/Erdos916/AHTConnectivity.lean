@@ -388,7 +388,7 @@ theorem connected_falseTwins_of_vertexTwoConnected
                 exact (not_ne_iff.mp hac).trans hbc.symm
               exact ⟨⟨b, hbc⟩⟩
           change (deleteVertex H c).Connected
-          letI : Nonempty {w : W // w ≠ c} := hnonempty
+          let : Nonempty {w : W // w ≠ c} := hnonempty
           exact SimpleGraph.Connected.mk (not_not.mp (hncut c))
         exact @hcore W _ _ H _ x₀ hcard htwo hdeg hnoWheel
 
@@ -435,8 +435,8 @@ theorem falseTwins_of_vertexTwoConnected
   classical
   let C : H.ConnectedComponent :=
     H.connectedComponentMk (Classical.choice inferInstance)
-  letI : Fintype C := Fintype.ofFinite C
-  letI : DecidableRel C.toSimpleGraph.Adj := Classical.decRel _
+  let : Fintype C := Fintype.ofFinite C
+  let : DecidableRel C.toSimpleGraph.Adj := Classical.decRel _
   obtain ⟨x, hx⟩ := C.nonempty_supp
   let x₀ : C := ⟨x, hx⟩
   have hcardC : 2 ≤ Fintype.card C := by

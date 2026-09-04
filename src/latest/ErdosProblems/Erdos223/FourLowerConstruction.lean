@@ -93,7 +93,7 @@ private lemma regularPoint_injective {M : ℕ} (hM : 0 < M) {r : ℝ} (hr : r �
   have hj0 := regularAngle_nonneg j
   have hi2 := regularAngle_lt_two_pi hM i
   have hj2 := regularAngle_lt_two_pi hM j
-  letI : Fact (0 < 2 * Real.pi) := ⟨by positivity⟩
+  let : Fact (0 < 2 * Real.pi) := ⟨by positivity⟩
   have heq : regularAngle M i = regularAngle M j :=
     (AddCircle.coe_eq_coe_iff_of_mem_Ico
       (a := (0 : ℝ)) (p := 2 * Real.pi)

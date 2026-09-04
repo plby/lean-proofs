@@ -1392,7 +1392,7 @@ lemma degreeSlice_scale {N q : ℝ} {m : ℕ}
             N ^ (-((m : ℝ) + 1) / 2)) by ring]
   rw [← Real.rpow_add hN]
   congr 1
-  ring
+  ring_nf
 
 /-- Source-scale simplification of one degree slice.  A linear lower bound
 `q * N` on the coefficient mass makes every degree at most four contribute
@@ -1623,11 +1623,11 @@ lemma firstDegreeSlice_le_sourceScale {N M q : ℝ} {m : ℕ}
               rw [Real.rpow_add hNpos]
             _ = (q / 32) ^ (-(1 : ℝ) / 2) * N ^ (1 / 2 : ℝ) := by
               congr 1
-              ring
+              ring_nf
         have hleft' :
             N * ((q / 32) ^ (-(1 / 2 : ℝ)) * N ^ (-(1 / 2 : ℝ))) =
               (q / 32) ^ (-(1 / 2 : ℝ)) * N ^ (1 / 2 : ℝ) := by
-          convert hleft using 1 <;> ring
+          convert hleft using 1 <;> ring_nf
         rw [hleft', Real.sqrt_eq_rpow]
         have hqpow : (q / 32) ^ (-(1 : ℝ) / 2) ≤
             (q / 32) ^ (-(3 : ℝ) / 2) := by
@@ -1666,7 +1666,7 @@ lemma firstDegreeSlice_le_sourceScale {N M q : ℝ} {m : ℕ}
           _ ≤ 4 * (q / 32) ^ (-(3 : ℝ) / 2) * N ^ (1 / 2 : ℝ) := by
             exact le_mul_of_one_le_right
               (mul_nonneg (by norm_num) (Real.rpow_nonneg hq32pos.le _)) hsqrt
-        convert hcalc using 1 <;> ring
+        convert hcalc using 1 <;> ring_nf
       · rw [if_neg (by norm_num : (2 : ℕ) ≠ 0)]
         norm_num only [Nat.cast_ofNat]
         rw [show q * N / 32 = (q / 32) * N by ring,

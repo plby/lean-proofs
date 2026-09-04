@@ -205,7 +205,7 @@ lemma atomMoment_erase_sub_le
         by_cases hau : x a ≤ u
         · rw [if_pos hau, if_pos hau, ← mul_sub]
           exact mul_le_mul_of_nonneg_left (ih _) (hwErase a ha)
-        · simp [hau]
+        · simp only [tsub_le_iff_right]
           exact mul_nonneg (hwErase a ha) (by positivity)
       rw [hrewrite]
       calc
@@ -284,7 +284,7 @@ lemma atomMoment_sub_distinct_le
                 add_le_add (hremove.trans hremove') hcollision
               _ = ((n : ℝ) ^ 2 + n) * delta * M ^ n := by ring
           exact mul_le_mul_of_nonneg_left hinner (hw0 a ha)
-        · simp [hau]
+        · simp only [tsub_le_iff_right]
           exact mul_nonneg (hw0 a ha) (by
             dsimp only [Q]
             positivity)

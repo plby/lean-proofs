@@ -23,7 +23,7 @@ theorem card_le_modulus_mul_of_fiber_bound
     {m V : ℕ} (hm : 0 < m) (π : G →+ ZMod m)
     (hfiber : ∀ z : ZMod m, (homFiberFinset π z).card ≤ V) :
     Fintype.card G ≤ m * V := by
-  letI : NeZero m := ⟨Nat.ne_of_gt hm⟩
+  let : NeZero m := ⟨Nat.ne_of_gt hm⟩
   let U : Finset G := Finset.univ.biUnion (homFiberFinset π)
   have hU : U = Finset.univ := by
     ext x
@@ -51,7 +51,7 @@ theorem highPower_three_coset_exception_is_dense
     (hdoub : 4 * (ExactPower C (2 * t)).ncard <
       9 * (ExactPower C t).ncard) :
     Fintype.card G < 2 * (ExactPower C t).ncard := by
-  letI : NeZero m := ⟨Nat.ne_of_gt hm⟩
+  let : NeZero m := ⟨Nat.ne_of_gt hm⟩
   have hzero' : 0 ∈ π '' C := ⟨0, hzero, π.map_zero⟩
   have hprimitive' := exactPower_univ_image_of_surjective π hπ hprimitive
   have hsmall : (ExactPower (π '' C) t).ncard ≤ 3 := by

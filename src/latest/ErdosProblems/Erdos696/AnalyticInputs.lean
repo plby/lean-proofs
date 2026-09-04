@@ -323,8 +323,7 @@ theorem crt_transfer :
         ((Finset.Iio (q * M)).filter E) ∪ ((Finset.Icc (q * M) X).filter E) := by
       apply Finset.ext
       intro n
-      simp [Finset.mem_filter, Finset.mem_union, Finset.mem_Iio, Finset.mem_Icc,
-            Finset.mem_Iic]
+      simp only [Finset.mem_filter, Finset.mem_Iic, Finset.mem_union, Finset.mem_Iio, Finset.mem_Icc]
       constructor
       · rintro ⟨hn_le_X, hEn⟩
         by_cases h : n < q * M
@@ -373,7 +372,7 @@ theorem crt_transfer :
           have h_image : Finset.Ico (q'' * M) ((q'' + 1) * M) =
               (Finset.range M).image (fun r => q'' * M + r) := by
             ext n
-            simp [Finset.mem_Ico, Finset.mem_image, Finset.mem_range, h_succ']
+            simp only [Finset.mem_Ico, Finset.mem_image, Finset.mem_range]
             constructor
             · intro ⟨hge, hlt⟩
               refine ⟨n - q'' * M, ?_, ?_⟩ <;> omega
@@ -396,7 +395,7 @@ theorem crt_transfer :
       -- Bijection r ↦ q*M + r maps [0, s] to [q*M, q*M+s].
       have h_image : Finset.Icc (q * M) X = (Finset.Iic s).image (fun r => q * M + r) := by
         ext n
-        simp [Finset.mem_Icc, Finset.mem_image, Finset.mem_Iic]
+        simp only [Finset.mem_Icc, Finset.mem_image, Finset.mem_Iic]
         constructor
         · intro ⟨hge, hle⟩
           refine ⟨n - q * M, ?_, ?_⟩ <;>

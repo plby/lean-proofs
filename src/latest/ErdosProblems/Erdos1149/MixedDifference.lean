@@ -508,7 +508,7 @@ theorem realPairDifference_eq_orientation_mul
       one_mul, realPositiveDifference]
     rw [abs_of_nonneg (sub_nonneg.mpr h)]
     congr 1
-    ring
+    ring_nf
   · have hab : a ≤ b := le_of_not_ge h
     rw [show pairOrientation a b = -1 by simp [pairOrientation, h]]
     simp only [realPairDifference, pairStep, pairBase, min_eq_left hab,
@@ -603,7 +603,7 @@ theorem iteratedRealPairDifference_eq_normalForm
           rw [historyOrientation_cons, historySteps_cons, historyBase_cons,
             iteratedRealPositiveDifference_cons]
           simp only [realPositiveDifference, g]
-          congr 1 <;> ring
+          congr 1 <;> ring_nf
 
 /-! ## Natural histories and sampled smooth functions -/
 
@@ -770,7 +770,7 @@ theorem iteratedNatPairDifference_unitIncrement_eq_normalForm
   rw [iteratedNatPairDifference_eq_normalForm,
     iteratedNatPairDifference_eq_normalForm]
   push_cast
-  ring
+  ring_nf
 
 /-- The unit increment before applying the history orientation. -/
 def normalizedNatUnitIncrement

@@ -35,7 +35,7 @@ lemma anchoredSmoothRunStarts_subset_survivors {p M H : ℕ} (hp : p.Prime)
     anchoredSmoothRunStarts p M H left ⊆
       residueClassSurvivors (fun q => unitShiftResidues (anchorSieveUnit hp q left) H) 0 M := by
   classical
-  letI : ∀ q : dyadicPrimes p, NeZero q.1 :=
+  let : ∀ q : dyadicPrimes p, NeZero q.1 :=
     fun q => ⟨(Finset.mem_filter.mp q.2).2.ne_zero⟩
   intro m hm
   obtain ⟨hmrange, hmsmooth⟩ := Finset.mem_filter.mp hm
@@ -67,7 +67,7 @@ theorem exists_uniform_anchoredSmoothRunStarts_bound : ∃ P₀ : ℕ, ∀ p ≥
   obtain ⟨P₀, hP₀⟩ := exists_uniform_dyadicShiftSieve_bound
   refine ⟨P₀, ?_⟩
   intro p hp₀ hp k H hk hH hHp hkp M hpower left
-  letI : ∀ q : dyadicPrimes p, NeZero q.1 :=
+  let : ∀ q : dyadicPrimes p, NeZero q.1 :=
     fun q => ⟨(Finset.mem_filter.mp q.2).2.ne_zero⟩
   have hsieve := hP₀ p hp₀ k H hk hH hHp hkp 0 M hpower (fun q => anchorSieveUnit hp q left)
   have hsub := anchoredSmoothRunStarts_subset_survivors (M := M) hp hHp left

@@ -710,7 +710,7 @@ theorem fullPinnedRestrictedSum_eq_main_add_error
   apply Finset.sum_congr rfl
   intro e' he'
   by_cases hr : FullPinnedRestricted h d e d' e'
-  · simp [hr]
+  · simp only [mul_ite, mul_zero]
     unfold fullPinnedCountError fullPinnedExpectedCount
     ring
   · simp [hr]

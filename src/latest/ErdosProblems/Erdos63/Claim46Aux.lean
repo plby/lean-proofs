@@ -126,7 +126,7 @@ theorem card_claim46WorkspaceOf_le [Fintype V]
           2 * maxRadius ^ 2 * (Delta + 1) ^ ballRadius) := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let cap : ℕ :=
     (2 * maxRadius ^ 2 + 10 * maxRadius) +
       2 * maxRadius ^ 2 * (Delta + 1) ^ ballRadius

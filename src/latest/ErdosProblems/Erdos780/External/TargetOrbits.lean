@@ -89,7 +89,7 @@ theorem full_fiber_of_fixed {p m : ℕ} [NeZero p] (hp : p.Prime) {a : ZMod p}
     (ha : a ≠ 0) {s : Finset (Label p m)} (hfix : shiftFinset a s = s)
     {v : Label p m} (hv : v ∈ s) :
     Finset.univ.map (signFiberEmbedding v.2) ⊆ fiber s v.2 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   intro w hw
   simp only [Finset.mem_map, Finset.mem_univ, true_and] at hw
   obtain ⟨b, rfl⟩ := hw
@@ -108,7 +108,7 @@ theorem shiftFinset_ne_of_nonzero {p m alpha : ℕ} (hp : p.Prime)
     {a : ZMod p} (ha : a ≠ 0) {s : Finset (Label p m)}
     (hsne : s.Nonempty) (hallowed : Allowed alpha s) :
     shiftFinset a s ≠ s := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   intro hfix
   obtain ⟨v, hv⟩ := hsne
   have hsub := full_fiber_of_fixed hp ha hfix hv
@@ -339,7 +339,7 @@ noncomputable def normOp {p m alpha q : ℕ} (hp : p.Prime) :
 theorem exists_normOp_of_tau_eq_zero {p m alpha q : ℕ} (hp : p.Prime)
     {c : FaceChain p m alpha q} (hc : tau hp c = 0) :
     ∃ d, normOp hp d = c := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   have hD : CyclicAlgebra.D (chainCoords hp c) = 0 := by
     rw [← chainCoords_tau]
     simp [hc]
@@ -351,7 +351,7 @@ theorem exists_normOp_of_tau_eq_zero {p m alpha q : ℕ} (hp : p.Prime)
 theorem exists_tau_of_normOp_eq_zero {p m alpha q : ℕ} (hp : p.Prime)
     {c : FaceChain p m alpha q} (hc : normOp hp c = 0) :
     ∃ d, tau hp d = c := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   have hN : CyclicAlgebra.N (chainCoords hp c) = 0 := by
     rw [← chainCoords_normOp]
     simp [hc]
@@ -370,7 +370,7 @@ theorem ker_tau_eq_range_normOp {p m alpha q : ℕ} (hp : p.Prime) :
   · rintro ⟨d, rfl⟩
     change tau hp (normOp hp d) = 0
     apply (chainCoords hp).injective
-    letI : NeZero p := ⟨hp.ne_zero⟩
+    let : NeZero p := ⟨hp.ne_zero⟩
     rw [map_zero, chainCoords_tau, chainCoords_normOp]
     have h := congrArg
       (fun f : CyclicAlgebra.FreeCyclic p (FaceOrbit p m alpha q) →+
@@ -389,7 +389,7 @@ theorem ker_normOp_eq_range_tau {p m alpha q : ℕ} (hp : p.Prime) :
   · rintro ⟨d, rfl⟩
     change normOp hp (tau hp d) = 0
     apply (chainCoords hp).injective
-    letI : NeZero p := ⟨hp.ne_zero⟩
+    let : NeZero p := ⟨hp.ne_zero⟩
     rw [map_zero, chainCoords_normOp, chainCoords_tau]
     have h := congrArg
       (fun f : CyclicAlgebra.FreeCyclic p (FaceOrbit p m alpha q) →+

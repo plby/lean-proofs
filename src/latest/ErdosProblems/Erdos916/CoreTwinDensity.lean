@@ -147,10 +147,10 @@ theorem component_weak_sparse_of_is23Sparse
     rw [← Nat.card_eq_fintype_card] at h
     omega
   · obtain ⟨z, hz⟩ := C.nonempty_supp
-    letI : Nonempty C := ⟨⟨z, hz⟩⟩
+    let : Nonempty C := ⟨⟨z, hz⟩⟩
     have hpos : 0 < Nat.card C := Finite.card_pos
     have hcard : Nat.card C = 1 := by omega
-    letI : Subsingleton C :=
+    let : Subsingleton C :=
       Finite.card_le_one_iff_subsingleton.mp (by omega)
     have hedge : C.toSimpleGraph.edgeFinset = ∅ := by
       ext e
@@ -172,7 +172,7 @@ theorem connected_of_is23Tight
   have hcardpos : 0 < Fintype.card W := by
     have hcount := htight.2
     omega
-  letI : Nonempty W := Fintype.card_pos_iff.mp hcardpos
+  let : Nonempty W := Fintype.card_pos_iff.mp hcardpos
   by_contra hconn
   have hnpre : ¬H.Preconnected := by
     intro hp
@@ -190,7 +190,7 @@ theorem connected_of_is23Tight
   rw [← Finset.mul_sum, H.sum_card_edgeFinset_connectedComponents,
     H.sum_card_connectedComponents] at hsum
   rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card] at hsum
-  letI : Nontrivial H.ConnectedComponent :=
+  let : Nontrivial H.ConnectedComponent :=
     ⟨⟨H.connectedComponentMk x, H.connectedComponentMk y, hcompNe⟩⟩
   have htwo : 2 ≤ Nat.card H.ConnectedComponent := Finite.one_lt_card
   have hfour : 4 ≤ Nat.card H.ConnectedComponent * 2 := by omega
@@ -391,7 +391,7 @@ theorem connected_of_is23Circuit
     (pairDeleted G u v).Connected := by
   classical
   have hdelcard := card_vertices (V := V) huv
-  letI : Nonempty (PairDeletedVertices u v) :=
+  let : Nonempty (PairDeletedVertices u v) :=
     Fintype.card_pos_iff.mp (by rw [hdelcard]; omega)
   apply connected_of_has24Count_of_component_sparse
     (pairDeleted G u v) (has24Count hcircuit huv hnadj hdu hdv)

@@ -90,7 +90,7 @@ def projectiveBuildTheoremOfForwardBound (u : ℕ) (hu : 1 ≤ u)
       qThreshold := max Qforward Qdensity
       build := ?_ }
   intro m q hq hqThreshold hq2 hqm hscale hbudget
-  letI : Fact q.Prime := ⟨hq⟩
+  let : Fact q.Prime := ⟨hq⟩
   have hqForward : Qforward ≤ q :=
     (Nat.le_max_left Qforward Qdensity).trans hqThreshold
   have hqDensity : Qdensity ≤ q :=

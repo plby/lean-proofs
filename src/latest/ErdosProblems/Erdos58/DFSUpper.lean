@@ -28,7 +28,7 @@ noncomputable def oddCycleLengths {V : Type u} [Finite V]
 
 lemma IsCycle.length_le_card {V : Type u} [Finite V] {G : SimpleGraph V}
     {v : V} {c : G.Walk v v} (hc : c.IsCycle) : c.length ≤ Nat.card V := by
-  letI := Fintype.ofFinite V
+  let := Fintype.ofFinite V
   have hlen : c.support.tail.length = c.length := by
     rw [List.length_tail, c.length_support]
     omega
@@ -213,7 +213,7 @@ private lemma exists_root_neighbor_in_component
 theorem exists_normalTree_of_connected {V : Type u} [Finite V]
     (G : SimpleGraph V) (root : V) (hG : G.Connected) : Nonempty (NormalTree G root) := by
   classical
-  letI := Fintype.ofFinite V
+  let := Fintype.ofFinite V
   induction hn : Nat.card V using Nat.strong_induction_on generalizing V with
   | h n ih =>
       let W := {v : V // v ≠ root}
@@ -442,7 +442,7 @@ private theorem colorable_of_normalTree {V : Type u} [Finite V]
     (T : NormalTree G root) (hk : (oddCycleLengths G).card ≤ k) :
     G.Colorable (2 * (k + 1)) := by
   classical
-  letI := Fintype.ofFinite V
+  let := Fintype.ofFinite V
   apply colorable_of_rank_bound G (fun v ↦ (T.route v).length) k
   intro v
   let earlier : Finset V := Finset.univ.filter fun w ↦
@@ -475,7 +475,7 @@ theorem colorable_of_oddCycleLengths_card_le_of_connected
     (k : ℕ) (hG : G.Connected) (hk : (oddCycleLengths G).card ≤ k) :
     G.Colorable (2 * k + 2) := by
   classical
-  letI := Fintype.ofFinite V
+  let := Fintype.ofFinite V
   let root : V := hG.nonempty.some
   let T : NormalTree G root := (exists_normalTree_of_connected G root hG).some
   simpa [Nat.mul_add, Nat.add_comm, Nat.add_left_comm, Nat.add_assoc] using
@@ -488,7 +488,7 @@ theorem colorable_of_oddCycleLengths_card_le
     (k : ℕ) (hk : (oddCycleLengths G).card ≤ k) :
     G.Colorable (2 * k + 2) := by
   classical
-  letI := Fintype.ofFinite V
+  let := Fintype.ofFinite V
   rw [SimpleGraph.colorable_iff_forall_connectedComponent]
   intro C
   have hsubset : oddCycleLengths C.toSimpleGraph ⊆ oddCycleLengths G := by

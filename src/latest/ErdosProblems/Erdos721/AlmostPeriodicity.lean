@@ -387,7 +387,7 @@ lemma abs_realConvolution_sub_le
           𝔼 y : ZMod N, |μ ((x - y) - (-z)) - μ (x - y)| := by
             congr 1
             funext y
-            congr 2 <;> abel
+            congr 2 <;> abel_nf
       _ = 𝔼 u : ZMod N, |μ (u - (-z)) - μ u| :=
         expect_sub_left (fun u ↦ |μ (u - (-z)) - μ u|) x
       _ ≤ ε := hμ

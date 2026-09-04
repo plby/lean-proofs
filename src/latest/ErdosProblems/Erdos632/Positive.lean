@@ -936,7 +936,7 @@ lemma G5Choice.color_mem {L : G5Vertex → Finset Color} (C : G5Choice L) :
   | y3 => exact C.left.base.base.triangle.b_mem
   | y4 => exact C.left.base.base.triangle.c_mem
   | z i j =>
-      fin_cases j <;> simp [G5Choice.color]
+      fin_cases j <;> simp only [Fin.mk_one, Fin.isValue, Fin.reduceFinMk, Fin.zero_eta]
       · exact (C.left.base.piece i).c0_mem
       · exact (C.left.base.piece i).c1_mem
       · exact (C.left.base.piece i).c2_mem
@@ -945,12 +945,12 @@ lemma G5Choice.color_mem {L : G5Vertex → Finset Color} (C : G5Choice L) :
       · exact (C.left.base.piece i).tail.b_mem
       · exact (C.left.base.piece i).tail.c_mem
   | w j =>
-      fin_cases j <;> simp [G5Choice.color]
+      fin_cases j <;> simp only [Fin.mk_one, Fin.isValue, Fin.reduceFinMk, Fin.zero_eta]
       · exact C.left.main.a_mem
       · exact C.left.main.b_mem
       · exact C.left.main.c_mem
   | wt i j =>
-      fin_cases j <;> simp [G5Choice.color]
+      fin_cases j <;> simp only [Fin.mk_one, Fin.isValue, Fin.reduceFinMk, Fin.zero_eta]
       · exact (C.left.small i).triangle.a_mem
       · exact (C.left.small i).triangle.b_mem
       · exact (C.left.small i).triangle.c_mem

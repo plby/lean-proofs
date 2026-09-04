@@ -42,7 +42,7 @@ private lemma cappedOrder_le (p a : ℕ) (z : ℤ) : cappedOrder p a z ≤ a := 
 
 private lemma pow_cappedOrder_dvd {p a : ℕ} (hp : p.Prime) (z : ℤ) :
     (p : ℤ) ^ cappedOrder p a z ∣ z := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   simp only [cappedOrder]
   split_ifs with hz
   · subst z
@@ -65,7 +65,7 @@ private lemma cappedOrder_eq_padicValInt_of_lt {p a : ℕ} {z : ℤ}
 private lemma pow_succ_cappedOrder_not_dvd {p a : ℕ} (hp : p.Prime) {z : ℤ}
     (h : cappedOrder p a z < a) :
     ¬ (p : ℤ) ^ (cappedOrder p a z + 1) ∣ z := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   obtain ⟨hz, hv⟩ := cappedOrder_eq_padicValInt_of_lt h
   rw [padicValInt_dvd_iff]
   simp [hz, hv]
@@ -87,7 +87,7 @@ private lemma pow_dvd_of_le_of_pow_dvd (p : ℕ) {r s : ℕ} {z : ℤ}
 private lemma pow_twice_cappedOrder_succ_not_dvd_sq {p a : ℕ} (hp : p.Prime)
     {z : ℤ} (h : cappedOrder p a z < a) :
     ¬ (p : ℤ) ^ (2 * cappedOrder p a z + 1) ∣ z ^ 2 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   obtain ⟨hz, hv⟩ := cappedOrder_eq_padicValInt_of_lt h
   intro hdvd
   have hval : 2 * cappedOrder p a z + 1 ≤ padicValInt p (z ^ 2) :=
@@ -225,7 +225,7 @@ theorem exists_component_root_line {d : ℕ} (c : PrimaryComponent d)
     exact pow_cappedOrder_dvd c.prime B
   have hqcast : (c.q : ℤ) = (c.p : ℤ) ^ c.a := by
     simp only [PrimaryComponent.q, Int.natCast_pow]
-  letI : NeZero c.q := ⟨c.q_ne_zero⟩
+  let : NeZero c.q := ⟨c.q_ne_zero⟩
   by_cases hra : r = c.a
   · have hAq : (c.q : ℤ) ∣ A := by
       rw [hqcast, ← hra]
@@ -297,7 +297,7 @@ theorem exists_component_root_line {d : ℕ} (c : PrimaryComponent d)
       have hc := congrArg (fun z : ℤ ↦ (z : ZMod c.q)) hneg
       push_cast at hc
       simpa only [hLcast] using hc
-    letI : Fact c.p.Prime := ⟨c.prime⟩
+    let : Fact c.p.Prime := ⟨c.prime⟩
     have hvalXY : c.a + r ≤ padicValInt c.p X + padicValInt c.p Y := by
       have hv := (padicValInt_dvd_iff (c.a + r) (X * Y)).mp hXY
       rw [padicValInt.mul hX0 hY0] at hv
@@ -375,7 +375,7 @@ private theorem exists_global_root_of_component_roots {d : ℕ}
     (fun c : PrimaryComponent d ↦ c.q) C.components C.pairwise
   have hz (c : PrimaryComponent d) (hc : c ∈ C.components) :
       c.reduce ((z : ℕ) : ZMod d) = (roots c hc : ZMod c.q) := by
-    letI : NeZero c.q := ⟨c.q_ne_zero⟩
+    let : NeZero c.q := ⟨c.q_ne_zero⟩
     have hmod : (z : ℕ) ≡ residue c [MOD c.q] := z.property c hc
     have hcast : ((z : ℕ) : ZMod c.q) = (residue c : ZMod c.q) :=
       (ZMod.natCast_eq_natCast_iff (z : ℕ) (residue c) c.q).mpr hmod

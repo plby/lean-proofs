@@ -70,15 +70,15 @@ lemma dot_coordDual (x p : Vec3) (l : Plane →L[ℝ] ℝ) :
   rw [planeFunctional_decompose]
   by_cases hx2 : x 2 = 0
   · by_cases hx1 : x 1 = 0
-    · simp [coordDual, coord, hx2, hx1, vec3_dotProduct]
+    · simp only [Fin.isValue]
       change p 1 * l planeBasisZero + p 2 * l planeBasisOne =
         l planeBasisZero * p 1 + l planeBasisOne * p 2
       ring
-    · simp [coordDual, coord, hx2, hx1, vec3_dotProduct]
+    · simp only [Fin.isValue]
       change p 0 * l planeBasisZero + p 2 * l planeBasisOne =
         l planeBasisZero * p 0 + l planeBasisOne * p 2
       ring
-  · simp [coordDual, coord, hx2, vec3_dotProduct]
+  · simp only [Fin.isValue]
     change p 0 * l planeBasisZero + p 1 * l planeBasisOne =
       l planeBasisZero * p 0 + l planeBasisOne * p 1
     ring

@@ -24,7 +24,7 @@ theorem exists_sphereCount_lower_of_primitive {δ : ℝ} (hδ : 0 < δ) :
   have hC : 0 < C := by dsimp [C]; positivity
   refine ⟨C / 16, div_pos hC (by norm_num), ?_⟩
   intro n v hn hv hp
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   have hnR : (0 : ℝ) < n := by exact_mod_cast hn
   have hm' : (Cm * (4 : ℝ) ^ (-(δ / 2))) * (n : ℝ) ^ (-(δ / 2)) ≤
       principalCharacterMean (4 * n) := by

@@ -64,7 +64,7 @@ theorem minimalV3_counterexample_partial_rectification
     simp at hhalf
   obtain ⟨m, hm, π, hπ, hmorder, α, hα⟩ :=
     positiveHalf_short_quotient_interval A k hk hF
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   refine ⟨m, hm, π, hπ, ?_, fourierPositiveHalf A k, ?_, hhalf, α, ?_⟩
   · rw [hmorder]
     omega

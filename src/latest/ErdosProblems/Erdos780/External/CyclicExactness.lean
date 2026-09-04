@@ -23,7 +23,7 @@ the hypothesis `N x = 0` is used.
 theorem D_cyclicPrimitive_of_N_eq_zero [NeZero p]
     {x : FreeCyclic p ι} (hx : N x = 0) : D (cyclicPrimitive x) = x := by
   by_cases hp1 : p = 1
-  · letI : Unique (ZMod p) := hp1 ▸ inferInstance
+  · let : Unique (ZMod p) := hp1 ▸ inferInstance
     have hx0 : x = 0 := by
       funext i a
       have h := congrFun (congrFun hx i) (0 : ZMod p)
@@ -40,7 +40,7 @@ theorem D_cyclicPrimitive_of_N_eq_zero [NeZero p]
     simp [D_apply, cyclicPrimitive]
   · have hp : 1 < p :=
       (Nat.one_lt_iff_ne_zero_and_ne_one).2 ⟨NeZero.ne p, hp1⟩
-    letI : Fact (1 < p) := ⟨hp⟩
+    let : Fact (1 < p) := ⟨hp⟩
     funext i a
     rw [D_apply]
     change (∑ k ∈ Finset.range (a + 1).val, x i (k : ZMod p)) -

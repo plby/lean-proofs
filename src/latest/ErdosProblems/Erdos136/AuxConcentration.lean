@@ -807,8 +807,7 @@ theorem card_paintedNeighbors_of_roleFits {n k : ℕ}
       rcases hfit with ⟨rfl, rfl⟩
       rw [show paintedNeighbors b b.apex b.repeated = {b.left, b.right} by
         ext z
-        simp [paintedNeighbors, TriangleBlock.Paints, b.apex_ne_left,
-          b.apex_ne_right, b.colors_ne]
+        simp only [mem_paintedNeighbors_iff, ne_eq, mem_insert, mem_singleton]
         rintro (rfl | rfl)
         · exact b.apex_ne_left.symm
         · exact b.apex_ne_right.symm]
@@ -817,15 +816,13 @@ theorem card_paintedNeighbors_of_roleFits {n k : ℕ}
       rcases hfit with ⟨rfl, rfl | rfl⟩
       · rw [show paintedNeighbors b b.left b.repeated = {b.apex} by
           ext z
-          simp [paintedNeighbors, TriangleBlock.Paints, b.apex_ne_left.symm,
-            b.left_ne_right, b.colors_ne]
+          simp only [mem_paintedNeighbors_iff, ne_eq, mem_singleton]
           rintro rfl
           exact b.apex_ne_left]
         rfl
       · rw [show paintedNeighbors b b.right b.repeated = {b.apex} by
           ext z
-          simp [paintedNeighbors, TriangleBlock.Paints, b.apex_ne_right.symm,
-            b.left_ne_right.symm, b.colors_ne]
+          simp only [mem_paintedNeighbors_iff, ne_eq, mem_singleton]
           rintro rfl
           exact b.apex_ne_right]
         rfl
@@ -833,15 +830,13 @@ theorem card_paintedNeighbors_of_roleFits {n k : ℕ}
       rcases hfit with ⟨rfl, rfl | rfl⟩
       · rw [show paintedNeighbors b b.left b.singleton = {b.right} by
           ext z
-          simp [paintedNeighbors, TriangleBlock.Paints, b.apex_ne_left.symm,
-            b.left_ne_right, b.colors_ne.symm]
+          simp only [mem_paintedNeighbors_iff, ne_eq, mem_singleton]
           rintro rfl
           exact b.left_ne_right.symm]
         rfl
       · rw [show paintedNeighbors b b.right b.singleton = {b.left} by
           ext z
-          simp [paintedNeighbors, TriangleBlock.Paints, b.apex_ne_right.symm,
-            b.left_ne_right.symm, b.colors_ne.symm]
+          simp only [mem_paintedNeighbors_iff, ne_eq, mem_singleton]
           rintro rfl
           exact b.left_ne_right]
         rfl

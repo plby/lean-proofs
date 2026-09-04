@@ -191,11 +191,11 @@ theorem exists_fintype_baseFiberLetterSubgraphFactorExpansionIso_of_linear
             (baseLetterSubgraph G (baseLetter '' baseFiber S q)).coe)
           ((system G).edgeRestriction (baseFiber S q))))) := by
   classical
-  letI : Finite (baseLetterSubgraph G (baseLetter '' baseFiber S q)).verts :=
+  let : Finite (baseLetterSubgraph G (baseLetter '' baseFiber S q)).verts :=
     Set.finite_coe_iff.mpr <|
       baseLetterSubgraph_finite_verts G <|
         (hS.subset (baseFiber_subset S q)).image baseLetter
-  letI : Fintype (baseLetterSubgraph G (baseLetter '' baseFiber S q)).verts :=
+  let : Fintype (baseLetterSubgraph G (baseLetter '' baseFiber S q)).verts :=
     Fintype.ofFinite _
   apply Exists.intro (inferInstance : Fintype
     (baseLetterSubgraph G (baseLetter '' baseFiber S q)).verts)

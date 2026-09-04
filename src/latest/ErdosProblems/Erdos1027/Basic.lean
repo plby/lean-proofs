@@ -703,14 +703,26 @@ lemma edgeScore_lower_of_live {X A : Finset α} {p : Partial α}
   rcases hlive with hred | hblue
   · have heq : A ∩ p.colored = A ∩ p.blue := by
       ext x
-      simp [Partial.colored]
-      exact fun hxA hxred => False.elim (Finset.disjoint_left.mp hred hxA hxred)
+      simp only [Finset.mem_inter, and_congr_right_iff]
+      intro hxA
+      simp only [Partial.colored, Finset.mem_union]
+      constructor
+      · rintro (hxred | hxblue)
+        · exact (Finset.disjoint_left.mp hred hxA hxred).elim
+        · exact hxblue
+      · exact Or.inr
     rw [heq]
     simp [edgeScore, monoScore, hred]
   · have heq : A ∩ p.colored = A ∩ p.red := by
       ext x
-      simp [Partial.colored]
-      exact fun hxA hxblue => False.elim (Finset.disjoint_left.mp hblue hxA hxblue)
+      simp only [Finset.mem_inter, and_congr_right_iff]
+      intro hxA
+      simp only [Partial.colored, Finset.mem_union]
+      constructor
+      · rintro (hxred | hxblue)
+        · exact hxred
+        · exact (Finset.disjoint_left.mp hblue hxA hxblue).elim
+      · exact Or.inl
     rw [heq]
     simp [edgeScore, monoScore, hblue]
 

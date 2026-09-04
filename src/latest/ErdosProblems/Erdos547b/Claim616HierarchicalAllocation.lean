@@ -195,9 +195,9 @@ theorem exists_threeClassSegmentAllocation
     Nonempty (ThreeClassSegmentAllocation hT P optional S k0 k1 kb
       allowed0 allowed1 allowedb base0 base1 baseb) := by
   classical
-  letI : Nonempty (Fin k0) := ⟨⟨0, hk0⟩⟩
-  letI : Nonempty (Fin k1) := ⟨⟨0, hk1⟩⟩
-  letI : Nonempty (Fin kb) := ⟨⟨0, hkb⟩⟩
+  let : Nonempty (Fin k0) := ⟨⟨0, hk0⟩⟩
+  let : Nonempty (Fin k1) := ⟨⟨0, hk1⟩⟩
+  let : Nonempty (Fin kb) := ⟨⟨0, hkb⟩⟩
   obtain ⟨hdeep0, hdeep1, hdeepb⟩ :=
     threeClass_deep_budgets hT P optional S m0 m1 mb base0 base1 baseb
       hbudget0 hbudget1 hbudgetb

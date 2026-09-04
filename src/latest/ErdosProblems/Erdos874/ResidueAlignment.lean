@@ -372,7 +372,7 @@ theorem exists_boundedCosetWitnesses_of_orderedMixed_capacity
       ∃ W : BoundedCosetWitnesses q F (X ∪ Y)
           (AddSubgroup.zmultiples (g - g₀)),
         W.upper - W.lower ≤ (q : ℤ) * (Z : ℤ) := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let delta : ZMod q := g - g₀
   let o := addOrderOf delta
   let s : ℕ → ℤ := orderedMixedSum X Y F

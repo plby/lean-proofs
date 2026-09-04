@@ -168,7 +168,7 @@ private theorem finite_even_cycle_intervals_of_exact_paths
     exists_bipartite_liu_montgomery_expander G hdegree_pos
       (k := (1 / 64) * (degreeScale : ℝ)) (by positivity) haverage'
   let K : SimpleGraph (↑S : Set W) := H.induce (↑S : Set W)
-  letI : Nonempty (↑S : Set W) :=
+  let : Nonempty (↑S : Set W) :=
     ⟨⟨hSnonempty.choose, hSnonempty.choose_spec⟩⟩
   let partition : Bipartition K :=
     Bipartition.ofIsBipartite

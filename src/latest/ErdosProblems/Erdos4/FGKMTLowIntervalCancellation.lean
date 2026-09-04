@@ -64,7 +64,7 @@ theorem low_product_interval_sum_le (M : ℕ) (hinj : Function.Injective (Sum.el
         2 * (modulus ell₀ : ℝ) * excisedPrimeSum x N B := by
   let c := entry (Sum.elim ell₀ ell₁) χ.val
   have hcpos : 0 < c.1 := (family_valid (Sum.elim ell₀ ell₁) χ).1
-  letI : NeZero c.1 := ⟨hcpos.ne'⟩
+  let : NeZero c.1 := ⟨hcpos.ne'⟩
   have hcne : c.2 ≠ 1 := productEntry_nonprincipal (Sum.elim ell₀ ell₁) hinj χ.val
     ((mem_smallCharacters (Sum.elim ell₀ ell₁) M χ.val).mp χ.property).1
   have hcle : c.1 ≤ modulus ell₀ := low_primitive_conductor_le ell₀ ell₁ χ.val

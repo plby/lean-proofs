@@ -115,8 +115,10 @@ lemma matchingFamily_card_lower_bound (H : SimpleGraph ι) [DecidableRel H.Adj]
     intro e he;
     obtain ⟨a, b, hab⟩ : ∃ a b, e = s(a, b) ∧ H.Adj a b := by
       rcases e with ⟨ a, b ⟩ ; aesop;
-    have := maximal_matchingFamily_covers hM.1 hM.2 hab.2; simp_all +decide [ SimpleGraph.incidenceSet ] ;
-    exact this.elim ( fun h => ⟨ a, h, Or.inl rfl ⟩ ) fun h => ⟨ b, h, Or.inr rfl ⟩;
+    have := maximal_matchingFamily_covers hM.1 hM.2 hab.2; simp_all +decide only [mem_biUnion, mem_incidenceFinset] ;
+    exact this.elim
+      (fun h => ⟨a, h, H.mk'_mem_incidenceSet_left_iff.mpr hab.2⟩)
+      (fun h => ⟨b, h, H.mk'_mem_incidenceSet_right_iff.mpr hab.2⟩);
   refine' le_trans ( Finset.card_le_card h_incident ) _;
   refine' le_trans ( Finset.card_biUnion_le ) _;
   refine' le_trans ( Finset.sum_le_sum fun v hv => show # ( H.incidenceFinset v ) ≤ Δ from _ ) _;
@@ -150,7 +152,8 @@ theorem exists_matching_family (H : SimpleGraph ι) [DecidableRel H.Adj]
       exact ⟨ _, Subtype.val_injective.comp h_equiv.some.injective, fun k => h_equiv.some k |>.2 ⟩;
     exact ⟨ fun k => ( f k ).1, fun k => ( f k ).2, fun k => hM₁.1 _ ( hf.2 k ), fun k₁ k₂ h => hf.1 <| by have := hM₁.2 _ ( hf.2 k₁ ) _ ( hf.2 k₂ ) h; aesop ⟩;
   refine' ⟨ cL, cR, hκ₂, hc.1, _ ⟩;
-  intro x y; cases x <;> cases y <;> simp +decide ;
+  intro x y; cases x <;> cases y <;> simp +decide only [Sum.elim_inl, Sum.elim_inr, reduceCtorEq, imp_false, Sum.inl.injEq,
+    Sum.inr.injEq] ;
   · exact fun h => hc.2 _ _ ( Or.inl h );
   · intro h; have := hc.1 ‹_›; have := hc.1 ‹_›; simp_all +decide ;
     have := hc.2 _ _ ( Or.inr <| Or.inl h ) ; simp_all +decide ;
@@ -199,7 +202,26 @@ theorem exists_regular_matching_at_head (R : SimpleGraph ι) [DecidableRel R.Adj
   generalize_proofs at *;
   obtain ⟨κ, x, x_1, cL, cR, ht, hadj, hinj⟩ := this
   use κ, x, x_1, cL, cR
-  simp_all +decide [ headCommonSubgraph ];
-  refine' ⟨ ⟨ hXY.ne, fun a => ⟨ _, _ ⟩ ⟩, fun a => ⟨ _, _ ⟩ ⟩ <;> intro h <;> have := hadj a <;> simp_all +decide [ SimpleGraph.adj_comm ]
+  simp_all +decide only [Sum.elim_injective, Bool.injective_iff, cond_false, cond_true, ne_eq, Bool.forall_bool,
+    Sum.forall, Sum.elim_inl, Sum.elim_inr];
+  constructor
+  · trivial
+  constructor
+  · intro k
+    exact (hadj k).1
+  constructor
+  · intro k
+    exact ⟨(hadj k).2.1.1, (hadj k).2.1.2, (hadj k).2.2.1, (hadj k).2.2.2⟩
+  constructor
+  · trivial
+  constructor
+  · constructor
+    · trivial
+    constructor
+    · exact hXY.ne
+    · intro k
+      exact ⟨(hadj k).2.2.1.ne, (hadj k).2.2.2.ne⟩
+  · intro k
+    exact ⟨fun _ => trivial, (hadj k).2.1.1.ne, (hadj k).2.1.2.ne⟩
 
 end Erdos550

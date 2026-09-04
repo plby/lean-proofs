@@ -152,7 +152,7 @@ theorem IsCCWNext.no_hullVertex_openCCWSector
 
 theorem cyclicSucc_val {n : ℕ} (i : Fin n) :
     (cyclicSucc i).val = (i.val + 1) % n := by
-  letI : NeZero n := i.neZero
+  let : NeZero n := i.neZero
   change (finRotate n i).val = _
   rw [finRotate_apply, Fin.val_add, Fin.val_one']
   nth_rw 1 [← Nat.mod_eq_of_lt i.isLt]

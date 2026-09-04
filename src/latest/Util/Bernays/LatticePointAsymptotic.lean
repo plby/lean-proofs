@@ -46,7 +46,7 @@ theorem latticeCosetBall_error (L : Submodule ℤ ℂ) [DiscreteTopology L] [IsZ
   refine ⟨K, hK, ?_⟩
   intro a R hR
   let S := (finite_latticeCosetBall L a R).toFinset
-  letI : Countable L.toAddSubgroup := inferInstanceAs (Countable L)
+  let : Countable L.toAddSubgroup := inferInstanceAs (Countable L)
   have hS (l : L) : l ∈ S ↔ ‖a + (l : ℂ)‖ ≤ R := Set.Finite.mem_toFinset _
   have herr := complex_fundamental_cell_error L.toAddSubgroup hF hBpos hB hR a S hS
   have hcard : (S.card : ℝ) = Nat.card (latticeCosetBall L a R) := by

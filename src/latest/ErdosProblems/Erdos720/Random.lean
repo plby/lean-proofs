@@ -276,7 +276,7 @@ lemma randomEdgeCount_lintegral_eq (N : ℕ) (p : I) :
 lemma randomEdgeCount_eq_card_edgeSet (N : ℕ) (ω : Set (Sym2 (Fin N))) :
     randomEdgeCount N ω = Nat.card (SimpleGraph.fromEdgeSet ω).edgeSet := by
   classical
-  letI := Fintype.ofFinite (SimpleGraph.fromEdgeSet ω).edgeSet
+  let := Fintype.ofFinite (SimpleGraph.fromEdgeSet ω).edgeSet
   have hcard : Nat.card (SimpleGraph.fromEdgeSet ω).edgeSet =
       (SimpleGraph.fromEdgeSet ω).edgeFinset.card := by
     rw [Nat.card_eq_fintype_card, SimpleGraph.card_edgeSet]

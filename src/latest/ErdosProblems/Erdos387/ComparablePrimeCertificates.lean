@@ -39,7 +39,7 @@ theorem primePairFactor_pairwise {k : ℕ} (i j : Fin k) {q r : ℕ}
     Nat.Coprime (primePairFactor i j q r a)
       (primePairFactor i j q r b) := by
   unfold primePairFactor
-  split_ifs <;> simp_all
+  split_ifs <;> simp_all only [mul_one, one_mul]
   · exact hqr
   · exact hqr.symm
 

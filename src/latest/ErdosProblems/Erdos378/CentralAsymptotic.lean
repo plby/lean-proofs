@@ -201,7 +201,7 @@ theorem tendsto_adaptiveMomentEnvelope_zero :
     convert hinv.const_mul (1 / 256 : ℝ) using 1
     · funext M
       field_simp
-    · ring
+    · ring_nf
   have hthird : Tendsto (fun M : ℕ ↦
       terminalSafetyConstant * logarithmicSafety M ^ 64 /
         (32 * (baseShift M : ℝ))) atTop (nhds 0) := by
@@ -209,7 +209,7 @@ theorem tendsto_adaptiveMomentEnvelope_zero :
       (terminalSafetyConstant / 32) using 1
     · funext M
       ring
-    · ring
+    · ring_nf
   unfold adaptiveMomentEnvelope
   simpa only [zero_add, mul_zero] using
     (hfirst.add hsecond |>.add hthird).const_mul

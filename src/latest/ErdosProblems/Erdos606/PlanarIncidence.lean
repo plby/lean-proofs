@@ -1611,7 +1611,7 @@ theorem planar_incidence_bound
   | h n ih =>
       by_cases hS : S = ∅
       · subst S
-        simp at hn
+        simp only [Nat.cast_mul] at hn
         subst n
         simp [incidenceCount, pointsOnLine]
         positivity
@@ -1639,7 +1639,7 @@ theorem planar_incidence_bound
               incidenceLinearConstant * (B sign).card := by
         by_cases hB : B sign = ∅
         · rw [hB]
-          simp [incidenceCount]
+          simp only [card_empty, mul_zero, CharP.cast_eq_zero, add_zero]
           positivity
         · have hBne : (B sign).Nonempty := Finset.nonempty_iff_ne_empty.mpr hB
           obtain ⟨l, hlB⟩ := hBne

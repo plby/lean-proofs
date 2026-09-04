@@ -35,7 +35,7 @@ theorem exists_squareBadPrimePacket {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
         (∀ s ∈ P, classSquareElement (s.idealClass hD) ∉ H) ∧
           R < ∑ s ∈ P, (s.1 : ℝ)⁻¹ := by
   classical
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro H hH R
   let K := H.comap classSquareMonoidHom
   have hnot := not_summable_badSplitPrimeWeight hD K (squarePreimage_ne_top H hH)

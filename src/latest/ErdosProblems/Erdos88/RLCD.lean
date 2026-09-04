@@ -1330,7 +1330,7 @@ theorem KSSS_lemma_4_12 (H γ L : ℝ) (hH : 0 < H) (hγ : 0 < γ)
               (Real.rpow_add hn0 (1 : ℝ) (-(1 : ℝ) / 2 + 2 * γ)).symm
           _ = 2 * H * (n : ℝ) ^ ((1 : ℝ) / 2 + 2 * γ) := by
             congr 1
-            ring
+            ring_nf
       _ ≤ (n : ℝ) ^ ((1 : ℝ) / 2 + 2 * γ) * (n : ℝ) ^ (2 * γ) := hcore.le
       _ = (n : ℝ) ^ ((1 : ℝ) / 2 + 4 * γ) := by
         rw [← Real.rpow_add hn0]

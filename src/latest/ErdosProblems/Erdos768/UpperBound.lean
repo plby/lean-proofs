@@ -189,7 +189,7 @@ theorem ordinary_rate_exp (C ζ : ℝ) (hC : 0 < C) (hζ : 0 < ζ) :
     intro x hx
     simp [] at *;
     exact ⟨ h_log_x_ge_3.choose_spec x hx.1.1, hx₁ x hx.1.2.1, hx₂ x hx.1.2.2, hx₃ x hx.2 ⟩;
-  obtain ⟨ x₀, hx₀ ⟩ := h_eventually; refine Filter.eventually_atTop.mpr ⟨ x₀, fun x hx t ht₁ ht₂ ↦ ?_ ⟩ ; specialize hx₀ x hx; simp_all +decide [ Sscale ] ;
+  obtain ⟨ x₀, hx₀ ⟩ := h_eventually; refine Filter.eventually_atTop.mpr ⟨ x₀, fun x hx t ht₁ ht₂ ↦ ?_ ⟩ ; specialize hx₀ x hx; simp_all +decide only [neg_mul, neg_sub, neg_add_le_iff_le_add] ;
   have h_mono : -t * Real.log (t / (Real.log (1 + Real.log x) * Real.sqrt (Real.log x))) + t ≤ C * Real.sqrt (Real.log x) * (Real.log (Real.log (1 + Real.log x)) - Real.log C + 1) := by
     have := @neg_t_log_div_mono ( Real.log ( 1 + Real.log x ) * Real.sqrt ( Real.log x ) ) ( C * Real.sqrt ( Real.log x ) ) t ?_ ?_ ?_ <;> try nlinarith [ Real.sqrt_nonneg ( Real.log x ), Real.mul_self_sqrt ( show 0 ≤ Real.log x by linarith ) ];
     convert! this using 1 ; rw [ Real.log_div ( by nlinarith [ Real.sqrt_pos.mpr ( show 0 < Real.log x by linarith ) ] ) ( by nlinarith [ Real.sqrt_pos.mpr ( show 0 < Real.log x by linarith ) ] ) ] ; ring_nf;
@@ -309,12 +309,12 @@ theorem comp_fiber (C δ η : ℝ) (_hC : 0 < C) (hδ : 0 < δ) (_hδC : δ ≤ 
           grind;
         have := Real.log_le_log ( by exact mul_pos ( by linarith ) ( Real.exp_pos _ ) ) h_log_n; rw [ Real.log_mul ( by linarith ) ( by positivity ), Real.log_exp ] at this; linarith;
       have h_log_n_div_rad : Real.log (n / rad n) ≤ 4 * Sscale x := by
-        simp +zetaDelta at *;
+        simp +zetaDelta only [Nat.cast_prod, id_eq] at *;
         exact Real.log_le_iff_le_exp ( div_pos ( Nat.cast_pos.mpr hn.1.1 ) ( Finset.prod_pos fun p hp => Nat.cast_pos.mpr ( Nat.pos_of_mem_primeFactors hp ) ) ) |>.2 hn.2.2.2.2;
       linarith [ hX₀.2 x hx ]
     have h_log_Q : Real.log (Q n) ≥ ((1 - η) ^ 2 * Real.log x * Real.log t) / (2 * t * Real.log 2) := by
       have h_log_Q : Real.log (Q n) ≥ (1 - η) / (2 * Real.log 2) * Real.log (rad n) * Real.log t / t := by
-        simp +zetaDelta at *;
+        simp +zetaDelta only [Nat.cast_prod, id_eq, ge_iff_le] at *;
         convert! hT n hn.2.1 _ using 1;
         · rw [ hn.2.2.1 ];
         · exact hn.2.2.1.symm ▸ Nat.cast_le.mp ( le_trans ( hX₀.2 x hx |>.2.1.1 ) ht₁ );
@@ -334,7 +334,7 @@ theorem comp_fiber (C δ η : ℝ) (_hC : 0 < C) (hδ : 0 < δ) (_hδC : δ ≤ 
     have h_m_ge : (t : ℝ) - Ht t ≤ omegaCount (n / Q n) := by
       have h_m_ge : omegaCount n ≤ omegaCount (Q n) + omegaCount (n / Q n) := by
         have h_m_ge : n.primeFactors ⊆ (Q n).primeFactors ∪ (n / Q n).primeFactors := by
-          intro p hp; by_cases h : p ∣ Q n <;> simp_all +decide ;
+          intro p hp; by_cases h : p ∣ Q n <;> simp_all +decide only [mem_union, Nat.mem_primeFactors, ne_eq, Nat.div_eq_zero_iff, not_or, not_lt] ;
           · exact Or.inl <| Nat.ne_of_gt <| Nat.pos_of_ne_zero <| by specialize hsq n; aesop;
           · refine' ⟨ Nat.dvd_div_of_mul_dvd _, _, _ ⟩;
             · exact Nat.Coprime.mul_dvd_of_dvd_of_dvd ( Nat.Coprime.symm <| hp.1.coprime_iff_not_dvd.mpr h ) ( hdvd n hn.2.1 <| by
@@ -347,7 +347,7 @@ theorem comp_fiber (C δ η : ℝ) (_hC : 0 < C) (hδ : 0 < δ) (_hδC : δ ≤ 
       norm_cast at *;
       linarith [ hom n hn.2.1 ( by linarith [ show 2 ≤ omegaCount n from by linarith [ show 3 ≤ omegaCount n from by linarith [ show 3 ≤ t from by exact_mod_cast ( by nlinarith [ hX₀.2 x hx ] : ( 3 : ℝ ) ≤ t ) ] ] ] ) |> le_trans <| show Ht ( omegaCount n ) ≤ Ht t from by aesop ]
     exact (by
-    simp +zetaDelta at *;
+    simp +zetaDelta only [tsub_le_iff_right, mem_filter, mem_Icc] at *;
     exact ⟨ ⟨ Nat.div_pos ( Nat.le_of_dvd hn.1.1 ( hdvd n hn.2.1 ( by linarith [ show 2 ≤ omegaCount n from by linarith [ show 2 ≤ t from by exact_mod_cast ( by nlinarith [ hX₀.2 x hx ] : ( 2 :ℝ ) ≤ t ) ] ] ) ) ) ( Nat.pos_of_ne_zero ( by specialize hsq n; aesop ) ), h_m_le ⟩, h_m_ge ⟩);
   have h_card_F : (Finset.filter (fun n => SylowDivisor n ∧ omegaCount n = t ∧ ¬((n : ℝ) ≤ x * Real.exp (-4 * Sscale x)) ∧ ¬(Real.exp (4 * Sscale x) < (n : ℝ) / (rad n : ℝ))) (Finset.Icc 1 ⌊x⌋₊)).card ≤ ∑ m ∈ Finset.filter (fun m => (t : ℝ) - Ht t ≤ omegaCount m) (Finset.Icc 1 ⌊x * Real.exp (-((1 - η) ^ 2 * Real.log x * Real.log t / (2 * t * Real.log 2)))⌋₊), (Finset.filter (fun n => n ∈ Acal ∧ omegaCount n = t ∧ n / Q n = m) (Finset.Icc 1 ⌊x⌋₊)).card := by
     rw [ ← Finset.card_biUnion ];
@@ -1030,7 +1030,7 @@ theorem one_prime_fiber (x : ℝ) (hx : 1 ≤ x) (m : ℕ) :
         exact Nat.Coprime.symm ( hp_prime.coprime_iff_not_dvd.mpr fun h => by have := Nat.mod_eq_zero_of_dvd h; aesop );
       use D, by
         exact Nat.mem_divisors.mpr ⟨ hD_div_m, by aesop_cat ⟩, p, by
-        simp_all +decide [ Nat.Prime.dvd_iff_not_coprime ];
+        simp_all +decide only [Nat.mem_primeFactors, ne_eq];
         exact ⟨ by rw [ ← Nat.mod_add_div D p, hD_mod ] ; norm_num [ hp_prime.ne_one ], Nat.sub_ne_zero_of_lt hD_gt1 ⟩;
     have hF_card : F ⊆ Finset.image (fun p => p * m) (Finset.biUnion (Nat.divisors m) (fun D => Nat.primeFactors (D - 1))) := by
       intro n hn; obtain ⟨ D, hD₁, p, hp₁, rfl ⟩ := hF_card n hn; exact Finset.mem_image.mpr ⟨ p, Finset.mem_biUnion.mpr ⟨ D, hD₁, hp₁ ⟩, rfl ⟩ ;
@@ -1039,7 +1039,7 @@ theorem one_prime_fiber (x : ℝ) (hx : 1 ≤ x) (m : ℕ) :
   have h_bound : ∀ D ∈ Nat.divisors m, (Nat.primeFactors (D - 1)).card ≤ 1 + Real.logb 2 x := by
     intro D hD
     have hD_le_x : D - 1 ≤ x := by
-      by_cases hm : m = 0 <;> simp_all +decide [ Nat.dvd_iff_mod_eq_zero ];
+      by_cases hm : m = 0 <;> simp_all +decide only [tsub_le_iff_right];
       by_cases hF_empty : F = ∅ <;> simp_all +decide [ Finset.ext_iff ];
       · exact False.elim <| absurd ‹ ( tauCount m : ℝ ) * ( 1 + Real.logb 2 x ) < 0 › <| not_lt_of_ge <| mul_nonneg ( Nat.cast_nonneg _ ) <| add_nonneg zero_le_one <| Real.logb_nonneg ( by norm_num ) <| by linarith;
       · obtain ⟨ n, hn ⟩ := hF_empty; simp_all +decide [ F ] ;
@@ -1072,7 +1072,7 @@ theorem small_t_bound (t : ℕ) (ht2 : 2 ≤ t) :
           intro n hn
           obtain ⟨p, hp_prime, hp_div⟩ : ∃ p : ℕ, p.Prime ∧ p ∈ n.primeFactors ∧ ∀ q ∈ n.primeFactors, q ≤ p := by
             have h_prime_factors : n.primeFactors.Nonempty := by
-              simp +zetaDelta at *;
+              simp +zetaDelta only [Nat.nonempty_primeFactors] at *;
               contrapose! hn; interval_cases n <;> simp_all +decide ;
               unfold omegaCount; aesop;
             exact ⟨ Finset.max' _ h_prime_factors, Nat.prime_of_mem_primeFactors <| Finset.max'_mem _ h_prime_factors, Finset.max'_mem _ h_prime_factors, fun q hq => Finset.le_max' _ _ hq ⟩;
@@ -1088,7 +1088,7 @@ theorem small_t_bound (t : ℕ) (ht2 : 2 ≤ t) :
             refine le_trans ?_ hp_ge;
             gcongr;
             have h_rad_ge : (rad n : ℝ) ≥ n * Real.exp (-4 * Sscale x) := by
-              simp +zetaDelta at *;
+              simp +zetaDelta only [Nat.cast_prod, id_eq, neg_mul, ge_iff_le] at *;
               rw [ div_le_iff₀ ( Finset.prod_pos fun q hq => Nat.cast_pos.mpr <| Nat.pos_of_mem_primeFactors hq ) ] at hn ; rw [ Real.exp_neg ] at * ; nlinarith [ Real.exp_pos ( 4 * Sscale x ), mul_inv_cancel₀ ( ne_of_gt <| Real.exp_pos ( 4 * Sscale x ) ) ];
             refine le_trans ?_ h_rad_ge;
             refine' le_trans _ ( mul_le_mul_of_nonneg_right ( show ( n : ℝ ) ≥ x * Real.exp ( -4 * Sscale x ) from _ ) ( Real.exp_nonneg _ ) );
@@ -1107,7 +1107,7 @@ theorem small_t_bound (t : ℕ) (ht2 : 2 ≤ t) :
         -- By `Finset.card_le_sum_card_fiberwise`, we can bound the cardinality of the set by the sum of the cardinalities of the fibers.
         have h_card_le_sum : (Finset.filter (fun n => SylowDivisor n ∧ omegaCount n = t ∧ ¬(n ≤ x * Real.exp (-4 * Sscale x)) ∧ ¬(Real.exp (4 * Sscale x) < (n : ℝ) / (rad n : ℝ))) (Finset.Icc 1 ⌊x⌋₊)).card ≤ ∑ mm ∈ Finset.Icc 1 ⌊x * Real.exp (-(Real.log x - 8 * Sscale x) / t)⌋₊, (Finset.filter (fun n => SylowDivisor n ∧ ∃ p : ℕ, p.Prime ∧ n = p * mm ∧ ∀ q ∈ n.primeFactors, q ≤ p) (Finset.Icc 1 ⌊x⌋₊)).card := by
           have h_card_le_sum : Finset.filter (fun n => SylowDivisor n ∧ omegaCount n = t ∧ ¬(n ≤ x * Real.exp (-4 * Sscale x)) ∧ ¬(Real.exp (4 * Sscale x) < (n : ℝ) / (rad n : ℝ))) (Finset.Icc 1 ⌊x⌋₊) ⊆ Finset.biUnion (Finset.Icc 1 ⌊x * Real.exp (-(Real.log x - 8 * Sscale x) / t)⌋₊) (fun mm => Finset.filter (fun n => SylowDivisor n ∧ ∃ p : ℕ, p.Prime ∧ n = p * mm ∧ ∀ q ∈ n.primeFactors, q ≤ p) (Finset.Icc 1 ⌊x⌋₊)) := by
-            intro n hn; specialize h_fiber n hn; simp_all +decide ;
+            intro n hn; specialize h_fiber n hn; simp_all +decide only [neg_sub, Nat.mem_primeFactors, ne_eq, and_imp, mem_biUnion, mem_Icc, mem_filter] ;
             rcases h_fiber with ⟨ p, hp, a, rfl, ha, h ⟩ ; exact ⟨ a, ⟨ Nat.pos_of_ne_zero ( by aesop_cat ), ha ⟩, p, hp, rfl, h ⟩ ;
           exact le_trans ( Finset.card_le_card h_card_le_sum ) ( Finset.card_biUnion_le );
         refine' le_trans ( Nat.cast_le.mpr h_card_le_sum ) _;
@@ -1124,7 +1124,8 @@ theorem small_t_bound (t : ℕ) (ht2 : 2 ≤ t) :
                 intro X hX;
                 convert! dk_sum_le X hX 2 ( by norm_num ) using 1;
                 · refine' Finset.sum_congr rfl fun n hn => _;
-                  refine' congr_arg _ ( Finset.card_bij ( fun x hx => fun i => if i = 0 then x else n / x ) _ _ _ ) <;> simp +decide;
+                  refine' congr_arg _ ( Finset.card_bij ( fun x hx => fun i => if i = 0 then x else n / x ) _ _ _ ) <;> simp +decide only [Fin.prod_univ_two, Fin.isValue, mem_filter, Fintype.mem_piFinset,
+    Nat.mem_divisors, ne_eq, Fin.forall_fin_two, exists_prop, and_imp, ↓reduceIte, one_ne_zero];
                   · exact fun a ha hn => ⟨ ⟨ ⟨ ha, hn ⟩, Nat.div_dvd_of_dvd ha, hn ⟩, Nat.mul_div_cancel' ha ⟩;
                   · intro a₁ ha₁ hn a₂ ha₂ hn' h; have := congr_fun h 0; have := congr_fun h 1; aesop;
                   · intro b hb₁ hb₂ hb₃ hb₄ hb₅; use b 0; simp_all +decide [ funext_iff, Fin.forall_fin_two ] ;
@@ -1309,7 +1310,7 @@ theorem low_fiber (η δ : ℝ) (hη : 0 < η) (hη4 : η < 1 / 4) (_hδ : 0 < �
     have h_card_le_sum : (NregT x t : ℝ) ≤ ∑ m ∈ Finset.Icc 1 ⌊x * Real.exp (-((1 - η) ^ 2 * Real.log x * Real.log t / (2 * t * Real.log 2)))⌋₊, (Finset.filter (fun n => SylowDivisor n ∧ omegaCount n = t ∧ n / Q n = m) (Finset.Icc 1 ⌊x⌋₊)).card := by
       refine' mod_cast le_trans _ ( Finset.card_biUnion_le );
       refine Finset.card_mono ?_;
-      intro n hn; simp_all +decide ;
+      intro n hn; simp_all +decide only [Nat.cast_mul, Nat.cast_ofNat, mem_biUnion, mem_Icc, mem_filter, ↓existsAndEq, and_true] ;
       refine' Nat.div_pos _ ( Nat.pos_of_dvd_of_pos ( hdvd n hn.2.1 ( by linarith ) ) hn.1.1 );
       exact Nat.le_of_dvd hn.1.1 ( hdvd n hn.2.1 ( by linarith ) );
     refine le_trans h_card_le_sum ?_;

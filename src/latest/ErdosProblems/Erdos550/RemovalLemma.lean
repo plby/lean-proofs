@@ -93,7 +93,7 @@ lemma exists_common_nbhd {V : Type} [Fintype V] [DecidableEq V] (Gr : SimpleGrap
             have := @regular_defect V _ _ Gr _ ( 2 * ε / ( d / 2 ) ^ t' ) ( d - ε ) ?_ L ( A' i ) ?_ ?_ <;> norm_num at *;
             · refine le_trans ?_ this;
               refine' Nat.cast_le.mpr ( Finset.card_mono _ );
-              intro v hv; simp_all +decide [ Finset.subset_iff ] ;
+              intro v hv; simp_all +decide only [mem_filter] ;
               refine lt_of_lt_of_le hv.2 ?_;
               refine' mul_le_mul_of_nonneg_right _ ( Nat.cast_nonneg _ );
               rw [ le_sub_iff_add_le, le_sub_iff_add_le ];
@@ -124,7 +124,7 @@ lemma exists_common_nbhd {V : Type} [Fintype V] [DecidableEq V] (Gr : SimpleGrap
           rw [ lt_tsub_iff_left ] at * ; norm_cast at *;
           exact_mod_cast ( by linarith : ( #S' : ℝ ) + # ( Finset.filter ( fun v => ∃ i, ( # ( Finset.filter ( fun w => Gr.Adj v w ) ( A' i ) ) : ℝ ) < d / 2 * # ( A' i ) ) ( L \ S' ) ) < #L );
         contrapose! hA'_good;
-        rw [ Finset.filter_true_of_mem hA'_good ] ; simp +decide [ Finset.card_sdiff, * ];
+        rw [ Finset.filter_true_of_mem hA'_good ] ; simp +decide only [tsub_le_iff_right];
         rw [ Finset.inter_eq_left.mpr hS'.1, hS'.2.1, Nat.sub_add_cancel ( by linarith ) ]
       obtain ⟨v, hvL, hvA'⟩ := hA'_good
       use insert v S';
@@ -132,7 +132,7 @@ lemma exists_common_nbhd {V : Type} [Fintype V] [DecidableEq V] (Gr : SimpleGrap
       · exact Finset.insert_subset_iff.mpr ⟨ Finset.mem_sdiff.mp hvL |>.1, hS'.1 ⟩;
       · grind;
       · use fun i => Finset.filter (fun w => Gr.Adj v w) (A' i);
-        simp_all +decide [ Finset.subset_iff ];
+        simp_all +decide only [mem_filter, mem_insert, forall_eq_or_imp, and_imp];
         exact ⟨ fun i => by rw [ pow_succ' ] ; nlinarith [ hA'_card i, hvA' i ], fun i w hw hw' a ha => hA'_adj i w hw a ha ⟩;
   exact h_ind t le_rfl
 
@@ -197,7 +197,7 @@ lemma embed_cross_complete (k t : ℕ) (d : ℝ) (hd : 0 < d) (hd1 : d ≤ 1) :
     linarith [ abs_le.mp this.1, hdens ( Fin.castSucc i ) ( Fin.castSucc j ) ( by simpa [ Fin.ext_iff ] using! hij ) ]);
     refine' ⟨ Fin.snoc S' S₀, _, _, _, _ ⟩;
     · intro i; refine' Fin.lastCases _ _ i <;> simp +decide [ * ] ;
-    · intro i; refine' Fin.lastCases _ _ i <;> simp +decide [ * ] ;
+    · intro i; refine' Fin.lastCases _ _ i <;> simp +decide only [Fin.snoc_castSucc] ;
       exact fun i => Finset.Subset.trans ( hS'.2.1 i ) ( hA'.1 i );
     · intro i j hij;
       by_cases hi : i.val < k <;> by_cases hj : j.val < k <;> simp +decide [ Fin.snoc, hi, hj ] at hij ⊢;
@@ -285,7 +285,9 @@ lemma unreduced_edges_subset_gen {V : Type} [Fintype V] [DecidableEq V]
       ⊆ ((P.nonUniforms J su).biUnion (fun UV => UV.1 ×ˢ UV.2))
           ∪ P.parts.biUnion offDiag
           ∪ ((P.sparsePairs J δ).biUnion (fun UV => J.interedges UV.1 UV.2)) := by
-  intro x; simp +decide [  ] ;
+  intro x; simp +decide only [regularityReduced_adj, ne_eq, not_and, not_exists, not_le, univ_product_univ, mem_filter,
+    mem_univ, true_and, union_assoc, mem_union, mem_biUnion, mem_product, Prod.exists, Finpartition.mk_mem_nonUniforms,
+    mem_offDiag, Finpartition.mk_mem_sparsePairs, and_imp] ;
   intro h₁ h₂; rcases P.exists_mem ( Finset.mem_univ x.1 ) with ⟨ a, ha, ha' ⟩ ; rcases P.exists_mem ( Finset.mem_univ x.2 ) with ⟨ b, hb, hb' ⟩ ; by_cases hab : a = b <;> simp_all +decide [ SimpleGraph.interedges ] ;
   · exact Or.inr <| Or.inl ⟨ b, hb, ha', hb', h₁.ne ⟩;
   · grind +suggestions
@@ -317,7 +319,8 @@ lemma reduced_edge_bound {V : Type} [Fintype V] [DecidableEq V]
   convert! congr_arg ( ( ↑ ) : ℕ → ℝ ) ( SimpleGraph.two_mul_card_edgeFinset ( J ⊓ ( ( regularityReduced P J su δ ) ᶜ ) ) ) using 1;
   · congr with x ; simp +decide [  ];
     cases x ; aesop;
-  · congr with x ; simp +decide [  ];
+  · congr with x ; simp +decide only [regularityReduced_adj, ne_eq, not_and, not_exists, not_le, inf_adj, compl_adj,
+    and_congr_right_iff, iff_and_self];
     exact fun h1 h2 => h1.ne
 
 /-
@@ -359,7 +362,7 @@ theorem clique_removal {W : Type} [Fintype W] (F : SimpleGraph W)
   · have h_parts : ∀ X ∈ P.parts, m₀ ≤ X.card := by
       intro X hX;
       have := hP₁.average_le_card_part hX;
-      simp +zetaDelta at *;
+      simp +zetaDelta only [ge_iff_le] at *;
       exact le_trans ( Nat.le_div_iff_mul_le ( Finset.card_pos.mpr ⟨ _, hX ⟩ ) |>.2 <| by nlinarith ) this;
     have h_clique_free : (J.regularityReduced P (Min.min su (ε / 13)) (Min.min (1 / 2) (ε / 13))).CliqueFree (q + 1) := by
       refine' SimpleGraph.CliqueFree.anti _ ( hm₀ J P hF h_parts );
@@ -367,7 +370,7 @@ theorem clique_removal {W : Type} [Fintype W] (F : SimpleGraph W)
       exact min_le_left _ _;
     have h_delete_edges : J.deleteEdges (J.edgeFinset \ (J.regularityReduced P (Min.min su (ε / 13)) (Min.min (1 / 2) (ε / 13))).edgeFinset) = J.regularityReduced P (Min.min su (ε / 13)) (Min.min (1 / 2) (ε / 13)) := by
       ext v w; simp [SimpleGraph.deleteEdges];
-    simp_all +decide [  ];
+    simp_all +decide only [coe_sdiff, coe_edgeFinset, one_div, not_nonempty_iff];
     convert! h_clique_free using 1;
     constructor;
     · intro h t ht; exact h_clique_free t ht;

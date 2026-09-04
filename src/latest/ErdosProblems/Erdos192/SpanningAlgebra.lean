@@ -88,7 +88,9 @@ theorem map_sum_eq_weighted_count (l : List (Fin 4)) (f : Fin 4 → ℕ) :
     (l.map f).sum = f 0 * l.count 0 + f 1 * l.count 1 + f 2 * l.count 2 + f 3 * l.count 3 := by
   induction' l with x xs ih;
   · rfl;
-  · fin_cases x <;> simp +decide [ List.count ] <;> linarith!
+  · fin_cases x <;> simp +decide only [Fin.mk_one, Fin.isValue, List.map_cons, List.sum_cons, ne_eq, one_ne_zero,
+    not_false_eq_true, List.count_cons_of_ne, List.count_cons_self, Fin.reduceEq, Fin.reduceFinMk,
+    Fin.zero_eta, zero_ne_one] <;> linarith!
 
 /-! ### Main bridge -/
 
@@ -173,8 +175,9 @@ theorem inner_count_bridge (w : List (Fin 4)) (r L : ℕ) (c : Fin 4)
     unfold boundaryDelta;
     unfold sliceParikhCount;
     unfold cumParikhCount;
-    split_ifs <;> simp_all +decide [ List.take_of_length_le ];
-    · rw [ show ( 2 * ( ( r + L ) % 85 ) + 85000 - r ) % 85 = 0 from ?_ ] ; norm_num ; ring;
+    split_ifs <;> simp_all +decide only [List.get_eq_getElem, Nat.reduceMul, List.take_zero, List.nodup_nil,
+    List.count_nil, CharP.cast_eq_zero, sub_zero, List.drop_one, add_zero];
+    · rw [ show ( 2 * ( ( r + L ) % 85 ) + 85000 - r ) % 85 = 0 from ?_ ] ; norm_num ; ring_nf;
       · rw [ show List.take 85 ( keranenG w[0] ) = keranenG w[0] from ?_, show List.take 85 ( keranenG w[w.length - 1] ) = keranenG w[w.length - 1] from ?_ ] at * <;> norm_num at *;
         · rw [ show List.take 85 ( keranenG w[(r + L) / 85] ) = keranenG w[(r + L) / 85] from ?_ ] at * ; norm_num at *;
           · grind;

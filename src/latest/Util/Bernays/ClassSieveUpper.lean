@@ -18,7 +18,7 @@ theorem natCard_classSieveBall_le_sum_divisible {d b : ℤ} (hD : b ^ 2 + 4 * d 
         ∑ s ∈ T, ∑ ε : Bool,
           Nat.card (DivisibleIdealClassBall (QuadraticAlgebra ℤ d b) C N (s.ideal hD ε)) := by
   classical
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C N M S T hcover
   let O := QuadraticAlgebra ℤ d b
   choose s hs ε hle using hcover
@@ -27,8 +27,8 @@ theorem natCard_classSieveBall_le_sum_divisible {d b : ℤ} (hD : b ^ 2 + 4 * d 
   have hf : Function.Injective f := by
     intro I J h
     exact Subtype.ext (congrArg (fun y : Y => y.2.2.1) h)
-  letI := finite_idealClassBall hD C N
-  letI (t : {s // s ∈ T}) (e : Bool) :
+  let := finite_idealClassBall hD C N
+  let (t : {s // s ∈ T}) (e : Bool) :
       Finite (DivisibleIdealClassBall O C N (t.1.ideal hD e)) :=
     Finite.of_injective Subtype.val Subtype.val_injective
   calc
@@ -52,7 +52,7 @@ theorem classSieve_upper_of_cover {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
         (I.1.1 : Ideal (QuadraticAlgebra ℤ d b)) ≤ (s.ideal hD ε : Ideal (QuadraticAlgebra ℤ d b))) →
       (Nat.card (ClassSieveBall C N M S) : ℝ) ≤
         2 * (B : ℝ) * N * ∑ s ∈ T, (s.1 : ℝ)⁻¹ := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro B hB C N M S T hcover
   have hdiv (s : SplitPrime d b) (ε : Bool) :
       Nat.card (DivisibleIdealClassBall (QuadraticAlgebra ℤ d b) C N (s.ideal hD ε)) ≤
@@ -79,7 +79,7 @@ theorem SplitPrime.natCast_mem_ideal {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     (s : SplitPrime d b) (ε : Bool) :
     letI := quadraticOrderIsDomain hD
     (s.1 : QuadraticAlgebra ℤ d b) ∈ (s.ideal hD ε : Ideal (QuadraticAlgebra ℤ d b)) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   change quadraticEval d b s.1 (s.orientedRoot ε) (s.orientedRoot_sq ε) (s.1 : _) = 0
   rw [map_natCast]
   exact (ZMod.natCast_eq_zero_iff _ _).mpr (dvd_refl _)
@@ -135,7 +135,7 @@ theorem classSieve_cover {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       ∃ s : SplitPrime d b, s.1 ≤ N ∧ s.idealClass hD ∉ H ∧ ¬s.1 ∣ μ ∧ s ∉ S ∧
         ∃ ε : Bool, (I.1.1 : Ideal (QuadraticAlgebra ℤ d b)) ≤
           (s.ideal hD ε : Ideal (QuadraticAlgebra ℤ d b)) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro H C hC N M μ hDM hμ S I
   have hIF : IsCoprime (I.1.1 : Ideal (QuadraticAlgebra ℤ d b)) (quadraticBadIdeal d b) :=
     coprime_scalar_of_dvd _ I.2.1 hDM

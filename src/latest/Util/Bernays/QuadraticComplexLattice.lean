@@ -76,10 +76,10 @@ theorem quadraticIdealLattice_full {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     (I : Ideal (QuadraticAlgebra ℤ d b)) (hI : I ≠ ⊥) :
     letI := quadraticIdealLattice_discrete hD I
     IsZLattice ℝ (quadraticIdealLattice d b I) := by
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticIdealLattice_discrete hD I
+  let := quadraticOrderIsDomain hD
+  let := quadraticIdealLattice_discrete hD I
   let O := QuadraticAlgebra ℤ d b
-  letI : Finite (O ⧸ I) := Ring.HasFiniteQuotients.finiteQuotient hI
+  let : Finite (O ⧸ I) := Ring.HasFiniteQuotients.finiteQuotient hI
   let m := I.cardQuot
   have hm : (0 : ℝ) < m := by exact_mod_cast (Nat.card_pos (α := O ⧸ I))
   let s := Real.sqrt (-(b ^ 2 + 4 * d : ℤ) : ℝ)

@@ -35,7 +35,7 @@ theorem positiveValues_eq_canonicalClassValues {f : BinQuadForm} (hf : f.PosDef)
     Bernays.positiveValues (fun n => ∃ u v : ℤ, f.eval u v = (n : ℤ)) N =
       Bernays.classValues hD (f.canonicalClass hf hp)⁻¹ N := by
   let hD := f.canonical_order_discr.trans_lt hf.2
-  letI := Bernays.quadraticOrderIsDomain hD
+  let := Bernays.quadraticOrderIsDomain hD
   ext n
   simp only [Bernays.classValues, Bernays.positiveValues, Finset.mem_filter]
   apply and_congr_right
@@ -51,7 +51,7 @@ theorem B_nat_limit {f : BinQuadForm} (hf : f.PosDef) (hp : f.Primitive) :
     Tendsto (fun N : ℕ => (f.B (N : ℝ) : ℝ) / Bernays.scale N)
       atTop (𝓝 (Bernays.fullClassConstant (f.canonical_order_discr.trans_lt hf.2))) := by
   let hD := f.canonical_order_discr.trans_lt hf.2
-  letI := Bernays.quadraticOrderIsDomain hD
+  let := Bernays.quadraticOrderIsDomain hD
   have hclass := Bernays.classValues_card_limit hD (f.canonicalClass hf hp)⁻¹
   have hone : Tendsto (fun N : ℕ => 1 / Bernays.scale N) atTop (𝓝 (0 : ℝ)) := by
     simpa only [one_div, Function.comp_def] using tendsto_inv_atTop_zero.comp

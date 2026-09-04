@@ -110,7 +110,7 @@ lemma PointLineConsecutivePairGraphDataExists
       (congrArg (fun p : P ↦ A.coordinate i.1 p.1) heq)
   let endpointImage : Finset (Sym2 P) := indexedEdges.image endpoint
   let G : SimpleGraph P := SimpleGraph.fromEdgeSet (endpointImage : Set (Sym2 P))
-  letI : Fintype G.edgeSet := G.fintypeEdgeSet
+  let : Fintype G.edgeSet := G.fintypeEdgeSet
   have edgeFinset_eq : G.edgeFinset = endpointImage := by
     ext e
     constructor

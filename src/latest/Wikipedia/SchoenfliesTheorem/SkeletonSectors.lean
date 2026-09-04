@@ -985,7 +985,7 @@ theorem IsDrawing.not_three_localDirs_on_edge [G.Finite] (h : IsDrawing G drawin
     (hs₂ : segment ℝ x (x + r • d₂) ⊆ edgeArc drawing e)
     (hs₃ : segment ℝ x (x + r • d₃) ⊆ edgeArc drawing e) : False := by
   obtain ⟨hcont, hinj, -⟩ := h.edge_param he
-  haveI : CompactSpace ↥(I : Set ℝ) := isCompact_iff_compactSpace.1 isCompact_I
+  have : CompactSpace ↥(I : Set ℝ) := isCompact_iff_compactSpace.1 isCompact_I
   set φ : ↥(I : Set ℝ) → Plane := Set.restrict I (drawing e) with hφdef
   have hφi : Function.Injective φ := Set.injOn_iff_injective.1 hinj
   have hcm : IsClosedMap φ := (hcont.restrict).isClosedMap

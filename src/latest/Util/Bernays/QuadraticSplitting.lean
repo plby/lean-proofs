@@ -42,7 +42,7 @@ theorem discriminantCharacter_root_iff {d b : ℤ} {q : ℕ} [Fact q.Prime]
   have hq₂ : q ≠ 2 := by
     have ho := Nat.odd_iff.mp (odd_of_coprime_discriminantLevel hq)
     omega
-  haveI : NeZero (2 : ZMod q) := ⟨by
+  have : NeZero (2 : ZMod q) := ⟨by
     intro hz
     have hdvd : q ∣ 2 := (ZMod.natCast_eq_zero_iff 2 q).mp hz
     exact hq₂ ((Nat.dvd_prime Nat.prime_two).mp hdvd |>.resolve_left (Fact.out : q.Prime).ne_one)⟩

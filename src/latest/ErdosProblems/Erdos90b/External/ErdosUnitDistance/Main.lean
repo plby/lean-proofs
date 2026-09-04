@@ -154,7 +154,7 @@ private theorem exists_params (C : ℝ) (hC : 0 < C) (c₀ c₁ : ℝ)
   refine' ⟨ G + G' + 1, ⌈8 * ( c₀ * ( G + G' + 1 + 1 ) * Real.log ( G + G' + 1 + 2 ) + 8 ) + 5⌉₊, _, _, _, _, _ ⟩ <;> norm_num;
   · exact Nat.succ_le_of_lt ( Nat.lt_ceil.mpr ( by norm_num; nlinarith [ show 0 ≤ c₀ * ( G + G' + 1 + 1 ) * Real.log ( G + G' + 1 + 2 ) by exact mul_nonneg ( mul_nonneg ( by positivity ) ( by positivity ) ) ( Real.log_nonneg ( by linarith ) ) ] ) );
   · linarith [ Nat.le_ceil ( 8 * ( c₀ * ( G + G' + 1 + 1 ) * Real.log ( G + G' + 1 + 2 ) + 8 ) + 5 ) ];
-  · convert! le_trans _ ( hG ( G + G' + 1 ) ( by linarith ) ) using 1 <;> push_cast <;> ring;
+  · convert! le_trans _ ( hG ( G + G' + 1 ) ( by linarith ) ) using 1 <;> push_cast <;> ring_nf;
     gcongr;
     exact le_trans ( le_mul_of_one_le_right ( by positivity ) hc₁ ) ( le_mul_of_one_le_right ( by positivity ) ( Nat.one_le_cast.mpr ( Nat.ceil_pos.mpr ( by nlinarith [ show 0 ≤ c₀ * G * Real.log ( 3 + G + G' ) by exact mul_nonneg ( mul_nonneg ( by positivity ) ( Nat.cast_nonneg _ ) ) ( Real.log_nonneg ( by linarith ) ), show 0 ≤ c₀ * G' * Real.log ( 3 + G + G' ) by exact mul_nonneg ( mul_nonneg ( by positivity ) ( Nat.cast_nonneg _ ) ) ( Real.log_nonneg ( by linarith ) ), show 0 ≤ c₀ * Real.log ( 3 + G + G' ) by exact mul_nonneg ( by positivity ) ( Real.log_nonneg ( by linarith ) ) ] ) ) ) );
   · exact_mod_cast hG' ( G + G' + 1 ) ( by linarith )

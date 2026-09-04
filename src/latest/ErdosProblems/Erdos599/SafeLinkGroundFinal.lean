@@ -907,7 +907,7 @@ theorem exists_groundWave
         Disjoint (((G.delete {a}).delete R).vertexSet ground.1)
           (SafeLink.nonBoundedTreeVertices G a T) ∧
         X ⊆ R ∪ ((G.delete {a}).delete R).vertexSet ground.1 := by
-  letI : Nonempty V := ⟨a⟩
+  let : Nonempty V := ⟨a⟩
   obtain ⟨e, henum⟩ := Set.countable_iff_exists_subset_range.mp hXcount
   refine ⟨e, groundRemoved G a X e, groundWave G a X e,
     groundRemoved_countable G X e, groundRemoved_subset G X e,

@@ -58,7 +58,7 @@ theorem quarter_fiber_integral_lower (f g : 𝓢(ℝ, ℂ))
   · congr 1
     funext z
     congr 2
-    ring
+    ring_nf
 
 theorem exists_critical_main_plateau_bound :
     ∃ A : ℝ, 0 < A ∧ ∃ C : ℝ, 0 < C ∧ ∃ O : ℕ, 0 < O ∧

@@ -18,12 +18,12 @@ lemma OrdinaryLabeledCrossingDiskFamilyExists {V : Type*} [Fintype V]
   have inf_pos :
       ∀ x,
         0 < Finset.univ.inf' (by
-          letI : Nonempty Index := ⟨x⟩
+          let : Nonempty Index := ⟨x⟩
           exact Finset.univ_nonempty)
           (fun y : Index =>
             if x = y then (1 : ℝ) else dist x.1 y.1 / 3) := by
     intro x
-    letI : Nonempty Index := ⟨x⟩
+    let : Nonempty Index := ⟨x⟩
     exact (Finset.lt_inf'_iff _).2 (by
       intro y _hy
       by_cases hxy : x = y
@@ -42,26 +42,26 @@ lemma OrdinaryLabeledCrossingDiskFamilyExists {V : Type*} [Fintype V]
     dsimp [upper]
     have hhalf :
         (Finset.univ.inf' (by
-          letI : Nonempty Index := ⟨x⟩
+          let : Nonempty Index := ⟨x⟩
           exact Finset.univ_nonempty)
           (fun y : Index =>
             if x = y then (1 : ℝ) else dist x.1 y.1 / 3)) / 2 <
           Finset.univ.inf' (by
-            letI : Nonempty Index := ⟨x⟩
+            let : Nonempty Index := ⟨x⟩
             exact Finset.univ_nonempty)
             (fun y : Index =>
               if x = y then (1 : ℝ) else dist x.1 y.1 / 3) :=
       half_lt_self (inf_pos x)
     have hle :
         Finset.univ.inf' (by
-          letI : Nonempty Index := ⟨x⟩
+          let : Nonempty Index := ⟨x⟩
           exact Finset.univ_nonempty)
           (fun y : Index =>
             if x = y then (1 : ℝ) else dist x.1 y.1 / 3) ≤
           dist x.1 y.1 / 3 := by
       calc
         Finset.univ.inf' (by
-            letI : Nonempty Index := ⟨x⟩
+            let : Nonempty Index := ⟨x⟩
             exact Finset.univ_nonempty)
             (fun y : Index =>
               if x = y then (1 : ℝ) else dist x.1 y.1 / 3) ≤

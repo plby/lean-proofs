@@ -44,10 +44,10 @@ theorem positive_ray_finset_count_bound
         (div_eq_div_iff hzs hws).mp hkey
       exact_mod_cast hcross
     let rel : α → α → Prop := fun z w => key z ≤ key w
-    letI : IsTrans α rel := ⟨fun _ _ _ h₁ h₂ => h₁.trans h₂⟩
-    letI : Std.Antisymm rel :=
+    let : IsTrans α rel := ⟨fun _ _ _ h₁ h₂ => h₁.trans h₂⟩
+    let : Std.Antisymm rel :=
       ⟨fun _ _ h₁ h₂ => hkeyinj (le_antisymm h₁ h₂)⟩
-    letI : Std.Total rel := ⟨fun z w => le_total (key z) (key w)⟩
+    let : Std.Total rel := ⟨fun z w => le_total (key z) (key w)⟩
     let U : Finset α := Finset.univ
     let Ls : List α := U.sort rel
     obtain ⟨zv, hzv⟩ := hTne

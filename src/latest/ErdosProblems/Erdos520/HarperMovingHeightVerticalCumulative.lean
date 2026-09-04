@@ -450,7 +450,7 @@ theorem exists_harperScheduledCentralBandVerticalCumulativeDrift_close :
             harperLogMainBlockMean y
               (harperScheduledPrimeBlock y (start + (i : ℕ))) t t) -
           ((k.val + 1 : ℕ) : ℝ) * Real.log 2)
-      convert! htriangle using 1 <;> ring
+      convert! htriangle using 1 <;> ring_nf
     _ ≤ (9 / 64 : ℝ) +
         (harperScheduledErrorTail
             (harperScheduledReciprocalEnvelope c₀ C₀) start +

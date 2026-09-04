@@ -87,7 +87,7 @@ private lemma abs_log_one_add_sub_linear_add_quadratic_le
     rw [inv_le_comm₀ hden (by norm_num : (0 : ℝ) < 2)]
     linarith
   have h' : |Real.log (1 + u) - u + u ^ 2 / 2| ≤ |u| ^ 3 / (1 - |u|) := by
-    convert h using 1 <;> ring
+    convert h using 1 <;> ring_nf
   calc
     |Real.log (1 + u) - u + u ^ 2 / 2| ≤ |u| ^ 3 / (1 - |u|) := h'
     _ = |u| ^ 3 * (1 - |u|)⁻¹ := by rw [div_eq_mul_inv]

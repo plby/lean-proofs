@@ -256,7 +256,7 @@ theorem false_of_source_claim45_claim46_and_final
     False := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   have hbad45 :=
     card_reachingEligibleSubfamily_lt_of_no_targetAdjuster_source
       G hpair d targetOrder totalRadius Delta deletedCap degreeInto maxSlow45
@@ -469,7 +469,7 @@ theorem false_of_large_twoEnd_ball_and_nonreaching_bootstrap
     False := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let W : Finset V := deleted ∪ i.1.1.adjuster.core
   let largeBall : Finset V := ballAvoidingFrom G (W : Set V)
     i.1.1.ends ballRadius
@@ -697,7 +697,7 @@ theorem false_of_source_claim45_claim46_and_final_conditional_bootstrap
     False := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   have hbad45 :=
     card_reachingEligibleSubfamily_lt_of_no_targetAdjuster_source_conditional
       G hpair d targetOrder totalRadius Delta deletedCap degreeInto maxSlow45

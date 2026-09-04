@@ -146,7 +146,7 @@ lemma frequently_countIn_two_mul_le_four
           _ ≤ 4 * countIn S (2 ^ t * N₀) :=
             Nat.mul_le_mul_left 4 ih
           _ ≤ countIn S (2 * (2 ^ t * N₀)) := hstep.le
-          _ = countIn S (2 ^ (t + 1) * N₀) := by ring
+          _ = countIn S (2 ^ (t + 1) * N₀) := by ring_nf
   have hscale : L ≤ 2 ^ N₀ * N₀ := by
     have hp : 1 ≤ 2 ^ N₀ := by
       have : 0 < 2 ^ N₀ := pow_pos (by omega) _
@@ -173,4 +173,3 @@ lemma frequently_countIn_two_mul_le_four
   omega
 
 end Erdos245Scratch
-

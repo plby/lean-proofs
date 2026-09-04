@@ -213,9 +213,7 @@ theorem sum_tailSamePrimePowerDensity_le_shiftReciprocal
     intro pa hpa
     by_cases hsmall : pa.1 ≤ Erdos248.tinyCutoff K
     · by_cases hdvd : pa.1 ∣ k
-      · simp [smallActivePrimePowerIndices, nonTinyPrimePowerIndices,
-          hsmall, hdvd, not_lt_of_ge hsmall, Finset.mul_sum,
-          div_eq_mul_inv]
+      · simp only [one_div, mul_ite, mul_zero]
         apply Finset.sum_congr rfl
         intro qb hqb
         by_cases heq : pa.1 = qb.1
@@ -227,8 +225,7 @@ theorem sum_tailSamePrimePowerDensity_le_shiftReciprocal
           hsmall, hdvd, not_lt_of_ge hsmall, Finset.mul_sum,
           div_eq_mul_inv]
     · have hlarge : Erdos248.tinyCutoff K < pa.1 := by omega
-      simp [smallActivePrimePowerIndices, nonTinyPrimePowerIndices,
-        hsmall, hlarge, Finset.mul_sum, div_eq_mul_inv]
+      simp only [one_div, mul_ite, mul_zero]
       apply Finset.sum_congr rfl
       intro qb hqb
       by_cases heq : pa.1 = qb.1
@@ -691,8 +688,7 @@ theorem samePrimePowerPairEventMass_le_tailDensity
       have hqnotSmall : ¬ qb.1 ≤ Erdos248.tinyCutoff K := by
         rw [← hpq]
         exact hpsmall
-      simp [samePrimePowerDensity, tailSamePrimePowerDensity, hpq,
-        hpsmall, hqnotSmall, one_div, mul_assoc, mul_comm, mul_left_comm]
+      simp only [ge_iff_le]
       rw [div_eq_mul_inv]
       ring_nf
       exact le_rfl

@@ -53,7 +53,7 @@ lemma DeletedEdgeComplementComponents {V : Type*} [Fintype V] (G : SimpleGraph V
                   ∀ p : EuclideanSpace ℝ (Fin 2),
                     p ∈ (OrdinaryDrawingImage (G.deleteEdges {e.1}) Ddel)ᶜ →
                       ∃! Q : FaceDel, p ∈ faceSetDel Q := by
-  letI : Fintype A.Face := A.faceFintype
+  let : Fintype A.Face := A.faceFintype
   rcases FiniteAuxiliaryFaceQuotient A.Face (A.leftFace d) (A.leftFace d.symm) with
     ⟨FaceDel, faceDelFintype, componentOf, hcomponent_surj, hcomponent_eq⟩
   let faceSetDel : FaceDel → Set (EuclideanSpace ℝ (Fin 2)) :=

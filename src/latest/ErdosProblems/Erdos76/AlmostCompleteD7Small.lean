@@ -2420,7 +2420,7 @@ lemma fractionalUncoveredWeight_d7SmallDeleted_eq
           (d7SmallDeletedCapacity G P sigma R u) w +
         ∑ e ∈ (d7DeletedGraph G (u : A)).edgeFinset,
           d7SmallHallDeduction G P sigma R u e := by
-  letI : DecidableRel
+  let : DecidableRel
       (⊤ : SimpleGraph (↑(d7DeletedFinset (u : A)))).Adj := Classical.decRel _
   let H := d7DeletedGraph G (u : A)
   let c := d7SmallDeletedCapacity G P sigma R u

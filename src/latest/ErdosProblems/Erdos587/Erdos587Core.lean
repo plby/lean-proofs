@@ -293,7 +293,7 @@ lemma finsetAddStabilizer_ne_top [Fintype G] {S : Finset G}
 additive subgroup. -/
 lemma addSubgroup_eq_bot_of_zmod_prime {p : ℕ} (hp : p.Prime)
     (H : AddSubgroup (ZMod p)) (hH : H ≠ ⊤) : H = ⊥ := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   apply eq_bot_iff.mpr
   intro x hx
   by_contra hx0
@@ -362,7 +362,7 @@ lemma exists_sublist_sum_mod_eq_of_mem {q : ℕ} (hq : 0 < q) (A : List ℕ)
     (r : ZMod q)
     (hr : r ∈ listSubsetSums (A.map fun a : ℕ => (a : ZMod q))) :
     ∃ T : List ℕ, T.Sublist A ∧ (T.sum : ZMod q) = r := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   obtain ⟨U, hU, hUsum⟩ := mem_listSubsetSums_iff.mp hr
   have hpreimage : ∃ T : List ℕ, T.Sublist A ∧
       U = T.map (fun a : ℕ => (a : ZMod q)) := by

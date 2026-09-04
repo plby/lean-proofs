@@ -35,7 +35,7 @@ noncomputable def goodIdealNormAF {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) : Arithme
 
 theorem goodIdealNormAF_isMultiplicative {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     (goodIdealNormAF hD).IsMultiplicative := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   constructor
   · change (Nat.card (GoodIdealNormFiber (quadraticBadIdeal d b) 1) : ℂ) = 1
     rw [goodIdealNormFiber_card_one hD, Nat.cast_one]
@@ -55,7 +55,7 @@ theorem genusWeightAF_apply {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
     ∀ n : ℕ, n ≠ 0 → genusWeightAF hD ψ n = ψ (Additive.ofMul (genusValue hD n)) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ n hn
   simp only [genusWeightAF, ArithmeticFunction.coe_mk, if_neg hn]
 
@@ -63,7 +63,7 @@ theorem genusWeightAF_isMultiplicative {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
       (genusWeightAF hD ψ).IsMultiplicative := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ
   apply ArithmeticFunction.IsMultiplicative.iff_ne_zero.mpr
   constructor
@@ -79,7 +79,7 @@ theorem genusWeightAF_primePower {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
     ∀ p : ℕ, p.Prime → ∀ e : ℕ,
       genusWeightAF hD ψ (p ^ e) = ψ (Additive.ofMul (primeGenus hD p)) ^ e := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ p hp e
   rw [genusWeightAF_apply hD ψ _ (pow_ne_zero _ hp.ne_zero), genusValue_primePower hD hp,
     ofMul_pow, AddChar.map_nsmul_eq_pow]

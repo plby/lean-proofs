@@ -108,7 +108,7 @@ theorem exists_integralIntertwiner_count {v : Triple} {n : ℕ} (hn : 0 < n)
   classical
   by_cases hex : ∃ q : integralIntertwiners v w, q ≠ 0
   · obtain ⟨q, hq0⟩ := hex
-    letI : Fact (0 < n) := ⟨hn⟩
+    let : Fact (0 < n) := ⟨hn⟩
     have hq0' : (q : hurwitzOrder) ≠ 0 := fun h => hq0 (Subtype.ext h)
     exact integralIntertwiner_count hn hv hp
       (integralIntertwinerBasis hv hp.ne_zero hq0' q.property)

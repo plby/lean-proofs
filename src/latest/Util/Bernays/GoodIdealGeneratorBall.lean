@@ -23,10 +23,10 @@ theorem exists_good_factor_iff {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       z ∈ (I : Ideal (QuadraticAlgebra ℤ d b)) ∧
         z.norm.natAbs ≤ (I : Ideal (QuadraticAlgebra ℤ d b)).cardQuot * N ∧
         IsUnit (Ideal.Quotient.mk F z) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I F hF hIF z N
   let O := QuadraticAlgebra ℤ d b
-  letI : Nontrivial (O ⧸ F) := Ideal.Quotient.nontrivial_iff.mpr hF
+  let : Nontrivial (O ⧸ F) := Ideal.Quotient.nontrivial_iff.mpr hF
   constructor
   · rintro ⟨hz, J, hprod, hJN, hJF⟩
     have hspan : (I : Ideal O) * (J : Ideal O) = Ideal.span {z} :=
@@ -64,7 +64,7 @@ theorem coprimeQuadraticBall_card {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       Nat.card (QuadraticAlgebra ℤ d b)ˣ *
         Nat.card (RestrictedIdealClassBall (QuadraticAlgebra ℤ d b) I.idealClass⁻¹ N
           (fun J => IsCoprime (J : Ideal (QuadraticAlgebra ℤ d b)) F)) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I F hF hIF N
   rw [← idealGeneratorBall_card hD]
   apply Nat.card_congr

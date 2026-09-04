@@ -222,7 +222,7 @@ theorem compressSuspendedGraph_edgeCount_le
   classical
   let f := compressedRetainedEmbedding (p := p) (ℓ := ℓ)
   let S := shortenSuspendedGraph G hp
-  letI : DecidableRel S.Adj := Classical.decRel _
+  let : DecidableRel S.Adj := Classical.decRel _
   let A := S.map f
   let P := sequencePathGraph (compressedSuspendedSequence hp ℓ)
   have hAcard : Nat.card A.edgeSet = Nat.card S.edgeSet := by

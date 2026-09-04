@@ -390,7 +390,7 @@ private lemma sum_gaussianBoxPath_zero_of_mem
     {R : ℕ} {x : ℤ} (hx : x ∈ gaussianBox R)
     (f : GaussianBoxPath R 0 x → ℝ) :
     (∑ p, f p) = f ⟨(), hx⟩ := by
-  letI : Unique (GaussianBoxPath R 0 x) := {
+  let : Unique (GaussianBoxPath R 0 x) := {
     default := ⟨(), hx⟩
     uniq := fun p ↦ by
       change p = (⟨(), hx⟩ : {u : Unit // x ∈ gaussianBox R})
@@ -403,7 +403,7 @@ private lemma sum_gaussianBoxPath_zero_of_not_mem
     {R : ℕ} {x : ℤ} (hx : x ∉ gaussianBox R)
     (f : GaussianBoxPath R 0 x → ℝ) :
     (∑ p, f p) = 0 := by
-  letI : IsEmpty (GaussianBoxPath R 0 x) := {
+  let : IsEmpty (GaussianBoxPath R 0 x) := {
     false := fun p ↦ hx p.2 }
   exact Fintype.sum_empty f
 
@@ -438,7 +438,7 @@ lemma sum_gaussianBoxPath_succ_of_not_mem
     {R steps : ℕ} {x : ℤ} (hx : x ∉ gaussianBox R)
     (f : GaussianBoxPath R (steps + 1) x → ℝ) :
     (∑ p, f p) = 0 := by
-  letI : IsEmpty (GaussianBoxPath R (steps + 1) x) := {
+  let : IsEmpty (GaussianBoxPath R (steps + 1) x) := {
     false := fun p ↦ hx p.1.2 }
   exact Fintype.sum_empty f
 

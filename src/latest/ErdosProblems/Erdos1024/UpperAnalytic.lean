@@ -372,7 +372,7 @@ theorem exists_upper_system (n : ℕ) (hn : 3 ≤ n) :
         ∃ e ∈ H, e ⊆ S) := by
   have hn0 : 0 < n := by omega
   have hK : 0 < colorCount n := by simp [colorCount, hn0]
-  letI : NeZero (colorCount n) := ⟨hK.ne'⟩
+  let : NeZero (colorCount n) := ⟨hK.ne'⟩
   let selected : Fin (colorCount n) := ⟨0, hK⟩
   have htotal := total_hole_charge_le hn
   have hxB1 : ∀ S : HoleIndex n (upperThreshold n), holeCharge n S < 1 := by

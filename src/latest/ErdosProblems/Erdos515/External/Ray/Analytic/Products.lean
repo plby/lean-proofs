@@ -107,7 +107,7 @@ theorem product_drop' {f : ℕ → ℂ} (f0 : f 0 ≠ 0) (h : ProdExists f) :
 theorem product_head_zero {f : ℕ → ℂ} (f0 : f 0 = 0) : HasProd f 0 := by
   rw [HasProd, SummationFilter.unconditional_filter, Metric.tendsto_atTop]; intro e ep
   use Finset.range 1; intro N N1
-  simp at N1; rw [Finset.prod_eq_zero N1 f0]; simpa
+  simp only [dist_zero_right, norm_prod] at N1; rw [Finset.prod_eq_zero N1 f0]; simpa
 
 /-- Separate out head and tail in a product -/
 public theorem product_split {f : ℕ → ℂ} (h : ProdExists f) :
@@ -159,7 +159,7 @@ public theorem fast_products_converge {f : ℕ → ℂ → ℂ} {s : Set ℂ} {a
       Filter.Tendsto.comp (Continuous.tendsto Complex.continuous_exp _) us
     have expsum0 : (exp ∘ fun N : Finset ℕ ↦ N.sum fun n ↦ fl n z) = fun N : Finset ℕ ↦
         N.prod fun n ↦ f n z := by
-      apply funext; intro N; simp; rw [Complex.exp_sum]; simp_rw [expfl _ z zs]
+      apply funext; intro N; simp only [Function.comp_apply]; rw [Complex.exp_sum]; simp_rw [expfl _ z zs]
     rw [expsum0] at comp; rw [← hg]; assumption
   · rw [← hg]; exact fun z zs ↦ analyticAt_cexp.comp (gla z zs)
   · simp only [Complex.exp_ne_zero, Ne, not_false_iff, imp_true_iff, ← hg]

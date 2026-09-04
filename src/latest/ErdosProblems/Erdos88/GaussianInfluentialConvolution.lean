@@ -115,8 +115,8 @@ theorem measureReal_diagonalPartialSum_univ_Icc_ge_of_influential_nonneg
     rw [hfun, ← Measure.map_map
       (continuous_centeredCoordinatePolynomial (a i) (lam i)).measurable
       (measurable_pi_apply i), hEval]
-  letI : IsProbabilityMeasure (P.map Y) := Measure.isProbabilityMeasure_map hYmeas.aemeasurable
-  letI : IsProbabilityMeasure (P.map X) := Measure.isProbabilityMeasure_map hXmeas.aemeasurable
+  let : IsProbabilityMeasure (P.map Y) := Measure.isProbabilityMeasure_map hYmeas.aemeasurable
+  let : IsProbabilityMeasure (P.map X) := Measure.isProbabilityMeasure_map hXmeas.aemeasurable
   have hJ : MeasurableSet J := measurableSet_Icc
   have hC : 0 ≤ C := by
     dsimp only [C]
@@ -237,9 +237,9 @@ theorem measureReal_diagonalPartialSum_univ_Icc_ge_of_coordinate_sections
     rw [hfun, ← Measure.map_map
       (continuous_centeredCoordinatePolynomial (a i) (lam i)).measurable
       (measurable_pi_apply i), hEval]
-  letI : IsProbabilityMeasure (P.map Y) :=
+  let : IsProbabilityMeasure (P.map Y) :=
     Measure.isProbabilityMeasure_map hYmeas.aemeasurable
-  letI : IsProbabilityMeasure (P.map X) :=
+  let : IsProbabilityMeasure (P.map X) :=
     Measure.isProbabilityMeasure_map hXmeas.aemeasurable
   have hJ : MeasurableSet J := measurableSet_Icc
   have hsection' : ∀ y ∈ J,

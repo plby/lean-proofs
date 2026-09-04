@@ -1207,7 +1207,7 @@ lemma positive_isolated_probability_exp_lower (n M : ℕ) (hn : 2 ≤ n)
     exact hE2nat.ne'
   have hcs := positive_probability_second_moment_lower n M hsample hsecond
   rw [sum_isolatedCount, sum_secondMomentCount, card_sample] at hcs
-  simp [allEdges] at hcs
+  simp only [Nat.cast_mul, Nat.cast_ofNat, one_div, mul_inv_rev, card_sample, ge_iff_le] at hcs
   have hVV : 3 * n ≤ (3 * n) * (3 * n) := Nat.le_mul_self (3 * n)
   have hnorm :
       ((((3 * n).choose 3).choose M : ℝ) *
@@ -5193,7 +5193,7 @@ lemma completionWeightClose_iff_matchingFractionClose {n : ℕ}
   rw [div_le_iff₀ hq]
   unfold matchingFractionMean matchingWeightTarget
   dsimp [q]
-  ring
+  ring_nf
 
 /-- Adding a previously absent triple creates exactly the perfect matchings
 counted by its completion weight. -/
@@ -8712,7 +8712,7 @@ lemma coordinateLinkTailVertices_probability_le {n M d D Q b k : ℕ}
   let I := (Finset.univ : Finset (Vertex n))
   let P : Vertex n → Finset (Edge n) → Prop := fun y H ↦
     y ∉ Z ∧ CoordinateSampleLinkTail Z x y a d D Q b H
-  letI : ∀ y, DecidablePred (P y) := fun _ ↦ Classical.decPred _
+  let : ∀ y, DecidablePred (P y) := fun _ ↦ Classical.decPred _
   have hpoint : ∀ y ∈ I,
       finsetProbability (sample n M) (P y) ≤ p := by
     intro y hyI
@@ -17081,8 +17081,8 @@ lemma finiteConditionalEntropy_matchingJointKahnZ_le_pointCost {n : ℕ}
         (matchingJointKahnZ hH v) ≤
       finsetAverage (matchingPermutationSample n H)
         (matchingKahnPointCost hH v) := by
-  letI : DecidableEq (Edge n) := Classical.decEq _
-  letI : DecidableEq (Sum (Edge n) (Finset (Vertex n))) := Classical.decEq _
+  let : DecidableEq (Edge n) := Classical.decEq _
+  let : DecidableEq (Sum (Edge n) (Finset (Vertex n))) := Classical.decEq _
   let Omega := matchingPermutationSample n H
   let X : Equiv.Perm (Vertex n) × Finset (Edge n) → Edge n :=
     fun q ↦ matchingEdgeAt hH q.2 v
@@ -20997,7 +20997,7 @@ lemma adaptiveCoordinateLinkTailVertices_probability_le
   let I := (Finset.univ : Finset (Vertex n))
   let P : Vertex n → Finset (Edge n) → Prop := fun y H ↦
     y ∉ Z ∧ AdaptiveCoordinateSampleLinkTail Z x y cutoff d D Q b H
-  letI : ∀ y, DecidablePred (P y) := fun _ ↦ Classical.decPred _
+  let : ∀ y, DecidablePred (P y) := fun _ ↦ Classical.decPred _
   have hpoint : ∀ y ∈ I,
       finsetProbability (sample n M) (P y) ≤ p := by
     intro y hyI
@@ -23617,7 +23617,7 @@ lemma finsetAverage_exp_iidDoobCentered_le {α : Type*}
           rw [hm x, hEXcmu]
           congr 1
           ring
-        · ring
+        · ring_nf
       have hfiber : ∀ x,
           finsetAverage Q
               (fun omega ↦ Real.exp
@@ -24152,7 +24152,7 @@ lemma thinning_survival_term_bounds {q m x : ℝ} (t : ℕ)
         rw [← Real.exp_add]
         convert Real.exp_zero using 1
         field_simp [hm0.ne']
-        ring
+        ring_nf
       calc
         Real.exp (-((t : ℝ) * q / m)) *
               (1 + (x / q) *

@@ -1036,7 +1036,7 @@ theorem cosineCoefficient_sq_sum
       all_goals
         simp only [angle]
         push_cast
-        ring
+        ring_nf
     have hplus :
         ∑ d ∈ range N,
           Real.cos (2 * Real.pi * ((r i + r j : ℤ) : ℝ) * (d : ℝ) / (N : ℝ)) = 0 :=
@@ -2006,7 +2006,7 @@ lemma exists_dirichlet_approxGood (E : Finset ℕ) (N Q : ℕ) (hQ : 0 < Q) :
     all_goals
       push_cast
       dsimp [α, e]
-      ring
+      ring_nf
 
 /-- Among the first `k` positive multiples of a nonzero natural `u`, one is
 outside any set having fewer than `k` members. -/
@@ -3751,7 +3751,7 @@ lemma inner_scoreVector_eq_natScore
   apply Finset.sum_congr rfl
   intro j _
   congr 1 <;> congr 1 <;>
-    simp only [intPhase, natPhase, Int.cast_natCast, Nat.cast_mul] <;> ring
+    simp only [intPhase, natPhase, Int.cast_natCast, Nat.cast_mul] <;> ring_nf
 
 /-- The natural superlevel set is the image under `ZMod.val` of the cyclic
 superlevel set. -/

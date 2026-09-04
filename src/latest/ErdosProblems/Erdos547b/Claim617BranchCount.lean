@@ -69,7 +69,7 @@ theorem branchRoot_degree_eq_one_iff {r b : ℕ}
       Nat.zero_lt_of_lt (F.branches.root j).isLt
     by_contra hne
     have htwo : 2 ≤ F.branches.size j := by omega
-    letI : Nontrivial (Fin (F.branches.size j)) :=
+    let : Nontrivial (Fin (F.branches.size j)) :=
       Fin.nontrivial_iff_two_le.mpr htwo
     have hrootPos : 0 <
         (F.branches.tree j).degree (F.branches.root j) :=

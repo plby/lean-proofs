@@ -354,7 +354,7 @@ theorem sum_gsA10Canonical_betaRemainder_le_density
   have hpowLog : 2 ^ L ≤ Z := by
     by_cases hZ : Z = 0
     · subst Z
-      simp [L] at hExp
+      simp only [nonpos_iff_eq_zero, Nat.pow_eq_zero, OfNat.ofNat_ne_zero, ne_eq, false_and] at hExp
       rcases hExp with hS0 | hK0 <;> omega
     · exact Nat.pow_log_le_self 2 hZ
   have hEeq : E ^ 2 = 2 ^ (4 * S * K ^ 2) := by

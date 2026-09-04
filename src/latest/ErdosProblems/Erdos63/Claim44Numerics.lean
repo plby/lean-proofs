@@ -460,7 +460,7 @@ noncomputable def SmallSimpleAdjusterCandidate.concreteLM44ScaleFiveRounds
   · intro n hn hN
     have hn32 : 32 ≤ n := hcoreLarge.trans hn.le
     have := lmGrowthDivisor_pos (hn32.trans' (by omega))
-    simp [lmGrowthRounds]
+    simp only [Nat.ofNat_pos, mul_pos_iff_of_pos_left, gt_iff_lt]
     positivity
   · exact hradius
   · intro n hn hN
@@ -475,7 +475,7 @@ noncomputable def SmallSimpleAdjusterCandidate.concreteLM44ScaleFiveRounds
     have hn32 : 32 ≤ n := hcoreLarge.trans hn.le
     have hmPos : 0 < 5 * lmGrowthRounds n := by
       have := lmGrowthDivisor_pos (hn32.trans' (by omega))
-      simp [lmGrowthRounds]
+      simp only [Nat.ofNat_pos, mul_pos_iff_of_pos_left, gt_iff_lt]
       positivity
     exact concreteLM42ConnectorScaleFiveRounds n coreDegree
       ((5 * lmGrowthRounds n) ^ 2) L hn32 (by omega) (pow_pos hmPos 2) hL
@@ -1065,7 +1065,7 @@ private theorem lm44K4Setup_of_bounds {n d D : ℕ}
         omega
       m_pos := by
         have hdiv := lmGrowthDivisor_pos (b.card_large.trans' (by omega))
-        simp [lmGrowthRounds]
+        simp only [gt_iff_lt]
         positivity
       local_pos := hlocalPos
       seed_sources := lm311AdaptiveSeed_le_claim44_source_seeds b.degree_large

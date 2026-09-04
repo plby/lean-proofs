@@ -357,7 +357,7 @@ theorem exists_proper_squareSubgroup_with_few_coordinates_of_no_signedProduct
           (List.ofFn fun i => classSquareElement (x i)) <
         Nat.card (classSquareSubgroup : Subgroup G) := by
   classical
-  letI : Fintype (classSquareSubgroup : Subgroup G) := Fintype.ofFinite _
+  let : Fintype (classSquareSubgroup : Subgroup G) := Fintype.ofFinite _
   rw [QuotientGroup.mk'_apply, QuotientGroup.mk'_apply,
     QuotientGroup.eq_iff_div_mem] at hclass
   let target : (classSquareSubgroup : Subgroup G) :=

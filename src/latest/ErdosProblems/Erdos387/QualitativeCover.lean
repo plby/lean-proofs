@@ -144,7 +144,7 @@ def residual {m k : ℕ} (C : AbsorberCoverValid m k)
     (C.affineRescale t₀ Q hQpos hQsmooth).nNat u =
       C.nNat (t₀ + Q * u) := by
   simp [nNat, affineRescale, AbsorberCover.N]
-  ring
+  ring_nf
 
 @[simp] theorem rescale_residual {m k : ℕ} (C : AbsorberCoverValid m k)
     (Q : ℕ) (hQpos : 0 < Q)
@@ -161,7 +161,7 @@ def residual {m k : ℕ} (C : AbsorberCoverValid m k)
     (C.affineRescale t₀ Q hQpos hQsmooth).residual u j =
       C.residual (t₀ + Q * u) j := by
   simp [residual, affineRescale, AbsorberCover.L, AbsorberCover.N]
-  ring
+  ring_nf
 
 theorem nNat_cast {m k : ℕ} (C : AbsorberCoverValid m k) (t : ℕ) :
     (C.nNat t : ℤ) = C.toAbsorberCover.N t := by

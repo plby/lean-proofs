@@ -133,7 +133,7 @@ theorem adjoin_nth_roots
     IsGalois K L := by
   rw [isGalois_iff]
   refine ⟨?_, ?_⟩
-  · haveI hsep : Algebra.IsSeparable K (IntermediateField.adjoin K S) :=
+  · have hsep : Algebra.IsSeparable K (IntermediateField.adjoin K S) :=
       (IntermediateField.isSeparable_adjoin_iff_isSeparable K L).2 fun x hx ↦ by
         by_cases hx0 : x = 0
         · subst x
@@ -143,9 +143,9 @@ theorem adjoin_nth_roots
             intro ha0
             apply pow_ne_zero n hx0
             rw [← ha, ha0, map_zero]
-          letI : NeZero n := ⟨hn.ne'⟩
+          let : NeZero n := ⟨hn.ne'⟩
           have hnK : (n : K) ≠ 0 := by
-            letI := hζ.neZero'
+            let := hζ.neZero'
             exact NeZero.ne _
           exact (separable_X_pow_sub_C a hnK ha0).of_dvd
             (minpoly.dvd K x (by simp [ha]))
@@ -238,7 +238,7 @@ theorem kummer_galois (n : ℕ) (hn : 0 < n)
     {ζ : K} (hζ : IsPrimitiveRoot ζ n)
     (B : PCSubgro K n) :
     IsGalois K (kummerField K Ω n hn B) := by
-  letI : FiniteDimensional K (kummerField K Ω n hn B) :=
+  let : FiniteDimensional K (kummerField K Ω n hn B) :=
     dimensional_kummer_field K Ω n hn B
   exact adjoin_nth_roots hn hζ
     (kummerGeneratorSet K Ω n hn B)

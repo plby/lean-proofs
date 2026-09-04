@@ -24,11 +24,11 @@ theorem relIndex_invertible_mul {R : Type*} [CommRing R] [IsDomain R]
     simp
   let A := R ⧸ P
   let T := A ⊗[R] J
-  letI : Nontrivial A := (Ideal.Quotient.nontrivial_iff (R := R) (I := P)).mpr htop
-  letI : Finite A := Ring.HasFiniteQuotients.finiteQuotient hP
-  letI : IsArtinianRing A := isArtinian_of_finite
-  letI : Module.Invertible A T := inferInstance
-  letI : Module.Free A T := inferInstance
+  let : Nontrivial A := (Ideal.Quotient.nontrivial_iff (R := R) (I := P)).mpr htop
+  let : Finite A := Ring.HasFiniteQuotients.finiteQuotient hP
+  let : IsArtinianRing A := isArtinian_of_finite
+  let : Module.Invertible A T := inferInstance
+  let : Module.Free A T := inferInstance
   let L : Submodule R J := Submodule.comap (J : Submodule R R).subtype (P • (J : Submodule R R))
   change Nat.card (J ⧸ L) = Nat.card A
   let e : (J ⧸ L) ≃ₗ[R] T :=
@@ -44,7 +44,7 @@ theorem cardQuot_mul_invertible {R : Type*} [CommRing R] [IsDomain R]
     [Ring.HasFiniteQuotients R] (P J : Ideal R) (hP : P ≠ ⊥)
     (hJ : IsUnit (J : FractionalIdeal R⁰ (FractionRing R))) :
     (P * J).cardQuot = P.cardQuot * J.cardQuot := by
-  letI : Module.Invertible R J := Erdos1081.moduleInvertibleIdealOfIsUnit J hJ
+  let : Module.Invertible R J := Erdos1081.moduleInvertibleIdealOfIsUnit J hJ
   calc
     (P * J).cardQuot =
         (P * J).toAddSubgroup.relIndex J.toAddSubgroup * J.toAddSubgroup.index :=

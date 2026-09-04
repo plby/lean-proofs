@@ -106,7 +106,7 @@ theorem norm_sum_Ioc_natLogTwist_tail_sub_main_le
         have hnorm : ‖f'' x‖ = H / x ^ 2 := by
           dsimp [f'', H]
           convert LogPhaseSum.norm_logPhase_secondDeriv (t := t) hxpos using 1
-          all_goals ring
+          all_goals ring_nf
         rw [hnorm]
         exact div_le_div_of_nonneg_left hH (sq_pos_of_pos ha)
           ((sq_le_sq₀ ha.le (ha.le.trans hx.1)).2 hx.1))

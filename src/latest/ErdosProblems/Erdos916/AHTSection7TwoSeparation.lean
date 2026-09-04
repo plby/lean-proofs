@@ -323,7 +323,7 @@ theorem exists_twoCutEnd_of_not_vertexThreeConnected
   have hqa : q ≠ a := by intro h; exact hq (by simp [h])
   have hqb : q ≠ b := by intro h; exact hq (by simp [h])
   let qD : {w : V // w ≠ a ∧ w ≠ b} := ⟨q, hqa, hqb⟩
-  letI : Nonempty {w : V // w ≠ a ∧ w ≠ b} := ⟨qD⟩
+  let : Nonempty {w : V // w ≠ a ∧ w ≠ b} := ⟨qD⟩
   have hnpre : ¬D.Preconnected := by
     intro hp
     exact hdisc { preconnected := hp, nonempty := ⟨qD⟩ }
@@ -5668,9 +5668,9 @@ theorem falseTwins_or_threeConnected_counterexample_or_twoCutEnd
       hdeg hnoWheel with hpair | hobs
   · exact Or.inl hpair
   · obtain ⟨W, fW, deqW, H, dAdj, y₀, hbad, htwo⟩ := hobs
-    letI : Fintype W := fW
-    letI : DecidableEq W := deqW
-    letI : DecidableRel H.Adj := dAdj
+    let : Fintype W := fW
+    let : DecidableEq W := deqW
+    let : DecidableRel H.Adj := dAdj
     have hterminal : VertexThreeConnected H ∨ Nonempty (TwoCutEnd H) :=
       pointedCounterexample_threeConnected_or_twoCutEnd y₀ hbad htwo
     exact Or.inr ⟨W, fW, deqW, H, dAdj, y₀, hbad, htwo, hterminal⟩

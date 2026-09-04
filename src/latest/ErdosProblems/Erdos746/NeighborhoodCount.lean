@@ -45,8 +45,13 @@ theorem card_fixedEdgeGraph_filter_eq {n m : ℕ} (P : Finset (Edge n) → Prop)
   rw [← Finset.card_map valEmb]
   congr 1
   ext A
-  simp [valEmb, Set.powersetCard.mem_iff, and_comm]
-  exact fun _ _ _ _ ↦ Finset.mem_attach _ _
+  simp only [Finset.mem_map, Finset.mem_filter, Finset.mem_univ, true_and, Subtype.exists,
+    Set.powersetCard.mem_iff, exists_and_left, Finset.mem_powersetCard]
+  constructor
+  · rintro ⟨B, hPB, hBcard, rfl⟩
+    exact ⟨⟨fun e _ ↦ Finset.mem_attach _ e, hBcard⟩, hPB⟩
+  · rintro ⟨⟨hAattach, hAcard⟩, hPA⟩
+    exact ⟨A, hPA, hAcard, rfl⟩
 
 /-- Exact count of the `m`-subsets which avoid a prescribed edge set. -/
 theorem card_fixedEdgeGraph_avoiding {n m : ℕ} (F : Finset (Edge n)) :

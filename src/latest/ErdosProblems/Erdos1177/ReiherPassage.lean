@@ -75,7 +75,7 @@ theorem graphExpansion_sub_of_embedding {VJ VK : Type} [Fintype VJ] [DecidableEq
       rcases x with ⟨ ⟨ a, b ⟩, hx ⟩ ; rcases y with ⟨ ⟨ c, d ⟩, hy ⟩ ; simp_all +decide [ Quot.lift_mk ];
       grind;
   · all_goals generalize_proofs at *;
-    intro e he; rcases Finset.mem_image.mp he with ⟨ e', he', rfl ⟩ ; simp_all +decide [ Finset.mem_image ] ;
+    intro e he; rcases Finset.mem_image.mp he with ⟨ e', he', rfl ⟩ ; simp_all +decide only [Finset.image_insert, Sum.elim_inl, Finset.image_singleton, Sum.elim_inr] ;
     refine' Finset.mem_image.mpr ⟨ ⟨ Sym2.map φ ↑e',
       sym2map_mem_edgeFinset J K φ hadj e'.1 e'.2 ⟩, Finset.mem_attach _ _, _ ⟩
     generalize_proofs at *;

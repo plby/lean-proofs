@@ -1097,7 +1097,7 @@ theorem canonicalFullExposureEvent_implies_innerWindowGood
       globalRadius
     exact hglobal omega i hi hgeom
   · intro i hi
-    letI : Nonempty (AugmentationFull.Sample D₁ nD) := ⟨omega⟩
+    let : Nonempty (AugmentationFull.Sample D₁ nD) := ⟨omega⟩
     let C := AugmentationFull.goodCandidates P omega
     let f : Finset V → ℤ := fun x ↦ P.value i x omega
     have hbridge :=
@@ -1127,15 +1127,15 @@ theorem uniformProbability_sampleFinset_eq_layerProbability
         (fun omega : AugmentationFull.Sample D₁ nD ↦
           event (sampleFinset D₁ nD omega)) =
       NestedUniform.layerProbability D₁ nD event := by
-  letI : Nonempty (AugmentationFull.Sample D₁ nD) :=
+  let : Nonempty (AugmentationFull.Sample D₁ nD) :=
     HalfSample.sliceNonempty (by simpa using hhalf.symm)
-  letI : Nonempty
+  let : Nonempty
       (Erdos88.BooleanSlices.BooleanSlicePoint D₁ nD) :=
     SliceMoments.nonempty_booleanSlicePoint D₁ nD (by omega)
   let E : AugmentationFull.Sample D₁ nD ≃
       Erdos88.Fourier.BoolSlice D₁ nD :=
     (Erdos88.Fourier.boolSliceEquivFinsetLen D₁ nD).symm
-  letI : Nonempty (Erdos88.Fourier.BoolSlice D₁ nD) :=
+  let : Nonempty (Erdos88.Fourier.BoolSlice D₁ nD) :=
     (Equiv.nonempty_congr E).mp inferInstance
   have hsample := Augmentation.finProbability_equiv E
     (fun omega ↦ event (Augmentation.boolSliceDeletion D₁ nD omega))
@@ -1320,7 +1320,7 @@ theorem one_third_le_layerProbability_innerWindowGood_of_graphData
   let P := canonicalGraphExposureData G W U₀ D₁ nD tau state candidates
     pathShift geometricThreshold degreeThreshold hD₁U₀ hWU₀ hWzero hWlast
       hUzero hUlast
-  letI : Nonempty (AugmentationFull.Sample D₁ nD) :=
+  let : Nonempty (AugmentationFull.Sample D₁ nD) :=
     HalfSample.sliceNonempty (by simpa using hhalf)
   let variance := graphSwitchVariance K meanRadius nD
   let collisionRisk := graphCollisionRisk c theta K D₁
@@ -1592,7 +1592,7 @@ theorem one_third_le_layerProbability_innerGood_of_fullExposure
         innerGood G W U₀ M nZ L (sampleFinset D₁ nD omega)) :
     (1 : ℝ) / 3 ≤ NestedUniform.layerProbability D₁ nD
       (innerGood G W U₀ M nZ L) := by
-  letI : Nonempty (AugmentationFull.Sample D₁ nD) :=
+  let : Nonempty (AugmentationFull.Sample D₁ nD) :=
     HalfSample.sliceNonempty (by simpa using hhalf)
   have hfull := one_third_le_uniformProbability_fullExposureEvent
     P lam E rho kappa tGeom tCollision tDegree hendpoint hfailure

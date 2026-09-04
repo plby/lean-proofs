@@ -23,8 +23,12 @@ lemma diagonalFlow_relative_matrix (g : SL(2, ℝ)) (t s : ℝ) :
     ring
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [diagonalFlow, Matrix.mul_apply, Matrix.vecMul, dotProduct, Fin.sum_univ_two, hexp] <;>
-    exact Or.inl (by ring)
+    simp only [Matrix.mul_apply, Fin.sum_univ_two, diagonalFlow,
+      Fin.zero_eta, Fin.mk_one, Fin.isValue, Matrix.of_apply, Matrix.cons_val',
+      Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_fin_one, mul_zero, zero_mul,
+      add_zero, zero_add] <;>
+    rw [hexp] <;>
+    congr 2 <;> ring
 
 def EntryCloseOne (η : ℝ) (g : SL(2, ℝ)) : Prop :=
   |g 0 0 - 1| ≤ η ∧ |g 0 1| ≤ η ∧ |g 1 0| ≤ η ∧ |g 1 1 - 1| ≤ η

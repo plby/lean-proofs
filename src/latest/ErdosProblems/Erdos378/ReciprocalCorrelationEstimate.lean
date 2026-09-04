@@ -919,7 +919,7 @@ theorem norm_reciprocalCutoffWeight_correlation_pow_sixteen_le_of_long
       reciprocalThirdDerivativeMajorant Q (a + 1) N L L := by
     rw [hphase]
     rw [hNdef]
-    convert hderiv0 using 1 <;> ring
+    convert hderiv0 using 1 <;> ring_nf
   have hpower := reciprocalThirdDerivativeMajorant_gap_pow_four_le
     hQpos hM hd hNle haN hLtwo hLM hdM hshiftLower hQlower
   have hbase := norm_pow_sixteen_le_of_derivative
@@ -1054,7 +1054,7 @@ theorem norm_reciprocalCutoffWeight_correlation_pow_sixteen_le_of_short
               conj (reciprocalCutoffWeight X x y m r)‖ ^ 4 ≤
         reciprocalThirdDerivativeMajorant Q (a + 1) N L L := by
       rw [hphase, hNdef]
-      convert hderiv0 using 1 <;> ring
+      convert hderiv0 using 1 <;> ring_nf
     have hpower := reciprocalThirdDerivativeMajorant_short_gap_pow_four_le
       hQpos hM hd hNle haN hLtwo hLM hN8L hQlower
     have hbase := norm_pow_sixteen_le_of_derivative

@@ -1080,9 +1080,9 @@ lemma parallelPairFilter_card_eq_two_mul (G : Pseudograph W) :
       2 * G.parallelPairCount := by
   classical
   let oldDecidableEq : DecidableEq W := Classical.decEq W
-  letI : LinearOrder W :=
+  let : LinearOrder W :=
     LinearOrder.lift' (Fintype.equivFin W) (Fintype.equivFin W).injective
-  letI : DecidableEq W := oldDecidableEq
+  let : DecidableEq W := oldDecidableEq
   let P : W × W → Prop := fun p ↦
     p.1 ≠ p.2 ∧ 2 ≤ G.mult p.1 p.2
   let D := Finset.univ.filter P
@@ -1544,15 +1544,7 @@ lemma betweenMultiplicity_union_left (G : Pseudograph W)
       by_cases huA : u ∈ A <;> by_cases hvA : v ∈ A <;>
         by_cases huB : u ∈ B <;> by_cases hvB : v ∈ B <;>
         by_cases huC : u ∈ C <;> by_cases hvC : v ∈ C
-      all_goals simp [huA, hvA, huB, hvB, huC, hvC]
-      all_goals exfalso
-      all_goals first
-        | exact hAB' u huA huB
-        | exact hAB' v hvA hvB
-        | exact hAC' u huA huC
-        | exact hAC' v hvA hvC
-        | exact hBC' u huB huC
-        | exact hBC' v hvB hvC
+      all_goals simp_all
 
 /-- Additivity in the right block, obtained by symmetry. -/
 lemma betweenMultiplicity_union_right (G : Pseudograph W)
@@ -3178,11 +3170,17 @@ lemma spliceFourCutStars_isPart
     simpa using hHS ⟨u, hu⟩ ⟨v, hv⟩
   · have huC : u ∉ Sᶜ := by simp [hu]
     have hvC : v ∈ Sᶜ := Finset.mem_compl.mpr hv
-    simp [spliceFourCutStars, extendFrom, hu, hv, huC, hvC]
+    rw [spliceFourCutStars, add_mult, add_mult,
+      extendFrom_mult_of_notMem_right S H.dropStarCenter hv,
+      extendFrom_mult_of_notMem_left Sᶜ K.dropStarCenter huC,
+      zero_add, zero_add]
     exact crossingPartExcept_isPart E i u v
   · have huC : u ∈ Sᶜ := Finset.mem_compl.mpr hu
     have hvC : v ∉ Sᶜ := by simp [hv]
-    simp [spliceFourCutStars, extendFrom, hu, hv, huC, hvC]
+    rw [spliceFourCutStars, add_mult, add_mult,
+      extendFrom_mult_of_notMem_left S H.dropStarCenter hu,
+      extendFrom_mult_of_notMem_right Sᶜ K.dropStarCenter hvC,
+      zero_add, zero_add]
     exact crossingPartExcept_isPart E i u v
   · have huC : u ∈ Sᶜ := Finset.mem_compl.mpr hu
     have hvC : v ∈ Sᶜ := Finset.mem_compl.mpr hv
@@ -4145,7 +4143,7 @@ lemma containsRegularPart_of_induce_of_threeMatchingEdges
     (h23 : 0 < (G.induce S).mult (f 2) (f 3))
     (h45 : 0 < (G.induce S).mult (f 4) (f 5)) :
     G.ContainsRegularPart 3 := by
-  letI : Nonempty S := ⟨f 0⟩
+  let : Nonempty S := ⟨f 0⟩
   let F := threeMatchingEdges f
   have hpart : F.IsPart (G.induce S) :=
     threeMatchingEdges_isPart (G.induce S) f hf h01 h23 h45
@@ -4391,7 +4389,7 @@ theorem IsVertexMinimalCounterexample.underlying_connected
     {n : ℕ} {G : Pseudograph (Fin n)}
     (hmin : IsVertexMinimalCounterexample G) : G.toSimple.Connected := by
   classical
-  haveI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
+  have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
   by_contra hnot
   rw [SimpleGraph.connected_iff_exists_forall_reachable] at hnot
   push_neg at hnot
@@ -4427,7 +4425,7 @@ theorem IsVertexMinimalCounterexample.underlying_connected
       hmin.in_class.1 c S (fun x ↦ by simp [S])
   have hHclass : H.InTashkinovClass :=
     G.induce_inTashkinovClass S hmin.in_class hHreg
-  letI : Nonempty S := ⟨⟨v, hvS⟩⟩
+  let : Nonempty S := ⟨⟨v, hvS⟩⟩
   have hHpart : H.ContainsRegularPart 3 :=
     hmin.contains_of_card_lt H hHclass hcard
   exact hmin.no_cubic_part
@@ -5352,8 +5350,8 @@ lemma closeFourCutStarWith_inTashkinovClass_of_defect_and_one_heavy
       2 ≤ G.listingEndpointCount S E v).card ≤ 1) :
     (G.closeFourCutStarWith S E).InTashkinovClass := by
   classical
-  letI : DecidableEq S := Classical.decEq S
-  letI : DecidableEq (Option S) := Classical.decEq (Option S)
+  let : DecidableEq S := Classical.decEq S
+  let : DecidableEq (Option S) := Classical.decEq (Option S)
   let C : S → ℕ := fun v ↦ G.listingEndpointCount S E v
   let heavy : Finset S := Finset.univ.filter fun v ↦ 2 ≤ C v
   have hheavy' : heavy.card ≤ 1 := by simpa [heavy, C] using hheavy
@@ -5451,14 +5449,14 @@ theorem IsVertexMinimalCounterexample.no_two_cut_of_hasSimpleMultiplicities
     (hsimple : G.HasSimpleMultiplicities) :
     ∀ S : Finset (Fin n), S.Nonempty → S ≠ Finset.univ →
       G.boundaryMultiplicity S ≠ 2 := by
-  letI : DecidableEq (Fin n) := Classical.decEq _
+  let : DecidableEq (Fin n) := Classical.decEq _
   intro S hS hproper hcut
-  haveI : Nonempty S := Finset.nonempty_coe_sort.mpr hS
+  have : Nonempty S := Finset.nonempty_coe_sort.mpr hS
   have hSC : Sᶜ.Nonempty := by
     rw [Finset.nonempty_iff_ne_empty]
     intro h
     exact hproper ((Finset.compl_eq_empty_iff S).mp h)
-  letI : Nonempty (↑(Sᶜ)) := Finset.nonempty_coe_sort.mpr hSC
+  let : Nonempty (↑(Sᶜ)) := Finset.nonempty_coe_sort.mpr hSC
   have hcardS : Fintype.card S < n := by
     rw [Fintype.card_coe]
     have hlt := Finset.card_lt_card
@@ -5808,7 +5806,7 @@ lemma four_le_boundaryMultiplicity_closeFourCutStarWith
     (T : Finset (Option S)) (hT : T.Nonempty) (hproper : T ≠ Finset.univ) :
     4 ≤ (G.closeFourCutStarWith S E).boundaryMultiplicity T := by
   classical
-  letI : DecidableEq (Option S) := Classical.decEq _
+  let : DecidableEq (Option S) := Classical.decEq _
   let Q := G.closeFourCutStarWith S E
   have haway (R : Finset (Option S)) (hR : R.Nonempty)
       (hnone : none ∉ R) : 4 ≤ Q.boundaryMultiplicity R := by
@@ -6464,23 +6462,31 @@ lemma spliceFourCutPairs_isPart
     have hsel : (crossingPairSelection E p use₁ use₂).mult u v = 0 := by
       cases use₁ <;> cases use₂ <;>
         simp [crossingPairSelection, crossingPart, hu, hv]
-    simp [spliceFourCutPairs, extendFrom, hu, hv, huC, hvC, hsel]
-    exact hF ⟨u, hu⟩ ⟨v, hv⟩
+    rw [spliceFourCutPairs, add_mult, add_mult,
+      extendFrom_mult_of_mem S F hu hv,
+      extendFrom_mult_of_notMem_left Sᶜ L huC, hsel, add_zero, Nat.add_zero]
+    simpa only [induce_mult] using hF ⟨u, hu⟩ ⟨v, hv⟩
   · have huC : u ∉ Sᶜ := by simp [hu]
     have hvC : v ∈ Sᶜ := Finset.mem_compl.mpr hv
-    simp [spliceFourCutPairs, extendFrom, hu, hv, huC, hvC]
+    rw [spliceFourCutPairs, add_mult, add_mult,
+      extendFrom_mult_of_notMem_right S F hv,
+      extendFrom_mult_of_notMem_left Sᶜ L huC, zero_add, zero_add]
     exact hcross u v
   · have huC : u ∈ Sᶜ := Finset.mem_compl.mpr hu
     have hvC : v ∉ Sᶜ := by simp [hv]
-    simp [spliceFourCutPairs, extendFrom, hu, hv, huC, hvC]
+    rw [spliceFourCutPairs, add_mult, add_mult,
+      extendFrom_mult_of_notMem_left S F hu,
+      extendFrom_mult_of_notMem_right Sᶜ L hvC, zero_add, zero_add]
     exact hcross u v
   · have huC : u ∈ Sᶜ := Finset.mem_compl.mpr hu
     have hvC : v ∈ Sᶜ := Finset.mem_compl.mpr hv
     have hsel : (crossingPairSelection E p use₁ use₂).mult u v = 0 := by
       cases use₁ <;> cases use₂ <;>
         simp [crossingPairSelection, crossingPart, hu, hv]
-    simp [spliceFourCutPairs, extendFrom, hu, hv, huC, hvC, hsel]
-    exact hL ⟨u, huC⟩ ⟨v, hvC⟩
+    rw [spliceFourCutPairs, add_mult, add_mult,
+      extendFrom_mult_of_notMem_left S F hu,
+      extendFrom_mult_of_mem Sᶜ L huC hvC, hsel, zero_add, Nat.add_zero]
+    simpa only [induce_mult] using hL ⟨u, huC⟩ ⟨v, hvC⟩
 
 /-- **Paired four-cut gluing (Tashkinov, Proposition 2.5).**  Three local
 witnesses realizing the nonzero use patterns of the two artificial closing
@@ -7277,7 +7283,7 @@ theorem IsVertexMinimalCounterexample.double_edge_endpoints_loopless
     {u v : Fin n} (huv : u ≠ v) (huvTwo : 2 ≤ G.mult u v) :
     G.mult u u = 0 ∧ G.mult v v = 0 := by
   classical
-  letI : DecidableEq (Fin n) := Classical.decEq _
+  let : DecidableEq (Fin n) := Classical.decEq _
   have hnone (a b : Fin n) (hab : a ≠ b)
       (habTwo : 2 ≤ G.mult a b) : G.mult a a = 0 := by
     by_contra haa
@@ -7305,7 +7311,7 @@ theorem IsVertexMinimalCounterexample.double_edge_endpoints_loopless
       rw [Finset.nonempty_iff_ne_empty]
       intro hempty
       exact hproper ((Finset.compl_eq_empty_iff S).mp hempty)
-    letI : Nonempty ↑(Sᶜ) := Finset.nonempty_coe_sort.mpr hSC
+    let : Nonempty ↑(Sᶜ) := Finset.nonempty_coe_sort.mpr hSC
     have hproperC : Sᶜ ≠ Finset.univ := by
       intro hC
       have haS : a ∈ S := by simp [S]
@@ -7358,7 +7364,7 @@ theorem IsVertexMinimalCounterexample.exists_two_bad_pairClosures_of_double_edge
         ¬(G.oppositePairClosure S hcut p).InTashkinovClass ∧
         ¬(G.oppositePairClosure S hcut q).InTashkinovClass := by
   classical
-  letI : DecidableEq (Fin n) := Classical.decEq _
+  let : DecidableEq (Fin n) := Classical.decEq _
   let S : Finset (Fin n) := {u, v}
   have hSeq : S = ({u, v} : Finset (Fin n)) := by
     ext x
@@ -7377,7 +7383,7 @@ theorem IsVertexMinimalCounterexample.exists_two_bad_pairClosures_of_double_edge
     rw [Finset.nonempty_iff_ne_empty]
     intro hC
     exact hSproper ((Finset.compl_eq_empty_iff S).mp hC)
-  letI : Nonempty ↑(Sᶜ) := Finset.nonempty_coe_sort.mpr hSC
+  let : Nonempty ↑(Sᶜ) := Finset.nonempty_coe_sort.mpr hSC
   have hcardC : Fintype.card ↑(Sᶜ) < n := by
     rw [Fintype.card_coe]
     have hproperC : Sᶜ ≠ Finset.univ := by
@@ -7865,7 +7871,7 @@ lemma IsVertexMinimalCounterexample.single_outer_opposite_endpoints_eq
       rw [G.boundaryMultiplicity_eq_sum_outsideDegree, hUuniv]
       simp [Pseudograph.outsideDegree]
     omega
-  letI : Nonempty ↑(Uᶜ) := Finset.nonempty_coe_sort.mpr hUC
+  let : Nonempty ↑(Uᶜ) := Finset.nonempty_coe_sort.mpr hUC
   have hproperC : Uᶜ ≠ Finset.univ := by
     intro hC
     have huComp : C.u ∈ Uᶜ := by rw [hC]; simp
@@ -8172,7 +8178,7 @@ lemma IsVertexMinimalCounterexample.single_outer_edge_impossible
         (by change 0 < G.mult C.b w + _; omega)
     have hFdeg : ∀ x, F.degree x = 1 :=
       Pseudograph.degree_threeMatchingEdges_eq_one f hf hcover
-    letI : Nonempty T := ⟨f 0⟩
+    let : Nonempty T := ⟨f 0⟩
     exact Q.containsRegularPart_of_degreeOnePart hQreg F hFpart hFdeg
   let hcutC : G.boundaryMultiplicity Tᶜ = 2 :=
     (G.boundaryMultiplicity_compl T).trans hcut
@@ -8185,7 +8191,7 @@ lemma IsVertexMinimalCounterexample.single_outer_edge_impossible
       rw [G.boundaryMultiplicity_eq_sum_outsideDegree, hTuniv]
       simp [Pseudograph.outsideDegree]
     omega
-  letI : Nonempty ↑(Tᶜ) := Finset.nonempty_coe_sort.mpr hTC
+  let : Nonempty ↑(Tᶜ) := Finset.nonempty_coe_sort.mpr hTC
   have hproperC : Tᶜ ≠ Finset.univ := by
     intro hC
     have huT : C.u ∈ T := by simp [T]
@@ -8380,7 +8386,7 @@ lemma IsVertexMinimalCounterexample.first_outer_loopless_of_no_outer_edge
       rw [G.boundaryMultiplicity_eq_sum_outsideDegree, hUuniv]
       simp [Pseudograph.outsideDegree]
     omega
-  letI : Nonempty ↑(Uᶜ) := Finset.nonempty_coe_sort.mpr hUC
+  let : Nonempty ↑(Uᶜ) := Finset.nonempty_coe_sort.mpr hUC
   have hproperC : Uᶜ ≠ Finset.univ := by
     intro hC
     have huC : C.u ∈ Uᶜ := by rw [hC]; simp
@@ -8999,7 +9005,7 @@ lemma IsVertexMinimalCounterexample.no_outer_edge_impossible
       simp [Pseudograph.outsideDegree]
     have hfour : G.boundaryMultiplicity U = 4 := by simpa [U] using hcut
     omega
-  letI : Nonempty ↑(Uᶜ) := Finset.nonempty_coe_sort.mpr hUC
+  let : Nonempty ↑(Uᶜ) := Finset.nonempty_coe_sort.mpr hUC
   by_cases hsmall : heavy.card ≤ 1
   · have hdefect : (G.induce Uᶜ).loopCount +
         (G.induce Uᶜ).parallelPairCount ≤ 1 :=
@@ -9222,7 +9228,7 @@ theorem IsVertexMinimalCounterexample.no_parallel_edges
     (hmin : IsVertexMinimalCounterexample G) :
     ∀ u v : Fin n, u ≠ v → G.mult u v ≤ 1 := by
   classical
-  letI : DecidableEq (Fin n) := Classical.decEq _
+  let : DecidableEq (Fin n) := Classical.decEq _
   intro u v huv
   by_contra hnot
   have huvTwo : 2 ≤ G.mult u v := by omega
@@ -9499,7 +9505,7 @@ theorem IsVertexMinimalCounterexample.no_nontrivial_two_cut_of_no_parallel_edges
     ∀ S : Finset (Fin n), 2 ≤ S.card → 2 ≤ Sᶜ.card →
       G.boundaryMultiplicity S ≠ 2 := by
   classical
-  letI : DecidableEq (Fin n) := Classical.decEq _
+  let : DecidableEq (Fin n) := Classical.decEq _
   have hreg := hmin.in_class.1
   have hconn := hmin.underlying_connected
   have hparallelZero : G.parallelPairCount = 0 :=
@@ -9511,8 +9517,8 @@ theorem IsVertexMinimalCounterexample.no_nontrivial_two_cut_of_no_parallel_edges
       (hclassTC : (G.closeTwoCut Tᶜ
         ((G.boundaryMultiplicity_compl T).trans hcutT)).InTashkinovClass) :
       False := by
-    letI : Nonempty T := Finset.nonempty_coe_sort.mpr hT
-    letI : Nonempty ↑(Tᶜ) := Finset.nonempty_coe_sort.mpr hTC
+    let : Nonempty T := Finset.nonempty_coe_sort.mpr hT
+    let : Nonempty ↑(Tᶜ) := Finset.nonempty_coe_sort.mpr hTC
     have hTproper : T ≠ Finset.univ := by
       intro h
       have : Tᶜ = ∅ := (Finset.compl_eq_empty_iff T).mpr h
@@ -10247,14 +10253,14 @@ lemma betweenMultiplicity_eq_zero_of_no_adj
   intro e _
   induction e using Sym2.inductionOn with
   | _ a b =>
+      have hno' : ∀ a ∈ T, ∀ b ∈ S, ¬ G.Adj a b := by
+        intro a ha b hb hab
+        exact hno b hb a ha hab.symm
       simp only [Pseudograph.edgeMultiplicity_mk,
         Pseudograph.betweenIndicator_mk]
       by_cases haS : a ∈ S <;> by_cases hbS : b ∈ S <;>
         by_cases haT : a ∈ T <;> by_cases hbT : b ∈ T
-      all_goals simp [Pseudograph.ofSimple_mult, haS, hbS, haT, hbT]
-      all_goals first
-        | exact hno a haS b hbT
-        | exact fun hab ↦ hno b hbS a haT hab.symm
+      all_goals simp_all [Pseudograph.ofSimple_mult]
 
 /-- The corresponding vanishing lemma for an arbitrary pseudograph, stated
 through its underlying simple adjacency.  Disjointness rules out a loop as
@@ -10302,18 +10308,16 @@ lemma boundaryMultiplicity_eq_between_of_neighbors_subset
   | _ u v =>
       have hST' : ∀ x, x ∈ S → x ∈ T → False :=
         Finset.disjoint_left.mp hST
+      have huvT (huS : u ∈ S) (huv : G.Adj u v) : v ∈ T :=
+        hneighbors u huS v huv
+      have hvuT (hvS : v ∈ S) (huv : G.Adj u v) : u ∈ T :=
+        hneighbors v hvS u huv.symm
       simp only [Pseudograph.edgeMultiplicity_mk,
         Pseudograph.crossingIndicator_mk, Pseudograph.betweenIndicator_mk]
       by_cases huS : u ∈ S <;> by_cases hvS : v ∈ S <;>
         by_cases huT : u ∈ T <;> by_cases hvT : v ∈ T <;>
         by_cases huv : G.Adj u v
-      all_goals simp [Pseudograph.ofSimple_mult, huS, hvS, huT, hvT, huv]
-      all_goals exfalso
-      all_goals first
-        | exact hST' u huS huT
-        | exact hST' v hvS hvT
-        | exact hvT (hneighbors u huS v huv)
-        | exact huT (hneighbors v hvS u huv.symm)
+      all_goals simp_all [Pseudograph.ofSimple_mult]
 
 /-- A boundary version allowing internal neighbours of `S`: only neighbours
 across the cut are required to land in `T`. -/
@@ -10330,18 +10334,18 @@ lemma boundaryMultiplicity_eq_between_of_crossing_neighbors_subset
   | _ u v =>
       have hST' : ∀ x, x ∈ S → x ∈ T → False :=
         Finset.disjoint_left.mp hST
+      have huvT (huS : u ∈ S) (hvS : v ∉ S)
+          (huv : G.Adj u v) : v ∈ T :=
+        hneighbors u huS v huv hvS
+      have hvuT (hvS : v ∈ S) (huS : u ∉ S)
+          (huv : G.Adj u v) : u ∈ T :=
+        hneighbors v hvS u huv.symm huS
       simp only [Pseudograph.edgeMultiplicity_mk,
         Pseudograph.crossingIndicator_mk, Pseudograph.betweenIndicator_mk]
       by_cases huS : u ∈ S <;> by_cases hvS : v ∈ S <;>
         by_cases huT : u ∈ T <;> by_cases hvT : v ∈ T <;>
         by_cases huv : G.Adj u v
-      all_goals simp [Pseudograph.ofSimple_mult, huS, hvS, huT, hvT, huv]
-      all_goals exfalso
-      all_goals first
-        | exact hST' u huS huT
-        | exact hST' v hvS hvT
-        | exact hvT (hneighbors u huS v huv hvS)
-        | exact huT (hneighbors v hvS u huv.symm huS)
+      all_goals simp_all [Pseudograph.ofSimple_mult]
 
 /-- Degree summation over an independent block whose entire neighbourhood
 lies in a second block. -/
@@ -10789,8 +10793,8 @@ theorem IsVertexMinimalCounterexample.odd_order_of_no_parallel_edges
     (hmin : IsVertexMinimalCounterexample G)
     (hparallel : ∀ u v, u ≠ v → G.mult u v ≤ 1) : Odd n := by
   classical
-  letI : DecidableEq (Fin n) := Classical.decEq _
-  haveI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
+  let : DecidableEq (Fin n) := Classical.decEq _
+  have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
   by_contra hnotOdd
   have heven : Even n := Nat.not_odd_iff_even.mp hnotOdd
   let A : Set (Fin n) := Set.univ
@@ -11053,7 +11057,7 @@ theorem IsVertexMinimalCounterexample.no_loop_edges_of_no_parallel_edges
     (hparallel : ∀ u v, u ≠ v → G.mult u v ≤ 1) :
     ∀ u, G.mult u u = 0 := by
   classical
-  haveI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
+  have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
   have hodd := hmin.odd_order_of_no_parallel_edges hparallel
   intro u
   by_contra huLoop
@@ -11607,7 +11611,7 @@ theorem IsVertexMinimalCounterexample.odd_order_of_hasSimpleMultiplicities
     {n : ℕ} {G : Pseudograph (Fin n)}
     (hmin : IsVertexMinimalCounterexample G)
     (hsimple : G.HasSimpleMultiplicities) : Odd n := by
-  haveI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
+  have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
   have hconn := hmin.underlying_connected
   have hno2 := hmin.no_two_cut_of_hasSimpleMultiplicities hsimple
   by_contra hnot
@@ -11632,7 +11636,7 @@ theorem IsVertexMinimalCounterexample.only_trivial_four_cuts_of_hasSimpleMultipl
     (hsimple : G.HasSimpleMultiplicities) :
     ∀ S : Finset (Fin n), S.Nonempty → S ≠ Finset.univ →
       G.boundaryMultiplicity S = 4 → S.card = 1 ∨ Sᶜ.card = 1 := by
-  letI : DecidableEq (Fin n) := Classical.decEq _
+  let : DecidableEq (Fin n) := Classical.decEq _
   have hreg := hmin.in_class.1
   have hconn := hmin.underlying_connected
   have hno2 := hmin.no_two_cut_of_hasSimpleMultiplicities hsimple
@@ -12010,9 +12014,7 @@ lemma internalMultiplicity_insert_of_neighborFinset_subset
       by_cases hau : a = u <;> by_cases hbu : b = u <;>
         by_cases haS : a ∈ S <;> by_cases hbS : b ∈ S <;>
         by_cases hab : G.Adj a b
-      all_goals simp [Pseudograph.ofSimple_mult, hau, hbu, haS, hbS, hab,
-        hu] at *
-      all_goals assumption
+      all_goals simp_all [Pseudograph.ofSimple_mult]
 
 /-- In the anti-neighbourhood ledger, the internal edges in the ambient
 deletion set are exactly the four edges at `u` plus the edges internal to the
@@ -20716,7 +20718,7 @@ lemma bipartiteMultigraph_isRegular
   classical
   constructor
   · intro a
-    letI : DecidablePred (fun e : BipartiteEdge P A B ↦
+    let : DecidablePred (fun e : BipartiteEdge P A B ↦
         (P.bipartiteMultigraph A B).left e = a) :=
       fun _ ↦ Classical.propDecidable _
     rw [← Nat.card_eq_fintype_card]
@@ -20733,7 +20735,7 @@ lemma bipartiteMultigraph_isRegular
       _ = P.degree a := (hbip.degree_eq_sum_right a).symm
       _ = 4 := hreg a
   · intro b
-    letI : DecidablePred (fun e : BipartiteEdge P A B ↦
+    let : DecidablePred (fun e : BipartiteEdge P A B ↦
         (P.bipartiteMultigraph A B).right e = b) :=
       fun _ ↦ Classical.propDecidable _
     rw [← Nat.card_eq_fintype_card]
@@ -20797,7 +20799,7 @@ private lemma exists_left_color_of_properColoring
     ∃ e : BipartiteEdge P A B,
       (P.bipartiteMultigraph A B).left e = a ∧ C.color e = c := by
   classical
-  letI : DecidablePred (fun e : BipartiteEdge P A B ↦
+  let : DecidablePred (fun e : BipartiteEdge P A B ↦
       (P.bipartiteMultigraph A B).left e = a) :=
     fun _ ↦ Classical.propDecidable _
   let T := {e : BipartiteEdge P A B //
@@ -20826,7 +20828,7 @@ private lemma exists_right_color_of_properColoring
     ∃ e : BipartiteEdge P A B,
       (P.bipartiteMultigraph A B).right e = b ∧ C.color e = c := by
   classical
-  letI : DecidablePred (fun e : BipartiteEdge P A B ↦
+  let : DecidablePred (fun e : BipartiteEdge P A B ↦
       (P.bipartiteMultigraph A B).right e = b) :=
     fun _ ↦ Classical.propDecidable _
   let T := {e : BipartiteEdge P A B //
@@ -23702,7 +23704,7 @@ lemma bipartiteMultigraph_isRegular_of_degree
   classical
   constructor
   · intro a
-    letI : DecidablePred (fun e : BipartiteEdge P A B ↦
+    let : DecidablePred (fun e : BipartiteEdge P A B ↦
         (P.bipartiteMultigraph A B).left e = a) :=
       fun _ ↦ Classical.propDecidable _
     rw [← Nat.card_eq_fintype_card]
@@ -23719,7 +23721,7 @@ lemma bipartiteMultigraph_isRegular_of_degree
       _ = P.degree a := (hbip.degree_eq_sum_right a).symm
       _ = D := hreg a
   · intro b
-    letI : DecidablePred (fun e : BipartiteEdge P A B ↦
+    let : DecidablePred (fun e : BipartiteEdge P A B ↦
         (P.bipartiteMultigraph A B).right e = b) :=
       fun _ ↦ Classical.propDecidable _
     rw [← Nat.card_eq_fintype_card]
@@ -23779,7 +23781,7 @@ private lemma exists_left_color_of_properColoringD
     ∃ e : BipartiteEdge P A B,
       (P.bipartiteMultigraph A B).left e = a ∧ C.color e = c := by
   classical
-  letI : DecidablePred (fun e : BipartiteEdge P A B ↦
+  let : DecidablePred (fun e : BipartiteEdge P A B ↦
       (P.bipartiteMultigraph A B).left e = a) :=
     fun _ ↦ Classical.propDecidable _
   let T := {e : BipartiteEdge P A B //
@@ -23808,7 +23810,7 @@ private lemma exists_right_color_of_properColoringD
     ∃ e : BipartiteEdge P A B,
       (P.bipartiteMultigraph A B).right e = b ∧ C.color e = c := by
   classical
-  letI : DecidablePred (fun e : BipartiteEdge P A B ↦
+  let : DecidablePred (fun e : BipartiteEdge P A B ↦
       (P.bipartiteMultigraph A B).right e = b) :=
     fun _ ↦ Classical.propDecidable _
   let T := {e : BipartiteEdge P A B //
@@ -24013,7 +24015,7 @@ lemma exists_sixClosureWitness_of_perfectMatching
        else 0) := by
     cases use₀₁ <;> cases use₂₃ <;> cases use₄₅ <;>
       simp [C, selectedSixClosingPart, Nat.add_assoc]
-    all_goals ring
+    all_goals ring_nf
   have hCpart : C.IsPart H := by
     intro x y
     let shape01 : Prop :=
@@ -24108,7 +24110,7 @@ lemma exists_sixClosureWitness_of_perfectMatching
           (if shape45 then 1 else 0) := by
       simp only [Q, closeSixCutMatchingWith, add_mult, singleEdge_mult,
         shape01, shape23, shape45]
-      ring
+      ring_nf
     have hPmult : P.mult x y = if M.Adj x y then 1 else 0 := by
       simp [P, ofUnderlyingSubgraph, ofSimple_mult]
     by_cases hs01 : shape01
@@ -25473,7 +25475,7 @@ lemma outsideDegree_compl_le_two_of_balanced_six_shore
     (v : W) (hv : v ∈ Sᶜ) :
     (ofSimple G).outsideDegree Sᶜ v ≤ 2 := by
   classical
-  letI : DecidableEq S := Classical.decEq S
+  let : DecidableEq S := Classical.decEq S
   let P := ofSimple G
   let T := S ∪ {v}
   have hvS : v ∉ S := Finset.mem_compl.mp hv
@@ -25568,7 +25570,7 @@ lemma IsVertexMinimalCounterexample.false_of_balanced_minimalBipartiteSixShore
     (hbip : ((ofSimple G.toSimple).induce M.shore).IsBipartiteWith A B)
     (hcard : A.card = B.card) : False := by
   classical
-  letI : DecidableEq (Fin n) := Classical.decEq _
+  let : DecidableEq (Fin n) := Classical.decEq _
   have hPG : ofSimple G.toSimple = G :=
     eq_ofSimple_toSimple_of_hasSimpleMultiplicities G hsimple
   have hregP : (ofSimple G.toSimple).IsRegularOfDegree 4 := by
@@ -25677,7 +25679,7 @@ lemma IsVertexMinimalCounterexample.false_of_balanced_minimalBipartiteSixShore
         rw [Finset.nonempty_iff_ne_empty]
         intro hempty
         exact M.shore_ne_univ ((Finset.compl_eq_empty_iff M.shore).mp hempty)
-      letI : Nonempty ↑(M.shoreᶜ) :=
+      let : Nonempty ↑(M.shoreᶜ) :=
         ⟨⟨hCnonempty.choose, hCnonempty.choose_spec⟩⟩
       have hcardsum : M.shore.card + M.shoreᶜ.card = n := by
         simpa using Finset.card_add_card_compl M.shore
@@ -25808,7 +25810,7 @@ lemma imbalancedSixClosure_isRegularOfDegree
     (S : Finset W) (E : Fin 6 ≃ CrossingEdge G S) :
     (G.imbalancedSixClosure S E).IsRegularOfDegree 4 := by
   classical
-  letI : DecidableEq S := Classical.decEq S
+  let : DecidableEq S := Classical.decEq S
   apply fourStarClosure_isRegularOfDegree_four
   intro v
   have houtside := G.outsideDegree_eq_listingEndpointCount S E v v.2
@@ -26694,7 +26696,7 @@ lemma boundaryMultiplicity_imbalancedSixClosure_map_some_add_two
       G.boundaryMultiplicity
         (U.map (Function.Embedding.subtype _)) := by
   classical
-  letI : DecidableEq U := Classical.decEq _
+  let : DecidableEq U := Classical.decEq _
   let Q := G.imbalancedSixClosure S E
   let Y : Finset (Option S) := U.map Function.Embedding.some
   let A : Finset W := U.map (Function.Embedding.subtype _)
@@ -28435,7 +28437,7 @@ lemma exists_residualTransversal_or_hallSixCut
           (sixPairEndpoint E (finFourMiddleLabel i)) v → some v ∉ X := by
   let optionDecEq : DecidableEq (Option S) := inferInstance
   classical
-  letI : DecidableEq (Option S) := optionDecEq
+  let : DecidableEq (Option S) := optionDecEq
   let Q := G.imbalancedSixClosure S E
   let DL := imbalancedDeletedLeft G S E i
   let C := (imbalancedMiddleFinset E).map Function.Embedding.some
@@ -28837,7 +28839,7 @@ lemma residualTransversal_cubicPart
           ((G.imbalancedSixClosure S E).ofUnderlyingSubgraph M) := by
   let optionDecEq : DecidableEq (Option S) := inferInstance
   classical
-  letI : DecidableEq (Option S) := optionDecEq
+  let : DecidableEq (Option S) := optionDecEq
   let Q := G.imbalancedSixClosure S E
   let DL := imbalancedDeletedLeft G S E i
   let C := (imbalancedMiddleFinset E).map Function.Embedding.some
@@ -29129,7 +29131,7 @@ lemma containsRegularPart_or_centerIsolatedWitness_of_residualTransversal
         HybridClosureDecomposition E H none true F := by
   let optionDecEq : DecidableEq (Option S) := inferInstance
   classical
-  letI : DecidableEq (Option S) := optionDecEq
+  let : DecidableEq (Option S) := optionDecEq
   let Q := G.imbalancedSixClosure S E
   let z := sixPairEndpoint E 0
   let p := sixPairEndpoint E 5
@@ -29262,7 +29264,7 @@ lemma hallSixCut_pair_mem_compl
     some (sixPairEndpoint E 0) ∉ X ∧
       some (sixPairEndpoint E 5) ∉ X := by
   classical
-  letI : DecidableEq (Option M.shore) := Classical.decEq _
+  let : DecidableEq (Option M.shore) := Classical.decEq _
   let P := ofSimple G
   let Q := P.imbalancedSixClosure M.shore E
   let t := sixPairEndpoint E (finFourMiddleLabel i)
@@ -29355,7 +29357,7 @@ lemma between_center_map_some_eq_card_middle_inter
         (U.map Function.Embedding.some) =
       (U ∩ imbalancedMiddleFinset E).card := by
   classical
-  letI : DecidableEq (Option S) := Classical.decEq _
+  let : DecidableEq (Option S) := Classical.decEq _
   let Q := G.imbalancedSixClosure S E
   let fmid : Fin 4 → S := fun j ↦
     sixPairEndpoint E (finFourMiddleLabel j)
@@ -30065,7 +30067,7 @@ lemma IsVertexMinimalCounterexample.false_of_imbalanced_minimalBipartiteSixShore
     (hcard : A.card + 1 = B.card) : False := by
   let finDecEq : DecidableEq (Fin n) := inferInstance
   classical
-  letI : DecidableEq (Fin n) := Classical.decEq _
+  let : DecidableEq (Fin n) := Classical.decEq _
   let P := ofSimple G.toSimple
   have hPG : P = G :=
     eq_ofSimple_toSimple_of_hasSimpleMultiplicities G hsimple
@@ -30176,7 +30178,7 @@ lemma IsVertexMinimalCounterexample.false_of_imbalanced_minimalBipartiteSixShore
     rw [Finset.nonempty_iff_ne_empty]
     intro hempty
     exact M.shore_ne_univ ((Finset.compl_eq_empty_iff M.shore).mp hempty)
-  letI : Nonempty ↑(M.shoreᶜ) :=
+  let : Nonempty ↑(M.shoreᶜ) :=
     ⟨⟨hCnonempty.choose, hCnonempty.choose_spec⟩⟩
   have hcardsum : M.shore.card + M.shoreᶜ.card = n := by
     simpa using Finset.card_add_card_compl M.shore
@@ -30207,7 +30209,7 @@ theorem IsVertexMinimalCounterexample.hasNoNontrivialBipartiteSixShore
     HasNoNontrivialBipartiteSixShore G.toSimple := by
   classical
   by_contra hnot
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
+  let : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
   obtain ⟨M⟩ := exists_minimalBipartiteSixShore G.toSimple hnot
   obtain ⟨A, B, hbip⟩ :=
     exists_isBipartiteWith_induce_of_isBipartiteOn
@@ -31849,8 +31851,8 @@ theorem IsVertexMinimalCounterexample.hasNoTriangles
     (hsimple : G.HasSimpleMultiplicities) :
     HasNoTriangles G.toSimple := by
   classical
-  letI : DecidableEq (Fin n) := Classical.decEq _
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
+  let : DecidableEq (Fin n) := Classical.decEq _
+  let : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
   let K := G.toSimple
   have hPG : Pseudograph.ofSimple K = G := by
     simpa [K] using
@@ -34649,8 +34651,8 @@ theorem IsVertexMinimalCounterexample.hasOnlyTrivialSixCuts
     (hsimple : G.HasSimpleMultiplicities) :
     HasOnlyTrivialSixCuts G.toSimple := by
   classical
-  letI : DecidableEq (Fin n) := Classical.decEq _
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
+  let : DecidableEq (Fin n) := Classical.decEq _
+  let : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
   let K := G.toSimple
   have hPG : Pseudograph.ofSimple K = G := by
     simpa [K] using
@@ -34729,8 +34731,8 @@ theorem Pseudograph.containsRegularPart_three_of_inTashkinovClass
   by_contra hbad
   obtain ⟨n, G₀, hmin⟩ :=
     exists_vertexMinimalCounterexample G hclass hbad
-  letI : DecidableEq (Fin n) := Classical.decEq _
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
+  let : DecidableEq (Fin n) := Classical.decEq _
+  let : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hmin.positive_order
   have hsimple := hmin.hasSimpleMultiplicities
   let K := G₀.toSimple
   have hPG : Pseudograph.ofSimple K = G₀ := by

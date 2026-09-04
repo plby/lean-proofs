@@ -371,7 +371,7 @@ theorem exists_scheduled_reserveCliquePath_of_finite_bounds
   classical
   have he₀card : e₀.card = r := hleaveUniform e₀ he₀
   have he₀ne : e₀.Nonempty := Finset.card_pos.mp (by omega)
-  letI : Nonempty (Fin n) := ⟨he₀ne.choose⟩
+  let : Nonempty (Fin n) := ⟨he₀ne.choose⟩
   have hedgeCard (i : ℕ) :
       (coverRoot q r).card = (scheduledEdge leave e₀ i).card := by
     rw [card_coverRoot hrq.le,
@@ -413,7 +413,7 @@ theorem exists_scheduled_reserveCliquePath_of_finite_bounds
   have hreserveEmbNonempty :
       (reserveEmbeddings (coverPattern q r) (request 0) reserve).Nonempty :=
     Finset.card_pos.mp (hApos.trans_le (hbaseline 0))
-  letI : Nonempty (Fin q ↪ Fin n) := ⟨hreserveEmbNonempty.choose⟩
+  let : Nonempty (Fin q ↪ Fin n) := ⟨hreserveEmbNonempty.choose⟩
   obtain ⟨path, hlen, hpath, hcaps⟩ :=
     exists_reserveEmbeddingPath_of_faceSchedule
       (coverPattern q r) request leave reserve leave.card D A C

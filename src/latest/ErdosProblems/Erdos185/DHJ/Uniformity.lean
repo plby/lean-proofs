@@ -49,7 +49,7 @@ instance towerNonempty (X Y : Type u) [Nonempty X] [Nonempty Y] :
     (b : ℕ) → Nonempty (Tower X Y b)
   | 0 => inferInstanceAs (Nonempty Y)
   | b + 1 => by
-      letI := towerNonempty X Y b
+      let := towerNonempty X Y b
       exact inferInstanceAs (Nonempty (X × Tower X Y b))
 
 /-- A hole records one distinguished block in a tower and the values frozen
@@ -104,7 +104,7 @@ noncomputable def holeSection {X Y : Type u} [Fintype X] [Fintype Y]
     (x : X) (z : h.Tail) :
     z ∈ h.holeSection A x ↔ h.fill x z ∈ A := by
   classical
-  letI := h.tailFintype
+  let := h.tailFintype
   simp [holeSection]
 
 @[simp] theorem section_here {X Y : Type u} [Fintype X] [Fintype Y]
@@ -120,7 +120,7 @@ noncomputable def holeSection {X Y : Type u} [Fintype X] [Fintype Y]
     (h : BlockHole X Y b) :
     (BlockHole.later p h).holeSection A x = h.holeSection (fiber A p) x := by
   classical
-  letI := h.tailFintype
+  let := h.tailFintype
   ext z
   rw [mem_section, mem_section, mem_fiber]
   rfl
@@ -430,7 +430,7 @@ noncomputable def binaryHoleIncidence {M b : ℕ}
     (x, z) ∈ binaryHoleIncidence A h ↔
       h.fill (Erdos171.restrictWord x) z ∈ A := by
   classical
-  letI := h.tailFintype
+  let := h.tailFintype
   simp [binaryHoleIncidence]
 
 @[simp] theorem fiber_binaryHoleIncidence {M b : ℕ}
@@ -439,7 +439,7 @@ noncomputable def binaryHoleIncidence {M b : ℕ}
     fiber (binaryHoleIncidence A h) x =
       h.holeSection A (Erdos171.restrictWord x) := by
   classical
-  letI := h.tailFintype
+  let := h.tailFintype
   ext z
   simp
 
@@ -496,8 +496,8 @@ theorem restricted_binary_subspace (m : ℕ) (delta : ℝ) (hdelta : 0 < delta) 
   have hAT : density AT = density A := by
     simpa [AT] using density_map_equiv e.symm A
   obtain ⟨h, hh⟩ := hb AT
-  letI := h.tailFintype
-  letI := h.tailNonempty
+  let := h.tailFintype
+  let := h.tailNonempty
   let R := binaryHoleIncidence AT h
   have hsections : ∀ x : Word 2 K,
       delta / 2 ≤ density (fiber R x) := by

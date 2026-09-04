@@ -371,7 +371,7 @@ theorem exists_localPrincipal_decomposition
     rw [Polynomial.mem_degreeLT]
     by_cases hH0 : H = 0
     · subst H
-      simp
+      simp only [degree_zero, Nat.cast_mul]
       exact WithBot.bot_lt_coe _
     · have hlinear : X - C (l : ℂ) ≠ 0 := (monic_X_sub_C _).ne_zero
       have hNat : 1 + H.natDegree = N.natDegree := by

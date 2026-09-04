@@ -1048,7 +1048,7 @@ theorem eq_star_of_adj_mem_compl [Fintype V] [DecidableEq V] [DecidableRel G.Adj
   obtain ⟨w0, hw0⟩ := Finset.card_eq_one.1 hout
   have hwout : w ∈ G.neighborFinset v \ Q.toFinset :=
     Finset.mem_sdiff.2 ⟨(mem_neighborFinset _ _ _).2 hadj, by
-      simp [Set.mem_toFinset]; exact hw⟩
+      simp only [Set.mem_toFinset]; exact hw⟩
   have hstar_out : ystar ∈ G.neighborFinset v \ Q.toFinset := by
     refine Finset.mem_sdiff.2 ⟨(mem_neighborFinset _ _ _).2 hystar.2, ?_⟩
     simp only [Set.mem_toFinset]
@@ -1437,14 +1437,14 @@ theorem Colorable.of_rabern_path_extension [Fintype V] [DecidableEq V] [Decidabl
     have hfinal := along q.length q rfl hq sY Cy (by simp [sY]) hzstar_mem hCy_y hCy_zstar
       (fun v hv => by
         have : v ∈ (Walk.cons hadj q).support.toFinset := by
-          simp [Walk.support_cons, List.mem_toFinset] at hv ⊢; exact Or.inr hv
+          simp only [Walk.support_cons, List.toFinset_cons, Finset.mem_insert, List.mem_toFinset] at hv ⊢; exact Or.inr hv
         simpa [← hspan] using this)
       (fun v hv => by
         simp only [sY, Finset.mem_insert, not_or]
         exact ⟨fun hvy => hy_not_q (hvy ▸ hv), by
           have hvQ : v ∈ Q := by
             have : v ∈ (Walk.cons hadj q).support.toFinset := by
-              simp [Walk.support_cons, List.mem_toFinset] at hv ⊢; exact Or.inr hv
+              simp only [Walk.support_cons, List.toFinset_cons, Finset.mem_insert, List.mem_toFinset] at hv ⊢; exact Or.inr hv
             simpa [← hspan] using this
           exact Finset.notMem_compl.2 hvQ⟩)
     have hsets : sY ∪ q.support.toFinset = Finset.univ := by

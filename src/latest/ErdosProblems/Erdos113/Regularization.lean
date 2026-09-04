@@ -227,7 +227,7 @@ lemma exists_degree_cell {W : Type*} [Fintype W] [DecidableEq W]
       (degreeBin A i).card * 2 ^ (i.val + 1) +
         (degreeBin A j).card * 2 ^ (j.val + 1) ≤
       4 * degreeBinCount (W := W) * cellCount A i j := by
-  letI : Nonempty (Fin (degreeBinCount (W := W))) :=
+  let : Nonempty (Fin (degreeBinCount (W := W))) :=
     ⟨⟨0, by dsimp [degreeBinCount]; omega⟩⟩
   simpa using exists_balanced_cell
     (fun i ↦ (degreeBin A i).card * 2 ^ (i.val + 1)) (cellCount A)

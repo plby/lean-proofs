@@ -55,7 +55,7 @@ theorem roundRobinMatching_pairwise_disjoint (t : ℕ) :
 
 theorem roundRobinMatching_covers_edges (t : ℕ) (x y : ZMod (2 * t + 1)) (hxy : x ≠ y) :
     ∃ i, (roundRobinMatching t i).Adj x y := by
-  letI : NeZero (2 * t + 1) := ⟨by omega⟩
+  let : NeZero (2 * t + 1) := ⟨by omega⟩
   have hs := Finite.surjective_of_injective (zmod_odd_double_injective t)
   obtain ⟨i, hi⟩ := hs (x + y)
   exact ⟨i, hxy, hi.symm⟩

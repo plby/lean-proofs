@@ -150,7 +150,7 @@ lemma expand_frontier
         rw [hS₂deg]
         simp only [addLeafDeg, hvs, hvy₂, if_false, add_zero]
         rw [hS₁deg]
-        simp [addLeafDeg, hvs, hvy₁]
+        simp only [ge_iff_le]
         exact hLdeg v (mem_insert_of_mem hv)
       have hcap₂ : S₂.used.card + 2 * L.card ≤ M := by
         rw [hS₂card]

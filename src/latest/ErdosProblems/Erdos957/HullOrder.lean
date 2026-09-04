@@ -531,7 +531,7 @@ theorem exists_angleSorted_hullVertexEmbedding (A : Finset Point) {C : Point}
     intro x y hxy
     apply Subtype.ext
     exact centerAngle_injOn_hullVertices A hC x.property y.property hxy
-  letI : LinearOrder H := LinearOrder.lift' (fun x : H ↦ centerAngle C x) hangleInj
+  let : LinearOrder H := LinearOrder.lift' (fun x : H ↦ centerAngle C x) hangleInj
   let e : Fin (hullVertexCount A) ≃o H :=
     Fintype.orderIsoFinOfCardEq H (by simp [H, hullVertexCount])
   let v : Fin (hullVertexCount A) ↪ Point :=

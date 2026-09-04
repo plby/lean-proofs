@@ -174,7 +174,7 @@ theorem extract_gsn (hreg : κ.IsRegular) (hθ : θ < κ)
       c wu = star ∧ c wv = star ∧
       IsEdge (fun i : Fin (L n) => wu i) (fun i : Fin (L n) => wv i) := by
   classical
-  haveI hInf : Infinite (Pt κ) := Cardinal.infinite_iff.2 (by simpa using! hreg.1)
+  have hInf : Infinite (Pt κ) := Cardinal.infinite_iff.2 (by simpa using! hreg.1)
   obtain ⟨p0⟩ : Nonempty (Pt κ) := inferInstance
   -- Phase 1: place wu₀ … wu_{n-1}.
   obtain ⟨wu1, B1, -, -, hwu1le, -, hwu1mono, hwu1stab⟩ :=

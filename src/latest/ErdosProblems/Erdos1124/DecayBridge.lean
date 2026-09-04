@@ -107,7 +107,7 @@ theorem uniformDyadicDecay_signedIndicator_of_volume_toReal_eq
     (hB : UniformSetDyadicDiscrepancy u B K δ) :
     letI := torusAddAction u
     Flow.UniformDyadicDecay (d := d) (signedIndicator A B) (2 * K) δ := by
-  letI := torusAddAction u
+  let := torusAddAction u
   refine ⟨by positivity, hδ, ?_⟩
   intro q x
   have hA' :
@@ -162,7 +162,7 @@ theorem exists_uniformDyadicDecay_signedIndicator_of_eventual_discrepancy
     letI := torusAddAction u
     ∃ C : ℝ, 0 ≤ C ∧
       Flow.UniformDyadicDecay (d := d) (signedIndicator A B) C δ := by
-  letI := torusAddAction u
+  let := torusAddAction u
   apply exists_uniformDyadicDecay_of_eventually
     (d := d) (signedIndicator A B) q₀ (2 * K) M δ (by positivity) hM hδ
   · intro q hq x
@@ -195,7 +195,7 @@ theorem summable_scaleFlow_signedIndicator
     letI := torusAddAction u
     Summable (fun q : ℕ ↦
       Flow.scaleFlow (d := d) (signedIndicator A B) (2 ^ q) g x) := by
-  letI := torusAddAction u
+  let := torusAddAction u
   exact Flow.summable_scaleFlow_dyadic (signedIndicator A B) (2 * K) δ
     (uniformDyadicDecay_signedIndicator_of_volume_toReal_eq
       u A B K δ hK hδ hvolume hA hB) g x
@@ -212,7 +212,7 @@ theorem abs_dyadicFlow_signedIndicator_le
     letI := torusAddAction u
     |Flow.dyadicFlow (d := d) (signedIndicator A B) g x| ≤
       Flow.geometricFlowBound (2 * K) δ := by
-  letI := torusAddAction u
+  let := torusAddAction u
   exact Flow.abs_dyadicFlow_le_geometricFlowBound
     (signedIndicator A B) (2 * K) δ
     (uniformDyadicDecay_signedIndicator_of_volume_toReal_eq
@@ -230,7 +230,7 @@ theorem divergence_dyadicFlow_signedIndicator
     Flow.divergence (d := d)
         (Flow.dyadicFlow (d := d) (signedIndicator A B)) x =
       -signedIndicator A B x := by
-  letI := torusAddAction u
+  let := torusAddAction u
   exact Flow.divergence_dyadicFlow_eq_neg
     (signedIndicator A B) (2 * K) δ
     (uniformDyadicDecay_signedIndicator_of_volume_toReal_eq
@@ -248,7 +248,7 @@ theorem exists_bounded_flow_of_equal_volume_discrepancy
     ∃ φ : Flow.DirectionalFlow (d := d) (X := Torus k) (𝕜 := ℝ),
       (∀ g x, |φ g x| ≤ Flow.geometricFlowBound (2 * K) δ) ∧
       ∀ x, Flow.divergence (d := d) φ x = -signedIndicator A B x := by
-  letI := torusAddAction u
+  let := torusAddAction u
   refine ⟨Flow.dyadicFlow (d := d) (signedIndicator A B), ?_, ?_⟩
   · exact fun g x ↦ abs_dyadicFlow_signedIndicator_le
       u A B K δ hK hδ hvolume hA hB g x

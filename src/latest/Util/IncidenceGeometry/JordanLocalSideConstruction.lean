@@ -16,7 +16,7 @@ lemma JordanLocalSideConstruction (J : SimpleClosedPolygonalCurve) :
   have edge_nonempty : Nonempty Edge := by
     rcases J.edgeArcs_nonempty with ⟨gamma, hgamma⟩
     exact ⟨⟨gamma, hgamma⟩⟩
-  letI : Nonempty Edge := edge_nonempty
+  let : Nonempty Edge := edge_nonempty
   let A : JordanCurveSimultaneousCollarData J :=
     Classical.choice (JordanCurveSimultaneousCollarDataExists J)
   let leftBlock : Edge → Set (EuclideanSpace ℝ (Fin 2)) := fun gamma =>
@@ -179,7 +179,7 @@ lemma JordanLocalSideConstruction (J : SimpleClosedPolygonalCurve) :
         omega
       exact ⟨⟨⟨gamma, hgamma⟩, ⟨0, hlength⟩⟩⟩
     have huniv : (Finset.univ : Finset VertexIndex).Nonempty := by
-      letI : Nonempty VertexIndex := vertexIndex_nonempty
+      let : Nonempty VertexIndex := vertexIndex_nonempty
       exact Finset.univ_nonempty
     obtain ⟨q, -, hqmax⟩ := Finset.exists_max_image
       (Finset.univ : Finset VertexIndex)
@@ -230,7 +230,7 @@ lemma JordanLocalSideConstruction (J : SimpleClosedPolygonalCurve) :
         (r : ℝ) (hr : 0 < r) :
         center + (r / 2) • u ∈ Metric.ball center r := by
       rw [Metric.mem_ball, dist_eq_norm]
-      simp [u, norm_smul]
+      simp only [add_sub_cancel_left]
       rw [abs_of_pos hr]
       linarith
     by_cases hiSource : i.1 = 0

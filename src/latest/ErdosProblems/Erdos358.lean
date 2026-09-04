@@ -83,7 +83,7 @@ lemma le_f_of_injective_representations
     k ≤ f A n := by
   let e : Fin k → intervalRepresentations A n := fun j ↦ ⟨g j, hrep j⟩
   have he : Function.Injective e := fun i j hij ↦ hg (Subtype.ext_iff.mp hij)
-  letI : Fintype (intervalRepresentations A n) :=
+  let : Fintype (intervalRepresentations A n) :=
     (intervalRepresentations_finite hA hn).fintype
   rw [f]
   simpa using Nat.card_le_card_of_injective e he
@@ -242,7 +242,7 @@ lemma tendsto_f_enumerate_of_set_ncard
   apply tendsto_f_enumerate_of_eventually_set_representations hS h1
   intro k
   filter_upwards [hrep k] with n hn
-  letI : Fintype (setIntervalRepresentations S n) :=
+  let : Fintype (setIntervalRepresentations S n) :=
     (setIntervalRepresentations_finite S n).fintype
   have hcard : Fintype.card (Fin k) ≤ Fintype.card (setIntervalRepresentations S n) := by
     rw [Fintype.card_fin, ← Nat.card_eq_fintype_card,
@@ -650,7 +650,9 @@ lemma centeredGeometricCF_norm_sq (x : ℝ) :
       1 / (5 - 4 * Real.cos (2 * Real.pi * x)) := by
   rw [centeredGeometricCF, norm_div, div_pow]
   simp only [Complex.norm_exp]
-  simp [Complex.mul_re]
+  simp only [neg_mul, Complex.neg_re, Complex.mul_re, Complex.re_ofNat, Complex.ofReal_re, Complex.im_ofNat,
+    Complex.ofReal_im, mul_zero, sub_zero, Complex.mul_im, zero_mul, add_zero, Complex.I_re, Complex.I_im, mul_one,
+    sub_self, neg_zero, Real.exp_zero, one_pow, one_div, inv_inj]
   have hden :
       ‖(2 : ℂ) - Complex.exp ((2 * Real.pi * x : ℝ) * Complex.I)‖ ^ 2 =
         5 - 4 * Real.cos (2 * Real.pi * x) :=
@@ -1026,7 +1028,7 @@ lemma centeredGeometricCF_prod_local_approximation (q : ℕ) (t : ℝ)
           push_cast
           ring
         · congr 2
-          ring
+          ring_nf
   have hsecond :
       ‖(∏ r ∈ s, (1 - y r : ℂ)) -
           ∏ r ∈ s, (Real.exp (-(y r)) : ℂ)‖ ≤
@@ -1421,7 +1423,7 @@ lemma integral_gaussian_model {q : ℕ} (hq : 2 ≤ q) (a : ℤ) :
     rw [fourierPhase, quadraticSum_eq_gaussianCoeff_mul]
     dsimp [b, c]
     rw [Complex.ofReal_exp]
-    congr 1 <;> push_cast <;> ring
+    congr 1 <;> push_cast <;> ring_nf
   simp_rw [hintegrand]
   rw [hformula]
   have hsqrt : (Real.sqrt (Real.pi / b) : ℂ) =
@@ -1437,7 +1439,7 @@ lemma integral_gaussian_model {q : ℕ} (hq : 2 ≤ q) (a : ℤ) :
   rw [he, ← Complex.ofReal_exp, ← Complex.ofReal_mul]
   congr 1
   dsimp [b, c]
-  ring
+  ring_nf
 
 lemma gaussianCoeff_bounds (q : ℕ) (hq : 2 ≤ q) :
     (q : ℝ) ^ 3 ≤ gaussianCoeff q ∧
@@ -2074,7 +2076,7 @@ lemma fourier_integrand_integrable (q : ℕ) (a : ℤ) :
       fourierPhase a t * vectorCharacter q t g))
       ((volume.restrict (Set.uIoc (-1 / 2 : ℝ) (1 / 2 : ℝ))).prod
         (fairGeometricVector (q - 1))) := by
-  letI : IsFiniteMeasure
+  let : IsFiniteMeasure
       (volume.restrict (Set.uIoc (-1 / 2 : ℝ) (1 / 2 : ℝ))) := ⟨by
     simp [Set.uIoc_of_le (by norm_num : (-1 / 2 : ℝ) ≤ 1 / 2)]⟩
   let μ := (volume.restrict (Set.uIoc (-1 / 2 : ℝ) (1 / 2 : ℝ))).prod
@@ -4027,7 +4029,7 @@ lemma independent_event_lower_tail_bound {ι : Type*}
       have hm' : ProbabilityTheory.mgf (∑ i ∈ s, X i) fairBits (-1) ≤
           Real.exp (-(1 / 2 *
             ∑ i ∈ s, fairBits.real (bitsToSet ⁻¹' E i))) := by
-        convert hm using 1 <;> ring
+        convert hm using 1 <;> ring_nf
       norm_num
       exact mul_le_mul_of_nonneg_left hm' (Real.exp_pos _).le
     _ = Real.exp ((t : ℝ) -
@@ -8070,7 +8072,7 @@ lemma scaleRawBound_le_exp_add_exp (W C D k : ℕ) :
             gcongr
             rw [← Real.exp_nat_mul]
             congr 1
-            ring
+            ring_nf
             exact le_rfl
       _ = Real.exp (blueScaleExponent W C k) := by
         rw [← Real.exp_add, ← Real.exp_add]

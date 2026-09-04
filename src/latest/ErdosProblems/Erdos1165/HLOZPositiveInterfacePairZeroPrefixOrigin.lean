@@ -117,7 +117,7 @@ theorem positiveInterface_shell_loss_le
             ScreeningInstantiation.kappaOne) := by
         rw [Real.rpow_add (by positivity : (0 : ℝ) < m)]
         ring
-      _ = 4 * (m : ℝ) ^ (7 / 10 : ℝ) := by ring
+      _ = 4 * (m : ℝ) ^ (7 / 10 : ℝ) := by ring_nf
   have hbroad : (m : ℝ) ^ (7 / 10 : ℝ) ≤
       candidateLocalBroadWidth48 m := by
     exact Nat.le_ceil _

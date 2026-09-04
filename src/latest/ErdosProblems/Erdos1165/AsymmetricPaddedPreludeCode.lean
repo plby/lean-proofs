@@ -268,7 +268,7 @@ theorem tsum_paddedPreludeMultiCodeMass_eq
         _ = _ := by rw [heterogeneousPreludeMultiRenewalKernel]
   | [], _tree :: _rest => by
       rw [heterogeneousPreludeMultiRenewalKernel]
-      letI : IsEmpty (PaddedPreludeMultiCode n l p center [] (_tree :: _rest)) :=
+      let : IsEmpty (PaddedPreludeMultiCode n l p center [] (_tree :: _rest)) :=
         ⟨fun code => nomatch code⟩
       exact tsum_empty
   | (Sum.inl start, w) :: segments, trees => by

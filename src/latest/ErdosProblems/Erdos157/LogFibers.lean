@@ -90,7 +90,7 @@ theorem good_log_extensions_density {h k : ℕ} (hhk : h ≤ k)
   have hc : (0 : ℝ) < fiberCard (quotientProjection K hhk) r := by
     have hn : 0 < Nat.card {v : (AdjoinRoot (product K k))ˣ // quotientProjection K hhk v = r} := by
       let ⟨v, hv⟩ := quotientProjection_surjective K hhk r
-      letI : Nonempty {v : (AdjoinRoot (product K k))ˣ // quotientProjection K hhk v = r} := ⟨⟨v, hv⟩⟩
+      let : Nonempty {v : (AdjoinRoot (product K k))ˣ // quotientProjection K hhk v = r} := ⟨⟨v, hv⟩⟩
       exact Nat.card_pos
     exact_mod_cast hn
   unfold finiteDensity

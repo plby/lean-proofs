@@ -726,7 +726,7 @@ theorem graphWeight_le_indepNum (htri : G.CliqueFree 3) :
         (by simpa [e] using! hzx)
     have hIns : H.IsIndepSet ((insert x D : Finset α) : Set α) := by
       rw [Finset.coe_insert]
-      letI : Std.Symm (fun v w ↦ ¬H.Adj v w) :=
+      let : Std.Symm (fun v w ↦ ¬H.Adj v w) :=
         ⟨fun _ _ h h' ↦ h h'.symm⟩
       apply hD.insert_of_symm
       intro b hb _hxb

@@ -158,7 +158,10 @@ theorem singleton_maynardCoefficient_one_eq_mean
   unfold BoundedGaps.Maynard.squarefreeCoprimeCoordinateSupport
   simp only [Finset.sum_filter]
   simp only [divisorTupleProduct_singletonTuple, singletonTuple_apply]
-  simp [hcard]
+  simp only [Finset.univ_eq_attach, isUnit_iff_eq_one, IsUnit.squarefree,
+    ArithmeticFunction.moebius_apply_of_squarefree, Int.reduceNeg, ArithmeticFunction.cardFactors_one, pow_zero,
+    Int.cast_one, Nat.cast_one, mul_one, Finset.prod_const_one, IsUnit.dvd, implies_true, true_and, Finset.prod_const,
+    Finset.card_attach, one_mul, one_div]
   apply Finset.sum_congr rfl
   intro n hn
   have hnData := Finset.mem_Icc.mp hn

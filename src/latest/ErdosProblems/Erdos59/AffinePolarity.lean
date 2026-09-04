@@ -682,10 +682,10 @@ theorem polarityGraph_sum_degrees (a : ℕ) :
   rw [habs, hnon]
   have hA : q ^ 2 * (q - 1) = q ^ 3 - q ^ 2 := by
     rw [Nat.mul_sub_left_distrib]
-    ring
+    ring_nf
   have hB : (q ^ 3 - q ^ 2) * q = q ^ 4 - q ^ 3 := by
     rw [Nat.mul_sub_right_distrib]
-    ring
+    ring_nf
   have h23 : q ^ 2 ≤ q ^ 3 := Nat.pow_le_pow_right hq (by omega)
   have h34 : q ^ 3 ≤ q ^ 4 := Nat.pow_le_pow_right hq (by omega)
   rw [hA, hB]

@@ -68,7 +68,7 @@ private lemma exists_bipartite_subgraph_twice_degree
   classical
   obtain ⟨c, hc⟩ := Erdos182.PRSEntry.exists_cutGraph_forall_degree G
   let H := Erdos182.PRSEntry.cutGraph G c
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
   refine ⟨H, inferInstance, Erdos182.PRSEntry.cutGraph_le G c,
     (Erdos182.PRSEntry.cutGraph_isBipartiteWith G c).isBipartite, ?_⟩
   intro v
@@ -94,13 +94,13 @@ theorem distinctLengthKernel_of_pathAssembly
   classical
   obtain ⟨H, instH, hHG, hHbip, hHdegree⟩ :=
     exists_bipartite_subgraph_twice_degree G hmin
-  letI : DecidableRel H.Adj := instH
+  let : DecidableRel H.Adj := instH
   have hthreshold : 0 < 48 * (D + 1) := by positivity
   obtain ⟨c, instC, hconn, hbip, hCdegree, _hcEmb, hcG⟩ :=
     exists_connected_bipartite_component_of_le H hthreshold hHG hHbip hHdegree
-  letI : Nonempty c := c.nonempty_supp.to_subtype
+  let : Nonempty c := c.nonempty_supp.to_subtype
   let F : SimpleGraph c := c.toSimpleGraph
-  letI : DecidableRel F.Adj := instC
+  let : DecidableRel F.Adj := instC
   have hFconn : F.Connected := hconn
   have hFbip : F.IsBipartite := hbip
   have hFdegree : ∀ v : c, 2 * (12 * (D + 1)) ≤ F.degree v := by
@@ -113,13 +113,13 @@ theorem distinctLengthKernel_of_pathAssembly
     exists_dense_bfs_pair hFconn hFbip
       (12 * (D + 1)) (by positivity) hFdegree root
   let B : SimpleGraph c := bfsPair F root i
-  letI : DecidableRel B.Adj := inferInstance
+  let : DecidableRel B.Adj := inferInstance
   obtain ⟨K, instK, hKsupport, hKB, _hEdges, hKmin⟩ :=
     Erdos182.exists_induced_minDegree_core B (12 * (D + 1)) hpairE hpairDense
-  letI : DecidableRel K.Adj := instK
+  let : DecidableRel K.Adj := instK
   let J : SimpleGraph K.support := K.induce K.support
-  letI : Nonempty K.support := hKsupport.to_subtype
-  letI : DecidableRel J.Adj := inferInstance
+  let : Nonempty K.support := hKsupport.to_subtype
+  let : DecidableRel J.Adj := inferInstance
   have hJmin : 6 * (D + 1) ≤ J.minDegree := by
     dsimp [J] at hKmin ⊢
     omega

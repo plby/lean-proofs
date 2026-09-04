@@ -118,7 +118,7 @@ theorem exists_large_nonempty_boosted_approximation
       T.Nonempty ∧
       ‖μ_[ℂ] T ∗ᵈ^ k ∗ᵈ (μ_[ℂ] A ∗ᵈ 𝟭_[P] ∗ᵈ μ_[ℂ] Q) -
           μ_[ℂ] A ∗ᵈ 𝟭_[P] ∗ᵈ μ_[ℂ] Q‖_[∞] ≤ epsilon := by
-  letI : MeasurableSpace (ZMod N) := ⊤
+  let : MeasurableSpace (ZMod N) := ⊤
   obtain ⟨T, hTcard, hTapprox⟩ :=
     AlmostPeriodicity.linfty_almost_periodicity_boosted
       epsilon hepsilon0 hepsilon1 k hk hK2 hK hS P Q hP hQ

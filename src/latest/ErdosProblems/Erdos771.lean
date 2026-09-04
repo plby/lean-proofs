@@ -920,7 +920,7 @@ lemma coefficient_integrand_centered (A : Finset ℕ) (M : ℕ) (t : ℝ) :
           (Real.cos (Real.pi * (a : ℝ) * t) : ℂ) := by
     intro a ha
     convert bernoulliFactor_centered (Real.pi * (a : ℝ) * t) using 1
-    all_goals ring
+    all_goals ring_nf
   rw [Finset.prod_congr rfl hfactor]
   rw [Finset.prod_mul_distrib, ← Complex.exp_sum]
   unfold coefficientPhase
@@ -928,7 +928,7 @@ lemma coefficient_integrand_centered (A : Finset ℕ) (M : ℕ) (t : ℝ) :
   congr 1
   push_cast
   rw [← Finset.sum_mul, ← Finset.sum_mul, ← Finset.mul_sum]
-  ring
+  ring_nf
 
 /-- The squared distance-to-the-nearest-integer energy controlling the
 minor arcs. -/
@@ -968,7 +968,7 @@ lemma circleDist_sub_abs_sub_le (x y : ℝ) :
     circleDist y - |x - y| ≤ circleDist x := by
   have htri : circleDist y ≤ circleDist x + circleDist (y - x) := by
     convert circleDist_add_le x (y - x) using 1
-    all_goals ring
+    all_goals ring_nf
   have hpert : circleDist (y - x) ≤ |x - y| := by
     simpa [abs_sub_comm] using circleDist_le_abs (y - x)
   linarith
@@ -1017,7 +1017,7 @@ lemma norm_bernoulliProduct_le_exp_circleEnergy (A : Finset ℕ) (t : ℝ) :
               Complex.exp (((Real.pi * (a : ℝ) * t : ℝ) : ℂ) * Complex.I) *
                 (Real.cos (Real.pi * (a : ℝ) * t) : ℂ) by
             convert bernoulliFactor_centered (Real.pi * (a : ℝ) * t) using 1
-            all_goals ring]
+            all_goals ring_nf]
           rw [norm_mul, Complex.norm_exp]
           norm_num [Complex.mul_re, Complex.norm_real, Real.norm_eq_abs]
           have harg : (Real.pi : ℂ) * (a : ℂ) * (t : ℂ) =
@@ -1156,7 +1156,7 @@ lemma norm_cos_sub_gaussian_le {y : ℝ} (hy : |y| ≤ 1) :
           rw [Real.norm_eq_abs, abs_div, abs_neg,
             abs_of_nonneg (sq_nonneg y), abs_ofNat]
         rw [hnorm, Real.norm_eq_abs] at he
-        convert he using 1 <;> ring
+        convert he using 1 <;> ring_nf
       rw [show q - Real.exp (-(y ^ 2) / 2) =
           -(Real.exp (-(y ^ 2) / 2) - 1 + y ^ 2 / 2) by dsimp [q]; ring,
         abs_neg]
@@ -2830,7 +2830,7 @@ lemma exists_long_multiples {A S : Finset ℕ} {n h : ℕ}
       97 * k * n := by
     calc
       k * (c + 99 * n) - (k * c + 2 * k * n) =
-          (k * c + 99 * (k * n)) - (k * c + 2 * (k * n)) := by ring
+          (k * c + 99 * (k * n)) - (k * c + 2 * (k * n)) := by ring_nf
       _ = 97 * (k * n) := by omega
       _ = 97 * k * n := by ring
   have hnWidth : n ≤

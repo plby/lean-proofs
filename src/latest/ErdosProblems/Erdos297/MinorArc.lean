@@ -733,7 +733,7 @@ theorem card_active_fixedKey_fiber_le
     (H.filter fun h ↦ key h = D).card ≤
       (2 * K + 1) *
         (N ^ (Erdos297.ActiveLcm.activePrimePowers A \ D).card + 1) := by
-  letI : NeZero (Erdos297.ActiveLcm.activeLcm A) :=
+  let : NeZero (Erdos297.ActiveLcm.activeLcm A) :=
     ⟨Erdos297.ActiveLcm.activeLcm_ne_zero A⟩
   have hL : 0 < D.lcm id := by
     apply Nat.pos_iff_ne_zero.mpr
@@ -771,7 +771,7 @@ theorem active_minor_sum_le_powerset
         (((2 * K + 1) *
           (N ^ (Erdos297.ActiveLcm.activePrimePowers A \ D).card + 1) : ℕ) : ℝ) *
             decay (Erdos297.ActiveLcm.activePrimePowers A \ D).card := by
-  letI : NeZero (Erdos297.ActiveLcm.activeLcm A) :=
+  let : NeZero (Erdos297.ActiveLcm.activeLcm A) :=
     ⟨Erdos297.ActiveLcm.activeLcm_ne_zero A⟩
   rw [← Finset.sum_fiberwise_of_maps_to
     (s := H) (t := (Erdos297.ActiveLcm.activePrimePowers A).powerset.erase

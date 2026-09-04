@@ -45,7 +45,7 @@ theorem inner_defect_gives_AS (w : List (Fin 4))
     have h_div : 43435 ∣ adjRow a (boundaryDelta (w.get ⟨0, by omega⟩) (w.get ⟨(r + L) / 85, by omega⟩) (w.get ⟨w.length - 1, by omega⟩) r ((r + L) % 85)) := by
       split_ifs at h_adj_solve <;> norm_num [ adjRow_ite_parikhM ] at h_adj_solve ⊢ <;> omega
     exact Int.emod_eq_zero_of_dvd h_div;
-  by_cases h : r + 2 * L - 85 * ( w.length - 1 ) = 85 <;> simp_all +decide [ adjRow_ite_parikhM ];
+  by_cases h : r + 2 * L - 85 * ( w.length - 1 ) = 85 <;> simp_all +decide only [List.get_eq_getElem, List.drop_one];
   · have := v_pattern_gives_AS_t85 w[0] w[(r + L) / 85] w[w.length - 1] ⟨r, hr⟩ ⟨(r + L) % 85, Nat.mod_lt _ (by decide)⟩; simp_all +decide [ hasParikhSolution ] ;
     convert this _ _ _ _ _ using 2;
     any_goals omega;
@@ -67,7 +67,7 @@ theorem inner_defect_gives_AS (w : List (Fin 4))
 
 theorem sum_count_eq_length (l : List (Fin 4)) :
     (l.count 0 : Int) + l.count 1 + l.count 2 + l.count 3 = l.length := by
-  induction l <;> simp +decide [ * ] ; ring;
+  induction l <;> simp +decide only [Fin.isValue, List.length_cons, Nat.cast_add, Nat.cast_one] ; ring_nf;
   rename_i k hk ih; fin_cases k <;> simp +decide [ List.count_cons ] at ih ⊢ <;> linarith;
 
 private theorem indicator_sum_fin4 (a : Fin 4) :
@@ -87,7 +87,7 @@ private theorem case1_false (w : List (Fin 4)) (hw : FinAbelianSquareFree w)
   specialize hw 0 k hk1 (by linarith);
   contrapose! hw;
   rw [ List.perm_iff_count ];
-  intro c; specialize h c; rcases k with ( _ | k ) <;> simp_all +decide [ List.take_succ_cons ] ;
+  intro c; specialize h c; rcases k with ( _ | k ) <;> simp_all +decide only [List.drop_zero, zero_add] ;
   rcases w with ( _ | ⟨ x, _ | ⟨ y, w ⟩ ⟩ ) <;> simp_all +decide [ List.take_succ_cons ];
   · cases hm;
   · rw [ List.drop_eq_getElem_cons ];
@@ -102,7 +102,7 @@ private theorem case2_false (w : List (Fin 4)) (hw : FinAbelianSquareFree w)
       (if c = w.get ⟨k, hkm⟩ then (1:Int) else 0) -
       (if c = w.get ⟨w.length - 1, by omega⟩ then 1 else 0) = 0) : False := by
   convert hw 1 k ?_ ?_ using 1;
-  · simp +zetaDelta at *;
+  · simp +zetaDelta only [List.drop_one, false_iff, Decidable.not_not] at *;
     rw [ List.perm_iff_count ];
     intro c; specialize h c; rcases k with ( _ | k ) <;> simp_all +decide [ List.take_add_one ] ;
     simp_all +decide [ two_mul, add_assoc, List.count ];
@@ -136,7 +136,7 @@ private theorem case4_false (w : List (Fin 4)) (hw : FinAbelianSquareFree w)
       ((w.drop (k + 1) |>.take k).count c : Int) +
       (if c = w.get ⟨k, hkm⟩ then (1:Int) else 0) = 0) : False := by
   convert hw 1 k ?_ ?_ using 1;
-  · simp +decide [ List.perm_iff_count, add_comm 1 k ];
+  · simp +decide only [List.drop_one, false_iff, Decidable.not_not];
     intro c; specialize h c; rcases k with ( _ | k ) <;> simp_all +decide [ List.take_add_one ] ;
     grind +qlia;
   · linarith;
@@ -159,7 +159,7 @@ private theorem case5_false (w : List (Fin 4)) (hw : FinAbelianSquareFree w)
   · rcases w with ( _ | ⟨ x, _ | ⟨ y, w ⟩ ⟩ ) <;> simp_all +decide [ Nat.mul_succ ];
     · cases hm;
     · rw [ List.drop_eq_getElem_cons ];
-      rw [ List.take_cons ] ; norm_num [ List.count_cons ] ; ring;
+      rw [ List.take_cons ] ; norm_num [ List.count_cons ] ; ring_nf;
       all_goals norm_num [ add_comm 1, List.take_add_one ] at *;
       grind +splitImp;
       grind +splitImp

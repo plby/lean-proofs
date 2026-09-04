@@ -461,7 +461,7 @@ theorem tailMass_le_exp_mul_mgf
                       (step history a * Real.exp t *
                         adaptiveMGF step hit t (history ++ [a]) depth) := by
                     push_cast
-                    ring
+                    ring_nf
                 _ = Real.exp (-t * ((m : ℝ) + 1)) *
                       (step history a * Real.exp t *
                         adaptiveMGF step hit t (history ++ [a]) depth) := by

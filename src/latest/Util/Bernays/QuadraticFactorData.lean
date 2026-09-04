@@ -32,11 +32,11 @@ theorem goodMaximal_prime_description {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
         ((discriminantCharacter (b ^ 2 + 4 * d) hD.ne q = -1 ∧
           (P : Ideal (QuadraticAlgebra ℤ d b)).cardQuot = q ^ 2 ∧ P.idealClass = 1) ∨
         ∃ s : SplitPrime d b, s.1 = q ∧ ∃ ε : Bool, P = s.ideal hD ε) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro P hP hPF
   obtain ⟨q, hq, hqP⟩ := exists_natPrime_under_quadraticMaximal hD
     (P : Ideal (QuadraticAlgebra ℤ d b)) hP
-  letI : Fact q.Prime := ⟨hq⟩
+  let : Fact q.Prime := ⟨hq⟩
   have hmem : ((q : ℤ) : QuadraticAlgebra ℤ d b) ∈ (P : Ideal (QuadraticAlgebra ℤ d b)) := by
     change (q : ℤ) ∈ (P : Ideal (QuadraticAlgebra ℤ d b)).under ℤ
     rw [hqP]
@@ -80,7 +80,7 @@ theorem SplitPrime.idealClass_toggle {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) (s : S
     (ε : Bool) :
     letI := quadraticOrderIsDomain hD
     (s.ideal hD (!ε)).idealClass = ((s.ideal hD ε).idealClass)⁻¹ := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   cases ε
   · exact s.idealClass_conjugate hD
   · simpa only [Bool.not_true, s.idealClass_conjugate hD, inv_inv] using
@@ -93,7 +93,7 @@ theorem goodMaximal_inverseClass_sameNorm {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       IsCoprime (P : Ideal (QuadraticAlgebra ℤ d b)) (quadraticBadIdeal d b) →
       ∃ Q : InvertibleIdeal (QuadraticAlgebra ℤ d b), Q.idealClass = P.idealClass⁻¹ ∧
         (Q : Ideal (QuadraticAlgebra ℤ d b)).cardQuot = (P : Ideal (QuadraticAlgebra ℤ d b)).cardQuot := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro P hP hPF
   obtain ⟨q, hq, hc, h | ⟨s, hs, ε, rfl⟩⟩ := goodMaximal_prime_description hD P hP hPF
   · exact ⟨P, by simp only [h.2.2, inv_one], rfl⟩

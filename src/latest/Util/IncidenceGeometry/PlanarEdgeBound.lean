@@ -11,8 +11,8 @@ lemma PlanarEdgeBound {V : Type*} [Fintype V] (G : SimpleGraph V) [Fintype G.edg
       G.edgeFinset.card ≤ 3 * Fintype.card V := by
   classical
   intro hdraw
-  letI : DecidableEq V := Classical.decEq V
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableEq V := Classical.decEq V
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   rcases hdraw with ⟨D, hD⟩
   exact SimpleGraphComponentEdgeSumBound G (fun c => by
     by_cases hlarge : 3 ≤ Fintype.card c.supp

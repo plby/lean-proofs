@@ -26,7 +26,7 @@ theorem genusLocalLSeries_differentiableAt {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) 
     letI := quadraticOrderIsDomain hD
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
     ∀ s : ℂ, 1 < s.re → DifferentiableAt ℂ (LSeries (genusLocalAF hD ψ)) s := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ s hs
   have hab : LSeries.abscissaOfAbsConv (genusLocalAF hD ψ) ≤ (1 : ℝ) :=
     LSeries.abscissaOfAbsConv_le_of_forall_lt_LSeriesSummable (fun x hx =>
@@ -40,7 +40,7 @@ theorem genusLocalLSeries_continuation_nonzero {d b : ℤ} (hD : b ^ 2 + 4 * d <
         (∀ s : ℂ, (1 / 2 : ℝ) < s.re → DifferentiableAt ℂ F s) ∧
         (∀ s : ℂ, 1 < s.re → F s = LSeries (genusLocalAF hD ψ) s ^ 2) ∧
         (∃ s : ℂ, (1 / 2 : ℝ) < s.re ∧ F s ≠ 0) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ hψ
   obtain ⟨F, hF, heq⟩ := genusLocalLSeries_square_continuation hD ψ hψ
   have ha : genusLocalAF hD ψ 1 ≠ 0 := by

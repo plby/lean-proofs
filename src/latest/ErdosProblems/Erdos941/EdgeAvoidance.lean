@@ -27,7 +27,7 @@ theorem CanHit.mono {n m : ℕ} (hnm : n ≤ m) {s : α} (h : CanHit step target
 theorem exists_uniform_canHit [Finite α] (h : ∀ s : α, ∃ n, CanHit step target n s) :
     ∃ K : ℕ, 0 < K ∧ ∀ s : α, CanHit step target K s := by
   classical
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   choose k hk using h
   refine ⟨(∑ s : α, k s) + 1, by omega, ?_⟩
   intro s

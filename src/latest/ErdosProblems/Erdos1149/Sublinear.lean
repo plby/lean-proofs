@@ -966,7 +966,7 @@ theorem tendsto_coprimePowerBlockCount_div_rpow {α : ℝ}
   · ext N
     rw [sub_div]
     ring_nf
-  · ring
+  · ring_nf
 
 lemma exactOneEvent_powerFloorGCD_iff_coprime_on_block {α : ℝ}
     (hα : 0 < α) {m n : ℕ}

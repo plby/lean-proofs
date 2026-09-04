@@ -28,7 +28,7 @@ theorem absNorm_map_conj (g : ℕ) (A : Ideal (𝓞 (Kf g))) :
     refine' Nat.card_congr _;
     refine' ( Quotient.congr _ _ );
     exact ( ringOfIntegersComplexConj ( Kf g ) ).toEquiv;
-    simp +decide [ Submodule.quotientRel_def ];
+    simp +decide only [AlgEquiv.toEquiv_eq_coe, EquivLike.coe_coe];
     intro a₁ a₂; rw [ ← map_sub ] ; rw [ Ideal.mem_map_iff_of_surjective ] ;
     · exact ⟨ fun h => ⟨ _, h, rfl ⟩, by rintro ⟨ x, hx, hx' ⟩ ; exact ( ringOfIntegersComplexConj ( Kf g ) ).injective hx' ▸ hx ⟩;
     · exact AlgEquiv.surjective _;
@@ -226,7 +226,7 @@ theorem norm_constant_subfamily (g : ℕ) {α : Type*} (F₁ : Finset α) (y : �
     have hU : ∀ A ∈ F₁, ∃ U : (𝓞 (maximalRealSubfield (Kf g)))ˣ, algebraMap (𝓞 (maximalRealSubfield (Kf g))) (𝓞 (Kf g)) (U : 𝓞 (maximalRealSubfield (Kf g))) * (y A₀ * ringOfIntegersComplexConj (Kf g) (y A₀)) = y A * ringOfIntegersComplexConj (Kf g) (y A) := by
       intro A hA
       apply descent_unit g (y A * ringOfIntegersComplexConj (Kf g) (y A)) (y A₀ * ringOfIntegersComplexConj (Kf g) (y A₀)) (by
-      simp +decide [ ringConj_ringConj ];
+      simp +decide only [map_mul];
       exact mul_comm _ _) (by
       grind +suggestions) (by
       simp_all +decide [ mul_eq_zero ]) (by
@@ -238,7 +238,8 @@ theorem norm_constant_subfamily (g : ℕ) {α : Type*} (F₁ : Finset α) (y : �
     refine' ⟨ F₂, y A₁ * ( ringOfIntegersComplexConj ( Kf g ) ) ( y A₁ ), hF₂.1, hF₂.2.1, fun A hA => _ ⟩;
     obtain ⟨ δ, hδ ⟩ := hF₂.2.2 A hA A₁ hA₁.1;
     refine' ⟨ y A * ( Units.map ( algebraMap ( 𝓞 ( maximalRealSubfield ( Kf g ) ) ) ( 𝓞 ( Kf g ) ) |> RingHom.toMonoidHom ) δ⁻¹ ), _, _ ⟩;
-    · refine' le_antisymm _ _ <;> simp +decide [ Ideal.span_singleton_le_span_singleton ];
+    · refine' le_antisymm _ _ <;> simp +decide only [RingHom.toMonoidHom_eq_coe, map_inv, Units.coe_map_inv, MonoidHom.coe_coe,
+    Submodule.span_singleton_le_iff_mem];
       exact Ideal.mem_span_singleton.mpr
         ⟨algebraMap _ _ ((δ : (𝓞 (maximalRealSubfield (Kf g)))ˣ) : 𝓞 (maximalRealSubfield (Kf g))),
          by rw [mul_assoc, ← map_mul, Units.inv_mul, map_one, mul_one]⟩;
@@ -272,7 +273,7 @@ theorem stage1 (g : ℕ) (F : Finset (Ideal (𝓞 (Kf g)))) (hF : ∀ A ∈ F, A
     have := ClassGroup.mk0_surjective ( c⁻¹ );
     exact this;
   refine' ⟨ b', Finset.filter ( fun A => φ A = c ) F, _ ⟩;
-  simp +zetaDelta at *;
+  simp +zetaDelta only [ne_eq, Finset.filter_subset, Finset.mem_filter, and_imp, true_and, exists_and_left] at *;
   refine' ⟨ _, _, _ ⟩;
   · exact fun h => by simpa [ h ] using b'.2;
   · convert! hc using 1;
@@ -284,7 +285,7 @@ theorem stage1 (g : ℕ) (F : Finset (Ideal (𝓞 (Kf g)))) (hF : ∀ A ∈ F, A
         · rw [ mul_inv_cancel ];
       rw [ ClassGroup.mk0_eq_one_iff ] at h_principal;
       obtain ⟨ a, ha ⟩ := h_principal;
-      refine' ⟨ a, _, _ ⟩ <;> simp_all +decide ;
+      refine' ⟨ a, _, _ ⟩ <;> simp_all +decide only [ne_eq] ;
       intro ha'; simp_all +decide  ;
       exact absurd ha ( by exact fun h => by have := b'.2; simp_all +decide [ nonZeroDivisors ] );
     choose! a ha₁ ha₂ using h_principal;
@@ -365,13 +366,13 @@ theorem arithmetic_construction (g t : ℕ) (hg : 1 ≤ g) (ht : 1 ≤ t) :
       exact hy A ( hF₂ hA ) |>.1 ( by simpa using this.symm );
     intro h
     exact hμ₀_nonzero (IsFractionRing.injective (𝓞 (Kf g)) (Kf g) (by rw [map_zero]; exact h))
-  · simp +zetaDelta at *;
+  · simp +zetaDelta only [Finset.mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at *;
     intro A hA;
     have hzfA_in_b : Ideal.span {zf A} ≤ b := by
       rw [ hzf A hA |>.1, hy A ( hF₂ hA ) |>.2 ];
       exact Ideal.mul_le_right (I := A)
     exact hzfA_in_b <| Ideal.mem_span_singleton_self _;
-  · simp +zetaDelta at *;
+  · simp +zetaDelta only [Finset.mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at *;
     intro A hA w; rw [ ← hzf A hA |>.2 ] ; rw [ ← place_mul_conj ] ;
   · refine' ⟨ _, _ ⟩;
     · obtain ⟨A₀, hA₀⟩ : ∃ A₀ ∈ F₂, True := by

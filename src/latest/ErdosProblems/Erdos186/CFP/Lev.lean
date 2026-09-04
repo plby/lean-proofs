@@ -222,10 +222,10 @@ theorem exists_monotone_reindex {k : ℕ} (w : Fin k → ℕ) :
     intro i j hij
     exact Fin.ext (congrArg (fun x ↦ (ofLex x).2) hij)
   let r : Fin k → Fin k → Prop := fun i j ↦ key i ≤ key j
-  letI : IsTrans (Fin k) r := ⟨fun _ _ _ hab hbc ↦ hab.trans hbc⟩
-  letI : Std.Antisymm r :=
+  let : IsTrans (Fin k) r := ⟨fun _ _ _ hab hbc ↦ hab.trans hbc⟩
+  let : Std.Antisymm r :=
     ⟨fun _ _ hab hba ↦ hkey (le_antisymm hab hba)⟩
-  letI : Std.Total r := ⟨fun a b ↦ le_total (key a) (key b)⟩
+  let : Std.Total r := ⟨fun a b ↦ le_total (key a) (key b)⟩
   let l := (Finset.univ : Finset (Fin k)).sort r
   have hlen : l.length = k := by simp [l]
   have hnodup : l.Nodup := by simpa [l] using

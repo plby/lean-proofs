@@ -50,7 +50,7 @@ theorem exists_edgeLabeling_completing_matchings [Fintype I]
   classical
   let U := ⨆ i, (M i).spanningCoe
   let R := G \ U
-  letI : DecidableRel R.Adj := fun x y ↦ Classical.propDecidable (R.Adj x y)
+  let : DecidableRel R.Adj := fun x y ↦ Classical.propDecidable (R.Adj x y)
   have hD : ∀ v, R.degree v ≤ D := by
     intro v
     simpa only [← card_neighborSet_eq_degree, Set.fintypeCard_eq_ncard] using

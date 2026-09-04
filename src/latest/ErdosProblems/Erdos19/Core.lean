@@ -846,8 +846,8 @@ lemma card_eventFinset_eq_mul_of_restriction
       Set.ncard {g : S → K | P g} *
         Fintype.card K ^ (Fintype.card A - S.card) := by
   classical
-  letI : Fintype (A → K) := Fintype.ofFinite _
-  letI : Fintype (S → K) := Fintype.ofFinite _
+  let : Fintype (A → K) := Fintype.ofFinite _
+  let : Fintype (S → K) := Fintype.ofFinite _
   let L := {g : S → K // P g}
   let Fiber (g : L) := {f : A → K // ∀ x : S, f x.1 = g.1 x}
   let equiv : E ≃ Σ g : L, Fiber g := {
@@ -1726,8 +1726,8 @@ lemma card_edgeFinset_le_two_mul_maximumMatching_mul_degree
     (D : ℕ) (hdegree : ∀ v, (G.neighborSet v).ncard ≤ D) :
     G.edgeSet.ncard ≤ 2 * M.edgeSet.ncard * D := by
   classical
-  letI : Fintype G.edgeSet := Fintype.ofFinite _
-  letI (v : V) : Fintype (G.neighborSet v) := Fintype.ofFinite _
+  let : Fintype G.edgeSet := Fintype.ofFinite _
+  let (v : V) : Fintype (G.neighborSet v) := Fintype.ofFinite _
   let covered : Finset V := M.verts.toFinset
   have hunmatched := maximum_matching_unmatched_pairwise_not_adj M hM hmax
   have hcover : G.edgeFinset ⊆
@@ -3211,8 +3211,8 @@ theorem SimpleGraph.colorable_of_partialColoring_collisionPairs [Fintype V]
     G.Colorable k := by
   apply SimpleGraph.colorable_of_partialColoring_savings G hk S c hc hdegree
   intro v hvS
-  letI : Fintype (coloredNeighborSet G S v) := Fintype.ofFinite _
-  letI : Fintype (fixedNeighborColors G S c v) := Fintype.ofFinite _
+  let : Fintype (coloredNeighborSet G S v) := Fintype.ofFinite _
+  let : Fintype (fixedNeighborColors G S c v) := Fintype.ofFinite _
   obtain ⟨left, right, hendpoints, hcollision, hcolors⟩ := hpairs v hvS
   let colorOn : coloredNeighborSet G S v → Fin k := fun x ↦
     c ⟨x.1, x.2.1⟩
@@ -5697,7 +5697,7 @@ lemma card_mrTentativeCollisionShortfallEvent_le_exp_of_degree
         Fintype.card (V → Fin C) ≤
       Real.exp (-ε ^ 2 /
         (2 * Fintype.card (G.neighborFinset v) * (2 : ℝ) ^ 2)) := by
-  letI : Nonempty (Fin C) := Fin.pos_iff_nonempty.mp hC
+  let : Nonempty (Fin C) := Fin.pos_iff_nonempty.mp hC
   have hmean := mrTentativeFinStatistic_finiteAverage_lower_bound_of_degree
     (C := C) (Δ := Δ) G v default hdegree hambient
   have hmarginMean : (a : ℝ) + ε ≤
@@ -6141,7 +6141,7 @@ theorem SimpleGraph.colorable_of_localColoringBadEvent_card_bound
         Fintype.card (V → Bool × Fin k)) :
     G.Colorable k := by
   classical
-  letI : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
+  let : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
   let dep : V → V → Prop := fun v w ↦
     ¬Disjoint (twoStepSupport G v) (twoStepSupport G w)
   have hdepDegree (v : V) :
@@ -6248,7 +6248,7 @@ theorem SimpleGraph.colorable_of_mr_retainedCollisionShortfall_card_bound
         Fintype.card (V → Fin C)) :
     G.Colorable k := by
   classical
-  letI : Nonempty (Fin C) := Fin.pos_iff_nonempty.mp hC
+  let : Nonempty (Fin C) := Fin.pos_iff_nonempty.mp hC
   let dep : V → V → Prop := fun v w ↦
     ¬Disjoint (twoStepSupport G v) (twoStepSupport G w)
   have hdepDegree (v : V) :
@@ -6349,7 +6349,7 @@ theorem SimpleGraph.colorable_of_mr_exp_and_certificate_bounds
         Fintype.card (V → Fin C)) :
     G.Colorable k := by
   classical
-  letI : Nonempty (Fin C) := Fin.pos_iff_nonempty.mp hC
+  let : Nonempty (Fin C) := Fin.pos_iff_nonempty.mp hC
   apply SimpleGraph.colorable_of_mr_tentative_and_spoiled_tail_card_bounds
     G hC hk hCk hdegree hgap hab
   intro v
@@ -7028,7 +7028,7 @@ lemma badVertices_ncard_mul_le_subscaleEdges [Fintype X]
   let _ : Fintype H := Fintype.ofFinite H
   let S : Set H := {e | e.1.ncard < k}
   let bad : Set X := {x | q ≤ (H.smallIncidentEdges x k).ncard}
-  letI : DecidableRel (fun (e : H) (x : X) ↦ x ∈ e.1) :=
+  let : DecidableRel (fun (e : H) (x : X) ↦ x ∈ e.1) :=
     fun _ _ ↦ Classical.propDecidable _
   have hvertex : ∀ x ∈ bad.toFinset,
       q ≤ (S.toFinset.filter fun e ↦ x ∈ e.1).card := by
@@ -7086,7 +7086,7 @@ lemma heavyProjectiveEdges_ncard_mul_le_badVertices [Fintype X]
   classical
   let _ : Fintype H := Fintype.ofFinite H
   let heavy : Set H := {e | e.1.ncard = k ∧ s ≤ (e.1 ∩ bad).ncard}
-  letI : DecidableRel (fun (x : X) (e : H) ↦ x ∈ e.1) :=
+  let : DecidableRel (fun (x : X) (e : H) ↦ x ∈ e.1) :=
     fun _ _ ↦ Classical.propDecidable _
   have hedge : ∀ e ∈ heavy.toFinset,
       s ≤ (bad.toFinset.filter fun x ↦ x ∈ e.1).card := by
@@ -8185,7 +8185,7 @@ lemma IsMatching.exists_cover_bounded_partition_refined [Fintype X]
       · intro _
         simp [hparts]
       · simp [hparts]
-    · letI : IsEmpty M := ⟨fun e ↦ hMnonempty ⟨e⟩⟩
+    · let : IsEmpty M := ⟨fun e ↦ hMnonempty ⟨e⟩⟩
       have hMcard : Fintype.card M = 0 := Fintype.card_eq_zero
       let P : Finpartition (Finset.univ : Finset M) := ⊥
       have hpartsCard : P.parts.card = 0 := by
@@ -8783,8 +8783,8 @@ lemma matching_verts_ncard [Fintype X] (H : SetHypergraph X)
     (M : H.disjointnessGraph.Subgraph) (hM : M.IsMatching) :
     M.verts.ncard = 2 * M.edgeSet.ncard := by
   classical
-  letI : Fintype M.verts := Fintype.ofFinite M.verts
-  letI : Fintype M.edgeSet := Fintype.ofFinite M.edgeSet
+  let : Fintype M.verts := Fintype.ofFinite M.verts
+  let : Fintype M.edgeSet := Fintype.ofFinite M.edgeSet
   have hfiber (y : M.edgeSet) :
       ((Finset.univ : Finset M.verts).filter (fun x ↦ hM.toEdge x = y)).card = 2 := by
     rcases y with ⟨⟨u, v⟩, huv⟩
@@ -8867,7 +8867,7 @@ theorem edgeColorable_of_disjointnessMatching [Fintype X]
         exact (hef (congrArg Subtype.val hunmatched)).elim
   have hverts := H.matching_verts_ncard M hM
   have hverts_le : M.verts.ncard ≤ Fintype.card H := by
-    letI : Fintype M.verts := Fintype.ofFinite M.verts
+    let : Fintype M.verts := Fintype.ofFinite M.verts
     simpa only [Set.fintypeCard_eq_ncard] using
       (Fintype.card_subtype_le (fun e : H ↦ e ∈ M.verts))
   have hedge_le : M.edgeSet.ncard ≤ Fintype.card H := by omega
@@ -9886,7 +9886,7 @@ lemma exists_cover_bounded_recoloring_card_le_pairBudget [Fintype X]
   classical
   obtain ⟨L, hLfintype, recolor, hbounded, hpalette⟩ :=
     H.exists_cover_bounded_recoloring color A
-  letI : Fintype L := hLfintype
+  let : Fintype L := hLfintype
   refine ⟨L, hLfintype, recolor, hbounded, hpalette.trans ?_⟩
   apply Nat.add_le_add_left
   apply Nat.mul_le_mul_right
@@ -11114,7 +11114,7 @@ theorem edgeColorable_of_edge_ncard_le_two [Fintype X] [Nonempty X]
     H.EdgeColorable (Fintype.card X) := by
   classical
   let n := Fintype.card X
-  letI : NeZero n := ⟨Fintype.card_ne_zero⟩
+  let : NeZero n := ⟨Fintype.card_ne_zero⟩
   let encode : X ≃ Fin n := Fintype.equivFin X
   let weight : X → ZMod n := fun x ↦ ZMod.finEquiv n (encode x)
   let coreColor (e : H.nontrivialEdges) : Fin n :=
@@ -11393,7 +11393,7 @@ theorem eventuallySetLinearHypergraphColorable_of_nontrivial
   refine ⟨max N 1, fun n hn H hlinear ↦ ?_⟩
   have hnN : N ≤ n := (le_max_left N 1).trans hn
   have hnpos : 0 < n := Nat.zero_lt_one.trans_le ((le_max_right N 1).trans hn)
-  letI : Nonempty (Fin n) := ⟨⟨0, hnpos⟩⟩
+  let : Nonempty (Fin n) := ⟨⟨0, hnpos⟩⟩
   have hcorelinear : H.nontrivialEdges.IsLinear := by
     intro e he f hf hef
     exact hlinear he.1 hf.1 hef

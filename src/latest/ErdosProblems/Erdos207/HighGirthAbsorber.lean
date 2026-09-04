@@ -117,7 +117,7 @@ lemma highGirthCycleCoverGraph_not_adj_root_root
       (highGirthCycleCoverRootEmbedding V q b) := by
   let coreDecidableEq : DecidableEq (CycleCoverAbsorberVertex V) :=
     inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex V) :=
+  let : LinearOrder (CycleCoverAbsorberVertex V) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex V)) _ coreDecidableEq
   change ¬((sphereTransformOutGraph (CycleCoverAbsorberVertex V) hq ⊔
@@ -509,7 +509,7 @@ theorem highGirthCycleCover_hasLocalization
       (highGirthCycleCoverBank V hq) := by
   let coreDecidableEq : DecidableEq (CycleCoverAbsorberVertex V) :=
     inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex V) :=
+  let : LinearOrder (CycleCoverAbsorberVertex V) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex V)) _ coreDecidableEq
   apply sphereTransformBank_hasLocalization hq
@@ -531,7 +531,7 @@ theorem highGirthCycleCover_absorbs_in_bank
           G.map (highGirthCycleCoverRootEmbedding V q)) C := by
   let coreDecidableEq : DecidableEq (CycleCoverAbsorberVertex V) :=
     inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex V) :=
+  let : LinearOrder (CycleCoverAbsorberVertex V) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex V)) _ coreDecidableEq
   obtain ⟨C₀, hC₀⟩ := cycleCoverAbsorber_absorbs hV G hG
@@ -888,7 +888,7 @@ lemma highGirthCycleCoverVertex_card_le
       highGirthAbsorberCardCoefficient q * m ^ 156 := by
   let coreDecidableEq :
       DecidableEq (CycleCoverAbsorberVertex (Fin m)) := inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex (Fin m)) :=
+  let : LinearOrder (CycleCoverAbsorberVertex (Fin m)) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex (Fin m))) _
         coreDecidableEq

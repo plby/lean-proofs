@@ -40,7 +40,7 @@ theorem finite_meets_limitBoundary_of_cofinal
       exact ⟨i, fun j hij hxj ↦ hxj.2 (hD hij hxi)⟩
     · let i : I := Classical.choice inferInstance
       exact ⟨i, fun j _ hxj ↦ hxR (Set.mem_iUnion.2 ⟨j, hxj.1⟩)⟩
-  letI : Fintype F := hF.fintype
+  let : Fintype F := hF.fintype
   choose bound hbound using hbound
   obtain ⟨i, hi⟩ := Finite.exists_le bound
   obtain ⟨j, hij, x, hxF, hxj⟩ := hmeet i

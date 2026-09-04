@@ -190,7 +190,7 @@ private lemma momentStageNewEvent_card {A : CoveringFamily}
     (momentStageNewEvent hQ i).ncard =
       (stagePrime r ^ stageExponent Q r) /
         (stagePrime r ^ momentStageExponent i) := by
-  letI : NeZero (stagePrime r ^ stageExponent Q r) :=
+  let : NeZero (stagePrime r ^ stageExponent Q r) :=
     ⟨(pow_pos (stagePrime_pos hr) _).ne'⟩
   exact card_congruenceClass (momentStagePrimePower_dvd hQ i)
     (pow_pos (stagePrime_pos hr) _) (A.get i.1).residue
@@ -348,7 +348,7 @@ lemma momentStage_oldEvent_inter_mass_le
         processedClassFactor stagePrime δ
           (Nat.lcm (momentStageOldPart i) (momentStageOldPart j)) (r - 1) := by
   let q := partialPeriod Q (r - 1)
-  letI : NeZero q := ⟨partialPeriod_ne_zero_of_Q_ne_zero Q (r - 1) hQ⟩
+  let : NeZero q := ⟨partialPeriod_ne_zero_of_Q_ne_zero Q (r - 1) hQ⟩
   have hi0 : 0 < momentStageOldPart i := by
     exact Nat.pos_of_dvd_of_pos (momentStageOldPart_dvd i) (NeZero.pos q)
   have hj0 : 0 < momentStageOldPart j := by

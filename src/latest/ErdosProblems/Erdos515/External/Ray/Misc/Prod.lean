@@ -48,7 +48,7 @@ public theorem swap_mem {a : A} {b : B} {s : Set (A × B)} : (b, a) ∈ swap '' 
   aesop
 
 public theorem swap_mem' {x : A × B} {s : Set (B × A)} : x ∈ swap '' s ↔ swap x ∈ s := by
-  have h := @swap_mem _ _ x.snd x.fst s; simp at h ⊢; exact h
+  have h := @swap_mem _ _ x.snd x.fst s; simp only [Set.mem_image, Prod.exists, Prod.swap_prod_mk] at h ⊢; exact h
 
 public theorem ball_prod_same' [PseudoMetricSpace A] [PseudoMetricSpace B] (x : A × B) (r : ℝ) :
     ball x r = ball x.fst r ×ˢ ball x.snd r := by

@@ -323,7 +323,7 @@ theorem tMul_primeSubset_le_main_add_error
   have hsq : Squarefree q := squarefree_primeProduct T hTprime
   have hodd : Odd q := odd_primeProduct T hTprime
     (fun p hp ↦ hne2 p (hTP hp))
-  letI : NeZero q := ⟨hodd.pos.ne'⟩
+  let : NeZero q := ⟨hodd.pos.ne'⟩
   have hcopComp : ∀ p ∈ P \ T, q.Coprime p := by
     intro p hp
     exact primeProduct_coprime_of_not_mem hTP hprime

@@ -235,7 +235,7 @@ theorem expect_indicator_isHigh {N d j : ℕ} (hN : 0 < N) (hdj : d ≤ j)
     (hdiv : j ∣ N) :
     (𝔼 p : Fin N, indicator (IsHigh N d j p)) = (d : ℚ) / j := by
   classical
-  haveI : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
+  have : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
   rw [show (𝔼 p : Fin N, indicator (IsHigh N d j p)) =
       ((highValues N d j).card : ℚ) / N by
         rw [Fintype.expect_eq_sum_div_card]
@@ -253,7 +253,7 @@ theorem expect_indicator_isLow {N d j : ℕ} (hN : 0 < N) (hdj : d ≤ j)
     (hdiv : j ∣ N) :
     (𝔼 p : Fin N, indicator (IsLow N d j p)) = 1 - (d : ℚ) / j := by
   classical
-  haveI : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
+  have : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
   rw [show (𝔼 p : Fin N, indicator (IsLow N d j p)) =
       ((lowValues N d j).card : ℚ) / N by
         rw [Fintype.expect_eq_sum_div_card]
@@ -276,7 +276,7 @@ theorem expect_indicator_vertex_isHigh {V : Type*} [Fintype V]
     (𝔼 w : Outcome V N, indicator (IsHigh N d j (priority w v))) =
       (d : ℚ) / j := by
   classical
-  haveI : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
+  have : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
   let labels : Finset (Bool × Fin N) :=
     (Finset.univ : Finset Bool) ×ˢ highValues N d j
   have hevent : ∀ w : Outcome V N,
@@ -362,7 +362,7 @@ theorem expect_indicator_monochromatic_and_allLow {V : Type*} [Fintype V]
     (𝔼 w : Outcome V N, indicator (Monochromatic w e b ∧ AllLow d j w e)) =
       ((1 : ℚ) / 2 * (1 - (d : ℚ) / j)) ^ j := by
   classical
-  haveI : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
+  have : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
   rw [show (𝔼 w : Outcome V N, indicator (Monochromatic w e b ∧ AllLow d j w e)) =
       (𝔼 w : Outcome V N, indicator (∀ v ∈ e, w v ∈ lowLabels N d j b)) by
         apply Finset.expect_congr rfl

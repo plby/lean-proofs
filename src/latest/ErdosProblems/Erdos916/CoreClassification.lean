@@ -162,7 +162,7 @@ theorem exists_minimal23Circuit_subgraph_with_card
     change (SimpleGraph.fromEdgeSet (E : Set (Sym2 S))).edgeSet =
       (E : Set (Sym2 S))
     rw [SimpleGraph.edgeSet_fromEdgeSet, hEnodiag.sdiff_eq_left]
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   have hHedgeFinset : H.edgeFinset = E := by
     apply Finset.coe_injective
     simpa [hHedgeSet]

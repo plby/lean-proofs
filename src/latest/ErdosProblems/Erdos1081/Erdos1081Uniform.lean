@@ -891,7 +891,7 @@ theorem two_mul_specialRegularAllowedPrimeReciprocal
   intro q hq
   have hqData := Finset.mem_filter.mp hq
   have hqprime := Nat.prime_of_mem_primesLE hqData.1
-  letI : Fact q.Prime := ⟨hqprime⟩
+  let : Fact q.Prime := ⟨hqprime⟩
   have hq2 : q ≠ 2 := hqData.2.1
   have hqp : q ≠ p := hqData.2.2
   have hpq : p ≠ q := hqp.symm
@@ -1210,7 +1210,7 @@ theorem eventually_squarefreeEulerMass_regular_lower
         squarefreeEulerMass (specialRegularAllowedPrimesFinite p Q) := by
     rw [← Real.exp_add]
     unfold specialRegularAllowedPrimeReciprocal
-    convert hexp using 1 <;> ring
+    convert hexp using 1 <;> ring_nf
   unfold regularSquarefreeEulerLowerConstant
   calc
     Real.exp (-Erdos469.naturalSquareSeries) *

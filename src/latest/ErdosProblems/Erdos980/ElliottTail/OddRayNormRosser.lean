@@ -129,8 +129,8 @@ theorem exists_fixedIdeal_oneCell_normSiftedMass_bound
       intro hdz
       subst d
       exact hprod0 (zero_dvd_iff.mp hd)
-    letI : NeZero d := ⟨hd0⟩
-    letI : NeZero (f * d) := ⟨mul_ne_zero hf0 hd0⟩
+    let : NeZero d := ⟨hd0⟩
+    let : NeZero (f * d) := ⟨mul_ne_zero hf0 hd0⟩
     have hfd : f.Coprime d := Nat.Coprime.of_dvd_right hd hfprod
     have hsq : Squarefree d :=
       Squarefree.squarefree_of_dvd hd (sievePrimes_product_squarefree D)

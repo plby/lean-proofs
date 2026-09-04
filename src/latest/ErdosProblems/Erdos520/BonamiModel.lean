@@ -164,7 +164,7 @@ lemma sum_finset_subtype_eq_sum_powerset {α M : Type*} [AddCommMonoid M]
       ∑ A ∈ P.powerset, F A := by
   classical
   let e := Equiv.finsetSubtypeComm (fun x : α => x ∈ P)
-  letI : Fintype {A : Finset α // ∀ x ∈ A, x ∈ P} :=
+  let : Fintype {A : Finset α // ∀ x ∈ A, x ∈ P} :=
     Fintype.ofEquiv (Finset P) e
   calc
     (∑ A : Finset P, F (A.map (Function.Embedding.subtype _))) =

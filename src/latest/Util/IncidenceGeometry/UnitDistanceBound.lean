@@ -24,7 +24,7 @@ theorem IncidenceGeometry.unit_distance_upper_bound :
     have hC_ge_five : (5 : ℝ) ≤ 5 + (200 : ℝ) ^ ((1 : ℝ) / 3) := by
       nlinarith
     rcases UnitDistanceArcGraph P with ⟨G, hGfin, h_edges, h_cross⟩
-    letI : Fintype G.edgeSet := hGfin
+    let : Fintype G.edgeSet := hGfin
     let e : ℝ := (G.edgeFinset.card : ℝ)
     have hu_le : (IncidenceGeometry.unitDistanceCount P : ℝ) ≤ e + (P.card : ℝ) := by
       dsimp [e]

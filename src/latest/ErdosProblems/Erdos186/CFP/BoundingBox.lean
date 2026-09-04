@@ -191,7 +191,9 @@ theorem intPoint_mem_paddedInterval {tailRank R : ℕ} {z : ℤ}
       ((n i : ℕ) : ℤ) *
         (paddedInterval tailRank R).steps i j = z
   rw [Fin.sum_univ_succ]
-  simp [paddedInterval, n]
+  simp only [paddedInterval, Nat.succ_eq_add_one, Fin.cases_zero,
+    Fin.cases_succ, Fin.zero_eta, Fin.isValue, intPoint_apply, mul_one,
+    Pi.zero_apply, mul_zero, Finset.sum_const_zero, add_zero, n]
   change -(R : ℤ) + ((z + (R : ℤ)).toNat : ℤ) = z
   rw [Int.toNat_of_nonneg hnonneg]
   omega
@@ -336,7 +338,10 @@ theorem intPoint_mem_initialInterval {tailRank n : ℕ} (hn : 0 < n) {z : ℤ}
       ((c i : ℕ) : ℤ) *
         (initialInterval tailRank n hn).steps i j = z
   rw [Fin.sum_univ_succ]
-  simp [initialInterval, c]
+  dsimp only [c]
+  simp only [initialInterval, Fin.cases_zero, Fin.cases_succ,
+    Pi.zero_apply, mul_zero, Finset.sum_const_zero, add_zero,
+    intPoint_apply, mul_one, zero_add]
   change ((z.toNat : ℕ) : ℤ) = z
   exact hzcast
 

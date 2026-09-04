@@ -61,7 +61,7 @@ theorem smallBall_of_charFun_bound (μ : Measure ℝ) [IsProbabilityMeasure μ]
   simp only [Pi.add_apply] at hint
   rw [integral_add hge hi, integral_add hg he, integral_const,
     integral_indicator_const _ hE] at hint
-  simp [γ] at hint
+  simp only [one_div, neg_mul, ge_iff_le] at hint
   have htail : γ.real E ≤ 2 * Real.exp (-(δ * T) ^ 2 / 2) := by
     apply (measureReal_mono (μ := γ)
       (show E ⊆ {u : ℝ | δ * T ≤ |u|} from by
@@ -72,8 +72,9 @@ theorem smallBall_of_charFun_bound (μ : Measure ℝ) [IsProbabilityMeasure μ]
   have hgint := integral_standardGaussian_exp_neg_sq_le ha
   apply (smallBall_le_charFun_gaussian μ hδ).trans
   apply mul_le_mul_of_nonneg_left _ (Real.exp_pos _).le
-  exact hint.trans (add_le_add (add_le_add (by simpa only [neg_mul] using hgint)
-    (by simp only [neg_mul, le_refl])) htail)
+  exact hint.trans (add_le_add
+    (add_le_add (by simpa only [neg_mul] using hgint) (by simp))
+    (by simpa only [smul_eq_mul, mul_one] using htail))
 
 theorem geometricVariance_succ_pos (x : ℝ) (n : ℕ) : 0 < geometricVariance x (n + 1) := by
   have h := geometricVariance_mono x (show 1 ≤ n + 1 by omega)

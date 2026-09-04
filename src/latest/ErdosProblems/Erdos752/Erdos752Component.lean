@@ -98,12 +98,12 @@ lemma degree_toSimpleGraph_eq [Fintype V] [decH : DecidableRel H.Adj]
     (c : H.ConnectedComponent) (x : c) :
     c.toSimpleGraph.degree x = H.degree x.1 := by
   classical
-  letI : DecidableRel H.Adj := decH
+  let : DecidableRel H.Adj := decH
   rw [← c.toSimpleGraph.card_neighborSet_eq_degree,
     Set.fintypeCard_eq_ncard,
     ← H.card_neighborSet_eq_degree,
     Set.fintypeCard_eq_ncard]
-  letI : DecidableRel c.toSimpleGraph.Adj := fun a b ↦ decH a.1 b.1
+  let : DecidableRel c.toSimpleGraph.Adj := fun a b ↦ decH a.1 b.1
   have hsub : H.neighborSet x.1 ⊆ c.supp := by
     intro y hy
     exact SimpleGraph.ConnectedComponent.mem_supp_of_adj_mem_supp c x.2 hy
@@ -133,10 +133,10 @@ theorem exists_connected_bipartite_component [Fintype V] [Nonempty V]
         c.toSimpleGraph.IsBipartite ∧
         ∀ x : c, k ≤ 2 * c.toSimpleGraph.degree x := by
   classical
-  letI : DecidableRel H.Adj := decH
+  let : DecidableRel H.Adj := decH
   let x : V := Classical.choice (inferInstance : Nonempty V)
   let c : H.ConnectedComponent := H.connectedComponentMk x
-  letI : DecidableRel c.toSimpleGraph.Adj := Classical.decRel _
+  let : DecidableRel c.toSimpleGraph.Adj := Classical.decRel _
   refine ⟨c, inferInstance, c.connected_toSimpleGraph,
     isBipartite_toSimpleGraph H hH c, ?_⟩
   intro y
@@ -157,7 +157,7 @@ theorem exists_connected_bipartite_component_of_le [Fintype V] [Nonempty V]
         (∀ x : c, k ≤ 2 * c.toSimpleGraph.degree x) ∧
         Function.Injective (componentEmbedding H c) ∧
         Function.Injective (componentHomToSupergraph H hHG c) := by
-  letI : DecidableRel H.Adj := decH
+  let : DecidableRel H.Adj := decH
   obtain ⟨c, hdec, hconn, hbip, hdeg⟩ :=
     exists_connected_bipartite_component H hk hH hdegree
   refine ⟨c, hdec, hconn, hbip, hdeg,

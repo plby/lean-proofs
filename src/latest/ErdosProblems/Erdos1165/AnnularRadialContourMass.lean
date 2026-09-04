@@ -81,7 +81,7 @@ private theorem radialWordOfNatPath_toList_vals
     ((radialWordOfNatPath n path hne hbound hstart hadj hbefore hend).toList.map
       Fin.val) = path := by
   apply List.ext_get
-  · simp [RadialLabelWord.toList]
+  · simp only [List.length_map, RadialLabelWord.length_toList]
     exact Nat.sub_add_cancel (List.length_pos_iff.mpr hne)
   · intro i hi₁ hi₂
     cases i with

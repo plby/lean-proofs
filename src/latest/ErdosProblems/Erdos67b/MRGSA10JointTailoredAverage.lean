@@ -255,7 +255,7 @@ theorem continuous_uncurry_norm_gsA10TwoBlockTailoredCoefficient
       Continuous (fun z : ℝ × ℝ ↦ gsRealShift (rho z) a k) := by
     by_cases hk : k = 0
     · subst k
-      simp
+      simp only [ArithmeticFunction.map_zero]
       exact continuous_const
     simp_rw [gsRealShift_apply_of_ne_zero _ _ hk]
     fun_prop
@@ -314,7 +314,7 @@ theorem doubleIntervalIntegral_norm_gsA10TwoBlockTailoredCoefficient_le_half
       Continuous (fun z : ℝ × ℝ ↦ gsRealShift (rho z) a k) := by
     by_cases hk : k = 0
     · subst k
-      simp
+      simp only [ArithmeticFunction.map_zero]
       exact continuous_const
     simp_rw [gsRealShift_apply_of_ne_zero _ _ hk]
     fun_prop

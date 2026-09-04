@@ -506,7 +506,7 @@ theorem tsum_weightedPrimeDifference_le_sqrt {h : ℕ →*₀ ℂ}
           (p : ℝ) ^ (-1 : ℝ) * (p : ℝ) ^ (1 - 2 * u) := by
         rw [← Real.rpow_natCast]
         rw [← Real.rpow_mul hp0.le]
-        convert Real.rpow_add hp0 (-1 : ℝ) (1 - 2 * u) using 1 <;> ring
+        convert Real.rpow_add hp0 (-1 : ℝ) (1 - 2 * u) using 1 <;> ring_nf
       rw [mul_pow, hpow, Real.rpow_neg_one]
       field_simp
       exact le_rfl)
@@ -1000,7 +1000,7 @@ theorem uniform_residue_estimate_for_divisors
           ((nonprincipalCharacters r).card : ℝ) * E r := by
   classical
   intro r hr hr0 a ha
-  letI : NeZero r := ⟨hr0⟩
+  let : NeZero r := ⟨hr0⟩
   exact norm_residueLSeries_sub_main_le hh hs (M r) (E₀ r) (E r)
     (hprincipal r hr hr0) (hnonprincipal r hr hr0) ha
 
@@ -1094,12 +1094,12 @@ theorem uniform_arbitrary_residue_estimate_for_divisors
     ∀ r, r ∣ q ^ k → r ≠ 0 → ∀ a : ZMod r,
       ‖residueLSeries h a s - Main‖ ≤ Err := by
   intro r hr hr0
-  letI : NeZero r := ⟨hr0⟩
+  let : NeZero r := ⟨hr0⟩
   apply uniform_arbitrary_residue_estimate hh hs M
     (fun t ↦ E₀ t + ‖((t.totient : ℂ)⁻¹)‖ *
       ((nonprincipalCharacters t).card : ℝ) * E t) Esc Main Err
   · intro t ht ht0 b hb
-    letI : NeZero t := ⟨ht0⟩
+    let : NeZero t := ⟨ht0⟩
     exact norm_residueLSeries_sub_main_le hh hs (M t) (E₀ t) (E t)
       (hprincipal t (ht.trans hr) ht0)
       (hnonprincipal t (ht.trans hr) ht0) hb

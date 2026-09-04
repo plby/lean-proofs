@@ -95,7 +95,7 @@ theorem lowRow_card_le (u : ℕ) :
     rw [hevents]
     convert htail using 1
     field_simp [hu]
-    ring
+    ring_nf
 
 /-- Fixing a set `A` of rows to be low costs one factor `lowRows u` for
 each member of `A`; all other rows remain arbitrary. -/
@@ -432,7 +432,7 @@ noncomputable def highDegreeVertices (G : SimpleGraph V)
     · simp only [Finset.mem_filter, Finset.mem_univ, true_and, LowRow,
         rowDegree_graphCrossMatrix]
       have hvHigh := (Finset.mem_filter.mp hv).2
-      simp
+      simp only [Equiv.symm_apply_apply, not_le, gt_iff_lt]
       exact hvHigh
     · simp [f]
 

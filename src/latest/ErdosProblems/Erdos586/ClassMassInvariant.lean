@@ -181,9 +181,9 @@ theorem stageDistribution_classMass_le
       let p := stagePrime (r + 1)
       let E := stageExponent Q (r + 1)
       let P := p ^ E
-      letI : NeZero q :=
+      let : NeZero q :=
         ⟨partialPeriod_ne_zero_of_Q_ne_zero Q r hQ⟩
-      letI : NeZero P := ⟨by
+      let : NeZero P := ⟨by
         exact (pow_pos (stagePrime_pos (by omega)) _).ne'⟩
       by_cases hpm : p ∣ m
       · have hmQ : m ∣ Q :=

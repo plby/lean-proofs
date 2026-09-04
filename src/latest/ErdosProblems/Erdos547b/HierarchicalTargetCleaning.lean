@@ -198,7 +198,7 @@ theorem targetCandidate_not_lowDegree_internal
       (ZhaoLemma59HierarchicalRegular.HierarchicalSegmentForest.rawCandidate
         F rootGroup rootRaw interiorRaw i a)
       (interiorRaw i b) := by
-  letI : DecidableRel (F.segments.tree i).Adj := Classical.decRel _
+  let : DecidableRel (F.segments.tree i).Adj := Classical.decRel _
   intro hzlow
   have hznot := (Finset.mem_sdiff.mp hz).2
   apply hznot

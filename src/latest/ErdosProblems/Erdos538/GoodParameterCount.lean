@@ -186,7 +186,7 @@ theorem goodParamToSample_properties
     exact h
   refine ⟨normalizedNull_fullSupport one_ne_zero _ (fun i => (p.1 i).ne_zero),
     normalizedNull_generatedRows_relation _ _, ?_, ?_, hcne⟩
-  · letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp hd
+  · let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp hd
     exact generatedRows_surjective _ _ p.2.1.2
   · exact p.2.2.1.2
 

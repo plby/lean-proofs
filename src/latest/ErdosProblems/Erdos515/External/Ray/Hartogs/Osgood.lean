@@ -138,7 +138,7 @@ theorem cauchy1_hasSum {f : ℂ → E} {c w : ℂ} {r : ℝ} (rp : r > 0) (fc : 
     HasSum
       (fun n : ℕ ↦ w ^ n • (2 * π * I : ℂ)⁻¹ • ∮ z in C(c, r), (z - c)⁻¹ ^ n • (z - c)⁻¹ • f z)
       ((2 * π * I : ℂ)⁻¹ • ∮ z in C(c, r), (z - (c + w))⁻¹ • f z) := by
-  simp at wm
+  simp only [mul_inv_rev, Complex.inv_I, neg_mul, inv_pow, neg_smul, smul_neg] at wm
   have ci : CircleIntegrable f c r := ContinuousOn.circleIntegrable (by linarith) fc
   have h := hasSum_cauchyPowerSeries_integral ci wm
   simp_rw [cauchyPowerSeries_apply] at h
@@ -178,7 +178,7 @@ theorem ContinuousOn.circleIntegral {f : ℂ → ℂ → E} {s : Set ℂ} (rp : 
     exact ContinuousOn.prodMk continuousOn_const (Continuous.continuousOn (continuous_circleMap _ _))
     intro t _; simp; exact ⟨xs, by linarith⟩
     exact measurableSet_uIoc
-  · apply MeasureTheory.ae_of_all _; intro t _; simp
+  · apply MeasureTheory.ae_of_all _; intro t _; simp only [deriv_circleMap]
     apply ContinuousOn.smul continuousOn_const
     have comp : (fun x ↦ f x (circleMap c1 r t)) = uncurry f ∘ fun x ↦ (x, circleMap c1 r t) := by
       apply funext; intro t; simp
@@ -200,7 +200,7 @@ theorem ContinuousOn.cauchy1 {n1 : ℕ} (rp : r > 0)
   apply Continuous.continuousOn
   exact Continuous.sub (Continuous.snd continuous_id) continuous_const
   intro x xp; exact center_not_in_sphere rp (Set.mem_prod.mp xp).right
-  simp; exact fc
+  simp only [Prod.mk.eta]; exact fc
 
 /-- One 2D coefficient of the 2D Cauchy series -/
 @[nolint unusedArguments]  -- Don't complain about the first argument
@@ -228,7 +228,7 @@ theorem sum_integral_commute {f : ℕ → ℂ → E} {g : ℂ → E} {c : ℂ} {
     (fc : ∀ n, ContinuousOn (f n) (sphere c r)) (fb : ∀ n z, z ∈ sphere c r → ‖f n z‖ ≤ b n)
     (bs : Summable b) (h : ∀ z, z ∈ sphere c r → HasSum (fun n ↦ f n z) (g z)) :
     HasSum (fun n ↦ ∮ z in C(c, r), f n z) (∮ z in C(c, r), g z) := by
-  rw [circleIntegral]; simp_rw [circleIntegral]; simp
+  rw [circleIntegral]; simp_rw [circleIntegral]; simp only [deriv_circleMap]
   apply intervalIntegral.hasSum_integral_of_dominated_convergence fun n _ ↦ r * b n
   · intro n; apply ContinuousOn.aestronglyMeasurable; apply ContinuousOn.smul
     apply ContinuousOn.mul (Continuous.continuousOn (continuous_circleMap _ _)) continuousOn_const
@@ -372,7 +372,7 @@ theorem series2_norm (h : Separate f c0 c1 r b s) (n : ℕ) :
   rw [series2]; simp only [inv_pow]
   have tb : ∀ n0, n0 ∈ Finset.range (n+1) →
       ‖termCmmap ℂ n n0 (h.series2Coeff n0 (n - n0))‖ ≤ b * r⁻¹ ^ n := by
-    intro n0 n0n; simp at n0n
+    intro n0 n0n; simp only [inv_pow] at n0n
     apply le_trans (termCmmap_norm ℂ n n0 (h.series2Coeff n0 (n - n0)))
     have sb := series2Coeff_bound h n0 (n - n0)
     rw [← Nat.add_sub_assoc n0n n0, Nat.add_sub_cancel_left] at sb
@@ -392,7 +392,7 @@ theorem cauchy2_radius (h : Separate f c0 c1 r b s) : ENNReal.ofReal r ≤ (seri
   rw [←ENNReal.toReal_lt_toReal (@ENNReal.coe_ne_top t) (@ENNReal.ofReal_ne_top r)] at tr
   rw [ENNReal.coe_toReal, ENNReal.toReal_ofReal h.rp.le] at tr
   apply FormalMultilinearSeries.le_radius_of_summable_nnnorm
-  simp_rw [← norm_toNNReal, ← NNReal.summable_coe]; simp
+  simp_rw [← norm_toNNReal, ← NNReal.summable_coe]; simp only [norm_toNNReal, NNReal.coe_mul, coe_nnnorm, NNReal.coe_pow]
   have lo : ∀ n : ℕ, 0 ≤ ‖series2 h n‖ * (t:ℝ)^n := by intro; bound
   have hi : ∀ n : ℕ, ‖series2 h n‖ * (t:ℝ)^n ≤ (n + 1) * b * (t / r) ^ n := by
     intro n; trans (↑n + 1) * b * r⁻¹ ^ n * (t:ℝ)^n
@@ -400,7 +400,7 @@ theorem cauchy2_radius (h : Separate f c0 c1 r b s) : ENNReal.ofReal r ≤ (seri
     · rw [mul_assoc ((↑n + 1) * b) _ _, ← mul_pow, inv_mul_eq_div]
   refine .of_nonneg_of_le lo hi ?_
   simp_rw [mul_comm _ b, mul_assoc b _ _]; apply Summable.mul_left b
-  have trn : ‖↑t / r‖ < 1 := by simp; rw [abs_of_pos h.rp, div_lt_one h.rp]; assumption
+  have trn : ‖↑t / r‖ < 1 := by simp only [norm_div, Real.norm_eq_abs, NNReal.abs_eq]; rw [abs_of_pos h.rp, div_lt_one h.rp]; assumption
   simp_rw [right_distrib _ _ _, one_mul]
   exact Summable.add (hasSum_coe_mul_geometric_of_norm_lt_one trn).summable
     (hasSum_geometric_of_norm_lt_one trn).summable
@@ -476,7 +476,7 @@ theorem cauchy2_hasSum_n1n0 (h : Separate f c0 c1 r b s) (w0m : w0 ∈ ball (0 :
   · apply Summable.mul_left
     apply summable_geometric_of_norm_lt_one
     simp only [norm_div, Real.norm_eq_abs, abs_of_pos h.rp]
-    simp at w1m ⊢; exact (div_lt_one h.rp).mpr w1m
+    simp only [abs_norm] at w1m ⊢; exact (div_lt_one h.rp).mpr w1m
   · intro z0 z0s
     simp_rw [smul_comm s _]; simp_rw [smul_comm (w1 ^ _) _]; apply HasSum.const_smul
     have fcs : ContinuousOn (fun z1 ↦ f (z0, z1)) (sphere c1 r) :=
@@ -547,7 +547,7 @@ theorem cauchy2_hasSum (h : Separate f c0 c1 r b s) (w0m : w0 ∈ ball (0 : ℂ)
     clear sum; funext n
     rw [series2]; simp only [_root_.sum_apply]
     simp_rw [termCmmap_apply]
-    nth_rw 1 [← Finset.sum_range_reflect]; simp
+    nth_rw 1 [← Finset.sum_range_reflect]; simp only [add_tsub_cancel_right]
     apply Finset.sum_congr rfl
     intro n0 n0n'; simp only [Finset.mem_range] at n0n'
     have n0n := Nat.le_of_lt_succ n0n'
@@ -558,13 +558,13 @@ theorem cauchy2_hasSum (h : Separate f c0 c1 r b s) (w0m : w0 ∈ ball (0 : ℂ)
 theorem osgood_h (h : Separate f c0 c1 r b s) :
     HasFPowerSeriesOnBall f (series2 h) (c0, c1) (ENNReal.ofReal r) :=
   { r_le := cauchy2_radius h
-    r_pos := by simp; exact h.rp
+    r_pos := by simp only [ENNReal.ofReal_pos]; exact h.rp
     hasSum := by
       simp only [Metric.eball_ofReal, Metric.mem_ball, dist_zero_right, Prod.forall]
       intro w0 w1 wr; rw [Prod.norm_def] at wr
       simp only [max_lt_iff] at wr
-      have w0m : w0 ∈ ball (0 : ℂ) r := by simp; exact wr.left
-      have w1m : w1 ∈ ball (0 : ℂ) r := by simp; exact wr.right
+      have w0m : w0 ∈ ball (0 : ℂ) r := by simp only [Metric.mem_ball, dist_zero_right]; exact wr.left
+      have w1m : w1 ∈ ball (0 : ℂ) r := by simp only [Metric.mem_ball, dist_zero_right]; exact wr.right
       exact cauchy2_hasSum h w0m w1m }
 
 end osgood

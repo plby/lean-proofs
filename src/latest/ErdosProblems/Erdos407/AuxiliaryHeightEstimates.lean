@@ -482,7 +482,7 @@ theorem two_mul_card_vanishingRow_lt {blocks coords : ℕ}
   let A : ℚ := Fintype.card (GLRAuxiliary.BadMonomial blocks coords degree eta)
   let N : ℚ := Fintype.card
     (AuxiliaryPolynomial.MonomialIndex blocks coords degree)
-  letI : NeZero coords := ⟨hcoords.ne'⟩
+  let : NeZero coords := ⟨hcoords.ne'⟩
   have hA : 0 ≤ A := by positivity
   have hN : 0 < N := by
     dsimp [N]
@@ -589,7 +589,7 @@ theorem coefficientHeightBound_le_pow {blocks coords : ℕ}
     (hmany : (6 : ℚ) * coords < blocks * eta ^ 2) :
     GLRAuxiliary.coefficientHeightBound (degree := degree) eta T ≤
       coefficientHeightBase T ^ totalDegree degree := by
-  letI : NeZero coords := ⟨hcoords.ne'⟩
+  let : NeZero coords := ⟨hcoords.ne'⟩
   let N : ℝ := Fintype.card
     (AuxiliaryPolynomial.MonomialIndex blocks coords degree)
   let S : ℝ := ‖GLRAuxiliary.supportVanishingMatrix

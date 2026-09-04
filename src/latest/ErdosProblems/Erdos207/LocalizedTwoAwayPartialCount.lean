@@ -75,7 +75,7 @@ theorem card_activeLocalizedTwoAway_partial_le
   · have he : IsEmpty (ActiveLocalizedTwoAwayWitness V F T a b U R) := ⟨fun w ↦ by
       have hmem := w.2 hTR
       exact (mem_erase.mp hmem).1 rfl⟩
-    letI := he
+    let := he
     rw [Fintype.card_eq_zero]
     exact Nat.zero_le _
   · have hcount := Fintype.card_le_of_injective

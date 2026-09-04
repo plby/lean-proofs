@@ -676,7 +676,7 @@ theorem finite_basisComplementSubspaces_of_finite_exteriorSpans {n q : ℕ}
   have huniv : (Set.univ : Set X).Finite := by
     rw [← hpreuniv]
     exact hpre
-  letI : Finite X := Set.finite_univ_iff.mp huniv
+  let : Finite X := Set.finite_univ_iff.mp huniv
   exact Set.toFinite X
 
 /-- The Plücker vector of the basis subfamily selected by `J`, transported
@@ -1803,7 +1803,7 @@ theorem sum_discretizedLocalConstants_lt {d : ℕ} (hd : 0 < d)
     (γ : ℝ) (hγ : 0 < γ) (a : HeightBoxes.LocalConstants d) :
     (∑ v, ∑ i, discretizedLocalConstants γ a v i) <
       (∑ v, ∑ i, a v i) + 3 * d * γ := by
-  letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp hd
+  let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp hd
   have hv : ∀ v : Place23,
       (∑ i, discretizedLocalConstants γ a v i) <
         (∑ i, a v i) + d * γ := by

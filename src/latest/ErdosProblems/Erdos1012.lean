@@ -640,11 +640,11 @@ theorem vertexTwoConnected_of_woodallBound_of_minDegree
   have hdelConn (c : V) : (G.induce {v : V | v ≠ c}).Connected := by
     obtain ⟨v, hvc⟩ := Fintype.exists_ne_of_one_lt_card
       (show 1 < Fintype.card V by omega) c
-    haveI : Nonempty ↑({v : V | v ≠ c} : Set V) := ⟨⟨v, hvc⟩⟩
+    have : Nonempty ↑({v : V | v ≠ c} : Set V) := ⟨⟨v, hvc⟩⟩
     exact ⟨hdelPre c⟩
   have hcard3 : 3 ≤ Fintype.card V := by omega
   have hneV : Nonempty V := Fintype.card_pos_iff.mp (by omega)
-  letI : Nonempty V := hneV
+  let : Nonempty V := hneV
   have hconn : G.Connected := by
     refine ⟨?_⟩
     intro u v
@@ -1234,7 +1234,7 @@ lemma PosaDegreeCondition.not_small_closed
 lemma PosaDegreeCondition.connected
     (hP : PosaDegreeCondition G) (hn : 3 ≤ Fintype.card V) : G.Connected := by
   have hne : Nonempty V := Fintype.card_pos_iff.mp (by omega)
-  letI : Nonempty V := hne
+  let : Nonempty V := hne
   rw [SimpleGraph.connected_iff_exists_forall_reachable]
   by_contra hconn
   push Not at hconn
@@ -1279,7 +1279,7 @@ noncomputable def longestEndpointPairs (G : SimpleGraph V) : Finset (V × V) :=
 
 lemma longestEndpointPairs_nonempty (hne : Nonempty V) :
     (longestEndpointPairs G).Nonempty := by
-  letI : Nonempty V := hne
+  let : Nonempty V := hne
   obtain ⟨a, b, p, hp⟩ := exists_isLongestPath G
   exact ⟨(a, b), mem_longestEndpointPairs.mpr ⟨p, hp⟩⟩
 
@@ -1608,7 +1608,7 @@ theorem hasCycleAtLeast_of_minDegree_edgeCount_path
       G.edgeFinset.card)
     {u v : V} {w : G.Walk u v} (hw : w.IsPath) (hwlen : H ≤ w.length) :
     HasCycleAtLeast G H := by
-  letI : Nonempty V := ⟨u⟩
+  let : Nonempty V := ⟨u⟩
   obtain ⟨ab, hab, hmax⟩ := (longestEndpointPairs G).exists_max_image
     (fun xy ↦ G.degree xy.1 + G.degree xy.2)
     (longestEndpointPairs_nonempty (G := G) inferInstance)
@@ -1680,7 +1680,7 @@ theorem hasCycleAtLeast_min_card_twice_shift_of_woodall
     (hedge : woodallBound (Fintype.card V) k + 1 ≤
       G.edgeFinset.card) :
     HasCycleAtLeast G (min (Fintype.card V) (2 * (k + 2))) := by
-  letI : Nonempty V := Fintype.card_pos_iff.mp (by omega)
+  let : Nonempty V := Fintype.card_pos_iff.mp (by omega)
   obtain ⟨ab, hab⟩ := longestEndpointPairs_nonempty (G := G) inferInstance
   rcases ab with ⟨a, b⟩
   obtain ⟨p, hp⟩ := mem_longestEndpointPairs.mp hab

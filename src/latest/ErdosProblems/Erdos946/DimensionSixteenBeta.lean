@@ -277,7 +277,7 @@ theorem finiteMainTerms_bounds_twoHundred_sixteen
   dsimp only
   let P := (descendingSievePrimes z y).reverse
   let stop : List ℕ → Prop := rosserStoppingPredicate 200 (y ^ S)
-  letI : DecidablePred stop := Classical.decPred stop
+  let : DecidablePred stop := Classical.decPred stop
   have hstop : (fun s : List ℕ => decide (stop s.reverse)) =
       descendingRosserStop 200 (y ^ S) := by
     funext s

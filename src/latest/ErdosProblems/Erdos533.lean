@@ -375,8 +375,8 @@ theorem sphereProbability_preimage_linearIsometry (h : ℕ) (hh : 0 < h)
     Erdos615.Construction.sphereProbability h hh
         ((realSphereEquiv e) ⁻¹' A) =
       Erdos615.Construction.sphereProbability h hh A := by
-  letI : Nonempty (Fin h) := ⟨⟨0, hh⟩⟩
-  letI : Nonempty (Erdos615.Construction.Sphere h) :=
+  let : Nonempty (Fin h) := ⟨⟨0, hh⟩⟩
+  let : Nonempty (Erdos615.Construction.Sphere h) :=
     Erdos615.Construction.sphereNonempty h hh
   let M := Erdos615.Construction.sphereFiniteMeasure h
   let P := Erdos615.Construction.sphereProbability h hh
@@ -2055,69 +2055,133 @@ theorem geometricGraph_cliqueFree_five {k m : ℕ} {d t : ℝ}
     rcases v₄ with v₄ | v₄
   all_goals simp at h₀₁ h₀₂ h₀₃ h₀₄ h₁₂ h₁₃ h₁₄ h₂₃ h₂₄ h₃₄
   · apply no_four_left_of_clique w z hdsmall hs.isClique
-      (a := v₀) (b := v₁) (c := v₂) (e := v₃) <;> simp <;> assumption
+      (a := v₀) (b := v₁) (c := v₂) (e := v₃) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_four_left_of_clique w z hdsmall hs.isClique
-      (a := v₀) (b := v₁) (c := v₂) (e := v₃) <;> simp <;> assumption
+      (a := v₀) (b := v₁) (c := v₂) (e := v₃) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_four_left_of_clique w z hdsmall hs.isClique
-      (a := v₀) (b := v₁) (c := v₂) (e := v₄) <;> simp <;> assumption
+      (a := v₀) (b := v₁) (c := v₂) (e := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_three_left_two_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (a := v₀) (b := v₁) (c := v₂) (p := v₃) (q := v₄) <;> simp <;> assumption
+      (a := v₀) (b := v₁) (c := v₂) (p := v₃) (q := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_four_left_of_clique w z hdsmall hs.isClique
-      (a := v₀) (b := v₁) (c := v₃) (e := v₄) <;> simp <;> assumption
+      (a := v₀) (b := v₁) (c := v₃) (e := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_three_left_two_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (a := v₀) (b := v₁) (c := v₃) (p := v₂) (q := v₄) <;> simp <;> assumption
+      (a := v₀) (b := v₁) (c := v₃) (p := v₂) (q := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_three_left_two_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (a := v₀) (b := v₁) (c := v₄) (p := v₂) (q := v₃) <;> simp <;> assumption
+      (a := v₀) (b := v₁) (c := v₄) (p := v₂) (q := v₃) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_two_left_three_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (p := v₀) (q := v₁) (a := v₂) (b := v₃) (c := v₄) <;> simp <;> assumption
+      (p := v₀) (q := v₁) (a := v₂) (b := v₃) (c := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_four_left_of_clique w z hdsmall hs.isClique
-      (a := v₀) (b := v₂) (c := v₃) (e := v₄) <;> simp <;> assumption
+      (a := v₀) (b := v₂) (c := v₃) (e := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_three_left_two_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (a := v₀) (b := v₂) (c := v₃) (p := v₁) (q := v₄) <;> simp <;> assumption
+      (a := v₀) (b := v₂) (c := v₃) (p := v₁) (q := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_three_left_two_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (a := v₀) (b := v₂) (c := v₄) (p := v₁) (q := v₃) <;> simp <;> assumption
+      (a := v₀) (b := v₂) (c := v₄) (p := v₁) (q := v₃) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_two_left_three_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (p := v₀) (q := v₂) (a := v₁) (b := v₃) (c := v₄) <;> simp <;> assumption
+      (p := v₀) (q := v₂) (a := v₁) (b := v₃) (c := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_three_left_two_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (a := v₀) (b := v₃) (c := v₄) (p := v₁) (q := v₂) <;> simp <;> assumption
+      (a := v₀) (b := v₃) (c := v₄) (p := v₁) (q := v₂) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_two_left_three_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (p := v₀) (q := v₃) (a := v₁) (b := v₂) (c := v₄) <;> simp <;> assumption
+      (p := v₀) (q := v₃) (a := v₁) (b := v₂) (c := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_two_left_three_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (p := v₀) (q := v₄) (a := v₁) (b := v₂) (c := v₃) <;> simp <;> assumption
+      (p := v₀) (q := v₄) (a := v₁) (b := v₂) (c := v₃) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_four_right_of_clique w z hdsmall hs.isClique
-      (a := v₁) (b := v₂) (c := v₃) (e := v₄) <;> simp <;> assumption
+      (a := v₁) (b := v₂) (c := v₃) (e := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_four_left_of_clique w z hdsmall hs.isClique
-      (a := v₁) (b := v₂) (c := v₃) (e := v₄) <;> simp <;> assumption
+      (a := v₁) (b := v₂) (c := v₃) (e := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_three_left_two_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (a := v₁) (b := v₂) (c := v₃) (p := v₀) (q := v₄) <;> simp <;> assumption
+      (a := v₁) (b := v₂) (c := v₃) (p := v₀) (q := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_three_left_two_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (a := v₁) (b := v₂) (c := v₄) (p := v₀) (q := v₃) <;> simp <;> assumption
+      (a := v₁) (b := v₂) (c := v₄) (p := v₀) (q := v₃) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_two_left_three_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (p := v₁) (q := v₂) (a := v₀) (b := v₃) (c := v₄) <;> simp <;> assumption
+      (p := v₁) (q := v₂) (a := v₀) (b := v₃) (c := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_three_left_two_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (a := v₁) (b := v₃) (c := v₄) (p := v₀) (q := v₂) <;> simp <;> assumption
+      (a := v₁) (b := v₃) (c := v₄) (p := v₀) (q := v₂) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_two_left_three_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (p := v₁) (q := v₃) (a := v₀) (b := v₂) (c := v₄) <;> simp <;> assumption
+      (p := v₁) (q := v₃) (a := v₀) (b := v₂) (c := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_two_left_three_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (p := v₁) (q := v₄) (a := v₀) (b := v₂) (c := v₃) <;> simp <;> assumption
+      (p := v₁) (q := v₄) (a := v₀) (b := v₂) (c := v₃) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_four_right_of_clique w z hdsmall hs.isClique
-      (a := v₀) (b := v₂) (c := v₃) (e := v₄) <;> simp <;> assumption
+      (a := v₀) (b := v₂) (c := v₃) (e := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_three_left_two_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (a := v₂) (b := v₃) (c := v₄) (p := v₀) (q := v₁) <;> simp <;> assumption
+      (a := v₂) (b := v₃) (c := v₄) (p := v₀) (q := v₁) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_two_left_three_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (p := v₂) (q := v₃) (a := v₀) (b := v₁) (c := v₄) <;> simp <;> assumption
+      (p := v₂) (q := v₃) (a := v₀) (b := v₁) (c := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_two_left_three_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (p := v₂) (q := v₄) (a := v₀) (b := v₁) (c := v₃) <;> simp <;> assumption
+      (p := v₂) (q := v₄) (a := v₀) (b := v₁) (c := v₃) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_four_right_of_clique w z hdsmall hs.isClique
-      (a := v₀) (b := v₁) (c := v₃) (e := v₄) <;> simp <;> assumption
+      (a := v₀) (b := v₁) (c := v₃) (e := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_two_left_three_right_of_clique w z hd0 ht hdsmall hdt hs.isClique
-      (p := v₃) (q := v₄) (a := v₀) (b := v₁) (c := v₂) <;> simp <;> assumption
+      (p := v₃) (q := v₄) (a := v₀) (b := v₁) (c := v₂) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_four_right_of_clique w z hdsmall hs.isClique
-      (a := v₀) (b := v₁) (c := v₂) (e := v₄) <;> simp <;> assumption
+      (a := v₀) (b := v₁) (c := v₂) (e := v₄) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_four_right_of_clique w z hdsmall hs.isClique
-      (a := v₀) (b := v₁) (c := v₂) (e := v₃) <;> simp <;> assumption
+      (a := v₀) (b := v₁) (c := v₂) (e := v₃) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
   · apply no_four_right_of_clique w z hdsmall hs.isClique
-      (a := v₀) (b := v₁) (c := v₂) (e := v₃) <;> simp <;> assumption
+      (a := v₀) (b := v₁) (c := v₂) (e := v₃) <;> first
+        | simp only [ne_eq] <;> assumption
+        | simp
 
 /-! ## The finite construction interface -/
 
@@ -2801,7 +2865,7 @@ theorem isCounterexample_finiteGeometricGraph {η : ℝ} {N k m : ℕ}
         (S.card : ℝ) < η * (m + m : ℕ)) :
     N ≤ m + m ∧ IsCounterexample η (finiteGeometricGraph d t w z) := by
   refine ⟨hN, ?_, hedge, hsmall⟩
-  letI : Nonempty (Fin m) := ⟨⟨0, hm⟩⟩
+  let : Nonempty (Fin m) := ⟨⟨0, hm⟩⟩
   rw [finiteGeometricGraph, cliqueFree_map_iff]
   exact geometricGraph_cliqueFree_five w z hd0 ht hdsmall hdt
 

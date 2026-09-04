@@ -120,10 +120,10 @@ theorem odd_dense_connected_input
   let q := Nat.sqrt (2 * H.edgeCount)
   let a := oddDenseA D k * (Nat.sqrt q + 1)
   have hn₂ : 2 ≤ n := by
-    letI : Nonempty (Fin n) := by simpa [n] using hconn.nonempty
+    let : Nonempty (Fin n) := by simpa [n] using hconn.nonempty
     let v : Fin n := Classical.choice (inferInstance : Nonempty (Fin n))
     obtain ⟨w, hvw⟩ := H.graph.exists_adj_iff_not_isIsolated.mpr (hH v)
-    letI : Nontrivial (Fin n) := ⟨⟨v, w, hvw.ne⟩⟩
+    let : Nontrivial (Fin n) := ⟨⟨v, w, hvw.ne⟩⟩
     have h := Fintype.one_lt_card (α := Fin n)
     simp only [Fintype.card_fin] at h
     omega

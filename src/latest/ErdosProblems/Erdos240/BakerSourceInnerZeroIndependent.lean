@@ -134,7 +134,7 @@ theorem g_eq_zero_at_new_innerTarget_of_algebraicBounds
       omega
     have hmj := weight_add_jet_le_currentBudget P N t m j.1 hm hj
     have hS := P.lemmaFourBudget_le_Slevel N t
-    convert hjetBound hmj hS using 1 <;> dsimp only [E] <;> ring
+    convert hjetBound hmj hS using 1 <;> dsimp only [E] <;> ring_nf
   have hcontour :
       (2 : ℝ) ^ (((3 * R + l) * T) + R * T) ≤ Real.exp B := by
     simpa only [R, Rnext, T, B] using

@@ -2051,7 +2051,10 @@ lemma sharpPolynomials_norm_le_exp_budget
   induction n with
   | zero =>
       intro z hz
-      simp [sharpBudget]
+      simp only [sharpPolynomials_zero, Polynomial.eval_X]
+      have hbudget : Real.exp (sharpBudget 0) = 1 := by
+        simp [sharpBudget]
+      rw [hbudget]
       exact hz
   | succ n ih =>
       intro z hz

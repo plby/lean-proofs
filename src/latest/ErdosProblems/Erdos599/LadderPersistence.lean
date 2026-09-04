@@ -376,7 +376,7 @@ theorem canonicalAccumulated_inessential_mono
               (fun d _hd ↦ G.ladderAccumulatedStateAux step d) :=
             G.hasMatchingLadderChain_of_invariants step o ihStructural
           let C : G.GrowingWarpChain (Set.Iio o) := Classical.choose hchain
-          letI : Nonempty (Set.Iio o) := hoLimit.nonempty_Iio.to_subtype
+          let : Nonempty (Set.Iio o) := hoLimit.nonempty_Iio.to_subtype
           have hstage (d : Set.Iio o) :
               C.stage d = (G.ladderAccumulatedStateAux step d.1).1 :=
             Classical.choose_spec hchain d

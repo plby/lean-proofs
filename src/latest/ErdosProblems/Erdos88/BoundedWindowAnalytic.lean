@@ -120,7 +120,7 @@ theorem norm_finCharFun_sq_le_of_card_slices_except {n : ℕ}
     let Slice := BooleanSlices.BooleanSlicePoint
       (Finset.univ : Finset (Fin n)) k.1
     let e : Fiber ≃ Slice := subsetCardFiberEquiv n k
-    letI : Nonempty Slice := Nonempty.map e hk
+    let : Nonempty Slice := Nonempty.map e hk
     let g : Slice → ℂ := fun U ↦
       Complex.exp ((t * X U.1 : ℝ) * Complex.I)
     have heq :
@@ -240,7 +240,7 @@ theorem ksssLemma81_booleanCube
     have hdecay := hNtail n hnTail
     have hdecay' : 2 * Real.exp (-(n : ℝ) / 32) ≤
         (n : ℝ) ^ (-10 : ℝ) := by
-      convert hdecay using 1 <;> simp only [Real.rpow_one] <;> ring
+      convert hdecay using 1 <;> simp only [Real.rpow_one] <;> ring_nf
     have hbinomial' : Fourier.finProbability (Finset (Fin n))
         (fun U ↦ Bad (subsetCardStatistic n U)) ≤
           2 * Real.exp (-(n : ℝ) / 32) := by

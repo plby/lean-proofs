@@ -1391,7 +1391,7 @@ lemma polynomial_factor_pow_le_one {p : ℝ} {k : ℕ}
   have ht : p - 1 ≤ (k : ℝ) := by linarith
   have hpow : (1 + (1 - p) / k) ^ k ≤ Real.exp (1 - p) := by
     have h := Real.one_sub_div_pow_le_exp_neg (n := k) (t := p - 1) ht
-    convert h using 1 <;> ring
+    convert h using 1 <;> ring_nf
   have hexp : Real.exp (1 - p) ≤ 1 / p := by
     have := Real.exp_bound_div_one_sub_of_interval
       (x := 1 - p) (sub_nonneg.mpr hp1) (by linarith)
@@ -1798,7 +1798,7 @@ lemma erdos35_le_rpow {α : ℝ} {k : ℕ} (hα₀ : 0 ≤ α) (hα₁ : α ≤ 
   have hroot : α ^ r ≤ 1 - u := by
     have h := rpow_one_add_le_one_add_mul_self hs hr₀ hr₁
     dsimp [r, u] at h ⊢
-    convert h using 1 <;> field_simp <;> ring
+    convert h using 1 <;> field_simp <;> ring_nf
   have hu₀ : 0 ≤ u := div_nonneg (sub_nonneg.mpr hα₁) hkR.le
   have hq₀ : 0 ≤ 1 + u := by positivity
   have hroot_pos : 0 < α ^ r := Real.rpow_pos_of_pos hα r

@@ -1707,7 +1707,7 @@ theorem special_classSquareSubgroup_eq_top
     {p : ℕ} [Fact p.Prime] (hp4 : p % 4 = 3) :
     (classSquareSubgroup : Subgroup
       (ClassGroup (Zsqrtd (-((p : ℤ) ^ 3))))) = ⊤ := by
-  letI : Fintype (ClassGroup (Zsqrtd (-((p : ℤ) ^ 3)))) :=
+  let : Fintype (ClassGroup (Zsqrtd (-((p : ℤ) ^ 3)))) :=
     zsqrtdClassGroupFintype (-((p : ℤ) ^ 3))
       (specialDiscriminant_neg p Fact.out)
   apply classSquareSubgroup_eq_top_of_sq_eq_one

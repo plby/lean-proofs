@@ -33,7 +33,7 @@ theorem exists_relative_isClopen_of_no_continuum
   let C : Set X := Gᶜ
   let xC : C := ⟨x, hx⟩
   let yC : C := ⟨y, hy⟩
-  letI : CompactSpace C := isCompact_iff_compactSpace.mp hG.isClosed_compl.isCompact
+  let : CompactSpace C := isCompact_iff_compactSpace.mp hG.isClosed_compl.isCompact
   have hycomp : yC ∉ connectedComponent xC := by
     intro hycomp
     apply hno

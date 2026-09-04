@@ -77,7 +77,7 @@ theorem complementRank_pos_of_one_lt_card (hA : 1 < A.card) :
     obtain ⟨z, _hzball, hzmap⟩ := X.lifts a ha
     have hfactor := S.quotient.reducedMap_complementCoordinates z
     have hzero : S.quotient.complementCoordinates z = 0 := by
-      letI : Subsingleton
+      let : Subsingleton
           (IntegralPoint S.quotient.complementRank) := by
         rw [hrank0]
         infer_instance

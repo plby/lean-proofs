@@ -359,7 +359,7 @@ lemma subst_mobius_injective :
     Function.Injective (fun f : ℝ⟦X⟧ ↦ f.subst mobius) := by
   have hc : coeff 1 mobius = (1 : ℝ) := by
     simpa using coeff_mobius_pow 1 1
-  letI : Invertible (coeff 1 mobius) := hc ▸ invertibleOne
+  let : Invertible (coeff 1 mobius) := hc ▸ invertibleOne
   intro f g hfg
   have hsub := congrArg (fun q : ℝ⟦X⟧ ↦ q.subst mobius.substInv) hfg
   rw [PowerSeries.subst_comp_subst_apply hasSubst_mobius
@@ -464,7 +464,7 @@ lemma coeff_externalDifferentialExpression (f : ℝ⟦X⟧) (n : ℕ) (hn : 2 �
     simp only [Nat.cast_add, Nat.cast_one]
     simp only [Nat.add_assoc]
     push_cast
-    ring
+    ring_nf
 
 /-- Exact recurrence for the retained-block return counts, in real form. -/
 theorem externalReturningWords_card_recurrence_real (o : Orientation)

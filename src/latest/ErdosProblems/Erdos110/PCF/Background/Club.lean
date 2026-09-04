@@ -318,13 +318,8 @@ theorem IsClub.inter {Ϟ : Ordinal.{u}} (hCof : ℵ₀ < Ϟ.cof) {C D : Set Ordi
   rw [← sInter_pair C D]
   refine IsClub.sInter hCof ?_ ⟨C, mem_insert C _⟩ ?_
   · simp_all
-  · by_cases h : C = D
-    · simp_all
-      rw [← lift_cof, ← Cardinal.lift_one.{u, u + 1}, Cardinal.lift_lt] -- {u, u + 1} (:
-      exact one_lt_aleph0.trans hCof
-    · simp_all
-      rw [← lift_cof, ← Cardinal.lift_two.{u + 1, u}, Cardinal.lift_lt] -- {u + 1, u} ):
-      exact two_lt_aleph0.trans hCof
+  · exact (Set.finite_singleton D).insert C |>.lt_aleph0 |>.trans
+      (by simpa using Cardinal.lift_lt.2 hCof)
 
 theorem IsClub.iInter_Iio {Ϟ o : Ordinal.{u}} {p : Iio o} {f : Iio p → Set Ordinal} (hϞ : ℵ₀ < Ϟ.cof)
     (h : p.1.card < Ϟ.cof) (hf : ∀ x, IsClub (f x) Ϟ) : IsClub (⋂ α, f α) Ϟ := by
@@ -404,7 +399,7 @@ theorem isAcc_diagInter {κ : Cardinal.{u}} (hκ : ℵ₀ < κ) (hreg : κ.IsReg
   let P : Ordinal.{u} → Ordinal → Prop := fun p q ↦ ∀ r : Iio κ.ord, r.1 < p → q ∈ c r
   have auxP : ∀ r : Iio κ.ord, 0 < r.1 → ∃ s, (r < s ∧ P r s) := by
     intro r hr
-    haveI : ↑(Iio r.1).Nonempty := ⟨0, hr⟩
+    have : ↑(Iio r.1).Nonempty := ⟨0, hr⟩
     let C : Set Ordinal := ⋂ s : Iio r.1, c ⟨s.1, have : s.1 < r.1 := s.2
       this.trans (r.2 : r.1 < κ.ord)⟩
     have : IsClub C κ.ord := by

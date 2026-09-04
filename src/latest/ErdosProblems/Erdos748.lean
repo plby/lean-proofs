@@ -336,7 +336,7 @@ lemma sum_degreeInto_self (S : Finset V) :
     ∑ v ∈ S, degreeInto G v S = 2 * (edgesInside G S).card := by
   classical
   let K : SimpleGraph V := (G.induce (↑S : Set V)).spanningCoe
-  letI : DecidableRel K.Adj := Classical.decRel _
+  let : DecidableRel K.Adj := Classical.decRel _
   have hneighbor (v : V) : K.neighborFinset v =
       if v ∈ S then G.neighborFinset v ∩ S else ∅ := by
     ext w
@@ -739,7 +739,7 @@ def sumFreeCover (n K : ℕ) [NeZero n] : Finset (Finset ℕ) :=
 
 theorem sumFreeSubsets_subset_cover {n K : ℕ} (hn : 0 < n) (hK : 1 ≤ K) :
     sumFreeSubsets n ⊆ @sumFreeCover n K ⟨hn.ne'⟩ := by
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   classical
   intro A hAfree
   have hAdata := mem_sumFreeSubsets_iff.mp hAfree
@@ -812,7 +812,7 @@ theorem sumFreeCount_le_container {n K Δ : ℕ} (hn : 0 < n) (hK : 1 ≤ K)
         (2 ^ (n - n / 2) +
           (∑ j ∈ Finset.range (n / (Δ + 1) + 1), n.choose j) *
             2 ^ ((2 * K) * n / (2 * (2 * K) - Δ + 1))) := by
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   classical
   let R : ℕ :=
     (∑ j ∈ Finset.range (n / (Δ + 1) + 1), n.choose j) *
@@ -844,7 +844,7 @@ theorem sumFreeCount_le_container {n K Δ : ℕ} (hn : 0 < n) (hK : 1 ≤ K)
               (zmodSteps n S : Set (ZMod n))) := by
               exact Finset.card_image_le
         _ ≤ R := by
-          letI : LinearOrder (ZMod n) := (ZMod.finEquiv n).symm.toEquiv.linearOrder
+          let : LinearOrder (ZMod n) := (ZMod.finEquiv n).symm.toEquiv.linearOrder
           have hpos : ∀ s ∈ S, 0 < s := by
             intro s hs
             exact (Finset.mem_Icc.mp (hSdata.1 hs)).1
@@ -1143,7 +1143,7 @@ lemma tendsto_fixedUpperLogTerm : Tendsto
     rw [Real.logb_mul (by norm_num : (6 : ℝ) ≠ 0)
       (by exact_mod_cast (show m + 1 ≠ 0 by omega) : ((m + 1 : ℕ) : ℝ) ≠ 0)]
     field_simp
-  · ring
+  · ring_nf
 
 lemma tendsto_fixedUpperRationalTerm : Tendsto
     (fun m : ℕ ↦ (2 * m ^ 2 : ℝ) /

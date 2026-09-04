@@ -36,7 +36,7 @@ theorem amalgamate_embeds_of_copies {W : Type u} {H : Hypergraph W} {F G : FTS}
     (hglue : f x = g y)
     (hmeet : ∀ a b, f a = g b → a = x ∧ b = y) :
     (F.amalgamate G x y).Embeds H := by
-  refine' ⟨ fun v => Sum.elim f ( fun b => g b.1 ) v, _, _ ⟩ <;> simp +decide;
+  refine' ⟨ fun v => Sum.elim f ( fun b => g b.1 ) v, _, _ ⟩ <;> simp +decide only [ne_eq];
   · intro a b hab;
     cases a <;> cases b <;> simp_all +decide [ hf.eq_iff, hg.eq_iff ]; all_goals grind;
   · -- By definition of amalgamation, we can split the goal into two cases: when the edge is from F and when it is from G.
@@ -125,7 +125,7 @@ theorem class_Gfree {W : Type u} [Infinite W] {H : Hypergraph W}
   contrapose! hcon;
   obtain ⟨g, hg_inj, hg_e⟩ := hcon;
   obtain ⟨v, hvC⟩ : ∃ v ∈ C, g y = v := by
-    simp_all +decide [ Hypergraph.restrict ];
+    simp_all +decide only [↓existsAndEq, and_true];
     simp_all +decide [ FTS.Isolated ];
     exact hg_e _ hy.choose_spec.1 |>.2 hy.choose_spec.2;
   obtain ⟨g', hg'inj, hg'0, hg'1⟩ : ∃ g' : G.V → W, Function.Injective g' ∧ (∀ b, ¬ G.Isolated b → g' b = g b) ∧ (∀ b, G.Isolated b → g' b ∉ Set.range (K v) ∧ g' b ∉ g '' {b' : G.V | ¬ G.Isolated b'}) := by
@@ -133,7 +133,7 @@ theorem class_Gfree {W : Type u} [Infinite W] {H : Hypergraph W}
   apply amalgamate_embeds_of_copies x y (K v) (hKinj v (hCB hvC.left)) (hKe v (hCB hvC.left)) g' hg'inj (by
   intro e he
   have h_image : g' '' (↑e : Set G.V) = g '' (↑e : Set G.V) := by
-    ext w; simp;
+    ext w; simp only [Set.mem_image, SetLike.mem_coe];
     constructor <;> rintro ⟨ x, hx, rfl ⟩ <;> use x <;> simp_all +decide [ FTS.Isolated ];
     · rw [ hg'0 x e he hx ];
     · exact hg'0 x e he hx
@@ -156,7 +156,7 @@ theorem amalgamate_obligatory_of_nonisolated {F G : FTS} (x : F.V) (y : G.V)
     FTS.Obligatory.{u} (F.amalgamate G x y) := by
   intro W H htri huc
   by_contra hcon
-  haveI : Infinite W := huc.infinite htri
+  have : Infinite W := huc.infinite htri
   classical
   refine huc ?_
   -- Chosen copies of `F` rooted at each vertex of the root set.
@@ -188,7 +188,7 @@ theorem amalgamate_obligatory_of_nonisolated {F G : FTS} (x : F.V) (y : G.V)
   set D : SimpleGraph W := SimpleGraph.fromRel (fun v w => w ∈ out v) with hDdef
   have hcov : ∀ v w, D.Adj v w → w ∈ out v ∨ v ∈ out w := by
     intro v w h; rw [hDdef, SimpleGraph.fromRel_adj] at h; exact h.2
-  haveI : DecidableRel D.Adj := fun _ _ => Classical.dec _
+  have : DecidableRel D.Adj := fun _ _ => Classical.dec _
   obtain ⟨χ, hχ⟩ := colorable_of_out D d out hout hcov
   -- Partition the host into the complement of the root set and the colour classes.
   set part : W → Option (Fin (2 * d + 1)) :=
@@ -289,7 +289,7 @@ theorem amalgamate_obligatory_of_isolated {F G : FTS} (x : F.V) (y : G.V)
     FTS.Obligatory.{u} (F.amalgamate G x y) := by
   intro W H htri huc;
   obtain ⟨g, hg_inj, hg_e⟩ := hG H htri huc;
-  haveI : Infinite W := huc.infinite htri
+  have : Infinite W := huc.infinite htri
   set v := g y
   set S := Set.range g
   have hS : S.Finite := Set.finite_range g;
@@ -312,10 +312,10 @@ theorem amalgamate_obligatory_of_isolated {F G : FTS} (x : F.V) (y : G.V)
     have h_image : f1 '' (↑e : Set F.V) = f0 '' (↑e : Set F.V) := by
       ext w;
       constructor <;> rintro ⟨ a, ha, rfl ⟩;
-      · by_cases ha' : F.Isolated a <;> simp_all +decide;
+      · by_cases ha' : F.Isolated a <;> simp_all +decide only [Set.mem_image, SetLike.mem_coe];
         · exact False.elim ( ha' e he ha );
         · exact ⟨ a, ha, rfl ⟩;
-      · by_cases ha' : F.Isolated a <;> simp_all +decide [ Set.image ];
+      · by_cases ha' : F.Isolated a <;> simp_all +decide only [Set.mem_image, SetLike.mem_coe];
         · exact False.elim ( ha' e he ha );
         · exact ⟨ a, ha, hf1_0 a ha' ⟩;
     exact h_image.symm ▸ hf0_e e he |>.1;

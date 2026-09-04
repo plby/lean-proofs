@@ -90,8 +90,8 @@ theorem smoothRunStarts_card_le_of_prime_count {N H T : ℕ}
     have h : (0 : ℝ) < (Q.card : ℝ) :=
       lt_of_lt_of_le (by positivity : (0 : ℝ) < ((T : ℝ) / Real.log T) / 10) hcount
     exact_mod_cast h
-  letI : Nonempty Q := (Finset.card_pos.mp hQpos).coe_sort
-  letI : ∀ q : Q, NeZero q.1 := fun q => ⟨(hqprime q).ne_zero⟩
+  let : Nonempty Q := (Finset.card_pos.mp hQpos).coe_sort
+  let : ∀ q : Q, NeZero q.1 := fun q => ⟨(hqprime q).ne_zero⟩
   let vanish : ∀ q : Q, Finset (ZMod q.1) := fun q => forwardShiftResidues q.1 H
   have hcoprime : Pairwise (Nat.Coprime on fun q : Q => q.1) := by
     intro q r hqr

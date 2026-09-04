@@ -119,7 +119,7 @@ def splitVertex (T : SimpleGraph α) (S : Finset α) :
 lemma splitVertex_injective (T : SimpleGraph α) (S : Finset α) :
     Function.Injective (splitVertex T S) := by
       intro x y hxy;
-      cases x <;> cases y <;> simp_all +decide [ splitVertex ];
+      cases x <;> cases y <;> simp_all +decide only [Sum.inr.injEq, reduceCtorEq];
       · rename_i x y;
         exact absurd ( shrubVertex_val_not_mem T S y ) ( by simp +decide [ ← hxy, x.2 ] );
       · rename_i x y;
@@ -249,7 +249,7 @@ theorem exists_seed_rooted_structure
       (∀ a b, T.Adj a.1 b.1 →
         parent a = some b ∨ parent b = some a) := by
           obtain ⟨ parent0, rank0, hparent0, hrank0 ⟩ := IsTree.exists_rooted_edge_structure T hT;
-          refine' ⟨ fun a => Option.bind ( parent0 a ) fun b => if hb : b ∈ S then some ⟨ b, hb ⟩ else none, fun a => rank0 a, _, _, _ ⟩ <;> simp +decide [ * ];
+          refine' ⟨ fun a => Option.bind ( parent0 a ) fun b => if hb : b ∈ S then some ⟨ b, hb ⟩ else none, fun a => rank0 a, _, _, _ ⟩ <;> simp +decide only [Subtype.forall];
           · grind +suggestions;
           · intro a ha b hb h; cases h' : parent0 a <;> aesop;
           · grind
@@ -318,7 +318,7 @@ lemma shrubComponent_surjective (T : SimpleGraph α) (S : Finset α) :
     Function.Surjective (shrubComponent T S) := by
       intro c;
       obtain ⟨v, hv⟩ : ∃ v : α, v ∈ c.1.supp := by
-        have := componentNonseedVertices_nonempty T S c; simp_all +decide;
+        have := componentNonseedVertices_nonempty T S c; simp_all +decide only [ConnectedComponent.mem_supp_iff];
         obtain ⟨ v, hv ⟩ := this; use v; simp_all +decide [ componentNonseedVertices ] ;
       exact ⟨ ⟨ c, ⟨ v, hv ⟩ ⟩, rfl ⟩
 
@@ -326,7 +326,8 @@ lemma shrubComponent_fiber_card
     (T : SimpleGraph α) (S : Finset α) (c : NonseedComponent T S) :
     (Finset.univ.filter (fun v : ShrubVertex T S => shrubComponent T S v = c)).card =
       (componentNonseedVertices T S c.1).card := by
-        refine' Finset.card_bij ( fun v hv => v.val ) _ _ _ <;> simp +decide;
+        refine' Finset.card_bij ( fun v hv => v.val ) _ _ _ <;> simp +decide only [mem_filter, mem_univ, true_and, exists_prop, Sigma.exists, Subtype.exists,
+    ConnectedComponent.mem_supp_iff];
         · intro a ha
           simp [componentNonseedVertices];
           exact ⟨ shrubVertex_val_not_mem T S a, by aesop ⟩;

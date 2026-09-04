@@ -188,7 +188,7 @@ theorem pairLinearMapZMod_surjective_of_affineRankTwoGoodPrime
     {q r : κ} (hqr : q ≠ r) :
     Function.Surjective
       (AffineForm.pairLinearMapZMod p (forms q) (forms r)) := by
-  letI : Fact p.Prime := ⟨hgood.1⟩
+  let : Fact p.Prime := ⟨hgood.1⟩
   obtain ⟨i, j, hij⟩ := hgood.2 hqr
   exact
     AffineForm.pairLinearMapZMod_surjective_of_minor_ne_zero

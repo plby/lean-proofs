@@ -91,7 +91,7 @@ theorem richQuota_total_error_lt
   have hqR : (0 : ℝ) < q := by exact_mod_cast hq
   push_cast
   by_cases hK : K = 0
-  · simp [hK]
+  · simp only [gt_iff_lt]
     positivity
   · have hKR : (0 : ℝ) < K := by positivity
     have hleft :

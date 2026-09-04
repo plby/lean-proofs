@@ -82,7 +82,7 @@ lemma eventually_claim121_fourier_error_absorption
       rw [scale_mul hqpos
         (((-(3 : ℝ) / 2) + (1 + 6 * gamma)) + 1 / 20)
         (-6 / 5 : ℝ)]
-      congr 2 <;> ring
+      congr 2 <;> ring_nf
     _ ≤ scale q (-(3 : ℝ) / 2) + scale q (-(3 : ℝ) / 2) :=
       add_le_add hfirstQ' hsecondQ'
     _ = 2 * scale q (-(3 : ℝ) / 2) := by ring

@@ -230,7 +230,7 @@ theorem flattenedAnnular_oriented_upper_le
   · rw [flattenedAnnular_oriented_upper_of_sign_true
       ε A e j hs]
     unfold flattenedAnnularSignedUpper
-    simp [signedGridLower, signedGridUpper, hs] at hupperIcc ⊢
+    simp only [ge_iff_le] at hupperIcc ⊢
     exact hupperIcc.2
 
 theorem flattenedAnnular_oriented_product_eq

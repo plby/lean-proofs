@@ -156,7 +156,7 @@ theorem zmod_subgroup_index_eq_div_card_and_multiples_mem
     H.index = q / Nat.card H ∧
       ∀ j : Fin (Nat.card H),
         (((q / Nat.card H) * (j : ℕ) : ℕ) : ZMod q) ∈ H := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   have hmul : H.index * Nat.card H = q := by
     simpa using H.index_mul_card
   have hcardpos : 0 < Nat.card H := Nat.card_pos
@@ -308,7 +308,7 @@ theorem restrictedSumset_sq_covers_differenceSubgroup
       ∃ z ∈ restrictedSumset (R * R) T,
         (z : ZMod q) = (R * R) • g₀ + h := by
   intro h hh
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let E := G.erase g₀
   have hR : 0 < R := by
     have : 0 < G.card := Finset.card_pos.mpr ⟨g₀, hg₀⟩
@@ -436,7 +436,7 @@ theorem exists_integer_lifts_of_residue_block
     (hw : ∀ j, (w j : ZMod q) = b + (((d * (j : ℕ) : ℕ) : ZMod q))) :
     ∃ z : Fin h → ℤ, ∀ j,
       w j = (b.val : ℤ) + (d : ℤ) * (j : ℕ) + (q : ℤ) * z j := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   have hchoose : ∀ j : Fin h, ∃ z : ℤ,
       w j = (b.val : ℤ) + (d : ℤ) * (j : ℕ) + (q : ℤ) * z := by
     intro j

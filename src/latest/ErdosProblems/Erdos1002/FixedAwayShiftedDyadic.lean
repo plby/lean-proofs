@@ -69,7 +69,7 @@ theorem tsum_fixedAwayRapidEnvelope_two_scaled_int_le
     (∑' q : ℤ,
         fixedAwayRapidEnvelope 2 ((q : ℝ) / (p : ℝ))) ≤
       4 * (p : ℝ) * fixedAwayIntegerQuadraticEnvelopeMass := by
-  letI : NeZero p := ⟨hp.ne'⟩
+  let : NeZero p := ⟨hp.ne'⟩
   let f : ℤ × Fin p → ℝ := fun z ↦
     fixedAwayRapidEnvelope 2
       (((z.1 : ℝ) * (p : ℝ) + (z.2 : ℕ)) / (p : ℝ))
@@ -388,7 +388,7 @@ theorem tsum_fixedAwayShiftedDiagonalSample_le
       16 * fixedAwayPVQuadraticDecayConstant t δ ^ 2 *
         (((p * Nat.totient p : ℕ) : ℝ) * (p : ℝ)) *
           fixedAwayIntegerQuadraticEnvelopeMass := by
-  letI : NeZero p := ⟨hp.ne'⟩
+  let : NeZero p := ⟨hp.ne'⟩
   let f : ℤ × Fin p → ℝ := fun z ↦
     fixedAwayShiftedDiagonalSample t δ p
       (z.1 * (p : ℤ) + (z.2 : ℕ))
@@ -1020,7 +1020,7 @@ theorem tsum_fixedAwayShiftedDiagonalTailSample_le
         fixedAwayRapidEnvelope J h *
         (((p * Nat.totient p : ℕ) : ℝ) * (p : ℝ)) *
           fixedAwayIntegerQuadraticEnvelopeMass := by
-  letI : NeZero p := ⟨hp.ne'⟩
+  let : NeZero p := ⟨hp.ne'⟩
   let f : ℤ × Fin p → ℝ := fun z ↦
     fixedAwayShiftedDiagonalTailSample t δ p h
       (z.1 * (p : ℤ) + (z.2 : ℕ))

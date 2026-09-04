@@ -163,7 +163,7 @@ theorem prod_mass_sq_mul_scale_ge
     (1 : ℝ) ≤ (Q : ℝ) ^ (2 * D) * scale n *
       (∏ i, TargetWeights.mass L Q (p i)) ^ 2 := by
   by_cases hI : IsEmpty I
-  · letI : IsEmpty I := hI
+  · let : IsEmpty I := hI
     have huniv : (Finset.univ : Finset I) = ∅ := by
       ext i
       exact isEmptyElim i
@@ -176,7 +176,7 @@ theorem prod_mass_sq_mul_scale_ge
         Nat.mul_pos (pow_pos hQ _) (scale_pos n)
       omega
     exact_mod_cast hp
-  · haveI : Nonempty I := not_isEmpty_iff.mp hI
+  · have : Nonempty I := not_isEmpty_iff.mp hI
     have hn : 0 < n := by
       obtain ⟨i⟩ := ‹Nonempty I›
       obtain ⟨x, -⟩ := (p i).property

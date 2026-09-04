@@ -1465,13 +1465,13 @@ theorem probabilityMoments_conditioned_add_compl
       (ProbabilityTheory.cond_add_cond_compl_eq hsm
         (ν : Measure SymbolicSpace) (t := t))
   funext f
-  letI : IsFiniteMeasure
+  let : IsFiniteMeasure
       ((ν : Measure SymbolicSpace) s •
         (conditionedProbability ν s hs : Measure SymbolicSpace)) :=
     ⟨by
       rw [Measure.smul_apply, measure_univ, smul_eq_mul, mul_one]
       exact measure_lt_top (ν : Measure SymbolicSpace) s⟩
-  letI : IsFiniteMeasure
+  let : IsFiniteMeasure
       ((ν : Measure SymbolicSpace) sᶜ •
         (conditionedProbability ν sᶜ hsc : Measure SymbolicSpace)) :=
     ⟨by
@@ -1674,7 +1674,7 @@ theorem meanErgodic_limit_ae_const
       atTop
       (𝓝 (indicatorConstLp 2 MeasurableSet.univ
         (measure_ne_top μ Set.univ) (∫ x, f x ∂μ))) := by
-  letI : Nonempty X := nonempty_of_isProbabilityMeasure μ
+  let : Nonempty X := nonempty_of_isProbabilityMeasure μ
   let U := koopmanL2 T μ hT.1
   let v := BoundedContinuousFunction.toLp 2 μ ℝ f
   let S : Submodule ℝ (Lp ℝ 2 μ) :=
@@ -2012,8 +2012,8 @@ theorem exists_dense_pointwise_generic_subsequence
         ∀ j, Tendsto
           (fun n ↦ birkhoffAverage ℝ T (G j) (ns n) x) atTop
           (nhds (∫ y, G j y ∂μ)) := by
-  letI : Nonempty X := nonempty_of_isProbabilityMeasure μ
-  letI : TopologicalSpace.SeparableSpace
+  let : Nonempty X := nonempty_of_isProbabilityMeasure μ
+  let : TopologicalSpace.SeparableSpace
       (BoundedContinuousFunction X ℝ) := by
     let e := ContinuousMap.isometryEquivBoundedOfCompact X ℝ
     exact e.surjective.denseRange.separableSpace e.continuous
@@ -2582,11 +2582,10 @@ theorem returnTimes_shiftedOriginCylinder (A : Set ℕ) (t : ℕ) :
       {n : ℕ | n + t ∈ A} := by
   ext n
   simp [returnTimes, shiftedOriginCylinder, originCylinder,
-    symbolicShift_iterate_apply, symbolicPoint]
+    symbolicShift_iterate_apply, symbolicPoint, Nat.add_comm]
   have hnonneg : (0 : ℤ) ≤ (t : ℤ) + n := by positivity
   rw [and_iff_right hnonneg]
   rw [show (t : ℤ) + n = ((t + n : ℕ) : ℤ) by norm_cast, Int.toNat_natCast]
-  rw [Nat.add_comm]
 
 /-- The precise pointed dynamical configuration needed for Problem 656. -/
 def HasPointedKMRRProgression (A : Set ℕ) : Prop :=
@@ -2685,7 +2684,7 @@ theorem pointedProgression_of_progressionMeasure {A : Set ℕ}
   have hF : MeasurableSet F :=
     isClopen_originCylinder.isOpen.measurableSet.prod MeasurableSet.univ
   have hFne : σ F ≠ 0 := ne_of_gt hσ.1
-  letI : NeBot (ae (σ.restrict F)) := (ae_restrict_neBot.mpr hFne)
+  let : NeBot (ae (σ.restrict F)) := (ae_restrict_neBot.mpr hFne)
   have hmem : ∀ᵐ p ∂σ.restrict F, p ∈ F := ae_restrict_mem hF
   have hproperties : ∀ᵐ p ∂σ.restrict F,
       IsErdosProgression symbolicShift (symbolicPoint A) p.1 p.2 ∧
@@ -3066,8 +3065,8 @@ theorem exists_weaklyGeneric_pair_orbit_blocks
           (fun n ↦ (T^[n] a, T^[n] x))
           (component (a, x) : Measure (X × X))
           (orbitIntervalBlocks start length) := by
-  letI : Nonempty (X × X) := ⟨(a, b)⟩
-  letI : TopologicalSpace.SeparableSpace
+  let : Nonempty (X × X) := ⟨(a, b)⟩
+  let : TopologicalSpace.SeparableSpace
       (BoundedContinuousFunction (X × X) ℝ) := by
     let e := ContinuousMap.isometryEquivBoundedOfCompact (X × X) ℝ
     exact e.surjective.denseRange.separableSpace e.continuous
@@ -3609,7 +3608,7 @@ theorem relativeProductKernel_eq_difference_comap
   ext z
   rw [Kernel.comap_apply, relativeProductKernel_apply,
     relativeProductKernel_apply]
-  congr 1 <;> abel
+  congr 1 <;> abel_nf
 
 theorem relativeProductProbability_eq_difference
     {Z X : Type*} [MeasurableSpace Z] [MeasurableSpace X]
@@ -4219,11 +4218,11 @@ theorem parityAverageMeasure_eq
     [Measure.IsAddHaarMeasure m] (alpha : Z)
     (hrot : Ergodic (fun w : Z ↦ alpha + w) m) :
     parityAverageMeasure m alpha = m := by
-  letI hprob : IsProbabilityMeasure (parityAverageMeasure m alpha) :=
+  let hprob : IsProbabilityMeasure (parityAverageMeasure m alpha) :=
     ⟨parityAverageMeasure_univ m alpha⟩
-  letI hinv : Measure.IsAddLeftInvariant (parityAverageMeasure m alpha) :=
+  let hinv : Measure.IsAddLeftInvariant (parityAverageMeasure m alpha) :=
     ⟨fun z ↦ map_add_left_parityAverage m alpha z hrot⟩
-  letI hhaar : Measure.IsAddHaarMeasure (parityAverageMeasure m alpha) :=
+  let hhaar : Measure.IsAddHaarMeasure (parityAverageMeasure m alpha) :=
     Measure.isAddHaarMeasure_of_isCompact_nonempty_interior
       (parityAverageMeasure m alpha) Set.univ isCompact_univ
       (by simp) (by simp) (by simp)
@@ -4859,18 +4858,18 @@ theorem countable_koopmanEigenvalues
     (T : X → X) (mu : Measure X) [IsFiniteMeasure mu]
     (hT : MeasurePreserving T mu mu) :
     Set.Countable {z : ℂ | IsKoopmanEigenvalue T mu hT z} := by
-  letI : MeasureTheory.IsSeparable mu := inferInstance
-  letI : Fact ((2 : ℝ≥0∞) ≠ ∞) := ⟨by norm_num⟩
-  letI : SecondCountableTopology (Lp ℂ (2 : ℝ≥0∞) mu) := inferInstance
+  let : MeasureTheory.IsSeparable mu := inferInstance
+  let : Fact ((2 : ℝ≥0∞) ≠ ∞) := ⟨by norm_num⟩
+  let : SecondCountableTopology (Lp ℂ (2 : ℝ≥0∞) mu) := inferInstance
   let Lambda := {z : ℂ // IsKoopmanEigenvalue T mu hT z}
-  letI : TopologicalSpace Lambda := ⊥
-  letI : DiscreteTopology Lambda := ⟨rfl⟩
+  let : TopologicalSpace Lambda := ⊥
+  let : DiscreteTopology Lambda := ⟨rfl⟩
   let f : Lambda → Lp ℂ (2 : ℝ≥0∞) mu :=
     normalizedKoopmanEigenvector T mu hT
   have hf : IsClosedEmbedding f :=
     Metric.isClosedEmbedding_of_pairwise_le_dist (show (0 : ℝ) < 1 by norm_num)
       (fun _ _ hne => one_le_dist_normalizedKoopmanEigenvector T mu hT hne)
-  haveI : TopologicalSpace.SeparableSpace Lambda := hf.isEmbedding.separableSpace
+  have : TopologicalSpace.SeparableSpace Lambda := hf.isEmbedding.separableSpace
   have hcount : Countable Lambda :=
     TopologicalSpace.separableSpace_iff_countable.mp inferInstance
   exact hcount
@@ -5112,7 +5111,7 @@ theorem kroneckerAmbientMap_eigen_ae
     (fun x => kroneckerAmbientMap T mu hT (T x)) =ᵐ[mu]
       (fun x => kroneckerAmbientRotation T mu hT +
         kroneckerAmbientMap T mu hT x) := by
-  letI : Countable (KoopmanEigenvalueType T mu hT) :=
+  let : Countable (KoopmanEigenvalueType T mu hT) :=
     (countable_koopmanEigenvalues T mu hT).to_subtype
   filter_upwards [ae_all_iff.2 fun lambda =>
     koopmanEigenfunctionCircle_eigen_ae T mu hT herg lambda]
@@ -5501,7 +5500,7 @@ theorem isAddHaarMeasure_of_dense_rotation
     (hpres : MeasurePreserving (fun z : Z ↦ alpha + z) m m)
     (hdense : DenseRange (fun n : ℤ ↦ n • alpha)) :
     Measure.IsAddHaarMeasure m := by
-  letI : Measure.IsAddLeftInvariant m :=
+  let : Measure.IsAddLeftInvariant m :=
     isAddLeftInvariant_of_dense_zmultiples m alpha hpres hdense
   exact Measure.isAddHaarMeasure_of_isCompact_nonempty_interior
     m Set.univ isCompact_univ (by simp) (by simp) (by simp)
@@ -5534,7 +5533,7 @@ theorem kroneckerAmbientBasepoint_mem_support
     (hT : Ergodic T mu) :
     kroneckerAmbientBasepoint T mu hT ∈
       (kroneckerAmbientMeasure T mu hT.toMeasurePreserving).support := by
-  letI : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
     (countable_koopmanEigenvalues T mu hT.toMeasurePreserving).to_subtype
   exact Classical.choose_spec (Measure.nonempty_support
     (μ := kroneckerAmbientMeasure T mu hT.toMeasurePreserving) (by
@@ -5564,7 +5563,7 @@ theorem measurable_kroneckerFactorMap
     (T : X → X) (mu : Measure X) [IsProbabilityMeasure mu]
     (hT : Ergodic T mu) : Measurable (kroneckerFactorMap T mu hT) := by
   classical
-  letI : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
     (countable_koopmanEigenvalues T mu hT.toMeasurePreserving).to_subtype
   let Z := KroneckerAmbient T mu hT.toMeasurePreserving
   let H := KroneckerSubgroup T mu hT.toMeasurePreserving
@@ -5601,7 +5600,7 @@ theorem kroneckerFactorMap_coe_ae
         KroneckerAmbient T mu hT.toMeasurePreserving)) =ᵐ[mu]
       (fun x ↦ kroneckerAmbientMap T mu hT.toMeasurePreserving x -
         kroneckerAmbientBasepoint T mu hT) := by
-  letI : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
     (countable_koopmanEigenvalues T mu hT.toMeasurePreserving).to_subtype
   let Z := KroneckerAmbient T mu hT.toMeasurePreserving
   let alpha := kroneckerAmbientRotation T mu hT.toMeasurePreserving
@@ -5679,7 +5678,7 @@ theorem kroneckerFactorMap_semiconj_ae
     (fun x ↦ kroneckerFactorMap T mu hT (T x)) =ᵐ[mu]
       (fun x ↦ kroneckerSubgroupRotation T mu hT +
         kroneckerFactorMap T mu hT x) := by
-  letI : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
     (countable_koopmanEigenvalues T mu hT.toMeasurePreserving).to_subtype
   have hcoe := kroneckerFactorMap_coe_ae T mu hT
   have hcoeT := hT.quasiMeasurePreserving.ae_eq_comp hcoe
@@ -5730,13 +5729,13 @@ theorem ergodic_kroneckerSubgroupRotation
     (hT : Ergodic T mu) :
     Ergodic (fun z ↦ kroneckerSubgroupRotation T mu hT + z)
       (kroneckerFactorMeasure T mu hT) := by
-  letI : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
     (countable_koopmanEigenvalues T mu hT.toMeasurePreserving).to_subtype
   let H := KroneckerSubgroup T mu hT.toMeasurePreserving
-  letI : BorelSpace H := inferInstance
-  letI : SecondCountableTopology H :=
+  let : BorelSpace H := inferInstance
+  let : SecondCountableTopology H :=
     Topology.IsInducing.subtypeVal.secondCountableTopology
-  letI : MeasurableAdd₂ H := ContinuousAdd.measurableMul₂
+  let : MeasurableAdd₂ H := ContinuousAdd.measurableMul₂
   apply ergodic_map_of_ae_semiconj T mu hT
     (kroneckerFactorMap T mu hT) (measurable_kroneckerFactorMap T mu hT)
     (fun z ↦ kroneckerSubgroupRotation T mu hT + z)
@@ -5750,17 +5749,17 @@ theorem isAddHaarMeasure_kroneckerFactorMeasure
     (T : X → X) (mu : Measure X) [IsProbabilityMeasure mu]
     (hT : Ergodic T mu) :
     Measure.IsAddHaarMeasure (kroneckerFactorMeasure T mu hT) := by
-  letI : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
     (countable_koopmanEigenvalues T mu hT.toMeasurePreserving).to_subtype
   let H := KroneckerSubgroup T mu hT.toMeasurePreserving
-  letI : SecondCountableTopology H :=
+  let : SecondCountableTopology H :=
     Topology.IsInducing.subtypeVal.secondCountableTopology
-  letI : CompactSpace H :=
+  let : CompactSpace H :=
     isCompact_iff_compactSpace.mp
       (AddSubgroup.isClosed_topologicalClosure _).isCompact
-  letI : BorelSpace H := inferInstance
-  letI : MeasurableAdd₂ H := ContinuousAdd.measurableMul₂
-  letI : MeasurableNeg H := inferInstance
+  let : BorelSpace H := inferInstance
+  let : MeasurableAdd₂ H := ContinuousAdd.measurableMul₂
+  let : MeasurableNeg H := inferInstance
   exact isAddHaarMeasure_of_dense_rotation
     (kroneckerFactorMeasure T mu hT) (kroneckerSubgroupRotation T mu hT)
     (ergodic_kroneckerSubgroupRotation T mu hT).toMeasurePreserving
@@ -5807,13 +5806,13 @@ theorem kroneckerFiberKernel_fiber
     ∀ᵐ z ∂kroneckerFactorMeasure T mu hT,
       ∀ᵐ x ∂kroneckerFiberKernel T mu hT z,
         kroneckerFactorMap T mu hT x = z := by
-  letI : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
     (countable_koopmanEigenvalues T mu hT.toMeasurePreserving).to_subtype
   let H := KroneckerSubgroup T mu hT.toMeasurePreserving
-  letI : SecondCountableTopology H :=
+  let : SecondCountableTopology H :=
     Topology.IsInducing.subtypeVal.secondCountableTopology
-  letI : BorelSpace H := inferInstance
-  letI : MeasurableEq H := inferInstance
+  let : BorelSpace H := inferInstance
+  let : MeasurableEq H := inferInstance
   let pi := kroneckerFactorMap T mu hT
   let eta := kroneckerFiberKernel T mu hT
   let m := kroneckerFactorMeasure T mu hT
@@ -5857,7 +5856,7 @@ theorem measurable_kroneckerGraphMap
     [MeasurableSpace.CountablyGenerated X]
     (T : X → X) (mu : Measure X) [IsProbabilityMeasure mu]
     (hT : Ergodic T mu) : Measurable (kroneckerGraphMap T mu hT) := by
-  letI : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
     (countable_koopmanEigenvalues T mu hT.toMeasurePreserving).to_subtype
   exact measurable_id.prodMk (measurable_kroneckerFactorMap T mu hT)
 
@@ -5895,13 +5894,13 @@ theorem measurable_kroneckerGraphTransform
     (T : X → X) (mu : Measure X) [IsProbabilityMeasure mu]
     (hT : Ergodic T mu) :
     Measurable (kroneckerGraphTransform T mu hT) := by
-  letI : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
     (countable_koopmanEigenvalues T mu hT.toMeasurePreserving).to_subtype
   let H := KroneckerSubgroup T mu hT.toMeasurePreserving
-  letI : SecondCountableTopology H :=
+  let : SecondCountableTopology H :=
     Topology.IsInducing.subtypeVal.secondCountableTopology
-  letI : BorelSpace H := inferInstance
-  letI : MeasurableAdd₂
+  let : BorelSpace H := inferInstance
+  let : MeasurableAdd₂
       (KroneckerSubgroup T mu hT.toMeasurePreserving) :=
     ContinuousAdd.measurableMul₂
   exact (hT.measurable.comp measurable_fst).prodMk
@@ -6026,12 +6025,12 @@ theorem exists_phase_graph_orbit_cluster
     ∃ z : KroneckerSubgroup T mu hT.toMeasurePreserving,
       MapClusterPt q atTop
         (fun n : ℕ ↦ (kroneckerGraphTransform T mu hT)^[n] (a, z)) := by
-  letI : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
     (countable_koopmanEigenvalues T mu hT.toMeasurePreserving).to_subtype
   let H := KroneckerSubgroup T mu hT.toMeasurePreserving
-  letI : SecondCountableTopology H :=
+  let : SecondCountableTopology H :=
     Topology.IsInducing.subtypeVal.secondCountableTopology
-  letI : CompactSpace H :=
+  let : CompactSpace H :=
     isCompact_iff_compactSpace.mp
       (AddSubgroup.isClosed_topologicalClosure _).isCompact
   have hqfst : q.1 ∈ mu.support :=
@@ -6086,10 +6085,10 @@ theorem exists_genericAlongOrbitIntervals_of_orbit_cluster
         (nhds (∫ x, f x ∂nu))) :
     ∃ start : ℕ → ℕ,
       IsGenericAlongOrbitIntervals S p nu start length := by
-  letI : PseudoMetricSpace X :=
+  let : PseudoMetricSpace X :=
     TopologicalSpace.pseudoMetrizableSpacePseudoMetric X
-  letI : Nonempty X := ⟨p⟩
-  letI : TopologicalSpace.SeparableSpace
+  let : Nonempty X := ⟨p⟩
+  let : TopologicalSpace.SeparableSpace
       (BoundedContinuousFunction X ℝ) := by
     let e := ContinuousMap.isometryEquivBoundedOfCompact X ℝ
     exact e.surjective.denseRange.separableSpace e.continuous
@@ -6210,15 +6209,15 @@ theorem exists_pointed_kroneckerGraph_intervalGeneric
       ∃ start length : ℕ → ℕ,
         IsGenericAlongOrbitIntervals (kroneckerGraphTransform T mu hT)
           (a, z) (kroneckerGraphMeasure T mu hT) start length := by
-  letI : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
     (countable_koopmanEigenvalues T mu hT.toMeasurePreserving).to_subtype
   let H := KroneckerSubgroup T mu hT.toMeasurePreserving
-  letI : SecondCountableTopology H :=
+  let : SecondCountableTopology H :=
     Topology.IsInducing.subtypeVal.secondCountableTopology
-  letI : CompactSpace H :=
+  let : CompactSpace H :=
     isCompact_iff_compactSpace.mp
       (AddSubgroup.isClosed_topologicalClosure _).isCompact
-  letI : BorelSpace H := inferInstance
+  let : BorelSpace H := inferInstance
   have hex : ∃ q : KroneckerGraphSpace T mu hT,
       q ∈ (kroneckerGraphMeasure T mu hT).support ∧
       ∃ length : ℕ → ℕ, Tendsto length atTop atTop ∧
@@ -6376,7 +6375,7 @@ theorem normalizedKoopmanEigenvector_factor_ae
     ∃ phi : KroneckerSubgroup T mu hT.1 → ℂ, Measurable phi ∧
       (normalizedKoopmanEigenvector T mu hT.1 lambda : X → ℂ) =ᵐ[mu]
         fun x => phi (kroneckerFactorMap T mu hT x) := by
-  letI : Countable (KoopmanEigenvalueType T mu hT.1) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.1) :=
     (countable_koopmanEigenvalues T mu hT.1).to_subtype
   let Z := KroneckerAmbient T mu hT.1
   let H := KroneckerSubgroup T mu hT.1
@@ -6647,8 +6646,8 @@ theorem continuous_haarCorrelation
     (u v : Lp ℝ (2 : ℝ≥0∞) m) :
     Continuous (fun p : Z × Z =>
       inner ℝ ((DomAddAct.mk p.1) +ᵥ u) ((DomAddAct.mk p.2) +ᵥ v)) := by
-  letI : Fact ((2 : ℝ≥0∞) ≠ ∞) := ⟨by norm_num⟩
-  letI : ContinuousVAdd Zᵈᵃᵃ (Lp ℝ (2 : ℝ≥0∞) m) :=
+  let : Fact ((2 : ℝ≥0∞) ≠ ∞) := ⟨by norm_num⟩
+  let : ContinuousVAdd Zᵈᵃᵃ (Lp ℝ (2 : ℝ≥0∞) m) :=
     MeasureTheory.Lp.instContinuousVAddDomAddAct
   exact ((DomAddAct.continuous_mk.comp continuous_fst).vadd continuous_const).inner
     ((DomAddAct.continuous_mk.comp continuous_snd).vadd continuous_const)
@@ -6827,7 +6826,7 @@ noncomputable def separatedContinuousSubalgebra
 theorem separatedContinuousSubalgebra_separatesPoints
     (X : Type*) [PseudoMetricSpace X] [T2Space X] :
     (separatedContinuousSubalgebra X).SeparatesPoints := by
-  letI : MetricSpace X := MetricSpace.ofT0PseudoMetricSpace X
+  let : MetricSpace X := MetricSpace.ofT0PseudoMetricSpace X
   intro p q hpq
   by_cases hfst : p.1 = q.1
   · have hsnd : p.2 ≠ q.2 := by
@@ -8214,13 +8213,13 @@ theorem kroneckerGraphMap_fst_ae
     (hT : Ergodic T mu) :
     ∀ᵐ q ∂kroneckerGraphMeasure T mu hT,
       kroneckerGraphMap T mu hT q.1 = q := by
-  letI : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
     (countable_koopmanEigenvalues T mu hT.toMeasurePreserving).to_subtype
   let H := KroneckerSubgroup T mu hT.toMeasurePreserving
-  letI : SecondCountableTopology H :=
+  let : SecondCountableTopology H :=
     Topology.IsInducing.subtypeVal.secondCountableTopology
-  letI : BorelSpace H := inferInstance
-  letI : MeasurableEq H := inferInstance
+  let : BorelSpace H := inferInstance
+  let : MeasurableEq H := inferInstance
   let pi := kroneckerFactorMap T mu hT
   have hset : MeasurableSet {q : X × H | pi q.1 = q.2} :=
     measurableSet_eq_fun
@@ -8691,13 +8690,13 @@ theorem kroneckerGraphFiberKernel_fiber
     (hT : Ergodic T mu) :
     ∀ᵐ z ∂kroneckerFactorMeasure T mu hT,
       ∀ᵐ q ∂kroneckerGraphFiberKernel T mu hT z, q.2 = z := by
-  letI : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType T mu hT.toMeasurePreserving) :=
     (countable_koopmanEigenvalues T mu hT.toMeasurePreserving).to_subtype
   let H := KroneckerSubgroup T mu hT.toMeasurePreserving
-  letI : SecondCountableTopology H :=
+  let : SecondCountableTopology H :=
     Topology.IsInducing.subtypeVal.secondCountableTopology
-  letI : BorelSpace H := inferInstance
-  letI : MeasurableEq H := inferInstance
+  let : BorelSpace H := inferInstance
+  let : MeasurableEq H := inferInstance
   exact Filter.Eventually.of_forall fun z => by
     exact graphFiberKernel_fiber (kroneckerFiberKernel T mu hT) z
 
@@ -9242,23 +9241,23 @@ theorem exists_kroneckerGraph_factorTensor_limit
           (factorComponent (kroneckerFactorMeasure e mu he)
             (kroneckerGraphFiberKernel e mu he) Prod.snd)
           (separatedBCF f g) p := by
-  letI : Countable (KoopmanEigenvalueType e mu he.toMeasurePreserving) :=
+  let : Countable (KoopmanEigenvalueType e mu he.toMeasurePreserving) :=
     (countable_koopmanEigenvalues e mu he.toMeasurePreserving).to_subtype
   let H := KroneckerSubgroup e mu he.toMeasurePreserving
-  letI : SecondCountableTopology H :=
+  let : SecondCountableTopology H :=
     Topology.IsInducing.subtypeVal.secondCountableTopology
-  letI : CompactSpace H :=
+  let : CompactSpace H :=
     isCompact_iff_compactSpace.mp
       (AddSubgroup.isClosed_topologicalClosure _).isCompact
-  letI : BorelSpace H := inferInstance
-  letI : PseudoMetricSpace H :=
+  let : BorelSpace H := inferInstance
+  let : PseudoMetricSpace H :=
     TopologicalSpace.pseudoMetrizableSpacePseudoMetric H
   let m := kroneckerFactorMeasure e mu he
   let eta := kroneckerGraphFiberKernel e mu he
   let nu := kroneckerGraphBindMeasure e mu he
   let E := kroneckerGraphMeasurableEquiv e mu he
   let alpha := kroneckerSubgroupRotation e mu he
-  letI : Measure.IsAddHaarMeasure m :=
+  let : Measure.IsAddHaarMeasure m :=
     isAddHaarMeasure_kroneckerFactorMeasure e mu he
   let hpi := measurePreserving_snd_kroneckerGraphBind e mu he
   let hE := measurePreserving_kroneckerGraphBind e mu he
@@ -9558,12 +9557,12 @@ theorem exists_dense_kroneckerGraph_subalgebra_seq
       ∀ j, (G j).toContinuousMap ∈
         separatedContinuousSubalgebra (KroneckerGraphSpace e mu he) := by
   let Q := KroneckerGraphSpace e mu he
-  letI : SecondCountableTopology Q := inferInstance
-  letI : CompactSpace Q := inferInstance
-  letI : T2Space Q := inferInstance
-  letI : PseudoMetricSpace Q :=
+  let : SecondCountableTopology Q := inferInstance
+  let : CompactSpace Q := inferInstance
+  let : T2Space Q := inferInstance
+  let : PseudoMetricSpace Q :=
     TopologicalSpace.pseudoMetrizableSpacePseudoMetric Q
-  letI : MetricSpace Q := MetricSpace.ofT0PseudoMetricSpace Q
+  let : MetricSpace Q := MetricSpace.ofT0PseudoMetricSpace Q
   let D : ℕ → C(Q × Q, ℝ) := TopologicalSpace.denseSeq C(Q × Q, ℝ)
   have hD : DenseRange D := by
     simpa only [D] using
@@ -10399,30 +10398,30 @@ theorem erdos_656 {A : Set ℕ} (hA : HasPositiveUpperDensity A) :
       (fun n ↦ e^[n] (symbolicPoint A)) (mu : Measure SymbolicSpace) :=
     supportGeneric_of_genericAlongOrbitIntervals e (symbolicPoint A)
       (mu : Measure SymbolicSpace) baseStart baseLength hbaseGeneric'
-  letI : PseudoMetricSpace SymbolicSpace :=
+  let : PseudoMetricSpace SymbolicSpace :=
     TopologicalSpace.pseudoMetrizableSpacePseudoMetric SymbolicSpace
-  letI : Countable (KoopmanEigenvalueType e (mu : Measure SymbolicSpace)
+  let : Countable (KoopmanEigenvalueType e (mu : Measure SymbolicSpace)
       he.toMeasurePreserving) :=
     (countable_koopmanEigenvalues e (mu : Measure SymbolicSpace)
       he.toMeasurePreserving).to_subtype
   let H := KroneckerSubgroup e (mu : Measure SymbolicSpace)
     he.toMeasurePreserving
-  letI : SecondCountableTopology H :=
+  let : SecondCountableTopology H :=
     Topology.IsInducing.subtypeVal.secondCountableTopology
-  letI : CompactSpace H :=
+  let : CompactSpace H :=
     isCompact_iff_compactSpace.mp
       (AddSubgroup.isClosed_topologicalClosure _).isCompact
-  letI : BorelSpace H := inferInstance
-  letI : PseudoMetricSpace H :=
+  let : BorelSpace H := inferInstance
+  let : PseudoMetricSpace H :=
     TopologicalSpace.pseudoMetrizableSpacePseudoMetric H
-  letI : MeasurableAdd₂ H := ContinuousAdd.measurableMul₂
-  letI : MeasurableNeg H := inferInstance
-  letI : MeasurableEq H := inferInstance
+  let : MeasurableAdd₂ H := ContinuousAdd.measurableMul₂
+  let : MeasurableNeg H := inferInstance
+  let : MeasurableEq H := inferInstance
   let m := kroneckerFactorMeasure e (mu : Measure SymbolicSpace) he
   let eta := kroneckerGraphFiberKernel e (mu : Measure SymbolicSpace) he
   let Q := KroneckerGraphSpace e (mu : Measure SymbolicSpace) he
   let E := kroneckerGraphMeasurableEquiv e (mu : Measure SymbolicSpace) he
-  letI : Measure.IsAddHaarMeasure m :=
+  let : Measure.IsAddHaarMeasure m :=
     isAddHaarMeasure_kroneckerFactorMeasure e (mu : Measure SymbolicSpace) he
   obtain ⟨z, graphStart, graphLength, hgraphGeneric⟩ :=
     exists_pointed_kroneckerGraph_intervalGeneric e
@@ -10552,7 +10551,7 @@ theorem erdos_656 {A : Set ℕ} (hA : HasPositiveUpperDensity A) :
       _ = (D.sigma : Measure (Q × Q)) F := by
         rw [Measure.map_apply measurable_fst hbaseSet]
         rfl
-  letI : NeBot (ae ((D.sigma : Measure (Q × Q)).restrict F)) :=
+  let : NeBot (ae ((D.sigma : Measure (Q × Q)).restrict F)) :=
     ae_restrict_neBot.mpr (ne_of_gt hsigmaF)
   have hmem : ∀ᵐ p ∂(D.sigma : Measure (Q × Q)).restrict F, p ∈ F :=
     ae_restrict_mem hF

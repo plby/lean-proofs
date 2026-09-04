@@ -73,7 +73,7 @@ theorem isContained_of_forall_fin_tree_of_edgeSet_card_le
     (hlarge : ∀ T' : SimpleGraph (Fin (n + 1)), T'.IsTree → T' ⊑ G) :
     T ⊑ G := by
   classical
-  letI : Fintype T.edgeSet := Fintype.ofFinite T.edgeSet
+  let : Fintype T.edgeSet := Fintype.ofFinite T.edgeSet
   have hcardEq : Nat.card T.edgeSet + 1 = Fintype.card α := by
     rw [Nat.card_eq_fintype_card, ← T.edgeFinset_card]
     exact hT.card_edgeFinset

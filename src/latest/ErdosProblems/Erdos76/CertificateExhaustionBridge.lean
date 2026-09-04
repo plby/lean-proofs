@@ -68,8 +68,8 @@ theorem IsFractionalDecomposition.relabelEquiv {n : ℕ}
     (hw : IsFractionalDecomposition G w) (e : Equiv.Perm (Fin n)) :
     IsFractionalDecomposition (G.map e.toEmbedding) (relabelWeight e w) := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
   refine ⟨hw.isPacking.relabel e, ?_⟩
   intro p hp
   have hp' := SimpleGraph.mem_edgeFinset.mp hp
@@ -84,8 +84,8 @@ theorem IsHalfBounded.relabelEquiv {n : ℕ}
     (hw : IsHalfBounded G w) (e : Equiv.Perm (Fin n)) :
     IsHalfBounded (G.map e.toEmbedding) (relabelWeight e w) := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
   intro t ht
   have ht' := SimpleGraph.mem_cliqueFinset_iff.mp ht
   obtain ⟨s, hs, rfl⟩ :=
@@ -98,7 +98,7 @@ lemma fractionalUncoveredWeight_eq_card_sub {n : ℕ}
     fractionalUncoveredWeight G w =
       (Nat.card G.edgeSet : ℝ) - 3 * fractionalSize G w := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
   rw [fractionalUncoveredWeight, Finset.sum_sub_distrib,
     sum_fractionalEdgeLoad_eq_three_mul_fractionalSize]
   simp only [Finset.sum_const, nsmul_one]
@@ -112,8 +112,8 @@ theorem fractionalUncoveredWeight_relabelEquiv {n : ℕ}
     fractionalUncoveredWeight (G.map e.toEmbedding) (relabelWeight e w) =
       fractionalUncoveredWeight G w := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
   have hcard : Nat.card (G.map e.toEmbedding).edgeSet = Nat.card G.edgeSet :=
     (Nat.card_congr (SimpleGraph.Iso.map e G).mapEdgeSet).symm
   rw [fractionalUncoveredWeight_eq_card_sub,

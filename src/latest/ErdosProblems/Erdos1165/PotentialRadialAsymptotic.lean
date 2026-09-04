@@ -323,7 +323,7 @@ theorem abs_euclideanRadius_sub_neighbor_le (x : Point) (d : Direction) :
       abs_norm_sub_norm_le _ _
     _ = ‖pointComplex (directionVector d)‖ := by
       rw [pointComplex_sub]
-      abel
+      abel_nf
     _ = 1 := norm_pointComplex_directionVector d
 
 private lemma abs_log_sub_log_le_two_div {r s : ℝ}

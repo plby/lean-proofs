@@ -1434,7 +1434,7 @@ theorem sum_reducedSpanCoefficients {r : ℕ} (q z : Fin r → ℤ)
   simp_rw [add_mul]
   rw [Finset.sum_add_distrib]
   rw [Finset.sum_mul]
-  ring
+  ring_nf
 
 /-- The reduced coefficients have a polynomial bound in the rank and in a
 common bound for the represented integer and all directions. -/

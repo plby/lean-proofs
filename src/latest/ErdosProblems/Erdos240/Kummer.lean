@@ -248,7 +248,7 @@ theorem finrank_adjoin_prime_radicals
     rw [hbeta i]
     exact (IntermediateField.mem_bot).2
       ⟨algebraMap ℚ K (p i : ℚ), by simp [IsScalarTower.algebraMap_apply]⟩
-  letI : FiniteDimensional K L :=
+  let : FiniteDimensional K L :=
     dimensional_adjoin_pow q (NeZero.pos q) (Set.range beta)
       (Set.finite_range beta) hpow
   have hgen : ∀ i, powerClass q (primeUnit (p i) (hp i)) ∈
@@ -328,14 +328,14 @@ theorem finrank_adjoin_prime_radicals_rat
   have hfd' : @FiniteDimensional ℚ K _ _ Algebra.toModule := by
     rw [hmodule]
     exact hfd
-  letI : @FiniteDimensional ℚ K _ _ Algebra.toModule := hfd'
+  let : @FiniteDimensional ℚ K _ _ Algebra.toModule := hfd'
   have hcop' : q.Coprime (@Module.finrank ℚ K _ _ Algebra.toModule) := by
     rw [hmodule]
     exact hcop
-  letI : IsAlgClosure K Ω :=
+  let : IsAlgClosure K Ω :=
     { isAlgClosed := IsAlgClosure.isAlgClosed ℚ
       isAlgebraic := inferInstance }
-  letI : IsScalarTower ℚ K Ω := by
+  let : IsScalarTower ℚ K Ω := by
     constructor
     intro r x y
     change ((↑(r • x : K) : Ω) * y) = r • ((x : Ω) * y)
@@ -356,7 +356,7 @@ theorem finrank_adjoin_prime_radicals_rat
     rintro x ⟨i, rfl⟩
     rw [hbeta i]
     exact (IntermediateField.mem_bot).2 ⟨(p i : ℚ), rfl⟩
-  letI : FiniteDimensional ℚ F :=
+  let : FiniteDimensional ℚ F :=
     dimensional_adjoin_pow q (NeZero.pos q) (Set.range beta)
       (Set.finite_range beta) hpowQ
   have hpowK : ∀ x ∈ Set.range beta,
@@ -365,7 +365,7 @@ theorem finrank_adjoin_prime_radicals_rat
     rw [hbeta i]
     exact (IntermediateField.mem_bot).2
       ⟨algebraMap ℚ K (p i : ℚ), by simp [IsScalarTower.algebraMap_apply]⟩
-  letI : FiniteDimensional K L :=
+  let : FiniteDimensional K L :=
     dimensional_adjoin_pow q (NeZero.pos q) (Set.range beta)
       (Set.finite_range beta) hpowK
   have hKL : Module.finrank K L = q ^ Fintype.card ι :=
@@ -411,17 +411,17 @@ theorem finrank_adjoin_thirteenthRoots_primes_rat
     (hbeta : ∀ i, beta i ^ 13 = algebraMap ℚ Ω (p i : ℚ)) :
     Module.finrank ℚ (IntermediateField.adjoin ℚ (Set.range beta)) =
       13 ^ Fintype.card ι := by
-  letI : IsAlgClosed Ω := IsAlgClosure.isAlgClosed ℚ
-  letI : IsSepClosed Ω := IsSepClosed.of_isAlgClosed Ω
-  letI : CharZero Ω :=
+  let : IsAlgClosed Ω := IsAlgClosure.isAlgClosed ℚ
+  let : IsSepClosed Ω := IsSepClosed.of_isAlgClosed Ω
+  let : CharZero Ω :=
     charZero_of_injective_algebraMap (algebraMap ℚ Ω).injective
-  letI : NeZero (13 : Ω) := ⟨Nat.cast_ne_zero.mpr (by norm_num)⟩
+  let : NeZero (13 : Ω) := ⟨Nat.cast_ne_zero.mpr (by norm_num)⟩
   obtain ⟨zeta, hzeta⟩ := HasEnoughRootsOfUnity.exists_primitiveRoot Ω 13
   let K := IntermediateField.adjoin ℚ ({zeta} : Set Ω)
   let oldAlgebra : Algebra ℚ K := IntermediateField.algebra' K
   have hcyclotomicOld :
       @IsCyclotomicExtension {13} ℚ K _ _ oldAlgebra := by
-    letI : Algebra ℚ K := oldAlgebra
+    let : Algebra ℚ K := oldAlgebra
     exact hzeta.intermediateField_adjoin_isCyclotomicExtension ℚ
   let canonicalAlgebra : Algebra ℚ K := DivisionRing.toRatAlgebra
   have hAlgebra : oldAlgebra = canonicalAlgebra :=
@@ -429,9 +429,9 @@ theorem finrank_adjoin_thirteenthRoots_primes_rat
   have hcyclotomic :
       @IsCyclotomicExtension {13} ℚ K _ _ canonicalAlgebra :=
     hAlgebra ▸ hcyclotomicOld
-  letI : Algebra ℚ K := canonicalAlgebra
-  letI : IsCyclotomicExtension {13} ℚ K := hcyclotomic
-  letI : NumberField K := IsCyclotomicExtension.numberField {13} ℚ K
+  let : Algebra ℚ K := canonicalAlgebra
+  let : IsCyclotomicExtension {13} ℚ K := hcyclotomic
+  let : NumberField K := IsCyclotomicExtension.numberField {13} ℚ K
   have hroots : (primitiveRoots 13 K).Nonempty :=
     ⟨IsCyclotomicExtension.zeta 13 ℚ K,
       (mem_primitiveRoots (by norm_num)).2
@@ -448,7 +448,7 @@ theorem finrank_adjoin_thirteenthRoots_primes_rat
   have hfdIntermediate : @FiniteDimensional ℚ K _ _ K.module' := by
     rw [← hModule]
     exact hfdCanonical
-  letI : @FiniteDimensional ℚ K _ _ K.module' := hfdIntermediate
+  let : @FiniteDimensional ℚ K _ _ K.module' := hfdIntermediate
   have hfin : Module.finrank ℚ K = 12 := by
     rw [← hModule]
     exact hfinCanonical

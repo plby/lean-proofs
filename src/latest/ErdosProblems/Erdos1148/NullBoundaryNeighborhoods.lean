@@ -11,7 +11,7 @@ theorem exists_open_null_boundary_neighborhood {X : Type*} [TopologicalSpace X]
     [MetrizableSpace X] [MeasurableSpace X] [BorelSpace X]
     (μ : Measure X) [SFinite μ] {U : Set X} (hU : IsOpen U) {x : X} (hx : x ∈ U) :
     ∃ V : Set X, IsOpen V ∧ x ∈ V ∧ V ⊆ U ∧ μ (frontier V) = 0 := by
-  letI : MetricSpace X := metrizableSpaceMetric X
+  let : MetricSpace X := metrizableSpaceMetric X
   obtain ⟨δ, hδ, hsub⟩ := isCompact_singleton.exists_thickening_subset_open hU
     (Set.singleton_subset_iff.mpr hx)
   obtain ⟨r, hr, hnull⟩ := exists_null_frontier_thickening μ ({x} : Set X) hδ
@@ -23,7 +23,7 @@ theorem exists_open_compact_null_boundary_superset {X : Type*} [TopologicalSpace
     [MetrizableSpace X] [LocallyCompactSpace X] [MeasurableSpace X] [BorelSpace X]
     (μ : Measure X) [SFinite μ] {K : Set X} (hK : IsCompact K) :
     ∃ U : Set X, IsOpen U ∧ K ⊆ U ∧ IsCompact (closure U) ∧ μ (frontier U) = 0 := by
-  letI : MetricSpace X := metrizableSpaceMetric X
+  let : MetricSpace X := metrizableSpaceMetric X
   obtain ⟨δ, hδ, hcompact⟩ := hK.exists_isCompact_cthickening
   obtain ⟨r, hr, hnull⟩ := exists_null_frontier_thickening μ K hδ
   refine ⟨Metric.thickening r K, Metric.isOpen_thickening,

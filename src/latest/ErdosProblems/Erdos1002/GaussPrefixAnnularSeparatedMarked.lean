@@ -1372,7 +1372,7 @@ theorem tendsto_annularCanonicalMidpointBandDigitMassUpper
                   GaussPrefixMixedOccurrence k) : ℝ) *
             annularOccurrenceSignedDensity ε A k)) := by
     convert! hproduct using 1
-    all_goals ring
+    all_goals ring_nf
   apply hproduct'.congr'
   filter_upwards
     [tendsto_log_natCast_atTop.eventually_gt_atTop 0] with N hlog
@@ -1929,7 +1929,7 @@ theorem
     _ = annularCanonicalMidpointBandDigitMassUpper ε A rho N k := by
       unfold annularCanonicalMidpointBandDigitMassUpper
       rw [Finset.mul_sum, Finset.mul_sum]
-      ring
+      ring_nf
 
 theorem initialSeparatedCanonicalAnnularGridTupleFamily_subset_early
     (N : ℕ) {grid : ℕ}

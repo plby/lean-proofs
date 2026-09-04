@@ -49,7 +49,7 @@ theorem exists_long_cycle_of_reservoir {V : Type*} [Fintype V] [DecidableEq V]
   have hUc : Fintype.card U = Fintype.card V - R.card := by
     simp only [U, Fintype.card_compl_set, hRc]
   have hUlarge : 2 * L ≤ Fintype.card U := by omega
-  letI : Nonempty U := Fintype.card_pos_iff.mp (by omega)
+  let : Nonempty U := Fintype.card_pos_iff.mp (by omega)
   have hc : (G.induce U).Connected := ⟨hconn R hR⟩
   have hdeg (v : U) : L ≤ (G.induce U).degree v := by
     have h := degree_le_induce_compl_degree_add_card G R v

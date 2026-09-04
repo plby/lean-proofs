@@ -435,7 +435,7 @@ theorem eventually_exists_prunedGenerator_focusCover
   · intro e he
     have hecard := hleaveUniform e he
     have hene : e.Nonempty := Finset.card_pos.mp (by omega)
-    letI : Nonempty (Fin n) := ⟨hene.choose⟩
+    let : Nonempty (Fin n) := ⟨hene.choose⟩
     obtain ⟨request, hrequest⟩ := exists_rootRequest_with_image root e (by
       dsimp [root]
       rw [card_coverRoot hrq.le, hecard])
@@ -508,7 +508,7 @@ theorem eventually_exists_prunedGenerator_specialCandidateRotationCover
   filter_upwards [hfailure, hunion] with n hfailure hunion
   intro hn omegaSample D htyp hDK hmass u sigma hu
   let Request := RootRequest E.v n E.pattern.root
-  letI : Fintype Request := Fintype.ofInjective RootRequest.map (by
+  let : Fintype Request := Fintype.ofInjective RootRequest.map (by
     intro a b hab
     cases a with
     | mk amap ainj =>
@@ -518,7 +518,7 @@ theorem eventually_exists_prunedGenerator_specialCandidateRotationCover
         cases hab
         rfl)
   let Task := Request × (Erdos722.Exchange.RootEdge q r → Fin u)
-  letI : DecidableEq Task := Classical.decEq Task
+  let : DecidableEq Task := Classical.decEq Task
   let good (task : Task) : Prop :=
     ∀ e, requestedRootEdge E task.1 e ∈
       D.rotatedKstar sigma (task.2 e)

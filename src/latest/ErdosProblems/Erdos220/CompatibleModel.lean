@@ -119,7 +119,7 @@ private lemma compatibleValueEncodeList_component
       obtain ⟨p, hp, _⟩ := hmem
       simp at hp
   | cons p ps ih =>
-      letI : NeZero p.1 :=
+      let : NeZero p.1 :=
         ⟨(Nat.prime_of_mem_primeFactors (hsub p.2)).ne_zero⟩
       by_cases hqp : q.1 = p.1
       · have hpU : p.1 ∈ U i := by simpa [hqp] using q.2
@@ -473,7 +473,7 @@ noncomputable def compatibleFundamentalModelOfNoSingleton
   induction L with
   | nil => rfl
   | cons p ps ih =>
-      letI : NeZero p.1 :=
+      let : NeZero p.1 :=
         ⟨(Nat.prime_of_mem_primeFactors (hsub p.2)).ne_zero⟩
       simp only [compatibleSystemList, FundamentalSystem.scale,
         List.map_cons, List.prod_cons, compatiblePrimeCoordinate_scale, ih]

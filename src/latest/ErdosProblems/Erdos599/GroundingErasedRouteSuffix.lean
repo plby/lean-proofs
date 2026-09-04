@@ -247,7 +247,7 @@ theorem compressionOfValid_vertexSet_subset_vertexChain
       signedVertexChain]
   · let S := E.toFiniteInputOfValid hnil hvalid
     intro v hv
-    simp [compressionOfValid, hnil] at hv
+    simp only [mem_ofPred_eq] at hv
     have hv' : v ∈ S.toFiniteRunWalk.toFiniteTrace.vertexSet := by
       change v ∈ S.toFiniteRunWalk.toFiniteTrace.vertexSet at hv
       exact hv

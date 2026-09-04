@@ -580,7 +580,7 @@ private lemma jordan_vertex_sector_exists
           twoRay_coefficient_sq_sum_pos hpos
         rw [hww]
         dsimp [w']
-        simp
+        simp only [Fin.isValue, sub_pos, gt_iff_lt]
         exact sub_pos.mp
           (rotated_cross_pos c s (z 0) (z 1) hD hz.2.2.1)
       · simpa [v, initialDirection, hsource] using hwq
@@ -646,7 +646,7 @@ private lemma jordan_vertex_sector_exists
           twoRay_coefficient_sq_sum_pos hpos
         rw [hww]
         dsimp [w']
-        simp
+        simp only [Fin.isValue, sub_neg, gt_iff_lt]
         exact sub_neg.mp
           (rotated_cross_neg c s (z 0) (z 1) hD hz.2.2.2)
       · exact hwq.trans hqeq'.symm
@@ -804,7 +804,7 @@ private lemma jordan_vertex_sector_exists
           twoRay_coefficient_sq_sum_pos hpos
         rw [hww]
         dsimp [w']
-        simp
+        simp only [Fin.isValue, sub_neg, gt_iff_lt]
         exact sub_neg.mp
           (rotated_cross_neg c s (z 0) (z 1) hD hz.2.2.2)
       · simpa [p, u, terminalDirection] using hwq
@@ -863,7 +863,7 @@ private lemma jordan_vertex_sector_exists
           twoRay_coefficient_sq_sum_pos hpos
         rw [hww]
         dsimp [w']
-        simp
+        simp only [Fin.isValue, sub_pos, gt_iff_lt]
         exact sub_pos.mp
           (rotated_cross_pos c s (z 0) (z 1) hD hz.2.2.1)
       · exact hwq.trans hqeq'.symm
@@ -1087,7 +1087,7 @@ private def jordanVertexSectorPreparation
       vertexR + vertexR < dist gamma.1.target delta.1.target := by
     have h := vertexR_lt (gamma, delta)
     dsimp [allBound] at h
-    simp [hne] at h
+    simp only [gt_iff_lt] at h
     have hthird : vertexR < dist gamma.1.target delta.1.target / 3 :=
       h.2.2.2
     have hd : 0 < dist gamma.1.target delta.1.target :=
@@ -1449,7 +1449,7 @@ private def jordanVertexSectorPreparation
       split_ifs with hs
       · simp
         nlinarith
-      · simp
+      · simp only [Fin.isValue, one_ne_zero, ↓reduceIte, mul_one, mul_zero, sub_zero]
         rcases hpos with hs' | ⟨hs0, hc⟩
         · exact (hs hs').elim
         · nlinarith
@@ -1650,7 +1650,7 @@ private lemma jordanCurveSimultaneousCollarDataExists_of_preparation
       hRopen, hLconn, hRconn, hLdisk, hRdisk, hLcomp, hRcomp, hdisj,
       hpartition, hLclosure, hRclosure, hterminalLeft, hsuccessorLeft,
       hterminalRight, hsuccessorRight⟩
-  letI : Nonempty Edge := edge_nonempty
+  let : Nonempty Edge := edge_nonempty
   let vertexRadius : Edge → ℝ := fun _ => vertexR
   let targetAperture : Edge → ℝ := vertexAperture
   let sourceAperture : Edge → ℝ := fun gamma =>

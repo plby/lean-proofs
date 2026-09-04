@@ -856,7 +856,7 @@ lemma cohen_real.mk_ext : ∀ (i j : (check (PSet.pSet_aleph2) : bSet 𝔹).type
     -- pSet_aleph2 = ordinalMk (aleph 2).ord
     -- pSet_aleph2.Func (check_cast i) ≠ pSet_aleph2.Func (check_cast j) when i ≠ j
     apply PSet.ordinalMk_inj (Cardinal.aleph 2).ord
-    intro H; exact h (by simp [check_cast] at H ⊢; exact H)
+    intro H; exact h (by simp only [type] at H ⊢; exact H)
 
 -- src/forcing.lean:531-532
 noncomputable def neg_CH_func : bSet 𝔹 :=

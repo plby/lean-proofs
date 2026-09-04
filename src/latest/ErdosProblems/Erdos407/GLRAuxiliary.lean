@@ -240,7 +240,7 @@ theorem expect_blockExponent_normalized {coords degree : ℕ}
     (hcoords : 0 < coords) (hdegree : 0 < degree) (i : Fin coords) :
     (𝔼 e : AuxiliaryPolynomial.BlockExponent coords degree,
       (e.1 i : ℚ) / degree) = 1 / (coords : ℚ) := by
-  letI : NeZero coords := ⟨hcoords.ne'⟩
+  let : NeZero coords := ⟨hcoords.ne'⟩
   rw [Fintype.expect_eq_sum_div_card]
   rw [← Finset.sum_div]
   have hm := card_mul_sum_blockExponent_coordinate (degree := degree) i
@@ -259,7 +259,7 @@ theorem expect_blockExponent_centered {coords degree : ℕ}
     (𝔼 e : AuxiliaryPolynomial.BlockExponent coords degree,
       ((e.1 i : ℚ) / degree - 1 / (coords : ℚ))) = 0 := by
   rw [Finset.expect_sub_distrib, expect_blockExponent_normalized hcoords hdegree i]
-  letI : NeZero coords := ⟨hcoords.ne'⟩
+  let : NeZero coords := ⟨hcoords.ne'⟩
   rw [Fintype.expect_const]
   ring
 
@@ -944,7 +944,7 @@ theorem card_badAt_mul_sq_le {blocks coords : ℕ} {degree : Fin blocks → ℕ}
     ((badAtFinset blocks coords degree eta i).card : ℚ) * ((blocks : ℚ) * eta) ^ 2 ≤
       Fintype.card (AuxiliaryPolynomial.MonomialIndex blocks coords degree) * blocks := by
   classical
-  letI : NeZero coords := ⟨hcoords.ne'⟩
+  let : NeZero coords := ⟨hcoords.ne'⟩
   let y : ∀ h, AuxiliaryPolynomial.BlockExponent coords (degree h) → ℚ :=
     fun h e ↦ (e.1 i : ℚ) / degree h - 1 / (coords : ℚ)
   have hymean : ∀ h, (𝔼 e : AuxiliaryPolynomial.BlockExponent coords (degree h), y h e) = 0 := by
@@ -1047,7 +1047,7 @@ theorem three_mul_card_badMonomial_lt {blocks coords : ℕ} {degree : Fin blocks
   let A : ℚ := Fintype.card (BadMonomial blocks coords degree eta)
   let N : ℚ := Fintype.card
     (AuxiliaryPolynomial.MonomialIndex blocks coords degree)
-  letI : NeZero coords := ⟨hcoords.ne'⟩
+  let : NeZero coords := ⟨hcoords.ne'⟩
   have hA : 0 ≤ A := by positivity
   have hN : 0 < N := by
     have hNnat : 0 < Fintype.card
@@ -1738,7 +1738,7 @@ theorem exists_glrAuxiliary_of_no_rows
               ‖fullCoefficientMatrix (degree := degree) T‖ *
                 coefficientHeightBound (degree := degree) eta T) := by
   classical
-  letI : NeZero coords := ⟨hcoords.ne'⟩
+  let : NeZero coords := ⟨hcoords.ne'⟩
   let c : AuxiliaryPolynomial.MonomialIndex blocks coords degree → ℤ := fun _ ↦ 1
   have hc : c ≠ 0 := by
     intro hz

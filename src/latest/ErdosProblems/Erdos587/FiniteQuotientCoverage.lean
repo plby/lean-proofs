@@ -110,7 +110,7 @@ theorem exists_small_subset_sum_mod_subgroup
     {x : G} (hx : x ∈ generatedSubgroup φ A) :
     ∃ B ⊆ A, B.card + 1 ≤ Δ.index ∧ (∑ a ∈ B, φ a) - x ∈ Δ := by
   classical
-  letI : Fintype (G ⧸ Δ) := Fintype.ofFinite _
+  let : Fintype (G ⧸ Δ) := Fintype.ofFinite _
   let ψ := QuotientAddGroup.mk' Δ
   have hcard : Fintype.card (G ⧸ Δ) = Δ.index := by
     simp only [AddSubgroup.index, Nat.card_eq_fintype_card]

@@ -170,7 +170,7 @@ theorem expectation_incidenceSum_booleanSlicePoint
         (fun S : BooleanSlicePoint (Finset.univ : Finset alpha) s ↦
           ∑ i ∈ S.1, a i) =
       (s : ℝ) / Fintype.card alpha * ∑ i, a i := by
-  letI : Nonempty (BooleanSlicePoint (Finset.univ : Finset alpha) s) :=
+  let : Nonempty (BooleanSlicePoint (Finset.univ : Finset alpha) s) :=
     SliceMoments.nonempty_booleanSlicePoint Finset.univ s (by simpa using hs)
   have h := SliceMoments.expectation_sum_booleanSlicePoint
     (Finset.univ : Finset alpha) s a (by simpa using hs)
@@ -237,7 +237,7 @@ theorem one_sub_four_failure_bounds_le_probability_good
   let good : Omega → Prop := fun omega ↦
     ¬ bad₀ omega ∧ ¬ bad₁ omega ∧
       ¬ bad₂ omega ∧ ¬ bad₃ omega
-  letI : DecidablePred good := Classical.decPred good
+  let : DecidablePred good := Classical.decPred good
   have hpoint (omega : Omega) :
       1 ≤ (if good omega then (1 : ℝ) else 0) + score omega := by
     by_cases hbad₀ : bad₀ omega

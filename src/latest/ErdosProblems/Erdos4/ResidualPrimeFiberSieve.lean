@@ -301,14 +301,14 @@ noncomputable def residualAffinePrimeResidue
 theorem residualAffinePrimeResidue_lt
     {m d : ℕ} (hd : 0 < d) (hcop : m.Coprime d) :
     residualAffinePrimeResidue m d hcop < d := by
-  letI : NeZero d := ⟨hd.ne'⟩
+  let : NeZero d := ⟨hd.ne'⟩
   unfold residualAffinePrimeResidue
   exact ZMod.val_lt _
 
 theorem residualAffinePrimeResidue_spec
     {m d : ℕ} (hd : 0 < d) (hcop : m.Coprime d) :
     (m : ZMod d) * (residualAffinePrimeResidue m d hcop : ZMod d) = 1 := by
-  letI : NeZero d := ⟨hd.ne'⟩
+  let : NeZero d := ⟨hd.ne'⟩
   let u : (ZMod d)ˣ := ZMod.unitOfCoprime m hcop
   have ha : (residualAffinePrimeResidue m d hcop : ZMod d) =
       (↑(u⁻¹) : ZMod d) := by

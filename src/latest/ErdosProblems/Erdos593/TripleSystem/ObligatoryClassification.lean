@@ -45,8 +45,8 @@ theorem isObligatory_iff_constructible_isolatedReduction
     F.IsObligatory ↔ Constructible F.isolatedReduction := by
   rw [isObligatory_iff_isolatedReduction_intrinsic]
   classical
-  letI : DecidableEq V := Classical.decEq V
-  letI : DecidableEq E := Classical.decEq E
+  let : DecidableEq V := Classical.decEq V
+  let : DecidableEq E := Classical.decEq E
   exact (BridgeBlock.isolatedReduction_constructible_iff_intrinsic F).symm
 
 end TripleSystem

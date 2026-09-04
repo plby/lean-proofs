@@ -156,11 +156,11 @@ theorem exists_rows_nearPlotkin_of_exponential_bound
           (R : ℝ) * (1 / p + τ) := by
   classical
   let Row := Fin m → ZMod p
-  letI : MeasurableSpace Row := ⊤
+  let : MeasurableSpace Row := ⊤
   let μ₀ : Measure Row := (PMF.uniformOfFintype Row).toMeasure
-  letI : IsProbabilityMeasure μ₀ := inferInstance
+  let : IsProbabilityMeasure μ₀ := inferInstance
   let μ : Measure (Fin R → Row) := Measure.pi (fun _ ↦ μ₀)
-  letI : IsProbabilityMeasure μ := inferInstance
+  let : IsProbabilityMeasure μ := inferInstance
   let bad (x : {x : Fin m → ZMod p // x ≠ 0}) :
       Set (Fin R → Row) :=
     {T | (R : ℝ) * (1 / p + τ) <

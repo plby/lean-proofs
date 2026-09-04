@@ -54,7 +54,7 @@ theorem exists_localizedThinBlockTailConstant_of_momentBound
   have hm := hmoment ell (by omega) j hj hJ ell hell
   have hm_le : d.filtration ell (j - 1) ≤ m0 :=
     d.filtration_le ell (j - 1)
-  letI : SigmaFinite (μ.trim hm_le) := inferInstance
+  let : SigmaFinite (μ.trim hm_le) := inferInstance
   have hE : MeasurableSet[d.filtration ell (j - 1)]
       (thinBlockSmallEnergy d ell j A) := by
     exact measurableSet_le (hI ell j).measurable measurable_const
@@ -112,7 +112,7 @@ theorem exists_localizedThinBlockTailConstant_allScales
   have hm := hmoment ell hellPos j hj hJ r hr2
   have hm_le : d.filtration ell (j - 1) ≤ m0 :=
     d.filtration_le ell (j - 1)
-  letI : SigmaFinite (μ.trim hm_le) := inferInstance
+  let : SigmaFinite (μ.trim hm_le) := inferInstance
   have hE : MeasurableSet[d.filtration ell (j - 1)]
       (thinBlockSmallEnergy d ell j A) := by
     exact measurableSet_le (hI ell j).measurable measurable_const

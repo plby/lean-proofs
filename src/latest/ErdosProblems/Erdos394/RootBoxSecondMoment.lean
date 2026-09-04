@@ -73,7 +73,7 @@ theorem mem_rootBoxGlobalHitSet_iff
     (h : RootBoxMultiplierTuple P) :
     h ∈ rootBoxGlobalHitSet P K j hprime ↔ rootBoxGlobalHit P K j h := by
   classical
-  letI (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
+  let (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
   unfold rootBoxGlobalHitSet rootBoxGlobalHit
   rw [Fintype.mem_piFinset]
   constructor
@@ -118,7 +118,7 @@ theorem card_rootBoxMultiplierUniverse
     (P : Finset ℕ) (hprime : ∀ p ∈ P, p.Prime) :
     (rootBoxMultiplierUniverse P hprime).card = primeUnitCount P := by
   classical
-  letI (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
+  let (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
   unfold rootBoxMultiplierUniverse
   rw [Fintype.card_piFinset]
   calc
@@ -207,7 +207,7 @@ theorem card_fixedLabelPairMultiplierSet_le_one
     (hab : ab ∈ allLabelPairs K) (hKp : K < p) (hab0 : ab ≠ (0, 0)) :
     (fixedLabelPairMultiplierSet p j l ab).card ≤ 1 := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   rw [Finset.card_le_one]
   intro h₁ hh₁ h₂ hh₂
   have heq₁ := (Finset.mem_filter.mp hh₁).2
@@ -515,7 +515,7 @@ theorem filter_rootBoxMultiplierUniverse_doubleHit_eq
       h ∈ rootBoxGlobalHitSet P K l hprime) =
       rootBoxGlobalDoubleHitSet P K j l hprime := by
   classical
-  letI (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
+  let (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
   ext h
   constructor
   · intro hh
@@ -552,7 +552,7 @@ theorem card_rootBoxGlobalDoubleHitSet
       ∏ p : ↥P, (@localBlockDoubleHitSet p.val K j l
         ⟨(hprime p.val p.property).ne_zero⟩).card := by
   classical
-  letI (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
+  let (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
   unfold rootBoxGlobalDoubleHitSet
   exact Fintype.card_piFinset _
 
@@ -569,7 +569,7 @@ theorem card_rootBox_doubleHit_le_pairStateIndicators
           latticeMembershipIndicator (pairStateLattice P f)
             ![(j : ℤ), (l : ℤ)] := by
   classical
-  letI (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
+  let (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
   rw [filter_rootBoxMultiplierUniverse_doubleHit_eq,
     card_rootBoxGlobalDoubleHitSet]
   calc

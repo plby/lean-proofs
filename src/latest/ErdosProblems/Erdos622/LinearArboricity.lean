@@ -215,7 +215,7 @@ division. -/
 lemma exists_card_le_mul_colorClass {G : SimpleGraph V} {k : ℕ}
     (c : EdgePartition G k) (hk : 0 < k) :
     ∃ i : Fin k, Fintype.card G.edgeSet ≤ k * (colorClass c i).card := by
-  letI : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
+  let : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
   obtain ⟨i, _, hi⟩ := Finset.exists_max_image
     (univ : Finset (Fin k)) (fun i ↦ (colorClass c i).card)
     Finset.univ_nonempty

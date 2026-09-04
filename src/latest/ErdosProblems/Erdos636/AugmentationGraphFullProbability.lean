@@ -92,13 +92,13 @@ theorem halfSlice_sum_two_sided_probability
     uniformProbability (fun omega : HalfSample.Slice I s ↦
         t ≤ |HalfSample.sliceSum a omega - (∑ i, a i) / 2|) ≤
       2 * Real.exp (-t ^ 2 / (2 * s * (4 * B) ^ 2)) := by
-  letI : Nonempty (HalfSample.Slice I s) := HalfSample.sliceNonempty hcard
+  let : Nonempty (HalfSample.Slice I s) := HalfSample.sliceNonempty hcard
   let E : Erdos88.Fourier.BoolSlice I s ≃ HalfSample.Slice I s :=
     Erdos88.Fourier.boolSliceEquivFinsetLen I s
-  letI : Nonempty (Erdos88.Fourier.BoolSlice I s) :=
+  let : Nonempty (Erdos88.Fourier.BoolSlice I s) :=
     (Equiv.nonempty_congr E).mpr inferInstance
   have hIpos : 0 < Fintype.card I := by omega
-  letI : Nonempty I := Fintype.card_pos_iff.mp hIpos
+  let : Nonempty I := Fintype.card_pos_iff.mp hIpos
   have hsle : s ≤ Fintype.card I := by omega
   have htail := AugmentationGraphPartial.boolSlice_sum_two_sided_probability
     s hsle hs a B t hB ht hbounded
@@ -146,14 +146,14 @@ theorem halfSlice_point_probability_le_of_integer_l1_small_sum
         HalfSample.sliceSum (fun i ↦ (a i : ℝ)) omega = x) ≤
       AntiConcentration.variancePointMassConstant c (theta ^ 2 / 4) B /
         Real.sqrt (Fintype.card I : ℝ) := by
-  letI : Nonempty (HalfSample.Slice I s) := by
+  let : Nonempty (HalfSample.Slice I s) := by
     obtain ⟨S, _hS, hScard⟩ :=
       Finset.exists_subset_card_eq
         (show s ≤ (Finset.univ : Finset I).card by simpa using hs)
     exact ⟨⟨S, hScard⟩⟩
   let E : Erdos88.Fourier.BoolSlice I s ≃ HalfSample.Slice I s :=
     Erdos88.Fourier.boolSliceEquivFinsetLen I s
-  letI : Nonempty (Erdos88.Fourier.BoolSlice I s) :=
+  let : Nonempty (Erdos88.Fourier.BoolSlice I s) :=
     (Equiv.nonempty_congr E).mpr inferInstance
   have hanti :=
     AntiConcentration.slice_point_probability_le_of_integer_l1_small_sum
@@ -184,7 +184,7 @@ theorem one_half_le_endpointProbability
     (1 : ℝ) / 2 <= uniformProbability
       (fun omega : AugmentationFull.Sample D s =>
         lam <= P.path omega tau - P.path omega 0) := by
-  letI : Nonempty (AugmentationFull.Sample D s) :=
+  let : Nonempty (AugmentationFull.Sample D s) :=
     HalfSample.sliceNonempty hcard
   have hhalf : (1 : ℝ) / 2 <=
       uniformProbability (fun omega : AugmentationFull.Sample D s =>
@@ -247,7 +247,7 @@ theorem uniformProbability_failureEvent_le_itemRisk
             (P.candidates.card.choose 2 * pCollision / E) / tCollision +
         P.candidates.card * pDegree / tDegree +
         (tau * (Real.sqrt v / Q)) / kappa := by
-  letI : Nonempty (AugmentationFull.Sample D s) :=
+  let : Nonempty (AugmentationFull.Sample D s) :=
     HalfSample.sliceNonempty hcard
   let geomFail : AugmentationFull.Sample D s -> Prop := fun omega =>
     tGeom <= CollisionCounting.eventCount (Finset.range (tau + 1))
@@ -397,7 +397,7 @@ theorem one_third_le_uniformProbability_fullExposureEvent_of_itemBounds
     (1 : ℝ) / 3 <= uniformProbability
       (AugmentationFull.FullExposureEvent P lam E (Q * Real.sqrt v) kappa
         tGeom tCollision tDegree) := by
-  letI : Nonempty (AugmentationFull.Sample D s) :=
+  let : Nonempty (AugmentationFull.Sample D s) :=
     HalfSample.sliceNonempty hcard
   let endpoint : AugmentationFull.Sample D s -> Prop := fun omega =>
     lam <= P.path omega tau - P.path omega 0

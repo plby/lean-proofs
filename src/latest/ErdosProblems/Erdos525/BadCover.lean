@@ -542,7 +542,7 @@ lemma eventually_global_velocity_le_two_growing :
     have h' : Tendsto (fun n : ℕ ↦
         2 * globalAccelerationBound n * localMeshHalfWidth n)
         atTop (𝓝 0) := by
-      convert h using 1 <;> ring
+      convert h using 1 <;> ring_nf
     exact h'.eventually (Iio_mem_nhds (by norm_num))
   have hcut : ∀ᶠ n : ℕ in atTop, 1 < growingVelocityCutoff n :=
     growingVelocityCutoff_tendsto_atTop.eventually (eventually_gt_atTop 1)

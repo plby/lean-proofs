@@ -2297,8 +2297,8 @@ theorem oddCycleInterval_of_variableCycleAssembly {V : Type*} [Fintype V]
     ∃ L : ℕ, 0 < L ∧
       ∀ n : ℕ, L ≤ n → n ≤ Q * L → Odd n → HasCycleLength G n := by
   classical
-  letI : Fintype A.Index := A.indexFintype
-  letI : Nonempty A.Index := A.indexNonempty
+  let : Fintype A.Index := A.indexFintype
+  let : Nonempty A.Index := A.indexNonempty
   let a : A.Index → ℕ := fun P => (A.data P).base
   let r : A.Index → ℕ := fun P =>
     (A.data P).residue (A.left P) (A.right P)
@@ -2545,7 +2545,8 @@ lemma finTwo_val_add_eq_of_eq_iff_eq (a b c d : Fin 2)
     rcases fin_two_eq_zero_or_one b with rfl | rfl <;>
     rcases fin_two_eq_zero_or_one c with rfl | rfl <;>
     rcases fin_two_eq_zero_or_one d with rfl | rfl <;>
-    simp_all <;> decide
+    simp_all only [Fin.isValue, Fin.coe_ofNat_eq_mod, Nat.mod_succ, Nat.cast_one, Nat.zero_mod,
+    Nat.cast_zero, add_zero] <;> decide
 
 lemma finTwo_cross_val_add_eq_of_eq_iff_eq (a b c d : Fin 2)
     (h : (a = b ↔ c = d)) :
@@ -2554,7 +2555,8 @@ lemma finTwo_cross_val_add_eq_of_eq_iff_eq (a b c d : Fin 2)
     rcases fin_two_eq_zero_or_one b with rfl | rfl <;>
     rcases fin_two_eq_zero_or_one c with rfl | rfl <;>
     rcases fin_two_eq_zero_or_one d with rfl | rfl <;>
-    simp_all <;> decide
+    simp_all only [Fin.isValue, Fin.coe_ofNat_eq_mod, Nat.mod_succ, Nat.cast_one, Nat.zero_mod,
+    Nat.cast_zero, add_zero] <;> decide
 
 /-- If the two pairs of binary colors contribute odd total parity, equality
 inside the first pair cannot be equivalent to equality inside the second. -/
@@ -2784,7 +2786,7 @@ lemma incidenceWalk_length_cast {V : Type*} [Fintype V]
       ((D P).color v).val := by
   rw [incidenceWalk_length]
   rcases fin_two_eq_zero_or_one ((D P).color v) with h | h <;>
-    simp [h] <;> decide
+    simp only [Fin.isValue, Nat.cast_ite, Nat.cast_ofNat, Nat.cast_one] <;> decide
 
 lemma incidenceWalk_isPath {V : Type*} [Fintype V]
     {A : Finset (PackedSubgraph V)} {T : ℕ}
@@ -4011,7 +4013,7 @@ lemma familyAuxSinglePieceSide_ne_of_adj {V : Type*} [Fintype V]
           | inr Qw =>
               rcases Qw with ⟨Q, w⟩
               have h := hxy
-              simp [familyAuxGraph, familyAuxAdj] at h
+              simp only [ne_eq] at h
               rcases h with ⟨rfl, hw, hQ⟩
               rcases fin_two_eq_zero_or_one ((D P).color v) with h0 | h1
               · simp [familyAuxSinglePieceSide, h0]
@@ -4032,7 +4034,7 @@ lemma familyAuxSinglePieceSide_ne_of_adj {V : Type*} [Fintype V]
               | inr Rv =>
                   rcases Rv with ⟨R, v⟩
                   have h := hxy
-                  simp [familyAuxGraph, familyAuxAdj] at h
+                  simp only [ne_eq] at h
                   rcases h with ⟨rfl, hv, h0⟩
                   simp [familyAuxSinglePieceSide, h0]
       | inr Qv =>
@@ -4040,7 +4042,7 @@ lemma familyAuxSinglePieceSide_ne_of_adj {V : Type*} [Fintype V]
           cases y with
           | inl w =>
               have h := hxy
-              simp [familyAuxGraph, familyAuxAdj] at h
+              simp only [ne_eq] at h
               rcases h with ⟨rfl, hv, hQ⟩
               rcases fin_two_eq_zero_or_one ((D P).color w) with h0 | h1
               · simp [familyAuxSinglePieceSide, h0]
@@ -4051,7 +4053,7 @@ lemma familyAuxSinglePieceSide_ne_of_adj {V : Type*} [Fintype V]
                   have hRP : R = P := hy R rfl
                   subst R
                   have h := hxy
-                  simp [familyAuxGraph, familyAuxAdj] at h
+                  simp only [ne_eq] at h
                   rcases h with ⟨rfl, hv, h0⟩
                   simp [familyAuxSinglePieceSide, h0]
               | inr Rw => simp [familyAuxGraph, familyAuxAdj] at hxy
@@ -4903,8 +4905,8 @@ lemma familyAuxNeighbor_eq_of_root {V : Type*} [Fintype V]
               rcases Qb with ⟨Q, b⟩
               have hx' := hx
               have hy' := hy
-              simp [familyAuxGraph, familyAuxAdj] at hx' hy'
-              simp [familyAuxRoot] at hrootx hrooty
+              simp only [reduceCtorEq] at hx' hy'
+              simp only [reduceCtorEq] at hrootx hrooty
               subst a
               subst b
               have hQP : Q = P := hy'.1.symm
@@ -4919,8 +4921,8 @@ lemma familyAuxNeighbor_eq_of_root {V : Type*} [Fintype V]
           | inl b =>
               have hx' := hx
               have hy' := hy
-              simp [familyAuxGraph, familyAuxAdj] at hx' hy'
-              simp [familyAuxRoot] at hrootx hrooty
+              simp only [reduceCtorEq] at hx' hy'
+              simp only [reduceCtorEq] at hrootx hrooty
               subst a
               subst b
               have hQP : Q = P := hx'.1.symm
@@ -4933,7 +4935,7 @@ lemma familyAuxNeighbor_eq_of_root {V : Type*} [Fintype V]
                   rcases Rb with ⟨R, b⟩
                   have hx' := hx
                   have hy' := hy
-                  simp [familyAuxGraph, familyAuxAdj] at hx' hy'
+                  simp only [Sum.inr.injEq, Prod.mk.injEq] at hx' hy'
                   simp [familyAuxRoot] at hrootx hrooty
                   subst a
                   subst b
@@ -5166,7 +5168,7 @@ lemma piece_incidence_bits_eq_residue {V : Type*} [Fintype V]
       ((D P.1).color (auxPieceRight c hc hcodd P)) with hR | hR <;>
     rcases fin_two_eq_zero_or_one
       ((D P.1).color (auxPieceLeft c hc hcodd P)) with hL | hL <;>
-    simp [FlexiblePathData.residue, hR, hL] <;> decide
+    simp only [Fin.isValue] <;> decide
 
 /-- Double-counting the directed darts of a simple auxiliary cycle groups
 its incidence sum into the two incidences at each piece node. -/
@@ -10955,12 +10957,12 @@ theorem flexiblePieceTheorem : FlexiblePieceTheorem := by
   refine ⟨8 * D, ?_⟩
   intro W _ G hnotcolor
   classical
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   have hDpos : 0 < D := by simp [D]
   have hEightDpos : 0 < 8 * D := by positivity
   obtain ⟨S, hS, hdegree⟩ :=
     exists_induced_core G hEightDpos hnotcolor
-  letI : Nonempty (S : Set W) := Finset.nonempty_coe_sort.mpr hS
+  let : Nonempty (S : Set W) := Finset.nonempty_coe_sort.mpr hS
   let K : SimpleGraph (S : Set W) := G.induce (S : Set W)
   have havg : AvgDegreeAtLeast K (8 * D) := by
     exact induced_core_average_degree G S hdegree
@@ -10968,8 +10970,8 @@ theorem flexiblePieceTheorem : FlexiblePieceTheorem := by
     exists_bipartite_liu_montgomery_expander K hDpos
       (by positivity : (0 : ℝ) < (1 / 64) * (D : ℝ)) havg
   let J : SimpleGraph (U : Set (S : Set W)) := H.induce (U : Set (S : Set W))
-  letI : Nonempty (U : Set (S : Set W)) := Finset.nonempty_coe_sort.mpr hU
-  letI : DecidableRel J.Adj := Classical.decRel J.Adj
+  let : Nonempty (U : Set (S : Set W)) := Finset.nonempty_coe_sort.mpr hU
+  let : DecidableRel J.Adj := Classical.decRel J.Adj
   let B : Bipartition J :=
     Bipartition.ofIsBipartite (SimpleGraph.IsBipartite.induce hHbip _)
   have hDExact : dExact ≤ D := by simp [D]

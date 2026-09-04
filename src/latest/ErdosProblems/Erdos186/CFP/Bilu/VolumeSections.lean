@@ -1061,7 +1061,7 @@ theorem coarse_section_bound_coordinate {d k : ℕ} (hk : 0 < k)
               (Real.sqrt Real.pi ^ k /
                 Real.Gamma ((k : ℝ) / 2 + 1)))) ≤
       intrinsicVolume (d + k) B := by
-  letI : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
+  let : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
   let T : Set (EuclideanSpace ℝ (Fin k)) := Metric.closedBall 0 ρ
   have hTmeas : MeasurableSet T := measurableSet_closedBall
   have htransverse : ∀ y ∈ T, orthogonalPair (d := d) 0 y ∈ B := by

@@ -298,13 +298,7 @@ lemma integral_theta_sub_id_isBigO :
         · exact Continuous.integrableOn_Icc ( by continuity );
       · refine' Measurable.aestronglyMeasurable _;
         refine' Measurable.mul _ _;
-        · refine' Measurable.sub _ measurable_id;
-          refine' measurable_of_tendsto_metrizable _ _;
-          use fun n t => ∑ p ∈ Finset.filter Nat.Prime (Finset.Icc 1 (Nat.floor t)), Real.log p * (if p ≤ n then 1 else 0);
-          · fun_prop;
-          · refine' tendsto_pi_nhds.mpr _;
-            intro x; refine' tendsto_const_nhds.congr' _; filter_upwards [ Filter.eventually_ge_atTop ⌊x⌋₊ ] with i hi; simp +decide [ Finset.sum_ite ] ;
-            rw [ Finset.filter_true_of_mem fun p hp => by linarith [ Finset.mem_Icc.mp ( Finset.mem_filter.mp hp |>.1 ) ] ] ; rfl;
+        · exact Chebyshev.theta_mono.measurable.sub measurable_id
         · exact Measurable.inv ( measurable_id.mul ( Measurable.pow_const ( Real.measurable_log ) _ ) );
       · filter_upwards [ MeasureTheory.ae_restrict_mem measurableSet_Icc ] with t ht;
         rw [ Real.norm_eq_abs, abs_div ];
@@ -368,9 +362,22 @@ lemma count_eq_primeCounting_diff (u d : ℝ) (hd : 0 ≤ d) :
   rw_mod_cast [ Nat.primeCounting, Nat.primeCounting ];
   rw [ Nat.primeCounting', Nat.count_eq_card_filter_range, Nat.count_eq_card_filter_range ];
   rw [ ← Finset.card_union_of_disjoint ];
-  · congr 1 with x ; by_cases hx : x ≤ ⌊Real.exp ( u - d ) ⌋₊ <;> simp_all +decide;
-    · exact ⟨ fun h => ⟨ le_trans hx <| Nat.floor_mono <| Real.exp_le_exp.2 <| by linarith, h.elim ( fun h => h.2.1 ) fun h => h ⟩, fun h => Or.inr h.2 ⟩;
-    · exact ⟨ fun h => by cases h <;> [ exact ⟨ by tauto, by tauto ⟩ ; exact False.elim <| by linarith ], fun h => Or.inl ⟨ ⟨ Nat.pos_of_ne_zero <| by aesop_cat, by tauto ⟩, by tauto, Nat.lt_of_floor_lt hx ⟩ ⟩;
+  · congr 1 with x ; by_cases hx : x ≤ ⌊Real.exp ( u - d ) ⌋₊ <;> simp_all +decide only [Finset.mem_union, Finset.mem_filter, Finset.mem_Icc, Finset.mem_range,
+    Order.lt_add_one_iff];
+    · constructor
+      · intro h
+        refine ⟨le_trans hx (Nat.floor_mono (Real.exp_le_exp.2 (by linarith))), ?_⟩
+        exact h.elim (fun h => h.2.1) (fun h => h.2)
+      · intro h
+        exact Or.inr ⟨trivial, h.2⟩
+    · constructor
+      · rintro (h | h)
+        · exact ⟨h.1.2, h.2.1⟩
+        · exact False.elim h.1
+      · intro h
+        refine Or.inl ⟨⟨?_, h.1⟩, h.2, ?_⟩
+        · omega
+        · exact Nat.lt_of_floor_lt (by omega)
   · norm_num [ Finset.disjoint_left ];
     intro a ha₁ ha₂ ha₃ ha₄ ha₅; rw [ Nat.le_floor_iff ( by positivity ) ] at *; linarith;
 
@@ -468,7 +475,7 @@ lemma error_over_denom_tendsto
       have h_bound' : ∀ᶠ n in atTop, |((Nat.primeCounting ⌊Real.exp (u n - δ n)⌋₊ : ℝ) - li2 (Real.exp (u n - δ n)))| ≤ K * (Real.exp (u n - δ n)) * Real.exp (-c * (u n - δ n) ^ (1 / 10 : ℝ)) := by
         have := hK.2;
         rw [ IsBigOWith ] at this;
-        simp +zetaDelta at *;
+        simp +zetaDelta only [one_div, neg_mul, eventually_atTop] at *;
         obtain ⟨ a, ha ⟩ := this;
         obtain ⟨ N, hN ⟩ := Filter.eventually_atTop.mp ( hu.eventually_ge_atTop ( Max.max a 2 + 1 ) );
         refine' ⟨ N + hδ.choose, fun n hn => _ ⟩ ; specialize ha ( Real.exp ( u n - δ n ) ) _;

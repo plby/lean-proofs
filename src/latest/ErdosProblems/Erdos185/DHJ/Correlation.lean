@@ -123,7 +123,7 @@ theorem exists_of_delta (delta : ℝ) (hdelta : 0 < delta) (hdelta1 : delta ≤ 
   let m0 := N + 1
   let L : ℝ := Fintype.card (Line (Fin 2) (Fin m0))
   have hm0 : 0 < m0 := by simp [m0]
-  letI : Nonempty (Line (Fin 2) (Fin m0)) := by
+  let : Nonempty (Line (Fin 2) (Fin m0)) := by
     let l : Line (Fin 2) (Fin m0) :=
       { idxFun := fun _ ↦ none
         proper := ⟨⟨0, hm0⟩, rfl⟩ }
@@ -577,7 +577,7 @@ theorem average_density_lineSectionIntersection_eq {m : ℕ} (hm : 0 < m)
     average (fun l : Line (Fin 2) (Fin m) ↦
       density (lineSectionIntersection A l)) =
     average (fun y : Y ↦ density (goodBinaryLines (tailSlice A y))) := by
-  letI : Nonempty (Line (Fin 2) (Fin m)) := by
+  let : Nonempty (Line (Fin 2) (Fin m)) := by
     let l : Line (Fin 2) (Fin m) :=
       { idxFun := fun _ ↦ none
         proper := ⟨⟨0, hm⟩, rfl⟩ }
@@ -652,7 +652,7 @@ theorem exists_correlatedSectionData_of_uniform
         simpa only [H, show p.delta / 2 / 2 = p.delta / 4 by ring] using hh
       let PZ : Finset (Word 3 s.m0 × Y) := prefixPullbackProduct Z.finLift A
       let L : ℝ := Fintype.card (Line (Fin 2) (Fin s.m0))
-      letI : Nonempty (Line (Fin 2) (Fin s.m0)) := by
+      let : Nonempty (Line (Fin 2) (Fin s.m0)) := by
         let l : Line (Fin 2) (Fin s.m0) :=
           { idxFun := fun _ ↦ none
             proper := ⟨⟨0, s.m0_pos⟩, rfl⟩ }
@@ -751,8 +751,8 @@ theorem manyBinaryLines_of_correlatedSections (p : CorrelationConstants)
         alpha - 2 * p.eta ≤ density (tailSlice S.points y) ∧
         p.theta / 2 ≤ density (goodBinaryLines (tailSlice S.points y)) := by
   classical
-  letI : Nonempty (Word 3 m) := inferInstance
-  letI : Nonempty (Line (Fin 2) (Fin m)) := by
+  let : Nonempty (Word 3 m) := inferInstance
+  let : Nonempty (Line (Fin 2) (Fin m)) := by
     let l : Line (Fin 2) (Fin m) :=
       { idxFun := fun _ ↦ none
         proper := ⟨⟨0, hm⟩, rfl⟩ }
@@ -1086,7 +1086,7 @@ theorem insensitiveCorrelation_of_manyBinaryLineDensity
     (hhalf : 2 * (2 : ℝ) ^ m ≤ (3 : ℝ) ^ m)
     (hsmall : (2 : ℝ) ^ m / (3 : ℝ) ^ m ≤ p.eta) :
     Nonempty (InsensitiveCorrelation p alpha A) := by
-  haveI : Nonempty (Line (Fin 2) (Fin m)) := by
+  have : Nonempty (Line (Fin 2) (Fin m)) := by
     let l : Line (Fin 2) (Fin m) :=
       { idxFun := fun _ ↦ none
         proper := ⟨⟨0, hm⟩, rfl⟩ }
@@ -1150,7 +1150,7 @@ noncomputable def holeProduct {r b : ℕ}
     (h : BlockHole (Word 3 r) PUnit b) (x : Word 3 r) (z : h.Tail) :
     (x, z) ∈ holeProduct A h ↔ h.fill x z ∈ A := by
   classical
-  letI := h.tailFintype
+  let := h.tailFintype
   simp [holeProduct]
 
 @[simp] theorem fiber_holeProduct {r b : ℕ}
@@ -1158,7 +1158,7 @@ noncomputable def holeProduct {r b : ℕ}
     (h : BlockHole (Word 3 r) PUnit b) (x : Word 3 r) :
     fiber (holeProduct A h) x = h.holeSection A x := by
   classical
-  letI := h.tailFintype
+  let := h.tailFintype
   ext z
   simp
 
@@ -1203,8 +1203,8 @@ theorem exists_insensitiveCorrelation_fixedDimension
     have hAT : density AT = density A := by
       simpa [AT] using density_map_equiv e.symm A
     obtain ⟨h, hh⟩ := hb AT
-    letI := h.tailFintype
-    letI := h.tailNonempty
+    let := h.tailFintype
+    let := h.tailNonempty
     let T : Finset (Word 3 r × h.Tail) := holeProduct AT h
     have huniform : ∀ x : Word 3 r,
         density A - s.constants.eta ^ 2 / 2 ≤ density (fiber T x) := by

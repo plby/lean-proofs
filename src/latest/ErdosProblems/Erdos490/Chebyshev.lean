@@ -133,7 +133,10 @@ lemma chebyshevPsi_factorial_step (n : ℕ) :
 
 lemma log_factorial_lower (n : ℕ) (hn : 1 ≤ n) :
     (n : ℝ) * Real.log n - n + 1 ≤ Real.log (n.factorial) := by
-  induction hn <;> simp_all +decide [Nat.factorial]
+  induction hn
+  · norm_num
+  simp_all +decide only [succ_eq_add_one, cast_add, cast_one]
+  rw [Nat.factorial_succ, Nat.cast_mul]
   rw [Real.log_mul (by positivity) (by positivity)]
   have h_log : ∀ m : ℕ, 1 ≤ m → Real.log (m + 1) ≤ Real.log m + 1 / m := by
     intro m hm

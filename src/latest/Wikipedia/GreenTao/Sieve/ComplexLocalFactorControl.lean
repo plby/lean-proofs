@@ -917,7 +917,7 @@ theorem norm_cfzPairedFourierLocalRatio_sub_one_le
     ‖cfzPairedFourierLocalRatio R k t u p - 1‖ ≤
       cfzComplexEulerErrorConstant k /
         (p : ℝ) ^ 2 := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   have hexceptional :
       exceptionalPrimeBound
           (fun q : CFZFormIndex k => cfzAffineForm q) <

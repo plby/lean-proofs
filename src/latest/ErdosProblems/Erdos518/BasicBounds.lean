@@ -59,7 +59,7 @@ lemma w_ge_c : C.c ≤ C.w := by
 
 /-- The Gerencsér--Gyárfás lower bound applies to the globally longest path `Q`. -/
 lemma long_path_lower : C.n * 2 / 3 + 1 ≤ C.Q.length := by
-  letI : Nonempty V := C.nonempty_vertex_type
+  let : Nonempty V := C.nonempty_vertex_type
   classical
   obtain ⟨p, hpmono, hplen⟩ := exists_long_monochromatic_path C.G
   exact hplen.trans (C.q_isGloballyLongest.2 p hpmono)
@@ -143,7 +143,7 @@ lemma not_isCutColoring : ¬ IsCutColoring C.G := by
 
 /-- The rotation lemma and the opposite-colour intersection bound give `w ≤ r - 2`. -/
 lemma w_le_r_sub_two : C.w ≤ C.r - 2 := by
-  letI : Nonempty V := C.nonempty_vertex_type
+  let : Nonempty V := C.nonempty_vertex_type
   classical
   have hQlen : 2 ≤ C.Q.length := by
     have hc := C.one_le_c

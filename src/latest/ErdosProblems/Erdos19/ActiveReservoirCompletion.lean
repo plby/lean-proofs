@@ -65,7 +65,7 @@ theorem exists_matching_on_set_using_reservoir {V : Type*} [Fintype V] [Decidabl
       have hvA := hvAv.1
       have hv := hvAv.2
       let Q := R.deleteEdges M.edgeSet
-      letI : DecidableRel Q.Adj := fun x y ↦ Classical.propDecidable (Q.Adj x y)
+      let : DecidableRel Q.Adj := fun x y ↦ Classical.propDecidable (Q.Adj x y)
       have hQG : Q ≤ G := (R.deleteEdges_le M.edgeSet).trans hRG
       have hdis : Disjoint M.edgeSet Q.edgeSet := by
         rw [edgeSet_deleteEdges]

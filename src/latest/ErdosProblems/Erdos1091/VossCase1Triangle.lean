@@ -110,7 +110,8 @@ theorem colorable_of_maximal_ear_length_four
     · exact haC
   have houterNe : Function.Injective outer := by
     intro i j heq
-    fin_cases i <;> fin_cases j <;> simp [outer] at heq ⊢
+    fin_cases i <;> fin_cases j <;> simp only [Fin.mk_one, Fin.isValue, Fin.reduceFinMk, Fin.reduceEq, Fin.zero_eta, one_ne_zero,
+    zero_ne_one] at heq ⊢
     all_goals first
       | exact E.endpoints_ne heq
       | exact E.endpoints_ne heq.symm

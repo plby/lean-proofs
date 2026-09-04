@@ -27,7 +27,7 @@ private theorem finitarySzemeredi_of_cyclic_count {k : ℕ} (hk : 1 < k) :
   intro N hN A hA hdense
   have hNpos : 0 < N := (le_max_left 1 m).trans hN
   let M : ℕ := 4 * (N + 1)
-  letI : NeZero M := ⟨by dsimp [M]; omega⟩
+  let : NeZero M := ⟨by dsimp [M]; omega⟩
   have hNM : N + 1 ≤ M := by
     dsimp [M]
     omega

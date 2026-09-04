@@ -494,7 +494,7 @@ lemma levelPairCountBound_le_geometricEnvelope
       unfold ThickPoint.regularRadius
       push_cast
       rw [Real.exp_sub, Real.exp_neg]
-      ring
+      ring_nf
     have hr0S : r0 ≤ 2 * S := by
       simpa [r0, S] using
         regularRadius_zero_le_two_mul_candidateInterval_card (by omega : 2 ≤ q)

@@ -804,7 +804,7 @@ theorem monomialTranslation_le
     _ = X := by
       rw [← Real.rpow_add hXR]
       convert Real.rpow_one (X : ℝ) using 1
-      ring
+      ring_nf
 
 end AnalyticParameters
 

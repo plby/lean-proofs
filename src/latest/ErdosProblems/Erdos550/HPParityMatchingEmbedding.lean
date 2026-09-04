@@ -124,7 +124,7 @@ theorem hp_parity_matching_tree_embedding
     fun b => hpMatchingRegion (K b) left right
   let retained : Bool → Finset V :=
     fun b => hpRetainedRegion (K b) retainedL retainedR
-  letI : DecidableRel T.Adj := Classical.decRel _
+  let : DecidableRel T.Adj := Classical.decRel _
   apply hp_direct_tree_embedding_static_seed
     T G Sseed parent rank hrank hedge D col routeColour
     headCore retained matchingRegion left right

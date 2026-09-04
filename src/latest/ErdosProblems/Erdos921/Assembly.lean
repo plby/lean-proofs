@@ -72,7 +72,7 @@ theorem admissible_lt_kst_bound {k n m : ℕ} (hk : 4 ≤ k)
     rw [hχ] at hcard
     simp at hcard
     omega
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
+  let : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
   have hcard : Fintype.card (Fin n) ≤ a ^ d := by
     simp only [Fintype.card_fin]
     exact (Nat.lt_pow_nthRoot_add_one hd.ne' n).le

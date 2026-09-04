@@ -56,7 +56,7 @@ theorem exists_crossLevel_exceptional_zero_repulsion :
   intro q₁ q Q _ _ hq₁ hq₁Q hqQ chi₁ chi hchi₁ hsquare beta hbeta₀ hbeta₁ hzero₁
     T hT rho hheight hrho₀ hrho₁ hzero hne
   let d : ℕ := Nat.lcm q₁ q
-  letI : NeZero d := ⟨Nat.lcm_ne_zero (NeZero.ne q₁) (NeZero.ne q)⟩
+  let : NeZero d := ⟨Nat.lcm_ne_zero (NeZero.ne q₁) (NeZero.ne q)⟩
   let psi₁ := chi₁.changeLevel (Nat.dvd_lcm_left q₁ q)
   let psi := chi.changeLevel (Nat.dvd_lcm_right q₁ q)
   have hd : 1 < d := hq₁.trans_le (Nat.le_of_dvd (NeZero.pos d) (Nat.dvd_lcm_left q₁ q))

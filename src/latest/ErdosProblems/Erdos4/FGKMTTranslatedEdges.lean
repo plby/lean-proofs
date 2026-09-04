@@ -72,7 +72,7 @@ theorem translatedEdge_common_point_unique (h : Fin k → ℕ)
     (hinj : Function.Injective (fun i => (h i : ZMod p)))
     (hq : q ∈ translatedEdge h p Y n) (hq' : q' ∈ translatedEdge h p Y n)
     (hr : q ∈ translatedEdge h p' Y n') (hr' : q' ∈ translatedEdge h p' Y n') : q = q' := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hres := translatedEdge_same_source_residue h hq hq'
   obtain ⟨_, _, i, hi⟩ := (mem_translatedEdge h p' Y n' q).mp hr
   obtain ⟨_, _, j, hj⟩ := (mem_translatedEdge h p' Y n' q').mp hr'

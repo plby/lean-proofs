@@ -259,7 +259,7 @@ lemma chain_contradiction (hW : ¬ Countable W)
   classical
   -- `S a ∩ X_∞` is countable, hence contained in some `chain w₀`
   have hcnt : (S a ∩ ⋃ w : W, chain S maxFam w).Countable := (hS a).mono inter_subset_left
-  haveI := hcnt.to_subtype
+  have := hcnt.to_subtype
   have hex : ∀ e : ↥(S a ∩ ⋃ w : W, chain S maxFam w), ∃ w, (e : ι) ∈ chain S maxFam w :=
     fun e => mem_iUnion.mp e.2.2
   choose wf hwf using hex

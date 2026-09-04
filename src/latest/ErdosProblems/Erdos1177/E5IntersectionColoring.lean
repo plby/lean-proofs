@@ -76,7 +76,7 @@ theorem properColoring_of_edgeIntersectionColoring
   obtain ⟨v, hv⟩ : ∃ v ∈ e, v ≠ edgeMark H htri ⟨e, he⟩ := by
     have := htri e he;
     exact Set.exists_ne_of_one_lt_ncard ( by linarith ) _;
-  refine' ⟨ edgeMark H htri ⟨ e, he ⟩, _, v, _, _ ⟩ <;> simp_all +decide [ funext_iff ];
+  refine' ⟨ edgeMark H htri ⟨ e, he ⟩, _, v, _, _ ⟩ <;> simp_all +decide only [eq_mpr_eq_cast, cast_eq, ne_eq];
   · exact edgeMark_mem H htri ⟨ e, he ⟩;
   · use c ⟨ e, he ⟩ ; simp_all +decide [ d ] ;
     push_neg;

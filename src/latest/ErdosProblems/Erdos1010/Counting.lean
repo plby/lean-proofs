@@ -54,7 +54,9 @@ lemma sum_triangleDegree_eq_three_mul_cliqueFinset [DecidableEq V]
   -- once by summing the number of common neighbors of each edge,
   -- and once by observing that every triangle contributes exactly three edges.
   unfold triangleDegree
-  simp +decide [SimpleGraph.cliqueFinset]
+  rw [show G.cliqueFinset 3 =
+    Finset.filter (fun T => G.IsNClique 3 T) Finset.univ by rfl]
+  simp +decide only [Fintype.card_ofFinset]
   convert Finset.sum_congr rfl fun e he => ?_
   rotate_left
   · use fun e =>
@@ -185,11 +187,21 @@ lemma edge_endpoint_degree_sum_eq_indicator_sum
   have h_edge_repr : e = s(e.out.1, e.out.2) := by
     exact Eq.symm (Quot.out_eq e)
   rw [h_edge_repr, Finset.sum_ite]
-  rw [Finset.sum_eq_add (Quot.out e |>.1) (Quot.out e |>.2)] <;> simp +decide
+  rw [Finset.sum_eq_add (Quot.out e |>.1) (Quot.out e |>.2)] <;> simp +decide only [Sym2.mem_iff, not_or, Finset.sum_const_zero, add_zero, ne_eq]
   · rw [← h_edge_repr]
   · intro h
     rw [h_edge_repr] at he
     simp +decide [h] at he
+  · rintro c hc ⟨hca, hcb⟩
+    have hc' : c = (Quot.out e).1 ∨ c = (Quot.out e).2 := by
+      simpa only [Finset.mem_filter, Finset.mem_univ, true_and] using hc
+    rcases hc' with rfl | rfl
+    · exact (hca rfl).elim
+    · exact (hcb rfl).elim
+  · intro ha
+    exact (ha (by simp only [Finset.mem_filter, Finset.mem_univ, true_and, true_or])).elim
+  · intro hb
+    exact (hb (by simp only [Finset.mem_filter, Finset.mem_univ, true_and, or_true])).elim
 
 lemma edge_endpoint_degree_sum_eq_neighbor_sum
     (G : SimpleGraph V) [DecidableRel G.Adj] :

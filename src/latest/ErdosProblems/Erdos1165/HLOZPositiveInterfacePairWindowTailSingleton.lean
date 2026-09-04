@@ -319,7 +319,7 @@ theorem singletonPairWindowScreenMass_le_two_mul_windowMass
   let data := singletonPairFiber eta b
   let D := supportComplementDistinguished t eta.1.1.start
     eta.1.1.retained ({b.1.1} : Finset Point)
-  letI singletonFintype : Fintype
+  let singletonFintype : Fintype
       (TilingAwayDomino t eta.1.1.start eta.1.1.retained D) :=
     instFintypeTilingAwayDomino t eta.1.1.start eta.1.1.retained D
   let c := singletonPairCoordinate eta b
@@ -330,7 +330,7 @@ theorem singletonPairWindowScreenMass_le_two_mul_windowMass
     (v : ℕ) ∈ positiveInterfacePairWindow m (shellWidth48 m)
       (Fintype.card
         (TilingCoordinatesAt t eta.1.1.start eta.1.1.retained b.1)) shell
-  letI badDec : ∀ d, DecidablePred (bad d) := fun _ v ↦
+  let badDec : ∀ d, DecidablePred (bad d) := fun _ v ↦
     Finset.decidableMem (v : ℕ)
       (positiveInterfacePairWindow m (shellWidth48 m)
         (Fintype.card
@@ -625,7 +625,7 @@ theorem positiveInterfaceExternalPairSourcePredicate_forward_singleton
   classical
   let DPair := supportComplementDistinguished t eta.1.1.start
     eta.1.1.retained eta.1.2
-  letI pairFintype : Fintype (PositiveInterfaceExternalPairCoordinate eta) :=
+  let pairFintype : Fintype (PositiveInterfaceExternalPairCoordinate eta) :=
     instFintypeTilingAwayDomino t eta.1.1.start eta.1.1.retained DPair
   rcases hq.1.2 with ⟨ellPair, hscreenPair, htotalPair⟩
   let D := supportComplementDistinguished t eta.1.1.start
@@ -756,9 +756,9 @@ theorem positiveInterfaceExternalPairSourceStoppedGeometricMass_le_singleton
   let data := singletonPairFiber eta b
   let D := supportComplementDistinguished t eta.1.1.start
     eta.1.1.retained ({b.1.1} : Finset Point)
-  letI : Fintype (TilingAwayDomino t eta.1.1.start eta.1.1.retained D) :=
+  let : Fintype (TilingAwayDomino t eta.1.1.start eta.1.1.retained D) :=
     instFintypeTilingAwayDomino t eta.1.1.start eta.1.1.retained D
-  letI : Fintype (TilingDistinguishedDomino t eta.1.1.start
+  let : Fintype (TilingDistinguishedDomino t eta.1.1.start
       eta.1.1.retained D) :=
     instFintypeTilingDistinguishedDomino t eta.1.1.start eta.1.1.retained D
   have h :=

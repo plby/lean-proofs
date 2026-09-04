@@ -61,7 +61,7 @@ lemma digitSum_two_pos {n : ℕ} (hn : n ≠ 0) : 0 < (Nat.digits 2 n).sum := by
 coefficient is the binary digit sum of its index. -/
 lemma padicValNat_two_centralBinom (n : ℕ) :
     padicValNat 2 (centralBinom n) = (Nat.digits 2 n).sum := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   have hcb : centralBinom n = Nat.choose (n + n) n := by
     rw [centralBinom, two_mul]
   rcases Nat.eq_zero_or_pos n with hn | hn
@@ -107,7 +107,7 @@ lemma digitSum_two_eq_one_iff {n : ℕ} (hn : 0 < n) :
 four. -/
 lemma four_dvd_centralBinom_iff (n : ℕ) (hn : 2 ≤ n) :
     4 ∣ centralBinom n ↔ ¬ ∃ k : ℕ, n = 2 ^ k := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   have hpos : 0 < n := by omega
   have hcb0 : centralBinom n ≠ 0 := (centralBinom_pos n).ne'
   have hdvd : 4 ∣ centralBinom n ↔ 2 ≤ padicValNat 2 (centralBinom n) := by
@@ -130,7 +130,7 @@ binomial coefficient. -/
 lemma padicValNat_centralBinom_eq_centralCarryCount
     {p : ℕ} (hp : p.Prime) (n : ℕ) :
     padicValNat p (centralBinom n) = centralCarryCount p n := by
-  haveI : Fact p.Prime := ⟨hp⟩
+  have : Fact p.Prime := ⟨hp⟩
   rw [centralBinom, show 2 * n = n + n by omega]
   exact padicValNat_choose' (Nat.lt_succ_self _)
 
@@ -451,7 +451,7 @@ lemma exists_prime_sq_dvd_centralBinom_two_pow_of_lt
   let k' : Fin 1617 := ⟨k, hk⟩
   let p := finitePrime k
   have hp : p.Prime := finitePrime_prime k
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hcarry : 2 ≤ centralCarryCount p (2 ^ k) := by
     simpa [k', p] using finite_carry_check k' hk3
   have hval : 2 ≤ padicValNat p (centralBinom (2 ^ k)) := by
@@ -467,7 +467,7 @@ lemma exists_prime_sq_dvd_centralBinom_two_pow_of_lt_1728
   let k' : Fin 1728 := ⟨k, hk⟩
   let p := finitePrime k
   have hp : p.Prime := finitePrime_prime k
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hcarry : 2 ≤ centralCarryCount p (2 ^ k) := by
     simpa [k', p] using finite_carry_check_1728 k' hk3
   have hval : 2 ≤ padicValNat p (centralBinom (2 ^ k)) := by
@@ -484,7 +484,7 @@ lemma exists_prime_sq_dvd_centralBinom_two_pow_of_lt_2304
   let k' : Fin 2304 := ⟨k, hk⟩
   let p := finitePrime k
   have hp : p.Prime := finitePrime_prime k
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hcarry : 2 ≤ centralCarryCount p (2 ^ k) := by
     simpa [k', p] using finite_carry_check_2304 k' hk3
   have hval : 2 ≤ padicValNat p (centralBinom (2 ^ k)) := by
@@ -500,7 +500,7 @@ lemma exists_prime_sq_dvd_centralBinom_two_pow_of_lt_2816
   let k' : Fin 2816 := ⟨k, hk⟩
   let p := finitePrime k
   have hp : p.Prime := finitePrime_prime k
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hcarry : 2 ≤ centralCarryCount p (2 ^ k) := by
     simpa [k', p] using finite_carry_check_2816 k' hk3
   have hval : 2 ≤ padicValNat p (centralBinom (2 ^ k)) := by
@@ -516,7 +516,7 @@ lemma exists_prime_sq_dvd_centralBinom_two_pow_of_lt_8192
   let k' : Fin 8192 := ⟨k, hk⟩
   let p := finitePrime k
   have hp : p.Prime := finitePrime_prime k
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hcarry : 2 ≤ centralCarryCount p (2 ^ k) := by
     simpa [k', p] using finite_carry_check_8192 k' hk3
   have hval : 2 ≤ padicValNat p (centralBinom (2 ^ k)) := by

@@ -396,7 +396,7 @@ theorem eventually_largeExpansion_pointwise {c : ℝ} (hc : 0 < c) :
     have hthree : 3 * s ≤ n := by omega
     convert expansionBinomialUnionTerm_le_large_linear hc hn hs hthree htwelve
         hpN.1 hpN.2 hsLower habsN using 1 <;>
-      simp only [largeLinearCoefficient] <;> ring
+      simp only [largeLinearCoefficient] <;> ring_nf
   · filter_upwards [hp, eventually_ge_atTop 2] with n hpN hn
     intro s hsMem
     have hsData := mem_largeLogExpansionIndices.mp hsMem

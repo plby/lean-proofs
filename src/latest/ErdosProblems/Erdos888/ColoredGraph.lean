@@ -527,7 +527,7 @@ theorem sum_edgeCount_le (G : Γ → BipartiteGraph L R)
       gcongr
     _ = _ := by
       simp only [T, M, N, C, D]
-      ring
+      ring_nf
 
 end
 end ColoredGraph

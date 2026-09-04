@@ -34,7 +34,7 @@ theorem primeSquare_mul_zero {p : ℕ} {x : ZMod (p ^ 2)}
 theorem exists_primeSquare_kill {p : ℕ} [hp : Fact p.Prime] (x y : ZMod (p ^ 2))
     (hx : primeSquareReduce p x = 0) (hy : primeSquareReduce p y ≠ 0) :
     ∃ j : ℕ, x + (j : ZMod (p ^ 2)) * p * y = 0 := by
-  letI : NeZero (p ^ 2) := ⟨pow_ne_zero 2 hp.out.ne_zero⟩
+  let : NeZero (p ^ 2) := ⟨pow_ne_zero 2 hp.out.ne_zero⟩
   obtain ⟨d, hd⟩ := (primeSquare_reduce_zero_iff x).mp hx
   have hu : IsUnit y := isUnit_of_prime_reduction (by decide : 0 < 2) y hy
   let z : ZMod (p ^ 2) := -d * ↑hu.unit⁻¹

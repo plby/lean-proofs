@@ -43,8 +43,8 @@ theorem weightedIdealClassCount_error {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     ∀ w : ClassGroup (QuadraticAlgebra ℤ d b) → ℂ, (∑ C, w C) = 0 →
       ∃ K : ℝ, 0 ≤ K ∧ ∀ N : ℕ,
         ‖weightedIdealClassCount hD F w N‖ ≤ K * (Real.sqrt (N : ℝ) + 1) := by
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
   intro w hw
   choose K hKpos hK using idealClassArea_error hD F hF₀ hF₁
   refine ⟨∑ C, ‖w C‖ * K C, Finset.sum_nonneg (fun C _ => mul_nonneg (norm_nonneg _) (hKpos C).le), ?_⟩
@@ -80,8 +80,8 @@ theorem idealClassCharacterCount_bigO {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     ∀ ψ : AddChar (Additive (ClassGroup (QuadraticAlgebra ℤ d b))) ℂ, ψ ≠ 0 →
       (fun N => weightedIdealClassCount hD F (fun C => ψ (Additive.ofMul C)) N)
         =O[atTop] fun N : ℕ => (N : ℝ) ^ (1 / 2 : ℝ) := by
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
   intro ψ hψ
   obtain ⟨K, hK, hbound⟩ := weightedIdealClassCount_error hD F hF₀ hF₁
     (fun C => ψ (Additive.ofMul C)) (idealClassCharacter_sum_zero ψ hψ)

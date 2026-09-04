@@ -137,8 +137,8 @@ theorem not_isObligatory_of_not_linear_of_exactTriangleHost
     (κ : Type) [DecidableEq κ]
     (hRamsey : TriangleHost.PairRamseyTriangle κ) :
     ¬ F.IsObligatory := by
-  letI : DecidableEq (TriangleHost.Pair κ) := inferInstance
-  letI : DecidableEq (ULift.{u} (TriangleHost.Pair κ)) := inferInstance
+  let : DecidableEq (TriangleHost.Pair κ) := inferInstance
+  let : DecidableEq (ULift.{u} (TriangleHost.Pair κ)) := inferInstance
   apply not_isObligatory_of_not_linear_of_linear_highChromatic
     (H := exactSystem.{u, v} κ)
   · exact hnotlinear

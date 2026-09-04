@@ -176,7 +176,7 @@ theorem mem_affineCubeClosed_of_mem_cubeTube_bot {n : ℕ}
   have hePoint : cubePoint center dirs t = center + e t := by
     simp [cubePoint, he]
   rw [hxEq, hePoint]
-  simp
+  simp only [add_sub_cancel_left, LinearEquiv.symm_apply_apply]
   exact ht i
 
 /-- Cube Lemma 5.2 followed by the exact dimension dichotomy. -/

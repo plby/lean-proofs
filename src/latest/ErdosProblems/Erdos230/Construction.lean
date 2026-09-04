@@ -210,7 +210,7 @@ lemma summable_norm_integerChirpCoefficient {m : ℕ} (hm : 2 ≤ m)
       convert norm_integerChirpCoefficient_degree_add_one hm theta j using 1
       all_goals
         push_cast
-        ring
+        ring_nf
     rw [heq]
     exact summable_outsideRight (constructionScale_pos hm)
       (two_margin_le_degree hm)

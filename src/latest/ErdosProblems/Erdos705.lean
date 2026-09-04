@@ -195,8 +195,8 @@ private theorem mem_shortCycleEdges [Finite X] {K : ℕ} {e : H.Edge} :
     e ∈ H.shortCycleEdges K ↔
       ∃ C : H.ShortIncidenceCycle K, e ∈ H.incidenceCycleEdges C := by
   classical
-  letI : Fintype X := Fintype.ofFinite X
-  letI : Fintype H.Edge := Fintype.ofFinite H.Edge
+  let : Fintype X := Fintype.ofFinite X
+  let : Fintype H.Edge := Fintype.ofFinite H.Edge
   unfold shortCycleEdges
   simp
 
@@ -403,8 +403,8 @@ Erdős--Hajnal argument. -/
 theorem bergeGirthAtLeast_deleteShortCycles [Finite X] (K : ℕ) :
     (H.restrictEdges (H.deleteEdges (H.shortCycleEdges K))).BergeGirthAtLeast K := by
   classical
-  letI : Fintype X := Fintype.ofFinite X
-  letI : Fintype H.Edge := Fintype.ofFinite H.Edge
+  let : Fintype X := Fintype.ofFinite X
+  let : Fintype H.Edge := Fintype.ofFinite H.Edge
   rw [BergeGirthAtLeast, le_egirth]
   intro u c hc
   apply ENat.natCast_le_natCast.mpr
@@ -457,7 +457,7 @@ edge-minimal non-three-colorable restriction. -/
 theorem exists_edgeMinimal_restriction (hr : 0 < r) (hH : H.NotThreeColorable) :
     ∃ s : Finset H.Edge, (H.restrictEdges s).EdgeMinimalNotThreeColorable := by
   classical
-  letI : Fintype H.Edge := Fintype.ofFinite H.Edge
+  let : Fintype H.Edge := Fintype.ofFinite H.Edge
   let P : ℕ → Prop := fun m ↦
     ∃ s : Finset H.Edge, s.card = m ∧ (H.restrictEdges s).NotThreeColorable
   have hP : ∃ m, P m := by
@@ -1156,7 +1156,7 @@ private theorem sum_card_activeShortCycles {n r D C K : ℕ} (hCD : C ≤ D) :
           D ^ (Fintype.card (UniformEdge n r) -
             ((completeUniformHypergraph n r).incidenceCycleEdges Z).card) := by
   classical
-  letI : Fintype ((completeUniformHypergraph n r).ShortIncidenceCycle K) :=
+  let : Fintype ((completeUniformHypergraph n r).ShortIncidenceCycle K) :=
     Fintype.ofFinite _
   calc
     ∑ ω : UniformEdge n r → Fin D,
@@ -1493,7 +1493,7 @@ private theorem card_completeIncidenceCycle_le_all {n r s : ℕ} (hr : 2 ≤ r) 
       n ^ s * (Nat.choose n (r - 2)) ^ s := by
   by_cases hs : 2 ≤ s
   · exact card_completeIncidenceCycle_le hr hs
-  · letI : IsEmpty (CompleteIncidenceCycle n r s) := ⟨fun Z ↦ by
+  · let : IsEmpty (CompleteIncidenceCycle n r s) := ⟨fun Z ↦ by
       have hthree := Z.2.2.2.three_le_length
       rw [Z.2.2.1] at hthree
       omega⟩
@@ -1716,11 +1716,11 @@ private theorem weighted_shortCycles_le {n r C D K : ℕ} (hr : 2 ≤ r) :
             (C ^ s.val * D ^ (Fintype.card (UniformEdge n r) - s.val)) := by
       apply Finset.sum_congr rfl
       intro s _
-      letI : Finite (CompleteIncidenceCycle n r s.val) :=
+      let : Finite (CompleteIncidenceCycle n r s.val) :=
         Finite.of_injective
           (fixedCycleToShort (n := n) (r := r) (Nat.lt_succ_self s.val))
           (fixedCycleToShort_injective (Nat.lt_succ_self s.val))
-      letI : Fintype (CompleteIncidenceCycle n r s.val) := Fintype.ofFinite _
+      let : Fintype (CompleteIncidenceCycle n r s.val) := Fintype.ofFinite _
       have hAllCard : (allCompleteIncidenceCycles n r s.val).card =
           Nat.card (CompleteIncidenceCycle n r s.val) := by
         calc
@@ -2480,10 +2480,10 @@ private theorem card_pairColorBlockEdges {n r : ℕ} [NeZero r]
     (pairColorBlockEdges (r := r) c).card =
       Nat.choose (n / 3) (r - 1) * (n / 3) := by
   classical
-  letI : Finite (PairBlockIndex (r := r) c) := by
+  let : Finite (PairBlockIndex (r := r) c) := by
     dsimp [PairBlockIndex]
     infer_instance
-  letI : Fintype (PairBlockIndex (r := r) c) := Fintype.ofFinite _
+  let : Fintype (PairBlockIndex (r := r) c) := Fintype.ofFinite _
   rw [pairColorBlockEdges, Finset.card_map, Finset.card_univ]
   let T :=
     ({S : Finset (Fin n) // S ∈
@@ -2785,7 +2785,7 @@ private theorem exists_pair_sampling_parameters (r K : ℕ)
         3 * (4 * n) * D ≤ C * (Q - B) ∧
         2 * (3 : ℝ) ^ (4 * n) * (4 * n : ℝ) ^ (r * B) *
           Real.exp (-3 * (4 * n : ℝ)) < 1 := by
-  letI : NeZero r := ⟨by omega⟩
+  let : NeZero r := ⟨by omega⟩
   let C := pairSamplingThreshold r
   let S := ∑ s : Fin K, C ^ s.val
   let B := pairCycleDeletionBudget r K
@@ -2880,7 +2880,7 @@ theorem exists_pairClusterHypergraph (r K : ℕ) (hr : 2 ≤ r) (hK : 1 ≤ K) :
       H.BergeGirthAtLeast K ∧ H.NotThreeColorable ∧
         H.HasPairClusterPattern fourBlockCluster := by
   classical
-  letI : NeZero r := ⟨by omega⟩
+  let : NeZero r := ⟨by omega⟩
   let C := pairSamplingThreshold r
   let S := ∑ s : Fin K, C ^ s.val
   let B := pairCycleDeletionBudget r K
@@ -2959,7 +2959,7 @@ theorem exists_pairClusterHypergraph (r K : ℕ) (hr : 2 ≤ r) (hK : 1 ≤ K) :
     exact mem_pairColorBadLabelings.mpr ⟨c, hc⟩
   let deleted := H₀.deleteEdges (H₀.shortCycleEdges K)
   let Hdel := H₀.restrictEdges deleted
-  letI : Fintype Hdel.Edge := Fintype.ofFinite _
+  let : Fintype Hdel.Edge := Fintype.ofFinite _
   let pairEdges : Finset Hdel.Edge := Finset.univ.filter fun e ↦
     IsPairClusterEdge e.1.1
   let H := Hdel.restrictEdges pairEdges
@@ -4244,9 +4244,9 @@ private theorem relative_stress_endpoint_balance {r : ℕ} [NeZero r] (hr : 3 �
   simp only [LinearMap.sum_apply, LinearMap.smul_apply, smul_eq_mul] at heval
   rw [sum_edgeFlex_single hr] at heval
   have hji : j ≠ i := hij.symm
-  simp [relativeFlexFunctional_apply, hji, real_inner_smul_left,
-    inner_sub_left, inner_neg_left] at heval ⊢
-  exact heval
+  rw [relativeFlexFunctional_apply] at heval
+  simp [hji] at heval
+  simpa only [inner_sub_left, real_inner_smul_left, inner_neg_left] using heval
 
 private theorem chord_stress_balance {r : ℕ} [NeZero r] (hr : 3 ≤ r)
     (v : Fin r → Plane) (i j : Fin r) (a : Fin r → ℝ)
@@ -4754,13 +4754,15 @@ private noncomputable def quarterTurnCLM : Plane →L[ℝ] Plane :=
 
 private theorem quarterTurn_injective : Function.Injective quarterTurn := by
   intro x y hxy
-  have h0 := congrArg (fun z : Plane => z.ofLp 0) hxy
-  have h1 := congrArg (fun z : Plane => z.ofLp 1) hxy
+  have h0 : x.ofLp 1 = y.ofLp 1 := by
+    simpa [quarterTurn] using congrArg (fun z : Plane => z.ofLp 0) hxy
+  have h1 : x.ofLp 0 = y.ofLp 0 := by
+    simpa [quarterTurn] using congrArg (fun z : Plane => z.ofLp 1) hxy
   apply PiLp.ext
   intro k
-  fin_cases k <;> simp [quarterTurn] at h0 h1 ⊢
+  fin_cases k
   · exact h1
-  · linarith
+  · exact h0
 
 private theorem inner_quarterTurn_self (x : Plane) :
     inner ℝ x (quarterTurn x) = 0 := by
@@ -6799,17 +6801,17 @@ private theorem squarePairTransform_side (a b : Fin 4) (hab : a ≠ b)
     (hside : ¬ squarePairDiagonal a b) :
     squarePairTransform a b (planePoint 1 0) = squareCenter b := by
   fin_cases a <;> fin_cases b <;>
-    simp_all [squarePairDiagonal, squarePairTransform, squareCenter, rotatePlane,
-      planePoint, squarePairAlpha, squarePairBeta] <;>
-    apply PiLp.ext <;> intro i <;> fin_cases i <;> norm_num
+    apply PiLp.ext <;> intro i <;> fin_cases i <;>
+      simp_all +decide [squarePairDiagonal, squarePairTransform, squareCenter,
+        rotatePlane, planePoint, squarePairAlpha, squarePairBeta]
 
 private theorem squarePairTransform_diagonal (a b : Fin 4) (hab : a ≠ b)
     (hdiag : squarePairDiagonal a b) :
     squarePairTransform a b (planePoint 1 1) = squareCenter b := by
   fin_cases a <;> fin_cases b <;>
-    simp_all [squarePairDiagonal, squarePairTransform, squareCenter, rotatePlane,
-      planePoint, squarePairAlpha, squarePairBeta] <;>
-    apply PiLp.ext <;> intro i <;> fin_cases i <;> norm_num
+    apply PiLp.ext <;> intro i <;> fin_cases i <;>
+      simp_all +decide [squarePairDiagonal, squarePairTransform, squareCenter,
+        rotatePlane, planePoint, squarePairAlpha, squarePairBeta]
 
 /-- The side/diagonal model transported to an arbitrary ordered pair of
 distinct square corners. -/
@@ -7061,7 +7063,7 @@ private theorem eventually_pairFoundationValid {Y : Type*} [Fintype Y] (m : ℕ)
     (hpattern : J.HasPairClusterPattern cluster) :
     ∀ᶠ u in nhds (pairBaseFoundation cluster),
       pairFoundationValid m J cluster hpattern u := by
-  letI : Fintype J.Edge := Fintype.ofFinite J.Edge
+  let : Fintype J.Edge := Fintype.ofFinite J.Edge
   change ∀ᶠ u in nhds (pairBaseFoundation cluster), ∀ e : J.Edge,
     ((∀ i, Dist.dist (u (J.vertex e i))
         (pairEdgeLocalCycle m J cluster hpattern e u i) = 1) ∧
@@ -8112,7 +8114,7 @@ private theorem faithful_pairRealization {Y : Type*} [Fintype Y]
     (hberge : J.BergeGirthAtLeast 3) :
     FaithfulUnitDistanceEmbedding J.attachedGraph := by
   classical
-  letI : Fintype J.Edge := Fintype.ofFinite J.Edge
+  let : Fintype J.Edge := Fintype.ofFinite J.Edge
   let N := pairFoundationNeighborhood m J cluster hpattern
   have hNopen : IsOpen N := pairFoundationNeighborhood_isOpen m J cluster hpattern
   have hNne : N.Nonempty := pairFoundationNeighborhood_nonempty m J cluster hpattern
@@ -8120,7 +8122,7 @@ private theorem faithful_pairRealization {Y : Type*} [Fintype Y]
   -- First pass: separate every pair of abstract vertices.
   let CollisionIndex :=
     {p : J.AttachedVertex × J.AttachedVertex // p.1 ≠ p.2}
-  letI : Fintype CollisionIndex := Fintype.ofFinite CollisionIndex
+  let : Fintype CollisionIndex := Fintype.ofFinite CollisionIndex
   let fcollision : CollisionIndex → (Y → Plane) → Plane := fun a =>
     pairDifference m J cluster hpattern a.1.1 a.1.2
   obtain ⟨C, hCopen, hCne, hCsub, hCavoid⟩ :=
@@ -8155,7 +8157,7 @@ private theorem faithful_pairRealization {Y : Type*} [Fintype Y]
   -- fibers are collinear with that vertex.
   let CrossIndex := {a : PairCrossDatum J.Edge (oddAttachmentSize m) //
     a.e ≠ a.f ∧ J.vertex a.e a.q = J.vertex a.f a.s}
-  letI : Fintype CrossIndex := Fintype.ofFinite CrossIndex
+  let : Fintype CrossIndex := Fintype.ofFinite CrossIndex
   let fcross : CrossIndex → (Y → Plane) → ℝ := fun a =>
     pairCrossArea m J cluster hpattern (J.vertex a.1.e a.1.q)
       a.1.e a.1.f a.1.i a.1.j
@@ -8183,7 +8185,7 @@ private theorem faithful_pairRealization {Y : Type*} [Fintype Y]
   -- Third pass: exclude squared distance one for every graph nonedge.
   let NonedgeIndex :=
     {p : J.AttachedVertex × J.AttachedVertex // ¬J.attachedGraph.Adj p.1 p.2}
-  letI : Fintype NonedgeIndex := Fintype.ofFinite NonedgeIndex
+  let : Fintype NonedgeIndex := Fintype.ofFinite NonedgeIndex
   let funit : NonedgeIndex → (Y → Plane) → ℝ := fun a =>
     pairSquaredDistance m J cluster hpattern a.1.1 a.1.2
   obtain ⟨U, _, hUne, hUsub, hUavoid⟩ :=
@@ -8276,7 +8278,7 @@ private theorem high_girth_four_chromatic_witnesses :
     dsimp only [r]
     rw [oddAttachmentSize_eq]
     exact ⟨K + 1, by omega⟩
-  letI : Fintype J.Edge := Fintype.ofFinite J.Edge
+  let : Fintype J.Edge := Fintype.ofFinite J.Edge
   have hemb : FaithfulUnitDistanceEmbedding J.attachedGraph :=
     faithful_pairRealization K J OrderedUniformHypergraph.fourBlockCluster hpattern hberge3
   have hcyclic : ¬J.attachedGraph.IsAcyclic := by

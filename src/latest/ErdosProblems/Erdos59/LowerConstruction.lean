@@ -139,7 +139,7 @@ theorem exists_graph (a : ℕ) (ha : 3 ≤ a) :
   have hcardD : Fintype.card (FNV.DuplicateVertex A) = fnvVertices a := by
     simp [FNV.DuplicateVertex, fnvVertices, hcardG, hAcard]
   let B : SimpleGraph (Fin (fnvVertices a)) := D.overFin hcardD
-  letI : DecidableRel B.Adj := Classical.decRel _
+  let : DecidableRel B.Adj := Classical.decRel _
   let e : D ≃g B := D.overFinIso hcardD
   have haverageR :
       (G.edgeFinset.card : ℝ) * (fnvK a : ℝ) / (fnvN a : ℝ) *

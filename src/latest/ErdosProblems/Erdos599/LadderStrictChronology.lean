@@ -219,7 +219,7 @@ theorem canonicalAccumulated_strictRoof_mono
             (fun b _hb ↦ G.ladderAccumulatedStateAux step b) :=
           G.hasMatchingLadderChain_of_invariants step o ihStructural
         let C : G.GrowingWarpChain (Set.Iio o) := Classical.choose hchain
-        letI : Nonempty (Set.Iio o) := ho.nonempty_Iio.to_subtype
+        let : Nonempty (Set.Iio o) := ho.nonempty_Iio.to_subtype
         have hstage (b : Set.Iio o) :
             C.stage b =
               (G.ladderAccumulatedStateAux step b.1).1 :=

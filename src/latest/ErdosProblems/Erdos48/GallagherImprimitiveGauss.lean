@@ -166,8 +166,8 @@ theorem unitAddCharSum_eq_neg_one_of_prime
     {p : ℕ} [NeZero p] (hp : p.Prime) (e : AddChar (ZMod p) ℂ)
     (he : e.IsPrimitive) : unitAddCharSum e = -1 := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
-  letI : Fintype (IsUnit.submonoid (ZMod p)) := Fintype.ofFinite _
+  let : Fact p.Prime := ⟨hp⟩
+  let : Fintype (IsUnit.submonoid (ZMod p)) := Fintype.ofFinite _
   have hfilter :
       (Finset.univ : Finset (ZMod p)).filter IsUnit =
         Finset.univ.erase 0 := by
@@ -223,8 +223,8 @@ theorem norm_unitAddCharSum_eq_one_of_squarefree
       exact norm_unitAddCharSum_eq_one_of_prime hp e he
     · intro a ha iha b hb ihb _inst e hab he
       have hcop : a.Coprime b := Nat.coprime_of_squarefree_mul hab
-      letI : NeZero a := ⟨(lt_of_lt_of_le Nat.zero_lt_two ha).ne'⟩
-      letI : NeZero b := ⟨(lt_of_lt_of_le Nat.zero_lt_two hb).ne'⟩
+      let : NeZero a := ⟨(lt_of_lt_of_le Nat.zero_lt_two ha).ne'⟩
+      let : NeZero b := ⟨(lt_of_lt_of_le Nat.zero_lt_two hb).ne'⟩
       rw [unitAddCharSum_crt hcop e, norm_mul,
         iha (crtLeftAddChar hcop e) hab.of_mul_left
           (crtLeftAddChar_isPrimitive hcop e he),
@@ -301,7 +301,7 @@ theorem norm_gaussSum_of_isPrimitive_isPrimitive
         intro j _hj
         simp only [AddChar.mulShift_apply]
         rw [show -(j * k) = j * (-k) by ring]
-        ring
+        ring_nf
       _ = chi⁻¹ (-k) * gaussSum chi e :=
         gaussSum_mulShift_of_isPrimitive e hchi (-k)
   simp_rw [hfourier, norm_mul, mul_pow] at hparseval
@@ -413,7 +413,7 @@ theorem gaussSum_one_eq_unitAddCharSum
     (e : AddChar R ℂ) :
     gaussSum (1 : MulChar R ℂ) e = unitAddCharSum e := by
   classical
-  letI : Fintype (IsUnit.submonoid R) := Fintype.ofFinite _
+  let : Fintype (IsUnit.submonoid R) := Fintype.ofFinite _
   unfold gaussSum
   calc
     (∑ x : R, (1 : MulChar R ℂ) x * e x) =

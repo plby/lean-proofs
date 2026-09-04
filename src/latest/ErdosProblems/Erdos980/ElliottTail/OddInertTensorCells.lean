@@ -132,14 +132,14 @@ theorem ell_pow_mul_inertPowerClassCoordinateCell_card
   classical
   let hprime : ∀ q ∈ Q, q.Prime :=
     fun q hq ↦ inertAuxiliaryPrimes_prime ell (hQ hq)
-  letI (q : Q) : NeZero (rationalModulusIdeal K q.1) :=
+  let (q : Q) : NeZero (rationalModulusIdeal K q.1) :=
     ⟨rationalModulusIdeal_ne_bot (hprime q.1 q.2).ne_zero⟩
-  letI (q : Q) : Finite (InertLocalRing K Q q) :=
+  let (q : Q) : Finite (InertLocalRing K Q q) :=
     Ring.HasFiniteQuotients.finiteQuotient
       (rationalModulusIdeal_ne_bot (hprime q.1 q.2).ne_zero)
-  letI : ∀ q : Q, Fintype (InertLocalUnits K Q q) :=
+  let : ∀ q : Q, Fintype (InertLocalUnits K Q q) :=
     fun _ ↦ Fintype.ofFinite _
-  letI : ∀ q : Q, IsCyclic (InertLocalUnits K Q q) :=
+  let : ∀ q : Q, IsCyclic (InertLocalUnits K Q q) :=
     fun q ↦ inertAuxiliaryPrimes_quotient_units_isCyclic
       ell (K := K) (hQ q.2)
   have hellDvd : ∀ q : Q, ell ∣ Fintype.card (InertLocalUnits K Q q) := by

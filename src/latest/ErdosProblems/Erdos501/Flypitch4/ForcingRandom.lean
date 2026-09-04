@@ -208,7 +208,7 @@ lemma mk_ext : ∀ (i j : (check (PSet.pSet_aleph2) : bSet 𝔹).type),
     rw [le_bot_iff]
     apply check_bv_eq_bot_of_not_equiv
     apply PSet.ordinalMk_inj (Cardinal.aleph 2).ord
-    intro H; exact h (by simp [check_cast] at H ⊢; exact H)
+    intro H; exact h (by simp only [type] at H ⊢; exact H)
 
 /-- The name of the function `ℵ₂ → 𝒫(ω)`, `ν ↦ mk χ ν`. -/
 noncomputable def neg_CH_func : bSet 𝔹 :=

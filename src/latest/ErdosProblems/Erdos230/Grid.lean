@@ -26,7 +26,7 @@ theorem norm_unitPoint_sub_le (theta phi : ℝ) :
     rw [mul_sub, mul_one, ← Complex.exp_add]
     congr 1
     push_cast
-    ring
+    ring_nf
   rw [hfactor, norm_mul, norm_unitPoint, one_mul, unitPoint]
   have h := Real.norm_exp_I_mul_ofReal_sub_one_le (x := theta - phi)
   simpa [mul_comm, Real.norm_eq_abs] using h

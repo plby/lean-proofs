@@ -106,7 +106,7 @@ theorem wTrickedAffineForm_coefficient_cast_ne_zero
     (hpW : ¬p ∣ W) (ψ : AffineForm ι ℤ)
     {i : ι} (hi : (ψ.coefficient i : ZMod p) ≠ 0) :
     ((wTrickedAffineForm W b ψ).coefficient i : ZMod p) ≠ 0 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   simp only [wTrickedAffineForm_coefficient, Int.cast_mul,
     Int.cast_natCast]
   exact mul_ne_zero
@@ -121,7 +121,7 @@ theorem wTrickedAffineForm_coefficientMinor_cast_ne_zero
     (hij : (ψ.coefficientMinor φ i j : ZMod p) ≠ 0) :
     ((wTrickedAffineForm W b ψ).coefficientMinor
         (wTrickedAffineForm W c φ) i j : ZMod p) ≠ 0 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   rw [wTrickedAffineForm_coefficientMinor]
   push_cast
   exact mul_ne_zero

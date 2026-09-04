@@ -13,7 +13,7 @@ theorem exists_roundRobin_family {V : Type*} (G : _root_.SimpleGraph V) (t : ℕ
       (∀ i, (P i).IsMatching ∧ (P i).verts = Set.range f \ {f i}) ∧
       Pairwise (fun i j ↦ Disjoint (P i).spanningCoe (P j).spanningCoe) ∧
       (∀ x ∈ Set.range f, ∀ y ∈ Set.range f, x ≠ y → ∃ i, (P i).Adj x y) := by
-  letI : NeZero (2 * t + 1) := ⟨by omega⟩
+  let : NeZero (2 * t + 1) := ⟨by omega⟩
   let e := (ZMod.finEquiv (2 * t + 1)).toEquiv
   let hom : (⊤ : _root_.SimpleGraph (ZMod (2 * t + 1))) →g G :=
     { toFun := fun x ↦ f (e.symm x)

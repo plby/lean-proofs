@@ -123,14 +123,14 @@ theorem componentCode_noIsolated {H : GraphCode}
     NoIsolated (componentCode H c) := by
   classical
   let G := (componentCode H c).graph
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   have hcard : 0 < G.edgeFinset.card := by
     simpa [G, GraphCode.edgeCount_eq_card_edgeFinset] using hc
   obtain ⟨e, he⟩ := Finset.card_pos.mp hcard
   have hadj : G.Adj e.out.1 e.out.2 := by
     rw [← G.mem_edgeSet, Sym2.mk, e.out_eq]
     exact SimpleGraph.mem_edgeFinset.mp he
-  letI : Nontrivial (Fin (componentCode H c).vertexCount) := hadj.nontrivial
+  let : Nontrivial (Fin (componentCode H c).vertexCount) := hadj.nontrivial
   intro v
   exact (componentCode_connected H c).preconnected.not_isIsolated v
 
@@ -218,7 +218,7 @@ theorem componentCode_edgeCount_pos_of_noIsolated {H : GraphCode}
   let y' : c.supp := ⟨y, hy⟩
   have hadj : (componentCode H c).graph.Adj (e x) (e y') :=
     e.toHom.map_adj hxy
-  letI : DecidableRel (componentCode H c).graph.Adj :=
+  let : DecidableRel (componentCode H c).graph.Adj :=
     Classical.decRel (componentCode H c).graph.Adj
   rw [GraphCode.edgeCount_eq_card_edgeFinset, Finset.card_pos]
   refine ⟨s(e x, e y'), ?_⟩

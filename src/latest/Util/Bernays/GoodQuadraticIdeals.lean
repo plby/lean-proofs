@@ -33,9 +33,9 @@ theorem quadraticMaximal_coprime_isUnit {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     letI := quadraticOrderIsDomain hD
     IsUnit (P : FractionalIdeal (QuadraticAlgebra ℤ d b)⁰
       (FractionRing (QuadraticAlgebra ℤ d b))) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   obtain ⟨q, hq, hunder⟩ := exists_natPrime_under_quadraticMaximal hD P hP
-  letI : Fact q.Prime := ⟨hq⟩
+  let : Fact q.Prime := ⟨hq⟩
   have hqP : ((q : ℤ) : QuadraticAlgebra ℤ d b) ∈ P := by
     change (q : ℤ) ∈ P.under ℤ
     rw [hunder]
@@ -67,7 +67,7 @@ theorem goodQuadraticIdeal_factorization {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       ∃ l : List (InvertibleIdeal (QuadraticAlgebra ℤ d b)), l.prod = I ∧
         ∀ P ∈ l, (P : Ideal (QuadraticAlgebra ℤ d b)).IsMaximal ∧
           IsCoprime (P : Ideal (QuadraticAlgebra ℤ d b)) (quadraticBadIdeal d b) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   exact InvertibleIdeal.exists_list_maximal_factors (quadraticBadIdeal d b)
     (quadraticMaximal_coprime_isUnit hD)
 

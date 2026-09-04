@@ -32,7 +32,7 @@ theorem isUnit_of_prime_reduction {p k : ℕ} [Fact p.Prime] (hk : 0 < k)
     (x : ZMod (p ^ k))
     (hx : ZMod.castHom (dvd_pow_self p hk.ne') (ZMod p) x ≠ 0) : IsUnit x := by
   have hp : p.Prime := Fact.out
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero k hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero k hp.ne_zero⟩
   have he : ZMod.castHom (dvd_pow_self p hk.ne') (ZMod p) x = (x.val : ZMod p) := by
     conv_lhs => rw [← ZMod.natCast_zmod_val x]
     exact map_natCast _ _
@@ -74,7 +74,7 @@ theorem modularRootsReduce_step_surjective {n p k : ℕ} [Fact p.Prime]
     (hk : 0 < k) (hcop : p.Coprime (2 * n)) :
     Function.Surjective (modularRootsReduce n (pow_dvd_pow p (Nat.le_succ k))) := by
   have hp : p.Prime := Fact.out
-  letI : NeZero (p ^ k) := ⟨pow_ne_zero k hp.ne_zero⟩
+  let : NeZero (p ^ k) := ⟨pow_ne_zero k hp.ne_zero⟩
   intro x
   let b := x.val.val
   have hroot : p ^ k ∣ b ^ 2 + n := by

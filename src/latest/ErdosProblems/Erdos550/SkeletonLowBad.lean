@@ -72,14 +72,14 @@ theorem skeleton_lowbad_embedding
   -- Apply the regularClusters_forest_embedding_weighted_avoiding theorem with the given parameters.
   have := @regularClusters_forest_embedding_weighted_avoiding V _ _ G _ ε hε0 hε1 ι _ C R dcap hdcap1 hne hdisj huni hdens α _ _ parentA rankA hrankA cluA hhomA BB hB (fun i => if i ∈ Hset then (C i).filter (fun v => (badCount G C dcap ε Tset v : ℝ) > thr) else ∅) (by
   intro i;
-  by_cases hi : i ∈ Hset <;> simp +decide [ hi ];
+  by_cases hi : i ∈ Hset <;> simp +decide only [gt_iff_lt];
   · refine' lt_of_le_of_lt _ ( hcapSk i );
     have h_markov : (Finset.card (Finset.filter (fun v => (badCount G C dcap ε Tset v : ℝ) > thr) (C i))) * thr ≤ ∑ v ∈ C i, (badCount G C dcap ε Tset v : ℝ) := by
       have h_markov : ∀ v ∈ Finset.filter (fun v => (badCount G C dcap ε Tset v : ℝ) > thr) (C i), (badCount G C dcap ε Tset v : ℝ) ≥ thr := by
         exact fun v hv => le_of_lt <| Finset.mem_filter.mp hv |>.2;
       exact le_trans ( by simp +decide [ mul_comm ] ) ( Finset.sum_le_sum h_markov ) |> le_trans <| Finset.sum_le_sum_of_subset_of_nonneg ( Finset.filter_subset _ _ ) fun _ _ _ => Nat.cast_nonneg _;
     have h_sum_badCount : ∑ v ∈ C i, (badCount G C dcap ε Tset v : ℝ) = ∑ m ∈ Tset, ((C i).filter (fun v => ((C m).filter (fun x => G.Adj v x)).card < (dcap m - ε) * ((C m).card : ℝ))).card := by
-      simp +decide [ badCount ];
+      simp +decide only [Nat.cast_sum];
       simp +decide only [card_filter];
       exact mod_cast Finset.sum_comm;
     simp_all +decide;

@@ -43,10 +43,23 @@ lemma isUniform_slice {V : Type*} [Fintype V] [DecidableEq V]
                         exact ⟨ s, Finset.Subset.refl _, t, Finset.Subset.refl _, by nlinarith, by nlinarith, by linarith [ abs_nonneg ( Gr.edgeDensity s t - Gr.edgeDensity s t : ℝ ) ] ⟩ ) ( Ne.symm hε ), show ( #t' : ℝ ) ≤ #t by exact_mod_cast Finset.card_le_card ht', mul_div_cancel₀ ( 2 * ε ) hα.ne' ];
       · nlinarith [ show ( s'.card : ℝ ) ≤ s.card by exact_mod_cast Finset.card_le_card hs', show ( t'.card : ℝ ) ≤ t.card by exact_mod_cast Finset.card_le_card ht' ];
       · nlinarith [ show ( t'.card : ℝ ) ≤ t.card by exact_mod_cast Finset.card_le_card ht' ];
-    by_cases hs : s = ∅ <;> by_cases ht : t = ∅ <;> simp_all +decide [  ];
+    by_cases hs : s = ∅
+    · have hs'0 : s' = ∅ := Finset.subset_empty.mp (hs ▸ hs')
+      have hs''0 : s'' = ∅ := Finset.subset_empty.mp (hs'0 ▸ hs'')
+      have hε0 : 0 < ε := by
+        simpa [hs, hs'0, hs''0] using h_triangle.1
+      simpa [hs'0, hs''0] using div_pos (mul_pos (by norm_num) hε0) hα
+    by_cases ht : t = ∅
+    · have ht'0 : t' = ∅ := Finset.subset_empty.mp (ht ▸ ht')
+      have ht''0 : t'' = ∅ := Finset.subset_empty.mp (ht'0 ▸ ht'')
+      have hε0 : 0 < ε := by
+        simpa [ht, ht'0, ht''0] using h_triangle.1
+      simpa [ht'0, ht''0] using div_pos (mul_pos (by norm_num) hε0) hα
     have h_alpha_le_one : α ≤ 1 := by
       exact le_of_not_gt fun h => by nlinarith [ show ( s'.card : ℝ ) ≤ s.card from mod_cast Finset.card_le_card hs', show ( t'.card : ℝ ) ≤ t.card from mod_cast Finset.card_le_card ht', show ( s.card : ℝ ) > 0 from mod_cast Finset.card_pos.mpr ( Finset.nonempty_of_ne_empty hs ), show ( t.card : ℝ ) > 0 from mod_cast Finset.card_pos.mpr ( Finset.nonempty_of_ne_empty ht ) ] ;
-    rw [ lt_div_iff₀ ] <;> cases abs_cases ( ( Gr.edgeDensity s'' t'' : ℝ ) - Gr.edgeDensity s' t' ) <;> nlinarith [ abs_lt.mp h_triangle.1, abs_lt.mp h_triangle.2 ]
+    rw [lt_div_iff₀ hα]
+    cases abs_cases ((Gr.edgeDensity s'' t'' : ℝ) - Gr.edgeDensity s' t') <;>
+      nlinarith [abs_lt.mp h_triangle.1, abs_lt.mp h_triangle.2]
 
 set_option maxHeartbeats 1000000 in
 /-- In an `ε`-uniform pair of density at least `d`, at most an
@@ -84,11 +97,11 @@ lemma regular_defect {V : Type*} [Fintype V] [DecidableEq V]
           ({v ∈ s | ((t.filter (fun w => Gr.Adj v w)).card : ℝ)
               < (d - ε) * t.card}.card * t.card) := by
       convert! Rat.cast_div _ _ using 2
-      · simp +decide [Rel.interedges, Finset.sum_filter]
-        rw [Finset.card_filter]
+      · simp +decide only [Rat.cast_natCast]
+        rw [Rel.interedges]
+        rw_mod_cast [Finset.card_filter]
         rw [Finset.sum_product]
-        norm_cast
-        simp +decide [Finset.sum_ite]
+        aesop
       · norm_cast
       · infer_instance
     rw [h_edge_density_B, div_le_iff₀]

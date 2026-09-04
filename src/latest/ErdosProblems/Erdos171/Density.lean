@@ -58,13 +58,13 @@ theorem density_nonneg [Fintype α] (A : Finset α) : 0 ≤ density A := by
 theorem density_le_one [Fintype α] (A : Finset α) : density A ≤ 1 := by
   cases isEmpty_or_nonempty α with
   | inl h =>
-      letI := h
+      let := h
       have hA : A = ∅ := by
         ext x
         exact isEmptyElim x
       simp [hA]
   | inr h =>
-      letI := h
+      let := h
       rw [density, div_le_one (by positivity)]
       exact_mod_cast Finset.card_le_univ A
 
@@ -78,13 +78,13 @@ theorem density_eq_zero [Fintype α] (A : Finset α) :
     density A = 0 ↔ A = ∅ := by
   cases isEmpty_or_nonempty α with
   | inl h =>
-      letI := h
+      let := h
       have hA : A = ∅ := by
         ext x
         exact isEmptyElim x
       simp [hA]
   | inr h =>
-      letI := h
+      let := h
       simp [density]
 
 @[simp]
@@ -262,16 +262,16 @@ theorem density_eq_average_fiber [Fintype α] [Fintype β]
     density A = average fun a ↦ density (fiber A a) := by
   cases isEmpty_or_nonempty α with
   | inl hα =>
-      letI := hα
+      let := hα
       simp [density_eq_card_div_card, average_eq_sum_div_card]
   | inr hα =>
-      letI := hα
+      let := hα
       cases isEmpty_or_nonempty β with
       | inl hβ =>
-          letI := hβ
+          let := hβ
           simp [density_eq_card_div_card, average_eq_sum_div_card]
       | inr hβ =>
-          letI := hβ
+          let := hβ
           rw [density_eq_card_div_card, average_eq_sum_div_card]
           rw [card_eq_sum_card_fiber]
           simp only [density_eq_card_div_card]

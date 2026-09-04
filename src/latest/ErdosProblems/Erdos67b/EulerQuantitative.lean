@@ -240,7 +240,7 @@ theorem tsum_weightedPrimeDifference_tao_le
           rw [← Real.rpow_natCast]
           rw [← Real.rpow_mul hp0.le]
           convert Real.rpow_add hp0 (-1 : ℝ)
-            (1 - 2 * taoExponent X) using 1 <;> ring
+            (1 - 2 * taoExponent X) using 1 <;> ring_nf
         rw [mul_pow, hpow, Real.rpow_neg_one]
         field_simp
         exact le_rfl)
@@ -699,7 +699,7 @@ theorem exists_uniform_nonprincipalTwistsBounded_divisors
           (nonprincipalEulerError b D X)) := by
     intro r
     by_cases hr0 : r ≠ 0
-    · letI : NeZero r := ⟨hr0⟩
+    · let : NeZero r := ⟨hr0⟩
       obtain ⟨b, hb0, hb⟩ :=
         exists_nonprincipalTwistsBounded_taoExponent (r := r) hh hD
       exact ⟨b, hb0, fun _ ↦ hb⟩
@@ -772,7 +772,7 @@ theorem exists_uniform_nonprincipalTwistsBounded_divisors_sameScale
               (nonprincipalEulerError b D X)) := by
     intro r
     by_cases hr0 : r ≠ 0
-    · letI : NeZero r := ⟨hr0⟩
+    · let : NeZero r := ⟨hr0⟩
       obtain ⟨b, hb0, hb⟩ :=
         exists_nonprincipalTwistsBounded_taoExponent_sameScale (r := r) D
       exact ⟨b, hb0, fun _ ↦ hb⟩

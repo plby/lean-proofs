@@ -159,7 +159,7 @@ lemma pointPairs_card (P : Finset Point) :
       (P.sym2.filter fun e ↦ ¬ e.IsDiag).card =
         (P.powersetCard 2).card := by
     refine Finset.card_bij (fun x _ ↦ P.filter fun y ↦ y ∈ x) ?_ ?_ ?_
-    · simp +contextual [Finset.mem_powersetCard, Finset.subset_iff]
+    · simp +contextual only [mem_filter, mem_sym2_iff, mem_powersetCard, filter_subset, true_and, and_imp]
       intro a ha₁ ha₂
       rcases a with ⟨x, y⟩
       simp_all +decide [Sym2.IsDiag]
@@ -168,7 +168,7 @@ lemma pointPairs_card (P : Finset Point) :
       aesop
     · simp +contextual [Finset.ext_iff, Sym2.forall]
       grind
-    · simp +decide [Finset.mem_powersetCard, Finset.subset_iff]
+    · simp +decide only [mem_powersetCard, mem_filter, mem_sym2_iff, exists_prop, and_imp]
       intro s hs hs'
       obtain ⟨x, y, hxy⟩ := Finset.card_eq_two.mp hs'
       use s(x, y)

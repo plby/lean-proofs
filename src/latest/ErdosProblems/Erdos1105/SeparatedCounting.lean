@@ -50,7 +50,7 @@ theorem SeparatedRepresentative.small_components_bound {V C : Type*}
   rw [sum_component_edgesInside] at hE
   have hb := bridge_deletion_budget R H hsep.le hsep.removed_bridge
   have hV : Nonempty V := Fintype.card_pos_iff.mp (by omega)
-  letI := hV
+  let := hV
   have hc : 1 ≤ Nat.card R.ConnectedComponent := by
     rw [Nat.card_eq_fintype_card]
     exact Fintype.card_pos

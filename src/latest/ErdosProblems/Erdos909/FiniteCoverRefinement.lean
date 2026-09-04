@@ -44,7 +44,7 @@ theorem exists_open_refinement_natCard_le
   cases n with
   | zero =>
       have hMe : IsEmpty M := hasSmallInductiveDimensionLT_zero_iff.mp hM
-      letI : IsEmpty M := hMe
+      let : IsEmpty M := hMe
       let V : Fin 0 × Fin k → Set X := fun j ↦ Fin.elim0 j.1
       refine ⟨V, ?_, ?_, ?_, ?_⟩
       · intro j

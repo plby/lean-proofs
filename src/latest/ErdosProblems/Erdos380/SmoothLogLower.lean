@@ -76,7 +76,7 @@ theorem exists_smoothCount_dyadic_exponential_lower : ∃ Y₀ : ℕ,
   have hcancel : Real.exp ((1 + 3 * ε) * u * Real.log u) *
       Real.exp (-(1 + 3 * ε) * u * Real.log u) = 1 := by
     rw [← Real.exp_add]
-    convert Real.exp_zero using 1 <;> ring
+    convert Real.exp_zero using 1 <;> ring_nf
   calc
     _ ≤ (Real.exp ((1 + 3 * ε) * u * Real.log u) *
         (smoothCount (2 ^ X) (2 ^ Y) : ℝ)) * Real.exp (-(1 + 3 * ε) * u * Real.log u) := hmul

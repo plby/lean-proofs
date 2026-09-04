@@ -129,7 +129,7 @@ theorem exists_failedPairing (C : MassedCounterexample k) :
   unfold Erdos718.IsLinkedSet at hnot
   push Not at hnot
   obtain ⟨ι, inst, terminal, hsubset, hfail⟩ := hnot
-  letI : Fintype ι := inst
+  let : Fintype ι := inst
   exact ⟨{
     ι := ι
     fintypeι := inst
@@ -154,7 +154,7 @@ theorem adjacent_of_lexMinimal_of_terminal_notPaired
   classical
   by_contra hnotAdj
   let H : SimpleGraph C.V := setCompletion C.G (C.X : Set C.V) F.terminal
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
   have hmassedH : IsEightKMassed H C.X k := by
     exact isEightKMassed_setCompletion C.G C.X F.terminal k C.massed
   have hnotLinkedH : ¬Erdos718.IsLinkedSet H (C.X : Set C.V) := by

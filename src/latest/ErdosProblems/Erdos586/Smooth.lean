@@ -1222,21 +1222,17 @@ lemma tripleEnergy_le_baseline (A B : Finset Exp3) (hA : TripleAntichain A)
               apply mul_le_mul_of_nonneg_left _ (by positivity)
               have hb := pairEnergy_exception_bound _ _ (tripleLevel_antichain hA c)
                 (tripleLevel_antichain hB d)
-              by_cases hD : DoubleAt A c ∧ DoubleAt B d <;>
-                by_cases hS : SingleAt A c ∧ SingleAt B d
+              by_cases hD : tripleLevel A c = twoPair ∧ tripleLevel B d = twoPair <;>
+                by_cases hS : tripleLevel A c = onePair ∧ tripleLevel B d = onePair
               all_goals
-                simp only [DoubleAt] at hD
-                simp only [SingleAt] at hS
-                simp only [DoubleAt, SingleAt] at ⊢
-                simp [hD, hS, twoPair_ne_onePair, onePair_ne_twoPair] at hb ⊢
-                exact hb
+                simpa only [DoubleAt, SingleAt, hD, hS, if_pos, if_neg] using hb
     _ = (31 / 36) * (∑ c ∈ tripleLevelSupport A, ∑ d ∈ tripleLevelSupport B,
           (1 / 5 : ℝ) ^ max c d) +
         (11 / 36) * doubleCorrection A B + (5 / 36) * singleCorrection A B := by
           simp only [singleCorrection, doubleCorrection]
           simp_rw [mul_add, Finset.sum_add_distrib]
           simp_rw [Finset.mul_sum]
-          ring
+          ring_nf
     _ ≤ 155 / 96 + (11 / 36) * doubleCorrection A B +
         (5 / 36) * singleCorrection A B := by
           have : 0 ≤ (31 / 36 : ℝ) := by norm_num

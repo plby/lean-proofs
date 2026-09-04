@@ -275,18 +275,18 @@ theorem sourceSharpAlgebraicGrowthMajorant_ratCast_le_exp_two
     simpa only [H, sourceHeightUnit] using hstatic
   have hold' : (((2 * P.Bsrc : ℕ) : ℝ) ^ P.Sstep J) ≤
       Real.exp (H / 4) := by
-    convert hold using 1 <;> dsimp only [H] <;> ring
+    convert hold using 1 <;> dsimp only [H] <;> ring_nf
   have hside' : (2 : ℝ) ^ levelOldDeltaSideSum P J ≤
       Real.exp (H / 32) := by
-    convert hside using 1 <;> dsimp only [H] <;> ring
+    convert hside using 1 <;> dsimp only [H] <;> ring_nf
   have hhead' :
       sourceHeadDeltaMajorant P J ((l : ℂ) / (P.q : ℂ)) ≤
         Real.exp (H / 32) := by
-    convert hhead using 1 <;> dsimp only [H] <;> ring
+    convert hhead using 1 <;> dsimp only [H] <;> ring_nf
   have hrate' :
       Real.exp (P.qInvPow J * sourceAlgebraicRateBound P *
         ‖((l : ℂ) / (P.q : ℂ))‖) ≤ Real.exp (H / 32) := by
-    convert hrate using 1 <;> dsimp only [H] <;> ring
+    convert hrate using 1 <;> dsimp only [H] <;> ring_nf
   have hprod1 :
       ((initialSupportBound P : ℝ) *
           (P.coeffHeight * (initialSupportBound P : ℝ))) *

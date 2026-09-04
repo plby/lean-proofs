@@ -49,7 +49,7 @@ theorem minimalV3_counterexample_strong_partial_rectification
   obtain ⟨m, hm, π, hπ, hm37, B, hBA, hdenseB, α, hα⟩ :=
     minimalV3_counterexample_partial_rectification
       C t ht hzero hprimitive hdoub hnot hsmaller
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   have hnotfull : S ≠ Set.univ := by
     intro hfull
     apply hnot

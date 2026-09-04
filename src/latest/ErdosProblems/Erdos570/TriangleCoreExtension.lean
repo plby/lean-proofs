@@ -43,7 +43,7 @@ theorem isContained_of_independent_core_extension
     rw [Finset.card_image_of_injective _ core.injective]
     simp
   have hDcard : Fintype.card D = Fintype.card W - S.card := by
-    letI : Fintype {w : W // w ∈ S} := Fintype.ofFinite _
+    let : Fintype {w : W // w ∈ S} := Fintype.ofFinite _
     calc
       Fintype.card D =
           Fintype.card W - Fintype.card {w : W // w ∈ S} := by

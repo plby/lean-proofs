@@ -85,8 +85,8 @@ theorem exists_iteratedSumset_sub_mem_of_finiteRelIndex
   let Q := Gamma ⧸ J
   let q : Gamma →+ Q := QuotientAddGroup.mk' J
   let Y : Finset Q := B.image q
-  letI : H.IsFiniteRelIndex Gamma := ⟨hrel⟩
-  letI : Fintype Q := Fintype.ofFinite Q
+  let : H.IsFiniteRelIndex Gamma := ⟨hrel⟩
+  let : Fintype Q := Fintype.ofFinite Q
   have hzeroY : (0 : Q) ∈ Y := by
     exact Finset.mem_image.mpr ⟨0, hzero, map_zero q⟩
   have hgenY : AddSubgroup.closure (Y : Set Q) = ⊤ := by

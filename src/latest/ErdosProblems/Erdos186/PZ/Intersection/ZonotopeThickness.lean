@@ -180,7 +180,7 @@ theorem centered_stepExtreme_mem_dilate
     by_cases hji : j = i
     · subst j
       simp [a]
-    · simp [a, hji]
+    · simp only [Nat.cast_mul]
       positivity
   have hsum : (k * radii i : ℤ) • P.steps i =
       ∑ j, a j • P.steps j := by

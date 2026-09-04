@@ -162,7 +162,7 @@ theorem cofinalPrimeUniformWTrickedPrimeProgressionCount_of_eventually
   refine
     ⟨M, hM₀, by simpa only [hMsucc] using hqPrime, ?_⟩
   intro b hb hmean
-  letI : NeZero (M + 1) := ⟨Nat.succ_ne_zero M⟩
+  let : NeZero (M + 1) := ⟨Nat.succ_ne_zero M⟩
   exact
     relativeAPCount_lower_bound_of_linearFormsCondition
       happroximationError hcutError

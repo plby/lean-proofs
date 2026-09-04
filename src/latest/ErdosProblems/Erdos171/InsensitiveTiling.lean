@@ -246,7 +246,7 @@ theorem exists_common_block_subspace
     exact ⟨U, subspacePoints_subset_of_restricted_of_isLastInsensitive
       i (fiber D p) (hD p) U hU⟩
   obtain ⟨U₀, hU₀⟩ := hex p₀ hp₀
-  letI : Nonempty (Subspace (Fin d) (Fin (k + 1)) (Fin M)) := ⟨U₀⟩
+  let : Nonempty (Subspace (Fin d) (Fin (k + 1)) (Fin M)) := ⟨U₀⟩
   have hall : ∀ p : P, ∃ U : Subspace (Fin d) (Fin (k + 1)) (Fin M),
       p ∈ T → subspacePoints U ⊆ fiber D p := by
     intro p
@@ -887,7 +887,7 @@ theorem FiniteRestrictedMDHJ.exists_oneInsensitiveTilingAt_ge
   have hbeta1 : beta ≤ 1 := by linarith
   obtain ⟨U, hU⟩ := hblock (Finset.univ : Finset (Word (k + 1) M))
     (by rw [density_univ]; exact hbeta1)
-  letI : Nonempty (Subspace (Fin d) (Fin (k + 1)) (Fin M)) := ⟨U⟩
+  let : Nonempty (Subspace (Fin d) (Fin (k + 1)) (Fin M)) := ⟨U⟩
   let theta := insensitiveBlockGain k d M beta
   have htheta : 0 < theta := by
     dsimp only [theta, insensitiveBlockGain]

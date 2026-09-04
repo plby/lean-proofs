@@ -18,7 +18,7 @@ lemma gaussianApproxKernel_eq_gaussianPDFReal
   rw [Real.sqrt_mul (by positivity : 0 ≤ 2 * π)]
   rw [Real.sqrt_sq_eq_abs, abs_inv, abs_of_pos hc]
   field_simp [hc.ne', Real.pi_ne_zero]
-  ring
+  ring_nf
 
 lemma gaussianApproxKernel_integrable (c x : ℝ) (hc : 0 < c) :
     Integrable (gaussianApproxKernel c x) := by
@@ -259,7 +259,7 @@ theorem measure_eq_withDensity_inverseFourierDensityCandidate
   have hpcontinuous : Continuous p :=
     continuous_inverseFourierDensityCandidate hchar
   let nu : Measure ℝ := volume.withDensity (fun x ↦ ENNReal.ofReal (p x))
-  letI : IsFiniteMeasure nu := by
+  let : IsFiniteMeasure nu := by
     dsimp only [nu]
     exact isFiniteMeasure_withDensity_ofReal hp.hasFiniteIntegral
   apply Measure.ext_of_charFun
@@ -304,7 +304,7 @@ theorem measure_eq_withDensity_inverseFourierDensityCandidate
       apply integral_congr_ae
       exact Filter.Eventually.of_forall fun x ↦ by
         congr 2
-        ring
+        ring_nf
     _ = _ := by
       rw [← integral_const_mul]
       apply integral_congr_ae
@@ -452,7 +452,7 @@ theorem smallBall_diagonalCenteredLaw_le_two_mul_of_small_coordinates
     (hsmall : ∀ i, coordinateVariance (a i) (lam i) ≤ 1 / 4)
     {eps : ℝ} (heps : 0 ≤ eps) (x : ℝ) :
     Esseen.smallBall (diagonalCenteredLaw a lam) eps x ≤ 2 * eps := by
-  letI : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
+  let : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
     diagonalCenteredLaw_isProbabilityMeasure a lam
   let phi := diagonalCenteredCharProduct a lam
   let p := inverseFourierDensityCandidate (charFun (diagonalCenteredLaw a lam))
@@ -498,7 +498,7 @@ theorem hasContinuousDensity_diagonal_of_four_le_spectralBlocks
       (diagonalCenteredLaw a lam)
       (inverseFourierDensityCandidate
         (diagonalCenteredCharProduct a lam)) := by
-  letI : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
+  let : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
     diagonalCenteredLaw_isProbabilityMeasure a lam
   have hdiag : Integrable (diagonalCenteredCharProduct a lam) :=
     diagonalCenteredCharProduct_integrable_of_four_le_spectralBlocks
@@ -624,7 +624,7 @@ theorem smallBall_diagonalCenteredLaw_le_of_four_le_spectralBlocks
     {eps : ℝ} (heps : 0 ≤ eps) (x : ℝ) :
     Erdos88.Esseen.smallBall (diagonalCenteredLaw a lam) eps x ≤
       eps / (2 * Real.sqrt s) := by
-  letI : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
+  let : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
     diagonalCenteredLaw_isProbabilityMeasure a lam
   let phi := diagonalCenteredCharProduct a lam
   let p := inverseFourierDensityCandidate (charFun (diagonalCenteredLaw a lam))

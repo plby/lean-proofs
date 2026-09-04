@@ -228,7 +228,7 @@ theorem sq_le_exp_radius_add_twenty_mul_square_mul_of_block_bounds
     (mul_nonneg ha (Real.exp_pos _).le) hupper
   have hcancel : Real.exp (-R / 2) ^ 2 * Real.exp R = 1 := by
     rw [pow_two, ← Real.exp_add, ← Real.exp_add]
-    convert Real.exp_zero using 1 <;> ring
+    convert Real.exp_zero using 1 <;> ring_nf
   calc
     a ^ 2 = (a * Real.exp (-R / 2)) ^ 2 * Real.exp R := by
       rw [mul_pow]
@@ -397,7 +397,7 @@ theorem norm_twoBlock_alternatingLow_mul_high_le_sqrt_full_mul_sqrt_zeta
       honeMul honeBound S₃ hS₃prime hS₃three hsrreWeak
     simpa only [P₃p, hz₃p, hV₃p] using h
   let Pout : ℕ → Prop := fun p ↦ p ≤ y ∧ ¬ Q₂ p ∧ ¬ Q₃ p
-  letI : DecidablePred Pout := Classical.decPred Pout
+  let : DecidablePred Pout := Classical.decPred Pout
   have hPout : ∀ p, Pout p → p ≤ y := fun p hp ↦ hp.1
   have hfilterOut : (primesUpTo y).filter Pout = S₀ := by
     ext p

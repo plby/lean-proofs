@@ -45,11 +45,14 @@ def container_algorithm {V : Type*} [Fintype V] [DecidableEq V] [LinearOrder V]
     A
 termination_by A.card
 decreasing_by
-  · refine Finset.card_lt_card ?_
-    simp +decide [ Finset.ssubset_def, Finset.subset_iff ]
-    exact ⟨ fun _ _ _ _ => by
-      assumption, v, Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1, fun _ _ =>
-        False.elim ( ‹¬_› rfl ) ⟩
+  · refine Finset.card_lt_card (Finset.ssubset_iff_subset_ne.mpr ?_)
+    refine ⟨Finset.sdiff_subset, ?_⟩
+    intro heq
+    have hvA : v ∈ A := Finset.mem_filter.mp (Finset.min'_mem _ h) |>.1
+    have hvSub : v ∈ A \ insert v (Finset.univ.filter (G.Adj v ·)) := by
+      rw [heq]
+      exact hvA
+    exact (Finset.mem_sdiff.mp hvSub).2 (Finset.mem_insert_self _ _)
   · exact Finset.card_erase_lt_of_mem ( Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1 )
 
 /-
@@ -72,11 +75,14 @@ def generate_S_and_A {V : Type*} [Fintype V] [DecidableEq V] [LinearOrder V]
     (S_acc, A)
 termination_by A.card
 decreasing_by
-  · refine Finset.card_lt_card ?_;
-    simp +decide [ Finset.ssubset_def, Finset.subset_iff ];
-    exact ⟨ fun _ _ _ _ => by
-      assumption, v, Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1, fun _ _ =>
-        False.elim ( ‹¬_› rfl ) ⟩
+  · refine Finset.card_lt_card (Finset.ssubset_iff_subset_ne.mpr ?_)
+    refine ⟨Finset.sdiff_subset, ?_⟩
+    intro heq
+    have hvA : v ∈ A := Finset.mem_filter.mp (Finset.min'_mem _ h) |>.1
+    have hvSub : v ∈ A \ insert v (Finset.univ.filter (G.Adj v ·)) := by
+      rw [heq]
+      exact hvA
+    exact (Finset.mem_sdiff.mp hvSub).2 (Finset.mem_insert_self _ _)
   · exact Finset.card_erase_lt_of_mem ( Finset.mem_filter.mp ( Finset.min'_mem _ h ) |>.1 )
 
 def get_S {V : Type*} [Fintype V] [DecidableEq V] [LinearOrder V]
@@ -98,7 +104,7 @@ lemma get_S_subset_I {V : Type*} [Fintype V] [DecidableEq V] [LinearOrder V]
         | h n ih =>
             unfold generate_S_and_A;
             field_simp;
-            split_ifs <;> simp_all +decide [ Finset.subset_iff ];
+            split_ifs <;> simp_all +decide only [ge_iff_le];
             · convert ih _ _ _ _ _ rfl using 1;
               · rw [ ← hcard, Finset.card_sdiff ];
                 refine Nat.sub_lt ?_ ?_;
@@ -132,8 +138,8 @@ lemma generate_S_and_A_size_bound {V : Type*} [Fintype V] [DecidableEq V] [Linea
       | h k ih =>
           unfold generate_S_and_A;
           by_cases h : Finset.Nonempty ( Finset.filter ( fun v => degree_in G A v ≥ Δ ) A )<;>
-            simp_all +decide;
-          · split_ifs;
+            simp_all +decide only [ge_iff_le];
+          · split_ifs <;> try contradiction
             · let v := Finset.min' (Finset.filter (fun v => Δ ≤ degree_in G A v) A) ‹_›
               refine le_trans
                 (ih (Finset.card (A \ insert v (Finset.univ.filter (G.Adj v ·)))) ?_
@@ -248,7 +254,7 @@ lemma S_acc_subset_generate_S {V : Type*} [Fintype V] [DecidableEq V] [LinearOrd
       | h k ih =>
           unfold generate_S_and_A;
           field_simp;
-          split_ifs <;> simp_all +decide [ Finset.subset_iff ];
+          split_ifs <;> simp_all +decide only [ge_iff_le];
           · intro x hx;
             convert ih _ _ _ _ rfl ( Finset.mem_insert_of_mem hx ) using 1;
             refine lt_of_lt_of_le
@@ -270,6 +276,7 @@ lemma S_acc_subset_generate_S {V : Type*} [Fintype V] [DecidableEq V] [LinearOrd
               Finset.mem_filter.mp ( Finset.min'_mem _ ‹_› ) |>.1 ⟩ ) zero_lt_one
               |> LT.lt.trans_le
               <| by simp +decide [ hcard ] ) _ _ rfl
+          · exact fun _ hx ↦ hx
 
 /-
 The independent set I restricted to A is covered by the new elements in S and the final set A,
@@ -281,45 +288,76 @@ lemma generate_S_and_A_invariant {V : Type*} [Fintype V] [DecidableEq V] [Linear
     (hI : G.IsIndepSet (I : Set V)) (h_disjoint : Disjoint S_acc A) :
     let res := generate_S_and_A G Δ I S_acc A
     I ∩ A ⊆ (res.1 \ S_acc) ∪ res.2 := by
-      induction hcard : A.card using Nat.strong_induction_on generalizing S_acc A with
-      | h n ih =>
-          unfold generate_S_and_A;
-          split_ifs <;> simp_all +decide [ Finset.subset_iff ];
-          split_ifs;
-          · intro x hx hx';
-            by_cases hx'' :
-                x = Finset.min' ( Finset.filter ( fun v => Δ ≤ degree_in G A v ) A ) ‹_›;
-            · refine Or.inl ⟨ ?_, ?_ ⟩;
-              · exact S_acc_subset_generate_S _ _ _ _ _ |> fun h =>
-                h ( Finset.mem_insert_self _ _ ) |> fun h => hx''.symm ▸ h;
-              · exact fun h => Finset.disjoint_left.mp h_disjoint h hx';
-            · convert ih _ _ _ _ _ rfl hx _ using 1;
-              · grind;
-              · refine lt_of_lt_of_le
-                  ( Finset.card_lt_card (t := A) ( Finset.ssubset_iff_subset_ne.mpr ?_ ) ) ?_;
-                · constructor
-                  · intro y hy
-                    exact Finset.mem_sdiff.mp hy |>.1
-                  · intro h_eq
-                    let v := Finset.min' (Finset.filter (fun v => Δ ≤ degree_in G A v) A) ‹_›
-                    have hvA : v ∈ A :=
-                      Finset.mem_filter.mp (Finset.min'_mem _ ‹_›) |>.1
-                    have hv_not : v ∉ A \ insert v (Finset.univ.filter (G.Adj v ·)) := by
-                      simp
-                    exact hv_not (h_eq.symm ▸ hvA)
-                · exact le_of_eq hcard;
-              · simp_all +decide [ Finset.disjoint_left ];
-              · simp_all +decide [ Finset.disjoint_left, SimpleGraph.adj_comm ];
-                (expose_names; exact hI hx h_1 hx'');
-          · intro x hxI hx;
-            specialize ih ( Finset.card ( A.erase ( Finset.min' _ ‹_› ) ) ) ?_ S_acc ( A.erase (
-              Finset.min' _ ‹_› ) ) ?_ ?_ hxI ?_<;>
-              simp_all +decide [ Finset.disjoint_left ];
-            · rw [ ← hcard, Finset.card_erase_of_mem ( Finset.min'_mem _ ‹_›
-              |> Finset.mem_filter.mp |>.1 ) ] ;
-              exact Nat.pred_lt ( ne_bot_of_gt ( Finset.card_pos.mpr ⟨ _, Finset.min'_mem _ ‹_›
-                |> Finset.mem_filter.mp |>.1 ⟩ ) );
-            · exact fun h => ‹¬_› ( h ▸ hxI )
+  induction hcard : A.card using Nat.strong_induction_on generalizing S_acc A with
+  | h n ih =>
+      unfold generate_S_and_A
+      split_ifs <;> simp_all only [ge_iff_le]
+      split_ifs
+      · let v := Finset.min' (Finset.filter (fun v => Δ ≤ degree_in G A v) A) ‹_›
+        let A' := A \ insert v (Finset.univ.filter (G.Adj v ·))
+        let S' := insert v S_acc
+        change I ∩ A ⊆
+          (generate_S_and_A G Δ I S' A').1 \ S_acc ∪
+            (generate_S_and_A G Δ I S' A').2
+        have hvA : v ∈ A := by
+          exact Finset.mem_filter.mp (Finset.min'_mem _ ‹_›) |>.1
+        have hvI : v ∈ I := by
+          simpa [v] using ‹Finset.min' (Finset.filter (fun v => Δ ≤ degree_in G A v) A) _ ∈ I›
+        have hcard' : A'.card < n := by
+          refine lt_of_lt_of_le (Finset.card_lt_card (Finset.ssubset_iff_subset_ne.mpr ?_))
+            (le_of_eq hcard)
+          refine ⟨Finset.sdiff_subset, ?_⟩
+          intro heq
+          have : v ∈ A' := heq.symm ▸ hvA
+          exact (Finset.mem_sdiff.mp this).2 (Finset.mem_insert_self _ _)
+        have hdisjoint' : Disjoint S' A' := by
+          rw [Finset.disjoint_left]
+          intro y hyS hyA'
+          rcases Finset.mem_insert.mp hyS with rfl | hyS
+          · exact (Finset.mem_sdiff.mp hyA').2 (Finset.mem_insert_self _ _)
+          · exact (Finset.disjoint_left.mp h_disjoint hyS) (Finset.mem_sdiff.mp hyA').1
+        intro x hx
+        have hxI : x ∈ I := (Finset.mem_inter.mp hx).1
+        have hxA : x ∈ A := (Finset.mem_inter.mp hx).2
+        by_cases hxv : x = v
+        · subst x
+          refine Finset.mem_union_left _ (Finset.mem_sdiff.mpr ⟨?_, ?_⟩)
+          · exact S_acc_subset_generate_S G Δ I S' A' (Finset.mem_insert_self _ _)
+          · exact fun hvS => Finset.disjoint_left.mp h_disjoint hvS hvA
+        · have hxA' : x ∈ A' := by
+            refine Finset.mem_sdiff.mpr ⟨hxA, ?_⟩
+            intro hxremoved
+            rcases Finset.mem_insert.mp hxremoved with hx | hx
+            · exact hxv hx
+            · have hadj : G.Adj v x := (Finset.mem_filter.mp hx).2
+              exact (hI hxI hvI hxv) (G.adj_symm hadj)
+          have hxrec := ih A'.card hcard' S' A' hdisjoint' rfl
+            (Finset.mem_inter.mpr ⟨hxI, hxA'⟩)
+          rcases Finset.mem_union.mp hxrec with hxleft | hxright
+          · refine Finset.mem_union_left _ (Finset.mem_sdiff.mpr ⟨(Finset.mem_sdiff.mp hxleft).1, ?_⟩)
+            exact fun hxS => (Finset.mem_sdiff.mp hxleft).2 (Finset.mem_insert_of_mem hxS)
+          · exact Finset.mem_union_right _ hxright
+      · let v := Finset.min' (Finset.filter (fun v => Δ ≤ degree_in G A v) A) ‹_›
+        let A' := A.erase v
+        change I ∩ A ⊆
+          (generate_S_and_A G Δ I S_acc A').1 \ S_acc ∪
+            (generate_S_and_A G Δ I S_acc A').2
+        have hvA : v ∈ A := by
+          exact Finset.mem_filter.mp (Finset.min'_mem _ ‹_›) |>.1
+        have hvI : v ∉ I := by
+          simpa [v] using ‹Finset.min' (Finset.filter (fun v => Δ ≤ degree_in G A v) A) _ ∉ I›
+        have hcard' : A'.card < n := by
+          exact (Finset.card_erase_lt_of_mem hvA).trans_le (le_of_eq hcard)
+        have hdisjoint' : Disjoint S_acc A' :=
+          h_disjoint.mono_right (Finset.erase_subset _ _)
+        intro x hx
+        have hxI : x ∈ I := (Finset.mem_inter.mp hx).1
+        have hxA : x ∈ A := (Finset.mem_inter.mp hx).2
+        have hxA' : x ∈ A' := Finset.mem_erase.mpr ⟨fun hxv => hvI (hxv ▸ hxI), hxA⟩
+        exact ih A'.card hcard' S_acc A' hdisjoint' rfl
+          (Finset.mem_inter.mpr ⟨hxI, hxA'⟩)
+      · intro x hx
+        exact Finset.mem_union_right _ (Finset.mem_inter.mp hx).2
 
 /-
 The container algorithm produces the same set A as the generation process, given consistent inputs.
@@ -331,72 +369,75 @@ lemma container_algorithm_eq_generate_A_correct {V : Type*} [Fintype V]
     (h_disjoint : Disjoint S_acc A) (h_S_acc_sub : S_acc ⊆ I) :
     let res := generate_S_and_A G Δ I S_acc A
     container_algorithm G Δ res.1 A = res.2 := by
-      induction A using Finset.strongInduction generalizing S_acc I Δ G with
-      | _ A ih =>
-          unfold generate_S_and_A container_algorithm;
-          split_ifs <;> simp_all +decide [ Finset.ssubset_def, Finset.subset_iff ];
-          split_ifs;
-          · convert ih _ _ _ _ _ _ _ _ _ using 1;
-            rotate_left;
-            focus
-              exact A \ insert ( Finset.min' ( Finset.filter ( fun v =>
-                degree_in G A v
-                  ≥ Δ ) A ) ‹_› ) ( Finset.univ.filter
-                    ( G.Adj ( Finset.min' ( Finset.filter ( fun v =>
-                      degree_in G A v ≥ Δ ) A ) ‹_› ) · ) );
-            focus
-              intro x hx
-              exact Finset.mem_sdiff.mp hx |>.1;
-            focus
-              exact ( Finset.min' ( Finset.filter ( fun v => degree_in G A v ≥ Δ ) A ) ‹_› );
-            focus
-              exact Finset.mem_filter.mp ( Finset.min'_mem _ ‹_› ) |>.1;
-            focus
-              simp +decide [ Finset.mem_sdiff, Finset.mem_insert ];
-            focus
-              exact G;
-            focus
-              expose_names
-              exact inst_3;
-            focus
-              exact Δ;
-            focus
-              exact I;
-            focus
-              exact insert
-                ( Finset.min' ( Finset.filter ( fun v => degree_in G A v ≥ Δ ) A ) ‹_› )
-                S_acc;
-            simp +decide [ Finset.disjoint_left, Finset.mem_sdiff, Finset.mem_insert ];
-            exact ⟨ fun h => fun _ _ _ => h, fun h => h ( fun x hx hx' hx'' => by
-              have := Finset.disjoint_left.mp h_disjoint hx hx';
-              contradiction ) ‹_› h_S_acc_sub ⟩;
-          · rename_i h₁ h₂ h₃;
-            contrapose! h₃;
-            exact Finset.mem_of_subset ( S_acc_subset_generate_S G Δ I ( insert _ S_acc ) _ ) (
-              Finset.mem_insert_self _ _ );
-          · convert ih ( A.erase ( Finset.min' ( Finset.filter ( fun v =>
-            degree_in G A v ≥ Δ ) A ) ‹_› ) ) ( fun x hx =>
-              Finset.mem_of_mem_erase hx ) _ ( Finset.min'_mem ( Finset.filter ( fun v =>
-                degree_in G A v ≥ Δ ) A ) ‹_› |> Finset.mem_filter.mp |>.1 ) _ _ _ _ _ using 1;
-            any_goals assumption;
-            · have h_subset :
-                  (generate_S_and_A G Δ I S_acc
-                    (A.erase (Finset.min' (Finset.filter (fun v =>
-                      degree_in G A v ≥ Δ) A) ‹_›))).1 ⊆ S_acc ∪ I := by
-                (expose_names;
-                  exact
-                    generate_S_subset_union G Δ I S_acc
-                      (A.erase ({v ∈ A | degree_in G A v ≥ Δ}.min' h)));
-              have := h_subset ‹_›; simp_all +decide [ Finset.subset_iff ] ;
-            · (expose_names; exact notMem_erase ({v ∈ A | degree_in G A v ≥ Δ}.min' h) A);
-          · convert ih ( A.erase ( Finset.min' ( Finset.filter ( fun v =>
-            Δ ≤ degree_in G A v ) A ) ‹_› ) ) ( fun x hx =>
-              Finset.mem_of_mem_erase hx ) _ ( Finset.min'_mem ( Finset.filter ( fun v =>
-                Δ ≤ degree_in G A v ) A ) ‹_› |> fun h =>
-                  Finset.mem_filter.mp h |>.1 ) _ _ _ _ _ _ _ using 1;
-            · grind;
-            · exact h_disjoint.mono_right ( Finset.erase_subset _ _ );
-            · assumption
+  induction A using Finset.strongInduction generalizing S_acc I Δ G with
+  | _ A ih =>
+      rw [generate_S_and_A]
+      split_ifs <;> simp only
+      split_ifs
+      · let v := Finset.min' (Finset.filter (fun v => degree_in G A v ≥ Δ) A) ‹_›
+        let A' := A \ insert v (Finset.univ.filter (G.Adj v ·))
+        let S' := insert v S_acc
+        change container_algorithm G Δ (generate_S_and_A G Δ I S' A').1 A =
+          (generate_S_and_A G Δ I S' A').2
+        have hvA : v ∈ A := by
+          exact Finset.mem_filter.mp (Finset.min'_mem _ ‹_›) |>.1
+        have hvI : v ∈ I := by
+          simpa [v] using ‹Finset.min' (Finset.filter (fun v => degree_in G A v ≥ Δ) A) _ ∈ I›
+        have hssub : A' ⊂ A := by
+          refine Finset.ssubset_iff_subset_ne.mpr ⟨Finset.sdiff_subset, ?_⟩
+          intro heq
+          have : v ∈ A' := heq.symm ▸ hvA
+          exact (Finset.mem_sdiff.mp this).2 (Finset.mem_insert_self _ _)
+        have hdisjoint' : Disjoint S' A' := by
+          rw [Finset.disjoint_left]
+          intro x hxS hxA'
+          rcases Finset.mem_insert.mp hxS with rfl | hxS
+          · exact (Finset.mem_sdiff.mp hxA').2 (Finset.mem_insert_self _ _)
+          · exact (Finset.disjoint_left.mp h_disjoint hxS) (Finset.mem_sdiff.mp hxA').1
+        have hS'sub : S' ⊆ I := by
+          intro x hx
+          rcases Finset.mem_insert.mp hx with rfl | hx
+          · exact hvI
+          · exact h_S_acc_sub hx
+        have hvFinal : v ∈ (generate_S_and_A G Δ I S' A').1 :=
+          S_acc_subset_generate_S G Δ I S' A' (Finset.mem_insert_self _ _)
+        rw [container_algorithm]
+        simp only [‹(Finset.filter (fun v => degree_in G A v ≥ Δ) A).Nonempty›,
+          dite_true]
+        change (if v ∈ (generate_S_and_A G Δ I S' A').1 then
+            container_algorithm G Δ (generate_S_and_A G Δ I S' A').1 A'
+          else container_algorithm G Δ (generate_S_and_A G Δ I S' A').1 (A.erase v)) =
+          (generate_S_and_A G Δ I S' A').2
+        rw [if_pos hvFinal]
+        exact ih A' hssub G Δ I S' hdisjoint' hS'sub
+      · let v := Finset.min' (Finset.filter (fun v => degree_in G A v ≥ Δ) A) ‹_›
+        let A' := A.erase v
+        change container_algorithm G Δ (generate_S_and_A G Δ I S_acc A').1 A =
+          (generate_S_and_A G Δ I S_acc A').2
+        have hvA : v ∈ A := by
+          exact Finset.mem_filter.mp (Finset.min'_mem _ ‹_›) |>.1
+        have hvI : v ∉ I := by
+          simpa [v] using ‹Finset.min' (Finset.filter (fun v => degree_in G A v ≥ Δ) A) _ ∉ I›
+        have hvS : v ∉ S_acc := fun hv => Finset.disjoint_left.mp h_disjoint hv hvA
+        have hvFinal : v ∉ (generate_S_and_A G Δ I S_acc A').1 := by
+          intro hv
+          rcases Finset.mem_union.mp (generate_S_subset_union G Δ I S_acc A' hv) with hv | hv
+          · exact hvS hv
+          · exact hvI hv
+        rw [container_algorithm]
+        simp only [‹(Finset.filter (fun v => degree_in G A v ≥ Δ) A).Nonempty›,
+          dite_true]
+        change (if v ∈ (generate_S_and_A G Δ I S_acc A').1 then
+            container_algorithm G Δ (generate_S_and_A G Δ I S_acc A').1
+              (A \ insert v (Finset.univ.filter (G.Adj v ·)))
+          else container_algorithm G Δ (generate_S_and_A G Δ I S_acc A').1 A') =
+          (generate_S_and_A G Δ I S_acc A').2
+        rw [if_neg hvFinal]
+        exact ih A' (Finset.erase_ssubset hvA) G Δ I S_acc
+          (h_disjoint.mono_right (Finset.erase_subset _ _)) h_S_acc_sub
+      · rw [container_algorithm]
+        simp only [‹¬(Finset.filter (fun v => degree_in G A v ≥ Δ) A).Nonempty›,
+          dite_false]
 
 /-
 The container algorithm always returns a set where every vertex has degree strictly less than Δ in
@@ -453,8 +494,8 @@ lemma container_algorithm_max_degree {V : Type*} [Fintype V] [DecidableEq V] [Li
         unfold SimpleGraph.degree degree_in
         refine Finset.card_bij (fun x hx => (x : V)) ?_ ?_ ?_
         · intro x hx
-          simp [SimpleGraph.mem_neighborFinset] at hx ⊢
-          exact hx
+          simp only [mem_filter, SetLike.coe_mem, true_and] at hx ⊢
+          simpa [SimpleGraph.mem_neighborFinset] using hx
         · intro x hx y hy hxy
           exact Subtype.ext hxy
         · intro y hy

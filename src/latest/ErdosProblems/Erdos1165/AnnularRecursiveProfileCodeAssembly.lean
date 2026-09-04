@@ -491,11 +491,11 @@ mutual
         change Countable (ProfileEscapeWordCode n k center u w)
         exact inferInstance
     | .cons child tail, u, w => by
-        letI childCountable (z : ProfileCycleInnerPoint n k center)
+        let childCountable (z : ProfileCycleInnerPoint n k center)
             (v : ProfileCycleMiddlePoint n k center) :
             Countable (RecursiveProfileGapCode n (k + 1) center child z v) :=
           recursiveProfileGapCodeCountable n (k + 1) center child z v
-        letI tailCountable (v : ProfileCycleMiddlePoint n k center) :
+        let tailCountable (v : ProfileCycleMiddlePoint n k center) :
             Countable (RecursiveProfileForestCode n k center tail v w) :=
           recursiveProfileForestCodeCountable n k center tail v w
         change Countable (Σ z : ProfileCycleInnerPoint n k center,

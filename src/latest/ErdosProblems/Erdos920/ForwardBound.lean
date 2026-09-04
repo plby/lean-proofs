@@ -247,7 +247,7 @@ theorem exists_forwardConstant (t : ℕ) (ht : 2 ≤ t) :
   refine ⟨(forwardConstantNat t : ℝ), ?_, forwardThreshold t, ?_⟩
   · exact_mod_cast forwardConstantNat_pos ht
   · intro q m hq hQ hm
-    letI : Fact q.Prime := ⟨hq⟩
+    let : Fact q.Prime := ⟨hq⟩
     have hq4 : 4 ≤ q :=
       (Nat.le_max_left 4 (treeCoefficient t)).trans hQ
     have hAq : treeCoefficient t ≤ q :=

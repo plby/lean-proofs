@@ -129,7 +129,7 @@ theorem exists_dvd_X_of_weightedHomogeneous_dvd_weightInjective
   classical
   obtain ⟨d, hd⟩ := MvPolynomial.exists_coeff_ne_zero hQ
   let w := mvWeight n
-  letI := MvPolynomial.weightedGradedAlgebra K w
+  let := MvPolynomial.weightedGradedAlgebra K w
   let I : Ideal (MvPolynomial (Fin 2) K) := Ideal.span {P}
   have hIhom : I.IsHomogeneous (MvPolynomial.weightedHomogeneousSubmodule K w) := by
     apply Ideal.homogeneous_span
@@ -263,7 +263,7 @@ theorem weightedEuler_isCoprime_fractionRing_of_squarefree_dvd_weightInjective
       ((weightedEuler n H).map
         (algebraMap (Polynomial K) (FractionRing (Polynomial K)))) := by
   let ι := algebraMap (Polynomial K) (FractionRing (Polynomial K))
-  letI : NormalizedGCDMonoid (Polynomial K) := Nonempty.some inferInstance
+  let : NormalizedGCDMonoid (Polynomial K) := Nonempty.some inferInstance
   have hrel : IsRelPrime H (weightedEuler n H) :=
     isRelPrime_weightedEuler_of_squarefree_dvd_weightInjective
       hn hF hsq hHF hY hZ hinj

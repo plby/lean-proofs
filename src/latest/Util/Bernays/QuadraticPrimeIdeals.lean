@@ -49,7 +49,7 @@ theorem quadraticReduction_cardQuot (d b : ℤ) (q : ℕ) [NeZero q] :
 theorem inertIdeal_isMaximal (d b : ℤ) (q : ℕ) [Fact q.Prime]
     (hirr : ∀ r : ZMod q, r ^ 2 ≠ (d : ZMod q) + (b : ZMod q) * r) :
     (Ideal.span ({((q : ℤ) : QuadraticAlgebra ℤ d b)} : Set (QuadraticAlgebra ℤ d b))).IsMaximal := by
-  letI : Fact (∀ r : ZMod q, r ^ 2 ≠ (d : ZMod q) + (b : ZMod q) * r) := ⟨hirr⟩
+  let : Fact (∀ r : ZMod q, r ^ 2 ≠ (d : ZMod q) + (b : ZMod q) * r) := ⟨hirr⟩
   rw [← quadraticReduction_ker]
   exact RingHom.ker_isMaximal_of_surjective _ (quadraticReduction_surjective d b q)
 

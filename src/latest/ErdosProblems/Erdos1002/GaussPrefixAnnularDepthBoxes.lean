@@ -160,7 +160,7 @@ theorem tendsto_count_mod_two_div_scale
   convert! hsum using 1
   · funext n
     ring
-  · ring
+  · ring_nf
 
 /-- Half-open intervals inherit the same `1/2` density, with both prefix
 boundary terms retained explicitly. -/
@@ -188,7 +188,7 @@ theorem tendsto_card_parityIco_div_scale
             scale n)
       atTop (nhds ((beta - alpha) / 2)) := by
     convert! hsub using 1
-    ring
+    ring_nf
   apply hsub'.congr'
   filter_upwards [hab, hscale.eventually_gt_atTop 0] with n habn _hscale
   rw [card_parityIco_eq_count_sub (a n) (b n) parity habn]
@@ -229,7 +229,7 @@ theorem tendsto_natCeil_const_mul_scale_div
       by_cases hs : scale n = 0
       · simp [hs]
       · field_simp [hs, ne_of_gt hd]
-    · ring
+    · ring_nf
 
 /-- The natural depth corresponding to one deterministic time endpoint. -/
 def gaussLogDepthEndpoint (N : ℕ) (time : ℝ) : ℕ :=
@@ -353,7 +353,7 @@ theorem tendsto_annularTimeParityDepthBox_card_div_log
       (tendsto_annularTimeDepthLower_div_log hgrid i)
       (tendsto_annularTimeDepthUpper_div_log hgrid i hi)
   convert! hraw using 1
-  ring
+  ring_nf
 
 /-! ## Flattened annular-coordinate data -/
 

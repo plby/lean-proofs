@@ -67,7 +67,7 @@ theorem genusIdealLSeries_continuation {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
         (∀ s : ℂ, 1 < s.re → G s = LSeries
           (weightedIdealNormCoeff hD (quadraticBadIdeal d b)
             (fun C => ψ (Additive.ofMul (genusMap C)))) s) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ hψ
   exact classCharacterLSeries_continuation hD (quadraticBadIdeal d b)
     (quadraticBadIdeal_ne_bot hD) (quadraticBadIdeal_ne_top hD)

@@ -53,7 +53,7 @@ theorem divergence_eq_flow_divergence {d k : ℕ} (u : Fin d → Torus k)
     letI := torusAddAction u
     (bitPermutationGraph u).divergence (fun y g ↦ φ g y) x =
       Flow.divergence (d := d) φ x := by
-  letI := torusAddAction u
+  let := torusAddAction u
   rw [IntegralFlow.PermutationGraph.divergence, Flow.divergence]
   apply Finset.sum_congr rfl
   intro g hg
@@ -84,7 +84,7 @@ theorem exists_integral_bitFlow {d k : ℕ} (u : Fin d → Torus k)
     ∃ ψ : Torus k → Flow.BitDirection d → ℤ,
       (∀ x g, |ψ x g| ≤ b) ∧
       ∀ x, (bitPermutationGraph u).divergence ψ x = intDemand A B x := by
-  letI := torusAddAction u
+  let := torusAddAction u
   apply IntegralFlow.exists_integral_flow (bitPermutationGraph u)
     (fun x g ↦ φ g x) (intDemand A B) b
   · intro x

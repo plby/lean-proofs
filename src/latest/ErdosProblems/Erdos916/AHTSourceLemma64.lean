@@ -1552,10 +1552,9 @@ theorem boundary_mem_base (i : Fin 3) :
 
 theorem boundaryVertex_injective : Function.Injective F.boundaryVertex := by
   intro i j hij
-  fin_cases i <;> fin_cases j <;> simp_all [F.ab, F.ac, F.bc]
-  · exact (F.ab hij.symm).elim
-  · exact (F.ac hij.symm).elim
-  · exact (F.bc hij.symm).elim
+  fin_cases i <;> fin_cases j <;>
+    simp [boundaryVertex, F.ab, F.ab.symm, F.ac, F.ac.symm,
+      F.bc, F.bc.symm] at hij ⊢
 
 /-- Every boundary vertex has a neighbour on the exterior side of the
 fragment.  Otherwise the other two boundary vertices form a proper

@@ -181,7 +181,7 @@ theorem adaptivePrefix_two_sided_probability {n m q : ℕ}
         2 * Real.exp (-t ^ 2 / (2 * (m : ℝ) * (4 : ℝ) ^ 2)) := by
       simpa [P, center] using h
     convert h' using 1
-    all_goals ring
+    all_goals ring_nf
   calc
     uniformProbability (fun omega : BoolSlice (Fin (n.choose 2)) m ↦
         t ≤ |(prefixWeight

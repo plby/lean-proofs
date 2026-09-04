@@ -210,7 +210,7 @@ lemma expectationPhase_reciprocalAngle
   rw [hsum]
   symm
   convert Complex.exp_int_mul_two_pi_mul_I h.valMinAbs using 1 <;>
-    push_cast <;> ring
+    push_cast <;> ring_nf
 
 /-- Contribution of a finite block of Fourier frequencies, before the
 normalizing factor `1 / Q`. -/

@@ -85,7 +85,7 @@ lemma gap_telescoping
   | succ d ih =>
       have hg := hgap (a + d) (by omega)
       have heq : f (a + (d + 1)) - f a =
-          (f (a + d + 1) - f (a + d)) + (f (a + d) - f a) := by ring
+          (f (a + d + 1) - f (a + d)) + (f (a + d) - f a) := by ring_nf
       rw [heq]
       calc
         |(f (a + d + 1) - f (a + d)) + (f (a + d) - f a)|
@@ -314,7 +314,7 @@ lemma power_telescoping
       have hstep := power_step hf hM hgap n (s + d) hn (by omega)
       have heq : f (n ^ (s + (d + 1))) - f (n ^ s) =
           (f (n ^ ((s + d) + 1)) - f (n ^ (s + d))) +
-            (f (n ^ (s + d)) - f (n ^ s)) := by ring
+            (f (n ^ (s + d)) - f (n ^ s)) := by ring_nf
       rw [heq]
       calc
         |(f (n ^ (s + d + 1)) - f (n ^ (s + d))) +

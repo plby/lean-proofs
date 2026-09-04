@@ -1416,7 +1416,7 @@ theorem stdAddChar_neg_natCast_as_realUnitPhase
       realUnitPhase (-2 * Real.pi * ((h : ℝ) / q)) := by
   rw [AddChar.map_neg_eq_conj, stdAddChar_natCast_as_realUnitPhase]
   convert (realUnitPhase_neg (2 * Real.pi * ((h : ℝ) / q))).symm using 1
-  all_goals ring
+  all_goals ring_nf
 
 theorem norm_geometricPhaseSum_realUnitPhase_neg (x : ℝ) (N : ℕ) :
     ‖geometricPhaseSum (realUnitPhase (-x)) N‖ =
@@ -1473,7 +1473,7 @@ theorem topDigitFactor_block_mass_le
           convert norm_geometricPhaseSum_realUnitPhase_neg
             (2 * Real.pi * (((a + p ^ d * b : ℕ) : ℝ) /
               ((p ^ (d + 1) : ℕ) : ℝ))) N using 1
-          all_goals ring
+          all_goals ring_nf
       _ = ‖geometricPhaseSum
           (realUnitPhase (2 * Real.pi * (theta + (b : ℝ) / p))) N‖ := by
         congr 3
@@ -1717,7 +1717,7 @@ theorem residueClass_geometric_mass_le
         convert norm_geometricPhaseSum_realUnitPhase_neg
           (2 * Real.pi * (((s0 + p * j : ℕ) : ℝ) /
             ((p * q : ℕ) : ℝ))) N using 1
-        all_goals ring
+        all_goals ring_nf
       _ = ‖geometricPhaseSum
           (realUnitPhase (2 * Real.pi * (theta + (j : ℝ) / q))) N‖ := by
         congr 3

@@ -962,7 +962,7 @@ lemma sum_hypergeomWeight_residue_le_of_block
       refine ⟨Finset.mem_range.mpr (by dsimp only [N]; omega), ?_⟩
       dsimp only [alphaL]
       rw [Nat.cast_sub hjc]
-      convert hjE.2 using 1 <;> ring
+      convert hjE.2 using 1 <;> ring_nf
     · intro j₁ hj₁ j₂ hj₂ heq
       have hj₁c := (Finset.mem_filter.mp hj₁).2
       have hj₂c := (Finset.mem_filter.mp hj₂).2
@@ -980,7 +980,7 @@ lemma sum_hypergeomWeight_residue_le_of_block
         dsimp only [j]
         rw [Nat.cast_sub hdc]
         dsimp only [alphaL] at hdDL
-        convert hdDL.2 using 1 <;> ring
+        convert hdDL.2 using 1 <;> ring_nf
       refine ⟨j, ⟨?_, ?_⟩⟩
       · rw [Finset.mem_filter]
         refine ⟨?_, hjc⟩
@@ -1009,7 +1009,7 @@ lemma sum_hypergeomWeight_residue_le_of_block
       · omega
       · dsimp only [alphaR]
         rw [Nat.cast_sub htail, Nat.cast_sub hjell]
-        convert hjE.2 using 1 <;> ring
+        convert hjE.2 using 1 <;> ring_nf
     · intro j₁ hj₁ j₂ hj₂ heq
       have hj₁E := Finset.mem_filter.mp (Finset.mem_filter.mp hj₁).1
       have hj₂E := Finset.mem_filter.mp (Finset.mem_filter.mp hj₂).1
@@ -1039,7 +1039,7 @@ lemma sum_hypergeomWeight_residue_le_of_block
         dsimp only [j]
         rw [Nat.cast_sub (by omega : c - d ≤ ell), Nat.cast_sub hdc]
         dsimp only [alphaR] at hdDR
-        convert hdDR.2.2 using 1 <;> ring
+        convert hdDR.2.2 using 1 <;> ring_nf
       refine ⟨j, ⟨?_, ?_⟩⟩
       · rw [Finset.mem_filter]
         refine ⟨?_, by omega⟩

@@ -452,7 +452,7 @@ lemma boolIndicator_measurable {Y : ReservoirSample → Bool} (hY : Measurable Y
 lemma pairPresent_map (lo m : ℕ) (i : strictReprIndices lo m) :
     reservoirMeasure.map (pairPresent lo m i) =
       ProbabilityTheory.bernoulliMeasure true false (pairProbability lo m i) := by
-  letI : IsProbabilityMeasure (reservoirMeasure.map (pairPresent lo m i)) :=
+  let : IsProbabilityMeasure (reservoirMeasure.map (pairPresent lo m i)) :=
     Measure.isProbabilityMeasure_map (pairPresent_measurable lo m i).aemeasurable
   apply Measure.ext_of_measureReal_singleton
   intro b
@@ -2659,7 +2659,7 @@ lemma densePairPresent_true_probability (lo m : ℕ) (i : strictReprIndices lo m
 lemma densePairPresent_map (lo m : ℕ) (i : strictReprIndices lo m) :
     denseMeasure.map (densePairPresent lo m i) =
       ProbabilityTheory.bernoulliMeasure true false (densePairProbability lo m i) := by
-  letI : IsProbabilityMeasure (denseMeasure.map (densePairPresent lo m i)) :=
+  let : IsProbabilityMeasure (denseMeasure.map (densePairPresent lo m i)) :=
     Measure.isProbabilityMeasure_map (densePairPresent_measurable lo m i).aemeasurable
   apply Measure.ext_of_measureReal_singleton
   intro b
@@ -4668,7 +4668,8 @@ lemma stagePattern_card_eq
         (chosenDensePairs ω s k c).card *
           2 ^ (chosenDensePairs ω s k c).card := by
   classical
-  simp [StagePattern, ChosenPairType, Fintype.card_sigma]
+  simp only [Fintype.card_sigma, Finset.univ_eq_attach, Fintype.card_prod, Fintype.card_coe, Fintype.card_pi,
+    Fintype.card_bool, Finset.prod_const, Finset.card_attach]
   exact Finset.sum_attach (stageCanaries K k s)
     (fun c ↦ (chosenDensePairs ω s k c).card *
       2 ^ (chosenDensePairs ω s k c).card)

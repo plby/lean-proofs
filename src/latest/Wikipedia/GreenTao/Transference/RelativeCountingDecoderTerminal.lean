@@ -409,9 +409,7 @@ theorem iterNextTerminalDecoded_core
   induction n generalizing P with
   | zero =>
       intro S p a
-      simp [iterNextTerminalDecoded, iterNextTerminal,
-        reindex, terminalMajorantProduct,
-        terminalCoreProduct]
+      simp only [terminalMajorantProduct_zero, one_mul]
       apply congrArg (S.core p)
       funext i
       exact Fin.elim0 i
@@ -532,7 +530,7 @@ noncomputable def apCSTerminalFaceVertexEquiv
     apply Prod.ext
     · simp [apCSTerminalFaceVertex]
     · funext r
-      simp [apCSTerminalFaceVertex]
+      simp only [ne_eq]
       apply congrArg bits.2
       apply (finSuccAboveEquiv t).injective
       rw [(finSuccAboveEquiv t).apply_symm_apply]
@@ -938,7 +936,7 @@ theorem iterNextTerminal_apTwoCopyMasked_form_of_fintype
         faceCenteredProduct (n + 1) N ν j x *
           linearFormsProduct (n + 1) N ν
             (apCSActiveTerminalExponent active j) x) := by
-  letI : Fintype
+  let : Fintype
       (CSStageParam
         (Bool → ZMod N) (ZMod N) n) :=
     stageFintype

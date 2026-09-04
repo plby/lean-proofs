@@ -30,9 +30,9 @@ theorem hasIndependenceDefectAtLeast_of_regions_and_links
   have hex (u : U) := S.exists_even_tree_region col b hb (R u) (hconn u)
   choose T hT cells hbranch hsub heven using hex
   let localPort (u v : U) : (R u : Set W) := ⟨port u v, hport u v⟩
-  letI (u : U) : LinearOrder ((R u : Set W) ⊕ OrientedEdge (T u)) :=
+  let (u : U) : LinearOrder ((R u : Set W) ⊕ OrientedEdge (T u)) :=
     LinearOrder.lift' (Fintype.equivFin _) (Fintype.equivFin _).injective
-  letI : LinearOrder (TreeExpansionVertex T) :=
+  let : LinearOrder (TreeExpansionVertex T) :=
     LinearOrder.lift' (Fintype.equivFin _) (Fintype.equivFin _).injective
   let C : EvenTreeCellLinks F T localPort G := {
     cell := cells

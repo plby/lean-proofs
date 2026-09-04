@@ -29,7 +29,7 @@ theorem restrictedGreedyKernel_expectationReal
     (R : TripleSystemOn V) (hR : R.Nonempty) (φ : GreedyStateOn V → ℝ) :
     (restrictedGreedyKernel F S R hR).expectationReal φ =
       (R.card : ℝ)⁻¹ * ∑ T ∈ R, φ (greedyStep F S T) := by
-  letI : Nonempty R := ⟨⟨hR.choose, hR.choose_spec⟩⟩
+  let : Nonempty R := ⟨⟨hR.choose, hR.choose_spec⟩⟩
   rw [restrictedGreedyKernel, FiniteLaw.expectationReal_map,
     FiniteLaw.expectationReal_uniform, Fintype.card_coe]
   congr 1

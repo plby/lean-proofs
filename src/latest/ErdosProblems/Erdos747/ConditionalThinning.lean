@@ -145,7 +145,7 @@ lemma conditionalGlobalUpper_failure_probability_le_of_thinning_sharp
       @finsetProbability (Finset (Edge n))
           ((allEdges n).powersetCard M) Bad badDecidable ≤
         2 * bottomError := by
-    letI : DecidablePred Bad := badDecidable
+    let : DecidablePred Bad := badDecidable
     exact thinning_bad_probability_le_two_mul
       (allEdges n) M t htM hMtop Bad Diagnostic topError bottomError
         htop0 htopHalf (by positivity)
@@ -238,7 +238,7 @@ lemma conditionalGlobalLower_failure_probability_le_of_thinning_sharp
       @finsetProbability (Finset (Edge n))
           ((allEdges n).powersetCard M) Bad badDecidable ≤
         2 * bottomError := by
-    letI : DecidablePred Bad := badDecidable
+    let : DecidablePred Bad := badDecidable
     exact thinning_bad_probability_le_two_mul
       (allEdges n) M t htM hMtop Bad Diagnostic topError bottomError
         htop0 htopHalf (by positivity)

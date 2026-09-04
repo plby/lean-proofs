@@ -47,9 +47,9 @@ theorem genuineCycles28_lower_of_edgeDensity
   let δ : ℝ := (A.edgeFinset.card : ℝ) /
     (32 * L ^ 3 * Fintype.card W)
   let N : ℝ := Fintype.card (LiveLeft E ⊕ LiveRight E)
-  letI : DecidableRel B.Adj := inferInstance
-  letI : DecidableRel R := fun x y ↦ inferInstanceAs (Decidable (proj x = proj y))
-  letI : Nonempty (LiveLeft E ⊕ LiveRight E) :=
+  let : DecidableRel B.Adj := inferInstance
+  let : DecidableRel R := fun x y ↦ inferInstanceAs (Decidable (proj x = proj y))
+  let : Nonempty (LiveLeft E ⊕ LiveRight E) :=
     nonempty_of_nonempty E hEne
   have hn : 0 < (Fintype.card W : ℝ) := by
     obtain ⟨x, y, hxy⟩ := hedge

@@ -66,7 +66,7 @@ lemma smallVertexFactor_eq_prod {Y : ℕ} (σ : SmallAssignment Y)
       ∏ q : SmallPrime Y,
         if smallLabelIncident v (σ q) then (q : ℕ) else 1 := by
   fin_cases v <;>
-    simp [k5Tuple, smallEdgeFactor] <;>
+    simp only [Fin.mk_one, Fin.isValue, Finset.univ_eq_attach, Fin.reduceFinMk, Fin.zero_eta] <;>
     rw [← Finset.prod_mul_distrib, ← Finset.prod_mul_distrib,
       ← Finset.prod_mul_distrib] <;>
     apply Finset.prod_congr rfl

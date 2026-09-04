@@ -60,7 +60,7 @@ theorem exists_maximal_eligible_family_card_ge_four_mul
       4 * R ≤ S.card := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   obtain ⟨S, hpair, hmax⟩ := exists_maximal_eligible_family
     (G := G) (minRadius := minRadius) (maxRadius := maxRadius)
     deleted (highDegreeVertices G Delta) protectedSet separation
@@ -116,12 +116,12 @@ theorem exists_maximal_eligible_family_card_ge_four_mul
   obtain ⟨H, hHAdj, T, hHG, hHbip, hTnonempty, hKexp, _hKavg, hKdegree⟩ :=
     exists_bipartite_lmExpander_in_induced_compl G (deleted ∪ ball)
       scale.coreDegree scale.coreDegree_pos kappa scale.kappa_pos hproper havg
-  letI : DecidableRel H.Adj := hHAdj
+  let : DecidableRel H.Adj := hHAdj
   let outer : Set V :=
     ↑((Finset.univ : Finset V) \ (deleted ∪ ball))
-  letI : DecidableEq {x | x ∈ T} := Classical.decEq _
+  let : DecidableEq {x | x ∈ T} := Classical.decEq _
   let K := H.induce {x | x ∈ T}
-  letI : Nonempty {x | x ∈ T} :=
+  let : Nonempty {x | x ∈ T} :=
     ⟨⟨hTnonempty.choose, hTnonempty.choose_spec⟩⟩
   let partition : Bipartition K :=
     Bipartition.ofIsBipartite

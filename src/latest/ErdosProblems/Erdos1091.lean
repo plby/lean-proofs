@@ -629,9 +629,12 @@ theorem attachment_injective (m : ℕ) : Function.Injective
   · rcases l with p | a <;> rcases k with q | b
     · rcases p with ⟨i, s⟩
       rcases q with ⟨j, t⟩
-      fin_cases s <;> fin_cases t <;>
-        simp [attachmentBlock, attachmentPosition, regularPosition] at h ⊢
-      all_goals exact h
+      have hij : i = j := congrArg Prod.fst h
+      have hregular : Function.Injective regularPosition := by decide
+      have hst : s = t := hregular (congrArg Prod.snd h)
+      subst j
+      subst t
+      rfl
     · rcases p with ⟨i, s⟩
       fin_cases s <;> simp [attachmentBlock, attachmentPosition, regularPosition] at h
     · rcases q with ⟨j, t⟩
@@ -861,7 +864,7 @@ theorem nonhubGraph_root_reachable (m : ℕ) (v : NonhubVertex m) :
       (leafNH_same_block_reachable m l (attachmentPosition m l) x))
 
 theorem nonhubGraph_connected (m : ℕ) : (nonhubGraph m).Connected := by
-  letI : Nonempty (NonhubVertex m) := ⟨spineNH m 0 0⟩
+  let : Nonempty (NonhubVertex m) := ⟨spineNH m 0 0⟩
   exact ⟨fun u v ↦
     (nonhubGraph_root_reachable m u).symm.trans (nonhubGraph_root_reachable m v)⟩
 
@@ -2764,7 +2767,7 @@ theorem proper_induce_colorable_three (m : ℕ) (s : Finset (Vertex m))
   induction s using Finset.strongInductionOn with
   | _ s ih =>
       rcases s.eq_empty_or_nonempty with (rfl | hs)
-      · letI : IsEmpty ↥((∅ : Finset (Vertex m)) : Set (Vertex m)) :=
+      · let : IsEmpty ↥((∅ : Finset (Vertex m)) : Set (Vertex m)) :=
           ⟨fun z ↦ by simpa using z.2⟩
         exact SimpleGraph.Colorable.of_isEmpty 3
       · obtain ⟨u, hu, hdeg⟩ := exists_internal_degree_le_two m s hs hproper
@@ -3186,7 +3189,7 @@ theorem affirmative_of_vossBipartizationBound
     HasOddCycleWithAtLeastChords G 2 := by
   apply affirmative_of_vertex_critical_case ?_ G hfour hfree
   intro s J hJfour hJdelete hJfree
-  letI : Nonempty s := Fintype.card_pos_iff.mp (by
+  let : Nonempty s := Fintype.card_pos_iff.mp (by
     have hcard := five_le_card_of_chromaticFour_cliqueFree J hJfour hJfree
     omega)
   obtain ⟨H, hHJ, hHncol, hHcritical, _⟩ :=
@@ -3227,7 +3230,7 @@ theorem affirmative_of_vossDegreeBound
   classical
   apply affirmative_of_vertex_critical_case ?_ G hfour hfree
   intro s J hJfour hJdelete hJfree
-  letI : Nonempty s := Fintype.card_pos_iff.mp (by
+  let : Nonempty s := Fintype.card_pos_iff.mp (by
     have hcard := five_le_card_of_chromaticFour_cliqueFree J hJfour hJfree
     omega)
   obtain ⟨H, hHJ, hHncol, hHcritical, _⟩ :=
@@ -3302,7 +3305,7 @@ theorem apssv_four_critical_family (m : ℕ) :
       CyclesHaveAtMostChords G 10 := by
   classical
   let G := Counterexample.finGraph m
-  haveI : Nonempty (Fin (20 * m + 31)) := ⟨⟨0, by omega⟩⟩
+  have : Nonempty (Fin (20 * m + 31)) := ⟨⟨0, by omega⟩⟩
   have hncol : ¬ G.Colorable 3 := by
     intro hc
     have hle := hc.chromaticNumber_le

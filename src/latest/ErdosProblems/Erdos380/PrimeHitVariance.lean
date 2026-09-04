@@ -23,7 +23,7 @@ lemma prime_residue_hit_first_moment (s : Fin 10 → Finset ℕ) {p : ℕ}
     (hs : ∀ i r, r ∈ s i → r.Prime) (hne : ∀ i, (s i).Nonempty) :
     (1 / (p.totient : ℝ)) - tenPrimeResidueError s p ≤
         𝔼 f : ∀ i, s i, tupleResidueIndicator s p a f := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   have h := (abs_le.mp (expect_ten_prime_residue_error_le s ha hs hne)).1
   linarith
 
@@ -42,8 +42,8 @@ lemma prime_residue_hit_pair_moment (s : Fin 10 → Finset ℕ) {H : ℕ}
   classical
   have hip := (Finset.mem_product.mp hi).1
   have hjp := (Finset.mem_product.mp hj).1
-  letI : NeZero i.1 := ⟨(ht i.1 hip).ne_zero⟩
-  letI : NeZero j.1 := ⟨(ht j.1 hjp).ne_zero⟩
+  let : NeZero i.1 := ⟨(ht i.1 hip).ne_zero⟩
+  let : NeZero j.1 := ⟨(ht j.1 hjp).ne_zero⟩
   by_cases hij : i = j
   · subst j
     simp only [ite_true, if_pos rfl, ← pow_two, tupleResidueIndicator_sq]

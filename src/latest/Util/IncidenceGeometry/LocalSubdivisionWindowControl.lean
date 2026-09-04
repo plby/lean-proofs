@@ -42,7 +42,7 @@ lemma LocalSubdivisionWindowControl
         refine (Set.finite_lt_nat γ.vertices.length).subset ?_
         intro i hi
         exact Nat.lt_of_succ_lt hi
-      haveI : Finite {i : ℕ // i + 1 < γ.vertices.length} := hidx_finite
+      have : Finite {i : ℕ // i + 1 < γ.vertices.length} := hidx_finite
       rw [show {p : E | ∃ i : ℕ, ∃ hi : i + 1 < γ.vertices.length,
             p ∈ segment ℝ γ.vertices[i] γ.vertices[i + 1]} =
           (⋃ i : {i : ℕ // i + 1 < γ.vertices.length},

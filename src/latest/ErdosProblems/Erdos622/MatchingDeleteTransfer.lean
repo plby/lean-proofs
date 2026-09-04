@@ -58,7 +58,7 @@ theorem exists_submatchingGraph_avoiding_finset
       F.edgeFinset.card ≤ H.edgeFinset.card + T.card := by
   let D := matchingEdgesAt F T
   let H := F.deleteEdges (D : Set (Sym2 V))
-  letI : DecidableRel H.Adj := fun _ _ ↦ Classical.propDecidable _
+  let : DecidableRel H.Adj := fun _ _ ↦ Classical.propDecidable _
   refine ⟨H, SimpleGraph.deleteEdges_le _, ?_, ?_, ?_⟩
   · intro v
     have hN : H.neighborSet v ⊆ F.neighborSet v := by

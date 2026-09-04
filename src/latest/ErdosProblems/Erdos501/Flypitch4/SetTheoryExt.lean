@@ -88,8 +88,8 @@ lemma countable_chain_condition_of_separable_space [SeparableSpace α] :
     exact Set.nonempty_iff_ne_empty.mpr (fun h => hne (Set.mem_singleton_iff.mpr h))
 
 lemma countable_chain_condition_of_countable (h : #α ≤ ℵ₀) : countable_chain_condition α := by
-  haveI : Countable α := Cardinal.mk_le_aleph0_iff.mp h
-  haveI : SeparableSpace α := inferInstance
+  have : Countable α := Cardinal.mk_le_aleph0_iff.mp h
+  have : SeparableSpace α := inferInstance
   exact countable_chain_condition_of_separable_space
 
 /-- CCC is preserved when we can witness it on a topological basis. -/

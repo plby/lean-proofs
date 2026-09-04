@@ -636,7 +636,7 @@ theorem sum_vonMangoldt_sq_le (N : ℕ) :
       have hlogmono : Real.log (n : ℝ) ≤ Real.log (N + 1 : ℝ) := by
         by_cases hn0 : n = 0
         · subst n
-          simp
+          simp only [CharP.cast_eq_zero, Real.log_zero]
           exact Real.log_nonneg (by norm_num)
         · exact Real.log_le_log (by positivity)
             (by exact_mod_cast (show n ≤ N + 1 by omega))

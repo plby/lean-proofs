@@ -1044,7 +1044,7 @@ theorem eventually_all_bandPositiveInterfacePairPositiveWindow_le_exp
         (Real.exp (-2 * Real.log (m : ℝ) ^ 2)) := by
       rw [mul_assoc]
       gcongr
-      convert hlevel using 1 <;> congr 1 <;> ring
+      convert hlevel using 1 <;> congr 1 <;> ring_nf
     _ ≤ ENNReal.ofReal (Real.exp (-Real.log (m : ℝ) ^ 2)) := by
       convert hfixed using 1 <;> norm_num <;> congr 1 <;> ring
 
@@ -1367,7 +1367,7 @@ theorem
             (Real.exp (-(2 * (1 / 4000 : ℝ)) *
               Real.log (m : ℝ) ^ 2)) := by
         congr 1
-        ring
+        ring_nf
       _ ≤ ENNReal.ofReal
             (Real.exp (-(1 / 4000 : ℝ) * Real.log (m : ℝ) ^ 2)) :=
         habsorbM

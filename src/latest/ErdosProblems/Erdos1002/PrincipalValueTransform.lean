@@ -52,7 +52,8 @@ private theorem integral_exp_neg_mul_cos_Ioi (ε t : ℝ) (hε : 0 < ε) :
   let z : ℂ := (-ε : ℂ) + (t : ℂ) * Complex.I
   have hz : z.re < 0 := by
     dsimp [z]
-    simp
+    simp only [Complex.mul_re, Complex.ofReal_re, Complex.I_re, mul_zero, Complex.ofReal_im, Complex.I_im,
+    mul_one, sub_self, add_zero, Left.neg_neg_iff]
     exact hε
   have hzint := integrableOn_exp_mul_complex_Ioi hz 0
   have hformula := integral_exp_mul_complex_Ioi hz 0

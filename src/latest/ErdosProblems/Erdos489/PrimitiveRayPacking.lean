@@ -113,10 +113,10 @@ theorem rayDet_le_boundaryPotential_sub
       ring_nf
       exact le_rfl
     · have hqy : qy = D := hqedge.resolve_left hqx
-      simp [boundaryPotential, rayDet, hpx, hqx, hqy]
       have hprod : 0 ≤ (X - qx) * (D - py) :=
         mul_nonneg (sub_nonneg.mpr hqxX) (sub_nonneg.mpr hpyD)
-      nlinarith
+      simp [boundaryPotential, rayDet, hpx, hqx, hqy]
+      nlinarith [hprod]
   · have hpy : py = D := hpedge.resolve_left hpx
     by_cases hqx : qx = X
     · have hpxlt : px < X := lt_of_le_of_ne hpxX hpx

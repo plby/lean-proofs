@@ -1024,7 +1024,7 @@ theorem IsSwitchingSafe.no_forward_retainedPath_forward
     (hIn : (a, r.start) ∈ Q.directionEdges .forward)
     (hOut : (r.finish, b) ∈ Q.directionEdges .forward) : False := by
   classical
-  letI := Classical.decEq V
+  let := Classical.decEq V
   have hAlt : IsSwitchingAlternating Y Q := hSafe.isSwitchingAlternating
   obtain ⟨z, hzP, hzB⟩ :=
     hAlt.exists_backward_edge_to_forward_target hpY hIn

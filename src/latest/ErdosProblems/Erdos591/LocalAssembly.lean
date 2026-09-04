@@ -138,7 +138,7 @@ theorem local_four_of_step_oracle (n : ℕ)
     · rcases hDirect with ⟨e, he⟩
       exact red_set_of_embedding red blue hcompl e he
     · have hOracle := localStepOracle blue hK4 hDirect
-      letI : Countable (target n).ToType :=
+      let : Countable (target n).ToType :=
         Cardinal.mk_le_aleph0_iff.mp (by
           rw [Cardinal.mk_toType, Ordinal.card_omega0_opow]
           · apply max_le le_rfl
@@ -146,7 +146,7 @@ theorem local_four_of_step_oracle (n : ℕ)
               Cardinal.aleph0_mul_nat (by omega : n + 1 ≠ 0)]
           · apply mul_ne_zero Ordinal.omega0_ne_zero
             norm_num)
-      letI : Nonempty (target n).ToType :=
+      let : Nonempty (target n).ToType :=
         Ordinal.nonempty_toType_iff.mpr
           (Ordinal.opow_ne_zero _ Ordinal.omega0_ne_zero)
       rcases Erdos591.StrongIteration.exists_orderEmbedding_not_adj blue hOracle
@@ -177,7 +177,7 @@ theorem local_four_of_em_inputs (n : ℕ)
     (h590 : OrdinalCardinalRamsey
       (ω ^ ω : Ordinal.{0}) (ω ^ ω : Ordinal.{0}) 3) :
     OrdinalCardinalRamsey (source n) (target n) 4 := by
-  letI : Nonempty (target n).ToType :=
+  let : Nonempty (target n).ToType :=
     Ordinal.nonempty_toType_iff.mpr
       (Ordinal.opow_ne_zero _ Ordinal.omega0_ne_zero)
   have hlim : Order.IsSuccLimit (typeLT (target n).ToType) := by

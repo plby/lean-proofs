@@ -531,7 +531,7 @@ private theorem sum_range_trapezoidal_endpoints
       rw [Finset.sum_range_succ, Finset.sum_range_succ]
       simp only [Nat.cast_add, Nat.cast_one]
       rw [← ih]
-      ring
+      ring_nf
 
 /-- Exact telescoping identity behind the composite trapezoidal rule, in the
 form needed for a sum over the positive integers. -/
@@ -628,7 +628,7 @@ theorem norm_sum_range_natLogTwist_sub_integral_le
           have hnorm : ‖f'' x‖ = K / x ^ 2 := by
             dsimp [f'', K]
             convert LogPhaseSum.norm_logPhase_secondDeriv (t := t) hxpos using 1 <;>
-              ring
+              ring_nf
           rw [hnorm]
           exact div_le_div_of_nonneg_left hK (sq_pos_of_pos ha)
             ((sq_le_sq₀ ha.le (ha.le.trans hx.1)).2 hx.1))

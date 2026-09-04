@@ -219,7 +219,7 @@ theorem weighted_vonMangoldt_LSeries_term_eq_phase
     rw [← Complex.natCast_log]
     congr 1
     push_cast
-    ring
+    ring_nf
   rw [hcpow, div_eq_mul_inv, mul_inv, ← Complex.exp_neg]
   rw [← Complex.ofReal_inv, ← Real.rpow_neg hnR.le]
   unfold weightedVonMangoldtMajorant

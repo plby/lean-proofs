@@ -129,7 +129,7 @@ theorem card_directionQuotientHom_fiber
     (z : ZMod (Nat.card (ZMod N ⧸ K))) :
     (homFiberFinset (directionQuotientHom K d hgen) z).card =
       (addSubgroupFinset K).card := by
-  letI : NeZero (Nat.card (ZMod N ⧸ K)) := ⟨Nat.card_pos.ne'⟩
+  let : NeZero (Nat.card (ZMod N ⧸ K)) := ⟨Nat.card_pos.ne'⟩
   rw [homFiberFinset,
     card_hom_fiber_finset_eq_card_ker _
       (directionQuotientHom_surjective K d hgen) z,
@@ -201,10 +201,10 @@ theorem rectifiableThreeMinusThree_of_liftedModerate
     (hlift : HasLiftedModerateThreeMinusThree) :
     HasRectifiableThreeMinusThree := by
   intro N hN
-  letI : NeZero N := ⟨hN.ne'⟩
+  let : NeZero N := ⟨hN.ne'⟩
   dsimp
   intro A hAne hAaff m hm
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   intro π _hπ α houter hthreshold
   let T := rectifiedLift A π α
   have hTne : T.Nonempty := by

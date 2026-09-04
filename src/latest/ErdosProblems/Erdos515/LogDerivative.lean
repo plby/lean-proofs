@@ -130,7 +130,8 @@ lemma lintegral_ball_inv_norm :
     _ = ENNReal.ofReal (2 * Real.pi) := by
       change (volume.prod volume) (Ioo (0 : ℝ) 1 ×ˢ Ioo (-Real.pi) Real.pi) = _
       rw [Measure.prod_prod]
-      simp [Real.volume_Ioo]
+      simp only [Real.volume_Ioo, sub_zero, ENNReal.ofReal_one, sub_neg_eq_add, one_mul, Nat.ofNat_nonneg,
+    ENNReal.ofReal_mul, ENNReal.ofReal_ofNat]
       rw [← ENNReal.ofReal_ofNat 2,
         ← ENNReal.ofReal_mul (by norm_num : (0 : ℝ) ≤ 2)]
       congr 1
@@ -140,7 +141,7 @@ lemma lintegral_Ioc_angle_shift_of_periodic {H : ℝ → ℝ≥0∞}
     (hH : Function.Periodic H (2 * Real.pi)) :
     (∫⁻ θ in Ioc (0 : ℝ) (2 * Real.pi), H θ) =
       ∫⁻ θ in Ioc (-Real.pi) Real.pi, H θ := by
-  letI : Fact (0 < 2 * Real.pi) := ⟨mul_pos (by norm_num) Real.pi_pos⟩
+  let : Fact (0 < 2 * Real.pi) := ⟨mul_pos (by norm_num) Real.pi_pos⟩
   let f : AddCircle (2 * Real.pi) → ℝ≥0∞ := hH.lift
   have h0 := AddCircle.lintegral_preimage (T := 2 * Real.pi) 0 f
   have hneg := AddCircle.lintegral_preimage (T := 2 * Real.pi) (-Real.pi) f
@@ -151,7 +152,7 @@ lemma lintegral_Ioc_angle_shift_of_periodic {H : ℝ → ℝ≥0∞}
     _ = ∫⁻ θ in Ioc (-Real.pi) (-Real.pi + 2 * Real.pi), f θ := hneg.symm
     _ = ∫⁻ θ in Ioc (-Real.pi) Real.pi, H θ := by
       congr 1
-      ring
+      ring_nf
 
 lemma polarCoord_symm_eq_circlePoint (r θ : ℝ) :
     (Complex.polarCoord.symm (r, θ) : ℂ) = circlePoint r θ := by
@@ -535,7 +536,7 @@ lemma norm_comp_quarter_le_envelope {G : ℂ → ℂ}
       rw [← Real.rpow_natCast, ← Real.rpow_mul (by linarith : 0 ≤ 1 - ‖z‖)]
       rw [div_eq_mul_inv, ← Real.rpow_neg (by positivity)]
       congr 1
-      ring
+      ring_nf
     _ ≤ (1 - ‖z‖) ^ (-(1 : ℝ) / 2) := by
       apply mul_le_of_le_one_left (Real.rpow_nonneg (by linarith) _)
       exact Real.rpow_le_one (norm_nonneg _) (by linarith) (by norm_num)

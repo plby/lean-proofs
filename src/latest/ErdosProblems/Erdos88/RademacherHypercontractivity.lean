@@ -173,7 +173,7 @@ theorem eval_quadraticPoly {n : ℕ} (c : ℝ) (a : Fin n → ℝ)
           _ = A 0 0 * Erdos88.Fourier.rademacherSign (ξ 0) ^ 2 := by ring
           _ = A 0 0 := by rw [hs]; ring
       rw [hdiag]
-      ring
+      ring_nf
 
 @[simp] theorem eval_powPoly {n k : ℕ} (p : CubePoly n) (ξ : Fin n → Bool) :
     eval (powPoly p k) ξ = eval p ξ ^ k := by

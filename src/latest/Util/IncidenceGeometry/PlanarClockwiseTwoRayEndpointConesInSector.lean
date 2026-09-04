@@ -141,7 +141,7 @@ lemma PlanarClockwiseTwoRayEndpointConesInSector
       have hsx_pos : 0 < s * x := mul_pos hs hx
       nlinarith
     · have hcpos : 0 < c := lt_of_not_ge hc
-      simp [hc] at hlow
+      simp only [gt_iff_lt] at hlow
       have hmul := mul_lt_mul_of_pos_left hlow hcpos
       have hcK : c * (s / (2 * c)) = s / 2 := by
         field_simp [ne_of_gt hcpos]
@@ -155,7 +155,7 @@ lemma PlanarClockwiseTwoRayEndpointConesInSector
       have hus_pos : 0 < u * s := mul_pos hu hs
       nlinarith
     · have hcpos : 0 < c := lt_of_not_ge hc
-      simp [hc] at hupper
+      simp only [neg_mul, neg_add_lt_iff_lt_add, add_zero, gt_iff_lt] at hupper
       have hmul := mul_lt_mul_of_pos_left hupper hcpos
       have hcK : c * (s / (2 * c)) = s / 2 := by
         field_simp [ne_of_gt hcpos]
@@ -208,7 +208,7 @@ lemma PlanarClockwiseTwoRayEndpointConesInSector
     · simpa [z] using hrad
     · simp [z]
       nlinarith [hm_pos, heps_pos]
-    · simp [z]
+    · simp only [Fin.isValue]
       have hprod : 0 < eps * (s - c * m) := mul_pos heps_pos hslope
       nlinarith
   have hchart_cont : Continuous baseChart := by

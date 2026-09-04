@@ -719,7 +719,7 @@ theorem exists_face_of_notMem_arc {A : Set Plane} (hA : IsArc A) (h2c : SquaresT
     (outerOnPairs_familyChain hcontain (hxfar u hmemu))
   have houtw := outer_face_familyChain hchain
     (outerOnPairs_familyChain hcontain (hxfar w hmemw))
-  haveI : (Graph.chainUnion (familyChain c ((n + 1) * m) m r) 0 n).Finite :=
+  have : (Graph.chainUnion (familyChain c ((n + 1) * m) m r) 0 n).Finite :=
     hchain.block_finite (i := 0) (m := n) (by omega)
   have hdraw : Graph.IsDrawing (Graph.chainUnion (familyChain c ((n + 1) * m) m r) 0 n)
       segmentDrawing := hchain.block_isDrawing (by omega)

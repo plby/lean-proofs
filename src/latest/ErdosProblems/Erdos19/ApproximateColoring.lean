@@ -48,8 +48,8 @@ theorem uniform_approximate_edgeColoring (k : ℕ) (hk : 0 < k)
     nlinarith
   have hDposR : (0 : ℝ) < D := by nlinarith
   obtain ⟨q, hqge, hqprime⟩ := Nat.exists_infinite_primes (max k D)
-  letI : Fact q.Prime := ⟨hqprime⟩
-  letI : NeZero q := ⟨hqprime.ne_zero⟩
+  let : Fact q.Prime := ⟨hqprime⟩
+  let : NeZero q := ⟨hqprime.ne_zero⟩
   have hkq : k ≤ q := (le_max_left _ _).trans hqge
   have hDq : D ≤ q := (le_max_right _ _).trans hqge
   let HC := regularCompletion H D k q hdeg

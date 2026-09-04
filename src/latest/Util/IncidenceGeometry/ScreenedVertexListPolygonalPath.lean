@@ -98,8 +98,8 @@ lemma ScreenedVertexListPolygonalPath (K : FinitePolygonalSet)
     have hsegset_finite : Set.Finite (K.segments : Set (E × E)) :=
       K.segments.finite_toSet
     have hpairUnion_finite : Set.Finite pairUnion := by
-      haveI : Finite {i : ℕ // i + 1 < xs.length} := hidx_finite
-      haveI : Finite {s : E × E // s ∈ K.segments} := hsegset_finite
+      have : Finite {i : ℕ // i + 1 < xs.length} := hidx_finite
+      have : Finite {s : E × E // s ∈ K.segments} := hsegset_finite
       apply Set.finite_iUnion
       intro i
       apply Set.finite_iUnion

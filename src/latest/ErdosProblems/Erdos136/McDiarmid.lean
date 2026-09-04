@@ -58,7 +58,7 @@ lemma finite_weighted_hoeffding (w : α → ℝ) (g : α → ℝ) (lo hi lam : �
     ∑ a, w a * exp (lam * (g a - ∑ z, w z * g z)) ≤
       exp (((hi - lo) / 2) ^ 2 * lam ^ 2 / 2) := by
   let μ := finiteWeightMeasure w
-  letI : IsProbabilityMeasure μ := finiteWeightMeasure_isProbability w hw0 hw1
+  let : IsProbabilityMeasure μ := finiteWeightMeasure_isProbability w hw0 hw1
   have hmeas : AEMeasurable g μ := AEMeasurable.of_discrete
   have hmem : ∀ᵐ a ∂μ, g a ∈ Set.Icc lo hi := Filter.Eventually.of_forall hg
   have hsub := hasSubgaussianMGF_of_mem_Icc (μ := μ) hmeas hmem

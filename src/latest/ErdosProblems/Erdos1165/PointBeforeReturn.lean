@@ -766,13 +766,15 @@ theorem tendsto_renewalSummand_tsum (x : Point) :
           mul_le_mul_of_nonneg_left hA (abs_nonneg _)
         _ = (planarPotentialKernel x + 1) *
             |firstPairDifference x (k + 1)| := mul_comm _ _
-    · simp [renewalSummand, hk, B]
+    · simp only [Real.norm_eq_abs]
+      rw [renewalSummand, if_neg hk, abs_zero]
+      dsimp [B]
       exact mul_nonneg (by linarith [planarPotentialKernel_nonneg x]) (abs_nonneg _)
   have ht := tendsto_tsum_of_dominated_convergence hB hpoint hbound
   convert ht using 1
   rw [tsum_mul_right]
   rw [tsum_firstPairDifference_succ]
-  ring
+  ring_nf
 
 theorem potentialKernel_probability_equation {x : Point} (hx : x ≠ 0) :
     planarPotentialKernel x =

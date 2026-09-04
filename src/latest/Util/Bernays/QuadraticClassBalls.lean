@@ -14,7 +14,7 @@ def IdealClassBall (R : Type*) [CommRing R] [IsDomain R] (C : ClassGroup R) (N :
 
 theorem natCard_idealClassBall_zero {R : Type*} [CommRing R] [IsDomain R]
     [Ring.HasFiniteQuotients R] (C : ClassGroup R) : Nat.card (IdealClassBall R C 0) = 0 := by
-  haveI : IsEmpty (IdealClassBall R C 0) := ⟨fun I => (not_le_of_gt I.1.cardQuot_pos) I.2.2⟩
+  have : IsEmpty (IdealClassBall R C 0) := ⟨fun I => (not_le_of_gt I.1.cardQuot_pos) I.2.2⟩
   simp
 
 theorem exists_principal_generator_norm {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
@@ -23,7 +23,7 @@ theorem exists_principal_generator_norm {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       ∃ z : QuadraticAlgebra ℤ d b, ∃ hz : z ≠ 0, I * J = InvertibleIdeal.principal z hz ∧
         z.norm.natAbs = (I : Ideal (QuadraticAlgebra ℤ d b)).cardQuot *
           (J : Ideal (QuadraticAlgebra ℤ d b)).cardQuot := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I J hc
   have hclass : (I * J).idealClass = 1 := by rwa [InvertibleIdeal.idealClass_mul]
   obtain ⟨z, hz, heq⟩ := (InvertibleIdeal.idealClass_eq_one_iff (I * J)).mp hclass
@@ -37,7 +37,7 @@ theorem exists_classBall_embedding_normBall {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     letI := quadraticOrderIsDomain hD
     ∀ C : ClassGroup (QuadraticAlgebra ℤ d b), ∃ m : ℕ, 0 < m ∧
       ∀ N : ℕ, Nonempty (IdealClassBall (QuadraticAlgebra ℤ d b) C N ↪ QuadraticNormBall d b (m * N)) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C
   obtain ⟨J, hJ⟩ := InvertibleIdeal.idealClass_surjective C⁻¹
   let m := (J : Ideal (QuadraticAlgebra ℤ d b)).cardQuot
@@ -68,10 +68,10 @@ theorem finite_idealClassBall {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     ∀ C : ClassGroup (QuadraticAlgebra ℤ d b), ∀ N : ℕ,
       Finite (IdealClassBall (QuadraticAlgebra ℤ d b) C N) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C N
   obtain ⟨m, _, hm⟩ := exists_classBall_embedding_normBall hD C
-  letI := finite_quadraticNormBall hD (m * N)
+  let := finite_quadraticNormBall hD (m * N)
   obtain ⟨e⟩ := hm N
   exact Finite.of_injective e e.injective
 
@@ -79,12 +79,12 @@ theorem exists_natCard_idealClassBall_le {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     ∀ C : ClassGroup (QuadraticAlgebra ℤ d b), ∃ B : ℕ, 0 < B ∧ ∀ N : ℕ, 0 < N →
       Nat.card (IdealClassBall (QuadraticAlgebra ℤ d b) C N) ≤ B * N := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C
   obtain ⟨m, _, hm⟩ := exists_classBall_embedding_normBall hD C
   refine ⟨36 * (m + 1), by positivity, ?_⟩
   intro N hN
-  letI := finite_quadraticNormBall hD (m * N)
+  let := finite_quadraticNormBall hD (m * N)
   obtain ⟨e⟩ := hm N
   have hcard := (Nat.card_le_card_of_injective e e.injective).trans (natCard_quadraticNormBall_le hD (m * N))
   exact hcard.trans (by nlinarith)
@@ -94,8 +94,8 @@ theorem exists_uniform_natCard_idealClassBall_le {d b : ℤ} (hD : b ^ 2 + 4 * d
     ∃ B : ℕ, 0 < B ∧ ∀ C : ClassGroup (QuadraticAlgebra ℤ d b), ∀ N : ℕ,
       Nat.card (IdealClassBall (QuadraticAlgebra ℤ d b) C N) ≤ B * N := by
   classical
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
   choose B hBpos hB using exists_natCard_idealClassBall_le hD
   refine ⟨∑ C, B C, ?_, ?_⟩
   · exact (hBpos 1).trans_le (Finset.single_le_sum (fun _ _ => Nat.zero_le _) (Finset.mem_univ 1))

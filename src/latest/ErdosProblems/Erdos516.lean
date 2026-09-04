@@ -112,13 +112,13 @@ private lemma norm_le_maxModulus_of_norm_le {f : ℂ → ℂ} (hf : Differentiab
 
 private lemma minModulus_nonneg {f : ℂ → ℂ} {r : ℝ} (hr : 0 ≤ r) :
     0 ≤ minModulus r f := by
-  letI := circle_nonempty hr
+  let := circle_nonempty hr
   exact le_ciInf fun z ↦ norm_nonneg (f z)
 
 private lemma minModulus_le_maxModulus {f : ℂ → ℂ} {r c : ℝ} {a : ℕ} (hr : 0 ≤ r)
     (hbound : ∀ z, ‖f z‖ ≤ c * rexp (‖z‖ ^ a)) :
     minModulus r f ≤ maxModulus r f := by
-  letI := circle_nonempty hr
+  let := circle_nonempty hr
   let z : {z : ℂ // ‖z‖ = r} := ⟨(r : ℂ), by simp [Real.norm_eq_abs, abs_of_nonneg hr]⟩
   calc
     minModulus r f ≤ ‖f z‖ := ciInf_le (by exact ⟨0, by rintro _ ⟨w, rfl⟩; exact norm_nonneg (f w)⟩) z
@@ -341,7 +341,7 @@ private lemma maxModulus_exp_le_maximalTerm_shift {f : ℂ → ℂ} {a : ℕ →
     have hs := Real.summable_exp_nat_mul_iff.mpr (neg_lt_zero.mpr hh)
     simpa only [Nat.cast_comm, mul_neg, neg_mul, neg_neg] using hs
   let C : ℝ := ∑' k : ℕ, Real.exp (-(k : ℝ) * h)
-  letI := circle_nonempty (Real.exp_nonneg σ)
+  let := circle_nonempty (Real.exp_nonneg σ)
   rw [maxModulus]
   apply ciSup_le
   intro z
@@ -548,7 +548,7 @@ private lemma logLift_sub_gapHead_norm_le {f : ℂ → ℂ} {a : ℕ → ℂ}
     ring
   have hvSum : Summable v := hgeom.mul_left B
   have hMnonneg : 0 ≤ maxModulus (Real.exp τ) f := by
-    letI := circle_nonempty (Real.exp_nonneg τ)
+    let := circle_nonempty (Real.exp_nonneg τ)
     exact (norm_nonneg (f (Real.exp τ : ℂ))).trans
       (le_ciSup (maxModulus_bddAbove hbound)
         (⟨(Real.exp τ : ℂ), by simp⟩ : {z : ℂ // ‖z‖ = Real.exp τ}))
@@ -2429,7 +2429,7 @@ private lemma exists_common_log_shift { ι : Type* } [DecidableEq ι]
     intro α hα
     simp [G]
   let μ : Measure ℝ := volume.restrict (Set.Ioc left right)
-  letI : MeasureTheory.IsProbabilityMeasure μ :=
+  let : MeasureTheory.IsProbabilityMeasure μ :=
     ⟨by simp [μ, left, right]; norm_num⟩
   have hGint : Integrable G μ := by
     change IntegrableOn G (Set.Ioc left right) volume
@@ -2714,7 +2714,7 @@ private lemma exponentCanonicalProductAway_hasProdLocallyUniformly {n : ℕ → 
       ‖if k = j then (0 : ℂ) else -(ζ ^ 2 / (n (k + 1) : ℂ) ^ 2)‖ ≤ u k := by
     filter_upwards with k ζ hζ
     split_ifs
-    · simp [u]
+    · simp only [norm_zero]
       positivity
     · have hζB : ‖ζ‖ ≤ B := hB ζ hζ
       simp only [norm_neg, norm_div, norm_pow, _root_.norm_natCast, u, one_div]
@@ -2737,7 +2737,10 @@ private lemma exponentCanonicalProductAway_differentiable {n : ℕ → ℕ}
     intro N
     apply DifferentiableOn.fun_finsetProd
     intro k hk
-    by_cases hkj : k = j <;> simp [hkj] <;> fun_prop
+    by_cases hkj : k = j
+    · simp [hkj]
+    · simp only [hkj, ↓reduceIte, differentiableOn_const_add_iff]
+      fun_prop
   rw [← differentiableOn_univ]
   exact hprod.differentiableOn (Filter.Eventually.of_forall hdiff) isOpen_univ
 
@@ -2855,7 +2858,7 @@ private lemma integerTailPartial_formula (m N : ℕ) :
       simp only [Finset.range_zero, Finset.prod_empty, Nat.factorial_zero, Nat.cast_one,
         Nat.zero_add, one_mul]
       field_simp
-      ring
+      ring_nf
   | succ N ih =>
       rw [Finset.prod_range_succ, ih]
       have h₁ : 2 * m + (N + 1) = (2 * m + N) + 1 := by omega
@@ -2920,7 +2923,7 @@ private lemma integerTailProduct_formula (m : ℕ) :
         intro i hi
         convert tendsto_add_mul_div_add_mul_atTop_nhds
           (𝕜 := ℝ) (m + 1 + i : ℝ) (1 + i : ℝ) 1 one_ne_zero using 1 <;>
-          ext N <;> push_cast <;> ring)
+          ext N <;> push_cast <;> ring_nf)
     simpa [b] using h
   have hq : Tendsto q atTop
       (𝓝 ((m.factorial : ℝ) ^ 2 / ((2 * m).factorial : ℝ))) := by
@@ -3697,7 +3700,7 @@ private lemma eventually_one_lt_maxModulus {f : ℂ → ℂ} (hf : Differentiabl
 private lemma maxModulus_exp_le_growth {f : ℂ → ℂ} {c : ℝ} {A : ℕ}
     (hbound : ∀ z, ‖f z‖ ≤ c * Real.exp (‖z‖ ^ A)) (σ : ℝ) :
     maxModulus (Real.exp σ) f ≤ c * Real.exp ((Real.exp σ) ^ A) := by
-  letI := circle_nonempty (Real.exp_nonneg σ)
+  let := circle_nonempty (Real.exp_nonneg σ)
   rw [maxModulus]
   apply ciSup_le
   intro z
@@ -3888,7 +3891,7 @@ private lemma localization_tail_norm_le_half {E B q L G r x : ℝ}
       _ = Real.exp (-4 * L) * G := by
         rw [← Real.exp_add]
         congr 1
-        ring
+        ring_nf
   have htwoG : 2 * G ≤ Real.exp ((5 - r / 2) * L) := by
     calc
       2 * G = Real.exp (Real.log (2 * G)) :=
@@ -4041,7 +4044,7 @@ private lemma exists_phase_centers_with_log_lower {f : ℂ → ℂ} {n : ℕ →
       dsimp [μ]
       rw [← Real.exp_nat_mul, mul_assoc, ← Real.exp_add]
       congr 1
-      ring
+      ring_nf
     rw [hBdef]
     simpa only [heq] using hjterm
   have hnBound : (n j : ℝ) * (h - d) ≤ (q - 1) * L + Real.log G := by
@@ -4106,7 +4109,7 @@ private lemma exists_phase_centers_with_log_lower {f : ℂ → ℂ} {n : ℕ →
     dsimp [center]
     rw [mul_assoc, ← Complex.exp_add]
     congr 1
-    ring
+    ring_nf
   let H : κ → ℂ := fun q =>
     ∑ k ∈ s, a k * Complex.exp ((n k : ℂ) * center q)
   let P : κ → ℝ := fun q => turanFactor s.card (phaseM q)
@@ -4178,7 +4181,7 @@ private lemma tendsto_scale_weighted_gap (A : ℕ) :
       filter_upwards with x
       simp only [Real.rpow_one]
       congr 1
-      ring)
+      ring_nf)
   have harg : Tendsto (fun x : ℝ => 2 * (A : ℝ) * Real.exp (-x / 4))
       atTop (𝓝 0) := by
     simpa using hH.const_mul (2 * (A : ℝ))

@@ -35,7 +35,7 @@ theorem edgeIntersectionGraph_adj_iff (H : Hypergraph W) (e f : H.edges) :
     (edgeIntersectionGraph H).Adj e f ↔ e ≠ f ∧ (e.1 ∩ f.1).Nonempty := by
   constructor;
   · intro h;
-    cases h.2 <;> simp_all +decide [ edgeIntersectionGraph ];
+    cases h.2 <;> simp_all +decide only [ne_eq];
     rwa [ Set.inter_comm ];
   · simp +contextual [ edgeIntersectionGraph ]
 
@@ -136,7 +136,7 @@ theorem InducedEdgeIntersectionSevenCycle.inter_subset_core
     (c : InducedEdgeIntersectionSevenCycle H)
     {i j : Fin 7} (hij : i ≠ j) :
     (c.edge i).1 ∩ (c.edge j).1 ⊆ Set.range c.core := by
-  intro x hx; by_cases h_cases : j = i + 1 ∨ i = j + 1 <;> simp_all +decide;
+  intro x hx; by_cases h_cases : j = i + 1 ∨ i = j + 1 <;> simp_all +decide only [Set.mem_range];
   · cases' h_cases with h_cases h_cases;
     · use i + 1;
       apply hlin;

@@ -80,7 +80,8 @@ theorem exists_odd_cycle_aux {V : Type*} (G : SimpleGraph V) (n : ℕ) :
     obtain ⟨i, j, hij, hjn, hx⟩ : ∃ i j, i < j ∧ j < n ∧ w.getVert i = w.getVert j := by
       convert! walk_vertex_repeat w hw_cycle _;
       · exact hw.symm;
-      · rcases w with ( _ | ⟨ _, _, w ⟩ ) <;> simp_all +decide;
+      · rcases w with ( _ | ⟨ _, _, w ⟩ ) <;> simp_all +decide only [SimpleGraph.Walk.length_cons, Nat.reduceLeDiff, SimpleGraph.Walk.length_nil,
+    zero_add, Nat.not_ofNat_le_one];
         · grind +extAll;
         · exact absurd ‹G.Adj v v› ( by simp +decide );
         · rcases n with ( _ | _ | _ | n ) <;> simp_all +arith +decide;
@@ -132,7 +133,7 @@ theorem decomp_amalg (h : ReconOK F)
     exact ⟨ ed, Finset.mem_filter.mpr ⟨ Finset.mem_univ _, Relation.ReflTransGen.refl ⟩, hbrid.1 ⟩
   have hgT : ∃ e ∈ Sᶜ, w ∈ e.1 := by
     use f;
-    simp +zetaDelta at *;
+    simp +zetaDelta only [Finset.mem_compl] at *;
     exact ⟨ bridge_ereach_false hlin w ed f hbrid.1 hwf ( Ne.symm hfne ) hbrid.2, hwf ⟩
   have hcov : ∀ v : F.V, IncS S v ∨ (∃ e ∈ Sᶜ, v ∈ e.1) := by
     intro v; specialize hno_iso v; simp_all +decide [ FTS.Isolated ] ;
@@ -198,10 +199,10 @@ theorem cycle_getVert_inj {V : Type*} {G : SimpleGraph V} {x : V} {c : G.Walk x 
     have := List.nodup_iff_injective_get.mp h_tail_nodup;
     have := @this ⟨ i, by
       grind ⟩ ⟨ j, by
-      simp +decide [ hj ] ⟩ ; simp_all +decide
+      simp +decide [ hj ] ⟩ ; simp_all +decide only [ne_eq]
     generalize_proofs at *;
     grind +suggestions;
-  rcases i with ( _ | i ) <;> rcases j with ( _ | j ) <;> simp_all +decide;
+  rcases i with ( _ | i ) <;> rcases j with ( _ | j ) <;> simp_all +decide only [Nat.add_right_cancel_iff];
   · specialize h_tail_nodup j ( c.length - 1 ) ( by linarith ) ( by omega ) ( by omega ) ; simp_all +decide [ Nat.sub_add_cancel hi ];
   · grind +suggestions;
   · exact Classical.not_not.1 fun h' => h_tail_nodup i j ( Nat.lt_of_succ_lt hi ) ( Nat.lt_of_succ_lt hj ) h' h
@@ -218,7 +219,7 @@ theorem coreGraph_colorable (F : FTS) (pr : {e : Finset F.V // e ∈ F.edges} �
   set m := c.length with hm
   have hm3 : 3 ≤ m := by
     exact hc.three_le_length
-  haveI : NeZero m := ⟨by omega⟩
+  have : NeZero m := ⟨by omega⟩
   generalize_proofs at *;
   -- Build a Berge cycle of length `m` in `F`.
   obtain ⟨v', e', hv', he'⟩ : ∃ (v' : ZMod m → F.V) (e' : ZMod m → {e : Finset F.V // e ∈ F.edges}),
@@ -235,7 +236,7 @@ theorem coreGraph_colorable (F : FTS) (pr : {e : Finset F.V // e ∈ F.edges} �
         rwa [ Nat.mod_eq_of_lt ( lt_of_le_of_ne ( Nat.succ_le_of_lt ( show i.val < c.length from i.val_lt ) ) ‹_› ) ];
       choose e' he' using fun i => h_adj i |>.2;
       use fun i => (c.getVert i.val : F.V), e';
-      simp_all +decide [ ZMod.val_add ];
+      simp_all +decide only [ne_eq, implies_true, true_and];
       rcases m with ( _ | _ | m ) <;> simp_all +decide [ ZMod.val ];
   -- Show that `v'` and `e'` satisfy the conditions of a Berge cycle.
   have hv'_inj : Function.Injective v' := by
@@ -257,8 +258,8 @@ theorem coreGraph_colorable (F : FTS) (pr : {e : Finset F.V // e ∈ F.edges} �
       have h_core_eq : ∀ i, {v' i, v' (i + 1)} = (e' i).1.erase (pr (e' i)) := by
         intros i
         apply Finset.eq_of_subset_of_card_le (h_core i);
-        rw [ h_core_card i, Finset.card_insert_of_notMem, Finset.card_singleton ] ; simp +decide [ hv'_inj.eq_iff ];
-        exact by haveI := Fact.mk ( by linarith : 1 < m ) ; exact by simp +decide ;
+        rw [ h_core_card i, Finset.card_insert_of_notMem, Finset.card_singleton ] ; simp +decide only [Finset.mem_singleton];
+        exact by have := Fact.mk ( by linarith : 1 < m ) ; exact by simp +decide ;
       exact ⟨ h_core_eq i ▸ rfl, h_core_eq j ▸ rfl ⟩;
     have h_core_eq : v' j ∈ ({v' i, v' (i + 1)} : Finset F.V) ∧ v' (j + 1) ∈ ({v' i, v' (i + 1)} : Finset F.V) := by
       grind;
@@ -312,7 +313,7 @@ theorem core_edge_mem (F : FTS) (pr : {e : Finset F.V // e ∈ F.edges} → F.V)
     (a b : CoreV F pr) (ed : {e : Finset F.V // e ∈ F.edges})
     (hab : a ≠ b) (hae : (a : F.V) ∈ ed.1) (hbe : (b : F.V) ∈ ed.1) :
     Sym2.mk (a) (b) ∈ (coreGraph F pr).edgeFinset := by
-  simp +decide [ SimpleGraph.mem_edgeFinset, SimpleGraph.mem_edgeSet, coreGraph ];
+  simp +decide only [SimpleGraph.mem_edgeFinset, SimpleGraph.mem_edgeSet];
   exact ⟨ Subtype.coe_injective.ne hab, ed.1, hae, ed.2, hbe ⟩
 
 /-

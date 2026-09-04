@@ -23,7 +23,7 @@ theorem exists_squareBadPrime_natPacket {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
         (∀ p ∈ P, p.Prime ∧ discriminantCharacter (b ^ 2 + 4 * d) hD.ne p ≠ -1 ∧
           squareBadPrime hD H p) ∧ R < ∑ p ∈ P, (p : ℝ)⁻¹ := by
   classical
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro H hH R
   obtain ⟨S, hS, hmass⟩ := exists_squareBadPrimePacket hD H hH R
   refine ⟨S.image (fun s : SplitPrime d b => s.1), ?_, ?_⟩
@@ -40,8 +40,8 @@ theorem squareBadPrime_few_values_limit {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       Tendsto (fun N : ℕ =>
         ((fewPrimeFactorValues (fun p : ℕ => discriminantCharacter (b ^ 2 + 4 * d) hD.ne p = -1)
           (squareBadPrime hD H) k N).card : ℝ) / scale N) atTop (𝓝 0) := by
-  letI := quadraticOrderIsDomain hD
-  letI : NeZero (discriminantLevel (b ^ 2 + 4 * d)) := ⟨(discriminantLevel_pos hD.ne).ne'⟩
+  let := quadraticOrderIsDomain hD
+  let : NeZero (discriminantLevel (b ^ 2 + 4 * d)) := ⟨(discriminantLevel_pos hD.ne).ne'⟩
   intro H hH k
   exact fewPrimeFactorValues_div_scale_tendsto_zero _ (discriminantCharacter_sq _ hD.ne)
     (discriminantCharacter_ne_one hD) _ (exists_squareBadPrime_natPacket hD H hH) k

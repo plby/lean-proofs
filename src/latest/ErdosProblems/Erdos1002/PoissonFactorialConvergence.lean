@@ -186,8 +186,11 @@ private lemma bonferroni_odd_le_indicator (j q x : ℕ) :
   · have hy : 0 < x - j := Nat.sub_pos_of_lt hx
     rw [if_neg hx.ne']
     rw [bonferroni, alternating_sum_choose_eq (x - j) (2 * q + 1) hy]
-    simp [pow_succ, pow_mul]
-    positivity
+    rw [show (-1 : ℝ) ^ (2 * q + 1) = -1 by
+      rw [pow_add, pow_mul]
+      norm_num]
+    exact mul_nonpos_of_nonneg_of_nonpos (Nat.cast_nonneg _)
+      (mul_nonpos_of_nonpos_of_nonneg (by norm_num) (Nat.cast_nonneg _))
 
 /-- Even Bonferroni truncations lie above the singleton indicator. -/
 private lemma indicator_le_bonferroni_even (j q x : ℕ) :

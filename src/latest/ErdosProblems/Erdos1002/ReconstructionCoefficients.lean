@@ -474,12 +474,12 @@ theorem fourierCoeff_allDenominatorReconstructionL2
   have hprefixC := congrArg (fun x : ℝ ↦ (x : ℂ)) hprefixR
   push_cast at hprefixC
   by_cases hN : (N : ℕ) ∣ n
-  · simp [hN] at hprefixC
+  · simp only [one_div, mul_ite, mul_zero] at hprefixC
     rw [if_pos hN, hprefixC]
     simp only [midpointDivisorMass, if_pos hN]
     push_cast
     ring
-  · simp [hN] at hprefixC
+  · simp only [one_div, mul_ite, mul_zero] at hprefixC
     rw [if_neg hN, hprefixC]
     simp only [midpointDivisorMass, if_neg hN]
     push_cast
@@ -595,13 +595,13 @@ theorem fourierCoeff_allDenominatorReconstructionL2_int
     push_cast at hprefixC
     by_cases hN : (N : ℕ) ∣ n.natAbs
     · have hNZ : (N : ℤ) ∣ n := Int.natCast_dvd.mpr hN
-      simp [hN] at hprefixC
+      simp only [one_div, mul_ite, mul_zero] at hprefixC
       rw [if_pos hNZ, hprefixC]
       simp only [midpointDivisorMass, if_pos hN]
       push_cast
       ring
     · have hNZ : ¬(N : ℤ) ∣ n := fun h ↦ hN (Int.natCast_dvd.mp h)
-      simp [hN] at hprefixC
+      simp only [one_div, mul_ite, mul_zero] at hprefixC
       rw [if_neg hNZ, hprefixC]
       simp only [midpointDivisorMass, if_neg hN]
       push_cast

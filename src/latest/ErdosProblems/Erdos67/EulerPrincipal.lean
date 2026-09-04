@@ -108,7 +108,7 @@ theorem principalTwistSeries_eq_LSeries_mul_prod_of_dvd_pow
     principalTwistSeries h r s =
       LSeries h s *
         ∏ p ∈ r.primeFactors, (1 - (p : ℂ) ^ (-s)) := by
-  letI : NeZero r := ⟨hr0⟩
+  let : NeZero r := ⟨hr0⟩
   rw [principalTwistSeries_eq_mul_prod_primeFactors hh hs]
   congr 1
   apply Finset.prod_congr rfl

@@ -51,7 +51,7 @@ theorem eventually_specialRegularAllowedPrimeLog_lower
     {p : ℕ} (hp : p.Prime) (hp4 : p % 4 = 3) :
     ∀ᶠ Q : ℕ in atTop,
       (1 / 8 : ℝ) * (Q : ℝ) ≤ specialRegularAllowedPrimeLog p Q := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hp2 : p ≠ 2 := by omega
   let C : ℝ := squareUnitThetaSum p 2
   have hC : ∀ᶠ Q : ℕ in atTop, 8 * C ≤ (Q : ℝ) :=
@@ -613,7 +613,7 @@ theorem specialRegularSquarefreeKernels_subset
 theorem specialSquarefreeKernelLower : SpecialSquarefreeKernelLower := by
   refine ⟨regularKernelLowerConstant, regularKernelLowerConstant_pos, ?_⟩
   intro p hp hp4
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   filter_upwards [eventually_specialRegularSquarefreeKernels_uniform_lower hp4]
       with N hN
   exact hN.trans (by
@@ -655,7 +655,7 @@ theorem specialBernaysLower_of_squareSubgroup_top
     SpecialBernaysLower := by
   refine ⟨regularKernelLowerConstant, regularKernelLowerConstant_pos, ?_⟩
   intro p hp hp4
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   exact eventually_specialFormCount_uniform_lower_of_squareSubgroup_top
     hp4 (hsqtop p hp4)
 

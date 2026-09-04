@@ -1067,7 +1067,7 @@ theorem weightedTSum_dyadic_le
       (∏ p ∈ (2 ^ (k + 2) + 1).primesBelow,
         ∑' j : ℕ, WeightedTauInv448.weightedFunction u k (p ^ j) /
           (((p ^ j : ℕ) : ℝ))) ≤ _
-    convert h using 1 <;> ring
+    convert h using 1 <;> ring_nf
   have hhybrid : 0 ≤ hybridCorrectionWeight u (omegaWeightAF k) q :=
     hybridCorrectionWeight_nonneg u (omegaWeightAF k)
       huOne (omegaWeightAF_one k) huNonneg (omegaWeightAF_nonneg k)

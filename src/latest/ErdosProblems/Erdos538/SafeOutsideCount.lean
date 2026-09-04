@@ -26,7 +26,7 @@ def SafeOutside
     {K : Type*} [Field K] [Fintype K] (d : ℕ) :
     Nat.card ((Fin d → K) × K) = Nat.card K ^ (d + 1) := by
   rw [Nat.card_prod, Nat.card_fun]
-  simp
+  simp only [Nat.card_eq_fintype_card, Fintype.card_fin]
   rw [pow_succ]
 
 /-- The bad outside-label set has exactly `q^(d-1)` elements. -/

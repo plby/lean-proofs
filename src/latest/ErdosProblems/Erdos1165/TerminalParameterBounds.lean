@@ -120,7 +120,7 @@ private theorem trajectoryFrom_firstDirection_shift (omega : StepPath) (n : ℕ)
   rw [hone] at hshift
   unfold trajectoryFrom
   rw [← hshift]
-  abel
+  abel_nf
 
 private theorem firstPositiveReturnTime_spec
     {omega : StepPath} {n : ℕ} (h : firstPositiveReturnTime omega = n) :

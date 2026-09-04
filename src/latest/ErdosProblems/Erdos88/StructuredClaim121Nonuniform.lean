@@ -59,11 +59,11 @@ theorem smallBall_productSlice_le_of_normalized_gaussianNonuniform
   let mu := Erdos88.Esseen.finiteUniformLaw (ProductSlicePoint P ell)
     (fun w ↦ X w / sigma)
   let nu := (gaussianQuadraticCenteredLaw f F).map (fun z ↦ z / sigma)
-  letI : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
+  let : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
     unfold gaussianQuadraticCenteredLaw
     exact Measure.isProbabilityMeasure_map
       ((continuous_quadraticPolynomial 0 f F).sub continuous_const).aemeasurable
-  letI : IsProbabilityMeasure nu := by
+  let : IsProbabilityMeasure nu := by
     dsimp only [nu]
     exact Measure.isProbabilityMeasure_map (by fun_prop)
   have heps : 0 < B / sigma := div_pos hB hsigma
@@ -249,7 +249,7 @@ theorem exists_eventual_productSlice_claim121_nonuniform_upper_threshold
   let sigma := Real.sqrt (2 * frobeniusSq F + vectorSqNorm f)
   obtain ⟨hleft, hraw⟩ :=
     hfourierN P ell G f hbucket hpart hbalanced hcoeff hRamsey
-  letI := hleft
+  let := hleft
   have hrobF : RobustRankAt 400 (rho * (n : ℝ) ^ 2) F := by
     exact hrob n hNrob (K + 1) P.bucket G (by omega)
       hpart.2.1 hpart.2.2 hbucket hRamsey
@@ -375,11 +375,11 @@ theorem smallBall_productSlice_ge_of_normalized_gaussianSmallBallRatio
   let mu := Erdos88.Esseen.finiteUniformLaw (ProductSlicePoint P ell)
     (fun w ↦ X w / sigma)
   let nu := (gaussianQuadraticCenteredLaw f F).map (fun z ↦ z / sigma)
-  letI : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
+  let : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
     unfold gaussianQuadraticCenteredLaw
     exact Measure.isProbabilityMeasure_map
       ((continuous_quadraticPolynomial 0 f F).sub continuous_const).aemeasurable
-  letI : IsProbabilityMeasure nu := by
+  let : IsProbabilityMeasure nu := by
     dsimp only [nu]
     exact Measure.isProbabilityMeasure_map (by fun_prop)
   have heps : 0 < B / sigma := div_pos hB hsigma
@@ -458,11 +458,11 @@ theorem smallBall_productSlice_ge_of_normalized_gaussianDensityRatio
         (Erdos88.Esseen.finiteUniformLaw (ProductSlicePoint P ell)
           (productSliceQuadratic P ell (-trace F) f F))
         ((10000 * K) * B) x := by
-  letI : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
+  let : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
     unfold gaussianQuadraticCenteredLaw
     exact Measure.isProbabilityMeasure_map
       ((continuous_quadraticPolynomial 0 f F).sub continuous_const).aemeasurable
-  letI : IsProbabilityMeasure
+  let : IsProbabilityMeasure
       ((gaussianQuadraticCenteredLaw f F).map (fun z ↦ z / sigma)) :=
     Measure.isProbabilityMeasure_map (by fun_prop)
   apply smallBall_productSlice_ge_of_normalized_gaussianSmallBallRatio

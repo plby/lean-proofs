@@ -84,8 +84,8 @@ private theorem solutions_finite_of_card_le_one
         simpa [IsSolution, subsum] using hx
       simp [hnone]
   | inr hnonempty =>
-      letI : Nonempty ι := hnonempty
-      letI : Subsingleton ι :=
+      let : Nonempty ι := hnonempty
+      let : Subsingleton ι :=
         Fintype.card_le_one_iff_subsingleton.mp hcard
       apply Set.Subsingleton.finite
       intro x hx y hy
@@ -393,11 +393,14 @@ private theorem collapsedTuple_mem_solutions
         ext i
         simp
       rw [expandBlock, himage]
+      have hjretained : j ∈ retained J j := by
+        simp [retained]
+      rw [if_pos hjretained]
       ext i
-      simp [retained]
+      simp only [Finset.mem_union, Finset.mem_erase, Finset.mem_univ, iff_true]
       by_cases hi : i ∈ J
       · exact Or.inl hi
-      · exact Or.inr ⟨fun hij => hi (hij ▸ hj), hi⟩
+      · exact Or.inr ⟨fun hij => hi (hij ▸ hj), by simp [retained, hi]⟩
     rw [hexpand]
     exact hx.1
   · intro L hL

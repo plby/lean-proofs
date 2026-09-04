@@ -109,7 +109,7 @@ theorem IsAcyclic.exists_bipartiteLeftVertex_adj_unique
   have hs : s.Nonempty := by
     obtain ⟨a, ha⟩ := ht
     exact ⟨.inl a, (mem_bipartitePruneVertices_inl r t a).mpr ha⟩
-  letI : Nonempty s := hs.to_subtype
+  let : Nonempty s := hs.to_subtype
   obtain ⟨q, hq⟩ :=
     SimpleGraph.IsAcyclic.exists_vertex_adj_unique
       (hG.induce (↑s : Set (A ⊕ P)))

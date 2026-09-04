@@ -25,7 +25,7 @@ theorem natCard_associate_fiber_le {R X Y : Type*} [CommMonoid R] [Finite Rˣ]
     apply hz
     apply (u x).isUnit.mul_right_cancel
     rw [hu x, h, hu w]
-  · haveI : IsEmpty {x : X // f x = y} := not_nonempty_iff.mp hne
+  · have : IsEmpty {x : X // f x = y} := not_nonempty_iff.mp hne
     simp
 
 theorem natCard_le_units_mul_of_associate_fibers {R X Y : Type*}
@@ -34,7 +34,7 @@ theorem natCard_le_units_mul_of_associate_fibers {R X Y : Type*}
     (hassoc : ∀ x y, f x = f y → Associated (z x) (z y)) :
     Nat.card X ≤ Nat.card Rˣ * Nat.card Y := by
   classical
-  letI := Fintype.ofFinite Y
+  let := Fintype.ofFinite Y
   calc
     Nat.card X = ∑ y : Y, Nat.card {x : X // f x = y} := by
       rw [← Nat.card_congr (Equiv.sigmaFiberEquiv f), Nat.card_sigma]
@@ -68,7 +68,7 @@ theorem natCard_eq_units_mul_of_associate_fibers {R X Y : Type*}
     (hstable : ∀ x : X, ∀ u : Rˣ, ∃ w : X, z w = z x * u ∧ f w = f x) :
     Nat.card X = Nat.card Rˣ * Nat.card Y := by
   classical
-  letI := Fintype.ofFinite Y
+  let := Fintype.ofFinite Y
   calc
     Nat.card X = ∑ y : Y, Nat.card {x : X // f x = y} := by
       rw [← Nat.card_congr (Equiv.sigmaFiberEquiv f), Nat.card_sigma]

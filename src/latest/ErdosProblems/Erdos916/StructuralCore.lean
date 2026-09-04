@@ -205,7 +205,7 @@ theorem connected_structural_of_vertexTwoConnectedCore
                 exact (not_ne_iff.mp hac).trans hbc.symm
               exact ⟨⟨b, hbc⟩⟩
           change (deleteVertex H c).Connected
-          letI : Nonempty {w : W // w ≠ c} := hnonempty
+          let : Nonempty {w : W // w ≠ c} := hnonempty
           exact SimpleGraph.Connected.mk (not_not.mp (hncut c))
         exact @hcore W _ _ H _ x₀ hcard htwo hdeg
 
@@ -250,8 +250,8 @@ theorem structural_of_vertexTwoConnectedCore
     HasWheelWitness H ∨ Nonempty (K23Reduction H) := by
   classical
   let C : H.ConnectedComponent := H.connectedComponentMk (Classical.choice inferInstance)
-  letI : Fintype C := Fintype.ofFinite C
-  letI : DecidableRel C.toSimpleGraph.Adj := Classical.decRel _
+  let : Fintype C := Fintype.ofFinite C
+  let : DecidableRel C.toSimpleGraph.Adj := Classical.decRel _
   obtain ⟨x, hx⟩ := C.nonempty_supp
   let x₀ : C := ⟨x, hx⟩
   have hcardC : 2 ≤ Fintype.card C :=
@@ -295,7 +295,7 @@ theorem structural_of_vertexTwoConnectedCore_of_card
     (hcard : 1 ≤ Fintype.card W)
     (hdeg : ∀ w : W, 3 ≤ H.degree w) :
     HasWheelWitness H ∨ Nonempty (K23Reduction H) := by
-  letI : Nonempty W := Fintype.card_pos_iff.mp hcard
+  let : Nonempty W := Fintype.card_pos_iff.mp hcard
   exact structural_of_vertexTwoConnectedCore hcore H hdeg
 
 end Erdos916

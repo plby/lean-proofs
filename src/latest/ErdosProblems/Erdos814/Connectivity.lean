@@ -90,7 +90,7 @@ lemma exists_small_minDegree_side_of_not_connectedOn
       U ⊆ A ∧ U ≠ A ∧ HasMinDegreeOn G U k ∧ 2 * U.card ≤ A.card := by
   classical
   let H : SimpleGraph (↑A : Set V) := G.induce (↑A : Set V)
-  letI : Nonempty (↑A : Set V) := hmin.1.to_subtype
+  let : Nonempty (↑A : Set V) := hmin.1.to_subtype
   have hnconnected : ¬ H.Connected := by
     simpa [ConnectedOn, H] using hconn
   have hnpreconnected : ¬ H.Preconnected := by

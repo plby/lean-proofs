@@ -212,7 +212,7 @@ theorem norm_primeAffineFamilyZeroDensity_selectedCarry_le_inv
           N W b (fun q : SelectedCFZFormIndex e => q.1) carry)
         (p : ℕ) s‖ ≤
       (1 : ℝ) / (p : ℝ) := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   rw [primeAffineFamilyZeroDensity_of_prime _ p.prop,
     Complex.norm_real, Real.norm_eq_abs,
     abs_of_nonneg
@@ -255,7 +255,7 @@ theorem norm_fixedFamilyPrimeSupportDensity_selectedCarry_assignment_le_inv_lcm
   · intro p _hp
     exact norm_nonneg _
   · intro p _hp
-    letI : NeZero (p : ℕ) :=
+    let : NeZero (p : ℕ) :=
       ⟨(Nat.prime_of_mem_primeFactors p.2).ne_zero⟩
     rw [Complex.norm_real, Real.norm_eq_abs,
       abs_of_nonneg
@@ -475,7 +475,7 @@ theorem selectedCFZCarryVectorRpowLocalMass_le
       1 +
         (selectedCFZCanonicalRankinEulerCoefficient e : ℝ) /
           ((p : ℕ) : ℝ) := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   let B : ℝ :=
     3 * ((p : ℕ) : ℝ) ^ (-(Real.log (R : ℝ))⁻¹)
   have hB0 : 0 ≤ B := by

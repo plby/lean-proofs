@@ -63,7 +63,7 @@ theorem fullDivisor_bcc_normalized_diagonal_le
   let delta : ℝ :=
     ((2 * H * q.primeFactors.card : ℕ) : ℝ) / ((2 ^ k : ℕ) : ℝ)
   let R : ℝ := ((2 * H : ℕ) : ℝ) ^ 2
-  letI : NeZero (q ^ k) := ⟨pow_ne_zero k (NeZero.ne q)⟩
+  let : NeZero (q ^ k) := ⟨pow_ne_zero k (NeZero.ne q)⟩
   have hfull0 : q ^ (k - 1) ≠ 0 := pow_ne_zero _ (NeZero.ne q)
   have hd (d : ℕ) (hdmem : d ∈ full) : NeZero d := by
     have hddiv : d ∣ q ^ (k - 1) := by
@@ -71,7 +71,7 @@ theorem fullDivisor_bcc_normalized_diagonal_le
     exact ⟨Nat.ne_of_gt (Nat.pos_of_dvd_of_pos hddiv
       (pow_pos (NeZero.pos q) _))⟩
   have ht (d : ℕ) (hdmem : d ∈ full) : NeZero (t d) := by
-    letI : NeZero d := hd d hdmem
+    let : NeZero d := hd d hdmem
     apply neZero_pow_div_q_mul hk
     simpa [full] using Nat.dvd_of_mem_divisors hdmem
   have hN (d : ℕ) (hdmem : d ∈ full) :
@@ -152,8 +152,8 @@ theorem fullDivisor_bcc_normalized_diagonal_le
     selected full (by simpa only [full] using hselected) χ hχ
     (fun d ↦ (primeExtension z d : ℂ)) id t hc hd ht hdH hN
     (fun i hi j hj hij ↦ by
-      letI : NeZero (t i) := ht i hi
-      letI : NeZero (t j) := ht j hj
+      let : NeZero (t i) := ht i hi
+      let : NeZero (t j) := ht j hj
       exact smoothFrequencyLayer_disjoint_of_smooth_complements
         (hN i hi) (hN j hj) (hsmooth i hi) (hsmooth j hj) hij)
     good B R delta (by positivity) hcard hgood' hbad
@@ -245,7 +245,7 @@ theorem fullDivisor_bcc_selected_card_le_of_discrepancy
     exact ⟨Nat.ne_of_gt (Nat.pos_of_dvd_of_pos hddiv
       (pow_pos (NeZero.pos q) _))⟩
   have ht (d : ℕ) (hdmem : d ∈ selected) : NeZero (t d) := by
-    letI : NeZero d := hd d hdmem
+    let : NeZero d := hd d hdmem
     apply neZero_pow_div_q_mul hk
     exact Nat.dvd_of_mem_divisors (hselected hdmem)
   have hN (d : ℕ) (hdmem : d ∈ selected) :

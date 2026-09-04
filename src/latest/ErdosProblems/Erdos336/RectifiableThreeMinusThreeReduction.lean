@@ -230,7 +230,7 @@ theorem stableV3_of_rectifiableThreeMinusThree_of_smaller
   obtain ⟨m, hm, π, hπ, hm37, B, hBA, hdense, hcover, α, hhalf⟩ :=
     minimalV3_counterexample_strong_nine_tenths_partial_rectification
       C t ht hzero hprimitive hdoub hnot hsmaller
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   have hBne : B.Nonempty := by
     rw [← Finset.card_pos]
     have : 0 < a := by omega
@@ -277,7 +277,7 @@ theorem stableV3_of_rectifiableThreeMinusThree_of_smaller
     hrect N (NeZero.pos N) B hBne hBaff m hm π hπ α hhalf hBthreshold
   rcases hBrank with
     ⟨n, hn, ρ, hρ, β, L, V, hL, hBouter, hfiber, hBcost⟩
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   have hAouterRaw := image_interval_of_subset_two_sub_one ρ hcover hBouter
   have hzA : 0 ∈ A := by
     rw [mem_exactPowerFinset]
@@ -391,13 +391,13 @@ theorem stableHighPowerStructureV3_of_rectifiableThreeMinusThree
   induction N using Nat.strong_induction_on with
   | h N ih =>
       intro hN
-      letI : NeZero N := ⟨hN.ne'⟩
+      let : NeZero N := ⟨hN.ne'⟩
       dsimp
       intro C t ht hzero hprimitive hdoub
       apply stableV3_of_rectifiableThreeMinusThree_of_smaller
         hrect C t ht hzero hprimitive hdoub
       intro m hm
-      letI : NeZero m := ⟨hm.ne'⟩
+      let : NeZero m := ⟨hm.ne'⟩
       dsimp
       intro hmN D hz hcard hp hd
       exact ih m hmN hm D t ht hz hp hd

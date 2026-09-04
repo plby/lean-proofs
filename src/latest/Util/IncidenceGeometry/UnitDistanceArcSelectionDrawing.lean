@@ -21,11 +21,11 @@ lemma UnitDistanceArcSelectionDrawing (P : Finset (EuclideanSpace ℝ (Fin 2))) 
   have hretained := UnitCircleRetainedIncidenceLowerBound P
   rcases UnitCircleRetainedArcQuotientDrawing P with
     ⟨ι, instF, instD, A, endpoint, hAcard, h_nondiag, h_multiplicity, hdraw⟩
-  letI : Fintype ι := instF
-  letI : DecidableEq ι := instD
+  let : Fintype ι := instF
+  let : DecidableEq ι := instD
   rcases EndpointPairMultiplicitySimpleGraph A endpoint h_nondiag h_multiplicity with
     ⟨G, hGfin, hhalf, hEdgeFinset⟩
-  letI : Fintype G.edgeSet := hGfin
+  let : Fintype G.edgeSet := hGfin
   rcases hdraw G hEdgeFinset with ⟨D, hlocal⟩
   refine ⟨G, hGfin, D, ?_, hlocal⟩
   have htwice :

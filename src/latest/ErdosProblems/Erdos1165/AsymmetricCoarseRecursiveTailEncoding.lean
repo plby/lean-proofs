@@ -354,7 +354,7 @@ theorem tsum_keyMass_eq_endpointRows
   unfold recursiveProfileEndpointRow
   apply Finset.sum_congr rfl
   intro chain _
-  letI (j : Fin code.1.returnCount) : Countable
+  let (j : Fin code.1.returnCount) : Countable
       (RecursiveProfileGapCode n (k + 1) y
         (profileRefinementTrees code.1.returnCount
           (profileSegmentValues profile.1 (k + 1)).tail chain j)
@@ -552,7 +552,7 @@ theorem tsum_fixedPrefixKeyMass_eq_endpointRows
   unfold recursiveProfileEndpointRow
   apply Finset.sum_congr rfl
   intro chain _
-  letI (j : Fin code.1.returnCount) : Countable
+  let (j : Fin code.1.returnCount) : Countable
       (RecursiveProfileGapCode n (k + 1) y
         (profileRefinementTrees code.1.returnCount
           (profileSegmentValues profile.1 (k + 1)).tail chain j)

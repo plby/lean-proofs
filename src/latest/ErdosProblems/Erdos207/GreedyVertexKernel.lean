@@ -43,8 +43,8 @@ theorem greedyKernel_map
   classical
   by_cases hA : S.available.Nonempty
   · have hA' : (mapGreedyState f S).available.Nonempty := hA.map
-    letI : Nonempty S.available := ⟨⟨hA.choose, hA.choose_spec⟩⟩
-    letI : Nonempty (mapGreedyState f S).available := ⟨⟨hA'.choose, hA'.choose_spec⟩⟩
+    let : Nonempty S.available := ⟨⟨hA.choose, hA.choose_spec⟩⟩
+    let : Nonempty (mapGreedyState f S).available := ⟨⟨hA'.choose, hA'.choose_spec⟩⟩
     let e : S.available ≃ (mapGreedyState f S).available :=
       Finset.equivMap (mapTripleEmbedding f) S.available
     have hsrc : greedyKernel F S = FiniteLaw.map (fun T : S.available ↦ greedyStep F S T.1) FiniteLaw.uniform := by

@@ -299,8 +299,8 @@ theorem exists_bounded_cutDecomposition_of_energy_le (ε : ℝ) (hε : 0 < ε)
       refine ⟨[], by simp, ?_, by simp⟩
       subst A
       intro S T
-      simp [matrixCutSum]
-      exact mul_nonneg hε.le (sq_nonneg _)
+      simp only [cutDecompositionMatrix_nil, sub_self]
+      simpa [matrixCutSum] using mul_nonneg hε.le (sq_nonneg (Fintype.card V : ℝ))
   | succ k ih =>
       by_cases hregular : IsCutRegular ε A
       · exact ⟨[], by simp, by simpa using hregular, by simp⟩
@@ -416,8 +416,8 @@ theorem exists_cutDecomposition_of_energy_le (ε : ℝ) (hε : 0 < ε)
       refine ⟨[], by simp, ?_⟩
       subst A
       intro S T
-      simp [matrixCutSum]
-      exact mul_nonneg hε.le (sq_nonneg _)
+      simp only [cutDecompositionMatrix_nil, sub_self]
+      simpa [matrixCutSum] using mul_nonneg hε.le (sq_nonneg (Fintype.card V : ℝ))
   | succ k ih =>
       by_cases hregular : IsCutRegular ε A
       · exact ⟨[], by simp, by simpa using hregular⟩

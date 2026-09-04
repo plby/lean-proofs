@@ -1785,7 +1785,7 @@ theorem three_le_incident_triangles_of_two_le_vertex_card
     exact (hullVertexTriangleFace_injective B p h).symm
   have hantiw : SignVectorArrangement.antipodalStrictFace Cv.face ≠ Cw.face := by
     exact (hullVertexTriangleFace_ne_antipodal_of_ne B p hvw.symm).symm
-  letI : Nonempty B := ⟨p⟩
+  let : Nonempty B := ⟨p⟩
   have hanti : Cv.face ≠
       SignVectorArrangement.antipodalStrictFace Cv.face :=
     (SignVectorArrangement.antipodalStrictFace_ne Cv.face).symm
@@ -1969,7 +1969,7 @@ theorem three_le_incident_triangles_of_vertex_card_eq_one
         (fun a : B ↦ ProjectiveArrangement.normalVec a.1) ↦ f.1 p) hfaces
     rw [hminusSelected, hantiSelected] at hs
     exact Bool.noConfusion hs
-  letI : Nonempty B := ⟨p⟩
+  let : Nonempty B := ⟨p⟩
   have hplusAnti : fplus ≠
       SignVectorArrangement.antipodalStrictFace fplus :=
     (SignVectorArrangement.antipodalStrictFace_ne fplus).symm

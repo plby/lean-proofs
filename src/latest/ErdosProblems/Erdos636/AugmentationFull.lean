@@ -178,9 +178,9 @@ lemma sub_le_uniformProbability_and_not
     (hB : uniformProbability B ≤ r) :
     q - r ≤ uniformProbability (fun ω ↦ A ω ∧ ¬ B ω) := by
   let C : Ω → Prop := fun ω ↦ A ω ∧ ¬ B ω
-  letI : DecidablePred A := Classical.decPred A
-  letI : DecidablePred B := Classical.decPred B
-  letI : DecidablePred C := Classical.decPred C
+  let : DecidablePred A := Classical.decPred A
+  let : DecidablePred B := Classical.decPred B
+  let : DecidablePred C := Classical.decPred C
   change q - r ≤ uniformProbability C
   let f : Ω → ℝ := fun ω ↦ if A ω then 1 else 0
   let g : Ω → ℝ := fun ω ↦
@@ -304,7 +304,7 @@ lemma uniformExpectation_tailBudget_le
       uniformExpectation (fun ω : Sample D s ↦ (increment P ω i) ^ 2) ≤ v) :
     uniformExpectation (tailBudget P (Q * Real.sqrt v)) ≤
       τ * (Real.sqrt v / Q) := by
-  letI : Nonempty (Sample D s) := HalfSample.sliceNonempty hcard
+  let : Nonempty (Sample D s) := HalfSample.sliceNonempty hcard
   change uniformExpectation (fun ω : Sample D s ↦
     ∑ i ∈ Finset.range τ,
       if Q * Real.sqrt v ≤ |increment P ω i| then
@@ -397,7 +397,7 @@ theorem exists_fullExposure_switching
       StrictMono idx ∧ idx 0 = 0 ∧ idx (Fin.last m) = τ ∧
       ∀ j : Fin m,
         sigma ≤ P.path ω (idx j.succ) - P.path ω (idx j.castSucc) := by
-  letI : Nonempty (Sample D s) := HalfSample.sliceNonempty hcard
+  let : Nonempty (Sample D s) := HalfSample.sliceNonempty hcard
   let geomFail : Sample D s → Prop := fun ω ↦
     tGeom ≤ CollisionCounting.eventCount (Finset.range (τ + 1))
       P.geometricBad ω
@@ -593,7 +593,7 @@ theorem exists_injective_subfamily_card_sq_le
         (C.card + 2 * (valueCollisionGraph C f).edgeFinset.card) := by
   classical
   let H := valueCollisionGraph C f
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   obtain ⟨S, hSind, hbound⟩ :=
     exists_indepSet_card_sq_le_card_mul_card_add_twice_edges H
   let Y : Finset A := S.image Subtype.val

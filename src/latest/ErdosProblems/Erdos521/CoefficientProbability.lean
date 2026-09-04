@@ -25,8 +25,7 @@ theorem pairedDirectionLaw_eq_prod : Pitman.pairedDirectionLaw = signLaw.prod si
   simp only [Measure.add_prod, Measure.prod_add, Measure.prod_smul_left,
     Measure.prod_smul_right, Measure.dirac_prod_dirac, Measure.add_apply,
     Measure.smul_apply]
-  simp [PMF.uniformOfFintype_apply, Fin.sum_univ_succ, Pitman.signPair, Pitman.step,
-    Set.indicator, Measure.dirac_apply' _ hs]
+  simp only [one_div, Measure.dirac_apply, smul_add]
   norm_num [ENNReal.smul_def]
   have hquarter : (2 : ℝ≥0∞)⁻¹ * 2⁻¹ = 4⁻¹ := by
     rw [← ENNReal.mul_inv] <;> norm_num

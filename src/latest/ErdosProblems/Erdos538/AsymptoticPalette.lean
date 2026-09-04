@@ -29,7 +29,7 @@ theorem exists_linear_density_capTwo_palette
     calc
       p ≤ 2 * (2 * k) := hple
       _ = 4 * k := by ring
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let m := p ^ 2 / 2
   have hd : 0 < k - 1 := by omega
   have hqsize : 2 * ((k - 1) + 1) ≤ Fintype.card (ZMod p) := by
@@ -80,7 +80,7 @@ theorem exists_balanced_linear_density_capTwo_palette
     calc
       p ≤ 2 * (2 * k) := hple
       _ = 4 * k := by ring
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hd : 0 < k - 1 := by omega
   have hqsize : 2 * ((k - 1) + 1) ≤ Fintype.card (ZMod p) := by
     rw [ZMod.card]

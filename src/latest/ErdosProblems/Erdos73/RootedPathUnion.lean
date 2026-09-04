@@ -22,7 +22,7 @@ theorem connected_induce_rooted_pathUnion {I V : Type*} {G : SimpleGraph V}
     · obtain ⟨i, hi, hxi⟩ := mem_biUnion.mp hx
       have hri : root ∈ (P i).vertexSet := (hroot i hi) ▸ (P i).source_mem_vertexSet
       exact GraphSubdivisionModel.path_reachable_in_superset (P i) (hP i hi) hxi hri
-  letI : Nonempty (R : Set V) := ⟨⟨root, hr⟩⟩
+  let : Nonempty (R : Set V) := ⟨⟨root, hr⟩⟩
   exact ⟨fun x y => (hreach x).trans (hreach y).symm⟩
 
 end

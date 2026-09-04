@@ -202,7 +202,7 @@ theorem tendsto_endpointProbability_zero (x : Point) :
   · convert (tendsto_one_div_add_atTop_nhds_zero_nat (𝕜 := ℝ)).const_mul 2 using 1
     · funext N
       ring
-    · ring
+    · ring_nf
 
 theorem drift_planarPotentialKernel (x : Point) :
     drift planarPotentialKernel x = if x = 0 then 1 else 0 := by

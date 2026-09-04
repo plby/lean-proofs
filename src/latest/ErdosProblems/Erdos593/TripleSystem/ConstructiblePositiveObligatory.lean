@@ -35,10 +35,10 @@ theorem intrinsic_isolatedReduction_isObligatory
     {V E : Type u} (F : TripleSystem V E) [Finite V] [Finite E]
     (hF : F.isolatedReduction.Intrinsic) : F.IsObligatory := by
   classical
-  letI : Fintype V := Fintype.ofFinite V
-  letI : Fintype E := Fintype.ofFinite E
-  letI : DecidableEq V := Classical.decEq V
-  letI : DecidableEq E := Classical.decEq E
+  let : Fintype V := Fintype.ofFinite V
+  let : Fintype E := Fintype.ofFinite E
+  let : DecidableEq V := Classical.decEq V
+  let : DecidableEq E := Classical.decEq E
   apply IsObligatory.of_isolatedReduction
   apply Constructible.isObligatory
   exact (BridgeBlock.isolatedReduction_constructible_iff_intrinsic F).mpr hF

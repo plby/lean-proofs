@@ -150,9 +150,9 @@ lemma resolvent_mem_chapletUniformClosure
     Erdos1115.resolventOn (chapletSet R S T ε) a
       (sphere_mem_compl_chapletSet hRρ hρS ha) ∈
       Erdos1115.polynomialUniformClosure (chapletSet R S T ε) := by
-  letI : CompactSpace (chapletSet R S T ε) :=
+  let : CompactSpace (chapletSet R S T ε) :=
     isCompact_iff_compactSpace.mp (isCompact_chapletSet R S T ε)
-  letI : Fact (0 ≤ R) := ⟨hR0⟩
+  let : Fact (0 ≤ R) := ⟨hR0⟩
   have haK : a ∉ chapletSet R S T ε :=
     sphere_mem_compl_chapletSet hRρ hρS ha
   let b : ℂ := ((T + 1 : ℝ) : ℂ)
@@ -219,9 +219,9 @@ lemma chapletSeparator_mem_uniformClosure
       isCompact_iff_compactSpace.mp (isCompact_chapletSet R S T ε)
     chapletSeparatorOn R S T ε ρ N hρ hN hRρ hρS ∈
       Erdos1115.polynomialUniformClosure (chapletSet R S T ε) := by
-  letI : CompactSpace (chapletSet R S T ε) :=
+  let : CompactSpace (chapletSet R S T ε) :=
     isCompact_iff_compactSpace.mp (isCompact_chapletSet R S T ε)
-  letI : Fact (0 ≤ R) := ⟨hR0⟩
+  let : Fact (0 ≤ R) := ⟨hR0⟩
   have hroots : ∀ a ∈ (chapletDenominator ρ N).roots,
       a ∉ chapletSet R S T ε := by
     intro a ha
@@ -394,9 +394,9 @@ lemma chapletRadialTarget_mem_uniformClosure
       isCompact_iff_compactSpace.mp (isCompact_chapletSet R S T ε)
     chapletRadialTargetOn R S T ε ∈
       Erdos1115.polynomialUniformClosure (chapletSet R S T ε) := by
-  letI : CompactSpace (chapletSet R S T ε) :=
+  let : CompactSpace (chapletSet R S T ε) :=
     isCompact_iff_compactSpace.mp (isCompact_chapletSet R S T ε)
-  letI : Fact (0 ≤ R) := ⟨hR0⟩
+  let : Fact (0 ≤ R) := ⟨hR0⟩
   have hS : 0 < S := hρ.trans hρS
   let α : ℝ := R / ρ
   let β : ℝ := ρ / S
@@ -488,7 +488,7 @@ lemma chapletPatchTarget_mem_uniformClosure
       isCompact_iff_compactSpace.mp (isCompact_chapletSet R S T ε)
     chapletPatchTargetOn R S T ε p a ∈
       Erdos1115.polynomialUniformClosure (chapletSet R S T ε) := by
-  letI : CompactSpace (chapletSet R S T ε) :=
+  let : CompactSpace (chapletSet R S T ε) :=
     isCompact_iff_compactSpace.mp (isCompact_chapletSet R S T ε)
   let A := Erdos1115.polynomialUniformClosure (chapletSet R S T ε)
   have hrad : chapletRadialTargetOn R S T ε ∈ A :=
@@ -510,9 +510,9 @@ theorem exists_chapletPatchPolynomial
       (∀ z : ℂ, ‖z‖ ≤ R → ‖q.eval z - p.eval z‖ < δ) ∧
       (∀ z : ℂ, S ≤ ‖z‖ → ‖z‖ ≤ T →
         (z.re ≤ 0 ∨ ε ≤ |z.im|) → ‖q.eval z - a‖ < δ) := by
-  letI : CompactSpace (chapletSet R S T ε) :=
+  let : CompactSpace (chapletSet R S T ε) :=
     isCompact_iff_compactSpace.mp (isCompact_chapletSet R S T ε)
-  letI : Fact (0 ≤ R) := ⟨hR0⟩
+  let : Fact (0 ≤ R) := ⟨hR0⟩
   obtain ⟨q, hq⟩ := Erdos1115.exists_polynomial_near_of_mem_uniformClosure
     (chapletSet R S T ε) (chapletPatchTargetOn R S T ε p a)
       (chapletPatchTarget_mem_uniformClosure hR0 hρ hRρ hρS hST hε p a) hδ

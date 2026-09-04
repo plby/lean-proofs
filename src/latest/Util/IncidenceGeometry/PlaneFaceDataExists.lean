@@ -20,9 +20,9 @@ lemma PlaneFaceDataExists {V : Type*} [Fintype V] (G : SimpleGraph V)
   rcases FinitePolygonalSetComplementComponents K with
     ⟨Face, faceFintype, faceSet, hface_component_K, hfaces_complete_K,
       hcomplement_point_face_K⟩
-  letI : Fintype Face := faceFintype
+  let : Fintype Face := faceFintype
   let FaceLift := ULift Face
-  letI : Fintype FaceLift := inferInstance
+  let : Fintype FaceLift := inferInstance
   let liftedFaceSet : FaceLift → Set (EuclideanSpace ℝ (Fin 2)) :=
     fun F => faceSet F.down
   have face_component :

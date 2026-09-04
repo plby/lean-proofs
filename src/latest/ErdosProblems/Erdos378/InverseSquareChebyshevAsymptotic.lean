@@ -281,7 +281,7 @@ private theorem tendsto_inverseSquareUniformMoment_second_zero :
   · funext y
     simp only [one_div, mul_inv_rev]
     ring
-  · ring
+  · ring_nf
 
 private theorem inverseSquare_terminal_le_of_safety
     {A B F b : ℝ} (hA : 0 ≤ A) (hsafe : A ≤ F * B) (hb : 0 ≤ b) :

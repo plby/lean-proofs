@@ -41,7 +41,7 @@ theorem forest_preconnected_inter (hT : T.IsAcyclic) (A B : Set U)
 theorem forest_connected_inter (hT : T.IsAcyclic) (A B : Set U)
     (hA : (T.induce A).Preconnected) (hB : (T.induce B).Preconnected)
     (hne : (A ∩ B).Nonempty) : (T.induce (A ∩ B)).Connected := by
-  letI : Nonempty ↥(A ∩ B) := hne.to_subtype
+  let : Nonempty ↥(A ∩ B) := hne.to_subtype
   exact ⟨forest_preconnected_inter T hT A B hA hB⟩
 
 end Erdos547

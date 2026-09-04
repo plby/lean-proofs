@@ -102,7 +102,7 @@ theorem arithmeticFrame_isMinimalDistinct
   let witness := fullFrameWitness S
   let e := crtFinEquiv q hqpos hcop
   let cls := arithmeticFrameClass q hqpos hcop fixed
-  letI : DecidableEq (FrameChoice S) := Classical.decEq _
+  let : DecidableEq (FrameChoice S) := Classical.decEq _
   apply minimalDistinctCover_of_equiv
       (N := ∏ i, q i) (M := Option (FrameChoice S))
       (X := ZModCoordinates q)

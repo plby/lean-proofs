@@ -228,7 +228,7 @@ theorem euler_sphere_of_face_card_formula
   push_cast
   simp_rw [mul_sub, mul_one]
   rw [Finset.sum_sub_distrib]
-  simp
+  simp only [Finset.sum_const, Finset.card_univ, Int.nsmul_eq_mul]
   rw [← Finset.mul_sum]
   abel
 

@@ -238,7 +238,7 @@ theorem distinctPrimePowerPairEventMass_le_density
                 primePowerErrorScale K := hnorm
             _ ≤ 256 * primePowerMainScale K * primePowerDensity K k pa *
                   primePowerDensity K k qb + 256 * primePowerErrorScale K := by
-              simp [primePowerDensity, hpsmall, hpdiv, hqsmall, hqdiv]
+              simp only [one_div]
               have hm := primePowerMainScale_nonneg K
               have he := primePowerErrorScale_nonneg K
               have hd1 : 0 ≤ (1 : ℝ) / pa.1 ^ (pa.2 - 1) := by positivity
@@ -288,7 +288,7 @@ theorem distinctPrimePowerPairEventMass_le_density
               16 * primePowerErrorScale K := hnorm
           _ ≤ 256 * primePowerMainScale K * primePowerDensity K k pa *
                 primePowerDensity K k qb + 256 * primePowerErrorScale K := by
-            simp [primePowerDensity, hpsmall, hpdiv, hqsmall]
+            simp only [one_div]
             have hm := primePowerMainScale_nonneg K
             have he := primePowerErrorScale_nonneg K
             have hd1 : 0 ≤ (1 : ℝ) / pa.1 ^ (pa.2 - 1) := by positivity
@@ -340,7 +340,7 @@ theorem distinctPrimePowerPairEventMass_le_density
               16 * primePowerErrorScale K := hnorm
           _ ≤ 256 * primePowerMainScale K * primePowerDensity K k pa *
                 primePowerDensity K k qb + 256 * primePowerErrorScale K := by
-            simp [primePowerDensity, hpsmall, hqsmall, hqdiv]
+            simp only [one_div]
             have hm := primePowerMainScale_nonneg K
             have he := primePowerErrorScale_nonneg K
             have hd1 : 0 ≤ (1 : ℝ) / pa.1 ^ pa.2 := by positivity
@@ -452,7 +452,7 @@ theorem samePrimePowerPairEventMass_le_density
               16 * primePowerErrorScale K := by
           have hqsmall : qb.1 ≤ Erdos248.tinyCutoff K := hpq ▸ hpsmall
           have hqdiv : qb.1 ∣ k := hpq ▸ hpdiv
-          simp [samePrimePowerDensity, hpq, hpsmall, hpdiv, hqsmall, hqdiv]
+          simp only [one_div, ge_iff_le]
           let x := primePowerMainScale K *
             ((1 : ℝ) / pa.1 ^ (max pa.2 qb.2 - 1))
           have hx : 0 ≤ x := by

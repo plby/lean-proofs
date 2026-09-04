@@ -350,13 +350,13 @@ theorem localTransfer_of_common_neighbor
     by_cases hlow : middleDegree ≤ 4
     · have hpEq : p = middle := by simpa [case3Recipients, hlow] using hp
       subst p
-      simp [case3Tokens, hlow]
+      simp only [ge_iff_le]
       rw [← hmiddleDegree]
       omega
     · have hpEq : p = middle ∨ p = secondary := by
         simpa [case3Recipients, hlow] using hp
       rcases hpEq with rfl | rfl
-      · simp [case3Tokens, hlow]
+      · simp only [ge_iff_le]
         rw [← hmiddleDegree]
         omega
       · simp [case3Tokens, hlow]

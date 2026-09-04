@@ -138,7 +138,7 @@ lemma harmonic_div_nat_tendsto_zero :
     convert hone.add hlogNat using 1
     · funext n
       ring
-    · ring
+    · ring_nf
   apply squeeze_zero'
   · exact Eventually.of_forall fun n ↦
       div_nonneg (harmonic_cast_nonneg n) (Nat.cast_nonneg n)

@@ -10,10 +10,10 @@ theorem quadraticIdealLattice_covolume {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     (I : Ideal (QuadraticAlgebra ℤ d b)) (hI : I ≠ ⊥) :
     ZLattice.covolume (quadraticIdealLattice d b I) =
       (I.cardQuot : ℝ) * ZLattice.covolume (quadraticIdealLattice d b ⊤) := by
-  letI := quadraticIdealLattice_discrete hD I
-  letI := quadraticIdealLattice_full hD I hI
-  letI := quadraticIdealLattice_discrete hD ⊤
-  letI := quadraticIdealLattice_full hD ⊤ top_ne_bot
+  let := quadraticIdealLattice_discrete hD I
+  let := quadraticIdealLattice_full hD I hI
+  let := quadraticIdealLattice_discrete hD ⊤
+  let := quadraticIdealLattice_full hD ⊤ top_ne_bot
   have hle : quadraticIdealLattice d b I ≤ quadraticIdealLattice d b ⊤ :=
     Submodule.map_mono le_top
   have h := ZLattice.covolume_div_covolume_eq_relIndex'

@@ -32,7 +32,7 @@ theorem normalizedPacket_sequence_isTight {d : ℕ → ℕ}
     (base : ∀ i, IntegralDiscrForm (d i)) (hlim : Tendsto d atTop atTop) :
     IsTightMeasureSet (Set.range (fun i => normalizedDiscriminantPacket (hd i) (hns i))) := by
   let μ := fun i => normalizedDiscriminantPacket (hd i) (hns i)
-  letI (i : ℕ) : IsProbabilityMeasure (μ i) :=
+  let (i : ℕ) : IsProbabilityMeasure (μ i) :=
     normalizedDiscriminantPacket_isProbability (hd i) (hns i) (base i)
   exact isTightMeasureSet_range_of_eventually_tight μ
     (fun i => normalizedPacket_has_compact_full_measure (hd i) (hns i))

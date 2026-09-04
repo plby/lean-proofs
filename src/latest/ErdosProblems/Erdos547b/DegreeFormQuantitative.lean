@@ -32,7 +32,7 @@ theorem cleanedReducedGraph_le_source
     cleanedReducedGraph W δ ≤
       regularityReducedGraph G
         (fun i : {Q // Q ∈ W.partition.parts} => i.1) ε d := by
-  letI : DecidableRel W.graph.Adj := W.graph_decidable
+  let : DecidableRel W.graph.Adj := W.graph_decidable
   intro i j hij
   have hdensity : 0 < W.graph.edgeDensity i.1 j.1 :=
     hδ.trans_le hij.2.2
@@ -63,7 +63,7 @@ theorem cleanedGraph_respects_cleanedReducedGraph
     EdgesRespectReducedGraph
       (partitionAssignment W.exceptional W.partition) W.graph
       (cleanedReducedGraph W δ) := by
-  letI : DecidableRel W.graph.Adj := W.graph_decidable
+  let : DecidableRel W.graph.Adj := W.graph_decidable
   intro x y i j hxi hyj hxy
   have hxi' : x ∈ i.1 :=
     (partitionAssignment_eq_some_iff W.exceptional W.partition x i).mp hxi

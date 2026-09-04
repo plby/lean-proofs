@@ -315,7 +315,7 @@ theorem norm_prod_gsA9LocalEulerFactor_sub_one_mul_exp_neg_radius_le
             Complex.exp (L / 2 + L / 2) -
               Complex.exp (L / 2 + -(L / 2)) := by
           congr 1
-          · ring
+          · ring_nf
           · rw [show L / 2 + -(L / 2) = 0 by ring, Complex.exp_zero]
         _ = Complex.exp (L / 2) * Complex.exp (L / 2) -
               Complex.exp (L / 2) * Complex.exp (-(L / 2)) := by
@@ -587,7 +587,7 @@ theorem norm_prod_gsA9LocalEulerFactor_sub_one_mul_exp_neg_radius_le_of_norm_le_
             Complex.exp (L / 2 + L / 2) -
               Complex.exp (L / 2 + -(L / 2)) := by
           congr 1
-          · ring
+          · ring_nf
           · rw [show L / 2 + -(L / 2) = 0 by ring, Complex.exp_zero]
         _ = Complex.exp (L / 2) * Complex.exp (L / 2) -
               Complex.exp (L / 2) * Complex.exp (-(L / 2)) := by

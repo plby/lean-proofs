@@ -933,7 +933,7 @@ theorem exists_linkedMinorModel_of_dense
     exists_minimal_densePacking (G := G) (d := d) hE
   obtain ⟨H, hH, hHexact⟩ :=
     exists_exactEdgeGraph (G := G) hPdense.2
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
   have hdegree : ∀ A : P, d + 1 ≤ H.degree A :=
     minimalDense_exact_minDegree hPdense.1 hmin H hH hHexact
   have hcommon : ∀ A B : P, H.Adj A B →

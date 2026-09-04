@@ -343,11 +343,11 @@ theorem exists_chart_avoiding_pairwise_intersections
   obtain ⟨c, hc⟩ := Module.Dual.exists_forall_ne_zero_of_forall_exists f hf
   refine ⟨fromCoordinates c, ?_, ?_⟩
   · have hzero := hc none
-    simp [f, dotLinear] at hzero
+    simp only [ne_eq] at hzero
     intro hc0
     have hx := congrArg Homogeneous.x hc0
     simp [fromCoordinates, homZero] at hx
-    exact hzero hx
+    exact hzero (by simpa [f, dotLinear] using hx)
   intro l hl m hm hlm
   let il : L := ⟨l, hl⟩
   let im : L := ⟨m, hm⟩

@@ -29,7 +29,7 @@ theorem diameterPairCount_add_two_le_of_doubleCover_certificate
     diameterPairCount A + 2 ≤ 2 * A.card := by
   classical
   obtain ⟨x, hx⟩ := hA
-  letI : Nonempty {x // x ∈ A} := ⟨⟨x, hx⟩⟩
+  let : Nonempty {x // x ∈ A} := ⟨⟨x, hx⟩⟩
   simpa [diameterPairCount] using
     SimpleGraph.edge_add_two_le_two_mul_vertex_of_doubleCover_certificate C
 
@@ -42,7 +42,7 @@ theorem diameterPairCount_add_two_le_of_constructible_doubleCover_certificate
     diameterPairCount A + 2 ≤ 2 * A.card := by
   classical
   obtain ⟨x, hx⟩ := hA
-  letI : Nonempty {x // x ∈ A} := ⟨⟨x, hx⟩⟩
+  let : Nonempty {x // x ∈ A} := ⟨⟨x, hx⟩⟩
   simpa [diameterPairCount] using
     SimpleGraph.edge_add_two_le_two_mul_vertex_of_constructible_doubleCover_certificate C
 
@@ -120,7 +120,7 @@ theorem diameterPairCount_add_two_le_of_minDegree_certificates
   let V := {x // x ∈ A}
   let G := diameterGraph A
   let p : V ↪ Point 3 := Function.Embedding.subtype (fun x ↦ x ∈ A)
-  letI : Nonempty V := by
+  let : Nonempty V := by
     obtain ⟨x, hx, -⟩ := hA.exists_dist_eq_one
     exact ⟨⟨x, hx⟩⟩
   let Good : ∀ (W : Type) [Fintype W], SimpleGraph W → Prop :=
@@ -211,7 +211,7 @@ theorem diameterPairCount_add_two_le_of_minDegree_upper
   let V := {x // x ∈ A}
   let G := diameterGraph A
   let p : V ↪ Point 3 := Function.Embedding.subtype (fun x ↦ x ∈ A)
-  letI : Nonempty V := by
+  let : Nonempty V := by
     obtain ⟨x, hx, -⟩ := hA.exists_dist_eq_one
     exact ⟨⟨x, hx⟩⟩
   let Good : ∀ (W : Type) [Fintype W], SimpleGraph W → Prop :=
@@ -583,7 +583,7 @@ lemma card_witnessGraph {m : ℕ} (hm : 1 < m) :
     (witnessGraph hm).edgeFinset.card = 2 * m + 2 := by
   classical
   let K := completeBipartiteGraph (Fin m) (Fin 2)
-  letI : DecidableRel K.Adj := Classical.decRel _
+  let : DecidableRel K.Adj := Classical.decRel _
   have hK : K.edgeFinset.card = 2 * m := by
     rw [← Set.ncard_coe_finset, SimpleGraph.coe_edgeFinset]
     simpa [K] using ncard_completeBipartite m
@@ -592,7 +592,7 @@ lemma card_witnessGraph {m : ℕ} (hm : 1 < m) :
   have hbase_ne : firstBase hm ≠ lastBase hm := firstBase_ne_lastBase hm
   have h1 := K.card_edgeFinset_sup_edge hbase_not hbase_ne
   let K1 := K ⊔ SimpleGraph.edge (firstBase hm) (lastBase hm)
-  letI : DecidableRel K1.Adj := Classical.decRel _
+  let : DecidableRel K1.Adj := Classical.decRel _
   have hpole_not : ¬ K1.Adj north south := by
     simp [K1, K, north, south, completeBipartiteGraph,
       firstBase, lastBase, SimpleGraph.edge_adj]

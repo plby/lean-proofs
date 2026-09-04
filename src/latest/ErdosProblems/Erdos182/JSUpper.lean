@@ -852,7 +852,7 @@ theorem exists_globalLowRoute_almostBiregular
           (2 ^ (JSGlobalParameters.slots r * JSGlobalParameters.ell Delta))
           (r ^ 2 * JSGlobalParameters.ell Delta) := by
   classical
-  letI : Nonempty B := hB
+  let : Nonempty B := hB
   let X := G.globalLowClass r Delta
   have hBne : (Finset.univ : Finset B).Nonempty := Finset.univ_nonempty
   have hXB : X.card ≤ (Finset.univ : Finset B).card := by
@@ -945,7 +945,7 @@ theorem exists_globalLowRoute_almostRegular
       _ ≤ 2 ^ (JSGlobalParameters.slots r * ell) :=
         Nat.pow_le_pow_right (by omega) hexponents
   have hBne : (Finset.univ : Finset B).Nonempty := by
-    letI : Nonempty B := hB
+    let : Nonempty B := hB
     exact Finset.univ_nonempty
   have hXB : (G.globalLowClass r Delta).card ≤
       (Finset.univ : Finset B).card := by
@@ -1450,8 +1450,7 @@ theorem card_le_twice_mul_goodRight_after_cleaning
     by_cases hbGood : b ∈ Good
     · have hmono : C.rightDegree b ≤ r :=
         (rightDegree_mono hCF b).trans_eq (hFreg b hb)
-      simp [hbGood]
-      exact hmono.trans (Nat.le_add_right _ _)
+      simpa [hbGood] using hmono.trans (Nat.le_add_right r (d - 1))
     · have hinter : C.leftNeighbors b ∩ X = C.leftNeighbors b := by
         apply Finset.inter_eq_left.mpr
         intro a ha
@@ -1891,7 +1890,7 @@ theorem globalScaleForcing_of_exact_parameters
           _ = 176 * (2 * Q.edgeCount) := by ring
       exact Nat.le_of_mul_le_mul_left hscaled (by omega)
     · have hBuniv : (Finset.univ : Finset B).Nonempty := by
-        letI : Nonempty B := hB.to_subtype
+        let : Nonempty B := hB.to_subtype
         exact Finset.univ_nonempty
       have hregular : ∀ b : B,
           H.rightDegree b = JSGlobalParameters.coreDegree r Delta := by
@@ -2061,7 +2060,7 @@ theorem nVertex_forcing_of_maxDegree_forcing {k C : ℕ} (hC : 0 < C)
   intro n hn G hEdges
   classical
   have hnpos : 0 < n := by omega
-  haveI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hnpos
+  have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hnpos
   have hmax_le_n : G.maxDegree ≤ n := by
     simpa only [Fintype.card_fin] using
       (G.maxDegree_lt_card_verts (V := Fin n)).le

@@ -252,7 +252,7 @@ theorem four_thirds_mul_growth_mul_coprime_decay_lt_exp_neg_thirteen_quarters
     _ = (4 / 3 : ℝ) * Real.exp (-(7 / 2 : ℝ) * H) := by
       rw [← Real.exp_add]
       congr 1
-      ring
+      ring_nf
     _ < Real.exp (H / 4) * Real.exp (-(7 / 2 : ℝ) * H) :=
       mul_lt_mul_of_pos_right hfactor (Real.exp_pos _)
     _ = Real.exp (-(13 / 4 : ℝ) * H) := by

@@ -144,7 +144,7 @@ lemma EndpointDiskAffineReduction {ι : Type*} [Fintype ι]
         (fun x : ι ⊕ ι => Sum.elim (fun i => Φ (a i)) (fun i => Φ (b i)) x) := by
     intro x y hxy
     apply hdistinct
-    cases x <;> cases y <;> simp at hxy ⊢
+    cases x <;> cases y <;> simp only [Sum.elim_inl, Sum.elim_inr] at hxy ⊢
     all_goals exact hΦ_inj hxy
   obtain ⟨Γ0, hΓ0_basic, hΓ0_noShared, hΓ0_noTriple, hΓ0_transverse,
       hΓ0_unique, hΓ0_clean⟩ :=

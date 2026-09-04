@@ -39,7 +39,7 @@ theorem sparseFiberLineFamilyOf_nonempty
     Nonempty (SparseFiberLineFamily picture x K) := by
   classical
   rcases h with ⟨N, hN, S, hsparse, hramsey⟩
-  letI : Fintype N := hN
+  let : Fintype N := hN
   let movingSupport : {U // U ∈ S} → Set N := fun U ↦
     (Erdos847SparseLines.movingSet U.1 : Set N)
   refine ⟨{
@@ -273,7 +273,7 @@ theorem oneFiberExtensionOfConfinement_nonempty
   classical
   rcases sparse_hales_jewett (Fiber picture x) K with
     ⟨N, hN, S, hsparse, hramsey⟩
-  letI : Fintype N := hN
+  let : Fintype N := hN
   exact ⟨rawFiberExtensionOfSystem picture x sourceFiberNontrivial S hramsey
     (confinement S hsparse)⟩
 
@@ -356,7 +356,7 @@ theorem exists_finite_rrs_block (r : ℕ) (hr : 0 < r) :
           (Z.card : ℝ) ≥ (1 / 3 : ℝ) * Y.card ∧
           ThreeAPFree (Z : Set ℕ)) := by
   classical
-  letI : Nonempty (Fin r) := ⟨⟨0, hr⟩⟩
+  let : Nonempty (Fin r) := ⟨⟨0, hr⟩⟩
   obtain ⟨N, hN, hRamsey, hFractional, hlinear⟩ :=
     Erdos847TriangleAdapter.exists_triangleBase_package r
   let base := Erdos847TriangleAdapter.triangleGraph N
@@ -372,8 +372,8 @@ theorem exists_finite_rrs_block (r : ℕ) (hr : 0 < r) :
       (fun picture x ↦ sparseFamily picture x)
       (fun picture sourceFibers x _ lines ↦
         oneFiberAmalgamate hlinear picture sourceFibers x lines)
-  letI : Fintype Q := hQ
-  letI : Fintype D := hD
+  let : Fintype Q := hQ
+  let : Fintype D := hD
   exact Erdos847PictureOutput.exists_encoded_block_one_third_of_finite_coords
     final hr hfinalRamsey hFractional
 

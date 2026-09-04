@@ -386,11 +386,11 @@ theorem integral_vonMangoldtExpSum_mul_neg_kernel (N : ℕ) :
             (fun α => addChar α x.2 * negAddChar α x.1))]
       rw [integral_addChar_negAddChar_kernel]]
     dsimp [s]
-    simp [Finset.sum_product]
+    simp only [mul_ite, mul_one, mul_zero]
+    rw [Finset.sum_product]
     refine Finset.sum_congr rfl ?_
     intro x hx
-    have hxN : x ≤ N := Nat.lt_succ_iff.mp (Finset.mem_range.mp hx)
-    simp [hxN]
+    simp [hx]
   · intro x _hx
     apply Continuous.integrableOn_Icc
     unfold addChar negAddChar
@@ -414,8 +414,9 @@ theorem integral_primeExpSum_cube_kernel (N n : ℕ) :
     intro α
     dsimp [s]
     unfold primeExpSum
+    rw [pow_three]
     simp_rw [Finset.sum_product]
-    simp [pow_succ, mul_sum, sum_mul, mul_assoc]
+    simp only [Finset.sum_mul, Finset.mul_sum]
     refine Finset.sum_congr rfl ?_
     intro p _hp
     refine Finset.sum_congr rfl ?_

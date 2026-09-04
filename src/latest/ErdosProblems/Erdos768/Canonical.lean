@@ -184,7 +184,7 @@ theorem fixed_prefix_exp :
 For `ω(n) ≥ 1`, the largest prime factor `pnth n 1` is a genuine prime factor.
 -/
 theorem pnth1_mem (n : ℕ) (h : 1 ≤ omegaCount n) : pnth n 1 ∈ n.primeFactors := by
-  unfold pnth; simp +decide [ omegaCount ] at h ⊢;
+  unfold pnth; simp +decide only [ge_iff_le, tsub_self, List.getD_eq_getElem?_getD, Nat.mem_primeFactors, ne_eq] at h ⊢;
   rcases x : n.primeFactors.sort ( fun x1 x2 => x2 ≤ x1 ) with ( _ | ⟨ a, _ | ⟨ b, l ⟩ ⟩ ) <;> simp_all +decide;
   · replace x := congr_arg List.length x ; aesop;
   · replace x := congr_arg List.toFinset x; rw [ Finset.ext_iff ] at x; specialize x a; aesop;
@@ -200,7 +200,7 @@ theorem oneprime_card_le (x : ℝ) (t m : ℕ) (ht : 2 ≤ t) :
   set f : ℕ → ℕ × ℕ := fun n => (Dwit n (pnth n 1), List.idxOf (pnth n 1) ((Dwit n (pnth n 1) - 1).primeFactors.sort (· ≤ ·))) with hf_def;
   have h_mapsTo : ∀ n ∈ oneprimeSet x t m, f n ∈ m.divisors ×ˢ Finset.range (1 + Nat.log 2 ⌊x⌋₊) := by
     intro n hn
-    simp [f] at *;
+    simp only [mem_product, Nat.mem_divisors, ne_eq, mem_range] at *;
     refine' ⟨ ⟨ _, _ ⟩, _ ⟩;
     · have h_coprime : Nat.Coprime (Dwit n (pnth n 1)) (pnth n 1) := by
         apply Nat.Coprime.symm; exact (by
@@ -247,7 +247,7 @@ theorem oneprime_card_le (x : ℝ) (t m : ℕ) (ht : 2 ≤ t) :
           exact Nat.sub_le_of_le_add <| by linarith [ show n ≤ ⌊x⌋₊ from Finset.mem_Icc.mp ( Finset.mem_filter.mp hn |>.1 ) |>.2 ] ;
         have h_prime_factors_card : (Dwit n (pnth n 1) - 1).primeFactors.card ≤ Nat.log 2 (Dwit n (pnth n 1) - 1) := by
           exact omegaCount_le_log2 _;
-        simp +zetaDelta at *;
+        simp +zetaDelta only [length_sort, ge_iff_le] at *;
         exact le_trans h_prime_factors_card ( Nat.le_trans ( Nat.log_mono_right <| Nat.sub_le_sub_right h_Dwit_le_floor 1 ) <| by simp +arith +decide );
   have h_injOn : ∀ n n' : ℕ, n ∈ oneprimeSet x t m → n' ∈ oneprimeSet x t m → f n = f n' → n = n' := by
     intros n n' hn hn' h_eq
@@ -362,7 +362,7 @@ theorem canonical_fiber_bound :
   have hFfib_sum : ((F).card : ℝ) ≤ (t : ℝ) * (tauCount m : ℝ) ^ (Ht t) * Real.exp (max C₁ C₂ * ((Real.log (t + 2)) ^ 2 + Real.log (t + 2) * Real.log (Real.log (3 * x)))) := by
     have hFfib_sum : ((F).card : ℝ) = ∑ r ∈ Finset.Icc 1 t, ((F.filter (fun n => rhoIdx n = r)).card : ℝ) := by
       rw_mod_cast [ ← Finset.card_biUnion ];
-      · congr with n ; simp +decide;
+      · congr with n ; simp +decide only [mem_biUnion, mem_Icc, mem_filter, exists_eq_right_right', iff_and_self];
         intro hn; have := rhoIdx_mem n ( by linarith [ Finset.mem_filter.mp hn ] ) ; aesop;
       · exact fun a ha b hb hab => Finset.disjoint_left.mpr fun x hx₁ hx₂ => hab <| by aesop;
     exact hFfib_sum.symm ▸ le_trans ( Finset.sum_le_sum hFfib ) ( by norm_num; linarith );
@@ -384,7 +384,9 @@ theorem omega_Qcanon_le (n : ℕ) (h2 : 2 ≤ omegaCount n) :
     -- Since `pnth n 1` is a prime factor of `n`, we have `omegaCount (pnth n 1) ≤ 1`.
     have homegaCount_pnth : omegaCount (pnth n 1) ≤ 1 := by
       unfold pnth omegaCount;
-      rcases x : n.primeFactors.sort ( fun x1 x2 => x1 ≥ x2 ) with ( _ | ⟨ a, _ | ⟨ b, l ⟩ ⟩ ) <;> simp_all +decide;
+      rcases x : n.primeFactors.sort ( fun x1 x2 => x1 ≥ x2 ) with ( _ | ⟨ a, _ | ⟨ b, l ⟩ ⟩ ) <;> simp_all +decide only [tsub_self, List.getD_eq_getElem?_getD, List.length_cons, List.length_nil,
+    zero_add, Order.lt_one_iff, getElem?_pos, List.getElem_cons_zero, Option.getD_some,
+    Order.lt_add_one_iff, zero_le];
       · replace x := congr_arg List.length x; simp_all +decide ;
       · replace x := congr_arg List.toFinset x; rw [ Finset.ext_iff ] at x; specialize x a; aesop;
     exact hQcanon ▸ homegaCount_pnth.trans ( by linarith [ three_le_Ht ( omegaCount n ) ] );

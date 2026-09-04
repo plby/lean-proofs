@@ -58,7 +58,7 @@ theorem powerClass_eq_iff_finiteFieldExponent_eq
     powerClass ell x = powerClass ell y ↔
       finiteFieldExponent zeta hzeta hdiv x =
         finiteFieldExponent zeta hzeta hdiv y := by
-  letI : NeZero ell := ⟨(Fact.out : ell.Prime).ne_zero⟩
+  let : NeZero ell := ⟨(Fact.out : ell.Prime).ne_zero⟩
   constructor
   · intro hclass
     have hmem : x / y ∈ (powMonoidHom ell : kˣ →* kˣ).range := by
@@ -119,12 +119,12 @@ theorem integerSymbol_eq_iff_powerClass_eq
     simpa [P] using rationalModulusIdeal_ne_bot
       (K := K) (inertAuxiliaryPrimes_prime ell hq).ne_zero
   have hPmax : P.IsMaximal := hPprime.isMaximal hPne
-  letI : P.IsPrime := hPprime
-  letI : P.IsMaximal := hPmax
-  letI : Field (𝓞 K ⧸ P) := Ideal.Quotient.field P
-  letI : Finite (𝓞 K ⧸ P) :=
+  let : P.IsPrime := hPprime
+  let : P.IsMaximal := hPmax
+  let : Field (𝓞 K ⧸ P) := Ideal.Quotient.field P
+  let : Finite (𝓞 K ⧸ P) :=
     Ring.HasFiniteQuotients.finiteQuotient hPne
-  letI : Fintype (𝓞 K ⧸ P) := Fintype.ofFinite _
+  let : Fintype (𝓞 K ⧸ P) := Fintype.ofFinite _
   have hdivNat : ell ∣ Nat.card ((𝓞 K ⧸ P)ˣ) := by
     have h := inertAuxiliaryPrimes_ell_dvd_quotient_units_natCard
       ell (K := K) hq
@@ -428,8 +428,8 @@ theorem exceptionalGenerators_not_mem_auxiliary
       exact hqmem
     exact auxiliary_not_mem_exceptionalPrimeIdeal ell K p hq
       hqmemP
-  letI : Pq.IsMaximal := hPqmax
-  letI : P.IsMaximal := hPmax
+  let : Pq.IsMaximal := hPqmax
+  let : P.IsMaximal := hPmax
   have hcopP : IsCoprime Pq P :=
     Ideal.isCoprime_of_isMaximal hneq
   have hcopC : IsCoprime Pq (C : Ideal (𝓞 K)) :=
@@ -498,8 +498,8 @@ theorem exceptionalPrimary_integerSymbol_eq_correction
   have hPne : P ≠ ⊥ := nonZeroDivisors.coe_ne_zero data.primeIdeal
   have hPprime : P.IsPrime := data.primeIdeal_isPrime
   have hPmax : P.IsMaximal := hPprime.isMaximal hPne
-  letI : P.IsPrime := hPprime
-  letI : P.IsMaximal := hPmax
+  let : P.IsPrime := hPprime
+  let : P.IsMaximal := hPmax
   apply (zmodPower_iff_integerSymbol_eq_correction
     (K := K) hodd hPne
     (cyclotomicRayCorrection_ne_bot ell K data.correctionIndex)
@@ -598,7 +598,7 @@ theorem exceptionalBalanced_powerClass_eq_of_same_tag
   have hPqprime : Pq.IsPrime := by
     simpa [Pq, rationalModulusIdeal] using
       inertAuxiliaryPrimes_span_isPrime ell (K := K) hq
-  letI : Pq.IsMaximal := hPqprime.isMaximal (by
+  let : Pq.IsMaximal := hPqprime.isMaximal (by
     simpa [Pq] using rationalModulusIdeal_ne_bot
       (K := K) (inertAuxiliaryPrimes_prime ell hq).ne_zero)
   have hv₁not : (v₁ : 𝓞 K) ∉ Pq := by
@@ -786,14 +786,14 @@ theorem exceptionalBalancedUnitTensor_mem_inertPowerClassCoordinateCell
   classical
   let hprime : ∀ q ∈ Q, q.Prime :=
     fun q hq ↦ inertAuxiliaryPrimes_prime ell (hQ hq)
-  letI (q : Q) : NeZero (rationalModulusIdeal K q.1) :=
+  let (q : Q) : NeZero (rationalModulusIdeal K q.1) :=
     ⟨rationalModulusIdeal_ne_bot (hprime q.1 q.2).ne_zero⟩
-  letI (q : Q) : Finite (InertLocalRing K Q q) :=
+  let (q : Q) : Finite (InertLocalRing K Q q) :=
     Ring.HasFiniteQuotients.finiteQuotient
       (rationalModulusIdeal_ne_bot (hprime q.1 q.2).ne_zero)
-  letI : ∀ q : Q, Fintype (InertLocalUnits K Q q) :=
+  let : ∀ q : Q, Fintype (InertLocalUnits K Q q) :=
     fun _ ↦ Fintype.ofFinite _
-  letI (q : Q) : DecidableEq (InertLocalUnits K Q q) := Classical.decEq _
+  let (q : Q) : DecidableEq (InertLocalUnits K Q q) := Classical.decEq _
   change inertLocalUnitsCoordinateEmbedding K Q hprime
       (tagCorrectionIdeal ell K tag) hcop
       (exceptionalBalancedUnitTensor ell K Q hQ tag hcop p hp) ∈
@@ -822,7 +822,7 @@ theorem fixedIdealCoordinateQuotientEquiv_coordinateResidue
         (coordinateResidue K J q b) =
       Ideal.Quotient.mk (rationalModulusIdeal K q) b.1 := by
   classical
-  letI : NeZero q := ⟨hq.ne_zero⟩
+  let : NeZero q := ⟨hq.ne_zero⟩
   rw [fixedIdealCoordinateQuotientEquiv_apply]
   apply Ideal.Quotient.eq.mpr
   have hsame : coordinateResidue K J q
@@ -872,7 +872,7 @@ theorem inertLocalUnitsCoordinateEmbedding_exceptional_eq_coordinateResidue
     unfold inertTensorModulus
     exact Finset.prod_ne_zero_iff.mpr fun q _ ↦
       (hprime q.1 q.2).ne_zero
-  letI : NeZero (inertTensorModulus Q) := ⟨hmod0⟩
+  let : NeZero (inertTensorModulus Q) := ⟨hmod0⟩
   let hpair : Pairwise (Nat.Coprime on fun q : Q ↦ q.1) := by
     intro q r hqr
     exact (Nat.coprime_primes (hprime q.1 q.2)
@@ -939,7 +939,7 @@ theorem embedding_mem_generatorCongruenceCell_coordinateResidue
       (Submodule.span ℤ (Set.range
         (Pi.basisFun ℝ (NumberField.mixedEmbedding.index K))) :
           Set (NumberField.mixedEmbedding.index K → ℝ)) := by
-    letI := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
+    let := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
     change zr ∈ Submodule.span ℤ
       (Set.range (Pi.basisFun ℝ (NumberField.mixedEmbedding.index K)))
     simp only [

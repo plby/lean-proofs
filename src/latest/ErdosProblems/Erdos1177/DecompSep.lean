@@ -61,7 +61,7 @@ theorem sepEquiv_map_left {hcov hsep} {e : Finset F.V} (he : ∀ v ∈ e, IncS S
   ext x;
   constructor <;> intro hx;
   · obtain ⟨ v, hv, rfl ⟩ := Finset.mem_map.mp hx; specialize he v hv; aesop;
-  · rw [ Finset.mem_map ] at hx; obtain ⟨ v, hv, rfl ⟩ := hx; simp_all +decide [ Finset.mem_subtype ] ;
+  · rw [ Finset.mem_map ] at hx; obtain ⟨ v, hv, rfl ⟩ := hx; simp_all +decide only [Finset.mem_map_equiv] ;
     convert! hv using 1
 
 /-
@@ -74,7 +74,8 @@ theorem sepEquiv_map_right {hcov hsep} {e : Finset F.V} (he : ∀ v ∈ e, ¬ In
       (Finset.subtype (fun v => ∃ e' ∈ Sᶜ, v ∈ e'.1) e).map Function.Embedding.inr := by
   ext x;
   constructor <;> intro hx;
-  · rw [ Finset.mem_map ] at hx; obtain ⟨ v, hv, rfl ⟩ := hx; specialize he v hv; specialize he' v hv; simp_all +decide [ sepEquiv_inr ] ;
+  · rw [ Finset.mem_map ] at hx; obtain ⟨ v, hv, rfl ⟩ := hx; specialize he v hv; specialize he' v hv; simp_all +decide only [Function.Embedding.coeFn_mk, Finset.mem_map, Finset.mem_subtype, Subtype.exists,
+    Finset.mem_compl, exists_and_right, exists_and_left] ;
     exact ⟨ v, hv, he', rfl ⟩;
   · aesop
 
@@ -91,7 +92,7 @@ theorem recon_disjUnion
   convert! ( sepEquiv S hcov hsep ) using 1;
   intro e;
   constructor <;> intro he;
-  · by_cases h : ⟨ e, he ⟩ ∈ S <;> simp_all +decide [ FTS.disjUnion ];
+  · by_cases h : ⟨ e, he ⟩ ∈ S <;> simp_all +decide only [eq_mpr_eq_cast, cast_eq];
     · refine' Or.inl ⟨ _, FTS.mem_restrict_edges.mpr ⟨ ⟨ e, he ⟩, h, rfl ⟩, _ ⟩;
       convert! sepEquiv_map_left S ( fun v hv => ⟨ _, h, hv ⟩ ) |> Eq.symm using 1;
     · refine Or.inr ⟨ Finset.subtype ( fun v => ∃ e' ∈ Sᶜ, v ∈ e'.1 ) e, ?_, ?_ ⟩;
@@ -161,13 +162,15 @@ theorem amalgEquiv_map_left {hcov hsep hgS hgT} {e : Finset F.V} (he : ∀ v ∈
       (Finset.subtype (fun v => IncS S v) e).map Function.Embedding.inl := by
   ext x;
   constructor;
-  · rcases x with ( x | ⟨ ⟨ x, hx ⟩, hx' ⟩ ) <;> simp +decide [ Finset.mem_map, Finset.mem_subtype ];
+  · rcases x with ( x | ⟨ ⟨ x, hx ⟩, hx' ⟩ ) <;> simp +decide only [ne_eq, Finset.mem_map_equiv, Finset.mem_map, Finset.mem_subtype, Subtype.exists,
+    exists_and_right, exists_and_left];
     · intro hx;
       use x.val;
-      simp +zetaDelta at *;
+      simp +zetaDelta only [Subtype.coe_eta, exists_prop] at *;
       exact ⟨ by simpa [ amalgEquiv ] using! hx, he _ hx, rfl ⟩;
     · exact fun h => False.elim <| hx' <| Subtype.ext <| hsep x ( he x h ) hx;
-  · simp [Finset.mem_map];
+  · simp only [ne_eq, Finset.mem_map, Finset.mem_subtype, Subtype.exists, exists_and_right, exists_and_left,
+    Finset.mem_map_equiv, forall_exists_index, and_imp, forall_and_index];
     rintro v hv _ _ _ _ rfl; exact hv;
 
 /-
@@ -185,7 +188,7 @@ theorem amalgEquiv_map_amalg {hcov hsep hgS hgT} {e : Finset F.V}
   exact ( F.restrict S ).V ⊕ { b : ( F.restrict Sᶜ ).V // b ≠ ⟨ g, hgT ⟩ };
   exact { x | ∃ v ∈ e, amalgEquiv S g hcov hsep hgS hgT v = x };
   exact { x | ∃ v ∈ e, ∃ ( hv : ∃ e' ∈ Sᶜ, v ∈ e'.1 ), amalgEmbG ( F.restrict S ) ( F.restrict Sᶜ ) ⟨ g, hgS ⟩ ⟨ g, hgT ⟩ ⟨ v, hv ⟩ = x };
-  · intro x; constructor <;> intro hx; rcases hx with ⟨ v, hv, rfl ⟩ ; by_cases hv' : v = g <;> simp +decide [ hv', amalgEquiv_inl, amalgEquiv_inr, amalgEmbG ] ;
+  · intro x; constructor <;> intro hx; rcases hx with ⟨ v, hv, rfl ⟩ ; by_cases hv' : v = g <;> simp +decide only [ne_eq, Finset.mem_compl, Subtype.exists, exists_and_right, Set.mem_ofPred_eq] ;
     · use v; aesop;
     · use v, hv, by
         exact Exists.elim ( he' v hv ) fun x hx => ⟨ x.1, ⟨ x.2, by aesop ⟩, hx.2 ⟩
@@ -197,7 +200,7 @@ theorem amalgEquiv_map_amalg {hcov hsep hgS hgT} {e : Finset F.V}
       · assumption;
     · obtain ⟨ v, hv, hv', rfl ⟩ := hx;
       use v;
-      by_cases hv'' : IncS S v <;> simp +decide [ hv'', amalgEquiv_inl, amalgEquiv_inr, amalgEmbG ];
+      by_cases hv'' : IncS S v <;> simp +decide only [ne_eq];
       · specialize hsep v hv'' hv'; aesop;
       · have hvg : v ≠ g := by
           intro h
@@ -206,13 +209,13 @@ theorem amalgEquiv_map_amalg {hcov hsep hgS hgT} {e : Finset F.V}
         rw [amalgEquiv_inr S g hv'' hv' hvg]
         simp [hv]
         exact fun h => hvg (congrArg Subtype.val h)
-  · simp +decide [ Finset.ext_iff, Set.ext_iff ];
+  · simp +decide only [ne_eq, Finset.mem_compl, Subtype.exists, exists_and_right];
     congr! 3;
     · grind;
     · constructor;
       · rintro ⟨ v, hv, hv' ⟩;
         use v.val;
-        simp +zetaDelta at *;
+        simp +zetaDelta only [Subtype.coe_eta, exists_prop] at *;
         exact ⟨ Finset.mem_subtype.mp hv, he' _ ( Finset.mem_subtype.mp hv ), hv' ⟩;
       · rintro ⟨ v, hv, hv', hv'' ⟩;
         use ⟨ v, he' v hv ⟩;
@@ -222,7 +225,7 @@ theorem amalgEquiv_map_amalg {hcov hsep hgS hgT} {e : Finset F.V}
       · constructor;
         · rintro ⟨ v, hv, hv' ⟩;
           use v.val;
-          simp +zetaDelta at *;
+          simp +zetaDelta only [Subtype.coe_eta, exists_prop] at *;
           exact ⟨ Finset.mem_subtype.mp hv, he' _ ( Finset.mem_subtype.mp hv ), hv' ⟩;
         · rintro ⟨ v, hv, hv', hv'' ⟩;
           use ⟨ v, by aesop ⟩;

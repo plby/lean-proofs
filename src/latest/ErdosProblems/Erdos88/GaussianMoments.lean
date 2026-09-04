@@ -203,7 +203,7 @@ theorem coordinateSecondMoment_eq (a lam : ℝ) :
     Invariance.standardGaussian_moment_two,
     Invariance.standardGaussian_moment_three,
     Invariance.standardGaussian_moment_four]
-  simp
+  simp only [mul_zero, mul_one, neg_mul, probReal_univ, smul_eq_mul, one_mul, zero_add]
   unfold coordinateVariance
   ring
 

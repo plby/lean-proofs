@@ -282,7 +282,7 @@ theorem exists_reserveEmbeddingPath_of_faceSchedule
     history.length ≤ depth ∧
       ∀ J : Finset (Fin n), J.card = r - 1 →
         Reserve.localDegree (usedEdges P history) J ≤ Dused
-  letI : DecidablePred good := Classical.decPred _
+  let : DecidablePred good := Classical.decPred _
   have hnonempty : ∀ history, good history →
       (reserveLegalEmbeddings P request reserve history).Nonempty := by
     intro history hgood

@@ -115,7 +115,7 @@ theorem complete_roots_le_alternative_periods (g : 𝓢(ℝ, ℂ))
       (g ((z ^ 2 - t - (v : ℝ) * y) / (u * H))).re) ≤
       ∑ r : Fin u, (periodizedSchwartz g (((v : ℝ) / H)⁻¹)
         (alternativeRootArgument a u b v t (r : ℕ) z)).re := by
-  letI : NeZero u := ⟨hu.ne'⟩
+  let : NeZero u := ⟨hu.ne'⟩
   rw [root_count_weighted_sum_eq]
   apply Finset.sum_le_sum
   intro r hr

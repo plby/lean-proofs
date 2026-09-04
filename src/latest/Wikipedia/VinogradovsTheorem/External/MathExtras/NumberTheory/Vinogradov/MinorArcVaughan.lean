@@ -320,7 +320,7 @@ private lemma vaughanLambdaLow_abs_le_log_succ_of_le
     Real.log_le_log (by exact_mod_cast Nat.succ_pos n) hn_succ
   unfold vaughanLambdaLow
   by_cases hlow : n ≤ V
-  · simp [hlow, abs_of_nonneg ArithmeticFunction.vonMangoldt_nonneg]
+  · simp only [ArithmeticFunction.coe_mk, ge_iff_le]
     exact (vonMangoldt_le_log_succ_local n).trans hlog
   · simp [hlow, log_nat_succ_nonneg N]
 
@@ -402,7 +402,7 @@ private lemma vaughanMuHigh_mul_zeta_abs_le_card_divisors (U m : ℕ) :
       intro d _hd
       unfold vaughanMuHigh
       by_cases h : U < d
-      · simp [h]
+      · simp only [ArithmeticFunction.coe_mk]
         exact_mod_cast ArithmeticFunction.abs_moebius_le_one (n := d)
       · simp [h]
     _ = (#m.divisors : ℝ) := by simp
@@ -423,7 +423,7 @@ private lemma vaughanLambdaHigh_abs_le_log_succ (V m : ℕ) {d : ℕ}
     exact Real.log_le_log (by exact_mod_cast hdpos) hdle_succ
   unfold vaughanLambdaHigh
   by_cases h : V < d
-  · simp [h, abs_of_nonneg ArithmeticFunction.vonMangoldt_nonneg]
+  · simp only [ArithmeticFunction.coe_mk, ge_iff_le]
     exact (ArithmeticFunction.vonMangoldt_le_log (n := d)).trans hlog_le
   · simp [h, log_nat_succ_nonneg m]
 
@@ -983,7 +983,7 @@ private lemma lcm_reciprocal_range_eq_Icc (N : ℕ) :
   by_cases hd0 : d = 0
   · simp [hd0, Nat.lcm_zero_left]
   · rw [hfilter]
-    simp [hd0]
+    simp only [ne_eq, ite_not]
     exact (hinner d).symm
 
 private lemma harmonic_sum_le_log_succ_early (N : ℕ) :
@@ -1242,7 +1242,7 @@ private lemma vaughanMuLow_mul_zeta_abs_le_card_divisors (U m : ℕ) :
       intro d _hd
       unfold vaughanMuLow
       by_cases h : d ≤ U
-      · simp [h]
+      · simp only [ArithmeticFunction.coe_mk]
         exact_mod_cast ArithmeticFunction.abs_moebius_le_one (n := d)
       · simp [h]
     _ = (#m.divisors : ℝ) := by simp
@@ -1324,7 +1324,7 @@ private lemma vaughanTypeIArithmetic_abs_le (U V m : ℕ) :
       have hmu : |vaughanMuLow U x.fst| ≤ (1 : ℝ) := by
         unfold vaughanMuLow
         by_cases h : x.fst ≤ U
-        · simp [h]
+        · simp only [ArithmeticFunction.coe_mk]
           exact_mod_cast ArithmeticFunction.abs_moebius_le_one (n := x.fst)
         · simp [h]
       have htail :
@@ -1367,7 +1367,7 @@ private lemma vaughanTypeIArithmetic_abs_le_sqrt (U V m : ℕ) :
       have hmu : |vaughanMuLow U x.fst| ≤ (1 : ℝ) := by
         unfold vaughanMuLow
         by_cases h : x.fst ≤ U
-        · simp [h]
+        · simp only [ArithmeticFunction.coe_mk]
           exact_mod_cast ArithmeticFunction.abs_moebius_le_one (n := x.fst)
         · simp [h]
       have htail :

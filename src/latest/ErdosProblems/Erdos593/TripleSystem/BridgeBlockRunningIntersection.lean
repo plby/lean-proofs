@@ -201,13 +201,13 @@ noncomputable def rootedHyperedgeComponentList : List (HyperedgeComponent F) := 
 theorem mem_rootedHyperedgeComponentList (C : HyperedgeComponent F) :
     C ∈ rootedHyperedgeComponentList F := by
   classical
-  letI := hyperedgeComponentLinearOrder F
+  let := hyperedgeComponentLinearOrder F
   simp [rootedHyperedgeComponentList]
 
 theorem rootedHyperedgeComponentList_nodup :
     (rootedHyperedgeComponentList F).Nodup := by
   classical
-  letI := hyperedgeComponentLinearOrder F
+  let := hyperedgeComponentLinearOrder F
   simp [rootedHyperedgeComponentList]
 
 /-- Earlier recursive pieces have no greater rooted depth than the new head
@@ -218,7 +218,7 @@ theorem rootedHyperedgeComponentList_pairwise_depth :
         quotientTreeComponent F D = quotientTreeComponent F C →
           componentDepth F D ≤ componentDepth F C) := by
   classical
-  letI := hyperedgeComponentLinearOrder F
+  let := hyperedgeComponentLinearOrder F
   have hsorted :
       (Finset.univ.sort (fun C D : HyperedgeComponent F => D ≤ C)).Pairwise
         (fun C D => D ≤ C) :=
@@ -750,8 +750,8 @@ theorem isolatedReduction_constructible_iff_intrinsic
     [Fintype X] [Fintype I] [DecidableEq X] [DecidableEq I] :
     Constructible K.isolatedReduction ↔ K.isolatedReduction.Intrinsic := by
   classical
-  letI : Fintype K.NonIsolatedPoint := Fintype.ofFinite _
-  letI : DecidableRel K.isolatedReduction.levi.Adj := Classical.decRel _
+  let : Fintype K.NonIsolatedPoint := Fintype.ofFinite _
+  let : DecidableRel K.isolatedReduction.levi.Adj := Classical.decRel _
   exact constructible_iff_intrinsic_of_hasNoIsolatedPoints
     K.isolatedReduction K.isolatedReduction_hasNoIsolatedPoints
 

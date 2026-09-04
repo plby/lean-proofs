@@ -113,7 +113,7 @@ theorem density_restrictedEndpointSet_eq {k m : ℕ}
     density (restrictedEndpointSet A) =
       cubeRestrictedLineFraction A *
         (1 - density (liftFinset (Finset.univ : Finset (Word k m)))) := by
-  letI : Nonempty (Combinatorics.Line (Fin k) (Fin m)) := ⟨hR.choose⟩
+  let : Nonempty (Combinatorics.Line (Fin k) (Fin m)) := ⟨hR.choose⟩
   have hq : ((Fintype.card (Combinatorics.Line (Fin k) (Fin m)) : ℕ) : ℝ) ≠ 0 := by
     exact_mod_cast Fintype.card_ne_zero
   have hN : (((k + 1) ^ m : ℕ) : ℝ) ≠ 0 := by positivity
@@ -575,7 +575,7 @@ theorem structured_correlation_of_correlated_sections
   have hgamma_pos : 0 < gamma := hparam.2.2.2.1
   have hgamma_half : gamma ≤ eta ^ 2 / 2 := hparam.2.2.2.2.1
   have hgamma_one : gamma < 1 := hparam.2.2.2.2.2.2.2.1
-  letI : Nonempty (Fin m) := Fin.pos_iff_nonempty.mp hm
+  let : Nonempty (Fin m) := Fin.pos_iff_nonempty.mp hm
   rcases density_increment_or_many_restricted_lines U A rho eta theta
       heta_pos htheta heta_theta hsection hcorrelation with hinc | hmany
   · obtain ⟨W, hW⟩ := hinc
@@ -584,7 +584,7 @@ theorem structured_correlation_of_correlated_sections
     · intro i x y _
       simp [D]
     · have : density (familyInter D) = 1 := by
-        haveI : Nonempty (Word (k + 1) m) := inferInstance
+        have : Nonempty (Word (k + 1) m) := inferInstance
         rw [show familyInter D = Finset.univ by ext x; simp [D], density_univ]
       change gamma < density (familyInter D)
       rw [this]
@@ -596,7 +596,7 @@ theorem structured_correlation_of_correlated_sections
       have hden : subspaceDensityFinset W A = density (pullbackFinset W A) := rfl
       rw [hden] at hW
       have hfamily : density (familyInter D) = 1 := by
-        haveI : Nonempty (Word (k + 1) m) := inferInstance
+        have : Nonempty (Word (k + 1) m) := inferInstance
         rw [show familyInter D = Finset.univ by ext x; simp [D], density_univ]
       rw [hfamily, mul_one]
       nlinarith

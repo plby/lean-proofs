@@ -448,7 +448,7 @@ theorem exists_squareSubgroup_with_few_primeDivisors_of_exception
     apply mem_specialFormValues_of_signed_primeFactors
       ha1 (Finset.mem_Icc.mp ha.1.1).2 ha.1.2.1 ha.1.2.2 sigma
     simpa [e, q, s, x, SpecialSplitPrimeData.idealClass] using hsigma
-  letI : Fintype (ClassGroup (Zsqrtd (-(p : ℤ) ^ 3))) :=
+  let : Fintype (ClassGroup (Zsqrtd (-(p : ℤ) ^ 3))) :=
     zsqrtdClassGroupFintype (-(p : ℤ) ^ 3)
       (specialDiscriminant_neg p Fact.out)
   obtain ⟨H, hH, hfew⟩ :=
@@ -512,7 +512,7 @@ noncomputable def specialProperSquareSubgroups
         (ClassGroup (Zsqrtd (-(p : ℤ) ^ 3))))) :
     H ∈ specialProperSquareSubgroups p ↔ H ≠ ⊤ := by
   classical
-  letI : Fintype (ClassGroup (Zsqrtd (-(p : ℤ) ^ 3))) :=
+  let : Fintype (ClassGroup (Zsqrtd (-(p : ℤ) ^ 3))) :=
     zsqrtdClassGroupFintype (-(p : ℤ) ^ 3)
       (specialDiscriminant_neg p Fact.out)
   simp [specialProperSquareSubgroups]

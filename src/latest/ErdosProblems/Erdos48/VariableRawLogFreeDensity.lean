@@ -240,7 +240,7 @@ theorem exists_variable_raw_and_unweightedIntegral_parameters :
     · have hqData := Finset.mem_Ioc.mp hqMem
       have hq1 : 1 < q := hqData.1
       have hqQ : q ≤ Q := hqData.2
-      letI : NeZero q := ⟨by omega⟩
+      let : NeZero q := ⟨by omega⟩
       obtain ⟨S, order, hSsub, hsep, hcover, horder⟩ :=
         hselection Q T hQ eta heta heta8 q hq1 hqQ psi.1 psi.2
       refine ⟨S, order, fun _ ↦ ⟨?_, hsep, ?_, ?_, ?_⟩⟩

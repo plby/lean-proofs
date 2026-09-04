@@ -46,7 +46,7 @@ theorem finiteMainTerms_bounds_of_generalBetaCutoffs
   dsimp only
   let P := (descendingSievePrimes z y).reverse
   let stop : List ℕ → Prop := rosserStoppingPredicate beta (y ^ S)
-  letI : DecidablePred stop := Classical.decPred stop
+  let : DecidablePred stop := Classical.decPred stop
   have hstop : (fun s : List ℕ => decide (stop s.reverse)) =
       descendingRosserStop beta (y ^ S) := by
     funext s

@@ -6028,7 +6028,7 @@ theorem abs_partialTestTotal_sub_le_incidenceCharge
         have hcard : (1 : ℝ) ≤
             ((S ∩ partialTestStatusChanges A M A' M').card : ℝ) := by
           exact_mod_cast Finset.card_pos.mpr hne
-        simp [hOld, hNew, abs_of_nonneg (hw S)]
+        simp only [ge_iff_le]
         calc
           w S = w S * 1 := by ring
           _ ≤ w S * ((S ∩ partialTestStatusChanges A M A' M').card : ℝ) :=
@@ -6046,7 +6046,7 @@ theorem abs_partialTestTotal_sub_le_incidenceCharge
         have hcard : (1 : ℝ) ≤
             ((S ∩ partialTestStatusChanges A M A' M').card : ℝ) := by
           exact_mod_cast Finset.card_pos.mpr hne
-        simp [hOld, hNew, abs_of_nonneg (hw S)]
+        simp only [ge_iff_le]
         calc
           w S = w S * 1 := by ring
           _ ≤ w S * ((S ∩ partialTestStatusChanges A M A' M').card : ℝ) :=
@@ -11004,7 +11004,7 @@ theorem testSourceVarianceScale_externalTestNaturalScale
     ← Real.rpow_add hd]
   rw [mul_assoc, ← Real.rpow_add hd]
   congr 2
-  ring
+  ring_nf
 
 /-! Elementary consequences of a pointwise observable jump bound. -/
 
@@ -14804,7 +14804,7 @@ theorem trajectoryFloor_sq
   unfold trajectoryFloor publicError
   rw [div_pow, pow_two, ← Real.rpow_add hd]
   congr 1
-  · ring
+  · ring_nf
   · norm_num
 
 /-- The common denominator lower bound behind every curvature estimate. -/
@@ -21313,7 +21313,7 @@ theorem localSpreadUpperSourceBudgets_derivative_of_realSpread
   · intro k hk y hyH
     unfold chosenSetDerivativeWeight
     by_cases hxy : x ∈ ({y} : Hypergraph V)
-    · simp [hxy]
+    · simp only [mem_singleton, conflictFamilyShadowWeight_eq_codegree]
       exact mul_nonneg hd₀ (sq_nonneg delta)
     · rw [if_neg hxy]
       have hpairCard : (insert x ({y} : Hypergraph V)).card = 2 := by
@@ -26614,7 +26614,7 @@ theorem weightedChoiceTestConflictUnionRootMass_le
         _ = testTotal w H j * Real.rpow d
             ((r : ℝ) - (j : ℝ) - epsRaw / 10 - (root.card : ℝ)) := by
           congr 1
-          ring
+          ring_nf
 
 /-- No-premise static weighted spread for one selected collision choice,
 apart from the single explicit finite-multiplicity cutoff. -/
@@ -27871,7 +27871,7 @@ theorem weightedPartialTestGainChoices_le_succ_mul_observable
   by_cases hsource : partialTestCondition
       (availableEdges H C M) M j (s + 1) S
   · simp only [partialTestCondition] at hsource
-    simp [partialTestCondition, hsource] at hc ⊢
+    simp only [Nat.cast_add, Nat.cast_one, ge_iff_le] at hc ⊢
     have hcr : ((partialTestGainChoiceSet H C M j s S).card : ℝ) ≤
         (s + 1 : ℕ) := by exact_mod_cast hc
     calc
@@ -28538,7 +28538,7 @@ theorem succ_mul_observable_le_weightedGain_add_collision
   by_cases hsource : partialTestCondition
       (availableEdges H C M) M j (s + 1) S
   · simp only [partialTestCondition] at hsource
-    simp [partialTestCondition, hsource]
+    simp only [Nat.cast_add, Nat.cast_one]
     have hc := partialTestGainChoiceSet_card_add_collision_ge_source
       H C M j s S hS hsource
     have hcR : (s : ℝ) + 1 ≤
@@ -28554,7 +28554,7 @@ theorem succ_mul_observable_le_weightedGain_add_collision
           w S * ((partialTestGainCollisionChoiceSet H C M S).card : ℝ) := by
         ring
   · simp only [partialTestCondition] at hsource
-    simp [partialTestCondition, hsource]
+    simp only [Nat.cast_add, Nat.cast_one]
     exact mul_nonneg (hw S) (Nat.cast_nonneg _)
 
 /-- The exact overcount in replacing the union of the `s` blocker
@@ -28651,7 +28651,7 @@ theorem weightedBlockerIncidence_bounds_of_statusWindow
     by_cases hold : partialTestCondition
         (availableEdges H C M) M j s S
     · simp only [partialTestCondition] at hold
-      simp [partialTestCondition, hold]
+      simp only [Nat.cast_sum]
       have hsum : (s : ℝ) * lo ≤
           ∑ f ∈ S ∩ availableEdges H C M,
             ((availableBlockerChoices H C M f).card : ℝ) := by
@@ -28672,7 +28672,7 @@ theorem weightedBlockerIncidence_bounds_of_statusWindow
     by_cases hold : partialTestCondition
         (availableEdges H C M) M j s S
     · simp only [partialTestCondition] at hold
-      simp [partialTestCondition, hold]
+      simp only [Nat.cast_sum]
       have hsum :
           (∑ f ∈ S ∩ availableEdges H C M,
             ((availableBlockerChoices H C M f).card : ℝ)) ≤
@@ -30694,7 +30694,7 @@ theorem weighted_orientedPairCategoryMass_le
   by_cases hcoord : partialTestCondition
       (availableEdges H C M) M j s S
   · simp only [partialTestCondition] at hcoord
-    simp [partialTestCondition, hcoord]
+    simp only [Nat.cast_mul, Nat.cast_ofNat]
     by_cases hwzero : w S = 0
     · simp [hwzero]
     · have hwpos : 0 < w S := lt_of_le_of_ne (hw S) (Ne.symm hwzero)
@@ -33031,7 +33031,7 @@ theorem degreeMeanRateCoefficient_absorption
       _ = (4 * Gamma) * 16 *
           (Real.exp (3 * Gamma) * Real.exp (3 * Gamma)) := by
         rw [← Real.exp_add]
-        ring
+        ring_nf
       _ ≤ Real.rpow d (CFMNumeric.coreEpsilon eta / 64) *
           Real.rpow d (CFMNumeric.coreEpsilon eta / 64 - eta ^ 3) *
           (Real.rpow d (CFMNumeric.coreEpsilon eta / 64) *
@@ -35808,7 +35808,7 @@ theorem literalMeanWindow_numeric_of_registry_residualSixteenth
   dsimp only [Z, Zp, Env, Envp, b, eHi, eLo, gain, loss, K, rem, scale,
     delta, internal, h, eps, x] at hwindows
   unfold certificateTestStatusHi certificateTestStatusLo
-  convert hwindows using 1 <;> ring
+  convert hwindows using 1 <;> ring_nf
 
 end CFMSharpTestCutoff
 
@@ -36531,7 +36531,7 @@ theorem literalMeanWindow_numeric_of_registry
   dsimp only [Z, Zp, Env, Envp, b, eHi, eLo, gain, loss, K, rem, scale,
     delta, internal, h, eps, x] at hwindows
   unfold certificateTestStatusHi certificateTestStatusLo
-  convert hwindows using 1 <;> ring
+  convert hwindows using 1 <;> ring_nf
 
 end CFMSharpTestCutoff
 
@@ -40255,7 +40255,7 @@ theorem weightedGainCollisionResidualFullEmptySourceRootMass_le
           exact (Real.rpow_add (by linarith : 0 < d) _ _).symm
         _ = testTotal w H j * Real.rpow d (-(epsRaw / 10)) := by
           congr 1
-          ring
+          ring_nf
     _ = testTotal w H j * Real.rpow d
         ((r : ℝ) - (j : ℝ) - epsRaw / 10 -
           (root.card : ℝ)) := by
@@ -40264,7 +40264,7 @@ theorem weightedGainCollisionResidualFullEmptySourceRootMass_le
       have hcast : ((r - j : ℕ) : ℝ) = (r : ℝ) - (j : ℝ) :=
         Nat.cast_sub hjr
       rw [← hcast, ← hrootRank]
-      ring
+      ring_nf
 
 def gainCollisionResidualFullConflictCandidates
     (H : Hypergraph V) (C : ConflictSystem V)
@@ -41387,7 +41387,7 @@ theorem weightedGainCollisionResidualNonFullRootMass_le
             (((r - j : ℕ) : ℝ) - (root.card : ℝ) -
               3 * epsRaw / 20) := by
           congr 1
-          ring
+          ring_nf
     _ ≤ testTotal w H j * Real.rpow d
         ((r : ℝ) - (j : ℝ) - epsRaw / 10 - (root.card : ℝ)) := by
       apply mul_le_mul_of_nonneg_left _ htotal0
@@ -41435,7 +41435,7 @@ theorem weightedGainCollisionResidualFullNonemptySourceRootMass_le
           exact (Real.rpow_add (by linarith : 0 < d) _ _).symm
         _ = testTotal w H j * Real.rpow d (-(1 + epsRaw / 10)) := by
           congr 1
-          ring
+          ring_nf
     _ = testTotal w H j * Real.rpow d
         ((r : ℝ) - (j : ℝ) - epsRaw / 10 - (root.card : ℝ)) := by
       congr 1
@@ -41443,7 +41443,7 @@ theorem weightedGainCollisionResidualFullNonemptySourceRootMass_le
         Nat.cast_sub hjr
       rw [← hcast, hrootRank]
       push_cast
-      ring
+      ring_nf
 
 theorem weightedGainCollisionResidualRootMass_eq_zero_of_not_subset_host
     (w : TestWeight V) (H : Hypergraph V) (C : ConflictSystem V)
@@ -41772,13 +41772,13 @@ theorem weightedGainCollisionResidualRootMass_le
             _ = testTotal w H j * Real.rpow d
                 (((r - j : ℕ) : ℝ) - (root.card : ℝ) - epsRaw / 10) := by
               congr 1
-              ring
+              ring_nf
         _ = testTotal w H j * Real.rpow d
             ((r : ℝ) - (j : ℝ) - epsRaw / 10 -
               (root.card : ℝ)) := by
           congr 1
           rw [Nat.cast_sub hjr]
-          ring
+          ring_nf
     · have hrj : r < j := by omega
       rw [weightedGainCollisionResidualRootMass_eq_zero_of_rank_lt_source
         w H C j r root hrj]
@@ -42070,11 +42070,11 @@ theorem weightedGainCollisionResidualRootMass_le_of_fullRank
                     exact (Real.rpow_add hdpos _ _).symm
               _ = testTotal w H 2 * Real.rpow d (-(epsRaw / 10)) := by
                     congr 1
-                    ring
+                    ring_nf
           _ = testTotal w H 2 *
               Real.rpow d (2 - (2 : ℝ) - epsRaw / 10) := by
                 congr 1
-                ring
+                ring_nf
       · have hemptyZero :
             weightedGainCollisionResidualFullEmptySourceRootMass
               w H C 3 r root = 0 := by
@@ -42114,11 +42114,11 @@ theorem weightedGainCollisionResidualRootMass_le_of_fullRank
               _ = testTotal w H 3 *
                   Real.rpow d (-(1 + epsRaw / 10)) := by
                     congr 1
-                    ring
+                    ring_nf
           _ = testTotal w H 3 *
               Real.rpow d (2 - (3 : ℝ) - epsRaw / 10) := by
                 congr 1
-                ring
+                ring_nf
   · have hrootMassZero :=
       weightedGainCollisionResidualRootMass_eq_zero_of_not_subset_host
         w H C j r root hrootH
@@ -42203,7 +42203,7 @@ theorem weightedGainCollisionResidualRootMass_le_closed
     rw [hfull]
     have hr2' : 2 ≤ r := hr2
     rw [Nat.cast_sub hr2']
-    ring
+    ring_nf
   · exact weightedGainCollisionResidualRootMass_le
       hw hB hd heps hell hj3 hr5 hcutoff root hproper
 
@@ -42717,7 +42717,7 @@ theorem twelve_rpow_quarter_le_certificateScale_mul_rpow_tenth
   have hfloor : Real.rpow d ((j : ℝ) - eps / 600) ≤
       certificateInternalLayerScale
         H C d eps Gamma ell testJ testW Rcert (j + 1) := by
-    convert hfloorRaw using 1 <;> push_cast <;> ring
+    convert hfloorRaw using 1 <;> push_cast <;> ring_nf
   have hquarter0 : 0 ≤ Real.rpow d ((j : ℝ) - eps / 4) :=
     Real.rpow_nonneg (by linarith : 0 ≤ d) _
   have htenth0 : 0 ≤ Real.rpow d (-eps / 10) :=
@@ -42817,7 +42817,7 @@ theorem RegularizationCertificate.internalLinkTestExtension_proper_le_scale
   have hfloor : Real.rpow d ((j : ℝ) - eps / 600) ≤
       certificateInternalLayerScale
         H C d eps Gamma ell testJ testW Rcert (j + 1) := by
-    convert hfloorRaw using 1 <;> push_cast <;> ring
+    convert hfloorRaw using 1 <;> push_cast <;> ring_nf
   have htail0 : 0 ≤
       Real.rpow d (-((root.card : ℝ) + eps / 5)) :=
     Real.rpow_nonneg (by linarith : 0 ≤ d) _
@@ -46429,7 +46429,7 @@ private theorem rerootMargin_le_localSpreadPrimary_of_coefficient
     _ = d ^ (1 - eps / 3) / 16 := by
       rw [← Real.rpow_add hd, hepsEq]
       congr 1
-      ring
+      ring_nf
 
 /-- The legal-reroot weighted shadow profile is absorbed by the existing
 primary local-spread margin. -/
@@ -46628,7 +46628,7 @@ theorem weightedF0TruncatedGainCollisionResidualRootMass_le_fourParts
             hempty, hw0 S]
       · simp [base, full, emptySource, trunc, hb, ht, hfull,
           hw0 S]
-    · simp [base, full, emptySource, trunc, hb, ht, hw0 S]
+    · simp only [sdiff_le_iff, sup_eq_union', ge_iff_le]
       exact add_nonneg
         (by split <;> simp [hw0 S])
         (by split <;> simp [hw0 S])
@@ -47713,7 +47713,7 @@ theorem RegularizationCertificate.internalF0TruncatedFullEmptyProperSourceRootMa
           w H Rcert.regularized f₀ j r root ≤
         (72 * (3 * Gamma + 1)) * scale *
           Real.rpow d (-eps / 5) := by
-    convert hraw using 1 <;> dsimp only [w, scale] <;> ring
+    convert hraw using 1 <;> dsimp only [w, scale] <;> ring_nf
   apply hraw'.trans
   calc
     (72 * (3 * Gamma + 1)) * scale * Real.rpow d (-eps / 5) ≤
@@ -47970,7 +47970,7 @@ theorem RegularizationCertificate.weightedF0TruncatedGainCollisionResidualRootMa
             congr 1
             dsimp only [E]
             rw [hemptyRank, Nat.cast_sub hjr]
-            ring
+            ring_nf
           have hcutoff12 : 12 ≤ Real.rpow d (eps / 10) := by
             have hGamma : 0 ≤ 3 * Gamma :=
               regularizedBounded_Gamma_nonneg Rcert.bounded
@@ -47989,7 +47989,7 @@ theorem RegularizationCertificate.weightedF0TruncatedGainCollisionResidualRootMa
             congr 1
             dsimp only [E]
             rw [hemptyRank, Nat.cast_sub hjr]
-            ring
+            ring_nf
           change weightedF0TruncatedGainCollisionResidualRootMass
               w H Rcert.regularized f₀ j r root ≤
             3 * scale * Real.rpow d E
@@ -48018,7 +48018,7 @@ theorem RegularizationCertificate.weightedF0TruncatedGainCollisionResidualRootMa
               dsimp only [E]
               rw [hnonemptyRank, Nat.cast_add, Nat.cast_one,
                 Nat.cast_sub hjr]
-              ring
+              ring_nf
             change weightedF0TruncatedGainCollisionResidualRootMass
                 w H Rcert.regularized f₀ j r root ≤
               3 * scale * Real.rpow d E
@@ -48170,7 +48170,7 @@ theorem RegularizationCertificate.weightedF0TruncatedGainCollisionResidualRootMa
               scale * Real.rpow d (2 - (2 : ℝ) - eps / 10) := by
           apply hfullCard.trans_eq
           congr 1
-          ring
+          ring_nf
         change weightedF0TruncatedGainCollisionResidualRootMass
             w H Rcert.regularized f₀ 2 r root ≤
           scale * Real.rpow d (2 - (2 : ℝ) - eps / 10)
@@ -48199,7 +48199,7 @@ theorem RegularizationCertificate.weightedF0TruncatedGainCollisionResidualRootMa
               scale * Real.rpow d (2 - (3 : ℝ) - eps / 10) := by
           apply hfull.trans_eq
           congr 1
-          ring
+          ring_nf
         change weightedF0TruncatedGainCollisionResidualRootMass
             w H Rcert.regularized f₀ 3 r root ≤
           scale * Real.rpow d (2 - (3 : ℝ) - eps / 10)
@@ -50481,7 +50481,7 @@ theorem literalMeanWindow_numeric_of_registry_internalResidualSixteenth
   dsimp only [Z, Zp, Env, Envp, b, eHi, eLo, gain, loss, K, rem, scale,
     delta, internal, h, eps, x] at hwindows
   unfold certificateTestStatusHi certificateTestStatusLo
-  convert hwindows using 1 <;> ring
+  convert hwindows using 1 <;> ring_nf
 
 end CFMSharpTestCutoff
 
@@ -55375,7 +55375,7 @@ theorem originalTestMeanMultiplicity_le_source
           ((b + 59 * eps / 1600 + eta ^ 3) + (-eta ^ 3) +
             (1 - eps / 32)) := by
               congr 1
-              ring
+              ring_nf
       _ = 500 * Gamma * W *
           (d ^ (b + 59 * eps / 1600 + eta ^ 3) * d ^ (-eta ^ 3) *
             d ^ (1 - eps / 32)) := by
@@ -58925,14 +58925,14 @@ theorem weightedKilledConflictLinkGainChoices_le_sourceCard
                 s + 1 := by
             apply (Finset.card_le_card hsub).trans
             simpa [hsource.1] using hcard
-          simp [conflictLinkTestWeight, hlink, hQK]
+          simp only [conflictLinkTestWeight_apply, ite_mul, one_mul, zero_mul, Nat.cast_add, Nat.cast_one, ge_iff_le]
           exact_mod_cast hle
         · have hempty :
               killedPartialTestGainChoiceSet H C M f₀ q s Q = ∅ :=
             Finset.not_nonempty_iff_eq_empty.mp hchoices
-          simp [conflictLinkTestWeight, hlink, hempty]
+          simp only [conflictLinkTestWeight_apply, ite_mul, one_mul, zero_mul, Nat.cast_add, Nat.cast_one, ge_iff_le]
           split <;> positivity
-      · simp [conflictLinkTestWeight, hlink]
+      · simp only [conflictLinkTestWeight_apply, ite_mul, one_mul, zero_mul, Nat.cast_add, Nat.cast_one]
         split <;> positivity
     _ = ((s + 1 : ℕ) : ℝ) * K.card := by
       rw [← Finset.sum_filter]
@@ -60651,7 +60651,7 @@ theorem literalSharpCenteredWindow_numeric_of_registry_internalResidualSixteenth
   dsimp only [Z, Zp, Env, Envp, b, eHi, eLo, gain, loss, K, common,
     delta, internal, h, eps, x] at hwindows
   unfold certificateTestStatusHi certificateTestStatusLo
-  convert hwindows using 1 <;> ring
+  convert hwindows using 1 <;> ring_nf
 
 end CFMSharpPersistentKilledNetNumeric
 
@@ -64492,7 +64492,7 @@ theorem fifty_base_le_internalConflictLink_naturalHalf
     change Real.rpow d
       ((((q + 1 : ℕ) : ℝ) - 1) - epsRaw / 600) ≤ _ at hfloorRaw
     rw [hepsRaw] at hfloorRaw
-    convert hfloorRaw using 1 <;> push_cast <;> ring
+    convert hfloorRaw using 1 <;> push_cast <;> ring_nf
   have hconst : (100 : ℝ) ≤ Real.rpow d (3 * eps / 64) := by
     calc
       (100 : ℝ) ≤ 5 ^ (3 : ℕ) := by norm_num

@@ -116,7 +116,8 @@ theorem abs_chronologicalRemainder_le (x : Point) (N : ℕ) :
   obtain ⟨m, hm | hm⟩ := Nat.even_or_odd' N
   · subst N
     rw [chronologicalRemainder_even]
-    simp
+    simp only [abs_zero, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, mul_div_cancel_left₀, Nat.cast_add,
+    Nat.cast_one, one_div, inv_nonneg]
     positivity
   · subst N
     rw [chronologicalRemainder_odd]

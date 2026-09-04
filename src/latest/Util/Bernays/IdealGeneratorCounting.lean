@@ -21,7 +21,7 @@ theorem generator_norm_of_product {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     I * J = InvertibleIdeal.principal z hz →
       z.norm.natAbs = (I : Ideal (QuadraticAlgebra ℤ d b)).cardQuot *
         (J : Ideal (QuadraticAlgebra ℤ d b)).cardQuot := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I J z hz hprod
   have h := InvertibleIdeal.cardQuot_mul I J
   rwa [hprod, InvertibleIdeal.coe_principal,
@@ -34,7 +34,7 @@ theorem idealGeneratorBall_card {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       Nat.card (IdealGeneratorBall I N A) = Nat.card (QuadraticAlgebra ℤ d b)ˣ *
         Nat.card (RestrictedIdealClassBall (QuadraticAlgebra ℤ d b) I.idealClass⁻¹ N A) := by
   classical
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I N A
   let O := QuadraticAlgebra ℤ d b
   let X := IdealGeneratorBall I N A
@@ -53,13 +53,13 @@ theorem idealGeneratorBall_card {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
   have hnorm (x : X) : (x.1 : O).norm.natAbs ≤ (I : Ideal O).cardQuot * N := by
     rw [generator_norm_of_product hD I (J x) x.1 (hz x) (hJ x).1]
     exact Nat.mul_le_mul_left _ (hJ x).2.1
-  letI := finite_quadraticNormBall hD ((I : Ideal O).cardQuot * N)
+  let := finite_quadraticNormBall hD ((I : Ideal O).cardQuot * N)
   let e : X → QuadraticNormBall d b ((I : Ideal O).cardQuot * N) := fun x => ⟨x.1, hnorm x⟩
-  letI : Finite X := Finite.of_injective e (fun x y h =>
+  let : Finite X := Finite.of_injective e (fun x y h =>
     Subtype.ext (congrArg (fun t : QuadraticNormBall d b ((I : Ideal O).cardQuot * N) => t.1) h))
-  letI := finite_idealClassBall hD I.idealClass⁻¹ N
-  letI : Finite Y := by dsimp only [Y, RestrictedIdealClassBall]; infer_instance
-  letI := finite_quadraticOrder_units hD
+  let := finite_idealClassBall hD I.idealClass⁻¹ N
+  let : Finite Y := by dsimp only [Y, RestrictedIdealClassBall]; infer_instance
+  let := finite_quadraticOrder_units hD
   have hcancel (x : X) (K : InvertibleIdeal O)
       (hK : I * K = InvertibleIdeal.principal (x.1 : O) (hz x)) : J x = K :=
     InvertibleIdeal.mul_right_cancel _ _ I (by simpa only [mul_comm] using (hJ x).1.trans hK.symm)

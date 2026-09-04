@@ -19,7 +19,7 @@ theorem tendsto_uniformKernelError (C : ℝ) :
     convert hlog2.add hlog1 using 1
     · funext x
       ring
-    · ring
+    · ring_nf
   have hLtop : Tendsto (fun x : ℝ => Real.log x) atTop atTop :=
     Real.tendsto_log_atTop
   have hinvL : Tendsto (fun x : ℝ => (Real.log x)⁻¹) atTop (𝓝 0) :=
@@ -28,7 +28,7 @@ theorem tendsto_uniformKernelError (C : ℝ) :
     convert (hinvL.const_mul (16 * C)) using 1
     · funext x
       simp [div_eq_mul_inv]
-    · ring
+    · ring_nf
   have hratio : Tendsto (fun y : ℝ => Real.log y / y) atTop (𝓝 0) :=
     Real.isLittleO_log_id_atTop.tendsto_div_nhds_zero
   have hratioComp : Tendsto
@@ -39,7 +39,7 @@ theorem tendsto_uniformKernelError (C : ℝ) :
     convert (hinvL.const_mul (Real.log 4)) using 1
     · funext x
       simp [div_eq_mul_inv]
-    · ring
+    · ring_nf
   have hthirdR : Tendsto
       (fun x : ℝ => Real.log (4 * Real.log x) / Real.log x) atTop (𝓝 0) := by
     have hsum : Tendsto

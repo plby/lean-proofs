@@ -110,7 +110,7 @@ theorem cubeSeminorm_unitBall
     (A : Finset ℤ) (hA : A.Nonempty) :
     {x : Fin A.card → ℝ | cubeSeminorm A x ≤ 1} =
       Set.Icc (fun _ ↦ (-1 : ℝ)) (fun _ ↦ (1 : ℝ)) := by
-  letI : Nonempty (Fin A.card) := Fin.pos_iff_nonempty.mp hA.card_pos
+  let : Nonempty (Fin A.card) := Fin.pos_iff_nonempty.mp hA.card_pos
   ext x
   simp only [Set.mem_setOf_eq, Set.mem_Icc]
   rw [cubeSeminorm_apply, pi_norm_le_iff_of_nonempty,

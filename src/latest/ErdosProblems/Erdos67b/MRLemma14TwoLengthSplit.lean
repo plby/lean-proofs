@@ -157,7 +157,7 @@ theorem dyadicTwoLengthCorrectedPerronMeanSquare_le_low_add_high
     simp only [sub_neg_eq_add, Complex.normSq_neg] at houter hinner
     calc
       Complex.normSq (L x + N x + P x) =
-          Complex.normSq (L x + (N x + P x)) := by ring
+          Complex.normSq (L x + (N x + P x)) := by ring_nf
       _ ≤ 2 * (Complex.normSq (L x) + Complex.normSq (N x + P x)) := houter
       _ ≤ 2 * Complex.normSq (L x) +
           4 * (Complex.normSq (N x) + Complex.normSq (P x)) := by

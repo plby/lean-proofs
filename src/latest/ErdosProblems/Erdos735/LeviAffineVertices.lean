@@ -249,7 +249,7 @@ theorem three_le_hullVertexCount_of_affineSpan_eq_top (p : B)
   have hXfin : X.Finite := (vertexFinset B p).finite_toSet.subset (by
     dsimp [X]
     exact extremePoints_convexHull_subset)
-  letI : Fintype X := hXfin.fintype
+  let : Fintype X := hXfin.fintype
   change 3 ≤ X.ncard at h
   have hXcard : X.ncard = Erdos957.hullVertexCount (vertexFinset B p) := by
     rw [Set.ncard_eq_toFinset_card']

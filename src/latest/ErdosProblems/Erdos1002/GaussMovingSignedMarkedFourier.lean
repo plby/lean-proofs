@@ -42,7 +42,7 @@ def gaussSelectedPrefixTorusMark (N n : ℕ) (x : ℝ) : ℝ :=
 selection of the unique positive prefix word. -/
 theorem measurable_gaussSelectedPrefixTorusMark (N n : ℕ) :
     Measurable (gaussSelectedPrefixTorusMark N n) := by
-  letI : MeasurableSpace (PositiveDigitWord n) := ⊤
+  let : MeasurableSpace (PositiveDigitWord n) := ⊤
   let G : PositiveDigitWord n × ℝ → ℝ := fun z ↦
     (gaussPrefixMarkedPoint N n z.1 z.2).2.2
   have hG : Measurable G := by

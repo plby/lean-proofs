@@ -50,6 +50,6 @@ theorem exists_fixedZero_lower_bound {q : ℕ} [NeZero q]
     simpa only [mul_comm (realDirichletValue ψ 1), mul_assoc] using h
   convert hLB using 1
   rw [Real.rpow_neg hr0.le]
-  ring
+  ring_nf
 
 end Erdos1148.DukeArithmetic

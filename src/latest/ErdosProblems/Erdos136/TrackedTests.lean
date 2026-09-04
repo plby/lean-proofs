@@ -1174,8 +1174,7 @@ theorem paintMultiplicity_eq_role {n k : ℕ} (b : TriangleBlock n k)
           z ≠ b.apex ∧ b.Paints b.apex z b.repeated) =
           {b.left, b.right} by
         ext z
-        simp [TriangleBlock.Paints, b.apex_ne_left, b.apex_ne_right,
-          b.colors_ne]
+        simp only [ne_eq, mem_filter, mem_univ, true_and, mem_insert, mem_singleton]
         rintro (rfl | rfl)
         · exact b.apex_ne_left.symm
         · exact b.apex_ne_right.symm]
@@ -1186,8 +1185,7 @@ theorem paintMultiplicity_eq_role {n k : ℕ} (b : TriangleBlock n k)
         rw [show (Finset.univ.filter fun z : Fin n =>
             z ≠ b.left ∧ b.Paints b.left z b.repeated) = {b.apex} by
           ext z
-          simp [TriangleBlock.Paints, b.apex_ne_left.symm,
-            b.left_ne_right, b.colors_ne]
+          simp only [ne_eq, mem_filter, mem_univ, true_and, mem_singleton]
           rintro rfl
           exact b.apex_ne_left]
         rfl
@@ -1195,8 +1193,7 @@ theorem paintMultiplicity_eq_role {n k : ℕ} (b : TriangleBlock n k)
         rw [show (Finset.univ.filter fun z : Fin n =>
             z ≠ b.right ∧ b.Paints b.right z b.repeated) = {b.apex} by
           ext z
-          simp [TriangleBlock.Paints, b.apex_ne_right.symm,
-            b.left_ne_right.symm, b.colors_ne]
+          simp only [ne_eq, mem_filter, mem_univ, true_and, mem_singleton]
           rintro rfl
           exact b.apex_ne_right]
         rfl
@@ -1206,8 +1203,7 @@ theorem paintMultiplicity_eq_role {n k : ℕ} (b : TriangleBlock n k)
         rw [show (Finset.univ.filter fun z : Fin n =>
             z ≠ b.left ∧ b.Paints b.left z b.singleton) = {b.right} by
           ext z
-          simp [TriangleBlock.Paints, b.apex_ne_left.symm,
-            b.left_ne_right, b.colors_ne.symm]
+          simp only [ne_eq, mem_filter, mem_univ, true_and, mem_singleton]
           rintro rfl
           exact b.left_ne_right.symm]
         rfl
@@ -1215,8 +1211,7 @@ theorem paintMultiplicity_eq_role {n k : ℕ} (b : TriangleBlock n k)
         rw [show (Finset.univ.filter fun z : Fin n =>
             z ≠ b.right ∧ b.Paints b.right z b.singleton) = {b.left} by
           ext z
-          simp [TriangleBlock.Paints, b.apex_ne_right.symm,
-            b.left_ne_right.symm, b.colors_ne.symm]
+          simp only [ne_eq, mem_filter, mem_univ, true_and, mem_singleton]
           rintro rfl
           exact b.left_ne_right]
         rfl

@@ -292,13 +292,13 @@ theorem volume_sharpProduct_le_normalized :
     dsimp only [c]
     obtain ⟨presentationRank, P, hSat⟩ :=
       exists_saturatedPresentation_coordinateC0 D
-    letI hdiscRow : DiscreteTopology P.rowLattice := by
+    let hdiscRow : DiscreteTopology P.rowLattice := by
       change DiscreteTopology
         (Submodule.span ℤ (Set.range P.rowBasis))
       infer_instance
-    letI : DiscreteTopology (integralPoints (coordinateC0 D)) :=
+    let : DiscreteTopology (integralPoints (coordinateC0 D)) :=
       hSat ▸ hdiscRow
-    letI : IsZLattice ℝ (integralPoints (coordinateC0 D)) :=
+    let : IsZLattice ℝ (integralPoints (coordinateC0 D)) :=
       ⟨span_coordinateIntegralPoints_eq_top D⟩
     exact ENNReal.ofReal_pos.mpr
       (ZLattice.covolume_pos (integralPoints (coordinateC0 D)))

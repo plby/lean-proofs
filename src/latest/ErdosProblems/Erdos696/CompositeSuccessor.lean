@@ -376,8 +376,8 @@ private lemma finitePrimeModelProb_true (U : Finset ℕ) :
 private lemma finitePrimeModelProb_compl (U : Finset ℕ) (Q : Finset ℕ → Prop) :
     finitePrimeModelProb U (fun S => ¬ Q S) = 1 - finitePrimeModelProb U Q := by
   classical
-  letI : DecidablePred Q := fun _ => Classical.propDecidable _
-  letI : DecidablePred (fun S : Finset ℕ => ¬ Q S) := fun _ => Classical.propDecidable _
+  let : DecidablePred Q := fun _ => Classical.propDecidable _
+  let : DecidablePred (fun S : Finset ℕ => ¬ Q S) := fun _ => Classical.propDecidable _
   have hsum := Finset.sum_filter_add_sum_filter_not (s := U.powerset) (p := Q)
     (f := selectionWeight U)
   dsimp [finitePrimeModelProb] at hsum ⊢
@@ -403,7 +403,7 @@ private lemma selectionWeight_singleton (C : Finset ℕ) {q : ℕ} (hq : q ∈ C
 private lemma finitePrimeModelProb_block_good (C : Finset ℕ) :
     finitePrimeModelProb C (fun S => (C ∩ S).card = 1) = blockGoodProbability C := by
   classical
-  letI : DecidablePred (fun S : Finset ℕ => (C ∩ S).card = 1) :=
+  let : DecidablePred (fun S : Finset ℕ => (C ∩ S).card = 1) :=
     fun _ => Classical.propDecidable _
   dsimp [finitePrimeModelProb, blockGoodProbability]
   symm
@@ -443,7 +443,7 @@ private lemma finitePrimeModelProb_block_good_with_residue {B : Finset ℕ} {d a
       blockGoodProbability B * blockConditionalResidueProbability B d a := by
   classical
   rw [← block_joint_good_residue_prob h_prime]
-  letI : DecidablePred (fun S : Finset ℕ =>
+  let : DecidablePred (fun S : Finset ℕ =>
     ∃ q ∈ B, q % d = a % d ∧ S = ({q} : Finset ℕ)) :=
     fun _ => Classical.propDecidable _
   unfold finitePrimeModelProb
@@ -555,9 +555,9 @@ private lemma finitePrimeModelProb_union_inter {U V : Finset ℕ} (hUV : Disjoin
     finitePrimeModelProb (U ∪ V) (fun X => P (X ∩ U) ∧ Q (X ∩ V)) =
       finitePrimeModelProb U P * finitePrimeModelProb V Q := by
   classical
-  letI : DecidablePred P := fun _ => Classical.propDecidable _
-  letI : DecidablePred Q := fun _ => Classical.propDecidable _
-  letI : DecidablePred (fun X : Finset ℕ => P (X ∩ U) ∧ Q (X ∩ V)) :=
+  let : DecidablePred P := fun _ => Classical.propDecidable _
+  let : DecidablePred Q := fun _ => Classical.propDecidable _
+  let : DecidablePred (fun X : Finset ℕ => P (X ∩ U) ∧ Q (X ∩ V)) :=
     fun _ => Classical.propDecidable _
   let W : Finset ℕ → Finset ℕ → ℝ := fun S T =>
     if P S ∧ Q T then selectionWeight U S * selectionWeight V T else 0
@@ -617,8 +617,8 @@ private lemma finitePrimeModelProb_congr {U : Finset ℕ} {Q R : Finset ℕ → 
     (h : ∀ S, S ⊆ U → (Q S ↔ R S)) :
     finitePrimeModelProb U Q = finitePrimeModelProb U R := by
   classical
-  letI : DecidablePred Q := fun _ => Classical.propDecidable _
-  letI : DecidablePred R := fun _ => Classical.propDecidable _
+  let : DecidablePred Q := fun _ => Classical.propDecidable _
+  let : DecidablePred R := fun _ => Classical.propDecidable _
   dsimp [finitePrimeModelProb]
   congr 1
   ext S
@@ -1347,8 +1347,7 @@ private lemma reciprocalPrimeMass_prime_window_eq_sub (L U : ℝ)
       Finset.filter (fun q : ℕ => q.Prime ∧ L < (q : ℝ) ∧ (q : ℝ) ≤ U)
           (Finset.Iic ⌊U⌋₊) = sU \ sL := by
     ext q
-    simp [sL, sU, Nat.le_floor_iff hU, Nat.le_floor_iff hL, and_left_comm,
-      and_assoc]
+    simp only [Finset.mem_filter, Finset.mem_Iic, Finset.mem_sdiff]
     intro hp hqU
     constructor
     · intro h hqL _hp'
@@ -3312,7 +3311,7 @@ private lemma conditionalResidueMeasure_mixture_identity
                       (fun l : Fin (goodBlockCount S y) =>
                         Finset.orderEmbOfFin (goodBlockIndices S y) rfl l ≤ kvec_last_val)).image
                         (Finset.orderEmbOfFin (goodBlockIndices S y) rfl) = A_kvec := by
-                    letI : DecidablePred (fun l : Fin (goodBlockCount S y) =>
+                    let : DecidablePred (fun l : Fin (goodBlockCount S y) =>
                         Finset.orderEmbOfFin (goodBlockIndices S y) rfl l ≤ kvec_last_val) :=
                       fun _ => Classical.propDecidable _
                     apply Finset.ext
@@ -6235,7 +6234,7 @@ private lemma finitePrimeModelProb_le_split {U : Finset ℕ}
     · simp [hQ, hB]
     · simp [hQ, hB]
   · by_cases hB : B S
-    · simp [hQ, hB]; exact h_nonneg
+    · simp only [ge_iff_le]; exact h_nonneg
     · simp [hQ, hB]
 
 -- Numerical helper: paper §6.2 line 1683 ("Numerically ρ=e⁻¹≈0.368, 1/log2≈1.443,
@@ -6404,7 +6403,7 @@ private lemma step6_pmodel_bound :
   have hy_step2 : y₂ ≤ y := le_trans (le_max_left _ _) (le_trans (le_max_right _ _) hy_other)
   have hy_2C₂ : 2 * C₂ + 1 ≤ y := le_trans (le_max_right _ _) (le_trans (le_max_right _ _) hy_other)
   classical
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   -- K := ⌈κ log y⌉, paper line 1708.
   set K : ℕ := compositeGoodBlockThreshold y with hK_def
   have hy_pos : 0 < y := by
@@ -6579,7 +6578,7 @@ private lemma step6_pmodel_bound :
           exact h_val
         · -- surjective
           intro u _hu
-          haveI : NeZero d := ⟨by omega⟩
+          have : NeZero d := ⟨by omega⟩
           have h_val_lt : (u : ZMod d).val < d := ZMod.val_lt _
           have h_val_cop : Nat.Coprime (u : ZMod d).val d :=
             ZMod.val_coe_unit_coprime u

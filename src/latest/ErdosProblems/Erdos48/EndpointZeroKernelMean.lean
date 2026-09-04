@@ -40,7 +40,7 @@ theorem primitiveZeroKernelMass_eq_sum_norm_primitiveZeroKernelSumAt
     primitiveZeroKernelMass x q T =
       ∑ psi : primitiveCharacters q,
         ‖primitiveZeroKernelSumAt q psi (x : ℝ) T‖ := by
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   rw [primitiveZeroKernelMass_eq x (by omega) T]
   apply Fintype.sum_congr
   intro psi

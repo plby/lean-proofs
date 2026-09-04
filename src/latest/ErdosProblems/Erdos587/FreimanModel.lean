@@ -564,8 +564,8 @@ theorem exists_large_cyclic_freiman_model (A : Finset ℤ) (s : ℕ)
   have hRq : R < q := by
     dsimp [K] at hKq
     omega
-  letI : Fact q.Prime := ⟨hqPrime⟩
-  letI : NeZero q := ⟨hqPrime.ne_zero⟩
+  let : Fact q.Prime := ⟨hqPrime⟩
+  let : NeZero q := ⟨hqPrime.ne_zero⟩
   obtain ⟨lam, hlam, hgood⟩ := exists_good_multiplier
     (D := D) (N := D.card) (q := q) hDcard le_rfl
     (fun x hx => (Finset.le_sup hx).trans_lt hRq) h4q
@@ -592,7 +592,7 @@ theorem exists_large_cyclic_freiman_model (A : Finset ℤ) (s : ℕ)
     intro x hx hx0
     exact hgood x (hdiffSub hx) hx0
   have hM : 0 < 2 * D.card := by omega
-  letI : NeZero (2 * D.card) := ⟨hM.ne'⟩
+  let : NeZero (2 * D.card) := ⟨hM.ne'⟩
   let f : ℤ → ZMod (2 * D.card) := ruzsaModelMap q (2 * D.card) lam
   let B := A'.image f
   refine ⟨A', B, f, hA'ne, hA'sub, hA'card, rfl, ?_⟩

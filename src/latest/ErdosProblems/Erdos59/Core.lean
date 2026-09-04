@@ -199,7 +199,7 @@ theorem two_pow_extremalNumber_le_labelledFreeGraphCount {W : Type*}
   classical
   obtain ⟨G, inst, hG⟩ :=
     (SimpleGraph.exists_isExtremal_free (V := Fin n) hH)
-  letI : DecidableRel G.Adj := inst
+  let : DecidableRel G.Adj := inst
   have hfree : H.Free G := hG.prop
   have hedges : G.edgeFinset.card = SimpleGraph.extremalNumber n H := by
     simpa using SimpleGraph.card_edgeFinset_of_isExtremal_free hG

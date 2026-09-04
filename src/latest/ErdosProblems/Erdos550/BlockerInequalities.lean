@@ -81,7 +81,7 @@ theorem aset_separation (q : ℕ) (_hq : 2 ≤ q) (m : Fin (q + 1) → ℕ)
   by_contra! h_contra;
   apply Gr_not_subgraph;
   convert! Erdos550.greedy_multipartite_embedding_ordered Gr ( q + 1 ) m ( Fin.cons S W ) _ _;
-  · simp +decide [ Fin.forall_fin_succ, * ];
+  · simp +decide only [ne_eq];
     exact ⟨ fun i hi => Finset.disjoint_left.mpr fun x hxS hxW => Finset.disjoint_left.mp ( hdisjX i ) ( hS_subX hxS ) hxW, fun i => ⟨ Finset.disjoint_left.mpr fun x hxW hxS => Finset.disjoint_left.mp ( hdisjX i ) ( hS_subX hxS ) hxW, fun j hj => hdisjW i j hj ⟩ ⟩;
   · intro j U hU hU_card
     by_cases hj : j = 0;
@@ -92,7 +92,7 @@ theorem aset_separation (q : ℕ) (_hq : 2 ≤ q) (m : Fin (q + 1) → ℕ)
       have h_not_adj : ((W i₀).filter (fun v => ∃ u ∈ U \ S, ¬Gr.Adj v u)).card ≤ (U \ S).card * (δ / (2 * (∑ i, m i) + 2)) * (W i₀).card := by
         have h_not_adj : ((W i₀).filter (fun v => ∃ u ∈ U \ S, ¬Gr.Adj v u)).card ≤ ∑ u ∈ U \ S, ((W i₀).filter (fun v => ¬Gr.Adj u v)).card := by
           have h_not_adj : ((W i₀).filter (fun v => ∃ u ∈ U \ S, ¬Gr.Adj v u)) ⊆ Finset.biUnion (U \ S) (fun u => (W i₀).filter (fun v => ¬Gr.Adj u v)) := by
-            simp +contextual [ Finset.subset_iff ];
+            simp +contextual only [mem_sdiff];
             exact fun v hv u hu huS huV => ⟨ u, ⟨ hu, huS ⟩, by simpa only [ SimpleGraph.adj_comm ] using! huV ⟩;
           exact le_trans ( Finset.card_le_card h_not_adj ) ( Finset.card_biUnion_le );
         refine' le_trans ( Nat.cast_le.mpr h_not_adj ) _;
@@ -106,7 +106,7 @@ theorem aset_separation (q : ℕ) (_hq : 2 ≤ q) (m : Fin (q + 1) → ℕ)
       have h_adj : ((W i₀).filter (fun v => ∀ u ∈ U, Gr.Adj v u)).card ≥ (δ - (∑ i, m i) * (δ / (2 * (∑ i, m i) + 2))) * (W i₀).card := by
         have h_adj : ((W i₀).filter (fun v => ∀ u ∈ U, Gr.Adj v u)).card ≥ ((commonRedNbhd Gr S (W i₀)).filter (fun v => ∀ u ∈ U \ S, Gr.Adj v u)).card := by
           refine Finset.card_mono ?_;
-          simp +contextual [ Finset.subset_iff, commonRedNbhd ];
+          simp +contextual only [mem_sdiff, and_imp];
           intro v hv hvS hvU u hu; specialize hU u hu; rcases hU with ⟨ i, hi, hi' ⟩ ; induction i using Fin.inductionOn <;> simp_all +decide [ Fin.cons ] ;
           · exact hvS u hi' |> SimpleGraph.Adj.symm;
           · exact hvU u hu ( by intro H; have := Finset.disjoint_left.mp ( hdisjX _ ) ( hS_subX H ) hi'; aesop );
@@ -147,7 +147,8 @@ lemma bip_sides_of_contained {V : Type*} [DecidableEq V] (Gr : SimpleGraph V)
     ∃ S0 S1 : Finset V, S0 ⊆ Y ∧ S1 ⊆ Y ∧ S0.card = a ∧ S1.card = b ∧
       Disjoint S0 S1 ∧ ∀ u ∈ S0, ∀ v ∈ S1, Gr.Adj u v := by
   obtain ⟨ f, hf ⟩ := h;
-  refine' ⟨ Finset.image ( fun k : Fin a => ( f ( Sum.inl k ) ).val ) Finset.univ, Finset.image ( fun k : Fin b => ( f ( Sum.inr k ) ).val ) Finset.univ, _, _, _, _, _, _ ⟩ <;> simp +decide;
+  refine' ⟨ Finset.image ( fun k : Fin a => ( f ( Sum.inl k ) ).val ) Finset.univ, Finset.image ( fun k : Fin b => ( f ( Sum.inr k ) ).val ) Finset.univ, _, _, _, _, _, _ ⟩ <;> simp +decide only [SetLike.coe_sort_coe, mem_image, mem_univ, true_and, forall_exists_index,
+    forall_apply_eq_imp_iff];
   all_goals norm_num [ Finset.subset_iff, Finset.disjoint_left ];
   · rw [ Finset.card_image_of_injective _ fun x y hxy => by simpa using! hf <| Subtype.ext hxy, Finset.card_fin ];
   · rw [ Finset.card_image_of_injective _ fun x y hxy => _, Finset.card_fin ];
@@ -231,7 +232,7 @@ lemma obstruction_richness {V : Type*} [Fintype V] [DecidableEq V] (Gr : SimpleG
       have := Nat.lt_of_ceil_lt ( hWcard ( Fin.succAbove i k ) );
       rw [ div_lt_iff₀ ] at this <;> norm_num at * <;> linarith;
     exact_mod_cast ( by linarith [ show ( m ( Fin.succ ( Fin.succ k ) ) : ℝ ) ≤ ∑ x : Fin ( q' + 2 + 1 ), m x from mod_cast Finset.single_le_sum ( fun a _ => Nat.zero_le ( m a ) ) ( Finset.mem_univ _ ) ] : ( m ( Fin.succ ( Fin.succ k ) ) : ℝ ) ≤ Finset.card ( Finset.filter ( fun v => ∀ w ∈ { w ∈ S0 ∪ S1 ∪ U | w ∉ E }, Gr.Adj v w ) ( commonRedNbhd Gr E ( W ( Fin.succAbove i k ) ) ) ) );
-  · simp +decide [ Finset.subset_iff, commonRedNbhd ];
+  · simp +decide only [union_assoc, mem_filter, mem_union, and_imp];
     intro v hv hvE hvU; refine' ⟨ hv, _, _, _ ⟩ <;> intro w hw <;> specialize hvU w <;> simp_all +decide [ SimpleGraph.adj_comm ] ;
     · grind;
     · grind;
@@ -342,7 +343,7 @@ theorem red_profile_inequality (q : ℕ) (hq : 2 ≤ q) (δ : ℝ) (hδ : 0 < δ
   · -- By definition of $redCount$ and $blueCount$, we have $redCount i + blueCount i = |W i|$.
     have h_red_blue : ∀ i, ((Gr.neighborFinset x ∩ W i).card : ℝ) + ((Grᶜ.neighborFinset x ∩ W i).card : ℝ) = (W i).card := by
       intro i; norm_cast; rw [ ← Finset.card_union_of_disjoint ];
-      · congr with y ; by_cases hy : Gr.Adj x y <;> simp +decide [ hy ];
+      · congr with y ; by_cases hy : Gr.Adj x y <;> simp +decide only [mem_union, mem_inter, mem_neighborFinset, compl_adj, ne_eq];
         exact fun hy' => by rintro rfl; exact Finset.disjoint_left.mp ( hdisjX i ) hx hy';
       · simp +contextual [ Finset.disjoint_left, SimpleGraph.neighborFinset ];
     -- By definition of $redCount$ and $blueCount$, we have $\sum_{i} \frac{redCount i}{|W i|} < q - 1 - \delta$.

@@ -557,7 +557,7 @@ theorem
             harperLogMainBlockMean y
               (harperScheduledPrimeBlock y (start + (i : ℕ))) t t) -
           ((k.val + 1 : ℕ) : ℝ) * Real.log 2)
-      convert! htriangle using 1 <;> ring
+      convert! htriangle using 1 <;> ring_nf
     _ ≤ (9 / 2 : ℝ) * D +
         (harperScheduledErrorTail
             (harperScheduledReciprocalEnvelope c₀ C₀) start +

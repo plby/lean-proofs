@@ -1400,8 +1400,8 @@ theorem relIndex_ne_zero_and_le_of_quotient_sumset {G : Type*}
   have hcover : Function.Surjective cover := by
     intro y
     exact ⟨⟨y, hall y⟩, rfl⟩
-  letI : Finite Q := Finite.of_surjective cover hcover
-  letI : Fintype Q := Fintype.ofFinite Q
+  let : Finite Q := Finite.of_surjective cover hcover
+  let : Fintype Q := Fintype.ofFinite Q
   have hSuniv : S = Finset.univ := Finset.eq_univ_of_forall hall
   have hrel : H.relIndex Gamma = Fintype.card Q := by
     change Nat.card Q = Fintype.card Q

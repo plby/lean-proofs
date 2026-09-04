@@ -43,7 +43,7 @@ theorem basis_lattice_card_mul_det_le
       linarith
   have hEfin : volume E ≠ ∞ := by
     simp [E, Real.volume_Icc_pi]
-  letI : VAddInvariantMeasure (span ℤ (Set.range b))
+  let : VAddInvariantMeasure (span ℤ (Set.range b))
       (Fin 2 → ℝ) volume :=
     ⟨fun c s _ ↦ measure_preimage_add volume (c : Fin 2 → ℝ) s⟩
   have hpack := fundamentalDomain_finset_card_mul_measureReal_le

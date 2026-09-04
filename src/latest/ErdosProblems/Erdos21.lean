@@ -1901,7 +1901,7 @@ lemma card_selectedPairs {F : Type*} [Fintype F] [Field F]
     (selectedPairs T).card = T.card * (T.card - 1) := by
   classical
   rw [selectedPairs, Finset.offDiag_card]
-  simp
+  simp only [univ_eq_attach, card_attach]
   rw [Nat.mul_sub_left_distrib, mul_one]
 
 noncomputable def pairIntersectionLeft {F : Type*} [Field F] [DecidableEq F]
@@ -4812,7 +4812,7 @@ lemma extensionFiber_card_le (S : Finset (Fin t)) (r : S → Fin t) :
         rw [Fintype.card_perm]
         congr 1
         simp
-  · haveI : IsEmpty (ExtensionFiber S r) := not_nonempty_iff.mp hne
+  · have : IsEmpty (ExtensionFiber S r) := not_nonempty_iff.mp hne
     simp
 
 /-- A canonical finite code for an extension of a prescribed restriction. -/
@@ -6030,7 +6030,7 @@ lemma avoidingResidue_prevents_dvd {K r p q : ℕ} (hp : p.Prime)
     (hp2 : p ≠ 2) (hpK : ¬ p ∣ K) (hKqr : K * q ≤ r)
     (hq : q ≡ avoidingResidue K r p [MOD p]) :
     ¬ p ∣ r - K * q := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   intro hdiv
   have hsub : ((r - K * q : ℕ) : ZMod p) = 0 :=
     (ZMod.natCast_eq_zero_iff _ _).2 hdiv
@@ -8577,7 +8577,7 @@ lemma covered_block_mem_selectedOriginal {q t : ℕ} [Fact q.Prime]
             hq ht x hxl hx v
           simpa [c, hcol, htarget] using hrow
         · simp only [smallPiecesAt, hxl, hl, hx, dite_true]
-          simp
+          simp only [not_false_eq_true, ↓reduceDIte, mem_singleton]
           apply (indexValue q hqmod).injective
           simp only [Equiv.apply_symm_apply]
           have htarget :
@@ -12297,9 +12297,8 @@ lemma base_line_t_deficit_le {q t : ℕ} [Fact q.Prime]
           hbase e hexterior (hactive e he'.1)
       _ = 16 * O.card := by simp [mul_comm]
   dsimp [O] at hsum hedge ⊢
-  simp [card_smallLinePoints_of_base l hbase, mul_comm] at hsum
   rw [Finset.sum_comm] at hsum
-  exact hsum.trans hedge
+  simpa [card_smallLinePoints_of_base l hbase] using hsum.trans hedge
 
 lemma base_total_t_deficit_eq {q t : ℕ}
     {C : Finset (Edge F q t)} (hnormal : IsNormal C)
@@ -12737,7 +12736,7 @@ lemma hasDualWitness_of_parameters {q t : ℕ} (hqprime : q.Prime)
     (hK : 20000000 ≤ Fintype.card F) :
     HasDualWitness (200 * (Fintype.card F + 1))
       (t + Fintype.card F * q) := by
-  letI : Fact q.Prime := ⟨hqprime⟩
+  let : Fact q.Prime := ⟨hqprime⟩
   have hqpos : 0 < q := hqprime.pos
   have htpos : 0 < t := hqpos.trans hqt
   let A : OrthogonalArray (Fintype.card F + 1) t :=

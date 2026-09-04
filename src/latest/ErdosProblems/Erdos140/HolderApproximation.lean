@@ -69,7 +69,7 @@ theorem abs_normalizedConvolution_subset_carrier_sub_inv_le
         refine Fintype.sum_equiv (Equiv.neg G) _ _ ?_
         intro x
         simp only [Equiv.neg_apply]
-        congr 2 <;> abel
+        congr 2 <;> abel_nf
       _ ≤ E := htranslate
   have hweighted :
       ∑ x : G, normalizedIndicator A x *

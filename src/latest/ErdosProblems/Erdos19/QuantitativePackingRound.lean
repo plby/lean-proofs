@@ -37,7 +37,7 @@ theorem exists_balanced_matching_packing_round
         totalLoad (reservoirLoad U R) + 3 * (c * (5 * a + L + 1)) := by
   classical
   let Q := (G \ (R ⊔ U)).between A A
-  letI : DecidableRel Q.Adj := fun x y ↦ Classical.propDecidable (Q.Adj x y)
+  let : DecidableRel Q.Adj := fun x y ↦ Classical.propDecidable (Q.Adj x y)
   let B := overloadedVertices K (reservoirLoad U R)
   have hB : B.card ≤ b := by
     have h := (overloadedVertices_card_mul_lt K (reservoirLoad U R) hn).trans_le hbad

@@ -45,14 +45,14 @@ public theorem differentiable_iff_analytic2 {E : Type} {f : ℂ × ℂ → E} {s
       have d0 : DifferentiableOn ℂ (fun z0 ↦ f (z0, z1)) (ball z0 r) := by
         apply DifferentiableOn.comp d
         exact DifferentiableOn.prodMk differentiableOn_id (differentiableOn_const _)
-        intro z0 z0s; apply rs; simp at z0s ⊢; assumption
+        intro z0 z0s; apply rs; simp only [Metric.mem_ball, dist_prod_same_right] at z0s ⊢; assumption
       exact (Complex.analyticOnNhd_iff_differentiableOn isOpen_ball).mpr d0 z0 (Metric.mem_ball_self rp)
     · intro z0 z1 zs
       rcases Metric.isOpen_iff.mp o (z0, z1) zs with ⟨r, rp, rs⟩
       have d1 : DifferentiableOn ℂ (fun z1 ↦ f (z0, z1)) (ball z1 r) := by
         apply DifferentiableOn.comp d
         exact DifferentiableOn.prodMk (differentiableOn_const _) differentiableOn_id
-        intro z1 z1s; apply rs; simp at z1s ⊢; assumption
+        intro z1 z1s; apply rs; simp only [Metric.mem_ball, dist_prod_same_left] at z1s ⊢; assumption
       exact (Complex.analyticOnNhd_iff_differentiableOn isOpen_ball).mpr d1 z1 (Metric.mem_ball_self rp)
   · exact fun a ↦ a.differentiableOn
 

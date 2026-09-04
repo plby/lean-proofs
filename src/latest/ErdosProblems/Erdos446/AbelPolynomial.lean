@@ -51,11 +51,7 @@ theorem derivative_abelPolynomial_succ (n : ℕ) :
   cases n with
   | zero => simp [abelPolynomial]
   | succ n =>
-      simp only [abelPolynomial_succ, derivative_mul, derivative_X,
-        one_mul, derivative_X_add_C_pow]
-      simp [Polynomial.comp]
-      simp only [eval₂_pow, eval₂_add, eval₂_one, eval₂_X, eval₂_natCast]
-      rw [pow_succ]
+      simp [abelPolynomial, derivative_mul, derivative_pow]
       ring
 
 /-- The binomial convolution of two Abel-polynomial sequences, viewed as a

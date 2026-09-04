@@ -80,7 +80,7 @@ theorem connected_supportOver (S : GraphSubdivisionModel H G) {T : Finset W}
     obtain ⟨p⟩ := hT u v
     exact hxu.trans ((hwalk p).trans hyv.symm)
   obtain ⟨w⟩ := hT.nonempty
-  letI : Nonempty {v : V // v ∈ S.supportOver T} := ⟨b w⟩
+  let : Nonempty {v : V // v ∈ S.supportOver T} := ⟨b w⟩
   exact ⟨hpre⟩
 
 end

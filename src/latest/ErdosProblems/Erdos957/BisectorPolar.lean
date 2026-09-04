@@ -36,7 +36,7 @@ theorem unitDirection_add_congr {a b : ℝ}
   have hs := congrArg (fun u : Point ↦ u 1) h
   ext j
   fin_cases j <;>
-    simp [unitDirection, Real.cos_add, Real.sin_add] at hc hs ⊢ <;>
+    simp only [Fin.mk_one, Fin.isValue, Fin.zero_eta] at hc hs ⊢ <;>
     rw [hc, hs]
 
 /-- A translated bisector chart sends a represented ambient vector to the
@@ -388,7 +388,7 @@ theorem incidentTurn_eq_producedTurn (L : LiftedCyclicHullOrder P)
   rw [cyclicHullDataOfOrder_turn_indexEquiv]
   unfold incidentTurn previousIndex
   have hthree := L.hull_has_three
-  letI : NeZero (hullVertexCount A) := ⟨by omega⟩
+  let : NeZero (hullVertexCount A) := ⟨by omega⟩
   have h := L.lift_turn_eq_exteriorTurn_finRotate
     ((finRotate (hullVertexCount A)).symm a)
   simpa using h

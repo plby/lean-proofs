@@ -99,7 +99,7 @@ theorem sum_inv_slowSmallMiddlePredFiber_le_primeFactors
         (harmonic N : ℝ) := by
       simp_rw [add_mul]
       rw [Finset.sum_add_distrib, Finset.sum_const]
-      simp
+      simp only [one_div, Nat.cast_pow, nsmul_eq_mul]
       have hfactor :
           (∑ p ∈ primeFactorsAbove k y,
               (p : ℝ)⁻¹ * (harmonic N : ℝ)) =
@@ -142,7 +142,7 @@ theorem sum_inv_slowSmallLargePredFiber_le_primeFactors
         (harmonic N : ℝ) := by
       simp_rw [add_mul]
       rw [Finset.sum_add_distrib, Finset.sum_const]
-      simp
+      simp only [one_div, Nat.cast_pow, nsmul_eq_mul]
       have hfactor :
           (∑ p ∈ primeFactorsAbove k y,
               (p : ℝ)⁻¹ * (harmonic N : ℝ)) =

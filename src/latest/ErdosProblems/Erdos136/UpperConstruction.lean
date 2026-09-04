@@ -62,7 +62,8 @@ theorem card_jmcTrackedIndex_le (n : ℕ) :
     rfl
   have hf : Function.Injective f := by
     intro a b h
-    cases a <;> cases b <;> simp [f] at h ⊢
+    cases a <;> cases b <;> simp only [JMCTrackedIndex.leave.injEq, JMCTrackedIndex.pairRole.injEq,
+    JMCTrackedIndex.tripleRole.injEq] at h ⊢
     · exact h
     · apply hrole
       simp only [Prod.mk.injEq]
@@ -619,7 +620,7 @@ theorem eventually_jmcTrackedTestNumerics {eta0 : ℝ} (heta0 : 0 < eta0) :
                 ((n : ℝ) ^ (3 - delta) * (n : ℝ) ^ (7 - 2 * delta)) := by
             rw [hpowadd]
             congr 1
-            ring
+            ring_nf
           _ = ((1 / 2 : ℝ) * (n : ℝ) ^ (3 - delta)) *
                 ((1 / 80000 : ℝ) * (n : ℝ) ^ (7 - 2 * delta)) := by ring
       _ ≤ (m : ℝ) * jmPairRoleLower eta0 n a := hmul
@@ -628,13 +629,13 @@ theorem eventually_jmcTrackedTestNumerics {eta0 : ℝ} (heta0 : 0 < eta0) :
     have h := selectedHostDegree_rpow_le_1296_mul
       (eta0 := eta0) (b := 2 + eta) hn0 (by simpa [d] using hd0)
         (by simpa [d] using hdSix) (by linarith) (by linarith)
-    convert h using 1 <;> simp [d, eta] <;> ring
+    convert h using 1 <;> simp [d, eta] <;> ring_nf
   have hpowOne : d ^ (1 + eta) ≤
       1296 * (n : ℝ) ^ (3 + 3 * eta) := by
     have h := selectedHostDegree_rpow_le_1296_mul
       (eta0 := eta0) (b := 1 + eta) hn0 (by simpa [d] using hd0)
         (by simpa [d] using hdSix) (by linarith) (by linarith)
-    convert h using 1 <;> simp [d, eta] <;> ring
+    convert h using 1 <;> simp [d, eta] <;> ring_nf
   have hpowTwo : d ^ (2 + eta) ≤
       1296 * (n : ℝ) ^ (6 + 3 * eta) := hpowPair
   have hpowThree : d ^ (3 + eta) ≤
@@ -642,7 +643,7 @@ theorem eventually_jmcTrackedTestNumerics {eta0 : ℝ} (heta0 : 0 < eta0) :
     have h := selectedHostDegree_rpow_le_1296_mul
       (eta0 := eta0) (b := 3 + eta) hn0 (by simpa [d] using hd0)
         (by simpa [d] using hdSix) (by linarith) (by linarith)
-    convert h using 1 <;> simp [d, eta] <;> ring
+    convert h using 1 <;> simp [d, eta] <;> ring_nf
   have hbudget0 : (0 : ℝ) ≤ jmRoleNumeratorBudget := by
     norm_num [jmRoleNumeratorBudget]
   have h1296 : (1296 : ℝ) ≤ jmRoleNumeratorBudget := by

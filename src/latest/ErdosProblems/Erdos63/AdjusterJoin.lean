@@ -79,7 +79,7 @@ theorem exists_shrinkEnds_subset
         A'.rightRoot = A.rightRoot ∧ A'.verts ⊆ A.verts := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   obtain ⟨left, hleft⟩ := A.leftEnd.proposition3_10 htarget hle
   obtain ⟨right, hright⟩ := A.rightEnd.proposition3_10 htarget hle
   let A' : Adjuster G target radius length :=

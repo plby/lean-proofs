@@ -49,10 +49,10 @@ theorem colorable_sqrt_twice_edge_bound
   let q := Nat.sqrt (2 * m)
   cases isEmpty_or_nonempty V with
   | inl hV =>
-      letI := hV
+      let := hV
       exact SimpleGraph.Colorable.of_isEmpty _
   | inr hV =>
-      letI := hV
+      let := hV
       obtain ⟨v, hv⟩ := G.exists_minimal_degree_vertex
       let U : Set V := {v}ᶜ
       let R : SimpleGraph U := G.induce U
@@ -148,7 +148,7 @@ theorem ramseyAt_path_sqrt_edges {k : ℕ} (hk : 2 ≤ k) (H : GraphCode) :
       (H.vertexCount + k * Nat.sqrt (2 * H.edgeCount)) := by
   classical
   intro C
-  letI : DecidableRel H.graph.Adj := Classical.decRel H.graph.Adj
+  let : DecidableRel H.graph.Adj := Classical.decRel H.graph.Adj
   simpa [pathCode] using
     (pathGraph_isContained_or_compl_sqrt_edges hk H.graph
       (m := H.edgeCount) (by

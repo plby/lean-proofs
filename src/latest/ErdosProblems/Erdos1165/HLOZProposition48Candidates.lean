@@ -259,7 +259,7 @@ theorem geometricCandidateBudget48_le_candidateBudget48
       _ = 6 * L * Real.exp ((2 * G + 1) * x) := by
         rw [← Real.exp_add]
         congr 1
-        ring
+        ring_nf
       _ ≤ 6 * L * Real.exp (candidateExponent48 * x) := by
         gcongr
         unfold candidateExponent48

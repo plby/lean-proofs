@@ -874,7 +874,7 @@ lemma boundedUnitSubgroup_index_ne_zero {B : ℕ}
     (hB : mixedEmbedding.minkowskiBound K 1 <
       (mixedEmbedding.convexBodyLTFactor K) * B) :
     (boundedUnitSubgroup hB).index ≠ 0 := by
-  letI : (boundedUnitSubgroup hB).FiniteIndex := boundedUnitSubgroup_finiteIndex hB
+  let : (boundedUnitSubgroup hB).FiniteIndex := boundedUnitSubgroup_finiteIndex hB
   exact Subgroup.FiniteIndex.index_ne_zero
 
 theorem boundedUnitSubgroup_index_le {B : ℕ} {ε : ℝ}
@@ -1022,14 +1022,13 @@ lemma boundedUnit_decomposition_log_coordinates {B : ℕ}
     NumberField.Units.dirichletUnitTheorem.logEmbedding_eq_zero_iff.mpr ζ.2
   simp only [ofMul_mul, map_add, hζ, zero_add,
     logEmbedding_finsupp_prod] at hlog
-  have hre := congrArg (fun x ↦ b.repr x i) hlog
   have hb : ∀ c, NumberField.Units.logEmbedding K
       (Additive.ofMul (boundedFundSystem hB c)) = b c := by
     intro c
     exact (NumberField.Units.basisOfIsMaxRank_apply
       (boundedFundSystem_isMaxRank hB) c).symm
-  simp_rw [hb] at hre
-  simp [Finsupp.sum, map_sum] at hre
+  simp_rw [hb] at hlog
+  have hre := congrArg (fun x ↦ b.repr x i) hlog
   have hsum : (∑ c ∈ a.support, (Finsupp.single c (a c : ℝ)) i) =
       (a i : ℝ) := by
     by_cases hi : i ∈ a.support
@@ -1048,8 +1047,13 @@ lemma boundedUnit_decomposition_log_coordinates {B : ℕ}
         subst c
         exact hi hc
       simp [hci]
-  rw [hsum] at hre
-  simpa [ofMul_pow, map_nsmul] using hre.symm
+  have hre' :
+      (∑ c ∈ a.support, (Finsupp.single c (a c : ℝ)) i) =
+        b.repr (NumberField.Units.logEmbedding K
+          (Additive.ofMul (q ^ (boundedUnitSubgroup hB).index))) i := by
+    simpa [Finsupp.sum, map_sum] using hre.symm
+  rw [hsum] at hre'
+  exact hre'
 
 /-- The integer exponents in the finite-index decomposition are exactly
 the real coordinates of the powered unit's logarithmic embedding in the

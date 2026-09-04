@@ -130,7 +130,7 @@ lemma one_le_tsum_gaussianStepWeight {l : ℕ} (hl : 0 < l) :
   have hdualSummable :
       Summable (fun d : ℤ ↦ Real.exp (-Real.pi / a * (d : ℝ) ^ 2)) := by
     convert summable_exp_neg_mul_int_sq (a := Real.pi / a) (div_pos Real.pi_pos ha) using 1 <;>
-      ring
+      ring_nf
   have hdual :
       1 ≤ ∑' d : ℤ, Real.exp (-Real.pi / a * (d : ℝ) ^ 2) := by
     have hzero :
@@ -216,7 +216,7 @@ lemma tsum_wideGaussian_le {l : ℕ} (hl : 0 < l) :
   have hdual := tsum_exp_neg_mul_int_sq_le_five hdualCoeff
   have hdual' :
       (∑' d : ℤ, Real.exp (-Real.pi / a * (d : ℝ) ^ 2)) ≤ 5 := by
-    convert hdual using 1 <;> ring
+    convert hdual using 1 <;> ring_nf
   have htheta := Real.tsum_exp_neg_mul_int_sq ha
   have hCD : C ≤ 2 * D := by
     dsimp [C, D]

@@ -231,7 +231,7 @@ lemma circleKernel_eq_besselJ0 (t : ℝ) : circleKernel t = Q776.besselJ0 t := b
     norm_num
     exact hpoint u)]
   rw [intervalIntegral.integral_comp_sub_right G (Real.pi / 2)]
-  convert Q776.periodic_shift hG (-Real.pi / 2) using 1 ; ring
+  convert Q776.periodic_shift hG (-Real.pi / 2) using 1 ; ring_nf
 
 /-- A one-term consequence of the checked two-term stationary-phase expansion. -/
 lemma circleKernel_asymptotic_bound :
@@ -586,7 +586,7 @@ lemma circleAverage_cos_projection (t : ℝ) (y : ℂ) :
     circleMap_zero_re]
   have hangle : Complex.arg y + -θ = -(θ + -Complex.arg y) := by ring
   rw [hangle, Real.cos_neg]
-  ring
+  ring_nf
 
 lemma doubleSum_cos_projection_nonneg (t : ℝ) (P : Finset ℂ) (z : ℂ) :
     0 ≤ ∑ p ∈ P, ∑ q ∈ P, Real.cos (t * ((p - q) * conj z).re) := by

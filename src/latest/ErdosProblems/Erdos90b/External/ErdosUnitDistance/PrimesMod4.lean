@@ -247,15 +247,52 @@ theorem log_m_le : ∃ c₁ : ℝ, 1 ≤ c₁ ∧
   have h_log_m_le : ∀ t : ℕ, Real.log (m t) ≤ S + 2 * t * Real.log (t + 2) := by
     intro t
     have h_log_m_le_step : ∀ i < t, Real.log (p1 i) ≤ 2 * Real.log (t + 2) + (if i < N then Real.log (p1 i) else 0) := by
-      intro i hi; split_ifs <;> simp_all +decide ;
-      · exact Real.log_nonneg ( by linarith );
-      · exact le_trans ( Real.log_le_log ( Nat.cast_pos.mpr <| Nat.Prime.pos <| p1_spec i |>.1 ) <| hN i ‹_› ) <| by rw [ Real.log_pow ] ; norm_num ; gcongr;
+      intro i hi
+      split_ifs with hiN
+      · have hlog : 0 ≤ Real.log ((t : ℝ) + 2) :=
+          Real.log_nonneg (by
+            have ht : (0 : ℝ) ≤ t := Nat.cast_nonneg t
+            linarith)
+        linarith
+      · simp only [add_zero]
+        have hNi : N ≤ i := Nat.le_of_not_gt hiN
+        have hp_pos : (0 : ℝ) < p1 i := by
+          exact_mod_cast (p1_spec i).1.pos
+        calc
+          Real.log (p1 i) ≤ Real.log (((i : ℝ) + 2) ^ 2) :=
+            Real.log_le_log hp_pos (hN i hNi)
+          _ = 2 * Real.log ((i : ℝ) + 2) := by
+            rw [Real.log_pow]
+            norm_num
+          _ ≤ 2 * Real.log ((t : ℝ) + 2) := by
+            gcongr
     have h_log_m_le_step : Real.log (m t) ≤ ∑ i ∈ Finset.range t, (2 * Real.log (t + 2) + (if i < N then Real.log (p1 i) else 0)) := by
       convert! Finset.sum_le_sum fun i hi => h_log_m_le_step i ( Finset.mem_range.mp hi ) using 1;
       rw [ ← Real.log_prod ] <;> norm_cast ; norm_num [ m ];
       exact fun i hi => Nat.Prime.ne_zero ( p1_spec i |>.1 );
-    simp_all +decide [ Finset.sum_add_distrib, Finset.sum_ite ];
-    exact h_log_m_le_step.trans ( by rw [ add_comm ] ; exact add_le_add ( Finset.sum_le_sum_of_subset_of_nonneg ( fun i hi => by aesop ) fun _ _ _ => Real.log_nonneg <| mod_cast Nat.Prime.pos <| by have := p1_spec ‹_›; aesop ) <| by nlinarith );
+    have h_initial :
+        ∑ i ∈ Finset.range t, (if i < N then Real.log (p1 i) else 0) ≤ S := by
+      rw [hS_def]
+      rw [← Finset.sum_filter]
+      apply Finset.sum_le_sum_of_subset_of_nonneg
+      · intro i hi
+        simp only [Finset.mem_filter, Finset.mem_range] at hi ⊢
+        exact hi.2
+      · intro i hiN hi
+        exact Real.log_nonneg (by
+          exact_mod_cast (p1_spec i).1.one_le)
+    calc
+      Real.log (m t) ≤
+          ∑ i ∈ Finset.range t,
+            (2 * Real.log (t + 2) + (if i < N then Real.log (p1 i) else 0)) :=
+        h_log_m_le_step
+      _ = 2 * (t : ℝ) * Real.log (t + 2) +
+          ∑ i ∈ Finset.range t, (if i < N then Real.log (p1 i) else 0) := by
+        simp only [Finset.sum_add_distrib, Finset.sum_const, Finset.card_range,
+          nsmul_eq_mul]
+        ring
+      _ ≤ S + 2 * t * Real.log (t + 2) := by
+        linarith
   refine' ⟨ Max.max 1 ( 2 + S / Real.log 3 ), _, _ ⟩ <;> norm_num;
   intro t; specialize h_log_m_le t; rcases eq_or_ne t 0 <;> simp_all +decide [ mul_assoc ] ;
   · unfold m; norm_num;

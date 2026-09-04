@@ -80,7 +80,7 @@ modulo `Q`. -/
 theorem card_congruenceClass {Q m : ℕ} [NeZero Q] (hm : m ∣ Q)
     (hm0 : 0 < m) (b : ℤ) :
     (congruenceClass Q m hm b).ncard = Q / m := by
-  letI : NeZero m := ⟨hm0.ne'⟩
+  let : NeZero m := ⟨hm0.ne'⟩
   let f : ZMod Q → ZMod m := ZMod.castHom hm (ZMod m)
   let c := Fintype.card {x : ZMod Q // f x = (b : ZMod m)}
   have htotal :

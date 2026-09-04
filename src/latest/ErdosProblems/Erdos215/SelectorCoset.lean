@@ -131,7 +131,7 @@ lemma shiftLift_point {n : ℕ} (hn : n ≠ 0) (c d : Fin n) (s : LiftData n)
     (shiftLift c d s).point i j =
       ((s.point (i - c) (j - d)).1 + (c : ℕ) / (n : ℚ),
         (s.point (i - c) (j - d)).2 + (d : ℕ) / (n : ℚ)) := by
-  letI : NeZero n := ⟨hn⟩
+  let : NeZero n := ⟨hn⟩
   have hnpos : 0 < n := Nat.pos_of_ne_zero hn
   have hxi : (((i - c : Fin n) : ℕ) + (c : ℕ)) % n = (i : ℕ) := by
     have h := congrArg (fun z : Fin n ↦ (z : ℕ)) (sub_add_cancel i c)
@@ -181,7 +181,7 @@ lemma sqDist_shiftLift {n : ℕ} (hn : n ≠ 0) (c d : Fin n) (s : LiftData n)
 
 theorem shiftLift_separated {n : ℕ} (hn : n ≠ 0) (c d : Fin n)
     (s : LiftData n) (hs : s.Separated) : (shiftLift c d s).Separated := by
-  letI : NeZero n := ⟨hn⟩
+  let : NeZero n := ⟨hn⟩
   rw [LiftData.separated_iff_sqDist_not_int hn]
   intro i₁ j₁ i₂ j₂ hne
   have hne' : (i₁ - c, j₁ - d) ≠ (i₂ - c, j₂ - d) := by

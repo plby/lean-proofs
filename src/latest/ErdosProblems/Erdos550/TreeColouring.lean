@@ -48,7 +48,7 @@ lemma IsTree.exists_two_colouring {α : Type*} [Fintype α] [DecidableEq α]
     (T : SimpleGraph α) (hT : T.IsTree) :
     ∃ col : α → Bool, ∀ a b, T.Adj a b → col a ≠ col b := by
   obtain ⟨r, hr⟩ : ∃ r : α, True := by
-    cases isEmpty_or_nonempty α <;> simp_all +decide;
+    cases isEmpty_or_nonempty α <;> simp_all +decide only [IsEmpty.exists_iff];
     exact hT.1.nonempty.elim ( fun x => ‹IsEmpty α›.elim x );
   use fun v => decide (Odd (T.dist r v));
   intro a b hab;

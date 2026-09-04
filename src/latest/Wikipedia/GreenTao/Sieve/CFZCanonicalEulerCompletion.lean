@@ -565,7 +565,7 @@ theorem norm_selectedCFZCanonicalCarryPrimeLocalFactor_sub_one_le_majorant
             N (primorial w) b R
             (fun q : SelectedCFZFormIndex e => q.1)
             carry t u p = 1 := by
-      letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+      let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
       unfold cfzCanonicalCarryPairedFourierPrimeLocalFactor
         pairedFourierPrimeLocalFactor
         cfzCarryAdjustedFamilyAtVector
@@ -1352,7 +1352,7 @@ theorem SmoothSieveCutoff.integral_cfzCanonicalCarryEulerCompletionDiscrepancy_e
         (fun q : SelectedCFZFormIndex e => q.1) tu
       ∂(volume.prod volume)) = 0 := by
   classical
-  letI :
+  let :
       Countable
         (SelectedCFZCanonicalCarryEulerCompletionTailIndex e R) := by
     unfold SelectedCFZCanonicalCarryEulerCompletionTailIndex

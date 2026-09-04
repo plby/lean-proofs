@@ -107,7 +107,7 @@ theorem commonNeighborSet_finite_of_no_completeBipartiteNNCopy {n : ℕ}
   let S := commonNeighborSet G left
   have hno := no_embedding_commonNeighbors_of_no_completeBipartiteNNCopy G hfree left
   by_contra hfinite
-  letI : Infinite S := Set.infinite_coe_iff.mpr hfinite
+  let : Infinite S := Set.infinite_coe_iff.mpr hfinite
   let finToNat : FiniteBipartitePart.{u} n ↪ ℕ :=
     (Equiv.ulift.{u, 0}.toEmbedding).trans Fin.valEmbedding
   let right : FiniteBipartitePart.{u} n ↪ S :=

@@ -831,7 +831,7 @@ theorem Oracle.fingerprint_subset_run {I : Finset V} {s : ℕ}
     (O : Oracle I s) : ∀ (fuel : ℕ) (st : State V),
     st.fingerprint ⊆
       (@ContainerFuel.run (State V) O.terminal O.decision O.next fuel st).fingerprint := by
-  letI : DecidablePred O.terminal := O.decision
+  let : DecidablePred O.terminal := O.decision
   intro fuel
   induction fuel with
   | zero => intro st; exact Finset.Subset.rfl
@@ -846,7 +846,7 @@ theorem Oracle.invariant_run {I : Finset V} {s : ℕ} (O : Oracle I s)
     {H₀ : Family V} {st : State V} (hinv : Invariant H₀ I s st) :
     ∀ fuel, Invariant H₀ I s
       (@ContainerFuel.run (State V) O.terminal O.decision O.next fuel st) := by
-  letI : DecidablePred O.terminal := O.decision
+  let : DecidablePred O.terminal := O.decision
   intro fuel
   induction fuel generalizing st with
   | zero => simpa using hinv
@@ -877,7 +877,7 @@ theorem Oracle.terminates {I : Finset V} {s : ℕ} (O : Oracle I s)
         (2 ^ Fintype.card V + 1) x) := by
   dsimp only
   let terminalGood : GoodState H₀ I s → Prop := fun y ↦ O.terminal y.1
-  letI : DecidablePred terminalGood := fun y ↦ O.decision y.1
+  let : DecidablePred terminalGood := fun y ↦ O.decision y.1
   apply ContainerFuel.terminal_run_of_strict_bounded_rank terminalGood O.goodNext
     (fun y ↦ upRank y.1.family) (2 ^ Fintype.card V)
   · intro state
@@ -1191,7 +1191,7 @@ theorem quantRun_terminal {H₀ : Family V} {I : Finset V} {p : ℝ} {s : ℕ}
     quantTerminal
       (@ContainerFuel.run (QuantState H₀ I p s) quantTerminal quantTerminalDecision
         (quantNext hs hp hpmax) (2 ^ Fintype.card V + 1) x) := by
-  letI : DecidablePred (@quantTerminal V _ _ H₀ I p s) := quantTerminalDecision
+  let : DecidablePred (@quantTerminal V _ _ H₀ I p s) := quantTerminalDecision
   apply ContainerFuel.terminal_run_of_strict_bounded_rank quantTerminal
     (quantNext hs hp hpmax) (fun y ↦ upRank y.1.family) (2 ^ Fintype.card V)
   · intro y
@@ -1226,7 +1226,7 @@ theorem quantRun_val_eq_algorithmRunAux {H : Family V} {I : Finset V}
           ((algorithmSelector (V := V) p s hs hp).toOracle I).terminal
           ((algorithmSelector (V := V) p s hs hp).toOracle I).decision
           ((algorithmSelector (V := V) p s hs hp).toOracle I).next fuel x.1 := by
-  letI : DecidablePred (@quantTerminal V _ _ H I p s) := quantTerminalDecision
+  let : DecidablePred (@quantTerminal V _ _ H I p s) := quantTerminalDecision
   intro fuel
   induction fuel with
   | zero =>
@@ -1235,7 +1235,7 @@ theorem quantRun_val_eq_algorithmRunAux {H : Family V} {I : Finset V}
   | succ fuel ih =>
       intro x
       let O := (algorithmSelector (V := V) p s hs hp).toOracle I
-      letI : DecidablePred O.terminal := O.decision
+      let : DecidablePred O.terminal := O.decision
       by_cases hterminal : quantTerminal x
       · rw [ContainerFuel.run_succ_of_terminal quantTerminal
           (quantNext hs hp hpmax) hterminal]

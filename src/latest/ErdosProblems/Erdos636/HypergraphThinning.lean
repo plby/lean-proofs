@@ -356,7 +356,7 @@ theorem exists_pairwise_compatible_subfamily
       (∀ x ∈ M, ∀ y ∈ M, x ≠ y → ¬ Conflict x y) ∧
       P.card ≤ M.card * (b + 1) := by
   let H := conflictGraph P Conflict hsymm hirr
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
   have hHdegree : ∀ x : {x // x ∈ P}, H.degree x ≤ b := by
     intro x
     let N : Finset α := (H.neighborFinset x).image Subtype.val

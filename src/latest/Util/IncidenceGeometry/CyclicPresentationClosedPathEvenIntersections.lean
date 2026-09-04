@@ -29,12 +29,12 @@ lemma CyclicPresentationClosedPathEvenIntersections
   let start : retained → EuclideanSpace ℝ (Fin 2) := fun i =>
     Γ.vertices[i.1]'(by
       have h := i.2
-      simp [retained] at h
+      simp only [gt_iff_lt] at h
       exact h.1)
   let stop : retained → EuclideanSpace ℝ (Fin 2) := fun i =>
     Γ.vertices[i.1 + 1]'(by
       have h := i.2
-      simp [retained] at h
+      simp only [gt_iff_lt] at h
       exact h.2.choose)
   rw [CyclicPresentationRetainedSideSum Γ R]
   obtain ⟨σ, hσ, hsum⟩ := CyclicPresentationRetainedSideFanBridge Γ hΓ R

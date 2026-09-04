@@ -61,7 +61,7 @@ theorem exists_cover_of_residue_choices (Y : ℕ)
       push Not at hn
       obtain ⟨p, hp⟩ := hn
       have hpnot : p.val ∉ sieve := fun hh => Finset.disjoint_left.mp hdisjoint hh p.property
-      letI : Fact p.val.Prime := ⟨hsource p p.property⟩
+      let : Fact p.val.Prime := ⟨hsource p p.property⟩
       refine ⟨p, Finset.mem_union_right sieve p.property, ?_⟩
       simp only [fgkmtChosenResidue, dif_neg hpnot, dif_pos p.property]
       apply (ZMod.natCast_eq_natCast_iff q (b p).val p.val).mp

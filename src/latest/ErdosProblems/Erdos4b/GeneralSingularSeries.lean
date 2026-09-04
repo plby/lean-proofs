@@ -122,7 +122,7 @@ theorem mem_largeGapCompanionLocalResidues_iff
     {H : Finset ℕ} {m q p : ℕ} (hp : p.Prime) {a : ZMod p} :
     a ∈ largeGapCompanionLocalResidues H m q p ↔
       ∃ h ∈ H, (m : ZMod p) * (a + (h * q : ℕ)) = 1 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   by_cases hm : (m : ZMod p) = 0
   · simp [largeGapCompanionLocalResidues, hm]
   · constructor
@@ -163,7 +163,7 @@ theorem preSievedFirstResidueMap_injOn
     Set.InjOn
       (fun h : ↥(preSievedShifts K w) ↦ -((h.1 * q : ℕ) : ZMod p))
       Set.univ := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hP0 : ((primorial w : ℕ) : ZMod p) ≠ 0 := by
     intro hzero
     have hdiv := (ZMod.natCast_eq_zero_iff (primorial w) p).mp hzero
@@ -383,7 +383,7 @@ theorem largeGapCompanionLocalResidues_eq_singleton_of_shifts
     {H : Finset ℕ} {m q p : ℕ} (hp : p.Prime) (hH : H.Nonempty)
     (hshift : ∀ h ∈ H, p ∣ h) (hm : (m : ZMod p) ≠ 0) :
     largeGapCompanionLocalResidues H m q p = {(m : ZMod p)⁻¹} := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   apply Finset.Subset.antisymm
   · exact largeGapCompanionLocalResidues_subset_singleton_of_shifts hshift
   · intro a ha
@@ -411,7 +411,7 @@ theorem largeGapLocalMultiplicity_eq_two_of_shifts_of_not_dvd
     {H : Finset ℕ} {m q p : ℕ} (hp : p.Prime) (hH : H.Nonempty)
     (hshift : ∀ h ∈ H, p ∣ h) (hpm : ¬p ∣ m) :
     largeGapLocalMultiplicity H m q p = 2 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hm : (m : ZMod p) ≠ 0 := by
     exact fun hm => hpm ((ZMod.natCast_eq_zero_iff m p).mp hm)
   rw [largeGapLocalMultiplicity, largeGapLocalForbiddenResidues,

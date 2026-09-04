@@ -371,7 +371,7 @@ theorem card_constantSuperlattice_le {k q : ℕ} (hq : 0 < q) :
     Nat.card
         (LatticeBasis.Superlattice (fun _ : Fin k ↦ q)) ≤
       (q + 1) ^ (k * k) := by
-  haveI : Finite
+  have : Finite
       (LatticeBasis.Superlattice (fun _ : Fin k ↦ q)) :=
     LatticeBasis.finite_superlattice (fun _ : Fin k ↦ hq)
   calc
@@ -845,7 +845,7 @@ theorem relativeIndex_integralLattice_le_box
     change decode code - x.1 ∈ H
     rw [hdecode]
     simpa [neg_sub] using H.neg_mem (hclosure hxy)
-  haveI : Finite Q := Finite.of_surjective f hf
+  have : Finite Q := Finite.of_surjective f hf
   have hcard : Nat.card Q ≤ (2 * (k * M) + 1) ^ d := by
     calc
       Nat.card Q ≤ Nat.card (SymmetricPointCode d (k * M)) :=

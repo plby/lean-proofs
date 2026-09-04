@@ -99,7 +99,7 @@ theorem kummerRoot_pow (n : ℕ) (hn : 0 < n)
     kummerRoot K Ω n hn b ^ n =
       algebraMap K Ω ((powerClassRepresentative K n b : Kˣ) : K) :=
   by
-    letI : IsAlgClosed Ω := IsAlgClosure.isAlgClosed K
+    let : IsAlgClosed Ω := IsAlgClosure.isAlgClosed K
     exact Classical.choose_spec
       (IsAlgClosed.exists_pow_nat_eq
         (algebraMap K Ω ((powerClassRepresentative K n b : Kˣ) : K)) hn)

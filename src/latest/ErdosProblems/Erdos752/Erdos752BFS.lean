@@ -116,7 +116,7 @@ lemma neighborFinset_eq_bfsPair_union [Fintype V] {G : SimpleGraph V}
       (bfsPair G root i).neighborFinset v ∪
         (bfsPair G root (i + 1)).neighborFinset v := by
   classical
-  letI : DecidableRel G.Adj := decG
+  let : DecidableRel G.Adj := decG
   ext w
   simp only [SimpleGraph.mem_neighborFinset, Finset.mem_union]
   constructor
@@ -144,7 +144,7 @@ lemma disjoint_neighborFinset_bfsPair [Fintype V] {G : SimpleGraph V}
     Disjoint ((bfsPair G root i).neighborFinset v)
       ((bfsPair G root (i + 1)).neighborFinset v) := by
   classical
-  letI : DecidableRel G.Adj := decG
+  let : DecidableRel G.Adj := decG
   rw [Finset.disjoint_left]
   intro w hw₀ hw₁
   rw [SimpleGraph.mem_neighborFinset, SimpleGraph.between_adj] at hw₀ hw₁
@@ -161,7 +161,7 @@ lemma degree_eq_bfsPair_add [Fintype V] {G : SimpleGraph V}
     G.degree v = (bfsPair G root i).degree v +
       (bfsPair G root (i + 1)).degree v := by
   classical
-  letI : DecidableRel G.Adj := decG
+  let : DecidableRel G.Adj := decG
   rw [← SimpleGraph.card_neighborFinset_eq_degree,
     neighborFinset_eq_bfsPair_union hconn hbip hv,
     Finset.card_union_of_disjoint (disjoint_neighborFinset_bfsPair hv)]
@@ -176,7 +176,7 @@ lemma sum_degrees_bfsLayer_succ_eq [Fintype V] {G : SimpleGraph V}
       #(bfsPair G root i).edgeFinset +
         #(bfsPair G root (i + 1)).edgeFinset := by
   classical
-  letI : DecidableRel G.Adj := decG
+  let : DecidableRel G.Adj := decG
   have hprev : (bfsPair G root i).IsBipartiteWith
       (bfsLayer G root i) (bfsLayer G root (i + 1)) :=
     SimpleGraph.between_isBipartiteWith (bfsLayer_disjoint (by omega))
@@ -220,7 +220,7 @@ lemma degree_root_eq_bfsPair_zero [Fintype V] {G : SimpleGraph V}
     [decG : DecidableRel G.Adj]
     (root : V) : G.degree root = (bfsPair G root 0).degree root := by
   classical
-  letI : DecidableRel G.Adj := decG
+  let : DecidableRel G.Adj := decG
   rw [← SimpleGraph.card_neighborFinset_eq_degree,
     ← SimpleGraph.card_neighborFinset_eq_degree]
   congr 1
@@ -240,7 +240,7 @@ lemma sum_degrees_bfsLayer_zero_eq [Fintype V] {G : SimpleGraph V}
     ∑ v ∈ bfsLayer G root 0, G.degree v =
       #(bfsPair G root 0).edgeFinset := by
   classical
-  letI : DecidableRel G.Adj := decG
+  let : DecidableRel G.Adj := decG
   have hpair : (bfsPair G root 0).IsBipartiteWith
       (bfsLayer G root 0) (bfsLayer G root 1) :=
     SimpleGraph.between_isBipartiteWith (bfsLayer_disjoint (by omega))
@@ -309,7 +309,7 @@ theorem exists_dense_bfs_pair [Fintype V] [Nonempty V] {G : SimpleGraph V}
       d * (bfsPair G root i).support.ncard ≤
         2 * #(bfsPair G root i).edgeFinset := by
   classical
-  letI : DecidableRel G.Adj := decG
+  let : DecidableRel G.Adj := decG
   obtain ⟨i, hi_pos, hi_max⟩ := exists_max_ncard_bfsLayer G root
   let M := (bfsLayer G root i).ncard
   have hM : M = (bfsLayer G root i).ncard := rfl

@@ -55,7 +55,7 @@ lemma FinitePolygonalSetSegmentIntersectionOfEndpointOffLines
     ⋃ s : {s : E × E // s ∈ K.segments},
       segment ℝ u v ∩ segment ℝ s.1.1 s.1.2
   have hsegmentsFinite : Set.Finite intersections := by
-    haveI : Finite {s : E × E // s ∈ K.segments} :=
+    have : Finite {s : E × E // s ∈ K.segments} :=
       K.segments.finite_toSet
     apply Set.finite_iUnion
     intro s

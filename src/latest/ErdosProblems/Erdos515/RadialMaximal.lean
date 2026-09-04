@@ -119,7 +119,7 @@ theorem exists_differentiableOn_fourthRoot {G : ℂ → ℂ}
   have himage : 0 ∉ diskQuotient G '' ball (0 : ℂ) 1 := by
     rintro ⟨z, hz, hzeq⟩
     exact hnonzero z hz hzeq
-  letI : ContractibleSpace (ball (0 : ℂ) 1) := Metric.contractibleSpace_ball one_pos
+  let : ContractibleSpace (ball (0 : ℂ) 1) := Metric.contractibleSpace_ball one_pos
   have hsimply : IsSimplyConnected (ball (0 : ℂ) 1) := by
     exact (inferInstance : SimplyConnectedSpace (ball (0 : ℂ) 1))
   obtain ⟨q, hqc, hqpow⟩ := Complex.exists_continuousOn_pow_eq

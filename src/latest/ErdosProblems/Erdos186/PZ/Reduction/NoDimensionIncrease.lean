@@ -37,8 +37,7 @@ namespace GAP
       fun j ↦ -((t * (P.widths j - 1) : ℕ) : ℤ) + (n j : ℤ) := by
   funext j
   simp [Erdos186.GAP.coordPoint, Erdos186.GAP.dilate,
-    differenceCoefficientGAP]
-  rw [Nat.cast_sub (P.width_pos j)]
+    differenceCoefficientGAP, Nat.cast_sub (P.width_pos j)]
   ring
 
 /-- Coordinate characterization of a positive integral dilation of the

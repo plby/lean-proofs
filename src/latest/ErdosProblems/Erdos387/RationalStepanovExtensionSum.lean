@@ -52,9 +52,9 @@ theorem norm_extension_zeroExtendedTraceWeight_le
         (InverseRational.poleSupport coeff).card : ℕ) : ℝ) := by
   classical
   let E := FiniteField.Extension (ZMod p) p (2 * (h + 3))
-  letI : CharP E p :=
+  let : CharP E p :=
     (Algebra.charP_iff (ZMod p) E p).mp (ZMod.charP p)
-  letI : Fintype E := Fintype.ofFinite E
+  let : Fintype E := Fintype.ofFinite E
   let phaseTrace : E → ZMod p := fun x =>
     Algebra.trace (ZMod p) E
       (RationalWeil.mappedSimplePolePhase coeff x)
@@ -198,9 +198,9 @@ theorem hasEvenExtensionSquareRootBound
   let Cnat := p * (1 + p ^ 2 * ((p - 1) * s) + s) + s
   refine ⟨(Cnat : ℝ), ?_⟩
   intro m hm
-  letI : NeZero (2 * m) := ⟨by omega⟩
+  let : NeZero (2 * m) := ⟨by omega⟩
   let E := FiniteField.Extension (ZMod p) p (2 * m)
-  letI : Fintype E := Fintype.ofFinite E
+  let : Fintype E := Fintype.ofFinite E
   let h := m - 3
   have hh : h + 3 = m := by omega
   have hstep := norm_extension_zeroExtendedTraceWeight_le

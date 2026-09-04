@@ -44,14 +44,16 @@ theorem card_restrictedStructure
       ∑ _S : Finset V, ∑ U : {U : Finset V // Small U},
         (N + 1) ^ r * 2 ^ (r * U.1.card.choose 2) := by
   classical
-  simp [RestrictedStructure, KeyUnion.card_rVector,
-    RandomGraph.card_simpleGraph, Fintype.card_pi, pow_mul]
+  simp only [Fintype.card_sigma, Fintype.card_prod, Fintype.card_pi, Fintype.card_fin, Finset.prod_const,
+    Finset.card_univ, Finset.sum_const, Fintype.card_finset, smul_eq_mul, mul_eq_mul_left_iff, Nat.pow_eq_zero,
+    OfNat.ofNat_ne_zero, ne_eq, false_and, or_false]
   apply Finset.sum_congr rfl
   intro U hU
   congr 1
-  rw [← pow_mul, ← pow_mul]
+  rw [RandomGraph.card_simpleGraph, ← pow_mul]
   congr 1
-  exact Nat.mul_comm _ _
+  simpa only [Fintype.card_coe] using
+    Nat.mul_comm ((Fintype.card ↑(U : Finset V)).choose 2) r
 
 /-- The corrected `3 N + 4 r D` count for the dependent structural tuples.
 

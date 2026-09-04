@@ -849,7 +849,7 @@ theorem mk_linkageClosureStep_le_of_warp {F : Set G.DPath} {S : Set V}
     exact (G.mk_pathsMeeting_le F S hFwarp).trans hS
   have hvertices : #(G.vertexSet (pathsMeeting G F S)) ≤ κ := by
     by_cases hnonempty : (pathsMeeting G F S).Nonempty
-    · letI : Nonempty (pathsMeeting G F S) := hnonempty.to_subtype
+    · let : Nonempty (pathsMeeting G F S) := hnonempty.to_subtype
       have heq : G.vertexSet (pathsMeeting G F S) =
           ⋃ p : pathsMeeting G F S, p.1.support := by
         ext x

@@ -328,7 +328,7 @@ theorem vertexTwoConnected_of_minimal_pointed_counterexample
         exact (not_ne_iff.mp hac).trans hbc.symm
       exact ⟨⟨b, hbc⟩⟩
   change (deleteVertex G c).Connected
-  letI : Nonempty {w : V // w ≠ c} := hnonempty
+  let : Nonempty {w : V // w ≠ c} := hnonempty
   exact SimpleGraph.Connected.mk (not_not.mp (hncut c))
 
 /-! ## An unconditional obstruction reduction -/
@@ -370,9 +370,9 @@ theorem exists_vertexTwoConnected_pointed_counterexample
   let n : ℕ := Nat.find hP
   obtain ⟨W, fW, deqW, H, dAdj, y₀, hcardW, hbadW⟩ :=
     Nat.find_spec hP
-  letI : Fintype W := fW
-  letI : DecidableEq W := deqW
-  letI : DecidableRel H.Adj := dAdj
+  let : Fintype W := fW
+  let : DecidableEq W := deqW
+  let : DecidableRel H.Adj := dAdj
   have hsmall : SmallerPointedInstancesHaveFalseTwins H := by
     intro Z instF instDE K instAdj z₀ hlt hcardZ hconnZ hdegZ hnoWheelZ
     by_contra hnoTwinsZ
@@ -426,8 +426,8 @@ theorem falseTwins_or_vertexTwoConnected_counterexample
   classical
   let C : G.ConnectedComponent :=
     G.connectedComponentMk (Classical.choice inferInstance)
-  letI : Fintype C := Fintype.ofFinite C
-  letI : DecidableRel C.toSimpleGraph.Adj := Classical.decRel _
+  let : Fintype C := Fintype.ofFinite C
+  let : DecidableRel C.toSimpleGraph.Adj := Classical.decRel _
   obtain ⟨x, hx⟩ := C.nonempty_supp
   let x₀ : C := ⟨x, hx⟩
   have hcardC : 2 ≤ Fintype.card C := by

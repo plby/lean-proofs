@@ -304,7 +304,7 @@ theorem norm_finExpectation_sq_le_of_fiberwise
     have hω : ∃ ω : Ω, d ω = a := by
       obtain ⟨ω, hω⟩ := Finset.card_pos.mp hpos
       exact ⟨ω, by simpa using hω⟩
-    letI : Nonempty {ω : Ω // d ω = a} :=
+    let : Nonempty {ω : Ω // d ω = a} :=
       ⟨⟨Classical.choose hω, Classical.choose_spec hω⟩⟩
     have heq :
         (∑ ω ∈ Finset.univ.filter (fun ω ↦ d ω = a), f ω) /
@@ -454,7 +454,7 @@ theorem norm_finCharFun_sq_le_of_partition
     BooleanSlices.BooleanSlicePoint J (k - a.1)
   let e : Fiber ≃ Product :=
     booleanSlicePartitionProductEquiv I J k a hcover hdisjoint
-  letI : Nonempty Product := Nonempty.map e ha
+  let : Nonempty Product := Nonempty.map e ha
   let g : Product → ℂ := fun p ↦
     Complex.exp ((t * X (e.symm p).1 : ℝ) * Complex.I)
   have heq :
@@ -505,7 +505,7 @@ theorem norm_finCharFun_sq_le_of_partition_boolSlices
   let Product := BoolSlice ↑I a.1 × BoolSlice ↑J (k - a.1)
   let e : Fiber ≃ Product :=
     booleanSlicePartitionBoolProductEquiv I J k a hcover hdisjoint
-  letI : Nonempty Product := Nonempty.map e ha
+  let : Nonempty Product := Nonempty.map e ha
   let g : Product → ℂ := fun p ↦
     Complex.exp ((t * X (e.symm p).1 : ℝ) * Complex.I)
   have heq :
@@ -565,7 +565,7 @@ theorem norm_finCharFun_sq_le_of_partition_boolSlices_except
     let Product := BoolSlice ↑I a.1 × BoolSlice ↑J (k - a.1)
     let e : Fiber ≃ Product :=
       booleanSlicePartitionBoolProductEquiv I J k a hcover hdisjoint
-    letI : Nonempty Product := Nonempty.map e ha
+    let : Nonempty Product := Nonempty.map e ha
     let g : Product → ℂ := fun p ↦
       Complex.exp ((t * X (e.symm p).1 : ℝ) * Complex.I)
     have heq :
@@ -677,7 +677,7 @@ lemma degreeInto_boolSliceSupport
       ∑ j : ↑J, lemma81AdjacencyIndicator G v j.1 *
         boolIndicator (y.1 j) := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
   rw [Finset.inter_eq_left.mpr
     (BooleanSlices.mem_booleanSlice.mp
       (boolSliceEquivBooleanSlicePoint J ell y).2).1]
@@ -865,7 +865,7 @@ theorem norm_perturbedEdgePolynomial_booleanSlice_sq_le_of_split
     (fun S ↦ Probability.perturbedEdgePolynomial G e₀ c S.1)
     t B hB
   intro a ha
-  letI : Nonempty (BoolSlice ↑w.I a.1 × BoolSlice ↑w.J (k - a.1)) := ha
+  let : Nonempty (BoolSlice ↑w.I a.1 × BoolSlice ↑w.J (k - a.1)) := ha
   have hfun :
       (fun p : BoolSlice ↑w.I a.1 × BoolSlice ↑w.J (k - a.1) ↦
         Probability.perturbedEdgePolynomial G e₀ c
@@ -911,7 +911,7 @@ theorem norm_perturbedEdgePolynomial_booleanSlice_sq_le_of_split_except
     (fun S ↦ Probability.perturbedEdgePolynomial G e₀ c S.1)
     t Bad B eps hB
   · intro a ha hnot
-    letI : Nonempty (BoolSlice ↑w.I a.1 × BoolSlice ↑w.J (k - a.1)) := ha
+    let : Nonempty (BoolSlice ↑w.I a.1 × BoolSlice ↑w.J (k - a.1)) := ha
     have hfun :
         (fun p : BoolSlice ↑w.I a.1 × BoolSlice ↑w.J (k - a.1) ↦
           Probability.perturbedEdgePolynomial G e₀ c
@@ -1120,7 +1120,7 @@ theorem lemma83DegreePrefixOn_probability
         (2 * Real.exp
           (-(eta * lemma83BlockSize n beta) ^ 2 /
             (8 * (2 * lemma83BlockSize n beta : ℕ)))) := by
-  letI : Nonempty (BooleanSlices.BooleanSlicePoint I ell) :=
+  let : Nonempty (BooleanSlices.BooleanSlicePoint I ell) :=
     BooleanSlices.booleanSlicePoint_nonempty hell
   let p : ℕ → ℝ := fun k ↦ Concentration.uniformProbability
     (fun U : BooleanSlices.BooleanSlicePoint I ell ↦
@@ -1274,7 +1274,7 @@ theorem lemma83DegreeJointOn_probability_sourcePower_of_imbalance
           ((|tau| + delta) *
             (|tau| + (n : ℝ) ^ (-(1 - beta) / 2)) / |tau|)) ^ q := by
   classical
-  letI : Nonempty (BooleanSlices.BooleanSlicePoint I ell) :=
+  let : Nonempty (BooleanSlices.BooleanSlicePoint I ell) :=
     BooleanSlices.booleanSlicePoint_nonempty hell
   by_cases hq0 : q = 0
   · subst q
@@ -1599,7 +1599,7 @@ theorem eventually_lemma85TupleBad_probability
   filter_upwards [hsource] with n hn
   intro q familySize ell G w a tau delta hq hell hellower hellupper
     htau hdelta hdeltaUpper
-  letI : Nonempty (BooleanSlices.BooleanSlicePoint w.J ell) :=
+  let : Nonempty (BooleanSlices.BooleanSlicePoint w.J ell) :=
     BooleanSlices.booleanSlicePoint_nonempty hell
   apply lemma85TupleBad_probability_of_jointOn
   intro x
@@ -1624,9 +1624,9 @@ theorem lemma85_half_bad_probability
             badFamilyCount
               (fun a ↦ lemma85TupleBad (ell := ell) w a tau delta) YZ) ≤
       2 * p := by
-  letI : Nonempty (BooleanSlices.BooleanSlicePoint w.J ell) :=
+  let : Nonempty (BooleanSlices.BooleanSlicePoint w.J ell) :=
     BooleanSlices.booleanSlicePoint_nonempty hell
-  letI : Nonempty (Fin familySize) := Fin.pos_iff_nonempty.mp hfamily
+  let : Nonempty (Fin familySize) := Fin.pos_iff_nonempty.mp hfamily
   simpa only [Fintype.card_fin] using
     uniformProbability_half_le_badFamilyCount
       (fun a ↦ lemma85TupleBad (ell := ell) w a tau delta) p hbad
@@ -1657,7 +1657,7 @@ theorem eventually_lemma85_half_bad_probability
   filter_upwards [htuple] with n hn
   intro q familySize ell G w tau delta hq hfamily hell hellower
     hellupper htau hdelta hdeltaUpper
-  letI : Nonempty (BooleanSlices.BooleanSlicePoint w.J ell) :=
+  let : Nonempty (BooleanSlices.BooleanSlicePoint w.J ell) :=
     BooleanSlices.booleanSlicePoint_nonempty hell
   apply lemma85_half_bad_probability w tau delta _ hfamily hell
   intro a
@@ -1766,7 +1766,7 @@ def lemma85PairEmbedding
     subst ky
     have hi := w.tuple_injective (e kx) hv
     have hb : bx = byy := by
-      cases bx <;> cases byy <;> simp_all
+      cases bx <;> cases byy <;> simp_all only [Bool.true_eq_false]
       exact Fin.succ_ne_zero _ hi.symm
     exact Prod.ext rfl hb
 
@@ -1815,7 +1815,7 @@ theorem finProbability_not_lemma85GoodExposure_le
       eps) :
     finProbability (BoolSlice ↑w.J ell × BoolSlice ↑w.J ell)
         (fun p ↦ ¬lemma85GoodExposure w tau delta p) ≤ eps := by
-  letI : Nonempty (BooleanSlices.BooleanSlicePoint w.J ell) :=
+  let : Nonempty (BooleanSlices.BooleanSlicePoint w.J ell) :=
     BooleanSlices.booleanSlicePoint_nonempty hell
   let E := (boolSliceEquivBooleanSlicePoint w.J ell).prodCongr
     (boolSliceEquivBooleanSlicePoint w.J ell)
@@ -2080,7 +2080,7 @@ theorem norm_perturbedEdgePolynomial_booleanSlice_sq_le_lemma85
   classical
   let badOuter : Fin (k + 1) → Prop :=
     fun a ↦ lemma85UnbalancedFiber w c a
-  letI : DecidablePred badOuter := Classical.decPred _
+  let : DecidablePred badOuter := Classical.decPred _
   let B := Real.exp 1 * Real.exp
     (-(c ^ 3 / 256) * ((familySize / 2 : ℕ) : ℝ) * delta ^ 2) + epsInner
   have hB : 0 ≤ B := by
@@ -2090,10 +2090,10 @@ theorem norm_perturbedEdgePolynomial_booleanSlice_sq_le_lemma85
     w e₀ coeff t badOuter B epsOuter hB
   · intro a ha hnot
     let ell := k - a.1
-    letI : Nonempty (BoolSlice ↑w.I a.1 × BoolSlice ↑w.J ell) := ha
-    letI : Nonempty (BoolSlice ↑w.I a.1) := Nonempty.map Prod.fst ha
-    letI : Nonempty (BoolSlice ↑w.J ell) := Nonempty.map Prod.snd ha
-    letI : Nonempty (BooleanSlices.BooleanSlicePoint w.J ell) :=
+    let : Nonempty (BoolSlice ↑w.I a.1 × BoolSlice ↑w.J ell) := ha
+    let : Nonempty (BoolSlice ↑w.I a.1) := Nonempty.map Prod.fst ha
+    let : Nonempty (BoolSlice ↑w.J ell) := Nonempty.map Prod.snd ha
+    let : Nonempty (BooleanSlices.BooleanSlicePoint w.J ell) :=
       Nonempty.map (boolSliceEquivBooleanSlicePoint w.J ell) inferInstance
     have hbal :
         c * (Fintype.card ↑w.I : ℝ) ≤ (a.1 : ℝ) ∧
@@ -2183,7 +2183,7 @@ theorem eventually_norm_perturbedEdgePolynomial_booleanSlice_sq_le_lemma85
   intro a hbal
   let ell := k - a.1
   obtain ⟨hell, hellower, hellupper⟩ := hJ a hbal
-  letI : Nonempty (BooleanSlices.BooleanSlicePoint w.J ell) :=
+  let : Nonempty (BooleanSlices.BooleanSlicePoint w.J ell) :=
     BooleanSlices.booleanSlicePoint_nonempty hell
   have hprob := hn q familySize ell G w tau delta hq hfamily hell
     hellower hellupper htau hdelta hdeltaUpper
@@ -2873,7 +2873,7 @@ lemma eventually_lemma81_raw_rhs_le
     rw [hdeltaSq]
     rw [div_mul_eq_mul_div, ← Real.rpow_add hnpos]
     congr 1
-    ring
+    ring_nf
   have hfirstExponent : cFirst * (n : ℝ) ^ (eta / 3) ≤
       ((eta / 4) ^ 3 / 256) *
         ((familySize / 2 : ℕ) : ℝ) * delta ^ 2 := by

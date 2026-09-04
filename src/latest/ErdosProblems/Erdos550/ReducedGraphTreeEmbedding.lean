@@ -60,12 +60,12 @@ lemma IsTree.exists_rooted_edge_structure {α : Type*} [Fintype α] [DecidableEq
       (∀ a b, parent a = some b → T.Adj a b) ∧
       (∀ a b, T.Adj a b → (parent a = some b ∨ parent b = some a)) := by
   obtain ⟨r, hr⟩ : ∃ r : α, True := by
-    cases isEmpty_or_nonempty α <;> simp_all +decide;
+    cases isEmpty_or_nonempty α <;> simp_all +decide only [IsEmpty.exists_iff];
     exact hT.1.nonempty.elim ( fun x => ‹IsEmpty α›.elim x );
   obtain ⟨par, hpar⟩ : ∃ par : α → α, (∀ a : α, a ≠ r → T.Adj a (par a) ∧ T.dist (par a) r < T.dist a r) ∧ (∀ a : α, a ≠ r → ∀ b : α, T.Adj a b → T.dist b r < T.dist a r → b = par a) := by
     choose! par hpar using fun a ha => tree_closer_neighbor_exists_unique T hT r a ha;
     exact ⟨ par, fun a ha => hpar a ha |>.1, fun a ha b hb hb' => hpar a ha |>.2 b ⟨ hb, hb' ⟩ ⟩;
-  refine' ⟨ fun a => if a = r then none else some ( par a ), fun a => T.dist a r, _, _, _ ⟩ <;> simp_all +decide;
+  refine' ⟨ fun a => if a = r then none else some ( par a ), fun a => T.dist a r, _, _, _ ⟩ <;> simp_all +decide only [Option.ite_none_left_eq_some, Option.some.injEq];
   intro a b hab;
   by_cases ha : a = r <;> by_cases hb : b = r <;> simp_all +decide;
   · grind +suggestions;
@@ -146,7 +146,7 @@ lemma exists_sibling_concentrated_hom {α : Type*} [Fintype α] [DecidableEq α]
       (∀ a x y, T.Adj a x → T.Adj a y → col x = col y) := by
   have h_colorable : Nonempty (T.Coloring (Fin 2)) := by
     exact ⟨ by exact ( Erdos550.IsTree.colorable_two T hT ).some ⟩;
-  obtain ⟨ c ⟩ := h_colorable; use fun a => if c a = 0 then i₀ else i₁; simp +decide [  ] ;
+  obtain ⟨ c ⟩ := h_colorable; use fun a => if c a = 0 then i₀ else i₁; simp +decide only [Fin.isValue, ite_eq_left_iff, ite_eq_right_iff] ;
   refine' ⟨ _, _, _ ⟩;
   · grind;
   · intro a b hab; have := c.valid hab; split_ifs <;> simp_all +decide ;

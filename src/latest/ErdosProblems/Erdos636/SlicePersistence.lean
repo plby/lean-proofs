@@ -298,7 +298,7 @@ theorem signedSlice_intersection_two_sided_probability
   have hsum : ∑ k : Fin 1, ((fun _ : Fin 1 ↦ ell) k + (fun _ ↦ 0) k) = ell := by
     simp
   rw [hsum] at htail
-  convert htail using 1 <;> ring
+  convert htail using 1 <;> ring_nf
 
 /-! ## The same tail on `Fourier.BoolSlice` -/
 
@@ -309,7 +309,7 @@ theorem uniformExpectation_intersectionCount (D : Finset V) (ell : ℕ)
     uniformExpectation (intersectionCount D ell) =
       (ell : ℝ) / Fintype.card V * D.card := by
   let e := boolSliceEquivBooleanSlicePoint (V := V) ell
-  letI : Nonempty
+  let : Nonempty
       (BooleanSlices.BooleanSlicePoint (Finset.univ : Finset V) ell) :=
     SliceMoments.nonempty_booleanSlicePoint Finset.univ ell (by simpa using hell)
   rw [uniformExpectation_eq_fintypeExpect]
@@ -341,7 +341,7 @@ theorem slice_intersection_two_sided_probability
   let f : BooleanSlices.ProductSignedSlicePoint (oneBucket V)
       (fun _ ↦ ell) (fun _ ↦ 0) → ℝ :=
     fun S ↦ ((signedSampleFinset ell S ∩ D).card : ℝ)
-  letI : Nonempty (BooleanSlices.ProductSignedSlicePoint (oneBucket V)
+  let : Nonempty (BooleanSlices.ProductSignedSlicePoint (oneBucket V)
       (fun _ ↦ ell) (fun _ ↦ 0)) :=
     ⟨E (Classical.choice (inferInstance : Nonempty (BoolSlice V ell)))⟩
   have hpoint (omega : BoolSlice V ell) :

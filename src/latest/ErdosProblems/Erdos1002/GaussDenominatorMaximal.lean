@@ -328,7 +328,7 @@ theorem tendsto_gaussRoofLinearWindowBadEvent_measureReal_zero
 function. -/
 theorem measurable_gaussPrefixDenominator (n : ℕ) :
     Measurable (gaussPrefixDenominator n) := by
-  letI : MeasurableSpace (PositiveDigitWord n) := ⊤
+  let : MeasurableSpace (PositiveDigitWord n) := ⊤
   have hselected : Measurable (selectedGaussPrefixWord n) :=
     measurable_selectedGaussPrefixWord n
   have hterminal : Measurable

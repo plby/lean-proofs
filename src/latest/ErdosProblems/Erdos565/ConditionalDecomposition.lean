@@ -204,7 +204,7 @@ theorem card_bound_of_pow_le {q α : ℝ} {n t : ℕ}
   have hbern0 := one_add_mul_self_le_rpow_one_add (s := -q)
     (p := α / q) (by linarith) hratio
   have hbern : 1 - α ≤ (1 - q) ^ (α / q) := by
-    convert hbern0 using 1 <;> field_simp <;> ring
+    convert hbern0 using 1 <;> field_simp <;> ring_nf
   have hpowbern : (1 - α) ^ t ≤ ((1 - q) ^ (α / q)) ^ t := by
     exact pow_le_pow_left₀ (sub_nonneg.mpr hα.le) hbern t
   have hexp : (n : ℝ) < (α / q) * (t : ℝ) := by

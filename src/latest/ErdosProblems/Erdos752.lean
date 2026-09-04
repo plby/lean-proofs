@@ -142,7 +142,7 @@ lemma exists_bipartite_subgraph_twice_degree {V : Type u} [Fintype V]
   classical
   obtain ⟨c, hc⟩ := Erdos182.PRSEntry.exists_cutGraph_forall_degree G
   let H := Erdos182.PRSEntry.cutGraph G c
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
   refine ⟨H, inferInstance, Erdos182.PRSEntry.cutGraph_le G c,
     (Erdos182.PRSEntry.cutGraph_isBipartiteWith G c).isBipartite, ?_⟩
   intro v

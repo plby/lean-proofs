@@ -44,7 +44,7 @@ theorem nonempty {X Y : Type u} [Nonempty X] [Nonempty Y] :
     ∀ r : ℕ, Nonempty (BlockTower X Y r)
   | 0 => inferInstance
   | r + 1 => by
-      letI : Nonempty (BlockTower X Y r) :=
+      let : Nonempty (BlockTower X Y r) :=
         nonempty (X := X) (Y := Y) r
       infer_instance
 
@@ -204,8 +204,8 @@ dense cube over the alphabet with one new letter. -/
 theorem FiniteDensityHJ.finiteRestrictedMDHJ {k : ℕ} (h : FiniteDensityHJ k)
     (hk : 0 < k) (m : ℕ) : FiniteRestrictedMDHJ k m := by
   intro δ hδ
-  letI : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
-  letI : Nonempty (Fin (k + 1)) := Fin.pos_iff_nonempty.mp (by omega)
+  let : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
+  let : Nonempty (Fin (k + 1)) := Fin.pos_iff_nonempty.mp (by omega)
   have hMD := (h.finiteDensityMDHJ hk m).eventual hk
   obtain ⟨M₀, hM₀⟩ := hMD (δ / 2) (half_pos hδ)
   let M : ℕ := max M₀ 1
@@ -249,7 +249,7 @@ theorem FiniteDensityHJ.finiteRestrictedMDHJ {k : ℕ} (h : FiniteDensityHJ k)
     intro x
     rw [hCfiber]
     exact hrow x
-  letI : Nonempty (BlockTower X Y q) := BlockTower.nonempty q
+  let : Nonempty (BlockTower X Y q) := BlockTower.nonempty q
   have hCcolumns :
       δ / 2 ≤ average fun y : BlockTower X Y q ↦ density (columnFiber C y) := by
     rwa [← density_eq_average_columnFiber]
@@ -279,7 +279,7 @@ theorem FiniteRestrictedMDHJ.eventual {k m : ℕ} (h : FiniteRestrictedMDHJ k m)
   obtain ⟨n₀, hn₀⟩ := h δ hδ
   refine ⟨n₀, ?_⟩
   intro n hn A hA
-  letI : Nonempty (Fin (k + 1)) := Fin.pos_iff_nonempty.mp (by omega)
+  let : Nonempty (Fin (k + 1)) := Fin.pos_iff_nonempty.mp (by omega)
   obtain ⟨r, rfl⟩ := Nat.exists_eq_add_of_le hn
   classical
   let e := wordFiberEquiv (k + 1) n₀ r

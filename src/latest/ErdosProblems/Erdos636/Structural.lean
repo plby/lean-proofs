@@ -738,7 +738,7 @@ theorem exists_diverse_subfamily
   let t : ℝ := δ * ρ * Fintype.card V
   let H : SimpleGraph {x // x ∈ P} :=
     lowDiversityGraph G Finset.univ t P
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
   have hdegree : ∀ x : {x // x ∈ P}, H.degree x ≤ b := by
     intro x
     let Y : Finset (Finset V) := (H.neighborFinset x).image Subtype.val

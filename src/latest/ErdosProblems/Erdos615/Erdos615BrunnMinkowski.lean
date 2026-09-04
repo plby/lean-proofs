@@ -102,9 +102,9 @@ lemma brunnMinkowski_one
     volume A + volume B ≤ volume (A + B) := by
   obtain ⟨a, ha⟩ := A_ne
   obtain ⟨b, hb⟩ := B_ne
-  letI : Nonempty (CompactPiece A) :=
+  let : Nonempty (CompactPiece A) :=
     ⟨⟨{a}, singleton_subset_iff.mpr ha, isCompact_singleton, singleton_nonempty a⟩⟩
-  letI : Nonempty (CompactPiece B) :=
+  let : Nonempty (CompactPiece B) :=
     ⟨⟨{b}, singleton_subset_iff.mpr hb, isCompact_singleton, singleton_nonempty b⟩⟩
   rw [volume_eq_iSup_compactPiece A_meas, volume_eq_iSup_compactPiece B_meas]
   apply ENNReal.iSup_add_iSup_le
@@ -923,7 +923,7 @@ lemma euclidean_unitBall_volume_step {n : ℕ} (hn : 0 < n) :
       ENNReal.ofReal (Real.sqrt (n + 1 : ℝ)) *
         volume (Metric.closedBall
           (0 : EuclideanSpace ℝ (Fin (n + 1))) 1) := by
-  letI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+  let : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
   rw [EuclideanSpace.volume_closedBall, EuclideanSpace.volume_closedBall]
   simp only [Fintype.card_fin, ENNReal.ofReal_one, one_pow, one_mul]
   rw [← ENNReal.ofReal_mul (Real.sqrt_nonneg _)]

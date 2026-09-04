@@ -42,7 +42,7 @@ theorem window_failure_density (τ : MaskChoice CoefficientField) (k : ℕ) (hk 
         (window_target_failure τ k hk hhit m.1 hm m.2)
     · have heq : finiteDensity (fun ω : LevelParameters CoefficientField k =>
         6 * blockPlace CoefficientField 0 k ≤ m.1 ∧ ¬ LocallyRepresented CoefficientField τ k ω m.1) = 0 := by
-        letI : IsEmpty {ω : LevelParameters CoefficientField k //
+        let : IsEmpty {ω : LevelParameters CoefficientField k //
             6 * blockPlace CoefficientField 0 k ≤ m.1 ∧ ¬ LocallyRepresented CoefficientField τ k ω m.1} :=
           ⟨fun ω => hm ω.2.1⟩
         unfold finiteDensity

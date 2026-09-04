@@ -624,7 +624,7 @@ theorem eventually_exists_prunedGenerator_focusCover
   · intro e he
     have hecard := hleaveUniform e he
     have hene : e.Nonempty := Finset.card_pos.mp (by omega)
-    letI : Nonempty (Fin n) := ⟨hene.choose⟩
+    let : Nonempty (Fin n) := ⟨hene.choose⟩
     obtain ⟨request, hrequest⟩ := exists_rootRequest_with_image root e (by
       dsimp [root]
       rw [card_coverRoot hrq.le, hecard])

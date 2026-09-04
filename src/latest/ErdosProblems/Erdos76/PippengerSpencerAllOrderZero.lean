@@ -4187,8 +4187,7 @@ theorem innerJointUncoveredMass_close_signedRegularSurvival_of_cutoff_induction
   | zero =>
       intro A _hA _hcard
       rw [H.innerJointUncoveredMass_zero]
-      simp [UncoveredBy, signedRegularSurvival]
-      exact herror₀ 0 A.card
+      simpa [FiniteHypergraph.UncoveredBy] using herror₀ 0 A.card
   | succ r ih =>
       intro A hA hAcard
       have hrlt : r < L := Nat.lt_of_succ_le hr

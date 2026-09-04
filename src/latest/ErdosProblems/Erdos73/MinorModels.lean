@@ -95,8 +95,8 @@ def refl {V : Type*} (G : _root_.SimpleGraph V) : MinorModel G G where
     exact ⟨v, by simp⟩
   branch_connected := by
     intro v
-    haveI : Nonempty {x : V | x ∈ ({v} : Finset V)} := ⟨⟨v, by simp⟩⟩
-    haveI : Subsingleton {x : V | x ∈ ({v} : Finset V)} := by
+    have : Nonempty {x : V | x ∈ ({v} : Finset V)} := ⟨⟨v, by simp⟩⟩
+    have : Subsingleton {x : V | x ∈ ({v} : Finset V)} := by
       constructor
       intro x y
       apply Subtype.ext
@@ -125,8 +125,8 @@ def of_embedding {W V : Type*}
     exact ⟨e w, by simp⟩
   branch_connected := by
     intro w
-    haveI : Nonempty {x : V | x ∈ ({e w} : Finset V)} := ⟨⟨e w, by simp⟩⟩
-    haveI : Subsingleton {x : V | x ∈ ({e w} : Finset V)} := by
+    have : Nonempty {x : V | x ∈ ({e w} : Finset V)} := ⟨⟨e w, by simp⟩⟩
+    have : Subsingleton {x : V | x ∈ ({e w} : Finset V)} := by
       constructor
       intro x y
       apply Subtype.ext

@@ -250,15 +250,15 @@ theorem quadraticResiduePrimePattern_subset_survivors
         (fun q ↦ quadraticVanishing q.1
           (reciprocityWantsSquare candidateOneModFour q.1)) m0 N := by
   classical
-  letI : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
-  letI : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
+  let : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
+  let : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
   intro p hp
   rw [quadraticResiduePrimePattern] at hp
   obtain ⟨hpInterval, hpPrime, hpClass, hpResidues⟩ := Finset.mem_filter.mp hp
   rw [Erdos380.residueClassSurvivors, Finset.mem_filter]
   refine ⟨hpInterval, fun q ↦ ?_⟩
   obtain ⟨hqp, hsq⟩ := hpResidues q.1 q.2
-  letI : Fact p.Prime := ⟨hpPrime⟩
+  let : Fact p.Prime := ⟨hpPrime⟩
   have hp2 : p ≠ 2 := by
     intro hpEq
     subst p
@@ -298,8 +298,8 @@ theorem quadraticPatternSurvivors_card_le
         ((N : ℝ) + N) /
           ((((Q.card - k : ℕ) : ℝ) / (2 * k)) ^ k) := by
   classical
-  letI : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
-  letI : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
+  let : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
+  let : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
   intro hlargest
   let removed : Q → ℝ := fun q ↦
     Erdos380.residueRemovedFraction (fun q : Q ↦ q.1)
@@ -394,8 +394,8 @@ theorem quadraticResiduePrimePattern_card_le
         ((N : ℝ) + N) /
           ((((Q.card - k : ℕ) : ℝ) / (2 * k)) ^ k) := by
   classical
-  letI : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
-  letI : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
+  let : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
+  let : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
   intro hlargest
   have hsubset := quadraticResiduePrimePattern_subset_survivors
     Q hprime hodd candidateOneModFour m0 N
@@ -529,11 +529,11 @@ theorem quadraticResiduePrimePattern_subset_mixedSurvivors
         (mixedQuadraticVanishing Q R
           (fun q ↦ reciprocityWantsSquare candidateOneModFour q.1)) m0 N := by
   classical
-  letI : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprimeQ q.1 q.2⟩
-  letI : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprimeQ q.1 q.2).ne_zero⟩
-  letI : ∀ r : R, Fact r.1.Prime := fun r ↦ ⟨hprimeR r.1 r.2⟩
-  letI : ∀ r : R, NeZero r.1 := fun r ↦ ⟨(hprimeR r.1 r.2).ne_zero⟩
-  letI : ∀ i : Q ⊕ R, NeZero (mixedQuadraticModulus Q R i) := fun i ↦
+  let : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprimeQ q.1 q.2⟩
+  let : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprimeQ q.1 q.2).ne_zero⟩
+  let : ∀ r : R, Fact r.1.Prime := fun r ↦ ⟨hprimeR r.1 r.2⟩
+  let : ∀ r : R, NeZero r.1 := fun r ↦ ⟨(hprimeR r.1 r.2).ne_zero⟩
+  let : ∀ i : Q ⊕ R, NeZero (mixedQuadraticModulus Q R i) := fun i ↦
     match i with
     | Sum.inl q => ⟨(hprimeQ q.1 q.2).ne_zero⟩
     | Sum.inr r => ⟨(hprimeR r.1 r.2).ne_zero⟩
@@ -546,7 +546,7 @@ theorem quadraticResiduePrimePattern_subset_mixedSurvivors
   cases i with
   | inl q =>
       obtain ⟨hqp, hsq⟩ := hpResidues q.1 q.2
-      letI : Fact p.Prime := ⟨hpPrime⟩
+      let : Fact p.Prime := ⟨hpPrime⟩
       have hp2 : p ≠ 2 := by
         intro hpEq
         subst p
@@ -555,7 +555,7 @@ theorem quadraticResiduePrimePattern_subset_mixedSurvivors
         (hoddQ q.1 q.2) (Nat.ne_of_gt hqp) candidateOneModFour hpClass hsq
   | inr r =>
       simp only [mixedQuadraticVanishing, Finset.mem_singleton]
-      letI : Fact p.Prime := ⟨hpPrime⟩
+      let : Fact p.Prime := ⟨hpPrime⟩
       have hrp : r.1 ≠ p := by
         have hpLower : m0 < p := (Finset.mem_Ioc.mp hpInterval).1
         exact Nat.ne_of_lt ((hRle r.1 r.2).trans_lt hpLower)
@@ -598,11 +598,11 @@ theorem quadraticResiduePrimePattern_card_le_mixed
             Erdos380.residueRemovedFraction
               (mixedQuadraticModulus Q R) vanish i) / k) ^ k) := by
   classical
-  letI : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprimeQ q.1 q.2⟩
-  letI : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprimeQ q.1 q.2).ne_zero⟩
-  letI : ∀ r : R, Fact r.1.Prime := fun r ↦ ⟨hprimeR r.1 r.2⟩
-  letI : ∀ r : R, NeZero r.1 := fun r ↦ ⟨(hprimeR r.1 r.2).ne_zero⟩
-  letI : ∀ i : Q ⊕ R, NeZero (mixedQuadraticModulus Q R i) := fun i ↦
+  let : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprimeQ q.1 q.2⟩
+  let : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprimeQ q.1 q.2).ne_zero⟩
+  let : ∀ r : R, Fact r.1.Prime := fun r ↦ ⟨hprimeR r.1 r.2⟩
+  let : ∀ r : R, NeZero r.1 := fun r ↦ ⟨(hprimeR r.1 r.2).ne_zero⟩
+  let : ∀ i : Q ⊕ R, NeZero (mixedQuadraticModulus Q R i) := fun i ↦
     match i with
     | Sum.inl q => ⟨(hprimeQ q.1 q.2).ne_zero⟩
     | Sum.inr r => ⟨(hprimeR r.1 r.2).ne_zero⟩
@@ -933,7 +933,7 @@ theorem crtBaseResidues_lt
     ∀ a ∈ crtBaseResidues modulus hcoprime allowed,
       a < ∏ i, modulus i := by
   classical
-  letI : NeZero (∏ i, modulus i) := ⟨Finset.prod_ne_zero_iff.mpr
+  let : NeZero (∏ i, modulus i) := ⟨Finset.prod_ne_zero_iff.mpr
     (fun i _ ↦ NeZero.ne (modulus i))⟩
   intro a ha
   rw [crtBaseResidues, Finset.mem_image] at ha
@@ -949,7 +949,7 @@ theorem card_crtBaseResidues
     (crtBaseResidues modulus hcoprime allowed).card =
       ∏ i, (allowed i).card := by
   classical
-  letI : NeZero (∏ i, modulus i) := ⟨Finset.prod_ne_zero_iff.mpr
+  let : NeZero (∏ i, modulus i) := ⟨Finset.prod_ne_zero_iff.mpr
     (fun i _ ↦ NeZero.ne (modulus i))⟩
   rw [crtBaseResidues, Finset.card_image_iff.mpr]
   · exact Fintype.card_piFinset allowed
@@ -1006,8 +1006,8 @@ theorem quadraticBaseResidues_lt
     ∀ a ∈ quadraticBaseResidues Q hprime wantSquare,
       a < quadraticBaseModulus Q := by
   classical
-  letI : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
-  letI : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
+  let : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
+  let : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
   let hcoprime : Pairwise
       (Function.onFun Nat.Coprime fun q : Q ↦ q.1) := by
     intro q r hqr
@@ -1028,8 +1028,8 @@ theorem card_quadraticBaseResidues
     (quadraticBaseResidues Q hprime wantSquare).card =
       ∏ q ∈ Q, (q - 1) / 2 := by
   classical
-  letI : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
-  letI : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
+  let : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
+  let : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
   let hcoprime : Pairwise
       (Function.onFun Nat.Coprime fun q : Q ↦ q.1) := by
     intro q r hqr
@@ -1063,8 +1063,8 @@ theorem quadraticResiduePrimePattern_subset_baseSifted
           (fun q ↦ reciprocityWantsSquare candidateOneModFour q.1))).filter
         (fun n ↦ Nat.Coprime (Erdos387.sievePrimeProduct z (y + 1)) n) := by
   classical
-  letI : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
-  letI : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
+  let : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
+  let : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
   let hcoprime : Pairwise
       (Function.onFun Nat.Coprime fun q : Q ↦ q.1) := by
     intro q r hqr
@@ -1079,7 +1079,7 @@ theorem quadraticResiduePrimePattern_subset_baseSifted
   have hMpos : 0 < M := by
     rw [hMeq]
     exact quadraticBaseModulus_pos Q hprime
-  letI : NeZero M := ⟨hMpos.ne'⟩
+  let : NeZero M := ⟨hMpos.ne'⟩
   intro p hp
   rw [quadraticResiduePrimePattern, Finset.mem_filter] at hp
   obtain ⟨hpIoc, hpPrime, hpClass, hpSquares⟩ := hp
@@ -1096,7 +1096,7 @@ theorem quadraticResiduePrimePattern_subset_baseSifted
       rw [Fintype.mem_piFinset]
       intro q
       apply (mem_quadraticAllowed_iff q.1 _ _).mpr
-      letI : Fact p.Prime := ⟨hpPrime⟩
+      let : Fact p.Prime := ⟨hpPrime⟩
       have hp2 : p ≠ 2 := by
         intro hpEq
         subst p
@@ -1527,8 +1527,8 @@ theorem quadraticResiduePrimePattern_card_le_choose
       ((N : ℝ) + N) /
         ((Q.card.choose k : ℕ) * (1 / 2 : ℝ) ^ k) := by
   classical
-  letI : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
-  letI : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
+  let : ∀ q : Q, Fact q.1.Prime := fun q ↦ ⟨hprime q.1 q.2⟩
+  let : ∀ q : Q, NeZero q.1 := fun q ↦ ⟨(hprime q.1 q.2).ne_zero⟩
   let vanish := fun q : Q ↦
     quadraticVanishing q.1
       (reciprocityWantsSquare candidateOneModFour q.1)

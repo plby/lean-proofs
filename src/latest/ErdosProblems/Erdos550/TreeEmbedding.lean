@@ -266,7 +266,7 @@ theorem tree_embeds_of_avgDegree
   obtain ⟨hA_nonempty, hA_subset, hA_deg⟩ := hA
   have hA_card : Fintype.card V - 1 ≤ (G.induce (↑A : Set W)).minDegree := by
     have hA_card : ∀ v : { x // x ∈ A }, (Fintype.card V - 1 : ℕ) ≤ (G.induce (↑A : Set W)).degree v := by
-      intro v; specialize hA_deg v v.2; simp_all +decide [ SimpleGraph.degree, SimpleGraph.neighborFinset ] ;
+      intro v; specialize hA_deg v v.2; simp_all +decide only [SetLike.coe_sort_coe, tsub_le_iff_right] ;
       norm_cast at hA_deg;
       convert! hA_deg using 2;
       refine' Finset.card_bij ( fun x hx => x ) _ _ _ <;> aesop;

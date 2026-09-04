@@ -43,7 +43,7 @@ theorem locallyBounded_of_not_highPair_on_cells
     have hle : t ≤ Nat.card {j : Fin q // apex i j = a} :=
       Nat.le_of_not_gt hlt
     let S := {j : Fin q // apex i j = a}
-    letI : Fintype S := Fintype.ofFinite S
+    let : Fintype S := Fintype.ofFinite S
     have hle' : Fintype.card (Fin t) ≤ Fintype.card S := by
       simpa [S, Nat.card_eq_fintype_card] using! hle
     obtain ⟨select⟩ := Function.Embedding.nonempty_of_card_le hle'
@@ -64,7 +64,7 @@ theorem locallyBounded_of_not_highPair_on_cells
     have hle : t ≤ Nat.card {i : Fin q // apex i j = a} :=
       Nat.le_of_not_gt hlt
     let S := {i : Fin q // apex i j = a}
-    letI : Fintype S := Fintype.ofFinite S
+    let : Fintype S := Fintype.ofFinite S
     have hle' : Fintype.card (Fin t) ≤ Fintype.card S := by
       simpa [S, Nat.card_eq_fintype_card] using! hle
     obtain ⟨select⟩ := Function.Embedding.nonempty_of_card_le hle'

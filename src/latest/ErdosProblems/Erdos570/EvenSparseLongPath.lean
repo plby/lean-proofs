@@ -57,7 +57,7 @@ theorem ramseyAt_evenBudget_of_long_suspendedPath
       oddBudget B (r + 1) H.edgeCount :=
     hQram.trans (oddBudget_mono hQlt.le)
   intro C
-  letI : DecidableRel C.Adj := Classical.decRel _
+  let : DecidableRel C.Adj := Classical.decRel _
   by_cases hred : (cycleCode (2 * r + 4)).graph ⊑ C
   · exact Or.inl hred
   have hramQ : RamseyAt (cycleCode (2 * r + 4)) Q

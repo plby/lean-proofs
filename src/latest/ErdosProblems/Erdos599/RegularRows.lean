@@ -576,7 +576,7 @@ theorem exists_fairChosen_eq_some (R : RowSystem kappa X)
   by_contra hstarves
   push Not at hstarves
   let a0 := R.activationStage hkappa.aleph0_le x
-  letI : Nonempty (RegularCardinal.Stage kappa) := ⟨a0⟩
+  let : Nonempty (RegularCardinal.Stage kappa) := ⟨a0⟩
   have htailStat : Stationary.IsStationaryBelow kappa (Set.Ici a0) :=
     (Stationary.isClub_Ici a0).isStationary
       (RegularCardinal.cof_stage_ne_aleph0 hkappa hkappaUncountable)
@@ -1267,7 +1267,7 @@ theorem exists_preferred_eq_some_of_mem_state_row
   by_contra hstarves
   push Not at hstarves
   let a0 := Q.activationStage hkappa.aleph0_le b xs
-  letI : Nonempty (RegularCardinal.Stage kappa) := ⟨a0⟩
+  let : Nonempty (RegularCardinal.Stage kappa) := ⟨a0⟩
   have htailStat : Stationary.IsStationaryBelow kappa (Set.Ici a0) :=
     (Stationary.isClub_Ici a0).isStationary
       (RegularCardinal.cof_stage_ne_aleph0 hkappa hkappaUncountable)
@@ -1334,7 +1334,7 @@ theorem mk_vertexSet_rowPathsMeeting_le
   have hpaths : #(rowPathsMeeting G F S) ≤ kappa :=
     (G.mk_pathsMeeting_le F S hF).trans hS
   by_cases hnonempty : (rowPathsMeeting G F S).Nonempty
-  · letI : Nonempty (rowPathsMeeting G F S) := hnonempty.to_subtype
+  · let : Nonempty (rowPathsMeeting G F S) := hnonempty.to_subtype
     have heq : G.vertexSet (rowPathsMeeting G F S) =
         ⋃ p : rowPathsMeeting G F S, p.1.support := by
       ext x

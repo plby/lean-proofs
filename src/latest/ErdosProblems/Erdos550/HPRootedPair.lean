@@ -242,7 +242,7 @@ theorem hp_rootedTree_embedding_left
           exact this.2
         · simp only [hcb, if_false]
           have := hv
-          simp [cand, hpRootedCandidates, hbr, hcb, goodL] at this
+          simp only [Bool.false_eq_true, ↓reduceIte] at this
           exact this.2
     by_cases hca : col a
     · have hcb : col b = false := by
@@ -251,7 +251,7 @@ theorem hp_rootedTree_embedding_left
           ((G.edgeDensity s t : ℝ) - ε) * (L : ℝ) ≤
             ((SQ.filter fun w => G.Adj v w).card : ℝ) := by
         have := hbGood
-        simp [hcb, goodL, hpGoodLeft, hSQcard] at this
+        simp only [ge_iff_le] at this
         exact this.2
       let N := SQ.filter fun w => G.Adj v w
       have hremain :
@@ -293,7 +293,7 @@ theorem hp_rootedTree_embedding_left
           ((G.edgeDensity s t : ℝ) - ε) * (L : ℝ) ≤
             ((SP.filter fun w => G.Adj v w).card : ℝ) := by
         have := hbGood
-        simp [hcb, goodR, hpGoodRight, hSPcard] at this
+        simp only [ge_iff_le] at this
         exact this.2
       let N := SP.filter fun w => G.Adj v w
       have hremain :

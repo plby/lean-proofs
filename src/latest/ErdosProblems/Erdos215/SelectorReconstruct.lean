@@ -345,7 +345,7 @@ def intRepresentative {d : ℕ} (x : ZMod d) : ℤ := x.val
 
 @[simp] lemma intRepresentative_cast {d : ℕ} (hd : d ≠ 0) (x : ZMod d) :
     (intRepresentative x : ZMod d) = x := by
-  letI : NeZero d := ⟨hd⟩
+  let : NeZero d := ⟨hd⟩
   simpa only [intRepresentative, Int.cast_natCast] using ZMod.natCast_zmod_val x
 
 /-- Integral lift data obtained from a modular solution. -/
@@ -410,7 +410,7 @@ theorem inducedFamily_liftDataOfResidueSolution {d : ℕ} {hd : d ≠ 0}
   apply Fin.ext
   have hcast := inducedFamily_formula hd (liftDataOfResidueSolution r) lam jtilde i
   rw [lineValue_liftDataOfResidueSolution r lam jtilde i] at hcast
-  letI : NeZero d := ⟨hd⟩
+  let : NeZero d := ⟨hd⟩
   have hv := congrArg ZMod.val hcast
   rw [ZMod.val_natCast_of_lt
       (inducedFamily hd (liftDataOfResidueSolution r) lam jtilde i).isLt,
@@ -438,7 +438,7 @@ theorem inducedFamily_liftDataOfResidueSolutionPreserving
   have hcast := inducedFamily_formula hd
     (liftDataOfResidueSolutionPreserving r old Q) lam jtilde i
   rw [hvalue] at hcast
-  letI : NeZero d := ⟨hd⟩
+  let : NeZero d := ⟨hd⟩
   have hv := congrArg ZMod.val hcast
   rw [ZMod.val_natCast_of_lt
       (inducedFamily hd (liftDataOfResidueSolutionPreserving r old Q) lam jtilde i).isLt,

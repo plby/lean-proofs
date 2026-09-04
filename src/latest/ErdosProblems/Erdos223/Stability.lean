@@ -1625,7 +1625,7 @@ theorem eventually_exists_partition_completeEquipartite_free
   have hn1 : 1 ≤ n := (le_max_left 1 (max l (M * SzemerediRegularity.bound rho l))).trans hn
   have hnpos : 0 < n := by omega
   have hVpos : 0 < Fintype.card V := by simpa [hcard] using hnpos
-  letI : Nonempty V := Fintype.card_pos_iff.mp hVpos
+  let : Nonempty V := Fintype.card_pos_iff.mp hVpos
   have hl : l ≤ Fintype.card V := by
     rw [hcard]
     exact (le_max_of_le_right (le_max_left l (M * SzemerediRegularity.bound rho l))).trans hn

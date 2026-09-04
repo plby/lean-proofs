@@ -11,7 +11,7 @@ theorem upper_bound (m : ℕ) :
     (f m : ℝ) ≤ (m : ℝ) / 2 +
       1024 * (m : ℝ) ^ ((4 : ℝ) / 5) := by
   rcases uniformUpperWitness m with ⟨V, iV, G, htri, hedge, hcut⟩
-  letI : Fintype V := iV
+  let : Fintype V := iV
   obtain ⟨H, hHG, hHbip, hfH⟩ := f_spec m V G htri hedge
   obtain ⟨s, hHcut⟩ := ncard_le_cutGraph_of_bipartite hHG hHbip
   have hfHR : (f m : ℝ) ≤ (H.edgeSet.ncard : ℝ) := by exact_mod_cast hfH

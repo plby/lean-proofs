@@ -433,12 +433,12 @@ theorem regular_hexagon_sub_next_identities (v : Fin 6 → ℂ)
       Complex.exp ((θ + 5 * Real.pi / 3) * Complex.I) := by
     have hp := Complex.exp_mul_I_periodic (θ - Real.pi / 3)
     symm
-    convert hp using 1 <;> ring
+    convert hp using 1 <;> ring_nf
   have hperiod0 : Complex.exp (θ * Complex.I) =
       Complex.exp ((θ + 6 * Real.pi / 3) * Complex.I) := by
     have hp := Complex.exp_mul_I_periodic θ
     symm
-    convert hp using 1 <;> ring
+    convert hp using 1 <;> ring_nf
   constructor
   · rw [hv' 0, hv' 1, hv' 5]
     norm_num
@@ -447,27 +447,27 @@ theorem regular_hexagon_sub_next_identities (v : Fin 6 → ℂ)
   · rw [hv' 1, hv' 2, hv' 0]
     norm_num
     convert exp_mul_I_sub_exp_add_pi_div_three_mul_I (θ + Real.pi / 3) using 1 <;>
-      congr 1 <;> push_cast <;> ring
+      congr 1 <;> push_cast <;> ring_nf
   constructor
   · rw [hv' 2, hv' 3, hv' 1]
     norm_num
     convert exp_mul_I_sub_exp_add_pi_div_three_mul_I (θ + 2 * Real.pi / 3) using 1 <;>
-      congr 1 <;> push_cast <;> ring
+      congr 1 <;> push_cast <;> ring_nf
   constructor
   · rw [hv' 3, hv' 4, hv' 2]
     norm_num
     convert exp_mul_I_sub_exp_add_pi_div_three_mul_I (θ + 3 * Real.pi / 3) using 1 <;>
-      congr 1 <;> push_cast <;> ring
+      congr 1 <;> push_cast <;> ring_nf
   constructor
   · rw [hv' 4, hv' 5, hv' 3]
     norm_num
     convert exp_mul_I_sub_exp_add_pi_div_three_mul_I (θ + 4 * Real.pi / 3) using 1 <;>
-      congr 1 <;> push_cast <;> ring
+      congr 1 <;> push_cast <;> ring_nf
   · rw [hv' 5, hv' 0, hv' 4]
     norm_num
     rw [hperiod0]
     convert exp_mul_I_sub_exp_add_pi_div_three_mul_I (θ + 5 * Real.pi / 3) using 1 <;>
-      congr 1 <;> push_cast <;> ring
+      congr 1 <;> push_cast <;> ring_nf
 
 /-- A finite planar point set is one-separated if every pair of distinct points has distance at
 least one. -/

@@ -150,7 +150,7 @@ theorem standardizedFairBinomial_tendsto :
   have h := tendsto_charFun_inv_sqrt_mul_pow
     (P := fairRademacher) (X := fun x : ℝ ↦ x) (by fun_prop)
     integral_id_fairRademacher integral_sq_fairRademacher t
-  convert h using 1 <;> simp [standardGaussian, charFun_gaussianReal] <;> ring
+  convert h using 1 <;> simp [standardGaussian, charFun_gaussianReal] <;> ring_nf
 
 /-- Probability that a standardized fair binomial lies in the fixed closed
 interval `[a,b]`, as a real number. -/
@@ -234,7 +234,7 @@ theorem fairBinomialWindowMass_tendsto {a b : ℝ} (hab : a ≤ b) :
       (𝓝 (gaussianWindowMass a b)) := by
   have hfrontier : standardGaussian (frontier (Icc a b)) = 0 := by
     rw [frontier_Icc hab]
-    letI : NullSingletonClass (gaussianReal 0 1) :=
+    let : NullSingletonClass (gaussianReal 0 1) :=
       nullSingletonClass_gaussianReal (by norm_num)
     have hpair : gaussianReal 0 1 ({a, b} : Set ℝ) = 0 := by
       simpa only [insert_eq] using measure_union_null

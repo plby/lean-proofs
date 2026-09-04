@@ -123,7 +123,7 @@ theorem full_coverage_of_outer_interval_and_core
     (hLM : L ≤ M) (hLpos : 0 < L) :
     ∀ y : G,
       GroupRepExactly A (t + extensionRankOneCost H) y := by
-  letI : NeZero m := ⟨Nat.ne_of_gt hm⟩
+  let : NeZero m := ⟨Nat.ne_of_gt hm⟩
   have hagg := intervalAggregateCover_of_outer_interval π hπ α houter hweak
   have hcard := intervalAggregate_card_bound
     (intPairLabelHom α 1) hLpos hagg

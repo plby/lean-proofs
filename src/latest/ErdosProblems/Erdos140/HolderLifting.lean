@@ -73,8 +73,9 @@ lemma pairing_eq_localAverage {C : Finset G} (hC : C.Nonempty) (f : G → ℝ) :
       (Fintype.card G : ℝ) / (C.card : ℝ) * ∑ x ∈ C, f x by
     simp_rw [mul_ite, mul_one, mul_zero]
     simp only [← Finset.sum_filter]
-    simp [mul_comm]
-    rw [Finset.sum_mul]]
+    simp only [subset_univ, filter_mem_eq_of_subset]
+    rw [← Finset.sum_mul]
+    exact mul_comm _ _]
   have hcardC : (C.card : ℝ) ≠ 0 := by exact_mod_cast hC.card_ne_zero
   have hcardG : (Fintype.card G : ℝ) ≠ 0 := by
     exact_mod_cast (Fintype.card_ne_zero : Fintype.card G ≠ 0)

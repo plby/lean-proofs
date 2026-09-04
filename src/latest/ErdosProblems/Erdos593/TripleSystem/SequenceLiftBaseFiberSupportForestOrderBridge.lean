@@ -68,7 +68,7 @@ theorem exists_baseFiberSupportTailAtMostOneNeighbor_order_of_supportOverlapAcyc
         (∀ e, e ∈ S → baseNode e ∈ nodes) ∧
         baseFiberSupportTailAtMostOneNeighbor S nodes := by
   classical
-  letI : Fintype (activeBaseNodeIndex S) := activeBaseNodeIndexFintype hS
+  let : Fintype (activeBaseNodeIndex S) := activeBaseNodeIndexFintype hS
   obtain ⟨qs, hnodup, hqs, htail⟩ :=
     hacyclic.exists_tailAtMostOneNeighborOrder
   refine ⟨qs.map Subtype.val, hnodup.map Subtype.val_injective, ?_, ?_⟩

@@ -55,7 +55,7 @@ theorem red_F_from_first_class [DecidableEq V] (Gr : SimpleGraph V)
           (fun v => (∀ s ∈ S, Gr.Adj v s) ∧ ∀ u ∈ U, Gr.Adj v u)).card) :
     Kmult (q + 1) m ⊑ Gr := by
   convert! greedy_multipartite_embedding_ordered Gr ( q + 1 ) m ( Fin.cons S W ) _ _ using 1;
-  · simp +decide [ Fin.forall_fin_succ, hdisjSW ];
+  · simp +decide only [ne_eq];
     exact fun i => ⟨ Disjoint.symm ( hdisjSW i ), fun j hij => hdisjW i j hij ⟩;
   · rintro ( _ | j ) U hU hU' <;> simp_all +decide;
     refine' le_trans ( hrich ⟨ j, by linarith ⟩ U hU' ) _;

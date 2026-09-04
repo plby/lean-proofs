@@ -46,12 +46,13 @@ lemma PolygonalPathOrderedFirstHitPrefix
         intro source target _hne hhead hlast hsource_not htarget_mem
         cases xs with
         | nil =>
-            simp at hhead hlast
+            have hxs : x = source := Option.some.inj hhead
+            have hxt : x = target := Option.some.inj hlast
             subst source
             subst target
             exact False.elim (hsource_not htarget_mem)
         | cons x' rest =>
-            simp at hhead
+            have hxs : x = source := Option.some.inj hhead
             subst source
             let tailSet : Set (EuclideanSpace ℝ (Fin 2)) :=
               Carrier (x' :: rest) x' target
@@ -135,4 +136,3 @@ lemma PolygonalPathOrderedFirstHitPrefix
     · rw [γ.carrier_eq]
       exact hpExpr.1
     · simpa [S] using hpExpr.2
-

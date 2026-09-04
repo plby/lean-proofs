@@ -154,7 +154,7 @@ theorem binary_multidimensional (m : ℕ) (delta : ℝ) (hdelta : 0 < delta) :
         exists_binary_line_of_density (delta / 2) (by positivity)
       let LineType := Combinatorics.Line (Fin 2) (Fin p)
       let K := Fintype.card LineType
-      haveI : Nonempty LineType := by
+      have : Nonempty LineType := by
         let i : Fin p := ⟨0, hp0⟩
         exact ⟨{ idxFun := fun _ => none, proper := ⟨i, rfl⟩ }⟩
       have hK : 0 < K := Fintype.card_pos

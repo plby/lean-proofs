@@ -958,7 +958,7 @@ lemma circleAverage_arcGreenPotential_eq
       rw [← Set.univ_prod_univ, Measure.prod_prod, Measure.restrict_apply_univ,
         Measure.restrict_apply_univ]
       exact ENNReal.mul_ne_top hfirst hfinite
-    letI : IsFiniteMeasure
+    let : IsFiniteMeasure
         ((volume.restrict (Set.uIoc (0 : ℝ) (2 * Real.pi))).prod
           (volume.restrict a.angles)) :=
       ⟨lt_top_iff_ne_top.2 hprodFinite⟩
@@ -1105,7 +1105,7 @@ lemma abs_arcGreenPotential_le_boundary_rate
   let μ : Measure ℝ := volume.restrict a.angles
   have hμfinite : μ Set.univ ≠ ∞ := by
     simpa [μ, Measure.restrict_apply_univ] using hfinite
-  letI : IsFiniteMeasure μ := ⟨lt_top_iff_ne_top.2 hμfinite⟩
+  let : IsFiniteMeasure μ := ⟨lt_top_iff_ne_top.2 hμfinite⟩
   rw [arcGreenPotential, ← Real.norm_eq_abs]
   refine (norm_integral_le_of_norm_le_const
     (C := (1 - ‖z‖ ^ 2) / (2 * (‖z‖ - ρ) ^ 2)) ?_).trans_eq ?_

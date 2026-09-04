@@ -39,7 +39,7 @@ theorem eventually_matching_packing_with_outliers (zeta : ℝ) (hzeta : 0 < zeta
   refine ⟨delta, hd, N, ?_⟩
   intro V _ X hn G hG m hmn hm C U a q hq hclasses hroom hmargin hsmall hinc hbudget
   have hnpos : 0 < Fintype.card V := lt_of_le_of_lt (Nat.zero_le m) hmn
-  letI : Nonempty V := Fintype.card_pos_iff.mp hnpos
+  let : Nonempty V := Fintype.card_pos_iff.mp hnpos
   obtain ⟨activeAll, hav, _, hdeg, hdegeq⟩ := exists_active_colors_for_residual_degree
     (Fintype.card V) m hmn (fun v ↦ (G.neighborSet v).ncard) C (fun v ↦ by
       have hb := hbudget v

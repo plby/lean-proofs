@@ -37,7 +37,7 @@ theorem rpow_le_of_exp_repulsion
 theorem goldfeldCharactersDistinct_principal
     {q : ℕ} [NeZero q] (chi : DirichletCharacter ℂ q) (hchi : chi ≠ 1) :
     goldfeldCharactersDistinct chi (1 : DirichletCharacter ℂ 1) := by
-  letI : NeZero (Nat.lcm q 1) := ⟨by simpa using NeZero.ne q⟩
+  let : NeZero (Nat.lcm q 1) := ⟨by simpa using NeZero.ne q⟩
   unfold goldfeldCharactersDistinct
   rw [DirichletCharacter.changeLevel_one]
   exact (DirichletCharacter.changeLevel_eq_one_iff _).not.mpr hchi

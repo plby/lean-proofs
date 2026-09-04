@@ -14,11 +14,11 @@ abbrev GoodIdealNormFiber {R : Type*} [CommRing R] [IsDomain R]
 theorem finite_goodIdealNormFiber {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     ∀ (F : Ideal (QuadraticAlgebra ℤ d b)) (n : ℕ), Finite (GoodIdealNormFiber F n) := by
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
   intro F n
   let O := QuadraticAlgebra ℤ d b
-  letI (C : ClassGroup O) := finite_idealClassBall hD C n
+  let (C : ClassGroup O) := finite_idealClassBall hD C n
   let e : GoodIdealNormFiber F n → Σ C : ClassGroup O, IdealClassBall O C n :=
     fun I => ⟨I.1.idealClass, ⟨I.1, rfl, I.2.1.le⟩⟩
   apply Finite.of_injective e
@@ -56,7 +56,7 @@ theorem goodIdealNormFiber_card_mul {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     letI := quadraticOrderIsDomain hD
     Nat.card (GoodIdealNormFiber F (m * n)) =
       Nat.card (GoodIdealNormFiber F m) * Nat.card (GoodIdealNormFiber F n) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   rw [← Nat.card_congr (goodIdealNormFiberMulEquiv hD F m n hmn), Nat.card_prod]
 
 end Bernays

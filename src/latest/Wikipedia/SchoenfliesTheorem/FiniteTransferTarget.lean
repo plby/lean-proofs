@@ -567,7 +567,7 @@ theorem exists_targetSideEarStepData [Infinite γ]
     exact vname_fresh x hxQ (fun h => hxab (Or.inl h)) (fun h => hxab (Or.inr h)) hzCell
   let edgeUsed : Set γ := T.str.cells ∪ newVertices
   have hedgeUsed_fin : edgeUsed.Finite := T.str.finite_cells.union hnewVertices_fin
-  letI : Finite E(Q) := Set.finite_coe_iff.mpr hQfinE
+  let : Finite E(Q) := Set.finite_coe_iff.mpr hQfinE
   obtain ⟨freshEdge, freshEdge_inj, freshEdge_avoid⟩ :=
     exists_injective_avoiding edgeUsed hedgeUsed_fin E(Q)
   let ename : γ → γ := fun e => if he : e ∈ E(Q) then freshEdge ⟨e, he⟩ else u
@@ -1134,8 +1134,8 @@ theorem targetEarEndpointsOuterOnly_of_noNewNonouterIncidence
       T.str.OuterOnlyAt w.splitData.source) ∧
     (T.src.pos w.splitData.target ∈ srcOuter →
       T.str.OuterOnlyAt w.splitData.target) := by
-  letI : H.Finite := hH.finite
-  letI : B.Finite := Graph.Finite.of_le hBH
+  let : H.Finite := hH.finite
+  let : B.Finite := Graph.Finite.of_le hBH
   have hBdraw := hH.isDrawing.mono hBH
   have hinside : Graph.edgesCover Hdraw D \ {a, b} ⊆
       T.tgt.cell w.splitData.face := by
@@ -1437,7 +1437,7 @@ theorem GeneratedPair.source_polyAccessible_of_notMem_outer
     rw [← hGunion, Graph.pointSet_union]
     change pointSet G T.src.drawing ∪ T.src.outerSet = _
     rw [T.src_isWeaklyAdmissible.outerSet_eq]
-  letI : G.Finite := Graph.Finite.of_le Graph.deleteEdges_le
+  let : G.Finite := Graph.Finite.of_le Graph.deleteEdges_le
   have hGdraw : G.IsDrawing T.src.drawing := T.src.isDrawing.mono Graph.deleteEdges_le
   have hGpoly : ∀ e ∈ E(G), IsPolygonal (edgeArc T.src.drawing e) := by
     intro e he
@@ -1447,7 +1447,7 @@ theorem GeneratedPair.source_polyAccessible_of_notMem_outer
   have hFcells : T.src.cell F ∈ cells := ⟨F, hF, rfl⟩
   have hdisj : Disjoint (T.src.cell F) T.src.skeletonSet :=
     T.src.disjoint_cell_skeletonSet T.src_isCellDecomposition hF
-  letI : O.Finite := Graph.Finite.of_le hOle
+  let : O.Finite := Graph.Finite.of_le hOle
   have houterCompact : IsCompact srcOuter := by
     rw [← T.src_isWeaklyAdmissible.outerSet_eq]
     exact T.src.isCompact_skeletonSet.of_isClosed_subset
@@ -1800,7 +1800,7 @@ theorem targetTransferOfEars [Infinite γ]
     (hsub : TargetCommonSubdivision P H Hdraw) (hstep : TargetEarStep P H Hdraw) :
     ∃ (T : GeneratedPair S₀ srcOuter srcDom tgtOuter tgtDom) (par : γ → γ),
       IsTargetPartialTransferOf T P H Hdraw par := by
-  haveI := hH.finite
+  have := hH.finite
   obtain ⟨K, T₀, par₀, hK, hKH, hbase⟩ := hsub
   refine hH.isTwoConnected.ear_decomposition
     (motive := fun B => ∃ T par, IsTargetPartialTransferOf T P B Hdraw par)

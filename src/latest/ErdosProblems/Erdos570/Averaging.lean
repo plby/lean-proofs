@@ -29,9 +29,9 @@ theorem inducedCode_edgeCount_eq_internalEdgeCount
     (S : Finset (Fin H.vertexCount)) :
     (inducedCode H S).edgeCount = internalEdgeCount H.graph S := by
   classical
-  letI : Fintype (S : Set (Fin H.vertexCount)) :=
+  let : Fintype (S : Set (Fin H.vertexCount)) :=
     Subtype.fintype (Membership.mem (S : Set (Fin H.vertexCount)))
-  letI : DecidableRel (inducedCode H S).graph.Adj :=
+  let : DecidableRel (inducedCode H S).graph.Adj :=
     Classical.decRel (inducedCode H S).graph.Adj
   rw [GraphCode.edgeCount_eq_card_edgeFinset]
   calc
@@ -128,7 +128,7 @@ theorem exists_inducedCode_edgeCount_mul_choose_le
       (inducedCode H S).edgeCount * Nat.choose H.vertexCount r ≤
         H.edgeCount * Nat.choose (H.vertexCount - 2) (r - 2) := by
   classical
-  letI : DecidableRel H.graph.Adj := Classical.decRel H.graph.Adj
+  let : DecidableRel H.graph.Adj := Classical.decRel H.graph.Adj
   obtain ⟨S, hScard, hS⟩ :=
     exists_subset_internalEdgeCount_mul_choose_le H.graph hr2 (by simpa using hrH)
   refine ⟨S, hScard, ?_⟩

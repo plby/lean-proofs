@@ -39,7 +39,7 @@ theorem finiteDensity_missed_points_le_exp {A G : Type*} [AddCommGroup A] [AddCo
   rw [hshift]
   have hb := finiteDensity_missed_le_exp f hf (fun g => g = 0)
   rw [hz] at hb
-  convert hb using 1 <;> ring
+  convert hb using 1 <;> ring_nf
 
 def assignmentTrials {I J G : Type*} [AddCommGroup G] {n : ℕ}
     (f : Fin n → J → I) : (I → G) →+ (Fin n → J → G) where
@@ -65,7 +65,7 @@ theorem finiteDensity_disjoint_assignments {I J X : Type*}
       Real.exp (-(n : ℝ) / (Fintype.card X : ℝ) ^ Fintype.card J) := by
   classical
   let D := Fintype.card X
-  letI : NeZero D := ⟨(Fintype.card_pos (α := X)).ne'⟩
+  let : NeZero D := ⟨(Fintype.card_pos (α := X)).ne'⟩
   let e : X ≃ ZMod D := (Fintype.equivFin X).trans (ZMod.finEquiv D).toEquiv
   let E : (I → ZMod D) ≃ (I → X) := Equiv.piCongrRight (fun _ => e.symm)
   rw [← finiteDensity_equiv E]

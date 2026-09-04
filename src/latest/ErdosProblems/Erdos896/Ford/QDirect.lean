@@ -586,7 +586,7 @@ theorem ford_suffix_section_comparison {m n : ℕ} {u v w c : ℝ}
   have hprod : Real.exp (2 * w + 2) * (c - y) ^ n ≤ (1 - y) ^ n := by
     have hcancel : Real.exp (2 * w + 2) * Real.exp (-2 * w - 2) = 1 := by
       rw [← Real.exp_add]
-      convert Real.exp_zero using 1 <;> ring
+      convert Real.exp_zero using 1 <;> ring_nf
     have hm : Real.exp (2 * w + 2) * ((c - y) / (1 - y)) ^ n ≤
         Real.exp (2 * w + 2) * Real.exp (-2 * w - 2) :=
       mul_le_mul_of_nonneg_left hp (Real.exp_pos (2 * w + 2)).le
@@ -781,7 +781,7 @@ theorem orderQ_le_of_ford_hard_estimate {k : ℕ} {u v w : ℝ}
   have hqx : orderQ k u v ≤ X := by
     have hq' : orderQ k u v ≤
         1 - Real.exp a * (1 - a / v) ^ k := by
-      convert hq using 1 <;> dsimp [a] <;> ring
+      convert hq using 1 <;> dsimp [a] <;> ring_nf
     exact hq'.trans (by linarith [hprod])
   have hX : X ≤ 128 * (u + 1) * (w + 1) ^ 2 / (k : ℝ) := by
     dsimp [X]

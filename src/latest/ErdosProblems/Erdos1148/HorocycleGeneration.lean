@@ -17,7 +17,7 @@ lemma diagonal_frame_horocycle_product (h : ℝ) (hh : h ≠ 0) :
   ext i j
   fin_cases i <;> fin_cases j <;>
     simp [upperTriangularFrame, stableHorocycle, unstableHorocycle,
-      Matrix.mul_apply, Fin.sum_univ_two] <;> field_simp [hh] <;> ring <;> simp
+      Matrix.mul_apply, Fin.sum_univ_two] <;> field_simp [hh] <;> ring_nf <;> simp
 
 lemma upperTriangularFrame_diagonal_stable (x h : ℝ) (hh : h ≠ 0) :
     upperTriangularFrame x h hh = upperTriangularFrame 0 h hh * stableHorocycle (x / h ^ 2) := by

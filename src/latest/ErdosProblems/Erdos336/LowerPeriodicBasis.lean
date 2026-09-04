@@ -29,7 +29,7 @@ theorem lowerResidues_groupRepAtMost
   let g := lowerModulus u
   let x := lowerStep u
   let n := y.val
-  haveI : NeZero g := ⟨by dsimp [g]; exact Nat.ne_of_gt (lower_modulus_pos' u)⟩
+  have : NeZero g := ⟨by dsimp [g]; exact Nat.ne_of_gt (lower_modulus_pos' u)⟩
   have hn : n < lowerModulus u := by
     dsimp [n, g] at *
     exact ZMod.val_lt y
@@ -79,8 +79,9 @@ theorem lowerPeriodic_hasExactOrder
   constructor
   · apply eventuallyExactly_periodic_of_all_groupRep
       (lower_modulus_pos' u)
-    · simp [lowerModulus]
-      exact Or.inr (by omega)
+    · simp only [tsub_pos_iff_lt]
+      simp [lowerModulus]
+      omega
     · exact lowerResidues_all_exact u hu
   · intro l hl
     apply not_eventuallyExactly_periodic_of_missing (lower_modulus_pos' u)

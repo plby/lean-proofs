@@ -30,7 +30,7 @@ theorem odd_of_coprime_discriminantLevel {D : ℤ} {n : ℕ}
 
 theorem odd_val_of_isUnit_discriminant {D : ℤ} (hD : D ≠ 0) {a : ZMod (discriminantLevel D)}
     (ha : IsUnit a) : Odd a.val := by
-  letI : NeZero (discriminantLevel D) := ⟨(discriminantLevel_pos hD).ne'⟩
+  let : NeZero (discriminantLevel D) := ⟨(discriminantLevel_pos hD).ne'⟩
   apply odd_of_coprime_discriminantLevel (D := D)
   exact (ZMod.isUnit_iff_coprime a.val _).mp (by simpa using ha)
 

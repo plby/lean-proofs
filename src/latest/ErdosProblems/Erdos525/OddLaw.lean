@@ -84,7 +84,7 @@ lemma diagonalHalfVoidLimit (v : ℝ) :
         ((6 * v / Real.pi) *
           blockVelocityMass (1 / (k + 1 : ℝ)) (k + 1 : ℝ))))
       atTop (𝓝 (-2 * rate * v)) := by
-    convert hprod.neg using 1 <;> ring
+    convert hprod.neg using 1 <;> ring_nf
   exact Real.continuous_exp.continuousAt.tendsto.comp hneg
 
 theorem tail_limsup_le

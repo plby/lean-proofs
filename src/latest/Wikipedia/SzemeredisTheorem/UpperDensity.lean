@@ -169,7 +169,7 @@ theorem containsArbitraryAPs_of_upperDensity_pos (A : Set ℕ)
   obtain ⟨n, hprefix, hmn⟩ :=
     (hfrequent.and_eventually heventual).exists
   let N : ℕ := 4 * (n + 1)
-  letI : NeZero N := ⟨by dsimp [N]; omega⟩
+  let : NeZero N := ⟨by dsimp [N]; omega⟩
   have hnN : n + 1 ≤ N := by
     dsimp [N]
     omega

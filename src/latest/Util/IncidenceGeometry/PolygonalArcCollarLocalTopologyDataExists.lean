@@ -247,7 +247,7 @@ private lemma endpoint_germ_subset_closure_left (a K : ℝ) (ha : 0 < a) (hK : 0
     · simp [hδ_K]
   · rw [EuclideanSpace.dist_eq]
     rw [Fin.sum_univ_two]
-    simp [y, hz1, Real.dist_eq]
+    simp only [Fin.isValue]
     rw [Real.sqrt_sq_eq_abs, abs_of_pos hδ_pos]
     exact hδ_eps
 private lemma endpoint_germ_subset_closure_right (a K : ℝ) (ha : 0 < a) (hK : 0 < K) :
@@ -298,7 +298,7 @@ private lemma endpoint_germ_subset_closure_right (a K : ℝ) (ha : 0 < a) (hK : 
     · simp [hδ_pos]
   · rw [EuclideanSpace.dist_eq]
     rw [Fin.sum_univ_two]
-    simp [y, hz1, Real.dist_eq, abs_of_pos hδ_pos]
+    simp only [Fin.isValue]
     rw [Real.sqrt_sq_eq_abs, abs_of_pos hδ_pos]
     exact hδ_eps
 private lemma twoRay_base_subset_closure_left (a c s : ℝ)
@@ -326,7 +326,7 @@ private lemma twoRay_base_subset_closure_left (a c s : ℝ)
     split_ifs with hs
     · simp
       nlinarith
-    · simp
+    · simp only [Fin.isValue, one_ne_zero, ↓reduceIte, mul_one, mul_zero, sub_zero]
       rcases hpos with hspos | ⟨hs0, hc⟩
       · exact (hs hspos).elim
       · nlinarith
@@ -388,7 +388,7 @@ private lemma twoRay_origin_mem_closure_left (a c s : ℝ) (ha : 0 < a)
     split_ifs with hs
     · simp
       nlinarith
-    · simp
+    · simp only [Fin.isValue, one_ne_zero, ↓reduceIte, mul_one, mul_zero, sub_zero]
       rcases hpos with hspos | ⟨hs0, hc⟩
       · exact (hs hspos).elim
       · nlinarith
@@ -451,7 +451,7 @@ private lemma twoRay_other_subset_closure_left (a c s : ℝ)
         simpa [hs] using hδ_lt
       have hc_abs : c ≤ |c| := le_abs_self c
       rw [hz1]
-      simp
+      simp only [mul_neg, lt_add_neg_iff_add_lt, zero_add, gt_iff_lt]
       have hδc_le : δ * c ≤ δ * |c| :=
         mul_le_mul_of_nonneg_left hc_abs hδ_pos.le
       have hδ_abs : δ * (|c| + 1) < t * s / 2 := by
@@ -467,7 +467,7 @@ private lemma twoRay_other_subset_closure_left (a c s : ℝ)
         nlinarith
   · dsimp [w]
     rw [hz0, hz1]
-    simp
+    simp only [mul_neg, sub_neg]
     have : c * (t * s - δ * c) - s * (t * c + δ * s) =
         -δ * (c ^ 2 + s ^ 2) := by ring
     nlinarith
@@ -493,7 +493,7 @@ private lemma twoRay_other_subset_closure_right (a c s : ℝ)
   refine ⟨hyC, Or.inr ?_⟩
   dsimp [w]
   rw [hz0, hz1]
-  simp
+  simp only [mul_neg, sub_pos]
   have : c * (t * s + δ * c) - s * (t * c - δ * s) =
       δ * (c ^ 2 + s ^ 2) := by ring
   nlinarith

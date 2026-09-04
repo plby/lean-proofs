@@ -8,7 +8,7 @@ open MeasureTheory Measure Filter
 open scoped MatrixGroups ENNReal Pointwise
 
 instance integralSpecialLinearCountable : Countable SL(2, ℤ) := by
-  letI : Countable (Matrix (Fin 2) (Fin 2) ℤ) :=
+  let : Countable (Matrix (Fin 2) (Fin 2) ℤ) :=
     inferInstanceAs (Countable (Fin 2 → Fin 2 → ℤ))
   exact inferInstanceAs (Countable {g : Matrix (Fin 2) (Fin 2) ℤ // g.det = 1})
 

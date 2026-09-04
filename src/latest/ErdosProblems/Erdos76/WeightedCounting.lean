@@ -283,9 +283,9 @@ theorem quadratic_kernel_le_half (R B : SimpleGraph V) (hR : NoTriangle R)
     (hB : NoTriangle B) (p : V → ℝ) (hp : p ∈ stdSimplex ℝ V) :
     WeightOptimization.quadratic (kernel R B) p ≤ 1 / 2 := by
   classical
-  haveI : Nonempty V := by
+  have : Nonempty V := by
     by_contra h
-    haveI : IsEmpty V := not_nonempty_iff.mp h
+    have : IsEmpty V := not_nonempty_iff.mp h
     have := hp.2
     simp at this
   obtain ⟨q, hq, hmax, hrow, hcurv⟩ :=

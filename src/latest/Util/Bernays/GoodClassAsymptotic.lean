@@ -17,7 +17,7 @@ theorem genusLocal_character_cancellation {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       Tendsto (fun N : ℕ =>
         (∑ n ∈ goodLocalValues d b hD.ne N, ψ (Additive.ofMul (genusValue hD n))) / (scale N : ℂ))
         atTop (𝓝 0) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ hψ
   apply tendsto_zero_iff_norm_tendsto_zero.mpr
   have h := genusLocal_sharp_norm_cancellation hD ψ hψ
@@ -31,8 +31,8 @@ noncomputable def goodClassConstant {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) : ℝ :
   goodLocalConstant d b hD.ne / Nat.card (GenusGroup (QuadraticAlgebra ℤ d b))
 
 theorem goodClassConstant_pos {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) : 0 < goodClassConstant hD := by
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
   change 0 < goodLocalConstant d b hD.ne / (Nat.card (GenusGroup (QuadraticAlgebra ℤ d b)) : ℝ)
   exact div_pos (goodLocalConstant_pos hD) (Nat.cast_pos.mpr Nat.card_pos)
 
@@ -41,9 +41,9 @@ theorem genusValues_card_limit {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ g : GenusGroup (QuadraticAlgebra ℤ d b),
       Tendsto (fun N : ℕ => ((genusValues hD g N).card : ℝ) / scale N)
         atTop (𝓝 (goodClassConstant hD)) := by
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
-  letI : Fintype (GenusGroup (QuadraticAlgebra ℤ d b)) := Fintype.ofFinite _
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
+  let : Fintype (GenusGroup (QuadraticAlgebra ℤ d b)) := Fintype.ofFinite _
   intro g
   have h := fiber_card_limit_of_character_cancellation (goodLocalValues d b hD.ne)
     (genusValue hD) (fun N : ℕ => scale N) (goodLocalValues_card_limit hD)
@@ -62,7 +62,7 @@ theorem goodClassValues_card_limit {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ C : ClassGroup (QuadraticAlgebra ℤ d b),
       Tendsto (fun N : ℕ => ((goodClassValues hD C N).card : ℝ) / scale N)
         atTop (𝓝 (goodClassConstant hD)) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C
   have h := (genusValues_card_limit hD (genusMap C)).sub (goodClass_genus_count_error_limit hD C)
   rw [sub_zero] at h

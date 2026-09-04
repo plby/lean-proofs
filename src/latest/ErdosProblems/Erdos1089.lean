@@ -274,7 +274,7 @@ lemma momentMap_injective_of_polynomial_kernel
     simp only [mul_ite, mul_zero]
     simp only [Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
     rw [Finset.mul_sum]
-    ring
+    ring_nf
   have hsum : ∑ a, f a ^ 2 = 0 := by
     exact (mul_eq_zero.mp hsquares).resolve_left hc.ne'
   funext a
@@ -737,7 +737,7 @@ lemma tendsto_choose_shift_add_one_div_pow (k c : ℕ) (hk : 1 ≤ k) :
   · funext d
     push_cast
     ring
-  · ring
+  · ring_nf
 
 /-- The established two-sided estimate for Kelly's forcing number. -/
 theorem g_bounds (n : ℕ) (hn : 2 ≤ n) (d : ℕ) :

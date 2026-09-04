@@ -22,12 +22,12 @@ lemma CyclicPresentationRetainedApexBasicAvoidance
     let start : retained → EuclideanSpace ℝ (Fin 2) := fun i =>
       γ.vertices[i.1]'(by
         have h := i.2
-        simp [retained] at h
+        simp only [gt_iff_lt] at h
         exact h.1)
     let stop : retained → EuclideanSpace ℝ (Fin 2) := fun i =>
       γ.vertices[i.1 + 1]'(by
         have h := i.2
-        simp [retained] at h
+        simp only [gt_iff_lt] at h
         exact h.2.choose)
     ∀ (σ : Equiv.Perm retained),
       (∀ i : retained, start (σ i) = stop i) →
@@ -243,7 +243,7 @@ lemma CyclicPresentationRetainedApexBasicAvoidance
   have retained_succ : ∀ i : retained, i.1 + 1 < γ.vertices.length := by
     intro i
     have hi := i.2
-    simp [retained] at hi
+    simp only [gt_iff_lt] at hi
     exact hi.2.choose
   have start_mem_vertices : ∀ i : retained, start i ∈ γ.vertices := by
     intro i
@@ -522,7 +522,7 @@ lemma CyclicPresentationRetainedApexBasicAvoidance
         ⋃ p : {p : E // p ∈ R.vertices},
           segment ℝ p.1 (R.successor p).1 ∩ triSides
       have hVfinite : Set.Finite (R.vertices : Set E) := R.vertices.finite_toSet
-      haveI : Finite {p : E // p ∈ R.vertices} := hVfinite
+      have : Finite {p : E // p ∈ R.vertices} := hVfinite
       have hpieceUnionFinite : Set.Finite pieceUnion := by
         apply Set.finite_iUnion
         intro p

@@ -550,7 +550,7 @@ theorem finite_hasFiniteHyperplaneCover {n : ℕ} (hn : 2 ≤ n)
           simpa [intCastVec] using congrFun h i
         apply hzero
         simpa [hx0] using x.2)
-  letI : Fintype X := hX.fintype
+  let : Fintype X := hX.fintype
   let SX : Finset X := Finset.univ
   let B : Finset (Fin n → ℚ) := SX.image b
   refine ⟨B, ?_, ?_⟩

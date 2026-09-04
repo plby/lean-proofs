@@ -168,7 +168,7 @@ private theorem tendsto_nat_mul_axisMass (d : ℕ) :
     rw [fourierProductMass_center]
     unfold fourierProductMass
     ring
-  · ring
+  · ring_nf
 
 private theorem tendsto_natSub_div_nat_one (d : ℕ) :
     Tendsto (fun n : ℕ ↦ ((n - d : ℕ) : ℝ) / (n : ℝ)) atTop (nhds 1) := by

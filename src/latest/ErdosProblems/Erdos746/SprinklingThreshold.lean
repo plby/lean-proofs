@@ -130,7 +130,7 @@ theorem thresholdFailureProbability_le_base_add_adaptiveSprinklingError
   have hR : R ≤ edgeCount n - m := by omega
   have hC : 0 < (edgeCount n - m).descFactorial R :=
     Nat.descFactorial_pos.mpr hR
-  letI : Nonempty (EdgePrefix n m) := by
+  let : Nonempty (EdgePrefix n m) := by
     rw [← Fintype.card_pos_iff]
     rw [Fintype.card_embedding_eq, card_edge]
     simpa using (Nat.descFactorial_pos.mpr hm)

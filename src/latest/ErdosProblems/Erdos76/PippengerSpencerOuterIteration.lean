@@ -815,7 +815,7 @@ theorem exists_innerBatchResidualDegree_abs_sub_expectation_lt_of_lll
         FiniteProduct.productExpectation (innerTrialMass L prob)
           (fun Y : J → (Fin L → Finset E) ↦
             (H.innerBatchResidualDegree Y v.1 : ℝ))| < t := by
-  letI : DecidableEq J := Classical.decEq J
+  let : DecidableEq J := Classical.decEq J
   let flatProb : ((J × Fin L) × E) → ℝ := fun z ↦ prob z.2
   let flatMass : Finset ((J × Fin L) × E) → ℝ := fun Z ↦
     FiniteNibble.bernoulliMass univ flatProb Z
@@ -891,8 +891,8 @@ theorem exists_innerBatchResidualDegree_between_of_twoSidedMarginal
     ∃ X : Fin m → (Fin L → Finset E), ∀ v ∈ H.vertexSet,
       degreeLowOut ≤ H.innerBatchResidualDegree X v ∧
         H.innerBatchResidualDegree X v ≤ degreeOut := by
-  letI : DecidableEq (Fin m) := Classical.decEq (Fin m)
-  letI : Nonempty (Fin m) := ⟨⟨0, hm⟩⟩
+  let : DecidableEq (Fin m) := Classical.decEq (Fin m)
+  let : Nonempty (Fin m) := ⟨⟨0, hm⟩⟩
   obtain ⟨X, hX⟩ :=
     H.exists_innerBatchResidualDegree_abs_sub_expectation_lt_of_lll
       (J := Fin m) L prob hprob0 hprob1 ht hx0 hx1 hdependency
@@ -970,7 +970,7 @@ theorem exists_innerBatchResidualDegree_lt_of_lll
       x * (1 - x) ^ d) :
     ∃ X : J → (Fin L → Finset E), ∀ v : ↑H.vertexSet,
       H.innerBatchResidualDegree X v.1 < threshold v := by
-  letI : DecidableEq J := Classical.decEq J
+  let : DecidableEq J := Classical.decEq J
   let flatProb : ((J × Fin L) × E) → ℝ := fun z ↦ prob z.2
   let flatMass : Finset ((J × Fin L) × E) → ℝ := fun Z ↦
     FiniteNibble.bernoulliMass univ flatProb Z
@@ -1373,8 +1373,8 @@ theorem hasBatchReduction_via_regularCompletion
     HasBatchReduction.{0, 0} k 0 degreeIn 0 degreeOut m pairBound := by
   intro V' E' _ _ _ H hunif _hdegreeLower hdegree hpair
   obtain ⟨q, hqge, hqprime⟩ := Nat.exists_infinite_primes (max k degreeIn)
-  letI : Fact q.Prime := ⟨hqprime⟩
-  letI : NeZero q := ⟨hqprime.ne_zero⟩
+  let : Fact q.Prime := ⟨hqprime⟩
+  let : NeZero q := ⟨hqprime.ne_zero⟩
   have hkq : k ≤ q := (le_max_left _ _).trans hqge
   have hDq : degreeIn ≤ q := (le_max_right _ _).trans hqge
   let HC := regularCompletion H degreeIn k q hdegree
@@ -1415,7 +1415,7 @@ theorem hasBatchReduction_via_regularCompletion
       exact_mod_cast (by omega : 1 ≤ degreeIn)
     linarith
   let threshold : ↑HC.vertexSet → ℕ := fun _ ↦ degreeOut + 1
-  letI : Nonempty (Fin m) := ⟨⟨0, hm⟩⟩
+  let : Nonempty (Fin m) := ⟨⟨0, hm⟩⟩
   have hthreshold : ∀ z : ↑HC.vertexSet,
       (HC.edgeDegree z.1 : ℝ) * (1 - a) ^ Fintype.card (Fin m) + t ≤
         threshold z := by
@@ -1486,7 +1486,7 @@ theorem hasBatchReduction_of_fixedLengthInnerMarginal
     have hdegreeOne : (1 : ℝ) ≤ degreeIn := by exact_mod_cast hDin
     linarith
   let threshold : ↑H.vertexSet → ℕ := fun _ ↦ degreeOut + 1
-  letI : Nonempty (Fin m) := ⟨⟨0, hm⟩⟩
+  let : Nonempty (Fin m) := ⟨⟨0, hm⟩⟩
   have hthreshold : ∀ v : ↑H.vertexSet,
       (H.edgeDegree v.1 : ℝ) * (1 - a) ^ Fintype.card (Fin m) + t ≤
         threshold v := by

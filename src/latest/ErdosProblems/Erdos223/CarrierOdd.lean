@@ -1676,26 +1676,37 @@ lemma orderedCross_succ (p : ℕ) (m : Fin (p + 1) → ℕ) :
     orderedCross m =
       2 * m 0 * (∑ i : Fin p, m i.succ) +
         orderedCross (fun i : Fin p ↦ m i.succ) := by
-  have zero_ne_succ (i : Fin p) : (0 : Fin (p + 1)) ≠ i.succ :=
-    (Fin.succ_ne_zero i).symm
+  classical
   simp only [orderedCross]
   simp_rw [Finset.sum_filter]
-  simp [Fin.sum_univ_succ, zero_ne_succ, Finset.sum_add_distrib,
-    Finset.mul_sum]
-  have hcomm : (∑ i : Fin p, m i.succ * m 0) =
-      ∑ i : Fin p, m 0 * m i.succ := by
+  rw [Fin.sum_univ_succ]
+  rw [Fin.sum_univ_succ]
+  have zero_ne_succ (i : Fin p) : (0 : Fin (p + 1)) ≠ i.succ :=
+    (Fin.succ_ne_zero i).symm
+  simp only [ne_eq, not_true_eq_false, not_false_eq_true, ite_false, zero_add,
+    zero_ne_succ, ite_true]
+  have hrow (i : Fin p) :
+      (∑ a : Fin (p + 1), if i.succ ≠ a then m i.succ * m a else 0) =
+        m i.succ * m 0 +
+          ∑ a : Fin p, if i ≠ a then m i.succ * m a.succ else 0 := by
+    rw [Fin.sum_univ_succ]
+    rw [if_pos (Fin.succ_ne_zero i)]
+    congr 1
     apply Finset.sum_congr rfl
-    intro i _
-    rw [mul_comm]
-  have hdouble : (∑ i : Fin p, 2 * m 0 * m i.succ) =
-      (∑ i : Fin p, m 0 * m i.succ) +
-        ∑ i : Fin p, m 0 * m i.succ := by
-    rw [← Finset.sum_add_distrib]
-    apply Finset.sum_congr rfl
-    intro i _
+    intro a _
+    by_cases hia : i = a
+    · subst a
+      simp
+    · have hs : i.succ ≠ a.succ := fun h ↦ hia (Fin.succ_injective p h)
+      simp [hia, hs]
+  simp_rw [hrow]
+  rw [Finset.sum_add_distrib]
+  have hcross :
+      (∑ i : Fin p, m 0 * m i.succ) + (∑ i : Fin p, m i.succ * m 0) =
+        2 * m 0 * (∑ i : Fin p, m i.succ) := by
+    rw [← Finset.mul_sum, ← Finset.sum_mul]
     ring
-  rw [hcomm, hdouble]
-  ac_rfl
+  rw [← add_assoc, hcross]
 
 lemma two_dvd_orderedCross {p : ℕ} (m : Fin p → ℕ) : 2 ∣ orderedCross m := by
   induction p with

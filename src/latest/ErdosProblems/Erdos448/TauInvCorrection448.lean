@@ -415,7 +415,7 @@ lemma normalized_ratio_error
     _ ≤ |u0 - t| + (nTail + t * dTail) := by
       gcongr
       calc
-        |nTail - t * dTail| = |nTail + -(t * dTail)| := by ring
+        |nTail - t * dTail| = |nTail + -(t * dTail)| := by ring_nf
         _ ≤ |nTail| + |-(t * dTail)| := abs_add_le _ _
         _ = nTail + t * dTail := by
           rw [abs_of_nonneg hn, abs_neg, abs_of_nonneg (mul_nonneg ht0 hd)]
@@ -975,7 +975,7 @@ lemma IsTauInverseLogType.isTauInverseType
           simpa [primeLogScale, mul_div_assoc] using hlocal
     _ ≤ C * (3 * (p : ℝ) ^ (-(1 : ℝ) / 2)) :=
       mul_le_mul_of_nonneg_left hscale hu.1
-    _ = 3 * C * (p : ℝ) ^ (-(1 / 2 : ℝ)) := by ring
+    _ = 3 * C * (p : ℝ) ^ (-(1 / 2 : ℝ)) := by ring_nf
 
 /-- Consumer-shaped power-saving form of correction closure. -/
 theorem correctionWeight_isTauInverseType

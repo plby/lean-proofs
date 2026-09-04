@@ -94,7 +94,7 @@ theorem exists_bijective_indexedPath_start
       have hj : j.val = 0 := by omega
       omega
   · have hntwo : 2 ≤ n := by omega
-    letI : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp (by
+    let : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp (by
       rw [hn]
       omega)
     have hdegpos : 0 < G.degree s := by

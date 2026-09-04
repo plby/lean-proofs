@@ -27,7 +27,7 @@ theorem genusLocalAF_isMultiplicative {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
       (genusLocalAF hD ψ).IsMultiplicative := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ
   exact ((localParityAF_isMultiplicative _).pmul (coprimeAF_isMultiplicative _)).pmul
     (genusWeightAF_isMultiplicative hD ψ)
@@ -36,7 +36,7 @@ theorem genusIdealAF_isMultiplicative {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
       (genusIdealAF hD ψ).IsMultiplicative := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ
   exact (goodIdealNormAF_isMultiplicative hD).pmul (genusWeightAF_isMultiplicative hD ψ)
 
@@ -45,7 +45,7 @@ theorem genusIdealAF_eq_coeff {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
       ⇑(genusIdealAF hD ψ) = weightedIdealNormCoeff hD (quadraticBadIdeal d b)
         (fun C => ψ (Additive.ofMul (genusMap C))) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ
   funext n
   rw [genusWeightedIdealNormCoeff hD]
@@ -61,7 +61,7 @@ theorem genusLocalAF_split_primePower {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ p : ℕ, p.Prime → p.Coprime (discriminantLevel (b ^ 2 + 4 * d)) →
       discriminantCharacter _ hD.ne p ≠ -1 → ∀ e : ℕ,
       genusLocalAF hD ψ (p ^ e) = ψ (Additive.ofMul (primeGenus hD p)) ^ e := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ p hp hc hχ e
   rcases Nat.eq_zero_or_pos e with rfl | he
   · rw [pow_zero, (genusLocalAF_isMultiplicative hD ψ).1, pow_zero]
@@ -77,7 +77,7 @@ theorem genusIdealAF_split_primePower {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ p : ℕ, p.Prime → p.Coprime (discriminantLevel (b ^ 2 + 4 * d)) →
       discriminantCharacter _ hD.ne p ≠ -1 → ∀ e : ℕ,
       genusIdealAF hD ψ (p ^ e) = (e + 1 : ℕ) * ψ (Additive.ofMul (primeGenus hD p)) ^ e := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ p hp hc hχ e
   obtain ⟨s, hs⟩ := exists_splitPrime_of_coprime_not_inert hD hp hc hχ
   have hnorm : goodIdealNormAF hD (p ^ e) = (e + 1 : ℕ) := by
@@ -91,7 +91,7 @@ theorem genusLocalAF_inert_primePower {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ p : ℕ, p.Prime → p.Coprime (discriminantLevel (b ^ 2 + 4 * d)) →
       discriminantCharacter _ hD.ne p = -1 → ∀ e : ℕ,
       genusLocalAF hD ψ (p ^ e) = if Even e then 1 else 0 := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ p hp hc hχ e
   rcases Nat.eq_zero_or_pos e with rfl | he
   · rw [pow_zero, (genusLocalAF_isMultiplicative hD ψ).1, if_pos Even.zero]
@@ -112,7 +112,7 @@ theorem genusIdealAF_inert_primePower {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ p : ℕ, p.Prime → p.Coprime (discriminantLevel (b ^ 2 + 4 * d)) →
       discriminantCharacter _ hD.ne p = -1 → ∀ e : ℕ,
       genusIdealAF hD ψ (p ^ e) = if Even e then 1 else 0 := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ p hp hc hχ e
   rw [genusIdealAF, ArithmeticFunction.pmul_apply, goodIdealNormAF_inert_primePower hD hp hc hχ,
     genusWeightAF_primePower hD ψ p hp e]
@@ -126,7 +126,7 @@ theorem genusLocalAF_bad_primePower {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
     ∀ p : ℕ, p.Prime → ¬ p.Coprime (discriminantLevel (b ^ 2 + 4 * d)) → ∀ e : ℕ,
       genusLocalAF hD ψ (p ^ e) = if e = 0 then 1 else 0 := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ p hp hc e
   rcases Nat.eq_zero_or_pos e with rfl | he
   · rw [pow_zero, (genusLocalAF_isMultiplicative hD ψ).1, if_pos rfl]
@@ -138,7 +138,7 @@ theorem genusIdealAF_bad_primePower {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
     ∀ p : ℕ, ¬ p.Coprime (discriminantLevel (b ^ 2 + 4 * d)) → ∀ e : ℕ,
       genusIdealAF hD ψ (p ^ e) = if e = 0 then 1 else 0 := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ p hc e
   rcases Nat.eq_zero_or_pos e with rfl | he
   · rw [pow_zero, (genusIdealAF_isMultiplicative hD ψ).1, if_pos rfl]

@@ -121,7 +121,7 @@ theorem highPowerRankDenseStructure_of_lev
     HasHighPowerRankDenseStructure := by
   intro N hN
   dsimp only
-  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  let : NeZero N := ⟨Nat.ne_of_gt hN⟩
   intro C t ht hzero hprimitive hdoub
   have htpos : 0 < t := by omega
   let S : Set (ZMod N) := ExactPower C t
@@ -132,7 +132,7 @@ theorem highPowerRankDenseStructure_of_lev
   rcases hlevcert with hdense | hrank | hexception
   · exact Or.inl hdense
   · obtain ⟨m, hm, π, hπ, α, L, V, hLpos, houter, hfiber, hdiff⟩ := hrank
-    letI : NeZero m := ⟨Nat.ne_of_gt hm⟩
+    let : NeZero m := ⟨Nat.ne_of_gt hm⟩
     rw [hpower2] at hdiff
     have hLV : 4 * L * V < 5 * S.ncard := by
       change 4 * L * V < 5 * (ExactPower C t).ncard

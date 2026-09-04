@@ -119,7 +119,7 @@ theorem intervalAggregate_card_bound
   have hindex : L'.index ≠ 0 := by
     rw [AddSubgroup.index_eq_card, hcard]
     exact Nat.mul_ne_zero (Nat.ne_of_gt hV) Nat.card_pos.ne'
-  letI : Fintype E := AddSubgroup.fintypeOfIndexNeZero hindex
+  let : Fintype E := AddSubgroup.fintypeOfIndexNeZero hindex
   let e₁ : E := (QuotientAddGroup.mk' L') (1, 0)
   let e₂ : E := (QuotientAddGroup.mk' L') (0, 1)
   have htwo : ∀ z : E, ∃ p : ℕ × ℕ,

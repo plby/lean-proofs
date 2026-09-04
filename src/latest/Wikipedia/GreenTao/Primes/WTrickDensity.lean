@@ -622,7 +622,7 @@ theorem eventually_forall_pos_exists_reducedResidue_mean_pos
   filter_upwards [hchebyshev, hscaleFour, hscaleFourW] with
     N hchebyshev hscaleFour hscaleFourW
   intro hN
-  letI : NeZero N := ⟨hN.ne'⟩
+  let : NeZero N := ⟨hN.ne'⟩
   apply exists_reducedResidue_mean_pos_of_chebyshev
     hα
   · exact (Nat.le_div_iff_mul_le (by norm_num : 0 < (4 : ℕ))).2
@@ -667,7 +667,7 @@ theorem eventually_forall_pos_exists_reducedResidue_mean_ge
     eventually_ge_atTop 16] with
     N hchebyshev hscaleSixteen hscaleFourW hNsixteen
   intro hN
-  letI : NeZero N := ⟨hN.ne'⟩
+  let : NeZero N := ⟨hN.ne'⟩
   have hw :
       w ≤ wTrickPrimeScale (primorial w) N / 4 :=
     (Nat.le_div_iff_mul_le (by norm_num : 0 < (4 : ℕ))).2
@@ -696,7 +696,7 @@ theorem exists_threshold_reducedResidue_mean_ge
       (eventually_forall_pos_exists_reducedResidue_mean_ge hα)
   refine ⟨N₀, ?_⟩
   intro N hN hNpos
-  letI : NeZero N := ⟨hNpos.ne'⟩
+  let : NeZero N := ⟨hNpos.ne'⟩
   exact hN₀ N hN hNpos
 
 /-- The uniform density theorem specialized to the globally fixed
@@ -718,7 +718,7 @@ theorem exists_threshold_reducedResidue_mean_ge_densityTarget
       (primeScale_pos hk hnorm) (w := w)
   refine ⟨N₀, ?_⟩
   intro N hN hNpos
-  letI : NeZero N := ⟨hNpos.ne'⟩
+  let : NeZero N := ⟨hNpos.ne'⟩
   obtain ⟨b, hb, hmean⟩ := hN₀ N hN hNpos
   exact ⟨b, hb,
     (densityTarget_le_primeScale_mul_log_div hk hnorm).trans

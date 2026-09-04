@@ -246,7 +246,7 @@ lemma exists_maximal_colorableOn (G : SimpleGraph V) (W : Finset V) {c : ℕ}
   have hne : candidates.Nonempty := by
     refine ⟨∅, ?_⟩
     simp only [candidates, Finset.mem_filter, Finset.empty_mem_powerset, true_and]
-    haveI : Nonempty (Fin c) := Fin.pos_iff_nonempty.mp hc
+    have : Nonempty (Fin c) := Fin.pos_iff_nonempty.mp hc
     exact colorableOn_empty G c
   obtain ⟨H, hH, hmax⟩ := candidates.exists_max_image Finset.card hne
   refine ⟨H, ?_, ?_, ?_⟩

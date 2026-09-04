@@ -423,7 +423,7 @@ theorem reciprocalEnvelope
         (hf0 (K + n)) (tailProduct_nonneg hN K n) hD
         (hN _) (hC _) ih' hDnext (hrec n)
       rw [tailProduct_succ, tailCharge_succ]
-      convert hstep using 1 <;> ring
+      convert hstep using 1 <;> ring_nf
 
 /-- A more familiar version of `reciprocalEnvelope`, with denominator
 `1 - F*S`. -/

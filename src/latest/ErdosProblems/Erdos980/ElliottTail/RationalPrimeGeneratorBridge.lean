@@ -68,12 +68,12 @@ noncomputable def primeIdealAbove (q : ℕ) (hq : q.Prime) : Ideal (𝓞 K) := b
 
 theorem primeIdealAbove_isPrime (q : ℕ) (hq : q.Prime) :
     (primeIdealAbove K q hq).IsPrime := by
-  letI : (integerPrimeIdeal q).IsPrime := integerPrimeIdeal_isPrime hq
+  let : (integerPrimeIdeal q).IsPrime := integerPrimeIdeal_isPrime hq
   exact (Classical.choice (integerPrimeIdeal q).nonempty_primesOver).2.1
 
 theorem primeIdealAbove_liesOver (q : ℕ) (hq : q.Prime) :
     (primeIdealAbove K q hq).LiesOver (integerPrimeIdeal q) := by
-  letI : (integerPrimeIdeal q).IsPrime := integerPrimeIdeal_isPrime hq
+  let : (integerPrimeIdeal q).IsPrime := integerPrimeIdeal_isPrime hq
   exact (Classical.choice (integerPrimeIdeal q).nonempty_primesOver).2.2
 
 theorem primeIdealAbove_isMaximal (q : ℕ) (hq : q.Prime) :
@@ -81,7 +81,7 @@ theorem primeIdealAbove_isMaximal (q : ℕ) (hq : q.Prime) :
   (primeIdealAbove_isPrime K q hq).isMaximal
     (by
       intro hbot
-      letI : (primeIdealAbove K q hq).LiesOver
+      let : (primeIdealAbove K q hq).LiesOver
           (Ideal.span ({(q : ℤ)} : Set ℤ)) := by
         simpa [integerPrimeIdeal] using primeIdealAbove_liesOver K q hq
       have hq_mem_base : (q : ℤ) ∈ Ideal.span ({(q : ℤ)} : Set ℤ) :=
@@ -115,9 +115,9 @@ theorem primeIdealAbove_inertiaDeg_eq_one {q : ℕ}
     (hq : Eligible ell q) :
     (primeIdealAbove K q hq.1).inertiaDeg ℤ = 1 := by
   let P := primeIdealAbove K q hq.1
-  letI : P.IsPrime := primeIdealAbove_isPrime K q hq.1
-  letI : Fact q.Prime := ⟨hq.1⟩
-  letI : P.LiesOver (Ideal.span ({(q : ℤ)} : Set ℤ)) := by
+  let : P.IsPrime := primeIdealAbove_isPrime K q hq.1
+  let : Fact q.Prime := ⟨hq.1⟩
+  let : P.LiesOver (Ideal.span ({(q : ℤ)} : Set ℤ)) := by
     simpa [integerPrimeIdeal] using primeIdealAbove_liesOver K q hq.1
   rw [IsCyclotomicExtension.Rat.inertiaDeg_eq_of_not_dvd
     (p := q) (K := K) P (eligible_not_dvd_exponent ell hq),
@@ -127,8 +127,8 @@ theorem primeIdealAbove_inertiaDeg_eq_one {q : ℕ}
 theorem absNorm_primeIdealAbove {q : ℕ} (hq : Eligible ell q) :
     Ideal.absNorm (primeIdealAbove K q hq.1) = q := by
   let P := primeIdealAbove K q hq.1
-  letI : P.IsPrime := primeIdealAbove_isPrime K q hq.1
-  letI : P.LiesOver (Ideal.span ({(q : ℤ)} : Set ℤ)) := by
+  let : P.IsPrime := primeIdealAbove_isPrime K q hq.1
+  let : P.LiesOver (Ideal.span ({(q : ℤ)} : Set ℤ)) := by
     simpa [integerPrimeIdeal] using primeIdealAbove_liesOver K q hq.1
   rw [← Ideal.pow_inertiaDeg q
     (primeIdealAbove K q hq.1),
@@ -155,7 +155,7 @@ theorem primeIdealAbove_ne_lambda {q : ℕ} (hq : Eligible ell q) :
   intro h
   have hnorm := congrArg Ideal.absNorm h
   have hnormL : Ideal.absNorm lambdaIdeal = ell := by
-    letI : IsCyclotomicExtension {ell ^ (0 + 1)} ℚ K := by
+    let : IsCyclotomicExtension {ell ^ (0 + 1)} ℚ K := by
       simpa using (inferInstance : IsCyclotomicExtension {ell} ℚ K)
     have hz : IsPrimitiveRoot (IsCyclotomicExtension.zeta ell ℚ K)
         (ell ^ (0 + 1)) := by
@@ -182,8 +182,8 @@ theorem lambda_coprime_primeIdealAbove {q : ℕ} (hq : Eligible ell q) :
   have hPmax : Ideal.IsMaximal (primeIdealAbove K q hq.1) :=
     (primeIdealAbove_isPrime K q hq.1).isMaximal
       (primeIdealAbove_ne_bot ell K hq)
-  letI : Ideal.IsMaximal lambdaIdeal := hLmax
-  letI : Ideal.IsMaximal (primeIdealAbove K q hq.1) := hPmax
+  let : Ideal.IsMaximal lambdaIdeal := hLmax
+  let : Ideal.IsMaximal (primeIdealAbove K q hq.1) := hPmax
   exact Ideal.isCoprime_iff_sup_eq.mp
     (Ideal.isCoprime_of_isMaximal
       (primeIdealAbove_ne_lambda ell K hq).symm)

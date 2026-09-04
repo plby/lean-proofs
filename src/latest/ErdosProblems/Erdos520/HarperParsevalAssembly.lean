@@ -238,7 +238,7 @@ theorem integral_harperEulerDensity_eq_sum_unitIntervals_add_tail
   rw [hsplit, hcentral, integral_Ioc_neg_nat_zero_eq_sum w hw M,
     integral_Ico_zero_nat_eq_sum w hw M, ← Finset.sum_add_distrib]
   simp only [harperEulerUnitInterval]
-  simp
+  simp only [Nat.cast_add, Nat.cast_one, neg_add_rev, ↓reduceIte, Bool.false_eq_true, add_left_inj]
   apply Finset.sum_congr rfl
   intro n hn
   ring

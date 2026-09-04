@@ -277,7 +277,7 @@ theorem hamilton_connected_of_five_le_card
     omega
   have hHam : (G.induce s).IsHamiltonian :=
     SimpleGraph.dirac_theorem hs_three hs_degree
-  haveI : Nontrivial s := Fintype.one_lt_card_iff_nontrivial.mp (by omega)
+  have : Nontrivial s := Fintype.one_lt_card_iff_nontrivial.mp (by omega)
   obtain ⟨x⟩ := Fintype.card_pos_iff.mp (by omega : 0 < Fintype.card s)
   obtain ⟨q, hq⟩ := hHam.exists_isHamiltonianCycle x
   have hleft : G.degree a - 1 ≤

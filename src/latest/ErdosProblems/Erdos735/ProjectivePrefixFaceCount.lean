@@ -67,7 +67,7 @@ theorem doubleRestrictedFaceCount_priorNormals_prefix
     exact doubleRestrictedFaceCount_fin_zero _ _ _
   · simp only [if_neg hjzero]
     have hjpos : 0 < j.1 := Nat.pos_of_ne_zero hjzero
-    letI : Nonempty (Fin j) := ⟨⟨0, hjpos⟩⟩
+    let : Nonempty (Fin j) := ⟨⟨0, hjpos⟩⟩
     by_cases hnew : prefixIntersection p hp i j ∉ intersectionsBefore p hp i j
     · rw [if_pos hnew]
       apply doubleRestrictedFaceCount_eq_two _ hind

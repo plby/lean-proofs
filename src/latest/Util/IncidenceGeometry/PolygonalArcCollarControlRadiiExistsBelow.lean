@@ -174,7 +174,7 @@ lemma PolygonalArcCollarControlRadiiExistsBelow (γ : PolygonalArc)
   let targetTerm : Fin γ.vertices.length → ℝ := fun i =>
     if i.1 + 1 = γ.vertices.length then 1
     else (dist γ.vertices[i.1] γ.target - r₁) / 2
-  letI : Nonempty (Fin γ.vertices.length) := ⟨⟨0, hsourceIdx⟩⟩
+  let : Nonempty (Fin γ.vertices.length) := ⟨⟨0, hsourceIdx⟩⟩
   let sourceBound : ℝ :=
     Finset.univ.inf' (show (Finset.univ : Finset (Fin γ.vertices.length)).Nonempty
       from Finset.univ_nonempty) sourceTerm

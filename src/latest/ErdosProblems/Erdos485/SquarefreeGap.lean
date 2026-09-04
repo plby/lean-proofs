@@ -353,9 +353,9 @@ theorem Deformation.exists_eq_scalar_mul_sq_of_factorsFractionCoprimeWeighted
     {P : K[X]} (N : PrimitiveNormalization P) (D : Deformation N)
     (hcop : FactorsFractionCoprimeWeighted (N.poly ^ 2).natDegree D.F) :
     ∃ A : BiPolynomial K, ∃ c : K, c ≠ 0 ∧ D.F = C (C c) * A ^ 2 := by
-  letI : StrongNormalizationMonoid (Polynomial K) :=
+  let : StrongNormalizationMonoid (Polynomial K) :=
     UniqueFactorizationMonoid.strongNormalizationMonoid
-  letI : StrongNormalizationMonoid (BiPolynomial K) :=
+  let : StrongNormalizationMonoid (BiPolynomial K) :=
     UniqueFactorizationMonoid.strongNormalizationMonoid
   have hF : D.F ≠ 0 := by
     intro hzero

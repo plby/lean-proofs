@@ -117,7 +117,7 @@ theorem not_erdos_847 :
   intro hcover
   obtain ⟨A, hAinfinite, hA⟩ :=
     Erdos847Construction.exists_counterexample
-  letI : Infinite A := Set.infinite_coe_iff.mpr hAinfinite
+  let : Infinite A := Set.infinite_coe_iff.mpr hAinfinite
   have hA' : IsRRSCounterexample A (1 / 3 : ℝ) := by
     exact hA
   exact (negative_answer_of_counterexample (by norm_num) hA') hcover

@@ -184,7 +184,7 @@ theorem exists_canonical_robust_simpleAdjuster
         (lm43TotalRadius (Fintype.card V) d) 1,
       Disjoint deleted A.verts := by
   classical
-  letI : DecidableRel G.Adj := fun _ _ ↦ Classical.propDecidable _
+  let : DecidableRel G.Adj := fun _ _ ↦ Classical.propDecidable _
   have hdegree' : ∀ v : V, d ≤ G.degree v := by
     intro v
     convert hdegree v using 1

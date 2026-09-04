@@ -391,7 +391,7 @@ theorem permutationInitialCount_two_sided_tail_count
     (permutationInitialCount_prefix (N + 1) R L hR hL)
     (permutationInitialCount_leftSwap_diff_le (N + 1) R L hR hL)
   rw [uniformExpectation_permutationInitialCount N R L hR hL] at htail
-  convert htail using 1 <;> ring
+  convert htail using 1 <;> ring_nf
 
 /-- Normalized probability form of
 `permutationInitialCount_two_sided_tail_count`. -/
@@ -543,12 +543,12 @@ theorem booleanSlice_intersection_two_sided_probability
             (W.card : ℝ) * ell / I.card|) ≤
       2 * Real.exp (-t ^ 2 / (8 * W.card)) := by
   classical
-  letI : Nonempty (BooleanSlices.BooleanSlicePoint I ell) :=
+  let : Nonempty (BooleanSlices.BooleanSlicePoint I ell) :=
     BooleanSlices.booleanSlicePoint_nonempty hell
   let hR : W.card ≤ I.card := Finset.card_le_card hW
   obtain ⟨e, he⟩ := exists_aligned_finEquiv I W hW
   let hcount : ell + 0 ≤ I.card := by simpa using hell
-  letI : Nonempty (BooleanSlices.SignedSlicePoint I ell 0) :=
+  let : Nonempty (BooleanSlices.SignedSlicePoint I ell 0) :=
     BooleanSlices.signedSlicePoint_nonempty hcount
   let Q : BooleanSlices.BooleanSlicePoint I ell → Prop := fun S ↦
     t ≤ |(((S.1 ∩ W).card : ℕ) : ℝ) -
@@ -797,7 +797,7 @@ theorem booleanSliceTwoBlock_residue_probability
       hellupper.trans (by
         simpa only [one_mul] using mul_le_mul_of_nonneg_right hη hnonneg)
     exact_mod_cast hreal
-  letI : Nonempty (BooleanSlices.BooleanSlicePoint (A ∪ B) ell) :=
+  let : Nonempty (BooleanSlices.BooleanSlicePoint (A ∪ B) ell) :=
     BooleanSlices.booleanSlicePoint_nonempty (by simpa only [hUnion] using hell)
   have hcount := card_booleanSliceTwoBlock_filter A B hAB m ell hA hB
     (fun j ↦ RLCD.distToInt (tau * (j : ℝ) + x) ≤ delta)
@@ -915,10 +915,10 @@ theorem booleanSliceOutsideFiber_residue_probability
   have hUnion : (A ∪ B).card = 2 * m := by
     rw [Finset.card_union_of_disjoint hAB, hA, hB]
     omega
-  letI : Nonempty
+  let : Nonempty
       (BooleanSlices.BooleanSlicePoint (A ∪ B) (ell - T.card)) :=
     BooleanSlices.booleanSlicePoint_nonempty (by simpa only [hUnion] using hell)
-  letI : Nonempty {U : BooleanSlices.BooleanSlicePoint I ell //
+  let : Nonempty {U : BooleanSlices.BooleanSlicePoint I ell //
       U.1 \ (A ∪ B) = T} := ⟨E.symm (Classical.choice inferInstance)⟩
   let Q : BooleanSlices.BooleanSlicePoint (A ∪ B) (ell - T.card) → Prop :=
     fun V ↦ RLCD.distToInt (tau * ((V.1 ∩ A).card : ℝ) + x) ≤ delta
@@ -1175,7 +1175,7 @@ theorem lemma83Blocks_outsideFiber_residue_probability
     dsimp only [xT]
     rw [hcur, hprev]
     push_cast
-    ring
+    ring_nf
   rw [htransport]
   exact booleanSliceOutsideFiber_residue_probability I A B T m ell
     hAB hAcard hBcard hS hT hTell eta tau xT delta heta hm
@@ -1460,7 +1460,7 @@ theorem booleanSlice_bad_residue_probability
           ¬lemma83BalancedResidue eta m ell (U.1 \ S).card) ≤
       2 * Real.exp (-(eta * m) ^ 2 / (8 * S.card)) := by
   classical
-  letI : Nonempty (BooleanSlices.BooleanSlicePoint I ell) :=
+  let : Nonempty (BooleanSlices.BooleanSlicePoint I ell) :=
     BooleanSlices.booleanSlicePoint_nonempty hell
   have hSpos : 0 < S.card := by omega
   have hIposNat : 0 < I.card := hSpos.trans_le (Finset.card_le_card hS)
@@ -1685,7 +1685,7 @@ theorem lemma83Blocks_oneStep_probability
     ((|tau| + delta) *
       (|tau| + 1 / Real.sqrt (2 * m : ℕ)) / |tau|)
   let eps : ℝ := 2 * Real.exp (-(eta * m) ^ 2 / (8 * (A ∪ B).card))
-  letI : Nonempty (BooleanSlices.BooleanSlicePoint I ell) :=
+  let : Nonempty (BooleanSlices.BooleanSlicePoint I ell) :=
     BooleanSlices.booleanSlicePoint_nonempty hell
   have hScard : (A ∪ B).card = 2 * m := by
     rw [Finset.card_union_of_disjoint hAB, hAcard, hBcard]
@@ -1975,7 +1975,7 @@ theorem lemma83DegreePrefix_probability
           (-(eta * lemma83BlockSize n beta) ^ 2 /
             (8 * (2 * lemma83BlockSize n beta : ℕ)))) := by
   classical
-  letI : Nonempty (BooleanSlices.BooleanSlicePoint
+  let : Nonempty (BooleanSlices.BooleanSlicePoint
       (Finset.univ : Finset (Fin n)) ell) :=
     BooleanSlices.booleanSlicePoint_nonempty (by simpa using hell)
   let m := lemma83BlockSize n beta
@@ -2455,7 +2455,7 @@ theorem lemma83DegreeJoint_probability_sourcePower_of_imbalance
           ((|tau| + delta) *
             (|tau| + (n : ℝ) ^ (-(1 - beta) / 2)) / |tau|)) ^ q := by
   classical
-  letI : Nonempty (BooleanSlices.BooleanSlicePoint
+  let : Nonempty (BooleanSlices.BooleanSlicePoint
       (Finset.univ : Finset (Fin n)) ell) :=
     BooleanSlices.booleanSlicePoint_nonempty (by simpa using hell)
   by_cases hq0 : q = 0

@@ -142,7 +142,7 @@ theorem literalPrimeExtension : Erdos215.Selector.LiteralPrimeExtensionHypothesi
             pureLiteralPrimeExtension_nontrivialPart p hp hp1 d hd u hu)
       apply transportPrimeExtensionResult hp.pos hPQ s
       simpa only [sPQ] using hresult
-    · letI : Fact p.Prime := ⟨hp⟩
+    · let : Fact p.Prime := ⟨hp⟩
       exact primeCopy_step_of_prime_mod_four_eq_three p hp3 hd s hs
 
 end

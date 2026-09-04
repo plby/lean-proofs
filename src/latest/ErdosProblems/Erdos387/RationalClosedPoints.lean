@@ -67,7 +67,7 @@ private theorem conjugacyClassClosedPoint_injective :
 private theorem exists_minpoly_eq_closedPoint
     (P : ExtensionClosedPoint K n) :
     ∃ x : FiniteField.Extension K p n, minpoly K x = P.poly := by
-  letI : Fact (Irreducible P.poly) := ⟨P.irreducible⟩
+  let : Fact (Irreducible P.poly) := ⟨P.irreducible⟩
   have hfinrank : Module.finrank K (AdjoinRoot P.poly) = P.poly.natDegree := by
     rw [(AdjoinRoot.powerBasis P.irreducible.ne_zero).finrank,
       AdjoinRoot.powerBasis_dim]
@@ -221,7 +221,7 @@ private theorem exists_minpoly_eq_closedPoint_in_finiteExtension
     (hfin : Module.finrank K L = n)
     (P : ExtensionClosedPoint K n) :
     ∃ x : L, minpoly K x = P.poly := by
-  letI : Fact (Irreducible P.poly) := ⟨P.irreducible⟩
+  let : Fact (Irreducible P.poly) := ⟨P.irreducible⟩
   have hrootFinrank :
       Module.finrank K (AdjoinRoot P.poly) = P.poly.natDegree := by
     rw [(AdjoinRoot.powerBasis P.irreducible.ne_zero).finrank,
@@ -320,7 +320,7 @@ theorem sum_finiteExtension_eq_irreducibleSum
       ∑ P : MonicIrreducibleLE K n,
         if P.poly.natDegree ∣ n then P.poly.natDegree • f P.poly else 0 := by
   classical
-  letI : Fintype (ConjRootClass K L) :=
+  let : Fintype (ConjRootClass K L) :=
     Fintype.ofEquiv (ExtensionClosedPoint K n)
       (finiteConjugacyClassEquivClosedPoint K n L hfin).symm
   rw [sum_finiteExtension_eq_sum_conjugacyClasses K n L hfin]

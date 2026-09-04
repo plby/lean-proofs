@@ -323,7 +323,7 @@ theorem abs_norm_positivePrefixMean_sub_norm_le_nearTwistEuler
           (‖gsNearTwistNormalizedMain f t Z‖ -
             ‖gsNearTwistNormalizedMain f t X‖) +
           (‖gsNearTwistNormalizedMain f t X‖ -
-            ‖positivePrefixMean f X‖)| := by ring
+            ‖positivePrefixMean f X‖)| := by ring_nf
     _ ≤ |‖positivePrefixMean f Z‖ -
             ‖gsNearTwistNormalizedMain f t Z‖| +
           |‖gsNearTwistNormalizedMain f t Z‖ -

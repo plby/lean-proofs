@@ -417,7 +417,7 @@ theorem exists_proper_outerGAP_containing_unitBall_with_two_sided_volume
         (8 : ℝ) ^ n * (n : ℝ) ^ n *
           (∏ i : Fin n, mahlerFactor i) *
             ((centeredBasisGAP b (outerRadius p)).volume : ℝ) := by
-  letI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+  let : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
   have hmin : ∀ i : Fin n, successiveMinimum p i ≤ 1 :=
     successiveMinimum_le_one_of_admitsIndependent_full p hfull
   obtain ⟨b, hb⟩ := exists_isMahlerBasis p hp

@@ -30,7 +30,7 @@ theorem exists_inducingPrimitive_bound (A : ℝ) (hA : 0 < A) :
     exists_siegelWalfisz_primitiveCenteredEndpointMaximum_le A hA
   refine ⟨C, c, hC, hc, X₀, hX₀, ?_⟩
   intro x hx q hq hqLog χ
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   by_cases hd : χ.conductor = 1
   · have hzero : inducingPrimitiveCenteredEndpointMaximum x q χ = 0 := by
       have hz (d : ℕ) (ψ : primitiveCharacters d) (hd : d = 1) :
@@ -60,7 +60,7 @@ theorem exists_centered_prime_count_bound (A : ℝ) (hA : 0 < A) :
   obtain ⟨C, c, hC, hc, X₀, hX₀, hbound⟩ := exists_inducingPrimitive_bound A hA
   refine ⟨C, c, hC, hc, X₀, hX₀, ?_⟩
   intro x hx q hq hqLog
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   have hphi : (q.totient : ℝ) ≠ 0 := by
     exact_mod_cast (Nat.totient_pos.mpr (by omega : 0 < q)).ne'
   have hcard : Fintype.card (DirichletCharacter ℂ q) = q.totient := by

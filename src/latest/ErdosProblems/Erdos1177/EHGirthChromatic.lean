@@ -139,7 +139,8 @@ theorem extract_aux (hreg : κ.IsRegular) (hθ : θ < κ) (c : (ℕ → Pt κ) �
       (∀ i < cb, wb i < wa (cb + 1)) := by
   intro cb hcb;
   induction' cb with cb ih generalizing k;
-  · rcases k with ( _ | _ | k ) <;> simp_all +decide [ StrictMonoOn ];
+  · rcases k with ( _ | _ | k ) <;> simp_all +decide only [zero_add, isMin_iff_eq_bot, Nat.bot_eq_zero, IsMin.Iio_eq, Nat.reduceSubDiff,
+    tsub_zero, not_lt_zero, IsEmpty.forall_iff, implies_true, and_self, and_true, exists_and_left];
     obtain ⟨ z₀, hz₀ ⟩ := exists_next_star hreg hθ c ( k + 1 ) 0 ( fun _ => Classical.choose ( show ∃ p : Pt κ, True from by
                                                                                                 cases isEmpty_or_nonempty ( Pt κ ) <;> aesop ) ) ( Classical.choose ( show ∃ p : Pt κ, True from by
                                                                                                                                                               cases hreg ; aesop ) )
@@ -219,7 +220,8 @@ theorem not_colorableBy_regular_general (hreg : κ.IsRegular) (hk : 2 ≤ k)
   -- Colours: `c wa = star` and `c wb3 = star`, and by `toTotal_mono` these equal `c0 a` and `c0 b`; hence `c0 a = c0 b`.
   have hcol : c0 a = star ∧ c0 b = star := by
     have hcol : c wa = star ∧ c (Function.update (Function.update wb (k - 2) zb) (k - 1) zc) = star := by
-      rcases k with ( _ | _ | k ) <;> simp_all +decide;
+      rcases k with ( _ | _ | k ) <;> simp_all +decide only [Nat.reduceSubDiff, add_tsub_cancel_right, zero_add, Nat.one_le_ofNat,
+    Nat.sub_eq_zero_of_le, tsub_self, Function.update_idem, zero_tsub];
       · contradiction;
       · contradiction;
       · simp_all +decide [ Nat.succ_sub ];

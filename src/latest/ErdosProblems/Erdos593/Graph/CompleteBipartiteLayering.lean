@@ -33,7 +33,7 @@ theorem finite_of_no_finiteBipartitePart_embedding {n : Nat} (S : Set V)
     Set.Finite S := by
   classical
   by_contra hfinite
-  letI : Infinite S := Set.infinite_coe_iff.mpr hfinite
+  let : Infinite S := Set.infinite_coe_iff.mpr hfinite
   let finToNat : FiniteBipartitePart.{u} n ↪ Nat :=
     (Equiv.ulift.{u, 0}.toEmbedding).trans Fin.valEmbedding
   let right : FiniteBipartitePart.{u} n ↪ S :=

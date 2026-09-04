@@ -112,11 +112,11 @@ theorem card_endpointVerticalPart_dvd
   have hKcard : Nat.card K = (addSubgroupFinset K).card := by
     let hmem : ∀ x : H, x ∈ addSubgroupFinset K ↔ x ∈ K :=
       fun x => mem_addSubgroupFinset K x
-    letI : Fintype K := Fintype.ofFinset (addSubgroupFinset K) hmem
+    let : Fintype K := Fintype.ofFinset (addSubgroupFinset K) hmem
     rw [Nat.card_eq_fintype_card]
     exact Fintype.card_ofFinset (addSubgroupFinset K) hmem
   have hFcard : Nat.card F = Ffin.card := by
-    letI : Fintype F := Fintype.ofFinset Ffin hFmem
+    let : Fintype F := Fintype.ofFinset Ffin hFmem
     rw [Nat.card_eq_fintype_card]
     exact Fintype.card_ofFinset Ffin hFmem
   change (addSubgroupFinset K).card ∣ Ffin.card

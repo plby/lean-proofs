@@ -185,7 +185,7 @@ theorem IsSplitLegal.inessentialPaths_mono_stage (hL : L.IsSplitLegal)
         rcases hc.lt_or_eq with hc | rfl
         · let oe : ExtendedStage κ := ⟨o, hoκ.le⟩
           obtain ⟨C, hstage, hlimit⟩ := hL.limitStages oe hoLimit
-          letI : Nonempty (Set.Iio o) := hoLimit.nonempty_Iio.to_subtype
+          let : Nonempty (Set.Iio o) := hoLimit.nonempty_Iio.to_subtype
           let ci : Set.Iio o := ⟨c, hc⟩
           have hpCi : p ∈ G.inessentialPaths (C.stage ci) := by
             rw [hstage ci]
@@ -228,7 +228,7 @@ theorem IsSplitLegal.mem_limitWarp_of_mem_inessential (hL : L.IsSplitLegal)
     Cardinal.isSuccLimit_ord hL.regular.aleph0_le
   obtain ⟨C, hstage, hlimit⟩ :=
     hL.limitStages (Ladder.finalStage κ) hκLimit
-  letI : Nonempty (Set.Iio κ.ord) := hκLimit.nonempty_Iio.to_subtype
+  let : Nonempty (Set.Iio κ.ord) := hκLimit.nonempty_Iio.to_subtype
   let ai : Set.Iio κ.ord := ⟨a.1, a.2⟩
   have hpAi : p ∈ C.stage ai := by
     rw [hstage ai]

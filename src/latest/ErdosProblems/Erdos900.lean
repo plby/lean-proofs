@@ -342,7 +342,7 @@ theorem WHP_of_DFS_parameters {c A s D L U : ℝ}
     have h' : Tendsto (fun n : ℕ ↦ 1 - ((hi n + roots n : ℕ) : ℝ) / n)
         atTop (𝓝 (1 - U - s)) := by
       convert h using 1
-      all_goals ring
+      all_goals ring_nf
     apply h'.congr'
     filter_upwards [hsumN, eventually_ge_atTop 1] with n hsum hn
     have hle : hi n + roots n ≤ n := hsum.le
@@ -383,7 +383,7 @@ theorem WHP_of_DFS_parameters {c A s D L U : ℝ}
           ((N n : ℝ) / (n : ℝ) ^ 2))
         atTop (𝓝 (2 * c * A)) := by
       convert hraw' using 1
-      all_goals ring
+      all_goals ring_nf
     apply hraw''.congr'
     filter_upwards [hqN, eventually_ge_atTop 2] with n hqn hn
     have hn0 : (n : ℝ) ≠ 0 := by positivity
@@ -538,7 +538,7 @@ theorem WHP_of_DFS_parameters {c A s D L U : ℝ}
       change Erdos88.Concentration.uniformProbability Bad ≤
         2 * Real.exp (-((tau * n) ^ 2 / (32 * (m n : ℝ))))
       convert h' using 1
-      all_goals ring
+      all_goals ring_nf
     have hfailProb :
         Erdos88.Concentration.uniformProbability (fun omega ↦ ¬Good omega) ≤
           Erdos88.Concentration.uniformProbability Bad :=
@@ -554,7 +554,7 @@ theorem WHP_of_DFS_parameters {c A s D L U : ℝ}
   have hlowerLimit : Tendsto (fun n : ℕ ↦ 1 - tail n) atTop (𝓝 1) := by
     convert (tendsto_const_nhds :
       Tendsto (fun _ : ℕ ↦ (1 : ℝ)) atTop (𝓝 1)).sub htail using 1
-    all_goals ring
+    all_goals ring_nf
   exact tendsto_of_tendsto_of_tendsto_of_le_of_le' hlowerLimit
     tendsto_const_nhds hlowerProbability hupperProbability
 

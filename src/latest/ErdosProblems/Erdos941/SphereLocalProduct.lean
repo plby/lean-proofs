@@ -48,7 +48,7 @@ theorem finite_padic_spherePairOrbits (p : ℕ) [Fact p.Prime] (hp2 : p ≠ 2)
     {n e : PadicInt p} (base : SpherePair (PadicInt p) n e) (hnd : e ^ 2 ≠ n ^ 2) :
     Finite (SpherePairOrbits (PadicInt p) n e) := by
   obtain ⟨F, hF⟩ := exists_padic_sphere_split p hp2
-  letI := finite_padic_specialPairOrbits p (splitSpherePair F hF base)
+  let := finite_padic_specialPairOrbits p (splitSpherePair F hF base)
     (sphere_split_nondegenerate hnd)
   exact Finite.of_injective (splitSphereOrbitMap F hF) (splitSphereOrbitMap_injective F hF)
 
@@ -77,12 +77,12 @@ theorem badSphereOrbitMap_injective {n e : ℤ} (hnd : e ^ 2 ≠ n ^ 2) :
         apply hbad
         exact (Fact.out : p.Prime).mem_primeFactors (Int.natCast_dvd.mp hdiv)
           (Int.natAbs_ne_zero.mpr (spherePairDiscriminant_ne_zero hnd))
-      letI := spherePairOrbits_subsingleton_of_unit (padic_isUnit_sphere_discriminant p n e hgood)
+      let := spherePairOrbits_subsingleton_of_unit (padic_isUnit_sphere_discriminant p n e hgood)
       exact Subsingleton.elim _ _
 
 theorem finite_badLocalSphereOrbit {n e : ℤ} (base : SpherePair ℤ n e)
     (hnd : e ^ 2 ≠ n ^ 2) (p : BadSpherePrime n e) : Finite (BadLocalSphereOrbit n e p) := by
-  letI : Fact p.1.Prime := ⟨Nat.prime_of_mem_primeFactors (Finset.mem_of_mem_erase p.2)⟩
+  let : Fact p.1.Prime := ⟨Nat.prime_of_mem_primeFactors (Finset.mem_of_mem_erase p.2)⟩
   exact finite_padic_spherePairOrbits p.1 (Finset.ne_of_mem_erase p.2)
     (mapSpherePair (Int.castRingHom (PadicInt p.1)) base)
     (map_sphere_nondegenerate (Int.castRingHom (PadicInt p.1)) Int.cast_injective hnd)
@@ -91,7 +91,7 @@ theorem card_integer_spherePairOrbits_le_local_product {n e : ℤ} (base : Spher
     (hnd : e ^ 2 ≠ n ^ 2) :
     Nat.card (SpherePairOrbits ℤ n e) ≤
       ∏ p : BadSpherePrime n e, Nat.card (BadLocalSphereOrbit n e p) := by
-  letI : ∀ p : BadSpherePrime n e, Finite (BadLocalSphereOrbit n e p) :=
+  let : ∀ p : BadSpherePrime n e, Finite (BadLocalSphereOrbit n e p) :=
     finite_badLocalSphereOrbit base hnd
   have h := Nat.card_le_card_of_injective _ (badSphereOrbitMap_injective hnd)
   rwa [Nat.card_pi] at h

@@ -237,21 +237,21 @@ theorem mem_sortedByKey {α β : Type*} [Fintype α] [LinearOrder β]
     (key : α → β) (hkey : Function.Injective key) (a : α) :
     a ∈ sortedByKey key hkey := by
   classical
-  letI : LinearOrder α := LinearOrder.lift' key hkey
+  let : LinearOrder α := LinearOrder.lift' key hkey
   simp [sortedByKey]
 
 theorem sortedByKey_nodup {α β : Type*} [Fintype α] [LinearOrder β]
     (key : α → β) (hkey : Function.Injective key) :
     (sortedByKey key hkey).Nodup := by
   classical
-  letI : LinearOrder α := LinearOrder.lift' key hkey
+  let : LinearOrder α := LinearOrder.lift' key hkey
   simp [sortedByKey]
 
 theorem sortedByKey_length {α β : Type*} [Fintype α] [LinearOrder β]
     (key : α → β) (hkey : Function.Injective key) :
     (sortedByKey key hkey).length = Fintype.card α := by
   classical
-  letI : LinearOrder α := LinearOrder.lift' key hkey
+  let : LinearOrder α := LinearOrder.lift' key hkey
   simp [sortedByKey]
 
 theorem rankByKey_lt_card {α β : Type*} [Fintype α] [DecidableEq α]
@@ -276,7 +276,7 @@ theorem key_le_of_rankByKey_le {α β : Type*} [Fintype α] [DecidableEq α]
     (h : rankByKey key hkey a ≤ rankByKey key hkey b) :
     key a ≤ key b := by
   classical
-  letI : LinearOrder α := LinearOrder.lift' key hkey
+  let : LinearOrder α := LinearOrder.lift' key hkey
   let l := sortedByKey key hkey
   have haMem : a ∈ l := by simpa [l] using mem_sortedByKey key hkey a
   have hbMem : b ∈ l := by simpa [l] using mem_sortedByKey key hkey b
@@ -319,4 +319,3 @@ theorem rankByKey_lt_of_key_lt {α β : Type*} [Fintype α] [DecidableEq α]
 end PathSlicing
 end SimpleGraph
 end Erdos73Infrastructure
-

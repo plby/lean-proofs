@@ -239,7 +239,7 @@ theorem norm_scaledState_algebraicRate_le {oldRank : ℕ}
           ((∑ r, (P.LiZero r : ℝ) * ‖oldLog P r‖) +
             (P.LlastZero : ℝ) * ‖lastLog P‖) := by
       rw [mul_add, Finset.mul_sum]
-      ring
+      ring_nf
 
 /-- Canonical level-scaled algebraic exponential majorant used both for
 pointwise row errors and analytic growth. -/

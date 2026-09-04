@@ -80,8 +80,8 @@ theorem initialRemainder_even_of_admissible_absorber
       (graphDifference (SimpleGraph.completeGraph (Fin n)) H)
       univ v).card) := by
   let G := graphDifference (SimpleGraph.completeGraph (Fin n)) H
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   have hHle : H ≤ SimpleGraph.completeGraph (Fin n) := le_top
   have hsup : H ⊔ G = SimpleGraph.completeGraph (Fin n) :=
     sup_graphDifference_eq hHle

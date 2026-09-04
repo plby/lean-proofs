@@ -185,7 +185,7 @@ theorem gaussianMovingWalkKilledPayoff_eq_of_survives
       simp only [gaussianMovingWalkTerminalDistance, List.map_cons,
         List.sum_cons]
       rw [hsum]
-      ring
+      ring_nf
 
 theorem gaussianMovingWalkKilledPayoff_eq_zero_of_not_survives
     (f : ℝ → ℝ) (steps : List GaussianMovingStep) (x : ℝ)
@@ -965,7 +965,7 @@ theorem sum_harperPositiveLogSteps_snd
       unfold harperPositiveLogIncrement
       congr 1
       push_cast
-      ring
+      ring_nf
 
 theorem harperPositiveLogSteps_snd_nonneg
     (variance : ℕ → ℝ≥0) (start length : ℕ) :

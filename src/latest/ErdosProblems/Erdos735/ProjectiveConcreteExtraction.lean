@@ -50,7 +50,7 @@ theorem concreteRestrictedFaceCount
     have habp : a = b := congrArg Subtype.val hab'
     subst b
     simp [ProjectiveDuality.Collinear3, ProjectiveDuality.orientationDet]
-  letI : Nontrivial (Line B) := ⟨⟨⟨a, ha⟩, ⟨b, hb⟩, hab⟩⟩
+  let : Nontrivial (Line B) := ⟨⟨⟨a, ha⟩, ⟨b, hb⟩, hab⟩⟩
   intro p
   rw [card_verticesOn_subtype]
   exact restrictedFaceCount_otherNormals_normalVec_eq_two_mul_verticesOn_card B p
@@ -135,7 +135,7 @@ theorem concreteStrictFaceCardInt
     have habp : a = b := congrArg Subtype.val hab'
     subst b
     simp [ProjectiveDuality.Collinear3, ProjectiveDuality.orientationDet]
-  letI : Nontrivial (Line B) := ⟨⟨⟨a, ha⟩, ⟨b, hb⟩, hab⟩⟩
+  let : Nontrivial (Line B) := ⟨⟨⟨a, ha⟩, ⟨b, hb⟩, hab⟩⟩
   have hnat := concreteStrictFaceCardNat B ⟨a, ha⟩
   calc
     (Fintype.card (StrictFace (normals B)) : ℤ) =

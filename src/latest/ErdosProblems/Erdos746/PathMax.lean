@@ -93,7 +93,7 @@ theorem isLongestPath_iff {G : SimpleGraph V} {u v : V} {p : G.Walk u v} :
   · rintro ⟨hp, hmax⟩
     refine ⟨hp, le_antisymm (path_length_le_maxPathLength hp) ?_⟩
     by_cases hV : Nonempty V
-    · letI := hV
+    · let := hV
       obtain ⟨u', v', q, hq⟩ := exists_isLongestPath G
       simpa [hq.length_eq] using hmax u' v' q hq.isPath
     · exact (hV ⟨u⟩).elim
@@ -102,10 +102,10 @@ theorem maxPathLength_mono {G H : SimpleGraph V} (hGH : G ≤ H) :
     maxPathLength G ≤ maxPathLength H := by
   classical
   by_cases hV : Nonempty V
-  · letI := hV
+  · let := hV
     exact Nat.le_findGreatest (maxPathLength_le_card G)
       ((hasPathLength_maxPathLength G).mono hGH)
-  · haveI : IsEmpty V := not_nonempty_iff.mp hV
+  · have : IsEmpty V := not_nonempty_iff.mp hV
     have hEq : G = H := Subsingleton.elim G H
     simpa [hEq]
 
@@ -129,31 +129,31 @@ theorem maxPathOrder_eq_zero (G : SimpleGraph V) [IsEmpty V] :
 theorem maxPathOrder_le_card (G : SimpleGraph V) :
     maxPathOrder G ≤ Fintype.card V := by
   by_cases hV : Nonempty V
-  · letI := hV
+  · let := hV
     rw [maxPathOrder_eq]
     exact maxPathLength_lt_card G
-  · haveI : IsEmpty V := not_nonempty_iff.mp hV
+  · have : IsEmpty V := not_nonempty_iff.mp hV
     simp [maxPathOrder_eq_zero]
 
 theorem maxPathOrder_mono {G H : SimpleGraph V} (hGH : G ≤ H) :
     maxPathOrder G ≤ maxPathOrder H := by
   by_cases hV : Nonempty V
-  · letI := hV
+  · let := hV
     simp only [maxPathOrder_eq]
     exact Nat.succ_le_succ (maxPathLength_mono hGH)
-  · haveI : IsEmpty V := not_nonempty_iff.mp hV
+  · have : IsEmpty V := not_nonempty_iff.mp hV
     simp [maxPathOrder_eq_zero]
 
 theorem path_order_le_maxPathOrder {G : SimpleGraph V} {u v : V}
     {p : G.Walk u v} (hp : p.IsPath) : p.length + 1 ≤ maxPathOrder G := by
-  letI : Nonempty V := ⟨u⟩
+  let : Nonempty V := ⟨u⟩
   rw [maxPathOrder_eq]
   exact Nat.add_le_add_right (path_length_le_maxPathLength hp) 1
 
 theorem IsLongestPath.order_eq {G : SimpleGraph V} {u v : V}
     {p : G.Walk u v} (hp : IsLongestPath p) :
     p.length + 1 = maxPathOrder G := by
-  letI : Nonempty V := ⟨u⟩
+  let : Nonempty V := ⟨u⟩
   rw [maxPathOrder_eq, hp.length_eq]
 
 theorem exists_path_of_order_maxPathOrder (G : SimpleGraph V) [Nonempty V] :

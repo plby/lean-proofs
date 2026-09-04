@@ -105,7 +105,7 @@ noncomputable def cyclicWindowGeometry
     let i := sourceIndex P W s.1 s.property
     let e := indexEquivLiftedHull R.order
     let a := e.symm i
-    letI : NeZero (hullVertexCount A) := ⟨(Fin.pos a).ne'⟩
+    let : NeZero (hullVertexCount A) := ⟨(Fin.pos a).ne'⟩
     let zi : {p // p ∈ P.H} := ⟨z, hzHull⟩
     let b := e.symm zi
     let qv := W.opposite s.1 (source_mem_diameter W s)

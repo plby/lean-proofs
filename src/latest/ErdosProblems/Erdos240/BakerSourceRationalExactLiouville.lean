@@ -192,11 +192,11 @@ theorem exp_neg_exactDegreeScale_le_stateRationalLiouvilleThreshold
           ‖(commonDeltaDenominator P.h P.LzeroPlusOne
             (P.q ^ (J + 1)) m : ℂ)‖ ≤
         Real.exp (3 * (4 * A / 3) / 4) := by
-    convert hproduct using 1 <;> dsimp only [A] <;> ring
+    convert hproduct using 1 <;> dsimp only [A] <;> ring_nf
   have hgeneric :=
     BakerSourceOversizedConstantUniform.exp_neg_three_quarters_le_stateRationalLiouvilleThreshold
       P state b bLast l m (4 * A / 3) hproduct'
-  convert hgeneric using 1 <;> dsimp only [A] <;> ring
+  convert hgeneric using 1 <;> dsimp only [A] <;> ring_nf
 
 end Erdos240.BakerSourceRationalLiouvilleLowerBounds
 

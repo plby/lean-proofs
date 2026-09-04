@@ -1175,7 +1175,7 @@ theorem HasLimitStages.vertexSet_eq_setLiminf {L : G.KappaLadder κ}
     G.vertexSet (L.accumulated a) =
       WarpLimits.setLiminf (fun b : Set.Iio a.1 ↦
         G.vertexSet (L.accumulated ⟨b.1, b.2.le.trans a.2⟩)) := by
-  letI : Nonempty (Set.Iio a.1) := ha.nonempty_Iio.to_subtype
+  let : Nonempty (Set.Iio a.1) := ha.nonempty_Iio.to_subtype
   obtain ⟨C, hstage, hlimit⟩ := hL a ha
   rw [hlimit, C.vertexSet_limitPaths_eq_setLiminf G]
   congr 2
@@ -1191,7 +1191,7 @@ theorem HasLimitStages.pathFamilyEdgeSet_eq_setLiminf
       WarpLimits.setLiminf (fun b : Set.Iio a.1 ↦
         G.pathFamilyEdgeSet
           (L.accumulated ⟨b.1, b.2.le.trans a.2⟩)) := by
-  letI : Nonempty (Set.Iio a.1) := ha.nonempty_Iio.to_subtype
+  let : Nonempty (Set.Iio a.1) := ha.nonempty_Iio.to_subtype
   obtain ⟨C, hstage, hlimit⟩ := hL a ha
   rw [hlimit, C.pathFamilyEdgeSet_limitPaths_eq_setLiminf G]
   congr 2

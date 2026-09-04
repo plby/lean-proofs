@@ -1343,7 +1343,7 @@ theorem thetaAP_nat_eq_thetaProgressionSum1081
   rw [Nat.primesLE_eq_filter_Icc_one]
   apply Finset.sum_congr
   · ext l
-    simp [Nat.mod_eq_of_lt ha, and_left_comm, and_comm]
+    simp only [Nat.floor_natCast, mem_filter, Finset.mem_Iic, Finset.mem_Icc]
     exact fun _ _ hl => hl.one_le
   · intro l hl
     rfl
@@ -1607,7 +1607,7 @@ theorem exists_eventually_specialObstructionPrimeLog_sharp_lower
       (1 / 2 : ℝ) * (Q : ℝ) -
           K * (Q : ℝ) / Real.log (Q : ℝ) ^ 3 - C ≤
         specialObstructionPrimeLog p Q := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hp2 : p ≠ 2 := by omega
   obtain ⟨K, htheta⟩ :=
     exists_eventually_nonSquareUnitThetaSum_sharp_lower (p := p) hp2
@@ -2509,7 +2509,7 @@ theorem exists_proper_squareSubgroup_with_few_coordinates_of_no_signedProduct
           (List.ofFn fun i => classSquareElement (x i)) <
         Nat.card (classSquareSubgroup : Subgroup G) := by
   classical
-  letI : Fintype (classSquareSubgroup : Subgroup G) := Fintype.ofFinite _
+  let : Fintype (classSquareSubgroup : Subgroup G) := Fintype.ofFinite _
   rw [QuotientGroup.mk'_apply, QuotientGroup.mk'_apply,
     QuotientGroup.eq_iff_div_mem] at hclass
   let target : (classSquareSubgroup : Subgroup G) :=

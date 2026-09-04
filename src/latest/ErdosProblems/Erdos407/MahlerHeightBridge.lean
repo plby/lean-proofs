@@ -188,7 +188,7 @@ theorem projectiveCoeffHeight_eq_log_coeffSup {p : Polynomial ℚ} (hp : p ≠ 0
       Real.log ((coeffSup p : ℤ) : ℝ) := by
   let x : p.support → ℚ := fun n ↦ p.coeff n.1
   let z : p.support → ℤ := primitiveCoeffs p
-  letI : Nonempty p.support := Finset.nonempty_coe_sort.mpr
+  let : Nonempty p.support := Finset.nonempty_coe_sort.mpr
     (Polynomial.support_nonempty.mpr hp)
   have hs : primitiveScale p ≠ 0 := primitiveScale_ne_zero hp
   calc

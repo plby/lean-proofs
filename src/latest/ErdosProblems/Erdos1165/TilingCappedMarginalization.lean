@@ -554,7 +554,7 @@ theorem tilingCappedScreenedMass_factorization {i cap : ℕ}
           FiniteDominoProductLaw.jointMass tilingAwayPointMass
           tilingDistinguishedSelectedMass
         rw [← Finset.mul_sum]
-        ring
+        ring_nf
       · simp [hs]
 
 theorem tilingStoppedAcceptedGeometricMass_eq_indicatorSum

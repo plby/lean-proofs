@@ -1604,7 +1604,7 @@ theorem ksssLemma111 : KSSSLemma111 := by
   unfold HasQuadraticRademacherWeightedCoupling at hcoupling
   rcases hcoupling with ⟨hleft, C, hC⟩
   refine ⟨hleft, ?_⟩
-  letI := hleft
+  let := hleft
   have hδ0 : 0 ≤ d := hd.le
   have hq0 : 0 ≤ Real.exp (-(Real.log n) ^ 2 / 8) := Real.exp_nonneg _
   have hlinear := ksss_exception_linear_le d hd hn hD

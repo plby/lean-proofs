@@ -344,7 +344,7 @@ theorem interlacingGraph_no_six_clique {V : Type*}
     ¬ ∃ S : Set V, (interlacingGraph seq).IsClique S ∧ Cardinal.mk S = 6 := by
   rintro ⟨S, hclique, hcard⟩
   obtain ⟨e⟩ := Cardinal.mk_eq_nat_iff.mp hcard
-  letI : Fintype S := Fintype.ofEquiv (Fin 6) e.symm
+  let : Fintype S := Fintype.ofEquiv (Fin 6) e.symm
   have hcardS : Fintype.card S = 6 := by
     simpa using Fintype.card_congr e
   have hkey_injective :
@@ -361,7 +361,7 @@ theorem interlacingGraph_no_six_clique {V : Type*}
       exact (Nat.ne_of_lt wxy.firstValue_lt) hxy
     · obtain ⟨wyx⟩ := hdir
       exact (Nat.ne_of_gt wyx.firstValue_lt) hxy
-  letI : LinearOrder S :=
+  let : LinearOrder S :=
     LinearOrder.lift' (fun z : S ↦ firstValue (seq z.1)) hkey_injective
   let o : Fin 6 ≃o S := Fintype.orderIsoFinOfCardEq S hcardS
   let v : Fin 6 → List TaggedCoord := fun i ↦ seq (o i).1

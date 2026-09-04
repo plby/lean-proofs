@@ -55,7 +55,7 @@ theorem quotient_exists_pow_iff_unit_exists_pow
     {a : R} (ha : a ∉ P) {n : ℕ} (hn : n ≠ 0) :
     (∃ x : R ⧸ P, x ^ n = Ideal.Quotient.mk P a) ↔
       ∃ y : (R ⧸ P)ˣ, quotientUnitOfNotMem P a ha = y ^ n := by
-  letI : Field (R ⧸ P) := Ideal.Quotient.field P
+  let : Field (R ⧸ P) := Ideal.Quotient.field P
   have hmk : Ideal.Quotient.mk P a ≠ 0 := by
     rw [ne_eq, Ideal.Quotient.eq_zero_iff_mem]
     exact ha
@@ -94,10 +94,10 @@ theorem primeSymbol_eq_of_sub_mem
   by_cases hbot : P = ⊥
   · subst P
     simp [pthSymbolAtPrime_canonical_eq_zero_of_eq_bot]
-  haveI : NeZero P := ⟨hbot⟩
+  have : NeZero P := ⟨hbot⟩
   by_cases hmax : P.IsMaximal
-  · letI : P.IsMaximal := hmax
-    letI : P.IsPrime := hmax.isPrime
+  · let : P.IsMaximal := hmax
+    let : P.IsPrime := hmax.isPrime
     by_cases ha : a ∈ P
     · have hb : b ∈ P := hmem.mp ha
       rw [pthSymbolAtPrime_canonical_eq_zero_of_mem hbot hmax ha,
@@ -176,7 +176,7 @@ fixed nonzero test integer. -/
 theorem finite_rationalIntResidueRing
     {q : ℤ} (hq : q ≠ 0) :
     Finite (𝓞 K ⧸ rationalIntIdeal (K := K) q) := by
-  letI : NeZero (rationalIntIdeal (K := K) q) :=
+  let : NeZero (rationalIntIdeal (K := K) q) :=
     ⟨rationalIntIdeal_ne_bot_of_ne_zero hq⟩
   infer_instance
 
@@ -205,7 +205,7 @@ theorem localPower_iff_integerSymbol_eq_correction
         quotientUnitOfNotMem P (q : 𝓞 K) hqNotMem = y ^ ell) ↔
       pthSymbolAtInt_canonical (p := ell) (K := K) alpha (q : ℤ) =
         pthSymbolAtIdeal_canonical (p := ell) (K := K) (q : 𝓞 K) C := by
-  letI : NeZero P := ⟨hPne⟩
+  let : NeZero P := ⟨hPne⟩
   have hellDvd' : ell ∣ Fintype.card (𝓞 K ⧸ P) - 1 := by
     rw [← Nat.card_eq_fintype_card, ← Submodule.cardQuot_apply,
       ← Ideal.absNorm_apply]

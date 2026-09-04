@@ -49,10 +49,11 @@ def IsShortestCycle {c : V} (C : G.Walk c c) : Prop :=
 theorem cycle_support_toFinset_card_eq_length
     {x : V} (p : G.Walk x x) (hp : p.IsCycle) :
     p.support.toFinset.card = p.length := by
-  have hn : p.length ≥ 3 := hp.three_le_length
-  rcases p with (_ | ⟨_, _, p⟩) <;>
-    simp_all +decide [SimpleGraph.Walk.isCycle_def]
-  rw [List.toFinset_card_of_nodup] <;> aesop
+  have hx : x ∈ p.support.tail := p.end_mem_tail_support hp.not_nil
+  rw [← p.cons_tail_support, List.toFinset_cons, Finset.insert_eq_of_mem
+    (List.mem_toFinset.mpr hx), List.toFinset_card_of_nodup hp.support_nodup]
+  rw [List.length_tail, p.length_support]
+  omega
 
 /-- Replacing one arc of a shortest cycle by a genuinely different path
 cannot shorten that arc. -/
@@ -663,7 +664,7 @@ theorem card_ballAvoiding_one_lower_of_blocked [Fintype V]
     d - 1 - contact ≤ (ballAvoiding G (U : Set V) x 1).card := by
   let originalDecRel : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecRel
+  let : DecidableRel G.Adj := originalDecRel
   have havailable :
       (availableExternalNeighborhood G (U : Set V) ({x} : Finset V)).card ≤
         (ballAvoiding G (U : Set V) x 1).card := by
@@ -2272,8 +2273,8 @@ theorem exists_cardMax_lengthMin_pathFamily [Fintype V] [DecidableEq V]
   let originalDecEq : DecidableEq V := inferInstance
   let originalDecRel : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
-  letI : DecidableRel G.Adj := originalDecRel
+  let : DecidableEq V := originalDecEq
+  let : DecidableRel G.Adj := originalDecRel
   let good : Finset (Finset (BoundedRootTargetPath G roots targets bound)) :=
     Finset.univ.powerset.filter
       (IsAdmissiblePathFamily roots targets barrier label bound multiplicity)
@@ -2783,7 +2784,7 @@ theorem exists_admissible_insert_of_switching_path
           (insert new family) := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   let new : BoundedRootTargetPath G roots targets bound :=
     ⟨⟨x, hx⟩, ⟨⟨y, hy⟩, ⟨p, hp, hplen⟩⟩⟩
   have hnewRoot : new.root = x := rfl
@@ -2930,7 +2931,7 @@ theorem switchingContact_card_le_of_lengthMin
     (switchingContact barrier family x old ell).card ≤ ell + 2 := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   by_contra hcontactBound
   have hcontactLarge : ell + 2 <
       (switchingContact barrier family x old ell).card :=
@@ -3256,7 +3257,7 @@ theorem card_external_inter_familySupport_le
       familySupport family).card ≤ family.card * (ell + 2) := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   have hsub : externalNeighborhood G
       (ballAvoiding G (switchingBarrier barrier family x : Set V) x ell) ∩
         familySupport family ⊆
@@ -3311,7 +3312,7 @@ theorem card_blocked_switchingBarrier_le
       fixed.card + (2 * (ell + 1) + 1) + family.card * (ell + 2) := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   let ball := ballAvoiding G (switchingBarrier barrier family x : Set V) x ell
   have hsub : blockedExternalNeighborhood G
       (switchingBarrier barrier family x : Set V)

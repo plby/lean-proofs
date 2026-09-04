@@ -37,7 +37,7 @@ private theorem rationalIdeal_eq_comap_intSpan (p : ℕ) :
 
 /-- The ideal `(p)` of `𝒪 ℚ` is prime when `p` is a rational prime. -/
 theorem rationalIdeal_isPrime {p : ℕ} (hp : p.Prime) : (rationalIdeal p).IsPrime := by
-  haveI : (Ideal.span {(p : ℤ)}).IsPrime :=
+  have : (Ideal.span {(p : ℤ)}).IsPrime :=
     (Ideal.span_singleton_prime (by exact_mod_cast hp.ne_zero)).mpr
       (Nat.prime_iff_prime_int.mp hp)
   rw [rationalIdeal_eq_comap_intSpan]
@@ -87,7 +87,7 @@ that natural number is prime. -/
 theorem under_eq_rationalIdeal_primeBelow
     {P : Ideal (𝓞 L)} (hP : P.IsPrime) (hP0 : P ≠ ⊥) :
     P.under (𝓞 ℚ) = rationalIdeal (primeBelow L P) ∧ (primeBelow L P).Prime := by
-  haveI : P.IsPrime := hP
+  have : P.IsPrime := hP
   have hp0 : P.under (𝓞 ℚ) ≠ ⊥ := Ideal.under_ne_bot (A := 𝓞 ℚ) hP0
   exact rational_prime_eq_rationalIdeal_absNorm _ inferInstance hp0
 
@@ -96,8 +96,8 @@ prime below `P` and `f` is its residue degree. -/
 theorem absNorm_eq_primeBelow_pow_residueDegree
     {P : Ideal (𝓞 L)} (hP : P.IsPrime) (hP0 : P ≠ ⊥) :
     Ideal.absNorm P = primeBelow L P ^ residueDegree L P := by
-  haveI : P.IsPrime := hP
-  haveI : P.LiesOver (P.under (𝓞 ℚ)) :=
+  have : P.IsPrime := hP
+  have : P.LiesOver (P.under (𝓞 ℚ)) :=
     Ideal.over_under (A := 𝓞 ℚ) (P := P)
   have hp0 : P.under (𝓞 ℚ) ≠ ⊥ := Ideal.under_ne_bot (A := 𝓞 ℚ) hP0
   exact Ideal.absNorm_eq_pow_inertiaDeg'_of_liesOver
@@ -110,8 +110,8 @@ theorem isCompletelySplit_primeBelow_of_residueDegree_eq_one
     (hunr : UnramifiedIn ℚ L (P.under (𝓞 ℚ)))
     (hdeg : residueDegree L P = 1) :
     IsCompletelySplit L (primeBelow L P) := by
-  haveI : P.IsPrime := hP
-  haveI : P.LiesOver (P.under (𝓞 ℚ)) :=
+  have : P.IsPrime := hP
+  have : P.LiesOver (P.under (𝓞 ℚ)) :=
     Ideal.over_under (A := 𝓞 ℚ) (P := P)
   obtain ⟨hunder, hp⟩ := under_eq_rationalIdeal_primeBelow L hP hP0
   let C := frobeniusClass ℚ L (P.under (𝓞 ℚ))
@@ -138,9 +138,9 @@ theorem residueDegree_eq_one_of_isCompletelySplit
     {P : Ideal (𝓞 L)} (hP : P.IsPrime) (hP0 : P ≠ ⊥)
     (hlo : P.LiesOver (rationalIdeal p)) :
     residueDegree L P = 1 := by
-  haveI : P.IsPrime := hP
-  letI : (rationalIdeal p).IsPrime := rationalIdeal_isPrime hsplit.1
-  haveI : P.LiesOver (rationalIdeal p) := hlo
+  have : P.IsPrime := hP
+  let : (rationalIdeal p).IsPrime := rationalIdeal_isPrime hsplit.1
+  have : P.LiesOver (rationalIdeal p) := hlo
   have hunder : P.under (𝓞 ℚ) = rationalIdeal p := hlo.over.symm
   have hfinrank := finrank_residue_eq_orderOf ℚ L (1 : Gal(L/ℚ))
     (ConjClasses.mk (1 : Gal(L/ℚ))) rfl (rationalIdeal p) hsplit.2.1 hsplit.2.2 P hlo
@@ -154,7 +154,7 @@ theorem card_primesAbove_of_isCompletelySplit
     Nat.card {P : Ideal (𝓞 L) //
       P.IsPrime ∧ P.LiesOver (rationalIdeal p) ∧ P ≠ ⊥} =
       Module.finrank ℚ L := by
-  letI : (rationalIdeal p).IsPrime := rationalIdeal_isPrime hsplit.1
+  let : (rationalIdeal p).IsPrime := rationalIdeal_isPrime hsplit.1
   have h := card_primesAbove_mul_orderOf_eq ℚ L (1 : Gal(L/ℚ))
     (ConjClasses.mk (1 : Gal(L/ℚ))) rfl (rationalIdeal p) hsplit.2.1 hsplit.2.2
   rw [orderOf_one, mul_one] at h

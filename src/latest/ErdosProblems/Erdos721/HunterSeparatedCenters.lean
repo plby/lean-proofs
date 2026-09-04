@@ -120,32 +120,32 @@ torus preserves normalized Haar volume. -/
 theorem measurePreserving_affineCombo {Y S D : ℕ}
     (a b c : Fin Y × Fin S) (h : ¬ (a = b ∧ b = c)) :
     MeasurePreserving (affineCombo (D := D) a b c) := by
-  letI : BorelSpace (Torus D) := Pi.borelSpace
-  letI : BorelSpace (Fin S → Torus D) := Pi.borelSpace
-  letI : BorelSpace (CenterFamily Y S D) := Pi.borelSpace
-  letI : IsProbabilityMeasure (volume : Measure (Torus D)) :=
+  let : BorelSpace (Torus D) := Pi.borelSpace
+  let : BorelSpace (Fin S → Torus D) := Pi.borelSpace
+  let : BorelSpace (CenterFamily Y S D) := Pi.borelSpace
+  let : IsProbabilityMeasure (volume : Measure (Torus D)) :=
     probabilityVolume D
-  letI : IsProbabilityMeasure
+  let : IsProbabilityMeasure
       (volume : Measure (Fin S → Torus D)) := by
     rw [volume_pi]
     exact probabilityMeasurePi
-  letI : IsProbabilityMeasure
+  let : IsProbabilityMeasure
       (volume : Measure (CenterFamily Y S D)) := by
     rw [volume_pi]
     exact probabilityMeasurePi
-  letI : (volume : Measure (Fin S → Torus D)).IsAddHaarMeasure := by
+  let : (volume : Measure (Fin S → Torus D)).IsAddHaarMeasure := by
     rw [volume_pi]
     exact Measure.pi.isAddHaarMeasure _
-  letI : (volume : Measure (CenterFamily Y S D)).IsAddHaarMeasure := by
+  let : (volume : Measure (CenterFamily Y S D)).IsAddHaarMeasure := by
     rw [volume_pi]
     exact Measure.pi.isAddHaarMeasure _
   let f := affineCombo (D := D) a b c
   have hf : Continuous f := continuous_affineCombo a b c
   have hsurj : Surjective f := affineCombo_surjective a b c h
-  letI : IsProbabilityMeasure
+  let : IsProbabilityMeasure
       (Measure.map f (volume : Measure (CenterFamily Y S D))) :=
     Measure.isProbabilityMeasure_map hf.measurable.aemeasurable
-  letI : (Measure.map f
+  let : (Measure.map f
       (volume : Measure (CenterFamily Y S D))).IsAddHaarMeasure :=
     Measure.isAddHaarMeasure_map_of_isFiniteMeasure
       (volume : Measure (CenterFamily Y S D)) f hf hsurj
@@ -259,13 +259,13 @@ theorem exists_phaseDistributed_affinelySeparated
   have hproper : miss ∪ sep ≠ Set.univ := by
     intro heq
     rw [heq] at hbad
-    letI : IsProbabilityMeasure (volume : Measure (Torus D)) :=
+    let : IsProbabilityMeasure (volume : Measure (Torus D)) :=
       probabilityVolume D
-    letI : IsProbabilityMeasure
+    let : IsProbabilityMeasure
         (volume : Measure (Fin S → Torus D)) := by
       rw [volume_pi]
       exact probabilityMeasurePi
-    letI : IsProbabilityMeasure
+    let : IsProbabilityMeasure
         (volume : Measure (CenterFamily Y S D)) := by
       rw [volume_pi]
       exact probabilityMeasurePi

@@ -61,7 +61,7 @@ theorem isFailedFano_of_projectiveLeviPathExtraction
     (hpath : CanonicalProjectivePathAvailable S) :
     IsFailedFano P := by
   by_contra hnot
-  letI := S.lineNonempty
+  let := S.lineNonempty
   let L := ConcreteStage4FlankComplete.flankSystem
     S.hred S.ha S.hb S.hd S.hncol S.hAcard hnot
   obtain ⟨G⟩ := S.reducedStage3Geometry_of_not_isFailedFano hnot

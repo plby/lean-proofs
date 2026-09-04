@@ -236,7 +236,7 @@ theorem exists_two_vertices_outside_shortestCycle_and_reserved
       x₁ ∉ reserved ∧ x₂ ∉ reserved := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   let available : Finset V :=
     (Finset.univ : Finset V) \ (C.support.toFinset ∪ reserved)
   have havailable : 1 < available.card := by
@@ -314,7 +314,7 @@ theorem exists_two_vertices_outside_cycle_of_length_lt_minDegree
     ∃ x₁ x₂ : V, x₁ ≠ x₂ ∧ x₁ ∉ C.support ∧ x₂ ∉ C.support := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   let v : V := Classical.choice inferInstance
   have hN : C.length + 1 < Fintype.card V :=
     (hdegree v).trans_lt (G.degree_lt_card_verts v)
@@ -345,7 +345,7 @@ theorem exists_two_vertices_outside_cycle_and_singleton_of_length_lt_minDegree
       x₁ ∉ reserved ∧ x₂ ∉ reserved := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   let v : V := Classical.choice inferInstance
   have hN : C.length + 2 < Fintype.card V :=
     (hdegree v).trans_lt (G.degree_lt_card_verts v)
@@ -638,7 +638,7 @@ theorem exists_expansion_root_connector_of_LM42GrowthSchedule [Fintype V]
         P.length ≤ m₁ + 2 * (radius + 1) + m₂ := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   obtain ⟨a, ha, b, hb, p, hp, hpavoid, hplen⟩ :=
     exists_short_set_connector_ge G epsilon kappa hexp degreeScale
       hdegree W E.verts F.verts start workspace radius
@@ -716,7 +716,7 @@ theorem VertexExpansion.disjoint_ofBallAvoidingFrom [Fintype V]
     Disjoint (E.ofBallAvoidingFrom (forbidden : Set V) radius).verts forbidden := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   rw [Finset.disjoint_left]
   intro y hyBall hyForbidden
   exact ballAvoidingFrom_avoids_forbidden G (forbidden : Set V) E.verts radius
@@ -763,7 +763,7 @@ theorem Adjuster.exists_replaceEnds_of_avoidingBalls [Fintype V]
         A'.core = A.core := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   let leftFull := A.leftEnd.ofBallAvoidingFrom leftForbidden radius
   let rightFull := A.rightEnd.ofBallAvoidingFrom rightForbidden radius
   obtain ⟨left, hleft⟩ := leftFull.proposition3_10 htarget (by
@@ -800,7 +800,7 @@ theorem Adjuster.exists_shrinkEnds
         A'.rightRoot = A.rightRoot ∧ A'.verts ⊆ A.verts := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   obtain ⟨left, hleft⟩ := A.leftEnd.proposition3_10 htarget hle
   obtain ⟨right, hright⟩ := A.rightEnd.proposition3_10 htarget hle
   let A' : Adjuster G target radius k :=
@@ -847,7 +847,7 @@ theorem Adjuster.exists_replaceEnds_byStars [Fintype V]
       A'.core = A.core ∧ Disjoint U A'.verts := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   have hleftU : A.leftRoot ∉ U := by
     intro h
     exact (Finset.disjoint_left.1 hAU h A.leftRoot_mem_verts).elim
@@ -955,7 +955,7 @@ theorem VertexExpansion.exists_attach_path_star [Fintype V]
         insert t ((Finset.univ : Finset V) \ forbidden) := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   obtain ⟨star, hstarTrim⟩ :=
     exists_starExpansion_avoiding G t forbidden target htarget htDegree
   obtain ⟨q, hq, hqLength, hqSupport⟩ := E.exists_path ha
@@ -1032,7 +1032,7 @@ theorem VertexExpansion.exists_attach_path_expansion
       F.verts ⊆ E.verts ∪ p.support.toFinset ∪ Z.verts := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   obtain ⟨q, hq, hqLength, hqSupport⟩ := E.exists_path ha
   let w : G.Walk root z := q.append p
   have hwLength : w.bypass.length ≤ oldRadius + pathRadius := by
@@ -1101,7 +1101,7 @@ theorem exists_expansion_of_two_paths_star_disjoint [Fintype V]
       Disjoint E.verts forbidden := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   obtain ⟨star, hstarTrim⟩ :=
     exists_starExpansion_avoiding G t forbidden target htarget htDegree
   let w : G.Walk root t := q.append p
@@ -1147,7 +1147,7 @@ theorem exists_expansion_of_two_paths_expansion_disjoint
       Disjoint E.verts forbidden := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   let w : G.Walk root z := q.append p
   have hwLength : w.bypass.length ≤ armRadius + pathRadius := by
     calc
@@ -1208,7 +1208,7 @@ theorem Adjuster.exists_replaceEnds_byTwoPathStars [Fintype V]
       A'.core = A.core ∧ Disjoint U A'.verts := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   let rightForbidden : Finset V :=
     U ∪ A.core ∪ qLeft.support.toFinset ∪ pLeft.support.toFinset
   obtain ⟨right, hright⟩ := exists_expansion_of_two_paths_star_disjoint
@@ -1324,7 +1324,7 @@ theorem Adjuster.exists_replaceRightBall_leftPathStar [Fintype V]
         A'.core = A.core := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   obtain ⟨left, hleftForbidden⟩ :=
     A.leftEnd.exists_attach_path_star_disjoint G ha p hp hpLength
       leftForbidden hleftOld hpAvoid htarget htDegree hleftRadius
@@ -1381,7 +1381,7 @@ theorem Adjuster.exists_replaceRightBall_leftPathExpansion [Fintype V]
         A'.core = A.core := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   obtain ⟨left, hleftForbidden⟩ :=
     A.leftEnd.exists_attach_path_expansion_disjoint ha p hp hpLength Z hz
       leftForbidden hleftOld hpAvoid hZ hleftRadius
@@ -1577,7 +1577,7 @@ theorem induce_compl_degree_lower [Fintype V]
         ⟨v, by simp [hv]⟩ := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   let S : Finset V := (Finset.univ : Finset V) \ deleted
   let kept : Finset V := S.filter fun w ↦ G.Adj v w
   let removed : Finset V := deleted.filter fun w ↦ G.Adj v w
@@ -1720,7 +1720,7 @@ theorem ksInducedEdges_compl_le_compl_union_add_sum_degrees [Fintype V]
         ∑ v ∈ W \ U, G.degree v := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let S₀ : Finset V := (Finset.univ : Finset V) \ U
   let S₁ : Finset V := (Finset.univ : Finset V) \ (U ∪ W)
   let E₀ := G.edgeFinset.filter fun e ↦ e.toFinset ⊆ S₀
@@ -1892,14 +1892,14 @@ theorem exists_bipartite_lmExpander_in_induced_compl [Fintype V]
         (d : ℝ) ≤ (H.induce (↑S : Set _)).degree v := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let T : Finset V := (Finset.univ : Finset V) \ W
   have hTcard : 0 < T.card := by
     dsimp [T]
     rw [Finset.card_sdiff_of_subset (Finset.subset_univ W), Finset.card_univ]
     omega
   obtain ⟨v, hvT⟩ := Finset.card_pos.1 hTcard
-  letI : Nonempty (↑T : Set V) := ⟨⟨v, hvT⟩⟩
+  let : Nonempty (↑T : Set V) := ⟨⟨v, hvT⟩⟩
   obtain ⟨H, S, hHG, hBip, hS, hExp, hAvg, hMin⟩ :=
     exists_bipartite_liu_montgomery_expander
       (G.induce (↑T : Set V)) hd hkappa (by simpa [T] using havg)
@@ -2665,7 +2665,7 @@ theorem card_biUnion_adjuster_verts_le_maxRadius
       S.card * (2 * maxRadius ^ 2 + 10 * maxRadius) := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   calc
     (S.biUnion fun A ↦ A.adjuster.verts).card ≤
         ∑ A ∈ S, A.adjuster.verts.card := Finset.card_biUnion_le
@@ -2684,7 +2684,7 @@ theorem card_union_biUnion_adjuster_verts_le_maxRadius
       U.card + S.card * (2 * maxRadius ^ 2 + 10 * maxRadius) := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   exact (Finset.card_union_le _ _).trans
     (Nat.add_le_add_left (card_biUnion_adjuster_verts_le_maxRadius S) U.card)
 
@@ -2697,7 +2697,7 @@ theorem card_biUnion_subtype_adjuster_verts_le_maxRadius
       S.card * (2 * maxRadius ^ 2 + 10 * maxRadius) := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   calc
     (S.biUnion fun A ↦ A.1.adjuster.verts).card ≤
         ∑ A ∈ S, A.1.adjuster.verts.card := Finset.card_biUnion_le
@@ -4039,7 +4039,7 @@ theorem card_LM44_seed_le [Fintype V]
       scale.seedCap := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   have hoccupied := card_biUnion_subtype_adjuster_verts_le_maxRadius S
   have hunion :
       (protectedSet ∪ S.biUnion fun A ↦ A.1.adjuster.verts).card ≤
@@ -4074,7 +4074,7 @@ theorem card_LM44_ball_le [Fintype V]
         highDegreeVertices G Delta)) separation).card ≤ scale.ballCap := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   let seed : Finset V :=
     (protectedSet ∪ S.biUnion fun A ↦ A.1.adjuster.verts) \
       highDegreeVertices G Delta
@@ -5110,7 +5110,7 @@ theorem card_boundedSubsets_le_two_pow (U : Finset V) (C : ℕ) :
     (boundedSubsets U C).card ≤ 2 ^ U.card := by
   let originalDecEq : DecidableEq V := inferInstance
   classical
-  letI : DecidableEq V := originalDecEq
+  let : DecidableEq V := originalDecEq
   calc
     (boundedSubsets U C).card ≤ U.powerset.card :=
       Finset.card_le_card (by
@@ -5205,7 +5205,7 @@ theorem exists_large_avoiding_ball_of_LM37CorrelatedScale
       ((U : Set V) ∪ (B i : Set V) ∪ (Cset i : Set V)) (A i) radius).card := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   apply liuMontgomery_lemma3_7_correlated G epsilon kappa hexp U A B Cset
     contact radius M scale.growth scale.minSize scale.cutoff scale.D scale.T
       scale.qLarge degreeIntoU scale.qSmall scale.neighborBudget scale.blockedBudget
@@ -5323,7 +5323,7 @@ theorem exists_large_reachingCandidate_ball_of_LM37CorrelatedScale
         (reachingCandidateSeed i) ballRadius).card := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let I := {A // A ∈ reachingEligibleSubfamily S targetSet connectionRadius}
   let Aseed : I → Finset V := fun i ↦ reachingCandidateSeed i
   let Bset : I → Finset V := fun i ↦ reachingCandidateBarrier i
@@ -5652,7 +5652,7 @@ theorem liuMontgomery_lemma4_2_finite [Fintype V]
         Disjoint forbidden A.verts := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   obtain ⟨half, z, short, long, hClen, hshort, hlong,
     hshortLen, hlongLen, hshortSupport, hlongSupport⟩ :=
       B.exists_cycle_arcs_diff_two C hC.1

@@ -306,7 +306,7 @@ lemma bcount_sq_sum_le (P : Finset ℕ) (hP : ∀ q ∈ P, q.Prime) (N : ℕ) :
   have h_pair_count : ∀ q1 q2 : ℕ, q1 ∈ P → q2 ∈ P → Finset.card (Finset.filter (fun (p : ℕ × ℕ) => p.1 * p.2 = q1 * q2) (P ×ˢ P)) ≤ 2 := by
     intros q1 q2 hq1 hq2
     have h_pair_count : ∀ p : ℕ × ℕ, p ∈ Finset.filter (fun (p : ℕ × ℕ) => p.1 * p.2 = q1 * q2) (P ×ˢ P) → p = (q1, q2) ∨ p = (q2, q1) := by
-      simp +zetaDelta at *;
+      simp +zetaDelta only [mem_filter, mem_product, and_imp, Prod.forall, Prod.mk.injEq] at *;
       intro a b ha hb hab; have := prod_two_primes_eq ( hP a ha ) ( hP b hb ) ( hP q1 hq1 ) ( hP q2 hq2 ) hab; aesop;
     exact le_trans ( Finset.card_le_card ( show { p ∈ P ×ˢ P | p.1 * p.2 = q1 * q2 } ⊆ { ( q1, q2 ), ( q2, q1 ) } by intros p hp; simpa using! h_pair_count p hp ) ) ( Finset.card_insert_le _ _ );
   refine le_trans h_count ?_;
@@ -338,7 +338,7 @@ lemma fourth_moment_ls_bound :
         intro χ hχ
         have h_char_sq : (∑ q ∈ primeLayer r j, (χ q : ℂ)) ^ 2 = ∑ n ∈ Finset.Icc 1 (⌊Real.exp (uParam r j)⌋₊ ^ 2), (bcount (primeLayer r j) n : ℂ) * χ n := by
           convert! char_sq_eq_bcount_sum ( primeLayer r j ) ( ⌊Real.exp ( uParam r j ) ⌋₊ ^ 2 ) p χ _ using 1;
-          simp +zetaDelta at *;
+          simp +zetaDelta only [mem_Icc] at *;
           exact fun q1 hq1 q2 hq2 => ⟨ Nat.mul_pos ( Nat.Prime.pos ( by unfold primeLayer at hq1; aesop ) ) ( Nat.Prime.pos ( by unfold primeLayer at hq2; aesop ) ), by nlinarith [ show q1 ≤ ⌊Real.exp ( uParam r j ) ⌋₊ from by unfold primeLayer at hq1; aesop, show q2 ≤ ⌊Real.exp ( uParam r j ) ⌋₊ from by unfold primeLayer at hq2; aesop ] ⟩;
         rw [ ← h_char_sq, norm_pow ] ; ring;
       have h_char_sq : ∀ χ : DirichletCharacter ℂ p, χ ≠ 1 → χ.IsPrimitive := by
@@ -347,13 +347,13 @@ lemma fourth_moment_ls_bound :
           have h_conductor : χ.conductor ∣ p := by
             grind +suggestions;
           rw [ Nat.dvd_prime ( Finset.mem_filter.mp hp |>.2 ) ] at h_conductor;
-          haveI : NeZero p := ⟨(Finset.mem_filter.mp hp).2.ne_zero⟩
+          have : NeZero p := ⟨(Finset.mem_filter.mp hp).2.ne_zero⟩
           exact h_conductor.resolve_left (fun hc =>
             hχ_ne_one (DirichletCharacter.eq_one_iff_conductor_eq_one.mpr hc))
         exact h_conductor;
       rw [ Finset.mul_sum _ _ _ ];
       refine' Finset.sum_le_sum fun χ _ => _;
-      by_cases h : χ = 1 <;> simp_all +decide;
+      by_cases h : χ = 1 <;> simp_all +decide only [ne_eq, ite_not, mul_ite, mul_zero];
       · positivity;
       · exact le_mul_of_one_le_left ( sq_nonneg _ ) ( by rw [ le_div_iff₀ ( Nat.cast_pos.mpr <| Nat.totient_pos.mpr hp.2.pos ) ] ; norm_cast; linarith [ Nat.totient_le p ] );
     refine le_trans ( Finset.sum_le_sum h_large_sieve ) ?_;
@@ -467,7 +467,7 @@ lemma primeLayer_card_lower :
     have := h_lim.eventually ( gt_mem_nhds zero_lt_one );
     obtain ⟨ R₃, hR₃ ⟩ := Filter.eventually_atTop.mp this;
     exact ⟨ R₃ + 2, fun r hr => by have := hR₃ r ( by linarith ) ; rw [ div_lt_one ( show 0 < deltaParam r from div_pos ( mul_pos ( by norm_num ) ( Real.log_pos one_lt_two ) ) ( Real.log_pos ( by norm_cast; linarith ) ) ) ] at this; linarith ⟩;
-  refine' Filter.eventually_atTop.mpr ⟨ Max.max R₁ ( Max.max R₂ R₃ ), fun r hr j hj => _ ⟩ ; specialize hU ( uParam r j ) ( deltaParam r ) _ _ _ <;> simp_all +decide [ primeLayer ];
+  refine' Filter.eventually_atTop.mpr ⟨ Max.max R₁ ( Max.max R₂ R₃ ), fun r hr j hj => _ ⟩ ; specialize hU ( uParam r j ) ( deltaParam r ) _ _ _ <;> simp_all +decide only [inv_pow];
   · refine' le_trans ( hR₁ r hr.1 |>.1 ) _;
     unfold uParam; norm_num;
     nlinarith [ show ( j : ℝ ) ≥ 1 by norm_cast; linarith, show ( r : ℝ ) ≥ j by norm_cast; linarith, show ( deltaParam r : ℝ ) ≥ 0 by exact div_nonneg ( mul_nonneg ( by norm_num ) ( Real.log_nonneg one_le_two ) ) ( Real.log_nonneg ( Nat.one_le_cast.mpr ( by linarith ) ) ) ];
@@ -553,7 +553,7 @@ lemma fourth_moment_asymp (C : ℝ) (hC : 0 < C) (ε : ℝ) (hε : 0 < ε) :
       unfold uParam at *; nlinarith [ hr₂.1, hr₂.2, show ( j : ℝ ) ≤ r by norm_cast; linarith [ Finset.mem_Icc.mp hj ] ] ;
     have hL_lower_bound : ∀ᶠ r in atTop, ∀ j ∈ Finset.Icc 1 r, (1 - Real.exp (-deltaParam r)) ≥ deltaParam r / 2 := by
       filter_upwards [ ‹∀ᶠ r in atTop, deltaParam r ∈ Set.Ioc 0 1› ] with r hr j hj using by nlinarith [ hr.1, hr.2, Real.exp_pos ( -deltaParam r ), Real.exp_neg ( deltaParam r ), mul_inv_cancel₀ ( ne_of_gt ( Real.exp_pos ( deltaParam r ) ) ), Real.add_one_le_exp ( deltaParam r ), Real.add_one_le_exp ( -deltaParam r ) ] ;
-    simp +zetaDelta at *;
+    simp +zetaDelta only [ge_iff_le, mem_Icc, one_div, and_imp] at *;
     obtain ⟨ R1, hR1 ⟩ := ‹∃ a, ∀ b : ℕ, a ≤ b → ∀ j : ℕ, 1 ≤ j → j ≤ b → ( 1 - Real.exp ( -deltaParam b ) ) * Real.exp ( uParam b j ) / ( 2 * uParam b j ) ≤ ↑ ( # ( primeLayer b j ) ) ›; obtain ⟨ R2, hR2 ⟩ := ‹∃ a, ∀ b : ℕ, a ≤ b → 0 < deltaParam b ∧ deltaParam b ≤ 1›; obtain ⟨ R3, hR3 ⟩ := ‹∃ a, ∀ b : ℕ, a ≤ b → ∀ j : ℕ, 1 ≤ j → j ≤ b → 1 ≤ uParam b j›; obtain ⟨ R4, hR4 ⟩ := hL_lower_bound; use Max.max R1 ( Max.max R2 ( Max.max R3 R4 ) ) ; intros r hr j hj₁ hj₂; specialize hR1 r ( le_trans ( le_max_left _ _ ) hr ) j hj₁ hj₂; specialize hR2 r ( le_trans ( le_max_of_le_right ( le_max_left _ _ ) ) hr ) ; specialize hR3 r ( le_trans ( le_max_of_le_right ( le_max_of_le_right ( le_max_left _ _ ) ) ) hr ) j hj₁ hj₂; specialize hR4 r ( le_trans ( le_max_of_le_right ( le_max_of_le_right ( le_max_right _ _ ) ) ) hr ) j hj₁ hj₂;
     exact le_trans ( by rw [ div_le_div_iff_of_pos_right ( by positivity ) ] ; nlinarith [ Real.exp_pos ( uParam r j ) ] ) hR1;
   -- By primeLayer_card_lower, eventually ∀j∈[1,r], M ≥ L_j := (1-e^{-δ})e^{u}/(2u) where δ=deltaParam r. Also eventually δ∈(0,1], u ≥ 1 (since u≥u_1→∞), and using 1-e^{-δ} ≥ δ/2 we get L_j ≥ δ e^{u}/(4u) > 0.
@@ -614,7 +614,7 @@ lemma fourth_moment_asymp (C : ℝ) (hC : 0 < C) (ε : ℝ) (hε : 0 < ε) :
         intro j hj; rw [ show deltaParam r = 8 * alphaParam / Real.log r from rfl ] ; rw [ Real.log_div ( by exact ne_of_gt <| mul_pos ( by norm_num ) <| Real.log_pos one_lt_two ) ( by exact ne_of_gt <| Real.log_pos <| Nat.one_lt_cast.mpr hr₂ ) ] ; ring;
       have h_log_bound_step : ∀ᶠ r in Filter.atTop, ∀ j ∈ Finset.Icc 1 r, 2 * Real.log (uParam r j) ≤ 2 * Real.log (vParam r) := by
         have h_log_bound_step : ∀ᶠ r in Filter.atTop, ∀ j ∈ Finset.Icc 1 r, uParam r j ≤ vParam r := by
-          simp +zetaDelta at *;
+          simp +zetaDelta only [mem_Icc, and_imp, eventually_atTop] at *;
           exact ⟨ 1, fun r hr j hj₁ hj₂ => sub_le_self _ <| mul_nonneg ( sub_nonneg.mpr <| Nat.cast_le.mpr hj₂ ) <| div_nonneg ( mul_nonneg ( by norm_num ) <| Real.log_nonneg one_le_two ) <| Real.log_nonneg <| Nat.one_le_cast.mpr <| by linarith ⟩;
         filter_upwards [ h_log_bound_step, hR1_pos ] with r hr₁ hr₂ using fun j hj => mul_le_mul_of_nonneg_left ( Real.log_le_log ( hr₂ j hj |>.2 ) ( hr₁ j hj ) ) zero_le_two;
       filter_upwards [ ‹∀ᶠ r in atTop, ∀ j ∈ Icc 1 r, Real.log ( C * ( 20 * r ) ^ 4 * Real.exp ( 2 * vParam r ) / ( 1 / 2 * deltaParam r * Real.exp ( uParam r j ) / ( 2 * uParam r j ) ) ^ 2 ) ≤ Real.log C + 4 * Real.log ( 20 * r ) + 2 * vParam r - 2 * Real.log ( deltaParam r ) + 2 * Real.log ( uParam r j ) - 2 * uParam r j + Real.log 16›, ‹∀ᶠ r in atTop, ∀ j ∈ Icc 1 r, 2 * vParam r - 2 * uParam r j ≤ 16 * alphaParam * r / Real.log r›, ‹∀ᶠ r in atTop, ∀ j ∈ Icc 1 r, -2 * Real.log ( deltaParam r ) = -2 * Real.log ( 8 * alphaParam ) + 2 * Real.log ( Real.log r )›, ‹∀ᶠ r in atTop, ∀ j ∈ Icc 1 r, 2 * Real.log ( uParam r j ) ≤ 2 * Real.log ( vParam r )› ] with r hr₁ hr₂ hr₃ hr₄ using fun j hj => by linarith [ hr₁ j hj, hr₂ j hj, hr₃ j hj, hr₄ j hj ] ;

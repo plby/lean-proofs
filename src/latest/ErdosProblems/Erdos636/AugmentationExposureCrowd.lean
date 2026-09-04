@@ -733,7 +733,7 @@ theorem exists_selectedSwitchingData_of_partialGood_with_diversity
       Nonempty (AugmentationGraphFullState.GraphSelectedSwitchingData
         source rawCandidates G D1 degreeCenter degreeRadius nS gap
           badBudget) := by
-  letI : LinearOrder (Finset V) := AugmentationGraphPartial.cellLinearOrder
+  let : LinearOrder (Finset V) := AugmentationGraphPartial.cellLinearOrder
   obtain ⟨S0, X0, hS0M, hX0M, hS0card, hX0card, hdisjoint,
     hdiverse, hbadS, hbadX, hcoll⟩ := hgood
   let bad : Finset V → Prop := fun x ↦

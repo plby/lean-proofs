@@ -21,7 +21,7 @@ theorem genusLocalAF_norm_le_one {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
     ∀ n : ℕ, ‖genusLocalAF hD ψ n‖ ≤ 1 := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ n
   rw [genusLocalAF_norm]
   split_ifs <;> norm_num
@@ -31,7 +31,7 @@ theorem genusLocalAF_sum {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
     ∀ N : ℕ, (∑ n ∈ Finset.Icc 1 N, genusLocalAF hD ψ n) =
       ∑ n ∈ goodLocalValues d b hD.ne N, ψ (Additive.ofMul (genusValue hD n)) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ N
   rw [goodLocalValues, localValues, Finset.filter_filter, Finset.sum_filter]
   apply Finset.sum_congr rfl
@@ -44,7 +44,7 @@ theorem genusLocalAF_sum_norm {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
     ∀ N : ℕ, (∑ n ∈ Finset.Icc 1 N, ‖genusLocalAF hD ψ n‖) =
       ((goodLocalValues d b hD.ne N).card : ℝ) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ N
   have hcard : ((goodLocalValues d b hD.ne N).card : ℝ) =
       ∑ _n ∈ goodLocalValues d b hD.ne N, (1 : ℝ) := by simp
@@ -70,7 +70,7 @@ theorem genusLocalAF_cheby {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
       cheby (genusLocalAF hD ψ) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ
   refine ⟨1, fun N => ?_⟩
   have h := Finset.sum_le_sum (s := Finset.range N) (fun n _ => genusLocalAF_norm_le_one hD ψ n)
@@ -81,7 +81,7 @@ theorem genusLocalAF_logCountBound {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∃ C : ℝ, 0 < C ∧ ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ,
     ∀ N : ℕ, cumsum (fun n => ‖genusLocalAF hD ψ n‖) N ≤
       C * N / (1 + Real.sqrt (Real.log (N : ℝ))) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   obtain ⟨C, hC, hbound⟩ := exists_logCountBound_of_limit
     (fun N => Nat.cast_nonneg (goodLocalValues d b hD.ne N).card)
     (fun N => by exact_mod_cast goodLocalValues_card_le hD.ne N)

@@ -76,7 +76,7 @@ lemma exists_large_pairwise_subset {α : Type*} [DecidableEq α]
     ∃ t ⊆ s, (t : Set α).Pairwise (fun x y => ¬ R x y) ∧
       s.card ≤ (D + 1) * t.card := by
   classical
-  letI : Std.Symm R := hR
+  let : Std.Symm R := hR
   let good : Finset (Finset α) :=
     s.powerset.filter fun t => (t : Set α).Pairwise (fun x y => ¬ R x y)
   have hgood : good.Nonempty := by
@@ -99,7 +99,7 @@ lemma exists_large_pairwise_subset {α : Type*} [DecidableEq α]
         exact hxcover y hyt (by simp [hxs, Std.Symm.symm _ _ hxy])
       have hins_pair : ((insert x t : Finset α) : Set α).Pairwise
           (fun a b => ¬ R a b) := by
-        letI : Std.Symm (fun a b => ¬ R a b) :=
+        let : Std.Symm (fun a b => ¬ R a b) :=
           ⟨fun _ _ hab hba => hab (Std.Symm.symm _ _ hba)⟩
         rw [Finset.coe_insert, Set.pairwise_insert_of_symm]
         exact ⟨htpair, fun y hyt _ => hxR y hyt⟩
@@ -927,9 +927,9 @@ degree in `H` and `disj H` at most `n`. -/
 lemma exists_degree_add_disjoint_degree_le_card (H : SimpleGraph V) [DecidableRel H.Adj]
     (hH : H ≠ ⊥) :
     ∃ y, H.degree y + (disjointNeighborhoodGraph H).degree y ≤ Fintype.card V := by
-  haveI : Nonempty V := by
+  have : Nonempty V := by
     by_contra h
-    haveI : IsEmpty V := not_nonempty_iff.mp h
+    have : IsEmpty V := not_nonempty_iff.mp h
     exact hH (Subsingleton.elim _ _)
   obtain ⟨x, hx⟩ := H.exists_maximal_degree_vertex
   have hxpos : 0 < H.degree x := by
@@ -1220,8 +1220,8 @@ lemma exists_locallyLinear_lightTriples [LinearOrder V] (M : ℕ) :
       exact ⟨hab, hbc.symm⟩
     have hbb' : b = b' := by simpa [hbII.2.2] using hbmem
     exact hnone.2.1 hbb'
-  letI := hExplicit
-  letI := hNoAccidental
+  let := hExplicit
+  let := hNoAccidental
   exact ⟨t, hts, hcard, SimpleGraph.TripartiteFromTriangles.locallyLinear t⟩
 
 lemma card_le_tripartite_cliqueFinset (t : Finset (V × V × V)) :
@@ -1649,7 +1649,7 @@ lemma sum_degreeInto_self (H : SimpleGraph V) [DecidableRel H.Adj]
     ∑ v ∈ S, degreeInto H v S = 2 * (edgesInside H S).card := by
   classical
   let K : SimpleGraph V := (H.induce (↑S : Set V)).spanningCoe
-  letI : DecidableRel K.Adj := Classical.decRel _
+  let : DecidableRel K.Adj := Classical.decRel _
   have hneighbor (v : V) : K.neighborFinset v =
       if v ∈ S then H.neighborFinset v ∩ S else ∅ := by
     ext w
@@ -1939,7 +1939,7 @@ lemma exists_initialCore
   let Cg := criticalGraph G
   let X := Dg \ Cg
   have hnpos : 0 < n := lt_of_lt_of_le (by positivity : 0 < 1000 * q) hscale_lo
-  letI : Nonempty V := Fintype.card_pos_iff.mp hnpos
+  let : Nonempty V := Fintype.card_pos_iff.mp hnpos
   obtain ⟨u, hu⟩ := H.exists_maximal_degree_vertex
   let D := H.neighborFinset u
   let C := Finset.univ \ D
@@ -4228,7 +4228,7 @@ theorem erdos_742 : ∃ n₀ : ℕ, ∀ (V : Type*) [Fintype V] [DecidableEq V]
   refine ⟨max 1000000 nLight, ?_⟩
   intro W _ _ G _ hn hG
   classical
-  letI : LinearOrder W := LinearOrder.lift' (Fintype.equivFin W)
+  let : LinearOrder W := LinearOrder.lift' (Fintype.equivFin W)
     (Fintype.equivFin W).injective
   let n := Fintype.card W
   let q := n / 1000

@@ -131,7 +131,7 @@ theorem exists_level_above (Y : Set (Vtx (rhoC μ))) (hY : #Y ≤ rhoC μ)
         exact ⟨ Ordinal.enum ( · < · ) ⟨ α, h_enum ⟩, by simp +decide [ lrank ] ⟩;
       exact h_enum α hα;
     exact h_enum α hα.2.1;
-  refine' ⟨ lv, _, _ ⟩ <;> simp_all +decide [ lrank ];
+  refine' ⟨ lv, _, _ ⟩ <;> simp_all +decide only [Prod.forall];
   intro a b hab;
   exact Ordinal.typein_lt_typein ( · < · ) |>.1 ( hlv.symm ▸ lt_of_le_of_lt ( Ordinal.le_iSup ( fun v : Y => lrank v.val.1 ) ⟨ ( a, b ), hab ⟩ ) hα.1 )
 
@@ -143,7 +143,7 @@ theorem exists_disjoint_copy (Bad : Set (Vtx (rhoC μ))) (hBad : #Bad < rhoC μ)
     (lv : Lev (rhoC μ))
     (X : {X : D.Ilab → Set (Vtx (rhoC μ)) // IsReservoir D.q lv X}) :
     ∃ η : Fib (rhoC μ), ∀ s : D.S, D.copy lv X η s ∉ Bad := by
-  contrapose! hBad; have := D.copy_inj lv; simp_all +decide [ Function.Injective ] ;
+  contrapose! hBad; have := D.copy_inj lv; simp_all +decide only [ge_iff_le] ;
   choose f hf using hBad;
   refine' le_trans _ ( Cardinal.mk_le_mk_of_subset <| show Set.range ( fun η : Fib ( rhoC μ ) => D.copy lv X η ( f η ) ) ⊆ Bad from Set.range_subset_iff.mpr hf );
   rw [ Cardinal.mk_range_eq ];

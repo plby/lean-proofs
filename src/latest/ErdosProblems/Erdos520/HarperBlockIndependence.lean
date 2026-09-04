@@ -49,7 +49,7 @@ theorem iIndepFun_piCurry_of_iIndepFun
   have hmarginal : ∀ p, IsProbabilityMeasure (marginal p) := by
     intro p
     exact Measure.isProbabilityMeasure_map (hZmeas p).aemeasurable
-  letI (p : (i : ι) × κ i) : IsProbabilityMeasure (marginal p) :=
+  let (p : (i : ι) × κ i) : IsProbabilityMeasure (marginal p) :=
     hmarginal p
   have hjointLaw : P.map jointZ = infinitePi marginal := by
     exact (iIndepFun_iff_map_fun_eq_infinitePi_map hZmeas).mp hZ

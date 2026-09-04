@@ -183,7 +183,7 @@ theorem zhaoExtremalCaseTwo_of_padded_cleanedDegreeForm
   let P : ClusterAssignment (Fin (2 * n - 2))
       {Q // Q ∈ W.partition.parts} :=
     partitionAssignment W.exceptional W.partition
-  letI : DecidableRel W.graph.Adj := W.graph_decidable
+  let : DecidableRel W.graph.Adj := W.graph_decidable
   have hrespect0 :
       EdgesRespectReducedGraph P W.graph (cleanedReducedGraph W δ) := by
     simpa [P] using cleanedGraph_respects_cleanedReducedGraph W hδd

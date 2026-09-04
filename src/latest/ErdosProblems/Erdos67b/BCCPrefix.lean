@@ -59,11 +59,11 @@ theorem coeff_scaledCharacterPrefix_family_energy
   intro i hi j hj hij
   apply sum_coeff_mul_star_eq_zero
   apply sum_mul_star_eq_zero_of_supportedOn_disjoint (hsep i hi j hj hij)
-  · letI : NeZero (d i) := hd i hi
-    letI : NeZero (t i) := ht i hi
+  · let : NeZero (d i) := hd i hi
+    let : NeZero (t i) := ht i hi
     exact scaledCharacterPrefix_fourierSupportedOn_of_eq hχ (hN i hi)
-  · letI : NeZero (d j) := hd j hj
-    letI : NeZero (t j) := ht j hj
+  · let : NeZero (d j) := hd j hj
+    let : NeZero (t j) := ht j hj
     exact scaledCharacterPrefix_fourierSupportedOn_of_eq hχ (hN j hj)
 
 /-- Unit-modulus coefficients disappear from the diagonal terms in the
@@ -225,8 +225,8 @@ theorem coeff_block_energy_le_medium_prefix_energy
           (d i : ℝ) * ((t i : ℝ) * (q.totient : ℝ)) := by
     apply Finset.sum_congr rfl
     intro i hi
-    letI : NeZero (d i) := hd i hi
-    letI : NeZero (t i) := ht i hi
+    let : NeZero (d i) := hd i hi
+    let : NeZero (t i) := ht i hi
     exact scaledCharacterBlock_energy_of_eq χ (hN i hi)
   rw [henergy] at hcombined
   exact hcombined
@@ -381,7 +381,7 @@ theorem bcc_full_family_normalized_diagonal_le
         (B +
           (((2 * H * q.primeFactors.card : ℕ) : ℝ) /
               ((2 ^ k : ℕ) : ℝ)) * R) := by
-  letI : NeZero (q ^ k) := ⟨pow_ne_zero k (NeZero.ne q)⟩
+  let : NeZero (q ^ k) := ⟨pow_ne_zero k (NeZero.ne q)⟩
   let D : ℝ :=
     ∑ i ∈ selected,
       (d i : ℝ) * ((t i : ℝ) * (q.totient : ℝ))
@@ -537,8 +537,8 @@ theorem bcc_smooth_full_family_normalized_diagonal_le
   apply bcc_full_family_normalized_diagonal_le hH selected full hsub χ hχ
     coeff d t hc hd ht hdH hN
   · intro i hi j hj hij
-    letI : NeZero (t i) := ht i hi
-    letI : NeZero (t j) := ht j hj
+    let : NeZero (t i) := ht i hi
+    let : NeZero (t j) := ht j hj
     exact smoothFrequencyLayer_disjoint_of_smooth_complements
       (hN i hi) (hN j hj) (hsmooth i hi) (hsmooth j hj)
         (fun hdij ↦ hij (hinj hi hj hdij))
@@ -650,7 +650,7 @@ theorem bcc_qpower_normalized_diagonal_le
         (B +
           (((2 * H * q.primeFactors.card : ℕ) : ℝ) /
               ((2 ^ k : ℕ) : ℝ)) * R) := by
-  letI : NeZero (q ^ k) := ⟨pow_ne_zero k (NeZero.ne q)⟩
+  let : NeZero (q ^ k) := ⟨pow_ne_zero k (NeZero.ne q)⟩
   have hqkR : (0 : ℝ) < ((q ^ k : ℕ) : ℝ) := by positivity
   have hHR : (0 : ℝ) < (H : ℝ) := by exact_mod_cast hH
   have hden : (0 : ℝ) < ((q ^ k : ℕ) : ℝ) * H := mul_pos hqkR hHR
@@ -757,7 +757,7 @@ theorem bcc_qpower_card_le_uniform
         (B +
           (((2 * H * q.primeFactors.card : ℕ) : ℝ) /
               ((2 ^ k : ℕ) : ℝ)) * R) := by
-  letI : NeZero (q ^ k) := ⟨pow_ne_zero k (NeZero.ne q)⟩
+  let : NeZero (q ^ k) := ⟨pow_ne_zero k (NeZero.ne q)⟩
   let X : ℝ :=
     B + (((2 * H * q.primeFactors.card : ℕ) : ℝ) /
       ((2 ^ k : ℕ) : ℝ)) * R
@@ -891,7 +891,7 @@ theorem modifiedCharacter_selected_card_le_uniform
         (B +
           (((2 * H * q.primeFactors.card : ℕ) : ℝ) /
               ((2 ^ k : ℕ) : ℝ)) * (((2 * H : ℕ) : ℝ) ^ 2)) := by
-  letI : NeZero (q ^ k) := ⟨pow_ne_zero k (NeZero.ne q)⟩
+  let : NeZero (q ^ k) := ⟨pow_ne_zero k (NeZero.ne q)⟩
   let all : Finset ℕ := (q ^ (k - 1)).divisors
   let coeff : ℕ → ℂ := fun d ↦ (primeExtension z d : ℂ)
   let scale : ℕ → ℕ := fun d ↦ d
@@ -907,7 +907,7 @@ theorem modifiedCharacter_selected_card_le_uniform
     exact ⟨(Nat.pos_of_dvd_of_pos hddiv (pow_pos (NeZero.pos q) _)).ne'⟩
   have htall : ∀ d ∈ all, NeZero (complement d) := by
     intro d hd
-    letI : NeZero d := hdall d hd
+    let : NeZero d := hdall d hd
     exact neZero_pow_div_q_mul hk (Nat.dvd_of_mem_divisors hd)
   have hNall : ∀ d ∈ all,
       q ^ k = complement d * (q * scale d) := by
@@ -920,8 +920,8 @@ theorem modifiedCharacter_selected_card_le_uniform
       Disjoint (SmoothFrequencyLayer q (complement i) (q ^ k))
         (SmoothFrequencyLayer q (complement j) (q ^ k)) := by
     intro i hi j hj hij
-    letI : NeZero (complement i) := htall i hi
-    letI : NeZero (complement j) := htall j hj
+    let : NeZero (complement i) := htall i hi
+    let : NeZero (complement j) := htall j hj
     exact smoothFrequencyLayer_disjoint_of_smooth_complements
       (hNall i hi) (hNall j hj)
       (Nat.dvd_of_mem_divisors hi) (Nat.dvd_of_mem_divisors hj) hij

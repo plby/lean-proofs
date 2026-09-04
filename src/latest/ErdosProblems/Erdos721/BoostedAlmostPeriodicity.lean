@@ -429,7 +429,7 @@ theorem exists_large_set_and_bohr_smoothing
         2 * epsilon +
           ((CyclicChang.changRankBound T eta : ℝ) * rho +
             2 * eta ^ k) * L := by
-  letI : MeasurableSpace (ZMod N) := ⊤
+  let : MeasurableSpace (ZMod N) := ⊤
   let F : ZMod N → ℂ := μ_[ℂ] A ∗ᵈ 𝟭_[P] ∗ᵈ μ_[ℂ] Q
   obtain ⟨T, hTcard, hTapprox⟩ :=
     AlmostPeriodicity.linfty_almost_periodicity_boosted
@@ -512,7 +512,7 @@ theorem exists_large_set_and_refined_bohr_smoothing
         2 * epsilon +
           ((CyclicChang.changRankBound T eta : ℝ) * rho +
             2 * eta ^ k) * L := by
-  letI : MeasurableSpace (ZMod N) := ⊤
+  let : MeasurableSpace (ZMod N) := ⊤
   let F : ZMod N → ℂ := μ_[ℂ] A ∗ᵈ 𝟭_[P] ∗ᵈ μ_[ℂ] Q
   obtain ⟨T, hTcard, hTapprox⟩ :=
     AlmostPeriodicity.linfty_almost_periodicity_boosted
@@ -600,7 +600,7 @@ theorem exists_large_set_and_refined_bohr_smoothing_explicit_adaptive
             2 * eta ^ k) *
               (Real.sqrt ((N : ℝ) / A.card) *
                 Real.sqrt ((P.card : ℝ) / N)) := by
-  letI : MeasurableSpace (ZMod N) := ⊤
+  let : MeasurableSpace (ZMod N) := ⊤
   let F : ZMod N → ℂ := μ_[ℂ] A ∗ᵈ 𝟭_[P] ∗ᵈ μ_[ℂ] Q
   obtain ⟨T, hTcard, hTapprox⟩ :=
     AlmostPeriodicity.linfty_almost_periodicity_boosted
@@ -666,7 +666,7 @@ theorem exists_large_set_and_regular_refined_bohr_smoothing_explicit_adaptive
               2 * eta ^ k) *
                 (Real.sqrt ((N : ℝ) / A.card) *
                   Real.sqrt ((P.card : ℝ) / N)) := by
-  letI : MeasurableSpace (ZMod N) := ⊤
+  let : MeasurableSpace (ZMod N) := ⊤
   let F : ZMod N → ℂ := μ_[ℂ] A ∗ᵈ 𝟭_[P] ∗ᵈ μ_[ℂ] Q
   obtain ⟨T, hTcard, hTapprox⟩ :=
     AlmostPeriodicity.linfty_almost_periodicity_boosted

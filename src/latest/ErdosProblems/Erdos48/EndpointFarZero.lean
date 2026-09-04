@@ -200,7 +200,7 @@ theorem exists_nat_primitiveFarZeroKernelMass_le :
         ‖primitiveFarZeroKernelSumAt q psi x eta J T‖ ≤ C := by
     intro q hqMem psi
     have hq : 1 < q := (Finset.mem_Ioc.mp hqMem).1
-    letI : NeZero q := ⟨by omega⟩
+    let : NeZero q := ⟨by omega⟩
     have hkernel :=
       norm_primitiveFarZeroKernelSumAt_le_reciprocalMultiplicity
         (T := T) hq psi hx halpha

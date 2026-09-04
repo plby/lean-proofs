@@ -40,7 +40,7 @@ theorem exists_nonprimitive_quadratic_residue :
   obtain ⟨Q, hQ⟩ := exists_quadraticRootAllUniformThreshold
   refine ⟨16 + 8 * Q, by positivity, ?_⟩
   intro g u v t J hu hvu hJ
-  letI : NeZero u := ⟨hu.ne'⟩
+  let : NeZero u := ⟨hu.ne'⟩
   let e : (ZMod u)ˣ := ZMod.unitOfCoprime v hvu
   let A : ℕ := (((e⁻¹ : (ZMod u)ˣ) : ZMod u) * (g : ZMod u)).val
   let C : ℕ := (((e⁻¹ : (ZMod u)ˣ) : ZMod u) * (-(t : ZMod u))).val

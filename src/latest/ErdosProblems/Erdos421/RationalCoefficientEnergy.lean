@@ -44,7 +44,7 @@ theorem rational_reciprocal_square_sum_le (S : Finset ℚ) {M : ℕ}
     _ = _ := by
       simp only [harmonic_eq_sum_Icc, Rat.cast_sum, Rat.cast_inv, Rat.cast_natCast]
       simp_rw [div_mul_eq_div_mul_one_div, ← Finset.mul_sum]
-      ring
+      ring_nf
 
 theorem rational_coefficient_square_energy (S : Finset ℚ) (c : ℚ → ℂ) {M : ℕ}
     (hden : ∀ q ∈ S, q.den ≤ M) (hzero : ∀ q ∈ S, q ≠ 0)

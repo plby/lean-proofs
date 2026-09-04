@@ -79,7 +79,7 @@ theorem sourceGainForwardClass_good_weight_le
       ((source_weight_power_ratio_le (W.terminalSize : ℝ≥0) C _ f (a - 1) hn hexp).trans
         (mul_le_mul_of_nonneg_right (source_two_family_coefficient_le ell q r s Q'.card f
           hr hs hQ' hf w z z' hw) zero_le))
-  · haveI : IsEmpty (sourceGainForwardClass W F G T a H Q Q' b k) := ⟨fun u ↦ hne ⟨u.1, u.2⟩⟩
+  · have : IsEmpty (sourceGainForwardClass W F G T a H Q Q' b k) := ⟨fun u ↦ hne ⟨u.1, u.2⟩⟩
     simp only [Fintype.sum_empty, zero_le]
 
 end

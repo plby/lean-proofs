@@ -70,13 +70,13 @@ theorem volume_unitBall_coordinateSeminorm
       volume {x : L | subspaceSeminorm L p x ≤ 1} /
         ENNReal.ofReal (ZLattice.covolume (integralPoints L)) := by
   classical
-  letI : DiscreteTopology (integralPoints L) := by
+  let : DiscreteTopology (integralPoints L) := by
     obtain ⟨s, P, hSat⟩ := exists_saturatedPresentation L hproper hspan
-    letI hdiscRow : DiscreteTopology P.rowLattice := by
+    let hdiscRow : DiscreteTopology P.rowLattice := by
       change DiscreteTopology (Submodule.span ℤ (Set.range P.rowBasis))
       infer_instance
     exact hSat ▸ hdiscRow
-  letI : IsZLattice ℝ (integralPoints L) := ⟨hspan⟩
+  let : IsZLattice ℝ (integralPoints L) := ⟨hspan⟩
   have hpcont : Continuous p := by
     let q : Seminorm ℝ (Fin n → ℝ) :=
       p.comp (EuclideanSpace.equiv (Fin n) ℝ).symm.toLinearMap

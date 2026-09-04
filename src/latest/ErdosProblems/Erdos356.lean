@@ -956,7 +956,7 @@ lemma parameterSum_cast_le {N b : ℕ} (hb : 0 < b)
           2 * N * (∑ p ∈ divisorPairs N, (p.2 : ℝ)⁻¹) := by
             simp only [Finset.sum_add_distrib, div_eq_mul_inv, Finset.mul_sum,
               Finset.sum_const, nsmul_eq_mul]
-            ring
+            ring_nf
     _ ≤ (4 : ℝ) * N * (2 * N) + (2 * N / (b : ℝ)) * (N * harmonicReal N) +
           4 * N * b * (harmonicReal N) ^ 2 + 2 * N * (2 * N) := by
             gcongr

@@ -665,7 +665,7 @@ lemma section62_integral_gap
         fun t : ℝ => Real.log (R 1) * (1 / t) by funext t; ring,
       intervalIntegral.integral_const_mul,
       integral_one_div_of_pos zero_lt_one heyPos]
-    ring
+    ring_nf
   rw [hConstEval, hGapEq] at hIntegralLower
   dsimp only [R, A, B] at hIntegralLower
   simpa only [one_div] using hIntegralLower
@@ -823,7 +823,7 @@ lemma log_one_add_quadratic_upper
       all_goals try rfl
       · ext w
         dsimp
-        ring
+        ring_nf
       · simp only [Function.id_def]
         ring
     rw [hf.deriv]

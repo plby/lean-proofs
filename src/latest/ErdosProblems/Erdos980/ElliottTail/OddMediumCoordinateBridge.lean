@@ -54,7 +54,7 @@ theorem exists_integralCoordinates
   rw [← idealLatticeChart_image J] at hx
   obtain ⟨x, hxint, hxeq⟩ := hx
   have hxcoords : ∀ i, ∃ z : ℤ, (z : ℝ) = x i := by
-    letI := Fintype.ofFinite (mixedEmbedding.index K)
+    let := Fintype.ofFinite (mixedEmbedding.index K)
     change x ∈ Submodule.span ℤ
       (Set.range (Pi.basisFun ℝ (mixedEmbedding.index K))) at hxint
     simpa only [
@@ -179,7 +179,7 @@ theorem integralCoordinates_surjective :
       (Submodule.span ℤ
         (Set.range (Pi.basisFun ℝ (mixedEmbedding.index K))) :
           Set (mixedEmbedding.index K → ℝ)) := by
-    letI := Fintype.ofFinite (mixedEmbedding.index K)
+    let := Fintype.ofFinite (mixedEmbedding.index K)
     change zr ∈ Submodule.span ℤ
       (Set.range (Pi.basisFun ℝ (mixedEmbedding.index K)))
     simp only [

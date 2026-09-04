@@ -244,7 +244,7 @@ theorem prop4_weighted_scale_sum_le_linear
       C * (∑ k ∈ Finset.Icc 1 M,
         (k : ℝ) ^ a * L k ^ (-(1 : ℝ) / 2)) by
           simp_rw [Finset.sum_add_distrib, Finset.mul_sum]
-          ring]
+          ring_nf]
     calc
       _ ≤ T + 2 * δ ^ b * T +
           C * (2 * δ ^ (-(1 : ℝ) / 2) * U) := by
@@ -422,6 +422,6 @@ theorem et_half_one_fifth_exponent_conditions :
     rw [show (1 / 2 : ℝ) = (2 : ℝ)⁻¹ by norm_num, Real.log_inv]
   dsimp only at h ⊢
   rw [hloghalf] at h
-  convert h using 1 <;> ring
+  convert h using 1 <;> ring_nf
 
 end Erdos448

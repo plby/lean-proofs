@@ -198,7 +198,7 @@ theorem squareNormRigid_two : SquareNormRigid 2 := by
 
 theorem squareNormRigid_prime_mod_four_eq_three (q : ℕ) (hq : q.Prime)
     (hq3 : q % 4 = 3) : SquareNormRigid q := by
-  letI : Fact q.Prime := ⟨hq⟩
+  let : Fact q.Prime := ⟨hq⟩
   intro A B hnorm
   have hqSq : (q : ℤ) ∣ (q : ℤ) ^ 2 := dvd_pow_self (q : ℤ) (by omega)
   have hqnorm : (q : ℤ) ∣ A ^ 2 + B ^ 2 := hqSq.trans hnorm

@@ -761,10 +761,10 @@ lemma gridIndex_torusEmbed_four_mul (n : ℕ) (x : Plane) :
   apply Prod.ext
   · change ⌊((4 * n : ℕ) : ℝ) * (1 / 2 + (1 / 4 : ℝ) * x 0)⌋ =
       ((2 * n : ℕ) : ℤ) + ⌊(n : ℝ) * x 0⌋
-    convert Int.floor_natCast_add (2 * n) ((n : ℝ) * x 0) using 1 <;> push_cast <;> ring
+    convert Int.floor_natCast_add (2 * n) ((n : ℝ) * x 0) using 1 <;> push_cast <;> ring_nf
   · change ⌊((4 * n : ℕ) : ℝ) * (1 / 2 + (1 / 4 : ℝ) * x 1)⌋ =
       ((2 * n : ℕ) : ℤ) + ⌊(n : ℝ) * x 1⌋
-    convert Int.floor_natCast_add (2 * n) ((n : ℝ) * x 1) using 1 <;> push_cast <;> ring
+    convert Int.floor_natCast_add (2 * n) ((n : ℝ) * x 1) using 1 <;> push_cast <;> ring_nf
 
 def unshiftEmbeddedIndex (n : ℕ) (z : GridIndex) : GridIndex :=
   (z.1 - ((2 * n : ℕ) : ℤ), z.2 - ((2 * n : ℕ) : ℤ))

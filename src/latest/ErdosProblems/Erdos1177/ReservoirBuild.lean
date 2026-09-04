@@ -34,7 +34,7 @@ theorem mk_Vtx (ρ : Cardinal.{u}) (hρ : ℵ₀ ≤ ρ) : #(Vtx ρ) = (2 : Card
     convert! Cardinal.mk_toType ( Order.succ ρ |> Cardinal.ord ) using 1;
   convert! congr_arg₂ ( · * · ) h_lev ( Cardinal.mk_out _ ) using 1;
   rw [ Cardinal.mul_eq_max ];
-  · simp +zetaDelta at *;
+  · simp +zetaDelta only [card_ord, right_eq_sup, Order.succ_le_iff] at *;
     exact Cardinal.cantor _;
   · exact le_trans hρ ( le_trans ( le_of_lt ( Order.lt_succ ρ ) ) ( by simp +decide [ Cardinal.card_ord ] ) );
   · exact le_trans hρ ( Cardinal.cantor ρ |> le_of_lt )
@@ -92,7 +92,7 @@ theorem exists_copy {ρ : Cardinal.{u}} (hρ : ℵ₀ ≤ ρ) {Ilab : Type u} (h
   obtain ⟨e, he⟩ : ∃ e : ({X : Ilab → Set (Vtx ρ) // IsReservoir q a X} × Fib ρ × S) ↪ Fib ρ, True := by
     refine' ⟨ _, trivial ⟩;
     refine' ( Cardinal.lift_mk_le'.mp _ ) |> Classical.choice;
-    simp +zetaDelta at *;
+    simp +zetaDelta only [mk_prod, Cardinal.lift_id, mk_out] at *;
     refine' le_trans ( mul_le_mul' ( stage_capacity hρ hI q a ) ( mul_le_mul' le_rfl hS ) ) _;
     rw [ ← mul_assoc, Cardinal.mul_eq_self ];
     · rw [ Cardinal.mul_eq_left ];

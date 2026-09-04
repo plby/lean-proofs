@@ -65,7 +65,7 @@ theorem integrable_harperEulerDensity_prod_restrict
     Integrable
       (fun w : Real × Omega => harperEulerDensity y w.2 w.1)
       ((volume.restrict I).prod μ) := by
-  letI : IsFiniteMeasure (volume.restrict I) :=
+  let : IsFiniteMeasure (volume.restrict I) :=
     isFiniteMeasure_restrict.2 hIfinite
   apply Integrable.of_bound
     (measurable_harperEulerDensity_joint y).aestronglyMeasurable

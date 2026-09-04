@@ -193,7 +193,7 @@ def oldShiftGuide (p u : ℕ) {N : ℕ} (i : Fin N) : ℕ :=
 lemma oldShiftGuide_zero {p u N : ℕ} (hp : 0 < p)
     (i : Fin N) (hi : i.1 % p = 0) :
     oldShiftGuide p u i = 0 := by
-  letI : NeZero p := ⟨Nat.ne_of_gt hp⟩
+  let : NeZero p := ⟨Nat.ne_of_gt hp⟩
   have hz : (((⟨0, hp⟩ : Fin p) : ℕ) : ZMod p) = 0 := by
     change ((0 : ℕ) : ZMod p) = 0
     simp
@@ -270,7 +270,7 @@ lemma distinguishedClass_eq_zero_of_oldLabel
     (lam : Root (newDenom p u a)) (jtilde : Fin (newDenom p u a))
     (hj : jtilde.1 % p = 0) :
     distinguishedClass p u a hp lam jtilde = ⟨0, hp.pos⟩ := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   apply Fin.ext
   have hlabel : primeLabel p jtilde = 0 := by
     change ((jtilde.1 : ℕ) : ZMod p) = 0
@@ -291,7 +291,7 @@ lemma lineShiftGuide_eq_old_of_oldLabel
     (lam : Root (newDenom p u a)) (jtilde : Fin (newDenom p u a))
     (hj : jtilde.1 % p = 0) :
     lineShiftGuide p u a hp lam jtilde = oldShiftGuide p u := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   funext i
   simp [lineShiftGuide, oldShiftGuide,
     distinguishedClass_eq_zero_of_oldLabel hp lam jtilde hj]

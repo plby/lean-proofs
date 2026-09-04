@@ -53,8 +53,8 @@ theorem connected_of_isPreconnected_pointSet [G.Finite]
   let B : Graph Plane β := G.induce (V(G) \ G.component x)
   have hAle : A ≤ G := G.induce_le component_subset_vertexSet
   have hBle : B ≤ G := G.induce_le Set.sdiff_subset
-  letI : A.Finite := Graph.Finite.of_le hAle
-  letI : B.Finite := Graph.Finite.of_le hBle
+  let : A.Finite := Graph.Finite.of_le hAle
+  let : B.Finite := Graph.Finite.of_le hBle
   have hAclosed : IsClosed (pointSet A drawing) := (hdraw.mono hAle).isClosed_pointSet
   have hBclosed : IsClosed (pointSet B drawing) := (hdraw.mono hBle).isClosed_pointSet
   have hcover : pointSet G drawing ⊆ pointSet A drawing ∪ pointSet B drawing := by
@@ -307,8 +307,8 @@ theorem exists_edge_trace (hH : IsSourceExtension R outer dom H Hdraw)
       Graph.edgesCover Hdraw D = edgeArc R.drawing e := by
   let K := Graph.traceGraph H Hdraw (edgeArc R.drawing e)
   have hKle : K ≤ H := Graph.traceGraph_le _
-  letI : H.Finite := hH.finite
-  letI : K.Finite := Graph.Finite.of_le hKle
+  let : H.Finite := hH.finite
+  let : K.Finite := Graph.Finite.of_le hKle
   have hpoint : pointSet K Hdraw = edgeArc R.drawing e :=
     edge_trace_pointSet hH hab.edge_mem
   have haH : R.pos a ∈ V(H) := hH.vertexSet_subset (by
@@ -688,8 +688,8 @@ theorem exists_edge_trace (h : IsPlaneSubdivisionExtension G Gdraw K Kdraw)
     ∃ D : List δ, K.IsPath a D b ∧ edgesCover Kdraw D = edgeArc Gdraw e := by
   let T := Graph.traceGraph K Kdraw (edgeArc Gdraw e)
   have hTK : T ≤ K := Graph.traceGraph_le _
-  letI : K.Finite := h.finite
-  letI : T.Finite := Graph.Finite.of_le hTK
+  let : K.Finite := h.finite
+  let : T.Finite := Graph.Finite.of_le hTK
   have hpoint : pointSet T Kdraw = edgeArc Gdraw e := h.edge_trace_pointSet hab.edge_mem
   have haK : a ∈ V(K) := h.vertexSet_subset hab.left_mem
   have hbK : b ∈ V(K) := h.vertexSet_subset hab.right_mem
@@ -1331,7 +1331,7 @@ theorem exists_subdivideAtData [Infinite γ]
         exact (P.src.isDrawing.edge_param heR).2.2.right_mem
       have htIoo : t ∈ Set.Ioo (0 : ℝ) 1 :=
         ⟨lt_of_le_of_ne ht.1 (Ne.symm ht0), lt_of_le_of_ne ht.2 ht1⟩
-      letI : Finite (Fin 3) := inferInstance
+      let : Finite (Fin 3) := inferInstance
       obtain ⟨fresh, hfresh, havoid⟩ :=
         exists_injective_avoiding P.str.cells P.str.finite_cells (Fin 3)
       have h01 : fresh 0 ≠ fresh 1 := fun h => by

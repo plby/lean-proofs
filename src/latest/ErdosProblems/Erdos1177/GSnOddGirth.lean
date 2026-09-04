@@ -41,7 +41,7 @@ variable {κ : Cardinal.{u}} {n : ℕ}
 /-- A strictly increasing function around a finite cycle `ℤ/m` cannot exist. -/
 theorem no_cyclic_strictMono {α : Type*} [Preorder α] (m : ℕ) (hm : 0 < m)
     (f : ZMod m → α) (h : ∀ j : ZMod m, f j < f (j + 1)) : False := by
-  haveI : NeZero m := ⟨hm.ne'⟩
+  have : NeZero m := ⟨hm.ne'⟩
   have hg : StrictMono (fun k : ℕ => f (k : ZMod m)) := by
     apply strictMono_nat_of_lt_succ
     intro k; have := h (k : ZMod m); simpa [Nat.cast_succ] using! this
@@ -111,7 +111,7 @@ Total increment in terms of the descent count: `∑ incr = -n·m + (2n+1)·D`.
 theorem sum_incr_eq [NeZero m] :
     ∑ e : ZMod m, incr A e = -(n : ℤ) * m + (2 * n + 1) * descCount A := by
   unfold incr;
-  simp +decide [ Finset.sum_ite, Finset.filter_not, Finset.card_sdiff, Finset.card_univ, ZMod.card, descCount ];
+  simp +decide only [neg_mul];
   rw [ Nat.cast_sub ( show _ ≤ _ from le_trans ( Finset.card_le_univ _ ) ( by norm_num ) ) ] ; ring
 
 /-
@@ -170,7 +170,8 @@ theorem descCount_reverse [NeZero m]
     ext j
     simp only [Finset.mem_filter, Finset.mem_univ, true_and]
     rw [hneg j]
-  · refine' Finset.card_bij ( fun j _ => -j - 1 ) _ _ _ <;> simp +decide [ Finset.mem_filter, Finset.mem_univ ];
+  · refine' Finset.card_bij ( fun j _ => -j - 1 ) _ _ _ <;> simp +decide only [mem_compl, mem_filter, mem_univ, true_and, not_not, exists_prop, neg_sub,
+    sub_neg_eq_add, add_sub_cancel_left];
     · intro a ha; specialize hAadj a; simp_all +decide [ add_comm, graph ] ;
       exact hAadj.resolve_left ha;
     · intro b hb;
@@ -190,7 +191,7 @@ theorem arith_minority (n D m : ℕ) (h1 : 2 * D + 1 ≤ m) (h2 : m ≤ 2 * n + 
 theorem noShortOddCycle_n : NoShortOddCycle (graph n κ) n := by
   intro m hodd hm3 hmle ⟨A, hAinj, hAadj⟩
   classical
-  haveI : NeZero m := ⟨by omega⟩
+  have : NeZero m := ⟨by omega⟩
   have hm0 : 0 < m := by omega
   -- descent count D of A; either A or its reversal has the minority condition
   set D := descCount A with hD_def

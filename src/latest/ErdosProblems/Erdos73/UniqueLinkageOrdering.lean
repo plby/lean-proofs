@@ -1865,7 +1865,7 @@ theorem linkageDependency_acyclic_of_unique
   have hnotype1 :=
     closed_dependency_series_no_type1_edge_of_minimal
       (R := R) p hpclosed hmin
-  haveI : NeZero p.length := ⟨Nat.pos_iff_ne_zero.mp hpclosed.2⟩
+  have : NeZero p.length := ⟨Nat.pos_iff_ne_zero.mp hpclosed.2⟩
   let next : Equiv.Perm (Fin p.length) :=
     Equiv.addRight (1 : Fin p.length)
   let vertex : Fin p.length → V := fun i => p i.castSucc

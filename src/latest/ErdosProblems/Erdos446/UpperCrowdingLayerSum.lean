@@ -524,7 +524,7 @@ theorem fordCrowdingAbelSum_le_shifted
       · intro hj
         simp at hj
     rw [fordCrowdingAbelSum, hindices]
-    simp
+    simp only [sum_empty, Nat.cast_add, Nat.cast_ofNat, ge_iff_le]
     positivity
 
 /-- Uniform ordinary/shifted Abel bound for the crossing-rank sum. -/

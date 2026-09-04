@@ -231,8 +231,8 @@ private lemma IsFractionalDecomposition.relabel_complete
     (hw : IsFractionalDecomposition G w) (e : α ≃ β) :
     IsFractionalDecomposition (G.map e.toEmbedding) (relabelWeight e w) := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
   refine ⟨hw.isPacking.relabel e, ?_⟩
   intro p hp
   have hp' := SimpleGraph.mem_edgeFinset.mp hp
@@ -248,7 +248,7 @@ private lemma almostCompleteFractionalDecomposition_of_card
     ∃ w : Finset α → ℝ, IsFractionalDecomposition G w := by
   let e : α ≃ Fin (Fintype.card α) := Fintype.equivFinOfCardEq rfl
   let H : SimpleGraph (Fin (Fintype.card α)) := G.map e.toEmbedding
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   have hmissH : missingEdgeCount H ≤ Fintype.card α - 4 := by
     have hc : Hᶜ = Gᶜ.map e.toEmbedding := compl_map_equiv G e
     have hedge : Hᶜ.edgeFinset = (Gᶜ.map e.toEmbedding).edgeFinset := by
@@ -409,7 +409,7 @@ private lemma large_side_decomposition_contradiction
     (hsmall : s.ncard < 3) : False := by
   let T := sᶜ.toFinset
   let H := Gᶜ.induce (T : Set (Fin n))
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   have hsum : s.ncard + sᶜ.ncard = n := by
     rw [Set.ncard_add_ncard_compl]
     simp

@@ -290,7 +290,7 @@ theorem zpTucker_alpha
     n ≤ alpha + (m - alpha) * (p - 1) := by
   by_contra hle
   have hQn : alpha + (m - alpha) * (p - 1) < n := by omega
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   let seq := resolutionSequence hp lab hadm hQn
   obtain ⟨z₁, z₀, hdecomp⟩ :=
     (AllowedDescent.datum hp).bottom_decomposition seq

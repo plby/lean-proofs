@@ -148,7 +148,7 @@ theorem rawLevel_finite_partition (n k : ℕ)
       choose ci ei hei using fun a => ih (cp a)
       obtain ⟨i, hi⟩ := Finite.exists_infinite_fiber ci
       let H : Set ℕ := ci ⁻¹' {i}
-      letI : Infinite H := by simpa [H] using hi
+      let : Infinite H := by simpa [H] using hi
       let h : ℕ ↪o ℕ := Nat.orderEmbeddingOfSet H
       let ep : Prod.Lex ((· < ·) : ℕ → ℕ → Prop) (@RawLevelLex n) ↪r
           Prod.Lex ((· < ·) : ℕ → ℕ → Prop) (@RawLevelLex n) :=
@@ -196,7 +196,7 @@ theorem shortlex_finite_partition (k : ℕ)
   choose ci ei hei using fun q => rawLevel_finite_partition q k (levelColor q)
   obtain ⟨i, hi⟩ := Finite.exists_infinite_fiber ci
   let H : Set ℕ := ci ⁻¹' {i}
-  letI : Infinite H := by simpa [H] using hi
+  let : Infinite H := by simpa [H] using hi
   let h : ℕ ↪o ℕ := Nat.orderEmbeddingOfSet H
   have hh_mem (q : ℕ) : h q ∈ H := by
     change Nat.orderEmbeddingOfSet H q ∈ H
@@ -360,7 +360,7 @@ theorem OmegaLevelLex.trans {r : ℕ} {a b c : OmegaLevel r}
 theorem OmegaLevelLex.trichotomous {r : ℕ} (a b : OmegaLevel r) :
     OmegaLevelLex a b ∨ a = b ∨ OmegaLevelLex b a := by
   classical
-  letI : DecidableRel SL := Classical.decRel _
+  let : DecidableRel SL := Classical.decRel _
   by_cases hab : OmegaLevelLex a b
   · exact Or.inl hab
   by_cases hba : OmegaLevelLex b a

@@ -178,7 +178,7 @@ private lemma sum_sliceSum_sq_exact {I : Type u} [Fintype I] [DecidableEq I]
                 have hdiag : (∑ i, ∑ j,
                     (if i = j then a i * a j else 0) * c₁) =
                     c₁ * ∑ i, (a i)^2 := by
-                      simp [pow_two, mul_comm]
+                      simp only [ite_mul, zero_mul, Finset.sum_ite_eq, Finset.mem_univ, ↓reduceIte]
                       rw [Finset.mul_sum]
                       apply Finset.sum_congr rfl
                       intro i hi

@@ -424,7 +424,7 @@ private lemma swept_zero_branch
         (swept_coordinates_radius rho ‖base‖ ‖other‖ c s hbpos hopos hcs hnorm z hzrad)
         hsmall
     · have hwneg : w 1 < 0 := by
-        simp [w, swept_coordinates, hszero]
+        simp only [Fin.isValue]
         exact mul_neg_of_pos_of_neg hzvpos hcneg
       exact hwneg
     · simpa [w, baseChart, otherChart] using

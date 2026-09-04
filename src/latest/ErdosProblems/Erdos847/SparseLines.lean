@@ -180,7 +180,7 @@ noncomputable def allLines [Fintype A] [Fintype I] : Finset (Line A I) := by
 @[simp]
 lemma mem_allLines [Fintype A] [Fintype I] (l : Line A I) : l ∈ allLines := by
   classical
-  letI := lineFintype (A := A) (I := I)
+  let := lineFintype (A := A) (I := I)
   simp [allLines]
 
 /-- A line in `S` is monochromatic for every coloring of its cube vertices. -/
@@ -361,9 +361,9 @@ theorem exists_finite_ramsey_family (A : Type u) [Finite A] [Nontrivial A]
     (K : Type w) [Finite K] :
     ∃ (I : Type) (_ : Fintype I) (S : Finset (Line A I)), IsRamseyFamily S K := by
   rcases Line.exists_mono_in_high_dimension A K with ⟨I, hI, hHJ⟩
-  letI : Fintype I := hI
-  letI : Fintype A := Fintype.ofFinite A
-  letI : Fintype (Line A I) :=
+  let : Fintype I := hI
+  let : Fintype A := Fintype.ofFinite A
+  let : Fintype (Line A I) :=
     Fintype.ofInjective Line.idxFun (by
       intro l m h
       cases l with
@@ -763,7 +763,7 @@ theorem block_candidates_nonaddable
         (Erdos847LineExclusions.nonaddable
           (Erdos847BlockCandidates.candidateLines t S) R d).card <
       (Erdos847BlockCandidates.candidateLines t S).card := by
-  letI : DecidableEq (Fin t × J) := Classical.decEq _
+  let : DecidableEq (Fin t × J) := Classical.decEq _
   have htpos : 0 < t := by rw [ht]; positivity
   have htone : 1 ≤ t := by omega
   have htm : t * m = m * (t - 1) + m := by
@@ -806,15 +806,15 @@ theorem sparse_hales_jewett (A : Type u) [Fintype A] [Nontrivial A]
   classical
   cases isEmpty_or_nonempty K with
   | inl hK =>
-      letI : IsEmpty K := hK
+      let : IsEmpty K := hK
       refine ⟨PEmpty, inferInstance, ∅, isSparse_empty, ?_⟩
       intro color
       exact isEmptyElim (color fun i ↦ nomatch i)
   | inr hK =>
-      letI : Nonempty K := hK
-      letI : Inhabited K := Classical.inhabited_of_nonempty hK
+      let : Nonempty K := hK
+      let : Inhabited K := Classical.inhabited_of_nonempty hK
       obtain ⟨J, hJ, S, hHJ⟩ := exists_finite_ramsey_family A K
-      letI : Fintype J := hJ
+      let : Fintype J := hJ
       have hSne : S.Nonempty := by
         obtain ⟨l, hl, -⟩ := hHJ (fun _ ↦ default)
         exact ⟨l, hl⟩

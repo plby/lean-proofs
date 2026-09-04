@@ -372,7 +372,7 @@ private lemma sum_sliceSum_sq_exact {I : Type*} [Fintype I] [DecidableEq I]
             have hdiag' : (∑ i, ∑ j,
                 (if i = j then a i * a j else 0) * c₁) =
                 c₁ * ∑ i, (a i)^2 := by
-              simp [pow_two, mul_comm]
+              simp only [ite_mul, zero_mul, Finset.sum_ite_eq, Finset.mem_univ, ↓reduceIte]
               rw [Finset.mul_sum]
               apply Finset.sum_congr rfl
               intro i _
@@ -400,7 +400,7 @@ theorem uniformExpectation_sliceSum_sq_le
     letI : Nonempty (HalfSample.Slice I s) := nonempty_slice hs
     uniformExpectation (fun S : HalfSample.Slice I s ↦
       (HalfSample.sliceSum a S) ^ 2) ≤ (s : ℝ) * K ^ 2 := by
-  letI : Nonempty (HalfSample.Slice I s) := nonempty_slice hs
+  let : Nonempty (HalfSample.Slice I s) := nonempty_slice hs
   by_cases hs0 : s = 0
   · subst s
     have hzero (S : HalfSample.Slice I 0) : HalfSample.sliceSum a S = 0 := by
@@ -535,8 +535,8 @@ theorem uniformExpectation_centered_sliceSum_abs_le
         (s : ℝ) / Fintype.card I * ∑ i, a i|) ≤
       2 * K * Real.sqrt s := by
   let E := Erdos88.Fourier.boolSliceEquivFinsetLen I s
-  letI : Nonempty (HalfSample.Slice I s) := nonempty_slice hs
-  letI : Nonempty (BoolSlice I s) := E.nonempty_congr.mpr inferInstance
+  let : Nonempty (HalfSample.Slice I s) := nonempty_slice hs
+  let : Nonempty (BoolSlice I s) := E.nonempty_congr.mpr inferInstance
   let mu : ℝ := (∑ i, a i) / Fintype.card I
   let b : I → ℝ := fun i ↦ a i - mu
   have hcardPos : (0 : ℝ) < Fintype.card I := by exact_mod_cast Fintype.card_pos
@@ -627,7 +627,7 @@ theorem uniformExpectation_abs_rawSwitchError_le
       |rawSwitchError G U₀ W₀ W₁
         (Augmentation.boolSliceDeletion U₀ d omega) d|) ≤
       2 * K * Real.sqrt d := by
-  letI : Nonempty (BoolSlice U₀ d) :=
+  let : Nonempty (BoolSlice U₀ d) :=
     (Erdos88.Fourier.boolSliceEquivFinsetLen U₀ d).nonempty_congr.mpr
       (nonempty_slice (by simpa using hd))
   by_cases hU : U₀.Nonempty
@@ -648,7 +648,7 @@ theorem uniformExpectation_abs_rawSwitchError_le
       simp [rawSwitchError, degreeInto]
     rw [hfun, uniformExpectation_const]
     positivity
-  letI : Nonempty U₀ := by
+  let : Nonempty U₀ := by
     obtain ⟨u, hu⟩ := hU
     exact ⟨⟨u, hu⟩⟩
   let a : U₀ → ℝ := fun u ↦ crossingIncrementCoeff G W₀ W₁ u.1
@@ -723,7 +723,7 @@ theorem uniformExpectation_rawVariationError_le
         (nonempty_slice (by simpa using hd))
     uniformExpectation (rawVariationError G U₀ W d last) ≤
       last * (2 * K * Real.sqrt d) := by
-  letI : Nonempty (BoolSlice U₀ d) :=
+  let : Nonempty (BoolSlice U₀ d) :=
     (Erdos88.Fourier.boolSliceEquivFinsetLen U₀ d).nonempty_congr.mpr
       (nonempty_slice (by simpa using hd))
   change uniformExpectation (fun omega ↦
@@ -785,7 +785,7 @@ theorem uniformExpectation_sum_abs_rawIncrementError_canonical_le
           (fun j ↦ canonicalAugmentationIdeal G alpha U₀ (W j) nZ
             (wCenter j) d₀) i|) ≤
       last * (2 * Real.sqrt d) := by
-  letI : Nonempty (BoolSlice U₀ d) :=
+  let : Nonempty (BoolSlice U₀ d) :=
     (Erdos88.Fourier.boolSliceEquivFinsetLen U₀ d).nonempty_congr.mpr
       (nonempty_slice (by simpa using hd))
   rw [AugmentationFull.uniformExpectation_sum]

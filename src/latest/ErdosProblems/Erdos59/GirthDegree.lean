@@ -743,7 +743,7 @@ theorem general_degree_comparison_of_u2 (G : SimpleGraph V) [DecidableRel G.Adj]
     dsimp [D]
     omega
   let C := hforest c hc
-  letI : DecidableRel C.F.Adj := C.decidableAdj
+  let : DecidableRel C.F.Adj := C.decidableAdj
   have hFgirth : C.F.GirthAtLeastEight :=
     ⟨C.noFourCycle, (hSix c).mono C.le_graph⟩
   exact Bigraph.degree_comparison H C.F hFgirth C.half_left C.half_right

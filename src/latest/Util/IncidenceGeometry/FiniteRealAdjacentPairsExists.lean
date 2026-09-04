@@ -33,7 +33,7 @@ lemma FiniteRealAdjacentPairsExists
             have htail := (List.pairwise_cons.mp hu).2
             have hi := ih htail
             grind (splits := 20) [List.pairwise_cons]
-  letI : LinearOrder alpha := LinearOrder.lift' key hinj
+  let : LinearOrder alpha := LinearOrder.lift' key hinj
   let l : List alpha := S.sort
   let E : Finset (alpha × alpha) := l.consecutivePairs.toFinset
   have hsorted : l.Pairwise (fun a b ↦ key a < key b) := by

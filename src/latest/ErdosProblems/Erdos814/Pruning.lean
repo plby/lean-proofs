@@ -190,7 +190,7 @@ private lemma sparse_edge_bound
         ∀ v ∈ A, degreeOn H A v = k → degreeOn G A v = k := by
     simpa [SparseCandidate] using hcandidate
   rcases hcandidate' with ⟨hHG, hdecH, hHmin, hlow⟩
-  letI : DecidableRel H.Adj := hdecH
+  let : DecidableRel H.Adj := hdecH
   have hnoHigh : ∀ {x y}, x ∈ A → y ∈ A → H.Adj x y →
       k + 2 ≤ degreeOn H A x → k + 2 ≤ degreeOn H A y → False := by
     intro x y hxA hyA hxy hdx hdy
@@ -648,7 +648,7 @@ theorem degreeKSupply
       27 * k ^ 2 * W.card ≤ (27 * k ^ 2 - 1) * A.card := by
   classical
   obtain ⟨H, hdecH, hHG, hHmin, hlow, hedge⟩ := sparse_edge_bound G A k hmin
-  letI : DecidableRel H.Adj := hdecH
+  let : DecidableRel H.Adj := hdecH
   have hdegSub : degreeEq H A k ⊆ degreeEq G A k := by
     intro v hv
     rcases mem_degreeEq.mp hv with ⟨hvA, hvdeg⟩

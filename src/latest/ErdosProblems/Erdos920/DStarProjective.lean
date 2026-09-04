@@ -134,8 +134,8 @@ theorem card_vertex (q t : ℕ) [Fact q.Prime] :
     Fintype.card (Vertex q t) =
       (∑ i ∈ Finset.range (t + 1), q ^ i) *
         (∑ i ∈ Finset.range t, q ^ i) := by
-  letI : Fintype (Point (ZMod q) (t + 1)) := Fintype.ofFinite _
-  letI (x : Point (ZMod q) (t + 1)) : Fintype (Neighbors x) :=
+  let : Fintype (Point (ZMod q) (t + 1)) := Fintype.ofFinite _
+  let (x : Point (ZMod q) (t + 1)) : Fintype (Neighbors x) :=
     Fintype.ofFinite _
   rw [Fintype.card_congr (vertexEquivSigma q t), Fintype.card_sigma]
   have hneigh (x : Point (ZMod q) (t + 1)) :

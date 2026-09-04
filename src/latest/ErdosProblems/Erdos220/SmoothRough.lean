@@ -644,8 +644,8 @@ theorem squarefree_emptyWindows_bound_of_lowerTail {B : ℝ} (hB0 : 0 ≤ B)
   let v := roughPart r h
   have hs : 0 < s := by simpa only [s] using smoothPart_pos r h
   have hv : 0 < v := by simpa only [v] using roughPart_pos r h
-  letI : NeZero s := ⟨hs.ne'⟩
-  letI : NeZero v := ⟨hv.ne'⟩
+  let : NeZero s := ⟨hs.ne'⟩
+  let : NeZero v := ⟨hv.ne'⟩
   have hsquare : Squarefree s := by
     simpa only [s] using squarefree_smoothPart (h := h) hrsq
   have vsquare : Squarefree v := by

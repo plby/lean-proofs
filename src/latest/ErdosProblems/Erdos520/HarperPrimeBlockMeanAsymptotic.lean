@@ -273,7 +273,7 @@ theorem exists_eventually_harperScheduledTrueLogBlockMean_close
   calc
     |harperScheduledTrueLogBlockMean y j t - Real.log 2| =
         |(harperScheduledTrueLogBlockMean y j t - mainMean) +
-          (mainMean - Real.log 2)| := by ring
+          (mainMean - Real.log 2)| := by ring_nf
     _ ≤ |harperScheduledTrueLogBlockMean y j t - mainMean| +
         |mainMean - Real.log 2| := abs_add_le _ _
     _ < ε := by linarith

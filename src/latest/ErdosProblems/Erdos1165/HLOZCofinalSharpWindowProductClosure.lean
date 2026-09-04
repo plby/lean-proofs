@@ -326,11 +326,11 @@ theorem screenMass_le_sharpInterfaceCost_of_cofinalSharpWindowData
         (data.factored.distinguished z cap))
       (v : Fin (data.factored.upper z cap b)) ↦
         coordinateMass pointMass (data.factored.upper z cap) b v
-  letI (b : TilingCappedMarginalization.TilingAwayDomino (data.factored.tiling z cap)
+  let (b : TilingCappedMarginalization.TilingAwayDomino (data.factored.tiling z cap)
       (data.factored.start z cap) (data.factored.retained z cap)
       (data.factored.distinguished z cap)) : DecidablePred (upperWindow b) :=
     fun v ↦ Finset.decidableMem v.val _
-  letI (b : TilingCappedMarginalization.TilingAwayDomino (data.factored.tiling z cap)
+  let (b : TilingCappedMarginalization.TilingAwayDomino (data.factored.tiling z cap)
       (data.factored.start z cap) (data.factored.retained z cap)
       (data.factored.distinguished z cap)) : DecidablePred (lowerWindow b) :=
     fun v ↦ Finset.decidableMem v.val _

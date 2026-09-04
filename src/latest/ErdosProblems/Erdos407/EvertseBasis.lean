@@ -721,7 +721,7 @@ theorem evertseBasis_induction : ∀ n : ℕ,
             (-gamma Place23.infinite j) (-gamma Place23.two j)
               (-gamma Place23.three j)
         refine ⟨a, haZ, ?_, ?_, ?_⟩
-        · convert haInf using 2 <;> ring
+        · convert haInf using 2 <;> ring_nf
         · convert haTwo using 2 <;> ring
         · convert haThree using 2 <;> ring
       choose xi hxiZ hxiInf hxiTwo hxiThree using happrox

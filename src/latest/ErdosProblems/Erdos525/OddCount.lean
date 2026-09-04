@@ -272,7 +272,7 @@ theorem halfGoodFactoredTruncatedChooseContribution_tendsto
       (𝓝 (A * (((1 / 2 : ℝ) ^ m) / (m.factorial : ℝ)))) := by
     dsimp [reference]
     convert tendsto_const_nhds.mul
-      (halfGoodLocalSiteSets_ratio_tendsto_factorial m hm) using 1 <;> ring
+      (halfGoodLocalSiteSets_ratio_tendsto_factorial m hm) using 1 <;> ring_nf
   have hdiff : Tendsto (fun n : ℕ ↦
       halfGoodFactoredTruncatedChooseContribution n m widthFactor u
           velocityLower velocityUpper - reference n) atTop (𝓝 0) := by

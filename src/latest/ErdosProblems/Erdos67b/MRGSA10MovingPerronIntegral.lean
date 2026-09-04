@@ -152,7 +152,7 @@ theorem norm_gsA10TwoBlockTailoredPerronIntegral_le_moving
       (gsA10TwoBlockTailoredCoefficient
         f hmul P₁ P₂ y X alpha beta) X
       ((Erdos67b.EulerResidue.taoExponent X - beta) - alpha - beta) T‖ ≤ _
-  convert hmain using 1 <;> dsimp only [c₀, sigma] <;> ring
+  convert hmain using 1 <;> dsimp only [c₀, sigma] <;> ring_nf
 
 /-- Rectangle-uniform scalar form of the undeleted moving-line Perron
 integral. -/

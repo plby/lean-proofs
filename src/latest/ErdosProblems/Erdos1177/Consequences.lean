@@ -57,7 +57,7 @@ theorem twoTriples_embeds_of_not_linear {W : Type u} (K : Hypergraph W)
     have := htri e₁ he₁; rw [ Set.ncard_eq_three ] at this; obtain ⟨ x, y, z, h ⟩ := this; simp_all +decide [ Set.Subset.antisymm_iff, Set.subset_def ] ;
     grind +ring
   obtain ⟨d, hd⟩ : ∃ d : W, d ∈ e₂ ∧ d ∉ ({a, b} : Set W) := by
-    have := htri e₂ he₂; simp_all +decide [ Set.ncard_eq_toFinset_card' ] ;
+    have := htri e₂ he₂; simp_all +decide only [Set.mem_insert_iff, Set.mem_singleton_iff, not_or] ;
     exact Exists.imp ( by aesop ) ( Set.exists_of_ssubset ( lt_of_le_of_ne ( Set.insert_subset hab.2.2.2.1 ( Set.singleton_subset_iff.mpr hab.2.2.2.2 ) ) ( Ne.symm <| by aesop ) ) )
   use ![a, b, c, d];
   have h_card : e₁.ncard = 3 ∧ e₂.ncard = 3 := by
@@ -208,7 +208,7 @@ theorem stronglyTripartite_expansion {VJ : Type} [Fintype VJ] [DecidableEq VJ]
   obtain ⟨ f, hf ⟩ := hJ;
   refine' ⟨ _, _ ⟩;
   exact fun x => x.elim ( fun x => Fin.castSucc ( f x ) ) fun x => 2;
-  intro e he i; rcases expansion_edge_cases J he with ⟨ a, rfl ⟩ ; simp +decide [ Finset.filter_insert, Finset.filter_singleton ] ;
+  intro e he i; rcases expansion_edge_cases J he with ⟨ a, rfl ⟩ ; simp +decide only [Fin.isValue] ;
   have := Quot.out_eq ( a : Sym2 VJ ) ; ( rcases h' : Quot.out ( a : Sym2 VJ ) with ⟨ x, y ⟩ ; simp_all +decide [ Sym2.eq_swap ] ; );
   grind +suggestions
 
@@ -238,7 +238,7 @@ theorem stronglyTripartite_amalgamate {F G : FTS} (x : F.V) (y : G.V)
   -- Choose a permutation `π : Equiv.Perm (Fin 3)` with `π (colG y) = colF x`.
   obtain ⟨π, hπ⟩ : ∃ π : Equiv.Perm (Fin 3), π (hG.choose y) = hF.choose x := by
     exact ⟨ Equiv.swap ( hG.choose y ) ( hF.choose x ), by simp +decide ⟩;
-  refine' ⟨ fun v => v.elim ( fun a => hF.choose a ) fun b => π ( hG.choose b.1 ), _ ⟩ ; simp +decide [ FTS.amalgamate ];
+  refine' ⟨ fun v => v.elim ( fun a => hF.choose a ) fun b => π ( hG.choose b.1 ), _ ⟩ ; simp +decide only [ne_eq];
   rintro e ( ⟨ a, ha, rfl ⟩ | ⟨ a, ha, rfl ⟩ ) i <;> simp_all +decide [ Finset.filter_map ];
   · convert! hF.choose_spec a ha i using 1;
   · convert! hG.choose_spec a ha ( π.symm i ) using 1;
@@ -342,7 +342,7 @@ def FTS.Forest (F : FTS) : Prop :=
 A forest is linear: any two distinct edges meet in at most one vertex.
 -/
 theorem forest_linear {F : FTS} (h : F.Forest) : F.Linear := by
-  obtain ⟨ rank, hrank₁, hrank₂ ⟩ := h; intro e₁ he₁ e₂ he₂ hne; have := hrank₁; simp_all +decide [ FTS.Linear ] ;
+  obtain ⟨ rank, hrank₁, hrank₂ ⟩ := h; intro e₁ he₁ e₂ he₂ hne; have := hrank₁; simp_all +decide only [ge_iff_le] ;
   -- Without loss of generality, assume `rank ⟨e₁, he₁⟩ < rank ⟨e₂, he₂⟩`.
   wlog hlt : rank ⟨e₁, he₁⟩ < rank ⟨e₂, he₂⟩ generalizing e₁ e₂;
   · grind +suggestions;
@@ -359,21 +359,21 @@ theorem forest_no_bergeCycle {F : FTS} (h : F.Forest) (c : BergeCycle F) : False
   obtain ⟨ rank, hrank₁, hrank₂ ⟩ := h;
   -- Choose `a : ZMod c.m` maximizing `fun i => rank (c.e i)`.
   obtain ⟨a, ha⟩ : ∃ a : ZMod c.m, ∀ i : ZMod c.m, rank (c.e i) ≤ rank (c.e a) := by
-    haveI := Fact.mk ( show 1 < c.m from by linarith [ c.hm ] );
+    have := Fact.mk ( show 1 < c.m from by linarith [ c.hm ] );
     simpa using! Finset.exists_max_image Finset.univ ( fun i => rank ( c.e i ) ) ⟨ 0, Finset.mem_univ 0 ⟩;
   -- Consider the two neighbours `a - 1` and `a + 1`.
   have h_neighbours : rank (c.e (a - 1)) < rank (c.e a) ∧ rank (c.e (a + 1)) < rank (c.e a) := by
     have h_neighbours : c.e (a - 1) ≠ c.e a ∧ c.e (a + 1) ≠ c.e a := by
-      haveI := Fact.mk ( show 1 < c.m from by linarith [ c.hm ] ) ; simp +decide [ sub_eq_iff_eq_add, add_eq_zero_iff_eq_neg, c.einj.eq_iff ] ;
+      have := Fact.mk ( show 1 < c.m from by linarith [ c.hm ] ) ; simp +decide [ sub_eq_iff_eq_add, add_eq_zero_iff_eq_neg, c.einj.eq_iff ] ;
     exact ⟨ lt_of_le_of_ne ( ha _ ) ( hrank₁.ne h_neighbours.1 ), lt_of_le_of_ne ( ha _ ) ( hrank₁.ne h_neighbours.2 ) ⟩;
   -- Therefore `c.e (a-1)` and `c.e (a+1)` lie in `Finset.univ.filter (fun ed' => rank ed' < rank ed)`, so their underlying edge sets are `⊆ lowerRankUnion F rank ed`.
   have h_subset : (c.e (a - 1)).1 ⊆ lowerRankUnion F rank (c.e a) ∧ (c.e (a + 1)).1 ⊆ lowerRankUnion F rank (c.e a) := by
     exact ⟨ Finset.subset_iff.mpr fun x hx => Finset.mem_sup.mpr ⟨ _, Finset.mem_filter.mpr ⟨ Finset.mem_univ _, h_neighbours.1 ⟩, hx ⟩, Finset.subset_iff.mpr fun x hx => Finset.mem_sup.mpr ⟨ _, Finset.mem_filter.mpr ⟨ Finset.mem_univ _, h_neighbours.2 ⟩, hx ⟩ ⟩;
   have h_card : 2 ≤ ( ( c.e a ).1 ∩ lowerRankUnion F rank ( c.e a ) ).card := by
-    refine' Finset.one_lt_card.mpr ⟨ c.v a, _, c.v ( a + 1 ), _, _ ⟩ <;> simp_all +decide [ Finset.subset_iff ];
+    refine' Finset.one_lt_card.mpr ⟨ c.v a, _, c.v ( a + 1 ), _, _ ⟩ <;> simp_all +decide only [Finset.mem_inter, ne_eq];
     · exact ⟨ c.mem_left a, h_subset.1 ( by simpa using! c.mem_right ( a - 1 ) ) ⟩;
     · exact ⟨ c.mem_right a, h_subset.2 ( c.mem_left _ ) ⟩;
-    · haveI := Fact.mk ( show 1 < c.m from by linarith [ c.hm ] ) ; exact c.vinj.ne ( by simp +decide [ ZMod.natCast_eq_natCast_iff' ] ) ;
+    · have := Fact.mk ( show 1 < c.m from by linarith [ c.hm ] ) ; exact c.vinj.ne ( by simp +decide [ ZMod.natCast_eq_natCast_iff' ] ) ;
   linarith [ hrank₂ ( c.e a ) ]
 
 /-- A forest satisfies the intrinsic obligatoriness condition: it is linear,

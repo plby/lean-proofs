@@ -740,7 +740,7 @@ theorem exists_injective_avoiding [Infinite γ] (used : Set γ) (hused : used.Fi
     (ι : Type*) [Finite ι] :
     ∃ fresh : ι → γ, Function.Injective fresh ∧ ∀ i, fresh i ∉ used := by
   classical
-  letI : Fintype ι := Fintype.ofFinite ι
+  let : Fintype ι := Fintype.ofFinite ι
   let code : ι ↪ ℕ := (Fintype.equivFin ι).toEmbedding.trans Fin.valEmbedding
   let supply : ℕ ↪ {x // x ∈ (usedᶜ : Set γ)} :=
     hused.infinite_compl.natEmbedding (usedᶜ : Set γ)
@@ -758,7 +758,7 @@ theorem exists_injective_pinned_avoiding [Infinite γ]
       ∀ x ∈ s, x ≠ a → x ≠ b → name x ∉ used := by
   classical
   let inner := {x : α // x ∈ s ∧ x ≠ a ∧ x ≠ b}
-  letI : Finite inner := Set.finite_coe_iff.mpr (hs.subset fun x hx => hx.1)
+  let : Finite inner := Set.finite_coe_iff.mpr (hs.subset fun x hx => hx.1)
   obtain ⟨fresh, hfresh, havoid⟩ := exists_injective_avoiding used hused inner
   let name : α → γ := fun x =>
     if hxa : x = a then u else if hxb : x = b then v
@@ -1153,7 +1153,7 @@ theorem exists_sourceEarStepData [Infinite γ]
     exact vname_fresh x hxQ (fun h => hxab (Or.inl h)) (fun h => hxab (Or.inr h)) hzCell
   let edgeUsed : Set γ := T.str.cells ∪ newVertices
   have hedgeUsed_fin : edgeUsed.Finite := T.str.finite_cells.union hnewVertices_fin
-  letI : Finite E(Q) := Set.finite_coe_iff.mpr hQfinE
+  let : Finite E(Q) := Set.finite_coe_iff.mpr hQfinE
   obtain ⟨freshEdge, freshEdge_inj, freshEdge_avoid⟩ :=
     exists_injective_avoiding edgeUsed hedgeUsed_fin E(Q)
   let ename : γ → γ := fun e => if he : e ∈ E(Q) then freshEdge ⟨e, he⟩ else u
@@ -1388,7 +1388,7 @@ theorem transfer_of_ears_of_commonSubdivision_of_earStep [Infinite γ]
     (hsub : CommonSubdivision P H Hdraw) (hstep : EarStep P H Hdraw) :
     ∃ (T : GeneratedPair S₀ srcOuter srcDom tgtOuter tgtDom) (par : γ → γ),
       IsPartialTransferOf T P H Hdraw par := by
-  haveI := hH.finite
+  have := hH.finite
   obtain ⟨K, T₀, par₀, hK, hKH, hbase⟩ := hsub
   refine hH.isTwoConnected.ear_decomposition
     (motive := fun B => ∃ T par, IsPartialTransferOf T P B Hdraw par)
@@ -1554,7 +1554,7 @@ theorem GeneratedPair.exists_target_crosscut
     exact fun hmem => Set.disjoint_left.1
       (P.tgt.disjoint_cell_skeletonSet P.tgt_isCellDecomposition hF) hmem
       (P.tgt.pos_mem_skeletonSet hv)
-  letI : (P.str.skel.map P.tgt.pos).Finite := {
+  let : (P.str.skel.map P.tgt.pos).Finite := {
     finite_vertexSet := by
       rw [Graph.vertexSet_map]
       exact P.str.finite_vertexSet.image _

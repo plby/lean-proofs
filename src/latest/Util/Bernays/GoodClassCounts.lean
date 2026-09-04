@@ -30,7 +30,7 @@ theorem goodClassValues_subset_genusValues {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) 
     letI := quadraticOrderIsDomain hD
     ∀ C : ClassGroup (QuadraticAlgebra ℤ d b), ∀ N : ℕ,
       goodClassValues hD C N ⊆ genusValues hD (genusMap C) N := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C N n hn
   obtain ⟨hnN, hnc, I, hIn, hIc⟩ := Finset.mem_filter.mp hn
   have hIF : IsCoprime (I : Ideal (QuadraticAlgebra ℤ d b)) (quadraticBadIdeal d b) :=
@@ -45,7 +45,7 @@ theorem genusValues_sdiff_class_subset_exceptional {d b : ℤ} (hD : b ^ 2 + 4 *
     ∀ C : ClassGroup (QuadraticAlgebra ℤ d b), ∀ N : ℕ,
       genusValues hD (genusMap C) N \ goodClassValues hD C N ⊆ squareExceptionalValues hD
         (Nat.card (classSquareSubgroup : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b)))) N := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C N n hn
   obtain ⟨hng, hnot⟩ := Finset.mem_sdiff.mp hn
   obtain ⟨hnlocal, hnc, hngen⟩ := Finset.mem_filter.mp hng
@@ -69,7 +69,7 @@ theorem goodClass_genus_count_error_limit {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       Tendsto (fun N : ℕ =>
         (((genusValues hD (genusMap C) N).card : ℝ) - (goodClassValues hD C N).card) / scale N)
         atTop (𝓝 0) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro C
   let k := Nat.card (classSquareSubgroup : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b)))
   have heq (N : ℕ) : ((genusValues hD (genusMap C) N).card : ℝ) - (goodClassValues hD C N).card =

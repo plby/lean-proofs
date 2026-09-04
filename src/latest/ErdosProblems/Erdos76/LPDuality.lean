@@ -331,9 +331,9 @@ theorem exists_fractional_triangle_packing_edge_cover (G : SimpleGraph α) :
       fractionalSize G w = ∑ e ∈ G.edgeFinset, z e := by
   classical
   by_cases htri : (G.cliqueFinset 3).Nonempty
-  · letI : Nonempty (TriangleIndex G) :=
+  · let : Nonempty (TriangleIndex G) :=
       ⟨⟨htri.choose, SimpleGraph.mem_cliqueFinset_iff.mp htri.choose_spec⟩⟩
-    letI : Nonempty (EdgeIndex G) := by
+    let : Nonempty (EdgeIndex G) := by
       obtain ⟨e, _he⟩ := triangleIncidenceMatrix_exists_one G
         (Classical.arbitrary (TriangleIndex G))
       exact ⟨e⟩

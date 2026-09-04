@@ -52,7 +52,7 @@ theorem actual_long_gap_sum_bound
             2 * (((Nat.count p (2 * x + 1)) ^ 2 : ℕ) : ℝ)) ∧
       (∀ z ∈ J, H / C ≤ z.1 ∧ H / C ≤ z.2) := by
   classical
-  letI : DecidablePred (divisorSifted p) := Classical.decPred _
+  let : DecidablePred (divisorSifted p) := Classical.decPred _
   let b := divisorSiftedEnumeration p
   let gap := divisorSiftedGap p
   let I := (Finset.range (Nat.count (divisorSifted p) x)).filter

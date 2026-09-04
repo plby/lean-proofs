@@ -168,7 +168,7 @@ lemma diagonalPartialSum_lowerTail_le {ι : Type*} [Fintype ι]
         (Real.exp_nonneg _)
     _ = Real.exp (-t * x + 2 * t ^ 2 * partialVariance a lam S) := by
       rw [Real.exp_add]
-      congr 1 <;> ring
+      congr 1 <;> ring_nf
 
 lemma diagonalPartialSum_absTail_le {ι : Type*} [Fintype ι]
     (a lam : ι → ℝ) (S : Finset ι) {t x : ℝ}
@@ -369,8 +369,8 @@ lemma measureReal_add_Icc_le_of_indepFun {Ω : Type*} [MeasurableSpace Ω]
   have hE : MeasurableSet E := by
     dsimp only [E]
     exact measurableSet_Icc.preimage (measurable_fst.add measurable_snd)
-  letI : IsProbabilityMeasure (P.map X) := Measure.isProbabilityMeasure_map hX.aemeasurable
-  letI : IsProbabilityMeasure (P.map Y) := Measure.isProbabilityMeasure_map hY.aemeasurable
+  let : IsProbabilityMeasure (P.map X) := Measure.isProbabilityMeasure_map hX.aemeasurable
+  let : IsProbabilityMeasure (P.map Y) := Measure.isProbabilityMeasure_map hY.aemeasurable
   have hmap : P.map (fun ω ↦ (X ω, Y ω)) = (P.map X).prod (P.map Y) :=
     hindep.map_prod_eq_prod_map_map hX.aemeasurable hY.aemeasurable
   have hreal :
@@ -395,8 +395,8 @@ lemma measureReal_fst_mem_add_Icc_le_of_indepFun
     dsimp only [E]
     exact (hA.preimage measurable_fst).inter
       (measurableSet_Icc.preimage (measurable_fst.add measurable_snd))
-  letI : IsProbabilityMeasure (P.map X) := Measure.isProbabilityMeasure_map hX.aemeasurable
-  letI : IsProbabilityMeasure (P.map Y) := Measure.isProbabilityMeasure_map hY.aemeasurable
+  let : IsProbabilityMeasure (P.map X) := Measure.isProbabilityMeasure_map hX.aemeasurable
+  let : IsProbabilityMeasure (P.map Y) := Measure.isProbabilityMeasure_map hY.aemeasurable
   have hmap : P.map (fun ω ↦ (X ω, Y ω)) = (P.map X).prod (P.map Y) :=
     hindep.map_prod_eq_prod_map_map hX.aemeasurable hY.aemeasurable
   have hreal :

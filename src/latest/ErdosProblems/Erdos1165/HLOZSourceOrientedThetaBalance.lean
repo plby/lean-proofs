@@ -896,7 +896,7 @@ theorem eventually_thetaLowBudgetCost_le_three_exp_neg_sqrt :
       rw [mul_assoc, ← ENNReal.ofReal_mul (Real.exp_nonneg _),
         ← Real.exp_add]
       congr 2
-      ring
+      ring_nf
     _ ≤ 3 * ENNReal.ofReal (Real.exp (-15 * R)) := by
       gcongr
 

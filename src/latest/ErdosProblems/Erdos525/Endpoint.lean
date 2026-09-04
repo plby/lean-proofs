@@ -422,7 +422,7 @@ lemma mesh_endpoint_scaled_tendsto_zero :
       _ = _ := by
         field_simp [hnR.ne']
   rw [heq]
-  ring
+  ring_nf
 
 lemma globalAcceleration_endpoint_scaled_tendsto_zero :
     Tendsto (fun n : ℕ ↦

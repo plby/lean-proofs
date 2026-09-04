@@ -108,7 +108,9 @@ lemma sum_fin_succ_eq {n : ℕ} (f : (Fin (n + 1) → Bool) → ℝ) :
       ∑ b : Bool, ∑ y : Fin n → Bool, f (Fin.cons b y) := by
   rw [← Finset.sum_product']
   refine Finset.sum_bij (fun x _ => (x 0, x ∘ Fin.succ)) ?_ ?_ ?_ ?_ <;>
-    simp +decide
+    simp +decide only [Fintype.univ_bool, mem_product, mem_insert, mem_singleton,
+    Bool.eq_true_or_eq_false_self, mem_univ, and_self, exists_const, forall_const, Prod.forall,
+    Prod.mk.injEq, Bool.forall_bool, and_imp]
   · exact fun a₁ a₂ h₁ h₂ => funext fun i => by
       induction i using Fin.inductionOn <;> simp_all +decide [funext_iff]
   · exact ⟨fun b => ⟨Fin.cons false b, rfl, rfl⟩,
@@ -170,7 +172,7 @@ theorem cube_exp_moment_bound (n : ℕ) (f : (Fin n → Bool) → ℝ)
               Real.exp (lam * (μ - f (Fin.cons true y))) ≤
             2 * Real.exp (lam * (μg - g y) + lam ^ 2 * d ^ 2 / 2) := by
         convert avg_exp_le (lam * (μg - g y)) (lam * d) using 1 <;> ring_nf
-        simp +zetaDelta at *
+        simp +zetaDelta only [Nat.succ_eq_add_one] at *
         rw [hμg]
         ring_nf
         unfold avgFn

@@ -991,13 +991,13 @@ theorem PeelingData.exists_cover_bound {eta : ℝ} (p : PeelingData.{u} eta)
         exact hkR.trans (le_add_of_nonneg_left
           (div_nonneg (mul_nonneg hfactor hDnonneg) (by norm_num)))
       · have hlarge : p.threshold < D := Nat.lt_of_not_ge hsmall
-        letI : DecidableRel G.Adj := Classical.decRel G.Adj
+        let : DecidableRel G.Adj := Classical.decRel G.Adj
         have hdegree' : ∀ v, G.degree v ≤ D := by
           intro v
           simpa only [SimpleGraph.degree, SimpleGraph.neighborFinset_def,
             Set.ncard_eq_toFinset_card'] using hdegree v
         let C := GraphRegularCompletion.completion G D hdegree'
-        letI : DecidableRel C.Adj := Classical.decRel C.Adj
+        let : DecidableRel C.Adj := Classical.decRel C.Adj
         let f : G ↪g C :=
           GraphRegularCompletion.originalGraphEmbedding G D hdegree'
         have hregular : ∀ v, (C.neighborSet v).ncard = D := by
@@ -1008,7 +1008,7 @@ theorem PeelingData.exists_cover_bound {eta : ℝ} (p : PeelingData.{u} eta)
         obtain ⟨H, R, q, m, hHC, hRC, hcover, hqpos, hqD, hRdegree,
           ⟨cH⟩, hm⟩ := p.step _ C D hlarge hregular
         have hsub : D - q < D := Nat.sub_lt (Nat.zero_lt_of_lt hlarge) hqpos
-        letI : DecidableRel R.Adj := Classical.decRel R.Adj
+        let : DecidableRel R.Adj := Classical.decRel R.Adj
         obtain ⟨k, ⟨cR⟩, hk⟩ := ih (D - q) hsub R hRdegree
         let cC : Cover C (m + k) := Cover.add hHC hRC hcover cH cR
         refine ⟨m + k, ⟨Cover.pullback f cC⟩, ?_⟩
@@ -1136,7 +1136,7 @@ theorem eventualAlonSparseBlockSelection :
     AlonSparseSubgraph.eventually_exists_alon_sparse_subgraph
   filter_upwards [hsparse] with D hD
   intro W _ G _ hregular
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   have hreg : G.IsRegularOfDegree D := by
     intro v
     simpa only [SimpleGraph.degree, SimpleGraph.neighborFinset_def,

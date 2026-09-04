@@ -353,8 +353,8 @@ theorem exists_relabeledFullExchange_with_trace {q r : ℕ} (hqr : r < q) :
   let e₀ : RootEdge q r := ⟨edge, hedge⟩
   obtain ⟨E, hEtrace, hEbound⟩ :=
     exists_completePartialExchange_with_trace_and_bound hqr e₀
-  letI : DecidableEq E.V := E.decEq
-  letI : Fintype E.V := E.fintype
+  let : DecidableEq E.V := E.decEq
+  let : Fintype E.V := E.fintype
   let σ : E.V ≃ Fin (Fintype.card E.V) := Fintype.equivFin E.V
   let emb : E.V ↪ Fin (Fintype.card E.V) := σ.toEmbedding
   let rootEmbedding : Fin q ↪ Fin (Fintype.card E.V) :=

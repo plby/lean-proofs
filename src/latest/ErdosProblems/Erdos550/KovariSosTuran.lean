@@ -61,8 +61,10 @@ theorem commonNbrs_card_le {a b : ℕ} (hb : 1 ≤ b)
   have h_complete_bipartite : G.IsCompleteBetween (S : Set V) (T : Set V) := by
     intro v hv w hw; have := hT.1 hw; simp_all +decide [ commonNbrs ] ;
   have h_disjoint : Disjoint (S : Set V) (T : Set V) := by
-    simp_all +decide [ Finset.subset_iff, SimpleGraph.IsCompleteBetween ];
-    exact Finset.disjoint_left.mpr fun x hxS hxT => by have := hT.1 hxT x hxS; exact this.ne rfl;
+    simp_all +decide only [disjoint_coe];
+    exact Finset.disjoint_left.mpr fun x hxS hxT => by
+      have hxx : G.Adj x x := (mem_commonNbrs (G := G)).mp (hT.1 hxT) x hxS
+      exact hxx.ne rfl
   have := @SimpleGraph.Copy.completeBipartiteGraph V;
   exact ⟨ this S T ( by simp +decide [ hS ] ) ( by simp +decide [ hT.2 ] ) h_complete_bipartite ⟩
 
@@ -186,9 +188,11 @@ theorem kovari_sos_turan (a b : ℕ) (ha : 1 ≤ a) (hb : 1 ≤ b) (ε : ℝ) (h
     have h_sum : ∑ v, G.degree v ≤ ∑ v ∈ Finset.univ.filter (fun v => G.degree v < t), t + ∑ v ∈ Finset.univ.filter (fun v => t ≤ G.degree v), N := by
       rw [ Finset.sum_filter, Finset.sum_filter ];
       simpa only [ ← Finset.sum_add_distrib ] using! Finset.sum_le_sum fun v _ => by split_ifs <;> linarith [ show G.degree v < N from G.degree_lt_card_verts v ] ;
-    simp +zetaDelta at *;
+    simp +zetaDelta only [ge_iff_le] at *;
     refine le_trans h_sum ?_;
-    exact add_le_add ( Nat.mul_le_mul_right _ <| Finset.card_le_univ _ ) le_rfl
+    exact add_le_add (by
+      simpa using Nat.mul_le_mul_right t
+        (Finset.card_le_univ (Finset.univ.filter (fun v => G.degree v < t)))) (by simp)
   have h_final : 2 * G.edgeFinset.card ≤ N * t + m * N := by
     have := SimpleGraph.sum_degrees_eq_twice_card_edges G; aesop;
   have h_final' : 2 * G.edgeFinset.card ≤ 2 * ε' * (N : ℝ) ^ 2 + N := by

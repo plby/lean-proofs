@@ -204,7 +204,7 @@ theorem sharpClearedValue_den_eq_one
     (sharpClearedValue h lambda m q x).den = 1 := by
   rw [Nat.eq_one_iff_not_exists_prime_dvd]
   intro p hp hpd
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hnorm := norm_sharpClearedValue_le_one h lambda m q x hq (p := p)
   have hunit := PadicInt.isUnit_den (sharpClearedValue h lambda m q x) hnorm
   have hnorm_one :

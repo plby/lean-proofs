@@ -21,11 +21,11 @@ theorem exists_partition_stable_cores {ι : Type*} [Fintype ι]
   choose r hr hstable using hex
   cases isEmpty_or_nonempty ι with
   | inl hEmpty =>
-      letI := hEmpty
+      let := hEmpty
       exact ⟨C, 1 / 192, hC, fun i => isEmptyElim i, hmass, by norm_num, le_rfl,
         fun i => isEmptyElim i⟩
   | inr hNonempty =>
-      letI := hNonempty
+      let := hNonempty
       let s := Finset.univ.image r
       have hs : s.Nonempty := Finset.univ_nonempty.image r
       have hmin : 0 < s.min' hs := by

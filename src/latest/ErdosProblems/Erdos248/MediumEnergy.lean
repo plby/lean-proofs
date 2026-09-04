@@ -306,7 +306,7 @@ theorem sq_selbergCutoff_secondDifference_le
           (selbergCutoff a - selbergCutoff (a + δ)) -
             (selbergCutoff (a + ε) - selbergCutoff (a + ε + δ)) by
         dsimp [E]
-        ring]
+        ring_nf]
       exact abs_sub _ _
     calc
       |E| ≤ |selbergCutoff a - selbergCutoff (a + δ)| +
@@ -366,7 +366,7 @@ theorem coordinateCutoff_mul_eq_add
   rw [Nat.cast_mul,
     Real.log_mul (by exact_mod_cast (Nat.one_le_iff_ne_zero.mp hp))
       (by exact_mod_cast (Nat.one_le_iff_ne_zero.mp hn))]
-  ring
+  ring_nf
 
 theorem sq_coordinateCutoff_secondDifference_le
     {K p q n : ℕ} (hp : 1 ≤ p) (hq : 1 ≤ q) (hn : 1 ≤ n)

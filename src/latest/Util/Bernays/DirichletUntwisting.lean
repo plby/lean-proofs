@@ -25,7 +25,7 @@ theorem dirichletTwist_eq_exp (a : ℕ → ℂ) (δ : ℝ) {n : ℕ} (hn : n ≠
     rw [Complex.cpow_def_of_ne_zero hnC, hlogC,
       ← Complex.ofReal_mul, ← Complex.ofReal_exp]
     congr 1
-    ring
+    ring_nf
   rw [dirichletTwist, LSeries.term_of_ne_zero hn, Complex.cpow_add _ _ hnC,
     Complex.cpow_one, hpow]
   rw [neg_mul, Real.exp_neg, Complex.ofReal_inv]

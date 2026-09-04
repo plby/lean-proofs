@@ -51,7 +51,7 @@ noncomputable instance decoratedRenewalCodeCountable
         children u w)
   | [], u, w => inferInstanceAs (Countable (EscapeCode u w))
   | child :: children, u, w => by
-      letI (v : Middle) : Countable
+      let (v : Middle) : Countable
           (DecoratedRenewalCode InwardCode ChildCode EscapeCode
             children v w) :=
         decoratedRenewalCodeCountable InwardCode ChildCode EscapeCode

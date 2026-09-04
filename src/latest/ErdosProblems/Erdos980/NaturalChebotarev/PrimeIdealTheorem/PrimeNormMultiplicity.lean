@@ -34,7 +34,7 @@ instance primeNormFiber_finite
     Finite (primeNormFiber K n) := by
   let f : primeNormFiber K n → {I : Ideal (𝓞 K) // Ideal.absNorm I = n} :=
     fun P ↦ ⟨P.1.1, P.2⟩
-  letI : Finite {I : Ideal (𝓞 K) // Ideal.absNorm I = n} :=
+  let : Finite {I : Ideal (𝓞 K) // Ideal.absNorm I = n} :=
     (Ideal.finite_setOfPred_absNorm_eq (S := 𝓞 K) n).to_subtype
   exact Finite.of_injective f fun P Q h ↦ by
     apply Subtype.ext
@@ -52,8 +52,8 @@ variable (L : Type*) [Field L] [NumberField L] [Algebra ℚ L] [IsGalois ℚ L]
 
 private theorem residueDegree_pos (P : PrimeIdeal L) :
     0 < SplitTransfer.residueDegree L P.1 := by
-  letI : P.1.IsPrime := P.2.1
-  letI : P.1.LiesOver (P.1.under (𝓞 ℚ)) :=
+  let : P.1.IsPrime := P.2.1
+  let : P.1.LiesOver (P.1.under (𝓞 ℚ)) :=
     Ideal.over_under (A := 𝓞 ℚ) (P := P.1)
   exact Ideal.inertiaDeg_pos' _ _
 
@@ -71,11 +71,11 @@ theorem primeNormMultiplicity_le_degree (n : ℕ) :
       have hnorm := congrArg Ideal.absNorm h
       rw [SplitTransfer.absNorm_rationalIdeal, Ideal.absNorm_bot] at hnorm
       exact hp.ne_zero hnorm
-    letI : (SplitTransfer.rationalIdeal p).IsPrime :=
+    let : (SplitTransfer.rationalIdeal p).IsPrime :=
       SplitTransfer.rationalIdeal_isPrime hp
-    letI : (SplitTransfer.rationalIdeal p).IsMaximal :=
+    let : (SplitTransfer.rationalIdeal p).IsMaximal :=
       (SplitTransfer.rationalIdeal_isPrime hp).isMaximal hp0
-    haveI : Finite {P : Ideal (𝓞 L) // P.IsPrime ∧
+    have : Finite {P : Ideal (𝓞 L) // P.IsPrime ∧
         P.LiesOver (SplitTransfer.rationalIdeal p)} :=
       (IsDedekindDomain.primesOver_finite
         (SplitTransfer.rationalIdeal p) (𝓞 L)).to_subtype
@@ -110,7 +110,7 @@ theorem primeNormMultiplicity_le_degree (n : ℕ) :
       exact congrArg (fun z : {P : Ideal (𝓞 L) // P.IsPrime ∧
         P.LiesOver (SplitTransfer.rationalIdeal p)} ↦ z.1) h).trans
           (SplitTransfer.card_primesAbove_le_degree L hp)
-  · haveI : IsEmpty (primeNormFiber L n) := not_nonempty_iff.mp hne
+  · have : IsEmpty (primeNormFiber L n) := not_nonempty_iff.mp hne
     simp [primeNormMultiplicity, Nat.card_eq_zero]
 
 end PrimeNormMultiplicity

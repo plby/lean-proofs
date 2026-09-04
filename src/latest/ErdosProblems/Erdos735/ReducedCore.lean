@@ -103,7 +103,7 @@ theorem hasConcreteABKPRSetup
     (hd : d ∈ nonordinaryPoints P)
     (hncol : ¬ ProjectiveDuality.Collinear3 a b d) :
     HasConcreteABKPRSetup hred ha hb hd hncol := by
-  letI : Nonempty (ProjectiveBoundaryExtraction.Line (nonordinaryPoints P)) :=
+  let : Nonempty (ProjectiveBoundaryExtraction.Line (nonordinaryPoints P)) :=
     ⟨⟨a, ha⟩⟩
   let C := ConcretePolarCellulation.blueCellulation
     (nonordinaryPoints P) ha hb hd hncol
@@ -156,13 +156,13 @@ noncomputable abbrev D (S : Setup P w c) : ABKPR.Data S.C :=
   ConcretePolarABKPRData.concreteData S.hred S.ha S.hb S.hd S.hncol
 
 theorem endpointRestriction (S : Setup P w c) : S.D.EndpointRestriction := by
-  letI := S.lineNonempty
+  let := S.lineNonempty
   exact
     ConcretePolarEndpointRestriction.concreteData_endpointRestriction
       S.hred S.ha S.hb S.hd S.hncol
 
 theorem neighborPacking (S : Setup P w c) : S.D.NeighborPacking := by
-  letI := S.lineNonempty
+  let := S.lineNonempty
   exact S.D.neighborPacking_of_endpointRestriction S.endpointRestriction
 
 theorem leviProperty (S : Setup P w c) :
@@ -176,7 +176,7 @@ Stage-3 obstructions occurs, or the complete reduced Stage-3 geometry has
 already been constructed. -/
 theorem stage3Dichotomy (S : Setup P w c) :
     S.D.Stage3LocalObstruction ∨ Nonempty S.D.ReducedStage3Geometry := by
-  letI := S.lineNonempty
+  let := S.lineNonempty
   exact ConcreteStage3Local.localObstruction_or_reducedStage3Geometry
     S.hred S.ha S.hb S.hd S.hncol
 

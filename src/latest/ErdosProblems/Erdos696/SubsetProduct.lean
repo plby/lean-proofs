@@ -90,7 +90,7 @@ lemma subsetProd_uniform {K : ℕ} (S : Finset (Fin K)) (hS : S.Nonempty) (a : G
         have hg : g.1 i0 * (∏ x ∈ S.erase i0, g.1 x) = a := by
           rw [Finset.mul_prod_erase S (fun j => g.1 j) hi0]
           exact g.2
-        simp
+        simp only [↓reduceIte]
         rw [hprod]
         let q := ∏ x ∈ S.erase i0, g.1 x
         have hg' : (g.1 i0 * q) * q⁻¹ = a * q⁻¹ := congrArg (fun y => y * q⁻¹) hg
@@ -230,7 +230,7 @@ private lemma subsetProd_pair_uniform_aux {K : ℕ}
         have hgS : g.1 i0 * (∏ x ∈ S.erase i0, g.1 x) = a := by
           rw [Finset.mul_prod_erase S (fun j => g.1 j) hi0S]
           exact g.2.1
-        simp
+        simp only [↓reduceIte]
         rw [hprodS]
         let q := ∏ x ∈ S.erase i0, g.1 x
         have hg' : (g.1 i0 * q) * q⁻¹ = a * q⁻¹ := congrArg (fun y => y * q⁻¹) hgS
@@ -441,9 +441,9 @@ theorem subset_product_main {K : ℕ} (hK : 1 ≤ K) :
       intro S hS T hT
       by_cases hST : S = T
       · subst T
-        simp
+        simp only [and_self, Finset.sum_boole, Nat.cast_id, ↓reduceIte]
         exact subsetProd_uniform S (Finset.mem_filter.mp hS).2 1
-      · simp [hST]
+      · simp only [Finset.sum_boole, Nat.cast_id, hST, ↓reduceIte]
         exact subsetProd_pair_uniform S T (Finset.mem_filter.mp hS).2
           (Finset.mem_filter.mp hT).2 hST 1 1
     have hinner_bound : ∀ S ∈ A,
@@ -471,7 +471,7 @@ theorem subset_product_main {K : ℕ} (hK : 1 ≤ K) :
           _ = (A.card - 1) * (Fintype.card G) ^ (K - 2) := by
                 rw [Finset.sum_const, smul_eq_mul, Finset.card_erase_of_mem hS]
       rw [herase]
-      simp
+      simp only [↓reduceIte, ge_iff_le]
       have hmul :
           (A.card - 1) * (Fintype.card G) ^ (K - 2) ≤
             A.card * (Fintype.card G) ^ (K - 2) :=

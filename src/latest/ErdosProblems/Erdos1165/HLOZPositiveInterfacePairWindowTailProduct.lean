@@ -71,7 +71,7 @@ theorem sum_positiveInterfacePairWindow_coordinateMass_le_two_mul_windowMass
   let data := PositiveInterfaceExternalPairFiber eta
   let D := supportComplementDistinguished t eta.1.1.start
     eta.1.1.retained eta.1.2
-  letI pairFintype : Fintype (PositiveInterfaceExternalPairCoordinate eta) :=
+  let pairFintype : Fintype (PositiveInterfaceExternalPairCoordinate eta) :=
     instFintypeTilingAwayDomino t eta.1.1.start eta.1.1.retained D
   let pointMass := tilingAwayPointMass (cap := data.coordinateCap cap) t
     eta.1.1.start eta.1.1.retained D
@@ -280,7 +280,7 @@ theorem positiveInterfaceExternalPairSourceScreenMass_le_of_not_windowRatio
   let data := PositiveInterfaceExternalPairFiber eta
   let D := supportComplementDistinguished t eta.1.1.start
     eta.1.1.retained eta.1.2
-  letI pairFintype : Fintype (PositiveInterfaceExternalPairCoordinate eta) :=
+  let pairFintype : Fintype (PositiveInterfaceExternalPairCoordinate eta) :=
     instFintypeTilingAwayDomino t eta.1.1.start eta.1.1.retained D
   let pointMass := tilingAwayPointMass (cap := data.coordinateCap cap) t
     eta.1.1.start eta.1.1.retained D

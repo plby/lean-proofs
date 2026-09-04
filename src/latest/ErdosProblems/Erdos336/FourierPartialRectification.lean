@@ -24,7 +24,7 @@ theorem positiveHalf_short_quotient_interval
             ∃ q : ℕ, 2 * q < m ∧ π x = α + (q : ZMod m) := by
   obtain ⟨m, hm, π, hπ, hmorder, hchar⟩ :=
     exists_frequency_quotient k hk
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   let r : Circle := fourierDirectionCircle A k hF
   obtain ⟨α, hα⟩ := roots_in_rotated_open_semicircle m r
   refine ⟨m, hm, π, hπ, hmorder, α, ?_⟩

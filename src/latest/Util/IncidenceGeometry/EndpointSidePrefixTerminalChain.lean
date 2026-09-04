@@ -179,7 +179,7 @@ lemma EndpointSidePrefixTerminalChain
           ({predecessor.source, terminalGate} :
             Set (EuclideanSpace ℝ (Fin 2))) := by
     intro Q hQ
-    simp [pieces] at hQ
+    simp only [pieces, List.mem_cons, List.not_mem_nil, or_false] at hQ
     rcases hQ with hQ | hQ | hQ
     · subst Q
       rw [Set.disjoint_left]

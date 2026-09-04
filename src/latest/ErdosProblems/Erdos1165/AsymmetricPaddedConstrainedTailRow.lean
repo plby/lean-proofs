@@ -992,7 +992,7 @@ theorem eventually_constrainedBridgeMass_le_radialTail_mul_kernel_all :
   classical
   by_cases h : Nonempty (CoarseConstrainedTailReturnTuple code)
   · exact hrow k hkLevel hk hkTwo hkp htail code (Classical.choice h)
-  · haveI : IsEmpty (CoarseConstrainedTailReturnTuple code) :=
+  · have : IsEmpty (CoarseConstrainedTailReturnTuple code) :=
       not_nonempty_iff.mp h
     simp
 

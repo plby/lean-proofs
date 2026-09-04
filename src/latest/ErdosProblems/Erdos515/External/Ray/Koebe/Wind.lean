@@ -116,11 +116,19 @@ public lemma right_inv (i : Wind f) : Function.RightInverse i.fi i.fe := by
   intro w
   by_cases w0 : w = 0
   · simp only [w0, fe_zero, fi_zero]
-  · simp only [fe, fi, norm_mul, norm_div, Complex.norm_real, Real.norm_eq_abs,
+  · have hfnorm : 0 < ‖(f (i.h.symm (snap w))).val‖ :=
+      norm_pos_iff.mpr (f (i.h.symm (snap w))).ne_zero
+    have hquot : 0 < ‖w‖ / ‖(f (i.h.symm (snap w))).val‖ :=
+      div_pos (norm_pos_iff.mpr w0) hfnorm
+    have hquot_ne : ((‖w‖ / ‖(f (i.h.symm (snap w))).val‖ : ℝ) : ℂ) ≠ 0 := by
+      exact_mod_cast hquot.ne'
+    have hcircle_ne : (i.h.symm (snap w) : ℂ) ≠ 0 := Circle.coe_ne_zero _
+    simp only [fe, fi, norm_mul, norm_div, Complex.norm_real, Real.norm_eq_abs,
       abs_norm, Circle.norm_coe, mul_one, Complex.real_smul, Complex.ofReal_div]
-    rw [← Complex.ofReal_div, snap_mul, snap_of_pos, one_mul, i.f_h_symm]
-    all_goals simp [Complex.real_smul, Complex.norm_real, ne_eq, w0, not_false_eq_true, mul_one,
-      Complex.ofReal_div]
+    rw [← Complex.ofReal_div, snap_mul hquot_ne hcircle_ne, snap_of_pos hquot,
+      one_mul, i.f_h_symm]
+    simp only [Complex.real_smul, Complex.norm_mul, Complex.norm_real, norm_norm, norm_snap,
+      mul_one, Complex.ofReal_div, snap_circle]
     nth_rw 2 [i.f_h_symm]
     rw [Complex.real_smul, ← mul_assoc, div_mul_cancel₀ _ (by simp)]
     exact norm_mul_snap w0

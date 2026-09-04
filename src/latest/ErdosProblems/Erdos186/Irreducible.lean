@@ -352,11 +352,9 @@ theorem upSavingProduct_le_pow_upwardJump (t : MoveTrace p length) {m : ℕ}
           rw [pow_add]
           exact mul_le_mul ih hsave hnew hpow_old
       | down =>
-          simp [upSavingProduct, upwardJump, hkind] at ih ⊢
-          exact ih
+          simpa [upSavingProduct, upwardJump, hkind] using ih
       | shrink =>
-          simp [upSavingProduct, upwardJump, hkind] at ih ⊢
-          exact ih
+          simpa [upSavingProduct, upwardJump, hkind] using ih
 
 /-- The product estimate obtained by iterating the one-step GAP bounds. -/
 theorem gapSize_le_multiplierProduct (t : MoveTrace p length) {m : ℕ}

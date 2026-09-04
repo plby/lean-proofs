@@ -50,7 +50,7 @@ private theorem norm_sum_natCast_mul_unit_squarefree_aux :
   induction q using Nat.strong_induction_on with
   | h q ih =>
       intro hq0 B hsq hlarge a u hu
-      letI : NeZero q := ⟨hq0⟩
+      let : NeZero q := ⟨hq0⟩
       by_cases hq1 : q = 1
       · subst q
         have htrivial := norm_sum_le_modulus 1 a ((B : ZMod 1) * u)
@@ -80,9 +80,9 @@ private theorem norm_sum_natCast_mul_unit_squarefree_aux :
             ⟨(Nat.mem_primeFactors.mp hr).1,
               (Nat.dvd_of_mem_primeFactors hr).trans (by
                 exact Nat.dvd_mul_right m p), hq0⟩
-        letI : NeZero m := ⟨hm0⟩
-        letI : NeZero p := ⟨hpPrime.ne_zero⟩
-        letI : Fact p.Prime := ⟨hpPrime⟩
+        let : NeZero m := ⟨hm0⟩
+        let : NeZero p := ⟨hpPrime.ne_zero⟩
+        let : Fact p.Prime := ⟨hpPrime⟩
         let e := ZMod.chineseRemainder hcop
         let aP : ZMod p := (e a).2 * (Nat.gcdA m p : ZMod p)
         let aM : ZMod m := (e a).1 * (Nat.gcdB m p : ZMod m)

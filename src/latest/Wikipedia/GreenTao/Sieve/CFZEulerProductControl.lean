@@ -280,7 +280,7 @@ theorem abs_cfzSystemLocalCoprimeRatio_sub_one_le
     (hlarge : cfzEulerExceptionalBound k < (p : ℕ)) :
     |cfzSystemLocalCoprimeRatio k p - 1| ≤
       cfzEulerErrorConstant k / (p : ℝ) ^ 2 := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   have hexceptional :
       exceptionalPrimeBound
           (fun q : CFZFormIndex k => cfzAffineForm q) <
@@ -303,7 +303,7 @@ theorem cfzSystemLocalCoprimeRatio_pos
     (p : Nat.Primes)
     (hlarge : cfzEulerExceptionalBound k < (p : ℕ)) :
     0 < cfzSystemLocalCoprimeRatio k p := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   have hexceptional :
       exceptionalPrimeBound
           (fun q : CFZFormIndex k => cfzAffineForm q) <

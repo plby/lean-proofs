@@ -112,7 +112,7 @@ theorem residual_weight_maximalCappedSubset_le
     have hxA := hatom x hxS
     linarith
   · rw [Finset.not_nonempty_iff_eq_empty.mp hres]
-    simp
+    simp only [sum_empty, ge_iff_le]
     exact add_nonneg hE hA
 
 /-- The retained part of the `j`th prime block. -/

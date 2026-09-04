@@ -39,7 +39,7 @@ theorem eventually_sourceRegularizationAllInputs
         ((t : ℝ≥0) ^ A) ((t : ℝ≥0) ^ D) sigma C (B j) := by
   classical
   let Orders := {j : ℕ // j ∈ Icc 4 q}
-  letI : Fintype Orders := by
+  let : Fintype Orders := by
     dsimp only [Orders]
     infer_instance
   have hsingle (j : Orders) := eventually_sourceRegularizationOrderInput j.val K Y D A v w L R C

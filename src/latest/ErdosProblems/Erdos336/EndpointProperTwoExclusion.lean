@@ -92,7 +92,7 @@ theorem endpoint_proper_two_impossible
       hbounds hthreshold hexpand sel hload
       (by simpa [D, C, r, Fsub, B, q, Δ] using hDtwo) hhalf
   · obtain ⟨L, hLC, hLCC⟩ := hquotient
-    letI : L.Normal := ⟨by
+    let : L.Normal := ⟨by
       intro n hn g
       convert hn using 1 <;> abel⟩
     let Q₃ := ((((ℤ × H) ⧸ Δ) ⧸ Fsub) ⧸ L)

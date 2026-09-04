@@ -47,7 +47,7 @@ private theorem exists_rooted_candidate_copy_aux
       exact False.elim (ha (hsub.elim a root))
   | succ n ih =>
       have hcard_large : 1 < Fintype.card A := by omega
-      letI : Nontrivial A := Fintype.one_lt_card_iff_nontrivial.mp hcard_large
+      let : Nontrivial A := Fintype.one_lt_card_iff_nontrivial.mp hcard_large
       obtain ⟨x₀, x₁, hxne, hx₀deg, hx₁deg⟩ :=
         hT.exists_ne_and_degree_eq_one
       obtain ⟨x, hxroot, hxdeg⟩ : ∃ x : A, x ≠ root ∧ T.degree x = 1 := by

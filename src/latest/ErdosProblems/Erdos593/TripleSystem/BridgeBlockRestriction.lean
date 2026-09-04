@@ -207,7 +207,7 @@ theorem activeComponentRestriction_constructible
     (hberge : K.EvenBergeCycles) {C : Component K}
     (hC : HasIncidence K C) :
     Constructible (K.edgeRestriction (componentHyperedgeSet K C)) := by
-  letI : Fintype (Point K C) := Fintype.ofFinite (Point K C)
+  let : Fintype (Point K C) := Fintype.ofFinite (Point K C)
   have hExpansion :
       Constructible (privateVertexExpansion (contractedGraph K C)) :=
     Constructible.ofExpansion (contractedGraph K C)

@@ -184,7 +184,7 @@ private lemma vertexDegree_le_card (G : SimpleGraph V) (v : V) :
 private lemma sum_vertexDegree_eq (G : SimpleGraph V) :
     ∑ v : V, FiniteES.vertexDegree G v = 2 * FiniteES.edgeCount G := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
   simpa only [FiniteES.vertexDegree_eq_degree, FiniteES.edgeCount] using
     G.sum_degrees_eq_twice_card_edges
 
@@ -377,7 +377,7 @@ lemma exists_large_score_cluster {W : Type u} [Fintype W] [DecidableEq W]
         apply (div_lt_iff₀ hw).2
         simpa only [Nat.cast_ofNat, Nat.cast_mul] using hfq v hv⟩
     else ⟨0, hq⟩
-  letI : Nonempty (Fin q) := ⟨⟨0, hq⟩⟩
+  let : Nonempty (Fin q) := ⟨⟨0, hq⟩⟩
   obtain ⟨y, _hy, hfiber⟩ :=
     Finset.exists_le_card_fiber_of_mul_le_card_of_maps_to
       (s := A) (t := (Finset.univ : Finset (Fin q))) (f := bucket) (n := b)
@@ -746,7 +746,7 @@ theorem ramseyFree_drc_scale (C : ℝ) (hC : 0 < C) (D : ℕ) (hD : 0 < D) :
     exact Nat.mul_div_le n L
   have hnumeric : n ^ t * a + n.choose D * s ^ t ≤ d ^ (t + 1) :=
     drc_numeric_of_scaled_bounds n Q L t D s a d hD hQpos hnQd hfirst hLs hsecond
-  letI : Nonempty (Fin n) := ⟨⟨0, hnpos⟩⟩
+  let : Nonempty (Fin n) := ⟨⟨0, hnpos⟩⟩
   obtain ⟨W, haW, hcommon⟩ :=
     dependentRandomChoice_of_edgeCount G d t D s a hD
       (by simpa only [Fintype.card_fin] using hedge)

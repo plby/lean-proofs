@@ -78,7 +78,7 @@ theorem alg_fix_unit
     (n : ℕ) (hn : 0 < n) (hζ : (primitiveRoots n K).Nonempty)
     (σ : L ≃ₐ[K] L) (q : Lˣ) (hq : q ^ n = 1) :
     Units.map σ q = q := by
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   let η : rootsOfUnity n L := ⟨q, (mem_rootsOfUnity n q).2 hq⟩
   let e : rootsOfUnity n K ≃* rootsOfUnity n L :=
     rootsOfUnityEquivOfPrimitiveRoots (algebraMap K L).injective hζ
@@ -253,7 +253,7 @@ theorem kummerCharacter_mul (n : ℕ) (hn : 0 < n)
     kummerCharacter K Ω n hn hζ B (σ * τ) =
       kummerCharacter K Ω n hn hζ B σ *
         kummerCharacter K Ω n hn hζ B τ := by
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   apply MonoidHom.ext
   intro b
   apply Units.ext
@@ -352,8 +352,8 @@ theorem kummer_character_injective (n : ℕ) (hn : 0 < n)
     (hζ : (primitiveRoots n K).Nonempty)
     (B : PCSubgro K n) :
     Function.Injective (kummerCharacterHom K Ω n hn hζ B) := by
-  letI : NeZero n := ⟨hn.ne'⟩
-  letI : FiniteDimensional K (kummerField K Ω n hn B) :=
+  let : NeZero n := ⟨hn.ne'⟩
+  let : FiniteDimensional K (kummerField K Ω n hn B) :=
     dimensional_kummer_field K Ω n hn B
   intro σ τ hστ
   have hSalg : Algebra.adjoin K (kummerGeneratorSet K Ω n hn B) = ⊤ := by
@@ -400,21 +400,21 @@ theorem kummer_field_card (n : ℕ) (hn : 0 < n)
     (hζ : (primitiveRoots n K).Nonempty)
     (B : PCSubgro K n) :
     Module.finrank K (kummerField K Ω n hn B) ≤ B.card := by
-  letI : NeZero n := ⟨hn.ne'⟩
-  letI : FiniteDimensional K (kummerField K Ω n hn B) :=
+  let : NeZero n := ⟨hn.ne'⟩
+  let : FiniteDimensional K (kummerField K Ω n hn B) :=
     dimensional_kummer_field K Ω n hn B
-  letI : IsGalois K (kummerField K Ω n hn B) :=
+  let : IsGalois K (kummerField K Ω n hn B) :=
     kummer_galois K Ω n hn
       ((mem_primitiveRoots hn).mp hζ.choose_spec) B
-  letI : Fintype B.carrier := B.finite_carrier.fintype
+  let : Fintype B.carrier := B.finite_carrier.fintype
   have hexp : Monoid.exponent B.carrier ∣ n := by
     apply Monoid.exponent_dvd_iff_forall_pow_eq_one.mpr
     intro b
     exact Subtype.ext (power_class_pow n b.1)
-  letI : HasEnoughRootsOfUnity K n :=
+  let : HasEnoughRootsOfUnity K n :=
     { prim := ⟨hζ.choose, (mem_primitiveRoots hn).mp hζ.choose_spec⟩
       cyc := rootsOfUnity.isCyclic K n }
-  letI : HasEnoughRootsOfUnity K (Monoid.exponent B.carrier) :=
+  let : HasEnoughRootsOfUnity K (Monoid.exponent B.carrier) :=
     HasEnoughRootsOfUnity.of_dvd K hexp
   calc
     Module.finrank K (kummerField K Ω n hn B) =

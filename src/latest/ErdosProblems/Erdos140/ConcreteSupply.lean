@@ -4011,7 +4011,7 @@ theorem exists_rawConcreteSupply :
           exact_mod_cast C.cardOne
         simpa [FinalAssembly.RankRegularLocatedRestriction.card] using
           child_card_of_loss s.located hloss hfirstBudget hvol
-      letI : NeZero (intervalModulus N) := ⟨by simp [intervalModulus]⟩
+      let : NeZero (intervalModulus N) := ⟨by simp [intervalModulus]⟩
       have hodd : Odd (intervalModulus N) := by
         exact ⟨N, by simp [intervalModulus, two_mul]⟩
       let W : BohrData (ZMod (intervalModulus N)) :=

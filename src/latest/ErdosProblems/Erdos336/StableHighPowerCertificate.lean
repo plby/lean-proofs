@@ -108,7 +108,7 @@ theorem stableHighPowerCertificate_of_quotient
     rw [exactPower_eq_nsmul, two_nsmul]
     exact ⟨x, hx, 0, hzS, by simp⟩
   have hGcard : Fintype.card G = m * k := by
-    letI : Fintype K := Fintype.ofFinite K
+    let : Fintype K := Fintype.ofFinite K
     rw [← Nat.card_eq_fintype_card,
       AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup]
     congr 1
@@ -210,7 +210,7 @@ theorem stableHighPowerCertificate_of_failed_growth
         ⟨Nat.card_ne_zero.mpr ⟨inferInstance, inferInstance⟩⟩
       StableHighPowerCertificate (cyclicQuotientHom K '' C) t) :
     StableHighPowerCertificate C t := by
-  letI : NeZero (Nat.card (G ⧸ K)) :=
+  let : NeZero (Nat.card (G ⧸ K)) :=
     ⟨Nat.card_ne_zero.mpr ⟨inferInstance, inferInstance⟩⟩
   have hdata := failed_growth_cyclic_quotient_highPower_data K C t
     hzero hprimitive hfail hdoub
@@ -249,18 +249,18 @@ theorem proper_saturation_growth_of_smaller_stable
       (exactPowerFinset C t).card + (addSubgroupFinset K).card := by omega
   let m := Nat.card (G ⧸ K)
   have hm : 0 < m := Nat.card_pos
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   have hdata := failed_growth_cyclic_quotient_highPower_data K C t
     hzero hprimitive hfail hdoub
   rcases hdata with ⟨_, hf, hz, hp, hd, hdef⟩
   have hGcard : Fintype.card G = m * (addSubgroupFinset K).card := by
-    letI : Fintype K := Fintype.ofFinite K
+    let : Fintype K := Fintype.ofFinite K
     rw [← Nat.card_eq_fintype_card,
       AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup]
     congr 1
     simpa [addSubgroupFinset] using (Nat.card_eq_fintype_card (α := K))
   have hk2 : 2 ≤ (addSubgroupFinset K).card := by
-    letI : Fintype K := Fintype.ofFinite K
+    let : Fintype K := Fintype.ofFinite K
     have hk := (AddSubgroup.one_lt_card_iff_ne_bot K).mpr hK
     have hk' : 1 < (addSubgroupFinset K).card := by
       simpa [addSubgroupFinset, Nat.card_eq_fintype_card] using hk

@@ -170,7 +170,7 @@ theorem range_orbitVertex :
 gift-wrapping successor. -/
 theorem orbitVertex_finRotate (i : Fin (chainHullVertexCount A)) :
     W.orbitVertex (finRotate _ i) = (W.next ((W.next ^ i.1) W.start)).1 := by
-  haveI := i.neZero
+  have := i.neZero
   have hmod : (finRotate _ i).1 ≡ i.1 + 1 [MOD chainHullVertexCount A] := by
     rw [finRotate_apply]
     simp [Nat.ModEq, Fin.add_def, chainHullVertexCount]

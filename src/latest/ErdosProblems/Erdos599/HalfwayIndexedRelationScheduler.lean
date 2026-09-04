@@ -199,7 +199,7 @@ noncomputable def properLimitCompilerOfBoundaryProvider
       (Gamma := Gamma) (Y := Y) (kappa := kappa)
       (persistent := persistent) (B := B) slice closure length := by
   intro o hoLength ho prior hcoherent
-  letI : Nonempty (Set.Iio o) := ho.nonempty_Iio.to_subtype
+  let : Nonempty (Set.Iio o) := ho.nonempty_Iio.to_subtype
   let D : ResolutionChain.ProperRelationLimitBoundary
       (ResolutionChain.ofPrior prior hcoherent) := by
     simpa only [properRelationLimitBoundaryType] using

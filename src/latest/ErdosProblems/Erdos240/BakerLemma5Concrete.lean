@@ -2010,7 +2010,7 @@ theorem rationalInterpolationUpperAtLevel_of_source_exactLiouville
             ((P.h : ℝ) * P.k * P.Omega * Real.log P.OmegaOld))) <
         Real.exp (-((5 + 34 * (13 ^ (oldRank + 1) : ℝ)) *
           ((P.h : ℝ) * P.k * P.Omega * Real.log P.OmegaOld))) := by
-    convert hsum using 1 <;> ring
+    convert hsum using 1 <;> ring_nf
   have hmSource :
       VDPLMultiIndex.weight (toSourceMultiIndex P m) ≤ P.Sstep N := by
     simpa only [weight_toSourceMultiIndex] using hm

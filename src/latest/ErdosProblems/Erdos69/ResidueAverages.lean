@@ -51,7 +51,7 @@ theorem residueFrequency_error (T d v : ℕ) (hT : 0 < T) (hd : 0 < d) :
 the modulus is composite. -/
 theorem exists_affine_residue (d Q b : ℕ) (hd : 0 < d) (hQ : Q.Coprime d) :
     ∃ v : ℕ, ∀ t : ℕ, d ∣ b + Q * t ↔ t ≡ v [MOD d] := by
-  letI : NeZero d := ⟨hd.ne'⟩
+  let : NeZero d := ⟨hd.ne'⟩
   let z : ZMod d := -((Q : ZMod d)⁻¹ * (b : ZMod d))
   refine ⟨z.val, fun t ↦ ?_⟩
   have hinv : (Q : ZMod d)⁻¹ * (Q : ZMod d) = 1 := by

@@ -76,7 +76,7 @@ theorem boundaryWave_of_sectionSixData
     intro p hp
     exact hInitial ⟨p, hp.1, rfl⟩
 
-  letI : Nonempty V := ⟨a⟩
+  let : Nonempty V := ⟨a⟩
   obtain ⟨e, henum⟩ := Set.countable_iff_exists_subset_range.mp hXcount
   let R := SafeLinkGroundFinal.DWeb.groundRemoved G a X e
   let ground : (base.delete R).Wave :=

@@ -51,7 +51,7 @@ lemma ConsistsOfTriangles.coveredGraph_degree_le_neighborSet_ncard
     {G : SimpleGraph V} {A R : TripleSystemOn V}
     (htri : ConsistsOfTriangles G A) (hRA : R ⊆ A) (v : V) :
     (coveredGraph R).degree v ≤ (G.neighborSet v).ncard := by
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   have hcovered : coveredGraph R ≤ G := by
     intro u w huw
     obtain ⟨T, hTR, huT, hwT, huwn⟩ := coveredGraph_adj.mp huw
@@ -148,7 +148,7 @@ lemma coveredGraph_sdiff_historical_degree_le
     (hPsub : P' ⊆ (I ∪ (D ∪ R)) ∪ A) (v : V) :
     (coveredGraph (P' \ (I ∪ D))).degree v ≤
       (coveredGraph R).degree v + (G.neighborSet v).ncard := by
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   calc
     (coveredGraph (P' \ (I ∪ D))).degree v ≤
         (coveredGraph R).degree v + G.degree v :=
@@ -179,7 +179,7 @@ lemma processedSimultaneousLink_leave_sides
       (∀ b : ↥(K o).right,
         (leaveGraph P').Adj (K o).center b.1) := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   have side_leave : ∀ {v : V},
       v ∈ (K o).left ∪ (K o).right →
       (leaveGraph P').Adj (K o).center v := by

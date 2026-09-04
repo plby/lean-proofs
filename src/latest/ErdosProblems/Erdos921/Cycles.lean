@@ -240,7 +240,7 @@ theorem hasOddCycleAtMost_card_of_four_le_chromaticNumber {G : SimpleGraph V}
   have hχcard := hχ.trans G.chromaticNumber_le_card
   have hcard4 : 4 ≤ Fintype.card V := by
     exact_mod_cast hχcard
-  letI : Nonempty V := Fintype.card_pos_iff.mp (by omega)
+  let : Nonempty V := Fintype.card_pos_iff.mp (by omega)
   have hex : HasOddCycleAtMost G (4 * 1 * Fintype.card V + 1) := by
     by_contra hno
     have hcol : G.Colorable 2 := by

@@ -542,7 +542,7 @@ theorem exists_bounded_restricted_modular_generators
           ∃ f : Finset (Fin n), f ⊆ Q ∧
             cap ≤ counterLoad (fun f Q ↦ f ⊆ Q) selected f := by
   classical
-  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  let : NeZero N := ⟨Nat.ne_of_gt hN⟩
   let vec := modCliqueBoundaryOn N r K
   let inc : Finset (Fin n) → Finset (Fin n) → Prop := fun f Q ↦ f ⊆ Q
   let selected := greedyRunFrom vec (InAdditiveSpan vec) inc cap ∅
@@ -588,7 +588,7 @@ theorem exists_bounded_restricted_modular_generators_lowerFaces
           ∃ f : Finset (Fin n), f.card = r - 1 ∧ f ⊆ Q ∧
             cap ≤ counterLoad (fun f Q ↦ f ⊆ Q) selected f := by
   classical
-  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  let : NeZero N := ⟨Nat.ne_of_gt hN⟩
   let vec := modCliqueBoundaryOn N r K
   let inc : Finset (Fin n) → Finset (Fin n) → Prop := fun f Q ↦
     f.card = r - 1 ∧ f ⊆ Q
@@ -883,7 +883,7 @@ theorem exists_twoCap_restricted_modular_generators
           ∃ e : Finset (Fin n), e.card = r ∧ e ⊆ Q ∧
             edgeCap ≤ counterLoad (fun e Q ↦ e ⊆ Q) selected e := by
   classical
-  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  let : NeZero N := ⟨Nat.ne_of_gt hN⟩
   let Counter := Sum (Finset (Fin n)) (Finset (Fin n))
   let vec := modCliqueBoundaryOn N r K
   let inc : Counter → Finset (Fin n) → Prop

@@ -388,9 +388,9 @@ theorem regular_mem_primary_or_secondary
                       calc
                         p₂ * L ≤ (p₃ * L) * L := Nat.mul_le_mul_right L hp₂le
                         _ = p₃ * L ^ 2 := by ring
-                    simp at hr
-                    subst r
-                    exact hp₂Lle.trans_lt hgap₃₁
+                    rcases List.mem_cons.mp hr with rfl | hr
+                    · exact hp₂Lle.trans_lt hgap₃₁
+                    · simp only [List.not_mem_nil] at hr
                   · simp
                   · simp
                   · calc

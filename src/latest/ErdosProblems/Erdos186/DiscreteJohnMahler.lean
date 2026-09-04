@@ -154,7 +154,7 @@ theorem mahlerBasis_coordinate_mul_successiveMinimum_le
     (z : LatticePoint d) (hz : p (integralEmbed z) ≤ 1) (i : Fin d) :
     |(b.repr z i : ℝ)| * successiveMinimum p i ≤
       (d.factorial : ℝ) * (d : ℝ) ^ d * (8 : ℝ) ^ d := by
-  letI : Nonempty (Fin d) := ⟨⟨0, hd⟩⟩
+  let : Nonempty (Fin d) := ⟨⟨0, hd⟩⟩
   let lambda : Fin d → ℝ := fun j ↦ successiveMinimum p j
   let R : Fin d → ℝ := fun j ↦ (d : ℝ) * lambda j
   let a : Fin d → ℝ := fun j ↦ if j = i then 1 else (R j)⁻¹

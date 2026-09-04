@@ -63,9 +63,18 @@ theorem parikhCount_block {k : ℕ} (f : ℕ → Fin k) (s l : ℕ) (c : Fin k) 
   unfold parikhCount;
   rw [ show { j ∈ Finset.range ( s + l ) | f j = c } = Finset.filter ( fun j => f j = c ) ( Finset.range s ) ∪ Finset.filter ( fun j => f j = c ) ( Finset.Ico s ( s + l ) ) from ?_, Finset.card_union_of_disjoint ];
   · rw [ show { j ∈ Finset.Ico s ( s + l ) | f j = c } = Finset.image ( fun j => s + j ) ( Finset.filter ( fun j => f ( s + j ) = c ) ( Finset.range l ) ) from ?_, Finset.card_image_of_injective _ fun x y hxy => by simpa using hxy ];
-    · simp +decide [ infBlock ];
-      rw [ List.filter_map ] ; aesop;
-    · ext; simp [Finset.mem_Ico, Finset.mem_image];
+    · simp +decide only [add_tsub_cancel_left];
+      unfold infBlock
+      rw [List.filter_map]
+      induction l with
+      | zero => simp
+      | succ l ih =>
+          rw [List.range_succ, List.filter_append, List.map_append,
+            List.length_append, ih, Finset.range_add_one, Finset.filter_insert]
+          by_cases h : f (s + l) = c
+          · simp [h]
+          · simp [h]
+    · ext; simp only [Finset.mem_filter, Finset.mem_Ico, Finset.mem_image, Finset.mem_range];
       exact ⟨ fun h => ⟨ ‹_› - s, ⟨ by omega, by simpa [ add_tsub_cancel_of_le h.1.1 ] using h.2 ⟩, by omega ⟩, by rintro ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩ ; exact ⟨ ⟨ by linarith, by linarith ⟩, ha₂ ⟩ ⟩;
   · exact Finset.disjoint_left.mpr fun x hx₁ hx₂ => by linarith [ Finset.mem_range.mp ( Finset.mem_filter.mp hx₁ |>.1 ), Finset.mem_Ico.mp ( Finset.mem_filter.mp hx₂ |>.1 ) ] ;
   · grind

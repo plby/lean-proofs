@@ -25,7 +25,7 @@ the unit attached to that natural. -/
 theorem unitResidue_eq_mod_iff_eq_unitOfCoprime {m q : ℕ} (hq : 0 < q)
     (hcop : m.Coprime q) (a : (ZMod q)ˣ) :
     unitResidue q a = m % q ↔ a = ZMod.unitOfCoprime m hcop := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   constructor
   · intro hres
     apply Units.ext
@@ -40,7 +40,7 @@ coprime to `q`. -/
 theorem coprime_of_mod_eq_unitResidue {m q : ℕ} (hq : 0 < q)
     (a : (ZMod q)ˣ) (hres : m % q = unitResidue q a) :
     m.Coprime q := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   have heq : (m : ZMod q) = (a : ZMod q) := by
     apply ZMod.val_injective q
     rw [ZMod.val_natCast]

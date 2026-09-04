@@ -176,7 +176,7 @@ theorem sum_literalProfileLocalChildrenKernel_eq_integratedMarkedKernel
         (profileInnerBoundary n (depth + 2) center)
         (profileInnerBoundary n (depth + 3) center)
         (entrance i).1 (gapMultiplicity g i) := by
-  letI : Fintype
+  let : Fintype
       (InnerBoundaryPoint (profileInnerBoundary n (depth + 3) center)) :=
     Fintype.ofEquiv (ProfileCycleMiddlePoint n (depth + 3) center)
       (profileInnerBoundaryPointEquiv n (depth + 3) center).symm

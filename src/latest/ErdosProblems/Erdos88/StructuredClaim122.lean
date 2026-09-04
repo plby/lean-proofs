@@ -416,7 +416,7 @@ theorem bucketShiftMoment_fixedWindow_le_sourceScale {n m : ℕ} (hn : 0 < n)
       ((45 / 4 : ℝ) * (q / 32) ^ (-(5 : ℝ) / 2) +
         (1 / 8 : ℝ) * (q / 32) ^ (-(1 : ℝ) / 2) +
         3 * (q / 32) ^ (-(3 : ℝ) / 2)) * (n : ℝ) ^ (3 / 2 : ℝ) := by
-  letI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+  let : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
   have hunit :=
     LinearLCDCancellation.finExpectation_shiftMoment_fixedWindow_le_sourceScale
     beta (bucketShiftQuadraticMatrix P hbucket G)

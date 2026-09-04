@@ -53,7 +53,7 @@ lemma abs_cos_sub_exp_neg_half_sq_le (u : ℝ) (hu : |u| ≤ 1) :
         (Real.cos u - (1 - u ^ 2 / 2)) +
           ((1 - x) - Real.exp (-x)) := by
     dsimp only [x]
-    ring
+    ring_nf
   rw [hdecomp]
   calc
     |(Real.cos u - (1 - u ^ 2 / 2)) +
@@ -367,7 +367,7 @@ theorem fourierError_rademacherLinearLaw_centeredGaussianLaw_le
         (Real.pi ^ 4 / (∑ i, a i ^ 2) ^ 2) := by
   let V : ℝ := ∑ i, a i ^ 2
   let C : ℝ := (3 / 2 : ℝ) * thirdAbsMass a
-  letI : IsProbabilityMeasure (centeredGaussianLaw (Real.sqrt V)) := by
+  let : IsProbabilityMeasure (centeredGaussianLaw (Real.sqrt V)) := by
     unfold centeredGaussianLaw
     infer_instance
   have hC : 0 ≤ C := by
@@ -462,7 +462,7 @@ theorem smallBall_rademacherLinearLaw_lower
   have hsigma : 0 < sigma := by
     dsimp only [sigma]
     exact Real.sqrt_pos.2 (by simpa only [V] using hV)
-  letI : IsProbabilityMeasure (centeredGaussianLaw sigma) := by
+  let : IsProbabilityMeasure (centeredGaussianLaw sigma) := by
     unfold centeredGaussianLaw
     infer_instance
   have herr : Esseen.fourierError (rademacherLinearLaw a)

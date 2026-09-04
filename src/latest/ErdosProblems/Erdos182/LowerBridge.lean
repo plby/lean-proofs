@@ -529,7 +529,7 @@ lemma containsThreeRegular_of_containsRegular_of_bipartite
     ContainsRegularSubgraph G 3 := by
   classical
   obtain ⟨H, hHne, hHreg⟩ := h
-  letI : Nonempty H.verts := Set.nonempty_coe_sort.mpr hHne
+  let : Nonempty H.verts := Set.nonempty_coe_sort.mpr hHne
   have hHbip : H.coe.IsBipartite := by
     obtain ⟨s, t, hst⟩ := hbip.exists_isBipartiteWith
     let s' : Set H.verts := {v | (v : V) ∈ s}

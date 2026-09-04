@@ -561,8 +561,8 @@ private theorem card_odd_of_bipartite_after_delete_edge
     (hTother : ∀ v, v ∈ T → v ≠ a → v ≠ b →
       (G.deleteEdges {s(a,b)}).degree v = 2)
     (hcover : S ∪ T = Set.univ) : Odd (Fintype.card V) := by
-  letI : Fintype S := Fintype.ofFinite S
-  letI : Fintype T := Fintype.ofFinite T
+  let : Fintype S := Fintype.ofFinite S
+  let : Fintype T := Fintype.ofFinite T
   let H := G.deleteEdges {s(a,b)}
   have hdel := degree_delete_single_edge G hab hdeg
   have hdelH : ∀ v, H.degree v = if v = a ∨ v = b then 1 else 2 := by
@@ -812,7 +812,7 @@ private theorem exists_degree_le_one_of_even_aux
       AffineSubspace.vsub_mem_direction (hcircle.mem_plane x.property) hcircle.2.1⟩
   let s : ℝ := r ^ 2
   let t : ℝ := s - 1 / 2
-  letI : Fact (Module.finrank ℝ P.direction = 2) := ⟨hcircle.1⟩
+  let : Fact (Module.finrank ℝ P.direction = 2) := ⟨hcircle.1⟩
   let o : Orientation ℝ P.direction (Fin 2) :=
     (Module.finBasisOfFinrankEq ℝ P.direction hcircle.1).orientation
   have hvec_inj : Function.Injective vec := by
@@ -1384,7 +1384,7 @@ theorem unit_chords_eq_or_swap_of_large_radius
   let B : P.direction := ⟨b -ᵥ c, AffineSubspace.vsub_mem_direction hbP hc⟩
   let X : P.direction := ⟨x -ᵥ c, AffineSubspace.vsub_mem_direction hxP hc⟩
   let Y : P.direction := ⟨y -ᵥ c, AffineSubspace.vsub_mem_direction hyP hc⟩
-  letI : Fact (Module.finrank ℝ P.direction = 2) := ⟨hdim⟩
+  let : Fact (Module.finrank ℝ P.direction = 2) := ⟨hdim⟩
   let o : Orientation ℝ P.direction (Fin 2) :=
     (Module.finBasisOfFinrankEq ℝ P.direction hdim).orientation
   have hA : ‖A‖ ^ 2 = r ^ 2 := by

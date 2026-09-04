@@ -80,7 +80,7 @@ lemma component_supp_closed_of_nonseed_adj (T : SimpleGraph α) (S : Finset α)
     (hx : x ∈ c.supp) (hxs : x ∉ S) (hys : y ∉ S) (hxy : T.Adj x y) :
     y ∈ c.supp := by
       obtain ⟨ z, hz ⟩ := hx;
-      simp +decide [ *, SimpleGraph.ConnectedComponent.supp ];
+      simp +decide only [ConnectedComponent.mem_supp_iff, ConnectedComponent.eq];
       exact SimpleGraph.Reachable.symm ( SimpleGraph.Adj.reachable ( seedDeleted_adj_iff T S x y |>.2 ⟨ hxy, hxs, hys ⟩ ) )
 
 /-

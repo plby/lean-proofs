@@ -71,7 +71,7 @@ theorem riemannMap_noInteriorLimit {D : Set ℂ} {F : ℂ → ℂ}
   intro theta b hb hbD
   let l : Filter ℝ := nhdsWithin (1 : ℝ) (Ico (0 : ℝ) 1)
   have hclosure : (1 : ℝ) ∈ closure (Ico (0 : ℝ) 1) := by simp
-  letI : l.NeBot := mem_closure_iff_nhdsWithin_neBot.mp hclosure
+  let : l.NeBot := mem_closure_iff_nhdsWithin_neBot.mp hclosure
   have hGb : Tendsto (fun r ↦ G (shortPathRadialCurve F theta r)) l (nhds (G b)) :=
     (hGcont b hbD).tendsto.comp hb
   have heventual : (fun r ↦ G (shortPathRadialCurve F theta r)) =ᶠ[l]
@@ -115,7 +115,7 @@ theorem tendsto_control_along_finite_riemannRadius
       (nhdsWithin (1 : ℝ) (Ico (0 : ℝ) 1)) (nhds b) := by
     simpa only [hset] using hb
   have hclosureParam : (1 : ℝ) ∈ closure (Ico (0 : ℝ) 1) := by simp
-  letI : (nhdsWithin (1 : ℝ) (Ico (0 : ℝ) 1)).NeBot :=
+  let : (nhdsWithin (1 : ℝ) (Ico (0 : ℝ) 1)).NeBot :=
     mem_closure_iff_nhdsWithin_neBot.mp hclosureParam
   have hbclosure : b ∈ closure (sublevelComponent u level base) := by
     apply isClosed_closure.mem_of_tendsto hb'

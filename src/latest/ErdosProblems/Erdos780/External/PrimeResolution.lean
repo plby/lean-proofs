@@ -89,7 +89,7 @@ theorem exists_eligible_of_large_support {p n r : ℕ} (hp : p.Prime)
     (x : SignedVector p n) (hlarge : p * (r - 1) < (support x).card) :
     (eligibleEdges (r := r) x).Nonempty := by
   classical
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   let f : ↑(support x) → ZMod p := signOnSupport x
   have hmul : Fintype.card (ZMod p) * (r - 1) < Fintype.card ↑(support x) := by
     rw [ZMod.card, Fintype.card_coe]
@@ -273,7 +273,7 @@ theorem primeLabel_admissible {p n r t : ℕ} (hp : p.Prime) (hr : 1 ≤ r)
     have hsub : x = y := Subtype.ext hval
     simpa [hsub]
   · intro xs hmono hcommon hsurj
-    letI : NeZero p := ⟨hp.ne_zero⟩
+    let : NeZero p := ⟨hp.ne_zero⟩
     obtain ⟨j, hjhigh, hj⟩ := hcommon
     have hlarge : ∀ i, p * (r - 1) < (support (xs i).1).card := by
       intro i

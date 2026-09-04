@@ -17,7 +17,7 @@ theorem exists_ideal_of_signed_goodMaximals {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
           (J : Ideal (QuadraticAlgebra ℤ d b)).cardQuot =
             ((∏ i, P i : InvertibleIdeal (QuadraticAlgebra ℤ d b)) :
               Ideal (QuadraticAlgebra ℤ d b)).cardQuot := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro k P hP σ
   choose Q hQc hQN using fun i => goodMaximal_inverseClass_sameNorm hD (P i) (hP i).1 (hP i).2
   let T : Fin k → InvertibleIdeal (QuadraticAlgebra ℤ d b) := fun i => if σ i then Q i else P i
@@ -42,7 +42,7 @@ theorem exists_goodMaximal_tuple {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       ∃ k : ℕ, ∃ P : Fin k → InvertibleIdeal (QuadraticAlgebra ℤ d b),
         (∏ i, P i) = I ∧ ∀ i, (P i : Ideal (QuadraticAlgebra ℤ d b)).IsMaximal ∧
           IsCoprime (P i : Ideal (QuadraticAlgebra ℤ d b)) (quadraticBadIdeal d b) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I hI
   obtain ⟨l, hl, hP⟩ := goodQuadraticIdeal_factorization hD I hI
   refine ⟨l.length, l.get, ?_, fun i => hP _ (List.get_mem l i)⟩
@@ -65,8 +65,8 @@ theorem exists_squareSubgroup_of_missing_ideal_class {d b : ℤ} (hD : b ^ 2 + 4
         countOutsideSubgroup H (List.ofFn fun i => classSquareElement (P i).idealClass) <
           Nat.card (classSquareSubgroup : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b))) := by
   classical
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
   intro k P hP C hgenus hmiss
   apply exists_proper_squareSubgroup_with_few_coordinates_of_no_signedProduct
     (fun i => (P i).idealClass) C hgenus

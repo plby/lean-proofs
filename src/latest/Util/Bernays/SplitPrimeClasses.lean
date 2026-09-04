@@ -63,14 +63,14 @@ theorem ideal_mul_conjugate (hD : b ^ 2 + 4 * d < 0) (s : SplitPrime d b) :
     letI := quadraticOrderIsDomain hD
     ((s.ideal hD false : Ideal (QuadraticAlgebra ℤ d b)) * (s.ideal hD true : Ideal _)) =
       Ideal.span ({((s.1 : ℤ) : QuadraticAlgebra ℤ d b)} : Set _) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   exact rootIdeal_mul d b s.1 s.root_sq (s.orientedRoot_sq true)
     (quadratic_roots_distinct _ _ _ s.root_sq s.discr_ne_zero)
 
 theorem idealClass_conjugate (hD : b ^ 2 + 4 * d < 0) (s : SplitPrime d b) :
     letI := quadraticOrderIsDomain hD
     (s.ideal hD true).idealClass = (s.idealClass hD)⁻¹ := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   have hq : ((s.1 : ℤ) : QuadraticAlgebra ℤ d b) ≠ 0 := by
     intro h
     have hr := congrArg QuadraticAlgebra.re h
@@ -98,7 +98,7 @@ theorem oriented_idealClass_mem_iff (hD : b ^ 2 + 4 * d < 0) (s : SplitPrime d b
     letI := quadraticOrderIsDomain hD
     ∀ H : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b)), ∀ ε : Bool,
       (s.ideal hD ε).idealClass ∈ H ↔ s.idealClass hD ∈ H := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro H ε
   cases ε
   · rfl

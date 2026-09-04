@@ -183,7 +183,7 @@ theorem one_le_pointGlobalConstant_mul_lambda {n : ℕ}
   rw [← Real.rpow_natCast]
   have hQpos : (0 : ℝ) < Q := by exact_mod_cast Nat.zero_lt_of_lt hQ
   rw [← Real.rpow_mul hQpos.le]
-  ring
+  ring_nf
 
 /-- Division form of `one_le_pointGlobalConstant_mul_lambda`. -/
 theorem lambda_lower_of_local_bounds {n : ℕ}

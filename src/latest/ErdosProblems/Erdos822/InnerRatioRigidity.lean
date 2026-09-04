@@ -69,7 +69,7 @@ theorem smallFactor_eq_of_same_prime_inner_cross_eq {k k' r : ℕ}
       _ = (k * r * (Nat.totient k * (r - 1))) * (k' * r + Nat.totient k' * (r - 1)) := by ring
       _ = _ := heq
       _ = _ := by ring
-  letI : Fact r.Prime := ⟨hr⟩
+  let : Fact r.Prime := ⟨hr⟩
   have hu : (Nat.totient k : ZMod r) ≠ 0 := by
     intro hzero
     exact Nat.not_dvd_of_pos_of_lt (Nat.totient_pos.mpr hk) ((Nat.totient_le k).trans_lt hkr)

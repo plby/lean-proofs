@@ -55,8 +55,8 @@ theorem safeGlobalParam_half
     {d t : ℕ} (hd : 0 < d) (hq : 2 * t ≤ (Nat.card K) ^ 2) :
     Nat.card (GoodParam K d) * Nat.card (((Fin d → K) × K)) ^ t ≤
       2 * Nat.card (SafeGlobalParam K d t) := by
-  letI : Fintype (GoodParam K d) := Fintype.ofFinite _
-  letI safeFinite (p : GoodParam K d) : Finite (SafeOutside p t) :=
+  let : Fintype (GoodParam K d) := Fintype.ofFinite _
+  let safeFinite (p : GoodParam K d) : Finite (SafeOutside p t) :=
     Finite.of_injective Subtype.val Subtype.val_injective
   have hsig : Nat.card (SafeGlobalParam K d t) =
       ∑ p : GoodParam K d, Nat.card (SafeOutside p t) := Nat.card_sigma

@@ -584,8 +584,8 @@ private lemma tested_component_ne_newPrime
     (hopp : (newPrimeComponent p u a hp hcop).reduce lam₁ =
       -(newPrimeComponent p u a hp hcop).reduce lam₂) :
     c.p ≠ p := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : Fact p.Prime := ⟨hp⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : Fact p.Prime := ⟨hp⟩
   intro hcp
   have hpq : p ∣ c.q := by
     rw [PrimaryComponent.q, hcp]
@@ -694,7 +694,7 @@ private theorem old_new_consistent
       -c.localQuotient (((j₁ : ℕ) : ℤ) - (j₂ : ℕ)) := by
     simp only [PrimaryComponent.localQuotient]
     convert localizedQuotient_neg c.q c.q_ne_zero ((c.D : ZMod c.q)⁻¹)
-      (((j₁ : ℕ) : ℤ) - (j₂ : ℕ)) hdiv using 1 <;> ring
+      (((j₁ : ℕ) : ℤ) - (j₂ : ℕ)) hdiv using 1 <;> ring_nf
   rw [hneg, ← hr] at hswap
   linear_combination -hswap
 

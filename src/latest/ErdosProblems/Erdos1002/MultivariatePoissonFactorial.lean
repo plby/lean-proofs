@@ -102,7 +102,7 @@ private lemma coordinateBonferroni_odd_le_indicator (j q x : ℕ) :
   · have hy : 0 < x - j := Nat.sub_pos_of_lt hx
     rw [if_neg hx.ne']
     rw [coordinateBonferroni, alternating_sum_choose_eq (x - j) (2 * q + 1) hy]
-    simp [pow_succ, pow_mul]
+    simp only [ge_iff_le]
     positivity
 
 private lemma indicator_le_coordinateBonferroni_even (j q x : ℕ) :

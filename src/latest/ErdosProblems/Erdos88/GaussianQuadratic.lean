@@ -137,9 +137,19 @@ private lemma quadraticExponent_re (a lam t : ℝ) :
   have him : ((((t : ℂ) * (a : ℂ)) ^ 2).im) = 0 := by
     simp only [pow_two, Complex.mul_re, Complex.mul_im, Complex.ofReal_re,
       Complex.ofReal_im, zero_mul, mul_zero, sub_zero, add_zero]
+  have hqim : (quadCoeff lam t).im = t * lam := by
+    simp only [quadCoeff, Complex.add_im, Complex.div_im, Complex.neg_im,
+      Complex.ofReal_im, Complex.ofReal_re, re_ofNat, im_ofNat, normSq_ofNat,
+      Complex.one_im, Complex.mul_im, Complex.I_re, Complex.I_im]
+    ring
+  have hqnorm : Complex.normSq (quadCoeff lam t) = 1 / 4 + (t * lam) ^ 2 := by
+    rw [Complex.normSq_apply, quadCoeff_re, hqim]
+    ring
   rw [Complex.neg_re, hlin, Complex.div_re]
-  simp [quadCoeff, Complex.normSq_apply]
-  rw [hre, him]
+  simp only [ofReal_pow, ofReal_mul, neg_re, mul_re, re_ofNat, im_ofNat,
+    zero_mul, sub_zero, neg_mul, map_mul, normSq_ofNat, neg_im, mul_im, add_zero,
+    neg_add_rev]
+  rw [hre, him, quadCoeff_re, hqnorm]
   have hpos : 0 < 4 + 16 * (t * lam) ^ 2 := by positivity
   field_simp [hpos.ne']
   ring
@@ -202,7 +212,7 @@ theorem coordinate_charFactor_norm (a lam t : ℝ) :
           (1 + 4 * lam ^ 2 * t ^ 2) ^ (1 / 4 : ℝ) := by
   rw [coordinate_charFactor_norm_raw, gaussian_prefactor_eq (t * lam)]
   rw [sqrt_sqrt_eq_fourth_rpow _ (by positivity)]
-  ring
+  ring_nf
 
 /-! ## Variance bookkeeping -/
 
@@ -683,7 +693,7 @@ lemma standardNormalChar_integrable : Integrable standardNormalChar := by
   refine hcomplex.congr (Filter.Eventually.of_forall fun t ↦ ?_)
   unfold standardNormalChar
   congr 1
-  ring
+  ring_nf
 
 lemma norm_standardNormalChar (t : ℝ) :
     ‖standardNormalChar t‖ = rexp (-t ^ 2 / 2) := by
@@ -836,7 +846,7 @@ lemma localCLTEnvelope_integrable : Integrable localCLTEnvelope := by
     |t| ^ 3 * rexp (-t ^ 2 / 3)
   rw [Real.norm_eq_abs, abs_mul, abs_of_pos (Real.exp_pos _), hp3, abs_pow]
   congr 1
-  ring
+  ring_nf
 
 /-- Exact integral of the local-CLT envelope:
 `∫ |t|³ exp (-t² / 3) dt = 9`. -/
@@ -861,7 +871,7 @@ theorem integral_localCLTEnvelope :
               change t ^ (3 : ℕ) * rexp (-t ^ (2 : ℕ) / 3) =
                 t ^ (3 : ℝ) * rexp (-(1 / 3 : ℝ) * t ^ (2 : ℝ))
               rw [hp3, hp2]
-              ring
+              ring_nf
       _ = (1 / 3 : ℝ) ^ ((-(3 + 1) / 2 : ℝ)) * (1 / 2 : ℝ) *
           Real.Gamma (((3 + 1) / 2 : ℝ)) := h
       _ = 9 / 2 := by
@@ -1450,7 +1460,7 @@ theorem diagonalCharModulus_le_of_spectralBlocks
       intro i hi
       convert (Real.rpow_neg
         (by positivity : 0 ≤ 1 + 4 * (lam i) ^ 2 * t ^ 2) (1 / 4 : ℝ)).symm using 1 <;>
-        ring
+        ring_nf
     rw [hfactor]
     calc
       (∏ i ∈ B j, (1 + 4 * (lam i) ^ 2 * t ^ 2)) ^ (-1 / 4 : ℝ) ≤
@@ -1460,7 +1470,7 @@ theorem diagonalCharModulus_le_of_spectralBlocks
         dsimp [q]
         convert Real.rpow_neg
           (by positivity : 0 ≤ 1 + 4 * s * t ^ 2) (1 / 4 : ℝ) using 1 <;>
-          ring
+          ring_nf
   have hunion : (∏ i ∈ U, f i) = ∏ j, ∏ i ∈ B j, f i := by
     simpa only [U] using (Finset.prod_biUnion (f := f) hdisj)
   have hblocks : (∏ j, ∏ i ∈ B j, f i) ≤ q ^ Fintype.card κ := by

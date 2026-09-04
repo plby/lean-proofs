@@ -23,7 +23,7 @@ of their difference. -/
 theorem circleDistance_eq_positiveZModResidue_sub {q : ℕ} (hq : 0 < q)
     (a b : ZMod q) :
     circleDistance q a.val b.val = positiveZModResidue q (b - a) := by
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hq⟩
   by_cases hab : a.val < b.val
   · have hba : b ≠ a := by
       intro h
@@ -52,7 +52,7 @@ theorem circleDistance_eq_positiveZModResidue_sub {q : ℕ} (hq : 0 < q)
 /-- Casting the least positive representative returns the original residue. -/
 theorem natCast_positiveZModResidue {q : ℕ} (hq : 0 < q) (x : ZMod q) :
     (positiveZModResidue q x : ZMod q) = x := by
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hq⟩
   by_cases hx : x = 0
   · simp [positiveZModResidue, hx, ZMod.natCast_self]
   · simp only [positiveZModResidue, if_neg hx]
@@ -63,7 +63,7 @@ of its residue. -/
 theorem positiveZModResidue_eq_of_natCast_eq {q j : ℕ} (hq : 0 < q)
     (hjpos : 0 < j) (hjle : j ≤ q) (x : ZMod q) (hjx : (j : ZMod q) = x) :
     positiveZModResidue q x = j := by
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hq⟩
   by_cases hjq : j = q
   · subst j
     rw [← hjx, ZMod.natCast_self]
@@ -80,7 +80,7 @@ theorem positiveZModResidue_eq_of_natCast_eq {q j : ℕ} (hq : 0 < q)
 /-- The least positive representative lies in `[1,q]`. -/
 theorem positiveZModResidue_pos_le {q : ℕ} (hq : 0 < q) (x : ZMod q) :
     0 < positiveZModResidue q x ∧ positiveZModResidue q x ≤ q := by
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hq⟩
   by_cases hx : x = 0
   · simp [positiveZModResidue, hx, hq]
   · simp only [positiveZModResidue, if_neg hx]
@@ -123,7 +123,7 @@ theorem involutionDifference_is_restrictedRoot (q : ℕ) (hodd : Odd q)
     let a : ZMod q := (restrictedRootBase q hodd h : (ZMod q)ˣ)
     let x : ZMod q := a * ((u.1 : (ZMod q)ˣ) : ZMod q) - a
     x * (((h : (ZMod q)ˣ) : ZMod q) * x + 1) = 0 := by
-  letI : NeZero q := ⟨Nat.ne_of_gt hodd.pos⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hodd.pos⟩
   dsimp only
   let a : ZMod q := (restrictedRootBase q hodd h : (ZMod q)ˣ)
   let x : ZMod q := a * ((u.1 : (ZMod q)ˣ) : ZMod q) - a
@@ -175,7 +175,7 @@ theorem restrictedRoot_mem_involutionDifferenceSet {q j : ℕ}
       (j : ZMod q) * (((h : (ZMod q)ˣ) : ZMod q) * (j : ZMod q) + 1) = 0) :
     j ∈ involutionDifferenceSet q hodd h := by
   classical
-  letI : NeZero q := ⟨Nat.ne_of_gt hodd.pos⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hodd.pos⟩
   let z : ZMod q := 2 * ((h : (ZMod q)ˣ) : ZMod q) * (j : ZMod q) + 1
   have h2 : IsUnit (2 : ZMod q) := by
     simpa using (twoUnitOfOdd q hodd).isUnit
@@ -346,16 +346,16 @@ theorem pow_card_mul_sum_restrictedRootMin {q : ℕ}
     2 ^ q.primeFactors.card *
         (∑ h : (ZMod q)ˣ, restrictedRootMin q hodd h) =
       q * q.totient := by
-  letI : NeZero q := ⟨Nat.ne_of_gt hodd.pos⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hodd.pos⟩
   let v := unitResidue q
   have hv : Function.Injective v := by
-    letI : NeZero q := ⟨Nat.ne_of_gt hodd.pos⟩
+    let : NeZero q := ⟨Nat.ne_of_gt hodd.pos⟩
     intro a b hab
     apply Units.ext
     apply ZMod.val_injective q
     exact hab
   have hvlt : ∀ a : (ZMod q)ˣ, v a < q := by
-    letI : NeZero q := ⟨Nat.ne_of_gt hodd.pos⟩
+    let : NeZero q := ⟨Nat.ne_of_gt hodd.pos⟩
     intro a
     exact ZMod.val_lt (a.1 : ZMod q)
   have hcore := card_mul_sum_abstractCosetGap q v hv hvlt

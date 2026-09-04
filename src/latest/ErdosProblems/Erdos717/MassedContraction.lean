@@ -402,7 +402,7 @@ theorem commonNeighbor_card_ge_sub_one_of_contractConditionTwo
     intro hlinked
     apply C.not_linked
     intro ι inst terminal hterminal
-    letI : Fintype ι := inst
+    let : Fintype ι := inst
     have hbRange : b ∉ Set.range terminal := fun hbR =>
       hbSet (hterminal hbR)
     let terminalc := ContractLinkage.contractTerminal

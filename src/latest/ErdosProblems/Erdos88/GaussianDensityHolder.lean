@@ -122,7 +122,7 @@ lemma norm_inverseFourier_phase_sub_le_rpow_quarter (t x y : ℝ) :
       2 * |t| ^ (1 / 4 : ℝ) * |x - y| ^ (1 / 4 : ℝ) := by
   have h := norm_exp_I_mul_sub_exp_I_mul_le_rpow_quarter (-t * x) (-t * y)
   convert h using 1
-  · congr 2 <;> push_cast <;> ring
+  · congr 2 <;> push_cast <;> ring_nf
   · rw [show -t * x - -t * y = (-t) * (x - y) by ring, abs_mul,
       abs_neg, Real.mul_rpow (abs_nonneg t) (abs_nonneg (x - y))]
     ring
@@ -394,7 +394,7 @@ theorem smallBall_diagonalCenteredLaw_le_exp_of_relative_rankTwo_tail
     intro t
     exact diagonalCharModulus_le_relative_rankTwoEnvelope
       a lam hsum hrho htail t
-  letI : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
+  let : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
     diagonalCenteredLaw_isProbabilityMeasure a lam
   have hchar : Integrable (charFun (diagonalCenteredLaw a lam)) := by
     rw [charFun_diagonalCenteredLaw]

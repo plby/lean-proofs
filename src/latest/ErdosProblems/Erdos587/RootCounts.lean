@@ -70,7 +70,7 @@ lemma two_le_squareRootCount_of_unit_square {q n : ℕ} [NeZero q]
     (hq : 1 < q) (h2 : (2 : ℕ).Coprime q) (hn : n.Coprime q)
     (hsq : IsSquare (n : ZMod q)) : 2 ≤ squareRootCount q n := by
   classical
-  letI : Fact (1 < q) := ⟨hq⟩
+  let : Fact (1 < q) := ⟨hq⟩
   have h2unit : IsUnit (2 : ZMod q) := (ZMod.isUnit_iff_coprime 2 q).mpr h2
   have hnunit : IsUnit (n : ZMod q) := (ZMod.isUnit_iff_coprime n q).mpr hn
   obtain ⟨z, hz⟩ := hsq
@@ -96,8 +96,8 @@ lemma squareRootCount_prod {ι : Type*} [DecidableEq ι] (s : Finset ι)
     have hpos' : ∀ j ∈ s, 0 < m j := fun j hj => hpos j (Finset.mem_insert_of_mem hj)
     have hmi : 0 < m i := hpos i (Finset.mem_insert_self i s)
     have hspos : 0 < ∏ j ∈ s, m j := Finset.prod_pos hpos'
-    letI : NeZero (m i) := ⟨hmi.ne'⟩
-    letI : NeZero (∏ j ∈ s, m j) := ⟨hspos.ne'⟩
+    let : NeZero (m i) := ⟨hmi.ne'⟩
+    let : NeZero (∏ j ∈ s, m j) := ⟨hspos.ne'⟩
     rw [Finset.coe_insert, Set.pairwise_insert] at hpair
     have hcop : (m i).Coprime (∏ j ∈ s, m j) :=
       Nat.Coprime.prod_right (fun j hj =>
@@ -130,7 +130,7 @@ lemma two_pow_primeFactors_le_squareRootCount {q n : ℕ} [NeZero q]
         p = p ^ 1 := (pow_one p).symm
         _ ≤ p ^ q.factorization p := pow_le_pow_right₀ hprime.pos he
     have hm1 : 1 < m p := hprime.one_lt.trans_le hpowge
-    letI : NeZero (m p) := ⟨(hpos p hp).ne'⟩
+    let : NeZero (m p) := ⟨(hpos p hp).ne'⟩
     have hmdvd : m p ∣ q := by
       rw [← hproduct]
       exact Finset.dvd_prod_of_mem m hp
@@ -179,14 +179,14 @@ theorem exists_large_radical_odd_root_density_threshold :
   obtain ⟨Q₀, hQ₀⟩ := exists_unitSquareAffineDensityThreshold
   refine ⟨Q₀, ?_⟩
   intro q hq hodd hQ D R M H hR hDM hH hroot
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   apply (hQ₀ q.primeFactors (fun p hp => Nat.prime_of_mem_primeFactors hp)
     hodd hQ D R M H hR hDM hH hroot).trans
   exact Finset.sum_le_sum (fun i hi => unitSquareExpansionValue_le_squareRootCount_odd hodd _)
 
 lemma squareRootCount_two_pow_pos_of_modEq_eight (e n : ℕ)
     (hn : n ≡ 1 [MOD 8]) : 0 < squareRootCount (2 ^ e) n := by
-  letI : NeZero (2 ^ e) := ⟨by positivity⟩
+  let : NeZero (2 ^ e) := ⟨by positivity⟩
   apply squareRootCount_pos_of_isSquare
   have hnZ : (n : ℤ) ≡ 1 [ZMOD (8 : ℤ)] := by exact_mod_cast hn
   obtain ⟨z, hz⟩ := exists_square_modEq_two_pow_of_modEq_eight e hnZ
@@ -199,8 +199,8 @@ lemma unitSquareExpansionValue_le_squareRootCount_two_mul_odd
     (h2 : (2 : ℕ).Coprime Q) (hn : n ≡ 1 [MOD 8]) :
     unitSquareExpansionValue (primeSetModulus Q.primeFactors) n ≤
       (squareRootCount (2 ^ e * Q) n : ℝ) := by
-  letI : NeZero Q := ⟨hQ.ne'⟩
-  letI : NeZero (2 ^ e) := ⟨by positivity⟩
+  let : NeZero Q := ⟨hQ.ne'⟩
+  let : NeZero (2 ^ e) := ⟨by positivity⟩
   apply (unitSquareExpansionValue_le_squareRootCount_odd hodd n).trans
   apply Nat.cast_le.mpr
   rw [squareRootCount_mul _ _ _ (h2.pow_left e)]

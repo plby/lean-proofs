@@ -33,25 +33,25 @@ lemma k5Tuple_smallEdgeFactor_dvd_assigned {Y : ℕ}
     k5Tuple (smallEdgeFactor σ) v ∣ smallAssignedProduct σ := by
   rw [← prod_smallEdgeFactor]
   fin_cases v
-  · simp [k5Tuple, Fin.prod_univ_succ]
-    refine ⟨smallEdgeFactor σ 4 * smallEdgeFactor σ 5 * smallEdgeFactor σ 6 *
+  · refine ⟨smallEdgeFactor σ 4 * smallEdgeFactor σ 5 * smallEdgeFactor σ 6 *
       smallEdgeFactor σ 7 * smallEdgeFactor σ 8 * smallEdgeFactor σ 9, ?_⟩
+    simp [Fin.prod_univ_succ, k5Tuple]
     ring
-  · simp [k5Tuple, Fin.prod_univ_succ]
-    refine ⟨smallEdgeFactor σ 1 * smallEdgeFactor σ 2 * smallEdgeFactor σ 3 *
+  · refine ⟨smallEdgeFactor σ 1 * smallEdgeFactor σ 2 * smallEdgeFactor σ 3 *
       smallEdgeFactor σ 7 * smallEdgeFactor σ 8 * smallEdgeFactor σ 9, ?_⟩
+    simp [Fin.prod_univ_succ, k5Tuple]
     ring
-  · simp [k5Tuple, Fin.prod_univ_succ]
-    refine ⟨smallEdgeFactor σ 0 * smallEdgeFactor σ 2 * smallEdgeFactor σ 3 *
+  · refine ⟨smallEdgeFactor σ 0 * smallEdgeFactor σ 2 * smallEdgeFactor σ 3 *
       smallEdgeFactor σ 5 * smallEdgeFactor σ 6 * smallEdgeFactor σ 9, ?_⟩
+    simp [Fin.prod_univ_succ, k5Tuple]
     ring
-  · simp [k5Tuple, Fin.prod_univ_succ]
-    refine ⟨smallEdgeFactor σ 0 * smallEdgeFactor σ 1 * smallEdgeFactor σ 3 *
+  · refine ⟨smallEdgeFactor σ 0 * smallEdgeFactor σ 1 * smallEdgeFactor σ 3 *
       smallEdgeFactor σ 4 * smallEdgeFactor σ 6 * smallEdgeFactor σ 8, ?_⟩
+    simp [Fin.prod_univ_succ, k5Tuple]
     ring
-  · simp [k5Tuple, Fin.prod_univ_succ]
-    refine ⟨smallEdgeFactor σ 0 * smallEdgeFactor σ 1 * smallEdgeFactor σ 2 *
+  · refine ⟨smallEdgeFactor σ 0 * smallEdgeFactor σ 1 * smallEdgeFactor σ 2 *
       smallEdgeFactor σ 4 * smallEdgeFactor σ 5 * smallEdgeFactor σ 7, ?_⟩
+    simp [Fin.prod_univ_succ, k5Tuple]
     ring
 
 lemma k5Tuple_smallEdgeFactor_le_assigned {Y : ℕ}

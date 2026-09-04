@@ -53,7 +53,7 @@ theorem zmod_succ_eq_of_unique_change {m : ℕ} [NeZero m] (s : ZMod m → Bool)
     exact Finset.card_le_one.mpr fun x hx y hy => h x y ( Finset.mem_filter.mp hx |>.2 ) ( Finset.mem_filter.mp hy |>.2 );
   have hT_even : Even T.card := by
     have hT_even : ∑ i : ZMod m, (if s i then 1 else 0 : ZMod 2) + ∑ i : ZMod m, (if s (i + 1) then 1 else 0 : ZMod 2) = 0 := by
-      erw [ Equiv.sum_comp ( Equiv.addRight 1 ) fun i => if s i = true then 1 else 0 ] ; ring;
+      erw [ Equiv.sum_comp ( Equiv.addRight 1 ) fun i => if s i = true then 1 else 0 ] ; ring_nf;
       grind;
     have hT_even : ∑ i : ZMod m, (if s i ≠ s (i + 1) then 1 else 0 : ZMod 2) = ∑ i : ZMod m, (if s i then 1 else 0 : ZMod 2) + ∑ i : ZMod m, (if s (i + 1) then 1 else 0 : ZMod 2) := by
       rw [ ← Finset.sum_add_distrib ] ; congr ; ext i ; by_cases hi : s i <;> by_cases hi' : s ( i + 1 ) <;> simp +decide [ hi, hi' ] ;
@@ -96,7 +96,7 @@ original edge.
 theorem FTS.subtype_map_eq {F : FTS} {e : Finset F.V} (he : e ∈ F.edges) :
     (Finset.subtype (fun x => ¬ F.Isolated x) e).map
       (Function.Embedding.subtype (fun x => ¬ F.Isolated x)) = e := by
-  ext x; simp [Finset.mem_map, Finset.mem_subtype];
+  ext x; simp only [Finset.subtype_map, Finset.mem_filter, and_iff_left_iff_imp];
   exact fun hx => FTS.not_isolated_of_mem he hx
 
 /-
@@ -171,13 +171,27 @@ theorem FTS.intrinsic_reduce_iff (F : FTS) :
   · refine' ⟨ _, _, _ ⟩;
     · intro e₁ he₁ e₂ he₂ hne;
       convert! h.1 ( Finset.subtype ( fun x => ¬ F.Isolated x ) e₁ ) ( FTS.subtype_edge_mem he₁ ) ( Finset.subtype ( fun x => ¬ F.Isolated x ) e₂ ) ( FTS.subtype_edge_mem he₂ ) _ using 1;
-      · refine' Finset.card_bij ( fun x hx => ⟨ x, _ ⟩ ) _ _ _ <;> simp_all +decide [ Finset.subtype ];
-        exact fun h => h e₁ he₁ hx.1;
-        · exact fun x hx₁ hx₂ => ⟨ ⟨ x, ⟨ hx₁, FTS.not_isolated_of_mem he₁ hx₁ ⟩, rfl ⟩, ⟨ x, ⟨ hx₂, FTS.not_isolated_of_mem he₂ hx₂ ⟩, rfl ⟩ ⟩;
-        · grind;
-        · grind +suggestions;
+      · refine Finset.card_bij
+          (fun x hx =>
+            ⟨x, FTS.not_isolated_of_mem he₁ (Finset.mem_inter.mp hx).1⟩)
+          ?_ ?_ ?_
+        · intro x hx
+          rw [Finset.mem_inter] at hx ⊢
+          constructor <;> rw [Finset.mem_subtype]
+          · exact hx.1
+          · exact hx.2
+        · intro x hx y hy hxy
+          exact congrArg Subtype.val hxy
+        · intro b hb
+          rw [Finset.mem_inter] at hb
+          rcases hb with ⟨hb₁, hb₂⟩
+          rcases b with ⟨a, ha⟩
+          rw [Finset.mem_subtype] at hb₁ hb₂
+          refine ⟨a, Finset.mem_inter.mpr ⟨hb₁, hb₂⟩, ?_⟩
+          apply Subtype.ext
+          rfl
       · contrapose! hne;
-        convert! congr_arg ( fun s => s.map ( Function.Embedding.subtype ( fun x => ¬ F.Isolated x ) ) ) hne using 1 <;> simp +decide [ FTS.subtype_map_eq ];
+        convert! congr_arg ( fun s => s.map ( Function.Embedding.subtype ( fun x => ¬ F.Isolated x ) ) ) hne using 1 <;> simp +decide only [Finset.subtype_map];
         · grind +suggestions;
         · exact Eq.symm ( Finset.filter_true_of_mem fun x hx => FTS.not_isolated_of_mem he₂ hx );
     · intro ed
@@ -222,12 +236,20 @@ theorem intrinsic_iso {F G : FTS} (h : FTS.Iso F G) (hF : F.IntrinsicObligatory)
   · intro c
     obtain ⟨φ, hφ⟩ := h
     have h_cycle : ∃ c' : BergeCycle F, c'.m = c.m := by
-      refine' ⟨ ⟨ c.m, c.hm, fun i => φ.symm ( c.v i ), fun i => ⟨ Finset.map φ.symm.toEmbedding ( c.e i |>.1 ), _ ⟩, _, _, _, _ ⟩, rfl ⟩ <;> simp_all +decide [ Function.Injective ];
-      · simp +decide [ Finset.map_map, Equiv.toEmbedding_apply ];
-      · exact c.vinj;
-      · exact c.einj;
-      · exact fun i => c.mem_left i;
-      · exact c.mem_right;
+      refine' ⟨ ⟨ c.m, c.hm, fun i => φ.symm ( c.v i ), fun i => ⟨ Finset.map φ.symm.toEmbedding ( c.e i |>.1 ), _ ⟩, _, _, _, _ ⟩, rfl ⟩
+      · apply (hφ _).mpr
+        simpa [Finset.map_map] using (c.e _).2
+      · intro i j hij
+        exact c.vinj (φ.symm.injective hij)
+      · intro i j hij
+        apply c.einj
+        apply Subtype.ext
+        apply Finset.map_injective φ.symm.toEmbedding
+        exact congrArg Subtype.val hij
+      · intro i
+        exact Finset.mem_map_of_mem _ (c.mem_left i)
+      · intro i
+        exact Finset.mem_map_of_mem _ (c.mem_right i)
     exact h_cycle.choose_spec ▸ hF.2.2 _
 
 /-! ### Forward direction: generators and closure operations preserve the
@@ -385,7 +407,7 @@ theorem expansion_even {VJ : Type} [Fintype VJ] [DecidableEq VJ] (J : SimpleGrap
       grind
     have hxy : a i ≠ a (i + 1) := by
       have := c.vinj.ne ( show i ≠ i + 1 from by
-                            haveI := Fact.mk ( show 1 < c.m from c.hm ) ; simp +decide ; ) ; simp_all +decide [ ZMod ] ;
+                            have := Fact.mk ( show 1 < c.m from c.hm ) ; simp +decide ; ) ; simp_all +decide only [ne_eq] ;
       exact fun h => this <| h ▸ rfl
     have h_adj : J.Adj (a i) (a (i + 1)) := by
       have h_adj : J.Adj (Quot.out e.1).1 (Quot.out e.1).2 := by
@@ -393,7 +415,7 @@ theorem expansion_even {VJ : Type} [Fintype VJ] [DecidableEq VJ] (J : SimpleGrap
       simp_all +decide [ SimpleGraph.adj_comm ];
       cases hx <;> cases hy <;> simp_all +decide [ SimpleGraph.adj_comm ]
     exact h_adj;
-  haveI : NeZero c.m := ⟨by have := c.hm; omega⟩
+  have : NeZero c.m := ⟨by have := c.hm; omega⟩
   apply zmod_even_of_alt (fun i => (col (a i) : ZMod 2))
   intro i
   have hne : col (a i) ≠ col (a (i + 1)) := hcol (hadj i)
@@ -699,7 +721,12 @@ theorem amalgamate_berge_side {F G : FTS} {x : F.V} {y : G.V}
           have := c.mem_right i; have := c.mem_left ( i + 1 ) ; simp_all +decide [ Finset.ext_iff ] ;
           have := amalgamate_cross_inter hdG ( by aesop ) ( by aesop ) ; aesop;
         · obtain ⟨ d₁, hd₁, hd₁' ⟩ := (by
-          grind +suggestions : ∃ d ∈ G.edges, (c.e i).1 = d.map (amalgEmbG F G x y))
+          rcases amalgamate_edge_cases (c.e i).2 with hF | hG
+          · exfalso
+            have hs_true : s i = true := by
+              simp [s, hF]
+            exact Bool.false_ne_true (hi'.symm.trans hs_true)
+          · exact hG : ∃ d ∈ G.edges, (c.e i).1 = d.map (amalgEmbG F G x y))
           obtain ⟨ d₂, hd₂, hd₂' ⟩ := (by
           grind +splitImp : ∃ d ∈ F.edges, (c.e (i + 1)).1 = d.map Function.Embedding.inl);
           have h_vertex : c.v (i + 1) ∈ (c.e i).1 ∧ c.v (i + 1) ∈ (c.e (i + 1)).1 := by
@@ -710,7 +737,7 @@ theorem amalgamate_berge_side {F G : FTS} {x : F.V} {y : G.V}
   -- By `zmod_succ_eq_of_unique_change s hchange`, `∀ i, s i = s (i+1)`, and then `zmod_const_of_succ_eq s _` gives `s i = s 0` for all `i`.
   have h_const : ∀ i, s i = s 0 := by
     convert! zmod_const_of_succ_eq s ( zmod_succ_eq_of_unique_change s h_change ) using 1; all_goals exact ⟨ by linarith [ c.hm ] ⟩;
-  by_cases h : s 0 <;> simp_all +decide [ decide_eq_true_iff ];
+  by_cases h : s 0 <;> simp_all +decide only [ne_eq];
   · grind +qlia;
   · right;
     intro i; specialize h_const i; simp_all +decide [ s ] ;

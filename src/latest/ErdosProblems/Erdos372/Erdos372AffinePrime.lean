@@ -292,7 +292,7 @@ theorem totient_mul_of_primeFactors_subset
         Nat.mem_primeFactors.mpr ⟨hp, hpA, hA.ne'⟩
       have hpq : p ∣ q := Nat.dvd_of_mem_primeFactors (hsub hpMem)
       calc
-        Nat.totient (A * q) = Nat.totient (p * (b * q)) := by rw [← hAeq]; ring
+        Nat.totient (A * q) = Nat.totient (p * (b * q)) := by rw [← hAeq]; ring_nf
         _ = p * Nat.totient (b * q) :=
           Nat.totient_mul_of_prime_of_dvd hp (dvd_mul_of_dvd_right hpq b)
         _ = p * (b * Nat.totient q) := by rw [ih b hblt hbpos hbsub]

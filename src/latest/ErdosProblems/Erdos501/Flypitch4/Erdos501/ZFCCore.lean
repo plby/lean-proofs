@@ -220,7 +220,7 @@ through `t_j` and the fibre of `x(t_j)` (Lemma 2.2); independence follows from (
 theorem exists_infinite_independent_of_certificate {A : ℝ → Set ℝ} {Ω : Type*} [MeasurableSpace Ω]
     (cert : Certificate A Ω) : ∃ X : Set ℝ, X.Infinite ∧ X.Pairwise (fun x y => x ∉ A y) := by
   classical
-  haveI := cert.isProbabilityMeasure
+  have := cert.isProbabilityMeasure
   -- the σ-finite space `S = ℤ × Ω`, `μ = counting ⊗ ν`
   let μ : Measure (ℤ × Ω) := (Measure.count : Measure ℤ).prod cert.ν
   have hμ : ∀ s : Set (ℤ × Ω), MeasurableSet s → μ s = ∑' m : ℤ, cert.ν (Prod.mk m ⁻¹' s) := by

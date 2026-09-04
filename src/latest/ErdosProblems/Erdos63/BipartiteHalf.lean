@@ -168,7 +168,7 @@ theorem exists_bipartite_subgraph_half {V : Type u} [Fintype V]
   let H : SimpleGraph V := G.between A Aᶜ
   -- Keep `edgeFinset` independent of the specialized decidability instance for
   -- `between`: the theorem statement was elaborated with this classical one.
-  letI : DecidableRel H.Adj := fun _ _ ↦ Classical.propDecidable _
+  let : DecidableRel H.Adj := fun _ _ ↦ Classical.propDecidable _
   refine ⟨H, SimpleGraph.between_le, SimpleGraph.between_isBipartite disjoint_compl_right, ?_⟩
   have hS_card : S.card = D.card := Finset.card_image_of_injective D pairEnc_injective
   have hcut_image :

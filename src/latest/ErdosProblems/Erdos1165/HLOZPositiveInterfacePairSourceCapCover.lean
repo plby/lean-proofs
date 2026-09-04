@@ -311,7 +311,7 @@ theorem exists_positiveInterfaceExternalPairSourceCap_of_raw_growth
       change tilingAwayTotal t eta.1.1.start eta.1.1.retained D a b <
         max eta.1.1.retainedCount (m + shellWidth48 m) + 1
       omega⟩
-  letI : Fintype (PositiveInterfaceExternalPairCoordinate eta) :=
+  let : Fintype (PositiveInterfaceExternalPairCoordinate eta) :=
     instFintypeTilingAwayDomino t eta.1.1.start eta.1.1.retained D
   have huniv :
       (@Finset.univ (PositiveInterfaceExternalPairCoordinate eta) this) =

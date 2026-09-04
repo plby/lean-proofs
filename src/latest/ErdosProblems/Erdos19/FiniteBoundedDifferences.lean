@@ -21,7 +21,7 @@ lemma integral_uniform_fintype (f : Ω → ℝ) :
     letI : MeasurableSpace Ω := ⊤
     ∫ x, f x ∂(PMF.uniformOfFintype Ω).toMeasure =
       (∑ x, f x) / Fintype.card Ω := by
-  letI : MeasurableSpace Ω := ⊤
+  let : MeasurableSpace Ω := ⊤
   rw [integral_fintype Integrable.of_finite]
   have hx (x : Ω) :
       (PMF.uniformOfFintype Ω).toMeasure.real {x} =
@@ -39,7 +39,7 @@ lemma finite_hoeffding_mgf (f : Ω → ℝ) {a b t : ℝ}
     (∑ x, Real.exp (t * (f x - (∑ y, f y) / Fintype.card Ω))) /
         Fintype.card Ω ≤
       Real.exp (((‖b - a‖₊ : ℝ) / 2) ^ 2 * t ^ 2 / 2) := by
-  letI : MeasurableSpace Ω := ⊤
+  let : MeasurableSpace Ω := ⊤
   let μ := (PMF.uniformOfFintype Ω).toMeasure
   have hsub := hasSubgaussianMGF_of_mem_Icc (μ := μ)
     (X := f) measurable_from_top.aemeasurable
@@ -241,7 +241,7 @@ lemma finite_boundedDifferences_mgf
                 t ^ 2 / 2) := hHoeff
           _ = Real.exp (c ^ 2 * t ^ 2 / 2) := by
             rw [hnorm]
-            ring
+            ring_nf
       rw [finiteAverage_finSucc n
         (fun x ↦ Real.exp (t * (finiteAverage f - f x)))]
       simp_rw [succFunEquiv_symm_eq_lastCases]

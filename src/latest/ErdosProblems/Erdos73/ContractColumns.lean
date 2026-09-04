@@ -59,7 +59,7 @@ theorem edgeContractImageSet_connected (hab : G.Adj a b) (Q : Finset V)
   let C := edgeContractImageSet (a := a) (b := b) Q
   obtain ⟨q⟩ := hQ.nonempty
   change ((contractEdgeGraph G hab).induce {z | z ∈ C}).Connected
-  letI : Nonempty ↑({z | z ∈ C} : Set (EdgeContractVertex V a b)) :=
+  let : Nonempty ↑({z | z ∈ C} : Set (EdgeContractVertex V a b)) :=
     ⟨⟨_, mem_edgeContractImageSet_projection q.property⟩⟩
   refine ⟨fun x y => ?_⟩
   obtain ⟨s, hs, hsx⟩ := mem_edgeContractImageSet_iff.mp x.property

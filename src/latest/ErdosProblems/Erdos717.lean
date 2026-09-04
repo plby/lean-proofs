@@ -393,8 +393,8 @@ theorem erdos717_weight_bound
     | h n ih =>
       dsimp only [P]
       intro W _ J hnCard
-      letI : DecidableEq W := Classical.decEq W
-      letI : DecidableRel J.Adj := Classical.decRel J.Adj
+      let : DecidableEq W := Classical.decEq W
+      let : DecidableRel J.Adj := Classical.decRel J.Adj
       let c := chiNat J
       let a := J.indepNum
       let s := cliqueSubdivisionNumber J
@@ -413,7 +413,7 @@ theorem erdos717_weight_bound
         exact mul_nonneg erdos717Constant_pos.le (by positivity)
       have hn : 0 < n := Nat.pos_of_ne_zero hn0
       have hnW : 0 < Fintype.card W := by simpa only [hnCard] using hn
-      letI : Nonempty W := Fintype.card_pos_iff.mp hnW
+      let : Nonempty W := Fintype.card_pos_iff.mp hnW
       have hs : 1 ≤ s := by
         dsimp only [s]
         exact one_le_cliqueSubdivisionNumber J

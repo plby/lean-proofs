@@ -88,7 +88,7 @@ lemma card_scheduledEdgesAt_internalOuterEdges_le_compl_card_sub_one
       (univ \ U).card - 1 := by
   classical
   let Gout := internalOuterGraph G U
-  letI : DecidableRel Gout.Adj := Classical.decRel Gout.Adj
+  let : DecidableRel Gout.Adj := Classical.decRel Gout.Adj
   have hsub : Gout.neighborFinset v ⊆
       (univ \ U).erase v := by
     intro w hw

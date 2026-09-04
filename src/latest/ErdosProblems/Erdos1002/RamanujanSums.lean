@@ -101,9 +101,10 @@ theorem ramanujanPhase_add_modulus {q a : ℕ} (n : ℤ) (hq : q ≠ 0) :
         (((((a : ℤ) * n : ℤ) : ℝ) / (q : ℝ)) + (a : ℝ)) := by
     push_cast
     field_simp
+  have haChar : (Real.fourierChar (a : ℝ) : ℂ) = 1 := by
+    exact fourierChar_int (a : ℤ)
   rw [ramanujanPhase, harg, AddChar.map_add_eq_mul]
-  simp [ramanujanPhase]
-  exact fourierChar_int_circle (a : ℤ)
+  rw [Circle.coe_mul, ramanujanPhase, haChar, mul_one]
 
 /-- Complementing a residue modulo `q` reverses its phase. -/
 theorem ramanujanPhase_complement {q a : ℕ} (ha : a ≤ q) (n : ℤ) :

@@ -525,7 +525,7 @@ theorem exists_terminal_state
     s.1.A.card ^ 2 < 2 * s.1.carrier.card
   let density : S → ℝ := fun s ↦ s.1.beta
   let sInitial : S := ⟨s0, le_rfl⟩
-  letI : Nonempty S := ⟨sInitial⟩
+  let : Nonempty S := ⟨sInitial⟩
   by_cases hex : ∃ st : CyclicNestedDensityStep.State N m,
       (1 - 1 / 8192 : ℝ) * s0.beta ≤ st.beta ∧
         st.A.card ^ 2 < 2 * st.carrier.card

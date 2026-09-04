@@ -298,7 +298,7 @@ def properLimitCompatibilityProvider_of_refinement
       (Gamma := Gamma) (Y := Y) (kappa := kappa)
       (T := T) (Z := Z) (persistent := persistent) (B := B) length := by
   intro o _hoLength ho prior hcoherent
-  letI : Nonempty o.ToType :=
+  let : Nonempty o.ToType :=
     ⟨Ordinal.ToType.mk ⟨0, Ordinal.natCast_lt_of_isSuccLimit ho 0⟩⟩
   exact
     RealExtensionChain.EventualRelationLimitCompatibility.ofPredecessorRefinement
@@ -363,7 +363,7 @@ theorem realExtends_compatibleIntermediateLimitOfPrior
     (prior a).RefiningExtends
       (compatibleIntermediateLimitOfPrior hYwarp hGamma hkappa length hlength
         hBtarget hterminalB hstableB K o hoLength ho prior hcoherent) := by
-  letI : Nonempty o.ToType :=
+  let : Nonempty o.ToType :=
     ⟨Ordinal.ToType.mk ⟨0, Ordinal.natCast_lt_of_isSuccLimit ho 0⟩⟩
   let C := compatiblePriorRealExtensionChain prior hcoherent
   let H : C.EventualRelationLimitCompatibility :=

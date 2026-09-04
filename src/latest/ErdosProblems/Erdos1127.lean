@@ -573,7 +573,7 @@ private theorem algebraicGerm_of_isAlgebraicAnalyticAtOver
     letI : Algebra (Polynomial K) (Filter.Germ (nhds t) ℝ) :=
       polynomialGermAlgebra K t
     IsAlgebraic (Polynomial K) (h : Filter.Germ (nhds t) ℝ) := by
-  letI : Algebra (Polynomial K) (Filter.Germ (nhds t) ℝ) :=
+  let : Algebra (Polynomial K) (Filter.Germ (nhds t) ℝ) :=
     polynomialGermAlgebra K t
   obtain ⟨P, hP, hrel⟩ := hh.2
   refine ⟨P, hP, ?_⟩
@@ -590,7 +590,7 @@ private theorem isAlgebraicAnalyticAtOver_of_algebraicGerm
         polynomialGermAlgebra K t
       IsAlgebraic (Polynomial K) (h : Filter.Germ (nhds t) ℝ)) :
     IsAlgebraicAnalyticAtOver K h t := by
-  letI : Algebra (Polynomial K) (Filter.Germ (nhds t) ℝ) :=
+  let : Algebra (Polynomial K) (Filter.Germ (nhds t) ℝ) :=
     polynomialGermAlgebra K t
   obtain ⟨P, hP, hrel⟩ := hg
   refine ⟨han, P, hP, ?_⟩
@@ -606,7 +606,7 @@ private theorem IsAlgebraicAnalyticAtOver.add
     (hf : IsAlgebraicAnalyticAtOver K f t)
     (hg : IsAlgebraicAnalyticAtOver K g t) :
     IsAlgebraicAnalyticAtOver K (fun x ↦ f x + g x) t := by
-  letI : Algebra (Polynomial K) (Filter.Germ (nhds t) ℝ) :=
+  let : Algebra (Polynomial K) (Filter.Germ (nhds t) ℝ) :=
     polynomialGermAlgebra K t
   apply isAlgebraicAnalyticAtOver_of_algebraicGerm (hf.1.add hg.1)
   simpa only [Filter.Germ.coe_add] using
@@ -619,7 +619,7 @@ private theorem IsAlgebraicAnalyticAtOver.mul
     (hf : IsAlgebraicAnalyticAtOver K f t)
     (hg : IsAlgebraicAnalyticAtOver K g t) :
     IsAlgebraicAnalyticAtOver K (fun x ↦ f x * g x) t := by
-  letI : Algebra (Polynomial K) (Filter.Germ (nhds t) ℝ) :=
+  let : Algebra (Polynomial K) (Filter.Germ (nhds t) ℝ) :=
     polynomialGermAlgebra K t
   apply isAlgebraicAnalyticAtOver_of_algebraicGerm (hf.1.mul hg.1)
   simpa only [Filter.Germ.coe_mul] using
@@ -631,7 +631,7 @@ private theorem IsAlgebraicAnalyticAtOver.neg
     {f : ℝ → ℝ} {t : ℝ}
     (hf : IsAlgebraicAnalyticAtOver K f t) :
     IsAlgebraicAnalyticAtOver K (fun x ↦ -f x) t := by
-  letI : Algebra (Polynomial K) (Filter.Germ (nhds t) ℝ) :=
+  let : Algebra (Polynomial K) (Filter.Germ (nhds t) ℝ) :=
     polynomialGermAlgebra K t
   apply isAlgebraicAnalyticAtOver_of_algebraicGerm hf.1.neg
   simpa only [Filter.Germ.coe_neg] using
@@ -650,7 +650,7 @@ private theorem IsAlgebraicAnalyticAtOver.pow
     {f : ℝ → ℝ} {t : ℝ}
     (hf : IsAlgebraicAnalyticAtOver K f t) (m : ℕ) :
     IsAlgebraicAnalyticAtOver K (fun x ↦ f x ^ m) t := by
-  letI : Algebra (Polynomial K) (Filter.Germ (nhds t) ℝ) :=
+  let : Algebra (Polynomial K) (Filter.Germ (nhds t) ℝ) :=
     polynomialGermAlgebra K t
   apply isAlgebraicAnalyticAtOver_of_algebraicGerm (hf.1.pow m)
   simpa only [Filter.Germ.coe_pow] using
@@ -2509,7 +2509,7 @@ private theorem predecessorBoundedToIic_injective {X : Type*} [LinearOrder X]
 private theorem predecessorBoundedFinsets_countable
     {X : Type*} [LinearOrder X] {p : X} (hcount : Countable (Set.Iic p)) :
     Countable (PredecessorBoundedFinsets p) := by
-  letI : Countable (Set.Iic p) := hcount
+  let : Countable (Set.Iic p) := hcount
   exact (predecessorBoundedToIic_injective p).countable
 
 private noncomputable def predecessorBoundedCode
@@ -2617,7 +2617,7 @@ private theorem linearIndependent_of_injective_maxBasisIndex
     (hpivot : Function.Injective (fun j ↦ maxBasisIndex b (v j))) :
     LinearIndependent K v := by
   classical
-  letI : LinearOrder J := LinearOrder.lift'
+  let : LinearOrder J := LinearOrder.lift'
     (fun j ↦ maxBasisIndex b (v j)) hpivot
   rw [linearIndependent_iff']
   intro s g hsum i hi
@@ -2681,8 +2681,8 @@ private theorem exists_supportFingerprint_of_mk_le_aleph_one {X : Type*}
               supportPosition ambient (select t ht) t ∧
             (select s hs = select t ht → s = t) := by
   obtain ⟨lo, wf, hcount⟩ := exists_wellOrder_countable_Iio hX
-  letI : LinearOrder X := lo
-  letI : WellFoundedLT X := wf
+  let : LinearOrder X := lo
+  let : WellFoundedLT X := wf
   have hcountIic : ∀ p : X, Countable (Set.Iic p) := by
     intro p
     rw [← Set.Iio_insert]
@@ -4180,7 +4180,7 @@ private noncomputable abbrev hamelBasis : Module.Basis HamelIndex ℚ ℝ :=
 
 private theorem hamelIndex_nonempty : Nonempty HamelIndex := by
   by_contra h
-  haveI : IsEmpty HamelIndex := not_nonempty_iff.mp h
+  have : IsEmpty HamelIndex := not_nonempty_iff.mp h
   have hz : (1 : ℝ) = 0 := by
     apply hamelBasis.repr.injective
     ext i
@@ -4201,13 +4201,13 @@ theorem exists_linearlyIndependent_real_coloring (hCH : ContinuumHypothesis) :
   have hI : #HamelIndex ≤ Cardinal.aleph 1 :=
     hamelIndex_card_le_continuum.trans_eq hCH
   obtain ⟨lo, wf, hcount⟩ := exists_wellOrder_countable_Iio hI
-  letI : LE HamelIndex := lo.toLE
-  letI : LT HamelIndex := lo.toLT
-  letI : Preorder HamelIndex := lo.toPreorder
-  letI : PartialOrder HamelIndex := lo.toPartialOrder
-  letI : LinearOrder HamelIndex := lo
-  letI : WellFoundedLT HamelIndex := wf
-  letI : Nonempty HamelIndex := hamelIndex_nonempty
+  let : LE HamelIndex := lo.toLE
+  let : LT HamelIndex := lo.toLT
+  let : Preorder HamelIndex := lo.toPreorder
+  let : PartialOrder HamelIndex := lo.toPartialOrder
+  let : LinearOrder HamelIndex := lo
+  let : WellFoundedLT HamelIndex := wf
+  let : Nonempty HamelIndex := hamelIndex_nonempty
   let pivot : ℝ → HamelIndex := maxBasisIndex hamelBasis
   let fiber : HamelIndex → Type := fun p ↦
     {x : ℝ // x ≠ 0 ∧ pivot x = p}
@@ -4218,7 +4218,7 @@ theorem exists_linearlyIndependent_real_coloring (hCH : ContinuumHypothesis) :
     intro p
     let v : Set.Iic p → ℝ := fun i ↦ hamelBasis i.1
     let S : Submodule ℚ ℝ := Submodule.span ℚ (Set.range v)
-    letI : Countable (Set.Iic p) := hIic p
+    let : Countable (Set.Iic p) := hIic p
     have hScount : Countable S := inferInstance
     rw [← Set.countable_univ_iff] at hScount
     let toS : fiber p → S := fun x ↦ ⟨x.1, by
@@ -4371,7 +4371,7 @@ private theorem omega1_uncountable : Uncountable Omega1 := by
 
 private theorem exists_same_value (f : Omega1 → ℕ) :
     ∃ a b : Omega1, a ≠ b ∧ f a = f b := by
-  letI : Uncountable Omega1 := omega1_uncountable
+  let : Uncountable Omega1 := omega1_uncountable
   obtain ⟨k, hk⟩ := Cardinal.exists_uncountable_fiber f (by
     rw [Cardinal.mk_nat, mk_omega1]
     exact Cardinal.aleph0_lt_aleph_one)

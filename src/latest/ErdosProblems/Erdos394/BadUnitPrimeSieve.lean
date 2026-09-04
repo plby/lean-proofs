@@ -104,7 +104,7 @@ theorem primeBadUnitWeightedMass_le_card_mul_brun
         (((U : ℝ) ^ 2 / (q : ℝ)) *
           localEulerProduct S (fun p ↦ 1 / (p : ℝ)) +
         (truncatedSubsets S R).card * (2 * (U : ℝ))) := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let L : (ZMod q)ˣ → ℝ := fun u ↦ if u ∈ B then 1 else 0
   let Xmain : ℝ := ((U : ℝ) ^ 2 / (q : ℝ)) *
     localEulerProduct S (fun p ↦ 1 / (p : ℝ)) +

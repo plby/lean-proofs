@@ -82,7 +82,7 @@ theorem exists_residualLinks_masterData
       (∀ o, (K o).right ⊆ U) ∧
       (∀ o, (K o).SpokesIn reserve) := by
   dsimp only
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   have hevenDegree : ∀ v, Even (G.degree v) := by
     intro v
     have hneighbors : neighborsIn G univ v = G.neighborFinset v := by

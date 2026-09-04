@@ -170,8 +170,8 @@ theorem tendsto_affinePrimeIntervalFactor
           (Real.log ((A : ℝ) * (N : ℝ) * 2) *
             (Real.log ((A : ℝ) * (N : ℝ) * 2))⁻¹) -
         Real.log (maynardRadius alpha N) *
-          (primeCountTotal (A * N) : ℝ) := by ring
-    _ = _ := by rw [hcanc]; ring
+          (primeCountTotal (A * N) : ℝ) := by ring_nf
+    _ = _ := by rw [hcanc]; ring_nf
 
 def affineTupleMaynardS2Main
     (H : Finset ℕ) (A : H → ℕ) (alpha : ℝ)

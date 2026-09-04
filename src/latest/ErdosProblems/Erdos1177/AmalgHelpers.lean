@@ -65,16 +65,38 @@ theorem colorableBy_of_finite_parts {W : Type u} (H : Hypergraph W) {I : Type}
     [Fintype I] [Nonempty I] (part : W → I)
     (hcol : ∀ i : I, (H.restrict (part ⁻¹' {i})).ColorableBy ℵ₀) :
     H.ColorableBy ℵ₀ := by
-  choose f hf using hcol;
-  refine' colorableBy_aleph0_of_countable H _ _;
-  exact I × Quotient.out ℵ₀;
-  apply countable_prod_out;
-  exact fun w => ( part w, f ( part w ) w );
-  intro e he; by_cases h : ∃ i, e ⊆ part ⁻¹' { i } <;> simp_all +decide [ Set.subset_def ] ;
-  · obtain ⟨ i, hi ⟩ := h;
-    have := hf i;
-    obtain ⟨ u, hu, v, hv, huv ⟩ := this e ⟨ he, fun x hx => by aesop ⟩ ; use u, hu, v, hv; aesop;
-  · obtain ⟨ u, hu, hu' ⟩ := h ( part ( Classical.choose ( Set.nonempty_iff_ne_empty.mpr ( show e ≠ ∅ from by rintro rfl; simpa using! h ( Classical.arbitrary I ) ) ) ) ) ; obtain ⟨ v, hv, hv' ⟩ := h ( part u ) ; use u, hu, v, hv; aesop;
+  choose f hf using hcol
+  refine colorableBy_aleph0_of_countable H countable_prod_out
+    (c := fun w ↦ (part w, f (part w) w)) ?_
+  intro e he
+  by_cases hpart : ∃ i, e ⊆ part ⁻¹' {i}
+  · obtain ⟨i, hi⟩ := hpart
+    obtain ⟨u, hu, v, hv, huv⟩ := hf i e ⟨he, hi⟩
+    have hui : part u = i := by simpa using hi hu
+    have hvi : part v = i := by simpa using hi hv
+    refine ⟨u, hu, v, hv, ?_⟩
+    intro huv'
+    apply huv
+    simpa [hui, hvi] using congrArg Prod.snd huv'
+  · have hene : e.Nonempty := by
+      by_contra hne
+      let i : I := Classical.choice inferInstance
+      have hi : e ⊆ part ⁻¹' {i} := by
+        intro w hw
+        exact (hne ⟨w, hw⟩).elim
+      obtain ⟨u, hu, v, hv, _⟩ := hf i e ⟨he, hi⟩
+      exact hne ⟨u, hu⟩
+    obtain ⟨u, hu⟩ := hene
+    have hnot : ¬e ⊆ part ⁻¹' {part u} :=
+      fun hi ↦ hpart ⟨part u, hi⟩
+    obtain ⟨v, hv, hvpart⟩ := Set.not_subset.mp hnot
+    have huv : part u ≠ part v := by
+      intro huv
+      apply hvpart
+      simpa [huv]
+    refine ⟨u, hu, v, hv, ?_⟩
+    intro huv'
+    exact huv (congrArg Prod.fst huv')
 
 /-- Averaging / degeneracy: in a graph with an out-orientation of out-degree
 `≤ d`, every nonempty finite vertex set contains a vertex of degree `≤ 2d`

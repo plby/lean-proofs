@@ -266,8 +266,8 @@ theorem
     ‖d.primeArithmeticToZetaLocalRatio p - 1‖ ≤
       selectedCFZCarryEulerTailErrorConstant k /
         (p : ℝ) ^ 2 := by
-  letI : NeZero d.N := d.N_neZero
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero d.N := d.N_neZero
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   have horiginal :
       exceptionalPrimeBound
           (fun q : CFZFormIndex k => cfzAffineForm q) <

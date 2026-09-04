@@ -208,8 +208,8 @@ theorem exists_bounded_generatorCompletion
     rw [Finset.disjoint_left]
     intro a haB haT
     exact (Finset.mem_sdiff.mp (hTU haT)).2 haB
-  letI : H.IsFiniteRelIndex Gamma := ⟨hfinite⟩
-  letI : Fintype Q := Fintype.ofFinite Q
+  let : H.IsFiniteRelIndex Gamma := ⟨hfinite⟩
+  let : Fintype Q := Fintype.ofFinite Q
   have hrelCard : H.relIndex Gamma = Fintype.card Q := by
     change Nat.card Q = Fintype.card Q
     exact Nat.card_eq_fintype_card
@@ -270,7 +270,7 @@ theorem reduced_of_zero_mem_generatedSublattice_eq_top {d : ℕ}
     (hgen : generatedSublattice A = ⊤) : Reduced A := by
   classical
   intro v hv H hH a
-  letI (i : Fin d) : NeZero (v i) := ⟨Nat.ne_of_gt (hv.1 i)⟩
+  let (i : Fin d) : NeZero (v i) := ⟨Nat.ne_of_gt (hv.1 i)⟩
   let q : LatticePoint d →+ RectangularQuotient v :=
     { toFun := rectangularResidue v
       map_zero' := rectangularResidue_zero v

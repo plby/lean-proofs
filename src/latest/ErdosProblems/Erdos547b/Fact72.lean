@@ -52,7 +52,7 @@ private theorem exists_rooted_semibipartite_copy_aux
       simpa [f, F, hsub.elim x root] using hrootImage
   | succ n ih =>
       have hlarge : 1 < Fintype.card α := by omega
-      letI : Nontrivial α := Fintype.one_lt_card_iff_nontrivial.mp hlarge
+      let : Nontrivial α := Fintype.one_lt_card_iff_nontrivial.mp hlarge
       obtain ⟨x₀, x₁, hxne, hx₀deg, hx₁deg⟩ := hT.exists_ne_and_degree_eq_one
       obtain ⟨x, hxroot, hxdeg⟩ : ∃ x : α, x ≠ root ∧ T.degree x = 1 := by
         by_cases h : x₀ = root

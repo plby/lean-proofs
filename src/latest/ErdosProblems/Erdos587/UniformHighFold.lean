@@ -34,7 +34,7 @@ theorem exists_uniform_highFold_doubling (b : ℕ) :
     have hz : P.rank = 0 := by omega
     have hc := (Finset.card_le_card hAP).trans P.card_carrier_le_box
     change A.card ≤ P.boxCard at hc
-    letI : IsEmpty (Fin P.rank) := ⟨fun i => by have hi := i.isLt; omega⟩
+    let : IsEmpty (Fin P.rank) := ⟨fun i => by have hi := i.isLt; omega⟩
     simp [GeneralizedAP.boxCard] at hc
     omega
   have hD : 0 < D := by

@@ -206,7 +206,7 @@ theorem aleph0_lt_chromaticCardinal_deleteVertices
   have hHsum : H.chromaticCardinal ≤ #(C ⊕ R) :=
     (H.chromaticCardinal_le_mk_iff).2 ⟨c', hc'⟩
   have hCcount : #C ≤ ℵ₀ := hC.trans_le hdel
-  letI : Fintype R := hR.fintype
+  let : Fintype R := hR.fintype
   have hRcount : #R ≤ ℵ₀ :=
     (Cardinal.lt_aleph0_of_finite R).le
   have hsum : #(C ⊕ R) ≤ ℵ₀ := by

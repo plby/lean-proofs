@@ -177,7 +177,7 @@ theorem noShortOddCycle_one (hk : 3 ≤ k) :
     NoShortOddCycle (graph k κ (by omega)) 1 := by
   intro m hm₁ hm₂ hm₃
   interval_cases m
-  simp_all
+  simp_all only [not_exists, not_and, not_forall]
   rintro x hx_inj
   by_contra h_contra
   push_neg at h_contra

@@ -47,7 +47,7 @@ def higherDegreeCount (x : ℕ) : ℕ := Nat.card (HigherDegreeUpTo L x)
 def splitPrimeCount (x : ℕ) : ℕ := Nat.card (SplitPrimesUpTo L x)
 
 private instance finite_primeIdealsUpTo (x : ℕ) : Finite (PrimeIdealsUpTo L x) := by
-  haveI : Finite {I : Ideal (𝓞 L) // Ideal.absNorm I ≤ x} :=
+  have : Finite {I : Ideal (𝓞 L) // Ideal.absNorm I ≤ x} :=
     (Ideal.finite_setOf_absNorm_le (S := 𝓞 L) x).to_subtype
   exact Finite.of_injective
     (fun P : PrimeIdealsUpTo L x ↦
@@ -56,7 +56,7 @@ private instance finite_primeIdealsUpTo (x : ℕ) : Finite (PrimeIdealsUpTo L x)
 
 private instance finite_unramifiedDegreeOneUpTo (x : ℕ) :
     Finite (UnramifiedDegreeOneUpTo L x) := by
-  haveI : Finite {I : Ideal (𝓞 L) // Ideal.absNorm I ≤ x} :=
+  have : Finite {I : Ideal (𝓞 L) // Ideal.absNorm I ≤ x} :=
     (Ideal.finite_setOf_absNorm_le (S := 𝓞 L) x).to_subtype
   exact Finite.of_injective
     (fun P : UnramifiedDegreeOneUpTo L x ↦
@@ -65,7 +65,7 @@ private instance finite_unramifiedDegreeOneUpTo (x : ℕ) :
 
 private instance finite_ramifiedDegreeOneUpTo (x : ℕ) :
     Finite (RamifiedDegreeOneUpTo L x) := by
-  haveI : Finite {I : Ideal (𝓞 L) // Ideal.absNorm I ≤ x} :=
+  have : Finite {I : Ideal (𝓞 L) // Ideal.absNorm I ≤ x} :=
     (Ideal.finite_setOf_absNorm_le (S := 𝓞 L) x).to_subtype
   exact Finite.of_injective
     (fun P : RamifiedDegreeOneUpTo L x ↦
@@ -73,7 +73,7 @@ private instance finite_ramifiedDegreeOneUpTo (x : ℕ) :
     (fun _ _ h ↦ Subtype.ext (by simpa using h))
 
 private instance finite_higherDegreeUpTo (x : ℕ) : Finite (HigherDegreeUpTo L x) := by
-  haveI : Finite {I : Ideal (𝓞 L) // Ideal.absNorm I ≤ x} :=
+  have : Finite {I : Ideal (𝓞 L) // Ideal.absNorm I ≤ x} :=
     (Ideal.finite_setOf_absNorm_le (S := 𝓞 L) x).to_subtype
   exact Finite.of_injective
     (fun P : HigherDegreeUpTo L x ↦
@@ -225,7 +225,7 @@ private theorem card_degreeOneSplit_fiber (x : ℕ) (p : SplitPrimesUpTo L x) :
 `[L : ℚ]` above completely split rational primes. -/
 theorem unramifiedDegreeOneCount_eq_degree_mul_splitPrimeCount (x : ℕ) :
     unramifiedDegreeOneCount L x = Module.finrank ℚ L * splitPrimeCount L x := by
-  letI : Fintype (SplitPrimesUpTo L x) := Fintype.ofFinite _
+  let : Fintype (SplitPrimesUpTo L x) := Fintype.ofFinite _
   rw [unramifiedDegreeOneCount, splitPrimeCount,
     ← Nat.card_congr (Equiv.sigmaFiberEquiv (degreeOneToSplit L x)), Nat.card_sigma]
   simp_rw [card_degreeOneSplit_fiber L x]
@@ -243,13 +243,13 @@ theorem card_primesAbove_le_degree {p : ℕ} (hp : p.Prime) :
     have hnorm := congrArg Ideal.absNorm h
     rw [absNorm_rationalIdeal, Ideal.absNorm_bot] at hnorm
     exact hp.ne_zero hnorm
-  haveI : NoZeroSMulDivisors (𝓞 ℚ) (𝓞 L) :=
+  have : NoZeroSMulDivisors (𝓞 ℚ) (𝓞 L) :=
     ⟨fun {c x} h ↦ by
       rw [Algebra.smul_def, mul_eq_zero] at h
       exact h.imp
         (fun hc ↦ RingOfIntegers.algebraMap.injective ℚ L (by rwa [map_zero])) id⟩
-  letI : (rationalIdeal p).IsPrime := rationalIdeal_isPrime hp
-  letI : (rationalIdeal p).IsMaximal := (rationalIdeal_isPrime hp).isMaximal hp0
+  let : (rationalIdeal p).IsPrime := rationalIdeal_isPrime hp
+  let : (rationalIdeal p).IsMaximal := (rationalIdeal_isPrime hp).isMaximal hp0
   rw [show {P : Ideal (𝓞 L) // P.IsPrime ∧ P.LiesOver (rationalIdeal p)} =
       ↥((rationalIdeal p).primesOver (𝓞 L)) from rfl,
     Nat.card_coe_set_eq, ← IsDedekindDomain.coe_primesOverFinset hp0,
@@ -285,9 +285,9 @@ private theorem card_higherDegreeToSqrt_fiber_le (x : ℕ) (p : Fin (x.sqrt + 1)
       have hnorm := congrArg Ideal.absNorm h
       rw [absNorm_rationalIdeal, Ideal.absNorm_bot] at hnorm
       exact hp.ne_zero hnorm
-    letI : (rationalIdeal p.1).IsPrime := rationalIdeal_isPrime hp
-    letI : (rationalIdeal p.1).IsMaximal := (rationalIdeal_isPrime hp).isMaximal hp0
-    haveI : Finite {Q : Ideal (𝓞 L) //
+    let : (rationalIdeal p.1).IsPrime := rationalIdeal_isPrime hp
+    let : (rationalIdeal p.1).IsMaximal := (rationalIdeal_isPrime hp).isMaximal hp0
+    have : Finite {Q : Ideal (𝓞 L) //
         Q.IsPrime ∧ Q.LiesOver (rationalIdeal p.1)} :=
       (IsDedekindDomain.primesOver_finite (rationalIdeal p.1) (𝓞 L)).to_subtype
     let f : {P : HigherDegreeUpTo L x // higherDegreeToSqrt L x P = p} →
@@ -302,7 +302,7 @@ private theorem card_higherDegreeToSqrt_fiber_le (x : ℕ) (p : Fin (x.sqrt + 1)
       exact congrArg (fun z : {Q : Ideal (𝓞 L) //
         Q.IsPrime ∧ Q.LiesOver (rationalIdeal p.1)} ↦ z.1) h)).trans
           (card_primesAbove_le_degree L hp)
-  · haveI : IsEmpty {P : HigherDegreeUpTo L x // higherDegreeToSqrt L x P = p} :=
+  · have : IsEmpty {P : HigherDegreeUpTo L x // higherDegreeToSqrt L x P = p} :=
       not_nonempty_iff.mp hne
     simp [Nat.card_eq_zero]
 
@@ -310,7 +310,7 @@ private theorem card_higherDegreeToSqrt_fiber_le (x : ℕ) (p : Fin (x.sqrt + 1)
 `[L : ℚ](√x + 1)`. -/
 theorem higherDegreeCount_le_degree_mul_sqrt_add_one (x : ℕ) :
     higherDegreeCount L x ≤ Module.finrank ℚ L * (x.sqrt + 1) := by
-  letI : Finite (HigherDegreeUpTo L x) := finite_higherDegreeUpTo L x
+  let : Finite (HigherDegreeUpTo L x) := finite_higherDegreeUpTo L x
   rw [higherDegreeCount,
     ← Nat.card_congr (Equiv.sigmaFiberEquiv (higherDegreeToSqrt L x)), Nat.card_sigma]
   calc
@@ -328,14 +328,14 @@ def RamifiedPrimeIdeals :=
 /-- Only finitely many prime ideals of `L` lie over ramified rational primes. -/
 instance finite_ramifiedPrimeIdeals : Finite (RamifiedPrimeIdeals L) := by
   classical
-  haveI : Finite {p : Ideal (𝓞 ℚ) //
+  have : Finite {p : Ideal (𝓞 ℚ) //
       p.IsPrime ∧ p ≠ ⊥ ∧ ¬ UnramifiedIn ℚ L p} :=
     (finite_ramifiedIn ℚ L).to_subtype
-  haveI : ∀ p : {p : Ideal (𝓞 ℚ) //
+  have : ∀ p : {p : Ideal (𝓞 ℚ) //
       p.IsPrime ∧ p ≠ ⊥ ∧ ¬ UnramifiedIn ℚ L p},
       Finite (p.1.primesOver (𝓞 L)) := fun p ↦ by
-    letI : p.1.IsPrime := p.2.1
-    letI : p.1.IsMaximal := p.2.1.isMaximal p.2.2.1
+    let : p.1.IsPrime := p.2.1
+    let : p.1.IsMaximal := p.2.1.isMaximal p.2.2.1
     exact (IsDedekindDomain.primesOver_finite p.1 (𝓞 L)).to_subtype
   refine Finite.of_injective
     (fun P : RamifiedPrimeIdeals L ↦

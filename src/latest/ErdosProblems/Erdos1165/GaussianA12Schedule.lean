@@ -92,7 +92,7 @@ private lemma rpow_three_div_rpow_two_add {x delta : ℝ} (hx : 0 < x) :
   field_simp
   have hmul : x ^ (1 - 2 * delta) * x ^ (2 * (1 + delta)) = x ^ 3 := by
     rw [← Real.rpow_add hx]
-    convert Real.rpow_natCast x 3 using 1 <;> ring
+    convert Real.rpow_natCast x 3 using 1 <;> ring_nf
   calc
     1280 * x ^ 3 * 32 ^ 2 = 1310720 * x ^ 3 := by ring
     _ = 1310720 *

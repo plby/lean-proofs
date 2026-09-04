@@ -50,7 +50,7 @@ def zsqrtdNoZeroDivisors (d : ℤ) (hd : d < 0) :
     · exact Or.inr ((Zsqrtd.norm_eq_zero_iff hd b).mp hb)
 
 def zsqrtdIsDomain (d : ℤ) (hd : d < 0) : IsDomain (Zsqrtd d) := by
-  letI : NoZeroDivisors (Zsqrtd d) := zsqrtdNoZeroDivisors d hd
+  let : NoZeroDivisors (Zsqrtd d) := zsqrtdNoZeroDivisors d hd
   exact NoZeroDivisors.to_isDomain _
 
 /-- Away from the Gaussian exceptional order, a negative quadratic order
@@ -91,8 +91,8 @@ theorem zsqrtd_isUnit_iff_eq_one_or_neg_one
   · rintro (rfl | rfl) <;> simp
 
 example (d : ℤ) (hd : d < 0) : Ring.HasFiniteQuotients (Zsqrtd d) := by
-  letI : NoZeroDivisors (Zsqrtd d) := zsqrtdNoZeroDivisors d hd
-  letI : IsDomain (Zsqrtd d) := zsqrtdIsDomain d hd
+  let : NoZeroDivisors (Zsqrtd d) := zsqrtdNoZeroDivisors d hd
+  let : IsDomain (Zsqrtd d) := zsqrtdIsDomain d hd
   infer_instance
 
 section General
@@ -253,7 +253,7 @@ theorem relIndex_smul_invertible_submodule_eq_cardQuot
         (by simp [Submodule.smul_le_right])) ≪≫ₗ
       (quotTensorEquivQuotSMul J P).symm
   rw [Nat.card_congr e.toEquiv]
-  letI : Field (S ⧸ P) :=
+  let : Field (S ⧸ P) :=
     ((Ideal.Quotient.maximal_ideal_iff_isField_quotient P).mp hP).toField
   let e' : ((S ⧸ P) ⊗[S] J) ≃ₗ[S ⧸ P] (S ⧸ P) :=
     (Module.Invertible.free_iff_linearEquiv.mp (by infer_instance)).some
@@ -312,7 +312,7 @@ noncomputable def moduleInvertibleIdealOfIsUnit (J : Ideal S)
   let uF : (FractionalIdeal S⁰ (FractionRing S))ˣ := hJ.unit
   let uS : (Submodule S (FractionRing S))ˣ :=
     FractionalIdeal.unitsMulEquivSubmodule uF
-  letI : Module.Invertible S uS := inferInstance
+  let : Module.Invertible S uS := inferInstance
   have hsub : (uS : Submodule S (FractionRing S)) =
       ((J : FractionalIdeal S⁰ (FractionRing S)) :
         Submodule S (FractionRing S)) := by
@@ -329,7 +329,7 @@ theorem cardQuot_mul_of_isUnit_right
     (P J : Ideal S) (hP : P.IsMaximal)
     (hJ : IsUnit (J : FractionalIdeal S⁰ (FractionRing S))) :
     (P * J).cardQuot = P.cardQuot * J.cardQuot := by
-  letI : Module.Invertible S J := moduleInvertibleIdealOfIsUnit J hJ
+  let : Module.Invertible S J := moduleInvertibleIdealOfIsUnit J hJ
   exact cardQuot_mul_of_moduleInvertible_right P J hP
 
 /-- The numerator of an invertible fractional ideal is an invertible integral

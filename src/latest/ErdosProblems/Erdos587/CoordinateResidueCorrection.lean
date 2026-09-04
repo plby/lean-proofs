@@ -67,7 +67,7 @@ theorem exists_coordinate_residue_correction
       ∃ z : ι → ℤ, (∑ x ∈ S, φ x) + v = fun i => a i * z i := by
   classical
   let Δ := coordinateMultiples a
-  letI : Δ.FiniteIndex := coordinateMultiples_finiteIndex a ha
+  let : Δ.FiniteIndex := coordinateMultiples_finiteIndex a ha
   have hindex : Δ.index ≤ B ^ Fintype.card ι := coordinateMultiples_index_le_pow a ha B hbound
   obtain ⟨S, hSA, hcard, hmod⟩ := exists_small_subset_sum_mod_subgroup φ A Δ r
     (hindex.trans hsize) hstable ((generatedSubgroup φ A).neg_mem hv)

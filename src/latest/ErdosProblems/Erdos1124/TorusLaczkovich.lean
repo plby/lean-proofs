@@ -47,7 +47,7 @@ lemma torusFreeAction_of_free {d k : ℕ} (u : Fin d → Torus k)
     (hu : Free u) :
     letI := torusAddAction u
     OrbitBlocks.FreeAction (d := d) (X := Torus k) := by
-  letI := torusAddAction u
+  let := torusAddAction u
   intro x m n hmn
   apply hu
   exact add_right_cancel hmn
@@ -65,7 +65,7 @@ lemma cubeCount_le_pow {d k n : ℕ} (u : Fin d → Torus k)
     (E : Set (Torus k)) (x : Torus k) :
     cubeCount u E n x ≤ n ^ d := by
   classical
-  letI := torusAddAction u
+  let := torusAddAction u
   unfold cubeCount
   calc
     (∑ q : Fin d → Fin n, if (-Flow.cubeIndex q +ᵥ x) ∈ E then 1 else 0) ≤
@@ -179,7 +179,7 @@ lemma abs_cubeAverage_signedIndicator_le_one
     (A B : Set (Torus k)) (x : Torus k) (hn : 0 < n) :
     letI := torusAddAction u
     |Flow.cubeAverage (d := d) (signedIndicator A B) n x| ≤ 1 := by
-  letI := torusAddAction u
+  let := torusAddAction u
   rw [cubeAverage_signedIndicator]
   rcases cubeDensity_mem_Icc u A x hn with ⟨hA0, hA1⟩
   rcases cubeDensity_mem_Icc u B x hn with ⟨hB0, hB1⟩
@@ -196,7 +196,7 @@ theorem uniformDyadicDecay_signedIndicator_of_commonMean
     (hB : UniformMeanDyadicDensity u B μ K δ) :
     letI := torusAddAction u
     Flow.UniformDyadicDecay (d := d) (signedIndicator A B) (2 * K) δ := by
-  letI := torusAddAction u
+  let := torusAddAction u
   refine ⟨by positivity, hδ, ?_⟩
   intro q x
   calc
@@ -219,7 +219,7 @@ theorem exists_integral_bitFlow_of_commonMeanDyadicDensity
       ∀ x, (BitGraph.bitPermutationGraph u).divergence ψ x =
         BitGraph.intDemand A B x := by
   let b := ⌈Flow.geometricFlowBound (2 * K) δ⌉₊
-  letI := torusAddAction u
+  let := torusAddAction u
   have hdecay := uniformDyadicDecay_signedIndicator_of_commonMean
     u A B μ K δ hK hδ hA hB
   let φ := Flow.dyadicFlow (d := d) (signedIndicator A B)
@@ -248,7 +248,7 @@ theorem exists_integral_bitFlow_of_eventualCommonMeanDensity
         (∀ x g, |ψ x g| ≤ b) ∧
         ∀ x, (BitGraph.bitPermutationGraph u).divergence ψ x =
           BitGraph.intDemand A B x := by
-  letI := torusAddAction u
+  let := torusAddAction u
   obtain ⟨C, hC, hdecay⟩ :=
     DecayBridge.exists_uniformDyadicDecay_of_eventually
       (d := d) (signedIndicator A B) q₀ (2 * K) 1 δ
@@ -284,7 +284,7 @@ theorem exists_integral_bitFlow_of_uniformDyadicDiscrepancy
       ∀ x, (BitGraph.bitPermutationGraph u).divergence ψ x =
         BitGraph.intDemand A B x := by
   let b := ⌈Flow.geometricFlowBound (2 * K) δ⌉₊
-  letI := torusAddAction u
+  let := torusAddAction u
   obtain ⟨φ, hφbound, hφdiv⟩ :=
     DecayBridge.exists_bounded_flow_of_equal_volume_discrepancy
       u A B K δ hK hδ hvolume hA hB
@@ -312,7 +312,7 @@ theorem exists_integral_bitFlow_of_eventualDyadicDiscrepancy
         (∀ x g, |ψ x g| ≤ b) ∧
         ∀ x, (BitGraph.bitPermutationGraph u).divergence ψ x =
           BitGraph.intDemand A B x := by
-  letI := torusAddAction u
+  let := torusAddAction u
   obtain ⟨C, hC, hdecay⟩ :=
     DecayBridge.exists_uniformDyadicDecay_signedIndicator_of_eventual_discrepancy
       u A B q₀ K 1 δ hK (by norm_num) hδ hvolume hA hB (by
@@ -399,7 +399,7 @@ lemma bitDivergence_eq_bitGraph_divergence
     letI := torusAddAction u
     OrbitBlocks.bitDivergence (d := d) (fun g x ↦ ψ x g) x =
       (BitGraph.bitPermutationGraph u).divergence ψ x := by
-  letI := torusAddAction u
+  let := torusAddAction u
   unfold OrbitBlocks.bitDivergence IntegralFlow.PermutationGraph.divergence
   apply Finset.sum_congr rfl
   intro g hg
@@ -440,7 +440,7 @@ theorem exists_equidecomp_of_uniformDyadicDiscrepancy_of_block_bounds
       ∃ e : Equidecomp (Torus k) (Multiplicative (Torus k)),
         e.source = A ∧ e.target = B ∧
           Equidecomp.IsDecompOn e A (multiplicativeDisplacements D) := by
-  letI := torusAddAction u
+  let := torusAddAction u
   intro hu M degree capacity hM D hdegree hcapacity hroomA hroomB hallowed
   obtain ⟨ψ, hψbound, hψdiv⟩ :=
     exists_integral_bitFlow_of_uniformDyadicDiscrepancy
@@ -486,7 +486,7 @@ theorem exists_equidecomp_of_commonMeanDensity_of_block_bounds
       ∃ e : Equidecomp (Torus k) (Multiplicative (Torus k)),
         e.source = A ∧ e.target = B ∧
           Equidecomp.IsDecompOn e A (multiplicativeDisplacements D) := by
-  letI := torusAddAction u
+  let := torusAddAction u
   intro hu M degree capacity hM D hdegree hcapacity hroomA hroomB hallowed
   obtain ⟨ψ, hψbound, hψdiv⟩ :=
     exists_integral_bitFlow_of_commonMeanDyadicDensity
@@ -522,7 +522,7 @@ theorem exists_equidecomp_of_commonMeanDyadicDensity
     exists_dyadic_room_for_commonMeanDensity
       u hu A B μ K δ hd hμ hK hδ hA hB
   let M : ℕ := 2 ^ q
-  letI : NeZero M := inferInstance
+  let : NeZero M := inferInstance
   obtain ⟨ψ, hψbound, hψdiv⟩ :=
     exists_integral_bitFlow_of_commonMeanDyadicDensity
       u A B μ K δ hK hδ hA hB

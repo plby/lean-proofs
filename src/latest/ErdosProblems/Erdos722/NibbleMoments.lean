@@ -601,8 +601,12 @@ theorem barrierObservable_increment_abs_le
               intro heQ
               rw [residualHost_update] at hrel
               exact (Finset.mem_sdiff.mp hrel.2).2 heQ)
-        · simp [hrel, barrierJump, edgeDeletionJump]
-          positivity
+        · rw [if_neg hrel]
+          simp only [abs_zero, barrierJump]
+          apply add_nonneg
+          · unfold edgeDeletionJump
+            positivity
+          · exact abs_nonneg _
     | true =>
         simp only [observableIncrement, barrierObservable_edgeLower_eq]
         rw [lowerDegreeObservable_increment]
@@ -617,8 +621,12 @@ theorem barrierObservable_increment_abs_le
               intro heQ
               rw [residualHost_update] at hrel
               exact (Finset.mem_sdiff.mp hrel.2).2 heQ)
-        · simp [hrel, barrierJump, edgeDeletionJump]
-          positivity
+        · rw [if_neg hrel]
+          simp only [abs_zero, barrierJump]
+          apply add_nonneg
+          · unfold edgeDeletionJump
+            positivity
+          · exact abs_nonneg _
   · have hdeleted : ((deletedCliques H r history Q).card : ℝ) ≤
         Nat.choose q r * U history.length := by
       have hnat := card_deletedCliques_le (U history.length)

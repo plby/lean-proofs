@@ -686,7 +686,7 @@ theorem exists_paddedAbsorber_with_initial_oneStage_typicality
   obtain ⟨H, X, B, hXcard, hA, hlocal, hBsupport, hdegree,
       hBcard, hroot⟩ :=
     exists_paddedEfficientAbsorber_with_rootBounds hm hfit
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
   have hRootDegreeX : (15 : ℝ≥0) ≤ xi * (X.card : ℝ≥0) := by
     simpa only [hXcard] using hRootDegree
   have hRootExtensionX : (h + h ^ 2 * 36 : ℝ≥0) ≤

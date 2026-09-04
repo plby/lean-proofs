@@ -48,7 +48,7 @@ theorem nontrivial (hG : TwoConnected G) : Nontrivial V := by
     omega)
 
 theorem exists_ne (hG : TwoConnected G) (v : V) : ∃ w : V, w ≠ v := by
-  letI := hG.nontrivial
+  let := hG.nontrivial
   exact _root_.exists_ne v
 
 theorem exists_two_ne (hG : TwoConnected G) (v : V) :
@@ -57,7 +57,7 @@ theorem exists_two_ne (hG : TwoConnected G) (v : V) :
     rw [Fintype.card_compl_set, Set.card_singleton]
     have h := hG.card_three_le
     omega
-  letI : Nontrivial ({v}ᶜ : Set V) :=
+  let : Nontrivial ({v}ᶜ : Set V) :=
     Fintype.one_lt_card_iff_nontrivial.mp (by omega)
   obtain ⟨x, y, hxy⟩ := exists_pair_ne ({v}ᶜ : Set V)
   have hx : (x : V) ≠ v := by

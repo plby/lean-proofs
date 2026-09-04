@@ -1118,7 +1118,7 @@ theorem not_adj_of_both_degree_one_of_three_le_card
     have hvz : vs ≠ zs := by
       intro h
       exact hz.2 (Subtype.ext_iff.mp h).symm
-    letI : Nontrivial s := nontrivial_of_ne vs zs hvz
+    let : Nontrivial s := nontrivial_of_ne vs zs hvz
     have hconn : (T.induce s).Connected :=
       hT.connected.induce_compl_singleton_of_degree_eq_one hu
     have hpos : 0 < (T.induce s).degree vs :=

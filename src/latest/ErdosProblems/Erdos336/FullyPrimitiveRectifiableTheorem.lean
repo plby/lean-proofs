@@ -19,10 +19,10 @@ lifted certificate. -/
 theorem fullyPrimitiveRectifiableThreeMinusThree :
     HasFullyPrimitiveRectifiableThreeMinusThree := by
   intro N hN
-  letI : NeZero N := ⟨hN.ne'⟩
+  let : NeZero N := ⟨hN.ne'⟩
   dsimp
   intro A hAne hAaff m hm
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   intro π hπ α houter hthreshold hfull
   have himage2 : 2 ≤ (A.image π).card := by
     by_contra hnot

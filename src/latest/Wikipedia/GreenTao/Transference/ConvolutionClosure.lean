@@ -256,10 +256,10 @@ theorem eval_mul
     {G : Type u} [Fintype G] [AddCommGroup G] (n : ℕ)
     (m₁ m₂ : ConvolutionMixture G (n + 1)) (z : G) :
     (mul n m₁ m₂).eval z = m₁.eval z * m₂.eval z := by
-  letI : Fintype m₁.ι := m₁.indexFintype
-  letI : Fintype m₂.ι := m₂.indexFintype
-  letI : Nonempty m₁.ι := m₁.indexNonempty
-  letI : Nonempty m₂.ι := m₂.indexNonempty
+  let : Fintype m₁.ι := m₁.indexFintype
+  let : Fintype m₂.ι := m₂.indexFintype
+  let : Nonempty m₁.ι := m₁.indexNonempty
+  let : Nonempty m₂.ι := m₂.indexNonempty
   change
     mean (fun p : m₁.ι × (m₂.ι × (Fin n → G)) =>
       generalizedConvolution (n + 1)
@@ -366,8 +366,8 @@ theorem finitePairing_eval
       mean (fun a =>
         finitePairing h
           (generalizedConvolution r (m.tests a))) := by
-  letI : Fintype m.ι := m.indexFintype
-  letI : Nonempty m.ι := m.indexNonempty
+  let : Fintype m.ι := m.indexFintype
+  let : Nonempty m.ι := m.indexNonempty
   change
     mean (fun z : G =>
       h z * mean (fun a : m.ι =>
@@ -405,8 +405,8 @@ theorem CutDiscrepancyLe.abs_finitePairing_convolutionMixture_le
     (hcut : CutDiscrepancyLe r ν (fun _ => 1) ε)
     (m : ConvolutionMixture G r) :
     |finitePairing (ν - fun _ => 1) m.eval| ≤ ε := by
-  letI : Fintype m.ι := m.indexFintype
-  letI : Nonempty m.ι := m.indexNonempty
+  let : Fintype m.ι := m.indexFintype
+  let : Nonempty m.ι := m.indexNonempty
   rw [m.finitePairing_eval]
   calc
     |mean (fun a : m.ι =>

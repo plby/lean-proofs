@@ -33,7 +33,7 @@ Orthogonality of additive characters on `[0,1]`:
 lemma integral_e_int (k : ℤ) :
     (∫ θ in (0:ℝ)..1, Complex.exp (2 * Real.pi * Complex.I * (k : ℝ) * θ))
       = if k = 0 then 1 else 0 := by
-  have := @integral_exp_mul_complex 0 1 ( 2 * Real.pi * Complex.I * k ) ; simp_all +decide [ mul_comm, mul_left_comm ] ;
+  have := @integral_exp_mul_complex 0 1 ( 2 * Real.pi * Complex.I * k ) ; simp_all +decide only [Complex.ofReal_intCast] ;
   by_cases hk : k = 0 <;> simp_all +decide;
   exact sub_eq_zero_of_eq ( Complex.exp_eq_one_iff.mpr ⟨ k, by ring ⟩ )
 
@@ -71,7 +71,7 @@ lemma periodic_cover_bound (h : ℝ → ℝ) (hper : ∀ x, h (x + 1) = h x)
       obtain ⟨m, hm₁, hm₂⟩ := hi₀ i
       use m
       exact ⟨hm₁, hm₂, by
-        by_cases hi : i = i₀ <;> simp_all +decide;
+        by_cases hi : i = i₀ <;> simp_all +decide only [tsub_le_iff_right];
         · rcases m with ⟨ _ | m ⟩ <;> norm_num at * <;> linarith;
         · contrapose! hsp;
           exact ⟨ i, i₀, hi, m + 1, by rw [ abs_lt ] ; constructor <;> push_cast <;> linarith ⟩⟩;
@@ -164,7 +164,7 @@ lemma gallagher_sampling
       · linarith [ hmem r |>.1, hmem r |>.2 ];
       · norm_num +zetaDelta at *;
       · exact Continuous.intervalIntegrable ( by exact Continuous.add ( show Continuous g from continuous_iff_continuousAt.mpr fun x => HasDerivAt.continuousAt ( hderiv x ) ) continuous_const ) _ _
-    simp_all +decide;
+    simp_all +decide only [ge_iff_le];
     rw [ intervalIntegral.integral_add ] at h_sum_integral_bound <;> norm_num at *;
     · nlinarith [ inv_mul_cancel_left₀ hδ0.ne' ( ∫ θ in x r - δ / 2..x r + δ / 2, g θ ) ];
     · exact Continuous.intervalIntegrable ( by exact continuous_iff_continuousAt.mpr fun _ => HasDerivAt.continuousAt ( hderiv _ ) ) _ _);

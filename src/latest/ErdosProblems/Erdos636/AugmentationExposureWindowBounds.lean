@@ -443,7 +443,7 @@ theorem centered_literal_window_le
       AugmentationGraphFullIdentity.literalPathNat,
       AugmentationGraphFullIdentity.literalState,
       AugmentationGraphFullIdentity.deletionBase,
-      hdecode] <;> ring
+      hdecode] <;> ring_nf
 
 /-- Scalar-radius form of `centered_literal_window_le`, matching the sharp
 literal-window field of the full-exposure certificate. -/

@@ -93,7 +93,7 @@ theorem one_half_le_of_isDeltaConvexPosition
     ext i
     fin_cases i
     exact hxy
-  letI : LinearOrder (EuclideanSpace ℝ (Fin 1)) :=
+  let : LinearOrder (EuclideanSpace ℝ (Fin 1)) :=
     LinearOrder.lift' (fun x ↦ x 0) hcoord
   obtain ⟨a, ha, hlower, hupper⟩ := exists_bisecting_point X hX
   obtain ⟨ℓ, hcount⟩ :=

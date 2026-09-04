@@ -532,7 +532,7 @@ theorem exists_freimanPeelingCertificate (K : Finset V) (hK : 1 < K.card) :
 dimension. -/
 theorem affineRank_add_one_le_card (K : Finset V) (hK : K.Nonempty) :
     affineRank K + 1 ≤ K.card := by
-  letI : Nonempty {x // x ∈ K} := hK.to_subtype
+  let : Nonempty {x // x ∈ K} := hK.to_subtype
   have hrange :
       Set.range (fun x : {x // x ∈ K} ↦ (x : V)) = (K : Set V) := by
     ext x

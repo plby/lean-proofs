@@ -199,7 +199,7 @@ theorem off_turan_embedding_direct
     nlinarith
   have hnN : n ≤ N := by exact_mod_cast hnNReal
   have hNpos : 0 < N := lt_of_lt_of_le (by omega) hnN
-  letI : Nonempty W := Fintype.card_pos_iff.mp (by simpa [N] using! hNpos)
+  let : Nonempty W := Fintype.card_pos_iff.mp (by simpa [N] using! hNpos)
   have hsepOrder :
       (1 : ℝ) ≤ τsep * n := by
     have hceil : 1 / τsep ≤ (⌈1 / τsep⌉₊ : ℝ) :=
@@ -391,10 +391,11 @@ theorem near_turan_red_density_direct
         SimpleGraph.edgeFinset (⊤ : SimpleGraph W) by
           ext ⟨u, v⟩
           by_cases h : G.Adj u v <;>
-            simp +decide [h, SimpleGraph.compl_adj]
+            simp +decide only [mem_union, mem_edgeFinset, mem_edgeSet, compl_adj, ne_eq, edgeFinset_top,
+    Set.toFinset_compl, mem_compl, Set.mem_toFinset, Sym2.mem_diagSet, Sym2.mk_isDiag_iff]
           exact h.ne]
       exact SimpleGraph.card_edgeFinset_top_eq_card_choose_two
-    · simp +decide [Finset.disjoint_left]
+    · simp +decide only [disjoint_edgeFinset]
       rintro ⟨u, v⟩ huv
       simp_all +decide [SimpleGraph.compl_adj]
   by_contra hnot

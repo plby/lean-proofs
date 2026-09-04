@@ -196,7 +196,7 @@ private lemma phase_difference_mul_chordWeight (g : ℕ → ℝ) (a k : ℕ)
           Erdos587.phase (g (a + k + 1) - g (a + k)) := by
     rw [← Erdos587.phase_add]
     congr 1
-    ring
+    ring_nf
   rw [hnext, chordWeight]
   field_simp [sub_ne_zero.mpr hphase.symm]
 
@@ -318,7 +318,7 @@ theorem norm_sum_phase_add_range_le_inv_of_antitone_pos (g : ℕ → ℝ) (a N :
         · have hks : k + 1 < M + 1 := by omega
           simp only [r, if_pos hk, if_pos hks]
           rw [show M - k = M - (k + 1) + 1 by omega]
-          ring
+          ring_nf
         · have hkEq : k = M := by omega
           subst k
           simp only [r, if_pos (by omega : M < M + 1), if_neg (by omega : ¬ M + 1 < M + 1)]

@@ -242,7 +242,7 @@ private theorem intervalIntegral_exp_imul_frequency
       apply intervalIntegral.integral_congr
       intro t _
       push_cast
-      ring
+      ring_nf
     _ = (Complex.exp ((Complex.I * (d : ℂ)) * (T : ℂ)) -
           Complex.exp ((Complex.I * (d : ℂ)) * (0 : ℂ))) /
           (Complex.I * (d : ℂ)) :=
@@ -250,7 +250,7 @@ private theorem intervalIntegral_exp_imul_frequency
     _ = _ := by
       rw [mul_zero, Complex.exp_zero, div_eq_mul_inv, mul_inv_rev]
       push_cast
-      ring
+      ring_nf
 
 private theorem reciprocalBilinearForm_phase_twist
     {ι : Type*} [Fintype ι] [DecidableEq ι]

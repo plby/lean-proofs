@@ -21,13 +21,13 @@ theorem exists_splitPrime_factor_outside {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
         ∃ s : SplitPrime d b, s.idealClass hD ∉ H ∧
           s.1 ≤ (I : Ideal (QuadraticAlgebra ℤ d b)).cardQuot ∧
           ∃ ε : Bool, ∃ J : InvertibleIdeal (QuadraticAlgebra ℤ d b), s.ideal hD ε * J = I := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro H I hIF hIH
   obtain ⟨P, J, hP, hPF, hPH, hPJ⟩ := InvertibleIdeal.exists_maximal_factor_class_not_mem
     (quadraticBadIdeal d b) (quadraticMaximal_coprime_isUnit hD) H I hIF hIH
   obtain ⟨q, hq, hqP⟩ := exists_natPrime_under_quadraticMaximal hD
     (P : Ideal (QuadraticAlgebra ℤ d b)) hP
-  letI : Fact q.Prime := ⟨hq⟩
+  let : Fact q.Prime := ⟨hq⟩
   have hmem : ((q : ℤ) : QuadraticAlgebra ℤ d b) ∈ (P : Ideal (QuadraticAlgebra ℤ d b)) := by
     change (q : ℤ) ∈ (P : Ideal (QuadraticAlgebra ℤ d b)).under ℤ
     rw [hqP]

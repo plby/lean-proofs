@@ -663,7 +663,7 @@ private theorem clusterWitnessVolume_le_raw
   have hpre'' : orderQ (l.1 - g) u ((l.1 : ℝ) + 1 - u + 1) ≤
       D * (u + 1) * (16 * (g : ℝ) ^ 2) / (l.1 - g + 1 : ℕ) := by
     dsimp only [n₁, W₁] at hpre'
-    convert hpre' using 1 <;> ring
+    convert hpre' using 1 <;> ring_nf
   have hsuf'' : orderQ (k - l.1 - 1) 0
       ((u : ℝ) + v - ((l.1 : ℝ) + 1)) ≤
       D * (4 * w ^ 2) / (k - l.1 - 1 + 1 : ℕ) := by

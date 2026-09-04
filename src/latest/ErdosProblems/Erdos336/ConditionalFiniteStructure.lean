@@ -35,7 +35,7 @@ theorem cyclicWeakStrongBoundNE_of_structure_block
     CyclicWeakStrongBoundNE h
       (2 ^ 26 * (h * 64 ^ K) + extensionRankOneCost h) := by
   intro N hN B hBne hweak hexact
-  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  let : NeZero N := ⟨Nat.ne_of_gt hN⟩
   obtain ⟨b, hb⟩ := hBne
   obtain ⟨i, hi, hiscale, hdoub⟩ :=
     exists_small_doubling_before_block_scale hb hweak hK hblock

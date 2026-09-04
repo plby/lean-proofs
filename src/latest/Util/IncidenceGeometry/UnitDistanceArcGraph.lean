@@ -16,7 +16,7 @@ lemma UnitDistanceArcGraph (P : Finset (EuclideanSpace ℝ (Fin 2))) :
       (IncidenceGeometry.unitDistanceCount P : ℝ) - (P.card : ℝ) ≤ (G.edgeFinset.card : ℝ) ∧
         (CrossingNumber G : ℝ) ≤ 2 * (P.card : ℝ) ^ 2 := by
   rcases UnitDistanceArcSelectionDrawing P with ⟨G, hGfin, D, hedge, hlocal⟩
-  letI := hGfin
+  let := hGfin
   rcases PolygonalReplacementForGeometricArcs G D with ⟨_D', _hcard, hcross⟩
   refine ⟨G, hGfin, hedge, ?_⟩
   exact (Nat.cast_le.mpr hcross).trans hlocal

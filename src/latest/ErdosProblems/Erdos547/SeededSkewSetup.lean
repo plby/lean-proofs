@@ -54,7 +54,7 @@ theorem exists_setup_from_typical_seed (G : SimpleGraph V) [DecidableRel G.Adj]
       δ * Fintype.card I)
     (hrootMargin : 12 * ε * m ≤ (θ - ε) * q) : Nonempty (ShrubHostSetup P G I) := by
   classical
-  letI : Nonempty I := ⟨anchor 0⟩
+  let : Nonempty I := ⟨anchor 0⟩
   let anchors := Finset.univ.image anchor
   let w := fun c i ↦ (σ c).outLoad i
   let badMain := P.seedExceptions G ε (fun c ↦ C (anchor c)) J C B seed

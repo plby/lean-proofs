@@ -297,7 +297,7 @@ theorem norm_squareExpSum_neg (θ : ℝ) (L : ℕ) :
     apply Finset.sum_congr rfl
     intro z hz
     simp only [zero_mul, add_zero]
-    convert Erdos587.phase_neg (θ * (z : ℝ) ^ 2) using 1 <;> ring
+    convert Erdos587.phase_neg (θ * (z : ℝ) ^ 2) using 1 <;> ring_nf
   rw [heq, Complex.norm_conj]
 
 theorem fourier_phase_nat_eq_phase (T t x : ℕ) :
@@ -565,7 +565,7 @@ theorem shiftedSquarePairCount_le_of_fourier_partition
   have hTpos : 0 < T := by
     dsimp [T]
     exact lt_of_le_of_lt (Nat.zero_le _) (three_mul_lt_shiftingFourierModulus N)
-  letI : NeZero T := ⟨Nat.ne_of_gt hTpos⟩
+  let : NeZero T := ⟨Nat.ne_of_gt hTpos⟩
   have hno := shifting_noWrap hN hd hA
   have hXY : ∀ x ∈ A, ∀ y ∈ translate A d, x + y < T := by
     intro x hx y hy

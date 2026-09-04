@@ -20,7 +20,7 @@ lemma finite_uniform_centered_exp_le (g : β → ℝ) (a lam : ℝ)
     ∑ x, Real.exp (lam *
         (Concentration.uniformExpectation g - g x)) ≤
       Fintype.card β * Real.exp (a ^ 2 * lam ^ 2 / 2) := by
-  letI : MeasurableSpace β := ⊤
+  let : MeasurableSpace β := ⊤
   let p : PMF β := PMF.uniformOfFintype β
   let μ : Measure β := p.toMeasure
   let m : ℝ := Concentration.uniformExpectation g
@@ -442,7 +442,7 @@ theorem permReveal_exp_moment_bound :
                 _ = (((N : ℝ) + 1) * (N.factorial : ℝ)) *
                       Real.exp (((L : ℝ) + 1) * a ^ 2 * lam ^ 2 / 2) := by
                     congr 1
-                    ring
+                    ring_nf
 
 /-- One-sided lower-tail Azuma bound for a certified uniform permutation
 reveal. -/
@@ -501,7 +501,7 @@ theorem permReveal_lower_tail {L N : ℕ}
       congr 1
       dsimp [lam, V]
       field_simp
-      ring
+      ring_nf
 
 /-- Two-sided Azuma--Hoeffding bound for a statistic depending on the first
 `L` images of a uniform permutation and Lipschitz under left transpositions. -/

@@ -69,8 +69,8 @@ lemma HasUpperWitness.add {m n : ℕ} {B C : ℝ}
   classical
   rcases hm with ⟨V, iV, G, htriG, hedgeG, hcutG⟩
   rcases hn with ⟨W, iW, H, htriH, hedgeH, hcutH⟩
-  letI : Fintype V := iV
-  letI : Fintype W := iW
+  let : Fintype V := iV
+  let : Fintype W := iW
   refine ⟨V ⊕ W, inferInstance, G ⊕g H, cliqueFree_sum_three htriG htriH, ?_, ?_⟩
   · rw [ncard_edgeSet_sum, hedgeG, hedgeH]
   · intro s
@@ -121,9 +121,9 @@ lemma matchingWitness (m : ℕ) : HasUpperWitness m ((m : ℝ) / 2) := by
 
 lemma blockWitness (t : ℕ) :
     HasUpperWitness (UpperBlock.blockEdges t) (3 * (UpperBlock.q t : ℝ) ^ 4 / 4) := by
-  letI : Fintype (UpperBlock.F t) := Fintype.ofFinite _
-  letI : DecidableEq (UpperBlock.F t) := Classical.decEq _
-  letI : DecidableRel (UpperBlock.graph t).Adj := fun _ _ ↦ Finset.decidableMem _ _
+  let : Fintype (UpperBlock.F t) := Fintype.ofFinite _
+  let : DecidableEq (UpperBlock.F t) := Classical.decEq _
+  let : DecidableRel (UpperBlock.graph t).Adj := fun _ _ ↦ Finset.decidableMem _ _
   refine ⟨UpperBlock.V t, inferInstance, UpperBlock.graph t,
     UpperBlock.graph_triangleFree t, ?_, ?_⟩
   · rw [← UpperBlock.card_edgeFinset_graph]

@@ -588,7 +588,7 @@ lemma prod_dependency_inr {r : ℕ} (G : SimpleGraph V)
         (1 / 2 : ℝ) ^ (e.1.toFinset.image part).card := by
     rw [Finset.prod_map]
     simp [eventWeight]
-    rw [show (1 - (2 : ℝ)⁻¹) = 2⁻¹ by norm_num, inv_pow]
+    norm_num [← inv_pow]
   have hright :
       (∏ j ∈ ((meetingEdges G e.1.toFinset).erase e).map
           (Function.Embedding.inr : G.edgeSet ↪ EventIndex r G),

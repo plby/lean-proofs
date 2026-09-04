@@ -103,7 +103,7 @@ lemma exp_neg_log_div_four_half {q : ℝ} (hq : 0 < q) :
       Real.exp_add _ _
     _ = 2 * q ^ (-(1 / 2 : ℝ)) := by
       rw [Real.exp_log (by norm_num), Real.rpow_def_of_pos hq]
-      ring
+      ring_nf
 
 lemma weighted_exp_log_integral_le {ι : Type*} [DecidableEq ι]
     (s : Finset ι) (x m : ι → ℝ)

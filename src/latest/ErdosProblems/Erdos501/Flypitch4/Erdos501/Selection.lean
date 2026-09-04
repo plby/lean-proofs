@@ -53,7 +53,7 @@ theorem exists_countable_iSup_eq {ι : Type*} [Nonempty ι] (s : ι → MeasureA
         range (fun t : essFamily S => idx t.1 t.2) := by
       ext i; simp only [mem_setOf_eq, mem_range, Subtype.exists]
     rw [this]
-    haveI : Countable (essFamily S) := (essFamily_countable S).to_subtype
+    have : Countable (essFamily S) := (essFamily_countable S).to_subtype
     exact countable_range _
   obtain ⟨f, hf⟩ := hI.exists_eq_range ⟨i₀, Or.inr rfl⟩
   refine ⟨f, le_antisymm ?_ (iSup_le fun n => le_iSup _ (f n))⟩
@@ -165,7 +165,7 @@ theorem exists_seq_of_fullness (hB' : MeasurableSet B') {A : Type} {J : Set A}
   have hJne : J.Nonempty := by
     by_contra h
     exact hJ (by rw [not_nonempty_iff_eq_empty.mp h]; exact countable_empty)
-  haveI : Nonempty J := hJne.to_subtype
+  have : Nonempty J := hJne.to_subtype
   -- for each `k`, the fullness lemma with `ε = 1/k`, and its countable sup
   have hfull : ∀ k : ℕ, ∃ a : ℕ → J,
       measGtP T hB' ((k : ℝ≥0∞)⁻¹) ≤

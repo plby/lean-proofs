@@ -93,9 +93,9 @@ theorem logarithmicDerivativePhase_minpoly_eq_trace_adjoin
           (IntermediateField.AdjoinSimple.gen (ZMod p) x)) := by
   classical
   let E := AlgebraicClosure L
-  letI : FiniteDimensional (ZMod p) (ZMod p)⟮x⟯ :=
+  let : FiniteDimensional (ZMod p) (ZMod p)⟮x⟯ :=
     IntermediateField.adjoin.finiteDimensional hx
-  letI : Algebra.IsSeparable (ZMod p) (ZMod p)⟮x⟯ :=
+  let : Algebra.IsSeparable (ZMod p) (ZMod p)⟮x⟯ :=
     (IntermediateField.isSeparable_adjoin_simple_iff_isSeparable
       (ZMod p) L).2 hsep
   have havoid : AvoidsPoleSupport coeff (minpoly (ZMod p) x) :=

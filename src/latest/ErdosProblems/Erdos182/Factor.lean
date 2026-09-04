@@ -200,7 +200,7 @@ theorem containsRegularSubgraph_three_of_bipartite
     (hG : ContainsRegularSubgraph G q) : ContainsRegularSubgraph G 3 := by
   classical
   obtain ⟨K, hKne, hKreg⟩ := hG
-  letI : Nonempty K.verts := Set.nonempty_coe_sort.mpr hKne
+  let : Nonempty K.verts := Set.nonempty_coe_sort.mpr hKne
   obtain ⟨J, hJne, hJreg⟩ :=
     containsRegularSubgraph_of_bipartite_regular K.coe (hbip.subgraph K) (by
       intro v

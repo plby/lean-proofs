@@ -26,10 +26,10 @@ theorem IsJordanCurve.isSimplyConnected_union_inside {S : Set Plane} (hS : IsJor
   obtain ⟨u, v, huv, -⟩ := exists_isHomeoOn_of_homeomorph e
   obtain ⟨F, G, hFG, -⟩ := squareExtension S u v hS huv
   let E : K ≃ₜ Plane.closedSquare 0 1 := hFG.toHomeomorph
-  letI : ContractibleSpace (Plane.closedSquare 0 1) :=
+  let : ContractibleSpace (Plane.closedSquare 0 1) :=
     (Plane.convex_closedSquare 0 1).contractibleSpace
       ⟨0, by simp [Plane.closedSquare, Plane.supDist, Plane.supNorm]⟩
-  letI : ContractibleSpace K := E.contractibleSpace
+  let : ContractibleSpace K := E.contractibleSpace
   change SimplyConnectedSpace K
   infer_instance
 

@@ -84,7 +84,7 @@ theorem mk_below_le (hρ : ℵ₀ ≤ ρ) (ξ : Lv ρ) :
 is at most `ρ`. -/
 theorem mk_small_subsets_le (hρ : ℵ₀ ≤ ρ) {α : Type u} (hα : #α ≤ ρ) :
     #({S : Set α | #S < deltaRho ρ}) ≤ ρ := by
-  haveI hwo : IsWellOrder (deltaRho ρ).ord.ToType (· < ·) := inferInstance
+  have hwo : IsWellOrder (deltaRho ρ).ord.ToType (· < ·) := inferInstance
   set δ := deltaRho ρ with hδ
   set f : δ.ord.ToType → Set (Set α) :=
     fun o => {S : Set α | #S ≤ ((Ordinal.typein (r := (· < ·)) ).toRelEmbedding o).card} with hf
@@ -308,11 +308,11 @@ theorem propertyP (hρ : ℵ₀ ≤ ρ) :
   by_contra hcon
   push_neg at hcon
   choose q hq using hcon
-  haveI hLvne : Nonempty (Lv ρ) := by
+  have hLvne : Nonempty (Lv ρ) := by
     have hpos : (0:Cardinal) < deltaRho ρ :=
       lt_of_lt_of_le Cardinal.aleph0_pos (aleph0_le_deltaRho hρ)
     exact Ordinal.toType_nonempty_iff_ne_zero.mpr (fun hh => hpos.ne' (Cardinal.ord_eq_zero.mp hh))
-  haveI hρne : Nonempty ρ.out := out_nonempty ρ hρ
+  have hρne : Nonempty ρ.out := out_nonempty ρ hρ
   set full : θ.out → Lv ρ → Prop :=
     fun a ξ => ρ ≤ #{x : Vx ρ // lvl ρ x = ξ ∧ c x = a} with hfulldef
   set isM : θ.out → Prop := fun a => #({ξ : Lv ρ | full a ξ}) < deltaRho ρ with hisMdef

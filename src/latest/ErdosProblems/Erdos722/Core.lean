@@ -1951,7 +1951,7 @@ theorem eventually_exists_almostSupportedExchangeFocusing
   · apply hasExchangeFocusing_almostSupported E host
     intro Q hQ
     have hQcard : Q.card = k := mem_completeUniform.mp hQ
-    haveI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+    have : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
     obtain ⟨request, hrequest⟩ :=
       CoverClique.exists_rootRequest_with_image E.pattern.root Q
         (E.root_card.trans hQcard.symm)
@@ -1976,7 +1976,7 @@ theorem eventually_exists_almostSupportedExchangeFocusing
     simpa [host, RootedEmbedding.mapEdge, Finset.map_eq_image] using
       hψfree e he
   · intro e he forbiddenVertices heForbidden hforbiddenCard
-    haveI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+    have : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
     have hecard : e.card = r := mem_completeUniform.mp he
     obtain ⟨request, hrequest⟩ :=
       CoverClique.exists_rootRequest_with_image C.root e (by
@@ -2029,7 +2029,7 @@ theorem eventually_exists_almostSupportedExchangeFocusing
         rw [← hrootMap] at hy
         exact Finset.map_subset_map.mpr (Finset.subset_univ C.root) hy
   · intro P
-    haveI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+    have : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
     obtain ⟨request, hrequestRoot, hrequestPos, hrequestNeg⟩ :=
       ExchangeEliminationEmbedding.exists_eliminationRootRequest
         E hr hrk e₀ P
@@ -3690,7 +3690,7 @@ lemma pow_clog_succ_le_poly (A L : ℕ) (hA : 0 < A) (hL : 0 < L) :
     A ^ (Nat.clog 2 L + 1) ≤ A * (2 * L) ^ A := by
   by_cases hLone : L = 1
   · subst L
-    simp
+    simp only [Nat.clog_one_right, zero_add, pow_one, mul_one]
     have hone : 1 ≤ 2 ^ A := Nat.one_le_two_pow
     exact (by nlinarith : A ≤ A * 2 ^ A)
   · have hLtwo : 1 < L := by omega
@@ -4364,7 +4364,7 @@ theorem eventually_exists_boundedRootedFamilyEmbeddings_linearRoundBudget
       simp at hQ
     · intro J hJ
       simp [Reserve.localDegree]
-  · letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb (by omega)⟩
+  · let : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb (by omega)⟩
     obtain ⟨Q₀, hQ₀⟩ := Finset.nonempty_iff_ne_empty.mpr hroots
     apply RootedFamilyEmbedding.exists_boundedRootedFamilyEmbeddings_of_finite_bounds
       P roots forbidden hrootsUniform hrootNonempty (by omega)
@@ -4399,7 +4399,7 @@ theorem eventually_exists_boundedRequestedFamilyEmbeddings_linearRoundBudget
   filter_upwards [hest] with n hest
   intro request forbidden depth hcount hforbiddenUniform hforbiddenDegree
   obtain ⟨hn, _hD, hlegal, hquant, hcard⟩ := hest
-  letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb (by omega)⟩
+  let : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb (by omega)⟩
   apply RequestedFamilyEmbedding.exists_boundedRequestedFamilyEmbeddings_of_finite_bounds
     P request forbidden hcount hforbiddenUniform hforbiddenDegree hr
       hlegal hquant hcard
@@ -4630,7 +4630,7 @@ theorem eventually_exists_boundedRequestedFamilyEmbeddings_linearStageBudget
   intro z hz hzMax request forbidden depth hcount hforbiddenUniform
     hforbiddenDegree
   obtain ⟨hn, _hD, hlegal, hquant, hcard⟩ := hest z hz hzMax
-  letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb (by omega)⟩
+  let : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb (by omega)⟩
   apply RequestedFamilyEmbedding.exists_boundedRequestedFamilyEmbeddings_of_finite_bounds
     P request forbidden hcount hforbiddenUniform hforbiddenDegree hr
       hlegal hquant hcard
@@ -4678,7 +4678,7 @@ theorem eventually_exists_boundedRootedFamilyEmbeddings_linearStageBudget
       simp at hQ
     · intro J hJ
       simp [Reserve.localDegree]
-  · letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb (by omega)⟩
+  · let : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb (by omega)⟩
     obtain ⟨Q₀, hQ₀⟩ := Finset.nonempty_iff_ne_empty.mpr hroots
     apply RootedFamilyEmbedding.exists_boundedRootedFamilyEmbeddings_of_finite_bounds
       P roots forbidden hrootsUniform hrootNonempty (by omega)
@@ -4757,7 +4757,7 @@ theorem eventually_exists_boundedEliminationPairEmbeddings_linearStageBudget
     · simp
     · intro J hJ
       simp [Reserve.localDegree]
-  · letI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+  · let : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
     obtain ⟨P₀, hP₀⟩ := Finset.nonempty_iff_ne_empty.mpr hpairs
     let pairAtFin (i : Fin pairs.card) : ↥pairs := pairs.equivFin.symm i
     let pairAt (i : ℕ) :
@@ -5819,7 +5819,7 @@ theorem eventually_exists_sqrtIntermediateAssignment
       Filter.eventually_ge_atTop 1] with n hrequested hkn hn
   intro family huniform hunique hfamily hboundary
   let η : Fin k ↪ Fin n := Fin.castLEEmb hkn
-  haveI : Nonempty (Fin n) := by
+  have : Nonempty (Fin n) := by
     exact ⟨⟨0, by omega⟩⟩
   have hfamilyDegree : ∀ J : Finset (Fin n), J.card = r - 1 →
       Reserve.localDegree family J ≤
@@ -5940,7 +5940,7 @@ theorem eventually_exists_sqrtIntermediateAssignment_linearStageBudget
       Filter.eventually_ge_atTop 1] with n hrequested hkn hn
   intro z hz hzMax family huniform hunique hfamilyDegree hboundaryDegree
   let η : Fin k ↪ Fin n := Fin.castLEEmb hkn
-  haveI : Nonempty (Fin n) := by
+  have : Nonempty (Fin n) := by
     exact ⟨⟨0, by omega⟩⟩
   have hcount : RootSchedule.HasRootPartCountBound
       (CoverClique.coverPattern k r)
@@ -10893,7 +10893,7 @@ lemma modularBoundaryCombination_eq_sum_nsmul
       ∑ B ∈ family, (c B).val •
         Generators.modCliqueBoundary N n r B := by
   classical
-  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  let : NeZero N := ⟨Nat.ne_of_gt hN⟩
   funext e
   simp only [modularBoundaryCombination, Finset.sum_apply, Pi.smul_apply]
   apply Finset.sum_congr rfl
@@ -10932,7 +10932,7 @@ theorem modularBoundaryCombination_mem_fullySupportedSpan
       (modularBoundaryCombination N r
         (almostSupportedBlocks n k r host) c) := by
   classical
-  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  let : NeZero N := ⟨Nat.ne_of_gt hN⟩
   let H := AddSubgroup.closure
     (Generators.modCliqueBoundary N n r ''
       (↑(fullySupportedBlocks n k r host) : Set (Finset (Fin n))))
@@ -11254,7 +11254,7 @@ theorem isModularIntegralGenerator_of_universal
     (huniversal : IsUniversalModularGenerator N n k r modular) :
     IsModularIntegralGenerator N n k r reserve modular := by
   classical
-  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  let : NeZero N := ⟨Nat.ne_of_gt hN⟩
   intro leave _hleave hleaveInt
   obtain ⟨φ, hφboundary⟩ := hleaveInt
   let x : Finset (Fin n) → ZMod N := fun e ↦
@@ -11350,7 +11350,7 @@ theorem isModularIntegralGenerator_of_focusing
         (Generators.modCliqueBoundary N n r B)) :
     IsModularIntegralGenerator N n k r reserve modular := by
   classical
-  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  let : NeZero N := ⟨Nat.ne_of_gt hN⟩
   have huniversalAlmost : IsUniversalModularGenerator N n k r
       (almostSupportedBlocks n k r host) := by
     apply isUniversalModularGenerator_of_exchangeFocusing E hfocus
@@ -11496,7 +11496,7 @@ theorem integralBoundary_mem_span_of_focusing
     Generators.InModularSpan N n r modular
       (fun e ↦ if e.card = r then (boundary n k phi e : ZMod N) else 0) := by
   classical
-  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  let : NeZero N := ⟨Nat.ne_of_gt hN⟩
   let x : Finset (Fin n) → ZMod N := fun e ↦
     if e.card = r then (boundary n k phi e : ZMod N) else 0
   have huniversalAlmost : IsUniversalModularGenerator N n k r
@@ -12010,7 +12010,7 @@ theorem isModularIntegralGenerator_of_reserveFocusing
         (Generators.modCliqueBoundary N n r B)) :
     IsModularIntegralGenerator N n k r reserve modular := by
   classical
-  letI : NeZero N := ⟨Nat.ne_of_gt hN⟩
+  let : NeZero N := ⟨Nat.ne_of_gt hN⟩
   intro leave hleave hleaveInt
   obtain ⟨phi, hphiBoundary⟩ := hleaveInt
   let focusCoeff := reserveFocusCoeff F leave

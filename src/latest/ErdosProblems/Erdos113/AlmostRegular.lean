@@ -792,10 +792,10 @@ lemma SparseCore.maxDegree_upper
     (K.maximumDegree : ℝ) ≤
       (regularFactor + 1 : ℕ) *
         (K.order : ℝ) ^ ((10 : ℝ) / 21) := by
-  letI : Fintype K.W := K.fintypeW
-  letI : DecidableEq K.W := K.decEqW
-  letI : DecidableRel K.graph.Adj := K.decAdj
-  letI : Nonempty K.W := Fintype.card_pos_iff.mp (by
+  let : Fintype K.W := K.fintypeW
+  let : DecidableEq K.W := K.decEqW
+  let : DecidableRel K.graph.Adj := K.decAdj
+  let : Nonempty K.W := Fintype.card_pos_iff.mp (by
     have := K.order_large
     omega)
   obtain ⟨v, hv⟩ := K.graph.exists_maximal_degree_vertex
@@ -808,9 +808,9 @@ lemma RegularCore.host_growth
     (K : RegularCore G) (hm : 0 < K.order) :
     G.edgeFinset.card ^ 21 ≤
       4 ^ 21 * K.order ^ 20 * Fintype.card V ^ 22 := by
-  letI : Fintype K.W := K.fintypeW
-  letI : DecidableEq K.W := K.decEqW
-  letI : DecidableRel K.graph.Adj := K.decAdj
+  let : Fintype K.W := K.fintypeW
+  let : DecidableEq K.W := K.decEqW
+  let : DecidableRel K.graph.Adj := K.decAdj
   let m := Fintype.card K.W
   have hedge : K.graph.edgeFinset.card ≤ m ^ 2 := by
     calc
@@ -838,9 +838,9 @@ theorem RegularCore.exists_sparseCore
     (K : RegularCore G) (hm : 64 ≤ K.order) :
     Nonempty (SparseCore G) := by
   classical
-  letI : Fintype K.W := K.fintypeW
-  letI : DecidableEq K.W := K.decEqW
-  letI : DecidableRel K.graph.Adj := K.decAdj
+  let : Fintype K.W := K.fintypeW
+  let : DecidableEq K.W := K.decEqW
+  let : DecidableRel K.graph.Adj := K.decAdj
   let m := Fintype.card K.W
   let t := densityTarget m
   let D := degreeCapTarget regularFactor m
@@ -1236,9 +1236,9 @@ theorem exists_regularCore
             · simpa [A] using hSdense
             · exact Fintype.card_coe S
           obtain ⟨K⟩ := hrec
-          letI : Fintype K.W := K.fintypeW
-          letI : DecidableEq K.W := K.decEqW
-          letI : DecidableRel K.graph.Adj := K.decAdj
+          let : Fintype K.W := K.fintypeW
+          let : DecidableEq K.W := K.decEqW
+          let : DecidableRel K.graph.Adj := K.decAdj
           have hAG : A ⊑ G := by
             simpa [A] using
               (show (G.induce (↑S : Set V)) ⊑ G from
@@ -1300,9 +1300,9 @@ theorem exists_sparseCore_of_large_host
   have hdensePow : Fintype.card V ^ 31 < G.edgeFinset.card ^ 21 :=
     power_density_of_rpow_density hdense
   obtain ⟨K⟩ := exists_regularCore G hdensePow
-  letI : Fintype K.W := K.fintypeW
-  letI : DecidableEq K.W := K.decEqW
-  letI : DecidableRel K.graph.Adj := K.decAdj
+  let : Fintype K.W := K.fintypeW
+  let : DecidableEq K.W := K.decEqW
+  let : DecidableRel K.graph.Adj := K.decAdj
   have hmpos : 0 < K.order := by
     obtain ⟨e, he⟩ := K.edges_nonempty
     induction e using Sym2.inductionOn with

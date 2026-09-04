@@ -301,8 +301,7 @@ lemma exists_add_leaf (S : ExtendableState G d m)
     · by_cases hvy : v = y
       · subst v
         have hydeg : S.deg y = 0 := S.deg_off hyused
-        simp [deg', addLeafDeg, hys, hydeg]
-        exact hd
+        simpa [deg', addLeafDeg, hydeg, hys] using hd
       · simpa [deg', addLeafDeg, hvs, hvy] using S.deg_le v
   have hbalance : ∀ X : Finset V, X.card ≤ 2 * m →
       d * X.card ≤ (outsideNeighbors G (insert y S.used) X).card +

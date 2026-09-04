@@ -182,7 +182,7 @@ theorem proposition63_of_sectionSixAccumProvenance
     intro t ht
     exact (sectionSixAccumClosure_grounding G hG ha hT y t ht).2
 
-  letI : Nonempty V := ⟨a⟩
+  let : Nonempty V := ⟨a⟩
   obtain ⟨e, henum⟩ := Set.countable_iff_exists_subset_range.mp hXcount
   let R := SafeLinkGroundFinal.DWeb.groundRemoved G a X e
   let ground : (base.delete R).Wave :=

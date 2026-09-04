@@ -45,7 +45,7 @@ theorem card_leavesIn_larger_part {V : Type*} [Fintype V]
   have hcardApos : 0 < A.card := Finset.card_pos.mpr hpart.left_nonempty
   have hcardBpos : 0 < B.card := Finset.card_pos.mpr hpart.right_nonempty
   have hcardVtwo : 1 < Fintype.card V := by omega
-  letI : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp hcardVtwo
+  let : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp hcardVtwo
   have hedge : T.edgeFinset.card = A.card + B.card - 1 := by
     have h := hT.card_edgeFinset
     rw [hcardV] at h

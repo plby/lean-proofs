@@ -490,7 +490,8 @@ theorem eventually_boost_tail_bound
         dsimp [S, Probability.hoeffdingUnitVariance]
         have hcardpos : 0 < Fintype.card (IncidentClique n q r G e) :=
           Fintype.card_pos
-        simp
+        simp only [one_div, inv_pow, sum_const, card_univ, nsmul_eq_mul, inv_pos, Nat.ofNat_pos, pow_succ_pos,
+    mul_pos_iff_of_pos_right, Nat.cast_pos, gt_iff_lt]
         positivity
       have hSupper : S ≤ (extensionScale n q r : ℝ) := by
         calc

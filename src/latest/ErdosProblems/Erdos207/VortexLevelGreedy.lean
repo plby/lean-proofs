@@ -92,7 +92,7 @@ theorem vortexLevelGreedyKernel_supported_step_of_nonempty
   classical
   unfold vortexLevelGreedyKernel
   simp only [hA, dite_true]
-  letI : Nonempty (vortexLevelAvailable W k S) :=
+  let : Nonempty (vortexLevelAvailable W k S) :=
     ⟨⟨hA.choose, hA.choose_spec⟩⟩
   exact (FiniteLaw.uniform_supported
     (fun _ : vortexLevelAvailable W k S ↦ True) (fun _ ↦ trivial)).map
@@ -107,7 +107,7 @@ theorem vortexLevelGreedyKernel_monotone_singleInsertion
   intro S
   unfold vortexLevelGreedyKernel
   split_ifs with hnonempty
-  · letI : Nonempty (vortexLevelAvailable W k S) :=
+  · let : Nonempty (vortexLevelAvailable W k S) :=
       ⟨⟨hnonempty.choose, hnonempty.choose_spec⟩⟩
     let next : vortexLevelAvailable W k S → GreedyStateOn V :=
       fun T ↦ greedyStep F S T.1
@@ -148,7 +148,7 @@ theorem vortexLevelGreedyKernel_probability_new_triangle
         ((vortexLevelAvailable W k S).card : ℝ≥0)⁻¹ else 0 := by
   classical
   by_cases hnonempty : (vortexLevelAvailable W k S).Nonempty
-  · letI : Nonempty (vortexLevelAvailable W k S) :=
+  · let : Nonempty (vortexLevelAvailable W k S) :=
       ⟨⟨hnonempty.choose, hnonempty.choose_spec⟩⟩
     let next : vortexLevelAvailable W k S → GreedyStateOn V :=
       fun U ↦ greedyStep F S U.1
@@ -236,7 +236,7 @@ theorem stoppedVortexLevelGreedyKernel_supported_absorberInvariant
   split_ifs with hactive
   · unfold vortexLevelGreedyKernel
     split_ifs with hnonempty
-    · letI : Nonempty (vortexLevelAvailable W k S) :=
+    · let : Nonempty (vortexLevelAvailable W k S) :=
         ⟨⟨hnonempty.choose, hnonempty.choose_spec⟩⟩
       exact (FiniteLaw.uniform_supported
         (fun _ : vortexLevelAvailable W k S ↦ True) (fun _ ↦ trivial)).map
@@ -258,7 +258,7 @@ theorem stoppedVortexLevelGreedyKernel_supported_available_subset
   split_ifs with hactive
   · unfold vortexLevelGreedyKernel
     split_ifs with hnonempty
-    · letI : Nonempty (vortexLevelAvailable W k S) :=
+    · let : Nonempty (vortexLevelAvailable W k S) :=
         ⟨⟨hnonempty.choose, hnonempty.choose_spec⟩⟩
       exact (FiniteLaw.uniform_supported
         (fun _ : vortexLevelAvailable W k S ↦ True) (fun _ ↦ trivial)).map

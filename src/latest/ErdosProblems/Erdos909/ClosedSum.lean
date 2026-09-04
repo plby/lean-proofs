@@ -515,7 +515,7 @@ theorem exists_disjoint_decomposition_of_countableClosedSumAt
       obtain ⟨i, rfl⟩ := hUrange
       have hempty : IsEmpty (Subtype.val ⁻¹' frontier (e i) : Set B) :=
         ⟨fun x ↦ x.1.property (mem_iUnion.mpr ⟨i, x.2⟩)⟩
-      letI := hempty
+      let := hempty
       exact .zero
   refine ⟨A, B, ?_, disjoint_compl_right, hAdim, hBdim⟩
   exact union_compl_self A
@@ -756,7 +756,7 @@ theorem countableClosedSumAt_zero : CountableClosedSumAt.{u} 0 := by
     obtain ⟨i, hyi⟩ := mem_iUnion.mp hy
     have hi : IsEmpty (F i) := hasSmallInductiveDimensionLT_zero_iff.mp (hFdim i)
     exact hi.false ⟨y, hyi⟩⟩
-  letI := hYempty
+  let := hYempty
   exact .zero
 
 /-- **Countable closed-sum theorem for small inductive dimension.** -/
@@ -804,7 +804,7 @@ theorem exists_fin_zeroDimensional_partition
   induction r generalizing X with
   | zero =>
       have hXe : IsEmpty X := hasSmallInductiveDimensionLT_zero_iff.mp hX
-      letI := hXe
+      let := hXe
       refine ⟨fun i ↦ Fin.elim0 i, ?_, ?_, fun i ↦ Fin.elim0 i⟩
       · apply Set.Subset.antisymm
         · exact iUnion_subset fun i ↦ Fin.elim0 i

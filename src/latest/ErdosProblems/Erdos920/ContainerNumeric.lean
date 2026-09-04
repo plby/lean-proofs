@@ -44,8 +44,11 @@ theorem two_mul_pow_succ_le_succ_pow (a : ℕ) :
     2 * a ^ (a + 1) ≤
         ∑ m ∈ ({a, a + 1} : Finset ℕ),
           a ^ m * 1 ^ (a + 1 - m) * (a + 1).choose m := by
-      simp [Finset.sum_pair (by omega : a ≠ a + 1), pow_succ]
+      simp only [one_pow, mul_one, mem_singleton, Nat.left_eq_add, one_ne_zero,
+        not_false_eq_true, sum_insert, Nat.choose_succ_self_right, sum_singleton,
+        Nat.choose_self]
       rw [Nat.mul_succ]
+      rw [pow_succ]
       omega
     _ ≤ ∑ m ∈ Finset.range (a + 1 + 1),
           a ^ m * 1 ^ (a + 1 - m) * (a + 1).choose m := by

@@ -221,8 +221,9 @@ private lemma favorableTailFreeGlueResidualTail
       Disjoint piece.relativeInterior
         ({y', D.vertexPlacement TailOld.farEndpoint} : Set _) := by
     intro piece hpiece
-    simp [pieces] at hpiece
-    rcases hpiece with hpiece | hpiece
+    have hpiece' : piece = Residual ∨ piece = TailOld.tailArc := by
+      simpa only [pieces, List.mem_cons, List.not_mem_nil, or_false] using hpiece
+    rcases hpiece' with hpiece | hpiece
     · subst piece
       rw [Set.disjoint_left]
       intro p hp hpEnd

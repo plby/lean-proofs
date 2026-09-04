@@ -99,8 +99,7 @@ theorem interval_parseval (q h : ℕ) (hq : 0 < q) :
     have norm_sq_mul_conj : ∀ z : ℂ, ‖z‖ ^ 2 = z * starRingEnd ℂ z := by
       simp +decide [Complex.mul_conj, Complex.normSq_eq_norm_sq]
     rw [norm_sq_mul_conj, intervalExponentialSum, map_sum, Finset.sum_mul]
-    simp +decide [sub_mul, zpow_sub₀,
-      show fourierRoot q ≠ 0 from Complex.exp_ne_zero _]
+    simp +decide only [map_pow]
     norm_cast
     simp +decide [div_eq_mul_inv, Finset.mul_sum _ _ _]
     norm_num [fourierRoot, Complex.inv_def, Complex.normSq_eq_norm_sq,
@@ -110,8 +109,20 @@ theorem interval_parseval (q h : ℕ) (hq : 0 < q) :
     apply Finset.sum_congr rfl
     intro u hu
     congr 1
+    rw [← Complex.exp_conj]
+    have hconj :
+        (starRingEnd ℂ)
+            (2 * ↑Real.pi * Complex.I / (q : ℂ)) =
+          -(2 * ↑Real.pi * Complex.I / (q : ℂ)) := by
+      simp [Complex.conj_ofNat]
+      ring
+    rw [hconj, Complex.exp_neg]
+    rw [inv_pow, ← div_eq_mul_inv, ← zpow_natCast, ← zpow_natCast,
+      ← zpow_sub₀ (Complex.exp_ne_zero _)]
+    congr 1
+    simp only [Int.subNatNat_eq_coe]
+    push_cast
     ring
-    all_goals simp only [Nat.mul_comm]
   have swap_to_orthog :
       ∑ a ∈ range q, ‖intervalExponentialSum q h a‖ ^ 2 =
         ∑ t ∈ range h, ∑ u ∈ range h,

@@ -669,11 +669,11 @@ private theorem diameterGraph_comap_alternative (A : Finset (Point 2))
     have hmax : 3 ≤ H.maxDegree := by omega
     cases isEmpty_or_nonempty W with
     | inl hempty =>
-        letI : IsEmpty W := hempty
+        let : IsEmpty W := hempty
         have : H.maxDegree = 0 := H.maxDegree_of_subsingleton
         omega
     | inr hnonempty =>
-      letI : Nonempty W := hnonempty
+      let : Nonempty W := hnonempty
       obtain ⟨p, hpmax⟩ := H.exists_maximal_degree_vertex
       have hpdeg : 3 ≤ H.degree p := by omega
       obtain ⟨T, hTsub, hTcard⟩ :=

@@ -96,7 +96,7 @@ theorem exists_continuousDensity_diagonal_comparison_of_small_coordinates
       _ = 128 / lyapunovGamma a lam := by
         field_simp [hGamma.ne']
         norm_num
-  letI : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
+  let : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
     diagonalCenteredLaw_isProbabilityMeasure a lam
   have hlawChar : Integrable (charFun (diagonalCenteredLaw a lam)) := by
     rw [charFun_diagonalCenteredLaw]
@@ -150,7 +150,7 @@ theorem diagonal_lower_of_small_coordinates
   let delta := (2 * Real.pi)⁻¹ * (1408 * rho)
   let center := x + eps / 2
   let radius := eps / 2
-  letI : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
+  let : IsProbabilityMeasure (diagonalCenteredLaw a lam) :=
     diagonalCenteredLaw_isProbabilityMeasure a lam
   have hwindow : |center| + radius ≤ M + 1 := by
     have hcenter : 0 ≤ center := by dsimp only [center]; positivity
@@ -167,7 +167,7 @@ theorem diagonal_lower_of_small_coordinates
     change 2 * radius * (standardNormalDensity (M + 1) - delta) ≤
       (diagonalCenteredLaw a lam).real
         (Set.Icc (center - radius) (center + radius)) at hball
-    convert hball using 1 <;> dsimp only [center, radius] <;> ring
+    convert hball using 1 <;> dsimp only [center, radius] <;> ring_nf
   have hlower : (standardNormalDensity (M + 1) / 2) * eps ≤
       eps * (standardNormalDensity (M + 1) - delta) := by
     have hdelta' : 2 * delta ≤ standardNormalDensity (M + 1) := by

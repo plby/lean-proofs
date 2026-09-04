@@ -180,7 +180,7 @@ theorem integralStepInputs_of_sourceBounds
             P.epsilon * ((t + 1 : ℕ) : ℝ))) *
           (P.Omega * Real.log P.OmegaOld)) by rfl]
     convert hpos using 1 <;>
-      simp only [sourceHeightUnit, positiveStageHeightUnit] <;> ring
+      simp only [sourceHeightUnit, positiveStageHeightUnit] <;> ring_nf
   · intro m hm
     norm_num [outer]
   · intro t htpos ht m hm

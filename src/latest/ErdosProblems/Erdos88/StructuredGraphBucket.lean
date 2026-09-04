@@ -137,7 +137,7 @@ theorem norm_graphEffectiveLinear_le
     (hcNonneg : ∀ i, 0 ≤ c i) (hcUpper : ∀ i, c i ≤ H * n) :
     ‖graphEffectiveLinear G c‖ ≤ (H + 1 / 2) * n := by
   classical
-  letI (i : Fin n) : Fintype ↑(G.neighborSet i) :=
+  let (i : Fin n) : Fintype ↑(G.neighborSet i) :=
     Subtype.fintype (Membership.mem (G.neighborSet i))
   apply (pi_norm_le_iff_of_nonneg (by positivity)).2
   intro i

@@ -166,7 +166,7 @@ theorem sum_residueClassUpTo_le_area (M L r : ℕ) (hL : 0 < L)
       · intro hn
         simp at hn
     rw [hempty]
-    simp
+    simp only [sum_empty, ge_iff_le]
     positivity
 
 /-- Reverse area estimate for a complete residue class up to `M`. -/

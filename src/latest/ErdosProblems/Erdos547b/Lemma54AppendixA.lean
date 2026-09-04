@@ -78,10 +78,10 @@ theorem one_le_orientedClassSize_of_two_le
     (htwo : 2 ≤ F.size i) :
     1 ≤ orientedClassSize F orient i c := by
   classical
-  letI : Nontrivial (Fin (F.size i)) :=
+  let : Nontrivial (Fin (F.size i)) :=
     Fintype.one_lt_card_iff_nontrivial.mp (by
       simpa using (show 1 < F.size i by omega))
-  letI : DecidableRel (F.tree i).Adj := Classical.decRel _
+  let : DecidableRel (F.tree i).Adj := Classical.decRel _
   have hdegree : 0 < (F.tree i).degree (F.root i) :=
     (F.isTree i).preconnected.degree_pos_of_nontrivial (F.root i)
   obtain ⟨w, hw⟩ := ((F.tree i).degree_pos_iff_exists_adj (F.root i)).mp hdegree

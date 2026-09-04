@@ -23,7 +23,7 @@ theorem SplitPrime.exists_powers_of_norm_primePower {d b : ℤ} (hD : b ^ 2 + 4 
       IsCoprime (I : Ideal (QuadraticAlgebra ℤ d b)) (quadraticBadIdeal d b) →
       (I : Ideal (QuadraticAlgebra ℤ d b)).cardQuot = s.1 ^ e →
       ∃ i : ℕ, i ≤ e ∧ I = s.ideal hD false ^ i * s.ideal hD true ^ (e - i) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I hIF hnorm
   obtain ⟨l, hl, hmax⟩ := goodQuadraticIdeal_factorization hD I hIF
   have hsupport : ∀ P ∈ l, P = s.ideal hD false ∨ P = s.ideal hD true := by
@@ -86,7 +86,7 @@ theorem SplitPrime.normPower_card {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     (s : SplitPrime d b) (hc : s.1.Coprime (discriminantLevel (b ^ 2 + 4 * d))) (e : ℕ) :
     letI := quadraticOrderIsDomain hD
     Nat.card (GoodIdealNormFiber (quadraticBadIdeal d b) (s.1 ^ e)) = e + 1 := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   rw [← Nat.card_congr (s.normPowerEquiv hD hc e), Nat.card_fin]
 
 end Bernays

@@ -83,7 +83,7 @@ lemma transversal_error_lt {u q : ℕ} (hq : 1 ≤ q)
             rw [Real.log_pow]
             push_cast
             dsimp [x]
-            ring
+            ring_nf
   change (x ^ 2) ^ (4 * q * u) *
       Real.exp (-a * ((x ^ 2 + x) / 2)) < 1 / 3
   calc

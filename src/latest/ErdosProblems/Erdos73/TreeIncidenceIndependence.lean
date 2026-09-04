@@ -60,7 +60,7 @@ theorem incidenceEdge_card_lt_complement {T : SimpleGraph W} (hT : T.IsAcyclic)
     (hJ : (incidenceEdgePart I).Nonempty) :
     (incidenceEdgePart I).card < ((incidenceOriginalPart I)ᶜ).card := by
   obtain ⟨e, he⟩ := hJ
-  letI : Nonempty (↑((incidenceOriginalPart I)ᶜ : Finset W) : Set W) :=
+  let : Nonempty (↑((incidenceOriginalPart I)ᶜ : Finset W) : Set W) :=
     ⟨⟨e.lo, mem_compl.mpr (incidenceEdge_endpoints_omitted hI he).1⟩⟩
   have hle := Fintype.card_le_of_injective _ (incidenceSelectedEdgeMap_injective hI)
   have hlt := acyclic_card_orientedEdge_lt

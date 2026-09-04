@@ -1204,9 +1204,9 @@ lemma concreteJumpCap_nonneg
     positivity
   rcases z with (eb | b) | f
   · rcases eb with ⟨e, b⟩
-    cases b <;> simp [concreteJumpCap] <;> positivity
-  · cases b <;> simp [concreteJumpCap] <;> positivity
-  · simp [concreteJumpCap]
+    cases b <;> simp only [ge_iff_le] <;> positivity
+  · cases b <;> simp only [ge_iff_le] <;> positivity
+  · simp only [ge_iff_le]
     positivity
 
 lemma concreteAbsCap_nonneg
@@ -1218,9 +1218,9 @@ lemma concreteAbsCap_nonneg
     positivity
   rcases z with (eb | b) | f
   · rcases eb with ⟨e, b⟩
-    cases b <;> simp [concreteAbsCap] <;> positivity
-  · cases b <;> simp [concreteAbsCap] <;> positivity
-  · simp [concreteAbsCap]
+    cases b <;> simp only [ge_iff_le] <;> positivity
+  · cases b <;> simp only [ge_iff_le] <;> positivity
+  · simp only [ge_iff_le]
     positivity
 
 lemma concrete_jump_pos_and_half_window

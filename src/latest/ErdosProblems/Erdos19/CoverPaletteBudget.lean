@@ -96,7 +96,7 @@ theorem exists_cover_bounded_coloring_of_saving (H : SetHypergraph V)
   obtain ⟨color⟩ := hcolor
   obtain ⟨C, hC, c, hbounded, hcard⟩ := H.exists_cover_bounded_recoloring_card_le_pairBudget
     hlinear color (16 * (n / t)) (t ^ 2 * (2 * s)) (by positivity) hmin
-  letI : Fintype C := hC
+  let : Fintype C := hC
   have hhalf : 16 * (n / t) / 2 = 8 * (n / t) := by omega
   rw [hvertices, Fintype.card_fin, hhalf] at hcard
   have hbudget := cover_refinement_palette_budget n t (2 * s) hn ht (by omega)

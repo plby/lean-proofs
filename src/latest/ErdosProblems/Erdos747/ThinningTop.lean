@@ -38,7 +38,7 @@ lemma upperWeightBlockDiagnostic_top_miss_probability_le
   let Good : Finset (Edge n) → Edge n → Prop := fun T Z ↦
     a < (completionWeight (H \ T) Z : ℝ)
   let Fail : Edge n → Finset (Edge n) → Prop := fun Z T ↦ ¬ Good T Z
-  letI : ∀ Z, DecidablePred (Fail Z) := fun _ ↦ Classical.decPred _
+  let : ∀ Z, DecidablePred (Fail Z) := fun _ ↦ Classical.decPred _
   have hk : 0 < X.card - d := Nat.sub_pos_of_lt hdX
   have hpoint' : ∀ Z ∈ X,
       finsetProbability (H.powersetCard t) (Fail Z) ≤ p := by

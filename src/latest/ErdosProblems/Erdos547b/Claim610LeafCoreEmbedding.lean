@@ -99,7 +99,7 @@ theorem isContained_of_leaf_bound_and_induced_minDegree
   have hcoreCard : Fintype.card {x : A // x ∉ graphLeaves T} ≤ k + 1 := by
     rw [card_leafCore]
     omega
-  letI : Nonempty {x // x ∈ U} := hUne.to_subtype
+  let : Nonempty {x // x ∈ U} := hUne.to_subtype
   have hcoreDegree : ∀ u : {x // x ∈ U},
       Fintype.card {x : A // x ∉ graphLeaves T} - 1 ≤
         (G.induce (U : Set B)).degree u := by
@@ -140,7 +140,7 @@ theorem isContained_of_leaf_bound_and_twoStage_induced_minDegree
   have hcoreCard : Fintype.card {x : A // x ∉ graphLeaves T} ≤ k + 1 := by
     rw [card_leafCore]
     omega
-  letI : Nonempty {x // x ∈ U} := hUne.to_subtype
+  let : Nonempty {x // x ∈ U} := hUne.to_subtype
   have hcoreDegree : ∀ u : {x // x ∈ U},
       Fintype.card {x : A // x ∉ graphLeaves T} - 1 ≤
         ((G.induce (X : Set B)).induce (U : Set _)).degree u := by

@@ -95,7 +95,7 @@ theorem twoCliqueSeed_of_sparse_of_overlap_small {n : ℕ}
         edgeCount_le_card_mul_card G A _
       _ = (n : ℝ) * (A ∩ B).card := by
         rw [houtside]
-        simp [IsHalfSet] at hA
+        change A.card = n at hA
         rw [hA]
   have hm : 0 ≤ (2 * n : ℝ) := by positivity
   have hn : (n : ℝ) = (2 * n : ℝ) / 2 := by ring
@@ -136,7 +136,9 @@ theorem internal_small_of_sparse_of_overlap_large {n : ℕ}
     calc
       edgeCount G A (A \ B) ≤ (A.card : ℝ) * (A \ B).card :=
         edgeCount_le_card_mul_card G A _
-      _ = (n : ℝ) * (A \ B).card := by simp [IsHalfSet] at hA; rw [hA]
+      _ = (n : ℝ) * (A \ B).card := by
+        change A.card = n at hA
+        rw [hA]
   have hxle : (A ∩ B).card ≤ n := by
     exact (Finset.card_le_card Finset.inter_subset_left).trans_eq hA
   have hdiffReal : ((A \ B).card : ℝ) =

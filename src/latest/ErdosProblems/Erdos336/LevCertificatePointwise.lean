@@ -28,7 +28,7 @@ theorem rankDenseCertificate_of_levCertificate
   rcases hlevcert with hdense | hrank | hexception
   · exact Or.inl hdense
   · obtain ⟨m, hm, π, hπ, α, L, V, hLpos, houter, hfiber, hdiff⟩ := hrank
-    letI : NeZero m := ⟨Nat.ne_of_gt hm⟩
+    let : NeZero m := ⟨Nat.ne_of_gt hm⟩
     rw [hpower2] at hdiff
     have hLV : 4 * L * V < 5 * S.ncard := by
       change 4 * L * V < 5 * (ExactPower C t).ncard

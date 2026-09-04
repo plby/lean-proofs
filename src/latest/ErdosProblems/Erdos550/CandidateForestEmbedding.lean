@@ -52,7 +52,7 @@ theorem candidate_forest_embedding
     intro S hS;
     induction' S using Finset.strongInduction with S ih;
     by_cases hS_empty : S = ∅;
-    · simp [hS_empty];
+    · simp only [ne_eq, ge_iff_le];
       by_cases hα : Nonempty α;
       · have h_root : ∃ a : α, parent a = none := by
           by_contra h_no_root;
@@ -63,8 +63,15 @@ theorem candidate_forest_embedding
           have h_seq_inf : StrictAnti (fun n => rank (seq n)) := by
             exact strictAnti_nat_of_succ_lt fun n => hrank _ _ ( hseq n );
           exact absurd ( Set.infinite_range_of_injective h_seq_inf.injective ) ( Set.not_infinite.mpr <| Set.finite_iff_bddAbove.mpr ⟨ _, Set.forall_mem_range.mpr fun n => h_seq_inf.antitone n.zero_le ⟩ );
-        exact ⟨ Or.inr ⟨ Classical.choose ( Finset.card_pos.mp ( lt_of_lt_of_le ( Fintype.card_pos ) ( hroot _ h_root.choose_spec ) ) ) ⟩, le_trans ( hroot _ h_root.choose_spec ) ( Finset.card_le_univ _ ) ⟩;
-      · exact ⟨ Or.inl ⟨ fun a => hα ⟨ a ⟩ ⟩, by simp +decide [ Fintype.card_eq_zero_iff.mpr ( show IsEmpty α from ⟨ fun a => hα ⟨ a ⟩ ⟩ ) ] ⟩;
+        let v : V := Classical.choose (Finset.card_pos.mp
+          (lt_of_lt_of_le Fintype.card_pos (hroot _ h_root.choose_spec)))
+        refine ⟨fun _ => v, ?_⟩
+        simpa [hS_empty] using
+          (le_trans (hroot _ h_root.choose_spec) (Finset.card_le_univ (cand h_root.choose)))
+      · let f : α → V := fun a => (hα ⟨a⟩).elim
+        refine ⟨f, ?_⟩
+        simp +decide [hS_empty,
+          Fintype.card_eq_zero_iff.mpr (show IsEmpty α from ⟨fun a => hα ⟨a⟩⟩)]
     · -- Let $a$ be an element of $S$ with maximal rank.
       obtain ⟨a, haS, ha_max⟩ : ∃ a ∈ S, ∀ b ∈ S, rank b ≤ rank a := by
         exact Finset.exists_max_image _ _ ( Finset.nonempty_of_ne_empty hS_empty );
@@ -82,7 +89,7 @@ theorem candidate_forest_embedding
               exact Finset.card_image_le.trans ( Finset.card_le_card fun x hx => by aesop );
             grind +qlia;
           exact Finset.not_subset.mp fun h => h_card.not_ge <| Finset.card_le_card h;
-        refine' ⟨ fun x => if x = a then v else f_T x, _, _, _, _ ⟩ <;> simp +decide [ * ];
+        refine' ⟨ fun x => if x = a then v else f_T x, _, _, _, _ ⟩ <;> simp +decide only [ge_iff_le];
         · grind;
         · grind +suggestions;
         · grind;
@@ -100,7 +107,7 @@ theorem candidate_forest_embedding
             exact lt_of_lt_of_le ( Finset.card_lt_card ( Finset.ssubset_iff_subset_ne.mpr ⟨ Finset.sdiff_subset, by aesop ⟩ ) ) ( Finset.card_le_univ _ );
           contrapose! h_card;
           exact Finset.card_le_card fun x hx => h_card x ( Finset.mem_filter.mp hx |>.1 ) ( by simpa [ SimpleGraph.adj_comm ] using! Finset.mem_filter.mp hx |>.2 );
-        refine' ⟨ fun x => if x = a then v else f_T x, _, _, _, _ ⟩ <;> simp +decide [ * ];
+        refine' ⟨ fun x => if x = a then v else f_T x, _, _, _, _ ⟩ <;> simp +decide only [ge_iff_le];
         · grind;
         · grind;
         · grind;

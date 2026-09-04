@@ -499,7 +499,7 @@ theorem tendsto_nhdsWithin_inside (hC : IsJordanCurve C) (hu : IsHomeoOn u v C m
     hsnot (mem_of_superset h (preimage_mono hWs))
   -- the filter of approach that stays away from `W`
   set l' : Filter Plane := 𝓝[inside C] p ⊓ 𝓟 (F ⁻¹' Wᶜ) with hl'
-  haveI : l'.NeBot := by
+  have : l'.NeBot := by
     refine ⟨fun h => hWnot ?_⟩
     rw [hl', Filter.inf_principal_eq_bot] at h
     simpa using h
@@ -526,7 +526,7 @@ theorem tendsto_nhdsWithin_inside (hC : IsJordanCurve C) (hu : IsHomeoOn u v C m
       rw [le_principal_iff, mem_map]
       filter_upwards [hl'in] with z hz using hF.mapsTo hz
     set m : Filter Plane := 𝓝 q ⊓ map F l' with hm
-    haveI : m.NeBot := hqcl
+    have : m.NeBot := hqcl
     have hm1 : m ≤ 𝓝[Plane.openSquare 0 1] q :=
       le_inf inf_le_left (le_trans inf_le_right hmapO)
     have h1 : Tendsto F' m (𝓝 (F' q)) := (hF.continuousOn_inv q hqopen).mono_left hm1

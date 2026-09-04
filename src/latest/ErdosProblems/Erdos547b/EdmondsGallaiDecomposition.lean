@@ -131,10 +131,16 @@ lemma IsClosed.connectedComponent_eq_map_induce_iff
 lemma IsClosed.connectedComponent_map_induce_supp_eq {S : Set V} (h : G.IsClosed S)
   (C : (G.induce S).ConnectedComponent) :
   (C.map (Embedding.induce S).toHom).supp = ↑C.supp := by
-  ext x; simp[← h.connectedComponent_eq_map_induce_iff]
-  exact fun hx ↦
-        h.connectedComponent_map_induce_supp_subset C
-        <| (ConnectedComponent.mem_supp_iff _ _).2 hx
+  ext x; simp only [ConnectedComponent.mem_supp_iff, Set.mem_image, Subtype.exists, exists_and_right, exists_eq_right]
+  constructor
+  · intro hx
+    have hxS : x ∈ S := h.connectedComponent_map_induce_supp_subset C
+      ((ConnectedComponent.mem_supp_iff _ _).2 hx)
+    exact ⟨hxS,
+      (h.connectedComponent_eq_map_induce_iff (C := C) (v := ⟨x, hxS⟩)).mp hx⟩
+  · rintro ⟨hxS, hx⟩
+    exact (h.connectedComponent_eq_map_induce_iff
+      (C := C) (v := ⟨x, hxS⟩)).mpr hx
 
 
 lemma IsClosed.connectedComponent_ncard_eq
@@ -372,8 +378,9 @@ lemma deficiency_remove_hall_violator_lt
   let compsST : Set ↑(S \ ↑T)ᶜ := Subtype.val ⁻¹' ↑compsᶜ
 
   have: Subtype.val '' compsST = Subtype.val '' compsᶜ := by
-     simp[compsST]
-     tauto_set
+    ext x
+    simp [compsST, Set.image_val_compl]
+    tauto
 
   have T_subset: ↑T ⊆ S := fun _ ⟨⟨_, xs⟩, ⟨_, hx⟩⟩ ↦ hx ▸ xs
 

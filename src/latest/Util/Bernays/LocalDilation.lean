@@ -13,7 +13,7 @@ theorem parityAdmissible_mul_of_unobstructed (S : ℕ → Prop) {m n : ℕ}
     (hm : 0 < m) (hn : 0 < n) (hS : ∀ p : ℕ, p.Prime → S p → ¬p ∣ m) :
     ParityAdmissible S (m * n) ↔ ParityAdmissible S n := by
   have heq (p : ℕ) (hp : p.Prime) (hSp : S p) : padicValNat p (m * n) = padicValNat p n := by
-    letI : Fact p.Prime := ⟨hp⟩
+    let : Fact p.Prime := ⟨hp⟩
     rw [padicValNat.mul hm.ne' hn.ne', padicValNat.eq_zero_of_not_dvd (hS p hp hSp), zero_add]
   exact ⟨fun h p hp hSp => (heq p hp hSp) ▸ h p hp hSp,
     fun h p hp hSp => (heq p hp hSp).symm ▸ h p hp hSp⟩

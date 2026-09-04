@@ -48,7 +48,7 @@ theorem cyclic_full_fiber_endpoint_smoothing
       π y = β + (s : ZMod m) → GroupRepExactly A t y)
     (hwidth : m - 1 ≤ k * L + M) (hLM : L ≤ M) :
     ∀ y : G, GroupRepExactly A (t + k) y := by
-  letI : NeZero m := ⟨Nat.ne_of_gt hm⟩
+  let : NeZero m := ⟨Nat.ne_of_gt hm⟩
   intro y
   let z : ZMod m := π y - β - k • π p
   let u : ℕ := z.val

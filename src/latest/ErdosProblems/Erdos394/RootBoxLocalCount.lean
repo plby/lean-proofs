@@ -50,7 +50,7 @@ theorem card_localBlockHitSet_of_not_dvd {p K j : ℕ} [NeZero p]
     (hp : p.Prime) (hK : 1 ≤ K) (hKp : K < p) (hpj : ¬p ∣ j) :
     (localBlockHitSet p K j).card = K - 1 := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let s := localBlockHitSet p K j
   let u := Icc 1 (K - 1)
   have hjz : (j : ZMod p) ≠ 0 := by
@@ -162,7 +162,7 @@ theorem rootBoxHitTupleCount_eq_weight (P : Finset ℕ) (K j : ℕ)
     (hlarge : ∀ p ∈ P, K < p) :
     rootBoxHitTupleCount P K j hprime = rootBoxLocalWeight P K j := by
   classical
-  letI (p : ↥P) : NeZero p.1 :=
+  let (p : ↥P) : NeZero p.1 :=
     ⟨(hprime p.1 p.2).ne_zero⟩
   unfold rootBoxHitTupleCount
   rw [Finset.card_pi]
@@ -185,9 +185,9 @@ theorem rootBoxTupleUniverseCount_eq_primeUnitCount (P : Finset ℕ)
     (hprime : ∀ p ∈ P, p.Prime) :
     rootBoxTupleUniverseCount P hprime = primeUnitCount P := by
   classical
-  letI (p : ↥P) : NeZero p.1 :=
+  let (p : ↥P) : NeZero p.1 :=
     ⟨(hprime p.1 p.2).ne_zero⟩
-  letI (p : ↥P) : Fintype (ZMod p.1)ˣ := Fintype.ofFinite _
+  let (p : ↥P) : Fintype (ZMod p.1)ˣ := Fintype.ofFinite _
   unfold rootBoxTupleUniverseCount
   rw [Finset.card_pi]
   calc

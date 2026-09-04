@@ -157,9 +157,9 @@ lemma mk_eq_continuum_of_isConnected_not_subsingleton
   apply le_antisymm hupper
   by_contra hle
   have hlt : Cardinal.mk C < Cardinal.continuum := lt_of_not_ge hle
-  letI : TotallySeparatedSpace C :=
+  let : TotallySeparatedSpace C :=
     CompletelyRegularSpace.totallySeparatedSpace_of_cardinalMk_lt_continuum hlt
-  letI : PreconnectedSpace C := Subtype.preconnectedSpace hconn.isPreconnected
+  let : PreconnectedSpace C := Subtype.preconnectedSpace hconn.isPreconnected
   have hs : Subsingleton C := subsingleton_of_preconnected_totallyDisconnected
   apply hnd
   intro x hx y hy
@@ -231,7 +231,7 @@ theorem exists_set_meeting_indexed_continua_avoiding
       (∀ C, IsNondegenerateContinuum C → (K ∩ C).Nonempty) ∧
       Disjoint K avoid ∧
       Disjoint (K ×ˢ K) obstruction := by
-  letI : Nonempty (EuclideanContinuum m) := euclideanContinuum_nonempty m hm
+  let : Nonempty (EuclideanContinuum m) := euclideanContinuum_nonempty m hm
   obtain ⟨K, hmeet, hKavoid, hKobstruction⟩ :=
     exists_set_meeting_indexed_targets_avoiding
       (fun C : EuclideanContinuum m ↦ euclideanContinuumTarget C)

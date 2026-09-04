@@ -226,7 +226,7 @@ theorem card_normDivisibleResidues_le
     (normDivisibleResidues K d normMod).card ≤
       d ^ Nat.card (NumberField.mixedEmbedding.index K) := by
   classical
-  letI := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
+  let := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
   calc
     (normDivisibleResidues K d normMod).card ≤
         (Finset.univ : Finset
@@ -372,7 +372,7 @@ def CRTNormResidueSystem.rootCount
     M.rootCount K 1 = 1 := by
   classical
   rw [M.rootCount_eq K 1]
-  letI := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
+  let := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
   have hset : normDivisibleResidues K 1 (M.normMod 1) = Finset.univ := by
     ext k
     simp only [mem_normDivisibleResidues, Finset.mem_univ, iff_true]
@@ -417,9 +417,9 @@ theorem CRTNormResidueSystem.rootCountingFunction_mult
       subst m
       simp [CRTNormResidueSystem.rootCountingFunction,
         CRTNormResidueSystem.rootCount]
-    letI : NeZero m := ⟨hm⟩
-    letI : NeZero n := ⟨hn⟩
-    letI : NeZero (m * n) := ⟨mul_ne_zero hm hn⟩
+    let : NeZero m := ⟨hm⟩
+    let : NeZero n := ⟨hn⟩
+    let : NeZero (m * n) := ⟨mul_ne_zero hm hn⟩
     exact M.rootCount_mul K m n hmn
 
 /-- Exact prime-factor product for the zero set of a CRT-compatible norm form on a squarefree
@@ -479,7 +479,7 @@ theorem exists_generatorOfCoordinate
       (Submodule.span ℤ (Set.range
         (Pi.basisFun ℝ (NumberField.mixedEmbedding.index K))) :
           Set (NumberField.mixedEmbedding.index K → ℝ)) := by
-    letI := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
+    let := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
     change z ∈ Submodule.span ℤ
       (Set.range (Pi.basisFun ℝ (NumberField.mixedEmbedding.index K)))
     simp only [(Pi.basisFun ℝ (NumberField.mixedEmbedding.index K)).mem_span_iff_repr_mem
@@ -608,7 +608,7 @@ theorem embedding_generatorOfCoordinate_sub_mem_nsmul
       (Submodule.span ℤ (Set.range
         (Pi.basisFun ℝ (NumberField.mixedEmbedding.index K))) :
           Set (NumberField.mixedEmbedding.index K → ℝ)) := by
-    letI := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
+    let := Fintype.ofFinite (NumberField.mixedEmbedding.index K)
     change z ∈ Submodule.span ℤ
       (Set.range (Pi.basisFun ℝ (NumberField.mixedEmbedding.index K)))
     simp only [(Pi.basisFun ℝ (NumberField.mixedEmbedding.index K)).mem_span_iff_repr_mem

@@ -3246,7 +3246,7 @@ lemma allWindowWitnessMass_le
             if Y ≤ y ∧ q ∈ splitPrimeWindow y K then
               (subsetProduct S : ℝ)⁻¹ *
                 (subsetProduct R : ℝ)⁻¹ * (q : ℝ)⁻¹ else 0) ≤ _
-        simp [hY]
+        simp only [hY, false_and, if_false, Finset.sum_const_zero]
         positivity
     _ = δ * splitAllSubsetMass A₁ * splitAllSubsetMass A₂ := by
       rw [splitAllSubsetMass, splitAllSubsetMass]
@@ -3876,7 +3876,7 @@ theorem tendsto_log_powerCutoff_div_log {a : ℝ} (ha : 0 < a) :
         atTop (nhds (0 + a)) :=
     hsmall.add hconst
   convert hsum.congr' ?_ using 1
-  · ring
+  · ring_nf
   · filter_upwards
       [hratio.eventually (Ioi_mem_nhds zero_lt_one),
         eventually_ge_atTop 2] with N hratioPos hN
@@ -3941,7 +3941,7 @@ theorem tendsto_reciprocalMass_terminalPrimeBlock_powerCutoff
     simpa using tendsto_mertensError_nat.sub herrY
   have hsum := hmain.add herr
   convert hsum.congr' ?_ using 1
-  · ring
+  · ring_nf
   · filter_upwards
       [eventually_ge_atTop 2,
         hyTop.eventually (Ici_mem_atTop 2)] with N hN hy2
@@ -4000,7 +4000,7 @@ theorem tendsto_reciprocalMass_powerCutoff_primeCell
     simpa using herrB.sub herrA
   have hsum := hmain.add herr
   convert hsum.congr' ?_ using 1
-  · ring
+  · ring_nf
   · filter_upwards
       [eventually_ge_atTop 2,
         haTop.eventually (Ici_mem_atTop 2),
@@ -4668,7 +4668,7 @@ lemma hasDerivAt_dickmanHazardReciprocal {u : ℝ} (hu : 2 < u) :
   · field_simp [show u ≠ 0 by linarith]
     ring
   · congr 2
-    ring
+    ring_nf
 
 def dickmanHazardDriftIntegrand (u t : ℝ) : ℝ :=
   (dickmanRho (u - t) / dickmanRho (u - 1)) *
@@ -5978,7 +5978,7 @@ theorem eventually_dickmanRoundedPrimeQuadrature (k : ℕ) :
       norm_num [Nat.cast_add, Nat.cast_one] at ⊢
       linarith [hu])
     dsimp only [D]
-    convert h using 1 <;> push_cast <;> ring
+    convert h using 1 <;> push_cast <;> ring_nf
   have hquad' := hquad x hyx
   have hfloor' := hfloor x hyx
   let primes : Finset ℕ := (Finset.Ioc y x).filter Nat.Prime
@@ -6190,7 +6190,7 @@ theorem uniformSmoothApproximationUpTo :
                 (p : ℝ)⁻¹) ≤ D := by
           have h := hmass x hyx hu
           dsimp only [D]
-          convert h using 1 <;> push_cast <;> ring
+          convert h using 1 <;> push_cast <;> ring_nf
         let primes : Finset ℕ := (Finset.Ioc y x).filter Nat.Prime
         let actualTerm : ℕ → ℝ := fun p ↦
           (smoothCountingFunction (x / p) p : ℝ) / (x : ℝ)

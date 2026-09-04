@@ -157,7 +157,7 @@ def Section4CharacterData.primitiveChi
 theorem Section4CharacterData.primitiveQ_pos
     {C : ℝ} {S : Section4Selection C} (W : Section4CharacterData S) :
     0 < W.primitiveQ := by
-  letI : NeZero W.q := ⟨W.q_pos.ne'⟩
+  let : NeZero W.q := ⟨W.q_pos.ne'⟩
   exact Nat.pos_of_ne_zero W.chi.conductor_ne_zero
 
 instance Section4CharacterData.primitiveQ_neZero
@@ -188,7 +188,7 @@ theorem Section4CharacterData.primitiveChi_isPrimitive
 theorem Section4CharacterData.primitiveQ_eq_one_iff
     {C : ℝ} {S : Section4Selection C} (W : Section4CharacterData S) :
     W.primitiveQ = 1 ↔ W.chi = 1 := by
-  letI : NeZero W.q := ⟨W.q_pos.ne'⟩
+  let : NeZero W.q := ⟨W.q_pos.ne'⟩
   exact (DirichletCharacter.eq_one_iff_conductor_eq_one).symm
 
 /-- The complete assignment package rebuilt at the actual conductor. -/
@@ -329,7 +329,7 @@ theorem Section4CharacterData.primitive_distance_large_le
         W.primitiveChi W.t X ≤
       pretentiousDistSqToTwist (compactCharacterNatValue S.sample)
         W.chi W.t X + levelPrimeHarmonic W.q := by
-  letI : NeZero W.q := ⟨W.q_pos.ne'⟩
+  let : NeZero W.q := ⟨W.q_pos.ne'⟩
   apply pretentiousDistSqToPrimitiveCharacter_le
   intro p hp
   exact (norm_compactCharacterNatValue S.sample hp.pos).le

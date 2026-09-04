@@ -288,7 +288,7 @@ theorem sum_Ico_logSucc_pow_rpow_le_gamma
         ((2 : ℝ) ^ (4 * eta) * p.factorial /
           (Real.log 2 * (2 * eta)) ^ (p + 1)) := by
       congr 3
-      ring
+      ring_nf
 
 /-- Splitting the two logarithmic derivative contributions. -/
 theorem gallagherLogDerivativeMajorant_sq_le_two_moments
@@ -360,7 +360,7 @@ theorem sum_Ico_gallagherLogDerivativeMajorant_sq_rpow_le_gamma
           (∑ n ∈ Finset.Ico A N,
             Real.log (n + 1) ^ (2 * k) * r n) := by
       simp_rw [Finset.sum_add_distrib, Finset.mul_sum]
-      ring
+      ring_nf
     _ ≤ 2 * (k : ℝ) ^ 2 *
         ((2 : ℝ) ^ (2 * (k - 1)) * Real.log 2 ^ (2 * (k - 1)) *
           ((2 : ℝ) ^ (4 * eta) * (2 * (k - 1)).factorial /

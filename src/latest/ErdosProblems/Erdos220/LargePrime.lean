@@ -211,7 +211,7 @@ theorem cover_density_le :
       | nil =>
           classical
           by_cases hα : IsEmpty α
-          · letI : IsEmpty α := hα
+          · let : IsEmpty α := hα
             simp [coverCount, Covered, Forbidden.Hit, avoidProb, Config]
           · let a : α := Classical.choice (not_isEmpty_iff.mp hα)
             have hempty : IsEmpty (Covered (Forbidden.nil : Forbidden α [])) :=
@@ -388,7 +388,7 @@ theorem intervalForbidden_hit_crt_iff (h : ℕ) (A : Finset ℕ)
       have htp : t.1 < p :=
         (Finset.mem_Icc.mp (hA t.2)).2.trans_lt (hlarge p (by simp))
       have ht0 : 0 < t.1 := (Finset.mem_Icc.mp (hA t.2)).1
-      letI : NeZero p := ⟨hp.ne_zero⟩
+      let : NeZero p := ⟨hp.ne_zero⟩
       let cr : ZMod (p :: ps).prod ≃+* ZMod p × ZMod ps.prod :=
         ZMod.chineseRemainder hprodCop
       let x : Fin p := (ZMod.finEquiv p).symm (cr z).1
@@ -482,7 +482,7 @@ noncomputable def shiftedNonunitEquivFilter {m : ℕ} [NeZero m] (A : Finset ℕ
 
 theorem shiftedNonunitCount_eq_noncoprime {m : ℕ} (hm : 0 < m) (A : Finset ℕ) :
     shiftedNonunitCount m A = shiftedNoncoprimeResidueCount m A := by
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   rw [shiftedNonunitCount, shiftedNoncoprimeResidueCount,
     Nat.card_congr (shiftedNonunitEquivFilter A), Nat.card_eq_fintype_card,
     Fintype.card_coe]

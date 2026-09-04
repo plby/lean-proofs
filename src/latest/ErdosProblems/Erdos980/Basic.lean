@@ -52,8 +52,8 @@ natural number smaller than the modulus. -/
 theorem exists_kthPowerNonresidue_lt {k p : ℕ} (hk : 2 ≤ k)
     (hp : Eligible k p) :
     ∃ a : ℕ, a < p ∧ IsKthPowerNonresidue k p a := by
-  letI : Fact p.Prime := ⟨hp.1⟩
-  letI : IsCyclic (ZMod p)ˣ := ZMod.isCyclic_units_prime hp.1
+  let : Fact p.Prime := ⟨hp.1⟩
+  let : IsCyclic (ZMod p)ˣ := ZMod.isCyclic_units_prime hp.1
   have hdiv : k ∣ Nat.card (ZMod p)ˣ := by
     rw [Nat.card_eq_fintype_card, ZMod.card_units]
     exact dvd_prime_sub_one_of_eligible hp
@@ -114,7 +114,7 @@ theorem leastKthPowerNonresidue_lt_modulus {k p : ℕ} (hk : 2 ≤ k)
 
 theorem zero_not_kthPowerNonresidue (k : ℕ) {p : ℕ} (hp : p.Prime) :
     ¬ IsKthPowerNonresidue k p 0 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   simp [IsKthPowerNonresidue]
 
 theorem leastKthPowerNonresidue_pos {k p : ℕ} (hk : 2 ≤ k)
@@ -148,7 +148,7 @@ congruence.  This bridge is useful when applying elementary factorization. -/
 theorem exists_zmod_pow_eq_iff_exists_modEq {k p a : ℕ} (hp : p.Prime) :
     (∃ b : ZMod p, b ^ k = (a : ZMod p)) ↔
       ∃ b : ℕ, b ^ k ≡ a [MOD p] := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   constructor
   · rintro ⟨b, hb⟩
     refine ⟨b.val, ?_⟩
@@ -188,7 +188,7 @@ every eligible modulus. -/
 theorem leastKthPowerNonresidue_prime {k p : ℕ} (hk : 2 ≤ k)
     (hp : Eligible k p) :
     (leastKthPowerNonresidue k p).Prime := by
-  letI : Fact p.Prime := ⟨hp.1⟩
+  let : Fact p.Prime := ⟨hp.1⟩
   let n := leastKthPowerNonresidue k p
   have hspec : IsKthPowerNonresidue k p n := leastKthPowerNonresidue_spec hk hp
   have hnpos : 0 < n := leastKthPowerNonresidue_pos hk hp

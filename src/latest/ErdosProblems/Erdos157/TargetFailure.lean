@@ -44,7 +44,7 @@ theorem target_failure_density (τ : MaskChoice K) (k : ℕ) (hk : 4 ≤ k)
   let v := (unitLogEquiv K k).symm
     (fun i => (targetMoments K d).logarithm i - Masks.maskSum (t i) (τ i))
   let I := {T : PrimeTriple K (levelDegree k) // levelTripleResidue k k T = v}
-  letI : Fintype I := Fintype.ofFinite _
+  let : Fintype I := Fintype.ofFinite _
   let n := Fintype.card I
   let e : Fin n ≃ I := (Fintype.equivFin I).symm
   let f := fun j s => primeTripleEntry K (e j).1 s

@@ -242,7 +242,7 @@ theorem highGirthCycleCover_absorbs
           G.map (highGirthCycleCoverRootEmbedding V q)) C := by
   let coreDecidableEq : DecidableEq (CycleCoverAbsorberVertex V) :=
     inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex V) :=
+  let : LinearOrder (CycleCoverAbsorberVertex V) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex V)) _ coreDecidableEq
   obtain ⟨C₀, hC₀⟩ := cycleCoverAbsorber_absorbs hV G hG

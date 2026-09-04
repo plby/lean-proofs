@@ -12,7 +12,7 @@ lemma PolygonalArcCollarControlRadiiExists (γ : PolygonalArc) {η : ℝ}
     have hlen : 2 ≤ γ.vertices.length := γ.length_ge_two
     dsimp [n]
     omega
-  letI : Nonempty (Fin n) := ⟨⟨0, hlen_pos⟩⟩
+  let : Nonempty (Fin n) := ⟨⟨0, hlen_pos⟩⟩
   let center : Fin n → EuclideanSpace ℝ (Fin 2) := fun i => γ.vertices[i.1]
   have hcenter : Function.Injective center := by
     intro i j hij

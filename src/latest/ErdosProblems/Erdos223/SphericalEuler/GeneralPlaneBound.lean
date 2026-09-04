@@ -81,10 +81,10 @@ theorem edge_add_four_le_two_vertices_of_connected_isDrawing_isBicoloring
       exact htwo ⟨hthree, hconn, hdel⟩
     obtain ⟨v, hv⟩ := hcut
     obtain ⟨C⟩ := hv.exists_cutSplit hconn hthree
-    letI : C.A.Finite := Finite.of_le C.A_le
-    letI : C.B.Finite := Finite.of_le C.B_le
-    letI : C.A.Simple := Graph.Simple.anti C.A_le
-    letI : C.B.Simple := Graph.Simple.anti C.B_le
+    let : C.A.Finite := Finite.of_le C.A_le
+    let : C.B.Finite := Finite.of_le C.B_le
+    let : C.A.Simple := Graph.Simple.anti C.A_le
+    let : C.B.Simple := Graph.Simple.anti C.B_le
     have hdrawA : IsDrawing C.A drawing := h.mono C.A_le
     have hdrawB : IsDrawing C.B drawing := h.mono C.B_le
     have hcA : C.A.IsBicoloring c := by

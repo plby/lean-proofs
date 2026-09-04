@@ -32,7 +32,7 @@ theorem exists_short_path_reservoir
   classical
   obtain ⟨B, hBG, hBbip, hBedgesSet⟩ :=
     MaximumCut.exists_bipartite_spanning_subgraph_half_edges H
-  letI : DecidableRel B.Adj := Classical.decRel B.Adj
+  let : DecidableRel B.Adj := Classical.decRel B.Adj
   have hBedges : H.edgeFinset.card ≤ 2 * B.edgeFinset.card := by
     rw [Erdos718.MaderPrototype.card_edgeFinset_eq_ncard_edgeSet,
       Erdos718.MaderPrototype.card_edgeFinset_eq_ncard_edgeSet]

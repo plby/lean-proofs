@@ -353,7 +353,7 @@ lemma exists_binary_expansion {q x : ℝ} (hq1 : 1 < q) (hq2 : q ≤ 2)
   · funext n
     rw [binaryRemainder_eq_sub_sum]
     ring
-  · ring
+  · ring_nf
 
 /-- The greedy/lazy binary expansion above, retaining the geometric bound on
 its finite remainders. -/

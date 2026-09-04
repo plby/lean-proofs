@@ -82,7 +82,8 @@ lemma limit_impurity_summable (q : ℕ) (hq : 2 ≤ q) (a : ℕ) (_ha : 1 ≤ a)
             · rw [ add_comm, ENNReal.toReal_add ] <;> norm_num;
             · exact ne_of_lt ( ENNReal.add_lt_top.mpr ⟨ MeasureTheory.measure_lt_top _ _, ENNReal.sum_lt_top.mpr fun j hj => MeasureTheory.measure_lt_top _ _ ⟩ );
           · exact fun _ _ => MeasureTheory.measure_ne_top _ _;
-        simp +zetaDelta at *;
+        simp +zetaDelta only [sum_sub_distrib, sum_const, mem_univ, card_erase_of_mem, card_univ, Fintype.card_fin,
+    nsmul_eq_mul, mul_one, sum_erase_eq_sub, tsub_le_iff_right, add_sub_cancel, ge_iff_le] at *;
         rw [ Nat.cast_pred ] <;> linarith;
       -- Since $\rho_j \geq 1 - e x$ for every $j \neq i$, we have $\prod_{j \neq i} \rho_j \geq (1 - e x)^{q-1}$.
       have h_prod : ∏ j ∈ Finset.univ.erase i, (μ j (A j x)).toReal ≥ (1 - (μ i (A i x)).toReal) ^ (q - 1) := by
@@ -143,7 +144,7 @@ lemma exists_pushforward_relabel (q t : ℕ) (s : ℕ → ℕ)
     by_cases hx : x < t
     · simp only [hF, hx, if_true]; exact measurable_pi_apply (s x)
     · simp only [hF, hx, if_false]; exact measurable_const
-  haveI hprob : ∀ i, IsProbabilityMeasure ((ρ i).toMeasure.map F) := fun i =>
+  have hprob : ∀ i, IsProbabilityMeasure ((ρ i).toMeasure.map F) := fun i =>
     Measure.isProbabilityMeasure_map hFmeas.aemeasurable
   refine ⟨fun i => ⟨(ρ i).toMeasure.map F, hprob i⟩, ?_, ?_⟩
   · intro i S hS
@@ -207,7 +208,7 @@ lemma exists_cimp_eq (q : ℕ) (hq : 1 ≤ q)
     ∃ i, cimp q ρ x = cdens q ρ i {x} := by
   unfold cimp;
   convert! Finset.exists_min_image Finset.univ ( fun i => cdens q ρ i { x } ) ⟨ ⟨ 0, hq ⟩, Finset.mem_univ _ ⟩ using 1;
-  ext i; simp +decide [ eq_comm, le_antisymm_iff ] ;
+  ext i; simp +decide only [mem_univ, forall_const, true_and] ;
   fconstructor;
   · exact fun h j => le_trans ( h.1 ) ( ciInf_le ( Finite.bddBelow_range fun i => cdens q ρ i { x } ) j );
   · exact fun h => ⟨ le_csInf ⟨ _, Set.mem_range_self i ⟩ <| Set.forall_mem_range.2 h, csInf_le ⟨ 0, Set.forall_mem_range.2 fun _ => cdens_nonneg q ρ _ _ ⟩ <| Set.mem_range_self i ⟩
@@ -244,7 +245,7 @@ lemma home_complement_bound (q : ℕ) (ρ : Fin q → ProbabilityMeasure (ℕ �
     (hA1 : (q : ℝ) - 1 - ε ≤ ∑ i, cdens q ρ i {x})
     (hhome : cimp q ρ x = cdens q ρ i₀ {x}) (hj : j ≠ i₀) :
     1 - cdens q ρ j {x} ≤ cimp q ρ x + ε := by
-  rcases q with ( _ | q ) <;> simp_all +decide [  ];
+  rcases q with ( _ | q ) <;> simp_all +decide only [tsub_le_iff_right];
   · fin_cases i₀;
   · have h_sum : ∑ i ∈ Finset.univ.erase i₀, (1 - cdens (q + 1) ρ i {x}) ≤ ε + cdens (q + 1) ρ i₀ {x} := by
       simp_all +decide [ Finset.sum_sub_distrib ];
@@ -381,7 +382,7 @@ lemma ae_noncanonical_finite (q : ℕ) (hq : 2 ≤ q) (a : ℕ) (ha : 1 ≤ a)
           · simp +zetaDelta at *;
           · rw [ ← Finset.sum_add_distrib, Finset.sum_congr rfl fun _ _ => tsub_add_cancel_of_le <| MeasureTheory.measure_mono ( Set.subset_univ _ ) |> le_trans <| by simp +decide ] ; simp +decide [ Finset.card_erase_of_mem <| Finset.mem_univ <| h x ];
         refine' le_trans h_bound _;
-        simp_all +decide [ ← Finset.sum_erase_add _ _ ( Finset.mem_univ ( h x ) ) ];
+        simp_all +decide only [ne_eq, measure_ne_top, not_false_eq_true, ENNReal.ofReal_toReal, tsub_le_iff_right];
         convert! hN1 x using 1 ; ring;
       refine' le_trans ‹_› _;
       convert! add_le_add_left h_bound ( μ ( h x ) ( A ( h x ) x ) ) using 1 ; ring;
@@ -446,7 +447,7 @@ lemma exists_good_canonical_outcome (q : ℕ) (hq : 2 ≤ q) (a : ℕ) (ha : 1 �
       · refine' MeasureTheory.measure_union_null _ _;
         · convert! Erdos550.ae_blocking μ A E j hA hnull using 1;
         · exact MeasureTheory.measure_mono_null ( fun x hx => by aesop ) ( ae_noncanonical_finite q hq a ha μ A hA hN1 hN2 hh hhome );
-    simp_all +decide [ Set.inter_assoc ];
+    simp_all +decide only [ENNReal.natCast_sub, Nat.cast_one, ne_eq, gt_iff_lt];
     rw [ MeasureTheory.measure_congr ];
     convert! h_pos using 1;
     rw [ MeasureTheory.ae_eq_set ];
@@ -455,7 +456,7 @@ lemma exists_good_canonical_outcome (q : ℕ) (hq : 2 ≤ q) (a : ℕ) (ha : 1 �
   refine' ⟨ ω, _, _, hω.1.2, hω.2 ⟩;
   · have := hω.1.1;
     contrapose! this;
-    simp +decide [ Ucard ];
+    simp +decide only [ENNReal.natCast_sub, Nat.cast_one, Set.mem_ofPred_eq, not_le];
     refine' lt_of_lt_of_le _ ( ENNReal.tsum_le_tsum fun x => show ( if compatCount A ω x ≤ q - 2 then 1 else 0 : ENNReal ) ≥ if x ∈ { x | compatCount A ω x ≤ q - 2 } then 1 else 0 from _ );
     · rw [ ENNReal.tsum_eq_iSup_sum ];
       refine' lt_of_lt_of_le _ ( le_ciSup _ ( this.exists_subset_card_eq ( a + 1 ) |> Classical.choose ) );
@@ -583,7 +584,7 @@ lemma cimp_tendsto {q : ℕ} (ρ : ℕ → Fin q → ProbabilityMeasure (ℕ →
     simp +decide [ this, Finset.min' ];
     refine' continuous_iff_continuousAt.mpr _;
     intro v; exact (by
-    refine' tendsto_order.2 ⟨ _, _ ⟩ <;> intro x hx <;> simp_all +decide [  ];
+    refine' tendsto_order.2 ⟨ _, _ ⟩ <;> intro x hx <;> simp_all +decide only [inf'_lt_iff, mem_univ, true_and, lt_inf'_iff, forall_const, eventually_all];
     · exact fun i => IsOpen.mem_nhds ( isOpen_lt continuous_const <| continuous_apply i ) <| hx i;
     · obtain ⟨ i, hi ⟩ := hx; filter_upwards [ IsOpen.mem_nhds ( isOpen_lt ( continuous_apply i ) continuous_const ) hi ] with b hb; exact ⟨ i, hb ⟩ ;);
   exact h_cont_inf.continuousAt.tendsto.comp ( tendsto_pi_nhds.mpr fun i => hcd i { ℓ } )
@@ -673,10 +674,10 @@ lemma shadow_finish (q : ℕ) (hq : 2 ≤ q) (a : ℕ) (ha : 1 ≤ a) (rStar : �
       Z.card ≤ a - 1 → ∃ i, ∃ E ∈ C' n i, ∀ x ∈ E, x ∉ Z ∧ φ x = i) :
     False := by
   classical
-  haveI hqne : Nonempty (Fin q) := ⟨⟨0, by omega⟩⟩
+  have hqne : Nonempty (Fin q) := ⟨⟨0, by omega⟩⟩
   set Xs : Set ℕ := XsetU t U with hXs
   set μ : Fin q → Measure (ℕ → Bool) := fun i => (L i).toMeasure with hμ
-  haveI hμprob : ∀ i, IsProbabilityMeasure (μ i) := fun i => by rw [hμ]; infer_instance
+  have hμprob : ∀ i, IsProbabilityMeasure (μ i) := fun i => by rw [hμ]; infer_instance
   set A : Fin q → ↑Xs → Set (ℕ → Bool) := fun _ x => {σ | σ (x : ℕ) = true} with hA
   have hAmeas : ∀ i (x : ↑Xs), MeasurableSet (A i x) := fun i x =>
     measurableSet_eq_fun (measurable_pi_apply _) measurable_const

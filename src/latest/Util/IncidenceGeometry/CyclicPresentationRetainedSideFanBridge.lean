@@ -16,14 +16,28 @@ lemma CyclicPresentationRetainedSideFanBridge
           False)
     let start : retained → EuclideanSpace ℝ (Fin 2) := fun i =>
       γ.vertices[i.1]'(by
-        have h := i.2
-        simp [retained] at h
+        have h : i.1 ∈ retained := i.2
+        change i.1 ∈
+          ((Finset.range γ.vertices.length).filter fun j =>
+            if hj : j + 1 < γ.vertices.length then
+              γ.vertices[j] ≠ γ.vertices[j + 1]
+            else
+              False) at h
+        simp only [Finset.mem_filter, Finset.mem_range] at h
         exact h.1)
     let stop : retained → EuclideanSpace ℝ (Fin 2) := fun i =>
       γ.vertices[i.1 + 1]'(by
-        have h := i.2
-        simp [retained] at h
-        exact h.2.choose)
+        have h : i.1 ∈ retained := i.2
+        change i.1 ∈
+          ((Finset.range γ.vertices.length).filter fun j =>
+            if hj : j + 1 < γ.vertices.length then
+              γ.vertices[j] ≠ γ.vertices[j + 1]
+            else
+              False) at h
+        simp only [Finset.mem_filter, Finset.mem_range] at h
+        by_cases hsucc : i.1 + 1 < γ.vertices.length
+        · exact hsucc
+        · simp [hsucc] at h)
     ∃ σ : Equiv.Perm retained,
       (∀ i : retained, start (σ i) = stop i) ∧
         retained.sum (fun i =>
@@ -111,15 +125,20 @@ lemma CyclicPresentationRetainedSideFanBridge
                 (retained.sort (· ≤ ·)).formPerm i ∈ retained.sort (· ≤ ·) := by
               simpa [L] using hmemL
             exact (Finset.mem_sort (s := retained) (r := (· ≤ ·))).1 hmemL'
-          have h := hmem
-          simp [retained] at h
-          rcases h.2 with ⟨hsucc, _⟩
-          exact Nat.lt_of_succ_lt hsucc)
+          have h : L.formPerm i ∈ retained := hmem
+          rw [hretained] at h
+          simp only [Finset.mem_filter, Finset.mem_range] at h
+          by_cases hsucc : L.formPerm i + 1 < γ.vertices.length
+          · exact Nat.lt_of_succ_lt hsucc
+          · simp [hsucc] at h)
           =
         γ.vertices[i + 1]'(by
-          have h := hi
-          simp [retained] at h
-          exact h.2.choose) := by
+          have h : i ∈ retained := hi
+          rw [hretained] at h
+          simp only [Finset.mem_filter, Finset.mem_range] at h
+          by_cases hsucc : i + 1 < γ.vertices.length
+          · exact hsucc
+          · simp [hsucc] at h) := by
     intro i hi
     have hiL : i ∈ L := by
       simpa [L] using hi
@@ -243,7 +262,15 @@ lemma CyclicPresentationRetainedSideFanBridge
   apply Finset.sum_congr rfl
   intro i hi
   have hi_succ : i.1 + 1 < γ.vertices.length := by
-    have h := i.2
-    simp [retained] at h
-    exact h.2.choose
+    have h : i.1 ∈ retained := i.2
+    change i.1 ∈
+      ((Finset.range γ.vertices.length).filter fun j =>
+        if hj : j + 1 < γ.vertices.length then
+          γ.vertices[j] ≠ γ.vertices[j + 1]
+        else
+          False) at h
+    simp only [Finset.mem_filter, Finset.mem_range] at h
+    by_cases hsucc : i.1 + 1 < γ.vertices.length
+    · exact hsucc
+    · simp [hsucc] at h
   simp [hi_succ, start, stop, hcyclic i]

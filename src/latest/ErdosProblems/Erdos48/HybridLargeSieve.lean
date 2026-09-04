@@ -341,7 +341,7 @@ theorem intervalIntegral_weighted_primitive_blockPolynomial_variable_le
       apply Finset.sum_congr rfl
       intro i hi
       rw [Finset.sum_comm]
-      ring
+      ring_nf
     _ ≤ C * ∑ i : ι,
         ((((H i : ℕ) : ℝ) + (Q : ℝ) ^ 2) *
           ∑ n ∈ s i, ‖c n‖ ^ 2) := by

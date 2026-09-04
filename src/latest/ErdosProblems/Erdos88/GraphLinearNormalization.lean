@@ -540,7 +540,7 @@ theorem ksssLemma71_explicit {n : ℕ}
         (|t / σ| * √((G.edgeFinset.card : ℝ) / 16) +
           t ^ 2 * (G.edgeFinset.card : ℝ) / (32 * σ ^ 2)) := by
       dsimp only [σ] at hinv hgauss ⊢
-      convert hbase using 1 <;> ring
+      convert hbase using 1 <;> ring_nf
     _ ≤ (5400 / a ^ 4) * |t| / √(n : ℝ) +
           (1 / (2 * a) + 1 / (8 * a ^ 2)) * |t| / √(n : ℝ) :=
       add_le_add hinv hgauss

@@ -333,7 +333,7 @@ theorem exists_maximal_routedCycleSeparator {a b x r : V}
     (hne : Nonempty (RoutedCycleSeparator pA pB C)) :
     ∃ S : RoutedCycleSeparator pA pB C, S.IsMaximal := by
   classical
-  letI : Nonempty (RoutedCycleSeparator pA pB C) := hne
+  let : Nonempty (RoutedCycleSeparator pA pB C) := hne
   let size : RoutedCycleSeparator pA pB C → ℕ := fun S ↦
     (componentCarrier (G := G) {S.left, S.right} S.side).card
   have hfinite :

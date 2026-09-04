@@ -501,7 +501,7 @@ theorem continuous_safeSmoothedLogTransformOn
     (F : ℝ → ℂ) (hF : Continuous F) (x : ℕ) (hx : 0 < x) (A B : ℝ) :
     Continuous (fun u ↦ safeSmoothedLogTransformOn F u x A B) := by
   have hxC : (x : ℂ) ≠ 0 := by exact_mod_cast hx.ne'
-  letI : NeZero (x : ℂ) := ⟨hxC⟩
+  let : NeZero (x : ℂ) := ⟨hxC⟩
   unfold safeSmoothedLogTransformOn
   apply intervalIntegral.continuous_parametric_intervalIntegral_of_continuous'
   have hexp : Continuous (fun p : ℝ × ℝ ↦
@@ -524,7 +524,7 @@ theorem intervalIntegral_smoothedLogTransformOn_eq_swap
         (x : ℂ) ^ ((1 : ℂ) + (t : ℂ) * Complex.I) *
           ∫ u in a..b, perronRatioIncrement u t := by
   have hxC : (x : ℂ) ≠ 0 := by exact_mod_cast hx.ne'
-  letI : NeZero (x : ℂ) := ⟨hxC⟩
+  let : NeZero (x : ℂ) := ⟨hxC⟩
   let H : ℝ → ℝ → ℂ := fun t u ↦ F t *
     (x : ℂ) ^ ((1 : ℂ) + (t : ℂ) * Complex.I) *
       safePerronRatioIncrement u t
@@ -697,8 +697,8 @@ theorem perronKernelSegmentOn_eq_sourceSmoothed
       (by norm_num) (by positivity)
   have hxC : (x : ℂ) ≠ 0 := by exact_mod_cast hx.ne'
   have hxhC : ((x + h : ℕ) : ℂ) ≠ 0 := by exact_mod_cast hxh.ne'
-  letI : NeZero (x : ℂ) := ⟨hxC⟩
-  letI : NeZero ((x + h : ℕ) : ℂ) := ⟨hxhC⟩
+  let : NeZero (x : ℂ) := ⟨hxC⟩
+  let : NeZero ((x + h : ℕ) : ℂ) := ⟨hxhC⟩
   let L : ℝ → ℂ := fun t ↦ F t *
     (x : ℂ) ^ ((1 : ℂ) + (t : ℂ) * Complex.I) *
       ∫ u in (h : ℝ) / x..3 * h / x, perronRatioIncrement u t
@@ -1428,7 +1428,7 @@ theorem sum_normSq_sourceSmoothedRightOn_le_shellEnergy
         C * ((2 + u) / T) ^ 2 * E := by
     by_cases hu0 : u = 0
     · subst u
-      simp
+      simp only [safeSmoothedLogTransformOn_zero, map_zero, sum_const_zero, add_zero]
       have hE : 0 ≤ E := by
         dsimp [E]
         exact intervalIntegral.integral_nonneg_of_forall hAB

@@ -282,7 +282,7 @@ private lemma prime_lcm_triple_le
       have hpR : (0 : ℝ) < p := by exact_mod_cast hp.pos
       have hlog : 0 ≤ Real.log p := Real.log_nonneg (by exact_mod_cast hp.one_le)
       ring_nf
-      simp_all
+      simp_all only [inv_pow, ↓reduceIte, le_add_iff_nonneg_left, ge_iff_le]
       positivity
     · have hcop : p.Coprime r := (Nat.coprime_primes hp hr).2 hpr
       rw [hcop.lcm_eq_mul, Nat.lcm_eq_right (Nat.dvd_mul_right p r)]
@@ -294,7 +294,7 @@ private lemma prime_lcm_triple_le
       push_cast
       field_simp
       ring_nf
-      simp_all
+      simp_all only [le_add_iff_nonneg_left]
       positivity
   · by_cases hpr : p = r
     · subst r
@@ -309,7 +309,7 @@ private lemma prime_lcm_triple_le
       push_cast
       field_simp
       ring_nf
-      simp_all <;> positivity
+      simp_all only [le_add_iff_nonneg_left] <;> positivity
     · by_cases hqr : q = r
       · subst r
         have hcop : p.Coprime q := (Nat.coprime_primes hp hq).2 hpq
@@ -321,7 +321,7 @@ private lemma prime_lcm_triple_le
         have hlogq : 0 ≤ Real.log q := Real.log_nonneg (by exact_mod_cast hq.one_le)
         push_cast
         field_simp
-        ring_nf <;> simp_all <;> positivity
+        ring_nf <;> simp_all only [le_add_iff_nonneg_left] <;> positivity
       · have hqrCop : q.Coprime r := (Nat.coprime_primes hq hr).2 hqr
         have hpqCop : p.Coprime q := (Nat.coprime_primes hp hq).2 hpq
         have hprCop : p.Coprime r := (Nat.coprime_primes hp hr).2 hpr
@@ -361,6 +361,47 @@ theorem primeTripleLcmSum_le_weightSums (x : ℕ) :
         3 * primeLogSquareWeightSum x * primeLogWeightSum x +
         primeLogCubeWeightSum x := by
       dsimp [s]
+      have hprod2 (a b : ℕ → ℝ) :
+          (∑ p ∈ Nat.primesLE x, ∑ q ∈ Nat.primesLE x, a p * b q) =
+            (∑ p ∈ Nat.primesLE x, a p) * (∑ q ∈ Nat.primesLE x, b q) := by
+        rw [Finset.sum_mul]
+        apply Finset.sum_congr rfl
+        intro p hp
+        rw [Finset.mul_sum]
+      have hprod2_swap (a b : ℕ → ℝ) :
+          (∑ p ∈ Nat.primesLE x, ∑ q ∈ Nat.primesLE x, b q * a p) =
+            (∑ p ∈ Nat.primesLE x, a p) * (∑ q ∈ Nat.primesLE x, b q) := by
+        calc
+          (∑ p ∈ Nat.primesLE x, ∑ q ∈ Nat.primesLE x, b q * a p) =
+              ∑ q ∈ Nat.primesLE x, ∑ p ∈ Nat.primesLE x, b q * a p :=
+            Finset.sum_comm
+          _ = (∑ q ∈ Nat.primesLE x, b q) * (∑ p ∈ Nat.primesLE x, a p) :=
+            hprod2 b a
+          _ = (∑ p ∈ Nat.primesLE x, a p) * (∑ q ∈ Nat.primesLE x, b q) :=
+            mul_comm _ _
+      have hprod3 (a b c : ℕ → ℝ) :
+          (∑ p ∈ Nat.primesLE x, ∑ q ∈ Nat.primesLE x,
+              ∑ r ∈ Nat.primesLE x, a p * b q * c r) =
+            (∑ p ∈ Nat.primesLE x, a p) * (∑ q ∈ Nat.primesLE x, b q) *
+              (∑ r ∈ Nat.primesLE x, c r) := by
+        calc
+          (∑ p ∈ Nat.primesLE x, ∑ q ∈ Nat.primesLE x,
+              ∑ r ∈ Nat.primesLE x, a p * b q * c r) =
+              ∑ p ∈ Nat.primesLE x, ∑ q ∈ Nat.primesLE x,
+                (a p * b q) * ∑ r ∈ Nat.primesLE x, c r := by
+            apply Finset.sum_congr rfl
+            intro p hp
+            apply Finset.sum_congr rfl
+            intro q hq
+            rw [Finset.mul_sum]
+          _ = (∑ p ∈ Nat.primesLE x, ∑ q ∈ Nat.primesLE x, a p * b q) *
+              (∑ r ∈ Nat.primesLE x, c r) := by
+            rw [Finset.sum_mul]
+            apply Finset.sum_congr rfl
+            intro p hp
+            rw [Finset.sum_mul]
+          _ = (∑ p ∈ Nat.primesLE x, a p) * (∑ q ∈ Nat.primesLE x, b q) *
+              (∑ r ∈ Nat.primesLE x, c r) := by rw [hprod2]
       have hdiag :
           (∑ p ∈ Nat.primesLE x, ∑ q ∈ Nat.primesLE x,
             ∑ r ∈ Nat.primesLE x,
@@ -380,20 +421,14 @@ theorem primeTripleLcmSum_le_weightSums (x : ℕ) :
               simp [hq]
             · simp [hpq]
           _ = Real.log p ^ 3 / p := by simp [hp]
-      have hpair :
-          (∑ p ∈ Nat.primesLE x, ∑ r ∈ Nat.primesLE x,
-              Real.log p ^ 2 / p * (Real.log r / r)) =
-            ∑ p ∈ Nat.primesLE x, ∑ r ∈ Nat.primesLE x,
-              Real.log p / p * (Real.log r ^ 2 / r) := by
-        rw [Finset.sum_comm]
-        simp_rw [mul_comm]
       simp only [Finset.sum_add_distrib]
       rw [hdiag]
-      simp [primeLogWeightSum, primeLogSquareWeightSum, primeLogCubeWeightSum,
-        Finset.mul_sum, Finset.sum_mul, pow_three]
-      simp_rw [mul_comm, mul_left_comm]
-      rw [hpair]
-      simp_rw [← Finset.mul_sum]
+      simp only [Finset.sum_ite_irrel, Finset.sum_const_zero, Finset.sum_ite_eq, Finset.sum_ite_mem,
+    Finset.inter_self]
+      rw [hprod3]
+      simp_rw [hprod2]
+      rw [hprod2_swap]
+      unfold primeLogWeightSum primeLogSquareWeightSum primeLogCubeWeightSum
       ring
 
 private lemma log_prime_le_log_of_le {p x : ℕ} (hp : p.Prime) (hpx : p ≤ x) :

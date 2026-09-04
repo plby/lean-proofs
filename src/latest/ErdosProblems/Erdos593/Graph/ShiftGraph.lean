@@ -42,10 +42,13 @@ A directed shift of a nonempty tuple changes the tuple.
 -/
 theorem ne_of_shift {r : ℕ} (hr : 0 < r) {x y : Tuple κ r}
     (h : Shift κ x y) : x ≠ y := by
-  obtain ⟨ z, hx, hy ⟩ := h;
-  contrapose! hr;
-  rcases r with ( _ | r ) <;> simp_all +decide [ Fin.forall_fin_succ, StrictMono ];
-  exact absurd hx.1 ( ne_of_gt ( z.2 ( by simp +decide ) ) )
+  obtain ⟨z, hx, hy⟩ := h
+  intro hxy
+  let i : Fin r := ⟨0, hr⟩
+  have hlt : z.1 i.castSucc < z.1 i.succ := z.2 Fin.castSucc_lt_succ
+  have hxyi : x.1 i = y.1 i := congrArg (fun t : Tuple κ r ↦ t.1 i) hxy
+  have heq : z.1 i.castSucc = z.1 i.succ := (hx i).symm.trans (hxyi.trans (hy i))
+  exact (ne_of_lt hlt) heq
 
 /-
 Every displayed directed shift of a nonempty tuple is an edge of the
@@ -70,14 +73,43 @@ The first shift graph is the complete graph on increasing one-tuples.
 -/
 theorem graph_one_eq_completeGraph :
     graph κ 1 = _root_.SimpleGraph.completeGraph (Tuple κ 1) := by
-  ext x y;
-  simp +decide [ graph, SimpleGraph.fromRel_adj ];
-  intro hxy; cases lt_or_gt_of_ne ( show x.1 0 ≠ y.1 0 from by contrapose! hxy; ext i; fin_cases i; aesop ) <;> [ left; right ] <;> use ⟨ Fin.cons ( if x.1 0 < y.1 0 then x.1 0 else y.1 0 ) ( if x.1 0 < y.1 0 then y.1 else x.1 ), ?_ ⟩ <;> simp +decide [ *, Fin.forall_fin_succ ] ;
-  · simp +decide [ StrictMono, Fin.forall_fin_succ ];
-    assumption;
-  · grind;
-  · simp +decide [ *, StrictMono, Fin.forall_fin_succ ];
-    split_ifs <;> simp_all +decide [ lt_asymm ]
+  ext x y
+  simp only [SimpleGraph.completeGraph_eq_top, SimpleGraph.top_adj, ne_eq]
+  constructor
+  · exact (graph κ 1).ne_of_adj
+  · intro hxy
+    rw [adj_iff_shift_or_shift κ (by decide)]
+    have hzero : x.1 0 ≠ y.1 0 := by
+      intro heq
+      apply hxy
+      ext i
+      fin_cases i
+      exact heq
+    rcases lt_or_gt_of_ne hzero with hlt | hgt
+    · left
+      let z : Tuple κ 2 :=
+        ⟨Fin.cons (x.1 0) y.1, by
+          intro i k hik
+          fin_cases i <;> fin_cases k <;> simp_all⟩
+      refine ⟨z, ?_, ?_⟩
+      · intro i
+        fin_cases i
+        rfl
+      · intro i
+        fin_cases i
+        rfl
+    · right
+      let z : Tuple κ 2 :=
+        ⟨Fin.cons (y.1 0) x.1, by
+          intro i k hik
+          fin_cases i <;> fin_cases k <;> simp_all⟩
+      refine ⟨z, ?_, ?_⟩
+      · intro i
+        fin_cases i
+        rfl
+      · intro i
+        fin_cases i
+        rfl
 
 end ShiftGraph
 

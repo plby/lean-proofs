@@ -54,13 +54,13 @@ theorem density_nonneg [Fintype X] (A : Finset X) : 0 ≤ density A := by
 theorem density_le_one [Fintype X] (A : Finset X) : density A ≤ 1 := by
   cases isEmpty_or_nonempty X with
   | inl hX =>
-      letI := hX
+      let := hX
       have hA : A = ∅ := by
         ext x
         exact isEmptyElim x
       simp [hA]
   | inr hX =>
-      letI := hX
+      let := hX
       rw [density, div_le_one (by positivity)]
       exact_mod_cast Finset.card_le_univ A
 
@@ -194,16 +194,16 @@ theorem density_eq_average_fiber [Fintype X] [Fintype Y]
     density A = average fun x ↦ density (fiber A x) := by
   cases isEmpty_or_nonempty X with
   | inl hX =>
-      letI := hX
+      let := hX
       simp [density_eq_card_div_card, average_eq_sum_div_card]
   | inr hX =>
-      letI := hX
+      let := hX
       cases isEmpty_or_nonempty Y with
       | inl hY =>
-          letI := hY
+          let := hY
           simp [density_eq_card_div_card, average_eq_sum_div_card]
       | inr hY =>
-          letI := hY
+          let := hY
           rw [density_eq_card_div_card, average_eq_sum_div_card]
           rw [card_eq_sum_card_fiber]
           simp only [density_eq_card_div_card]
@@ -388,7 +388,7 @@ theorem density_eq_average_prefixSection {k m r : ℕ}
 theorem exists_prefixSection_density_ge {k m r : ℕ} (hk : 0 < k)
     (A : Finset (Cube k (m + r))) :
     ∃ x : Cube k m, density A ≤ density (prefixSection A x) := by
-  letI : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
+  let : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
   rw [density_eq_average_prefixSection]
   exact exists_average_le _
 
@@ -407,7 +407,7 @@ theorem density_largePrefixSections_ge {k m r : ℕ} (hk : 0 < k)
     (A : Finset (Cube k (m + r))) {mu c : ℝ}
     (hA : mu ≤ density A) (hc : c < 1) :
     (mu - c) / (1 - c) ≤ density (largePrefixSections A c) := by
-  letI : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
+  let : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
   rw [density_eq_average_prefixSection] at hA
   simpa only [largePrefixSections] using
     density_superlevel_ge (fun x ↦ density (prefixSection A x)) hA
@@ -418,7 +418,7 @@ theorem half_le_density_largePrefixSections {k m r : ℕ} (hk : 0 < k)
     (A : Finset (Cube k (m + r))) {delta : ℝ}
     (hdelta : 0 ≤ delta) (hA : delta ≤ density A) :
     delta / 2 ≤ density (largePrefixSections A (delta / 2)) := by
-  letI : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
+  let : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
   rw [density_eq_average_prefixSection] at hA
   simpa only [largePrefixSections] using
     half_le_density_superlevel (fun x ↦ density (prefixSection A x)) hdelta hA

@@ -674,7 +674,7 @@ theorem exists_generalizedWronskian_ne_zero {m r : ℕ}
   by_contra hnot
   push Not at hnot
   let E (i : Fin r) := diffExpansion m b i.1
-  letI : ∀ i : Fin r, Fintype (E i).ι := fun i ↦ (E i).fintype_ι
+  let : ∀ i : Fin r, Fintype (E i).ι := fun i ↦ (E i).fintype_ι
   let row (i : Fin r) (u : (E i).ι) : Fin r → Polynomial ℚ :=
     fun j ↦ kroneckerMap m b (multiDerivative ((E i).μ u) (P j))
   have hrows : polynomialWronskianMatrix Φ =
@@ -739,7 +739,7 @@ theorem exists_separationData {m : ℕ}
   let s : Finset (MvPolynomial (Fin m) ℚ) := q.support.image q.coeff
   let V : Submodule ℚ (MvPolynomial (Fin m) ℚ) :=
     Submodule.span ℚ (s : Set (MvPolynomial (Fin m) ℚ))
-  letI : FiniteDimensional ℚ V := FiniteDimensional.span_finset ℚ s
+  let : FiniteDimensional ℚ V := FiniteDimensional.span_finset ℚ s
   let B : Module.Basis (Fin (Module.finrank ℚ V)) ℚ V := Module.finBasis ℚ V
   have hcoeffV (n : ℕ) : q.coeff n ∈ V := by
     by_cases hn : n ∈ q.support

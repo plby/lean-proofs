@@ -15,7 +15,7 @@ lemma EndpointPairMultiplicitySimpleGraph {ι V : Type*} [DecidableEq ι] [Decid
   classical
   let E : Finset (Sym2 V) := A.image endpoint
   let G : SimpleGraph V := SimpleGraph.fromEdgeSet ((E : Set (Sym2 V)))
-  haveI : Fintype G.edgeSet := by
+  have : Fintype G.edgeSet := by
     dsimp [G]
     infer_instance
   have h_edgeFinset : G.edgeFinset = E := by

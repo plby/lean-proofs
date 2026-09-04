@@ -23,7 +23,7 @@ theorem badSplitPrimeWeight_nonneg {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     letI := quadraticOrderIsDomain hD
     ∀ H : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b)), ∀ s : SplitPrime d b,
       0 ≤ badSplitPrimeWeight hD H s := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro H s
   unfold badSplitPrimeWeight
   split_ifs <;> positivity
@@ -39,7 +39,7 @@ theorem badSplitPrimeWeight_headProduct {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       (∀ s ∈ S, s.idealClass hD ∉ H) →
       Real.exp (-2 * ∑' s, badSplitPrimeWeight hD H s) ≤
         ∏ s ∈ S, (1 - (s.1 : ℝ)⁻¹) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro H hsum S hS
   have hhalf (s : SplitPrime d b) : badSplitPrimeWeight hD H s ≤ 1 / 2 := by
     unfold badSplitPrimeWeight
@@ -87,7 +87,7 @@ theorem not_summable_badSplitPrimeWeight {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     ∀ H : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b)), H ≠ ⊤ →
       ¬ Summable (badSplitPrimeWeight hD H) := by
   classical
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro H hH hsum
   let O := QuadraticAlgebra ℤ d b
   obtain ⟨B, hB, hbound⟩ := exists_uniform_natCard_idealClassBall_le hD
@@ -115,7 +115,7 @@ theorem not_summable_badSplitPrimeWeight {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       have hmembot : (M : O) ∈ (⊥ : Ideal O) := hbot ▸ Ideal.mem_span_singleton_self (M : O)
       exact hMcast (Ideal.mem_bot.mp hmembot))
   let U := Nat.card Oˣ
-  letI := finite_quadraticOrder_units hD
+  let := finite_quadraticOrder_units hD
   have hU : 0 < U := Nat.card_pos
   let K := classSieveScale d b μ
   have hK : 0 < K := by dsimp only [K, classSieveScale]; positivity

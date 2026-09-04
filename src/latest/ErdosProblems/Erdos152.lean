@@ -292,7 +292,7 @@ def quad_k_N (A : Set ℕ) (k : ℕ) : Set (ℕ × ℕ × ℕ × ℕ) :=
 
 lemma quad_upper_Q0 (A : Set ℕ) (k : ℕ) (_ : IsSidon A) (hA : A.Finite) (hk : k > 0) :
   {q ∈ quad_k_N A k | (q.1 : ℤ) - q.2.2.1 = 0}.ncard ≤ A.ncard := by show{ a ∈{s |_}|_}.ncard≤_
-                                                                     simp_all[IsSidon,add_assoc, sub_eq_zero]
+                                                                     simp_all only [mem_ofPred_eq]
                                                                      use Nat.card_image_of_injOn ( fun and=>? _)|>.ge.trans (Nat.card_mono hA (Set.image_subset_iff.2 fun and=>And.left ∘And.left))
                                                                      use fun a s R L=>by cases‹∀ _ _ _ _ _ _ _ _ C,_› _ R.1.2.1 _ (by use a.1.2.1) ( _) (by use a.1.2.2.2.1) ( _) (by use R.1.2.2.2.1) (by use a.elim (R.elim (by valid))) with grind
 
@@ -326,9 +326,12 @@ lemma quad_upper_other_inj (A : Set ℕ) (k : ℕ) (_ : IsSidon A) :
 
 lemma quad_upper_other_im (A : Set ℕ) (k : ℕ) (_ : IsSidon A) :
   (fun q : ℕ × ℕ × ℕ × ℕ => (q.1 : ℤ) - q.2.2.1) '' {q ∈ quad_k_N A k | (q.1 : ℤ) - q.2.2.1 ≠ 0 ∧ (q.1 : ℤ) - q.2.2.1 ≠ -k} ⊆ {x ∈ D_set A | x + k ∈ D_set A} := by
-  show _ ''{ a ∈{s |_}|_} ⊆_
-  simp_all (config := {singlePass:= true}) -contextual[ Erdos152.D_set, IsSidon]
-  use fun and A B a s R L K V _ _=>⟨⟨ _,s,B,L, rfl⟩,a,K,A,R,by valid⟩
+  rintro z ⟨q, ⟨⟨ha, hb, hc, hd, habcd⟩, _, _⟩, rfl⟩
+  constructor
+  · exact ⟨q.1, q.2.2.1, ha, hc, rfl⟩
+  · refine ⟨q.2.2.2, q.2.1, hd, hb, ?_⟩
+    change (q.1 : ℤ) - q.2.2.1 + k = q.2.2.2 - q.2.1
+    omega
 
 lemma quad_upper_other (A : Set ℕ) (k : ℕ) (hSidon : IsSidon A) (_ : A.Finite) :
   {q ∈ quad_k_N A k | (q.1 : ℤ) - q.2.2.1 ≠ 0 ∧ (q.1 : ℤ) - q.2.2.1 ≠ -k}.ncard ≤ N_k_Z (D_set A) k := by
@@ -367,7 +370,8 @@ lemma quad_fiber_subset (A : Set ℕ) (hA : A.Finite) (s k : ℕ) :
 lemma quad_fiber_card (A : Set ℕ) (hA : A.Finite) (k : ℕ) (s : ℕ) (hs : s ∈ S_good A k) :
   4 ≤ (quad_fiber A s k).ncard := by change(4)≤ {s |_}.ncard
                                      obtain ⟨a, rfl⟩:= (hA).exists_finset_coe
-                                     simp_all-contextual[ Erdos152.S_good,Set.setOf_and,Set.ncard_eq_toFinset_card']
+                                     simp_all-contextual [Erdos152.S_good, Set.setOf_and,
+                                       Set.ncard_eq_toFinset_card']
                                      trans {S ∈a ×ˢa ×ˢa ×ˢa | S.1+S.2.1 = s∧S.2.2.1+S.2.2.2 = s+k}.card
                                      · use hs.1.1.elim fun and⟨i,A, B, _⟩=>hs.1.2.elim fun x⟨R, L, M, _⟩=> if I:and = A then(? _)else if I:x =L then(? _)else(? _)
                                        · rcases hs.2.1.2 A B (by (bound ) )

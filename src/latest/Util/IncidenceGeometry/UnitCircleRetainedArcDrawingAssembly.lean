@@ -50,7 +50,7 @@ lemma UnitCircleRetainedArcDrawingAssembly
           (D.localPairCount : ℝ) ≤ 2 * (P.card : ℝ) ^ 2 := by
   classical
   intro G hGfin hGedge
-  letI : Fintype G.edgeSet := hGfin
+  let : Fintype G.edgeSet := hGfin
   have h_rep_exists :
       ∀ e : G.edgeFinset, ∃ i ∈ A, endpoint i = e.1 := by
     intro e

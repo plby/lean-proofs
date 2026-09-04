@@ -58,7 +58,7 @@ lemma fourier_character (a r : ZMod N) :
     rw [← CyclicBohr.Set.character_neg_index, mul_comm,
       ← CyclicBohr.character_add_index]
     congr 1
-    abel
+    abel_nf
   simp_rw [hpoint]
   rw [show (fun x : ZMod N ↦ CyclicBohr.character (a - r) x) =
       (fun x : ZMod N ↦ CyclicBohr.character x (a - r)) by

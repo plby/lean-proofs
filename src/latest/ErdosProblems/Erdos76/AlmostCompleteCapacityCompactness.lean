@@ -44,8 +44,8 @@ private lemma IsFractionalDecomposition.relabel_capacity
     (hw : IsFractionalDecomposition G w) (e : A ≃ B) :
     IsFractionalDecomposition (G.map e.toEmbedding) (relabelWeight e w) := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
   refine ⟨hw.isPacking.relabel e, ?_⟩
   intro p hp
   have hp' := SimpleGraph.mem_edgeFinset.mp hp
@@ -64,7 +64,7 @@ theorem almostCompleteFractionalDecomposition_on_fintype
   classical
   let e : A ≃ Fin (Fintype.card A) := Fintype.equivFinOfCardEq rfl
   let H : SimpleGraph (Fin (Fintype.card A)) := G.map e.toEmbedding
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   have hmissH : missingEdgeCount H ≤ Fintype.card A - 4 := by
     have hc : Hᶜ = Gᶜ.map e.toEmbedding := compl_map_equiv G e
     have hedge : Hᶜ.edgeFinset = (Gᶜ.map e.toEmbedding).edgeFinset := by

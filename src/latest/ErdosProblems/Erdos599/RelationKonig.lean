@@ -229,7 +229,7 @@ theorem infinite_rootedSimplePath
     (hinf : {x | Relation.ReflTransGen r root x}.Infinite) :
     Infinite (RootedSimplePath r root) := by
   by_contra hnot
-  letI : Finite (RootedSimplePath r root) := Finite.of_not_infinite hnot
+  let : Finite (RootedSimplePath r root) := Finite.of_not_infinite hnot
   apply hinf
   refine (Set.finite_range (fun p : RootedSimplePath r root ↦ p.terminal)).subset ?_
   intro x hx

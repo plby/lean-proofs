@@ -52,7 +52,7 @@ theorem hasExchangeFocusing_of_rotationBanks
   apply hasExchangeFocusing_almostSupported
   intro Q hQ
   have hQcard : Q.card = k := mem_completeUniform.mp hQ
-  haveI : Nonempty (Fin n) := by
+  have : Nonempty (Fin n) := by
     have hQne : Q.Nonempty := Finset.card_pos.mp (by omega)
     exact ⟨hQne.choose⟩
   obtain ⟨request, hrequest⟩ :=
@@ -114,7 +114,7 @@ theorem auxiliaryFocusing_of_rotationBanks
   intro g hg forbidden hgf hforbidden
   have hgcard : g.card = r := mem_completeUniform.mp hg
   have hgNonempty : g.Nonempty := Finset.card_pos.mp (by omega)
-  letI : Nonempty (Fin n) := ⟨hgNonempty.choose⟩
+  let : Nonempty (Fin n) := ⟨hgNonempty.choose⟩
   obtain ⟨request, hrequest⟩ :=
     CoverClique.exists_rootRequest_with_image (CoverClique.coverRoot k r) g
       (by rw [CoverClique.card_coverRoot hrk.le, hgcard])
@@ -211,7 +211,7 @@ theorem eliminationFocusing_of_rotationBanks
   intro P
   have hpositiveNonempty : P.positive.Nonempty :=
     Finset.card_pos.mp (P.positive_card.trans_gt (by omega))
-  letI : Nonempty (Fin n) := ⟨hpositiveNonempty.choose⟩
+  let : Nonempty (Fin n) := ⟨hpositiveNonempty.choose⟩
   obtain ⟨request, _hrequestRoot, hrequestPos, hrequestNeg⟩ :=
     ExchangeEliminationEmbedding.exists_eliminationRootRequest
       (ExchangeEmbedding.fullExchangeData hrk) (by omega) hrk
@@ -388,7 +388,7 @@ theorem rainbowFocusing_of_rotationBanks
   intro Q hQ
   have hQdata := mem_fullySupportedBlocks.mp hQ
   have hQnonempty : Q.Nonempty := Finset.card_pos.mp (by omega)
-  letI : Nonempty (Fin n) := ⟨hQnonempty.choose⟩
+  let : Nonempty (Fin n) := ⟨hQnonempty.choose⟩
   obtain ⟨request, hrequest⟩ := CoverClique.exists_rootRequest_with_image
     E.pattern.root Q (E.root_card.trans hQdata.1.symm)
   obtain ⟨t, phi, hextends, hfree⟩ := hchoiceE request
@@ -416,7 +416,7 @@ theorem rainbowFocusing_of_rotationBanks
   let freeColor : ↑E.pattern.freeEdges → Fin (Fintype.card Color) :=
     fun a ↦ colorEquiv (freeAliasColor
       (exchangeBaseCoord t (E.pattern.freeEdges.equivFin a)))
-  letI : Nonempty (Fin (Fintype.card Color)) :=
+  let : Nonempty (Fin (Fintype.card Color)) :=
     ⟨colorEquiv (rootAliasColor identityBaseCoord)⟩
   have hfreeColor : Function.Injective freeColor := by
     intro a b hab
@@ -611,7 +611,7 @@ theorem rainbowSpan_of_rotationBanks
   obtain ⟨hBcard, color, _hcolorInjective, hcolorMem⟩ :=
     mem_rainbowBlocks.mp hB
   have hBnonempty : B.Nonempty := Finset.card_pos.mp (by omega)
-  letI : Nonempty (Fin n) := ⟨hBnonempty.choose⟩
+  let : Nonempty (Fin n) := ⟨hBnonempty.choose⟩
   obtain ⟨request, hrequest⟩ := CoverClique.exists_rootRequest_with_image
     E.pattern.root B (E.root_card.trans hBcard.symm)
   let actualColor : Exchange.RootEdge k r → Color := fun e ↦
@@ -711,7 +711,7 @@ lemma focusingBaseCoord_card_le
     {bankCount mE mA mX mR : ℕ} (hbank : 0 < bankCount) :
     Fintype.card (FocusingBaseCoord bankCount mE mA mX mR) ≤
       (1 + mE + mA + mX + mR) * bankCount := by
-  simp [FocusingBaseCoord]
+  simp only [Fintype.card_sum, Fintype.card_unique, Fintype.card_prod, Fintype.card_fin]
   calc
     1 + (bankCount * mE + (bankCount * mA +
         (bankCount * mX + bankCount * mR))) =

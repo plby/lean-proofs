@@ -53,8 +53,8 @@ theorem component_degree_eq
       ((P.orderedForest.tree i).neighborSet a).ncard := by
   classical
   let x : V := P.fromOrderedForestVertex ⟨i, a⟩
-  letI : Fintype {b // (P.orderedForest.tree i).Adj a b} := Fintype.ofFinite _
-  letI : Fintype {y // P.cutForest.Adj x y} := Fintype.ofFinite _
+  let : Fintype {b // (P.orderedForest.tree i).Adj a b} := Fintype.ofFinite _
+  let : Fintype {y // P.cutForest.Adj x y} := Fintype.ofFinite _
   let e : {b // (P.orderedForest.tree i).Adj a b} ≃
       {y // P.cutForest.Adj x y} :=
     { toFun := fun b => ⟨P.fromOrderedForestVertex ⟨i, b.1⟩,
@@ -119,10 +119,10 @@ private theorem branchOther_ne_root
     (P : ZhaoForestPartition T globalRoot small) (j : TwoBranchIndex P) :
     branchOtherVertex P j ≠ branchRootVertex P j := by
   classical
-  letI : Fintype {z // z ∈ branchSet P.orderedForest j.1} := Fintype.ofFinite _
+  let : Fintype {z // z ∈ branchSet P.orderedForest j.1} := Fintype.ofFinite _
   have hcard : Fintype.card {z // z ∈ branchSet P.orderedForest j.1} = 2 := by
     rw [Fintype.card_eq_nat_card, branchSet_card_two P j]
-  letI : Nontrivial {z // z ∈ branchSet P.orderedForest j.1} :=
+  let : Nontrivial {z // z ∈ branchSet P.orderedForest j.1} :=
     Fintype.one_lt_card_iff_nontrivial.mp (by omega)
   exact Classical.choose_spec (exists_ne (branchRootVertex P j))
 
@@ -131,7 +131,7 @@ private theorem branchVertex_eq_root_or_other
     (z : {z // z ∈ branchSet P.orderedForest j.1}) :
     z = branchRootVertex P j ∨ z = branchOtherVertex P j := by
   classical
-  letI : Fintype {z // z ∈ branchSet P.orderedForest j.1} := Fintype.ofFinite _
+  let : Fintype {z // z ∈ branchSet P.orderedForest j.1} := Fintype.ofFinite _
   have hcard : Fintype.card {z // z ∈ branchSet P.orderedForest j.1} = 2 := by
     rw [Fintype.card_eq_nat_card, branchSet_card_two P j]
   by_cases hz : z = branchRootVertex P j
@@ -191,10 +191,10 @@ private theorem branch_root_other_adj
       (branchRootVertex P j).1 (branchOtherVertex P j).1 := by
   classical
   let H := P.orderedForest.graph.induce (branchSet P.orderedForest j.1)
-  letI : Fintype {z // z ∈ branchSet P.orderedForest j.1} := Fintype.ofFinite _
+  let : Fintype {z // z ∈ branchSet P.orderedForest j.1} := Fintype.ofFinite _
   have hcard : Fintype.card {z // z ∈ branchSet P.orderedForest j.1} = 2 := by
     rw [Fintype.card_eq_nat_card, branchSet_card_two P j]
-  haveI : Nontrivial {z // z ∈ branchSet P.orderedForest j.1} :=
+  have : Nontrivial {z // z ∈ branchSet P.orderedForest j.1} :=
     Fintype.one_lt_card_iff_nontrivial.mp (by omega)
   have htree : H.IsTree := by
     let e : branchLocalGraph P.orderedForest j.1 ≃g H :=

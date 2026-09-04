@@ -881,7 +881,7 @@ theorem pair_eq_of_mem_pair {a b p q : Plane} (hab : a ≠ b) (ha : a = p ∨ a 
 /-- The successor in `ZMod n`, read as a numeral below `n`. -/
 theorem zmod_val_succ {n : ℕ} (hn : 1 < n) (j : ZMod n) :
     (j + 1).val = if j.val + 1 < n then j.val + 1 else 0 := by
-  haveI : NeZero n := ⟨by omega⟩
+  have : NeZero n := ⟨by omega⟩
   have h1 : (1 : ZMod n).val = 1 := by
     rw [show (1 : ZMod n) = ((1 : ℕ) : ZMod n) by norm_num]
     exact ZMod.val_cast_of_lt hn
@@ -1092,7 +1092,7 @@ theorem exists_prePolygon_of_isJordanCurve {C : Set Plane} (hJ : IsJordanCurve C
       have hnx0 : nx ⟨0, hn0⟩ = 1 := by rw [hnx, parNext, dif_neg hcond]
       exact hfne ⟨0, hn0⟩ (by rw [htp0, hnx0]; exact hf.closes)
     · exact hge
-  haveI : NeZero n := ⟨by omega⟩
+  have : NeZero n := ⟨by omega⟩
   -- The cyclic vertex list: the ends, in the order the loop reaches them.
   set w : ZMod n → Plane := fun j => f (tp ⟨j.val, ZMod.val_lt j⟩) with hw
   have hwsucc : ∀ j : ZMod n, w (j + 1) = f (nx ⟨j.val, ZMod.val_lt j⟩) := by
@@ -1603,4 +1603,3 @@ theorem exists_closedPolygon_arcs_ordered {C A₁ A₂ : Set Plane} (hJ : IsJord
       exact Or.inr ⟨hqa, hpa⟩
 
 end Schoenflies
-

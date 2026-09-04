@@ -170,7 +170,7 @@ theorem gauss2_mul_denProd_eq_highProd (n k : ℕ) :
                   2 ^ (k + 1) *
                     ((gauss2 (n + (k + 1)) (k + 1) * denProd (k + 1))) := by
                       rw [denProd_succ]
-                      ring
+                      ring_nf
             _ = highProd (n + 1) k * oddFactor (k + 1) +
                   2 ^ (k + 1) * highProd n (k + 1) := by
                     rw [ih (n + 1), hn]

@@ -213,7 +213,8 @@ theorem abs_fixed_sharp_cross_inner_le
           (abs_starredCrossYSummand_le_separated
             (H := nearShifts K) (y := y) (B := B)
             (W := W) (R := R) (D := D) hB hyBound huP hs hstar)
-      · simp [F, hstar]
+      · rw [show F u = 0 by simp [F, hstar]]
+        simp only [mul_zero, abs_zero]
         exact mul_nonneg hfactor (by positivity)
     _ ≤ ∑ u ∈ varyingTupleBox K,
         B ^ 2 * crossTotientSquareWeight (nearShifts K) s *

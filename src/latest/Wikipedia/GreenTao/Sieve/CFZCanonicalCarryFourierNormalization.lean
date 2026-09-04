@@ -128,7 +128,7 @@ theorem
     ‖d.primeArithmeticToZetaLocalRatio p - 1‖ ≤
       selectedCFZCarryEulerTailErrorConstant k /
         (p : ℝ) ^ 2 := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   have horiginal :
       exceptionalPrimeBound
           (fun q : CFZFormIndex k => cfzAffineForm q) <
@@ -260,7 +260,7 @@ theorem selectedCFZCanonicalCarryPairedFourierLocalFactor_eq_one_of_small
     {p : Nat.Primes} (hp : p ∈ smallPrimeFinset d.w) :
     pairedFourierPrimeLocalFactor d.R
         d.carryAdjustedFamily d.t d.u p = 1 := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   rw [pairedFourierPrimeLocalFactor]
   unfold SelectedCFZCanonicalCarryFourierData.carryAdjustedFamily
   exact
@@ -281,7 +281,7 @@ theorem
     {p : Nat.Primes} (hp : p ∈ smallPrimeFinset d.w) :
     d.primeArithmeticToZetaLocalRatio p =
       (cutoffZetaEulerLocalFactor d.R d.t d.u p)⁻¹ := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   have hlocal :
       pairedFourierLocalFactor d.R (p : ℕ)
           d.carryAdjustedFamily d.t d.u = 1 := by
@@ -497,7 +497,7 @@ theorem
         χ.cutoffNormalizerSeparatedProduct (d.t, d.u) *
         normalizedCompletedFourierEulerCorrection
           d.R d.w d.t d.u d.largePrimeEulerCorrection := by
-  letI : NeZero d.N := d.N_neZero
+  let : NeZero d.N := d.N_neZero
   have hseries :=
     tsum_selectedCFZCanonicalCarry_unrestrictedPrimeSupport_eq
       (N := d.N) (w := d.w) (b := d.b)

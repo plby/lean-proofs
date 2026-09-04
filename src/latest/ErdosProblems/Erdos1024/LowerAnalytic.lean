@@ -712,7 +712,7 @@ theorem eventually_exists_independent_gt :
     eventually_log_le_rpow_nat (by norm_num : (0 : ℝ) < 1 / 100)]
       with n hscore hweighted hn hlog
   intro H h3 hlin
-  letI : NeZero (sampleColors n) :=
+  let : NeZero (sampleColors n) :=
     ⟨(sampleColors_pos (by omega : 0 < n)).ne'⟩
   apply exists_independent_gt_of_parameters h3 hlin
     (K := sampleColors n) (A := independenceCutoff n)

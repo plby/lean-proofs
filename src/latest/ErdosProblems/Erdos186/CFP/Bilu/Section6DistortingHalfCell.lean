@@ -91,7 +91,7 @@ theorem lowerHalfIndices_add_half {ι : Type*} [Fintype ι]
       Finset.univ \ lowerHalfIndices y b := by
   ext i
   simp only [mem_lowerHalfIndices, Finset.mem_sdiff, Finset.mem_univ, true_and]
-  convert fract_sub_half_lt_half_iff (y i - b) using 1 <;> ring
+  convert fract_sub_half_lt_half_iff (y i - b) using 1 <;> ring_nf
 
 theorem card_lowerHalfIndices_add_half {ι : Type*} [Fintype ι]
     [DecidableEq ι] (y : ι → ℝ) (b : ℝ) :
@@ -448,7 +448,7 @@ theorem distributionIntegral_eq_neg_lowerHalfIntegral
     have hx' : x ∈ Set.Icc (0 : ℝ) (1 / 2) := by simpa using hx
     have hsin : Real.sin (2 * Real.pi * (x + 1 / 2)) =
         -Real.sin (2 * Real.pi * x) := by
-      convert Real.sin_add_pi (2 * Real.pi * x) using 1 <;> ring
+      convert Real.sin_add_pi (2 * Real.pi * x) using 1 <;> ring_nf
     have hcount := phaseDistribution_add_half_sub y x hx'.1 hx'.2
     dsimp only [f]
     rw [hsin]
@@ -717,7 +717,7 @@ theorem exists_lowerHalf_of_exponentialSum
     ext i
     simp only [mem_lowerHalfIndices, y']
     congr 2
-    ring
+    ring_nf
   rwa [← hsets]
 
 /-! ## Distorting frequencies -/

@@ -55,7 +55,7 @@ theorem exists_spanning_path_of_preconnected_support
       p.support.toFinset = P.support.toFinset ∧
       (P.neighborSet a).ncard = 1 ∧ (P.neighborSet b).ncard = 1 := by
   classical
-  letI : Nonempty V := ⟨hne.some⟩
+  let : Nonempty V := ⟨hne.some⟩
   obtain ⟨a, b, p, hp, hmax⟩ :=
     SimpleGraph.Walk.exists_isPath_forall_isPath_length_le_length P
   obtain ⟨x, hx⟩ := hne

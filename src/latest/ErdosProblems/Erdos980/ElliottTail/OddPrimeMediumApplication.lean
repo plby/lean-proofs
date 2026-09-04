@@ -239,7 +239,7 @@ theorem exists_eventually_tagSurvivingFibre_bound
   have hf0 : f ≠ 0 := by
     simpa only [f, Q, tagTensorModulus, tagAuxiliaryPrimes] using
       tagTensorModulus_ne_zero ell K tag t
-  letI : NeZero f := ⟨hf0⟩
+  let : NeZero f := ⟨hf0⟩
   have hQ : Q ⊆ inertAuxiliaryPrimes ell t :=
     tagAuxiliaryPrimes_subset ell K tag t
   have hcop : ∀ q ∈ Q, q.Coprime
@@ -684,13 +684,13 @@ open OddRosserParameters
 theorem oddPrimeExponentMediumEstimate
     (ell : ℕ) (hell : ell.Prime) (hodd : Odd ell) :
     PrimeExponentMediumEstimate ell := by
-  letI : Fact ell.Prime := ⟨hell⟩
-  letI : NeZero ell := ⟨hell.ne_zero⟩
-  letI : NeZero (ell : ℚ) := ⟨by exact_mod_cast hell.ne_zero⟩
+  let : Fact ell.Prime := ⟨hell⟩
+  let : NeZero ell := ⟨hell.ne_zero⟩
+  let : NeZero (ell : ℚ) := ⟨by exact_mod_cast hell.ne_zero⟩
   let K := CyclotomicField ell ℚ
-  letI : IsCyclotomicExtension {ell} ℚ K :=
+  let : IsCyclotomicExtension {ell} ℚ K :=
     CyclotomicField.isCyclotomicExtension ell ℚ
-  letI : Fintype (index K) := Fintype.ofFinite _
+  let : Fintype (index K) := Fintype.ofFinite _
   have hellNeTwo : ell ≠ 2 := by
     intro heq
     subst ell

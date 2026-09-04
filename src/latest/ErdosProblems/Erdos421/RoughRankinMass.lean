@@ -11,7 +11,7 @@ theorem exp_neg_mul_le_div {t r : ℝ} (ht : 1 ≤ t) (hr : 1 ≤ r) :
   calc
     _ = Real.exp (Real.log r - t * r) := by
       rw [Real.exp_sub, Real.exp_log hr0, div_eq_mul_inv, ← Real.exp_neg]
-      ring
+      ring_nf
     _ ≤ Real.exp (-t) := Real.exp_le_exp.mpr (by
       have hlog := Real.log_le_sub_one_of_pos hr0
       have hm := mul_nonneg (sub_nonneg.mpr ht) (sub_nonneg.mpr hr)

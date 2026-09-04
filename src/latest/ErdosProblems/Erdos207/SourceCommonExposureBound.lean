@@ -70,7 +70,7 @@ theorem sourceCommonExposureClass_good_weight_le
         (pow_le_pow_right₀ hw hf)
     exact (sourceCommonExposureClass_weight_le hF hG T T' H Q Q' hQ hQcard w).trans
       (hcancel.trans hcoeff)
-  · haveI : IsEmpty (sourceCommonExposureClass W F G T T' H Q Q' b k) :=
+  · have : IsEmpty (sourceCommonExposureClass W F G T T' H Q Q' b k) :=
       ⟨fun u ↦ hne ⟨u.1, u.2⟩⟩
     simp only [Fintype.sum_empty, zero_le]
 

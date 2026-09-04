@@ -133,7 +133,7 @@ lemma signedInverseSquareDifference_succ_sub (X : ℝ) (A : ℕ)
           (fun t ↦ -X / t ^ 2) (A + i : ℕ) := by
   simp only [signedInverseSquareDifference, forwardDifferences_cons]
   push_cast
-  ring
+  ring_nf
 
 lemma exists_signedInverseSquareDifference_gap
     (X : ℝ) (hX : 0 < X) {A : ℕ} (hA : 0 < A)
@@ -246,7 +246,7 @@ lemma signedInverseSquareDifference_gap_succ_sub
           (fun t ↦ -X / t ^ 2) (A + i : ℕ) := by
   simp only [signedInverseSquareDifference, forwardDifferences_cons]
   push_cast
-  ring
+  ring_nf
 
 lemma signedInverseSquareDifference_gap_antitone
     (X : ℝ) (hX : 0 ≤ X) {A : ℕ} (hA : 0 < A)

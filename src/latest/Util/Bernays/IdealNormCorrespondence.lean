@@ -50,7 +50,7 @@ theorem formIdeal_product_principal_norm {f : BinQuadForm}
     {z : f.Order} (hz : z ≠ 0)
     (heq : f.formIdeal * J = Ideal.span ({z} : Set f.Order)) :
     z.norm = f.a * (J.cardQuot : ℤ) := by
-  letI := hf.orderIsDomain
+  let := hf.orderIsDomain
   have ha : (f.a : f.Order) ≠ 0 := by
     intro h
     have hr := congrArg QuadraticAlgebra.re h
@@ -83,7 +83,7 @@ theorem represented_pos_iff_idealClass_norm {f : BinQuadForm} (hf : f.PosDef)
     (∃ u v : ℤ, f.eval u v = (n : ℤ)) ↔
       ∃ J : Bernays.InvertibleIdeal f.Order,
         J.idealClass * f.formIdealClass hf hp = 1 ∧ (J : Ideal f.Order).cardQuot = n := by
-  letI := hf.orderIsDomain
+  let := hf.orderIsDomain
   let I : Bernays.InvertibleIdeal f.Order := ⟨f.formIdeal, formIdeal_isUnit hf hp⟩
   have hIclass : I.idealClass = f.formIdealClass hf hp := rfl
   rw [represented_iff_formIdeal_norm hf.1.ne']

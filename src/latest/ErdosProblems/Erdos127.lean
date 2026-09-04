@@ -91,7 +91,7 @@ theorem exists_edwards_bipartite_subgraph {V : Type*} [Fintype V]
     ∃ H : SimpleGraph V, H ≤ G ∧ H.IsBipartite ∧
       baseline G.edgeSet.ncard ≤ (H.edgeSet.ncard : ℝ) := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
   by_cases hedge : G.edgeFinset.Nonempty
   · let q := ENat.toNat G.chromaticNumber
     obtain ⟨C, hχ, hsurj⟩ := G.exists_optimal_coloring_toNat
@@ -488,7 +488,7 @@ theorem explicit_alon_cut {t : ℕ} (ht : 1 ≤ t) {V : Type*} [Fintype V]
       obtain ⟨H, instH, hHG, hHbip, hbound⟩ :=
         G.exists_bipartite_cut_of_clique_dense_remainder U hUne huEven hUclique
           R rem (by simpa only [u] using hremlo) (by simpa only [u] using hremhi) hxBetween
-      letI : DecidableRel H.Adj := instH
+      let : DecidableRel H.Adj := instH
       have hbound' : u * u + 2 * x + u / 2 ≤ 4 * #H.edgeFinset := by
         rw [hxcut] at hbound
         simpa only [u, x] using hbound
@@ -535,7 +535,7 @@ theorem guarantees_alonEdgeCount (t : ℕ) (ht : 1 ≤ t) :
     Guarantees (alonEdgeCount t) t := by
   intro V _ G hG
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
   have hGcard : #G.edgeFinset = alonEdgeCount t := by
     calc
       #G.edgeFinset = G.edgeSet.ncard := by
@@ -545,7 +545,7 @@ theorem guarantees_alonEdgeCount (t : ℕ) (ht : 1 ≤ t) :
     rw [hGcard, two_mul_alonEdgeCount]
     rfl
   obtain ⟨H, instH, hHG, hHbip, hcut⟩ := explicit_alon_cut ht G hedges
-  letI : DecidableRel H.Adj := instH
+  let : DecidableRel H.Adj := instH
   have hHcard : H.edgeSet.ncard = #H.edgeFinset := by
     rw [← SimpleGraph.coe_edgeFinset, Set.ncard_coe_finset]
   have hcutNat :

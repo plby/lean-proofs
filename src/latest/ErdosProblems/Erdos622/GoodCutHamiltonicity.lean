@@ -264,7 +264,7 @@ theorem linearForest_sup_attachmentGraph
     (hf : Function.Injective f) (hout : ∀ s, f s ∉ T) :
     LinearForest (F ⊔ attachmentGraph F T f) := by
   let P := F ⊔ attachmentGraph F T f
-  letI : DecidableRel P.Adj := Classical.decRel _
+  let : DecidableRel P.Adj := Classical.decRel _
   have hdegree : ∀ v, P.degree v ≤ 2 := by
     intro v
     rw [← SimpleGraph.card_neighborFinset_eq_degree,
@@ -704,7 +704,7 @@ theorem exists_initial_admissibleForest
     · simpa only [T, crossNeighbors, hvX, if_false] using hcross v hv
   obtain ⟨f, hf, hfprop⟩ := hchoice
   let P := F ⊔ attachmentGraph F T f
-  letI : DecidableRel P.Adj := Classical.decRel _
+  let : DecidableRel P.Adj := Classical.decRel _
   have hEle : attachmentGraph F T f ≤ G :=
     attachmentGraph_le (fun s ↦ (hfprop s).2.1)
   have hPlinear : LinearForest P := by
@@ -803,9 +803,9 @@ theorem LinearForest.exists_leaf_reachable
   have hxyC : xC ≠ yC := by
     intro h
     exact hxy.ne (congrArg Subtype.val h)
-  letI : Nontrivial C := ⟨⟨xC, yC, hxyC⟩⟩
+  let : Nontrivial C := ⟨⟨xC, yC, hxyC⟩⟩
   let H := C.toSimpleGraph
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   have htree : H.IsTree := by
     simpa only [H, C] using hP.1.isTree_connectedComponent C
   obtain ⟨u, hu⟩ := htree.exists_vert_degree_one_of_nontrivial
@@ -2317,7 +2317,7 @@ theorem exists_balanced_extension_of_endpoints_mem_left
     rw [← F.coe_edgeFinset, Set.ncard_coe_finset]
     exact hforestCard
   have hlinH : LinearForest H := by
-    letI pClassical : DecidableRel P.Adj := Classical.decRel _
+    let pClassical : DecidableRel P.Adj := Classical.decRel _
     have hdegreeA : P.degree a ≤ 1 := by
       rw [← SimpleGraph.card_neighborSet_eq_degree,
         Set.fintypeCard_eq_ncard]
@@ -2379,7 +2379,7 @@ theorem exists_balanced_extension_of_endpoints_mem_left
       rcases huvE.1 with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
       · exact Or.inr ⟨hwY, ha⟩
       · exact Or.inl ⟨ha, hwY⟩
-  letI fClassical : DecidableRel F.Adj := Classical.decRel _
+  let fClassical : DecidableRel F.Adj := Classical.decRel _
   have hforestCard' : F.edgeFinset.card = X.card - Y.card :=
     (ncard_edgeSet_eq_card_edgeFinset F).symm.trans hforestNcard
   have hbalance := restrictedParts_pathRemainder_card_eq
@@ -2426,7 +2426,7 @@ theorem exists_balanced_extension_of_endpoints_mem_right
     rw [← F.coe_edgeFinset, Set.ncard_coe_finset]
     exact hforestCard
   have hlinH : LinearForest H := by
-    letI pClassical : DecidableRel P.Adj := Classical.decRel _
+    let pClassical : DecidableRel P.Adj := Classical.decRel _
     have hdegreeA : P.degree a ≤ 1 := by
       rw [← SimpleGraph.card_neighborSet_eq_degree,
         Set.fintypeCard_eq_ncard]
@@ -2484,7 +2484,7 @@ theorem exists_balanced_extension_of_endpoints_mem_right
       rcases huvE.1 with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
       · exact Or.inl ⟨hwX, ha⟩
       · exact Or.inr ⟨ha, hwX⟩
-  letI fClassical : DecidableRel F.Adj := Classical.decRel _
+  let fClassical : DecidableRel F.Adj := Classical.decRel _
   have hforestCard' : F.edgeFinset.card = X.card - Y.card :=
     (ncard_edgeSet_eq_card_edgeFinset F).symm.trans hforestNcard
   have hbalance := restrictedParts_pathRemainder_card_eq

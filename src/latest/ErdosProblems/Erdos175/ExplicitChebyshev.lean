@@ -137,14 +137,24 @@ lemma mangoldtFloorConvolution_eq_log_factorial (n : ℕ) :
 lemma log_factorial_le (n : ℕ) (hn : 1 ≤ n) :
     Real.log (n.factorial : ℝ) ≤
       n * Real.log n - n + 1 + Real.log n := by
-  induction hn <;> simp_all +decide [Nat.factorial_succ]
-  rw [Real.log_mul (by positivity) (by positivity), add_comm]
-  have h := Real.log_le_sub_one_of_pos
-    (by positivity : 0 < (↑‹ℕ› : ℝ) / (↑‹ℕ› + 1))
-  rw [Real.log_div] at h <;>
-    first | positivity |
-      nlinarith [mul_div_cancel₀ ((↑‹ℕ› : ℝ) : ℝ)
-        (by positivity : (↑‹ℕ› + 1 : ℝ) ≠ 0)]
+  induction hn with
+  | refl => norm_num
+  | @step m hm ih =>
+    rw [Nat.factorial_succ, Nat.cast_mul]
+    rw [Real.log_mul (by positivity) (by positivity), add_comm]
+    have hm_pos : (0 : ℝ) < (m : ℝ) := by exact_mod_cast hm
+    have hden_pos : (0 : ℝ) < (m : ℝ) + 1 := by positivity
+    have h := Real.log_le_sub_one_of_pos (div_pos hm_pos hden_pos)
+    rw [Real.log_div hm_pos.ne' hden_pos.ne'] at h
+    have hscaled := mul_le_mul_of_nonneg_left h hden_pos.le
+    have hfrac : ((m : ℝ) + 1) * ((m : ℝ) / ((m : ℝ) + 1)) = (m : ℝ) := by
+      field_simp
+    have hgap :
+        1 ≤ ((m : ℝ) + 1) *
+          (Real.log ((m : ℝ) + 1) - Real.log (m : ℝ)) := by
+      nlinarith
+    norm_num only [Nat.cast_succ] at ⊢
+    nlinarith
 
 /-- The continuous main term in Stirling's formula. -/
 def stirlingMain (x : ℝ) : ℝ := x * Real.log x - x

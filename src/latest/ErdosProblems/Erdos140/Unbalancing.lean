@@ -118,7 +118,7 @@ theorem unbalancing_of_nonnegative_moments
         simp [add_abs_eq_two_nsmul_posPart]
       _ = 2 * ∑ i : X, ν i * ((f ^ (p - 1)) i * (f i)⁺) := by
         simp [mul_sum]
-        ring
+        ring_nf
   let P : Finset X := Finset.univ.filter fun i ↦ 0 ≤ f i
   let T : Finset X := Finset.univ.filter fun i ↦ 3 / 4 * ε ≤ f i
   have hTP : T ⊆ P := by

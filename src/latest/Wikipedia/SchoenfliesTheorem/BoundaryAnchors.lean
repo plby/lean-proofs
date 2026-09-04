@@ -251,7 +251,7 @@ theorem Graph.IsStageOn.exists_crosscut_path
       h.vertex_mem hlb.right_mem (hcase hlb hbnb hbC)
     let K := Graph.traceGraph G drawing (inside C)
     have hKle : K ≤ G := Graph.traceGraph_le _
-    letI : K.Finite := Graph.Finite.of_le hKle
+    let : K.Finite := Graph.Finite.of_le hKle
     have hKpoint : Graph.pointSet K drawing =
         Graph.interiorPart G drawing (inside C) :=
       Graph.pointSet_traceGraph_eq_interiorPart h.isDrawing (inside C)
@@ -798,7 +798,7 @@ theorem prescribedSourceAnchorSet_hasAnchorCrosscuts :
   have hrTargetAdmissible :
       r.pair.tgt.IsAdmissible modelCurve (Plane.closedSquare 0 1) :=
     r.pair.tgt_isAdmissible hrAdmissible.isConnected_nonboundary
-  letI : r.pair.src.graph.Finite := CellStructure.Realization.finite_graph r.pair.src
+  let : r.pair.src.graph.Finite := CellStructure.Realization.finite_graph r.pair.src
   have hsourceStage := hrAdmissible.isStageOn
   have htargetStage : Graph.IsStageOn r.pair.tgt.graph r.pair.tgt.drawing
       modelCurve (inside modelCurve) := by

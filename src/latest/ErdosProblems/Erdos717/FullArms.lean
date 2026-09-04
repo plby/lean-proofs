@@ -258,7 +258,7 @@ theorem isLinkedSet_of_full_abLinkage_to_kLinked_target
     (hlinked : Erdos718.IsKLinked (G.induce B) k) :
     Erdos718.IsLinkedSet G X := by
   classical
-  letI : Fintype X := hXfinite.fintype
+  let : Fintype X := hXfinite.fintype
   let leftMap : Fin X.ncard → X := fun i => ⟨P.left i, P.left_mem i⟩
   have hleftInj : Function.Injective leftMap := by
     intro i j hij

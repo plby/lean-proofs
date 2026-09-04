@@ -151,7 +151,8 @@ theorem edgeIntersectionGraph_independent_neighbour_card_le_three
     D.card ≤ 3 := by
   convert! card_pairwiseDisjoint_edges_meeting_le_three H htri center.1 center.2 ( D.image Subtype.val ) ?_ using 1;
   all_goals try exact Classical.decEq _;
-  · simp +decide [ Finset.card_image_of_injective, Function.Injective ];
+  · simp +decide only [Finset.mem_image, Subtype.exists, exists_and_right, exists_eq_right, ne_eq,
+    forall_exists_index];
     contrapose! hind;
     obtain ⟨ f, g, hf, hf', hg, hg', hfg, h ⟩ := hind.1;
     exact ⟨ _, _, hf', hg', by aesop, by rw [ edgeIntersectionGraph_adj_iff ] ; exact ⟨ by aesop, by rw [ Set.not_disjoint_iff ] at h; tauto ⟩ ⟩;

@@ -231,7 +231,7 @@ private theorem interval_lt
     (interval C a r).1.1 < (interval C a r).2.1 := by
   by_cases hr : r = 0
   · subst r
-    haveI : IsEmpty (Set.Iio (natIndex 0)) := isEmpty_iff.mpr fun j ↦ by
+    have : IsEmpty (Set.Iio (natIndex 0)) := isEmpty_iff.mpr fun j ↦ by
       have hj : j.1.1 < (0 : Ordinal) := by
         exact j.2
       exact (not_lt_of_ge (bot_le : (0 : Ordinal) ≤ j.1.1)) hj

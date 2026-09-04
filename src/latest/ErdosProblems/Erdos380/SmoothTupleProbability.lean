@@ -90,7 +90,7 @@ theorem exists_uniform_smallShiftMassSum_tail :
   obtain ⟨K, hK, T₁, hm⟩ := exists_uniform_smallPrime_tuple_moment
   refine ⟨K, hK, max 2 T₁, ?_⟩
   intro T hT N hlow hhigh H hH c ε U hU
-  letI : Nonempty (Fin H) := ⟨⟨0, hH⟩⟩
+  let : Nonempty (Fin H) := ⟨⟨0, hH⟩⟩
   have hT2 : 2 ≤ T := (le_max_left _ _).trans hT
   have hmoment := hm T ((le_max_right _ _).trans hT) N hlow hhigh c
   convert

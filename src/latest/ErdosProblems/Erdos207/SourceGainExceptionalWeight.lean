@@ -119,7 +119,7 @@ theorem SourceVortexWellSpread.exceptional_gain_weight_le
       (fun E hE ↦ (hF.uniform E hE).1) w).trans
       ((hF.distinct_omission_weight_le T T' w).trans
         (hratio.trans (mul_le_mul_of_nonneg_right hcoeff zero_le)))
-  · haveI : IsEmpty (sourceGainExceptionalClass W F F T a H) := by
+  · have : IsEmpty (sourceGainExceptionalClass W F F T a H) := by
       refine ⟨fun u ↦ ?_⟩
       exact hH (mem_filter.mp (mem_filter.mp u.2).1).2.2.2.1
     simp only [Fintype.sum_empty, zero_le]

@@ -48,7 +48,7 @@ theorem norm_dirichletExplicitFormulaKernel_sub_le
   rw [dirichletExplicitFormulaKernel_eq_cpow_sub_one_div hypos hrho,
     dirichletExplicitFormulaKernel_eq_cpow_sub_one_div hxpos hrho]
   convert hmv using 1 <;> dsimp [F]
-  ring
+  ring_nf
 
 theorem riemannZeta₀_conj (s : ℂ) :
     riemannZeta₀ (conj s) = conj (riemannZeta₀ s) := by

@@ -100,7 +100,7 @@ theorem ksssBoundedWindowFinUnstructuredUpperAt_of_canonical_le
       intro G _instAdj hG e₀ c hc hLCD x
       have hdec : _instAdj = Classical.decRel G.Adj := Subsingleton.elim _ _
       cases hdec
-      letI : DecidableRel G.Adj := Classical.decRel G.Adj
+      let : DecidableRel G.Adj := Classical.decRel G.Adj
       have hpair := hbandN G e₀ c hG hc hLCD
       let sigma := GraphQuadratic.graphPerturbedSigma G e₀ c
       have hband := hpair.1
@@ -144,7 +144,7 @@ theorem ksssBoundedWindowFinUnstructuredUpperAt_of_canonical_le
           exact mul_nonneg (tsum_nonneg Esseen.kernelCellWeight_nonneg) (by positivity)
         _ = ((∑' k : ℤ, Esseen.kernelCellWeight k) *
               (3 * (B : ℝ)) / scaleLower) *
-                (n : ℝ) ^ (-(3 / 2 : ℝ)) := by ring
+                (n : ℝ) ^ (-(3 / 2 : ℝ)) := by ring_nf
     obtain ⟨N, hN⟩ := Filter.eventually_atTop.mp hmain
     let K : ℝ := (∑' k : ℤ, Esseen.kernelCellWeight k) *
       (3 * (B : ℝ)) / scaleLower
@@ -311,7 +311,7 @@ theorem ksssBoundedWindowFinUnstructuredLowerAtCanonical
     intro G _instAdj hG e₀ c hc hLCD x hx
     have hdec : _instAdj = Classical.decRel G.Adj := Subsingleton.elim _ _
     cases hdec
-    letI : DecidableRel G.Adj := Classical.decRel G.Adj
+    let : DecidableRel G.Adj := Classical.decRel G.Adj
     have hpair := hbandN G e₀ c hG hc hLCD
     let sigma := GraphQuadratic.graphPerturbedSigma G e₀ c
     have hband := hpair.1

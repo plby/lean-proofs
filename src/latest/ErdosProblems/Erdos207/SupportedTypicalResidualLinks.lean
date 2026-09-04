@@ -124,7 +124,7 @@ theorem exists_reserveSupportedTypicalResidualLinks_of_bounds
       (∀ o, (Knew o).SpokesIn reserve) ∧
       (∀ o, HasLinkDegreeCodegreeBounds A (Knew o)
         d degreeMax codegree) := by
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   have hchoice : ∀ o : {x : V // x ∉ U},
       ∃ K : BipartiteLink V,
         IsResidualBipartition G R o.1 K ∧
@@ -203,7 +203,7 @@ theorem IsIterationTypical.exists_reserveSupportedTypicalResidualLinks_localized
       (∀ o, HasLinkDegreeCodegreeBounds A (Knew o)
         d degreeMax codegree) := by
   subst U
-  letI : DecidableRel G.Adj := Classical.decRel G.Adj
+  let : DecidableRel G.Adj := Classical.decRel G.Adj
   have hchoice : ∀ o : {x : V // x ∉ W.U i.succ},
       ∃ K : BipartiteLink V,
         IsResidualBipartition G R o.1 K ∧

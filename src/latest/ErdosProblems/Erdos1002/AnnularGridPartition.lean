@@ -408,7 +408,7 @@ theorem existsUnique_mem_annularGridCell
         · rfl
         · have hxj := intervalGridCell_subset_Icc
             (signedGridLower_lt_upper hεA j.sign) hn j.signed hj.2.1
-          simp [signedGridLower, signedGridUpper, hjs] at hxj
+          simp only [Bool.true_eq_false] at hxj
           have hneg : z.2.1 < 0 :=
             lt_of_le_of_lt hxneg.2 (neg_lt_zero.mpr hε)
           have hpos : 0 < z.2.1 := lt_of_lt_of_le hε hxj.1
@@ -430,7 +430,7 @@ theorem existsUnique_mem_annularGridCell
         cases hjs : j.sign
         · have hxj := intervalGridCell_subset_Icc
             (signedGridLower_lt_upper hεA j.sign) hn j.signed hj.2.1
-          simp [signedGridLower, signedGridUpper, hjs] at hxj
+          simp only [Bool.false_eq_true] at hxj
           have hneg : z.2.1 < 0 :=
             lt_of_le_of_lt hxj.2 (neg_lt_zero.mpr hε)
           have hpos : 0 < z.2.1 := lt_of_lt_of_le hε hxpos.1

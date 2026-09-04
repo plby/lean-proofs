@@ -82,7 +82,7 @@ def g (_ : Gronwall f) (w : ℂ) : ℂ := w * f w⁻¹
 
 /-- `g` is analytic for `1 < ‖z‖` -/
 lemma ga (i : Gronwall f) {z : ℂ} (z1 : 1 < ‖z‖) : AnalyticAt ℂ i.g z := by
-  refine analyticAt_id.mul ((i.fa _ (by simp; bound)).comp (analyticAt_inv ?_))
+  refine analyticAt_id.mul ((i.fa _ (by simp only [Metric.mem_ball, dist_zero_right, norm_inv]; bound)).comp (analyticAt_inv ?_))
   rw [← norm_pos_iff]; linarith
 
 /-- `g` is analytic for `1 < ‖z‖` -/
@@ -579,7 +579,7 @@ lemma inner_nonneg (i : Gronwall f) : ∀ᶠ r in atTop, ∀ w : WindDiff (i.gc 
   generalize hf : f w⁻¹ = fw
   generalize hd : deriv f w⁻¹ = dfw
   have nw : ‖w‖ = r := by simp [← hw, z, r0.le]
-  have f0 : 0 < ‖fw‖ := by simp [g, ← hf, ← hw] at g0c ⊢; exact g0c.2
+  have f0 : 0 < ‖fw‖ := by simp only [norm_pos_iff, ne_eq] at g0c ⊢; exact g0c.2
   ring_nf
   simp only [Complex.I_sq]
   ring_nf

@@ -84,9 +84,20 @@ lemma sum_wgt {m : ℕ} (μ : Fin m → PMF G) : ∑ ω : (Fin m → G), wgt μ 
   any_goals rw [ Finset.prod_const_one ];
   rw [ Finset.prod_sum ];
   convert! rfl;
-  refine' Finset.sum_bij ( fun ω _ => fun j => ω j ( Finset.mem_univ j ) ) _ _ _ _ <;> simp +decide [ wgt ];
-  · simp +decide [ funext_iff ];
-  · exact fun b => ⟨ fun j _ => b j, rfl ⟩
+  refine Finset.sum_bij
+    (fun ω _ => fun j => ω j (Finset.mem_univ j)) ?_ ?_ ?_ ?_
+  · intro ω hω
+    exact Finset.mem_univ _
+  · intro ω₁ hω₁ ω₂ hω₂ h
+    funext j hj
+    exact congrFun h j
+  · intro b hb
+    refine ⟨fun j _ => b j, ?_, ?_⟩
+    · simp
+    funext j
+    rfl
+  · intro ω hω
+    simp [wgt]
 
 /-
 The principal character has Fourier coefficient `1`.
@@ -109,7 +120,8 @@ Every Fourier coefficient has norm at most `1`.
 lemma norm_fourierCoeff_le_one {m : ℕ} (μ : Fin m → PMF G) (χ : AddChar G ℂ) (j : Fin m) :
     ‖fourierCoeff μ χ j‖ ≤ 1 := by
   refine' le_trans ( norm_sum_le _ _ ) _;
-  simp +zetaDelta at *;
+  simp +zetaDelta only [Complex.norm_mul, Complex.norm_real, Real.norm_eq_abs, ENNReal.abs_toReal,
+    AddChar.norm_apply, mul_one] at *;
   convert! ENNReal.toReal_mono _ ( show ∑' x, ( μ j x : ENNReal ) ≤ 1 from _ ) using 1;
   · rw [ tsum_fintype, ENNReal.toReal_sum ];
     exact fun x _ => PMF.apply_ne_top _ _;
@@ -166,9 +178,12 @@ lemma identity1 {m : ℕ} (μ : Fin m → PMF G) :
   have h_sum_char : ∑ ω : (Fin m → G), (∏ j, (μ j (ω j)).toReal) * (∑ χ : AddChar G ℂ, ∏ j, (1 + χ (ω j))) = ∑ χ : AddChar G ℂ, ∏ j, (∑ g : G, (μ j g).toReal * (1 + χ g)) := by
     simp +decide only [Finset.mul_sum _ _ _, prod_sum];
     refine' Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => _ );
-    refine' Finset.sum_bij ( fun x _ => fun i _ => x i ) _ _ _ _ <;> simp +decide [ Finset.prod_mul_distrib ];
+    refine' Finset.sum_bij ( fun x _ => fun i _ => x i ) _ _ _ _ <;> simp +decide only [univ_pi_univ, mem_univ, exists_const, forall_const];
     · simp +decide [ funext_iff ];
     · exact fun b => ⟨ fun i => b i ( Finset.mem_univ i ), rfl ⟩;
+    · intro a
+      push_cast
+      simp [← Finset.prod_mul_distrib]
   convert! h_sum_char using 1;
   · push_cast [ ← mul_assoc, ← card_mul_Z0 ];
     simp +decide [ mul_comm, mul_left_comm, Finset.mul_sum _ _ _, wgt ];
@@ -189,20 +204,32 @@ lemma identity2 {m : ℕ} (μ : Fin m → PMF G) :
     simp +decide only [Finset.mul_sum _ _ _];
     simp +decide only [prod_sum];
     refine' Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => Finset.sum_comm.trans ( Finset.sum_congr rfl fun _ _ => _ ) );
-    refine' Finset.sum_bij ( fun x _ => fun i _ => x i ) _ _ _ _ <;> simp +decide [ Finset.prod_mul_distrib ];
+    refine' Finset.sum_bij ( fun x _ => fun i _ => x i ) _ _ _ _ <;> simp +decide only [univ_pi_univ, mem_univ, exists_const, forall_const];
     · simp +decide [ funext_iff ];
     · exact fun b => ⟨ fun i => b i ( Finset.mem_univ i ), rfl ⟩;
+    · intro a
+      push_cast
+      simp [← Finset.prod_mul_distrib]
   convert! h_sum using 1;
-  · norm_num [ cardsq_mul_Z0sq, secmomZ ];
-    rw [ Finset.mul_sum _ _ _ ] ; congr ; ext ; norm_cast ; simp +decide [ wgt, Z0 ] ;
-    convert! congr_arg ( fun x : ℂ => ( ∏ j : Fin m, ( μ j ( ‹Fin m → G› j ) |> ENNReal.toReal : ℂ ) ) * x ) ( cardsq_mul_Z0sq ‹_› ) using 1 ; ring!;
+  · unfold secmomZ
+    push_cast
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun ω _ => ?_
+    simp only [Pi.mul_apply]
+    simp_rw [← AddChar.mul_apply]
+    rw [← cardsq_mul_Z0sq ω]
+    simp [wgt]
+    ring
   · refine' Finset.sum_congr rfl fun χ _ => Finset.sum_congr rfl fun ψ _ => Finset.prod_congr rfl fun j _ => _;
-    simp +decide [ fourierCoeff, mul_add, Finset.sum_add_distrib ];
-    norm_cast;
-    rw [ ← ENNReal.toReal_sum ];
-    · rw [ ← ENNReal.toReal_one, ← PMF.tsum_coe ( μ j ) ];
-      rw [ tsum_fintype ];
-    · exact fun _ _ => ne_of_lt ( PMF.apply_lt_top _ _ )
+    have hμreal : ∑ g : G, (μ j g).toReal = 1 := by
+      convert! PMF.tsum_coe (μ j)
+      rw [tsum_fintype]
+      norm_num [← ENNReal.toReal_eq_one_iff]
+      rw [ENNReal.toReal_sum]
+      exact fun g _ => PMF.apply_ne_top _ _
+    have hμ : ∑ g : G, ((μ j g).toReal : ℂ) = 1 := by
+      exact_mod_cast hμreal
+    simp [fourierCoeff, AddChar.mul_apply, mul_add, Finset.sum_add_distrib, hμ]
 
 /-
 `M₁ - 2^m` is the sum over nonprincipal characters.
@@ -428,7 +455,7 @@ lemma cheb_core {m : ℕ} (μ : Fin m → PMF G) (hM : meanZ μ ≠ 1) :
     simp +decide [ ← mul_assoc, ← Finset.sum_mul _ _ _, sum_wgt ] ; ring;
   rw [ ← h_var, Finset.sum_mul _ _ _ ];
   refine Finset.sum_le_sum fun ω _ => ?_;
-  split_ifs <;> simp_all +decide;
+  split_ifs <;> simp_all +decide only [mul_one, mul_zero, zero_mul];
   · exact le_of_eq ( by ring );
   · exact mul_nonneg ( wgt_nonneg μ ω ) ( sq_nonneg _ )
 

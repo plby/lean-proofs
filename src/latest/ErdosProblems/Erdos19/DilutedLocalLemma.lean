@@ -37,7 +37,7 @@ theorem colorable_of_diluted_shortfall_card_bound {V : Type*} [Fintype V]
       (eventFinset (dilutedRetainedShortfall (k := k) G active t v)).card ≤
         Fintype.card (V → Fin A × Fin k)) : G.Colorable k := by
   classical
-  letI : Nonempty (Fin A × Fin k) := ⟨(active, ⟨0, hk⟩)⟩
+  let : Nonempty (Fin A × Fin k) := ⟨(active, ⟨0, hk⟩)⟩
   let dep : V → V → Prop := fun v w ↦ ¬Disjoint (twoStepSupport G v) (twoStepSupport G w)
   have hdep (v : V) : ((Finset.univ : Finset V).filter (dep v)).card ≤ (Δ + 1) ^ 4 := by
     simpa only [dep, twoStepDependencyFinset] using twoStepDependencyFinset_card_le_pow_four G Δ hdegree v
@@ -67,7 +67,7 @@ theorem colorable_of_diluted_tail_parameters {V : Type*} [Fintype V]
       (Real.exp (-epsilon ^ 2 / (2 * Fintype.card (G.neighborFinset v) * (2 : ℝ) ^ 2)) +
         (1 / 2 : ℝ) ^ (b + 1)) ≤ 1) : G.Colorable k := by
   classical
-  letI : Nonempty (Fin A × Fin k) := ⟨(active, ⟨0, hk⟩)⟩
+  let : Nonempty (Fin A × Fin k) := ⟨(active, ⟨0, hk⟩)⟩
   apply colorable_of_diluted_shortfall_card_bound G active hk hdegree hgap
   intro v
   let T := eventFinset {sample : V → Fin A × Fin k |

@@ -190,7 +190,7 @@ private theorem splitEndpoints_separator_three_le_type0
       have := congrArg (fun z : {z : SplitEndpoints a b // z ∈ S} =>
         splitEndpointsCollapse a b z.1) hvw
       simpa [toS] using this
-    letI : Fintype S := Fintype.ofFinite S
+    let : Fintype S := Fintype.ofFinite S
     have hc := Fintype.card_le_of_injective toS hinj
     simpa [Set.fintypeCard_eq_ncard] using hc
   have hDlt : D.card < 3 := lt_of_le_of_lt hDcard hSlt
@@ -920,7 +920,7 @@ theorem wheelCenters_endpoints_of_eraseEdge_isThreeConnected
     (hdel : IsThreeConnected (eraseEdge G a b)) :
     HasWheelCenteredAt G a ∧ HasWheelCenteredAt G b := by
   classical
-  letI : DecidableEq (Fin (Fintype.card V)) := fun x y ↦
+  let : DecidableEq (Fin (Fintype.card V)) := fun x y ↦
     Classical.propDecidable (x = y)
   let e : V ≃ Fin (Fintype.card V) := Fintype.equivFin V
   let J : SimpleGraph (Fin (Fintype.card V)) := G.map e

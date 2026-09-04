@@ -76,7 +76,7 @@ theorem genusLocal_sharp_norm_cancellation {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) 
     ∀ ψ : AddChar (Additive (GenusGroup (QuadraticAlgebra ℤ d b))) ℂ, ψ ≠ 0 →
       Tendsto (fun N : ℕ => ‖∑ n ∈ Finset.Icc 1 N, genusLocalAF hD ψ n‖ / scale N)
         atTop (𝓝 0) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ hψ
   apply sharp_cancellation_of_smooth (genusLocalAF hD ψ) (goodLocalConstant_pos hD).le
   · simpa only [genusLocalAF_sum_norm] using goodLocalValues_card_limit hD

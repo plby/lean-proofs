@@ -125,11 +125,13 @@ private lemma degree_cutAt_add_degree_toggle (s : Finset V) (v : V) :
     simp only [Finset.mem_union, SimpleGraph.mem_neighborFinset]
     simp only [cutAt, SimpleGraph.between_adj, Finset.mem_coe, Finset.mem_sdiff,
       Finset.mem_univ, true_and, mem_toggle]
-    by_cases hv : v ∈ s <;> by_cases hw : w ∈ s <;> simp_all
-    all_goals
-      intro hadj heq
-      subst w
-      exact G.loopless.irrefl v hadj
+    constructor
+    · rintro (⟨hadj, _⟩ | ⟨hadj, _⟩) <;> exact hadj
+    · intro hadj
+      have hvw : v ≠ w := G.ne_of_adj hadj
+      have hwv : w ≠ v := hvw.symm
+      by_cases hv : v ∈ s <;> by_cases hw : w ∈ s <;>
+        simp_all
   · rw [Finset.disjoint_left]
     intro w hw hw'
     rw [SimpleGraph.mem_neighborFinset] at hw hw'
@@ -224,7 +226,7 @@ theorem exists_minDegree_core (G : SimpleGraph V) [DecidableRel G.Adj] (d : ℕ)
   obtain ⟨H, hHG, hmax⟩ := by
     apply Finset.exists_max_image {H : SimpleGraph V | H ≤ G} (coreScore B d)
     exact ⟨G, by simp⟩
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
   have hHGle : H ≤ G := by simpa using hHG
   have hHedges : #H.edgeFinset ≤ B := by
     exact Finset.card_le_card (SimpleGraph.edgeFinset_mono hHGle)
@@ -314,9 +316,9 @@ theorem exists_induced_minDegree_core (G : SimpleGraph V) [DecidableRel G.Adj] (
       H ≤ G ∧ #(H.induce H.support).edgeFinset = #H.edgeFinset ∧
       d ≤ 2 * (H.induce H.support).minDegree := by
   obtain ⟨H, inst, hHG, hHE, -, hdeg⟩ := exists_minDegree_core G d hE hdense
-  letI : DecidableRel H.Adj := inst
+  let : DecidableRel H.Adj := inst
   have hsupp : H.support.Nonempty := support_nonempty_of_edgeFinset_nonempty hHE
-  letI : Nonempty H.support := hsupp.to_subtype
+  let : Nonempty H.support := hsupp.to_subtype
   refine ⟨H, inst, hsupp, hHG, H.card_edgeFinset_induce_support, ?_⟩
   obtain ⟨v, hv⟩ := (H.induce H.support).exists_minimal_degree_vertex
   rw [hv, H.degree_induce_support]
@@ -349,7 +351,7 @@ theorem exists_left_degree_trim [DecidableRel G.Adj]
         ((v ∈ s ∧ w ∈ N' v) ∨ (w ∈ s ∧ v ∈ N' w))
       symm := ⟨fun v w hvw ↦ ⟨G.symm.symm v w hvw.1, hvw.2.symm⟩⟩
       loopless := ⟨fun v hv ↦ G.loopless.irrefl v hv.1⟩ }
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
   have hle : H ≤ G := fun _ _ h ↦ h.1
   have hbip : H.IsBipartiteWith s t := by
     refine ⟨hG.disjoint, ?_⟩

@@ -34,7 +34,8 @@ lemma PolygonalArcInteriorTwoRaySectorOrientationChoice {u v : EuclideanSpace â„
       nlinarith
     rw [hrot_v, inner_add_right, inner_smul_right, inner_smul_right,
       PlanarRot90Orthogonal]
-    simp
+    simp only [inner_self_eq_norm_sq_to_K, RCLike.ofReal_real_eq_id, id_eq, neg_mul, mul_zero, add_zero,
+    gt_iff_lt]
     exact div_pos hnum_pos hv_norm_sq_pos
   Â· left
     have hc_neg : c < 0 := by

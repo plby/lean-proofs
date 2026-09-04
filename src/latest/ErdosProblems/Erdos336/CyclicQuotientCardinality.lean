@@ -143,7 +143,7 @@ theorem card_add_subgroup_eq_cyclicQuotient_image_mul
     (K : AddSubgroup G) (A : Finset G) :
     (A + addSubgroupFinset K).card =
       (A.image (cyclicQuotientHom K)).card * (addSubgroupFinset K).card := by
-  letI : NeZero (Nat.card (G ⧸ K)) :=
+  let : NeZero (Nat.card (G ⧸ K)) :=
     ⟨Nat.card_ne_zero.mpr ⟨inferInstance, inferInstance⟩⟩
   have h := card_add_ker_eq_card_image_mul (cyclicQuotientHom K)
     (cyclicQuotientHom_surjective K) A

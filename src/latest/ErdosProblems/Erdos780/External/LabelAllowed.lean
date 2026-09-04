@@ -97,7 +97,7 @@ theorem high_fiber_card_le
     (hinj : Function.Injective (labelAt lab l))
     (j : Fin m) (hj : alpha ≤ j.val) :
     (fiber (labelFace lab l) j).card ≤ p - 1 := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   rw [fiber_labelFace, Finset.card_image_of_injective _ hinj]
   by_contra hnot
   have hp_le : p ≤ (indexFiber lab l j).card := by omega

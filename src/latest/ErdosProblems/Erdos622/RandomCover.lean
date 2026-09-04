@@ -963,8 +963,8 @@ theorem eventually_minimumCover_randomMatching_count_le
       (gt_mem_nhds hdelta)
   filter_upwards [Filter.eventually_ge_atTop 1, hmajor] with m hm hmaj
   intro W instF instD G C hC hmC
-  letI : Fintype W := instF
-  letI : DecidableEq W := instD
+  let : Fintype W := instF
+  let : DecidableEq W := instD
   have hCpos : 0 < C.card := lt_of_lt_of_le hm hmC
   have hfinite := minimumCover_randomMatching_count_relative hC heps.le
     hepsHalf hCpos
@@ -1092,9 +1092,8 @@ lemma trueCount_sum (n : ℕ) :
   | succ n ih =>
       rw [Erdos88.Concentration.sum_fin_succ_eq]
       simp_rw [trueCount_cons]
-      rw [Finset.sum_eq_add false true] <;> try simp +decide
-      rw [Finset.sum_add_distrib]
-      simp [ih, pow_succ]
+      rw [Fintype.sum_bool]
+      simp [Finset.sum_add_distrib, ih, pow_succ]
       ring
 
 /-- Changing one coordinate changes the selected cardinality by at most one. -/

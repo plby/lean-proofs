@@ -375,7 +375,7 @@ theorem vertexConnectedAtLeast_of_biDenseAbove
     rw [Finset.card_univ] at hcard
     omega
   let v : {w : V // w ∉ C} := ⟨hsurvives.choose, hsurvives.choose_spec⟩
-  letI : Nonempty {w : V // w ∉ C} := ⟨v⟩
+  let : Nonempty {w : V // w ∉ C} := ⟨v⟩
   exact ⟨fun x y ↦
     reachable_deleteVertices_of_biDenseAbove hDense hDegree hC x y⟩
 

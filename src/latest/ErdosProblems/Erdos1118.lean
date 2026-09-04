@@ -955,7 +955,8 @@ theorem symmetric_bilinear_complex_trace
     apply Complex.ext <;> simp
   rw [haI, ha]
   simp only [map_add, map_smul, smul_eq_mul]
-  simp
+  simp only [LinearMap.add_apply, LinearMap.smul_apply, smul_eq_mul, Complex.real_smul, mul_one,
+    Complex.re_add_im, neg_smul, LinearMap.neg_apply, neg_mul]
   rw [hB Complex.I 1]
   rw [Complex.sq_norm, Complex.normSq_apply]
   ring

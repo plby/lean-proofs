@@ -95,7 +95,7 @@ theorem exists_coverAssignment_of_conflict_bound
   let defaultBlock : Finset (Fin n) := ∅
   let defaultTag : Finset (Fin n) × Finset (Fin n) :=
     (∅, defaultBlock)
-  letI : Nonempty (Finset (Fin n) × Finset (Fin n)) := ⟨defaultTag⟩
+  let : Nonempty (Finset (Fin n) × Finset (Fin n)) := ⟨defaultTag⟩
   obtain ⟨choice, hchoice, hcompat⟩ :=
     exists_pairwiseCompatible_choice leave
       (taggedCandidates n q r reserve) (CoverConflict r)

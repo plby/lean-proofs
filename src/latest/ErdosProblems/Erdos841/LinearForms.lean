@@ -1719,7 +1719,7 @@ lemma logHeight_intTuple_le
     rw [Height.logHeight_zero]
     exact mul_nonneg
       (by exact_mod_cast Nat.zero_le (Module.finrank ℚ F)) hlogC
-  letI : Nonempty ι := (Function.ne_iff.mp hx).nonempty
+  let : Nonempty ι := (Function.ne_iff.mp hx).nonempty
   have hC0 : (0 : ℝ) < C := by
     exact_mod_cast (lt_of_lt_of_le Nat.zero_lt_one hC)
   have hinf :
@@ -8075,7 +8075,7 @@ theorem exists_bounded_nonzero_integer_kernel_numberField
   let T := traceConstraintMatrix b hb A Q hQA
   have hcard' : Fintype.card (rows × ι) < Fintype.card cols := by
     simpa [Fintype.card_prod] using hcard
-  letI : Nonempty ι := Fintype.card_pos_iff.mp <| by
+  let : Nonempty ι := Fintype.card_pos_iff.mp <| by
     rw [← Module.finrank_eq_card_basis b]
     exact Module.finrank_pos
   have hrows' : 0 < Fintype.card (rows × ι) := Fintype.card_pos
@@ -8144,7 +8144,7 @@ theorem exists_bounded_nonzero_multipoint_moment_coefficients_numberField
           Real.exp Hentry * M := by
   dsimp only
   let rows := MultipointRectangularMomentIndex iota A T S
-  letI : Fintype rows := by
+  let : Fintype rows := by
     dsimp [rows, MultipointRectangularMomentIndex,
       RectangularMomentIndex]
     infer_instance
@@ -8161,7 +8161,7 @@ theorem exists_bounded_nonzero_multipoint_moment_coefficients_numberField
     intro row k
     exact logHeight₁_multipointRectangularMomentMatrix_le
       beta a r A T S hV hbeta ha hr row k
-  haveI : Nonempty rows := Fintype.card_pos_iff.mp <| by
+  have : Nonempty rows := Fintype.card_pos_iff.mp <| by
     rw [hrowsCard]
     positivity
   have hcard' : Fintype.card rows * Fintype.card ι <
@@ -8355,7 +8355,7 @@ theorem exists_bounded_nonzero_pochhammerMultipoint_coefficients_numberField
   have hheight : ∀ row xm, Height.logHeight₁ (matrix row xm) ≤ Hentry := by
     exact logHeight₁_pochhammerMultipointInitialMomentMatrix_le
       beta a r P A W T S hA hW hP hV hbeta ha hr
-  haveI : Nonempty rows := Fintype.card_pos_iff.mp <| by
+  have : Nonempty rows := Fintype.card_pos_iff.mp <| by
     rw [hrowsCard]
     positivity
   have hcard' : Fintype.card rows * Fintype.card ι <
@@ -9037,7 +9037,7 @@ theorem exists_bounded_nonzero_integer_kernel_numberField_rowScaled
   let T := rowTraceConstraintMatrix b hb A Q hQA
   have hcard' : Fintype.card (rows × ι) < Fintype.card cols := by
     simpa [Fintype.card_prod] using hcard
-  letI : Nonempty ι := Fintype.card_pos_iff.mp <| by
+  let : Nonempty ι := Fintype.card_pos_iff.mp <| by
     rw [← Module.finrank_eq_card_basis b]
     exact Module.finrank_pos
   have hrows' : 0 < Fintype.card (rows × ι) := Fintype.card_pos
@@ -9120,7 +9120,7 @@ theorem exists_pochhammerMultipoint_coefficients_with_rowMajorant
   have hheight : ∀ row xm, Height.logHeight₁ (matrix row xm) ≤ Hentry := by
     exact logHeight₁_pochhammerMultipointInitialMomentMatrix_le
       beta a r P A W T S hA hW hP hV hbeta ha hr
-  haveI : Nonempty rowsType := Fintype.card_pos_iff.mp <| by
+  have : Nonempty rowsType := Fintype.card_pos_iff.mp <| by
     rw [hrowsCard]
     positivity
   have hcard' : Fintype.card rowsType * Fintype.card ι <
@@ -9640,7 +9640,7 @@ theorem exists_bounded_nonzero_integer_kernel_numberField_of_scale
   let T := traceConstraintMatrix b hb A Q hQA
   have hcard' : Fintype.card (rows × ι) < Fintype.card cols := by
     simpa [Fintype.card_prod] using hcard
-  letI : Nonempty ι := Fintype.card_pos_iff.mp <| by
+  let : Nonempty ι := Fintype.card_pos_iff.mp <| by
     rw [← Module.finrank_eq_card_basis b]
     exact Module.finrank_pos
   have hrows' : 0 < Fintype.card (rows × ι) := Fintype.card_pos
@@ -9755,7 +9755,7 @@ theorem exists_box_pochhammerMultipoint_coefficients_structured
     have hQ0bound' : (Q0 : ℝ) ≤ Real.exp Halpha ^ (r + 1) := by
       simpa using hQ0bound
     exact pow_le_pow_left₀ (by positivity) hQ0bound' _
-  haveI : Nonempty rowsType := Fintype.card_pos_iff.mp <| by
+  have : Nonempty rowsType := Fintype.card_pos_iff.mp <| by
     rw [hrowsCard]
     positivity
   have hcard' : Fintype.card rowsType * Fintype.card ι <

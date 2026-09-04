@@ -17,12 +17,12 @@ theorem SzemerediTrotter :
   intro P L
   by_cases hP0 : P.card = 0
   · have hPempty : P = ∅ := Finset.card_eq_zero.mp hP0
-    simp [LineIncidences, hPempty]
+    simp only [one_div, ge_iff_le]
     exact mul_nonneg
       (add_nonneg (by norm_num) (Real.rpow_nonneg (by norm_num) _)) (by positivity)
   by_cases hL0 : L.card = 0
   · have hLempty : L = ∅ := Finset.card_eq_zero.mp hL0
-    simp [LineIncidences, hLempty]
+    simp only [one_div, ge_iff_le]
     exact mul_nonneg
       (add_nonneg (by norm_num) (Real.rpow_nonneg (by norm_num) _)) (by positivity)
   have hn_nat : 1 ≤ P.card := Nat.succ_le_of_lt (Nat.pos_of_ne_zero hP0)
@@ -40,7 +40,7 @@ theorem SzemerediTrotter :
       0 ≤ mainTerm + (P.card : ℝ) + (L.card : ℝ) := by positivity
   rcases PointLineConsecutivePairDrawing P L with
     ⟨G, hGfin, D, ell, hell, hinc, hlocal⟩
-  letI : Fintype G.edgeSet := hGfin
+  let : Fintype G.edgeSet := hGfin
   obtain ⟨_Dpoly, _hpolyCrossings, hcross_upper_nat⟩ :=
     PolygonalReplacementForGeometricArcs G D
   let e : ℝ := (G.edgeFinset.card : ℝ)

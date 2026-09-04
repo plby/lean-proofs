@@ -862,7 +862,7 @@ lemma ks_expands_of_score_maximal [Fintype V]
       ksInducedScore t G T ≤ ksInducedScore t G S) :
     IsKSExpander (G.induce (↑S : Set V)) t := by
   classical
-  letI : DecidableEq (↑S : Set V) := Classical.decEq _
+  let : DecidableEq (↑S : Set V) := Classical.decEq _
   let H : SimpleGraph (↑S : Set V) := G.induce (↑S : Set V)
   have hhered : ∀ T : Finset (↑S : Set V),
       ksInducedAverageDegree H T ≤ ksInducedAverageDegree G S :=

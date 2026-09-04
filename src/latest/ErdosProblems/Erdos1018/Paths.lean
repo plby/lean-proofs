@@ -115,7 +115,7 @@ lemma exists_induced_minDegree_nine
     have hzero : #(G.induce (((∅ : Finset V) : Set V))).edgeFinset = 0 :=
       Nat.eq_zero_of_le_zero (by simpa using hle)
     exact (by omega)
-  letI : Nonempty (S : Set V) := Fintype.card_pos_iff.mp (by simpa using hScard)
+  let : Nonempty (S : Set V) := Fintype.card_pos_iff.mp (by simpa using hScard)
   refine ⟨S, Finset.card_pos.mp hScard,
     (G.induce (S : Set V)).le_minDegree_of_forall_le_degree 9 ?_⟩
   intro x
@@ -145,7 +145,7 @@ lemma exists_induced_path_length_nine
       (p : (G.induce (S : Set V)).Walk a b),
       p.IsPath ∧ 9 ≤ p.length := by
   obtain ⟨S, ⟨v, hv⟩, hmin⟩ := exists_induced_minDegree_nine G hE
-  letI : Nonempty (S : Set V) := ⟨⟨v, hv⟩⟩
+  let : Nonempty (S : Set V) := ⟨⟨v, hv⟩⟩
   obtain ⟨a, b, p, hp, hlen⟩ := exists_path_length_nine (G.induce (S : Set V)) hmin
   exact ⟨S, a, b, p, hp, hlen⟩
 

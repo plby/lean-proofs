@@ -1455,7 +1455,7 @@ noncomputable def scaleBranchChildRoots (N0 k : ℕ) [NeZero N0]
     (j : ZMod (scale N0 k)) :
     (scaleBranchChildRoots N0 k j).card =
       2 ^ stepExponent k / (k + 2) ^ 20 := by
-  letI : NeZero (scale N0 k) := ⟨scale_ne_zero (NeZero.ne N0) k⟩
+  let : NeZero (scale N0 k) := ⟨scale_ne_zero (NeZero.ne N0) k⟩
   simp [scaleBranchChildRoots, nearChildCount, branchChildDenom]
 
 lemma scale_refinement_factor_two_le (k : ℕ) :
@@ -1643,7 +1643,7 @@ lemma scaleChildRootUnion_subset_grid (N0 k : ℕ) [NeZero N0]
     (A : Finset ℂ) :
     scaleChildRootUnion N0 k A ⊆
       complexRootGrid (scale N0 k * 2 ^ stepExponent k) := by
-  letI : NeZero (scale N0 k) := ⟨scale_ne_zero (NeZero.ne N0) k⟩
+  let : NeZero (scale N0 k) := ⟨scale_ne_zero (NeZero.ne N0) k⟩
   exact childRootUnion_subset_complexRootGrid _ _ _ A
 
 lemma card_scaleChildRootUnion (N0 k : ℕ) [NeZero N0]
@@ -1651,7 +1651,7 @@ lemma card_scaleChildRootUnion (N0 k : ℕ) [NeZero N0]
     {A : Finset ℂ} (hA : A ⊆ complexRootGrid (scale N0 k)) :
     (scaleChildRootUnion N0 k A).card =
       A.card * (2 ^ stepExponent k / (k + 2) ^ 20) := by
-  letI : NeZero (scale N0 k) := ⟨scale_ne_zero (NeZero.ne N0) k⟩
+  let : NeZero (scale N0 k) := ⟨scale_ne_zero (NeZero.ne N0) k⟩
   simpa only [scaleChildRootUnion, branchChildDenom] using
     card_childRootUnion (scale N0 k) (2 ^ stepExponent k)
       (branchChildDenom k) hA
@@ -1667,7 +1667,7 @@ lemma exists_scale_parent_with_nesting_of_mem (N0 k : ℕ) [NeZero N0]
           (branchRootRadius (scale N0 k * 2 ^ stepExponent k) (k + 1)) ⊆
         Metric.closedBall (complexGridPoint (scale N0 k) p)
           (branchRootRadius (scale N0 k) k) := by
-  letI : NeZero (scale N0 k) := ⟨scale_ne_zero (NeZero.ne N0) k⟩
+  let : NeZero (scale N0 k) := ⟨scale_ne_zero (NeZero.ne N0) k⟩
   exact exists_parent_with_nesting_of_mem_childRootUnion
     (scale N0 k) (2 ^ stepExponent k) k
       (scale_refinement_factor_two_le k) hz
@@ -6183,7 +6183,7 @@ lemma hasGaussianLaw_linearPath {u : J → Ω → ℝ}
 lemma integral_linearPath {u : J → Ω → ℝ}
     (hu : IndependentStandardGaussians u P) (A : K → J → ℝ) (k : K) :
     ∫ ω, linearPath A u ω k ∂P = 0 := by
-  letI := hu.indep.isProbabilityMeasure
+  let := hu.indep.isProbabilityMeasure
   rw [show (fun ω ↦ linearPath A u ω k) = fun ω ↦ ∑ j, A k j * u j ω by rfl]
   rw [integral_finsetSum _ (fun j _ ↦ (hu.hasGaussianLaw j).integrable.const_mul (A k j))]
   simp [integral_const_mul, hu.integral_eq_zero]
@@ -6192,7 +6192,7 @@ lemma covariance_linearPath {u : J → Ω → ℝ}
     (hu : IndependentStandardGaussians u P) (A B : K → J → ℝ) (s t : K) :
     cov[(fun ω ↦ linearPath A u ω s), (fun ω ↦ linearPath B u ω t); P]
       = ∑ j, A s j * B t j := by
-  letI := hu.indep.isProbabilityMeasure
+  let := hu.indep.isProbabilityMeasure
   change cov[(fun ω ↦ ∑ j, A s j * u j ω), (fun ω ↦ ∑ j, B t j * u j ω); P]
       = _
   rw [covariance_fun_sum_fun_sum]
@@ -6338,10 +6338,10 @@ lemma map_realPath_eq_map_imagPath (c : Fin n → ℂ) (g h : Fin n → Ω → �
   unfold HasEuclideanGaussianLaw at hR hI
   change Measure.map (linearPath (realRow c) (doubledFamily g h)) P =
     Measure.map (linearPath (imagRow c) (doubledFamily g h)) P
-  letI := hu.indep.isProbabilityMeasure
-  letI : IsGaussian (Measure.map (linearPath (realRow c) (doubledFamily g h)) P) :=
+  let := hu.indep.isProbabilityMeasure
+  let : IsGaussian (Measure.map (linearPath (realRow c) (doubledFamily g h)) P) :=
     hR.isGaussian_map
-  letI : IsGaussian (Measure.map (linearPath (imagRow c) (doubledFamily g h)) P) :=
+  let : IsGaussian (Measure.map (linearPath (imagRow c) (doubledFamily g h)) P) :=
     hI.isGaussian_map
   apply IsGaussian.ext
   · rw [integral_map hR.aemeasurable IsGaussian.integrable_id.aestronglyMeasurable,
@@ -6733,7 +6733,7 @@ theorem circularComplexTubeEvent_le_originalComplexTubeEvent
       (GaussianCircularization.doubledFamily g h) P)
     (R r : ℝ) :
     P (circularComplexTubeEvent c g h R r) ≤ P (complexTubeEvent c g R r) := by
-  letI : IsProbabilityMeasure P := hu.indep.isProbabilityMeasure
+  let : IsProbabilityMeasure P := hu.indep.isProbabilityMeasure
   let G : Ω → Fin n → ℝ := fun ω i => g i ω
   let H : Ω → Fin n → ℝ := fun ω i => h i ω
   have hGind : iIndepFun g P :=
@@ -7800,7 +7800,7 @@ lemma gaussianPDFReal_macroblock_lower (v : ℝ≥0) (c h u : ℝ)
         Real.exp (-256) := by gcongr
     _ ≤ (1 / Real.sqrt (2 * Real.pi * (v : ℝ))) *
         Real.exp (-((|c| + h) ^ 2 / (2 * (v : ℝ)))) := by gcongr
-    _ = _ := by ring
+    _ = _ := by ring_nf
 
 /-- Consequently a variance-regular macroblock has a reset probability bounded
 below by a universal constant times `h / u`. -/
@@ -7843,7 +7843,7 @@ theorem gaussian_bridge_indep_endpoint
     have hm := hSY.map_fun T
     simpa [T, fst, snd] using hm
   apply hpair.indepFun_of_covariance_eq_zero
-  letI : IsProbabilityMeasure P := hSY.isProbabilityMeasure
+  let : IsProbabilityMeasure P := hSY.isProbabilityMeasure
   have hS2 : MemLp S 2 P := hSY.fst.memLp_two
   have hY2 : MemLp Y 2 P := hSY.snd.memLp_two
   have hcY2 : MemLp (c • Y) 2 P := hY2.const_smul c
@@ -7866,7 +7866,7 @@ theorem gaussian_vector_indep_scalar_of_covariance_zero
     (hBY : ProbabilityTheory.HasGaussianLaw (fun ω ↦ (B ω, Y ω)) P)
     (hcov : ∀ i, ProbabilityTheory.covariance (fun ω ↦ B ω i) Y P = 0) :
     ProbabilityTheory.IndepFun B Y P := by
-  letI := Fintype.ofFinite ι
+  let := Fintype.ofFinite ι
   let fst : (ι → ℝ) × ℝ →L[ℝ] (ι → ℝ) :=
     ContinuousLinearMap.fst ℝ (ι → ℝ) ℝ
   let snd : (ι → ℝ) × ℝ →L[ℝ] ℝ :=
@@ -7896,7 +7896,7 @@ theorem gaussian_bridge_process_indep_endpoint
     (hYY : ProbabilityTheory.covariance Y Y P = V) :
     ProbabilityTheory.IndepFun
       (fun ω i ↦ S ω i - (v i / V) * Y ω) Y P := by
-  letI := Fintype.ofFinite ι
+  let := Fintype.ofFinite ι
   let fst : (ι → ℝ) × ℝ →L[ℝ] (ι → ℝ) :=
     ContinuousLinearMap.fst ℝ (ι → ℝ) ℝ
   let snd : (ι → ℝ) × ℝ →L[ℝ] ℝ :=
@@ -7912,7 +7912,7 @@ theorem gaussian_bridge_process_indep_endpoint
   apply gaussian_vector_indep_scalar_of_covariance_zero hpair
   intro i
   let c : ℝ := v i / V
-  letI : IsProbabilityMeasure P := hSY.isProbabilityMeasure
+  let : IsProbabilityMeasure P := hSY.isProbabilityMeasure
   have hSi2 : MemLp (fun ω ↦ S ω i) 2 P := hSY.fst.eval i |>.memLp_two
   have hY2 : MemLp Y 2 P := hSY.snd.memLp_two
   have hcY2 : MemLp (c • Y) 2 P := hY2.const_smul c
@@ -8042,7 +8042,7 @@ theorem gaussian_independent_increment_core_reset_lower
     (by positivity) (by linarith)
     (by simpa only [abs_neg] using hxabs.trans (by linarith))
     hvlo (hvhi.trans (by nlinarith [sq_nonneg u]))
-  convert hmacro using 1 <;> field_simp <;> ring
+  convert hmacro using 1 <;> field_simp <;> ring_nf
 
 /-- The final reset can target a smaller endpoint interval `[-r,r]`; its cost
 is linear in `r/u`, uniformly over the previous core state. -/
@@ -8422,7 +8422,7 @@ theorem martingale_bridge_tube_mass_ge_half
 /-- A coordinatewise closed tube is measurable in a finite real product. -/
 lemma measurableSet_pi_abs_le {ι : Type*} [Finite ι] (r : ℝ) :
     MeasurableSet {x : ι → ℝ | ∀ i, |x i| ≤ r} := by
-  letI := Fintype.ofFinite ι
+  let := Fintype.ofFinite ι
   rw [show {x : ι → ℝ | ∀ i, |x i| ≤ r} =
       ⋂ i, {x | |x i| ≤ r} by ext x; simp]
   exact MeasurableSet.iInter fun i ↦ by
@@ -8599,7 +8599,7 @@ theorem iIndepFun_martingale_partialSum
     MeasureTheory.Martingale (partialSum X)
       (MeasureTheory.Filtration.natural X hXmeas) P := by
   let 𝒢 := MeasureTheory.Filtration.natural X hXmeas
-  letI : IsProbabilityMeasure P := hXindep.isProbabilityMeasure
+  let : IsProbabilityMeasure P := hXindep.isProbabilityMeasure
   have hnat : MeasureTheory.StronglyAdapted 𝒢 X :=
     MeasureTheory.Filtration.stronglyAdapted_natural hXmeas
   constructor
@@ -8668,7 +8668,7 @@ theorem iIndepFun_partialSum_sq_maximal_bound
         P {ω | u ^ 2 ≤ (Finset.range (n + 1)).sup'
           Finset.nonempty_range_add_one (fun k ↦ (partialSum X k ω) ^ 2)} ≤
       ENNReal.ofReal V := by
-  letI : IsProbabilityMeasure P := hXindep.isProbabilityMeasure
+  let : IsProbabilityMeasure P := hXindep.isProbabilityMeasure
   have hM := iIndepFun_martingale_partialSum hXmeas hXindep
     (fun k ↦ (hX2 k).integrable one_le_two) hXmean
   have hS2 : ∀ j, MemLp (partialSum X j) 2 P := by
@@ -8959,8 +8959,9 @@ theorem gaussian_projection_coupling
     intro i j
     fin_cases i <;> fin_cases j <;> simp only [C2, C3]
     all_goals rw [PiLp.inner_apply, PiLp.inner_apply]
-    all_goals simp [Fin.sum_univ_two, hcross00, hcross01, hcross10, hcross11,
-        hgram00, hgram01, hgram11, real_inner_comm]
+    all_goals simp only [Fin.reduceFinMk, Matrix.cons_val, inner_self_eq_norm_sq_to_K, Real.ringHom_apply, Fin.sum_univ_two,
+    Fin.isValue, pairL2_apply_zero, pairL2_apply_one, norm_zero, ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true,
+    zero_pow, zero_add]
     all_goals first
       | simpa [real_inner_self_eq_norm_sq] using hgram00
       | simpa [real_inner_self_eq_norm_sq] using hgram11
@@ -8983,7 +8984,7 @@ theorem gaussian_projection_coupling
       _ ≤ ∑ i, (![‖x₀ - xt₀‖, ‖x₁ - xt₁‖, 0, 0] : Fin 4 → ℝ) i := by
         apply sum_le_sum
         intro i _
-        fin_cases i <;> simp [C0, C1, pairL2_sub_pairL2]
+        fin_cases i <;> simp only [Fin.mk_one, Fin.isValue, Matrix.cons_val_one, Matrix.cons_val_zero, Fin.zero_eta]
         all_goals rw [pairL2_sub_pairL2]
         all_goals simp only [sub_self]
         all_goals exact (norm_pairL2_zero_right _).le
@@ -9012,7 +9013,7 @@ theorem gaussian_projection_coupling
       _ ≤ ∑ i, (![‖x₀ - xt₀‖, ‖x₁ - xt₁‖, 0, 0] : Fin 4 → ℝ) i := by
         apply sum_le_sum
         intro i _
-        fin_cases i <;> simp [C3, C4, pairL2_sub_pairL2, norm_sub_rev]
+        fin_cases i <;> simp only [Fin.mk_one, Fin.isValue, Matrix.cons_val_one, Matrix.cons_val_zero, Fin.zero_eta]
         all_goals rw [pairL2_sub_pairL2]
         all_goals simp only [sub_self]
         all_goals simpa only [norm_sub_rev] using (norm_pairL2_zero_right _).le
@@ -11930,11 +11931,11 @@ theorem map_realPath_eq_map_scalarPath
   unfold HasEuclideanGaussianLaw at hR hS
   change Measure.map (linearPath (realRow c) (doubledFamily g h)) P =
     Measure.map (linearPath (scalarRow c) q) Q
-  letI := hu.indep.isProbabilityMeasure
-  letI := hq.indep.isProbabilityMeasure
-  letI : IsGaussian (Measure.map (linearPath (realRow c) (doubledFamily g h)) P) :=
+  let := hu.indep.isProbabilityMeasure
+  let := hq.indep.isProbabilityMeasure
+  let : IsGaussian (Measure.map (linearPath (realRow c) (doubledFamily g h)) P) :=
     hR.isGaussian_map
-  letI : IsGaussian (Measure.map (linearPath (scalarRow c) q) Q) :=
+  let : IsGaussian (Measure.map (linearPath (scalarRow c) q) Q) :=
     hS.isGaussian_map
   apply IsGaussian.ext
   · rw [integral_map hR.aemeasurable IsGaussian.integrable_id.aestronglyMeasurable,
@@ -14093,8 +14094,8 @@ lemma filterGood_subset {N0 : ℕ} (good : LocalGood N0) (k : ℕ)
 lemma scaleChildren_subset_rootGrid_succ (N0 : ℕ) (hN0 : 0 < N0)
     (k : ℕ) (A : Finset ℂ) :
     scaleChildren N0 hN0 k A ⊆ rootGrid N0 hN0 (k + 1) := by
-  letI : NeZero N0 := ⟨hN0.ne'⟩
-  letI : NeZero (scale N0 k) := ⟨scale_ne_zero hN0.ne' k⟩
+  let : NeZero N0 := ⟨hN0.ne'⟩
+  let : NeZero (scale N0 k) := ⟨scale_ne_zero hN0.ne' k⟩
   simpa only [scaleChildren, rootGrid, scale_succ] using
     Grid.scaleChildRootUnion_subset_grid N0 k A
 
@@ -14150,8 +14151,8 @@ theorem card_aliveRel_candidates (N0 : ℕ) (hN0 : 0 < N0) (start t : ℕ)
       (aliveRel N0 hN0 start good t ε)).card =
       (aliveRel N0 hN0 start good t ε).card *
         (2 ^ stepExponent (start + t) / (start + t + 2) ^ 20) := by
-  letI : NeZero N0 := ⟨hN0.ne'⟩
-  letI : NeZero (scale N0 (start + t)) :=
+  let : NeZero N0 := ⟨hN0.ne'⟩
+  let : NeZero (scale N0 (start + t)) :=
     ⟨scale_ne_zero hN0.ne' (start + t)⟩
   simp only [scaleChildren]
   exact Grid.card_scaleChildRootUnion N0 (start + t)
@@ -14172,8 +14173,8 @@ theorem exists_aliveRel_parent_with_nesting_of_mem (N0 : ℕ) (hN0 : 0 < N0)
           (Grid.branchRootRadius (scale N0 (start + t)) (start + t)) := by
   rw [aliveRel_succ, mem_filterGood] at hz
   unfold scaleChildren at hz
-  letI : NeZero N0 := ⟨hN0.ne'⟩
-  letI : NeZero (scale N0 (start + t)) :=
+  let : NeZero N0 := ⟨hN0.ne'⟩
+  let : NeZero (scale N0 (start + t)) :=
     ⟨scale_ne_zero hN0.ne' (start + t)⟩
   obtain ⟨p, hp, hdist, hball⟩ :=
     Grid.exists_scale_parent_with_nesting_of_mem N0 (start + t) hz.1
@@ -14254,7 +14255,7 @@ lemma aliveCode_image (N0 : ℕ) (hN0 : 0 < N0) (start : ℕ)
     (aliveCode N0 hN0 start good t ε).image
         (indexToRoot N0 hN0 (start + t)) =
       aliveRel N0 hN0 start good t ε := by
-  letI : NeZero (scale N0 (start + t)) :=
+  let : NeZero (scale N0 (start + t)) :=
     ⟨scale_ne_zero hN0.ne' (start + t)⟩
   simpa only [indexToRoot, aliveCode] using Grid.image_parentIndices_eq _
     (by simpa [rootGrid] using aliveRel_subset_grid N0 hN0 start good t ε)
@@ -14281,8 +14282,8 @@ theorem measurableSet_mem_aliveRel {N0 : ℕ} (hN0 : 0 < N0) (start : ℕ)
           z ∈ scaleChildren N0 hN0 k
             (aliveRel N0 hN0 start good t ε)} := by
         unfold scaleChildren
-        letI : NeZero N0 := ⟨hN0.ne'⟩
-        letI : NeZero (scale N0 k) := ⟨scale_ne_zero hN0.ne' k⟩
+        let : NeZero N0 := ⟨hN0.ne'⟩
+        let : NeZero (scale N0 k) := ⟨scale_ne_zero hN0.ne' k⟩
         rw [show {ε : ℕ → ℝ |
             z ∈ Grid.scaleChildRootUnion N0 k
               (aliveRel N0 hN0 start good t ε)} =
@@ -14359,7 +14360,7 @@ theorem measurableSet_aliveRel_eq {N0 : ℕ} (hN0 : 0 < N0) (start : ℕ)
 
 lemma indexToRoot_injective (N0 : ℕ) (hN0 : 0 < N0) (k : ℕ) :
     Function.Injective (indexToRoot N0 hN0 k) := by
-  letI : NeZero (scale N0 k) := ⟨scale_ne_zero hN0.ne' k⟩
+  let : NeZero (scale N0 k) := ⟨scale_ne_zero hN0.ne' k⟩
   exact Grid.complexGridPoint_injective _
 
 theorem measurableSet_aliveCode_eq {N0 : ℕ} (hN0 : 0 < N0) (start : ℕ)
@@ -14385,7 +14386,7 @@ theorem measurable_aliveCode {N0 : ℕ} (hN0 : 0 < N0) (start : ℕ)
   rw [measurable_finset_iff]
   intro p
   rw [← measurableSet_setOfPred]
-  letI : NeZero (scale N0 (start + t)) :=
+  let : NeZero (scale N0 (start + t)) :=
     ⟨scale_ne_zero hN0.ne' (start + t)⟩
   simpa only [aliveCode, Grid.mem_parentIndices_iff] using
     measurableSet_mem_aliveRel hN0 start hgood t
@@ -14602,7 +14603,7 @@ theorem measure_recursive_adaptive_failure_le
     simp only [decode, Finset.mem_image] at hz
     obtain ⟨p, hp, rfl⟩ := hz
     unfold indexToRoot rootGrid
-    letI : NeZero (scale N0 (start + t)) :=
+    let : NeZero (scale N0 (start + t)) :=
       ⟨scale_ne_zero hN0.ne' (start + t)⟩
     simp [Grid.complexRootGrid]
   have hlocal_meas : ∀ B, MeasurableSet {x | bad (decode B) x} :=
@@ -14615,7 +14616,7 @@ theorem measure_recursive_adaptive_failure_le
     rw [FlatVectorAPI.measure_preimage_scaleRestriction_rademacher N0 (start + t)
       (hlocal_meas B)]
     exact hfixed (decode B) (hdecode B)
-  letI : NeZero (scale N0 (start + t)) :=
+  let : NeZero (scale N0 (start + t)) :=
     ⟨scale_ne_zero hN0.ne' (start + t)⟩
   have h := measure_adaptive_failure_le_of_indepPast
     (P := rademacherProductMeasure)
@@ -14878,8 +14879,8 @@ lemma card_flatCandidateSet (a : ℕ → ℝ) {N0 : ℕ} (hN0 : 0 < N0)
     (k : ℕ) {A : Finset ℂ} (hA : A ⊆ RecursiveAlive.rootGrid N0 hN0 k) :
     (RecursiveAlive.scaleChildren N0 hN0 k A).card =
       A.card * (2 ^ stepExponent k / (k + 2) ^ 20) := by
-  letI : NeZero N0 := ⟨hN0.ne'⟩
-  letI : NeZero (scale N0 k) := ⟨scale_ne_zero hN0.ne' k⟩
+  let : NeZero N0 := ⟨hN0.ne'⟩
+  let : NeZero (scale N0 k) := ⟨scale_ne_zero hN0.ne' k⟩
   simpa only [RecursiveAlive.scaleChildren] using
     Grid.card_scaleChildRootUnion N0 k
       (by simpa [RecursiveAlive.rootGrid] using hA)
@@ -14927,8 +14928,8 @@ lemma exists_flatGoodTransition_parent_with_nesting_of_mem
   have hzchild : z ∈ RecursiveAlive.scaleChildren N0 hN0 k A :=
     flatGoodTransition_subset_candidates a hN0 k A x hz
   unfold RecursiveAlive.scaleChildren at hzchild
-  letI : NeZero N0 := ⟨hN0.ne'⟩
-  letI : NeZero (scale N0 k) := ⟨scale_ne_zero hN0.ne' k⟩
+  let : NeZero N0 := ⟨hN0.ne'⟩
+  let : NeZero (scale N0 k) := ⟨scale_ne_zero hN0.ne' k⟩
   obtain ⟨p, hp, hdist, hball⟩ :=
     Grid.exists_scale_parent_with_nesting_of_mem N0 k hzchild
   refine ⟨Grid.complexGridPoint (scale N0 k) p, hp, ?_, ?_⟩
@@ -16271,7 +16272,7 @@ lemma scale_fixedPairCharge_le
     letI : NeZero (scale N0 (k + 1)) := ⟨scale_ne_zero hN0.ne' (k + 1)⟩
     fixedPairCharge a N0 k (scale N0 (k + 1)) ρ C z ≤
       4 * (ρ⁻¹) ^ 2 * (((2 ^ stepExponent k : ℕ) : ℝ) ^ 10) := by
-  letI : NeZero (scale N0 (k + 1)) := ⟨scale_ne_zero hN0.ne' (k + 1)⟩
+  let : NeZero (scale N0 (k + 1)) := ⟨scale_ne_zero hN0.ne' (k + 1)⟩
   have hC' : C ⊆ Grid.complexRootGrid (scale N0 (k + 1)) := by
     simpa only [RecursiveAlive.rootGrid] using hC
   have hraw := sum_pairCorrelated_fixed_le_explicit a hsmall hN0 C hC' henv z hρ
@@ -16327,7 +16328,7 @@ theorem orderedPairCharge_le
     {ρ : ℝ} (hρ : 0 < ρ) :
     orderedPairCharge a N0 hN0 k ρ C ≤
       4 * (C.card : ℝ) * (ρ⁻¹) ^ 2 * (((2 ^ stepExponent k : ℕ) : ℝ) ^ 10) := by
-  letI : NeZero (scale N0 (k + 1)) := ⟨scale_ne_zero hN0.ne' (k + 1)⟩
+  let : NeZero (scale N0 (k + 1)) := ⟨scale_ne_zero hN0.ne' (k + 1)⟩
   rw [orderedPairCharge_eq_sum_fixedPairCharge]
   calc
     (∑ z ∈ C, fixedPairCharge a N0 k (scale N0 (k + 1)) ρ C z) ≤
@@ -19267,7 +19268,7 @@ lemma norm_eq_one_of_mem_flatAlive
     (hz : z ∈ FlatAliveGood.flatAlive a hN0 start t ε) :
     ‖z‖ = 1 := by
   have hzgrid := FlatAliveGood.flatAlive_subset_grid a hN0 start t ε hz
-  letI : NeZero (scale N0 (start + t)) := ⟨scale_ne_zero hN0.ne' (start + t)⟩
+  let : NeZero (scale N0 (start + t)) := ⟨scale_ne_zero hN0.ne' (start + t)⟩
   simp only [RecursiveAlive.rootGrid, Grid.complexRootGrid,
     Finset.mem_image, Finset.mem_univ, true_and] at hzgrid
   obtain ⟨j, rfl⟩ := hzgrid
@@ -19580,7 +19581,7 @@ lemma intraBlock_bound_of_raw_prefix_complement
   intro t z hz r hr l hl
   let rf : Fin (uniformBlockCount (start + t)) := ⟨r, hr⟩
   let lf : Fin (uniformBlockLength N0 (start + t)) := ⟨l, hl⟩
-  letI : NeZero (prefixPhaseGridSize N0 (start + t)) :=
+  let : NeZero (prefixPhaseGridSize N0 (start + t)) :=
     ⟨(prefixPhaseGridSize_pos hN0 (start + t)).ne'⟩
   have hbound := flatPrefix_uniform_bound_of_not_failure a ε
     (q := prefixPhaseGridSize N0 (start + t))
@@ -20105,8 +20106,8 @@ theorem fixedParent_transition_bad_le
       ENNReal.ofReal
         (offCorrelationFailureBound k + correlatedPairFailureBound k) := by
   classical
-  letI : NeZero N0 := ⟨hN0.ne'⟩
-  letI : NeZero (scale N0 (k + 1)) :=
+  let : NeZero N0 := ⟨hN0.ne'⟩
+  let : NeZero (scale N0 (k + 1)) :=
     ⟨scale_ne_zero hN0.ne' (k + 1)⟩
   let μ := Erdos88.Invariance.rademacherProductMeasure
     (scale N0 (k + 1) - scale N0 k)

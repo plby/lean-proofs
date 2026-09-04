@@ -395,7 +395,7 @@ lemma even_gap_triangles {V : Type*} [Fintype V] [DecidableEq V]
         ring
       _ = _ := by simp [Q, hn, Finset.sum_add_distrib, Finset.mul_sum]
   rw [hexpand] at hbZ
-  simp [hn, hm, hsumy] at hbZ
+  simp only [ge_iff_le] at hbZ
   have hgoalZ : (r : ℤ) * t ≤ ((G.cliqueFinset 3).card : ℤ) := by
     ring_nf at hbZ hQ ⊢
     linarith
@@ -478,7 +478,7 @@ lemma odd_gap_triangles {V : Type*} [Fintype V] [DecidableEq V]
         ring
       _ = _ := by simp [Q, hn, Finset.sum_add_distrib, Finset.mul_sum]
   rw [hexpand] at hbZ
-  simp [hn, hm, hsumy] at hbZ
+  simp only [ge_iff_le] at hbZ
   have hgoalZ : (r : ℤ) * t ≤ ((G.cliqueFinset 3).card : ℤ) := by
     ring_nf at hbZ hQ ⊢
     linarith

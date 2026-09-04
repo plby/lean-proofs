@@ -1054,7 +1054,7 @@ lemma measureReal_tilted_interval_lower (s : Finset ℕ) (a : ℕ → ℝ)
   let D : Set Sample := {ω | r ≤ |linearForm s a ω - m|}
   let A : Set Sample := {ω | u ≤ linearForm s a ω ∧ linearForm s a ω ≤ B}
   have hInt := (hasSubgaussianMGF_linearForm s a).integrable_exp_mul t
-  letI : IsProbabilityMeasure μt := by
+  let : IsProbabilityMeasure μt := by
     dsimp [μt]
     exact isProbabilityMeasure_tilted hInt
   have hD : MeasurableSet D := by
@@ -3277,7 +3277,7 @@ lemma hasLaw_coupledSigns : HasLaw coupledSigns signMeasure coupledMeasure := by
 
 lemma hasGaussianLaw_coupledGaussian (k : ℕ) :
     HasGaussianLaw (coupledGaussian k) coupledMeasure := by
-  letI : IsGaussian standardGaussianMeasure := by
+  let : IsGaussian standardGaussianMeasure := by
     unfold standardGaussianMeasure
     infer_instance
   exact (hasLaw_coupledGaussian k).hasGaussianLaw
@@ -4903,7 +4903,7 @@ lemma realProjection_eq_rotated_fourier_re (ω : Sample) (N : ℕ) (θ φ : ℝ)
         ((-φ : ℂ) * Complex.I + ((k : ℝ) * θ : ℂ) * Complex.I) by
       rw [Complex.exp_add]
       push_cast
-      ring]
+      ring_nf]
   rw [hexp, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im,
     zero_mul, sub_zero, Complex.exp_ofReal_mul_I_re]
   ring
@@ -4955,7 +4955,7 @@ lemma fourierSum_one_two_rootAngle (M N j : ℕ) :
   rw [← Complex.exp_nat_mul, ← Complex.exp_nat_mul]
   congr 1
   push_cast
-  ring
+  ring_nf
 
 lemma sum_projection_variances_root_le (M N j : ℕ) (φ : ℝ) :
     ∑ k ∈ Finset.range N, Real.cos ((k : ℝ) * rootAngle M j - φ) ^ 2 ≤
@@ -5010,7 +5010,7 @@ lemma exists_phase_projection_ge (Q : ℕ) (hQ : 0 < Q) (w : ℂ) :
       mul_le_mul_of_nonneg_right hcos (norm_nonneg w)
   have hrootangle : Circle.exp (rootAngle Q l) = standardRootCircle Q ^ l := by
     unfold rootAngle standardRootCircle
-    convert Circle.exp_natCast_mul (2 * Real.pi / Q) l using 1 <;> ring
+    convert Circle.exp_natCast_mul (2 * Real.pi / Q) l using 1 <;> ring_nf
   have hpositive : Complex.exp ((φ : ℂ) * Complex.I) =
       Complex.exp ((rootAngle Q l : ℂ) * Complex.I) := by
     have hc : Circle.exp φ = Circle.exp (rootAngle Q l) := by
@@ -5104,7 +5104,7 @@ lemma fourierSum_rootAngle_eq_randomPolynomial (ω : Sample) (n M j : ℕ) :
   congr 1
   have h := Circle.exp_natCast_mul (2 * Real.pi / M) j
   unfold rootAngle standardRootCircle
-  convert congrArg Subtype.val h using 1 <;> ring
+  convert congrArg Subtype.val h using 1 <;> ring_nf
 
 lemma measureReal_fourier_root_norm_ge_le_good
     (M N j Q : ℕ) {η T : ℝ} (hj : j < M) (hN : 0 < N) (hη : 0 < η)
@@ -5125,7 +5125,7 @@ lemma measureReal_fourier_root_norm_ge_le_good
         sum_projection_variances_root_le M N j (rootAngle Q l)
       _ ≤ (1 + η) * N / 2 := by nlinarith
   convert measureReal_fourier_norm_ge_le_of_projection_variance
-    N Q (rootAngle M j) hQ hfactor hT hv hvar using 1 <;> ring
+    N Q (rootAngle M j) hQ hfactor hT hv hvar using 1 <;> ring_nf
 
 lemma measureReal_fourier_root_norm_ge_le_crude
     (M N j Q : ℕ) {T : ℝ} (hN : 0 < N)

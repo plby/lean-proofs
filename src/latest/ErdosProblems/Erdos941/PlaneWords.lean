@@ -90,7 +90,7 @@ theorem thirteen_plane_second_chart (x : ZMod 13) :
 
 theorem thirteen_plane_word (v : ZMod 13 × ZMod 13 × ZMod 13) :
     ∃ w : List Axis, (linearWord 113 w v).2.2 = 0 := by
-  letI : Fact (Nat.Prime 13) := ⟨by decide⟩
+  let : Fact (Nat.Prime 13) := ⟨by decide⟩
   have h := exists_word_kill_of_normalized (113 : ZMod 13) (heightLinear 0 0 1)
     (by
       intro x z

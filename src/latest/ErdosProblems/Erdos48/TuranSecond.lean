@@ -524,7 +524,8 @@ private lemma turanSecondCoeff_interpolates
     _ = if ‖w j‖ < r then 0 else (w j)⁻¹ ^ (M + 1) := by
       rw [circleIntegral_invPow_div_sub hr (hw0 j) (hsep j) M]
       dsimp [c₀]
-      split_ifs <;> simp
+      split_ifs <;>
+        simp only [mul_inv_rev, Complex.inv_I, neg_mul, neg_neg, inv_pow, mul_neg, mul_zero]
       have hconst : 2 * (Real.pi : ℂ) * Complex.I ≠ 0 := by
         simp [Real.pi_ne_zero, Complex.I_ne_zero]
       field_simp

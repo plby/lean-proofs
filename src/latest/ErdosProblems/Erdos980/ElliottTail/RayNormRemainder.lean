@@ -224,7 +224,7 @@ theorem combinedRayUnitNormDensity_le_normResidueDensity
     (hray : ell ^ j * rayAllowed.card = unitResidueCount) :
     combinedRayUnitNormDensity K ell j f d unitResidueCount normMod ≤
       normResidueDensity K d normMod := by
-  letI : NeZero f := ⟨hf0⟩
+  let : NeZero f := ⟨hf0⟩
   rw [combinedRayUnitNormDensity_eq_cardinalDensity K rayAllowed normMod
     hell0 hf0 hray]
   exact combinedRayNormCardinalDensity_le_normResidueDensity

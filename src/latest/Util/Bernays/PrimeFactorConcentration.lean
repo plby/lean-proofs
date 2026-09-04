@@ -30,7 +30,7 @@ theorem goodMaximal_unique_prime_divisor {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
       IsCoprime (P : Ideal (QuadraticAlgebra ℤ d b)) (quadraticBadIdeal d b) →
       ∃ q : ℕ, q.Prime ∧ ∀ p : ℕ, p.Prime →
         p ∣ (P : Ideal (QuadraticAlgebra ℤ d b)).cardQuot → p = q := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro P hP hPF
   obtain ⟨q, hq, _, h | ⟨s, hs, ε, rfl⟩⟩ := goodMaximal_prime_description hD P hP hPF
   · refine ⟨q, hq, ?_⟩
@@ -48,7 +48,7 @@ theorem SplitPrime.oriented_squareClass_mem_iff {d b : ℤ} (hD : b ^ 2 + 4 * d 
     ∀ H : Subgroup (classSquareSubgroup : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b))),
       ∀ ε : Bool, classSquareElement (s.ideal hD ε).idealClass ∈ H ↔
         classSquareElement (s.idealClass hD) ∈ H := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro H ε
   cases ε
   · rfl
@@ -66,7 +66,7 @@ theorem goodMaximal_squareClass_outside_of_bad_dvd {d b : ℤ} (hD : b ^ 2 + 4 *
       ∀ H : Subgroup (classSquareSubgroup : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b))),
       ∀ s : SplitPrime d b, classSquareElement (s.idealClass hD) ∉ H →
       s.1 ∣ (P : Ideal (QuadraticAlgebra ℤ d b)).cardQuot → classSquareElement P.idealClass ∉ H := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro P hP hPF H s hs hdvd
   obtain ⟨q, hq, _, h | ⟨t, ht, ε, rfl⟩⟩ := goodMaximal_prime_description hD P hP hPF
   · rw [h.2.1] at hdvd
@@ -87,9 +87,9 @@ theorem badPrimeFactors_card_le_outside_coordinates {d b : ℤ} (hD : b ^ 2 + 4 
           Ideal (QuadraticAlgebra ℤ d b)).cardQuot).primeFactors.filter (squareBadPrime hD H)).card ≤
           countOutsideSubgroup H (List.ofFn fun i => classSquareElement (P i).idealClass) := by
   classical
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
-  letI : Fintype (classSquareSubgroup : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b))) := Fintype.ofFinite _
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
+  let : Fintype (classSquareSubgroup : Subgroup (ClassGroup (QuadraticAlgebra ℤ d b))) := Fintype.ofFinite _
   intro k P hP H
   let n := ((∏ i, P i : InvertibleIdeal (QuadraticAlgebra ℤ d b)) : Ideal (QuadraticAlgebra ℤ d b)).cardQuot
   let A := n.primeFactors.filter (squareBadPrime hD H)

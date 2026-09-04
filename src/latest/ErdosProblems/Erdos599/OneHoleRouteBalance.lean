@@ -30,10 +30,10 @@ private theorem oneHoleRoute_edgeBalance_difference
         (propInt (x = (oneHoleRouteSource l i).vertex) -
           propInt (x = (oneHoleRouteTarget l i).vertex)) := by
   classical
-  letI forwardFintype : Fintype (OneHoleRouteForwardIndex G J l) := by
+  let forwardFintype : Fintype (OneHoleRouteForwardIndex G J l) := by
     unfold OneHoleRouteForwardIndex
     infer_instance
-  letI backwardFintype : Fintype (OneHoleRouteBackwardIndex G J l) := by
+  let backwardFintype : Fintype (OneHoleRouteBackwardIndex G J l) := by
     unfold OneHoleRouteBackwardIndex
     infer_instance
   let contribution : Fin (l.length - 1) → Int := fun i ↦

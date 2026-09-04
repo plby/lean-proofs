@@ -200,7 +200,7 @@ theorem exists_batchResidualDegree_lt_of_lll
       x * (1 - x) ^ d) :
     ∃ X : J → Finset E, ∀ v : ↥H.vertexSet,
       H.batchResidualDegree X v.1 < threshold v := by
-  letI : DecidableEq J := Classical.decEq J
+  let : DecidableEq J := Classical.decEq J
   let flatProb : J × E → ℝ := fun z ↦ prob z.2
   let flatMass : Finset (J × E) → ℝ := fun Z ↦
     FiniteNibble.bernoulliMass Finset.univ flatProb Z
@@ -278,7 +278,7 @@ theorem exists_batchResidualDegree_const_lt_of_lll
       x * (1 - x) ^ ((D * (k * D + 1) ^ 2) * k)) :
     ∃ X : J → Finset E, ∀ v : ↥H.vertexSet,
       H.batchResidualDegree X v.1 < threshold v := by
-  letI : DecidableEq J := Classical.decEq J
+  let : DecidableEq J := Classical.decEq J
   apply H.exists_batchResidualDegree_lt_of_lll (fun _ ↦ prob)
     (fun _ ↦ hprob0) (fun _ ↦ hprob1) ha0 ha1
     (fun e ↦ FiniteNibble.trialAcceptanceMass_const_ge

@@ -44,7 +44,7 @@ theorem g2_finite_partition (k : ℕ) (c : G2 → Fin (k + 1)) :
     fun q ↦ omegaLevel_finite_partition q k (levelColor q)
   obtain ⟨i, hi⟩ := Finite.exists_infinite_fiber ci
   let H : Set ℕ := ci ⁻¹' {i}
-  letI : Infinite H := by simpa [H] using hi
+  let : Infinite H := by simpa [H] using hi
   let h : ℕ ↪o ℕ := Nat.orderEmbeddingOfSet H
   have hh_mem (q : ℕ) : h q ∈ H := by
     change Nat.orderEmbeddingOfSet H q ∈ H

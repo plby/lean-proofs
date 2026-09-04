@@ -22,7 +22,7 @@ theorem affineBoxPoint_not_mem_splitPrime {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     letI := quadraticOrderIsDomain hD
     affineBoxPoint c μ (splitSieveModulus S) L r.1 i j ∉
       (s.1.ideal hD ε : Ideal (QuadraticAlgebra ℤ d b)) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   have hdiv : s.1.1 ∣ splitSieveModulus S := Finset.dvd_prod_of_mem (fun s => s.1) s.2
   change quadraticEval d b s.1.1 (s.1.orientedRoot ε) (s.1.orientedRoot_sq ε)
     (affineBoxPoint c μ (splitSieveModulus S) L r.1 i j) ≠ 0

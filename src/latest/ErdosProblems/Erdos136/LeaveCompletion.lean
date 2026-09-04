@@ -401,7 +401,7 @@ lemma uniformProbability_le_inv_sq_of_fixed_pair
     (hfixed : ∀ ω ∈ U, ω e = ce ∧ ω f = cf) :
     LocalLemma.uniformProbability U ≤ 1 / (t : ℝ) ^ 2 := by
   classical
-  letI : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
+  let : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
   let recolor : Fin t × Fin t × { ω // ω ∈ U } → (E → Fin t) :=
     fun p ↦ Function.update (Function.update p.2.2.1 e p.1) f p.2.1
   have hinj : Function.Injective recolor := by
@@ -445,7 +445,7 @@ lemma uniformProbability_cycle_le_inv_sq {n oldK t : ℕ} (ht : 0 < t)
     LocalLemma.uniformProbability (badEvent (t := t) (Sum.inr (Sum.inl i))) ≤
       1 / (t : ℝ) ^ 2 := by
   classical
-  letI : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
+  let : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
   let U := badEvent (t := t) (Sum.inr (Sum.inl i))
   let recolor : Fin t × Fin t × { ω // ω ∈ U } → Assignment n t :=
     fun p ↦ Function.update (Function.update p.2.2.1 i.e23 p.1) i.e30 p.2.1
@@ -553,7 +553,7 @@ lemma badEvent_independent_of_non_neighbours {n oldK t : ℕ} (ht : 0 < t)
         (badEvent i ∩ LocalLemma.avoiding badEvent S) =
       LocalLemma.uniformProbability (badEvent i) *
         LocalLemma.uniformProbability (LocalLemma.avoiding badEvent S) := by
-  letI : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
+  let : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
   exact uniformProbability_inter_eq_mul (badSupport i) _ _
     (badEvent_dependsOn i)
     (avoiding_dependsOn_complement i S hS)
@@ -1698,7 +1698,7 @@ theorem exists_assignment_avoiding {n oldK t R : ℕ} (ht : 0 < t)
     (hfour : 4 * (1 / (t : ℝ) ^ 2) * ((4 * R + 1 : ℕ) : ℝ) ≤ 1) :
     ∃ fresh : Assignment n t,
       ∀ i : BadIndex (t := t) old, fresh ∉ badEvent i := by
-  letI : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
+  let : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
   classical
   apply LocalLemma.exists_avoiding_of_four_mul badEvent dependent
     (1 / (t : ℝ) ^ 2) (4 * R + 1)

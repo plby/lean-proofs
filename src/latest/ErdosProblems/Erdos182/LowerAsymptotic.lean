@@ -711,7 +711,7 @@ lemma eventually_prs_error_lt_one :
   have hcomp : Tendsto
       (fun n : ℕ ↦ 2 * prsY n * Real.exp (-(prsY n / 2))) atTop (nhds 0) := by
     convert hdecay.comp tendsto_prsY_atTop using 1 <;>
-      ext n <;> simp [div_eq_mul_inv] <;> ring
+      ext n <;> simp [div_eq_mul_inv] <;> ring_nf
   have hevent : ∀ᶠ n : ℕ in atTop,
       2 * prsY n * Real.exp (-(prsY n / 2)) < 1 :=
     hcomp.eventually (Iio_mem_nhds zero_lt_one)

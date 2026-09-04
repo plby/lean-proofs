@@ -50,7 +50,7 @@ private lemma fin_ofNat_eq_nsmul_one {n : ℕ} [NeZero n] (m : ℕ) :
 starting index. -/
 theorem cyclicSucc_ne_self_of_two_le
     {k : ℕ} (hk : 2 ≤ k) (r : Fin k) : cyclicSucc r ≠ r := by
-  letI : NeZero k := ⟨by omega⟩
+  let : NeZero k := ⟨by omega⟩
   have hform : cyclicSucc r = r + (1 : Fin k) := by
     change finRotate k r = _
     rw [finRotate_apply]
@@ -69,7 +69,7 @@ to the starting index. -/
 theorem cyclicSucc_two_ne_self_of_three_le
     {k : ℕ} (hk : 3 ≤ k) (r : Fin k) :
     cyclicSucc (cyclicSucc r) ≠ r := by
-  letI : NeZero k := ⟨by omega⟩
+  let : NeZero k := ⟨by omega⟩
   have hform : cyclicSucc (cyclicSucc r) = r + (2 : Fin k) := by
     change finRotate k (finRotate k r) = _
     simp only [finRotate_apply]
@@ -91,7 +91,7 @@ to the starting index. -/
 theorem cyclicSucc_three_ne_self_of_four_le
     {k : ℕ} (hk : 4 ≤ k) (r : Fin k) :
     cyclicSucc (cyclicSucc (cyclicSucc r)) ≠ r := by
-  letI : NeZero k := ⟨by omega⟩
+  let : NeZero k := ⟨by omega⟩
   have hform : cyclicSucc (cyclicSucc (cyclicSucc r)) = r + (3 : Fin k) := by
     change finRotate k (finRotate k (finRotate k r)) = _
     simp only [finRotate_apply]
@@ -113,7 +113,7 @@ to the starting index. -/
 theorem cyclicSucc_four_ne_self_of_five_le
     {k : ℕ} (hk : 5 ≤ k) (r : Fin k) :
     cyclicSucc (cyclicSucc (cyclicSucc (cyclicSucc r))) ≠ r := by
-  letI : NeZero k := ⟨by omega⟩
+  let : NeZero k := ⟨by omega⟩
   have hform : cyclicSucc (cyclicSucc (cyclicSucc (cyclicSucc r))) =
       r + (4 : Fin k) := by
     change finRotate k (finRotate k (finRotate k (finRotate k r))) = _

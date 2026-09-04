@@ -6,7 +6,7 @@ namespace Erdos587
 
 lemma exists_affine_zero_residue {u v : ℕ} (hu : 0 < u) (hvu : v.Coprime u) (t : ℕ) :
     ∃ y < u, u ∣ t + v * y := by
-  letI : NeZero u := ⟨hu.ne'⟩
+  let : NeZero u := ⟨hu.ne'⟩
   let e := ZMod.unitOfCoprime v hvu
   let z : ZMod u := -(e⁻¹ : (ZMod u)ˣ) * (t : ZMod u)
   have hvcast : (v : ZMod u) = (e : ZMod u) := (ZMod.coe_unitOfCoprime v hvu).symm

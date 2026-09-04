@@ -185,7 +185,7 @@ theorem linkWeight_eq_zero_of_not_mem_container {H : Hypergraph V}
     {v : V} (hv : v ∉ H.containerVertices) :
     linkWeight p H a {v} = 0 := by
   have hcard : ({v} : Finset V).card < a := by
-    simp
+    simp only [Finset.card_singleton]
     exact (mem_activeLayers.mp ha).1
   rw [linkWeight, ← ContainerWeight.strictLink_layer_eq_link_of_card_lt hcard,
     strictLink_layer_eq_empty_of_not_mem_container hanti (mem_activeLayers.mp ha).1 hv]
@@ -226,7 +226,7 @@ theorem weighted_sum_eq_incidence (H : Hypergraph V) (s : ℕ) (p : ℝ) :
       apply Finset.sum_congr rfl
       intro v _
       have hcard : ({v} : Finset V).card < a := by
-        simp
+        simp only [Finset.card_singleton]
         exact (mem_activeLayers.mp ha).1
       rw [ContainerWeight.strictLink_layer_eq_link_of_card_lt hcard]
       rfl

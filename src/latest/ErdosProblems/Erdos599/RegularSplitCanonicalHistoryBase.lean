@@ -330,7 +330,7 @@ theorem nonempty_historyBase
       Stationary.lift_iSup_lt_ord_of_lt hL.regular hIcard
         (fun j ↦ (stageIndex j).2)
     let beta : Ladder.Stage kappa := ⟨betaOrd, hbetaKappa⟩
-    letI : Nonempty I :=
+    let : Nonempty I :=
       ⟨⟨⟨0, hL.regular.ord_pos⟩, hilimit.pos⟩⟩
     have hBdd : BddAbove (Set.range fun j : I ↦ (stageIndex j).1) := by
       refine ⟨kappa.ord, ?_⟩

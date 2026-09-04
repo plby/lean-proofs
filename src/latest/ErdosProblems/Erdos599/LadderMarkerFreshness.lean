@@ -375,7 +375,7 @@ theorem ladderAccumulatedStateAux_fst_eq_of_inactive
           · rfl
           · rename_i h
             exact (h hmatching).elim
-        letI : Nonempty (Set.Iio o) := ho.nonempty_Iio.to_subtype
+        let : Nonempty (Set.Iio o) := ho.nonempty_Iio.to_subtype
         let ai : Set.Iio o := ⟨a, hao'⟩
         have hconstant : ∀ z, ai ≤ z → C.stage z = C.stage ai := by
           intro z haz

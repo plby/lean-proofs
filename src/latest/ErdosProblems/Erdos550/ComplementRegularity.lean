@@ -45,7 +45,7 @@ lemma edgeDensity_compl_add_disjoint {V : Type*} [Fintype V] [DecidableEq V]
     (G.edgeDensity s t : ℝ) + (Gᶜ.edgeDensity s t : ℝ) = 1 := by
   rw [ SimpleGraph.edgeDensity, SimpleGraph.edgeDensity ];
   unfold Rel.edgeDensity;
-  simp +decide [ Rel.interedges, SimpleGraph.compl_adj ];
+  simp +decide only [Rat.cast_div, Rat.cast_natCast, Rat.cast_mul];
   rw [ ← add_div, div_eq_iff ] <;> norm_cast <;> simp_all +decide [ Finset.disjoint_left ];
   · rw [ ← Finset.card_union_of_disjoint ];
     · convert! Finset.card_product s t using 2 ; ext ⟨ x, y ⟩ ; by_cases h : G.Adj x y <;> aesop;

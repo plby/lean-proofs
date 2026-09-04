@@ -133,8 +133,7 @@ theorem orthonormalToComplementEquiv_eq_equivFun :
       S.orthonormalProjectedComplementBasis.equivFun.toLinearMap := by
     apply S.orthonormalProjectedComplementBasis.ext
     intro i
-    simp [orthonormalToComplementEquiv, orthonormalProjectedComplementBasis,
-      projectedComplementBasis_apply]
+    simp only [LinearEquiv.coe_coe, Basis.equivFun_apply, Basis.repr_self]
     rw [← S.projectedComplementBasis_apply i]
     simp only [Basis.equivFun_apply, Basis.repr_self]
     ext j

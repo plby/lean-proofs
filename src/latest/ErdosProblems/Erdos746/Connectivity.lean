@@ -27,7 +27,7 @@ neighbourhood is contained in `C \ S`, hence expansion gives
 theorem IsTwoExpanderUpTo.connected_fin_quarter {n : ℕ} (hn : 8 ≤ n)
     (G : SimpleGraph (Fin n)) (hG : G.IsTwoExpanderUpTo (n / 4)) : G.Connected := by
   classical
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp (by omega)
+  let : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp (by omega)
   refine ⟨?_⟩
   intro u v
   by_contra huv

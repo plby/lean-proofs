@@ -129,7 +129,7 @@ theorem weightedEuler_apply (n : ℕ) (F : BiPolynomial K) :
     rw [← mul_assoc, ← C_mul, C_mul_X_pow_eq_monomial]
     ext i j
     simp [coeff_monomial]
-    split_ifs <;> push_cast <;> ring
+    split_ifs <;> push_cast <;> ring_nf
   · rw [derivative_monomial_succ, X_mul_monomial]
     rw [← mul_assoc, mul_comm (X ^ a) (C (monomial (b + 1) (c * (b + 1)))),
       ← add_mul, ← C_mul, ← C_add, C_mul_X_pow_eq_monomial]

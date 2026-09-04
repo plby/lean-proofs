@@ -151,7 +151,7 @@ theorem exists_cycle_of_dense_core {V : Type*} [Fintype V] [DecidableEq V]
       _ = A.card + W.card := card_union_of_disjoint hdis
   have hHam : (G.induce (S : Set V)).IsHamiltonian :=
     isHamiltonian_induce_of_dense_core G A W d hdis hN hsize hcore hout
-  letI : Nontrivial (S : Set V) := Fintype.one_lt_card_iff_nontrivial.mp (by omega)
+  let : Nontrivial (S : Set V) := Fintype.one_lt_card_iff_nontrivial.mp (by omega)
   obtain ⟨v⟩ := (inferInstance : Nonempty (S : Set V))
   obtain ⟨c, hc⟩ := hHam.exists_isHamiltonianCycle v
   refine ⟨(Embedding.induce (S : Set V)).toHom v,

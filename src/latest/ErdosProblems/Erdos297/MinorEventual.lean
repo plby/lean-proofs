@@ -162,7 +162,7 @@ theorem eventually_normalized_minorArc_bound {lam : ℝ}
       with N hnearSupply hrate hpBounds hM htwice hcard hscales hNlarge
   let A : Finset ℕ := goodSet N
   let Q : ℕ := activeLcm A
-  letI : NeZero Q := ⟨activeLcm_ne_zero A⟩
+  let : NeZero Q := ⟨activeLcm_ne_zero A⟩
   let H : Finset (ZMod Q) := minorFrequencies Q (M N)
   let p : ℕ → ℝ := normalizedLogisticProbability lam N
   let key : ZMod Q → Finset ℕ := fun h ↦

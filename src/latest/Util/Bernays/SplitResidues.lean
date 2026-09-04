@@ -74,7 +74,7 @@ noncomputable def splitResidueEquivPi (S : Finset (SplitPrime d b)) :
 theorem splitResidueEquivPi_apply (S : Finset (SplitPrime d b))
     (x : ZMod (splitSieveModulus S)) (s : {s // s ∈ S}) :
     splitResidueEquivPi S x s = (x.val : ZMod s.1.1) := by
-  letI : NeZero (splitSieveModulus S) := ⟨(splitSieveModulus_pos S).ne'⟩
+  let : NeZero (splitSieveModulus S) := ⟨(splitSieveModulus_pos S).ne'⟩
   have hdiv : s.1.1 ∣ splitSieveModulus S := Finset.dvd_prod_of_mem (fun s => s.1) s.2
   let f : ZMod (splitSieveModulus S) →+* ZMod s.1.1 :=
     (Pi.evalRingHom (fun s : {s // s ∈ S} => ZMod s.1.1) s).comp (splitResidueEquivPi S).toRingHom

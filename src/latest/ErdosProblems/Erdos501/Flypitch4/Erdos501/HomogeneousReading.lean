@@ -178,8 +178,8 @@ theorem homogeneous_reading {A : Type} (hA : #A = Order.succ 𝔠) {d : A → ι
       have hinf : (S a \ R).Infinite :=
         (hE_inf a).mono (Set.subset_diff.mpr ⟨hE_sub a, hER⟩)
       have hcnt : (S a \ R).Countable := (hS a).mono Set.diff_subset
-      haveI : Countable ↥(S a \ R) := hcnt.to_subtype
-      haveI : Infinite ↥(S a \ R) := hinf.to_subtype
+      have : Countable ↥(S a \ R) := hcnt.to_subtype
+      have : Infinite ↥(S a \ R) := hinf.to_subtype
       obtain ⟨D⟩ : Nonempty (Denumerable ↥(S a \ R)) :=
         nonempty_denumerable_iff.mpr ⟨inferInstance, inferInstance⟩
       let e' : ℕ ≃ ↥(S a \ R) := (Denumerable.eqv _).symm
@@ -236,7 +236,7 @@ theorem homogeneous_reading {A : Type} (hA : #A = Order.succ 𝔠) {d : A → ι
     rw [mkReal_congr _ ((hF₀ a).comp (S₀ a).measurable_restrict) (funext (hGread a ha))]
     exact heq a
   -- (8) pigeonhole: there are only `𝔠` Borel functions `2^R × 2^ℕ → 2^ω`
-  haveI : Countable ↥R := hR.to_subtype
+  have : Countable ↥R := hR.to_subtype
   let Codes := {G : (R → (ℕ → Bool)) × (ℕ → (ℕ → Bool)) → (ℕ → Bool) // Measurable G}
   have hCodes : #Codes ≤ 𝔠 := card_measurable_le_continuum _
   obtain ⟨⟨F, hF⟩, J, hJJ₁, hJcard, hJF⟩ := Cardinal.infinite_pigeonhole_set (s := J₁)

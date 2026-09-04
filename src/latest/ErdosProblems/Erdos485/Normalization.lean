@@ -102,8 +102,8 @@ theorem exists_primitiveNormalization {K : Type*} [Field K] [CharZero K]
       intro n hn
       have hnle : n ≤ A.natDegree := Polynomial.le_natDegree_of_ne_zero
         (Polynomial.mem_support_iff.mp hn)
-      simp [hdeg0] at hnle ⊢
-      exact hnle
+      simp only [Finset.mem_singleton] at hnle ⊢
+      omega
     have hcardle : A.support.card ≤ 1 := by
       simpa using Finset.card_le_card hsub
     omega
@@ -179,8 +179,8 @@ theorem exists_primitiveNormalization {K : Type*} [Field K] [CharZero K]
         intro n hn
         have hnle : n ≤ B.natDegree := Polynomial.le_natDegree_of_ne_zero
           (Polynomial.mem_support_iff.mp hn)
-        simp [hdeg0] at hnle ⊢
-        exact hnle
+        simp only [Finset.mem_singleton] at hnle ⊢
+        omega
       have hcardle : B.support.card ≤ 1 := by simpa using Finset.card_le_card hsub
       rw [hBcard] at hcardle
       omega
@@ -213,8 +213,8 @@ theorem PrimitiveNormalization.natDegree_pos {K : Type*} [Field K] [CharZero K]
     intro n hn
     have hnle : n ≤ N.poly.natDegree := Polynomial.le_natDegree_of_ne_zero
       (Polynomial.mem_support_iff.mp hn)
-    simp [hdeg0] at hnle ⊢
-    exact hnle
+    simp only [Finset.mem_singleton] at hnle ⊢
+    omega
   have hcardle : N.poly.support.card ≤ 1 := by simpa using Finset.card_le_card hsub
   have hcardge : 2 ≤ N.poly.support.card := N.two_le_support
   omega

@@ -15,7 +15,7 @@ lemma PolygonalArcCollarMiddleForbiddenMarginsExists (γ : PolygonalArc) {η : �
     have hlen : 2 ≤ γ.vertices.length := γ.length_ge_two
     dsimp [n]
     omega
-  letI : Nonempty (Fin n) := ⟨⟨0, hlen_pos⟩⟩
+  let : Nonempty (Fin n) := ⟨⟨0, hlen_pos⟩⟩
   have segment_nonempty :
       ∀ (k : ℕ) (hk : k + 1 < γ.vertices.length),
         (segment ℝ γ.vertices[k] γ.vertices[k + 1]).Nonempty := by

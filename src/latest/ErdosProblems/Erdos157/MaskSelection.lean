@@ -15,8 +15,8 @@ theorem exists_eventually_good_masks :
       ∀ z : MaskTarget K k, MaskTargetHit K (fun i => τ i) z := by
   classical
   let X (i : ℕ) := TagField i → LogDigit K i
-  letI (i : ℕ) : MeasurableSpace (X i) := ⊤
-  letI (i : ℕ) : DiscreteMeasurableSpace (X i) := ⟨fun _ => trivial⟩
+  let (i : ℕ) : MeasurableSpace (X i) := ⊤
+  let (i : ℕ) : DiscreteMeasurableSpace (X i) := ⟨fun _ => trivial⟩
   let μ := UniformProducts.productMeasure X
   let bad (k : ℕ) : Set (∀ i, X i) := {τ | MaskLevelFailure K k (fun i => τ i)}
   have hbad : ∀ᶠ k in atTop, μ.real (bad k) ≤ Real.exp (-(k : ℝ)) := by

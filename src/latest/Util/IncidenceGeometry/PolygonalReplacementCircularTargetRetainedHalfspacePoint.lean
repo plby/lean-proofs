@@ -230,11 +230,10 @@ lemma PolygonalReplacementCircularTargetRetainedHalfspacePoint {V : Type u}
         have hsq : ‖B.repr (sourceVec + d - centerVec)‖ ^ 2 =
             ‖B.repr centerVec‖ ^ 2 := by rw [hnorm_repr]
         rw [norm_sq_two, norm_sq_two] at hsq
-        simp [map_sub, map_add, hsource0, hsource1] at hsq
-        change (R + x - B.repr centerVec 0) ^ 2 +
-            (y - B.repr centerVec 1) ^ 2 =
-            (B.repr centerVec 0) ^ 2 + (B.repr centerVec 1) ^ 2 at hsq
+        simp only [map_sub, map_add, PiLp.sub_apply, PiLp.add_apply, hsource0,
+          hsource1, Fin.isValue] at hsq
         rw [hcenter0] at hsq
+        dsimp [x, y]
         nlinarith
       have hout : 0 ≤ 2 * R * x + (x ^ 2 + y ^ 2) := by
         have hnotlt : ¬ dist q A < R := by
@@ -255,8 +254,8 @@ lemma PolygonalReplacementCircularTargetRetainedHalfspacePoint {V : Type u}
                 simpa using (B.repr.norm_map (sourceVec + d)).symm
           exact (sq_le_sq₀ hR.le (norm_nonneg _)).2 hnorm_le'
         rw [norm_sq_two] at hsq_le
-        simp [map_add, hsource0, hsource1] at hsq_le
-        change R ^ 2 ≤ (R + x) ^ 2 + y ^ 2 at hsq_le
+        simp only [map_add, PiLp.add_apply, hsource0, hsource1, Fin.isValue] at hsq_le
+        dsimp [x, y]
         nlinarith
       have hnear_sq : x ^ 2 + y ^ 2 < δ ^ 2 := by
         have hnorm_lt : ‖d‖ < δ := by

@@ -79,7 +79,7 @@ noncomputable def SpecialSplitPrimeData.root
 theorem SpecialSplitPrimeData.two_mul_root_ne_zero
     {p : ℕ} [Fact p.Prime] (s : SpecialSplitPrimeData p) :
     (2 : ZMod s.q) * s.root ≠ 0 := by
-  letI : Fact s.q.Prime := ⟨s.prime⟩
+  let : Fact s.q.Prime := ⟨s.prime⟩
   have hcop := specialSplitRoot_coprime_two_val
     (Fact.out : Nat.Prime p) s.prime s.ne_two s.ne_p s.split
   have hu : IsUnit (((2 * s.root.val : ℕ) : ZMod s.q)) :=
@@ -118,7 +118,7 @@ noncomputable def splitResidueEquivPi
     splitResidueEquivPi S x s = (x.val : ZMod s.1.q) := by
   have hM : (∏ s ∈ S, s.q) ≠ 0 := by
     exact (Finset.prod_pos fun t ht ↦ t.prime.pos).ne'
-  letI : NeZero (∏ s ∈ S, s.q) := ⟨hM⟩
+  let : NeZero (∏ s ∈ S, s.q) := ⟨hM⟩
   have hdiv : s.1.q ∣ ∏ t ∈ S, t.q :=
     Finset.dvd_prod_of_mem (fun t ↦ t.q) s.2
   let f : ZMod (∏ t ∈ S, t.q) →+* ZMod s.1.q :=
@@ -195,7 +195,7 @@ theorem natCard_splitAllowedResiduePairs
   have hlocal : ∀ s : {s // s ∈ S},
       Nat.card (splitAllowedPairs s.1.q s.1.root) = (s.1.q - 1) ^ 2 := by
     intro s
-    letI : Fact s.1.q.Prime := ⟨s.1.prime⟩
+    let : Fact s.1.q.Prime := ⟨s.1.prime⟩
     exact natCard_splitAllowedPairs s.1.q s.1.root
       s.1.two_mul_root_ne_zero
   simp_rw [hlocal]
@@ -234,7 +234,7 @@ theorem SpecialSplitPrimeData.span_isCoprime_oriented
     (b : Bool) :
     IsCoprime (Ideal.span ({z} : Set (Zsqrtd (-(p : ℤ) ^ 3))))
       (s.integralUnitIdeal b : Ideal (Zsqrtd (-(p : ℤ) ^ 3))) := by
-  letI : NeZero s.q := ⟨s.prime.ne_zero⟩
+  let : NeZero s.q := ⟨s.prime.ne_zero⟩
   have hrs : s.root * s.root =
       ((-(p : ℤ) ^ 3 : ℤ) : ZMod s.q) := by
     simpa [SpecialSplitPrimeData.root] using
@@ -340,7 +340,7 @@ theorem specialSieveElement_eq_of_associated
     (h : Associated (specialSieveElement S x a b)
       (specialSieveElement S y c e)) :
     x = y ∧ a = c ∧ b = e := by
-  letI : NeZero (∏ s ∈ S, s.q) :=
+  let : NeZero (∏ s ∈ S, s.q) :=
     ⟨by simpa [specialSieveModulus] using
       (specialSieveModulus_pos S).ne'⟩
   obtain ⟨u, hu⟩ := h
@@ -423,7 +423,7 @@ theorem specialSieveElement_norm_natAbs_le
     (x : splitAllowedResiduePairs S) (ha : a < L) (hb : b < L) :
     (specialSieveElement S x a b).norm.natAbs ≤
       4 * (1 + p ^ 3) * (specialSieveModulus S) ^ 2 * L ^ 2 := by
-  letI : NeZero (∏ s ∈ S, s.q) :=
+  let : NeZero (∏ s ∈ S, s.q) :=
     ⟨by simpa [specialSieveModulus] using
       (specialSieveModulus_pos S).ne'⟩
   have hL : 1 ≤ L := by omega
@@ -503,11 +503,11 @@ theorem specialSieveClassBall_lower
           (I : Ideal (Zsqrtd (-(p : ℤ) ^ 3))).cardQuot) * L ^ 2)
         C S) := by
   let O := Zsqrtd (-(p : ℤ) ^ 3)
-  letI : Module.Free ℤ O :=
+  let : Module.Free ℤ O :=
     Module.Free.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Module.Finite ℤ O :=
+  let : Module.Finite ℤ O :=
     Module.Finite.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Ring.HasFiniteQuotients O := inferInstance
+  let : Ring.HasFiniteQuotients O := inferInstance
   have hIne : (I : Ideal O) ≠ ⊥ := by
     intro hbot
     have hz : (((I : Ideal O) :
@@ -562,9 +562,9 @@ theorem specialSieveClassBall_lower
   let f : splitAllowedResiduePairs S × (Fin L × Fin L) →
       SpecialSieveClassBall p (B * L ^ 2) C S := fun x ↦
     ⟨⟨Q x * I, hQIclass x, hQIcard x⟩, hQIcop x⟩
-  letI : Finite (SpecialClassBall p (B * L ^ 2) C) :=
+  let : Finite (SpecialClassBall p (B * L ^ 2) C) :=
     finiteSpecialClassBall C
-  letI : Finite (SpecialSieveClassBall p (B * L ^ 2) C S) :=
+  let : Finite (SpecialSieveClassBall p (B * L ^ 2) C S) :=
     Finite.of_injective Subtype.val Subtype.val_injective
   have hf : Function.Injective f := by
     intro x y hxy
@@ -618,14 +618,14 @@ theorem exists_integralUnitIdeal_generator_mod_mul
   · let A := R ⧸ F
     let M := (J : Ideal R)
     let T := TensorProduct R A M
-    letI : Nontrivial A :=
+    let : Nontrivial A :=
       (Ideal.Quotient.nontrivial_iff (R := R) (I := F)).mpr hFtop
-    letI : Finite A := Ring.HasFiniteQuotients.finiteQuotient hFne
-    letI : IsArtinianRing A := isArtinian_of_finite
-    letI : Module.Invertible R M :=
+    let : Finite A := Ring.HasFiniteQuotients.finiteQuotient hFne
+    let : IsArtinianRing A := isArtinian_of_finite
+    let : Module.Invertible R M :=
       moduleInvertibleIdealOfIsUnit (J : Ideal R) J.2
-    letI : Module.Invertible A T := inferInstance
-    letI : Module.Free A T := inferInstance
+    let : Module.Invertible A T := inferInstance
+    let : Module.Free A T := inferInstance
     let e : T ≃ₗ[A] A :=
       (Module.Invertible.free_iff_linearEquiv.mp
         (inferInstance : Module.Free A T)).some
@@ -879,10 +879,10 @@ theorem specialGeneratorRadius_re
     (g : Zsqrtd (-(p : ℤ) ^ 3)) (x : splitAllowedResiduePairs S) :
     (specialSieveElement S x 0 0 * g).re.natAbs ≤
       specialGeneratorRadius S g := by
-  letI : NeZero (∏ s ∈ S, s.q) :=
+  let : NeZero (∏ s ∈ S, s.q) :=
     ⟨by simpa [specialSieveModulus] using
       (specialSieveModulus_pos S).ne'⟩
-  letI : Fintype (splitAllowedResiduePairs S) := by
+  let : Fintype (splitAllowedResiduePairs S) := by
     unfold splitAllowedResiduePairs
     infer_instance
   exact le_trans (le_max_left _ _)
@@ -896,10 +896,10 @@ theorem specialGeneratorRadius_im
     (g : Zsqrtd (-(p : ℤ) ^ 3)) (x : splitAllowedResiduePairs S) :
     (specialSieveElement S x 0 0 * g).im.natAbs ≤
       specialGeneratorRadius S g := by
-  letI : NeZero (∏ s ∈ S, s.q) :=
+  let : NeZero (∏ s ∈ S, s.q) :=
     ⟨by simpa [specialSieveModulus] using
       (specialSieveModulus_pos S).ne'⟩
-  letI : Fintype (splitAllowedResiduePairs S) := by
+  let : Fintype (splitAllowedResiduePairs S) := by
     unfold splitAllowedResiduePairs
     infer_instance
   exact le_trans (le_max_right _ _)
@@ -1026,7 +1026,7 @@ theorem splitAllowedResiduePair_eq_of_base_sub_mem
     (hmem : specialSieveElement S x 0 0 - specialSieveElement S y 0 0 ∈
       Ideal.span ({Zsqrtd.ofInt (specialSieveModulus S : ℤ)} :
         Set (Zsqrtd (-(p : ℤ) ^ 3)))) : x = y := by
-  letI : NeZero (∏ s ∈ S, s.q) :=
+  let : NeZero (∏ s ∈ S, s.q) :=
     ⟨by simpa [specialSieveModulus] using
       (specialSieveModulus_pos S).ne'⟩
   rw [Ideal.mem_span_singleton] at hmem
@@ -1175,11 +1175,11 @@ theorem exists_specialSieveClassBall_lower_uniform
           C S) := by
   classical
   let O := Zsqrtd (-(p : ℤ) ^ 3)
-  letI : Module.Free ℤ O :=
+  let : Module.Free ℤ O :=
     Module.Free.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Module.Finite ℤ O :=
+  let : Module.Finite ℤ O :=
     Module.Finite.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Ring.HasFiniteQuotients O := inferInstance
+  let : Ring.HasFiniteQuotients O := inferInstance
   let m := (J : Ideal O).cardQuot
   have hJne : (J : Ideal O) ≠ ⊥ := by
     intro hbot
@@ -1294,10 +1294,10 @@ theorem exists_specialSieveClassBall_lower_uniform
   let f : X → SpecialSieveClassBall p
       (9 * (1 + p ^ 3) * (specialSieveModulus S * m) ^ 2 * L ^ 2)
       C S := fun x ↦ ⟨⟨K x, hKclass x, hKcard x⟩, hKcop x⟩
-  letI : Finite (SpecialClassBall p
+  let : Finite (SpecialClassBall p
       (9 * (1 + p ^ 3) * (specialSieveModulus S * m) ^ 2 * L ^ 2) C) :=
     finiteSpecialClassBall C
-  letI : Finite (SpecialSieveClassBall p
+  let : Finite (SpecialSieveClassBall p
       (9 * (1 + p ^ 3) * (specialSieveModulus S * m) ^ 2 * L ^ 2) C S) :=
     Finite.of_injective Subtype.val Subtype.val_injective
   have hf : Function.Injective f := by
@@ -1436,7 +1436,7 @@ theorem specialConductorSieveElement_mod_conductor
   have hc : 0 < c := by
     dsimp [c, specialConductor]
     exact mul_pos (by norm_num) (Fact.out : Nat.Prime p).pos
-  letI : NeZero c := ⟨hc.ne'⟩
+  let : NeZero c := ⟨hc.ne'⟩
   let w := specialSieveElement S x 0 0
   have hunit : IsUnit (specialSieveModulus S : ZMod c) :=
     (ZMod.isUnit_iff_coprime _ _).mpr
@@ -1541,10 +1541,10 @@ theorem specialConductorGeneratorRadius_re
     (g : Zsqrtd (-(p : ℤ) ^ 3)) (x : splitAllowedResiduePairs S) :
     (specialConductorSieveElement S x * g).re.natAbs ≤
       specialConductorGeneratorRadius S g := by
-  letI : NeZero (∏ s ∈ S, s.q) :=
+  let : NeZero (∏ s ∈ S, s.q) :=
     ⟨by simpa [specialSieveModulus] using
       (specialSieveModulus_pos S).ne'⟩
-  letI : Fintype (splitAllowedResiduePairs S) := by
+  let : Fintype (splitAllowedResiduePairs S) := by
     unfold splitAllowedResiduePairs
     infer_instance
   exact le_trans (le_max_left _ _)
@@ -1558,10 +1558,10 @@ theorem specialConductorGeneratorRadius_im
     (g : Zsqrtd (-(p : ℤ) ^ 3)) (x : splitAllowedResiduePairs S) :
     (specialConductorSieveElement S x * g).im.natAbs ≤
       specialConductorGeneratorRadius S g := by
-  letI : NeZero (∏ s ∈ S, s.q) :=
+  let : NeZero (∏ s ∈ S, s.q) :=
     ⟨by simpa [specialSieveModulus] using
       (specialSieveModulus_pos S).ne'⟩
-  letI : Fintype (splitAllowedResiduePairs S) := by
+  let : Fintype (splitAllowedResiduePairs S) := by
     unfold splitAllowedResiduePairs
     infer_instance
   exact le_trans (le_max_right _ _)
@@ -1970,11 +1970,11 @@ theorem exists_specialFullSieveClassBall_lower_uniform
           C S) := by
   classical
   let O := Zsqrtd (-(p : ℤ) ^ 3)
-  letI : Module.Free ℤ O :=
+  let : Module.Free ℤ O :=
     Module.Free.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Module.Finite ℤ O :=
+  let : Module.Finite ℤ O :=
     Module.Finite.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Ring.HasFiniteQuotients O := inferInstance
+  let : Ring.HasFiniteQuotients O := inferInstance
   let m := (J : Ideal O).cardQuot
   have hJne : (J : Ideal O) ≠ ⊥ := by
     intro hbot
@@ -2101,15 +2101,15 @@ theorem exists_specialFullSieveClassBall_lower_uniform
       (9 * (1 + p ^ 3) *
         (specialFullSieveModulus S * m) ^ 2 * L ^ 2) C S := fun x ↦
     ⟨⟨⟨K x, hKclass x, hKcard x⟩, hKcop x⟩, hKcond x⟩
-  letI : Finite (SpecialClassBall p
+  let : Finite (SpecialClassBall p
       (9 * (1 + p ^ 3) *
         (specialFullSieveModulus S * m) ^ 2 * L ^ 2) C) :=
     finiteSpecialClassBall C
-  letI : Finite (SpecialSieveClassBall p
+  let : Finite (SpecialSieveClassBall p
       (9 * (1 + p ^ 3) *
         (specialFullSieveModulus S * m) ^ 2 * L ^ 2) C S) :=
     Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Finite (SpecialFullSieveClassBall p
+  let : Finite (SpecialFullSieveClassBall p
       (9 * (1 + p ^ 3) *
         (specialFullSieveModulus S * m) ^ 2 * L ^ 2) C S) :=
     Finite.of_injective Subtype.val Subtype.val_injective
@@ -2209,8 +2209,8 @@ theorem natCard_specialFullSieveClassBall_le_sum_divisible
     apply Subtype.ext
     apply Subtype.ext
     exact congrArg (fun V : Target ↦ V.2.2.1) hIK
-  letI : Finite (SpecialClassBall p N C) := finiteSpecialClassBall C
-  letI (t : {s : SpecialSplitPrimeData p // s ∈ T}) (c : Bool) :
+  let : Finite (SpecialClassBall p N C) := finiteSpecialClassBall C
+  let (t : {s : SpecialSplitPrimeData p // s ∈ T}) (c : Bool) :
       Finite (SpecialDivisibleClassBall p N C
         (t.1.integralUnitIdeal c)) :=
     Finite.of_injective Subtype.val Subtype.val_injective
@@ -2358,9 +2358,9 @@ theorem mem_boundedSpecialSplitPrimeData_iff
       apply Subtype.ext
       apply SpecialSplitPrimeData.ext
       exact congrArg Fin.val h⟩
-  letI : Finite {t : SpecialSplitPrimeData p // t.q ≤ N} :=
+  let : Finite {t : SpecialSplitPrimeData p // t.q ≤ N} :=
     Finite.of_injective e e.injective
-  letI : Fintype {t : SpecialSplitPrimeData p // t.q ≤ N} :=
+  let : Fintype {t : SpecialSplitPrimeData p // t.q ≤ N} :=
     Fintype.ofFinite _
   simp [Finset.mem_image]
 
@@ -2420,11 +2420,11 @@ theorem not_summable_specialBadSplitPrimeWeight
     have hz : (((J : Ideal O) :
         FractionalIdeal O⁰ (FractionRing O))) = 0 := by rw [hbot]; rfl
     exact J.2.ne_zero hz
-  letI : Module.Free ℤ O :=
+  let : Module.Free ℤ O :=
     Module.Free.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Module.Finite ℤ O :=
+  let : Module.Finite ℤ O :=
     Module.Finite.of_basis (zsqrtdBasis (-(p : ℤ) ^ 3))
-  letI : Ring.HasFiniteQuotients O := inferInstance
+  let : Ring.HasFiniteQuotients O := inferInstance
   have hm : 0 < m := Ring.HasFiniteQuotients.cardQuot_pos _ hJne
   let E : ℝ := Real.exp
     (-2 * ∑' s, specialBadSplitPrimeWeight H s)

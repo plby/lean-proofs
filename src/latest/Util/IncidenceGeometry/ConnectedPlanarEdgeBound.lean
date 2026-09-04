@@ -14,13 +14,13 @@ lemma ConnectedPlanarEdgeBound {V : Type*} [Fintype V] (G : SimpleGraph V)
         G.edgeFinset.card ≤ 3 * Fintype.card V - 6 := by
   classical
   intro hconn hn hdraw
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
   rcases hdraw with ⟨D, hD⟩
   rcases (PlaneFaceDataExists.{_, 0} G D hD) with ⟨A⟩
   by_cases hedge_zero : G.edgeFinset.card = 0
   · omega
   have hedge_pos : 0 < G.edgeFinset.card := Nat.pos_of_ne_zero hedge_zero
-  letI : Fintype A.Face := A.faceFintype
+  let : Fintype A.Face := A.faceFintype
   have hface_lower : ∀ F : A.Face, 3 ≤ A.faceDegree F :=
     FaceDegreeLowerBound G D hD A hconn hn hedge_pos
   have hsum_lower :

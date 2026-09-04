@@ -149,7 +149,7 @@ lemma commonFrame_away_second_fst_gap_gt_two
             simp [ActualCase24Rows.TwoExtremeCommonPairFrame.frame,
               ActualCase24Rows.case4PairEdgeBase, hside]
         | next hs hunit hframe => simp [hside] at hs
-      simp [hside] at hx hcoord ⊢
+      simp only [Fin.isValue, gt_iff_lt] at hx hcoord ⊢
       rw [hcoord] at hx
       rw [hm]
       simp only [Erdos957Cases24.Case2.v,
@@ -171,7 +171,7 @@ lemma commonFrame_away_second_fst_gap_gt_two
               Erdos957TwoExtremeAligned.swapEndpointCoord_apply_zero,
               ActualCase24Rows.TwoExtremeCommonPairFrame.frame,
               ActualCase24Rows.case4PairEdgeBase, hside]
-      simp [hside] at hx hcoord ⊢
+      simp only [Fin.isValue, gt_iff_lt] at hx hcoord ⊢
       rw [hm]
       simp only [Erdos957Cases24.Case2.v,
         Erdos957Cases24.point_apply_zero]
@@ -208,7 +208,7 @@ lemma commonFrame_away_third_fst_gap_gt_two
             simp [ActualCase24Rows.TwoExtremeCommonPairFrame.frame,
               ActualCase24Rows.case4PairEdgeBase, hside]
         | next hs hunit hframe => simp [hside] at hs
-      simp [hside] at hx hcoord ⊢
+      simp only [Fin.isValue, gt_iff_lt] at hx hcoord ⊢
       rw [hcoord] at hx
       rw [hm]
       simp only [Erdos957Cases24.Case2.v,
@@ -230,7 +230,7 @@ lemma commonFrame_away_third_fst_gap_gt_two
               Erdos957TwoExtremeAligned.swapEndpointCoord_apply_zero,
               ActualCase24Rows.TwoExtremeCommonPairFrame.frame,
               ActualCase24Rows.case4PairEdgeBase, hside]
-      simp [hside] at hx hcoord ⊢
+      simp only [Fin.isValue, gt_iff_lt] at hx hcoord ⊢
       rw [hm]
       simp only [Erdos957Cases24.Case2.v,
         Erdos957Cases24.point_apply_zero]
@@ -269,8 +269,7 @@ lemma commonFrame_incident_third_fst_gap_gt_two
               ActualCase24Rows.case4PairEdgeBase, hside,
               Erdos957Case4NoThree.incidentHullVertex]
         | next hs hunit hframe => simp [hside] at hs
-      simp [incidentContinuationHullVertex, hside,
-        Erdos957Case4NoThree.incidentHullVertex] at hx hcoord ⊢
+      simp only [Fin.isValue, gt_iff_lt] at hx hcoord ⊢
       rw [hcoord] at hx
       rw [hm]
       simp only [Erdos957Cases24.Case2.v,
@@ -294,8 +293,7 @@ lemma commonFrame_incident_third_fst_gap_gt_two
               Erdos957TwoExtremeAligned.swapEndpointCoord_apply_zero,
               ActualCase24Rows.TwoExtremeCommonPairFrame.frame,
               ActualCase24Rows.case4PairEdgeBase, hside]
-      simp [incidentContinuationHullVertex, hside,
-        Erdos957Case4NoThree.incidentHullVertex] at hx hcoord ⊢
+      simp only [Fin.isValue, gt_iff_lt] at hx hcoord ⊢
       rw [hm]
       simp only [Erdos957Cases24.Case2.v,
         Erdos957Cases24.point_apply_zero]

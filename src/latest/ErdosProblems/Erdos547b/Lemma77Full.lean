@@ -2115,7 +2115,7 @@ theorem leaf_imbalance_of_two_nonleaf_neighbors {V : Type*} [Fintype V]
   have hcardEpos : 0 < E.card := Finset.card_pos.mpr hpart.left_nonempty
   have hcardOpos : 0 < O.card := Finset.card_pos.mpr hpart.right_nonempty
   have hcardVtwo : 1 < Fintype.card V := by omega
-  letI : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp hcardVtwo
+  let : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp hcardVtwo
 
   let leafNbr : V → Finset V := fun y =>
     (T.neighborFinset y).filter fun z => z ∈ leavesIn T O
@@ -2254,7 +2254,7 @@ theorem leaf_imbalance_of_two_nonleaf_neighbors_except {V : Type*} [Fintype V]
     have hE : 0 < E.card := Finset.card_pos.mpr hpart.left_nonempty
     have hO : 0 < O.card := Finset.card_pos.mpr hpart.right_nonempty
     omega
-  letI : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp hcardVtwo
+  let : Nontrivial V := Fintype.one_lt_card_iff_nontrivial.mp hcardVtwo
 
   let leafNbr : V → Finset V := fun y =>
     (T.neighborFinset y).filter fun z => z ∈ leavesIn T O
@@ -2480,7 +2480,7 @@ theorem exists_nonleaf_root [Fintype V]
     ∃ r : V, ¬ Erdos547b.Lemma77Rooted.IsLeaf T r := by
   classical
   let rootLF : T.LocallyFinite := fun _ => Subtype.fintype _
-  letI : T.LocallyFinite := rootLF
+  let : T.LocallyFinite := rootLF
   by_contra h
   push_neg at h
   have hsumOne :
@@ -2677,7 +2677,7 @@ theorem neighbor_of_leaf_not_leaf_of_exists_nonleaf [Fintype V]
   have hyx' : y' ≠ x' := by
     intro h
     exact hyx (congrArg Subtype.val h)
-  letI : Nontrivial C := ⟨⟨y', x', hyx'⟩⟩
+  let : Nontrivial C := ⟨⟨y', x', hyx'⟩⟩
   have hconn := hT.connected.induce_compl_singleton_of_degree_eq_one hz
   have hpos := hconn.preconnected.degree_pos_of_nontrivial y'
   obtain ⟨w, hyw⟩ := ((T.induce C).degree_pos_iff_exists_adj y').mp hpos

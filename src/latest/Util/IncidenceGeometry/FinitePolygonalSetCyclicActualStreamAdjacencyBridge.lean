@@ -576,7 +576,7 @@ lemma FinitePolygonalSetCyclicActualStreamAdjacencyBridge
         subst a
         rfl
       | cons y ys =>
-        simp at h ⊢
+        simp only [List.map_cons, List.getLast?_cons_cons] at h ⊢
         exact ih h
   have flatten_head?_eq_some :
       ∀ {α : Type} {L : List (List α)} {l : List α} {x : α},

@@ -505,7 +505,7 @@ theorem LargeExposureCertificate.one_third_le_layerProbability
     (1 / 3 : ℝ) ≤ NestedUniform.layerProbability D1 nD
       (fun D ↦ AugmentationGraphFull.innerWindowGood G W U0 M (nS + 1) L
         (canonicalCenter D) globalRadius D) := by
-  letI : LinearOrder (Finset V) := AugmentationGraphPartial.cellLinearOrder
+  let : LinearOrder (Finset V) := AugmentationGraphPartial.cellLinearOrder
   let candidates := graphSelectedGoodCandidates G D1 source rawCandidates
     degreeCenter degreeRadius nS gap badBudget selected
   have hstate_subset : ∀ i ≤ tau, H.state i ⊆ M := by

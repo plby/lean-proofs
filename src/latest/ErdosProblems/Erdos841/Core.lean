@@ -471,7 +471,7 @@ theorem pow_card_sub_card_le_zeroSumSubsets_card
     2 ^ (Fintype.card α - Fintype.card β) ≤ (zeroSumSubsets v).card := by
   let L : (α → ZMod 2) →ₗ[ZMod 2] (β → ZMod 2) :=
     Fintype.linearCombination (ZMod 2) v
-  letI : Fintype L.ker := Fintype.ofFinite L.ker
+  let : Fintype L.ker := Fintype.ofFinite L.ker
   let supportSet : L.ker → Finset α := fun f ↦
     Finset.univ.filter fun a ↦ f.1 a = 1
   have hsupport_mem : ∀ f : L.ker, supportSet f ∈ zeroSumSubsets v := by
@@ -3250,7 +3250,7 @@ theorem exists_bounded_nonzero_integer_kernel_numberField
   let T := LinearForms.traceConstraintMatrix b hb A Q hQA
   have hcard' : Fintype.card (rows × ι) < Fintype.card cols := by
     simpa [Fintype.card_prod] using hcard
-  letI : Nonempty ι := Fintype.card_pos_iff.mp <| by
+  let : Nonempty ι := Fintype.card_pos_iff.mp <| by
     rw [← Module.finrank_eq_card_basis b]
     exact Module.finrank_pos
   have hrows' : 0 < Fintype.card (rows × ι) := Fintype.card_pos
@@ -3319,7 +3319,7 @@ theorem exists_bounded_nonzero_multipoint_moment_coefficients_numberField
           Real.exp Hentry * M := by
   dsimp only
   let rows := LinearForms.MultipointRectangularMomentIndex iota A T S
-  letI : Fintype rows := by
+  let : Fintype rows := by
     dsimp [rows, LinearForms.MultipointRectangularMomentIndex,
       LinearForms.RectangularMomentIndex]
     infer_instance
@@ -3336,7 +3336,7 @@ theorem exists_bounded_nonzero_multipoint_moment_coefficients_numberField
     intro row k
     exact LinearForms.logHeight₁_multipointRectangularMomentMatrix_le
       beta a r A T S hV hbeta ha hr row k
-  haveI : Nonempty rows := Fintype.card_pos_iff.mp <| by
+  have : Nonempty rows := Fintype.card_pos_iff.mp <| by
     rw [hrowsCard]
     positivity
   have hcard' : Fintype.card rows * Fintype.card ι <
@@ -3938,7 +3938,7 @@ lemma numberFieldPrimeBelow_prime
     (v : IsDedekindDomain.HeightOneSpectrum
       (NumberField.RingOfIntegers K)) :
     (numberFieldPrimeBelow v).Prime := by
-  letI : NeZero v.asIdeal := ⟨v.ne_bot⟩
+  let : NeZero v.asIdeal := ⟨v.ne_bot⟩
   exact Nat.absNorm_under_prime v.asIdeal
 
 /-- The inertia degree of a height-one prime is at most the degree of the
@@ -4106,10 +4106,10 @@ lemma numberFieldPrimeSupport_card_le
       let P : Ideal ℤ := Ideal.span {(p : ℤ)}
       have hP0 : P ≠ ⊥ := by
         simp [P, hpprime.ne_zero]
-      letI hPprime : P.IsPrime :=
+      let hPprime : P.IsPrime :=
         Ideal.isPrime_span_singleton_of_prime
           ((Nat.prime_iff_prime_int).mp hpprime)
-      letI hPmax : P.IsMaximal := hPprime.isMaximal hP0
+      let hPmax : P.IsMaximal := hPprime.isMaximal hP0
       calc
         (hS.toFinset.filter (fun v ↦ numberFieldPrimeBelow v = p)).card ≤
             (IsDedekindDomain.primesOverFinset P
@@ -5192,14 +5192,14 @@ lemma groupFG_of_ker_range
     (hk : Group.FG (f.ker : Subgroup G))
     (hr : Group.FG (f.range : Subgroup H)) : Group.FG G := by
   rw [GroupFG.iff_add_fg, ← Module.Finite.iff_addGroup_fg]
-  haveI : Module.Finite ℤ
+  have : Module.Finite ℤ
       (LinearMap.ker (MonoidHom.toAdditive f).toIntLinearMap) := by
     rw [AddMonoidHom.coe_toIntLinearMap_ker, Module.Finite.iff_fg,
       Submodule.fg_iff_addSubgroup_fg,
       AddSubgroup.toIntSubmodule_toAddSubgroup]
     exact (Subgroup.fg_iff_add_fg f.ker).mp
       ((Group.fg_iff_subgroup_fg f.ker).mp hk)
-  haveI : Module.Finite ℤ
+  have : Module.Finite ℤ
       (LinearMap.range (MonoidHom.toAdditive f).toIntLinearMap) := by
     rw [AddMonoidHom.coe_toIntLinearMap_range, Module.Finite.iff_fg,
       Submodule.fg_iff_addSubgroup_fg,
@@ -5212,9 +5212,9 @@ lemma groupFG_of_ker_range
 generated. -/
 lemma subgroupFG {G : Type*} [CommGroup G] [Group.FG G]
     (P : Subgroup G) : Group.FG P := by
-  haveI : Module.Finite ℤ (Additive G) :=
+  have : Module.Finite ℤ (Additive G) :=
     Module.Finite.iff_addGroup_fg.mpr (GroupFG.iff_add_fg.mp inferInstance)
-  haveI : IsNoetherian ℤ (Additive G) := inferInstance
+  have : IsNoetherian ℤ (Additive G) := inferInstance
   have h : (AddSubgroup.toIntSubmodule (Subgroup.toAddSubgroup P)).FG :=
     IsNoetherian.noetherian _
   rw [Submodule.fg_iff_addSubgroup_fg,
@@ -5227,8 +5227,8 @@ the units supported nowhere are finitely generated. -/
 theorem fg [Finite S]
     (hEmpty : Group.FG ((∅ : Set (HeightOneSpectrum R)).unit F)) :
     Group.FG (S.unit F) := by
-  haveI : Group.FG ((∅ : Set (HeightOneSpectrum R)).unit F) := hEmpty
-  haveI : Group.FG (↑S → Multiplicative ℤ) := by
+  have : Group.FG ((∅ : Set (HeightOneSpectrum R)).unit F) := hEmpty
+  have : Group.FG (↑S → Multiplicative ℤ) := by
     rw [GroupFG.iff_add_fg, ← Module.Finite.iff_addGroup_fg]
     exact inferInstanceAs (Module.Finite ℤ (↑S → ℤ))
   apply groupFG_of_ker_range (valuationMap S F)
@@ -5247,7 +5247,7 @@ omit [IsDedekindDomain R] in
 primes. -/
 lemma finrank_valuationCodomain [Finite S] :
     Module.finrank ℤ (Additive (↑S → Multiplicative ℤ)) = Nat.card S := by
-  letI : Fintype ↑S := Fintype.ofFinite _
+  let : Fintype ↑S := Fintype.ofFinite _
   rw [Nat.card_eq_fintype_card]
   exact Module.finrank_pi ℤ
 
@@ -5274,8 +5274,8 @@ lemma finrank_eq_add_range [Finite S]
         Module.finrank ℤ
           (LinearMap.range
             (MonoidHom.toAdditive (valuationMap S F)).toIntLinearMap) := by
-  haveI : Group.FG (S.unit F) := fg S F hEmpty
-  haveI : Module.Finite ℤ (Additive (S.unit F)) :=
+  have : Group.FG (S.unit F) := fg S F hEmpty
+  have : Module.Finite ℤ (Additive (S.unit F)) :=
     Module.Finite.iff_addGroup_fg.mpr (GroupFG.iff_add_fg.mp inferInstance)
   have hrn := Submodule.finrank_quotient_add_finrank
     (LinearMap.ker (MonoidHom.toAdditive (valuationMap S F)).toIntLinearMap)
@@ -6114,7 +6114,7 @@ the precise number field used above. -/
 theorem numberFieldPrimeSupport_units_fg
     {K : Type*} [Field K] [NumberField K] (z : Kˣ) :
     Group.FG ((numberFieldPrimeSupport z).unit K) := by
-  letI : Fintype (numberFieldPrimeSupport z) :=
+  let : Fintype (numberFieldPrimeSupport z) :=
     (numberFieldPrimeSupport_finite z).fintype
   have hOrd : Group.FG (NumberField.RingOfIntegers K)ˣ :=
     Group.fg_iff_monoid_fg.mpr inferInstance
@@ -6135,9 +6135,9 @@ theorem numberFieldPrimeSupport_units_finrank_le
     (hdeg : Module.finrank ℚ K ≤ 8) :
     Module.finrank ℤ (Additive ((numberFieldPrimeSupport z).unit K)) ≤
       7 + Nat.card (numberFieldPrimeSupport z) := by
-  letI : Fintype (numberFieldPrimeSupport z) :=
+  let : Fintype (numberFieldPrimeSupport z) :=
     (numberFieldPrimeSupport_finite z).fintype
-  letI : Group.FG (NumberField.RingOfIntegers K)ˣ :=
+  let : Group.FG (NumberField.RingOfIntegers K)ˣ :=
     Group.fg_iff_monoid_fg.mpr inferInstance
   have hEmpty : Group.FG
       ((∅ : Set (IsDedekindDomain.HeightOneSpectrum
@@ -6186,8 +6186,8 @@ theorem numberField_supported_units_finrank_le
       (NumberField.RingOfIntegers K))}
     (hS : S.Finite) (hdeg : Module.finrank ℚ K ≤ 8) :
     Module.finrank ℤ (Additive (S.unit K)) ≤ 7 + Nat.card S := by
-  letI : Fintype S := hS.fintype
-  letI : Group.FG (NumberField.RingOfIntegers K)ˣ :=
+  let : Fintype S := hS.fintype
+  let : Group.FG (NumberField.RingOfIntegers K)ˣ :=
     Group.fg_iff_monoid_fg.mpr inferInstance
   have hEmpty : Group.FG
       ((∅ : Set (IsDedekindDomain.HeightOneSpectrum
@@ -6533,7 +6533,7 @@ theorem supportedUnit_finite_generators
     (hS : S.Finite) :
     ∃ T : Finset (S.unit K),
       Subgroup.closure (T : Set (S.unit K)) = ⊤ := by
-  letI : Fintype S := hS.fintype
+  let : Fintype S := hS.fintype
   obtain ⟨_n, T, _hcard, hT⟩ :=
     Group.fg_iff'.mp (numberField_supported_units_fg (K := K) (S := S))
   exact ⟨T, hT⟩
@@ -6548,7 +6548,7 @@ theorem supportedUnit_two_exponent_representation
     ∃ (T : Finset (S.unit K)) (eU eV : T → ℤ),
       U = ∏ g : T, (g.1 : S.unit K) ^ eU g ∧
       V = ∏ g : T, (g.1 : S.unit K) ^ eV g := by
-  letI : Fintype S := hS.fintype
+  let : Fintype S := hS.fintype
   obtain ⟨T, hT⟩ := supportedUnit_finite_generators (K := K) hS
   have hUmem : U ∈ Subgroup.closure (T : Set (S.unit K)) := by
     rw [hT]
@@ -7054,7 +7054,7 @@ theorem simultaneousPell_quantitative_common_explicit_product
     simultaneousPell_quantitative_common_supported_unit_equation
       hs₁ hs₂ hs₃ hPell hβ₁₂ hβ₁₃ hβ₂₃ hdeg
   refine ⟨S, U, V, hS, hcard, hrank, hUV, ?_⟩
-  letI : Fintype S := hS.fintype
+  let : Fintype S := hS.fintype
   obtain ⟨eU, ζU, fU, hUprod, heU⟩ :=
     numberField_supportedUnit_classNumber_explicit_product S U
   obtain ⟨eV, ζV, fV, hVprod, heV⟩ :=
@@ -7110,7 +7110,7 @@ theorem simultaneousPell_quantitative_common_bounded_explicit_product
     simultaneousPell_quantitative_common_finite_coordinate_pow_le
       hs₁ hs₂ hs₃ hPell hβ₁₂ hβ₁₃ hβ₂₃ hdeg J hJ₁₂ hJ₁₃ hJ₂₃
   refine ⟨S, U, V, hS, hUV, hU, hV, ?_⟩
-  letI : Fintype S := hS.fintype
+  let : Fintype S := hS.fintype
   obtain ⟨eU, ζU, fU, hUprod, heU⟩ :=
     numberField_supportedUnit_classNumber_explicit_product S U
   obtain ⟨eV, ζV, fV, hVprod, heV⟩ :=
@@ -7791,7 +7791,7 @@ theorem simultaneousPell_quantitative_common_all_coordinate_bounds
       (by simpa using hs₁) (by simpa using hs₂) (by simpa using hs₃)
       hPell hβ₁₂ hβ₁₃ hβ₂₃ hdeg J hJ₁₂ hJ₁₃ hJ₂₃
   refine ⟨S, U, V, hS, hSdef, hUV, hU, hV, ?_⟩
-  letI : Fintype S := hS.fintype
+  let : Fintype S := hS.fintype
   let B : ℝ := 16 * Real.log 2 + 16 * Real.log (H : ℝ) +
     16 * (Real.log (x₁ : ℝ) + Real.log (x₂ : ℝ) +
       Real.log (x₃ : ℝ))
@@ -7952,8 +7952,8 @@ lemma numberField_natAbs_discr_le_of_finite_spanning_family
       (empty_subset (Set.range v))).Finite
     rw [← Basis.range_ofSpan hspan]
     exact (Set.finite_range v).subset (Basis.ofSpan_subset hspan)
-  letI : Fintype I := hIfin.fintype
-  letI : DecidableEq I := Classical.decEq I
+  let : Fintype I := hIfin.fintype
+  let : DecidableEq I := Classical.decEq I
   have hcard : Fintype.card I = Module.finrank ℚ K := by
     exact (Module.finrank_eq_card_basis b).symm
   let e : I ≃ (K →ₐ[ℚ] ℂ) := Fintype.equivOfCardEq <| by
@@ -8060,7 +8060,8 @@ lemma threeSqRootMonomial_span_mul_mem
     rcases b with ⟨b₁, b₂, b₃⟩
     fin_cases a₁ <;> fin_cases a₂ <;> fin_cases a₃ <;>
       fin_cases b₁ <;> fin_cases b₂ <;> fin_cases b₃ <;>
-      simp [threeSqRootMonomial] <;> (try ring_nf) <;>
+      simp only [Fin.mk_one, Fin.isValue, Fin.zero_eta, mul_one, pow_one, eq_ratCast, mul_zero, pow_zero,
+    Rat.cast_one, Prod.mk_add_mk, Fin.reduceAdd, add_zero, zero_add, one_mul] <;> (try ring_nf) <;>
       simp [hs₁, hs₂, hs₃] <;> (try ac_rfl) <;>
       exact Or.inl (mul_comm _ _)
   rw [heq]
@@ -8247,7 +8248,7 @@ lemma finrank_threeSqRoots_le_eight
     Module.finrank ℚ K ≤ 8 := by
   have hspan := threeSqRootMonomial_span_eq_top_of_adjoin_eq_top
     s₁ s₂ s₃ γ₁ γ₂ γ₃ hs₁ hs₂ hs₃ hgen
-  letI : Fintype (Set.range (threeSqRootMonomial s₁ s₂ s₃)) :=
+  let : Fintype (Set.range (threeSqRootMonomial s₁ s₂ s₃)) :=
     (Set.finite_range (threeSqRootMonomial s₁ s₂ s₃)).fintype
   rw [← finrank_top ℚ K, ← hspan]
   calc
@@ -8674,7 +8675,7 @@ theorem regulator_lower_of_unitLattice_gap
   have hspan : Submodule.span ℤ (Set.range b) =
       NumberField.Units.unitLattice K := by
     exact (NumberField.Units.basisUnitLattice K).ofZLatticeBasis_span ℝ
-  letI : Countable (NumberField.Units.unitLattice K) := by
+  let : Countable (NumberField.Units.unitLattice K) := by
     rw [← hspan]
     infer_instance
   let F : Set (NumberField.Units.dirichletUnitTheorem.logSpace K) :=
@@ -11298,8 +11299,8 @@ lemma algebra_adjoin_three_lifts_eq_top
   dsimp only
   let K := IntermediateField.adjoin ℚ
     ({s₁, s₂, s₃} : Set (AlgebraicClosure ℚ))
-  letI : Algebra ℚ K := K.algebra'
-  letI : Algebra.IsAlgebraic ℚ (AlgebraicClosure ℚ) :=
+  let : Algebra ℚ K := K.algebra'
+  let : Algebra.IsAlgebraic ℚ (AlgebraicClosure ℚ) :=
     AlgebraicClosure.isAlgebraic ℚ
   let r₁ : K := ⟨s₁, IntermediateField.subset_adjoin ℚ _ (by simp)⟩
   let r₂ : K := ⟨s₂, IntermediateField.subset_adjoin ℚ _ (by simp)⟩
@@ -11415,8 +11416,8 @@ lemma real_sqrt_nat_isIntegral (γ : ℕ) :
 theorem realPellFieldNumberField (γ₁ γ₂ γ₃ : ℕ) :
     NumberField (realPellField γ₁ γ₂ γ₃) := by
   let K := realPellField γ₁ γ₂ γ₃
-  letI : Algebra ℚ K := K.algebra'
-  letI : FiniteDimensional ℚ K :=
+  let : Algebra ℚ K := K.algebra'
+  let : FiniteDimensional ℚ K :=
     IntermediateField.finiteDimensional_adjoin fun x hx ↦ by
       simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx
       rcases hx with rfl | rfl | rfl
@@ -11439,8 +11440,8 @@ lemma realPellField_adjoin_roots_eq_top (γ₁ γ₂ γ₃ : ℕ) :
     Algebra.adjoin ℚ {r₁, r₂, r₃} = ⊤ := by
   dsimp only
   let K := realPellField γ₁ γ₂ γ₃
-  letI : Algebra ℚ K := K.algebra'
-  letI : FiniteDimensional ℚ K :=
+  let : Algebra ℚ K := K.algebra'
+  let : FiniteDimensional ℚ K :=
     IntermediateField.finiteDimensional_adjoin fun x hx ↦ by
       simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx
       rcases hx with rfl | rfl | rfl
@@ -11499,15 +11500,15 @@ theorem realPellFieldIsTotallyReal
     NumberField.IsTotallyReal K := by
   dsimp only
   let K := realPellField γ₁ γ₂ γ₃
-  letI : Algebra ℚ K := K.algebra'
-  letI : FiniteDimensional ℚ K :=
+  let : Algebra ℚ K := K.algebra'
+  let : FiniteDimensional ℚ K :=
     IntermediateField.finiteDimensional_adjoin fun x hx ↦ by
       simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx
       rcases hx with rfl | rfl | rfl
       · exact real_sqrt_nat_isIntegral γ₁
       · exact real_sqrt_nat_isIntegral γ₂
       · exact real_sqrt_nat_isIntegral γ₃
-  letI : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
+  let : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
   let r₁ : K := ⟨Real.sqrt γ₁,
     IntermediateField.subset_adjoin ℚ _ (by simp)⟩
   let r₂ : K := ⟨Real.sqrt γ₂,
@@ -11540,15 +11541,15 @@ theorem realPellField_natAbs_discr_le
       ((40320 : ℝ) * (H : ℝ) ^ 24) ^ 2 := by
   dsimp only
   let K := realPellField γ₁ γ₂ γ₃
-  letI : Algebra ℚ K := K.algebra'
-  letI : FiniteDimensional ℚ K :=
+  let : Algebra ℚ K := K.algebra'
+  let : FiniteDimensional ℚ K :=
     IntermediateField.finiteDimensional_adjoin fun x hx ↦ by
       simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx
       rcases hx with rfl | rfl | rfl
       · exact real_sqrt_nat_isIntegral γ₁
       · exact real_sqrt_nat_isIntegral γ₂
       · exact real_sqrt_nat_isIntegral γ₃
-  letI : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
+  let : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
   let r₁ : K := ⟨Real.sqrt γ₁,
     IntermediateField.subset_adjoin ℚ _ (by simp)⟩
   let r₂ : K := ⟨Real.sqrt γ₂,
@@ -11581,15 +11582,15 @@ theorem realPellField_classNumber_le
       (6 : ℝ) ^ 8 * ((40320 : ℝ) * (H : ℝ) ^ 24) ^ 2 := by
   dsimp only
   let K := realPellField γ₁ γ₂ γ₃
-  letI : Algebra ℚ K := K.algebra'
-  letI : FiniteDimensional ℚ K :=
+  let : Algebra ℚ K := K.algebra'
+  let : FiniteDimensional ℚ K :=
     IntermediateField.finiteDimensional_adjoin fun x hx ↦ by
       simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx
       rcases hx with rfl | rfl | rfl
       · exact real_sqrt_nat_isIntegral γ₁
       · exact real_sqrt_nat_isIntegral γ₂
       · exact real_sqrt_nat_isIntegral γ₃
-  letI : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
+  let : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
   let r₁ : K := ⟨Real.sqrt γ₁,
     IntermediateField.subset_adjoin ℚ _ (by simp)⟩
   let r₂ : K := ⟨Real.sqrt γ₂,
@@ -11667,15 +11668,15 @@ theorem realPell_supportedUnit_log_gap
           2 * Real.log (Real.sqrt γ₁ * x₁) := by
   dsimp only
   let K := realPellField γ₁ γ₂ γ₃
-  letI : Algebra ℚ K := K.algebra'
-  letI : FiniteDimensional ℚ K :=
+  let : Algebra ℚ K := K.algebra'
+  let : FiniteDimensional ℚ K :=
     IntermediateField.finiteDimensional_adjoin fun x hx ↦ by
       simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx
       rcases hx with rfl | rfl | rfl
       · exact real_sqrt_nat_isIntegral γ₁
       · exact real_sqrt_nat_isIntegral γ₂
       · exact real_sqrt_nat_isIntegral γ₃
-  letI : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
+  let : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
   let r₁ : K := realPellRootOne γ₁ γ₂ γ₃
   let r₂ : K := realPellRootTwo γ₁ γ₂ γ₃
   let r₃ : K := realPellRootThree γ₁ γ₂ γ₃
@@ -11817,16 +11818,16 @@ theorem realPellField_supportedUnit_boundedUnit_decomposition_explicit
                   NumberField.Units.rank K := by
   dsimp only
   let K := realPellField γ₁ γ₂ γ₃
-  letI : Algebra ℚ K := K.algebra'
-  letI : FiniteDimensional ℚ K :=
+  let : Algebra ℚ K := K.algebra'
+  let : FiniteDimensional ℚ K :=
     IntermediateField.finiteDimensional_adjoin fun x hx ↦ by
       simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx
       rcases hx with rfl | rfl | rfl
       · exact real_sqrt_nat_isIntegral γ₁
       · exact real_sqrt_nat_isIntegral γ₂
       · exact real_sqrt_nat_isIntegral γ₃
-  letI : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
-  letI : NumberField.IsTotallyReal K :=
+  let : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
+  let : NumberField.IsTotallyReal K :=
     realPellFieldIsTotallyReal hγ₁ hγ₂ hγ₃
   intro S _ u
   let r₁ : K := realPellRootOne γ₁ γ₂ γ₃
@@ -11937,11 +11938,11 @@ theorem pellSplittingFieldNumberField
       ({s₁, s₂, s₃} : Set (AlgebraicClosure ℚ))) := by
   let K := IntermediateField.adjoin ℚ
     ({s₁, s₂, s₃} : Set (AlgebraicClosure ℚ))
-  letI : Algebra ℚ K := K.algebra'
-  letI : Algebra.IsIntegral ℚ (AlgebraicClosure ℚ) :=
+  let : Algebra ℚ K := K.algebra'
+  let : Algebra.IsIntegral ℚ (AlgebraicClosure ℚ) :=
     @Algebra.IsAlgebraic.isIntegral ℚ (AlgebraicClosure ℚ) _ _ _
       (AlgebraicClosure.isAlgebraic ℚ)
-  letI : FiniteDimensional ℚ K :=
+  let : FiniteDimensional ℚ K :=
     IntermediateField.finiteDimensional_adjoin fun x _ ↦
       Algebra.IsIntegral.isIntegral x
   exact NumberField.of_module_finite ℚ K
@@ -11966,16 +11967,16 @@ theorem pellSplittingFieldIsTotallyReal
   dsimp only
   let K := IntermediateField.adjoin ℚ
     ({s₁, s₂, s₃} : Set (AlgebraicClosure ℚ))
-  letI : Algebra ℚ K := K.algebra'
-  letI : Algebra.IsAlgebraic ℚ (AlgebraicClosure ℚ) :=
+  let : Algebra ℚ K := K.algebra'
+  let : Algebra.IsAlgebraic ℚ (AlgebraicClosure ℚ) :=
     AlgebraicClosure.isAlgebraic ℚ
-  letI : Algebra.IsIntegral ℚ (AlgebraicClosure ℚ) :=
+  let : Algebra.IsIntegral ℚ (AlgebraicClosure ℚ) :=
     @Algebra.IsAlgebraic.isIntegral ℚ (AlgebraicClosure ℚ) _ _ _
       (AlgebraicClosure.isAlgebraic ℚ)
-  letI : FiniteDimensional ℚ K :=
+  let : FiniteDimensional ℚ K :=
     IntermediateField.finiteDimensional_adjoin fun x _ ↦
       Algebra.IsIntegral.isIntegral x
-  letI : NumberField K := pellSplittingFieldNumberField s₁ s₂ s₃
+  let : NumberField K := pellSplittingFieldNumberField s₁ s₂ s₃
   let r₁ : K := ⟨s₁, IntermediateField.subset_adjoin ℚ _ (by simp)⟩
   let r₂ : K := ⟨s₂, IntermediateField.subset_adjoin ℚ _ (by simp)⟩
   let r₃ : K := ⟨s₃, IntermediateField.subset_adjoin ℚ _ (by simp)⟩
@@ -12015,16 +12016,16 @@ theorem pellSplittingField_natAbs_discr_le
   dsimp only
   let K := IntermediateField.adjoin ℚ
     ({s₁, s₂, s₃} : Set (AlgebraicClosure ℚ))
-  letI : Algebra ℚ K := K.algebra'
-  letI : Algebra.IsAlgebraic ℚ (AlgebraicClosure ℚ) :=
+  let : Algebra ℚ K := K.algebra'
+  let : Algebra.IsAlgebraic ℚ (AlgebraicClosure ℚ) :=
     AlgebraicClosure.isAlgebraic ℚ
-  letI : Algebra.IsIntegral ℚ (AlgebraicClosure ℚ) :=
+  let : Algebra.IsIntegral ℚ (AlgebraicClosure ℚ) :=
     @Algebra.IsAlgebraic.isIntegral ℚ (AlgebraicClosure ℚ) _ _ _
       (AlgebraicClosure.isAlgebraic ℚ)
-  letI : FiniteDimensional ℚ K :=
+  let : FiniteDimensional ℚ K :=
     IntermediateField.finiteDimensional_adjoin fun x _ ↦
       Algebra.IsIntegral.isIntegral x
-  letI : NumberField K := pellSplittingFieldNumberField s₁ s₂ s₃
+  let : NumberField K := pellSplittingFieldNumberField s₁ s₂ s₃
   let r₁ : K := ⟨s₁, IntermediateField.subset_adjoin ℚ _ (by simp)⟩
   let r₂ : K := ⟨s₂, IntermediateField.subset_adjoin ℚ _ (by simp)⟩
   let r₃ : K := ⟨s₃, IntermediateField.subset_adjoin ℚ _ (by simp)⟩
@@ -12062,16 +12063,16 @@ theorem pellSplittingField_classNumber_le
   dsimp only
   let K := IntermediateField.adjoin ℚ
     ({s₁, s₂, s₃} : Set (AlgebraicClosure ℚ))
-  letI : Algebra ℚ K := K.algebra'
-  letI : Algebra.IsAlgebraic ℚ (AlgebraicClosure ℚ) :=
+  let : Algebra ℚ K := K.algebra'
+  let : Algebra.IsAlgebraic ℚ (AlgebraicClosure ℚ) :=
     AlgebraicClosure.isAlgebraic ℚ
-  letI : Algebra.IsIntegral ℚ (AlgebraicClosure ℚ) :=
+  let : Algebra.IsIntegral ℚ (AlgebraicClosure ℚ) :=
     @Algebra.IsAlgebraic.isIntegral ℚ (AlgebraicClosure ℚ) _ _ _
       (AlgebraicClosure.isAlgebraic ℚ)
-  letI : FiniteDimensional ℚ K :=
+  let : FiniteDimensional ℚ K :=
     IntermediateField.finiteDimensional_adjoin fun x _ ↦
       Algebra.IsIntegral.isIntegral x
-  letI : NumberField K := pellSplittingFieldNumberField s₁ s₂ s₃
+  let : NumberField K := pellSplittingFieldNumberField s₁ s₂ s₃
   let r₁ : K := ⟨s₁, IntermediateField.subset_adjoin ℚ _ (by simp)⟩
   let r₂ : K := ⟨s₂, IntermediateField.subset_adjoin ℚ _ (by simp)⟩
   let r₃ : K := ⟨s₃, IntermediateField.subset_adjoin ℚ _ (by simp)⟩
@@ -12113,7 +12114,7 @@ theorem exists_finite_pell_splitting_field (γ₁ γ₂ γ₃ : ℤ) :
     (γ₂ : AlgebraicClosure ℚ) (by norm_num : 0 < 2)
   obtain ⟨s₃, hs₃⟩ := IsAlgClosed.exists_pow_nat_eq
     (γ₃ : AlgebraicClosure ℚ) (by norm_num : 0 < 2)
-  letI : Algebra.IsIntegral ℚ (AlgebraicClosure ℚ) :=
+  let : Algebra.IsIntegral ℚ (AlgebraicClosure ℚ) :=
     @Algebra.IsAlgebraic.isIntegral ℚ (AlgebraicClosure ℚ) _ _ _
       (AlgebraicClosure.isAlgebraic ℚ)
   let hfin : FiniteDimensional ℚ
@@ -17078,16 +17079,16 @@ theorem realPell_combined_archimedean_data
     RealPellCombinedArchimedeanData γ₁ γ₂ γ₃ H x₁ x₂ x₃ J β₁₂ β₁₃
       hγ₁ hγ₂ hγ₃ hβ₁₂ hβ₁₃ hβ₂₃ := by
   let K := realPellField γ₁ γ₂ γ₃
-  letI : Algebra ℚ K := K.algebra'
-  letI : FiniteDimensional ℚ K :=
+  let : Algebra ℚ K := K.algebra'
+  let : FiniteDimensional ℚ K :=
     IntermediateField.finiteDimensional_adjoin fun x hx ↦ by
       simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx
       rcases hx with rfl | rfl | rfl
       · exact real_sqrt_nat_isIntegral γ₁
       · exact real_sqrt_nat_isIntegral γ₂
       · exact real_sqrt_nat_isIntegral γ₃
-  letI : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
-  letI : NumberField.IsTotallyReal K :=
+  let : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
+  let : NumberField.IsTotallyReal K :=
     realPellFieldIsTotallyReal hγ₁ hγ₂ hγ₃
   let ratio : Kˣ :=
     Units.mk0 (β₁₃ : K) (Int.cast_ne_zero.mpr hβ₁₃) /
@@ -17113,7 +17114,7 @@ theorem realPell_combined_archimedean_data
     realPell_supportedUnit_log_gap hPell hβ₁₂ hβ₁₃ hβ₂₃
       hJ₁₂ hJ₁₃ hJ₂₃ hγ₁ hγ₂ hγ₃ hγ₁H hγ₂H hγ₃H
       hx₁ hx₂ hx₃ hlarge.le
-  letI : Fintype S := hS.fintype
+  let : Fintype S := hS.fintype
   have hcoordNorm := simultaneousPell_common_left_coordinate_pow_le_of_eq
     hr₁ hr₂ hr₃ hPell hβ₁₂ hβ₁₃ hβ₂₃ hdeg J
       hJ₁₂ hJ₁₃ hJ₂₃ S U hSdef (by simpa [r₁, r₂, r₃] using hU)
@@ -17138,7 +17139,7 @@ theorem realPell_combined_archimedean_data
     exists_threeSqRoot_integral_basis r₁ r₂ r₃ hr₁ hr₂ hr₃
       hγ₁ hγ₂ hγ₃ hγ₁H hγ₂H hγ₃H
       (by exact realPellField_adjoin_roots_eq_top γ₁ γ₂ γ₃)
-  letI : Fintype ι := hι.fintype
+  let : Fintype ι := hι.fintype
   unfold RealPellCombinedArchimedeanData
   dsimp only
   refine ⟨S, U, hS, ι, hι, basis, e, q, hB, ζ, a, ?_⟩
@@ -18559,16 +18560,16 @@ theorem realPell_controlled_archimedean_data
     RealPellControlledArchimedeanData γ₁ γ₂ γ₃ H x₁ x₂ x₃ J β₁₂ β₁₃
       hγ₁ hγ₂ hγ₃ hβ₁₂ hβ₁₃ hβ₂₃ := by
   let K := realPellField γ₁ γ₂ γ₃
-  letI : Algebra ℚ K := K.algebra'
-  letI : FiniteDimensional ℚ K :=
+  let : Algebra ℚ K := K.algebra'
+  let : FiniteDimensional ℚ K :=
     IntermediateField.finiteDimensional_adjoin fun x hx ↦ by
       simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx
       rcases hx with rfl | rfl | rfl
       · exact real_sqrt_nat_isIntegral γ₁
       · exact real_sqrt_nat_isIntegral γ₂
       · exact real_sqrt_nat_isIntegral γ₃
-  letI : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
-  letI : NumberField.IsTotallyReal K :=
+  let : NumberField K := realPellFieldNumberField γ₁ γ₂ γ₃
+  let : NumberField.IsTotallyReal K :=
     realPellFieldIsTotallyReal hγ₁ hγ₂ hγ₃
   let ratio : Kˣ :=
     Units.mk0 (β₁₃ : K) (Int.cast_ne_zero.mpr hβ₁₃) /
@@ -18594,7 +18595,7 @@ theorem realPell_controlled_archimedean_data
     realPell_supportedUnit_log_gap hPell hβ₁₂ hβ₁₃ hβ₂₃
       hJ₁₂ hJ₁₃ hJ₂₃ hγ₁ hγ₂ hγ₃ hγ₁H hγ₂H hγ₃H
       hx₁ hx₂ hx₃ hlarge.le
-  letI : Fintype S := hS.fintype
+  let : Fintype S := hS.fintype
   have hcoordNorm := simultaneousPell_common_left_coordinate_pow_le_of_eq
     hr₁ hr₂ hr₃ hPell hβ₁₂ hβ₁₃ hβ₂₃ hdeg J
       hJ₁₂ hJ₁₃ hJ₂₃ S U hSdef (by simpa [r₁, r₂, r₃] using hU)
@@ -18619,7 +18620,7 @@ theorem realPell_controlled_archimedean_data
     exists_threeSqRoot_integral_basis r₁ r₂ r₃ hr₁ hr₂ hr₃
       hγ₁ hγ₂ hγ₃ hγ₁H hγ₂H hγ₃H
       (by exact realPellField_adjoin_roots_eq_top γ₁ γ₂ γ₃)
-  letI : Fintype ι := hι.fintype
+  let : Fintype ι := hι.fintype
   unfold RealPellControlledArchimedeanData
   dsimp only
   refine ⟨S, U, hS, ι, hι, basis, e, q, hB, ζ, a, ?_⟩

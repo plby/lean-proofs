@@ -165,7 +165,7 @@ public theorem HarmonicOn.sub {f g : ℂ → F} {s : Set ℂ} (fh : HarmonicOn f
     (gh : HarmonicOn g s) : HarmonicOn (f - g) s :=
   { cont := ContinuousOn.sub fh.cont gh.cont
     mean := by
-      intro c r rp cs; simp [fh.mean c r rp cs, gh.mean c r rp cs]
+      intro c r rp cs; simp only [Pi.sub_apply]
       rw [Average.sub ((fh.cont.mono cs).integrableOn_sphere rp)
         ((gh.cont.mono cs).integrableOn_sphere rp)] }
 

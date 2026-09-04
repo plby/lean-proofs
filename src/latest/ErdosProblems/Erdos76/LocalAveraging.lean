@@ -538,7 +538,7 @@ private lemma vertexLoad_monoColorWeight_of_adj {wR wB : Finset A → ℝ}
     (monochromaticTriangleHypergraph G).vertexLoad
         (monoColorWeight G wR wB) {a, b} =
       fractionalEdgeLoad G wR s(a, b) := by
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
   unfold FiniteHypergraph.vertexLoad fractionalEdgeLoad
   apply Finset.sum_bij (fun t _ ↦ t.1)
   · intro t ht
@@ -568,7 +568,7 @@ private lemma vertexLoad_monoColorWeight_of_not_adj {wR wB : Finset A → ℝ}
     (monochromaticTriangleHypergraph G).vertexLoad
         (monoColorWeight G wR wB) {a, b} =
       fractionalEdgeLoad Gᶜ wB s(a, b) := by
-  letI : DecidableRel Gᶜ.Adj := Classical.decRel _
+  let : DecidableRel Gᶜ.Adj := Classical.decRel _
   unfold FiniteHypergraph.vertexLoad fractionalEdgeLoad
   apply Finset.sum_bij (fun t _ ↦ t.1)
   · intro t ht
@@ -600,8 +600,8 @@ lemma monoColorWeight_isFractionalMatching {wR wB : Finset A → ℝ}
     (hwR : IsFractionalPacking G wR) (hwB : IsFractionalPacking Gᶜ wB) :
     (monochromaticTriangleHypergraph G).IsFractionalMatching
       (monoColorWeight G wR wB) := by
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel Gᶜ.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel Gᶜ.Adj := Classical.decRel _
   constructor
   · exact monoColorWeight_nonneg G hwR hwB
   · intro e he

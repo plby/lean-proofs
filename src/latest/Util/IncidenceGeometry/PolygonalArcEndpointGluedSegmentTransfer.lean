@@ -286,7 +286,7 @@ lemma PolygonalArcEndpointGluedSegmentTransfer
                       | nil => exact False.elim (htail_ne h)
                       | cons a as => simp
                     rw [hibound]
-                    simp [List.length_append]
+                    simp only [List.length_append, List.length_tail, lt_add_iff_pos_right, tsub_pos_iff_lt, gt_iff_lt]
                     exact hWseg
                   have hbig_tail :
                       (PolygonalArcEndpointGluedVertices (Δ :: E :: rs))[i + 1] =

@@ -400,8 +400,7 @@ theorem paleyZygmund_mul [IsProbabilityMeasure mu]
         · exact integrable_const _
         · filter_upwards with omega
           by_cases hmem : omega ∈ upper
-          · simp [eventIndicator, hmem]
-            exact mul_nonneg htheta0 hmean_nonneg
+          · simpa [eventIndicator, hmem] using mul_nonneg htheta0 hmean_nonneg
           · have hcomp : omega ∈ upperᶜ := hmem
             rw [eventIndicator_of_mem hcomp, mul_one]
             exact (lt_of_not_ge (by simpa [upper] using hmem)).le

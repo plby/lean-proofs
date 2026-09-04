@@ -62,7 +62,7 @@ theorem endpoint_exists_balanced_selector_of_three
       hrels.1 hrels.2 with hbal | hex
   · exact hbal
   · obtain ⟨L, hLC, hLCC⟩ := hex
-    letI : L.Normal := ⟨by
+    let : L.Normal := ⟨by
       intro n hn g
       convert hn using 1 <;> abel⟩
     let Q₃ := ((((ℤ × H) ⧸ Δ) ⧸ Fsub) ⧸ L)

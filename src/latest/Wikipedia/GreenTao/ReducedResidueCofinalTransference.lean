@@ -133,7 +133,7 @@ theorem
   refine
     ⟨M, hM₀, by simpa only [hMsucc] using hqPrime, ?_⟩
   intro b hb hmean
-  letI : NeZero (M + 1) := ⟨Nat.succ_ne_zero M⟩
+  let : NeZero (M + 1) := ⟨Nat.succ_ne_zero M⟩
   have hcoprime :
       Nat.Coprime (M + 1) (Nat.factorial (r + 1)) := by
     have hrankq : r + 1 < q := by

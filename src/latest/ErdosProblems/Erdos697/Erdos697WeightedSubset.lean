@@ -30,7 +30,7 @@ theorem sum_tuple_pushforward
         (∏ j, ∑ i, if f i = g j then w i else 0) * H g := by
   induction K with
   | zero =>
-      simp
+      simp only [Finset.univ_unique, Finset.univ_eq_empty, Finset.prod_empty, one_mul, Finset.sum_singleton]
       exact congrArg H (Subsingleton.elim _ _)
   | succ K ih =>
       rw [Fintype.sum_equiv

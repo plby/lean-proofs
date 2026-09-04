@@ -68,7 +68,7 @@ theorem cell_bad_not_large_cnf
       apply (@Ordinal.type_ne_zero_iff_nonempty p (· < ·) inferInstance).mp
       rw [hpe]
       exact Ordinal.opow_ne_zero _ Ordinal.omega0_ne_zero
-    letI : Nonempty p := hpNonempty
+    let : Nonempty p := hpNonempty
     have he : e ≤ kappa :=
       CNFStrong.omegaPower_exponent_le_of_ambient hpe hDle
     exact K4Core.bad_not_large_overlap hindY (hindPiece e hpe he)

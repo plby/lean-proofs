@@ -297,8 +297,8 @@ noncomputable instance uniformLaw.instIsProbabilityMeasure
 lemma charFun_uniformLaw (Ω : Type*) [Fintype Ω] [Nonempty Ω]
     (X : Ω → ℝ) (t : ℝ) :
     charFun (uniformLaw Ω X) t = Erdos88.Fourier.finCharFun Ω X t := by
-  letI : MeasurableSpace Ω := ⊤
-  letI : MeasurableSingletonClass Ω := ⟨fun _ ↦ MeasurableSet.of_discrete⟩
+  let : MeasurableSpace Ω := ⊤
+  let : MeasurableSingletonClass Ω := ⟨fun _ ↦ MeasurableSet.of_discrete⟩
   rw [uniformLaw, ← PMF.toMeasure_map (p := PMF.uniformOfFintype Ω) (f := X)
     (measurable_of_finite X), charFun_apply_real, integral_map]
   · rw [PMF.integral_eq_sum]
@@ -319,8 +319,8 @@ lemma uniformLaw_real_apply (Ω : Type*) [Fintype Ω] [Nonempty Ω]
     (X : Ω → ℝ) (s : Set ℝ) (hs : MeasurableSet s) :
     (uniformLaw Ω X).real s =
       ((Finset.univ.filter fun ω ↦ X ω ∈ s).card : ℝ) / Fintype.card Ω := by
-  letI : MeasurableSpace Ω := ⊤
-  letI : MeasurableSingletonClass Ω := ⟨fun _ ↦ MeasurableSet.of_discrete⟩
+  let : MeasurableSpace Ω := ⊤
+  let : MeasurableSingletonClass Ω := ⟨fun _ ↦ MeasurableSet.of_discrete⟩
   rw [uniformLaw, ← PMF.toMeasure_map (p := PMF.uniformOfFintype Ω) (f := X)
     (measurable_of_finite X), Measure.real, Measure.map_apply
       (measurable_of_finite X) hs]

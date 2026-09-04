@@ -89,7 +89,7 @@ theorem exponentOnePart_eq_primeNormMultiplicity_mul_log (n : ℕ) :
     exponentOnePart K n =
       (primeNormMultiplicity K n : ℝ) * Real.log (n : ℝ) := by
   classical
-  letI : Fintype (primeNormFiber K n) := Fintype.ofFinite _
+  let : Fintype (primeNormFiber K n) := Fintype.ofFinite _
   rw [exponentOnePart, ← Finset.sum_filter]
   rw [Finset.sum_subtype
     (p := fun x : IdealMangoldt.normFiber K n ↦ x.1.exponent = 1)
@@ -171,7 +171,7 @@ theorem primeNormMultiplicity_le_finrank
 /-- There is no nonzero prime ideal whose norm is smaller than two. -/
 theorem primeNormMultiplicity_eq_zero_of_lt_two {n : ℕ} (hn : n < 2) :
     primeNormMultiplicity K n = 0 := by
-  letI : IsEmpty (primeNormFiber K n) := ⟨fun 𝔭 ↦ by
+  let : IsEmpty (primeNormFiber K n) := ⟨fun 𝔭 ↦ by
     have hzero : Ideal.absNorm 𝔭.1.1 ≠ 0 :=
       fun h ↦ 𝔭.1.2.2 (Ideal.absNorm_eq_zero_iff.mp h)
     have hone : Ideal.absNorm 𝔭.1.1 ≠ 1 :=

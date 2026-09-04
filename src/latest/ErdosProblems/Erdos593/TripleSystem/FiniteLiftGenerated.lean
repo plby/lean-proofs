@@ -83,11 +83,11 @@ theorem ofRunningEdgeAssemblyGeometry
     FiniteLiftGenerated G (K.edgeRestriction (edgePieceUnion pieces)) := by
   induction pieces with
   | nil =>
-      letI : IsEmpty (K.EdgeSupport ∅) := ⟨by
+      let : IsEmpty (K.EdgeSupport ∅) := ⟨by
         intro x
         rcases x.2 with ⟨e, he, _⟩
         exact he⟩
-      letI : Fintype (K.EdgeSupport ∅) := Fintype.ofFinite _
+      let : Fintype (K.EdgeSupport ∅) := Fintype.ofFinite _
       exact FiniteLiftGenerated.ofIso
         (FiniteLiftGenerated.ofEdgeless (K.EdgeSupport ∅))
         (edgelessIsoEdgeRestrictionEmpty K)

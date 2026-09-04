@@ -457,9 +457,9 @@ theorem side_disjoint_of_le_not {n : ℕ} {X Y : SignedSubset n}
     (hXY : Le X Y) (positive : Bool) :
     Disjoint (X.side positive) (Y.side (!positive)) := by
   cases positive
-  · simp [side]
+  · simp only [side_false, Bool.not_false, side_true]
     exact Disjoint.mono hXY.2 (fun _ h => h) Y.disjoint.symm
-  · simp [side]
+  · simp only [side_true, Bool.not_true, side_false]
     exact Disjoint.mono hXY.1 (fun _ h => h) Y.disjoint
 
 theorem eq_of_le_card_eq {n : ℕ} {X Y : SignedSubset n}
@@ -512,7 +512,7 @@ theorem ext {m : ℕ} {L M : SignedLabel m}
     (hpositive : L.positive = M.positive) (hindex : L.index = M.index) : L = M := by
   cases L
   cases M
-  simp at hpositive hindex
+  simp only [mk.injEq] at hpositive hindex
   subst hpositive
   subst hindex
   rfl
@@ -1555,7 +1555,7 @@ theorem even_card_of_fixedPointFree_involutive {α : Type*} [Fintype α]
     exact hinv x
   have hsupp : p.support = Finset.univ := by
     ext x
-    simp [Equiv.Perm.mem_support]
+    simp only [Equiv.Perm.mem_support, ne_eq, Finset.mem_univ, iff_true]
     exact hfree x
   have htwo : 2 ∣ Fintype.card α := by
     simpa [hsupp] using Equiv.Perm.two_dvd_card_support (σ := p) hp2
@@ -1666,9 +1666,9 @@ theorem positive_card_odd {Positive Negative : Type} [Fintype Positive] [Fintype
     (D : PathEndpointDecomposition Positive Negative)
     (hneg : Fintype.card Negative = Fintype.card Positive) :
     Odd (Fintype.card Positive) := by
-  letI := D.instPath
-  letI := D.instBase
-  letI : ∀ p : D.Path, Fintype (D.Endpoint p) := D.instEndpoint
+  let := D.instPath
+  let := D.instBase
+  let : ∀ p : D.Path, Fintype (D.Endpoint p) := D.instEndpoint
   exact odd_card_positive_endpoints_of_path_endpoint_equiv
     D.Endpoint D.pathAntipode D.pathAntipode_involutive D.pathAntipode_fixedPointFree
     D.endpoint_card_two D.classify D.base_card hneg
@@ -1770,7 +1770,7 @@ theorem tuckerLemmaStatement_two : TuckerLemmaStatement 2 := by
       cases hx : (label X).positive <;> cases hy : (label Y).positive <;>
         simp [hx, hy] at hne ⊢
     have hindex : (label X).index = ((label Y).neg).index := by
-      simp [SignedLabel.neg]
+      simp only [Nat.add_one_sub_one]
       exact Subsingleton.elim _ _
     exact hno X Y hXY (SignedLabel.ext hbool hindex)
   let z : Fin 2 := ⟨0, by omega⟩

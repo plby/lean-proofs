@@ -155,7 +155,7 @@ private theorem exists_rooted_colored_copy_aux
       have hcard_large : 1 < Fintype.card A := by omega
       have hnontrivial : Nontrivial A :=
         Fintype.one_lt_card_iff_nontrivial.mp hcard_large
-      letI : Nontrivial A := hnontrivial
+      let : Nontrivial A := hnontrivial
       obtain ⟨x₀, x₁, hxne, hx₀deg, hx₁deg⟩ :=
         hT.exists_ne_and_degree_eq_one
       obtain ⟨x, hxroot, hxdeg⟩ : ∃ x : A, x ≠ root ∧ T.degree x = 1 := by

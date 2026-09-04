@@ -632,7 +632,7 @@ lemma edge_count_add_sq_le_of_base (k : ℕ)
         nlinarith
       · have hlt : 3 * (k + 1) < n :=
           lt_of_le_of_ne hn (Ne.symm heq)
-        letI : Nonempty V := Fintype.card_pos_iff.mp (by omega)
+        let : Nonempty V := Fintype.card_pos_iff.mp (by omega)
         obtain ⟨v, hvdeg⟩ := exists_degree_le_add_one hG
         let W : Type u := {x : V // x ∈ ({v}ᶜ : Set V)}
         let H : SimpleGraph W := G.induce ({v}ᶜ : Set V)
@@ -765,7 +765,7 @@ lemma card_edgeFinset_le_card_sub_one_of_isAcyclic
           change Fintype.card {x : V // x ≠ v} = n - 1
           rw [Fintype.card_subtype_compl (fun x : V ↦ x = v)]
           simp [hcard]
-        letI : Nonempty W := Fintype.card_pos_iff.mp (by omega)
+        let : Nonempty W := Fintype.card_pos_iff.mp (by omega)
         have hHacyc : H.IsAcyclic := hG.induce ({v}ᶜ : Set V)
         have hIH := ih (n - 1) (by omega) (V := W) H hHacyc hWcard
         have hdegcard : G.degree v ≤ G.edgeFinset.card :=
@@ -1216,7 +1216,7 @@ lemma cyclic_free_edge_bound
           (SimpleGraph.Walk.length_map _ r).symm
         _ ≤ q.length := ht
     by_cases hpre : H.Preconnected
-    · letI : Nonempty W := ⟨z⟩
+    · let : Nonempty W := ⟨z⟩
       have hconn : H.Connected := ⟨hpre⟩
       have hcard3 : 3 ≤ Fintype.card W := hqthree.trans hqcard
       by_cases hdel : ∀ c : W, (H.induce ({c}ᶜ : Set W)).Connected
@@ -1286,7 +1286,7 @@ lemma cyclic_free_edge_bound
         have hdelcard : 0 < Fintype.card ({c}ᶜ : Set W) := by
           rw [Fintype.card_compl_set, Set.card_singleton]
           omega
-        letI : Nonempty ({c}ᶜ : Set W) := Fintype.card_pos_iff.mp hdelcard
+        let : Nonempty ({c}ᶜ : Set W) := Fintype.card_pos_iff.mp hdelcard
         have hnotpre : ¬ (H.induce ({c}ᶜ : Set W)).Preconnected := by
           intro hp
           exact hc ⟨hp⟩
@@ -1420,7 +1420,7 @@ lemma jiang_base_of_bondy
     (hG : AvoidsCycleWithKIncidentChords k G) :
     G.edgeFinset.card ≤ 2 * (k + 1) ^ 2 := by
   by_cases hacyc : G.IsAcyclic
-  · letI : Nonempty V := Fintype.card_pos_iff.mp (by omega)
+  · let : Nonempty V := Fintype.card_pos_iff.mp (by omega)
     have hforest := card_edgeFinset_le_card_sub_one_of_isAcyclic G hacyc
     rw [hcard] at hforest
     have hthree : 3 ≤ 2 * (k + 1) := by omega
@@ -1483,7 +1483,7 @@ lemma jiang_base
     (hG : AvoidsCycleWithKIncidentChords k G) :
     G.edgeFinset.card ≤ 2 * (k + 1) ^ 2 := by
   by_cases hacyc : G.IsAcyclic
-  · letI : Nonempty V := Fintype.card_pos_iff.mp (by omega)
+  · let : Nonempty V := Fintype.card_pos_iff.mp (by omega)
     have hforest := card_edgeFinset_le_card_sub_one_of_isAcyclic G hacyc
     rw [hcard] at hforest
     have hthree : 3 ≤ 2 * (k + 1) := by omega

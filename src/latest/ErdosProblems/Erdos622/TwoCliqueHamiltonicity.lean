@@ -464,8 +464,8 @@ private theorem hamiltonPath_of_endpointAugment_isHamiltonian
     (hHam : (endpointAugment G a b).IsHamiltonian) :
     ∃ p : G.Walk a b, p.IsHamiltonian := by
   let J := endpointAugment G a b
-  letI : Nonempty V := ⟨a⟩
-  letI : Nontrivial (Option V) := ⟨none, some a, by simp⟩
+  let : Nonempty V := ⟨a⟩
+  let : Nontrivial (Option V) := ⟨none, some a, by simp⟩
   have hcard : Fintype.card (Option V) ≠ 1 := by
     simp only [Fintype.card_option]
     have : 0 < Fintype.card V := Fintype.card_pos_iff.mpr ⟨a⟩

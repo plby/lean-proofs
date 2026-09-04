@@ -51,7 +51,7 @@ private theorem powerResidueCharacters_eq_dual {p k : ℕ} [NeZero p]
     powerResidueCharacters p k =
       (MulChar.subgroupOrderIsoSubgroupMulChar (ZMod p) ℂ
         (powMonoidHom k : (ZMod p)ˣ →* (ZMod p)ˣ).range).ofDual := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   ext χ
   rw [mem_powerResidueCharacters_iff,
     MulChar.mem_subgroupOrderIsoSubgroupMulChar_iff]
@@ -66,8 +66,8 @@ the `k`-th powers has exactly `k` elements. -/
 theorem natCard_powerResidueCharacters {p k : ℕ} (hp : p.Prime)
     (hdiv : k ∣ p - 1) :
     Nat.card (powerResidueCharacters p k) = k := by
-  letI : Fact p.Prime := ⟨hp⟩
-  letI : IsCyclic (ZMod p)ˣ := ZMod.isCyclic_units_prime hp
+  let : Fact p.Prime := ⟨hp⟩
+  let : IsCyclic (ZMod p)ˣ := ZMod.isCyclic_units_prime hp
   rw [powerResidueCharacters_eq_dual hp,
     MulChar.card_subgroupOrderIsoSubgroupMulChar,
     ← Subgroup.index_eq_card,
@@ -84,7 +84,7 @@ theorem mem_powMonoidHom_range_iff_forall_character {p k : ℕ}
     u ∈ (powMonoidHom k : (ZMod p)ˣ →* (ZMod p)ˣ).range ↔
       ∀ χ : DirichletCharacter ℂ p,
         χ ∈ powerResidueCharacters p k → χ u = 1 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let e := MulChar.subgroupOrderIsoSubgroupMulChar (ZMod p) ℂ
   change u ∈ (powMonoidHom k : (ZMod p)ˣ →* (ZMod p)ˣ).range ↔ _
   have h := MulChar.mem_subgroupOrderIsoSubgroupMulChar_symm_iff
@@ -100,9 +100,9 @@ theorem exists_dirichletCharacter_exactOrder_kernel_powRange
       orderOf χ = k ∧
       ∀ u : (ZMod p)ˣ,
         χ u = 1 ↔ u ∈ (powMonoidHom k : (ZMod p)ˣ →* (ZMod p)ˣ).range := by
-  letI : Fact p.Prime := ⟨hp⟩
-  letI : IsCyclic (ZMod p)ˣ := ZMod.isCyclic_units_prime hp
-  letI : IsCyclic (DirichletCharacter ℂ p) :=
+  let : Fact p.Prime := ⟨hp⟩
+  let : IsCyclic (ZMod p)ˣ := ZMod.isCyclic_units_prime hp
+  let : IsCyclic (DirichletCharacter ℂ p) :=
     ((MulChar.mulEquiv_units (ZMod p) ℂ).some.isCyclic).mpr inferInstance
   let X := powerResidueCharacters p k
   obtain ⟨χ, hχgen⟩ := IsCyclic.exists_generator (α := X)

@@ -83,7 +83,7 @@ theorem exists_pair_collision_coloring (n q : ℕ) (hq : 0 < q)
       exact ⟨c, by simp [monochromaticPairWeight, totalPairWeight]⟩
   | succ n ih =>
       obtain ⟨c, hc⟩ := ih
-      letI : Nonempty (Fin q) := ⟨⟨0, hq⟩⟩
+      let : Nonempty (Fin q) := ⟨⟨0, hq⟩⟩
       let total : ℚ≥0 := ∑ j ∈ Finset.range n, W j n
       obtain ⟨z, hz⟩ := exists_weighted_fiber_small
         (Finset.range n) c (fun j => W j n)
@@ -484,7 +484,7 @@ theorem exists_weighted_checksum_quarter_sq
   classical
   let q := 2 * k * k
   have hq : 0 < q := by simp [q, hk]
-  letI : NeZero q := ⟨Nat.ne_of_gt hq⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hq⟩
   obtain ⟨c, hc⟩ := exists_coloring_half_rainbow n k hk supports w hsub hcard
   let color : ℕ → ZMod q := fun x => ZMod.finEquiv q (c x)
   have hnodup (s : Finset ℕ) :

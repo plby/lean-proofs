@@ -451,7 +451,7 @@ theorem exists_infinite_same_logBox {α ι : Type*} [Finite ι]
   classical
   let box : X → (ι → BoundedLogBox η lo hi) := fun x i =>
     boundedLogBoxOf hη (hf x.1 x.2 i)
-  letI : Infinite X := hX.to_subtype
+  let : Infinite X := hX.to_subtype
   have hUniv : (Set.univ : Set X).Infinite := Set.infinite_univ
   obtain ⟨b, hb⟩ := exists_infinite_fiber (Set.univ : Set X)
     hUniv box

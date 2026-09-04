@@ -40,7 +40,7 @@ private theorem shiftedCompletePrefixBlocks_eq_pairDirectionList_drop
   · intro j hj₁ hj₂
     rw [List.get_ofFn, List.get_ofFn]
     simp only [Fin.val_cast]
-    simp [incrementPrefixList, stepPrefix]
+    simp only [List.get_eq_getElem, List.drop_one, List.getElem_tail, Prod.mk.injEq]
     constructor <;> apply congrArg omega <;> omega
 
 /-- The endpoint phase of a physical prefix is the endpoint list of the raw
@@ -122,10 +122,7 @@ theorem fixedOrientedTypedExternalWordCode_retainedList
       apply list_ofFn_get_cast
       rfl
   | shifted =>
-      simp [fixedOrientedTypedExternalWordCode,
-        OrientedTilingTypedExternalWordCode.start,
-        orientedInitialPrefix, orientedIncrementPrefixList,
-        TilingTypedFavoriteTrace.deletedTilingRetainedWord]
+      simp only [List.drop_one]
       apply list_ofFn_get_cast
       rfl
 

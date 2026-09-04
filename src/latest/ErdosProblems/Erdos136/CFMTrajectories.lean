@@ -292,7 +292,7 @@ theorem hasDerivAt_dHat (D₂ D₃ D₄ d N x : ℝ) :
   · simp only [dHat, Pi.mul_apply, Pi.pow_apply, Pi.neg_apply, id_eq]
     ring
   · norm_num
-    ring
+    ring_nf
     simp
 
 theorem hasDerivAt_dHat_eq
@@ -736,7 +736,7 @@ theorem delta_bounds {D₂ D₃ D₄ Gamma epsilon d N x : ℝ}
         mul_le_mul hxiUpper hdUpper hdHat0 hxiPower0
       _ = d := by
         rw [← Real.rpow_add hd]
-        convert Real.rpow_one d using 1 <;> ring
+        convert Real.rpow_one d using 1 <;> ring_nf
 
 /-- The exact source exponents for the degree envelope. -/
 theorem delta_bounds_exact {D₂ D₃ D₄ Gamma epsilon d N x : ℝ}
@@ -2383,7 +2383,7 @@ theorem rawCore_bound {Q M QR QC V U R : ℝ} {j s : ℕ}
         28672 * R ^ 2 * U ^ r := by
     by_cases hr0 : r = 0
     · simp [hr0]
-      positivity
+      exact sq_nonneg R
     · have hr1 : 1 ≤ r := Nat.one_le_iff_ne_zero.mpr hr0
       have hmix : M ^ (r - 1) * U ≤ U ^ r := by
         calc
@@ -2423,9 +2423,9 @@ theorem rawCore_bound {Q M QR QC V U R : ℝ} {j s : ℕ}
     · have hrsmall : r = 0 ∨ r = 1 := by omega
       rcases hrsmall with hzero | hone
       · simp [hzero]
-        positivity
+        exact sq_nonneg R
       · simp [hone]
-        positivity
+        exact mul_nonneg (mul_nonneg (by norm_num) (sq_nonneg R)) hU0
   rw [abs_mul, abs_of_nonneg hchoose0]
   have hcore : |rawCore Q M QR QC V j s| ≤ 235968 * R ^ 2 * U ^ r := by
     unfold rawCore
@@ -2500,8 +2500,7 @@ theorem rawRateCore_bound {Q M QR V U R : ℝ} {j s : ℕ}
   have hT2 : |Q ^ s * (r : ℝ) * M ^ (r - 1) * V| ≤
       32 * R * U ^ r := by
     by_cases hr0 : r = 0
-    · simp [hr0]
-      positivity
+    · simp [hr0, hR0]
     · have hr1 : 1 ≤ r := Nat.one_le_iff_ne_zero.mpr hr0
       have hmix : M ^ (r - 1) * U ≤ U ^ r := by
         calc

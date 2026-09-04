@@ -36,8 +36,8 @@ theorem exists_stage_of_mem_limitPaths_of_finite_support
   obtain ⟨root, rfl⟩ := hp
   let p := C.threadLimit G root
   obtain ⟨q0, i0, hq0, hq0root⟩ := C.thread_nonempty G root
-  letI : Nonempty I := ⟨i0⟩
-  letI : Finite p.support := hfinite.to_subtype
+  let : Nonempty I := ⟨i0⟩
+  let : Finite p.support := hfinite.to_subtype
   have hborn : ∀ x : p.support, ∃ a : I,
       ∃ q ∈ C.stage a, q.initial = root.1 ∧ x.1 ∈ q.support := by
     intro x

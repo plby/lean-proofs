@@ -299,7 +299,7 @@ lemma acyclic_edges_lt_active
     (hne : (Finset.univ.filter fun v => 0 < G.degree v).Nonempty) :
     G.edgeFinset.card < (Finset.univ.filter fun v => 0 < G.degree v).card := by
   let P : α → Prop := fun v => 0 < G.degree v
-  letI : DecidablePred P := fun v => inferInstanceAs (Decidable (0 < G.degree v))
+  let : DecidablePred P := fun v => inferInstanceAs (Decidable (0 < G.degree v))
   let GA : SimpleGraph {v // P v} := G.induce {v | P v}
   have hsupp : G.support ⊆ {v | P v} := by
     intro v hv
@@ -312,7 +312,7 @@ lemma acyclic_edges_lt_active
   have hne' : Nonempty {v // P v} := by
     rcases hne with ⟨v, hv⟩
     exact ⟨⟨v, by simpa [P] using! hv⟩⟩
-  letI : Nonempty {v // P v} := hne'
+  let : Nonempty {v // P v} := hne'
   have htop : (⊤ : SimpleGraph {v // P v}).Connected := SimpleGraph.connected_top
   obtain ⟨F, hle, _, hF⟩ :=
     SimpleGraph.Connected.exists_isTree_le_of_le_of_isAcyclic htop
@@ -420,7 +420,7 @@ lemma promoted_components_small
       }
       refine ⟨w.map f⟩
     -- Therefore x is in the same component as v in seedDeleted T S₀
-    simp +decide [SimpleGraph.ConnectedComponent.supp]
+    simp +decide only [ConnectedComponent.mem_supp_iff]
     have heqv : Equivalence (seedDeleted T S₀).Reachable :=
       ⟨SimpleGraph.Reachable.refl, fun h => h.symm, fun h₁ h₂ => h₁.trans h₂⟩
     show Quot.mk (seedDeleted T S₀).Reachable x = Quot.mk (seedDeleted T S₀).Reachable v
@@ -980,7 +980,7 @@ lemma promoted_components_two_attachments
       · exact hu₂D
       · exact hu₃D
     have hc := Finset.card_le_card hsub
-    simp [hu₁₂, hu₁₃, hu₂₃] at hc
+    simp only [ge_iff_le] at hc
     exact hc
   have hmB : m ∈ promotedBranchVertices T S₀ := by
     simpa [promotedBranchVertices] using! hcard

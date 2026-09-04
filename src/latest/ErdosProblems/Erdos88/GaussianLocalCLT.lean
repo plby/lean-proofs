@@ -734,7 +734,7 @@ theorem norm_centeredCoordinateCharFactor_sub_quadratic_le_sharp
     rw [memLp_map_measure_iff (by fun_prop) hXm.aemeasurable]
     change MemLp X (3 : ENNReal) standardGaussian
     exact hmemX
-  letI : IsProbabilityMeasure μ := by
+  let : IsProbabilityMeasure μ := by
     dsimp only [μ]
     exact Measure.isProbabilityMeasure_map hXm.aemeasurable
   rw [centeredCoordinateCharFactor_eq_charFun_map]
@@ -941,7 +941,7 @@ theorem norm_centeredCoordinateCharFactor_sub_gaussian_le
   have hexpComplex :
       ‖(((1 - x : ℝ) : ℂ) - ((Real.exp (-x) : ℝ) : ℂ))‖ ≤ x ^ 2 := by
     rw [← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs, abs_sub_comm]
-    convert hexpReal using 1 <;> ring
+    convert hexpReal using 1 <;> ring_nf
   have hxSq : x ^ 2 ≤ β * |t| ^ 3 / 8 := by
     calc
       x ^ 2 = y ^ 3 * y / 4 := by
@@ -960,7 +960,7 @@ theorem norm_centeredCoordinateCharFactor_sub_gaussian_le
         (((1 - x : ℝ) : ℂ) - ((Real.exp (-x) : ℝ) : ℂ)) := by
     dsimp only [x]
     push_cast
-    ring
+    ring_nf
   rw [hdecomp]
   calc
     ‖(centeredCoordinateCharFactor a lam t -
@@ -1238,7 +1238,7 @@ theorem inverseFourierDensityCandidate_hasInverse
     congr 1
     simp only [map_neg, map_mul, Complex.conj_ofReal, Complex.conj_I]
     push_cast
-    ring
+    ring_nf
   have hint : starRingEnd ℂ (∫ t : ℝ, F t) = ∫ t : ℝ, F t := by
     rw [← integral_conj]
     calc
@@ -1504,7 +1504,7 @@ lemma gaussianDampedCharFun_inverse_eq_kernelIntegral
           rw [Complex.ofReal_exp, ← Complex.exp_add]
           congr 1
           push_cast
-          ring
+          ring_nf
 
 lemma tendsto_gaussianDamping (t : ℝ) :
     Filter.Tendsto

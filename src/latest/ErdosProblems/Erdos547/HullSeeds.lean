@@ -18,7 +18,7 @@ theorem exists_hull_seed_extension (hT : T.IsTree) (W : Finset U) (hW : W.Nonemp
   classical
   obtain ⟨H, hWH, hH, hmin⟩ := exists_minimal_connected_hull T hT.connected W
   rcases subsingleton_or_nontrivial ↥(H : Set U) with hsingle | hnontrivial
-  · letI := hsingle
+  · let := hsingle
     have hHcard : H.card ≤ 1 := by
       apply Finset.card_le_one.mpr
       intro u hu v hv
@@ -27,7 +27,7 @@ theorem exists_hull_seed_extension (hT : T.IsTree) (W : Finset U) (hW : W.Nonemp
     have hWpos := Finset.card_pos.mpr hW
     exact ⟨H, H, hWH, Finset.Subset.refl _, by omega, hH,
       fun u hu hn ↦ (hn hu).elim⟩
-  · letI := hnontrivial
+  · let := hnontrivial
     let J := T.induce (H : Set U)
     let W' : Finset ↥(H : Set U) := W.subtype (fun v ↦ v ∈ H)
     have hW'card : W'.card = W.card := by

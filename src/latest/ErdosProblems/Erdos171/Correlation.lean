@@ -427,9 +427,9 @@ theorem exists_correlated_subspace_of_uniform_sections
                 (Fintype.card (Combinatorics.Line (Fin k) (Fin m₀))) ≤
               density (restrictedLineTails V A l) := by
   classical
-  letI : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
-  letI : Inhabited (Fin k) := ⟨⟨0, hk⟩⟩
-  letI : Nonempty (Fin m₀) := Fin.pos_iff_nonempty.mp hm₀
+  let : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
+  let : Inhabited (Fin k) := ⟨⟨0, hk⟩⟩
+  let : Nonempty (Fin m₀) := Fin.pos_iff_nonempty.mp hm₀
   obtain ⟨N, hN⟩ :=
     GrahamRothschild.exists_subspace_lines_subset_or_disjoint (Fin k) m
   refine ⟨N, ?_⟩

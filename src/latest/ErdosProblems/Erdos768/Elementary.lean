@@ -31,10 +31,26 @@ theorem dk_sum_le (X : ℝ) (hX : 1 ≤ X) (k : ℕ) (hk : 1 ≤ k) :
     ∑ n ∈ Finset.Icc 1 ⌊X⌋₊, (dk k n : ℝ) ≤ X * (1 + Real.log X) ^ (k - 1) := by
   -- For `n ≥ 1`, the set counted by `dk k n` is in bijection with `{ f : Fin k → ℕ | (∀ i, 1 ≤ f i) ∧ ∏ i, f i = n }`, because `∏ f = n ≥ 1` forces each `f i ∣ n` and `f i ≥ 1`, so `f i ∈ n.divisors` is automatic. Hence
   have h_bij : ∀ n ∈ Finset.Icc 1 ⌊X⌋₊, dk k n = Finset.card (Finset.filter (fun f : Fin k → ℕ => ∏ i, f i = n) (Finset.Icc (fun _ => 1) (fun _ => ⌊X⌋₊))) := by
-    intro n hn;
-    refine' Finset.card_bij ( fun f hf => fun i => f i ) _ _ _ <;> simp_all +decide [ Finset.mem_filter, Finset.mem_Icc ];
-    · exact fun a ha₁ ha₂ => ⟨ fun i => Nat.pos_of_dvd_of_pos ( ha₁ i |>.1 ) hn.1, fun i => Nat.le_trans ( Nat.le_of_dvd hn.1 ( ha₁ i |>.1 ) ) hn.2 ⟩;
-    · exact fun b hb₁ hb₂ hb₃ a => ⟨ hb₃ ▸ Finset.dvd_prod_of_mem _ ( Finset.mem_univ _ ), by linarith ⟩;
+    intro n hn
+    have hn_bounds : 1 ≤ n ∧ n ≤ ⌊X⌋₊ := Finset.mem_Icc.mp hn
+    unfold dk
+    refine Finset.card_bij (fun f _ => f) ?_ ?_ ?_
+    · intro f hf
+      simp only [mem_filter, Fintype.mem_piFinset, Nat.mem_divisors, mem_Icc] at hf ⊢
+      refine ⟨⟨?_, ?_⟩, hf.2⟩
+      · intro i
+        exact Nat.pos_of_dvd_of_pos (hf.1 i).1 hn_bounds.1
+      · intro i
+        exact (Nat.le_of_dvd hn_bounds.1 (hf.1 i).1).trans hn_bounds.2
+    · intro a₁ ha₁ a₂ ha₂ heq
+      exact heq
+    · intro b hb
+      refine ⟨b, ?_, rfl⟩
+      simp only [mem_filter, Fintype.mem_piFinset, Nat.mem_divisors, mem_Icc] at hb ⊢
+      refine ⟨?_, hb.2⟩
+      intro i
+      exact ⟨hb.2 ▸ Finset.dvd_prod_of_mem (fun j => b j) (Finset.mem_univ i),
+        Nat.ne_of_gt hn_bounds.1⟩
   -- Thus, we can rewrite the sum as
   have h_sum : ∑ n ∈ Finset.Icc 1 ⌊X⌋₊, dk k n = Finset.card (Finset.filter (fun f : Fin k → ℕ => 1 ≤ ∏ i, f i ∧ ∏ i, f i ≤ ⌊X⌋₊) (Finset.Icc (fun _ => 1) (fun _ => ⌊X⌋₊))) := by
     rw [ Finset.sum_congr rfl h_bij, Finset.card_filter ];
@@ -42,14 +58,18 @@ theorem dk_sum_le (X : ℝ) (hX : 1 ≤ X) (k : ℕ) (hk : 1 ≤ k) :
     rw [ Finset.sum_comm, Finset.sum_congr rfl ] ; aesop;
   -- We bound the count of positive `k`-tuples with product `≤ N` by `∑_{n_1,…,n_{k-1} ≤ N} ⌊N/(n_1⋯n_{k-1})⌋`.
   have h_bound : Finset.card (Finset.filter (fun f : Fin k → ℕ => 1 ≤ ∏ i, f i ∧ ∏ i, f i ≤ ⌊X⌋₊) (Finset.Icc (fun _ => 1) (fun _ => ⌊X⌋₊))) ≤ ∑ f ∈ Finset.Icc (fun _ : Fin (k - 1) => 1) (fun _ => ⌊X⌋₊), ⌊X / (∏ i, f i)⌋₊ := by
-    rcases k with ( _ | k ) <;> simp_all +decide [ Fin.prod_univ_succ ];
+    rcases k with ( _ | k ) <;> simp_all +decide only [Nat.add_one_sub_one, Nat.cast_prod];
     refine' le_trans ( Finset.card_le_card _ ) _;
     exact Finset.biUnion ( Finset.Icc ( fun _ => 1 ) fun _ => ⌊X⌋₊ ) fun f => Finset.image ( fun g => Fin.cons g f ) ( Finset.Icc 1 ⌊X / ∏ i, ( f i : ℝ ) ⌋₊ );
     · intro f hf; simp_all +decide ;
       refine' ⟨ Fin.tail f, _, f 0, _, _ ⟩ <;> simp_all +decide [ Fin.forall_fin_succ, Pi.le_def ];
       · exact ⟨ fun i => hf.1.1.2 i, fun i => hf.1.2.2 i ⟩;
       · rw [ Nat.le_floor_iff ( by positivity ), le_div_iff₀ ] <;> norm_cast;
-        · exact le_trans ( mod_cast hf.2.2 ) ( Nat.floor_le ( by positivity ) );
+        · have hprod : f 0 * ∏ i, Fin.tail f i ≤ ⌊X⌋₊ := by
+            change f 0 * ∏ i : Fin k, f i.succ ≤ ⌊X⌋₊
+            rw [← Fin.prod_univ_succ f]
+            exact hf.2.2
+          exact le_trans (mod_cast hprod) (Nat.floor_le (by positivity))
         · exact Finset.prod_pos fun i _ => hf.1.1.2 i;
     · refine' le_trans ( Finset.card_biUnion_le ) _;
       exact Finset.sum_le_sum fun _ _ => Finset.card_image_le.trans ( by simp );
@@ -60,11 +80,16 @@ theorem dk_sum_le (X : ℝ) (hX : 1 ≤ X) (k : ℕ) (hk : 1 ≤ k) :
       intro N hN
       have h_sum_bound : ∑ f ∈ Finset.Icc (fun _ : Fin (k - 1) => 1) (fun _ => N), (1 / (∏ i, f i) : ℝ) = ∏ i : Fin (k - 1), (∑ j ∈ Finset.Icc 1 N, (1 / (j : ℝ))) := by
         erw [ Finset.prod_sum ];
-        refine' Finset.sum_bij ( fun f hf => fun i _ => f i ) _ _ _ _ <;> simp +decide;
+        refine' Finset.sum_bij ( fun f hf => fun i _ => f i ) _ _ _ _ <;> simp +decide only [mem_Icc, mem_pi, mem_univ, forall_const, and_imp, forall_true_left, exists_prop];
         · exact fun a ha₁ ha₂ i => ⟨ ha₁ i, ha₂ i ⟩;
         · simp +contextual [ funext_iff ];
         · exact fun b hb => ⟨ fun i => b i ( Finset.mem_univ i ), ⟨ fun i => hb i |>.1, fun i => hb i |>.2 ⟩, rfl ⟩;
-      aesop;
+        · intro a ha₁ ha₂
+          rw [Nat.cast_prod]
+          simp only [one_div, Finset.prod_inv_distrib]
+          simp
+      rw [h_sum_bound]
+      simp
     -- We bound the sum $\sum_{i=1}^{N} \frac{1}{i}$ by $1 + \log N$.
     have h_harmonic_bound : ∀ N : ℕ, 1 ≤ N → ∑ i ∈ Finset.Icc 1 N, (1 / (i : ℝ)) ≤ 1 + Real.log N := by
       intro N hN; induction' hN with N hN ih <;> norm_num [ Finset.sum_Ioc_succ_top, (Nat.succ_eq_succ ▸ Finset.Icc_succ_left_eq_Ioc) ] at *;
@@ -91,7 +116,8 @@ theorem dk_prime_pow (K p ν : ℕ) (hp : p.Prime) :
   -- The set of functions `f : Fin K → ℕ` with `∏ i, f i = p^ν` is in bijection with the set of `K`-tuples of non-negative integers that sum to `ν`.
   have h_bij : ((Fintype.piFinset (fun _ : Fin K => (p ^ ν).divisors)).filter (fun f => ∏ i, f i = p ^ ν)).card = ((Finset.Iic (fun _ : Fin K => ν)).filter (fun e => ∑ i, e i = ν)).card := by
     refine' Finset.card_bij ( fun f hf => fun i => Nat.factorization ( f i ) p ) _ _ _;
-    · simp +zetaDelta at *;
+    · simp +zetaDelta only [mem_filter, Fintype.mem_piFinset, Nat.mem_divisors, ne_eq, Nat.pow_eq_zero, not_and,
+    Decidable.not_not, mem_Iic, and_imp] at *;
       intro a ha hprod; refine' ⟨ fun i => _, _ ⟩;
       · have := ha i; rw [ Nat.dvd_prime_pow hp ] at this; aesop;
       · replace hprod := congr_arg ( fun x => x.factorization p ) hprod ; simp_all +decide [ Nat.Prime.ne_zero ];
@@ -102,20 +128,36 @@ theorem dk_prime_pow (K p ν : ℕ) (hp : p.Prime) :
     · intro a₁ ha₁ a₂ ha₂ h; ext i; simp_all +decide [ funext_iff ] ;
       simp_all +decide [ Nat.mem_divisors, Nat.dvd_prime_pow hp ];
       obtain ⟨ ⟨ k₁, hk₁, hk₁' ⟩, hk₁'' ⟩ := ha₁.1 i; obtain ⟨ ⟨ k₂, hk₂, hk₂' ⟩, hk₂'' ⟩ := ha₂.1 i; specialize h i; simp_all +decide [ Nat.factorization_pow, hp.ne_zero ] ;
-    · intro b hb; use fun i => p ^ b i; simp_all +decide [ Nat.factorization_pow, Finset.prod_pow_eq_pow_sum ] ;
-      exact fun i => ⟨ pow_dvd_pow _ ( hb.1 i ), fun h => absurd h hp.ne_zero ⟩;
+    · intro b hb
+      have hb' : b ≤ (fun _ : Fin K => ν) ∧ ∑ i, b i = ν := by
+        simpa only [mem_filter, mem_Iic] using hb
+      refine ⟨fun i => p ^ b i, ?_, ?_⟩
+      · simp only [mem_filter, Fintype.mem_piFinset, Nat.mem_divisors]
+        refine ⟨?_, ?_⟩
+        · intro i
+          exact ⟨pow_dvd_pow p (hb'.1 i), pow_ne_zero _ hp.ne_zero⟩
+        · calc
+            ∏ i, p ^ b i = p ^ ∑ i, b i := by
+              simpa using Finset.prod_pow_eq_pow_sum Finset.univ b p
+            _ = p ^ ν := by rw [hb'.2]
+      · funext i
+        rw [Nat.factorization_pow]
+        simp [hp.factorization]
   -- The number of `K`-tuples of non-negative integers that sum to `ν` is given by the stars and bars theorem.
   have h_stars_and_bars : ∀ K ν : ℕ, ((Finset.Iic (fun _ : Fin K => ν)).filter (fun e => ∑ i, e i = ν)).card = Nat.choose (ν + K - 1) ν := by
-    intro K ν; induction' K with K ih generalizing ν <;> simp_all +decide [ Fin.sum_univ_succ ] ;
-    · cases ν <;> simp +decide;
-    · -- We can split the sum into two parts: one over the first coordinate and one over the rest.
+    intro K ν
+    induction' K with K ih generalizing ν
+    · cases ν <;> simp +decide
+    · simp only [Nat.add_succ_sub_one]
+      -- We can split the sum into two parts: one over the first coordinate and one over the rest.
       have h_split : Finset.filter (fun e : Fin (K + 1) → ℕ => e 0 + ∑ i : Fin K, e (Fin.succ i) = ν) (Finset.Iic (fun _ => ν)) = Finset.biUnion (Finset.range (ν + 1)) (fun i => Finset.image (fun e : Fin K → ℕ => Fin.cons i e) (Finset.filter (fun e : Fin K → ℕ => ∑ i, e i = ν - i) (Finset.Iic (fun _ => ν - i)))) := by
-        ext e; simp [Finset.mem_biUnion, Finset.mem_image];
+        ext e; simp only [mem_filter, mem_Iic, mem_biUnion, mem_range, Order.lt_add_one_iff, mem_image];
         constructor <;> intro h;
         · use e 0, h.1 0, fun i => e i.succ;
           exact ⟨ ⟨ fun i => Nat.le_sub_of_add_le <| by linarith [ h.1 i.succ, Finset.single_le_sum ( fun a _ => Nat.zero_le ( e ( Fin.succ a ) ) ) ( Finset.mem_univ i ) ], eq_tsub_of_add_eq <| by linarith ⟩, by ext i; cases i using Fin.inductionOn <;> rfl ⟩;
         · rcases h with ⟨ a, ha, b, hb, rfl ⟩ ; simp_all +decide;
           exact fun i => by cases i using Fin.inductionOn <;> [ exact ha; exact le_trans ( hb.1 _ ) ( Nat.sub_le _ _ ) ] ;
+      simp only [Fin.sum_univ_succ]
       rw [ h_split, Finset.card_biUnion ];
       · rw [ Finset.sum_congr rfl fun i hi => Finset.card_image_of_injective _ <| fun x y hxy => by simpa [ Fin.ext_iff ] using! hxy ] ; simp_all +decide [ add_comm ];
         exact Nat.recOn ν ( by norm_num ) fun n ih => by simp_all +decide [ Nat.choose, add_comm, add_left_comm, Finset.sum_range_succ' ] ;
@@ -131,7 +173,8 @@ theorem dk_coprime_mul (K a b : ℕ) (ha : 1 ≤ a) (hb : 1 ≤ b) (h : Nat.Copr
   unfold dk;
   rw [ ← Finset.card_product ];
   refine' Finset.card_bij ( fun f hf => ( fun i => f i |> fun x => x.gcd a, fun i => f i |> fun x => x.gcd b ) ) _ _ _;
-  · simp +zetaDelta at *;
+  · simp +zetaDelta only [mem_filter, Fintype.mem_piFinset, Nat.mem_divisors, ne_eq, mul_eq_zero, not_or,
+    mem_product, and_imp] at *;
     intro f hf hf'; have := hf; simp_all +decide ;
     -- By definition of gcd, we know that $\prod_{i} \gcd(f_i, a) = a$ and $\prod_{i} \gcd(f_i, b) = b$.
     have h_gcd_prod : (∏ i, Nat.gcd (f i) a) * (∏ i, Nat.gcd (f i) b) = a * b := by
@@ -150,16 +193,24 @@ theorem dk_coprime_mul (K a b : ℕ) (ha : 1 ≤ a) (hb : 1 ≤ b) (h : Nat.Copr
       · exact Nat.Coprime.prod_left fun i _ => Nat.Coprime.coprime_dvd_left ( Nat.gcd_dvd_right _ _ ) ( h.symm );
       · exact h_gcd_prod ▸ dvd_mul_left _ _;
     exact ⟨ ⟨ fun i => ⟨ Nat.gcd_dvd_right _ _, hf i |>.1 ⟩, Nat.dvd_antisymm h_gcd_prod_a ( Nat.dvd_of_mul_dvd_mul_right ( by positivity ) <| h_gcd_prod ▸ Nat.mul_dvd_mul_left _ h_gcd_prod_b ) ⟩, ⟨ fun i => ⟨ Nat.gcd_dvd_right _ _, hf i |>.2 ⟩, Nat.dvd_antisymm h_gcd_prod_b ( Nat.dvd_of_mul_dvd_mul_left ( by positivity ) <| h_gcd_prod ▸ Nat.mul_dvd_mul_right h_gcd_prod_a _ ) ⟩ ⟩;
-  · simp +contextual [ funext_iff ];
-    intro a₁ ha₁ ha₂ a₂ ha₃ ha₄ ha₅ ha₆ x; have := ha₁ x; have := ha₃ x; simp_all +decide ;
+  · simp +contextual only [mem_filter, Fintype.mem_piFinset, Nat.mem_divisors, ne_eq, mul_eq_zero, not_or,
+    Prod.mk.injEq, and_imp];
+    intro a₁ ha₁ ha₂ a₂ ha₃ ha₄ ha₅ ha₆
+    ext x
+    have := ha₁ x; have := ha₃ x; simp_all +decide ;
     have h_eq : a₁ x = Nat.gcd (a₁ x) a * Nat.gcd (a₁ x) b ∧ a₂ x = Nat.gcd (a₂ x) a * Nat.gcd (a₂ x) b := by
       have h_eq : ∀ {n : ℕ}, n ∣ a * b → n = Nat.gcd n a * Nat.gcd n b := by
         intros n hn; rw [ ← Nat.Coprime.gcd_mul ] ;
         · rw [ Nat.gcd_eq_left hn ];
         · assumption;
       exact ⟨ h_eq ( ha₁ x ), h_eq ( ha₃ x ) ⟩;
-    grind;
-  · simp +zetaDelta at *;
+    calc
+      a₁ x = Nat.gcd (a₁ x) a * Nat.gcd (a₁ x) b := h_eq.1
+      _ = Nat.gcd (a₂ x) a * Nat.gcd (a₂ x) b := by
+        rw [congr_fun ha₅ x, congr_fun ha₆ x]
+      _ = a₂ x := h_eq.2.symm
+  · simp +zetaDelta only [mem_product, mem_filter, Fintype.mem_piFinset, Nat.mem_divisors, ne_eq, mul_eq_zero,
+    not_or, exists_prop, and_imp, Prod.forall, Prod.mk.injEq] at *;
     intro a_1 b_1 ha_1 ha_2 hb_1 hb_2; use fun i => a_1 i * b_1 i; simp_all +decide ;
     refine' ⟨ ⟨ fun i => ⟨ mul_dvd_mul ( ha_1 i |>.1 ) ( hb_1 i |>.1 ), ha_1 i |>.2, hb_1 i |>.2 ⟩, _ ⟩, _, _ ⟩;
     · rw [ Finset.prod_mul_distrib, ha_2, hb_2 ];
@@ -187,9 +238,14 @@ theorem pow_le_choose (H ν : ℕ) :
     refine' Nat.le_induction _ _ _ ( show 2 ^ H ≥ 1 from Nat.one_le_pow _ _ ( by decide ) );
     · simp +arith +decide;
     · intro n hn ih; rw [ show ν + 2 * ( n + 1 ) - 1 = ( ν + 2 * n - 1 ) + 2 by omega, show ν + ( n + 1 ) - 1 = ( ν + n - 1 ) + 1 by omega ] ;
-      rcases ν with ( _ | ν ) <;> simp_all +decide [ Nat.choose_succ_succ, add_mul ];
-      have := Nat.add_one_mul_choose_eq ( ν + n ) ν; have := Nat.add_one_mul_choose_eq ( ν + 2 * n ) ν; simp_all +decide [ Nat.choose_succ_succ, add_mul ];
-      nlinarith [ Nat.choose_pos ( by linarith : ν ≤ ν + n ), Nat.choose_pos ( by linarith : ν ≤ ν + 2 * n ), Nat.choose_le_succ ( ν + 2 * n ) ν ]
+      cases ν with
+      | zero => simp
+      | succ ν =>
+        simp_all +decide only [Nat.succ_add_sub_one]
+        have := Nat.add_one_mul_choose_eq ( ν + n ) ν
+        have := Nat.add_one_mul_choose_eq ( ν + 2 * n ) ν
+        simp_all +decide [ Nat.choose_succ_succ, add_mul ]
+        nlinarith [ Nat.choose_pos ( by linarith : ν ≤ ν + n ), Nat.choose_pos ( by linarith : ν ≤ ν + 2 * n ), Nat.choose_le_succ ( ν + 2 * n ) ν ]
 
 /-
 Monotone growth of the multichoose ratio: for `1 ≤ J ≤ K` and `ν ≥ 1`,
@@ -198,9 +254,13 @@ Monotone growth of the multichoose ratio: for `1 ≤ J ≤ K` and `ν ≥ 1`,
 theorem choose_ratio_ge (J K ν : ℕ) (hJ : 1 ≤ J) (hJK : J ≤ K) (hν : 1 ≤ ν) :
     (K : ℝ) / J ≤ (Nat.choose (ν + K - 1) ν : ℝ) / (Nat.choose (ν + J - 1) ν : ℝ) := by
   have h_prod : (K : ℝ) / J ≤ ∏ j ∈ Finset.range ν, (K + j : ℝ) / (J + j) := by
-    induction hν <;> simp_all +decide [ Finset.prod_range_succ ];
-    rw [ mul_div_mul_comm ];
-    exact le_trans ‹_› ( le_mul_of_one_le_right ( by positivity ) ( by rw [ le_div_iff₀ ] <;> norm_cast <;> linarith ) );
+    induction hν with
+    | refl => simp
+    | @step n hn ih =>
+      simp_all +decide only [Nat.succ_eq_add_one, prod_div_distrib]
+      rw [Finset.prod_range_succ, Finset.prod_range_succ]
+      rw [ mul_div_mul_comm ]
+      exact le_trans ‹_› ( le_mul_of_one_le_right ( by positivity ) ( by rw [ le_div_iff₀ ] <;> norm_cast <;> linarith ) )
   convert! h_prod using 1;
   have h_binom : ∀ m : ℕ, (Nat.choose (ν + m - 1) ν : ℝ) = (∏ j ∈ Finset.range ν, (m + j : ℝ)) / Nat.factorial ν := by
     intro m; rw [ eq_div_iff ( by positivity ) ] ; norm_cast;
@@ -220,12 +280,23 @@ theorem local_moment (H : ℕ) (z : ℝ) (hz : 1 ≤ z) (n : ℕ) (hn : 1 ≤ n)
   -- By multiplicative property of dk, we have dk K n = ∏_{p ∈ n.primeFactors} dk K (p^{ν_p}).
   have h_mul : (dk ⌈z * 2 ^ H⌉₊ n : ℝ) = (∏ p ∈ n.primeFactors, (dk ⌈z * 2 ^ H⌉₊ (p ^ (Nat.factorization n p)) : ℝ)) := by
     have h_mul : ∀ {S : Finset ℕ} {f : ℕ → ℕ}, (∀ p ∈ S, Nat.Prime p) → (dk ⌈z * 2 ^ H⌉₊ (∏ p ∈ S, p ^ f p)) = (∏ p ∈ S, (dk ⌈z * 2 ^ H⌉₊ (p ^ f p) : ℕ)) := by
-      intros S f hf; induction S using Finset.induction <;> simp_all +decide ;
-      · convert! dk_prime_pow ⌈z * 2 ^ H⌉₊ 2 0 Nat.prime_two using 1 ; norm_num;
-      · rw [ ← ‹dk ⌈z * 2 ^ H⌉₊ ( ∏ p ∈ _, p ^ f p ) = ∏ p ∈ _, dk ⌈z * 2 ^ H⌉₊ ( p ^ f p ) ›, dk_coprime_mul ];
-        · exact Nat.one_le_pow _ _ hf.1.pos;
-        · exact Finset.prod_pos fun p hp => pow_pos ( Nat.Prime.pos ( hf.2 p hp ) ) _;
-        · exact Nat.Coprime.prod_right fun p hp => Nat.Coprime.pow _ _ <| hf.1.coprime_iff_not_dvd.mpr fun h => ‹¬_› <| by have := Nat.prime_dvd_prime_iff_eq hf.1 ( hf.2 p hp ) ; aesop;
+      intro S f hf
+      induction S using Finset.induction with
+      | empty =>
+          simpa using dk_prime_pow ⌈z * 2 ^ H⌉₊ 2 0 Nat.prime_two
+      | @insert q S hq ih =>
+          have hqprime : Nat.Prime q := hf q (Finset.mem_insert_self q S)
+          have hSprime : ∀ p ∈ S, Nat.Prime p := by
+            intro p hp
+            exact hf p (Finset.mem_insert_of_mem hp)
+          rw [Finset.prod_insert hq, Finset.prod_insert hq, ← ih hSprime,
+            dk_coprime_mul]
+          · exact Nat.one_le_pow _ _ hqprime.pos
+          · exact Finset.prod_pos fun p hp => pow_pos (hSprime p hp).pos _
+          · exact Nat.Coprime.prod_right fun p hp => Nat.Coprime.pow _ _ <|
+              hqprime.coprime_iff_not_dvd.mpr fun hdvd => hq <| by
+                have hpprime := hSprime p hp
+                exact (Nat.prime_dvd_prime_iff_eq hqprime hpprime).mp hdvd ▸ hp
     convert! congr_arg ( ( ↑ ) : ℕ → ℝ ) ( @h_mul n.primeFactors ( fun p => n.factorization p ) fun p hp => Nat.prime_of_mem_primeFactors hp ) using 1;
     · exact congr_arg _ ( congr_arg _ ( Eq.symm <| Nat.factorization_prod_pow_eq_self <| by positivity ) );
     · norm_cast;
@@ -318,8 +389,12 @@ theorem isPowerful_eq_sq_mul_cube (d : ℕ) (hd : IsPowerful d) :
   · exact ⟨ 0, 0, hd0 ⟩;
   · obtain ⟨a, b, h⟩ : ∃ a b : ℕ, d = a^2 * b^3 := by
       have h_factorization : ∀ p : ℕ, p.Prime → p ∣ d → 2 ≤ Nat.factorization d p := by
-        intro p pp dp; specialize hd p pp dp; rw [ ← Nat.factorization_le_iff_dvd ] at hd <;> simp_all +decide [ Nat.factorization_pow ] ;
-        exact pp.ne_zero
+        intro p pp dp
+        have hp2 : p ^ 2 ≠ 0 := pow_ne_zero 2 pp.ne_zero
+        have hfac : (p ^ 2).factorization ≤ d.factorization :=
+          (Nat.factorization_le_iff_dvd hp2 hd0).2 (hd p pp dp)
+        have hpoint := hfac p
+        simpa [Nat.factorization_pow, pp.factorization] using hpoint
       rw [ ← Nat.factorization_prod_pow_eq_self hd0 ];
       -- For each prime factor $p$ of $d$, write $e_p = 2k_p + 3m_p$ where $k_p$ and $m_p$ are non-negative integers.
       have h_exp_decomp : ∀ p : ℕ, p.Prime → p ∣ d → ∃ k m : ℕ, Nat.factorization d p = 2 * k + 3 * m := by
@@ -415,7 +490,8 @@ For a powerful number `d`, its radical squared divides it: `(rad d)^2 ∣ d`.
 theorem rad_pow_two_dvd (d : ℕ) (hd : IsPowerful d) : (rad d) ^ 2 ∣ d := by
   by_cases hd0 : d = 0;
   · aesop;
-  · rw [ ← Nat.factorization_le_iff_dvd ] <;> simp_all +decide [ rad ];
+  · rw [ ← Nat.factorization_le_iff_dvd ] <;> simp_all +decide only [Nat.factorization_pow, ne_eq, Nat.pow_eq_zero, OfNat.ofNat_ne_zero,
+    not_false_eq_true, and_true];
     · rw [ Nat.factorization_prod ];
       · intro p; by_cases hp : p.Prime <;> by_cases hp' : p ∈ d.primeFactors <;> simp_all +decide [ Nat.factorization_eq_zero_of_not_dvd ] ;
         · rw [ Finset.sum_eq_single p ] <;> simp_all +decide;
@@ -434,24 +510,43 @@ theorem smooth_inv_sqrt_sum_le (r : ℕ) (hr : Squarefree r) (M : Finset ℕ)
     ∑ m ∈ M, (1 : ℝ) / Real.sqrt (m : ℝ) ≤ (4 : ℝ) ^ (omegaCount r) := by
   -- For each $m \in M$, write $m$ as a product of primes raised to their respective powers.
   have h_factor : ∀ m ∈ M, ∃ f : ℕ → ℕ, (∀ p, Nat.Prime p → f p = Nat.factorization m p) ∧ (∀ p, Nat.Prime p → p ∣ r → f p ≥ 0) ∧ (∀ p, Nat.Prime p → ¬p ∣ r → f p = 0) ∧ m = ∏ p ∈ r.primeFactors, p ^ f p := by
-    intro m hm; use fun p => Nat.factorization m p; simp_all +decide [ Nat.factorization_eq_zero_iff ] ;
-    refine' ⟨ fun p pp dp => Or.inl fun h => dp <| hMs m hm p pp h, _ ⟩;
+    intro m hm; use fun p => Nat.factorization m p; simp_all +decide only [implies_true, ge_iff_le, zero_le, true_and] ;
+    refine' ⟨ fun p pp dp => Nat.factorization_eq_zero_of_not_dvd fun hpm =>
+      dp <| hMs m hm p pp hpm, _ ⟩;
     conv_lhs => rw [ ← Nat.factorization_prod_pow_eq_self ( ne_of_gt ( hM0 m hm ) ) ] ;
     rw [ Finsupp.prod_of_support_subset ] <;> aesop_cat;
   choose! f hf1 hf2 hf3 hf4 using h_factor;
   -- By definition of $f$, we know that $1 / \sqrt{m} = \prod_{p \in r.primeFactors} (1 / \sqrt{p})^{f(m, p)}$.
   have h_sqrt : ∀ m ∈ M, (1 / Real.sqrt m) = ∏ p ∈ r.primeFactors, (1 / Real.sqrt p) ^ f m p := by
-    intro m hm; rw [ hf4 m hm ] ; simp +decide [ Real.sqrt_eq_rpow ] ;
-    rw [ ← Real.finset_prod_rpow _ _ fun p hp => by positivity ] ; congr ; ext ; rw [ ← Real.rpow_natCast, ← Real.rpow_mul ( Nat.cast_nonneg _ ) ] ; ring_nf;
-    rw [ ← hf4 m hm, ← Real.rpow_natCast, ← Real.rpow_mul ( Nat.cast_nonneg _ ) ] ; ring_nf;
+    intro m hm
+    have hmprod : (m : ℝ) = ∏ p ∈ r.primeFactors, (p : ℝ) ^ f m p := by
+      exact_mod_cast hf4 m hm
+    have hsqrt : Real.sqrt (m : ℝ) =
+        ∏ p ∈ r.primeFactors, Real.sqrt (p : ℝ) ^ f m p := by
+      rw [hmprod, Real.sqrt_prod]
+      · exact Finset.prod_congr rfl fun p hp => by
+          rw [Real.sqrt_eq_rpow, Real.sqrt_eq_rpow, ← Real.rpow_natCast]
+          conv_rhs => rw [← Real.rpow_natCast]
+          rw [← Real.rpow_mul (Nat.cast_nonneg p),
+            ← Real.rpow_mul (Nat.cast_nonneg p)]
+          congr 1
+          ring
+      · intro p hp
+        positivity
+    simpa only [one_div, inv_pow, Finset.prod_inv_distrib] using congrArg Inv.inv hsqrt
   -- Consider the sum $\sum_{m \in M} \prod_{p \in r.primeFactors} (1 / \sqrt{p})^{f(m, p)}$.
   have h_sum_prod : ∑ m ∈ M, ∏ p ∈ r.primeFactors, (1 / Real.sqrt p) ^ f m p ≤ ∏ p ∈ r.primeFactors, (∑ k ∈ Finset.range (Nat.succ (Finset.sup M (fun m => Nat.factorization m p))), (1 / Real.sqrt p) ^ k) := by
     rw [ Finset.prod_sum ];
     refine' le_trans _ ( Finset.sum_le_sum_of_subset_of_nonneg _ fun _ _ _ => Finset.prod_nonneg fun _ _ => pow_nonneg ( by positivity ) _ );
     rotate_left;
     exact Finset.image ( fun m => fun p hp => f m p ) M;
-    · simp +contextual [ Finset.subset_iff ];
-      exact fun m hm p hp hpr hr => Finset.le_sup ( f := fun m => m.factorization p ) hm |> le_trans ( by rw [ hf1 m hm p hp ] );
+    · intro g hg
+      rcases Finset.mem_image.mp hg with ⟨m, hm, rfl⟩
+      rw [Finset.mem_pi]
+      intro p hp
+      rw [Finset.mem_range]
+      rw [hf1 m hm p (Nat.prime_of_mem_primeFactors hp)]
+      exact Nat.lt_succ_of_le (Finset.le_sup (f := fun m => m.factorization p) hm)
     · rw [ Finset.sum_image ];
       · exact Finset.sum_le_sum fun x hx => by rw [ ← Finset.prod_attach ] ;
       · intro m hm m' hm' h; have := hf4 m hm; have := hf4 m' hm'; simp +decide [ ← this, ← hf4 m hm ] at *;
@@ -497,14 +592,18 @@ theorem powerful_sum_le_squarefree {u : Finset ℕ} (hu : ∀ d ∈ u, IsPowerfu
             exact hx.2 ▸ rad_pow_two_dvd x ‹_›;
           by_cases hr : r = 0 <;> simp_all +decide [ mul_comm, mul_left_comm ];
           rw [ show ( r : ℝ ) ^ ( 3 / 2 : ℝ ) = r * Real.sqrt r by rw [ Real.sqrt_eq_rpow, ← Real.rpow_one_add' ] <;> norm_num ] ; ring_nf ; norm_num [ hr ];
-        · rename_i h₁ h₂; obtain ⟨ p, hp₁, hp₂, hp₃ ⟩ := h₂; have := Nat.dvd_trans hp₂ ( Nat.div_dvd_of_dvd <| show r ^ 2 ∣ x from ?_ ) ; simp_all +decide [ Nat.Prime.dvd_iff_not_coprime ] ;
-          · contrapose! hp₂;
-            refine' Nat.Coprime.coprime_dvd_right ( Nat.div_dvd_of_dvd _ ) _;
-            · exact hx.2 ▸ rad_pow_two_dvd x ( hu x hx.1 );
-            · refine' hp₁.coprime_iff_not_dvd.mpr _;
-              intro hpx; have := Nat.dvd_gcd ( dvd_refl p ) ( show p ∣ r from ?_ ) ; simp_all +decide [ Nat.Coprime, Nat.Coprime.gcd_eq_one ] ;
-              exact hx.2 ▸ Finset.dvd_prod_of_mem _ ( by aesop );
-          · exact hx.2 ▸ rad_pow_two_dvd x h₁;
+        · rename_i h₁ h₂
+          obtain ⟨p, hp₁, hp₂, hp₃⟩ := h₂
+          have hr2dvd : r ^ 2 ∣ x := hx.2 ▸ rad_pow_two_dvd x h₁
+          have hpx : p ∣ x := Nat.dvd_trans hp₂ (Nat.div_dvd_of_dvd hr2dvd)
+          by_cases hx0 : x = 0
+          · subst x
+            norm_num
+          · exfalso
+            apply hp₃
+            rw [← hx.2]
+            exact Finset.dvd_prod_of_mem (fun q => q) <|
+              Nat.mem_primeFactors.mpr ⟨hp₁, hpx, hx0⟩
         · positivity;
       · intros x hx y hy; simp_all +decide;
         intro hxy; have := rad_pow_two_dvd x ( hu x hx.1 ) ; have := rad_pow_two_dvd y ( hu y hy.1 ) ; simp_all +decide ;
@@ -512,7 +611,7 @@ theorem powerful_sum_le_squarefree {u : Finset ℕ} (hu : ∀ d ∈ u, IsPowerfu
     have h_inner_sum : ∑ m ∈ (u.filter (fun d => rad d = r)).image (fun d => d / r ^ 2), (if ∀ p, Nat.Prime p → p ∣ m → p ∣ r then (1 : ℝ) / Real.sqrt m else 0) ≤ 4 ^ (omegaCount r) := by
       convert! smooth_inv_sqrt_sum_le r hr_sqfree ( Finset.image ( fun d => d / r ^ 2 ) ( Finset.filter ( fun d => rad d = r ) u ) |> Finset.filter ( fun m => ∀ p : ℕ, Nat.Prime p → p ∣ m → p ∣ r ) ) _ _ using 1;
       · rw [ Finset.sum_filter ];
-      · simp +zetaDelta at *;
+      · simp +zetaDelta only [mem_filter, mem_image, and_imp, forall_exists_index] at *;
         rintro m x hx hx' rfl hm; contrapose! hm; simp_all +decide ;
         cases hm <;> simp_all +decide [ Nat.div_eq_of_lt ];
         exact ⟨ Nat.find ( Nat.exists_infinite_primes ( r + 1 ) ), Nat.find_spec ( Nat.exists_infinite_primes ( r + 1 ) ) |>.2, Nat.not_dvd_of_pos_of_lt ( Nat.pos_of_ne_zero ( by aesop_cat ) ) ( Nat.find_spec ( Nat.exists_infinite_primes ( r + 1 ) ) |>.1 ) ⟩;
@@ -522,9 +621,13 @@ theorem powerful_sum_le_squarefree {u : Finset ℕ} (hu : ∀ d ∈ u, IsPowerfu
   any_goals exact Finset.image rad u;
   · convert! Finset.sum_le_sum h_inner_bound using 1;
     refine' Finset.sum_congr rfl fun x hx => _;
-    rw [ Finset.mem_image ] at hx; obtain ⟨ d, hd, rfl ⟩ := hx; simp +decide [ rad ] ;
+    rw [ Finset.mem_image ] at hx; obtain ⟨ d, hd, rfl ⟩ := hx; simp +decide only [Nat.cast_prod, id_eq, one_div, ite_eq_left_iff, zero_eq_mul, pow_eq_zero_iff',
+    OfNat.ofNat_ne_zero, ne_eq, card_eq_zero, Nat.primeFactors_eq_empty, prod_eq_one_iff, Nat.mem_primeFactors, and_imp,
+    not_or, not_forall, Classical.not_imp, false_and, inv_eq_zero, false_or] ;
     rw [ Nat.squarefree_iff_prime_squarefree ] ; norm_num;
-    intro p pp dp; rw [ Finset.prod_eq_prod_diff_singleton_mul <| Nat.mem_primeFactors.mpr ⟨ pp, ?_, ?_ ⟩ ] at dp <;> norm_num at *;
+    intro p pp dp
+    unfold rad at dp
+    rw [ Finset.prod_eq_prod_diff_singleton_mul <| Nat.mem_primeFactors.mpr ⟨ pp, ?_, ?_ ⟩ ] at dp <;> norm_num at *;
     · rw [ Nat.mul_dvd_mul_iff_right pp.pos ] at dp;
       simp_all +decide [ Nat.Prime.dvd_iff_not_coprime pp, Nat.coprime_prod_right_iff ];
       obtain ⟨ q, hq₁, hq₂, hq₃, hq₄, hq₅ ⟩ := dp; have := Nat.coprime_primes pp hq₁; aesop;
@@ -562,7 +665,9 @@ theorem radical_defect_sum :
     have hg_prime_pow_nonneg : ∀ p a : ℕ, Nat.Prime p → 0 ≤ g (p^a) := by
       intro p a hp
       have hg_prime_pow_nonneg : g (p^a) = if a = 0 then 1 else if a = 1 then 0 else (Real.sqrt (p^a / p) - Real.sqrt (p^(a-1) / p)) := by
-        rcases a with ( _ | _ | a ) <;> simp_all +decide;
+        rcases a with ( _ | _ | a ) <;> simp_all +decide only [Nat.add_eq_zero_iff, one_ne_zero, and_false, and_self, ↓reduceIte,
+    Nat.add_eq_right, Nat.cast_nonneg, pow_succ_nonneg, Real.sqrt_div, add_tsub_cancel_right,
+    zero_add, pow_one];
         · aesop;
         · simp +zetaDelta at *;
           rw [ hp.sum_divisors ] ; norm_num [ hp.ne_zero, hp.ne_one, ArithmeticFunction.moebius ];
@@ -583,8 +688,16 @@ theorem radical_defect_sum :
               · omega;
               · exact hp.ne_one;
               · omega;
-      rcases a with ( _ | _ | a ) <;> simp_all +decide [ pow_succ, hp.ne_zero ];
-      exact le_mul_of_one_le_right ( Real.sqrt_nonneg _ ) ( Real.le_sqrt_of_sq_le ( mod_cast hp.one_lt.le ) );
+      rcases a with (_ | _ | a)
+      · rw [hg_prime_pow_nonneg]
+        norm_num
+      · rw [hg_prime_pow_nonneg]
+        norm_num
+      · rw [hg_prime_pow_nonneg]
+        norm_num
+        apply div_le_div_of_nonneg_right _ (Real.sqrt_nonneg _)
+        apply Real.sqrt_le_sqrt
+        exact_mod_cast Nat.pow_le_pow_right hp.one_lt.le (by omega)
     -- Since $g$ is multiplicative, we can extend the non-negativity to all $d$.
     have hg_mul : ∀ d1 d2 : ℕ, Nat.Coprime d1 d2 → g (d1 * d2) = g d1 * g d2 := by
       intros d1 d2 h_coprime
@@ -595,16 +708,28 @@ theorem radical_defect_sum :
       rw [ h_divisors, Finset.sum_image, Finset.sum_product ];
       · rw [ Finset.sum_mul ];
         refine' Finset.sum_congr rfl fun i hi => _;
-        rw [ Finset.mul_sum _ _ _ ] ; refine' Finset.sum_congr rfl fun j hj => _ ; rw [ Nat.mul_div_mul_comm ( Nat.dvd_of_mem_divisors hi ) ( Nat.dvd_of_mem_divisors hj ) ] ;
-        rw [ Nat.primeFactors_mul ( by aesop ) ( by aesop ) ] ; simp +decide [ *, ArithmeticFunction.moebius ] ; ring_nf;
-        split_ifs <;> simp_all +decide [ Nat.squarefree_mul_iff ];
+        rw [ Finset.mul_sum _ _ _ ] ; refine' Finset.sum_congr rfl fun j hj => _
+        have hi_info := Nat.mem_divisors.mp hi
+        have hj_info := Nat.mem_divisors.mp hj
+        have hquot_coprime : Nat.Coprime (d1 / i) (d2 / j) :=
+          h_coprime.coprime_dvd_left (Nat.div_dvd_of_dvd hi_info.1) |>
+            Nat.Coprime.coprime_dvd_right (Nat.div_dvd_of_dvd hj_info.1)
+        have hi0 : i ≠ 0 := Nat.ne_of_gt (Nat.pos_of_mem_divisors hi)
+        have hj0 : j ≠ 0 := Nat.ne_of_gt (Nat.pos_of_mem_divisors hj)
+        rw [ Nat.mul_div_mul_comm hi_info.1 hj_info.1 ]
+        rw [ Nat.primeFactors_mul hi0 hj0 ] ; simp +decide [ *, ArithmeticFunction.moebius ] ; ring_nf;
+        split_ifs <;> try simp_all +decide only [zero_eq_mul, mul_eq_zero, Nat.cast_nonneg, Real.sqrt_eq_zero, Nat.cast_eq_zero,
+    inv_eq_zero, pow_eq_zero_iff', neg_eq_zero, one_ne_zero, ne_eq,
+    ArithmeticFunction.cardFactors_eq_zero_iff_eq_zero_or_one, Nat.div_eq_zero_iff, not_or, not_lt, false_and, or_false];
         · rw [ Finset.prod_union ];
           · rw [ ArithmeticFunction.cardFactors_mul ] <;> simp_all +decide [ Nat.Coprime ] ; ring_nf;
             · rw [ Real.sqrt_mul ( Finset.prod_nonneg fun _ _ => Nat.cast_nonneg _ ) ] ; ring;
-            · exact ⟨ Nat.ne_of_gt ( Nat.pos_of_dvd_of_pos hi.1 ( Nat.pos_of_ne_zero hi.2 ) ), Nat.le_of_dvd ( Nat.pos_of_ne_zero hi.2 ) hi.1 ⟩;
-            · exact ⟨ by aesop_cat, Nat.le_of_dvd ( Nat.pos_of_ne_zero hj.2 ) hj.1 ⟩;
-          · exact Nat.Coprime.disjoint_primeFactors ( h_coprime.coprime_dvd_left hi.1 |> Nat.Coprime.coprime_dvd_right hj.1 );
-        · exact False.elim <| ‹¬Nat.gcd ( d1 / i ) ( d2 / j ) = 1› <| h_coprime.coprime_dvd_left ( Nat.div_dvd_of_dvd hi.1 ) |> Nat.Coprime.coprime_dvd_right ( Nat.div_dvd_of_dvd hj.1 );
+            · exact Nat.le_of_dvd ( Nat.pos_of_ne_zero hi_info.2 ) hi_info.1
+            · exact Nat.le_of_dvd ( Nat.pos_of_ne_zero hj_info.2 ) hj_info.1
+          · exact Nat.Coprime.disjoint_primeFactors ( h_coprime.coprime_dvd_left hi_info.1 |> Nat.Coprime.coprime_dvd_right hj_info.1 );
+        all_goals
+          exfalso
+          simp_all [Nat.squarefree_mul_iff, hquot_coprime]
       · intros p hp q hq h_eq; simp_all +decide [ Nat.coprime_iff_gcd_eq_one ] ;
         -- Since $p.1 \mid d1$ and $q.1 \mid d1$, and $\gcd(d1, d2) = 1$, it follows that $p.1 = q.1$.
         have hp1_eq_q1 : p.1 = q.1 := by
@@ -637,16 +762,27 @@ theorem radical_defect_sum :
       · rw [ Finset.sum_mul ];
         simp +decide only [mul_comm, Finset.mul_sum _ _ _];
         refine' Finset.sum_congr rfl fun x hx => Finset.sum_congr rfl fun y hy => _;
-        rw [ Nat.primeFactors_mul ( by aesop ) ( by aesop ) ];
+        have hx_info := Nat.mem_divisors.mp hx
+        have hy_info := Nat.mem_divisors.mp hy
+        have hquot_coprime : Nat.Coprime (a / x) (b / y) :=
+          hab_coprime.coprime_dvd_left (Nat.div_dvd_of_dvd hx_info.1) |>
+            Nat.Coprime.coprime_dvd_right (Nat.div_dvd_of_dvd hy_info.1)
+        have hx0 : x ≠ 0 := Nat.ne_of_gt (Nat.pos_of_mem_divisors hx)
+        have hy0 : y ≠ 0 := Nat.ne_of_gt (Nat.pos_of_mem_divisors hy)
+        rw [ Nat.primeFactors_mul hx0 hy0 ];
         rw [ Finset.prod_union ];
-        · rw [ show a * b / ( x * y ) = ( a / x ) * ( b / y ) by rw [ Nat.div_mul_div_comm ( Nat.dvd_of_mem_divisors hx ) ( Nat.dvd_of_mem_divisors hy ) ] ] ; norm_num [ ArithmeticFunction.moebius ] ; ring_nf;
-          split_ifs <;> simp_all +decide [ Nat.squarefree_mul_iff ];
-          · rw [ ArithmeticFunction.cardFactors_mul ] <;> ring_nf <;> norm_num [ hx.1, hy.1, hx.2, hy.2 ];
+        · rw [ show a * b / ( x * y ) = ( a / x ) * ( b / y ) by rw [ Nat.div_mul_div_comm hx_info.1 hy_info.1 ] ] ; norm_num [ ArithmeticFunction.moebius ] ; ring_nf;
+          split_ifs <;> try simp_all +decide only [zero_eq_mul, mul_eq_zero, Nat.cast_nonneg, Real.sqrt_eq_zero, Nat.cast_eq_zero,
+    inv_eq_zero, pow_eq_zero_iff', neg_eq_zero, one_ne_zero, ne_eq,
+    ArithmeticFunction.cardFactors_eq_zero_iff_eq_zero_or_one, Nat.div_eq_zero_iff, not_or, not_lt, false_and, or_false];
+          · rw [ ArithmeticFunction.cardFactors_mul ] <;> ring_nf <;> norm_num [ hx_info.1, hy_info.1, hx_info.2, hy_info.2 ];
             · rw [ Real.sqrt_mul ( Finset.prod_nonneg fun _ _ => Nat.cast_nonneg _ ) ] ; ring;
-            · exact ⟨ Nat.ne_of_gt ( Nat.pos_of_dvd_of_pos hx.1 ( Nat.pos_of_ne_zero hx.2 ) ), Nat.le_of_dvd ( Nat.pos_of_ne_zero hx.2 ) hx.1 ⟩;
-            · exact ⟨ by aesop_cat, Nat.le_of_dvd ( Nat.pos_of_ne_zero hy.2 ) hy.1 ⟩;
-          · exact False.elim <| ‹¬Nat.gcd ( a / x ) ( b / y ) = 1› <| hab_coprime.coprime_dvd_left ( Nat.div_dvd_of_dvd hx.1 ) |> Nat.Coprime.coprime_dvd_right ( Nat.div_dvd_of_dvd hy.1 );
-        · exact Nat.Coprime.disjoint_primeFactors ( hab_coprime.coprime_dvd_left ( Nat.dvd_of_mem_divisors hx ) |> Nat.Coprime.coprime_dvd_right ( Nat.dvd_of_mem_divisors hy ) );
+            · exact ⟨ Nat.ne_of_gt ( Nat.pos_of_dvd_of_pos hx_info.1 ( Nat.pos_of_ne_zero hx_info.2 ) ), Nat.le_of_dvd ( Nat.pos_of_ne_zero hx_info.2 ) hx_info.1 ⟩;
+            · exact ⟨ by aesop_cat, Nat.le_of_dvd ( Nat.pos_of_ne_zero hy_info.2 ) hy_info.1 ⟩;
+          all_goals
+            exfalso
+            simp_all [Nat.squarefree_mul_iff, hquot_coprime]
+        · exact Nat.Coprime.disjoint_primeFactors ( hab_coprime.coprime_dvd_left hx_info.1 |> Nat.Coprime.coprime_dvd_right hy_info.1 );
       · intros x hx y hy; simp_all +decide [ Nat.coprime_iff_gcd_eq_one ] ;
         intro h; have := Nat.dvd_antisymm ( show x.1 ∣ y.1 from Nat.Coprime.dvd_of_dvd_mul_right ( Nat.Coprime.coprime_dvd_left hx.1.1 <| Nat.Coprime.coprime_dvd_right hy.2 hab_coprime ) <| h.symm ▸ dvd_mul_right _ _ ) ( show y.1 ∣ x.1 from Nat.Coprime.dvd_of_dvd_mul_right ( Nat.Coprime.coprime_dvd_left hy.1 <| Nat.Coprime.coprime_dvd_right hx.2.1 hab_coprime ) <| h.symm ▸ dvd_mul_right _ _ ) ; aesop;
     -- Since $d$ is not powerful, there exists a prime $p$ such that $p \mid d$ but $p^2 \nmid d$.
@@ -661,34 +797,58 @@ theorem radical_defect_sum :
     have hg_sum : ∀ d : ℕ, d ≠ 0 → ∑ e ∈ Nat.divisors d, g e = Real.sqrt ((d : ℝ) / (rad d : ℝ)) := by
       intro d hd_ne_zero
       have hg_sum : ∑ e ∈ Nat.divisors d, g e = ∑ e ∈ Nat.divisors d, Real.sqrt ((e : ℝ) / (rad e : ℝ)) * ∑ f ∈ Nat.divisors (d / e), (ArithmeticFunction.moebius f) := by
-        simp +decide [ g, mul_comm, Finset.mul_sum _ _ _ ];
-        rw [ Finset.sum_sigma', Finset.sum_sigma' ];
+        simp +decide only [Nat.cast_prod, id_eq, Nat.cast_nonneg, Real.sqrt_div, Int.cast_sum];
+        rw [ Finset.sum_sigma' ];
+        simp only [Finset.mul_sum]
+        rw [Finset.sum_sigma']
         refine' Finset.sum_bij ( fun x hx => ⟨ x.snd, x.fst / x.snd ⟩ ) _ _ _ _ <;> simp +decide;
         · exact fun a ha₁ ha₂ ha₃ ha₄ => ⟨ ⟨ dvd_trans ha₃ ha₁, ha₂ ⟩, Nat.dvd_div_of_mul_dvd <| by simpa only [ Nat.mul_div_cancel' ha₃ ] using! ha₁, Nat.ne_of_gt <| Nat.pos_of_dvd_of_pos ha₃ <| Nat.pos_of_ne_zero ha₄, Nat.le_trans ( Nat.le_of_dvd ( Nat.pos_of_ne_zero ha₄ ) ha₃ ) <| Nat.le_of_dvd ( Nat.pos_of_ne_zero ha₂ ) ha₁ ⟩;
         · intro a₁ ha₁ hd_ne_zero ha₂ ha₃ a₂ ha₄ hd_ne_zero' ha₅ ha₆ h₁ h₂; cases a₁; cases a₂; aesop;
         · intro b hb₁ hb₂ hb₃ hb₄ hb₅; use b.fst * b.snd, b.fst; simp_all +decide [ Nat.dvd_div_iff_mul_dvd ] ;
           exact Nat.ne_of_gt ( Nat.pos_of_dvd_of_pos ( dvd_of_mul_left_dvd hb₃ ) ( Nat.pos_of_ne_zero hb₂ ) );
+        · exact fun _ _ _ _ _ => mul_comm _ _
       -- Since $\sum_{f \mid m} \mu(f)$ is zero unless $m = 1$, we have:
       have h_moebius_sum : ∀ m : ℕ, m ≠ 0 → (∑ f ∈ Nat.divisors m, (ArithmeticFunction.moebius f)) = if m = 1 then 1 else 0 := by
         intro m hm_ne_zero
-        have h_moebius_sum : ∑ f ∈ Nat.divisors m, (ArithmeticFunction.moebius f) = (ArithmeticFunction.moebius * ArithmeticFunction.zeta) m := by
-          simp +decide [ ArithmeticFunction.moebius, ArithmeticFunction.zeta ];
-          rw [ Nat.sum_divisorsAntidiagonal fun x y => if y = 0 then 0 else if Squarefree x then ( -1 : ℤ ) ^ ArithmeticFunction.cardFactors x else 0 ];
-          exact Finset.sum_congr rfl fun x hx => by rw [ if_neg ( Nat.ne_of_gt ( Nat.div_pos ( Nat.le_of_dvd ( Nat.pos_of_ne_zero hm_ne_zero ) ( Nat.dvd_of_mem_divisors hx ) ) ( Nat.pos_of_mem_divisors hx ) ) ) ] ;
-        aesop;
-      rw [ hg_sum, Finset.sum_eq_single d ] <;> simp_all +decide;
-      · rw [ Nat.div_self ( Nat.pos_of_ne_zero hd_ne_zero ) ] ; norm_num;
-      · exact fun b hb₁ hb₂ => Or.inr <| mod_cast h_moebius_sum ( d / b ) ( Nat.ne_of_gt <| Nat.div_pos ( Nat.le_of_dvd ( Nat.pos_of_ne_zero hd_ne_zero ) hb₁ ) ( Nat.pos_of_dvd_of_pos hb₁ ( Nat.pos_of_ne_zero hd_ne_zero ) ) ) ▸ if_neg ( by contrapose! hb₂; nlinarith [ Nat.div_mul_cancel hb₁, Nat.pos_of_ne_zero hd_ne_zero ] );
-    intro d; specialize hg_sum d; by_cases hd : d = 0 <;> simp_all +decide ;
-    · aesop;
-    · exact hg_sum ▸ Finset.single_le_sum ( fun x _ => hg_nonneg x ) ( by aesop )
+        calc
+          ∑ f ∈ Nat.divisors m, ArithmeticFunction.moebius f =
+              (ArithmeticFunction.moebius * (ArithmeticFunction.zeta : ArithmeticFunction ℤ)) m :=
+            ArithmeticFunction.coe_mul_zeta_apply.symm
+          _ = (1 : ArithmeticFunction ℤ) m := by
+            rw [ArithmeticFunction.moebius_mul_coe_zeta]
+          _ = if m = 1 then 1 else 0 := ArithmeticFunction.one_apply
+      rw [hg_sum, Finset.sum_eq_single d]
+      · rw [Nat.div_self (Nat.pos_of_ne_zero hd_ne_zero),
+          h_moebius_sum 1 one_ne_zero]
+        norm_num
+      · intro b hb hbd
+        have hb_dvd : b ∣ d := Nat.dvd_of_mem_divisors hb
+        have hquot_pos : 0 < d / b := Nat.div_pos
+          (Nat.le_of_dvd (Nat.pos_of_ne_zero hd_ne_zero) hb_dvd)
+          (Nat.pos_of_dvd_of_pos hb_dvd (Nat.pos_of_ne_zero hd_ne_zero))
+        have hquot_ne : d / b ≠ 1 := fun hq =>
+          hbd (Nat.eq_of_dvd_of_div_eq_one hb_dvd hq)
+        rw [h_moebius_sum (d / b) (Nat.ne_of_gt hquot_pos), if_neg hquot_ne]
+        norm_num
+      · intro hdmem
+        exact (hdmem (Nat.mem_divisors.mpr ⟨dvd_rfl, hd_ne_zero⟩)).elim
+    intro d
+    by_cases hd : d = 0
+    · subst d
+      simpa [g] using hg_nonneg 0
+    · rw [← hg_sum d hd]
+      exact Finset.single_le_sum (fun x _ => hg_nonneg x)
+        (Nat.mem_divisors.mpr ⟨dvd_rfl, hd⟩)
   have hg_summable : Summable (fun d : ℕ => g d / (d : ℝ)) := by
     have hg_summable : Summable (fun d : ℕ => if IsPowerful d then Real.sqrt ((d : ℝ) / (rad d : ℝ)) / (d : ℝ) else 0) := by
       convert! radical_mult_summable using 2 ; norm_num [ div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm, Real.sqrt_mul, Real.sqrt_div ];
       grind +qlia;
     refine' hg_summable.of_nonneg_of_le ( fun d => div_nonneg ( hg_nonneg d ) ( Nat.cast_nonneg d ) ) ( fun d => _ );
-    split_ifs <;> simp_all +decide;
-    exact div_le_div_of_nonneg_right ( hg_le d ) ( Nat.cast_nonneg _ );
+    by_cases hpow : IsPowerful d
+    · rw [if_pos hpow]
+      exact div_le_div_of_nonneg_right (hg_le d) (Nat.cast_nonneg _)
+    · rw [if_neg hpow, hg_powerful d hpow]
+      simp
   -- Set $C := \max 1 C₀ > 0$.
   obtain ⟨C₀, hC₀⟩ : ∃ C₀ : ℝ, ∀ N : ℕ, (∑ d ∈ Finset.Icc 1 N, g d / (d : ℝ)) ≤ C₀ := by
     exact ⟨ _, fun N => Summable.sum_le_tsum ( Finset.Icc 1 N ) ( fun _ _ => div_nonneg ( hg_nonneg _ ) ( Nat.cast_nonneg _ ) ) hg_summable ⟩;
@@ -698,8 +858,8 @@ theorem radical_defect_sum :
     have h_sum_g : (∑ n ∈ Finset.Icc 1 N, Real.sqrt ((n : ℝ) / (rad n : ℝ))) = (∑ d ∈ Finset.Icc 1 N, g d * (Nat.floor (N / d) : ℝ)) := by
       have h_sum_g : ∀ n ∈ Finset.Icc 1 N, Real.sqrt ((n : ℝ) / (rad n : ℝ)) = ∑ d ∈ Nat.divisors n, g d := by
         intros n hn
-        have h_sum_g : ∑ d ∈ Nat.divisors n, g d = ∑ e ∈ Nat.divisors n, Real.sqrt ((e : ℝ) / (rad e : ℝ)) * (∑ d ∈ Nat.divisors (n / e), (ArithmeticFunction.moebius d)) := by
-          simp +zetaDelta at *;
+        have h_expand : ∑ d ∈ Nat.divisors n, g d = ∑ e ∈ Nat.divisors n, Real.sqrt ((e : ℝ) / (rad e : ℝ)) * (∑ d ∈ Nat.divisors (n / e), (ArithmeticFunction.moebius d)) := by
+          simp +zetaDelta only [Nat.cast_prod, id_eq, Nat.cast_nonneg, Real.sqrt_div, Int.cast_sum] at *;
           simp +decide only [Finset.mul_sum _ _ _];
           rw [ Finset.sum_sigma', Finset.sum_sigma' ];
           refine' Finset.sum_bij ( fun x hx => ⟨ x.snd, x.fst / x.snd ⟩ ) _ _ _ _ <;> simp +decide;
@@ -708,27 +868,49 @@ theorem radical_defect_sum :
           · intro b hb₁ hb₂ hb₃ hb₄ hb₅; use b.fst * b.snd, b.fst; simp_all +decide [ Nat.dvd_div_iff_mul_dvd ] ;
             exact Nat.ne_of_gt ( Nat.pos_of_dvd_of_pos ( dvd_of_mul_left_dvd hb₃ ) ( pos_of_gt hn.1 ) );
           · exact fun _ _ _ _ _ => mul_comm _ _;
-        have h_sum_g : ∀ m : ℕ, m ≠ 0 → (∑ d ∈ Nat.divisors m, (ArithmeticFunction.moebius d)) = if m = 1 then 1 else 0 := by
+        have h_moebius_sum : ∀ m : ℕ, m ≠ 0 → (∑ d ∈ Nat.divisors m, (ArithmeticFunction.moebius d)) = if m = 1 then 1 else 0 := by
           intros m hm_nonzero
-          have h_sum_g : ∑ d ∈ Nat.divisors m, (ArithmeticFunction.moebius d) = (ArithmeticFunction.moebius * ArithmeticFunction.zeta) m := by
-            simp +decide [ ArithmeticFunction.moebius, ArithmeticFunction.zeta ];
-            rw [ Nat.sum_divisorsAntidiagonal fun x y => if y = 0 then 0 else if Squarefree x then ( -1 : ℤ ) ^ ArithmeticFunction.cardFactors x else 0 ];
-            exact Finset.sum_congr rfl fun x hx => by rw [ if_neg ( Nat.ne_of_gt ( Nat.div_pos ( Nat.le_of_dvd ( Nat.pos_of_ne_zero hm_nonzero ) ( Nat.dvd_of_mem_divisors hx ) ) ( Nat.pos_of_mem_divisors hx ) ) ) ] ;
-          aesop;
-        simp_all +decide;
-        rw [ Finset.sum_eq_single n ] <;> norm_num;
-        · norm_num [ Nat.div_self ( by linarith : 0 < n ) ];
-        · exact fun b hb₁ hb₂ hb₃ => Or.inr <| mod_cast h_sum_g ( n / b ) ( Nat.ne_of_gt <| Nat.div_pos ( Nat.le_of_dvd hn.1 hb₁ ) <| Nat.pos_of_dvd_of_pos hb₁ hn.1 ) ▸ if_neg ( by contrapose! hb₃; nlinarith [ Nat.div_mul_cancel hb₁ ] );
-        · grind +qlia;
+          calc
+            ∑ d ∈ Nat.divisors m, ArithmeticFunction.moebius d =
+                (ArithmeticFunction.moebius * (ArithmeticFunction.zeta : ArithmeticFunction ℤ)) m :=
+              ArithmeticFunction.coe_mul_zeta_apply.symm
+            _ = (1 : ArithmeticFunction ℤ) m := by
+              rw [ArithmeticFunction.moebius_mul_coe_zeta]
+            _ = if m = 1 then 1 else 0 := ArithmeticFunction.one_apply
+        have hn_bounds : 1 ≤ n ∧ n ≤ N := Finset.mem_Icc.mp hn
+        have hn0 : n ≠ 0 := Nat.ne_of_gt hn_bounds.1
+        rw [h_expand]
+        rw [Finset.sum_eq_single n]
+        · rw [Nat.div_self hn_bounds.1, h_moebius_sum 1 one_ne_zero]
+          norm_num
+        · intro b hb hbn
+          have hb_dvd : b ∣ n := Nat.dvd_of_mem_divisors hb
+          have hquot_pos : 0 < n / b := Nat.div_pos
+            (Nat.le_of_dvd hn_bounds.1 hb_dvd)
+            (Nat.pos_of_dvd_of_pos hb_dvd hn_bounds.1)
+          have hquot_ne : n / b ≠ 1 := fun hq =>
+            hbn (Nat.eq_of_dvd_of_div_eq_one hb_dvd hq)
+          rw [h_moebius_sum (n / b) (Nat.ne_of_gt hquot_pos), if_neg hquot_ne]
+          norm_num
+        · intro hnmem
+          exact (hnmem (Nat.mem_divisors.mpr ⟨dvd_rfl, hn0⟩)).elim
       rw [ Finset.sum_congr rfl h_sum_g ];
       have h_sum_g : ∑ x ∈ Finset.Icc 1 N, ∑ d ∈ Nat.divisors x, g d = ∑ d ∈ Finset.Icc 1 N, ∑ x ∈ Finset.Icc 1 N, if d ∣ x then g d else 0 := by
         rw [ Finset.sum_comm, Finset.sum_congr rfl ];
-        simp +contextual [ Finset.sum_ite ];
-        intro x hx₁ hx₂; rw [ ← Finset.sum_subset ( show x.divisors ⊆ Finset.filter ( fun d => d ∣ x ) ( Finset.Icc 1 N ) from fun y hy => Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ Nat.pos_of_mem_divisors hy, Nat.le_trans ( Nat.le_of_dvd hx₁ ( Nat.dvd_of_mem_divisors hy ) ) hx₂ ⟩, Nat.dvd_of_mem_divisors hy ⟩ ) ] ; aesop;
-      simp_all +decide [ Finset.sum_ite ];
+        simp +contextual only [mem_Icc, and_imp];
+        intro x hx₁ hx₂
+        rw [← Finset.sum_filter]
+        rw [ ← Finset.sum_subset ( show x.divisors ⊆ Finset.filter ( fun d => d ∣ x ) ( Finset.Icc 1 N ) from fun y hy => Finset.mem_filter.mpr ⟨ Finset.mem_Icc.mpr ⟨ Nat.pos_of_mem_divisors hy, Nat.le_trans ( Nat.le_of_dvd hx₁ ( Nat.dvd_of_mem_divisors hy ) ) hx₂ ⟩, Nat.dvd_of_mem_divisors hy ⟩ ) ] ; aesop;
+      simp_all +decide only [Nat.floor_nat, id_eq];
       refine' Finset.sum_congr rfl fun x hx => _;
-      rw [ mul_comm, show Finset.filter ( fun y => x ∣ y ) ( Finset.Icc 1 N ) = Finset.image ( fun y => x * y ) ( Finset.Icc 1 ( N / x ) ) from ?_, Finset.card_image_of_injective _ fun y z h => mul_left_cancel₀ ( by linarith [ Finset.mem_Icc.mp hx ] ) h ];
-      · norm_num;
+      rw [← Finset.sum_filter]
+      have hx0 : x ≠ 0 := Nat.ne_of_gt (Finset.mem_Icc.mp hx).1
+      have hinj : Function.Injective (fun y : ℕ => x * y) := fun y z h =>
+        Nat.eq_of_mul_eq_mul_left (Nat.pos_of_ne_zero hx0) h
+      rw [ mul_comm, show Finset.filter ( fun y => x ∣ y ) ( Finset.Icc 1 N ) = Finset.image ( fun y => x * y ) ( Finset.Icc 1 ( N / x ) ) from ?_ ];
+      · rw [Finset.sum_const, Finset.card_image_of_injective _ hinj,
+            Nat.card_Icc, Nat.add_sub_cancel]
+        norm_num
       · ext y; simp [Finset.mem_image];
         exact ⟨ fun h => ⟨ y / x, ⟨ Nat.div_pos ( Nat.le_of_dvd h.1.1 h.2 ) ( Finset.mem_Icc.mp hx |>.1 ), Nat.div_le_div_right h.1.2 ⟩, Nat.mul_div_cancel' h.2 ⟩, by rintro ⟨ a, ⟨ ha₁, ha₂ ⟩, rfl ⟩ ; exact ⟨ ⟨ by nlinarith [ Finset.mem_Icc.mp hx |>.1 ], by nlinarith [ Finset.mem_Icc.mp hx |>.2, Nat.div_mul_le_self N x ] ⟩, by simp +decide ⟩ ⟩;
     have h_sum_g_le : (∑ d ∈ Finset.Icc 1 N, g d * (Nat.floor (N / d) : ℝ)) ≤ (∑ d ∈ Finset.Icc 1 N, g d * (N / d : ℝ)) := by

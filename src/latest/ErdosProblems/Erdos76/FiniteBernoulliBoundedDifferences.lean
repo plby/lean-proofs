@@ -133,7 +133,7 @@ private lemma two_point_hoeffding {q x₀ x₁ c s : ℝ}
   have hwsum : HasSum w 1 := by
     convert hasSum_fintype w using 1
     simp [w]
-  letI : IsProbabilityMeasure μ :=
+  let : IsProbabilityMeasure μ :=
     HasSum.isProbabilityMeasure_sum_dirac hw₀ hwsum
   have hXmeas : AEMeasurable X μ := by fun_prop
   have hXrange : ∀ᵐ b ∂μ, X b ∈ Set.Icc (min x₀ x₁) (max x₀ x₁) := by

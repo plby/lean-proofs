@@ -79,7 +79,7 @@ theorem oneEdgeGraph_colorable_two : oneEdgeGraph.{w}.Colorable 2 := by
 theorem oneEdgeExpansion_vertex_card :
     Fintype.card (PrivateVertexExpansion.Point oneEdgeGraph.{w}) = 3 := by
   have hedge : Fintype.card oneEdgeGraph.{w}.edgeSet = 1 := by
-    letI : Unique oneEdgeGraph.{w}.edgeSet :=
+    let : Unique oneEdgeGraph.{w}.edgeSet :=
       { default := oneEdgeGraphEdge.{w}
         uniq := oneEdgeGraph_edge_eq }
     exact Fintype.card_unique
@@ -90,7 +90,7 @@ theorem oneEdgeExpansion_vertex_card :
 /-- The expansion of `K₂` has one edge. -/
 theorem oneEdgeExpansion_edge_card :
     Fintype.card (PrivateVertexExpansion.Edge oneEdgeGraph.{w}) = 1 := by
-  letI : Unique oneEdgeGraph.{w}.edgeSet :=
+  let : Unique oneEdgeGraph.{w}.edgeSet :=
     { default := oneEdgeGraphEdge.{w}
       uniq := oneEdgeGraph_edge_eq }
   exact Fintype.card_unique

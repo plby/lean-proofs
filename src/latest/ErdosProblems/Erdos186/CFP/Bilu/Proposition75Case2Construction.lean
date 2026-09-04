@@ -627,19 +627,19 @@ theorem coordinateIntegralPoints_covolume_eq_latticePoints_of_presentation
     ZLattice.covolume (integralPoints (coordinateC0 D))
         μHE[finrank ℝ D.C0] =
       ZLattice.covolume D.latticePoints μHE[finrank ℝ D.C0] := by
-  letI hdiscRow : DiscreteTopology P.rowLattice := by
+  let hdiscRow : DiscreteTopology P.rowLattice := by
     change DiscreteTopology
       (Submodule.span ℤ (Set.range P.rowBasis))
     infer_instance
-  letI hZRow : IsZLattice ℝ P.rowLattice := by
+  let hZRow : IsZLattice ℝ P.rowLattice := by
     change IsZLattice ℝ
       (Submodule.span ℤ (Set.range P.rowBasis))
     infer_instance
-  letI : DiscreteTopology (integralPoints (coordinateC0 D)) :=
+  let : DiscreteTopology (integralPoints (coordinateC0 D)) :=
     hSat ▸ hdiscRow
-  letI : IsZLattice ℝ (integralPoints (coordinateC0 D)) :=
+  let : IsZLattice ℝ (integralPoints (coordinateC0 D)) :=
     ⟨span_coordinateIntegralPoints_eq_top D⟩
-  letI : Measure.IsAddHaarMeasure
+  let : Measure.IsAddHaarMeasure
       (μHE[finrank ℝ D.C0] : Measure (coordinateC0 D)) := by
     rw [← finrank_coordinateC0 D]
     infer_instance

@@ -586,7 +586,7 @@ theorem eventually_fourth_moment_weightedPrimeBlockExponentialSum_le_pnt
             ((11 / 10 : ℝ) * ((U : ℝ) / Real.log (U : ℝ))) ^ 3 * B ^ 4 := by
   filter_upwards [PrimeEstimates.eventually_primeCounting_tenth_bounds] with U hpi
   intro L T hTpos hnoWrap w hw
-  letI : NeZero T := ⟨hTpos.ne'⟩
+  let : NeZero T := ⟨hTpos.ne'⟩
   have hsubset : primesBetween L U ⊆ primesUpTo U := by
     intro p hp
     have hp' := mem_primesBetween.mp hp
@@ -617,7 +617,7 @@ theorem eventually_fourth_moment_reciprocalPrimeBlockExponentialSum_le_pnt :
             (((L + 1 : ℕ) : ℝ))⁻¹ ^ 4 := by
   filter_upwards [PrimeEstimates.eventually_primeCounting_tenth_bounds] with U hpi
   intro L T hTpos hnoWrap
-  letI : NeZero T := ⟨hTpos.ne'⟩
+  let : NeZero T := ⟨hTpos.ne'⟩
   have hsubset : primesBetween L U ⊆ primesUpTo U := by
     intro p hp
     have hp' := mem_primesBetween.mp hp
@@ -651,7 +651,7 @@ theorem eventually_fourth_moment_primeExponentialSum_le_pnt :
       [PrimeEstimates.eventually_primeCounting_tenth_bounds,
         eventually_ge_atTop 3] with X hpi hX
   intro T hTpos hnoWrap
-  letI : NeZero T := ⟨hTpos.ne'⟩
+  let : NeZero T := ⟨hTpos.ne'⟩
   have hcount : ((primesUpTo X).card : ℝ) ≤
       (11 / 10 : ℝ) * ((X : ℝ) / Real.log (X : ℝ)) := by
     rw [card_primesUpTo_eq_primeCounting]
@@ -677,7 +677,7 @@ theorem eventually_fourth_moment_weightedPrimeExponentialSum_le_pnt
       [PrimeEstimates.eventually_primeCounting_tenth_bounds,
         eventually_ge_atTop 3] with X hpi hX
   intro T hTpos hnoWrap w hw
-  letI : NeZero T := ⟨hTpos.ne'⟩
+  let : NeZero T := ⟨hTpos.ne'⟩
   have hcount : ((primesUpTo X).card : ℝ) ≤
       (11 / 10 : ℝ) * ((X : ℝ) / Real.log (X : ℝ)) := by
     rw [card_primesUpTo_eq_primeCounting]

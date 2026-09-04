@@ -413,7 +413,7 @@ lemma phaseLimitingSmoothingError_le_quadratic
           Real.exp (- (‖u‖ ^ 2 / 12)) =
           |Real.exp (-a) - 1| * Real.exp (- (‖u‖ ^ 2 / 12)) := by
             dsimp [a]
-            congr 3 <;> ring
+            congr 3 <;> ring_nf
       _ ≤ a * Real.exp (- (‖u‖ ^ 2 / 12)) :=
         mul_le_mul_of_nonneg_right habs (Real.exp_pos _).le
       _ ≤ a * Real.exp (- (‖u‖ ^ 2 / 24)) :=

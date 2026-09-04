@@ -153,7 +153,7 @@ lemma shrubF_card_eq_resAux (τn : ℝ) (hr1 : ∀ a b, parent a = some b → ra
   induction' k : M - rank v using Nat.strong_induction_on with k ih generalizing v;
   rw [ shrubF_eq, resAux_eq ] at *;
   rw [ Finset.card_insert_of_notMem ];
-  · rw [ Finset.card_biUnion ] <;> simp_all +decide [ Finset.sum_attach ] ; ring_nf;
+  · rw [ Finset.card_biUnion ] <;> simp_all +decide only [coe_attach] ; ring_nf;
     · rw [ ← Finset.sum_subset ( show Finset.filter ( fun x => parent x = some v ∧ rank v < rank x ∧ rank x ≤ M ∧ ¬x ∈ S ) Finset.univ ⊆ Finset.filter ( fun x => parent x = some v ∧ rank v < rank x ) Finset.univ from fun x hx => by aesop ) ] <;> simp_all +decide ; ring_nf;
       refine' Finset.sum_bij ( fun x hx => x ) _ _ _ _ <;> simp_all +decide ; ring_nf;
       grind +qlia;
@@ -360,14 +360,14 @@ lemma tree_tau_fine_seedcard
     · intros s hs t ht hst; exact shrubF_disjoint_seeds parent rank M S hr1 hM s t (by aesop) (by aesop) hst;
   have h_sum : ∑ s ∈ S, (shrubF parent rank M S s).card ≥ ∑ s ∈ S, τn := by
     have h_sum : ∀ s ∈ S, (shrubF parent rank M S s).card ≥ τn := by
-      intro s hs; subst hS; simp_all +decide ;
+      intro s hs; subst hS; simp_all +decide only [ge_iff_le] ;
       convert! resAux_zero_lt parent rank M τn s hs |> le_of_lt using 1;
       rw [ shrubF_card_eq_A ];
       · assumption;
       · assumption;
       · convert! rfl;
     simpa using! Finset.sum_le_sum h_sum;
-  simp +zetaDelta at *;
+  simp +zetaDelta only [ge_iff_le] at *;
   exact h_sum.trans ( mod_cast by assumption )
 
 /-- **τ-fine tree partition (separator form).**  Any finite tree `T` on `n`

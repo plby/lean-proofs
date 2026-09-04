@@ -177,8 +177,8 @@ theorem exists_eventual_productSlice_lemma81_outer_two
   let hleft : Nonempty (ProductSlicePoint P ell) :=
     productSlicePoint_nonempty P ell hellFits
   refine ⟨hleft, ?_⟩
-  letI := hleft
-  letI : ∀ k, Nonempty (BooleanSlicePoint (P.fiber k) (ell k)) :=
+  let := hleft
+  let : ∀ k, Nonempty (BooleanSlicePoint (P.fiber k) (ell k)) :=
     fun k ↦ booleanSlicePoint_nonempty (hellFits k)
   have hInduced : RamseyFree (C / (2 / 5 : ℝ))
       (inducedOverFin G (P.fiber 0)) :=
@@ -261,7 +261,7 @@ theorem exists_eventual_productSlice_fourierL1_le
       _ ≤ nu * 1 := mul_le_mul_of_nonneg_left hcutoffN' hnu.le
       _ = nu := mul_one nu
   refine ⟨hleftOuter, ?_⟩
-  letI := hleftOuter
+  let := hleftOuter
   dsimp only
   exact fourierL1_le_rank400_of_outer_two_bounds
     (A := 675 / 2) (B := 6) (D := 1) (T := nu)
@@ -414,7 +414,7 @@ theorem exists_eventual_productSlice_normalized_fourierError_le
   let sigma := Real.sqrt (2 * frobeniusSq F + vectorSqNorm f)
   obtain ⟨hleft, hraw⟩ :=
     hfourierN P ell G f hbucket hpart hbalanced hcoeff hRamsey
-  letI := hleft
+  let := hleft
   have hrobF : RobustRankAt 400 (c * (n : ℝ) ^ 2) F := by
     exact hrob n hNrob (K + 1) P.bucket G (by omega)
       hpart.2.1 hpart.2.2 hbucket hRamsey
@@ -538,11 +538,11 @@ theorem smallBall_productSlice_le_of_raw_fourier_and_robustRank
   let mu := Erdos88.Esseen.finiteUniformLaw (ProductSlicePoint P ell)
     (fun w ↦ X w / sigma)
   let gamma := (gaussianQuadraticCenteredLaw f F).map (fun y ↦ y / sigma)
-  letI : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
+  let : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
     unfold gaussianQuadraticCenteredLaw
     exact Measure.isProbabilityMeasure_map
       ((continuous_quadraticPolynomial 0 f F).sub continuous_const).aemeasurable
-  letI : IsProbabilityMeasure gamma := by
+  let : IsProbabilityMeasure gamma := by
     dsimp only [gamma]
     exact Measure.isProbabilityMeasure_map (by fun_prop)
   have heps : 0 < B / sigma := div_pos hB hsigma
@@ -642,7 +642,7 @@ theorem exists_eventual_productSlice_claim121_upper
   let F := bucketCenteredAdjacency P.bucket hbucket.choose G
   obtain ⟨hleft, hraw⟩ :=
     hfourierN P ell G f hbucket hpart hbalanced hcoeff hRamsey
-  letI := hleft
+  let := hleft
   have hrobF : RobustRankAt 400 (c * (n : ℝ) ^ 2) F := by
     exact hrob n hNrob (K + 1) P.bucket G (by omega)
       hpart.2.1 hpart.2.2 hbucket hRamsey

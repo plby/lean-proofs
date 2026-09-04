@@ -100,7 +100,7 @@ theorem exists_idealGenerator_of_mem_generatorCongruenceCell
   rw [generatorCongruenceCell] at hx
   obtain ⟨y, ⟨z, hz, rfl⟩, hxy⟩ := hx
   have hzcoords : ∀ i, ∃ w : ℤ, (w : ℝ) = z i := by
-    letI := Fintype.ofFinite (index K)
+    let := Fintype.ofFinite (index K)
     change z ∈ Submodule.span ℤ
       (Set.range (Pi.basisFun ℝ (index K))) at hz
     simpa only [
@@ -192,7 +192,7 @@ theorem embedding_mem_generatorCongruenceCell_coordinateResidue
   have hzr : zr ∈
       (Submodule.span ℤ (Set.range
         (Pi.basisFun ℝ (index K))) : Set (index K → ℝ)) := by
-    letI := Fintype.ofFinite (index K)
+    let := Fintype.ofFinite (index K)
     change zr ∈ Submodule.span ℤ
       (Set.range (Pi.basisFun ℝ (index K)))
     simpa only [
@@ -386,9 +386,9 @@ theorem normResidueDensityFunction_mult (M : CRTNormResidueSystem K) :
       have hm1 : m = 1 := by simpa using hmn
       subst m
       simp [normResidueDensityFunction, CRTNormResidueSystem.rootCount]
-    letI : NeZero m := ⟨hm⟩
-    letI : NeZero n := ⟨hn⟩
-    letI : NeZero (m * n) := ⟨mul_ne_zero hm hn⟩
+    let : NeZero m := ⟨hm⟩
+    let : NeZero n := ⟨hn⟩
+    let : NeZero (m * n) := ⟨mul_ne_zero hm hn⟩
     rw [normResidueDensityFunction_apply,
       normResidueDensityFunction_apply, normResidueDensityFunction_apply,
       M.rootCount_mul K m n hmn]
@@ -442,7 +442,7 @@ theorem generatorCongruenceCell_inter_generatorNormRegion_finite
       exact ⟨z, hz, rfl⟩
     · rintro ⟨z, hz, rfl⟩
       exact ⟨scaledIdealLatticeChart J m z, ⟨z, hz, rfl⟩, rfl⟩
-  letI : DiscreteTopology
+  let : DiscreteTopology
       (Submodule.span ℤ (Set.range (Pi.basisFun ℝ (index K)))) :=
     inferInstance
   have hLdiscrete : IsDiscrete L := by
@@ -509,7 +509,7 @@ theorem candidate_natCard_eq_allowedGeneratorResidueCellCount
     Nat.card (Candidate K J f rayAllowed height) =
       allowedGeneratorResidueCellCount J f rayAllowed height := by
   classical
-  letI : ∀ k : {k : index K → ZMod f // k ∈ rayAllowed},
+  let : ∀ k : {k : index K → ZMod f // k ∈ rayAllowed},
       Fintype (CellPoint K J f k.1 height) :=
     fun k ↦ (hfinite k.1 k.2).fintype
   rw [Candidate, Nat.card_sigma, allowedGeneratorResidueCellCount]
@@ -767,10 +767,10 @@ def divisorCellRefinement
     hfprod hgood d hd
   combined_finite d _ _ hd k hk := by
     classical
-    letI : ∀ r : {r : index K → ZMod f // r ∈ rayAllowed},
+    let : ∀ r : {r : index K → ZMod f // r ∈ rayAllowed},
         Fintype (CellPoint K J f r.1 height) :=
       fun r ↦ (hfinite r.1 r.2).fintype
-    letI : Fintype (Candidate K J f rayAllowed height) := by
+    let : Fintype (Candidate K J f rayAllowed height) := by
       unfold Candidate
       infer_instance
     let hfd : f.Coprime d := Nat.Coprime.of_dvd_right hd hfprod
@@ -779,14 +779,14 @@ def divisorCellRefinement
         ((coordinateAlgebraNormResidueSystem K J).normMod d))
     let e := divisorCellEquiv J f rayAllowed height R sievePrimes
       hfprod hgood d hd
-    letI : Finite (CombinedCandidate (K := K) J f d hfd rayAllowed height
+    let : Finite (CombinedCandidate (K := K) J f d hfd rayAllowed height
         (coordinateAlgebraNormResidueSystem K J)) :=
       Finite.of_injective e.symm e.symm.injective
     let includeCell : CellPoint K J (f * d) k height →
         CombinedCandidate (K := K) J f d hfd rayAllowed height
           (coordinateAlgebraNormResidueSystem K J) :=
       fun x ↦ ⟨⟨k, hk⟩, x⟩
-    letI : Finite (CellPoint K J (f * d) k height) :=
+    let : Finite (CellPoint K J (f * d) k height) :=
       Finite.of_injective includeCell (by
         intro x y hxy
         exact Subtype.ext (congrArg (fun c ↦ c.2.1) hxy))
@@ -930,10 +930,10 @@ theorem data_normDivisorMass_eq_natCard
       (Nat.card {a : Candidate K J f rayAllowed height //
         d ∣ conductorNorm R a} : ℝ) := by
   classical
-  letI : ∀ k : {k : index K → ZMod f // k ∈ rayAllowed},
+  let : ∀ k : {k : index K → ZMod f // k ∈ rayAllowed},
       Fintype (CellPoint K J f k.1 height) :=
     fun k ↦ (hfinite k.1 k.2).fintype
-  letI : Fintype (Candidate K J f rayAllowed height) := by
+  let : Fintype (Candidate K J f rayAllowed height) := by
     unfold Candidate
     infer_instance
   change (∑ a ∈ candidateFinset (K := K) J f rayAllowed height hfinite,

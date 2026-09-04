@@ -39,8 +39,8 @@ a binary code coordinate. -/
 theorem card_binaryCoord_eq_rowAssignment {ell r : ℕ}
     (D : SuffixDesign ell r) (i : Fin r) :
     Fintype.card (BinaryCoord ell) = Fintype.card (RowAssignment D i) := by
-  letI := D.instFintypeCoord
-  letI := D.instDecidableEqCoord
+  let := D.instFintypeCoord
+  let := D.instDecidableEqCoord
   simp [BinaryCoord, RowAssignment, D.row_card i]
 
 /-- A fixed identification between code coordinates and assignments on row
@@ -65,8 +65,8 @@ theorem seedCodeCoord_apply_equiv {ell r : ℕ}
     (D : SuffixDesign ell r) (i : Fin r)
     (y : D.Coord → Bool) (c : D.row i) :
     rowAssignmentEquiv D i (seedCodeCoord D i y) c = y c.1 := by
-  letI := D.instFintypeCoord
-  letI := D.instDecidableEqCoord
+  let := D.instFintypeCoord
+  let := D.instDecidableEqCoord
   simp [seedCodeCoord]
 
 /-- Assignments outside one distinguished design row. -/
@@ -126,8 +126,8 @@ theorem sum_overlap_powers_le {ell r : ℕ}
     (D : SuffixDesign ell r) (i : Fin r) :
     (∑ j : Fin i.val,
       2 ^ (D.row i ∩ D.row (priorIndex i j.val)).card) ≤ r - 1 := by
-  letI := D.instFintypeCoord
-  letI := D.instDecidableEqCoord
+  let := D.instFintypeCoord
+  let := D.instDecidableEqCoord
   have hterm (j : ℕ) :
       2 ^ (D.row i ∩ D.row (priorIndex i j)).card =
         overlapCost (D.row i) (D.row (priorIndex i j)) + 1 := by
@@ -154,8 +154,8 @@ theorem sum_overlap_powers_le {ell r : ℕ}
 theorem card_outsideAssignment_le {ell r : ℕ}
     (D : SuffixDesign ell r) (i : Fin r) :
     Fintype.card (OutsideAssignment D i) ≤ 2 ^ D.coordCard := by
-  letI := D.instFintypeCoord
-  letI := D.instDecidableEqCoord
+  let := D.instFintypeCoord
+  let := D.instDecidableEqCoord
   simp only [OutsideAssignment, Fintype.card_fun, Fintype.card_bool]
   apply Nat.pow_le_pow_right (by omega)
   exact Fintype.card_subtype_le _
@@ -164,8 +164,8 @@ theorem card_description_le {p ell r : ℕ} [Fact p.Prime]
     (D : SuffixDesign ell r) (i : Fin r) :
     Fintype.card (Description (p := p) D i) ≤
       2 ^ D.coordCard * p ^ (r - 1) := by
-  letI := D.instFintypeCoord
-  letI := D.instDecidableEqCoord
+  let := D.instFintypeCoord
+  let := D.instDecidableEqCoord
   have hp : 0 < p := (Fact.out : p.Prime).pos
   have hovercard (j : Fin i.val) :
       Fintype.card (OverlapAssignment D i j) =
@@ -222,8 +222,8 @@ theorem seedCodeCoord_eq_of_eq_on_row {ell r : ℕ}
     {y y' : D.Coord → Bool}
     (h : ∀ c ∈ D.row i, y c = y' c) :
     seedCodeCoord D i y = seedCodeCoord D i y' := by
-  letI := D.instFintypeCoord
-  letI := D.instDecidableEqCoord
+  let := D.instFintypeCoord
+  let := D.instDecidableEqCoord
   apply (rowAssignmentEquiv D i).injective
   funext c
   simp only [seedCodeCoord_apply_equiv]

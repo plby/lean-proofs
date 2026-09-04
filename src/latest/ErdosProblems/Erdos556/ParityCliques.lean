@@ -61,7 +61,7 @@ theorem exists_two_parity_cliques {V : Type*} [DecidableEq V] (G : SimpleGraph V
     ∃ A B : Finset V, Disjoint A B ∧ A.card = t ∧ B.card = t ∧
       Gᶜ.IsClique (A : Set V) ∧ Gᶜ.IsClique (B : Set V) := by
   classical
-  letI : NeZero (2 * t) := ⟨by omega⟩
+  let : NeZero (2 * t) := ⟨by omega⟩
   obtain ⟨f⟩ := hc
   exact ⟨parityHalf f 0, parityHalf f 1, parityHalf_disjoint f,
     parityHalf_card f 0, parityHalf_card f 1,

@@ -24,7 +24,7 @@ lemma edgeScore_eq_edgeCount {n : ℕ} (G : SimpleGraph (Fin n))
     (U : Finset (Fin n)) :
     edgeScore G U = (AKSGraph.edgeCount G U : ℤ) := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
   change (inducedEdges G U : ℤ) =
     ((G.edgeFinset.filter fun e ↦ e.toFinset ⊆ U).card : ℤ)
   exact_mod_cast inducedEdges_eq_card_filter G U

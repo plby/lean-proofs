@@ -394,7 +394,7 @@ theorem exists_omegaPowerPartition
       · have hempty : IsEmpty β := by
           exact (@type_eq_zero_iff_isEmpty β LT.lt inferInstance).mp
             (htype.trans ho)
-        letI : IsEmpty β := hempty
+        let : IsEmpty β := hempty
         refine ⟨[], ?_⟩
         refine ⟨by simp [Consecutive], ?_, by simp⟩
         ext x

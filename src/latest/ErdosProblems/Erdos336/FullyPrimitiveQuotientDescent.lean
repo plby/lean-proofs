@@ -110,10 +110,10 @@ theorem rectifiableThreeMinusThree_of_fullyPrimitive
   induction N using Nat.strong_induction_on with
   | h N ih =>
       intro hN
-      letI : NeZero N := ⟨hN.ne'⟩
+      let : NeZero N := ⟨hN.ne'⟩
       dsimp
       intro A hAne hAaff m hm
-      letI : NeZero m := ⟨hm.ne'⟩
+      let : NeZero m := ⟨hm.ne'⟩
       intro π hπ α houter hsmall
       by_cases hfull : ∀ K : AddSubgroup (ZMod N), K ≤ π.ker → K ≠ ⊥ →
           (addSubgroupFinset K).card ≤
@@ -125,16 +125,16 @@ theorem rectifiableThreeMinusThree_of_fullyPrimitive
         obtain ⟨K, hKker, hKne, hfail⟩ := hfull
         let q := Nat.card (ZMod N ⧸ K)
         have hq : 0 < q := Nat.card_pos
-        letI : NeZero q := ⟨hq.ne'⟩
+        let : NeZero q := ⟨hq.ne'⟩
         let f := cyclicQuotientHom K
         let πbar := cyclicQuotientFactor K π hKker
         have hKcard2 : 2 ≤ (addSubgroupFinset K).card := by
-          letI : Fintype K := Fintype.ofFinite K
+          let : Fintype K := Fintype.ofFinite K
           have hk := (AddSubgroup.one_lt_card_iff_ne_bot K).mpr hKne
           have hk' : 1 < (addSubgroupFinset K).card := by
             simpa [addSubgroupFinset, Nat.card_eq_fintype_card] using hk
           omega
-        letI : Fintype K := Fintype.ofFinite K
+        let : Fintype K := Fintype.ofFinite K
         have hNcard : N = q * (addSubgroupFinset K).card := by
           have hc := AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup K
           have hkcard : Nat.card K = (addSubgroupFinset K).card := by

@@ -256,7 +256,7 @@ theorem cappedInvDist_four_mul_le_minor_arc
       _ ≤ W ^ 2 * (P * W) := Nat.mul_le_mul_right (P * W) hWsq
       _ = P * W ^ 3 := by ring
       _ ≤ H := hPW3
-  letI : NeZero q := ⟨Nat.ne_of_gt hqpos⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hqpos⟩
   have hWr : (0 : ℝ) < W := by exact_mod_cast hWpos
   have hqr : (0 : ℝ) < q := by exact_mod_cast hqpos
   have hPr : (0 : ℝ) < P := by exact_mod_cast hPpos
@@ -472,7 +472,7 @@ theorem cappedInvDist_two_mul_le_minor_arc_succ
       _ ≤ W ^ 2 * (P * W) := Nat.mul_le_mul_right (P * W) hWsq
       _ = P * W ^ 3 := by ring
       _ ≤ H := hPW3
-  letI : NeZero q := ⟨Nat.ne_of_gt hqpos⟩
+  let : NeZero q := ⟨Nat.ne_of_gt hqpos⟩
   have hWr : (0 : ℝ) < W := by exact_mod_cast hWpos
   have hqr : (0 : ℝ) < q := by exact_mod_cast hqpos
   have hPr : (0 : ℝ) < P := by exact_mod_cast hPpos

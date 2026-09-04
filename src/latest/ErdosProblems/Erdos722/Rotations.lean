@@ -2442,7 +2442,7 @@ theorem exists_amplified_rootedRotationCover_of_scaled_bad
   classical
   let Task := Erdos722.RootedEmbedding.RootRequest v n root
   let Sample := Fin m → Equiv.Perm (Fin n)
-  letI : Fintype Task := Fintype.ofInjective
+  let : Fintype Task := Fintype.ofInjective
     Erdos722.RootedEmbedding.RootRequest.map (by
       intro a b hab
       cases a with

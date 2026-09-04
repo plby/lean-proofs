@@ -184,8 +184,8 @@ lemma not_sixPrimeCompatible_of_support_card_one
     ¬ sixPrimeCompatible s a := by
   classical
   have hpprime : p.1.Prime := Nat.prime_of_mem_primeFactors p.2
-  letI : NeZero p.1 := ⟨hpprime.ne_zero⟩
-  letI : Fact (1 < p.1) := ⟨hpprime.one_lt⟩
+  let : NeZero p.1 := ⟨hpprime.ne_zero⟩
+  let : Fact (1 < p.1) := ⟨hpprime.one_lt⟩
   obtain ⟨i, hi⟩ := Finset.card_eq_one.mp hpone
   have hiJ : i ∈ familySupportTuple s.primeFactors U p := by simp [hi]
   have hpi : p.1 ∈ U i := (mem_familySupportTuple _ _ _ _).mp hiJ
@@ -205,7 +205,7 @@ lemma not_sixPrimeCompatible_of_support_card_one
   have hcop : (a i ⟨p.1, hpi⟩).1.Coprime p.1 :=
     (Finset.mem_filter.mp (a i ⟨p.1, hpi⟩).2).2
   have hne : ((a i ⟨p.1, hpi⟩).1 : ZMod p.1) ≠ 0 := by
-    letI : Fact (1 < p.1) := ⟨(Nat.prime_of_mem_primeFactors p.2).one_lt⟩
+    let : Fact (1 < p.1) := ⟨(Nat.prime_of_mem_primeFactors p.2).one_lt⟩
     intro hz
     have hu : ((ZMod.unitOfCoprime (a i ⟨p.1, hpi⟩).1 hcop :
         (ZMod p.1)ˣ) : ZMod p.1) ≠ 0 := Units.ne_zero _

@@ -54,8 +54,8 @@ theorem exists_eventually_covering_levels (τ : MaskChoice CoefficientField)
         LocallyRepresented CoefficientField τ k (ξ k) m := by
   classical
   let X (k : ℕ) := LevelParameters CoefficientField k
-  letI (k : ℕ) : MeasurableSpace (X k) := ⊤
-  letI (k : ℕ) : DiscreteMeasurableSpace (X k) := ⟨fun _ => trivial⟩
+  let (k : ℕ) : MeasurableSpace (X k) := ⊤
+  let (k : ℕ) : DiscreteMeasurableSpace (X k) := ⟨fun _ => trivial⟩
   let μ := UniformProducts.productMeasure X
   let bad (k : ℕ) : Set (∀ k, X k) := {ξ | WindowFailure τ k (ξ k)}
   have hbad : ∀ᶠ k in atTop, μ.real (bad k) ≤ Real.exp (-(k : ℝ)) := by

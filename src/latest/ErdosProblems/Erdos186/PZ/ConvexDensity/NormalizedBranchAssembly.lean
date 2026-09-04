@@ -378,7 +378,7 @@ theorem graphThickeningCost_le_etaLow
       simp only [normalizedGraphVolumeCoefficient]
       dsimp only [A, B]
       field_simp
-      simp [Real.rpow_natCast]
+      simp only [Real.rpow_natCast]
       rw [div_pow, mul_pow]
       field_simp
 
@@ -435,7 +435,7 @@ theorem graphThickeningCost_le_etaHigh
       have hsne : s ≠ 0 := hs.ne'
       simp only [normalizedGraphVolumeCoefficient]
       field_simp
-      simp [Real.rpow_natCast]
+      simp only [Real.rpow_natCast]
       rw [div_pow, mul_pow]
       field_simp
 

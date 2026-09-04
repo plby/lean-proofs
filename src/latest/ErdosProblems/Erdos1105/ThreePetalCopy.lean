@@ -43,10 +43,11 @@ theorem threePetal_copy_of_disjoint_neighbor_edges {V : Type*} [Fintype V] [Deci
         refine ⟨{ toHom := ⟨φ, ?_⟩, injective' := List.nodup_iff_injective_get.mp hnodup }⟩
         intro i j hij
         fin_cases i <;> fin_cases j <;>
-          simp [threePetalGraph, φ] at hij ⊢
+          simp only [Fin.mk_one, Fin.isValue, Fin.reduceFinMk, Fin.zero_eta] at hij ⊢
         all_goals first | assumption | exact hua.symm | exact hub.symm | exact huc.symm |
           exact hud.symm | exact hue.symm | exact huf.symm | exact hab.symm |
-          exact hcd.symm | exact hef.symm
+          exact hcd.symm | exact hef.symm |
+          (exfalso; simp [threePetalGraph] at hij)
 
 theorem threePetal_copy_of_rooted_two_high_edges {V : Type*} [Fintype V] [DecidableEq V]
     (G : SimpleGraph V) [DecidableRel G.Adj] (hconn : G.Preconnected) (u : V)

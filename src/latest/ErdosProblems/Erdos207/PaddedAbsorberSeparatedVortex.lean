@@ -120,7 +120,7 @@ theorem exists_paddedAbsorber_with_initial_separated_typicality
   have hnonempty : ∀ i, (W.U i).Nonempty := by
     simpa only [W] using
       separatedCardinalVortex_nonempty H X B freeSize hanti hXnonempty
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
   have htyp : IsIterationTypical W 0
       (graphDifference (SimpleGraph.completeGraph (Fin n)) H)
       (absorberGreedyInitialState

@@ -565,7 +565,7 @@ lemma forwardDifferences_translate (F : ℝ → ℝ) (rs : List ℝ)
   | cons r rs ih =>
       rw [forwardDifferences_cons, forwardDifferences_cons, ih, ih]
       congr 1
-      ring
+      ring_nf
 
 /-- The real phase represented by an iterated reciprocal correlation. -/
 def signedReciprocalDifference
@@ -622,7 +622,7 @@ lemma signedReciprocalDifference_succ_sub (X : ℝ) (A : ℕ)
           (fun t ↦ -X / t) (A + i : ℕ) := by
   simp only [signedReciprocalDifference, forwardDifferences_cons]
   push_cast
-  ring
+  ring_nf
 
 /-- Mean-value form of a terminal reciprocal-correlation gap, in every
 derivative order. -/
@@ -747,7 +747,7 @@ lemma signedReciprocalDifference_gap_succ_sub
           (fun t ↦ -X / t) (A + i : ℕ) := by
   simp only [signedReciprocalDifference, forwardDifferences_cons]
   push_cast
-  ring
+  ring_nf
 
 lemma signedReciprocalDifference_gap_antitone
     (X : ℝ) (hX : 0 ≤ X) {A : ℕ} (hA : 0 < A)

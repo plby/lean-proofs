@@ -1479,7 +1479,7 @@ lemma integrable_of_summable_dyadicTerm
         rw [pow_succ]
         have hp : (0 : ℝ) < 2 ^ n := by positivity
         field_simp
-        ring
+        ring_nf
   have hshift : Summable (fun n => dyadicTerm F (n + 1)) := by
     have h := hsum.comp_injective (i := fun n : ℕ => n + 1)
       (fun _ _ h => Nat.add_right_cancel h)

@@ -161,7 +161,7 @@ theorem pairedFourierPrimeLocalFactor_eq_fixedFamilySupportSum
     pairedFourierPrimeLocalFactor R forms t u p =
       ∑ s ∈ (Finset.univ : Finset κ).powerset,
         fixedFamilyPrimeLocalSupportTerm R forms t u p s := by
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   unfold pairedFourierPrimeLocalFactor pairedFourierLocalFactor
     fixedFamilyPrimeLocalSupportTerm
     fixedFamilyPrimeLocalCoefficient
@@ -438,7 +438,7 @@ theorem fixedFamilyPrimeSupportDensity_assignmentOf_eq_eulerProduct
       intro p hpR hpD
       have hpPrime : p.Prime :=
         Nat.prime_of_mem_primesLE hpR
-      letI : NeZero p := ⟨hpPrime.ne_zero⟩
+      let : NeZero p := ⟨hpPrime.ne_zero⟩
       have hsupport :
           pairedPrimeSupport z p = ∅ := by
         apply Finset.not_nonempty_iff_eq_empty.mp
@@ -470,7 +470,7 @@ theorem fixedFamilyPrimeSupportDensity_assignmentOf_eq_eulerProduct
           intro p _hp
           have hpPrime : (p : ℕ).Prime :=
             Nat.prime_of_mem_primeFactors p.2
-          letI : NeZero (p : ℕ) := ⟨hpPrime.ne_zero⟩
+          let : NeZero (p : ℕ) := ⟨hpPrime.ne_zero⟩
           exact primeAffineFamilyZeroDensity_of_prime
             forms hpPrime (pairedPrimeSupport z p)
 

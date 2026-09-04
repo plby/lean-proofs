@@ -192,7 +192,7 @@ lemma realizableHighGirthCycleCoverBank_subset
       highGirthCycleCoverBank V hq := by
   let coreDecidableEq : DecidableEq (CycleCoverAbsorberVertex V) :=
     inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex V) :=
+  let : LinearOrder (CycleCoverAbsorberVertex V) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex V)) _ coreDecidableEq
   exact restrictedSphereTransformBank_subset hq _
@@ -227,7 +227,7 @@ theorem highGirthCycleCover_absorbs_in_realizableBank
           G.map (highGirthCycleCoverRootEmbedding V q)) C := by
   let coreDecidableEq : DecidableEq (CycleCoverAbsorberVertex V) :=
     inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex V) :=
+  let : LinearOrder (CycleCoverAbsorberVertex V) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex V)) _ coreDecidableEq
   obtain ⟨C₀, hC₀⟩ := cycleCoverAbsorber_absorbs hV G hG
@@ -339,7 +339,7 @@ theorem realizableHighGirthCycleCover_bankPairsSupported
       (realizableHighGirthCycleCoverBank V Y hq) := by
   let coreDecidableEq : DecidableEq (CycleCoverAbsorberVertex V) :=
     inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex V) :=
+  let : LinearOrder (CycleCoverAbsorberVertex V) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex V)) _ coreDecidableEq
   intro U hUB x hxU y hyU hxy
@@ -491,7 +491,7 @@ theorem exists_paddedRealizableAbsorber
     exact (card_le_card hsub).trans
       (by simpa only [card_map, card_univ, q'] using hWbound)
   · intro v
-    letI : DecidableRel H.Adj := Classical.decRel H.Adj
+    let : DecidableRel H.Adj := Classical.decRel H.Adj
     have hsub : H.neighborFinset v ⊆
         (univ : Finset W).map f := by
       intro y hy

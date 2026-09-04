@@ -336,7 +336,7 @@ theorem sqrt_norm_sourceDeleted_LSeries_div_norm_le_maximumModulusSqrtScalar_of_
     dsimp only [a, q, gsA10SourceMaximumModulusScalar]
     rw [mul_pow, Real.sq_sqrt hlog0, pow_two, ← Real.exp_add]
     congr 1
-    ring
+    ring_nf
   have hsRe : 0 < s.re := by
     dsimp only [s, c₀]
     simp only [Complex.add_re, Complex.ofReal_re, Complex.mul_re,

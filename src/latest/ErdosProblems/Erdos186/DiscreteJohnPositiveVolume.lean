@@ -175,7 +175,7 @@ theorem shrunkenRadii_product_volume_le
     ENNReal.ofReal (∏ i, ((C.radii i / factor : ℕ) : ℝ)) *
         ENNReal.ofReal ((2 : ℝ) ^ d / (d.factorial : ℝ)) ≤
       MeasureTheory.volume K := by
-  letI : Nonempty (Fin d) := ⟨⟨0, hd⟩⟩
+  let : Nonempty (Fin d) := ⟨⟨0, hd⟩⟩
   let a : Fin d → ℝ :=
     fun i ↦ ((C.radii i / factor : ℕ) : ℝ)
   have hLI := realLinearIndependent_of_integerIndependent C.steps C.independent

@@ -133,7 +133,7 @@ lemma twistedResiduePairCount_zero_le_divisor_envelope
 lemma complementary_twisted_residue
     (a q v : ℕ) (hq : 0 < q) (hpos : 0 < (a * v) % q) :
     ((q - a % q) * v) % q = q - (a * v) % q := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   have hamod : a % q ≤ q := (Nat.mod_lt a hq).le
   have hbar : ((q - a % q : ℕ) : ZMod q) = -(a : ZMod q) := by
     rw [Nat.cast_sub hamod, ZMod.natCast_self, ZMod.natCast_mod]
@@ -160,7 +160,7 @@ lemma complementary_numerator_coprime
 lemma complementary_twisted_residue_zero_of_zero
     (a q v : ℕ) (hq : 0 < q) (ha0 : (a * v) % q = 0) :
     ((q - a % q) * v) % q = 0 := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   have hamod : a % q ≤ q := (Nat.mod_lt a hq).le
   have hbar : ((q - a % q : ℕ) : ZMod q) = -(a : ZMod q) := by
     rw [Nat.cast_sub hamod, ZMod.natCast_self, ZMod.natCast_mod]
@@ -439,7 +439,7 @@ lemma norm_quadraticSum_rational_mul_sq_le_majorants
       · exact (Finset.mem_Icc.mp hh).1
       · exact (Finset.mem_Icc.mp hh).2
       · omega
-      · simp
+      · simp only [Nat.cast_mul, sub_self, abs_zero, Nat.cast_ofNat, one_div, mul_inv_rev]
         positivity
 
 lemma sum_norm_quadraticSum_rational_mul_sq_le

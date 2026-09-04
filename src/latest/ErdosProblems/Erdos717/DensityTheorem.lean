@@ -63,7 +63,7 @@ theorem containsCliqueSubdivision_of_five_mul_sq_mul_card_le_edges
   · have hrsmall : r = 0 ∨ r = 1 := by omega
     rcases hrsmall with rfl | rfl
     · exact Erdos718.containsCliqueSubdivision_zero G
-    · letI : Nonempty V := Fintype.card_pos_iff.mp hrV
+    · let : Nonempty V := Fintype.card_pos_iff.mp hrV
       exact Erdos718.containsCliqueSubdivision_one_of_nonempty G
   · subst r
     have hr : 1 ≤ (2 : ℕ) := by omega

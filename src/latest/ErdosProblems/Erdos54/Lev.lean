@@ -389,7 +389,7 @@ theorem lev_multiple_increment
     (listSum Bs).card +
         min L ((all.map fun A ↦ (modImage A L).card).sum - all.length + 1) ≤
       (listSum all).card := by
-  letI : NeZero L := ⟨Nat.ne_of_gt hL⟩
+  let : NeZero L := ⟨Nat.ne_of_gt hL⟩
   dsimp only
   let all := Bs ++ [B]
   let C := listSum Bs

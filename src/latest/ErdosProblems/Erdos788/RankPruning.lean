@@ -308,7 +308,7 @@ theorem prune_rank_deficient_seeds
     (E : RawLinearExtractorFamily p r d s) :
     Nonempty (LinearExtractorFamily p r d s) := by
   classical
-  letI : Nonempty (SurjectiveSeed E) := nonempty_surjectiveSeed hp hr hrs E
+  let : Nonempty (SurjectiveSeed E) := nonempty_surjectiveSeed hp hr hrs E
   refine ⟨{
     Seed := SurjectiveSeed E
     seedFintype := inferInstance

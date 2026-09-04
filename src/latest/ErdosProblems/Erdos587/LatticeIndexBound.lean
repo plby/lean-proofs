@@ -46,7 +46,7 @@ theorem finiteIndex_of_coordinate_periods {Γ : AddSubgroup (ι → ℤ)} {k : �
     (hk : ∀ i, 0 < k i) (hperiod : ∀ i, k i • coordinateUnit i ∈ Γ) :
     Γ.FiniteIndex := by
   have hsurj := coordinate_box_surjects_quotient hk hperiod
-  haveI : Finite ((ι → ℤ) ⧸ Γ) := Finite.of_surjective _ hsurj
+  have : Finite ((ι → ℤ) ⧸ Γ) := Finite.of_surjective _ hsurj
   exact AddSubgroup.finiteIndex_of_finite_quotient
 
 theorem index_le_product_of_coordinate_periods {Γ : AddSubgroup (ι → ℤ)} {k : ι → ℕ}

@@ -659,7 +659,7 @@ theorem card_edgeFinset_le_quarter_add_linear_of_saturated33 :
   induction n using Nat.strong_induction_on generalizing V with
   | h n ih =>
       by_cases hV : Nonempty V
-      · letI := hV
+      · let := hV
         obtain ⟨v, hvdeg⟩ := low_degree_of_saturated33 G hSat
         let S : Set V := {v}ᶜ
         let J := G.induce S
@@ -700,7 +700,7 @@ theorem card_edgeFinset_le_quarter_add_linear_of_saturated33 :
           exact hvdeg
         have hnreal : (0 : ℝ) < n := by exact_mod_cast hnpos
         nlinarith
-      · haveI : IsEmpty V := not_nonempty_iff.mp hV
+      · have : IsEmpty V := not_nonempty_iff.mp hV
         have hn0 : n = 0 := by
           rw [← hn]
           exact Fintype.card_eq_zero

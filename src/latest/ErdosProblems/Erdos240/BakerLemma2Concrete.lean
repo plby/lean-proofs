@@ -1744,7 +1744,7 @@ theorem k_rpow_one_sub_sigma_mul_rpow_sigma {oldRank : ℕ}
     (P : VDPLParameters (Fin oldRank)) :
     P.k ^ (1 - P.sigma) * P.k ^ P.sigma = P.k := by
   rw [← Real.rpow_add P.k_pos]
-  convert Real.rpow_one P.k using 1 <;> ring
+  convert Real.rpow_one P.k using 1 <;> ring_nf
 
 /-- The `lambda₀` side of the cleared head consumes at most `H/32`. -/
 theorem initial_headSideFactor_le {oldRank : ℕ}
@@ -2202,7 +2202,7 @@ theorem exists_initial_auxiliary_coefficients
       hslack hunknown hmatrix
   refine ⟨c, hc, heq, ?_⟩
   unfold VDPLParameters.coeffHeight
-  convert hheight using 1 <;> ring
+  convert hheight using 1 <;> ring_nf
 
 /-- Source-faithful Lemma 2 coefficient construction.  This version uses
 the raw Siegel bound together with the printed factor-eight dimension
@@ -2248,7 +2248,7 @@ theorem exists_initial_auxiliary_coefficients_sourceHeight
   have hunknown : (N : ℝ) ≤ Real.exp (H / 6) := by
     dsimp only [N, H]
     convert initial_unknownCount_le_exp_heightScale P hunknownReq using 1 <;>
-      ring
+      ring_nf
   have hfinal := siegel_rpow_le_exp_third hH hMpos hslack hunknown
     (by simpa only [model, H] using hmatrix)
   unfold VDPLParameters.coeffHeight

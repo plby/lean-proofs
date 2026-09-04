@@ -11,7 +11,7 @@ lemma smoothRunStarts_subset_unit_survivors (N H T : ℕ) :
     smoothRunStarts N H T ⊆
       residueClassSurvivors (fun q : dyadicPrimes T => unitShiftResidues (1 : (ZMod q.1)ˣ) H) 0 N := by
   classical
-  letI : ∀ q : dyadicPrimes T, NeZero q.1 :=
+  let : ∀ q : dyadicPrimes T, NeZero q.1 :=
     fun q => ⟨(Finset.mem_filter.mp q.2).2.ne_zero⟩
   intro n hn
   obtain ⟨hnrange, hsmooth⟩ := Finset.mem_filter.mp hn
@@ -35,7 +35,7 @@ theorem exists_uniform_smoothRunStarts_highOrder_bound : ∃ T₀ : ℕ, ∀ T �
   obtain ⟨T₀, hbound⟩ := exists_uniform_dyadicShiftSieve_bound
   refine ⟨T₀, ?_⟩
   intro T hT k H hk hH hHT hkT N hpower
-  letI : ∀ q : dyadicPrimes T, NeZero q.1 :=
+  let : ∀ q : dyadicPrimes T, NeZero q.1 :=
     fun q => ⟨(Finset.mem_filter.mp q.2).2.ne_zero⟩
   have h := hbound T hT k H hk hH hHT hkT 0 N hpower (fun _ => 1)
   exact (show ((smoothRunStarts N H T).card : ℝ) ≤

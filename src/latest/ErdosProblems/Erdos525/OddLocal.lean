@@ -61,7 +61,7 @@ lemma phaseLimitingDensity_le_const (y : PhaseEuclidean m) :
 lemma phaseLimitingDensity_tendsto_cocompact_zero :
     Tendsto (phaseLimitingDensity : PhaseEuclidean m → ℝ)
       (cocompact _) (𝓝 0) := by
-  letI : ProperSpace (PhaseEuclidean m) :=
+  let : ProperSpace (PhaseEuclidean m) :=
     FiniteDimensional.proper_real (PhaseEuclidean m)
   have hnorm : Tendsto (fun y : PhaseEuclidean m ↦ ‖y‖)
       (cocompact (PhaseEuclidean m)) atTop :=
@@ -81,7 +81,7 @@ lemma phaseLimitingDensity_tendsto_cocompact_zero :
 lemma uniformContinuous_phaseLimitingDensity :
     UniformContinuous (phaseLimitingDensity : PhaseEuclidean m → ℝ) :=
   by
-    letI : ProperSpace (PhaseEuclidean m) :=
+    let : ProperSpace (PhaseEuclidean m) :=
       FiniteDimensional.proper_real (PhaseEuclidean m)
     exact (continuous_phaseLimitingDensity m).uniformContinuous_of_tendsto_cocompact
       phaseLimitingDensity_tendsto_cocompact_zero

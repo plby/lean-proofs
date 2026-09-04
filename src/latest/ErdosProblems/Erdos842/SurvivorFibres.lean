@@ -33,7 +33,7 @@ noncomputable def cycleRestriction {n : ℕ}
 theorem finCyclicSucc_eq_iff_eq_finCyclePred {m : ℕ} (hm : 0 < m)
     (u v : Fin m) :
     finCyclicSucc m u = v ↔ u = CycleBoundary.finCyclePred hm v := by
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   simp only [finCyclicSucc_eq_finRotate, finRotate_apply,
     CycleBoundary.finCyclePred, Equiv.subRight_apply]
   constructor <;> intro h
@@ -352,7 +352,7 @@ theorem alternatingSign_ne_of_boundary_ne {n : ℕ}
     (GoodChords.mem_selectedVertices triangleCoord key _).2 ⟨p, rfl⟩
   have hq : GoodChords.selectedEndpoint triangleCoord key q ∈ used :=
     (GoodChords.mem_selectedVertices triangleCoord key _).2 ⟨q, rfl⟩
-  simp [CycleBoundary.alternatingBoundary, used, hp, hq] at hne
+  simp only [ne_eq] at hne
   rw [prefixCount_selectedEndpoint, prefixCount_selectedEndpoint] at hne
   unfold ChordCrossing.alternatingSign
   let rp := (GoodChords.endpointCyclicOrder triangleCoord key p).val
@@ -548,7 +548,7 @@ theorem canonicalCyclePred_eq_finCyclePred {n : ℕ} (hn : 0 < n) :
     canonicalCyclePred n =
       CycleBoundary.finCyclePred (by omega : 0 < 3 * n) := by
   ext v
-  letI : NeZero (3 * n) := ⟨by omega⟩
+  let : NeZero (3 * n) := ⟨by omega⟩
   simp [canonicalCyclePred, CycleBoundary.finCyclePred]
 
 /-- Assemble a global occurrence selection from its prefix-parity cycle part

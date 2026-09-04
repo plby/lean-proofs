@@ -151,7 +151,7 @@ lemma edgeBucket_card_le_pairedGraph (hG : G.IsBipartite) (hconn : G.Connected)
       (pairedGraph G r i).edgeSet.ncard := by
   classical
   let S : Set V := pairedLayers G r i
-  letI : Fintype S := Fintype.ofFinite S
+  let : Fintype S := Fintype.ofFinite S
   change (G.edgeFinset.filter fun e ↦ edgeLevel G r e = i).card ≤
     (G.induce S).edgeSet.ncard
   have hsub : (G.edgeFinset.filter fun e ↦ edgeLevel G r e = i) ⊆
@@ -333,8 +333,8 @@ theorem exists_host_pairedLayers_half_average
         J.edgeSet.ncard * K.verts.ncard ≤
           2 * K.edgeSet.ncard * J.verts.ncard := by
   classical
-  letI : Fintype J.verts := Fintype.ofFinite J.verts
-  letI : DecidableRel J.coe.Adj := Classical.decRel _
+  let : Fintype J.verts := Fintype.ofFinite J.verts
+  let : DecidableRel J.coe.Adj := Classical.decRel _
   have hEcoe : 0 < J.coe.edgeFinset.card := by
     rw [edgeFinset_card_eq_edgeSet_ncard J]
     exact hE

@@ -73,7 +73,7 @@ theorem SmoothSieveCutoff.abs_selectedCFZ_weightedDensity_sub_canonicalEuler_le
   · simp [hcoefficient]
   · have hDpos : 0 < pairedDivisorLcm z :=
       pairedDivisorLcm_pos hz
-    letI : NeZero (pairedDivisorLcm z) :=
+    let : NeZero (pairedDivisorLcm z) :=
       ⟨Nat.ne_of_gt hDpos⟩
     have hDpow :
         pairedDivisorLcm z ≤
@@ -828,10 +828,10 @@ theorem
       (tendsto_const_nhds.mul hscale)
   apply squeeze_zero'
   · exact Filter.Eventually.of_forall fun n => by
-      letI : NeZero (Nseq n) := ⟨hN n⟩
+      let : NeZero (Nseq n) := ⟨hN n⟩
       exact abs_nonneg _
   · filter_upwards [hR, hb, hfit] with n hRn hbn hfitn
-    letI : NeZero (Nseq n) := ⟨hN n⟩
+    let : NeZero (Nseq n) := ⟨hN n⟩
     have hcard :
         Fintype.card (SelectedCFZFormIndex e) ≤
           Fintype.card (CFZFormIndex k) :=
@@ -887,7 +887,7 @@ theorem
       hk e R Nseq wseq bseq hN hR hb hfit hscale
   apply hreal.congr'
   exact Filter.Eventually.of_forall fun n => by
-    letI : NeZero (Nseq n) := ⟨hN n⟩
+    let : NeZero (Nseq n) := ⟨hN n⟩
     change
       |mean
             (linearFormsProduct k (Nseq n)

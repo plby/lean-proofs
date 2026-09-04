@@ -234,7 +234,7 @@ theorem maxDegree_mul_card_le_of_almostRegular
     rw [BipartiteGraph.rightDegree, Finset.card_pos] at hb
     obtain ⟨a, ha⟩ := hb
     exact ⟨a, b, (BipartiteGraph.mem_leftNeighbors _ _ _).mp ha⟩
-  letI : Nonempty (LeftSupport G ⊕ RightSupport G) := ⟨Sum.inl a⟩
+  let : Nonempty (LeftSupport G ⊕ RightSupport G) := ⟨Sum.inl a⟩
   rw [← card_supportGraph G, ← edgeCount_supportGraph G,
     ← twice_card_edges_simpleGraph (supportGraph G),
     ← SimpleGraph.sum_degrees_eq_twice_card_edges, Fintype.card_sum,
@@ -374,7 +374,7 @@ theorem containsRegularSubgraph_of_almostRegular
     rw [BipartiteGraph.rightDegree, Finset.card_pos] at hb
     obtain ⟨a, ha⟩ := hb
     exact ⟨a, b, (BipartiteGraph.mem_leftNeighbors _ _ _).mp ha⟩
-  letI : Nonempty (LeftSupport G ⊕ RightSupport G) := ⟨Sum.inl a⟩
+  let : Nonempty (LeftSupport G ⊕ RightSupport G) := ⟨Sum.inl a⟩
   let Δ := S.maxDegree
   have hsupport : 0 < G.supportCard := by
     rw [← card_supportGraph G]
@@ -472,7 +472,7 @@ theorem exists_prsConstant_sixtyFourAlmostRegular (k : ℕ) (hk : 0 < k) :
   let aS : LeftSupport G := ⟨a, by
     rw [BipartiteGraph.leftDegree, Finset.card_pos]
     exact ⟨b, (BipartiteGraph.mem_rightNeighbors _ _ _).mpr hab⟩⟩
-  letI : Nonempty (LeftSupport G ⊕ RightSupport G) := ⟨Sum.inl aS⟩
+  let : Nonempty (LeftSupport G ⊕ RightSupport G) := ⟨Sum.inl aS⟩
   apply containsRegularSubgraph_of_sixtyFourAlmostRegular hC G hreg ?_ havg
   intro J _instAdj Delta hDelta hdegrees hdensity
   apply hprs J Delta hDelta

@@ -613,7 +613,7 @@ theorem card_biUnion_finite_le {I : Type u} {A : Set I}
       apply mul_le_mul' hA
       have hiSup : (⨆ i : A, #(support i.1) : Cardinal.{u}) ≤ ℵ₀ := by
         by_cases hne : A.Nonempty
-        · letI : Nonempty A := Set.nonempty_coe_sort.mpr hne
+        · let : Nonempty A := Set.nonempty_coe_sort.mpr hne
           apply ciSup_le
           intro i
           exact (hfin i.1 i.2).countable.le_aleph0

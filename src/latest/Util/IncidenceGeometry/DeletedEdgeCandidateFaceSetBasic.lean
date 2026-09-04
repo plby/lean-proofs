@@ -44,7 +44,7 @@ lemma DeletedEdgeCandidateFaceSetBasic {V : Type*} [Fintype V]
           (OrdinaryDrawingImage (G.deleteEdges {e.1}) Ddel)ᶜ ∧
           IsConnected (faceSetDel Q) := by
   classical
-  letI : Fintype A.Face := A.faceFintype
+  let : Fintype A.Face := A.faceFintype
   have hdeletedComplementIdentity :
       (OrdinaryDrawingImage (G.deleteEdges {e.1}) Ddel)ᶜ =
           (OrdinaryDrawingImage G D)ᶜ ∪ (D.edgeArc e).relativeInterior :=

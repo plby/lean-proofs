@@ -42,7 +42,7 @@ theorem recodeGraph_isomorphic {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj] :
     (recodeGraph G).edgeCount = G.edgeFinset.card := by
   classical
-  letI : DecidableRel (recodeGraph G).graph.Adj := Classical.decRel _
+  let : DecidableRel (recodeGraph G).graph.Adj := Classical.decRel _
   rw [GraphCode.edgeCount_eq_card_edgeFinset]
   exact (recodeGraphIso G).card_edgeFinset_eq.symm
 

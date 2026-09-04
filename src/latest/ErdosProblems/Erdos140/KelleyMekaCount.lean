@@ -436,7 +436,7 @@ theorem count_bound {N : ℕ} {A : Finset (ZMod (intervalModulus N))}
     {K : ℝ} {d : ℕ} (c : CyclicHolderCertificate N A K d) :
     Real.exp (-K * (d : ℝ) ^ 12) *
         ((intervalModulus N : ℕ) : ℝ) ^ 2 ≤ (threeAPCount A : ℝ) := by
-  letI : NeZero (intervalModulus N) := ⟨by simp [intervalModulus]⟩
+  let : NeZero (intervalModulus N) := ⟨by simp [intervalModulus]⟩
   have hodd : Odd (intervalModulus N) := by
     exact ⟨N, by simp [intervalModulus, two_mul]⟩
   simpa using GroupCount.zmod_cyclic_count_bound_of_holder_density hodd
@@ -763,7 +763,7 @@ noncomputable def of_locatedTerminalData
   have hbohr := bohr_product_of_individual_bounds hB hB'
   have hsize := quantitative_size_of_density_and_bohr hdensityCube hbohr
   exact ofHolderCountCertificate c (by
-    convert hsize using 1 <;> ring)
+    convert hsize using 1 <;> ring_nf)
 
 end CyclicHolderCertificate
 

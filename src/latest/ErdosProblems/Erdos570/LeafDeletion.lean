@@ -71,7 +71,7 @@ theorem not_adj_of_leaves_of_connected
   have hwSzS : wS ≠ zS := by
     intro h
     exact hzw (congrArg Subtype.val h).symm
-  haveI : Nontrivial S := ⟨⟨wS, zS, hwSzS⟩⟩
+  have : Nontrivial S := ⟨⟨wS, zS, hwSzS⟩⟩
   have hpos : 0 < (H.graph.induce S).degree wS :=
     hdel.preconnected.degree_pos_of_nontrivial wS
   have hzero : (H.graph.induce S).degree wS = 0 := by
@@ -196,7 +196,7 @@ theorem deleteLeavesCode_connected
     rw [Finset.card_sdiff_of_subset (Finset.subset_univ L)]
     simp
   have hSne : S.Nonempty := Finset.card_pos.mp (by omega)
-  letI : Nonempty S := ⟨⟨hSne.choose, hSne.choose_spec⟩⟩
+  let : Nonempty S := ⟨⟨hSne.choose, hSne.choose_spec⟩⟩
   have hindConn : (H.graph.induce (S : Set _)).Connected := ⟨hpre⟩
   exact (inducedCodeIso H S).connected_iff.mp hindConn
 
@@ -209,7 +209,7 @@ theorem deleteLeavesCode_noIsolated
     NoIsolated (deleteLeavesCode H L) := by
   have hQconn := deleteLeavesCode_connected H hconn L hL (by omega)
   intro v
-  letI : Nontrivial (Fin (deleteLeavesCode H L).vertexCount) := by
+  let : Nontrivial (Fin (deleteLeavesCode H L).vertexCount) := by
     let a : Fin (deleteLeavesCode H L).vertexCount := ⟨0, by
       simpa using (show 0 < H.vertexCount - L.card by omega)⟩
     let b : Fin (deleteLeavesCode H L).vertexCount := ⟨1, by

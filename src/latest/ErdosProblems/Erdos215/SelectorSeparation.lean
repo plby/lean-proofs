@@ -90,13 +90,13 @@ def lineLabel {d : ℕ} (hd : d ≠ 0) (lam : Root d) (i j : Fin d) : Fin d := b
     (i j : Fin d) :
     (((lineLabel hd lam i j : Fin d) : ℕ) : ZMod d) =
       ((j : ℕ) : ZMod d) - (lam : ZMod d) * ((i : ℕ) : ZMod d) := by
-  letI : NeZero d := ⟨hd⟩
+  let : NeZero d := ⟨hd⟩
   exact ZMod.natCast_zmod_val _
 
 lemma fin_eq_of_zmod_cast_eq {d : ℕ} (hd : d ≠ 0) (x y : Fin d)
     (h : (((x : Fin d) : ℕ) : ZMod d) = (((y : Fin d) : ℕ) : ZMod d)) :
     x = y := by
-  letI : NeZero d := ⟨hd⟩
+  let : NeZero d := ⟨hd⟩
   apply Fin.ext
   have hv := congrArg ZMod.val h
   simpa [ZMod.val_natCast_of_lt x.isLt, ZMod.val_natCast_of_lt y.isLt] using hv
@@ -168,7 +168,7 @@ lemma survivingModulus_dvd_inducedFamily_sub_of_conflict
     dsimp only [R, L]
     exact_mod_cast hrootN
   have hphaseCast : (H : ZMod d) = rootPhase lam := by
-    letI : NeZero d := ⟨hd⟩
+    let : NeZero d := ⟨hd⟩
     dsimp only [H]
     simpa only [Int.cast_natCast] using ZMod.natCast_zmod_val (rootPhase lam)
   have hphaseEq : ((2 * H : ℤ) : ZMod d) = (R : ZMod d) := by

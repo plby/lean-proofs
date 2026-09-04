@@ -19,7 +19,7 @@ theorem restrictedGreedyKernel_supported_step
     (restrictedGreedyKernel F S R hR).SupportedOn
       (fun S' ↦ ∃ T ∈ R, S' = greedyStep F S T) := by
   classical
-  letI : Nonempty R := ⟨⟨hR.choose, hR.choose_spec⟩⟩
+  let : Nonempty R := ⟨⟨hR.choose, hR.choose_spec⟩⟩
   exact (FiniteLaw.uniform_supported (fun _ : R ↦ True) (fun _ ↦ trivial)).map
     (fun T : R ↦ greedyStep F S T.1) (fun T _ ↦ ⟨T.1, T.2, rfl⟩)
 

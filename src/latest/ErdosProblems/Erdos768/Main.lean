@@ -118,7 +118,7 @@ theorem lower_bound (ε : ℝ) (hε : 0 < ε) :
       exact Filter.eventually_atTop.mpr ⟨ R, fun x hx => by rcases Filter.eventually_atTop.mp ( h_exists_r.eventually_gt_atTop x ) with ⟨ r, hr ⟩ ; exact ⟨ r + R, by linarith, hr _ <| by linarith ⟩ ⟩;
     filter_upwards [ h_exists_r, Filter.eventually_ge_atTop ( Real.exp M ) ] with x hx₁ hx₂;
     contrapose! hx₁;
-    intro r hr; induction hr <;> simp_all +decide [ Nat.succ_eq_add_one ] ;
+    intro r hr; induction hr <;> simp_all +decide only [Nat.succ_eq_add_one] ;
     · exact hx₁ R le_rfl ( le_trans ( Real.exp_le_exp.mpr ( hM R le_rfl ) ) hx₂ );
     · exact hx₁ _ ( by linarith ) ( by linarith );
   filter_upwards [ h_exists_r ] with x hx using by obtain ⟨ r, hr₁, hr₂, hr₃ ⟩ := hx; exact hR r hr₁ x hr₂ hr₃;

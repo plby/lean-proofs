@@ -87,7 +87,7 @@ lemma switchingTuple_good_half_richClass_or_empty
           (rho * delta * S₀.card)).card := by
   classical
   by_cases hs0 : Fintype.card I = 0
-  · haveI : IsEmpty I := Fintype.card_eq_zero_iff.mp hs0
+  · have : IsEmpty I := Fintype.card_eq_zero_iff.mp hs0
     have hp : (fun i : I ↦ isEmptyElim i : I → V × V) ∈
         richSwitchingTupleClass (I := I)
           (switchingPairs G S S₀ q) G S₀
@@ -140,7 +140,7 @@ lemma rawTuple_richSwitchingTupleClass_half
           (rho * delta * S₀.card)).card := by
   let I := RawTupleIndex (switchingLabels B) a
   classical
-  letI : DecidableEq I := Classical.decEq _
+  let : DecidableEq I := Classical.decEq _
   have hcommon' : ∀ i (p : I → Fin n × Fin n),
       (∀ j, p j ∈ S ×ˢ S) →
         delta * S₀.card ≤
@@ -439,7 +439,7 @@ theorem exists_uniform_richTupleClass_state_lower_of_data
   let I := RawTupleIndex (switchingLabels Bwin) a
   let rawDecidableEq : DecidableEq I := inferInstance
   classical
-  letI : DecidableEq I := Classical.decEq _
+  let : DecidableEq I := Classical.decEq _
   have hp' : (∀ j, p j ∈ switchingPairs G S S₀ q) ∧
       PairEndpointsDistinct p ∧
       ∀ i, rho * delta * S₀.card ≤

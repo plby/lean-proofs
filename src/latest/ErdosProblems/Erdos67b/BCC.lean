@@ -643,7 +643,7 @@ theorem smoothFrequencyLayer_disjoint_of_eq_mul {q N t₁ t₂ c : ℕ}
     (ht : t₁ = q * c * t₂) :
     Disjoint (SmoothFrequencyLayer q t₁ N)
       (SmoothFrequencyLayer q t₂ N) := by
-  letI : Nontrivial (ZMod q) := ZMod.nontrivial_iff.mpr (Nat.ne_of_gt hq)
+  let : Nontrivial (ZMod q) := ZMod.nontrivial_iff.mpr (Nat.ne_of_gt hq)
   rw [Set.disjoint_left]
   intro k hk₁ hk₂
   rcases hk₁.1 with ⟨z, hz⟩
@@ -663,7 +663,7 @@ theorem smoothFrequencyLayer_disjoint_pow_gap {q N b c : ℕ}
     [NeZero q] [NeZero N] (hq : 1 < q) :
     Disjoint (SmoothFrequencyLayer q (q ^ (b + c + 1)) N)
       (SmoothFrequencyLayer q (q ^ b) N) := by
-  haveI : NeZero (q ^ b) := ⟨pow_ne_zero _ (NeZero.ne q)⟩
+  have : NeZero (q ^ b) := ⟨pow_ne_zero _ (NeZero.ne q)⟩
   apply smoothFrequencyLayer_disjoint_of_eq_mul hq
   rw [show b + c + 1 = 1 + c + b by omega, pow_add, pow_add, pow_one]
 
@@ -1295,8 +1295,8 @@ theorem generalized_bcc_energy {q N : ℕ} [NeZero q] [NeZero N]
   have hsupport (i : ι) (hi : i ∈ s) :
       FourierSupportedOn (scaledCharacterBlock χ (d i) : ZMod N → ℂ)
         (SmoothFrequencyLayer q (t i) N) := by
-    letI : NeZero (d i) := hd i hi
-    letI : NeZero (t i) := ht i hi
+    let : NeZero (d i) := hd i hi
+    let : NeZero (t i) := ht i hi
     exact scaledCharacterBlock_fourierSupportedOn_of_eq hχ (hN i hi)
   have horth : ∀ i ∈ s, ∀ j ∈ s, i ≠ j →
       ∑ a : ZMod N,
@@ -1305,9 +1305,9 @@ theorem generalized_bcc_energy {q N : ℕ} [NeZero q] [NeZero N]
     intro i hi j hj hij
     apply sum_mul_star_eq_zero_of_supportedOn_disjoint
     · rcases hsep i hi j hj hij with ⟨c, hc | hc⟩
-      · letI : NeZero (t j) := ht j hj
+      · let : NeZero (t j) := ht j hj
         exact smoothFrequencyLayer_disjoint_of_eq_mul hq hc
-      · letI : NeZero (t i) := ht i hi
+      · let : NeZero (t i) := ht i hi
         exact (smoothFrequencyLayer_disjoint_of_eq_mul hq hc).symm
     · exact hsupport i hi
     · exact hsupport j hj
@@ -1315,8 +1315,8 @@ theorem generalized_bcc_energy {q N : ℕ} [NeZero q] [NeZero N]
     (fun i ↦ scaledCharacterBlock χ (d i)) horth]
   apply Finset.sum_congr rfl
   intro i hi
-  letI : NeZero (d i) := hd i hi
-  letI : NeZero (t i) := ht i hi
+  let : NeZero (d i) := hd i hi
+  let : NeZero (t i) := ht i hi
   exact scaledCharacterBlock_energy_of_eq χ (hN i hi)
 
 /-- Quantitative finitary BCC lower bound.  Some residue class carries at
@@ -1360,11 +1360,11 @@ theorem scaledCharacterBlock_offDiagonal_qpowers_eq_zero {q N : ℕ}
   intro i hi j hj hij
   apply disjointFourierSupport_of_supportedOn_disjoint
   · exact smoothFrequencyLayer_disjoint_pow_of_ne hq hij
-  · letI : NeZero (d i) := hd i hi
-    letI : NeZero (q ^ i) := ⟨pow_ne_zero _ (NeZero.ne q)⟩
+  · let : NeZero (d i) := hd i hi
+    let : NeZero (q ^ i) := ⟨pow_ne_zero _ (NeZero.ne q)⟩
     exact scaledCharacterBlock_fourierSupportedOn_of_eq hχ (hN i hi)
-  · letI : NeZero (d j) := hd j hj
-    letI : NeZero (q ^ j) := ⟨pow_ne_zero _ (NeZero.ne q)⟩
+  · let : NeZero (d j) := hd j hj
+    let : NeZero (q ^ j) := ⟨pow_ne_zero _ (NeZero.ne q)⟩
     exact scaledCharacterBlock_fourierSupportedOn_of_eq hχ (hN j hj)
 
 /-- Concrete `q`-power version of the generalized BCC lower bound. -/
@@ -1400,11 +1400,11 @@ theorem scaledCharacterPrefix_family_energy_qpowers {q N L : ℕ}
   intro i hi j hj hij
   apply sum_mul_star_eq_zero_of_supportedOn_disjoint
   · exact smoothFrequencyLayer_disjoint_pow_of_ne hq hij
-  · letI : NeZero (d i) := hd i hi
-    letI : NeZero (q ^ i) := ⟨pow_ne_zero _ (NeZero.ne q)⟩
+  · let : NeZero (d i) := hd i hi
+    let : NeZero (q ^ i) := ⟨pow_ne_zero _ (NeZero.ne q)⟩
     exact scaledCharacterPrefix_fourierSupportedOn_of_eq hχ (hN i hi)
-  · letI : NeZero (d j) := hd j hj
-    letI : NeZero (q ^ j) := ⟨pow_ne_zero _ (NeZero.ne q)⟩
+  · let : NeZero (d j) := hd j hj
+    let : NeZero (q ^ j) := ⟨pow_ne_zero _ (NeZero.ne q)⟩
     exact scaledCharacterPrefix_fourierSupportedOn_of_eq hχ (hN j hj)
 
 /-- Coefficient-weighted orthogonal splitting for an arbitrary family of
@@ -1427,8 +1427,8 @@ theorem scaledCharacterPrefix_family_energy_smooth {q N K L : ℕ}
       FourierSupportedOn
         (fun a : ZMod N ↦ c i * scaledCharacterPrefix χ (d i) L a)
         (SmoothFrequencyLayer q (t i) N) := by
-    letI : NeZero (d i) := hd i hi
-    letI : NeZero (t i) := ht i hi
+    let : NeZero (d i) := hd i hi
+    let : NeZero (t i) := ht i hi
     exact fourierSupportedOn_const_mul
       (scaledCharacterPrefix_fourierSupportedOn_of_eq hχ (hN i hi)) (c i)
   have horth : ∀ i ∈ s, ∀ j ∈ s, i ≠ j →
@@ -1437,8 +1437,8 @@ theorem scaledCharacterPrefix_family_energy_smooth {q N K L : ℕ}
             (starRingEnd ℂ) (c j * scaledCharacterPrefix χ (d j) L a) = 0 := by
     intro i hi j hj hij
     apply sum_mul_star_eq_zero_of_supportedOn_disjoint
-    · letI : NeZero (t i) := ht i hi
-      letI : NeZero (t j) := ht j hj
+    · let : NeZero (t i) := ht i hi
+      let : NeZero (t j) := ht j hj
       exact smoothFrequencyLayer_disjoint_of_smooth_complements
         (hN i hi) (hN j hj) (hsmooth i hi) (hsmooth j hj)
           (fun hdij ↦ hij (hinj hi hj hdij))
@@ -1526,8 +1526,8 @@ theorem smooth_selected_block_energy_le_medium_weighted_prefix_energy
     apply Finset.sum_congr rfl
     intro i hi
     have hia : i ∈ all := hsel hi
-    letI : NeZero (d i) := hd i hia
-    letI : NeZero (t i) := ht i hia
+    let : NeZero (d i) := hd i hia
+    let : NeZero (t i) := ht i hia
     exact scaledCharacterBlock_energy_of_eq χ (hN i hia)
   calc
     (H : ℝ) *
@@ -1943,8 +1943,8 @@ theorem qpower_block_energy_le_medium_prefix_energy {q N H : ℕ}
           (d i : ℝ) * (((q ^ i : ℕ) : ℝ) * (q.totient : ℝ)) := by
     apply Finset.sum_congr rfl
     intro i hi
-    letI : NeZero (d i) := hd i hi
-    letI : NeZero (q ^ i) := ⟨pow_ne_zero _ (NeZero.ne q)⟩
+    let : NeZero (d i) := hd i hi
+    let : NeZero (q ^ i) := ⟨pow_ne_zero _ (NeZero.ne q)⟩
     exact scaledCharacterBlock_energy_of_eq χ (hN i hi)
   rw [henergy] at hsum'
   exact hsum'

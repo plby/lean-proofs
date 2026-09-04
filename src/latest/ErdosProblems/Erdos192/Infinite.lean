@@ -45,7 +45,7 @@ theorem exists_inf_from_all_lengths
         use Finset.univ.sup m
         intros c w hwASF hw
         specialize hm c (w.take (p.length + 1 + m c)) ?_ ?_ <;>
-          simp_all +decide [List.take_take]
+          simp_all +decide only [List.length_take, inf_eq_left]
         · exact Finset.le_sup (f := m) (Finset.mem_univ c)
         · exact finASF_prefix _ hw _
             (by linarith [Finset.le_sup (f := m) (Finset.mem_univ c)])

@@ -114,7 +114,7 @@ lemma powersetCard_many_selected_failures_le
         (fun T ↦ (a : ℝ) ≤ (T.filter (fun x ↦ P x T)).card) ≤
       (((k + 1 : ℕ) : ℝ) * p) / a := by
   let Q := fun x T ↦ x ∈ T ∧ P x T
-  letI : ∀ x, DecidablePred (Q x) := fun _ ↦ Classical.decPred _
+  let : ∀ x, DecidablePred (Q x) := fun _ ↦ Classical.decPred _
   have hpoint' : ∀ x ∈ s,
       finsetProbability (s.powersetCard (k + 1)) (Q x) ≤
         (((k + 1 : ℕ) : ℝ) / s.card) * p := by
@@ -158,7 +158,7 @@ lemma powersetCard_many_marked_le
         (fun T ↦ (a : ℝ) ≤ (T.filter (fun x ↦ x ∈ E)).card) ≤
       ((E.card : ℝ) * (((k + 1 : ℕ) : ℝ) / s.card)) / a := by
   let P := fun (x : α) (T : Finset α) ↦ x ∈ T
-  letI : ∀ x, DecidablePred (P x) := fun _ ↦ Classical.decPred _
+  let : ∀ x, DecidablePred (P x) := fun _ ↦ Classical.decPred _
   have hpoint : ∀ x ∈ E,
       finsetProbability (s.powersetCard (k + 1)) (P x) ≤
         ((k + 1 : ℕ) : ℝ) / s.card := by

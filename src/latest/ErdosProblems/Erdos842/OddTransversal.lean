@@ -139,7 +139,7 @@ lemma odd_goodTransversals_iff_sum_prod_eq_one
       (∑ f : ∀ i, X i,
         ∏ i : I, (1 + (selectedDegree X cross f i : ZMod 2))) = 1 := by
   classical
-  letI : Fintype (∀ i, X i) := Pi.instFintype
+  let : Fintype (∀ i, X i) := Pi.instFintype
   change Odd (Fintype.card {f : ∀ i, X i // Good X cross f}) ↔ _
   rw [odd_iff_cast_zmod_two_eq_one,
     cast_card_subtype_eq_sum_indicator (Good X cross)]
@@ -149,7 +149,7 @@ lemma odd_card_pi [Fintype I] [∀ i, Fintype (X i)]
     (hodd : ∀ i, Odd (Fintype.card (X i))) :
     Odd (Fintype.card (∀ i, X i)) := by
   classical
-  letI : Fintype (∀ i, X i) := Pi.instFintype
+  let : Fintype (∀ i, X i) := Pi.instFintype
   rw [Fintype.card_pi]
   induction (Finset.univ : Finset I) using Finset.induction_on with
   | empty => simp
@@ -396,8 +396,8 @@ lemma sum_patternWeight_eq_sum_good_indicator
       ∑ f : ∀ i, X i,
         ∏ i : I, (1 + (selectedDegree X cross f i : ZMod 2)) := by
   classical
-  letI : Fintype (I → I) := Pi.instFintype
-  letI : Fintype (∀ i, X i) := Pi.instFintype
+  let : Fintype (I → I) := Pi.instFintype
+  let : Fintype (∀ i, X i) := Pi.instFintype
   simp only [patternWeight]
   rw [Finset.sum_comm]
   apply Fintype.sum_congr
@@ -506,7 +506,7 @@ lemma patternWeight_reversePattern [Fintype I] [DecidableEq I]
     (g : I → I) (h : Function.Bijective g) :
     patternWeight X cross (reversePattern g) = patternWeight X cross g := by
   classical
-  letI : Fintype (∀ i, X i) := Pi.instFintype
+  let : Fintype (∀ i, X i) := Pi.instFintype
   simp only [patternWeight]
   apply Finset.sum_congr rfl
   intro f _
@@ -537,7 +537,7 @@ lemma patternWeight_id [Fintype I] [DecidableEq I]
     (cross : CrossRel X) (hodd : ∀ i, Odd (Fintype.card (X i))) :
     patternWeight X cross id = 1 := by
   classical
-  letI : Fintype (∀ i, X i) := Pi.instFintype
+  let : Fintype (∀ i, X i) := Pi.instFintype
   have hreal : ∀ f : ∀ i, X i, Realizes X cross id f := by
     intro f i hi
     exact (hi rfl).elim
@@ -567,7 +567,7 @@ lemma sum_patternWeight_reversalPatterns_eq_zero
     (cross : CrossRel X) (hsym : Symmetric X cross) :
     ∑ g ∈ (reversalPatterns : Finset (I → I)), patternWeight X cross g = 0 := by
   classical
-  letI : Fintype (I → I) := Pi.instFintype
+  let : Fintype (I → I) := Pi.instFintype
   apply Finset.sum_involution (fun g _ ↦ reversePattern g)
   · intro g hg
     have hs : IsReversalPattern g := (mem_reversalPatterns g).mp hg
@@ -720,7 +720,7 @@ private lemma even_leaf_fiber
       Realizes X cross g (extendAway X p rest xp)).card)
     rw [hfilter]
     exact heven q p (rest ⟨q, hleaf.1.symm⟩) hleaf.1.symm
-  · haveI : IsEmpty {xp : X p // Realizes X cross g (extendAway X p rest xp)} :=
+  · have : IsEmpty {xp : X p // Realizes X cross g (extendAway X p rest xp)} :=
       ⟨fun xp ↦ haway
         ((realizes_extendAway_iff X cross hsym g hleaf rest xp.1).mp xp.2).1⟩
     simp
@@ -782,7 +782,7 @@ lemma patternWeight_eq_zero_of_degree_eq_one
     (g : I → I) {p : I} (hdegree : (functionGraph g).degree p = 1) :
     patternWeight X cross g = 0 := by
   classical
-  letI : Fintype (∀ i, X i) := Pi.instFintype
+  let : Fintype (∀ i, X i) := Pi.instFintype
   obtain ⟨q, hleaf⟩ := exists_isLeaf_of_degree_eq_one g hdegree
   have he := even_card_realizer_of_leaf X cross hsym heven g hleaf
   calc
@@ -801,7 +801,7 @@ private lemma sum_patternWeight_eq_one
     (heven : ∀ i j (xi : X i), i ≠ j → Even (crossDegree X cross i j xi)) :
     (∑ g : I → I, patternWeight X cross g) = 1 := by
   classical
-  letI : Fintype (I → I) := Pi.instFintype
+  let : Fintype (I → I) := Pi.instFintype
   let covered : Finset (I → I) := {id} ∪ reversalPatterns
   have hcovered : covered ⊆ Finset.univ := fun _ _ ↦ Finset.mem_univ _
   have hzero : ∀ g ∈ (Finset.univ : Finset (I → I)), g ∉ covered →

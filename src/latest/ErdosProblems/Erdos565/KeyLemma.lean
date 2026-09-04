@@ -1181,7 +1181,7 @@ theorem fixedSeedBad_extension_card
     seed_card_scale hr ht hscale hU
   have hseedPos : 0 < (KeyFixedTuple.seedSet sigma).card :=
     (Nat.pow_pos (by omega)).trans_le hseedScale
-  letI : Nonempty ↑(KeyFixedTuple.seedSet sigma) :=
+  let : Nonempty ↑(KeyFixedTuple.seedSet sigma) :=
     Fintype.card_pos_iff.mp (by simpa using hseedPos)
   have hspos : 1 ≤ s := by dsimp [s]; omega
   have hs : s + 1 ≤ k := by dsimp [s]; omega

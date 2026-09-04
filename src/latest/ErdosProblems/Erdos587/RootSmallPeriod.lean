@@ -43,7 +43,7 @@ lemma unitSquareExpansionValue_affine_periodic (q D R : ℕ) :
 
 lemma exists_affine_unit_one_residue {q D R : ℕ} (hq : 0 < q) (hR : R.Coprime q) :
     ∃ i < q, D + R * i ≡ 1 [MOD q] := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let u := ZMod.unitOfCoprime R hR
   let z : ZMod q := (u⁻¹ : (ZMod q)ˣ) * (1 - (D : ZMod q))
   have hRcast : (R : ZMod q) = (u : ZMod q) := (ZMod.coe_unitOfCoprime R hR).symm
@@ -115,7 +115,7 @@ lemma odd_root_sum_lower_of_two_radical_periods {q D R H : ℕ} (hq : 0 < q)
     (hH : 2 * primeSetModulus q.primeFactors ≤ H) :
     (H : ℝ) / (2 * primeSetModulus q.primeFactors) ≤
       ∑ i ∈ Finset.range H, (squareRootCount q (D + R * i) : ℝ) := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   have hrad : 0 < primeSetModulus q.primeFactors :=
     Finset.prod_pos (fun p hp => (Nat.prime_of_mem_primeFactors hp).pos)
   apply (unitSquareExpansion_affine_sum_lower_of_two_periods (D := D) hrad hR hH).trans

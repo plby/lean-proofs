@@ -652,7 +652,7 @@ theorem abs_boxMean_sub_trimmedBoxMean_le_boundary
     rw [boxMean_eq_mean_finiteBox]
     let x₀ : FiniteBox (trimmedSide D side) :=
       fun i => ⟨0, htrimpos i⟩
-    letI : Nonempty (FiniteBox (trimmedSide D side)) := ⟨x₀⟩
+    let : Nonempty (FiniteBox (trimmedSide D side)) := ⟨x₀⟩
     apply abs_le.mpr
     constructor
     · exact

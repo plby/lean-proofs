@@ -190,7 +190,7 @@ theorem pairRankMultiplicity_mul_sourceScreenMass_le_replacementScreenMass
   let data := PositiveInterfaceExternalPairFiber eta
   let D := supportComplementDistinguished t eta.1.1.start
     eta.1.1.retained eta.1.2
-  letI pairFintype : Fintype (PositiveInterfaceExternalPairCoordinate eta) :=
+  let pairFintype : Fintype (PositiveInterfaceExternalPairCoordinate eta) :=
     instFintypeTilingAwayDomino t eta.1.1.start eta.1.1.retained D
   let weight := tilingAwayPointMass (cap := data.coordinateCap cap) t
     eta.1.1.start eta.1.1.retained D

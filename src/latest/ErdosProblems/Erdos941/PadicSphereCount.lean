@@ -39,7 +39,7 @@ theorem card_padicSpherePairOrbits_le (p : ℕ) [hp : Fact p.Prime] (hp2 : p ≠
   let pair : PairLocal.FormPair (PadicInt p) ((-n : ℤ) : PadicInt p)
       ((-(2 * e) : ℤ) : PadicInt p) := by
     convert splitSpherePair F hF base using 1 <;> push_cast <;> rfl
-  letI : Finite (PairLocal.SpecialPairOrbits (PadicInt p)
+  let : Finite (PairLocal.SpecialPairOrbits (PadicInt p)
       (-(n : PadicInt p)) (-(2 * (e : PadicInt p)))) := by
     apply PairLocal.finite_padic_specialPairOrbits p (splitSpherePair F hF base)
     simpa only [Int.coe_castRingHom, Int.cast_neg, Int.cast_mul, Int.cast_ofNat] using hndK

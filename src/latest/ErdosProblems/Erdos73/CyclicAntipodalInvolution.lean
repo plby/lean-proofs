@@ -25,7 +25,7 @@ theorem free_involution_commuting_finRotate {N : ℕ} (hN : 0 < N)
     (f : Fin (2 * N) → Fin (2 * N)) (hinv : Function.Involutive f)
     (hfree : ∀ i, f i ≠ i) (hcomm : Function.Commute f (finRotate (2 * N))) :
     ∀ i, (f i).val = (N + i.val) % (2 * N) := by
-  letI : NeZero (2 * N) := ⟨by omega⟩
+  let : NeZero (2 * N) := ⟨by omega⟩
   let a := f (0 : Fin (2 * N))
   have ha : 0 < a.val := by
     have hh := hfree (0 : Fin (2 * N))

@@ -191,7 +191,7 @@ theorem norm_character_LSeries_le_of_height_data
     ((K + 2 : ℕ) : ℝ) ≤ positiveLogCoefficient v ∧
     positiveLogCoefficient v < (S : ℝ) ^ (R + 1) at hheight
   obtain ⟨hMpos, hMK, hKH, hS₀S, hHratio, hKcoeff, hcoeffUpper⟩ := hheight
-  letI : NeZero N := ⟨hN.ne'⟩
+  let : NeZero N := ⟨hN.ne'⟩
   have hHpos : 0 < H := by omega
   have hTthree' : (3 : ℝ) ≤ T := by simpa only [T] using hTthree
   have hTpos : 0 < T := by linarith

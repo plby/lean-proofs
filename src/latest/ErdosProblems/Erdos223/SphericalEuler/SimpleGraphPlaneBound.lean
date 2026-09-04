@@ -55,7 +55,7 @@ theorem ofSimpleGraph_isWalk_of_walk {V : Type*} {F : SimpleGraph V} {u v : V}
 /-- Mathlib connectedness agrees with connectedness of the edge-named multigraph. -/
 theorem ofSimpleGraph_connected {V : Type*} {F : SimpleGraph V}
     (h : F.Connected) : (Graph.ofSimpleGraph F).Connected := by
-  letI : Nonempty V := h.nonempty
+  let : Nonempty V := h.nonempty
   refine ⟨by simp, ?_⟩
   intro u _ v _
   obtain ⟨p⟩ := h u v
@@ -84,11 +84,11 @@ theorem simpleGraph_edge_add_four_le_two_vertices
     (hcard : 3 ≤ Fintype.card V) :
     F.edgeFinset.card + 4 ≤ 2 * Fintype.card V := by
   classical
-  letI : Nonempty V := hconn.nonempty
+  let : Nonempty V := hconn.nonempty
   let Q := (Graph.ofSimpleGraph F).map pos
-  letI : (Graph.ofSimpleGraph F).Simple := simple_ofSimpleGraph F
-  letI : Q.Simple := Graph.Simple.map_of_injective pos hpos
-  letI : Q.Finite := by
+  let : (Graph.ofSimpleGraph F).Simple := simple_ofSimpleGraph F
+  let : Q.Simple := Graph.Simple.map_of_injective pos hpos
+  let : Q.Finite := by
     refine ⟨?_, ?_⟩
     · change (pos '' (Set.univ : Set V)).Finite
       exact Set.finite_univ.image pos

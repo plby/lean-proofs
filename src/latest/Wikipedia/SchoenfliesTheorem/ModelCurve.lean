@@ -425,8 +425,8 @@ theorem exists_homeomorph (hf : IsLoop f) (hg : IsLoop g) :
     ∃ h : ↥(f '' I) ≃ₜ ↥(g '' I),
       ∀ (t : ℝ) (ht : t ∈ I), (h ⟨f t, mem_image_of_mem f ht⟩ : Plane) = g t := by
   classical
-  haveI : CompactSpace ↥I := isCompact_iff_compactSpace.mp isCompact_I
-  haveI : CompactSpace ↥(f '' I) :=
+  have : CompactSpace ↥I := isCompact_iff_compactSpace.mp isCompact_I
+  have : CompactSpace ↥(f '' I) :=
     isCompact_iff_compactSpace.mp (isCompact_I.image_of_continuousOn hf.continuousOn)
   -- the two parametrizations, read as maps of subtypes
   set q : ↥I → ↥(f '' I) := fun t => ⟨f t, mem_image_of_mem f t.2⟩ with hq

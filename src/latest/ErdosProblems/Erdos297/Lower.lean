@@ -216,7 +216,7 @@ theorem logisticInformation_eq
     exact scaled_logOdds hN (hIpos n (hA hnA))
   rw [hodds, cast_rec_sum]
   rw [Finset.mul_sum]
-  ring
+  ring_nf
 
 theorem logisticInformation_eq_on_exactEvent
     {lam : ℝ} {N : ℕ} (hN : 0 < N) {I A : Finset ℕ}

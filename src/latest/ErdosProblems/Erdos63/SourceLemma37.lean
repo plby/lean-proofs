@@ -519,7 +519,7 @@ theorem exists_large_reachingCandidate_ball_of_LM37SourceBounds
         (reachingCandidateSeed i) ballRadius).card := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let I := {A // A ∈ reachingEligibleSubfamily S targetSet connectionRadius}
   let Aseed : I → Finset V := fun i ↦ reachingCandidateSeed i
   let Bset : I → Finset V := fun i ↦ reachingCandidateBarrier i
@@ -634,7 +634,7 @@ theorem exists_large_reachingCandidate_ball_of_LM37SourceBounds_of_radiusOneLowe
         (reachingCandidateSeed i) ballRadius).card := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let I := {A // A ∈ reachingEligibleSubfamily S targetSet connectionRadius}
   let Aseed : I → Finset V := fun i ↦ reachingCandidateSeed i
   let Bset : I → Finset V := fun i ↦ reachingCandidateBarrier i
@@ -1257,7 +1257,7 @@ theorem exists_large_twoEnd_ball_of_LM37SourceFinalBounds
         i.1.1.ends ballRadius).card := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let Aseed : S → Finset V := fun i ↦ i.1.1.ends
   let Bset : S → Finset V := fun i ↦ i.1.1.adjuster.core
   let Cset : S → Finset V := fun _ ↦ ∅
@@ -1415,7 +1415,7 @@ theorem exists_large_twoEnd_ball_of_LM37SourceFinalBounds_of_radiusOneLower
         i.1.1.ends ballRadius).card := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let Aseed : S → Finset V := fun i ↦ i.1.1.ends
   let Bset : S → Finset V := fun i ↦ i.1.1.adjuster.core
   let Cset : S → Finset V := fun _ ↦ ∅

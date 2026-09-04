@@ -244,11 +244,11 @@ theorem exists_sign_gaussianQuadraticCenteredLaw_smallBall_lower_uniform
   refine ⟨s, hs, ?_⟩
   intro f sigma M x eps hsigma hsigmaSq hM hx hxM heps hepsOne
   let nu := (gaussianQuadraticCenteredLaw f F).map (fun y ↦ y / sigma)
-  letI : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
+  let : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
     unfold gaussianQuadraticCenteredLaw
     exact Measure.isProbabilityMeasure_map
       ((continuous_quadraticPolynomial 0 f F).sub continuous_const).aemeasurable
-  letI : IsProbabilityMeasure nu := by
+  let : IsProbabilityMeasure nu := by
     dsimp only [nu]
     exact Measure.isProbabilityMeasure_map (by fun_prop)
   have hinterval := hlower f hsigma hsigmaSq hM hx hxM heps hepsOne
@@ -289,14 +289,14 @@ theorem exists_sign_gaussianQuadraticCenteredLaw_smallBallRatioOn
       f hF hsigma hsigmaSq hM hx hxM heps.le hepsOne
   refine ⟨s, hs, ?_⟩
   let nu := (gaussianQuadraticCenteredLaw f F).map (fun z ↦ z / sigma)
-  letI : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
+  let : IsProbabilityMeasure (gaussianQuadraticCenteredLaw f F) := by
     unfold gaussianQuadraticCenteredLaw
     exact Measure.isProbabilityMeasure_map
       ((continuous_quadraticPolynomial 0 f F).sub continuous_const).aemeasurable
-  letI : IsProbabilityMeasure
+  let : IsProbabilityMeasure
       ((gaussianQuadraticCenteredLaw f F).map (fun z ↦ z / sigma)) :=
     Measure.isProbabilityMeasure_map (by fun_prop)
-  letI : IsProbabilityMeasure nu := by
+  let : IsProbabilityMeasure nu := by
     dsimp only [nu]
     infer_instance
   have hc : 0 < orderedGaussianLowerConstant M :=

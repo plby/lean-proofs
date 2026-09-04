@@ -187,8 +187,7 @@ theorem smirnovProbability_le_uniform
       2400 * (u + 1 : ℝ) * (w + 1 : ℝ) ^ 2 / (k + 1 : ℕ) := by
   by_cases hv0 : v = 0
   · subst v
-    simp [smirnovProbability, smirnovOccupancyMass, smirnovOccupancies,
-      compositionsOf, hk.ne']
+    simp only [Nat.cast_add, Nat.cast_one]
     positivity
   have hv : 0 < v := by omega
   have hprob := smirnovProbability_le_one (k := k) (u := u) hv

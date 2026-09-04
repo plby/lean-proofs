@@ -43,7 +43,7 @@ lemma cyclicCutoffSequence_correlation (z : ℕ → ℂ) {N r : ℕ}
     cyclicCutoffSequence z (2 * N) N (x + r • (1 : ZMod (2 * N))) *
         conj (cyclicCutoffSequence z (2 * N) N x) =
       cyclicCutoffSequence (fun n => z (n + r) * conj (z n)) (2 * N) (N - r) x := by
-  letI : NeZero (2 * N) := ⟨by omega⟩
+  let : NeZero (2 * N) := ⟨by omega⟩
   by_cases hx : x.val < N
   · have hrq : r < 2 * N := by omega
     have hval : (x + r • (1 : ZMod (2 * N))).val = x.val + r := by
@@ -62,7 +62,7 @@ lemma finiteShiftCorrelation_cyclicCutoff (z : ℕ → ℂ) {N r : ℕ}
     letI : NeZero (2 * N) := ⟨by omega⟩
     finiteShiftCorrelation (cyclicCutoffSequence z (2 * N) N) (1 : ZMod (2 * N)) r =
       ∑ n ∈ Finset.range (N - r), z (n + r) * conj (z n) := by
-  letI : NeZero (2 * N) := ⟨by omega⟩
+  let : NeZero (2 * N) := ⟨by omega⟩
   change (∑ x : ZMod (2 * N), cyclicCutoffSequence z (2 * N) N (x + r • 1) *
     conj (cyclicCutoffSequence z (2 * N) N x)) = _
   simp_rw [cyclicCutoffSequence_correlation z hN hr]
@@ -73,7 +73,7 @@ theorem interval_short_shift_differencing (z : ℕ → ℂ) {N K : ℕ}
     (K : ℝ) ^ 2 * ‖∑ n ∈ Finset.range N, z n‖ ^ 2 ≤
       2 * N * ((K : ℝ) * N + 2 * K * ∑ r ∈ Finset.range K,
         ‖∑ n ∈ Finset.range (N - (r + 1)), z (n + r + 1) * conj (z n)‖) := by
-  letI : NeZero (2 * N) := ⟨by omega⟩
+  let : NeZero (2 * N) := ⟨by omega⟩
   have hh := finite_short_shift_differencing (cyclicCutoffSequence z (2 * N) N)
     (1 : ZMod (2 * N)) K
   rw [sum_cyclicCutoffSequence z (2 * N) N (by omega), ZMod.card] at hh

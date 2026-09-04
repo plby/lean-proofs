@@ -119,7 +119,7 @@ theorem stableV2_of_failed_growth
   let S' := ExactPower (f '' C) t
   let k := (addSubgroupFinset K).card
   have hm : 0 < m := Nat.card_pos
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   have hdata := failed_growth_cyclic_quotient_highPower_data K C t
     hzero hprimitive hfail hdoub
   rcases hdata with ⟨_, hf, hz, hp, hd, hdefRaw⟩
@@ -136,7 +136,7 @@ theorem stableV2_of_failed_growth
     rw [Finset.card_pos]
     exact ⟨0, by simp⟩
   have hGcard : Fintype.card G = m * k := by
-    letI : Fintype K := Fintype.ofFinite K
+    let : Fintype K := Fintype.ofFinite K
     rw [← Nat.card_eq_fintype_card,
       AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup]
     congr 1
@@ -148,7 +148,7 @@ theorem stableV2_of_failed_growth
   rcases hchild with hsingle | hdense | hstruct
   · have hm1 : m = 1 := by simpa using hsingle
     have hKG : Nat.card K = Nat.card G := by
-      letI : Fintype K := Fintype.ofFinite K
+      let : Fintype K := Fintype.ofFinite K
       rw [Nat.card_eq_fintype_card, Nat.card_eq_fintype_card]
       have hkcard : Fintype.card K = k := by
         simpa [k, addSubgroupFinset]

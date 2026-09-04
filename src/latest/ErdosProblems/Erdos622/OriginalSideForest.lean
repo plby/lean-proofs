@@ -36,7 +36,7 @@ theorem failureMajorant_tendsto_zero {K : ℕ} (hK : 0 < K) :
   unfold failureMajorant
   convert (hfirst.const_mul 4).add (hsecond.const_mul 2) using 1
   · ext n
-    ring
+    ring_nf
   · norm_num
 
 /-- Uniform sampled-forest estimate on the original larger side of the

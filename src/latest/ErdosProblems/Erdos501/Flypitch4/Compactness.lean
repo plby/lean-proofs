@@ -71,7 +71,7 @@ noncomputable def image_lift_list {α : Type u} {β : Type v} {f : α → β} {S
 /-- Any proof from a set of formulas is provable from a finite subset. -/
 lemma proof_compactness {ψ : formula L} {T : Set (formula L)} :
     (T ⊢' ψ) → ∃ Γ : Finset (formula L), (↑Γ : Set (formula L)) ⊢' ψ ∧ ↑Γ ⊆ T := by
-  haveI : DecidableEq (formula L) := fun x y => Classical.propDecidable _
+  have : DecidableEq (formula L) := fun x y => Classical.propDecidable _
   intro ⟨P⟩
   induction P with
   | axm h =>
@@ -131,8 +131,8 @@ lemma proof_compactness {ψ : formula L} {T : Set (formula L)} :
 /-- Any proof from a sentence theory is provable from a finite sub-theory. -/
 lemma theory_proof_compactness {T : SentTheory L} {ψ : sentence L} (hψ : T ⊢ₛ' ψ) :
     ∃ Γ : Finset (sentence L), (SentTheory.sprovable (↑Γ) ψ) ∧ (↑Γ : SentTheory L) ⊆ T := by
-  haveI : DecidableEq (sentence L) := fun x y => Classical.propDecidable _
-  haveI : DecidableEq (formula L) := fun x y => Classical.propDecidable _
+  have : DecidableEq (sentence L) := fun x y => Classical.propDecidable _
+  have : DecidableEq (formula L) := fun x y => Classical.propDecidable _
   rcases proof_compactness hψ with ⟨Γ, H, K⟩
   rw [Finset.subset_set_image_iff] at K
   obtain ⟨Γ', K', hΓ⟩ := K
@@ -160,8 +160,8 @@ lemma sprf_by_cases {T : SentTheory L} (f₁ : sentence L) {f₂ : sentence L}
 lemma is_consistent_union {T₁ T₂ : SentTheory L} (h₁ : T₁.is_consistent)
     (h₂ : ∀ ψ ∈ T₂, SentTheory.sprovable (insert (bd_not ψ) T₁) bd_falsum) :
     (T₁ ∪ T₂).is_consistent := by
-  haveI : DecidableEq (sentence L) := fun x y => Classical.propDecidable _
-  haveI : DecidableEq (formula L) := fun x y => Classical.propDecidable _
+  have : DecidableEq (sentence L) := fun x y => Classical.propDecidable _
+  have : DecidableEq (formula L) := fun x y => Classical.propDecidable _
   have lem : ∀ (T₀ : Finset (sentence L)), (↑T₀ : SentTheory L) ⊆ T₂ →
       (T₁ ∪ ↑T₀).is_consistent := by
     apply Finset.induction
@@ -190,7 +190,7 @@ lemma is_consistent_union {T₁ T₂ : SentTheory L} (h₁ : T₁.is_consistent)
   intro h
   rcases proof_compactness h with ⟨Γ, hΓ, hΓ_sub⟩
   simp only [SentTheory.fst, Set.image_union] at hΓ_sub
-  haveI : DecidablePred (· ∈ T₁.fst) := fun x => Classical.propDecidable _
+  have : DecidablePred (· ∈ T₁.fst) := fun x => Classical.propDecidable _
   let Γ₂ := Γ.filter (· ∉ T₁.fst)
   have hΓ₂_sub : (↑Γ₂ : Set (formula L)) ⊆ T₂.fst := by
     intro x hx

@@ -417,7 +417,7 @@ theorem not_isInducedLinearArboricityGood_count_le
         2 * (2 : ℝ) ^ Fintype.card V *
           exp (-2 * tEdge ^ 2 /
             (∑ v : V, (J.degree v : ℝ) ^ 2)) := by
-  letI : DecidableRel J.Adj := Classical.decRel J.Adj
+  let : DecidableRel J.Adj := Classical.decRel J.Adj
   let badDegree := (Finset.univ : Finset V).powerset.filter fun S ↦
     ∃ v : V, tDegree ≤
       |SamplingSuitable.intersectionCount (J.neighborFinset v) S -
@@ -551,7 +551,7 @@ theorem not_isInducedLinearArboricityGood_count_le_of_edge_slack
           exp (-2 * tDegree ^ 2 / q) +
         2 * exp (-(J.edgeFinset.card : ℝ) / (64 * q))) *
           (2 : ℝ) ^ Fintype.card V := by
-  letI : DecidableRel J.Adj := Classical.decRel J.Adj
+  let : DecidableRel J.Adj := Classical.decRel J.Adj
   have hqR : (0 : ℝ) < q := by exact_mod_cast hq
   have hedgeR : (0 : ℝ) < J.edgeFinset.card := by exact_mod_cast hedge
   have hsumDegreesPos : 0 < ∑ v : V, J.degree v := by
@@ -666,9 +666,9 @@ theorem eventually_containsLinearForestWith_univ
     AlonInduction.alon_asymptoticLinearArboricity epsilon hepsilon
   refine ⟨D₀, ?_⟩
   intro V instF instD J D r hD hdegree hedge
-  letI : Fintype V := instF
-  letI : DecidableEq V := instD
-  letI : DecidableRel J.Adj := Classical.decRel J.Adj
+  let : Fintype V := instF
+  let : DecidableEq V := instD
+  let : DecidableRel J.Adj := Classical.decRel J.Adj
   obtain ⟨k, hk, hkupper, hd⟩ := hD₀ V J D hD hdegree
   obtain ⟨F, hFJ, hlinear, havg⟩ :=
     hd.some.exists_large_linearForest hk
@@ -708,8 +708,8 @@ theorem eventually_containsLinearForestWith_induce
   obtain ⟨D₀, hD₀⟩ := eventually_containsLinearForestWith_univ hepsilon
   refine ⟨D₀, ?_⟩
   intro W instF instD J S D r hD hgood
-  letI : Fintype W := instF
-  letI : DecidableEq W := instD
+  let : Fintype W := instF
+  let : DecidableEq W := instD
   exact hD₀ (S : Set W) (J.induce (S : Set W)) D r hD hgood.1 hgood.2
 
 /-- Count form of the unconditional sampled Alon consequence, retaining the
@@ -738,8 +738,8 @@ theorem eventually_not_containsLinearForestWith_induce_count_le_of_edge_slack
   refine ⟨D₀, ?_⟩
   intro W instF instD J q D r tDegree hD hq htDegree hedge hmax
     hdegreeMargin hcapacity
-  letI : Fintype W := instF
-  letI : DecidableEq W := instD
+  let : Fintype W := instF
+  let : DecidableEq W := instD
   have hsub : (Finset.univ : Finset W).powerset.filter (fun S : Finset W ↦
       ¬ ContainsLinearForestWith (J.induce (S : Set W))
         Finset.univ r) ⊆

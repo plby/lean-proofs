@@ -139,7 +139,7 @@ theorem assembly_core (q a : ℕ) (hq : 2 ≤ q) (m' : Fin (q + 1) → ℕ)
     grind) (fun i => by
     simp [B];
     exact ⟨ Finset.disjoint_left.mpr fun x hx hx' => Finset.disjoint_left.mp ( hdisjX i ) ( hZsub hx' ) hx, Finset.disjoint_left.mpr fun x hx hx' => Finset.mem_filter.mp hx |>.2.2 hx' ⟩) (by
-  ext v; simp [hB, hXi];
+  ext v; simp only [mem_union, mem_biUnion, mem_univ, true_and, iff_true];
   by_cases hv : v ∈ Z <;> simp +decide [ hv ];
   replace hcover := Finset.ext_iff.mp hcover v; simp +decide [  ] at hcover;
   exact hcover.elim ( fun ⟨ i, hi ⟩ => ⟨ i, Or.inl hi ⟩ ) fun hi => ⟨ φ v, Or.inr ⟨ hi, rfl ⟩ ⟩) hclass hNoBlueT hRamsey hcard

@@ -106,7 +106,7 @@ theorem mqGen_isIntegral (k : Option (Fin g)) : IsIntegral ℤ (mqGen g k) := by
   rcases k with ( _ | k );
   · refine' ⟨ Polynomial.X ^ 2 + 1, _, _ ⟩;
     · erw [ Polynomial.Monic, Polynomial.leadingCoeff_X_pow_add_C ] ; norm_num;
-    · simp +decide [ show ( mqGen g none : Kf g ) = ⟨ Complex.I, _ ⟩ by rfl ];
+    · simp +decide only [algebraMap_int_eq, eval₂_add, eval₂_X_pow, eval₂_one];
       apply Subtype.ext
       norm_num
   · refine' ⟨ Polynomial.X ^ 2 - Polynomial.C ( q3 k : ℤ ), _, _ ⟩;
@@ -143,12 +143,12 @@ theorem mqRS_not_isSquare {U : Finset (Option (Fin g))} (hU : U.Nonempty) :
         convert h_squarefree _ using 1;
         rotate_left;
         exact Finset.image ( fun k => k.elim 1 fun j => q3 j ) U;
-        · simp +zetaDelta at *;
+        · simp +zetaDelta only [Finset.mem_image, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂] at *;
           intro a ha; cases a <;> simp_all +decide [ q3_spec ] ;
         · rw [ Finset.prod_image ];
-          intro x hx y hy; cases x <;> cases y <;> simp_all +decide [ q3_strictMono.injective.eq_iff ] ;
+          intro x hx y hy; cases x <;> cases y <;> simp_all +decide only [Option.elim_some, Option.some.injEq] ;
           exact fun h => Fin.ext h;
-      · obtain ⟨ x, hx ⟩ := hU; use x; cases x <;> simp_all +decide ;
+      · obtain ⟨ x, hx ⟩ := hU; use x; cases x <;> simp_all +decide only [Option.elim_some] ;
         exact Nat.Prime.ne_one ( q3_spec _ |>.1 );
     intro x hx; have := Rat.isSquare_natCast_iff.mp ( show IsSquare ( N : ℚ ) from ⟨ x, by linarith ⟩ ) ; simp_all +decide [ isSquare_iff_exists_sq ] ;
     rcases this with ⟨ r, rfl ⟩ ; simp_all +decide [ sq, Nat.squarefree_mul_iff ] ;
@@ -159,7 +159,7 @@ theorem mqB_notMem_range {U : Finset (Option (Fin g))} (hU : U.Nonempty) :
   intro h
   obtain ⟨q, hq⟩ := h
   have hq_sq : q^2 = mqRS g U := by
-    apply_fun ( algebraMap ℚ ( Kf g ) ) at * ; simp_all +decide
+    apply_fun ( algebraMap ℚ ( Kf g ) ) at * ; simp_all +decide only [eq_ratCast, Rat.cast_pow]
     all_goals first
       | exact RingHom.injective _
       | (convert! mqB_sq g U)
@@ -184,7 +184,7 @@ theorem trace_mqB_mul_of_ne {S T : Finset (Option (Fin g))} (h : S ≠ T) :
       simp +decide [ mqB ];
       rw [ ← Finset.prod_union_inter ];
     rw [ h_claim, show S ∪ T = ( S \ T ∪ T \ S ) ∪ ( S ∩ T ) from ?_, Finset.prod_union ];
-    · simp +decide [ mul_comm, mqB ];
+    · simp +decide only [map_prod, eq_ratCast];
       rw [ ← mul_assoc, ← Finset.prod_mul_distrib ];
       rw [ mul_comm ] ; congr ; ext ; simp +decide [ ← sq, mqGen_sq ] ;
     · exact Finset.disjoint_left.mpr ( by aesop );
@@ -208,7 +208,7 @@ theorem traceMatrix_mqB :
 
 theorem discr_mqB_ne_zero : Algebra.discr ℚ (mqB g) ≠ 0 := by
   rw [ Algebra.discr_def, traceMatrix_mqB g ];
-  simp +zetaDelta at *;
+  simp +zetaDelta only [Matrix.det_diagonal, ne_eq] at *;
   exact Finset.prod_ne_zero_iff.mpr fun S _ => mul_ne_zero ( Nat.cast_ne_zero.mpr <| ne_of_gt <| Module.finrank_pos ) <| mqRS_ne_zero g S
 
 theorem mqB_linearIndependent : LinearIndependent ℚ (mqB g) := by
@@ -247,17 +247,19 @@ theorem mq_Kf_finrank_le : finrank ℚ (Kf g) ≤ 2 ^ (g + 1) := by
       · rw [ Finset.card_insert_of_notMem ha, pow_succ ];
   convert! h_finite Finset.univ;
   · refine' le_antisymm _ _;
-    · simp +decide [ Kf ];
+    · simp +decide only [Finset.coe_image, Finset.coe_univ, Set.image_univ];
       rintro x ( rfl | ⟨ j, hj, rfl ⟩ ) <;> [ exact IntermediateField.subset_adjoin ℚ _ ⟨ none, rfl ⟩ ; exact IntermediateField.subset_adjoin ℚ _ ⟨ some ⟨ j, hj ⟩, rfl ⟩ ];
-    · simp +decide [ Kf ];
+    · simp +decide only [Finset.coe_image, Finset.coe_univ, Set.image_univ, IntermediateField.adjoin_le_iff];
       rintro _ ⟨ k, rfl ⟩ ; cases k <;> aesop;
-  · refine' le_antisymm _ _ <;> simp +decide [ Kf ];
+  · refine' le_antisymm _ _ <;> simp +decide only [Finset.coe_image, Finset.coe_univ, Set.image_univ,
+    IntermediateField.adjoin_le_iff];
     · rintro x ( rfl | ⟨ j, hj, rfl ⟩ ) <;> [ exact IntermediateField.subset_adjoin ℚ _ ⟨ none, rfl ⟩ ; exact IntermediateField.subset_adjoin ℚ _ ⟨ some ⟨ j, hj ⟩, rfl ⟩ ];
     · rintro _ ⟨ k, rfl ⟩ ; cases k <;> simp +decide [ mqGenC ] ;
       · exact IntermediateField.subset_adjoin ℚ _ ( Set.mem_insert _ _ );
       · exact IntermediateField.subset_adjoin ℚ _ ( Set.mem_insert_of_mem _ <| Set.mem_image_of_mem _ <| by simp +decide );
   · unfold Kf;
-    congr with x ; simp +decide [ mqGenC ];
+    congr with x ; simp +decide only [Set.mem_insert_iff, Set.mem_image, Set.mem_Iio, Finset.coe_image, Finset.coe_univ,
+    Set.image_univ, Set.mem_range];
     constructor;
     · rintro ( rfl | ⟨ j, hj, rfl ⟩ ) <;> [ exact ⟨ none, rfl ⟩ ; exact ⟨ some ⟨ j, hj ⟩, rfl ⟩ ];
     · rintro ⟨ y, rfl ⟩ ; cases y <;> aesop;
@@ -284,7 +286,7 @@ theorem mqRS_abs_le (S : Finset (Option (Fin g))) :
   have h_prod_le_prod_univ : ∏ k ∈ S, |mqSq g k| ≤ ∏ k ∈ Finset.univ, |mqSq g k| := by
     rw [ ← Finset.prod_sdiff ( Finset.subset_univ S ) ];
     exact le_mul_of_one_le_left ( Finset.prod_nonneg fun _ _ => abs_nonneg _ ) ( le_trans ( by norm_num ) ( Finset.prod_le_prod ( fun _ _ => by norm_num ) fun _ _ => h_abs_ge_one _ ) );
-  simp_all +decide;
+  simp_all +decide only [ge_iff_le];
   exact h_prod_le_prod_univ.trans ( by rw [ Finset.prod_range ] ; simp +decide [ mqSq ] )
 
 theorem abs_discr_mqB_le :

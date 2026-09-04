@@ -23,7 +23,7 @@ lemma PolygonalReplacementResidualPieceTubeNeighborhoods {V : Type u} [Fintype V
         (∀ i, residualPieceData.originalPiece i ⊆ tube i) ∧
           (∀ ⦃i j⦄, i ≠ j → Disjoint (tube i) (tube j)) := by
   classical
-  letI : Fintype residualPieceData.pieceIndex :=
+  let : Fintype residualPieceData.pieceIndex :=
     residualPieceData.pieceIndex_fintype
   let PairIndex : Type u :=
     {ij : residualPieceData.pieceIndex × residualPieceData.pieceIndex //
@@ -59,7 +59,7 @@ lemma PolygonalReplacementResidualPieceTubeNeighborhoods {V : Type u} [Fintype V
     intro q
     exact (Classical.choose_spec (pair_separation q)).2
   by_cases hpair : Nonempty PairIndex
-  · letI : Nonempty PairIndex := hpair
+  · let : Nonempty PairIndex := hpair
     let minSep : ℝ :=
       (Finset.univ : Finset PairIndex).inf' Finset.univ_nonempty pairSep
     let radius : ℝ := minSep / 3

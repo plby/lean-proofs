@@ -1005,7 +1005,7 @@ theorem los_two_power_all (j : ℕ) : TwoPowerBound (2 ^ j) := by
         unfold TwoPowerBound
         intro _inst
         intro G hG
-        letI : NeZero (2 ^ k) := ⟨pow_ne_zero _ (by norm_num)⟩
+        let : NeZero (2 ^ k) := ⟨pow_ne_zero _ (by norm_num)⟩
         have hprevEq : 2 ^ (k + 1) = (2 ^ k) * 2 := by rw [pow_succ]
         have hprev : TwoPowerBound ((2 ^ k) * 2) :=
           (congrArg TwoPowerBound hprevEq).mp (ih (k + 1) (by omega))

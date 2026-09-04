@@ -47,9 +47,11 @@ lemma OneEdgeEndpointGermPositiveRayDistinct
       (if e.1.1.1 = p then e.1.1.2 - p else e.1.1.1 - p) ≠ 0 := by
     intro e
     by_cases hsrc : e.1.1.1 = p
-    · simp [hsrc, sub_eq_zero]
+    · simp only [ne_eq]
       intro htgt
-      exact hEdgeNondegenerate e.1.1 e.1.2 (by simp [hsrc, htgt])
+      have htgt' : e.1.1.2 = p := by
+        exact sub_eq_zero.mp (by simpa [hsrc] using htgt)
+      exact hEdgeNondegenerate e.1.1 e.1.2 (hsrc.trans htgt'.symm)
     · simp [hsrc, sub_eq_zero]
   have oldDir_open_mem
       (e : Incident) {c : ℝ} (hc0 : 0 < c) (hc1 : c < 1) :

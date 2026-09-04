@@ -351,7 +351,8 @@ theorem sum_boolSign_eq_card_sub_twice {I : Type*} [Fintype I] [DecidableEq I]
       intro i _
       cases u i <;> simp [boolSign]
     _ = (Fintype.card I : ℤ) - 2 * (truePositions u).card := by
-      simp [truePositions, Finset.sum_sub_distrib]
+      simp only [mul_ite, mul_one, mul_zero, Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ,
+    Int.nsmul_eq_mul, sub_right_inj]
       calc
         ∑ x, (if u x = true then (2 : ℤ) else 0) =
             ∑ x, 2 * (if u x = true then (1 : ℤ) else 0) := by
@@ -2147,7 +2148,7 @@ def walkAfter (K : ℕ) (ω : ℕ → Direction) (n : ℕ) : Site :=
 
 theorem measurable_walkAfter (K : ℕ) :
     Measurable[incrementTailSigma K] (walkAfter K) := by
-  letI : MeasurableSpace (ℕ → Direction) := incrementTailSigma K
+  let : MeasurableSpace (ℕ → Direction) := incrementTailSigma K
   change Measurable (walkAfter K)
   apply measurable_pi_lambda
   intro n
@@ -2610,7 +2611,7 @@ history through time `n`. -/
 theorem measurable_visitedSites_canonical (n : ℕ) :
     Measurable[HLOZFoundation.canonicalFiltration n]
       (fun s : ℕ → Site ↦ visitedSites s n) := by
-  letI : MeasurableSpace (ℕ → Site) := HLOZFoundation.canonicalFiltration n
+  let : MeasurableSpace (ℕ → Site) := HLOZFoundation.canonicalFiltration n
   change Measurable (fun s : ℕ → Site ↦ visitedSites s n)
   rw [measurable_finset_iff]
   intro x
@@ -2631,7 +2632,7 @@ history through time `n`. -/
 theorem measurable_sitesAtLeastLevel_canonical (n m : ℕ) :
     Measurable[HLOZFoundation.canonicalFiltration n]
       (fun s : ℕ → Site ↦ sitesAtLeastLevel s n m) := by
-  letI : MeasurableSpace (ℕ → Site) := HLOZFoundation.canonicalFiltration n
+  let : MeasurableSpace (ℕ → Site) := HLOZFoundation.canonicalFiltration n
   change Measurable (fun s : ℕ → Site ↦ sitesAtLeastLevel s n m)
   rw [measurable_finset_iff]
   intro x
@@ -3301,7 +3302,7 @@ theorem recursiveExactlyKSitesReachLevel_eq (s : ℕ → Site) (m k : ℕ)
       rw [recursiveExactlyKSitesReachLevel]
       simp only [Nat.zero_add, WithTop.coe_zero, zero_add]
       unfold firstExactlyKSitesReachLevelAfterStopping
-      simp
+      simp only [WithTop.add_eq_top, WithTop.one_ne_top, or_false]
       exact hittingAfter_eq_of_le_hittingAfter_zero
         (fun n s ↦ (sitesAtLeastLevel s n m).card) ({1} : Set ℕ) 1 s
         (firstExactlyOne_ge_one s m hm)

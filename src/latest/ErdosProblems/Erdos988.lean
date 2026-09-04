@@ -1777,7 +1777,7 @@ lemma hasSum_chordCoeff_mul_pow_of_lt_one {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q < 1
   simp only [sum_range_one, binomialSeries_apply, sub_zero, smul_eq_mul]
   rw [List.ofFn_const, List.prod_replicate, Ring.choose_zero_right, pow_zero]
   rw [← Real.sqrt_eq_rpow]
-  ring
+  ring_nf
 
 lemma sum_Ico_chordCoeff (m M : ℕ) (h : m ≤ M) :
     ∑ r ∈ Finset.Ico m M, chordCoeff r = 2 * (wallisCoeff m - wallisCoeff M) := by
@@ -1804,7 +1804,7 @@ lemma hasSum_chordCoeff_nat_add (m : ℕ) :
           2 * (wallisCoeff m - wallisCoeff (m + N)) := by
             simpa only [Nat.add_sub_cancel_left] using hs
       _ = 2 * wallisCoeff m + -2 * wallisCoeff (m + N) := by ring
-  · ring
+  · ring_nf
 
 lemma hasSum_chordCoeff_mul_pow {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q ≤ 1) :
     HasSum (fun r : ℕ ↦ chordCoeff r * q ^ (r + 1))
@@ -1851,7 +1851,7 @@ lemma hasSum_chordCoeff_div :
   · funext N
     rw [sum_range_chordCoeff_div]
     ring
-  · ring
+  · ring_nf
 
 lemma hasSum_chordCoeff_mul_double_powerSum {X : Type*}
     (P : Finset X) (q : X → X → ℝ)
@@ -1958,7 +1958,7 @@ lemma energy_lower_of_finite_tails {energy : ℝ} {n : ℕ}
       (nhds ((n : ℝ) * wallisCoeff (2 * n - 2))) := by
     convert (wallisCoeff_tendsto_zero.const_sub
       (wallisCoeff (2 * n - 2))).const_mul (n : ℝ) using 1
-    all_goals ring
+    all_goals ring_nf
   apply le_of_tendsto hlim
   filter_upwards [eventually_ge_atTop (2 * n - 2)] with M hM
   exact henergy M hM

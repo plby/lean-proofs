@@ -193,9 +193,9 @@ theorem guardedStageF_step
   let muNext := stageSurvival A s Q r hQ
   let fPrev := guardedStageF A s Q (r - 1) hQ
   let fNext := guardedStageF A s Q r hQ
-  letI : NeZero (partialPeriod Q (r - 1)) :=
+  let : NeZero (partialPeriod Q (r - 1)) :=
     ⟨(partialPeriod_pos Q (r - 1)).ne'⟩
-  letI : NeZero (stagePrime r ^ stageExponent Q r) :=
+  let : NeZero (stagePrime r ^ stageExponent Q r) :=
     ⟨pow_ne_zero _ (stagePrime_pos (by omega)).ne'⟩
   let M2 := secondMoment (stageDistribution A s Q hQ (r - 1))
     (momentStageBadSet A s Q r hQ)

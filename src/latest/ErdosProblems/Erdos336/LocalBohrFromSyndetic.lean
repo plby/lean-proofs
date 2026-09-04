@@ -150,7 +150,7 @@ theorem exists_local_bohr_data_of_exactPowerEventuallySyndetic
     constructor <;> omega
   let modulus : ℕ := R + 2 * L + 1
   have hmodpos : 0 < modulus := by simp [modulus]
-  letI : NeZero modulus := ⟨Nat.ne_of_gt hmodpos⟩
+  let : NeZero modulus := ⟨Nat.ne_of_gt hmodpos⟩
   have hsize : (R : ℤ) + 2 * (L : ℤ) < (modulus : ℤ) := by
     dsimp [modulus]
     omega

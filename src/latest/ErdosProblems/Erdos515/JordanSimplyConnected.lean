@@ -35,10 +35,10 @@ theorem IsJordanCurve.isSimplyConnected_inside {C : Set Plane} (hC : IsJordanCur
     IsSimplyConnected (inside C) := by
   obtain ⟨F, G, hFG⟩ := exists_isHomeoOn_inside_openSquare hC
   let e : inside C ≃ₜ Plane.openSquare 0 1 := hFG.toHomeomorph
-  letI : ContractibleSpace (Plane.openSquare 0 1) :=
+  let : ContractibleSpace (Plane.openSquare 0 1) :=
     (Plane.convex_openSquare 0 1).contractibleSpace
       ⟨0, by simp [Plane.openSquare, Plane.supDist, Plane.supNorm]⟩
-  letI : ContractibleSpace (inside C) := e.contractibleSpace
+  let : ContractibleSpace (inside C) := e.contractibleSpace
   show SimplyConnectedSpace (inside C)
   infer_instance
 

@@ -25,7 +25,7 @@ theorem exists_inert_principal_power {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
       (I : Ideal (QuadraticAlgebra ℤ d b)).cardQuot = p ^ e →
       ∃ k : ℕ, e = 2 * k ∧ I =
         InvertibleIdeal.principal (p : QuadraticAlgebra ℤ d b) (quadratic_natCast_ne_zero hp.pos) ^ k := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro I hIF hnorm
   obtain ⟨l, hl, hmax⟩ := goodQuadraticIdeal_factorization hD I hIF
   let P := InvertibleIdeal.principal (p : QuadraticAlgebra ℤ d b) (quadratic_natCast_ne_zero hp.pos)
@@ -54,7 +54,7 @@ theorem inert_normPower_card {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     (hχ : discriminantCharacter (b ^ 2 + 4 * d) hD.ne p = -1) (e : ℕ) :
     letI := quadraticOrderIsDomain hD
     Nat.card (GoodIdealNormFiber (quadraticBadIdeal d b) (p ^ e)) = if Even e then 1 else 0 := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   let O := QuadraticAlgebra ℤ d b
   let X := GoodIdealNormFiber (quadraticBadIdeal d b) (p ^ e)
   by_cases he : Even e
@@ -69,7 +69,7 @@ theorem inert_normPower_card {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
       omega
     let x : X := ⟨P ^ k, hnorm,
       InvertibleIdeal.coprime_scalar_of_cardQuot_coprime _ _ (by rw [hnorm]; exact hc.pow_left e)⟩
-    letI : Unique X :=
+    let : Unique X :=
       { default := x
         uniq := by
           intro I
@@ -79,7 +79,7 @@ theorem inert_normPower_card {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
           simpa only [hjk] using hI }
     rw [if_pos (show Even e from ⟨k, hk⟩)]
     exact Nat.card_unique
-  · letI : IsEmpty X := ⟨fun I => by
+  · let : IsEmpty X := ⟨fun I => by
       obtain ⟨k, hk, _⟩ := exists_inert_principal_power hD hp hχ e I.1 I.2.2 I.2.1
       exact he ⟨k, by omega⟩⟩
     rw [if_neg he]

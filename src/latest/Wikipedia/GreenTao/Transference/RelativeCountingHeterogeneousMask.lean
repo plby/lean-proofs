@@ -777,7 +777,7 @@ theorem iterNextTerminal_apTwoCopyHeterogeneousMasked_form_of_fintype
           linearFormsProduct (n + 1) N ν
             (apCSHeterogeneousTerminalExponent
               active j) x) := by
-  letI : Fintype
+  let : Fintype
       (CSStageParam
         (Bool → ZMod N) (ZMod N) n) :=
     stageFintype

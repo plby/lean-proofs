@@ -31,7 +31,7 @@ theorem completeGraph_hasChromatic (lam : Cardinal.{u}) :
     (SimpleGraph.toHG (⊤ : SimpleGraph lam.out)).HasChromatic lam := by
   constructor;
   · refine' ⟨ id, _ ⟩;
-    intro e he; simp_all +decide [ SimpleGraph.toHG ] ;
+    intro e he; simp_all +decide only [id_eq, ne_eq] ;
     rcases he with ⟨ x, y, hxy, rfl ⟩ ; exact ⟨ x, by simp +decide, y, by simp +decide, hxy ⟩ ;
   · intro θ hθ hcolorable
     obtain ⟨c, hc⟩ := hcolorable

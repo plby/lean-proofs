@@ -593,7 +593,7 @@ lemma promoted_components_small_nonseed
       (∃ v ∈ c.supp, v ∉ S₀ ∪ B) → (Nat.card c.supp : ℝ) ≤ K := by
   intro c hc
   obtain ⟨v, hv_mem, hv_notin⟩ := hc
-  simp at hv_notin
+  simp only [Nat.card_eq_fintype_card, Fintype.card_ofFinset, ConnectedComponent.mem_supp_iff] at hv_notin
   -- seedDeleted T (S₀ ∪ B) has fewer edges than seedDeleted T S₀
   have adj_implication : ∀ a b, (seedDeleted T (S₀ ∪ B)).Adj a b → (seedDeleted T S₀).Adj a b := by
     intro a b hadj
@@ -623,7 +623,7 @@ lemma promoted_components_small_nonseed
         map_rel' := @fun a b hab => adj_implication a b hab
       }
       refine ⟨w.map f⟩
-    simp +decide [SimpleGraph.ConnectedComponent.supp]
+    simp +decide only [ConnectedComponent.mem_supp_iff]
     have heqv : Equivalence (seedDeleted T S₀).Reachable :=
       ⟨SimpleGraph.Reachable.refl, fun h => h.symm, fun h₁ h₂ => h₁.trans h₂⟩
     show Quot.mk (seedDeleted T S₀).Reachable x = Quot.mk (seedDeleted T S₀).Reachable v

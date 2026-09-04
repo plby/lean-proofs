@@ -476,7 +476,7 @@ theorem tsum_naturalCutoffDiagonalTerm_le
     (N p : ℕ) (hN : 0 < N) (hp : 0 < p) :
     (∑' n : ℕ, naturalCutoffDiagonalTerm N p n) ≤
       80 * ((p * Nat.totient p : ℕ) : ℝ) * (N : ℝ) := by
-  letI : NeZero p := ⟨hp.ne'⟩
+  let : NeZero p := ⟨hp.ne'⟩
   let f : ℕ → ℝ := naturalCutoffDiagonalTerm N p
   let g : ℕ × Fin p → ℝ := fun z ↦ f (z.1 * p + z.2)
   have hf : Summable f := by

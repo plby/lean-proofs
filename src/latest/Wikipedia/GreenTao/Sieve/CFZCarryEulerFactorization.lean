@@ -103,8 +103,8 @@ theorem selectedCFZCarryPairedFourierLocalFactor_eq_one_of_small
     {p : Nat.Primes} (hp : p ∈ smallPrimeFinset d.w) :
     pairedFourierPrimeLocalFactor d.R
         d.carryAdjustedFamily d.t d.u p = 1 := by
-  letI : NeZero d.N := d.N_neZero
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero d.N := d.N_neZero
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   rw [pairedFourierPrimeLocalFactor]
   unfold SelectedCFZCarryFourierBlockData.carryAdjustedFamily
   exact
@@ -127,8 +127,8 @@ theorem
     {p : Nat.Primes} (hp : p ∈ smallPrimeFinset d.w) :
     d.primeArithmeticToZetaLocalRatio p =
       (cutoffZetaEulerLocalFactor d.R d.t d.u p)⁻¹ := by
-  letI : NeZero d.N := d.N_neZero
-  letI : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
+  let : NeZero d.N := d.N_neZero
+  let : NeZero (p : ℕ) := ⟨p.prop.ne_zero⟩
   have hlocal :
       pairedFourierLocalFactor d.R (p : ℕ)
           d.carryAdjustedFamily d.t d.u = 1 := by

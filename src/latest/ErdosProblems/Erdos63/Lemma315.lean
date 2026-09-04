@@ -553,7 +553,7 @@ private theorem exists_path_to_first_entry [Fintype V]
         (∀ z : V, z ∈ p.support → z ∈ F.verts → z = b) := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   obtain ⟨a, ha, b0, hb0, raw, hraw, hrawlen⟩ :=
     exists_short_set_connector G epsilon kappa hexp degreeScale hdegree
       W E.verts F.verts start workspace radius hW hEW hFW
@@ -1013,7 +1013,7 @@ theorem exists_saturated_family
       S.card = keys.card := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   obtain ⟨S, hpair, hmax⟩ :=
     (exists_maximal_family
       (G := G) (source := source) (forbidden := forbidden)
@@ -1921,7 +1921,7 @@ theorem exists_routed_block
         P.ownerPiece = (E i).verts) := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   obtain ⟨S, hSpair, hSkeys, hScard⟩ :=
     RawArm.exists_saturated_family (G := G)
       (source := expansionUnion E R) (forbidden := forbidden)
@@ -2039,7 +2039,7 @@ private theorem enlargedFourConclusion_of_candidates
     EnlargedFourConclusion G A root L m := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let target : Key → Finset V := fun k ↦ (B k).verts
   let M := 8 * m
   have hMpos : 0 < M := by dsimp [M]; omega
@@ -2620,7 +2620,7 @@ theorem liuMontgomery_lemma3_13_finite [Fintype V]
         Disjoint F₂.verts F₄.verts ∧ Disjoint F₃.verts F₄.verts := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let data : Fin 4 → Σ v : V, VertexExpansion G v D m :=
     ![⟨v₁, E₁⟩, ⟨v₂, E₂⟩, ⟨v₃, E₃⟩, ⟨v₄, E₄⟩]
   let root : Fin 4 → V := fun i ↦ (data i).1
@@ -2932,7 +2932,7 @@ private theorem extendLeft
       S.total < T.total ∧ T.total ≤ S.total + 4 * m := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let newPath : G.Walk start₁ b := S.path₁.append q
   let T : PairedLongConnectorState G X start₁ start₂ L m :=
     { finish₁ := b
@@ -3089,7 +3089,7 @@ private theorem extend [DecidableRel G.Adj]
       S.total < T.total ∧ T.total ≤ S.total + 4 * m := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let used := X ∪ S.path₁.support.toFinset ∪ S.path₂.support.toFinset ∪
     S.end₁.verts ∪ S.end₂.verts
   obtain ⟨b₀, B, hBused⟩ := liuMontgomery_lemma3_12_finite
@@ -3744,7 +3744,7 @@ private theorem exists_short_cross [Fintype V]
       E₁.verts E₂.verts E₃.verts E₄.verts m := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let left := E₁.verts ∪ E₂.verts
   let right := E₃.verts ∪ E₄.verts
   have hleftA : Disjoint left A :=
@@ -3931,7 +3931,7 @@ private theorem exists_long_complement [Fintype V]
       p.length + q.length ≤ ell + 22 * m := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let X := A ∪ p.support.toFinset
   let target := ell + 7 * m - p.length
   have hEX : Disjoint E.verts X := by
@@ -3991,7 +3991,7 @@ theorem liuMontgomery_corollary3_15_finite [Fintype V]
     LM315Conclusion G A v₁ v₂ v₃ v₄ ell m := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   obtain ⟨F₁, F₂, F₃, F₄, hF₁A, hF₂A, hF₃A, hF₄A,
       hF₁₂, hF₁₃, hF₁₄, hF₂₃, hF₂₄, hF₃₄⟩ :=
     liuMontgomery_lemma3_13_finite G epsilon kappa hexp N hdegree A E₁ E₂ E₃ E₄

@@ -429,7 +429,7 @@ theorem baseBAt_donor (m t : ℕ) (hm : 1 ≤ m) (ht1 : 1 ≤ t) (htm : t < m) :
   have hdon : m * (m + t) ∈ donorSet m := by
     unfold donorSet
     rw [Finset.mem_image]
-    exact ⟨t, by simp [Finset.mem_Ioo]; exact ⟨ht1, htm⟩, rfl⟩
+    exact ⟨t, by simp only [mem_Ioo]; exact ⟨ht1, htm⟩, rfl⟩
   unfold baseBAt
   simp only [hsmall_not, ↓reduceIte, hdon]
   rw [Nat.mul_div_cancel_left _ hmpos]
@@ -471,27 +471,36 @@ theorem baseBAt_ge_m (m x : ℕ) (hm : 3 ≤ m) (hxpos : 1 ≤ x) :
 theorem smallSet_subset_baseK (m : ℕ) (hm : 3 ≤ m) :
     smallSet m ⊆ Finset.Icc 1 (baseK m) := by
   intro x hx
-  simp [smallSet, Finset.mem_Ioo] at hx
-  simp [Finset.mem_Icc, baseK]
+  simp only [smallSet, mem_Ioo] at hx
+  simp only [mem_Icc, baseK]
   refine ⟨hx.1, ?_⟩
   nlinarith
 
 theorem donorSet_subset_baseK (m : ℕ) (hm : 3 ≤ m) :
     donorSet m ⊆ Finset.Icc 1 (baseK m) := by
   intro y hy
-  simp [donorSet, Finset.mem_image, Finset.mem_Ioo] at hy
-  obtain ⟨t, ⟨ht1, htm⟩, rfl⟩ := hy
-  simp [Finset.mem_Icc, baseK]
-  refine ⟨by nlinarith, ?_⟩
-  nlinarith
+  rw [donorSet] at hy
+  obtain ⟨t, ht, rfl⟩ := Finset.mem_image.mp hy
+  obtain ⟨ht0, htm⟩ := Finset.mem_Ioo.mp ht
+  rw [Finset.mem_Icc]
+  constructor
+  · have hm0 : 0 < m := by omega
+    exact Nat.one_le_iff_ne_zero.mpr
+      (Nat.mul_ne_zero (Nat.ne_of_gt hm0) (Nat.ne_of_gt (Nat.add_pos_left hm0 t)))
+  · have hmt : m * t ≤ m * m := Nat.mul_le_mul_left m (Nat.le_of_lt htm)
+    calc
+      m * (m + t) = m * m + m * t := Nat.mul_add m m t
+      _ ≤ m * m + m * m := Nat.add_le_add_left hmt (m * m)
+      _ = baseK m := by simp [baseK, two_mul, Nat.add_mul]
 
 theorem small_donor_disjoint (m : ℕ) (hm : 3 ≤ m) :
     Disjoint (smallSet m) (donorSet m) := by
   rw [Finset.disjoint_iff_ne]
   intro x hx y hy
-  simp [smallSet, Finset.mem_Ioo] at hx
-  simp [donorSet, Finset.mem_image, Finset.mem_Ioo] at hy
-  obtain ⟨t, ⟨ht1, htm⟩, rfl⟩ := hy
+  rw [smallSet, Finset.mem_Ioo] at hx
+  rw [donorSet, Finset.mem_image] at hy
+  obtain ⟨t, ht, rfl⟩ := hy
+  rw [Finset.mem_Ioo] at ht
   intro heq
   nlinarith
 
@@ -952,7 +961,7 @@ theorem exponent_pos_when_mod_a_eq (k : ℕ) (cov_a : ℕ → ℕ) (j : ℕ) (p 
     have hp_dvd_j : p ∣ j := by
       rw [Nat.dvd_iff_mod_eq_zero]
       rw [hjmod, hap]
-    haveI : Fact p.Prime := ⟨hp⟩
+    have : Fact p.Prime := ⟨hp⟩
     exact one_le_padicValNat_of_dvd (by omega : j ≠ 0) hp_dvd_j
   · rw [if_neg hap]
     have h1_le_alphaP : 1 ≤ alphaP k p := by
@@ -1160,7 +1169,7 @@ theorem innerB_eq_outerB_mul_scaffold (k : ℕ) (a : ℕ → ℕ) (j : ℕ) :
 
 theorem sum_padicValNat_succ_eq_factorial (k p : ℕ) (hp : p.Prime) :
     ∑ j : Fin k, padicValNat p (j.val + 1) = padicValNat p k.factorial := by
-  haveI : Fact p.Prime := ⟨hp⟩
+  have : Fact p.Prime := ⟨hp⟩
   have hprod_range : k.factorial = ∏ i ∈ Finset.range k, (i + 1) :=
     Nat.factorial_eq_prod_range_add_one k
   have hreindex : ∑ j : Fin k, padicValNat p (j.val + 1) =
@@ -1460,7 +1469,7 @@ theorem count_residue_large_prime (k p a : ℕ) (hp_pos : 0 < p) (hp_gt : k / 2 
 theorem padicValNat_factorial_eq_one_of_gt_half {p k : ℕ} (hp : p.Prime) (hpk : p ≤ k)
     (hp_gt : k / 2 < p) :
     padicValNat p k.factorial = 1 := by
-  haveI : Fact p.Prime := ⟨hp⟩
+  have : Fact p.Prime := ⟨hp⟩
   have hk_pos : 0 < k := by omega
   have hk_lt_2p : k < 2 * p := by
     have h := (Nat.div_lt_iff_lt_mul (by norm_num : (0 : ℕ) < 2)).mp hp_gt
@@ -1753,7 +1762,7 @@ theorem val_sum_innerB_anchor {m k : ℕ} (hm : 3 ≤ m) (cov : CoverData m k)
     ∑ j : Fin k, exponent k cov.a (j.val + 1) cov.q =
       padicValNat cov.q k.factorial := by
   classical
-  haveI : Fact cov.q.Prime := ⟨cov.q_prime⟩
+  have : Fact cov.q.Prime := ⟨cov.q_prime⟩
   have hq_prime := cov.q_prime
   have hq_pos : 0 < cov.q := hq_prime.pos
   have hap_lt_p : cov.a cov.q < cov.q := cov.a_lt_p cov.q hq_prime
@@ -1949,7 +1958,7 @@ theorem exponent_pos_cong_at_one {m k : ℕ} (cov : CoverData m k) (j p : ℕ)
     j % p = if cov.a p = 0 then 0 else cov.a p := by
   by_cases ha : cov.a p = 0
   · rw [if_pos ha]
-    haveI : Fact p.Prime := ⟨hp⟩
+    have : Fact p.Prime := ⟨hp⟩
     have hexp : exponent k cov.a j p = padicValNat p j := by
       unfold exponent; rw [if_pos ha]
     rw [hexp] at he_pos
@@ -1995,7 +2004,7 @@ theorem exponent_ge_implies_mod_eq {m k : ℕ} (cov : CoverData m k) (i j p u : 
         unfold exponent; rw [if_pos ha]
       rw [hexp_i] at hei
       rw [hexp_j] at hej
-      haveI : Fact p.Prime := ⟨hp⟩
+      have : Fact p.Prime := ⟨hp⟩
       have hpi : p ^ u ∣ i := dvd_trans (pow_dvd_pow p hei) pow_padicValNat_dvd
       have hpj : p ^ u ∣ j := dvd_trans (pow_dvd_pow p hej) pow_padicValNat_dvd
       rw [Nat.mod_eq_zero_of_dvd hpi, Nat.mod_eq_zero_of_dvd hpj]
@@ -2304,7 +2313,7 @@ theorem outerB_pow_dvd_num_at_prime_of_a {k : ℕ} (a : ℕ → ℕ) (j : ℕ)
               (dvd_trans hdvd (outerB_dvd_globalMk_of_a a j hj hjk))) (by omega)
           omega
       rw [h_exp_eq] at hu_le_exp
-      haveI : Fact p.Prime := ⟨hp⟩
+      have : Fact p.Prime := ⟨hp⟩
       have h_pow_dvd : p ^ u ∣ j :=
         dvd_trans (pow_dvd_pow p hu_le_exp) pow_padicValNat_dvd
       exact Nat.mod_eq_zero_of_dvd h_pow_dvd
@@ -2563,7 +2572,7 @@ theorem not_pow_succ_dvd_num_at_prime_truly_of_a {k : ℕ} (a : ℕ → ℕ)
     rw [h_localLift_zero, Nat.zero_mod] at h_cong_nat
     have h_e_eq : e = padicValNat p (j.val + 1) := by
       unfold exponent at he_def; rw [if_pos ha] at he_def; exact he_def
-    haveI : Fact p.Prime := ⟨hp⟩
+    have : Fact p.Prime := ⟨hp⟩
     have h_pow_dvd : p ^ (e + 1) ∣ (j.val + 1) := Nat.dvd_of_mod_eq_zero h_cong_nat
     have h_le_padic : e + 1 ≤ padicValNat p (j.val + 1) :=
       (Nat.Prime.pow_dvd_iff_le_factorization hp (by omega)).mp h_pow_dvd
@@ -4806,7 +4815,7 @@ theorem val_sum_clause1_proof {B : ℕ} (hB : 3 ≤ B) (k : ℕ) (hk3 : 3 ≤ k)
     ∀ n : ℤ, (k : ℤ) < n → (Nk_formula k : ℤ) ∣ n - R →
       ∀ p : ℕ, p.Prime → p ≤ k → ¬ (p : ℤ) ∣ ((n.toNat).choose k : ℤ) := by
   intro n hn_gt h_n_mod p hp hp_le_k h_dvd_int
-  haveI hp_fact : Fact p.Prime := ⟨hp⟩
+  have hp_fact : Fact p.Prime := ⟨hp⟩
   have h_k_nonneg : (0 : ℤ) ≤ (k : ℤ) := by exact_mod_cast Nat.zero_le k
   have hn_nonneg : 0 ≤ n := by linarith
   have hn_eq : (n.toNat : ℤ) = n := Int.toNat_of_nonneg hn_nonneg
@@ -4870,7 +4879,7 @@ theorem val_sum_clause1_proof_wide {B : ℕ} (hB : 3 ≤ B) (k : ℕ) (hk3 : 3 �
     ∀ n : ℤ, (k : ℤ) < n → (Nk_formula k : ℤ) ∣ n - R →
       ∀ p : ℕ, p.Prime → p ≤ k → ¬ (p : ℤ) ∣ ((n.toNat).choose k : ℤ) := by
   intro n hn_gt h_n_mod p hp hp_le_k h_dvd_int
-  haveI hp_fact : Fact p.Prime := ⟨hp⟩
+  have hp_fact : Fact p.Prime := ⟨hp⟩
   have h_k_nonneg : (0 : ℤ) ≤ (k : ℤ) := by exact_mod_cast Nat.zero_le k
   have hn_nonneg : 0 ≤ n := by linarith
   have hn_eq : (n.toNat : ℤ) = n := Int.toNat_of_nonneg hn_nonneg
@@ -8656,7 +8665,7 @@ theorem wcbd_zSet_aux_for_total {B Y q : ℕ}
   refine ⟨?_, ?_⟩
   · intro hpq
     subst hpq
-    haveI : Fact (Nat.Prime p) := ⟨hp⟩
+    have : Fact (Nat.Prime p) := ⟨hp⟩
     have h_q_pow_dvd_M : p ^ padicValNat p j ∣ Mdenom := by
       rw [hMdenom_def]
       exact dvd_mul_right _ _
@@ -8670,7 +8679,7 @@ theorem wcbd_zSet_aux_for_total {B Y q : ℕ}
   · intro hp_in
     obtain ⟨d, hd, hd_eq⟩ := Finset.mem_image.mp hp_in
     have hp_eq : b d = p := hd_eq
-    haveI : Fact (Nat.Prime p) := ⟨hp⟩
+    have : Fact (Nat.Prime p) := ⟨hp⟩
     have h_p_pow_dvd_M : p ^ padicValNat p j ∣ Mdenom := by
       rw [hMdenom_def]
       have h_factor_in_prod :

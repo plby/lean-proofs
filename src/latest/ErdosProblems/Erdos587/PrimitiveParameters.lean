@@ -89,7 +89,7 @@ lemma critical_parameter_ranges {t u v H J T C : ℝ}
       _ = _ := by rw [← Real.rpow_add hT]; norm_num
   refine ⟨?_, ?_, hvlo, hvhi⟩
   · rw [Real.sqrt_eq_rpow, ← Real.rpow_add hT]
-    convert hHlo using 1 <;> ring
+    convert hHlo using 1 <;> ring_nf
   · rw [Real.sqrt_eq_rpow, ← Real.rpow_add hT]
     exact huhi
 

@@ -426,7 +426,7 @@ lemma isFactoredTruncatedLocalRepresentative_of_minimizer
   have hd : |d| ≤ h := by simpa [d, h] using haNear
   have hs : |s| ≤ (1 + err / h) * h := by
     calc
-      |s| = |(s - d) + d| := by ring
+      |s| = |(s - d) + d| := by ring_nf
       _ ≤ |s - d| + |d| := abs_add_le _ _
       _ ≤ err + h := add_le_add hsminus hd
       _ = (1 + err / h) * h := by field_simp [hhpos.ne']; ring

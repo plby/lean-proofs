@@ -32,7 +32,7 @@ theorem exists_descending_card_order {A : Type*} [Fintype A] [DecidableEq A]
   have hkey : Function.Injective key := by
     intro a b h
     exact e.injective (congrArg Prod.snd h)
-  letI : LinearOrder A := LinearOrder.lift' key hkey
+  let : LinearOrder A := LinearOrder.lift' key hkey
   let L := (Finset.univ : Finset A).sort (· ≤ ·)
   refine ⟨L, Finset.sort_nodup _ _, ?_, ?_, ?_⟩
   · simp [L]

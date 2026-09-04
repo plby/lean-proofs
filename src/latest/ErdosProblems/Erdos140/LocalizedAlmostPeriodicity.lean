@@ -292,7 +292,7 @@ theorem dft_threefold_cL1Norm_le
           rw [dft_ddconv, dft_ddconv]
           congr 1
           funext psi
-          ring
+          ring_nf
     _ ≤ ‖dft (𝟭_[B] : G → ℂ) * dft (μ_[ℂ] C)‖ₙ_[1] := by
       calc
         _ ≤ ‖dft (𝟭_[B] : G → ℂ) * dft (μ_[ℂ] C)‖ₙ_[1] *
@@ -1311,7 +1311,7 @@ theorem finiteInner_translate_differenceConvolution_eq
           intro a₁ _
           refine (Fintype.sum_equiv (Equiv.subLeft (t + a₁)) _ _ fun a₂ ↦ ?_).symm
           simp only [Equiv.subLeft_apply]
-          congr 2 <;> abel
+          congr 2 <;> abel_nf
     _ = (∑ a₁ : G, ∑ a₂ : G,
             setIndicator A₁ a₁ * setIndicator A₂ a₂ *
               setIndicator S (t + a₁ - a₂)) /

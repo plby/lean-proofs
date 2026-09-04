@@ -72,7 +72,7 @@ def negOneInvolution (q : ℕ) : involutionSubgroup q :=
 theorem involution_eq_one_or_neg_one_of_prime {p : ℕ} (hp : p.Prime)
     (u : involutionSubgroup p) :
     u = 1 ∨ u = negOneInvolution p := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hu : ((u.1 : (ZMod p)ˣ) : ZMod p) ^ 2 = 1 := by
     simpa only [Units.val_pow_eq_pow_val, Units.val_one]
       using congrArg (fun z : (ZMod p)ˣ ↦ (z : ZMod p)) u.2

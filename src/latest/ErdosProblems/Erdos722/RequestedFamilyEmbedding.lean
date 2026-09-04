@@ -153,7 +153,7 @@ theorem eventually_exists_boundedRequestedFamilyEmbeddings_of_rootPartBound
   filter_upwards [hlegal, hquant, hcard, eventually_ge_atTop v] with
       n hlegal hquant hcard hvn
   intro request forbidden depth hcount hforbiddenUniform hforbiddenDegree
-  letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
+  let : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
   have hfixedMax : ∀ J : Finset (Fin n), J.card = r - 1 →
       Reserve.localDegree forbidden J ≤ decoderInputCap d n := by
     intro J hJ
@@ -192,7 +192,7 @@ theorem eventually_exists_boundedRequestedFamilyEmbeddings_of_twoScale_rootPartB
   filter_upwards [hlegal, hquant, hcard, eventually_ge_atTop v] with
       n hlegal hquant hcard hvn
   intro request forbidden depth hcount hforbiddenUniform hforbiddenDegree
-  letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
+  let : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
   have hfixedMax : ∀ J : Finset (Fin n), J.card = r - 1 →
       Reserve.localDegree forbidden J ≤ decoderInputCap dInput n := by
     intro J hJ
@@ -231,7 +231,7 @@ theorem eventually_exists_boundedRequestedFamilyEmbeddings_of_power_bound
       n hlegal hquant hcard hvn
   intro request forbidden roots depth hschedule hrootsUniform
     hforbiddenUniform hrootDegree hforbiddenDegree
-  letI : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
+  let : Nonempty (Fin v ↪ Fin n) := ⟨Fin.castLEEmb hvn⟩
   have hrootMax : ∀ J : Finset (Fin n), J.card = r - 1 →
       Reserve.localDegree roots J ≤ decoderInputCap d n := by
     intro J hJ

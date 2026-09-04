@@ -117,7 +117,7 @@ theorem continuous_mrPerronEndpointKernel
     {y delta : ℝ} (hy : 0 < y) (hdelta : 0 < delta) :
     Continuous (mrPerronEndpointKernel y delta) := by
   have hyC : (y : ℂ) ≠ 0 := by exact_mod_cast hy.ne'
-  letI : NeZero (y : ℂ) := ⟨hyC⟩
+  let : NeZero (y : ℂ) := ⟨hyC⟩
   unfold mrPerronEndpointKernel
   apply ((continuous_const_cpow (y : ℂ)).comp (by fun_prop)).div
     (by fun_prop)

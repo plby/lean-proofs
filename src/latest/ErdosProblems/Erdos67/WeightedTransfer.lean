@@ -1081,7 +1081,7 @@ theorem normalized_medium_cyclicGood_shiftedResiduePrefixEnergy_le
       ∀ b : ZMod t, IsUnit b →
         ‖EulerResidue.residueLSeries h b sigma - Mdiv t‖ ≤ U t := by
     intro t ht ht0 b hb
-    letI : NeZero t := ⟨ht0⟩
+    let : NeZero t := ⟨ht0⟩
     simpa only [U, Mdiv, eulerResidueError] using
       EulerResidue.norm_residueLSeries_sub_main_le hh hsigma
         (S / (t : ℂ)) (E₀ t) (E t) (hprincipal t ht ht0)
@@ -1409,7 +1409,7 @@ theorem normalized_medium_cyclicGoodResidueEnergy_pow_le_two_mul
       ∀ b : ZMod t, IsUnit b →
         ‖EulerResidue.residueLSeries h b sigma - Mdiv t‖ ≤ U t := by
     intro t ht ht0 b hb
-    letI : NeZero t := ⟨ht0⟩
+    let : NeZero t := ⟨ht0⟩
     simpa only [U, eulerResidueError] using
       EulerResidue.norm_residueLSeries_sub_main_le hh hsigma
         (Mdiv t) (E₀ t) (E t) (hprincipal t ht ht0)

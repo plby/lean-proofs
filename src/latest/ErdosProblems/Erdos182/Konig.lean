@@ -178,13 +178,13 @@ theorem exists_regular_subgraph_of_le (hreg : G.IsRegularOfDegree q)
     ∃ H : SimpleGraph V, H ≤ G ∧ H.IsRegularOfDegree k := by
   induction q generalizing G s t instG with
   | zero =>
-      letI : DecidableRel G.Adj := instG
+      let : DecidableRel G.Adj := instG
       have hk0 : k = 0 := Nat.eq_zero_of_le_zero hk
       refine ⟨(⊥ : SimpleGraph V), bot_le, ?_⟩
       intro v
       simpa [hk0] using SimpleGraph.bot_degree (G := (⊥ : SimpleGraph V)) v
   | succ q ih =>
-      letI : DecidableRel G.Adj := instG
+      let : DecidableRel G.Adj := instG
       by_cases hkq : k = q + 1
       · subst k
         have hdec : (Classical.decRel G.Adj) = instG := Subsingleton.elim _ _
@@ -194,7 +194,7 @@ theorem exists_regular_subgraph_of_le (hreg : G.IsRegularOfDegree q)
         obtain ⟨M, hM⟩ :=
           exists_isPerfectMatching_of_isRegularOfDegree (q := q + 1)
             (by omega) hreg hbip
-        letI : DecidableRel M.spanningCoe.Adj := Classical.decRel _
+        let : DecidableRel M.spanningCoe.Adj := Classical.decRel _
         let G' : SimpleGraph V := G \ M.spanningCoe
         have hreg' : G'.IsRegularOfDegree q := by
           exact isRegularOfDegree_sdiff_perfectMatching hreg hM

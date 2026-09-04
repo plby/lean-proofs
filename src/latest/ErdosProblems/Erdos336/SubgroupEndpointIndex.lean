@@ -31,7 +31,7 @@ theorem card_endpointQuotient_subgroup
   classical
   let Δ := AddSubgroup.zmultiples δ
   let q : (ℤ × H) →+ ((ℤ × H) ⧸ Δ) := QuotientAddGroup.mk' Δ
-  letI : Fintype K := Fintype.ofFinite K
+  let : Fintype K := Fintype.ofFinite K
   let D := Fin L × K
   let e : D → ↥F := fun u =>
     ⟨q ((u.1.1 : ℤ) • g + (0, u.2.1)), by

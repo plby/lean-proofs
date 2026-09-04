@@ -365,7 +365,7 @@ theorem eventually_structuralWitness_ramseyFree_of_linear_rich_induce
       (mul_pos hcR hnreal).trans_le hUlower
     exact_mod_cast this
   have hUne : U.Nonempty := Finset.card_pos.mp hUcardPos
-  letI : Nonempty ↑(U : Set (Fin n)) :=
+  let : Nonempty ↑(U : Set (Fin n)) :=
     ⟨⟨hUne.choose, by simpa using hUne.choose_spec⟩⟩
   have hUupperNat : U.card ≤ n := by
     simpa using (Finset.card_le_univ U)

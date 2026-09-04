@@ -503,7 +503,7 @@ theorem linearFormsProduct_apCSStageFaceExponent
       simp
   | true =>
       simp only [if_true, Bool.ite_eq_true_distrib]
-      simp
+      simp only [Bool.false_eq_true, if_false_right, and_true]
       change
         (∏ ω : DeletedCube
             ((r + (s + 1)) + 1)
@@ -1215,7 +1215,7 @@ theorem linearFormsProduct_apCSOrderedStageFaceExponent
       simp
   | true =>
       simp only [if_true, Bool.ite_eq_true_distrib]
-      simp
+      simp only [Bool.false_eq_true, if_false_right, and_true]
       change
         (∏ ω : DeletedCube
             (((s + 1) + r) + 1)

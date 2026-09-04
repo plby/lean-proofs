@@ -41,8 +41,8 @@ lemma DeleteEdgeOldFaceMapTwoFaceQuotient {V : Type*} [Fintype V]
                   @Fintype.card Adel.Face Adel.faceFintype + 1 =
                     @Fintype.card A.Face A.faceFintype := by
   classical
-  letI : Fintype A.Face := A.faceFintype
-  letI : Fintype Adel.Face := Adel.faceFintype
+  let : Fintype A.Face := A.faceFintype
+  let : Fintype Adel.Face := Adel.faceFintype
   rcases
     (DeletedEdgeComplementComponents.{_, 0, _} G D hD A e Ddel hvertex hedges d hd)
     with

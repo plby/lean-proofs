@@ -239,7 +239,7 @@ theorem triangle_independent_minimum_contradiction
         _ ≤ S.card * ∑ J : DeltaSubsets T δ, g J := hfG
         _ = Fintype.card S * ∑ J : DeltaSubsets T δ, g J := by simp
   have hSpos : 0 < S.card := lt_of_lt_of_le hf hfS
-  letI : Nonempty S := Fintype.card_pos_iff.mp (by simpa using hSpos)
+  let : Nonempty S := Fintype.card_pos_iff.mp (by simpa using hSpos)
   obtain ⟨σ, hσ⟩ := exists_permutation_with_large_sum g I hpermAverage
   let cand : S → Finset Y := fun x ↦
     commonCandidates cross (permuteDeltaSubset σ (I x)).1

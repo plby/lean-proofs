@@ -164,8 +164,8 @@ theorem natCard_numberFieldIdealPowerClassTensor_eq_pow
     (hmax : ∀ i, (P i).IsMaximal) {ell : ℕ}
     (hell : ∀ i, ell ∣ Ideal.absNorm (P i) - 1) :
     Nat.card (IdealPowerClassTensor I P ell) = ell ^ Fintype.card I := by
-  letI (i : I) : (P i).IsMaximal := hmax i
-  letI (i : I) : Field ((𝓞 K) ⧸ P i) := Ideal.Quotient.field (P i)
+  let (i : I) : (P i).IsMaximal := hmax i
+  let (i : I) : Field ((𝓞 K) ⧸ P i) := Ideal.Quotient.field (P i)
   apply natCard_idealPowerClassTensor_eq_pow I P
   intro i
   rw [Nat.card_units, ← Submodule.cardQuot_apply,
@@ -824,8 +824,8 @@ theorem numberFieldCorrectedPowerPattern_card_le_primeScale_explicit
           ((x : ℝ) / Real.log (x : ℝ)) +
         ∑ c : C, tensorPatternCharacterError
           (finiteCorrectionFiber S correction c) (code c) 1 := by
-  letI (i : I) : (P i).IsMaximal := hmax i
-  letI (i : I) : Field ((𝓞 K) ⧸ P i) := Ideal.Quotient.field (P i)
+  let (i : I) : (P i).IsMaximal := hmax i
+  let (i : I) : Field ((𝓞 K) ⧸ P i) := Ideal.Quotient.field (P i)
   have hcore := correctedTensorPatternFiber_card_le_explicitCharacterError
     S correction code (1 : IdealPowerClassTensor I P ell)
   have hcardNat :
@@ -1038,8 +1038,8 @@ theorem numberFieldAllPowerResidueFiber_card_le_primeScale
     ((numberFieldAllPowerResidueFiber P ell S residueUnit).card : ℝ) ≤
       C * ((ell : ℝ)⁻¹) ^ Fintype.card I *
           ((x : ℝ) / Real.log (x : ℝ)) + error := by
-  letI (i : I) : (P i).IsMaximal := hmax i
-  letI (i : I) : Field ((𝓞 K) ⧸ P i) := Ideal.Quotient.field (P i)
+  let (i : I) : (P i).IsMaximal := hmax i
+  let (i : I) : Field ((𝓞 K) ⧸ P i) := Ideal.Quotient.field (P i)
   have hell' : ∀ i, ell ∣ Nat.card (((𝓞 K) ⧸ P i)ˣ) := by
     intro i
     rw [Nat.card_units, ← Submodule.cardQuot_apply,

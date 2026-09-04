@@ -201,7 +201,7 @@ theorem polar_volume_mul_unitBall_volume_le
     rw [huniv, Real.volume_Icc_pi]
     simp
   · have hnpos : 0 < n := Nat.pos_of_ne_zero hn
-    letI : Nonempty (Fin n) := ⟨⟨0, hnpos⟩⟩
+    let : Nonempty (Fin n) := ⟨⟨0, hnpos⟩⟩
     obtain ⟨b, hb⟩ := exists_isMahlerBasis p hp
     have hpolar := volume_euclideanPolar_unitBall_le_mahlerBox p hp b
     have hbprod : (∏ i, p (integralEmbed (b i))) ≤

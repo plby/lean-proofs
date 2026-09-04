@@ -57,8 +57,9 @@ theorem fin_five_nonadjacent_freeEdges_card
     (Finset.univ.filter fun i : Fin 5 ↦
       i ∉ ({a, b} : Finset (Fin 5)) ∧
         cyclicSucc (by decide) i ∉ ({a, b} : Finset (Fin 5))).card = 1 := by
-  fin_cases a <;> fin_cases b <;>
-    simp [cyclicSucc] at hab hba hab' ⊢ <;> decide
+  fin_cases a <;> fin_cases b
+  all_goals norm_num [cyclicSucc] at *
+  all_goals decide
 
 theorem fin_five_independent_card_le_two (S : Finset (Fin 5))
     (hind : ∀ i, i ∈ S → cyclicSucc (by decide) i ∉ S) :

@@ -21,7 +21,7 @@ theorem pathGraph_isContained_or_compl_of_coloring
   cases t with
   | zero =>
       right
-      letI : IsEmpty W := ⟨fun w ↦ Fin.elim0 (c w)⟩
+      let : IsEmpty W := ⟨fun w ↦ Fin.elim0 (c w)⟩
       exact SimpleGraph.IsContained.of_isEmpty
   | succ t =>
       cases t with

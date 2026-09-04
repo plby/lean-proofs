@@ -87,7 +87,7 @@ theorem exp_neg_centralHeight_le_half_pow (d : ℕ) :
         (1 / 4 : ℝ) ^ (d + 1) := by
     calc
       Real.exp (-(((d + 1 : ℕ) : ℝ) * Real.log 4)) =
-          Real.exp (((d + 1 : ℕ) : ℝ) * (-Real.log 4)) := by ring
+          Real.exp (((d + 1 : ℕ) : ℝ) * (-Real.log 4)) := by ring_nf
       _ = Real.exp (-Real.log 4) ^ (d + 1) := by
         rw [Real.exp_nat_mul]
       _ = (1 / 4 : ℝ) ^ (d + 1) := by

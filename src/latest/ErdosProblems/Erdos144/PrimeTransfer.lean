@@ -164,7 +164,7 @@ theorem primeCRTSet_hasDensity
     (primeCRTSet K I L hK).HasDensity (primeDensity K I L) := by
   let prime : Erdos144.PrimeBlockModel.PrimeIndex K I → ℕ :=
     @Erdos144.PrimeBlockModel.primeValue K I
-  letI : NeZero (∏ z, prime z) :=
+  let : NeZero (∏ z, prime z) :=
     ⟨Finset.prod_ne_zero_iff.mpr (fun z _hz =>
       Erdos144.PrimeBlockModel.primeValue_ne_zero z)⟩
   have h := Erdos144.OccupancyTransfer.crt_occupiedLabels_good_hasDensity

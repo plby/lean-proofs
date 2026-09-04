@@ -2729,7 +2729,7 @@ theorem ext_order_positive {n : ℕ} {P Q : SignedPermutation n}
     (horder : P.order = Q.order) (hpositive : P.positive = Q.positive) : P = Q := by
   cases P
   cases Q
-  simp at horder hpositive
+  simp only [mk.injEq] at horder hpositive
   subst horder
   subst hpositive
   rfl

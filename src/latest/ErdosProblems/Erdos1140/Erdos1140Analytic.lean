@@ -319,7 +319,7 @@ theorem eventually_singleton_burgess_bound :
         pow_le_pow_left₀ (by positivity) hJupper 5
       _ = (p : ℝ) ^ ((512 : ℝ)⁻¹ * 5) :=
         (Real.rpow_mul_natCast hpRealPos.le _ 5).symm
-      _ = (p : ℝ) ^ (5 * (512 : ℝ)⁻¹) := by ring
+      _ = (p : ℝ) ^ (5 * (512 : ℝ)⁻¹) := by ring_nf
   have hloss2' :
       (2 : ℝ) ^ (10 * ({p} : Finset ℕ).card) *
           (saving p : ℝ) ^ 5 ≤ (p : ℝ) ^ ((64 : ℝ)⁻¹) := by
@@ -881,7 +881,7 @@ theorem eventually_attached_weighted_prefix :
         |((y + 1 : ℕ) : ℝ) * A (y + 1) -
             ∑ k ∈ Finset.range (y + 1), A (k + 1)| =
             |((y + 1 : ℕ) : ℝ) * A (y + 1) +
-              -(∑ k ∈ Finset.range (y + 1), A (k + 1))| := by ring
+              -(∑ k ∈ Finset.range (y + 1), A (k + 1))| := by ring_nf
         _ ≤ |((y + 1 : ℕ) : ℝ) * A (y + 1)| +
             |-(∑ k ∈ Finset.range (y + 1), A (k + 1))| := abs_add_le _ _
         _ = ((y + 1 : ℕ) : ℝ) * |A (y + 1)| +
@@ -1874,7 +1874,7 @@ theorem eventually_attached_comparison :
           quadraticZetaSwappedEulerRemainder χ X‖ := by
       rw [hmain, hswap]
       dsimp [P]
-      ring
+      ring_nf
     _ ≤ ‖((X : ℂ) / 2) *
           (P - DirichletCharacter.LFunction χ (1 : ℂ))‖ +
         ‖quadraticZetaSwappedEulerRemainder χ X‖ := norm_sub_le _ _

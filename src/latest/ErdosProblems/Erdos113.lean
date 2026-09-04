@@ -2693,10 +2693,10 @@ open Erdos113Regular Erdos113BipartiteGraph Erdos113CellPruning
 
 theorem cleanCycleSelector1568_proof : CleanCycleSelector1568 := by
   intro W instFintype instDecEq A instDecAdj R instDecR α hR hedge hlocal hsmall
-  letI : Fintype W := instFintype
-  letI : DecidableEq W := instDecEq
-  letI : DecidableRel A.Adj := instDecAdj
-  letI : DecidableRel R := instDecR
+  let : Fintype W := instFintype
+  let : DecidableEq W := instDecEq
+  let : DecidableRel A.Adj := instDecAdj
+  let : DecidableRel R := instDecR
   classical
   have hα : 0 ≤ α := by
     obtain ⟨x, y, hxy⟩ := hedge
@@ -2716,8 +2716,8 @@ theorem cleanCycleSelector1568_proof : CleanCycleSelector1568 := by
     Sum.elim (fun x ↦ x.1.1) (fun y ↦ y.1.1)
   let R' : (LiveLeft E ⊕ LiveRight E) →
       (LiveLeft E ⊕ LiveRight E) → Prop := fun x y ↦ R (proj x) (proj y)
-  letI : DecidableRel B.Adj := inferInstance
-  letI : DecidableRel R' := fun x y ↦ instDecR (proj x) (proj y)
+  let : DecidableRel B.Adj := inferInstance
+  let : DecidableRel R' := fun x y ↦ instDecR (proj x) (proj y)
   let L : ℝ := degreeBinCount (W := W)
   let cap : Bool → ℝ := fun b ↦ if b then 2 ^ (j.val + 1) else 2 ^ (i.val + 1)
   let d : Bool → ℝ := fun b ↦ cap b / (16 * L)
@@ -2842,7 +2842,7 @@ theorem cleanCycleSelector1568_proof : CleanCycleSelector1568 := by
   have hcross : ∀ {x y}, B.Adj x y → side y = !side x := by
     intro x y hxy
     exact Erdos113BipartiteGraph.cross E hxy
-  letI : Nonempty (LiveLeft E ⊕ LiveRight E) :=
+  let : Nonempty (LiveLeft E ⊕ LiveRight E) :=
     Erdos113BipartiteGraph.nonempty_of_nonempty E hEne
   let N' : ℝ := Fintype.card (LiveLeft E ⊕ LiveRight E)
   have hcardN : Fintype.card (LiveLeft E ⊕ LiveRight E) ≤ 2 * Fintype.card W := by
@@ -3587,9 +3587,9 @@ lemma sparseCore_denseCell_common
     (∀ b, (H.sideCap b : ℝ) ≤
       2 * (regularFactor + 1 : ℕ) * (m : ℝ) ^ ((10 : ℝ) / 21)) ∧
     (∀ b, d₀ ≤ sideMinimum H b) := by
-  letI : Fintype C.W := C.fintypeW
-  letI : DecidableEq C.W := C.decEqW
-  letI : DecidableRel C.graph.Adj := C.decAdj
+  let : Fintype C.W := C.fintypeW
+  let : DecidableEq C.W := C.decEqW
+  let : DecidableRel C.graph.Adj := C.decAdj
   intro H
   let m := C.order
   let L := degreeBinCount (W := C.W)
@@ -3969,9 +3969,9 @@ lemma sparseCore_low_branch
           (C.order : ℝ) ^ ((13 : ℝ) / 21) /
             (256 * degreeBinCount (W := C.W)) →
       janzerGraph ⊑ G := by
-  letI : Fintype C.W := C.fintypeW
-  letI : DecidableEq C.W := C.decEqW
-  letI : DecidableRel C.graph.Adj := C.decAdj
+  let : Fintype C.W := C.fintypeW
+  let : DecidableEq C.W := C.decEqW
+  let : DecidableRel C.graph.Adj := C.decAdj
   intro H K hready hsmall hlow
   let m := C.order
   let L := degreeBinCount (W := C.W)
@@ -4010,7 +4010,7 @@ lemma sparseCore_low_branch
     rw [show P.edgeFinset.card = K.edges.card by
       simpa [P] using K.liveGraph_edge_card]
     exact K.edges_nonempty.card_pos
-  letI : Nonempty (LiveVertex K.edges) := by
+  let : Nonempty (LiveVertex K.edges) := by
     obtain ⟨z, hz⟩ := hPedge
     induction z using Sym2.inductionOn with
     | _ x y => exact ⟨x⟩
@@ -4582,9 +4582,9 @@ lemma sparseCore_high_branch
           (C.order : ℝ) ^ ((13 : ℝ) / 21) /
             (256 * degreeBinCount (W := C.W))) →
       janzerGraph ⊑ G := by
-  letI : Fintype C.W := C.fintypeW
-  letI : DecidableEq C.W := C.decEqW
-  letI : DecidableRel C.graph.Adj := C.decAdj
+  let : Fintype C.W := C.fintypeW
+  let : DecidableEq C.W := C.decEqW
+  let : DecidableRel C.graph.Adj := C.decAdj
   intro H hready hsmall hhigh
   let m := C.order
   let L := degreeBinCount (W := C.W)
@@ -4818,9 +4818,9 @@ theorem SparseCore.janzerGraph_isContained
     1568 * (C.order : ℝ) ^ (-(1 : ℝ) / 14) <
       cleanSelectorThreshold (Fintype.card (SliceTuple C.W)) →
     janzerGraph ⊑ G := by
-  letI : Fintype C.W := C.fintypeW
-  letI : DecidableEq C.W := C.decEqW
-  letI : DecidableRel C.graph.Adj := C.decAdj
+  let : Fintype C.W := C.fintypeW
+  let : DecidableEq C.W := C.decEqW
+  let : DecidableRel C.graph.Adj := C.decAdj
   intro hready hsmall
   obtain ⟨e, he⟩ := C.edges_nonempty
   obtain ⟨x, y, hxy⟩ : ∃ x y, C.graph.Adj x y := by
@@ -4877,8 +4877,8 @@ lemma janzerHostEmbeddingAt_of_core_threshold
     have hthreshold : 4 ^ 21 * M ^ 20 + 1 ≤ n :=
       (Nat.le_max_right _ _).trans hnlarge
     omega
-  letI : Fintype C.W := C.fintypeW
-  letI : DecidableEq C.W := C.decEqW
+  let : Fintype C.W := C.fintypeW
+  let : DecidableEq C.W := C.decEqW
   have hsmallW : 1568 * (C.order : ℝ) ^ (-(1 : ℝ) / 14) <
       cleanSelectorThreshold (Fintype.card (SliceTuple C.W)) := by
     rw [show Fintype.card (SliceTuple C.W) =

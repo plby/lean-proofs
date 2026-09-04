@@ -507,7 +507,7 @@ theorem economicalParsevalTail_twoThird_le_scale
   convert! htail using 1 <;>
     simp only [scale, M, harperTwoThird, Nat.cast_mul, Nat.cast_ofNat]
   field_simp [hM0, hfourM0]
-  <;> ring
+  <;> ring_nf
 
 /-- A uniform economical unit-shell estimate implies the exact eventual
 Harper initial-moment bound.  All finite-series and Parseval-tail constants

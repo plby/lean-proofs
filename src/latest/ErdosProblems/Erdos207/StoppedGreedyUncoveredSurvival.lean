@@ -90,7 +90,7 @@ theorem greedyKernel_probability_uncovered_eq
       ((greedySurvivalChoices F E S B).card : ℝ≥0) *
         (S.available.card : ℝ≥0)⁻¹ := by
   classical
-  letI : Nonempty S.available :=
+  let : Nonempty S.available :=
     ⟨⟨hA.choose, hA.choose_spec⟩⟩
   let next : S.available → GreedyStateOn V :=
     fun T ↦ greedyStep F S T.1

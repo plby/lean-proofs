@@ -698,7 +698,7 @@ theorem rootedPath_or_cut
       intro d
       have hpre : (deleteVertex H d).Preconnected :=
         not_not.mp (not_exists.mp hcut d)
-      letI : Nonempty {w : W // w ≠ d} := by
+      let : Nonempty {w : W // w ≠ d} := by
         by_cases hdr : r = d
         · exact ⟨⟨a, fun h => hra (hdr.trans h.symm)⟩⟩
         · exact ⟨⟨r, hdr⟩⟩
@@ -928,7 +928,7 @@ theorem exists_threeBlocks_of_no_threeTerminalPath
           intro d
           have hpre : (deleteVertex H d).Preconnected :=
             not_not.mp (not_exists.mp hcut d)
-          letI : Nonempty {w : W // w ≠ d} := by
+          let : Nonempty {w : W // w ≠ d} := by
             by_cases hda : a = d
             · exact ⟨⟨b, fun h => hab (hda.trans h.symm)⟩⟩
             · exact ⟨⟨a, hda⟩⟩

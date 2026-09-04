@@ -46,8 +46,9 @@ noncomputable def roughBoundingSieve (X z : ℕ) : BoundingSieve := by
         Sieve.CompletelyMultiplicative.id).isMultiplicative
       nu_pos_of_prime := by
         intro p hp _
-        simp [ArithmeticFunction.pdiv_apply, hp.ne_zero]
-        exact_mod_cast hp.pos
+        simp only [ArithmeticFunction.pdiv_apply, ArithmeticFunction.natCoe_apply, ArithmeticFunction.zeta_apply,
+          if_neg hp.ne_zero, Nat.cast_one, ArithmeticFunction.id_apply]
+        exact div_pos (by norm_num) (by exact_mod_cast hp.pos)
       nu_lt_one_of_prime := by
         intro p hp _
         simp only [ArithmeticFunction.pdiv_apply,

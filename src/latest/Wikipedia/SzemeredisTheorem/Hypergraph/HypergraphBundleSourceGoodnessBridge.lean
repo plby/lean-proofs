@@ -739,15 +739,15 @@ theorem strictBoundary_bundleCount_orderedConfiguration_eq_sourceFullMass
     (orderedConfigurationBaseWeight A)]
   cases isEmpty_or_nonempty G with
   | inl hG =>
-      letI : IsEmpty G := hG
-      haveI : Nonempty K := ⟨hne.choose⟩
-      haveI :
+      let : IsEmpty G := hG
+      have : Nonempty K := ⟨hne.choose⟩
+      have :
           Nonempty
             (Fin ((B.orderedConfigurationBundleFace hg₀ hne).lowerRank.1 + 1)) :=
         ⟨⟨0, Nat.succ_pos _⟩⟩
       simp only [bundleCount, mean_empty]
   | inr hG =>
-      letI : Nonempty G := hG
+      let : Nonempty G := hG
       unfold bundleCount
       rw [mean_splitEdge g₀]
       unfold mean₂

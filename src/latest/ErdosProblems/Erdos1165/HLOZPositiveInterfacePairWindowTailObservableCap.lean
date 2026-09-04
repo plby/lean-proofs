@@ -222,9 +222,9 @@ theorem positiveInterfaceExternalPairSourceStoppedGeometricMass_le_observableSin
   let data := singletonPairFiber eta b
   let D := supportComplementDistinguished t eta.1.1.start
     eta.1.1.retained ({b.1.1} : Finset Point)
-  letI : Fintype (TilingAwayDomino t eta.1.1.start eta.1.1.retained D) :=
+  let : Fintype (TilingAwayDomino t eta.1.1.start eta.1.1.retained D) :=
     instFintypeTilingAwayDomino t eta.1.1.start eta.1.1.retained D
-  letI : Fintype (TilingDistinguishedDomino t eta.1.1.start
+  let : Fintype (TilingDistinguishedDomino t eta.1.1.start
       eta.1.1.retained D) :=
     instFintypeTilingDistinguishedDomino t eta.1.1.start eta.1.1.retained D
   have hforward : ∀ q : TilingCappedCoordinates eta.1.1.retainedCount

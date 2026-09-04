@@ -154,9 +154,9 @@ theorem actualDeltaSelectedScreenedStoppedGeometricMass_eq
   classical
   let selectedData := withSelected data selected
   let D := supportComplementDistinguished t z.start z.retained S
-  letI : Fintype (TilingAwayDomino t z.start z.retained D) :=
+  let : Fintype (TilingAwayDomino t z.start z.retained D) :=
     instFintypeTilingAwayDomino t z.start z.retained D
-  letI : Fintype (TilingDistinguishedDomino t z.start z.retained D) :=
+  let : Fintype (TilingDistinguishedDomino t z.start z.retained D) :=
     instFintypeTilingDistinguishedDomino t z.start z.retained D
   have h :=
     @prefixedTilingStoppedAcceptedGeometricMass_eq_screenMass_mul_distinguishedBase
@@ -207,7 +207,7 @@ theorem sum_sourceActualDeltaScreenedMass_eq_screenMass
   classical
   dsimp only
   let D := supportComplementDistinguished t z.start z.retained S
-  letI : Fintype (TilingAwayDomino t z.start z.retained D) :=
+  let : Fintype (TilingAwayDomino t z.start z.retained D) :=
     instFintypeTilingAwayDomino t z.start z.retained D
   unfold sourceActualDeltaScreenedMass screenMass
   rw [Finset.sum_comm]

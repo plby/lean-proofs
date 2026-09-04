@@ -7168,7 +7168,7 @@ lemma fractionalUncoveredWeight_d8HallDeleted_eq
           (d8HallDeletedCapacity G P rho sigma R u) w +
         ∑ e ∈ (d7DeletedGraph G (u : A)).edgeFinset,
           d8HallDeduction G P rho sigma R u e := by
-  letI : DecidableRel
+  let : DecidableRel
       (⊤ : SimpleGraph (↑(d7DeletedFinset (u : A)))).Adj := Classical.decRel _
   let H := d7DeletedGraph G (u : A)
   let c := d8HallDeletedCapacity G P rho sigma R u

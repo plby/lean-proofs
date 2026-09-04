@@ -90,7 +90,7 @@ theorem exists_siegelWalfisz_sum_primitiveEndpointMass_Icc_le :
   apply sum_primitiveEndpointMass_Icc_le_sq_mul (by positivity)
   intro q hq ψ
   have hqBounds := Finset.mem_Icc.mp hq
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   apply hSiegelWalfisz x hx q ψ.1
   · exact primitiveCharacter_ne_one_of_one_lt (by omega) ψ
   · exact (by exact_mod_cast hqBounds.2 : (q : ℝ) ≤ (M : ℝ)).trans hM

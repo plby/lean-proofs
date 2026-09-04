@@ -69,11 +69,11 @@ private theorem rationalPrimeIdealFactor_absNorm_ge
   have hPprime : Prime P :=
     UniqueFactorizationMonoid.prime_of_factor _ hPfac
   have hPprime' : P.IsPrime := Ideal.isPrime_of_prime hPprime
-  letI : P.IsPrime := hPprime'
-  letI : Fact p.Prime := ⟨hp⟩
-  letI : pI.IsMaximal := by
+  let : P.IsPrime := hPprime'
+  let : Fact p.Prime := ⟨hp⟩
+  let : pI.IsMaximal := by
     simpa only [pI] using Int.ideal_span_isMaximal_of_prime p
-  letI : P.LiesOver pI := by
+  let : P.LiesOver pI := by
     apply (Ideal.liesOver_iff_dvd_map hPprime'.ne_top).mpr
     simpa only [pI, rationalModulusIdeal, Ideal.map_span,
       Set.image_singleton, map_natCast] using
@@ -86,10 +86,10 @@ private theorem rationalPrimeIdealFactors_card_le_degree
     (p : ℕ) (hp : p.Prime) :
     (rationalPrimeIdealFactors K p).card ≤ Nat.card (index K) := by
   classical
-  letI := Fintype.ofFinite (index K)
+  let := Fintype.ofFinite (index K)
   let pI : Ideal ℤ := Ideal.span {(p : ℤ)}
-  letI : Fact p.Prime := ⟨hp⟩
-  letI : pI.IsMaximal := by
+  let : Fact p.Prime := ⟨hp⟩
+  let : pI.IsMaximal := by
     simpa only [pI] using Int.ideal_span_isMaximal_of_prime p
   have hpI0 : pI ≠ ⊥ := by
     intro hbot
@@ -179,9 +179,9 @@ theorem rootCount_le_degree_mul_prime_pow_sub_one_of_quotient
     M.rootCount K p ≤
       Nat.card (index K) * p ^ (Nat.card (index K) - 1) := by
   classical
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : Fintype (index K) := Fintype.ofFinite _
-  letI : Finite (RingOfIntegers K ⧸ rationalModulusIdeal K p) :=
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : Fintype (index K) := Fintype.ofFinite _
+  let : Finite (RingOfIntegers K ⧸ rationalModulusIdeal K p) :=
     (Ideal.absNorm_ne_zero_iff (rationalModulusIdeal K p)).mp (by
       rw [rationalModulusIdeal, Ideal.absNorm_span_natCast]
       exact pow_ne_zero _ hp.ne_zero)

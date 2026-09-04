@@ -76,13 +76,13 @@ theorem one_sub_exp_mul_I_factor {theta : ℝ} :
     rw [Real.cos_sub_pi_div_two]
     rw [show theta = 2 * (theta / 2) by ring, Real.cos_two_mul]
     rw [← Real.sin_sq_add_cos_sq (theta / 2)]
-    ring
+    ring_nf
   · simp only [Complex.sub_im, Complex.one_im, zero_sub, Complex.add_im,
       Complex.ofReal_im, Complex.mul_im, Complex.ofReal_re, Complex.I_im,
       Complex.I_re, mul_one, zero_mul, add_zero]
     rw [Real.sin_sub_pi_div_two]
     rw [show theta = 2 * (theta / 2) by ring, Real.sin_two_mul]
-    ring
+    ring_nf
 
 theorem one_sub_exp_mul_I_mem_slitPlane
     {theta : ℝ} (htheta0 : 0 < theta) (htheta2pi : theta < 2 * Real.pi) :
@@ -176,7 +176,7 @@ theorem tendsto_neg_log_one_sub_real_mul_exp_div
       (nhdsWithin (1 : ℝ) (Set.Iio 1))
       (nhds ((1 : ℂ) - Complex.exp (theta * Complex.I))) := by
     convert tendsto_const_nhds.sub (hcoe.mul_const (Complex.exp (theta * Complex.I))) using 1 <;>
-      ring
+      ring_nf
   have hlog := harg.clog (one_sub_exp_mul_I_mem_slitPlane htheta0 htheta2pi)
   have hdiv := hlog.neg.div hcoe (by norm_num : (1 : ℂ) ≠ 0)
   convert hdiv using 1

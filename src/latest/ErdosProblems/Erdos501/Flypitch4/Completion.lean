@@ -142,7 +142,7 @@ lemma consis_limit {T : SentTheory L} {hT : T.is_consistent}
   simp only [SentTheory.is_consistent]
   intro h_inconsis
   by_cases hne : Ts.Nonempty
-  · haveI : DecidableEq (formula L) := fun x y => Classical.propDecidable _
+  · have : DecidableEq (formula L) := fun x y => Classical.propDecidable _
     obtain ⟨Γ, H_prov, H_sub⟩ := proof_compactness h_inconsis
     -- Each formula in Γ is in T.fst or in some T_f ∈ Ts
     have h_wit : ∀ f ∈ (Γ : Set (formula L)), f ∈ T.fst ∨

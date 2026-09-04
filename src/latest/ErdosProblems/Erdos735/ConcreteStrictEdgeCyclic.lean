@@ -100,7 +100,7 @@ private theorem projective_eq_lower_or_upper_of_weak
         lowerEdgeProjectiveEndpoint B ha hb hc hncol pick e ∨
       Projectivization.mk ℝ y hy0 =
         upperEdgeProjectiveEndpoint B ha hb hc hncol pick e := by
-  letI : Nonempty {j : Line B // j ≠ e.1.1.1} := ⟨pick e.1.1.1⟩
+  let : Nonempty {j : Line B // j ≠ e.1.1.1} := ⟨pick e.1.1.1⟩
   let n := otherNormals (normals B) e.1.1.1
   let s := e.1.1.2
   let h := normals B e.1.1.1

@@ -123,7 +123,7 @@ theorem regularClusters_forest_embedding_weighted
         intro S hS
         induction' S using Finset.strongInduction with S ih S ih;
         by_cases hS_empty : S = ∅;
-        · simp [hS_empty];
+        · simp only [mem_image, mem_filter, mem_univ, true_and, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂];
           contrapose! hcap;
           exact False.elim ( hcap.2.elim ( Classical.choose ( hne ( clu hcap.1.some ) ) ) );
         · obtain ⟨a, haS, ha_max⟩ : ∃ a ∈ S, ∀ b ∈ S, rank b ≤ rank a := by

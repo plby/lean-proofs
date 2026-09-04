@@ -88,7 +88,7 @@ theorem forcedPairEquationLinear_surjective
       · simp [hpF, ha0]
       · by_cases hb0 : b p.val = 0
         · simp [hpF, ha0, hb0]
-        · letI : Fact p.val.Prime := ⟨hprime p.val p.property⟩
+        · let : Fact p.val.Prime := ⟨hprime p.val p.property⟩
           have hapos : 0 < a p.val := Nat.pos_of_ne_zero ha0
           have hap : a p.val < p.val :=
             (ha p.val p.property).trans (hKp p.val p.property)
@@ -134,11 +134,11 @@ theorem globalForcedPairLattice_index
     (hKp : ∀ p ∈ P, K < p) :
     Nat.card ((Fin 2 → ℤ) ⧸ globalForcedPairLattice P F a b hFP) =
       primeProduct P * primeProduct F := by
-  letI : ∀ p : {p // p ∈ P}, NeZero p.val :=
+  let : ∀ p : {p // p ∈ P}, NeZero p.val :=
     fun p ↦ ⟨(hprime p.val p.property).ne_zero⟩
-  letI : ∀ p : {p // p ∈ F}, NeZero p.val :=
+  let : ∀ p : {p // p ∈ F}, NeZero p.val :=
     fun p ↦ ⟨(hprime p.val (hFP p.property)).ne_zero⟩
-  letI : Finite (ForcedPairEquationSpace P F) := inferInstance
+  let : Finite (ForcedPairEquationSpace P F) := inferInstance
   let f := globalForcedPairEquationLinear P F a b hFP
   have hf : Function.Surjective f :=
     globalForcedPairEquationLinear_surjective P F a b hFP hzeroF hprime ha hb hKp

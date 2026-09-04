@@ -34,7 +34,7 @@ theorem affinePrimesAbove_card_le_sieveDenominator
   let t := progressionSievePrimes q Q
   have ht (p : t) : p.1.Prime ∧ p.1 ≤ Q ∧ ¬ p.1 ∣ q :=
     mem_progressionSievePrimes.mp p.2
-  letI : ∀ p : t, NeZero p.1 := fun p => ⟨(ht p).1.ne_zero⟩
+  let : ∀ p : t, NeZero p.1 := fun p => ⟨(ht p).1.ne_zero⟩
   have hcop (p : t) : q.Coprime p.1 :=
     ((ht p).1.coprime_iff_not_dvd.mpr (ht p).2.2).symm
   let c (p : t) : (ZMod p.1)ˣ := ZMod.unitOfCoprime q (hcop p)
@@ -112,7 +112,7 @@ lemma dyadicPrimeResidueCount_le_affine
     (N q Q : ℕ) (a : ZMod q) (hq : 0 < q) (hqN : q ≤ N) (hQN : Q ≤ N) :
     dyadicPrimeResidueCount N q a ≤ (affinePrimesAbove q a.val 0 (2 * N / q) Q).card := by
   classical
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let S := (dyadicPrimes N).filter fun p : ℕ => (p : ZMod q) = a
   have hdecomp {p : ℕ} (hp : p ∈ S) : q * (p / q) + a.val = p := by
     have ha := congrArg ZMod.val (Finset.mem_filter.mp hp).2

@@ -67,7 +67,7 @@ private theorem alg_fix_general
     (hroots : (primitiveRoots n K).Nonempty)
     (sigma : E ≃ₐ[K] E) (q : Eˣ) (hq : q ^ n = 1) :
     Units.map sigma q = q := by
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   let eta : rootsOfUnity n E := ⟨q, (mem_rootsOfUnity n q).2 hq⟩
   let e : rootsOfUnity n K ≃* rootsOfUnity n E :=
     rootsOfUnityEquivOfPrimitiveRoots (algebraMap K E).injective hroots
@@ -265,7 +265,7 @@ theorem radical_kummer_character
     radicalKummerCharacter K Omega n L hn hroots (sigma * tau) =
       radicalKummerCharacter K Omega n L hn hroots sigma *
         radicalKummerCharacter K Omega n L hn hroots tau := by
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   apply MonoidHom.ext
   intro b
   apply Units.ext
@@ -322,7 +322,7 @@ def radicalKummerPairing
   toFun b :=
     { toFun := fun sigma ↦ radicalKummerCharacter K Omega n L hn hroots sigma b
       map_one' := by
-        letI : NeZero n := ⟨hn.ne'⟩
+        let : NeZero n := ⟨hn.ne'⟩
         apply Units.ext
         change (((radicalRootCharacter K Omega n L hn hroots 1) b : Kˣ) : K) = 1
         have honeF :
@@ -361,7 +361,7 @@ theorem kummer_pairing_injective
     (hn : 0 < n)
     (hroots : (primitiveRoots n K).Nonempty) :
     Function.Injective (radicalKummerPairing K Omega n L hn hroots) := by
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   rw [injective_iff_map_eq_one]
   intro b hb
   let r : L.carrierˣ := radicalRootUnit K Omega n L b
@@ -418,7 +418,7 @@ theorem radical_kummer_pairing
     (hn : 0 < n)
     (hroots : (primitiveRoots n K).Nonempty) :
     Function.Surjective (radicalKummerPairing K Omega n L hn hroots) := by
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   intro chi
   let chiRoot : Gal(L.carrier/K) →* rootsOfUnity n K :=
     { toFun := fun sigma =>
@@ -564,20 +564,20 @@ theorem radical_classes_finite
     Set.Finite
       ((radicalPowerClasses K Omega n L.carrier :
         Subgroup (PowerClassGroup K n)) : Set (PowerClassGroup K n)) := by
-  letI : Finite Gal(L.carrier/K) := inferInstance
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : Finite Gal(L.carrier/K) := inferInstance
+  let : NeZero n := ⟨hn.ne'⟩
   have hexp : Monoid.exponent Gal(L.carrier/K) ∣ n := by
     exact Monoid.exponent_dvd_of_forall_pow_eq_one L.exponent_dvd
-  letI : HasEnoughRootsOfUnity K n := by
+  let : HasEnoughRootsOfUnity K n := by
     have hprimitive : IsPrimitiveRoot hroots.choose n :=
       (mem_primitiveRoots hn).mp hroots.choose_spec
     exact HasEnoughRootsOfUnity.of_card_le
       (by rw [hprimitive.card_rootsOfUnity])
-  letI : HasEnoughRootsOfUnity K
+  let : HasEnoughRootsOfUnity K
       (Monoid.exponent Gal(L.carrier/K)) :=
     HasEnoughRootsOfUnity.of_dvd K hexp
-  letI : Finite (Gal(L.carrier/K) →* Kˣ) := inferInstance
-  letI : Finite (radicalPowerClasses K Omega n L.carrier) :=
+  let : Finite (Gal(L.carrier/K) →* Kˣ) := inferInstance
+  let : Finite (radicalPowerClasses K Omega n L.carrier) :=
     Finite.of_equiv _ (radicalPairingEquiv K Omega n L hn hroots).symm.toEquiv
   exact Set.finite_def.mpr ⟨Fintype.ofFinite _⟩
 
@@ -590,16 +590,16 @@ theorem radical_classes_finrank
       Module.finrank K L.carrier := by
   have hexp : Monoid.exponent Gal(L.carrier/K) ∣ n := by
     exact Monoid.exponent_dvd_of_forall_pow_eq_one L.exponent_dvd
-  letI : NeZero n := ⟨hn.ne'⟩
-  letI : HasEnoughRootsOfUnity K n := by
+  let : NeZero n := ⟨hn.ne'⟩
+  let : HasEnoughRootsOfUnity K n := by
     have hprimitive : IsPrimitiveRoot hroots.choose n :=
       (mem_primitiveRoots hn).mp hroots.choose_spec
     exact HasEnoughRootsOfUnity.of_card_le
       (by rw [hprimitive.card_rootsOfUnity])
-  letI : HasEnoughRootsOfUnity K
+  let : HasEnoughRootsOfUnity K
       (Monoid.exponent Gal(L.carrier/K)) :=
     HasEnoughRootsOfUnity.of_dvd K hexp
-  letI : CommGroup Gal(L.carrier/K) :=
+  let : CommGroup Gal(L.carrier/K) :=
     { (inferInstance : Group Gal(L.carrier/K)) with mul_comm := mul_comm' }
   calc
     Nat.card (radicalPowerClasses K Omega n L.carrier) =

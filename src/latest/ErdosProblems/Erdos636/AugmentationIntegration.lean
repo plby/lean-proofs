@@ -1573,11 +1573,11 @@ theorem exists_sharedWindowSelection_of_crowd_innerWindowGood
           (fun _ ↦ OuterAssembly.assemblyOffset cW c₀ delta₀ n S.k)
           (fun _ ↦ branch) ell))
       center radius L error B) := by
-  letI : Nonempty
+  let : Nonempty
       (Erdos88.BooleanSlices.BooleanSlicePoint S.U0 nD) :=
     SliceMoments.nonempty_booleanSlicePoint S.U0 nD (by omega)
   let E := Augmentation.boolSliceEquivBooleanSlicePoint S.U0 nD
-  letI : Nonempty (Erdos88.Fourier.BoolSlice S.U0 nD) :=
+  let : Nonempty (Erdos88.Fourier.BoolSlice S.U0 nD) :=
     E.nonempty_congr.mpr inferInstance
   apply exists_sharedWindowSelection S.U0 nD (Finset.range (nW + 1))
     (Augmentation.fixedOrderEdgeValues G
@@ -1630,11 +1630,11 @@ theorem exists_sharedWindowSelection_of_crowd_subsequence_innerWindowGood
           (fun _ ↦ OuterAssembly.assemblyOffset cW c₀ delta₀ n S.k)
           (fun _ ↦ branch) ell))
       center radius L error B) := by
-  letI : Nonempty
+  let : Nonempty
       (Erdos88.BooleanSlices.BooleanSlicePoint S.U0 nD) :=
     SliceMoments.nonempty_booleanSlicePoint S.U0 nD (by omega)
   let E := Augmentation.boolSliceEquivBooleanSlicePoint S.U0 nD
-  letI : Nonempty (Erdos88.Fourier.BoolSlice S.U0 nD) :=
+  let : Nonempty (Erdos88.Fourier.BoolSlice S.U0 nD) :=
     E.nonempty_congr.mpr inferInstance
   apply exists_sharedWindowSelection S.U0 nD (Finset.range (m + 1))
     (Augmentation.fixedOrderEdgeValues G

@@ -33,7 +33,7 @@ theorem ncard_eq_sum_baseFiber_activeBaseNodeIndex
       (@Finset.univ (activeBaseNodeIndex S) (activeBaseNodeIndexFintype hS)).sum
         (fun q => (baseFiber S q.1).ncard) := by
   classical
-  letI : Fintype (activeBaseNodeIndex S) := activeBaseNodeIndexFintype hS
+  let : Fintype (activeBaseNodeIndex S) := activeBaseNodeIndexFintype hS
   have hsum := Set.ncard_iUnion_of_finite
     (s := fun q : activeBaseNodeIndex S => baseFiber S q.1)
     (fun q => hS.subset (baseFiber_subset S q.1))
@@ -94,9 +94,9 @@ theorem edge_card_eq_sum_baseFiberIndex_card
         (@Finset.univ (activeBaseNodeIndex f.edgeImage)
           (activeBaseNodeIndexFintype (Set.finite_range f.edge)))
         (fun q => @Fintype.card (baseFiberIndex f q.1) (baseFiberIndexFintype f q.1)) := by
-  letI : Fintype (activeBaseNodeIndex f.edgeImage) :=
+  let : Fintype (activeBaseNodeIndex f.edgeImage) :=
     activeBaseNodeIndexFintype (Set.finite_range f.edge)
-  letI : (q : activeBaseNodeIndex f.edgeImage) -> Fintype (baseFiberIndex f q.1) :=
+  let : (q : activeBaseNodeIndex f.edgeImage) -> Fintype (baseFiberIndex f q.1) :=
     fun q => baseFiberIndexFintype f q.1
   calc
     Fintype.card E = Fintype.card

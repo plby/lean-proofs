@@ -103,12 +103,12 @@ private lemma finite_hoeffding
     (hX : ∀ a, X a ∈ Set.Icc lo hi) (hrange : hi - lo ≤ c) :
     ∑ a, w a * exp (s * (X a - ∑ b, w b * X b)) ≤
       exp (c ^ 2 * s ^ 2 / 8) := by
-  letI : MeasurableSpace A := ⊤
+  let : MeasurableSpace A := ⊤
   let μ : Measure A := Measure.sum fun a ↦ ENNReal.ofReal (w a) • Measure.dirac a
   have hwsum : HasSum w 1 := by
     convert hasSum_fintype w using 1
     exact hw.symm
-  letI : IsProbabilityMeasure μ :=
+  let : IsProbabilityMeasure μ :=
     HasSum.isProbabilityMeasure_sum_dirac hw₀ hwsum
   have hXmeas : AEMeasurable X μ := by fun_prop
   have hXrange : ∀ᵐ a ∂μ, X a ∈ Set.Icc lo hi := by
@@ -118,7 +118,7 @@ private lemma finite_hoeffding
   have hmgf := hsub.mgf_le s
   have hne : Nonempty A := by
     by_contra hn
-    haveI : IsEmpty A := not_nonempty_iff.mp hn
+    have : IsEmpty A := not_nonempty_iff.mp hn
     simpa using hw
   let a₀ : A := Classical.choice hne
   have hlohi : lo ≤ hi := (hX a₀).1.trans (hX a₀).2
@@ -154,7 +154,7 @@ private lemma finite_hoeffding_of_pairwise
       exp (c ^ 2 * s ^ 2 / 8) := by
   have hne : Nonempty A := by
     by_contra hn
-    haveI : IsEmpty A := not_nonempty_iff.mp hn
+    have : IsEmpty A := not_nonempty_iff.mp hn
     simpa using hw
   let S : Finset ℝ := univ.image X
   have hS : S.Nonempty := by
@@ -431,7 +431,7 @@ theorem lowerTailMass_le_exp
     _ = exp (s ^ 2 * (∑ i, c i ^ 2) / 8 - s * t) := by
       rw [exp_sub]
       congr 1
-      ring
+      ring_nf
 
 /-- Sharp McDiarmid upper tail for an arbitrary explicit finite product. -/
 theorem upperTailMass_le_mcdiarmid

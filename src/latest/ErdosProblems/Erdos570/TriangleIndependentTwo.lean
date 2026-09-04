@@ -188,7 +188,7 @@ theorem triangle_independent_degree_two_contradiction
     exact (card_commonCandidates_le_of_mem cross _ hz).trans_eq
       (by simpa [G] using hcrossCard z)
   have hSpos : 0 < S.card := lt_of_lt_of_le hf hfS
-  letI : Nonempty S := Fintype.card_pos_iff.mp (by simpa using hSpos)
+  let : Nonempty S := Fintype.card_pos_iff.mp (by simpa using hSpos)
   have hselected :
       ∃ τ : Equiv.Perm T, ∃ pick : Fin f → S, ∃ choose : Fin f → Y,
         Function.Injective pick ∧ Function.Injective choose ∧

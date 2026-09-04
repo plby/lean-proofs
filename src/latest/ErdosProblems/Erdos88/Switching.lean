@@ -373,11 +373,11 @@ lemma card_rawTupleIndex {J : Type u} [DecidableEq J]
     (labels : Finset J) (a : J → ℕ) :
     Nat.card (RawTupleIndex labels a) = ∑ i ∈ labels, a i := by
   classical
-  letI : Fintype {i // i ∈ labels} :=
+  let : Fintype {i // i ∈ labels} :=
     Fintype.ofFinset labels (fun i ↦ Iff.rfl)
-  letI : ∀ i : {i // i ∈ labels}, Fintype (Fin (a i.1)) :=
+  let : ∀ i : {i // i ∈ labels}, Fintype (Fin (a i.1)) :=
     fun i ↦ Fin.fintype (a i.1)
-  letI : Fintype (RawTupleIndex labels a) := inferInstance
+  let : Fintype (RawTupleIndex labels a) := inferInstance
   rw [Nat.card_eq_fintype_card, Fintype.card_sigma]
   simp_rw [Fintype.card_fin]
   exact Finset.sum_finset_coe a labels
@@ -414,11 +414,11 @@ lemma card_rawTupleFinset {J : Type u} {β : Type v}
     (rawTupleFinset labels a choices).card =
       ∏ i ∈ labels, (choices i).card ^ (a i) := by
   classical
-  letI : Fintype {i // i ∈ labels} :=
+  let : Fintype {i // i ∈ labels} :=
     Fintype.ofFinset labels (fun i ↦ Iff.rfl)
-  letI : ∀ i : {i // i ∈ labels}, Fintype (Fin (a i.1)) :=
+  let : ∀ i : {i // i ∈ labels}, Fintype (Fin (a i.1)) :=
     fun i ↦ Fin.fintype (a i.1)
-  letI : Fintype (RawTupleIndex labels a) := inferInstance
+  let : Fintype (RawTupleIndex labels a) := inferInstance
   rw [rawTupleFinset, Fintype.card_piFinset]
   rw [Fintype.prod_sigma]
   simp_rw [Fin.prod_const]

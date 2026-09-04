@@ -8165,8 +8165,8 @@ noncomputable def connectorCutDefect (H : G.Subgraph) : ℕ :=
 theorem card_connectedComponent_eq_one {W : Type} [Fintype W]
     [DecidableEq W] (J : SimpleGraph W) [DecidableRel J.Adj]
     (hJ : J.Connected) : Fintype.card J.ConnectedComponent = 1 := by
-  letI : Nonempty W := hJ.nonempty
-  letI : Subsingleton J.ConnectedComponent :=
+  let : Nonempty W := hJ.nonempty
+  let : Subsingleton J.ConnectedComponent :=
     hJ.preconnected.subsingleton_connectedComponent
   exact Fintype.card_eq_one_of_forall_eq
     (i := J.connectedComponentMk (Classical.choice (inferInstance : Nonempty W)))
@@ -11241,7 +11241,7 @@ theorem exists_maximal_isolatingCutSide {H : G.Subgraph}
     {a b c : H.verts} (hne : Nonempty (IsolatingCutSide H a b c)) :
     ∃ S : IsolatingCutSide H a b c, S.IsMaximal := by
   classical
-  letI : Nonempty (IsolatingCutSide H a b c) := hne
+  let : Nonempty (IsolatingCutSide H a b c) := hne
   let size : IsolatingCutSide H a b c → ℕ := fun S ↦ S.carrier.card
   have hfinite :
       (size '' (Set.univ : Set (IsolatingCutSide H a b c))).Finite := by

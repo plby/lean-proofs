@@ -75,7 +75,7 @@ theorem ramseyAt_evenBudget_of_sparse_connected
         (oddBudget B (r + 1) H.edgeCount) :=
       ramseyAt_of_graphRamseyNumber_le hQram
     intro C
-    letI : DecidableRel C.Adj := Classical.decRel _
+    let : DecidableRel C.Adj := Classical.decRel _
     by_cases hred : (cycleCode (2 * r + 4)).graph ⊑ C
     · exact Or.inl hred
     by_cases hblueFull : H.graph ⊑ Cᶜ

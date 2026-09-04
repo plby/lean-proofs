@@ -68,7 +68,7 @@ private theorem residueClass_pairwise_disjoint (q : ℕ) :
 private theorem residueClass_hasDensity {q : ℕ} (hq : 0 < q)
     (a : ZMod q) :
     (residueClass q a).HasDensity (1 / (q : ℝ)) := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   apply hasDensity_of_counting_error _ _ 2
   intro n
   have hcard : (residueClass q a ∩ Set.Iio n).ncard =

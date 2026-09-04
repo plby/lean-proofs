@@ -234,7 +234,7 @@ theorem exists_deltaZero_branchClosuresAtScales
         _ = _ := by
           simp only [etaUpperCoefficient, lowBaseRate]
           congr 1
-          ring
+          ring_nf
     rw [hEnvelope]
     rw [show lowBaseRate d epsilon - gridRate d * alpha d =
       lowUpperSaving d epsilon + tau epsilon by

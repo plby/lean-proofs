@@ -2291,7 +2291,7 @@ theorem exists_legalEmbeddingPath_of_rootSchedule
     history.length ≤ depth ∧
       ∀ J : Finset (Fin n), J.card = r - 1 →
         Reserve.localDegree (usedEdges P history) J ≤ Dused
-  letI : DecidablePred good := Classical.decPred _
+  let : DecidablePred good := Classical.decPred _
   have hnonempty : ∀ history, good history →
       (legalEmbeddings P request forbidden history).Nonempty := by
     intro history hgood
@@ -2393,7 +2393,7 @@ theorem exists_legalEmbeddingPath_of_faceLoads
     history.length ≤ depth ∧
       ∀ J : Finset (Fin n), J.card = r - 1 →
         Reserve.localDegree (usedEdges P history) J ≤ Dused
-  letI : DecidablePred good := Classical.decPred _
+  let : DecidablePred good := Classical.decPred _
   have hnonempty : ∀ history, good history →
       (legalEmbeddings P request forbidden history).Nonempty := by
     intro history hgood
@@ -2515,7 +2515,7 @@ theorem exists_legalEmbeddingPath_of_faceLoads_and_extra
     history.length ≤ depth ∧
       ∀ J : Finset (Fin n), J.card = r - 1 →
         Reserve.localDegree (usedEdges P history) J ≤ Dused
-  letI : DecidablePred good := Classical.decPred _
+  let : DecidablePred good := Classical.decPred _
   let hit : Sum (RelevantFaceLoadTarget P n) β →
       List (Fin v ↪ Fin n) → (Fin v ↪ Fin n) → Bool
     | Sum.inl target => faceLoadHit P target

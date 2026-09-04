@@ -74,7 +74,7 @@ theorem exists_parabola_representation {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p
     (h2 : ¬ IsSquare (2 : F p)) (u v : F p) :
     (∃ x y, x + y = u ∧ 3 * x ^ 2 + 6 * y ^ 2 = v) ∨
       ∃ x y, x + y = u ∧ 4 * x ^ 2 + 4 * y ^ 2 = v := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let T : F p := v - 2 * u ^ 2
   by_cases hT : IsSquare T
   · rcases hT with ⟨z, hz⟩
@@ -141,8 +141,8 @@ private lemma value_add_eq_of_carry {p : ℕ} (hp0 : 0 < p) (a b : Parameter p)
     (hlow : a.2.2.val + b.2.2.val = r + p * e)
     (hhigh : high p a + high p b + (e : F p) = (h : F p))
     (hu : u.val = r + p * h) : value p a + value p b = u := by
-  haveI : NeZero p := ⟨Nat.ne_of_gt hp0⟩
-  haveI : NeZero (p ^ 2) := ⟨pow_ne_zero _ (Nat.ne_of_gt hp0)⟩
+  have : NeZero p := ⟨Nat.ne_of_gt hp0⟩
+  have : NeZero (p ^ 2) := ⟨pow_ne_zero _ (Nat.ne_of_gt hp0)⟩
   have hm : (high p a).val + (high p b).val + e ≡ h [MOD p] := by
     rw [← ZMod.natCast_eq_natCast_iff]
     simpa only [Nat.cast_add, ZMod.natCast_zmod_val] using hhigh
@@ -178,10 +178,10 @@ private lemma high_add_eq {p : ℕ} (i j s t : Fin 3) (x y : F p) (q e η h : �
 theorem exists_value_add_eq {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p)
     (h2 : ¬ IsSquare (2 : F p)) (u : ZMod (p ^ 2)) :
     ∃ a b : Parameter p, value p a + value p b = u := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hp0 : 0 < p := hp.pos
-  haveI : NeZero p := ⟨hp.ne_zero⟩
-  haveI : NeZero (p ^ 2) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  have : NeZero p := ⟨hp.ne_zero⟩
+  have : NeZero (p ^ 2) := ⟨pow_ne_zero _ hp.ne_zero⟩
   let r := u.val % p
   let h := u.val / p
   let q := h / 2
@@ -297,7 +297,7 @@ theorem exists_all_parabola_representation {p : ℕ} (hp : p.Prime) (hp11 : 11 �
     (t : F p) (ht : ¬ IsSquare t) (ht1 : t ≠ -1) (u v : F p) :
     ∃ i j : Fin 3, ∃ x y : F p,
       x + y = u ∧ allCoefficient p t i * x ^ 2 + allCoefficient p t j * y ^ 2 = v := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have htwo : (2 : F p) ≠ 0 := two_ne_zero hp hp11
   have ht0 : t ≠ 0 := fun h ↦ ht (h ▸ IsSquare.zero)
   have htadd : t + 1 ≠ 0 := by
@@ -365,8 +365,8 @@ private lemma allValue_add_eq_of_carry {p : ℕ} (hp0 : 0 < p) (t : F p)
     (hlow : a.2.2.val + b.2.2.val = r + p * e)
     (hhigh : allHigh p t a + allHigh p t b + (e : F p) = (h : F p))
     (hu : u.val = r + p * h) : allValue p t a + allValue p t b = u := by
-  haveI : NeZero p := ⟨Nat.ne_of_gt hp0⟩
-  haveI : NeZero (p ^ 2) := ⟨pow_ne_zero _ (Nat.ne_of_gt hp0)⟩
+  have : NeZero p := ⟨Nat.ne_of_gt hp0⟩
+  have : NeZero (p ^ 2) := ⟨pow_ne_zero _ (Nat.ne_of_gt hp0)⟩
   have hm : (allHigh p t a).val + (allHigh p t b).val + e ≡ h [MOD p] := by
     rw [← ZMod.natCast_eq_natCast_iff]
     simpa only [Nat.cast_add, ZMod.natCast_zmod_val] using hhigh
@@ -401,10 +401,10 @@ private lemma allHigh_add_eq {p : ℕ} (t : F p) (i j : Fin 3) (s w : Fin 2)
 theorem exists_allValue_add_eq {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p)
     (t : F p) (ht : ¬ IsSquare t) (ht1 : t ≠ -1) (u : ZMod (p ^ 2)) :
     ∃ a b : AllParameter p, allValue p t a + allValue p t b = u := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hp0 : 0 < p := hp.pos
-  haveI : NeZero p := ⟨hp.ne_zero⟩
-  haveI : NeZero (p ^ 2) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  have : NeZero p := ⟨hp.ne_zero⟩
+  have : NeZero (p ^ 2) := ⟨pow_ne_zero _ hp.ne_zero⟩
   let r := u.val % p
   let h := u.val / p
   have hr : r < p := Nat.mod_lt _ hp0
@@ -435,7 +435,7 @@ def allDigitSetNat (p : ℕ) (t : F p) : Finset ℕ :=
 
 theorem allDigitSetNat_subset_range (p : ℕ) (hp : 0 < p) (t : F p) :
     allDigitSetNat p t ⊆ Finset.range (p ^ 2) := by
-  letI : NeZero (p ^ 2) := ⟨pow_ne_zero _ (Nat.ne_of_gt hp)⟩
+  let : NeZero (p ^ 2) := ⟨pow_ne_zero _ (Nat.ne_of_gt hp)⟩
   intro a ha
   simp only [allDigitSetNat, Finset.mem_image] at ha
   rcases ha with ⟨z, -, rfl⟩
@@ -445,7 +445,7 @@ theorem allDigitSetNat_subset_range (p : ℕ) (hp : 0 < p) (t : F p) :
 theorem allDigitSetNat_cover {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p)
     (t : F p) (ht : ¬ IsSquare t) (ht1 : t ≠ -1) {r : ℕ} (hr : r < p ^ 2) :
     ∃ a ∈ allDigitSetNat p t, ∃ b ∈ allDigitSetNat p t, (a + b) % (p ^ 2) = r := by
-  letI : NeZero (p ^ 2) := ⟨pow_ne_zero _ hp.ne_zero⟩
+  let : NeZero (p ^ 2) := ⟨pow_ne_zero _ hp.ne_zero⟩
   rcases exists_allValue_add_eq hp hp11 t ht ht1 (r : ZMod (p ^ 2)) with ⟨a, b, hab⟩
   refine ⟨(allValue p t a).val, ?_, (allValue p t b).val, ?_, ?_⟩
   · simp only [allDigitSetNat, Finset.mem_image]
@@ -506,7 +506,7 @@ theorem digitSet_carryCover {p r c : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p)
     (hr : r < p ^ 2) (hc : c ≤ 1) :
     ∃ x ∈ digitSet p, ∃ y ∈ digitSet p, ∃ c' ≤ 1,
       x + y + c = r + p ^ 2 * c' := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   rw [digitSet_eq_lift hp hp11]
   exact ModularLift.digit_carryCover hp (allPrimeCoefficientSystem p hp hp11)
     r c hr hc
@@ -519,7 +519,7 @@ def digitRepresentations (p n : ℕ) : Finset (ℕ × ℕ) :=
 local digit set. -/
 theorem digitRepresentations_card_le {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p)
     (n : ℕ) : (digitRepresentations p n).card ≤ 144 := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   rw [digitRepresentations, digitSet_eq_lift hp hp11]
   exact ModularLift.digitRepresentations_card_le hp
     (allPrimeCoefficientSystem p hp hp11) n
@@ -534,7 +534,7 @@ def digitModRepresentations (p r : ℕ) : Finset (ℕ × ℕ) :=
 residue modulo `p^2`. -/
 theorem digitModRepresentations_card_le {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p)
     (r : ℕ) (hr : r < p ^ 2) : (digitModRepresentations p r).card ≤ 144 := by
-  letI : NeZero p := ⟨hp.ne_zero⟩
+  let : NeZero p := ⟨hp.ne_zero⟩
   rw [digitModRepresentations, digitSet_eq_lift hp hp11]
   exact ModularLift.digitModRepresentations_card_le hp
     (allPrimeCoefficientSystem p hp hp11) r hr

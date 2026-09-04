@@ -154,7 +154,8 @@ lemma BigonRerouteBetaSpliceAssembly
       Disjoint piece.relativeInterior
         ({D.vertexPlacement u, D.vertexPlacement Tail.farEndpoint} : Set _) := by
     intro piece hpiece
-    simp [pieces] at hpiece
+    change piece ∈ [Bprefix, Tail.tailArc] at hpiece
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hpiece
     rcases hpiece with hpiece | hpiece
     · subst piece
       rw [Set.disjoint_left]

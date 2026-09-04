@@ -277,7 +277,7 @@ theorem card_lt_two_div_sq_add_one_of_pairwise_agreement
     (L.card : ℝ) < 2 / η ^ 2 + 1 := by
   classical
   have hp : 1 < p := (Fact.out : p.Prime).one_lt
-  letI : NeZero p := ⟨by omega⟩
+  let : NeZero p := ⟨by omega⟩
   by_cases hL : L.Nonempty
   · let q : ℝ := simplexWordScale p ell
     let β : ℝ := (p : ℝ) * τ / ((p : ℝ) - 1)

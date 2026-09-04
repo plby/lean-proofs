@@ -303,7 +303,7 @@ theorem exists_large_biased_binaryFiber
             ((binaryFiber color alpha K).card : ℝ)) =
         ∑ i : Fin r, ((K.filter fun x ↦ color x i = 0).card : ℝ) := by
     exact_mod_cast sum_zeroCoordinateCount_mul_card_binaryFiber color K
-  letI : Nonempty (Fin r) := ⟨⟨0, hr⟩⟩
+  let : Nonempty (Fin r) := ⟨⟨0, hr⟩⟩
   have hweightedCount :
       p * (r : ℝ) * K.card <
         ∑ alpha : Fin r → Fin 2,

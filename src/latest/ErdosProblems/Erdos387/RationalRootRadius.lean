@@ -51,9 +51,9 @@ theorem norm_reverse_artinLPolynomial_root_le_sqrt_of_evenExtensionBound
       ‖(roots.map fun z ↦ z ^ (2 * m)).sum‖ ≤
         C * (p : ℝ) ^ m := by
     intro m hm
-    letI : NeZero (2 * m) := ⟨by omega⟩
+    let : NeZero (2 * m) := ⟨by omega⟩
     let E := FiniteField.Extension (ZMod p) p (2 * m)
-    letI : Fintype E := Fintype.ofFinite E
+    let : Fintype E := Fintype.ofFinite E
     have hexact := extensionTraceSum_eq_neg_artinRootPowerSum
       p (2 * m) coeff hne
     have hsum := hC m hm
@@ -85,7 +85,7 @@ theorem finiteExtensionTraceSum_eq_neg_artinRootPowerSum
       -((artinLPolynomial coeff).reverse.roots.map
         (fun a ↦ a ^ n)).sum := by
   classical
-  letI : Fintype L := Fintype.ofFinite L
+  let : Fintype L := Fintype.ofFinite L
   calc
     (∑ x : L, zeroExtendedTraceWeight coeff x) =
         ∑ x : L, polynomialWeight coeff (minpoly (ZMod p) x) ^

@@ -55,14 +55,14 @@ theorem card_eq_two_mul_add_two_of_complete {j : ℕ} (hj : 0 < j)
   classical
   have hV : Nonempty V := by
     by_contra hV
-    haveI : IsEmpty V := not_nonempty_iff.mp hV
+    have : IsEmpty V := not_nonempty_iff.mp hV
     have hempty : oddCycleLengths G = ∅ := by
       ext n
       simp [oddCycleLengths]
     rw [hempty] at hodd
     simp at hodd
     omega
-  letI : Nonempty V := hV
+  let : Nonempty V := hV
   have hcardLower : 2 * j + 2 ≤ Fintype.card V := by
     let v : V := Classical.choice inferInstance
     have hlt := G.degree_lt_card_verts v

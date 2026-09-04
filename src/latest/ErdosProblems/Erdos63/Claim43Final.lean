@@ -143,7 +143,7 @@ theorem false_of_conflictFree_nonreaching_family
     (hTotalRadius : ballRadius + 2 * connectorRadius ≤ targetRadius) : False := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let Aseed : S → Finset V := fun i ↦ i.1.1.ends
   let Bset : S → Finset V := fun i ↦ i.1.1.adjuster.core
   let Cset : S → Finset V := fun _ ↦ ∅
@@ -348,7 +348,7 @@ theorem false_of_conflictFree_nonreaching_family_bootstrap
     (hTotalRadius : ballRadius + 2 * (connectorRadius + 1) ≤ targetRadius) : False := by
   let originalDecAdj : DecidableRel G.Adj := inferInstance
   classical
-  letI : DecidableRel G.Adj := originalDecAdj
+  let : DecidableRel G.Adj := originalDecAdj
   let Aseed : S → Finset V := fun i ↦ i.1.1.ends
   let Bset : S → Finset V := fun i ↦ i.1.1.adjuster.core
   let Cset : S → Finset V := fun _ ↦ ∅

@@ -67,7 +67,7 @@ theorem gaussPrefixMarkedMixedFourierCoefficient_eq_sum_globalInjective
       ∑ F ∈ (Finset.univ :
           Finset (GaussPrefixMixedDepthTuple N k)).filter p, term F =
         ∑ F : {F : GaussPrefixMixedDepthTuple N k // p F}, term F.1
-    letI : Fintype {F : GaussPrefixMixedDepthTuple N k // p F} :=
+    let : Fintype {F : GaussPrefixMixedDepthTuple N k // p F} :=
       Fintype.ofFinite _
     rw [Finset.sum_subtype
       (p := p)

@@ -1506,7 +1506,7 @@ lemma tendsto_largePrime_reciprocal_difference :
   · funext n
     rw [primeReciprocalSum_eq, primeReciprocalSum_eq]
     ring
-  · ring
+  · ring_nf
 
 /-- Primes above the moving cutoff and at most `n`. -/
 def lowerLargePrimes (n : ℕ) : Finset ℕ :=
@@ -1589,7 +1589,7 @@ noncomputable def oddProgressionResidue (u m : ℕ) : ℕ :=
 
 lemma dvd_oddProgression_iff_modEq {u m j : ℕ} (hm : 0 < m) (hodd : Odd m) :
     m ∣ u + 2 * j ↔ j ≡ oddProgressionResidue u m [MOD m] := by
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   rw [← ZMod.natCast_eq_zero_iff, ← ZMod.natCast_eq_natCast_iff]
   change ((u + 2 * j : ℕ) : ZMod m) = 0 ↔
     (j : ZMod m) = (oddProgressionResidue u m : ZMod m)
@@ -3165,8 +3165,8 @@ lemma card_targetLargeOccurrence (n : ℕ) :
 
 lemma card_sourceLargeOccurrence (δ : ℝ) (n : ℕ) :
     Fintype.card (SourceLargeOccurrence δ n) = sourceLargeCount δ n := by
-  simp [SourceLargeOccurrence, sourceLargeCount, sourceValuation,
-    Finset.sum_attach]
+  simp only [SourceLargeOccurrence, sourceLargeCount, sourceValuation, Fintype.card_sigma,
+    Finset.univ_eq_attach, Fintype.card_fin]
   exact Finset.sum_attach (lowerLargePrimes n)
     (fun p ↦ ∑ i : Fin (approximateLength n),
       (approximateFactor δ n i).factorization p)
@@ -3363,8 +3363,9 @@ lemma sum_targetOccurrence_single (n : ℕ) :
     if p ∈ lowerLargePrimes n then n.factorial.factorization p else 0
   by_cases hp : p ∈ lowerLargePrimes n
   · rw [if_pos hp, Fintype.sum_sigma]
-    simp [TargetLargeOccurrence, targetOccurrencePrime,
-      Finsupp.single_apply, hp]
+    simp only [targetOccurrencePrime, Finsupp.single_apply, Finset.univ_eq_attach,
+      Finset.sum_ite_irrel, Finset.sum_const, Finset.card_univ, Fintype.card_fin,
+      smul_eq_mul, mul_one, mul_zero]
     calc
       (∑ x ∈ (lowerLargePrimes n).attach,
           if (x : ℕ) = p then n.factorial.factorization x else 0) =

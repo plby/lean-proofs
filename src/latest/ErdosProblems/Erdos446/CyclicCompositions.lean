@@ -288,7 +288,7 @@ theorem ofFn_rotateComposition {k : ℕ} {α : Type*} (r : Fin k)
   apply List.ext_get
   · simp
   · intro i hi hi'
-    haveI : NeZero k := NeZero.of_pos r.pos
+    have : NeZero k := NeZero.of_pos r.pos
     rw [List.get_rotate]
     simp only [List.length_ofFn, Fin.cast_eq_self, List.get_ofFn,
       rotateComposition_apply, finCycle_apply]

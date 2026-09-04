@@ -300,7 +300,7 @@ theorem closedBall_subset_two_smul_normalizedEuclideanBody
   change normalizedMahlerSeminorm X (WithLp.ofLp x) ≤ 1
   have hnormx : ‖x‖ ≤ ((X.1 : ℝ) + 1)⁻¹ := by
     simpa [Metric.mem_closedBall, dist_zero_right] using hx
-  haveI : Nonempty (Fin X.1) := ⟨⟨0, X.2.rank_pos⟩⟩
+  have : Nonempty (Fin X.1) := ⟨⟨0, X.2.rank_pos⟩⟩
   have hofLp : ‖WithLp.ofLp x‖ ≤ ‖x‖ := by
     rw [pi_norm_le_iff_of_nonempty]
     intro i

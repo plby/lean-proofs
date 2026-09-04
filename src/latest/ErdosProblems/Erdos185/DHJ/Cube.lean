@@ -178,13 +178,13 @@ theorem densityIn_le_one [Fintype η] [Fintype α]
   rw [densityIn, Nat.card_eq_fintype_card]
   cases isEmpty_or_nonempty (η → α) with
   | inl h =>
-      letI := h
+      let := h
       have hp : pullbackFinset U A = ∅ := by
         ext x
         exact isEmptyElim x
       simp [hp]
   | inr h =>
-      letI := h
+      let := h
       have hc : (0 : ℝ) < Fintype.card (η → α) := by
         exact_mod_cast Fintype.card_pos
       rw [div_le_one hc]

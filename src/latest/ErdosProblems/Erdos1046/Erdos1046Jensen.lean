@@ -393,7 +393,7 @@ lemma tendsto_weighted_log_quadratic (t : ℝ) :
       (fun r : ℝ ↦ Real.log (1 - 2 * r * t + r ^ 2) / (2 * r))
       (nhdsWithin 0 ({0}ᶜ : Set ℝ)) (nhds (-t)) := by
     convert hhalf.congr' heq using 1
-    all_goals ring
+    all_goals ring_nf
   have hbaseR := hbase.mono_left (nhdsGT_le_nhdsNE (0 : ℝ))
   have hfac0 : Tendsto (fun r : ℝ ↦ -(1 + r)) (nhds 0) (nhds (-1)) := by
     have hc : ContinuousAt (fun r : ℝ ↦ -(1 + r)) 0 := by fun_prop
@@ -410,10 +410,10 @@ lemma tendsto_weighted_log_quadratic (t : ℝ) :
         (fun r : ℝ ↦ -(1 + r) / (2 * r) * Real.log (quadratic r t)) := by
     filter_upwards with r
     rw [quadratic]
-    ring
+    ring_nf
   have htarget := hout.congr' hevent
   convert htarget using 1
-  all_goals ring
+  all_goals ring_nf
 
 theorem weighted_jensen {n : ℕ} (hn : 0 < n) {h : ℝ} (hh : 0 < h) (ρ : Fin n → ℂ)
     (hρ : ∀ i, ‖ρ i‖ = 1)

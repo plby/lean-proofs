@@ -193,11 +193,15 @@ theorem card_sq_le_indepNum_mul_card_add_twice_edges
       have hcs := Finset.sum_mul_sq_le_sq_mul_sq Finset.univ
         (fun v : V => 1 / Real.sqrt (G.degree v + 1))
         (fun v : V => Real.sqrt (G.degree v + 1))
-      simp_all +decide
-        [Real.sq_sqrt (add_nonneg (Nat.cast_nonneg _) zero_le_one)]
+      simp_all +decide only [Nat.cast_add, Nat.cast_one, one_div, ge_iff_le,
+        Real.sq_sqrt (add_nonneg (Nat.cast_nonneg _) zero_le_one)]
       simp_all +decide
         [ne_of_gt (Real.sqrt_pos.mpr
           (add_pos_of_nonneg_of_pos (Nat.cast_nonneg _) zero_lt_one))]
+      have hsqrt (v : V) :
+          Real.sqrt ((G.degree v : ℝ) + 1) ^ 2 = (G.degree v : ℝ) + 1 :=
+        Real.sq_sqrt (by positivity)
+      simp_rw [hsqrt] at hcs
       exact div_le_of_le_mul₀
         (Finset.sum_nonneg fun _ _ => by positivity)
         (Finset.sum_nonneg fun _ _ => by positivity)

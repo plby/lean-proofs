@@ -25,7 +25,7 @@ theorem exists_growing_interval_cover :
   let targets := primeInterval x Y
   let reserve := primeInterval x (K * x)
   let smooth := Nat.smoothNumbersUpTo Y (growingRandomEnd x + 1)
-  letI : ∀ l : sieve, Fact l.val.Prime :=
+  let : ∀ l : sieve, Fact l.val.Prime :=
     fun l => ⟨(ArithmeticFibers.mem_primeWindow.mp l.property).1⟩
   obtain ⟨a, b, hmiss⟩ := hprimeCover
   let missed := remainingPrimeTargets sieve sources targets Y a b

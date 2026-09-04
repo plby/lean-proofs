@@ -2764,7 +2764,7 @@ lemma finiteEnergy_succ_recurrence {a : ℕ → ℝ} {ε : ℝ}
   rw [sum_range_succ]
   norm_num only [Nat.cast_add, Nat.cast_one, mul_zero, sub_zero]
   congr 3
-  · ring
+  · ring_nf
 
 lemma finiteEnergy_one {a : ℕ → ℝ} {ε : ℝ}
     (hanti : Antitone a) (ha₀ : ∀ n, 0 ≤ a n) (haε : ∀ n, a n ≤ ε) :

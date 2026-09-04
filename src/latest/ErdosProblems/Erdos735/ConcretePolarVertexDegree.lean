@@ -352,7 +352,7 @@ theorem concreteVertexEdges_card_eq
     ∀ v : Vertex B,
       (concreteVertexEdges hspan v).card =
         2 * lineMultiplicity (OnLine B) v.1 := by
-  letI : Nonempty (Line B) := ⟨⟨a, ha⟩⟩
+  let : Nonempty (Line B) := ⟨⟨a, ha⟩⟩
   dsimp only
   intro v
   let hspan := span_normalVec_range_eq_top_of_noncollinear_triple B ha hb hc hncol

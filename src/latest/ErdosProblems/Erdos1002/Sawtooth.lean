@@ -257,7 +257,8 @@ theorem sawtooth_fourierCoeff_zero :
     fourierCoeffOn (show (0 : ℝ) < 1 by norm_num)
         (fun x : ℝ => (sawtooth x : ℂ)) 0 = 0 := by
   rw [fourierCoeffOn_eq_integral]
-  simp
+  simp only [sub_zero, ne_eq, one_ne_zero, not_false_eq_true, div_self, neg_zero, fourier_apply, zero_smul,
+    AddCircle.toCircle_zero, OneMemClass.coe_one, smul_eq_mul, one_mul, one_smul]
   rw [intervalIntegral.integral_ofReal, integral_sawtooth_zero]
   norm_num
 
@@ -309,7 +310,8 @@ theorem bernoulliMark_fourierCoeff_zero :
     fourierCoeffOn (show (0 : ℝ) < 1 by norm_num)
         (fun x : ℝ => (bernoulliMark x : ℂ)) 0 = (1 / 12 : ℂ) := by
   rw [fourierCoeffOn_eq_integral]
-  simp
+  simp only [sub_zero, ne_eq, one_ne_zero, not_false_eq_true, div_self, neg_zero, fourier_apply, zero_smul,
+    AddCircle.toCircle_zero, OneMemClass.coe_one, smul_eq_mul, one_mul, one_smul, one_div]
   rw [intervalIntegral.integral_ofReal, integral_bernoulliMark]
   norm_num
 

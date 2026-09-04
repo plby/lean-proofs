@@ -778,7 +778,7 @@ theorem isLinearForest_deleteEdges_of_isAcyclic
     {F : SimpleGraph V} (hdegree : ∀ v, F.degree v ≤ 2)
     (D : Set (Sym2 V)) (hacyclic : (F.deleteEdges D).IsAcyclic) :
     Erdos622.SimpleGraph.IsLinearForest (F.deleteEdges D) := by
-  letI : DecidableRel (F.deleteEdges D).Adj := Classical.decRel _
+  let : DecidableRel (F.deleteEdges D).Adj := Classical.decRel _
   refine ⟨hacyclic, ?_⟩
   intro v
   exact ((F.deleteEdges D).degree_le_of_le (SimpleGraph.deleteEdges_le D)).trans

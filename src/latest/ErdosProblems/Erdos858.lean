@@ -2860,7 +2860,7 @@ lemma twoPrimeChildMass_profile_error {N n : ℕ} (hn : 1 < n)
         |twoPrimeChildMass N n - (S + D)| + |(S + D) - twoPrimeProfile u| := htri
     _ ≤ 6 * ε + (|S - (I + B)| + |(I + B) - (twoPrimeProfile u - D)|) := by
       apply add_le_add hmass
-      convert htri2 using 1; ring
+      convert htri2 using 1; ring_nf
     _ ≤ 6 * ε + (2 * ε +
         (4 * (n : ℝ)⁻¹ + (n : ℝ)⁻¹ + (n : ℝ)⁻¹)) := by
       gcongr

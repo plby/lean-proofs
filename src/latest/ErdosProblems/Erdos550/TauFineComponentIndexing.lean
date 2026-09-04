@@ -122,7 +122,7 @@ lemma biUnion_componentNonseedVertices
     Finset.univ.biUnion (fun c : NonseedComponent T S =>
       componentNonseedVertices T S c.1) = Finset.univ \ S := by
   ext v;
-  simp [componentNonseedVertices];
+  simp only [mem_biUnion, mem_univ, true_and, mem_sdiff];
   exact fun hv => ⟨ ⟨ _, Finset.mem_image_of_mem _ ( Finset.mem_sdiff.mpr ⟨ Finset.mem_univ _, hv ⟩ ) ⟩, rfl ⟩
 
 /-

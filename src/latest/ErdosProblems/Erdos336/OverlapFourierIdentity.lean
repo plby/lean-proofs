@@ -62,7 +62,7 @@ lemma sum_card_fiber_mul_card_fiber_eq_card_equal
   simp_rw [Finset.sum_filter]
   simp only [Finset.sum_product]
   rw [Finset.sum_comm]
-  simp
+  simp only [mul_one, Finset.sum_boole, Nat.cast_id, Finset.sum_ite_eq, Finset.mem_univ, ↓reduceIte]
   apply Finset.sum_congr rfl
   intro p hp
   congr 1

@@ -305,7 +305,7 @@ lemma PlaneDrawingDartGeometricClockwiseSectors {V : Type*} [Fintype V]
                     x = D.vertexPlacement v + t • germDirection v i}) →
                   ∃ i : {d : G.Dart // d.toProd.1 = v}, q ∈ sector i) := by
     intro v hv
-    letI : Nonempty {d : G.Dart // d.toProd.1 = v} := hv
+    let : Nonempty {d : G.Dart // d.toProd.1 = v} := hv
     exact
       FinitePlanarClockwiseSuccessorSectors
         (p := D.vertexPlacement v) (ρ := localDiskRadius v)
@@ -917,7 +917,7 @@ lemma PlaneDrawingDartGeometricClockwiseSectors {V : Type*} [Fintype V]
           _hdisjoint, _hcover⟩
       by_cases hfix : (localClockwiseNext d.toProd.2 hv) rev = rev
       · have hdef := hsector_def rev
-        simp [hfix] at hdef
+        simp only [exists_and_left] at hdef
         rcases
           PlanarSlitDiskEndpointConesAvoidRay
             (p := D.vertexPlacement d.toProd.2)
@@ -952,7 +952,7 @@ lemma PlaneDrawingDartGeometricClockwiseSectors {V : Type*} [Fintype V]
         rw [sector_eq_of_nonempty d.toProd.2 hv, hdef]
         simpa using hlower
       · have hdef := hsector_def rev
-        simp [hfix] at hdef
+        simp only [exists_and_left] at hdef
         rcases hdef with ⟨c, s, hnot_pos, hother_eq, hsector_eq⟩
         rcases
           PlanarClockwiseSweptTwoRayEndpointConesInSector
@@ -1005,7 +1005,7 @@ lemma PlaneDrawingDartGeometricClockwiseSectors {V : Type*} [Fintype V]
           _hdisjoint, _hcover⟩
       by_cases hfix : (localClockwiseNext d.toProd.2 hv) rev = rev
       · have hdef := hsector_def rev
-        simp [hfix] at hdef
+        simp only [exists_and_left] at hdef
         rcases
           PlanarSlitDiskEndpointConesAvoidRay
             (p := D.vertexPlacement d.toProd.2)
@@ -1052,7 +1052,7 @@ lemma PlaneDrawingDartGeometricClockwiseSectors {V : Type*} [Fintype V]
         rw [sector_eq_of_nonempty d.toProd.2 hv, hdef]
         simpa using hupper
       · have hdef := hsector_def rev
-        simp [hfix] at hdef
+        simp only [exists_and_left] at hdef
         rcases hdef with ⟨c, s, hnot_pos, hother_eq, hsector_eq⟩
         rcases
           PlanarClockwiseSweptTwoRayEndpointConesInSector
@@ -1188,7 +1188,7 @@ lemma PlaneDrawingDartGeometricClockwiseSectors {V : Type*} [Fintype V]
       simpa using hdef
   · right
     have hdef := hsector_def rev
-    simp [hfix] at hdef
+    simp only [ne_eq, Fin.isValue] at hdef
     rcases hdef with ⟨c, s, hnot_pos, hother_eq, hsector_eq⟩
     refine ⟨c, s, hnot_pos, ?_, ?_⟩
     · change germDirection d.toProd.2 nxt =

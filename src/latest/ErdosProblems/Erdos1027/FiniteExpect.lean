@@ -243,7 +243,7 @@ lemma expect_indicator_agreesOn {α β : Type*}
     (𝔼 f : α → β, indicator (AgreesOn E g f)) =
       1 / (Fintype.card β : ℚ) ^ E.card := by
   classical
-  letI : Fintype {f : α → β // AgreesOn E g f} :=
+  let : Fintype {f : α → β // AgreesOn E g f} :=
     restrictedExtensionsFintype E g
   rw [Fintype.expect_eq_sum_div_card]
   rw [sum_indicator_eq_card_subtype (fun f : α → β ↦ AgreesOn E g f)]
@@ -261,7 +261,7 @@ lemma expect_indicator_fin_agreesOn {α : Type*} [Fintype α] [DecidableEq α]
     {k : ℕ} (hk : 0 < k) (E : Finset α) (g : α → Fin k) :
     (𝔼 f : α → Fin k, indicator (AgreesOn E g f)) =
       1 / (k : ℚ) ^ E.card := by
-  letI : NeZero k := ⟨hk.ne'⟩
+  let : NeZero k := ⟨hk.ne'⟩
   simpa using expect_indicator_agreesOn E g
 
 /-! ## Exact probabilities for fair Boolean colourings -/

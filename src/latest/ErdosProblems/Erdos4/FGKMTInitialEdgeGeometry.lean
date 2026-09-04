@@ -118,7 +118,7 @@ theorem translatedInitialEdgeLaw_pair_source_unique (h : Fin k → ℕ) (hh : Fu
   · simpa [hempty] using he
   rcases translatedInitialEdgeLaw_support ell h hY targets μ' p' a e' hepos' with hempty | ⟨n', _, _, hn'⟩
   · simpa [hempty] using he'
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hsame := translatedSites_common_point_unique h hp hp' (Ne.symm hne)
     (natCast_shifts_injective h hh hbound)
     ((mem_initialTargetEdge h p Y targets n.val q).mp (hn ▸ he.1))

@@ -124,7 +124,7 @@ theorem rimWalk_getVert (C : LongestOddCycle G) (x : Fin C.length)
     C.copy (x + ⟨i % C.length,
       Nat.mod_lt _ (Nat.zero_lt_of_lt C.three_le)⟩)
   congr 1
-  letI : NeZero C.length :=
+  let : NeZero C.length :=
     ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt C.three_le)⟩
   let a : Fin C.length := ⟨i % C.length,
     Nat.mod_lt _ (Nat.zero_lt_of_lt C.three_le)⟩
@@ -154,7 +154,7 @@ theorem hubArc_cycleAtLength (C : LongestOddCycle G) {t : V}
     (ht : t ∈ C.carrierᶜ) {x y : Fin C.length}
     (hxy : y ≠ x) (htx : G.Adj t (C.copy x)) (hty : G.Adj t (C.copy y)) :
     CycleAtLength G ((y - x).val + 2) := by
-  letI : NeZero C.length := ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt C.three_le)⟩
+  let : NeZero C.length := ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt C.three_le)⟩
   let d := (y - x).val
   have hdpos : 0 < d := by
     by_contra h
@@ -367,7 +367,7 @@ theorem selected_neighbors_have_long_arc (C : LongestOddCycle G) {t : V}
     (hcount : (oddCycleLengths G).ncard ≤ j) {x : Fin C.length} (hx : x ∈ X) :
     ∃ y ∈ X, (y - x).val + 2 = C.length := by
   classical
-  letI : NeZero C.length :=
+  let : NeZero C.length :=
     ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt C.three_le)⟩
   let D := X.erase x
   let O := D.filter fun y => Odd (y - x).val
@@ -454,7 +454,7 @@ theorem selected_neighbors_have_long_arc (C : LongestOddCycle G) {t : V}
 
 theorem finRotate_sq_eq_of_long_arc {n : ℕ} (hn : 3 ≤ n) {x y : Fin n}
     (h : (y - x).val + 2 = n) : (finRotate n ^ 2) y = x := by
-  letI : NeZero n := ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt hn)⟩
+  let : NeZero n := ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt hn)⟩
   have hadd : y + (2 : Fin n) = x := by
     have hz : y - x + (2 : Fin n) = 0 := by
       apply Fin.ext
@@ -485,7 +485,7 @@ theorem selected_neighbors_eq_univ (C : LongestOddCycle G) {t : V}
     (hXsub : X ⊆ neighborIndices C t) (hXcard : X.card = 2 * j + 1)
     (hcount : (oddCycleLengths G).ncard ≤ j) : X = Finset.univ := by
   classical
-  letI : NeZero C.length :=
+  let : NeZero C.length :=
     ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt C.three_le)⟩
   let r : Equiv.Perm (Fin C.length) := finRotate C.length
   let σ : Equiv.Perm (Fin C.length) := r ^ 2

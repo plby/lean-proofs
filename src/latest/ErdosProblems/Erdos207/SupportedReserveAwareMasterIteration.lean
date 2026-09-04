@@ -52,7 +52,7 @@ theorem FiniteLaw.SupportedOn.jointBind_masterCoverStep_of_jointLink
   intro z hz
   have hzstate := (hstateJoint z hz).1
   have hzlink := hlink z hz
-  letI : DecidableRel (G z.1).Adj := Classical.decRel (G z.1).Adj
+  let : DecidableRel (G z.1).Adj := Classical.decRel (G z.1).Adj
   exact hzlink.isMasterCoverStep hzstate.1 hzstate.2.1 hzstate.2.2
 
 /-- Probability-level reserve-aware master update when cover validity is

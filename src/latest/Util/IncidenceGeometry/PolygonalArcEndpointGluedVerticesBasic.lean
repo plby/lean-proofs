@@ -44,7 +44,8 @@ lemma PolygonalArcEndpointGluedVerticesBasic
     | cons Γ rest ih =>
         cases rest with
         | nil =>
-            simp
+            simp only [List.map_cons, List.map_nil, List.flatten_cons, List.flatten_nil, List.append_nil,
+    List.getLast?_singleton, Option.map_some]
             rw [List.getLast?_tail]
             have hne : Γ.vertices.length ≠ 1 := by
               have hΓ := Γ.length_ge_two

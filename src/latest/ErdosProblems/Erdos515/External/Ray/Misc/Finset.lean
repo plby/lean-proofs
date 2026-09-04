@@ -29,7 +29,7 @@ public def pop (N : Finset ℕ) :=
 
 /-- `push` almost cancels `pop` -/
 public theorem push_pop {N : Finset ℕ} : push (pop N) = insert 0 N := by
-  rw [push, pop]; apply Finset.ext; simp
+  rw [push, pop]; apply Finset.ext; simp only [Finset.mem_insert, Finset.mem_image, Finset.mem_erase, ne_eq, exists_exists_and_eq_and]
   intro n; by_cases n0 : n = 0; · rw [n0]; simp
   simp_rw [or_iff_right n0]
   constructor
@@ -74,7 +74,7 @@ public theorem push_prod {a : H} {f : ℕ → H} {N : Finset ℕ} :
 
 /-- The range of `push` is `Finset`s containing 0 -/
 theorem push_range : Set.range push = {N : Finset ℕ | 0 ∈ N} := by
-  rw [Set.range]; apply Set.ext; simp; intro N; constructor
+  rw [Set.range]; apply Set.ext; simp only [Set.mem_ofPred_eq]; intro N; constructor
   · intro h; rcases h with ⟨M, H⟩; rw [push] at H; rw [← H]; exact Finset.mem_insert_self 0 _
   · intro N0; exists pop N; rw [push_pop]; exact Finset.insert_eq_of_mem N0
 

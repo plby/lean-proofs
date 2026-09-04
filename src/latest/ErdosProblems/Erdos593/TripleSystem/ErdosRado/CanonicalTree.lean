@@ -123,7 +123,7 @@ noncomputable def treeRank (a : TraceCarrier) : Ordinal :=
 
 theorem treeRank_lt_of_predecessor {b a : TraceCarrier}
     (h : T.predecessor b a) : T.treeRank b < T.treeRank a := by
-  letI : IsWellFounded TraceCarrier T.predecessor :=
+  let : IsWellFounded TraceCarrier T.predecessor :=
     { wf := T.predecessor_wellFounded }
   exact IsWellFounded.rank_lt_of_rel h
 
@@ -132,7 +132,7 @@ theorem treeRank_eq_iSup (a : TraceCarrier) :
       ⨆ b : {b : TraceCarrier // T.predecessor b a},
         Order.succ (T.treeRank b) := by
   unfold treeRank
-  letI : IsWellFounded TraceCarrier T.predecessor :=
+  let : IsWellFounded TraceCarrier T.predecessor :=
     { wf := T.predecessor_wellFounded }
   exact IsWellFounded.rank_eq _ _
 

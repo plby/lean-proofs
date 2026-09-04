@@ -43,8 +43,9 @@ lemma norm_extra_acceleration (n : ℕ) (b : Bool) (t : ℝ) :
         (((((n + 1 : ℕ) : ℝ) / n : ℂ) * Complex.I) ^ 2) *
         Complex.exp ((((n + 1 : ℕ) : ℝ) * (t / n) : ℂ) * Complex.I)‖ =
       extraAccelerationBound n := by
-  simp [extraAccelerationBound, norm_mul, Complex.norm_exp, Real.norm_eq_abs,
-    abs_div, abs_sign, abs_of_nonneg]
+  simp only [Complex.ofReal_div, Nat.cast_add, Nat.cast_one, Complex.ofReal_add, Complex.ofReal_natCast,
+    Complex.ofReal_one, Complex.norm_mul, Complex.norm_div, Complex.norm_real, Real.norm_eq_abs, norm_pow,
+    RCLike.norm_natCast, Complex.norm_I, mul_one]
   rw [show ‖((n : ℕ) : ℂ) + 1‖ = (n : ℝ) + 1 by
     rw [← Nat.cast_one, ← Nat.cast_add, Complex.norm_natCast]
     norm_num]
@@ -645,7 +646,7 @@ theorem eventually_scaledWeakClose_representatives_adjacent
     convert h using 1
     · funext n
       ring
-    · ring
+    · ring_nf
   have hweak : ∀ᶠ n : ℕ in atTop,
       fineGlobalAccelerationBound k n * (L * weakSpreadScale k n) <
         velocityLower / 4 :=
@@ -1033,7 +1034,7 @@ lemma uniformChooseMoment_halfFactoredTruncatedLocalMinimumCount
   intro s _hs
   unfold uniformExpectation uniformProbability
   congr 1
-  simp
+  simp only [sum_boole, Nat.cast_inj]
   apply congrArg Finset.card
   ext e
   simp

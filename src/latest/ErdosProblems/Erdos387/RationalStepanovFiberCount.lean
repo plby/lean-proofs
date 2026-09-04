@@ -75,9 +75,9 @@ theorem card_nonpole_trace_fiber_le
         (InverseRational.poleSupport coeff).card := by
   classical
   let E := FiniteField.Extension (ZMod p) p (2 * (h + 3))
-  letI : CharP E p :=
+  let : CharP E p :=
     (Algebra.charP_iff (ZMod p) E p).mp (ZMod.charP p)
-  letI : Fintype E := Fintype.ofFinite E
+  let : Fintype E := Fintype.ofFinite E
   let A : E[X] := mappedSimplePoleNumeratorPolynomial coeff
   let B : E[X] := mappedSimplePoleDenominatorPolynomial coeff
   let lowN := lowRationalNumerator p (h + 3) A B

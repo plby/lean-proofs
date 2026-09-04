@@ -44,7 +44,7 @@ theorem card_localShiftedBlockHitSet_of_not_dvd_le
     (hp : p.Prime) (ha : a < K) (hKp : K < p) (hpj : ¬p ∣ j) :
     (localShiftedBlockHitSet p K j a).card ≤ K - 1 := by
   classical
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let s := localShiftedBlockHitSet p K j a
   let u := (Finset.range K).erase a
   have hjz : (j : ZMod p) ≠ 0 := by
@@ -129,7 +129,7 @@ theorem card_shiftedRootBoxHitTupleSet_le
     (shiftedRootBoxHitTupleSet P K j a hprime).card ≤
       rootBoxLocalWeight P K j := by
   classical
-  letI (p : ↥P) : NeZero p.1 := ⟨(hprime p.1 p.2).ne_zero⟩
+  let (p : ↥P) : NeZero p.1 := ⟨(hprime p.1 p.2).ne_zero⟩
   unfold shiftedRootBoxHitTupleSet rootBoxLocalWeight
   rw [Fintype.card_piFinset]
   calc

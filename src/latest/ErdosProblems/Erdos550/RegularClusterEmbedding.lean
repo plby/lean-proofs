@@ -152,7 +152,7 @@ theorem regularClusters_forest_embedding
         intro S hS
         induction' S using Finset.strongInduction with S ih S ih;
         by_cases hS_empty : S = ∅;
-        · simp [hS_empty];
+        · simp only [mem_image, mem_filter, mem_univ, true_and, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂];
           contrapose! hcap;
           exact False.elim ( hcap.2.elim ( Classical.choose ( hne ( clu hcap.1.some ) ) ) );
         · obtain ⟨a, haS, ha_max⟩ : ∃ a ∈ S, ∀ b ∈ S, rank b ≤ rank a := by
@@ -185,7 +185,8 @@ theorem regularClusters_forest_embedding
                 grind );
               · grind;
               · exact fun j hj => hne j;
-              · simp +decide [  ];
+              · simp +decide only [mem_image, mem_filter, mem_univ, true_and, forall_exists_index, and_imp,
+    forall_apply_eq_imp_iff₂];
                 exact fun b hb => huni _ _ ( hhom _ _ hb |> SimpleGraph.Adj.symm );
             refine' ⟨ fun x => if x = a then w else f' x, _, _, _, _ ⟩ <;> simp +decide [ Set.InjOn, * ];
             · intro x₁ hx₁ x₂ hx₂ h; by_cases hx₁a : x₁ = a <;> by_cases hx₂a : x₂ = a <;> simp +decide [ hx₁a, hx₂a ] at h ⊢;

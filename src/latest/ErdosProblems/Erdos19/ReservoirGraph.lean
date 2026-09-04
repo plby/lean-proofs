@@ -17,7 +17,7 @@ theorem exists_graph_realizing_edge_subset {V : Type*} [Fintype V] [DecidableEq 
         ((G.between (X : Set V) (Y : Set V)).edgeFinset ∩ P).card) := by
   classical
   let R := fromEdgeSet (P : Set (Sym2 V))
-  letI : DecidableRel R.Adj := fun x y ↦ Classical.propDecidable (R.Adj x y)
+  let : DecidableRel R.Adj := fun x y ↦ Classical.propDecidable (R.Adj x y)
   have hRG : R ≤ G := by
     intro x y hxy
     have he := hP hxy.1

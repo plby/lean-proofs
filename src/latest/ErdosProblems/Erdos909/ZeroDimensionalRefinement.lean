@@ -23,7 +23,7 @@ theorem exists_disjoint_clopen_refinement
   classical
   cases isEmpty_or_nonempty X with
   | inl hX =>
-      letI : IsEmpty X := hX
+      let : IsEmpty X := hX
       refine ⟨fun _ ↦ ∅, fun _ ↦ isClopen_empty, ?_,
         ?_, fun _ ↦ empty_subset _⟩
       · intro i j hij
@@ -31,7 +31,7 @@ theorem exists_disjoint_clopen_refinement
         exact disjoint_empty ∅
       exact Subsingleton.elim _ _
   | inr hX =>
-      letI : Nonempty X := hX
+      let : Nonempty X := hX
       have hclopenBasis : IsTopologicalBasis {V : Set X | IsClopen V} :=
         hasSmallInductiveDimensionLT_one_iff.mp hzero
       obtain ⟨b, hbsub, hbcount, hb⟩ := hclopenBasis.exists_countable
@@ -49,8 +49,8 @@ theorem exists_disjoint_clopen_refinement
           exact mem_univ x
         obtain ⟨V, hVb, hxV, hVU⟩ := hb.exists_subset_of_mem_open hxi (hU i)
         exact ⟨(V, i), hVb, hVU⟩
-      letI : Countable p := hpcount.to_subtype
-      letI : Nonempty p := hpnonempty.to_subtype
+      let : Countable p := hpcount.to_subtype
+      let : Nonempty p := hpnonempty.to_subtype
       obtain ⟨e, he⟩ : ∃ e : ℕ → p, Function.Surjective e := exists_surjective_nat p
       let F : ℕ → Set X := fun k ↦ (e k : Set X × ι).1
       let a : ℕ → ι := fun k ↦ (e k : Set X × ι).2

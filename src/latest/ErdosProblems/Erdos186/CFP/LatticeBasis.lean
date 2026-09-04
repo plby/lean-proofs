@@ -521,7 +521,7 @@ theorem exists_basis_ambient_abs_le_uniformBasisBound {d : ℕ}
     (hrect : rectangularSubgroup v ≤ Gamma) :
     ∃ b : Basis (Fin d) ℤ Gamma, ∀ i j,
       |((b i : Gamma) : LatticePoint d) j| ≤ (uniformBasisBound v hv : ℤ) := by
-  letI : Fintype (Superlattice v) :=
+  let : Fintype (Superlattice v) :=
     @Fintype.ofFinite (Superlattice v) (finite_superlattice hv)
   let Gamma' : Superlattice v := ⟨Gamma, hrect⟩
   refine ⟨chosenBasis hv Gamma', ?_⟩

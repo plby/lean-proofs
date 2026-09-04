@@ -148,8 +148,8 @@ theorem claim6_1_full
       Nonempty (Claim67Certificate (padGraph R) (padFinset L)
         (2 * c + 1)) := by
   classical
-  letI : DecidableRel W.graph.Adj := W.graph_decidable
-  letI : Std.Symm W.graph.Adj := W.graph.symm
+  let : DecidableRel W.graph.Adj := W.graph_decidable
+  let : Std.Symm W.graph.Adj := W.graph.symm
   dsimp only
   let ι := {Q // Q ∈ W.partition.parts}
   let P : ClusterAssignment (Fin (2 * n - 2)) ι :=

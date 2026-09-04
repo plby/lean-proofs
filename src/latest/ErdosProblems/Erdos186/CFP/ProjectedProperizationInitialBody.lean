@@ -99,7 +99,7 @@ theorem centeredBoxSeminorm_integral_le_iff
     (hradii : ∀ i, 0 < radii i) (z : IntegralPoint r) (k : ℕ) :
     centeredBoxSeminorm radii (integralEmbed z) ≤ (k : ℝ) ↔
       ∀ i, |z i| ≤ (k : ℤ) * (radii i : ℤ) := by
-  letI : Nonempty (Fin r) := ⟨⟨0, hr⟩⟩
+  let : Nonempty (Fin r) := ⟨⟨0, hr⟩⟩
   rw [centeredBoxSeminorm_apply, pi_norm_le_iff_of_nonempty]
   constructor
   · intro h i

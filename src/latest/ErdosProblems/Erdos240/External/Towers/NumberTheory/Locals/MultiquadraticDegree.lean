@@ -187,7 +187,7 @@ theorem square_or_div
     (hq : IsSquare
       (algebraMap L (IntermediateField.adjoin L {α}) q)) :
     IsSquare q ∨ IsSquare (q / p) := by
-  letI : CharZero L :=
+  let : CharZero L :=
     charZero_of_injective_algebraMap (algebraMap k L).injective
   let e := quadraticAdjoinSquare L α p hsq hα
   have hq' : IsSquare (algebraMap L (QuadraticAlgebra L p 0) q) := by
@@ -596,9 +596,9 @@ theorem square_roots_generators
     intro x hx
     obtain ⟨i, hi, rfl⟩ := hx
     exact hαmem i hi
-  letI : Fintype (β '' Set.Iio r) :=
+  let : Fintype (β '' Set.Iio r) :=
     ((Set.finite_Iio r).image β).fintype
-  letI : FiniteDimensional k B := by
+  let : FiniteDimensional k B := by
     dsimp [B]
     apply IntermediateField.finiteDimensional_adjoin
     intro x hx
@@ -634,9 +634,9 @@ theorem adjoin_square_roots
     Module.finrank k (IntermediateField.adjoin k (α '' Set.Iio m)) ≤
       2 ^ r := by
   let A := IntermediateField.adjoin k (α '' Set.Iio m)
-  letI : Fintype (α '' Set.Iio m) :=
+  let : Fintype (α '' Set.Iio m) :=
     ((Set.finite_Iio m).image α).fintype
-  letI : FiniteDimensional k A := by
+  let : FiniteDimensional k A := by
     dsimp [A]
     apply IntermediateField.finiteDimensional_adjoin
     intro x hx
@@ -1262,10 +1262,10 @@ theorem adjoin_distinct_roots
       distinct_square_roots m p α hp hinj hsq
     rw [hgen] at hfinAdjoin
     simpa using hfinAdjoin
-  letI : FiniteDimensional ℚ E := FiniteDimensional.of_finrank_pos (by
+  let : FiniteDimensional ℚ E := FiniteDimensional.of_finrank_pos (by
     rw [hfin]
     positivity)
-  letI : IsGalois ℚ E := galois_square_roots
+  let : IsGalois ℚ E := galois_square_roots
     (α '' Set.Iio m) hgen (by
       intro x hx
       obtain ⟨i, hi, rfl⟩ := hx
@@ -1292,7 +1292,7 @@ theorem minpoly_distinct_square
       distinct_square_roots m p α hp hinj hsq
     rw [hgen] at hfinAdjoin
     simpa using hfinAdjoin
-  letI : FiniteDimensional ℚ E := FiniteDimensional.of_finrank_pos (by
+  let : FiniteDimensional ℚ E := FiniteDimensional.of_finrank_pos (by
     rw [hfin]
     positivity)
   have htop := adjoin_distinct_roots
@@ -1405,14 +1405,14 @@ theorem minpoly_distinct_roots
     (hdvd : g ∣
       (minpoly ℚ (∑ i ∈ Finset.range m, α i)).map (algebraMap ℚ ℚ_[p])) :
     g.natDegree ≤ if p = 2 then 8 else 4 := by
-  letI : Fact (Irreducible g) := ⟨hg⟩
+  let : Fact (Irreducible g) := ⟨hg⟩
   let γ : E := ∑ i ∈ Finset.range m, α i
   have hfin : Module.finrank ℚ E = 2 ^ m := by
     have hfinAdjoin :=
       distinct_square_roots m q α hq hinj hα
     rw [hgen] at hfinAdjoin
     simpa using hfinAdjoin
-  letI : FiniteDimensional ℚ E := FiniteDimensional.of_finrank_pos (by
+  let : FiniteDimensional ℚ E := FiniteDimensional.of_finrank_pos (by
     rw [hfin]
     positivity)
   have hint : IsIntegral ℚ γ := IsIntegral.of_finite ℚ γ

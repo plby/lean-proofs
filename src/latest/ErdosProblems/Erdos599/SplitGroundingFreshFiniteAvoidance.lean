@@ -112,8 +112,8 @@ theorem freshGroundRecordsMeeting_finite
         (L.freshGroundRecordPath hlegal b.1).support by
           rw [hab]
           exact hpickSupport b)
-  letI : Finite S := hS.to_subtype
-  letI : Finite (L.freshGroundRecordsMeeting hlegal S) :=
+  let : Finite S := hS.to_subtype
+  let : Finite (L.freshGroundRecordsMeeting hlegal S) :=
     Finite.of_injective pick hpickInjective
   exact Set.toFinite _
 

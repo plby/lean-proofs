@@ -495,7 +495,7 @@ theorem representative_card_mul_le_restricted_layer
   obtain ⟨a, ha⟩ := hAP
   let F : (↑X × Fin L) → ℤ := fun p ↦
     a + (q : ℤ) * (p.2 : ℕ) + (p.1 : ℤ) + ∑ w ∈ W, w
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   have hFmem : ∀ p : ↑X × Fin L, F p ∈ restrictedSumset s A := by
     rintro ⟨x, i⟩
     have hxD : (x : ℤ) ∈ A \ B := hX x.property
@@ -560,7 +560,7 @@ theorem fixed_sum_representatives_card_mul_le_restricted_layer
   obtain ⟨a, ha⟩ := hAP
   let F : (↑X × Fin L) → ℤ := fun p ↦
     a + (q : ℤ) * (p.2 : ℕ) + (p.1 : ℤ) + ∑ w ∈ W, w
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   have hBT : Disjoint B T := by
     rw [Finset.disjoint_left]
     intro x hxB hxT
@@ -631,7 +631,7 @@ theorem subgroup_coverage_card_mul_le_restricted_layer
     (hfiller : filler ≤ (A \ B).card - T.card)
     (hAP : ContainsAP (restrictedSumset t B) (q : ℤ) L) :
     Nat.card H * L ≤ (restrictedSumset s A).card := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   choose w hwmem hwcast using hcover
   have hwinj : Function.Injective w := by
     intro i j hij
@@ -1163,7 +1163,7 @@ theorem exists_short_richDifference_generator_family
         richDifferenceSubgroup q F D g₀ ∧
       2 ^ k ≤ Nat.card (richDifferenceSubgroup q F D g₀) ∧
       k ≤ Nat.log 2 (Nat.card (richDifferenceSubgroup q F D g₀)) := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let G := richResidues q F D
   let S : Finset (ZMod q) := (G.erase g₀).image fun g ↦ g - g₀
   obtain ⟨l, hlNodup, hlmem, hlchain, hlclosure, hlpow⟩ :=
@@ -1263,7 +1263,7 @@ the refined structural step. -/
 lemma richDifferenceSubgroup_card_dvd
     {q R : ℕ} {D : Finset ℤ} {g₀ : ZMod q} (hq : 0 < q) :
     Nat.card (richDifferenceSubgroup q R D g₀) ∣ q := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   simpa using
     (richDifferenceSubgroup q R D g₀).card_addSubgroup_dvd_card
 
@@ -1318,7 +1318,7 @@ lemma richDifferenceStep_mul_card
 lemma richDifferenceStep_pos
     {q R : ℕ} {D : Finset ℤ} {g₀ : ZMod q} (hq : 0 < q) :
     0 < richDifferenceStep q R D g₀ := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   have hcardpos : 0 < Nat.card (richDifferenceSubgroup q R D g₀) :=
     Nat.card_pos
   have hcardle : Nat.card (richDifferenceSubgroup q R D g₀) ≤ q :=
@@ -1332,7 +1332,7 @@ theorem richDifferenceStep_dvd_int_of_cast_mem
     {q R : ℕ} {D : Finset ℤ} {g₀ : ZMod q} (hq : 0 < q) {z : ℤ}
     (hz : (z : ZMod q) ∈ richDifferenceSubgroup q R D g₀) :
     (richDifferenceStep q R D g₀ : ℤ) ∣ z := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let H := richDifferenceSubgroup q R D g₀
   let h := Nat.card H
   let d := richDifferenceStep q R D g₀
@@ -1483,7 +1483,7 @@ theorem ContainsAP.combine_richDifferenceSubgroup
     ContainsAP (restrictedSumset (t + R * R) (B ∪ T))
       (richDifferenceStep q R (A \ B) g₀ : ℤ)
       (Nat.card (richDifferenceSubgroup q R (A \ B) g₀) * K) := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let H := richDifferenceSubgroup q R (A \ B) g₀
   let h := Nat.card H
   let d := richDifferenceStep q R (A \ B) g₀
@@ -1581,7 +1581,7 @@ theorem regular_card_le_step_of_long_progression
     (hAP : ContainsAP (restrictedSumset t C) (d : ℤ) L)
     (hregular : IsDifferenceDivisor d (A \ C)) :
     (A \ C).card ≤ d := by
-  letI : NeZero d := ⟨hd.ne'⟩
+  let : NeZero d := ⟨hd.ne'⟩
   by_contra hnot
   have hdcard : d < (A \ C).card := Nat.lt_of_not_ge hnot
   have hregne : (A \ C).Nonempty := Finset.card_pos.mp (hd.trans hdcard)
@@ -1945,7 +1945,7 @@ theorem finite_DF95_modular_residue_certificate
   let H := richDifferenceSubgroup q R (A \ B) g₀
   let h := Nat.card H
   let d := richDifferenceStep q R (A \ B) g₀
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   have hd : 0 < d := richDifferenceStep_pos hq
   have hfactor : q = d * h := by
     simpa [H, h, d] using
@@ -2036,7 +2036,7 @@ theorem finite_DF95_modular_structure_of_crude_alignment_fit
       addOrderOf (g - g₀) < R :=
     selected_richDifference_orders_lt_of_layer_capacity hBA hTD hq hR hTbase
       hTother horderLayer horderFill hsmallFew hlong
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let H := richDifferenceSubgroup q R (A \ B) g₀
   let h := Nat.card H
   let d := richDifferenceStep q R (A \ B) g₀
@@ -2144,7 +2144,7 @@ theorem finite_modular_structure_of_richSubgroupBlock
       ContainedInAP (A \ C') start
         (richDifferenceStep q R (A \ B) g₀)
         (N / richDifferenceStep q R (A \ B) g₀ + 1) := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   have hd : 0 < richDifferenceStep q R (A \ B) g₀ := richDifferenceStep_pos hq
   have hh : 0 < Nat.card (richDifferenceSubgroup q R (A \ B) g₀) := Nat.card_pos
   have hfactor : q = richDifferenceStep q R (A \ B) g₀ *
@@ -2201,7 +2201,7 @@ theorem finite_DF95_modular_structure_aligned
       0 < d ∧
       ContainsAP (restrictedSumset (t + k * F) C) (d : ℤ) K ∧
       IsDifferenceDivisor d (A \ C) := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let D := A \ B
   have hF : 0 < F := hR.trans_le hRF
   have hsupportEq : t + (s - (t + 1) + 1) = s := by omega

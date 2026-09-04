@@ -51,7 +51,7 @@ def quadraticOrderNoZeroDivisors {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
 
 def quadraticOrderIsDomain {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     IsDomain (QuadraticAlgebra ℤ d b) := by
-  letI := quadraticOrderNoZeroDivisors hD
+  let := quadraticOrderNoZeroDivisors hD
   exact NoZeroDivisors.to_isDomain _
 
 theorem algebraNorm_quadraticOrder (d b : ℤ) (z : QuadraticAlgebra ℤ d b) :

@@ -66,7 +66,7 @@ theorem radialLabelWordOfList_toList
     (radialLabelWordOfList labels hne hstart hadjacent hbefore hend).toList =
       labels := by
   apply List.ext_get
-  · simp [RadialLabelWord.toList]
+  · simp only [RadialLabelWord.length_toList]
     exact Nat.sub_add_cancel (List.length_pos_iff.mpr hne)
   · intro i hi₁ hi₂
     cases i with

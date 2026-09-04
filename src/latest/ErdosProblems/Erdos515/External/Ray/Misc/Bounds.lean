@@ -65,7 +65,7 @@ theorem late_series_sum {m : ℕ} {N : Finset ℕ} (h : Late N m) (f : ℕ → �
   have NNs : N = Finset.image (fun n ↦ n + m) Ns := by
     apply Finset.ext; intro k
     rw [Finset.image_image, Finset.mem_image]
-    simp
+    simp only [Function.comp_apply]
     apply Iff.intro
     · intro kN; exists k; apply And.intro
       assumption; exact Nat.sub_add_cancel (h k kN)

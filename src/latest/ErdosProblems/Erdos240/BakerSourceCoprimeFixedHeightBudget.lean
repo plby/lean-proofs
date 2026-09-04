@@ -136,7 +136,7 @@ theorem four_thirds_mul_growth_mul_coprime_decay_lt_exp_neg_three_sourceHeight
     _ = (4 / 3 : ℝ) * Real.exp (-(7 / 2 : ℝ) * H) := by
       rw [← Real.exp_add]
       congr 1
-      ring
+      ring_nf
     _ < Real.exp (H / 2) * Real.exp (-(7 / 2 : ℝ) * H) := by
       exact mul_lt_mul_of_pos_right hfactor (Real.exp_pos _)
     _ = Real.exp (-(3 * H)) := by

@@ -380,7 +380,7 @@ theorem exists_basis_with_nested_supports_of_saturated_flag (n : ℕ) :
   | zero =>
       intro N _ ι _ b₀ P _ _
       classical
-      letI := Fintype.ofFinite ι
+      let := Fintype.ofFinite ι
       let b : Basis (Fin (Fintype.card ι)) ℤ N :=
         b₀.reindex (Fintype.equivFin ι)
       let s : Fin 0 → Set (Fin (Fintype.card ι)) := Fin.elim0
@@ -403,7 +403,7 @@ theorem exists_basis_with_nested_supports_of_saturated_flag (n : ℕ) :
         exact hanti (by simpa using hij)
       obtain ⟨κ, instκ, bP, sP, hsPanti, hbP⟩ :=
         ih (N := P₀) (ι := Fin p) bP₀ tail htail_sat htail_anti
-      letI : Fintype κ := instκ
+      let : Fintype κ := instκ
       obtain ⟨Q, hP₀Q⟩ :=
         exists_isCompl_of_isSaturated b₀ P₀ (hsat 0)
       obtain ⟨m, bQ⟩ := Submodule.basisOfPid b₀ Q
@@ -521,7 +521,7 @@ theorem exists_fin_basis_with_nested_supports_realPrefixLattice
   classical
   obtain ⟨κ, instκ, bκ, sκ, hsmono, hs⟩ :=
     exists_basis_with_nested_supports_realPrefixLattice x
-  letI : Fintype κ := instκ
+  let : Fintype κ := instκ
   let e : κ ≃ Fin n := bκ.indexEquiv (Pi.basisFun ℤ (Fin n))
   let b : Basis (Fin n) ℤ (Fin n → ℤ) := bκ.reindex e
   let s : Fin n → Set (Fin n) := fun i ↦ e '' sκ i

@@ -63,8 +63,8 @@ theorem brickFaceRegion_adj_overlap (S : GraphSubdivisionModel (elementaryWall c
 theorem brickFaceRegion_union_robust (S : GraphSubdivisionModel (elementaryWall c r) G)
     (hr : 2 ≤ r) (hc : 2 ≤ c) :
     DeletionOneConnected G (Finset.univ.biUnion (brickFaceRegion S)) := by
-  haveI : NeZero (r - 1) := ⟨by omega⟩
-  haveI : NeZero (c - 1) := ⟨by omega⟩
+  have : NeZero (r - 1) := ⟨by omega⟩
+  have : NeZero (c - 1) := ⟨by omega⟩
   have hconn : (pathGraph (r - 1) □ pathGraph (c - 1)).Connected :=
     (show (pathGraph (r - 1)).Connected from ⟨pathGraph_preconnected _⟩).boxProd
       (show (pathGraph (c - 1)).Connected from ⟨pathGraph_preconnected _⟩)

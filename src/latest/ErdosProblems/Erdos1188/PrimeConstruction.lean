@@ -166,7 +166,7 @@ theorem exists_large_prime_frame_count (m : ℕ) (hm : 6 ≤ m) :
   have hbase : ∀ i : Fin m, nthPrime i.val < P := fun i =>
     lt_of_le_of_lt (basePrimes_le_quarterCapacity hm i) hPt
   have hqprime : ∀ i, Nat.Prime (q i) := extendedPrimeFactors_prime m P hP
-  letI : (i : Fin (m + 1)) → NeZero (q i) := fun i => ⟨(hqprime i).ne_zero⟩
+  let : (i : Fin (m + 1)) → NeZero (q i) := fun i => ⟨(hqprime i).ne_zero⟩
   have hq : ∀ i, 2 ≤ q i := fun i => (hqprime i).two_le
   have hcop := extendedPrimeFactors_pairwise_coprime m P hP hbase
   have hcap : ∀ i : Fin (m + 1), q i - 1 ≤ 2 ^ i.val := by
@@ -205,7 +205,7 @@ theorem exists_large_prime_frame_descFactorial_count (m : ℕ) (hm : 6 ≤ m) :
   have hbase : ∀ i : Fin m, nthPrime i.val < P := fun i =>
     lt_of_le_of_lt (basePrimes_le_quarterCapacity hm i) hPt
   have hqprime : ∀ i, Nat.Prime (q i) := extendedPrimeFactors_prime m P hP
-  letI : (i : Fin (m + 1)) → NeZero (q i) := fun i => ⟨(hqprime i).ne_zero⟩
+  let : (i : Fin (m + 1)) → NeZero (q i) := fun i => ⟨(hqprime i).ne_zero⟩
   have hq : ∀ i, 2 ≤ q i := fun i => (hqprime i).two_le
   have hcop := extendedPrimeFactors_pairwise_coprime m P hP hbase
   have hcap : ∀ i : Fin (m + 1), q i - 1 ≤ 2 ^ i.val := by

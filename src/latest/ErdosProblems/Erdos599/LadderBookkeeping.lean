@@ -437,7 +437,7 @@ theorem obstruction_characterization
       exact ((isStationary_union_iff hcof).mp hstatUnion).resolve_right hregular
   · rintro (he | ⟨i, hi⟩)
     · exact he.mono hexceptional
-    · letI : Nonempty (Stage κ) := ⟨i⟩
+    · let : Nonempty (Stage κ) := ⟨i⟩
       have htailStat : Stationary.IsStationaryBelow κ (Set.Ici i) :=
         (Stationary.isClub_Ici i).isStationary hcof
       exact htailStat.mono (htail i hi)

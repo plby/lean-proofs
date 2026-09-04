@@ -69,7 +69,7 @@ lemma test_integrable_heightDrop_product {eta : ℝ} (heta : 0 < eta) :
   let μ := volume.restrict (Set.uIoc eta (2 * eta))
   have huIoc : Set.uIoc eta (2 * eta) = Set.Ioc eta (2 * eta) :=
     Set.uIoc_of_le (by linarith)
-  letI : IsFiniteMeasure μ := by
+  let : IsFiniteMeasure μ := by
     dsimp only [μ]
     rw [huIoc]
     infer_instance
@@ -289,7 +289,7 @@ lemma test_heightDropKernel_interval_mass_lower {eta c R y : ℝ}
   have hshift : (∫ x in y - D..y + D, heightDropKernel eta (x - y)) =
       ∫ t in -D..D, heightDropKernel eta t := by
     convert (intervalIntegral.integral_comp_sub_right (f := heightDropKernel eta)
-      (a := y - D) (b := y + D) y) using 1 <;> ring
+      (a := y - D) (b := y + D) y) using 1 <;> ring_nf
   rw [hshift] at hmono
   exact hcore.trans hmono
 
@@ -1519,7 +1519,7 @@ lemma test_abs_nodal_on_local_interval_le_amplitude
     nlinarith [mul_le_mul_of_nonneg_left hxabs hradius]
   have hycenter : |y - center| ≤ radius := by
     dsimp only [y]
-    convert hxr using 1 <;> ring
+    convert hxr using 1 <;> ring_nf
   have hy : y ∈ Set.Icc A B := by
     rw [abs_le] at hycenter
     constructor <;> linarith [hycenter.1, hycenter.2]
@@ -2008,7 +2008,7 @@ lemma test_tendsto_affineRatioMajorant (Q : ℕ) (gap M : ℝ) :
     unfold test_affineRatioMajorant
     simp only [div_eq_mul_inv, inv_pow]
     ring
-  · ring
+  · ring_nf
 
 lemma test_affineRatio_le_majorant {n Q : ℕ} {eta gap M : ℝ}
     (hn2 : 2 ≤ n) (hQ : 0 < Q) (hM : 0 ≤ M) (heta : 0 < eta)
@@ -2652,13 +2652,13 @@ lemma test_eventually_localNodeCount_log_window
     convert hfirst.add hsecond using 1
     · funext n
       simp only [div_eq_mul_inv, inv_pow]
-    · ring
+    · ring_nf
   have hLmaxLim : Tendsto (fun n : ℕ ↦ L * test_maxRadius n)
       atTop (𝓝 0) := by
     convert hi3.const_mul L using 1
     · funext n
       simp only [test_maxRadius, inv_pow]
-    · ring
+    · ring_nf
   have hmaxLim : Tendsto test_maxRadius atTop (𝓝 0) := by
     convert hi3 using 1
     funext n
@@ -2740,7 +2740,7 @@ lemma test_scale_le_of_anchor
       dsimp only [F]
       have hexp : Real.exp (rate * h) * Real.exp (-rate * h) = 1 := by
         rw [← Real.exp_add]
-        convert Real.exp_zero using 1 <;> ring
+        convert Real.exp_zero using 1 <;> ring_nf
       symm
       calc
         (2 * nR / h) * Real.exp (rate * h) *
@@ -2946,7 +2946,7 @@ lemma test_abs_nodal_derivative_le_of_controls
       exact hmLower.trans (by exact_mod_cast Nat.le_succ m)
     convert test_exp_div_pow_le_safety (E := E) (r := r)
       (s := 8 * q ^ 2) (m := m + 1) hr
-      (mul_nonneg (by norm_num) (sq_nonneg q)) hmcast using 1 <;> ring
+      (mul_nonneg (by norm_num) (sq_nonneg q)) hmcast using 1 <;> ring_nf
   have htail0 : 0 ≤ tail := by
     dsimp only [tail, Mellipse]
     exact div_nonneg
@@ -3093,7 +3093,7 @@ lemma test_tendsto_derivativeHoriz :
     convert (hi.pow 4) using 1
     · funext n
       simp only [test_derivativeRadius, inv_pow]
-    · ring
+    · ring_nf
   have hbase : Tendsto test_derivativeBase atTop (𝓝 1) := by
     unfold test_derivativeBase
     simpa using tendsto_const_nhds.add hi
@@ -3142,7 +3142,7 @@ lemma test_tendsto_derivativeSlack (gap M : ℝ) :
       convert hi.pow 3 using 1
       · funext n
         simp only [test_maxRadius, inv_pow]
-      · ring
+      · ring_nf
     simpa using hmax.add test_tendsto_derivativeHoriz
   have hfirst := hHabs.const_mul (Real.pi * rhoU)
   have hsecond := (hH.mul hwindow).const_mul (Real.pi * L)
@@ -3465,7 +3465,7 @@ lemma test_eventually_derivative_scalar_controls
     convert hi.pow 4 using 1
     · funext n
       simp only [test_derivativeRadius, inv_pow]
-    · ring
+    · ring_nf
   have hradProductLim : Tendsto
       (fun n : ℕ => (Real.pi * rhoU + 3 * delta / 4) *
         test_derivativeRadius n) atTop (𝓝 0) := by
@@ -3730,7 +3730,7 @@ lemma test_tendsto_shellSteps_div_logScale (Q : ℕ) :
     · simp [hq]
     · field_simp [hq]
       ring
-  · ring
+  · ring_nf
 
 lemma test_shell_terminal_le_maxRadius {Q n : ℕ}
     (hQ : 0 < Q) (hn : 0 < n) (hq : 0 < test_logScale n)
@@ -3805,7 +3805,7 @@ lemma test_tendsto_shell_gain (Q : ℕ) :
     by_cases hq : test_logScale n = 0
     · simp [hq]
     · field_simp [hq]
-  · ring
+  · ring_nf
 
 lemma test_tendsto_shell_edge :
     Tendsto (fun n : ℕ => Real.exp (-(test_logScale n)⁻¹))
@@ -4041,7 +4041,7 @@ lemma test_eventually_geometry_small {d : ℝ} (hd : 0 < d) :
     convert hi.pow 3 using 1
     · funext n
       simp only [test_maxRadius, inv_pow]
-    · ring
+    · ring_nf
   have hsumDeriv : Tendsto (fun n : ℕ =>
       test_maxRadius n + test_derivativeHoriz n) atTop (𝓝 0) := by
     simpa using hmax.add test_tendsto_derivativeHoriz

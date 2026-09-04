@@ -59,7 +59,7 @@ theorem deletionOneConnected_biUnion [Fintype I] (R : I → Finset V)
   have hxU : x.val ∈ U := by
     obtain ⟨hx, hxX⟩ := mem_sdiff.mp x.property
     exact mem_sdiff.mpr ⟨mem_biUnion.mpr ⟨i, mem_univ _, hx⟩, hxX⟩
-  letI : Nonempty (U : Set V) := ⟨⟨x.val, hxU⟩⟩
+  let : Nonempty (U : Set V) := ⟨⟨x.val, hxU⟩⟩
   exact ⟨hpre⟩
 
 end

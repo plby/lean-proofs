@@ -110,7 +110,7 @@ lemma padGraph_chromaticNumber {V : Type u} [Fintype V] {G : SimpleGraph V}
     {n c : ℕ} (hcpos : 0 < c) (hn : Fintype.card V ≤ n)
     (hcol : G.Colorable c) (hnot : ¬G.Colorable (c - 1)) :
     (padGraph G hn).chromaticNumber = (c : ℕ∞) := by
-  letI : NeZero c := ⟨hcpos.ne'⟩
+  let : NeZero c := ⟨hcpos.ne'⟩
   have hpadcol := padGraph_colorable hn hcol
   have hpadnot := padGraph_not_colorable hn hnot
   obtain ⟨c', rfl⟩ : ∃ c', c = c' + 1 := ⟨c - 1, by omega⟩

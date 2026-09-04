@@ -215,7 +215,7 @@ protected theorem concat_nth : ∀ {n : ℕ} (xs : DVec α n) (x : α) (m : ℕ)
   | 0, x, k + 1, _, h => absurd (Nat.lt_of_succ_lt_succ h) (Nat.not_lt_zero _)
   | n + 1, x, 0, _, _ => by simp [DVec.insert, DVec.nth]
   | n + 1, x, k + 1, DVec.cons _ ys, h => by
-    simp [DVec.insert, DVec.nth]
+    simp only [DVec.insert, DVec.nth]
     exact DVec.insert_nth x k ys _
 
 protected theorem insert_cons {n k} {x y : α} {v : DVec α n} :
@@ -319,7 +319,7 @@ protected theorem insert_nth_lt {n k l : ℕ} (x : α) (xs : DVec α n) (h : l <
       cases l with
       | zero => rfl
       | succ l =>
-        simp [DVec.insert, DVec.nth]
+        simp only [DVec.insert, DVec.nth]
         exact ih (Nat.lt_of_succ_lt_succ h) (Nat.lt_of_succ_lt_succ h')
           (Nat.lt_of_succ_lt_succ h2)
 
@@ -350,7 +350,7 @@ protected theorem insert_nth_gt' {n k l : ℕ} (x : α) (xs : DVec α n)
         cases l with
         | zero => exact absurd h2 (by omega)
         | succ l =>
-          simp [DVec.insert, DVec.nth]
+          simp only [DVec.insert, DVec.nth, add_tsub_cancel_right]
           have := ih (k := k) (l := l + 1) (by omega) (Nat.lt_of_succ_lt_succ h') (by omega)
           simp at this ⊢
           convert this using 2 <;> omega

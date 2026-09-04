@@ -56,7 +56,7 @@ theorem squarefreeCanonicalPrimeComponent_apply_eq_castHom
       ZMod.castHom (Nat.dvd_of_mem_primeFactors p.2)
         (ZMod (p : ℕ)) (x i) := by
   classical
-  letI : NeZero (pairedDivisorLcm z) :=
+  let : NeZero (pairedDivisorLcm z) :=
     ⟨(squarefree_pairedDivisorLcm hz).ne_zero⟩
   let hpow :
       (p : ℕ) ^ (pairedDivisorLcm z).factorization p = p :=

@@ -827,7 +827,7 @@ private theorem log_div_log_nthRoot_le
     ring
   have hlog2le : Real.log (2 : ℝ) ≤ Real.log (y : ℝ) :=
     Real.strictMonoOn_log.monotoneOn
-      (by simp) (by simp; positivity) (by exact_mod_cast hy2)
+      (by simp) (by simp only [Set.mem_Ioi, Nat.cast_pos]; positivity) (by exact_mod_cast hy2)
   apply (div_le_iff₀ hlogy).2
   calc
     Real.log (N : ℝ) ≤

@@ -86,10 +86,10 @@ theorem red_F_from_red_H {V : Type*} [DecidableEq V] (Gr : SimpleGraph V)
             ∀ u ∈ U, Gr.Adj v u)).card) :
     Kmult (p + 2) m ⊑ Gr := by
   convert! greedy_multipartite_embedding_ordered Gr ( p + 2 ) m ( Fin.cons S0 ( Fin.cons S1 W ) ) _ _ using 1;
-  · simp +decide [ Fin.forall_fin_succ, * ];
+  · simp +decide only [ne_eq];
     exact ⟨ hHdisj.symm, fun i => ⟨ Disjoint.symm ( hdisjS0W i ), fun _ => Disjoint.symm ( hdisjS1W i ), fun j hij => hdisjW i j hij ⟩ ⟩;
   · intro j U hU hU';
-    rcases j with ( _ | _ | j ) <;> simp_all +decide [  ];
+    rcases j with ( _ | _ | j ) <;> simp_all +decide only [zero_add, Fin.mk_one, Fin.cons_one, Fin.cons_zero];
     · convert! hS1.ge using 1;
       exact congr_arg Finset.card ( Finset.filter_true_of_mem fun v hv => fun u hu => SimpleGraph.Adj.symm ( hHred u ( hU u hu ) v hv ) );
     · convert! hrich ⟨ j, by linarith ⟩ U hU' |> le_trans <| Finset.card_mono _ using 1;
@@ -122,10 +122,10 @@ theorem red_F_from_red_H_ordered {V : Type*} [DecidableEq V] (Gr : SimpleGraph V
   -- Apply the greedy multipartite embedding theorem with the given parameters.
   apply Erdos550.greedy_multipartite_embedding_ordered Gr;
   case C => exact Fin.cons S0 ( Fin.cons S1 R );
-  · simp +decide [ Fin.forall_fin_succ, * ];
+  · simp +decide only [ne_eq];
     exact ⟨ hHdisj.symm, fun i => ⟨ Disjoint.symm ( hdisjS0R i ), fun _ => Disjoint.symm ( hdisjS1R i ), fun j hij => hdisjR i j hij ⟩ ⟩;
   · intro j U hU hUcard;
-    rcases j with ( _ | _ | j ) <;> simp +decide [  ] at *;
+    rcases j with ( _ | _ | j ) <;> simp +decide only [zero_add, Fin.mk_one, Fin.cons_one, Fin.cons_zero] at *;
     · simp_all +decide [ Finset.eq_empty_of_forall_notMem hU ];
     · exact le_trans ( by simp +decide [ hS1 ] ) ( Finset.card_mono <| show S1 ⊆ { v ∈ S1 | ∀ u ∈ U, Gr.Adj v u } from fun v hv => Finset.mem_filter.mpr ⟨ hv, fun u hu => by have := hHred u ( hU u hu ) v hv; exact this.symm ⟩ );
     · convert! hrich ⟨ j, by linarith ⟩ U _ hUcard |> le_trans <| Finset.card_mono _;
@@ -168,7 +168,7 @@ lemma chromaticNumber_Kmult (k : ℕ) (m : Fin k → ℕ) (hpos : ∀ i, 1 ≤ m
   · use fun x => x.1;
     aesop;
   · refine' le_ciInf fun n => _;
-    by_cases hn : n < k <;> simp_all +decide [  ];
+    by_cases hn : n < k <;> simp_all +decide only [Set.mem_ofPred_eq, le_iInf_iff, Nat.cast_le];
     rintro ⟨ f, hf ⟩;
     have h_inj : Function.Injective (fun i : Fin k => f ⟨i, ⟨0, hpos i⟩⟩) := by
       intro i j hij; specialize @hf ⟨ i, ⟨ 0, hpos i ⟩ ⟩ ⟨ j, ⟨ 0, hpos j ⟩ ⟩ ; simp_all +decide [ Kmult ] ;
@@ -212,7 +212,8 @@ lemma bip_sides_res {V : Type*} [DecidableEq V] (Gr : SimpleGraph V)
     ∃ S0 S1 : Finset V, S0 ⊆ Y ∧ S1 ⊆ Y ∧ S0.card = a ∧ S1.card = b ∧
       Disjoint S0 S1 ∧ ∀ u ∈ S0, ∀ v ∈ S1, Gr.Adj u v := by
   obtain ⟨ f, hf ⟩ := h;
-  refine' ⟨ Finset.image ( fun k : Fin a => ( f ( Sum.inl k ) ).val ) Finset.univ, Finset.image ( fun k : Fin b => ( f ( Sum.inr k ) ).val ) Finset.univ, _, _, _, _, _, _ ⟩ <;> simp +decide;
+  refine' ⟨ Finset.image ( fun k : Fin a => ( f ( Sum.inl k ) ).val ) Finset.univ, Finset.image ( fun k : Fin b => ( f ( Sum.inr k ) ).val ) Finset.univ, _, _, _, _, _, _ ⟩ <;> simp +decide only [SetLike.coe_sort_coe, mem_image, mem_univ, true_and, forall_exists_index,
+    forall_apply_eq_imp_iff];
   all_goals norm_num [ Finset.subset_iff, Finset.disjoint_left ];
   · rw [ Finset.card_image_of_injective _ fun x y hxy => by simpa using! hf <| Subtype.ext hxy, Finset.card_fin ];
   · rw [ Finset.card_image_of_injective _ fun x y hxy => _, Finset.card_fin ];
@@ -266,7 +267,7 @@ lemma reservoir_H_free {V : Type*} [Fintype V] [DecidableEq V] (Gr : SimpleGraph
         refine' le_trans ( Finset.sum_le_sum fun x hx => show #({v ∈ R k | ¬Gr.Adj x v}) ≤ ζ from _ ) _;
         · convert! hcross _ _ _ x _ using 1;
           exact if hx0 : x ∈ S0 then i else if hx1 : x ∈ S1 then i else if hx2 : ∃ k' < k, x ∈ R k' then i.succAbove ( Classical.choose hx2 ) else i;
-          · split_ifs <;> simp +decide [  ];
+          · split_ifs <;> simp +decide only [ne_eq, Fin.succAbove_inj];
             exact ne_of_lt ( Classical.choose_spec ‹∃ k' < k, x ∈ R k'› |>.1 );
           · grind;
         · simpa using! Nat.mul_le_mul_right ζ hB;
@@ -294,7 +295,7 @@ lemma sum_monoDeg_eq {V : Type*} [Fintype V] [DecidableEq V] (Gr : SimpleGraph V
     (∑ v, ((Finset.univ.filter (fun u => c u = c v ∧ Gr.Adj v u)).card : ℝ))
       = 2 * ((Gr.edgeFinset.filter (fun e => ∃ u v, e = s(u, v) ∧ c u = c v)).card : ℝ) := by
   convert! congr_arg ( ( ↑ ) : ℕ → ℝ ) ( SimpleGraph.sum_degrees_eq_twice_card_edges ( Gr ⊓ SimpleGraph.fromRel ( fun u v => c u = c v ) ) ) using 1;
-  · simp +decide [ SimpleGraph.degree, SimpleGraph.neighborFinset ];
+  · simp +decide only [Nat.cast_sum];
     congr! 2;
     congr! 1;
     ext; aesop;
@@ -318,7 +319,7 @@ lemma sum_crossAll_eq {V : Type*} [Fintype V] [DecidableEq V] (q : ℕ) (c : V �
       simp +decide only [sum_filter];
       rw [ Finset.sum_comm, Finset.sum_congr rfl ] ; aesop;
     simp_all +decide [ sq ];
-  simp +decide [ ← h_sum_sq, Finset.filter_not, Finset.card_sdiff ];
+  simp +decide only [ne_eq];
   rw [ Finset.sum_congr rfl fun _ _ => Nat.cast_sub <| Finset.card_le_univ _ ] ; simp +decide [ sq ]
 
 /-
@@ -337,7 +338,7 @@ lemma sum_crossBlue_eq {V : Type*} [Fintype V] [DecidableEq V] (Gr : SimpleGraph
     exact Finset.disjoint_filter.mpr ( by aesop );
   have h_crossRed_split : ∀ v, ((Finset.univ.filter (fun u => c u ≠ c v ∧ Gr.Adj v u)).card : ℝ) = (Gr.degree v : ℝ) - ((Finset.univ.filter (fun u => c u = c v ∧ Gr.Adj v u)).card : ℝ) := by
     intro v
-    simp [SimpleGraph.degree, SimpleGraph.neighborFinset];
+    simp only [ne_eq];
     rw [ eq_sub_iff_add_eq ] ; norm_cast ; rw [ ← Finset.card_union_of_disjoint ] ; congr ; ext ; by_cases h : c ‹_› = c v <;> simp +decide [ h ] ;
     exact Finset.disjoint_filter.mpr ( by aesop );
   have h_crossRed_split : (∑ v, ((Finset.univ.filter (fun u => c u ≠ c v ∧ Gr.Adj v u)).card : ℝ)) = 2 * (Gr.edgeFinset.card : ℝ) - (∑ v, ((Finset.univ.filter (fun u => c u = c v ∧ Gr.Adj v u)).card : ℝ)) := by
@@ -367,11 +368,11 @@ lemma reservoir_cleaning {V : Type*} [Fintype V] [DecidableEq V] (Gr : SimpleGra
   refine' ⟨ _, _, _, _, _ ⟩;
   · exact fun i => Finset.filter_subset _ _;
   · simp +contextual [ Finset.disjoint_left ];
-  · simp +contextual [ Finset.filter_filter ];
+  · simp +contextual only [ne_eq, mem_filter, mem_univ, true_and, and_imp];
     intro i w hi h₁ h₂;
     refine' lt_of_le_of_lt ( Finset.card_le_card _ ) h₁;
     simp +contextual [ Finset.subset_iff, SimpleGraph.adj_comm ];
-  · simp +contextual [  ];
+  · simp +contextual only [ne_eq, mem_filter, mem_univ, true_and, and_imp];
     intro i j hij w hw₁ hw₂ hw₃; refine' lt_of_le_of_lt _ hw₃; simp +decide [ Finset.filter_filter ] ;
     refine' Finset.card_mono _ ; intro u hu ; simp_all +decide [ SimpleGraph.adj_comm ] ; aesop;
   · intro i

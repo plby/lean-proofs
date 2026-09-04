@@ -187,9 +187,9 @@ theorem boxMean_cfzCanonicalCarryBlockIndicator_mul_periodic
     fun _ => ⟨0, hq⟩
   let r₀ : FiniteBox (fun _ : CFZVariable k => D) :=
     fun _ => ⟨0, hD⟩
-  letI : Nonempty
+  let : Nonempty
       (FiniteBox (fun _ : CFZVariable k => N / D)) := ⟨a₀⟩
-  letI : Nonempty
+  let : Nonempty
       (FiniteBox (fun _ : CFZVariable k => D)) := ⟨r₀⟩
   have hside :
       (fun _ : CFZVariable k => trimToMultiple D N) =
@@ -293,9 +293,9 @@ theorem boxMean_cfzCanonicalCarryBlockIndicator_mul_periodic_eq_mul
     fun _ => ⟨0, hq⟩
   let r₀ : FiniteBox (fun _ : CFZVariable k => D) :=
     fun _ => ⟨0, hD⟩
-  letI : Nonempty
+  let : Nonempty
       (FiniteBox (fun _ : CFZVariable k => N / D)) := ⟨a₀⟩
-  letI : Nonempty
+  let : Nonempty
       (FiniteBox (fun _ : CFZVariable k => D)) := ⟨r₀⟩
   let Q : ℝ :=
     mean (fun a :

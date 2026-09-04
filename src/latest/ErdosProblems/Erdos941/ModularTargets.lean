@@ -9,7 +9,7 @@ open PairLocal
 theorem exists_five_modular_target (v : ZMod 25 × ZMod 25 × ZMod 25)
     (hv : normThree (mapCoeffs (primeSquareReduce 5) v) = 0) :
     ∃ w : List Axis, (linearWord 17 w v).2.2 = 0 := by
-  letI : Fact (Nat.Prime 5) := ⟨by decide⟩
+  let : Fact (Nat.Prime 5) := ⟨by decide⟩
   obtain ⟨w, _, hw⟩ := exists_word_primeSquare_target (p := 5)
     17 2 2 0 0 0 1 (by decide) (alternatingWord 3) five_kernel_word
     (by decide) (by decide)
@@ -26,7 +26,7 @@ theorem exists_five_modular_target (v : ZMod 25 × ZMod 25 × ZMod 25)
 theorem exists_thirteen_modular_target (v : ZMod 169 × ZMod 169 × ZMod 169)
     (hv : normThree (mapCoeffs (primeSquareReduce 13) v) = 0) :
     ∃ w : List Axis, (linearWord 113 w v).2.2 = 0 := by
-  letI : Fact (Nat.Prime 13) := ⟨by decide⟩
+  let : Fact (Nat.Prime 13) := ⟨by decide⟩
   obtain ⟨w, _, hw⟩ := exists_word_primeSquare_target (p := 13)
     113 1 5 0 0 0 1 (by decide) (alternatingWord 7) thirteen_kernel_word
     (by decide) (by decide)
@@ -47,7 +47,7 @@ def SevenModularTarget (v : ZMod 49 × ZMod 49 × ZMod 49) : Prop :=
 theorem exists_seven_modular_target (v : ZMod 49 × ZMod 49 × ZMod 49)
     (hv : normThree (mapCoeffs (primeSquareReduce 7) v) = 0) :
     ∃ w : List Axis, SevenModularTarget (linearWord 33 w v) := by
-  letI : Fact (Nat.Prime 7) := ⟨by decide⟩
+  let : Fact (Nat.Prime 7) := ⟨by decide⟩
   obtain ⟨w, hl, hw⟩ := exists_word_primeSquare_target (p := 7)
     33 3 3 5 (-1) 1 (-1) (by decide) (alternatingWord 4) seven_kernel_word
     (by decide) (by decide)

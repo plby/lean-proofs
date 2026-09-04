@@ -117,7 +117,7 @@ theorem forwardNeighbors_subset_ge_layer
       Finset.univ.filter fun y =>
         H.Adj x y ∧ Decomposition.layerIndex H d x ≤
           Decomposition.layerIndex H d y := by
-  letI := vertexOrder layer c
+  let := vertexOrder layer c
   intro y hy
   have hyAdj : H.Adj x y := (Finset.mem_filter.mp hy).2.1
   have hyLt : @LT.lt (Fin n) (vertexOrder layer c).toLT x y := by
@@ -140,7 +140,7 @@ theorem forwardNeighbors_card_le
     letI := vertexOrder layer c
     (RandomGreedy.forwardNeighbors H x).card ≤
       4 * d := by
-  letI := vertexOrder layer c
+  let := vertexOrder layer c
   exact (Finset.card_le_card
     (forwardNeighbors_subset_ge_layer H layer c hcolor hlayer x)).trans
       (Nat.le_of_lt (Decomposition.card_forward_neighbors_lt H hd hdeg x))

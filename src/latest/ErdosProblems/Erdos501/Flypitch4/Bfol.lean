@@ -869,7 +869,7 @@ lemma boolean_realize_sentence_eq (v : ℕ → S) (f : sentence L) :
 
 lemma bstatisfied_in_eq_boolean_realize_sentence [HS : Nonempty S] (f : sentence L) :
     ⟦f.fst⟧[S]ᵤ = ⟦f⟧[S] := by
-  haveI : Nonempty (ℕ → S) := HS.map (fun x _ => x)
+  have : Nonempty (ℕ → S) := HS.map (fun x _ => x)
   simp [boolean_realize_formula_glb, boolean_realize_sentence_eq]
 
 /-! ## forced_in, all_forced_in — src/bfol.lean:647-658 -/

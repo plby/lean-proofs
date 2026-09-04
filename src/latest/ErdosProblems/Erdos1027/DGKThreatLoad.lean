@@ -720,7 +720,7 @@ lemma expect_comp_outsideLabelColours
     (𝔼 labels : OutsideLabels edge N,
         statistic (outsideLabelColours labels)) =
       𝔼 outside : OutsideColouring edge, statistic outside := by
-  letI : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
+  let : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
   calc
     (𝔼 labels : OutsideLabels edge N,
         statistic (outsideLabelColours labels)) =

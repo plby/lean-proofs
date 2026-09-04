@@ -52,7 +52,7 @@ theorem rationalAuxiliaryDegreeBound_eq_R_mul
         congrArg (fun n : ℕ => p ^ n) (by omega)
       _ = p ^ (h + 1) * p ^ (2 * (h + 3) - 1) := pow_add _ _ _
   rw [hS, hA, hK]
-  ring
+  ring_nf
 
 /-- The degree of one rational auxiliary summand is below the common bound. -/
 theorem natDegree_rationalAuxiliaryTerm_lt

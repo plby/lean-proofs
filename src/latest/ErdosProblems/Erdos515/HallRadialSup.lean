@@ -211,11 +211,11 @@ lemma integral_hallLogAbsSin_shift_zero_two_pi (φ : ℝ) :
       (∫ x in (0 : ℝ) - φ..Real.pi - φ, hallLogAbsSin x) =
           ∫ x in (0 : ℝ)..Real.pi, hallLogAbsSin x := by
         convert periodic_hallLogAbsSin.intervalIntegral_add_eq ((0 : ℝ) - φ) 0 using 1 <;>
-          ring
+          ring_nf
       _ = _ := integral_hallLogAbsSin_zero_pi
   have hshiftPeriodic : Function.Periodic (fun θ ↦ hallLogAbsSin (θ - φ)) Real.pi :=
     fun θ ↦ by
-      convert periodic_hallLogAbsSin (θ - φ) using 1 <;> ring
+      convert periodic_hallLogAbsSin (θ - φ) using 1 <;> ring_nf
   have hint1 : IntervalIntegrable (fun θ ↦ hallLogAbsSin (θ - φ)) volume 0 Real.pi := by
     convert (intervalIntegrable_hallLogAbsSin (-φ) (Real.pi - φ)).comp_sub_right φ using 1 <;>
       ring
@@ -230,7 +230,7 @@ lemma integral_hallLogAbsSin_shift_zero_two_pi (φ : ℝ) :
     calc
       (∫ θ in Real.pi..(2 * Real.pi), hallLogAbsSin (θ - φ)) =
           ∫ θ in (0 : ℝ)..Real.pi, hallLogAbsSin (θ - φ) := by
-        convert hshiftPeriodic.intervalIntegral_add_eq Real.pi 0 using 1 <;> ring
+        convert hshiftPeriodic.intervalIntegral_add_eq Real.pi 0 using 1 <;> ring_nf
       _ = _ := hfirst
   rw [hsecond]
   ring

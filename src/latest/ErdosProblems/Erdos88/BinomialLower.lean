@@ -199,7 +199,7 @@ lemma exp_neg_two_mul_le_one_sub {x : ℝ}
     (inv_le_inv₀ (Real.exp_pos _) (inv_pos.mpr hden)).2
       (hinvLinear.trans hlinearExp)
   rw [← Real.exp_neg, inv_inv] at hinvExp
-  convert hinvExp using 1 <;> ring
+  convert hinvExp using 1 <;> ring_nf
 
 lemma exp_neg_eight_sq_div_le_one_sub_pow (m D : ℕ)
     (hD : 8 * D ≤ m) :

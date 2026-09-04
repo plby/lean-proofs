@@ -75,7 +75,7 @@ theorem commonPinnedProfile_eq_moebius_totient {m R : ℕ} {p : α → ℕ}
   unfold commonPinnedProfile pinnedProfileTransform
   rw [finiteInverseCoefficientTransform_eq_moebius_totient hp hinj]
   dsimp only [commonPinnedCoefficient, commonSieveCoefficient]
-  ring
+  ring_nf
 
 theorem commonPinnedCoefficient_quadratic_decomposition {m R : ℕ} {p : α → ℕ}
     (hp : ∀ q, (p q).Prime) (hlarge : ∀ q, m + 1 < p q) (j : Fin (m + 1)) :

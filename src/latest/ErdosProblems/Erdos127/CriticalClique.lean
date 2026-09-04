@@ -141,7 +141,7 @@ lemma exists_induced_critical_minDegree
     rw [hsχ, ENat.natCast_le_natCast] at h
     exact h
   have hsne : s.Nonempty := Finset.card_pos.mp (by simpa using hq.trans_le hcard)
-  letI : Nonempty s := hsne.to_subtype
+  let : Nonempty s := hsne.to_subtype
   refine ⟨s, hsχ, ?_⟩
   apply le_minDegree_of_delete_vertex_colorable
   · intro hc
@@ -300,7 +300,7 @@ lemma exists_induced_critical_with_handshake_and_clique
     rw [hsχ, ENat.natCast_le_natCast] at h
     exact h
   have hsne : s.Nonempty := Finset.card_pos.mp (by simpa using hq.trans_le hcard)
-  letI : Nonempty s := hsne.to_subtype
+  let : Nonempty s := hsne.to_subtype
   have hnot : ¬H.Colorable (q - 1) := by
     intro hc
     have hle := hc.chromaticNumber_le
@@ -318,4 +318,3 @@ lemma exists_induced_critical_with_handshake_and_clique
   exact ⟨s, hsχ, hsdel, hmin, hhand, K, hK, hKcard⟩
 
 end SimpleGraph
-

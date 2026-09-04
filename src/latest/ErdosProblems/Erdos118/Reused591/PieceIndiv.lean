@@ -71,10 +71,10 @@ theorem singleton_not_large_of_isSuccLimit
     {A X : Type} [LinearOrder A] [WellFoundedLT A] [Preorder X]
     (hlim : Order.IsSuccLimit (typeLT A)) (x : X) :
     ¬ Large A ({x} : Set X) := by
-  letI : Subsingleton ({x} : Set X) := ⟨fun a b ↦ by
+  let : Subsingleton ({x} : Set X) := ⟨fun a b ↦ by
     apply Subtype.ext
     exact a.2.trans b.2.symm⟩
-  letI : IsWellOrder ({x} : Set X) ((· < ·)) :=
+  let : IsWellOrder ({x} : Set X) ((· < ·)) :=
     Subsingleton.isWellOrder _
   intro hlarge
   have hle : typeLT A ≤ typeLT ({x} : Set X) := by

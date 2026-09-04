@@ -34,7 +34,7 @@ lemma thirdVertexTriple_injective
   have hw : w.1 ∈ (thirdVertexTriple huv z).1 := by
     rw [← hwz]
     exact third_mem_thirdVertexTriple huv w
-  simp [thirdVertexTriple, tripleOfThree] at hw
+  simp only [ne_eq] at hw
   rcases hw with hwu | hwv | hwz
   · exact (w.2.1 hwu).elim
   · exact (w.2.2 hwv).elim

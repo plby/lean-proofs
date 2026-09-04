@@ -234,7 +234,7 @@ theorem exists_properColoring (G : BipartiteMultigraph L R E) {D : ℕ}
   | zero =>
       have hE : Fintype.card E = 0 := by
         simpa using card_edges_eq_card_left_mul G hreg
-      letI : IsEmpty E := Fintype.card_eq_zero_iff.mp hE
+      let : IsEmpty E := Fintype.card_eq_zero_iff.mp hE
       exact ⟨{
         color := fun e ↦ isEmptyElim e
         left_injective := fun _ e ↦ isEmptyElim e.1

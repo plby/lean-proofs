@@ -1220,7 +1220,7 @@ lemma singleton_unfold {x : bSet 𝔹} : (insert x (∅ : bSet 𝔹)) = bSet.ins
 -- src/bvm.lean:885
 @[simp] lemma singleton_bval_none {x : bSet 𝔹} : bval (bSet.insert1 x ∅) none = ⊤ := by
   have := singleton_bval (x := x) (o := none)
-  simp at this; exact this
+  simp only [bval, type] at this; exact this
 
 /-! ### mixture / mixing lemma -/
 
@@ -1508,7 +1508,7 @@ lemma maximum_principle (ϕ : bSet 𝔹 → 𝔹) (h_congr : B_ext ϕ) : ∃ u, 
   obtain ⟨r, hr⟩ : ∃ r : (@B_small_witness 𝔹 _ ϕ).type → (@B_small_witness 𝔹 _ ϕ).type → Prop,
       IsWellOrder ((@B_small_witness 𝔹 _ ϕ).type) r :=
     ⟨WellOrderingRel, WellOrderingRel.isWellOrder⟩
-  haveI : IsWellOrder ((@B_small_witness 𝔹 _ ϕ).type) r := hr
+  have : IsWellOrder ((@B_small_witness 𝔹 _ ϕ).type) r := hr
   -- Hypothesis for mixing_lemma: w_ac i ⊓ w_ac j ≤ func i =ᴮ func j
   have mixing_hyp : ∀ i j : (@B_small_witness 𝔹 _ ϕ).type,
       witness_antichain r i ⊓ witness_antichain r j ≤
@@ -1978,11 +1978,12 @@ lemma exists_mem_of_nonempty (u : bSet 𝔹) {Γ : 𝔹} (H : Γ ≤ (u =ᴮ ∅
 -- src/bvm.lean:1438
 lemma nonempty_of_exists_mem (u : bSet 𝔹) {Γ : 𝔹} (H : Γ ≤ (⨆ x, x ∈ᴮ u)) : Γ ≤ (u =ᴮ ∅)ᶜ := by
   apply le_trans H
-  simp [eq_empty]
+  simp only [iSup_le_iff]
   intro x
   rw [mem_unfold]
   apply bv_Or_elim
   intro i
+  rw [eq_empty, compl_compl]
   apply bv_use i
   apply inf_le_left
 
@@ -3369,7 +3370,7 @@ lemma subset'_inductive (X : bSet 𝔹)
     {α : Type u} {S : α → bSet 𝔹} (h_core : core X S) :
     haveI := subset'_partial_order h_core
     ∀ c : Set α, IsChain (· ≤ ·) c → BddAbove c := by
-  haveI hPO := subset'_partial_order h_core
+  have hPO := subset'_partial_order h_core
   intro C C_chain
   -- Let C' be the bSet indexed by C with func = S ∘ (coe : C → α), bval = ⊤
   -- Abbreviation for C' = bSet_of_core_set h_core C
@@ -3459,7 +3460,7 @@ theorem bSet_zorns_lemma (X : bSet 𝔹) (H_nonempty : (X =ᴮ ∅)ᶜ = ⊤)
   -- Step 1: Get a core for X
   obtain ⟨α, S, h_core⟩ := core.mk X
   -- Step 2: Apply Zorn's lemma to get a maximal element c
-  letI hPO := subset'_partial_order h_core
+  let hPO := subset'_partial_order h_core
   have H_zorn := @zorn_le α hPO.toPreorder (subset'_inductive X H h_core)
   obtain ⟨c, H_c⟩ := H_zorn
   -- H_c : IsMax c, i.e., ∀ a, c ≤ a → a ≤ c

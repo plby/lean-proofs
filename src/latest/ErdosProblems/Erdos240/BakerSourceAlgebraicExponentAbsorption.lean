@@ -74,7 +74,7 @@ theorem growth_le_exp_add_of_factor_bounds
           (mul_nonneg (Real.exp_pos _).le (Real.exp_pos _).le))
     _ = Real.exp (Esupport + Ecoeff + EDelta + Erate) := by
       rw [← Real.exp_add, ← Real.exp_add, ← Real.exp_add]
-      ring
+      ring_nf
 
 /-- Equal sixteenth-scale bounds for the four factors give the quarter-scale
 growth estimate used by the concrete source inequalities. -/

@@ -121,7 +121,7 @@ lemma mem_cycleLengths_iff {m : ℕ} :
 /-- A finite two-connected graph has a longest cycle. -/
 theorem exists_isLongestCycle (hTwo : Erdos58.TwoConnected G) :
     ∃ (z : V) (c : G.Walk z z), IsLongestCycle c := by
-  letI : Nonempty V := Fintype.card_pos_iff.mp (by
+  let : Nonempty V := Fintype.card_pos_iff.mp (by
     have := hTwo.card_three_le
     omega)
   let x : V := Classical.choice (inferInstance : Nonempty V)

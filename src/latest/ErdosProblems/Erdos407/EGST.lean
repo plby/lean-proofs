@@ -191,7 +191,7 @@ theorem omega_bounded_of_restrictedProjectiveU23
     (hU : RestrictedProjectiveU23Finiteness) :
     ∃ C : ℕ, ∀ n : ℕ, omega n ≤ C := by
   classical
-  letI : Fintype projectiveU23Ratios := hU.fintype
+  let : Fintype projectiveU23Ratios := hU.fintype
   let Code := Fin 3 → Fin 3 × projectiveU23Ratios
   let C := Fintype.card Code
   refine ⟨C, fun n ↦ ?_⟩
@@ -216,7 +216,7 @@ theorem omega_bounded_of_restrictedProjectiveU23
       have htq := hq t i
       rw [hj, hqi] at hrq
       exact_mod_cast hrq.trans htq.symm
-    letI : Fintype {r // r ∈ solutions n} := (solutions_finite n).fintype
+    let : Fintype {r // r ∈ solutions n} := (solutions_finite n).fintype
     have hw : w n ≤ C := by
       change (solutions n).ncard ≤ Fintype.card Code
       rw [← Set.fintypeCard_eq_ncard]

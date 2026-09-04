@@ -1030,7 +1030,7 @@ private lemma coprime_to_primorial_count_le_sieve_product (P N : ℕ) :
       (Set.finite_Iio M).subset (by
         intro m hm
         exact hm.1)
-    haveI : Finite {m : ℕ | m < M ∧ M.Coprime m} := htarget_finite.to_subtype
+    have : Finite {m : ℕ | m < M ∧ M.Coprime m} := htarget_finite.to_subtype
     have hle := Finite.card_le_of_embedding f
     have htot := Nat.totient_eq_card_lt_and_coprime M
     simpa [C, htot] using hle

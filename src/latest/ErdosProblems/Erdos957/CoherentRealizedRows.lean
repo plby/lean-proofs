@@ -1351,8 +1351,8 @@ theorem produced_partner_split_targets
           (cyclicSideVertex P source T.side) hp).row).roleAssociation
             PairCases.TargetRoleName.case4SplitRight = _
         rw [hpartnerSelection]
-        simp [ProducedRowSelection.row, RealizedSourceRow.roleAssociation,
-          hrow, hpartnerRightEq]
+        simp only [Erdos957HullGeometryBridge.cyclicHullDataOfOrder_H,
+    Erdos957HullGeometryBridge.cyclicHullDataOfOrder_next]
         exact CommonCase4.selectedEdgeCase4Branch_association_eq_of_keys_eq
           hbase hpartnerMiddle hpartnerExists hexists (!right)
 

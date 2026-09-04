@@ -282,7 +282,7 @@ theorem eventually_normalized_majorArc_lower {lam : ℝ}
       N hHM hcentral hintermediate hApos hp hmean hscales hMlower hchain
   let A := goodSet N
   let Q := activeLcm A
-  letI : NeZero Q := ⟨activeLcm_ne_zero A⟩
+  let : NeZero Q := ⟨activeLcm_ne_zero A⟩
   have hx : (1 : ℝ) ≤ N := by
     have hNnat : 0 < N := by exact_mod_cast hscales.1
     exact_mod_cast hNnat

@@ -130,7 +130,7 @@ lemma rich_of_one_lt_delta (G : SimpleGraph V) (ρ α : ℝ) { δ : ℝ }
     by_contra hn
     have hpos : (0 : ℝ) < Fintype.card V := by exact_mod_cast (Nat.pos_of_ne_zero hn)
     nlinarith
-  haveI : IsEmpty V := Fintype.card_eq_zero_iff.mp hzero
+  have : IsEmpty V := Fintype.card_eq_zero_iff.mp hzero
   simpa [exceptionalVertices] using Real.rpow_nonneg (show (0 : ℝ) ≤ 0 by rfl) α
 
 /-- A cardinal form of failure of richness, useful for the nested-set
@@ -876,7 +876,7 @@ lemma edgeCount_induce_colorGraph_le_relationMass (G : SimpleGraph V)
       relationMass (colorRelation G inGraph) A := by
   classical
   let H := (colorGraph G inGraph).induce (A : Set V)
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   have hdegNat :
       ∑ v : A, FiniteES.vertexDegree H v ≤
         ∑ u ∈ A, blockDegree G inGraph u A := by
@@ -1261,7 +1261,7 @@ lemma ksssLemma44_of_one_le_alpha (C α : ℝ) (hα : 1 ≤ α) :
   intro n hn m _hmLower hmUpper G _hG
   have hnpos : 0 < n := by omega
   let v : Fin n := ⟨0, hnpos⟩
-  haveI : Nonempty (↥(↑(Finset.univ : Finset (Fin n)) : Set (Fin n))) :=
+  have : Nonempty (↥(↑(Finset.univ : Finset (Fin n)) : Set (Fin n))) :=
     ⟨⟨v, by simp⟩⟩
   refine ⟨Finset.univ, ?_, ?_⟩
   · simp only [Finset.card_univ, Fintype.card_fin]

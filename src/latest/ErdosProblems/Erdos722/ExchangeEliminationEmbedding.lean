@@ -1704,7 +1704,7 @@ theorem eventually_exists_boundedEliminationPairEmbeddings_twoScale
     · simp
     · intro J hJ
       simp [Reserve.localDegree]
-  · letI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+  · let : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
     obtain ⟨P₀, hP₀⟩ := Finset.nonempty_iff_ne_empty.mpr hpairs
     let pairAtFin (i : Fin pairs.card) : ↥pairs := pairs.equivFin.symm i
     let pairAt (i : ℕ) : EliminationPair n k r :=

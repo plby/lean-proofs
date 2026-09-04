@@ -182,7 +182,7 @@ lemma gsGridDefect_le_one {h : ℝ} (hh : 0 < h) {K : ℕ} {c : ℕ → ℝ}
       t ∈ Set.Ioc (gsGridPoint h i) (gsGridPoint h (i + 1))
   · obtain ⟨i, hiK, hit⟩ := hex
     rw [Finset.sum_eq_single i]
-    · simp [hit]
+    · simp only [Set.mem_Ioc]
       exact hc1 i (Finset.mem_range.mp hiK)
     · intro j hjK hji
       have hjnot : t ∉ Set.Ioc (gsGridPoint h j) (gsGridPoint h (j + 1)) := by

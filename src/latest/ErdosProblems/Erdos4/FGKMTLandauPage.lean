@@ -34,8 +34,8 @@ theorem PrimitiveCharacter.eq_of_lifts_eq (χ ψ : PrimitiveCharacter)
       | mk q' hq' psi hprimitive' hnonprincipal' =>
         dsimp at hm
         subst q'
-        letI : NeZero q := ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt hq)⟩
-        letI : NeZero (Nat.lcm q q) := ⟨Nat.lcm_ne_zero (NeZero.ne q) (NeZero.ne q)⟩
+        let : NeZero q := ⟨Nat.ne_of_gt (Nat.zero_lt_of_lt hq)⟩
+        let : NeZero (Nat.lcm q q) := ⟨Nat.lcm_ne_zero (NeZero.ne q) (NeZero.ne q)⟩
         have hc : chi = psi := DirichletCharacter.changeLevel_injective
           (R := ℂ) (Nat.dvd_lcm_left q q) heq
         subst psi
@@ -73,7 +73,7 @@ theorem exceptionalCharacter_unique_of_local_uniqueness (M : ℕ) (hM : 2 ≤ M)
   obtain ⟨hqχ, β, hβ0, hβ1, hβzero, hβnear⟩ := hχ
   obtain ⟨hqψ, γ, hγ0, hγ1, hγzero, hγnear⟩ := hψ
   let q := Nat.lcm χ.modulus ψ.modulus
-  letI : NeZero q := ⟨Nat.lcm_ne_zero (NeZero.ne χ.modulus) (NeZero.ne ψ.modulus)⟩
+  let : NeZero q := ⟨Nat.lcm_ne_zero (NeZero.ne χ.modulus) (NeZero.ne ψ.modulus)⟩
   let chi := χ.character.changeLevel (Nat.dvd_lcm_left χ.modulus ψ.modulus)
   let psi := ψ.character.changeLevel (Nat.dvd_lcm_right χ.modulus ψ.modulus)
   have hqn : 0 < q := NeZero.pos q

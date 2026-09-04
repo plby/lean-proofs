@@ -159,8 +159,8 @@ lemma scale_primeReciprocalInterval_upper {N Y : ℕ}
         iff_false]
       intro hp
       exact hYN (hp.1.1.trans hp.1.2)
-    simp [primeReciprocalInterval, hempty]
-    positivity
+    rw [primeReciprocalInterval, hempty, Finset.sum_empty]
+    exact mul_nonneg (by linarith) ht0
 
 lemma scale_pairCoefficient_upper {N : ℕ} (hs : ScaleFacts N) :
     pairCoefficient (scaleL N) (scalePairY N) ≤

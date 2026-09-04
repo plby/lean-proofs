@@ -260,7 +260,7 @@ theorem card_pairSumset_affineRestriction
     fun p ↦ (p.1 : V) + p.2
   let targetAdd : ({x // x ∈ S} × {x // x ∈ S}) →
       affineDirection S := fun p ↦ f p.1 + f p.2
-  letI : Inhabited {x // x ∈ S} := ⟨⟨a, ha⟩⟩
+  let : Inhabited {x // x ∈ S} := ⟨⟨a, ha⟩⟩
   have hsource :
       Section7FreimanMap.pairSumset S = pairs.image sourceAdd := by
     ext z

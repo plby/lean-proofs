@@ -829,10 +829,10 @@ theorem RationalRotationTransferTheorem
     exact scaled_rot_card_fundamental hd hd (dvd_refl d) hab
   have hJindex : J.index = d.natAbs ^ 2 := by
     exact rotatedIntLattice_multiple_relIndex hd hab
-  letI : H.FiniteIndex := ⟨by rw [hHindex]; positivity⟩
-  letI : J.FiniteIndex := ⟨by rw [hJindex]; positivity⟩
-  letI : Fintype (Λ ⧸ H) := AddSubgroup.fintypeQuotientOfFiniteIndex
-  letI : Fintype (Λ ⧸ J) := AddSubgroup.fintypeQuotientOfFiniteIndex
+  let : H.FiniteIndex := ⟨by rw [hHindex]; positivity⟩
+  let : J.FiniteIndex := ⟨by rw [hJindex]; positivity⟩
+  let : Fintype (Λ ⧸ H) := AddSubgroup.fintypeQuotientOfFiniteIndex
+  let : Fintype (Λ ⧸ J) := AddSubgroup.fintypeQuotientOfFiniteIndex
   have hcard : Fintype.card (Λ ⧸ H) = Fintype.card (Λ ⧸ J) := by
     rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card]
     exact hHindex.trans hJindex.symm

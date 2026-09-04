@@ -124,8 +124,9 @@ theorem inertia_fixes_gen (g : ℕ) (p : ℕ)
     · erw [ Polynomial.eval₂_C ] ; aesop;
   -- Since $σ • xt = -xt$, we have $σ • xt - xt = -2 * xt$.
   have h_diff : σ • xt - xt = -2 * xt := by
-    ext; simp [h_neg, hxt];
-    erw [ show ( algebraMap ( 𝓞 ( Kf g ) ) ( Kf g ) ) ( σ • xt ) = σ ( algebraMap ( 𝓞 ( Kf g ) ) ( Kf g ) xt ) from rfl ] ; norm_num [ h_neg, hxt ] ; ring;
+    ext; simp only [map_sub, AddSubgroupClass.coe_sub, neg_mul, map_neg, map_mul, NegMemClass.coe_neg,
+    IntermediateField.coe_mul];
+    erw [ show ( algebraMap ( 𝓞 ( Kf g ) ) ( Kf g ) ) ( σ • xt ) = σ ( algebraMap ( 𝓞 ( Kf g ) ) ( Kf g ) xt ) from rfl ] ; norm_num [ h_neg, hxt ] ; ring_nf;
     norm_cast;
   -- Since $-2 * xt \in P$, we have $4 * xt^2 \in P$.
   have h_four_xt_sq : 4 * xt^2 ∈ P := by
@@ -186,25 +187,25 @@ theorem Kf_inertia_eq_bot (g : ℕ) (p : ℕ) (hp : p.Prime) (hp4 : p % 4 = 1)
 theorem Kf_ramificationIdxIn_eq_one (g : ℕ) (p : ℕ) (hp : p.Prime) (hp4 : p % 4 = 1) :
     Ideal.ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Kf g)) = 1 := by
   classical
-  haveI : Fact p.Prime := ⟨hp⟩
+  have : Fact p.Prime := ⟨hp⟩
   obtain ⟨hpz, hp0, hpprime, hpmax, hp4dvd⟩ := p_prime_facts hp hp4
-  haveI : (Ideal.span {(p : ℤ)}).IsMaximal := hpmax
+  have : (Ideal.span {(p : ℤ)}).IsMaximal := hpmax
   obtain ⟨⟨P, hPprime, hPlies⟩⟩ :=
     (inferInstance : Nonempty (Ideal.primesOver (Ideal.span {(p : ℤ)}) (𝓞 (Kf g))))
-  haveI := hPprime
-  haveI := hPlies
+  have := hPprime
+  have := hPlies
   have hPne : P ≠ ⊥ := Ideal.ne_bot_of_liesOver_of_ne_bot hp0 P
-  haveI : P.IsMaximal := hPprime.isMaximal hPne
-  haveI : Finite (ℤ ⧸ Ideal.span {(p : ℤ)}) :=
+  have : P.IsMaximal := hPprime.isMaximal hPne
+  have : Finite (ℤ ⧸ Ideal.span {(p : ℤ)}) :=
     Finite.of_equiv _ (Int.quotientSpanEquivZMod (p : ℤ)).symm.toEquiv
-  haveI : Finite (𝓞 (Kf g) ⧸ P) := inferInstance
-  letI : Field (ℤ ⧸ Ideal.span {(p : ℤ)}) := Ideal.Quotient.field _
-  letI : Field (𝓞 (Kf g) ⧸ P) := Ideal.Quotient.field _
-  haveI : Module.Finite (ℤ ⧸ Ideal.span {(p : ℤ)}) (𝓞 (Kf g) ⧸ P) := Module.Finite.of_finite
-  haveI : Algebra.IsAlgebraic (ℤ ⧸ Ideal.span {(p : ℤ)}) (𝓞 (Kf g) ⧸ P) :=
+  have : Finite (𝓞 (Kf g) ⧸ P) := inferInstance
+  let : Field (ℤ ⧸ Ideal.span {(p : ℤ)}) := Ideal.Quotient.field _
+  let : Field (𝓞 (Kf g) ⧸ P) := Ideal.Quotient.field _
+  have : Module.Finite (ℤ ⧸ Ideal.span {(p : ℤ)}) (𝓞 (Kf g) ⧸ P) := Module.Finite.of_finite
+  have : Algebra.IsAlgebraic (ℤ ⧸ Ideal.span {(p : ℤ)}) (𝓞 (Kf g) ⧸ P) :=
     Algebra.IsAlgebraic.of_finite _ _
-  haveI : PerfectField (ℤ ⧸ Ideal.span {(p : ℤ)}) := PerfectField.ofFinite
-  haveI : Algebra.IsSeparable (ℤ ⧸ Ideal.span {(p : ℤ)}) (𝓞 (Kf g) ⧸ P) := inferInstance
+  have : PerfectField (ℤ ⧸ Ideal.span {(p : ℤ)}) := PerfectField.ofFinite
+  have : Algebra.IsSeparable (ℤ ⧸ Ideal.span {(p : ℤ)}) (𝓞 (Kf g) ⧸ P) := inferInstance
   rw [← Ideal.card_inertia_eq_ramificationIdxIn (G := Kf g ≃ₐ[ℚ] Kf g)
         (Ideal.span {(p : ℤ)}) P, Kf_inertia_eq_bot g p hp hp4 P, Subgroup.card_bot]
 
@@ -228,26 +229,26 @@ or `Ideal.card_stabilizer_eq_card_inertia_mul_finrank`), and has exponent two
 theorem Kf_inertiaDegIn_le_two (g : ℕ) (p : ℕ) (hp : p.Prime) (hp4 : p % 4 = 1) :
     Ideal.inertiaDegIn (Ideal.span {(p : ℤ)}) (𝓞 (Kf g)) ≤ 2 := by
   classical
-  haveI : Fact p.Prime := ⟨hp⟩
-  haveI : IsGalois ℚ (Kf g) := Kf_isGalois g
+  have : Fact p.Prime := ⟨hp⟩
+  have : IsGalois ℚ (Kf g) := Kf_isGalois g
   obtain ⟨hpz, hp0, hpprime, hpmax, hp4dvd⟩ := p_prime_facts hp hp4
-  haveI : (Ideal.span {(p : ℤ)}).IsMaximal := hpmax
+  have : (Ideal.span {(p : ℤ)}).IsMaximal := hpmax
   obtain ⟨⟨P, hPprime, hPlies⟩⟩ :=
     (inferInstance : Nonempty (Ideal.primesOver (Ideal.span {(p : ℤ)}) (𝓞 (Kf g))))
-  haveI := hPprime
-  haveI := hPlies
+  have := hPprime
+  have := hPlies
   have hPne : P ≠ ⊥ := Ideal.ne_bot_of_liesOver_of_ne_bot hp0 P
-  haveI : P.IsMaximal := hPprime.isMaximal hPne
-  haveI : Finite (ℤ ⧸ Ideal.span {(p : ℤ)}) :=
+  have : P.IsMaximal := hPprime.isMaximal hPne
+  have : Finite (ℤ ⧸ Ideal.span {(p : ℤ)}) :=
     Finite.of_equiv _ (Int.quotientSpanEquivZMod (p : ℤ)).symm.toEquiv
-  haveI : Finite (𝓞 (Kf g) ⧸ P) := inferInstance
-  letI : Field (ℤ ⧸ Ideal.span {(p : ℤ)}) := Ideal.Quotient.field _
-  letI : Field (𝓞 (Kf g) ⧸ P) := Ideal.Quotient.field _
-  haveI : Module.Finite (ℤ ⧸ Ideal.span {(p : ℤ)}) (𝓞 (Kf g) ⧸ P) := Module.Finite.of_finite
-  haveI : Algebra.IsAlgebraic (ℤ ⧸ Ideal.span {(p : ℤ)}) (𝓞 (Kf g) ⧸ P) :=
+  have : Finite (𝓞 (Kf g) ⧸ P) := inferInstance
+  let : Field (ℤ ⧸ Ideal.span {(p : ℤ)}) := Ideal.Quotient.field _
+  let : Field (𝓞 (Kf g) ⧸ P) := Ideal.Quotient.field _
+  have : Module.Finite (ℤ ⧸ Ideal.span {(p : ℤ)}) (𝓞 (Kf g) ⧸ P) := Module.Finite.of_finite
+  have : Algebra.IsAlgebraic (ℤ ⧸ Ideal.span {(p : ℤ)}) (𝓞 (Kf g) ⧸ P) :=
     Algebra.IsAlgebraic.of_finite _ _
-  haveI : PerfectField (ℤ ⧸ Ideal.span {(p : ℤ)}) := PerfectField.ofFinite
-  haveI : Algebra.IsSeparable (ℤ ⧸ Ideal.span {(p : ℤ)}) (𝓞 (Kf g) ⧸ P) := inferInstance
+  have : PerfectField (ℤ ⧸ Ideal.span {(p : ℤ)}) := PerfectField.ofFinite
+  have : Algebra.IsSeparable (ℤ ⧸ Ideal.span {(p : ℤ)}) (𝓞 (Kf g) ⧸ P) := inferInstance
   -- the decomposition group has cardinality e·f = f
   have hcard := Ideal.card_stabilizer_eq (G := Kf g ≃ₐ[ℚ] Kf g) (Ideal.span {(p : ℤ)}) P
   rw [Kf_ramificationIdxIn_eq_one g p hp hp4, one_mul] at hcard
@@ -294,9 +295,9 @@ and `Kf_finrank`), `#primesOver · e · f = 2^(g+1)` with `e = 1`
 (`Kf_ramificationIdxIn_eq_one`) and `f ≤ 2` (`Kf_inertiaDegIn_le_two`). -/
 theorem Kf_card_primesOver_ge (g : ℕ) (p : ℕ) (hp : p.Prime) (hp4 : p % 4 = 1) :
     2 ^ g ≤ (Ideal.primesOver (Ideal.span {(p : ℤ)}) (𝓞 (Kf g))).ncard := by
-  haveI : IsGalois ℚ (Kf g) := Kf_isGalois g
+  have : IsGalois ℚ (Kf g) := Kf_isGalois g
   obtain ⟨hpz, hp0, hpprime, hpmax, hp4dvd⟩ := p_prime_facts hp hp4
-  haveI : (Ideal.span {(p : ℤ)}).IsMaximal := hpmax
+  have : (Ideal.span {(p : ℤ)}).IsMaximal := hpmax
   have hfund := Ideal.ncard_primesOver_mul_ramificationIdxIn_mul_inertiaDegIn
     (Ideal.span {(p : ℤ)}) (𝓞 (Kf g)) (Kf g ≃ₐ[ℚ] Kf g)
   have hG : Nat.card (Kf g ≃ₐ[ℚ] Kf g) = 2 ^ (g + 1) := by
@@ -323,7 +324,7 @@ theorem Kf_conj_primesOver_ne (g : ℕ) (p : ℕ) (hp : p.Prime) (hp4 : p % 4 = 
     Ideal.map (ringOfIntegersComplexConj (Kf g)) P ≠ P := by
   intro hEq
   obtain ⟨hPprime, hPlies⟩ := hP
-  haveI : Fact p.Prime := ⟨hp⟩
+  have : Fact p.Prime := ⟨hp⟩
   -- the imaginary unit as an algebraic integer of `K_g`
   have hImem : Complex.I ∈ Kf g :=
     IntermediateField.subset_adjoin ℚ _ (Set.mem_insert _ _)
@@ -439,11 +440,11 @@ lying over the `p1 i`, `i < t`: each `(p1 i)` factors as
 theorem span_p1_eq_prod (g i : ℕ) :
     Ideal.span {((p1 i : ℕ) : 𝓞 (Kf g))} = ∏ P ∈ primesOverP1 g i, P := by
   classical
-  haveI : Fact (p1 i).Prime := ⟨(p1_spec i).1⟩
-  haveI : IsGalois ℚ (Kf g) := Kf_isGalois g
+  have : Fact (p1 i).Prime := ⟨(p1_spec i).1⟩
+  have : IsGalois ℚ (Kf g) := Kf_isGalois g
   obtain ⟨hpz, hp0, hpprime, hpmax, hp4dvd⟩ :=
     p_prime_facts (p1_spec i).1 (p1_spec i).2
-  haveI : (Ideal.span {((p1 i : ℤ))}).IsMaximal := hpmax
+  have : (Ideal.span {((p1 i : ℤ))}).IsMaximal := hpmax
   set I : Ideal (𝓞 (Kf g)) :=
     Ideal.map (algebraMap ℤ (𝓞 (Kf g))) (Ideal.span {(p1 i : ℤ)}) with hI
   have hIspan : I = Ideal.span {((p1 i : ℕ) : 𝓞 (Kf g))} := by
@@ -458,8 +459,8 @@ theorem span_p1_eq_prod (g i : ℕ) :
   have hcount : ∀ P ∈ primesOverP1 g i, (UniqueFactorizationMonoid.normalizedFactors I).count P = 1 := by
     intro P hP
     obtain ⟨hPp, hPlies⟩ := hmemiff.mp hP
-    haveI := hPp
-    haveI := hPlies
+    have := hPp
+    have := hPlies
     have hPne : P ≠ ⊥ := Ideal.ne_bot_of_liesOver_of_ne_bot hp0 P
     rw [← Ideal.IsDedekindDomain.ramificationIdx_eq_normalizedFactors_count
       (Ideal.span {(p1 i : ℤ)}) P (by simpa [hI] using hIne)]
@@ -519,7 +520,7 @@ theorem exists_ideal_family (g t : ℕ) (hg : 1 ≤ g) :
       P ∈ Ideal.primesOver (Ideal.span {(p1 i : ℤ)}) (𝓞 (Kf g)) := by
     intro i P hP
     obtain ⟨hpz, hp0, hpprime, hpmax, _⟩ := p_prime_facts (p1_spec i).1 (p1_spec i).2
-    haveI : (Ideal.span {((p1 i : ℤ))}).IsMaximal := hpmax
+    have : (Ideal.span {((p1 i : ℤ))}).IsMaximal := hpmax
     exact (IsDedekindDomain.mem_primesOverFinset_iff hp0 (𝓞 (Kf g))).mp hP
   have hσ_fix : ∀ n : ℤ, σ.symm (algebraMap ℤ (𝓞 (Kf g)) n) = algebraMap ℤ (𝓞 (Kf g)) n := by
     intro n
@@ -560,14 +561,14 @@ theorem exists_ideal_family (g t : ℕ) (hg : 1 ≤ g) :
     intro P hP
     obtain ⟨i, hi, hPi⟩ := Finset.mem_biUnion.mp hP
     obtain ⟨hpz, hp0, _, hpmax, _⟩ := p_prime_facts (p1_spec i).1 (p1_spec i).2
-    haveI := (hmem hPi).2
+    have := (hmem hPi).2
     exact Ideal.ne_bot_of_liesOver_of_ne_bot hp0 P
   have hSinv : ∀ P ∈ S, Ideal.map σ P ∈ S := by
     intro P hP
     obtain ⟨i, hi, hPi⟩ := Finset.mem_biUnion.mp hP
     refine Finset.mem_biUnion.mpr ⟨i, hi, ?_⟩
     obtain ⟨hpz, hp0, hpprime, hpmax, _⟩ := p_prime_facts (p1_spec i).1 (p1_spec i).2
-    haveI : (Ideal.span {((p1 i : ℤ))}).IsMaximal := hpmax
+    have : (Ideal.span {((p1 i : ℤ))}).IsMaximal := hpmax
     exact (IsDedekindDomain.mem_primesOverFinset_iff hp0 (𝓞 (Kf g))).mpr
       (hconj_under (hmem hPi))
   have hcc : ∀ x : 𝓞 (Kf g), σ (σ x) = x := by
@@ -651,7 +652,7 @@ theorem exists_ideal_family (g t : ℕ) (hg : 1 ≤ g) :
             have hge := Kf_card_primesOver_ge g (p1 i) (p1_spec i).1 (p1_spec i).2
             obtain ⟨hpz, hp0, hpprime, hpmax, _⟩ :=
               p_prime_facts (p1_spec i).1 (p1_spec i).2
-            haveI : (Ideal.span {((p1 i : ℤ))}).IsMaximal := hpmax
+            have : (Ideal.span {((p1 i : ℤ))}).IsMaximal := hpmax
             rwa [← IsDedekindDomain.coe_primesOverFinset hp0 (𝓞 (Kf g)),
               Set.ncard_coe_finset] at hge
     have hhalf : t * 2 ^ (g - 1) ≤ S.card / 2 := by

@@ -60,7 +60,7 @@ lemma OrdinaryCleanLocalCrossingOfOpenSegments {ι : Type*} [Fintype ι]
   have hp_not_i : p ∉ (Γ i).vertices := hnot_vertex i m hm hpm
   have hp_not_j : p ∉ (Γ j).vertices := hnot_vertex j n hn hpn
   let Edge := Σ k : ι, Fin ((Γ k).vertices.length - 1)
-  letI : Fintype Edge := Sigma.instFintype
+  let : Fintype Edge := Sigma.instFintype
   let edgeSet : Edge → Set (EuclideanSpace ℝ (Fin 2)) := fun e =>
     segment ℝ
       ((Γ e.1).vertices.get ⟨e.2.1, by have := e.2.2; omega⟩)

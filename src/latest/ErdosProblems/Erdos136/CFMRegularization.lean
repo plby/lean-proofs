@@ -12418,7 +12418,7 @@ def rawSourceRegistry (eta Gamma A B : ℝ) (heta : 0 < eta) :
     | finalDegreeRoom =>
         exact eventually_const_le_rpow_real 64
           (599 * rawRegularizationEps eta / 600)
-          (by simp [rawRegularizationEps]; positivity)
+          (by simp [rawRegularizationEps]; linarith)
 
 structure RawSourceCutoffSpec (eta Gamma A B d : ℝ) : Prop where
   degreeAtLeastOne : 1 ≤ d
@@ -13527,7 +13527,7 @@ theorem RawTransferCutoffSpec.sourceKilledCoefficient
             congr 1
             exact (Real.rpow_add hd _ _).symm
       _ = (2 * K) * Real.rpow d
-            (-eta + 12 * rawRegularizationEps eta) := by ring
+            (-eta + 12 * rawRegularizationEps eta) := by ring_nf
       _ ≤ Real.rpow d (eta - 12 * rawRegularizationEps eta) *
           Real.rpow d (-eta + 12 * rawRegularizationEps eta) := by
             apply mul_le_mul_of_nonneg_right h.sourceCoefficient
@@ -14007,7 +14007,7 @@ theorem forbiddenCard_two_le_rawCoeff
   have hi : (inferInstance : DecidableEq V) = @Classical.decEq V :=
     Subsingleton.elim _ _
   cases hi
-  letI : DecidableEq V := @Classical.decEq V
+  let : DecidableEq V := @Classical.decEq V
   have hraw := card_forbiddenIncidentCompletions_two_le
     huniform hmax hC hcard heH
   have hrawR : ((forbiddenIncidentCompletions H C 2 e).card : ℝ) ≤
@@ -14032,7 +14032,7 @@ theorem forbiddenCard_three_le_rawCoeff
   have hi : (inferInstance : DecidableEq V) = @Classical.decEq V :=
     Subsingleton.elim _ _
   cases hi
-  letI : DecidableEq V := @Classical.decEq V
+  let : DecidableEq V := @Classical.decEq V
   have hraw := card_forbiddenIncidentCompletions_three_le
     huniform hmax hC hcard heH
   have hrawR : ((forbiddenIncidentCompletions H C 3 e).card : ℝ) ≤
@@ -14080,7 +14080,7 @@ theorem forbiddenCard_four_le_rawCoeff
   have hi : (inferInstance : DecidableEq V) = @Classical.decEq V :=
     Subsingleton.elim _ _
   cases hi
-  letI : DecidableEq V := @Classical.decEq V
+  let : DecidableEq V := @Classical.decEq V
   have hraw := card_forbiddenIncidentCompletions_four_le
     huniform hmax hC hcard heH
   have hrawR : ((forbiddenIncidentCompletions H C 4 e).card : ℝ) ≤
@@ -14550,15 +14550,17 @@ theorem regularizationCertificate_of_not_nonempty_raw
         intro r
         rfl
       simp_rw [hzero]
-      simp
+      simp only [CharP.cast_eq_zero, Real.rpow_eq_pow, zero_div, sum_const_zero, Nat.ofNat_pos,
+    mul_nonneg_iff_of_pos_left, ge_iff_le]
       positivity
     · simp only [conflictLayer, Finset.filter_empty, ne_eq,
         not_true_eq_false, Finset.filter_false, Finset.card_empty,
         Nat.cast_zero]
       positivity
     · intro r _hr2 _hr4 q _hq2 _hqr root _hroot
-      simp [conflictLayer]
-      exact Real.rpow_nonneg (le_trans zero_le_one hd) _
+      simpa [conflictLayer] using
+        (Real.rpow_nonneg (le_trans zero_le_one hd)
+          ((r : ℝ) - (q : ℝ) - rawRegularizationEps eta / 4))
     · intro e he
       simp at he
     · intro e he
@@ -14568,8 +14570,9 @@ theorem regularizationCertificate_of_not_nonempty_raw
   · intro r _hr2 _hr4 e he
     simp at he
   · intro r q _hr2 _hr4 _hq2 _hqr root _hroot
-    simp [conflictLayer]
-    exact Real.rpow_nonneg (le_trans zero_le_one hd) _
+    simpa [conflictLayer] using
+      (Real.rpow_nonneg (le_trans zero_le_one hd)
+        ((r : ℝ) - (q : ℝ) - rawRegularizationEps eta / 4))
   · intro e he
     simp at he
   · intro e he
@@ -14733,10 +14736,12 @@ theorem rawSourcePmax_codegreeMean_le
   have hhost0 : 0 < Real.rpow d (1 + eta) / 32 :=
     div_pos (Real.rpow_pos_of_pos hd0 _) (by norm_num)
   interval_cases j <;> interval_cases q
-  all_goals simp [rawSourcePmax]
+  all_goals simp only [Nat.reduceSub, Nat.cast_ofNat, Real.rpow_eq_pow, ge_iff_le, pow_one]
   · have hid : n * (Real.rpow d (2 + 10 * rawRegularizationEps eta) / n ^ 2) =
         Real.rpow d (2 + 10 * rawRegularizationEps eta) / n := by
       field_simp
+    norm_num at ⊢
+    rw [rawSourcePmax]
     norm_num at ⊢
     change n * (Real.rpow d (2 + 10 * rawRegularizationEps eta) / n ^ 2) ≤
       32 * Real.rpow d (1 + 10 * rawRegularizationEps eta - eta)
@@ -14761,6 +14766,8 @@ theorem rawSourcePmax_codegreeMean_le
         Real.rpow d (3 + 10 * rawRegularizationEps eta) / n := by
       field_simp
     norm_num at ⊢
+    rw [rawSourcePmax]
+    norm_num at ⊢
     change n ^ 2 * (Real.rpow d (3 + 10 * rawRegularizationEps eta) / n ^ 3) ≤
       32 * Real.rpow d (2 + 10 * rawRegularizationEps eta - eta)
     rw [hid]
@@ -14783,6 +14790,8 @@ theorem rawSourcePmax_codegreeMean_le
   · have hid : n * (Real.rpow d (3 + 10 * rawRegularizationEps eta) / n ^ 3) =
         Real.rpow d (3 + 10 * rawRegularizationEps eta) / n ^ 2 := by
       field_simp
+    norm_num at ⊢
+    rw [rawSourcePmax]
     norm_num at ⊢
     change n * (Real.rpow d (3 + 10 * rawRegularizationEps eta) / n ^ 3) ≤
       32 * Real.rpow d (1 + 10 * rawRegularizationEps eta - eta)
@@ -15373,7 +15382,7 @@ theorem exists_rawRegularizationStage_nonempty
   have hi : (inferInstance : DecidableEq V) = @Classical.decEq V :=
     Subsingleton.elim _ _
   cases hi
-  letI : DecidableEq V := @Classical.decEq V
+  let : DecidableEq V := @Classical.decEq V
   let eps := rawRegularizationEps eta
   let n : ℝ := H.card
   let target := completionTarget d eps (layerMaxDegree H base stage : ℝ) stage
@@ -15936,7 +15945,7 @@ theorem scratch_stage_layerMaxDegree_le_fourGamma
   have hi : (inferInstance : DecidableEq V) = @Classical.decEq V :=
     Subsingleton.elim _ _
   cases hi
-  letI : DecidableEq V := @Classical.decEq V
+  let : DecidableEq V := @Classical.decEq V
   let eps := rawRegularizationEps eta
   let p := Real.rpow d ((stage : ℝ) - 1)
   let tiny := Real.rpow d (-eps / 4)
@@ -16182,7 +16191,7 @@ theorem exists_rawRegularization_nonempty
   have hi : (inferInstance : DecidableEq V) = @Classical.decEq V :=
     Subsingleton.elim _ _
   cases hi
-  letI : DecidableEq V := @Classical.decEq V
+  let : DecidableEq V := @Classical.decEq V
   let eps := rawRegularizationEps eta
   let Gamma : ℝ := 2 * (ell : ℝ) + 1
   let B := badPairConflicts H C (trackableCutoff d (eps / 3))

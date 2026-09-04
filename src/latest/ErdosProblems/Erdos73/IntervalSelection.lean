@@ -212,7 +212,7 @@ theorem exists_ordered_connected_columns
     have hv := theta.rank_injective h
     by_contra hij
     exact Finset.disjoint_left.mp (hdisj hij) (hx i) (hv ▸ hx j)
-  letI : LinearOrder I := LinearOrder.lift' (fun i ↦ theta.rank (x i)) hkey
+  let : LinearOrder I := LinearOrder.lift' (fun i ↦ theta.rank (x i)) hkey
   let e := J.orderEmbOfCardLe hnJ
   refine ⟨e.toEmbedding, ?_⟩
   intro i j hij v hv w hw

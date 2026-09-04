@@ -596,7 +596,7 @@ theorem ec2_to_dense_side_high
     omega
   have hcross' :
       (G.interedges V₂ V₁).card < (b + 1) * (k + 1) := by
-    letI : Std.Symm G.Adj := G.symm
+    let : Std.Symm G.Adj := G.symm
     rw [show (G.interedges V₂ V₁).card =
         (G.interedges V₁ V₂).card by
       exact Rel.card_interedges_comm V₂ V₁]
@@ -745,7 +745,7 @@ theorem exists_early_ec3_or_balanced_large
         Erdos547Claim712.exists_low_cross_large_side
           G hXY.symm (by simpa [Finset.union_comm] using hcover)
           hlarge' (by
-            letI : Std.Symm G.Adj := G.symm
+            let : Std.Symm G.Adj := G.symm
             rw [show (G.interedges Y X).card =
                 (G.interedges X Y).card by
               exact (@Rel.card_interedges_comm V G.Adj _ _ X Y).symm]

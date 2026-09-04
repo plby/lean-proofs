@@ -30,7 +30,7 @@ theorem fourier_nine_tenths_short_quotient_interval
     exists_fourier_halfopen_slice_nine_tenths A k hF hlarge
   obtain ⟨m, hm, π, hπ, hmorder, hchar⟩ :=
     exists_frequency_quotient k hk
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   let r : Circle := fourierDirectionCircle A k hF
   obtain ⟨α, hα⟩ := roots_in_halfopen_semicircle m r θ hθ.1 hθ.2
   refine ⟨m, hm, π, hπ, hmorder, B, hBA, hdense, α, ?_⟩

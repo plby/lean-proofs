@@ -26,7 +26,7 @@ lemma primePowerReplace_dvd_primePowerReplace_of_dvd
       simp only [if_pos rfl]
       have hpFac := hfac p
       have hqFac := hfac q
-      simp [hpq]
+      simp only [↓reduceIte, ge_iff_le]
       exact Nat.add_le_add hpFac hqFac
     · simp only [if_neg hpr]
       exact hfac r

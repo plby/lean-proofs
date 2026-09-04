@@ -27,7 +27,7 @@ namespace PCSubgro
 type-theoretic cardinality of the subgroup. -/
 theorem card_eq_card {n : Nat} (B : PCSubgro K n) :
     B.card = Nat.card B.carrier := by
-  letI : Fintype B.carrier := B.finite_carrier.fintype
+  let : Fintype B.carrier := B.finite_carrier.fintype
   rw [Nat.card_eq_fintype_card]
   exact B.finite_carrier.card_toFinset
 
@@ -94,8 +94,8 @@ theorem radical_classes_field
       ((radicalPowerClasses K Omega n E.carrier :
         Subgroup (PowerClassGroup K n)) : Set (PowerClassGroup K n)) :=
     radical_classes_finite K Omega n E hn hroots
-  letI : Fintype (radicalPowerClasses K Omega n E.carrier) := hfinite.fintype
-  letI : Fintype B.carrier := B.finite_carrier.fintype
+  let : Fintype (radicalPowerClasses K Omega n E.carrier) := hfinite.fintype
+  let : Fintype B.carrier := B.finite_carrier.fintype
   have hcard : Nat.card (radicalPowerClasses K Omega n E.carrier) <=
       Nat.card B.carrier := by
     calc

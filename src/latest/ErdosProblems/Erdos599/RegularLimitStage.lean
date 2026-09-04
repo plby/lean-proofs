@@ -165,7 +165,7 @@ theorem exists_tight_limitFamily
   classical
   dsimp only
   let C := limitHistoryChain previous hprevious
-  haveI : Nonempty (Set.Iio i) :=
+  have : Nonempty (Set.Iio i) :=
     ⟨⟨⟨0, hi.bot_lt.trans i.2⟩, hi.bot_lt⟩⟩
   have htight : ∀ j,
       TightLinkageBetween Gamma A
@@ -302,7 +302,7 @@ theorem limitStageCompiler_of_hitClosure
         D.IsSound (A := A) (request := request) hNorm hA i previous := by
   intro i previous hi hprevious
   let C := limitHistoryChain previous hprevious
-  haveI : Nonempty (Set.Iio i) :=
+  have : Nonempty (Set.Iio i) :=
     ⟨⟨⟨0, hi.bot_lt.trans i.2⟩, hi.bot_lt⟩⟩
   let B : LimitIndexData Sigma i (previousNextIndex previous) :=
     Classical.choice

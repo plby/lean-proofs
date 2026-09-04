@@ -17,10 +17,10 @@ theorem coprimeQuadraticBall_error {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
           (4 * Real.pi / (((F * I).cardQuot : ℝ) *
             ZLattice.covolume (quadraticIdealLattice d b ⊤)))) * T| ≤
       K * (Real.sqrt (T : ℝ) + 1) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   let O := QuadraticAlgebra ℤ d b
-  letI : Finite (O ⧸ F) := Ring.HasFiniteQuotients.finiteQuotient hF
-  letI := Fintype.ofFinite (O ⧸ F)
+  let : Finite (O ⧸ F) := Ring.HasFiniteQuotients.finiteQuotient hF
+  let := Fintype.ofFinite (O ⧸ F)
   have hFI : F * I ≠ ⊥ := (Ideal.mul_eq_bot).not.mpr (not_or.mpr ⟨hF, hI⟩)
   obtain ⟨K, hK, hbound⟩ := quadraticIdealCosetBall_error hD (F * I) hFI
   have hU : (0 : ℝ) < Nat.card (O ⧸ F)ˣ := by exact_mod_cast Nat.card_pos (α := (O ⧸ F)ˣ)

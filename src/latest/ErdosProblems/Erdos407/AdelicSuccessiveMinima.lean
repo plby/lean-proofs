@@ -459,7 +459,7 @@ theorem exists_adaptedBasisCertificate {n : ℕ} (hn : 0 < n)
     (L : LocalForms n) (hL : IsNonsingularFamily L) {Q : ℕ}
     (hQ : 1 ≤ Q) (c : LocalConstants n) :
     Nonempty (AdaptedBasisCertificate L Q c) := by
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   let D := Erdos407.RankDrop.realSIntegralApproximationDomain L Q c
   let R := rationalSetRank D
   have hR : R ≤ n := rationalSetRank_le_dimension D

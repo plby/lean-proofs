@@ -22,7 +22,7 @@ theorem NonbipartiteAfterDeleting.mono {V : Type*} {G : SimpleGraph V} {a b : �
 theorem nonempty_of_not_two_colorable {V : Type*} (G : SimpleGraph V)
     (h : ¬ G.Colorable 2) : Nonempty V := by
   by_contra hn
-  haveI : IsEmpty V := not_nonempty_iff.mp hn
+  have : IsEmpty V := not_nonempty_iff.mp hn
   apply h
   refine ⟨{ toFun := fun x => isEmptyElim x, map_rel' := ?_ }⟩
   intro x
@@ -38,7 +38,7 @@ theorem exists_short_odd_cycle_avoiding {V : Type*} [Fintype V] [DecidableEq V]
   classical
   let U := (S : Set V)ᶜ
   have hnb : ¬ (G.induce U).Colorable 2 := hnonbip S hS
-  haveI : Nonempty U := nonempty_of_not_two_colorable _ hnb
+  have : Nonempty U := nonempty_of_not_two_colorable _ hnb
   have hc : (G.induce U).Connected := ⟨hconn S hS⟩
   have hmin (v : U) : d ≤ (G.induce U).degree v := by
     have h := degree_le_induce_compl_degree_add_card G S v

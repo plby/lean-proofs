@@ -58,7 +58,7 @@ lemma keyCRTModulusAt16_pairwise_coprime :
         (keyCRTModulusAt16 j)) := by
   intro i _hi j _hj hij
   rcases i with i | ij <;> rcases j with j | kl
-  · fin_cases i <;> fin_cases j <;> simp_all [keyCRTModulusAt16]
+  · fin_cases i <;> fin_cases j <;> simp_all only [Fin.mk_one, Fin.isValue, Fin.zero_eta]
     · exact keySmallModulus16_coprime_auxProduct
     · exact keySmallModulus16_coprime_auxProduct.symm
   · fin_cases i

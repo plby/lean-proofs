@@ -408,14 +408,14 @@ theorem arc_not_separates (hbr : BrouwerFPT) {A : Set Plane}
     (φ : A ≃ₜ unitInterval) : IsConnected Aᶜ := by
   classical
   -- `A` is compact, hence closed, bounded, and `Aᶜ` is open.
-  haveI : CompactSpace ↥unitInterval := inferInstance
-  haveI hcsA : CompactSpace ↥A := φ.symm.compactSpace
+  have : CompactSpace ↥unitInterval := inferInstance
+  have hcsA : CompactSpace ↥A := φ.symm.compactSpace
   have hAcpt : IsCompact A := isCompact_iff_compactSpace.mpr hcsA
   have hAcl : IsClosed A := hAcpt.isClosed
   have hAbd : IsBounded A := hAcpt.isBounded
   have hAopen : IsOpen Aᶜ := hAcl.isOpen_compl
   -- Tietze retraction `ρ : ℝ² → ℝ²`, `range ρ ⊆ A`, `ρ = id` on `A`.
-  haveI : TietzeExtension ↥A := TietzeExtension.of_homeo φ
+  have : TietzeExtension ↥A := TietzeExtension.of_homeo φ
   obtain ⟨g, hg⟩ := ContinuousMap.exists_restrict_eq hAcl (ContinuousMap.id ↥A)
   set ρ : Plane → Plane := fun x => (g x : Plane) with hρdef
   have hρcont : Continuous ρ := continuous_subtype_val.comp g.continuous
@@ -640,9 +640,9 @@ theorem component_boundary_eq (hbr : BrouwerFPT)
     JordanCurve.Arcs.exists_proper_arc hCclosed hCne
   set A : Set Plane := r '' A₀ with hAdef
   -- Compactness of the sphere subtype ⇒ of `A₀`, giving `A ≃ₜ unitInterval`.
-  haveI hcsSphere : CompactSpace (sphere (0 : Plane) 1) :=
+  have hcsSphere : CompactSpace (sphere (0 : Plane) 1) :=
     JordanCurve.Arcs.circleHomeoSphere.compactSpace
-  haveI hcsA0 : CompactSpace ↥A₀ := isCompact_iff_compactSpace.mp hA0closed.isCompact
+  have hcsA0 : CompactSpace ↥A₀ := isCompact_iff_compactSpace.mp hA0closed.isCompact
   have eImg : (↥A₀) ≃ₜ (↥A) :=
     Continuous.homeoOfEquivCompactToT2 (f := Equiv.Set.image r A₀ hinj)
       (continuous_induced_rng.2 (hcont.comp continuous_subtype_val))
@@ -896,7 +896,7 @@ theorem segment_meets_curve (hbr : BrouwerFPT)
   -- the curve is path-connected (continuous image of the path-connected circle)
   have hsp : IsPathConnected (sphere (0:Plane) 1) :=
     isPathConnected_sphere one_lt_rank_plane 0 (by norm_num)
-  haveI : PathConnectedSpace ↥(sphere (0:Plane) 1) :=
+  have : PathConnectedSpace ↥(sphere (0:Plane) 1) :=
     isPathConnected_iff_pathConnectedSpace.mp hsp
   have h1 : IsPathConnected (univ : Set ↥(sphere (0:Plane) 1)) :=
     pathConnectedSpace_iff_univ.mp ‹_›
@@ -912,7 +912,8 @@ theorem segment_meets_curve (hbr : BrouwerFPT)
     apply Continuous.continuousOn
     apply (PiLp.continuous_toLp 2 (fun _ : Fin 2 => ℝ)).comp
     refine continuous_pi (fun i => ?_)
-    fin_cases i <;> simp <;> fun_prop
+    fin_cases i <;> simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.mk_one, Fin.isValue, Matrix.cons_val_one,
+    Matrix.cons_val_fin_one, Fin.zero_eta, Matrix.cons_val_zero] <;> fun_prop
   have hv0 : ∀ t : ℝ, v t 0 = 0 := by intro t; simp [hvdef]
   have hv1 : ∀ t : ℝ, v t 1 = 2 * t := by intro t; simp [hvdef]
   -- edge/rectangle conditions
@@ -966,7 +967,7 @@ theorem exists_ymax_on_axis (hbr : BrouwerFPT)
 hence a (closed) embedding, so `↥A ≃ₜ ↥(range …) = ↥((↑) '' A)`. -/
 private lemma planar_arc_homeo {K : Set Plane} {A : Set ↥K}
     (e : A ≃ₜ unitInterval) : Nonempty (((↑) '' A : Set Plane) ≃ₜ unitInterval) := by
-  haveI : CompactSpace ↥A := e.symm.compactSpace
+  have : CompactSpace ↥A := e.symm.compactSpace
   let k : ↥A → Plane := fun a => ((a : ↥K) : Plane)
   have hkc : Continuous k := continuous_subtype_val.comp continuous_subtype_val
   have hki : Injective k := Subtype.coe_injective.comp Subtype.coe_injective
@@ -1052,7 +1053,7 @@ continuous path on `[-1,1]` whose image is the union of the pieces. -/
 /-- An arc `J ⊆ Plane` homeomorphic to `unitInterval` is path-connected. -/
 theorem arc_isPathConnected {J : Set Plane} (e : ↥J ≃ₜ unitInterval) :
     IsPathConnected J := by
-  haveI : PathConnectedSpace unitInterval :=
+  have : PathConnectedSpace unitInterval :=
     isPathConnected_iff_pathConnectedSpace.mp
       ((convex_Icc (0:ℝ) 1).isPathConnected (Set.nonempty_Icc.mpr (by norm_num)))
   have h1 : IsPathConnected (univ : Set unitInterval) := isPathConnected_univ
@@ -1487,7 +1488,8 @@ theorem isPathConnected_vertSeg (c : ℝ) {T : Set ℝ} (hT : IsPathConnected T)
   have hfcont : Continuous (fun y : ℝ => (!₂[c, y] : Plane)) := by
     apply (PiLp.continuous_toLp 2 (fun _ : Fin 2 => ℝ)).comp
     refine continuous_pi (fun i => ?_)
-    fin_cases i <;> simp <;> fun_prop
+    fin_cases i <;> simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.mk_one, Fin.isValue, Matrix.cons_val_one,
+    Matrix.cons_val_fin_one, Fin.zero_eta, Matrix.cons_val_zero] <;> fun_prop
   have himg := hT.image hfcont
   have hEq : (fun y : ℝ => (!₂[c, y] : Plane)) '' T = {p : Plane | p 0 = c ∧ p 1 ∈ T} := by
     ext p
@@ -1504,7 +1506,8 @@ theorem isPathConnected_horizSeg (c : ℝ) {T : Set ℝ} (hT : IsPathConnected T
   have hfcont : Continuous (fun x : ℝ => (!₂[x, c] : Plane)) := by
     apply (PiLp.continuous_toLp 2 (fun _ : Fin 2 => ℝ)).comp
     refine continuous_pi (fun i => ?_)
-    fin_cases i <;> simp <;> fun_prop
+    fin_cases i <;> simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.mk_one, Fin.isValue, Matrix.cons_val_one,
+    Matrix.cons_val_fin_one, Fin.zero_eta, Matrix.cons_val_zero] <;> fun_prop
   have himg := hT.image hfcont
   have hEq : (fun x : ℝ => (!₂[x, c] : Plane)) '' T = {p : Plane | p 1 = c ∧ p 0 ∈ T} := by
     ext p

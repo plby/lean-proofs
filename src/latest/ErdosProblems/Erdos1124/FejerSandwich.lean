@@ -625,8 +625,8 @@ lemma fejerSmooth_indicator_upper {N : ℕ} (hN : 0 < N)
     have ht0 : 0 ≤ t := by dsimp [t]; positivity
     by_cases hy : y ∈ E
     · dsimp [f]
-      simp [realSetIndicator, hy]
-      exact ht0
+      simp only [realSetIndicator, hy, if_true, one_mul]
+      exact le_add_of_nonneg_right ht0
     · dsimp [f]
       simp only [realSetIndicator, hy, if_false, zero_mul, zero_add]
       exact fejerPolynomial_le_of_distance hN hη (hfar y hy)
@@ -660,7 +660,7 @@ lemma fejerSmooth_indicator_lower {N : ℕ} (hN : 0 < N)
       simp only [realSetIndicator, hy, if_true, one_mul]
       exact fejerPolynomial_le_of_distance hN hη (hfar y hy)
     · dsimp [f]
-      simp [realSetIndicator, hy]
+      simp only [realSetIndicator, hy, if_false, zero_mul]
       exact ht0
   have hi := integral_mono hf ht hmono
   rw [integral_const] at hi

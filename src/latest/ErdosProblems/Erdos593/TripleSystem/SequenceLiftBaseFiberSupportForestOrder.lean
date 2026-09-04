@@ -51,7 +51,7 @@ theorem IsAcyclic.exists_vertex_adj_unique
     have hne : (⟨x, hxc⟩ : c) ≠ ⟨y, hyc⟩ := by
       intro h
       exact hxy.ne (congrArg Subtype.val h)
-    letI : Nontrivial c := ⟨⟨x, hxc⟩, ⟨y, hyc⟩, hne⟩
+    let : Nontrivial c := ⟨⟨x, hxc⟩, ⟨y, hyc⟩, hne⟩
     obtain ⟨q, hq⟩ := (hG.isTree_connectedComponent c).exists_vert_degree_one_of_nontrivial
     have huniq : ∃! z : c, c.toSimpleGraph.Adj q z :=
       (SimpleGraph.degree_eq_one_iff_existsUnique_adj).mp hq
@@ -79,7 +79,7 @@ theorem IsAcyclic.exists_finset_tailAtMostOneNeighborOrder
     · subst s
       exact ⟨[], List.nodup_nil, by simp, trivial⟩
     · have hsne : s.Nonempty := Finset.nonempty_iff_ne_empty.mpr hs
-      letI : Nonempty s := hsne.to_subtype
+      let : Nonempty s := hsne.to_subtype
       obtain ⟨q, hq⟩ :=
         IsAcyclic.exists_vertex_adj_unique (hG.induce (↑s : Set V))
       obtain ⟨l, hlNodup, hlFinset, hlTail⟩ :=

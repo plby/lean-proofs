@@ -208,7 +208,7 @@ theorem basisCoordinate_mul_successiveMinimum_le {n : ℕ}
       (((8 : ℝ) ^ n * (n.factorial : ℝ)) / (2 : ℝ) ^ n) *
         (∏ j : Fin n, mahlerFactor j) := by
   classical
-  letI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+  let : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
   let U : Finset (Fin n) := Finset.univ.erase i
   let Q : ℝ := ∏ j ∈ U, p (integralEmbed (b j))
   let L : ℝ := ∏ j ∈ U, successiveMinimum p j

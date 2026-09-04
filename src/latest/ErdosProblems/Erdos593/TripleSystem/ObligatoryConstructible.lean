@@ -62,37 +62,37 @@ theorem Constructible.finiteTypes {V E : Type w} {F : TripleSystem V E}
       exact ⟨inferInstance, inferInstance⟩
   | ofExpansion G hG =>
       classical
-      letI : Finite G.edgeSet :=
+      let : Finite G.edgeSet :=
         Finite.of_injective Subtype.val Subtype.val_injective
-      letI : Fintype G.edgeSet := Fintype.ofFinite G.edgeSet
+      let : Fintype G.edgeSet := Fintype.ofFinite G.edgeSet
       exact ⟨inferInstance, inferInstance⟩
   | @disjointUnion V E W D F G hF hG ihF ihG =>
       classical
-      letI : Finite V := ihF.1
-      letI : Finite E := ihF.2
-      letI : Finite W := ihG.1
-      letI : Finite D := ihG.2
-      letI : Fintype V := Fintype.ofFinite V
-      letI : Fintype E := Fintype.ofFinite E
-      letI : Fintype W := Fintype.ofFinite W
-      letI : Fintype D := Fintype.ofFinite D
+      let : Finite V := ihF.1
+      let : Finite E := ihF.2
+      let : Finite W := ihG.1
+      let : Finite D := ihG.2
+      let : Fintype V := Fintype.ofFinite V
+      let : Fintype E := Fintype.ofFinite E
+      let : Fintype W := Fintype.ofFinite W
+      let : Fintype D := Fintype.ofFinite D
       exact ⟨inferInstance, inferInstance⟩
   | @amalgam V₀ E₀ V₁ E₁ F₀ F₁ h₀ h₁ r₀ r₁ ih₀ ih₁ =>
       classical
-      letI : Finite V₀ := ih₀.1
-      letI : Finite E₀ := ih₀.2
-      letI : Finite V₁ := ih₁.1
-      letI : Finite E₁ := ih₁.2
-      letI : Fintype V₀ := Fintype.ofFinite V₀
-      letI : Fintype E₀ := Fintype.ofFinite E₀
-      letI : Fintype V₁ := Fintype.ofFinite V₁
-      letI : Fintype E₁ := Fintype.ofFinite E₁
-      letI : Fintype (OnePointAmalgamation.Vertex r₀ r₁) :=
+      let : Finite V₀ := ih₀.1
+      let : Finite E₀ := ih₀.2
+      let : Finite V₁ := ih₁.1
+      let : Finite E₁ := ih₁.2
+      let : Fintype V₀ := Fintype.ofFinite V₀
+      let : Fintype E₀ := Fintype.ofFinite E₀
+      let : Fintype V₁ := Fintype.ofFinite V₁
+      let : Fintype E₁ := Fintype.ofFinite E₁
+      let : Fintype (OnePointAmalgamation.Vertex r₀ r₁) :=
         OnePointAmalgamation.vertexFintype r₀ r₁
       exact ⟨inferInstance, inferInstance⟩
   | @ofIso V E V' E' F F' hF f ihF =>
-      letI : Finite V := ihF.1
-      letI : Finite E := ihF.2
+      let : Finite V := ihF.1
+      let : Finite E := ihF.2
       exact ⟨Finite.of_equiv V f.vertexEquiv,
         Finite.of_equiv E f.edgeEquiv⟩
 
@@ -103,7 +103,7 @@ theorem edgeless_isObligatory (V : Type w) [Fintype V] :
   intro W D _ H hH
   have hvertices : ℵ₀ ≤ #W :=
     hH.le.trans H.chromaticCardinal_le_mk_vertices
-  letI : Infinite W := Cardinal.aleph0_le_mk_iff.mp hvertices
+  let : Infinite W := Cardinal.aleph0_le_mk_iff.mp hvertices
   let vertexEmbedding : V ↪ W :=
     (Fintype.equivFin V).toEmbedding.trans
       (Fin.valEmbedding.trans (Infinite.natEmbedding W))
@@ -140,25 +140,25 @@ theorem Constructible.isObligatory_of_expansions
       exact hExpansion G hG
   | @disjointUnion V E W D F G hF hG ihF ihG =>
       classical
-      letI : Finite V := hF.finiteTypes.1
-      letI : Finite E := hF.finiteTypes.2
-      letI : Finite W := hG.finiteTypes.1
-      letI : Finite D := hG.finiteTypes.2
-      letI : Fintype V := Fintype.ofFinite V
-      letI : Fintype E := Fintype.ofFinite E
-      letI : Fintype W := Fintype.ofFinite W
-      letI : Fintype D := Fintype.ofFinite D
+      let : Finite V := hF.finiteTypes.1
+      let : Finite E := hF.finiteTypes.2
+      let : Finite W := hG.finiteTypes.1
+      let : Finite D := hG.finiteTypes.2
+      let : Fintype V := Fintype.ofFinite V
+      let : Fintype E := Fintype.ofFinite E
+      let : Fintype W := Fintype.ofFinite W
+      let : Fintype D := Fintype.ofFinite D
       exact IsObligatory.disjointUnion F G ihF ihG
   | @amalgam V₀ E₀ V₁ E₁ F₀ F₁ h₀ h₁ r₀ r₁ ih₀ ih₁ =>
       classical
-      letI : Finite V₀ := h₀.finiteTypes.1
-      letI : Finite E₀ := h₀.finiteTypes.2
-      letI : Finite V₁ := h₁.finiteTypes.1
-      letI : Finite E₁ := h₁.finiteTypes.2
-      letI : Fintype V₀ := Fintype.ofFinite V₀
-      letI : Fintype E₀ := Fintype.ofFinite E₀
-      letI : Fintype V₁ := Fintype.ofFinite V₁
-      letI : Fintype E₁ := Fintype.ofFinite E₁
+      let : Finite V₀ := h₀.finiteTypes.1
+      let : Finite E₀ := h₀.finiteTypes.2
+      let : Finite V₁ := h₁.finiteTypes.1
+      let : Finite E₁ := h₁.finiteTypes.2
+      let : Fintype V₀ := Fintype.ofFinite V₀
+      let : Fintype E₀ := Fintype.ofFinite E₀
+      let : Fintype V₁ := Fintype.ofFinite V₁
+      let : Fintype E₁ := Fintype.ofFinite E₁
       exact IsObligatory.onePointAmalgamation ih₀ ih₁ r₀ r₁
   | ofIso hF f ihF =>
       exact ihF.ofIso f

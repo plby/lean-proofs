@@ -46,7 +46,7 @@ theorem unitWeightedSiftedMass_eq_sum_units
       ∑ a : (ZMod q)ˣ,
         L a * siftedMass (residueClassUpTo M q (unitResidue q a))
           (fun m : ℕ ↦ (m : ℝ)) (badPrimeSet P) := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let F : (ZMod q)ˣ → ℕ → ℝ := fun a m ↦
     if 0 < m ∧ badPrimeSet P m = ∅ then L a * (m : ℝ) else 0
   have hfilter : ∀ m : ℕ,
@@ -195,7 +195,7 @@ theorem tKMulCoprimeSiftedMass_le_brun
   have hq : 0 < primeProduct Q := by
     unfold primeProduct
     exact Finset.prod_pos fun p hp ↦ (hQprime p hp).pos
-  letI : NeZero (primeProduct Q) := ⟨hq.ne'⟩
+  let : NeZero (primeProduct Q) := ⟨hq.ne'⟩
   let L : (ZMod (primeProduct Q))ˣ → ℝ := fun a ↦
     rootBoxTupleLeastHit Q K (by omega) hQprime
       (globalUnitsRootBoxEquiv Q hQprime a)

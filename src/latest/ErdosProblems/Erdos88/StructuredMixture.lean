@@ -84,7 +84,8 @@ lemma outsideAssignmentSet_remainderSubsetEquiv
         R.image Subtype.val
   rw [hdecode]
   ext v
-  simp [T, outsideEquivRemainder]
+  simp only [Finset.mem_image, Subtype.exists, Finset.mem_biUnion, id_eq, not_exists, not_and, exists_and_right,
+    exists_eq_right, SetLike.coe_sort_coe]
   constructor
   · rintro ⟨hnot, hvR⟩
     have hvnotCovered : v ∉ D.blocks.biUnion id := by

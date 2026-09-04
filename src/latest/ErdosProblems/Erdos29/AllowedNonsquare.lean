@@ -33,7 +33,7 @@ def allowedT (p : ℕ) : ℕ :=
 
 lemma mem_squareResidues_iff_isSquare {p n : ℕ} (hp : 0 < p) (hn : n < p) :
     n ∈ squareResidues p ↔ IsSquare (n : ZMod p) := by
-  letI : NeZero p := ⟨Nat.ne_of_gt hp⟩
+  let : NeZero p := ⟨Nat.ne_of_gt hp⟩
   constructor
   · intro h
     rw [isSquare_iff_exists_mul_self]
@@ -56,7 +56,7 @@ lemma mem_squareResidues_iff_isSquare {p n : ℕ} (hp : 0 < p) (hn : n < p) :
 private lemma exists_allowed_residue {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p) :
     ∃ t : ZMod p,
       ¬ IsSquare t ∧ t ≠ -1 ∧ t ≠ -3 ∧ t ≠ -((3 : ZMod p)⁻¹) := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hp0 : 0 < p := lt_of_lt_of_le (by omega) hp11
   have hchar : ringChar (ZMod p) ≠ 2 := by
     rw [ZMod.ringChar_zmod_n]
@@ -121,7 +121,7 @@ private lemma exists_allowed_residue {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p) 
 
 private lemma allowedCandidates_nonempty {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p) :
     (allowedCandidates p).Nonempty := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hp0 : 0 < p := lt_of_lt_of_le (by omega) hp11
   obtain ⟨t, htSquare, ht1, ht3, htInv3⟩ := exists_allowed_residue hp hp11
   refine ⟨t.val, ?_⟩
@@ -187,7 +187,7 @@ private lemma allowedT_ne_zero {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p) :
 
 private lemma two_ne_zero {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p) :
     (2 : ZMod p) ≠ 0 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   intro h
   have hdvd : p ∣ 2 := (CharP.cast_eq_zero_iff (ZMod p) p 2).mp h
   have hle := Nat.le_of_dvd (by omega) hdvd
@@ -195,7 +195,7 @@ private lemma two_ne_zero {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p) :
 
 private lemma four_ne_zero {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p) :
     (4 : ZMod p) ≠ 0 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   intro h
   have hdvd : p ∣ 4 := (CharP.cast_eq_zero_iff (ZMod p) p 4).mp h
   have hle := Nat.le_of_dvd (by omega) hdvd
@@ -203,7 +203,7 @@ private lemma four_ne_zero {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p) :
 
 private lemma allowedT_inv_ne_neg_one {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p) :
     (allowedT p : ZMod p)⁻¹ ≠ -1 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   intro h
   apply allowedT_ne_neg_one hp hp11
   have hi := congrArg Inv.inv h
@@ -211,7 +211,7 @@ private lemma allowedT_inv_ne_neg_one {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p)
 
 private lemma allowedT_inv_ne_neg_three {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p) :
     (allowedT p : ZMod p)⁻¹ ≠ -3 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   intro h
   apply allowedT_ne_neg_inv_three hp hp11
   have hi := congrArg Inv.inv h
@@ -221,7 +221,7 @@ private lemma allowedT_inv_ne_neg_three {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ 
 theorem parabolaCoefficients_add_ne_zero {p : ℕ} (hp : p.Prime) (hp11 : 11 ≤ p)
     {c d : ZMod p} (hc : c ∈ parabolaCoefficients p) (hd : d ∈ parabolaCoefficients p) :
     c + d ≠ 0 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let t : ZMod p := allowedT p
   have ht0 : t ≠ 0 := allowedT_ne_zero hp hp11
   have ht1 : t ≠ -1 := allowedT_ne_neg_one hp hp11

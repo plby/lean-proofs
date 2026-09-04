@@ -117,7 +117,7 @@ theorem noForwardSandwich_of_incidence_intervalConvex
     have hwR : (r.finish, w) ∈ R :=
       hout hOut hwFamily
     classical
-    letI := Classical.decEq V
+    let := Classical.decEq V
     have hpos := FinitePath.edgeSet_eq_position_interval p r hrp
     have hrtPos : p.walk.support.idxOf r.start ≤
         p.walk.support.idxOf (r.start, t).1 ∧

@@ -70,7 +70,7 @@ theorem positiveInterfaceExternalPairSourceCap_subset_pairRankAtom
       positiveInterfaceExternalPairRankAtom t o m k externalThreshold width
         shell 0 eta := by
   classical
-  letI : Fintype (PositiveInterfaceExternalPairCoordinate eta) :=
+  let : Fintype (PositiveInterfaceExternalPairCoordinate eta) :=
     instFintypeTilingAwayDomino t eta.1.1.start eta.1.1.retained
       (supportComplementDistinguished t eta.1.1.start eta.1.1.retained
         eta.1.2)

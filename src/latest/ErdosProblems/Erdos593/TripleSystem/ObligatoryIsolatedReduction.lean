@@ -141,7 +141,7 @@ theorem IsObligatory.of_isolatedReduction [Fintype V]
   obtain ⟨f⟩ := hF Y B K hK
   have hvertices : ℵ₀ ≤ #Y :=
     hK.le.trans K.chromaticCardinal_le_mk_vertices
-  letI : Infinite Y := Cardinal.aleph0_le_mk_iff.mp hvertices
+  let : Infinite Y := Cardinal.aleph0_le_mk_iff.mp hvertices
   exact ⟨f.extendIsolatedReduction⟩
 
 /-- For a finite triple system, deleting isolated vertices preserves and

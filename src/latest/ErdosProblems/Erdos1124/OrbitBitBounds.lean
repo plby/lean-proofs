@@ -450,7 +450,7 @@ theorem orbitNetBlockFlow_le
   by_cases hij : i = j
   · subst j
     rw [orbitNetBlockFlow_eq_raw_sub]
-    simp
+    simp only [sub_self, Nat.cast_mul, Nat.cast_pow, Nat.cast_ofNat]
     positivity
   have hi := abs_rawBlockFlow_orbit_le hfree M φ b hbound i j hij
   have hj := abs_rawBlockFlow_orbit_le hfree M φ b hbound j i (Ne.symm hij)
@@ -576,7 +576,7 @@ private lemma torus_freeAction_of_free {d k : ℕ}
     (u : Fin d → Torus k) (hu : Free u) :
     letI := torusAddAction u
     FreeAction (d := d) (X := Torus k) := by
-  letI := torusAddAction u
+  let := torusAddAction u
   intro x m n hmn
   apply hu
   exact add_right_cancel hmn
@@ -608,7 +608,7 @@ theorem exists_equidecomp_of_torusBitFlow
         Equidecomp.IsDecompOn e A
           (multiplicativeDisplacements
             (orbitDisplacements (torusShift u) M)) := by
-  letI := torusAddAction u
+  let := torusAddAction u
   have hfree : FreeAction (d := d) (X := Torus k) :=
     torus_freeAction_of_free u hu
   apply exists_equidecomp_of_orbitBitFlow hfree A B

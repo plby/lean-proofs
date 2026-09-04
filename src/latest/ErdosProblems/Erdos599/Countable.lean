@@ -3418,8 +3418,8 @@ theorem vertexSet_countable_of_initialSet {V : Type} {G : SimpleGraph V}
   have hf : Function.Injective f := by
     intro i j hij
     exact W.initial_injective (congrArg Subtype.val hij)
-  letI : Countable W.initialSet := hinit.to_subtype
-  letI : Countable W.ι := hf.countable
+  let : Countable W.initialSet := hinit.to_subtype
+  let : Countable W.ι := hf.countable
   let g : W.ι × ℕ → V := fun z => (W.path z.1).vertex z.2
   apply (Set.countable_range g).mono
   rintro v ⟨i, n, hn, hnv⟩
@@ -3648,8 +3648,8 @@ theorem vertexSet_meeting_countable {V : Type} {G : SimpleGraph V}
     have hd := W.disjoint hijIndex
     exact Set.disjoint_left.mp hd (hpointPath i)
       (congrArg Subtype.val hij ▸ hpointPath j)
-  letI : Countable X := hX.to_subtype
-  letI : Countable I := hpoint.countable
+  let : Countable X := hX.to_subtype
+  let : Countable I := hpoint.countable
   have hInitial : (W.meeting X).initialSet.Countable := by
     apply (Set.countable_range fun i : I => (W.path i.1).initial).mono
     rintro v ⟨i, hiv⟩
@@ -14686,8 +14686,8 @@ theorem chain_bddAbove {V : Type} {G : SimpleGraph V} {W : Warp G}
     (hc : IsChain (· ≤ ·) c) (hne : c.Nonempty) : BddAbove c := by
   classical
   let C := {X : WaveExtension W A B // X ∈ c}
-  letI : Nonempty C := Set.nonempty_coe_sort.mpr hne
-  letI : LinearOrder C := hc.linearOrder
+  let : Nonempty C := Set.nonempty_coe_sort.mpr hne
+  let : LinearOrder C := hc.linearOrder
   let P : C → W.ι → LongPath G := fun X i => (X.1.path i).1
   have hchain : ∀ i ⦃X Y : C⦄, X ≤ Y →
       (P X i).Forward (P Y i) := by
@@ -14721,7 +14721,7 @@ theorem chain_bddAbove {V : Type} {G : SimpleGraph V} {W : Warp G}
 theorem exists_isMax {V : Type} {G : SimpleGraph V} {W : Warp G}
     {A B : Set V} (hW : W.IsWave A B) :
     ∃ X : WaveExtension W A B, IsMax X := by
-  letI : Nonempty (WaveExtension W A B) := ⟨base hW⟩
+  let : Nonempty (WaveExtension W A B) := ⟨base hW⟩
   exact zorn_le_nonempty fun c hc hne => chain_bddAbove c hc hne
 
 end WaveExtension
@@ -18337,8 +18337,7 @@ theorem safeTreeGroundStage_terminal_not_mem_tree {V : Type}
   have hGraph :
       outsideGraph (outsideGraph (outsideGraph G {a}) s.deleted) {t} =
         outsideGraph G ({a} ∪ F) := by
-    simp [F, outsideGraph_outsideGraph, Set.union_assoc,
-      Set.union_comm, Set.union_left_comm]
+    simp only [outsideGraph_outsideGraph, Set.singleton_union, Set.union_singleton]
     rw [Set.insert_comm a t]
   have hAeq : ((A \ {a}) \ {t}) = A \ ({a} ∪ F) := by
     ext x
@@ -20697,8 +20696,8 @@ theorem exists_cleanLinkage_of_countable_unhindered
   · subst A
     exact exists_cleanLinkage_empty G B
   · have hAne : A.Nonempty := Set.nonempty_iff_ne_empty.mpr hAempty
-    letI : Nonempty A := hAne.to_subtype
-    letI : Countable A := hA.to_subtype
+    let : Nonempty A := hAne.to_subtype
+    let : Countable A := hA.to_subtype
     rcases exists_surjective_nat A with ⟨e, he⟩
     exact ⟨countableSafeWarp hsafe hunhindered e,
       countableSafeWarp_isCleanLinkage hsafe hunhindered e he⟩
@@ -21394,8 +21393,8 @@ theorem exists_cleanLinkage_of_countable_extension
     have hdiff : A \ (∅ : Set V) = A := by simp
     exact ⟨F, by simpa [hdiff] using hF⟩
   · have hA₀ne : A₀.Nonempty := Set.nonempty_iff_ne_empty.mpr hA₀empty
-    letI : Nonempty A₀ := hA₀ne.to_subtype
-    letI : Countable A₀ := hcount.to_subtype
+    let : Nonempty A₀ := hA₀ne.to_subtype
+    let : Countable A₀ := hcount.to_subtype
     rcases exists_surjective_nat A₀ with ⟨root, hroot⟩
     exact ⟨hotelCombinedWarp hsafe hA₀ root F hF hunhindered,
       hotelCombinedWarp_isCleanLinkage

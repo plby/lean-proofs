@@ -52,7 +52,7 @@ theorem exists_divisibility_coordinate_correction
     ∃ S ⊆ A, S.card + 1 ≤ K ^ P.rank ∧ g ∣ P.linearEval v + ∑ x ∈ S, x := by
   let Δ := evaluationMultiples P g
   obtain ⟨hfinite, hindex⟩ := evaluationMultiples_finiteIndex_and_index_le P g K hK hperiod
-  letI : Δ.FiniteIndex := hfinite
+  let : Δ.FiniteIndex := hfinite
   obtain ⟨S, hSA, hcard, hmod⟩ := exists_small_subset_sum_mod_subgroup
     P.centeredCoordinates A Δ r (hindex.trans hsize) hstable
       ((generatedSubgroup P.centeredCoordinates A).neg_mem hv)

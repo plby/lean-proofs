@@ -137,15 +137,15 @@ theorem adjoin_90_radical
     (hexp : ∀ sigma : Gal(L/K), sigma ^ n = 1)
     {ζ : K} (hζ : IsPrimitiveRoot ζ n) :
     IntermediateField.adjoin K (hilbert90Set K L n) = ⊤ := by
-  letI : CommGroup Gal(L/K) :=
+  let : CommGroup Gal(L/K) :=
     { (inferInstance : Group Gal(L/K)) with mul_comm := hcomm }
-  letI : NeZero n := ⟨hn.ne'⟩
+  let : NeZero n := ⟨hn.ne'⟩
   have hexponent : Monoid.exponent Gal(L/K) ∣ n := by
     apply Monoid.exponent_dvd_iff_forall_pow_eq_one.mpr
     exact hexp
-  letI : HasEnoughRootsOfUnity K n :=
+  let : HasEnoughRootsOfUnity K n :=
     HasEnoughRootsOfUnity.of_card_le (by rw [hζ.card_rootsOfUnity])
-  letI : HasEnoughRootsOfUnity K (Monoid.exponent Gal(L/K)) :=
+  let : HasEnoughRootsOfUnity K (Monoid.exponent Gal(L/K)) :=
     HasEnoughRootsOfUnity.of_dvd K hexponent
   apply IsGalois.intermediateFieldEquivSubgroup.injective
   rw [map_top]

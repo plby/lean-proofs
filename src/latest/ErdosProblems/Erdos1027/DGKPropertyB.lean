@@ -310,7 +310,7 @@ lemma expect_colourStatisticR
       f (fun u ↦ DGKPriorities.colour w u)) =
       𝔼 colour : U → Bool, f colour := by
   classical
-  haveI : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
+  have : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
   let e := Equiv.arrowProdEquivProdArrow U
     (fun _ : U ↦ Bool) (fun _ : U ↦ Fin N)
   calc
@@ -634,7 +634,7 @@ theorem fixedBudget
     intro F hF
     exact Finset.card_pos.mp (hr.trans_le (hmin F hF))
   have hN : 0 < N := DGKOutcome.commonDenominator_pos hne
-  letI : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
+  let : Nonempty (Fin N) := Fin.pos_iff_nonempty.mp hN
   have hdiv : ∀ F ∈ H, F.card ∣ N := by
     intro F hF
     exact DGKOutcome.card_dvd_commonDenominator hF
@@ -763,8 +763,8 @@ proof. -/
 theorem universalBeckFixedBudget (ambient : Type u) (C n : ℕ) (hC : 0 < C) :
     Tree.UniversalBeckFixedBudget ambient C n (dgkThreshold (8 * C)) := by
   intro V hFV hDec
-  letI : LinearOrder V := (Fintype.equivFin V).linearOrder
-  letI : DecidableEq V := hDec
+  let : LinearOrder V := (Fintype.equivFin V).linearOrder
+  let : DecidableEq V := hDec
   exact fixedBudget (V := V) C n hC
 
 end Assembly

@@ -24,9 +24,9 @@ theorem idealClassNormCount_sum {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     letI := quadraticOrderIsDomain hD
     letI := quadraticOrderClassGroupFintype hD
     (∑ C, idealClassNormCount C F n) = Nat.card (GoodIdealNormFiber F n) := by
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
-  letI := finite_goodIdealNormFiber hD F n
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
+  let := finite_goodIdealNormFiber hD F n
   have hsum : (∑ C, idealClassNormCount C F n) =
       ∑ C, Nat.card {I : GoodIdealNormFiber F n // I.1.idealClass = C} := by
     apply Finset.sum_congr rfl
@@ -41,8 +41,8 @@ theorem weightedIdealNormCoeff_eq_const {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     ∀ (w : ClassGroup (QuadraticAlgebra ℤ d b) → ℂ) (a : ℂ),
       (∀ I : GoodIdealNormFiber F n, w I.1.idealClass = a) →
       weightedIdealNormCoeff hD F w n = a * (Nat.card (GoodIdealNormFiber F n) : ℂ) := by
-  letI := quadraticOrderIsDomain hD
-  letI := quadraticOrderClassGroupFintype hD
+  let := quadraticOrderIsDomain hD
+  let := quadraticOrderClassGroupFintype hD
   intro w a hw
   unfold weightedIdealNormCoeff
   rw [← idealClassNormCount_sum hD F n, Nat.cast_sum, Finset.mul_sum]
@@ -54,7 +54,7 @@ theorem weightedIdealNormCoeff_eq_const {d b : ℤ} (hD : b ^ 2 + 4 * d < 0)
     have hwa := hw ⟨I.1.1, I.2, I.1.2.2⟩
     rw [I.1.2.1] at hwa
     rw [hwa]
-  · haveI : IsEmpty {I : CoprimeIdealsInClass (QuadraticAlgebra ℤ d b) C F //
+  · have : IsEmpty {I : CoprimeIdealsInClass (QuadraticAlgebra ℤ d b) C F //
         (I.1 : Ideal (QuadraticAlgebra ℤ d b)).cardQuot = n} := not_nonempty_iff.mp h
     have hz : idealClassNormCount C F n = 0 := by simp [idealClassNormCount]
     simp only [hz, Nat.cast_zero, mul_zero]
@@ -66,7 +66,7 @@ theorem genusWeightedIdealNormCoeff {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) (n : �
         (fun C => ψ (Additive.ofMul (genusMap C))) n =
       ψ (Additive.ofMul (genusValue hD n)) *
         (Nat.card (GoodIdealNormFiber (quadraticBadIdeal d b) n) : ℂ) := by
-  letI := quadraticOrderIsDomain hD
+  let := quadraticOrderIsDomain hD
   intro ψ
   apply weightedIdealNormCoeff_eq_const hD
   intro I

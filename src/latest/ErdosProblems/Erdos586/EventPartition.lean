@@ -454,7 +454,7 @@ theorem selectedEventAtHorizon_eq_univ_of_coversIndices
     (hmod : ∀ i : Fin A.length, (A.get i).modulus ∣ Q)
     (hcover : CoversIndices A s) :
     selectedEventAtHorizon A s Q hQ hmod = Set.univ := by
-  letI : NeZero (partialPeriod Q (stageHorizon Q)) :=
+  let : NeZero (partialPeriod Q (stageHorizon Q)) :=
     ⟨by simpa [partialPeriod_horizon hQ] using hQ⟩
   apply Set.eq_univ_of_forall
   intro x
@@ -524,7 +524,7 @@ theorem selectedCoveredResidues_eq_univ_of_coversIndices
     (A : CoveringFamily) (s : Finset (Fin A.length))
     (hs : CoversIndices A s) :
     selectedCoveredResidues A s = Set.univ := by
-  letI : NeZero (commonPeriod A) := ⟨(commonPeriod_pos A).ne'⟩
+  let : NeZero (commonPeriod A) := ⟨(commonPeriod_pos A).ne'⟩
   apply Set.eq_univ_of_forall
   intro x
   obtain ⟨i, his, hi⟩ := hs (x.val : ℤ)

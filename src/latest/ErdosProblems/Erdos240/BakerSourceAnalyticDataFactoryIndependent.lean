@@ -143,7 +143,7 @@ theorem normalizedConcreteSourceComponents_of_finAnalyticData
     HasNormalizedConcreteSourceComponents.{u} := by
   classical
   intro ι _ _ old oldPrime oldInjective
-  letI : Nonempty (Fin (Fintype.card ι)) := finCardNonempty ι
+  let : Nonempty (Fin (Fintype.card ι)) := finCardNonempty ι
   let e : Fin (Fintype.card ι) ≃ ι := (Fintype.equivFin ι).symm
   let oldFin : Fin (Fintype.card ι) → ℕ := old ∘ e
   let oldPrimeFin : ∀ j, (oldFin j).Prime := fun j ↦ oldPrime (e j)

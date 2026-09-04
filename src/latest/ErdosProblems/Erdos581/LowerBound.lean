@@ -176,8 +176,8 @@ theorem lower_bound (m : ℕ) :
   let k : ℕ := ⌈x⌉₊
   have hguarantees : Guarantees m k := by
     intro V _ G htri hmG
-    letI : DecidableEq V := Classical.decEq V
-    letI : DecidableRel G.Adj := Classical.decRel _
+    let : DecidableEq V := Classical.decEq V
+    let : DecidableRel G.Adj := Classical.decRel _
     obtain ⟨s, hs⟩ := exists_cut_lower G htri
     have hmcard : G.edgeFinset.card = m := by
       calc

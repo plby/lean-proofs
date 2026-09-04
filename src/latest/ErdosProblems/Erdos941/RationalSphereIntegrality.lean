@@ -52,7 +52,7 @@ theorem exists_two_pow_mul_int_of_odd_padic_integral (q : ℚ)
     Nat.eq_prime_pow_of_unique_prime_dvd q.den_nz (by
       intro p hp hpdvd
       by_contra hp2
-      letI : Fact p.Prime := ⟨hp⟩
+      let : Fact p.Prime := ⟨hp⟩
       obtain ⟨z, hz⟩ := h p hp2
       have hnorm : ‖(q : Padic p)‖ ≤ 1 := by rw [← hz]; exact z.2
       have hunit := PadicInt.isUnit_den (p := p) q hnorm

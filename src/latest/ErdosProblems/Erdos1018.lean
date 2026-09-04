@@ -935,8 +935,8 @@ theorem exists_host_bounded_radius_dense [Fintype V]
           (D / (2 * a)) * (J.verts.ncard : ℝ) ≤
             2 * (J.edgeSet.ncard : ℝ) := by
   classical
-  letI : Fintype H.verts := Fintype.ofFinite H.verts
-  letI : DecidableRel H.coe.Adj := Classical.decRel _
+  let : Fintype H.verts := Fintype.ofFinite H.verts
+  let : DecidableRel H.coe.Adj := Classical.decRel _
   have hcard : Fintype.card H.verts = H.verts.ncard := by
     rw [← Nat.card_eq_fintype_card, Nat.card_coe_set_eq]
   have hpos : 0 < Fintype.card H.verts := by
@@ -1303,8 +1303,8 @@ theorem finalCore_exists_path_ten
   have hstrong : (4 : ℝ) ^ 5 * (Hf.verts.ncard : ℝ) ≤
       2 * (Hf.edgeSet.ncard : ℝ) := by
     exact (mul_le_mul_of_nonneg_right hcoeff hcardnonneg).trans hInv.2.2
-  letI : Fintype Hf.verts := Fintype.ofFinite Hf.verts
-  letI : DecidableRel Hf.coe.Adj := Classical.decRel _
+  let : Fintype Hf.verts := Fintype.ofFinite Hf.verts
+  let : DecidableRel Hf.coe.Adj := Classical.decRel _
   have hcard : Fintype.card Hf.verts = Hf.verts.ncard := by
     rw [← Nat.card_eq_fintype_card, Nat.card_coe_set_eq]
   have hedge : #Hf.coe.edgeFinset = Hf.edgeSet.ncard :=

@@ -113,8 +113,8 @@ theorem ksssCoverDownCertificate_of_outsidePacking
       SimpleGraph.completeGraph (Fin n) := by
     rw [hleave]
     exact coveredGraph_sup_leaveGraph P
-  letI : DecidableRel H.Adj := Classical.decRel H.Adj
-  letI : DecidableRel L.Adj := Classical.decRel L.Adj
+  let : DecidableRel H.Adj := Classical.decRel H.Adj
+  let : DecidableRel L.Adj := Classical.decRel L.Adj
   have hleaveDiv : TriangleDivisible (leaveGraph P) :=
     IsPacking.leave_triangleDivisible hP.1 hadmissible
   have hHdiv : TriangleDivisible H := hA.graph_triangleDivisible

@@ -75,7 +75,7 @@ open Erdos79
 /-- A cycle of length at least three has exactly as many edges as vertices. -/
 theorem cycleCode_edgeCount {k : ℕ} (hk : 3 ≤ k) :
     (cycleCode k).edgeCount = k := by
-  letI : DecidableRel (cycleCode k).graph.Adj :=
+  let : DecidableRel (cycleCode k).graph.Adj :=
     SimpleGraph.instDecidableRelFinAdjCycleGraph k
   rw [GraphCode.edgeCount_eq_card_edgeFinset]
   change (SimpleGraph.cycleGraph k).edgeFinset.card = k
@@ -152,7 +152,7 @@ def matchingEdgeEmbedding (m : ℕ) : Fin m ↪ Sym2 (Fin (m + m)) where
 @[simp] theorem matchingCode_edgeCount (m : ℕ) :
     (matchingCode m).edgeCount = m := by
   classical
-  letI : DecidableRel (matchingGraph m).Adj := Classical.decRel _
+  let : DecidableRel (matchingGraph m).Adj := Classical.decRel _
   rw [GraphCode.edgeCount_eq_card_edgeFinset]
   change (matchingGraph m).edgeFinset.card = m
   have hedges : (matchingGraph m).edgeFinset =
@@ -347,7 +347,7 @@ theorem edgeFinset_isFiniteMatching_of_components_le_one
   let ec := componentCodeIso H c
   let a : Sym2 (Fin (componentCode H c).vertexCount) := s(ec X, ec Y)
   let b : Sym2 (Fin (componentCode H c).vertexCount) := s(ec X, ec Z)
-  letI : DecidableRel (componentCode H c).graph.Adj := Classical.decRel _
+  let : DecidableRel (componentCode H c).graph.Adj := Classical.decRel _
   have ha : a ∈ (componentCode H c).graph.edgeFinset := by
     rw [SimpleGraph.mem_edgeFinset, SimpleGraph.mem_edgeSet]
     exact ec.toHom.map_adj hxy
@@ -423,7 +423,7 @@ theorem connected_or_matching_or_nontrivial_component
         2 ≤ (componentCode H c).edgeCount ∧
           (componentCode H c).edgeCount < H.edgeCount := by
   classical
-  letI : DecidableRel H.graph.Adj := Classical.decRel _
+  let : DecidableRel H.graph.Adj := Classical.decRel _
   by_cases hconn : H.graph.Connected
   · exact Or.inl hconn
   by_cases hall : ∀ c : H.graph.ConnectedComponent,
@@ -834,8 +834,8 @@ theorem ramseyAt_cycle_matching {k m : ℕ} (hk : 3 ≤ k) (hkm : k ≤ m) :
       (2 * m + (k - 1) / 2) := by
   classical
   intro C
-  letI : DecidableRel C.Adj := Classical.decRel C.Adj
-  letI : DecidableRel Cᶜ.Adj := Classical.decRel Cᶜ.Adj
+  let : DecidableRel C.Adj := Classical.decRel C.Adj
+  let : DecidableRel Cᶜ.Adj := Classical.decRel Cᶜ.Adj
   by_cases hex : ∃ M : Finset (Sym2 (Fin (2 * m + (k - 1) / 2))),
       IsFiniteMatching Cᶜ M ∧ m ≤ M.card
   · right
@@ -1001,7 +1001,7 @@ theorem strongOddCycleBound_of_connected_inputs
         apply graphRamseyNumber_le_of_ramseyAt
         intro C
         classical
-        letI : DecidableRel C.Adj := Classical.decRel _
+        let : DecidableRel C.Adj := Classical.decRel _
         by_cases hred : (cycleCode k).graph ⊑ C
         · exact Or.inl hred
         by_cases hblue : Q.graph ⊑ Cᶜ
@@ -1094,7 +1094,7 @@ theorem strongOddCycleBound_two_mul_add_three
   · apply odd_dense_connected_input (by omega) (oddSparseD_two_le r)
     exact odd_dense_le_oddProofThreshold r
   · intro H hH hconn hm hdensity hIH
-    letI : DecidableRel H.graph.Adj := Classical.decRel _
+    let : DecidableRel H.graph.Adj := Classical.decRel _
     have hkhalf : (2 * r + 3) / 2 = r + 1 := by omega
     have hB : r + 1 ≤
         oddBaseConstant (2 * r + 3) (oddProofThreshold r) := by
@@ -1279,7 +1279,7 @@ theorem strongEvenCycleBound_of_connected_inputs
         apply graphRamseyNumber_le_of_ramseyAt
         intro C
         classical
-        letI : DecidableRel C.Adj := Classical.decRel _
+        let : DecidableRel C.Adj := Classical.decRel _
         by_cases hred : (cycleCode (2 * r + 4)).graph ⊑ C
         · exact Or.inl hred
         by_cases hblue : Q.graph ⊑ Cᶜ
@@ -1322,7 +1322,7 @@ theorem strongEvenCycleBound_two_mul_add_four {r : ℕ} (hr : 1 ≤ r) :
     simp only [evenProofThreshold, le_max_iff]
     exact Or.inr (Or.inl le_rfl)
   · intro H hH hconn hm hdensity hIH
-    letI : DecidableRel H.graph.Adj := Classical.decRel _
+    let : DecidableRel H.graph.Adj := Classical.decRel _
     apply graphRamseyNumber_le_of_ramseyAt
     apply ramseyAt_evenBudget_of_sparse_connected H hH hconn
     · apply (show oddSparseEdgeThreshold (r + 1) ≤
@@ -1390,7 +1390,7 @@ theorem strongC4Bound :
         simpa using ih R.edgeCount hRm R rfl hR
       rcases connected_or_matching_or_nontrivial_component Q hQ with
         hconn | hmatching | ⟨c, hc₂, hcm⟩
-      · letI : DecidableRel Q.graph.Adj := Classical.decRel _
+      · let : DecidableRel Q.graph.Adj := Classical.decRel _
         by_cases hsparseDensity :
             (oddSparseD 1 - 1) * Q.edgeCount <
               oddSparseD 1 * Q.vertexCount
@@ -1515,8 +1515,8 @@ theorem strongTriangleBound :
       rcases connected_or_matching_or_nontrivial_component Q hQ with
         hconn | hmatching | ⟨c, hc₂, hcm⟩
       · classical
-        letI : DecidableRel Q.graph.Adj := Classical.decRel _
-        letI : Nonempty (Fin Q.vertexCount) := hconn.nonempty
+        let : DecidableRel Q.graph.Adj := Classical.decRel _
+        let : Nonempty (Fin Q.vertexCount) := hconn.nonempty
         obtain ⟨v, hvmin'⟩ := Q.graph.exists_minimal_degree_vertex
         have hvmin : Q.graph.degree v = Q.graph.minDegree := hvmin'.symm
         have hδpos : 0 < Q.graph.degree v := (Q.graph.degree_pos v).mpr (hQ v)
@@ -1536,7 +1536,7 @@ theorem strongTriangleBound :
               Q.edgeCount) := ramseyAt_of_graphRamseyNumber_le hRram
         apply graphRamseyNumber_le_of_ramseyAt
         intro C
-        letI : DecidableRel C.Adj := Classical.decRel _
+        let : DecidableRel C.Adj := Classical.decRel _
         by_cases hred : (cycleCode 3).graph ⊑ C
         · exact Or.inl hred
         by_cases hblue : Q.graph ⊑ Cᶜ

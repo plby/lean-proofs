@@ -162,7 +162,10 @@ theorem mateEquiv_whiskerBottom
     mateEquiv adj₁ adj₂ (w.whiskerBottom α) =
       (mateEquiv adj₁ adj₂ w).whiskerLeft α := by
   ext X
-  simp [mateEquiv, TwoSquare.whiskerBottom, TwoSquare.whiskerLeft]
+  simp only [Functor.comp_obj, mateEquiv_apply, NatTrans.comp_app, Functor.id_obj, Functor.rightUnitor_inv_app,
+    Functor.whiskerLeft_app, Functor.associator_hom_app, Functor.associator_inv_app, Functor.whiskerRight_app,
+    TwoSquare.whiskerBottom_app, Functor.map_comp, Functor.comp_map, Functor.leftUnitor_hom_app, Category.comp_id,
+    Category.id_comp, Category.assoc, TwoSquare.whiskerLeft_app]
   simp only [← R₂.map_comp]
   rw [← Category.assoc, α.naturality, Category.assoc]
 
@@ -572,7 +575,7 @@ theorem affineToChart_dehomogenize_eq_mk [Fintype σ]
       rw [MvPolynomial.monomial_eq]
       rw [Localization.mk_mul]
       rw [Finsupp.prod_option_index]
-      all_goals simp [pow_add]
+      all_goals simp only [pow_zero, Submonoid.mk_mul_mk, one_mul, Finsupp.prod_pow, Finsupp.some_apply]
       subst n
       rw [Localization.mk_eq_mk'_apply, Localization.mk_eq_mk'_apply]
       let b : Submonoid.powers (xZero K σ) :=
@@ -757,7 +760,7 @@ noncomputable instance affineFiniteTypeEmbedding_isClosedImmersion
     (p : X ⟶ Spec (.of K)) [LocallyOfFiniteType p] :
     IsClosedImmersion (affineFiniteTypeEmbedding K X p) := by
   unfold affineFiniteTypeEmbedding
-  letI : IsClosedImmersion
+  let : IsClosedImmersion
       (Spec.map (CommRingCat.ofHom
         (affineFiniteTypePresentation K X p).2.1)) :=
     IsClosedImmersion.spec_of_surjective _
@@ -817,9 +820,9 @@ noncomputable instance affineFiniteTypeProjectiveClosureOpen_isOpenImmersion
     (p : X ⟶ Spec (.of K)) [LocallyOfFiniteType p] :
     IsOpenImmersion (affineFiniteTypeProjectiveClosureOpen K X p) := by
   unfold affineFiniteTypeProjectiveClosureOpen
-  letI : IsImmersion (affineFiniteTypeProjectiveEmbedding K X p) :=
+  let : IsImmersion (affineFiniteTypeProjectiveEmbedding K X p) :=
     affineFiniteTypeProjectiveEmbedding_isImmersion K X p
-  letI : QuasiCompact (affineFiniteTypeProjectiveEmbedding K X p) :=
+  let : QuasiCompact (affineFiniteTypeProjectiveEmbedding K X p) :=
     affineFiniteTypeProjectiveEmbedding_quasiCompact K X p
   exact properClosureOpen_isOpenImmersion_explicit
     (affineFiniteTypeProjectiveEmbedding K X p)
@@ -829,7 +832,7 @@ noncomputable instance affineFiniteTypeProjectiveClosureProjection_isProper
     (p : X ⟶ Spec (.of K)) [LocallyOfFiniteType p] :
     IsProper (affineFiniteTypeProjectiveClosureProjection K X p) := by
   unfold affineFiniteTypeProjectiveClosureProjection
-  letI : IsProper
+  let : IsProper
       (ProjectiveCompactification.projectiveSpaceProjection K
         (Fin (affineFiniteTypePresentation K X p).1)) :=
     ProjectiveCompactification.projectiveSpaceProjection_isProper K _
@@ -977,18 +980,18 @@ theorem smallHomMap'_comp_localizer
         (Ψ.functor.mapIso eX ≪≫ eX')
         (Ψ.functor.mapIso eY ≪≫ eY') f =
       Ψ.smallHomMap' eX' eY' (Φ.smallHomMap' eX eY f) := by
-  letI h₂raw : HasSmallLocalizedHom.{w₂} W₂
+  let h₂raw : HasSmallLocalizedHom.{w₂} W₂
       (Φ.functor.obj X₁) (Φ.functor.obj Y₁) :=
     hasSmallLocalizedHom_of_isos W₂ eX.symm eY.symm
   let eXcomp : Ψ.functor.obj (Φ.functor.obj X₁) ≅ X₃ :=
     Ψ.functor.mapIso eX ≪≫ eX'
   let eYcomp : Ψ.functor.obj (Φ.functor.obj Y₁) ≅ Y₃ :=
     Ψ.functor.mapIso eY ≪≫ eY'
-  letI h₃raw : HasSmallLocalizedHom.{w₃} W₃
+  let h₃raw : HasSmallLocalizedHom.{w₃} W₃
       (Ψ.functor.obj (Φ.functor.obj X₁))
       (Ψ.functor.obj (Φ.functor.obj Y₁)) :=
     hasSmallLocalizedHom_of_isos W₃ eXcomp.symm eYcomp.symm
-  letI h₃comp : HasSmallLocalizedHom.{w₃} W₃
+  let h₃comp : HasSmallLocalizedHom.{w₃} W₃
       ((Φ.comp Ψ).functor.obj X₁) ((Φ.comp Ψ).functor.obj Y₁) := by
     change HasSmallLocalizedHom.{w₃} W₃
       (Ψ.functor.obj (Φ.functor.obj X₁))
@@ -1016,7 +1019,10 @@ theorem smallHomMap'_comp_localizer
     Functor.comp_map, Functor.associator_hom_app,
     Functor.associator_inv_app,
     Category.id_comp, Category.comp_id]
-  simp
+  simp only [comp_functor, Functor.comp_obj, Functor.isoWhiskerLeft_hom, Functor.whiskerLeft_app, Iso.symm_hom,
+    Functor.associator_inv_app, Functor.isoWhiskerRight_hom, Functor.whiskerRight_app, Category.id_comp,
+    Functor.isoWhiskerRight_inv, Iso.symm_inv, Functor.associator_hom_app, Category.comp_id, Functor.isoWhiskerLeft_inv,
+    Category.assoc]
   have hsource :
       W₃.Q.map (Ψ.functor.map eX.inv) ≫
           eΨ.hom.app (Φ.functor.obj X₁) =
@@ -1067,26 +1073,26 @@ theorem smallShiftedHomMap_comp_localizer
         (Ψ.functor.mapIso eY ≪≫ eY') f =
       Ψ.smallShiftedHomMap eX' eY'
         (Φ.smallShiftedHomMap eX eY f) := by
-  letI hcompShift : (Φ.functor ⋙ Ψ.functor).CommShift M := inferInstance
-  letI hcompShift' : (Φ.comp Ψ).functor.CommShift M := by
+  let hcompShift : (Φ.functor ⋙ Ψ.functor).CommShift M := inferInstance
+  let hcompShift' : (Φ.comp Ψ).functor.CommShift M := by
     change (Φ.functor ⋙ Ψ.functor).CommShift M
     exact hcompShift
-  letI h₂XX : HasSmallLocalizedHom.{w₂'} W₂ X₂ X₂ :=
+  let h₂XX : HasSmallLocalizedHom.{w₂'} W₂ X₂ X₂ :=
     hasSmallLocalizedHom_of_hasSmallLocalizedShiftedHom₀ W₂ M X₂ X₂
-  letI h₂XY : HasSmallLocalizedHom.{w₂'} W₂ X₂ Y₂ :=
+  let h₂XY : HasSmallLocalizedHom.{w₂'} W₂ X₂ Y₂ :=
     hasSmallLocalizedHom_of_hasSmallLocalizedShiftedHom₀ W₂ M X₂ Y₂
-  letI h₂YY : HasSmallLocalizedHom.{w₂'} W₂ Y₂ Y₂ :=
+  let h₂YY : HasSmallLocalizedHom.{w₂'} W₂ Y₂ Y₂ :=
     hasSmallLocalizedHom_of_hasSmallLocalizedShiftedHom₀ W₂ M Y₂ Y₂
-  letI h₃XX : HasSmallLocalizedHom.{w₃'} W₃ X₃ X₃ :=
+  let h₃XX : HasSmallLocalizedHom.{w₃'} W₃ X₃ X₃ :=
     hasSmallLocalizedHom_of_hasSmallLocalizedShiftedHom₀ W₃ M X₃ X₃
-  letI h₃XY : HasSmallLocalizedHom.{w₃'} W₃ X₃ Y₃ :=
+  let h₃XY : HasSmallLocalizedHom.{w₃'} W₃ X₃ Y₃ :=
     hasSmallLocalizedHom_of_hasSmallLocalizedShiftedHom₀ W₃ M X₃ Y₃
-  letI h₃YY : HasSmallLocalizedHom.{w₃'} W₃ Y₃ Y₃ :=
+  let h₃YY : HasSmallLocalizedHom.{w₃'} W₃ Y₃ Y₃ :=
     hasSmallLocalizedHom_of_hasSmallLocalizedShiftedHom₀ W₃ M Y₃ Y₃
   let eYm : Φ.functor.obj ((shiftFunctor C₁ m).obj Y₁) ≅
       (shiftFunctor C₂ m).obj Y₂ :=
     (Φ.functor.commShiftIso m).app Y₁ ≪≫ (shiftFunctor C₂ m).mapIso eY
-  letI h₂raw : HasSmallLocalizedHom.{w₂'} W₂
+  let h₂raw : HasSmallLocalizedHom.{w₂'} W₂
       (Φ.functor.obj X₁) (Φ.functor.obj ((shiftFunctor C₁ m).obj Y₁)) :=
     hasSmallLocalizedHom_of_isos W₂ eX.symm eYm.symm
   let eXcomp : Ψ.functor.obj (Φ.functor.obj X₁) ≅ X₃ :=
@@ -1096,11 +1102,11 @@ theorem smallShiftedHomMap_comp_localizer
       (shiftFunctor C₃ m).obj Y₃ :=
     Ψ.functor.mapIso eYm ≪≫ (Ψ.functor.commShiftIso m).app Y₂ ≪≫
       (shiftFunctor C₃ m).mapIso eY'
-  letI h₃raw : HasSmallLocalizedHom.{w₃'} W₃
+  let h₃raw : HasSmallLocalizedHom.{w₃'} W₃
       (Ψ.functor.obj (Φ.functor.obj X₁))
       (Ψ.functor.obj (Φ.functor.obj ((shiftFunctor C₁ m).obj Y₁))) :=
     hasSmallLocalizedHom_of_isos W₃ eXcomp.symm eYmcomp.symm
-  letI h₃comp : HasSmallLocalizedHom.{w₃'} W₃
+  let h₃comp : HasSmallLocalizedHom.{w₃'} W₃
       ((Φ.comp Ψ).functor.obj X₁)
       ((Φ.comp Ψ).functor.obj ((shiftFunctor C₁ m).obj Y₁)) := by
     change HasSmallLocalizedHom.{w₃'} W₃
@@ -1146,7 +1152,10 @@ theorem smallShiftedHomMap_comp_localizer
     Functor.comp_map, Functor.associator_hom_app,
     Functor.associator_inv_app, Functor.map_id,
     Category.id_comp, Category.comp_id]
-  simp
+  simp only [comp_functor, Functor.comp_obj, Functor.isoWhiskerLeft_hom, Functor.whiskerLeft_app, Iso.symm_hom,
+    Functor.associator_inv_app, Functor.isoWhiskerRight_hom, Functor.whiskerRight_app, Category.id_comp,
+    Functor.isoWhiskerRight_inv, Iso.symm_inv, Functor.associator_hom_app, Category.comp_id, Functor.isoWhiskerLeft_inv,
+    Iso.app_hom, Category.assoc]
   rw [show
     W₃.Q.map eXlhs.inv =
       W₃.Q.map eX'.inv ≫ W₃.Q.map (Ψ.functor.map eX.inv) by
@@ -1383,8 +1392,8 @@ theorem mapExactFunctor_comp_functor
   let eFY := (F.mapCochainComplexSingleFunctor 0).app Y
   let eGX := (G.mapCochainComplexSingleFunctor 0).app (F.obj X)
   let eGY := (G.mapCochainComplexSingleFunctor 0).app (F.obj Y)
-  letI hcompShift : (Φ.functor ⋙ Ψ.functor).CommShift ℤ := inferInstance
-  letI hcompShift' : (Φ.comp Ψ).functor.CommShift ℤ := by
+  let hcompShift : (Φ.functor ⋙ Ψ.functor).CommShift ℤ := inferInstance
+  let hcompShift' : (Φ.comp Ψ).functor.CommShift ℤ := by
     change (Φ.functor ⋙ Ψ.functor).CommShift ℤ
     exact hcompShift
   let eYm : Φ.functor.obj
@@ -1447,18 +1456,18 @@ theorem mapExactFunctor_comp_functor
   let X₃ := (G ⋙ CochainComplex.singleFunctor E 0).obj (F.obj X)
   let Y₃ := (shiftFunctor (CochainComplex E ℤ) (n : ℤ)).obj
     ((CochainComplex.singleFunctor E 0).obj (G.obj (F.obj Y)))
-  letI h₂XX : HasSmallLocalizedHom
+  let h₂XX : HasSmallLocalizedHom
       (HomologicalComplex.quasiIso D (ComplexShape.up ℤ)) X₂ X₂ :=
     hasSmallLocalizedHom_of_hasSmallLocalizedShiftedHom₀
       (HomologicalComplex.quasiIso D (ComplexShape.up ℤ)) ℤ X₂ X₂
-  letI h₂XX' : HasSmallLocalizedHom
+  let h₂XX' : HasSmallLocalizedHom
       (HomologicalComplex.quasiIso D (ComplexShape.up ℤ))
       ((CochainComplex.singleFunctor D 0).obj (F.obj X))
       ((CochainComplex.singleFunctor D 0).obj (F.obj X)) := by
     change HasSmallLocalizedHom
       (HomologicalComplex.quasiIso D (ComplexShape.up ℤ)) X₂ X₂
     exact h₂XX
-  letI h₂XY : HasSmallLocalizedHom
+  let h₂XY : HasSmallLocalizedHom
       (HomologicalComplex.quasiIso D (ComplexShape.up ℤ)) X₂ Y₂ :=
     let hraw := (show HasSmallLocalizedShiftedHom
         (HomologicalComplex.quasiIso D (ComplexShape.up ℤ)) ℤ
@@ -1478,18 +1487,18 @@ theorem mapExactFunctor_comp_functor
     hasSmallLocalizedHom_of_isos
       (HomologicalComplex.quasiIso D (ComplexShape.up ℤ))
       ((shiftFunctorZero (CochainComplex D ℤ) ℤ).app X₂) (Iso.refl Y₂)
-  letI h₂YY : HasSmallLocalizedHom
+  let h₂YY : HasSmallLocalizedHom
       (HomologicalComplex.quasiIso D (ComplexShape.up ℤ)) Y₂ Y₂ :=
     (show HasSmallLocalizedShiftedHom
       (HomologicalComplex.quasiIso D (ComplexShape.up ℤ)) ℤ
       ((CochainComplex.singleFunctor D 0).obj (F.obj Y))
       ((CochainComplex.singleFunctor D 0).obj (F.obj Y)) from
         inferInstance) (n : ℤ) (n : ℤ)
-  letI h₃XX : HasSmallLocalizedHom
+  let h₃XX : HasSmallLocalizedHom
       (HomologicalComplex.quasiIso E (ComplexShape.up ℤ)) X₃ X₃ :=
     hasSmallLocalizedHom_of_hasSmallLocalizedShiftedHom₀
       (HomologicalComplex.quasiIso E (ComplexShape.up ℤ)) ℤ X₃ X₃
-  letI h₃XY : HasSmallLocalizedHom
+  let h₃XY : HasSmallLocalizedHom
       (HomologicalComplex.quasiIso E (ComplexShape.up ℤ)) X₃ Y₃ :=
     let hraw := (show HasSmallLocalizedShiftedHom
         (HomologicalComplex.quasiIso E (ComplexShape.up ℤ)) ℤ
@@ -1509,7 +1518,7 @@ theorem mapExactFunctor_comp_functor
     hasSmallLocalizedHom_of_isos
       (HomologicalComplex.quasiIso E (ComplexShape.up ℤ))
       ((shiftFunctorZero (CochainComplex E ℤ) ℤ).app X₃) (Iso.refl Y₃)
-  letI h₃YY : HasSmallLocalizedHom
+  let h₃YY : HasSmallLocalizedHom
       (HomologicalComplex.quasiIso E (ComplexShape.up ℤ)) Y₃ Y₃ :=
     (show HasSmallLocalizedShiftedHom
       (HomologicalComplex.quasiIso E (ComplexShape.up ℤ)) ℤ
@@ -1576,12 +1585,12 @@ instance mapDerivedCategoryNatIso_commShift
     [HasDerivedCategory.{t} C] [HasDerivedCategory.{t'} D]
     (e : F ≅ G) :
     NatTrans.CommShift (mapDerivedCategoryNatIso F G e).hom ℤ := by
-  letI : NatTrans.CommShift
+  let : NatTrans.CommShift
       (NatIso.mapHomologicalComplex e (ComplexShape.up ℤ)).hom ℤ := by
     change NatTrans.CommShift
       (NatTrans.mapHomologicalComplex e.hom (ComplexShape.up ℤ)) ℤ
     infer_instance
-  letI : NatTrans.CommShift
+  let : NatTrans.CommShift
       (CategoryTheory.Functor.isoWhiskerRight
         (NatIso.mapHomologicalComplex e (ComplexShape.up ℤ))
         (DerivedCategory.Q (C := D))).hom ℤ := by
@@ -1590,14 +1599,14 @@ instance mapDerivedCategoryNatIso_commShift
         (NatIso.mapHomologicalComplex e (ComplexShape.up ℤ)).hom
         (DerivedCategory.Q (C := D))) ℤ
     infer_instance
-  letI : NatTrans.CommShift
+  let : NatTrans.CommShift
       (Localization.Lifting.iso (DerivedCategory.Q (C := C))
         (HomologicalComplex.quasiIso C (ComplexShape.up ℤ))
         (F.mapHomologicalComplex (ComplexShape.up ℤ) ⋙
           DerivedCategory.Q (C := D)) F.mapDerivedCategory).hom ℤ := by
     change NatTrans.CommShift F.mapDerivedCategoryFactors.hom ℤ
     infer_instance
-  letI : NatTrans.CommShift
+  let : NatTrans.CommShift
       (Localization.Lifting.iso (DerivedCategory.Q (C := C))
         (HomologicalComplex.quasiIso C (ComplexShape.up ℤ))
         (G.mapHomologicalComplex (ComplexShape.up ℤ) ⋙
@@ -2066,16 +2075,16 @@ theorem weaklyEtaleOverMap_isEquivalence_of_isIso
 theorem rawBaseChange_isEquivalence_of_isIso
     {X Y : Scheme.{u}} (f : X ⟶ Y) [IsIso f] :
     (rawBaseChange f).IsEquivalence := by
-  letI : MorphismProperty.HasPullbacksAlong
+  let : MorphismProperty.HasPullbacksAlong
       (@WeaklyEtale : MorphismProperty Scheme.{u}) f :=
     ⟨fun _ _ ↦ inferInstance⟩
-  letI : MorphismProperty.IsStableUnderBaseChangeAlong
+  let : MorphismProperty.IsStableUnderBaseChangeAlong
       (@WeaklyEtale : MorphismProperty Scheme.{u}) f :=
     ⟨fun pb h ↦ MorphismProperty.IsStableUnderBaseChange.of_isPullback pb h⟩
   change (MorphismProperty.Over.pullback
     (@WeaklyEtale : MorphismProperty Scheme.{u}) ⊤ f).IsEquivalence
   let hf : WeaklyEtale f := inferInstance
-  haveI : (MorphismProperty.Over.map
+  have : (MorphismProperty.Over.map
       (P := (@WeaklyEtale : MorphismProperty Scheme.{u})) ⊤ hf).IsEquivalence :=
     weaklyEtaleOverMap_isEquivalence_of_isIso f
   exact Adjunction.isEquivalence_right_of_isEquivalence_left
@@ -2225,17 +2234,17 @@ theorem baseChange_isEquivalence_of_isIso
 pro-étale topology. -/
 theorem baseChange_isContinuous {X Y : Scheme.{u}} (f : X ⟶ Y) :
     (baseChange f).IsContinuous (topology Y) (topology X) := by
-  letI : MorphismProperty.HasPullbacksAlong (@WeaklyEtale) f :=
+  let : MorphismProperty.HasPullbacksAlong (@WeaklyEtale) f :=
     ⟨fun _ _ ↦ inferInstance⟩
-  letI : MorphismProperty.IsStableUnderBaseChangeAlong (@WeaklyEtale) f :=
+  let : MorphismProperty.IsStableUnderBaseChangeAlong (@WeaklyEtale) f :=
     ⟨fun pb h ↦ MorphismProperty.IsStableUnderBaseChange.of_isPullback pb h⟩
-  letI : (precoverage Y).IsStableUnderBaseChange := by
+  let : (precoverage Y).IsStableUnderBaseChange := by
     change (Scheme.proetalePrecoverage.comap
       (ProEt.forget Y ⋙ Over.forget Y)).IsStableUnderBaseChange
     infer_instance
-  letI : PreservesLimitsOfShape WalkingCospan
+  let : PreservesLimitsOfShape WalkingCospan
       (CategoryTheory.Over.pullback f) := inferInstance
-  letI : PreservesLimitsOfShape WalkingCospan (baseChange f) := by
+  let : PreservesLimitsOfShape WalkingCospan (baseChange f) := by
     have : PreservesLimitsOfShape WalkingCospan
         (baseChange f ⋙ ProEt.forget X) :=
       inferInstanceAs (PreservesLimitsOfShape WalkingCospan
@@ -2291,9 +2300,9 @@ theorem baseChangeEquivalence_functor_isCocontinuous
     (baseChangeEquivalenceOfIso f).functor.IsCocontinuous
       (topology Y) (topology X) := by
   let e := baseChangeEquivalenceOfIso f
-  letI : (baseChange (inv f)).IsContinuous (topology X) (topology Y) :=
+  let : (baseChange (inv f)).IsContinuous (topology X) (topology Y) :=
     baseChange_isContinuous (inv f)
-  letI : e.inverse.IsContinuous (topology X) (topology Y) :=
+  let : e.inverse.IsContinuous (topology X) (topology Y) :=
     Functor.isContinuous_of_iso (baseChangeEquivalenceInverseIso f).symm
       (topology X) (topology Y)
   rw [e.toAdjunction.isCocontinuous_iff_coverPreserving]
@@ -2305,7 +2314,7 @@ theorem baseChangeEquivalence_inverse_isCocontinuous
     (baseChangeEquivalenceOfIso f).inverse.IsCocontinuous
       (topology X) (topology Y) := by
   let e := baseChangeEquivalenceOfIso f
-  letI : e.functor.IsContinuous (topology Y) (topology X) := by
+  let : e.functor.IsContinuous (topology Y) (topology X) := by
     change (baseChange f).IsContinuous (topology Y) (topology X)
     exact baseChange_isContinuous f
   change e.symm.functor.IsCocontinuous (topology X) (topology Y)
@@ -2318,9 +2327,9 @@ theorem baseChange_isDenseSubsite_of_isIso
     {X Y : Scheme.{u}} (f : X ⟶ Y) [IsIso f] :
     (baseChange f).IsDenseSubsite (topology Y) (topology X) := by
   let e := baseChangeEquivalenceOfIso f
-  letI : e.functor.IsCocontinuous (topology Y) (topology X) :=
+  let : e.functor.IsCocontinuous (topology Y) (topology X) :=
     baseChangeEquivalence_functor_isCocontinuous f
-  letI : e.inverse.IsCocontinuous (topology X) (topology Y) :=
+  let : e.inverse.IsCocontinuous (topology X) (topology Y) :=
     baseChangeEquivalence_inverse_isCocontinuous f
   change e.functor.IsDenseSubsite (topology Y) (topology X)
   exact e.isDenseSubsite_functor_of_isCocontinuous
@@ -2332,9 +2341,9 @@ theorem baseChangeEquivalence_inverse_isDenseSubsite
     (baseChangeEquivalenceOfIso f).inverse.IsDenseSubsite
       (topology X) (topology Y) := by
   let e := baseChangeEquivalenceOfIso f
-  letI : e.functor.IsCocontinuous (topology Y) (topology X) :=
+  let : e.functor.IsCocontinuous (topology Y) (topology X) :=
     baseChangeEquivalence_functor_isCocontinuous f
-  letI : e.inverse.IsCocontinuous (topology X) (topology Y) :=
+  let : e.inverse.IsCocontinuous (topology X) (topology Y) :=
     baseChangeEquivalence_inverse_isCocontinuous f
   exact e.isDenseSubsite_inverse_of_isCocontinuous
     (topology Y) (topology X)
@@ -2452,14 +2461,14 @@ theorem baseChangeConstantSheafIsoOfIso_homEquiv
       (constantSheafAdj (topology X) Ab.{u + 1} hT').unit.app A := by
   dsimp only
   let e := baseChangeEquivalenceOfIso f
-  letI : e.functor.IsContinuous (topology Y) (topology X) := by
+  let : e.functor.IsContinuous (topology Y) (topology X) := by
     change (baseChange f).IsContinuous (topology Y) (topology X)
     exact baseChange_isContinuous f
-  letI : e.functor.IsCocontinuous (topology Y) (topology X) :=
+  let : e.functor.IsCocontinuous (topology Y) (topology X) :=
     baseChangeEquivalence_functor_isCocontinuous f
-  letI : e.functor.IsDenseSubsite (topology Y) (topology X) :=
+  let : e.functor.IsDenseSubsite (topology Y) (topology X) :=
     baseChange_isDenseSubsite_of_isIso f
-  letI : e.functor.IsEquivalence := e.isEquivalence_functor
+  let : e.functor.IsEquivalence := e.isEquivalence_functor
   change
     ((constantSheafAdj (topology Y) Ab.{u + 1}
       (terminalIsTerminal : IsTerminal (⊤_ Y.ProEt))).homEquiv A _)
@@ -2493,7 +2502,7 @@ theorem baseChangeConstantSheafIsoOfIso_homEquiv_terminal
   let hTf₀ : IsTerminal (e.functor.obj T₀) :=
     hT₀.isTerminalObj e.functor
   let v : T₀ ⟶ T := hT.from T₀
-  letI : IsIso v := isIso_of_isTerminal hT₀ hT v
+  let : IsIso v := isIso_of_isTerminal hT₀ hT v
   let c := baseChangeConstantSheafIsoOfIso f A
   rw [Adjunction.homEquiv_unit]
   apply (cancel_mono
@@ -2662,18 +2671,18 @@ theorem baseChangeSheafCohomologyAddEquivOfIso_comp
   let F := baseChangeSheafPushforward f
   let G := baseChangeSheafPushforward g
   let H := baseChangeSheafPushforward (f ≫ g)
-  letI : F.Additive := baseChangeSheafPushforward_additive f
-  letI : F.IsEquivalence :=
+  let : F.Additive := baseChangeSheafPushforward_additive f
+  let : F.IsEquivalence :=
     baseChangeSheafPushforward_isEquivalence_of_isIso f
-  letI : G.Additive := baseChangeSheafPushforward_additive g
-  letI : G.IsEquivalence :=
+  let : G.Additive := baseChangeSheafPushforward_additive g
+  let : G.IsEquivalence :=
     baseChangeSheafPushforward_isEquivalence_of_isIso g
-  letI : H.Additive := baseChangeSheafPushforward_additive (f ≫ g)
-  letI : H.IsEquivalence :=
+  let : H.Additive := baseChangeSheafPushforward_additive (f ≫ g)
+  let : H.IsEquivalence :=
     baseChangeSheafPushforward_isEquivalence_of_isIso (f ≫ g)
-  letI := HasDerivedCategory.standard (Sheaf (topology X) Ab.{u + 1})
-  letI := HasDerivedCategory.standard (Sheaf (topology Y) Ab.{u + 1})
-  letI := HasDerivedCategory.standard (Sheaf (topology Z) Ab.{u + 1})
+  let := HasDerivedCategory.standard (Sheaf (topology X) Ab.{u + 1})
+  let := HasDerivedCategory.standard (Sheaf (topology Y) Ab.{u + 1})
+  let := HasDerivedCategory.standard (Sheaf (topology Z) Ab.{u + 1})
   let A : Ab.{u + 1} := AddCommGrpCat.of (ULift ℤ)
   let cF := baseChangeConstantSheafIsoOfIso f A
   let cG := baseChangeConstantSheafIsoOfIso g A
@@ -3272,16 +3281,16 @@ theorem rawBaseChangeCompOfEq_hom_app_left_fst_fst
         Limits.pullback.fst (Limits.pullback.snd U.hom g) f ≫
           Limits.pullback.fst U.hom g =
       Limits.pullback.fst U.hom fg := by
-  letI : MorphismProperty.HasPullbacksAlong
+  let : MorphismProperty.HasPullbacksAlong
       (@WeaklyEtale : MorphismProperty Scheme.{u}) f :=
     ⟨fun _ _ ↦ inferInstance⟩
-  letI : MorphismProperty.IsStableUnderBaseChangeAlong
+  let : MorphismProperty.IsStableUnderBaseChangeAlong
       (@WeaklyEtale : MorphismProperty Scheme.{u}) f :=
     ⟨fun pb h ↦ MorphismProperty.IsStableUnderBaseChange.of_isPullback pb h⟩
-  letI : MorphismProperty.HasPullbacksAlong
+  let : MorphismProperty.HasPullbacksAlong
       (@WeaklyEtale : MorphismProperty Scheme.{u}) g :=
     ⟨fun _ _ ↦ inferInstance⟩
-  letI : MorphismProperty.IsStableUnderBaseChangeAlong
+  let : MorphismProperty.IsStableUnderBaseChangeAlong
       (@WeaklyEtale : MorphismProperty Scheme.{u}) g :=
     ⟨fun pb h ↦ MorphismProperty.IsStableUnderBaseChange.of_isPullback pb h⟩
   subst fg
@@ -3484,10 +3493,9 @@ theorem equivariantBaseChangeIteratedActual_hom_app_left_fst
         Limits.pullback.fst U.hom (inv (f ≫ g)) =
       Limits.pullback.fst (U.hom ≫ j) (inv (fbar ≫ gbar)) := by
   unfold equivariantBaseChangeIteratedActual
-  simp [baseChangeCompInv, equivariantBaseChange_hom_app_left_fst,
-    baseChangeCompOfEq_hom_app_left_fst_fst,
-    baseChangeCompOfEq_inv_app_left_fst,
-    MorphismProperty.Comma.comp_left]
+  simp only [Functor.comp_obj, Functor.id_obj, Iso.trans_hom, Functor.isoWhiskerLeft_hom, Iso.symm_hom,
+    Functor.isoWhiskerRight_hom, NatTrans.comp_app, Functor.whiskerLeft_app, Functor.associator_inv_app,
+    Functor.whiskerRight_app, Functor.associator_hom_app, Category.id_comp, Functor.const_obj_obj]
   change
     ((baseChangeCompOfEq (inv gbar) (inv fbar)
           (inv (fbar ≫ gbar)) IsIso.inv_comp).hom.app ((map j).obj U)).left ≫
@@ -3529,11 +3537,9 @@ theorem equivariantBaseChangeIteratedActual_hom_app_left_snd
       Limits.pullback.fst (U.hom ≫ j) (inv (fbar ≫ gbar)) ≫
         U.hom ≫ f ≫ g := by
   unfold equivariantBaseChangeIteratedActual
-  simp [baseChangeCompInv, equivariantBaseChange_hom_app_left_fst,
-    equivariantBaseChange_hom_app_left_snd,
-    baseChangeCompOfEq_hom_app_left_fst_fst,
-    baseChangeCompOfEq_inv_app_left_snd,
-    MorphismProperty.Comma.comp_left]
+  simp only [Functor.comp_obj, Iso.trans_hom, Functor.isoWhiskerLeft_hom, Iso.symm_hom,
+    Functor.isoWhiskerRight_hom, NatTrans.comp_app, Functor.whiskerLeft_app, Functor.associator_inv_app,
+    Functor.whiskerRight_app, Functor.associator_hom_app, Category.id_comp, Functor.id_obj, Functor.const_obj_obj]
   change
     ((baseChangeCompOfEq (inv gbar) (inv fbar)
           (inv (fbar ≫ gbar)) IsIso.inv_comp).hom.app ((map j).obj U)).left ≫
@@ -3942,20 +3948,15 @@ theorem equivariantBaseChangeRightAdjointIso_hom_comp_actual
     baseChangeSheafPushforwardCompInv
     equivariantBaseChangeRightAdjointIso
   ext Q U x
-  simp [
-    baseChangeSheafPushforward,
-    Functor.sheafPushforwardContinuousComp,
-    Functor.sheafPushforwardContinuousIso,
-    Functor.sheafPushforwardContinuousNatTrans,
-    Iso.trans_hom, Iso.trans_inv,
-    Functor.isoWhiskerLeft_hom, Functor.isoWhiskerRight_hom,
-    Iso.symm_hom, Iso.refl_hom, Iso.refl_inv,
-    NatTrans.comp_app, Functor.whiskerLeft_app, Functor.whiskerRight_app,
-    Functor.associator_hom_app, Functor.associator_inv_app,
-    Functor.map_comp, Functor.comp_map,
-    Category.id_comp, Category.comp_id,
-    AddCommGrpCat.hom_comp, AddMonoidHom.comp_apply,
-    Function.comp_apply]
+  simp only [Functor.comp_obj, Functor.sheafPushforwardContinuous_obj_obj_obj, Iso.trans_hom,
+    Functor.sheafPushforwardContinuousIso_hom, Iso.symm_hom, NatTrans.comp_app, ObjectProperty.FullSubcategory.comp_hom,
+    Functor.sheafPushforwardContinuousNatTrans_app_hom, ObjectProperty.ι_obj,
+    Functor.sheafPushforwardContinuousComp_hom_app_hom_app, Functor.whiskerRight_app, Functor.op_obj, NatTrans.op_app,
+    Functor.sheafPushforwardContinuousComp_inv_app_hom_app, AddCommGrpCat.hom_comp, Functor.isoWhiskerRight_trans,
+    Functor.isoWhiskerLeft_trans, Iso.trans_symm, Iso.trans_assoc, Functor.isoWhiskerRight_hom,
+    Functor.isoWhiskerLeft_hom, Iso.symm_inv, Functor.sheafPushforwardContinuousIso_inv, Functor.associator_hom_app,
+    Functor.whiskerLeft_app, Functor.associator_inv_app, Category.id_comp,
+    Functor.sheafPushforwardContinuous_map_hom_app, Functor.sheafPushforwardContinuous_obj_obj_map, Quiver.Hom.unop_op]
   let A := (Q.obj.map ((baseChangeCompInv fbar gbar).inv.app
     ((map j).obj (Opposite.unop U))).op).hom
   let B := (Q.obj.map ((baseChange (inv gbar)).map
@@ -4514,7 +4515,7 @@ topological input supplied by a universal homeomorphism such as Frobenius. -/
 theorem identityBaseChangeIsHomeomorph (X : Scheme.{u}) :
     ∀ U : X.ProEt, IsHomeomorph (pullback.fst U.hom (𝟙 X)).base := by
   intro U
-  haveI : IsIso (pullback.fst U.hom (𝟙 X)) := inferInstance
+  have : IsIso (pullback.fst U.hom (𝟙 X)) := inferInstance
   exact (TopCat.isIso_iff_isHomeomorph _).mp (inferInstance : IsIso _)
 
 /-- More generally, the homeomorphism hypothesis is automatic for a scheme
@@ -4523,7 +4524,7 @@ theorem baseChangeIsHomeomorph_of_isIso {X Y : Scheme.{u}}
     (f : X ⟶ Y) [IsIso f] :
     ∀ U : Y.ProEt, IsHomeomorph (pullback.fst U.hom f).base := by
   intro U
-  haveI : IsIso (pullback.fst U.hom f) := inferInstance
+  have : IsIso (pullback.fst U.hom f) := inferInstance
   exact (TopCat.isIso_iff_isHomeomorph _).mp (inferInstance : IsIso _)
 
 /-- If every projection produced by scheme-morphism base change is a
@@ -4774,9 +4775,9 @@ noncomputable instance qEllAdicSheafAbULiftFunctor_additive
 
 noncomputable instance lowerShriek_additive {X Y : Scheme.{u}}
     (f : X ⟶ Y) [WeaklyEtale f] : (lowerShriek f).Additive := by
-  letI : (lowerShriek f).IsLeftAdjoint :=
+  let : (lowerShriek f).IsLeftAdjoint :=
     (lowerShriekAdjunction f).isLeftAdjoint
-  letI := preservesBinaryBiproducts_of_preservesBinaryCoproducts
+  let := preservesBinaryBiproducts_of_preservesBinaryCoproducts
     (lowerShriek f)
   exact Functor.additive_of_preservesBinaryBiproducts _
 
@@ -5079,7 +5080,7 @@ theorem qEllAdicCoefficientPullbackULift_id
   apply ULift.ext
   apply ContinuousMap.coe_injective
   funext x
-  letI : Category.{u} (Raw X) := X.instCategoryProEt
+  let : Category.{u} (Raw X) := X.instCategoryProEt
   let e := (rawBaseChangeId X).app U.unop
   have he := congrArg (fun h ↦ h.hom.left) e.inv_hom_id
   change e.inv.hom.left ≫ e.hom.hom.left = 𝟙 _ at he
@@ -5111,19 +5112,19 @@ theorem qEllAdicCoefficientPullbackULift_comp
   apply ULift.ext
   apply ContinuousMap.coe_injective
   funext x
-  letI : Category.{u} (Raw X) := X.instCategoryProEt
-  letI : Category.{u} (Raw Y) := Y.instCategoryProEt
-  letI : Category.{u} (Raw Z) := Z.instCategoryProEt
-  letI : MorphismProperty.HasPullbacksAlong
+  let : Category.{u} (Raw X) := X.instCategoryProEt
+  let : Category.{u} (Raw Y) := Y.instCategoryProEt
+  let : Category.{u} (Raw Z) := Z.instCategoryProEt
+  let : MorphismProperty.HasPullbacksAlong
       (@WeaklyEtale : MorphismProperty Scheme.{u}) f :=
     ⟨fun _ _ ↦ inferInstance⟩
-  letI : MorphismProperty.IsStableUnderBaseChangeAlong
+  let : MorphismProperty.IsStableUnderBaseChangeAlong
       (@WeaklyEtale : MorphismProperty Scheme.{u}) f :=
     ⟨fun pb hp ↦ MorphismProperty.IsStableUnderBaseChange.of_isPullback pb hp⟩
-  letI : MorphismProperty.HasPullbacksAlong
+  let : MorphismProperty.HasPullbacksAlong
       (@WeaklyEtale : MorphismProperty Scheme.{u}) g :=
     ⟨fun _ _ ↦ inferInstance⟩
-  letI : MorphismProperty.IsStableUnderBaseChangeAlong
+  let : MorphismProperty.IsStableUnderBaseChangeAlong
       (@WeaklyEtale : MorphismProperty Scheme.{u}) g :=
     ⟨fun pb hp ↦ MorphismProperty.IsStableUnderBaseChange.of_isPullback pb hp⟩
   let e := (rawBaseChangeComp f g).app U.unop
@@ -5722,7 +5723,7 @@ variable (R : Type) [TopologicalSpace R] [CommRing R]
 lemma isSheaf_fpqcTopology_continuousMapPresheafCommRing :
     Presheaf.IsSheaf Scheme.fpqcTopology.{u}
       (continuousMapPresheafCommRing.{u} R) := by
-  letI : ReflectsLimitsOfSize.{u, u + 1}
+  let : ReflectsLimitsOfSize.{u, u + 1}
       (forget CommRingCat.{u + 1}) :=
     reflectsLimits_of_reflectsIsomorphisms
   apply Presheaf.isSheaf_of_isSheaf_comp
@@ -6460,9 +6461,9 @@ theorem multiplicationDifferential_bijective
     (hqs : IsCoprime q s) :
     Function.Bijective
       (multiplicationDifferential d p q s hp hq hs hpdeg hqdeg hsdeg) := by
-  letI : FiniteDimensional K (Polynomial.degreeLT K d) :=
+  let : FiniteDimensional K (Polynomial.degreeLT K d) :=
     (Polynomial.degreeLTEquiv K d).symm.finiteDimensional
-  letI : FiniteDimensional K (Polynomial.degreeLT K (3 * d)) :=
+  let : FiniteDimensional K (Polynomial.degreeLT K (3 * d)) :=
     (Polynomial.degreeLTEquiv K (3 * d)).symm.finiteDimensional
   have hdimD : Module.finrank K (Polynomial.degreeLT K d) = d := by
     rw [LinearEquiv.finrank_eq (Polynomial.degreeLTEquiv K d)]
@@ -6552,9 +6553,9 @@ theorem residueMultiplicationDifferential_finrank_ker
     Module.finrank K (LinearMap.ker
       (residueMultiplicationDifferential d m g p q s hg hgdeg
         hp hq hs hpdeg hqdeg hsdeg)) = 3 * d - m := by
-  letI : FiniteDimensional K (Polynomial.degreeLT K d) :=
+  let : FiniteDimensional K (Polynomial.degreeLT K d) :=
     (Polynomial.degreeLTEquiv K d).symm.finiteDimensional
-  letI : FiniteDimensional K (Polynomial.degreeLT K m) :=
+  let : FiniteDimensional K (Polynomial.degreeLT K m) :=
     (Polynomial.degreeLTEquiv K m).symm.finiteDimensional
   let L := residueMultiplicationDifferential d m g p q s hg hgdeg
     hp hq hs hpdeg hqdeg hsdeg
@@ -6922,7 +6923,7 @@ theorem secondLiftOverFirst_factor₁
       (two_mul_eq_add_self d)
       (Polynomial.UniversalCoprimeFactorizationRing.factor₂ d (2 * d)
         (three_mul_eq_add_two_mul d) P)).map x.secondLiftOverFirst = x.factor₂ := by
-  letI : Algebra (UniversalCoprimeOneTwoFactorizationRing R d P) S :=
+  let : Algebra (UniversalCoprimeOneTwoFactorizationRing R d P) S :=
     x.firstLift.toAlgebra
   have h := congrArg (fun y ↦ y.1.1)
     ((Polynomial.UniversalCoprimeFactorizationRing.homEquiv S d d
@@ -6940,7 +6941,7 @@ theorem secondLiftOverFirst_factor₂
       (two_mul_eq_add_self d)
       (Polynomial.UniversalCoprimeFactorizationRing.factor₂ d (2 * d)
         (three_mul_eq_add_two_mul d) P)).map x.secondLiftOverFirst = x.factor₃ := by
-  letI : Algebra (UniversalCoprimeOneTwoFactorizationRing R d P) S :=
+  let : Algebra (UniversalCoprimeOneTwoFactorizationRing R d P) S :=
     x.firstLift.toAlgebra
   have h := congrArg (fun y ↦ y.1.2)
     ((Polynomial.UniversalCoprimeFactorizationRing.homEquiv S d d
@@ -6954,8 +6955,8 @@ theorem lift_factor₁ (x : PairwiseCoprimeTripleFactorization R S d P) :
     (universalTripleFactor₁ R d P).map x.lift = x.factor₁ := by
   let R₁ := UniversalCoprimeOneTwoFactorizationRing R d P
   let R₂ := UniversalPairwiseCoprimeTripleFactorizationRing R d P
-  letI : Algebra R₁ S := x.firstLift.toAlgebra
-  letI : IsScalarTower R R₁ S :=
+  let : Algebra R₁ S := x.firstLift.toAlgebra
+  let : IsScalarTower R R₁ S :=
     .of_algebraMap_eq fun z ↦ (x.firstLift.commutes z).symm
   apply Subtype.ext
   change Polynomial.map (x.lift : R₂ →ₐ[R] S).toRingHom
@@ -6976,16 +6977,16 @@ theorem lift_factor₁ (x : PairwiseCoprimeTripleFactorization R S d P) :
 theorem lift_factor₂ (x : PairwiseCoprimeTripleFactorization R S d P) :
     (universalTripleFactor₂ R d P).map x.lift = x.factor₂ := by
   let R₁ := UniversalCoprimeOneTwoFactorizationRing R d P
-  letI : Algebra R₁ S := x.firstLift.toAlgebra
-  letI : IsScalarTower R R₁ S :=
+  let : Algebra R₁ S := x.firstLift.toAlgebra
+  let : IsScalarTower R R₁ S :=
     .of_algebraMap_eq fun z ↦ (x.firstLift.commutes z).symm
   exact x.secondLiftOverFirst_factor₁
 
 theorem lift_factor₃ (x : PairwiseCoprimeTripleFactorization R S d P) :
     (universalTripleFactor₃ R d P).map x.lift = x.factor₃ := by
   let R₁ := UniversalCoprimeOneTwoFactorizationRing R d P
-  letI : Algebra R₁ S := x.firstLift.toAlgebra
-  letI : IsScalarTower R R₁ S :=
+  let : Algebra R₁ S := x.firstLift.toAlgebra
+  let : IsScalarTower R R₁ S :=
     .of_algebraMap_eq fun z ↦ (x.firstLift.commutes z).symm
   exact x.secondLiftOverFirst_factor₂
 
@@ -7095,7 +7096,7 @@ theorem algHom_ext
         universalCoprimeFactorizationHomEquiv_snd]
       rw [firstRestriction_factor₂, firstRestriction_factor₂]
       rw [congrArg Subtype.val h₂, congrArg Subtype.val h₃]
-  letI : Algebra R₁ S := f₁.toAlgebra
+  let : Algebra R₁ S := f₁.toAlgebra
   let f' : R₂ →ₐ[R₁] S :=
     { toRingHom := f.toRingHom
       commutes' := fun z ↦ rfl }
@@ -7351,12 +7352,12 @@ instance universalResidueTripleFactorizationProjection_smooth
       (universalResidueTripleFactorizationProjection
         R d m g t hg hgdeg htdeg hm) := by
   unfold universalResidueTripleFactorizationProjection
-  haveI : SmoothOfRelativeDimension 0
+  have : SmoothOfRelativeDimension 0
       (universalPairwiseCoprimeTripleFactorizationMorphism
         (ResidueQuotientParameterRing R d m) d
         (universalResidueProductMonicDegree R d m g t hg hgdeg htdeg hm)) :=
     inferInstance
-  haveI : SmoothOfRelativeDimension (residueQuotientDegree d m)
+  have : SmoothOfRelativeDimension (residueQuotientDegree d m)
       (residueQuotientParameterProjection R d m) := inferInstance
   simpa using
     (inferInstance : SmoothOfRelativeDimension
@@ -7395,8 +7396,8 @@ theorem isNoetherian_universalResidueTripleFactorization
         R d m g t hg hgdeg htdeg hm))) := by
   let f := universalResidueTripleFactorizationProjection
     R d m g t hg hgdeg htdeg hm
-  letI : LocallyOfFinitePresentation f := inferInstance
-  haveI : IsLocallyNoetherian
+  let : LocallyOfFinitePresentation f := inferInstance
+  have : IsLocallyNoetherian
       (Spec (.of (UniversalResidueTripleFactorizationRing
         R d m g t hg hgdeg htdeg hm))) :=
     LocallyOfFiniteType.isLocallyNoetherian f
@@ -7645,8 +7646,8 @@ theorem lift_factor₁ (x : ResidueTripleFactorizationData R S d m g t) :
     (universalResidueTripleFactor₁ R d m g t hg hgdeg htdeg hm).map
         (lift (hg := hg) (hgdeg := hgdeg) (htdeg := htdeg) (hm := hm) x) =
       x.factor₁ := by
-  letI : Algebra RP₀ S := x.parameterLift.toAlgebra
-  letI : IsScalarTower R RP₀ S :=
+  let : Algebra RP₀ S := x.parameterLift.toAlgebra
+  let : IsScalarTower R RP₀ S :=
     .of_algebraMap_eq fun z ↦ (x.parameterLift.commutes z).symm
   change (universalTripleFactor₁ RP₀ d
     (universalResidueProductMonicDegree R d m g t hg hgdeg htdeg hm)).map
@@ -7660,8 +7661,8 @@ theorem lift_factor₂ (x : ResidueTripleFactorizationData R S d m g t) :
     (universalResidueTripleFactor₂ R d m g t hg hgdeg htdeg hm).map
         (lift (hg := hg) (hgdeg := hgdeg) (htdeg := htdeg) (hm := hm) x) =
       x.factor₂ := by
-  letI : Algebra RP₀ S := x.parameterLift.toAlgebra
-  letI : IsScalarTower R RP₀ S :=
+  let : Algebra RP₀ S := x.parameterLift.toAlgebra
+  let : IsScalarTower R RP₀ S :=
     .of_algebraMap_eq fun z ↦ (x.parameterLift.commutes z).symm
   change (universalTripleFactor₂ RP₀ d
     (universalResidueProductMonicDegree R d m g t hg hgdeg htdeg hm)).map
@@ -7675,8 +7676,8 @@ theorem lift_factor₃ (x : ResidueTripleFactorizationData R S d m g t) :
     (universalResidueTripleFactor₃ R d m g t hg hgdeg htdeg hm).map
         (lift (hg := hg) (hgdeg := hgdeg) (htdeg := htdeg) (hm := hm) x) =
       x.factor₃ := by
-  letI : Algebra RP₀ S := x.parameterLift.toAlgebra
-  letI : IsScalarTower R RP₀ S :=
+  let : Algebra RP₀ S := x.parameterLift.toAlgebra
+  let : IsScalarTower R RP₀ S :=
     .of_algebraMap_eq fun z ↦ (x.parameterLift.commutes z).symm
   change (universalTripleFactor₃ RP₀ d
     (universalResidueProductMonicDegree R d m g t hg hgdeg htdeg hm)).map
@@ -7691,8 +7692,8 @@ theorem parameterRestriction_lift
     parameterRestriction (hg := hg) (hgdeg := hgdeg) (htdeg := htdeg) (hm := hm)
       (lift (hg := hg) (hgdeg := hgdeg) (htdeg := htdeg) (hm := hm) x) =
         x.parameterLift := by
-  letI : Algebra RP₀ S := x.parameterLift.toAlgebra
-  letI : IsScalarTower R RP₀ S :=
+  let : Algebra RP₀ S := x.parameterLift.toAlgebra
+  let : IsScalarTower R RP₀ S :=
     .of_algebraMap_eq fun z ↦ (x.parameterLift.commutes z).symm
   apply AlgHom.ext
   intro z
@@ -7727,7 +7728,7 @@ theorem algHom_ext
         k.toRingHom) : f = k := by
   let f₀ : RP₀ →ₐ[R] S := parameterRestriction f
   let k₀ : RP₀ →ₐ[R] S := parameterRestriction k
-  letI : Algebra RP₀ S := f₀.toAlgebra
+  let : Algebra RP₀ S := f₀.toAlgebra
   let f' : A₀ →ₐ[RP₀] S :=
     { toRingHom := f.toRingHom
       commutes' := fun z ↦ rfl }
@@ -7974,11 +7975,11 @@ symmetric subalgebra. -/
 theorem symmetricSubalgebra_moduleFinite (n : ℕ) :
     Module.Finite (MvPolynomial.symmetricSubalgebra (Fin n) K)
       (MvPolynomial (Fin n) K) := by
-  letI : Algebra.IsIntegral
+  let : Algebra.IsIntegral
       (MvPolynomial.symmetricSubalgebra (Fin n) K)
       (MvPolynomial (Fin n) K) :=
     Algebra.IsInvariant.isIntegral _ _ (Equiv.Perm (Fin n))
-  letI : Algebra.FiniteType
+  let : Algebra.FiniteType
       (MvPolynomial.symmetricSubalgebra (Fin n) K)
       (MvPolynomial (Fin n) K) :=
     Algebra.FiniteType.of_restrictScalars_finiteType K
@@ -8017,7 +8018,7 @@ theorem symmetricRootQuotient_isFinite (n : ℕ) :
 
 theorem symmetricRootQuotient_isProper (n : ℕ) :
     IsProper (symmetricRootQuotient K n) := by
-  letI : IsFinite (symmetricRootQuotient K n) :=
+  let : IsFinite (symmetricRootQuotient K n) :=
     symmetricRootQuotient_isFinite K n
   infer_instance
 
@@ -8441,7 +8442,7 @@ theorem universalRootPolynomial_monic (n : ℕ) :
 /-- Affine `n`-space over `Spec K` is smooth. -/
 theorem smooth_affineRootSpace_projection (n : ℕ) :
     Smooth (AffineRootSpace K n ↘ Spec (.of K)) := by
-  letI : MorphismProperty.RespectsIso (@Smooth) := by
+  let : MorphismProperty.RespectsIso (@Smooth) := by
     rw [HasRingHomProperty.eq_affineLocally @Smooth]
     exact affineLocally_respectsIso _ RingHom.Smooth.respectsIso
   rw [← MorphismProperty.cancel_left_of_respectsIso (P := @Smooth)
@@ -8456,14 +8457,14 @@ theorem smooth_affineRootSpace_projection (n : ℕ) :
 theorem smooth_rootSpaceProjection (n : ℕ) (g : Polynomial K) :
     Smooth (rootSpaceProjection K n g) := by
   unfold rootSpaceProjection
-  letI : Smooth (AffineRootSpace K n ↘ Spec (.of K)) :=
+  let : Smooth (AffineRootSpace K n ↘ Spec (.of K)) :=
     smooth_affineRootSpace_projection K n
   infer_instance
 
 /-- In particular, the ordered root space is flat. -/
 theorem flat_rootSpaceProjection (n : ℕ) (g : Polynomial K) :
     Flat (rootSpaceProjection K n g) := by
-  letI : Smooth (rootSpaceProjection K n g) :=
+  let : Smooth (rootSpaceProjection K n g) :=
     smooth_rootSpaceProjection K n g
   infer_instance
 
@@ -8471,7 +8472,7 @@ theorem flat_rootSpaceProjection (n : ℕ) (g : Polynomial K) :
 theorem locallyOfFinitePresentation_rootSpaceProjection
     (n : ℕ) (g : Polynomial K) :
     LocallyOfFinitePresentation (rootSpaceProjection K n g) := by
-  letI : Smooth (rootSpaceProjection K n g) :=
+  let : Smooth (rootSpaceProjection K n g) :=
     smooth_rootSpaceProjection K n g
   infer_instance
 
@@ -8930,11 +8931,11 @@ scheme-theoretic hypothesis used with Artin's affine theorem in Lemma 4.1. -/
 theorem isAffineHom_residueMultiplication
     (n m : ℕ) (g : Polynomial K) (hg : g.Monic) :
     IsAffineHom (residueMultiplication K n m g hg) := by
-  letI : IsAffine (AffineRootSpace K n) := inferInstance
-  letI : IsAffine (RootSpace K n g) := by
+  let : IsAffine (AffineRootSpace K n) := inferInstance
+  let : IsAffine (RootSpace K n g) := by
     change IsAffine ((AffineRootSpace K n).basicOpen _)
     infer_instance
-  letI : IsAffine (AffineSpace (RootIndex m) (Spec (.of K))) := inferInstance
+  let : IsAffine (AffineSpace (RootIndex m) (Spec (.of K))) := inferInstance
   infer_instance
 
 /-- If `deg g = m`, the universal remainder really is represented by its
@@ -8957,12 +8958,12 @@ scheme-theoretic residue fiber are affine. -/
 theorem isAffine_residueFiber
     (n m : ℕ) (g a : Polynomial K) (hg : g.Monic) :
     IsAffine (ResidueFiber K n m g a hg) := by
-  letI : IsAffine (AffineRootSpace K n) := inferInstance
-  letI : IsAffine (RootSpace K n g) := by
+  let : IsAffine (AffineRootSpace K n) := inferInstance
+  let : IsAffine (RootSpace K n g) := by
     change IsAffine ((AffineRootSpace K n).basicOpen _)
     infer_instance
-  letI : IsAffine (AffineSpace (RootIndex m) (Spec (.of K))) := inferInstance
-  letI : IsAffine (Spec (.of K)) := inferInstance
+  let : IsAffine (AffineSpace (RootIndex m) (Spec (.of K))) := inferInstance
+  let : IsAffine (Spec (.of K)) := inferInstance
   dsimp [ResidueFiber]
   infer_instance
 
@@ -8970,7 +8971,7 @@ theorem isAffine_residueFiber
 theorem isAffineHom_residueFiberProjection
     (n m : ℕ) (g a : Polynomial K) (hg : g.Monic) :
     IsAffineHom (residueFiberProjection K n m g a hg) := by
-  letI : IsAffine (ResidueFiber K n m g a hg) :=
+  let : IsAffine (ResidueFiber K n m g a hg) :=
     isAffine_residueFiber K n m g a hg
   infer_instance
 
@@ -9021,7 +9022,7 @@ theorem threeFactorFiberTangent_finrank_eq_zero
     (hpq : IsCoprime p q) (hps : IsCoprime p s) (hqs : IsCoprime q s) :
     Module.finrank K
       (ThreeFactorFiberTangent K d p q s hp hq hs hpdeg hqdeg hsdeg) = 0 := by
-  letI : FiniteDimensional K (Polynomial.degreeLT K d) :=
+  let : FiniteDimensional K (Polynomial.degreeLT K d) :=
     (Polynomial.degreeLTEquiv K d).symm.finiteDimensional
   rw [Submodule.finrank_eq_zero]
   exact threeFactorFiberTangent_eq_bot K d p q s hp hq hs
@@ -9281,7 +9282,7 @@ theorem smooth_symmetricCoprimeMonicProjection
     (n m : ℕ) (g : Polynomial K) :
     Smooth (symmetricCoprimeMonicProjection K n m g) := by
   unfold symmetricCoprimeMonicProjection
-  letI : Smooth (AffineRootSpace K n ↘ Spec (.of K)) :=
+  let : Smooth (AffineRootSpace K n ↘ Spec (.of K)) :=
     smooth_affineRootSpace_projection K n
   infer_instance
 
@@ -9513,7 +9514,7 @@ theorem rootMultiplicationToSymmetricCoprimeMonicSpace_isFinite
     IsFinite
       (rootMultiplicationToSymmetricCoprimeMonicSpace
         K n m g hg hdeg) := by
-  letI : IsFinite (affineRootMultiplication K n) :=
+  let : IsFinite (affineRootMultiplication K n) :=
     affineRootMultiplication_isFinite K n
   let U := SymmetricCoprimeMonicOpen K n m g
   let e : affineRootMultiplication K n ⁻¹ᵁ U = RootSpaceOpen K n g :=
@@ -9773,14 +9774,14 @@ theorem isAffine_residueUnitSpace (m : ℕ) (g : Polynomial K) :
 theorem smooth_residueUnitProjection (m : ℕ) (g : Polynomial K) :
     Smooth (residueUnitProjection K m g) := by
   unfold residueUnitProjection residueUnitImmersion
-  letI : Smooth (AffineRootSpace K m ↘ Spec (.of K)) :=
+  let : Smooth (AffineRootSpace K m ↘ Spec (.of K)) :=
     smooth_affineRootSpace_projection K m
   infer_instance
 
 /-- Consequently the unit target has a flat structural morphism. -/
 theorem flat_residueUnitProjection (m : ℕ) (g : Polynomial K) :
     Flat (residueUnitProjection K m g) := by
-  letI : Smooth (residueUnitProjection K m g) :=
+  let : Smooth (residueUnitProjection K m g) :=
     smooth_residueUnitProjection K m g
   infer_instance
 
@@ -9850,7 +9851,7 @@ theorem rootMultiplicationToSymmetricCoprimeMonicSpace_comp_residueToUnit
       symmetricCoprimeMonicResidueMultiplicationToUnit
           K n m g hg hdeg hmn =
       fullResidueMultiplicationToUnit K n m g hg hdeg hm hmn := by
-  letI : IsOpenImmersion (residueUnitImmersion K m g) := by
+  let : IsOpenImmersion (residueUnitImmersion K m g) := by
     unfold residueUnitImmersion
     infer_instance
   apply (cancel_mono (residueUnitImmersion K m g)).1
@@ -9865,11 +9866,11 @@ theorem isAffineHom_fullResidueMultiplicationToUnit
     (hdeg : g.natDegree = m) (hm : 0 < m) (hmn : m ≤ n) :
     IsAffineHom
       (fullResidueMultiplicationToUnit K n m g hg hdeg hm hmn) := by
-  letI : IsAffine (AffineRootSpace K n) := inferInstance
-  letI : IsAffine (RootSpace K n g) := by
+  let : IsAffine (AffineRootSpace K n) := inferInstance
+  let : IsAffine (RootSpace K n g) := by
     change IsAffine ((AffineRootSpace K n).basicOpen _)
     infer_instance
-  letI : IsAffine (ResidueUnitSpace K m g) :=
+  let : IsAffine (ResidueUnitSpace K m g) :=
     isAffine_residueUnitSpace K m g
   infer_instance
 
@@ -9907,7 +9908,7 @@ theorem smooth_residueUnitDomainProjection
     (n m : ℕ) (g : Polynomial K) (hg : g.Monic) :
     Smooth (residueUnitDomainProjection K n m g hg) := by
   unfold residueUnitDomainProjection
-  letI : Smooth (rootSpaceProjection K n g) :=
+  let : Smooth (rootSpaceProjection K n g) :=
     smooth_rootSpaceProjection K n g
   infer_instance
 
@@ -9915,8 +9916,8 @@ theorem smooth_residueUnitDomainProjection
 theorem isAffine_residueUnitDomain
     (n m : ℕ) (g : Polynomial K) (hg : g.Monic) :
     IsAffine (ResidueUnitDomain K n m g hg) := by
-  letI : IsAffine (AffineRootSpace K n) := inferInstance
-  letI : IsAffine (RootSpace K n g) := by
+  let : IsAffine (AffineRootSpace K n) := inferInstance
+  let : IsAffine (RootSpace K n g) := by
     change IsAffine ((AffineRootSpace K n).basicOpen _)
     infer_instance
   unfold ResidueUnitDomain ResidueUnitDomainOpen ResidueUnitOpen
@@ -9927,9 +9928,9 @@ theorem isAffine_residueUnitDomain
 theorem isAffineHom_residueMultiplicationToUnit
     (n m : ℕ) (g : Polynomial K) (hg : g.Monic) :
     IsAffineHom (residueMultiplicationToUnit K n m g hg) := by
-  letI : IsAffine (ResidueUnitDomain K n m g hg) :=
+  let : IsAffine (ResidueUnitDomain K n m g hg) :=
     isAffine_residueUnitDomain K n m g hg
-  letI : IsAffine (ResidueUnitSpace K m g) :=
+  let : IsAffine (ResidueUnitSpace K m g) :=
     isAffine_residueUnitSpace K m g
   infer_instance
 
@@ -9959,17 +9960,17 @@ theorem locallyOfFinitePresentation_fullResidueMultiplicationToUnit
       (fullResidueMultiplicationToUnit K n m g hg hdeg hm hmn) := by
   let f := fullResidueMultiplicationToUnit K n m g hg hdeg hm hmn
   let p := residueUnitProjection K m g
-  letI : IsAffine (RootSpace K n g) := by
+  let : IsAffine (RootSpace K n g) := by
     change IsAffine ((AffineRootSpace K n).basicOpen _)
     infer_instance
-  letI : IsAffine (ResidueUnitSpace K m g) :=
+  let : IsAffine (ResidueUnitSpace K m g) :=
     isAffine_residueUnitSpace K m g
-  letI : IsAffine (Spec (.of K)) := inferInstance
-  letI : Smooth p := smooth_residueUnitProjection K m g
+  let : IsAffine (Spec (.of K)) := inferInstance
+  let : Smooth p := smooth_residueUnitProjection K m g
   have hpft : p.appTop.hom.FiniteType := by
     rw [← HasRingHomProperty.iff_of_isAffine (P := @LocallyOfFiniteType)]
     infer_instance
-  letI : LocallyOfFinitePresentation (rootSpaceProjection K n g) :=
+  let : LocallyOfFinitePresentation (rootSpaceProjection K n g) :=
     locallyOfFinitePresentation_rootSpaceProjection K n g
   have hcomp : (f ≫ p).appTop.hom.FinitePresentation := by
     rw [fullResidueMultiplicationToUnit_over K n m g hg hdeg hm hmn]
@@ -9983,7 +9984,7 @@ theorem quasiCompact_fullResidueMultiplicationToUnit
     (hdeg : g.natDegree = m) (hm : 0 < m) (hmn : m ≤ n) :
     QuasiCompact
       (fullResidueMultiplicationToUnit K n m g hg hdeg hm hmn) := by
-  letI : IsAffineHom
+  let : IsAffineHom
       (fullResidueMultiplicationToUnit K n m g hg hdeg hm hmn) :=
     isAffineHom_fullResidueMultiplicationToUnit K n m g hg hdeg hm hmn
   infer_instance
@@ -9993,7 +9994,7 @@ theorem isSeparated_fullResidueMultiplicationToUnit
     (hdeg : g.natDegree = m) (hm : 0 < m) (hmn : m ≤ n) :
     IsSeparated
       (fullResidueMultiplicationToUnit K n m g hg hdeg hm hmn) := by
-  letI : IsAffineHom
+  let : IsAffineHom
       (fullResidueMultiplicationToUnit K n m g hg hdeg hm hmn) :=
     isAffineHom_fullResidueMultiplicationToUnit K n m g hg hdeg hm hmn
   infer_instance
@@ -10523,7 +10524,7 @@ theorem affineMonicReconstructionToSymmetric_comp_residueToUnit
         symmetricCoprimeMonicResidueMultiplicationToUnit
           K n m g hg hdeg hmn =
       (AffineRootSpace K (n - m) ↘ Spec (.of K)) ≫ t := by
-  letI : IsOpenImmersion (residueUnitImmersion K m g) := by
+  let : IsOpenImmersion (residueUnitImmersion K m g) := by
     unfold residueUnitImmersion
     infer_instance
   apply (cancel_mono (residueUnitImmersion K m g)).1
@@ -10988,12 +10989,12 @@ theorem isAffine_fullResidueUnitFiber
     (hdeg : g.natDegree = m) (hm : 0 < m) (hmn : m ≤ n)
     (t : ResidueUnitPoint K m g) :
     IsAffine (FullResidueUnitFiber K n m g hg hdeg hm hmn t) := by
-  letI : IsAffine (RootSpace K n g) := by
+  let : IsAffine (RootSpace K n g) := by
     change IsAffine ((AffineRootSpace K n).basicOpen _)
     infer_instance
-  letI : IsAffine (ResidueUnitSpace K m g) :=
+  let : IsAffine (ResidueUnitSpace K m g) :=
     isAffine_residueUnitSpace K m g
-  letI : IsAffine (Spec (.of K)) := inferInstance
+  let : IsAffine (Spec (.of K)) := inferInstance
   dsimp [FullResidueUnitFiber]
   infer_instance
 
@@ -11003,9 +11004,9 @@ theorem isAffineHom_fullResidueUnitFiberProjection
     (t : ResidueUnitPoint K m g) :
     IsAffineHom
       (fullResidueUnitFiberProjection K n m g hg hdeg hm hmn t) := by
-  letI : IsAffine (FullResidueUnitFiber K n m g hg hdeg hm hmn t) :=
+  let : IsAffine (FullResidueUnitFiber K n m g hg hdeg hm hmn t) :=
     isAffine_fullResidueUnitFiber K n m g hg hdeg hm hmn t
-  letI : IsAffine (Spec (.of K)) := inferInstance
+  let : IsAffine (Spec (.of K)) := inferInstance
   infer_instance
 
 theorem locallyOfFinitePresentation_fullResidueUnitFiberProjection
@@ -11014,7 +11015,7 @@ theorem locallyOfFinitePresentation_fullResidueUnitFiberProjection
     (t : ResidueUnitPoint K m g) :
     LocallyOfFinitePresentation
       (fullResidueUnitFiberProjection K n m g hg hdeg hm hmn t) := by
-  letI : LocallyOfFinitePresentation
+  let : LocallyOfFinitePresentation
       (fullResidueMultiplicationToUnit K n m g hg hdeg hm hmn) :=
     locallyOfFinitePresentation_fullResidueMultiplicationToUnit
       K n m g hg hdeg hm hmn
@@ -11026,10 +11027,10 @@ theorem finitePresentation_fullResidueUnitFiber_appTop
     (hdeg : g.natDegree = m) (hm : 0 < m) (hmn : m ≤ n)
     (t : ResidueUnitPoint K m g) :
     (fullResidueUnitFiberProjection K n m g hg hdeg hm hmn t).appTop.hom.FinitePresentation := by
-  letI : IsAffine (FullResidueUnitFiber K n m g hg hdeg hm hmn t) :=
+  let : IsAffine (FullResidueUnitFiber K n m g hg hdeg hm hmn t) :=
     isAffine_fullResidueUnitFiber K n m g hg hdeg hm hmn t
-  letI : IsAffine (Spec (.of K)) := inferInstance
-  letI : LocallyOfFinitePresentation
+  let : IsAffine (Spec (.of K)) := inferInstance
+  let : LocallyOfFinitePresentation
       (fullResidueUnitFiberProjection K n m g hg hdeg hm hmn t) :=
     locallyOfFinitePresentation_fullResidueUnitFiberProjection
       K n m g hg hdeg hm hmn t
@@ -11041,7 +11042,7 @@ theorem quasiCompact_fullResidueUnitFiberProjection
     (t : ResidueUnitPoint K m g) :
     QuasiCompact
       (fullResidueUnitFiberProjection K n m g hg hdeg hm hmn t) := by
-  letI : IsAffineHom
+  let : IsAffineHom
       (fullResidueUnitFiberProjection K n m g hg hdeg hm hmn t) :=
     isAffineHom_fullResidueUnitFiberProjection
       K n m g hg hdeg hm hmn t
@@ -11053,7 +11054,7 @@ theorem isLocallyNoetherian_fullResidueUnitFiber
     (t : ResidueUnitPoint K m g) :
     IsLocallyNoetherian
       (FullResidueUnitFiber K n m g hg hdeg hm hmn t) := by
-  letI : LocallyOfFinitePresentation
+  let : LocallyOfFinitePresentation
       (fullResidueUnitFiberProjection K n m g hg hdeg hm hmn t) :=
     locallyOfFinitePresentation_fullResidueUnitFiberProjection
       K n m g hg hdeg hm hmn t
@@ -11065,9 +11066,9 @@ theorem isNoetherian_fullResidueUnitFiber
     (hdeg : g.natDegree = m) (hm : 0 < m) (hmn : m ≤ n)
     (t : ResidueUnitPoint K m g) :
     IsNoetherian (FullResidueUnitFiber K n m g hg hdeg hm hmn t) := by
-  letI : IsAffine (FullResidueUnitFiber K n m g hg hdeg hm hmn t) :=
+  let : IsAffine (FullResidueUnitFiber K n m g hg hdeg hm hmn t) :=
     isAffine_fullResidueUnitFiber K n m g hg hdeg hm hmn t
-  letI : IsLocallyNoetherian
+  let : IsLocallyNoetherian
       (FullResidueUnitFiber K n m g hg hdeg hm hmn t) :=
     isLocallyNoetherian_fullResidueUnitFiber K n m g hg hdeg hm hmn t
   exact AlgebraicGeometry.IsNoetherian.mk
@@ -11107,11 +11108,11 @@ theorem isAffine_residueUnitFiber
     (n m : ℕ) (g : Polynomial K) (hg : g.Monic)
     (t : ResidueUnitPoint K m g) :
     IsAffine (ResidueUnitFiber K n m g hg t) := by
-  letI : IsAffine (ResidueUnitDomain K n m g hg) :=
+  let : IsAffine (ResidueUnitDomain K n m g hg) :=
     isAffine_residueUnitDomain K n m g hg
-  letI : IsAffine (ResidueUnitSpace K m g) :=
+  let : IsAffine (ResidueUnitSpace K m g) :=
     isAffine_residueUnitSpace K m g
-  letI : IsAffine (Spec (.of K)) := inferInstance
+  let : IsAffine (Spec (.of K)) := inferInstance
   dsimp [ResidueUnitFiber]
   infer_instance
 
@@ -11415,7 +11416,7 @@ theorem affineRootFrobenius_rootEvaluationSection
     (affineRootFrobenius q n).appTop
         (rootEvaluationSection (ZMod q) n g i) =
       rootEvaluationSection (ZMod q) n g i ^ q := by
-  letI : CharP Γ(AffineRootSpace (ZMod q) n, ⊤) q :=
+  let : CharP Γ(AffineRootSpace (ZMod q) n, ⊤) q :=
     CharP.of_ringHom_of_ne_zero (rootCoefficientMap (ZMod q) n) q
       ((show q.Prime from Fact.out).ne_zero)
   unfold rootEvaluationSection
@@ -11568,7 +11569,7 @@ theorem specFrobenius_universallyInjective
   change (Spec.preimage g₁).hom (x ^ q) =
     (Spec.preimage g₂).hom (x ^ q) at hx
   rw [map_pow, map_pow] at hx
-  letI : CharP K q := CharP.of_ringHom_of_ne_zero
+  let : CharP K q := CharP.of_ringHom_of_ne_zero
     (Spec.preimage g₁).hom q
       (show q ≠ 0 from (show q.Prime from Fact.out).ne_zero)
   have hsub :
@@ -11591,8 +11592,8 @@ theorem baseChangeIsHomeomorph_of_integral_surjective_universallyInjective
     ∀ U : Y.ProEt, IsHomeomorph (pullback.fst U.hom f).base := by
   intro U
   let p := pullback.fst U.hom f
-  letI : IsIntegralHom p := inferInstance
-  letI : Surjective p := inferInstance
+  let : IsIntegralHom p := inferInstance
+  let : Surjective p := inferInstance
   have hp_injective : Function.Injective p :=
     UniversallyInjective.universally_injective
       (f := f) (pullback.snd U.hom f) U.hom p
@@ -11607,9 +11608,9 @@ theorem specFrobeniusBaseChangeIsHomeomorph
       IsHomeomorph (pullback.fst U.hom
         (Spec.map (CommRingCat.ofHom
           (frobenius (MvPolynomial (RootIndex n) (ZMod q)) q)))).base := by
-  letI := specFrobenius_integral q n
-  letI := specFrobenius_surjective q n
-  letI := specFrobenius_universallyInjective q n
+  let := specFrobenius_integral q n
+  let := specFrobenius_surjective q n
+  let := specFrobenius_universallyInjective q n
   exact baseChangeIsHomeomorph_of_integral_surjective_universallyInjective _
 
 theorem affineRootFrobenius_integral
@@ -11617,7 +11618,7 @@ theorem affineRootFrobenius_integral
     IsIntegralHom (affineRootFrobenius q n) := by
   rw [← affineRootFrobeniusSpec_eq]
   unfold affineRootFrobeniusSpec
-  letI := specFrobenius_integral q n
+  let := specFrobenius_integral q n
   infer_instance
 
 theorem affineRootFrobenius_surjective
@@ -11625,7 +11626,7 @@ theorem affineRootFrobenius_surjective
     Surjective (affineRootFrobenius q n) := by
   rw [← affineRootFrobeniusSpec_eq]
   unfold affineRootFrobeniusSpec
-  letI := specFrobenius_surjective q n
+  let := specFrobenius_surjective q n
   infer_instance
 
 theorem affineRootFrobenius_universallyInjective
@@ -11633,7 +11634,7 @@ theorem affineRootFrobenius_universallyInjective
     UniversallyInjective (affineRootFrobenius q n) := by
   rw [← affineRootFrobeniusSpec_eq]
   unfold affineRootFrobeniusSpec
-  letI : MorphismProperty.RespectsIso (@UniversallyInjective) :=
+  let : MorphismProperty.RespectsIso (@UniversallyInjective) :=
     UniversallyInjective.respectsIso
   rw [MorphismProperty.cancel_left_of_respectsIso @UniversallyInjective,
     MorphismProperty.cancel_right_of_respectsIso @UniversallyInjective]
@@ -11644,9 +11645,9 @@ theorem affineRootFrobeniusBaseChangeIsHomeomorph
     ∀ U : (AffineRootSpace (ZMod q) n).ProEt,
       IsHomeomorph (pullback.fst U.hom
         (affineRootFrobenius q n)).base := by
-  letI := affineRootFrobenius_integral q n
-  letI := affineRootFrobenius_surjective q n
-  letI := affineRootFrobenius_universallyInjective q n
+  let := affineRootFrobenius_integral q n
+  let := affineRootFrobenius_surjective q n
+  let := affineRootFrobenius_universallyInjective q n
   exact baseChangeIsHomeomorph_of_integral_surjective_universallyInjective _
 
 theorem restrict_self_surjective_of_surjective
@@ -11672,14 +11673,14 @@ theorem rootFrobenius_integral
     (q n : ℕ) [Fact q.Prime] (g : Polynomial (ZMod q)) :
     IsIntegralHom (rootFrobenius q n g) := by
   unfold rootFrobenius
-  letI := affineRootFrobenius_integral q n
+  let := affineRootFrobenius_integral q n
   infer_instance
 
 theorem rootFrobenius_surjective
     (q n : ℕ) [Fact q.Prime] (g : Polynomial (ZMod q)) :
     Surjective (rootFrobenius q n g) := by
   unfold rootFrobenius
-  letI := affineRootFrobenius_surjective q n
+  let := affineRootFrobenius_surjective q n
   exact restrict_self_surjective_of_surjective _ _
     (affineRootFrobenius_preimage_rootSpaceOpen q n g)
 
@@ -11687,9 +11688,9 @@ theorem rootFrobenius_universallyInjective
     (q n : ℕ) [Fact q.Prime] (g : Polynomial (ZMod q)) :
     UniversallyInjective (rootFrobenius q n g) := by
   unfold rootFrobenius
-  letI : MorphismProperty.RespectsIso (@UniversallyInjective) :=
+  let : MorphismProperty.RespectsIso (@UniversallyInjective) :=
     UniversallyInjective.respectsIso
-  letI : MorphismProperty.IsStableUnderBaseChange (@UniversallyInjective) :=
+  let : MorphismProperty.IsStableUnderBaseChange (@UniversallyInjective) :=
     UniversallyInjective.isStableUnderBaseChange
   rw [MorphismProperty.cancel_left_of_respectsIso @UniversallyInjective]
   apply MorphismProperty.of_isPullback (isPullback_morphismRestrict
@@ -11700,9 +11701,9 @@ theorem rootFrobeniusBaseChangeIsHomeomorph
     (q n : ℕ) [Fact q.Prime] (g : Polynomial (ZMod q)) :
     ∀ U : (RootSpace (ZMod q) n g).ProEt,
       IsHomeomorph (pullback.fst U.hom (rootFrobenius q n g)).base := by
-  letI := rootFrobenius_integral q n g
-  letI := rootFrobenius_surjective q n g
-  letI := rootFrobenius_universallyInjective q n g
+  let := rootFrobenius_integral q n g
+  let := rootFrobenius_surjective q n g
+  let := rootFrobenius_universallyInjective q n g
   exact baseChangeIsHomeomorph_of_integral_surjective_universallyInjective _
 
 /-- The restricted ordered-root Frobenius commutes with residue
@@ -11731,7 +11732,7 @@ theorem rootFrobenius_fullResidueMultiplicationToUnit
       fullResidueMultiplicationToUnit
           (ZMod q) n m g hg hdeg hm hmn ≫
         residueUnitFrobenius q m g := by
-  letI : IsOpenImmersion (residueUnitImmersion (ZMod q) m g) := by
+  let : IsOpenImmersion (residueUnitImmersion (ZMod q) m g) := by
     unfold residueUnitImmersion
     infer_instance
   apply (cancel_mono (residueUnitImmersion (ZMod q) m g)).1
@@ -11922,7 +11923,7 @@ theorem residuePolynomial_mul_inverse_modByMonic
   change (P * I) %ₘ M = 1
   rw [hcongr]
   by_cases hnontrivial : Nontrivial Γ(X, ⊤)
-  · letI : Nontrivial Γ(X, ⊤) := hnontrivial
+  · let : Nontrivial Γ(X, ⊤) := hnontrivial
     apply (Polynomial.modByMonic_eq_self_iff
       (residueModulusAlong_monic K m g hg f)).mpr
     have hMdeg : M.natDegree = m := by
@@ -11934,7 +11935,7 @@ theorem residuePolynomial_mul_inverse_modByMonic
         (residueModulusAlong_monic K m g hg f).ne_zero,
       hMdeg]
     exact_mod_cast hm
-  · haveI : Subsingleton Γ(X, ⊤) :=
+  · have : Subsingleton Γ(X, ⊤) :=
       not_nontrivial_iff_subsingleton.mp hnontrivial
     exact Subsingleton.elim _ _
 
@@ -11992,7 +11993,7 @@ theorem isUnit_resultant_padded_of_monic_isCoprime
     (hPdeg : P.natDegree ≤ m) (hcop : IsCoprime M P) :
     IsUnit (M.resultant P m m) := by
   by_cases hnontrivial : Nontrivial R
-  · letI : Nontrivial R := hnontrivial
+  · let : Nontrivial R := hnontrivial
     have hdefault : IsUnit (M.resultant P) :=
       (Polynomial.isUnit_resultant_iff_isCoprime hM).mpr hcop
     have hpad : M.resultant P m m = M.resultant P := by
@@ -12009,7 +12010,7 @@ theorem isUnit_resultant_padded_of_monic_isCoprime
         _ = M.resultant P := by simp [hM.coeff_natDegree]
     rw [hpad]
     exact hdefault
-  · haveI : Subsingleton R := not_nontrivial_iff_subsingleton.mp hnontrivial
+  · have : Subsingleton R := not_nontrivial_iff_subsingleton.mp hnontrivial
     exact isUnit_iff_exists_inv'.mpr ⟨0, Subsingleton.elim _ _⟩
 
 /-- The residue ratio `f / k`, represented by its degree-`<m` remainder. -/
@@ -12095,7 +12096,7 @@ theorem universalResiduePolynomial_map_residueRatioAmbient
       residueRatioPolynomial K m g hg hdeg hm f k := by
   let r := residueRatioPolynomial K m g hg hdeg hm f k
   by_cases hnontrivial : Nontrivial Γ(X, ⊤)
-  · letI : Nontrivial Γ(X, ⊤) := hnontrivial
+  · let : Nontrivial Γ(X, ⊤) := hnontrivial
     have hrdeg : r.degree < (m : WithBot ℕ) := by
       have hraw := Polynomial.degree_modByMonic_lt
         (residuePolynomialAlong K m g f *
@@ -12121,7 +12122,7 @@ theorem universalResiduePolynomial_map_residueRatioAmbient
     rw [Fin.sum_univ_eq_sum_range
       (fun i : ℕ => Polynomial.C (r.coeff i) * Polynomial.X ^ i) m]
     exact (r.as_sum_range_C_mul_X_pow' hrnat).symm
-  · haveI : Subsingleton Γ(X, ⊤) :=
+  · have : Subsingleton Γ(X, ⊤) :=
       not_nontrivial_iff_subsingleton.mp hnontrivial
     exact Subsingleton.elim _ _
 
@@ -12189,7 +12190,7 @@ theorem residueRatioAmbient_residueUnitSection_isUnit
       (residueUnitSection K m g)) := by
   rw [residueRatioAmbient_residueUnitSection]
   by_cases hnontrivial : Nontrivial Γ(X, ⊤)
-  · letI : Nontrivial Γ(X, ⊤) := hnontrivial
+  · let : Nontrivial Γ(X, ⊤) := hnontrivial
     have hMdeg : (residueModulusAlong K m g k).natDegree = m := by
       unfold residueModulusAlong
       rw [Polynomial.natDegree_map_eq_of_injective
@@ -12204,7 +12205,7 @@ theorem residueRatioAmbient_residueUnitSection_isUnit
       (residueRatioPolynomial K m g hg hdeg hm f k) m
       (residueModulusAlong_monic K m g hg k) hMdeg hRdeg
       (residueRatioPolynomial_isCoprime K m g hg hdeg hm f k hfk)
-  · haveI : Subsingleton Γ(X, ⊤) :=
+  · have : Subsingleton Γ(X, ⊤) :=
       not_nontrivial_iff_subsingleton.mp hnontrivial
     exact isUnit_iff_exists_inv'.mpr ⟨0, Subsingleton.elim _ _⟩
 
@@ -12562,13 +12563,13 @@ theorem universalMonicCoefficientPolynomial_map_relativeReconstruction
   let Y := RelativeAffineRootSpace K (n - m)
     (t ≫ residueUnitProjection K m g)
   by_cases hnontrivial : Nontrivial Γ(Y, ⊤)
-  · letI : Nontrivial Γ(Y, ⊤) := hnontrivial
+  · let : Nontrivial Γ(Y, ⊤) := hnontrivial
     exact universalMonicCoefficientPolynomial_map_homOfVector K _ _ _
       (relativeReconstructedMonicPolynomial_monic
         K n m g hg hdeg hmn t)
       (relativeReconstructedMonicPolynomial_natDegree
         K n m g hg hdeg hmn t)
-  · haveI : Subsingleton Γ(Y, ⊤) :=
+  · have : Subsingleton Γ(Y, ⊤) :=
       not_nontrivial_iff_subsingleton.mp hnontrivial
     exact Subsingleton.elim _ _
 
@@ -12610,7 +12611,7 @@ theorem universalMonicRemainder_map_relativeReconstruction
   let Y := RelativeAffineRootSpace K (n - m)
     (t ≫ residueUnitProjection K m g)
   by_cases hnontrivial : Nontrivial Γ(Y, ⊤)
-  · letI : Nontrivial Γ(Y, ⊤) := hnontrivial
+  · let : Nontrivial Γ(Y, ⊤) := hnontrivial
     let tY : Y ⟶ ResidueUnitSpace K m g :=
       relativeAffineRootSpaceToBase K (n - m)
         (t ≫ residueUnitProjection K m g) ≫ t
@@ -12649,7 +12650,7 @@ theorem universalMonicRemainder_map_relativeReconstruction
       (Polynomial.modByMonic_eq_self_iff hG).2 hrdeg,
       (Polynomial.modByMonic_eq_zero_iff_dvd hG).2 (dvd_mul_right G H),
       add_zero]
-  · haveI : Subsingleton Γ(Y, ⊤) :=
+  · have : Subsingleton Γ(Y, ⊤) :=
       not_nontrivial_iff_subsingleton.mp hnontrivial
     exact Subsingleton.elim _ _
 
@@ -12727,7 +12728,7 @@ theorem relativeAffineMonicReconstructionToSymmetric_comp_residueToUnit
           K n m g hg hdeg hmn =
       relativeAffineRootSpaceToBase K (n - m)
           (t ≫ residueUnitProjection K m g) ≫ t := by
-  letI : IsOpenImmersion (residueUnitImmersion K m g) := by
+  let : IsOpenImmersion (residueUnitImmersion K m g) := by
     unfold residueUnitImmersion
     infer_instance
   apply (cancel_mono (residueUnitImmersion K m g)).1
@@ -12793,7 +12794,7 @@ theorem universalMonicQuotient_map_relativeReconstruction
   let Y := RelativeAffineRootSpace K (n - m)
     (t ≫ residueUnitProjection K m g)
   by_cases hnontrivial : Nontrivial Γ(Y, ⊤)
-  · letI : Nontrivial Γ(Y, ⊤) := hnontrivial
+  · let : Nontrivial Γ(Y, ⊤) := hnontrivial
     let tY : Y ⟶ ResidueUnitSpace K m g :=
       relativeAffineRootSpaceToBase K (n - m)
         (t ≫ residueUnitProjection K m g) ≫ t
@@ -12829,7 +12830,7 @@ theorem universalMonicQuotient_map_relativeReconstruction
       Polynomial.map_map, hc]
     change (r + G * H) /ₘ G = H
     exact (Polynomial.div_modByMonic_unique H r hG ⟨rfl, hrdeg⟩).1
-  · haveI : Subsingleton Γ(Y, ⊤) :=
+  · have : Subsingleton Γ(Y, ⊤) :=
       not_nontrivial_iff_subsingleton.mp hnontrivial
     exact Subsingleton.elim _ _
 
@@ -13253,7 +13254,7 @@ theorem universalResiduePolynomial_map_residueProductAmbient
       residueProductPolynomial K m g f k := by
   let r := residueProductPolynomial K m g f k
   by_cases hnontrivial : Nontrivial Γ(X, ⊤)
-  · letI : Nontrivial Γ(X, ⊤) := hnontrivial
+  · let : Nontrivial Γ(X, ⊤) := hnontrivial
     have hrdeg : r.degree < (m : WithBot ℕ) := by
       have hraw := Polynomial.degree_modByMonic_lt
         (residuePolynomialAlong K m g f *
@@ -13279,7 +13280,7 @@ theorem universalResiduePolynomial_map_residueProductAmbient
     rw [Fin.sum_univ_eq_sum_range
       (fun i : ℕ => Polynomial.C (r.coeff i) * Polynomial.X ^ i) m]
     exact (r.as_sum_range_C_mul_X_pow' hrnat).symm
-  · haveI : Subsingleton Γ(X, ⊤) :=
+  · have : Subsingleton Γ(X, ⊤) :=
       not_nontrivial_iff_subsingleton.mp hnontrivial
     exact Subsingleton.elim _ _
 
@@ -13331,7 +13332,7 @@ theorem residueProductAmbient_residueUnitSection_isUnit
       (residueUnitSection K m g)) := by
   rw [residueProductAmbient_residueUnitSection K m g hg hdeg]
   by_cases hnontrivial : Nontrivial Γ(X, ⊤)
-  · letI : Nontrivial Γ(X, ⊤) := hnontrivial
+  · let : Nontrivial Γ(X, ⊤) := hnontrivial
     have hMdeg : (residueModulusAlong K m g k).natDegree = m := by
       unfold residueModulusAlong
       rw [Polynomial.natDegree_map_eq_of_injective
@@ -13347,7 +13348,7 @@ theorem residueProductAmbient_residueUnitSection_isUnit
       (residueModulusAlong_monic K m g hg k) hMdeg hRdeg
       (residueProductPolynomial_isCoprime
         K m g hg hdeg hm f k hfk)
-  · haveI : Subsingleton Γ(X, ⊤) :=
+  · have : Subsingleton Γ(X, ⊤) :=
       not_nontrivial_iff_subsingleton.mp hnontrivial
     exact isUnit_iff_exists_inv'.mpr ⟨0, Subsingleton.elim _ _⟩
 
@@ -13428,13 +13429,13 @@ theorem affineMonicResidueMultiplication_residueUnitSection_eq_general
       universalMonicCoefficientPolynomial_natDegree K n
     have hrle : r.natDegree ≤ m := by
       by_cases hnontrivial : Nontrivial Γ(AffineRootSpace K n, ⊤)
-      · letI : Nontrivial Γ(AffineRootSpace K n, ⊤) := hnontrivial
+      · let : Nontrivial Γ(AffineRootSpace K n, ⊤) := hnontrivial
         have hrdeg : r.degree < (m : WithBot ℕ) :=
           universalMonicRemainder_degree_lt K n m g hg hdeg
         by_cases hr0 : r = 0
         · simp [hr0]
         · exact (Polynomial.natDegree_lt_iff_degree_lt hr0).mpr hrdeg |>.le
-      · haveI : Subsingleton Γ(AffineRootSpace K n, ⊤) :=
+      · have : Subsingleton Γ(AffineRootSpace K n, ⊤) :=
           not_nontrivial_iff_subsingleton.mp hnontrivial
         simp only [Subsingleton.elim r 0, Polynomial.natDegree_zero,
           Nat.zero_le]
@@ -13845,7 +13846,7 @@ instance locallyOfFiniteType_hasOfPostcompProperty :
     LocallyOfFiniteTypeProperty.HasOfPostcompProperty
       LocallyOfFiniteTypeProperty where
   of_postcomp f g _hfg hcomp := by
-    letI : LocallyOfFiniteType (f ≫ g) := hcomp
+    let : LocallyOfFiniteType (f ≫ g) := hcomp
     exact locallyOfFiniteType_of_comp f g
 
 noncomputable def locallyOfFiniteTypeOverDiagram
@@ -13886,7 +13887,7 @@ theorem locallyOfFiniteType_limit_over
   have he : e.hom.left ≫ (limit F).hom = (U.obj (limit D)).hom := by
     exact e.hom.w
   rw [← he] at hdom
-  letI : IsIso e.hom.left := by
+  let : IsIso e.hom.left := by
     refine ⟨⟨e.inv.left, ?_, ?_⟩⟩
     · simpa using congrArg (fun k => k.left) e.hom_inv_id
     · simpa using congrArg (fun k => k.left) e.inv_hom_id
@@ -13896,7 +13897,7 @@ theorem locallyOfFiniteType_limit_over
 theorem locallyOfFiniteType_affineRootSpace_projection
     (K : Type) [Field K] (r : ℕ) :
     LocallyOfFiniteType (AffineRootSpace K r ↘ Spec (.of K)) := by
-  letI : Smooth (AffineRootSpace K r ↘ Spec (.of K)) :=
+  let : Smooth (AffineRootSpace K r ↘ Spec (.of K)) :=
     smooth_affineRootSpace_projection K r
   infer_instance
 
@@ -13907,7 +13908,7 @@ theorem locallyOfFiniteType_symmetricYoungRestProduct
   apply locallyOfFiniteType_limit_over
   intro j
   dsimp [symmetricYoungBlockOver]
-  letI : Smooth
+  let : Smooth
       (symmetricCoprimeMonicProjection K (B.size j.as) m g) :=
     smooth_symmetricCoprimeMonicProjection K (B.size j.as) m g
   infer_instance
@@ -13916,7 +13917,7 @@ theorem locallyOfFiniteType_relativeAffineRootSpaceToBase
     (K : Type) [Field K] {X : Scheme} (r : ℕ)
     (p : X ⟶ Spec (.of K)) :
     LocallyOfFiniteType (relativeAffineRootSpaceToBase K r p) := by
-  letI : LocallyOfFiniteType (AffineRootSpace K r ↘ Spec (.of K)) :=
+  let : LocallyOfFiniteType (AffineRootSpace K r ↘ Spec (.of K)) :=
     locallyOfFiniteType_affineRootSpace_projection K r
   unfold relativeAffineRootSpaceToBase RelativeAffineRootSpace
   infer_instance
@@ -13940,7 +13941,7 @@ noncomputable instance symmetricYoungRestProduct_isAffine
     IsLimit.ofRightAdjoint
       (Over.ConstructProducts.conesEquiv (Spec (.of K)) F).toAdjunction
       (limit.isLimit F)
-  letI : ∀ i, IsAffine
+  let : ∀ i, IsAffine
       ((Over.ConstructProducts.widePullbackDiagramOfDiagramOver
         (Spec (.of K)) F).obj i) := fun i ↦ by
     obtain - | j := i
@@ -14043,10 +14044,10 @@ theorem locallyOfFiniteType_largeYoungSymmetricResidueFiberProjection
   let pY := pRel ≫ pRest
   let e := largeYoungSymmetricResidueFiberIso
     (ZMod q) m g hg hdeg hm B i₀ hlarge t ht
-  letI : LocallyOfFiniteType pRest :=
+  let : LocallyOfFiniteType pRest :=
     locallyOfFiniteType_symmetricYoungRestProduct
       (ZMod q) m g B i₀
-  letI : LocallyOfFiniteType pRel :=
+  let : LocallyOfFiniteType pRel :=
     locallyOfFiniteType_relativeAffineRootSpaceToBase
       (ZMod q) (B.size i₀ - m) pRest
   have hpY : LocallyOfFiniteType pY := by
@@ -14426,7 +14427,7 @@ theorem fullResidueUnitFiberToRootSpace_isClosedImmersion
     IsClosedImmersion
       (fullResidueUnitFiberToRootSpace
         (ZMod q) n m g hg hdeg hm hmn t) := by
-  letI : IsClosedImmersion t := residueUnitPoint_isClosedImmersion q m g t
+  let : IsClosedImmersion t := residueUnitPoint_isClosedImmersion q m g t
   unfold fullResidueUnitFiberToRootSpace FullResidueUnitFiber
   infer_instance
 
@@ -14441,7 +14442,7 @@ theorem fullResidueUnitFiberToAffineRootSpace_isImmersion
       (fullResidueUnitFiberToRootSpace
           (ZMod q) n m g hg hdeg hm hmn t ≫
         (RootSpaceOpen (ZMod q) n g).ι) := by
-  letI : IsClosedImmersion
+  let : IsClosedImmersion
       (fullResidueUnitFiberToRootSpace
         (ZMod q) n m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberToRootSpace_isClosedImmersion
@@ -14459,12 +14460,12 @@ theorem fullResidueUnitFiberToAffineRootSpace_quasiCompact
       (fullResidueUnitFiberToRootSpace
           (ZMod q) n m g hg hdeg hm hmn t ≫
         (RootSpaceOpen (ZMod q) n g).ι) := by
-  letI : IsClosedImmersion
+  let : IsClosedImmersion
       (fullResidueUnitFiberToRootSpace
         (ZMod q) n m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberToRootSpace_isClosedImmersion
       q n m g hg hdeg hm hmn t
-  letI : QuasiCompact (RootSpaceOpen (ZMod q) n g).ι := by
+  let : QuasiCompact (RootSpaceOpen (ZMod q) n g).ι := by
     unfold RootSpaceOpen
     infer_instance
   infer_instance
@@ -14493,7 +14494,7 @@ theorem fullResidueUnitFiberToProjectiveRootSpace_isImmersion
     IsImmersion (fullResidueUnitFiberToProjectiveRootSpace
       q n m g hg hdeg hm hmn t) := by
   unfold fullResidueUnitFiberToProjectiveRootSpace
-  letI : IsClosedImmersion
+  let : IsClosedImmersion
       (fullResidueUnitFiberToRootSpace
         (ZMod q) n m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberToRootSpace_isClosedImmersion
@@ -14508,12 +14509,12 @@ theorem fullResidueUnitFiberToProjectiveRootSpace_quasiCompact
     QuasiCompact (fullResidueUnitFiberToProjectiveRootSpace
       q n m g hg hdeg hm hmn t) := by
   unfold fullResidueUnitFiberToProjectiveRootSpace
-  letI : IsClosedImmersion
+  let : IsClosedImmersion
       (fullResidueUnitFiberToRootSpace
         (ZMod q) n m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberToRootSpace_isClosedImmersion
       q n m g hg hdeg hm hmn t
-  letI : QuasiCompact (RootSpaceOpen (ZMod q) n g).ι := by
+  let : QuasiCompact (RootSpaceOpen (ZMod q) n g).ι := by
     unfold RootSpaceOpen
     infer_instance
   infer_instance
@@ -14616,11 +14617,11 @@ theorem fullResidueUnitFiberProjectiveClosureOpen_isOpenImmersion
     (t : ResidueUnitPoint (ZMod q) m g) :
     IsOpenImmersion (fullResidueUnitFiberProjectiveClosureOpen
       q n m g hg hdeg hm hmn t) := by
-  letI : IsImmersion (fullResidueUnitFiberToProjectiveRootSpace
+  let : IsImmersion (fullResidueUnitFiberToProjectiveRootSpace
       q n m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberToProjectiveRootSpace_isImmersion
       q n m g hg hdeg hm hmn t
-  letI : QuasiCompact (fullResidueUnitFiberToProjectiveRootSpace
+  let : QuasiCompact (fullResidueUnitFiberToProjectiveRootSpace
       q n m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberToProjectiveRootSpace_quasiCompact
       q n m g hg hdeg hm hmn t
@@ -14634,7 +14635,7 @@ theorem fullResidueUnitFiberProjectiveClosureProjection_isProper
     (t : ResidueUnitPoint (ZMod q) m g) :
     IsProper (fullResidueUnitFiberProjectiveClosureProjection
       q n m g hg hdeg hm hmn t) := by
-  letI : IsProper
+  let : IsProper
       (AlgebraicGeometry.ProjectiveCompactification.projectiveSpaceProjection
         (ZMod q) (RootIndex n)) :=
     AlgebraicGeometry.ProjectiveCompactification.projectiveSpaceProjection_isProper
@@ -14656,7 +14657,7 @@ theorem fullResidueUnitFiberProjectiveClosure_isLocallyNoetherian
       q n m g hg hdeg hm hmn t) := by
   let pbar := fullResidueUnitFiberProjectiveClosureProjection
     q n m g hg hdeg hm hmn t
-  letI : IsProper pbar :=
+  let : IsProper pbar :=
     fullResidueUnitFiberProjectiveClosureProjection_isProper
       q n m g hg hdeg hm hmn t
   exact LocallyOfFiniteType.isLocallyNoetherian pbar
@@ -14673,14 +14674,14 @@ theorem fullResidueUnitFiberProjectiveClosure_isNoetherian
       q n m g hg hdeg hm hmn t) := by
   let pbar := fullResidueUnitFiberProjectiveClosureProjection
     q n m g hg hdeg hm hmn t
-  letI : IsProper pbar :=
+  let : IsProper pbar :=
     fullResidueUnitFiberProjectiveClosureProjection_isProper
       q n m g hg hdeg hm hmn t
-  letI : IsLocallyNoetherian (FullResidueUnitFiberProjectiveClosure
+  let : IsLocallyNoetherian (FullResidueUnitFiberProjectiveClosure
       q n m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberProjectiveClosure_isLocallyNoetherian
       q n m g hg hdeg hm hmn t
-  letI : CompactSpace (FullResidueUnitFiberProjectiveClosure
+  let : CompactSpace (FullResidueUnitFiberProjectiveClosure
       q n m g hg hdeg hm hmn t) :=
     (quasiCompact_iff_compactSpace pbar).mp inferInstance
   exact AlgebraicGeometry.IsNoetherian.mk
@@ -14709,7 +14710,7 @@ theorem residueUnitPoint_frobenius_fixed
     (g : Polynomial (ZMod q))
     (t : ResidueUnitPoint (ZMod q) m g) :
     t ≫ residueUnitFrobenius q m g = t := by
-  letI : IsOpenImmersion (residueUnitImmersion (ZMod q) m g) := by
+  let : IsOpenImmersion (residueUnitImmersion (ZMod q) m g) := by
     unfold residueUnitImmersion
     infer_instance
   apply (cancel_mono (residueUnitImmersion (ZMod q) m g)).1
@@ -14787,7 +14788,7 @@ theorem frobeniusOverZMod_apply
   unfold frobeniusOverZMod
   split_ifs with h
   · rfl
-  · haveI : Subsingleton R := not_nontrivial_iff_subsingleton.mp h
+  · have : Subsingleton R := not_nontrivial_iff_subsingleton.mp h
     exact Subsingleton.elim _ _
 
 /-- The structural ring map on global sections for an affine scheme over the
@@ -14880,7 +14881,7 @@ theorem specFrobeniusOverZMod_universallyInjective
   change (Spec.preimage g₁).hom (frobeniusOverZMod q ι x) =
     (Spec.preimage g₂).hom (frobeniusOverZMod q ι x) at hx
   rw [frobeniusOverZMod_apply, map_pow, map_pow] at hx
-  letI : CharP K q :=
+  let : CharP K q :=
     (CharP.charP_iff_prime_eq_zero (show q.Prime from Fact.out)).2 (by
       rw [← map_natCast (Spec.preimage g₁).hom]
       change (Spec.preimage g₁).hom ((q : R)) = 0
@@ -14905,7 +14906,7 @@ theorem affineSchemeFrobeniusOver_integral
     (p : X ⟶ Spec (.of (ZMod q))) :
     IsIntegralHom (affineSchemeFrobeniusOver X q p) := by
   unfold affineSchemeFrobeniusOver
-  letI := specFrobeniusOverZMod_integral q (globalSectionsZModMap X q p)
+  let := specFrobeniusOverZMod_integral q (globalSectionsZModMap X q p)
   infer_instance
 
 theorem affineSchemeFrobeniusOver_surjective
@@ -14913,7 +14914,7 @@ theorem affineSchemeFrobeniusOver_surjective
     (p : X ⟶ Spec (.of (ZMod q))) :
     Surjective (affineSchemeFrobeniusOver X q p) := by
   unfold affineSchemeFrobeniusOver
-  letI := specFrobeniusOverZMod_surjective q (globalSectionsZModMap X q p)
+  let := specFrobeniusOverZMod_surjective q (globalSectionsZModMap X q p)
   infer_instance
 
 theorem affineSchemeFrobeniusOver_universallyInjective
@@ -14921,7 +14922,7 @@ theorem affineSchemeFrobeniusOver_universallyInjective
     (p : X ⟶ Spec (.of (ZMod q))) :
     UniversallyInjective (affineSchemeFrobeniusOver X q p) := by
   unfold affineSchemeFrobeniusOver
-  letI : MorphismProperty.RespectsIso (@UniversallyInjective) :=
+  let : MorphismProperty.RespectsIso (@UniversallyInjective) :=
     UniversallyInjective.respectsIso
   rw [MorphismProperty.cancel_left_of_respectsIso @UniversallyInjective,
     MorphismProperty.cancel_right_of_respectsIso @UniversallyInjective]
@@ -14934,9 +14935,9 @@ theorem affineSchemeFrobeniusOverBaseChangeIsHomeomorph
     ∀ U : X.ProEt,
       IsHomeomorph
         (pullback.fst U.hom (affineSchemeFrobeniusOver X q p)).base := by
-  letI := affineSchemeFrobeniusOver_integral X q p
-  letI := affineSchemeFrobeniusOver_surjective X q p
-  letI := affineSchemeFrobeniusOver_universallyInjective X q p
+  let := affineSchemeFrobeniusOver_integral X q p
+  let := affineSchemeFrobeniusOver_surjective X q p
+  let := affineSchemeFrobeniusOver_universallyInjective X q p
   exact baseChangeIsHomeomorph_of_integral_surjective_universallyInjective _
 
 theorem affineSchemeFrobeniusOver_Spec
@@ -15198,9 +15199,9 @@ noncomputable def affineFrobeniusFixedGeometricPointEquiv
   · intro x₀ y₀ h
     have hval := congrArg Subtype.val h
     let f := ZMod.castHom (m := q) dvd_rfl F
-    letI : Mono (CommRingCat.ofHom f) :=
+    let : Mono (CommRingCat.ofHom f) :=
       ConcreteCategory.mono_of_injective _ f.injective
-    haveI : Epi base := by
+    have : Epi base := by
       dsimp only [base]
       infer_instance
     exact (cancel_epi base).mp hval
@@ -15336,7 +15337,7 @@ noncomputable def
 noncomputable instance finiteCongruentPairwiseCoprimeTriple
     (q d : ℕ) [Fact q.Prime] (g t : Polynomial (ZMod q)) :
     Finite (CongruentPairwiseCoprimeTriple (ZMod q) (ZMod q) d g t) := by
-  letI : Finite (Polynomial.MonicDegreeEq (ZMod q) d) := by
+  let : Finite (Polynomial.MonicDegreeEq (ZMod q) d) := by
     apply Finite.of_injective
       (fun f : Polynomial.MonicDegreeEq (ZMod q) d =>
         fun i : Fin d => f.1.coeff i)
@@ -15421,7 +15422,7 @@ theorem finiteRingHom_of_zmodEssFiniteType
     [Algebra (ZMod q) A] [Algebra (ZMod q) B]
     [Algebra.EssFiniteType (ZMod q) A] [Finite B] : Finite (A →+* B) :=
   by
-    letI : Finite (A →ₐ[ZMod q] B) :=
+    let : Finite (A →ₐ[ZMod q] B) :=
       finiteAlgHom_of_essFiniteType
     exact Finite.of_injective (ringHomToZModAlgHom q A B)
       (ringHomToZModAlgHom_injective q A B)
@@ -15435,20 +15436,20 @@ theorem affinePointFinite_of_finitePresentation
     (hp : p.appTop.hom.FinitePresentation) :
     Finite (Spec (.of F) ⟶ X) := by
   let ιX : ZMod q →+* Γ(X, ⊤) := globalSectionsZModMap X q p
-  letI : Algebra (ZMod q) Γ(X, ⊤) := ιX.toAlgebra
+  let : Algebra (ZMod q) Γ(X, ⊤) := ιX.toAlgebra
   let ιF : ZMod q →+* F := ZMod.castHom (m := q) dvd_rfl F
-  letI : Algebra (ZMod q) F := ιF.toAlgebra
+  let : Algebra (ZMod q) F := ιF.toAlgebra
   have hγ : ((Scheme.ΓSpecIso (.of (ZMod q))).inv.hom).FinitePresentation :=
     RingHom.FinitePresentation.of_bijective
       (ConcreteCategory.bijective_of_isIso
         (Scheme.ΓSpecIso (.of (ZMod q))).inv)
   have hfp : ιX.FinitePresentation := hp.comp hγ
-  letI : Algebra.FiniteType (ZMod q) Γ(X, ⊤) :=
+  let : Algebra.FiniteType (ZMod q) Γ(X, ⊤) :=
     RingHom.finiteType_algebraMap.mp
       (RingHom.FiniteType.of_finitePresentation hfp)
   let toRingHom : (Spec (.of F) ⟶ X) → (Γ(X, ⊤) →+* F) :=
     fun x => (Spec.preimage (x ≫ X.isoSpec.hom)).hom
-  letI : Finite (Γ(X, ⊤) →+* F) :=
+  let : Finite (Γ(X, ⊤) →+* F) :=
     finiteRingHom_of_zmodEssFiniteType q
   apply Finite.of_injective toRingHom
   intro x y h
@@ -15805,7 +15806,7 @@ theorem coeffBelow_injective (p d : ℕ) :
       Polynomial.coeff_eq_zero_of_natDegree_lt (by simpa using hdn)]
 
 instance finite (p d : ℕ) [NeZero p] : Finite (OfDegree p d) := by
-  letI : Fintype (Fin d → ZMod p) := inferInstance
+  let : Fintype (Fin d → ZMod p) := inferInstance
   exact Finite.of_injective _ (coeffBelow_injective p d)
 
 noncomputable instance fintype (p d : ℕ) [NeZero p] : Fintype (OfDegree p d) :=
@@ -19345,7 +19346,7 @@ theorem congruentOrderedPrimeTriple_inclusion_exclusion (k d : ℕ)
   intro T hT
   specialize hclosure T
   by_cases hp : p T <;> by_cases hr : r T <;> by_cases hs : s T <;>
-    simp [OrderedPrimeTriple.IsDistinct, p, r, s, hp, hr, hs] at hclosure ⊢
+    simp only [mul_ite, mul_one, mul_zero] at hclosure ⊢
   exact fun h => hp (hr.trans h)
 
 /-- Multiplying the three-factor inclusion--exclusion identity by the common
@@ -20086,7 +20087,7 @@ noncomputable abbrev ProgressionQuotient (k : ℕ) :=
 
 noncomputable instance progressionQuotientFinite (k : ℕ) :
     Finite (ProgressionQuotient q k) := by
-  letI : ∀ i : Fin k,
+  let : ∀ i : Fin k,
       Finite (Polynomial (ZMod q) ⧸ FiniteFieldEncoding.auxiliaryIdeal q i) :=
     fun i ↦ FiniteFieldEncoding.residueFieldFinite q i
   let e := FiniteFieldEncoding.modulusQuotientEquiv q k
@@ -20430,7 +20431,7 @@ theorem monicOfDegree_coeffBelow_injective (d : ℕ) :
       Polynomial.coeff_eq_zero_of_natDegree_lt (by simpa [g.2.2] using hdn)]
 
 instance monicOfDegreeFinite (d : ℕ) : Finite (MonicOfDegree q d) := by
-  letI : Fintype (Fin d → ZMod q) := inferInstance
+  let : Fintype (Fin d → ZMod q) := inferInstance
   exact Finite.of_injective _ (monicOfDegree_coeffBelow_injective q d)
 
 noncomputable instance monicOfDegreeFintype (d : ℕ) :
@@ -20451,7 +20452,7 @@ theorem monicOfDegree_card (d : ℕ) :
     Fintype.card (MonicOfDegree q d) = q ^ d := by
   classical
   let e := (Polynomial.degreeLTEquiv (ZMod q) d).toEquiv
-  letI : Fintype (Polynomial.degreeLT (ZMod q) d) :=
+  let : Fintype (Polynomial.degreeLT (ZMod q) d) :=
     Fintype.ofEquiv (Fin d → ZMod q) e.symm
   calc
     Fintype.card (MonicOfDegree q d) =
@@ -21750,7 +21751,7 @@ theorem fullDegreeElement_card_le {d : ℕ} [NeZero d] :
 irreducibles, derived solely from the finite extension `𝔽_{q^d}`. -/
 theorem gauss_lower_bound {d : ℕ} (hd : 2 ≤ d) :
     q ^ d ≤ d * primePolynomialCount q d + d ^ 2 * q ^ (d / 2) := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   classical
   let partition : GaloisField q d →
       MinpolyDegreeElement q d d ⊕ NonFullDegreeElement q d := fun x =>
@@ -23668,7 +23669,7 @@ theorem abs_natCast_sub_div_eq_dist_div (G P phi : ℕ) (hphi : 0 < phi) :
       (((phi * P : ℕ) : ℝ) - (G : ℝ)) / (phi : ℝ) by
         field_simp
         norm_cast
-        ring]
+        ring_nf]
   rw [abs_div, abs_of_pos hphiR]
   congr 1
   rcases le_total G (phi * P) with h | h
@@ -28589,7 +28590,7 @@ theorem trialCylinder_mass_eq {k : ℕ} (F : Fin 3 → LevelPolynomial q k)
     Fintype.prod_prod_type]
   simp only [trialCoordinate, Coordinate.Value]
   rw [Nat.card_fin, auxiliaryDigit_natCard]
-  simp
+  simp only [Nat.cast_pow, Finset.prod_const, Finset.card_univ, Fintype.card_fin, Nat.cast_ofNat]
   have hp : ((15 : ENNReal)⁻¹ ^ k) ^ 3 =
       (15 : ENNReal)⁻¹ ^ (3 * k) := by
     rw [show 3 * k = k * 3 by omega, pow_mul]
@@ -29701,13 +29702,13 @@ theorem WeaklyEtale.isIso_of_integral_surjective_universallyInjective
     {X Y : Scheme.{u}} (f : X ⟶ Y)
     [WeaklyEtale f] [IsIntegralHom f] [Surjective f]
     [UniversallyInjective f] : IsIso f := by
-  letI : IsSeparated f := IsSeparated.of_isAffineHom f
-  letI : Surjective (pullback.diagonal f) :=
+  let : IsSeparated f := IsSeparated.of_isAffineHom f
+  let : Surjective (pullback.diagonal f) :=
     (UniversallyInjective.iff_diagonal f).mp inferInstance
-  letI : QuasiCompact (pullback.diagonal f) := inferInstance
-  letI : IsIso (pullback.diagonal f) :=
+  let : QuasiCompact (pullback.diagonal f) := inferInstance
+  let : IsIso (pullback.diagonal f) :=
     Flat.isIso_of_surjective_of_mono (pullback.diagonal f)
-  letI : Mono f := (pullback.isIso_diagonal_iff f).mp inferInstance
+  let : Mono f := (pullback.isIso_diagonal_iff f).mp inferInstance
   exact Flat.isIso_of_surjective_of_mono f
 
 end AlgebraicGeometry
@@ -30124,8 +30125,8 @@ theorem relativeFrobeniusOver_weaklyEtale
     (p : X ⟶ Spec (.of (ZMod q))) :
     WeaklyEtale (relativeFrobeniusOver U q p) := by
   let g := pullback.snd U.hom (affineSchemeFrobeniusOver X q p)
-  haveI : WeaklyEtale g := inferInstance
-  haveI : WeaklyEtale (relativeFrobeniusOver U q p ≫ g) := by
+  have : WeaklyEtale g := inferInstance
+  have : WeaklyEtale (relativeFrobeniusOver U q p ≫ g) := by
     rw [show relativeFrobeniusOver U q p ≫ g = U.hom by
       exact relativeFrobeniusOver_snd U q p]
     infer_instance
@@ -30137,11 +30138,11 @@ theorem relativeFrobeniusOver_integral_of_affine
     (p : X ⟶ Spec (.of (ZMod q))) :
     IsIntegralHom (relativeFrobeniusOver U q p) := by
   let g := pullback.fst U.hom (affineSchemeFrobeniusOver X q p)
-  letI : IsIntegralHom (affineSchemeFrobeniusOver X q p) :=
+  let : IsIntegralHom (affineSchemeFrobeniusOver X q p) :=
     affineSchemeFrobeniusOver_integral X q p
-  letI : IsIntegralHom g := inferInstance
-  letI : IsSeparated g := IsSeparated.of_isAffineHom g
-  haveI : IsIntegralHom (relativeFrobeniusOver U q p ≫ g) := by
+  let : IsIntegralHom g := inferInstance
+  let : IsSeparated g := IsSeparated.of_isAffineHom g
+  have : IsIntegralHom (relativeFrobeniusOver U q p ≫ g) := by
     rw [show relativeFrobeniusOver U q p ≫ g =
         affineSchemeFrobeniusOver U.left q (U.hom ≫ p) by
       rw [relativeFrobeniusOver_fst,
@@ -30156,15 +30157,15 @@ theorem relativeFrobeniusOver_surjective_of_affine
     Surjective (relativeFrobeniusOver U q p) := by
   let r := relativeFrobeniusOver U q p
   let g := pullback.fst U.hom (affineSchemeFrobeniusOver X q p)
-  letI : UniversallyInjective (affineSchemeFrobeniusOver X q p) :=
+  let : UniversallyInjective (affineSchemeFrobeniusOver X q p) :=
     affineSchemeFrobeniusOver_universallyInjective X q p
-  letI : MorphismProperty.IsStableUnderBaseChange (@UniversallyInjective) :=
+  let : MorphismProperty.IsStableUnderBaseChange (@UniversallyInjective) :=
     UniversallyInjective.isStableUnderBaseChange
-  letI : MorphismProperty.IsStableUnderBaseChangeAlong
+  let : MorphismProperty.IsStableUnderBaseChangeAlong
       (@UniversallyInjective) U.hom :=
     ⟨fun pb h ↦ MorphismProperty.IsStableUnderBaseChange.of_isPullback pb h⟩
   have hg : Function.Injective g := by
-    letI : UniversallyInjective g := by
+    let : UniversallyInjective g := by
       dsimp only [g]
       exact MorphismProperty.pullback_fst U.hom
         (affineSchemeFrobeniusOver X q p)
@@ -30189,7 +30190,7 @@ theorem relativeFrobeniusOver_universallyInjective_of_affine
     UniversallyInjective (relativeFrobeniusOver U q p) := by
   let r := relativeFrobeniusOver U q p
   let g := pullback.fst U.hom (affineSchemeFrobeniusOver X q p)
-  haveI : UniversallyInjective (r ≫ g) := by
+  have : UniversallyInjective (r ≫ g) := by
     rw [show r ≫ g = affineSchemeFrobeniusOver U.left q (U.hom ≫ p) by
       rw [relativeFrobeniusOver_fst,
         schemeFrobeniusOver_eq_affine]]
@@ -30210,13 +30211,13 @@ noncomputable instance relativeFrobeniusOver_isIso_of_affine
     (U : X.ProEt) [IsAffine U.left] (q : ℕ) [Fact q.Prime]
     (p : X ⟶ Spec (.of (ZMod q))) :
     IsIso (relativeFrobeniusOver U q p) := by
-  letI : WeaklyEtale (relativeFrobeniusOver U q p) :=
+  let : WeaklyEtale (relativeFrobeniusOver U q p) :=
     relativeFrobeniusOver_weaklyEtale U q p
-  letI : IsIntegralHom (relativeFrobeniusOver U q p) :=
+  let : IsIntegralHom (relativeFrobeniusOver U q p) :=
     relativeFrobeniusOver_integral_of_affine U q p
-  letI : Surjective (relativeFrobeniusOver U q p) :=
+  let : Surjective (relativeFrobeniusOver U q p) :=
     relativeFrobeniusOver_surjective_of_affine U q p
-  letI : UniversallyInjective (relativeFrobeniusOver U q p) :=
+  let : UniversallyInjective (relativeFrobeniusOver U q p) :=
     relativeFrobeniusOver_universallyInjective_of_affine U q p
   exact AlgebraicGeometry.WeaklyEtale.isIso_of_integral_surjective_universallyInjective
     (relativeFrobeniusOver U q p)
@@ -30335,10 +30336,10 @@ noncomputable def affineProEtRelativeFrobenius
   naturality := by
     intro A B h
     apply MorphismProperty.Over.Hom.ext
-    letI : IsAffine ((affineProEtInclusion X).obj A).left := by
+    let : IsAffine ((affineProEtInclusion X).obj A).left := by
       change IsAffine (Scheme.Spec.obj A.left)
       infer_instance
-    letI : IsAffine ((affineProEtInclusion X).obj B).left := by
+    let : IsAffine ((affineProEtInclusion X).obj B).left := by
       change IsAffine (Scheme.Spec.obj B.left)
       infer_instance
     exact relativeFrobeniusOver_naturality_of_affine
@@ -30406,10 +30407,10 @@ instance affineProEtInclusion_isCoverDense (X : Scheme.{u}) :
       AlgebraicGeometry.Scheme.affineOverMk
         (𝒰.f i ≫ U.hom)
         (by
-          letI : WeaklyEtale (𝒰.f i) :=
+          let : WeaklyEtale (𝒰.f i) :=
             IsZariskiLocalAtSource.of_isOpenImmersion
               (P := @WeaklyEtale) (𝒰.f i)
-          letI : WeaklyEtale U.hom := U.prop
+          let : WeaklyEtale U.hom := U.prop
           infer_instance)
     let f (i : 𝒰.I₀) : (affineProEtInclusion X).obj (A i) ⟶ U :=
       MorphismProperty.Over.homMk (𝒰.f i) rfl
@@ -30449,10 +30450,10 @@ instance affineProEtInclusion_isOneHypercoverDense (X : Scheme.{u}) :
       AlgebraicGeometry.Scheme.affineOverMk
         (𝒰.f i ≫ U.hom)
         (by
-          letI : WeaklyEtale (𝒰.f i) :=
+          let : WeaklyEtale (𝒰.f i) :=
             IsZariskiLocalAtSource.of_isOpenImmersion
               (P := @WeaklyEtale) (𝒰.f i)
-          letI : WeaklyEtale U.hom := U.prop
+          let : WeaklyEtale U.hom := U.prop
           infer_instance)
     let f (i : 𝒰.I₀) : (affineProEtInclusion X).obj (A i) ⟶ U :=
       MorphismProperty.Over.homMk (𝒰.f i) rfl
@@ -30472,7 +30473,7 @@ noncomputable def affineProEtRestriction (X : Scheme.{u}) :
 
 instance affineProEtRestriction_isEquivalence (X : Scheme.{u}) :
     (affineProEtRestriction X).IsEquivalence := by
-  letI : Functor.IsOneHypercoverDense.{u} (affineProEtInclusion X)
+  let : Functor.IsOneHypercoverDense.{u} (affineProEtInclusion X)
       (affineProEtTopology X)
       (AlgebraicGeometry.Scheme.ProEt.topology X) :=
     affineProEtInclusion_isOneHypercoverDense X
@@ -30564,7 +30565,7 @@ noncomputable def affineProEtRestrictionSmall (X : Scheme.{0}) :
 
 instance affineProEtRestrictionSmall_isEquivalence (X : Scheme.{0}) :
     (affineProEtRestrictionSmall X).IsEquivalence := by
-  letI : Functor.IsOneHypercoverDense.{0} (affineProEtInclusion X)
+  let : Functor.IsOneHypercoverDense.{0} (affineProEtInclusion X)
       (affineProEtTopology X)
       (AlgebraicGeometry.Scheme.ProEt.topology X) :=
     affineProEtInclusion_isOneHypercoverDense X
@@ -30981,7 +30982,7 @@ theorem fullResidueUnitFiberFixedGeometricPointTraceMatrix_trace
       q n m ℓ F g hg hdeg hm hmn t).trace =
       (Nat.card (Spec (.of (ZMod q)) ⟶
         FullResidueUnitFiber (ZMod q) n m g hg hdeg hm hmn t) : ℚ_[ℓ]) := by
-  letI : Fintype
+  let : Fintype
       {x : Spec (.of F) ⟶
           FullResidueUnitFiber (ZMod q) n m g hg hdeg hm hmn t //
         x ≫ fullResidueUnitFiberFrobenius
@@ -31854,10 +31855,9 @@ theorem equivariantBaseChangeBetweenIteratedActual_hom_app_left_fst
         pullback.fst U.hom (inv (e ≫ f)) =
       pullback.fst (U.hom ≫ jX) (inv (ebar ≫ fbar)) := by
   unfold equivariantBaseChangeBetweenIteratedActual
-  simp [equivariantBaseChangeBetween_hom_app_left_fst,
-    baseChangeCompOfEq_hom_app_left_fst_fst,
-    baseChangeCompOfEq_inv_app_left_fst,
-    MorphismProperty.Comma.comp_left]
+  simp only [Functor.comp_obj, Functor.id_obj, Iso.trans_hom, Functor.isoWhiskerLeft_hom, Iso.symm_hom,
+    Functor.isoWhiskerRight_hom, NatTrans.comp_app, Functor.whiskerLeft_app, Functor.associator_inv_app,
+    Functor.whiskerRight_app, Functor.associator_hom_app, Category.id_comp, Functor.const_obj_obj]
   change
     ((baseChangeCompOfEq (inv fbar) (inv ebar)
           (inv (ebar ≫ fbar)) IsIso.inv_comp).hom.app ((map jX).obj U)).left ≫
@@ -31907,11 +31907,9 @@ theorem equivariantBaseChangeBetweenIteratedActual_hom_app_left_snd
       pullback.fst (U.hom ≫ jX) (inv (ebar ≫ fbar)) ≫
         U.hom ≫ e ≫ f := by
   unfold equivariantBaseChangeBetweenIteratedActual
-  simp [equivariantBaseChangeBetween_hom_app_left_fst,
-    equivariantBaseChangeBetween_hom_app_left_snd,
-    baseChangeCompOfEq_hom_app_left_fst_fst,
-    baseChangeCompOfEq_inv_app_left_snd,
-    MorphismProperty.Comma.comp_left]
+  simp only [Functor.comp_obj, Iso.trans_hom, Functor.isoWhiskerLeft_hom, Iso.symm_hom,
+    Functor.isoWhiskerRight_hom, NatTrans.comp_app, Functor.whiskerLeft_app, Functor.associator_inv_app,
+    Functor.whiskerRight_app, Functor.associator_hom_app, Category.id_comp, Functor.id_obj, Functor.const_obj_obj]
   change
     ((baseChangeCompOfEq (inv fbar) (inv ebar)
           (inv (ebar ≫ fbar)) IsIso.inv_comp).hom.app ((map jX).obj U)).left ≫
@@ -32113,21 +32111,14 @@ theorem equivariantBaseChangeRightAdjointIsoBetween_hom_comp_actual
     baseChangeSheafPushforwardCompInvBetween
     equivariantBaseChangeRightAdjointIsoBetween
   ext Q U x
-  simp [
-    baseChangeSheafPushforwardCompInvOfEq,
-    baseChangeSheafPushforward,
-    Functor.sheafPushforwardContinuousComp,
-    Functor.sheafPushforwardContinuousIso,
-    Functor.sheafPushforwardContinuousNatTrans,
-    Iso.trans_hom, Iso.trans_inv,
-    Functor.isoWhiskerLeft_hom, Functor.isoWhiskerRight_hom,
-    Iso.symm_hom, Iso.refl_hom, Iso.refl_inv,
-    NatTrans.comp_app, Functor.whiskerLeft_app, Functor.whiskerRight_app,
-    Functor.associator_hom_app, Functor.associator_inv_app,
-    Functor.map_comp, Functor.comp_map,
-    Category.id_comp, Category.comp_id,
-    AddCommGrpCat.hom_comp, AddMonoidHom.comp_apply,
-    Function.comp_apply]
+  simp only [Functor.comp_obj, Functor.sheafPushforwardContinuous_obj_obj_obj, Iso.trans_hom,
+    Functor.sheafPushforwardContinuousIso_hom, Iso.symm_hom, NatTrans.comp_app, ObjectProperty.FullSubcategory.comp_hom,
+    Functor.sheafPushforwardContinuousNatTrans_app_hom, ObjectProperty.ι_obj,
+    Functor.sheafPushforwardContinuousComp_hom_app_hom_app, Functor.whiskerRight_app, Functor.op_obj, NatTrans.op_app,
+    Functor.sheafPushforwardContinuousComp_inv_app_hom_app, AddCommGrpCat.hom_comp, Functor.isoWhiskerLeft_trans,
+    Functor.isoWhiskerRight_trans, Iso.trans_assoc, Functor.isoWhiskerRight_hom, Functor.isoWhiskerLeft_hom,
+    Functor.associator_hom_app, Functor.whiskerLeft_app, Functor.associator_inv_app, Category.id_comp,
+    Functor.sheafPushforwardContinuous_map_hom_app]
   let A := (Q.obj.map ((baseChangeCompOfEq
     (inv fbar) (inv ebar) (inv (ebar ≫ fbar)) IsIso.inv_comp).inv.app
       ((map jX).obj (Opposite.unop U))).op).hom
@@ -33128,28 +33119,21 @@ theorem baseChangeSheafPushforwardComp_eq_normalizedMate
   rw [Adjunction.conjugateEquiv_leftAdjointCompIso_inv]
   apply NatTrans.ext
   funext Q
-  letI : (baseChangeSheafPushforward (f ≫ g)).IsEquivalence :=
+  let : (baseChangeSheafPushforward (f ≫ g)).IsEquivalence :=
     baseChangeSheafPushforward_isEquivalence_of_isIso (f ≫ g)
   apply (baseChangeSheafPushforward (f ≫ g)).map_injective
-  letI : (baseChangeSheafPushforward (inv (f ≫ g))).IsEquivalence :=
+  let : (baseChangeSheafPushforward (inv (f ≫ g))).IsEquivalence :=
     baseChangeSheafPushforward_isEquivalence_of_isIso (inv (f ≫ g))
   let eps := (baseChangeSheafAdjunctionOfIsoUnitNormalized (f ≫ g)).counit.app Q
-  haveI : IsIso eps := by
+  have : IsIso eps := by
     dsimp only [eps]
     infer_instance
   apply (cancel_mono eps).1
   rw [CategoryTheory.conjugateEquiv_counit]
   ext U x
-  simp [baseChangeSheafAdjunctionOfIsoCounitNormalized_counit_app_hom_app,
-    baseChangeSheafAdjunctionOfIsoUnitNormalized_unit_app_hom_app,
-    eps,
-    baseChangeCounitIsoForNormalized,
-    baseChangeUnitIsoExplicit,
-    baseChangeSheafPushforwardComp, baseChangeSheafPushforwardCompInv,
-    baseChangeSheafPushforward,
-    Functor.sheafPushforwardContinuousComp,
-    Functor.sheafPushforwardContinuousIso,
-    Functor.sheafPushforwardContinuousNatTrans]
+  simp only [Functor.id_obj, Functor.comp_obj, Adjunction.comp_counit_app,
+    ObjectProperty.FullSubcategory.comp_hom, NatTrans.comp_app, AddCommGrpCat.hom_comp, AddMonoidHom.coe_comp,
+    Function.comp_apply, Iso.symm_hom]
   let y : Q.obj.obj (Opposite.op
       ((baseChange (inv g)).obj ((baseChange (inv f)).obj
         ((baseChange (f ≫ g)).obj U.unop)))) := x
@@ -33185,30 +33169,21 @@ theorem baseChangeSheafPushforwardComp_eq_normalizedMate_between
   rw [Adjunction.conjugateEquiv_leftAdjointCompIso_inv]
   apply NatTrans.ext
   funext Q
-  letI : (baseChangeSheafPushforward (f ≫ g)).IsEquivalence :=
+  let : (baseChangeSheafPushforward (f ≫ g)).IsEquivalence :=
     baseChangeSheafPushforward_isEquivalence_of_isIso (f ≫ g)
   apply (baseChangeSheafPushforward (f ≫ g)).map_injective
-  letI : (baseChangeSheafPushforward (inv (f ≫ g))).IsEquivalence :=
+  let : (baseChangeSheafPushforward (inv (f ≫ g))).IsEquivalence :=
     baseChangeSheafPushforward_isEquivalence_of_isIso (inv (f ≫ g))
   let eps := (baseChangeSheafAdjunctionOfIsoUnitNormalized (f ≫ g)).counit.app Q
-  haveI : IsIso eps := by
+  have : IsIso eps := by
     dsimp only [eps]
     infer_instance
   apply (cancel_mono eps).1
   rw [CategoryTheory.conjugateEquiv_counit]
   ext U x
-  simp [baseChangeSheafAdjunctionOfIsoCounitNormalized_counit_app_hom_app,
-    baseChangeSheafAdjunctionOfIsoUnitNormalized_unit_app_hom_app,
-    eps,
-    baseChangeCounitIsoForNormalized,
-    baseChangeUnitIsoExplicit,
-    baseChangeSheafPushforwardComp,
-    baseChangeSheafPushforwardCompInvBetween,
-    baseChangeSheafPushforwardCompInvOfEq,
-    baseChangeSheafPushforward,
-    Functor.sheafPushforwardContinuousComp,
-    Functor.sheafPushforwardContinuousIso,
-    Functor.sheafPushforwardContinuousNatTrans]
+  simp only [Functor.id_obj, Functor.comp_obj, Adjunction.comp_counit_app,
+    ObjectProperty.FullSubcategory.comp_hom, NatTrans.comp_app, AddCommGrpCat.hom_comp, AddMonoidHom.coe_comp,
+    Function.comp_apply, Iso.symm_hom]
   let y : Q.obj.obj (Opposite.op
       ((baseChange (inv g)).obj ((baseChange (inv f)).obj
         ((baseChange (f ≫ g)).obj U.unop)))) := x
@@ -34612,7 +34587,7 @@ theorem matrixCopies_trace {r : ℕ} (copies : ℕ)
       Matrix.blockDiagonal (fun _ : Fin copies ↦ A)
         (finProdFinEquiv.symm i) (finProdFinEquiv.symm i)) = _
   rw [← Equiv.sum_comp finProdFinEquiv]
-  simp [Matrix.blockDiagonal, Fintype.sum_prod_type]
+  simp only [Equiv.symm_apply_apply, Matrix.diag_apply]
   rw [Finset.mul_sum]
 
 theorem matrixCopies_charpoly {r : ℕ} (copies : ℕ)
@@ -35052,7 +35027,7 @@ theorem rootPermutation_fullResidueMultiplicationToUnit
     rootPermutation K n g σ ≫
         fullResidueMultiplicationToUnit K n m g hg hdeg hm hmn =
       fullResidueMultiplicationToUnit K n m g hg hdeg hm hmn := by
-  letI : IsOpenImmersion (residueUnitImmersion K m g) := by
+  let : IsOpenImmersion (residueUnitImmersion K m g) := by
     unfold residueUnitImmersion
     infer_instance
   apply (cancel_mono (residueUnitImmersion K m g)).1
@@ -37515,7 +37490,7 @@ theorem fullResidueUnitFiberTwistedFrobenius_integral
     IsIntegralHom (fullResidueUnitFiberTwistedFrobenius
       q n m g hg hdeg hm hmn t σ) := by
   unfold fullResidueUnitFiberTwistedFrobenius
-  letI : IsIntegralHom (fullResidueUnitFiberFrobenius
+  let : IsIntegralHom (fullResidueUnitFiberFrobenius
       q n m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberFrobenius_integral q n m g hg hdeg hm hmn t
   infer_instance
@@ -37528,7 +37503,7 @@ theorem fullResidueUnitFiberTwistedFrobenius_surjective
     Surjective (fullResidueUnitFiberTwistedFrobenius
       q n m g hg hdeg hm hmn t σ) := by
   unfold fullResidueUnitFiberTwistedFrobenius
-  letI : Surjective (fullResidueUnitFiberFrobenius
+  let : Surjective (fullResidueUnitFiberFrobenius
       q n m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberFrobenius_surjective q n m g hg hdeg hm hmn t
   infer_instance
@@ -37541,7 +37516,7 @@ theorem fullResidueUnitFiberTwistedFrobenius_universallyInjective
     UniversallyInjective (fullResidueUnitFiberTwistedFrobenius
       q n m g hg hdeg hm hmn t σ) := by
   unfold fullResidueUnitFiberTwistedFrobenius
-  letI : MorphismProperty.RespectsIso (@UniversallyInjective) :=
+  let : MorphismProperty.RespectsIso (@UniversallyInjective) :=
     UniversallyInjective.respectsIso
   rw [MorphismProperty.cancel_left_of_respectsIso @UniversallyInjective]
   exact fullResidueUnitFiberFrobenius_universallyInjective
@@ -37559,11 +37534,11 @@ theorem fullResidueUnitFiberTwistedFrobeniusBaseChangeIsHomeomorph
       IsHomeomorph (pullback.fst U.hom
         (fullResidueUnitFiberTwistedFrobenius
           q n m g hg hdeg hm hmn t σ)).base := by
-  letI := fullResidueUnitFiberTwistedFrobenius_integral
+  let := fullResidueUnitFiberTwistedFrobenius_integral
     q n m g hg hdeg hm hmn t σ
-  letI := fullResidueUnitFiberTwistedFrobenius_surjective
+  let := fullResidueUnitFiberTwistedFrobenius_surjective
     q n m g hg hdeg hm hmn t σ
-  letI := fullResidueUnitFiberTwistedFrobenius_universallyInjective
+  let := fullResidueUnitFiberTwistedFrobenius_universallyInjective
     q n m g hg hdeg hm hmn t σ
   exact baseChangeIsHomeomorph_of_integral_surjective_universallyInjective _
 
@@ -38036,7 +38011,7 @@ theorem fullResidueUnitFiber_residue_condition_of_mod_eq
           (ZMod q) n m g hg hdeg hm hmn =
       Spec.map (CommRingCat.ofHom
         (ZMod.castHom (m := q) dvd_rfl F)) ≫ t := by
-  letI : IsOpenImmersion (residueUnitImmersion (ZMod q) m g) := by
+  let : IsOpenImmersion (residueUnitImmersion (ZMod q) m g) := by
     unfold residueUnitImmersion
     infer_instance
   apply (cancel_mono (residueUnitImmersion (ZMod q) m g)).1
@@ -38238,7 +38213,7 @@ theorem threeBlockRootChoicesToFixedTuple_factor
   intro j _hj
   congr 3
   unfold threeBlockFixedBlock threeBlockRootChoicesToFixedTuple
-  simp [threeBlockRootChoiceCoords]
+  simp only [threeBlockRootChoiceCoords_apply, coe_frobeniusEquiv, Function.iterate_zero, id_eq]
   rw [Equiv.symm_apply_apply]
 
 theorem threeBlockRootChoicesToFixedTuple_toTriple
@@ -38329,7 +38304,7 @@ theorem threeBlockInjectiveFixedTupleToTriple_fiber_card_eq
   let P : Fin 3 → Type := fun b =>
     (congruentIrreducibleTripleFactor q d g
       (residueUnitPointPolynomial q m g t) T b).rootSet F
-  letI (b : Fin 3) : Finite (P b) :=
+  let (b : Fin 3) : Finite (P b) :=
     ((congruentIrreducibleTripleFactor q d g
       (residueUnitPointPolynomial q m g t) T b).rootSet_finite F).to_subtype
   have hP : ∀ b, Nat.card (P b) = d := by
@@ -38384,18 +38359,18 @@ theorem threeBlockInjectiveFixedTuple_card_eq_triple_card
   classical
   let f := threeBlockInjectiveFixedTupleToTriple
     q d m hd F g hg hdeg hm hmn t
-  letI : Finite (CongruentIrreducibleTriple q d g
+  let : Finite (CongruentIrreducibleTriple q d g
       (residueUnitPointPolynomial q m g t)) :=
     Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Fintype (CongruentIrreducibleTriple q d g
+  let : Fintype (CongruentIrreducibleTriple q d g
       (residueUnitPointPolynomial q m g t)) := Fintype.ofFinite _
-  letI (T : CongruentIrreducibleTriple q d g
+  let (T : CongruentIrreducibleTriple q d g
       (residueUnitPointPolynomial q m g t)) :
       Finite {x // f x = T} := by
     let P : Fin 3 → Type := fun b =>
       (congruentIrreducibleTripleFactor q d g
         (residueUnitPointPolynomial q m g t) T b).rootSet F
-    letI (b : Fin 3) : Finite (P b) :=
+    let (b : Fin 3) : Finite (P b) :=
       ((congruentIrreducibleTripleFactor q d g
         (residueUnitPointPolynomial q m g t) T b).rootSet_finite F).to_subtype
     exact Finite.of_equiv (∀ b, P b)
@@ -38440,7 +38415,7 @@ theorem threeBlockInjectiveFixedTupleToTriple_fiber_card_le
     intro b
     exact ((congruentIrreducibleTripleFactor q d g
       (residueUnitPointPolynomial q m g t) T b).rootSet_finite F).to_subtype
-  letI (b : Fin 3) : Finite (P b) := hPfinite b
+  let (b : Fin 3) : Finite (P b) := hPfinite b
   calc
     Nat.card {x : ThreeBlockInjectiveFixedTupleData
           q d m F g hg hdeg hm hmn t //
@@ -38482,18 +38457,18 @@ theorem threeBlockInjectiveFixedTuple_card_le_triple_card
   classical
   let f := threeBlockInjectiveFixedTupleToTriple
     q d m hd F g hg hdeg hm hmn t
-  letI : Finite (CongruentIrreducibleTriple q d g
+  let : Finite (CongruentIrreducibleTriple q d g
       (residueUnitPointPolynomial q m g t)) :=
     Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Fintype (CongruentIrreducibleTriple q d g
+  let : Fintype (CongruentIrreducibleTriple q d g
       (residueUnitPointPolynomial q m g t)) := Fintype.ofFinite _
-  letI (T : CongruentIrreducibleTriple q d g
+  let (T : CongruentIrreducibleTriple q d g
       (residueUnitPointPolynomial q m g t)) :
       Finite {x // f x = T} := by
     let P : Fin 3 → Type := fun b =>
       (congruentIrreducibleTripleFactor q d g
         (residueUnitPointPolynomial q m g t) T b).rootSet F
-    letI (b : Fin 3) : Finite (P b) :=
+    let (b : Fin 3) : Finite (P b) :=
       ((congruentIrreducibleTripleFactor q d g
         (residueUnitPointPolynomial q m g t) T b).rootSet_finite F).to_subtype
     exact Finite.of_injective
@@ -38590,16 +38565,16 @@ theorem finiteThreeBlockInjectiveFixedTupleData
       q d m F g hg hdeg hm hmn t) := by
   let f := threeBlockInjectiveFixedTupleToTriple
     q d m hd F g hg hdeg hm hmn t
-  letI : Finite (CongruentIrreducibleTriple q d g
+  let : Finite (CongruentIrreducibleTriple q d g
       (residueUnitPointPolynomial q m g t)) :=
     Finite.of_injective Subtype.val Subtype.val_injective
-  letI (T : CongruentIrreducibleTriple q d g
+  let (T : CongruentIrreducibleTriple q d g
       (residueUnitPointPolynomial q m g t)) :
       Finite {x // f x = T} := by
     let P : Fin 3 → Type := fun b =>
       (congruentIrreducibleTripleFactor q d g
         (residueUnitPointPolynomial q m g t) T b).rootSet F
-    letI (b : Fin 3) : Finite (P b) :=
+    let (b : Fin 3) : Finite (P b) :=
       ((congruentIrreducibleTripleFactor q d g
         (residueUnitPointPolynomial q m g t) T b).rootSet_finite F).to_subtype
     exact Finite.of_injective
@@ -38621,7 +38596,7 @@ theorem finiteThreeBlockInjectiveFixedPointData
     Finite (FullResidueUnitFiberInjectiveFixedPointData
       q (3 * d) m F g hg hdeg hm hmn t
         (threeBlockCyclePermutation d)) := by
-  letI : Finite (ThreeBlockInjectiveFixedTupleData
+  let : Finite (ThreeBlockInjectiveFixedTupleData
       q d m F g hg hdeg hm hmn t) :=
     finiteThreeBlockInjectiveFixedTupleData
       q d m hd F g hg hdeg hm hmn t
@@ -38718,11 +38693,11 @@ theorem finiteThreeBlockFixedTupleData
     (t : ResidueUnitPoint (ZMod q) m g) :
     Finite (FullResidueUnitFiberFixedTupleData q (3 * d) m F g hg
       hdeg hm hmn t (threeBlockCyclePermutation d)) := by
-  letI : Finite (Polynomial.degreeLT (ZMod q) (d + 1)) :=
+  let : Finite (Polynomial.degreeLT (ZMod q) (d + 1)) :=
     Finite.of_injective
       (Polynomial.degreeLTEquiv (ZMod q) (d + 1))
       (Polynomial.degreeLTEquiv (ZMod q) (d + 1)).injective
-  letI (p : Polynomial.degreeLT (ZMod q) (d + 1)) :
+  let (p : Polynomial.degreeLT (ZMod q) (d + 1)) :
       Finite (p.1.rootSet F) := p.1.rootSet_finite F |>.to_subtype
   exact Finite.of_injective
     (threeBlockFixedTupleFiniteCode
@@ -38743,7 +38718,7 @@ theorem finiteThreeBlockFixedPointData
       x ≫ fullResidueUnitFiberTwistedFrobenius
         q (3 * d) m g hg hdeg hm hmn t
           (threeBlockCyclePermutation d) = x} := by
-  letI : Finite (FullResidueUnitFiberFixedTupleData
+  let : Finite (FullResidueUnitFiberFixedTupleData
       q (3 * d) m F g hg hdeg hm hmn t
         (threeBlockCyclePermutation d)) :=
     finiteThreeBlockFixedTupleData
@@ -38800,7 +38775,7 @@ theorem threeBlockFixedPointTraceMatrix_trace
           x ≫ fullResidueUnitFiberTwistedFrobenius
             q (3 * d) m g hg hdeg hm hmn t
               (threeBlockCyclePermutation d) = x} : ℚ_[ℓ]) := by
-  letI : Finite
+  let : Finite
       {x : Spec (.of F) ⟶
           FullResidueUnitFiber (ZMod q) (3 * d) m g hg hdeg hm hmn t //
         x ≫ fullResidueUnitFiberTwistedFrobenius
@@ -38808,7 +38783,7 @@ theorem threeBlockFixedPointTraceMatrix_trace
             (threeBlockCyclePermutation d) = x} :=
     finiteThreeBlockFixedPointData
       q d m hd F g hg hdeg hm hmn t
-  letI : Fintype
+  let : Fintype
       {x : Spec (.of F) ⟶
           FullResidueUnitFiber (ZMod q) (3 * d) m g hg hdeg hm hmn t //
         x ≫ fullResidueUnitFiberTwistedFrobenius
@@ -38856,12 +38831,12 @@ theorem threeBlockInjectiveFixedPointTraceMatrix_trace
       (Nat.card (FullResidueUnitFiberInjectiveFixedPointData
         q (3 * d) m F g hg hdeg hm hmn t
           (threeBlockCyclePermutation d)) : ℚ_[ℓ]) := by
-  letI : Finite (FullResidueUnitFiberInjectiveFixedPointData
+  let : Finite (FullResidueUnitFiberInjectiveFixedPointData
       q (3 * d) m F g hg hdeg hm hmn t
         (threeBlockCyclePermutation d)) :=
     finiteThreeBlockInjectiveFixedPointData
       q d m hd F g hg hdeg hm hmn t
-  letI : Fintype (FullResidueUnitFiberInjectiveFixedPointData
+  let : Fintype (FullResidueUnitFiberInjectiveFixedPointData
       q (3 * d) m F g hg hdeg hm hmn t
         (threeBlockCyclePermutation d)) := Fintype.ofFinite _
   unfold threeBlockInjectiveFixedPointTraceMatrix Matrix.trace
@@ -38979,7 +38954,7 @@ theorem finiteTwistedTupleFixedData
     (F : Type*) [Field F] [CharP F q] [PerfectRing F q]
     (σ : Equiv.Perm (Fin n)) :
     Finite {x : Fin n → F // twistedTupleFrobenius q n F σ x = x} := by
-  letI : Finite
+  let : Finite
       ((permutationFrobeniusFixedPolynomial
         q F (orderOf σ)).rootSet F) :=
     (permutationFrobeniusFixedPolynomial
@@ -38996,7 +38971,7 @@ theorem finiteFullResidueUnitFiberFixedTupleData
     (t : ResidueUnitPoint (ZMod q) m g) (σ : Equiv.Perm (Fin n)) :
     Finite (FullResidueUnitFiberFixedTupleData
       q n m F g hg hdeg hm hmn t σ) := by
-  letI : Finite
+  let : Finite
       {x : Fin n → F // twistedTupleFrobenius q n F σ x = x} :=
     finiteTwistedTupleFixedData q n F σ
   exact Finite.of_injective
@@ -39021,7 +38996,7 @@ theorem finiteFullResidueUnitFiberTwistedFixedPointData
         FullResidueUnitFiber (ZMod q) n m g hg hdeg hm hmn t //
       x ≫ fullResidueUnitFiberTwistedFrobenius
         q n m g hg hdeg hm hmn t σ = x} := by
-  letI : Finite (FullResidueUnitFiberFixedTupleData
+  let : Finite (FullResidueUnitFiberFixedTupleData
       q n m F g hg hdeg hm hmn t σ) :=
     finiteFullResidueUnitFiberFixedTupleData
       q n m F g hg hdeg hm hmn t σ
@@ -39071,14 +39046,14 @@ theorem fullResidueUnitFiberTwistedFixedPointTraceMatrix_trace
             FullResidueUnitFiber (ZMod q) n m g hg hdeg hm hmn t //
           x ≫ fullResidueUnitFiberTwistedFrobenius
             q n m g hg hdeg hm hmn t σ = x} : ℚ_[ℓ]) := by
-  letI : Finite
+  let : Finite
       {x : Spec (.of F) ⟶
           FullResidueUnitFiber (ZMod q) n m g hg hdeg hm hmn t //
         x ≫ fullResidueUnitFiberTwistedFrobenius
           q n m g hg hdeg hm hmn t σ = x} :=
     finiteFullResidueUnitFiberTwistedFixedPointData
       q n m F g hg hdeg hm hmn t σ
-  letI : Fintype
+  let : Fintype
       {x : Spec (.of F) ⟶
           FullResidueUnitFiber (ZMod q) n m g hg hdeg hm hmn t //
         x ≫ fullResidueUnitFiberTwistedFrobenius
@@ -39910,7 +39885,7 @@ instance fullResidueUnitFiberDistinct_isAffine
     (hdeg : g.natDegree = m) (hm : 0 < m) (hmn : m ≤ n)
     (t : ResidueUnitPoint K m g) :
     IsAffine (FullResidueUnitFiberDistinct K n m g hg hdeg hm hmn t) := by
-  letI : IsAffine (FullResidueUnitFiber K n m g hg hdeg hm hmn t) :=
+  let : IsAffine (FullResidueUnitFiber K n m g hg hdeg hm hmn t) :=
     isAffine_fullResidueUnitFiber K n m g hg hdeg hm hmn t
   change IsAffine ((FullResidueUnitFiber K n m g hg hdeg hm hmn t).basicOpen _)
   infer_instance
@@ -40384,7 +40359,7 @@ theorem fullResidueUnitFiberDistinctToProjectiveRootSpace_isImmersion
     IsImmersion (fullResidueUnitFiberDistinctToProjectiveRootSpace
       q n m g hg hdeg hm hmn t) := by
   unfold fullResidueUnitFiberDistinctToProjectiveRootSpace
-  letI : IsImmersion (fullResidueUnitFiberToProjectiveRootSpace
+  let : IsImmersion (fullResidueUnitFiberToProjectiveRootSpace
       q n m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberToProjectiveRootSpace_isImmersion
       q n m g hg hdeg hm hmn t
@@ -40398,11 +40373,11 @@ theorem fullResidueUnitFiberDistinctToProjectiveRootSpace_quasiCompact
     QuasiCompact (fullResidueUnitFiberDistinctToProjectiveRootSpace
       q n m g hg hdeg hm hmn t) := by
   unfold fullResidueUnitFiberDistinctToProjectiveRootSpace
-  letI : QuasiCompact (fullResidueUnitFiberToProjectiveRootSpace
+  let : QuasiCompact (fullResidueUnitFiberToProjectiveRootSpace
       q n m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberToProjectiveRootSpace_quasiCompact
       q n m g hg hdeg hm hmn t
-  letI : IsAffine
+  let : IsAffine
       (FullResidueUnitFiber (ZMod q) n m g hg hdeg hm hmn t) :=
     isAffine_fullResidueUnitFiber (ZMod q) n m g hg hdeg hm hmn t
   infer_instance
@@ -40472,11 +40447,11 @@ instance fullResidueUnitFiberDistinctProjectiveClosureOpen_isOpenImmersion
     IsOpenImmersion (fullResidueUnitFiberDistinctProjectiveClosureOpen
       q n m g hg hdeg hm hmn t) := by
   unfold fullResidueUnitFiberDistinctProjectiveClosureOpen
-  letI : IsImmersion (fullResidueUnitFiberDistinctToProjectiveRootSpace
+  let : IsImmersion (fullResidueUnitFiberDistinctToProjectiveRootSpace
       q n m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberDistinctToProjectiveRootSpace_isImmersion
       q n m g hg hdeg hm hmn t
-  letI : QuasiCompact (fullResidueUnitFiberDistinctToProjectiveRootSpace
+  let : QuasiCompact (fullResidueUnitFiberDistinctToProjectiveRootSpace
       q n m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberDistinctToProjectiveRootSpace_quasiCompact
       q n m g hg hdeg hm hmn t
@@ -40490,7 +40465,7 @@ instance fullResidueUnitFiberDistinctProjectiveClosureProjection_isProper
     IsProper (fullResidueUnitFiberDistinctProjectiveClosureProjection
       q n m g hg hdeg hm hmn t) := by
   unfold fullResidueUnitFiberDistinctProjectiveClosureProjection
-  letI : IsProper
+  let : IsProper
       (ProjectiveCompactification.projectiveSpaceProjection
         (ZMod q) (RI n)) :=
     ProjectiveCompactification.projectiveSpaceProjection_isProper
@@ -41788,9 +41763,9 @@ theorem characterInvariantRank_le_finrank
     (P : FiniteFrobeniusRepresentation K G)
     (rho : Representation K G U) :
     P.characterInvariantRank rho ≤ Module.finrank K U * P.rank := by
-  letI := P.addCommGroup
-  letI := P.module
-  letI := P.finiteDimensional
+  let := P.addCommGroup
+  let := P.module
+  let := P.finiteDimensional
   exact P.data.dualTensor_invariantRank_le rho
 
 noncomputable def characterInvariantFrobeniusRealizationMatrix
@@ -41816,9 +41791,9 @@ theorem norm_map_characterWeightedTwistedTrace_le
     ‖σ ((Fintype.card G : K)⁻¹ *
         ∑ g : G, rho.character g⁻¹ * P.twistedTrace g)‖ ≤
       P.characterInvariantRank rho * radius := by
-  letI := P.addCommGroup
-  letI := P.module
-  letI := P.finiteDimensional
+  let := P.addCommGroup
+  let := P.module
+  let := P.finiteDimensional
   exact P.data.norm_map_characterWeightedTwistedTrace_le
     rho σ radius hroot
 
@@ -41837,9 +41812,9 @@ theorem norm_map_characterWeightedTwistedTrace_le_of_frobenius_root
     ‖σ ((Fintype.card G : K)⁻¹ *
         ∑ g : G, rho.character g⁻¹ * P.twistedTrace g)‖ ≤
       P.characterInvariantRank rho * radius := by
-  letI := P.addCommGroup
-  letI := P.module
-  letI := P.finiteDimensional
+  let := P.addCommGroup
+  let := P.module
+  let := P.finiteDimensional
   exact P.data.norm_map_characterWeightedTwistedTrace_le_of_frobenius_root
     rho σ radius hroot
 
@@ -42016,9 +41991,9 @@ noncomputable def CharacterCohomologyData.ofAmbientRootBounds
   family := family
   lefschetz := lefschetz
   root_bound degree := by
-    letI := (family degree).addCommGroup
-    letI := (family degree).module
-    letI := (family degree).finiteDimensional
+    let := (family degree).addCommGroup
+    let := (family degree).module
+    let := (family degree).finiteDimensional
     exact
       FrobeniusRepresentation.dualTensor_invariantsFrobeniusRealizationMatrix_root_norm_le
         rho (family degree).data σ radius (ambient_root_bound degree)
@@ -42507,7 +42482,7 @@ theorem eval_det_one_add_X_permMatrix_block_eq_zero
       Matrix.toSquareBlockProp
         ((1 : Matrix H H K) - (g⁻¹).permMatrix K) p := by
     ext i j
-    simp [Matrix.toSquareBlockProp_def, Matrix.one_apply]
+    simp only [PEquiv.map_toMatrix, RingHom.mapMatrix_apply, Polynomial.coe_evalRingHom, Matrix.map_apply]
     by_cases h₁ : (i : H) = (j : H)
     · rw [if_pos h₁]
       by_cases h₂ : g.symm (i : H) = (j : H)
@@ -42786,13 +42761,13 @@ theorem permutationVirtualMangoldt_eq_card_of_only_trivial_invariant_subset
       by_cases hzero : Fintype.card H = 0
       · simp [hzero]
       by_cases hone : Fintype.card H = 1
-      · haveI : Nonempty H := Fintype.card_pos_iff.mp (by omega)
-        haveI : Subsingleton H :=
+      · have : Nonempty H := Fintype.card_pos_iff.mp (by omega)
+        have : Subsingleton H :=
           Fintype.card_le_one_iff_subsingleton.mp (by omega)
         have hg : g = 1 := Subsingleton.elim _ _
         simp [hone, hg]
       · have hcard : 2 ≤ Fintype.card H := by omega
-        haveI : Nonempty H := Fintype.card_pos_iff.mp (by omega)
+        have : Nonempty H := Fintype.card_pos_iff.mp (by omega)
         rw [permutation_cast_sign_eq_neg_pow_card_of_only_trivial_invariant_subset
           g hcard htrans]
         rw [pow_succ]
@@ -42884,7 +42859,7 @@ theorem permutationVirtualMangoldt_eq_zero_of_cycleType_ne_singleton
     (K : Type*) [Field K] (d : ℕ) (hd : 2 ≤ d)
     (g : Equiv.Perm (Fin d)) (hg : g.cycleType ≠ {d}) :
     permutationVirtualMangoldt K (Fin d) g = 0 := by
-  letI : Nonempty (Fin d) := Fintype.card_pos_iff.mp (by simpa using (show 0 < d by omega))
+  let : Nonempty (Fin d) := Fintype.card_pos_iff.mp (by simpa using (show 0 < d by omega))
   have hnot : ¬(∀ s : Finset (Fin d),
       (∀ x, x ∈ s ↔ g x ∈ s) → s = ∅ ∨ s = Finset.univ) := by
     intro ht
@@ -44224,8 +44199,7 @@ theorem twoBlockRootChoicesToCycleTuple_factor
   apply Finset.prod_congr rfl
   intro j _
   congr 3
-  simp [twoBlockFixedBlock, twoBlockRootChoicesToCycleTuple,
-    twoBlockRootChoiceCoords]
+  simp only [coe_frobeniusEquiv]
   rw [Equiv.symm_apply_apply]
 
 theorem twoBlockRootChoicesToCycleTuple_toProperPair
@@ -44357,7 +44331,7 @@ theorem twoBlockCycleTupleToProperPair_fiber_card_eq
   classical
   let P := fun b : Fin 2 ↦
     (congruentIrreducibleProperPairFactor q d g t T b).rootSet F
-  letI (b : Fin 2) : Finite (P b) :=
+  let (b : Fin 2) : Finite (P b) :=
     ((congruentIrreducibleProperPairFactor q d g t T b).rootSet_finite F).to_subtype
   have hP : ∀ b, Nat.card (P b) = d := by
     intro b
@@ -44429,13 +44403,13 @@ theorem twoBlockCycleTuple_card_eq_pair_card
       d ^ 2 * Nat.card (CongruentIrreducibleProperPair q d g t) := by
   classical
   let f := twoBlockCycleTupleToProperPair q d hd F g t hg
-  letI : Fintype (CongruentIrreducibleProperPair q d g t) :=
+  let : Fintype (CongruentIrreducibleProperPair q d g t) :=
     Fintype.ofFinite _
-  letI (T : CongruentIrreducibleProperPair q d g t) :
+  let (T : CongruentIrreducibleProperPair q d g t) :
       Finite {x // f x = T} := by
     let P := fun b : Fin 2 ↦
       (congruentIrreducibleProperPairFactor q d g t T b).rootSet F
-    letI (b : Fin 2) : Finite (P b) :=
+    let (b : Fin 2) : Finite (P b) :=
       ((congruentIrreducibleProperPairFactor q d g t T b).rootSet_finite F).to_subtype
     exact Finite.of_equiv (∀ b, P b)
       (twoBlockCycleTupleFiberEquivRoots
@@ -45011,12 +44985,12 @@ instance properPairResidueFiber_isAffine
     (K : Type*) [Field K] (d m : ℕ)
     (g t : Polynomial K) (hg : g.Monic) :
     IsAffine (ProperPairResidueFiber K d m g t hg) := by
-  letI : IsAffine (AffineRootSpace K (2 * d)) := inferInstance
-  letI : IsAffine (RootSpace K (2 * d) g) := by
+  let : IsAffine (AffineRootSpace K (2 * d)) := inferInstance
+  let : IsAffine (RootSpace K (2 * d) g) := by
     change IsAffine ((AffineRootSpace K (2 * d)).basicOpen _)
     infer_instance
-  letI : IsAffine (AffineRootSpace K m) := inferInstance
-  letI : IsAffine (Spec (.of K)) := inferInstance
+  let : IsAffine (AffineRootSpace K m) := inferInstance
+  let : IsAffine (Spec (.of K)) := inferInstance
   unfold ProperPairResidueFiber
   infer_instance
 
@@ -45954,7 +45928,7 @@ theorem properPairResidueFiberToRootSpace_isClosedImmersion
     (g t : Polynomial (ZMod q)) (hg : g.Monic) :
     IsClosedImmersion
       (properPairResidueFiberToRootSpace (ZMod q) d m g t hg) := by
-  letI : IsClosedImmersion (residuePoint (ZMod q) m t) :=
+  let : IsClosedImmersion (residuePoint (ZMod q) m t) :=
     residuePoint_isClosedImmersion q m t
   unfold properPairResidueFiberToRootSpace ProperPairResidueFiber
   infer_instance
@@ -45988,7 +45962,7 @@ theorem properPairResidueFiberDistinctToProjectiveRootSpace_isImmersion
     IsImmersion (properPairResidueFiberDistinctToProjectiveRootSpace
       q d m g t hg) := by
   unfold properPairResidueFiberDistinctToProjectiveRootSpace
-  letI : IsClosedImmersion
+  let : IsClosedImmersion
       (properPairResidueFiberToRootSpace (ZMod q) d m g t hg) :=
     properPairResidueFiberToRootSpace_isClosedImmersion q d m g t hg
   infer_instance
@@ -45999,10 +45973,10 @@ theorem properPairResidueFiberDistinctToProjectiveRootSpace_quasiCompact
     QuasiCompact (properPairResidueFiberDistinctToProjectiveRootSpace
       q d m g t hg) := by
   unfold properPairResidueFiberDistinctToProjectiveRootSpace
-  letI : IsClosedImmersion
+  let : IsClosedImmersion
       (properPairResidueFiberToRootSpace (ZMod q) d m g t hg) :=
     properPairResidueFiberToRootSpace_isClosedImmersion q d m g t hg
-  letI : QuasiCompact (RootSpaceOpen (ZMod q) (2 * d) g).ι := by
+  let : QuasiCompact (RootSpaceOpen (ZMod q) (2 * d) g).ι := by
     unfold RootSpaceOpen
     infer_instance
   infer_instance
@@ -46081,11 +46055,11 @@ instance properPairResidueFiberDistinctProjectiveClosureOpen_isOpenImmersion
     IsOpenImmersion
       (properPairResidueFiberDistinctProjectiveClosureOpen q d m g t hg) := by
   unfold properPairResidueFiberDistinctProjectiveClosureOpen
-  letI : IsImmersion
+  let : IsImmersion
       (properPairResidueFiberDistinctToProjectiveRootSpace q d m g t hg) :=
     properPairResidueFiberDistinctToProjectiveRootSpace_isImmersion
       q d m g t hg
-  letI : QuasiCompact
+  let : QuasiCompact
       (properPairResidueFiberDistinctToProjectiveRootSpace q d m g t hg) :=
     properPairResidueFiberDistinctToProjectiveRootSpace_quasiCompact
       q d m g t hg
@@ -46098,7 +46072,7 @@ instance properPairResidueFiberDistinctProjectiveClosureProjection_isProper
       (properPairResidueFiberDistinctProjectiveClosureProjection
         q d m g t hg) := by
   unfold properPairResidueFiberDistinctProjectiveClosureProjection
-  letI : IsProper
+  let : IsProper
       (AlgebraicGeometry.ProjectiveCompactification.projectiveSpaceProjection
         (ZMod q) (RI (2 * d))) :=
     AlgebraicGeometry.ProjectiveCompactification.projectiveSpaceProjection_isProper
@@ -46511,7 +46485,7 @@ theorem finiteProperPairTwistedTupleData
     (g t : Polynomial (ZMod q))
     (π₀ π₁ : Equiv.Perm (Fin d)) :
     Finite (ProperPairTwistedTupleData q d F g t π₀ π₁) := by
-  letI : Finite
+  let : Finite
       {x : Fin (2 * d) → F //
         twistedTupleFrobenius q (2 * d) F
           (twoBlockPermutationPair d π₀ π₁) x = x} :=
@@ -46538,7 +46512,7 @@ theorem finiteProperPairResidueFiberDistinctTwistedFixedPointData
         ProperPairResidueFiberDistinct (ZMod q) d m g t hg //
       z ≫ properPairResidueFiberDistinctTwistedFrobenius
         q d m g t hg ![π₀, π₁] = z} := by
-  letI : Finite (ProperPairTwistedTupleData q d F g t π₀ π₁) :=
+  let : Finite (ProperPairTwistedTupleData q d F g t π₀ π₁) :=
     finiteProperPairTwistedTupleData q d F g t π₀ π₁
   exact Finite.of_equiv _
     (properPairResidueFiberDistinctFixedPointEquivTupleData
@@ -46582,14 +46556,14 @@ theorem properPairResidueFiberDistinctTwistedFixedPointTraceMatrix_trace
           ProperPairResidueFiberDistinct (ZMod q) d m g t hg //
         z ≫ properPairResidueFiberDistinctTwistedFrobenius
           q d m g t hg ![π₀, π₁] = z} : ℚ_[ℓ]) := by
-  letI : Finite
+  let : Finite
       {z : Spec (.of F) ⟶
           ProperPairResidueFiberDistinct (ZMod q) d m g t hg //
         z ≫ properPairResidueFiberDistinctTwistedFrobenius
           q d m g t hg ![π₀, π₁] = z} :=
     finiteProperPairResidueFiberDistinctTwistedFixedPointData
       q d m F g t hg hdeg ht π₀ π₁
-  letI : Fintype
+  let : Fintype
       {z : Spec (.of F) ⟶
           ProperPairResidueFiberDistinct (ZMod q) d m g t hg //
         z ≫ properPairResidueFiberDistinctTwistedFrobenius
@@ -48056,7 +48030,7 @@ theorem threeBlockRootChoicesToBlockwiseFixedTuple_factor
   intro j _hj
   congr 3
   unfold threeBlockFixedBlock threeBlockRootChoicesToBlockwiseFixedTuple
-  simp [threeBlockRootChoiceCoords]
+  simp only [threeBlockRootChoiceCoords_apply, coe_frobeniusEquiv, Function.iterate_zero, id_eq]
   rw [Equiv.symm_apply_apply]
 
 theorem threeBlockRootChoicesToBlockwiseFixedTuple_toTriple
@@ -48185,7 +48159,7 @@ theorem threeBlockBlockwiseFixedTupleToTriple_fiber_card_eq
         q d m hd F g hg hdeg hm hmn t x = T} = d ^ 3 := by
   classical
   let P : Fin 3 → Type := fun b => ((T.factor b).1).rootSet F
-  letI (b : Fin 3) : Finite (P b) :=
+  let (b : Fin 3) : Finite (P b) :=
     ((T.factor b).1.rootSet_finite F).to_subtype
   have hP : ∀ b, Nat.card (P b) = d := by
     intro b
@@ -48311,13 +48285,13 @@ theorem threeBlockBlockwiseFixedTuple_card_eq_triple_card
   classical
   let f := threeBlockBlockwiseFixedTupleToTriple
     q d m hd F g hg hdeg hm hmn t
-  letI : Fintype (CongruentOrderedIrreducibleTriple q d g
+  let : Fintype (CongruentOrderedIrreducibleTriple q d g
       (residueUnitPointPolynomial q m g t)) := Fintype.ofFinite _
-  letI (T : CongruentOrderedIrreducibleTriple q d g
+  let (T : CongruentOrderedIrreducibleTriple q d g
       (residueUnitPointPolynomial q m g t)) :
       Finite {x // f x = T} := by
     let P : Fin 3 → Type := fun b => ((T.factor b).1).rootSet F
-    letI (b : Fin 3) : Finite (P b) :=
+    let (b : Fin 3) : Finite (P b) :=
       ((T.factor b).1.rootSet_finite F).to_subtype
     exact Finite.of_equiv (∀ b, P b)
       (threeBlockBlockwiseFixedTupleFiberEquivRoots
@@ -48358,7 +48332,7 @@ theorem threeBlockBlockwiseFixedTuple_card_eq_allOrderedPrimeTriple
       (progressionResidueUnitPoint q k hk u) =
       a %ₘ modulusProduct q k := by
     exact progressionResidueUnitPoint_polynomial q k hk u
-  letI : Finite (CongruentOrderedIrreducibleTriple q (2 * r)
+  let : Finite (CongruentOrderedIrreducibleTriple q (2 * r)
       (modulusProduct q k)
       (residueUnitPointPolynomial q (k ^ 2) (modulusProduct q k)
         (progressionResidueUnitPoint q k hk u))) := by
@@ -48514,7 +48488,7 @@ instance fullResidueUnitFiberBlockwiseDistinct_isAffine
     (t : ResidueUnitPoint K m g) :
     IsAffine (FullResidueUnitFiberBlockwiseDistinct
       K d m g hg hdeg hm hmn t) := by
-  letI : IsAffine (FullResidueUnitFiber
+  let : IsAffine (FullResidueUnitFiber
       K (3 * d) m g hg hdeg hm hmn t) :=
     isAffine_fullResidueUnitFiber K (3 * d) m g hg hdeg hm hmn t
   change IsAffine ((FullResidueUnitFiberBlockwiseDistinctOpen
@@ -49012,7 +48986,7 @@ theorem fullResidueUnitFiberBlockwiseDistinctToProjectiveRootSpace_isImmersion
     IsImmersion (fullResidueUnitFiberBlockwiseDistinctToProjectiveRootSpace
       q d m g hg hdeg hm hmn t) := by
   unfold fullResidueUnitFiberBlockwiseDistinctToProjectiveRootSpace
-  letI : IsImmersion (fullResidueUnitFiberToProjectiveRootSpace
+  let : IsImmersion (fullResidueUnitFiberToProjectiveRootSpace
       q (3 * d) m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberToProjectiveRootSpace_isImmersion
       q (3 * d) m g hg hdeg hm hmn t
@@ -49026,7 +49000,7 @@ theorem fullResidueUnitFiberBlockwiseDistinctToProjectiveRootSpace_quasiCompact
     QuasiCompact (fullResidueUnitFiberBlockwiseDistinctToProjectiveRootSpace
       q d m g hg hdeg hm hmn t) := by
   unfold fullResidueUnitFiberBlockwiseDistinctToProjectiveRootSpace
-  letI : QuasiCompact (fullResidueUnitFiberToProjectiveRootSpace
+  let : QuasiCompact (fullResidueUnitFiberToProjectiveRootSpace
       q (3 * d) m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberToProjectiveRootSpace_quasiCompact
       q (3 * d) m g hg hdeg hm hmn t
@@ -49097,12 +49071,12 @@ instance fullResidueUnitFiberBlockwiseDistinctProjectiveClosureOpen_isOpenImmers
       (fullResidueUnitFiberBlockwiseDistinctProjectiveClosureOpen
         q d m g hg hdeg hm hmn t) := by
   unfold fullResidueUnitFiberBlockwiseDistinctProjectiveClosureOpen
-  letI : IsImmersion
+  let : IsImmersion
       (fullResidueUnitFiberBlockwiseDistinctToProjectiveRootSpace
         q d m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberBlockwiseDistinctToProjectiveRootSpace_isImmersion
       q d m g hg hdeg hm hmn t
-  letI : QuasiCompact
+  let : QuasiCompact
       (fullResidueUnitFiberBlockwiseDistinctToProjectiveRootSpace
         q d m g hg hdeg hm hmn t) :=
     fullResidueUnitFiberBlockwiseDistinctToProjectiveRootSpace_quasiCompact
@@ -49119,7 +49093,7 @@ instance
       (fullResidueUnitFiberBlockwiseDistinctProjectiveClosureProjection
         q d m g hg hdeg hm hmn t) := by
   unfold fullResidueUnitFiberBlockwiseDistinctProjectiveClosureProjection
-  letI : IsProper
+  let : IsProper
       (ProjectiveCompactification.projectiveSpaceProjection
         (ZMod q) (RI (3 * d))) :=
     ProjectiveCompactification.projectiveSpaceProjection_isProper
@@ -52207,12 +52181,12 @@ theorem exists_ringHom_to_complex_of_cardinal_le_continuum
   have hbase : Function.Injective base := by
     exact (algebraicIndependent_iff_injective_aeval.1 hy).comp
       hs.1.aevalEquiv.symm.injective
-  letI : Algebra (Algebra.adjoin ℚ
+  let : Algebra (Algebra.adjoin ℚ
       (Set.range fun x : s => (x : K))) ℂ := base.toAlgebra
-  letI : Algebra.IsAlgebraic
+  let : Algebra.IsAlgebraic
       (Algebra.adjoin ℚ (Set.range fun x : s => (x : K))) K :=
     hs.isAlgebraic
-  letI : Module.IsTorsionFree
+  let : Module.IsTorsionFree
       (Algebra.adjoin ℚ (Set.range fun x : s => (x : K))) ℂ :=
     Module.isTorsionFree_iff_algebraMap_injective.mpr (by
       simpa [base, RingHom.algebraMap_toAlgebra] using hbase)
@@ -53218,12 +53192,12 @@ theorem Equiv.twistedTrace_eq
     {B : FiniteFrobeniusRepresentation.{uK, uG, uW} K G}
     (e : Equiv A B) (g : G) :
     B.twistedTrace g = A.twistedTrace g := by
-  letI := A.addCommGroup
-  letI := A.module
-  letI := A.finiteDimensional
-  letI := B.addCommGroup
-  letI := B.module
-  letI := B.finiteDimensional
+  let := A.addCommGroup
+  let := A.module
+  let := A.finiteDimensional
+  let := B.addCommGroup
+  let := B.module
+  let := B.finiteDimensional
   exact FrobeniusRepresentation.Equiv.twistedTrace_eq e g
 
 /-- The zero-dimensional Frobenius representation. -/
@@ -53252,7 +53226,7 @@ theorem zero_frobeniusRealizationMatrix_roots_eq_zero (sigma : K →+* ℂ) :
       sigma).charpoly.roots = 0 := by
   rw [← Multiset.card_eq_zero]
   rw [← (IsAlgClosed.splits _).natDegree_eq_card_roots]
-  simp
+  simp only [Matrix.charpoly_natDegree_eq_dim, Fintype.card_fin]
   change Module.finrank K (Fin 0 → K) = 0
   simp
 
@@ -53317,20 +53291,20 @@ noncomputable def coordinateEquiv
 theorem coordinate_twistedTrace
     (P : FiniteFrobeniusRepresentation K G) (g : G) :
     P.coordinate.twistedTrace g = P.twistedTrace g := by
-  letI := P.addCommGroup
-  letI := P.module
-  letI := P.finiteDimensional
-  letI := P.coordinate.addCommGroup
-  letI := P.coordinate.module
-  letI := P.coordinate.finiteDimensional
+  let := P.addCommGroup
+  let := P.module
+  let := P.finiteDimensional
+  let := P.coordinate.addCommGroup
+  let := P.coordinate.module
+  let := P.coordinate.finiteDimensional
   exact Equiv.twistedTrace_eq P.coordinateEquiv g
 
 theorem coordinate_rank
     (P : FiniteFrobeniusRepresentation K G) :
     P.coordinate.rank = P.rank := by
-  letI := P.addCommGroup
-  letI := P.module
-  letI := P.finiteDimensional
+  let := P.addCommGroup
+  let := P.module
+  let := P.finiteDimensional
   unfold coordinate rank
   simp
 
@@ -53338,12 +53312,12 @@ theorem coordinate_frobeniusRealizationMatrix_charpoly
     (P : FiniteFrobeniusRepresentation K G) (sigma : K →+* ℂ) :
     (P.coordinate.frobeniusRealizationMatrix sigma).charpoly =
       (P.frobeniusRealizationMatrix sigma).charpoly := by
-  letI := P.addCommGroup
-  letI := P.module
-  letI := P.finiteDimensional
-  letI := P.coordinate.addCommGroup
-  letI := P.coordinate.module
-  letI := P.coordinate.finiteDimensional
+  let := P.addCommGroup
+  let := P.module
+  let := P.finiteDimensional
+  let := P.coordinate.addCommGroup
+  let := P.coordinate.module
+  let := P.coordinate.finiteDimensional
   unfold frobeniusRealizationMatrix
     FrobeniusRepresentation.frobeniusRealizationMatrix
   rw [Matrix.charpoly_map, Matrix.charpoly_map]
@@ -53375,12 +53349,12 @@ noncomputable def prod
     letI := B.module
     infer_instance
   finiteDimensional := by
-    letI := A.addCommGroup
-    letI := A.module
-    letI := A.finiteDimensional
-    letI := B.addCommGroup
-    letI := B.module
-    letI := B.finiteDimensional
+    let := A.addCommGroup
+    let := A.module
+    let := A.finiteDimensional
+    let := B.addCommGroup
+    let := B.module
+    let := B.finiteDimensional
     infer_instance
   data := by
     letI := A.addCommGroup
@@ -53392,23 +53366,23 @@ noncomputable def prod
 theorem prod_twistedTrace
     (A B : FiniteFrobeniusRepresentation K G) (g : G) :
     (A.prod B).twistedTrace g = A.twistedTrace g + B.twistedTrace g := by
-  letI := A.addCommGroup
-  letI := A.module
-  letI := A.finiteDimensional
-  letI := B.addCommGroup
-  letI := B.module
-  letI := B.finiteDimensional
+  let := A.addCommGroup
+  let := A.module
+  let := A.finiteDimensional
+  let := B.addCommGroup
+  let := B.module
+  let := B.finiteDimensional
   exact FrobeniusRepresentation.prod_twistedTrace A.data B.data g
 
 theorem prod_rank
     (A B : FiniteFrobeniusRepresentation K G) :
     (A.prod B).rank = A.rank + B.rank := by
-  letI := A.addCommGroup
-  letI := A.module
-  letI := A.finiteDimensional
-  letI := B.addCommGroup
-  letI := B.module
-  letI := B.finiteDimensional
+  let := A.addCommGroup
+  let := A.module
+  let := A.finiteDimensional
+  let := B.addCommGroup
+  let := B.module
+  let := B.finiteDimensional
   exact Module.finrank_prod
 
 theorem prod_frobeniusRealizationMatrix_charpoly
@@ -53416,12 +53390,12 @@ theorem prod_frobeniusRealizationMatrix_charpoly
     ((A.prod B).frobeniusRealizationMatrix sigma).charpoly =
       (A.frobeniusRealizationMatrix sigma).charpoly *
         (B.frobeniusRealizationMatrix sigma).charpoly := by
-  letI := A.addCommGroup
-  letI := A.module
-  letI := A.finiteDimensional
-  letI := B.addCommGroup
-  letI := B.module
-  letI := B.finiteDimensional
+  let := A.addCommGroup
+  let := A.module
+  let := A.finiteDimensional
+  let := B.addCommGroup
+  let := B.module
+  let := B.finiteDimensional
   exact FrobeniusRepresentation.prod_frobeniusRealizationMatrix_charpoly
     A.data B.data sigma
 
@@ -53434,12 +53408,12 @@ theorem prod_frobeniusRealizationMatrix_root_norm_le
       ‖z‖ ≤ radius) :
     ∀ z, z ∈ ((A.prod B).frobeniusRealizationMatrix sigma).charpoly.roots →
       ‖z‖ ≤ radius := by
-  letI := A.addCommGroup
-  letI := A.module
-  letI := A.finiteDimensional
-  letI := B.addCommGroup
-  letI := B.module
-  letI := B.finiteDimensional
+  let := A.addCommGroup
+  let := A.module
+  let := A.finiteDimensional
+  let := B.addCommGroup
+  let := B.module
+  let := B.finiteDimensional
   exact FrobeniusRepresentation.prod_frobeniusRealizationMatrix_root_norm_le
     A.data B.data sigma radius hA hB
 
@@ -53476,7 +53450,7 @@ noncomputable def rangePart
       addCommGroup := inferInstance
       module := inferInstance
       finiteDimensional := by
-        letI := P.finiteDimensional
+        let := P.finiteDimensional
         infer_instance
       data := P.data.rangePart e hG hF }
 
@@ -53493,7 +53467,7 @@ noncomputable def kerPart
       addCommGroup := inferInstance
       module := inferInstance
       finiteDimensional := by
-        letI := P.finiteDimensional
+        let := P.finiteDimensional
         infer_instance
       data := P.data.kerPart e hG hF }
 
@@ -53558,8 +53532,8 @@ theorem isotypicSubsetProjection_isCentralIdempotent
     (P : FiniteFrobeniusRepresentation.{uK, uG, uV} K G)
     (select : P.IsotypicIndex → Prop) :
     P.IsCentralIdempotent (P.isotypicSubsetProjection select) := by
-  letI := P.addCommGroup
-  letI := P.module
+  let := P.addCommGroup
+  let := P.module
   exact ⟨P.data.isotypicSubsetProjection_idempotent select,
     P.data.isotypicSubsetProjection_commutes_representation select,
     P.data.isotypicSubsetProjection_commutes_frobenius select⟩
@@ -53581,8 +53555,8 @@ theorem restrictEnd_isCentralIdempotent
     (P : FiniteFrobeniusRepresentation.{uK, uG, uV} K G) (phi : H →* G)
     (e : P.End) (he : P.IsCentralIdempotent e) :
     (P.restrict phi).IsCentralIdempotent (P.restrictEnd phi e) := by
-  letI := P.addCommGroup
-  letI := P.module
+  let := P.addCommGroup
+  let := P.module
   exact ⟨he.1, fun h => he.2.1 (phi h), he.2.2⟩
 
 /-- First cut into full-group isotypic components, then restrict the action
@@ -53621,8 +53595,8 @@ theorem groupAlgebraEnd_isCentralIdempotent
     (hidem : IsIdempotentElem z)
     (hcentral : z ∈ Submonoid.center (MonoidAlgebra K G)) :
     P.IsCentralIdempotent (P.groupAlgebraEnd z) := by
-  letI := P.addCommGroup
-  letI := P.module
+  let := P.addCommGroup
+  let := P.module
   refine ⟨hidem.map P.data.representation.asAlgebraHom, ?_, ?_⟩
   · intro g
     change Commute (P.data.representation.asAlgebraHom z)

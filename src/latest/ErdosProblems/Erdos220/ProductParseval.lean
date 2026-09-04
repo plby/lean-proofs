@@ -264,7 +264,7 @@ theorem productResidualIntervalSum_parseval (T : Finset ℕ)
     letI (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
     ∑ a : PrimeResidueSpace T, ‖productResidualIntervalSum T hT h a‖ ^ 2 =
       (primeProduct T : ℝ) * ((h % primeProduct T : ℕ) : ℝ) := by
-  letI (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
+  let (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
   simpa only [productResidualIntervalSum, Fintype.card_fin, Nat.cast_ofNat] using
     (productFourierSum_parseval (residualIntervalPoint T hT h)
       (residualIntervalPoint_injective T hT h))
@@ -282,7 +282,7 @@ theorem primitive_productResidualIntervalSum_sq_le (T : Finset ℕ)
     ∑ a ∈ primitiveProductFrequencies T,
         ‖productResidualIntervalSum T hT h a‖ ^ 2 ≤
       (primeProduct T : ℝ) * h := by
-  letI (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
+  let (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
   calc
     ∑ a ∈ primitiveProductFrequencies T,
         ‖productResidualIntervalSum T hT h a‖ ^ 2 ≤
@@ -381,8 +381,8 @@ theorem naturalProductAddChar_completeBlock_vanishes (T : Finset ℕ)
     (hT : ∀ p ∈ T, p.Prime) (a : PrimeResidueSpace T) (ha : a ≠ 0) :
     letI (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
     ∑ m ∈ Finset.range (primeProduct T), naturalProductAddChar T hT a m = 0 := by
-  letI (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
-  letI : NeZero (primeProduct T) := ⟨(primeProduct_pos T hT).ne'⟩
+  let (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
+  let : NeZero (primeProduct T) := ⟨(primeProduct_pos T hT).ne'⟩
   calc
     ∑ m ∈ Finset.range (primeProduct T), naturalProductAddChar T hT a m =
         ∑ m : Fin (primeProduct T), naturalProductAddChar T hT a m := by
@@ -419,7 +419,7 @@ theorem naturalProductAddChar_primitiveTuple (T : Finset ℕ)
     letI (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
     naturalProductAddChar T hT (primitiveTupleToProductResidue T a) m =
       primitiveTupleCharacter a m := by
-  letI (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
+  let (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
   rw [naturalProductAddChar, productAddChar, primitiveTupleCharacter]
   apply Finset.prod_congr rfl
   intro p hp
@@ -462,7 +462,7 @@ theorem naturalProductAddChar_sum_range_eq_residual (T : Finset ℕ)
     letI (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
     ∑ m ∈ Finset.range h, naturalProductAddChar T hT a m =
       productResidualIntervalSum T hT h a := by
-  letI (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
+  let (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
   have hdecomp : primeProduct T * (h / primeProduct T) + h % primeProduct T = h := by
     exact Nat.div_add_mod h (primeProduct T)
   calc
@@ -493,7 +493,7 @@ theorem norm_primitiveTuple_intervalSum_eq_residual (T : Finset ℕ)
     ‖∑ t ∈ Finset.Icc 1 h, primitiveTupleCharacter a (u + t)‖ =
       ‖productResidualIntervalSum T hT h
         (primitiveTupleToProductResidue T a)‖ := by
-  letI (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
+  let (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
   let freq := primitiveTupleToProductResidue T a
   have hfreq : freq ≠ 0 := primitiveTupleToProductResidue_ne_zero T hT hT0 a
   have hIcc : Finset.Icc 1 h =
@@ -541,7 +541,7 @@ theorem primitiveTuple_intervalEnergy_le (T : Finset ℕ)
     ∑ a : PrimitiveFrequencyTuple T,
         ‖∑ t ∈ Finset.Icc 1 h, primitiveTupleCharacter a (u + t)‖ ^ 2 ≤
       (primeProduct T : ℝ) * h := by
-  letI (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
+  let (p : T) : NeZero (p : ℕ) := ⟨(hT p p.property).ne_zero⟩
   calc
     ∑ a : PrimitiveFrequencyTuple T,
         ‖∑ t ∈ Finset.Icc 1 h, primitiveTupleCharacter a (u + t)‖ ^ 2 =

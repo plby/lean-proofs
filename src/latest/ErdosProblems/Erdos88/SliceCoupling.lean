@@ -245,9 +245,9 @@ lemma uniformProbability_productTwoStageSignedLeft
     Concentration.uniformProbability
         (fun ω ↦ Q (productTwoStageSignedLeft P r a b h ω)) =
       Concentration.uniformProbability Q := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
-  letI : Nonempty (ProductSignedSlicePoint P a (fun k ↦ r k - a k)) :=
+  let : Nonempty (ProductSignedSlicePoint P a (fun k ↦ r k - a k)) :=
     productSignedSlicePoint_nonempty P a (fun k ↦ r k - a k)
       (fun k ↦ by rw [Nat.add_sub_of_le (ha k)]; exact hr k)
   exact uniformProbability_comp_of_card_fiber
@@ -272,9 +272,9 @@ lemma uniformExpectation_productTwoStageSignedLeft
     Concentration.uniformExpectation
         (fun ω ↦ g (productTwoStageSignedLeft P r a b h ω)) =
       Concentration.uniformExpectation g := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
-  letI : Nonempty (ProductSignedSlicePoint P a (fun k ↦ r k - a k)) :=
+  let : Nonempty (ProductSignedSlicePoint P a (fun k ↦ r k - a k)) :=
     productSignedSlicePoint_nonempty P a (fun k ↦ r k - a k)
       (fun k ↦ by rw [Nat.add_sub_of_le (ha k)]; exact hr k)
   exact uniformExpectation_comp_of_card_fiber
@@ -307,9 +307,9 @@ theorem productTwoStageSignedLeft_quadratic_two_sided_probability {K : ℕ}
       2 * Real.exp
         (-t ^ 2 / (2 * (∑ k : Fin K, (r k : ℝ)) *
           (4 * B + 8 * (∑ k : Fin K, (r k : ℝ)) * A) ^ 2)) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
-  letI : Nonempty
+  let : Nonempty
       (ProductSignedSlicePoint P a (fun k ↦ r k - a k)) :=
     productSignedSlicePoint_nonempty P a (fun k ↦ r k - a k)
       (fun k ↦ by rw [Nat.add_sub_of_le (ha k)]; exact hr k)
@@ -407,11 +407,11 @@ lemma uniformProbability_productTwoStageSignedRight
     Concentration.uniformProbability
         (fun ω ↦ Q (productTwoStageSignedRight P r a b h ω)) =
       Concentration.uniformProbability Q := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
-  letI : Nonempty (ProductTwoStageSlicePoint P r b a h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r b a h) :=
     productTwoStageSlicePoint_nonempty P r b a h hr hb ha hh
-  letI : Nonempty (ProductSignedSlicePoint P b (fun k ↦ r k - b k)) :=
+  let : Nonempty (ProductSignedSlicePoint P b (fun k ↦ r k - b k)) :=
     productSignedSlicePoint_nonempty P b (fun k ↦ r k - b k)
       (fun k ↦ by rw [Nat.add_sub_of_le (hb k)]; exact hr k)
   calc
@@ -442,11 +442,11 @@ lemma uniformExpectation_productTwoStageSignedRight
     Concentration.uniformExpectation
         (fun ω ↦ g (productTwoStageSignedRight P r a b h ω)) =
       Concentration.uniformExpectation g := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
-  letI : Nonempty (ProductTwoStageSlicePoint P r b a h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r b a h) :=
     productTwoStageSlicePoint_nonempty P r b a h hr hb ha hh
-  letI : Nonempty (ProductSignedSlicePoint P b (fun k ↦ r k - b k)) :=
+  let : Nonempty (ProductSignedSlicePoint P b (fun k ↦ r k - b k)) :=
     productSignedSlicePoint_nonempty P b (fun k ↦ r k - b k)
       (fun k ↦ by rw [Nat.add_sub_of_le (hb k)]; exact hr k)
   calc
@@ -489,9 +489,9 @@ theorem productTwoStageSignedRight_quadratic_two_sided_probability {K : ℕ}
       2 * Real.exp
         (-t ^ 2 / (2 * (∑ k : Fin K, (r k : ℝ)) *
           (4 * B + 8 * (∑ k : Fin K, (r k : ℝ)) * A) ^ 2)) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
-  letI : Nonempty
+  let : Nonempty
       (ProductSignedSlicePoint P b (fun k ↦ r k - b k)) :=
     productSignedSlicePoint_nonempty P b (fun k ↦ r k - b k)
       (fun k ↦ by rw [Nat.add_sub_of_le (hb k)]; exact hr k)
@@ -1109,7 +1109,7 @@ theorem quadraticCrossLinear_assemble_two_sided_probability {n K : ℕ}
     change h k ≤ (P.fiber k \ (R k).1).card
     have := hbal k
     omega
-  letI : Nonempty (BooleanSliceFamilyPoint I h) :=
+  let : Nonempty (BooleanSliceFamilyPoint I h) :=
     booleanSliceFamilyPoint_nonempty I h hell
   have hC : 0 < 4 * (∑ k : Fin K, (r k : ℝ)) * M := by
     positivity
@@ -1142,7 +1142,7 @@ lemma uniformProbability_sigma_le
       (fun b ↦ E ⟨a, b⟩) ≤ q) :
     Concentration.uniformProbability E ≤ q := by
   let a₀ : A := Classical.choice inferInstance
-  letI : Nonempty (Σ a, B a) :=
+  let : Nonempty (Σ a, B a) :=
     ⟨⟨a₀, Classical.choice (inferInstance : Nonempty (B a₀))⟩⟩
   have hfiber : ∀ a,
       (((Finset.univ.filter fun b : B a ↦ E ⟨a, b⟩).card : ℕ) : ℝ) ≤
@@ -1227,7 +1227,7 @@ lemma FiniteUniformCoupling.ofMaps_isClose_of_uniformProbability_bad
   classical
   let C := FiniteUniformCoupling.ofMaps left right hleft hright
   apply FiniteUniformCoupling.isClose_of_bad_probability_le C X Y r q
-  letI : Nonempty (Fin (Fintype.card Ω)) :=
+  let : Nonempty (Fin (Fintype.card Ω)) :=
     Fin.pos_iff_nonempty.mp Fintype.card_pos
   let Q : Ω → Prop := fun ω ↦ r < |X (left ω) - Y (right ω)|
   have hprob :
@@ -1330,25 +1330,25 @@ theorem quadraticCrossLinear_two_sided_probability {n K : ℕ}
           (2 * (∑ k : Fin K,
               (((P.fiber k).card - r k : ℕ) : ℝ)) *
             (4 * (4 * (∑ k : Fin K, (r k : ℝ)) * M)) ^ 2)) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
   let A : Type := ProductTwoStageRevealedPoint P r a b
   let B : A → Type := fun ρ ↦ BooleanSliceFamilyPoint
     (fun k ↦ P.fiber k \ (ρ.1 k).1) h
-  letI : Fintype A := by
+  let : Fintype A := by
     dsimp only [A, ProductTwoStageRevealedPoint]
     infer_instance
-  letI : Nonempty A := productTwoStageRevealedPoint_nonempty P r a b hr ha hb
-  letI : (ρ : A) → Fintype (B ρ) := fun ρ ↦ by
+  let : Nonempty A := productTwoStageRevealedPoint_nonempty P r a b hr ha hb
+  let : (ρ : A) → Fintype (B ρ) := fun ρ ↦ by
     dsimp only [B, BooleanSliceFamilyPoint]
     infer_instance
-  letI : (ρ : A) → Nonempty (B ρ) := fun ρ ↦ by
+  let : (ρ : A) → Nonempty (B ρ) := fun ρ ↦ by
     apply booleanSliceFamilyPoint_nonempty
     intro k
     rw [card_fiber_sdiff_revealed P r ρ.1 k]
     exact hh k
   let ρ₀ : A := Classical.choice inferInstance
-  letI : Nonempty (Σ ρ : A, B ρ) :=
+  let : Nonempty (Σ ρ : A, B ρ) :=
     ⟨⟨ρ₀, Classical.choice (inferInstance : Nonempty (B ρ₀))⟩⟩
   let E : ProductTwoStageSlicePoint P r a b h ≃ Σ ρ : A, B ρ :=
     productTwoStageSigmaEquiv P r a b h
@@ -1472,7 +1472,7 @@ theorem productTwoStage_quadratic_difference_probability {n K : ℕ}
             (2 * (∑ k : Fin K,
                 (((P.fiber k).card - r k : ℕ) : ℝ)) *
               (4 * (4 * (∑ k : Fin K, (r k : ℝ)) * A)) ^ 2)) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a a h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a a h) :=
     productTwoStageSlicePoint_nonempty P r a a h hr ha ha hh
   let XL : ProductTwoStageSlicePoint P r a a h → ℝ := fun ω ↦
     signedSliceQuadratic P a (fun k ↦ r k - a k) f F
@@ -1630,14 +1630,14 @@ theorem productTwoStage_quadratic_isClose {n K : ℕ}
               (2 * (∑ k : Fin K,
                   (((P.fiber k).card - r k : ℕ) : ℝ)) *
                 (4 * (4 * (∑ k : Fin K, (r k : ℝ)) * A)) ^ 2))) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a a h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a a h) :=
     productTwoStageSlicePoint_nonempty P r a a h hr ha ha hh
   have hell : ∀ k, a k + h k ≤ (P.fiber k).card := fun k ↦ by
     calc
       a k + h k ≤ r k + ((P.fiber k).card - r k) :=
         Nat.add_le_add (ha k) (hh k)
       _ = (P.fiber k).card := Nat.add_sub_of_le (hr k)
-  letI : Nonempty (ProductSlicePoint P (fun k ↦ a k + h k)) :=
+  let : Nonempty (ProductSlicePoint P (fun k ↦ a k + h k)) :=
     productSlicePoint_nonempty P (fun k ↦ a k + h k) hell
   let X := productSliceQuadratic P (fun k ↦ a k + h k) f₀ f F
   let q :=
@@ -1711,7 +1711,7 @@ theorem productTwoStage_quadratic_difference_probability_of_meanGap
             (2 * (∑ k : Fin K,
                 (((P.fiber k).card - r k : ℕ) : ℝ)) *
               (4 * (4 * (∑ k : Fin K, (r k : ℝ)) * A)) ^ 2)) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
   let XL : ProductTwoStageSlicePoint P r a b h → ℝ := fun ω ↦
     signedSliceQuadratic P a (fun k ↦ r k - a k) f F
@@ -1882,7 +1882,7 @@ theorem productTwoStage_quadratic_isClose_of_meanGap {n K : ℕ}
               (2 * (∑ k : Fin K,
                   (((P.fiber k).card - r k : ℕ) : ℝ)) *
                 (4 * (4 * (∑ k : Fin K, (r k : ℝ)) * A)) ^ 2))) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
   have hell : ∀ k, a k + h k ≤ (P.fiber k).card := fun k ↦ by
     calc
@@ -1894,9 +1894,9 @@ theorem productTwoStage_quadratic_isClose_of_meanGap {n K : ℕ}
       b k + h k ≤ r k + ((P.fiber k).card - r k) :=
         Nat.add_le_add (hb k) (hh k)
       _ = (P.fiber k).card := Nat.add_sub_of_le (hr k)
-  letI : Nonempty (ProductSlicePoint P (fun k ↦ a k + h k)) :=
+  let : Nonempty (ProductSlicePoint P (fun k ↦ a k + h k)) :=
     productSlicePoint_nonempty P (fun k ↦ a k + h k) hell
-  letI : Nonempty (ProductSlicePoint P (fun k ↦ b k + h k)) :=
+  let : Nonempty (ProductSlicePoint P (fun k ↦ b k + h k)) :=
     productSlicePoint_nonempty P (fun k ↦ b k + h k) hell'
   let X := productSliceQuadratic P (fun k ↦ a k + h k) f₀ f F
   let Y := productSliceQuadratic P (fun k ↦ b k + h k) f₀ f F
@@ -3291,12 +3291,12 @@ lemma abs_uniformExpectation_twoStageSignedQuadratic_sub_le
         Concentration.uniformExpectation
           (signedSliceQuadratic P b (fun k ↦ r k - b k) f F)| ≤
       ∑ k, 2 * W ^ 2 * A / (((P.fiber k).card - 1 : ℕ) : ℝ) := by
-  letI : Nonempty (ProductSignedSlicePoint P a (fun k ↦ r k - a k)) :=
+  let : Nonempty (ProductSignedSlicePoint P a (fun k ↦ r k - a k)) :=
     productSignedSlicePoint_nonempty P a (fun k ↦ r k - a k) (fun k ↦ by
       have hak := ha k
       rw [Nat.add_sub_of_le hak]
       exact hr k)
-  letI : Nonempty (ProductSignedSlicePoint P b (fun k ↦ r k - b k)) :=
+  let : Nonempty (ProductSignedSlicePoint P b (fun k ↦ r k - b k)) :=
     productSignedSlicePoint_nonempty P b (fun k ↦ r k - b k) (fun k ↦ by
       have hbk := hb k
       rw [Nat.add_sub_of_le hbk]
@@ -3374,12 +3374,12 @@ lemma ksss_exposedMeanGap_le {n m : ℕ}
     hmargin0 hmargin hell hell'
   have hc := twoStage_source_cardinality_data bucketSize ell ell' core
     hw.2.2.2.2 hw.1 hw.2.1 hw.2.2.1 hw.2.2.2.1
-  letI : Nonempty (ProductSignedSlicePoint P a (fun k ↦ r k - a k)) :=
+  let : Nonempty (ProductSignedSlicePoint P a (fun k ↦ r k - a k)) :=
     productSignedSlicePoint_nonempty P a (fun k ↦ r k - a k) (fun k ↦ by
       have hak := hc.2.1 k
       rw [Nat.add_sub_of_le hak]
       exact hc.1 k)
-  letI : Nonempty (ProductSignedSlicePoint P b (fun k ↦ r k - b k)) :=
+  let : Nonempty (ProductSignedSlicePoint P b (fun k ↦ r k - b k)) :=
     productSignedSlicePoint_nonempty P b (fun k ↦ r k - b k) (fun k ↦ by
       have hbk := hc.2.2.1 k
       rw [Nat.add_sub_of_le hbk]
@@ -3489,9 +3489,9 @@ theorem productTwoStageSignedLeft_crossRow_two_sided_probability
             (productTwoStageSignedLeft P r a b h ω))|) ≤
       2 * Real.exp (-t ^ 2 /
         (2 * (∑ k : Fin K, (r k : ℝ)) * (8 * M) ^ 2)) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
-  letI : Nonempty
+  let : Nonempty
       (ProductSignedSlicePoint P a (fun k ↦ r k - a k)) :=
     productSignedSlicePoint_nonempty P a (fun k ↦ r k - a k)
       (fun k ↦ by rw [Nat.add_sub_of_le (ha k)]; exact hr k)
@@ -3558,9 +3558,9 @@ theorem productTwoStageSignedRight_crossRow_two_sided_probability
             (productTwoStageSignedRight P r a b h ω))|) ≤
       2 * Real.exp (-t ^ 2 /
         (2 * (∑ k : Fin K, (r k : ℝ)) * (8 * M) ^ 2)) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
-  letI : Nonempty
+  let : Nonempty
       (ProductSignedSlicePoint P b (fun k ↦ r k - b k)) :=
     productSignedSlicePoint_nonempty P b (fun k ↦ r k - b k)
       (fun k ↦ by rw [Nat.add_sub_of_le (hb k)]; exact hr k)
@@ -3661,7 +3661,7 @@ theorem quadraticCrossCoefficient_two_sided_probability
             (productTwoStageSignedRight P r a b h ω)) j|) ≤
       4 * Real.exp (-t ^ 2 /
         (2 * (∑ k : Fin K, (r k : ℝ)) * (8 * M) ^ 2)) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
   let XL : ProductTwoStageSlicePoint P r a b h → ℝ := fun ω ↦
     crossRowLinear F j (productSignedSliceValue P
@@ -3743,7 +3743,7 @@ theorem exists_large_quadraticCrossCoefficient_probability
             (productTwoStageSignedRight P r a b h ω)) j|) ≤
       (n : ℝ) * (4 * Real.exp (-t ^ 2 /
         (2 * (∑ k : Fin K, (r k : ℝ)) * (8 * M) ^ 2))) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
   calc
     Concentration.uniformProbability (fun ω ↦ ∃ j : Fin n,
@@ -3816,7 +3816,7 @@ theorem quadraticCrossLinear_assemble_two_sided_probability_of_coeff_bound
     change h k ≤ (P.fiber k \ (R k).1).card
     have := hbal k
     omega
-  letI : Nonempty (BooleanSliceFamilyPoint I h) :=
+  let : Nonempty (BooleanSliceFamilyPoint I h) :=
     booleanSliceFamilyPoint_nonempty I h hell
   have htail := balancedBooleanSliceFamilyLinear_two_sided_probability
     I h hbal e
@@ -3859,7 +3859,7 @@ theorem quadraticCrossLinear_two_sided_probability_refined
       2 * Real.exp (-tCross ^ 2 /
         (2 * (∑ k : Fin K,
             (((P.fiber k).card - r k : ℕ) : ℝ)) * (8 * tRow) ^ 2)) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
   let bad : ProductTwoStageSlicePoint P r a b h → Prop := fun ω ↦
     ∃ j : Fin n, 2 * tRow ≤ |quadraticCrossCoefficient F
@@ -3880,20 +3880,20 @@ theorem quadraticCrossLinear_two_sided_probability_refined
   let A : Type := ProductTwoStageRevealedPoint P r a b
   let B : A → Type := fun ρ ↦ BooleanSliceFamilyPoint
     (fun k ↦ P.fiber k \ (ρ.1 k).1) h
-  letI : Fintype A := by
+  let : Fintype A := by
     dsimp only [A, ProductTwoStageRevealedPoint]
     infer_instance
-  letI : Nonempty A := productTwoStageRevealedPoint_nonempty P r a b hr ha hb
-  letI : (ρ : A) → Fintype (B ρ) := fun ρ ↦ by
+  let : Nonempty A := productTwoStageRevealedPoint_nonempty P r a b hr ha hb
+  let : (ρ : A) → Fintype (B ρ) := fun ρ ↦ by
     dsimp only [B, BooleanSliceFamilyPoint]
     infer_instance
-  letI : (ρ : A) → Nonempty (B ρ) := fun ρ ↦ by
+  let : (ρ : A) → Nonempty (B ρ) := fun ρ ↦ by
     apply booleanSliceFamilyPoint_nonempty
     intro k
     rw [card_fiber_sdiff_revealed P r ρ.1 k]
     exact hh k
   let ρ₀ : A := Classical.choice inferInstance
-  letI : Nonempty (Σ ρ : A, B ρ) :=
+  let : Nonempty (Σ ρ : A, B ρ) :=
     ⟨⟨ρ₀, Classical.choice (inferInstance : Nonempty (B ρ₀))⟩⟩
   let E : ProductTwoStageSlicePoint P r a b h ≃ Σ ρ : A, B ρ :=
     productTwoStageSigmaEquiv P r a b h
@@ -3931,7 +3931,7 @@ theorem quadraticCrossLinear_two_sided_probability_refined
         · intro hFalse
           contradiction
       rw [hfalse]
-      simp [Concentration.uniformProbability]
+      simp only [ge_iff_le]
       positivity
     · have hbalR : ∀ k,
           2 * h k = (P.fiber k \ (R k).1).card := by
@@ -4051,7 +4051,7 @@ theorem productTwoStage_quadratic_difference_probability_refined_of_meanGap
         2 * Real.exp (-tC ^ 2 /
           (2 * (∑ k : Fin K,
               (((P.fiber k).card - r k : ℕ) : ℝ)) * (8 * tRow) ^ 2))) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
   let XL : ProductTwoStageSlicePoint P r a b h → ℝ := fun ω ↦
     signedSliceQuadratic P a (fun k ↦ r k - a k) f F
@@ -4229,7 +4229,7 @@ theorem productTwoStage_quadratic_isClose_refined_of_meanGap
             (2 * (∑ k : Fin K,
                 (((P.fiber k).card - r k : ℕ) : ℝ)) *
               (8 * tRow) ^ 2)))) := by
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
   have hell : ∀ k, a k + h k ≤ (P.fiber k).card := fun k ↦ by
     calc
@@ -4241,9 +4241,9 @@ theorem productTwoStage_quadratic_isClose_refined_of_meanGap
       b k + h k ≤ r k + ((P.fiber k).card - r k) :=
         Nat.add_le_add (hb k) (hh k)
       _ = (P.fiber k).card := Nat.add_sub_of_le (hr k)
-  letI : Nonempty (ProductSlicePoint P (fun k ↦ a k + h k)) :=
+  let : Nonempty (ProductSlicePoint P (fun k ↦ a k + h k)) :=
     productSlicePoint_nonempty P (fun k ↦ a k + h k) hell
-  letI : Nonempty (ProductSlicePoint P (fun k ↦ b k + h k)) :=
+  let : Nonempty (ProductSlicePoint P (fun k ↦ b k + h k)) :=
     productSlicePoint_nonempty P (fun k ↦ b k + h k) hell'
   let X := productSliceQuadratic P (fun k ↦ a k + h k) f₀ f F
   let Y := productSliceQuadratic P (fun k ↦ b k + h k) f₀ f F
@@ -4396,12 +4396,12 @@ theorem ksssLemma112_of_numerical {n m : ℕ}
     unfold HasQuadraticSliceCoupling
     refine ⟨productSlicePoint_nonempty P _ hleftCount,
       productSlicePoint_nonempty P _ hrightCount, ?_⟩
-    letI : Nonempty (ProductTwoStageSlicePoint P r a b core) :=
+    let : Nonempty (ProductTwoStageSlicePoint P r a b core) :=
       productTwoStageSlicePoint_nonempty P r a b core
         hc.1 hc.2.1 hc.2.2.1 hc.2.2.2.1
-    letI : Nonempty (ProductSlicePoint P (fun k ↦ a k + core k)) :=
+    let : Nonempty (ProductSlicePoint P (fun k ↦ a k + core k)) :=
       productSlicePoint_nonempty P _ hleftCount
-    letI : Nonempty (ProductSlicePoint P (fun k ↦ b k + core k)) :=
+    let : Nonempty (ProductSlicePoint P (fun k ↦ b k + core k)) :=
       productSlicePoint_nonempty P _ hrightCount
     have hRnat' : 0 < ∑ k : Fin m, r k := by
       simpa only [r, bucketSize, core] using hRnat

@@ -243,7 +243,8 @@ lemma dilate_mono (B : Set N) {ρ σ : ℝ} (hρ : 0 ≤ ρ) (hρσ : ρ ≤ σ)
   apply carrier_mono
   · simp
   · have hσ : 0 ≤ σ := hρ.trans hρσ
-    simp [abs_of_nonneg hρ, abs_of_nonneg hσ]
+    simp only [radius_dilate, ge_iff_le]
+    rw [abs_of_nonneg hρ, abs_of_nonneg hσ]
     exact mul_le_mul_of_nonneg_right hρσ B.radius_nonneg
 
 /-- Chord distance is at most two, so radius at least two gives the whole

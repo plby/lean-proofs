@@ -84,13 +84,13 @@ theorem finrank_add_one_le_card_extremePoints
   have hXfin : X.Finite := hs.subset (by
     dsimp [X]
     exact extremePoints_convexHull_subset)
-  letI : Fintype X := hXfin.fintype
+  let : Fintype X := hXfin.fintype
   have hspanX : affineSpan ℝ X = ⊤ := by
     dsimp [X]
     exact affineSpan_extremePoints_convexHull_eq_top hs hspan
   have hXne : X.Nonempty :=
     AffineSubspace.nonempty_of_affineSpan_eq_top ℝ V V hspanX
-  letI : Nonempty X := hXne.to_subtype
+  let : Nonempty X := hXne.to_subtype
   have hle := finrank_vectorSpan_range_add_one_le ℝ (fun x : X => (x : V))
   have hrange : Set.range (fun x : X => (x : V)) = X := by
     ext x
@@ -218,7 +218,7 @@ theorem AffineArrangement.three_le_card_extremeIndex (A : AffineArrangement I)
   have hXfin : X.Finite := A.coeffSet_finite.subset (by
     dsimp [X]
     exact extremePoints_convexHull_subset)
-  letI : Fintype X := hXfin.fintype
+  let : Fintype X := hXfin.fintype
   calc
     3 ≤ Fintype.card X := by simpa [X, Set.ncard] using hthree
     _ = Fintype.card A.ExtremeIndex :=
@@ -307,7 +307,7 @@ theorem AffineArrangement.three_le_hullVertexCount (A : AffineArrangement I)
   have hXfin : X.Finite := A.coeffFinset.finite_toSet.subset (by
     dsimp [X]
     exact extremePoints_convexHull_subset)
-  letI : Fintype X := hXfin.fintype
+  let : Fintype X := hXfin.fintype
   change 3 ≤ X.ncard at h
   have hXcard : X.ncard = Erdos957.hullVertexCount A.coeffFinset := by
     rw [Set.ncard_eq_toFinset_card']

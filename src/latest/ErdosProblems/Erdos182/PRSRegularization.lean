@@ -1083,8 +1083,8 @@ theorem IsHalfRegularSubgraphOf.exists_multiplicativeBlock_regularization
           (β * (1 + 1 / (α : ℝ))) * γ * B₃.card := by
   classical
   let P : BipartiteGraph A₂ B₂ := G₂.onParts A₂ B₂
-  letI : Nonempty A₂ := hA₂.to_subtype
-  letI : Nonempty B₂ := hG₂.2.2.1.to_subtype
+  let : Nonempty A₂ := hA₂.to_subtype
+  let : Nonempty B₂ := hG₂.2.2.1.to_subtype
   have hPreg : ∀ b, P.rightDegree b = δ := by
     intro b
     rw [show P.rightDegree b = G₂.rightDegree b.1 from

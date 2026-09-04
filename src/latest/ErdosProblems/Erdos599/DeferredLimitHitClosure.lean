@@ -128,7 +128,7 @@ theorem HalfwayGeometry.inessentialPaths_mono_stage
         rcases hc.lt_or_eq with hc | rfl
         · let oe : Ladder.ExtendedStage kappa := ⟨o, hoKappa.le⟩
           obtain ⟨C, hstage, hlimit⟩ := hL.limitStages oe hoLimit
-          letI : Nonempty (Set.Iio o) := hoLimit.nonempty_Iio.to_subtype
+          let : Nonempty (Set.Iio o) := hoLimit.nonempty_Iio.to_subtype
           let ci : Set.Iio o := ⟨c, hc⟩
           have hpCi : p ∈ G.inessentialPaths (C.stage ci) := by
             rw [hstage ci]

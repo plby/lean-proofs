@@ -1122,8 +1122,8 @@ theorem card_pathAt0_le
     {d : ℕ} (hdeg : ∀ v, G.degree v ≤ d) (u : V) :
     Nat.card (PathAt0 G u) ≤ d ^ 4 := by
   classical
-  letI : Finite (PathAt0 G u) := Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Fintype (PathAt0 G u) := Fintype.ofFinite _
+  let : Finite (PathAt0 G u) := Finite.of_injective Subtype.val Subtype.val_injective
+  let : Fintype (PathAt0 G u) := Fintype.ofFinite _
   rw [Nat.card_eq_fintype_card]
   exact (Fintype.card_le_of_injective (pathAt0ToChains G u)
       (pathAt0ToChains_injective G u)).trans
@@ -1180,8 +1180,8 @@ theorem card_pathAt1_le
     {d : ℕ} (hdeg : ∀ v, G.degree v ≤ d) (u : V) :
     Nat.card (PathAt1 G u) ≤ d ^ 4 := by
   classical
-  letI : Finite (PathAt1 G u) := Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Fintype (PathAt1 G u) := Fintype.ofFinite _
+  let : Finite (PathAt1 G u) := Finite.of_injective Subtype.val Subtype.val_injective
+  let : Fintype (PathAt1 G u) := Fintype.ofFinite _
   rw [Nat.card_eq_fintype_card]
   exact (Fintype.card_le_of_injective (pathAt1ToChains G u)
       (pathAt1ToChains_injective G u)).trans
@@ -1227,8 +1227,8 @@ theorem card_pathAt2_le
     {d : ℕ} (hdeg : ∀ v, G.degree v ≤ d) (u : V) :
     Nat.card (PathAt2 G u) ≤ d ^ 4 := by
   classical
-  letI : Finite (PathAt2 G u) := Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Fintype (PathAt2 G u) := Fintype.ofFinite _
+  let : Finite (PathAt2 G u) := Finite.of_injective Subtype.val Subtype.val_injective
+  let : Fintype (PathAt2 G u) := Fintype.ofFinite _
   rw [Nat.card_eq_fintype_card]
   exact (Fintype.card_le_of_injective (pathAt2ToChains G u)
       (pathAt2ToChains_injective G u)).trans
@@ -1338,16 +1338,16 @@ theorem card_incidentPathTuple_le
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {d : ℕ} (hdeg : ∀ v, G.degree v ≤ d) (u : V) :
     Nat.card (IncidentPathTuple G u) ≤ 5 * d ^ 4 := by
-  letI : Finite (PathAt0 G u) := Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Finite (PathAt1 G u) := Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Finite (PathAt2 G u) := Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Finite (PathAt3 G u) := Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Finite (PathAt4 G u) := Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Fintype (PathAt0 G u) := Fintype.ofFinite _
-  letI : Fintype (PathAt1 G u) := Fintype.ofFinite _
-  letI : Fintype (PathAt2 G u) := Fintype.ofFinite _
-  letI : Fintype (PathAt3 G u) := Fintype.ofFinite _
-  letI : Fintype (PathAt4 G u) := Fintype.ofFinite _
+  let : Finite (PathAt0 G u) := Finite.of_injective Subtype.val Subtype.val_injective
+  let : Finite (PathAt1 G u) := Finite.of_injective Subtype.val Subtype.val_injective
+  let : Finite (PathAt2 G u) := Finite.of_injective Subtype.val Subtype.val_injective
+  let : Finite (PathAt3 G u) := Finite.of_injective Subtype.val Subtype.val_injective
+  let : Finite (PathAt4 G u) := Finite.of_injective Subtype.val Subtype.val_injective
+  let : Fintype (PathAt0 G u) := Fintype.ofFinite _
+  let : Fintype (PathAt1 G u) := Fintype.ofFinite _
+  let : Fintype (PathAt2 G u) := Fintype.ofFinite _
+  let : Fintype (PathAt3 G u) := Fintype.ofFinite _
+  let : Fintype (PathAt4 G u) := Fintype.ofFinite _
   have hinj : Nat.card (IncidentPathTuple G u) ≤ Nat.card (PathPositionSum G u) :=
     Nat.card_le_card_of_injective (incidentPathToPositionSum G u)
       (incidentPathToPositionSum_injective G u)
@@ -1412,7 +1412,7 @@ theorem card_incidentValidPath_le
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {d r : ℕ} (hdeg : ∀ v, G.degree v ≤ d) (u : V) :
     Nat.card (IncidentValidPath G r u) ≤ 5 * d ^ 4 := by
-  letI : Finite (IncidentPathTuple G u) :=
+  let : Finite (IncidentPathTuple G u) :=
     Finite.of_injective Subtype.val Subtype.val_injective
   exact (Nat.card_le_card_of_injective (incidentValidPathToTuple G r u)
     (incidentValidPathToTuple_injective G r u)).trans
@@ -1490,11 +1490,11 @@ theorem card_squareCompletionCode_le
     {d r : ℕ} (hdeg : ∀ v, G.degree v ≤ d) (u : V) :
     Nat.card (SquareCompletionCode G r u) ≤ d ^ 2 * r ^ 2 := by
   classical
-  letI (c : ChainsFrom G 2 u) : Finite
+  let (c : ChainsFrom G 2 u) : Finite
       {v : V // ¬IsSpecial G r u (chain2End G u c) ∧
         v ∈ commonNeighbors G u (chain2End G u c)} :=
     Finite.of_injective Subtype.val Subtype.val_injective
-  letI (c : ChainsFrom G 2 u) : Fintype
+  let (c : ChainsFrom G 2 u) : Fintype
       {v : V // ¬IsSpecial G r u (chain2End G u c) ∧
         v ∈ commonNeighbors G u (chain2End G u c)} := Fintype.ofFinite _
   change Nat.card (Σ c : ChainsFrom G 2 u,
@@ -1535,7 +1535,7 @@ theorem card_squareAt0_le
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {d r : ℕ} (hdeg : ∀ v, G.degree v ≤ d) (u : V) :
     Nat.card (SquareAt0 G r u) ≤ d ^ 2 * r ^ 2 := by
-  letI : Finite (SquareCompletionCode G r u) :=
+  let : Finite (SquareCompletionCode G r u) :=
     Finite.of_injective (fun z ↦ (z.1, z.2.1)) (by
       intro a b h
       rcases a with ⟨a, ha⟩
@@ -1699,14 +1699,14 @@ theorem card_incidentSquareTuple_le
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {d r : ℕ} (hdeg : ∀ v, G.degree v ≤ d) (u : V) :
     Nat.card (IncidentSquareTuple G r u) ≤ 4 * (d ^ 2 * r ^ 2) := by
-  letI : Finite (SquareAt0 G r u) := Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Finite (SquareAt1 G r u) := Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Finite (SquareAt2 G r u) := Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Finite (SquareAt3 G r u) := Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Fintype (SquareAt0 G r u) := Fintype.ofFinite _
-  letI : Fintype (SquareAt1 G r u) := Fintype.ofFinite _
-  letI : Fintype (SquareAt2 G r u) := Fintype.ofFinite _
-  letI : Fintype (SquareAt3 G r u) := Fintype.ofFinite _
+  let : Finite (SquareAt0 G r u) := Finite.of_injective Subtype.val Subtype.val_injective
+  let : Finite (SquareAt1 G r u) := Finite.of_injective Subtype.val Subtype.val_injective
+  let : Finite (SquareAt2 G r u) := Finite.of_injective Subtype.val Subtype.val_injective
+  let : Finite (SquareAt3 G r u) := Finite.of_injective Subtype.val Subtype.val_injective
+  let : Fintype (SquareAt0 G r u) := Fintype.ofFinite _
+  let : Fintype (SquareAt1 G r u) := Fintype.ofFinite _
+  let : Fintype (SquareAt2 G r u) := Fintype.ofFinite _
+  let : Fintype (SquareAt3 G r u) := Fintype.ofFinite _
   have hinj := Nat.card_le_card_of_injective (incidentSquareToPositionSum G r u)
     (incidentSquareToPositionSum_injective G r u)
   rw [Nat.card_sum, Nat.card_sum, Nat.card_sum] at hinj
@@ -1765,7 +1765,7 @@ theorem card_incidentValidSquare_le
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {d r : ℕ} (hdeg : ∀ v, G.degree v ≤ d) (u : V) :
     Nat.card (IncidentValidSquare G r u) ≤ 4 * (d ^ 2 * r ^ 2) := by
-  letI : Finite (IncidentSquareTuple G r u) :=
+  let : Finite (IncidentSquareTuple G r u) :=
     Finite.of_injective Subtype.val Subtype.val_injective
   exact (Nat.card_le_card_of_injective (incidentValidSquareToTuple G r u)
     (incidentValidSquareToTuple_injective G r u)).trans
@@ -1908,7 +1908,7 @@ theorem card_neighborTwoStepCode_le
     {d : ℕ} (hdeg : ∀ v, G.degree v ≤ d) (u : V) :
     Nat.card (NeighborTwoStepCode G u) ≤ d ^ 2 := by
   classical
-  letI (w : {w : V // w ∈ G.neighborFinset u}) : Fintype
+  let (w : {w : V // w ∈ G.neighborFinset u}) : Fintype
       {v : V // v ∈ G.neighborFinset w} := Fintype.ofFinite _
   change Nat.card (Σ w : {w : V // w ∈ G.neighborFinset u},
     {v : V // v ∈ G.neighborFinset w}) ≤ d ^ 2
@@ -1934,8 +1934,8 @@ theorem card_specialWitness_lower
     Nat.card (SpecialOther G r u) * (r ^ 2 + 1) ≤
       Nat.card (SpecialWitness G r u) := by
   classical
-  letI : Fintype (SpecialOther G r u) := Fintype.ofFinite _
-  letI (v : SpecialOther G r u) : Fintype
+  let : Fintype (SpecialOther G r u) := Fintype.ofFinite _
+  let (v : SpecialOther G r u) : Fintype
       {w : V // w ∈ commonNeighbors G u v.1} := Fintype.ofFinite _
   change Nat.card (SpecialOther G r u) * (r ^ 2 + 1) ≤
     Nat.card (Σ v : SpecialOther G r u,
@@ -1959,20 +1959,20 @@ theorem card_specialOther_le
   have hwitness : Nat.card (SpecialWitness G r u) ≤ d ^ 2 :=
     by
       classical
-      letI : Fintype {w : V // w ∈ G.neighborFinset u} := Fintype.ofFinite _
-      letI (w : {w : V // w ∈ G.neighborFinset u}) : Fintype
+      let : Fintype {w : V // w ∈ G.neighborFinset u} := Fintype.ofFinite _
+      let (w : {w : V // w ∈ G.neighborFinset u}) : Fintype
           {v : V // v ∈ G.neighborFinset w} := Fintype.ofFinite _
-      letI : Finite (NeighborTwoStepCode G u) :=
+      let : Finite (NeighborTwoStepCode G u) :=
         Finite.of_injective (fun z ↦ (z.1.1, z.2.1)) (by
           intro a b h
           have h1 : a.1.1 = b.1.1 := congrArg Prod.fst h
           have h2 : a.2.1 = b.2.1 := congrArg Prod.snd h
           apply Sigma.ext (Subtype.ext h1)
           exact (Subtype.heq_iff_coe_eq (fun x ↦ by simp [h1])).2 h2)
-      letI (v : SpecialOther G r u) : Finite
+      let (v : SpecialOther G r u) : Finite
           {w : V // w ∈ commonNeighbors G u v.1} :=
         Finite.of_injective Subtype.val Subtype.val_injective
-      letI : Finite (SpecialWitness G r u) :=
+      let : Finite (SpecialWitness G r u) :=
         Finite.of_injective (fun z ↦ (z.1.1, z.2.1)) (by
           intro a b h
           have h1 : a.1.1 = b.1.1 := congrArg Prod.fst h
@@ -2068,7 +2068,7 @@ theorem card_incidentValidSpecial_le
     (G : SimpleGraph V) [DecidableRel G.Adj]
     {d r : ℕ} (hdeg : ∀ v, G.degree v ≤ d) (hdr : d ≤ r ^ 3) (u : V) :
     Nat.card (IncidentValidSpecial G r u) ≤ r ^ 4 := by
-  letI : Finite (SpecialOther G r u) :=
+  let : Finite (SpecialOther G r u) :=
     Finite.of_injective Subtype.val Subtype.val_injective
   exact (Nat.card_le_card_of_injective (incidentValidSpecialOther G r u)
       (incidentValidSpecialOther_injective G r u)).trans
@@ -2089,9 +2089,9 @@ theorem sum_indicator_eq_card_mul
     {α : Type*} [Fintype α] (P : α → Prop) [DecidablePred P] (a : ℝ) :
     (∑ i : α, if P i then a else 0) = Nat.card {i : α // P i} * a := by
   classical
-  letI : Finite {i : α // P i} :=
+  let : Finite {i : α // P i} :=
     Finite.of_injective Subtype.val Subtype.val_injective
-  letI : Fintype {i : α // P i} := Fintype.ofFinite _
+  let : Fintype {i : α // P i} := Fintype.ofFinite _
   calc
     (∑ i : α, if P i then a else 0) =
         (∑ i : α, if P i then (1 : ℝ) else 0) * a := by
@@ -2354,7 +2354,7 @@ theorem exists_acyclic_coloring_of_cube_bound
   let y : BadIndex V → ℝ := validWeight G r x
   let neighbor : BadIndex V → Finset (BadIndex V) :=
     overlapNeighbors BadIndex.support
-  letI : Nonempty (Fin x) := Fin.pos_iff_nonempty.mp hx
+  let : Nonempty (Fin x) := Fin.pos_iff_nonempty.mp hx
   have hy0 : ∀ i, 0 ≤ y i := fun i ↦ validWeight_nonneg G r x i
   have hy1 : ∀ i, y i < 1 := by
     intro i
@@ -2815,7 +2815,7 @@ theorem card_rowGood {R C : Type*} [Fintype R] [Fintype C] [DecidableEq C]
       intro g
       simp [RowGood, Bad])
   have hbad : Fintype.card {g : R → C // Bad g} = 1 := by
-    letI : Unique {g : R → C // Bad g} :=
+    let : Unique {g : R → C // Bad g} :=
       { default := ⟨fun _ ↦ base, fun _ ↦ rfl⟩
         uniq := by
           intro g
@@ -3164,7 +3164,7 @@ theorem lower_choose_blocks {s : ℕ} (hs : 1 ≤ s) :
   rw [hk]
   have hdiv : 2 * k * (2 * k - 1) / 2 = k * (2 * k - 1) := by
     calc
-      2 * k * (2 * k - 1) / 2 = 2 * (k * (2 * k - 1)) / 2 := by ring
+      2 * k * (2 * k - 1) / 2 = 2 * (k * (2 * k - 1)) / 2 := by ring_nf
       _ = k * (2 * k - 1) := Nat.mul_div_right _ (by norm_num)
   rw [hdiv]
   have hkval : k = 128 * s * lowerA s := by
@@ -3243,7 +3243,7 @@ theorem lower_squareSafe_samples_quarter {s : ℕ} (hs : 1 ≤ s) :
         IsSquareSafe (graphOfSample ω) c} <
       Fintype.card (Fin (lowerN s) × Fin (lowerN s) → Fin (lowerM s)) := by
   classical
-  letI : NeZero (lowerM s) := ⟨by simp [lowerM]⟩
+  let : NeZero (lowerM s) := ⟨by simp [lowerM]⟩
   let C := Fintype.card {ω : Fin (lowerN s) × Fin (lowerN s) → Fin (lowerM s) //
     ∃ c : Fin (lowerN s) → Fin (lowerQ s),
       IsSquareSafe (graphOfSample ω) c}

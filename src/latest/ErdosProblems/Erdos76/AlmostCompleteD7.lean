@@ -661,8 +661,8 @@ lemma d7ResidualEdgeWeight_relabel {B : Type} [Fintype B]
         (e.toEmbedding.sym2Map p) =
       d7ResidualEdgeWeight G w p := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
   unfold d7ResidualEdgeWeight
   have hmem : e.toEmbedding.sym2Map p ∈
         (G.map e.toEmbedding).edgeFinset ↔ p ∈ G.edgeFinset := by

@@ -396,7 +396,7 @@ theorem weightedAbsMoment_translate_convolution_le_autocorrelation
     simp_rw [coeff_convolution, ← sq, Fintype.sum_prod_type, mul_expect,
       AddChar.sub_apply]
     simp [term, mul_mul_mul_comm, mul_comm, map_neg_eq_conj, prod_mul_distrib]
-    ring
+    ring_nf
   · have hinv : differenceConvolution f f =
         ∑ chi : AddChar G ℂ,
           fun x ↦ coeff (differenceConvolution f f) chi * chi x := by

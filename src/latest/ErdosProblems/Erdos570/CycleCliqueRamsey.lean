@@ -35,7 +35,7 @@ theorem efrs_expanding_region_forces_large_independent
   let u : U := ⟨hUne.choose, hUne.choose_spec⟩
   let c : Q.ConnectedComponent := Q.connectedComponentMk u
   let R : SimpleGraph c := c.toSimpleGraph
-  letI : DecidableRel R.Adj := Classical.decRel _
+  let : DecidableRel R.Adj := Classical.decRel _
   let e : c ↪ V :=
     ⟨fun z ↦ z.1.1, by
       intro z w h
@@ -43,7 +43,7 @@ theorem efrs_expanding_region_forces_large_independent
       apply Subtype.ext
       exact h⟩
   have hRconn : R.Connected := c.connected_toSimpleGraph
-  letI : Nonempty c := hRconn.nonempty
+  let : Nonempty c := hRconn.nonempty
   have hRcycle : ¬ SimpleGraph.cycleGraph m ⊑ R := by
     intro h
     apply hcycle
@@ -133,7 +133,7 @@ theorem ramseyAt_cycle_complete_efrs
       (((m - 2) * (a + 2) + 1) * (n - 1)) := by
   intro C
   classical
-  letI : DecidableRel C.Adj := Classical.decRel _
+  let : DecidableRel C.Adj := Classical.decRel _
   by_cases hred : SimpleGraph.cycleGraph m ⊑ C
   · exact Or.inl (by simpa [cycleCode] using hred)
   · by_cases hblue : (⊤ : SimpleGraph (Fin n)) ⊑ Cᶜ

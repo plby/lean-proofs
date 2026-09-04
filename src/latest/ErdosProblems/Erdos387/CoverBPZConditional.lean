@@ -662,7 +662,7 @@ private theorem val_sum_innerB_p_dvd_k_a {k : ℕ} (a : ℕ → ℕ) (hk_pos : 0
     ∑ j : Fin k, exponent k a (j.val + 1) p =
       padicValNat p k.factorial := by
   classical
-  haveI : Fact p.Prime := ⟨hp⟩
+  have : Fact p.Prime := ⟨hp⟩
   have hap_lt_p : a p < p := ha_lt_p p hp
   have hap_pos : 1 ≤ a p := by omega
   rw [sum_exponent_eq_sum_count a p hp hap_pos

@@ -1945,7 +1945,7 @@ theorem sum_certificateMinimaLog_eq_logBase_prod {n : ℕ}
     (∑ place, ∑ i, certificateMinimaLog Q B place i) =
       logBase Q (∏ i, B.lambda i) := by
   simp only [certificateMinimaLog]
-  simp [Fin.sum_univ_succ, Place23.infinite]
+  simp only [Finset.sum_ite_irrel, Finset.sum_const_zero, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
   unfold logBase
   rw [Real.log_prod (fun i _ ↦ (B.lambda_pos i).ne')]
   rw [Finset.sum_div]

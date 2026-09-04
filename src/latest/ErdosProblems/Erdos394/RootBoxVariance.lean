@@ -26,7 +26,7 @@ theorem rootBoxGlobalHitSet_subset_universe
     rootBoxGlobalHitSet P K j hprime ⊆
       rootBoxMultiplierUniverse P hprime := by
   classical
-  letI (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
+  let (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
   intro h hh
   unfold rootBoxMultiplierUniverse
   apply Fintype.mem_piFinset.mpr
@@ -54,7 +54,7 @@ theorem card_rootBoxGlobalHitSet_eq_weight
     (rootBoxGlobalHitSet P K j hprime).card =
       rootBoxLocalWeight P K j := by
   classical
-  letI (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
+  let (p : ↥P) : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
   unfold rootBoxGlobalHitSet
   rw [Fintype.card_piFinset]
   calc

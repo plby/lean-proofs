@@ -62,7 +62,7 @@ theorem highPower_subset_two_sub_of_not_stableV3
     rw [Finset.coe_addStab hBB]
   let m : ℕ := Nat.card (ZMod N ⧸ K)
   have hm : 0 < m := Nat.card_pos
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   let f : ZMod N →+ ZMod m := cyclicQuotientHom K
   have hf : Function.Surjective f := cyclicQuotientHom_surjective K
   let r : ℕ := (B.image f).card
@@ -90,7 +90,7 @@ theorem highPower_subset_two_sub_of_not_stableV3
       simpa [Nat.add_comm] using hkneser
     have hid : (2 * r - 1) * h = 2 * (r * h) - h := by
       rw [Nat.sub_mul]
-      ring
+      ring_nf
     rwa [hid]
   have hBsaturation : B.card ≤ r * h := by
     have hsub : B ⊆ B + H := by
@@ -168,7 +168,7 @@ theorem highPower_subset_two_sub_of_not_stableV3
     simpa [ZMod.card] using hc
   have hGcard : Fintype.card (ZMod N) =
       m * (addSubgroupFinset K).card := by
-    letI : Fintype K := Fintype.ofFinite K
+    let : Fintype K := Fintype.ofFinite K
     rw [← Nat.card_eq_fintype_card,
       AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup]
     congr 1

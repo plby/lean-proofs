@@ -89,14 +89,15 @@ theorem turanEdges_partite_step (q d N : ℕ) (hq : 1 ≤ q) (hd : d ≤ N) :
     · grind;
     · simp +contextual [ Finset.Subset.antisymm_iff, Finset.subset_iff ];
       grind;
-    · simp +decide [ Finset.mem_powersetCard, Finset.card_eq_two ];
+    · simp +decide only [Fin.castSucc_mk, mem_powersetCard, mem_filter, mem_univ, true_and, exists_prop,
+    Prod.exists, and_imp];
       rintro b hb x y hxy rfl; cases lt_or_gt_of_ne hxy <;> [ exact ⟨ x, y, ⟨ ‹_›, by simpa using! hb ( by simp +decide ), by simpa using! hb ( by simp +decide ) ⟩, rfl ⟩ ; exact ⟨ y, x, ⟨ ‹_›, by simpa using! hb ( by simp +decide ), by simpa using! hb ( by simp +decide ) ⟩, by simp +decide [ *, Finset.pair_comm ] ⟩ ] ;
   -- The fibre of `Fin.last q` has size `N - d`; the fibres of `Fin.castSucc i` (`i : Fin q`) partition `[0,d)` by residue mod `q`, matching exactly the colour classes of `turanGraph d q`.
   have h_fibres : ∑ c : Fin (q + 1), (Finset.filter (fun x : Fin N => (if x.val < d then Fin.castSucc ⟨x.val % q, Nat.mod_lt _ (by omega)⟩ else Fin.last q) = c) Finset.univ).card.choose 2 = (N - d).choose 2 + (Finset.univ.filter (fun p : Fin d × Fin d => p.1 < p.2 ∧ ¬(turanGraph d q).Adj p.1 p.2)).card := by
     have h_fibres : ∀ i : Fin q, (Finset.filter (fun x : Fin N => (if x.val < d then Fin.castSucc ⟨x.val % q, Nat.mod_lt _ (by omega)⟩ else Fin.last q) = Fin.castSucc i) Finset.univ).card = (Finset.filter (fun x : Fin d => x.val % q = i.val) Finset.univ).card := by
       intro i;
       refine' Finset.card_bij ( fun x hx => ⟨ x, by
-        grind ⟩ ) _ _ _ <;> simp +decide [ Fin.ext_iff ];
+        grind ⟩ ) _ _ _ <;> simp +decide only [mem_filter, mem_univ, true_and, Fin.castSucc_mk];
       · grind;
       · exact fun b hb => ⟨ ⟨ b, by linarith [ Fin.is_lt b ] ⟩, by aesop ⟩;
     have h_fibres_sum : ∑ i : Fin q, (Finset.filter (fun x : Fin d => x.val % q = i.val) Finset.univ).card.choose 2 = (Finset.univ.filter (fun p : Fin d × Fin d => p.1 < p.2 ∧ ¬(turanGraph d q).Adj p.1 p.2)).card := by
@@ -105,7 +106,7 @@ theorem turanEdges_partite_step (q d N : ℕ) (hq : 1 ≤ q) (hd : d ≤ N) :
         have h_fibres_sum : (Finset.filter (fun x : Fin d => x.val % q = i.val) Finset.univ).card.choose 2 = (Finset.powersetCard 2 (Finset.filter (fun x : Fin d => x.val % q = i.val) Finset.univ)).card := by
           rw [ Finset.card_powersetCard ];
         convert! h_fibres_sum using 1;
-        refine' Finset.card_bij ( fun p hp => { p.1, p.2 } ) _ _ _ <;> simp +decide [ Finset.mem_powersetCard ];
+        refine' Finset.card_bij ( fun p hp => { p.1, p.2 } ) _ _ _ <;> simp +decide only [mem_powersetCard, mem_filter, mem_univ, true_and, exists_prop, Prod.exists, and_imp];
         · grind;
         · simp +contextual [ Finset.Subset.antisymm_iff, Finset.subset_iff ];
           grind;
@@ -119,7 +120,7 @@ theorem turanEdges_partite_step (q d N : ℕ) (hq : 1 ≤ q) (hd : d ≤ N) :
     rw [ ← h_fibres_sum, Fin.sum_univ_castSucc ];
     rw [ add_comm, Finset.sum_congr rfl fun i hi => by rw [ h_fibres i ] ];
     rw [ show ( Finset.univ.filter fun x : Fin N => ( if ( x : ℕ ) < d then Fin.castSucc ⟨ ( x : ℕ ) % q, Nat.mod_lt _ ( by linarith ) ⟩ else Fin.last q ) = Fin.last q ) = Finset.univ \ Finset.univ.filter fun x : Fin N => ( x : ℕ ) < d from ?_ ];
-    · simp +decide [ Finset.card_sdiff, * ];
+    · simp +decide only [Nat.add_right_cancel_iff];
       rw [ Finset.card_eq_of_bijective ];
       use fun i hi => ⟨ i, by linarith ⟩;
       · exact fun x hx => ⟨ x, Finset.mem_filter.mp hx |>.2, rfl ⟩;
@@ -150,7 +151,7 @@ theorem turanEdges_partite_step (q d N : ℕ) (hq : 1 ≤ q) (hd : d ≤ N) :
     have h_turanEdges_d : (Finset.univ.filter (fun p : Fin d × Fin d => p.1 < p.2)).card = (turanGraph d q).edgeFinset.card + (Finset.univ.filter (fun p : Fin d × Fin d => p.1 < p.2 ∧ ¬(turanGraph d q).Adj p.1 p.2)).card := by
       rw [ show ( Finset.univ.filter fun p : Fin d × Fin d => p.1 < p.2 ) = ( Finset.univ.filter fun p : Fin d × Fin d => p.1 < p.2 ∧ ( turanGraph d q ).Adj p.1 p.2 ) ∪ ( Finset.univ.filter fun p : Fin d × Fin d => p.1 < p.2 ∧ ¬ ( turanGraph d q ).Adj p.1 p.2 ) from ?_, Finset.card_union_of_disjoint ];
       · refine' congr_arg₂ ( · + · ) _ rfl;
-        refine' Finset.card_bij ( fun p hp => s(p.1, p.2) ) _ _ _ <;> simp +decide;
+        refine' Finset.card_bij ( fun p hp => s(p.1, p.2) ) _ _ _ <;> simp +decide only [mem_edgeFinset, mem_filter, mem_univ, true_and, exists_prop, Prod.exists];
         · grind;
         · rintro ⟨ a, b ⟩ hab;
           cases lt_trichotomy a b <;> simp_all +decide [  ];
@@ -233,7 +234,7 @@ theorem induce_inter_neighbor_cliqueFree {V : Type} [Fintype V] [DecidableEq V]
     (J : SimpleGraph V) [DecidableRel J.Adj] (S : Finset V) (v : V) (hv : v ∈ S) (n : ℕ)
     (h : (J.induce (↑S : Set V)).CliqueFree (n + 1)) :
     (J.induce (↑(J.neighborFinset v ∩ S) : Set V)).CliqueFree n := by
-  intro t ht; contrapose! h; simp_all +decide [ SimpleGraph.CliqueFree ] ;
+  intro t ht; contrapose! h; simp_all +decide only [SetLike.coe_sort_coe] ;
   refine' ⟨ Insert.insert ⟨ v, hv ⟩ ( t.image fun x => ⟨ x.val, by aesop ⟩ ), _, _ ⟩ <;> simp_all +decide [ SimpleGraph.isNClique_iff ];
   · simp_all +decide [ Set.Pairwise, Function.Embedding.subtype ];
     grind +qlia;
@@ -250,7 +251,7 @@ theorem edgesIn_union_disjoint {V : Type} [Fintype V] [DecidableEq V]
   · congr with e;
     rcases e with ⟨ a, b ⟩ ; simp_all +decide [ Finset.disjoint_left ];
     grind;
-  · simp_all +decide [ Finset.disjoint_left ];
+  · simp_all +decide only [disjoint_union_left];
     rintro a ( ha | ha ) ha' x y rfl hx hy <;> have := ha.2 x <;> have := ha.2 y <;> aesop;
   · simp_all +decide [ Finset.disjoint_left ];
     exact fun a ha ha' => by rcases a with ⟨ x, y ⟩ ; aesop;
@@ -262,11 +263,12 @@ theorem sum_neighbor_inter_self {V : Type} [Fintype V] [DecidableEq V]
     (J : SimpleGraph V) [DecidableRel J.Adj] (B : Finset V) :
     ∑ u ∈ B, (J.neighborFinset u ∩ B).card = 2 * edgesIn J B := by
   convert! SimpleGraph.sum_degrees_eq_twice_card_edges ( J.induce B ) using 1;
-  · simp +decide [ SimpleGraph.degree, SimpleGraph.neighborFinset ];
+  · simp +decide only [SetLike.coe_sort_coe, univ_eq_attach];
     refine' Finset.sum_bij ( fun x hx => ⟨ x, hx ⟩ ) _ _ _ _ <;> try simp +decide;
     intro a ha; rw [ ← Finset.card_image_of_injective _ Subtype.coe_injective ] ; congr; ext; aesop;
   · convert! rfl;
-    refine' Finset.card_bij ( fun e he => Sym2.map ( fun x => x.val ) e ) _ _ _ <;> simp +decide [  ];
+    refine' Finset.card_bij ( fun e he => Sym2.map ( fun x => x.val ) e ) _ _ _ <;> simp +decide only [SetLike.coe_sort_coe, mem_edgeFinset, mem_filter, Sym2.mem_map, Subtype.exists,
+    exists_and_right, exists_eq_right, forall_exists_index, exists_prop, and_imp];
     · rintro ⟨ u, v ⟩ ; aesop;
     · rintro ⟨ x, y ⟩ hxy ⟨ u, v ⟩ huv h; simp_all +decide [  ] ;
     · rintro ⟨ u, v ⟩ huv hu; use Sym2.mk (⟨ u, hu u ( by simp +decide ) ⟩ : B) (⟨ v, hu v ( by simp +decide ) ⟩ : B) ; aesop;
@@ -349,9 +351,9 @@ theorem furedi_rel (q : ℕ) (hq : 1 ≤ q) {V : Type} [Fintype V] [DecidableEq 
       have h_edges : edgesIn J S = edgesIn J A + edgesIn J B + crossCount J A B := by
         convert! edgesIn_union_disjoint J ( Finset.disjoint_sdiff ) using 1;
         rw [ Finset.union_sdiff_of_subset ( Finset.inter_subset_right ) ];
-      have := turanEdges_partite_step q A.card S.card hq ( show A.card ≤ S.card from Finset.card_le_card fun x hx => by aesop ) ; norm_cast at * ; simp_all +decide [ Nat.mul_sub_left_distrib ] ;
+      have := turanEdges_partite_step q A.card S.card hq ( show A.card ≤ S.card from Finset.card_le_card fun x hx => by aesop ) ; norm_cast at * ; simp_all +decide only [Nat.succ_eq_add_one, ge_iff_le] ;
       rw [ Int.subNatNat_eq_coe ] at * ; omega;
-    · simp_all +decide [ Finset.not_nonempty_iff_eq_empty.mp hS ];
+    · simp_all +decide only [Nat.succ_eq_add_one];
       unfold monoIn edgesIn; norm_num;
       rw [ Finset.card_eq_zero.mpr ] <;> norm_num;
       · exact ⟨ fun _ => 0, by rintro x hx₁ hx₂ y z rfl; specialize hx₂ y; aesop ⟩;
@@ -468,7 +470,7 @@ theorem erdos_simonovits_stability
       linarith;
     obtain ⟨ c, hc ⟩ := hN₁ ( J.deleteEdges D ) ( le_trans ( le_max_left N₁ N₂ ) hN ) hD₃ ( by
       convert! hD₄.le using 1;
-      rw [ eq_sub_iff_add_eq ] ; norm_cast ; simp +decide [ SimpleGraph.edgeFinset_deleteEdges ] ;
+      rw [ eq_sub_iff_add_eq ] ; norm_cast ; simp +decide only [edgeFinset_deleteEdges] ;
       rw [ Finset.card_sdiff_add_card_eq_card hD₁ ] );
     refine' ⟨ c, le_trans _ ( le_trans ( add_le_add hc hD₂ ) _ ) ⟩;
     · refine' mod_cast le_trans ( Finset.card_le_card _ ) _;

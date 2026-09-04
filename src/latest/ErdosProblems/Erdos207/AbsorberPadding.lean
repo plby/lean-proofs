@@ -336,7 +336,7 @@ theorem highGirthCycleCover_hasLocalization_mapEmbedding
       (mapTripleSystem f (highGirthCycleCoverBank V hq)) := by
   let coreDecidableEq : DecidableEq (CycleCoverAbsorberVertex V) :=
     inferInstance
-  letI : LinearOrder (CycleCoverAbsorberVertex V) :=
+  let : LinearOrder (CycleCoverAbsorberVertex V) :=
     @Equiv.linearOrder _ _
       (Fintype.equivFin (CycleCoverAbsorberVertex V)) _ coreDecidableEq
   apply mappedSphereTransformBank_hasLocalization hq f
@@ -423,7 +423,7 @@ theorem exists_paddedEfficientAbsorber
       hA.cutoff_mono (by simp only [q']; omega)
     simpa only [q'] using hAq
   · intro v
-    letI : DecidableRel H.Adj := Classical.decRel H.Adj
+    let : DecidableRel H.Adj := Classical.decRel H.Adj
     have hsub : H.neighborFinset v ⊆
         (univ : Finset W).map f := by
       intro y hy

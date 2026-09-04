@@ -884,7 +884,7 @@ theorem pretentiousDistSq_dirichletTwist_archimedean
     simpa only [RCLike.star_def, inv_inv] using
       (MulChar.star_apply' (χ := χ⁻¹) (a := (p : ZMod q)))
   rw [hχ]
-  ring
+  ring_nf
 
 /-- The global MRT nonpretentiousness condition implies Archimedean nonpretentiousness for
 every bounded-conductor Dirichlet twist. -/

@@ -299,7 +299,7 @@ theorem internalEdgeGreedyKernel_supported_processInvariant_step
       · rw [dif_pos (by simpa only [C, e, huv, he] using hlarge)]
         by_cases hC : C.Nonempty
         · rw [dif_pos (by simpa only [C, e, huv, he] using hC)]
-          letI : Nonempty C := ⟨⟨hC.choose, hC.choose_spec⟩⟩
+          let : Nonempty C := ⟨⟨hC.choose, hC.choose_spec⟩⟩
           have huLaw : FiniteLaw.SupportedOn (fun _ : C => True)
               (FiniteLaw.uniform : FiniteLaw C) :=
             FiniteLaw.uniform_supported _ fun _ => trivial
@@ -418,7 +418,7 @@ theorem internalEdgeGreedyKernel_supported_notFailed_of_candidateFloor
     rw [dif_pos (by simpa only [C, e, huv, he] using hlarge)]
     have hC : C.Nonempty := card_pos.mp (hD.trans_le hlarge)
     rw [dif_pos (by simpa only [C, e, huv, he] using hC)]
-    letI : Nonempty C := ⟨⟨hC.choose, hC.choose_spec⟩⟩
+    let : Nonempty C := ⟨⟨hC.choose, hC.choose_spec⟩⟩
     have huLaw : FiniteLaw.SupportedOn (fun _ : C => True)
         (FiniteLaw.uniform : FiniteLaw C) :=
       FiniteLaw.uniform_supported _ fun _ => trivial
@@ -511,7 +511,7 @@ theorem internalEdgeGreedyKernel_monotone_singleInsertion
           by_cases hC : C.Nonempty
           ·
             rw [dif_pos (by simpa only [C, e, huv, he] using hC)]
-            letI : Nonempty C := ⟨⟨hC.choose, hC.choose_spec⟩⟩
+            let : Nonempty C := ⟨⟨hC.choose, hC.choose_spec⟩⟩
             have hu : FiniteLaw.SupportedOn (fun _ : C => True)
                 (FiniteLaw.uniform : FiniteLaw C) :=
               FiniteLaw.uniform_supported _ fun _ => trivial
@@ -702,7 +702,7 @@ theorem internalEdgeGreedyKernel_probability_new_triangle_le
         · rw [dif_pos (by simpa only [C, e, huv, he] using hlarge)]
           by_cases hC : C.Nonempty
           · rw [dif_pos (by simpa only [C, e, huv, he] using hC)]
-            letI : Nonempty C := ⟨⟨hC.choose, hC.choose_spec⟩⟩
+            let : Nonempty C := ⟨⟨hC.choose, hC.choose_spec⟩⟩
             rw [FiniteLaw.probability_map]
             by_cases hex : ∃ w : C,
                 T = internalEdgeTriangle e huv w.1

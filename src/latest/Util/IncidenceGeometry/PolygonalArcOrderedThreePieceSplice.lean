@@ -122,7 +122,7 @@ lemma PolygonalArcOrderedThreePieceSplice
         Disjoint Γ.relativeInterior
           ({Q.source, Q.target} : Set (EuclideanSpace ℝ (Fin 2))) := by
     intro Γ hΓ
-    simp [pieces] at hΓ
+    simp only [pieces, List.mem_cons, List.not_mem_nil, or_false] at hΓ
     rcases hΓ with rfl | rfl | rfl
     · rw [Set.disjoint_left]
       intro z hz hzendpoint

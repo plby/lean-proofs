@@ -17,7 +17,9 @@ theorem max_asf_3letters :
 theorem isFinASF3_complete (w : List (Fin 3)) (hw : FinAbelianSquareFree w) :
     isFinASF3 w = true := by
   unfold isFinASF3;
-  simp +zetaDelta at *;
+  simp +zetaDelta only [gt_iff_lt, Bool.if_false_left, Bool.not_eq_eq_eq_not, Bool.not_true, List.any_eq_false,
+    List.mem_range, List.any_eq_true, Bool.and_eq_true, decide_eq_false_iff_not, not_lt, not_exists, not_and,
+    Bool.not_eq_true] at *;
   intro i hi j hj hij; contrapose! hw;
   exact fun h => h i ( j + 1 ) ( Nat.succ_pos _ ) hij ( by simpa [ List.isPerm_iff ] using hw )
 
@@ -58,7 +60,7 @@ theorem no_inf_asf_three (f : ℕ → Fin 3) : ¬InfAbelianSquareFree f := by
     · refine' List.ext_get _ _ <;> simp +arith +decide;
       omega;
   convert isFinASF3_complete _ h8 using 1;
-  simp [infBlock];
+  simp only [false_iff, Bool.not_eq_true];
   exact max_asf_3letters _ _ _ _ _ _ _ _
 
 /-

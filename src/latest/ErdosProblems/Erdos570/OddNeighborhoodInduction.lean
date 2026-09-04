@@ -161,8 +161,8 @@ theorem odd_connected_middle_contradiction
     (hnoCycle : ¬ (cycleCode k).graph ⊑ C)
     (hnoH : ¬ H.graph ⊑ Cᶜ) : False := by
   classical
-  letI : DecidableRel H.graph.Adj := Classical.decRel _
-  letI : Nonempty (Fin H.vertexCount) := hconn.nonempty
+  let : DecidableRel H.graph.Adj := Classical.decRel _
+  let : Nonempty (Fin H.vertexCount) := hconn.nonempty
   obtain ⟨v, hvmin⟩ := H.graph.exists_minimal_degree_vertex
   let δ := H.graph.degree v
   have hδpos : 0 < δ := by

@@ -665,7 +665,7 @@ lemma tendsto_H_window (a b : ℝ) (ha : 0 < a) (hb : 0 < b) :
   convert (hEa.sub hEb).add (hLa.sub hLb) using 1
   · funext N
     abel
-  · abel
+  · abel_nf
 
 lemma tendsto_divisor_window (c : ℝ) (hc : 0 < c) {d : ℕ} (hd : 0 < d) :
     Tendsto
@@ -676,7 +676,7 @@ lemma tendsto_divisor_window (c : ℝ) (hc : 0 < c) {d : ℕ} (hd : 0 < d) :
   simp_rw [← floor_mul_div c, ← nat_div_eq_floor_mul] at h
   convert h using 1
   rw [Real.log_div hc.ne' hdR.ne', Real.log_div one_ne_zero hdR.ne', Real.log_one]
-  ring
+  ring_nf
 
 lemma floor_mul_ge (c : ℝ) (hc : 1 ≤ c) (N : ℕ) :
     N ≤ ⌊c * (N : ℝ)⌋₊ := by
@@ -1060,7 +1060,7 @@ theorem erdos_1001_sparse (A c : ℝ)
     convert tendsto_const_nhds.mul hsum using 1
     · dsimp [sparseLimit]
       field_simp [Real.pi_ne_zero]
-      ring
+      ring_nf
   rw [IsLimitValue]
   apply hscaled.congr'
   have hAN : ∀ᶠ N : ℕ in atTop, A < (N : ℝ) :=
@@ -1407,19 +1407,19 @@ noncomputable def sequence (Q : ℕ) : List (Fraction Q) := by
     (Function.onFun (fun x y : ℚ => x ≤ y) value)
 
 theorem mem_sequence {Q : ℕ} (p : Fraction Q) : p ∈ sequence Q := by
-  letI : Std.Antisymm (Function.onFun (fun x y : ℚ => x ≤ y) (@value Q)) :=
+  let : Std.Antisymm (Function.onFun (fun x y : ℚ => x ≤ y) (@value Q)) :=
     Function.Injective.antisymm_onFun (fun x y : ℚ => x ≤ y) (f := @value Q) value_injective
   rw [sequence, Finset.mem_sort]
   exact Finset.mem_univ p
 
 theorem sequence_pairwise {Q : ℕ} : (sequence Q).Pairwise (fun p q => p.value ≤ q.value) := by
-  letI : Std.Antisymm (Function.onFun (fun x y : ℚ => x ≤ y) (@value Q)) :=
+  let : Std.Antisymm (Function.onFun (fun x y : ℚ => x ≤ y) (@value Q)) :=
     Function.Injective.antisymm_onFun (fun x y : ℚ => x ≤ y) (f := @value Q) value_injective
   exact Finset.pairwise_sort (Finset.univ : Finset (Fraction Q))
     (Function.onFun (fun x y : ℚ => x ≤ y) value)
 
 theorem sequence_nodup {Q : ℕ} : (sequence Q).Nodup := by
-  letI : Std.Antisymm (Function.onFun (fun x y : ℚ => x ≤ y) (@value Q)) :=
+  let : Std.Antisymm (Function.onFun (fun x y : ℚ => x ≤ y) (@value Q)) :=
     Function.Injective.antisymm_onFun (fun x y : ℚ => x ≤ y) (f := @value Q) value_injective
   exact Finset.sort_nodup (Finset.univ : Finset (Fraction Q))
     (Function.onFun (fun x y : ℚ => x ≤ y) value)
@@ -2129,7 +2129,7 @@ theorem sum_consecutivePair_eq_sum_denominatorPairFinset
         F ((e.1.1.den, e.1.2.den))) =
       ∑ uv ∈ denominatorPairFinset Q,
         if Nat.Coprime uv.1 uv.2 then F uv else 0 := by
-  letI : Fintype {uv : ℕ × ℕ // uv ∈ primitiveDenominatorPairFinset Q} :=
+  let : Fintype {uv : ℕ × ℕ // uv ∈ primitiveDenominatorPairFinset Q} :=
     Fintype.ofFinset (primitiveDenominatorPairFinset Q) (by intro; rfl)
   let e₁ := consecutivePairEquivDenominatorPair Q
   let e₂ := denominatorPairEquivCoprimePoint Q
@@ -2944,9 +2944,18 @@ lemma weighted_coprime_sum_eq_moebius
       ext d
       have hgcd : Nat.gcd p.1 p.2 ≠ 0 := by
         simpa [Prod.ext_iff] using hnonzero p hp
-      simp [commonDivisors, Nat.mem_divisors, Nat.dvd_gcd_iff, hgcd]
-      intro hd1 hd2
-      exact ⟨p.1, p.2, hp, ⟨hd1, hd2⟩, fun h1 h2 => hgcd (by simp [h1, h2])⟩
+      simp only [Nat.mem_divisors, ne_eq, Nat.gcd_eq_zero_iff, not_and, Finset.mem_filter]
+      constructor
+      · rintro ⟨hdgcd, _⟩
+        have hd1 : d ∣ p.1 := dvd_trans hdgcd (Nat.gcd_dvd_left p.1 p.2)
+        have hd2 : d ∣ p.2 := dvd_trans hdgcd (Nat.gcd_dvd_right p.1 p.2)
+        refine ⟨?_, hd1, hd2⟩
+        exact Finset.mem_biUnion.mpr
+          ⟨p, hp, Nat.mem_divisors.mpr ⟨hdgcd, hgcd⟩⟩
+      · rintro ⟨_, hd1, hd2⟩
+        refine ⟨Nat.dvd_gcd hd1 hd2, ?_⟩
+        intro hp1 hp2
+        exact hgcd (Nat.gcd_eq_zero_iff.mpr ⟨hp1, hp2⟩)
     _ = ∑ d ∈ commonDivisors P, ∑ p ∈ P with d ∣ p.1 ∧ d ∣ p.2,
           (ArithmeticFunction.moebius d : ℝ) * w p := by
       simp_rw [Finset.sum_filter]
@@ -3222,7 +3231,7 @@ lemma normalized_fareyPair_mem_grid {Q d : ℕ} (hQ : 0 < Q) (hd : 0 < d)
       exact_mod_cast p.hdb
     · rw [hre, hre, ← add_div, one_lt_div hQposR]
       exact_mod_cast (show Q < d * p.a + d * p.b by simpa [mul_add] using p.hsum)
-  · letI : NeZero Q := ⟨hQ.ne'⟩
+  · let : NeZero Q := ⟨hQ.ne'⟩
     change (Q : ℝ)⁻¹ • fareyPairVec p.a p.b ∈
       (Q : ℝ)⁻¹ • Submodule.span ℤ (Set.range (Pi.basisFun ℝ (Fin 2)))
     rw [BoxIntegral.unitPartition.mem_smul_span_iff]
@@ -3301,7 +3310,7 @@ lemma scaledFareyPair_ext {Q d : ℕ} {p q : ScaledFareyPair Q d}
 lemma fareyGrid_floor_natAbs_cast {Q d : ℕ} (hQ : 0 < Q) (hd : 0 < d)
     (x : FareyGridPoint Q d) (i : Fin 2) :
     ((⌊(Q : ℝ) * x.1 i⌋.natAbs : ℕ) : ℝ) = (Q : ℝ) * x.1 i := by
-  letI : NeZero Q := ⟨hQ.ne'⟩
+  let : NeZero Q := ⟨hQ.ne'⟩
   have hdR : (d : ℝ) ≠ 0 := by exact_mod_cast hd.ne'
   have hxprop : (x : Fin 2 → ℝ) ∈ ((d : ℝ)⁻¹ • fareyTrianglePi) ∩
       (Q : ℝ)⁻¹ • Submodule.span ℤ (Set.range (Pi.basisFun ℝ (Fin 2))) := x.property
@@ -4083,8 +4092,8 @@ lemma latticeSection_finite
   have htarget :
       ((n : ℝ) • s ∩ (integerLattice : Set (I → ℝ))).Finite :=
     ZSpan.setFinite_inter _ (Bornology.IsBounded.smul₀ hs (n : ℝ))
-  letI := htarget.fintype
-  letI : Finite ↑(s ∩ (n : ℝ)⁻¹ • (integerLattice : Set (I → ℝ))) :=
+  let := htarget.fintype
+  let : Finite ↑(s ∩ (n : ℝ)⁻¹ • (integerLattice : Set (I → ℝ))) :=
     Finite.of_equiv _ e.symm
   exact Set.toFinite _
 
@@ -6739,10 +6748,10 @@ lemma isBounded_finTwoDomain {K B : ℕ} (k : Itinerary K B)
       1 < (finTwoToPair x).1 + (finTwoToPair x).2 at htri
   rw [mem_Icc]
   constructor <;> intro i
-  · fin_cases i <;> simp [finTwoToPair] at htri ⊢
+  · fin_cases i <;> simp only [Fin.mk_one, Fin.isValue, Pi.zero_apply, Fin.zero_eta] at htri ⊢
     · exact htri.1.le
     · exact htri.2.2.1.le
-  · fin_cases i <;> simp [finTwoToPair] at htri ⊢
+  · fin_cases i <;> simp only [Fin.mk_one, Fin.isValue, Pi.one_apply, Fin.zero_eta] at htri ⊢
     · exact htri.2.1
     · exact htri.2.2.2.1
 

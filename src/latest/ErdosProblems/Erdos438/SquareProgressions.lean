@@ -39,7 +39,7 @@ natural-number model. -/
 theorem rootMultiplicity_pos_of_isSquare_zmod {q c : ℕ} (hq : 0 < q)
     (hc : IsSquare (c : ZMod q)) :
     0 < rootMultiplicity q c := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   obtain ⟨z, hz⟩ := hc
   let u : Fin q := ⟨z.val, ZMod.val_lt z⟩
   apply rootMultiplicity_pos (u := u)
@@ -421,7 +421,7 @@ def cyclicPartner {r : ℕ} (hr : 0 < r) (κ w u : Fin r) : Fin r := by
 
 theorem cyclicPartner_involutive {r : ℕ} (hr : 0 < r) (κ w u : Fin r) :
     cyclicPartner hr κ w (cyclicPartner hr κ w u) = u := by
-  letI : NeZero r := ⟨hr.ne'⟩
+  let : NeZero r := ⟨hr.ne'⟩
   simp only [cyclicPartner]
   abel
 

@@ -979,7 +979,7 @@ lemma card_signedSliceDecode_fiber (I : Finset α) (plus minus : ℕ)
     rw [Nat.card_eq_fintype_card, Fintype.card_perm, Fintype.card_fin]
   have hspos : 0 < Nat.card (SignedSlicePoint I plus minus) := by
     rw [Nat.card_eq_fintype_card]
-    letI : Nonempty (SignedSlicePoint I plus minus) :=
+    let : Nonempty (SignedSlicePoint I plus minus) :=
       signedSlicePoint_nonempty hcount
     exact Fintype.card_pos
   change c = factor
@@ -1142,7 +1142,7 @@ lemma uniformExpectation_signedSliceDecode (I : Finset α) (plus minus : ℕ)
         (fun σ ↦ g (signedSliceDecode I plus minus hcount e σ)) =
       Concentration.uniformExpectation g := by
   classical
-  letI : Nonempty (SignedSlicePoint I plus minus) :=
+  let : Nonempty (SignedSlicePoint I plus minus) :=
     signedSlicePoint_nonempty hcount
   exact uniformExpectation_comp_of_card_fiber
     (signedSliceDecode I plus minus hcount e)
@@ -1158,7 +1158,7 @@ lemma uniformProbability_signedSliceDecode (I : Finset α) (plus minus : ℕ)
         (fun σ ↦ Q (signedSliceDecode I plus minus hcount e σ)) =
       Concentration.uniformProbability Q := by
   classical
-  letI : Nonempty (SignedSlicePoint I plus minus) :=
+  let : Nonempty (SignedSlicePoint I plus minus) :=
     signedSlicePoint_nonempty hcount
   exact uniformProbability_comp_of_card_fiber
     (signedSliceDecode I plus minus hcount e)
@@ -1177,7 +1177,7 @@ lemma uniformExpectation_productSignedSliceDecode [Fintype κ] [DecidableEq κ]
         (fun σ ↦ g (productSignedSliceDecode P plus minus hcount e σ)) =
       Concentration.uniformExpectation g := by
   classical
-  letI : Nonempty (ProductSignedSlicePoint P plus minus) :=
+  let : Nonempty (ProductSignedSlicePoint P plus minus) :=
     productSignedSlicePoint_nonempty P plus minus hcount
   exact uniformExpectation_comp_of_card_fiber
     (productSignedSliceDecode P plus minus hcount e)
@@ -1194,7 +1194,7 @@ lemma uniformProbability_productSignedSliceDecode [Fintype κ] [DecidableEq κ]
         (fun σ ↦ Q (productSignedSliceDecode P plus minus hcount e σ)) =
       Concentration.uniformProbability Q := by
   classical
-  letI : Nonempty (ProductSignedSlicePoint P plus minus) :=
+  let : Nonempty (ProductSignedSlicePoint P plus minus) :=
     productSignedSlicePoint_nonempty P plus minus hcount
   exact uniformProbability_comp_of_card_fiber
     (productSignedSliceDecode P plus minus hcount e)
@@ -2150,7 +2150,7 @@ lemma complexExpectation_productSlicePermutationDecode
     fun k ↦ by simpa using hell k
   let d := productSignedSliceDecode P ell (fun _ ↦ 0) hcount e
   have hdecode : (𝔼 σ, (g ∘ E) (d σ)) = 𝔼 S, (g ∘ E) S := by
-    letI : Nonempty (ProductSignedSlicePoint P ell (fun _ ↦ 0)) :=
+    let : Nonempty (ProductSignedSlicePoint P ell (fun _ ↦ 0)) :=
       productSignedSlicePoint_nonempty P ell (fun _ ↦ 0) hcount
     exact complexExpectation_comp_of_card_fiber d
       (productSignedSliceFiberFactor P ell (fun _ ↦ 0))
@@ -2180,7 +2180,7 @@ lemma exists_positive_common_fiber {A B : Type*}
   have hc : 0 < c := by
     dsimp only [c]
     rw [Nat.card_eq_fintype_card]
-    letI : Nonempty {a : A // d a = b₀} := ⟨⟨a₀, rfl⟩⟩
+    let : Nonempty {a : A // d a = b₀} := ⟨⟨a₀, rfl⟩⟩
     exact Fintype.card_pos
   exact ⟨c, hc, fun y ↦ heq y b₀⟩
 
@@ -2201,9 +2201,9 @@ lemma complexExpectation_productTwoStageSliceLeft
       a k + h k ≤ r k + ((P.fiber k).card - r k) :=
         Nat.add_le_add (ha k) (hh k)
       _ = (P.fiber k).card := Nat.add_sub_of_le (hr k)
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
-  letI : Nonempty (ProductSlicePoint P (fun k ↦ a k + h k)) :=
+  let : Nonempty (ProductSlicePoint P (fun k ↦ a k + h k)) :=
     productSlicePoint_nonempty P (fun k ↦ a k + h k) hell
   obtain ⟨c, hc, hcard⟩ := exists_positive_common_fiber
     (productTwoStageSliceLeft P r a b h)
@@ -2228,9 +2228,9 @@ lemma complexExpectation_productTwoStageSliceRight
       b k + h k ≤ r k + ((P.fiber k).card - r k) :=
         Nat.add_le_add (hb k) (hh k)
       _ = (P.fiber k).card := Nat.add_sub_of_le (hr k)
-  letI : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
+  let : Nonempty (ProductTwoStageSlicePoint P r a b h) :=
     productTwoStageSlicePoint_nonempty P r a b h hr ha hb hh
-  letI : Nonempty (ProductSlicePoint P (fun k ↦ b k + h k)) :=
+  let : Nonempty (ProductSlicePoint P (fun k ↦ b k + h k)) :=
     productSlicePoint_nonempty P (fun k ↦ b k + h k) hell
   obtain ⟨c, hc, hcard⟩ := exists_positive_common_fiber
     (productTwoStageSliceRight P r a b h)
@@ -2447,7 +2447,7 @@ lemma sum_degreeTwoInfluence_sq_le_ksss (δ : ℝ) (hn : 1 ≤ n) (hδ : 0 ≤ �
           (n : ℝ) ^ (1 : ℝ) * (n : ℝ) ^ ((1 + 6 * δ) * 2) := by
         rw [Real.rpow_one, pow_two, ← Real.rpow_add hnpos]
         congr 1
-        ring
+        ring_nf
       _ = (n : ℝ) ^ (1 + (1 + 6 * δ) * 2) :=
         (Real.rpow_add hnpos _ _).symm
       _ = (n : ℝ) ^ (3 + 12 * δ) := by
@@ -3682,7 +3682,7 @@ lemma FiniteUniformCoupling.left_uniform_variance {A B : Type*}
     (C : FiniteUniformCoupling A B) (g : A → ℝ) :
     letI : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
     uniformVariance (fun ω ↦ g (C.left ω)) = uniformVariance g := by
-  letI : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
+  let : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
   rw [uniformVariance, uniformVariance]
   have hmean : (𝔼 ω, g (C.left ω)) = 𝔼 a, g a :=
     C.left_uniform_real g
@@ -3700,7 +3700,7 @@ lemma FiniteUniformCoupling.right_uniform_variance {A B : Type*}
     (C : FiniteUniformCoupling A B) (g : B → ℝ) :
     letI : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
     uniformVariance (fun ω ↦ g (C.right ω)) = uniformVariance g := by
-  letI : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
+  let : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
   rw [uniformVariance, uniformVariance]
   have hmean : (𝔼 ω, g (C.right ω)) = 𝔼 b, g b :=
     C.right_uniform_real g
@@ -3744,7 +3744,7 @@ lemma FiniteUniformCoupling.expectation_abs_difference_le_of_isClose
     letI : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
     uniformExpectation (fun ω ↦ |X (C.left ω) - Y (C.right ω)|) ≤
       r + D * q := by
-  letI : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
+  let : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
   have hbad := C.bad_probability_le_of_isClose X Y r q hclose
   calc
     uniformExpectation (fun ω ↦ |X (C.left ω) - Y (C.right ω)|) ≤
@@ -3783,7 +3783,7 @@ lemma FiniteUniformCoupling.abs_expectation_sub_le_of_isClose
     (hclose : C.IsClose X Y r q)
     (hD : ∀ ω, |X (C.left ω) - Y (C.right ω)| ≤ D) :
     |uniformExpectation X - uniformExpectation Y| ≤ r + D * q := by
-  letI : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
+  let : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
   have hbad := C.bad_probability_le_of_isClose X Y r q hclose
   have hmarginal :
       uniformExpectation X - uniformExpectation Y =
@@ -3832,7 +3832,7 @@ lemma FiniteUniformCoupling.expectation_sq_difference_le_of_isClose
     (hD : ∀ ω, |X (C.left ω) - Y (C.right ω)| ≤ D) :
     uniformExpectation (fun ω ↦
       (X (C.left ω) - Y (C.right ω)) ^ 2) ≤ r ^ 2 + D ^ 2 * q := by
-  letI : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
+  let : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
   have hbad := C.bad_probability_le_of_isClose X Y r q hclose
   calc
     uniformExpectation (fun ω ↦
@@ -4019,7 +4019,7 @@ lemma FiniteUniformCoupling.norm_characteristic_sub_le_of_isClose
     (C : FiniteUniformCoupling A B) (X : A → ℝ) (Y : B → ℝ)
     (r q τ : ℝ) (hr : 0 ≤ r) (hclose : C.IsClose X Y r q) :
     ‖finiteCharacteristic X τ - finiteCharacteristic Y τ‖ ≤ |τ| * r + 2 * q := by
-  letI : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
+  let : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
   have hcoupling : IsUniformCoupling C.left C.right := C.isUniformCoupling
   rw [← finiteCharacteristic_comp_left_eq hcoupling X τ,
     ← finiteCharacteristic_comp_right_eq hcoupling Y τ]
@@ -4045,7 +4045,7 @@ lemma FiniteUniformCoupling.norm_characteristic_sub_le_of_isClose_range
     (hD : ∀ ω, |X (C.left ω) - Y (C.right ω)| ≤ D) :
     ‖finiteCharacteristic X τ - finiteCharacteristic Y τ‖ ≤
       |τ| * (r + D * q) := by
-  letI : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
+  let : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
   have hcoupling : IsUniformCoupling C.left C.right := C.isUniformCoupling
   rw [← finiteCharacteristic_comp_left_eq hcoupling X τ,
     ← finiteCharacteristic_comp_right_eq hcoupling Y τ]
@@ -4153,7 +4153,7 @@ lemma productSlice_variance_error_of_coupling
       (r ^ 2 + ksssQuadraticDifferenceBound n δ ^ 2 * q) +
         2 * √((2 * frobeniusSq F + vectorSqNorm f) *
           (r ^ 2 + ksssQuadraticDifferenceBound n δ ^ 2 * q)) + 2 * n := by
-  letI : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
+  let : Nonempty (Fin C.size) := Fin.pos_iff_nonempty.mp C.size_pos
   let X : ProductSlicePoint P ell → ℝ := productSliceQuadratic P ell f₀ f F
   let Y : Finset (Fin n) → ℝ := sliceQuadratic f₀ f F
   let D : ℝ := ksssQuadraticDifferenceBound n δ

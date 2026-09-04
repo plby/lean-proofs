@@ -546,7 +546,7 @@ def sumIndex (r : ℕ) (hr : 0 < r) (k u v : Fin r) : Fin r :=
 theorem sumIndex_cyclicPartner {r : ℕ} (hr : 0 < r)
     (k w u : Fin r) :
     sumIndex r hr k u (cyclicPartner hr k w u) = w := by
-  letI : NeZero r := ⟨hr.ne'⟩
+  let : NeZero r := ⟨hr.ne'⟩
   have hsum (v : Fin r) : sumIndex r hr k u v = u + v + k := by
     apply Fin.ext
     simp [sumIndex, Fin.add_def, Nat.add_mod,
@@ -681,7 +681,7 @@ def pairRootCount
 
 theorem cyclicPartner_sumIndex {r : ℕ} (hr : 0 < r)
     (κ u v : Fin r) : cyclicPartner hr κ (sumIndex r hr κ u v) u = v := by
-  letI : NeZero r := ⟨hr.ne'⟩
+  let : NeZero r := ⟨hr.ne'⟩
   have h : u + v + κ = sumIndex r hr κ u v := by
     apply Fin.ext
     simp [sumIndex, Fin.add_def, Nat.add_comm, Nat.add_left_comm]
@@ -1120,7 +1120,7 @@ theorem exists_square_pair_of_los
     (hD : (11 : ℝ) / 32 < (D.card : ℝ) / q) :
     ∃ a ∈ D, ∃ b ∈ D,
       IsSquare ((a.val : ZMod q) + (b.val : ZMod q)) := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let f : Fin q → ZMod q := fun a ↦ (a.val : ZMod q)
   let B : Finset (ZMod q) := D.image f
   have hf : Function.Injective f := by

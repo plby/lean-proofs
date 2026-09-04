@@ -117,13 +117,26 @@ lemma FaceDegreeLowerBound {V : Type*} [Fintype V] (G : SimpleGraph V)
     | ⟨n + 3, h⟩ => False.elim (by omega)
   have hf_inj : Function.Injective f := by
     intro i j hij
-    fin_cases i <;> fin_cases j <;> simp [f] at hij ⊢
-    · exact False.elim (no_fixed d0 (by simpa [d1] using hij.symm))
-    · exact False.elim (no_two_cycle d0 (by simpa [d1, d2] using hij.symm))
-    · exact False.elim (no_fixed d0 (by simpa [d1] using hij))
-    · exact False.elim (no_fixed d1 (by simpa [d2] using hij.symm))
-    · exact False.elim (no_two_cycle d0 (by simpa [d1, d2] using hij))
-    · exact False.elim (no_fixed d1 (by simpa [d2] using hij))
+    fin_cases i <;> fin_cases j <;> simp only [Fin.mk_one, Fin.isValue,
+      Fin.reduceFinMk, Fin.reduceEq, Fin.zero_eta, one_ne_zero, zero_ne_one] at hij ⊢
+    · exact False.elim (no_fixed d0 (by
+        have := congrArg Subtype.val hij.symm
+        simpa [f, d1] using this))
+    · exact False.elim (no_two_cycle d0 (by
+        have := congrArg Subtype.val hij.symm
+        simpa [f, d1, d2] using this))
+    · exact False.elim (no_fixed d0 (by
+        have := congrArg Subtype.val hij
+        simpa [f, d1] using this))
+    · exact False.elim (no_fixed d1 (by
+        have := congrArg Subtype.val hij.symm
+        simpa [f, d2] using this))
+    · exact False.elim (no_two_cycle d0 (by
+        have := congrArg Subtype.val hij
+        simpa [f, d1, d2] using this))
+    · exact False.elim (no_fixed d1 (by
+        have := congrArg Subtype.val hij
+        simpa [f, d2] using this))
   have hcard :
       3 ≤ Fintype.card {d : G.Dart // A.leftFace d = F} := by
     simpa using (Fintype.card_le_of_injective f hf_inj)

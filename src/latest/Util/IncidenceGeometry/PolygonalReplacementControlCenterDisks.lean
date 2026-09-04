@@ -68,12 +68,12 @@ lemma PolygonalReplacementControlCenterDisks {V : Type*} [Fintype V]
   have inf_pos :
       ∀ i,
         0 < Finset.univ.inf' (by
-          letI : Nonempty Index := ⟨i⟩
+          let : Nonempty Index := ⟨i⟩
           exact Finset.univ_nonempty)
           (fun j : Index =>
             if i = j then (1 : ℝ) else dist (center i) (center j) / 3) := by
     intro i
-    letI : Nonempty Index := ⟨i⟩
+    let : Nonempty Index := ⟨i⟩
     exact (Finset.lt_inf'_iff _).2 (by
       intro j _hj
       by_cases hij : i = j
@@ -92,19 +92,19 @@ lemma PolygonalReplacementControlCenterDisks {V : Type*} [Fintype V]
     dsimp [radius]
     have hhalf :
         (Finset.univ.inf' (by
-          letI : Nonempty Index := ⟨i⟩
+          let : Nonempty Index := ⟨i⟩
           exact Finset.univ_nonempty)
           (fun j : Index =>
             if i = j then (1 : ℝ) else dist (center i) (center j) / 3)) / 2 <
           Finset.univ.inf' (by
-            letI : Nonempty Index := ⟨i⟩
+            let : Nonempty Index := ⟨i⟩
             exact Finset.univ_nonempty)
             (fun j : Index =>
               if i = j then (1 : ℝ) else dist (center i) (center j) / 3) :=
       half_lt_self (inf_pos i)
     have hle :
         Finset.univ.inf' (by
-          letI : Nonempty Index := ⟨i⟩
+          let : Nonempty Index := ⟨i⟩
           exact Finset.univ_nonempty)
           (fun j : Index =>
             if i = j then (1 : ℝ) else dist (center i) (center j) / 3) ≤

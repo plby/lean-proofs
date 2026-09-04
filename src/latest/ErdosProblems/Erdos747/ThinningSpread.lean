@@ -124,7 +124,7 @@ lemma globalUpperWeightSpread_failure_probability_le_of_thinning
           2 * Real.exp
             (-((t : ℝ) *
               ((d : ℝ) / ((allEdges n).card - (M - t) : ℕ))) / 64) := by
-    letI : DecidablePred Bad := badDecidable
+    let : DecidablePred Bad := badDecidable
     apply thinning_bad_probability_le (allEdges n) M t htM hMtop
       Bad (UpperWeightBlockDiagnostic n d t) topError
       (2 * Real.exp
@@ -149,7 +149,7 @@ lemma globalUpperWeightSpread_failure_probability_le_of_thinning
           simp [hbad]
         unfold finsetProbability
         rw [hempty]
-        simp
+        simp only [Finset.card_empty, CharP.cast_eq_zero, Finset.card_powersetCard, zero_div, ge_iff_le]
         exact htop0
     · intro F hF
       let dClassical : DecidableEq (Edge n) :=
@@ -283,7 +283,7 @@ lemma globalLowerWeightSpread_failure_probability_le_of_thinning
           2 * Real.exp
             (-((t : ℝ) *
               ((d : ℝ) / ((allEdges n).card - (M - t) : ℕ))) / 64) := by
-    letI : DecidablePred Bad := badDecidable
+    let : DecidablePred Bad := badDecidable
     apply thinning_bad_probability_le (allEdges n) M t htM hMtop
       Bad (LowerWeightBlockDiagnostic n d t) topError
       (2 * Real.exp
@@ -308,7 +308,7 @@ lemma globalLowerWeightSpread_failure_probability_le_of_thinning
           simp [hbad]
         unfold finsetProbability
         rw [hempty]
-        simp
+        simp only [Finset.card_empty, CharP.cast_eq_zero, Finset.card_powersetCard, zero_div, ge_iff_le]
         exact htop0
     · intro F hF
       let dClassical : DecidableEq (Edge n) :=
@@ -390,7 +390,7 @@ lemma globalUpperWeightSpread_failure_probability_le_of_thinning_sharp
       @finsetProbability (Finset (Edge n))
           ((allEdges n).powersetCard M) Bad badDecidable ≤
         2 * bottomError := by
-    letI : DecidablePred Bad := badDecidable
+    let : DecidablePred Bad := badDecidable
     exact thinning_bad_probability_le_two_mul
       (allEdges n) M t htM hMtop Bad Diagnostic topError bottomError
         htop0 htopHalf (by positivity)
@@ -485,7 +485,7 @@ lemma globalLowerWeightSpread_failure_probability_le_of_thinning_sharp
       @finsetProbability (Finset (Edge n))
           ((allEdges n).powersetCard M) Bad badDecidable ≤
         2 * bottomError := by
-    letI : DecidablePred Bad := badDecidable
+    let : DecidablePred Bad := badDecidable
     exact thinning_bad_probability_le_two_mul
       (allEdges n) M t htM hMtop Bad Diagnostic topError bottomError
         htop0 htopHalf (by positivity)

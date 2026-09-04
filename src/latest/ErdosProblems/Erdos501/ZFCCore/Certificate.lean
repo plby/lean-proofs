@@ -63,18 +63,18 @@ independent set.  No forcing, no CH. -/
 theorem prof_imp_free {A : ℝ → Set ℝ} (cert : Certificate A) : Free A := by
   classical
   obtain ⟨Ω, mΩ, ν, hprob, Z, xf, Vf, hZmeets, hxmeas, hxdist, hVmeas, hVvol, hP4⟩ := cert
-  letI : MeasurableSpace Ω := mΩ
-  haveI : IsProbabilityMeasure ν := hprob
+  let : MeasurableSpace Ω := mΩ
+  have : IsProbabilityMeasure ν := hprob
   -- Discrete σ-algebra on ℤ.
-  letI : MeasurableSpace ℤ := ⊤
-  haveI : MeasurableSingletonClass ℤ := ⟨fun _ => trivial⟩
+  let : MeasurableSpace ℤ := ⊤
+  have : MeasurableSingletonClass ℤ := ⟨fun _ => trivial⟩
   -- Envelopes are measurable as sets of reals.
   have hVsec : ∀ (m : ℤ) (z : Ω), MeasurableSet (Vf m z) :=
     fun m z => (hVmeas m).preimage (measurable_id.prodMk measurable_const)
   -- The σ-finite base space `S = ℤ × Ω`, `μ = count × ν`.
   set μ : Measure (ℤ × Ω) := (Measure.count).prod ν with hμ_def
-  haveI : SigmaFinite (Measure.count : Measure ℤ) := inferInstance
-  haveI : SigmaFinite μ := by rw [hμ_def]; infer_instance
+  have : SigmaFinite (Measure.count : Measure ℤ) := inferInstance
+  have : SigmaFinite μ := by rw [hμ_def]; infer_instance
   -- The point map and the envelope-as-set map.
   set xS : ℤ × Ω → ℝ := fun t => xf t.1 t.2 with hxS_def
   set VS : ℤ × Ω → Set ℝ := fun s => Vf s.1 s.2 with hVS_def

@@ -104,7 +104,9 @@ lemma sum_cube_succ {n : ℕ} {M : Type*} [AddCommMonoid M]
       ∑ b : Bool, ∑ y : Fin n → Bool, f (Fin.cons b y) := by
   rw [← Finset.sum_product']
   refine Finset.sum_bij (fun x _ ↦ (x 0, x ∘ Fin.succ)) ?_ ?_ ?_ ?_ <;>
-    simp +decide
+    simp +decide only [Fintype.univ_bool, mem_product, mem_insert, mem_singleton,
+    Bool.eq_true_or_eq_false_self, mem_univ, and_self, exists_const, forall_const, Prod.forall,
+    Prod.mk.injEq, Bool.forall_bool, and_imp]
   · exact fun a₁ a₂ h₁ h₂ ↦ funext fun i ↦ by
       induction i using Fin.inductionOn <;> simp_all +decide [funext_iff]
   · exact ⟨fun b ↦ ⟨Fin.cons false b, rfl, rfl⟩,
@@ -476,7 +478,7 @@ lemma sum_normSq_add_signedSum : ∀ n (z : Fin n → ℂ) (w : ℂ),
         rw [Finset.sum_comm]
         apply Finset.sum_congr rfl
         intro ε _
-        rw [Finset.sum_eq_add false true] <;> simp <;> congr 1 <;> ring]
+        rw [Finset.sum_eq_add false true] <;> simp <;> congr 1 <;> ring_nf]
       have hpoint : ∀ x a : ℂ,
           Complex.normSq (x - a) + Complex.normSq (x + a) =
             2 * Complex.normSq x + 2 * Complex.normSq a := by
@@ -1026,11 +1028,11 @@ lemma exists_two_signs_cover_small {u v w : ℂ}
   · refine ⟨![true, true], ?_⟩
     convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring
   · refine ⟨![false, false], ?_⟩
-    convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring
+    convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring_nf
   · refine ⟨![true, false], ?_⟩
-    convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring
+    convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring_nf
   · refine ⟨![false, true], ?_⟩
-    convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring
+    convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring_nf
 
 lemma pair_center_product (u v : ℂ)
     (hu : Complex.normSq u = 1) (hv : Complex.normSq v = 1) :
@@ -1181,11 +1183,11 @@ lemma exists_two_signs_cover_large {u v w : ℂ}
   · refine ⟨![true, true], ?_⟩
     convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring
   · refine ⟨![false, false], ?_⟩
-    convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring
+    convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring_nf
   · refine ⟨![true, false], ?_⟩
-    convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring
+    convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring_nf
   · refine ⟨![false, true], ?_⟩
-    convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring
+    convert hnorm using 1 <;> simp [signedSum, sign, Fin.sum_univ_two] <;> ring_nf
 
 lemma exists_one_sign_normSq_le_add_one {u w : ℂ}
     (hu : Complex.normSq u = 1) :
@@ -1857,7 +1859,7 @@ lemma exists_arg_sorted_equiv {n : ℕ} (x : Fin n → ℂ) :
     congr 1
     apply Fin.ext
     exact congrArg (fun p : ℝ ×ₗ ℕ ↦ (ofLex p).2) hij
-  letI : LinearOrder (SortIndex n) := LinearOrder.lift' key hkey
+  let : LinearOrder (SortIndex n) := LinearOrder.lift' key hkey
   let ord : Fin n ≃o {i : SortIndex n //
       i ∈ (Finset.univ : Finset (SortIndex n))} :=
     (Finset.univ : Finset (SortIndex n)).orderIsoOfFin (k := n) (by
@@ -2043,7 +2045,7 @@ lemma exists_three_signs_cover_large {u v x w : ℂ}
       w + signedSum ![u, v, x] ![d 0, d 1, bx] =
         (w + (sign bx : ℂ) * x) + signedSum ![u, v] d := by
     simp [signedSum, Fin.sum_univ_succ, Fin.sum_univ_two, sign, mul_comm]
-    abel
+    abel_nf
   rw [hsum]
   exact hd
 
@@ -2862,7 +2864,7 @@ lemma pairBlockShuffle_right_left {k l : ℕ} (c : Fin k) :
       Fin.castAdd (l + l) (c.addNat k) := by
   unfold pairBlockShuffle
   simp only [Equiv.trans_apply]
-  simp [fourBlockSwapEquiv]
+  simp only [Fin.natAdd_eq_addNat, Equiv.sumCongr_apply]
   have hinput : (Fin.castAdd l c).addNat (k + l) =
       Fin.natAdd (k + l) (Fin.castAdd l c) := by
     apply Fin.ext
@@ -2883,7 +2885,7 @@ lemma pairBlockShuffle_right_right {k l : ℕ} (d : Fin l) :
       Fin.natAdd (k + k) (d.addNat l) := by
   unfold pairBlockShuffle
   simp only [Equiv.trans_apply]
-  simp [fourBlockSwapEquiv]
+  simp only [Fin.natAdd_eq_addNat, Equiv.sumCongr_apply]
   have hinput : (Fin.natAdd k d).addNat (k + l) =
       Fin.natAdd (k + l) (Fin.natAdd k d) := by
     apply Fin.ext

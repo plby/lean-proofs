@@ -320,7 +320,7 @@ private theorem card_path3_le_sq_add_exceptional
       Fintype.card V ^ 2 +
         ∑ pi ∈ generalExceptionalPairs G, pathMultiplicity G pi := by
   classical
-  letI : DecidableEq V := Classical.typeDecidableEq V
+  let : DecidableEq V := Classical.typeDecidableEq V
   let E := generalExceptionalPairs G
   have hsmall : ∀ pi ∈ (Finset.univ : Finset (EndpointPair V)) \ E,
       pathMultiplicity G pi ≤ 2 := by
@@ -459,7 +459,7 @@ private theorem extremalNumber_cycleGraph_six_le_weakThreshold (n : ℕ) :
         simp [hbot]
       omega
     simp [weakThreshold, hex0] at hmfail
-  letI : Nonempty (Fin m) := ⟨⟨0, hm⟩⟩
+  let : Nonempty (Fin m) := ⟨⟨0, hm⟩⟩
   let t : ℝ := (m : ℝ) ^ (1 / 3 : ℝ)
   have hmℝ : 0 < (m : ℝ) := by exact_mod_cast hm
   have ht : 0 < t := by positivity
@@ -476,7 +476,7 @@ private theorem extremalNumber_cycleGraph_six_le_weakThreshold (n : ℕ) :
         have hadj : (SimpleGraph.cycleGraph 6).Adj 0 1 := by decide
         rw [hbot] at hadj
         exact hadj)⟩
-  letI : DecidableRel G.Adj := inst
+  let : DecidableRel G.Adj := inst
   have hfree : (SimpleGraph.cycleGraph 6).Free G := hGext.prop
   have hedgeNat : G.edgeFinset.card =
       SimpleGraph.extremalNumber m (SimpleGraph.cycleGraph 6) := by

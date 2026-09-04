@@ -193,7 +193,7 @@ def edgeEndpointData (e : ProjectiveStrictEdge pick (normals B)) :
     EndpointData (otherNormals (normals B) e.1.1.1) e.1.1.2
       (normals B e.1.1.1) (edgeWitness B pick e)
       (edgeWitness_realizes B pick e) := by
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   exact endpointDataOfRestrictedInsertSpan
     (normals_ne_zero B e.1.1.1) (edgeWitness_realizes B pick e)
     (edgeWitness_on_owner B pick e)
@@ -222,7 +222,7 @@ def upperEdgeProjectiveEndpoint
 theorem lowerEdgeProjectiveEndpoint_on_owner
     (e : ProjectiveStrictEdge pick (normals B)) :
     Incident (lowerEdgeProjectiveEndpoint B ha hb hc hncol pick e) e.1.1.1.1 := by
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   let D := edgeEndpointData B ha hb hc hncol pick e
   apply (onProjectiveLine_mk_iff _ _
     (chartPoint_ne_zero (edgeWitness_realizes B pick e) _)).2
@@ -231,7 +231,7 @@ theorem lowerEdgeProjectiveEndpoint_on_owner
 theorem upperEdgeProjectiveEndpoint_on_owner
     (e : ProjectiveStrictEdge pick (normals B)) :
     Incident (upperEdgeProjectiveEndpoint B ha hb hc hncol pick e) e.1.1.1.1 := by
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   let D := edgeEndpointData B ha hb hc hncol pick e
   apply (onProjectiveLine_mk_iff _ _
     (chartPoint_ne_zero (edgeWitness_realizes B pick e) _)).2
@@ -242,7 +242,7 @@ owner with an active second configuration line. -/
 theorem lowerEdgeProjectiveEndpoint_mem_projectiveVertices
     (e : ProjectiveStrictEdge pick (normals B)) :
     lowerEdgeProjectiveEndpoint B ha hb hc hncol pick e ∈ projectiveVertices B := by
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   let D := edgeEndpointData B ha hb hc hncol pick e
   obtain ⟨j, hj⟩ := D.exists_lower_owner_incident
   let pair : DistinctPointPair B :=
@@ -264,7 +264,7 @@ owner with an active second configuration line. -/
 theorem upperEdgeProjectiveEndpoint_mem_projectiveVertices
     (e : ProjectiveStrictEdge pick (normals B)) :
     upperEdgeProjectiveEndpoint B ha hb hc hncol pick e ∈ projectiveVertices B := by
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   let D := edgeEndpointData B ha hb hc hncol pick e
   obtain ⟨j, hj⟩ := D.exists_upper_owner_incident
   let pair : DistinctPointPair B :=
@@ -310,7 +310,7 @@ theorem lowerEdgeVertex_ne_upperEdgeVertex
     lowerEdgeVertex B ha hb hc hncol pick e ≠
       upperEdgeVertex B ha hb hc hncol pick e := by
   intro h
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   let D := edgeEndpointData B ha hb hc hncol pick e
   have hp : lowerEdgeProjectiveEndpoint B ha hb hc hncol pick e ≠
       upperEdgeProjectiveEndpoint B ha hb hc hncol pick e := by
@@ -359,7 +359,7 @@ theorem no_vertex_in_open_edgeSector
               (otherNormals (normals B) e.1.1.1) e.1.1.2
               (normals B e.1.1.1) (edgeWitness B pick e) t)
             (chartPoint_ne_zero (edgeWitness_realizes B pick e) t) = v.1 := by
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   let D := edgeEndpointData B ha hb hc hncol pick e
   rintro ⟨t, hlt, htu, hproj⟩
   have hreal : Realizes (otherNormals (normals B) e.1.1.1) e.1.1.2
@@ -425,7 +425,7 @@ theorem no_vertex_between_edgeEndpoints_of_sameSign
         vertexCoord B v < vertexCoord B (lowerEdgeVertex B ha hb hc hncol pick e))) :
     0 < chartF B (lowerEdgeRaw B ha hb hc hncol pick e) *
         chartF B (upperEdgeRaw B ha hb hc hncol pick e) → False := by
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   let D := edgeEndpointData B ha hb hc hncol pick e
   let l := lowerEdgeParameter B ha hb hc hncol pick e
   let u := upperEdgeParameter B ha hb hc hncol pick e
@@ -601,7 +601,7 @@ theorem no_vertex_of_positive_edgeInterpolation
     (hcoeff : 0 <
       ((1 - r) * (chartF B (lowerEdgeRaw B ha hb hc hncol pick e))⁻¹) *
         (r * (chartF B (upperEdgeRaw B ha hb hc hncol pick e))⁻¹)) : False := by
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   let D := edgeEndpointData B ha hb hc hncol pick e
   let l := lowerEdgeParameter B ha hb hc hncol pick e
   let u := upperEdgeParameter B ha hb hc hncol pick e
@@ -802,7 +802,7 @@ theorem edgeEndpoints_cyclicConsecutive_of_oppositeSign
 theorem chartF_lowerEdgeRaw_ne_zero
     (e : ProjectiveStrictEdge pick (normals B)) :
     chartF B (lowerEdgeRaw B ha hb hc hncol pick e) ≠ 0 := by
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   let yl := lowerEdgeRaw B ha hb hc hncol pick e
   have hyl : yl ≠ 0 := chartPoint_ne_zero (edgeWitness_realizes B pick e)
     (lowerEdgeParameter B ha hb hc hncol pick e)
@@ -817,7 +817,7 @@ theorem chartF_lowerEdgeRaw_ne_zero
 theorem chartF_upperEdgeRaw_ne_zero
     (e : ProjectiveStrictEdge pick (normals B)) :
     chartF B (upperEdgeRaw B ha hb hc hncol pick e) ≠ 0 := by
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   let yu := upperEdgeRaw B ha hb hc hncol pick e
   have hyu : yu ≠ 0 := chartPoint_ne_zero (edgeWitness_realizes B pick e)
     (upperEdgeParameter B ha hb hc hncol pick e)
@@ -1100,7 +1100,7 @@ theorem chartRep_lowerEdgeVertex
     chartRep (chartF B) (lowerEdgeVertex B ha hb hc hncol pick e).1 =
       (chartF B (lowerEdgeRaw B ha hb hc hncol pick e))⁻¹ •
         lowerEdgeRaw B ha hb hc hncol pick e := by
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   apply chartRep_mk_eq_inv_smul
   exact chartF_lowerEdgeRaw_ne_zero B ha hb hc hncol pick e
 
@@ -1109,7 +1109,7 @@ theorem chartRep_upperEdgeVertex
     chartRep (chartF B) (upperEdgeVertex B ha hb hc hncol pick e).1 =
       (chartF B (upperEdgeRaw B ha hb hc hncol pick e))⁻¹ •
         upperEdgeRaw B ha hb hc hncol pick e := by
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   apply chartRep_mk_eq_inv_smul
   exact chartF_upperEdgeRaw_ne_zero B ha hb hc hncol pick e
 
@@ -1129,7 +1129,7 @@ theorem orient_endpointCombination_realizes
       (orientForProjectiveEdge B pick e
         (A • lowerEdgeRaw B ha hb hc hncol pick e +
           C • upperEdgeRaw B ha hb hc hncol pick e)) := by
-  letI := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
+  let := restrictedIndexNonempty B ha hb hc hncol e.1.1.1
   let D := edgeEndpointData B ha hb hc hncol pick e
   let l := lowerEdgeParameter B ha hb hc hncol pick e
   let u := upperEdgeParameter B ha hb hc hncol pick e

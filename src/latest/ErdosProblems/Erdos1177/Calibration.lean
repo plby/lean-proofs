@@ -93,7 +93,7 @@ theorem lift_card_le {α : Type u} (A : SimpleGraph α) (κ : Cardinal.{u})
           · intro f g hfg;
             ext q; replace hfg := congr_fun hfg q; simp_all +decide [ funext_iff, Quot.out ] ;
             grind +suggestions;
-          · simp +decide [ Cardinal.mk_pi, Cardinal.mk_prod ];
+          · simp +decide only [mk_pi, mk_prod, Cardinal.lift_id, prod_const];
             exact Cardinal.power_le_power_right ( by simpa using! mul_le_mul' hα hα |> le_trans <| by simp +decide [ Cardinal.mul_eq_self hκ ] );
         refine' le_trans h_seq_card ( Cardinal.power_le_power_left _ _ );
         · exact ne_of_gt ( lt_of_lt_of_le ( Cardinal.aleph0_pos ) hκ );
@@ -110,7 +110,7 @@ theorem lift_card_le {α : Type u} (A : SimpleGraph α) (κ : Cardinal.{u})
     exact h_node_card;
   refine' le_trans ( Cardinal.mk_prod _ _ |> le_of_eq ) _;
   refine' le_trans ( mul_le_mul' ( Cardinal.lift_le.mpr h_node_card ) ( Cardinal.lift_le.mpr hα ) ) _;
-  simp +decide [ Cardinal.power_self_eq hκ ];
+  simp +decide only [Cardinal.lift_id];
   rw [ mul_right_comm, Cardinal.mul_eq_max ];
   · simp +decide [ Cardinal.mul_eq_self hκ ];
     exact le_of_lt ( Cardinal.cantor _ );
@@ -161,7 +161,7 @@ theorem negativeCore_bounded_aleph1 (h3 : E3_EGH_P.{u}) (hE2 : E2_EH_oddgirth.{u
         convert! hAgirth ( 2 * hc_odd + 1 ) _ _ _ using 1;
         any_goals tauto;
         · rw [ hc_cycle ];
-        · rcases hc_odd with ( _ | _ | hc_odd ) <;> simp_all +arith +decide;
+        · rcases hc_odd with ( _ | _ | hc_odd ) <;> simp_all +arith +decide only [mul_zero, zero_add, Nat.not_ofNat_le_one];
           exact absurd hc_cycle ( by linarith [ c.hm ] );
         · grobner;
       grind +suggestions;

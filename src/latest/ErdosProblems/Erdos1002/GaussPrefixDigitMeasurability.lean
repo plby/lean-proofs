@@ -103,7 +103,7 @@ theorem measurableSet_gaussPrefixSelectedDigitEvent
     (b n : ℕ) (hn : n < b) (digits : Set ℕ) :
     @MeasurableSet ℝ (gaussPrefixMeasurableSpace b)
       (gaussPrefixSelectedDigitEvent b n hn digits) := by
-  letI : MeasurableSpace (PositiveDigitWord b) := ⊤
+  let : MeasurableSpace (PositiveDigitWord b) := ⊤
   rw [MeasurableSpace.measurableSet_comap]
   refine ⟨{w : PositiveDigitWord b |
       positiveDigitWordDigit n hn w ∈ digits}, ?_, rfl⟩

@@ -132,7 +132,7 @@ theorem two_cos_half_smul_unitDirection_midpoint (α δ : ℝ) :
   have hcos : Real.cos δ =
       2 * Real.cos (δ / 2) ^ 2 - 1 := by
     rw [show δ = 2 * (δ / 2) by ring, Real.cos_two_mul]
-    ring
+    ring_nf
   have hsin : Real.sin δ =
       2 * Real.sin (δ / 2) * Real.cos (δ / 2) := by
     calc

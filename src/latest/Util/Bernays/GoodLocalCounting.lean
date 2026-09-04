@@ -31,7 +31,7 @@ noncomputable def goodLocalConstant (d b : ℤ) (hD : b ^ 2 + 4 * d ≠ 0) : ℝ
     avoidFactor (discriminantLevel (b ^ 2 + 4 * d)).primeFactors
 
 theorem goodLocalConstant_pos {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) : 0 < goodLocalConstant d b hD.ne := by
-  letI : NeZero (discriminantLevel (b ^ 2 + 4 * d)) := ⟨(discriminantLevel_pos hD.ne).ne'⟩
+  let : NeZero (discriminantLevel (b ^ 2 + 4 * d)) := ⟨(discriminantLevel_pos hD.ne).ne'⟩
   exact mul_pos
     (div_pos (characterLocalConstant_pos _ (discriminantCharacter_ne_one hD)) (sqrt_pos.mpr pi_pos))
     (avoidFactor_pos _ (fun _ hp => (Nat.mem_primeFactors.mp hp).1))
@@ -47,7 +47,7 @@ theorem goodLocalValues_eq_avoid {d b : ℤ} (hD : b ^ 2 + 4 * d ≠ 0) (N : ℕ
 theorem goodLocalValues_card_limit {d b : ℤ} (hD : b ^ 2 + 4 * d < 0) :
     Tendsto (fun N : ℕ => ((goodLocalValues d b hD.ne N).card : ℝ) / scale N)
       atTop (𝓝 (goodLocalConstant d b hD.ne)) := by
-  letI : NeZero (discriminantLevel (b ^ 2 + 4 * d)) := ⟨(discriminantLevel_pos hD.ne).ne'⟩
+  let : NeZero (discriminantLevel (b ^ 2 + 4 * d)) := ⟨(discriminantLevel_pos hD.ne).ne'⟩
   simp_rw [goodLocalValues_eq_avoid]
   unfold goodLocalConstant
   apply localAvoidValues_card_limit _ (discriminantCharacter_sq _ hD.ne)

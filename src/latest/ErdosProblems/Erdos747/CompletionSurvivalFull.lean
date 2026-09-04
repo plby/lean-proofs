@@ -37,7 +37,7 @@ lemma powersetCard_completionThinning_lower_tail_full_le {n t : ℕ}
         (IidSample (H \ completionHeavyEdges H Z b) t))
         (iidFamilySurvivalCount (completionMatchings n H Z) t) -
       (completionWeight (H \ T) Z : ℝ)
-  letI : DecidablePred P := fun T ↦ Classical.propDecidable (P T)
+  let : DecidablePred P := fun T ↦ Classical.propDecidable (P T)
   have hsplit := powersetCard_probability_le_hit_add_restriction
     H (completionHeavyEdges H Z b)
       (by exact Finset.filter_subset _ _) t P htCard hH
@@ -87,7 +87,7 @@ lemma powersetCard_completionThinning_upper_tail_full_le {n t : ℕ}
     (completionWeight (H \ T) Z : ℝ) -
       finsetAverage (Finset.univ : Finset (IidSample s t))
         (iidFamilySurvivalCount (completionMatchings n H Z) t)
-  letI : DecidablePred P := fun T ↦ Classical.propDecidable (P T)
+  let : DecidablePred P := fun T ↦ Classical.propDecidable (P T)
   have hsplit := powersetCard_probability_le_hit_add_restriction
     H (completionHeavyEdges H Z b)
       (by exact Finset.filter_subset _ _) t P htCard hH

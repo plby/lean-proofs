@@ -285,7 +285,7 @@ public theorem AnalyticAt.monomial_mul_orderAt {f : 𝕜 → E} {c : 𝕜} (fa :
     simp only [← p.coeff_eq_zero, Ne] at s
     simp only [p.unshiftIter_coeff, ← FormalMultilinearSeries.coeff_eq_zero, s, Ne,
       add_lt_iff_neg_left, not_lt_zero, add_tsub_cancel_left, if_false, not_false_iff]
-  · intro m mp; simp [← FormalMultilinearSeries.coeff_eq_zero, p.unshiftIter_coeff]; intro mn
+  · intro m mp; simp only [ne_eq, Decidable.not_not]; intro mn
     generalize ha : m - n = a; have hm : m = n + a := by rw [← ha, add_comm, Nat.sub_add_cancel mn]
     simp only [hm, add_lt_add_iff_left, Nat.lt_find_iff, not_not] at mp
     specialize mp a (le_refl _); rwa [FormalMultilinearSeries.coeff_eq_zero]

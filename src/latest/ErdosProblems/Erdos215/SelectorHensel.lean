@@ -21,10 +21,10 @@ theorem exists_root_lift_succ (p a : ℕ) (hp : p.Prime) (hp2 : p ≠ 2)
     (ha : 0 < a) (lam : Root (p ^ a)) :
     ∃ mu : Root (p ^ (a + 1)),
       ZMod.castHom (Nat.pow_dvd_pow p (Nat.le_succ a)) (ZMod (p ^ a)) mu.1 = lam.1 := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   let q := p ^ a
   have hqpos : 0 < q := pow_pos hp.pos _
-  letI : NeZero q := ⟨hqpos.ne'⟩
+  let : NeZero q := ⟨hqpos.ne'⟩
   let x := ZMod.val lam.1
   have hxdiv : q ∣ 1 + x ^ 2 := by
     simpa only [q] using root_dvd_one_add_val_sq hqpos.ne' lam
@@ -145,7 +145,7 @@ def rootTower (p : ℕ) (hp : p.Prime) (hp2 : p ≠ 2) (base : Root p) :
 each positive prime power. -/
 theorem root_primePower_nonempty_of_mod_four_eq_one (p a : ℕ) (hp : p.Prime)
     (hp1 : p % 4 = 1) (ha : 0 < a) : Nonempty (Root (p ^ a)) := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   have hp2 : p ≠ 2 := by omega
   have hn3 : p % 4 ≠ 3 := by omega
   rcases ZMod.exists_sq_eq_neg_one_iff.mpr hn3 with ⟨x, hx⟩

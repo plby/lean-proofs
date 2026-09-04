@@ -271,7 +271,7 @@ private theorem boxHeight_le_archimedean_max {n : ℕ} (hn : 0 < n)
         (weightedForm a (maximalFormIndex a z PadicSubspace.Place23.infinite)
           (PadicSubspace.intCastVec z)) := by
   classical
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
+  let : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
   have hne : (Finset.univ : Finset (Fin n)).Nonempty := by
     exact Finset.univ_nonempty
   obtain ⟨i, _hi, himax⟩ :=
@@ -289,7 +289,7 @@ private theorem one_le_two_adic_max {n : ℕ} (hn : 0 < n)
     1 ≤ PadicSubspace.placeNorm PadicSubspace.Place23.two
       (weightedForm a (maximalFormIndex a z PadicSubspace.Place23.two)
         (PadicSubspace.intCastVec z)) := by
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
+  let : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
   obtain ⟨i, hi⟩ := hz.exists_not_dvd (p := 2) (by norm_num)
   have hnorm : padicNorm 2 (z i : ℚ) = 1 :=
     (padicNorm.int_eq_one_iff (p := 2) (z i)).mpr hi
@@ -302,7 +302,7 @@ private theorem one_le_three_adic_max {n : ℕ} (hn : 0 < n)
     1 ≤ PadicSubspace.placeNorm PadicSubspace.Place23.three
       (weightedForm a (maximalFormIndex a z PadicSubspace.Place23.three)
         (PadicSubspace.intCastVec z)) := by
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
+  let : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
   obtain ⟨i, hi⟩ := hz.exists_not_dvd (p := 3) (by norm_num)
   have hnorm : padicNorm 3 (z i : ℚ) = 1 :=
     (padicNorm.int_eq_one_iff (p := 3) (z i)).mpr hi

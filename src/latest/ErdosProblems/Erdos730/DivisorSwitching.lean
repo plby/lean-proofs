@@ -1383,7 +1383,7 @@ theorem tendsto_topAnalyticMajorant (ε : ℝ) :
   · funext X
     unfold topAnalyticMajorant
     ring
-  · ring
+  · ring_nf
 
 /-- Finite normalized top count bounded by the analytic majorant. -/
 theorem normalizedTopPrimeWitnessCount_le_majorant

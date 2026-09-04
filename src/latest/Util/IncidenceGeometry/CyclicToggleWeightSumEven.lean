@@ -15,7 +15,7 @@ lemma CyclicToggleWeightSumEven {α : Type*} [Fintype α]
     intro p
     by_cases hp : inside p
     · by_cases hq : inside (σ p)
-      · simp [f, hp, hq]
+      · simp only [f, hp, hq, if_true, Nat.cast_zero]
         decide
       · simp [f, hp, hq]
     · by_cases hq : inside (σ p)

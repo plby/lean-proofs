@@ -267,7 +267,7 @@ theorem exists_of_exterior_nonempty [Fintype V] [DecidableEq V]
     [DecidableRel G.Adj] (hE : C.carrierᶜ.Nonempty) :
     Nonempty (LongestExteriorPath C) := by
   let x : ↑(C.carrierᶜ) := ⟨hE.choose, hE.choose_spec⟩
-  letI : Nonempty ↑(C.carrierᶜ) := ⟨x⟩
+  let : Nonempty ↑(C.carrierᶜ) := ⟨x⟩
   obtain ⟨u, v, p, hp, hmax⟩ :=
     SimpleGraph.Walk.exists_isPath_forall_isPath_length_le_length (exteriorGraph C)
   exact ⟨⟨u, v, p, hp, fun q hq ↦ hmax _ _ q hq⟩⟩

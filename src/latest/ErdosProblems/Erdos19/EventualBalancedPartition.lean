@@ -21,7 +21,7 @@ theorem eventually_exists_balanced_partition (k C d : ℕ) (hk : 0 < k)
   intro n hn I _ hI S
   have hnpos : 0 < n := by omega
   have hnR : (0 : ℝ) < n := by exact_mod_cast hnpos
-  letI : Nonempty (Fin k) := ⟨⟨0, hk⟩⟩
+  let : Nonempty (Fin k) := ⟨⟨0, hk⟩⟩
   have hIReal : (Fintype.card I : ℝ) ≤ C * (n : ℝ) ^ d := by exact_mod_cast hI
   have hexp : -(eta * (n : ℝ)) ^ 2 / (2 * n) = -c * n := by
     dsimp only [c]

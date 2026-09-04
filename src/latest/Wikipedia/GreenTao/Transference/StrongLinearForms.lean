@@ -350,7 +350,7 @@ theorem mean_cfzCenteredProduct_eq_sum_deviations
         (mean (linearFormsProduct k N ν (cfzExponentOfCube e)) - 1) := by
   let j : Fin k := ⟨0, hk⟩
   let ω : DeletedCube k j := fun _ => false
-  letI : Nonempty (CFZFormIndex k) := ⟨⟨j, ω⟩⟩
+  let : Nonempty (CFZFormIndex k) := ⟨⟨j, ω⟩⟩
   change mean (fun x =>
     centeredProduct (fun q => cfzFactorFamily k N ν q x)) = _
   rw [mean_centeredProduct_eq_sum_deviations]
@@ -376,7 +376,7 @@ theorem HasLinearFormsCondition.abs_mean_cfzCenteredProduct_le
       (2 : ℝ) ^ Fintype.card (CFZFormIndex k) * η := by
   let j : Fin k := ⟨0, hk⟩
   let ω : DeletedCube k j := fun _ => false
-  letI : Nonempty (CFZFormIndex k) := ⟨⟨j, ω⟩⟩
+  let : Nonempty (CFZFormIndex k) := ⟨⟨j, ω⟩⟩
   change |mean (fun x =>
     centeredProduct (fun q => cfzFactorFamily k N ν q x))| ≤ _
   exact abs_mean_centeredProduct_le_two_pow

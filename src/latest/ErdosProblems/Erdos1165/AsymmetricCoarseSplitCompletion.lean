@@ -39,9 +39,9 @@ structure CoarseSplitCompletionData (start n splitLevel : ℕ) where
 noncomputable instance coarseSplitCompletionDataCountable
     (start n splitLevel : ℕ) :
     Countable (CoarseSplitCompletionData start n splitLevel) := by
-  letI : Countable (PrefixXProfileScanSignatureData n splitLevel) :=
+  let : Countable (PrefixXProfileScanSignatureData n splitLevel) :=
     inferInstance
-  letI : Countable SingleScanSignatureData := inferInstance
+  let : Countable SingleScanSignatureData := inferInstance
   exact (show Function.Injective
       (fun data : CoarseSplitCompletionData start n splitLevel ↦
         (⟨data.returnCount,

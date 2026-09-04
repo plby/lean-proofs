@@ -114,7 +114,7 @@ theorem obligatory_disjUnion {F G : FTS} (ihF : FTS.Obligatory.{u} F)
     · intro e he
       have h_image : (fun x => if hx : x ∈ Bad then emb ⟨x, hx⟩ else g0 x) '' (e : Set G.V) = g0 '' (e : Set G.V) := by
         ext x
-        simp;
+        simp only [Set.mem_image, SetLike.mem_coe];
         constructor <;> rintro ⟨ y, hy, rfl ⟩ <;> use y <;> simp_all +decide ;
         · exact fun h => hg0e e he |>.2 hy <| by obtain ⟨ x, hx ⟩ := hBad y |>.2 h; aesop;
         · exact fun h => False.elim <| hg0e e he |>.2 hy <| by aesop;

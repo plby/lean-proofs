@@ -42,7 +42,7 @@ theorem eventually_small_pair_volume_supported (h : ℕ) (hh : 1 ≤ h) :
   obtain ⟨N, hN⟩ := eventually_small_pair_volume_min_three_fintype.{u} h hh
   refine ⟨N, ?_⟩
   intro X _ U hn H hlinear hsupport hmin hvolume
-  letI : Fintype U := Fintype.ofFinite U
+  let : Fintype U := Fintype.ofFinite U
   let J := H.onVertexSet U
   have hcard : Fintype.card U = U.ncard := Set.fintypeCard_eq_ncard _
   have himage : J.vertexImage (Subtype.val : U → X) = H :=

@@ -26,7 +26,7 @@ theorem eventually_sample_linear_and_quadratic_families
   intro n hn V I J _ _ _ _ hI hJ U A B hAU hBU hA hB
   have hnpos : 0 < n := by omega
   have hnR : (0 : ℝ) < n := by exact_mod_cast hnpos
-  letI : Nonempty (Fin k) := ⟨⟨0, hk⟩⟩
+  let : Nonempty (Fin k) := ⟨⟨0, hk⟩⟩
   let S : I ⊕ J → Finset V := Sum.elim A B
   let t : I ⊕ J → ℝ := Sum.elim (fun _ ↦ eta * n) (fun _ ↦ eta * (n : ℝ) ^ 2)
   let L : I ⊕ J → ℝ := Sum.elim (fun _ ↦ n) (fun _ ↦ (n : ℝ) ^ 2)

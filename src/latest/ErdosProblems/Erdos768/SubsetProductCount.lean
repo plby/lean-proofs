@@ -60,7 +60,7 @@ theorem subset_product_count :
         ring;
       · simp +contextual [ PMF.uniformOfFinset_apply ];
     simp +decide only [hμ, mul_comm];
-    simp +decide [ Finset.prod_div_distrib, Finset.mul_sum, Finset.sum_ite ];
+    simp +decide only [ne_eq, prod_div_distrib, mul_ite, mul_one, mul_zero];
     rw [ Finset.sum_congr rfl fun x hx => by rw [ mul_div_cancel₀ _ <| Finset.prod_ne_zero_iff.mpr fun _ _ => Nat.cast_ne_zero.mpr <| ne_of_gt <| Finset.card_pos.mpr <| hSne _ ] ] ; norm_cast;
     rw [ show ( Finset.filter ( fun s : Fin m → ℕ => ∀ J : Finset ( Fin m ), J.Nonempty → ¬∑ j ∈ J, f j ( s j ) = 0 ) ( Fintype.piFinset S ) ) = Finset.biUnion ( Finset.filter ( fun ω : Fin m → G => ∀ J : Finset ( Fin m ), J.Nonempty → ¬∑ j ∈ J, ω j = 0 ) ( Finset.univ : Finset ( Fin m → G ) ) ) ( fun ω => Finset.filter ( fun s : Fin m → ℕ => ∀ j, f j ( s j ) = ω j ) ( Fintype.piFinset S ) ) from ?_, Finset.card_biUnion ];
     · refine' Finset.sum_congr rfl fun x hx => _;
@@ -75,7 +75,7 @@ theorem subset_product_count :
   · intro j χ hχ;
     -- By definition of $μ$, we know that
     have hμ : ∑ g : G, (PMF.map (f j) (PMF.uniformOfFinset (S j) (hSne j)) g).toReal * χ g = (∑ q ∈ S j, χ (f j q)) / (S j).card := by
-      simp +decide [ PMF.map_apply, Finset.sum_div _ _ _ ];
+      simp +decide only [PMF.map_apply, PMF.uniformOfFinset_apply];
       rw [ ← Finset.sum_subset ( Finset.subset_univ ( Finset.image ( f j ) ( S j ) ) ) ];
       · rw [ Finset.sum_image' ];
         intro i hi; rw [ tsum_eq_sum ];
@@ -116,7 +116,7 @@ theorem subset_product_count_fintype :
   intro G _ _ ι _ _ S f ρ hSne hFourier hmρ hΛ;
   specialize h G ( Fintype.card ι ) ( fun k => S ( Fintype.equivFin ι |>.symm k ) ) ( fun k => f ( Fintype.equivFin ι |>.symm k ) ) ρ;
   convert! h ( fun j => hSne _ ) ( fun j χ hχ => hFourier _ _ hχ ) hmρ hΛ using 1;
-  · refine' congr_arg _ ( Finset.card_bij ( fun s hs => fun k => s ( Fintype.equivFin ι |>.symm k ) ) _ _ _ ) <;> simp +decide [ Fintype.mem_piFinset ];
+  · refine' congr_arg _ ( Finset.card_bij ( fun s hs => fun k => s ( Fintype.equivFin ι |>.symm k ) ) _ _ _ ) <;> simp +decide only [ne_eq, mem_filter, Fintype.mem_piFinset, and_imp, exists_prop];
     · intro a ha₁ ha₂; refine' ⟨ fun j => ha₁ _, fun J hJ => _ ⟩ ; contrapose! ha₂; simp_all +decide ;
       use Finset.image ( fun x => ( Fintype.equivFin ι ).symm x ) J; aesop;
     · exact fun a₁ ha₁ ha₂ a₂ ha₃ ha₄ h => funext fun x => by simpa using! congr_fun h ( Fintype.equivFin ι x ) ;

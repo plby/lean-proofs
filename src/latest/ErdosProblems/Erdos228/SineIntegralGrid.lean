@@ -194,7 +194,7 @@ theorem four_thirds_lt_sineIntegral_two_pi :
       have hadd := intervalIntegral.integral_add_adjacent_intervals hsinc
         (Real.continuous_sinc.intervalIntegrable Real.pi (2 * Real.pi))
       unfold Erdos228.Kernel.sineIntegral
-      convert hadd using 1 <;> ring
+      convert hadd using 1 <;> ring_nf
 
 private def evenPoint (k : ℕ) : ℝ := (k : ℝ) * (2 * Real.pi)
 
@@ -296,10 +296,10 @@ private lemma even_full_block_nonneg {k : ℕ} (hk : 0 < k) :
   have hi1 : (∫ x in evenPoint k..evenPoint k + Real.pi, Real.sinc x) =
       ∫ x in (0 : ℝ)..Real.pi, Real.sinc (evenPoint k + x) := by
     rw [add_comm (evenPoint k)]
-    convert hshift1.symm using 1 <;> ring
+    convert hshift1.symm using 1 <;> ring_nf
   have hi2 : (∫ x in evenPoint k + Real.pi..evenPoint (k + 1), Real.sinc x) =
       ∫ x in (0 : ℝ)..Real.pi, Real.sinc (evenPoint k + Real.pi + x) := by
-    convert hshift2.symm using 1 <;> simp [evenPoint] <;> ring
+    convert hshift2.symm using 1 <;> simp [evenPoint] <;> ring_nf
   rw [← hadd]
   rw [hi1, hi2]
   have ha : IntervalIntegrable (fun x : ℝ => Real.sinc (evenPoint k + x))
@@ -337,12 +337,12 @@ private lemma odd_full_block_nonpos (k : ℕ) :
   have hadd := intervalIntegral.integral_add_adjacent_intervals hs hs'
   have hi1 : (∫ x in evenPoint k + Real.pi..evenPoint (k + 1), Real.sinc x) =
       ∫ x in (0 : ℝ)..Real.pi, Real.sinc (evenPoint k + Real.pi + x) := by
-    convert hshift1.symm using 1 <;> simp [evenPoint] <;> ring
+    convert hshift1.symm using 1 <;> simp [evenPoint] <;> ring_nf
   have hi2 : (∫ x in evenPoint (k + 1)..evenPoint (k + 1) + Real.pi,
       Real.sinc x) =
       ∫ x in (0 : ℝ)..Real.pi, Real.sinc (evenPoint (k + 1) + x) := by
     rw [add_comm (evenPoint (k + 1))]
-    convert hshift2.symm using 1 <;> ring
+    convert hshift2.symm using 1 <;> ring_nf
   rw [← hadd]
   rw [hi1, hi2]
   have ha : IntervalIntegrable
@@ -633,7 +633,7 @@ theorem integral_scaled_sinc_eq_sineIntegral_sub (n : ℕ) (hn : 0 < n)
         congr 1
         funext x
         dsimp [c]
-        ring]
+        ring_nf]
   rw [hscale]
   have hu : c * u + -c * theta = c * (u - theta) := by ring
   have hv : c * v + -c * theta = c * (v - theta) := by ring

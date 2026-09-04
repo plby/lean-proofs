@@ -153,7 +153,7 @@ theorem
         (annularUpperRetainedTimes p
           (annularLastNonzeroIndex (mode p.1) (hmode p.1)))
         Delta := by
-  letI : DecidableEq (AnnularGridIndex grid) :=
+  let : DecidableEq (AnnularGridIndex grid) :=
     fun a b ↦ gaussPrefixDelayedCarrierPropDecidable (a = b)
   let z₀ := annularUpperRetainedCenterOccurrence p
   have hcenter :

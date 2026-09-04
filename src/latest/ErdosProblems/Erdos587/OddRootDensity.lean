@@ -14,7 +14,7 @@ namespace Erdos587
 
 lemma exists_nat_affine_shift_of_coprime {q D R : ℕ} (hq : 0 < q) (hR : R.Coprime q) :
     ∃ M : ℕ, D ≡ R * M [MOD q] := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let u := ZMod.unitOfCoprime R hR
   let z : ZMod q := (u⁻¹ : (ZMod q)ˣ) * (D : ZMod q)
   have hRcast : (R : ZMod q) = (u : ZMod q) := (ZMod.coe_unitOfCoprime R hR).symm
@@ -106,7 +106,7 @@ theorem exists_uniform_odd_root_density :
   obtain ⟨K, hK, C, hC, O, hO, hmean⟩ := exists_uniform_unitSquareExpansion_density
   refine ⟨K, hK, C, hC, O, hO, ?_⟩
   intro q D R H hq hodd hR hH hroot
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   apply (hmean q.primeFactors (fun p hp => Nat.prime_of_mem_primeFactors hp)
     hodd D R H hR hH hroot).trans
   exact Finset.sum_le_sum (fun i hi => unitSquareExpansionValue_le_squareRootCount_odd hodd _)

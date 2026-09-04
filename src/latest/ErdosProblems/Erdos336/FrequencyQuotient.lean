@@ -29,7 +29,7 @@ theorem exists_frequency_quotient (k : ZMod N) (hk : k ≠ 0) :
     dsimp [g]
     exact Nat.gcd_le_left _ hNpos
   have hm : 0 < m := Nat.div_pos hgle hgpos
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   have hdiv : m ∣ N := by
     dsimp [m]
     exact Nat.div_dvd_of_dvd (Nat.gcd_dvd_left N k.val)

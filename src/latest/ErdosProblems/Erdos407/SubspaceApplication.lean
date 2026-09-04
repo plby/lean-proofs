@@ -414,7 +414,7 @@ private theorem finiteLinearCover_of_threePlaceCover
   refine ⟨B, hBne, ?_⟩
   intro x hx
   let u : ι → ℚ := fun i => (((x i : U23.group) : ℚˣ) : ℚ)
-  haveI : Nonempty ι := Fintype.card_pos_iff.mp (by omega)
+  have : Nonempty ι := Fintype.card_pos_iff.mp (by omega)
   have hu : u ≠ 0 := by
     intro hzero
     obtain ⟨i⟩ := ‹Nonempty ι›

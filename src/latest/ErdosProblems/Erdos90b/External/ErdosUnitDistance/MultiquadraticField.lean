@@ -35,7 +35,8 @@ Sketch: `IntermediateField.finiteDimensional_adjoin`; each generator is
 integral over ℚ (root of `X² + 1` resp. `X² - q3 j`). -/
 theorem Kf_finiteDimensional (g : ℕ) : FiniteDimensional ℚ (Kf g) := by
   refine' IntermediateField.finiteDimensional_adjoin _
-  simp +zetaDelta at *
+  simp +zetaDelta only [Set.mem_insert_iff, Set.mem_image, Set.mem_Iio, forall_eq_or_imp, forall_exists_index,
+    and_imp, forall_apply_eq_imp_iff₂] at *
   refine ⟨?_, ?_⟩
   · exact Complex.isIntegral_rat_I
   · intro a ha
@@ -68,7 +69,7 @@ theorem q3_not_squareClass (n : ℕ) (T : Finset ℕ) (hT : ↑T ⊆ Set.Iio n)
   classical
   intro h
   have hp : (q3 n).Prime := (q3_spec n).1
-  haveI : Fact (q3 n).Prime := ⟨hp⟩
+  have : Fact (q3 n).Prime := ⟨hp⟩
   have hqn0 : (q3 n : ℚ) ≠ 0 := by exact_mod_cast hp.ne_zero
   have hs0 : s ≠ 0 := by
     intro hs
@@ -80,7 +81,7 @@ theorem q3_not_squareClass (n : ℕ) (T : Finset ℕ) (hT : ↑T ⊆ Set.Iio n)
     have hjn : j < n := hT (by simpa using hj)
     have hneq : q3 n ≠ q3 j := by
       exact ne_of_gt (q3_strictMono hjn)
-    haveI : Fact (q3 j).Prime := ⟨(q3_spec j).1⟩
+    have : Fact (q3 j).Prime := ⟨(q3_spec j).1⟩
     rw [padicValRat.of_nat, padicValNat_primes hneq]
     norm_num
   have hprod0 : (∏ j ∈ T, (q3 j : ℚ)) ≠ 0 := by
@@ -103,7 +104,7 @@ theorem q3_not_squareClass (n : ℕ) (T : Finset ℕ) (hT : ↑T ⊆ Set.Iio n)
       have ha_lt : a < n := hU (Finset.mem_insert_self a U)
       have hneq : q3 n ≠ q3 a := by
         exact ne_of_gt (q3_strictMono ha_lt)
-      haveI : Fact (q3 a).Prime := ⟨(q3_spec a).1⟩
+      have : Fact (q3 a).Prime := ⟨(q3_spec a).1⟩
       have hvala : padicValRat (q3 n) (q3 a : ℚ) = 0 := by
         rw [padicValRat.of_nat, padicValNat_primes hneq]
         norm_num
@@ -164,7 +165,7 @@ private theorem finrank_sup_adjoin_simple_eq_mul_two
     Module.finrank ℚ ((K ⊔ IntermediateField.adjoin ℚ ({x} : Set E)) :
       IntermediateField ℚ E) =
       Module.finrank ℚ K * 2 := by
-  letI : IsScalarTower ℚ K E := by
+  let : IsScalarTower ℚ K E := by
     refine IsScalarTower.of_algebraMap_eq fun q => ?_
     simpa using (map_ratCast (algebraMap K E) q).symm
   let L : IntermediateField K E := IntermediateField.adjoin K {x}
@@ -363,7 +364,7 @@ theorem Kf_isGalois (g : ℕ) : IsGalois ℚ (Kf g) := by
               exact Subalgebra.neg_mem _ ( IntermediateField.subset_adjoin ℚ _ <| Set.mem_insert _ _ )⟩}
             generalize_proofs at *;
             refine' Polynomial.funext fun x => _;
-            ext ; norm_num ; ring;
+            ext ; norm_num ; ring_nf;
             norm_num [ sub_eq_add_neg ];
             ring;
           · refine' Eq.symm ( minpoly.eq_of_irreducible_of_monic _ _ _ );
@@ -401,13 +402,13 @@ theorem Kf_isGalois (g : ℕ) : IsGalois ℚ (Kf g) := by
           refine' ⟨ { ⟨ ( Real.sqrt ( q3 j ) : ℝ ) , _ ⟩, ⟨ - ( Real.sqrt ( q3 j ) : ℝ ), _ ⟩ }, _ ⟩ <;> norm_num;
           any_goals exact IntermediateField.subset_adjoin ℚ _ ( Set.mem_insert_of_mem _ <| Set.mem_image_of_mem _ hj );
           refine' Polynomial.funext fun x => _;
-          erw [ Polynomial.leadingCoeff_X_pow_sub_C ] <;> norm_num ; ring;
-          ext ; norm_num ; ring;
+          erw [ Polynomial.leadingCoeff_X_pow_sub_C ] <;> norm_num ; ring_nf;
+          ext ; norm_num ; ring_nf;
           norm_num [ ← Complex.ofReal_pow ]
       exact ⟨by
       cases hx <;> simp_all +decide [ Complex.ext_iff ];
       · rw [ show x = Complex.I by simpa [ Complex.ext_iff ] using ‹x.re = 0 ∧ x.im = 1› ] ; exact ⟨ Polynomial.X ^ 2 + 1, by exact Polynomial.monic_X_pow_add_C _ two_ne_zero, by norm_num ⟩ ;
-      · obtain ⟨ j, hj, hx₁, hx₂ ⟩ := ‹_›; use Polynomial.X ^ 2 - Polynomial.C ( q3 j : ℚ ) ; norm_num [ hx₁, hx₂ ] ; ring;
+      · obtain ⟨ j, hj, hx₁, hx₂ ⟩ := ‹_›; use Polynomial.X ^ 2 - Polynomial.C ( q3 j : ℚ ) ; norm_num [ hx₁, hx₂ ] ; ring_nf;
         exact ⟨ Polynomial.monic_X_pow_sub_C _ two_ne_zero, by rw [ show x = Real.sqrt ( q3 j ) by simp [ Complex.ext_iff, hx₁.symm, hx₂.symm ] ] ; norm_num [ ← Complex.ofReal_pow, Real.sq_sqrt ( Nat.cast_nonneg _ ) ] ⟩, h_minpoly⟩;
     have hx2 := h_minpoly x x.2
     rwa [show minpoly ℚ (x : ℂ) = minpoly ℚ x from
@@ -454,7 +455,7 @@ brings its conjugate `±` partner), and every `σ ∈ Gal` is determined by
 signs `σ(√q3 j) = ±√q3 j`, `σ(i) = ±i`, so all elements square to the
 identity and the group is elementary abelian. -/
 theorem Kf_isAbelianGalois (g : ℕ) : IsAbelianGalois ℚ (Kf g) := by
-  haveI := Kf_isGalois g
+  have := Kf_isGalois g
   refine { is_comm := ⟨fun a b => ?_⟩ }
   exact Commute.of_orderOf_dvd_two
     (fun σ => orderOf_dvd_of_pow_eq_one (by rw [pow_two]; exact Kf_aut_involutive g σ)) a b

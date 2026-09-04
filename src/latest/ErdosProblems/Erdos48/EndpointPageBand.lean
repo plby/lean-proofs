@@ -56,7 +56,7 @@ theorem primitiveHighZeroRealBandKernelSumAt_eq_zero_of_mass_eq_zero
     (hmass : primitiveHighZeroMassAt q psi etaHi T = 0) :
     primitiveHighZeroRealBandKernelSumAt q psi
         x etaLo etaHi T = 0 := by
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   rw [primitiveHighZeroRealBandKernelSumAt_eq hq,
     highZeroRealBandKernelSum]
   have hrect : highZeroRectangle hq psi.1 psi.2 etaHi T = ∅ := by
@@ -78,7 +78,7 @@ theorem primitiveHighZeroPositiveRealBandKernelSumAt_eq_zero_of_mass_eq_zero
     (hmass : primitiveHighZeroMassAt q psi etaHi T = 0) :
     primitiveHighZeroPositiveRealBandKernelSumAt q psi
         x etaLo etaHi T = 0 := by
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   rw [primitiveHighZeroPositiveRealBandKernelSumAt_eq hq,
     highZeroPositiveRealBandKernelSum]
   have hrect : highZeroRectangle hq psi.1 psi.2 etaHi T = ∅ := by
@@ -229,7 +229,7 @@ theorem norm_zeroKernel_le_linearBands_add_far_of_ne_excluded
           (((j + 2 : ℕ) : ℝ) * eta) T‖) +
         ‖primitiveFarZeroKernelSumAt q psi x eta J T‖ := by
   have hqOne : 1 < q := (Finset.mem_Ioc.mp hq).1
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   rw [primitiveZeroKernelSumAt_eq hqOne]
   apply norm_dirichletNontrivialZeroKernelSum_le_linearBands_add_far_of_page
     hqOne psi J heta.le

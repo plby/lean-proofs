@@ -183,7 +183,7 @@ theorem density_eq_average_suffixSection {k m r : Nat}
 theorem exists_suffixSection_density_ge {k m r : Nat} (hk : 0 < k)
     (A : Finset (Word k (m + r))) :
     exists y : Word k r, density A <= density (suffixSection A y) := by
-  letI : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
+  let : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hk
   rw [density_eq_average_suffixSection]
   exact exists_average_le _
 

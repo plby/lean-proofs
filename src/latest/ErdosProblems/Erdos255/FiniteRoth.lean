@@ -166,11 +166,11 @@ private lemma haar_moment_nat (q d i : ℕ) (hd : d ≤ q + 1) (hi : i < 2 ^ d) 
     have hleft :
         ∑ A ∈ Finset.Ico (2 * i * h) ((2 * i + 1) * h), (A : ℝ) =
           (h : ℝ) * (2 * i * h) + (h * (h - 1) / 2 : ℕ) := by
-      convert sum_Ico_cast (2 * i * h) h using 1 <;> push_cast <;> ring
+      convert sum_Ico_cast (2 * i * h) h using 1 <;> push_cast <;> ring_nf
     have hright :
         ∑ A ∈ Finset.Ico ((2 * i + 1) * h) (2 * (i + 1) * h), (A : ℝ) =
           (h : ℝ) * ((2 * i + 1) * h) + (h * (h - 1) / 2 : ℕ) := by
-      convert sum_Ico_cast ((2 * i + 1) * h) h using 1 <;> push_cast <;> ring
+      convert sum_Ico_cast ((2 * i + 1) * h) h using 1 <;> push_cast <;> ring_nf
     rw [hleft, hright]
     dsimp [h]
     ring

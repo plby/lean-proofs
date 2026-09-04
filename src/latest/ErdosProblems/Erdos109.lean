@@ -248,7 +248,7 @@ theorem exists_ultrafilter_avoiding_density_zero
     (hcard : Tendsto (fun k => (F k).card) atTop atTop) :
     ∃ p : Ultrafilter ℕ,
       (p : Filter ℕ) ≤ densityOneFilter F ∧ (p : Filter ℕ) ≤ cofinite := by
-  letI : (densityOneFilter F).NeBot := densityOneFilter_neBot F hF
+  let : (densityOneFilter F).NeBot := densityOneFilter_neBot F hF
   obtain ⟨p, hp⟩ := Ultrafilter.exists_le (densityOneFilter F)
   exact ⟨p, hp, hp.trans (densityOneFilter_le_cofinite F hcard)⟩
 
@@ -303,7 +303,7 @@ theorem exists_ultrafilter_containing_positiveLowerDensity
     {B : Set ℕ} (hB : HasPositiveLowerDensityAlong F B) :
     ∃ p : Ultrafilter ℕ, B ∈ (p : Filter ℕ) ∧
       (p : Filter ℕ) ≤ densityOneFilter F ∧ (p : Filter ℕ) ≤ cofinite := by
-  letI : (densityOneFilter F ⊓ 𝓟 B).NeBot :=
+  let : (densityOneFilter F ⊓ 𝓟 B).NeBot :=
     densityOneFilter_inf_principal_neBot hB
   obtain ⟨p, hp⟩ := Ultrafilter.exists_le (densityOneFilter F ⊓ 𝓟 B)
   have hpDensity : (p : Filter ℕ) ≤ densityOneFilter F :=
@@ -339,7 +339,7 @@ theorem syndetic_returnTimes_of_totallyBounded
   have hcentres_nonempty : centres.Nonempty := by
     obtain ⟨z, hz, -⟩ := hchoose x ⟨0, by simp⟩
     exact ⟨z, hz⟩
-  letI : Fintype centres := hcentres_finite.fintype
+  let : Fintype centres := hcentres_finite.fintype
   let index : centres → ℕ := fun z ↦ Classical.choose (hcentres_subset z.property)
   have hindex (z : centres) : T^[index z] x = z :=
     Classical.choose_spec (hcentres_subset z.property)
@@ -1349,7 +1349,7 @@ theorem exists_infinite_add_subset_of_density
   classical
   obtain ⟨t, ht, htinter⟩ := bergelson_finset
     (fun i => L ∩ shift A (m i)) F hF r hr0 hleft hcard
-  letI : Infinite t := ht.to_subtype
+  let : Infinite t := ht.to_subtype
   let e : ℕ → ℕ := fun n => (Infinite.natEmbedding t n : ℕ)
   have he : Injective e := Subtype.val_injective.comp (Infinite.natEmbedding t).injective
   have het (n : ℕ) : e n ∈ t := (Infinite.natEmbedding t n).property
@@ -1565,7 +1565,7 @@ theorem integral_regularizeBetaMeasure (μ : ProbabilityMeasure BetaNat)
 
 theorem regularizeBetaMeasure_univ (μ : ProbabilityMeasure BetaNat) :
     regularizeBetaMeasure μ univ = 1 := by
-  letI : (regularizeBetaMeasure μ).Regular := regular_regularizeBetaMeasure μ
+  let : (regularizeBetaMeasure μ).Regular := regular_regularizeBetaMeasure μ
   let one : C(BetaNat, ℝ) := 1
   have h := integral_regularizeBetaMeasure μ one
   rw [show (∫ x, one x ∂regularizeBetaMeasure μ) =
@@ -1596,7 +1596,7 @@ theorem exists_invariant_betaLimit
         ((μ : Measure BetaNat).Regular) ∧
         Tendsto (fun k ↦ betaEmpirical (N k) (hNpos k)) (q : Filter ℕ) (𝓝 μ) ∧
         MeasurePreserving betaShift (μ : Measure BetaNat) μ := by
-  letI : (atTop : Filter ℕ).NeBot := inferInstance
+  let : (atTop : Filter ℕ).NeBot := inferInstance
   obtain ⟨q, hq⟩ := Ultrafilter.exists_le (atTop : Filter ℕ)
   let μs : ℕ → ProbabilityMeasure BetaNat :=
     fun k ↦ betaEmpirical (N k) (hNpos k)
@@ -1635,10 +1635,10 @@ theorem exists_invariant_betaLimit
     · funext k
       exact integral_map_betaEmpirical (N k) (hNpos k) f
     · simp
-  letI : (μ : Measure BetaNat).Regular := hμreg
-  letI : (Measure.map betaShift (μ : Measure BetaNat)).InnerRegular :=
+  let : (μ : Measure BetaNat).Regular := hμreg
+  let : (Measure.map betaShift (μ : Measure BetaNat)).InnerRegular :=
     Measure.InnerRegular.map_of_continuous continuous_betaShift
-  letI : IsProbabilityMeasure (Measure.map betaShift (μ : Measure BetaNat)) :=
+  let : IsProbabilityMeasure (Measure.map betaShift (μ : Measure BetaNat)) :=
     Measure.isProbabilityMeasure_map continuous_betaShift.measurable.aemeasurable
   have heq : Measure.map betaShift (μ : Measure BetaNat) = (μ : Measure BetaNat) := by
     apply Measure.ext_of_integral_eq_on_compactlySupported
@@ -1873,7 +1873,7 @@ theorem integral_betaStateMeasure (Λ : BetaFunctional)
 
 theorem betaStateMeasure_univ (Λ : BetaFunctional)
     (hΛ : Λ ∈ betaInvariantStates) : betaStateMeasure Λ hΛ univ = 1 := by
-  letI : (betaStateMeasure Λ hΛ).Regular := regular_betaStateMeasure Λ hΛ
+  let : (betaStateMeasure Λ hΛ).Regular := regular_betaStateMeasure Λ hΛ
   let one : BetaTest := 1
   have h := integral_betaStateMeasure Λ hΛ one
   rw [show (∫ x, one x ∂betaStateMeasure Λ hΛ) =
@@ -1898,11 +1898,11 @@ theorem measurePreserving_betaStateProbability (Λ : BetaFunctional)
       (betaStateProbability Λ hΛ : ProbabilityMeasure BetaNat) := by
   let μ : Measure BetaNat := betaStateMeasure Λ hΛ
   have hμreg : μ.Regular := regular_betaStateMeasure Λ hΛ
-  letI : μ.Regular := hμreg
-  letI : (Measure.map betaShift μ).InnerRegular :=
+  let : μ.Regular := hμreg
+  let : (Measure.map betaShift μ).InnerRegular :=
     Measure.InnerRegular.map_of_continuous continuous_betaShift
-  letI : IsProbabilityMeasure μ := ⟨betaStateMeasure_univ Λ hΛ⟩
-  letI : IsProbabilityMeasure (Measure.map betaShift μ) :=
+  let : IsProbabilityMeasure μ := ⟨betaStateMeasure_univ Λ hΛ⟩
+  let : IsProbabilityMeasure (Measure.map betaShift μ) :=
     Measure.isProbabilityMeasure_map continuous_betaShift.measurable.aemeasurable
   refine ⟨continuous_betaShift.measurable, ?_⟩
   change Measure.map betaShift μ = μ
@@ -1928,7 +1928,7 @@ theorem regular_cond_of_regular (μ : Measure BetaNat) [μ.Regular]
   unfold ProbabilityTheory.cond
   have hrestr : (μ.restrict s).Regular :=
     Measure.Regular.restrict_of_measure_ne_top (measure_ne_top μ s)
-  letI : (μ.restrict s).Regular := hrestr
+  let : (μ.restrict s).Regular := hrestr
   exact Measure.Regular.smul (ENNReal.inv_ne_top.mpr hs)
 
 theorem measurePreserving_cond_of_invariant_set {μ : Measure BetaNat}
@@ -1946,8 +1946,8 @@ theorem betaIntegralWeakFunctional_cond_decomposition (μ : Measure BetaNat)
       μ.real s • (@betaIntegralWeakFunctional μ[|s] (cond_isProbabilityMeasure hs)) +
         μ.real sᶜ •
           (@betaIntegralWeakFunctional μ[|sᶜ] (cond_isProbabilityMeasure hsc)) := by
-  letI : IsProbabilityMeasure μ[|s] := cond_isProbabilityMeasure hs
-  letI : IsProbabilityMeasure μ[|sᶜ] := cond_isProbabilityMeasure hsc
+  let : IsProbabilityMeasure μ[|s] := cond_isProbabilityMeasure hs
+  let : IsProbabilityMeasure μ[|sᶜ] := cond_isProbabilityMeasure hsc
   apply ContinuousLinearMap.ext
   intro f
   change (∫ x, f x ∂μ) =
@@ -1969,9 +1969,9 @@ theorem ergodic_betaStateProbability_of_extreme (Λ : BetaFunctional)
       ((betaStateProbability Λ hΛext.1 : ProbabilityMeasure BetaNat) : Measure BetaNat) := by
   let μ : Measure BetaNat := betaStateMeasure Λ hΛext.1
   have hμprob : IsProbabilityMeasure μ := ⟨betaStateMeasure_univ Λ hΛext.1⟩
-  letI : IsProbabilityMeasure μ := hμprob
+  let : IsProbabilityMeasure μ := hμprob
   have hμreg : μ.Regular := regular_betaStateMeasure Λ hΛext.1
-  letI : μ.Regular := hμreg
+  let : μ.Regular := hμreg
   have hμpres : MeasurePreserving betaShift μ μ :=
     measurePreserving_betaStateProbability Λ hΛext.1
   have hstate : betaIntegralWeakFunctional μ = Λ := by
@@ -1983,8 +1983,8 @@ theorem ergodic_betaStateProbability_of_extreme (Λ : BetaFunctional)
   by_contra H
   obtain ⟨hs, hsc⟩ : μ s ≠ 0 ∧ μ sᶜ ≠ 0 := by
     simpa [eventuallyConst_set, ae_iff, and_comm] using! H
-  letI hps : IsProbabilityMeasure μ[|s] := cond_isProbabilityMeasure hs
-  letI hpcs : IsProbabilityMeasure μ[|sᶜ] := cond_isProbabilityMeasure hsc
+  let hps : IsProbabilityMeasure μ[|s] := cond_isProbabilityMeasure hs
+  let hpcs : IsProbabilityMeasure μ[|sᶜ] := cond_isProbabilityMeasure hsc
   let Λs : BetaFunctional := betaIntegralWeakFunctional μ[|s]
   let Λc : BetaFunctional := betaIntegralWeakFunctional μ[|sᶜ]
   have hpres_s : MeasurePreserving betaShift μ[|s] μ[|s] :=
@@ -2008,7 +2008,7 @@ theorem ergodic_betaStateProbability_of_extreme (Λ : BetaFunctional)
     exact hdecomp.symm
   have hΛs_eq : Λs = Λ := hΛext.2 hΛs hΛc hopen
   have hcondreg : μ[|s].Regular := regular_cond_of_regular μ hs
-  letI : μ[|s].Regular := hcondreg
+  let : μ[|s].Regular := hcondreg
   have hcond_eq : μ[|s] = μ := by
     apply Measure.ext_of_integral_eq_on_compactlySupported
     intro f
@@ -2527,7 +2527,7 @@ theorem integral_spectralMeasure_complex (U : H ≃ₗᵢ[ℂ] H) (x : H)
       inner ℂ x
         (cfcHom (R := ℂ)
           (isStarNormal_of_mem_unitary (unitaryOperator_mem U)) f x) := by
-  letI : IsFiniteMeasure (spectralMeasure U x) := by
+  let : IsFiniteMeasure (spectralMeasure U x) := by
     unfold spectralMeasure
     infer_instance
   let fr : C(UnitarySpectrum U, ℝ) := complexReContinuous f
@@ -2772,7 +2772,9 @@ theorem tendsto_wiener_average_sq_zero
   simp only [map_mul, map_inv₀, map_natCast, map_sum, Complex.ofReal_inv,
     Complex.mul_conj', Complex.ofReal_pow, Complex.ofReal_sum,
     Complex.ofReal_mul]
-  simp [Complex.mul_re]
+  simp only [Complex.mul_re, Complex.inv_re, Complex.natCast_re, Complex.normSq_natCast, div_self_mul_self',
+    Complex.re_sum, Complex.inv_im, Complex.natCast_im, neg_zero, zero_div, Complex.im_sum, zero_mul, sub_zero,
+    mul_eq_mul_left_iff, inv_eq_zero, Nat.cast_eq_zero]
   left
   apply Finset.sum_congr rfl
   intro i hi
@@ -3025,10 +3027,10 @@ theorem integral_circleCesaroKernel_circleSpectralMeasure_eq
     (∫ z, circleCesaroKernel N z w ∂circleSpectralMeasure U x) =
       inner ℂ x
         (birkhoffAverage ℂ (twistedUnitary U w) _root_.id N x) := by
-  letI : IsFiniteMeasure (spectralMeasure U x) := by
+  let : IsFiniteMeasure (spectralMeasure U x) := by
     unfold spectralMeasure
     infer_instance
-  letI : IsFiniteMeasure (circleSpectralMeasure U x) := by
+  let : IsFiniteMeasure (circleSpectralMeasure U x) := by
     unfold circleSpectralMeasure
     exact Measure.isFiniteMeasure_map (spectralMeasure U x) (spectrumToCircle U)
   rw [integral_circleCesaroKernel_right_eq]
@@ -3047,10 +3049,10 @@ theorem circleSpectralMeasure_weakPart_singleton
     circleSpectralMeasure U (unitaryWeakPart U x) {w} = 0 := by
   let xw := unitaryWeakPart U x
   let μ := circleSpectralMeasure U xw
-  letI : IsFiniteMeasure (spectralMeasure U xw) := by
+  let : IsFiniteMeasure (spectralMeasure U xw) := by
     unfold spectralMeasure
     infer_instance
-  letI : IsFiniteMeasure μ := by
+  let : IsFiniteMeasure μ := by
     dsimp [μ, circleSpectralMeasure]
     exact Measure.isFiniteMeasure_map (spectralMeasure U xw) (spectrumToCircle U)
   have hmass : Tendsto (fun N ↦ ∫ z, circleCesaroKernel N z w ∂μ)
@@ -3092,13 +3094,13 @@ theorem tendsto_unitaryWeakPart_selfCorrelation_sq_average
       atTop (nhds 0) := by
   let xw := unitaryWeakPart U x
   let μ := circleSpectralMeasure U xw
-  letI : IsFiniteMeasure (spectralMeasure U xw) := by
+  let : IsFiniteMeasure (spectralMeasure U xw) := by
     unfold spectralMeasure
     infer_instance
-  letI : IsFiniteMeasure μ := by
+  let : IsFiniteMeasure μ := by
     dsimp [μ, circleSpectralMeasure]
     exact Measure.isFiniteMeasure_map (spectralMeasure U xw) (spectrumToCircle U)
-  letI : NullSingletonClass μ :=
+  let : NullSingletonClass μ :=
     ⟨fun w ↦ circleSpectralMeasure_weakPart_singleton U x w⟩
   simpa only [μ, xw, circleFourierCoeff_circleSpectralMeasure] using
     tendsto_wiener_average_sq_zero μ
@@ -3288,8 +3290,9 @@ theorem unitaryCorrelationAverage_lipschitz (U : H ≃ₗᵢ[ℂ] H) (x : H) (N 
   intro y z
   by_cases hN : N = 0
   · subst N
-    simp [unitaryCorrelationAverage]
-    positivity
+    simp only [unitaryCorrelationAverage, Nat.cast_zero, inv_zero,
+      Finset.range_zero, Finset.sum_empty, mul_zero, dist_self, coe_nnnorm]
+    exact mul_nonneg (norm_nonneg _) dist_nonneg
   · have hNpos : (0 : ℝ) < N := by exact_mod_cast (Nat.pos_of_ne_zero hN)
     have hsum :
         |(∑ n ∈ Finset.range N,
@@ -3455,7 +3458,7 @@ theorem tendsto_unitaryWeakPart_correlation_average
       atTop (nhds 0) := by
   let xw := unitaryWeakPart U x
   let K := unitaryForwardCyclic U xw
-  letI : K.HasOrthogonalProjection := by
+  let : K.HasOrthogonalProjection := by
     dsimp [K, unitaryForwardCyclic]
     infer_instance
   let yp : H := K.starProjection y
@@ -4054,7 +4057,7 @@ theorem abs_betaExtendBounded_le (f : ℕ → ℝ) (C : ℝ)
     |betaExtendBounded f C hf p| ≤ C := by
   let fs : ℕ → Set.Icc (-C) C := fun n ↦
     ⟨f n, (abs_le.mp (hf n)).1, (abs_le.mp (hf n)).2⟩
-  letI : CompactSpace (Set.Icc (-C) C) :=
+  let : CompactSpace (Set.Icc (-C) C) :=
     isCompact_iff_compactSpace.mp isCompact_Icc
   change |(Ultrafilter.extend fs p : Set.Icc (-C) C).1| ≤ C
   exact abs_le.mpr (Ultrafilter.extend fs p).2
@@ -4523,7 +4526,7 @@ theorem exists_betaEvent_limsup_betaCrossAverage_nonneg
   have hSne : (μ : Measure BetaNat) S ≠ 0 :=
     betaEvent_measure_ne_zero_of_lower_density N hNpos q hq μ hμ B d hd hBd
   let ν : Measure BetaNat := (μ : Measure BetaNat)[|S]
-  letI : IsProbabilityMeasure ν := ProbabilityTheory.cond_isProbabilityMeasure hSne
+  let : IsProbabilityMeasure ν := ProbabilityTheory.cond_isProbabilityMeasure hSne
   have hνcompl : ν Sᶜ = 0 := by
     dsimp only [ν]
     rw [ProbabilityTheory.cond_apply hSmeas]
@@ -4589,7 +4592,7 @@ theorem norm_betaExtendComplex_le (f : ℕ → ℂ) (C : ℝ)
     (hf : ∀ n, ‖f n‖ ≤ C) (p : BetaNat) :
     ‖betaExtendComplex f C hf p‖ ≤ C := by
   let fs : ℕ → Metric.closedBall (0 : ℂ) C := fun n ↦ ⟨f n, by simpa using hf n⟩
-  letI : CompactSpace (Metric.closedBall (0 : ℂ) C) :=
+  let : CompactSpace (Metric.closedBall (0 : ℂ) C) :=
     isCompact_iff_compactSpace.mp (isCompact_closedBall (0 : ℂ) C)
   have hp := (Ultrafilter.extend fs p).property
   change dist ((Ultrafilter.extend fs p : Metric.closedBall (0 : ℂ) C).1) 0 ≤ C at hp
@@ -4914,7 +4917,7 @@ theorem totallyBounded_compactOrbitFactorL2_orbit
       (betaKoopman hμ ^ n) (compactOrbitFactorL2 U c hc ψ)) := by
   rw [Metric.totallyBounded_iff]
   intro ε hε
-  letI : CompactSpace (compactOrbit U c) :=
+  let : CompactSpace (compactOrbit U c) :=
     isCompact_iff_compactSpace.mp (isCompact_compactOrbit U c hc)
   have hψuc : UniformContinuous ψ :=
     CompactSpace.uniformContinuous_of_continuous ψ.continuous
@@ -4926,7 +4929,7 @@ theorem totallyBounded_compactOrbitFactorL2_orbit
     Classical.choose (hcentres_subset z.2)
   have hindex (z : centres) : (U ^ index z) c = z.1 :=
     Classical.choose_spec (hcentres_subset z.2)
-  letI : Fintype centres := hcentres_finite.fintype
+  let : Fintype centres := hcentres_finite.fintype
   let t : Set (BetaL2 μ) := Set.range fun z : centres ↦
     (betaKoopman hμ ^ index z) (compactOrbitFactorL2 U c hc ψ)
   have htfin : t.Finite := by
@@ -5162,7 +5165,7 @@ noncomputable def weakOrbitExtensionDual (U : H ≃ₗᵢ[ℂ] H) (x : H) :
 
 theorem continuous_weakOrbitExtensionDual (U : H ≃ₗᵢ[ℂ] H) (x : H) :
     Continuous (weakOrbitExtensionDual U x) := by
-  letI : CompactSpace
+  let : CompactSpace
       (WeakDual.toStrongDual ⁻¹' Metric.closedBall (0 : StrongDual ℂ H) ‖x‖) :=
     isCompact_iff_compactSpace.mp (WeakDual.isCompact_closedBall (0 : StrongDual ℂ H) ‖x‖)
   unfold weakOrbitExtensionDual
@@ -5570,7 +5573,7 @@ theorem clipComplexLp_unitaryCompactPart_indicator
   let F := betaIndicatorL2 mu A
   let S := (unitaryKronecker U).toSubmodule
   let a := unitaryCompactPart U F
-  letI : S.HasOrthogonalProjection := by
+  let : S.HasOrthogonalProjection := by
     infer_instance
   have haAP : a ∈ unitaryAlmostPeriodicSubmodule U := by
     change TotallyBounded (Set.range fun n : ℕ ↦ (U ^ n) a)
@@ -7428,11 +7431,14 @@ theorem abs_integral_returnWeight_mul_rightTranslate_anti_le
     change compactReturnWeight V c r hr p *
         (continuousAntiPart A Y).comp
           ⟨betaShift^[n], continuous_betaShift.iterate n⟩ p = (Q p).re
-    simp [Q, continuousAntiPart, continuousRealPart, betaIndicatorComplex,
-      Wc, iterate_betaShiftComplex_apply]
+    simp only [ContinuousMap.comp_apply, ContinuousMap.coe_mk]
     have hshift' : betaIndicator A (betaShift^[n] p) =
         betaIndicator (shift A n) p := hshift
+    change compactReturnWeight V c r hr p *
+        (betaIndicator A (betaShift^[n] p) - (Y (betaShift^[n] p)).re) =
+      (Q p).re
     rw [hshift']
+    simp [Q, Wc, iterate_betaShiftComplex_apply]
     ring
   have hzero : inner ℂ W ((U ^ n) (F - b)) = 0 := by
     exact inner_bes_koopman_pow_sub_projection_eq_zero hmu F hWbes n
@@ -7994,7 +8000,7 @@ theorem exists_subseq_tendsto_bounded_complex_array
       ∀ j, ‖l j‖ ≤ C := by
   let x : ℕ → ℕ → Metric.closedBall (0 : ℂ) C := fun k j ↦
     ⟨a k j, by simpa only [mem_closedBall_zero_iff] using ha k j⟩
-  letI : CompactSpace (Metric.closedBall (0 : ℂ) C) :=
+  let : CompactSpace (Metric.closedBall (0 : ℂ) C) :=
     isCompact_iff_compactSpace.mp (ProperSpace.isCompact_closedBall 0 C)
   obtain ⟨y, phi, hphi, hy⟩ := CompactSpace.tendsto_subseq x
   refine ⟨phi, fun j ↦ y j, hphi, ?_, fun j ↦ ?_⟩
@@ -8127,7 +8133,7 @@ theorem continuous_compactOrbitLimit
     (U : H ≃ₗᵢ[ℂ] H) (c : H)
     (hc : TotallyBounded (Set.range fun n : ℕ ↦ (U ^ n) c)) :
     Continuous (compactOrbitLimit U c hc) := by
-  letI : CompactSpace (compactOrbit U c) :=
+  let : CompactSpace (compactOrbit U c) :=
     isCompact_iff_compactSpace.mp (isCompact_compactOrbit U c hc)
   change Continuous (fun p ↦
     (Ultrafilter.extend (compactOrbitPoint U c) p : compactOrbit U c).1)
@@ -8137,7 +8143,7 @@ theorem continuous_compactOrbitLimit
     (U : H ≃ₗᵢ[ℂ] H) (c : H)
     (hc : TotallyBounded (Set.range fun n : ℕ ↦ (U ^ n) c)) (n : ℕ) :
     compactOrbitLimit U c hc (pure n) = (U ^ n) c := by
-  letI : CompactSpace (compactOrbit U c) :=
+  let : CompactSpace (compactOrbit U c) :=
     isCompact_iff_compactSpace.mp (isCompact_compactOrbit U c hc)
   simp [compactOrbitLimit]
 
@@ -9049,7 +9055,7 @@ theorem erdos_109 (A : Set ℕ) (hA : A.upperDensity > 0) :
     simpa only [finsetDensity_range_eq_partialDensity] using hNdensity
   obtain ⟨q, hq, mu, hmureg, hmu, hpres⟩ :=
     exists_invariant_betaLimit N hNpos hNtop
-  letI : (mu : Measure BetaNat).Regular := hmureg
+  let : (mu : Measure BetaNat).Regular := hmureg
   let U := betaKoopman hpres
   let F : BetaL2 (mu : Measure BetaNat) := betaIndicatorL2 mu A
   let a : BetaL2 (mu : Measure BetaNat) := unitaryCompactPart U F
@@ -9122,9 +9128,9 @@ theorem erdos_109 (A : Set ℕ) (hA : A.upperDensity > 0) :
       hpres A Y V c eps heps hWbes n).trans (le_of_lt hYClose)
   let nu : Measure BetaNat := compactReturnWeightedMeasure
     (mu : Measure BetaNat) V c eps heps
-  letI : IsFiniteMeasure nu := compactReturnWeightedMeasure_isFinite
+  let : IsFiniteMeasure nu := compactReturnWeightedMeasure_isFinite
     (mu : Measure BetaNat) V c eps heps
-  letI : NeZero nu := compactReturnWeightedMeasure_neZero
+  let : NeZero nu := compactReturnWeightedMeasure_neZero
     (mu : Measure BetaNat) V c eps heps hdpos
   let cross (k : ℕ) : BetaNat → ℝ := fun p ↦
     betaCrossAverage (N (phi₀ k)) (fun n ↦ (Hc (pure n)).re)

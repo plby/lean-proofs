@@ -178,7 +178,7 @@ theorem internalEdgeGreedyKernel_supported_usesScheduledOuterEdges
         · rw [dif_pos (by simpa only [C, e, huv, he] using hlarge)]
           by_cases hC : C.Nonempty
           · rw [dif_pos (by simpa only [C, e, huv, he] using hC)]
-            letI : Nonempty C := ⟨⟨hC.choose, hC.choose_spec⟩⟩
+            let : Nonempty C := ⟨⟨hC.choose, hC.choose_spec⟩⟩
             have huLaw : FiniteLaw.SupportedOn (fun _ : C ↦ True)
                 (FiniteLaw.uniform : FiniteLaw C) :=
               FiniteLaw.uniform_supported _ fun _ ↦ trivial

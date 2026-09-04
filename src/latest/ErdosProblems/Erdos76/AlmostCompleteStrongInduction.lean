@@ -121,7 +121,7 @@ lemma fractionalUncoveredWeight_eq_card_sub_general
     fractionalUncoveredWeight G w =
       (Nat.card G.edgeSet : ℝ) - 3 * fractionalSize G w := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
   rw [fractionalUncoveredWeight, Finset.sum_sub_distrib,
     sum_fractionalEdgeLoad_eq_three_mul_fractionalSize_strong]
   simp only [Finset.sum_const, nsmul_one]
@@ -133,8 +133,8 @@ lemma fractionalUncoveredWeight_relabel_general
     fractionalUncoveredWeight (G.map e.toEmbedding) (relabelWeight e w) =
       fractionalUncoveredWeight G w := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
   have hcard : Nat.card (G.map e.toEmbedding).edgeSet = Nat.card G.edgeSet :=
     (Nat.card_congr (SimpleGraph.Iso.map e G).mapEdgeSet).symm
   rw [fractionalUncoveredWeight_eq_card_sub_general,
@@ -144,8 +144,8 @@ lemma IsHalfBounded.relabel {G : SimpleGraph A} {w : Finset A → ℝ}
     (hw : IsHalfBounded G w) (e : A ≃ B) :
     IsHalfBounded (G.map e.toEmbedding) (relabelWeight e w) := by
   classical
-  letI : DecidableRel G.Adj := Classical.decRel _
-  letI : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
+  let : DecidableRel G.Adj := Classical.decRel _
+  let : DecidableRel (G.map e.toEmbedding).Adj := Classical.decRel _
   intro t ht
   have ht' := SimpleGraph.mem_cliqueFinset_iff.mp ht
   obtain ⟨s, hs, rfl⟩ :=
@@ -3919,8 +3919,8 @@ lemma IsCapacityPacking.eq_zero_of_not_support_triangle
     {t : Finset U} (htTop : (⊤ : SimpleGraph U).IsNClique 3 t)
     (htH : ¬H.IsNClique 3 t) : w t = 0 := by
   classical
-  letI : DecidableRel (⊤ : SimpleGraph U).Adj := Classical.decRel _
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel (⊤ : SimpleGraph U).Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   have htTopMem : t ∈ (⊤ : SimpleGraph U).cliqueFinset 3 :=
     SimpleGraph.mem_cliqueFinset_iff.mpr htTop
   have hnotClique : ¬H.IsClique (t : Set U) := by
@@ -3962,7 +3962,7 @@ lemma zeroExtendTriangleWeight_eq_of_capacity_support
     {t : Finset U} (htTop : (⊤ : SimpleGraph U).IsNClique 3 t) :
     zeroExtendTriangleWeight H w t = w t := by
   classical
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   by_cases htH : H.IsNClique 3 t
   · exact zeroExtendTriangleWeight_of_mem
       (SimpleGraph.mem_cliqueFinset_iff.mpr htH)
@@ -3977,7 +3977,7 @@ lemma fractionalEdgeLoad_zeroExtend_eq_of_capacity_support
     (hcSupport : ∀ e, e ∉ H.edgeSet → c e = 0) (p : Sym2 U) :
     fractionalEdgeLoad (⊤ : SimpleGraph U) (zeroExtendTriangleWeight H w) p =
       fractionalEdgeLoad (⊤ : SimpleGraph U) w p := by
-  letI : DecidableRel (⊤ : SimpleGraph U).Adj :=
+  let : DecidableRel (⊤ : SimpleGraph U).Adj :=
     Classical.decRel _
   unfold fractionalEdgeLoad
   apply Finset.sum_congr rfl
@@ -4007,8 +4007,8 @@ lemma IsCapacityPacking.zeroExtend_support
     (hcSupport : ∀ e, e ∉ H.edgeSet → c e = 0) :
     IsCapacityPacking H c (zeroExtendTriangleWeight H w) := by
   classical
-  letI : DecidableRel (⊤ : SimpleGraph U).Adj := Classical.decRel _
-  letI : DecidableRel H.Adj := Classical.decRel _
+  let : DecidableRel (⊤ : SimpleGraph U).Adj := Classical.decRel _
+  let : DecidableRel H.Adj := Classical.decRel _
   constructor
   · intro t htH
     rw [zeroExtendTriangleWeight_of_mem htH]
@@ -4050,7 +4050,7 @@ lemma supportedPacking_of_halfEdgeCapacity
         (halfEdgeCapacity H C) v ≤ a ∧
       IsHalfBounded (⊤ : SimpleGraph A) v := by
   classical
-  letI : DecidableRel (⊤ : SimpleGraph A).Adj := Classical.decRel _
+  let : DecidableRel (⊤ : SimpleGraph A).Adj := Classical.decRel _
   let v := zeroExtendTriangleWeight H w
   have hsupport : ∀ e, e ∉ H.edgeSet → halfEdgeCapacity H C e = 0 :=
     fun e he ↦ halfEdgeCapacity_eq_zero_of_not_edgeSet H C he
@@ -4481,7 +4481,7 @@ theorem d5_case_of_selectedEdges {n a α : ℕ}
         p ∈ (attachedEdgeTriangle (Finset.univ.erase u) u e).sym2).card ≤ 2) :
     HasStrongFractionalPacking G (a : ℝ) := by
   classical
-  letI : DecidableRel (⊤ : SimpleGraph
+  let : DecidableRel (⊤ : SimpleGraph
       (↑((Finset.univ : Finset A).erase u))).Adj := Classical.decRel _
   let S : Finset A := Finset.univ.erase u
   let H : SimpleGraph S := G.induce (S : Set A)
@@ -4585,7 +4585,7 @@ theorem d5_lowDegree_case {n a : ℕ}
     (hmissing : missingEdgeCount G ≤ n - 4 + a) :
     HasStrongFractionalPacking G (a : ℝ) := by
   classical
-  letI : DecidableRel (⊤ : SimpleGraph A).Adj := Classical.decRel _
+  let : DecidableRel (⊤ : SimpleGraph A).Adj := Classical.decRel _
   let S : Finset A := Finset.univ.erase u
   let H : SimpleGraph S := G.induce (S : Set A)
   have horder : Fintype.card S = n - 1 := by

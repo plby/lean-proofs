@@ -7,10 +7,13 @@ theorem applyKeranenG_take_blocks (w : List (Fin 4)) (k s : ℕ)
     (applyKeranenG w).take (85 * k + s) =
     applyKeranenG (w.take k) ++ (keranenG (w.get ⟨k, hk⟩)).take s := by
   induction' k with k ih generalizing w s
-  · rcases w with ( _ | ⟨ x, _ | ⟨ y, w ⟩ ⟩ ) <;> simp_all +decide [ applyKeranenG ]
+  · rcases w with ( _ | ⟨ x, _ | ⟨ y, w ⟩ ⟩ ) <;> simp_all +decide only [mul_zero, zero_add, List.take_nil, List.length_nil, List.get_eq_getElem,
+    List.take_zero, List.length_cons, Fin.zero_eta, Fin.coe_ofNat_eq_mod, Nat.zero_mod,
+    List.getElem_cons_zero]
     · contradiction
     · exact Or.inr ( by rw [ keranenG_length ] ; linarith )
-  · rcases w with ( _ | ⟨ a, _ | ⟨ b, w ⟩ ⟩ ) <;> simp_all +decide [ Nat.mul_succ, List.take_append_of_le_length ]
+  · rcases w with ( _ | ⟨ a, _ | ⟨ b, w ⟩ ⟩ ) <;> simp_all +decide only [List.take_nil, List.length_nil, List.get_eq_getElem, List.take_succ_cons,
+    List.length_cons, List.getElem_cons_succ, Nat.reduceAdd]
     · contradiction
     · contradiction
     · simp_all +decide [ applyKeranenG ]

@@ -279,12 +279,14 @@ lemma rademacherIntegralExpectation_eq {n : ℕ} (f : (Fin n → ℝ) → ℝ)
   rw [rademacherIntegralExpectation, rademacherProductMeasure_eq_map,
     MeasureTheory.integral_map]
   · rw [PMF.integral_eq_sum]
-    simp [rademacherExpectation, finiteExpectation,
-      PMF.uniformOfFintype_apply, div_eq_mul_inv]
-    rw [Finset.sum_mul]
-    apply Finset.sum_congr rfl
-    intro x _
-    ring
+    unfold rademacherExpectation finiteExpectation
+    simp only [PMF.uniformOfFintype_apply, Fintype.card_pi,
+      Fintype.card_bool, Finset.prod_const, Finset.card_univ,
+      Fintype.card_fin, Nat.cast_pow, Nat.cast_ofNat,
+      ENNReal.toReal_inv, ENNReal.toReal_pow, ENNReal.toReal_ofNat,
+      smul_eq_mul]
+    rw [← Finset.mul_sum]
+    exact mul_comm _ _
   · exact (measurable_of_finite
       (fun ξ : Fin n → Bool ↦ fun i ↦ rademacherSign (ξ i))).aemeasurable
   · exact hf.aestronglyMeasurable

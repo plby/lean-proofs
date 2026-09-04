@@ -269,11 +269,11 @@ lemma map_swap_sdiff_subset_pair (U : Finset V) (p q : V) :
   obtain ⟨w, hwU, hwv⟩ := Finset.mem_map.mp hvMap
   by_cases hwp : w = p
   · subst w
-    simp at hwv ⊢
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hwv ⊢
     exact Or.inr hwv.symm
   by_cases hwq : w = q
   · subst w
-    simp [hwp] at hwv ⊢
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hwv ⊢
     exact Or.inl hwv.symm
   have hfix : Equiv.swap p q w = w := Equiv.swap_apply_of_ne_of_ne hwp hwq
   apply (hvU ?_).elim

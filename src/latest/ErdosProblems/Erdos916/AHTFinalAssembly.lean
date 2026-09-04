@@ -39,7 +39,7 @@ theorem degreeThreeFalseTwinPrinciple0_of_ahtTheorem66
     AHTSection7TwoSeparation.vertexTwoConnectedFalseTwinPrinciple_of_threeConnected
       hthreeCore
   intro W _ _ H _ hcard hdegree hnoWheel
-  letI : Nonempty W := Fintype.card_pos_iff.mp (by omega)
+  let : Nonempty W := Fintype.card_pos_iff.mp (by omega)
   exact falseTwins_of_vertexTwoConnected htwoCore H hdegree hnoWheel
 
 universe u

@@ -15,7 +15,7 @@ theorem exists_small_class_recoloring {V K : Type*} [Fintype V] [Fintype K]
         (Fintype.card V / (A / 2 + 1)) := by
   classical
   obtain ⟨L, hL, c₀, hbounded, hcard⟩ := H.exists_cover_bounded_recoloring c A
-  letI : Fintype L := hL
+  let : Fintype L := hL
   let sigma := Fintype.equivFin L
   let recolor : H.EdgeColoring (Fin (Fintype.card L)) :=
     ⟨fun e ↦ sigma (c₀.color e), fun _ _ hef hinter heq ↦

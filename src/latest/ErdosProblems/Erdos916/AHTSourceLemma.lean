@@ -306,7 +306,7 @@ theorem aht_triangleFree_of_threeConnected_almostWheelFree
     AHTTriangleFree G := by
   have hnonempty : Nonempty V := by
     exact Fintype.card_pos_iff.mp (by have := hthree.1; omega)
-  letI : Nonempty V := hnonempty
+  let : Nonempty V := hnonempty
   obtain hnone | hone | htwo := halmost
   · let a : V := Classical.choice hnonempty
     apply aht_triangleFree_of_threeConnected_almostWheelFreeAt

@@ -819,7 +819,7 @@ lemma secondDifferenceKernel_eq (f : ℝ → ℝ) (q x t : ℝ) :
     secondDifferenceKernel f q x t =
       differenceKernel f (x + t) q - differenceKernel f x q := by
   unfold secondDifferenceKernel differenceKernel
-  ring
+  ring_nf
 
 /-- For every fixed spatial shift, the second-difference kernel is jointly
 a.e. measurable in base point and parameter.  The original difference
@@ -969,7 +969,7 @@ lemma periodic_ae_zero_of_Ioc {u : ℝ → ℝ}
     ring_nf at hper
     exact hper
   rw [hper']
-  convert hx' using 1 <;> ring
+  convert hx' using 1 <;> ring_nf
 
 /-- The base-point variable of a second difference inherits the unit period
 of the original function. -/
@@ -1913,7 +1913,7 @@ lemma periodic_invariant_ae_const {u : ℝ → ℝ}
     ring_nf at hper
     exact hper
   rw [hper']
-  convert hx' using 1 <;> ring
+  convert hx' using 1 <;> ring_nf
 
 /-- Rational points remain dense after quotienting the real line by the
 integer lattice. -/
@@ -2382,7 +2382,7 @@ lemma dyadicMedianRepresentative_shift {p : ℝ → ℝ}
         secondDifferenceKernel p (dyadicShift n j) x t := by
   let u : ℝ → ℝ := fun y => differenceKernel p y t
   have huper : Function.Periodic u 1 := differenceKernel_periodic_base hp t
-  letI : NeZero (2 ^ n) := ⟨by positivity⟩
+  let : NeZero (2 ^ n) := ⟨by positivity⟩
   let e : Fin (2 ^ n) ≃ Fin (2 ^ n) := Equiv.addRight j
   have hpoint : ∀ i : Fin (2 ^ n),
       secondDifferenceKernel p (dyadicShift n i)
@@ -2398,7 +2398,7 @@ lemma dyadicMedianRepresentative_shift {p : ℝ → ℝ}
         differenceKernel p (x + dyadicShift n j + dyadicShift n i) t =
           differenceKernel p (x + dyadicShift n i + dyadicShift n j) t := by
       unfold differenceKernel
-      congr 1 <;> ring
+      congr 1 <;> ring_nf
     rw [hcomm, hshift]
     ring
   unfold dyadicMedianRepresentative
@@ -2614,7 +2614,7 @@ lemma boundedTransfer_coboundary {p : ℝ → ℝ} {K : ℝ}
       push_cast
       ring
     rw [harg]
-    ring
+    ring_nf
   simp_rw [hshift]
   rw [ciSup_shift_sub hx]
   change ((⨆ z : ℤ, integerDifference p z x) - integerDifference p 1 x) -
@@ -3513,7 +3513,7 @@ lemma finiteSoftScore_continuous {n : ℕ} (u : Fin n → ℝ) :
 
 lemma finiteSoftScore_strictAnti {n : ℕ} (hn : 0 < n) (u : Fin n → ℝ) :
     StrictAnti (finiteSoftScore u) := by
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
+  let : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
   intro a b hab
   unfold finiteSoftScore
   apply Finset.sum_lt_sum_of_nonempty Finset.univ_nonempty
@@ -3524,7 +3524,7 @@ lemma finiteSoftScore_strictAnti {n : ℕ} (hn : 0 < n) (u : Fin n → ℝ) :
 lemma exists_unique_finiteSoftScore_eq_zero {n : ℕ} (hn : 0 < n)
     (u : Fin n → ℝ) :
     ∃! c : ℝ, finiteSoftScore u c = 0 := by
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
+  let : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
   let M : ℝ := finiteSup Finset.univ (fun i : Fin n => |u i|) + 1
   have hM (i : Fin n) : |u i| < M := by
     have hi : |u i| ≤ finiteSup Finset.univ (fun i : Fin n => |u i|) := by
@@ -3675,7 +3675,7 @@ lemma dyadicSoftRepresentative_shift {p : ℝ → ℝ}
         secondDifferenceKernel p (dyadicShift n j) x t := by
   let u : ℝ → ℝ := fun y => differenceKernel p y t
   have huper : Function.Periodic u 1 := differenceKernel_periodic_base hp t
-  letI : NeZero (2 ^ n) := ⟨by positivity⟩
+  let : NeZero (2 ^ n) := ⟨by positivity⟩
   let e : Fin (2 ^ n) ≃ Fin (2 ^ n) := Equiv.addRight j
   have hpoint : ∀ i : Fin (2 ^ n),
       secondDifferenceKernel p (dyadicShift n i)
@@ -3691,7 +3691,7 @@ lemma dyadicSoftRepresentative_shift {p : ℝ → ℝ}
         differenceKernel p (x + dyadicShift n j + dyadicShift n i) t =
           differenceKernel p (x + dyadicShift n i + dyadicShift n j) t := by
       unfold differenceKernel
-      congr 1 <;> ring
+      congr 1 <;> ring_nf
     rw [hcomm, hshift]
     ring
   unfold dyadicSoftRepresentative
@@ -4688,9 +4688,9 @@ lemma dyadicSoftRepresentative_sub_ints {p : ℝ → ℝ}
   calc
     dyadicSoftRepresentative p n (x, t) =
         dyadicSoftRepresentative p n (x, t - a) := by
-          convert ht using 1 <;> push_cast <;> ring
+          convert ht using 1 <;> push_cast <;> ring_nf
     _ = dyadicSoftRepresentative p n (x - b, t - a) := by
-          convert hx using 1 <;> push_cast <;> ring
+          convert hx using 1 <;> push_cast <;> ring_nf
 
 lemma exists_int_mem_Ioc (x : ℝ) :
     ∃ n : ℤ, x ∈ Ioc (n : ℝ) (n + 1 : ℝ) := by
@@ -5615,7 +5615,7 @@ lemma hasMeasurableDifferences_of_ae_good_increments
   unfold differenceKernel
   change c (x + (u + v)) - c x =
     (c (x + u + v) - c (x + u)) + (c (x + u) - c x)
-  congr 2 <;> ring
+  congr 2 <;> ring_nf
 
 /-- The quotient constants themselves again have measurable differences;
 the new information is that their Cauchy defects have one jointly
@@ -5646,7 +5646,7 @@ lemma quotientSectionConstant_hasMeasurableDifferences
   unfold differenceKernel
   unfold cauchyDefect at ht
   rw [ht]
-  ring
+  ring_nf
 
 /-- One-parameter version of the bounded section-value selector. -/
 noncomputable def arctanRowIntegral (D : ℝ → ℝ → ℝ) (s : ℝ) : ℝ :=
@@ -5830,7 +5830,7 @@ lemma scalar_split_of_decomposition_of_nested_defect
     filter_upwards [hs, hr s] with t hst hrt
     unfold cauchyDefect at hst
     have hrt' : r (s + t) - r t = 0 := by
-      convert hrt using 1 <;> ring
+      convert hrt using 1 <;> ring_nf
     linarith
   let b : ℝ → ℝ := fun s => -arctanRowValue dr s
   have hb : AEMeasurable b volume := by
@@ -6407,7 +6407,7 @@ lemma differenceKernel_eq_of_circle_increment_eq
     linarith
   rw [habz]
   have hper := (differenceKernel_periodic_increment hp x).zsmul z b
-  convert hper using 1 <;> push_cast <;> ring
+  convert hper using 1 <;> push_cast <;> ring_nf
 
 /-- A one-periodic real function has the same difference kernel for base
 points representing the same point of the unit additive circle. -/
@@ -6423,7 +6423,7 @@ lemma differenceKernel_eq_of_circle_base_eq
     linarith
   rw [hxyz]
   have hper := (differenceKernel_periodic_base hp t).zsmul z y
-  convert hper using 1 <;> push_cast <;> ring
+  convert hper using 1 <;> push_cast <;> ring_nf
 
 /-- The difference kernel of a one-periodic function descended to the
 compact torus. -/

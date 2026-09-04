@@ -213,7 +213,7 @@ theorem ncard_box_two_le_doubling (r : ι → ℝ) (hr : ∀ i, 0 < r i)
   have h_image_subset_T : sA.image (fun x => fun i => (⌊(x i).re / (2 * r i / 3)⌋, ⌊(x i).im / (2 * r i / 3)⌋)) ⊆ Fintype.piFinset (fun _ : ι => (Finset.Icc (-3:ℤ) 3) ×ˢ (Finset.Icc (-3:ℤ) 3)) := by
     intro x hx
     obtain ⟨y, hy, rfl⟩ := Finset.mem_image.mp hx
-    simp [Fintype.piFinset];
+    simp only [Int.reduceNeg, Fintype.mem_piFinset, Finset.mem_product, Finset.mem_Icc];
     refine' ⟨ fun i _ => ( ⌊ ( y i |> Complex.re ) / ( 2 * r i / 3 ) ⌋, ⌊ ( y i |> Complex.im ) / ( 2 * r i / 3 ) ⌋ ), _, by rfl ⟩;
     intro i
     have h_bound : |(y i).re| ≤ 2 * r i ∧ |(y i).im| ≤ 2 * r i := by
@@ -221,7 +221,8 @@ theorem ncard_box_two_le_doubling (r : ι → ℝ) (hr : ∀ i, 0 < r i)
     exact ⟨ ⟨ Int.le_floor.2 <| by norm_num; nlinarith [ abs_le.mp h_bound.1, hr i, mul_div_cancel₀ ( ( y i |> Complex.re ) ) ( by linarith [ hr i ] : ( 2 * r i / 3 ) ≠ 0 ) ], Int.le_of_lt_add_one <| Int.floor_lt.2 <| by norm_num; nlinarith [ abs_le.mp h_bound.1, hr i, mul_div_cancel₀ ( ( y i |> Complex.re ) ) ( by linarith [ hr i ] : ( 2 * r i / 3 ) ≠ 0 ) ] ⟩, ⟨ Int.le_floor.2 <| by norm_num; nlinarith [ abs_le.mp h_bound.2, hr i, mul_div_cancel₀ ( ( y i |> Complex.im ) ) ( by linarith [ hr i ] : ( 2 * r i / 3 ) ≠ 0 ) ], Int.le_of_lt_add_one <| Int.floor_lt.2 <| by norm_num; nlinarith [ abs_le.mp h_bound.2, hr i, mul_div_cancel₀ ( ( y i |> Complex.im ) ) ( by linarith [ hr i ] : ( 2 * r i / 3 ) ≠ 0 ) ] ⟩ ⟩;
   -- The cardinality of `T` is `64 ^ Fintype.card ι`.
   have h_card_T : (Fintype.piFinset (fun _ : ι => (Finset.Icc (-3:ℤ) 3) ×ˢ (Finset.Icc (-3:ℤ) 3))).card ≤ 64 ^ Fintype.card ι := by
-    simp +decide [ Fintype.piFinset ];
+    simp +decide only [Int.reduceNeg, Fintype.card_piFinset, Finset.card_product, Int.card_Icc, Int.reduceAdd,
+    sub_neg_eq_add, Int.reduceToNat, Nat.reduceMul, Finset.prod_const, Finset.card_univ];
     gcongr ; norm_num;
   exact_mod_cast h_card_le_mul_card_image.trans ( Nat.mul_le_mul_left _ ( Finset.card_le_card h_image_subset_T |> le_trans <| h_card_T ) ) |> le_trans <| by ring_nf; norm_num;
 
@@ -262,14 +263,16 @@ theorem le_unitPairsC_of_translates (r : ι → ℝ) (hr : ∀ i, 0 < r i)
   · refine' le_trans _ ( Finset.card_mono _ );
     rotate_left;
     exact Finset.image ( fun p : ( ι → ℂ ) × ( ι → ℂ ) => ( p.2 i₀ / r i₀, ( p.2 + p.1 ) i₀ / r i₀ ) ) ( Z ×ˢ ( hfin.toFinset.filter fun x => ∀ i, ‖x i‖ ≤ r i ) );
-    · intro; simp +decide [ dist_eq_norm ] ;
+    · intro; simp +decide only [Pi.add_apply, Finset.mem_image, Finset.mem_product, Finset.mem_filter,
+    Set.Finite.mem_toFinset, Set.mem_inter_iff, SetLike.mem_coe, Prod.exists, Finset.mem_offDiag, ne_eq,
+    forall_exists_index, and_imp] ;
       rintro x y hx hy hxy hy' rfl; simp_all +decide [ proj, box ] ;
       refine' ⟨ ⟨ ⟨ y, ⟨ hy, hxy ⟩, rfl ⟩, ⟨ y + x, ⟨ Λ.add_mem hy ( hZΛ x hx ), fun i => _ ⟩, _ ⟩, _ ⟩, _ ⟩ <;> simp_all +decide [ add_div, ne_of_gt ];
       · exact le_trans ( norm_add_le _ _ ) ( by linarith [ hy' i, hZr x hx i ] );
       · exact fun h => by have := hZr x hx i₀; norm_num [ h ] at this; linarith [ hr i₀ ] ;
       · rw [ abs_of_pos ( hr i₀ ), div_self ( ne_of_gt ( hr i₀ ) ) ];
     · rw [ Finset.card_image_of_injOn ];
-      · simp +zetaDelta at *;
+      · simp +zetaDelta only [Finset.card_product] at *;
         gcongr;
         rw [ ← Set.ncard_coe_finset ];
         fapply Set.ncard_le_ncard;

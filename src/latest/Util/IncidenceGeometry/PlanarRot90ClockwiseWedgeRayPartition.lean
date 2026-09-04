@@ -262,7 +262,7 @@ lemma PlanarRot90ClockwiseWedgeRayPartition {ι : Type*} [Fintype ι] [Nonempty 
   · intro i
     by_cases hnext : clockwiseNext i = i
     · simp [sector, hnext]
-    · simp [hnext]
+    · simp only [Set.union_singleton, ne_eq, Fin.isValue, dite_eq_ite]
       refine ⟨cCoeff i, sCoeff i, hnot_posray i hnext, hdecomp_coeff i, ?_⟩
       simp [sector, hnext]
   · intro i
@@ -287,7 +287,7 @@ lemma PlanarRot90ClockwiseWedgeRayPartition {ι : Type*} [Fintype ι] [Nonempty 
               ({p} : Set (EuclideanSpace ℝ (Fin 2)))) := by
         simpa [sector, hnext] using hq
       exact hq'.1
-    · simp [sector, hnext] at hq
+    · simp only [Metric.mem_ball] at hq
       by_cases hspos : 0 < sCoeff i
       · simp [hspos] at hq
         rcases hq with ⟨z, hz, rfl⟩

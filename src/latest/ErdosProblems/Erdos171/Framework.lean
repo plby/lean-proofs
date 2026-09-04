@@ -242,7 +242,7 @@ theorem FiniteDensityHJ.eventual {t : ℕ} (h : FiniteDensityHJ t) (ht : 0 < t) 
   obtain ⟨m, hm⟩ := h δ hδ
   refine ⟨m, ?_⟩
   intro n hmn A hA
-  letI : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
+  let : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
   obtain ⟨r, rfl⟩ := Nat.exists_eq_add_of_le hmn
   classical
   let e := wordFiberEquiv t m r
@@ -268,7 +268,7 @@ fibre, pigeonhole a common line, find an `m`-subspace in its prefix colour
 class, and take the independent sum. -/
 theorem FiniteDensityHJ.finiteDensityMDHJ {t : ℕ} (h : FiniteDensityHJ t)
     (ht : 0 < t) (m : ℕ) : FiniteDensityMDHJ t m := by
-  letI : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
+  let : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
   induction m with
   | zero =>
       intro δ hδ
@@ -299,7 +299,7 @@ theorem FiniteDensityHJ.finiteDensityMDHJ {t : ℕ} (h : FiniteDensityHJ t)
         rw [density_univ]
         linarith
       obtain ⟨l₀, hl₀⟩ := hr Finset.univ huniv
-      letI : Nonempty (Combinatorics.Line (Fin t) (Fin r)) := ⟨l₀⟩
+      let : Nonempty (Combinatorics.Line (Fin t) (Fin r)) := ⟨l₀⟩
       have hq : (0 : ℝ) < Fintype.card (Combinatorics.Line (Fin t) (Fin r)) := by
         positivity
       have htheta : 0 <
@@ -374,7 +374,7 @@ theorem FiniteDensityMDHJ.eventual {t m : ℕ} (h : FiniteDensityMDHJ t m)
   obtain ⟨n₀, hn₀⟩ := h δ hδ
   refine ⟨n₀, ?_⟩
   intro n hn A hA
-  letI : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
+  let : Nonempty (Fin t) := Fin.pos_iff_nonempty.mp ht
   obtain ⟨r, rfl⟩ := Nat.exists_eq_add_of_le hn
   classical
   let e := wordFiberEquiv t n₀ r

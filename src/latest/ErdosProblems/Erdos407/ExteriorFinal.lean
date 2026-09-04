@@ -1453,7 +1453,7 @@ theorem lastMinimumCutoff_spec {n : ℕ} (hn2 : 2 ≤ n)
             (ExteriorFiniteGlue.upperLocalConstants b.1) v i) :
     (Q : ℝ) ^ ((3 / 4 : ℝ) / (2 * n)) ≤
       lambda ⟨n - 1, by omega⟩ := by
-  letI : NeZero n := ⟨by omega⟩
+  let : NeZero n := ⟨by omega⟩
   simpa [AdelicMinima.lastIndex] using (Classical.choose_spec
     (AdelicMinima.exists_half_power_last_cutoff
       L hL (ExteriorFiniteGlue.upperLocalConstants b.1)
@@ -1517,7 +1517,7 @@ noncomputable def finiteNatSup {α : Type*} [Finite α] (f : α → ℕ) : ℕ :
 theorem le_finiteNatSup {α : Type*} [Finite α] (f : α → ℕ) (a : α) :
     f a ≤ finiteNatSup f := by
   classical
-  letI := Fintype.ofFinite α
+  let := Fintype.ofFinite α
   exact Finset.le_sup (s := Finset.univ) (f := f) (Finset.mem_univ a)
 
 /-- Replacing every bounded raw exponent by its labelled upper endpoint

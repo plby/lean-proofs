@@ -85,7 +85,7 @@ noncomputable def hullNext {A : Finset Point} (P : CyclicHullOrder A) :
     (i : Fin (hullVertexCount A)) :
     (hullNext P).symm (indexEquivLiftedHull P i) =
       indexEquivLiftedHull P ((finRotate (hullVertexCount A)).symm i) := by
-  letI : NeZero (hullVertexCount A) := ⟨hpos.ne'⟩
+  let : NeZero (hullVertexCount A) := ⟨hpos.ne'⟩
   apply (hullNext P).injective
   simp
 
@@ -110,7 +110,7 @@ vertex. -/
 theorem hullNext_is_cyclic {A : Finset Point} (P : CyclicHullOrder A)
     (hthree : 3 ≤ hullVertexCount A) :
     ∀ i j, ∃ k < (liftedHullVertices A).card, (hullNext P ^ k) i = j := by
-  letI : NeZero (hullVertexCount A) := ⟨by omega⟩
+  let : NeZero (hullVertexCount A) := ⟨by omega⟩
   intro i j
   let e := indexEquivLiftedHull P
   let ii : Fin (hullVertexCount A) := e.symm i

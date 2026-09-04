@@ -62,7 +62,7 @@ theorem three_quadratic_roots_mod_prime_two_eq
     (hb : b ^ 2 + u = v * b)
     (hc : c ^ 2 + u = v * c) :
     a = b ∨ a = c ∨ b = c := by
-  letI : Fact p.Prime := ⟨hp⟩
+  let : Fact p.Prime := ⟨hp⟩
   exact three_quadratic_roots_two_eq ha hb hc
 
 end Erdos822

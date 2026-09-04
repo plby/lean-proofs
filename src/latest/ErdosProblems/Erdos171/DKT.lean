@@ -98,7 +98,7 @@ theorem exists_frozen_DKT_parameters
   have hm0raw_le : m0raw ≤ m0 := Nat.le_max_left _ _
   have hm0pos : 0 < m0 :=
     lt_of_lt_of_le Nat.zero_lt_one (Nat.le_max_right _ _)
-  letI : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hkpos
+  let : Nonempty (Fin k) := Fin.pos_iff_nonempty.mp hkpos
   have hsmall : ∀ B : Finset (Word k m0), delta / 4 ≤ density B →
       ContainsLine (B : Set (Word k m0)) := hm0raw m0 hm0raw_le
   have huniv : delta / 4 ≤
@@ -106,7 +106,7 @@ theorem exists_frozen_DKT_parameters
     rw [density_univ]
     linarith
   obtain ⟨l0, hl0⟩ := hsmall Finset.univ huniv
-  letI : Nonempty (Line (Fin k) (Fin m0)) := ⟨l0⟩
+  let : Nonempty (Line (Fin k) (Fin m0)) := ⟨l0⟩
   have hqpos : (0 : ℝ) < Fintype.card (Line (Fin k) (Fin m0)) := by
     positivity
   have hqone : (1 : ℝ) ≤ Fintype.card (Line (Fin k) (Fin m0)) := by
@@ -339,8 +339,8 @@ theorem exists_increment_tile_of_structured_tiling
     (hloss : density (D \ T.covered) < gamma ^ 2 / 2) :
     ∃ U ∈ T.tiles,
       rho + gamma / 2 < density (iterationPullback U A) := by
-  letI : Nonempty (Fin (k + 1)) := ⟨⟨0, by omega⟩⟩
-  letI : Nonempty (Word (k + 1) d) := Pi.instNonempty
+  let : Nonempty (Fin (k + 1)) := ⟨⟨0, by omega⟩⟩
+  let : Nonempty (Word (k + 1) d) := Pi.instNonempty
   have hcover : T.covered ⊆ D := (T.covered_subset_iff D).2 hcontained
   have hcoverDensity : density T.covered ≤ density D := density_mono hcover
   have hcoveredCorrelation :

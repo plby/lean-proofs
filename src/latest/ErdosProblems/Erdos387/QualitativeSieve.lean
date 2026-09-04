@@ -47,7 +47,7 @@ theorem parameterResidue_lt {m k z d : ℕ}
     (C : CoverBPZ.AbsorberCoverValid m k)
     (hd : d ∣ sievePrimeProduct k z) (a : ℕ) :
     C.parameterResidue hd a < d := by
-  letI : NeZero d := ⟨(pos_of_dvd_sievePrimeProduct hd).ne'⟩
+  let : NeZero d := ⟨(pos_of_dvd_sievePrimeProduct hd).ne'⟩
   unfold parameterResidue
   exact ZMod.val_lt _
 
@@ -70,7 +70,7 @@ theorem parameterResidue_zmod {m k z d : ℕ}
           (C.coprime_Mk_of_dvd_sievePrimeProduct hd))⁻¹ : (ZMod d)ˣ) : ZMod d) *
         ((a : ZMod d) - (C.toAbsorberCover.N₀ : ZMod d)) := by
   have hdpos : 0 < d := pos_of_dvd_sievePrimeProduct hd
-  letI : NeZero d := ⟨hdpos.ne'⟩
+  let : NeZero d := ⟨hdpos.ne'⟩
   unfold parameterResidue
   rw [ZMod.natCast_zmod_val]
   rfl
@@ -577,7 +577,7 @@ theorem absorber_brunTail_le_half_elementaryDepth {m k z : ℕ}
       (elementaryBrunCoefficient k z : ℝ) ≤
         (2 : ℝ) ^ (elementaryBrunDepth k z + 1) := by
     exact_mod_cast hnat
-  simp [elementaryBrunCoefficient, Nat.cast_mul, Nat.cast_pow] at hreal
+  simp only [Nat.cast_add, Nat.cast_one, ge_iff_le] at hreal
   convert hreal using 1 <;> push_cast <;> ring
 
 theorem absorberBoundingSieve_mainSum_eq_euler_of_card_le
@@ -722,7 +722,7 @@ theorem absorberBoundingSieve_abs_rem_le {m k T z d : ℕ}
         (AbsorberParameterCandidates T).card| ≤ _
   rw [card_absorberParameterCandidates]
   convert abs_card_divisibleAbsorberParameterCandidates_sub_density C hd
-    using 1 <;> ring
+    using 1 <;> ring_nf
 
 /-- Every divisor retained by a level-`L` Brun truncation is at most `z^L`.
 This is the elementary support bound behind the qualitative error estimate. -/

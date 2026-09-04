@@ -301,7 +301,7 @@ theorem card_pairSumset_realCoordinateSet_eq_twoA
       (realCoordinateSet R.outer.source (coefficientSet R))).card =
       (twoA A).card := by
   let a₀ : A := ⟨hA.choose, hA.choose_spec⟩
-  letI : Inhabited A := ⟨a₀⟩
+  let : Inhabited A := ⟨a₀⟩
   have hcard := card_image_eq_card_image_of_eq_iff
     (sourcePairs (A := A)) integerPairSum (realPairSum R)
     (fun x _ y _ ↦ ⟨

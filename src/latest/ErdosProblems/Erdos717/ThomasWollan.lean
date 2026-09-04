@@ -119,7 +119,7 @@ theorem isKLinked_of_minDegree_card
     { toFun := fun z => ⟨terminal z, htermX z⟩
       inj' := fun _ _ h => terminal.injective (congrArg Subtype.val h) }
   have hJcard : Fintype.card J ≤ k := by
-    letI : Fintype X := hXfinite.fintype
+    let : Fintype X := hXfinite.fintype
     have hc := Fintype.card_le_of_injective terminalInX terminalInX.injective
     have hXcard' : Fintype.card X = X.ncard := Set.fintypeCard_eq_ncard X
     rw [Fintype.card_sum, hXcard'] at hc
@@ -1417,8 +1417,8 @@ theorem exists_kLinkedSubgraph_of_unlinked_exact
   have hyt : G.Adj y (terminal (.inr i)) := hty.symm
   let S := ShortPartialLinkage.shortReach G L (terminal (.inl i))
   let T := ShortPartialLinkage.shortReach G L (terminal (.inr i))
-  letI fintypeS : Fintype (S : Set V) := FinsetCoe.fintype S
-  letI fintypeT : Fintype (T : Set V) := FinsetCoe.fintype T
+  let fintypeS : Fintype (S : Set V) := FinsetCoe.fintype S
+  let fintypeT : Fintype (T : Set V) := FinsetCoe.fintype T
   have hxS : x ∈ S := by
     exact ShortPartialLinkage.neighbor_mem_shortReach L hsx hxL
   have hyT : y ∈ T := by
@@ -1641,8 +1641,8 @@ lemma exists_full_unlinked_terminal_of_not_isKLinked
   rw [Erdos718.IsLinkedSet] at hnot
   push Not at hnot
   obtain ⟨ι, instι, terminal, hrange, hno⟩ := hnot
-  letI : Fintype ι := instι
-  letI : Fintype X := hXfinite.fintype
+  let : Fintype ι := instι
+  let : Fintype X := hXfinite.fintype
   let terminalX : Sum ι ι ↪ X :=
     ⟨fun z => ⟨terminal z, hrange ⟨z, rfl⟩⟩,
       fun a b hab => terminal.injective (Subtype.ext_iff.mp hab)⟩

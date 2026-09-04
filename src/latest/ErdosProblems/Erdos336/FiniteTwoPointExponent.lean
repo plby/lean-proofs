@@ -75,7 +75,7 @@ theorem lowerResidues_all_exact
     rcases ha with ⟨_, rfl⟩ | ⟨_, rfl⟩
     · exact Or.inr rfl
     · exact Or.inl rfl
-  · haveI : NeZero g := ⟨by dsimp [g]; exact Nat.ne_of_gt (lower_modulus_pos u)⟩
+  · have : NeZero g := ⟨by dsimp [g]; exact Nat.ne_of_gt (lower_modulus_pos u)⟩
     have hjz :
         (((lowerStep u - 1) * j : ℕ) : ZMod g) = (n : ZMod g) := by
       apply (ZMod.natCast_eq_natCast_iff' _ _ g).mpr

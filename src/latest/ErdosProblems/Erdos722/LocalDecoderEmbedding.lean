@@ -198,7 +198,7 @@ theorem exists_separatedCliqueExtensions_of_finite_bounds
   classical
   let ambientEmbedding : Fin v ↪ Fin n :=
     Classical.choice (inferInstance : Nonempty (Fin v ↪ Fin n))
-  letI : Nonempty (Fin n) :=
+  let : Nonempty (Fin n) :=
     ⟨ambientEmbedding ⟨0, by omega⟩⟩
   have hedgeCard (i : ℕ) :
       (coverRoot v r).card = (scheduledEdge roots e₀ i).card := by

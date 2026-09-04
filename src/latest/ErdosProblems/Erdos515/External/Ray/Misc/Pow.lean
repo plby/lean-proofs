@@ -129,4 +129,4 @@ public lemma Real.one_sub_rpow_neg_sub_one_le_linear {x y a : ℝ} (x0 : 0 ≤ x
   · replace x0 : 0 < x := (Ne.symm xz).lt_of_le x0
     rw [← div_le_iff₀ (by linarith)]
     simpa [slope, ← div_eq_inv_mul] using (Real.convexOn_rpow_of_neg a0).slope_mono (x := 1)
-      (by simp) (a := 1 - y) (b := 1 - x) (by simp; bound) (by simp; bound) (by bound)
+      (by simp) (a := 1 - y) (b := 1 - x) (by simp only [mem_sdiff, mem_Ioi, sub_pos, mem_singleton_iff, sub_eq_self]; bound) (by simp only [mem_sdiff, mem_Ioi, sub_pos, mem_singleton_iff, sub_eq_self]; bound) (by bound)

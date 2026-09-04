@@ -1446,7 +1446,7 @@ theorem gaussPrefixMarkedMixedTupleCharacter_activeAnnular_eq
   · simp only [activeAnnularOccurrenceSignedLower,
       activeAnnularOccurrenceSignedUpper, if_pos hactive]
   · have hk : k i = 0 := Nat.eq_zero_of_not_pos hactive
-    letI : IsEmpty (Fin (k i)) :=
+    let : IsEmpty (Fin (k i)) :=
       ⟨fun j ↦ Fin.elim0 (hk ▸ j)⟩
     simp
 
@@ -3060,7 +3060,7 @@ theorem tendsto_annularContractedLowerRetainedMovingSum_zero
   convert! hadd using 1
   · funext N
     ring
-  · ring
+  · ring_nf
 
 /-- The tagged moving aggregate is exactly the paper-facing nested sum over
 chronological orders and contracted lower-retained tuple families. -/

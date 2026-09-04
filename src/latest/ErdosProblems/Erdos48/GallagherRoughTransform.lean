@@ -29,7 +29,7 @@ private theorem sum_units_invCharacter_mul_stdAddChar_eq_sum_zmod_general
       chi⁻¹ (u : ZMod q) * ZMod.stdAddChar ((u : ZMod q) * n)) =
       ∑ a : ZMod q, chi⁻¹ a * ZMod.stdAddChar (a * n) := by
   classical
-  letI : Fintype (IsUnit.submonoid (ZMod q)) := Fintype.ofFinite _
+  let : Fintype (IsUnit.submonoid (ZMod q)) := Fintype.ofFinite _
   calc
     (∑ u : (ZMod q)ˣ,
         chi⁻¹ (u : ZMod q) * ZMod.stdAddChar ((u : ZMod q) * n)) =
@@ -67,7 +67,7 @@ theorem fourier_expansion_of_coprime
     apply Finset.sum_congr rfl
     intro a _ha
     simp only [AddChar.mulShift_apply, u, ZMod.coe_unitOfCoprime]
-    ring
+    ring_nf
   rw [hshift, gaussSum_mulShift_eq]
   have hu : chi⁻¹⁻¹ (u : ZMod q) = chi n := by
     simp only [inv_inv, u, ZMod.coe_unitOfCoprime]

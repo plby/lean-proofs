@@ -966,7 +966,7 @@ theorem exists_next_of_expect_updateCost_lt_one
         simp at this
         omega
       have hc := hcardTerm j
-      simp [cardinalCost, hjne, hj] at hc
+      simp only [ge_iff_le] at hc
       by_contra hbad
       have hlt : (intersectOthers G S.sets ⟨i, hi⟩ x j).card < L :=
         Nat.lt_of_not_ge hbad
@@ -980,7 +980,7 @@ theorem exists_next_of_expect_updateCost_lt_one
         omega
       have hnfuture : ¬i < j.1 := by omega
       have hc := hcardTerm j
-      simp [cardinalCost, hjne, hnfuture] at hc
+      simp only [ge_iff_le] at hc
       by_contra hbad
       have hlt : (intersectOthers G S.sets ⟨i, hi⟩ x j).card < τ :=
         Nat.lt_of_not_ge hbad
@@ -991,7 +991,7 @@ theorem exists_next_of_expect_updateCost_lt_one
       have hcond : i < jj.1 ∧ jj.1 + 1 < r := by
         simpa [jj] using And.intro (by omega : i < j) hjr
       have hrawRatio := hfutureTerm jj
-      simp [futureRawCost, hcond] at hrawRatio
+      simp only [ge_iff_le] at hrawRatio
       have hden : (0 : ℝ) < (L : ℝ) ^ dim * ε' := by positivity
       have hraw : DRC.rawMoment G L 0 dim
           (intersectOthers G S.sets ⟨i, hi⟩ x jj)
@@ -1006,7 +1006,7 @@ theorem exists_next_of_expect_updateCost_lt_one
             have := congrArg Fin.val h
             simp [jj] at this
             omega
-          simp [cardinalCost, hjne, hcond.1] at this
+          simp only [ge_iff_le] at this
           by_contra hbad
           have hlt : (intersectOthers G S.sets ⟨i, hi⟩ x jj).card < L :=
             Nat.lt_of_not_ge hbad
@@ -1016,7 +1016,7 @@ theorem exists_next_of_expect_updateCost_lt_one
     (fun j hj => by
       have hcond : j.1 ≤ i := by omega
       have hrawRatio := hdoneTerm j
-      simp [doneRawCost, hcond] at hrawRatio
+      simp only [ge_iff_le] at hrawRatio
       have hden : (0 : ℝ) < (τ : ℝ) ^ dim * ε' := by positivity
       have hraw : DRC.rawMoment G θ s dim
           (unionExcept (intersectOthers G S.sets ⟨i, hi⟩ x) j)
@@ -1039,7 +1039,7 @@ theorem exists_next_of_expect_updateCost_lt_one
     (by
       let ii : Fin r := ⟨i, hi⟩
       have hrawRatio := hdoneTerm ii
-      simp [doneRawCost, ii] at hrawRatio
+      simp only [intersectOthers_self, ge_iff_le] at hrawRatio
       have hden : (0 : ℝ) < (τ : ℝ) ^ dim * ε' := by positivity
       have hraw : DRC.rawMoment G θ s dim
           (unionExcept (intersectOthers G S.sets ii x) ii)
@@ -1052,7 +1052,7 @@ theorem exists_next_of_expect_updateCost_lt_one
           by_cases hik : i < k.1
           · exact hτL.trans (by
               have := hcardTerm k
-              simp [cardinalCost, hki, hik, ii] at this
+              simp only [ge_iff_le] at this
               by_contra hbad
               have hlt : (intersectOthers G S.sets ii x k).card < L :=
                 Nat.lt_of_not_ge hbad
@@ -1065,7 +1065,7 @@ theorem exists_next_of_expect_updateCost_lt_one
                 exact Fin.ext h
               omega
             have := hcardTerm k
-            simp [cardinalCost, hki, hik, ii] at this
+            simp only [ge_iff_le] at this
             by_contra hbad
             have hlt : (intersectOthers G S.sets ii x k).card < τ :=
               Nat.lt_of_not_ge hbad

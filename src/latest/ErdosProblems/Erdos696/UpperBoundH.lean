@@ -141,7 +141,8 @@ lemma sum_Icc_inv_mul_sqrt_le (D N : ℕ) (hD : 1 ≤ D) :
                 4 * (1 / Real.sqrt D) := by nlinarith
             simp [div_eq_mul_inv] at hle ⊢
   · have hempty : Finset.Icc D N = ∅ := Finset.Icc_eq_empty_of_lt (Nat.lt_of_not_ge hDN)
-    simp [hempty]
+    rw [hempty]
+    simp only [Finset.sum_empty]
     positivity
 
 /-- The possible larger entries in an `H`-bad pair with fixed smaller entry `d`,

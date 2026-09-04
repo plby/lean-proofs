@@ -771,7 +771,7 @@ theorem exists_eventual_graphEffective_smallRLCD_window_lower_threshold
       n hcommonN htypicalN hzeroN hdegreeBadN hgrowthN hclaimN'
         hcountBadN' herrorN' hratioN' hnearN' hdegreeDecayN hn
   intro G _instAdj c hRamsey hc hsmall e0 target htarget
-  letI : DecidableRel G.Adj := _instAdj
+  let : DecidableRel G.Adj := _instAdj
   obtain ⟨D, hrem, hpart, hbucket, hcoveredRamsey, hFrob, hclaims⟩ :=
     hcommonN G c hRamsey hc hsmall
   have hnpos : 0 < n := by omega

@@ -74,7 +74,7 @@ def HasIndependentSetAt (G : SimpleGraph V) (k : ℕ) : Prop :=
 private lemma connected_of_not_separated
     (hCard : 3 ≤ Fintype.card V)
     (hsep : ¬ HasSeparationWitness G) : G.Connected := by
-  letI : Nonempty V := Fintype.card_pos_iff.mp (by omega)
+  let : Nonempty V := Fintype.card_pos_iff.mp (by omega)
   have hpre : G.Preconnected := by
     by_contra h
     exact hsep (Or.inl h)
@@ -94,7 +94,7 @@ private lemma delete_connected_of_not_separated
     rw [Fintype.card_subtype_compl]
     have heq : Fintype.card {v : V // v = c} = 1 := Fintype.card_unique
     omega
-  letI : Nonempty {v : V // v ≠ c} := Fintype.card_pos_iff.mp hcard
+  let : Nonempty {v : V // v ≠ c} := Fintype.card_pos_iff.mp hcard
   have hH : H.Connected := ⟨hpre⟩
   let e : H ≃g G.induce ({c}ᶜ : Set V) :=
     { toFun := fun x ↦ ⟨x, by
@@ -2408,7 +2408,7 @@ private lemma mem_cycleLengths_iff {m : ℕ} :
 
 theorem exists_isLongestCycle (hTwo : Erdos58.TwoConnected G) :
     ∃ (z : V) (c : G.Walk z z), IsLongestCycle c := by
-  letI : Nonempty V := Fintype.card_pos_iff.mp (by
+  let : Nonempty V := Fintype.card_pos_iff.mp (by
     have := hTwo.card_three_le
     omega)
   let x : V := Classical.choice (inferInstance : Nonempty V)

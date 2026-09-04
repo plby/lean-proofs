@@ -317,8 +317,8 @@ theorem FundamentalCoordinate.localBound_univ (c : FundamentalCoordinate)
     letI (i : Fin 6) : Fintype (c.Value i) := c.valueFintype i
     ‖∑ s : c.State, ∏ i, f i (c.project i s)‖ ≤
       c.scale * ∏ i, Real.sqrt (∑ x : c.Value i, ‖f i x‖ ^ 2) := by
-  letI : Fintype c.State := c.stateFintype
-  letI (i : Fin 6) : Fintype (c.Value i) := c.valueFintype i
+  let : Fintype c.State := c.stateFintype
+  let (i : Fin 6) : Fintype (c.Value i) := c.valueFintype i
   have h := c.localBound f
   rw [show c.stateFintype.elems = Finset.univ by
     ext x
@@ -347,8 +347,8 @@ theorem FundamentalCoordinate.localBound_with (c : FundamentalCoordinate)
     letI (i : Fin 6) : Fintype (c.Value i) := valueFintype i
     ‖∑ s : c.State, ∏ i, f i (c.project i s)‖ ≤
       c.scale * ∏ i, Real.sqrt (∑ x : c.Value i, ‖f i x‖ ^ 2) := by
-  letI : Fintype c.State := stateFintype
-  letI (i : Fin 6) : Fintype (c.Value i) := valueFintype i
+  let : Fintype c.State := stateFintype
+  let (i : Fin 6) : Fintype (c.Value i) := valueFintype i
   have h := c.localBound f
   rw [show c.stateFintype.elems = stateFintype.elems by
     ext x
@@ -536,7 +536,7 @@ private theorem sixConvolution_sum_eq (f : Fin 6 → ZMod p → ℂ) :
     simp [Fin.prod_univ_succ, sixConvolutionProject]
     ring]
   simp_rw [Finset.sum_mul]
-  ring
+  ring_nf
 
 /-- Concrete local coordinate for a prime occurring in all six
 denominators.  Its exact scale is `p²`. -/
@@ -564,8 +564,9 @@ noncomputable def primeCoordinateSix : FundamentalCoordinate where
           rw [← mul_assoc, hs]
           ring
         simp only [finiteL2]
-        simp [Fin.prod_univ_succ]
+        simp only [Fin.isValue, Nat.cast_nonneg, Real.mul_self_sqrt]
         rw [hscale]
+        simp [Fin.prod_univ_succ]
         ring
 
 def twoConvolutionProject (i : Fin 6) (a : ZMod p) : ZMod p :=
@@ -668,12 +669,13 @@ private theorem threeConvolution_sum_eq (f : Fin 6 → ZMod p → ℂ) :
     ∑ s : ThreeConvolutionState p, ∏ i, f i (threeConvolutionProject p i s) =
       iterConv (f 0) [f 1, f 2] 0 * (f 3 0 * f 4 0 * f 5 0) := by
   simp only [iterConv, finiteConv, Fintype.sum_prod_type]
-  simp [Fin.prod_univ_succ, threeConvolutionProject]
+  simp only [Fin.isValue, zero_sub]
   simp_rw [Finset.sum_mul]
   apply Finset.sum_congr rfl
   intro b hb
   apply Finset.sum_congr rfl
   intro a ha
+  simp [Fin.prod_univ_succ, threeConvolutionProject]
   ring
 
 /-- Concrete coordinate for a prime occurring in the first three factors. -/
@@ -725,7 +727,7 @@ private theorem fourConvolution_sum_eq (f : Fin 6 → ZMod p → ℂ) :
     ∑ s : FourConvolutionState p, ∏ i, f i (fourConvolutionProject p i s) =
       iterConv (f 0) [f 1, f 2, f 3] 0 * (f 4 0 * f 5 0) := by
   simp only [iterConv, finiteConv, Fintype.sum_prod_type]
-  simp [Fin.prod_univ_succ, fourConvolutionProject]
+  simp only [Fin.isValue, zero_sub]
   simp_rw [Finset.sum_mul]
   apply Finset.sum_congr rfl
   intro c hc
@@ -733,6 +735,7 @@ private theorem fourConvolution_sum_eq (f : Fin 6 → ZMod p → ℂ) :
   intro b hb
   apply Finset.sum_congr rfl
   intro a ha
+  simp [Fin.prod_univ_succ, fourConvolutionProject]
   ring
 
 /-- Concrete coordinate for a prime occurring in the first four factors. -/
@@ -783,7 +786,7 @@ private theorem fiveConvolution_sum_eq (f : Fin 6 → ZMod p → ℂ) :
     ∑ s : FiveConvolutionState p, ∏ i, f i (fiveConvolutionProject p i s) =
       iterConv (f 0) [f 1, f 2, f 3, f 4] 0 * f 5 0 := by
   simp only [iterConv, finiteConv, Fintype.sum_prod_type]
-  simp [Fin.prod_univ_succ, fiveConvolutionProject]
+  simp only [Fin.isValue, zero_sub]
   simp_rw [Finset.sum_mul]
   apply Finset.sum_congr rfl
   intro d hd
@@ -793,6 +796,8 @@ private theorem fiveConvolution_sum_eq (f : Fin 6 → ZMod p → ℂ) :
   intro b hb
   apply Finset.sum_congr rfl
   intro a ha
+  simp [Fin.prod_univ_succ, fiveConvolutionProject, sub_eq_add_neg,
+    add_comm]
   ring
 
 /-- Concrete coordinate for a prime occurring in the first five factors. -/
@@ -825,9 +830,10 @@ noncomputable def primeCoordinateFive : FundamentalCoordinate where
       _ = Real.sqrt p ^ 3 * ∏ i, Real.sqrt (∑ x : ZMod p, ‖f i x‖ ^ 2) := by
         have hs : Real.sqrt (p : ℝ) ^ 2 = p := Real.sq_sqrt (by positivity)
         simp only [finiteL2]
-        simp [Fin.prod_univ_succ]
+        simp only [Fin.isValue, Nat.cast_nonneg, Real.mul_self_sqrt]
         rw [show Real.sqrt (p : ℝ) ^ 3 = Real.sqrt p * p by
           rw [pow_succ, hs, mul_comm]]
+        simp [Fin.prod_univ_succ]
         ring
 
 private noncomputable def finsetSupportPerm (s t : Finset (Fin 6))

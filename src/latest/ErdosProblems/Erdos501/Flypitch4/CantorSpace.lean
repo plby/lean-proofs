@@ -51,7 +51,7 @@ noncomputable def equiv_Prop_bool : Equiv Prop Bool where
   invFun := fun b => b = true
   left_inv := fun p => by
     simp only [Prop_to_bool]
-    haveI := Classical.propDecidable p
+    have := Classical.propDecidable p
     by_cases h : p <;> simp [h]
   right_inv := fun b => by
     cases b <;> simp [Prop_to_bool]
@@ -485,7 +485,7 @@ lemma countable_chain_condition_set {α : Type u} :
   intro s hs
   apply countable_chain_condition_of_countable
   apply le_of_lt
-  haveI : Fintype ↑s := hs.fintype
+  have : Fintype ↑s := hs.fintype
   rw [Cardinal.mk_arrow]
   apply Cardinal.power_lt_aleph0
   · rw [show (#Prop : Cardinal) = #Bool from Cardinal.mk_congr equiv_Prop_bool]

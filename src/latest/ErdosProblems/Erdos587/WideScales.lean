@@ -190,7 +190,7 @@ theorem exists_eventual_wide_quadratic_congruence (c : ℝ) (hc : 0 < c) :
     Real.tendsto_log_atTop.eventually_ge_atTop 1,
     eventually_ge_atTop (1 : ℝ)] with T hcut hroot herr hlog hT
   intro q u t Z L U hq hu hqsize hL hLT hU hbudget
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   let M := ⌊T ^ (1 / 4 : ℝ) / (1 + Real.log T) ^ (O + 1)⌋₊
   have hqT : (q : ℝ) ≤ T := by
     apply hqsize.trans

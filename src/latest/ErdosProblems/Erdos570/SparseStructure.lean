@@ -439,9 +439,9 @@ theorem exists_spanning_suspendedPath_of_core_empty
     simp at hvcore
   let v : Fin H.vertexCount := Classical.choice hconn.nonempty
   obtain ⟨w, hvw⟩ := H.graph.exists_adj_iff_not_isIsolated.mpr (hH v)
-  letI : Nontrivial (Fin H.vertexCount) := ⟨⟨v, w, hvw.ne⟩⟩
+  let : Nontrivial (Fin H.vertexCount) := ⟨⟨v, w, hvw.ne⟩⟩
   obtain ⟨T, hTH, hTtree⟩ := hconn.exists_isTree_le
-  letI : DecidableRel T.Adj := Classical.decRel _
+  let : DecidableRel T.Adj := Classical.decRel _
   obtain ⟨s, hs⟩ := hTtree.exists_vert_degree_one_of_nontrivial
   have hTdeg : ∀ x : Fin H.vertexCount, T.degree x ≤ 2 := by
     intro x

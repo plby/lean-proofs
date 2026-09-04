@@ -28,7 +28,7 @@ available only locally. -/
 theorem exists_fin_two_basis_of_finite_quotient
     (Λ : Submodule ℤ (Fin 2 → ℤ)) (hfin : Finite ((Fin 2 → ℤ) ⧸ Λ)) :
     Nonempty (Basis (Fin 2) ℤ Λ) := by
-  letI := hfin
+  let := hfin
   exact ⟨finiteIndexBasis Λ⟩
 
 end Erdos394

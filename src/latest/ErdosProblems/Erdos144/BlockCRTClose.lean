@@ -136,7 +136,7 @@ theorem hasCloseDivisors_of_blockGood
     (hresolution : 2 * (L : ℝ) / K < Real.log 2)
     (hgood : BlockGood label L Z) :
     CRTClose.HasCloseDivisors n := by
-  letI (i : κ) : NeZero (p i) := ⟨(hprime i).ne_zero⟩
+  let (i : κ) : NeZero (p i) := ⟨(hprime i).ne_zero⟩
   obtain ⟨A, B, hAB, hAcard, hBcard, hsum⟩ :=
     blockGood_witness_ne hgood
   let A' := coordinateSet label Z A

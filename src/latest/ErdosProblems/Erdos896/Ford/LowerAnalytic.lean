@@ -426,7 +426,7 @@ theorem log_X_le_nine_log_of_quotient_band
   have hNypos : 0 < N * y := Nat.mul_pos hNpos hypos
   have hlogmono : Real.log (X N p) ≤ Real.log (2 * (N * y) : ℕ) := by
     by_cases hX0 : X N p = 0
-    · simp [hX0]
+    · simp only [Nat.cast_mul, Nat.cast_ofNat]
       have hone : 1 ≤ 2 * (N * y) :=
         Nat.one_le_iff_ne_zero.mpr
           (Nat.mul_ne_zero (by omega) (Nat.mul_ne_zero hNpos.ne' hypos.ne'))

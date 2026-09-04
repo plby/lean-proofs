@@ -267,7 +267,7 @@ theorem listThresholdSites_append_singleton (m : ℕ) (seen : List α)
     simp only [show (x == y) = false by simp [Ne.symm hyx], ite_false,
       add_zero]
     by_cases hm : seen.count x + 1 = m
-    · simp [hm]
+    · simp only [Bool.false_eq_true, ↓reduceIte, add_zero]
       exact fun h ↦ (hyx h).elim
     · simp [hm]
 

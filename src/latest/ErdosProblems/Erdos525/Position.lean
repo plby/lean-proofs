@@ -596,7 +596,7 @@ lemma positionCharFun_integral_le_of_positionCovariance
         calc
           _ ≤ 1 * Real.exp (-(gamma / Real.pi ^ 2 * ‖u‖ ^ 2)) :=
             mul_le_mul hweight hchar (norm_nonneg _) zero_le_one
-          _ = _ := by congr 1 <;> ring
+          _ = _ := by congr 1 <;> ring_nf
       _ ≤ ∫ u, g u := setIntegral_le_integral hg
         (Eventually.of_forall fun u ↦ by dsimp [g]; positivity)
   have htail : (∫ u in Bᶜ, f u) ≤
@@ -2107,7 +2107,7 @@ theorem eventually_positionCharFun_integral_le_weakSpread
         calc
           _ ≤ 1 * Real.exp (-(gamma / Real.pi ^ 2 * ‖u‖ ^ 2)) :=
             mul_le_mul hweight hchar (norm_nonneg _) zero_le_one
-          _ = _ := by congr 1 <;> ring
+          _ = _ := by congr 1 <;> ring_nf
       _ ≤ ∫ u, h u := setIntegral_le_integral hh
         (Eventually.of_forall fun u ↦ by dsimp [h]; positivity)
       _ = (Real.pi / (gamma / Real.pi ^ 2)) ^ m := by
@@ -2619,7 +2619,7 @@ lemma positionMidIntegralTerm_tendsto
   rw [hnorm]
   unfold positionRigidityEnergyScale
   dsimp [C]
-  ring
+  ring_nf
 
 noncomputable def positionTailDecayExponent (m : ℕ) : ℝ :=
   2 * positionRigidityFourierExponent m - 1
@@ -3512,7 +3512,7 @@ lemma phaseHighVelocity_demand_of_position_demand
     calc
       2 * X < 2 * ((H : ℝ) * D / 4 / A) :=
         mul_lt_mul_of_pos_left hdiv (by norm_num)
-      _ = (H : ℝ) * D / (2 * A) := by ring
+      _ = (H : ℝ) * D / (2 * A) := by ring_nf
   have hnSq : (n : ℝ) ^ 2 ≤ J ^ 2 * (H : ℝ) ^ 2 := by
     have hsquare := (sq_le_sq₀ hnreal.le
       (mul_nonneg hJ hHreal.le)).2 hJsize
@@ -4389,7 +4389,7 @@ theorem eventually_scaledWeakClose_representatives_adjacent
     convert h using 1
     · funext n
       ring
-    · ring
+    · ring_nf
   have hweak : ∀ᶠ n : ℕ in atTop,
       fineGlobalAccelerationBound k n * (L * weakSpreadScale k n) <
         velocityLower / 4 :=
@@ -4977,7 +4977,7 @@ theorem halfGoodFactoredTruncatedChooseContribution_tendsto
       (𝓝 (A * (((1 / 2 : ℝ) ^ m) / (m.factorial : ℝ)))) := by
     dsimp [reference]
     convert tendsto_const_nhds.mul
-      (halfGoodLocalSiteSets_ratio_tendsto_factorial m hm) using 1 <;> ring
+      (halfGoodLocalSiteSets_ratio_tendsto_factorial m hm) using 1 <;> ring_nf
   have hdiff : Tendsto (fun n : ℕ ↦
       halfGoodFactoredTruncatedChooseContribution n m widthFactor u
           velocityLower velocityUpper - reference n) atTop (𝓝 0) := by
@@ -5087,7 +5087,7 @@ theorem halfGoodBoundaryDefectContribution_tendsto
     (Eventually.of_forall fun n ↦
       (halfGoodBoundaryDefectContribution_eq_sub n m widthFactor u
         velocityLower velocityUpper hfactorOne).symm)
-  convert hsub using 1 <;> ring
+  convert hsub using 1 <;> ring_nf
 
 noncomputable def halfGoodBoundaryDefectSiteSets
     (n m : ℕ) (widthFactor u velocityLower velocityUpper : ℝ)

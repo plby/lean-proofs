@@ -182,8 +182,8 @@ theorem card_compatiblePrimeState (hp : p.Prime)
     (J : Finset (Fin 6)) (j0 : Fin 6) (hj0 : j0 ∈ J) :
     Nat.card (CompatiblePrimeState p J) = p ^ (J.card - 1) := by
   classical
-  letI : NeZero p := ⟨hp.ne_zero⟩
-  letI : Fintype (CompatiblePrimeState p J) :=
+  let : NeZero p := ⟨hp.ne_zero⟩
+  let : Fintype (CompatiblePrimeState p J) :=
     Fintype.ofEquiv (↑(J.erase j0) → ZMod p)
       (compatiblePrimeStateEquivErase p J j0 hj0).symm
   rw [Nat.card_eq_fintype_card]

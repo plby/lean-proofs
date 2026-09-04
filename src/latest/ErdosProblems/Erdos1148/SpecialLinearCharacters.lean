@@ -38,7 +38,7 @@ theorem specialLinear_commGroupHom_eq_one {C : Type*} [CommGroup C]
     have heq : f (unstableHorocycle r) * 1 = f (unstableHorocycle r) * f (unstableHorocycle r) := by
       simpa only [mul_one] using h
     exact (mul_left_cancel heq).symm
-  letI : MulAction SL(2, ℝ) C := MulAction.compHom C f
+  let : MulAction SL(2, ℝ) C := MulAction.compHom C f
   have hs' (r : ℝ) : stableHorocycle r • (1 : C) = 1 := by
     change f (stableHorocycle r) * 1 = 1
     rw [hs, one_mul]

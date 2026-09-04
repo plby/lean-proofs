@@ -712,7 +712,7 @@ theorem tendsto_primeHarmonic_cutoff_div_log {α : ℝ} (hα : 0 < α) :
   · funext m
     dsimp [e]
     ring
-  · ring
+  · ring_nf
 
 /-- At the polynomial cutoff `m^3`, the reciprocal-prime mass is
 asymptotic to `log log m`. -/
@@ -1446,14 +1446,14 @@ theorem sum_weight_relation_le_delta
   classical
   let f : I → (ZMod m)ˣ :=
     fun i => ZMod.unitOfCoprime (a i) (hcopm i)
-  letI (i : I) : NeZero (a i) := ⟨(hprime i).ne_zero⟩
+  let (i : I) : NeZero (a i) := ⟨(hprime i).ne_zero⟩
   have hpair : Pairwise (Function.onFun Nat.Coprime a) := by
     intro i j hij
     have hne : a i ≠ a j := fun h => hij (hinj h)
     exact (hprime i).coprime_iff_not_dvd.mpr fun hd =>
       hne ((Nat.prime_dvd_prime_iff_eq (hprime i) (hprime j)).mp hd)
   let Q : ℕ := ∏ i, a i
-  letI : NeZero Q := ⟨by
+  let : NeZero Q := ⟨by
     dsimp [Q]
     exact Finset.prod_ne_zero_iff.mpr fun i _ => (hprime i).ne_zero⟩
   let selected : ℕ → Finset I := fun n =>
@@ -1517,14 +1517,14 @@ theorem sum_weight_boundedRelation_le_delta
   classical
   let f : I → (ZMod m)ˣ :=
     fun i => ZMod.unitOfCoprime (a i) (hcopm i)
-  letI (i : I) : NeZero (a i) := ⟨(hprime i).ne_zero⟩
+  let (i : I) : NeZero (a i) := ⟨(hprime i).ne_zero⟩
   have hpair : Pairwise (Function.onFun Nat.Coprime a) := by
     intro i j hij
     have hne : a i ≠ a j := fun h => hij (hinj h)
     exact (hprime i).coprime_iff_not_dvd.mpr fun hd =>
       hne ((Nat.prime_dvd_prime_iff_eq (hprime i) (hprime j)).mp hd)
   let Q : ℕ := ∏ i, a i
-  letI : NeZero Q := ⟨by
+  let : NeZero Q := ⟨by
     dsimp [Q]
     exact Finset.prod_ne_zero_iff.mpr fun i _ => (hprime i).ne_zero⟩
   let selected : ℕ → Finset I := fun n =>
@@ -1593,7 +1593,7 @@ theorem residueMass_primeUnits_eq
           ZMod.unitOfCoprime p.1 (hcop p.1 p.2)) u =
       PrimeWindow.residueOddsMass L U m (u : ZMod m).val := by
   classical
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   unfold WeightedSubset.residueMass Bernoulli.odds
     PrimeWindow.residueOddsMass
   rw [show (Finset.univ : Finset ↥(PrimeWindow.primes L U)) =
@@ -1752,7 +1752,7 @@ theorem one_sub_delta_le_primeWindow_error
           (Kmax : ℝ) * ((m.totient : ℝ) * D /
             PrimeWindow.oddsMass L U)) := by
   classical
-  letI : NeZero m := ⟨hm.ne'⟩
+  let : NeZero m := ⟨hm.ne'⟩
   let I := ↥(PrimeWindow.primes L U)
   let p : I → ℝ := fun i => 1 / (i.1 : ℝ)
   let hcopI : ∀ i : I, Nat.Coprime i.1 m := fun i => hcop i.1 i.2
@@ -2019,7 +2019,7 @@ theorem eventually_primeWindow_product_lt_cutoff
     convert this using 1
     · funext m
       ring
-    · ring
+    · ring_nf
   filter_upwards [eventually_gt_atTop 1,
       hratio.eventually (gt_mem_nhds (show (0 : ℝ) < 1 by norm_num)),
       hpow.eventually_gt_atTop 0,
@@ -3527,7 +3527,7 @@ private theorem tendsto_delta_zero_of_one_le_of_lt_critical
         hDup hBVm hφm hSm hquarter
     rcases hBVm with ⟨hL4, hLU, hlogL1, hpoint⟩
     have hmpos : 0 < m := by omega
-    letI : NeZero m := ⟨hmpos.ne'⟩
+    let : NeZero m := ⟨hmpos.ne'⟩
     have hmRpos : (0 : ℝ) < m := by exact_mod_cast hmpos
     have hP : P m = m ^ 3 := rfl
     have hmP : m ≤ P m := by dsimp [P]; exact Nat.le_pow (by omega)
@@ -3643,13 +3643,13 @@ private theorem tendsto_delta_zero_of_one_le_of_lt_critical
         Real.exp (-(bmid / 2) * ll m) := by
       have h := upperTail_le_exp_neg_rate_mul hrmid1 hlowMid
       dsimp [bmid]
-      convert h using 1 <;> ring
+      convert h using 1 <;> ring_nf
     have htailMark : UpperBound.upperTail rmark
         (PrimeWindow.reciprocalMass (P m) (U m)) ≤
         Real.exp (-(bmark * α / 2) * ell m) := by
       have h := upperTail_le_exp_neg_rate_mul hrmark1 hlowMark
       dsimp [bmark]
-      convert h using 1 <;> ring
+      convert h using 1 <;> ring_nf
     have hrank : (Real.sqrt (m : ℝ))⁻¹ * Real.exp (5 * (R m + 1 : ℕ)) ≤
         Real.exp 5 * Real.exp (-(2 / 5 : ℝ) * ell m) := by
       simpa [R, ell] using rankin_floorLog_bound hmpos (by linarith)
@@ -3675,7 +3675,7 @@ private theorem tendsto_delta_zero_of_one_le_of_lt_critical
       (by simpa [ell] using hmidM)
       (by simpa [ell] using hmarkM)
     dsimp [E, F, G, c, q, ell, ll]
-    convert henv using 1 <;> ring
+    convert henv using 1 <;> ring_nf
   apply squeeze_zero'
   · exact Eventually.of_forall fun m => delta_nonneg m α
   · exact hδE

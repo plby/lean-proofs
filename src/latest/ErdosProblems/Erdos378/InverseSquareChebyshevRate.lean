@@ -378,7 +378,7 @@ private theorem tendsto_log_pow_mul_scale_inverse_zero :
     · funext y
       simp only [Function.comp_apply]
       congr 1
-      ring
+      ring_nf
     · norm_num
   have hnonneg : ∀ᶠ y : ℕ in atTop,
       0 ≤ Real.log (y : ℝ) ^ 100 *

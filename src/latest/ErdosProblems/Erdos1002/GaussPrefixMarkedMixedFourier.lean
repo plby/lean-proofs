@@ -98,7 +98,7 @@ given its discrete sigma-algebra. -/
 theorem measurable_selectedGaussPrefixWord (n : ℕ) :
     @Measurable ℝ (PositiveDigitWord n) inferInstance ⊤
       (selectedGaussPrefixWord n) := by
-  letI : MeasurableSpace (PositiveDigitWord n) := ⊤
+  let : MeasurableSpace (PositiveDigitWord n) := ⊤
   apply measurable_to_countable
   intro y
   let w : PositiveDigitWord n := selectedGaussPrefixWord n y
@@ -137,7 +137,7 @@ fibres of the countable half-open cylinder partition above. -/
 theorem measurable_gaussPrefixMarkedDepthCharacter
     (N n : ℕ) {B : Set (ℝ × ℝ × ℝ)} (hB : MeasurableSet B) (h : ℤ) :
     Measurable (gaussPrefixMarkedDepthCharacter N B n h) := by
-  letI : MeasurableSpace (PositiveDigitWord n) := ⊤
+  let : MeasurableSpace (PositiveDigitWord n) := ⊤
   have hselected : Measurable (selectedGaussPrefixWord n) :=
     measurable_selectedGaussPrefixWord n
   let G : PositiveDigitWord n × ℝ → ℂ := fun z ↦

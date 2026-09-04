@@ -99,7 +99,7 @@ theorem chromaticNumber_le (H : (graph C q).Subgraph) (k : ℕ)
     (hfin : H.verts.Finite) (hcard : H.verts.ncard ≤ q k) :
     H.coe.chromaticNumber ≤ (2 ^ (k + 1) : ℕ) := by
   classical
-  letI : Fintype H.verts := hfin.fintype
+  let : Fintype H.verts := hfin.fintype
   have hcard' : Fintype.card H.verts ≤ q k := by
     rwa [Set.fintypeCard_eq_ncard]
   obtain ⟨ct⟩ := tail_colorable_two C q H k hcard'

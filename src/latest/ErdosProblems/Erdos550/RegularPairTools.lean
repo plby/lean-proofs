@@ -95,14 +95,14 @@ lemma isUniform_few_low_degree
     · exact Exists.elim ( Finset.card_pos.mp ( Nat.cast_pos.mp ( lt_of_lt_of_le ( mul_pos hε0 ( Nat.cast_pos.mpr hs.card_pos ) ) ( le_of_not_gt h_contra ) ) ) ) fun x hx => ⟨ x, hx, Finset.mem_filter.mp hx |>.2 ⟩;
   -- By the definition of $s'$, we have $\sum_{a \in s'} \text{deg}(a, t) = \text{edgeDensity}(s', t) \cdot |s'| \cdot |t|$.
   have h_sum_deg_eq : ∑ a ∈ s', (t.filter (G.Adj a)).card = (G.edgeDensity s' t : ℝ) * s'.card * t.card := by
-    simp +decide [ SimpleGraph.edgeDensity, mul_assoc ];
-    simp +decide [ Rel.edgeDensity, mul_assoc, mul_comm, mul_left_comm, div_eq_mul_inv ];
-    by_cases hs' : s' = ∅ <;> simp_all +decide [ Rel.interedges ];
-    · simp_all +decide [ Finset.ext_iff ];
-      exact absurd h_contra ( by rw [ Finset.filter_eq_empty_iff.mpr fun x hx => not_lt_of_ge ( by solve_by_elim ) ] ; norm_num; nlinarith [ show ( s.card : ℝ ) ≥ 1 by exact_mod_cast Finset.card_pos.mpr hs ] );
-    · rw [ ← mul_assoc, mul_inv_cancel₀ ( Nat.cast_ne_zero.mpr ht.card_pos.ne' ), one_mul ];
-      rw [ Finset.card_filter ];
-      rw [ Finset.sum_product ] ; aesop;
+    by_cases hs0 : s' = ∅
+    · simp [hs0, SimpleGraph.edgeDensity, Rel.edgeDensity]
+    · have ht0 : t ≠ ∅ := ht.ne_empty
+      simp +decide [SimpleGraph.edgeDensity, Rel.edgeDensity, Rel.interedges,
+        hs0, ht0, mul_assoc]
+      rw_mod_cast [Finset.card_filter]
+      rw [Finset.sum_product]
+      aesop
   simp_all +decide [ mul_assoc, mul_comm ];
   nlinarith [ abs_lt.mp h_uniform, show ( 0 : ℝ ) < ε * s.card by exact mul_pos hε0 ( Nat.cast_pos.mpr hs.card_pos ) ]
 
@@ -225,7 +225,7 @@ lemma isUniform_good_fresh_neighbor
   exact U ∪ t.filter ( fun w => w ∉ U ∧ ( s.filter ( fun a => G.Adj w a ) ).card < ( G.edgeDensity s t - ε ) * s.card );
   · grind;
   · refine' le_trans ( Nat.cast_le.mpr ( Finset.card_union_le _ _ ) ) _;
-    simp;
+    simp only [Nat.cast_add, add_le_add_iff_left];
     refine' le_trans _ ( le_of_lt ( isUniform_few_low_degree G hε0 hε1 ht hs huni.symm ) );
     rw [ SimpleGraph.edgeDensity_comm ];
     exact_mod_cast Finset.card_mono fun x hx => by aesop;
@@ -252,9 +252,15 @@ lemma isUniform_exists_good_unused
   contrapose! hU;
   have h_card : (s.filter (fun a => ((t.filter (fun b => G.Adj a b)).card : ℝ) < ((G.edgeDensity s t : ℝ) - ε) * (t.card : ℝ))).card ≥ (s \ U).card := by
     exact Finset.card_le_card fun x hx => by aesop;
-  have := isUniform_few_low_degree G hε0 hε1 hs ht huni;
-  simp_all +decide [ Finset.card_sdiff ];
-  exact le_trans ( Nat.cast_le.mpr h_card ) ( by push_cast; nlinarith [ show ( # ( U ∩ s ) : ℝ ) ≤ #U by exact_mod_cast Finset.card_le_card fun x hx => by aesop ] )
+  have hbad := isUniform_few_low_degree G hε0 hε1 hs ht huni
+  have hcardR : ((s \ U).card : ℝ) ≤
+      ((s.filter (fun a => ((t.filter (fun b => G.Adj a b)).card : ℝ) <
+        ((G.edgeDensity s t : ℝ) - ε) * (t.card : ℝ))).card : ℝ) := by
+    exact_mod_cast h_card
+  have hdiff : ((s \ U).card : ℝ) < ε * (s.card : ℝ) := hcardR.trans_lt hbad
+  have hpartition : (s.card : ℝ) ≤ ((s \ U).card : ℝ) + (U.card : ℝ) := by
+    exact_mod_cast Finset.card_le_card_sdiff_add_card (s := s) (t := U)
+  linarith
 
 /-
 **Mirror of `isUniform_good_fresh_neighbor`** with the roles of `s` and `t`

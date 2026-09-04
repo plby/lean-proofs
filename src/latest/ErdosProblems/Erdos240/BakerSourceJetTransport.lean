@@ -380,7 +380,7 @@ theorem hasDerivAt_fSource {oldRank : ℕ}
   · apply congrArg₂ (fun x y : ℂ ↦ x + y)
     · apply Finset.sum_congr rfl
       intro lambda _
-      ring
+      ring_nf
     · apply Finset.sum_congr rfl
       intro r _
       apply Finset.sum_congr rfl

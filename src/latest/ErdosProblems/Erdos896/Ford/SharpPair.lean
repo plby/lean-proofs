@@ -394,7 +394,7 @@ private theorem exists_dyadic_center_of_mem_symmDiff
       fun q hq ↦ ?_⟩
     rw [profileOrderedDivisorLog_split, profileOrderedDivisorLog_split,
       if_pos hsY, if_neg hsZ] at hq
-    convert hq using 1 <;> ring
+    convert hq using 1 <;> ring_nf
   · refine ⟨profileRestDivisorLog s r Y - profileRestDivisorLog s r Z,
       fun q hq ↦ ?_⟩
     rw [profileOrderedDivisorLog_split, profileOrderedDivisorLog_split,

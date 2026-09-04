@@ -64,11 +64,26 @@ conclude with `two_mul_unitDist`. -/
 theorem exists_euclidean_copy (P : Finset ℂ) :
     ∃ Q : Finset (EuclideanSpace ℝ (Fin 2)),
       Q.card = P.card ∧ 2 * unitDist Q = unitPairsC P := by
-  refine' ⟨ Finset.image ( fun z => complexToPlane z ) P, _, _ ⟩;
-  · exact Finset.card_image_of_injective _ complexToPlane.injective;
-  · convert two_mul_unitDist ( Finset.image ( fun z => complexToPlane z ) P ) using 1;
-    refine' Finset.card_bij ( fun pq hpq => ( complexToPlane pq.1, complexToPlane pq.2 ) ) _ _ _ <;> simp +decide;
-    · grind;
-    · rintro a b x hx rfl y hy rfl hab h; use x, y; aesop;
+  let Q := Finset.image (fun z => complexToPlane z) P
+  refine ⟨Q, Finset.card_image_of_injective _ complexToPlane.injective, ?_⟩
+  rw [two_mul_unitDist]
+  unfold unitPairsC
+  apply Finset.card_bij
+      (fun pq _ => (complexToPlane.symm pq.1, complexToPlane.symm pq.2))
+  · rintro ⟨a, b⟩ hab
+    simp only [Finset.mem_filter, Finset.mem_offDiag, Q, Finset.mem_image] at hab ⊢
+    rcases hab with ⟨⟨⟨x, hx, rfl⟩, ⟨y, hy, rfl⟩, hxy⟩, hdist⟩
+    have hne : x ≠ y := fun h => hxy (congrArg complexToPlane h)
+    simpa using (show (x ∈ P ∧ y ∈ P ∧ x ≠ y) ∧ dist x y = 1 from
+      ⟨⟨hx, hy, hne⟩, by simpa using hdist⟩)
+  · rintro ⟨a, b⟩ hab ⟨c, d⟩ hcd h
+    simp only [Prod.mk.injEq] at h ⊢
+    exact ⟨complexToPlane.symm.injective h.1, complexToPlane.symm.injective h.2⟩
+  · rintro ⟨x, y⟩ hxy
+    refine ⟨(complexToPlane x, complexToPlane y), ?_, ?_⟩
+    · simp only [Finset.mem_filter, Finset.mem_offDiag, Q, Finset.mem_image] at hxy ⊢
+      exact ⟨⟨⟨x, hxy.1.1, rfl⟩, ⟨y, hxy.1.2.1, rfl⟩,
+        fun h => hxy.1.2.2 (complexToPlane.injective h)⟩, by simpa using hxy.2⟩
+    · simp
 
 end Erdos

@@ -120,7 +120,7 @@ lemma abs_symmetricEntropy_sub_sq_le {u : ℝ} (hu : |u| ≤ 1 / 2) :
   have hid :
       (1 + u) * Real.log (1 + u) + (1 - u) * Real.log (1 - u) - u ^ 2 =
         ((1 + u) * Real.log (1 + u) - u - u ^ 2 / 2) +
-        ((1 + (-u)) * Real.log (1 + (-u)) - (-u) - (-u) ^ 2 / 2) := by ring
+        ((1 + (-u)) * Real.log (1 + (-u)) - (-u) - (-u) ^ 2 / 2) := by ring_nf
   rw [hid]
   calc
     |((1 + u) * Real.log (1 + u) - u - u ^ 2 / 2) +

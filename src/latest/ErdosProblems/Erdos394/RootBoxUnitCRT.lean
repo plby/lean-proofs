@@ -58,7 +58,7 @@ theorem modEq_primeProduct_iff
 theorem unitResidue_coprime_modulus
     {q : ℕ} (hq : 0 < q) (u : (ZMod q)ˣ) :
     (unitResidue q u).Coprime q := by
-  letI : NeZero q := ⟨hq.ne'⟩
+  let : NeZero q := ⟨hq.ne'⟩
   apply coprime_of_mod_eq_unitResidue hq u
   exact Nat.mod_eq_of_lt (ZMod.val_lt (u : ZMod q))
 
@@ -102,7 +102,7 @@ theorem globalUnitToRootBoxTuple_injective
   have hq : 0 < primeProduct P := by
     unfold primeProduct
     exact Finset.prod_pos fun p hp ↦ (hprime p hp).pos
-  letI : NeZero (primeProduct P) := ⟨hq.ne'⟩
+  let : NeZero (primeProduct P) := ⟨hq.ne'⟩
   intro u v huv
   have hall : ∀ p ∈ P,
       unitResidue (primeProduct P) u ≡
@@ -159,8 +159,8 @@ theorem natCard_rootBoxMultiplierTuple
         ∏ p : ↥P, (p.val - 1) := by
       apply Fintype.prod_congr
       intro p
-      letI : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
-      letI : Fintype (ZMod p.val)ˣ := Fintype.ofFinite _
+      let : NeZero p.val := ⟨(hprime p.val p.property).ne_zero⟩
+      let : Fintype (ZMod p.val)ˣ := Fintype.ofFinite _
       rw [Nat.card_eq_fintype_card, ZMod.card_units_eq_totient,
         Nat.totient_prime (hprime p.val p.property)]
     _ = primeUnitCount P := by

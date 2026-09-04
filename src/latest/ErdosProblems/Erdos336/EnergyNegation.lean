@@ -26,7 +26,7 @@ theorem addEnergy_neg_right (A : Finset G) :
   unfold Finset.addEnergy
   apply Finset.card_equiv (energyNegRightEquiv (G := G))
   rintro ⟨⟨a₁,a₂⟩,⟨c₁,c₂⟩⟩
-  simp [energyNegRightEquiv]
+  simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_neg']
   constructor
   · rintro ⟨⟨haa, hc₁, hc₂⟩, heq⟩
     refine ⟨⟨haa, hc₂, hc₁⟩, ?_⟩

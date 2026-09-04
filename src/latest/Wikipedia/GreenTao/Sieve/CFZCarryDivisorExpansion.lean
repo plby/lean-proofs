@@ -149,7 +149,7 @@ theorem SmoothSieveCutoff.abs_selectedCFZ_weightedDensity_sub_euler_le
   · simp [hcoefficient]
   · have hDpos : 0 < pairedDivisorLcm z :=
       pairedDivisorLcm_pos hz
-    letI : NeZero (pairedDivisorLcm z) :=
+    let : NeZero (pairedDivisorLcm z) :=
       ⟨Nat.ne_of_gt hDpos⟩
     have hDN : pairedDivisorLcm z ≤ N :=
       le_trans (pairedDivisorLcm_selectedCFZ_le_pow e hz) hRN

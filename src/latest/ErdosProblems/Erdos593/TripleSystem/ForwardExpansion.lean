@@ -24,11 +24,28 @@ theorem privateVertexExpansion_linear {V : Type u}
     (G : _root_.SimpleGraph V) :
     (privateVertexExpansion G).Linear := by
   unfold TripleSystem.Linear
-  intro e f x y
-  simp [privateVertexExpansion] at *
-  cases x <;> cases y <;>
-    simp_all +decide [PrivateVertexExpansion.Inc]
-  all_goals grind +suggestions
+  intro e f x y hef hxe hxf hye hyf
+  change PrivateVertexExpansion.Inc G x e at hxe
+  change PrivateVertexExpansion.Inc G x f at hxf
+  change PrivateVertexExpansion.Inc G y e at hye
+  change PrivateVertexExpansion.Inc G y f at hyf
+  rcases x with x | x
+  · rcases y with y | y
+    · congr 1
+      by_contra hxy
+      apply hef
+      apply Subtype.ext
+      exact Sym2.eq_of_ne_mem hxy hxe hye hxf hyf
+    · exfalso
+      apply hef
+      exact hye.symm.trans hyf
+  · rcases y with y | y
+    · exfalso
+      apply hef
+      exact hxe.symm.trans hxf
+    · exfalso
+      apply hef
+      exact hxe.symm.trans hxf
 
 /-- A private point of an expanded edge cannot occur on a cycle in the Levi
 graph. -/
