@@ -6183,6 +6183,26 @@
     - https://github.com/plby/lean-proofs/blob/main/ErdosProblems/Erdos816.md
   version: "4.33.0"
 
+- key: ErdosProblems.Erdos816Sharpness
+  epc: https://www.erdosproblems.com/816
+  author:
+    informal:
+      human:
+        - Paul Erdős
+        - András Hajnal
+        - Kaizhe Chen
+        - Jie Ma
+        - Zhen Liu
+        - Qinghou Zeng
+    formal:
+      human:
+        - Allen20202020
+      AI:
+        - OpenAI Codex
+  url:
+    - https://github.com/Allen20202020/erdos-816-sharp-threshold
+  version: "4.33.0"
+
 - key: ErdosProblems.Erdos818
   epc: https://www.erdosproblems.com/818
   author:
