@@ -8317,7 +8317,6 @@
 
 - key: ErdosProblems.Erdos1100b
   partial: yes
-  conditional: PNT_statement
   epc: https://www.erdosproblems.com/1100
   author:
     informal:
@@ -8326,12 +8325,16 @@
         - R. R. Hall
         - Wouter van Doorn
     formal:
-      AI: Aristotle
-      human: Wouter van Doorn
+      AI:
+        - Aristotle
+        - OpenAI Codex
+      human:
+        - Wouter van Doorn
+        - Allen20202020
   url:
     - https://www.erdosproblems.com/forum/thread/1100#post-1659
     - https://github.com/Woett/Lean-files/blob/main/ErdosProblem1100.lean
-  version: "4.24.0"
+  version: "4.33.0"
 
 - key: ErdosProblems.Erdos1102
   epc: https://www.erdosproblems.com/1102

@@ -1,11 +1,11 @@
 /- leanprover/lean4:v4.33.0  mathlib v4.33.0 -/
 /-
-This is a Lean formalization of a solution to Erdős Problem 1100.
+This is a Lean formalization of a quantitative lower bound related to Erdős Problem 1100.
 https://www.erdosproblems.com/forum/thread/1100
 
 Formalization status:
-- Partial
-- Conditional on: prime_number_theorem
+- Partial progress towards the original open problem
+- Unconditional quantitative lower bound; standard Lean logical axioms only
 
 Informal authors:
 - Paul Erdős
@@ -15,6 +15,7 @@ Informal authors:
 Formal authors:
 - Aristotle
 - Wouter van Doorn
+- Allen20202020 (PNT discharge, assisted by OpenAI Codex)
 
 URLs:
 - https://www.erdosproblems.com/forum/thread/1100#post-1659
@@ -31,16 +32,21 @@ J. Austral. Math. Soc. Ser. A (1978), 479--485.
 
 I noticed that the $o(1)$-term in the exponent can be made explicit, which gives
 $\tau_\perp(n) > \exp( \frac{(1 / 2 - o(1))(\log \log n)^2}{\log \log \log n} )$
-infinitely often. Assuming the prime number theorem in the form that the product
-of all primes in the interval $(x, 2x]$ is $e^{(1 + o(1))x}$, below you can find
-a formalized proof of this bound, which was obtained by Aristotle from Harmonic
+infinitely often. The formalized proof of this bound below was obtained by
+Aristotle from Harmonic
 (aristotle-harmonic@harmonic.fun).
 
 See https://www.erdosproblems.com/1100 for more information.
 
+The PNT input is now proved from `chebyshev_asymptotic` in
+`PrimeNumberTheoremAnd.Consequences`; `erdos_1100_unconditional` exports the
+quantitative bound without an extra mathematical assumption. This does not
+settle the three original open questions.
+
 -/
 
 import Mathlib
+import PrimeNumberTheoremAnd.Consequences
 
 namespace Erdos1100b
 
@@ -1346,8 +1352,56 @@ theorem erdos_1100
       exact ⟨ _, hx.2.2, hN0 x hx.1 ⟩
 
 #print axioms erdos_1100
--- 'Erdos1100b.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+-- 'Erdos1100b.erdos_1100' depends on axioms: [propext, Classical.choice, Quot.sound]
+
+
+open Filter Asymptotics
+open scoped Topology
+
+/-- The prime-product logarithm is exactly a difference of Chebyshev theta values. -/
+theorem log_n_val_Ioc_eq_theta_sub (x : ℝ) (hx : 0 ≤ x) :
+    Real.log (n_val_Ioc x) = Chebyshev.theta (2 * x) - Chebyshev.theta x := by
+  have hfloor : Nat.floor x ≤ Nat.floor (2 * x) := Nat.floor_mono (by linarith)
+  rw [n_val_Ioc, Nat.cast_prod, Real.log_prod]
+  · simp only [Chebyshev.theta, Finset.sum_filter]
+    have hsum := Finset.sum_Ioc_consecutive
+      (fun p : ℕ => if p.Prime then Real.log (p : ℝ) else 0)
+      (Nat.zero_le (Nat.floor x)) hfloor
+    linarith
+  · intro p hp
+    exact_mod_cast (Finset.mem_filter.mp hp).2.ne_zero
+
+/-- Discharge the former prime number theorem hypothesis from a proved PNT. -/
+theorem pnt_statement_proved : PNT_statement := by
+  have htheta : Tendsto (fun x : ℝ => Chebyshev.theta x / x) atTop (nhds 1) := by
+    apply (isEquivalent_iff_tendsto_one ?_).mp chebyshev_asymptotic
+    filter_upwards [eventually_gt_atTop (0 : ℝ)] with x hx
+    exact ne_of_gt hx
+  have hdouble := htheta.comp
+    (Filter.Tendsto.const_mul_atTop (by norm_num : (0 : ℝ) < 2) tendsto_id)
+  have hlimit := (hdouble.const_mul 2).sub htheta
+  change Tendsto (fun x : ℝ => Real.log (n_val_Ioc x) / x) atTop (nhds 1)
+  convert hlimit.congr' ?_ using 1
+  · norm_num
+  filter_upwards [eventually_gt_atTop (0 : ℝ)] with x hx
+  rw [log_n_val_Ioc_eq_theta_sub x hx.le]
+  dsimp
+  field_simp
+
+/-- The quantitative lower bound, with no unproved PNT assumption. -/
+theorem erdos_1100_unconditional :
+    ∀ ε ∈ Set.Ioo 0 (1 / 2), ∀ N, ∃ n ≥ N,
+      (tau_perp n : ℝ) > bound n ε :=
+  erdos_1100 pnt_statement_proved
+
+#print axioms pnt_statement_proved
+-- 'Erdos1100b.pnt_statement_proved' depends on axioms: [propext, Classical.choice, Quot.sound]
+#print axioms erdos_1100_unconditional
+-- 'Erdos1100b.erdos_1100_unconditional' depends on axioms: [propext, Classical.choice, Quot.sound]
 
 end Erdos1100b
 
-alias _root_.Erdos1100b.main_theorem := _root_.Erdos1100b.erdos_1100
+alias _root_.Erdos1100b.main_theorem := _root_.Erdos1100b.erdos_1100_unconditional
+
+/- The three original questions on the Erdős problem page remain open.
+This discharges the PNT input of the existing quantitative lower bound only. -/
