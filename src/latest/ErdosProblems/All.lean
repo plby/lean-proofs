@@ -190,6 +190,7 @@ import ErdosProblems.Erdos356
 import ErdosProblems.Erdos358
 import ErdosProblems.Erdos362
 import ErdosProblems.Erdos363
+import ErdosProblems.Erdos365
 import ErdosProblems.Erdos367b
 import ErdosProblems.Erdos368b
 import ErdosProblems.Erdos369
